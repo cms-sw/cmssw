@@ -193,14 +193,14 @@ void PFCandConnector::analyseNuclearWPrim(PFCandidateCollection& pfCand,
 
         PFCandidate::ElementsInBlocks elementsInBlocks = pfCand.at(ce2).elementsInBlocks();
         PFCandidate::ElementsInBlocks elementsAlreadyInBlocks = pfCand.at(ce1).elementsInBlocks();
-        for (unsigned blockElem = 0; blockElem < elementsInBlocks.size(); blockElem++) {
+        for (auto& elementsInBlock : elementsInBlocks) {
           bool isAlreadyHere = false;
-          for (unsigned alreadyBlock = 0; alreadyBlock < elementsAlreadyInBlocks.size(); alreadyBlock++) {
-            if (elementsAlreadyInBlocks[alreadyBlock].second == elementsInBlocks[blockElem].second)
+          for (auto& elementsAlreadyInBlock : elementsAlreadyInBlocks) {
+            if (elementsAlreadyInBlock.second == elementsInBlock.second)
               isAlreadyHere = true;
           }
           if (!isAlreadyHere)
-            pfCand.at(ce1).addElementInBlock(elementsInBlocks[blockElem].first, elementsInBlocks[blockElem].second);
+            pfCand.at(ce1).addElementInBlock(elementsInBlock.first, elementsInBlock.second);
         }
 
         double caloEn = pfCand.at(ce2).ecalEnergy() + pfCand.at(ce2).hcalEnergy();
@@ -338,8 +338,8 @@ void PFCandConnector::analyseNuclearWSec(PFCandidateCollection& pfCand,
 
   if (ref1->isTherePrimaryTracks() || ref1->isThereMergedTracks()) {
     std::vector<reco::Track> refittedTracks = ref1->refittedTracks();
-    for (unsigned it = 0; it < refittedTracks.size(); it++) {
-      reco::TrackBaseRef primaryBaseRef = ref1->originalTrack(refittedTracks[it]);
+    for (const auto& refittedTrack : refittedTracks) {
+      reco::TrackBaseRef primaryBaseRef = ref1->originalTrack(refittedTrack);
       if (ref1->isIncomingTrack(primaryBaseRef))
         LogTrace("PFCandConnector|analyseNuclearWSec")
             << "There is a Primary track ref with pt = " << primaryBaseRef->pt() << endl;
@@ -423,14 +423,14 @@ void PFCandConnector::analyseNuclearWSec(PFCandidateCollection& pfCand,
         // Take now the parameters of the secondary track that are relevant and use them to construct the NI candidate
         PFCandidate::ElementsInBlocks elementsInBlocks = pfCand.at(ce2).elementsInBlocks();
         PFCandidate::ElementsInBlocks elementsAlreadyInBlocks = pfCand.at(ce1).elementsInBlocks();
-        for (unsigned blockElem = 0; blockElem < elementsInBlocks.size(); blockElem++) {
+        for (auto& elementsInBlock : elementsInBlocks) {
           bool isAlreadyHere = false;
-          for (unsigned alreadyBlock = 0; alreadyBlock < elementsAlreadyInBlocks.size(); alreadyBlock++) {
-            if (elementsAlreadyInBlocks[alreadyBlock].second == elementsInBlocks[blockElem].second)
+          for (auto& elementsAlreadyInBlock : elementsAlreadyInBlocks) {
+            if (elementsAlreadyInBlock.second == elementsInBlock.second)
               isAlreadyHere = true;
           }
           if (!isAlreadyHere)
-            pfCand.at(ce1).addElementInBlock(elementsInBlocks[blockElem].first, elementsInBlocks[blockElem].second);
+            pfCand.at(ce1).addElementInBlock(elementsInBlock.first, elementsInBlock.second);
         }
 
         double caloEn = pfCand.at(ce2).ecalEnergy() + pfCand.at(ce2).hcalEnergy();

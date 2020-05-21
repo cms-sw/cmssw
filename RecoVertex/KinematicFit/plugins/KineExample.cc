@@ -255,8 +255,8 @@ void KineExample::printout(const RefCountedKinematicTree& myTree) const {
   //In this way, the pointer is not moved
   vector<RefCountedKinematicParticle> bs_children = myTree->finalStateParticles();
 
-  for (unsigned int i = 0; i < bs_children.size(); ++i) {
-    printout(bs_children[i]);
+  for (const auto& i : bs_children) {
+    printout(i);
   }
 
   //Now navigating down the tree , pointer is moved:

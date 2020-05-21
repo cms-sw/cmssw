@@ -490,8 +490,8 @@ void CmsShowEDI::changeSelectionColor(Color_t c) {
   const std::set<FWModelId>& ss = m_item->selectionManager()->selected();
   FWDisplayProperties dp = m_item->defaultDisplayProperties();
   dp.setColor(c);
-  for (std::set<FWModelId>::const_iterator i = ss.begin(); i != ss.end(); ++i) {
-    m_item->setDisplayProperties(i->index(), dp);
+  for (auto s : ss) {
+    m_item->setDisplayProperties(s.index(), dp);
   }
 }
 

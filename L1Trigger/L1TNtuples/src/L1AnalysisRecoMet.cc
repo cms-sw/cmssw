@@ -25,11 +25,11 @@ void L1Analysis::L1AnalysisRecoMet::SetHtMht(const edm::Handle<reco::CaloJetColl
   recoMet_.mHt = -999;
   recoMet_.mHtPhi = -999;
 
-  for (reco::CaloJetCollection::const_iterator calojet = caloJets->begin(); calojet != caloJets->end(); ++calojet) {
-    if (calojet->pt() > jetptThreshold) {
-      mHx += -1. * calojet->px();
-      mHy += -1. * calojet->py();
-      recoMet_.Ht += calojet->pt();
+  for (const auto &calojet : *caloJets) {
+    if (calojet.pt() > jetptThreshold) {
+      mHx += -1. * calojet.px();
+      mHy += -1. * calojet.py();
+      recoMet_.Ht += calojet.pt();
     }
   }
 

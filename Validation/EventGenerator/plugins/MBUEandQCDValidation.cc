@@ -506,8 +506,8 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent, const edm::EventSet
 
   hepmcGPCollection.clear();
   hepmcCharge.clear();
-  for (unsigned int i = 0; i < eneInCell.size(); i++) {
-    eneInCell[i] = 0.;
+  for (double& i : eneInCell) {
+    i = 0.;
   }
 
   nEvt->Fill(0.5, weight);
@@ -1030,18 +1030,18 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent, const edm::EventSet
           sumChPt->Fill(sumChPartPt, weight);
 
           unsigned int nSelJets = 0;
-          for (reco::GenJetCollection::const_iterator iter = genJets->begin(); iter != genJets->end(); ++iter) {
-            double pt = (*iter).pt();
-            double eta = (*iter).eta();
+          for (const auto& iter : *genJets) {
+            double pt = iter.pt();
+            double eta = iter.eta();
             if (std::fabs(eta) < 5.) {
               nSelJets++;
               binW = dNjdeta->getTH1()->GetBinWidth(1);
               dNjdeta->Fill(eta, 1. / binW * weight);
               binW = dNjdpt->getTH1()->GetBinWidth(1);
               dNjdpt->Fill(pt, 1. / binW * weight);
-              sumJetEt += (*iter).pt();
-              jpx += (*iter).px();
-              jpy += (*iter).py();
+              sumJetEt += iter.pt();
+              jpx += iter.px();
+              jpy += iter.py();
             }
           }
 
@@ -1095,12 +1095,11 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   double sumEt4 = 0.;
   double sumEt5 = 0.;
 
-  for (std::vector<const HepMC::GenParticle*>::const_iterator iter = allStable.begin(); iter != allStable.end();
-       ++iter) {
-    double thisEta = fabs((*iter)->momentum().eta());
+  for (auto iter : allStable) {
+    double thisEta = fabs(iter->momentum().eta());
 
     if (thisEta < 5.) {
-      const HepMC::FourVector mom = (*iter)->momentum();
+      const HepMC::FourVector mom = iter->momentum();
       double px = mom.px();
       double py = mom.py();
       double pz = mom.pz();

@@ -83,22 +83,20 @@ void L1TEventInfoClient::initialize() {
 
   int totalNrQualityTests = 0;
 
-  for (std::vector<edm::ParameterSet>::const_iterator itSystem = m_l1Systems.begin(); itSystem != m_l1Systems.end();
-       ++itSystem) {
-    m_systemLabel.push_back(itSystem->getParameter<std::string>("SystemLabel"));
+  for (const auto& m_l1System : m_l1Systems) {
+    m_systemLabel.push_back(m_l1System.getParameter<std::string>("SystemLabel"));
 
-    m_systemLabelExt.push_back(itSystem->getParameter<std::string>("HwValLabel"));
+    m_systemLabelExt.push_back(m_l1System.getParameter<std::string>("HwValLabel"));
 
-    m_systemDisable.push_back(itSystem->getParameter<unsigned int>("SystemDisable"));
+    m_systemDisable.push_back(m_l1System.getParameter<unsigned int>("SystemDisable"));
     // check the additional disable flag from m_disableL1Systems
-    for (std::vector<std::string>::const_iterator itSys = m_disableL1Systems.begin(); itSys != m_disableL1Systems.end();
-         ++itSys) {
-      if (*itSys == m_systemLabel[indexSys]) {
+    for (const auto& m_disableL1System : m_disableL1Systems) {
+      if (m_disableL1System == m_systemLabel[indexSys]) {
         m_systemDisable[indexSys] = 1;
       }
     }
 
-    std::vector<edm::ParameterSet> qTests = itSystem->getParameter<std::vector<edm::ParameterSet> >("QualityTests");
+    std::vector<edm::ParameterSet> qTests = m_l1System.getParameter<std::vector<edm::ParameterSet> >("QualityTests");
     size_t qtPerSystem = qTests.size();
 
     std::vector<std::string> qtNames;
@@ -110,14 +108,14 @@ void L1TEventInfoClient::initialize() {
     std::vector<unsigned int> qtSumEnabled;
     qtSumEnabled.reserve(qtPerSystem);
 
-    for (std::vector<edm::ParameterSet>::const_iterator itQT = qTests.begin(); itQT != qTests.end(); ++itQT) {
+    for (const auto& qTest : qTests) {
       totalNrQualityTests++;
 
-      qtNames.push_back(itQT->getParameter<std::string>("QualityTestName"));
+      qtNames.push_back(qTest.getParameter<std::string>("QualityTestName"));
 
-      qtFullPathHists.push_back(itQT->getParameter<std::string>("QualityTestHist"));
+      qtFullPathHists.push_back(qTest.getParameter<std::string>("QualityTestHist"));
 
-      unsigned int qtEnabled = itQT->getParameter<unsigned int>("QualityTestSummaryEnabled");
+      unsigned int qtEnabled = qTest.getParameter<unsigned int>("QualityTestSummaryEnabled");
 
       qtSumEnabled.push_back(qtEnabled);
 
@@ -148,20 +146,18 @@ void L1TEventInfoClient::initialize() {
 
   int indexObj = 0;
 
-  for (std::vector<edm::ParameterSet>::const_iterator itObject = m_l1Objects.begin(); itObject != m_l1Objects.end();
-       ++itObject) {
-    m_objectLabel.push_back(itObject->getParameter<std::string>("ObjectLabel"));
+  for (const auto& m_l1Object : m_l1Objects) {
+    m_objectLabel.push_back(m_l1Object.getParameter<std::string>("ObjectLabel"));
 
-    m_objectDisable.push_back(itObject->getParameter<unsigned int>("ObjectDisable"));
+    m_objectDisable.push_back(m_l1Object.getParameter<unsigned int>("ObjectDisable"));
     // check the additional disable flag from m_disableL1Objects
-    for (std::vector<std::string>::const_iterator itObj = m_disableL1Objects.begin(); itObj != m_disableL1Objects.end();
-         ++itObj) {
-      if (*itObj == m_objectLabel[indexObj]) {
+    for (const auto& m_disableL1Object : m_disableL1Objects) {
+      if (m_disableL1Object == m_objectLabel[indexObj]) {
         m_objectDisable[indexObj] = 1;
       }
     }
 
-    std::vector<edm::ParameterSet> qTests = itObject->getParameter<std::vector<edm::ParameterSet> >("QualityTests");
+    std::vector<edm::ParameterSet> qTests = m_l1Object.getParameter<std::vector<edm::ParameterSet> >("QualityTests");
     size_t qtPerObject = qTests.size();
 
     std::vector<std::string> qtNames;
@@ -173,14 +169,14 @@ void L1TEventInfoClient::initialize() {
     std::vector<unsigned int> qtSumEnabled;
     qtSumEnabled.reserve(qtPerObject);
 
-    for (std::vector<edm::ParameterSet>::const_iterator itQT = qTests.begin(); itQT != qTests.end(); ++itQT) {
+    for (const auto& qTest : qTests) {
       totalNrQualityTests++;
 
-      qtNames.push_back(itQT->getParameter<std::string>("QualityTestName"));
+      qtNames.push_back(qTest.getParameter<std::string>("QualityTestName"));
 
-      qtFullPathHists.push_back(itQT->getParameter<std::string>("QualityTestHist"));
+      qtFullPathHists.push_back(qTest.getParameter<std::string>("QualityTestHist"));
 
-      unsigned int qtEnabled = itQT->getParameter<unsigned int>("QualityTestSummaryEnabled");
+      unsigned int qtEnabled = qTest.getParameter<unsigned int>("QualityTestSummaryEnabled");
 
       qtSumEnabled.push_back(qtEnabled);
 
@@ -283,10 +279,8 @@ void L1TEventInfoClient::dumpContentMonitorElements(DQMStore::IBooker& ibooker, 
             << "\n  Total number of quality tests: " << (m_meReportSummaryContent.size()) << "\n"
             << std::endl;
 
-  for (std::vector<MonitorElement*>::const_iterator itME = m_meReportSummaryContent.begin();
-       itME != m_meReportSummaryContent.end();
-       ++itME) {
-    std::cout << std::setw(50) << (*itME)->getName() << " \t" << std::setw(25) << (*itME)->getFloatValue() << std::endl;
+  for (auto itME : m_meReportSummaryContent) {
+    std::cout << std::setw(50) << itME->getName() << " \t" << std::setw(25) << itME->getFloatValue() << std::endl;
   }
 
   std::cout << std::endl;
@@ -322,9 +316,8 @@ void L1TEventInfoClient::book(DQMStore::IBooker& ibooker, DQMStore::IGetter& ige
 
     const std::vector<std::string>& sysQtName = m_systemQualityTestName[iMon];
 
-    for (std::vector<std::string>::const_iterator itQtName = sysQtName.begin(); itQtName != sysQtName.end();
-         ++itQtName) {
-      const std::string hStr = m_monitorDir + "_L1Sys_" + m_systemLabel[iMon] + "_" + (*itQtName);
+    for (const auto& itQtName : sysQtName) {
+      const std::string hStr = m_monitorDir + "_L1Sys_" + m_systemLabel[iMon] + "_" + itQtName;
 
       m_meReportSummaryContent.push_back(ibooker.bookFloat(hStr));
       m_meReportSummaryContent[iAllQTest]->Fill(0.);
@@ -340,9 +333,8 @@ void L1TEventInfoClient::book(DQMStore::IBooker& ibooker, DQMStore::IGetter& ige
 
     const std::vector<std::string>& objQtName = m_objectQualityTestName[iMon];
 
-    for (std::vector<std::string>::const_iterator itQtName = objQtName.begin(); itQtName != objQtName.end();
-         ++itQtName) {
-      const std::string hStr = m_monitorDir + "_L1Obj_" + m_objectLabel[iMon] + "_" + (*itQtName);
+    for (const auto& itQtName : objQtName) {
+      const std::string hStr = m_monitorDir + "_L1Obj_" + m_objectLabel[iMon] + "_" + itQtName;
 
       m_meReportSummaryContent.push_back(ibooker.bookFloat(hStr));
       m_meReportSummaryContent[iAllQTest]->Fill(0.);
@@ -385,16 +377,14 @@ void L1TEventInfoClient::readQtResults(DQMStore::IBooker& ibooker, DQMStore::IGe
   // initialize summary content, summary sum and ReportSummaryContent float histograms
   // for all L1 systems and L1 objects
 
-  for (std::vector<int>::iterator it = m_summaryContent.begin(); it != m_summaryContent.end(); ++it) {
-    (*it) = dqm::qstatus::DISABLED;
+  for (int& it : m_summaryContent) {
+    it = dqm::qstatus::DISABLED;
   }
 
   m_summarySum = 0.;
 
-  for (std::vector<MonitorElement*>::iterator itME = m_meReportSummaryContent.begin();
-       itME != m_meReportSummaryContent.end();
-       ++itME) {
-    (*itME)->Fill(0.);
+  for (auto& itME : m_meReportSummaryContent) {
+    itME->Fill(0.);
   }
 
   // general counters:
@@ -415,8 +405,7 @@ void L1TEventInfoClient::readQtResults(DQMStore::IBooker& ibooker, DQMStore::IGe
     // pro system counter for quality tests
     int iSysQTest = 0;
 
-    for (std::vector<std::string>::const_iterator itQtName = sysQtName.begin(); itQtName != sysQtName.end();
-         ++itQtName) {
+    for (const auto& itQtName : sysQtName) {
       // get results, status and message
 
       MonitorElement* qHist = igetter.get(sysQtHist[iSysQTest]);
@@ -430,7 +419,7 @@ void L1TEventInfoClient::readQtResults(DQMStore::IBooker& ibooker, DQMStore::IGe
                     << std::endl;
         }
 
-        const QReport* sysQReport = qHist->getQReport(*itQtName);
+        const QReport* sysQReport = qHist->getQReport(itQtName);
         if (sysQReport) {
           const float sysQtResult = sysQReport->getQTresult();
           const int sysQtStatus = sysQReport->getStatus();
@@ -438,7 +427,7 @@ void L1TEventInfoClient::readQtResults(DQMStore::IBooker& ibooker, DQMStore::IGe
 
           if (m_verbose) {
             std::cout << "\n"
-                      << (*itQtName) << " quality test:"
+                      << itQtName << " quality test:"
                       << "\n  result:  " << sysQtResult << "\n  status:  " << sysQtStatus
                       << "\n  message: " << sysQtMessage << "\n"
                       << "\nFilling m_meReportSummaryContent[" << iAllQTest << "] with value " << sysQtResult << "\n"
@@ -472,7 +461,7 @@ void L1TEventInfoClient::readQtResults(DQMStore::IBooker& ibooker, DQMStore::IGe
           m_meReportSummaryContent[iAllQTest]->Fill(0.);
 
           if (m_verbose) {
-            std::cout << "\n" << (*itQtName) << " quality test not found\n" << std::endl;
+            std::cout << "\n" << itQtName << " quality test not found\n" << std::endl;
           }
         }
 
@@ -515,8 +504,7 @@ void L1TEventInfoClient::readQtResults(DQMStore::IBooker& ibooker, DQMStore::IGe
     // pro object counter for quality tests
     int iObjQTest = 0;
 
-    for (std::vector<std::string>::const_iterator itQtName = objQtName.begin(); itQtName != objQtName.end();
-         ++itQtName) {
+    for (const auto& itQtName : objQtName) {
       // get results, status and message
 
       MonitorElement* qHist = igetter.get(objQtHist[iObjQTest]);
@@ -530,7 +518,7 @@ void L1TEventInfoClient::readQtResults(DQMStore::IBooker& ibooker, DQMStore::IGe
                     << std::endl;
         }
 
-        const QReport* objQReport = qHist->getQReport(*itQtName);
+        const QReport* objQReport = qHist->getQReport(itQtName);
         if (objQReport) {
           const float objQtResult = objQReport->getQTresult();
           const int objQtStatus = objQReport->getStatus();
@@ -538,7 +526,7 @@ void L1TEventInfoClient::readQtResults(DQMStore::IBooker& ibooker, DQMStore::IGe
 
           if (m_verbose) {
             std::cout << "\n"
-                      << (*itQtName) << " quality test:"
+                      << itQtName << " quality test:"
                       << "\n  result:  " << objQtResult << "\n  status:  " << objQtStatus
                       << "\n  message: " << objQtMessage << "\n"
                       << "\nFilling m_meReportSummaryContent[" << iAllQTest << "] with value " << objQtResult << "\n"
@@ -572,7 +560,7 @@ void L1TEventInfoClient::readQtResults(DQMStore::IBooker& ibooker, DQMStore::IGe
           m_meReportSummaryContent[iAllQTest]->Fill(0.);
 
           if (m_verbose) {
-            std::cout << "\n" << (*itQtName) << " quality test not found\n" << std::endl;
+            std::cout << "\n" << itQtName << " quality test not found\n" << std::endl;
           }
         }
 

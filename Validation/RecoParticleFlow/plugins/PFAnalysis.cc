@@ -573,22 +573,20 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   edm::Handle<std::vector<reco::GenParticle>> genParticlesHandle;
   iEvent.getByToken(genParticles_, genParticlesHandle);
-  for (std::vector<reco::GenParticle>::const_iterator it_p = genParticlesHandle->begin();
-       it_p != genParticlesHandle->end();
-       ++it_p) {
-    gen_eta_.push_back(it_p->eta());
-    gen_phi_.push_back(it_p->phi());
-    gen_pt_.push_back(it_p->pt());
-    gen_px_.push_back(it_p->px());
-    gen_py_.push_back(it_p->py());
-    gen_pz_.push_back(it_p->pz());
-    gen_energy_.push_back(it_p->energy());
-    gen_charge_.push_back(it_p->charge());
-    gen_pdgid_.push_back(it_p->pdgId());
-    gen_status_.push_back(it_p->status());
-    std::vector<int> daughters(it_p->daughterRefVector().size(), 0);
-    for (unsigned j = 0; j < it_p->daughterRefVector().size(); ++j) {
-      daughters[j] = static_cast<int>(it_p->daughterRefVector().at(j).key());
+  for (const auto& it_p : *genParticlesHandle) {
+    gen_eta_.push_back(it_p.eta());
+    gen_phi_.push_back(it_p.phi());
+    gen_pt_.push_back(it_p.pt());
+    gen_px_.push_back(it_p.px());
+    gen_py_.push_back(it_p.py());
+    gen_pz_.push_back(it_p.pz());
+    gen_energy_.push_back(it_p.energy());
+    gen_charge_.push_back(it_p.charge());
+    gen_pdgid_.push_back(it_p.pdgId());
+    gen_status_.push_back(it_p.status());
+    std::vector<int> daughters(it_p.daughterRefVector().size(), 0);
+    for (unsigned j = 0; j < it_p.daughterRefVector().size(); ++j) {
+      daughters[j] = static_cast<int>(it_p.daughterRefVector().at(j).key());
     }
     gen_daughters_.push_back(daughters);
   }

@@ -142,9 +142,9 @@ void SiPixelDigitizerAlgorithm::init(const edm::EventSetup& es) {
 
     std::vector<std::string> allScenariosInProb;
 
-    for (auto it = m_probabilities.begin(); it != m_probabilities.end(); ++it) {
+    for (auto& m_probabilitie : m_probabilities) {
       //int PUbin = it->first;
-      for (const auto& entry : it->second) {
+      for (const auto& entry : m_probabilitie.second) {
         auto scenario = entry.first;
         auto probability = entry.second;
         if (probability != 0) {
@@ -718,8 +718,8 @@ bool SiPixelDigitizerAlgorithm::PixelEfficiencies::matches(const DetId& detid,
                                                            const std::vector<uint32_t>& DetIdmasks) {
   if (detid.subdetId() != db_id.subdetId())
     return false;
-  for (size_t i = 0; i < DetIdmasks.size(); ++i) {
-    DetId maskid = DetId(DetIdmasks.at(i));
+  for (unsigned int DetIdmask : DetIdmasks) {
+    DetId maskid = DetId(DetIdmask);
     if (maskid.subdetId() != db_id.subdetId())
       continue;
     if ((detid.rawId() & maskid.rawId()) != (db_id.rawId() & maskid.rawId()) &&
@@ -903,9 +903,9 @@ std::unique_ptr<PixelFEDChannelCollection> SiPixelDigitizerAlgorithm::chooseScen
   std::vector<int> bunchCrossing;
   std::vector<float> TrueInteractionList;
 
-  for (unsigned int i = 0; i < ps.size(); i++) {
-    bunchCrossing.push_back(ps[i].getBunchCrossing());
-    TrueInteractionList.push_back(ps[i].getTrueNumInteractions());
+  for (const auto& p : ps) {
+    bunchCrossing.push_back(p.getBunchCrossing());
+    TrueInteractionList.push_back(p.getTrueNumInteractions());
   }
 
   int pui = 0, p = 0;
@@ -925,8 +925,8 @@ std::unique_ptr<PixelFEDChannelCollection> SiPixelDigitizerAlgorithm::chooseScen
     const auto& theProbabilitiesPerScenario = scenarioProbabilityHandle->getProbabilities(PUBin);
     std::vector<double> probabilities;
     probabilities.reserve(theProbabilitiesPerScenario.size());
-    for (auto it = theProbabilitiesPerScenario.begin(); it != theProbabilitiesPerScenario.end(); it++) {
-      probabilities.push_back(it->second);
+    for (const auto& it : theProbabilitiesPerScenario) {
+      probabilities.push_back(it.second);
     }
 
     CLHEP::RandGeneral randGeneral(*engine, &(probabilities.front()), probabilities.size());
@@ -969,8 +969,8 @@ std::unique_ptr<PixelFEDChannelCollection> SiPixelDigitizerAlgorithm::chooseScen
       const auto& theProbabilitiesPerScenario = scenarioProbabilityHandle->getProbabilities(PUBin);
       std::vector<double> probabilities;
       probabilities.reserve(theProbabilitiesPerScenario.size());
-      for (auto it = theProbabilitiesPerScenario.begin(); it != theProbabilitiesPerScenario.end(); it++) {
-        probabilities.push_back(it->second);
+      for (const auto& it : theProbabilitiesPerScenario) {
+        probabilities.push_back(it.second);
       }
 
       CLHEP::RandGeneral randGeneral(*engine, &(probabilities.front()), probabilities.size());
@@ -1374,12 +1374,12 @@ void SiPixelDigitizerAlgorithm::induce_signal(std::vector<PSimHit>::const_iterat
   // Assign signals to readout channels and store sorted by channel number
 
   // Iterate over collection points on the collection plane
-  for (std::vector<SignalPoint>::const_iterator i = collection_points.begin(); i != collection_points.end(); ++i) {
-    float CloudCenterX = i->position().x();  // Charge position in x
-    float CloudCenterY = i->position().y();  //                 in y
-    float SigmaX = i->sigma_x();             // Charge spread in x
-    float SigmaY = i->sigma_y();             //               in y
-    float Charge = i->amplitude();           // Charge amplitude
+  for (const auto& collection_point : collection_points) {
+    float CloudCenterX = collection_point.position().x();  // Charge position in x
+    float CloudCenterY = collection_point.position().y();  //                 in y
+    float SigmaX = collection_point.sigma_x();             // Charge spread in x
+    float SigmaY = collection_point.sigma_y();             //               in y
+    float Charge = collection_point.amplitude();           // Charge amplitude
 
     //if(SigmaX==0 || SigmaY==0) {
     //cout<<SigmaX<<" "<<SigmaY
@@ -1586,8 +1586,8 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
   using TrackEventId = std::pair<decltype(SimTrack().trackId()), decltype(EncodedEventId().rawId())>;
   std::map<TrackEventId, float> simi;  // re-used
 
-  for (signal_map_const_iterator i = theSignal.begin(); i != theSignal.end(); ++i) {
-    float signalInElectrons = (*i).second;  // signal in electrons
+  for (const auto& i : theSignal) {
+    float signalInElectrons = i.second;  // signal in electrons
 
     // Do the miss calibration for calibration studies only.
     //if(doMissCalibrate) signalInElectrons = missCalibrate(signalInElectrons)
@@ -1597,7 +1597,7 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
     if (signalInElectrons >= thePixelThresholdInE &&
         signalInElectrons > 0.) {  // check threshold, always reject killed (0-charge) digis
 
-      int chan = (*i).first;  // channel number
+      int chan = i.first;  // channel number
       std::pair<int, int> ip = PixelDigi::channelToPixel(chan);
       int adc = 0;  // ADC count as integer
 
@@ -1618,30 +1618,30 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
       // Load digis
       digis.emplace_back(ip.first, ip.second, adc);
 
-      if (makeDigiSimLinks_ && !(*i).second.hitInfos().empty()) {
+      if (makeDigiSimLinks_ && !i.second.hitInfos().empty()) {
         //digilink
         unsigned int il = 0;
-        for (const auto& info : (*i).second.hitInfos()) {
+        for (const auto& info : i.second.hitInfos()) {
           // note: according to C++ standard operator[] does
           // value-initializiation, which for float means initial value of 0
-          simi[std::make_pair(info.trackId(), info.eventId().rawId())] += (*i).second.individualampl()[il];
+          simi[std::make_pair(info.trackId(), info.eventId().rawId())] += i.second.individualampl()[il];
           il++;
         }
 
         //sum the contribution of the same trackid
-        for (const auto& info : (*i).second.hitInfos()) {
+        for (const auto& info : i.second.hitInfos()) {
           // skip if track already processed
           auto found = simi.find(std::make_pair(info.trackId(), info.eventId().rawId()));
           if (found == simi.end())
             continue;
 
           float sum_samechannel = found->second;
-          float fraction = sum_samechannel / (*i).second;
+          float fraction = sum_samechannel / i.second;
           if (fraction > 1.f)
             fraction = 1.f;
 
           // Approximation: pick hitIndex and tofBin only from the first SimHit
-          simlinks.emplace_back((*i).first, info.trackId(), info.hitIndex(), info.tofBin(), info.eventId(), fraction);
+          simlinks.emplace_back(i.first, info.trackId(), info.hitIndex(), info.tofBin(), info.eventId(), fraction);
           simi.erase(found);
         }
         simi.clear();  // although should be empty already
@@ -1666,14 +1666,14 @@ void SiPixelDigitizerAlgorithm::add_noise(const PixelGeomDetUnit* pixdet,
   // First add noise to hit pixels
   float theSmearedChargeRMS = 0.0;
 
-  for (signal_map_iterator i = theSignal.begin(); i != theSignal.end(); i++) {
+  for (auto& i : theSignal) {
     if (addChargeVCALSmearing) {
-      if ((*i).second < 3000) {
-        theSmearedChargeRMS = 543.6 - (*i).second * 0.093;
-      } else if ((*i).second < 6000) {
-        theSmearedChargeRMS = 307.6 - (*i).second * 0.01;
+      if (i.second < 3000) {
+        theSmearedChargeRMS = 543.6 - i.second * 0.093;
+      } else if (i.second < 6000) {
+        theSmearedChargeRMS = 307.6 - i.second * 0.01;
       } else {
-        theSmearedChargeRMS = -432.4 + (*i).second * 0.123;
+        theSmearedChargeRMS = -432.4 + i.second * 0.123;
       }
 
       // Noise from Vcal smearing:
@@ -1681,10 +1681,10 @@ void SiPixelDigitizerAlgorithm::add_noise(const PixelGeomDetUnit* pixdet,
       // Noise from full readout:
       float noise = CLHEP::RandGaussQ::shoot(engine, 0., theReadoutNoise);
 
-      if (((*i).second + Amplitude(noise + noise_ChargeVCALSmearing, -1.)) < 0.) {
-        (*i).second.set(0);
+      if ((i.second + Amplitude(noise + noise_ChargeVCALSmearing, -1.)) < 0.) {
+        i.second.set(0);
       } else {
-        (*i).second += Amplitude(noise + noise_ChargeVCALSmearing, -1.);
+        i.second += Amplitude(noise + noise_ChargeVCALSmearing, -1.);
       }
 
     }  // End if addChargeVCalSmearing
@@ -1693,10 +1693,10 @@ void SiPixelDigitizerAlgorithm::add_noise(const PixelGeomDetUnit* pixdet,
       // Use here the FULL readout noise, including TBM,ALT,AOH,OPT-REC.
       float noise = CLHEP::RandGaussQ::shoot(engine, 0., theReadoutNoise);
 
-      if (((*i).second + Amplitude(noise, -1.)) < 0.) {
-        (*i).second.set(0);
+      if ((i.second + Amplitude(noise, -1.)) < 0.) {
+        i.second.set(0);
       } else {
-        (*i).second += Amplitude(noise, -1.);
+        i.second += Amplitude(noise, -1.);
       }
     }  // end if only Noise from full readout
   }
@@ -1946,9 +1946,9 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
 
   // Now loop again over pixels to kill some of them.
   // Loop over hit pixels, amplitude in electrons, channel = coded row,col
-  for (signal_map_iterator i = theSignal.begin(); i != theSignal.end(); ++i) {
+  for (auto& i : theSignal) {
     //    int chan = i->first;
-    std::pair<int, int> ip = PixelDigi::channelToPixel(i->first);  //get pixel pos
+    std::pair<int, int> ip = PixelDigi::channelToPixel(i.first);   //get pixel pos
     int row = ip.first;                                            // X in row
     int col = ip.second;                                           // Y is in col
     //transform to ROC index coordinates
@@ -1963,18 +1963,18 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
         (pixelStd.count(chipIndex) && pixelStd[chipIndex] == 0) ||
         (pixelBig.count(chipIndex) && pixelBig[chipIndex] == 0)) {
       // make pixel amplitude =0, pixel will be lost at clusterization
-      i->second.set(0.);  // reset amplitude,
+      i.second.set(0.);   // reset amplitude,
     }                     // end if
     if (isPhase1) {
       if ((pixelStd.count(chipIndex) && pixelStd[chipIndex] == 0) ||
           (pixelBig.count(chipIndex) && pixelBig[chipIndex] == 0) || (badRocsFromFEDChannels.at(chipIndex) == 1)) {
         //============================================================
         // make pixel amplitude =0, pixel will be lost at clusterization
-        i->second.set(0.);  // reset amplitude,
+        i.second.set(0.);   // reset amplitude,
       }                     // end if
     }                       // is Phase 1
     if (KillBadFEDChannels && badRocsFromFEDChannels.at(chipIndex) == 1) {
-      i->second.set(0.);
+      i.second.set(0.);
     }
   }  // end pixel loop
 }  // end pixel_indefficiency
@@ -2200,16 +2200,16 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency_db(uint32_t detID) {
   signal_map_type& theSignal = _signal[detID];
 
   // Loop over hit pixels, amplitude in electrons, channel = coded row,col
-  for (signal_map_iterator i = theSignal.begin(); i != theSignal.end(); ++i) {
+  for (auto& i : theSignal) {
     //    int chan = i->first;
-    std::pair<int, int> ip = PixelDigi::channelToPixel(i->first);  //get pixel pos
+    std::pair<int, int> ip = PixelDigi::channelToPixel(i.first);   //get pixel pos
     int row = ip.first;                                            // X in row
     int col = ip.second;                                           // Y is in col
     //transform to ROC index coordinates
     if (theSiPixelGainCalibrationService_->isDead(detID, col, row)) {
       //      std::cout << "now in isdead check, row " << detID << " " << col << "," << row << std::std::endl;
       // make pixel amplitude =0, pixel will be lost at clusterization
-      i->second.set(0.);  // reset amplitude,
+      i.second.set(0.);   // reset amplitude,
     }                     // end if
   }                       // end pixel loop
 }  // end pixel_indefficiency
@@ -2238,20 +2238,20 @@ void SiPixelDigitizerAlgorithm::module_killing_conf(uint32_t detID) {
   std::string Module = itDeadModules->getParameter<std::string>("Module");
 
   if (Module == "whole") {
-    for (signal_map_iterator i = theSignal.begin(); i != theSignal.end(); ++i) {
-      i->second.set(0.);  // reset amplitude
+    for (auto& i : theSignal) {
+      i.second.set(0.);  // reset amplitude
     }
   }
 
-  for (signal_map_iterator i = theSignal.begin(); i != theSignal.end(); ++i) {
-    std::pair<int, int> ip = PixelDigi::channelToPixel(i->first);  //get pixel pos
+  for (auto& i : theSignal) {
+    std::pair<int, int> ip = PixelDigi::channelToPixel(i.first);  //get pixel pos
 
     if (Module == "tbmA" && ip.first >= 80 && ip.first <= 159) {
-      i->second.set(0.);
+      i.second.set(0.);
     }
 
     if (Module == "tbmB" && ip.first <= 79) {
-      i->second.set(0.);
+      i.second.set(0.);
     }
   }
 }
@@ -2265,10 +2265,10 @@ void SiPixelDigitizerAlgorithm::module_killing_DB(uint32_t detID) {
 
   SiPixelQuality::disabledModuleType badmodule;
 
-  for (size_t id = 0; id < disabledModules.size(); id++) {
-    if (detID == disabledModules[id].DetID) {
+  for (auto& disabledModule : disabledModules) {
+    if (detID == disabledModule.DetID) {
       isbad = true;
-      badmodule = disabledModules[id];
+      badmodule = disabledModule;
       break;
     }
   }
@@ -2281,8 +2281,8 @@ void SiPixelDigitizerAlgorithm::module_killing_DB(uint32_t detID) {
   //std::cout<<"Hit in: "<< detID <<" errorType "<< badmodule.errorType<<" BadRocs="<<std::hex<<SiPixelBadModule_->getBadRocs(detID)<<dec<<" "<<std::endl;
   if (badmodule.errorType == 0) {  // this is a whole dead module.
 
-    for (signal_map_iterator i = theSignal.begin(); i != theSignal.end(); ++i) {
-      i->second.set(0.);  // reset amplitude
+    for (auto& i : theSignal) {
+      i.second.set(0.);  // reset amplitude
     }
   } else {  // all other module types: half-modules and single ROCs.
     // Get Bad ROC position:
@@ -2292,8 +2292,8 @@ void SiPixelDigitizerAlgorithm::module_killing_DB(uint32_t detID) {
       if (SiPixelBadModule_->IsRocBad(detID, j) == true) {
         std::vector<CablingPathToDetUnit> path = map_.product()->pathToDetUnit(detID);
         typedef std::vector<CablingPathToDetUnit>::const_iterator IT;
-        for (IT it = path.begin(); it != path.end(); ++it) {
-          const PixelROC* myroc = map_.product()->findItem(*it);
+        for (auto it : path) {
+          const PixelROC* myroc = map_.product()->findItem(it);
           if (myroc->idInDetUnit() == j) {
             LocalPixel::RocRowCol local = {39, 25};  //corresponding to center of ROC row, col
             GlobalPixel global = myroc->toGlobal(LocalPixel(local));
@@ -2304,25 +2304,25 @@ void SiPixelDigitizerAlgorithm::module_killing_DB(uint32_t detID) {
       }
     }  // end of getBadRocPositions
 
-    for (signal_map_iterator i = theSignal.begin(); i != theSignal.end(); ++i) {
-      std::pair<int, int> ip = PixelDigi::channelToPixel(i->first);  //get pixel pos
+    for (auto& i : theSignal) {
+      std::pair<int, int> ip = PixelDigi::channelToPixel(i.first);  //get pixel pos
 
-      for (std::vector<GlobalPixel>::const_iterator it = badrocpositions.begin(); it != badrocpositions.end(); ++it) {
-        if (it->row >= 80 && ip.first >= 80) {
-          if ((std::abs(ip.second - it->col) < 26)) {
-            i->second.set(0.);
-          } else if (it->row == 120 && ip.second - it->col == 26) {
-            i->second.set(0.);
-          } else if (it->row == 119 && it->col - ip.second == 26) {
-            i->second.set(0.);
+      for (auto badrocposition : badrocpositions) {
+        if (badrocposition.row >= 80 && ip.first >= 80) {
+          if ((std::abs(ip.second - badrocposition.col) < 26)) {
+            i.second.set(0.);
+          } else if (badrocposition.row == 120 && ip.second - badrocposition.col == 26) {
+            i.second.set(0.);
+          } else if (badrocposition.row == 119 && badrocposition.col - ip.second == 26) {
+            i.second.set(0.);
           }
-        } else if (it->row < 80 && ip.first < 80) {
-          if ((std::abs(ip.second - it->col) < 26)) {
-            i->second.set(0.);
-          } else if (it->row == 40 && ip.second - it->col == 26) {
-            i->second.set(0.);
-          } else if (it->row == 39 && it->col - ip.second == 26) {
-            i->second.set(0.);
+        } else if (badrocposition.row < 80 && ip.first < 80) {
+          if ((std::abs(ip.second - badrocposition.col) < 26)) {
+            i.second.set(0.);
+          } else if (badrocposition.row == 40 && ip.second - badrocposition.col == 26) {
+            i.second.set(0.);
+          } else if (badrocposition.row == 39 && badrocposition.col - ip.second == 26) {
+            i.second.set(0.);
           }
         }
       }

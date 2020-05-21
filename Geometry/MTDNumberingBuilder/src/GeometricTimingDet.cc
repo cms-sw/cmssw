@@ -113,8 +113,8 @@ GeometricTimingDet::GeometricTimingDet(cms::DDFilteredView* fv, GeometricTimingE
   trans_.SetCoordinates(convertCmToMm(trans_.X()), convertCmToMm(trans_.Y()), convertCmToMm(trans_.Z()));
   phi_ = trans_.Phi();
   rho_ = trans_.Rho();
-  for (size_t pit = 0; pit < params_.size(); pit++) {
-    params_[pit] = convertCmToMm(params_[pit]);
+  for (double& param : params_) {
+    param = convertCmToMm(param);
   }
   //
   // Not navPos(), as not properly working for DD4hep and not used

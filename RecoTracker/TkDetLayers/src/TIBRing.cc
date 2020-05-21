@@ -34,10 +34,10 @@ TIBRing::TIBRing(vector<const GeomDet*>& theGeomDets)
   LogDebug("TkDetLayers") << "radius, thickness, lenght: " << theCylinder->radius() << " , "
                           << theCylinder->bounds().thickness() << " , " << theCylinder->bounds().length();
 
-  for (vector<const GeomDet*>::const_iterator i = theDets.begin(); i != theDets.end(); i++) {
-    LogDebug("TkDetLayers") << "Ring's Det pos z,perp,eta,phi: " << (**i).position().z() << " , "
-                            << (**i).position().perp() << " , " << (**i).position().eta() << " , "
-                            << (**i).position().phi();
+  for (auto theDet : theDets) {
+    LogDebug("TkDetLayers") << "Ring's Det pos z,perp,eta,phi: " << (*theDet).position().z() << " , "
+                            << (*theDet).position().perp() << " , " << (*theDet).position().eta() << " , "
+                            << (*theDet).position().phi();
   }
   LogDebug("TkDetLayers") << "==== end DEBUG TIBRing =====";
 }

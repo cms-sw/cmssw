@@ -31,11 +31,11 @@ bool process(const l1t::Block& block, BXVector<T>* coll, F modify) {
     candbit[2] = raw_data1 & 0xFFFF;
     candbit[3] = (raw_data1 >> 16) & 0xFFFF;
 
-    for (int icand = 0; icand < 4; icand++) {
-      int candPt = candbit[icand] & 0x3F;
-      int candEta = (candbit[icand] >> 6) & 0x7;
-      int candEtasign = (candbit[icand] >> 9) & 0x1;
-      int candPhi = (candbit[icand] >> 10) & 0x1F;
+    for (unsigned short icand : candbit) {
+      int candPt = icand & 0x3F;
+      int candEta = (icand >> 6) & 0x7;
+      int candEtasign = (icand >> 9) & 0x1;
+      int candPhi = (icand >> 10) & 0x1F;
 
       T cand;
       cand.setHwPt(candPt);

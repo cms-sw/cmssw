@@ -465,8 +465,8 @@ NVProfilerService::NVProfilerService(edm::ParameterSet const& config, edm::Activ
 }
 
 NVProfilerService::~NVProfilerService() {
-  for (unsigned int sid = 0; sid < stream_domain_.size(); ++sid) {
-    nvtxDomainDestroy(stream_domain_[sid]);
+  for (auto& sid : stream_domain_) {
+    nvtxDomainDestroy(sid);
   }
   nvtxDomainDestroy(global_domain_);
   cudaProfilerStop();
@@ -524,8 +524,8 @@ void NVProfilerService::preBeginJob(edm::PathsAndConsumesOfModulesBase const& pa
   // size() + 1 because pathsAndConsumes.allModules() does not include the source
   unsigned int modules = pathsAndConsumes.allModules().size() + 1;
   global_modules_.resize(modules, nvtxInvalidRangeId);
-  for (unsigned int sid = 0; sid < stream_modules_.size(); ++sid) {
-    stream_modules_[sid].resize(modules, nvtxInvalidRangeId);
+  for (auto& stream_module : stream_modules_) {
+    stream_module.resize(modules, nvtxInvalidRangeId);
   }
 }
 

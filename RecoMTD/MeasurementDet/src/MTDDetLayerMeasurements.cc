@@ -105,11 +105,11 @@ MeasurementContainer MTDDetLayerMeasurements::measurements(const DetLayer* layer
   MTDRecHitContainer mtdRecHits = recHits(det, iEvent);
 
   // Create the Trajectory Measurement
-  for (auto rechit = mtdRecHits.begin(); rechit != mtdRecHits.end(); ++rechit) {
-    MeasurementEstimator::HitReturnType estimate = est.estimate(stateOnDet, **rechit);
-    LogDebug("RecoMTD") << "Dimension: " << (*rechit)->dimension() << " Chi2: " << estimate.second << std::endl;
+  for (auto& mtdRecHit : mtdRecHits) {
+    MeasurementEstimator::HitReturnType estimate = est.estimate(stateOnDet, *mtdRecHit);
+    LogDebug("RecoMTD") << "Dimension: " << mtdRecHit->dimension() << " Chi2: " << estimate.second << std::endl;
     if (estimate.first) {
-      result.push_back(TrajectoryMeasurement(stateOnDet, *rechit, estimate.second, layer));
+      result.push_back(TrajectoryMeasurement(stateOnDet, mtdRecHit, estimate.second, layer));
     }
   }
 

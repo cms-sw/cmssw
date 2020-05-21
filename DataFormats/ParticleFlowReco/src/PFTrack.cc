@@ -80,8 +80,8 @@ ostream& reco::operator<<(ostream& out, const PFTrack& track) {
       << ", P = " << closestApproach.momentum().P() << endl
       << "\tR0 = " << closestApproach.position().Rho() << " Z0 = " << closestApproach.position().Z() << endl
       << "\tnumber of tracker measurements = " << track.nTrajectoryMeasurements() << endl;
-  for (unsigned i = 0; i < track.trajectoryPoints().size(); i++)
-    out << track.trajectoryPoints()[i] << endl;
+  for (const auto& i : track.trajectoryPoints())
+    out << i << endl;
 
   return out;
 }

@@ -75,9 +75,9 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
   std::vector<rpc_hit> vrpc_hit_layer1, vrpc_hit_layer2, vrpc_hit_st3, vrpc_hit_st4;
 
   ///Init structues
-  for (auto chamber = m_rpcDigis.begin(); chamber != m_rpcDigis.end(); ++chamber) {
-    RPCDetId detid = (*chamber).first;
-    for (auto digi = (*chamber).second.first; digi != (*chamber).second.second; ++digi) {
+  for (auto&& m_rpcDigi : m_rpcDigis) {
+    RPCDetId detid = m_rpcDigi.first;
+    for (auto digi = m_rpcDigi.second.first; digi != m_rpcDigi.second.second; ++digi) {
       if (detid.region() != 0)
         continue;  //Region = 0 Barrel
       if (BxToHit::outOfRange(digi->bx()))
@@ -127,13 +127,13 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
   //      int hits[5][4][12][2][5][3][100]= {{{{{{{0}}}}}}};
   std::map<RPCHitCleaner::detId_Ext, int> hits;
   int cluster_size = 0;
-  for (auto chamber = m_rpcDigis.begin(); chamber != m_rpcDigis.end(); ++chamber) {
-    RPCDetId detid = (*chamber).first;
+  for (auto&& m_rpcDigi : m_rpcDigis) {
+    RPCDetId detid = m_rpcDigi.first;
     int strip_n1 = -10000;
     int bx_n1 = -10000;
     if (detid.region() != 0)
       continue;  //Region = 0 Barrel
-    for (auto digi = (*chamber).second.first; digi != (*chamber).second.second; ++digi) {
+    for (auto digi = m_rpcDigi.second.first; digi != m_rpcDigi.second.second; ++digi) {
       if (fabs(digi->bx()) > 3)
         continue;
       //Create cluster ids and store their size

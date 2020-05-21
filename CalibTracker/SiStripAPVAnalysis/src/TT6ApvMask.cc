@@ -42,10 +42,10 @@ void TT6ApvMask::calculateMask(const ApvAnalysis::PedestalType& in) {
   rmsVal = (sqAvVal - avVal * avVal > 0.0) ? sqrt(sqAvVal - avVal * avVal) : 0.0;
   if (false)
     cout << " TT6ApvMask::calculateMask  Mean " << avVal << " RMS " << rmsVal << " " << effSize << endl;
-  for (unsigned int i = 0; i < in.size(); i++) {
-    if (defineNoisy(static_cast<float>(avVal), static_cast<float>(rmsVal), in[i])) {
+  for (float i : in) {
+    if (defineNoisy(static_cast<float>(avVal), static_cast<float>(rmsVal), i)) {
       theMask_.push_back(noisy);
-    } else if (in[i] < theDeadCut_ * avVal) {
+    } else if (i < theDeadCut_ * avVal) {
       theMask_.push_back(dead);
     } else {
       theMask_.push_back(ok);

@@ -44,8 +44,8 @@ void L1GtPsbSetup::print(std::ostream& myCout) const {
   myCout << m_gtPsbSetup.size() << " PSB boards configured in L1 GT." << std::endl;
   myCout << std::endl;
 
-  for (std::vector<L1GtPsbConfig>::const_iterator cIt = m_gtPsbSetup.begin(); cIt != m_gtPsbSetup.end(); ++cIt) {
-    cIt->print(myCout);
+  for (const auto& cIt : m_gtPsbSetup) {
+    cIt.print(myCout);
     myCout << std::endl;
   }
 

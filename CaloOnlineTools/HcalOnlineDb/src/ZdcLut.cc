@@ -188,11 +188,11 @@ ZdcLut::ZdcLut() {
 ZdcLut::~ZdcLut(void) {}
 
 int ZdcLut::simple_loop() {
-  for (unsigned int zdcs = 0; zdcs < side.size(); zdcs++) {
-    for (unsigned int zdcf = 0; zdcf < side[zdcs].fiber.size(); zdcf++) {
-      for (unsigned int zdcc = 0; zdcc < side[zdcs].fiber[zdcf].channel.size(); zdcc++) {
-        for (unsigned int zdcl = 0; zdcl < side[zdcs].fiber[zdcf].channel[zdcc].LUT.size(); zdcl++) {
-          std::cout << side[zdcs].fiber[zdcf].channel[zdcc].LUT[zdcl] << " ";
+  for (auto& zdcs : side) {
+    for (unsigned int zdcf = 0; zdcf < zdcs.fiber.size(); zdcf++) {
+      for (unsigned int zdcc = 0; zdcc < zdcs.fiber[zdcf].channel.size(); zdcc++) {
+        for (unsigned int zdcl = 0; zdcl < zdcs.fiber[zdcf].channel[zdcc].LUT.size(); zdcl++) {
+          std::cout << zdcs.fiber[zdcf].channel[zdcc].LUT[zdcl] << " ";
         }
         std::cout << std::endl;
       }

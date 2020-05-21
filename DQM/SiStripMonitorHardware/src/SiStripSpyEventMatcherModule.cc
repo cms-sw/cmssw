@@ -140,14 +140,14 @@ namespace sistrip {
         }
         const FEDFullDebugHeader* header = dynamic_cast<const FEDFullDebugHeader*>(buffer.feHeader());
         auto connections = cabling.fedConnections(*iFedId);
-        for (auto iConn = connections.begin(); iConn != connections.end(); ++iConn) {
-          if (!iConn->isConnected()) {
+        for (const auto& connection : connections) {
+          if (!connection.isConnected()) {
             continue;
           }
-          if (!buffer.channelGood(iConn->fedCh(), true)) {
+          if (!buffer.channelGood(connection.fedCh(), true)) {
             continue;
           } else {
-            apvAddress = header->feUnitMajorityAddress(iConn->fedCh() / FEDCH_PER_FEUNIT);
+            apvAddress = header->feUnitMajorityAddress(connection.fedCh() / FEDCH_PER_FEUNIT);
             return;
           }
         }

@@ -151,13 +151,13 @@ void HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSet
 
   // determine which hits are noisy
   std::set<const HBHERecHit*> noisehits;
-  for (int i = 0; i < static_cast<int>(rbxs.size()); i++) {
-    int nhits = rbxs[i].nHits();
-    double ene = rbxs[i].hitEnergy();
-    double trkfide = rbxs[i].hitEnergyTrackFiducial();
-    double isolhcale = rbxs[i].hcalEnergySameTowers() + rbxs[i].hcalEnergyNeighborTowers();
-    double isolecale = rbxs[i].ecalEnergySameTowers();
-    double isoltrke = rbxs[i].trackEnergySameTowers() + rbxs[i].trackEnergyNeighborTowers();
+  for (auto& rbx : rbxs) {
+    int nhits = rbx.nHits();
+    double ene = rbx.hitEnergy();
+    double trkfide = rbx.hitEnergyTrackFiducial();
+    double isolhcale = rbx.hcalEnergySameTowers() + rbx.hcalEnergyNeighborTowers();
+    double isolecale = rbx.ecalEnergySameTowers();
+    double isoltrke = rbx.trackEnergySameTowers() + rbx.trackEnergyNeighborTowers();
     //
     // RBX mistag reduction
     bool isLooseIso = false;
@@ -181,19 +181,19 @@ void HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSet
                         (trkfide > LooseRBXEne2_ && nhits >= LooseRBXHits2_))) ||
         (isTightIso && ((trkfide > TightRBXEne1_ && nhits >= TightRBXHits1_) ||
                         (trkfide > TightRBXEne2_ && nhits >= TightRBXHits2_)))) {
-      for (HBHEHitMap::hitmap_const_iterator it = rbxs[i].beginHits(); it != rbxs[i].endHits(); ++it)
+      for (HBHEHitMap::hitmap_const_iterator it = rbx.beginHits(); it != rbx.endHits(); ++it)
         noisehits.insert(it->first);
       //      result=false;
     }
   }
 
-  for (int i = 0; i < static_cast<int>(hpds.size()); i++) {
-    int nhits = hpds[i].nHits();
-    double ene = hpds[i].hitEnergy();
-    double trkfide = hpds[i].hitEnergyTrackFiducial();
-    double isolhcale = hpds[i].hcalEnergySameTowers() + hpds[i].hcalEnergyNeighborTowers();
-    double isolecale = hpds[i].ecalEnergySameTowers();
-    double isoltrke = hpds[i].trackEnergySameTowers() + hpds[i].trackEnergyNeighborTowers();
+  for (auto& hpd : hpds) {
+    int nhits = hpd.nHits();
+    double ene = hpd.hitEnergy();
+    double trkfide = hpd.hitEnergyTrackFiducial();
+    double isolhcale = hpd.hcalEnergySameTowers() + hpd.hcalEnergyNeighborTowers();
+    double isolecale = hpd.ecalEnergySameTowers();
+    double isoltrke = hpd.trackEnergySameTowers() + hpd.trackEnergyNeighborTowers();
     if ((ene > 0 && isolhcale / ene < LooseHcalIsol_ && isolecale / ene < LooseEcalIsol_ &&
          isoltrke / ene < LooseTrackIsol_ &&
          ((trkfide > LooseHPDEne1_ && nhits >= LooseHPDHits1_) ||
@@ -202,39 +202,39 @@ void HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSet
          isoltrke / ene < TightTrackIsol_ &&
          ((trkfide > TightHPDEne1_ && nhits >= TightHPDHits1_) ||
           (trkfide > TightHPDEne2_ && nhits >= TightHPDHits2_)))) {
-      for (HBHEHitMap::hitmap_const_iterator it = hpds[i].beginHits(); it != hpds[i].endHits(); ++it)
+      for (HBHEHitMap::hitmap_const_iterator it = hpd.beginHits(); it != hpd.endHits(); ++it)
         noisehits.insert(it->first);
       //      result=false;
     }
   }
 
-  for (int i = 0; i < static_cast<int>(dihits.size()); i++) {
-    double ene = dihits[i].hitEnergy();
-    double trkfide = dihits[i].hitEnergyTrackFiducial();
-    double isolhcale = dihits[i].hcalEnergySameTowers() + dihits[i].hcalEnergyNeighborTowers();
-    double isolecale = dihits[i].ecalEnergySameTowers();
-    double isoltrke = dihits[i].trackEnergySameTowers() + dihits[i].trackEnergyNeighborTowers();
+  for (auto& dihit : dihits) {
+    double ene = dihit.hitEnergy();
+    double trkfide = dihit.hitEnergyTrackFiducial();
+    double isolhcale = dihit.hcalEnergySameTowers() + dihit.hcalEnergyNeighborTowers();
+    double isolecale = dihit.ecalEnergySameTowers();
+    double isoltrke = dihit.trackEnergySameTowers() + dihit.trackEnergyNeighborTowers();
     if ((ene > 0 && isolhcale / ene < LooseHcalIsol_ && isolecale / ene < LooseEcalIsol_ &&
          isoltrke / ene < LooseTrackIsol_ && trkfide > 0.99 * ene && trkfide > LooseDiHitEne_) ||
         (ene > 0 && isolhcale / ene < TightHcalIsol_ && isolecale / ene < TightEcalIsol_ &&
          isoltrke / ene < TightTrackIsol_ && ene > TightDiHitEne_)) {
-      for (HBHEHitMap::hitmap_const_iterator it = dihits[i].beginHits(); it != dihits[i].endHits(); ++it)
+      for (HBHEHitMap::hitmap_const_iterator it = dihit.beginHits(); it != dihit.endHits(); ++it)
         noisehits.insert(it->first);
       //      result=false;
     }
   }
 
-  for (int i = 0; i < static_cast<int>(monohits.size()); i++) {
-    double ene = monohits[i].hitEnergy();
-    double trkfide = monohits[i].hitEnergyTrackFiducial();
-    double isolhcale = monohits[i].hcalEnergySameTowers() + monohits[i].hcalEnergyNeighborTowers();
-    double isolecale = monohits[i].ecalEnergySameTowers();
-    double isoltrke = monohits[i].trackEnergySameTowers() + monohits[i].trackEnergyNeighborTowers();
+  for (auto& monohit : monohits) {
+    double ene = monohit.hitEnergy();
+    double trkfide = monohit.hitEnergyTrackFiducial();
+    double isolhcale = monohit.hcalEnergySameTowers() + monohit.hcalEnergyNeighborTowers();
+    double isolecale = monohit.ecalEnergySameTowers();
+    double isoltrke = monohit.trackEnergySameTowers() + monohit.trackEnergyNeighborTowers();
     if ((ene > 0 && isolhcale / ene < LooseHcalIsol_ && isolecale / ene < LooseEcalIsol_ &&
          isoltrke / ene < LooseTrackIsol_ && trkfide > 0.99 * ene && trkfide > LooseMonoHitEne_) ||
         (ene > 0 && isolhcale / ene < TightHcalIsol_ && isolecale / ene < TightEcalIsol_ &&
          isoltrke / ene < TightTrackIsol_ && ene > TightMonoHitEne_)) {
-      for (HBHEHitMap::hitmap_const_iterator it = monohits[i].beginHits(); it != monohits[i].endHits(); ++it)
+      for (HBHEHitMap::hitmap_const_iterator it = monohit.beginHits(); it != monohit.endHits(); ++it)
         noisehits.insert(it->first);
       //      result=false;
     }
@@ -243,8 +243,8 @@ void HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSet
   // prepare the output HBHE RecHit collection
   auto pOut = std::make_unique<HBHERecHitCollection>();
   // loop over rechits, and set the new bit you wish to use
-  for (HBHERecHitCollection::const_iterator it = hbhehits_h->begin(); it != hbhehits_h->end(); ++it) {
-    const HBHERecHit* hit = &(*it);
+  for (const auto& it : *hbhehits_h) {
+    const HBHERecHit* hit = &it;
     HBHERecHit newhit(*hit);
     if (noisehits.end() != noisehits.find(hit)) {
       newhit.setFlagField(1, HcalCaloFlagLabels::HBHEIsolatedNoise);
@@ -258,14 +258,14 @@ void HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSet
 }
 
 void HBHEIsolatedNoiseReflagger::DumpHBHEHitMap(std::vector<HBHEHitMap>& i) const {
-  for (std::vector<HBHEHitMap>::const_iterator it = i.begin(); it != i.end(); ++it) {
+  for (const auto& it : i) {
     edm::LogInfo("HBHEIsolatedNoiseReflagger")
-        << "hit energy=" << it->hitEnergy() << "; # hits=" << it->nHits()
-        << "; hcal energy same=" << it->hcalEnergySameTowers() << "; ecal energy same=" << it->ecalEnergySameTowers()
-        << "; track energy same=" << it->trackEnergySameTowers()
-        << "; neighbor hcal energy=" << it->hcalEnergyNeighborTowers() << std::endl;
+        << "hit energy=" << it.hitEnergy() << "; # hits=" << it.nHits()
+        << "; hcal energy same=" << it.hcalEnergySameTowers() << "; ecal energy same=" << it.ecalEnergySameTowers()
+        << "; track energy same=" << it.trackEnergySameTowers()
+        << "; neighbor hcal energy=" << it.hcalEnergyNeighborTowers() << std::endl;
     edm::LogInfo("HBHEIsolatedNoiseReflagger") << "hits:" << std::endl;
-    for (HBHEHitMap::hitmap_const_iterator it2 = it->beginHits(); it2 != it->endHits(); ++it2) {
+    for (HBHEHitMap::hitmap_const_iterator it2 = it.beginHits(); it2 != it.endHits(); ++it2) {
       const HBHERecHit* hit = it2->first;
       edm::LogInfo("HBHEIsolatedNoiseReflagger")
           << "RBX #=" << hfemap->lookupRBX(hit->id()) << "; HPD #=" << hfemap->lookupRMIndex(hit->id()) << "; "

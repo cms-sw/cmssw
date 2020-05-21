@@ -130,11 +130,11 @@ G4double G4ProcessHelper::GetInclusiveCrossSection(const G4DynamicParticle* aPar
     } else {
       std::vector<G4int> nq = CustomPDGParser::s_containedQuarks(thePDGCode);
       //    edm::LogInfo("SimG4CoreCustomPhysics")<<"Number of quarks: "<<nq.size()<<G4endl;
-      for (std::vector<G4int>::iterator it = nq.begin(); it != nq.end(); it++) {
+      for (int& it : nq) {
         //	  edm::LogInfo("SimG4CoreCustomPhysics")<<"Quarkvector: "<<*it<<G4endl;
-        if (*it == 1 || *it == 2)
+        if (it == 1 || it == 2)
           theXsec += 12 * millibarn;
-        if (*it == 3)
+        if (it == 3)
           theXsec += 6 * millibarn;
       }
     }
@@ -246,16 +246,14 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
   ReactionProductList theReactionProductList;
   std::vector<bool> theChargeChangeList;
 
-  for (ReactionProductList::iterator prod_it = aReactionProductList->begin(); prod_it != aReactionProductList->end();
-       prod_it++) {
-    G4int secondaries = prod_it->size();
+  for (auto& prod_it : *aReactionProductList) {
+    G4int secondaries = prod_it.size();
     // If the reaction is not possible we will not consider it
-    if (ReactionIsPossible(*prod_it, aDynamicParticle) &&
-        (!reggemodel || (baryonise && ReactionGivesBaryon(*prod_it)) ||
-         (!baryonise && !ReactionGivesBaryon(*prod_it)) || (CustomPDGParser::s_isSbaryon(theIncidentPDG)) ||
-         (CustomPDGParser::s_isRBaryon(theIncidentPDG)))) {
+    if (ReactionIsPossible(prod_it, aDynamicParticle) &&
+        (!reggemodel || (baryonise && ReactionGivesBaryon(prod_it)) || (!baryonise && !ReactionGivesBaryon(prod_it)) ||
+         (CustomPDGParser::s_isSbaryon(theIncidentPDG)) || (CustomPDGParser::s_isRBaryon(theIncidentPDG)))) {
       // The reaction is possible. Let's store and count it
-      theReactionProductList.push_back(*prod_it);
+      theReactionProductList.push_back(prod_it);
       if (secondaries == 2) {
         N22++;
       } else if (secondaries == 3) {
@@ -309,8 +307,8 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
 
   //Renormalising probabilities
   //  edm::LogInfo("SimG4CoreCustomPhysics")<<"Probs: ";
-  for (std::vector<G4double>::iterator it = Probabilities.begin(); it != Probabilities.end(); it++) {
-    *it /= CumulatedProbability;
+  for (double& Probabilitie : Probabilities) {
+    Probabilitie /= CumulatedProbability;
     //      edm::LogInfo("SimG4CoreCustomPhysics")<<*it<<" ";
   }
   //  edm::LogInfo("SimG4CoreCustomPhysics")<<G4endl;
@@ -391,9 +389,9 @@ G4double G4ProcessHelper::ReactionProductMass(const ReactionProduct& aReaction,
   //edm::LogInfo("SimG4CoreCustomPhysics")<<"sqrt(s) = "<<sqrts/GeV<<" GeV"<<G4endl;
   // Sum of rest masses after reaction:
   G4double M_after = 0;
-  for (ReactionProduct::const_iterator r_it = aReaction.begin(); r_it != aReaction.end(); r_it++) {
+  for (int r_it : aReaction) {
     //edm::LogInfo("SimG4CoreCustomPhysics")<<"Mass contrib: "<<(particleTable->FindParticle(*r_it)->GetPDGMass())/MeV<<" MeV"<<G4endl;
-    M_after += particleTable->FindParticle(*r_it)->GetPDGMass();
+    M_after += particleTable->FindParticle(r_it)->GetPDGMass();
   }
   //edm::LogInfo("SimG4CoreCustomPhysics")<<"Intending to return this ReactionProductMass: "<<(sqrts - M_after)/MeV<<" MeV"<<G4endl;
   return sqrts - M_after;
@@ -407,8 +405,8 @@ G4bool G4ProcessHelper::ReactionIsPossible(const ReactionProduct& aReaction,
 }
 
 G4bool G4ProcessHelper::ReactionGivesBaryon(const ReactionProduct& aReaction) {
-  for (ReactionProduct::const_iterator it = aReaction.begin(); it != aReaction.end(); it++)
-    if (CustomPDGParser::s_isSbaryon(*it) || CustomPDGParser::s_isRBaryon(*it))
+  for (int it : aReaction)
+    if (CustomPDGParser::s_isSbaryon(it) || CustomPDGParser::s_isRBaryon(it))
       return true;
   return false;
 }

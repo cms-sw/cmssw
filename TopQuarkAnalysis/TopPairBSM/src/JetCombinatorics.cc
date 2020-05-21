@@ -117,28 +117,28 @@ std::map<int, std::string> JetCombinatorics::Combinatorics(int n, int max) {
 			}
 			cout << endl;
 			*/
-      for (int j = 0; j < (int)list.size(); j++) {
+      for (char j : list) {
         //cout << " j = " << j << endl;
         bool Isnewelement = true;
         std::string newelement = "0";
         //bool Isnewcombo = true;
-        for (int k = 0; k < (int)newseed2.size(); k++) {
-          if (list[j] == newseed2[k])
+        for (char k : newseed2) {
+          if (j == k)
             Isnewelement = false;
         }
         if (Isnewelement) {
-          newelement = list[j];
+          newelement = j;
           //cout << "new element: " << newelement << endl;
 
           std::string candseed = newseed2;
           candseed = candseed + newelement;
 
           bool IsnewCombo = true;
-          for (int ic = 0; ic < (int)aTemplateCombos.size(); ++ic) {
+          for (auto& aTemplateCombo : aTemplateCombos) {
             int nmatch = 0;
-            for (int ij = 0; ij < (int)(aTemplateCombos[ic]).size(); ij++) {
-              for (int ik = 0; ik < (int)candseed.size(); ik++) {
-                if (candseed[ik] == aTemplateCombos[ic][ij])
+            for (int ij = 0; ij < (int)aTemplateCombo.size(); ij++) {
+              for (char ik : candseed) {
+                if (ik == aTemplateCombo[ij])
                   nmatch++;
               }
             }

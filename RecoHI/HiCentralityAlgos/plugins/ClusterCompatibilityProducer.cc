@@ -91,22 +91,20 @@ void ClusterCompatibilityProducer::produce(edm::Event &iEvent, const edm::EventS
     // loop over pixel rechits
     int nPxlHits = 0;
     std::vector<VertexHit> vhits;
-    for (SiPixelRecHitCollection::DataContainer::const_iterator hit = hits->data().begin(), end = hits->data().end();
-         hit != end;
-         ++hit) {
-      if (!hit->isValid())
+    for (const auto &hit : hits->data()) {
+      if (!hit.isValid())
         continue;
       ++nPxlHits;
-      DetId id(hit->geographicalId());
+      DetId id(hit.geographicalId());
       if (id.subdetId() != int(PixelSubdetector::PixelBarrel))
         continue;
       const PixelGeomDetUnit *pgdu = static_cast<const PixelGeomDetUnit *>(tgeo->idToDet(id));
       const PixelTopology *pixTopo = &(pgdu->specificTopology());
-      std::vector<SiPixelCluster::Pixel> pixels(hit->cluster()->pixels());
+      std::vector<SiPixelCluster::Pixel> pixels(hit.cluster()->pixels());
       bool pixelOnEdge = false;
-      for (std::vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin(); pixel != pixels.end(); ++pixel) {
-        int pixelX = pixel->x;
-        int pixelY = pixel->y;
+      for (auto pixel : pixels) {
+        int pixelX = pixel.x;
+        int pixelY = pixel.y;
         if (pixTopo->isItEdgePixelInX(pixelX) || pixTopo->isItEdgePixelInY(pixelY)) {
           pixelOnEdge = true;
           break;
@@ -115,12 +113,12 @@ void ClusterCompatibilityProducer::produce(edm::Event &iEvent, const edm::EventS
       if (pixelOnEdge)
         continue;
 
-      LocalPoint lpos = LocalPoint(hit->localPosition().x(), hit->localPosition().y(), hit->localPosition().z());
+      LocalPoint lpos = LocalPoint(hit.localPosition().x(), hit.localPosition().y(), hit.localPosition().z());
       GlobalPoint gpos = pgdu->toGlobal(lpos);
       VertexHit vh;
       vh.z = gpos.z();
       vh.r = gpos.perp();
-      vh.w = hit->cluster()->sizeY();
+      vh.w = hit.cluster()->sizeY();
       vhits.push_back(vh);
     }
 
@@ -141,14 +139,14 @@ ClusterCompatibilityProducer::ContainedHits ClusterCompatibilityProducer::getCon
   int n = 0;
   double chi = 0.;
 
-  for (std::vector<VertexHit>::const_iterator hit = hits.begin(); hit != hits.end(); hit++) {
+  for (auto hit : hits) {
     // the calculation of the predicted cluster width p was
     // marked 'FIXME' in the HLTPixelClusterShapeFilter. It should
     // be revisited but is retained as it was for compatibility with the
     // older filter.
-    double p = 2 * fabs(hit->z - z0) / hit->r + 0.5;
-    if (fabs(p - hit->w) <= 1.) {
-      chi += fabs(p - hit->w);
+    double p = 2 * fabs(hit.z - z0) / hit.r + 0.5;
+    if (fabs(p - hit.w) <= 1.) {
+      chi += fabs(p - hit.w);
       n++;
     }
   }

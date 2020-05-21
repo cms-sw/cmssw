@@ -162,11 +162,9 @@ namespace reco {
       //ConstTrajTrackPairCollection trajTracks;
       LogDebug("CosmicTrackSplitter") << "size of map: " << m_TrajTracksMap->size();
       int HITTOSPLITFROM = 0;
-      for (TrajTrackAssociationCollection::const_iterator iPair = m_TrajTracksMap->begin();
-           iPair != m_TrajTracksMap->end();
-           iPair++) {
-        const Trajectory *trajFromMap = &(*(*iPair).key);
-        const reco::Track *trackFromMap = &(*(*iPair).val);
+      for (const auto &iPair : *m_TrajTracksMap) {
+        const Trajectory *trajFromMap = &(*iPair.key);
+        const reco::Track *trackFromMap = &(*iPair.val);
 
         // loop to find the hit to split from (by taking dot product of pT and transverse position
         std::vector<TrajectoryMeasurement> measurements = trajFromMap->measurements();

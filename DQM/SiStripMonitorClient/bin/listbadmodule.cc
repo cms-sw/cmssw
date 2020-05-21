@@ -86,9 +86,9 @@ void listbadmodule(std::string filename, std::string pclfilename) {
 
   //get the summary first
   std::vector<int> nbadmod;
-  for (unsigned int i = 0; i < subdet.size(); i++) {
+  for (const auto &i : subdet) {
     int nbad = 0;
-    std::string badmodule_dir = subdet[i] + "/BadModuleList";
+    std::string badmodule_dir = i + "/BadModuleList";
     if (gDirectory->cd(badmodule_dir.c_str())) {
       TIter next(gDirectory->GetListOfKeys());
       TKey *key;
@@ -118,10 +118,10 @@ void listbadmodule(std::string filename, std::string pclfilename) {
 
   std::set<unsigned int>::const_iterator pclbadmod = pclbadmods.begin();
 
-  for (unsigned int i = 0; i < subdet.size(); i++) {
-    std::string badmodule_dir = subdet[i] + "/BadModuleList";
+  for (const auto &i : subdet) {
+    std::string badmodule_dir = i + "/BadModuleList";
     outfile << " " << std::endl;
-    outfile << "SubDetector " << subdet[i] << std::endl;
+    outfile << "SubDetector " << i << std::endl;
     outfile << " " << std::endl;
     std::cout << badmodule_dir.c_str() << std::endl;
     if (gDirectory->cd(badmodule_dir.c_str())) {

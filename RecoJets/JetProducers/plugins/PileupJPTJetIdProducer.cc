@@ -58,10 +58,8 @@ void PileupJPTJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByToken(input_token_, jets);
   vector<float> mva;
   vector<int> idflag;
-  for (unsigned int i = 0; i < jets->size(); ++i) {
+  for (const auto& jet : *jets) {
     int b = -1;
-    const JPTJet& jet = jets->at(i);
-
     float mvapu = pualgo->fillJPTBlock(&jet);
 
     mva.push_back(mvapu);

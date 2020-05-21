@@ -26,8 +26,8 @@ public:
 
   unsigned int numberOfFiredHits() const {
     int numberOfHits = 0;
-    for (unsigned int i = 0; i < rawChannelHits_.size(); i++)
-      if (rawChannelHits_[i])
+    for (bool rawChannelHit : rawChannelHits_)
+      if (rawChannelHit)
         numberOfHits++;
     return numberOfHits;
   }

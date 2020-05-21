@@ -115,8 +115,8 @@ std::string CaloJet::print() const {
 std::vector<CaloTowerDetId> CaloJet::getTowerIndices() const {
   std::vector<CaloTowerDetId> result;
   std::vector<CaloTowerPtr> towers = getCaloConstituents();
-  for (unsigned i = 0; i < towers.size(); ++i) {
-    result.push_back(towers[i]->id());
+  for (auto& tower : towers) {
+    result.push_back(tower->id());
   }
   return result;
 }

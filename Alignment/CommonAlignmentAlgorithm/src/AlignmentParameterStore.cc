@@ -84,11 +84,10 @@ CompositeAlignmentParameters AlignmentParameterStore::selectParameters(
   int nparam = 0;
 
   // iterate over AlignableDet's
-  for (std::vector<AlignableDetOrUnitPtr>::const_iterator iad = alignabledets.begin(); iad != alignabledets.end();
-       ++iad) {
-    Alignable* ali = alignableFromAlignableDet(*iad);
+  for (const auto& alignabledet : alignabledets) {
+    Alignable* ali = alignableFromAlignableDet(alignabledet);
     if (ali) {
-      alidettoalimap[*iad] = ali;  // Add to map
+      alidettoalimap[alignabledet] = ali;  // Add to map
       // Check if Alignable already there, insert into vector if not
       if (find(alignables.begin(), alignables.end(), ali) == alignables.end()) {
         alignables.push_back(ali);
@@ -229,9 +228,9 @@ void AlignmentParameterStore::updateParameters(const CompositeAlignmentParameter
 //__________________________________________________________________________________________________
 align::Alignables AlignmentParameterStore::validAlignables(void) const {
   align::Alignables result;
-  for (align::Alignables::const_iterator iali = theAlignables.begin(); iali != theAlignables.end(); ++iali)
-    if ((*iali)->alignmentParameters()->isValid())
-      result.push_back(*iali);
+  for (auto theAlignable : theAlignables)
+    if (theAlignable->alignmentParameters()->isValid())
+      result.push_back(theAlignable);
 
   LogDebug("Alignment") << "@SUB=AlignmentParameterStore::validAlignables"
                         << "Valid alignables: " << result.size() << "out of " << theAlignables.size();
@@ -377,22 +376,21 @@ void AlignmentParameterStore::applyAlignableAbsolutePositions(const align::Align
   ierr = 0;
 
   // Iterate over list of alignables
-  for (align::Alignables::const_iterator iali = alivec.begin(); iali != alivec.end(); ++iali) {
-    Alignable* ali = *iali;
+  for (auto ali : alivec) {
     align::ID id = ali->id();
     align::StructureType typeId = ali->alignableObjectId();
 
     // Find corresponding entry in AlignablePositions
     bool found = false;
-    for (AlignablePositions::const_iterator ipos = newpos.begin(); ipos != newpos.end(); ++ipos) {
-      if (id == ipos->id() && typeId == ipos->objId()) {
+    for (const auto& newpo : newpos) {
+      if (id == newpo.id() && typeId == newpo.objId()) {
         if (found) {
           edm::LogError("DuplicatePosition") << "New positions for alignable found more than once!";
         } else {
           // New position/rotation
-          const align::PositionType& pnew = ipos->pos();
-          const align::RotationType& rnew = ipos->rot();
-          const std::vector<double>& dnew = ipos->deformationParameters();
+          const align::PositionType& pnew = newpo.pos();
+          const align::RotationType& rnew = newpo.rot();
+          const std::vector<double>& dnew = newpo.deformationParameters();
           // Current position / rotation
           const align::PositionType& pold = ali->globalPosition();
           const align::RotationType& rold = ali->globalRotation();
@@ -482,8 +480,8 @@ void AlignmentParameterStore::applyAlignableRelativePositions(const align::Align
 
     // Find corresponding entry in AlignableShifts
     bool found = false;
-    for (AlignableShifts::const_iterator ipos = shifts.begin(); ipos != shifts.end(); ++ipos) {
-      if (id == ipos->id() && typeId == ipos->objId()) {
+    for (const auto& shift : shifts) {
+      if (id == shift.id() && typeId == shift.objId()) {
         if (found) {
           edm::LogError("DuplicatePosition") << "New positions for alignable found more than once!";
         } else {
@@ -498,10 +496,10 @@ void AlignmentParameterStore::applyAlignableRelativePositions(const align::Align
             dtype = (SurfaceDeformationFactory::Type)dold_obj->type();
           }
 
-          ali->move(ipos->pos());
-          ali->rotateInGlobalFrame(ipos->rot());
+          ali->move(shift.pos());
+          ali->rotateInGlobalFrame(shift.rot());
 
-          const std::vector<double>& defDiff = ipos->deformationParameters();
+          const std::vector<double>& defDiff = shift.deformationParameters();
           // If an old surface deformation record exists, ensure that the added deformation has the same type and size.
           if (!dold.empty() && dtype != SurfaceDeformationFactory::kNoDeformations && defDiff.size() == dold.size()) {
             auto deform = SurfaceDeformationFactory::create(dtype, defDiff);
@@ -561,17 +559,15 @@ void AlignmentParameterStore::attachAlignmentParameters(const align::Alignables&
   ierr = 0;
 
   // Iterate over alignables
-  for (align::Alignables::const_iterator iali = alivec.begin(); iali != alivec.end(); ++iali) {
+  for (auto iali : alivec) {
     // Iterate over Parameters
     bool found = false;
-    for (Parameters::const_iterator ipar = parvec.begin(); ipar != parvec.end(); ++ipar) {
+    for (auto ap : parvec) {
       // Get new alignment parameters
-      AlignmentParameters* ap = *ipar;
-
       // Check if parameters belong to alignable
-      if (ap->alignable() == (*iali)) {
+      if (ap->alignable() == iali) {
         if (!found) {
-          (*iali)->setAlignmentParameters(ap);
+          iali->setAlignmentParameters(ap);
           ++ipass;
           found = true;
         } else
@@ -603,10 +599,10 @@ void AlignmentParameterStore::attachCorrelations(const align::Alignables& alivec
   int icount = 0;
 
   // Iterate over correlations
-  for (Correlations::const_iterator icor = cormap.begin(); icor != cormap.end(); ++icor) {
-    AlgebraicMatrix mat = (*icor).second;
-    Alignable* ali1 = (*icor).first.first;
-    Alignable* ali2 = (*icor).first.second;
+  for (const auto& icor : cormap) {
+    AlgebraicMatrix mat = icor.second;
+    Alignable* ali1 = icor.first.first;
+    Alignable* ali2 = icor.first.second;
 
     // Check if alignables exist
     if (find(alivec.begin(), alivec.end(), ali1) != alivec.end() &&
@@ -694,8 +690,8 @@ bool AlignmentParameterStore ::hierarchyConstraints(const Alignable* ali,
   factorsVecOut.clear();
 
   bool firstComp = true;
-  for (align::Alignables::const_iterator iComp = aliComps.begin(), iCompE = aliComps.end(); iComp != iCompE; ++iComp) {
-    const ParametersToParametersDerivatives p2pDerivs(**iComp, *ali);
+  for (auto aliComp : aliComps) {
+    const ParametersToParametersDerivatives p2pDerivs(*aliComp, *ali);
     if (!p2pDerivs.isOK()) {
       // std::cerr << (*iComp)->alignmentParameters()->type() << " "
       // 		<< ali->alignmentParameters()->type() << std::endl;
@@ -703,7 +699,7 @@ bool AlignmentParameterStore ::hierarchyConstraints(const Alignable* ali,
                                         << " Bad match of types of AlignmentParameters classes.\n";
       return false;
     }
-    const std::vector<bool>& aliCompSel = (*iComp)->alignmentParameters()->selector();
+    const std::vector<bool>& aliCompSel = aliComp->alignmentParameters()->selector();
     for (unsigned int iParMast = 0, iParMastUsed = 0; iParMast < aliSel.size(); ++iParMast) {
       if (!all && !aliSel[iParMast])
         continue;       // no higher level parameter & constraint deselected
@@ -724,7 +720,7 @@ bool AlignmentParameterStore ::hierarchyConstraints(const Alignable* ali,
               factor = 0.;
           }
           if (fabs(factor) > epsilon) {
-            paramIdsVecOut[iParMastUsed].push_back(ParameterId(*iComp, iParComp));
+            paramIdsVecOut[iParMastUsed].push_back(ParameterId(aliComp, iParComp));
             factorsVecOut[iParMastUsed].push_back(factor);
           }
         }

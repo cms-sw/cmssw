@@ -87,9 +87,8 @@ DetIdSelectorTest::DetIdSelectorTest(const edm::ParameterSet& iConfig) : detidse
 
   std::vector<edm::ParameterSet> selconfigs = iConfig.getParameter<std::vector<edm::ParameterSet> >("selections");
 
-  for (std::vector<edm::ParameterSet>::const_iterator selconfig = selconfigs.begin(); selconfig != selconfigs.end();
-       ++selconfig) {
-    DetIdSelector selection(*selconfig);
+  for (const auto& selconfig : selconfigs) {
+    DetIdSelector selection(selconfig);
     detidsels_.push_back(selection);
   }
 
@@ -121,14 +120,13 @@ void DetIdSelectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup&
     iSetup.get<IdealGeometryRecord>().get(geomDetHandle);
     const auto detids = TrackerGeometryUtils::getSiStripDetIds(*geomDetHandle);
 
-    for (std::vector<uint32_t>::const_iterator detid = detids.begin(); detid != detids.end(); ++detid) {
-      LogDebug("DetID") << *detid;
+    for (unsigned int detid : detids) {
+      LogDebug("DetID") << detid;
       int index = 0;
-      for (std::vector<DetIdSelector>::const_iterator detidsel = detidsels_.begin(); detidsel != detidsels_.end();
-           ++detidsel) {
-        if (detidsel->isSelected(*detid)) {
+      for (const auto& detidsel : detidsels_) {
+        if (detidsel.isSelected(detid)) {
           LogDebug("selected") << "Selected by selection " << index;
-          unsigned int det = *detid;
+          unsigned int det = detid;
           tkhisto_->add(det, index);
           tkmap_.fill_current_val(det, index);
         }
@@ -143,14 +141,13 @@ void DetIdSelectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup&
     SiPixelDetInfoFileReader pxlreader(fp.fullPath());
     const std::vector<uint32_t>& detids = pxlreader.getAllDetIds();
 
-    for (std::vector<uint32_t>::const_iterator detid = detids.begin(); detid != detids.end(); ++detid) {
-      LogDebug("DetID") << *detid;
+    for (unsigned int detid : detids) {
+      LogDebug("DetID") << detid;
       int index = 0;
-      for (std::vector<DetIdSelector>::const_iterator detidsel = detidsels_.begin(); detidsel != detidsels_.end();
-           ++detidsel) {
-        if (detidsel->isSelected(*detid)) {
+      for (const auto& detidsel : detidsels_) {
+        if (detidsel.isSelected(detid)) {
           LogDebug("selected") << "Selected by selection " << index;
-          unsigned int det = *detid;
+          unsigned int det = detid;
           //	   tkhisto_->add(det,index);
           tkmap_.fill_current_val(det, index);
         }

@@ -143,8 +143,8 @@ void DDG4ProductionCuts::dd4hepInitialize() {
     LogDebug("Geometry") << " DDG4ProductionCuts (New) : starting\n"
                          << " DDG4ProductionCuts : Got " << dd4hepVec_.size() << " region roots.\n"
                          << " DDG4ProductionCuts : List of all roots:";
-    for (size_t jj = 0; jj < dd4hepVec_.size(); ++jj)
-      LogDebug("Geometry") << "   DDG4ProductionCuts : root=" << dd4hepVec_[jj].first << " , " << dd4hepVec_[jj].second;
+    for (auto& jj : dd4hepVec_)
+      LogDebug("Geometry") << "   DDG4ProductionCuts : root=" << jj.first << " , " << jj.second;
   }
 }
 

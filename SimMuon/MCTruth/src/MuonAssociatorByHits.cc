@@ -156,8 +156,8 @@ RecoToSimCollection MuonAssociatorByHits::associateRecoToSim(
   RecoToSimCollection outputCollection(&e->productGetter());
 
   MuonAssociatorByHitsHelper::TrackHitsCollection tH;
-  for (auto it = tC.begin(), ed = tC.end(); it != ed; ++it) {
-    tH.push_back(std::make_pair((*it)->recHitsBegin(), (*it)->recHitsEnd()));
+  for (auto &&it : tC) {
+    tH.push_back(std::make_pair((it)->recHitsBegin(), (it)->recHitsEnd()));
   }
 
   // Retrieve tracker topology from geometry
@@ -187,9 +187,9 @@ RecoToSimCollection MuonAssociatorByHits::associateRecoToSim(
   }
 
   auto bareAssoc = helper_.associateRecoToSimIndices(tH, TPCollectionH, resources);
-  for (auto it = bareAssoc.begin(), ed = bareAssoc.end(); it != ed; ++it) {
-    for (auto itma = it->second.begin(), edma = it->second.end(); itma != edma; ++itma) {
-      outputCollection.insert(tC[it->first], std::make_pair(TPCollectionH[itma->idx], itma->quality));
+  for (auto &it : bareAssoc) {
+    for (auto itma = it.second.begin(), edma = it.second.end(); itma != edma; ++itma) {
+      outputCollection.insert(tC[it.first], std::make_pair(TPCollectionH[itma->idx], itma->quality));
     }
   }
 
@@ -204,8 +204,8 @@ SimToRecoCollection MuonAssociatorByHits::associateSimToReco(
     const edm::EventSetup *setup) const {
   SimToRecoCollection outputCollection(&e->productGetter());
   MuonAssociatorByHitsHelper::TrackHitsCollection tH;
-  for (auto it = tC.begin(), ed = tC.end(); it != ed; ++it) {
-    tH.push_back(std::make_pair((*it)->recHitsBegin(), (*it)->recHitsEnd()));
+  for (auto &&it : tC) {
+    tH.push_back(std::make_pair((it)->recHitsBegin(), (it)->recHitsEnd()));
   }
 
   // Retrieve tracker topology from geometry
@@ -229,9 +229,9 @@ SimToRecoCollection MuonAssociatorByHits::associateSimToReco(
       tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth, {}};
 
   auto bareAssoc = helper_.associateSimToRecoIndices(tH, TPCollectionH, resources);
-  for (auto it = bareAssoc.begin(), ed = bareAssoc.end(); it != ed; ++it) {
-    for (auto itma = it->second.begin(), edma = it->second.end(); itma != edma; ++itma) {
-      outputCollection.insert(TPCollectionH[it->first], std::make_pair(tC[itma->idx], itma->quality));
+  for (auto &it : bareAssoc) {
+    for (auto itma = it.second.begin(), edma = it.second.end(); itma != edma; ++itma) {
+      outputCollection.insert(TPCollectionH[it.first], std::make_pair(tC[itma->idx], itma->quality));
     }
   }
 

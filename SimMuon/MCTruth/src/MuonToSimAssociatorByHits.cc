@@ -60,8 +60,8 @@ void MuonToSimAssociatorByHits::associateMuons(MuonToSimCollection &recToSim,
                                                 // segments
   switch (trackType) {
     case InnerTk:
-      for (edm::RefToBaseVector<reco::Muon>::const_iterator it = muons.begin(), ed = muons.end(); it != ed; ++it) {
-        edm::RefToBase<reco::Muon> mur = *it;
+      for (auto &&muon : muons) {
+        edm::RefToBase<reco::Muon> mur = muon;
         if (mur->track().isNonnull()) {
           muonHitRefs.push_back(std::make_pair(mur->track()->recHitsBegin(), mur->track()->recHitsEnd()));
         } else {
@@ -70,8 +70,8 @@ void MuonToSimAssociatorByHits::associateMuons(MuonToSimCollection &recToSim,
       }
       break;
     case OuterTk:
-      for (edm::RefToBaseVector<reco::Muon>::const_iterator it = muons.begin(), ed = muons.end(); it != ed; ++it) {
-        edm::RefToBase<reco::Muon> mur = *it;
+      for (auto &&muon : muons) {
+        edm::RefToBase<reco::Muon> mur = muon;
         if (mur->outerTrack().isNonnull()) {
           muonHitRefs.push_back(std::make_pair(mur->outerTrack()->recHitsBegin(), mur->outerTrack()->recHitsEnd()));
         } else {
@@ -80,8 +80,8 @@ void MuonToSimAssociatorByHits::associateMuons(MuonToSimCollection &recToSim,
       }
       break;
     case GlobalTk:
-      for (edm::RefToBaseVector<reco::Muon>::const_iterator it = muons.begin(), ed = muons.end(); it != ed; ++it) {
-        edm::RefToBase<reco::Muon> mur = *it;
+      for (auto &&muon : muons) {
+        edm::RefToBase<reco::Muon> mur = muon;
         if (mur->globalTrack().isNonnull()) {
           muonHitRefs.push_back(std::make_pair(mur->globalTrack()->recHitsBegin(), mur->globalTrack()->recHitsEnd()));
         } else {
@@ -94,14 +94,13 @@ void MuonToSimAssociatorByHits::associateMuons(MuonToSimCollection &recToSim,
       hitExtractor.init(*event, *setup);
       // puts hits in the vector, and record indices
       std::vector<std::pair<size_t, size_t>> muonHitIndices;
-      for (edm::RefToBaseVector<reco::Muon>::const_iterator it = muons.begin(), ed = muons.end(); it != ed; ++it) {
-        edm::RefToBase<reco::Muon> mur = *it;
+      for (auto &&muon : muons) {
+        edm::RefToBase<reco::Muon> mur = muon;
         std::pair<size_t, size_t> indices(allTMRecHits.size(), allTMRecHits.size());
         if (mur->isTrackerMuon()) {
           std::vector<const TrackingRecHit *> hits = hitExtractor.getMuonHits(*mur);
-          for (std::vector<const TrackingRecHit *>::const_iterator ith = hits.begin(), edh = hits.end(); ith != edh;
-               ++ith) {
-            allTMRecHits.push_back(**ith);
+          for (auto hit : hits) {
+            allTMRecHits.push_back(*hit);
           }
           indices.second += hits.size();
         }
@@ -110,11 +109,8 @@ void MuonToSimAssociatorByHits::associateMuons(MuonToSimCollection &recToSim,
       // convert indices into pairs of iterators to references
       typedef std::pair<size_t, size_t> index_pair;
       trackingRecHit_iterator hitRefBegin = allTMRecHits.data().begin();
-      for (std::vector<std::pair<size_t, size_t>>::const_iterator idxs = muonHitIndices.begin(),
-                                                                  idxend = muonHitIndices.end();
-           idxs != idxend;
-           ++idxs) {
-        muonHitRefs.push_back(std::make_pair(hitRefBegin + idxs->first, hitRefBegin + idxs->second));
+      for (const auto &muonHitIndice : muonHitIndices) {
+        muonHitRefs.push_back(std::make_pair(hitRefBegin + muonHitIndice.first, hitRefBegin + muonHitIndice.second));
       }
 
     } break;
@@ -142,18 +138,18 @@ void MuonToSimAssociatorByHits::associateMuons(MuonToSimCollection &recToSim,
       tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth, {}};
 
   auto recSimColl = helper_.associateRecoToSimIndices(muonHitRefs, tPC, resources);
-  for (auto it = recSimColl.begin(), ed = recSimColl.end(); it != ed; ++it) {
-    edm::RefToBase<reco::Muon> rec = muons[it->first];
+  for (auto &it : recSimColl) {
+    edm::RefToBase<reco::Muon> rec = muons[it.first];
     std::vector<std::pair<TrackingParticleRef, double>> &tpAss = recToSim[rec];
-    for (auto const &a : it->second) {
+    for (auto const &a : it.second) {
       tpAss.push_back(std::make_pair(tPC[a.idx], a.quality));
     }
   }
   auto simRecColl = helper_.associateSimToRecoIndices(muonHitRefs, tPC, resources);
-  for (auto it = simRecColl.begin(), ed = simRecColl.end(); it != ed; ++it) {
-    TrackingParticleRef sim = tPC[it->first];
+  for (auto &it : simRecColl) {
+    TrackingParticleRef sim = tPC[it.first];
     std::vector<std::pair<edm::RefToBase<reco::Muon>, double>> &recAss = simToRec[sim];
-    for (auto const &a : it->second) {
+    for (auto const &a : it.second) {
       recAss.push_back(std::make_pair(muons[a.idx], a.quality));
     }
   }

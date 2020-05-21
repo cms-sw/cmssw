@@ -142,12 +142,12 @@ void IMACalibBlock::riempiVtr(const std::vector<double>& pieno, CLHEP::HepVector
 // ------------------------------------------------------------
 
 void IMACalibBlock::reset() {
-  for (std::vector<double>::iterator vecIt = m_kaliVector.begin(); vecIt != m_kaliVector.end(); ++vecIt) {
-    *vecIt = 0.;
+  for (double& vecIt : m_kaliVector) {
+    vecIt = 0.;
   }
 
-  for (std::vector<double>::iterator vecIt = m_kaliMatrix.begin(); vecIt != m_kaliMatrix.end(); ++vecIt) {
-    *vecIt = 0.;
+  for (double& vecIt : m_kaliMatrix) {
+    vecIt = 0.;
   }
 }
 

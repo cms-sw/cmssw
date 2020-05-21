@@ -91,8 +91,8 @@ ElectronIdMVAProducer::ElectronIdMVAProducer(const edm::ParameterSet& iConfig) {
   bool manualCat_ = true;
 
   std::string path_mvaWeightFileEleID;
-  for (unsigned ifile = 0; ifile < fpMvaWeightFiles.size(); ++ifile) {
-    path_mvaWeightFileEleID = edm::FileInPath(fpMvaWeightFiles[ifile].c_str()).fullPath();
+  for (auto& fpMvaWeightFile : fpMvaWeightFiles) {
+    path_mvaWeightFileEleID = edm::FileInPath(fpMvaWeightFile.c_str()).fullPath();
     mvaWeightFiles_.push_back(path_mvaWeightFileEleID);
   }
 
@@ -146,14 +146,13 @@ bool ElectronIdMVAProducer::filter(edm::Event& iEvent, const edm::EventSetup& iS
   std::vector<float> values;
   values.reserve(egCollection->size());
 
-  for (reco::GsfElectronCollection::const_iterator egIter = egCandidates.begin(); egIter != egCandidates.end();
-       ++egIter) {
+  for (const auto& egCandidate : egCandidates) {
     double mvaVal = -999999;
     if (!NoIP_) {
-      mvaVal = mvaID_->mvaValue(*egIter, *pv, thebuilder, lazyTools, verbose_);
+      mvaVal = mvaID_->mvaValue(egCandidate, *pv, thebuilder, lazyTools, verbose_);
     }
     if (NoIP_) {
-      mvaVal = mvaID_->mvaValue(*egIter, *pv, _Rho, /*thebuilder,*/ lazyTools, verbose_);
+      mvaVal = mvaID_->mvaValue(egCandidate, *pv, _Rho, /*thebuilder,*/ lazyTools, verbose_);
     }
 
     values.push_back(mvaVal);

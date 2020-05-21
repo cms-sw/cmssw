@@ -126,17 +126,16 @@ void DTResidualCalibration::analyze(const edm::Event& event, const edm::EventSet
       }
 
       // Loop over 1D RecHit inside 4D segment
-      for (std::vector<DTRecHit1D>::const_iterator recHit1D = recHits1D_S3.begin(); recHit1D != recHits1D_S3.end();
-           ++recHit1D) {
-        const DTWireId wireId = recHit1D->wireId();
+      for (const auto& recHit1D : recHits1D_S3) {
+        const DTWireId wireId = recHit1D.wireId();
 
-        float segmDistance = segmentToWireDistance(*recHit1D, *segment);
+        float segmDistance = segmentToWireDistance(recHit1D, *segment);
         if (segmDistance > 2.1)
           LogTrace("Calibration") << "WARNING: segment-wire distance: " << segmDistance;
         else
           LogTrace("Calibration") << "segment-wire distance: " << segmDistance;
 
-        float residualOnDistance = DTRecHitSegmentResidual().compute(dtGeom_, *recHit1D, *segment);
+        float residualOnDistance = DTRecHitSegmentResidual().compute(dtGeom_, recHit1D, *segment);
         LogTrace("Calibration") << "Wire Id " << wireId << " residual on distance: " << residualOnDistance;
 
         fillHistos(wireId.superlayerId(), segmDistance, residualOnDistance);

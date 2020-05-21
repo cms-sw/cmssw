@@ -33,14 +33,14 @@ void l1t::Stage1Layer2FlowAlgorithm::processEvent(const std::vector<l1t::CaloReg
   double q2y = 0;
   double regionET = 0.;
 
-  for (std::vector<CaloRegion>::const_iterator region = regions.begin(); region != regions.end(); region++) {
-    int ieta = region->hwEta();
+  for (const auto& region : regions) {
+    int ieta = region.hwEta();
     if (ieta > 3 && ieta < 18) {
       continue;
     }
 
-    int iphi = region->hwPhi();
-    regionET = region->hwPt();
+    int iphi = region.hwPhi();
+    regionET = region.hwPt();
 
     q2x += regionET * cosPhi[iphi];
     q2y += regionET * sinPhi[iphi];

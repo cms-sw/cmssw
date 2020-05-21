@@ -44,8 +44,8 @@ TriggerObject::TriggerObject(const reco::Particle::PolarLorentzVector& vec, int 
 // Get all trigger object type identifiers
 std::vector<int> TriggerObject::triggerObjectTypes() const {
   std::vector<int> triggerObjectTypes;
-  for (size_t iTo = 0; iTo < triggerObjectTypes_.size(); ++iTo) {
-    triggerObjectTypes.push_back(triggerObjectTypes_.at(iTo));
+  for (auto triggerObjectType : triggerObjectTypes_) {
+    triggerObjectTypes.push_back(triggerObjectType);
   }
   return triggerObjectTypes;
 }
@@ -72,8 +72,8 @@ bool TriggerObject::hasCollection(const std::string& collName) const {
 
 // Checks, if a certain trigger object type identifier is assigned
 bool TriggerObject::hasTriggerObjectType(trigger::TriggerObjectType triggerObjectType) const {
-  for (size_t iF = 0; iF < triggerObjectTypes_.size(); ++iF) {
-    if (triggerObjectType == triggerObjectTypes_.at(iF))
+  for (auto iF : triggerObjectTypes_) {
+    if (triggerObjectType == iF)
       return true;
   }
   return false;

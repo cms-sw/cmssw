@@ -60,9 +60,9 @@ namespace dtCalibration {
     float aveKFactor = 0.;
     int nIter = 0;
 
-    for (auto sl = muonGeom_->superLayers().begin(); sl != muonGeom_->superLayers().end(); ++sl) {
+    for (auto sl : muonGeom_->superLayers()) {
       float tTrigMean, tTrigSigma, kFactor;
-      int status = tTrigMap_->get((*sl)->id(), tTrigMean, tTrigSigma, kFactor, DTTimeUnits::ns);
+      int status = tTrigMap_->get(sl->id(), tTrigMean, tTrigSigma, kFactor, DTTimeUnits::ns);
       if (!status) {
         ++nIter;
         aveMean += tTrigMean;

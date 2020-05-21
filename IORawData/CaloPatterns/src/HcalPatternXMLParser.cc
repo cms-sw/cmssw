@@ -135,14 +135,14 @@ void ConfigurationDBHandler::endElement(const XMLCh* const uri,
   } else if (m_mode == md_Data) {
     // parse the text
     std::string entry;
-    for (std::string::iterator q = m_text.begin(); q != m_text.end(); q++) {
-      if (isspace(*q)) {
+    for (char& q : m_text) {
+      if (isspace(q)) {
         if (entry.empty())
           continue;
         m_items.push_back(entry);
         entry = "";
       } else
-        entry += *q;
+        entry += q;
     }
   }
 
@@ -203,6 +203,6 @@ void HcalPatternXMLParser::parse(const std::string& xmlDocument,
     formatting = 16;
 
   data.clear();
-  for (std::vector<std::string>::const_iterator i = items.begin(); i != items.end(); i++)
-    data.push_back(strtol(i->c_str(), nullptr, formatting));
+  for (const auto& item : items)
+    data.push_back(strtol(item.c_str(), nullptr, formatting));
 }

@@ -76,9 +76,8 @@ namespace edm {
 
     std::set<EventSetupRecordKey> returnValue;
 
-    for (Intervals::const_iterator itEntry = intervals_.begin(), itEntryEnd = intervals_.end(); itEntry != itEntryEnd;
-         ++itEntry) {
-      returnValue.insert(returnValue.end(), itEntry->first);
+    for (const auto& interval : intervals_) {
+      returnValue.insert(returnValue.end(), interval.first);
     }
     return returnValue;
   }

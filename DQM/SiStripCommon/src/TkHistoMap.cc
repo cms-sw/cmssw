@@ -272,10 +272,10 @@ void TkHistoMap::dumpInTkMap(TrackerMap* tkmap, bool dumpEntries) {
     // std::vector<uint32_t> dets;
     // tkdetmap_->getDetsForLayer(layer,dets);
     std::vector<DetId> dets = tkdetmap_->getDetsForLayer(layer);
-    for (size_t i = 0; i < dets.size(); ++i) {
-      if (dets[i] > 0) {
-        if (getEntries(dets[i]) > 0) {
-          tkmap->fill(dets[i], dumpEntries ? getEntries(dets[i]) : getValue(dets[i]));
+    for (auto& det : dets) {
+      if (det > 0) {
+        if (getEntries(det) > 0) {
+          tkmap->fill(det, dumpEntries ? getEntries(det) : getValue(det));
         }
       }
     }

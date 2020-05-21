@@ -17,10 +17,8 @@ CorrMETData AddCorrectionsToGenericMET::getCorrection(const reco::MET& srcMET,
                                                       const edm::EventSetup& es) {
   CorrMETData sumCor;
   edm::Handle<CorrMETData> corr;
-  for (std::vector<edm::EDGetTokenT<CorrMETData> >::const_iterator corrToken = corrTokens_.begin();
-       corrToken != corrTokens_.end();
-       ++corrToken) {
-    evt.getByToken(*corrToken, corr);
+  for (auto corrToken : corrTokens_) {
+    evt.getByToken(corrToken, corr);
     sumCor += (*corr);
   }
 

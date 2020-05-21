@@ -105,8 +105,8 @@ KinematicVertex::operator reco::Vertex() {
                       degreesOfFreedom(),
                       daughters.size());
 
-  for (std::vector<RefCountedKinematicParticle>::const_iterator i = daughters.begin(); i != daughters.end(); ++i) {
-    const TransientTrackKinematicParticle* ttkp = dynamic_cast<const TransientTrackKinematicParticle*>(&(**i));
+  for (const auto& daughter : daughters) {
+    const TransientTrackKinematicParticle* ttkp = dynamic_cast<const TransientTrackKinematicParticle*>(&(*daughter));
     if (ttkp != nullptr) {
       const reco::TrackTransientTrack* ttt =
           dynamic_cast<const reco::TrackTransientTrack*>(ttkp->initialTransientTrack()->basicTransientTrack());

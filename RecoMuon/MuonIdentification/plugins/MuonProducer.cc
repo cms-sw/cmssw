@@ -86,9 +86,9 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet)
   if (fillSelectors_) {
     theSelectorMapNames = pSet.getParameter<InputTags>("SelectorMaps");
 
-    for (InputTags::const_iterator tag = theSelectorMapNames.begin(); tag != theSelectorMapNames.end(); ++tag) {
-      theSelectorMapTokens_.push_back(consumes<edm::ValueMap<bool>>(*tag));
-      produces<edm::ValueMap<bool>>(labelOrInstance(*tag));
+    for (const auto& theSelectorMapName : theSelectorMapNames) {
+      theSelectorMapTokens_.push_back(consumes<edm::ValueMap<bool>>(theSelectorMapName));
+      produces<edm::ValueMap<bool>>(labelOrInstance(theSelectorMapName));
     }
   }
 
@@ -126,9 +126,8 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet)
     isolationLabels.push_back("pfIsoSumDRProfileR04");
 
     //Fill the label,pet map and initialize MuPFIsoHelper
-    for (std::vector<std::string>::const_iterator label = isolationLabels.begin(); label != isolationLabels.end();
-         ++label)
-      psetMap[*label] = pfIsoPSet.getParameter<edm::ParameterSet>(*label);
+    for (const auto& isolationLabel : isolationLabels)
+      psetMap[isolationLabel] = pfIsoPSet.getParameter<edm::ParameterSet>(isolationLabel);
 
     thePFIsoHelper = new MuPFIsoHelper(psetMap, consumesCollector());
 
@@ -157,9 +156,8 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet)
       pfIsoMapTokens_.push_back(isoMapToken);
     }
 
-    for (unsigned int j = 0; j < pfIsoMapNames.size(); ++j) {
-      for (std::map<std::string, edm::InputTag>::const_iterator map = pfIsoMapNames.at(j).begin();
-           map != pfIsoMapNames.at(j).end();
+    for (auto& pfIsoMapName : pfIsoMapNames) {
+      for (std::map<std::string, edm::InputTag>::const_iterator map = pfIsoMapName.begin(); map != pfIsoMapName.end();
            ++map)
         produces<edm::ValueMap<double>>(labelOrInstance(map->second));
     }

@@ -25,8 +25,8 @@ static double computeSharedTracks(const reco::Vertex &pv, const reco::Vertex &sv
 reco::VertexCollection VertexMerging::mergeVertex(reco::VertexCollection &secondaryVertices) {
   VertexDistance3D dist;
   reco::VertexCollection recoVertices;
-  for (std::vector<reco::Vertex>::const_iterator sv = secondaryVertices.begin(); sv != secondaryVertices.end(); ++sv) {
-    recoVertices.push_back(*sv);
+  for (const auto &secondaryVertice : secondaryVertices) {
+    recoVertices.push_back(secondaryVertice);
   }
   for (std::vector<reco::Vertex>::iterator sv = recoVertices.begin(); sv != recoVertices.end(); ++sv) {
     bool shared = false;

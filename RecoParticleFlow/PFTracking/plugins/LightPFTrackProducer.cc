@@ -16,8 +16,8 @@ LightPFTrackProducer::LightPFTrackProducer(const ParameterSet& iConfig) : pfTran
 
   std::vector<InputTag> tags = iConfig.getParameter<vector<InputTag> >("TkColList");
 
-  for (unsigned int i = 0; i < tags.size(); ++i)
-    tracksContainers_.push_back(consumes<reco::TrackCollection>(tags[i]));
+  for (const auto& tag : tags)
+    tracksContainers_.push_back(consumes<reco::TrackCollection>(tag));
 
   useQuality_ = iConfig.getParameter<bool>("UseQuality");
   trackQuality_ = reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"));
@@ -29,10 +29,10 @@ void LightPFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   //create the empty collections
   auto PfTrColl = std::make_unique<reco::PFRecTrackCollection>();
 
-  for (unsigned int istr = 0; istr < tracksContainers_.size(); istr++) {
+  for (auto tracksContainer : tracksContainers_) {
     //Track collection
     Handle<reco::TrackCollection> tkRefCollection;
-    iEvent.getByToken(tracksContainers_[istr], tkRefCollection);
+    iEvent.getByToken(tracksContainer, tkRefCollection);
     reco::TrackCollection Tk = *(tkRefCollection.product());
     for (unsigned int i = 0; i < Tk.size(); i++) {
       if (useQuality_ && (!(Tk[i].quality(trackQuality_))))

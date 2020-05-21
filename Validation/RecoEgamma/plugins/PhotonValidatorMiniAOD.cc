@@ -205,21 +205,20 @@ void PhotonValidatorMiniAOD::analyze(const edm::Event &iEvent, const edm::EventS
   Handle<reco::GenParticleCollection> genParticles;
   iEvent.getByToken(genpartToken_, genParticles);
 
-  for (reco::GenParticleCollection::const_iterator mcIter = genParticles->begin(); mcIter != genParticles->end();
-       mcIter++) {
-    if (!(mcIter->pdgId() == 22))
+  for (const auto &mcIter : *genParticles) {
+    if (!(mcIter.pdgId() == 22))
       continue;
-    if (mcIter->mother() != nullptr && !(mcIter->mother()->pdgId() == 25))
+    if (mcIter.mother() != nullptr && !(mcIter.mother()->pdgId() == 25))
       continue;
-    if (fabs(mcIter->eta()) > 2.5)
+    if (fabs(mcIter.eta()) > 2.5)
       continue;
     //       if ( mcIter->pt() < 5) continue;
     //        if ( fabs(mcIter->eta()) > 1.4442 && fabs(mcIter->eta()) < 1.566) continue;
 
-    float mcPhi = mcIter->phi();
-    float mcEta = mcIter->eta();
+    float mcPhi = mcIter.phi();
+    float mcEta = mcIter.eta();
     //mcEta = etaTransformation(mcEta, (*mcPho).primaryVertex().z() );
-    float mcEnergy = mcIter->energy();
+    float mcEnergy = mcIter.energy();
 
     double dR = 9999999.;
     float minDr = 10000.;

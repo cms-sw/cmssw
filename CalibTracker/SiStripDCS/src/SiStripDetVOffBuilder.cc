@@ -207,19 +207,17 @@ void SiStripDetVOffBuilder::BuildDetVOffObj() {
         if (!excludedDetIdListFile_.empty()) {
           map.BuildMap(excludedDetIdListFile_, excludedDetIdMap);
         }
-        for (std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator it = detInfos.begin();
-             it != detInfos.end();
-             ++it) {
+        for (const auto& detInfo : detInfos) {
           std::vector<std::pair<uint32_t, std::string> >::const_iterator exclIt = excludedDetIdMap.begin();
           bool excluded = false;
           for (; exclIt != excludedDetIdMap.end(); ++exclIt) {
-            if (it->first == exclIt->first) {
+            if (detInfo.first == exclIt->first) {
               excluded = true;
               break;
             }
           }
           if (!excluded) {
-            modV->put(it->first, 1, 1);
+            modV->put(detInfo.first, 1, 1);
           }
         }
 
@@ -313,9 +311,9 @@ void SiStripDetVOffBuilder::BuildDetVOffObj() {
       (modulesOff[i].first)->getDetIds(finalids);
       std::cout << "Index = " << i << " Size of DetIds vector = " << finalids.size() << std::endl;
       std::cout << "Time = " << modulesOff[i].second << std::endl;
-      for (unsigned int j = 0; j < finalids.size(); j++) {
-        std::cout << "detid = " << finalids[j] << " LV off = " << (modulesOff[i].first)->IsModuleLVOff(finalids[j])
-                  << " HV off = " << (modulesOff[i].first)->IsModuleHVOff(finalids[j]) << std::endl;
+      for (unsigned int finalid : finalids) {
+        std::cout << "detid = " << finalid << " LV off = " << (modulesOff[i].first)->IsModuleLVOff(finalid)
+                  << " HV off = " << (modulesOff[i].first)->IsModuleHVOff(finalid) << std::endl;
       }
     }
   }
@@ -343,16 +341,16 @@ int SiStripDetVOffBuilder::findSetting(uint32_t id,
   // more than one entry for this channel
   // NB.  entries ordered by date!
   else {
-    for (unsigned int j = 0; j < locations.size(); j++) {
+    for (int location : locations) {
 #ifdef USING_NEW_CORAL
       const boost::posix_time::ptime& testSec = changeDate.time();
-      const boost::posix_time::ptime& limitSec = settingDate[(unsigned int)locations[j]].time();
+      const boost::posix_time::ptime& limitSec = settingDate[(unsigned int)location].time();
 #else
       long testSec = changeDate.time().ns();
       long limitSec = settingDate[(unsigned int)locations[j]].time().ns();
 #endif
       if (testSec >= limitSec) {
-        setting = locations[j];
+        setting = location;
       }
     }
   }
@@ -381,16 +379,16 @@ int SiStripDetVOffBuilder::findSetting(std::string dpname,
   // more than one entry for this channel
   // NB.  entries ordered by date!
   else {
-    for (unsigned int j = 0; j < locations.size(); j++) {
+    for (int location : locations) {
 #ifdef USING_NEW_CORAL
       const boost::posix_time::ptime& testSec = changeDate.time();
-      const boost::posix_time::ptime& limitSec = settingDate[(unsigned int)locations[j]].time();
+      const boost::posix_time::ptime& limitSec = settingDate[(unsigned int)location].time();
 #else
       long testSec = changeDate.time().ns();
       long limitSec = settingDate[(unsigned int)locations[j]].time().ns();
 #endif
       if (testSec >= limitSec) {
-        setting = locations[j];
+        setting = location;
       }
     }
   }
@@ -430,28 +428,28 @@ void SiStripDetVOffBuilder::readLastValueFromFile(std::vector<uint32_t>& dpIDs,
   lastValueFile.close();
 
   // Now convert dates to coral::TimeStamp
-  for (unsigned int i = 0; i < changeDates.size(); i++) {
-    std::string part = changeDates[i].substr(0, 4);
+  for (auto& changeDate : changeDates) {
+    std::string part = changeDate.substr(0, 4);
     int year = atoi(part.c_str());
     part.clear();
 
-    part = changeDates[i].substr(5, 2);
+    part = changeDate.substr(5, 2);
     int month = atoi(part.c_str());
     part.clear();
 
-    part = changeDates[i].substr(8, 2);
+    part = changeDate.substr(8, 2);
     int day = atoi(part.c_str());
     part.clear();
 
-    part = changeDates[i].substr(11, 2);
+    part = changeDate.substr(11, 2);
     int hour = atoi(part.c_str());
     part.clear();
 
-    part = changeDates[i].substr(14, 2);
+    part = changeDate.substr(14, 2);
     int minute = atoi(part.c_str());
     part.clear();
 
-    part = changeDates[i].substr(17, 2);
+    part = changeDate.substr(17, 2);
     int second = atoi(part.c_str());
     part.clear();
 
@@ -820,9 +818,9 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues& psuStruct, DetIdLis
     //Extra check:
     //Should check if there any HVUnmapped channels in the map that are not listed in the local file!
     bool MissingChannels = false;
-    for (std::map<std::string, vector<uint32_t> >::iterator it = UnmappedPSUs.begin(); it != UnmappedPSUs.end(); it++) {
-      std::string chan002 = it->first + "channel002";
-      std::string chan003 = it->first + "channel003";
+    for (auto& UnmappedPSU : UnmappedPSUs) {
+      std::string chan002 = UnmappedPSU.first + "channel002";
+      std::string chan003 = UnmappedPSU.first + "channel003";
       std::map<std::string, bool>::iterator iter = UnmappedState.find(chan002);
       if (iter == UnmappedState.end()) {
         std::cout << "ERROR! The local file with the channel status for HVUnmapped channels IS MISSING one of the "
@@ -849,9 +847,9 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues& psuStruct, DetIdLis
     }
   } else {  //If the file HVUnmappedChannelState.dat does not exist, initialize the map to all OFF.
     //(see below for creating the file at the end of the execution with the latest state of unmapped channels.
-    for (std::map<std::string, vector<uint32_t> >::iterator it = UnmappedPSUs.begin(); it != UnmappedPSUs.end(); it++) {
-      std::string chan002 = it->first + "channel002";
-      std::string chan003 = it->first + "channel003";
+    for (auto& UnmappedPSU : UnmappedPSUs) {
+      std::string chan002 = UnmappedPSU.first + "channel002";
+      std::string chan003 = UnmappedPSU.first + "channel003";
       UnmappedState[chan002] = false;
       UnmappedState[chan003] = false;
     }
@@ -887,10 +885,9 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues& psuStruct, DetIdLis
     //Extra check:
     //Should check if there any HVCrosstalking channels in the map that are not listed in the local file!
     bool MissingChannels = false;
-    for (std::map<std::string, vector<uint32_t> >::iterator it = CrosstalkingPSUs.begin(); it != CrosstalkingPSUs.end();
-         it++) {
-      std::string chan002 = it->first + "channel002";
-      std::string chan003 = it->first + "channel003";
+    for (auto& CrosstalkingPSU : CrosstalkingPSUs) {
+      std::string chan002 = CrosstalkingPSU.first + "channel002";
+      std::string chan003 = CrosstalkingPSU.first + "channel003";
       std::map<std::string, bool>::iterator iter = CrosstalkingState.find(chan002);
       if (iter == CrosstalkingState.end()) {
         std::cout << "ERROR! The local file with the channel status for HVCrosstalking channels IS MISSING one of the "
@@ -917,10 +914,9 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues& psuStruct, DetIdLis
     }
   } else {  //If the file HVCrosstalkingChannelState.dat does not exist, initialize the map to all OFF.
     //(see below for creating the file at the end of the execution with the latest state of unmapped channels.
-    for (std::map<std::string, vector<uint32_t> >::iterator it = CrosstalkingPSUs.begin(); it != CrosstalkingPSUs.end();
-         it++) {
-      std::string chan002 = it->first + "channel002";
-      std::string chan003 = it->first + "channel003";
+    for (auto& CrosstalkingPSU : CrosstalkingPSUs) {
+      std::string chan002 = CrosstalkingPSU.first + "channel002";
+      std::string chan003 = CrosstalkingPSU.first + "channel003";
       CrosstalkingState[chan002] = false;
       CrosstalkingState[chan003] = false;
     }
@@ -930,14 +926,14 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues& psuStruct, DetIdLis
     //print out the UnmappedState map:
     std::cout << "Printing the UnmappedChannelState initial map:" << std::endl;
     std::cout << "PSUChannel\t\tHVON?(true or false)" << std::endl;
-    for (std::map<std::string, bool>::iterator it = UnmappedState.begin(); it != UnmappedState.end(); it++) {
-      std::cout << it->first << "\t\t" << it->second << std::endl;
+    for (auto& it : UnmappedState) {
+      std::cout << it.first << "\t\t" << it.second << std::endl;
     }
     //print out the CrosstalkingState map:
     std::cout << "Printing the CrosstalkingChannelState initial map:" << std::endl;
     std::cout << "PSUChannel\t\tHVON?(true or false)" << std::endl;
-    for (std::map<std::string, bool>::iterator it = CrosstalkingState.begin(); it != CrosstalkingState.end(); it++) {
-      std::cout << it->first << "\t\t" << it->second << std::endl;
+    for (auto& it : CrosstalkingState) {
+      std::cout << it.first << "\t\t" << it.second << std::endl;
     }
   }
 
@@ -1008,27 +1004,27 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues& psuStruct, DetIdLis
         if (!ids.empty()) {
           if (Channel == "channel000" || Channel == "channel001") {
             cout << "Corresponding to LV (PSU-)matching detids: " << endl;
-            for (unsigned int i_detid = 0; i_detid < ids.size(); i_detid++) {
-              cout << ids[i_detid] << std::endl;
+            for (unsigned int id : ids) {
+              cout << id << std::endl;
             }
           } else {
             cout << "Corresponding to straight HV matching detids: " << endl;
-            for (unsigned int i_detid = 0; i_detid < ids.size(); i_detid++) {
-              cout << ids[i_detid] << std::endl;
+            for (unsigned int id : ids) {
+              cout << id << std::endl;
             }
           }
         }
         //The unmapped_ids and crosstalking_ids are only filled for HV channels!
         if (!unmapped_ids.empty()) {
           cout << "Corresponding to HV unmapped (PSU-)matching detids: " << endl;
-          for (unsigned int i_detid = 0; i_detid < unmapped_ids.size(); i_detid++) {
-            cout << unmapped_ids[i_detid] << std::endl;
+          for (unsigned int unmapped_id : unmapped_ids) {
+            cout << unmapped_id << std::endl;
           }
         }
         if (!crosstalking_ids.empty()) {
           cout << "Corresponding to HV crosstalking (PSU-)matching detids: " << endl;
-          for (unsigned int i_detid = 0; i_detid < crosstalking_ids.size(); i_detid++) {
-            cout << crosstalking_ids[i_detid] << std::endl;
+          for (unsigned int crosstalking_id : crosstalking_ids) {
+            cout << crosstalking_id << std::endl;
           }
         }
       }
@@ -1223,12 +1219,12 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues& psuStruct, DetIdLis
   }  //End of the loop over all PSUChannels reported by the DB query.
   //At this point we need to (over)write the 2 files that will keep the HVUnmapped and HVCrosstalking channels status:
   std::ofstream ofsUnmapped("HVUnmappedChannelState.dat");
-  for (std::map<std::string, bool>::iterator it = UnmappedState.begin(); it != UnmappedState.end(); it++) {
-    ofsUnmapped << it->first << "\t" << it->second << std::endl;
+  for (auto& it : UnmappedState) {
+    ofsUnmapped << it.first << "\t" << it.second << std::endl;
   }
   std::ofstream ofsCrosstalking("HVCrosstalkingChannelState.dat");
-  for (std::map<std::string, bool>::iterator it = CrosstalkingState.begin(); it != CrosstalkingState.end(); it++) {
-    ofsCrosstalking << it->first << "\t" << it->second << std::endl;
+  for (auto& it : CrosstalkingState) {
+    ofsCrosstalking << it.first << "\t" << it.second << std::endl;
   }
 
   removeDuplicates(numLvBad);
@@ -1251,8 +1247,8 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues& psuStruct, DetIdLis
                                     << detIdStruct.notMatched;
 
   unsigned int dupCount = 0;
-  for (unsigned int t = 0; t < numLvBad.size(); t++) {
-    std::vector<unsigned int>::iterator iter = std::find(numHvBad.begin(), numHvBad.end(), numLvBad[t]);
+  for (unsigned int t : numLvBad) {
+    std::vector<unsigned int>::iterator iter = std::find(numHvBad.begin(), numHvBad.end(), t);
     if (iter != numHvBad.end()) {
       dupCount++;
     }

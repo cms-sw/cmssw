@@ -230,19 +230,18 @@ bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other) {
 
       if (find_if_checklist(header->tag(), tag_comparison_checklist)) {
         bool header_compatible = false;
-        for (unsigned int iter_runcard = 0; iter_runcard < runcard_v2.size(); iter_runcard++) {
+        for (auto &iter_runcard : runcard_v2) {
           std::vector<std::string> runcard_v1 = header->lines();
           runcard_v1.erase(std::remove_if(runcard_v1.begin(),
                                           runcard_v1.end(),
                                           [&](const std::string &x) { return find_if_checklist(x, checklist); }),
                            runcard_v1.end());
-          runcard_v2[iter_runcard].erase(
-              std::remove_if(runcard_v2[iter_runcard].begin(),
-                             runcard_v2[iter_runcard].end(),
-                             [&](const std::string &x) { return find_if_checklist(x, checklist); }),
-              runcard_v2[iter_runcard].end());
+          iter_runcard.erase(std::remove_if(iter_runcard.begin(),
+                                            iter_runcard.end(),
+                                            [&](const std::string &x) { return find_if_checklist(x, checklist); }),
+                             iter_runcard.end());
 
-          if (std::equal(runcard_v1.begin(), runcard_v1.end(), runcard_v2[iter_runcard].begin())) {
+          if (std::equal(runcard_v1.begin(), runcard_v1.end(), iter_runcard.begin())) {
             header_compatible = true;
             break;
           }

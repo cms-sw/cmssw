@@ -658,8 +658,8 @@ void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   std::vector<int> mbt = ptr1->minimumBiasThresholds();
   cout << "  minimumBiasThresholds=  [";
-  for (unsigned int i = 0; i < mbt.size(); i++)
-    cout << mbt[i];
+  for (int i : mbt)
+    cout << i;
   cout << "]" << endl;
 
   cout << endl << "centralityRegionMask() = " << ptr1->centralityRegionMask() << endl;

@@ -45,16 +45,14 @@ PATJetUpdater::PATJetUpdater(const edm::ParameterSet& iConfig)
   if (discriminatorTags_.empty()) {
     addDiscriminators_ = false;
   } else {
-    for (std::vector<edm::InputTag>::const_iterator it = discriminatorTags_.begin(), ed = discriminatorTags_.end();
-         it != ed;
-         ++it) {
-      std::string label = it->label();
+    for (const auto& discriminatorTag : discriminatorTags_) {
+      std::string label = discriminatorTag.label();
       std::string::size_type pos = label.find("JetTags");
       if ((pos != std::string::npos) && (pos != label.length() - 7)) {
         label.erase(pos + 7);  // trim a tail after "JetTags"
       }
-      if (!it->instance().empty()) {
-        label = (label + std::string(":") + it->instance());
+      if (!discriminatorTag.instance().empty()) {
+        label = (label + std::string(":") + discriminatorTag.instance());
       }
       discriminatorLabels_.push_back(label);
     }
@@ -62,9 +60,8 @@ PATJetUpdater::PATJetUpdater(const edm::ParameterSet& iConfig)
   if (tagInfoTags_.empty()) {
     addTagInfos_ = false;
   } else {
-    for (std::vector<edm::InputTag>::const_iterator it = tagInfoTags_.begin(), ed = tagInfoTags_.end(); it != ed;
-         ++it) {
-      std::string label = it->label();
+    for (const auto& tagInfoTag : tagInfoTags_) {
+      std::string label = tagInfoTag.label();
       std::string::size_type pos = label.find("TagInfos");
       if ((pos != std::string::npos) && (pos != label.length() - 8)) {
         label.erase(pos + 8);  // trim a tail after "TagInfos"
@@ -95,9 +92,9 @@ void PATJetUpdater::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // read in the jet correction factors ValueMap
   std::vector<edm::ValueMap<JetCorrFactors>> jetCorrs;
   if (addJetCorrFactors_) {
-    for (size_t i = 0; i < jetCorrFactorsTokens_.size(); ++i) {
+    for (auto jetCorrFactorsToken : jetCorrFactorsTokens_) {
       edm::Handle<edm::ValueMap<JetCorrFactors>> jetCorr;
-      iEvent.getByToken(jetCorrFactorsTokens_[i], jetCorr);
+      iEvent.getByToken(jetCorrFactorsToken, jetCorr);
       jetCorrs.push_back(*jetCorr);
     }
   }

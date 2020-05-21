@@ -52,9 +52,9 @@ bool EcalFEDErrorFilter::hltFilter(edm::Event& iEvent,
   // get fed raw data and SM id
 
   // loop over FEDS
-  for (std::vector<int>::const_iterator i = fedUnpackList_.begin(); i != fedUnpackList_.end(); i++) {
+  for (int i : fedUnpackList_) {
     // get fed raw data and SM id
-    const FEDRawData& fedData = rawdata->FEDData(*i);
+    const FEDRawData& fedData = rawdata->FEDData(i);
     int length = fedData.size() / sizeof(uint64_t);
 
     //    LogDebug("EcalRawToDigi") << "raw data length: " << length ;
@@ -65,7 +65,7 @@ bool EcalFEDErrorFilter::hltFilter(edm::Event& iEvent,
       uint64_t* fedTrailer = pData + (length - 1);
       bool crcError = (*fedTrailer >> 2) & 0x1;
       if (crcError) {
-        std::cout << "CRCERROR in FED " << *i << " trailer is " << std::setw(8) << std::hex << (*fedTrailer)
+        std::cout << "CRCERROR in FED " << i << " trailer is " << std::setw(8) << std::hex << (*fedTrailer)
                   << std::endl;
         return true;
       }

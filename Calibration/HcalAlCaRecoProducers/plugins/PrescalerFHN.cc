@@ -82,9 +82,9 @@ PrescalerFHN::PrescalerFHN(const edm::ParameterSet& iConfig) {
   //now do what ever initialization is needed
   std::vector<edm::ParameterSet> prescales_in(iConfig.getParameter<std::vector<edm::ParameterSet> >("Prescales"));
 
-  for (std::vector<edm::ParameterSet>::const_iterator cit = prescales_in.begin(); cit != prescales_in.end(); cit++) {
-    std::string name(cit->getParameter<std::string>("HLTName"));
-    unsigned int factor(cit->getParameter<unsigned int>("PrescaleFactor"));
+  for (const auto& cit : prescales_in) {
+    std::string name(cit.getParameter<std::string>("HLTName"));
+    unsigned int factor(cit.getParameter<unsigned int>("PrescaleFactor"));
 
     // does some exception get thrown if parameters aren't available? should test...
 

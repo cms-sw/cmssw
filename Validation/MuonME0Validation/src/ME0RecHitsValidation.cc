@@ -73,8 +73,8 @@ void ME0RecHitsValidation::analyze(const edm::Event &e, const edm::EventSetup &i
     return;
   }
 
-  for (auto hits = ME0Hits->begin(); hits != ME0Hits->end(); hits++) {
-    const ME0DetId id(hits->detUnitId());
+  for (const auto &hits : *ME0Hits) {
+    const ME0DetId id(hits.detUnitId());
     Int_t sh_region = id.region();
     Int_t sh_layer = id.layer();
     Int_t sh_station = 0;
@@ -82,24 +82,24 @@ void ME0RecHitsValidation::analyze(const edm::Event &e, const edm::EventSetup &i
     Int_t sh_roll = id.roll();
 
     // Int_t even_odd = id.chamber()%2;
-    if (ME0Geometry_->idToDet(hits->detUnitId()) == nullptr) {
+    if (ME0Geometry_->idToDet(hits.detUnitId()) == nullptr) {
       std::cout << "simHit did not matched with GEMGeometry." << std::endl;
       continue;
     }
 
-    const LocalPoint hitLP(hits->localPosition());
+    const LocalPoint hitLP(hits.localPosition());
 
-    for (ME0RecHitCollection::const_iterator recHit = ME0RecHits->begin(); recHit != ME0RecHits->end(); ++recHit) {
-      Float_t x = recHit->localPosition().x();
-      Float_t xErr = recHit->localPositionError().xx();
-      Float_t y = recHit->localPosition().y();
-      Float_t yErr = recHit->localPositionError().yy();
+    for (const auto &recHit : *ME0RecHits) {
+      Float_t x = recHit.localPosition().x();
+      Float_t xErr = recHit.localPositionError().xx();
+      Float_t y = recHit.localPosition().y();
+      Float_t yErr = recHit.localPositionError().yy();
       // Float_t detId = (Short_t) (*recHit).me0Id();
       Float_t bx = 0;
       Float_t clusterSize = 0;
       Float_t firstClusterStrip = 0;
 
-      ME0DetId id((*recHit).me0Id());
+      ME0DetId id(recHit.me0Id());
 
       Short_t region = (Short_t)id.region();
       Short_t station = 0;
@@ -107,8 +107,8 @@ void ME0RecHitsValidation::analyze(const edm::Event &e, const edm::EventSetup &i
       Short_t chamber = (Short_t)id.chamber();
       Short_t roll = (Short_t)id.roll();
 
-      LocalPoint rhLP = recHit->localPosition();
-      GlobalPoint rhGP = ME0Geometry_->idToDet((*recHit).me0Id())->surface().toGlobal(rhLP);
+      LocalPoint rhLP = recHit.localPosition();
+      GlobalPoint rhGP = ME0Geometry_->idToDet(recHit.me0Id())->surface().toGlobal(rhLP);
 
       Float_t globalR = rhGP.perp();
       Float_t globalX = rhGP.x();

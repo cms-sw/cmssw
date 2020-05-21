@@ -21,8 +21,8 @@ PuppiContainer::PuppiContainer(const edm::ParameterSet &iConfig) {
   fPtMaxNeutralsStartSlope = iConfig.getParameter<double>("PtMaxNeutralsStartSlope");
   std::vector<edm::ParameterSet> lAlgos = iConfig.getParameter<std::vector<edm::ParameterSet> >("algos");
   fNAlgos = lAlgos.size();
-  for (unsigned int i0 = 0; i0 < lAlgos.size(); i0++) {
-    PuppiAlgo pPuppiConfig(lAlgos[i0]);
+  for (auto &lAlgo : lAlgos) {
+    PuppiAlgo pPuppiConfig(lAlgo);
     fPuppiAlgo.push_back(pPuppiConfig);
   }
 }
@@ -137,10 +137,10 @@ void PuppiContainer::getRMSAvg(int iOpt,
                                std::vector<PuppiCandidate> const &iConstits,
                                std::vector<PuppiCandidate> const &iParticles,
                                std::vector<PuppiCandidate> const &iChargedParticles) {
-  for (unsigned int i0 = 0; i0 < iConstits.size(); i0++) {
+  for (const auto &iConstit : iConstits) {
     double pVal = -1;
     //Calculate the Puppi Algo to use
-    int pPupId = getPuppiId(iConstits[i0].pt(), iConstits[i0].eta());
+    int pPupId = getPuppiId(iConstit.pt(), iConstit.eta());
     if (pPupId == -1 || fPuppiAlgo[pPupId].numAlgos() <= iOpt) {
       fVals.push_back(-1);
       continue;
@@ -151,14 +151,14 @@ void PuppiContainer::getRMSAvg(int iOpt,
     double pCone = fPuppiAlgo[pPupId].coneSize(iOpt);
     //Compute the Puppi Metric
     if (!pCharged)
-      pVal = goodVar(iConstits[i0], iParticles, pAlgo, pCone);
+      pVal = goodVar(iConstit, iParticles, pAlgo, pCone);
     if (pCharged)
-      pVal = goodVar(iConstits[i0], iChargedParticles, pAlgo, pCone);
+      pVal = goodVar(iConstit, iChargedParticles, pAlgo, pCone);
     fVals.push_back(pVal);
     //if(std::isnan(pVal) || std::isinf(pVal)) cerr << "====> Value is Nan " << pVal << " == " << iConstits[i0].pt() << " -- " << iConstits[i0].eta() << endl;
     if (!edm::isFinite(pVal)) {
-      LogDebug("NotFound") << "====> Value is Nan " << pVal << " == " << iConstits[i0].pt() << " -- "
-                           << iConstits[i0].eta() << endl;
+      LogDebug("NotFound") << "====> Value is Nan " << pVal << " == " << iConstit.pt() << " -- " << iConstit.eta()
+                           << endl;
       continue;
     }
 
@@ -171,14 +171,14 @@ void PuppiContainer::getRMSAvg(int iOpt,
       double curVal = -1;
       if (i1 != pPupId) {
         if (!pCharged)
-          curVal = goodVar(iConstits[i0], iParticles, pAlgo, pCone);
+          curVal = goodVar(iConstit, iParticles, pAlgo, pCone);
         if (pCharged)
-          curVal = goodVar(iConstits[i0], iChargedParticles, pAlgo, pCone);
+          curVal = goodVar(iConstit, iChargedParticles, pAlgo, pCone);
       } else {  //no need to repeat the computation
         curVal = pVal;
       }
       //std::cout << "i1 = " << i1 << ", curVal = " << curVal << ", eta = " << iConstits[i0].eta() << ", pupID = " << pPupId << std::endl;
-      fPuppiAlgo[i1].add(iConstits[i0], curVal, iOpt);
+      fPuppiAlgo[i1].add(iConstit, curVal, iOpt);
     }
   }
   for (int i0 = 0; i0 < fNAlgos; i0++)
@@ -190,7 +190,7 @@ void PuppiContainer::getRawAlphas(int iOpt,
                                   std::vector<PuppiCandidate> const &iParticles,
                                   std::vector<PuppiCandidate> const &iChargedParticles) {
   for (int j0 = 0; j0 < fNAlgos; j0++) {
-    for (unsigned int i0 = 0; i0 < iConstits.size(); i0++) {
+    for (const auto &iConstit : iConstits) {
       double pVal = -1;
       //Get the Puppi Sub Algo (given iteration)
       int pAlgo = fPuppiAlgo[j0].algoId(iOpt);
@@ -198,13 +198,13 @@ void PuppiContainer::getRawAlphas(int iOpt,
       double pCone = fPuppiAlgo[j0].coneSize(iOpt);
       //Compute the Puppi Metric
       if (!pCharged)
-        pVal = goodVar(iConstits[i0], iParticles, pAlgo, pCone);
+        pVal = goodVar(iConstit, iParticles, pAlgo, pCone);
       if (pCharged)
-        pVal = goodVar(iConstits[i0], iChargedParticles, pAlgo, pCone);
+        pVal = goodVar(iConstit, iChargedParticles, pAlgo, pCone);
       fRawAlphas.push_back(pVal);
       if (!edm::isFinite(pVal)) {
-        LogDebug("NotFound") << "====> Value is Nan " << pVal << " == " << iConstits[i0].pt() << " -- "
-                             << iConstits[i0].eta() << endl;
+        LogDebug("NotFound") << "====> Value is Nan " << pVal << " == " << iConstit.pt() << " -- " << iConstit.eta()
+                             << endl;
         continue;
       }
     }

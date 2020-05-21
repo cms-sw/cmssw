@@ -43,8 +43,7 @@ void ThingsWorker::process(const edm::Event& iEvent) {
     iEvent.getByLabel("Thing", hThings);
     const ThingCollection& things = *hThings;
     std::cout << ">> things found:" << things.size() << std::endl;
-    for (size_t i = 0; i < things.size(); ++i) {
-      const Thing& thing = things[i];
+    for (const auto& thing : things) {
       h_a->Fill(thing.a);
       std::cout << ">> a:  " << thing.a << std::endl;
     }

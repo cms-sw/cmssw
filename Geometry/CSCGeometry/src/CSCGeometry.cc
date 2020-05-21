@@ -46,8 +46,8 @@ void CSCGeometry::clear() {
 
 void CSCGeometry::deallocate() {
   // delete all the chambers (which will delete the layers)
-  for (ChamberContainer::const_iterator ich = theChambers.begin(); ich != theChambers.end(); ++ich)
-    delete (*ich);
+  for (auto theChamber : theChambers)
+    delete theChamber;
 
   // delete specs
   for (CSCSpecsContainer::const_iterator it = specsContainer.begin(); it != specsContainer.end(); ++it) {

@@ -32,11 +32,8 @@ ExoticaDQM::ExoticaDQM(const edm::ParameterSet& ps) {
   PFJetToken_ = consumes<reco::PFJetCollection>(ps.getParameter<InputTag>("pfJetCollection"));
   //
   DiJetPFJetCollection_ = ps.getParameter<std::vector<edm::InputTag> >("DiJetPFJetCollection");
-  for (std::vector<edm::InputTag>::const_iterator jetlabel = DiJetPFJetCollection_.begin(),
-                                                  jetlabelEnd = DiJetPFJetCollection_.end();
-       jetlabel != jetlabelEnd;
-       ++jetlabel) {
-    DiJetPFJetToken_.push_back(consumes<reco::PFJetCollection>(*jetlabel));
+  for (const auto& jetlabel : DiJetPFJetCollection_) {
+    DiJetPFJetToken_.push_back(consumes<reco::PFJetCollection>(jetlabel));
   }
   //
   PFMETToken_ = consumes<reco::PFMETCollection>(ps.getParameter<InputTag>("pfMETCollection"));
@@ -105,9 +102,9 @@ void ExoticaDQM::bookHistograms(DQMStore::IBooker& bei, edm::Run const&, edm::Ev
   bei.cd();
 
   //--- DiJet
-  for (unsigned int icoll = 0; icoll < DiJetPFJetCollection_.size(); ++icoll) {
+  for (auto& icoll : DiJetPFJetCollection_) {
     std::stringstream ss;
-    ss << "Physics/Exotica/Dijets/" << DiJetPFJetCollection_[icoll].label();
+    ss << "Physics/Exotica/Dijets/" << icoll.label();
     bei.setCurrentFolder(ss.str());
     //bei.setCurrentFolder("Physics/Exotica/Dijets");
     dijet_PFJet_pt.push_back(bei.book1D("dijet_PFJet_pt", "Pt of PFJet (GeV)", 50, 30.0, 5000));

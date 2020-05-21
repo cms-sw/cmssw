@@ -330,11 +330,11 @@ void DaqScopeModeTask::fill(const SiStripEventSummary& summary,
     if (adcHeader_low.empty() || adcHeader_high.empty()) {
       return;
     }
-    for (uint16_t i = 0; i < adcHeader_low.size(); i++) {
-      updateHistoSet(lowHeader_, adcHeader_low[i]);
+    for (unsigned int i : adcHeader_low) {
+      updateHistoSet(lowHeader_, i);
     }
-    for (uint16_t i = 0; i < adcHeader_high.size(); i++) {
-      updateHistoSet(highHeader_, adcHeader_high[i]);
+    for (unsigned int i : adcHeader_high) {
+      updateHistoSet(highHeader_, i);
     }
   }
 }
@@ -450,11 +450,11 @@ void DaqScopeModeTask::fill(const SiStripEventSummary& summary,
     if (adcHeader_low.empty() || adcHeader_high.empty()) {
       return;
     }
-    for (uint16_t i = 0; i < adcHeader_low.size(); i++) {
-      updateHistoSet(lowHeader_, adcHeader_low[i]);
+    for (unsigned int i : adcHeader_low) {
+      updateHistoSet(lowHeader_, i);
     }
-    for (uint16_t i = 0; i < adcHeader_high.size(); i++) {
-      updateHistoSet(highHeader_, adcHeader_high[i]);
+    for (unsigned int i : adcHeader_high) {
+      updateHistoSet(highHeader_, i);
     }
   }
 }

@@ -99,10 +99,8 @@ public:
     if (cfg.exists("type2Binning")) {
       typedef std::vector<edm::ParameterSet> vParameterSet;
       vParameterSet cfgType2Binning = cfg.getParameter<vParameterSet>("type2Binning");
-      for (vParameterSet::const_iterator cfgType2BinningEntry = cfgType2Binning.begin();
-           cfgType2BinningEntry != cfgType2Binning.end();
-           ++cfgType2BinningEntry) {
-        type2Binning_.push_back(new type2BinningEntryType(*cfgType2BinningEntry));
+      for (const auto& cfgType2BinningEntry : cfgType2Binning) {
+        type2Binning_.push_back(new type2BinningEntryType(cfgType2BinningEntry));
       }
     } else {
       type2Binning_.push_back(new type2BinningEntryType());
@@ -180,12 +178,12 @@ private:
 
       if (skipMuons_) {
         const std::vector<reco::CandidatePtr>& cands = jet.daughterPtrVector();
-        for (std::vector<reco::CandidatePtr>::const_iterator cand = cands.begin(); cand != cands.end(); ++cand) {
-          const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(cand->get());
+        for (const auto& cand : cands) {
+          const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(cand.get());
           const reco::Candidate* mu =
-              (pfcand != nullptr ? (pfcand->muonRef().isNonnull() ? pfcand->muonRef().get() : nullptr) : cand->get());
+              (pfcand != nullptr ? (pfcand->muonRef().isNonnull() ? pfcand->muonRef().get() : nullptr) : cand.get());
           if (mu != nullptr && (*skipMuonSelection_)(*mu)) {
-            reco::Candidate::LorentzVector muonP4 = (*cand)->p4();
+            reco::Candidate::LorentzVector muonP4 = cand->p4();
             rawJetP4 -= muonP4;
           }
         }

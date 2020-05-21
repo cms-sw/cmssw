@@ -73,8 +73,8 @@ bool HLTHcalLaserMisfireFilter::filter(edm::StreamID, edm::Event& iEvent, const 
   int NgoodHBHE = 2592 * 2 - NbadHBHE;  // remaining HBHE channels are 'good'
   int NallHF = 864 * 4;
 
-  for (auto hbhe = hbhe_digi->begin(); hbhe != hbhe_digi->end(); ++hbhe) {
-    const HBHEDataFrame digi = (const HBHEDataFrame)(*hbhe);
+  for (const auto& hbhe : *hbhe_digi) {
+    const HBHEDataFrame digi = (const HBHEDataFrame)hbhe;
     HcalDetId myid = (HcalDetId)digi.id();
     bool isbad(false);  // assume channel is not bad
 

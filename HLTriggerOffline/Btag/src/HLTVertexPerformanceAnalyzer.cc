@@ -15,8 +15,8 @@ HLTVertexPerformanceAnalyzer::HLTVertexPerformanceAnalyzer(const edm::ParameterS
   EDConsumerBase::labelsForToken(hlTriggerResults_, label);
   hlTriggerResults_Label = label.module;
 
-  for (unsigned int i = 0; i < VertexCollection_.size(); i++) {
-    EDConsumerBase::labelsForToken(VertexCollection_[i], label);
+  for (auto i : VertexCollection_) {
+    EDConsumerBase::labelsForToken(i, label);
     VertexCollection_Label.push_back(label.module);
   }
 }
@@ -31,11 +31,11 @@ void HLTVertexPerformanceAnalyzer::dqmBeginRun(const edm::Run &iRun, const edm::
   const std::vector<std::string> &allHltPathNames = hltConfigProvider_.triggerNames();
 
   // fill hltPathIndexs_ with the trigger number of each hltPathNames_
-  for (size_t trgs = 0; trgs < hltPathNames_.size(); trgs++) {
+  for (const auto &hltPathName : hltPathNames_) {
     unsigned int found = 1;
     int it_mem = -1;
     for (size_t it = 0; it < allHltPathNames.size(); ++it) {
-      found = allHltPathNames.at(it).find(hltPathNames_[trgs]);
+      found = allHltPathNames.at(it).find(hltPathName);
       if (found == 0) {
         it_mem = (int)it;
       }
@@ -128,8 +128,8 @@ void HLTVertexPerformanceAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
   // book the DQM plots
   using namespace std;
   std::string dqmFolder;
-  for (unsigned int ind = 0; ind < hltPathNames_.size(); ind++) {
-    dqmFolder = Form("%s/Vertex/%s", mainFolder_.c_str(), hltPathNames_[ind].c_str());
+  for (auto &hltPathName : hltPathNames_) {
+    dqmFolder = Form("%s/Vertex/%s", mainFolder_.c_str(), hltPathName.c_str());
     H1_.push_back(std::map<std::string, MonitorElement *>());
     ibooker.setCurrentFolder(dqmFolder);
     for (unsigned int coll = 0; coll < VertexCollection_.size(); coll++) {

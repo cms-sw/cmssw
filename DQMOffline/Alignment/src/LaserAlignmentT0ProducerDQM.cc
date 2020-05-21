@@ -115,12 +115,10 @@ void LaserAlignmentT0ProducerDQM::bookHistograms(DQMStore::IBooker &iBooker,
 ///
 void LaserAlignmentT0ProducerDQM::analyze(const edm::Event &aEvent, const edm::EventSetup &aSetup) {
   // loop all input products
-  for (std::vector<edm::ParameterSet>::iterator aDigiProducer = theDigiProducerList.begin();
-       aDigiProducer != theDigiProducerList.end();
-       ++aDigiProducer) {
-    const std::string digiProducer = aDigiProducer->getParameter<std::string>("DigiProducer");
-    const std::string digiLabel = aDigiProducer->getParameter<std::string>("DigiLabel");
-    const std::string digiType = aDigiProducer->getParameter<std::string>("DigiType");
+  for (auto &aDigiProducer : theDigiProducerList) {
+    const std::string digiProducer = aDigiProducer.getParameter<std::string>("DigiProducer");
+    const std::string digiLabel = aDigiProducer.getParameter<std::string>("DigiLabel");
+    const std::string digiType = aDigiProducer.getParameter<std::string>("DigiType");
 
     // now a distinction of cases: raw or processed digis?
 

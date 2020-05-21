@@ -55,13 +55,13 @@ void L1MuGMTLUT::Init(const char* name,
 
   m_Inputs = in_widths;
   m_TotalInWidth = 0;
-  for (unsigned i = 0; i < in_widths.size(); i++)
-    m_TotalInWidth += in_widths[i].second;
+  for (const auto& in_width : in_widths)
+    m_TotalInWidth += in_width.second;
 
   m_Outputs = out_widths;
   m_TotalOutWidth = 0;
-  for (unsigned i = 0; i < out_widths.size(); i++)
-    m_TotalOutWidth += out_widths[i].second;
+  for (const auto& out_width : out_widths)
+    m_TotalOutWidth += out_width.second;
 
   m_vme_addr_width = vme_addr_width;
   m_distrRAM = distrRAM;
@@ -145,8 +145,8 @@ void L1MuGMTLUT::Save(const char* path) {
 
   of << "NAME = " << m_name << endl;
   of << "INSTANCES =";
-  for (unsigned i = 0; i < m_InstNames.size(); i++)
-    of << " " << m_InstNames[i];
+  for (const auto& m_InstName : m_InstNames)
+    of << " " << m_InstName;
   of << endl;
   of << "LUT_INPUTS = " << PortDecoder(m_Inputs).str() << endl;
   of << "LUT_OUTPUTS = " << PortDecoder(m_Outputs).str() << endl;

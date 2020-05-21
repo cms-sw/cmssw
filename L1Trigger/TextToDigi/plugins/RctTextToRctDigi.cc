@@ -68,8 +68,8 @@ RctTextToRctDigi::RctTextToRctDigi(const edm::ParameterSet &iConfig)
 
 RctTextToRctDigi::~RctTextToRctDigi() {
   // Close the input files
-  for (unsigned i = 0; i < NUM_RCT_CRATES; i++) {
-    m_file[i].close();
+  for (auto &i : m_file) {
+    i.close();
   }
 }
 
@@ -183,13 +183,13 @@ void RctTextToRctDigi::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
     }
 
     // MIP bits
-    for (unsigned j = 0; j < 14; j++) {
-      m_file[i] >> mipBitBuffer[j];
+    for (bool &j : mipBitBuffer) {
+      m_file[i] >> j;
     }
 
     // Quiet bits
-    for (unsigned j = 0; j < 14; j++) {
-      m_file[i] >> qBitBuffer[j];
+    for (bool &j : qBitBuffer) {
+      m_file[i] >> j;
     }
 
     // Barrel and endcap regions

@@ -160,8 +160,7 @@ namespace {
   inline std::vector<std::string> getTokens(const std::string& fLine) {
     std::vector<std::string> tokens;
     std::string currentToken;
-    for (unsigned ipos = 0; ipos < fLine.length(); ++ipos) {
-      char c = fLine[ipos];
+    for (char c : fLine) {
       if (c == '#')
         break;              // ignore comments
       else if (c == ' ') {  // flush current token if any

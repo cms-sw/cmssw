@@ -66,15 +66,13 @@ void BackgroundEstimator::_compute() {
   _n_jets_used = 0;
   _n_jets_excluded = 0;
 
-  for (unsigned i = 0; i < _included_jets.size(); i++) {
-    const PseudoJet &current_jet = _included_jets[i];
-
+  for (const auto &current_jet : _included_jets) {
     // check that the jet is not explicitly excluded
     // we'll compare them using their cluster_history_index
     bool excluded = false;
     int ref_idx = current_jet.cluster_hist_index();
-    for (unsigned int j = 0; j < _excluded_jets.size(); j++)
-      excluded |= (_excluded_jets[j].cluster_hist_index() == ref_idx);
+    for (auto &_excluded_jet : _excluded_jets)
+      excluded |= (_excluded_jet.cluster_hist_index() == ref_idx);
 
     // check if the jet is in the range
     if (_range.is_in_range(current_jet)) {

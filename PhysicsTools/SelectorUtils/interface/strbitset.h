@@ -295,8 +295,8 @@ namespace pat {
     const std::vector<std::string> strings() const {
       std::vector<std::string> strings;
       strings.resize(bits_.size());
-      for (str_index_map::const_iterator it = map_.begin(), end = map_.end(); it != end; ++it) {
-        strings[it->second] = it->first;
+      for (const auto& it : map_) {
+        strings[it.second] = it.first;
       }
       return strings;
     }
@@ -319,9 +319,9 @@ namespace pat {
     }
 
     std::string const& index(size_t i) const {
-      for (str_index_map::const_iterator f = map_.begin(), fEnd = map_.end(); f != fEnd; ++f) {
-        if (f->second == i)
-          return f->first;
+      for (const auto& f : map_) {
+        if (f.second == i)
+          return f.first;
       }
       std::cout << "Cannot find " << i << ", returning dummy" << std::endl;
       return dummy_;

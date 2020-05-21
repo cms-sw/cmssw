@@ -121,18 +121,16 @@ void GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSet
     bool passTight = false;
     typedef MuonTrajectoryBuilder::TrackCand TrackCand;
     if (linkCollectionHandle.isValid()) {
-      for (reco::MuonTrackLinksCollection::const_iterator links = linkCollectionHandle->begin();
-           links != linkCollectionHandle->end();
-           ++links) {
-        if (links->trackerTrack().isNull() || links->standAloneTrack().isNull() || links->globalTrack().isNull()) {
+      for (const auto& links : *linkCollectionHandle) {
+        if (links.trackerTrack().isNull() || links.standAloneTrack().isNull() || links.globalTrack().isNull()) {
           edm::LogWarning(theCategory) << "Global muon links to constituent tracks are invalid. There should be no "
                                           "such object. Muon is skipped.";
           continue;
         }
-        if (links->globalTrack() == glbRef) {
-          staTrack = !links->standAloneTrack().isNull() ? links->standAloneTrack() : reco::TrackRef();
-          TrackCand staCand = TrackCand((Trajectory*)nullptr, links->standAloneTrack());
-          TrackCand tkCand = TrackCand((Trajectory*)nullptr, links->trackerTrack());
+        if (links.globalTrack() == glbRef) {
+          staTrack = !links.standAloneTrack().isNull() ? links.standAloneTrack() : reco::TrackRef();
+          TrackCand staCand = TrackCand((Trajectory*)nullptr, links.standAloneTrack());
+          TrackCand tkCand = TrackCand((Trajectory*)nullptr, links.trackerTrack());
           chi2 = theGlbMatcher->match(staCand, tkCand, 0, 0);
           d = theGlbMatcher->match(staCand, tkCand, 1, 0);
           Rpos = theGlbMatcher->match(staCand, tkCand, 2, 0);
@@ -197,12 +195,12 @@ std::pair<double, double> GlobalTrackQualityProducer::kink(Trajectory& muon) con
 
   vector<TrajectoryMeasurement> meas = muon.measurements();
 
-  for (TMI m = meas.begin(); m != meas.end(); m++) {
-    TransientTrackingRecHit::ConstRecHitPointer hit = m->recHit();
+  for (const auto& mea : meas) {
+    TransientTrackingRecHit::ConstRecHitPointer hit = mea.recHit();
 
     //not used    double estimate = 0.0;
 
-    RecHit rhit = (*m).recHit();
+    RecHit rhit = mea.recHit();
     bool ok = false;
     if (rhit->isValid()) {
       if (DetId::Tracker == rhit->geographicalId().det())
@@ -211,7 +209,7 @@ std::pair<double, double> GlobalTrackQualityProducer::kink(Trajectory& muon) con
 
     //if ( !ok ) continue;
 
-    const TrajectoryStateOnSurface& tsos = (*m).predictedState();
+    const TrajectoryStateOnSurface& tsos = mea.predictedState();
 
     if (tsos.isValid() && rhit->isValid() && rhit->hit()->isValid() &&
         !edm::isNotFinite(rhit->localPositionError().xx())     //this is paranoia induced by reported case
@@ -264,9 +262,9 @@ std::pair<double, double> GlobalTrackQualityProducer::newChi2(Trajectory& muon) 
 
   vector<TrajectoryMeasurement> meas = muon.measurements();
 
-  for (TMI m = meas.begin(); m != meas.end(); m++) {
-    TransientTrackingRecHit::ConstRecHitPointer hit = m->recHit();
-    const TrajectoryStateOnSurface& uptsos = (*m).updatedState();
+  for (const auto& mea : meas) {
+    TransientTrackingRecHit::ConstRecHitPointer hit = mea.recHit();
+    const TrajectoryStateOnSurface& uptsos = mea.updatedState();
     // FIXME FIXME CLONE!!!
     // TrackingRecHit::RecHitPointer preciseHit = hit->clone(uptsos);
     const auto& preciseHit = hit;

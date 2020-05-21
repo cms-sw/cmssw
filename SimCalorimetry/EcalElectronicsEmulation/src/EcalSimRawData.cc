@@ -228,8 +228,8 @@ void EcalSimRawData::genFeData(string basename, int iEvent, const vector<uint16_
               }
 
               const vector<uint16_t> &adc = adcCount[iEta0][iPhi0];
-              for (unsigned iSample = 0; iSample < adc.size(); ++iSample) {
-                uint16_t data = adc[iSample] & 0x3FFF;
+              for (unsigned short iSample : adc) {
+                uint16_t data = iSample & 0x3FFF;
                 //		data |= parity(data);
                 fwrite(f, data, iWord);
               }  // next time sample
@@ -434,8 +434,7 @@ void EcalSimRawData::getSrfs(const edm::Event &event,
   for (size_t i = 0; i < (nEndcaps * nScX * nScY); ((int *)eeSrf)[i++] = -1) {
   };
   if (hEeSrFlags.isValid()) {
-    for (EESrFlagCollection::const_iterator it = hEeSrFlags->begin(); it != hEeSrFlags->end(); ++it) {
-      const EESrFlag &flag = *it;
+    for (const auto &flag : *hEeSrFlags) {
       int iZ0 = flag.id().zside() > 0 ? 1 : 0;
       int iX0 = flag.id().ix() - 1;
       int iY0 = flag.id().iy() - 1;
@@ -456,8 +455,7 @@ void EcalSimRawData::getSrfs(const edm::Event &event,
   for (size_t i = 0; i < (nTtEta * nTtPhi); ((int *)ebSrf)[i++] = -1) {
   };
   if (hEbSrFlags.isValid()) {
-    for (EBSrFlagCollection::const_iterator it = hEbSrFlags->begin(); it != hEbSrFlags->end(); ++it) {
-      const EBSrFlag &flag = *it;
+    for (const auto &flag : *hEbSrFlags) {
       int iEta = flag.id().ieta();
       int iEta0 = iEta + nTtEta / 2 - (iEta >= 0 ? 1 : 0);  // 0->55 from eta=-3 to eta=3
       int iEbEta0 = iEta0 - nEeTtEta;                       // 0->33 from eta=-1.48 to eta=1.48
@@ -557,8 +555,7 @@ void EcalSimRawData::getTp(const edm::Event &event, const std::string &collName,
     if (tpVerbose_) {
       cout << setfill('0');
     }
-    for (EcalTrigPrimDigiCollection::const_iterator it = tpDigis.begin(); it != tpDigis.end(); ++it) {
-      const EcalTriggerPrimitiveDigi &tp = *it;
+    for (const auto &tp : tpDigis) {
       int iTtEta0 = iTtEta2cIndex(tp.id().ieta());
       int iTtPhi0 = iTtPhi2cIndex(tp.id().iphi());
       if (iTtEta0 < 0 || iTtEta0 >= nTtEta) {

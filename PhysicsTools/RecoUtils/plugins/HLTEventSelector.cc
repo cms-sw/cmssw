@@ -42,17 +42,17 @@ bool HLTEventSelector::select(const edm::Event& event) const {
   //
   // example for OR of all specified triggers
   //
-  for (std::vector<std::string>::const_iterator i = pathNames_.begin(); i != pathNames_.end(); ++i) {
+  for (const auto& pathName : pathNames_) {
     // get index
-    unsigned int index = trgNames.triggerIndex(*i);
+    unsigned int index = trgNames.triggerIndex(pathName);
     if (index == trgSize) {
-      edm::LogWarning("HLTEventSelector") << "Unknown trigger name " << *i;
+      edm::LogWarning("HLTEventSelector") << "Unknown trigger name " << pathName;
       //       return false;
       continue;
     }
     //     if ( !hltHandle->accept(index) )  return false;
     if (hltHandle->accept(index)) {
-      LogDebug("HLTEventSelector") << "Event selected by " << *i;
+      LogDebug("HLTEventSelector") << "Event selected by " << pathName;
       return true;
     }
   }

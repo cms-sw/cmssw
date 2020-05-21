@@ -459,8 +459,8 @@ void BasicHepMCValidation::analyze(const edm::Event &iEvent, const edm::EventSet
     }
 
     bool indentified = false;
-    for (unsigned int i = 0; i < particles.size(); i++) {
-      if (particles.at(i).Fill(ptcl, weight)) {
+    for (auto &particle : particles) {
+      if (particle.Fill(ptcl, weight)) {
         indentified = true;
         break;
       }
@@ -489,8 +489,8 @@ void BasicHepMCValidation::analyze(const edm::Event &iEvent, const edm::EventSet
   unknownPDTNumber->Fill(log10(unknownPDTNum + 0.1), weight);
   //
   partonNumber->Fill(partonNum, weight);
-  for (unsigned int i = 0; i < particles.size(); i++) {
-    particles.at(i).FillCount(weight);
+  for (auto &particle : particles) {
+    particle.FillCount(weight);
   };
 
 }  //analyze

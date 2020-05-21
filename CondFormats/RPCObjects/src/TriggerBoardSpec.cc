@@ -8,21 +8,21 @@ TriggerBoardSpec::TriggerBoardSpec(int num, uint32_t aMask) : theNum(num), theMa
 
 const LinkConnSpec* TriggerBoardSpec::linkConn(int tbInputNumber) const {
   //FIXME - temporary implementaion, to be replace by LUT (in preparation)
-  for (IT it = theLinks.begin(); it != theLinks.end(); it++) {
-    if (tbInputNumber == it->triggerBoardInputNumber())
-      return &(*it);
+  for (const auto& theLink : theLinks) {
+    if (tbInputNumber == theLink.triggerBoardInputNumber())
+      return &theLink;
   }
   return nullptr;
 }
 
 std::vector<const LinkConnSpec*> TriggerBoardSpec::enabledLinkConns() const {
   std::vector<const LinkConnSpec*> result;
-  for (IT it = theLinks.begin(); it != theLinks.end(); it++) {
+  for (const auto& theLink : theLinks) {
     //
     // check that link is not masked!
     // std::cout <<"masked links:"<<theMaskedLinks<<std::endl;
     //
-    result.push_back(&(*it));
+    result.push_back(&theLink);
   }
   return result;
 }
@@ -32,8 +32,8 @@ std::string TriggerBoardSpec::print(int depth) const {
   str << "TriggerBoardSpec: num=" << dccInputChannelNum() << std::endl;
   depth--;
   if (depth >= 0) {
-    for (IT ic = theLinks.begin(); ic != theLinks.end(); ic++)
-      str << (*ic).print(depth);
+    for (const auto& theLink : theLinks)
+      str << theLink.print(depth);
   }
   return str.str();
 }

@@ -279,8 +279,7 @@ int cond::AuthenticationManager::execute() {
     std::cout << std::endl;
     static std::string principalH("principal name");
     size_t principalW = principalH.size();
-    for (std::vector<std::string>::const_iterator iP = data.begin(); iP != data.end(); ++iP) {
-      const std::string& principal = *iP;
+    for (const auto& principal : data) {
       if (principalW < principal.size())
         principalW = principal.size();
     }
@@ -289,8 +288,8 @@ int cond::AuthenticationManager::execute() {
     std::cout << std::setfill('-');
     std::cout << std::setw(principalW) << "" << std::endl;
     std::cout << std::setfill(' ');
-    for (std::vector<std::string>::const_iterator iP = data.begin(); iP != data.end(); ++iP) {
-      std::cout << std::setw(principalW) << *iP << std::endl;
+    for (const auto& iP : data) {
+      std::cout << std::setw(principalW) << iP << std::endl;
     }
     return 0;
   }
@@ -317,17 +316,17 @@ int cond::AuthenticationManager::execute() {
     size_t principalW = principalH.size();
     size_t roleW = roleH.size();
     size_t connectionLabelW = connectionLabelH.size();
-    for (std::vector<CredentialStore::Permission>::const_iterator iP = data.begin(); iP != data.end(); ++iP) {
-      const std::string& connectionString = iP->connectionString;
+    for (const auto& iP : data) {
+      const std::string& connectionString = iP.connectionString;
       if (connectionStringW < connectionString.size())
         connectionStringW = connectionString.size();
-      const std::string& principal = iP->principalName;
+      const std::string& principal = iP.principalName;
       if (principalW < principal.size())
         principalW = principal.size();
-      const std::string& role = iP->role;
+      const std::string& role = iP.role;
       if (roleW < role.size())
         roleW = role.size();
-      const std::string& connectionLabel = iP->connectionLabel;
+      const std::string& connectionLabel = iP.connectionLabel;
       if (connectionLabelW < connectionLabel.size())
         connectionLabelW = connectionLabel.size();
     }
@@ -341,11 +340,11 @@ int cond::AuthenticationManager::execute() {
               << "  " << std::setw(roleW) << ""
               << "  " << std::setw(connectionLabelW) << "" << std::endl;
     std::cout << std::setfill(' ');
-    for (std::vector<CredentialStore::Permission>::const_iterator iP = data.begin(); iP != data.end(); ++iP) {
-      std::cout << std::setw(connectionStringW) << iP->connectionString << "  " << std::setw(principalW)
-                << iP->principalName << "  ";
+    for (const auto& iP : data) {
+      std::cout << std::setw(connectionStringW) << iP.connectionString << "  " << std::setw(principalW)
+                << iP.principalName << "  ";
       ;
-      std::cout << std::setw(roleW) << iP->role << "  " << std::setw(connectionLabelW) << iP->connectionLabel
+      std::cout << std::setw(roleW) << iP.role << "  " << std::setw(connectionLabelW) << iP.connectionLabel
                 << std::endl;
     }
     return 0;

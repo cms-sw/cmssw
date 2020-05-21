@@ -72,8 +72,8 @@ void BaseCrystal::setCorners(const CaloCellGeometry::CornersVec &vec, const Glob
 void BaseCrystal::computeBasicProperties() {
   //if(corners_.size()==0) return;
   center_ = XYZPoint(0., 0., 0.);
-  for (unsigned ic = 0; ic < 8; ++ic) {
-    center_ += corners_[ic];
+  for (const auto &corner : corners_) {
+    center_ += corner;
   }
 
   center_ *= 0.125;
@@ -237,14 +237,14 @@ void BaseCrystal::getSide(const CaloDirection &side, XYZPoint &a, XYZPoint &b, X
 void BaseCrystal::print() const {
   std::cout << "CellID " << cellid_.rawId() << std::endl;
   std::cout << " Corners " << std::endl;
-  for (unsigned ic = 0; ic < 8; ++ic)
-    std::cout << corners_[ic] << std::endl;
+  for (const auto &corner : corners_)
+    std::cout << corner << std::endl;
   std::cout << " Center " << center_ << std::endl;
   std::cout << " Front Center " << frontcenter_ << std::endl;
   std::cout << " Back Center " << backcenter_ << std::endl;
   std::cout << " Normales sortantes " << std::endl;
-  for (unsigned id = 0; id < 6; ++id)
-    std::cout << exitingNormal_[id] << std::endl;
+  for (const auto &id : exitingNormal_)
+    std::cout << id << std::endl;
 }
 
 void BaseCrystal::getSide(const CaloDirection &side, std::vector<XYZPoint> &corners) const {

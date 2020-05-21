@@ -18,8 +18,8 @@ popcon::EcalPulseShapesHandler::~EcalPulseShapesHandler() {}
 bool popcon::EcalPulseShapesHandler::checkPulseShape(EcalPulseShapes::Item* item) {
   // true means all is standard and OK
   bool result = true;
-  for (int s = 0; s < EcalPulseShape::TEMPLATESAMPLES; ++s) {
-    if (item->pdfval[s] > 1 || item->pdfval[s] < 0)
+  for (float s : item->pdfval) {
+    if (s > 1 || s < 0)
       result = false;
   }
   return result;
@@ -57,8 +57,8 @@ void popcon::EcalPulseShapesHandler::getNewObjects() {
       std::istringstream linereader(line);
       linereader >> isbarrel >> rawId;
       // std::cout << "Inserting template for crystal with rawId = " << rawId << " (isbarrel = " << isbarrel << ") " << std::endl;
-      for (int s = 0; s < EcalPulseShape::TEMPLATESAMPLES; ++s) {
-        linereader >> templatevals[s];
+      for (float& templateval : templatevals) {
+        linereader >> templateval;
         // std::cout << templatevals[s] << "\t";
       }
       // std::cout << std::endl;

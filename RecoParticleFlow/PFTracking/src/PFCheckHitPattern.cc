@@ -28,18 +28,18 @@ void PFCheckHitPattern::init(const TrackerTopology* tkerTopo, const TrackerGeome
   const TrackingGeometry::DetContainer& dets = tkerGeom->dets();
 
   // Loop over all modules in the Tracker.
-  for (unsigned int i = 0; i < dets.size(); i++) {
+  for (auto det : dets) {
     // Get subdet and layer of this module
-    auto detId = dets[i]->geographicalId();
+    auto detId = det->geographicalId();
     auto detInfo = DetInfo(detId.subdetId(), tkerTopo->layer(detId));
     uint32_t subDet = detInfo.first;
 
     // Note r (or z) of module if barrel (or endcap).
     double r_or_z;
     if (this->barrel(subDet)) {
-      r_or_z = dets[i]->position().perp();
+      r_or_z = det->position().perp();
     } else {
-      r_or_z = fabs(dets[i]->position().z());
+      r_or_z = fabs(det->position().z());
     }
 
     // Recover min/max r/z value of this layer/disk found so far.

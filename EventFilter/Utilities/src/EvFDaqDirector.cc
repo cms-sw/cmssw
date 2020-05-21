@@ -1899,10 +1899,10 @@ namespace evf {
 
     //flatten string json::Array into CSV std::string
     std::string ret;
-    for (Json::Value::iterator it = destsVec.begin(); it != destsVec.end(); it++) {
+    for (auto& it : destsVec) {
       if (!ret.empty())
         ret += ",";
-      ret += (*it).asString();
+      ret += it.asString();
     }
     return ret;
   }

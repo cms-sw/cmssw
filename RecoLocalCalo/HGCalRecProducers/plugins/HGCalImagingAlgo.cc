@@ -33,8 +33,7 @@ void HGCalImagingAlgo::populate(const HGCRecHitCollection &hits) {
   }
 
   std::vector<bool> firstHit(2 * (maxlayer_ + 1), true);
-  for (unsigned int i = 0; i < hits.size(); ++i) {
-    const HGCRecHit &hgrh = hits[i];
+  for (const auto &hgrh : hits) {
     DetId detid = hgrh.detid();
     unsigned int layer = rhtools_.getLayerWithOffset(detid);
     float thickness = 0.f;
@@ -138,13 +137,13 @@ std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing) {
         // reset and run second pass after vetoing seeds
         // that result in trivial clusters (less than 2 effective cells)
 
-        for (unsigned isub = 0; isub < fractions.size(); ++isub) {
+        for (auto &isub : fractions) {
           double effective_hits = 0.0;
-          double energy = calculateEnergyWithFraction(clsOnLayer[i], fractions[isub]);
-          Point position = calculatePositionWithFraction(clsOnLayer[i], fractions[isub]);
+          double energy = calculateEnergyWithFraction(clsOnLayer[i], isub);
+          Point position = calculatePositionWithFraction(clsOnLayer[i], isub);
 
-          for (unsigned ihit = 0; ihit < fractions[isub].size(); ++ihit) {
-            const double fraction = fractions[isub][ihit];
+          for (unsigned ihit = 0; ihit < isub.size(); ++ihit) {
+            const double fraction = isub[ihit];
             if (fraction > 1e-7) {
               effective_hits += fraction;
               thisCluster.emplace_back(clsOnLayer[i][ihit].data.detid, fraction);
@@ -271,17 +270,16 @@ double HGCalImagingAlgo::calculateLocalDensity(std::vector<KDNode> &nd, KDTree &
     delta_c = vecDeltas_[2];
 
   // for each node calculate local density rho and store it
-  for (unsigned int i = 0; i < nd.size(); ++i) {
+  for (auto &i : nd) {
     // speec up search by looking within +/- delta_c window only
-    KDTreeBox search_box(
-        nd[i].dims[0] - delta_c, nd[i].dims[0] + delta_c, nd[i].dims[1] - delta_c, nd[i].dims[1] + delta_c);
+    KDTreeBox search_box(i.dims[0] - delta_c, i.dims[0] + delta_c, i.dims[1] - delta_c, i.dims[1] + delta_c);
     std::vector<Hexel> found;
     lp.search(search_box, found);
     const unsigned int found_size = found.size();
     for (unsigned int j = 0; j < found_size; j++) {
-      if (distance(nd[i].data, found[j]) < delta_c) {
-        nd[i].data.rho += found[j].weight;
-        maxdensity = std::max(maxdensity, nd[i].data.rho);
+      if (distance(i.data, found[j]) < delta_c) {
+        i.data.rho += found[j].weight;
+        maxdensity = std::max(maxdensity, i.data.rho);
       }
     }  // end loop found
   }    // end loop nodes
@@ -546,8 +544,8 @@ void HGCalImagingAlgo::shareEnergy(const std::vector<KDNode> &incluster,
   // saving seeds
 
   // create quick seed lookup
-  for (unsigned i = 0; i < seeds.size(); ++i) {
-    isaseed[seeds[i]] = true;
+  for (unsigned int seed : seeds) {
+    isaseed[seed] = true;
   }
 
   // initialize clusters to be shared

@@ -174,10 +174,10 @@ int SiPixelFedFillerWordEventNumber ::PwordSlink64(uint64_t* ldata, const int le
   const uint32_t rocmsk = 0x3e00000;
   const uint32_t chnlmsk = 0xfc000000;
 
-  for (int jk = 0; jk < 8; jk++)
-    gap[jk] = 0;
-  for (int jk = 0; jk < 8; jk++)
-    dum[jk] = 0;
+  for (unsigned int& jk : gap)
+    jk = 0;
+  for (unsigned int& jk : dum)
+    jk = 0;
   totword = 0;
   int fifcnt = 1;
   for (int kk = 1; kk < length - 1; kk++) {

@@ -101,17 +101,17 @@ void BeamHaloNavigationSchool::establishInverseRelations() {
   BarrelMapType reachedBarrelLayersMap;
   ForwardMapType reachedForwardLayersMap;
 
-  for (BDLI bli = theBarrelLayers.begin(); bli != theBarrelLayers.end(); bli++) {
-    DLC reachedLC = nextLayers(**bli, insideOut);
-    for (DLI i = reachedLC.begin(); i != reachedLC.end(); i++) {
-      reachedBarrelLayersMap[*i].push_back(*bli);
+  for (auto& theBarrelLayer : theBarrelLayers) {
+    DLC reachedLC = nextLayers(*theBarrelLayer, insideOut);
+    for (auto& i : reachedLC) {
+      reachedBarrelLayersMap[i].push_back(theBarrelLayer);
     }
   }
 
-  for (FDLI fli = theForwardLayers.begin(); fli != theForwardLayers.end(); fli++) {
-    DLC reachedLC = nextLayers(**fli, insideOut);
-    for (DLI i = reachedLC.begin(); i != reachedLC.end(); i++) {
-      reachedForwardLayersMap[*i].push_back(*fli);
+  for (auto& theForwardLayer : theForwardLayers) {
+    DLC reachedLC = nextLayers(*theForwardLayer, insideOut);
+    for (auto& i : reachedLC) {
+      reachedForwardLayersMap[i].push_back(theForwardLayer);
     }
   }
 
@@ -134,13 +134,13 @@ void BeamHaloNavigationSchool::linkOtherEndLayers(SymmetricLayerFinder& symFinde
 
   //even simpler navigation from end to end.
   //for each of them
-  for (FDLI fl = reachableFL.begin(); fl != reachableFL.end(); fl++) {
+  for (auto& fl : reachableFL) {
     LogDebug("BeamHaloNavigationSchool") << "adding inward from right";
     //link it inward to the mirror reachable from horizontal
-    addInward(static_cast<DetLayer const*>(*fl), symFinder.mirror(*fl));
+    addInward(static_cast<DetLayer const*>(fl), symFinder.mirror(fl));
 
     LogDebug("BeamHaloNavigationSchool") << "adding inward from mirror of right (left?)";
-    addInward(static_cast<DetLayer const*>(symFinder.mirror(*fl)), *fl);
+    addInward(static_cast<DetLayer const*>(symFinder.mirror(fl)), fl);
   }
 }
 
@@ -156,11 +156,11 @@ void BeamHaloNavigationSchool::addInward(const DetLayer* det, const ForwardDetLa
   // split barrel and forward layers
   BDLC inwardsBarrel;
   FDLC inwardsForward;
-  for (DLC::iterator dli = inwardsLayers.begin(); dli != inwardsLayers.end(); dli++) {
-    if ((**dli).location() == GeomDetEnumerators::barrel)
-      inwardsBarrel.push_back(static_cast<const BarrelDetLayer*>(*dli));
+  for (auto& inwardsLayer : inwardsLayers) {
+    if ((*inwardsLayer).location() == GeomDetEnumerators::barrel)
+      inwardsBarrel.push_back(static_cast<const BarrelDetLayer*>(inwardsLayer));
     else
-      inwardsForward.push_back(static_cast<const ForwardDetLayer*>(*dli));
+      inwardsForward.push_back(static_cast<const ForwardDetLayer*>(inwardsLayer));
   }
   LogDebug("BeamHaloNavigationSchool") << "add the new ones";
   //add the other forward layers provided
@@ -194,11 +194,11 @@ void BeamHaloNavigationSchool::addInward(const DetLayer* det, const FDLC& news) 
   // split barrel and forward layers
   BDLC inwardsBarrel;
   FDLC inwardsForward;
-  for (DLC::iterator dli = inwardsLayers.begin(); dli != inwardsLayers.end(); dli++) {
-    if ((**dli).location() == GeomDetEnumerators::barrel)
-      inwardsBarrel.push_back(static_cast<const BarrelDetLayer*>(*dli));
+  for (auto& inwardsLayer : inwardsLayers) {
+    if ((*inwardsLayer).location() == GeomDetEnumerators::barrel)
+      inwardsBarrel.push_back(static_cast<const BarrelDetLayer*>(inwardsLayer));
     else
-      inwardsForward.push_back(static_cast<const ForwardDetLayer*>(*dli));
+      inwardsForward.push_back(static_cast<const ForwardDetLayer*>(inwardsLayer));
   }
 
   LogDebug("BeamHaloNavigationSchool") << "add the new ones";

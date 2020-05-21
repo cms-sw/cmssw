@@ -309,9 +309,9 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
   double instLumi, PU;
 
   //Open the ROOT Calib Tree
-  for (unsigned int ifile = 0; ifile < CalibTreeFilenames.size(); ifile++) {
-    cout << "Loading file: " << CalibTreeFilenames[ifile] << endl;
-    TFile* CalibTreeFile = TFile::Open(CalibTreeFilenames[ifile].c_str(), "READ");
+  for (auto& CalibTreeFilename : CalibTreeFilenames) {
+    cout << "Loading file: " << CalibTreeFilename << endl;
+    TFile* CalibTreeFile = TFile::Open(CalibTreeFilename.c_str(), "READ");
 
     // Get event infos
     bool foundEventInfos = false;
@@ -689,56 +689,56 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
 
   std::vector<SiStripQuality::BadComponent> BC = quality_->getBadComponentList();
 
-  for (size_t i = 0; i < BC.size(); ++i) {
+  for (auto& i : BC) {
     //&&&&&&&&&&&&&
     //Full Tk
     //&&&&&&&&&&&&&
 
-    if (BC[i].BadModule)
+    if (i.BadModule)
       NTkBadComponent[0]++;
-    if (BC[i].BadFibers)
-      NTkBadComponent[1] += ((BC[i].BadFibers >> 2) & 0x1) + ((BC[i].BadFibers >> 1) & 0x1) + ((BC[i].BadFibers) & 0x1);
-    if (BC[i].BadApvs)
-      NTkBadComponent[2] += ((BC[i].BadApvs >> 5) & 0x1) + ((BC[i].BadApvs >> 4) & 0x1) + ((BC[i].BadApvs >> 3) & 0x1) +
-                            ((BC[i].BadApvs >> 2) & 0x1) + ((BC[i].BadApvs >> 1) & 0x1) + ((BC[i].BadApvs) & 0x1);
+    if (i.BadFibers)
+      NTkBadComponent[1] += ((i.BadFibers >> 2) & 0x1) + ((i.BadFibers >> 1) & 0x1) + ((i.BadFibers) & 0x1);
+    if (i.BadApvs)
+      NTkBadComponent[2] += ((i.BadApvs >> 5) & 0x1) + ((i.BadApvs >> 4) & 0x1) + ((i.BadApvs >> 3) & 0x1) +
+                            ((i.BadApvs >> 2) & 0x1) + ((i.BadApvs >> 1) & 0x1) + ((i.BadApvs) & 0x1);
 
     //&&&&&&&&&&&&&&&&&
     //Single SubSystem
     //&&&&&&&&&&&&&&&&&
 
     int component;
-    SiStripDetId a(BC[i].detid);
+    SiStripDetId a(i.detid);
     if (a.subdetId() == SiStripDetId::TIB) {
       //&&&&&&&&&&&&&&&&&
       //TIB
       //&&&&&&&&&&&&&&&&&
 
-      component = tTopo->tibLayer(BC[i].detid);
-      SetBadComponents(0, component, BC[i], ssV, NBadComponent);
+      component = tTopo->tibLayer(i.detid);
+      SetBadComponents(0, component, i, ssV, NBadComponent);
 
     } else if (a.subdetId() == SiStripDetId::TID) {
       //&&&&&&&&&&&&&&&&&
       //TID
       //&&&&&&&&&&&&&&&&&
 
-      component = tTopo->tidSide(BC[i].detid) == 2 ? tTopo->tidWheel(BC[i].detid) : tTopo->tidWheel(BC[i].detid) + 3;
-      SetBadComponents(1, component, BC[i], ssV, NBadComponent);
+      component = tTopo->tidSide(i.detid) == 2 ? tTopo->tidWheel(i.detid) : tTopo->tidWheel(i.detid) + 3;
+      SetBadComponents(1, component, i, ssV, NBadComponent);
 
     } else if (a.subdetId() == SiStripDetId::TOB) {
       //&&&&&&&&&&&&&&&&&
       //TOB
       //&&&&&&&&&&&&&&&&&
 
-      component = tTopo->tobLayer(BC[i].detid);
-      SetBadComponents(2, component, BC[i], ssV, NBadComponent);
+      component = tTopo->tobLayer(i.detid);
+      SetBadComponents(2, component, i, ssV, NBadComponent);
 
     } else if (a.subdetId() == SiStripDetId::TEC) {
       //&&&&&&&&&&&&&&&&&
       //TEC
       //&&&&&&&&&&&&&&&&&
 
-      component = tTopo->tecSide(BC[i].detid) == 2 ? tTopo->tecWheel(BC[i].detid) : tTopo->tecWheel(BC[i].detid) + 9;
-      SetBadComponents(3, component, BC[i], ssV, NBadComponent);
+      component = tTopo->tecSide(i.detid) == 2 ? tTopo->tecWheel(i.detid) : tTopo->tecWheel(i.detid) + 9;
+      SetBadComponents(3, component, i, ssV, NBadComponent);
     }
   }
 

@@ -39,39 +39,33 @@ namespace edm {
       //preferInfo[ComponentDescription("DummyProxyProvider", "", false)]=
       //      recordToData;
 
-      for (std::vector<std::string>::iterator itName = prefers.begin(), itNameEnd = prefers.end(); itName != itNameEnd;
-           ++itName) {
+      for (auto& prefer : prefers) {
         recordToData.clear();
-        ParameterSet const& preferPSet = params.getParameterSet(*itName);
+        ParameterSet const& preferPSet = params.getParameterSet(prefer);
         std::vector<std::string> recordNames = preferPSet.getParameterNames();
-        for (std::vector<std::string>::iterator itRecordName = recordNames.begin(), itRecordNameEnd = recordNames.end();
-             itRecordName != itRecordNameEnd;
-             ++itRecordName) {
-          if ((*itRecordName)[0] == '@') {
+        for (auto& recordName : recordNames) {
+          if (recordName[0] == '@') {
             //this is a 'hidden parameter' so skip it
             continue;
           }
 
           //this should be a record name with its info
           try {
-            std::vector<std::string> dataInfo = preferPSet.getParameter<std::vector<std::string> >(*itRecordName);
+            std::vector<std::string> dataInfo = preferPSet.getParameter<std::vector<std::string> >(recordName);
 
             if (dataInfo.empty()) {
               //FUTURE: empty should just mean all data
-              throw Exception(errors::Configuration)
-                  << "The record named " << *itRecordName << " specifies no data items";
+              throw Exception(errors::Configuration) << "The record named " << recordName << " specifies no data items";
             }
             //FUTURE: 'any' should be a special name
-            for (std::vector<std::string>::iterator itDatum = dataInfo.begin(), itDatumEnd = dataInfo.end();
-                 itDatum != itDatumEnd;
-                 ++itDatum) {
-              std::string datumName(*itDatum, 0, itDatum->find_first_of("/"));
+            for (auto& itDatum : dataInfo) {
+              std::string datumName(itDatum, 0, itDatum.find_first_of("/"));
               std::string labelName;
 
-              if (itDatum->size() != datumName.size()) {
-                labelName = std::string(*itDatum, datumName.size() + 1);
+              if (itDatum.size() != datumName.size()) {
+                labelName = std::string(itDatum, datumName.size() + 1);
               }
-              recordToData.insert(std::make_pair(std::string(*itRecordName), std::make_pair(datumName, labelName)));
+              recordToData.insert(std::make_pair(std::string(recordName), std::make_pair(datumName, labelName)));
             }
           } catch (cms::Exception const& iException) {
             cms::Exception theError("ESPreferConfigurationError");
@@ -93,10 +87,8 @@ namespace edm {
     void fillEventSetupProvider(EventSetupsController& esController, EventSetupProvider& cp, ParameterSet& params) {
       std::vector<std::string> providers = params.getParameter<std::vector<std::string> >("@all_esmodules");
 
-      for (std::vector<std::string>::iterator itName = providers.begin(), itNameEnd = providers.end();
-           itName != itNameEnd;
-           ++itName) {
-        ParameterSet* providerPSet = params.getPSetForUpdate(*itName);
+      for (auto& provider : providers) {
+        ParameterSet* providerPSet = params.getPSetForUpdate(provider);
         validateEventSetupParameters(*providerPSet);
         providerPSet->registerIt();
         ModuleFactory::get()->addTo(esController, cp, *providerPSet);
@@ -104,9 +96,8 @@ namespace edm {
 
       std::vector<std::string> sources = params.getParameter<std::vector<std::string> >("@all_essources");
 
-      for (std::vector<std::string>::iterator itName = sources.begin(), itNameEnd = sources.end(); itName != itNameEnd;
-           ++itName) {
-        ParameterSet* providerPSet = params.getPSetForUpdate(*itName);
+      for (auto& source : sources) {
+        ParameterSet* providerPSet = params.getPSetForUpdate(source);
         validateEventSetupParameters(*providerPSet);
         providerPSet->registerIt();
         SourceFactory::get()->addTo(esController, cp, *providerPSet);

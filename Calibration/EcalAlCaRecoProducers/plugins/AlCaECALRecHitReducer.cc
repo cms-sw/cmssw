@@ -26,8 +26,8 @@ AlCaECALRecHitReducer::AlCaECALRecHitReducer(const edm::ParameterSet& iConfig) {
   //  esRecHitsLabel_ = iConfig.getParameter< edm::InputTag > ("esRecHitsLabel");
 
   std::vector<edm::InputTag> srcLabels = iConfig.getParameter<std::vector<edm::InputTag> >("srcLabels");
-  for (auto inputTag = srcLabels.begin(); inputTag != srcLabels.end(); ++inputTag) {
-    eleViewTokens_.push_back(consumes<edm::View<reco::RecoCandidate> >(*inputTag));
+  for (auto& srcLabel : srcLabels) {
+    eleViewTokens_.push_back(consumes<edm::View<reco::RecoCandidate> >(srcLabel));
   }
 
   //eleViewToken_ = consumes<edm::View <reco::RecoCandidate> > (iConfig.getParameter< edm::InputTag > ("electronLabel"));
@@ -134,8 +134,8 @@ void AlCaECALRecHitReducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 #endif
 
   Handle<edm::View<reco::RecoCandidate> > eleViewHandle;
-  for (auto iToken = eleViewTokens_.begin(); iToken != eleViewTokens_.end(); iToken++) {
-    iEvent.getByToken(*iToken, eleViewHandle);
+  for (auto& eleViewToken : eleViewTokens_) {
+    iEvent.getByToken(eleViewToken, eleViewHandle);
 
     //Electrons:
     for (auto eleIt = eleViewHandle->begin(); eleIt != eleViewHandle->end(); eleIt++) {
@@ -157,13 +157,12 @@ void AlCaECALRecHitReducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   }
 
   //saving recHits for highEta SCs for highEta studies
-  for (reco::SuperClusterCollection::const_iterator SC_iter = EESCHandle->begin(); SC_iter != EESCHandle->end();
-       SC_iter++) {
-    if (fabs(SC_iter->eta()) < minEta_highEtaSC_)
+  for (const auto& SC_iter : *EESCHandle) {
+    if (fabs(SC_iter.eta()) < minEta_highEtaSC_)
       continue;
-    AddMiniRecHitCollection(*SC_iter, reducedRecHit_EEmap, caloTopology);
+    AddMiniRecHitCollection(SC_iter, reducedRecHit_EEmap, caloTopology);
 
-    const reco::SuperCluster& sc = *(SC_iter);
+    const reco::SuperCluster& sc = SC_iter;
     reco::CaloCluster_iterator it = sc.clustersBegin();
     reco::CaloCluster_iterator itend = sc.clustersEnd();
     for (; it != itend; ++it) {
@@ -173,14 +172,14 @@ void AlCaECALRecHitReducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   }
 
   //------------------------------ fill the alcareco reduced recHit collection
-  for (std::set<DetId>::const_iterator itr = reducedRecHit_EBmap.begin(); itr != reducedRecHit_EBmap.end(); itr++) {
-    if (barrelHitsCollection->find(*itr) != barrelHitsCollection->end())
-      miniEBRecHitCollection->push_back(*(barrelHitsCollection->find(*itr)));
+  for (auto itr : reducedRecHit_EBmap) {
+    if (barrelHitsCollection->find(itr) != barrelHitsCollection->end())
+      miniEBRecHitCollection->push_back(*(barrelHitsCollection->find(itr)));
   }
 
-  for (std::set<DetId>::const_iterator itr = reducedRecHit_EEmap.begin(); itr != reducedRecHit_EEmap.end(); itr++) {
-    if (endcapHitsCollection->find(*itr) != endcapHitsCollection->end())
-      miniEERecHitCollection->push_back(*(endcapHitsCollection->find(*itr)));
+  for (auto itr : reducedRecHit_EEmap) {
+    if (endcapHitsCollection->find(itr) != endcapHitsCollection->end())
+      miniEERecHitCollection->push_back(*(endcapHitsCollection->find(itr)));
   }
 
   //--------------------------------------- Put selected information in the event
@@ -201,15 +200,14 @@ void AlCaECALRecHitReducer::AddMiniRecHitCollection(const reco::SuperCluster& sc
   }
 
   std::vector<DetId> recHit_window = caloTopology->getWindow(seed, phiSize, etaSize);
-  for (unsigned int i = 0; i < recHit_window.size(); i++) {
-    reducedRecHitMap.insert(recHit_window[i]);
+  for (auto i : recHit_window) {
+    reducedRecHitMap.insert(i);
   }
 
   const std::vector<std::pair<DetId, float> >& scHits = sc.hitsAndFractions();
-  for (std::vector<std::pair<DetId, float> >::const_iterator scHit_itr = scHits.begin(); scHit_itr != scHits.end();
-       scHit_itr++) {
+  for (const auto& scHit : scHits) {
     // the map fills just one time (avoiding double insert of recHits)
-    reducedRecHitMap.insert(scHit_itr->first);
+    reducedRecHitMap.insert(scHit.first);
   }
 
   return;

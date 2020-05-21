@@ -21,12 +21,12 @@ MEtXYcorrectParameters::Definitions::Definitions(const std::vector<std::string>&
                                                  const std::vector<std::string>& fParVar,
                                                  const std::string& fFormula) {
   mBinVar.reserve(fBinVar.size());
-  for (unsigned i = 0; i < fBinVar.size(); i++)
-    mBinVar.push_back(fBinVar[i]);
+  for (const auto& i : fBinVar)
+    mBinVar.push_back(i);
 
   mParVar.reserve(fParVar.size());
-  for (unsigned i = 0; i < fParVar.size(); i++)
-    mParVar.push_back(getUnsigned(fParVar[i]));
+  for (const auto& i : fParVar)
+    mParVar.push_back(getUnsigned(i));
 
   mFormula = fFormula;
 }
@@ -360,8 +360,8 @@ void MEtXYcorrectParametersCollection::getSections(std::string inputFile, std::v
   //copy(outputs.begin(),outputs.end(), std::ostream_iterator<std::string>(std::cout, "\n") );
 
   std::string sectionNames;
-  for (std::vector<std::string>::const_iterator it = outputs.begin(); it != outputs.end(); it++) {
-    sectionNames += *it;
+  for (const auto& output : outputs) {
+    sectionNames += output;
     sectionNames += "\n";
   }
   edm::LogInfo("getSections") << "Sections read from file: "

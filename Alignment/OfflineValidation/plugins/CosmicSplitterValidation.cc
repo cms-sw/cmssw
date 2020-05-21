@@ -471,22 +471,22 @@ void CosmicSplitterValidation::analyze(const edm::Event& iEvent, const edm::Even
 
     if (splitMuons_) {
       // check if split global muons are good
-      for (std::vector<reco::Muon>::const_iterator gmI = globalMuons->begin(); gmI != globalMuons->end(); gmI++) {
-        if (gmI->isTrackerMuon() && gmI->isStandAloneMuon() && gmI->isGlobalMuon()) {
+      for (const auto& gmI : *globalMuons) {
+        if (gmI.isTrackerMuon() && gmI.isStandAloneMuon() && gmI.isGlobalMuon()) {
           reco::TrackRef trackerTrackRef1(tracks, 0);
           reco::TrackRef trackerTrackRef2(tracks, 1);
 
-          if (gmI->innerTrack() == trackerTrackRef1) {
-            if (gmI->globalTrack()->normalizedChi2() < topGlobalMuonNorchi2) {
+          if (gmI.innerTrack() == trackerTrackRef1) {
+            if (gmI.globalTrack()->normalizedChi2() < topGlobalMuonNorchi2) {
               topGlobalMuonFlag = true;
-              topGlobalMuonNorchi2 = gmI->globalTrack()->normalizedChi2();
+              topGlobalMuonNorchi2 = gmI.globalTrack()->normalizedChi2();
               topGlobalMuon = gmCtr;
             }
           }
-          if (gmI->innerTrack() == trackerTrackRef2) {
-            if (gmI->globalTrack()->normalizedChi2() < bottomGlobalMuonNorchi2) {
+          if (gmI.innerTrack() == trackerTrackRef2) {
+            if (gmI.globalTrack()->normalizedChi2() < bottomGlobalMuonNorchi2) {
               bottomGlobalMuonFlag = true;
-              bottomGlobalMuonNorchi2 = gmI->globalTrack()->normalizedChi2();
+              bottomGlobalMuonNorchi2 = gmI.globalTrack()->normalizedChi2();
               bottomGlobalMuon = gmCtr;
             }
           }

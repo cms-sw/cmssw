@@ -133,10 +133,10 @@ bool SETFilter::buildTrajectoryMeasurements(SeedCandidate *finalMuon, Trajectory
   if (!finalMuon->trajectoryMeasurementsInTheSet.empty() &&
       finalMuon->trajectoryMeasurementsInTheSet.back().forwardPredictedState().isValid()) {
     // loop over all measurements in the set
-    for (unsigned int iMeas = 0; iMeas < finalMuon->trajectoryMeasurementsInTheSet.size(); ++iMeas) {
+    for (auto &iMeas : finalMuon->trajectoryMeasurementsInTheSet) {
       // strore the measurements
-      finalCandidate.push_back(finalMuon->trajectoryMeasurementsInTheSet[iMeas]);
-      const DetLayer *layer = finalMuon->trajectoryMeasurementsInTheSet[iMeas].layer();
+      finalCandidate.push_back(iMeas);
+      const DetLayer *layer = iMeas.layer();
 
       incrementChamberCounters(layer);
 
@@ -213,8 +213,8 @@ bool SETFilter::transformLight(Trajectory::DataContainer &measurements_segments,
   // loop over all segments in the trajectory
   if (useSegmentsInTrajectory) {  // if segments the "backword fit" (rechits)
                                   // performed later is actually a forward one (?!)
-    for (unsigned int iMeas = 0; iMeas < measurements_segments.size(); ++iMeas) {
-      hitContainer.push_back(measurements_segments[iMeas].recHit());
+    for (auto &measurements_segment : measurements_segments) {
+      hitContainer.push_back(measurements_segment.recHit());
     }
   } else {
     for (int iMeas = measurements_segments.size() - 1; iMeas > -1; --iMeas) {
@@ -257,8 +257,7 @@ double SETFilter::findChi2(double pX,
   TrajectoryStateOnSurface tSOSDest;
 
   double chi2_loc = 0.;
-  for (unsigned int iMeas = 0; iMeas < muonCandidate.theSet.size(); ++iMeas) {
-    MuonTransientTrackingRecHit::MuonRecHitPointer muonRecHit = muonCandidate.theSet[iMeas];
+  for (auto muonRecHit : muonCandidate.theSet) {
     DetId detId = muonRecHit->hit()->geographicalId();
     const GeomDet *layer = theService->trackingGeometry()->idToDet(detId);
 

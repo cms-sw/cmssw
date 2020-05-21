@@ -46,8 +46,8 @@ namespace cluster_shape_filter {
 
     double area() const {
       double s = 1;
-      for (size_t n = 0; n < limits.size(); ++n)
-        s *= limits[n].size();
+      for (auto limit : limits)
+        s *= limit.size();
       return s;
     }
   };
@@ -55,15 +55,15 @@ namespace cluster_shape_filter {
   using AsymmetricCut = std::array<Center, 2>;
 
   std::ostream& operator<<(std::ostream& os, const AsymmetricCut& c) {
-    for (size_t b = 0; b < c.size(); ++b) {
-      for (size_t d = 0; d < c[b].limits.size(); ++d) {
-        os << " " << c[b].limits[d].down << " " << c[b].limits[d].up;
+    for (const auto& b : c) {
+      for (size_t d = 0; d < b.limits.size(); ++d) {
+        os << " " << b.limits[d].down << " " << b.limits[d].up;
       }
     }
 
-    for (size_t b = 0; b < c.size(); ++b) {
-      const double v = c[b].area() > 0 ? c[b].n_clusters / c[b].area() : 0.;
-      os << " " << v << " " << c[b].n_clusters;
+    for (const auto& b : c) {
+      const double v = b.area() > 0 ? b.n_clusters / b.area() : 0.;
+      os << " " << v << " " << b.n_clusters;
     }
     return os;
   }
@@ -259,8 +259,8 @@ namespace cluster_shape_filter {
       }
 
       std::ofstream centersFile("centers_" + flag + ".dat");
-      for (size_t b = 0; b < c.size(); ++b)
-        centersFile << " " << c[b].x[0] << " " << c[b].x[1] << std::endl;
+      for (const auto& b : c)
+        centersFile << " " << b.x[0] << " " << b.x[1] << std::endl;
     }
 
     void process(const TH2F& histo, AsymmetricCut& c, const std::string& flag) {

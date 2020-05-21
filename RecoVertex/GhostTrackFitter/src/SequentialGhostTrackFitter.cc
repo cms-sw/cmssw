@@ -39,8 +39,7 @@ GhostTrackPrediction SequentialGhostTrackFitter::fit(const GhostTrackFitter::Pre
       break;
 
     if (iteration > 0) {
-      for (unsigned int i = 0; i < states.size(); i++) {
-        GhostTrackState &state = states[i];
+      for (auto &state : states) {
         state.linearize(lastPred);
       }
     }
@@ -48,9 +47,9 @@ GhostTrackPrediction SequentialGhostTrackFitter::fit(const GhostTrackFitter::Pre
     ndof = 0.;  // prior gives us an initial ndof
     chi2 = 0.;
 
-    for (std::vector<GhostTrackState>::const_iterator state = states.begin(); state != states.end(); ++state) {
-      if (state->isValid() && state->weight() > weightThreshold)
-        pred = updater.update(pred, *state, ndof, chi2);
+    for (const auto &state : states) {
+      if (state.isValid() && state.weight() > weightThreshold)
+        pred = updater.update(pred, state, ndof, chi2);
     }
 
     if (++iteration >= maxIteration || stable(lastPred, pred))

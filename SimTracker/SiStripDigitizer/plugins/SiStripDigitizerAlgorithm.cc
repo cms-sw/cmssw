@@ -395,16 +395,15 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
 
     // do this step here because we now have access to luminosity information
     if (FirstDigitize_) {
-      for (std::map<int, float>::iterator iter = mapOfAPVprobabilities.begin(); iter != mapOfAPVprobabilities.end();
-           ++iter) {
+      for (auto& mapOfAPVprobabilitie : mapOfAPVprobabilities) {
         std::bitset<6> bs;
         for (int Napv = 0; Napv < 6; Napv++) {
           float cursor = CLHEP::RandFlat::shoot(engine);
-          bs[Napv] = cursor < iter->second * APVSaturationProb_
+          bs[Napv] = cursor < mapOfAPVprobabilitie.second * APVSaturationProb_
                          ? true
                          : false;  //APVSaturationProb has been scaled by PU luminosity
         }
-        SiStripTrackerAffectedAPVMap[iter->first] = bs;
+        SiStripTrackerAffectedAPVMap[mapOfAPVprobabilitie.first] = bs;
       }
 
       NumberOfBxBetweenHIPandEvent = 1e3;

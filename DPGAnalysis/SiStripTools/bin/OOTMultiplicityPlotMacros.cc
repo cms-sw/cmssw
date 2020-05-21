@@ -23,11 +23,11 @@ OOTSummary* ComputeOOTFractionvsFill(TFile* ff,
     CommonAnalyzer ca(ff, "", itmodule);
     std::vector<unsigned int> runs = ca.getFillList();
     std::sort(runs.begin(), runs.end());
-    for (unsigned int i = 0; i < runs.size(); ++i) {
+    for (unsigned int run : runs) {
       char runlabel[100];
-      sprintf(runlabel, "%d", runs[i]);
+      sprintf(runlabel, "%d", run);
 
-      OOTResult* res = ComputeOOTFraction(ff, itmodule, ootmodule, etmodule, runs[i], hname, true);
+      OOTResult* res = ComputeOOTFraction(ff, itmodule, ootmodule, etmodule, run, hname, true);
 
       if (res->ngoodbx != res->hratio->GetEntries())
         std::cout << "Inconsistency in number of good bx" << std::endl;
@@ -58,11 +58,11 @@ OOTSummary* ComputeOOTFractionvsRun(TFile* ff,
     CommonAnalyzer ca(ff, "", itmodule);
     std::vector<unsigned int> runs = ca.getRunList();
     std::sort(runs.begin(), runs.end());
-    for (unsigned int i = 0; i < runs.size(); ++i) {
+    for (unsigned int run : runs) {
       char runlabel[100];
-      sprintf(runlabel, "%d", runs[i]);
+      sprintf(runlabel, "%d", run);
 
-      OOTResult* res = ComputeOOTFraction(ff, itmodule, ootmodule, etmodule, runs[i], hname);
+      OOTResult* res = ComputeOOTFraction(ff, itmodule, ootmodule, etmodule, run, hname);
 
       if (res->ngoodbx != res->hratio->GetEntries())
         std::cout << "Inconsistency in number of good bx" << std::endl;
@@ -145,25 +145,25 @@ OOTResult* ComputeOOTFraction(TFile* ff,
       ootmult->SetMarkerColor(kRed);
       //      ootmult->Draw();
       //      itmult->Draw("same");
-      for (std::vector<int>::const_iterator fbx = filledbx.begin(); fbx != filledbx.end(); ++fbx) {
-        nzb += itmult->GetBinEntries(*fbx);
-        nrandom += ootmult->GetBinEntries(*fbx + 1);
+      for (int fbx : filledbx) {
+        nzb += itmult->GetBinEntries(fbx);
+        nrandom += ootmult->GetBinEntries(fbx + 1);
       }
-      for (std::vector<int>::const_iterator fbx = filledbx.begin(); fbx != filledbx.end(); ++fbx) {
+      for (int fbx : filledbx) {
         if (nzb > 0 && nrandom > 0) {
-          rclzb += (itmult->GetBinContent(*fbx) * itmult->GetBinEntries(*fbx)) / nzb;
-          errclzb += (itmult->GetBinError(*fbx) * itmult->GetBinEntries(*fbx)) *
-                     (itmult->GetBinError(*fbx) * itmult->GetBinEntries(*fbx)) / (nzb * nzb);
-          rclrandom += (ootmult->GetBinContent(*fbx + 1) * ootmult->GetBinEntries(*fbx + 1)) / nrandom;
-          errclrandom += (ootmult->GetBinError(*fbx + 1) * ootmult->GetBinEntries(*fbx + 1)) *
-                         (ootmult->GetBinError(*fbx + 1) * ootmult->GetBinEntries(*fbx + 1)) / (nrandom * nrandom);
+          rclzb += (itmult->GetBinContent(fbx) * itmult->GetBinEntries(fbx)) / nzb;
+          errclzb += (itmult->GetBinError(fbx) * itmult->GetBinEntries(fbx)) *
+                     (itmult->GetBinError(fbx) * itmult->GetBinEntries(fbx)) / (nzb * nzb);
+          rclrandom += (ootmult->GetBinContent(fbx + 1) * ootmult->GetBinEntries(fbx + 1)) / nrandom;
+          errclrandom += (ootmult->GetBinError(fbx + 1) * ootmult->GetBinEntries(fbx + 1)) *
+                         (ootmult->GetBinError(fbx + 1) * ootmult->GetBinEntries(fbx + 1)) / (nrandom * nrandom);
         }
-        if (itmult->GetBinContent(*fbx) == 0) {
-          std::cout << "No cluster in filled BX! " << *fbx << std::endl;
-        } else if (ootmult->GetBinEntries(*fbx + 1) ==
+        if (itmult->GetBinContent(fbx) == 0) {
+          std::cout << "No cluster in filled BX! " << fbx << std::endl;
+        } else if (ootmult->GetBinEntries(fbx + 1) ==
                    0) { /* std::cout << "No entry in OOT BX " << *fbx+1 << std::endl; */
         } else {
-          float rat = ootmult->GetBinContent(*fbx + 1) / itmult->GetBinContent(*fbx);
+          float rat = ootmult->GetBinContent(fbx + 1) / itmult->GetBinContent(fbx);
           res->hratio->Fill(rat);
         }
       }

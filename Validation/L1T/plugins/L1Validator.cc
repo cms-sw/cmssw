@@ -162,8 +162,8 @@ void L1Validator::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetu
     _Hists.Fill(L1ValidatorHists::Type::Jet, &Genjet, L1Part);
   }
 
-  for (uint i = 0; i < GenParticles->size(); i++) {
-    const GenParticle *GenPart = &GenParticles->at(i);
+  for (const auto &i : *GenParticles) {
+    const GenParticle *GenPart = &i;
 
     int pdg = GenPart->pdgId(), status = GenPart->status();
 
@@ -256,8 +256,8 @@ const reco::LeafCandidate *L1Validator::FindBest(const reco::GenParticle *GenPar
   const reco::LeafCandidate *BestPart = nullptr;
   double BestDR = 999.;
 
-  for (uint i = 0; i < Collection1->size(); i++) {
-    const reco::LeafCandidate *ThisPart = &Collection1->at(i);
+  for (const auto &i : *Collection1) {
+    const reco::LeafCandidate *ThisPart = &i;
     double ThisDR = reco::deltaR(GenPart->eta(), GenPart->phi(), ThisPart->eta(), ThisPart->phi());
     if (ThisDR < BestDR) {
       BestDR = ThisDR;
@@ -268,8 +268,8 @@ const reco::LeafCandidate *L1Validator::FindBest(const reco::GenParticle *GenPar
   if (Collection2 == nullptr)
     return BestPart;
 
-  for (uint i = 0; i < Collection2->size(); i++) {
-    const reco::LeafCandidate *ThisPart = &Collection2->at(i);
+  for (const auto &i : *Collection2) {
+    const reco::LeafCandidate *ThisPart = &i;
     double ThisDR = reco::deltaR(GenPart->eta(), GenPart->phi(), ThisPart->eta(), ThisPart->phi());
     if (ThisDR < BestDR) {
       BestDR = ThisDR;
@@ -286,8 +286,8 @@ const reco::LeafCandidate *L1Validator::FindBest(const reco::GenParticle *GenPar
   const reco::LeafCandidate *BestPart = nullptr;
   double BestDR = 999.;
 
-  for (uint i = 0; i < Collection1->size(); i++) {
-    const reco::LeafCandidate *ThisPart = &Collection1->at(i);
+  for (const auto &i : *Collection1) {
+    const reco::LeafCandidate *ThisPart = &i;
     double ThisDR = reco::deltaR(GenPart->eta(), GenPart->phi(), ThisPart->eta(), ThisPart->phi());
     if (ThisDR < BestDR) {
       BestDR = ThisDR;
@@ -298,8 +298,8 @@ const reco::LeafCandidate *L1Validator::FindBest(const reco::GenParticle *GenPar
   if (Collection2 == nullptr)
     return BestPart;
 
-  for (uint i = 0; i < Collection2->size(); i++) {
-    const reco::LeafCandidate *ThisPart = &Collection2->at(i);
+  for (const auto &i : *Collection2) {
+    const reco::LeafCandidate *ThisPart = &i;
     double ThisDR = reco::deltaR(GenPart->eta(), GenPart->phi(), ThisPart->eta(), ThisPart->phi());
     if (ThisDR < BestDR) {
       BestDR = ThisDR;
@@ -315,8 +315,8 @@ const reco::LeafCandidate *L1Validator::FindBest(const reco::GenParticle *GenPar
   const reco::LeafCandidate *BestPart = nullptr;
   double BestDR = 999.;
 
-  for (uint i = 0; i < Collection1->size(); i++) {
-    const reco::LeafCandidate *ThisPart = &Collection1->at(i);
+  for (const auto &i : *Collection1) {
+    const reco::LeafCandidate *ThisPart = &i;
     double ThisDR = reco::deltaR(GenPart->eta(), GenPart->phi(), ThisPart->eta(), ThisPart->phi());
     if (ThisDR < BestDR) {
       BestDR = ThisDR;

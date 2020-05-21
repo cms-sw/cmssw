@@ -108,8 +108,8 @@ CTPPSFastTrackingProducer::CTPPSFastTrackingProducer(const edm::ParameterSet& iC
   //
 }
 CTPPSFastTrackingProducer::~CTPPSFastTrackingProducer() {
-  for (std::map<unsigned int, H_BeamParticle*>::iterator it = m_beamPart.begin(); it != m_beamPart.end(); ++it) {
-    delete (*it).second;
+  for (auto& it : m_beamPart) {
+    delete it.second;
   }
 }
 // ------------ method called to produce the data  ------------
@@ -128,8 +128,8 @@ void CTPPSFastTrackingProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
   std::unique_ptr<CTPPSFastTrackContainer> output_tracks(new CTPPSFastTrackContainer);
   int n = 0;
-  for (std::vector<CTPPSFastTrack>::const_iterator i = theCTPPSFastTrack.begin(); i != theCTPPSFastTrack.end(); i++) {
-    output_tracks->push_back(*i);
+  for (const auto& i : theCTPPSFastTrack) {
+    output_tracks->push_back(i);
     n += 1;
   }
 

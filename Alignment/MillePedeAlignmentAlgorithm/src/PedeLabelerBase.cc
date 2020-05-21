@@ -39,11 +39,12 @@ std::pair<IntegratedCalibrationBase *, unsigned int> PedeLabelerBase::calibratio
   // Quick check whether label is in range of calibration labels:
   if (!theCalibrationLabels.empty() && label >= theCalibrationLabels.front().second) {
     // Loop on all known IntegratedCalibration's:
-    for (auto iCal = theCalibrationLabels.begin(); iCal != theCalibrationLabels.end(); ++iCal) {
-      if (label >= iCal->second && label < iCal->second + iCal->first->numParameters()) {
+    for (const auto &theCalibrationLabel : theCalibrationLabels) {
+      if (label >= theCalibrationLabel.second &&
+          label < theCalibrationLabel.second + theCalibrationLabel.first->numParameters()) {
         // Label fits in range for this calibration, so return calibration
         // and subtract first label of this calibration from label.
-        return std::make_pair(iCal->first, label - iCal->second);
+        return std::make_pair(theCalibrationLabel.first, label - theCalibrationLabel.second);
       }
     }
     edm::LogError("LogicError") << "@SUB=PedeLabelerBase::calibrationParamFromLabel"
@@ -59,8 +60,8 @@ std::pair<IntegratedCalibrationBase *, unsigned int> PedeLabelerBase::calibratio
 unsigned int PedeLabelerBase::firstFreeLabel() const {
   unsigned int nextId = this->firstNonAlignableLabel();
 
-  for (auto iCal = theCalibrationLabels.begin(); iCal != theCalibrationLabels.end(); ++iCal) {
-    nextId += iCal->first->numParameters();
+  for (const auto &theCalibrationLabel : theCalibrationLabels) {
+    nextId += theCalibrationLabel.first->numParameters();
   }
 
   return nextId;
@@ -79,14 +80,15 @@ unsigned int PedeLabelerBase::calibrationLabel(const IntegratedCalibrationBase *
   }
 
   // loop on all known IntegratedCalibration's
-  for (auto iCal = theCalibrationLabels.begin(); iCal != theCalibrationLabels.end(); ++iCal) {
-    if (iCal->first == calib) {  // found IntegratedCalibrationBase
-      if (paramNum < iCal->first->numParameters()) {
-        return iCal->second + paramNum;
+  for (const auto &theCalibrationLabel : theCalibrationLabels) {
+    if (theCalibrationLabel.first == calib) {  // found IntegratedCalibrationBase
+      if (paramNum < theCalibrationLabel.first->numParameters()) {
+        return theCalibrationLabel.second + paramNum;
       } else {  // paramNum out of range!
         edm::LogError("LogicError") << "@SUB=PedeLabelerBase::calibrationLabel"
                                     << "IntegratedCalibration " << calib->name() << " has only "
-                                    << iCal->first->numParameters() << " parameters, but " << paramNum << "requested!";
+                                    << theCalibrationLabel.first->numParameters() << " parameters, but " << paramNum
+                                    << "requested!";
       }
     }
   }
@@ -102,10 +104,10 @@ void PedeLabelerBase::addCalibrations(const std::vector<IntegratedCalibrationBas
   unsigned int nextId = this->firstFreeLabel();  // so far next free label
 
   // Now foresee labels for new calibrations:
-  for (auto iCal = iCals.begin(); iCal != iCals.end(); ++iCal) {
-    if (*iCal) {
-      theCalibrationLabels.push_back(std::make_pair(*iCal, nextId));
-      nextId += (*iCal)->numParameters();
+  for (auto iCal : iCals) {
+    if (iCal) {
+      theCalibrationLabels.push_back(std::make_pair(iCal, nextId));
+      nextId += iCal->numParameters();
     } else {
       edm::LogError("LogicError") << "@SUB=PedeLabelerBase::addCalibrations"
                                   << "Ignoring nullPtr.";

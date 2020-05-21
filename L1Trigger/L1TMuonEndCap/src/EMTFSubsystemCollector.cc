@@ -483,14 +483,14 @@ void EMTFSubsystemCollector::make_copad_gem(const TriggerPrimitiveCollection& mu
 
     // now let's correlate the pads in two layers of this partition
     const TriggerPrimitiveCollection& co_pads = found->second;
-    for (auto p = pads.begin(); p != pads.end(); ++p) {
+    for (const auto& pad : pads) {
       bool has_copad = false;
       int bend = 999999;
 
-      for (auto co_p = co_pads.begin(); co_p != co_pads.end(); ++co_p) {
-        unsigned int deltaPad = calculate_delta(p->getGEMData().pad, co_p->getGEMData().pad);
-        unsigned int deltaBX = calculate_delta(p->getGEMData().bx, co_p->getGEMData().bx);
-        unsigned int deltaRoll = calculate_delta(p->detId<GEMDetId>().roll(), co_p->detId<GEMDetId>().roll());
+      for (const auto& co_pad : co_pads) {
+        unsigned int deltaPad = calculate_delta(pad.getGEMData().pad, co_pad.getGEMData().pad);
+        unsigned int deltaBX = calculate_delta(pad.getGEMData().bx, co_pad.getGEMData().bx);
+        unsigned int deltaRoll = calculate_delta(pad.detId<GEMDetId>().roll(), co_pad.detId<GEMDetId>().roll());
 
         // check the match in pad
         if ((detid.station() == 1 && deltaPad > maxDeltaPadGE11) ||
@@ -509,7 +509,7 @@ void EMTFSubsystemCollector::make_copad_gem(const TriggerPrimitiveCollection& mu
 
         // recover the bend sign
         if (static_cast<unsigned int>(std::abs(bend)) > deltaPad) {
-          if (co_p->getGEMData().pad >= p->getGEMData().pad)
+          if (co_pad.getGEMData().pad >= pad.getGEMData().pad)
             bend = deltaPad;
           else
             bend = -deltaPad;
@@ -524,7 +524,7 @@ void EMTFSubsystemCollector::make_copad_gem(const TriggerPrimitiveCollection& mu
 
       // make a new coincidence pad digi
       if (has_copad) {
-        copad_muon_primitives.push_back(*p);
+        copad_muon_primitives.push_back(pad);
       }
     }  // end loop over pads
   }    // end loop over in_pads_layer1

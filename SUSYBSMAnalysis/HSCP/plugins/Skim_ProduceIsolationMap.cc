@@ -150,15 +150,15 @@ void ProduceIsolationMap::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     double SumPt = 0;
     double Count = 0;
     double CountHighPt = 0;
-    for (TrackCollection::const_iterator itTrack2 = TKHandle->begin(); itTrack2 != TKHandle->end(); ++itTrack2) {
-      if (fabs(itTrack->pt() - itTrack2->pt()) < 0.1 && fabs(itTrack->eta() - itTrack2->eta()) < 0.05)
+    for (const auto& itTrack2 : *TKHandle) {
+      if (fabs(itTrack->pt() - itTrack2.pt()) < 0.1 && fabs(itTrack->eta() - itTrack2.eta()) < 0.05)
         continue;
-      float dR = deltaR(itTrack->momentum(), itTrack2->momentum());
+      float dR = deltaR(itTrack->momentum(), itTrack2.momentum());
       if (dR > IsolationConeDR_)
         continue;
-      SumPt += itTrack2->pt();
+      SumPt += itTrack2.pt();
       Count++;
-      if (itTrack2->pt() < TKIsolationPtcut_)
+      if (itTrack2.pt() < TKIsolationPtcut_)
         continue;
       CountHighPt++;
     }

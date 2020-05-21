@@ -81,8 +81,8 @@ int main() {
 
   // define all histograms & fit functions
   //to replace with something more elegant
-  for (int j = 0; j < nrSignalSelObs; j++) {
-    obsNrs.push_back(SignalSelObs[j]);
+  for (int SignalSelOb : SignalSelObs) {
+    obsNrs.push_back(SignalSelOb);
   }
   myLRhelper =
       new LRHelpFunctions(nrSignalSelLRtotBins, SignalSelLRtotMin, SignalSelLRtotMax, SignalSelLRtotFitFunction);

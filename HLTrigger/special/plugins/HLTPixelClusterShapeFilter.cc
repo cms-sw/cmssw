@@ -134,10 +134,9 @@ bool HLTPixelClusterShapeFilter::hltFilter(edm::Event &event,
         const PixelTopology *pixTopo = &(pgdu->specificTopology());
         std::vector<SiPixelCluster::Pixel> pixels(hit.cluster()->pixels());
         bool pixelOnEdge = false;
-        for (std::vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin(); pixel != pixels.end();
-             ++pixel) {
-          int pixelX = pixel->x;
-          int pixelY = pixel->y;
+        for (auto pixel : pixels) {
+          int pixelX = pixel.x;
+          int pixelY = pixel.y;
           if (pixTopo->isItEdgePixelInX(pixelX) || pixTopo->isItEdgePixelInY(pixelY)) {
             pixelOnEdge = true;
             break;

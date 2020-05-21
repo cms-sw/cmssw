@@ -42,19 +42,19 @@ void EcalElectronicsMapper::resetPointers() {
   }
 
   // reset trigger electronics Id
-  for (int tccid = 0; tccid < NUMB_TCC; tccid++) {
+  for (auto& tccid : psInput_) {
     for (int ttid = 0; ttid < TCC_EB_NUMBTTS; ttid++) {
       for (int ps = 0; ps < NUMB_STRIP; ps++) {
-        psInput_[tccid][ttid][ps] = nullptr;
+        tccid[ttid][ps] = nullptr;
       }
     }
   }
 
   // initialize TCC maps
-  for (int tccId = 0; tccId < EcalTriggerElectronicsId::MAX_TCCID; tccId++) {
+  for (auto& tTandP : tTandPs_) {
     for (int psCounter = 0; psCounter < EcalTrigTowerDetId::kEBTowersPerSM * 5; psCounter++) {
       for (int u = 0; u < 2; u++) {
-        tTandPs_[tccId][psCounter][u] = -1;
+        tTandP[psCounter][u] = -1;
       }
     }
   }
@@ -207,8 +207,8 @@ void EcalElectronicsMapper::deletePointers() {
       // if(scDetIds_[sm][fe]){
       //  delete scDetIds_[sm][fe];
       //  delete scEleIds_[sm][fe];
-      for (size_t i = 0; i < srFlags_[sm][fe].size(); ++i)
-        delete srFlags_[sm][fe][i];
+      for (auto& i : srFlags_[sm][fe])
+        delete i;
       srFlags_[sm][fe].clear();
 
       delete scEleIds_[sm][fe];
@@ -216,10 +216,10 @@ void EcalElectronicsMapper::deletePointers() {
   }
 
   // delete trigger electronics Id
-  for (int tccid = 0; tccid < NUMB_TCC; tccid++) {
+  for (auto& tccid : psInput_) {
     for (int ttid = 0; ttid < TCC_EB_NUMBTTS; ttid++) {
       for (int ps = 0; ps < NUMB_STRIP; ps++) {
-        delete psInput_[tccid][ttid][ps];
+        delete tccid[ttid][ps];
       }
     }
   }
@@ -520,12 +520,12 @@ void EcalElectronicsMapper::fillMaps() {
         // scDetIds_[smId-1][feChannel-1] = new EcalScDetId(scDetId.rawId());
         scEleIds_[smId - 1][feChannel - 1] = new EcalElectronicsId(smId, feChannel, 1, 1);
 
-        for (size_t i = 0; i < scDetIds.size(); ++i) {
+        for (auto& scDetId : scDetIds) {
           // std::cout << __FILE__ << ":" << __LINE__ << ": "
           //            << "(DCC,RU) = (" <<  smId << "," << feChannel
           //            << ") -> " << scDetIds[i] << "\n";
 
-          srFlags_[smId - 1][feChannel - 1].push_back(new EESrFlag(EcalScDetId(scDetIds[i].rawId()), 0));
+          srFlags_[smId - 1][feChannel - 1].push_back(new EESrFlag(EcalScDetId(scDetId.rawId()), 0));
         }
         //usually only one element 1 DCC channel <-> 1 SC
         //in few case two or three elements: partial SCs grouped.
@@ -553,9 +553,9 @@ void EcalElectronicsMapper::fillMaps() {
   // developing mapping for pseudostrip input data: (tccId,psNumber)->(tccId,towerId,psId)
   // initializing array for pseudostrip data
   short numStripInTT[EcalTriggerElectronicsId::MAX_TCCID][EcalTrigTowerDetId::kEBTowersPerSM];
-  for (int tccId = 0; tccId < EcalTriggerElectronicsId::MAX_TCCID; tccId++) {
+  for (auto& tccId : numStripInTT) {
     for (int tt = 0; tt < EcalTrigTowerDetId::kEBTowersPerSM; tt++) {
-      numStripInTT[tccId][tt] = -2;
+      tccId[tt] = -2;
     }
   }
 
@@ -681,8 +681,8 @@ void EcalElectronicsMapper::setupGhostMap() {
             {651, 34, 5}, {653, 27, 3}, {653, 27, 4}, {653, 27, 5}, {653, 3, 3},  {653, 3, 4},  {653, 3, 5},
             {653, 30, 5}, {653, 6, 5}};
 
-  for (int i = 0; i < n; ++i)
-    ghost_[v[i].FED][v[i].CCU][v[i].VFE] = true;
+  for (auto i : v)
+    ghost_[i.FED][i.CCU][i.VFE] = true;
 }
 
 bool EcalElectronicsMapper::isGhost(const int FED, const int CCU, const int VFE) {

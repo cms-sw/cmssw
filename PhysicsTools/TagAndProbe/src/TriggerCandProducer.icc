@@ -101,14 +101,12 @@ void TriggerCandProducer<object>::produce(edm::Event& event, const edm::EventSet
     if (triggerUnprescaled.find((*iMyHLT).label()) == triggerUnprescaled.end())
       triggerUnprescaled[(*iMyHLT).label()] = false;
   }
-  for (std::vector<std::string>::const_iterator iHLT = activeHLTPathsInThisEvent.begin();
-       iHLT != activeHLTPathsInThisEvent.end();
-       ++iHLT) {
+  for (const auto& iHLT : activeHLTPathsInThisEvent) {
     // cout << "######## " << *iHLT << endl;
     for (std::vector<edm::InputTag>::const_iterator iMyHLT = hltTags_.begin(); iMyHLT != hltTags_.end(); ++iMyHLT) {
-      if ((*iMyHLT).label() == *iHLT) {
+      if ((*iMyHLT).label() == iHLT) {
         triggerInMenu[(*iMyHLT).label()] = true;
-        if (hltPrescaleProvider_.prescaleValue(event, eventSetup, *iHLT) == 1)
+        if (hltPrescaleProvider_.prescaleValue(event, eventSetup, iHLT) == 1)
           triggerUnprescaled[(*iMyHLT).label()] = true;
       }
     }
@@ -201,12 +199,12 @@ void TriggerCandProducer<object>::produce(edm::Event& event, const edm::EventSet
     } catch (std::exception const&) {
       cout << "bad trigger\n";
     }
-    for (std::vector<std::string>::iterator filter = filters.begin(); filter != filters.end(); ++filter) {
-      edm::InputTag testTag(*filter, "", theRightHLTTag_.process());
+    for (auto& filter : filters) {
+      edm::InputTag testTag(filter, "", theRightHLTTag_.process());
 
       int testindex = trgEvent->filterIndex(testTag);
       if (!(testindex >= trgEvent->sizeFilters())) {
-        filterName_ = *filter;
+        filterName_ = filter;
         filterTag = testTag;
       }
     }

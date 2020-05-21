@@ -42,8 +42,8 @@ ESOccupancyTask::ESOccupancyTask(const edm::ParameterSet& ps) {
       hSelEnDensity_[i][j] = nullptr;
     }
 
-  for (int i = 0; i < 2; ++i)
-    hE1E2_[i] = nullptr;
+  for (auto& i : hE1E2_)
+    i = nullptr;
 }
 
 void ESOccupancyTask::bookHistograms(DQMStore::IBooker& iBooker, Run const&, EventSetup const&) {
@@ -125,8 +125,8 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
 
   Handle<ESRecHitCollection> ESRecHit;
   if (e.getByToken(rechittoken_, ESRecHit)) {
-    for (ESRecHitCollection::const_iterator hitItr = ESRecHit->begin(); hitItr != ESRecHit->end(); ++hitItr) {
-      ESDetId id = ESDetId(hitItr->id());
+    for (const auto& hitItr : *ESRecHit) {
+      ESDetId id = ESDetId(hitItr.id());
 
       zside = id.zside();
       plane = id.plane();
@@ -137,18 +137,17 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
       int j = plane - 1;
 
       sum_RecHits[i][j]++;
-      sum_Energy[i][j] += hitItr->energy();
+      sum_Energy[i][j] += hitItr.energy();
       hRecOCC_[i][j]->Fill(ix, iy);
-      if (hitItr->energy() != 0) {
-        hEng_[i][j]->Fill(hitItr->energy());
-        hEnDensity_[i][j]->Fill(ix, iy, hitItr->energy());
+      if (hitItr.energy() != 0) {
+        hEng_[i][j]->Fill(hitItr.energy());
+        hEnDensity_[i][j]->Fill(ix, iy, hitItr.energy());
 
-        if (hitItr->recoFlag() == 14 || hitItr->recoFlag() == 1 ||
-            (hitItr->recoFlag() <= 10 && hitItr->recoFlag() >= 5))
+        if (hitItr.recoFlag() == 14 || hitItr.recoFlag() == 1 || (hitItr.recoFlag() <= 10 && hitItr.recoFlag() >= 5))
           continue;
         sum_GoodRecHits[i][j]++;
-        hSelEng_[i][j]->Fill(hitItr->energy());
-        hSelEnDensity_[i][j]->Fill(ix, iy, hitItr->energy());
+        hSelEng_[i][j]->Fill(hitItr.energy());
+        hSelEnDensity_[i][j]->Fill(ix, iy, hitItr.energy());
         hSelOCC_[i][j]->Fill(ix, iy);
       }
     }

@@ -66,13 +66,13 @@ ALIdouble ALIUnitDefinition::GetValueOf(ALIstring stri) {
   if (theUnitsTable.empty())
     BuildUnitsTable();
   ALIstring name, symbol;
-  for (size_t i = 0; i < theUnitsTable.size(); i++) {
-    ALIUnitsContainer& units = theUnitsTable[i]->GetUnitsList();
-    for (size_t j = 0; j < units.size(); j++) {
-      name = units[j]->GetName();
-      symbol = units[j]->GetSymbol();
+  for (auto& i : theUnitsTable) {
+    ALIUnitsContainer& units = i->GetUnitsList();
+    for (auto& unit : units) {
+      name = unit->GetName();
+      symbol = unit->GetSymbol();
       if (stri == name || stri == symbol)
-        return units[j]->GetValue();
+        return unit->GetValue();
     }
   }
   std::cout << "Warning from ALIUnitDefinition::GetValueOf(" << stri << ")."
@@ -87,13 +87,13 @@ ALIstring ALIUnitDefinition::GetCategory(ALIstring stri) {
   if (theUnitsTable.empty())
     BuildUnitsTable();
   ALIstring name, symbol;
-  for (size_t i = 0; i < theUnitsTable.size(); i++) {
-    ALIUnitsContainer& units = theUnitsTable[i]->GetUnitsList();
-    for (size_t j = 0; j < units.size(); j++) {
-      name = units[j]->GetName();
-      symbol = units[j]->GetSymbol();
+  for (auto& i : theUnitsTable) {
+    ALIUnitsContainer& units = i->GetUnitsList();
+    for (auto& unit : units) {
+      name = unit->GetName();
+      symbol = unit->GetSymbol();
       if (stri == name || stri == symbol)
-        return theUnitsTable[i]->GetName();
+        return i->GetName();
     }
   }
   std::cout << "Warning from ALIUnitDefinition::GetCategory(" << stri << ")."
@@ -231,8 +231,8 @@ void ALIUnitDefinition::BuildUnitsTable() {
 
 void ALIUnitDefinition::PrintUnitsTable() {
   std::cout << "\n          ----- The Table of Units ----- \n";
-  for (size_t i = 0; i < theUnitsTable.size(); i++)
-    theUnitsTable[i]->PrintCategory();
+  for (auto& i : theUnitsTable)
+    i->PrintCategory();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -273,8 +273,8 @@ ALIint ALIUnitsCategory::operator!=(const ALIUnitsCategory& right) const { retur
 
 void ALIUnitsCategory::PrintCategory() {
   std::cout << "\n  category: " << Name << std::endl;
-  for (size_t i = 0; i < UnitsList.size(); i++)
-    UnitsList[i]->PrintDefinition();
+  for (auto& i : UnitsList)
+    i->PrintDefinition();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....

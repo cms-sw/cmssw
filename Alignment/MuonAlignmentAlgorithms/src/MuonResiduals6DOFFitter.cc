@@ -854,11 +854,11 @@ double MuonResiduals6DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
   if (residualsModel() == kPureGaussian2D)
     fitparameters[10] = fitparameters[12] = 0.;
 
-  for (std::vector<TF1 *>::const_iterator itr = fitlines.begin(); itr != fitlines.end(); itr++) {
-    (*itr)->SetParameters(fitparameters);
-    (*itr)->SetLineColor(2);
-    (*itr)->SetLineWidth(2);
-    (*itr)->Write();
+  for (auto fitline : fitlines) {
+    fitline->SetParameters(fitparameters);
+    fitline->SetLineColor(2);
+    fitline->SetLineWidth(2);
+    fitline->Write();
   }
 
   for (std::vector<double *>::const_iterator resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {

@@ -79,11 +79,11 @@ std::vector<ME0Segment> ME0SegmentAlgorithm::run(const ME0Chamber* chamber, cons
       rechits_clusters = this->clusterHits(rechits);
     }
     // loop over the found clusters:
-    for (auto sub_rechits = rechits_clusters.begin(); sub_rechits != rechits_clusters.end(); ++sub_rechits) {
+    for (auto& rechits_cluster : rechits_clusters) {
       // clear the buffer for the subset of segments:
       segments_temp.clear();
       // build the subset of segments:
-      this->buildSegments(chamber, (*sub_rechits), segments_temp);
+      this->buildSegments(chamber, rechits_cluster, segments_temp);
       // add the found subset of segments to the collection of all segments in this chamber:
       segments.insert(segments.end(), segments_temp.begin(), segments_temp.end());
     }
@@ -125,20 +125,20 @@ ME0SegmentAlgorithm::ProtoSegments ME0SegmentAlgorithm::clusterHits(const HitAnd
   // split rechits into subvectors and return vector of vectors:
   // Loop over rechits
   // Create one seed per hit
-  for (unsigned int i = 0; i < rechits.size(); ++i) {
-    seeds.push_back(HitAndPositionPtrContainer(1, &rechits[i]));
+  for (const auto& rechit : rechits) {
+    seeds.push_back(HitAndPositionPtrContainer(1, &rechit));
 
     // First added hit in seed defines the mean to which the next hit is compared
     // for this seed.
 
-    running_meanX.push_back(rechits[i].lp.x());
-    running_meanY.push_back(rechits[i].lp.y());
+    running_meanX.push_back(rechit.lp.x());
+    running_meanY.push_back(rechit.lp.y());
 
     // set min/max X and Y for box containing the hits in the precluster:
-    seed_minX.push_back(rechits[i].lp.x());
-    seed_maxX.push_back(rechits[i].lp.x());
-    seed_minY.push_back(rechits[i].lp.y());
-    seed_maxY.push_back(rechits[i].lp.y());
+    seed_minX.push_back(rechit.lp.x());
+    seed_maxX.push_back(rechit.lp.x());
+    seed_minY.push_back(rechit.lp.y());
+    seed_maxY.push_back(rechit.lp.y());
   }
 
   // merge clusters that are too close
@@ -221,10 +221,10 @@ ME0SegmentAlgorithm::ProtoSegments ME0SegmentAlgorithm::chainHits(const ME0Chamb
   // split rechits into subvectors and return vector of vectors:
   // Loop over rechits
   // Create one seed per hit
-  for (unsigned int i = 0; i < rechits.size(); ++i) {
-    if (std::abs(rechits[i].rh->tof()) > dTimeChainBoxMax)
+  for (const auto& rechit : rechits) {
+    if (std::abs(rechit.rh->tof()) > dTimeChainBoxMax)
       continue;
-    seeds.push_back(HitAndPositionPtrContainer(1, &rechits[i]));
+    seeds.push_back(HitAndPositionPtrContainer(1, &rechit));
   }
 
   // merge chains that are too close ("touch" each other)
@@ -279,11 +279,11 @@ ME0SegmentAlgorithm::ProtoSegments ME0SegmentAlgorithm::chainHits(const ME0Chamb
 bool ME0SegmentAlgorithm::isGoodToMerge(const ME0Chamber* chamber,
                                         const HitAndPositionPtrContainer& newChain,
                                         const HitAndPositionPtrContainer& oldChain) {
-  for (size_t iRH_new = 0; iRH_new < newChain.size(); ++iRH_new) {
-    GlobalPoint pos_new = newChain[iRH_new]->gp;
+  for (auto iRH_new : newChain) {
+    GlobalPoint pos_new = iRH_new->gp;
 
-    for (size_t iRH_old = 0; iRH_old < oldChain.size(); ++iRH_old) {
-      GlobalPoint pos_old = oldChain[iRH_old]->gp;
+    for (auto iRH_old : oldChain) {
+      GlobalPoint pos_old = iRH_old->gp;
       // to be chained, two hits need to be in neighbouring layers...
       // or better allow few missing layers (upto 3 to avoid inefficiencies);
       // however we'll not make an angle correction because it
@@ -298,11 +298,11 @@ bool ME0SegmentAlgorithm::isGoodToMerge(const ME0Chamber* chamber,
       if (std::abs(pos_new.eta() - pos_old.eta()) >= dEtaChainBoxMax)
         continue;
       // and the difference in layer index should be < (nlayers-1)
-      if (std::abs(int(newChain[iRH_new]->layer) - int(oldChain[iRH_old]->layer)) >= (chamber->id().nlayers() - 1))
+      if (std::abs(int(iRH_new->layer) - int(iRH_old->layer)) >= (chamber->id().nlayers() - 1))
         continue;
       // and they should have a time difference compatible with the hypothesis
       // that the rechits originate from the same particle, but were detected in different layers
-      if (std::abs(newChain[iRH_new]->rh->tof() - oldChain[iRH_old]->rh->tof()) >= dTimeChainBoxMax)
+      if (std::abs(iRH_new->rh->tof() - iRH_old->rh->tof()) >= dTimeChainBoxMax)
         continue;
 
       return true;
@@ -335,11 +335,11 @@ void ME0SegmentAlgorithm::buildSegments(const ME0Chamber* chamber,
   std::vector<const ME0RecHit*> bareRHs;
 
   // select hits from the ensemble and sort it
-  for (auto rh = rechits.begin(); rh != rechits.end(); rh++) {
-    bareRHs.push_back((*rh)->rh);
+  for (auto rechit : rechits) {
+    bareRHs.push_back(rechit->rh);
     // for segFit - using local point in chamber frame
-    ME0RecHit* newRH = (*rh)->rh->clone();
-    newRH->setPosition((*rh)->lp);
+    ME0RecHit* newRH = rechit->rh->clone();
+    newRH->setPosition(rechit->lp);
 
     MuonSegFit::MuonRecHitPtr trkRecHit(newRH);
     muonRecHits.push_back(trkRecHit);
@@ -364,14 +364,14 @@ void ME0SegmentAlgorithm::buildSegments(const ME0Chamber* chamber,
   double protoChi2 = sfit_->chi2();
   // Calculate the central value and uncertainty of the segment time
   float averageTime = 0.;
-  for (auto rh = rechits.begin(); rh != rechits.end(); ++rh) {
-    averageTime += (*rh)->rh->tof();
+  for (auto rechit : rechits) {
+    averageTime += rechit->rh->tof();
   }
   if (!rechits.empty())
     averageTime = averageTime / (rechits.size());
   float timeUncrt = 0.;
-  for (auto rh = rechits.begin(); rh != rechits.end(); ++rh) {
-    timeUncrt += pow((*rh)->rh->tof() - averageTime, 2);
+  for (auto rechit : rechits) {
+    timeUncrt += pow(rechit->rh->tof() - averageTime, 2);
   }
 
   if (rechits.size() > 1)

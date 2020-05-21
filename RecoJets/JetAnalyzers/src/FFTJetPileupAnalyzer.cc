@@ -378,9 +378,9 @@ void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
     iEvent.getByToken(srcPVsToken, pvCollection);
     totalNPV = 0;
     if (!pvCollection->empty())
-      for (reco::VertexCollection::const_iterator pv = pvCollection->begin(); pv != pvCollection->end(); ++pv) {
-        const double ndof = pv->ndof();
-        if (!pv->isFake() && ndof > vertexNdofCut)
+      for (const auto& pv : *pvCollection) {
+        const double ndof = pv.ndof();
+        if (!pv.isFake() && ndof > vertexNdofCut)
           ++totalNPV;
       }
     ntupleData.push_back(totalNPV);

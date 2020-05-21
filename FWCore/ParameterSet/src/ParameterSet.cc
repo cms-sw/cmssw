@@ -161,8 +161,8 @@ namespace edm {
     }
 
     // make sure contained tracked vpsets are updated
-    for (vpsettable::iterator i = vpsetTable_.begin(), e = vpsetTable_.end(); i != e; ++i) {
-      i->second.registerPsetsAndUpdateIDs();
+    for (auto& i : vpsetTable_) {
+      i.second.registerPsetsAndUpdateIDs();
     }
     //  The old, string base code is found below. Uncomment this and the assert to check whether
     //  there are discrepancies between old and new implementation.
@@ -423,14 +423,14 @@ namespace edm {
       return;
     }
 
-    for (table::const_iterator b = from.tbl_.begin(), e = from.tbl_.end(); b != e; ++b) {
-      this->insert(false, b->first, b->second);
+    for (const auto& b : from.tbl_) {
+      this->insert(false, b.first, b.second);
     }
-    for (psettable::const_iterator b = from.psetTable_.begin(), e = from.psetTable_.end(); b != e; ++b) {
-      this->insertParameterSet(false, b->first, b->second);
+    for (const auto& b : from.psetTable_) {
+      this->insertParameterSet(false, b.first, b.second);
     }
-    for (vpsettable::const_iterator b = from.vpsetTable_.begin(), e = from.vpsetTable_.end(); b != e; ++b) {
-      this->insertVParameterSet(false, b->first, b->second);
+    for (const auto& b : from.vpsetTable_) {
+      this->insertVParameterSet(false, b.first, b.second);
     }
   }  // augment()
 
@@ -480,27 +480,27 @@ namespace edm {
       return;
     }
     size_t size = 1;
-    for (table::const_iterator b = tbl_.begin(), e = tbl_.end(); b != e; ++b) {
-      if (useAll || b->second.isTracked()) {
+    for (const auto& b : tbl_) {
+      if (useAll || b.second.isTracked()) {
         size += 2;
-        size += b->first.size();
-        size += b->second.sizeOfString();
+        size += b.first.size();
+        size += b.second.sizeOfString();
       }
     }
-    for (psettable::const_iterator b = psetTable_.begin(), e = psetTable_.end(); b != e; ++b) {
-      if (useAll || b->second.isTracked()) {
+    for (const auto& b : psetTable_) {
+      if (useAll || b.second.isTracked()) {
         size += 2;
-        size += b->first.size();
-        size += b->first.size();
-        size += b->first.size();
+        size += b.first.size();
+        size += b.first.size();
+        size += b.first.size();
         size += sizeof(ParameterSetID);
       }
     }
-    for (vpsettable::const_iterator b = vpsetTable_.begin(), e = vpsetTable_.end(); b != e; ++b) {
-      if (useAll || b->second.isTracked()) {
+    for (const auto& b : vpsetTable_) {
+      if (useAll || b.second.isTracked()) {
         size += 2;
-        size += b->first.size();
-        size += sizeof(ParameterSetID) * b->second.vpset().size();
+        size += b.first.size();
+        size += sizeof(ParameterSetID) * b.second.vpset().size();
       }
     }
 
@@ -508,30 +508,30 @@ namespace edm {
     rep += '<';
     std::string start;
     std::string const between(";");
-    for (table::const_iterator b = tbl_.begin(), e = tbl_.end(); b != e; ++b) {
-      if (useAll || b->second.isTracked()) {
+    for (const auto& b : tbl_) {
+      if (useAll || b.second.isTracked()) {
         rep += start;
-        rep += b->first;
+        rep += b.first;
         rep += '=';
-        b->second.toString(rep);
+        b.second.toString(rep);
         start = between;
       }
     }
-    for (psettable::const_iterator b = psetTable_.begin(), e = psetTable_.end(); b != e; ++b) {
-      if (useAll || b->second.isTracked()) {
+    for (const auto& b : psetTable_) {
+      if (useAll || b.second.isTracked()) {
         rep += start;
-        rep += b->first;
+        rep += b.first;
         rep += '=';
-        b->second.toString(rep);
+        b.second.toString(rep);
         start = between;
       }
     }
-    for (vpsettable::const_iterator b = vpsetTable_.begin(), e = vpsetTable_.end(); b != e; ++b) {
-      if (useAll || b->second.isTracked()) {
+    for (const auto& b : vpsetTable_) {
+      if (useAll || b.second.isTracked()) {
         rep += start;
-        rep += b->first;
+        rep += b.first;
         rep += '=';
-        b->second.toString(rep);
+        b.second.toString(rep);
         start = between;
       }
     }
@@ -542,33 +542,33 @@ namespace edm {
   void ParameterSet::toDigest(cms::Digest& digest) const {
     digest.append("<", 1);
     bool started = false;
-    for (table::const_iterator b = tbl_.begin(), e = tbl_.end(); b != e; ++b) {
-      if (b->second.isTracked()) {
+    for (const auto& b : tbl_) {
+      if (b.second.isTracked()) {
         if (started)
           digest.append(";", 1);
-        digest.append(b->first);
+        digest.append(b.first);
         digest.append("=", 1);
-        b->second.toDigest(digest);
+        b.second.toDigest(digest);
         started = true;
       }
     }
-    for (psettable::const_iterator b = psetTable_.begin(), e = psetTable_.end(); b != e; ++b) {
-      if (b->second.isTracked()) {
+    for (const auto& b : psetTable_) {
+      if (b.second.isTracked()) {
         if (started)
           digest.append(";", 1);
-        digest.append(b->first);
+        digest.append(b.first);
         digest.append("=", 1);
-        b->second.toDigest(digest);
+        b.second.toDigest(digest);
         started = true;
       }
     }
-    for (vpsettable::const_iterator b = vpsetTable_.begin(), e = vpsetTable_.end(); b != e; ++b) {
-      if (b->second.isTracked()) {
+    for (const auto& b : vpsetTable_) {
+      if (b.second.isTracked()) {
         if (started)
           digest.append(";", 1);
-        digest.append(b->first);
+        digest.append(b.first);
         digest.append("=", 1);
-        b->second.toDigest(digest);
+        b.second.toDigest(digest);
       }
     }
 
@@ -589,18 +589,18 @@ namespace edm {
       return false;
 
     tbl_.clear();  // precaution
-    for (std::vector<std::string>::const_iterator b = temp.begin(), e = temp.end(); b != e; ++b) {
+    for (const auto& b : temp) {
       // locate required name/value separator
-      std::string::const_iterator q = find_in_all(*b, '=');
-      if (q == b->end())
+      std::string::const_iterator q = find_in_all(b, '=');
+      if (q == b.end())
         return false;
 
       // form name unique to this ParameterSet
-      std::string name = std::string(b->begin(), q);
+      std::string name = std::string(b.begin(), q);
       if (tbl_.find(name) != tbl_.end())
         return false;
 
-      std::string rep(q + 1, b->end());
+      std::string rep(q + 1, b.end());
       // entries are generically of the form tracked-type-rep
       if (rep[0] == '-') {
       }
@@ -678,26 +678,26 @@ namespace edm {
 
   ParameterSet ParameterSet::trackedPart() const {
     ParameterSet result;
-    for (table::const_iterator tblItr = tbl_.begin(); tblItr != tbl_.end(); ++tblItr) {
-      if (tblItr->second.isTracked()) {
-        result.tbl_.insert(*tblItr);
+    for (const auto& tblItr : tbl_) {
+      if (tblItr.second.isTracked()) {
+        result.tbl_.insert(tblItr);
       }
     }
-    for (psettable::const_iterator psetItr = psetTable_.begin(); psetItr != psetTable_.end(); ++psetItr) {
-      if (psetItr->second.isTracked()) {
-        result.addParameter<ParameterSet>(psetItr->first, psetItr->second.pset().trackedPart());
+    for (const auto& psetItr : psetTable_) {
+      if (psetItr.second.isTracked()) {
+        result.addParameter<ParameterSet>(psetItr.first, psetItr.second.pset().trackedPart());
       }
     }
-    for (vpsettable::const_iterator vpsetItr = vpsetTable_.begin(); vpsetItr != vpsetTable_.end(); ++vpsetItr) {
-      if (vpsetItr->second.isTracked()) {
+    for (const auto& vpsetItr : vpsetTable_) {
+      if (vpsetItr.second.isTracked()) {
         VParameterSet vresult;
-        std::vector<ParameterSet> const& this_vpset = vpsetItr->second.vpset();
+        std::vector<ParameterSet> const& this_vpset = vpsetItr.second.vpset();
 
         typedef std::vector<ParameterSet>::const_iterator Iter;
-        for (Iter i = this_vpset.begin(), e = this_vpset.end(); i != e; ++i) {
-          vresult.push_back(i->trackedPart());
+        for (const auto& i : this_vpset) {
+          vresult.push_back(i.trackedPart());
         }
-        result.addParameter<VParameterSet>(vpsetItr->first, vresult);
+        result.addParameter<VParameterSet>(vpsetItr.first, vresult);
       }
     }
     return result;
@@ -715,18 +715,18 @@ namespace edm {
 */
 
   size_t ParameterSet::getParameterSetNames(std::vector<std::string>& output, bool trackiness) const {
-    for (psettable::const_iterator psetItr = psetTable_.begin(); psetItr != psetTable_.end(); ++psetItr) {
-      if (psetItr->second.isTracked() == trackiness) {
-        output.push_back(psetItr->first);
+    for (const auto& psetItr : psetTable_) {
+      if (psetItr.second.isTracked() == trackiness) {
+        output.push_back(psetItr.first);
       }
     }
     return output.size();
   }
 
   size_t ParameterSet::getParameterSetVectorNames(std::vector<std::string>& output, bool trackiness) const {
-    for (vpsettable::const_iterator vpsetItr = vpsetTable_.begin(); vpsetItr != vpsetTable_.end(); ++vpsetItr) {
-      if (vpsetItr->second.isTracked() == trackiness) {
-        output.push_back(vpsetItr->first);
+    for (const auto& vpsetItr : vpsetTable_) {
+      if (vpsetItr.second.isTracked() == trackiness) {
+        output.push_back(vpsetItr.first);
       }
     }
     return output.size();
@@ -827,19 +827,19 @@ namespace edm {
     // indent a bit
     std::string indentation(indent, ' ');
     os << "{" << std::endl;
-    for (table::const_iterator i = tbl_.begin(), e = tbl_.end(); i != e; ++i) {
-      os << indentation << "  " << i->first << ": " << i->second << std::endl;
+    for (const auto& i : tbl_) {
+      os << indentation << "  " << i.first << ": " << i.second << std::endl;
     }
-    for (psettable::const_iterator i = psetTable_.begin(), e = psetTable_.end(); i != e; ++i) {
+    for (const auto& i : psetTable_) {
       // indent a bit
-      std::string n = i->first;
-      ParameterSetEntry const& pe = i->second;
+      std::string n = i.first;
+      ParameterSetEntry const& pe = i.second;
       os << indentation << "  " << n << ": " << pe.dump(indent + 2) << std::endl;
     }
-    for (vpsettable::const_iterator i = vpsetTable_.begin(), e = vpsetTable_.end(); i != e; ++i) {
+    for (const auto& i : vpsetTable_) {
       // indent a bit
-      std::string n = i->first;
-      VParameterSetEntry const& pe = i->second;
+      std::string n = i.first;
+      VParameterSetEntry const& pe = i.second;
       os << indentation << "  " << n << ": " << pe.dump(indent + 2) << std::endl;
     }
     os << indentation << "}";

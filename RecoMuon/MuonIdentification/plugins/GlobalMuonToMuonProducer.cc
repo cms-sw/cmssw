@@ -66,32 +66,30 @@ void GlobalMuonToMuonProducer::produce(edm::StreamID, edm::Event& event, const e
   edm::ESHandle<GlobalTrackingGeometry> trackingGeometry;
   eventSetup.get<GlobalTrackingGeometryRecord>().get(trackingGeometry);
 
-  for (reco::MuonTrackLinksCollection::const_iterator links = linksCollection->begin(); links != linksCollection->end();
-       ++links) {
+  for (const auto& links : *linksCollection) {
     // some temporary print-out
     LogTrace(metname) << "trackerTrack";
-    printTrackRecHits(*(links->trackerTrack()), trackingGeometry);
+    printTrackRecHits(*(links.trackerTrack()), trackingGeometry);
     LogTrace(metname) << "standAloneTrack";
-    printTrackRecHits(*(links->standAloneTrack()), trackingGeometry);
+    printTrackRecHits(*(links.standAloneTrack()), trackingGeometry);
     LogTrace(metname) << "globalTrack";
-    printTrackRecHits(*(links->globalTrack()), trackingGeometry);
+    printTrackRecHits(*(links.globalTrack()), trackingGeometry);
 
     // Fill the muon
     reco::Muon muon;
-    muon.setStandAlone(links->standAloneTrack());
-    muon.setTrack(links->trackerTrack());
-    muon.setCombined(links->globalTrack());
+    muon.setStandAlone(links.standAloneTrack());
+    muon.setTrack(links.trackerTrack());
+    muon.setCombined(links.globalTrack());
 
     // FIXME: can this break in case combined info cannot be added to some tracks?
-    muon.setCharge(links->globalTrack()->charge());
+    muon.setCharge(links.globalTrack()->charge());
 
     //FIXME: E = sqrt(p^2 + m^2), where m == 0.105658369(9)GeV
-    double energy = sqrt(links->globalTrack()->p() * links->globalTrack()->p() + 0.011163691);
-    math::XYZTLorentzVector p4(
-        links->globalTrack()->px(), links->globalTrack()->py(), links->globalTrack()->pz(), energy);
+    double energy = sqrt(links.globalTrack()->p() * links.globalTrack()->p() + 0.011163691);
+    math::XYZTLorentzVector p4(links.globalTrack()->px(), links.globalTrack()->py(), links.globalTrack()->pz(), energy);
 
     muon.setP4(p4);
-    muon.setVertex(links->globalTrack()->vertex());
+    muon.setVertex(links.globalTrack()->vertex());
 
     muonCollection->push_back(muon);
   }

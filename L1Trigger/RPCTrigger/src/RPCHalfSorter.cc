@@ -61,14 +61,14 @@ L1RpcTBMuonsVec2 RPCHalfSorter::runHalf(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
   L1RpcTBMuonsVec outputEndcapMuons;
 
   for (unsigned int iTC = 1; iTC < tcsMuonsVec2.size() - 1; iTC++)
-    for (unsigned int iMu = 0; iMu < tcsMuonsVec2[iTC].size(); iMu++)
-      if (tcsMuonsVec2[iTC][iMu].isLive()) {
+    for (auto &iMu : tcsMuonsVec2[iTC])
+      if (iMu.isLive()) {
         // if(abs(16 - tcsMuonsVec2[iTC][iMu].getEtaAddr()) <=7){
         // etaAddr should be encoded here in 6 bits with 2compl.
-        if (tcsMuonsVec2[iTC][iMu].getEtaAddr() >= 57 || tcsMuonsVec2[iTC][iMu].getEtaAddr() <= 7) {
-          outputBarrelMuons.push_back(tcsMuonsVec2[iTC][iMu]);
+        if (iMu.getEtaAddr() >= 57 || iMu.getEtaAddr() <= 7) {
+          outputBarrelMuons.push_back(iMu);
         } else {
-          outputEndcapMuons.push_back(tcsMuonsVec2[iTC][iMu]);
+          outputEndcapMuons.push_back(iMu);
         }
       }
 
@@ -133,11 +133,11 @@ L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2, edm::ESHandl
   int secAddr = 1;
   //                                         <6+1
   for (int iTC = 0; iTC < m_TrigCnfg->getTCsCnt() / 2 + 1; iTC++) {
-    for (unsigned int iMu = 0; iMu < tcsMuonsVec2[iTC].size(); iMu++) {
+    for (auto &iMu : tcsMuonsVec2[iTC]) {
       if (secAddr != 0 && secAddr != 7) {
-        tcsMuonsVec2[iTC][iMu].setSectorAddr(secAddr);  // |
-                                                        // iTC=0 - firstTrigger crate (no=1)
-                                                        //       - in hw it has sectorAddr=1
+        iMu.setSectorAddr(secAddr);  // |
+                                     // iTC=0 - firstTrigger crate (no=1)
+                                     //       - in hw it has sectorAddr=1
         //tcsMuonsVec2[iTC][iMu].setGBData(0);       // gbData is used nowhere from now, we
         //      want to act same as hw
       }
@@ -162,9 +162,9 @@ L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2, edm::ESHandl
   secAddr = 0;
   //        5                                           <12
   for (int iTC = m_TrigCnfg->getTCsCnt() / 2 - 1; iTC < m_TrigCnfg->getTCsCnt(); iTC++) {
-    for (unsigned int iMu = 0; iMu < tcsMuonsVec2[iTC].size(); iMu++) {
+    for (auto &iMu : tcsMuonsVec2[iTC]) {
       if (secAddr != 0 && secAddr != 7) {
-        tcsMuonsVec2[iTC][iMu].setSectorAddr(secAddr);
+        iMu.setSectorAddr(secAddr);
         //tcsMuonsVec2[iTC][iMu].setGBData(0);       // gbData is used nowhere from now, we
         //      want to act same as hw
       }

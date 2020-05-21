@@ -86,11 +86,11 @@ void HltComparator::initialise(const edm::TriggerResults &onlineResults,
 
   // Create histograms
   edm::Service<TFileService> fs;
-  for (std::vector<std::string>::iterator it = onlineActualNames_.begin(); it != onlineActualNames_.end(); ++it) {
+  for (auto &onlineActualName : onlineActualNames_) {
     // Bin descriptions: OnOfPass, OnOffFail, OnPassOffFail, OnFailOffPass,
     // OnOffError, OnRunOffError, OnErrorOffRun, OnRunOffNot OnNotOffRun
     // OnNotOffNot
-    TH1F *h = fs->make<TH1F>(it->c_str(), it->c_str(), 10, 0, 10);
+    TH1F *h = fs->make<TH1F>(onlineActualName.c_str(), onlineActualName.c_str(), 10, 0, 10);
     TAxis *a = h->GetXaxis();
     a->SetBinLabel(1, "OnPass_OffPass");
     a->SetBinLabel(2, "OnFail_OffFail");

@@ -46,8 +46,8 @@ AlignableMuon::AlignableMuon(const DTGeometry* dtGeometry, const CSCGeometry* cs
 
 //--------------------------------------------------------------------------------------------------
 AlignableMuon::~AlignableMuon() {
-  for (align::Alignables::iterator iter = theMuonComponents.begin(); iter != theMuonComponents.end(); iter++) {
-    delete *iter;
+  for (auto& theMuonComponent : theMuonComponents) {
+    delete theMuonComponent;
   }
 }
 
@@ -271,13 +271,12 @@ align::Alignables AlignableMuon::DTLayers() {
   align::Alignables result;
 
   align::Alignables chambers = DTChambers();
-  for (align::Alignables::const_iterator chamberIter = chambers.begin(); chamberIter != chambers.end(); ++chamberIter) {
-    align::Alignables superlayers = (*chamberIter)->components();
-    for (align::Alignables::const_iterator superlayerIter = superlayers.begin(); superlayerIter != superlayers.end();
-         ++superlayerIter) {
-      align::Alignables layers = (*superlayerIter)->components();
-      for (align::Alignables::const_iterator layerIter = layers.begin(); layerIter != layers.end(); ++layerIter) {
-        result.push_back(*layerIter);
+  for (auto chamber : chambers) {
+    align::Alignables superlayers = chamber->components();
+    for (auto superlayer : superlayers) {
+      align::Alignables layers = superlayer->components();
+      for (auto layer : layers) {
+        result.push_back(layer);
       }
     }
   }
@@ -290,11 +289,10 @@ align::Alignables AlignableMuon::DTSuperLayers() {
   align::Alignables result;
 
   align::Alignables chambers = DTChambers();
-  for (align::Alignables::const_iterator chamberIter = chambers.begin(); chamberIter != chambers.end(); ++chamberIter) {
-    align::Alignables superlayers = (*chamberIter)->components();
-    for (align::Alignables::const_iterator superlayerIter = superlayers.begin(); superlayerIter != superlayers.end();
-         ++superlayerIter) {
-      result.push_back(*superlayerIter);
+  for (auto chamber : chambers) {
+    align::Alignables superlayers = chamber->components();
+    for (auto superlayer : superlayers) {
+      result.push_back(superlayer);
     }
   }
 
@@ -334,10 +332,10 @@ align::Alignables AlignableMuon::CSCLayers() {
   align::Alignables result;
 
   align::Alignables chambers = CSCChambers();
-  for (align::Alignables::const_iterator chamberIter = chambers.begin(); chamberIter != chambers.end(); ++chamberIter) {
-    align::Alignables layers = (*chamberIter)->components();
-    for (align::Alignables::const_iterator layerIter = layers.begin(); layerIter != layers.end(); ++layerIter) {
-      result.push_back(*layerIter);
+  for (auto chamber : chambers) {
+    align::Alignables layers = chamber->components();
+    for (auto layer : layers) {
+      result.push_back(layer);
     }
   }
 
@@ -385,8 +383,8 @@ Alignments* AlignableMuon::alignments(void) const {
   align::Alignables comp = this->components();
   Alignments* m_alignments = new Alignments();
   // Add components recursively
-  for (align::Alignables::iterator i = comp.begin(); i != comp.end(); i++) {
-    Alignments* tmpAlignments = (*i)->alignments();
+  for (auto& i : comp) {
+    Alignments* tmpAlignments = i->alignments();
     std::copy(tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(), std::back_inserter(m_alignments->m_align));
     delete tmpAlignments;
   }
@@ -402,8 +400,8 @@ AlignmentErrorsExtended* AlignableMuon::alignmentErrors(void) const {
   AlignmentErrorsExtended* m_alignmentErrors = new AlignmentErrorsExtended();
 
   // Add components recursively
-  for (align::Alignables::iterator i = comp.begin(); i != comp.end(); i++) {
-    AlignmentErrorsExtended* tmpAlignmentErrorsExtended = (*i)->alignmentErrors();
+  for (auto& i : comp) {
+    AlignmentErrorsExtended* tmpAlignmentErrorsExtended = i->alignmentErrors();
     std::copy(tmpAlignmentErrorsExtended->m_alignError.begin(),
               tmpAlignmentErrorsExtended->m_alignError.end(),
               std::back_inserter(m_alignmentErrors->m_alignError));

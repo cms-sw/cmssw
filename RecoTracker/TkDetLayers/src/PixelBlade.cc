@@ -32,15 +32,15 @@ PixelBlade::PixelBlade(vector<const GeomDet*>& frontDets, vector<const GeomDet*>
                           << this->position().perp() << " , " << theDiskSector->innerRadius() << " , "
                           << theDiskSector->outerRadius();
 
-  for (vector<const GeomDet*>::const_iterator it = theFrontDets.begin(); it != theFrontDets.end(); it++) {
-    LogDebug("TkDetLayers") << "frontDet phi,z,r: " << (*it)->position().phi() << " , " << (*it)->position().z()
-                            << " , " << (*it)->position().perp();
+  for (auto theFrontDet : theFrontDets) {
+    LogDebug("TkDetLayers") << "frontDet phi,z,r: " << theFrontDet->position().phi() << " , "
+                            << theFrontDet->position().z() << " , " << theFrontDet->position().perp();
     ;
   }
 
-  for (vector<const GeomDet*>::const_iterator it = theBackDets.begin(); it != theBackDets.end(); it++) {
-    LogDebug("TkDetLayers") << "backDet phi,z,r: " << (*it)->position().phi() << " , " << (*it)->position().z() << " , "
-                            << (*it)->position().perp();
+  for (auto theBackDet : theBackDets) {
+    LogDebug("TkDetLayers") << "backDet phi,z,r: " << theBackDet->position().phi() << " , "
+                            << theBackDet->position().z() << " , " << theBackDet->position().perp();
   }
   //-----------------------------------
 }

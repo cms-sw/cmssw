@@ -48,19 +48,24 @@ MultShiftMETcorrInputProducer::MultShiftMETcorrInputProducer(const edm::Paramete
 
   produces<CorrMETData>();
 
-  for (std::vector<edm::ParameterSet>::const_iterator v = cfgCorrParameters_.begin(); v != cfgCorrParameters_.end();
-       v++) {
-    TString corrPxFormula = v->getParameter<std::string>("fx");
-    TString corrPyFormula = v->getParameter<std::string>("fy");
-    std::vector<double> corrPxParams = v->getParameter<std::vector<double>>("px");
-    std::vector<double> corrPyParams = v->getParameter<std::vector<double>>("py");
+  for (const auto& cfgCorrParameter : cfgCorrParameters_) {
+    TString corrPxFormula = cfgCorrParameter.getParameter<std::string>("fx");
+    TString corrPyFormula = cfgCorrParameter.getParameter<std::string>("fy");
+    std::vector<double> corrPxParams = cfgCorrParameter.getParameter<std::vector<double>>("px");
+    std::vector<double> corrPyParams = cfgCorrParameter.getParameter<std::vector<double>>("py");
 
-    formula_x_.push_back(std::unique_ptr<TF1>(new TF1(
-        std::string(moduleLabel_).append("_").append(v->getParameter<std::string>("name")).append("_corrPx").c_str(),
-        v->getParameter<std::string>("fx").c_str())));
-    formula_y_.push_back(std::unique_ptr<TF1>(new TF1(
-        std::string(moduleLabel_).append("_").append(v->getParameter<std::string>("name")).append("_corrPy").c_str(),
-        v->getParameter<std::string>("fy").c_str())));
+    formula_x_.push_back(std::unique_ptr<TF1>(new TF1(std::string(moduleLabel_)
+                                                          .append("_")
+                                                          .append(cfgCorrParameter.getParameter<std::string>("name"))
+                                                          .append("_corrPx")
+                                                          .c_str(),
+                                                      cfgCorrParameter.getParameter<std::string>("fx").c_str())));
+    formula_y_.push_back(std::unique_ptr<TF1>(new TF1(std::string(moduleLabel_)
+                                                          .append("_")
+                                                          .append(cfgCorrParameter.getParameter<std::string>("name"))
+                                                          .append("_corrPy")
+                                                          .c_str(),
+                                                      cfgCorrParameter.getParameter<std::string>("fy").c_str())));
 
     for (unsigned i = 0; i < corrPxParams.size(); i++)
       formula_x_.back()->SetParameter(i, corrPxParams[i]);
@@ -69,10 +74,10 @@ MultShiftMETcorrInputProducer::MultShiftMETcorrInputProducer(const edm::Paramete
 
     counts_.push_back(0);
     sumPt_.push_back(0.);
-    etaMin_.push_back(v->getParameter<double>("etaMin"));
-    etaMax_.push_back(v->getParameter<double>("etaMax"));
-    type_.push_back(v->getParameter<int>("type"));
-    varType_.push_back(v->getParameter<int>("varType"));
+    etaMin_.push_back(cfgCorrParameter.getParameter<double>("etaMin"));
+    etaMax_.push_back(cfgCorrParameter.getParameter<double>("etaMax"));
+    type_.push_back(cfgCorrParameter.getParameter<int>("type"));
+    varType_.push_back(cfgCorrParameter.getParameter<int>("varType"));
   }
 }
 
@@ -92,10 +97,10 @@ void MultShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSet
   }
   int ngoodVertices = goodVertices.size();
 
-  for (unsigned i = 0; i < counts_.size(); i++)
-    counts_[i] = 0;
-  for (unsigned i = 0; i < sumPt_.size(); i++)
-    sumPt_[i] = 0.;
+  for (int& count : counts_)
+    count = 0;
+  for (double& i : sumPt_)
+    i = 0.;
 
   edm::Handle<edm::View<reco::Candidate>> particleFlow;
   evt.getByToken(pflow_, particleFlow);

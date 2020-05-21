@@ -36,10 +36,9 @@ void HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::
     std::map<std::string, bool> efficsOK;
     std::map<std::string, std::map<HCALSpecials, TH1F>> efficsmod;
     std::map<std::string, std::map<HCALSpecials, bool>> efficsmodOK;
-    for (unsigned int i = 0; i < m_mcLabels.size(); ++i) {
+    for (auto flavour : m_mcLabels) {
       bool isOK = false;
       std::string label = m_histoName.at(ind) + "__";  //"JetTag__";
-      std::string flavour = m_mcLabels[i];
       label += flavour;
       isOK =
           GetNumDenumerators(ibooker, igetter, dqmFolder_hist + "/" + label, dqmFolder_hist + "/" + label, num, den, 0);

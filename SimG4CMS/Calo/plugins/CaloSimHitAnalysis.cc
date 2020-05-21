@@ -99,8 +99,8 @@ CaloSimHitAnalysis::CaloSimHitAnalysis(const edm::ParameterSet& ps)
   usesResource(TFileService::kSharedResource);
 
   // register for data access
-  for (unsigned int i = 0; i < hitLab_.size(); i++)
-    toks_calo_.emplace_back(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hitLab_[i])));
+  for (const auto& i : hitLab_)
+    toks_calo_.emplace_back(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, i)));
   tok_passive_ = consumes<edm::PassiveHitContainer>(edm::InputTag(g4Label_, "AllPassiveHits"));
 
   edm::LogVerbatim("HitStudy") << "Module Label: " << g4Label_ << "   Hits|timeSliceUnit:";
@@ -389,10 +389,10 @@ void CaloSimHitAnalysis::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
   }
 
   //Now make plots
-  for (auto itr = hitMap.begin(); itr != hitMap.end(); ++itr) {
+  for (auto& itr : hitMap) {
     int idx = -1;
     GlobalPoint point;
-    DetId id((itr->first).unitID());
+    DetId id((itr.first).unitID());
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HitStudy") << "Index " << indx << " Geom " << caloGeometry_ << ":" << hcalGeom_ << "  "
                                  << std::hex << id.rawId() << std::dec;
@@ -413,8 +413,8 @@ void CaloSimHitAnalysis::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
       }
       point = hcalGeom_->getPosition(id);
     }
-    double edep = (itr->second).second;
-    double time = (itr->second).first;
+    double edep = (itr.second).second;
+    double time = (itr.second).first;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HitStudy") << "Index " << idx << ":" << nCalo_ << " Point " << point << " E " << edep << " T "
                                  << time;

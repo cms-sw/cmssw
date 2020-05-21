@@ -152,9 +152,9 @@ int L1GctEmulator::configureGct(const edm::EventSetup& c) {
 
     if (success == 0) {
       // tell the jet Et Luts about the scales
-      for (unsigned ieta = 0; ieta < m_jetEtCalibLuts.size(); ieta++) {
-        m_jetEtCalibLuts.at(ieta)->setFunction(jfPars.product());
-        m_jetEtCalibLuts.at(ieta)->setOutputEtScale(etScale.product());
+      for (auto& m_jetEtCalibLut : m_jetEtCalibLuts) {
+        m_jetEtCalibLut->setFunction(jfPars.product());
+        m_jetEtCalibLut->setOutputEtScale(etScale.product());
       }
 
       // pass all the setup info to the gct

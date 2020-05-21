@@ -77,13 +77,13 @@ void TkAlCaOverlapTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   //start doing the thing!
 
   //loop over trajectories
-  for (TrajTrackAssociationCollection::const_iterator itass = assoMap->begin(); itass != assoMap->end(); ++itass) {
+  for (const auto& itass : *assoMap) {
     int nOverlaps = 0;
-    const edm::Ref<std::vector<Trajectory> > traj = itass->key;  //trajectory in the collection
+    const edm::Ref<std::vector<Trajectory> > traj = itass.key;  //trajectory in the collection
     const Trajectory* myTrajectory = &(*traj);
     std::vector<TrajectoryMeasurement> tmColl = myTrajectory->measurements();
 
-    const reco::TrackRef tkref = itass->val;  //associated track track in the collection
+    const reco::TrackRef tkref = itass.val;  //associated track track in the collection
     // const Track * trk = &(*tkref);
     int hitcnt = -1;
 

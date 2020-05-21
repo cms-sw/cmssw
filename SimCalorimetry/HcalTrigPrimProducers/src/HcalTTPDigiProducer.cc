@@ -78,8 +78,8 @@ HcalTTPDigiProducer::HcalTTPDigiProducer(const edm::ParameterSet& ps) {
 }
 
 bool HcalTTPDigiProducer::isMasked(HcalDetId id) {
-  for (unsigned int i = 0; i < maskedChannels_.size(); i++)
-    if (id.rawId() == maskedChannels_.at(i))
+  for (unsigned int maskedChannel : maskedChannels_)
+    if (id.rawId() == maskedChannel)
       return true;
   return false;
 }
@@ -132,16 +132,15 @@ void HcalTTPDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSet
     for (int j = 0; j < 5; j++)
       trigInputs[j * 8 + i] = 0;
   }
-  for (HFDigiCollection::const_iterator theDigi = hfDigiCollection->begin(); theDigi != hfDigiCollection->end();
-       theDigi++) {
-    HcalDetId id = HcalDetId(theDigi->id());
+  for (const auto& theDigi : *hfDigiCollection) {
+    HcalDetId id = HcalDetId(theDigi.id());
     if (isMasked(id))
       continue;
     if (id.ietaAbs() < iEtaMin_ || id.ietaAbs() > iEtaMax_)
       continue;
 
-    IntegerCaloSamples samples(id, theDigi->size());
-    inputCoder->adc2Linear(*theDigi, samples);
+    IntegerCaloSamples samples(id, theDigi.size());
+    inputCoder->adc2Linear(theDigi, samples);
 
     for (int relSample = -presamples_; relSample < (samples_ - presamples_); relSample++) {
       if (samples[SoI_ + relSample] >= threshold_) {

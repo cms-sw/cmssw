@@ -61,18 +61,16 @@ RawTask::RawTask(edm::ParameterSet const& ps) : DQTask(ps) {
     std::vector<uint32_t> vhashFEDsVME;
     std::vector<uint32_t> vhashFEDsuTCA;
 
-    for (std::vector<int>::const_iterator it = vFEDsVME.begin(); it != vFEDsVME.end(); ++it) {
+    for (int it : vFEDsVME) {
       vhashFEDsVME.push_back(
-          HcalElectronicsId(
-              constants::FIBERCH_MIN, constants::FIBER_VME_MIN, SPIGOT_MIN, (*it) - constants::FED_VME_MIN)
+          HcalElectronicsId(constants::FIBERCH_MIN, constants::FIBER_VME_MIN, SPIGOT_MIN, it - constants::FED_VME_MIN)
               .rawId());
       _vhashFEDs.push_back(
-          HcalElectronicsId(
-              constants::FIBERCH_MIN, constants::FIBER_VME_MIN, SPIGOT_MIN, (*it) - constants::FED_VME_MIN)
+          HcalElectronicsId(constants::FIBERCH_MIN, constants::FIBER_VME_MIN, SPIGOT_MIN, it - constants::FED_VME_MIN)
               .rawId());
     }
-    for (std::vector<int>::const_iterator it = vFEDsuTCA.begin(); it != vFEDsuTCA.end(); ++it) {
-      std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(*it);
+    for (int it : vFEDsuTCA) {
+      std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(it);
       vhashFEDsuTCA.push_back(
           HcalElectronicsId(cspair.first, cspair.second, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
       _vhashFEDs.push_back(HcalElectronicsId(cspair.first, cspair.second, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
@@ -432,11 +430,11 @@ std::shared_ptr<hcaldqm::Cache> RawTask::globalBeginLuminosityBlock(edm::Luminos
   //
   //	GENERATE STATUS ONLY FOR ONLINE!
   //
-  for (std::vector<uint32_t>::const_iterator it = _vhashFEDs.begin(); it != _vhashFEDs.end(); ++it) {
+  for (unsigned int _vhashFED : _vhashFEDs) {
     flag::Flag fSum("RAW");
-    HcalElectronicsId eid = HcalElectronicsId(*it);
+    HcalElectronicsId eid = HcalElectronicsId(_vhashFED);
 
-    std::vector<uint32_t>::const_iterator cit = std::find(_vcdaqEids.begin(), _vcdaqEids.end(), *it);
+    std::vector<uint32_t>::const_iterator cit = std::find(_vcdaqEids.begin(), _vcdaqEids.end(), _vhashFED);
     if (cit == _vcdaqEids.end()) {
       // not @cDAQ
       for (uint32_t iflag = 0; iflag < _vflags.size(); iflag++)
@@ -471,14 +469,14 @@ std::shared_ptr<hcaldqm::Cache> RawTask::globalBeginLuminosityBlock(edm::Luminos
     //	iterate over all flags:
     //	- sum them all up in summary flag for this FED
     //	- reset each flag right after using it
-    for (std::vector<flag::Flag>::iterator ft = _vflags.begin(); ft != _vflags.end(); ++ft) {
-      _cSummaryvsLS_FED.setBinContent(eid, _currentLS, int(iflag), ft->_state);
-      fSum += (*ft);
+    for (auto& _vflag : _vflags) {
+      _cSummaryvsLS_FED.setBinContent(eid, _currentLS, int(iflag), _vflag._state);
+      fSum += _vflag;
       iflag++;
 
       //	this is the MUST! We don't keep flags per FED, reset
       //	each one of them after using
-      ft->reset();
+      _vflag.reset();
     }
     _cSummaryvsLS.setBinContent(eid, _currentLS, fSum._state);
   }

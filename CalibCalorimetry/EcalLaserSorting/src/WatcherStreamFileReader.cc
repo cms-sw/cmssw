@@ -134,8 +134,7 @@ WatcherStreamFileReader::WatcherStreamFileReader(edm::ParameterSet const& pset)
   dirs.push_back(processedDir_);
   dirs.push_back(corruptedDir_);
 
-  for (unsigned i = 0; i < dirs.size(); ++i) {
-    const string& dir = dirs[i];
+  for (const auto& dir : dirs) {
     struct stat fileStat;
     if (0 == stat(dir.c_str(), &fileStat)) {
       if (!S_ISDIR(fileStat.st_mode)) {

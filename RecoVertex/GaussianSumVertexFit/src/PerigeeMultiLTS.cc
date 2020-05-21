@@ -15,9 +15,9 @@ PerigeeMultiLTS::PerigeeMultiLTS(const GlobalPoint& linP,
   vector<TrajectoryStateOnSurface> tsosComp = theTSOS.components();
   //cout << "PerigeeMultiLTS components: "<<tsosComp.size()<<endl;
   ltComp.reserve(tsosComp.size());
-  for (vector<TrajectoryStateOnSurface>::iterator it = tsosComp.begin(); it != tsosComp.end(); it++) {
+  for (auto& it : tsosComp) {
     // cout <<(*it).globalPosition()<<endl;
-    ltComp.push_back(theLTSfactory.linearizedTrackState(theLinPoint, theTrack, *it));
+    ltComp.push_back(theLTSfactory.linearizedTrackState(theLinPoint, theTrack, it));
   }
 }
 

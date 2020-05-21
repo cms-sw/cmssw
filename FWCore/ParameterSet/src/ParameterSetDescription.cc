@@ -201,8 +201,8 @@ namespace edm {
     std::set_difference(parNames.begin(), parNames.end(), validatedLabels.begin(), validatedLabels.end(), insertIter);
 
     std::stringstream ss;
-    for (std::set<std::string>::const_iterator iter = diffNames.begin(), iEnd = diffNames.end(); iter != iEnd; ++iter) {
-      ss << " '" << *iter << "'\n";
+    for (const auto& diffName : diffNames) {
+      ss << " '" << diffName << "'\n";
     }
     if (diffNames.size() == 1U) {
       throw edm::Exception(errors::Configuration)
@@ -240,10 +240,8 @@ namespace edm {
       usedLabels_.insert(nodeLabels.begin(), nodeLabels.end());
     } else {
       std::stringstream ss;
-      for (std::set<std::string>::const_iterator iter = duplicateLabels.begin(), iEnd = duplicateLabels.end();
-           iter != iEnd;
-           ++iter) {
-        ss << " \"" << *iter << "\"\n";
+      for (const auto& duplicateLabel : duplicateLabels) {
+        ss << " \"" << duplicateLabel << "\"\n";
       }
       throw edm::Exception(errors::LogicError) << "Labels used in different nodes of a ParameterSetDescription\n"
                                                << "must be unique.  The following duplicate labels were detected:\n"
@@ -275,10 +273,8 @@ namespace edm {
 
       if (!duplicateTypes1.empty()) {
         std::stringstream ss;
-        for (std::set<ParameterTypes>::const_iterator iter = duplicateTypes1.begin(), iEnd = duplicateTypes1.end();
-             iter != iEnd;
-             ++iter) {
-          ss << " \"" << parameterTypeEnumToString(*iter) << "\"\n";
+        for (auto iter : duplicateTypes1) {
+          ss << " \"" << parameterTypeEnumToString(iter) << "\"\n";
         }
         throw edm::Exception(errors::LogicError)
             << "Within a ParameterSetDescription, the type used for a wildcard must\n"
@@ -299,10 +295,8 @@ namespace edm {
 
       if (!duplicateTypes2.empty()) {
         std::stringstream ss;
-        for (std::set<ParameterTypes>::const_iterator iter = duplicateTypes2.begin(), iEnd = duplicateTypes2.end();
-             iter != iEnd;
-             ++iter) {
-          ss << " \"" << parameterTypeEnumToString(*iter) << "\"\n";
+        for (auto iter : duplicateTypes2) {
+          ss << " \"" << parameterTypeEnumToString(iter) << "\"\n";
         }
         throw edm::Exception(errors::LogicError)
             << "Within a ParameterSetDescription, the type used for a wildcard must\n"

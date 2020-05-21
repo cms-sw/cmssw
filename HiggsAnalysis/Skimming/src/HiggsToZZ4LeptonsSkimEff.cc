@@ -99,31 +99,31 @@ void HiggsToZZ4LeptonsSkimEff::analyze(const edm::Event& event, const edm::Event
   edm::Handle<CandidateCollection> genCandidates;
   event.getByToken(genToken, genCandidates);
 
-  for (CandidateCollection::const_iterator mcIter = genCandidates->begin(); mcIter != genCandidates->end(); ++mcIter) {
+  for (const auto& mcIter : *genCandidates) {
     // Muons:
-    if (mcIter->pdgId() == 13 || mcIter->pdgId() == -13) {
+    if (mcIter.pdgId() == 13 || mcIter.pdgId() == -13) {
       // Mother is a Z
-      if (mcIter->mother()->pdgId() == 23) {
+      if (mcIter.mother()->pdgId() == 23) {
         // In fiducial volume:
-        if (mcIter->eta() > -2.4 && mcIter->eta() < 2.4)
+        if (mcIter.eta() > -2.4 && mcIter.eta() < 2.4)
           nMuon++;
       }
     }
     // Electrons:
-    if (mcIter->pdgId() == 11 || mcIter->pdgId() == -11) {
+    if (mcIter.pdgId() == 11 || mcIter.pdgId() == -11) {
       // Mother is a Z
-      if (mcIter->mother()->pdgId() == 23) {
+      if (mcIter.mother()->pdgId() == 23) {
         // In fiducial volume:
-        if (mcIter->eta() > -2.5 && mcIter->eta() < 2.5)
+        if (mcIter.eta() > -2.5 && mcIter.eta() < 2.5)
           nElec++;
       }
     }
     // Taus:
-    if (mcIter->pdgId() == 15 || mcIter->pdgId() == -15) {
+    if (mcIter.pdgId() == 15 || mcIter.pdgId() == -15) {
       // Mother is a Z
-      if (mcIter->mother()->pdgId() == 23) {
+      if (mcIter.mother()->pdgId() == 23) {
         // In fiducial volume:
-        if (mcIter->eta() > -2.5 && mcIter->eta() < 2.5)
+        if (mcIter.eta() > -2.5 && mcIter.eta() < 2.5)
           nTau++;
       }
     }

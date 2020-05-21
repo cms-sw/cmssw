@@ -103,16 +103,15 @@ void pat::PATGenJetSlimmer::produce(edm::Event& iEvent, const edm::EventSetup& i
       reco::CompositePtrCandidate::daughters old = jet.daughterPtrVector();
       jet.clearDaughters();
       std::map<unsigned int, reco::CandidatePtr> ptrs;
-      for (unsigned int i = 0; i < old.size(); i++) {
+      for (const auto& i : old) {
         //	if(! ((*gp2pgp)[old[i]]).isNonnull())	{
         //		std::cout << "Missing ref for key"  <<  old[i].key() << " pdgid " << old[i]->pdgId() << " st "<<   old[i]->status() <<  " pt " << old[i]->pt() << " eta " << old[i]->eta() << std::endl;
         //	}
-        ptrs[((*gp2pgp)[old[i]]).key()] = refToPtr((*gp2pgp)[old[i]]);
+        ptrs[((*gp2pgp)[i]).key()] = refToPtr((*gp2pgp)[i]);
       }
-      for (std::map<unsigned int, reco::CandidatePtr>::iterator itp = ptrs.begin(); itp != ptrs.end();
-           itp++)  //iterate on sorted items
+      for (auto& ptr : ptrs)  //iterate on sorted items
       {
-        jet.addDaughter(itp->second);
+        jet.addDaughter(ptr.second);
       }
     }
     if (dropSpecific_) {

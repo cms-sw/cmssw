@@ -48,17 +48,16 @@ PixelTrimAllPixels::PixelTrimAllPixels(std::vector<std::vector<std::string> > &t
   colNames.push_back("TRIM_BITS");
 
   for (unsigned int c = 0; c < tableMat[0].size(); c++) {
-    for (unsigned int n = 0; n < colNames.size(); n++) {
-      if (tableMat[0][c] == colNames[n]) {
-        colM[colNames[n]] = c;
+    for (const auto &colName : colNames) {
+      if (tableMat[0][c] == colName) {
+        colM[colName] = c;
         break;
       }
     }
   }  //end for
-  for (unsigned int n = 0; n < colNames.size(); n++) {
-    if (colM.find(colNames[n]) == colM.end()) {
-      std::cerr << __LINE__ << mthn << "Couldn't find in the database the column with name " << colNames[n]
-                << std::endl;
+  for (const auto &colName : colNames) {
+    if (colM.find(colName) == colM.end()) {
+      std::cerr << __LINE__ << mthn << "Couldn't find in the database the column with name " << colName << std::endl;
       assert(0);
     }
   }
@@ -179,9 +178,9 @@ PixelTrimAllPixels::PixelTrimAllPixels(std::string filename) : PixelTrimBase("",
 PixelROCTrimBits PixelTrimAllPixels::getTrimBits(int ROCId) const { return trimbits_[ROCId]; }
 
 PixelROCTrimBits *PixelTrimAllPixels::getTrimBits(PixelROCName name) {
-  for (unsigned int i = 0; i < trimbits_.size(); i++) {
-    if (trimbits_[i].name() == name)
-      return &(trimbits_[i]);
+  for (auto &trimbit : trimbits_) {
+    if (trimbit.name() == name)
+      return &trimbit;
   }
 
   return nullptr;
@@ -220,8 +219,8 @@ void PixelTrimAllPixels::generateConfiguration(PixelFECConfigInterface *pixelFEC
 void PixelTrimAllPixels::writeBinary(std::string filename) const {
   std::ofstream out(filename.c_str(), std::ios::binary);
 
-  for (unsigned int i = 0; i < trimbits_.size(); i++) {
-    trimbits_[i].writeBinary(out);
+  for (const auto &trimbit : trimbits_) {
+    trimbit.writeBinary(out);
   }
 }
 
@@ -233,8 +232,8 @@ void PixelTrimAllPixels::writeASCII(std::string dir) const {
 
   std::ofstream out(filename.c_str());
 
-  for (unsigned int i = 0; i < trimbits_.size(); i++) {
-    trimbits_[i].writeASCII(out);
+  for (const auto &trimbit : trimbits_) {
+    trimbit.writeASCII(out);
   }
 }
 //=============================================================================================
@@ -287,8 +286,8 @@ void PixelTrimAllPixels::writeXML(std::ofstream *outstream,
                                   std::ofstream *out2stream) const {
   std::string mthn = "[PixelTrimAllPixels::writeXML()]\t\t\t    ";
 
-  for (unsigned int i = 0; i < trimbits_.size(); i++) {
-    trimbits_[i].writeXML(outstream);
+  for (const auto &trimbit : trimbits_) {
+    trimbit.writeXML(outstream);
   }
 }
 

@@ -147,11 +147,10 @@ void DTChamberEfficiencyTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     const QReport* theXEfficiencyQReport = (*hXEff).second->getQReport(XEfficiencyCriterionName);
     if (theXEfficiencyQReport) {
       vector<dqm::me_util::Channel> badChannels = theXEfficiencyQReport->getBadChannels();
-      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); channel != badChannels.end();
-           channel++) {
+      for (auto& badChannel : badChannels) {
         edm::LogError("DTDQM|DTMonitorClient|DTChamberEfficiencyTest")
-            << "Chamber : " << (*hXEff).first << " Bad XChamberEfficiency channels: " << (*channel).getBin()
-            << "  Contents : " << (*channel).getContents();
+            << "Chamber : " << (*hXEff).first << " Bad XChamberEfficiency channels: " << badChannel.getBin()
+            << "  Contents : " << badChannel.getContents();
       }
     }
   }
@@ -164,11 +163,10 @@ void DTChamberEfficiencyTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     const QReport* theYEfficiencyQReport = (*hYEff).second->getQReport(YEfficiencyCriterionName);
     if (theYEfficiencyQReport) {
       vector<dqm::me_util::Channel> badChannels = theYEfficiencyQReport->getBadChannels();
-      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); channel != badChannels.end();
-           channel++) {
+      for (auto& badChannel : badChannels) {
         edm::LogError("DTDQM|DTMonitorClient|DTChamberEfficiencyTest")
-            << "Chamber : " << (*hYEff).first << " Bad YChamberEfficiency channels: " << (*channel).getBin()
-            << "  Contents : " << (*channel).getContents();
+            << "Chamber : " << (*hYEff).first << " Bad YChamberEfficiency channels: " << badChannel.getBin()
+            << "  Contents : " << badChannel.getContents();
       }
     }
   }

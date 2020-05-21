@@ -332,8 +332,8 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
         if (trigNames_.empty()) {
           ok = true;
         } else {
-          for (unsigned int i = 0; i < trigNames_.size(); ++i) {
-            if (newtriggerName.find(trigNames_[i]) != std::string::npos) {
+          for (const auto& trigName : trigNames_) {
+            if (newtriggerName.find(trigName) != std::string::npos) {
               if (verbosity_ % 10 > 0)
                 edm::LogInfo("IsoTrack") << newtriggerName;
               if (hlt > 0) {

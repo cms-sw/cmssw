@@ -16,8 +16,8 @@ HtrXmlPatternTool::HtrXmlPatternTool(HtrXmlPatternToolParameters* params) {
   int cratesOn[ChannelPattern::NUM_CRATES];
 
   //turn off all slots
-  for (int i = 0; i < ChannelPattern::NUM_SLOTS; i++)
-    slotsOn[i] = 0;
+  for (int& i : slotsOn)
+    i = 0;
   //turn on slots 2,3,4,5,6,7,8
   for (int i = 2; i < 9; i++)
     slotsOn[i] = 1;
@@ -26,8 +26,8 @@ HtrXmlPatternTool::HtrXmlPatternTool(HtrXmlPatternToolParameters* params) {
     slotsOn[i] = 1;
 
   //turn on all crates
-  for (int i = 0; i < ChannelPattern::NUM_CRATES; i++)
-    cratesOn[i] = 1;
+  for (int& i : cratesOn)
+    i = 1;
   //turn off two unused crates
   cratesOn[8] = 0;
   cratesOn[16] = 0;

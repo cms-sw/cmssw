@@ -154,8 +154,8 @@ bool FWGeoTopNode::selectPhysicalFromTable(int tableIndex) {
 
 //______________________________________________________________________________
 void FWGeoTopNode::printSelected() {
-  for (std::set<TGLPhysicalShape*>::iterator it = fSted.begin(); it != fSted.end(); ++it) {
-    printf("FWGeoTopNode::printSelected %s \n", tableManager()->refEntries().at(tableIdx(*it)).name());
+  for (auto it : fSted) {
+    printf("FWGeoTopNode::printSelected %s \n", tableManager()->refEntries().at(tableIdx(it)).name());
   }
 }
 
@@ -317,19 +317,15 @@ void FWGeoTopNode::Paint(Option_t* opt) {
 // ______________________________________________________________________
 void FWGeoTopNode::UnSelected() {
   ClearSet(fSted);
-  for (FWGeometryTableManagerBase::Entries_i i = tableManager()->refEntries().begin();
-       i != tableManager()->refEntries().end();
-       ++i)
-    i->resetBit(FWGeometryTableManagerBase::kSelected);
+  for (auto& i : tableManager()->refEntries())
+    i.resetBit(FWGeometryTableManagerBase::kSelected);
 }
 
 // ______________________________________________________________________
 void FWGeoTopNode::UnHighlighted() {
   ClearSet(fHted);
-  for (FWGeometryTableManagerBase::Entries_i i = tableManager()->refEntries().begin();
-       i != tableManager()->refEntries().end();
-       ++i)
-    i->resetBit(FWGeometryTableManagerBase::kHighlighted);
+  for (auto& i : tableManager()->refEntries())
+    i.resetBit(FWGeometryTableManagerBase::kHighlighted);
 }
 
 // ______________________________________________________________________

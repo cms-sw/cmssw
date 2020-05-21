@@ -46,8 +46,8 @@ void MuonSelectionTypeValueMapProducer::produce(edm::Event& iEvent, const edm::E
   values.reserve(muonsH->size());
 
   // isGoodMuon
-  for (reco::MuonCollection::const_iterator it = muonsH->begin(); it != muonsH->end(); ++it)
-    values.push_back(muon::isGoodMuon(*it, selectionType_));
+  for (const auto& it : *muonsH)
+    values.push_back(muon::isGoodMuon(it, selectionType_));
 
   // create and fill value map
   auto out = std::make_unique<edm::ValueMap<bool>>();

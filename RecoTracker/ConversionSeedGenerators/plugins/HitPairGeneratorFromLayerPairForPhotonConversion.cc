@@ -98,8 +98,7 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
 #endif
 
   /* loop on outer hits*/
-  for (vector<RecHitsSortedInPhi::Hit>::const_iterator oh = outerHits.begin(); oh != outerHits.end(); ++oh) {
-    RecHitsSortedInPhi::Hit ohit = (*oh);
+  for (auto ohit : outerHits) {
 #ifdef mydebug_Seed
     GlobalPoint oPos = ohit->globalPosition();
 

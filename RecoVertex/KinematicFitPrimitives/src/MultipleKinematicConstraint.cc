@@ -22,14 +22,14 @@ std::pair<AlgebraicVector, AlgebraicVector> MultipleKinematicConstraint::value(c
     throw VertexException("MultipleKinematicConstraint::linearization point has a wrong dimension");
 
   int total = 0;
-  for (std::vector<KinematicConstraint *>::const_iterator i = cts.begin(); i != cts.end(); i++) {
-    total += (*i)->numberOfEquations();
+  for (auto ct : cts) {
+    total += ct->numberOfEquations();
   }
   AlgebraicVector vl(total, 0);
 
   int cr_size = 0;
-  for (std::vector<KinematicConstraint *>::const_iterator i = cts.begin(); i != cts.end(); i++) {
-    AlgebraicVector vlc = (*i)->value(expansion).first;
+  for (auto ct : cts) {
+    AlgebraicVector vlc = ct->value(expansion).first;
     int sz = vlc.num_row();
     for (int j = 1; j < sz + 1; j++) {
       vl(cr_size + j) = vlc(j);
@@ -53,19 +53,19 @@ std::pair<AlgebraicMatrix, AlgebraicVector> MultipleKinematicConstraint::derivat
 
   AlgebraicVector par = exPoint;
   int total = 0;
-  for (std::vector<KinematicConstraint *>::const_iterator i = cts.begin(); i != cts.end(); i++) {
-    total += (*i)->numberOfEquations();
+  for (auto ct : cts) {
+    total += ct->numberOfEquations();
   }
 
   //Full derivative matrix: (numberOfConstraints x 7*numberOfStates)
   AlgebraicMatrix dr(total, inSize);
 
   int cr_size = 0;
-  for (std::vector<KinematicConstraint *>::const_iterator i = cts.begin(); i != cts.end(); i++) {
+  for (auto ct : cts) {
     //matrix should be (nx7*NumberOfStates)
-    AlgebraicMatrix lConst = (*i)->derivative(par).first;
+    AlgebraicMatrix lConst = ct->derivative(par).first;
     dr.sub(cr_size + 1, 1, lConst);
-    cr_size += (*i)->numberOfEquations();
+    cr_size += ct->numberOfEquations();
   }
   return std::pair<AlgebraicMatrix, AlgebraicVector>(dr, par);
 }
@@ -74,8 +74,8 @@ int MultipleKinematicConstraint::numberOfEquations() const {
   int ne = 0;
   if (cts.empty())
     throw VertexException("MultipleKinematicConstraint::number of equations requested for empty constraint");
-  for (std::vector<KinematicConstraint *>::const_iterator i = cts.begin(); i != cts.end(); i++) {
-    ne += (*i)->numberOfEquations();
+  for (auto ct : cts) {
+    ne += ct->numberOfEquations();
   }
   return ne;
 }
@@ -87,23 +87,23 @@ std::pair<AlgebraicVector, AlgebraicVector> MultipleKinematicConstraint::value(
   int nStates = par.size();
   AlgebraicVector param(7 * nStates, 0);
   int count = 1;
-  for (std::vector<RefCountedKinematicParticle>::const_iterator i = par.begin(); i != par.end(); i++) {
+  for (const auto &i : par) {
     for (int j = 1; j < 8; j++) {
-      param((count - 1) * 7 + j) = (*i)->currentState().kinematicParameters().vector()(j - 1);
+      param((count - 1) * 7 + j) = i->currentState().kinematicParameters().vector()(j - 1);
     }
     count++;
   }
 
   //looking for total number of equations
   int total = 0;
-  for (std::vector<KinematicConstraint *>::const_iterator i = cts.begin(); i != cts.end(); i++) {
-    total += (*i)->numberOfEquations();
+  for (auto ct : cts) {
+    total += ct->numberOfEquations();
   }
   AlgebraicVector vl(total, 0);
 
   int cr_size = 0;
-  for (std::vector<KinematicConstraint *>::const_iterator i = cts.begin(); i != cts.end(); i++) {
-    AlgebraicVector vlc = (*i)->value(par).first;
+  for (auto ct : cts) {
+    AlgebraicVector vlc = ct->value(par).first;
     int sz = vlc.num_row();
     for (int j = 1; j <= sz; j++) {
       vl(cr_size + j) = vlc(j);
@@ -121,27 +121,27 @@ std::pair<AlgebraicMatrix, AlgebraicVector> MultipleKinematicConstraint::derivat
   AlgebraicVector param(7 * nStates, 0);
 
   int count = 1;
-  for (std::vector<RefCountedKinematicParticle>::const_iterator i = par.begin(); i != par.end(); i++) {
+  for (const auto &i : par) {
     for (int j = 1; j < 8; j++) {
-      param((count - 1) * 7 + j) = (*i)->currentState().kinematicParameters().vector()(j - 1);
+      param((count - 1) * 7 + j) = i->currentState().kinematicParameters().vector()(j - 1);
     }
     count++;
   }
   int total = 0;
-  for (std::vector<KinematicConstraint *>::const_iterator i = cts.begin(); i != cts.end(); i++) {
-    total += (*i)->numberOfEquations();
+  for (auto ct : cts) {
+    total += ct->numberOfEquations();
   }
   AlgebraicMatrix dr(total, 7 * nStates);
 
   int cr_size = 0;
-  for (std::vector<KinematicConstraint *>::const_iterator i = cts.begin(); i != cts.end(); i++) {
+  for (auto ct : cts) {
     //matrix should be (TotalNumberOfEquations x 7* TotalNumberOfStates)
     //Derivative matrix for given constraint
-    AlgebraicMatrix lConst = (*i)->derivative(param).first;
+    AlgebraicMatrix lConst = ct->derivative(param).first;
 
     //putting it into the appropriate line
     dr.sub(cr_size + 1, 1, lConst);
-    cr_size += (*i)->numberOfEquations();
+    cr_size += ct->numberOfEquations();
   }
   return std::pair<AlgebraicMatrix, AlgebraicVector>(dr, param);
 }
@@ -150,8 +150,8 @@ AlgebraicVector MultipleKinematicConstraint::deviations(int nStates) const {
   AlgebraicVector dev(nStates * 7, 0);
   if (cts.empty())
     throw VertexException("MultipleKinematicConstraint::deviations requested for empty constraint");
-  for (std::vector<KinematicConstraint *>::const_iterator i = cts.begin(); i != cts.end(); i++) {
-    AlgebraicVector dev_loc = (*i)->deviations(nStates);
+  for (auto ct : cts) {
+    AlgebraicVector dev_loc = ct->deviations(nStates);
     for (int j = 1; j < nStates * 7 + 1; j++) {
       dev(j) = dev(j) + dev_loc(j);
     }

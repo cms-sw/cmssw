@@ -230,8 +230,8 @@ void ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::E
 
   {
     edm::Handle<reco::TrackToTrackingParticleAssociator> theAssociator;
-    for (unsigned int w = 0; w < associators.size(); w++) {
-      iEvent.getByLabel(associators[w], theAssociator);
+    for (const auto& associator : associators) {
+      iEvent.getByLabel(associator, theAssociator);
       associatore.push_back(theAssociator.product());
     }
   }

@@ -99,14 +99,14 @@ bool LeptonSkimming::hltFired(const edm::Event& iEvent, const edm::EventSetup& i
   bool fire = false;
   if (trigResults.failedToGet())
     return false;
-  for (unsigned int ip = 0; ip < HLTPath.size(); ip++) {
+  for (const auto& ip : HLTPath) {
     int N_Triggers = trigResults->size();
     const edm::TriggerNames& trigName = iEvent.triggerNames(*trigResults);
     for (int i_Trig = 0; i_Trig < N_Triggers; ++i_Trig) {
       if (!trigResults->accept(i_Trig))
         continue;
       const std::string& TrigPath = trigName.triggerName(i_Trig);
-      if (TrigPath.find(HLTPath[ip]) != std::string::npos)
+      if (TrigPath.find(ip) != std::string::npos)
         fire = true;
     }
   }
@@ -127,16 +127,16 @@ std::array<float, 5> LeptonSkimming::hltObject(const edm::Event& iEvent,
 
   std::vector<std::array<float, 5>> max_per_trigger;
 
-  for (unsigned int ipath = 0; ipath < Seed.size(); ipath++) {
+  for (const auto& ipath : Seed) {
     std::vector<std::array<float, 5>> tot_tr_obj_pt_eta_phi;
     if (!triggerObjectsSummary.isValid())
       continue;
-    size_t filterIndex = (*triggerObjectsSummary).filterIndex(InputTag(Seed[ipath], "", "HLT"));
+    size_t filterIndex = (*triggerObjectsSummary).filterIndex(InputTag(ipath, "", "HLT"));
     trigger::TriggerObjectCollection allTriggerObjects = triggerObjectsSummary->getObjects();
     if (filterIndex < (*triggerObjectsSummary).sizeFilters()) {
       const trigger::Keys& keys = (*triggerObjectsSummary).filterKeys(filterIndex);
-      for (size_t j = 0; j < keys.size(); j++) {
-        const trigger::TriggerObject& foundObject = (allTriggerObjects)[keys[j]];
+      for (unsigned short key : keys) {
+        const trigger::TriggerObject& foundObject = (allTriggerObjects)[key];
         std::array<float, 5> tr_obj_pt_eta_phi;
         if (fabs(foundObject.id()) != 13)
           continue;

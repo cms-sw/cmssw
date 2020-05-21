@@ -179,15 +179,15 @@ int main(int argc, char* argv[]) {
       }
 
       // Ok. Do we have the expected trees?
-      for (unsigned int i = 0; i < expectedTrees.size(); ++i) {
-        TTree* t = (TTree*)tfile->Get(expectedTrees[i].c_str());
+      for (auto& expectedTree : expectedTrees) {
+        TTree* t = (TTree*)tfile->Get(expectedTree.c_str());
         if (t == nullptr) {
-          std::cout << "Tree " << expectedTrees[i] << " appears to be missing. Not a valid collection\n";
+          std::cout << "Tree " << expectedTree << " appears to be missing. Not a valid collection\n";
           std::cout << "Exiting\n";
           return 1;
         } else {
           if (verbose)
-            std::cout << "ECU:: Found Tree " << expectedTrees[i] << std::endl;
+            std::cout << "ECU:: Found Tree " << expectedTree << std::endl;
         }
       }
 

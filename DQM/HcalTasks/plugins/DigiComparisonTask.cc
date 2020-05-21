@@ -36,14 +36,14 @@ DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps) : DQTask(ps)
   _filter_uTCA.initialize(filter::fFilter, hashfunctions::fElectronics, vhashuTCA);
 
   //	INITIALIZE
-  for (unsigned int i = 0; i < 10; i++) {
-    _cADC_Subdet[i].initialize(_name,
-                               "ADC",
-                               hashfunctions::fSubdet,
-                               new quantity::ValueQuantity(quantity::fADCCorr_128),
-                               new quantity::ValueQuantity(quantity::fADCCorr_128),
-                               new quantity::ValueQuantity(quantity::fN, true),
-                               0);
+  for (auto& i : _cADC_Subdet) {
+    i.initialize(_name,
+                 "ADC",
+                 hashfunctions::fSubdet,
+                 new quantity::ValueQuantity(quantity::fADCCorr_128),
+                 new quantity::ValueQuantity(quantity::fADCCorr_128),
+                 new quantity::ValueQuantity(quantity::fN, true),
+                 0);
   }
   _cADCall_Subdet.initialize(_name,
                              "ADC",

@@ -26,11 +26,11 @@ reco::Candidate::LorentzVector vtxP4(const reco::VertexCompositePtrCandidate &vt
   reco::Candidate::LorentzVector sum;
   const std::vector<reco::CandidatePtr> &tracks = vtx.daughterPtrVector();
 
-  for (std::vector<reco::CandidatePtr>::const_iterator track = tracks.begin(); track != tracks.end(); ++track) {
+  for (const auto &track : tracks) {
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double>> vec;
-    vec.SetPx((*track)->px());
-    vec.SetPy((*track)->py());
-    vec.SetPz((*track)->pz());
+    vec.SetPx(track->px());
+    vec.SetPy(track->py());
+    vec.SetPz(track->pz());
     vec.SetM(reco::ParticleMasses::piPlus);
     sum += vec;
   }
@@ -230,9 +230,9 @@ void BtoCharmDecayVertexMergerT<reco::Vertex>::resolveBtoDchain(std::vector<Vert
 
   // now calculate one LorentzVector from the track momenta
   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double>> mother;
-  for (std::set<reco::TrackRef>::const_iterator it = trackrefs.begin(); it != trackrefs.end(); ++it) {
+  for (const auto &trackref : trackrefs) {
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double>> temp(
-        (*it)->px(), (*it)->py(), (*it)->pz(), ParticleMasses::piPlus);
+        trackref->px(), trackref->py(), trackref->pz(), ParticleMasses::piPlus);
     mother += temp;
   }
 
@@ -331,8 +331,8 @@ void BtoCharmDecayVertexMergerT<reco::VertexCompositePtrCandidate>::resolveBtoDc
 
   // now calculate one LorentzVector from the track momenta
   Candidate::LorentzVector mother;
-  for (std::set<reco::CandidatePtr>::const_iterator it = trackrefs.begin(); it != trackrefs.end(); ++it) {
-    Candidate::LorentzVector temp((*it)->px(), (*it)->py(), (*it)->pz(), ParticleMasses::piPlus);
+  for (const auto &trackref : trackrefs) {
+    Candidate::LorentzVector temp(trackref->px(), trackref->py(), trackref->pz(), ParticleMasses::piPlus);
     mother += temp;
   }
 
@@ -343,11 +343,11 @@ void BtoCharmDecayVertexMergerT<reco::VertexCompositePtrCandidate>::resolveBtoDc
     // loop over the second
     const std::vector<reco::CandidatePtr> &tracks1 = sv1.daughterPtrVector();
     const std::vector<reco::CandidatePtr> &tracks2 = sv2.daughterPtrVector();
-    for (std::vector<reco::CandidatePtr>::const_iterator ti = tracks2.begin(); ti != tracks2.end(); ++ti) {
-      std::vector<reco::CandidatePtr>::const_iterator it = find(tracks1.begin(), tracks1.end(), *ti);
+    for (const auto &ti : tracks2) {
+      std::vector<reco::CandidatePtr>::const_iterator it = find(tracks1.begin(), tracks1.end(), ti);
       if (it == tracks1.end()) {
-        coll[i].vert.addDaughter(*ti);
-        coll[i].vert.setP4((*ti)->p4() + coll[i].vert.p4());
+        coll[i].vert.addDaughter(ti);
+        coll[i].vert.setP4(ti->p4() + coll[i].vert.p4());
       }
     }
 

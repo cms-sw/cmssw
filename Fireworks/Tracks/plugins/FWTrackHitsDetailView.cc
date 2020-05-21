@@ -296,8 +296,8 @@ void FWTrackHitsDetailView::addTrackerHits3D(std::vector<TVector3>& points,
   pointSet->SetTitle("Pixel Hits");
   pointSet->SetMarkerColor(color);
 
-  for (std::vector<TVector3>::const_iterator it = points.begin(), itEnd = points.end(); it != itEnd; ++it) {
-    pointSet->SetNextPoint(it->x(), it->y(), it->z());
+  for (const auto& point : points) {
+    pointSet->SetNextPoint(point.x(), point.y(), point.z());
   }
   tList->AddElement(pointSet);
 }

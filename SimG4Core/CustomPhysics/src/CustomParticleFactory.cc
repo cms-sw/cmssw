@@ -429,8 +429,8 @@ G4DecayTable *CustomParticleFactory::getAntiDecayTable(int pdgId, G4DecayTable *
 
 std::string CustomParticleFactory::ToLower(std::string str) {
   std::locale loc;
-  for (std::string::size_type i = 0; i < str.length(); ++i)
-    str.at(i) = std::tolower(str.at(i), loc);
+  for (char &i : str)
+    i = std::tolower(i, loc);
   return str;
 }
 

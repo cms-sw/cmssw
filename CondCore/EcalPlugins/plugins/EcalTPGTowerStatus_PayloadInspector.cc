@@ -264,8 +264,8 @@ namespace {
 
         int NbMaskedTT = 0;
 
-        for (EcalTPGTowerStatusMapIterator it = towerMap.begin(); it != towerMap.end(); ++it)
-          if ((*it).second > 0)
+        for (auto it : towerMap)
+          if (it.second > 0)
             NbMaskedTT++;
 
         align->Fill(0.5, 0.5, towerMap.size());

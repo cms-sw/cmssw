@@ -16,8 +16,8 @@ namespace funct {
       unsigned int i = 0;
       for (Iterator it = begin; it != end; ++it)
         s += (y_[i++] = *it);
-      for (std::vector<double>::iterator i = y_.begin(); i != y_.end(); ++i)
-        *i /= s;
+      for (double& i : y_)
+        i /= s;
     }
     HistoPdf() {}
     template <typename Iterator>
@@ -32,8 +32,8 @@ namespace funct {
       unsigned int i = 0;
       for (Iterator it = begin; it != end; ++it)
         s += (y_[i++] = *it);
-      for (std::vector<double>::iterator i = y_.begin(); i != y_.end(); ++i)
-        *i /= s;
+      for (double& i : y_)
+        i /= s;
     }
     double operator()(double x) const {
       if (x < xMin_ || x > xMax_)

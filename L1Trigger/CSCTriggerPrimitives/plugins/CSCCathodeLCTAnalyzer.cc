@@ -91,8 +91,8 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(const CSCCLCTDigi& c
     // @ Switch to maps eventually
     vector<CSCComparatorDigi> digiMap;
     int digi_num = 0;
-    for (int i_hstrip = 0; i_hstrip < CSCConstants::NUM_HALF_STRIPS; i_hstrip++) {
-      hfstripDigis[i_hstrip] = -999;
+    for (int& hfstripDigi : hfstripDigis) {
+      hfstripDigi = -999;
     }
     for (int i_strip = 0; i_strip < CSCConstants::MAX_NUM_STRIPS; i_strip++) {
       time[i_strip] = -999;
@@ -123,8 +123,8 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(const CSCCLCTDigi& c
     // FIXME !!!
     int strip;
     for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
-      for (int i_strip = 0; i_strip < CSCConstants::CLCT_PATTERN_WIDTH; i_strip++) {
-        strip = clct_keystrip + key_stagger + CSCPatternBank::clct_pattern_offset_[i_strip];
+      for (int i_strip : CSCPatternBank::clct_pattern_offset_) {
+        strip = clct_keystrip + key_stagger + i_strip;
         if (strip >= 0 && strip < CSCConstants::NUM_HALF_STRIPS) {
           digiId = hfstripDigis[strip];
           // halfstripDigis contains the digi numbers
@@ -235,16 +235,15 @@ void CSCCathodeLCTAnalyzer::digiSimHitAssociator(CSCCathodeLayerInfo& info, cons
     bool me11 = (layerId.station() == 1) && (layerId.ring() == 1);
 
     // Get simHits in this layer.
-    for (edm::PSimHitContainer::const_iterator simHitIt = allSimHits->begin(); simHitIt != allSimHits->end();
-         simHitIt++) {
+    for (const auto& allSimHit : *allSimHits) {
       // Find detId where simHit is located.
-      CSCDetId hitId = (CSCDetId)(*simHitIt).detUnitId();
+      CSCDetId hitId = (CSCDetId)allSimHit.detUnitId();
       if (hitId == layerId)
-        simHits.push_back(*simHitIt);
+        simHits.push_back(allSimHit);
       if (me11) {
         CSCDetId layerId_me1a(layerId.endcap(), layerId.station(), 4, layerId.chamber(), layerId.layer());
         if (hitId == layerId_me1a)
-          simHits.push_back(*simHitIt);
+          simHits.push_back(allSimHit);
       }
     }
 
@@ -255,18 +254,18 @@ void CSCCathodeLCTAnalyzer::digiSimHitAssociator(CSCCathodeLayerInfo& info, cons
       }
 
       // Get the strip number for every digi and convert to phi.
-      for (vector<CSCComparatorDigi>::iterator prd = thisLayerDigis.begin(); prd != thisLayerDigis.end(); prd++) {
+      for (auto& thisLayerDigi : thisLayerDigis) {
         double deltaPhiMin = 999.;
         double bestHitPhi = 999.;
         PSimHit* bestHit = nullptr;
 
-        int strip = prd->getStrip();
+        int strip = thisLayerDigi.getStrip();
         double digiPhi = getStripPhi(layerId, strip - 0.5);
 
         const CSCLayer* csclayer = geom_->layer(layerId);
-        for (vector<PSimHit>::iterator psh = simHits.begin(); psh != simHits.end(); psh++) {
+        for (auto& simHit : simHits) {
           // Get the local phi for the simHit.
-          LocalPoint hitLP = psh->localPosition();
+          LocalPoint hitLP = simHit.localPosition();
           GlobalPoint hitGP = csclayer->toGlobal(hitLP);
           double hitPhi = hitGP.phi();
           if (debug)
@@ -284,7 +283,7 @@ void CSCCathodeLCTAnalyzer::digiSimHitAssociator(CSCCathodeLayerInfo& info, cons
           }
           if (deltaPhi < deltaPhiMin) {
             deltaPhiMin = deltaPhi;
-            bestHit = &(*psh);
+            bestHit = &simHit;
             bestHitPhi = hitPhi;
           }
         }

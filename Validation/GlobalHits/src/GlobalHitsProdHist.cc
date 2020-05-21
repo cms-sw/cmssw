@@ -104,10 +104,10 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet &iPSet)
   sprintf(hname, "hMCRGP2");
   histName_.push_back(hname);
   hMCRGP[1] = new TH1F(hname, htitle, 100, 0., 500.);
-  for (Int_t i = 0; i < 2; ++i) {
-    hMCRGP[i]->GetXaxis()->SetTitle("Number of Raw Generated Particles");
-    hMCRGP[i]->GetYaxis()->SetTitle("Count");
-    histMap_[hMCRGP[i]->GetName()] = hMCRGP[i];
+  for (auto &i : hMCRGP) {
+    i->GetXaxis()->SetTitle("Number of Raw Generated Particles");
+    i->GetYaxis()->SetTitle("Count");
+    histMap_[i->GetName()] = i;
   }
 
   sprintf(hname, "hMCG4Vtx1");
@@ -117,10 +117,10 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet &iPSet)
   sprintf(hname, "hMCG4Vtx2");
   histName_.push_back(hname);
   hMCG4Vtx[1] = new TH1F(hname, htitle, 100, -0.5, 99.5);
-  for (Int_t i = 0; i < 2; ++i) {
-    hMCG4Vtx[i]->GetXaxis()->SetTitle("Number of Vertices");
-    hMCG4Vtx[i]->GetYaxis()->SetTitle("Count");
-    histMap_[hMCG4Vtx[i]->GetName()] = hMCG4Vtx[i];
+  for (auto &i : hMCG4Vtx) {
+    i->GetXaxis()->SetTitle("Number of Vertices");
+    i->GetYaxis()->SetTitle("Count");
+    histMap_[i->GetName()] = i;
   }
 
   sprintf(hname, "hMCG4Trk1");
@@ -130,10 +130,10 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet &iPSet)
   sprintf(hname, "hMCG4Trk2");
   histName_.push_back(hname);
   hMCG4Trk[1] = new TH1F(hname, htitle, 150, -0.5, 99.5);
-  for (Int_t i = 0; i < 2; ++i) {
-    hMCG4Trk[i]->GetXaxis()->SetTitle("Number of Tracks");
-    hMCG4Trk[i]->GetYaxis()->SetTitle("Count");
-    histMap_[hMCG4Trk[i]->GetName()] = hMCG4Trk[i];
+  for (auto &i : hMCG4Trk) {
+    i->GetXaxis()->SetTitle("Number of Tracks");
+    i->GetYaxis()->SetTitle("Count");
+    histMap_[i->GetName()] = i;
   }
 
   sprintf(hname, "hGeantVtxX1");
@@ -143,10 +143,10 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet &iPSet)
   sprintf(hname, "hGeantVtxX2");
   histName_.push_back(hname);
   hGeantVtxX[1] = new TH1F(hname, htitle, 100, -50., 50.);
-  for (Int_t i = 0; i < 2; ++i) {
-    hGeantVtxX[i]->GetXaxis()->SetTitle("x of Vertex (um)");
-    hGeantVtxX[i]->GetYaxis()->SetTitle("Count");
-    histMap_[hGeantVtxX[i]->GetName()] = hGeantVtxX[i];
+  for (auto &i : hGeantVtxX) {
+    i->GetXaxis()->SetTitle("x of Vertex (um)");
+    i->GetYaxis()->SetTitle("Count");
+    histMap_[i->GetName()] = i;
   }
 
   sprintf(hname, "hGeantVtxY1");
@@ -156,10 +156,10 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet &iPSet)
   sprintf(hname, "hGeantVtxY2");
   histName_.push_back(hname);
   hGeantVtxY[1] = new TH1F(hname, htitle, 100, -50., 50.);
-  for (Int_t i = 0; i < 2; ++i) {
-    hGeantVtxY[i]->GetXaxis()->SetTitle("y of Vertex (um)");
-    hGeantVtxY[i]->GetYaxis()->SetTitle("Count");
-    histMap_[hGeantVtxY[i]->GetName()] = hGeantVtxY[i];
+  for (auto &i : hGeantVtxY) {
+    i->GetXaxis()->SetTitle("y of Vertex (um)");
+    i->GetYaxis()->SetTitle("Count");
+    histMap_[i->GetName()] = i;
   }
 
   sprintf(hname, "hGeantVtxZ1");
@@ -169,10 +169,10 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet &iPSet)
   sprintf(hname, "hGeantVtxZ2");
   histName_.push_back(hname);
   hGeantVtxZ[1] = new TH1F(hname, htitle, 100, -250., 250.);
-  for (Int_t i = 0; i < 2; ++i) {
-    hGeantVtxZ[i]->GetXaxis()->SetTitle("z of Vertex (mm)");
-    hGeantVtxZ[i]->GetYaxis()->SetTitle("Count");
-    histMap_[hGeantVtxZ[i]->GetName()] = hGeantVtxZ[i];
+  for (auto &i : hGeantVtxZ) {
+    i->GetXaxis()->SetTitle("z of Vertex (mm)");
+    i->GetYaxis()->SetTitle("Count");
+    histMap_[i->GetName()] = i;
   }
 
   sprintf(hname, "hGeantTrkPt");
@@ -357,10 +357,10 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet &iPSet)
   sprintf(hname, "hTrackerPx2");
   histName_.push_back(hname);
   hTrackerPx[1] = new TH1F(hname, htitle, 100, -0.5, 99.5);
-  for (Int_t i = 0; i < 2; ++i) {
-    hTrackerPx[i]->GetXaxis()->SetTitle("Number of Pixel Hits");
-    hTrackerPx[i]->GetYaxis()->SetTitle("Count");
-    histMap_[hTrackerPx[i]->GetName()] = hTrackerPx[i];
+  for (auto &i : hTrackerPx) {
+    i->GetXaxis()->SetTitle("Number of Pixel Hits");
+    i->GetYaxis()->SetTitle("Count");
+    histMap_[i->GetName()] = i;
   }
 
   sprintf(hname, "hTrackerPxPhi");
@@ -418,10 +418,10 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet &iPSet)
   sprintf(hname, "hTrackerSi2");
   histName_.push_back(hname);
   hTrackerSi[1] = new TH1F(hname, htitle, 100, -0.5, 99.5);
-  for (Int_t i = 0; i < 2; ++i) {
-    hTrackerSi[i]->GetXaxis()->SetTitle("Number of Silicon Hits");
-    hTrackerSi[i]->GetYaxis()->SetTitle("Count");
-    histMap_[hTrackerSi[i]->GetName()] = hTrackerSi[i];
+  for (auto &i : hTrackerSi) {
+    i->GetXaxis()->SetTitle("Number of Silicon Hits");
+    i->GetYaxis()->SetTitle("Count");
+    histMap_[i->GetName()] = i;
   }
 
   sprintf(hname, "hTrackerSiPhi");
@@ -480,10 +480,10 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet &iPSet)
   sprintf(hname, "hMuon2");
   histName_.push_back(hname);
   hMuon[1] = new TH1F(hname, htitle, 100, -0.5, 99.5);
-  for (Int_t i = 0; i < 2; ++i) {
-    hMuon[i]->GetXaxis()->SetTitle("Number of Muon Hits");
-    hMuon[i]->GetYaxis()->SetTitle("Count");
-    histMap_[hMuon[i]->GetName()] = hMuon[i];
+  for (auto &i : hMuon) {
+    i->GetXaxis()->SetTitle("Number of Muon Hits");
+    i->GetYaxis()->SetTitle("Count");
+    histMap_[i->GetName()] = i;
   }
 
   sprintf(hname, "hMuonPhi");
@@ -509,10 +509,10 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet &iPSet)
   sprintf(hname, "hMuonCscToF2");
   histName_.push_back(hname);
   hMuonCscToF[1] = new TH1F(hname, htitle, 100, 0., 50.);
-  for (Int_t i = 0; i < 2; ++i) {
-    hMuonCscToF[i]->GetXaxis()->SetTitle("Time of Flight of Hits (ns)");
-    hMuonCscToF[i]->GetYaxis()->SetTitle("Count");
-    histMap_[hMuonCscToF[i]->GetName()] = hMuonCscToF[i];
+  for (auto &i : hMuonCscToF) {
+    i->GetXaxis()->SetTitle("Time of Flight of Hits (ns)");
+    i->GetYaxis()->SetTitle("Count");
+    histMap_[i->GetName()] = i;
   }
 
   sprintf(hname, "hMuonCscZ");
@@ -530,10 +530,10 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet &iPSet)
   sprintf(hname, "hMuonDtToF2");
   histName_.push_back(hname);
   hMuonDtToF[1] = new TH1F(hname, htitle, 100, 0., 50.);
-  for (Int_t i = 0; i < 2; ++i) {
-    hMuonDtToF[i]->GetXaxis()->SetTitle("Time of Flight of Hits (ns)");
-    hMuonDtToF[i]->GetYaxis()->SetTitle("Count");
-    histMap_[hMuonDtToF[i]->GetName()] = hMuonDtToF[i];
+  for (auto &i : hMuonDtToF) {
+    i->GetXaxis()->SetTitle("Time of Flight of Hits (ns)");
+    i->GetYaxis()->SetTitle("Count");
+    histMap_[i->GetName()] = i;
   }
 
   sprintf(hname, "hMuonDtR");
@@ -551,10 +551,10 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet &iPSet)
   sprintf(hname, "hMuonRpcFToF2");
   histName_.push_back(hname);
   hMuonRpcFToF[1] = new TH1F(hname, htitle, 100, 0., 50.);
-  for (Int_t i = 0; i < 2; ++i) {
-    hMuonRpcFToF[i]->GetXaxis()->SetTitle("Time of Flight of Hits (ns)");
-    hMuonRpcFToF[i]->GetYaxis()->SetTitle("Count");
-    histMap_[hMuonRpcFToF[i]->GetName()] = hMuonRpcFToF[i];
+  for (auto &i : hMuonRpcFToF) {
+    i->GetXaxis()->SetTitle("Time of Flight of Hits (ns)");
+    i->GetYaxis()->SetTitle("Count");
+    histMap_[i->GetName()] = i;
   }
 
   sprintf(hname, "hMuonRpcFZ");
@@ -572,10 +572,10 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet &iPSet)
   sprintf(hname, "hMuonRpcBToF2");
   histName_.push_back(hname);
   hMuonRpcBToF[1] = new TH1F(hname, htitle, 100, 0., 50.);
-  for (Int_t i = 0; i < 2; ++i) {
-    hMuonRpcBToF[i]->GetXaxis()->SetTitle("Time of Flight of Hits (ns)");
-    hMuonRpcBToF[i]->GetYaxis()->SetTitle("Count");
-    histMap_[hMuonRpcBToF[i]->GetName()] = hMuonRpcBToF[i];
+  for (auto &i : hMuonRpcBToF) {
+    i->GetXaxis()->SetTitle("Time of Flight of Hits (ns)");
+    i->GetYaxis()->SetTitle("Count");
+    histMap_[i->GetName()] = i;
   }
 
   sprintf(hname, "hMuonRpcBR");
@@ -587,8 +587,8 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet &iPSet)
   histMap_[hMuonRpcBR->GetName()] = hMuonRpcBR;
 
   // create persistent objects
-  for (std::size_t i = 0; i < histName_.size(); ++i) {
-    produces<TH1F, edm::Transition::EndRun>(histName_[i]).setBranchAlias(histName_[i]);
+  for (const auto &i : histName_) {
+    produces<TH1F, edm::Transition::EndRun>(i).setBranchAlias(i);
   }
 }
 
@@ -633,18 +633,18 @@ void GlobalHitsProdHist::produce(edm::Event &iEvent, const edm::EventSetup &iSet
     if (printProvenanceInfo && (verbosity >= 0)) {
       TString eventout("\nProvenance info:\n");
 
-      for (unsigned int i = 0; i < AllProv.size(); ++i) {
+      for (auto &i : AllProv) {
         eventout += "\n       ******************************";
         eventout += "\n       Module       : ";
-        eventout += AllProv[i]->moduleLabel();
+        eventout += i->moduleLabel();
         eventout += "\n       ProductID    : ";
-        eventout += AllProv[i]->productID().id();
+        eventout += i->productID().id();
         eventout += "\n       ClassName    : ";
-        eventout += AllProv[i]->className();
+        eventout += i->className();
         eventout += "\n       InstanceName : ";
-        eventout += AllProv[i]->productInstanceName();
+        eventout += i->productInstanceName();
         eventout += "\n       BranchName   : ";
-        eventout += AllProv[i]->branchName();
+        eventout += i->branchName();
       }
       eventout += "\n       ******************************\n";
       edm::LogInfo(MsgLoggerCat) << eventout << "\n";
@@ -683,15 +683,15 @@ void GlobalHitsProdHist::endRunProduce(edm::Run &iRun, const edm::EventSetup &iS
 
   // store persistent objects
   std::map<std::string, TH1F *>::iterator iter;
-  for (std::size_t i = 0; i < histName_.size(); ++i) {
-    iter = histMap_.find(histName_[i]);
+  for (const auto &i : histName_) {
+    iter = histMap_.find(i);
     if (iter != histMap_.end()) {
       std::unique_ptr<TH1F> hist1D(iter->second);
-      eventout += "\n Storing histogram " + histName_[i];
-      iRun.put(std::move(hist1D), histName_[i]);
+      eventout += "\n Storing histogram " + i;
+      iRun.put(std::move(hist1D), i);
     } else {
       warning = true;
-      eventoutw += "\n Unable to find histogram with name " + histName_[i];
+      eventoutw += "\n Unable to find histogram with name " + i;
     }
   }
 
@@ -720,8 +720,8 @@ void GlobalHitsProdHist::fillG4MC(edm::Event &iEvent) {
 
   // loop through products and extract VtxSmearing if available. Any of them
   // should have the information needed
-  for (unsigned int i = 0; i < AllHepMCEvt.size(); ++i) {
-    HepMCEvt = AllHepMCEvt[i];
+  for (const auto &i : AllHepMCEvt) {
+    HepMCEvt = i;
     if ((HepMCEvt.provenance()->branchDescription()).moduleLabel() == "generatorSmeared")
       break;
   }

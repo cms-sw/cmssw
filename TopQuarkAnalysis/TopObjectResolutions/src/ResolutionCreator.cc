@@ -119,9 +119,8 @@ void ResolutionCreator::analyze(const edm::Event &iEvent, const edm::EventSetup 
         electrons;  //to calculate the ResolutionCreator for the electrons, i used the TopElectron instead of the AOD information
     iEvent.getByToken(electronsToken_, electrons);
     for (size_t e = 0; e < electrons->size(); e++) {
-      for (size_t p = 0; p < genEvt->particles().size(); p++) {
-        if ((std::abs(genEvt->particles()[p].pdgId()) == 11) &&
-            (ROOT::Math::VectorUtil::DeltaR(genEvt->particles()[p].p4(), (*electrons)[e].p4()) < minDR_)) {
+      for (const auto &p : genEvt->particles()) {
+        if ((std::abs(p.pdgId()) == 11) && (ROOT::Math::VectorUtil::DeltaR(p.p4(), (*electrons)[e].p4()) < minDR_)) {
           //p4gen.push_back(new reco::Particle(genEvt->particles()[p]));
           //p4rec.push_back(new reco::Particle((pat::Electron)((*electrons)[e])));
         }
@@ -131,9 +130,8 @@ void ResolutionCreator::analyze(const edm::Event &iEvent, const edm::EventSetup 
     edm::Handle<std::vector<pat::Muon> > muons;
     iEvent.getByToken(muonsToken_, muons);
     for (size_t m = 0; m < muons->size(); m++) {
-      for (size_t p = 0; p < genEvt->particles().size(); p++) {
-        if ((std::abs(genEvt->particles()[p].pdgId()) == 13) &&
-            (ROOT::Math::VectorUtil::DeltaR(genEvt->particles()[p].p4(), (*muons)[m].p4()) < minDR_)) {
+      for (const auto &p : genEvt->particles()) {
+        if ((std::abs(p.pdgId()) == 13) && (ROOT::Math::VectorUtil::DeltaR(p.p4(), (*muons)[m].p4()) < minDR_)) {
           //p4gen.push_back(new reco::Particle(genEvt->particles()[p]));
           //p4rec.push_back(new reco::Particle((pat::Muon)((*muons)[m])));
         }
@@ -144,9 +142,8 @@ void ResolutionCreator::analyze(const edm::Event &iEvent, const edm::EventSetup 
     iEvent.getByToken(jetsToken_, jets);
     if (jets->size() >= 4) {
       for (unsigned int j = 0; j < 4; j++) {
-        for (size_t p = 0; p < genEvt->particles().size(); p++) {
-          if ((std::abs(genEvt->particles()[p].pdgId()) < 5) &&
-              (ROOT::Math::VectorUtil::DeltaR(genEvt->particles()[p].p4(), (*jets)[j].p4()) < minDR_)) {
+        for (const auto &p : genEvt->particles()) {
+          if ((std::abs(p.pdgId()) < 5) && (ROOT::Math::VectorUtil::DeltaR(p.p4(), (*jets)[j].p4()) < minDR_)) {
             //p4gen.push_back(new reco::Particle(genEvt->particles()[p]));
             //p4rec.push_back(new reco::Particle((pat::Jet)(*jets)[j]));
           }
@@ -158,9 +155,8 @@ void ResolutionCreator::analyze(const edm::Event &iEvent, const edm::EventSetup 
     iEvent.getByToken(jetsToken_, jets);
     if (jets->size() >= 4) {
       for (unsigned int j = 0; j < 4; j++) {
-        for (size_t p = 0; p < genEvt->particles().size(); p++) {
-          if ((std::abs(genEvt->particles()[p].pdgId()) == 5) &&
-              (ROOT::Math::VectorUtil::DeltaR(genEvt->particles()[p].p4(), (*jets)[j].p4()) < minDR_)) {
+        for (const auto &p : genEvt->particles()) {
+          if ((std::abs(p.pdgId()) == 5) && (ROOT::Math::VectorUtil::DeltaR(p.p4(), (*jets)[j].p4()) < minDR_)) {
             //p4gen.push_back(new reco::Particle(genEvt->particles()[p]));
             //p4rec.push_back(new reco::Particle((pat::Jet)(*jets)[j]));
           }
@@ -180,13 +176,13 @@ void ResolutionCreator::analyze(const edm::Event &iEvent, const edm::EventSetup 
   } else if (objectType_ == "tau") {
     edm::Handle<std::vector<pat::Tau> > taus;
     iEvent.getByToken(tausToken_, taus);
-    for (std::vector<pat::Tau>::const_iterator tau = taus->begin(); tau != taus->end(); ++tau) {
+    for (const auto &tau : *taus) {
       // find the tau (if any) that matches a MC tau from W
-      reco::GenParticle genLepton = *(tau->genLepton());
+      reco::GenParticle genLepton = *(tau.genLepton());
       if (std::abs(genLepton.pdgId()) == 15 && genLepton.status() == 2 && genLepton.numberOfMothers() > 0 &&
           std::abs(genLepton.mother(0)->pdgId()) == 15 && genLepton.mother(0)->numberOfMothers() > 0 &&
           std::abs(genLepton.mother(0)->mother(0)->pdgId()) == 24 &&
-          ROOT::Math::VectorUtil::DeltaR(genLepton.p4(), tau->p4()) < minDR_) {
+          ROOT::Math::VectorUtil::DeltaR(genLepton.p4(), tau.p4()) < minDR_) {
       }
       //p4gen.push_back(new reco::Particle(genLepton));
       //p4rec.push_back(new reco::Particle(*tau));

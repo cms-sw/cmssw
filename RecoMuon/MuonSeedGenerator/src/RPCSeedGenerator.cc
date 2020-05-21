@@ -242,14 +242,10 @@ void RPCSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   Overlapper.run();
 
   // Save seeds to event
-  for (vector<weightedTrajectorySeed>::iterator weightedseed = goodweightedSeeds.begin();
-       weightedseed != goodweightedSeeds.end();
-       ++weightedseed)
-    goodCollection->push_back((*weightedseed).first);
-  for (vector<weightedTrajectorySeed>::iterator weightedseed = candidateweightedSeeds.begin();
-       weightedseed != candidateweightedSeeds.end();
-       ++weightedseed)
-    candidateCollection->push_back((*weightedseed).first);
+  for (auto& goodweightedSeed : goodweightedSeeds)
+    goodCollection->push_back(goodweightedSeed.first);
+  for (auto& candidateweightedSeed : candidateweightedSeeds)
+    candidateCollection->push_back(candidateweightedSeed.first);
 
   // Put the seed to event
   iEvent.put(std::move(goodCollection), "goodSeeds");

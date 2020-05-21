@@ -72,12 +72,12 @@ void PhiSymmetryCalibration_step2_SM::setUp(const edm::EventSetup& se) {
     if (ret)
       edm::LogError("PhiSym") << "Error reading XML files" << endl;
   } else {
-    for (vector<DetId>::iterator it = barrelCells.begin(); it != barrelCells.end(); ++it) {
-      miscalib_[*it] = 1;
+    for (auto& barrelCell : barrelCells) {
+      miscalib_[barrelCell] = 1;
     }
 
-    for (vector<DetId>::iterator it = endcapCells.begin(); it != endcapCells.end(); ++it) {
-      miscalib_[*it] = 1;
+    for (auto& endcapCell : endcapCells) {
+      miscalib_[endcapCell] = 1;
     }
   }
 
@@ -97,11 +97,11 @@ void PhiSymmetryCalibration_step2_SM::setUp(const edm::EventSetup& se) {
     ;
 
   } else {
-    for (vector<DetId>::iterator it = barrelCells.begin(); it != barrelCells.end(); ++it)
-      oldCalibs_[*it] = 1;
+    for (auto& barrelCell : barrelCells)
+      oldCalibs_[barrelCell] = 1;
 
-    for (vector<DetId>::iterator it = endcapCells.begin(); it != endcapCells.end(); ++it)
-      oldCalibs_[*it] = 1;
+    for (auto& endcapCell : endcapCells)
+      oldCalibs_[endcapCell] = 1;
 
   }  // else
 }
@@ -809,13 +809,13 @@ void PhiSymmetryCalibration_step2_SM::readEtSums() {
   }
 
   std::ifstream k_barl_in("k_barl.dat", ios::in);
-  for (int ieta = 0; ieta < kBarlRings; ieta++) {
-    k_barl_in >> dummy >> k_barl_[ieta];
+  for (double& ieta : k_barl_) {
+    k_barl_in >> dummy >> ieta;
   }
 
   std::ifstream k_endc_in("k_endc.dat", ios::in);
-  for (int ring = 0; ring < kEndcEtaRings; ring++) {
-    k_endc_in >> dummy >> k_endc_[ring];
+  for (double& ring : k_endc_) {
+    k_endc_in >> dummy >> ring;
   }
 }
 

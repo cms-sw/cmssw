@@ -82,9 +82,9 @@ UCTRegion::UCTRegion(uint32_t crt, uint32_t crd, bool ne, uint32_t rgn, int fwv)
 }
 
 UCTRegion::~UCTRegion() {
-  for (uint32_t i = 0; i < towers.size(); i++) {
-    if (towers[i] != nullptr)
-      delete towers[i];
+  for (auto& tower : towers) {
+    if (tower != nullptr)
+      delete tower;
   }
 }
 
@@ -106,14 +106,14 @@ bool UCTRegion::process() {
   // Process towers and calculate total ET for the region
   uint32_t regionET = 0;
   uint32_t regionEcalET = 0;
-  for (uint32_t twr = 0; twr < towers.size(); twr++) {
-    if (!towers[twr]->process()) {
+  for (auto& tower : towers) {
+    if (!tower->process()) {
       LOG_ERROR << "Tower level processing failed. Bailing out :(" << std::endl;
       return false;
     }
-    regionET += towers[twr]->et();
+    regionET += tower->et();
     // Calculate regionEcalET
-    regionEcalET += towers[twr]->getEcalET();
+    regionEcalET += tower->getEcalET();
   }
   if (regionET > RegionETMask) {
     // Region ET can easily saturate, suppress error spam
@@ -217,8 +217,8 @@ bool UCTRegion::process() {
 
 bool UCTRegion::clearEvent() {
   regionSummary = 0;
-  for (uint32_t i = 0; i < towers.size(); i++) {
-    if (!towers[i]->clearEvent())
+  for (auto& tower : towers) {
+    if (!tower->clearEvent())
       return false;
   }
   return true;

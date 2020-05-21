@@ -26,8 +26,8 @@ GctDigiToPsbText::GctDigiToPsbText(const edm::ParameterSet &iConfig)
 
 GctDigiToPsbText::~GctDigiToPsbText() {
   /// close  files
-  for (unsigned i = 0; i < 4; i++)
-    m_file[i].close();
+  for (auto &i : m_file)
+    i.close();
 }
 
 void GctDigiToPsbText::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
@@ -41,9 +41,9 @@ void GctDigiToPsbText::analyze(const edm::Event &iEvent, const edm::EventSetup &
 
   /// buffer
   uint16_t data[4][2] = {{0}};
-  for (int i = 0; i < 4; i++)
+  for (auto &i : data)
     for (int j = 0; j < 2; j++)
-      data[i][j] = 0;
+      i[j] = 0;
 
   std::stringstream sstrm;
   if (m_hexUpperCase)
@@ -78,6 +78,6 @@ void GctDigiToPsbText::analyze(const edm::Event &iEvent, const edm::EventSetup &
   }
 
   /// flush data to files
-  for (unsigned i = 0; i < 4; i++)
-    m_file[i] << std::flush;
+  for (auto &i : m_file)
+    i << std::flush;
 }

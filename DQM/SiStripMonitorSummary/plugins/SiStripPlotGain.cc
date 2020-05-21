@@ -52,8 +52,8 @@ void SiStripPlotGain::DoAnalysis(const edm::EventSetup &es, const SiStripApvGain
     for (; apv < apvE; apv += 2) {
       value = gain.getApvGain(apv, range);
       tkmap->fill(*iter, value);
-      for (size_t i = 0; i < histos.size(); ++i)
-        histos[i]->Fill(value);
+      for (auto &histo : histos)
+        histo->Fill(value);
     }
   }
 }
@@ -99,9 +99,9 @@ TH1F *SiStripPlotGain::getHisto(const long unsigned int &index) {
 }
 
 void SiStripPlotGain::endJob() {
-  for (size_t i = 0; i < vTH1.size(); i++)
-    if (vTH1[i] != nullptr)
-      vTH1[i]->Write();
+  for (auto &i : vTH1)
+    if (i != nullptr)
+      i->Write();
 
   file->Write();
   file->Close();

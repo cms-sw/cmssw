@@ -51,8 +51,8 @@ GhostTrack GhostTrackFitter::fit(const GhostTrackPrediction &prior,
   double offset = prior.lambda(origin);
 
   std::vector<GhostTrackState> states;
-  for (std::vector<TransientTrack>::const_iterator iter = tracks.begin(); iter != tracks.end(); ++iter) {
-    GhostTrackState state(*iter);
+  for (const auto &track : tracks) {
+    GhostTrackState state(track);
     state.linearize(prior, true, offset);
     states.push_back(state);
   }
@@ -63,8 +63,8 @@ GhostTrack GhostTrackFitter::fit(const GhostTrackPrediction &prior,
 
 GhostTrack GhostTrackFitter::fit(const GhostTrackPrediction &prior, const std::vector<TransientTrack> &tracks) const {
   std::vector<GhostTrackState> states;
-  for (std::vector<TransientTrack>::const_iterator iter = tracks.begin(); iter != tracks.end(); ++iter) {
-    GhostTrackState state(*iter);
+  for (const auto &track : tracks) {
+    GhostTrackState state(track);
     state.linearize(prior, true);
     states.push_back(state);
   }

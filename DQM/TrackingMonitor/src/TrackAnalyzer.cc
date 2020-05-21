@@ -2361,12 +2361,10 @@ void TrackAnalyzer::fillHistosForTrackerSpecific(const reco::Track& track) {
   double eta = track.eta();
   double pt = track.pt();
 
-  for (std::map<std::string, TkRecHitsPerSubDetMEs>::iterator it = TkRecHitsPerSubDetMEMap.begin();
-       it != TkRecHitsPerSubDetMEMap.end();
-       it++) {
+  for (auto& it : TkRecHitsPerSubDetMEMap) {
     int nValidLayers = 0;
     int nValidRecHits = 0;
-    int substr = it->second.detectorId;
+    int substr = it.second.detectorId;
     switch (substr) {
       case 0:
         nValidLayers = track.hitPattern().pixelBarrelLayersWithMeasurement() +
@@ -2412,14 +2410,14 @@ void TrackAnalyzer::fillHistosForTrackerSpecific(const reco::Track& track) {
     }
 
     //Fill Layers and RecHits
-    it->second.NumberOfRecHitsPerTrack->Fill(nValidRecHits);
-    it->second.NumberOfRecHitsPerTrackVsPhi->Fill(phi, nValidRecHits);
-    it->second.NumberOfRecHitsPerTrackVsEta->Fill(eta, nValidRecHits);
-    it->second.NumberOfRecHitsPerTrackVsPt->Fill(pt, nValidRecHits);
+    it.second.NumberOfRecHitsPerTrack->Fill(nValidRecHits);
+    it.second.NumberOfRecHitsPerTrackVsPhi->Fill(phi, nValidRecHits);
+    it.second.NumberOfRecHitsPerTrackVsEta->Fill(eta, nValidRecHits);
+    it.second.NumberOfRecHitsPerTrackVsPt->Fill(pt, nValidRecHits);
 
-    it->second.NumberOfLayersPerTrack->Fill(nValidLayers);
-    it->second.NumberOfLayersPerTrackVsPhi->Fill(phi, nValidLayers);
-    it->second.NumberOfLayersPerTrackVsEta->Fill(eta, nValidLayers);
-    it->second.NumberOfLayersPerTrackVsPt->Fill(pt, nValidLayers);
+    it.second.NumberOfLayersPerTrack->Fill(nValidLayers);
+    it.second.NumberOfLayersPerTrackVsPhi->Fill(phi, nValidLayers);
+    it.second.NumberOfLayersPerTrackVsEta->Fill(eta, nValidLayers);
+    it.second.NumberOfLayersPerTrackVsPt->Fill(pt, nValidLayers);
   }
 }

@@ -89,8 +89,8 @@ bool LHEGenericFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Even
     if (EvtHandle->hepeup().ISTUP[i] != 1) {  // keep only outgoing particles
       continue;
     }
-    for (unsigned int j = 0; j < particleID_.size(); ++j) {
-      if (particleID_[j] == 0 || abs(particleID_[j]) == abs(EvtHandle->hepeup().IDUP[i])) {
+    for (int j : particleID_) {
+      if (j == 0 || abs(j) == abs(EvtHandle->hepeup().IDUP[i])) {
         nFound++;
         break;  // only match a given particle once!
       }

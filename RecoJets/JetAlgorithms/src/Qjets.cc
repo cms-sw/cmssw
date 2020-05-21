@@ -38,11 +38,11 @@ JetDistance Qjets::GetNextDistance() {
   }
 
   double rand(Rand()), tot_weight(0.);
-  for (vector<pair<JetDistance, double> >::iterator it = popped_distances.begin(); it != popped_distances.end(); it++) {
-    tot_weight += (*it).second / norm;
+  for (auto& popped_distance : popped_distances) {
+    tot_weight += popped_distance.second / norm;
     if (tot_weight >= rand) {
-      ret = (*it).first;
-      omega *= ((*it).second);
+      ret = popped_distance.first;
+      omega *= (popped_distance.second);
       break;
     }
   }
@@ -112,8 +112,8 @@ void Qjets::Cluster(fastjet::ClusterSequence& cs) {
 void Qjets::computeDCut(fastjet::ClusterSequence& cs) {
   // assume all jets in cs form a single jet.  compute mass and pt
   fastjet::PseudoJet sum(0., 0., 0., 0.);
-  for (vector<fastjet::PseudoJet>::const_iterator it = cs.jets().begin(); it != cs.jets().end(); it++)
-    sum += (*it);
+  for (const auto& it : cs.jets())
+    sum += it;
   _dcut = 2. * _dcut_fctr * sum.m() / sum.perp();
 }
 

@@ -184,11 +184,10 @@ void DTEfficiencyTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     double counter = 0;
     if (theEfficiencyQReport) {
       vector<dqm::me_util::Channel> badChannels = theEfficiencyQReport->getBadChannels();
-      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); channel != badChannels.end();
-           channel++) {
+      for (auto& badChannel : badChannels) {
         edm::LogError("efficiency") << "LayerID : " << getMEName("hEffOccupancy", (*hEff).first)
-                                    << " Bad efficiency channels: " << (*channel).getBin()
-                                    << "  Contents : " << (*channel).getContents();
+                                    << " Bad efficiency channels: " << badChannel.getBin()
+                                    << "  Contents : " << badChannel.getContents();
         counter++;
       }
       LayerBadCells[(*hEff).first].push_back(counter);
@@ -209,10 +208,9 @@ void DTEfficiencyTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     double counter = 0;
     if (theUnassEfficiencyQReport) {
       vector<dqm::me_util::Channel> badChannels = theUnassEfficiencyQReport->getBadChannels();
-      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); channel != badChannels.end();
-           channel++) {
-        edm::LogError("efficiency") << "Bad unassEfficiency channels: " << (*channel).getBin() << " "
-                                    << (*channel).getContents();
+      for (auto& badChannel : badChannels) {
+        edm::LogError("efficiency") << "Bad unassEfficiency channels: " << badChannel.getBin() << " "
+                                    << badChannel.getContents();
         counter++;
       }
       LayerUnassBadCells[(*hUnassEff).first].push_back(counter);

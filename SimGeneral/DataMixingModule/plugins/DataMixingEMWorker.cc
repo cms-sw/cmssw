@@ -77,11 +77,11 @@ namespace edm {
 
     if (EBRecHits) {
       // loop over rechits, storing them in a map so we can add pileup later
-      for (EBRecHitCollection::const_iterator it = EBRecHits->begin(); it != EBRecHits->end(); ++it) {
-        EBRecHitStorage_.insert(EBRecHitMap::value_type((it->id()), *it));
+      for (const auto &EBRecHit : *EBRecHits) {
+        EBRecHitStorage_.insert(EBRecHitMap::value_type((EBRecHit.id()), EBRecHit));
 
-        LogDebug("DataMixingEMWorker") << "processed EBRecHit with rawId: " << it->id().rawId() << "\n"
-                                       << " rechit energy: " << it->energy();
+        LogDebug("DataMixingEMWorker") << "processed EBRecHit with rawId: " << EBRecHit.id().rawId() << "\n"
+                                       << " rechit energy: " << EBRecHit.energy();
       }
     }
 
@@ -98,8 +98,8 @@ namespace edm {
 
     if (EERecHits) {
       // loop over rechits, storing them in a map so we can add pileup later
-      for (EERecHitCollection::const_iterator it = EERecHits->begin(); it != EERecHits->end(); ++it) {
-        EERecHitStorage_.insert(EERecHitMap::value_type((it->id()), *it));
+      for (const auto &EERecHit : *EERecHits) {
+        EERecHitStorage_.insert(EERecHitMap::value_type((EERecHit.id()), EERecHit));
 #ifdef DEBUG
         LogDebug("DataMixingEMWorker") << "processed EERecHit with rawId: " << it->id().rawId() << "\n"
                                        << " rechit energy: " << it->energy();
@@ -121,8 +121,8 @@ namespace edm {
 
     if (ESRecHits) {
       // loop over rechits, storing them in a map so we can add pileup later
-      for (ESRecHitCollection::const_iterator it = ESRecHits->begin(); it != ESRecHits->end(); ++it) {
-        ESRecHitStorage_.insert(ESRecHitMap::value_type((it->id()), *it));
+      for (const auto &ESRecHit : *ESRecHits) {
+        ESRecHitStorage_.insert(ESRecHitMap::value_type((ESRecHit.id()), ESRecHit));
 
 #ifdef DEBUG
         LogDebug("DataMixingEMWorker") << "processed ESRecHit with rawId: " << it->id().rawId() << "\n"
@@ -154,8 +154,8 @@ namespace edm {
       LogDebug("DataMixingEMWorker") << "total # EB rechits: " << EBRecHits->size();
 
       // loop over digis, adding these to the existing maps
-      for (EBRecHitCollection::const_iterator it = EBRecHits->begin(); it != EBRecHits->end(); ++it) {
-        EBRecHitStorage_.insert(EBRecHitMap::value_type((it->id()), *it));
+      for (const auto &EBRecHit : *EBRecHits) {
+        EBRecHitStorage_.insert(EBRecHitMap::value_type((EBRecHit.id()), EBRecHit));
 
 #ifdef DEBUG
         LogDebug("DataMixingEMWorker") << "processed EBRecHit with rawId: " << it->id().rawId() << "\n"
@@ -175,8 +175,8 @@ namespace edm {
       LogDebug("DataMixingEMWorker") << "total # EE rechits: " << EERecHits->size();
 
       // loop over digis, adding these to the existing maps
-      for (EERecHitCollection::const_iterator it = EERecHits->begin(); it != EERecHits->end(); ++it) {
-        EERecHitStorage_.insert(EERecHitMap::value_type((it->id()), *it));
+      for (const auto &EERecHit : *EERecHits) {
+        EERecHitStorage_.insert(EERecHitMap::value_type((EERecHit.id()), EERecHit));
 
 #ifdef DEBUG
         LogDebug("DataMixingEMWorker") << "processed EERecHit with rawId: " << it->id().rawId() << "\n"
@@ -196,8 +196,8 @@ namespace edm {
       LogDebug("DataMixingEMWorker") << "total # ES rechits: " << ESRecHits->size();
 
       // loop over digis, adding these to the existing maps
-      for (ESRecHitCollection::const_iterator it = ESRecHits->begin(); it != ESRecHits->end(); ++it) {
-        ESRecHitStorage_.insert(ESRecHitMap::value_type((it->id()), *it));
+      for (const auto &ESRecHit : *ESRecHits) {
+        ESRecHitStorage_.insert(ESRecHitMap::value_type((ESRecHit.id()), ESRecHit));
 
 #ifdef DEBUG
         LogDebug("DataMixingEMWorker") << "processed ESRecHit with rawId: " << it->id().rawId() << "\n"

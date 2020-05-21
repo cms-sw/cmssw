@@ -210,8 +210,8 @@ void PFTau3ProngReco::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             KinematicParticleFactoryFromTransientTrack kinFactory;
             float piMassSigma(1.e-6), piChi(0.0), piNdf(0.0);
             std::vector<RefCountedKinematicParticle> pions;
-            for (unsigned int i = 0; i < transTrkVect.size(); i++)
-              pions.push_back(kinFactory.particle(transTrkVect[i], pdgInfo.pi_mass(), piChi, piNdf, sv, piMassSigma));
+            for (const auto& i : transTrkVect)
+              pions.push_back(kinFactory.particle(i, pdgInfo.pi_mass(), piChi, piNdf, sv, piMassSigma));
             RefCountedKinematicTree jpTree = kpvFitter_.fit(pions);
             jpTree->movePointerToTheTop();
             const KinematicParameters parameters = jpTree->currentParticle()->currentState().kinematicParameters();
@@ -220,9 +220,9 @@ void PFTau3ProngReco::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             double c(0);
             std::vector<reco::Track> Tracks;
             std::vector<LorentzVectorParticle> ReFitPions;
-            for (unsigned int i = 0; i < transTrkVect.size(); i++) {
-              c += transTrkVect[i].charge();
-              ReFitPions.push_back(ParticleBuilder::createLorentzVectorParticle(transTrkVect[i], *secVtx, true, true));
+            for (auto& i : transTrkVect) {
+              c += i.charge();
+              ReFitPions.push_back(ParticleBuilder::createLorentzVectorParticle(i, *secVtx, true, true));
             }
             // now covert a1 into LorentzVectorParticle
             TVectorT<double> a1_par(LorentzVectorParticle::NLorentzandVertexPar);
@@ -243,9 +243,8 @@ void PFTau3ProngReco::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             GlobalPoint pvpoint(
                 primaryVertex->position().x(), primaryVertex->position().y(), primaryVertex->position().z());
             const std::vector<edm::Ptr<reco::Candidate>> cands = tau->signalChargedHadrCands();
-            for (std::vector<edm::Ptr<reco::Candidate>>::const_iterator iter = cands.begin(); iter != cands.end();
-                 ++iter) {
-              const reco::Track* track = getTrack(**iter);
+            for (const auto& cand : cands) {
+              const reco::Track* track = getTrack(*cand);
               if (track != nullptr) {
                 reco::TransientTrack transTrk = transTrackBuilder->build(*track);
                 pions.push_back(ParticleBuilder::createTrackParticle(transTrk, pvpoint, true, true));
@@ -255,8 +254,8 @@ void PFTau3ProngReco::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             Chi2VertexFitter chi2v(pions, pv);
             SecondaryVtxOK = chi2v.fit();
             double c(0);
-            for (unsigned int i = 0; i < pions.size(); i++) {
-              c += pions[i].charge();
+            for (auto& pion : pions) {
+              c += pion.charge();
             }
             int pdgid = abs(PdtPdgMini::a_1_plus) * c;
             a1 = chi2v.getMother(pdgid);
@@ -282,10 +281,10 @@ void PFTau3ProngReco::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
               std::vector<LorentzVectorParticle> daughter = TauA1NU.getRefitDaughters();
               std::vector<TLorentzVector> daughter_p4;
               std::vector<int> daughter_charge, daughter_PDGID;
-              for (unsigned int d = 0; d < daughter.size(); d++) {
-                daughter_p4.push_back(daughter[d].p4());
-                daughter_charge.push_back((int)daughter[d].charge());
-                daughter_PDGID.push_back(daughter[d].pdgId());
+              for (auto& d : daughter) {
+                daughter_p4.push_back(d.p4());
+                daughter_charge.push_back((int)d.charge());
+                daughter_PDGID.push_back(d.pdgId());
               }
               PFTau3PS.AddSolution(i, theTau.p4(), daughter_p4, daughter_charge, daughter_PDGID, (isFitOK), 0.0, -999);
             }

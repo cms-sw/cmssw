@@ -97,22 +97,21 @@ void DTRunConditionVar::analyze(const Event& event, const EventSetup& eventSetup
   event.getByToken(dt4DSegmentsToken_, all4DSegments);
 
   // Loop over the segments
-  for (DTRecSegment4DCollection::const_iterator segment = all4DSegments->begin(); segment != all4DSegments->end();
-       ++segment) {
+  for (const auto& segment : *all4DSegments) {
     // Get the chamber from the setup
-    DTChamberId DTid = (DTChamberId)segment->chamberId();
+    DTChamberId DTid = (DTChamberId)segment.chamberId();
     uint32_t indexCh = DTid.rawId();
 
     // Fill v-drift values
-    if ((*segment).hasPhi()) {
-      int nHitsPhi = (*segment).phiSegment()->degreesOfFreedom() + 2;
-      double xdir = (*segment).phiSegment()->localDirection().x();
-      double zdir = (*segment).phiSegment()->localDirection().z();
+    if (segment.hasPhi()) {
+      int nHitsPhi = segment.phiSegment()->degreesOfFreedom() + 2;
+      double xdir = segment.phiSegment()->localDirection().x();
+      double zdir = segment.phiSegment()->localDirection().z();
 
       double anglePhiSegm = fabs(atan(xdir / zdir)) * 180. / TMath::Pi();
 
       if (nHitsPhi >= nMinHitsPhi && anglePhiSegm <= maxAnglePhiSegm) {
-        double segmentVDrift = segment->phiSegment()->vDrift();
+        double segmentVDrift = segment.phiSegment()->vDrift();
 
         DTSuperLayerId indexSLPhi1(DTid, 1);
         DTSuperLayerId indexSLPhi2(DTid, 3);
@@ -131,9 +130,9 @@ void DTRunConditionVar::analyze(const Event& event, const EventSetup& eventSetup
 
         segmentVDrift = vDriftMed * (1. - segmentVDrift);
 
-        double segmentT0 = segment->phiSegment()->t0();
+        double segmentT0 = segment.phiSegment()->t0();
 
-        if (segment->phiSegment()->ist0Valid())
+        if (segment.phiSegment()->ist0Valid())
           (chamberHistos[indexCh])["T0_FromSegm"]->Fill(segmentT0);
         if (segmentVDrift != vDriftMed)
           (chamberHistos[indexCh])["VDrift_FromSegm"]->Fill(segmentVDrift);

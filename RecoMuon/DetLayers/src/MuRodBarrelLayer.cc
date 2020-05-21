@@ -33,8 +33,8 @@ MuRodBarrelLayer::MuRodBarrelLayer(vector<const DetRod*>& rods)
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuRodBarrelLayer";
 
   // Cache chamber pointers (the basic components_)
-  for (vector<const DetRod*>::const_iterator it = rods.begin(); it != rods.end(); it++) {
-    vector<const GeomDet*> tmp2 = (*it)->basicComponents();
+  for (auto rod : rods) {
+    vector<const GeomDet*> tmp2 = rod->basicComponents();
     theBasicComps.insert(theBasicComps.end(), tmp2.begin(), tmp2.end());
   }
 

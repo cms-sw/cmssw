@@ -43,11 +43,11 @@ std::vector<TransientVertex> ConfigurableTrimmedVertexFinder::vertices(const std
   analyseInputTracks(tracks);
 
   std::vector<TransientTrack> filtered;
-  for (std::vector<TransientTrack>::const_iterator it = tracks.begin(); it != tracks.end(); it++) {
-    if (theFilter(*it)) {
-      filtered.push_back(*it);
+  for (const auto& track : tracks) {
+    if (theFilter(track)) {
+      filtered.push_back(track);
     } else {
-      unused.push_back(*it);
+      unused.push_back(track);
     }
   }
 
@@ -89,13 +89,13 @@ std::vector<TransientVertex> ConfigurableTrimmedVertexFinder::vertexCandidates(c
 
     analyseClusterFinder(newVertices, remain);
 
-    for (std::vector<TransientVertex>::const_iterator iv = newVertices.begin(); iv != newVertices.end(); iv++) {
-      if (iv->originalTracks().size() > 1) {
-        cand.push_back(*iv);
+    for (const auto& newVertice : newVertices) {
+      if (newVertice.originalTracks().size() > 1) {
+        cand.push_back(newVertice);
       } else {
         // candidate has too few tracks - get them back into the vector
-        for (std::vector<TransientTrack>::const_iterator trk = iv->originalTracks().begin();
-             trk != iv->originalTracks().end();
+        for (std::vector<TransientTrack>::const_iterator trk = newVertice.originalTracks().begin();
+             trk != newVertice.originalTracks().end();
              ++trk) {
           unused.push_back(*trk);
         }
@@ -109,8 +109,8 @@ std::vector<TransientVertex> ConfigurableTrimmedVertexFinder::vertexCandidates(c
     }
   }
 
-  for (std::vector<TransientTrack>::const_iterator it = remain.begin(); it != remain.end(); it++) {
-    unused.push_back(*it);
+  for (const auto& it : remain) {
+    unused.push_back(it);
   }
 
   return cand;
@@ -119,9 +119,9 @@ std::vector<TransientVertex> ConfigurableTrimmedVertexFinder::vertexCandidates(c
 std::vector<TransientVertex> ConfigurableTrimmedVertexFinder::clean(
     const std::vector<TransientVertex>& candidates) const {
   std::vector<TransientVertex> sel;
-  for (std::vector<TransientVertex>::const_iterator i = candidates.begin(); i != candidates.end(); i++) {
-    if (ChiSquaredProbability((*i).totalChiSquared(), (*i).degreesOfFreedom()) > theVtxFitProbCut) {
-      sel.push_back(*i);
+  for (const auto& candidate : candidates) {
+    if (ChiSquaredProbability(candidate.totalChiSquared(), candidate.degreesOfFreedom()) > theVtxFitProbCut) {
+      sel.push_back(candidate);
     }
   }
 

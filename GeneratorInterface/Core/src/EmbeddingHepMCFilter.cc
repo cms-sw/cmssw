@@ -30,24 +30,22 @@ EmbeddingHepMCFilter::EmbeddingHepMCFilter(const edm::ParameterSet &iConfig)
 
   std::vector<std::string> use_final_states = iConfig.getParameter<std::vector<std::string> >("Final_States");
 
-  for (std::vector<std::string>::const_iterator final_state = use_final_states.begin();
-       final_state != use_final_states.end();
-       ++final_state) {
-    if ((*final_state) == "ElEl")
+  for (const auto &use_final_state : use_final_states) {
+    if (use_final_state == "ElEl")
       fill_cuts(cut_string_elel, ee);
-    else if ((*final_state) == "MuMu")
+    else if (use_final_state == "MuMu")
       fill_cuts(cut_string_mumu, mm);
-    else if ((*final_state) == "HadHad")
+    else if (use_final_state == "HadHad")
       fill_cuts(cut_string_hadhad, hh);
-    else if ((*final_state) == "ElMu")
+    else if (use_final_state == "ElMu")
       fill_cuts(cut_string_elmu, em);
-    else if ((*final_state) == "ElHad")
+    else if (use_final_state == "ElHad")
       fill_cuts(cut_string_elhad, eh);
-    else if ((*final_state) == "MuHad")
+    else if (use_final_state == "MuHad")
       fill_cuts(cut_string_muhad, mh);
     else
       edm::LogWarning("EmbeddingHepMCFilter")
-          << (*final_state)
+          << use_final_state
           << " this decay channel is not supported. Please choose on of (ElEl,MuMu,HadHad,ElMu,ElHad,MuHad)";
   }
 }
@@ -164,17 +162,17 @@ void EmbeddingHepMCFilter::sort_by_convention(std::vector<reco::Candidate::Loren
 }
 
 bool EmbeddingHepMCFilter::apply_cuts(std::vector<reco::Candidate::LorentzVector> &p4VisPair) {
-  for (std::vector<CutsContainer>::const_iterator cut = cuts_.begin(); cut != cuts_.end(); ++cut) {
-    if (DecayChannel_.first == cut->decaychannel.first &&
-        DecayChannel_.second == cut->decaychannel.second) {  // First the match to the decay channel
+  for (const auto &cut : cuts_) {
+    if (DecayChannel_.first == cut.decaychannel.first &&
+        DecayChannel_.second == cut.decaychannel.second) {  // First the match to the decay channel
       edm::LogInfo("EmbeddingHepMCFilter")
-          << "Cut pt1 = " << cut->pt1 << " pt2 = " << cut->pt2 << " abs(eta1) = " << cut->eta1
-          << " abs(eta2) = " << cut->eta2 << " decay channel: " << return_mode(cut->decaychannel.first)
-          << return_mode(cut->decaychannel.second);
+          << "Cut pt1 = " << cut.pt1 << " pt2 = " << cut.pt2 << " abs(eta1) = " << cut.eta1
+          << " abs(eta2) = " << cut.eta2 << " decay channel: " << return_mode(cut.decaychannel.first)
+          << return_mode(cut.decaychannel.second);
 
-      if ((cut->pt1 == -1. || (p4VisPair[0].Pt() > cut->pt1)) && (cut->pt2 == -1. || (p4VisPair[1].Pt() > cut->pt2)) &&
-          (cut->eta1 == -1. || (std::abs(p4VisPair[0].Eta()) < cut->eta1)) &&
-          (cut->eta2 == -1. || (std::abs(p4VisPair[1].Eta()) < cut->eta2))) {
+      if ((cut.pt1 == -1. || (p4VisPair[0].Pt() > cut.pt1)) && (cut.pt2 == -1. || (p4VisPair[1].Pt() > cut.pt2)) &&
+          (cut.eta1 == -1. || (std::abs(p4VisPair[0].Eta()) < cut.eta1)) &&
+          (cut.eta2 == -1. || (std::abs(p4VisPair[1].Eta()) < cut.eta2))) {
         edm::LogInfo("EmbeddingHepMCFilter") << "This cut was passed (Stop here and take the event)";
         return true;
       }
@@ -188,10 +186,10 @@ void EmbeddingHepMCFilter::fill_cuts(std::string cut_string, EmbeddingHepMCFilte
   boost::trim_fill(cut_string, "");
   std::vector<std::string> cut_paths;
   boost::split(cut_paths, cut_string, boost::is_any_of("||"), boost::token_compress_on);
-  for (unsigned int i = 0; i < cut_paths.size(); ++i) {
+  for (const auto &cut_path : cut_paths) {
     // Translating the cuts of a path into a struct which is later accessed to apply them on a event.
     CutsContainer cut;
-    fill_cut(cut_paths[i], dc, cut);
+    fill_cut(cut_path, dc, cut);
     cuts_.push_back(cut);
   }
 }
@@ -205,7 +203,7 @@ void EmbeddingHepMCFilter::fill_cut(std::string cut_string,
   boost::replace_all(cut_string, ")", "");
   std::vector<std::string> single_cuts;
   boost::split(single_cuts, cut_string, boost::is_any_of("&&"), boost::token_compress_on);
-  for (unsigned int i = 0; i < single_cuts.size(); ++i) {
+  for (auto &single_cut : single_cuts) {
     std::string pt1_str, pt2_str, eta1_str, eta2_str;
     if (dc.first == dc.second) {
       pt1_str = return_mode(dc.first) + "1" + ".Pt" + ">";
@@ -219,18 +217,18 @@ void EmbeddingHepMCFilter::fill_cut(std::string cut_string,
       eta2_str = return_mode(dc.second) + ".Eta" + "<";
     }
 
-    if (boost::find_first(single_cuts[i], pt1_str)) {
-      boost::erase_first(single_cuts[i], pt1_str);
-      cut.pt1 = std::stod(single_cuts[i]);
-    } else if (boost::find_first(single_cuts[i], pt2_str)) {
-      boost::erase_first(single_cuts[i], pt2_str);
-      cut.pt2 = std::stod(single_cuts[i]);
-    } else if (boost::find_first(single_cuts[i], eta1_str)) {
-      boost::erase_first(single_cuts[i], eta1_str);
-      cut.eta1 = std::stod(single_cuts[i]);
-    } else if (boost::find_first(single_cuts[i], eta2_str)) {
-      boost::erase_first(single_cuts[i], eta2_str);
-      cut.eta2 = std::stod(single_cuts[i]);
+    if (boost::find_first(single_cut, pt1_str)) {
+      boost::erase_first(single_cut, pt1_str);
+      cut.pt1 = std::stod(single_cut);
+    } else if (boost::find_first(single_cut, pt2_str)) {
+      boost::erase_first(single_cut, pt2_str);
+      cut.pt2 = std::stod(single_cut);
+    } else if (boost::find_first(single_cut, eta1_str)) {
+      boost::erase_first(single_cut, eta1_str);
+      cut.eta1 = std::stod(single_cut);
+    } else if (boost::find_first(single_cut, eta2_str)) {
+      boost::erase_first(single_cut, eta2_str);
+      cut.eta2 = std::stod(single_cut);
     }
   }
 }

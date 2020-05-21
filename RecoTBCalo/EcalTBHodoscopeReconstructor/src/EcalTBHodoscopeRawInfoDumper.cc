@@ -43,11 +43,11 @@ void EcalTBHodoscopeRawInfoDumper::endJob() {
 
   TFile f(rootfile_.c_str(), "RECREATE");
 
-  for (int i = 0; i < 4; i++)
-    h_numberOfFiredHits_[i]->Write();
+  for (auto& h_numberOfFiredHit : h_numberOfFiredHits_)
+    h_numberOfFiredHit->Write();
 
-  for (int i = 0; i < 4; i++)
-    h_firedHits_[i]->Write();
+  for (auto& h_firedHit : h_firedHits_)
+    h_firedHit->Write();
 
   f.Close();
 }

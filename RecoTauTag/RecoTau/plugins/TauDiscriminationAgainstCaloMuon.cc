@@ -73,10 +73,8 @@ namespace {
     reco::TrackRef getLeadTrack(const reco::PFTau& tau) const { return tau.leadPFChargedHadrCand()->trackRef(); }
     double getTrackPtSum(const reco::PFTau& tau) const {
       double trackPtSum = 0.;
-      for (std::vector<CandidatePtr>::const_iterator signalTrack = tau.signalChargedHadrCands().begin();
-           signalTrack != tau.signalChargedHadrCands().end();
-           ++signalTrack) {
-        trackPtSum += (*signalTrack)->pt();
+      for (const auto& signalTrack : tau.signalChargedHadrCands()) {
+        trackPtSum += signalTrack->pt();
       }
       return trackPtSum;
     }
@@ -186,13 +184,12 @@ namespace {
                            double dR,
                            const GlobalPoint& eventVertexPosition) {
     double ecalEnergySum = 0.;
-    for (EcalRecHitCollection::const_iterator ecalRecHit = ecalRecHits.begin(); ecalRecHit != ecalRecHits.end();
-         ++ecalRecHit) {
-      auto cellGeometry = detGeometry->getGeometry(ecalRecHit->detid());
+    for (const auto& ecalRecHit : ecalRecHits) {
+      auto cellGeometry = detGeometry->getGeometry(ecalRecHit.detid());
 
       if (!cellGeometry) {
         edm::LogError("compEcalEnergySum")
-            << " Failed to access ECAL geometry for detId = " << ecalRecHit->detid().rawId() << " --> skipping !!";
+            << " Failed to access ECAL geometry for detId = " << ecalRecHit.detid().rawId() << " --> skipping !!";
         continue;
       }
 
@@ -218,7 +215,7 @@ namespace {
       double dParl = TVector3(cellPosition.x(), cellPosition.y(), cellPosition.z()).Dot(dir.Unit());
 
       if (dPerp < dR && dParl > 100.) {
-        ecalEnergySum += ecalRecHit->energy();
+        ecalEnergySum += ecalRecHit.energy();
       }
     }
 
@@ -231,9 +228,8 @@ namespace {
                            double dR,
                            const GlobalPoint& eventVertexPosition) {
     double hcalEnergySum = 0.;
-    for (HBHERecHitCollection::const_iterator hcalRecHit = hcalRecHits.begin(); hcalRecHit != hcalRecHits.end();
-         ++hcalRecHit) {
-      const GlobalPoint cellPosition = hcGeometry->getPosition(hcalRecHit->detid());
+    for (const auto& hcalRecHit : hcalRecHits) {
+      const GlobalPoint cellPosition = hcGeometry->getPosition(hcalRecHit.detid());
 
       //--- CV: speed up computation by requiring eta-phi distance
       //        between cell position and track direction to be dR < 0.5
@@ -255,7 +251,7 @@ namespace {
       double dParl = TVector3(cellPosition.x(), cellPosition.y(), cellPosition.z()).Dot(dir.Unit());
 
       if (dPerp < dR && dParl > 100.) {
-        hcalEnergySum += hcalRecHit->energy();
+        hcalEnergySum += hcalRecHit.energy();
       }
     }
 

@@ -20,9 +20,9 @@ int HcalSiPMnonlinearity::getPixelsFired(int inpes) const {
   // the first root is always the right one.
   double realpix = 0;
   // find real roots
-  for (int i = 0; i < 3; ++i) {
-    if (z[i].dat[1] == 0) {
-      realpix = z[i].dat[0];
+  for (auto& i : z) {
+    if (i.dat[1] == 0) {
+      realpix = i.dat[0];
       break;
     }
   }

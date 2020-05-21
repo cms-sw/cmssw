@@ -178,8 +178,8 @@ void TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup) {
     evt.getByToken(*h, hypMatchVec);
 
     typedef std::vector<TtEvent::HypoCombPair>::const_iterator HypMatch;
-    for (HypMatch hm = hypMatchVec->begin(); hm != hypMatchVec->end(); ++hm) {
-      ttEvent.addEventHypo((TtEvent::HypoClassKey&)*key, *hm);
+    for (const auto& hm : *hypMatchVec) {
+      ttEvent.addEventHypo((TtEvent::HypoClassKey&)*key, hm);
     }
   }
 

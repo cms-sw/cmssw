@@ -2491,12 +2491,12 @@ void TrackingNtuple::fillPixelHits(const edm::Event& iEvent,
   iEvent.getByToken(pixelRecHitToken_, pixelHits);
   for (auto it = pixelHits->begin(); it != pixelHits->end(); it++) {
     const DetId hitId = it->detId();
-    for (auto hit = it->begin(); hit != it->end(); hit++) {
-      TransientTrackingRecHit::RecHitPointer ttrh = theTTRHBuilder.build(&*hit);
+    for (auto& hit : *it) {
+      TransientTrackingRecHit::RecHitPointer ttrh = theTTRHBuilder.build(&hit);
 
-      hitProductIds.insert(hit->cluster().id());
+      hitProductIds.insert(hit.cluster().id());
 
-      const int key = hit->cluster().key();
+      const int key = hit.cluster().key();
       const int lay = tTopo.layer(hitId);
 
       pix_isBarrel.push_back(hitId.subdetId() == 1);
@@ -2518,7 +2518,7 @@ void TrackingNtuple::fillPixelHits(const edm::Event& iEvent,
       LogTrace("TrackingNtuple") << "pixHit cluster=" << key << " subdId=" << hitId.subdetId() << " lay=" << lay
                                  << " rawId=" << hitId.rawId() << " pos =" << ttrh->globalPosition();
       if (includeTrackingParticles_) {
-        SimHitData simHitData = matchCluster(hit->firstClusterRef(),
+        SimHitData simHitData = matchCluster(hit.firstClusterRef(),
                                              hitId,
                                              key,
                                              ttrh,
@@ -2681,8 +2681,8 @@ void TrackingNtuple::fillStripMatchedHits(const edm::Event& iEvent,
   edm::Handle<SiStripMatchedRecHit2DCollection> matchedHits;
   iEvent.getByToken(stripMatchedRecHitToken_, matchedHits);
   for (auto it = matchedHits->begin(); it != matchedHits->end(); it++) {
-    for (auto hit = it->begin(); hit != it->end(); hit++) {
-      addStripMatchedHit(*hit, theTTRHBuilder, tTopo, monoStereoClusterList);
+    for (auto& hit : *it) {
+      addStripMatchedHit(hit, theTTRHBuilder, tTopo, monoStereoClusterList);
     }
   }
 }
@@ -2700,12 +2700,12 @@ void TrackingNtuple::fillPhase2OTHits(const edm::Event& iEvent,
   iEvent.getByToken(phase2OTRecHitToken_, phase2OTHits);
   for (auto it = phase2OTHits->begin(); it != phase2OTHits->end(); it++) {
     const DetId hitId = it->detId();
-    for (auto hit = it->begin(); hit != it->end(); hit++) {
-      TransientTrackingRecHit::RecHitPointer ttrh = theTTRHBuilder.build(&*hit);
+    for (auto& hit : *it) {
+      TransientTrackingRecHit::RecHitPointer ttrh = theTTRHBuilder.build(&hit);
 
-      hitProductIds.insert(hit->cluster().id());
+      hitProductIds.insert(hit.cluster().id());
 
-      const int key = hit->cluster().key();
+      const int key = hit.cluster().key();
       const int lay = tTopo.layer(hitId);
 
       ph2_isBarrel.push_back(hitId.subdetId() == 1);
@@ -2728,7 +2728,7 @@ void TrackingNtuple::fillPhase2OTHits(const edm::Event& iEvent,
                                  << " rawId=" << hitId.rawId() << " pos =" << ttrh->globalPosition();
 
       if (includeTrackingParticles_) {
-        SimHitData simHitData = matchCluster(hit->firstClusterRef(),
+        SimHitData simHitData = matchCluster(hit.firstClusterRef(),
                                              hitId,
                                              key,
                                              ttrh,

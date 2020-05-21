@@ -111,11 +111,11 @@ void DirectMuonNavigation::inOutBarrel(const FreeTrajectoryState& fts, vector<co
   bool cont = false;
   const vector<const DetLayer*>& barrel = theMuonDetLayerGeometry->allBarrelLayers();
 
-  for (vector<const DetLayer*>::const_iterator iter_B = barrel.begin(); iter_B != barrel.end(); iter_B++) {
+  for (auto iter_B : barrel) {
     if (cont)
-      output.push_back((*iter_B));
-    else if (checkCompatible(fts, dynamic_cast<const BarrelDetLayer*>(*iter_B))) {
-      output.push_back((*iter_B));
+      output.push_back(iter_B);
+    else if (checkCompatible(fts, dynamic_cast<const BarrelDetLayer*>(iter_B))) {
+      output.push_back(iter_B);
       cont = true;
     }
   }
@@ -144,11 +144,11 @@ void DirectMuonNavigation::outInBarrel(const FreeTrajectoryState& fts, vector<co
 void DirectMuonNavigation::inOutForward(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
   const vector<const DetLayer*>& forward = theMuonDetLayerGeometry->allForwardLayers();
   bool cont = false;
-  for (vector<const DetLayer*>::const_iterator iter_E = forward.begin(); iter_E != forward.end(); iter_E++) {
+  for (auto iter_E : forward) {
     if (cont)
-      output.push_back((*iter_E));
-    else if (checkCompatible(fts, dynamic_cast<const ForwardDetLayer*>(*iter_E))) {
-      output.push_back((*iter_E));
+      output.push_back(iter_E);
+    else if (checkCompatible(fts, dynamic_cast<const ForwardDetLayer*>(iter_E))) {
+      output.push_back(iter_E);
       cont = true;
     }
   }
@@ -177,11 +177,11 @@ void DirectMuonNavigation::inOutBackward(const FreeTrajectoryState& fts, vector<
   bool cont = false;
   const vector<const DetLayer*>& backward = theMuonDetLayerGeometry->allBackwardLayers();
 
-  for (vector<const DetLayer*>::const_iterator iter_E = backward.begin(); iter_E != backward.end(); iter_E++) {
+  for (auto iter_E : backward) {
     if (cont)
-      output.push_back((*iter_E));
-    else if (checkCompatible(fts, dynamic_cast<const ForwardDetLayer*>(*iter_E))) {
-      output.push_back((*iter_E));
+      output.push_back(iter_E);
+    else if (checkCompatible(fts, dynamic_cast<const ForwardDetLayer*>(iter_E))) {
+      output.push_back(iter_E);
       cont = true;
     }
   }

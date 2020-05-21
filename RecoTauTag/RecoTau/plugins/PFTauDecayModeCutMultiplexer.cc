@@ -77,27 +77,24 @@ PFTauDecayModeCutMultiplexer::PFTauDecayModeCutMultiplexer(const edm::ParameterS
   computers_.reserve(decayModeMap.size());
 
   // for each decay mode MVA implementation (which may correspond to multiple decay modes, map the decay modes to the correct MVA computer
-  for (std::vector<edm::ParameterSet>::const_iterator iComputer = decayModeMap.begin(); iComputer != decayModeMap.end();
-       ++iComputer) {
+  for (const auto& iComputer : decayModeMap) {
     ComputerAndCut toInsert;
-    toInsert.computerName = iComputer->getParameter<std::string>("computerName");
-    toInsert.userCut = iComputer->getParameter<double>("cut");
+    toInsert.computerName = iComputer.getParameter<std::string>("computerName");
+    toInsert.userCut = iComputer.getParameter<double>("cut");
     CutList::iterator computerJustAdded =
         computers_.insert(computers_.end(), toInsert);  //add this computer to the end of the list
 
     //populate the map
-    std::vector<int> associatedDecayModes = iComputer->getParameter<std::vector<int> >("decayModeIndices");
-    for (std::vector<int>::const_iterator iDecayMode = associatedDecayModes.begin();
-         iDecayMode != associatedDecayModes.end();
-         ++iDecayMode) {
+    std::vector<int> associatedDecayModes = iComputer.getParameter<std::vector<int> >("decayModeIndices");
+    for (int associatedDecayMode : associatedDecayModes) {
       //map this integer specifying the decay mode to the MVA comptuer we just added to the list
       std::pair<DecayModeToCutMap::iterator, bool> insertResult =
-          computerMap_.insert(std::make_pair(*iDecayMode, computerJustAdded));
+          computerMap_.insert(std::make_pair(associatedDecayMode, computerJustAdded));
 
       //make sure we aren't double mapping a decay mode
       if (insertResult.second == false) {  //indicates that the current key (decaymode) has already been entered!
         throw cms::Exception("PFTauDecayModeCutMultiplexer::ctor")
-            << "A tau decay mode: " << *iDecayMode << " has been mapped to two different MVA implementations, "
+            << "A tau decay mode: " << associatedDecayMode << " has been mapped to two different MVA implementations, "
             << insertResult.first->second->computerName << " and " << toInsert.computerName
             << ". Please check the appropriate cfi file." << std::endl;
       }

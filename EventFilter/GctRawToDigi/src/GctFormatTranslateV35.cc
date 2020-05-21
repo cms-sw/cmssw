@@ -819,12 +819,12 @@ void GctFormatTranslateV35::blockToRctEmCand(const unsigned char* d, const GctBl
   for (unsigned int crate = found->second; crate < found->second + length / 3; ++crate) {
     // read SC SFP words
     for (unsigned short iSfp = 0; iSfp < 4; ++iSfp) {
-      for (unsigned short cyc = 0; cyc < 2; ++cyc) {
+      for (auto& cyc : sfp) {
         if (iSfp == 0) {
-          sfp[cyc][iSfp] = 0;
+          cyc[iSfp] = 0;
         }       // muon bits
         else {  // EM candidate
-          sfp[cyc][iSfp] = *p;
+          cyc[iSfp] = *p;
           ++p;
         }
       }

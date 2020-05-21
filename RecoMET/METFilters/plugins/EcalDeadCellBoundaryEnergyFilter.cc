@@ -207,19 +207,17 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::StreamID, edm::Event& iEvent,
       std::vector<int> deadNeighbourStati;
       ebBoundaryCalc.checkRecHitHasDeadNeighbour(*hit, ecalStatus, deadNeighbourStati);
 
-      for (int cs = 0; cs < (int)limitDeadCellToChannelStatusEB_.size(); ++cs) {
-        int channelAllowed = limitDeadCellToChannelStatusEB_[cs];
-
-        for (std::vector<int>::iterator sit = deadNeighbourStati.begin(); sit != deadNeighbourStati.end(); ++sit) {
-          if (channelAllowed == *sit || (channelAllowed < 0 && std::abs(channelAllowed) <= *sit)) {
+      for (int channelAllowed : limitDeadCellToChannelStatusEB_) {
+        for (int& sit : deadNeighbourStati) {
+          if (channelAllowed == sit || (channelAllowed < 0 && std::abs(channelAllowed) <= sit)) {
             passChannelLimitation = true;
             break;
           }
         }
       }
 
-      for (std::vector<DetId>::iterator it = sameFlagDetIds.begin(); it != sameFlagDetIds.end(); it++) {
-        if (currDetId == *it)
+      for (auto& sameFlagDetId : sameFlagDetIds) {
+        if (currDetId == sameFlagDetId)
           detIdAlreadyChecked = true;
       }
 
@@ -233,8 +231,8 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::StreamID, edm::Event& iEvent,
                                                                 geometry);
 
         // get rechits along gap cluster
-        for (std::vector<DetId>::iterator it = gapinfo.detIds.begin(); it != gapinfo.detIds.end(); it++) {
-          sameFlagDetIds.push_back(*it);
+        for (auto& detId : gapinfo.detIds) {
+          sameFlagDetIds.push_back(detId);
         }
 
         if (gapinfo.boundaryEnergy > cutBoundEnergyGapEB) {
@@ -258,8 +256,8 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::StreamID, edm::Event& iEvent,
                                            geometry);
 
         // get boundary of !kDead rechits arround the dead cluster
-        for (std::vector<DetId>::iterator it = boundinfo.detIds.begin(); it != boundinfo.detIds.end(); it++) {
-          sameFlagDetIds.push_back(*it);
+        for (auto& detId : boundinfo.detIds) {
+          sameFlagDetIds.push_back(detId);
         }
 
         if (boundinfo.boundaryEnergy > cutBoundEnergyDeadCellsEB) {
@@ -296,19 +294,17 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::StreamID, edm::Event& iEvent,
       std::vector<int> deadNeighbourStati;
       eeBoundaryCalc.checkRecHitHasDeadNeighbour(*hit, ecalStatus, deadNeighbourStati);
 
-      for (int cs = 0; cs < (int)limitDeadCellToChannelStatusEE_.size(); ++cs) {
-        int channelAllowed = limitDeadCellToChannelStatusEE_[cs];
-
-        for (std::vector<int>::iterator sit = deadNeighbourStati.begin(); sit != deadNeighbourStati.end(); ++sit) {
-          if (channelAllowed == *sit || (channelAllowed < 0 && std::abs(channelAllowed) <= *sit)) {
+      for (int channelAllowed : limitDeadCellToChannelStatusEE_) {
+        for (int& sit : deadNeighbourStati) {
+          if (channelAllowed == sit || (channelAllowed < 0 && std::abs(channelAllowed) <= sit)) {
             passChannelLimitation = true;
             break;
           }
         }
       }
 
-      for (std::vector<DetId>::iterator it = sameFlagDetIds.begin(); it != sameFlagDetIds.end(); it++) {
-        if (currDetId == *it)
+      for (auto& sameFlagDetId : sameFlagDetIds) {
+        if (currDetId == sameFlagDetId)
           detIdAlreadyChecked = true;
       }
 
@@ -326,8 +322,8 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::StreamID, edm::Event& iEvent,
                                                                 geometry);
 
         // get rechits along gap cluster
-        for (std::vector<DetId>::iterator it = gapinfo.detIds.begin(); it != gapinfo.detIds.end(); it++) {
-          sameFlagDetIds.push_back(*it);
+        for (auto& detId : gapinfo.detIds) {
+          sameFlagDetIds.push_back(detId);
         }
 
         if (gapinfo.boundaryEnergy > cutBoundEnergyGapEE) {
@@ -351,8 +347,8 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::StreamID, edm::Event& iEvent,
                                            geometry);
 
         // get boundary of !kDead rechits arround the dead cluster
-        for (std::vector<DetId>::iterator it = boundinfo.detIds.begin(); it != boundinfo.detIds.end(); it++) {
-          sameFlagDetIds.push_back(*it);
+        for (auto& detId : boundinfo.detIds) {
+          sameFlagDetIds.push_back(detId);
         }
 
         if (boundinfo.boundaryEnergy > cutBoundEnergyDeadCellsEE) {

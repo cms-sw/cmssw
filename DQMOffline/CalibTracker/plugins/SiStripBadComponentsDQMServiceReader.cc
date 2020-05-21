@@ -43,12 +43,12 @@ void SiStripBadComponentsDQMServiceReader::analyze(const edm::Event& e, const ed
 
   ss << "subdet  layer   stereo  side \t detId \t\t Errors" << std::endl;
 
-  for (size_t id = 0; id < detid.size(); id++) {
-    SiStripBadStrip::Range range = SiStripBadStrip_->getRange(detid[id]);
+  for (unsigned int id : detid) {
+    SiStripBadStrip::Range range = SiStripBadStrip_->getRange(id);
 
     for (int it = 0; it < range.second - range.first; it++) {
       unsigned int value = (*(range.first + it));
-      ss << detIdToString(detid[id], tTopo) << "\t" << detid[id] << "\t";
+      ss << detIdToString(id, tTopo) << "\t" << id << "\t";
 
       uint32_t flag = boost::lexical_cast<uint32_t>(SiStripBadStrip_->decode(value).flag);
 

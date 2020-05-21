@@ -56,9 +56,8 @@ private:
                           const vInputTag& srcUnclEnergySums,
                           edm::ConsumesCollector& iConsumesCollector)
         : binLabel_(""), binCorrFormula_(nullptr) {
-      for (vInputTag::const_iterator inputTag = srcUnclEnergySums.begin(); inputTag != srcUnclEnergySums.end();
-           ++inputTag) {
-        corrTokens_.push_back(iConsumesCollector.consumes<CorrMETData>(*inputTag));
+      for (const auto& srcUnclEnergySum : srcUnclEnergySums) {
+        corrTokens_.push_back(iConsumesCollector.consumes<CorrMETData>(srcUnclEnergySum));
       }
 
       initialize(binCorrformula, binCorrParameter);
@@ -67,14 +66,12 @@ private:
                           const vInputTag& srcUnclEnergySums,
                           edm::ConsumesCollector& iConsumesCollector)
         : binLabel_(cfg.getParameter<std::string>("binLabel")), binCorrFormula_(nullptr) {
-      for (vInputTag::const_iterator srcUnclEnergySum = srcUnclEnergySums.begin();
-           srcUnclEnergySum != srcUnclEnergySums.end();
-           ++srcUnclEnergySum) {
-        std::string instanceLabel = srcUnclEnergySum->instance();
+      for (const auto& srcUnclEnergySum : srcUnclEnergySums) {
+        std::string instanceLabel = srcUnclEnergySum.instance();
         if (!instanceLabel.empty() && !binLabel_.empty())
           instanceLabel.append("#");
         instanceLabel.append(binLabel_);
-        edm::InputTag inputTag(srcUnclEnergySum->label(), instanceLabel);
+        edm::InputTag inputTag(srcUnclEnergySum.label(), instanceLabel);
         corrTokens_.push_back(iConsumesCollector.consumes<CorrMETData>(inputTag));
       }
 

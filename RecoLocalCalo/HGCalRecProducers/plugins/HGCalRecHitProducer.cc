@@ -99,18 +99,18 @@ void HGCalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   worker_->set(es);
 
   // loop over uncalibrated rechits to make calibrated ones
-  for (auto it = eeUncalibRecHits->begin(); it != eeUncalibRecHits->end(); ++it) {
-    worker_->run(evt, *it, *eeRecHits);
+  for (const auto& eeUncalibRecHit : *eeUncalibRecHits) {
+    worker_->run(evt, eeUncalibRecHit, *eeRecHits);
   }
 
   // loop over uncalibrated rechits to make calibrated ones
-  for (auto it = hefUncalibRecHits->begin(); it != hefUncalibRecHits->end(); ++it) {
-    worker_->run(evt, *it, *hefRecHits);
+  for (const auto& hefUncalibRecHit : *hefUncalibRecHits) {
+    worker_->run(evt, hefUncalibRecHit, *hefRecHits);
   }
 
   // loop over uncalibrated rechits to make calibrated ones
-  for (auto it = hebUncalibRecHits->begin(); it != hebUncalibRecHits->end(); ++it) {
-    worker_->run(evt, *it, *hebRecHits);
+  for (const auto& hebUncalibRecHit : *hebUncalibRecHits) {
+    worker_->run(evt, hebUncalibRecHit, *hebRecHits);
   }
 
   // sort collections before attempting recovery, to avoid insertion of double recHits
@@ -130,8 +130,8 @@ void HGCalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   // do the same for HFNose hits
   if (pHGChfnoseUncalibRecHits.isValid()) {
     auto hfnoseRecHits = std::make_unique<HGChfnoseRecHitCollection>();
-    for (auto it = hfnoseUncalibRecHits->begin(); it != hfnoseUncalibRecHits->end(); ++it) {
-      worker_->run(evt, *it, *hfnoseRecHits);
+    for (const auto& hfnoseUncalibRecHit : *hfnoseUncalibRecHits) {
+      worker_->run(evt, hfnoseUncalibRecHit, *hfnoseRecHits);
     }
     hfnoseRecHits->sort();
     LogInfo("HGCalRecHitInfo") << "total # HGChfnose calibrated rechits: " << hfnoseRecHits->size();

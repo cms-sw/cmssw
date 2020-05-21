@@ -130,15 +130,15 @@ std::vector<RefCountedKinematicTree> LagrangeParentParticleFitter::fit(
   AlgebraicVector chi_in(nStates, 0);
   AlgebraicVector ndf_in(nStates, 0);
   int l_c = 0;
-  for (std::vector<RefCountedKinematicParticle>::const_iterator i = prt.begin(); i != prt.end(); i++) {
-    AlgebraicVector7 lp = (*i)->currentState().kinematicParameters().vector();
+  for (const auto& i : prt) {
+    AlgebraicVector7 lp = i->currentState().kinematicParameters().vector();
     for (int j = 1; j != 8; j++) {
       part(7 * l_c + j) = lp(j - 1);
     }
-    AlgebraicSymMatrix lc = asHepMatrix<7>((*i)->currentState().kinematicParametersError().matrix());
+    AlgebraicSymMatrix lc = asHepMatrix<7>(i->currentState().kinematicParametersError().matrix());
     cov.sub(7 * l_c + 1, lc);
-    chi_in(l_c + 1) = (*i)->chiSquared();
-    ndf_in(l_c + 1) = (*i)->degreesOfFreedom();
+    chi_in(l_c + 1) = i->chiSquared();
+    ndf_in(l_c + 1) = i->degreesOfFreedom();
     l_c++;
   }
   //refitted parameters and covariance matrix:
@@ -242,7 +242,7 @@ std::vector<RefCountedKinematicTree> LagrangeParentParticleFitter::fit(
 
   int j = 1;
   std::vector<RefCountedKinematicTree>::const_iterator tr = refTrees.begin();
-  for (std::vector<RefCountedKinematicParticle>::const_iterator i = prt.begin(); i != prt.end(); i++) {
+  for (const auto& i : prt) {
     AlgebraicVector7 lRefPar;
     for (int k = 1; k < 8; k++) {
       lRefPar(k - 1) = refPar((j - 1) * 7 + k);
@@ -252,11 +252,11 @@ std::vector<RefCountedKinematicTree> LagrangeParentParticleFitter::fit(
     //new refitted parameters and covariance
     KinematicParameters param(lRefPar);
     KinematicParametersError er(lRefCovS);
-    KinematicState kState(param, er, (*i)->initialState().particleCharge(), (**i).magneticField());
-    RefCountedKinematicParticle refParticle = (*i)->refittedParticle(kState, chi(j), ndf(j), cs->clone());
+    KinematicState kState(param, er, i->initialState().particleCharge(), (*i).magneticField());
+    RefCountedKinematicParticle refParticle = i->refittedParticle(kState, chi(j), ndf(j), cs->clone());
 
     //replacing particle itself
-    (*tr)->findParticle(*i);
+    (*tr)->findParticle(i);
     RefCountedKinematicVertex inVertex = (*tr)->currentDecayVertex();
     (*tr)->replaceCurrentParticle(refParticle);
 

@@ -137,8 +137,8 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
   if (result.size() > 2) {
     int hitcounter = 0;
     //check if the vector result has more than 3 valid hits
-    for (vector<TrajectoryMeasurement>::const_iterator iimeas = result.begin(); iimeas != result.end(); ++iimeas) {
-      if (iimeas->recHit()->isValid())
+    for (const auto& iimeas : result) {
+      if (iimeas.recHit()->isValid())
         hitcounter++;
     }
 

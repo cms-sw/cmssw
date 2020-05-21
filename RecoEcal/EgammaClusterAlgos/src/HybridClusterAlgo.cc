@@ -159,8 +159,8 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection* recColl,
   std::map<int, reco::BasicClusterCollection>::iterator bic;
   for (bic = clustered_.begin(); bic != clustered_.end(); bic++) {
     reco::BasicClusterCollection bl = bic->second;
-    for (int j = 0; j < int(bl.size()); ++j) {
-      basicClusters.push_back(bl[j]);
+    for (const auto& j : bl) {
+      basicClusters.push_back(j);
     }
   }
 
@@ -390,11 +390,11 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
       for (int j = 0; j < int(dominoEnergy.size()); ++j) {
         if (OwnerShip[j] == i) {
           std::vector<EcalRecHit> temp = dominoCells[j];
-          for (int k = 0; k < int(temp.size()); ++k) {
-            dets.push_back(std::pair<DetId, float>(temp[k].id(), 1.));  // by default energy fractions are 1
-            if (temp[k].id() == itID)
+          for (auto& k : temp) {
+            dets.push_back(std::pair<DetId, float>(k.id(), 1.));  // by default energy fractions are 1
+            if (k.id() == itID)
               HasSeedCrystal = true;
-            recHits.push_back(temp[k]);
+            recHits.push_back(k);
             nhits++;
           }
         }
@@ -409,11 +409,11 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
       //double totChi2=0;
       //double totE=0;
       std::vector<std::pair<DetId, float> > usedHits;
-      for (int blarg = 0; blarg < int(recHits.size()); ++blarg) {
+      for (auto& recHit : recHits) {
         //totChi2 +=0;
         //totE+=recHits[blarg].energy();
-        usedHits.push_back(std::make_pair<DetId, float>(recHits[blarg].id(), 1.0));
-        useddetids.insert(recHits[blarg].id());
+        usedHits.push_back(std::make_pair<DetId, float>(recHit.id(), 1.0));
+        useddetids.insert(recHit.id());
       }
 
       //if (totE>0)
@@ -469,20 +469,20 @@ reco::SuperClusterCollection HybridClusterAlgo::makeSuperClusters(const reco::Ca
     //Loop over this set of basic clusters, find their references, and add them to the
     //supercluster.  This could be somehow more efficient.
 
-    for (int i = 0; i < int(thiscoll.size()); ++i) {
-      reco::BasicCluster thisclus = thiscoll[i];  //The Cluster in question.
-      for (int j = 0; j < int(clustersCollection.size()); ++j) {
+    for (auto thisclus : thiscoll) {
+      //The Cluster in question.
+      for (const auto& j : clustersCollection) {
         //Find the appropriate cluster from the list of references
-        reco::BasicCluster cluster_p = *clustersCollection[j];
+        reco::BasicCluster cluster_p = *j;
         if (thisclus == cluster_p) {  //Comparison based on energy right now.
-          thissc.push_back(clustersCollection[j]);
+          thissc.push_back(j);
           bool isSeed = false;
-          for (int qu = 0; qu < int(seedClus_.size()); ++qu) {
-            if (cluster_p == seedClus_[qu])
+          for (const auto& seedClu : seedClus_) {
+            if (cluster_p == seedClu)
               isSeed = true;
           }
           if (isSeed)
-            seed = clustersCollection[j];
+            seed = j;
 
           ClusterE += cluster_p.energy();
           posX += cluster_p.energy() * cluster_p.position().X();

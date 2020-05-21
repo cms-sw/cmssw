@@ -133,20 +133,18 @@ std::unique_ptr<PFCandToVertexAssMap> PFCand_AssoMapAlgos::SortPFCandAssociation
   VertexPtsumVector vertexptsumvector;
 
   //loop over all vertices in the association map
-  for (PFCandToVertexAssMap::const_iterator assomap_ite = pfcvertexassInput->begin();
-       assomap_ite != pfcvertexassInput->end();
-       assomap_ite++) {
-    const VertexRef assomap_vertexref = assomap_ite->key;
-    const PFCandQualityPairVector pfccoll = assomap_ite->val;
+  for (const auto& assomap_ite : *pfcvertexassInput) {
+    const VertexRef assomap_vertexref = assomap_ite.key;
+    const PFCandQualityPairVector pfccoll = assomap_ite.val;
 
     float ptsum = 0;
 
     PFCandidateRef pfcandref;
 
     //get the pfcandidates associated to the vertex and calculate the pT**2
-    for (unsigned int pfccoll_ite = 0; pfccoll_ite < pfccoll.size(); pfccoll_ite++) {
-      pfcandref = pfccoll[pfccoll_ite].first;
-      int quality = pfccoll[pfccoll_ite].second;
+    for (const auto& pfccoll_ite : pfccoll) {
+      pfcandref = pfccoll_ite.first;
+      int quality = pfccoll_ite.second;
 
       if ((quality <= 2) && (quality != -1))
         continue;
@@ -173,17 +171,15 @@ std::unique_ptr<PFCandToVertexAssMap> PFCand_AssoMapAlgos::SortPFCandAssociation
     }
 
     //loop over all vertices in the association map
-    for (PFCandToVertexAssMap::const_iterator assomap_ite = pfcvertexassInput->begin();
-         assomap_ite != pfcvertexassInput->end();
-         assomap_ite++) {
-      const VertexRef assomap_vertexref = assomap_ite->key;
-      const PFCandQualityPairVector pfccoll = assomap_ite->val;
+    for (const auto& assomap_ite : *pfcvertexassInput) {
+      const VertexRef assomap_vertexref = assomap_ite.key;
+      const PFCandQualityPairVector pfccoll = assomap_ite.val;
 
       //if the vertex from the association map the vertex with the highest pT
       //insert all associated pfcandidates in the output Association Map
       if (assomap_vertexref == vertexref_highestpT)
-        for (unsigned int pfccoll_ite = 0; pfccoll_ite < pfccoll.size(); pfccoll_ite++)
-          pfcvertexassOutput->insert(assomap_vertexref, pfccoll[pfccoll_ite]);
+        for (const auto& pfccoll_ite : pfccoll)
+          pfcvertexassOutput->insert(assomap_vertexref, pfccoll_ite);
     }
 
     vertexptsumvector.erase(vertexptsumvector.begin() + highestpT_index);

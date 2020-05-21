@@ -235,8 +235,8 @@ void CMSG4CheckOverlap::makeReportForOverlaps(std::ofstream& fout, const edm::Pa
             if (((*pvs)[i])->GetLogicalVolume() == lv) {
               G4String pvname = ((*pvs)[i])->GetName();
               G4bool isNew = true;
-              for (unsigned int k = 0; k < savedgdml.size(); ++k) {
-                if (pvname == savedgdml[k]) {
+              for (const auto& k : savedgdml) {
+                if (pvname == k) {
                   isNew = false;
                   break;
                 }

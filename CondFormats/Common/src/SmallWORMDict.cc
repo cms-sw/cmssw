@@ -21,10 +21,10 @@ namespace cond {
 
     //copy
     std::vector<char>::iterator p = m_data.begin();
-    for (size_t j = 0; j < m_index.size(); j++) {
-      size_t i = m_index[j];
+    for (unsigned int& j : m_index) {
+      size_t i = j;
       p = std::copy(idict[i].begin(), idict[i].end(), p);
-      m_index[j] = p - m_data.begin();
+      j = p - m_data.begin();
     }
   }
 

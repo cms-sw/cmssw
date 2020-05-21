@@ -193,8 +193,7 @@ void GenParticlePruner::produce(Event &evt, const EventSetup &es) {
   const size_t n = src->size();
   flags_.clear();
   flags_.resize(n, keepOrDropAll_);
-  for (size_t j = 0; j < select_.size(); ++j) {
-    const pair<StringCutObjectSelector<GenParticle>, SelectCode> &sel = select_[j];
+  for (const auto &sel : select_) {
     SelectCode code = sel.second;
     const StringCutObjectSelector<GenParticle> &cut = sel.first;
     for (size_t i = 0; i < n; ++i) {
@@ -247,8 +246,7 @@ void GenParticlePruner::produce(Event &evt, const EventSetup &es) {
   GenParticleRefProd outRef = evt.getRefBeforePut<GenParticleCollection>();
   out->reserve(counter);
 
-  for (vector<size_t>::const_iterator i = indices_.begin(); i != indices_.end(); ++i) {
-    size_t index = *i;
+  for (unsigned long index : indices_) {
     const GenParticle &gen = (*src)[index];
     const LeafCandidate &part = gen;
     out->push_back(GenParticle(part));
@@ -262,14 +260,14 @@ void GenParticlePruner::produce(Event &evt, const EventSetup &es) {
     vector<size_t> daIndxs, daNewIndxs;
     getDaughterKeys(daIndxs, daNewIndxs, gen.daughterRefVector());
     std::sort(daNewIndxs.begin(), daNewIndxs.end());
-    for (size_t i = 0; i < daNewIndxs.size(); ++i)
-      newGen.addDaughter(GenParticleRef(outRef, daNewIndxs[i]));
+    for (unsigned long daNewIndx : daNewIndxs)
+      newGen.addDaughter(GenParticleRef(outRef, daNewIndx));
 
     vector<size_t> moIndxs, moNewIndxs;
     getMotherKeys(moIndxs, moNewIndxs, gen.motherRefVector());
     std::sort(moNewIndxs.begin(), moNewIndxs.end());
-    for (size_t i = 0; i < moNewIndxs.size(); ++i)
-      newGen.addMother(GenParticleRef(outRef, moNewIndxs[i]));
+    for (unsigned long moNewIndx : moNewIndxs)
+      newGen.addMother(GenParticleRef(outRef, moNewIndx));
   }
 
   edm::OrphanHandle<reco::GenParticleCollection> oh = evt.put(std::move(out));
@@ -283,8 +281,8 @@ void GenParticlePruner::produce(Event &evt, const EventSetup &es) {
 void GenParticlePruner::getDaughterKeys(vector<size_t> &daIndxs,
                                         vector<size_t> &daNewIndxs,
                                         const GenParticleRefVector &daughters) const {
-  for (GenParticleRefVector::const_iterator j = daughters.begin(); j != daughters.end(); ++j) {
-    GenParticleRef dau = *j;
+  for (auto &&daughter : daughters) {
+    GenParticleRef dau = daughter;
     if (find(daIndxs.begin(), daIndxs.end(), dau.key()) == daIndxs.end()) {
       daIndxs.push_back(dau.key());
       int idx = flags_[dau.key()];
@@ -302,8 +300,8 @@ void GenParticlePruner::getDaughterKeys(vector<size_t> &daIndxs,
 void GenParticlePruner::getMotherKeys(vector<size_t> &moIndxs,
                                       vector<size_t> &moNewIndxs,
                                       const GenParticleRefVector &mothers) const {
-  for (GenParticleRefVector::const_iterator j = mothers.begin(); j != mothers.end(); ++j) {
-    GenParticleRef mom = *j;
+  for (auto &&mother : mothers) {
+    GenParticleRef mom = mother;
     if (find(moIndxs.begin(), moIndxs.end(), mom.key()) == moIndxs.end()) {
       moIndxs.push_back(mom.key());
       int idx = flags_[mom.key()];

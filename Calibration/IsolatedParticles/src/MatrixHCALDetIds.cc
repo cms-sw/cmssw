@@ -23,9 +23,9 @@ namespace spr {
 #endif
     std::vector<DetId> vdetN = spr::newHCALIdNS(dets, 0, topology, true, ieta, iphi, debug);
     std::vector<DetId> vdetS = spr::newHCALIdNS(dets, 0, topology, false, ieta, iphi, debug);
-    for (unsigned int i1 = 0; i1 < vdetS.size(); i1++) {
-      if (std::count(vdetN.begin(), vdetN.end(), vdetS[i1]) == 0)
-        vdetN.push_back(vdetS[i1]);
+    for (auto i1 : vdetS) {
+      if (std::count(vdetN.begin(), vdetN.end(), i1) == 0)
+        vdetN.push_back(i1);
     }
 
     vdetS = spr::matrixHCALIdsDepth(vdetN, topology, includeHO, debug);
@@ -52,11 +52,11 @@ namespace spr {
     dets.push_back(det);
     int ietaphi = (int)(dR / 15.0) + 1;
     std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ietaphi, ietaphi, includeHO, debug);
-    for (unsigned int i = 0; i < vdets.size(); ++i) {
-      HcalDetId hcdet = HcalDetId(vdets[i]);
+    for (auto vdet : vdets) {
+      HcalDetId hcdet = HcalDetId(vdet);
       GlobalPoint rpoint = (static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(hcdet)))->getPosition(hcdet);
       if (spr::getDistInPlaneTrackDir(core, trackMom, rpoint) < dR) {
-        vdetx.push_back(vdets[i]);
+        vdetx.push_back(vdet);
       }
     }
 
@@ -87,9 +87,9 @@ namespace spr {
 #endif
     std::vector<DetId> vdetN = spr::newHCALIdNS(dets, 0, topology, true, ietaE, ietaW, iphiN, iphiS, debug);
     std::vector<DetId> vdetS = spr::newHCALIdNS(dets, 0, topology, false, ietaE, ietaW, iphiN, iphiS, debug);
-    for (unsigned int i1 = 0; i1 < vdetS.size(); i1++) {
-      if (std::count(vdetN.begin(), vdetN.end(), vdetS[i1]) == 0)
-        vdetN.push_back(vdetS[i1]);
+    for (auto i1 : vdetS) {
+      if (std::count(vdetN.begin(), vdetN.end(), i1) == 0)
+        vdetN.push_back(i1);
     }
 
     vdetS = spr::matrixHCALIdsDepth(vdetN, topology, includeHO, debug);
@@ -123,13 +123,13 @@ namespace spr {
     if (last == 0) {
       vdetE = spr::newHCALIdEW(dets, last, topology, true, ieta, debug);
       vdetW = spr::newHCALIdEW(dets, last, topology, false, ieta, debug);
-      for (unsigned int i1 = 0; i1 < vdetW.size(); i1++) {
-        if (std::count(vdets.begin(), vdets.end(), vdetW[i1]) == 0)
-          vdets.push_back(vdetW[i1]);
+      for (auto i1 : vdetW) {
+        if (std::count(vdets.begin(), vdets.end(), i1) == 0)
+          vdets.push_back(i1);
       }
-      for (unsigned int i1 = 0; i1 < vdetE.size(); i1++) {
-        if (std::count(vdets.begin(), vdets.end(), vdetE[i1]) == 0)
-          vdets.push_back(vdetE[i1]);
+      for (auto i1 : vdetE) {
+        if (std::count(vdets.begin(), vdets.end(), i1) == 0)
+          vdets.push_back(i1);
       }
 #ifdef EDM_ML_DEBUG
       if (debug) {
@@ -148,23 +148,21 @@ namespace spr {
           vdet = topology->north(dets[i1]);
         else
           vdet = topology->south(dets[i1]);
-        for (unsigned int i2 = 0; i2 < vdet.size(); i2++) {
-          if (std::count(vdets.begin(), vdets.end(), vdet[i2]) == 0)
-            vdetnew.push_back(vdet[i2]);
+        for (auto i2 : vdet) {
+          if (std::count(vdets.begin(), vdets.end(), i2) == 0)
+            vdetnew.push_back(i2);
         }
       }
       iphi--;
       vdetE = spr::newHCALIdEW(vdetnew, 0, topology, true, ieta, debug);
       vdetW = spr::newHCALIdEW(vdetnew, 0, topology, false, ieta, debug);
-      for (unsigned int i2 = 0; i2 < vdetW.size(); i2++) {
-        if (std::count(vdets.begin(), vdets.end(), vdetW[i2]) == 0 &&
-            std::count(vdetnew.begin(), vdetnew.end(), vdetW[i2]) == 0)
-          vdets.push_back(vdetW[i2]);
+      for (auto i2 : vdetW) {
+        if (std::count(vdets.begin(), vdets.end(), i2) == 0 && std::count(vdetnew.begin(), vdetnew.end(), i2) == 0)
+          vdets.push_back(i2);
       }
-      for (unsigned int i2 = 0; i2 < vdetE.size(); i2++) {
-        if (std::count(vdets.begin(), vdets.end(), vdetE[i2]) == 0 &&
-            std::count(vdetnew.begin(), vdetnew.end(), vdetE[i2]) == 0)
-          vdets.push_back(vdetE[i2]);
+      for (auto i2 : vdetE) {
+        if (std::count(vdets.begin(), vdets.end(), i2) == 0 && std::count(vdetnew.begin(), vdetnew.end(), i2) == 0)
+          vdets.push_back(i2);
       }
       last = vdets.size();
       vdets.insert(vdets.end(), vdetnew.begin(), vdetnew.end());
@@ -213,13 +211,13 @@ namespace spr {
     if (last == 0) {
       vdetE = spr::newHCALIdEW(dets, last, topology, true, ietaE, ietaW, debug);
       vdetW = spr::newHCALIdEW(dets, last, topology, false, ietaE, ietaW, debug);
-      for (unsigned int i1 = 0; i1 < vdetW.size(); i1++) {
-        if (std::count(vdets.begin(), vdets.end(), vdetW[i1]) == 0)
-          vdets.push_back(vdetW[i1]);
+      for (auto i1 : vdetW) {
+        if (std::count(vdets.begin(), vdets.end(), i1) == 0)
+          vdets.push_back(i1);
       }
-      for (unsigned int i1 = 0; i1 < vdetE.size(); i1++) {
-        if (std::count(vdets.begin(), vdets.end(), vdetE[i1]) == 0)
-          vdets.push_back(vdetE[i1]);
+      for (auto i1 : vdetE) {
+        if (std::count(vdets.begin(), vdets.end(), i1) == 0)
+          vdets.push_back(i1);
       }
 #ifdef EDM_ML_DEBUG
       if (debug) {
@@ -241,23 +239,21 @@ namespace spr {
           vdet = topology->north(dets[i1]);
         else
           vdet = topology->south(dets[i1]);
-        for (unsigned int i2 = 0; i2 < vdet.size(); i2++) {
-          if (std::count(vdets.begin(), vdets.end(), vdet[i2]) == 0)
-            vdetnew.push_back(vdet[i2]);
+        for (auto i2 : vdet) {
+          if (std::count(vdets.begin(), vdets.end(), i2) == 0)
+            vdetnew.push_back(i2);
         }
       }
       iphi--;
       vdetE = spr::newHCALIdEW(vdetnew, 0, topology, true, ietaE, ietaW, debug);
       vdetW = spr::newHCALIdEW(vdetnew, 0, topology, false, ietaE, ietaW, debug);
-      for (unsigned int i2 = 0; i2 < vdetW.size(); i2++) {
-        if (std::count(vdets.begin(), vdets.end(), vdetW[i2]) == 0 &&
-            std::count(vdetnew.begin(), vdetnew.end(), vdetW[i2]) == 0)
-          vdets.push_back(vdetW[i2]);
+      for (auto i2 : vdetW) {
+        if (std::count(vdets.begin(), vdets.end(), i2) == 0 && std::count(vdetnew.begin(), vdetnew.end(), i2) == 0)
+          vdets.push_back(i2);
       }
-      for (unsigned int i2 = 0; i2 < vdetE.size(); i2++) {
-        if (std::count(vdets.begin(), vdets.end(), vdetE[i2]) == 0 &&
-            std::count(vdetnew.begin(), vdetnew.end(), vdetE[i2]) == 0)
-          vdets.push_back(vdetE[i2]);
+      for (auto i2 : vdetE) {
+        if (std::count(vdets.begin(), vdets.end(), i2) == 0 && std::count(vdetnew.begin(), vdetnew.end(), i2) == 0)
+          vdets.push_back(i2);
       }
       last = vdets.size();
       vdets.insert(vdets.end(), vdetnew.begin(), vdetnew.end());
@@ -306,9 +302,9 @@ namespace spr {
           vdet = topology->east(dets[i1]);
         else
           vdet = topology->west(dets[i1]);
-        for (unsigned int i2 = 0; i2 < vdet.size(); i2++) {
-          if (std::count(vdets.begin(), vdets.end(), vdet[i2]) == 0)
-            vdets.push_back(vdet[i2]);
+        for (auto i2 : vdet) {
+          if (std::count(vdets.begin(), vdets.end(), i2) == 0)
+            vdets.push_back(i2);
         }
       }
       ieta--;
@@ -361,9 +357,9 @@ namespace spr {
           vdet = topology->east(dets[i1]);
         else
           vdet = topology->west(dets[i1]);
-        for (unsigned int i2 = 0; i2 < vdet.size(); i2++) {
-          if (std::count(vdets.begin(), vdets.end(), vdet[i2]) == 0)
-            vdets.push_back(vdet[i2]);
+        for (auto i2 : vdet) {
+          if (std::count(vdets.begin(), vdets.end(), i2) == 0)
+            vdets.push_back(i2);
         }
       }
       ieta--;
@@ -411,8 +407,8 @@ namespace spr {
     }
 #endif
     std::vector<DetId> vdets(dets);
-    for (unsigned int i1 = 0; i1 < dets.size(); i1++) {
-      HcalDetId vdet = dets[i1];
+    for (auto det : dets) {
+      HcalDetId vdet = det;
       for (int idepth = 0; idepth < 3; idepth++) {
         std::vector<DetId> vUpDetId = topology->up(vdet);
         if (!vUpDetId.empty()) {

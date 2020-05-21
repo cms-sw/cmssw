@@ -624,15 +624,15 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
   }
 
   // Set prescales to zero if masked
-  for (unsigned int iSet = 0; iSet < prescales.size(); iSet++) {
-    for (unsigned int iBit = 0; iBit < prescales[iSet].size(); iBit++) {
+  for (auto &prescale : prescales) {
+    for (unsigned int iBit = 0; iBit < prescale.size(); iBit++) {
       // Add protection in case prescale table larger than trigger mask size
       if (iBit >= triggerMasks.size()) {
         edm::LogError("L1-O2O: L1TGlobalPrescalesVetosOnlineProd")
             << "\nWarning: algoBit in prescale table >= triggerMasks.size() "
             << "\nWarning: no information on masking bit or not, setting as unmasked " << std::endl;
       } else {
-        prescales[iSet][iBit] *= triggerMasks[iBit];
+        prescale[iBit] *= triggerMasks[iBit];
       }
     }
   }

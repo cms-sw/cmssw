@@ -262,16 +262,15 @@ void L1GctJetFinderBase::setInputRegion(const L1CaloRegion& region) {
 /// get output jets in raw format - to be stored in the event
 std::vector<L1GctInternJetData> L1GctJetFinderBase::getInternalJets() const {
   std::vector<L1GctInternJetData> result;
-  for (RawJetVector::const_iterator jet = m_outputJetsPipe.contents.begin(); jet != m_outputJetsPipe.contents.end();
-       jet++) {
-    result.push_back(L1GctInternJetData::fromEmulator(jet->id(),
-                                                      jet->bx(),
-                                                      jet->calibratedEt(m_jetEtCalLuts.at(jet->rctEta())),
-                                                      jet->overFlow(),
-                                                      jet->tauVeto(),
-                                                      jet->hwEta(),
-                                                      jet->hwPhi(),
-                                                      jet->rank(m_jetEtCalLuts.at(jet->rctEta()))));
+  for (const auto& content : m_outputJetsPipe.contents) {
+    result.push_back(L1GctInternJetData::fromEmulator(content.id(),
+                                                      content.bx(),
+                                                      content.calibratedEt(m_jetEtCalLuts.at(content.rctEta())),
+                                                      content.overFlow(),
+                                                      content.tauVeto(),
+                                                      content.hwEta(),
+                                                      content.hwPhi(),
+                                                      content.rank(m_jetEtCalLuts.at(content.rctEta()))));
   }
   return result;
 }

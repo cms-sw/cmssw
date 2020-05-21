@@ -109,8 +109,8 @@ namespace fwrapper {
     // Loop over jets and find constituents
     for (int kk=0; kk<njets; ++kk) {   
       vector<PseudoJet> constit = cs->constituents(jets[kk]);
-      for(unsigned int ll=0; ll<constit.size(); ++ll)
-             whichjet[constit[ll].user_index()]=kk+1;
+      for (auto &ll : constit)
+        whichjet[ll.user_index()] = kk + 1;
     }
     
   }

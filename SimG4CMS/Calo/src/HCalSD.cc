@@ -715,11 +715,11 @@ void HCalSD::getFromHFLibrary(const G4Step* aStep, bool& isKilled) {
                               << primaryID << " with " << theTrack->GetDefinition()->GetParticleName() << " of "
                               << aStep->GetPreStepPoint()->GetKineticEnergy() / GeV << " GeV";
 #endif
-  for (unsigned int i = 0; i < hits.size(); ++i) {
-    G4ThreeVector hitPoint = hits[i].position;
+  for (auto& hit : hits) {
+    G4ThreeVector hitPoint = hit.position;
     if (isItinFidVolume(hitPoint)) {
-      int depth = hits[i].depth;
-      double time = hits[i].time;
+      int depth = hit.depth;
+      double time = hit.time;
       unsigned int unitID = setDetUnitId(det, hitPoint, depth);
       currentID.setID(unitID, time, primaryID, 0);
 #ifdef plotDebug
@@ -757,11 +757,11 @@ void HCalSD::hitForFibre(const G4Step* aStep) {  // if not ParamShower
                               << aStep->GetPreStepPoint()->GetKineticEnergy() / GeV << " GeV in detector type " << det;
 #endif
 
-  for (unsigned int i = 0; i < hits.size(); ++i) {
-    G4ThreeVector hitPoint = hits[i].position;
+  for (auto& hit : hits) {
+    G4ThreeVector hitPoint = hit.position;
     if (isItinFidVolume(hitPoint)) {
-      int depth = hits[i].depth;
-      double time = hits[i].time;
+      int depth = hit.depth;
+      double time = hit.time;
       unsigned int unitID = setDetUnitId(det, hitPoint, depth);
       currentID.setID(unitID, time, primaryID, 0);
 #ifdef plotDebug
@@ -789,13 +789,13 @@ void HCalSD::getFromParam(const G4Step* aStep, bool& isKilled) {
                               << " of " << aStep->GetPreStepPoint()->GetKineticEnergy() / GeV
                               << " GeV in detector type " << det;
 #endif
-  for (unsigned int i = 0; i < hits.size(); ++i) {
-    G4ThreeVector hitPoint = hits[i].position;
-    int depth = hits[i].depth;
-    double time = hits[i].time;
+  for (auto& hit : hits) {
+    G4ThreeVector hitPoint = hit.position;
+    int depth = hit.depth;
+    double time = hit.time;
     unsigned int unitID = setDetUnitId(det, hitPoint, depth);
     currentID.setID(unitID, time, primaryID, 0);
-    edepositEM = hits[i].edep * GeV;
+    edepositEM = hit.edep * GeV;
     edepositHAD = 0.;
 #ifdef plotDebug
     plotProfile(aStep, hitPoint, edepositEM, time, depth);

@@ -339,8 +339,8 @@ unsigned short L1RCTElectronIsolationCard::calcMaxSum(unsigned short primaryEt,
                                                       unsigned short westEt) {
   unsigned short cardinals[4] = {northEt, southEt, eastEt, westEt};
   unsigned short max = 0;
-  for (int i = 0; i < 4; i++) {
-    unsigned short test = primaryEt + cardinals[i];
+  for (unsigned short cardinal : cardinals) {
+    unsigned short test = primaryEt + cardinal;
     if (test > max)
       max = test;
   }

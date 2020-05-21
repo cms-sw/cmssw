@@ -25,8 +25,7 @@ bool BCToEFilterAlgo::filter(const edm::Event& iEvent) const {
   iEvent.getByToken(genParSource_, genParsHandle);
   reco::GenParticleCollection genPars = *genParsHandle;
 
-  for (uint32_t ig = 0; ig < genPars.size(); ig++) {
-    reco::GenParticle gp = genPars.at(ig);
+  for (auto gp : genPars) {
     if (gp.status() == 1 && std::abs(gp.pdgId()) == 11 && gp.et() > eTThreshold_ &&
         std::fabs(gp.eta()) < FILTER_ETA_MAX_) {
       if (hasBCAncestors(gp)) {

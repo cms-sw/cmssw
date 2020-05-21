@@ -28,10 +28,10 @@ FWGUIEventSelector::FWGUIEventSelector(TGCompositeFrame* p,
     m_combo = new TGComboBox(this);
     int cnt = 0;
     int id = -1;
-    for (std::vector<std::string>::iterator i = triggerProcessList.begin(); i != triggerProcessList.end(); ++i) {
-      if (*i == sel->m_triggerProcess)
+    for (auto& i : triggerProcessList) {
+      if (i == sel->m_triggerProcess)
         id = cnt;
-      m_combo->AddEntry((*i).c_str(), cnt++);
+      m_combo->AddEntry(i.c_str(), cnt++);
     }
 
     if (id < 0) {

@@ -84,32 +84,32 @@ void photonIsolationHIProducer::produce(edm::Event& evt, const edm::EventSetup& 
   TrackIsoCalculator TxC(*trackCollection, trackQuality_);
   EcalClusterLazyTools lazyTool(evt, es, barrelEcalHits_, endcapEcalHits_);
 
-  for (reco::PhotonCollection::const_iterator phoItr = photons->begin(); phoItr != photons->end(); ++phoItr) {
+  for (const auto& phoItr : *photons) {
     reco::HIPhotonIsolation iso;
     // HI-style isolation info
-    iso.ecalClusterIsoR1(CxC.getBkgSubEcalClusterIso(phoItr->superCluster(), 1, 0));
-    iso.ecalClusterIsoR2(CxC.getBkgSubEcalClusterIso(phoItr->superCluster(), 2, 0));
-    iso.ecalClusterIsoR3(CxC.getBkgSubEcalClusterIso(phoItr->superCluster(), 3, 0));
-    iso.ecalClusterIsoR4(CxC.getBkgSubEcalClusterIso(phoItr->superCluster(), 4, 0));
-    iso.ecalClusterIsoR5(CxC.getBkgSubEcalClusterIso(phoItr->superCluster(), 5, 0));
+    iso.ecalClusterIsoR1(CxC.getBkgSubEcalClusterIso(phoItr.superCluster(), 1, 0));
+    iso.ecalClusterIsoR2(CxC.getBkgSubEcalClusterIso(phoItr.superCluster(), 2, 0));
+    iso.ecalClusterIsoR3(CxC.getBkgSubEcalClusterIso(phoItr.superCluster(), 3, 0));
+    iso.ecalClusterIsoR4(CxC.getBkgSubEcalClusterIso(phoItr.superCluster(), 4, 0));
+    iso.ecalClusterIsoR5(CxC.getBkgSubEcalClusterIso(phoItr.superCluster(), 5, 0));
 
-    iso.hcalRechitIsoR1(RxC.getBkgSubHcalRechitIso(phoItr->superCluster(), 1, 0));
-    iso.hcalRechitIsoR2(RxC.getBkgSubHcalRechitIso(phoItr->superCluster(), 2, 0));
-    iso.hcalRechitIsoR3(RxC.getBkgSubHcalRechitIso(phoItr->superCluster(), 3, 0));
-    iso.hcalRechitIsoR4(RxC.getBkgSubHcalRechitIso(phoItr->superCluster(), 4, 0));
-    iso.hcalRechitIsoR5(RxC.getBkgSubHcalRechitIso(phoItr->superCluster(), 5, 0));
+    iso.hcalRechitIsoR1(RxC.getBkgSubHcalRechitIso(phoItr.superCluster(), 1, 0));
+    iso.hcalRechitIsoR2(RxC.getBkgSubHcalRechitIso(phoItr.superCluster(), 2, 0));
+    iso.hcalRechitIsoR3(RxC.getBkgSubHcalRechitIso(phoItr.superCluster(), 3, 0));
+    iso.hcalRechitIsoR4(RxC.getBkgSubHcalRechitIso(phoItr.superCluster(), 4, 0));
+    iso.hcalRechitIsoR5(RxC.getBkgSubHcalRechitIso(phoItr.superCluster(), 5, 0));
 
-    iso.trackIsoR1PtCut20(TxC.getBkgSubTrackIso(*phoItr, 1, 2));
-    iso.trackIsoR2PtCut20(TxC.getBkgSubTrackIso(*phoItr, 2, 2));
-    iso.trackIsoR3PtCut20(TxC.getBkgSubTrackIso(*phoItr, 3, 2));
-    iso.trackIsoR4PtCut20(TxC.getBkgSubTrackIso(*phoItr, 4, 2));
-    iso.trackIsoR5PtCut20(TxC.getBkgSubTrackIso(*phoItr, 5, 2));
+    iso.trackIsoR1PtCut20(TxC.getBkgSubTrackIso(phoItr, 1, 2));
+    iso.trackIsoR2PtCut20(TxC.getBkgSubTrackIso(phoItr, 2, 2));
+    iso.trackIsoR3PtCut20(TxC.getBkgSubTrackIso(phoItr, 3, 2));
+    iso.trackIsoR4PtCut20(TxC.getBkgSubTrackIso(phoItr, 4, 2));
+    iso.trackIsoR5PtCut20(TxC.getBkgSubTrackIso(phoItr, 5, 2));
 
     // ecal spike rejection info (seed timing)
-    const reco::CaloClusterPtr seed = phoItr->superCluster()->seed();
+    const reco::CaloClusterPtr seed = phoItr.superCluster()->seed();
     const DetId& id = lazyTool.getMaximum(*seed).first;
     float time = -999.;
-    const EcalRecHitCollection& rechits = (phoItr->isEB() ? *barrelEcalHits : *endcapEcalHits);
+    const EcalRecHitCollection& rechits = (phoItr.isEB() ? *barrelEcalHits : *endcapEcalHits);
     EcalRecHitCollection::const_iterator it = rechits.find(id);
     if (it != rechits.end()) {
       time = it->time();

@@ -104,25 +104,25 @@ Pythia6Service::Pythia6Service(const ParameterSet& ps) : fRandomEngine(nullptr),
   fParamSLHA.clear();
   fParamPYUPDA.clear();
 
-  for (std::vector<std::string>::const_iterator iter = setNames.begin(); iter != setNames.end(); ++iter) {
-    std::vector<std::string> lines = pythia_params.getParameter<std::vector<std::string> >(*iter);
+  for (const auto& setName : setNames) {
+    std::vector<std::string> lines = pythia_params.getParameter<std::vector<std::string> >(setName);
 
-    for (std::vector<std::string>::const_iterator line = lines.begin(); line != lines.end(); ++line) {
-      if (line->substr(0, 7) == "MRPY(1)")
+    for (const auto& line : lines) {
+      if (line.substr(0, 7) == "MRPY(1)")
         throw cms::Exception("PythiaError") << "Attempted to set random number"
                                                " using Pythia command 'MRPY(1)'."
                                                " Please use the"
                                                " RandomNumberGeneratorService."
                                             << std::endl;
 
-      if (*iter == "CSAParameters") {
-        fParamCSA.push_back(*line);
-      } else if (*iter == "SLHAParameters") {
-        fParamSLHA.push_back(*line);
-      } else if (*iter == "PYUPDAParameters") {
-        fParamPYUPDA.push_back(*line);
+      if (setName == "CSAParameters") {
+        fParamCSA.push_back(line);
+      } else if (setName == "SLHAParameters") {
+        fParamSLHA.push_back(line);
+      } else if (setName == "PYUPDAParameters") {
+        fParamPYUPDA.push_back(line);
       } else {
-        fParamGeneral.push_back(*line);
+        fParamGeneral.push_back(line);
       }
     }
   }
@@ -157,9 +157,9 @@ void Pythia6Service::enter() {
 void Pythia6Service::setGeneralParams() {
   // now pass general config cards
   //
-  for (std::vector<std::string>::const_iterator iter = fParamGeneral.begin(); iter != fParamGeneral.end(); ++iter) {
-    if (!call_pygive(*iter))
-      throw cms::Exception("PythiaError") << "Pythia did not accept \"" << *iter << "\"." << std::endl;
+  for (const auto& iter : fParamGeneral) {
+    if (!call_pygive(iter))
+      throw cms::Exception("PythiaError") << "Pythia did not accept \"" << iter << "\"." << std::endl;
   }
 
   return;
@@ -170,17 +170,17 @@ void Pythia6Service::setCSAParams() {
   char buf[SETCSAPARBUFSIZE];
 
   txgive_init_();
-  for (std::vector<std::string>::const_iterator iter = fParamCSA.begin(); iter != fParamCSA.end(); ++iter) {
+  for (const auto& iter : fParamCSA) {
     // Null pad the string should not be needed because it uses
     // read, which will look for \n, but just in case...
-    for (size_t i = 0; i < SETCSAPARBUFSIZE; ++i)
-      buf[i] = ' ';
+    for (char& i : buf)
+      i = ' ';
     // Skip empty parameters.
-    if (iter->length() <= 0)
+    if (iter.length() <= 0)
       continue;
     // Limit the size of the string to something which fits the buffer.
-    size_t maxSize = iter->length() > (SETCSAPARBUFSIZE - 2) ? (SETCSAPARBUFSIZE - 2) : iter->length();
-    strncpy(buf, iter->c_str(), maxSize);
+    size_t maxSize = iter.length() > (SETCSAPARBUFSIZE - 2) ? (SETCSAPARBUFSIZE - 2) : iter.length();
+    strncpy(buf, iter.c_str(), maxSize);
     // Add extra \n if missing, otherwise "read" continues reading.
     if (buf[maxSize - 1] != '\n') {
       buf[maxSize] = '\n';
@@ -188,7 +188,7 @@ void Pythia6Service::setCSAParams() {
       // Not sure that is actually needed.
       buf[maxSize + 1] = 0;
     }
-    txgive_(buf, iter->length());
+    txgive_(buf, iter.length());
   }
 
   return;
@@ -237,20 +237,20 @@ void Pythia6Service::closePYUPDA() {
 }
 
 void Pythia6Service::setSLHAParams() {
-  for (std::vector<std::string>::const_iterator iter = fParamSLHA.begin(); iter != fParamSLHA.end(); iter++) {
-    if (iter->find("SLHAFILE", 0) == std::string::npos)
+  for (const auto& iter : fParamSLHA) {
+    if (iter.find("SLHAFILE", 0) == std::string::npos)
       continue;
-    std::string::size_type start = iter->find_first_of("=") + 1;
-    std::string::size_type end = iter->length() - 1;
-    std::string::size_type temp = iter->find_first_of("'", start);
+    std::string::size_type start = iter.find_first_of("=") + 1;
+    std::string::size_type end = iter.length() - 1;
+    std::string::size_type temp = iter.find_first_of("'", start);
     if (temp != std::string::npos) {
       start = temp + 1;
-      end = iter->find_last_of("'") - 1;
+      end = iter.find_last_of("'") - 1;
     }
-    start = iter->find_first_not_of(" ", start);
-    end = iter->find_last_not_of(" ", end);
+    start = iter.find_first_not_of(" ", start);
+    end = iter.find_last_not_of(" ", end);
     //std::cout << " start, end = " << start << " " << end << std::endl;
-    std::string shortfile = iter->substr(start, end - start + 1);
+    std::string shortfile = iter.substr(start, end - start + 1);
     FileInPath f1(shortfile);
     std::string file = f1.fullPath();
 
@@ -282,23 +282,23 @@ void Pythia6Service::setPYUPDAParams(bool afterPyinit) {
 
   // This assumes that PYUPDAFILE only appears once ...
 
-  for (std::vector<std::string>::const_iterator iter = fParamPYUPDA.begin(); iter != fParamPYUPDA.end(); iter++) {
+  for (const auto& iter : fParamPYUPDA) {
     //     std::cout<<"PYUPDA check "<<*iter<<std::endl;
-    if (iter->find("PYUPDAFILE", 0) != std::string::npos) {
-      std::string::size_type start = iter->find_first_of("=") + 1;
-      std::string::size_type end = iter->length() - 1;
-      std::string::size_type temp = iter->find_first_of("'", start);
+    if (iter.find("PYUPDAFILE", 0) != std::string::npos) {
+      std::string::size_type start = iter.find_first_of("=") + 1;
+      std::string::size_type end = iter.length() - 1;
+      std::string::size_type temp = iter.find_first_of("'", start);
       if (temp != std::string::npos) {
         start = temp + 1;
-        end = iter->find_last_of("'") - 1;
+        end = iter.find_last_of("'") - 1;
       }
-      start = iter->find_first_not_of(" ", start);
-      end = iter->find_last_not_of(" ", end);
+      start = iter.find_first_not_of(" ", start);
+      end = iter.find_last_not_of(" ", end);
       //std::cout << " start, end = " << start << " " << end << std::endl;
-      shortfile = iter->substr(start, end - start + 1);
-    } else if (iter->find("PYUPDAWRITE", 0) != std::string::npos) {
+      shortfile = iter.substr(start, end - start + 1);
+    } else if (iter.find("PYUPDAWRITE", 0) != std::string::npos) {
       write_file = true;
-    } else if (iter->find("PYUPDApostPYINIT", 0) != std::string::npos) {
+    } else if (iter.find("PYUPDApostPYINIT", 0) != std::string::npos) {
       usePostPyinit = true;
     }
   }
@@ -329,10 +329,10 @@ void Pythia6Service::setSLHAFromHeader(const std::vector<std::string>& lines) {
   const char* fname = fnamest.c_str();
   std::ofstream file(fname, std::fstream::out | std::fstream::trunc);
   std::string block;
-  for (std::vector<std::string>::const_iterator iter = lines.begin(); iter != lines.end(); ++iter) {
-    file << *iter;
+  for (const auto& iter : lines) {
+    file << iter;
 
-    std::string line = *iter;
+    std::string line = iter;
     std::transform(line.begin(), line.end(), line.begin(), (int (*)(int))std::toupper);
     std::string::size_type pos = line.find('#');
     if (pos != std::string::npos)

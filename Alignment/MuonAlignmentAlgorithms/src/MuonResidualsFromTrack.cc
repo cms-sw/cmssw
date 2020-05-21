@@ -95,14 +95,10 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
   if (m_debug)
     std::cout << "  Size of vector of TrajectoryMeasurements: " << vTrajMeasurement.size() << std::endl;
   int nTrajMeasurement = 0;
-  for (std::vector<TrajectoryMeasurement>::const_iterator iTrajMeasurement = vTrajMeasurement.begin();
-       iTrajMeasurement != vTrajMeasurement.end();
-       ++iTrajMeasurement) {
+  for (auto trajMeasurement : vTrajMeasurement) {
     nTrajMeasurement++;
     if (m_debug)
       std::cout << "    TrajectoryMeasurement #" << nTrajMeasurement << std::endl;
-
-    TrajectoryMeasurement trajMeasurement = *iTrajMeasurement;
 
     TrajectoryStateOnSurface tsos =
         m_tsoscomb(trajMeasurement.forwardPredictedState(), trajMeasurement.backwardPredictedState());
@@ -198,10 +194,8 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
             std::vector<const TrackingRecHit*> vDTSeg2D = trajMeasurementHit->recHits();
             if (m_debug)
               std::cout << "          vDTSeg2D size: " << vDTSeg2D.size() << std::endl;
-            for (std::vector<const TrackingRecHit*>::const_iterator itDTSeg2D = vDTSeg2D.begin();
-                 itDTSeg2D != vDTSeg2D.end();
-                 ++itDTSeg2D) {
-              std::vector<const TrackingRecHit*> vDTHits1D = (*itDTSeg2D)->recHits();
+            for (auto itDTSeg2D : vDTSeg2D) {
+              std::vector<const TrackingRecHit*> vDTHits1D = itDTSeg2D->recHits();
               if (m_debug)
                 std::cout << "            vDTHits1D size: " << vDTHits1D.size() << std::endl;
               for (std::vector<const TrackingRecHit*>::const_iterator itDTHits1D = vDTHits1D.begin();
@@ -279,10 +273,7 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
             if (m_debug)
               std::cout << "          vCSCHits2D size: " << vCSCHits2D.size() << std::endl;
             if (vCSCHits2D.size() >= 5) {
-              for (std::vector<const TrackingRecHit*>::const_iterator itCSCHits2D = vCSCHits2D.begin();
-                   itCSCHits2D != vCSCHits2D.end();
-                   ++itCSCHits2D) {
-                const TrackingRecHit* cscHit2D = *itCSCHits2D;
+              for (auto cscHit2D : vCSCHits2D) {
                 if (m_debug)
                   std::cout << "            cscHit2D dimension: " << cscHit2D->dimension() << std::endl;
                 const TrackingRecHit* hit = cscHit2D;
@@ -367,10 +358,9 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
             //                                                          itDTSeg2D != vDTSeg2D.end();
             //                                                        ++itDTSeg2D ) {
 
-            for (std::vector<TrackingRecHit*>::const_iterator itDTSeg2D = vDTSeg2D.begin(); itDTSeg2D != vDTSeg2D.end();
-                 ++itDTSeg2D) {
+            for (auto itDTSeg2D : vDTSeg2D) {
               // std::vector<const TrackingRecHit*> vDTHits1D =  (*itDTSeg2D)->recHits();
-              std::vector<TrackingRecHit*> vDTHits1D = (*itDTSeg2D)->recHits();
+              std::vector<TrackingRecHit*> vDTHits1D = itDTSeg2D->recHits();
               if (m_debug)
                 std::cout << "            vDTHits1D size: " << vDTHits1D.size() << std::endl;
               // for ( std::vector<const TrackingRecHit*>::const_iterator itDTHits1D =  vDTHits1D.begin();
@@ -494,11 +484,8 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
               //                                                          itCSCHits2D != vCSCHits2D.end();
               //                                                        ++itCSCHits2D ) {
 
-              for (std::vector<TrackingRecHit*>::const_iterator itCSCHits2D = vCSCHits2D.begin();
-                   itCSCHits2D != vCSCHits2D.end();
-                   ++itCSCHits2D) {
+              for (auto cscHit2D : vCSCHits2D) {
                 // const TrackingRecHit* cscHit2D = *itCSCHits2D;
-                TrackingRecHit* cscHit2D = *itCSCHits2D;
                 if (m_debug)
                   std::cout << "            cscHit2D dimension: " << cscHit2D->dimension() << std::endl;
                 // const TrackingRecHit* hit = cscHit2D;
@@ -618,31 +605,29 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(edm::ESHandle<GlobalTrackingGeome
                    }
                    */
 
-  for (std::vector<reco::MuonChamberMatch>::const_iterator chamberMatch = m_recoMuon->matches().begin();
-       chamberMatch != m_recoMuon->matches().end();
-       chamberMatch++) {
-    if (chamberMatch->id.det() != DetId::Muon)
+  for (const auto& chamberMatch : m_recoMuon->matches()) {
+    if (chamberMatch.id.det() != DetId::Muon)
       continue;
 
-    for (std::vector<reco::MuonSegmentMatch>::const_iterator segMatch = chamberMatch->segmentMatches.begin();
-         segMatch != chamberMatch->segmentMatches.end();
+    for (std::vector<reco::MuonSegmentMatch>::const_iterator segMatch = chamberMatch.segmentMatches.begin();
+         segMatch != chamberMatch.segmentMatches.end();
          ++segMatch) {
       // select the only segment that belongs to track and is the best in station by dR
       if (!(segMatch->isMask(reco::MuonSegmentMatch::BestInStationByDR) &&
             segMatch->isMask(reco::MuonSegmentMatch::BelongsToTrackByDR)))
         continue;
 
-      if (chamberMatch->id.subdetId() == MuonSubdetId::DT) {
-        const DTChamberId chamberId(chamberMatch->id.rawId());
+      if (chamberMatch.id.subdetId() == MuonSubdetId::DT) {
+        const DTChamberId chamberId(chamberMatch.id.rawId());
 
         DTRecSegment4DRef segmentDT = segMatch->dtSegmentRef;
         const DTRecSegment4D* segment = segmentDT.get();
         if (segment == nullptr)
           continue;
 
-        if (segment->hasPhi() && fabs(chamberMatch->x - segMatch->x) > maxResidual)
+        if (segment->hasPhi() && fabs(chamberMatch.x - segMatch->x) > maxResidual)
           continue;
-        if (segment->hasZed() && fabs(chamberMatch->y - segMatch->y) > maxResidual)
+        if (segment->hasZed() && fabs(chamberMatch.y - segMatch->y) > maxResidual)
           continue;
 
         // have we seen this chamber before?
@@ -657,7 +642,7 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(edm::ESHandle<GlobalTrackingGeome
             //            m_dt2[chamberId] = new MuonTrackDT2ChamberResidual(globalGeometry, navigator, chamberId, chamberAlignable);
           } else if (m_debug)
             std::cout << "multi segment match to tmuon: dt2  -- should not happen!" << std::endl;
-          m_dt2[chamberId]->setSegmentResidual(&(*chamberMatch), &(*segMatch));
+          m_dt2[chamberId]->setSegmentResidual(&chamberMatch, &(*segMatch));
         }
         if (segment->hasPhi()) {
           if (m_dt13.find(chamberId) == m_dt13.end()) {
@@ -666,15 +651,15 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(edm::ESHandle<GlobalTrackingGeome
             //            m_dt13[chamberId] = new MuonTrackDT13ChamberResidual(globalGeometry, navigator, chamberId, chamberAlignable);
           } else if (m_debug)
             std::cout << "multi segment match to tmuon: dt13  -- should not happen!" << std::endl;
-          m_dt13[chamberId]->setSegmentResidual(&(*chamberMatch), &(*segMatch));
+          m_dt13[chamberId]->setSegmentResidual(&chamberMatch, &(*segMatch));
         }
       }
 
-      else if (chamberMatch->id.subdetId() == MuonSubdetId::CSC) {
-        const CSCDetId cscDetId(chamberMatch->id.rawId());
+      else if (chamberMatch.id.subdetId() == MuonSubdetId::CSC) {
+        const CSCDetId cscDetId(chamberMatch.id.rawId());
         const CSCDetId chamberId(cscDetId.chamberId());
 
-        if (fabs(chamberMatch->x - segMatch->x) > maxResidual)
+        if (fabs(chamberMatch.x - segMatch->x) > maxResidual)
           continue;
 
         // have we seen this chamber before?
@@ -685,7 +670,7 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(edm::ESHandle<GlobalTrackingGeome
           //          m_csc[chamberId] = new MuonTrackCSCChamberResidual(globalGeometry, navigator, chamberId, chamberAlignable);
         } else if (m_debug)
           std::cout << "multi segment match to tmuon: csc  -- should not happen!" << std::endl;
-        m_csc[chamberId]->setSegmentResidual(&(*chamberMatch), &(*segMatch));
+        m_csc[chamberId]->setSegmentResidual(&chamberMatch, &(*segMatch));
       }
     }
   }

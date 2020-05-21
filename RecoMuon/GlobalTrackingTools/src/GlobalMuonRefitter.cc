@@ -311,14 +311,14 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
   float coneSize = 20.0;
 
   // loop through all muon hits and calculate the maximum # of hits in each chamber
-  for (ConstRecHitContainer::const_iterator imrh = all.begin(); imrh != all.end(); imrh++) {
-    if ((*imrh != nullptr) && !(*imrh)->isValid())
+  for (const auto& imrh : all) {
+    if ((imrh != nullptr) && !imrh->isValid())
       continue;
 
     int detRecHits = 0;
     MuonRecHitContainer dRecHits;
 
-    DetId id = (*imrh)->geographicalId();
+    DetId id = imrh->geographicalId();
     DetId chamberId;
 
     // Skip tracker hits
@@ -329,24 +329,22 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
       DTChamberId did(id.rawId());
       chamberId = did;
 
-      if ((*imrh)->dimension() > 1) {
-        std::vector<const TrackingRecHit*> hits2d = (*imrh)->recHits();
-        for (std::vector<const TrackingRecHit*>::const_iterator hit2d = hits2d.begin(); hit2d != hits2d.end();
-             hit2d++) {
-          if ((*hit2d)->dimension() > 1) {
-            std::vector<const TrackingRecHit*> hits1d = (*hit2d)->recHits();
-            for (std::vector<const TrackingRecHit*>::const_iterator hit1d = hits1d.begin(); hit1d != hits1d.end();
-                 hit1d++) {
-              DetId id1 = (*hit1d)->geographicalId();
+      if (imrh->dimension() > 1) {
+        std::vector<const TrackingRecHit*> hits2d = imrh->recHits();
+        for (auto hit2d : hits2d) {
+          if (hit2d->dimension() > 1) {
+            std::vector<const TrackingRecHit*> hits1d = hit2d->recHits();
+            for (auto hit1d : hits1d) {
+              DetId id1 = hit1d->geographicalId();
               DTLayerId lid(id1.rawId());
               // Get the 1d DT RechHits from this layer
               DTRecHitCollection::range dRecHits = theDTRecHits->get(lid);
               int layerHits = 0;
               for (DTRecHitCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++) {
-                double rhitDistance = fabs(ir->localPosition().x() - (**hit1d).localPosition().x());
+                double rhitDistance = fabs(ir->localPosition().x() - (*hit1d).localPosition().x());
                 if (rhitDistance < coneSize)
                   layerHits++;
-                LogTrace(theCategory) << "       " << (ir)->localPosition() << "  " << (**hit1d).localPosition()
+                LogTrace(theCategory) << "       " << (ir)->localPosition() << "  " << (*hit1d).localPosition()
                                       << " Distance: " << rhitDistance << " recHits: " << layerHits
                                       << "  SL: " << lid.superLayer() << endl;
               }
@@ -358,10 +356,10 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
             // Get the 1d DT RechHits from this layer
             DTRecHitCollection::range dRecHits = theDTRecHits->get(lid);
             for (DTRecHitCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++) {
-              double rhitDistance = fabs(ir->localPosition().x() - (**imrh).localPosition().x());
+              double rhitDistance = fabs(ir->localPosition().x() - (*imrh).localPosition().x());
               if (rhitDistance < coneSize)
                 detRecHits++;
-              LogTrace(theCategory) << "       " << (ir)->localPosition() << "  " << (**imrh).localPosition()
+              LogTrace(theCategory) << "       " << (ir)->localPosition() << "  " << (*imrh).localPosition()
                                     << " Distance: " << rhitDistance << " recHits: " << detRecHits << endl;
             }
           }
@@ -374,10 +372,10 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
         DTRecHitCollection::range dRecHits = theDTRecHits->get(lid);
 
         for (DTRecHitCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++) {
-          double rhitDistance = fabs(ir->localPosition().x() - (**imrh).localPosition().x());
+          double rhitDistance = fabs(ir->localPosition().x() - (*imrh).localPosition().x());
           if (rhitDistance < coneSize)
             detRecHits++;
-          LogTrace(theCategory) << "       " << (ir)->localPosition() << "  " << (**imrh).localPosition()
+          LogTrace(theCategory) << "       " << (ir)->localPosition() << "  " << (*imrh).localPosition()
                                 << " Distance: " << rhitDistance << " recHits: " << detRecHits << endl;
         }
       }
@@ -386,11 +384,10 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
       CSCDetId did(id.rawId());
       chamberId = did.chamberId();
 
-      if ((*imrh)->recHits().size() > 1) {
-        std::vector<const TrackingRecHit*> hits2d = (*imrh)->recHits();
-        for (std::vector<const TrackingRecHit*>::const_iterator hit2d = hits2d.begin(); hit2d != hits2d.end();
-             hit2d++) {
-          DetId id1 = (*hit2d)->geographicalId();
+      if (imrh->recHits().size() > 1) {
+        std::vector<const TrackingRecHit*> hits2d = imrh->recHits();
+        for (auto hit2d : hits2d) {
+          DetId id1 = hit2d->geographicalId();
           CSCDetId lid(id1.rawId());
 
           // Get the CSC Rechits from this layer
@@ -398,10 +395,10 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
           int layerHits = 0;
 
           for (CSCRecHit2DCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++) {
-            double rhitDistance = (ir->localPosition() - (**hit2d).localPosition()).mag();
+            double rhitDistance = (ir->localPosition() - (*hit2d).localPosition()).mag();
             if (rhitDistance < coneSize)
               layerHits++;
-            LogTrace(theCategory) << ir->localPosition() << "  " << (**hit2d).localPosition()
+            LogTrace(theCategory) << ir->localPosition() << "  " << (*hit2d).localPosition()
                                   << " Distance: " << rhitDistance << " recHits: " << layerHits << endl;
           }
           if (layerHits > detRecHits)
@@ -412,10 +409,10 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
         CSCRecHit2DCollection::range dRecHits = theCSCRecHits->get(did);
 
         for (CSCRecHit2DCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++) {
-          double rhitDistance = (ir->localPosition() - (**imrh).localPosition()).mag();
+          double rhitDistance = (ir->localPosition() - (*imrh).localPosition()).mag();
           if (rhitDistance < coneSize)
             detRecHits++;
-          LogTrace(theCategory) << ir->localPosition() << "  " << (**imrh).localPosition()
+          LogTrace(theCategory) << ir->localPosition() << "  " << (*imrh).localPosition()
                                 << " Distance: " << rhitDistance << " recHits: " << detRecHits << endl;
         }
       }
@@ -424,11 +421,10 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
       GEMDetId did(id.rawId());
       chamberId = did.chamberId();
 
-      if ((*imrh)->recHits().size() > 1) {
-        std::vector<const TrackingRecHit*> hits2d = (*imrh)->recHits();
-        for (std::vector<const TrackingRecHit*>::const_iterator hit2d = hits2d.begin(); hit2d != hits2d.end();
-             hit2d++) {
-          DetId id1 = (*hit2d)->geographicalId();
+      if (imrh->recHits().size() > 1) {
+        std::vector<const TrackingRecHit*> hits2d = imrh->recHits();
+        for (auto hit2d : hits2d) {
+          DetId id1 = hit2d->geographicalId();
           GEMDetId lid(id1.rawId());
 
           // Get the GEM Rechits from this layer
@@ -436,10 +432,10 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
           int layerHits = 0;
 
           for (GEMRecHitCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++) {
-            double rhitDistance = (ir->localPosition() - (**hit2d).localPosition()).mag();
+            double rhitDistance = (ir->localPosition() - (*hit2d).localPosition()).mag();
             if (rhitDistance < coneSize)
               layerHits++;
-            LogTrace(theCategory) << ir->localPosition() << "  " << (**hit2d).localPosition()
+            LogTrace(theCategory) << ir->localPosition() << "  " << (*hit2d).localPosition()
                                   << " Distance: " << rhitDistance << " recHits: " << layerHits << endl;
           }
           if (layerHits > detRecHits)
@@ -450,10 +446,10 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
         GEMRecHitCollection::range dRecHits = theGEMRecHits->get(did);
 
         for (GEMRecHitCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++) {
-          double rhitDistance = (ir->localPosition() - (**imrh).localPosition()).mag();
+          double rhitDistance = (ir->localPosition() - (*imrh).localPosition()).mag();
           if (rhitDistance < coneSize)
             detRecHits++;
-          LogTrace(theCategory) << ir->localPosition() << "  " << (**imrh).localPosition()
+          LogTrace(theCategory) << ir->localPosition() << "  " << (*imrh).localPosition()
                                 << " Distance: " << rhitDistance << " recHits: " << detRecHits << endl;
         }
       }
@@ -462,11 +458,10 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
       ME0DetId did(id.rawId());
       chamberId = did.chamberId();
 
-      if ((*imrh)->recHits().size() > 1) {
-        std::vector<const TrackingRecHit*> hits2d = (*imrh)->recHits();
-        for (std::vector<const TrackingRecHit*>::const_iterator hit2d = hits2d.begin(); hit2d != hits2d.end();
-             hit2d++) {
-          DetId id1 = (*hit2d)->geographicalId();
+      if (imrh->recHits().size() > 1) {
+        std::vector<const TrackingRecHit*> hits2d = imrh->recHits();
+        for (auto hit2d : hits2d) {
+          DetId id1 = hit2d->geographicalId();
           ME0DetId lid(id1.rawId());
 
           // Get the ME0 Rechits from this layer
@@ -474,10 +469,10 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
           int layerHits = 0;
 
           for (ME0SegmentCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++) {
-            double rhitDistance = (ir->localPosition() - (**hit2d).localPosition()).mag();
+            double rhitDistance = (ir->localPosition() - (*hit2d).localPosition()).mag();
             if (rhitDistance < coneSize)
               layerHits++;
-            LogTrace(theCategory) << ir->localPosition() << "  " << (**hit2d).localPosition()
+            LogTrace(theCategory) << ir->localPosition() << "  " << (*hit2d).localPosition()
                                   << " Distance: " << rhitDistance << " recHits: " << layerHits << endl;
           }
           if (layerHits > detRecHits)
@@ -488,10 +483,10 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
         ME0SegmentCollection::range dRecHits = theME0RecHits->get(did);
 
         for (ME0SegmentCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++) {
-          double rhitDistance = (ir->localPosition() - (**imrh).localPosition()).mag();
+          double rhitDistance = (ir->localPosition() - (*imrh).localPosition()).mag();
           if (rhitDistance < coneSize)
             detRecHits++;
-          LogTrace(theCategory) << ir->localPosition() << "  " << (**imrh).localPosition()
+          LogTrace(theCategory) << ir->localPosition() << "  " << (*imrh).localPosition()
                                 << " Distance: " << rhitDistance << " recHits: " << detRecHits << endl;
         }
       }
@@ -511,8 +506,8 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
 
   }  // end of loop over muon rechits
 
-  for (map<DetId, int>::iterator imap = hitMap.begin(); imap != hitMap.end(); imap++)
-    LogTrace(theCategory) << " Station " << imap->first.rawId() << ": " << imap->second << endl;
+  for (auto& imap : hitMap)
+    LogTrace(theCategory) << " Station " << imap.first.rawId() << ": " << imap.second << endl;
 
   LogTrace(theCategory) << "CheckMuonHits: " << all.size();
 
@@ -534,12 +529,12 @@ void GlobalMuonRefitter::getFirstHits(const reco::Track& muon,
 
   int station_to_keep = 999;
   vector<int> stations;
-  for (ConstRecHitContainer::const_iterator ihit = all.begin(); ihit != all.end(); ++ihit) {
+  for (const auto& ihit : all) {
     int station = 0;
     bool use_it = true;
-    DetId id = (*ihit)->geographicalId();
+    DetId id = ihit->geographicalId();
     unsigned raw_id = id.rawId();
-    if (!(*ihit)->isValid())
+    if (!ihit->isValid())
       station = -1;
     else {
       if (id.det() == DetId::Muon) {
@@ -594,16 +589,16 @@ GlobalMuonRefitter::ConstRecHitContainer GlobalMuonRefitter::selectMuonHits(cons
   vector<TrajectoryMeasurement> muonMeasurements = traj.measurements();
 
   // loop through all muon hits and skip hits with bad chi2 in chambers with high occupancy
-  for (std::vector<TrajectoryMeasurement>::const_iterator im = muonMeasurements.begin(); im != muonMeasurements.end();
-       im++) {
-    if (!(*im).recHit()->isValid())
+  for (const auto& muonMeasurement : muonMeasurements) {
+    if (!muonMeasurement.recHit()->isValid())
       continue;
-    if ((*im).recHit()->det()->geographicalId().det() != DetId::Muon) {
+    if (muonMeasurement.recHit()->det()->geographicalId().det() != DetId::Muon) {
       //      if ( ( chi2ndf < globalChi2Cut ) )
-      muonRecHits.push_back((*im).recHit());
+      muonRecHits.push_back(muonMeasurement.recHit());
       continue;
     }
-    const MuonTransientTrackingRecHit* immrh = dynamic_cast<const MuonTransientTrackingRecHit*>((*im).recHit().get());
+    const MuonTransientTrackingRecHit* immrh =
+        dynamic_cast<const MuonTransientTrackingRecHit*>(muonMeasurement.recHit().get());
 
     DetId id = immrh->geographicalId();
     DetId chamberId;
@@ -647,7 +642,7 @@ GlobalMuonRefitter::ConstRecHitContainer GlobalMuonRefitter::selectMuonHits(cons
     } else
       continue;
 
-    double chi2ndf = (*im).estimate() / (*im).recHit()->dimension();
+    double chi2ndf = muonMeasurement.estimate() / muonMeasurement.recHit()->dimension();
 
     bool keep = true;
     map<DetId, int>::const_iterator imap = hitMap.find(chamberId);
@@ -656,7 +651,7 @@ GlobalMuonRefitter::ConstRecHitContainer GlobalMuonRefitter::selectMuonHits(cons
         keep = false;
 
     if ((keep || (chi2ndf < chi2Cut)) && (chi2ndf < globalChi2Cut)) {
-      muonRecHits.push_back((*im).recHit());
+      muonRecHits.push_back(muonMeasurement.recHit());
     } else {
       LogTrace(theCategory) << "Skip hit: " << id.rawId() << " chi2=" << chi2ndf << " ( threshold: " << chi2Cut
                             << ") Det: " << imap->second << endl;
@@ -673,19 +668,18 @@ GlobalMuonRefitter::ConstRecHitContainer GlobalMuonRefitter::selectMuonHits(cons
 //
 void GlobalMuonRefitter::printHits(const ConstRecHitContainer& hits) const {
   LogTrace(theCategory) << "Used RecHits: " << hits.size();
-  for (ConstRecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++) {
-    if (!(*ir)->isValid()) {
+  for (const auto& hit : hits) {
+    if (!hit->isValid()) {
       LogTrace(theCategory) << "invalid RecHit";
       continue;
     }
 
-    const GlobalPoint& pos = (*ir)->globalPosition();
+    const GlobalPoint& pos = hit->globalPosition();
 
     LogTrace(theCategory) << "r = " << sqrt(pos.x() * pos.x() + pos.y() * pos.y()) << "  z = " << pos.z()
-                          << "  dimension = " << (*ir)->dimension()
-                          << "  det = " << (*ir)->det()->geographicalId().det()
-                          << "  subdet = " << (*ir)->det()->subDetector()
-                          << "  raw id = " << (*ir)->det()->geographicalId().rawId();
+                          << "  dimension = " << hit->dimension() << "  det = " << hit->det()->geographicalId().det()
+                          << "  subdet = " << hit->det()->subDetector()
+                          << "  raw id = " << hit->det()->geographicalId().rawId();
   }
 }
 
@@ -811,10 +805,8 @@ vector<Trajectory> GlobalMuonRefitter::transform(
                           << (propDir_first == propDir_last ? "agree" : "disagree");
 
     int y_count = 0;
-    for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator it = recHitsForReFit.begin();
-         it != recHitsForReFit.end();
-         ++it) {
-      if ((*it)->globalPosition().y() > 0)
+    for (const auto& it : recHitsForReFit) {
+      if (it->globalPosition().y() > 0)
         ++y_count;
       else
         --y_count;

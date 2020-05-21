@@ -159,8 +159,8 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
     // first check if the rechit is in the BAD channel list
     bool bad = false;
-    for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); channel++) {
-      if (channel->rawId() == genericID.rawId()) {
+    for (auto& channel : channels) {
+      if (channel.rawId() == genericID.rawId()) {
         // if the rechit is found in the list, set it bad
         bad = true;
         break;
@@ -286,8 +286,8 @@ void CastorTowerProducer::ComputeTowerVariable(const edm::RefVector<edm::SortedC
   double Etot = 0;
 
   // loop over the cells used in the tower k
-  for (CastorRecHitRefVector::iterator it = usedRecHits.begin(); it != usedRecHits.end(); it++) {
-    edm::Ref<CastorRecHitCollection> rechit_p = *it;
+  for (auto&& usedRecHit : usedRecHits) {
+    edm::Ref<CastorRecHitCollection> rechit_p = usedRecHit;
 
     double Erechit = rechit_p->energy();
     HcalCastorDetId id = rechit_p->id();

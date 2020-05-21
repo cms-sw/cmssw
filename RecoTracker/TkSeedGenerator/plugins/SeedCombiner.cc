@@ -66,17 +66,17 @@ void SeedCombiner::produce(edm::Event& ev, const edm::EventSetup& es) {
     if (reKeing_ && !(clusterRemovalInfos_[iSC] == edm::InputTag(""))) {
       ClusterRemovalRefSetter refSetter(ev, clusterRemovalTokens_[iSC]);
 
-      for (TrajectorySeedCollection::const_iterator iS = collection->begin(); iS != collection->end(); ++iS) {
+      for (const auto& iS : *collection) {
         TrajectorySeed::recHitContainer newRecHitContainer;
-        newRecHitContainer.reserve(iS->nHits());
-        TrajectorySeed::const_iterator iH = iS->recHits().first;
-        TrajectorySeed::const_iterator iH_end = iS->recHits().second;
+        newRecHitContainer.reserve(iS.nHits());
+        TrajectorySeed::const_iterator iH = iS.recHits().first;
+        TrajectorySeed::const_iterator iH_end = iS.recHits().second;
         //loop seed rechits, copy over and rekey.
         for (; iH != iH_end; ++iH) {
           newRecHitContainer.push_back(*iH);
           refSetter.reKey(&newRecHitContainer.back());
         }
-        result->push_back(TrajectorySeed(iS->startingState(), std::move(newRecHitContainer), iS->direction()));
+        result->push_back(TrajectorySeed(iS.startingState(), std::move(newRecHitContainer), iS.direction()));
       }
     } else {
       //just insert the new seeds as they are

@@ -72,9 +72,9 @@ public:
     int lastLink = 0;
     int lastLB = 0;
     int lastFeb = 0;
-    for (unsigned int idcc = 0; idcc < theDccs.size(); idcc++) {
-      DccSpec dcc(theDccs[idcc].theId);
-      for (int itb = lastTB; itb < lastTB + theDccs[idcc].nTBs; itb++) {
+    for (auto theDcc : theDccs) {
+      DccSpec dcc(theDcc.theId);
+      for (int itb = lastTB; itb < lastTB + theDcc.nTBs; itb++) {
         TriggerBoardSpec tb(theTBs[itb].theNum);
         for (int ilink = lastLink; ilink < lastLink + theTBs[itb].nLinks; ilink++) {
           LinkConnSpec lc(theLinks[ilink].theTriggerBoardInputNumber);
@@ -111,7 +111,7 @@ public:
         lastLink += theTBs[itb].nLinks;
       }
       cabling->add(dcc);
-      lastTB += theDccs[idcc].nTBs;
+      lastTB += theDcc.nTBs;
     }
     return cabling;
   };

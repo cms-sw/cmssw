@@ -61,11 +61,11 @@ MuRingForwardDoubleLayer* MuonGEMDetLayerGeometryBuilder::buildLayer(int endcap,
   vector<const ForwardDetRing*> frontRings, backRings;
 
   for (std::vector<int>::iterator ring = rings.begin(); ring != rings.end() - 2; ring++) {
-    for (vector<int>::iterator roll = rolls.begin(); roll != rolls.end(); roll++) {
+    for (int& roll : rolls) {
       vector<const GeomDet*> frontDets, backDets;
 
       for (std::vector<int>::iterator chamber = chambers.begin(); chamber < chambers.end(); chamber++) {
-        GEMDetId gemId(endcap, (*ring), station, layer, (*chamber), (*roll));
+        GEMDetId gemId(endcap, (*ring), station, layer, (*chamber), roll);
 
         const GeomDet* geomDet = geo.idToDet(gemId);
 

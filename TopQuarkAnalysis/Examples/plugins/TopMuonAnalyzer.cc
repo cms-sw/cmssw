@@ -22,11 +22,11 @@ void TopMuonAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setu
   // fill histograms
 
   mult_->Fill(muons->size());
-  for (std::vector<pat::Muon>::const_iterator muon = muons->begin(); muon != muons->end(); ++muon) {
-    pt_->Fill(muon->pt());
-    en_->Fill(muon->energy());
-    eta_->Fill(muon->eta());
-    phi_->Fill(muon->phi());
+  for (const auto& muon : *muons) {
+    pt_->Fill(muon.pt());
+    en_->Fill(muon.energy());
+    eta_->Fill(muon.eta());
+    phi_->Fill(muon.phi());
   }
 
   // produce printout if desired
@@ -40,11 +40,11 @@ void TopMuonAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setu
   std::cout << std::setw(5) << "mu  :" << std::setw(13) << "pt :" << std::setw(13) << "eta :" << std::setw(13)
             << "phi :" << std::setw(13) << "relIso :" << std::setw(6) << "GLB :" << std::setw(4) << "TRK" << std::endl;
   std::cout << "-------------------------------------------------------------------" << std::endl;
-  for (std::vector<pat::Muon>::const_iterator muon = muons->begin(); muon != muons->end(); ++muon) {
-    std::cout << std::setw(3) << i << " : " << std::setw(10) << muon->pt() << " : " << std::setw(10) << muon->eta()
-              << " : " << std::setw(10) << muon->phi() << " : " << std::setw(10)
-              << (muon->trackIso() + muon->caloIso()) / muon->pt() << " : " << std::setw(3) << muon->isGlobalMuon()
-              << " : " << std::setw(3) << muon->isTrackerMuon() << std::endl;
+  for (const auto& muon : *muons) {
+    std::cout << std::setw(3) << i << " : " << std::setw(10) << muon.pt() << " : " << std::setw(10) << muon.eta()
+              << " : " << std::setw(10) << muon.phi() << " : " << std::setw(10)
+              << (muon.trackIso() + muon.caloIso()) / muon.pt() << " : " << std::setw(3) << muon.isGlobalMuon() << " : "
+              << std::setw(3) << muon.isTrackerMuon() << std::endl;
     i++;
   }
   std::cout << "===================================================================" << std::endl;

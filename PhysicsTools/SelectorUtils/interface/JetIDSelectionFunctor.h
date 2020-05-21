@@ -217,8 +217,8 @@ public:  // interface
   // this functionality should be migrated into JetIDHelper in future releases
   unsigned int count_hits(const std::vector<CaloTowerPtr>& towers) {
     unsigned int nHit = 0;
-    for (unsigned int iTower = 0; iTower < towers.size(); ++iTower) {
-      const std::vector<DetId>& cellIDs = towers[iTower]->constituents();  // cell == recHit
+    for (const auto& tower : towers) {
+      const std::vector<DetId>& cellIDs = tower->constituents();  // cell == recHit
       nHit += cellIDs.size();
     }
     return nHit;

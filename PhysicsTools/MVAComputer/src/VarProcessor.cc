@@ -65,8 +65,8 @@ namespace PhysicsTools {
   }
 
   VarProcessor::ConfigCtx::ConfigCtx(const std::vector<Variable::Flags> &flags) : loop(nullptr), ctx(nullptr) {
-    for (std::vector<Variable::Flags>::const_iterator iter = flags.begin(); iter != flags.end(); ++iter)
-      configs.push_back(Config(*iter, 1));
+    for (auto flag : flags)
+      configs.push_back(Config(flag, 1));
   }
 
   VarProcessor::ConfigCtx::Context *VarProcessor::configureLoop(ConfigCtx::Context *ctx,

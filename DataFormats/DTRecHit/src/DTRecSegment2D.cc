@@ -86,8 +86,8 @@ ostream& operator<<(ostream& os, const DTRecSegment2D& seg) {
 std::vector<const TrackingRecHit*> DTRecSegment2D::recHits() const {
   std::vector<const TrackingRecHit*> pointersOfRecHits;
 
-  for (std::vector<DTRecHit1D>::const_iterator rechit = theHits.begin(); rechit != theHits.end(); rechit++)
-    pointersOfRecHits.push_back(&(*rechit));
+  for (const auto& theHit : theHits)
+    pointersOfRecHits.push_back(&theHit);
 
   return pointersOfRecHits;
 }
@@ -95,8 +95,8 @@ std::vector<const TrackingRecHit*> DTRecSegment2D::recHits() const {
 std::vector<TrackingRecHit*> DTRecSegment2D::recHits() {
   std::vector<TrackingRecHit*> pointersOfRecHits;
 
-  for (std::vector<DTRecHit1D>::iterator rechit = theHits.begin(); rechit != theHits.end(); rechit++)
-    pointersOfRecHits.push_back(&(*rechit));
+  for (auto& theHit : theHits)
+    pointersOfRecHits.push_back(&theHit);
 
   return pointersOfRecHits;
 }

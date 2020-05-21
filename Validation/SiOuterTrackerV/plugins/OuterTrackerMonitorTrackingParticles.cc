@@ -104,8 +104,8 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event &iEvent, con
         theStubRefs = MCTruthTTStubHandle->findTTStubRefs(tp_ptr);
 
     int hasStubInLayer[11] = {0};
-    for (unsigned int is = 0; is < theStubRefs.size(); is++) {
-      DetId detid(theStubRefs.at(is)->getDetId());
+    for (auto &theStubRef : theStubRefs) {
+      DetId detid(theStubRef->getDetId());
       int layer = -1;
       if (detid.subdetId() == StripSubdetector::TOB)
         layer = static_cast<int>(tTopo->layer(detid)) - 1;  //fill in array as entries 0-5
@@ -113,7 +113,7 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event &iEvent, con
         layer = static_cast<int>(tTopo->layer(detid)) + 5;  //fill in array as entries 6-10
 
       //treat genuine stubs separately (==2 is genuine, ==1 is not)
-      if (MCTruthTTStubHandle->findTrackingParticlePtr(theStubRefs.at(is)).isNull() && hasStubInLayer[layer] < 2)
+      if (MCTruthTTStubHandle->findTrackingParticlePtr(theStubRef).isNull() && hasStubInLayer[layer] < 2)
         hasStubInLayer[layer] = 1;
       else
         hasStubInLayer[layer] = 2;
@@ -121,10 +121,10 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event &iEvent, con
 
     int nStubLayerTP = 0;
     int nStubLayerTP_g = 0;
-    for (int isum = 0; isum < 11; isum++) {
-      if (hasStubInLayer[isum] >= 1)
+    for (int isum : hasStubInLayer) {
+      if (isum >= 1)
         nStubLayerTP += 1;
-      else if (hasStubInLayer[isum] == 2)
+      else if (isum == 2)
         nStubLayerTP_g += 1;
     }
 

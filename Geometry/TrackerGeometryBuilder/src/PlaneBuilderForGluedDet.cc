@@ -39,8 +39,8 @@ std::pair<RectangularPlaneBounds*, GlobalVector> PlaneBuilderForGluedDet::comput
   }
 
   float xmin(0), xmax(0), ymin(0), ymax(0), zmin(0), zmax(0);
-  for (std::vector<GlobalPoint>::const_iterator i = corners.begin(), cend = corners.end(); i != cend; ++i) {
-    LocalPoint p = plane.toLocal(*i);
+  for (const auto& corner : corners) {
+    LocalPoint p = plane.toLocal(corner);
     if (p.x() < xmin)
       xmin = p.x();
     if (p.x() > xmax)

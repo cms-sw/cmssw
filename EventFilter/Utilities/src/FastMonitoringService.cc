@@ -212,8 +212,8 @@ namespace evf {
 
   std::string FastMonitoringService::makeInputLegendaJson() {
     Json::Value legendaVector(Json::arrayValue);
-    for (int i = 0; i < FastMonitoringThread::inCOUNT; i++)
-      legendaVector.append(Json::Value(inputStateNames[i]));
+    for (const auto& inputStateName : inputStateNames)
+      legendaVector.append(Json::Value(inputStateName));
     Json::Value moduleLegend;
     moduleLegend["names"] = legendaVector;
     Json::StyledWriter writer;
@@ -693,8 +693,8 @@ namespace evf {
       avgLeadTime_[lumi] = leadTimes_[0];
     else {
       double totTime = 0;
-      for (unsigned int i = 0; i < leadTimes_.size(); i++)
-        totTime += leadTimes_[i];
+      for (double leadTime : leadTimes_)
+        totTime += leadTime;
       avgLeadTime_[lumi] = 0.001 * (totTime / leadTimes_.size());
     }
   }

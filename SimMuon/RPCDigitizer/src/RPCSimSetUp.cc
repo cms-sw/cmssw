@@ -46,8 +46,8 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
   unsigned int row = 1;
   std::vector<double> sum_clsize;
 
-  for (unsigned int n = 0; n < vcls.size(); ++n) {
-    sum_clsize.push_back(vcls[n]);
+  for (float vcl : vcls) {
+    sum_clsize.push_back(vcl);
 
     if (counter == row * 20) {
       _clsMap[row] = sum_clsize;
@@ -126,8 +126,8 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
       _mapDetClsMap[detId] = clsVect;
       std::stringstream LogDebugClsVectString;
       LogDebugClsVectString << "[";
-      for (std::vector<double>::iterator itClsVect = clsVect.begin(); itClsVect != clsVect.end(); ++itClsVect) {
-        LogDebugClsVectString << *itClsVect << ",";
+      for (double& itClsVect : clsVect) {
+        LogDebugClsVectString << itClsVect << ",";
       }
       LogDebugClsVectString << "]";
       std::string LogDebugClsVectStr = LogDebugClsVectString.str();
@@ -162,8 +162,8 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
       _mapDetClsMapLegacy[detId] = clsVect;
       std::stringstream LogDebugClsVectString;
       LogDebugClsVectString << "[";
-      for (std::vector<double>::iterator itClsVect = clsVect.begin(); itClsVect != clsVect.end(); ++itClsVect) {
-        LogDebugClsVectString << *itClsVect << ",";
+      for (double& itClsVect : clsVect) {
+        LogDebugClsVectString << itClsVect << ",";
       }
       LogDebugClsVectString << "]";
       std::string LogDebugClsVectStr = LogDebugClsVectString.str();
@@ -300,14 +300,14 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
 
       std::stringstream LogDebugNoiVectString, LogDebugEffVectString;
       LogDebugNoiVectString << "[";
-      for (std::vector<float>::iterator itNoiVect = vvnoise.begin(); itNoiVect != vvnoise.end(); ++itNoiVect) {
-        LogDebugNoiVectString << (*itNoiVect) << ",";
+      for (float& itNoiVect : vvnoise) {
+        LogDebugNoiVectString << itNoiVect << ",";
       }
       LogDebugNoiVectString << "]";
       std::string LogDebugNoiVectStr = LogDebugNoiVectString.str();
       LogDebugEffVectString << "[";
-      for (std::vector<float>::iterator itEffVect = vveff.begin(); itEffVect != vveff.end(); ++itEffVect) {
-        LogDebugEffVectString << (*itEffVect) << ",";
+      for (float& itEffVect : vveff) {
+        LogDebugEffVectString << itEffVect << ",";
       }
       LogDebugEffVectString << "]";
       std::string LogDebugEffVectStr = LogDebugEffVectString.str();

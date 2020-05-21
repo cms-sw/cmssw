@@ -692,16 +692,16 @@ string DTDigiTask::triggerSource() {
   if (isLocalRun)
     return l1ASource;
 
-  for (std::vector<LTCDigi>::const_iterator ltc_it = ltcdigis->begin(); ltc_it != ltcdigis->end(); ltc_it++) {
+  for (const auto& ltc_it : *ltcdigis) {
     size_t otherTriggerSum = 0;
     for (size_t i = 1; i < 6; i++)
-      otherTriggerSum += size_t((*ltc_it).HasTriggered(i));
+      otherTriggerSum += size_t(ltc_it.HasTriggered(i));
 
-    if ((*ltc_it).HasTriggered(0) && otherTriggerSum == 0)
+    if (ltc_it.HasTriggered(0) && otherTriggerSum == 0)
       l1ASource = "DTonly";
-    else if (!(*ltc_it).HasTriggered(0))
+    else if (!ltc_it.HasTriggered(0))
       l1ASource = "NoDT";
-    else if ((*ltc_it).HasTriggered(0) && otherTriggerSum > 0)
+    else if (ltc_it.HasTriggered(0) && otherTriggerSum > 0)
       l1ASource = "DTalso";
   }
 

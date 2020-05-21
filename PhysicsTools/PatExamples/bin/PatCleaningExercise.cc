@@ -103,11 +103,10 @@ int main(int argc, char* argv[]) {
           nOverlaps_->Fill(overlaps.size());
           emfOverlapJets_->Fill(jet->emEnergyFraction());
           //loop over the overlaps
-          for (reco::CandidatePtrVector::const_iterator overlap = overlaps.begin(); overlap != overlaps.end();
-               overlap++) {
-            float deltaR = reco::deltaR((*overlap)->eta(), (*overlap)->phi(), jet->eta(), jet->phi());
+          for (auto&& overlap : overlaps) {
+            float deltaR = reco::deltaR((overlap)->eta(), (overlap)->phi(), jet->eta(), jet->phi());
             deltaRElecJet_->Fill(deltaR);
-            elecOverJet_->Fill((*overlap)->energy() / jet->energy());
+            elecOverJet_->Fill((overlap)->energy() / jet->energy());
           }
         }
       }

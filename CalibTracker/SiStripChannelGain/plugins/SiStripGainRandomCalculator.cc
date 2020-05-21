@@ -79,11 +79,10 @@ std::unique_ptr<SiStripApvGain> SiStripGainRandomCalculator::getNewObject() {
 
   auto obj = std::make_unique<SiStripApvGain>();
 
-  for (std::vector<pair<uint32_t, unsigned short> >::const_iterator it = detid_apvs_.begin(); it != detid_apvs_.end();
-       it++) {
+  for (const auto& detid_apv : detid_apvs_) {
     //Generate Gain for det detid
     std::vector<float> theSiStripVector;
-    for (unsigned short j = 0; j < it->second; j++) {
+    for (unsigned short j = 0; j < detid_apv.second; j++) {
       float gain;
 
       //      if(sigmaGain_/meanGain_ < 0.00001) gain = meanGain_;
@@ -94,13 +93,13 @@ std::unique_ptr<SiStripApvGain> SiStripGainRandomCalculator::getNewObject() {
       //      }
 
       if (printdebug_)
-        edm::LogInfo("SiStripGainCalculator") << "detid " << it->first << " \t"
+        edm::LogInfo("SiStripGainCalculator") << "detid " << detid_apv.first << " \t"
                                               << " apv " << j << " \t" << gain << " \t" << std::endl;
       theSiStripVector.push_back(gain);
     }
 
     SiStripApvGain::Range range(theSiStripVector.begin(), theSiStripVector.end());
-    if (!obj->put(it->first, range))
+    if (!obj->put(detid_apv.first, range))
       edm::LogError("SiStripGainCalculator") << "[SiStripGainCalculator::beginJob] detid already exists" << std::endl;
   }
 

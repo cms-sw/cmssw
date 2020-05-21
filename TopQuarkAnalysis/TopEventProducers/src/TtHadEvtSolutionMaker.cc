@@ -266,10 +266,10 @@ void TtHadEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& i
               }
             }
           }
-          for (size_t s = 0; s < evtsols->size(); s++) {
-            (*evtsols)[s].setMCBestJetComb(bestSolution);
-            (*evtsols)[s].setMCChangeW1Q(bestSolutionChangeW1Q);
-            (*evtsols)[s].setMCChangeW2Q(bestSolutionChangeW2Q);
+          for (auto& evtsol : *evtsols) {
+            evtsol.setMCBestJetComb(bestSolution);
+            evtsol.setMCChangeW1Q(bestSolutionChangeW1Q);
+            evtsol.setMCChangeW2Q(bestSolutionChangeW2Q);
           }
         }
       }  // end matchEvt

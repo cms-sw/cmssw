@@ -42,31 +42,31 @@ EcalPulseShapeGrapher::EcalPulseShapeGrapher(const edm::ParameterSet& iConfig)
   listDefaults.push_back(-1);
   listChannels_ = iConfig.getUntrackedParameter<std::vector<int> >("listChannels", listDefaults);
 
-  for (std::vector<int>::const_iterator itr = listChannels_.begin(); itr != listChannels_.end(); ++itr) {
-    std::string title = "Amplitude of cry " + intToString(*itr);
-    std::string name = "ampOfCry" + intToString(*itr);
-    ampHistMap_[*itr] = new TH1F(name.c_str(), title.c_str(), 100, 0, 100);
-    ampHistMap_[*itr]->GetXaxis()->SetTitle("ADC");
+  for (int listChannel : listChannels_) {
+    std::string title = "Amplitude of cry " + intToString(listChannel);
+    std::string name = "ampOfCry" + intToString(listChannel);
+    ampHistMap_[listChannel] = new TH1F(name.c_str(), title.c_str(), 100, 0, 100);
+    ampHistMap_[listChannel]->GetXaxis()->SetTitle("ADC");
 
-    title = "Amplitude (over 13 ADC) of cry " + intToString(*itr);
-    name = "cutAmpOfCry" + intToString(*itr);
-    cutAmpHistMap_[*itr] = new TH1F(name.c_str(), title.c_str(), 100, 0, 100);
-    cutAmpHistMap_[*itr]->GetXaxis()->SetTitle("ADC");
+    title = "Amplitude (over 13 ADC) of cry " + intToString(listChannel);
+    name = "cutAmpOfCry" + intToString(listChannel);
+    cutAmpHistMap_[listChannel] = new TH1F(name.c_str(), title.c_str(), 100, 0, 100);
+    cutAmpHistMap_[listChannel]->GetXaxis()->SetTitle("ADC");
 
-    title = "Pulse shape of cry " + intToString(*itr);
-    name = "PulseShapeCry" + intToString(*itr);
-    pulseShapeHistMap_[*itr] = new TH2F(name.c_str(), title.c_str(), 10, 0, 10, 220, -20, 2);
-    pulseShapeHistMap_[*itr]->GetXaxis()->SetTitle("sample");
+    title = "Pulse shape of cry " + intToString(listChannel);
+    name = "PulseShapeCry" + intToString(listChannel);
+    pulseShapeHistMap_[listChannel] = new TH2F(name.c_str(), title.c_str(), 10, 0, 10, 220, -20, 2);
+    pulseShapeHistMap_[listChannel]->GetXaxis()->SetTitle("sample");
 
-    title = "Raw Pulse shape of cry " + intToString(*itr);
-    name = "RawPulseShapeCry" + intToString(*itr);
-    rawPulseShapeHistMap_[*itr] = new TH2F(name.c_str(), title.c_str(), 10, 0, 10, 500, 0, 500);
-    rawPulseShapeHistMap_[*itr]->GetXaxis()->SetTitle("sample");
+    title = "Raw Pulse shape of cry " + intToString(listChannel);
+    name = "RawPulseShapeCry" + intToString(listChannel);
+    rawPulseShapeHistMap_[listChannel] = new TH2F(name.c_str(), title.c_str(), 10, 0, 10, 500, 0, 500);
+    rawPulseShapeHistMap_[listChannel]->GetXaxis()->SetTitle("sample");
 
-    title = "Amplitude of first sample, cry " + intToString(*itr);
-    name = "AmpOfFirstSampleCry" + intToString(*itr);
-    firstSampleHistMap_[*itr] = new TH1F(name.c_str(), title.c_str(), 300, 100, 400);
-    firstSampleHistMap_[*itr]->GetXaxis()->SetTitle("ADC");
+    title = "Amplitude of first sample, cry " + intToString(listChannel);
+    name = "AmpOfFirstSampleCry" + intToString(listChannel);
+    firstSampleHistMap_[listChannel] = new TH1F(name.c_str(), title.c_str(), 300, 100, 400);
+    firstSampleHistMap_[listChannel]->GetXaxis()->SetTitle("ADC");
   }
 
   fedMap_ = new EcalFedMap();
@@ -110,8 +110,8 @@ void EcalPulseShapeGrapher::analyze(const edm::Event& iEvent, const edm::EventSe
   unique_ptr<EcalElectronicsMapping> ecalElectronicsMap(new EcalElectronicsMapping);
 
   // Loop over the hits
-  for (EcalUncalibratedRecHitCollection::const_iterator hitItr = EBHits->begin(); hitItr != EBHits->end(); ++hitItr) {
-    EcalUncalibratedRecHit hit = (*hitItr);
+  for (const auto& hitItr : *EBHits) {
+    EcalUncalibratedRecHit hit = hitItr;
     float amplitude = hit.amplitude();
     EBDetId hitDetId = hit.id();
 
@@ -135,7 +135,7 @@ void EcalPulseShapeGrapher::analyze(const edm::Event& iEvent, const edm::EventSe
     cutAmpHistMap_[hitDetId.hashedIndex()]->Fill(amplitude);
     numHitsWithActivity++;
     EBDigiCollection::const_iterator digiItr = EBdigis->begin();
-    while (digiItr != EBdigis->end() && digiItr->id() != hitItr->id()) {
+    while (digiItr != EBdigis->end() && digiItr->id() != hitItr.id()) {
       digiItr++;
     }
     if (digiItr == EBdigis->end())
@@ -176,8 +176,8 @@ void EcalPulseShapeGrapher::analyze(const edm::Event& iEvent, const edm::EventSe
   }
 
   // Now do the same for the EE hits
-  for (EcalUncalibratedRecHitCollection::const_iterator hitItr = EEHits->begin(); hitItr != EEHits->end(); ++hitItr) {
-    EcalUncalibratedRecHit hit = (*hitItr);
+  for (const auto& hitItr : *EEHits) {
+    EcalUncalibratedRecHit hit = hitItr;
     float amplitude = hit.amplitude();
     EEDetId hitDetId = hit.id();
 
@@ -201,7 +201,7 @@ void EcalPulseShapeGrapher::analyze(const edm::Event& iEvent, const edm::EventSe
     cutAmpHistMap_[hitDetId.hashedIndex()]->Fill(amplitude);
     numHitsWithActivity++;
     EEDigiCollection::const_iterator digiItr = EEdigis->begin();
-    while (digiItr != EEdigis->end() && digiItr->id() != hitItr->id()) {
+    while (digiItr != EEdigis->end() && digiItr->id() != hitItr.id()) {
       digiItr++;
     }
     if (digiItr == EEdigis->end())
@@ -248,13 +248,13 @@ void EcalPulseShapeGrapher::endJob() {
   file_ = new TFile(rootFilename_.c_str(), "RECREATE");
   TH1::AddDirectory(false);
 
-  for (std::vector<int>::const_iterator itr = listChannels_.begin(); itr != listChannels_.end(); ++itr) {
-    ampHistMap_[*itr]->Write();
-    cutAmpHistMap_[*itr]->Write();
-    firstSampleHistMap_[*itr]->Write();
+  for (int listChannel : listChannels_) {
+    ampHistMap_[listChannel]->Write();
+    cutAmpHistMap_[listChannel]->Write();
+    firstSampleHistMap_[listChannel]->Write();
 
-    rawPulseShapeHistMap_[*itr]->Write();
-    TProfile* t2 = (TProfile*)(rawPulseShapeHistMap_[*itr]->ProfileX());
+    rawPulseShapeHistMap_[listChannel]->Write();
+    TProfile* t2 = (TProfile*)(rawPulseShapeHistMap_[listChannel]->ProfileX());
     t2->Write();
     //TODO: fix the normalization so these are correct
     //pulseShapeHistMap_[*itr]->Write();

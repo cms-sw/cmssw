@@ -25,8 +25,8 @@ AlignableComposite::AlignableComposite(align::ID id, StructureType type, const R
 
 //__________________________________________________________________________________________________
 AlignableComposite::~AlignableComposite() {
-  for (unsigned int i = 0; i < theComponents.size(); ++i)
-    delete theComponents[i];
+  for (auto& theComponent : theComponents)
+    delete theComponent;
 }
 
 //__________________________________________________________________________________________________

@@ -135,11 +135,9 @@ namespace edmplugin {
     std::vector<PluginInfo> infos;
     infos.reserve(classToLoadable_.size());
 
-    for (std::map<std::string, boost::filesystem::path>::const_iterator it = classToLoadable_.begin();
-         it != classToLoadable_.end();
-         ++it) {
-      info.name_ = it->first;
-      info.loadable_ = it->second;
+    for (const auto& it : classToLoadable_) {
+      info.name_ = it.first;
+      info.loadable_ = it.second;
       infos.push_back(info);
     }
     return infos;

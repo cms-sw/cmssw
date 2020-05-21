@@ -199,8 +199,8 @@ void CTPPSSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   }
   std::unique_ptr<edm::PSimHitContainer> pctpps(new edm::PSimHitContainer);
   int n = 0;
-  for (std::vector<PSimHit>::const_iterator i = theCTPPSHits.begin(); i != theCTPPSHits.end(); i++) {
-    pctpps->push_back(*i);
+  for (const auto& theCTPPSHit : theCTPPSHits) {
+    pctpps->push_back(theCTPPSHit);
     n += 1;
   }
   iEvent.put(std::move(pctpps), "CTPPSHits");

@@ -70,11 +70,11 @@ PFCandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet
   reco::isodeposit::EventDependentAbsVeto *evdep = nullptr;
   static const std::regex ecalSwitch("^Ecal(Barrel|Endcaps):(.*)");
 
-  for (vstring::const_iterator it = vetos.begin(), ed = vetos.end(); it != ed; ++it) {
+  for (const auto &veto : vetos) {
     std::cmatch match;
     // in that case, make two series of vetoes
     if (usePivotForBarrelEndcaps_) {
-      if (regex_match(it->c_str(), match, ecalSwitch)) {
+      if (regex_match(veto.c_str(), match, ecalSwitch)) {
         if (match[1] == "Barrel") {
           //	    std::cout << " Adding Barrel veto " << std::string(match[2]) << std::endl;
           barrelVetos_.push_back(
@@ -85,12 +85,12 @@ PFCandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet
           endcapVetos_.push_back(IsoDepositVetoFactory::make(std::string(match[2]).c_str(), evdep, iC));
         }
       } else {
-        barrelVetos_.push_back(IsoDepositVetoFactory::make(it->c_str(), evdep, iC));
-        endcapVetos_.push_back(IsoDepositVetoFactory::make(it->c_str(), evdep, iC));
+        barrelVetos_.push_back(IsoDepositVetoFactory::make(veto.c_str(), evdep, iC));
+        endcapVetos_.push_back(IsoDepositVetoFactory::make(veto.c_str(), evdep, iC));
       }
     } else {
       //only one serie of vetoes, just barrel
-      barrelVetos_.push_back(IsoDepositVetoFactory::make(it->c_str(), evdep, iC));
+      barrelVetos_.push_back(IsoDepositVetoFactory::make(veto.c_str(), evdep, iC));
     }
     if (evdep)
       evdepVetos_.push_back(evdep);
@@ -108,11 +108,11 @@ PFCandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet
   //std::cout << "PFCandIsolatorFromDeposits::SingleDeposit::SingleDeposit: Total of " << vetos_.size() << " vetos" << std::endl;
 }
 void PFCandIsolatorFromDeposits::SingleDeposit::cleanup() {
-  for (AbsVetos::iterator it = barrelVetos_.begin(), ed = barrelVetos_.end(); it != ed; ++it) {
-    delete *it;
+  for (auto &barrelVeto : barrelVetos_) {
+    delete barrelVeto;
   }
-  for (AbsVetos::iterator it = endcapVetos_.begin(), ed = endcapVetos_.end(); it != ed; ++it) {
-    delete *it;
+  for (auto &endcapVeto : endcapVetos_) {
+    delete endcapVeto;
   }
   barrelVetos_.clear();
   endcapVetos_.clear();
@@ -121,8 +121,8 @@ void PFCandIsolatorFromDeposits::SingleDeposit::cleanup() {
 }
 void PFCandIsolatorFromDeposits::SingleDeposit::open(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   iEvent.getByToken(srcToken_, hDeps_);
-  for (EventDependentAbsVetos::iterator it = evdepVetos_.begin(), ed = evdepVetos_.end(); it != ed; ++it) {
-    (*it)->setEvent(iEvent, iSetup);
+  for (auto &evdepVeto : evdepVetos_) {
+    evdepVeto->setEvent(iEvent, iSetup);
   }
 }
 
@@ -147,8 +147,8 @@ double PFCandIsolatorFromDeposits::SingleDeposit::compute(const reco::CandidateB
   // if ! usePivotForBarrelEndcaps_ only the barrel series is used, which does not prevent the vetoes do be different in barrel & endcaps
   reco::isodeposit::AbsVetos *vetos = (barrel) ? &barrelVetos_ : &endcapVetos_;
 
-  for (AbsVetos::iterator it = vetos->begin(), ed = vetos->end(); it != ed; ++it) {
-    (*it)->centerOn(eta, phi);
+  for (auto &veto : *vetos) {
+    veto->centerOn(eta, phi);
   }
   double weight = (usesFunction_ ? weightExpr_(*cand) : weight_);
   switch (mode_) {
@@ -177,8 +177,8 @@ double PFCandIsolatorFromDeposits::SingleDeposit::compute(const reco::CandidateB
 PFCandIsolatorFromDeposits::PFCandIsolatorFromDeposits(const ParameterSet &par) {
   typedef std::vector<edm::ParameterSet> VPSet;
   VPSet depPSets = par.getParameter<VPSet>("deposits");
-  for (VPSet::const_iterator it = depPSets.begin(), ed = depPSets.end(); it != ed; ++it) {
-    sources_.push_back(SingleDeposit(*it, consumesCollector()));
+  for (const auto &depPSet : depPSets) {
+    sources_.push_back(SingleDeposit(depPSet, consumesCollector()));
   }
   if (sources_.empty())
     throw cms::Exception("Configuration Error") << "Please specify at least one deposit!";

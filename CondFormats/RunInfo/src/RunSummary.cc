@@ -23,34 +23,34 @@ void RunSummary::printAllValues() const {
   std::cout << "run number of events according hlt: " << m_nevents << std::endl;
   std::cout << "hlt rate: " << m_rate << std::endl;
   std::cout << "ids of subdetectors in run: " << std::endl;
-  for (size_t i = 0; i < m_subdt_in.size(); i++) {
-    std::cout << "---> " << m_subdt_in[i] << std::endl;
+  for (int i : m_subdt_in) {
+    std::cout << "---> " << i << std::endl;
   }
 }
 
 std::vector<std::string> RunSummary::getSubdtIn() const {
   std::vector<std::string> v;
-  for (size_t i = 0; i < m_subdt_in.size(); i++) {
-    if (m_subdt_in[i] == 0) {
+  for (int i : m_subdt_in) {
+    if (i == 0) {
       v.push_back("PIXEL");
     }
-    if (m_subdt_in[i] == 1) {
+    if (i == 1) {
       v.push_back("TRACKER");
     }
-    if (m_subdt_in[i] == 2) {
+    if (i == 2) {
       v.push_back("ECAL");
     }
-    if (m_subdt_in[i] == 3) {
+    if (i == 3) {
       v.push_back("HCAL");
     }
 
-    if (m_subdt_in[i] == 4) {
+    if (i == 4) {
       v.push_back("DT");
     }
-    if (m_subdt_in[i] == 5) {
+    if (i == 5) {
       v.push_back("CSC");
     }
-    if (m_subdt_in[i] == 6) {
+    if (i == 6) {
       v.push_back("RPC");
     }
   }

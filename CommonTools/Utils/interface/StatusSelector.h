@@ -11,8 +11,8 @@
 
 struct StatusSelector {
   StatusSelector(const std::vector<int>& status) {
-    for (std::vector<int>::const_iterator i = status.begin(); i != status.end(); ++i)
-      status_.push_back(*i);
+    for (int statu : status)
+      status_.push_back(statu);
     begin_ = status_.begin();
     end_ = status_.end();
   }

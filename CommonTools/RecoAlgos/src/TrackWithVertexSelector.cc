@@ -65,8 +65,8 @@ bool TrackWithVertexSelector::testVertices(const reco::Track &t, const reco::Ver
   bool ok = false;
   if (!vtxs.empty()) {
     unsigned int tested = 1;
-    for (reco::VertexCollection::const_iterator it = vtxs.begin(), ed = vtxs.end(); it != ed; ++it) {
-      if ((std::abs(t.dxy(it->position())) < rhoVtx_) && (std::abs(t.dz(it->position())) < zetaVtx_)) {
+    for (const auto &vtx : vtxs) {
+      if ((std::abs(t.dxy(vtx.position())) < rhoVtx_) && (std::abs(t.dz(vtx.position())) < zetaVtx_)) {
         ok = true;
         break;
       }
@@ -85,8 +85,8 @@ bool TrackWithVertexSelector::testVertices(const reco::TrackRef &tref, const rec
   bool ok = false;
   if (!vtxs.empty()) {
     unsigned int tested = 1;
-    for (reco::VertexCollection::const_iterator it = vtxs.begin(), ed = vtxs.end(); it != ed; ++it) {
-      const bool useTime = timeAvailable && it->t() != 0.;
+    for (const auto &vtx : vtxs) {
+      const bool useTime = timeAvailable && vtx.t() != 0.;
       float time = useTime ? (*timescoll_)[tref] : -1.f;
       float timeReso = useTime ? (*timeresoscoll_)[tref] : -1.f;
       timeReso = (timeReso > 1e-6 ? timeReso : fakeBeamSpotTimeWidth);
@@ -96,11 +96,11 @@ bool TrackWithVertexSelector::testVertices(const reco::TrackRef &tref, const rec
         timeReso = 2.0 * fakeBeamSpotTimeWidth;
       }
 
-      const double vtxSigmaT2 = it->tError() * it->tError();
+      const double vtxSigmaT2 = vtx.tError() * vtx.tError();
       const double vtxTrackErr = std::sqrt(vtxSigmaT2 + timeReso * timeReso);
 
-      if ((std::abs(t.dxy(it->position())) < rhoVtx_) && (std::abs(t.dz(it->position())) < zetaVtx_) &&
-          (!useTime || (std::abs(time - it->t()) / vtxTrackErr < nSigmaDtVertex_))) {
+      if ((std::abs(t.dxy(vtx.position())) < rhoVtx_) && (std::abs(t.dz(vtx.position())) < zetaVtx_) &&
+          (!useTime || (std::abs(time - vtx.t()) / vtxTrackErr < nSigmaDtVertex_))) {
         ok = true;
         break;
       }

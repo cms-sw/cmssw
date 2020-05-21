@@ -300,8 +300,8 @@ void ECalSD::initMap() {
   std::vector<const G4LogicalVolume*> lvused;
   const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
   std::map<const std::string, const G4LogicalVolume*> nameMap;
-  for (auto lvi = lvs->begin(), lve = lvs->end(); lvi != lve; ++lvi)
-    nameMap.emplace((*lvi)->GetName(), *lvi);
+  for (auto lv : *lvs)
+    nameMap.emplace(lv->GetName(), lv);
 
   for (unsigned int it = 0; it < ecalSimParameters_->lvNames_.size(); ++it) {
     const std::string& matname = ecalSimParameters_->matNames_[it];

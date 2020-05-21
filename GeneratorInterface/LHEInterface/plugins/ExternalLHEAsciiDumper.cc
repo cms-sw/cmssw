@@ -71,7 +71,7 @@ void ExternalLHEAsciiDumper::endRun(edm::Run const& iRun, edm::EventSetup const&
   std::string basename = lheFileName_.substr(0, lastdot);
   std::string extension = lastdot != std::string::npos ? lheFileName_.substr(lastdot + 1, std::string::npos) : "";
 
-  for (unsigned int i = 0; i < lheOutputs.size(); ++i) {
+  for (const auto& lheOutput : lheOutputs) {
     std::ofstream outfile;
     if (iout == 0)
       outfile.open(lheFileName_.c_str(), std::ofstream::out | std::ofstream::app);
@@ -82,7 +82,7 @@ void ExternalLHEAsciiDumper::endRun(edm::Run const& iRun, edm::EventSetup const&
         fname << "." << extension;
       outfile.open(fname.str().c_str(), std::ofstream::out | std::ofstream::app);
     }
-    outfile << lheOutputs[i];
+    outfile << lheOutput;
     outfile.close();
     ++iout;
   }

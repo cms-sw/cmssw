@@ -186,10 +186,10 @@ Int_t Combinatorics::EqualPermutation(const vector<UInt_t>& p1, const vector<UIn
   Float_t p2_sum = 0.0;
 
   // Check whether permutations are equal (2^index)
-  for (UInt_t i = 0; i < p1.size(); i++)
-    p1_sum += (1 << p1.at(i));
-  for (UInt_t i = 0; i < p2.size(); i++)
-    p2_sum += (1 << p2.at(i));
+  for (unsigned int i : p1)
+    p1_sum += (1 << i);
+  for (unsigned int i : p2)
+    p2_sum += (1 << i);
 
   return (p1_sum == p2_sum ? 1 : 0);
 }
@@ -257,8 +257,8 @@ void Combinatorics::Skip_2_0(const vector<vector<UInt_t> >& p1, vector<vector<UI
   p2.push_back(p1.at(0));
 
   for (UShort_t i = 1; i < p1.size(); i++) {
-    for (UShort_t j = 0; j < p2.size(); j++) {
-      if (EqualPermutation_2_0(p1.at(i), p2.at(j))) {
+    for (const auto& j : p2) {
+      if (EqualPermutation_2_0(p1.at(i), j)) {
         Skip = kTRUE;
       }
     }
@@ -278,8 +278,8 @@ void Combinatorics::Skip_2_2(const vector<vector<UInt_t> >& p1, vector<vector<UI
   p2.push_back(p1.at(0));
 
   for (UShort_t i = 1; i < p1.size(); i++) {
-    for (UShort_t j = 0; j < p2.size(); j++) {
-      if (EqualPermutation_2_2(p1.at(i), p2.at(j))) {
+    for (const auto& j : p2) {
+      if (EqualPermutation_2_2(p1.at(i), j)) {
         Skip = kTRUE;
       }
     }
@@ -363,9 +363,9 @@ vector<vector<UInt_t> > Combinatorics::GetCombinations_N_1() {
     return FinalCombinations;
   }
 
-  for (UInt_t i = 0; i < m_Combinations.size(); i++) {
-    vector<UInt_t> RotatingPermutation = m_Combinations.at(i);
-    FinalCombinations.push_back(m_Combinations.at(i));
+  for (const auto& m_Combination : m_Combinations) {
+    vector<UInt_t> RotatingPermutation = m_Combination;
+    FinalCombinations.push_back(m_Combination);
 
     for (UInt_t j = 1; j < RotatingPermutation.size(); j++) {
       FinalCombinations.push_back(Rotate(RotatingPermutation, j));
@@ -404,8 +404,8 @@ vector<UInt_t> Combinatorics::Rotate(const vector<UInt_t>& permutation, UInt_t d
 // **************************************************************************
 void Combinatorics::Print(const vector<UInt_t>& p) {
   // Print permutations
-  for (UShort_t i = 0; i < p.size(); i++) {
-    LogDebug("Combinatorics") << (p.at(i));
+  for (unsigned int i : p) {
+    LogDebug("Combinatorics") << i;
   }
   LogDebug("Combinatorics") << endl;
 }

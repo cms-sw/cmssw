@@ -60,10 +60,8 @@ namespace reco {
       } else
         assert(0);
       const std::vector<reco::CandidatePtr>& neutralPFCands = chargedHadron.getNeutralPFCandidates();
-      for (std::vector<reco::CandidatePtr>::const_iterator neutralPFCand = neutralPFCands.begin();
-           neutralPFCand != neutralPFCands.end();
-           ++neutralPFCand) {
-        SumNeutrals += (*neutralPFCand)->p();
+      for (const auto& neutralPFCand : neutralPFCands) {
+        SumNeutrals += neutralPFCand->p();
       }
       double noNeutrals = chargedHadronP;
       chargedHadronP += scaleFactor_neutralPFCands * SumNeutrals;

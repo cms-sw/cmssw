@@ -377,8 +377,8 @@ namespace hcaldqm {
       uint32_t getBin(int f) override { return f + 1; }
       std::vector<std::string> getLabels() override {
         std::vector<std::string> vnames;
-        for (std::vector<flag::Flag>::const_iterator it = _flags.begin(); it != _flags.end(); ++it)
-          vnames.push_back(it->_name);
+        for (const auto &_flag : _flags)
+          vnames.push_back(_flag._name);
 
         return vnames;
       }
@@ -444,8 +444,8 @@ namespace hcaldqm {
       std::vector<std::string> getLabels() override {
         char name[10];
         std::vector<std::string> labels;
-        for (uint32_t i = 0; i < _runs.size(); i++) {
-          sprintf(name, "%d", _runs[i]);
+        for (int _run : _runs) {
+          sprintf(name, "%d", _run);
           labels.push_back(name);
         }
         return labels;

@@ -158,9 +158,9 @@ void FedTimingAlgorithm::analyse() {
   // Find rms spread in "baseline" samples
   float mean = 0.;
   float mean2 = 0.;
-  for (uint16_t ibin = 0; ibin < base.size(); ibin++) {
-    mean += base[ibin];
-    mean2 += base[ibin] * base[ibin];
+  for (float ibin : base) {
+    mean += ibin;
+    mean2 += ibin * ibin;
   }
   if (!base.empty()) {
     mean = mean / base.size();

@@ -117,8 +117,8 @@ void popcon::EcalTPGBadStripHandler::getNewObjects() {
 
     std::cout << " GOT the logic ID for the EE trigger strips " << std::endl;
 
-    for (size_t kr = 0; kr < run_vec.size(); kr++) {
-      irun = static_cast<unsigned int>(run_vec[kr].getRunNumber());
+    for (auto& kr : run_vec) {
+      irun = static_cast<unsigned int>(kr.getRunNumber());
 
       std::cout << " **************** " << std::endl;
       std::cout << " **************** " << std::endl;
@@ -126,7 +126,7 @@ void popcon::EcalTPGBadStripHandler::getNewObjects() {
 
       // retrieve the data :
       std::map<EcalLogicID, RunTPGConfigDat> dataset;
-      econn->fetchDataSet(&dataset, &run_vec[kr]);
+      econn->fetchDataSet(&dataset, &kr);
 
       std::string the_config_tag = "";
       int the_config_version = 0;
@@ -183,8 +183,8 @@ void popcon::EcalTPGBadStripHandler::getNewObjects() {
             // put at 1 the strip that are bad
             int icells = 0;
             int icellsFound = 0;
-            for (CIfeped p = dataset_TpgBadStrip.begin(); p != dataset_TpgBadStrip.end(); p++) {
-              rd_badStrip = *p;
+            for (const auto& p : dataset_TpgBadStrip) {
+              rd_badStrip = p;
 
               //int fed_num=rd_badStrip.getFedId();
               int tcc_num = rd_badStrip.getTCCId();
@@ -197,12 +197,10 @@ void popcon::EcalTPGBadStripHandler::getNewObjects() {
               int stripid;
 
               bool set_the_strip = false;
-              for (size_t istrip = 0; istrip < my_StripEcalLogicId_EE.size(); istrip++) {
+              for (auto& istrip : my_StripEcalLogicId_EE) {
                 if (!set_the_strip) {
-                  if (my_StripEcalLogicId_EE[istrip].getID1() == tcc_num &&
-                      my_StripEcalLogicId_EE[istrip].getID2() == tt_num &&
-                      my_StripEcalLogicId_EE[istrip].getID3() == strip_num) {
-                    stripid = my_StripEcalLogicId_EE[istrip].getLogicID();
+                  if (istrip.getID1() == tcc_num && istrip.getID2() == tt_num && istrip.getID3() == strip_num) {
+                    stripid = istrip.getLogicID();
 
                     set_the_strip = true;
                     ++icellsFound;

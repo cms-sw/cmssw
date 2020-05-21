@@ -80,15 +80,13 @@ void CandidateTriggerObjectProducer::produce(edm::Event& iEvent, const edm::Even
   std::map<std::string, bool> triggerInMenu;
   std::map<std::string, bool> triggerUnprescaled;
 
-  for (std::vector<std::string>::const_iterator iHLT = activeHLTPathsInThisEvent.begin();
-       iHLT != activeHLTPathsInThisEvent.end();
-       ++iHLT) {
+  for (const auto& iHLT : activeHLTPathsInThisEvent) {
     //matching with regexp filter name. More than 1 matching filter is allowed
-    if (TString(*iHLT).Contains(TRegexp(TString(triggerName_)))) {
-      triggerInMenu[*iHLT] = true;
-      const std::pair<int, int> prescales(hltPrescaleProvider_.prescaleValues(iEvent, iSetup, *iHLT));
+    if (TString(iHLT).Contains(TRegexp(TString(triggerName_)))) {
+      triggerInMenu[iHLT] = true;
+      const std::pair<int, int> prescales(hltPrescaleProvider_.prescaleValues(iEvent, iSetup, iHLT));
       if (prescales.first * prescales.second == 1)
-        triggerUnprescaled[*iHLT] = true;
+        triggerUnprescaled[iHLT] = true;
     }
   }
 
@@ -123,8 +121,7 @@ void CandidateTriggerObjectProducer::produce(edm::Event& iEvent, const edm::Even
     //       assert (moduleIndex<m);
 
     // Results from TriggerEvent product - Looking only on last filter since trigger is accepted
-    for (unsigned int imodule = 0; imodule < moduleLabels.size(); ++imodule) {
-      const std::string& moduleLabel(moduleLabels[imodule]);
+    for (const auto& moduleLabel : moduleLabels) {
       const std::string moduleType(hltConfig.moduleType(moduleLabel));
       //Avoiding L1 seeds
       if (moduleType.find("Level1GTSeed") != std::string::npos)

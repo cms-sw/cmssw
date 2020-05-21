@@ -100,8 +100,8 @@ void popcon::RPCEMapSourceHandler::readEMap1() {
   }
   delete query1;
 
-  for (unsigned int iFED = 0; iFED < theDAQ.size(); iFED++) {
-    thisDcc.theId = theDAQ[iFED].second;
+  for (auto& iFED : theDAQ) {
+    thisDcc.theId = iFED.second;
     std::vector<std::pair<int, int> > theTB;
     // get TBs
     RPCEMap::tbItem thisTB;
@@ -110,7 +110,7 @@ void popcon::RPCEMapSourceHandler::readEMap1() {
     query2->addToOutputList("TRIGGERBOARD.TRIGGERBOARDID", "TRIGGERBOARDID");
     query2->addToOutputList("TRIGGERBOARD.DCCINPUTCHANNELNUM", "DCCCHANNELNUM");
     query2->addToOrderList("DCCCHANNELNUM");
-    condition = "TRIGGERBOARD.DCCBOARD_DCCBOARDID=" + IntToString(theDAQ[iFED].first);
+    condition = "TRIGGERBOARD.DCCBOARD_DCCBOARDID=" + IntToString(iFED.first);
     query2->setCondition(condition, conditionData);
     coral::ICursor& cursor2 = query2->execute();
     int ntbs = 0;
@@ -123,8 +123,8 @@ void popcon::RPCEMapSourceHandler::readEMap1() {
       theTB.push_back(tmp_tbl);
     }
     delete query2;
-    for (unsigned int iTB = 0; iTB < theTB.size(); iTB++) {
-      thisTB.theNum = theTB[iTB].second;
+    for (auto& iTB : theTB) {
+      thisTB.theNum = iTB.second;
       std::vector<std::pair<int, int> > theLink;
       // get links
       RPCEMap::linkItem thisLink;
@@ -133,7 +133,7 @@ void popcon::RPCEMapSourceHandler::readEMap1() {
       query3->addToOutputList("BOARDBOARDCONN.BOARD_BOARDID", "BOARDID");
       query3->addToOutputList("BOARDBOARDCONN.COLLECTORBOARDINPUTNUM", "TBINPUTNUM");
       query3->addToOrderList("TBINPUTNUM");
-      condition = "BOARDBOARDCONN.BOARD_COLLECTORBOARDID=" + IntToString(theTB[iTB].first);
+      condition = "BOARDBOARDCONN.BOARD_COLLECTORBOARDID=" + IntToString(iTB.first);
       query3->setCondition(condition, conditionData);
       coral::ICursor& cursor3 = query3->execute();
       int nlinks = 0;
@@ -145,9 +145,9 @@ void popcon::RPCEMapSourceHandler::readEMap1() {
         theLink.push_back(tmp_tbl);
       }
       delete query3;
-      for (unsigned int iLink = 0; iLink < theLink.size(); iLink++) {
-        int boardId = theLink[iLink].first;
-        thisLink.theTriggerBoardInputNumber = theLink[iLink].second;
+      for (auto& iLink : theLink) {
+        int boardId = iLink.first;
+        thisLink.theTriggerBoardInputNumber = iLink.second;
         std::vector<std::pair<int, std::string> > theLB;
         std::pair<int, std::string> tmpLB;
         // Get master LBs first...
@@ -155,14 +155,14 @@ void popcon::RPCEMapSourceHandler::readEMap1() {
         coral::IQuery* query4 = schema.newQuery();
         query4->addToTableList("BOARD");
         query4->addToOutputList("BOARD.NAME", "NAME");
-        condition = "BOARD.BOARDID=" + IntToString(theLink[iLink].first);
+        condition = "BOARD.BOARDID=" + IntToString(iLink.first);
         query4->setCondition(condition, conditionData);
         coral::ICursor& cursor4 = query4->execute();
         int nlbs = 0;
         while (cursor4.next()) {
           nlbs++;
           const coral::AttributeList& row = cursor4.currentRow();
-          tmpLB.first = theLink[iLink].first;
+          tmpLB.first = iLink.first;
           tmpLB.second = row["NAME"].data<std::string>();
           theLB.push_back(tmpLB);
         }
@@ -174,7 +174,7 @@ void popcon::RPCEMapSourceHandler::readEMap1() {
         query5->addToOutputList("LINKBOARD.LINKBOARDID", "LINKBOARDID");
         query5->addToOutputList("BOARD.NAME", "NAME");
         query5->addToOrderList("LINKBOARDID");
-        condition = "LINKBOARD.MASTERID=" + IntToString(theLink[iLink].first) +
+        condition = "LINKBOARD.MASTERID=" + IntToString(iLink.first) +
                     " AND BOARD.BOARDID=LINKBOARD.LINKBOARDID AND LINKBOARD.MASTERID<>LINKBOARD.LINKBOARDID";
         query5->setCondition(condition, conditionData);
         coral::ICursor& cursor5 = query5->execute();
@@ -186,10 +186,10 @@ void popcon::RPCEMapSourceHandler::readEMap1() {
           theLB.push_back(tmpLB);
         }
         delete query5;
-        for (unsigned int iLB = 0; iLB < theLB.size(); iLB++) {
-          thisLB.theMaster = (theLB[iLB].first == boardId);
+        for (auto& iLB : theLB) {
+          thisLB.theMaster = (iLB.first == boardId);
           // extract all relevant information from BOARD.NAME
-          std::string theName = theLB[iLB].second;
+          std::string theName = iLB.second;
           int slength = theName.length();
           thisLB.theLinkBoardNumInLink = atoi((theName.substr(slength - 1, 1)).c_str());
           int wheel = atoi((theName.substr(6, 1)).c_str());
@@ -234,7 +234,7 @@ void popcon::RPCEMapSourceHandler::readEMap1() {
           query6->addToOutputList("FEBCONNECTOR.LINKBOARDINPUTNUM", "LINKBOARDINPUTNUM");
           query6->addToOrderList("FEBLOCATIONID");
           query6->addToOrderList("FEBCONNECTORID");
-          condition = "FEBLOCATION.LB_LINKBOARDID=" + IntToString(theLB[iLB].first) +
+          condition = "FEBLOCATION.LB_LINKBOARDID=" + IntToString(iLB.first) +
                       " AND FEBLOCATION.FEBLOCATIONID=FEBCONNECTOR.FL_FEBLOCATIONID";
           query6->setCondition(condition, conditionData);
           coral::ICursor& cursor6 = query6->execute();
@@ -254,25 +254,25 @@ void popcon::RPCEMapSourceHandler::readEMap1() {
             theFEB.push_back(tmpFEB);
           }
           delete query6;
-          for (unsigned int iFEB = 0; iFEB < theFEB.size(); iFEB++) {
+          for (auto& iFEB : theFEB) {
             RPCEMap::febItem thisFeb;
-            std::string temp = theFEB[iFEB].localEtaPart;
+            std::string temp = iFEB.localEtaPart;
             std::string localEtaVal[6] = {"Forward", "Central", "Backward", "A", "B", "C"};
             char localEtaPartition = 0;
             for (int i = 0; i < 6; i++)
               if (temp == localEtaVal[i])
                 localEtaPartition = i + 1;
-            char positionInLocalEtaPartition = theFEB[iFEB].posInLocalEtaPart;
-            temp = theFEB[iFEB].cmsEtaPart;
+            char positionInLocalEtaPartition = iFEB.posInLocalEtaPart;
+            temp = iFEB.cmsEtaPart;
             std::string cmsEtaVal[6] = {"1", "2", "3", "A", "B", "C"};
             char cmsEtaPartition = 0;
             for (int i = 0; i < 6; i++)
               if (temp == cmsEtaVal[i])
                 cmsEtaPartition = i + 1;
-            char positionInCmsEtaPartition = theFEB[iFEB].posInCmsEtaPart;
+            char positionInCmsEtaPartition = iFEB.posInCmsEtaPart;
             thisFeb.thePartition = positionInLocalEtaPartition + 10 * localEtaPartition +
                                    100 * positionInCmsEtaPartition + 1000 * cmsEtaPartition;
-            thisFeb.theLinkBoardInputNum = theFEB[iFEB].lbInputNum;
+            thisFeb.theLinkBoardInputNum = iFEB.lbInputNum;
             // Get chamber
             coral::IQuery* query7 = schema.newQuery();
             query7->addToTableList("CHAMBERLOCATION");
@@ -284,7 +284,7 @@ void popcon::RPCEMapSourceHandler::readEMap1() {
             query7->addToOutputList("CHAMBERLOCATION.FEBZORNT", "FEBZORNT");
             query7->addToOutputList("CHAMBERLOCATION.FEBRADORNT", "FEBRADORNT");
             query7->addToOutputList("CHAMBERLOCATION.BARRELORENDCAP", "BARRELORENDCAP");
-            condition = "CHAMBERLOCATION.CHAMBERLOCATIONID=" + IntToString(theFEB[iFEB].chamberId);
+            condition = "CHAMBERLOCATION.CHAMBERLOCATIONID=" + IntToString(iFEB.chamberId);
             query7->setCondition(condition, conditionData);
             coral::ICursor& cursor7 = query7->execute();
             thisFeb.theChamber = -1;
@@ -333,7 +333,7 @@ void popcon::RPCEMapSourceHandler::readEMap1() {
             query8->addToOutputList("CHAMBERSTRIP.CHAMBERSTRIPNUMBER", "CHAMBERSTRIPNUM");
             //            query8->addToOutputList("CHAMBERSTRIP.CMSSTRIPNUMBER","CMSSTRIPNUM");
             query8->addToOrderList("CABLECHANNELNUM");
-            condition = "CHAMBERSTRIP.FC_FEBCONNECTORID=" + IntToString(theFEB[iFEB].connectorId);
+            condition = "CHAMBERSTRIP.FC_FEBCONNECTORID=" + IntToString(iFEB.connectorId);
             query8->setCondition(condition, conditionData);
             coral::ICursor& cursor8 = query8->execute();
             // NEW: do not store all the strip information as goes, only the minimum data needed to
@@ -406,9 +406,9 @@ int popcon::RPCEMapSourceHandler::Compare2EMaps(const Ref& _map1, RPCEMap* map2)
   }
   typedef std::vector<const DccSpec*>::const_iterator IDCC;
   IDCC idcc2 = dccs2.begin();
-  for (IDCC idcc1 = dccs1.begin(); idcc1 != dccs1.end(); idcc1++) {
-    int dccNo = (**idcc1).id();
-    std::string dccContents = (**idcc1).print(4);
+  for (auto idcc1 : dccs1) {
+    int dccNo = (*idcc1).id();
+    std::string dccContents = (*idcc1).print(4);
     if ((**idcc2).id() != dccNo) {
       return 1;
     }

@@ -125,9 +125,9 @@ float EcalCleaningAlgo::e4e1(const DetId& id, const EcalRecHitCollection& rhs) {
   if (e1 == 0)
     return 0;
   const std::vector<DetId>& neighs = neighbours(id);
-  for (size_t i = 0; i < neighs.size(); ++i)
+  for (auto neigh : neighs)
     // avoid hits out of time when making s4
-    s4 += recHitE(neighs[i], rhs, true);
+    s4 += recHitE(neigh, rhs, true);
 
   return s4 / e1;
 }
@@ -146,11 +146,11 @@ float EcalCleaningAlgo::e6e2(const DetId& id, const EcalRecHitCollection& rhs) {
   const std::vector<DetId>& neighs = neighbours(id);
 
   // find the most energetic neighbour ignoring time info
-  for (size_t i = 0; i < neighs.size(); ++i) {
-    float ene = recHitE(neighs[i], rhs, false);
+  for (auto neigh : neighs) {
+    float ene = recHitE(neigh, rhs, false);
     if (ene > maxene) {
       maxene = ene;
-      maxid = neighs[i];
+      maxid = neigh;
     }
   }
 

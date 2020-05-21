@@ -35,8 +35,8 @@ CocoaUnitDefinition::CocoaUnitDefinition(const ALIstring& name,
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 CocoaUnitDefinition::~CocoaUnitDefinition() {
-  for (size_t i = 0; i < theUnitsTable.size(); i++) {
-    delete theUnitsTable[i];
+  for (auto& i : theUnitsTable) {
+    delete i;
   }
 }
 
@@ -74,13 +74,13 @@ ALIdouble CocoaUnitDefinition::GetValueOf(const ALIstring& str) {
   if (theUnitsTable.empty())
     BuildUnitsTable();
   ALIstring name, symbol;
-  for (size_t i = 0; i < theUnitsTable.size(); i++) {
-    CocoaUnitsContainer& units = theUnitsTable[i]->GetUnitsList();
-    for (size_t j = 0; j < units.size(); j++) {
-      name = units[j]->GetName();
-      symbol = units[j]->GetSymbol();
+  for (auto& i : theUnitsTable) {
+    CocoaUnitsContainer& units = i->GetUnitsList();
+    for (auto& unit : units) {
+      name = unit->GetName();
+      symbol = unit->GetSymbol();
       if (str == name || str == symbol)
-        return units[j]->GetValue();
+        return unit->GetValue();
     }
   }
   std::cout << "Warning from CocoaUnitDefinition::GetValueOf(" << str << ")."
@@ -95,13 +95,13 @@ ALIstring CocoaUnitDefinition::GetCategory(const ALIstring& str) {
   if (theUnitsTable.empty())
     BuildUnitsTable();
   ALIstring name, symbol;
-  for (size_t i = 0; i < theUnitsTable.size(); i++) {
-    CocoaUnitsContainer& units = theUnitsTable[i]->GetUnitsList();
-    for (size_t j = 0; j < units.size(); j++) {
-      name = units[j]->GetName();
-      symbol = units[j]->GetSymbol();
+  for (auto& i : theUnitsTable) {
+    CocoaUnitsContainer& units = i->GetUnitsList();
+    for (auto& unit : units) {
+      name = unit->GetName();
+      symbol = unit->GetSymbol();
       if (str == name || str == symbol)
-        return theUnitsTable[i]->GetName();
+        return i->GetName();
     }
   }
   std::cout << "Warning from CocoaUnitDefinition::GetCategory(" << str << ")."
@@ -238,8 +238,8 @@ void CocoaUnitDefinition::BuildUnitsTable() {
 
 void CocoaUnitDefinition::PrintUnitsTable() {
   std::cout << "\n          ----- The Table of Units ----- \n";
-  for (size_t i = 0; i < theUnitsTable.size(); i++) {
-    theUnitsTable[i]->PrintCategory();
+  for (auto& i : theUnitsTable) {
+    i->PrintCategory();
   }
 }
 
@@ -279,8 +279,8 @@ ALIint CocoaUnitsCategory::operator!=(const CocoaUnitsCategory& right) const { r
 
 void CocoaUnitsCategory::PrintCategory() {
   std::cout << "\n  category: " << Name << std::endl;
-  for (size_t i = 0; i < UnitsList.size(); i++)
-    UnitsList[i]->PrintDefinition();
+  for (auto& i : UnitsList)
+    i->PrintDefinition();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....

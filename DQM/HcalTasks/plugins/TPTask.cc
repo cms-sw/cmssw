@@ -74,14 +74,14 @@ TPTask::TPTask(edm::ParameterSet const& ps) : DQTask(ps) {
                                new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEtCorr_256),
                                new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),
                                0);
-  for (uint8_t iii = 0; iii < constants::NUM_FGBITS; iii++) {
-    _cFGCorr_TTSubdet[iii].initialize(_name,
-                                      "FGCorr",
-                                      hcaldqm::hashfunctions::fTTSubdet,
-                                      new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fFG),
-                                      new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fFG),
-                                      new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),
-                                      0);
+  for (auto& iii : _cFGCorr_TTSubdet) {
+    iii.initialize(_name,
+                   "FGCorr",
+                   hcaldqm::hashfunctions::fTTSubdet,
+                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fFG),
+                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fFG),
+                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),
+                   0);
   }
 
   _cEtData_depthlike.initialize(_name,
@@ -419,11 +419,11 @@ TPTask::TPTask(edm::ParameterSet const& ps) : DQTask(ps) {
     std::vector<int> vFEDsuTCA = hcaldqm::utilities::getFEDuTCAList(_emap);
     //	push the rawIds of each fed into the vector
     //	this vector is used at endlumi for online state generation
-    for (std::vector<int>::const_iterator it = vFEDsVME.begin(); it != vFEDsVME.end(); ++it) {
-      _vhashFEDs.push_back(HcalElectronicsId(FIBERCH_MIN, FIBER_VME_MIN, SPIGOT_MIN, (*it) - FED_VME_MIN).rawId());
+    for (int it : vFEDsVME) {
+      _vhashFEDs.push_back(HcalElectronicsId(FIBERCH_MIN, FIBER_VME_MIN, SPIGOT_MIN, it - FED_VME_MIN).rawId());
     }
-    for (std::vector<int>::const_iterator it = vFEDsuTCA.begin(); it != vFEDsuTCA.end(); ++it) {
-      std::pair<uint16_t, uint16_t> cspair = hcaldqm::utilities::fed2crate(*it);
+    for (int it : vFEDsuTCA) {
+      std::pair<uint16_t, uint16_t> cspair = hcaldqm::utilities::fed2crate(it);
       _vhashFEDs.push_back(HcalElectronicsId(cspair.first, cspair.second, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
     }
     _cEtData_ElectronicsVME.initialize(_name,
@@ -955,9 +955,9 @@ TPTask::TPTask(edm::ParameterSet const& ps) : DQTask(ps) {
   }
 
   if (_ptype == fOnline) {
-    for (HcalTrigPrimDigiCollection::const_iterator it = cemul_noTDCCut->begin(); it != cemul_noTDCCut->end(); ++it) {
+    for (const auto& it : *cemul_noTDCCut) {
       //	Explicit check on the DetIds present in the Collection
-      HcalTrigTowerDetId tid = it->id();
+      HcalTrigTowerDetId tid = it.id();
       uint32_t rawid = _ehashmap.lookup(tid);
       if (rawid == 0) {
         continue;
@@ -965,7 +965,7 @@ TPTask::TPTask(edm::ParameterSet const& ps) : DQTask(ps) {
       if (tid.version() == 0 && tid.ietaAbs() >= 29) {
         continue;
       }
-      int soiEt_e = it->SOI_compressedEt();
+      int soiEt_e = it.SOI_compressedEt();
       if (tid.ietaAbs() >= 29) {
         if (soiEt_e > 0) {
           _cOccupancyNoTDC_HF_depth.fill(tid);
@@ -1205,11 +1205,11 @@ std::shared_ptr<hcaldqm::Cache> TPTask::globalBeginLuminosityBlock(edm::Luminosi
   //
   //	GENERATE STATUS ONLY FOR ONLINE!
   //
-  for (std::vector<uint32_t>::const_iterator it = _vhashFEDs.begin(); it != _vhashFEDs.end(); ++it) {
+  for (unsigned int _vhashFED : _vhashFEDs) {
     flag::Flag fSum("TP");
-    HcalElectronicsId eid = HcalElectronicsId(*it);
+    HcalElectronicsId eid = HcalElectronicsId(_vhashFED);
 
-    std::vector<uint32_t>::const_iterator cit = std::find(_vcdaqEids.begin(), _vcdaqEids.end(), *it);
+    std::vector<uint32_t>::const_iterator cit = std::find(_vcdaqEids.begin(), _vcdaqEids.end(), _vhashFED);
     if (cit == _vcdaqEids.end()) {
       //	not @cDAQ
       for (uint32_t iflag = 0; iflag < _vflags.size(); iflag++)
@@ -1263,14 +1263,14 @@ std::shared_ptr<hcaldqm::Cache> TPTask::globalBeginLuminosityBlock(edm::Luminosi
       _vflags[fUnknownIds]._state = flag::fGOOD;
 
     int iflag = 0;
-    for (std::vector<flag::Flag>::iterator ft = _vflags.begin(); ft != _vflags.end(); ++ft) {
-      _cSummaryvsLS_FED.setBinContent(eid, _currentLS, int(iflag), ft->_state);
-      fSum += (*ft);
+    for (auto& _vflag : _vflags) {
+      _cSummaryvsLS_FED.setBinContent(eid, _currentLS, int(iflag), _vflag._state);
+      fSum += _vflag;
       iflag++;
 
       //	this is the MUST!
       //	reset after using this flag
-      ft->reset();
+      _vflag.reset();
     }
     _cSummaryvsLS.setBinContent(eid, _currentLS, int(fSum._state));
   }

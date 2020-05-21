@@ -138,11 +138,9 @@ void RPCPhiEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       // Iter rpc muon cands, perform delta R matching
       // todo perform matching also using eta...
-      for (std::vector<edm::Handle<std::vector<L1MuRegionalCand> > >::iterator it = handleVec.begin();
-           it != handleVec.end();
-           ++it) {
+      for (auto& it : handleVec) {
         std::vector<L1MuRegionalCand>::const_iterator itRPC;
-        for (itRPC = (*it)->begin(); itRPC != (*it)->end(); itRPC++) {
+        for (itRPC = it->begin(); itRPC != it->end(); itRPC++) {
           int ptCode = itRPC->pt_packed();
           if (ptCode != 0) {
             if (firstRunForMuonMatchingCnt)
@@ -262,8 +260,8 @@ std::string RPCPhiEff::fromRaw(const edm::Event& iEvent) {
       std::cout << "??????????????" << std::endl;
   }
 
-  for (std::set<int>::iterator it = hwPlanes.begin(); it != hwPlanes.end(); ++it) {
-    ss << " " << *it;
+  for (int hwPlane : hwPlanes) {
+    ss << " " << hwPlane;
   }
 
   return ss.str();

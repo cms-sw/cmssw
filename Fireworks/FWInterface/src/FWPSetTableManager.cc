@@ -158,16 +158,16 @@ void FWPSetTableManager::handlePSet(edm::ParameterSet *psp) {
   edm::ParameterSet &ps = *psp;
 
   typedef edm::ParameterSet::table::const_iterator TIterator;
-  for (TIterator i = ps.tbl().begin(), e = ps.tbl().end(); i != e; ++i)
-    handleEntry(i->second, i->first);
+  for (const auto &i : ps.tbl())
+    handleEntry(i.second, i.first);
 
   typedef edm::ParameterSet::psettable::const_iterator PSIterator;
-  for (PSIterator i = ps.psetTable().begin(), e = ps.psetTable().end(); i != e; ++i)
-    handlePSetEntry(const_cast<edm::ParameterSetEntry &>(i->second), i->first);
+  for (const auto &i : ps.psetTable())
+    handlePSetEntry(const_cast<edm::ParameterSetEntry &>(i.second), i.first);
 
   typedef edm::ParameterSet::vpsettable::const_iterator VPSIterator;
-  for (VPSIterator i = ps.vpsetTable().begin(), e = ps.vpsetTable().end(); i != e; ++i)
-    handleVPSetEntry(const_cast<edm::VParameterSetEntry &>(i->second), i->first);
+  for (const auto &i : ps.vpsetTable())
+    handleVPSetEntry(const_cast<edm::VParameterSetEntry &>(i.second), i.first);
 }
 
 template <class T>

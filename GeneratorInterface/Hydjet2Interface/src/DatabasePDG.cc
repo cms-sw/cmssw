@@ -50,8 +50,8 @@ DatabasePDG::DatabasePDG() {
 }
 
 DatabasePDG::~DatabasePDG() {
-  for (int i = 0; i < kMaxParticles; i++)
-    delete fParticles[i];
+  for (auto &fParticle : fParticles)
+    delete fParticle;
 }
 
 void DatabasePDG::SetParticleFilename(char *filename) { strcpy(fParticleFilename, filename); }
@@ -149,13 +149,13 @@ bool DatabasePDG::LoadDecays() {
   decayFile.exceptions(ios::failbit);
   while (!decayFile.eof()) {
     mother_pdg = 0;
-    for (int i = 0; i < 3; i++)
-      daughter_pdg[i] = 0;
+    for (int &i : daughter_pdg)
+      i = 0;
     branching = -1.0;
     try {
       decayFile >> mother_pdg;
-      for (int i = 0; i < 3; i++)
-        decayFile >> daughter_pdg[i];
+      for (int &i : daughter_pdg)
+        decayFile >> i;
       decayFile >> branching;
     } catch (ios::failure const &problem) {
       LogDebug("DatabasePDG") << " ios:failure in decay file " << problem.what();
@@ -163,8 +163,8 @@ bool DatabasePDG::LoadDecays() {
     }
     if ((mother_pdg != 0) && (daughter_pdg[0] != 0) && (branching >= 0)) {
       int nDaughters = 0;
-      for (int i = 0; i < 3; i++)
-        if (daughter_pdg[i] != 0)
+      for (int i : daughter_pdg)
+        if (i != 0)
           nDaughters++;
       ParticlePDG *particle = GetPDGParticle(mother_pdg);
       if (!particle) {
@@ -605,8 +605,8 @@ void DatabasePDG::UseThisListOfParticles(char *filename, bool exclusive) {
   }
 
   bool flaggedIndexes[kMaxParticles];
-  for (int i = 0; i < kMaxParticles; i++)
-    flaggedIndexes[i] = kFALSE;
+  for (bool &flaggedIndexe : flaggedIndexes)
+    flaggedIndexe = kFALSE;
   int pdg = 0;
   listFile.exceptions(ios::failbit);
   while (!listFile.eof()) {

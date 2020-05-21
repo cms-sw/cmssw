@@ -1401,31 +1401,31 @@ void JetTester_HeavyIons::analyze(const edm::Event &mEvent, const edm::EventSetu
 
   mNJets->Fill(recoJets.size());
 
-  for (unsigned ijet = 0; ijet < recoJets.size(); ijet++) {
-    if (recoJets[ijet].pt() > mRecoJetPtThreshold) {
+  for (auto &recoJet : recoJets) {
+    if (recoJet.pt() > mRecoJetPtThreshold) {
       // counting forward and barrel jets
       // get an idea of no of jets with pT>40 GeV
-      if (recoJets[ijet].pt() > 40)
+      if (recoJet.pt() > 40)
         nJet_40++;
 
       if (mEta)
-        mEta->Fill(recoJets[ijet].eta());
+        mEta->Fill(recoJet.eta());
       if (mjetpileup)
-        mjetpileup->Fill(recoJets[ijet].pileup());
+        mjetpileup->Fill(recoJet.pileup());
       if (mJetArea)
-        mJetArea->Fill(recoJets[ijet].jetArea());
+        mJetArea->Fill(recoJet.jetArea());
       if (mPhi)
-        mPhi->Fill(recoJets[ijet].phi());
+        mPhi->Fill(recoJet.phi());
       if (mEnergy)
-        mEnergy->Fill(recoJets[ijet].energy());
+        mEnergy->Fill(recoJet.energy());
       if (mP)
-        mP->Fill(recoJets[ijet].p());
+        mP->Fill(recoJet.p());
       if (mPt)
-        mPt->Fill(recoJets[ijet].pt());
+        mPt->Fill(recoJet.pt());
       if (mMass)
-        mMass->Fill(recoJets[ijet].mass());
+        mMass->Fill(recoJet.mass());
       if (mConstituents)
-        mConstituents->Fill(recoJets[ijet].nConstituents());
+        mConstituents->Fill(recoJet.nConstituents());
     }
   }
 
@@ -1454,22 +1454,22 @@ void JetTester_HeavyIons::analyze(const edm::Event &mEvent, const edm::EventSetu
     if (!genJets.isValid())
       return;
 
-    for (GenJetCollection::const_iterator gjet = genJets->begin(); gjet != genJets->end(); gjet++) {
-      if (gjet->pt() > mMatchGenPtThreshold) {
+    for (const auto &gjet : *genJets) {
+      if (gjet.pt() > mMatchGenPtThreshold) {
         if (mGenEta)
-          mGenEta->Fill(gjet->eta());
+          mGenEta->Fill(gjet.eta());
         if (mGenPhi)
-          mGenPhi->Fill(gjet->phi());
+          mGenPhi->Fill(gjet.phi());
         if (mGenPt)
-          mGenPt->Fill(gjet->pt());
+          mGenPt->Fill(gjet.pt());
       }
     }
 
     if (!(mInputGenCollection.label().empty())) {
-      for (GenJetCollection::const_iterator gjet = genJets->begin(); gjet != genJets->end(); gjet++) {
-        if (fabs(gjet->eta()) > 6.)
+      for (const auto &gjet : *genJets) {
+        if (fabs(gjet.eta()) > 6.)
           continue;  // Out of the detector
-        if (gjet->pt() < mMatchGenPtThreshold)
+        if (gjet.pt() < mMatchGenPtThreshold)
           continue;
         if (recoJets.empty())
           continue;
@@ -1478,11 +1478,11 @@ void JetTester_HeavyIons::analyze(const edm::Event &mEvent, const edm::EventSetu
         bool inEndcap = false;
         bool inForward = false;
 
-        if (fabs(gjet->eta()) < BarrelEta)
+        if (fabs(gjet.eta()) < BarrelEta)
           inBarrel = true;
-        if (fabs(gjet->eta()) >= BarrelEta && fabs(gjet->eta()) < EndcapEta)
+        if (fabs(gjet.eta()) >= BarrelEta && fabs(gjet.eta()) < EndcapEta)
           inEndcap = true;
-        if (fabs(gjet->eta()) >= EndcapEta && fabs(gjet->eta()) < ForwardEta)
+        if (fabs(gjet.eta()) >= EndcapEta && fabs(gjet.eta()) < ForwardEta)
           inForward = true;
 
         // pt response
@@ -1493,7 +1493,7 @@ void JetTester_HeavyIons::analyze(const edm::Event &mEvent, const edm::EventSetu
         for (unsigned ijet = 0; ijet < recoJets.size(); ++ijet) {
           double recoPt = recoJets[ijet].pt();
           if (recoPt > 10) {
-            double delR = deltaR(gjet->eta(), gjet->phi(), recoJets[ijet].eta(), recoJets[ijet].phi());
+            double delR = deltaR(gjet.eta(), gjet.phi(), recoJets[ijet].eta(), recoJets[ijet].phi());
             if (delR < deltaRBest) {
               deltaRBest = delR;
               JetPtBest = recoPt;
@@ -1508,8 +1508,8 @@ void JetTester_HeavyIons::analyze(const edm::Event &mEvent, const edm::EventSetu
         // recoJets[iMatch].eta(), recoJets[iMatch].phi(),
         // recoJets[iMatch].pt(), hibin);
         if (deltaRBest < mRThreshold) {
-          double genpt = gjet->pt();
-          double geneta = gjet->eta();
+          double genpt = gjet.pt();
+          double geneta = gjet.eta();
           double response = JetPtBest / genpt;
           // Fill all the response histograms here: for each pT bin, eta region,
           // centrality bin
@@ -1545,7 +1545,7 @@ void JetTester_HeavyIons::analyze(const edm::Event &mEvent, const edm::EventSetu
               mPtRecoOverGen_GenPt_F_Cent_50_80->Fill(log10(genpt), response);
           }
 
-          if (gjet->pt() >= 20 && gjet->pt() < 30) {
+          if (gjet.pt() >= 20 && gjet.pt() < 30) {
             if (isCentral) {
               mPtRecoOverGen_GenEta_20_30_Cent_0_10->Fill(geneta, response);
               if (inBarrel)
@@ -1584,7 +1584,7 @@ void JetTester_HeavyIons::analyze(const edm::Event &mEvent, const edm::EventSetu
             }  //
           }    // pt bin 20-30
 
-          if (gjet->pt() >= 30 && gjet->pt() < 50) {
+          if (gjet.pt() >= 30 && gjet.pt() < 50) {
             if (isCentral) {
               mPtRecoOverGen_GenEta_30_50_Cent_0_10->Fill(geneta, response);
               if (inBarrel)
@@ -1623,7 +1623,7 @@ void JetTester_HeavyIons::analyze(const edm::Event &mEvent, const edm::EventSetu
             }  //
           }    // pt bin 30-50
 
-          if (gjet->pt() >= 50 && gjet->pt() < 80) {
+          if (gjet.pt() >= 50 && gjet.pt() < 80) {
             if (isCentral) {
               mPtRecoOverGen_GenEta_50_80_Cent_0_10->Fill(geneta, response);
               if (inBarrel)
@@ -1662,7 +1662,7 @@ void JetTester_HeavyIons::analyze(const edm::Event &mEvent, const edm::EventSetu
             }  //
           }    // pt bin 50-80
 
-          if (gjet->pt() >= 80 && gjet->pt() < 120) {
+          if (gjet.pt() >= 80 && gjet.pt() < 120) {
             if (isCentral) {
               mPtRecoOverGen_GenEta_80_120_Cent_0_10->Fill(geneta, response);
               if (inBarrel)
@@ -1701,7 +1701,7 @@ void JetTester_HeavyIons::analyze(const edm::Event &mEvent, const edm::EventSetu
             }  //
           }    // pt bin 80-120
 
-          if (gjet->pt() >= 120 && gjet->pt() < 180) {
+          if (gjet.pt() >= 120 && gjet.pt() < 180) {
             if (isCentral) {
               mPtRecoOverGen_GenEta_120_180_Cent_0_10->Fill(geneta, response);
               if (inBarrel)
@@ -1740,7 +1740,7 @@ void JetTester_HeavyIons::analyze(const edm::Event &mEvent, const edm::EventSetu
             }  //
           }    // pt bin 120-180
 
-          if (gjet->pt() >= 180 && gjet->pt() < 300) {
+          if (gjet.pt() >= 180 && gjet.pt() < 300) {
             if (isCentral) {
               mPtRecoOverGen_GenEta_180_300_Cent_0_10->Fill(geneta, response);
               if (inBarrel)
@@ -1779,7 +1779,7 @@ void JetTester_HeavyIons::analyze(const edm::Event &mEvent, const edm::EventSetu
             }  //
           }    // pt bin 180-300
 
-          if (gjet->pt() >= 300) {
+          if (gjet.pt() >= 300) {
             if (isCentral) {
               mPtRecoOverGen_GenEta_300_Inf_Cent_0_10->Fill(geneta, response);
               if (inBarrel)

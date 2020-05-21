@@ -64,8 +64,7 @@ void MuonIDFilterProducerForHLT::produce(edm::StreamID, edm::Event& iEvent, cons
   edm::Handle<reco::MuonCollection> muons;
   iEvent.getByToken(muonToken_, muons);
 
-  for (unsigned int i = 0; i < muons->size(); ++i) {
-    const reco::Muon& muon(muons->at(i));
+  for (const auto& muon : *muons) {
     if (applyTriggerIdLoose_ && muon::isLooseTriggerMuon(muon)) {
       output->push_back(muon);
     } else {  // Implement here manually all the required/desired cuts

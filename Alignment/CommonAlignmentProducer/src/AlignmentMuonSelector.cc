@@ -94,8 +94,7 @@ AlignmentMuonSelector::Muons AlignmentMuonSelector::select(const Muons& muons, c
 AlignmentMuonSelector::Muons AlignmentMuonSelector::basicCuts(const Muons& muons) const {
   Muons result;
 
-  for (Muons::const_iterator it = muons.begin(); it != muons.end(); ++it) {
-    const reco::Muon* muonp = *it;
+  for (auto muonp : muons) {
     float p = muonp->p();
     float pt = muonp->pt();
     float eta = muonp->eta();
@@ -145,9 +144,9 @@ AlignmentMuonSelector::Muons AlignmentMuonSelector::theNHighestPtMuons(const Muo
 
   // copy theMuonMult highest pt muons to result vector
   int n = 0;
-  for (Muons::const_iterator it = sortedMuons.begin(); it != sortedMuons.end(); ++it) {
+  for (auto sortedMuon : sortedMuons) {
     if (n < nHighestPt) {
-      result.push_back(*it);
+      result.push_back(sortedMuon);
       n++;
     }
   }

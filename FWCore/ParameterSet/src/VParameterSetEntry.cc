@@ -13,8 +13,8 @@ namespace edm {
 
   VParameterSetEntry::VParameterSetEntry(std::vector<ParameterSet> const& vpset, bool isTracked)
       : tracked_(isTracked), theVPSet_(new std::vector<ParameterSet>), theIDs_() {
-    for (std::vector<ParameterSet>::const_iterator i = vpset.begin(), e = vpset.end(); i != e; ++i) {
-      theVPSet_->push_back(*i);
+    for (const auto& i : vpset) {
+      theVPSet_->push_back(i);
     }
   }
 
@@ -26,8 +26,8 @@ namespace edm {
     std::string bracketedRepr(rep.begin() + 2, rep.end());
     split(std::back_inserter(temp), bracketedRepr, '{', ',', '}');
     theIDs_->reserve(temp.size());
-    for (std::vector<std::string>::const_iterator i = temp.begin(), e = temp.end(); i != e; ++i) {
-      theIDs_->push_back(ParameterSetID(*i));
+    for (const auto& i : temp) {
+      theIDs_->push_back(ParameterSetID(i));
     }
   }
 
@@ -37,9 +37,9 @@ namespace edm {
     result += '{';
     std::string start;
     std::string const between(",");
-    for (std::vector<ParameterSetID>::const_iterator i = theIDs_->begin(), e = theIDs_->end(); i != e; ++i) {
+    for (const auto& i : *theIDs_) {
       result += start;
-      i->toString(result);
+      i.toString(result);
       start = between;
     }
     result += '}';
@@ -49,10 +49,10 @@ namespace edm {
     assert(theIDs_);
     digest.append(tracked_ ? "+q{" : "-q{", 3);
     bool started = false;
-    for (std::vector<ParameterSetID>::const_iterator i = theIDs_->begin(), e = theIDs_->end(); i != e; ++i) {
+    for (const auto& i : *theIDs_) {
       if (started)
         digest.append(",", 1);
-      i->toDigest(digest);
+      i.toDigest(digest);
       started = true;
     }
     digest.append("}", 1);
@@ -123,8 +123,8 @@ namespace edm {
     os << "VPSet " << (isTracked() ? "tracked" : "untracked") << " = ({" << std::endl;
     std::string start;
     std::string const between(",\n");
-    for (std::vector<ParameterSet>::const_iterator i = vps.begin(), e = vps.end(); i != e; ++i) {
-      os << start << indentation << i->dump(indent);
+    for (const auto& vp : vps) {
+      os << start << indentation << vp.dump(indent);
       start = between;
     }
     if (!vps.empty()) {

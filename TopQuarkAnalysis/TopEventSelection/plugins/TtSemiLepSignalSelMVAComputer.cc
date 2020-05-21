@@ -46,11 +46,11 @@ void TtSemiLepSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSet
   const std::vector<pat::Jet> jets = *jet_handle;
   unsigned int nJets = 0;
   std::vector<pat::Jet> seljets;
-  for (std::vector<pat::Jet>::const_iterator it = jets.begin(); it != jets.end(); it++) {
-    if (!(pat::Flags::test(*it, pat::Flags::Overlap::Electrons)))
+  for (const auto& jet : jets) {
+    if (!(pat::Flags::test(jet, pat::Flags::Overlap::Electrons)))
       continue;
-    if (it->pt() > 30. && fabs(it->eta()) < 2.4) {
-      seljets.push_back(*it);
+    if (jet.pt() > 30. && fabs(jet.eta()) < 2.4) {
+      seljets.push_back(jet);
       nJets++;
     }
   }
@@ -71,8 +71,8 @@ void TtSemiLepSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSet
         continue;  //temporary problems with dead trackrefs
       if ((gltr->chi2() / gltr->ndof()) < 10 && trtr->numberOfValidHits() > 11) {
         double dRmin = 9999.;
-        for (std::vector<pat::Jet>::const_iterator ajet = seljets.begin(); ajet != seljets.end(); ajet++) {
-          math::XYZTLorentzVector jet = ajet->p4();
+        for (const auto& seljet : seljets) {
+          math::XYZTLorentzVector jet = seljet.p4();
           math::XYZTLorentzVector muon = it->p4();
           double tmpdR = DeltaR(muon, jet);
           if (tmpdR < dRmin)

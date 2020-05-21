@@ -74,8 +74,8 @@ namespace btagbtvdeep {
   float mindrsvpfcand(const std::vector<reco::VertexCompositePtrCandidate> &svs,
                       const reco::Candidate *cand,
                       float mindr) {
-    for (unsigned int i0 = 0; i0 < svs.size(); ++i0) {
-      float tempdr = reco::deltaR(svs[i0], *cand);
+    for (const auto &sv : svs) {
+      float tempdr = reco::deltaR(sv, *cand);
       if (tempdr < mindr) {
         mindr = tempdr;
       }

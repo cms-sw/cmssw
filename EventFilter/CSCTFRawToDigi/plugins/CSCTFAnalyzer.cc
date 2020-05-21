@@ -80,20 +80,20 @@ void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
     if (dtStubs.isValid()) {
       std::vector<csctf::TrackStub> vstubs = dtStubs->get();
       std::cout << "DT size=" << vstubs.end() - vstubs.begin() << std::endl;
-      for (std::vector<csctf::TrackStub>::const_iterator stub = vstubs.begin(); stub != vstubs.end(); stub++) {
-        int dtSector = (stub->sector() - 1) * 2 + stub->subsector() - 1;
-        int dtEndcap = stub->endcap() - 1;
+      for (const auto& vstub : vstubs) {
+        int dtSector = (vstub.sector() - 1) * 2 + vstub.subsector() - 1;
+        int dtEndcap = vstub.endcap() - 1;
         if (dtSector >= 0 && dtSector < 12 && dtEndcap >= 0 && dtEndcap < 2) {
-          dtPhi[dtSector][dtEndcap] = stub->phiPacked();
+          dtPhi[dtSector][dtEndcap] = vstub.phiPacked();
         } else {
           edm::LogInfo("CSCTFAnalyzer: DT digi are out of range: ")
               << " dtSector=" << dtSector << " dtEndcap=" << dtEndcap;
         }
-        edm::LogInfo("CSCTFAnalyzer") << "   DT data: tbin=" << stub->BX() << " CSC sector=" << stub->sector()
-                                      << " CSC subsector=" << stub->subsector() << " station=" << stub->station()
-                                      << " endcap=" << stub->endcap() << " phi=" << stub->phiPacked()
-                                      << " phiBend=" << stub->getBend() << " quality=" << stub->getQuality()
-                                      << " mb_bxn=" << stub->cscid();
+        edm::LogInfo("CSCTFAnalyzer") << "   DT data: tbin=" << vstub.BX() << " CSC sector=" << vstub.sector()
+                                      << " CSC subsector=" << vstub.subsector() << " station=" << vstub.station()
+                                      << " endcap=" << vstub.endcap() << " phi=" << vstub.phiPacked()
+                                      << " phiBend=" << vstub.getBend() << " quality=" << vstub.getQuality()
+                                      << " mb_bxn=" << vstub.cscid();
       }
     } else
       edm::LogInfo("CSCTFAnalyzer") << "  No valid CSCTriggerContainer<csctf::TrackStub> products found";

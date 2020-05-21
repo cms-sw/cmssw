@@ -37,8 +37,8 @@ void AlignmentMonitorSurvey::book() {
 
     id = ali->id();
 
-    for (unsigned int l = 0; l < theLevels.size(); ++l) {
-      level = theLevels[l];
+    for (auto& theLevel : theLevels) {
+      level = theLevel;
 
       SurveyResidual resid(*ali, level, true);
       AlgebraicVector resParams = resid.sensorResidual();

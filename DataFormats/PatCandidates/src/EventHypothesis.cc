@@ -51,9 +51,9 @@ std::vector<pat::EventHypothesis::CandRefType> pat::EventHypothesis::all(const s
 
 std::vector<pat::EventHypothesis::CandRefType> pat::EventHypothesis::all(const ParticleFilter &filter) const {
   std::vector<pat::EventHypothesis::CandRefType> ret;
-  for (const_iterator it = begin(); it != end(); ++it) {
-    if (filter(*it))
-      ret.push_back(it->second);
+  for (const auto &it : *this) {
+    if (filter(it))
+      ret.push_back(it.second);
   }
   return ret;
 }
@@ -64,8 +64,8 @@ size_t pat::EventHypothesis::count(const std::string &roleRegexp) const {
 
 size_t pat::EventHypothesis::count(const ParticleFilter &role) const {
   size_t n = 0;
-  for (const_iterator it = begin(); it != end(); ++it) {
-    if (role(*it))
+  for (const auto &it : *this) {
+    if (role(it))
       ++n;
   }
   return n;

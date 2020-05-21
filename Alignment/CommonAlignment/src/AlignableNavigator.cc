@@ -154,9 +154,8 @@ std::vector<AlignableDetOrUnitPtr> AlignableNavigator::alignablesFromHits(
   std::vector<AlignableDetOrUnitPtr> result;
   result.reserve(hitvec.size());
 
-  for (std::vector<const TransientTrackingRecHit*>::const_iterator ih = hitvec.begin(), iEnd = hitvec.end(); ih != iEnd;
-       ++ih) {
-    result.push_back(this->alignableFromDetId((*ih)->geographicalId()));
+  for (auto ih : hitvec) {
+    result.push_back(this->alignableFromDetId(ih->geographicalId()));
   }
 
   return result;
@@ -168,10 +167,8 @@ std::vector<AlignableDetOrUnitPtr> AlignableNavigator::alignablesFromHits(
   std::vector<AlignableDetOrUnitPtr> result;
   result.reserve(hitVec.size());
 
-  for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator it = hitVec.begin(), iEnd = hitVec.end();
-       it != iEnd;
-       ++it) {
-    result.push_back(this->alignableFromDetId((*it)->geographicalId()));
+  for (const auto& it : hitVec) {
+    result.push_back(this->alignableFromDetId(it->geographicalId()));
   }
 
   return result;
@@ -193,8 +190,8 @@ std::vector<AlignableDetOrUnitPtr> AlignableNavigator::alignableDetOrUnits() {
 bool AlignableNavigator::detAndSubdetInMap(const DetId& detid) const {
   int det = detid.det();
   int subdet = detid.subdetId();
-  for (std::vector<std::pair<int, int> >::const_iterator i = theDetAndSubdet.begin(); i != theDetAndSubdet.end(); ++i) {
-    if (det == i->first && subdet == i->second)
+  for (const auto& i : theDetAndSubdet) {
+    if (det == i.first && subdet == i.second)
       return true;
   }
   return false;

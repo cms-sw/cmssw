@@ -84,8 +84,8 @@ void RazorVarAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &
   iEvent.getByToken(m_jetCollectionTagToken_, calojets_handle);
 
   unsigned int njets = 0;
-  for (reco::CaloJetCollection::const_iterator it = calojets_handle->begin(); it != calojets_handle->end(); ++it) {
-    if (it->pt() >= 30. && fabs(it->eta()) <= 3.0) {
+  for (const auto &it : *calojets_handle) {
+    if (it.pt() >= 30. && fabs(it.eta()) <= 3.0) {
       njets++;
     }
   }
@@ -97,11 +97,10 @@ void RazorVarAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &
   unsigned int nmu_loose = 0;
   unsigned int nmu_tight = 0;
   if (muon_handle.isValid()) {
-    for (std::vector<reco::RecoChargedCandidate>::const_iterator it = muon_handle->begin(); it != muon_handle->end();
-         ++it) {
-      if (it->pt() >= 15 && fabs(it->eta()) <= 2.1)
+    for (const auto &it : *muon_handle) {
+      if (it.pt() >= 15 && fabs(it.eta()) <= 2.1)
         nmu_tight++;
-      if (it->pt() >= 10 && fabs(it->eta()) <= 2.4)
+      if (it.pt() >= 10 && fabs(it.eta()) <= 2.4)
         nmu_loose++;
     }
   }
@@ -113,10 +112,10 @@ void RazorVarAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &
   unsigned int nele_loose = 0;
   unsigned int nele_tight = 0;
   if (ele_handle.isValid()) {
-    for (reco::ElectronCollection::const_iterator it = ele_handle->begin(); it != ele_handle->end(); ++it) {
-      if (it->pt() >= 20 && fabs(it->eta()) <= 2.5)
+    for (const auto &it : *ele_handle) {
+      if (it.pt() >= 20 && fabs(it.eta()) <= 2.5)
         nele_tight++;
-      if (it->pt() >= 10 && fabs(it->eta()) <= 2.5)
+      if (it.pt() >= 10 && fabs(it.eta()) <= 2.5)
         nele_loose++;
     }
   }

@@ -168,12 +168,11 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
   nPVMax_ = parameters.getParameter<double>("pVMax");
 
   triggerSelectedSubFolders_ = parameters.getParameter<edm::VParameterSet>("triggerSelectedSubFolders");
-  for (edm::VParameterSet::const_iterator it = triggerSelectedSubFolders_.begin();
-       it != triggerSelectedSubFolders_.end();
-       it++) {
-    triggerFolderEventFlag_.push_back(new GenericTriggerEventFlag(*it, consumesCollector(), *this));
-    triggerFolderExpr_.push_back(it->getParameter<std::vector<std::string> >("hltPaths"));
-    triggerFolderLabels_.push_back(it->getParameter<std::string>("label"));
+  for (const auto& triggerSelectedSubFolder : triggerSelectedSubFolders_) {
+    triggerFolderEventFlag_.push_back(
+        new GenericTriggerEventFlag(triggerSelectedSubFolder, consumesCollector(), *this));
+    triggerFolderExpr_.push_back(triggerSelectedSubFolder.getParameter<std::vector<std::string> >("hltPaths"));
+    triggerFolderLabels_.push_back(triggerSelectedSubFolder.getParameter<std::string>("label"));
   }
 
   cleaningParameters_ = parameters.getParameter<ParameterSet>("CleaningParameters");
@@ -185,10 +184,8 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
 
 // ***********************************************************
 METAnalyzer::~METAnalyzer() {
-  for (std::vector<GenericTriggerEventFlag*>::const_iterator it = triggerFolderEventFlag_.begin();
-       it != triggerFolderEventFlag_.end();
-       it++) {
-    delete *it;
+  for (auto it : triggerFolderEventFlag_) {
+    delete it;
   }
   delete DCSFilter_;
 }
@@ -215,8 +212,8 @@ void METAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
       folderNames_.push_back("ZJets");
     }
   }
-  for (std::vector<std::string>::const_iterator ic = folderNames_.begin(); ic != folderNames_.end(); ic++) {
-    bookMESet(DirName + "/" + *ic, ibooker, map_dijet_MEs);
+  for (const auto& folderName : folderNames_) {
+    bookMESet(DirName + "/" + folderName, ibooker, map_dijet_MEs);
   }
 }
 
@@ -992,44 +989,44 @@ void METAnalyzer::bookMonitorElement(std::string DirName,
           profilePFCand_x_name_.clear();
           profilePFCand_y_name_.clear();
         }
-        for (std::vector<edm::ParameterSet>::const_iterator v = diagnosticsParameters_.begin();
-             v != diagnosticsParameters_.end();
-             v++) {
-          double etaMinPFCand = v->getParameter<double>("etaMin");
-          double etaMaxPFCand = v->getParameter<double>("etaMax");
-          int nMinPFCand = v->getParameter<int>("nMin");
-          int nMaxPFCand = v->getParameter<int>("nMax");
-          int nbinsPFCand = v->getParameter<double>("nbins");
+        for (const auto& diagnosticsParameter : diagnosticsParameters_) {
+          double etaMinPFCand = diagnosticsParameter.getParameter<double>("etaMin");
+          double etaMaxPFCand = diagnosticsParameter.getParameter<double>("etaMax");
+          int nMinPFCand = diagnosticsParameter.getParameter<int>("nMin");
+          int nMaxPFCand = diagnosticsParameter.getParameter<int>("nMax");
+          int nbinsPFCand = diagnosticsParameter.getParameter<double>("nbins");
 
           // etaNBins_.push_back(etaNBins);
           etaMinPFCand_.push_back(etaMinPFCand);
           etaMaxPFCand_.push_back(etaMaxPFCand);
-          typePFCand_.push_back(v->getParameter<int>("type"));
+          typePFCand_.push_back(diagnosticsParameter.getParameter<int>("type"));
           countsPFCand_.push_back(0);
           MExPFCand_.push_back(0.);
           MEyPFCand_.push_back(0.);
 
-          profilePFCand_x_.push_back(
-              ibooker.bookProfile(std::string(v->getParameter<std::string>("name")).append("_Px_").c_str(),
-                                  std::string(v->getParameter<std::string>("name")) + "Px",
-                                  nbinsPFCand,
-                                  nMinPFCand,
-                                  nMaxPFCand,
-                                  -300,
-                                  300));
-          profilePFCand_x_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_Px_"));
+          profilePFCand_x_.push_back(ibooker.bookProfile(
+              std::string(diagnosticsParameter.getParameter<std::string>("name")).append("_Px_").c_str(),
+              std::string(diagnosticsParameter.getParameter<std::string>("name")) + "Px",
+              nbinsPFCand,
+              nMinPFCand,
+              nMaxPFCand,
+              -300,
+              300));
+          profilePFCand_x_name_.push_back(
+              std::string(diagnosticsParameter.getParameter<std::string>("name")).append("_Px_"));
           map_of_MEs.insert(std::pair<std::string, MonitorElement*>(
               DirName + "/" + profilePFCand_x_name_[profilePFCand_x_name_.size() - 1],
               profilePFCand_x_[profilePFCand_x_.size() - 1]));
-          profilePFCand_y_.push_back(
-              ibooker.bookProfile(std::string(v->getParameter<std::string>("name")).append("_Py_").c_str(),
-                                  std::string(v->getParameter<std::string>("name")) + "Py",
-                                  nbinsPFCand,
-                                  nMinPFCand,
-                                  nMaxPFCand,
-                                  -300,
-                                  300));
-          profilePFCand_y_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_Py_"));
+          profilePFCand_y_.push_back(ibooker.bookProfile(
+              std::string(diagnosticsParameter.getParameter<std::string>("name")).append("_Py_").c_str(),
+              std::string(diagnosticsParameter.getParameter<std::string>("name")) + "Py",
+              nbinsPFCand,
+              nMinPFCand,
+              nMaxPFCand,
+              -300,
+              300));
+          profilePFCand_y_name_.push_back(
+              std::string(diagnosticsParameter.getParameter<std::string>("name")).append("_Py_"));
           map_of_MEs.insert(std::pair<std::string, MonitorElement*>(
               DirName + "/" + profilePFCand_y_name_[profilePFCand_y_name_.size() - 1],
               profilePFCand_y_[profilePFCand_y_.size() - 1]));
@@ -1047,15 +1044,13 @@ void METAnalyzer::bookMonitorElement(std::string DirName,
           profilePFCand_x_.clear();
           profilePFCand_y_.clear();
         }
-        for (std::vector<edm::ParameterSet>::const_iterator v = diagnosticsParameters_.begin();
-             v != diagnosticsParameters_.end();
-             v++) {
-          double etaMinPFCand = v->getParameter<double>("etaMin");
-          double etaMaxPFCand = v->getParameter<double>("etaMax");
+        for (const auto& diagnosticsParameter : diagnosticsParameters_) {
+          double etaMinPFCand = diagnosticsParameter.getParameter<double>("etaMin");
+          double etaMaxPFCand = diagnosticsParameter.getParameter<double>("etaMax");
 
           etaMinPFCand_.push_back(etaMinPFCand);
           etaMaxPFCand_.push_back(etaMaxPFCand);
-          typePFCand_.push_back(v->getParameter<int>("type"));
+          typePFCand_.push_back(diagnosticsParameter.getParameter<int>("type"));
           countsPFCand_.push_back(0);
           MExPFCand_.push_back(0.);
           MEyPFCand_.push_back(0.);
@@ -1181,10 +1176,9 @@ void METAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
   edm::ESHandle<L1GtTriggerMenu> menuRcd;
   iSetup.get<L1GtTriggerMenuRcd>().get(menuRcd);
   const L1GtTriggerMenu* menu = menuRcd.product();
-  for (CItAlgo techTrig = menu->gtTechnicalTriggerMap().begin(); techTrig != menu->gtTechnicalTriggerMap().end();
-       ++techTrig) {
-    if ((techTrig->second).algoName() == m_l1algoname_) {
-      m_bitAlgTechTrig_ = (techTrig->second).algoBitNumber();
+  for (const auto& techTrig : menu->gtTechnicalTriggerMap()) {
+    if ((techTrig.second).algoName() == m_l1algoname_) {
+      m_bitAlgTechTrig_ = (techTrig.second).algoBitNumber();
       break;
     }
   }
@@ -1370,9 +1364,9 @@ void METAnalyzer::dqmEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 
   //below is the original METAnalyzer formulation
 
-  for (std::vector<std::string>::const_iterator ic = folderNames_.begin(); ic != folderNames_.end(); ic++) {
+  for (const auto& folderName : folderNames_) {
     std::string DirName;
-    DirName = dirName + *ic;
+    DirName = dirName + folderName;
     makeRatePlot(DirName, totltime);
     for (std::vector<GenericTriggerEventFlag*>::const_iterator it = triggerFolderEventFlag_.begin();
          it != triggerFolderEventFlag_.end();
@@ -1975,11 +1969,11 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   // ==========================================================
   // Reconstructed MET Information - fill MonitorElements
   std::string DirName_old = DirName;
-  for (std::vector<std::string>::const_iterator ic = folderNames_.begin(); ic != folderNames_.end(); ic++) {
+  for (const auto& folderName : folderNames_) {
     bool pass_selection = false;
-    if ((*ic == "Uncleaned") && (isCaloMet_ || bPrimaryVertex)) {
+    if ((folderName == "Uncleaned") && (isCaloMet_ || bPrimaryVertex)) {
       fillMESet(iEvent,
-                DirName_old + "/" + *ic,
+                DirName_old + "/" + folderName,
                 *met,
                 patmet,
                 pfmet,
@@ -1991,9 +1985,9 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       pass_selection = true;
     }
     //take two lines out for first check
-    if ((*ic == "Cleaned") && bDCSFilter && bHBHENoiseFilter && bPrimaryVertex && bJetID) {
+    if ((folderName == "Cleaned") && bDCSFilter && bHBHENoiseFilter && bPrimaryVertex && bJetID) {
       fillMESet(iEvent,
-                DirName_old + "/" + *ic,
+                DirName_old + "/" + folderName,
                 *met,
                 patmet,
                 pfmet,
@@ -2004,9 +1998,9 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
                 filter_decisions);
       pass_selection = true;
     }
-    if ((*ic == "DiJet") && bDCSFilter && bHBHENoiseFilter && bPrimaryVertex && bDiJetID) {
+    if ((folderName == "DiJet") && bDCSFilter && bHBHENoiseFilter && bPrimaryVertex && bDiJetID) {
       fillMESet(iEvent,
-                DirName_old + "/" + *ic,
+                DirName_old + "/" + folderName,
                 *met,
                 patmet,
                 pfmet,
@@ -2017,9 +2011,9 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
                 filter_decisions);
       pass_selection = true;
     }
-    if ((*ic == "ZJets") && bDCSFilter && bHBHENoiseFilter && bPrimaryVertex && bZJets) {
+    if ((folderName == "ZJets") && bDCSFilter && bHBHENoiseFilter && bPrimaryVertex && bZJets) {
       fillMESet(iEvent,
-                DirName_old + "/" + *ic,
+                DirName_old + "/" + folderName,
                 *met,
                 patmet,
                 pfmet,
@@ -2031,7 +2025,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       pass_selection = true;
     }
     if (pass_selection && isPFMet_) {
-      DirName = DirName_old + "/" + *ic;
+      DirName = DirName_old + "/" + folderName;
     }
   }
 }
@@ -2485,8 +2479,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent,
         float py_HFEGammasPlus = 0;
         float px_HFEGammasMinus = 0;
         float py_HFEGammasMinus = 0;
-        for (unsigned int i = 0; i < particleFlow->size(); i++) {
-          const reco::PFCandidate& c = particleFlow->at(i);
+        for (const auto& c : *particleFlow) {
           if (c.particleId() == 1) {  //charged hadrons
             //endcap minus
             if (c.eta() > (-3.0) && c.eta() < (-1.392)) {

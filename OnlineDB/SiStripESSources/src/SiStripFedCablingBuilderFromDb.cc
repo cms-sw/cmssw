@@ -769,26 +769,23 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDetIds(SiStripConfigDb* 
 
   uint32_t fed_id = 50;
   uint32_t fed_ch = 0;
-  for (vector<SiStripFecCrate>::const_iterator icrate = fec_cabling.crates().begin();
-       icrate != fec_cabling.crates().end();
-       icrate++) {
-    for (vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++) {
-      for (vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++) {
-        for (vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++) {
-          for (vector<SiStripModule>::const_iterator imod = iccu->modules().begin(); imod != iccu->modules().end();
-               imod++) {
-            if (96 - fed_ch < imod->nApvPairs()) {
+  for (const auto& icrate : fec_cabling.crates()) {
+    for (vector<SiStripFec>::const_iterator ifec = icrate.fecs().begin(); ifec != icrate.fecs().end(); ifec++) {
+      for (const auto& iring : ifec->rings()) {
+        for (vector<SiStripCcu>::const_iterator iccu = iring.ccus().begin(); iccu != iring.ccus().end(); iccu++) {
+          for (const auto& imod : iccu->modules()) {
+            if (96 - fed_ch < imod.nApvPairs()) {
               fed_id++;
               fed_ch = 0;
             }  // move to next FED
-            for (uint16_t ipair = 0; ipair < imod->nApvPairs(); ipair++) {
-              pair<uint16_t, uint16_t> addr = imod->activeApvPair((*imod).lldChannel(ipair));
+            for (uint16_t ipair = 0; ipair < imod.nApvPairs(); ipair++) {
+              pair<uint16_t, uint16_t> addr = imod.activeApvPair(imod.lldChannel(ipair));
               SiStripModule::FedChannel fed_channel(
                   (fed_id - 50) / 16 + 1,  // 16 FEDs per crate, numbering starts from 1
                   (fed_id - 50) % 16 + 2,  // FED slot starts from 2
                   fed_id,
                   fed_ch);
-              const_cast<SiStripModule&>(*imod).fedCh(addr.first, fed_channel);
+              const_cast<SiStripModule&>(imod).fedCh(addr.first, fed_channel);
               fed_ch++;
             }
           }
@@ -821,10 +818,8 @@ void SiStripFedCablingBuilderFromDb::assignDcuAndDetIds(SiStripFecCabling& fec_c
   uint16_t unknown = 0;
   uint16_t missing = 0;
 
-  for (vector<SiStripFecCrate>::const_iterator icrate = fec_cabling.crates().begin();
-       icrate != fec_cabling.crates().end();
-       icrate++) {
-    for (vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++) {
+  for (const auto& icrate : fec_cabling.crates()) {
+    for (vector<SiStripFec>::const_iterator ifec = icrate.fecs().begin(); ifec != icrate.fecs().end(); ifec++) {
       for (vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++) {
         for (vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++) {
           for (vector<SiStripModule>::const_iterator imod = iccu->modules().begin(); imod != iccu->modules().end();
@@ -838,7 +833,7 @@ void SiStripFedCablingBuilderFromDb::assignDcuAndDetIds(SiStripFecCabling& fec_c
 
             if (!module.dcuId()) {
               SiStripFecKey path(
-                  icrate->fecCrate(), ifec->fecSlot(), iring->fecRing(), iccu->ccuAddr(), imod->ccuChan());
+                  icrate.fecCrate(), ifec->fecSlot(), iring->fecRing(), iccu->ccuAddr(), imod->ccuChan());
               uint32_t module_key = path.key();
               module.dcuId(module_key);  // Assign DCU id equal to control key
               stringstream ss;
@@ -946,15 +941,12 @@ void SiStripFedCablingBuilderFromDb::assignDcuAndDetIds(SiStripFecCabling& fec_c
                        << " Assigning \"random\" DetIds to modules with DCU ids not found in static table...";
 
   uint32_t detid = 0x10000;  // Incremented "dummy" DetId
-  for (vector<SiStripFecCrate>::const_iterator icrate = fec_cabling.crates().begin();
-       icrate != fec_cabling.crates().end();
-       icrate++) {
-    for (vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++) {
-      for (vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++) {
-        for (vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++) {
-          for (vector<SiStripModule>::const_iterator imod = iccu->modules().begin(); imod != iccu->modules().end();
-               imod++) {
-            SiStripModule& module = const_cast<SiStripModule&>(*imod);
+  for (const auto& icrate : fec_cabling.crates()) {
+    for (vector<SiStripFec>::const_iterator ifec = icrate.fecs().begin(); ifec != icrate.fecs().end(); ifec++) {
+      for (const auto& iring : ifec->rings()) {
+        for (vector<SiStripCcu>::const_iterator iccu = iring.ccus().begin(); iccu != iring.ccus().end(); iccu++) {
+          for (const auto& imod : iccu->modules()) {
+            SiStripModule& module = const_cast<SiStripModule&>(imod);
 
             // --- Check for null DetId and search for DCU in cached map ---
 

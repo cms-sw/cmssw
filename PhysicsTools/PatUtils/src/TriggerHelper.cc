@@ -46,8 +46,8 @@ TriggerObjectMatchMap TriggerMatchHelper::triggerMatchObjects(const reco::Candid
                                                               const TriggerEvent& triggerEvent) const {
   TriggerObjectMatchMap theContainer;
   const std::vector<std::string> matchers(triggerEvent.triggerMatchers());
-  for (size_t iMatch = 0; iMatch < matchers.size(); ++iMatch) {
-    theContainer[matchers.at(iMatch)] = triggerMatchObject(candRef, matchers.at(iMatch), event, triggerEvent);
+  for (const auto& matcher : matchers) {
+    theContainer[matcher] = triggerMatchObject(candRef, matcher, event, triggerEvent);
   }
   return theContainer;
 }

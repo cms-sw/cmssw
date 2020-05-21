@@ -35,8 +35,7 @@ G4SimEvent::~G4SimEvent() {
 }
 
 void G4SimEvent::load(edm::SimTrackContainer& c) const {
-  for (unsigned int i = 0; i < g4tracks.size(); i++) {
-    G4SimTrack* trk = g4tracks[i];
+  for (auto trk : g4tracks) {
     int ip = trk->part();
     math::XYZTLorentzVectorD p(
         trk->momentum().x() / GeV, trk->momentum().y() / GeV, trk->momentum().z() / GeV, trk->energy() / GeV);

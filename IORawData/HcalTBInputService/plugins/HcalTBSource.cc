@@ -27,12 +27,12 @@ HcalTBSource::HcalTBSource(const edm::ParameterSet& pset, edm::InputSourceDescri
 }
 
 void HcalTBSource::unpackSetup(const std::vector<std::string>& params) {
-  for (std::vector<std::string>::const_iterator i = params.begin(); i != params.end(); i++) {
-    unsigned long pos = i->find(':');
-    std::string streamName = i->substr(0, pos);
+  for (const auto& param : params) {
+    unsigned long pos = param.find(':');
+    std::string streamName = param.substr(0, pos);
     int remapTo = -1;
     if (pos != std::string::npos)
-      remapTo = atoi(i->c_str() + pos + 1);
+      remapTo = atoi(param.c_str() + pos + 1);
 
     m_sourceIdRemap.insert(std::pair<std::string, int>(streamName, remapTo));
     if (remapTo != -1)

@@ -69,18 +69,14 @@ public:
                          const std::vector<int>& limitDeadCellToChannelStatusEE = std::vector<int>()) const {
     float highestEnergyDepositAroundDeadCell = 0;
 
-    for (int i = 0; i < (int)v_boundaryInfoDeadCells_EB.size(); ++i) {
-      BoundaryInformation bInfo = v_boundaryInfoDeadCells_EB[i];
-
+    for (auto bInfo : v_boundaryInfoDeadCells_EB) {
       //check if channel limitation rejectsbInfo
       bool passChannelLimitation = false;
       std::vector<int> status = bInfo.channelStatus;
 
-      for (int cs = 0; cs < (int)limitDeadCellToChannelStatusEB.size(); ++cs) {
-        int channelAllowed = limitDeadCellToChannelStatusEB[cs];
-
-        for (std::vector<int>::iterator st_it = status.begin(); st_it != status.end(); ++st_it) {
-          if (channelAllowed == *st_it || (channelAllowed < 0 && abs(channelAllowed) <= *st_it)) {
+      for (int channelAllowed : limitDeadCellToChannelStatusEB) {
+        for (int& statu : status) {
+          if (channelAllowed == statu || (channelAllowed < 0 && abs(channelAllowed) <= statu)) {
             passChannelLimitation = true;
             break;
           }
@@ -95,18 +91,14 @@ public:
       }
     }
 
-    for (int i = 0; i < (int)v_boundaryInfoDeadCells_EE.size(); ++i) {
-      BoundaryInformation bInfo = v_boundaryInfoDeadCells_EE[i];
-
+    for (auto bInfo : v_boundaryInfoDeadCells_EE) {
       //check if channel limitation rejectsbInfo
       bool passChannelLimitation = false;
       std::vector<int> status = bInfo.channelStatus;
 
-      for (int cs = 0; cs < (int)limitDeadCellToChannelStatusEE.size(); ++cs) {
-        int channelAllowed = limitDeadCellToChannelStatusEE[cs];
-
-        for (std::vector<int>::iterator st_it = status.begin(); st_it != status.end(); ++st_it) {
-          if (channelAllowed == *st_it || (channelAllowed < 0 && abs(channelAllowed) <= *st_it)) {
+      for (int channelAllowed : limitDeadCellToChannelStatusEE) {
+        for (int& statu : status) {
+          if (channelAllowed == statu || (channelAllowed < 0 && abs(channelAllowed) <= statu)) {
             passChannelLimitation = true;
             break;
           }
@@ -154,9 +146,7 @@ public:
   bool isGapEcalCluster(double maxGapEnergyEB = 10, double maxGapEnergyEE = 10) const {
     float highestEnergyDepositAlongGapEB = 0;
 
-    for (int i = 0; i < (int)v_enNeighboursGap_EB.size(); ++i) {
-      BoundaryInformation gapInfo = v_enNeighboursGap_EB[i];
-
+    for (auto gapInfo : v_enNeighboursGap_EB) {
       if (gapInfo.boundaryEnergy > highestEnergyDepositAlongGapEB) {
         highestEnergyDepositAlongGapEB = gapInfo.boundaryET;
         //highestEnergyDepositAlongGapEB = gapInfo.boundaryEnergy;
@@ -165,9 +155,7 @@ public:
 
     float highestEnergyDepositAlongGapEE = 0;
 
-    for (int i = 0; i < (int)v_enNeighboursGap_EE.size(); ++i) {
-      BoundaryInformation gapInfo = v_enNeighboursGap_EE[i];
-
+    for (auto gapInfo : v_enNeighboursGap_EE) {
       if (gapInfo.boundaryEnergy > highestEnergyDepositAlongGapEE) {
         highestEnergyDepositAlongGapEE = gapInfo.boundaryET;
         //highestEnergyDepositAlongGapEE = gapInfo.boundaryEnergy;

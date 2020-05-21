@@ -458,17 +458,17 @@ bool HSCPTreeBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   if (reccordVertexInfo) {
     NVertices = 0;
-    for (unsigned int i = 0; i < recoVertex.size(); i++) {
-      Vertex_x[NVertices] = recoVertex[i].x();
-      Vertex_y[NVertices] = recoVertex[i].y();
-      Vertex_z[NVertices] = recoVertex[i].z();
-      Vertex_x_err[NVertices] = recoVertex[i].xError();
-      Vertex_y_err[NVertices] = recoVertex[i].yError();
-      Vertex_z_err[NVertices] = recoVertex[i].zError();
-      Vertex_TrackSize[NVertices] = recoVertex[i].tracksSize();
-      Vertex_chi2[NVertices] = recoVertex[i].chi2();
-      Vertex_ndof[NVertices] = recoVertex[i].ndof();
-      Vertex_isFake[NVertices] = recoVertex[i].isFake();
+    for (auto& i : recoVertex) {
+      Vertex_x[NVertices] = i.x();
+      Vertex_y[NVertices] = i.y();
+      Vertex_z[NVertices] = i.z();
+      Vertex_x_err[NVertices] = i.xError();
+      Vertex_y_err[NVertices] = i.yError();
+      Vertex_z_err[NVertices] = i.zError();
+      Vertex_TrackSize[NVertices] = i.tracksSize();
+      Vertex_chi2[NVertices] = i.chi2();
+      Vertex_ndof[NVertices] = i.ndof();
+      Vertex_isFake[NVertices] = i.isFake();
       NVertices++;
     }
   }
@@ -479,8 +479,7 @@ bool HSCPTreeBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   susybsm::HSCParticleCollection HSCPCollection = *HSCPCollectionHandle.product();
 
   NHSCPs = 0;
-  for (unsigned int i = 0; i < HSCPCollection.size(); i++) {
-    susybsm::HSCParticle hscp = HSCPCollection[i];
+  for (auto hscp : HSCPCollection) {
     reco::MuonRef muon = hscp.muonRef();
     reco::TrackRef track = hscp.trackRef();
     ;

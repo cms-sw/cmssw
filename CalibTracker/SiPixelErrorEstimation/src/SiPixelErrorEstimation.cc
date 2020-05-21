@@ -411,10 +411,10 @@ void SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup&
   e.getByToken(tTrajectory, trajCollectionHandle);
   //e.getByLabel( "generalTracks", trajCollectionHandle);
 
-  for (vector<Trajectory>::const_iterator it = trajCollectionHandle->begin(); it != trajCollectionHandle->end(); ++it) {
-    vector<TrajectoryMeasurement> tmColl = it->measurements();
-    for (vector<TrajectoryMeasurement>::const_iterator itTraj = tmColl.begin(); itTraj != tmColl.end(); ++itTraj) {
-      if (!itTraj->updatedState().isValid())
+  for (const auto& it : *trajCollectionHandle) {
+    vector<TrajectoryMeasurement> tmColl = it.measurements();
+    for (const auto& itTraj : tmColl) {
+      if (!itTraj.updatedState().isValid())
         continue;
 
       strip_rechitx = -9999999.9;
@@ -500,7 +500,7 @@ void SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup&
       strip_clst_err_x = -9999999.9;
       strip_clst_err_y = -9999999.9;
 
-      const TransientTrackingRecHit::ConstRecHitPointer trans_trk_rec_hit_point = itTraj->recHit();
+      const TransientTrackingRecHit::ConstRecHitPointer trans_trk_rec_hit_point = itTraj.recHit();
 
       if (trans_trk_rec_hit_point == nullptr)
         continue;
@@ -542,7 +542,7 @@ void SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup&
       //cout << "strip_rechiterrx = " << strip_rechiterrx << endl;
       //cout << "strip_rechiterry = " << strip_rechiterry << endl;
 
-      TrajectoryStateOnSurface tsos = itTraj->updatedState();
+      TrajectoryStateOnSurface tsos = itTraj.updatedState();
 
       strip_trk_pt = tsos.globalMomentum().perp();
 
@@ -660,8 +660,8 @@ void SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup&
         // Get cluster total charge
         const auto& stripCharges = cluster->amplitudes();
         uint16_t charge = 0;
-        for (unsigned int i = 0; i < stripCharges.size(); ++i) {
-          charge += stripCharges[i];
+        for (unsigned char stripCharge : stripCharges) {
+          charge += stripCharge;
         }
 
         strip_charge = (float)charge;
@@ -776,8 +776,8 @@ void SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup&
         // Get cluster total charge
         auto& stripCharges = cluster->amplitudes();
         uint16_t charge = 0;
-        for (unsigned int i = 0; i < stripCharges.size(); ++i) {
-          charge += stripCharges[i];
+        for (unsigned char stripCharge : stripCharges) {
+          charge += stripCharge;
         }
 
         strip_charge = (float)charge;
@@ -843,8 +843,8 @@ void SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup&
   e.getByToken(tSimTrackContainer, simtracks);
 
   //-----Iterate over detunits
-  for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
-    DetId detId = ((*it)->geographicalId());
+  for (auto it : pDD->dets()) {
+    DetId detId = (it->geographicalId());
 
     SiPixelRecHitCollection::const_iterator dsmatch = recHitColl->find(detId);
     if (dsmatch == recHitColl->end())

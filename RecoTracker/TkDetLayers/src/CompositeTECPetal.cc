@@ -88,8 +88,8 @@ CompositeTECPetal::CompositeTECPetal(vector<const TECWedge*>& innerWedges, vecto
   details::fillPars(theFrontComps, theFrontPars);
   details::fillPars(theBackComps, theBackPars);
 
-  for (vector<const GeometricSearchDet*>::const_iterator it = theComps.begin(); it != theComps.end(); it++) {
-    theBasicComps.insert(theBasicComps.end(), (**it).basicComponents().begin(), (**it).basicComponents().end());
+  for (auto theComp : theComps) {
+    theBasicComps.insert(theBasicComps.end(), (*theComp).basicComponents().begin(), (*theComp).basicComponents().end());
   }
 
   //the Wedge are already R ordered
@@ -107,14 +107,16 @@ CompositeTECPetal::CompositeTECPetal(vector<const TECWedge*>& innerWedges, vecto
   //--------- DEBUG INFO --------------
   LogDebug("TkDetLayers") << "DEBUG INFO for CompositeTECPetal";
 
-  for (auto it = theFrontComps.begin(); it != theFrontComps.end(); it++) {
-    LogDebug("TkDetLayers") << "frontWedge phi,z,r: " << (*it)->surface().position().phi() << " , "
-                            << (*it)->surface().position().z() << " , " << (*it)->surface().position().perp();
+  for (auto& theFrontComp : theFrontComps) {
+    LogDebug("TkDetLayers") << "frontWedge phi,z,r: " << theFrontComp->surface().position().phi() << " , "
+                            << theFrontComp->surface().position().z() << " , "
+                            << theFrontComp->surface().position().perp();
   }
 
-  for (auto it = theBackComps.begin(); it != theBackComps.end(); it++) {
-    LogDebug("TkDetLayers") << "backWedge phi,z,r: " << (*it)->surface().position().phi() << " , "
-                            << (*it)->surface().position().z() << " , " << (*it)->surface().position().perp();
+  for (auto& theBackComp : theBackComps) {
+    LogDebug("TkDetLayers") << "backWedge phi,z,r: " << theBackComp->surface().position().phi() << " , "
+                            << theBackComp->surface().position().z() << " , "
+                            << theBackComp->surface().position().perp();
   }
   //-----------------------------------
 }

@@ -522,9 +522,9 @@ void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent) {
   int numMatchedDigisEventEB = 0;
   const PCaloHitContainer* phitsEB = nullptr;
   phitsEB = ebSimHits.product();
-  for (SimTrackContainer::const_iterator simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack) {
+  for (const auto& simTrack : *simTracks) {
     // Check if the particleId is in our list
-    std::vector<int>::const_iterator partIdItr = find(particleIds_.begin(), particleIds_.end(), simTrack->type());
+    std::vector<int>::const_iterator partIdItr = find(particleIds_.begin(), particleIds_.end(), simTrack.type());
     if (partIdItr == particleIds_.end())
       continue;
 
@@ -532,7 +532,7 @@ void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent) {
     std::vector<EBDataFrame> myDigisEB;
 
     //int particleId = simTrack->type();
-    int trackId = simTrack->trackId();
+    int trackId = simTrack.trackId();
     PCaloHitContainer::const_iterator simHitItr = phitsEB->begin();
     while (simHitItr != phitsEB->end()) {
       if (simHitItr->geantTrackId() == trackId)
@@ -551,7 +551,7 @@ void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent) {
       simHitsEcalTimeHistEB_->Fill(simHitItr->time());
       simHitsEcalEnergyVsTimeHistEB_->Fill(simHitItr->time(), simHitItr->energy());
       EBDetId simHitId = EBDetId(simHitItr->id());
-      std::cout << "SimHit DetId found: " << simHitId << " for PDGid: " << simTrack->type() << std::endl;
+      std::cout << "SimHit DetId found: " << simHitId << " for PDGid: " << simTrack.type() << std::endl;
       //std::cout << "SimHit hashedIndex: " << simHitId.hashedIndex() << std::endl;
       std::cout << "SimHit energy: " << simHitItr->energy() << " time: " << simHitItr->time() << std::endl;
       ++numMatchedSimHitsEventEB;
@@ -599,9 +599,9 @@ void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent) {
   int numMatchedDigisEventEE = 0;
   const PCaloHitContainer* phitsEE = nullptr;
   phitsEE = eeSimHits.product();
-  for (SimTrackContainer::const_iterator simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack) {
+  for (const auto& simTrack : *simTracks) {
     // Check if the particleId is in our list
-    std::vector<int>::const_iterator partIdItr = find(particleIds_.begin(), particleIds_.end(), simTrack->type());
+    std::vector<int>::const_iterator partIdItr = find(particleIds_.begin(), particleIds_.end(), simTrack.type());
     if (partIdItr == particleIds_.end())
       continue;
 
@@ -609,7 +609,7 @@ void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent) {
     std::vector<EEDataFrame> myDigisEE;
 
     //int particleId = simTrack->type();
-    int trackId = simTrack->trackId();
+    int trackId = simTrack.trackId();
     PCaloHitContainer::const_iterator simHitItr = phitsEE->begin();
     while (simHitItr != phitsEE->end()) {
       if (simHitItr->geantTrackId() == trackId)
@@ -628,7 +628,7 @@ void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent) {
       simHitsEcalTimeHistEE_->Fill(simHitItr->time());
       simHitsEcalEnergyVsTimeHistEE_->Fill(simHitItr->time(), simHitItr->energy());
       EEDetId simHitId = EEDetId(simHitItr->id());
-      std::cout << "SimHit DetId found: " << simHitId << " for PDGid: " << simTrack->type() << std::endl;
+      std::cout << "SimHit DetId found: " << simHitId << " for PDGid: " << simTrack.type() << std::endl;
       //std::cout << "SimHit hashedIndex: " << simHitId.hashedIndex() << std::endl;
       std::cout << "SimHit energy: " << simHitItr->energy() << " time: " << simHitItr->time() << std::endl;
       ++numMatchedSimHitsEventEE;
@@ -737,18 +737,19 @@ void HSCPValidator::makeSimDigiPlotsRPC(const edm::Event& iEvent) {
   //SimTrack Stuff
   std::vector<PSimHit> theSimHits;
 
-  for (int i = 0; i < int(theSimHitContainers.size()); i++) {
-    theSimHits.insert(theSimHits.end(), theSimHitContainers.at(i)->begin(), theSimHitContainers.at(i)->end());
+  for (auto& theSimHitContainer : theSimHitContainers) {
+    theSimHits.insert(theSimHits.end(), theSimHitContainer->begin(), theSimHitContainer->end());
   }
 
-  for (std::vector<PSimHit>::const_iterator iHit = theSimHits.begin(); iHit != theSimHits.end(); iHit++) {
-    std::vector<int>::const_iterator partIdItr = find(particleIds_.begin(), particleIds_.end(), (*iHit).particleType());
+  for (const auto& theSimHit : theSimHits) {
+    std::vector<int>::const_iterator partIdItr =
+        find(particleIds_.begin(), particleIds_.end(), theSimHit.particleType());
     if (partIdItr == particleIds_.end())
       continue;
 
-    DetId theDetUnitId((*iHit).detUnitId());
+    DetId theDetUnitId(theSimHit.detUnitId());
 
-    DetId simdetid = DetId((*iHit).detUnitId());
+    DetId simdetid = DetId(theSimHit.detUnitId());
 
     if (simdetid.det() == DetId::Muon && simdetid.subdetId() == MuonSubdetId::RPC) {  //Only RPCs
 
@@ -761,9 +762,9 @@ void HSCPValidator::makeSimDigiPlotsRPC(const edm::Event& iEvent) {
       //std::cout << " Getting the Surface"<<std::endl;
       const BoundPlane& RPCSurface = rollasociated->surface();
 
-      GlobalPoint SimHitInGlobal = RPCSurface.toGlobal((*iHit).localPosition());
+      GlobalPoint SimHitInGlobal = RPCSurface.toGlobal(theSimHit.localPosition());
 
-      std::cout << "\t\t We have an RPC Sim Hit! in t=" << (*iHit).timeOfFlight() << "ns " << rpcsrv.name()
+      std::cout << "\t\t We have an RPC Sim Hit! in t=" << theSimHit.timeOfFlight() << "ns " << rpcsrv.name()
                 << " Global postition=" << SimHitInGlobal << std::endl;
 
       int layer = 0;
@@ -782,9 +783,9 @@ void HSCPValidator::makeSimDigiPlotsRPC(const edm::Event& iEvent) {
         layer = 6;
 
       if (rollId.region() == 0) {
-        rpcTimeOfFlightBarrel_[layer - 1]->Fill((*iHit).timeOfFlight());
+        rpcTimeOfFlightBarrel_[layer - 1]->Fill(theSimHit.timeOfFlight());
       } else {
-        rpcTimeOfFlightEndCap_[rollId.station() - 1]->Fill((*iHit).timeOfFlight());
+        rpcTimeOfFlightEndCap_[rollId.station() - 1]->Fill(theSimHit.timeOfFlight());
       }
 
       std::cout << "\t\t r=" << SimHitInGlobal.mag() << " phi=" << SimHitInGlobal.phi()
@@ -804,7 +805,7 @@ void HSCPValidator::makeSimDigiPlotsRPC(const edm::Event& iEvent) {
 
       for (recHit = recHitCollection.first; recHit != recHitCollection.second; recHit++) {
         LocalPoint recHitPos = recHit->localPosition();
-        float res = (*iHit).localPosition().x() - recHitPos.x();
+        float res = theSimHit.localPosition().x() - recHitPos.x();
         if (fabs(res) < fabs(minres)) {
           minres = res;
           cluSize = recHit->clusterSize();

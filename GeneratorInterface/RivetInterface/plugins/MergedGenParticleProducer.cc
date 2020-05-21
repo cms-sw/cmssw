@@ -47,8 +47,7 @@ void MergedGenParticleProducer::produce(edm::Event& event, const edm::EventSetup
     // analysing with
     pat::PackedGenParticle pks(src, reco::GenParticleRef());
     unsigned found_matches = 0;
-    for (unsigned j = 0; j < packed_handle->size(); ++j) {
-      pat::PackedGenParticle const& pk = packed_handle->at(j);
+    for (const auto& pk : *packed_handle) {
       if (pks.pdgId() != pk.pdgId() or pks.p4() != pk.p4())
         continue;
       ++found_matches;
@@ -66,8 +65,7 @@ void MergedGenParticleProducer::produce(edm::Event& event, const edm::EventSetup
   // Fix by Markus
   // check for photons from pruned (light) hadrons
   unsigned int nPhotonsFromPrunedHadron = 0;
-  for (unsigned int j = 0; j < packed_handle->size(); ++j) {
-    pat::PackedGenParticle const& pk = packed_handle->at(j);
+  for (const auto& pk : *packed_handle) {
     if (isPhotonFromPrunedHadron(pk))
       ++nPhotonsFromPrunedHadron;
   }

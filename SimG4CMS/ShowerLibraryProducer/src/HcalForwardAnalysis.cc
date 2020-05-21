@@ -140,11 +140,11 @@ void HcalForwardAnalysis::setPhotons(const EndOfEvent* evt) {
       int fCellId = -1;
       int fFiberId = -1;
       parseDetId(aHit->towerId(), fTowerId, fCellId, fFiberId);
-      for (unsigned int iph = 0; iph < thePhotonsFromHit.size(); ++iph) {
+      for (const auto& iph : thePhotonsFromHit) {
         if (aHit->depth() == 1)
-          LongFiberPhotons.push_back(thePhotonsFromHit[iph]);
+          LongFiberPhotons.push_back(iph);
         if (aHit->depth() == 2)
-          ShortFiberPhotons.push_back(thePhotonsFromHit[iph]);
+          ShortFiberPhotons.push_back(iph);
       }
       LogDebug("HcalForwardLib") << "HcalForwardAnalysis::setPhotons() NbPhotons " << thePhotonsFromHit.size()
                                  << " towerId " << fTowerId << " cellId " << fCellId << " fiberId " << fFiberId
@@ -203,8 +203,7 @@ void HcalForwardAnalysis::setPhotons(const EndOfEvent* evt) {
   double theta = primMomDirOnSurf.theta();
   double phi = primMomDirOnSurf.phi();
 
-  for (unsigned int k = 0; k < LongFiberPhotons.size(); ++k) {
-    HFShowerPhoton aPhoton = LongFiberPhotons[k];
+  for (auto aPhoton : LongFiberPhotons) {
     photonProdX = aPhoton.x() * cos(theta) * cos(phi) + aPhoton.y() * cos(theta) * sin(phi) - aPhoton.z() * sin(theta) -
                   primPosOnSurf.x();
     photonProdY = -aPhoton.x() * sin(phi) + aPhoton.y() * cos(phi) - primPosOnSurf.y();
@@ -213,8 +212,7 @@ void HcalForwardAnalysis::setPhotons(const EndOfEvent* evt) {
     photonProdTime = aPhoton.t() - primTimeOnSurf;
     thePhotons.push_back(Photon(1, photonProdX, photonProdY, photonProdZ, photonProdTime, aPhoton.lambda()));
   }
-  for (unsigned int k = 0; k < ShortFiberPhotons.size(); ++k) {
-    HFShowerPhoton aPhoton = ShortFiberPhotons[k];
+  for (auto aPhoton : ShortFiberPhotons) {
     photonProdX = aPhoton.x() * cos(theta) * cos(phi) + aPhoton.y() * cos(theta) * sin(phi) - aPhoton.z() * sin(theta) -
                   primPosOnSurf.x();
     photonProdY = -aPhoton.x() * sin(phi) + aPhoton.y() * cos(phi) - primPosOnSurf.y();

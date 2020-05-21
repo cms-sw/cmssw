@@ -238,10 +238,10 @@ void TkAlCaRecoMonitor::analyze(const edm::Event &iEvent, const edm::EventSetup 
     double dR = 0;
     if (runsOnReco_) {
       double minJetDeltaR = 10;  // some number > 2pi
-      for (reco::CaloJetCollection::const_iterator itJet = jets->begin(); itJet != jets->end(); ++itJet) {
-        jetPt_->Fill((*itJet).pt());
-        dR = deltaR((*track), (*itJet));
-        if ((*itJet).pt() > maxJetPt_ && dR < minJetDeltaR)
+      for (const auto &itJet : *jets) {
+        jetPt_->Fill(itJet.pt());
+        dR = deltaR((*track), itJet);
+        if (itJet.pt() > maxJetPt_ && dR < minJetDeltaR)
           minJetDeltaR = dR;
 
         // edm::LogInfo("Alignment") <<">  isolated: "<< isolated << " jetPt "<<
@@ -328,15 +328,14 @@ void TkAlCaRecoMonitor::fillHitmaps(const reco::Track &track, const TrackerGeome
 
 void TkAlCaRecoMonitor::fillRawIdMap(const TrackerGeometry &geometry) {
   std::vector<int> sortedRawIds;
-  for (std::vector<DetId>::const_iterator iDetId = geometry.detUnitIds().begin(); iDetId != geometry.detUnitIds().end();
-       ++iDetId) {
-    sortedRawIds.push_back((*iDetId).rawId());
+  for (auto iDetId : geometry.detUnitIds()) {
+    sortedRawIds.push_back(iDetId.rawId());
   }
   std::sort(sortedRawIds.begin(), sortedRawIds.end());
 
   int i = 0;
-  for (std::vector<int>::iterator iRawId = sortedRawIds.begin(); iRawId != sortedRawIds.end(); ++iRawId) {
-    binByRawId_[*iRawId] = i;
+  for (int &sortedRawId : sortedRawIds) {
+    binByRawId_[sortedRawId] = i;
     ++i;
   }
 }

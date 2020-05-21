@@ -29,13 +29,13 @@ void TTStubAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
 
   /// Loop over the InputTags to handle multiple collections
 
-  for (auto iTag = TTStubsTokens.begin(); iTag != TTStubsTokens.end(); iTag++) {
+  for (auto& TTStubsToken : TTStubsTokens) {
     /// Prepare output
     auto associationMapForOutput = std::make_unique<TTStubAssociationMap<Ref_Phase2TrackerDigi_>>();
 
     /// Get the Stubs already stored away
     edm::Handle<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>> TTStubHandle;
-    iEvent.getByToken(*iTag, TTStubHandle);
+    iEvent.getByToken(TTStubsToken, TTStubHandle);
 
     /// Get the Cluster MC truth
     edm::Handle<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>> TTClusterAssociationMapHandle;
@@ -54,8 +54,8 @@ void TTStubAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
     /// Loop over the input Stubs
 
     if (!TTStubHandle->empty()) {
-      for (auto gd = theTrackerGeom->dets().begin(); gd != theTrackerGeom->dets().end(); gd++) {
-        DetId detid = (*gd)->geographicalId();
+      for (auto gd : theTrackerGeom->dets()) {
+        DetId detid = gd->geographicalId();
         if (detid.subdetId() != StripSubdetector::TOB && detid.subdetId() != StripSubdetector::TID)
           continue;  // only run on OT
 
@@ -83,9 +83,7 @@ void TTStubAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
             std::vector<edm::Ptr<TrackingParticle>> tempTPs =
                 TTClusterAssociationMapHandle->findTrackingParticlePtrs(tempStubRef->clusterRef(ic));
 
-            for (unsigned int itp = 0; itp < tempTPs.size(); itp++) {
-              edm::Ptr<TrackingParticle> testTP = tempTPs.at(itp);
-
+            for (auto testTP : tempTPs) {
               if (testTP.isNull())
                 continue;
 

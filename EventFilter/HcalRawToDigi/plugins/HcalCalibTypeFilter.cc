@@ -118,8 +118,8 @@ bool HcalCalibTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
     edm::LogWarning("HcalCalibTypeFilter") << "Conflicting calibration types found.  Assigning type " << calibType;
   LogDebug("HcalCalibTypeFilter") << "Calibration type is: " << calibType;
   eventsByType.at(calibType)++;
-  for (unsigned int i = 0; i < CalibTypes_.size(); i++)
-    if (calibType == CalibTypes_.at(i))
+  for (int CalibType : CalibTypes_)
+    if (calibType == CalibType)
       return true;
   return false;
 }

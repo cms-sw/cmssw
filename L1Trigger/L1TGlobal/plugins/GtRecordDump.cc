@@ -256,9 +256,7 @@ namespace l1t {
             << " Warning: GlobalObjectMapRecord requested in configuration, but not found in the event." << std::endl;
       } else {
         const std::vector<GlobalObjectMap>& objMaps = gtObjectMapRecord->gtObjectMap();
-        for (size_t imap = 0; imap < objMaps.size(); imap++) {
-          GlobalObjectMap oMap = objMaps.at(imap);
-
+        for (auto oMap : objMaps) {
           int bit = oMap.algoBitNumber();  //  same as bit from L1T Menu
           int mapDecision = oMap.algoGtlResult();
 
@@ -285,22 +283,19 @@ namespace l1t {
               std::cout << "       " << iCond << ") Condition Token: " << opTokenVecObjMap.at(iCond).tokenName
                         << "  Types: ";
               std::vector<l1t::GlobalObject> condObjType = condObjTypeVec[iCond];
-              for (size_t iCondType = 0; iCondType < condObjType.size(); iCondType++) {
-                std::cout << condObjType.at(iCondType) << "  ";
+              for (auto& iCondType : condObjType) {
+                std::cout << iCondType << "  ";
               }
               std::cout << std::endl;
 
               const CombinationsInCond* condComb = oMap.getCombinationsInCond(iCond);
               std::cout << "            Combinations in Condition [" << condComb->size() << "] : ";
-              for (std::vector<SingleCombInCond>::const_iterator itComb = (*condComb).begin();
-                   itComb != (*condComb).end();
-                   itComb++) {
+              for (const auto& itComb : (*condComb)) {
                 // loop over objects in a combination for a given condition
                 //
                 unsigned int iType = 0;
                 std::cout << "(";
-                for (SingleCombInCond::const_iterator itObject = (*itComb).begin(); itObject != (*itComb).end();
-                     itObject++) {
+                for (SingleCombInCond::const_iterator itObject = itComb.begin(); itObject != itComb.end(); itObject++) {
                   // loop over types for the object in a combination.  This object might have more then one type (i.e. mu-eg)
                   //
 

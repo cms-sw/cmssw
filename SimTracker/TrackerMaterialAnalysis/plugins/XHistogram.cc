@@ -90,10 +90,10 @@ void XHistogram::fill(const Range& x, const Range& y, const std::vector<double>&
   check_weight(weight);
 
   std::vector<position> v = splitSegment(x, y);
-  for (size_t i = 0, s = v.size(); i < s; ++i) {
+  for (auto& i : v) {
     for (size_t h = 0; h < m_size; ++h)
-      m_histograms[h]->Fill(v[i].x, v[i].y, v[i].f * weight[h]);
-    m_normalization->Fill(v[i].x, v[i].y, v[i].f * norm);
+      m_histograms[h]->Fill(i.x, i.y, i.f * weight[h]);
+    m_normalization->Fill(i.x, i.y, i.f * norm);
   }
 }
 
@@ -103,11 +103,11 @@ void XHistogram::fill(
   check_weight(weight);
 
   std::vector<position> v = splitSegment(x, y);
-  for (size_t i = 0, s = v.size(); i < s; ++i) {
+  for (auto& i : v) {
     for (size_t h = 0; h < m_size; ++h)
-      m_histograms[h]->Fill(v[i].x, v[i].y, v[i].f * weight[h]);
-    m_normalization->Fill(v[i].x, v[i].y, v[i].f * norm);
-    m_colormap->SetBinContent(m_colormap->FindBin(v[i].x, v[i].y), (float)colour);
+      m_histograms[h]->Fill(i.x, i.y, i.f * weight[h]);
+    m_normalization->Fill(i.x, i.y, i.f * norm);
+    m_colormap->SetBinContent(m_colormap->FindBin(i.x, i.y), (float)colour);
   }
 }
 

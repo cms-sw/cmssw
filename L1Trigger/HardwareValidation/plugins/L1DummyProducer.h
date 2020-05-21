@@ -275,10 +275,10 @@ inline void L1DummyProducer::SimpleDigi(CLHEP::HepRandomEngine* engine,
   SimpleDigi(engine, tracks, type_idx);
   typedef std::vector<L1MuDTTrackCand> L1MuDTTrackCandCollection;
   std::unique_ptr<L1MuDTTrackCandCollection> tracksd(new L1MuDTTrackCandCollection());
-  for (L1MuRegionalCandCollection::const_iterator it = tracks->begin(); it != tracks->end(); it++) {
+  for (const auto& it : *tracks) {
     L1MuDTTrackCand* cnd = new L1MuDTTrackCand();
-    cnd->setDataWord(it->getDataWord());
-    cnd->setBx(it->bx());
+    cnd->setDataWord(it.getDataWord());
+    cnd->setBx(it.bx());
     tracksd->push_back(L1MuDTTrackCand());
     tracksd->push_back(*cnd);
   }

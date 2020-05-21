@@ -218,8 +218,8 @@ namespace ROOT {
     */
       template <class IT>
       void SetComponents(IT begin, IT end) {
-        for (int i = 0; i < 12; ++i) {
-          fM[i] = *begin;
+        for (double &i : fM) {
+          i = *begin;
           ++begin;
         }
         assert(end == begin);
@@ -231,8 +231,8 @@ namespace ROOT {
     */
       template <class IT>
       void GetComponents(IT begin, IT end) const {
-        for (int i = 0; i < 12; ++i) {
-          *begin = fM[i];
+        for (double i : fM) {
+          *begin = i;
           ++begin;
         }
         assert(end == begin);

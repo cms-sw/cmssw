@@ -367,34 +367,34 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event &iEvent, const EventSetup &iSetu
 
   hiDistrHBHEsize1D_->Fill(HithbheNS.size() / ihbhe_size_);
 
-  for (HBHERecHitCollection::const_iterator hbheItr = HithbheNS.begin(); hbheItr != HithbheNS.end(); hbheItr++) {
-    DetId id = (*hbheItr).detid();
+  for (const auto &hbheItr : HithbheNS) {
+    DetId id = hbheItr.detid();
     HcalDetId hid = HcalDetId(id);
 
     if (hid.depth() == 1) {
       if (hid.ieta() > 0) {
-        hiDistrNoisePl2D_->Fill(hid.ieta(), hid.iphi(), hbheItr->energy());
-        hiDistrNoise2Pl2D_->Fill(hid.ieta(), hid.iphi(), hbheItr->energy() * hbheItr->energy());
+        hiDistrNoisePl2D_->Fill(hid.ieta(), hid.iphi(), hbheItr.energy());
+        hiDistrNoise2Pl2D_->Fill(hid.ieta(), hid.iphi(), hbheItr.energy() * hbheItr.energy());
       } else {
-        hiDistrNoiseMin2D_->Fill(fabs(hid.ieta()), hid.iphi(), hbheItr->energy());
-        hiDistrNoise2Min2D_->Fill(fabs(hid.ieta()), hid.iphi(), hbheItr->energy() * hbheItr->energy());
+        hiDistrNoiseMin2D_->Fill(fabs(hid.ieta()), hid.iphi(), hbheItr.energy());
+        hiDistrNoise2Min2D_->Fill(fabs(hid.ieta()), hid.iphi(), hbheItr.energy() * hbheItr.energy());
       }
     }
   }
 
   const HBHERecHitCollection HithbheMB = *(hbheMB.product());
 
-  for (HBHERecHitCollection::const_iterator hbheItr = HithbheMB.begin(); hbheItr != HithbheMB.end(); hbheItr++) {
-    DetId id = (*hbheItr).detid();
+  for (const auto &hbheItr : HithbheMB) {
+    DetId id = hbheItr.detid();
     HcalDetId hid = HcalDetId(id);
 
     if (hid.depth() == 1) {
       if (hid.ieta() > 0) {
-        hiDistrMBPl2D_->Fill(hid.ieta(), hid.iphi(), hbheItr->energy());
-        hiDistrMB2Pl2D_->Fill(hid.ieta(), hid.iphi(), hbheItr->energy() * hbheItr->energy());
+        hiDistrMBPl2D_->Fill(hid.ieta(), hid.iphi(), hbheItr.energy());
+        hiDistrMB2Pl2D_->Fill(hid.ieta(), hid.iphi(), hbheItr.energy() * hbheItr.energy());
       } else {
-        hiDistrMBMin2D_->Fill(fabs(hid.ieta()), hid.iphi(), hbheItr->energy());
-        hiDistrMB2Min2D_->Fill(fabs(hid.ieta()), hid.iphi(), hbheItr->energy() * hbheItr->energy());
+        hiDistrMBMin2D_->Fill(fabs(hid.ieta()), hid.iphi(), hbheItr.energy());
+        hiDistrMB2Min2D_->Fill(fabs(hid.ieta()), hid.iphi(), hbheItr.energy() * hbheItr.energy());
       }
     }
   }
@@ -403,34 +403,34 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event &iEvent, const EventSetup &iSetu
 
   hiDistrHFsize1D_->Fill(HithfNS.size() / ihf_size_);
 
-  for (HFRecHitCollection::const_iterator hbheItr = HithfNS.begin(); hbheItr != HithfNS.end(); hbheItr++) {
-    DetId id = (*hbheItr).detid();
+  for (const auto &hbheItr : HithfNS) {
+    DetId id = hbheItr.detid();
     HcalDetId hid = HcalDetId(id);
 
     if (hid.depth() == 1) {
       if (hid.ieta() > 0) {
-        hiDistrNoisePl2D_->Fill(hid.ieta(), hid.iphi(), hbheItr->energy());
-        hiDistrNoise2Pl2D_->Fill(hid.ieta(), hid.iphi(), hbheItr->energy() * hbheItr->energy());
+        hiDistrNoisePl2D_->Fill(hid.ieta(), hid.iphi(), hbheItr.energy());
+        hiDistrNoise2Pl2D_->Fill(hid.ieta(), hid.iphi(), hbheItr.energy() * hbheItr.energy());
       } else {
-        hiDistrNoiseMin2D_->Fill(fabs(hid.ieta()), hid.iphi(), hbheItr->energy());
-        hiDistrNoise2Min2D_->Fill(fabs(hid.ieta()), hid.iphi(), hbheItr->energy() * hbheItr->energy());
+        hiDistrNoiseMin2D_->Fill(fabs(hid.ieta()), hid.iphi(), hbheItr.energy());
+        hiDistrNoise2Min2D_->Fill(fabs(hid.ieta()), hid.iphi(), hbheItr.energy() * hbheItr.energy());
       }
     }
   }
 
   const HFRecHitCollection HithfMB = *(hfMB.product());
 
-  for (HFRecHitCollection::const_iterator hbheItr = HithfMB.begin(); hbheItr != HithfMB.end(); hbheItr++) {
-    DetId id = (*hbheItr).detid();
+  for (const auto &hbheItr : HithfMB) {
+    DetId id = hbheItr.detid();
     HcalDetId hid = HcalDetId(id);
 
     if (hid.depth() == 1) {
       if (hid.ieta() > 0) {
-        hiDistrMBPl2D_->Fill(hid.ieta(), hid.iphi(), hbheItr->energy());
-        hiDistrMB2Pl2D_->Fill(hid.ieta(), hid.iphi(), hbheItr->energy() * hbheItr->energy());
+        hiDistrMBPl2D_->Fill(hid.ieta(), hid.iphi(), hbheItr.energy());
+        hiDistrMB2Pl2D_->Fill(hid.ieta(), hid.iphi(), hbheItr.energy() * hbheItr.energy());
       } else {
-        hiDistrMBMin2D_->Fill(fabs(hid.ieta()), hid.iphi(), hbheItr->energy());
-        hiDistrMB2Min2D_->Fill(fabs(hid.ieta()), hid.iphi(), hbheItr->energy() * hbheItr->energy());
+        hiDistrMBMin2D_->Fill(fabs(hid.ieta()), hid.iphi(), hbheItr.energy());
+        hiDistrMB2Min2D_->Fill(fabs(hid.ieta()), hid.iphi(), hbheItr.energy() * hbheItr.energy());
       }
     }
   }

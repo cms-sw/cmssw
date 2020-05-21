@@ -12,12 +12,12 @@ BoundDiskSector* ForwardDiskSectorBuilderFromDet::operator()(const vector<const 
   // check that the dets are all at about the same radius and z
   float rcheck = dets.front()->surface().position().perp();
   float zcheck = dets.front()->surface().position().z();
-  for (vector<const GeomDet*>::const_iterator i = dets.begin(); i != dets.end(); i++) {
-    float rdiff = (**i).surface().position().perp() - rcheck;
+  for (auto det : dets) {
+    float rdiff = (*det).surface().position().perp() - rcheck;
     if (std::abs(rdiff) > 1.)
       edm::LogError("TkDetLayers") << " ForwardDiskSectorBuilderFromDet: Trying to build Petal Wedge from "
                                    << "Dets at different radii !! Delta_r = " << rdiff;
-    float zdiff = zcheck - (**i).surface().position().z();
+    float zdiff = zcheck - (*det).surface().position().z();
     if (std::abs(zdiff) > 0.8)
       edm::LogError("TkDetLayers") << " ForwardDiskSectorBuilderFromDet: Trying to build Petal Wedge from "
                                    << "Dets at different z positions !! Delta_z = " << zdiff;
@@ -40,16 +40,16 @@ pair<DiskSectorBounds*, GlobalVector> ForwardDiskSectorBuilderFromDet::computeBo
   float phimin((**(dets.begin())).surface().position().phi());
   float phimax(phimin);
 
-  for (vector<const GeomDet*>::const_iterator idet = dets.begin(); idet != dets.end(); idet++) {
-    vector<const GeomDet*> detUnits = (**idet).components();
+  for (auto det : dets) {
+    vector<const GeomDet*> detUnits = (*det).components();
     if (!detUnits.empty()) {
-      for (vector<const GeomDet*>::const_iterator detu = detUnits.begin(); detu != detUnits.end(); detu++) {
+      for (auto detUnit : detUnits) {
         // edm::LogInfo(TkDetLayers) << " Builder: Position of detUnit :"<< (**detu).position() ;
-        vector<GlobalPoint> corners = computeTrapezoidalCorners(*detu);
-        for (vector<GlobalPoint>::const_iterator i = corners.begin(); i != corners.end(); i++) {
-          float r = i->perp();
-          float z = i->z();
-          float phi = i->phi();
+        vector<GlobalPoint> corners = computeTrapezoidalCorners(detUnit);
+        for (const auto& corner : corners) {
+          float r = corner.perp();
+          float z = corner.z();
+          float phi = corner.phi();
           rmin = min(rmin, r);
           rmax = max(rmax, r);
           zmin = min(zmin, z);
@@ -62,13 +62,13 @@ pair<DiskSectorBounds*, GlobalVector> ForwardDiskSectorBuilderFromDet::computeBo
         // in addition to the corners we have to check the middle of the
         // det +/- length/2, since the min (max) radius for typical fw
         // dets is reached there
-        float rdet = (**detu).position().perp();
-        float len = (**detu).surface().bounds().length();
-        float width = (**detu).surface().bounds().width();
+        float rdet = (*detUnit).position().perp();
+        float len = (*detUnit).surface().bounds().length();
+        float width = (*detUnit).surface().bounds().width();
 
-        GlobalVector xAxis = (**detu).toGlobal(LocalVector(1, 0, 0));
-        GlobalVector yAxis = (**detu).toGlobal(LocalVector(0, 1, 0));
-        GlobalVector perpDir = GlobalVector((**detu).position() - GlobalPoint(0, 0, (**detu).position().z()));
+        GlobalVector xAxis = (*detUnit).toGlobal(LocalVector(1, 0, 0));
+        GlobalVector yAxis = (*detUnit).toGlobal(LocalVector(0, 1, 0));
+        GlobalVector perpDir = GlobalVector((*detUnit).position() - GlobalPoint(0, 0, (*detUnit).position().z()));
 
         double xAxisCos = xAxis.unit().dot(perpDir.unit());
         double yAxisCos = yAxis.unit().dot(perpDir.unit());
@@ -82,11 +82,11 @@ pair<DiskSectorBounds*, GlobalVector> ForwardDiskSectorBuilderFromDet::computeBo
         }
       }
     } else {
-      vector<GlobalPoint> corners = computeTrapezoidalCorners(*idet);
-      for (vector<GlobalPoint>::const_iterator i = corners.begin(); i != corners.end(); i++) {
-        float r = i->perp();
-        float z = i->z();
-        float phi = i->phi();
+      vector<GlobalPoint> corners = computeTrapezoidalCorners(det);
+      for (const auto& corner : corners) {
+        float r = corner.perp();
+        float z = corner.z();
+        float phi = corner.phi();
         rmin = min(rmin, r);
         rmax = max(rmax, r);
         zmin = min(zmin, z);
@@ -100,13 +100,13 @@ pair<DiskSectorBounds*, GlobalVector> ForwardDiskSectorBuilderFromDet::computeBo
       // det +/- length/2, since the min (max) radius for typical fw
       // dets is reached there
 
-      float rdet = (**idet).position().perp();
-      float len = (**idet).surface().bounds().length();
-      float width = (**idet).surface().bounds().width();
+      float rdet = (*det).position().perp();
+      float len = (*det).surface().bounds().length();
+      float width = (*det).surface().bounds().width();
 
-      GlobalVector xAxis = (**idet).toGlobal(LocalVector(1, 0, 0));
-      GlobalVector yAxis = (**idet).toGlobal(LocalVector(0, 1, 0));
-      GlobalVector perpDir = GlobalVector((**idet).position() - GlobalPoint(0, 0, (**idet).position().z()));
+      GlobalVector xAxis = (*det).toGlobal(LocalVector(1, 0, 0));
+      GlobalVector yAxis = (*det).toGlobal(LocalVector(0, 1, 0));
+      GlobalVector perpDir = GlobalVector((*det).position() - GlobalPoint(0, 0, (*det).position().z()));
 
       double xAxisCos = xAxis.unit().dot(perpDir.unit());
       double yAxisCos = yAxis.unit().dot(perpDir.unit());

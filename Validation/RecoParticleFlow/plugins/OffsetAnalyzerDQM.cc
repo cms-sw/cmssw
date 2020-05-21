@@ -203,9 +203,7 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
   edm::Handle<edm::View<pat::PackedCandidate>> pfHandle;
   iEvent.getByToken(pfToken, pfHandle);
 
-  for (unsigned int i = 0, n = pfHandle->size(); i < n; i++) {
-    const auto& cand = pfHandle->at(i);
-
+  for (const auto& cand : *pfHandle) {
     int etaIndex = getEtaIndex(cand.eta());
     std::string pftype = pdgMap[abs(cand.pdgId())];
     if (etaIndex == -1 || pftype.empty())

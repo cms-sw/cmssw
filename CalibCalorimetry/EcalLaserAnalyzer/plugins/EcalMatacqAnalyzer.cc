@@ -181,30 +181,29 @@ void EcalMatacqAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) 
   if (_debug == 1)
     std::cout << "-- debug test -- Before header -- " << std::endl;
 
-  for (EcalRawDataCollection::const_iterator headerItr = DCCHeader->begin(); headerItr != DCCHeader->end();
-       ++headerItr) {
-    EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr->getEventSettings();
+  for (const auto& headerItr : *DCCHeader) {
+    EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr.getEventSettings();
     color = (int)settings.wavelength;
     if (color < 0)
       return;
 
     // Get run type and run number
 
-    int fed = headerItr->fedId();
+    int fed = headerItr.fedId();
 
     if (fed != _fedid && _fedid != -999)
       continue;
 
-    runType = headerItr->getRunType();
-    runNum = headerItr->getRunNumber();
-    event = headerItr->getLV1();
+    runType = headerItr.getRunType();
+    runNum = headerItr.getRunNumber();
+    event = headerItr.getLV1();
 
     if (_debug == 1)
       std::cout << "-- debug test -- runtype:" << runType << " event:" << event << " runNum:" << runNum << std::endl;
 
-    dccID = headerItr->getDccInTCCCommand();
-    fedID = headerItr->fedId();
-    lightside = headerItr->getRtHalf();
+    dccID = headerItr.getDccInTCCCommand();
+    fedID = headerItr.fedId();
+    lightside = headerItr.getRtHalf();
 
     //assert (lightside<2 && lightside>=0);
 
@@ -252,12 +251,9 @@ void EcalMatacqAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) 
   int iCh = 0;
   double max = 0;
 
-  for (EcalMatacqDigiCollection::const_iterator it = matacqDigi->begin(); it != matacqDigi->end();
-       ++it) {  // Loop on matacq channel
+  for (const auto& digis : *matacqDigi) {  // Loop on matacq channel
 
     //
-    const EcalMatacqDigi& digis = *it;
-
     //if(digis.size()==0 || iCh>=N_channels) continue;
     if (_debug == 1) {
       std::cout << "-- debug test -- Inside digis -- digi size=" << digis.size() << std::endl;

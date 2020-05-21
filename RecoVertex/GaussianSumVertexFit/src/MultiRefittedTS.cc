@@ -88,8 +88,8 @@ double MultiRefittedTS::weight() const {
     if (theComponents.empty()) {
       cout << "Asking for weight of empty MultiRefittedTS, returning zero!" << endl;
     }
-    for (RTSvector::const_iterator it = theComponents.begin(); it != theComponents.end(); it++) {
-      totalWeight += (**it).weight();
+    for (const auto& theComponent : theComponents) {
+      totalWeight += (*theComponent).weight();
     }
   }
   return totalWeight;
@@ -105,8 +105,8 @@ ReferenceCountingPointer<RefittedTrackState<5> > MultiRefittedTS::stateWithNewWe
   RTSvector reWeightedRTSC;
   reWeightedRTSC.reserve(theComponents.size());
 
-  for (RTSvector::const_iterator it = theComponents.begin(); it != theComponents.end(); it++) {
-    reWeightedRTSC.push_back((**it).stateWithNewWeight((**it).weight() * factor));
+  for (const auto& theComponent : theComponents) {
+    reWeightedRTSC.push_back((*theComponent).stateWithNewWeight((*theComponent).weight() * factor));
   }
   if (surf) {
     return RefCountedRefittedTrackState(new MultiRefittedTS(reWeightedRTSC, *refSurface));
@@ -121,8 +121,8 @@ ReferenceCountingPointer<RefittedTrackState<5> > MultiRefittedTS::stateWithNewWe
 TrajectoryStateOnSurface MultiRefittedTS::trajectoryStateOnSurface(const Surface& surface) const {
   vector<TrajectoryStateOnSurface> tsosComponents;
   tsosComponents.reserve(theComponents.size());
-  for (RTSvector::const_iterator it = theComponents.begin(); it != theComponents.end(); it++) {
-    tsosComponents.push_back((**it).trajectoryStateOnSurface(surface));
+  for (const auto& theComponent : theComponents) {
+    tsosComponents.push_back((*theComponent).trajectoryStateOnSurface(surface));
   }
   return TrajectoryStateOnSurface((BasicTrajectoryState*)new BasicMultiTrajectoryState(tsosComponents));
 }
@@ -131,8 +131,8 @@ TrajectoryStateOnSurface MultiRefittedTS::trajectoryStateOnSurface(const Surface
     const {  //fixme... is the propagation done correctly? Is there a gsf propagator?
   vector<TrajectoryStateOnSurface> tsosComponents;
   tsosComponents.reserve(theComponents.size());
-  for (RTSvector::const_iterator it = theComponents.begin(); it != theComponents.end(); it++) {
-    tsosComponents.push_back((**it).trajectoryStateOnSurface(surface, propagator));
+  for (const auto& theComponent : theComponents) {
+    tsosComponents.push_back((*theComponent).trajectoryStateOnSurface(surface, propagator));
   }
   return TrajectoryStateOnSurface((BasicTrajectoryState*)new BasicMultiTrajectoryState(tsosComponents));
 }

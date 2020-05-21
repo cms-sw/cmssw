@@ -58,11 +58,9 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
     std::vector<edm::ParameterSet> vertexCollections =
         conf.getParameter<std::vector<edm::ParameterSet> >("vertexCollections");
 
-    for (std::vector<edm::ParameterSet>::const_iterator algoconf = vertexCollections.begin();
-         algoconf != vertexCollections.end();
-         algoconf++) {
+    for (const auto& vertexCollection : vertexCollections) {
       algo algorithm;
-      std::string fitterAlgorithm = algoconf->getParameter<std::string>("algorithm");
+      std::string fitterAlgorithm = vertexCollection.getParameter<std::string>("algorithm");
       if (fitterAlgorithm == "KalmanVertexFitter") {
         algorithm.fitter = new KalmanVertexFitter();
       } else if (fitterAlgorithm == "AdaptiveVertexFitter") {
@@ -70,11 +68,11 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
       } else {
         throw VertexException("PrimaryVertexProducerAlgorithm: unknown algorithm: " + fitterAlgorithm);
       }
-      algorithm.label = algoconf->getParameter<std::string>("label");
-      algorithm.minNdof = algoconf->getParameter<double>("minNdof");
-      algorithm.useBeamConstraint = algoconf->getParameter<bool>("useBeamConstraint");
+      algorithm.label = vertexCollection.getParameter<std::string>("label");
+      algorithm.minNdof = vertexCollection.getParameter<double>("minNdof");
+      algorithm.useBeamConstraint = vertexCollection.getParameter<bool>("useBeamConstraint");
       algorithm.vertexSelector =
-          new VertexCompatibleWithBeam(VertexDistanceXY(), algoconf->getParameter<double>("maxDistanceToBeam"));
+          new VertexCompatibleWithBeam(VertexDistanceXY(), vertexCollection.getParameter<double>("maxDistanceToBeam"));
       algorithms.push_back(algorithm);
     }
   } else {
@@ -107,11 +105,11 @@ PrimaryVertexProducerAlgorithm::~PrimaryVertexProducerAlgorithm() {
     delete theTrackFilter;
   if (theTrackClusterizer)
     delete theTrackClusterizer;
-  for (std::vector<algo>::const_iterator algorithm = algorithms.begin(); algorithm != algorithms.end(); algorithm++) {
-    if (algorithm->fitter)
-      delete algorithm->fitter;
-    if (algorithm->vertexSelector)
-      delete algorithm->vertexSelector;
+  for (const auto& algorithm : algorithms) {
+    if (algorithm.fitter)
+      delete algorithm.fitter;
+    if (algorithm.vertexSelector)
+      delete algorithm.vertexSelector;
   }
 }
 
@@ -154,23 +152,21 @@ std::vector<TransientVertex> PrimaryVertexProducerAlgorithm::vertices(const std:
   }
 
   // vertex fits
-  for (std::vector<algo>::const_iterator algorithm = algorithms.begin(); algorithm != algorithms.end(); algorithm++) {
-    if (!(algorithm->label == label))
+  for (const auto& algorithm : algorithms) {
+    if (!(algorithm.label == label))
       continue;
 
     //std::auto_ptr<reco::VertexCollection> result(new reco::VertexCollection);
     // reco::VertexCollection vColl;
 
     std::vector<TransientVertex> pvs;
-    for (std::vector<std::vector<reco::TransientTrack> >::const_iterator iclus = clusters.begin();
-         iclus != clusters.end();
-         iclus++) {
+    for (const auto& cluster : clusters) {
       TransientVertex v;
-      if (algorithm->useBeamConstraint && validBS && ((*iclus).size() > 1)) {
-        v = algorithm->fitter->vertex(*iclus, beamSpot);
+      if (algorithm.useBeamConstraint && validBS && (cluster.size() > 1)) {
+        v = algorithm.fitter->vertex(cluster, beamSpot);
 
-      } else if (!(algorithm->useBeamConstraint) && ((*iclus).size() > 1)) {
-        v = algorithm->fitter->vertex(*iclus);
+      } else if (!(algorithm.useBeamConstraint) && (cluster.size() > 1)) {
+        v = algorithm.fitter->vertex(cluster);
 
       }  // else: no fit ==> v.isValid()=False
 
@@ -181,8 +177,8 @@ std::vector<TransientVertex> PrimaryVertexProducerAlgorithm::vertices(const std:
           std::cout << "Invalid fitted vertex\n";
       }
 
-      if (v.isValid() && (v.degreesOfFreedom() >= algorithm->minNdof) &&
-          (!validBS || (*(algorithm->vertexSelector))(v, beamVertexState)))
+      if (v.isValid() && (v.degreesOfFreedom() >= algorithm.minNdof) &&
+          (!validBS || (*(algorithm.vertexSelector))(v, beamVertexState)))
         pvs.push_back(v);
     }  // end of cluster loop
 

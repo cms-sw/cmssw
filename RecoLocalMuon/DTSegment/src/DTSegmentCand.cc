@@ -67,10 +67,10 @@ void DTSegmentCand::removeHit(AssPoint badHit) { theHits.erase(badHit); }
 int DTSegmentCand::nSharedHitPairs(const DTSegmentCand& seg) const {
   int result = 0;
 
-  for (AssPointCont::const_iterator hit = theHits.begin(); hit != theHits.end(); ++hit) {
-    for (AssPointCont::const_iterator hit2 = seg.hits().begin(); hit2 != seg.hits().end(); ++hit2) {
+  for (const auto& theHit : theHits) {
+    for (const auto& hit2 : seg.hits()) {
       //  if(result) return result ; // TODO, uncomm this line or move it in another func
-      if ((*(*hit).first) == (*(*hit2).first)) {
+      if ((*theHit.first) == (*hit2.first)) {
         ++result;
         continue;
       }
@@ -86,10 +86,10 @@ DTSegmentCand::AssPointCont DTSegmentCand::conflictingHitPairs(const DTSegmentCa
   //  if (nSharedHitPairs(seg)==0) return result;
 
   AssPointCont::const_iterator hitBegin2 = hits2.begin(), hitEnd2 = hits2.end();
-  for (AssPointCont::const_iterator hit = theHits.begin(), hitEnd = theHits.end(); hit != hitEnd; ++hit) {
+  for (const auto& theHit : theHits) {
     for (AssPointCont::const_iterator hit2 = hitBegin2; hit2 != hitEnd2; ++hit2) {
-      if ((*(*hit).first) == (*(*hit2).first) && (*hit).second != (*hit2).second) {
-        result.insert(*hit);
+      if ((*theHit.first) == (*(*hit2).first) && theHit.second != (*hit2).second) {
+        result.insert(theHit);
         continue;
       }
     }
@@ -118,8 +118,8 @@ bool DTSegmentCand::hitsShareLayer() const {
 
   int layerN[hitsSize];
   unsigned int i = 0;
-  for (DTSegmentCand::AssPointCont::iterator assHit = theHits.begin(); assHit != theHits.end(); ++assHit) {
-    layerN[i] = (*assHit).first->id().layerId().layer() + 10 * (*assHit).first->id().superlayerId().superlayer();
+  for (const auto& theHit : theHits) {
+    layerN[i] = theHit.first->id().layerId().layer() + 10 * theHit.first->id().superlayerId().superlayer();
     for (unsigned int j = 0; j < i; j++) {
       if (layerN[i] == layerN[j])
         return true;
@@ -142,16 +142,16 @@ DTSegmentCand::operator DTSLRecSegment2D*() const {
   AlgebraicSymMatrix seg2DCovMatrix = covMatrix();
 
   std::vector<DTRecHit1D> hits1D;
-  for (DTSegmentCand::AssPointCont::iterator assHit = theHits.begin(); assHit != theHits.end(); ++assHit) {
-    GlobalPoint hitGlobalPos = theSL->toGlobal((*assHit).first->localPosition((*assHit).second));
+  for (const auto& theHit : theHits) {
+    GlobalPoint hitGlobalPos = theSL->toGlobal(theHit.first->localPosition(theHit.second));
 
-    LocalPoint hitPosInLayer = theSL->layer((*assHit).first->id().layerId())->toLocal(hitGlobalPos);
+    LocalPoint hitPosInLayer = theSL->layer(theHit.first->id().layerId())->toLocal(hitGlobalPos);
 
-    DTRecHit1D hit(((*assHit).first)->id(),
-                   (*assHit).second,
-                   ((*assHit).first)->digiTime(),
+    DTRecHit1D hit((theHit.first)->id(),
+                   theHit.second,
+                   (theHit.first)->digiTime(),
                    hitPosInLayer,
-                   ((*assHit).first)->localPositionError());
+                   (theHit.first)->localPositionError());
     hits1D.push_back(hit);
   }
 
@@ -172,19 +172,19 @@ DTSegmentCand::operator DTChamberRecSegment2D*() const {
   AlgebraicSymMatrix seg2DCovMatrix = covMatrix();
 
   std::vector<DTRecHit1D> hits1D;
-  for (DTSegmentCand::AssPointCont::iterator assHit = theHits.begin(); assHit != theHits.end(); ++assHit) {
-    GlobalPoint hitGlobalPos = theSL->toGlobal((*assHit).first->localPosition((*assHit).second));
+  for (const auto& theHit : theHits) {
+    GlobalPoint hitGlobalPos = theSL->toGlobal(theHit.first->localPosition(theHit.second));
 
     LocalPoint hitPosInLayer = theSL->chamber()
-                                   ->superLayer((*assHit).first->id().superlayerId())
-                                   ->layer((*assHit).first->id().layerId())
+                                   ->superLayer(theHit.first->id().superlayerId())
+                                   ->layer(theHit.first->id().layerId())
                                    ->toLocal(hitGlobalPos);
 
-    DTRecHit1D hit(((*assHit).first)->id(),
-                   (*assHit).second,
-                   ((*assHit).first)->digiTime(),
+    DTRecHit1D hit((theHit.first)->id(),
+                   theHit.second,
+                   (theHit.first)->digiTime(),
                    hitPosInLayer,
-                   ((*assHit).first)->localPositionError());
+                   (theHit.first)->localPositionError());
     hits1D.push_back(hit);
   }
 

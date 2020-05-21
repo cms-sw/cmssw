@@ -169,10 +169,10 @@ namespace lhef {
     double err2Sum = 0.0;
     double errBr2Sum = 0.0;
     int idwtup = heprup.IDWTUP;
-    for (std::vector<Process>::const_iterator proc = processes.begin(); proc != processes.end(); ++proc) {
-      unsigned int idx = proc->heprupIndex();
+    for (const auto &processe : processes) {
+      unsigned int idx = processe.heprupIndex();
 
-      if (!proc->killed().n())
+      if (!processe.killed().n())
         continue;
 
       double sigma2Sum, sigma2Err;
@@ -182,22 +182,22 @@ namespace lhef {
       double sigmaAvg = heprup.XSECUP[idx];
 
       double fracAcc = 0;
-      double ntotal = proc->nTotalPos() - proc->nTotalNeg();
-      double npass = proc->nPassPos() - proc->nPassNeg();
+      double ntotal = processe.nTotalPos() - processe.nTotalNeg();
+      double npass = processe.nPassPos() - processe.nPassNeg();
       switch (idwtup) {
         case 3:
         case -3:
           fracAcc = ntotal > 0 ? npass / ntotal : -1;
           break;
         default:
-          fracAcc = proc->selected().sum() > 0 ? proc->killed().sum() / proc->selected().sum() : -1;
+          fracAcc = processe.selected().sum() > 0 ? processe.killed().sum() / processe.selected().sum() : -1;
           break;
       }
 
       if (fracAcc <= 0)
         continue;
 
-      double fracBr = proc->accepted().sum() > 0.0 ? proc->acceptedBr().sum() / proc->accepted().sum() : 1;
+      double fracBr = processe.accepted().sum() > 0.0 ? processe.acceptedBr().sum() / processe.accepted().sum() : 1;
       double sigmaFin = sigmaAvg * fracAcc;
       double sigmaFinBr = sigmaFin * fracBr;
 
@@ -207,12 +207,12 @@ namespace lhef {
       switch (idwtup) {
         case 3:
         case -3: {
-          double ntotal_pos = proc->nTotalPos();
-          double effp = ntotal_pos > 0 ? (double)proc->nPassPos() / ntotal_pos : 0;
+          double ntotal_pos = processe.nTotalPos();
+          double effp = ntotal_pos > 0 ? (double)processe.nPassPos() / ntotal_pos : 0;
           double effp_err2 = ntotal_pos > 0 ? (1 - effp) * effp / ntotal_pos : 0;
 
-          double ntotal_neg = proc->nTotalNeg();
-          double effn = ntotal_neg > 0 ? (double)proc->nPassNeg() / ntotal_neg : 0;
+          double ntotal_neg = processe.nTotalNeg();
+          double effn = ntotal_neg > 0 ? (double)processe.nPassNeg() / ntotal_neg : 0;
           double effn_err2 = ntotal_neg > 0 ? (1 - effn) * effn / ntotal_neg : 0;
 
           efferr2 = ntotal > 0
@@ -221,11 +221,11 @@ namespace lhef {
           break;
         }
         default: {
-          double denominator = pow(proc->selected().sum(), 4);
-          double passw = proc->killed().sum();
-          double passw2 = proc->killed().sum2();
-          double failw = proc->selected().sum() - passw;
-          double failw2 = proc->selected().sum2() - passw2;
+          double denominator = pow(processe.selected().sum(), 4);
+          double passw = processe.killed().sum();
+          double passw2 = processe.killed().sum2();
+          double failw = processe.selected().sum() - passw;
+          double failw2 = processe.selected().sum2() - passw2;
           double numerator = (passw2 * failw * failw + failw2 * passw * passw);
 
           efferr2 = denominator > 0 ? numerator / denominator : 0;
@@ -273,11 +273,11 @@ namespace lhef {
     LogDebug("LHERunInfo") << "Process\t\txsec_before [pb]\t\tpassed\tnposw\tnnegw\ttried\tnposw\tnnegw \txsec_match "
                               "[pb]\t\t\taccepted [%]\t event_eff [%]";
 
-    for (std::vector<Process>::const_iterator proc = processes.begin(); proc != processes.end(); ++proc) {
-      unsigned int idx = proc->heprupIndex();
+    for (const auto &processe : processes) {
+      unsigned int idx = processe.heprupIndex();
 
-      if (!proc->selected().n()) {
-        LogDebug("LHERunInfo") << proc->process() << "\t0\t0\tn/a\t\t\tn/a";
+      if (!processe.selected().n()) {
+        LogDebug("LHERunInfo") << processe.process() << "\t0\t0\tn/a\t\t\tn/a";
         continue;
       }
 
@@ -288,19 +288,19 @@ namespace lhef {
       double sigmaAvg = heprup.XSECUP[idx];
 
       double fracAcc = 0;
-      double ntotal = proc->nTotalPos() - proc->nTotalNeg();
-      double npass = proc->nPassPos() - proc->nPassNeg();
+      double ntotal = processe.nTotalPos() - processe.nTotalNeg();
+      double npass = processe.nPassPos() - processe.nPassNeg();
       switch (idwtup) {
         case 3:
         case -3:
           fracAcc = ntotal > 0 ? npass / ntotal : -1;
           break;
         default:
-          fracAcc = proc->selected().sum() > 0 ? proc->killed().sum() / proc->selected().sum() : -1;
+          fracAcc = processe.selected().sum() > 0 ? processe.killed().sum() / processe.selected().sum() : -1;
           break;
       }
 
-      double fracBr = proc->accepted().sum() > 0.0 ? proc->acceptedBr().sum() / proc->accepted().sum() : 1;
+      double fracBr = processe.accepted().sum() > 0.0 ? processe.acceptedBr().sum() / processe.accepted().sum() : 1;
       double sigmaFin = fracAcc > 0 ? sigmaAvg * fracAcc : 0;
       double sigmaFinBr = sigmaFin * fracBr;
 
@@ -308,16 +308,16 @@ namespace lhef {
       double relAccErr = 1.0;
       double efferr2 = 0;
 
-      if (proc->killed().n() > 0 && fracAcc > 0) {
+      if (processe.killed().n() > 0 && fracAcc > 0) {
         switch (idwtup) {
           case 3:
           case -3: {
-            double ntotal_pos = proc->nTotalPos();
-            double effp = ntotal_pos > 0 ? (double)proc->nPassPos() / ntotal_pos : 0;
+            double ntotal_pos = processe.nTotalPos();
+            double effp = ntotal_pos > 0 ? (double)processe.nPassPos() / ntotal_pos : 0;
             double effp_err2 = ntotal_pos > 0 ? (1 - effp) * effp / ntotal_pos : 0;
 
-            double ntotal_neg = proc->nTotalNeg();
-            double effn = ntotal_neg > 0 ? (double)proc->nPassNeg() / ntotal_neg : 0;
+            double ntotal_neg = processe.nTotalNeg();
+            double effn = ntotal_neg > 0 ? (double)processe.nPassNeg() / ntotal_neg : 0;
             double effn_err2 = ntotal_neg > 0 ? (1 - effn) * effn / ntotal_neg : 0;
 
             efferr2 = ntotal > 0 ? (ntotal_pos * ntotal_pos * effp_err2 + ntotal_neg * ntotal_neg * effn_err2) /
@@ -326,11 +326,11 @@ namespace lhef {
             break;
           }
           default: {
-            double denominator = pow(proc->selected().sum(), 4);
-            double passw = proc->killed().sum();
-            double passw2 = proc->killed().sum2();
-            double failw = proc->selected().sum() - passw;
-            double failw2 = proc->selected().sum2() - passw2;
+            double denominator = pow(processe.selected().sum(), 4);
+            double passw = processe.killed().sum();
+            double passw2 = processe.killed().sum2();
+            double failw = processe.selected().sum() - passw;
+            double failw2 = processe.selected().sum2() - passw2;
             double numerator = (passw2 * failw * failw + failw2 * passw * passw);
 
             efferr2 = denominator > 0 ? numerator / denominator : 0;
@@ -345,25 +345,26 @@ namespace lhef {
       double deltaFin = sigmaFin * relErr;
       double deltaFinBr = sigmaFinBr * relErr;
 
-      double ntotal_proc = proc->nTotalPos() + proc->nTotalNeg();
-      double event_eff_proc = ntotal_proc > 0 ? (double)(proc->nPassPos() + proc->nPassNeg()) / ntotal_proc : -1;
+      double ntotal_proc = processe.nTotalPos() + processe.nTotalNeg();
+      double event_eff_proc = ntotal_proc > 0 ? (double)(processe.nPassPos() + processe.nPassNeg()) / ntotal_proc : -1;
       double event_eff_err_proc = ntotal_proc > 0 ? std::sqrt((1 - event_eff_proc) * event_eff_proc / ntotal_proc) : -1;
 
-      LogDebug("LHERunInfo") << proc->process() << "\t\t" << std::scientific << std::setprecision(3)
-                             << heprup.XSECUP[proc->heprupIndex()] << " +/- " << heprup.XERRUP[proc->heprupIndex()]
-                             << "\t\t" << proc->accepted().n() << "\t" << proc->nPassPos() << "\t" << proc->nPassNeg()
-                             << "\t" << proc->tried().n() << "\t" << proc->nTotalPos() << "\t" << proc->nTotalNeg()
-                             << "\t" << std::scientific << std::setprecision(3) << sigmaFinBr << " +/- " << deltaFinBr
-                             << "\t\t" << std::fixed << std::setprecision(1) << (fracAcc * 100) << " +/- "
-                             << (std::sqrt(efferr2) * 100) << "\t" << std::fixed << std::setprecision(1)
-                             << (event_eff_proc * 100) << " +/- " << (event_eff_err_proc * 100);
+      LogDebug("LHERunInfo") << processe.process() << "\t\t" << std::scientific << std::setprecision(3)
+                             << heprup.XSECUP[processe.heprupIndex()] << " +/- "
+                             << heprup.XERRUP[processe.heprupIndex()] << "\t\t" << processe.accepted().n() << "\t"
+                             << processe.nPassPos() << "\t" << processe.nPassNeg() << "\t" << processe.tried().n()
+                             << "\t" << processe.nTotalPos() << "\t" << processe.nTotalNeg() << "\t" << std::scientific
+                             << std::setprecision(3) << sigmaFinBr << " +/- " << deltaFinBr << "\t\t" << std::fixed
+                             << std::setprecision(1) << (fracAcc * 100) << " +/- " << (std::sqrt(efferr2) * 100) << "\t"
+                             << std::fixed << std::setprecision(1) << (event_eff_proc * 100) << " +/- "
+                             << (event_eff_err_proc * 100);
 
-      nAccepted += proc->accepted().n();
-      nTried += proc->tried().n();
-      nAccepted_pos += proc->nPassPos();
-      nTried_pos += proc->nTotalPos();
-      nAccepted_neg += proc->nPassNeg();
-      nTried_neg += proc->nTotalNeg();
+      nAccepted += processe.accepted().n();
+      nTried += processe.tried().n();
+      nAccepted_pos += processe.nPassPos();
+      nTried_pos += processe.nTotalPos();
+      nAccepted_neg += processe.nPassNeg();
+      nTried_neg += processe.nTotalNeg();
       sigSelSum += sigmaAvg;
       sigSum += sigmaFin;
       sigBrSum += sigmaFinBr;
@@ -435,11 +436,11 @@ namespace lhef {
 
   std::vector<std::string> LHERunInfo::findHeader(const std::string &tag) const {
     const LHERunInfo::Header *header = nullptr;
-    for (std::vector<Header>::const_iterator iter = headers.begin(); iter != headers.end(); ++iter) {
-      if (iter->tag() == tag)
-        return std::vector<std::string>(iter->begin(), iter->end());
-      if (iter->tag() == "header")
-        header = &*iter;
+    for (const auto &iter : headers) {
+      if (iter.tag() == tag)
+        return std::vector<std::string>(iter.begin(), iter.end());
+      if (iter.tag() == "header")
+        header = &iter;
     }
 
     if (!header)

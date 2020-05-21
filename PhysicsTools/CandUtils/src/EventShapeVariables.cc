@@ -220,8 +220,8 @@ void EventShapeVariables::computeFWmoments() {
     return;
 
   double esum_total(0.);
-  for (unsigned int i = 0; i < inputVectors_.size(); i++) {
-    esum_total += inputVectors_[i].R();
+  for (auto& inputVector : inputVectors_) {
+    esum_total += inputVector.R();
   }  // i
   double esum_total_sq = esum_total * esum_total;
 

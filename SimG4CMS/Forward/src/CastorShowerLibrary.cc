@@ -147,8 +147,8 @@ void CastorShowerLibrary::loadEventInfo(TBranchObject* branch) {
   SLphis = eventInfo->Phi.getBin();
 
   // Convert from GeV to MeV
-  for (unsigned int i = 0; i < SLenergies.size(); i++) {
-    SLenergies[i] *= CLHEP::GeV;
+  for (double& SLenergie : SLenergies) {
+    SLenergie *= CLHEP::GeV;
   }
 
   edm::LogVerbatim("CastorShower") << " CastorShowerLibrary::loadEventInfo : "

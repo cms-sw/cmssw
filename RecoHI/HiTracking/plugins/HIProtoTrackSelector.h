@@ -98,15 +98,15 @@ public:
     int nRejected = 0;
     double d0 = 0.0;
     double d0sigma = 0.0;
-    for (reco::TrackCollection::const_iterator trk = c.begin(); trk != c.end(); ++trk) {
-      d0 = -1. * trk->dxy(bsPoint);
-      d0sigma = sqrt(trk->d0Error() * trk->d0Error() + bsWidth * bsWidth);
-      if (trk->pt() > ptMin_                          // keep only tracks above ptMin
+    for (const auto& trk : c) {
+      d0 = -1. * trk.dxy(bsPoint);
+      d0sigma = sqrt(trk.d0Error() * trk.d0Error() + bsWidth * bsWidth);
+      if (trk.pt() > ptMin_                           // keep only tracks above ptMin
           && fabs(d0 / d0sigma) < maxD0Significance_  // keep only tracks with D0 significance less than cut
-          && fabs(trk->dz(vtxPoint)) < std::max(vzErr * nSigmaZ_, minZCut_)  // within minZCut, nSigmaZ of fast vertex
+          && fabs(trk.dz(vtxPoint)) < std::max(vzErr * nSigmaZ_, minZCut_)  // within minZCut, nSigmaZ of fast vertex
       ) {
         nSelected++;
-        selected_.push_back(&*trk);
+        selected_.push_back(&trk);
       } else
         nRejected++;
     }

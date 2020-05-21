@@ -1346,8 +1346,8 @@ vector<vector<reco::TransientTrack> > DAClusterizerInZT_vect::clusterize(
   }
 
   // fill into clusters, don't merge
-  for (auto k = pv.begin(); k != pv.end(); k++) {
-    vector<reco::TransientTrack> aCluster = k->originalTracks();
+  for (auto& k : pv) {
+    vector<reco::TransientTrack> aCluster = k.originalTracks();
     if (aCluster.size() > 1) {
       clusters.push_back(aCluster);
     }

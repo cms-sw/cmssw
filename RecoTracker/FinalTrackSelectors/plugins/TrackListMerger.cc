@@ -227,9 +227,9 @@ TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
 
   edm::VParameterSet setsToMerge = conf.getParameter<edm::VParameterSet>("setsToMerge");
 
-  for (unsigned int i = 0; i < setsToMerge.size(); i++) {
-    listsToMerge_.push_back(setsToMerge[i].getParameter<std::vector<int>>("tLists"));
-    promoteQuality_.push_back(setsToMerge[i].getParameter<bool>("pQual"));
+  for (auto& i : setsToMerge) {
+    listsToMerge_.push_back(i.getParameter<std::vector<int>>("tLists"));
+    promoteQuality_.push_back(i.getParameter<bool>("pQual"));
   }
   hasSelector_ = conf.getParameter<std::vector<int>>("hasSelector");
   copyMVA_ = conf.getParameter<bool>("copyMVA");
@@ -239,8 +239,8 @@ TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
   if (conf.exists("mvaValueTags")) {
     mvaStores = conf.getParameter<std::vector<edm::InputTag>>("mvaValueTags");
   } else {
-    for (int i = 0; i < (int)selectors.size(); i++) {
-      edm::InputTag ntag(selectors[i].label(), "MVAVals");
+    for (auto& selector : selectors) {
+      edm::InputTag ntag(selector.label(), "MVAVals");
       mvaStores.push_back(ntag);
     }
   }
@@ -383,12 +383,12 @@ void TrackListMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 
     if (!tC1->empty()) {
       unsigned int iC = 0;
-      for (reco::TrackCollection::const_iterator track = tC1->begin(); track != tC1->end(); track++) {
+      for (const auto& track : *tC1) {
         i++;
         trackCollNum[i] = j;
-        trackQuals[i] = track->qualityMask();
-        oriAlgo[i] = track->originalAlgo();
-        algoMask[i] = track->algoMask();
+        trackQuals[i] = track.qualityMask();
+        oriAlgo[i] = track.originalAlgo();
+        algoMask[i] = track.algoMask();
 
         reco::TrackRef trkRef = reco::TrackRef(trackHandles[j], iC);
         if (copyMVA_)
@@ -406,19 +406,19 @@ void TrackListMerger::produce(edm::Event& e, const edm::EventSetup& es) {
         }
         iC++;
         selected[i] = trackQuals[i] + 10;  //10 is magic number used throughout...
-        if ((short unsigned)track->ndof() < 1) {
+        if ((short unsigned)track.ndof() < 1) {
           selected[i] = 0;
           continue;
         }
-        if (track->normalizedChi2() > maxNormalizedChisq_) {
+        if (track.normalizedChi2() > maxNormalizedChisq_) {
           selected[i] = 0;
           continue;
         }
-        if (track->found() < minFound_) {
+        if (track.found() < minFound_) {
           selected[i] = 0;
           continue;
         }
-        if (track->pt() < minPT_) {
+        if (track.pt() < minPT_) {
           selected[i] = 0;
           continue;
         }

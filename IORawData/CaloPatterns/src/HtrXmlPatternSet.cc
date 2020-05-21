@@ -260,10 +260,10 @@ CrateData::CrateData(int crate, int slotsActive[ChannelPattern::NUM_SLOTS]) {
 }
 
 CrateData::~CrateData() {
-  for (int slot = 0; slot < ChannelPattern::NUM_SLOTS; slot++) {
+  for (auto& slot : m_slotsDoubled) {
     for (int tb = 0; tb < 2; tb++) {
-      if (m_slotsDoubled[slot][tb])
-        delete m_slotsDoubled[slot][tb];
+      if (slot[tb])
+        delete slot[tb];
     }
   }
 }
@@ -286,9 +286,9 @@ HtrXmlPatternSet::HtrXmlPatternSet(int cratesActive[ChannelPattern::NUM_CRATES],
 }
 
 HtrXmlPatternSet::~HtrXmlPatternSet() {
-  for (int crate = 0; crate < ChannelPattern::NUM_CRATES; crate++) {
-    if (m_crates[crate])
-      delete m_crates[crate];
+  for (auto& m_crate : m_crates) {
+    if (m_crate)
+      delete m_crate;
   }
 }
 

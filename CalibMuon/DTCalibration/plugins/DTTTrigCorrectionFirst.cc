@@ -62,10 +62,10 @@ void DTTTrigCorrectionFirst::endJob() {
   double averagekfactor = 0;
   float kfactor = 0;
 
-  for (auto sl = dtSupLylist.begin(); sl != dtSupLylist.end(); sl++) {
+  for (auto& sl : dtSupLylist) {
     float ttrigMean = 0;
     float ttrigSigma = 0;
-    tTrigMap->get((*sl)->id(), ttrigMean, ttrigSigma, kfactor, DTTimeUnits::ns);
+    tTrigMap->get(sl->id(), ttrigMean, ttrigSigma, kfactor, DTTimeUnits::ns);
     if (ttrigMean < ttrigMax && ttrigMean > ttrigMin) {
       average += ttrigMean;
       averageSigma += ttrigSigma;
@@ -80,11 +80,11 @@ void DTTTrigCorrectionFirst::endJob() {
 
   //  cout << " average counter "<< average << " "<< counter <<endl;
 
-  for (auto sl = dtSupLylist.begin(); sl != dtSupLylist.end(); sl++) {
+  for (auto& sl : dtSupLylist) {
     float ttrigMean = 0;
     float ttrigSigma = 0;
     float kfactor = 0;
-    tTrigMap->get((*sl)->id(), ttrigMean, ttrigSigma, kfactor, DTTimeUnits::ns);
+    tTrigMap->get(sl->id(), ttrigMean, ttrigSigma, kfactor, DTTimeUnits::ns);
     if (ttrigMean < ttrigMax && ttrigMean > ttrigMin) {
       average2 += (ttrigMean - average) * (ttrigMean - average);
       average2Sigma += (ttrigSigma - averageSigma) * (ttrigSigma - averageSigma);
@@ -97,7 +97,7 @@ void DTTTrigCorrectionFirst::endJob() {
   rmsSigma = sqrt(rmsSigma);
   cout << "average averageSigma counter rms " << average << " " << averageSigma << " " << counter << " " << rms << endl;
 
-  for (auto sl = dtSupLylist.begin(); sl != dtSupLylist.end(); sl++) {
+  for (auto& sl : dtSupLylist) {
     //Compute new ttrig
     double newTTrigMean = 0;
     double newTTrigSigma = 0;
@@ -108,8 +108,8 @@ void DTTTrigCorrectionFirst::endJob() {
     float ttrigMean = 0;
     float ttrigSigma = 0;
     float kfactor = 0;
-    tTrigMap->get((*sl)->id(), ttrigMean, ttrigSigma, kfactor, DTTimeUnits::ns);
-    int chamber = (*sl)->id().chamberId().station();
+    tTrigMap->get(sl->id(), ttrigMean, ttrigSigma, kfactor, DTTimeUnits::ns);
+    int chamber = sl->id().chamberId().station();
 
     //check if ttrigMean is similar to the mean
     if (abs(ttrigMean - average) < rmsLimit * rms) {
@@ -120,98 +120,98 @@ void DTTTrigCorrectionFirst::endJob() {
       // do not consider if ttrig == 0
       if (ttrigMean > 0) {
         //cout << "ttrig chamber " << ttrigMean <<" "<<chamber<<endl;
-        if (((*sl)->id().superlayer()) == 1) {
+        if ((sl->id().superlayer()) == 1) {
           //cout << " superlayer " << ((*sl)->id().superlayer()) <<endl;
-          DTSuperLayerId slId((*sl)->id().chamberId(), 3);
+          DTSuperLayerId slId(sl->id().chamberId(), 3);
           tTrigMap->get(slId, tempttrigMean, tempttrigSigma, tempkfactor, DTTimeUnits::ns);
           if (abs(tempttrigMean - average) < rmsLimit * rms) {
             newTTrigMean = tempttrigMean;
             newTTrigSigma = tempttrigSigma;
             newkfactor = tempkfactor;
-            cout << "Chamber " << chamber << " sl " << ((*sl)->id().superlayer()) << "has ttrig " << ttrigMean
+            cout << "Chamber " << chamber << " sl " << (sl->id().superlayer()) << "has ttrig " << ttrigMean
                  << " -> takes value of sl 3 " << newTTrigMean << endl;
           } else if (chamber == 4) {
             cout << "No correction possible within same chamber (sl1) " << endl;
             newTTrigMean = average;
             newTTrigSigma = averageSigma;
             newkfactor = averagekfactor;
-            cout << "####### Bad SL: " << (*sl)->id() << " from " << ttrigMean << " to " << newTTrigMean << endl;
+            cout << "####### Bad SL: " << sl->id() << " from " << ttrigMean << " to " << newTTrigMean << endl;
           } else if (chamber != 4) {
-            DTSuperLayerId slId((*sl)->id().chamberId(), 2);
+            DTSuperLayerId slId(sl->id().chamberId(), 2);
             tTrigMap->get(slId, tempttrigMean, tempttrigSigma, tempkfactor, DTTimeUnits::ns);
             if (abs(tempttrigMean - average) < rmsLimit * rms) {
               newTTrigMean = tempttrigMean;
               newTTrigSigma = tempttrigSigma;
               newkfactor = tempkfactor;
-              cout << "Chamber " << chamber << " sl " << ((*sl)->id().superlayer()) << "has ttrig " << ttrigMean
+              cout << "Chamber " << chamber << " sl " << (sl->id().superlayer()) << "has ttrig " << ttrigMean
                    << " -> takes value of sl 2 " << newTTrigMean << endl;
             } else {
               cout << "No correction possible within same chamber (sl1) " << endl;
               newTTrigMean = average;
               newTTrigSigma = averageSigma;
               newkfactor = averagekfactor;
-              cout << "####### Bad SL: " << (*sl)->id() << " from " << ttrigMean << " to " << newTTrigMean << endl;
+              cout << "####### Bad SL: " << sl->id() << " from " << ttrigMean << " to " << newTTrigMean << endl;
             }
           }
-        } else if (((*sl)->id().superlayer()) == 2) {
+        } else if ((sl->id().superlayer()) == 2) {
           //cout << " superlayer " << ((*sl)->id().superlayer()) <<endl;
-          DTSuperLayerId slId((*sl)->id().chamberId(), 1);
+          DTSuperLayerId slId(sl->id().chamberId(), 1);
           tTrigMap->get(slId, tempttrigMean, tempttrigSigma, tempkfactor, DTTimeUnits::ns);
           if (abs(tempttrigMean - average) < rmsLimit * rms) {
             newTTrigMean = tempttrigMean;
             newTTrigSigma = tempttrigSigma;
             newkfactor = tempkfactor;
-            cout << "Chamber " << chamber << " sl " << ((*sl)->id().superlayer()) << "has ttrig " << ttrigMean
+            cout << "Chamber " << chamber << " sl " << (sl->id().superlayer()) << "has ttrig " << ttrigMean
                  << " -> takes value of sl 1 " << newTTrigMean << endl;
           } else {
-            DTSuperLayerId slId((*sl)->id().chamberId(), 3);
+            DTSuperLayerId slId(sl->id().chamberId(), 3);
             tTrigMap->get(slId, tempttrigMean, tempttrigSigma, tempkfactor, DTTimeUnits::ns);
             if (abs(tempttrigMean - average) < rmsLimit * rms) {
               newTTrigMean = tempttrigMean;
               newTTrigSigma = tempttrigSigma;
               newkfactor = tempkfactor;
-              cout << "Chamber " << chamber << " sl " << ((*sl)->id().superlayer()) << "has ttrig " << ttrigMean
+              cout << "Chamber " << chamber << " sl " << (sl->id().superlayer()) << "has ttrig " << ttrigMean
                    << "-> takes value of sl 3 " << newTTrigMean << endl;
             } else {
               cout << "No correction possible within same chamber (sl2)  " << endl;
               newTTrigMean = average;
               newTTrigSigma = averageSigma;
               newkfactor = averagekfactor;
-              cout << "####### Bad SL: " << (*sl)->id() << " from " << ttrigMean << " to " << newTTrigMean << endl;
+              cout << "####### Bad SL: " << sl->id() << " from " << ttrigMean << " to " << newTTrigMean << endl;
             }
           }
 
-        } else if (((*sl)->id().superlayer()) == 3) {
+        } else if ((sl->id().superlayer()) == 3) {
           //cout << " superlayer " << ((*sl)->id().superlayer()) <<endl;
-          DTSuperLayerId slId((*sl)->id().chamberId(), 1);
+          DTSuperLayerId slId(sl->id().chamberId(), 1);
           tTrigMap->get(slId, tempttrigMean, tempttrigSigma, tempkfactor, DTTimeUnits::ns);
           if (abs(tempttrigMean - average) < rmsLimit * rms) {
             newTTrigMean = tempttrigMean;
             newTTrigSigma = tempttrigSigma;
             newkfactor = tempkfactor;
-            cout << "Chamber " << chamber << " sl " << ((*sl)->id().superlayer()) << "has ttrig " << ttrigMean
+            cout << "Chamber " << chamber << " sl " << (sl->id().superlayer()) << "has ttrig " << ttrigMean
                  << " -> takes value of sl 1 " << newTTrigMean << endl;
           } else if (chamber == 4) {
             cout << "No correction possible within same chamber (sl3)" << endl;
             newTTrigMean = average;
             newTTrigSigma = averageSigma;
             newkfactor = averagekfactor;
-            cout << "####### Bad SL: " << (*sl)->id() << " from " << ttrigMean << " to " << newTTrigMean << endl;
+            cout << "####### Bad SL: " << sl->id() << " from " << ttrigMean << " to " << newTTrigMean << endl;
           } else if (chamber != 4) {
-            DTSuperLayerId slId((*sl)->id().chamberId(), 2);
+            DTSuperLayerId slId(sl->id().chamberId(), 2);
             tTrigMap->get(slId, tempttrigMean, tempttrigSigma, tempkfactor, DTTimeUnits::ns);
             if (abs(tempttrigMean - average) < rmsLimit * rms) {
               newTTrigMean = tempttrigMean;
               newTTrigSigma = tempttrigSigma;
               newkfactor = tempkfactor;
-              cout << "Chamber " << chamber << " sl " << ((*sl)->id().superlayer()) << "has ttrig " << ttrigMean
+              cout << "Chamber " << chamber << " sl " << (sl->id().superlayer()) << "has ttrig " << ttrigMean
                    << " -> takes value of sl 2 " << newTTrigMean << endl;
             } else {
               cout << "No correction possible within same chamber (sl3) " << endl;
               newTTrigMean = average;
               newTTrigSigma = averageSigma;
               newkfactor = averagekfactor;
-              cout << "####### Bad SL: " << (*sl)->id() << " from " << ttrigMean << " to " << newTTrigMean << endl;
+              cout << "####### Bad SL: " << sl->id() << " from " << ttrigMean << " to " << newTTrigMean << endl;
             }
           }
         }
@@ -220,15 +220,15 @@ void DTTTrigCorrectionFirst::endJob() {
         newTTrigMean = average;
         newTTrigSigma = averageSigma;
         newkfactor = averagekfactor;
-        cout << "####### NotPresent SL: " << (*sl)->id() << " from " << ttrigMean << " to " << newTTrigMean << endl;
+        cout << "####### NotPresent SL: " << sl->id() << " from " << ttrigMean << " to " << newTTrigMean << endl;
       }
     }
 
     //Store new ttrig in the new map
-    tTrigNewMap->set((*sl)->id(), newTTrigMean, newTTrigSigma, newkfactor, DTTimeUnits::ns);
+    tTrigNewMap->set(sl->id(), newTTrigMean, newTTrigSigma, newkfactor, DTTimeUnits::ns);
     if (debug) {
-      cout << "New tTrig: " << (*sl)->id() << " from " << ttrigMean << " to " << newTTrigMean << endl;
-      cout << "New tTrigSigma: " << (*sl)->id() << " from " << ttrigSigma << " to " << newTTrigSigma << endl;
+      cout << "New tTrig: " << sl->id() << " from " << ttrigMean << " to " << newTTrigMean << endl;
+      cout << "New tTrigSigma: " << sl->id() << " from " << ttrigSigma << " to " << newTTrigSigma << endl;
     }
   }  //End of loop on superlayers
 

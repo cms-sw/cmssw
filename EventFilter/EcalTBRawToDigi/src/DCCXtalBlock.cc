@@ -75,11 +75,9 @@ void DCCTBXtalBlock::increment(uint32_t numb) {
 int DCCTBXtalBlock::xtalID() {
   int result = -1;
 
-  for (std::set<DCCTBDataField *, DCCTBDataFieldComparator>::iterator it = mapperFields_->begin();
-       it != mapperFields_->end();
-       it++) {
-    if ((*it)->name() == "XTAL ID")
-      result = getDataField((*it)->name());
+  for (auto mapperField : *mapperFields_) {
+    if (mapperField->name() == "XTAL ID")
+      result = getDataField(mapperField->name());
   }
 
   return result;
@@ -88,11 +86,9 @@ int DCCTBXtalBlock::xtalID() {
 int DCCTBXtalBlock::stripID() {
   int result = -1;
 
-  for (std::set<DCCTBDataField *, DCCTBDataFieldComparator>::iterator it = mapperFields_->begin();
-       it != mapperFields_->end();
-       it++) {
-    if ((*it)->name() == "STRIP ID")
-      result = getDataField((*it)->name());
+  for (auto mapperField : *mapperFields_) {
+    if (mapperField->name() == "STRIP ID")
+      result = getDataField(mapperField->name());
   }
 
   return result;

@@ -150,15 +150,14 @@ namespace ecaldqm {
   std::string MESet::formPath(std::map<std::string, std::string> const &_replacements) const {
     TString path(path_);
 
-    for (typename MESet::PathReplacements::const_iterator repItr(_replacements.begin()); repItr != _replacements.end();
-         ++repItr) {
+    for (const auto &_replacement : _replacements) {
       TString pattern("\\%\\(");
-      pattern += repItr->first;
+      pattern += _replacement.first;
       pattern += "\\)s";
 
       TPRegexp re(pattern);
 
-      re.Substitute(path, repItr->second, "g");
+      re.Substitute(path, _replacement.second, "g");
     }
 
     return path.Data();
@@ -188,8 +187,8 @@ namespace ecaldqm {
 
         if (searchNeighborsInTower) {
           std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(ttId));
-          for (std::vector<DetId>::iterator idItr(ids.begin()); idItr != ids.end(); ++idItr)
-            if ((_statusManager->getStatus(idItr->rawId()) & _mask) != 0)
+          for (auto &id : ids)
+            if ((_statusManager->getStatus(id.rawId()) & _mask) != 0)
               return true;
         }
       } break;
@@ -231,8 +230,8 @@ namespace ecaldqm {
       case EcalTriggerTower: {
         EcalTrigTowerDetId ttId(_id);
         std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(ttId));
-        for (std::vector<DetId>::iterator idItr(ids.begin()); idItr != ids.end(); ++idItr)
-          if ((_statusManager->getStatus(idItr->rawId()) & _mask) != 0)
+        for (auto &id : ids)
+          if ((_statusManager->getStatus(id.rawId()) & _mask) != 0)
             return true;
       } break;
 

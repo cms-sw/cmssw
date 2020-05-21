@@ -21,14 +21,14 @@ public:
 
   std::pair<float, float> dedx(const reco::DeDxHitCollection& Hits) override {
     std::vector<float> vect_probs;
-    for (size_t i = 0; i < Hits.size(); i++) {
-      float path = Hits[i].pathLength() * 10.0;  //x10 in order to be compatible with the map content
+    for (auto Hit : Hits) {
+      float path = Hit.pathLength() * 10.0;  //x10 in order to be compatible with the map content
       float charge =
-          Hits[i].charge() /
+          Hit.charge() /
           (10.0 *
            meVperADCStrip);  // 10/meVperADCStrip in order to be compatible with the map content in ADC/mm instead of MeV/cm
 
-      int BinX = Prob_ChargePath->GetXaxis()->FindBin(Hits[i].momentum());
+      int BinX = Prob_ChargePath->GetXaxis()->FindBin(Hit.momentum());
       int BinY = Prob_ChargePath->GetYaxis()->FindBin(path);
       int BinZ = Prob_ChargePath->GetZaxis()->FindBin(charge);
       float prob = Prob_ChargePath->GetBinContent(BinX, BinY, BinZ);

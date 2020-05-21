@@ -74,7 +74,7 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
   double tmpPhi = phi;
   double tmpR = fR;
 
-  for (unsigned int ip = 0; ip < particles.size(); ++ip) {
+  for (int PartID : particles) {
     if (fOverlapping) {
       fR = CLHEP::RandFlat::shoot(engine, tmpR - fDelta, tmpR + fDelta);
       phi = CLHEP::RandFlat::shoot(engine, tmpPhi - fDelta / fR, tmpPhi + fDelta / fR);
@@ -82,7 +82,6 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
       phi += fDelta / fR;
 
     double fEn = CLHEP::RandFlat::shoot(engine, fEnMin, fEnMax);
-    int PartID = particles[ip];
     const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID)));
     double mass = PData->mass().value();
     double mom2 = fEn * fEn - mass * mass;

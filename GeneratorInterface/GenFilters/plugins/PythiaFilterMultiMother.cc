@@ -81,24 +81,24 @@ bool PythiaFilterMultiMother::filter(edm::StreamID, edm::Event& iEvent, const ed
           (*p)->momentum().perp() > minptcut && (*p)->momentum().perp() < maxptcut && mom.eta() > minetacut &&
           mom.eta() < maxetacut && rapidity > minrapcut && rapidity < maxrapcut && (*p)->momentum().phi() > minphicut &&
           (*p)->momentum().phi() < maxphicut) {
-        for (std::vector<int>::const_iterator motherID = motherIDs.begin(); motherID != motherIDs.end(); ++motherID) {
-          if (status == 0 && *motherID == 0) {
+        for (int motherID : motherIDs) {
+          if (status == 0 && motherID == 0) {
             accepted = true;
           }
-          if (status != 0 && *motherID == 0) {
+          if (status != 0 && motherID == 0) {
             if ((*p)->status() == status)
               accepted = true;
           }
 
           HepMC::GenParticle* mother = (*((*p)->production_vertex()->particles_in_const_begin()));
 
-          if (status == 0 && *motherID != 0) {
-            if (abs(mother->pdg_id()) == abs(*motherID)) {
+          if (status == 0 && motherID != 0) {
+            if (abs(mother->pdg_id()) == abs(motherID)) {
               accepted = true;
             }
           }
-          if (status != 0 && *motherID != 0) {
-            if ((*p)->status() == status && abs(mother->pdg_id()) == abs(*motherID)) {
+          if (status != 0 && motherID != 0) {
+            if ((*p)->status() == status && abs(mother->pdg_id()) == abs(motherID)) {
               accepted = true;
             }
           }

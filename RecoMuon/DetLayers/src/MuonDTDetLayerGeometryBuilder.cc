@@ -51,8 +51,8 @@ vector<DetLayer*> MuonDTDetLayerGeometryBuilder::buildLayers(const DTGeometry& g
                       << result.back()->specificSurface().radius();
   }
 
-  for (vector<MuRodBarrelLayer*>::const_iterator it = result.begin(); it != result.end(); it++)
-    detlayers.push_back((DetLayer*)(*it));
+  for (auto it : result)
+    detlayers.push_back((DetLayer*)it);
 
   return detlayers;
 }

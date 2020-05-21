@@ -1151,8 +1151,8 @@ namespace edm {
         std::string start = "'";
         std::string const between(",'");
         std::vector<std::string> strings = entry.getVString();
-        for (std::vector<std::string>::const_iterator it = strings.begin(), itEnd = strings.end(); it != itEnd; ++it) {
-          os << start << *it << "'";
+        for (const auto& string : strings) {
+          os << start << string << "'";
           start = between;
         }
         os << "}";
@@ -1173,8 +1173,8 @@ namespace edm {
         std::string start = "";
         std::string const between(",");
         std::vector<InputTag> tags = entry.getVInputTag();
-        for (std::vector<InputTag>::const_iterator it = tags.begin(), itEnd = tags.end(); it != itEnd; ++it) {
-          os << start << it->encode();
+        for (const auto& tag : tags) {
+          os << start << tag.encode();
           start = between;
         }
         os << "}";
@@ -1187,8 +1187,8 @@ namespace edm {
         std::string start = "";
         std::string const between(",");
         std::vector<ESInputTag> tags = entry.getVESInputTag();
-        for (std::vector<ESInputTag>::const_iterator it = tags.begin(), itEnd = tags.end(); it != itEnd; ++it) {
-          os << start << it->encode();
+        for (const auto& tag : tags) {
+          os << start << tag.encode();
           start = between;
         }
         os << "}";

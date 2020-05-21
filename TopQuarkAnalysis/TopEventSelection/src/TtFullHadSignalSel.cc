@@ -244,9 +244,9 @@ TtFullHadSignalSel::TtFullHadSignalSel(const std::vector<pat::Jet>& jets) {
   ROOT::Math::Boost CoMBoostTotal(totalSystem.BoostToCM());
   std::vector<reco::LeafCandidate> boostedJets;
 
-  for (std::vector<pat::Jet>::const_iterator jet = jets.begin(); jet != jets.end(); ++jet) {
+  for (const auto& jet : jets) {
     boostedJets.push_back(
-        reco::LeafCandidate(jet->charge(), CoMBoostTotal(jet->p4()), jet->vertex(), jet->pdgId(), jet->status(), true));
+        reco::LeafCandidate(jet.charge(), CoMBoostTotal(jet.p4()), jet.vertex(), jet.pdgId(), jet.status(), true));
   }
 
   EtSin2Theta3jet_ /= ((double)(jets.size() - 3));
@@ -280,27 +280,25 @@ TtFullHadSignalSel::TtFullHadSignalSel(const std::vector<pat::Jet>& jets) {
   std::sort(dRs.begin(), dRs.end());
   std::sort(dRs3Jets.begin(), dRs3Jets.end());
 
-  for (std::vector<std::pair<double, std::vector<unsigned short> > >::const_iterator dR = dRs.begin(); dR != dRs.end();
-       ++dR) {
-    dR_.push_back(dR->first);
-    dRMass_.push_back((jets.at(dR->second.at(0)).p4() + jets.at(dR->second.at(1)).p4()).mass());
+  for (const auto& dR : dRs) {
+    dR_.push_back(dR.first);
+    dRMass_.push_back((jets.at(dR.second.at(0)).p4() + jets.at(dR.second.at(1)).p4()).mass());
 
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > wHypo =
-        jets.at(dR->second.at(0)).p4() + jets.at(dR->second.at(1)).p4();
+        jets.at(dR.second.at(0)).p4() + jets.at(dR.second.at(1)).p4();
     TLorentzVector wHypoHelper(wHypo.Px(), wHypo.Py(), wHypo.Pz(), wHypo.E());
     wHypoHelper.SetVectM(TVector3(wHypo.Px(), wHypo.Py(), wHypo.Pz()), 80.4);
     wHypo.SetPxPyPzE(wHypoHelper.Px(), wHypoHelper.Py(), wHypoHelper.Pz(), wHypoHelper.E());
     ROOT::Math::Boost CoMBoostWHypo(wHypo.BoostToCM());
-    dRAngle_.push_back(ROOT::Math::VectorUtil::Angle(CoMBoostWHypo(jets.at(dR->second.at(0)).p4()),
-                                                     CoMBoostWHypo(jets.at(dR->second.at(1)).p4())));
+    dRAngle_.push_back(ROOT::Math::VectorUtil::Angle(CoMBoostWHypo(jets.at(dR.second.at(0)).p4()),
+                                                     CoMBoostWHypo(jets.at(dR.second.at(1)).p4())));
   }
 
-  for (std::vector<std::pair<double, std::vector<unsigned short> > >::const_iterator dR = dRs3Jets.begin();
-       dR != dRs3Jets.end();
-       ++dR) {
-    dR3Jets_.push_back(dR->first);
+  for (const auto& dRs3Jet : dRs3Jets) {
+    dR3Jets_.push_back(dRs3Jet.first);
     dR3JetsMass_.push_back(
-        (jets.at(dR->second.at(0)).p4() + jets.at(dR->second.at(1)).p4() + jets.at(dR->second.at(2)).p4()).mass());
+        (jets.at(dRs3Jet.second.at(0)).p4() + jets.at(dRs3Jet.second.at(1)).p4() + jets.at(dRs3Jet.second.at(2)).p4())
+            .mass());
   }
 
   std::vector<std::pair<double, unsigned short> > massDiff2W;

@@ -101,23 +101,17 @@ void RecordWriter::update(const void* iData, const std::type_info& iType, const 
 
 //call update before calling write
 void RecordWriter::fill(const edm::ESRecordAuxiliary& iValue) {
-  for (std::map<std::pair<edm::TypeIDBase, std::string>, DataBuffer>::iterator it = idToBuffer_.begin(),
-                                                                               itEnd = idToBuffer_.end();
-       it != itEnd;
-       ++it) {
-    if (nullptr == it->second.pBuffer_) {
+  for (auto& it : idToBuffer_) {
+    if (nullptr == it.second.pBuffer_) {
       throw cms::Exception("MissingESData")
-          << "The EventSetup data " << it->first.first.name() << " '" << it->first.second << "' was not supplied";
+          << "The EventSetup data " << it.first.first.name() << " '" << it.first.second << "' was not supplied";
     }
   }
 
   aux_ = iValue;
   tree_->Fill();
-  for (std::map<std::pair<edm::TypeIDBase, std::string>, DataBuffer>::iterator it = idToBuffer_.begin(),
-                                                                               itEnd = idToBuffer_.end();
-       it != itEnd;
-       ++it) {
-    it->second.pBuffer_ = nullptr;
+  for (auto& it : idToBuffer_) {
+    it.second.pBuffer_ = nullptr;
   }
 }
 

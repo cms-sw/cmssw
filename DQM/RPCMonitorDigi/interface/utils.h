@@ -216,9 +216,9 @@ namespace rpcdqm {
 
       for (int ring = 1; ring <= 3; ring++) {
         for (int ch = 1; ch <= 6; ch++) {
-          for (int r = 0; r < 3; r++) {
+          for (const auto& roll : rolls) {
             myLabel.str("");
-            myLabel << "R" << ring << "_C" << ch << "_" << rolls[r];
+            myLabel << "R" << ring << "_C" << ch << "_" << roll;
             endcapYLabels_.push_back(myLabel.str());
           }
         }

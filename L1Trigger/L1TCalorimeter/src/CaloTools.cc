@@ -50,17 +50,17 @@ const l1t::CaloTower& l1t::CaloTools::getTower(const std::vector<l1t::CaloTower>
         towers[towerIndex].hwPhi() !=
             iPhi) {  //it failed, this is bad, but we will not log the error due to policy and silently attempt to do a brute force search instead
       //std::cout <<"error, tower "<<towers[towerIndex].hwEta()<<" "<<towers[towerIndex].hwPhi()<<" does not match "<<iEta<<" "<<iPhi<<" index "<<towerIndex<<" nr towrs "<<towers.size()<<std::endl;
-      for (size_t towerNr = 0; towerNr < towers.size(); towerNr++) {
-        if (towers[towerNr].hwEta() == iEta && towers[towerNr].hwPhi() == iPhi)
-          return towers[towerNr];
+      for (const auto& tower : towers) {
+        if (tower.hwEta() == iEta && tower.hwPhi() == iPhi)
+          return tower;
       }
     } else
       return towers[towerIndex];
 
   } else {  // in case the vector of towers do not contain all the towers (towerIndex can be > towers.size())
-    for (size_t towerNr = 0; towerNr < towers.size(); towerNr++) {
-      if (towers[towerNr].hwEta() == iEta && towers[towerNr].hwPhi() == iPhi)
-        return towers[towerNr];
+    for (const auto& tower : towers) {
+      if (tower.hwEta() == iEta && tower.hwPhi() == iPhi)
+        return tower;
     }
   }
 
@@ -68,9 +68,9 @@ const l1t::CaloTower& l1t::CaloTools::getTower(const std::vector<l1t::CaloTower>
 }
 
 const l1t::CaloCluster& l1t::CaloTools::getCluster(const std::vector<l1t::CaloCluster>& clusters, int iEta, int iPhi) {
-  for (size_t clusterNr = 0; clusterNr < clusters.size(); clusterNr++) {
-    if (clusters[clusterNr].hwEta() == iEta && clusters[clusterNr].hwPhi() == iPhi)
-      return clusters[clusterNr];
+  for (const auto& cluster : clusters) {
+    if (cluster.hwEta() == iEta && cluster.hwPhi() == iPhi)
+      return cluster;
   }
   return nullCluster_;
 }

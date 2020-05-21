@@ -75,17 +75,15 @@ namespace {
     }
 
     std::vector<reco::PFCandidatePtr> pfConsts = pfJet.getPFConstituents();
-    for (std::vector<reco::PFCandidatePtr>::const_iterator pfJetConstituent = pfConsts.begin();
-         pfJetConstituent != pfConsts.end();
-         ++pfJetConstituent) {
+    for (const auto& pfConst : pfConsts) {
       std::vector<int> idxs;
-      if (!pfCandidateCollection.empty() && pfJetConstituent->id() == viewProductID) {
-        idxs.push_back(pfJetConstituent->key());
+      if (!pfCandidateCollection.empty() && pfConst.id() == viewProductID) {
+        idxs.push_back(pfConst.key());
       } else {
         bool isMatched_fast = false;
-        if (pfJetConstituent->key() < pfCandidateCollection.size()) {
-          edm::Ptr<reco::PFCandidate> pfCandidatePtr = pfCandidateCollection.ptrAt(pfJetConstituent->key());
-          double dR2 = deltaR2((*pfJetConstituent)->p4(), pfCandidatePtr->p4());
+        if (pfConst.key() < pfCandidateCollection.size()) {
+          edm::Ptr<reco::PFCandidate> pfCandidatePtr = pfCandidateCollection.ptrAt(pfConst.key());
+          double dR2 = deltaR2(pfConst->p4(), pfCandidatePtr->p4());
           if (dR2 < dR2Min) {
             idxs.push_back(pfCandidatePtr.key());
             isMatched_fast = true;
@@ -96,7 +94,7 @@ namespace {
           size_t numPFCandidates = pfCandidateCollection.size();
           for (size_t iPFCandidate = 0; iPFCandidate < numPFCandidates; ++iPFCandidate) {
             edm::Ptr<reco::PFCandidate> pfCandidatePtr = pfCandidateCollection.ptrAt(iPFCandidate);
-            double dR2 = deltaR2((*pfJetConstituent)->p4(), pfCandidatePtr->p4());
+            double dR2 = deltaR2(pfConst->p4(), pfCandidatePtr->p4());
             if (dR2 < dR2Min) {
               idxs.push_back(pfCandidatePtr.key());
             }
@@ -111,17 +109,16 @@ namespace {
         }
       }
       if (!idxs.empty()) {
-        for (std::vector<int>::const_iterator idx = idxs.begin(); idx != idxs.end(); ++idx) {
-          if ((*idx) >= (int)flags.size())
+        for (int idx : idxs) {
+          if (idx >= (int)flags.size())
             flags.resize(2 * flags.size());
-          flags[*idx] |= value;
+          flags[idx] |= value;
           if (pfCandidateToJetAssociations != nullptr)
-            (*pfCandidateToJetAssociations)[*idx] = &pfJet;
+            (*pfCandidateToJetAssociations)[idx] = &pfJet;
         }
       } else {
         edm::LogError("setPFCandidateFlag")
-            << " Failed to associated PFJetConstituent with index = " << pfJetConstituent->key()
-            << " to any PFCandidate !!";
+            << " Failed to associated PFJetConstituent with index = " << pfConst.key() << " to any PFCandidate !!";
       }
     }
   }
@@ -215,9 +212,9 @@ void NoPileUpPFMEtDataProducer::produce(edm::Event& evt, const edm::EventSetup& 
   }
   LogDebug("produce") << "#jetInfos = " << jetInfos->size() << std::endl;
 
-  for (reco::PFJetCollection::const_iterator jet = jets->begin(); jet != jets->end(); ++jet) {
-    if (jet->pt() > minJetPtForMEtCov_) {
-      setPFCandidateFlag(*jet,
+  for (const auto& jet : *jets) {
+    if (jet.pt() > minJetPtForMEtCov_) {
+      setPFCandidateFlag(jet,
                          *pfCandidates,
                          pfCandidateFlags,
                          flag_isWithinJetForMEtCov,

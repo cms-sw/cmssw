@@ -97,12 +97,12 @@ void GEDPhotonCoreProducer::produce(edm::Event& theEvent, const edm::EventSetup&
     newCandidate.setParentSuperCluster(boxSC);
     // fill conversion infos
 
-    for (unsigned int lConv = 0; lConv < doubleLegConv.size(); lConv++) {
-      newCandidate.addConversion(doubleLegConv[lConv]);
+    for (const auto& lConv : doubleLegConv) {
+      newCandidate.addConversion(lConv);
     }
 
-    for (unsigned int lConv = 0; lConv < singleLegConv.size(); lConv++) {
-      newCandidate.addOneLegConversion(singleLegConv[lConv]);
+    for (const auto& lConv : singleLegConv) {
+      newCandidate.addOneLegConversion(lConv);
     }
 
     //    std::cout << "newCandidate pf refined SC energy="<< newCandidate.superCluster()->energy()<<std::endl;

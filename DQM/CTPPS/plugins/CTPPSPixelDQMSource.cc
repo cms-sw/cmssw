@@ -235,8 +235,8 @@ void CTPPSPixelDQMSource::dqmBeginRun(edm::Run const &run, edm::EventSetup const
     StationStatus[stn] = stns;
   }
 
-  for (int ind = 0; ind < 2 * 3 * NRPotsMAX; ind++)
-    RPindexValid[ind] = 0;
+  for (int &ind : RPindexValid)
+    ind = 0;
 
   x0_MIN = y0_MIN = 1.0e06;
   x0_MAX = y0_MAX = -1.0e06;
@@ -484,14 +484,14 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
     RPactivity[rp] = RPdigiSize[rp] = pixRPTracks[rp] = 0;
   }
 
-  for (int ind = 0; ind < RPotsTotalNumber; ind++) {
+  for (auto &ind : HitsMultPlane) {
     for (int p = 0; p < NplaneMAX; p++) {
-      HitsMultPlane[ind][p] = 0;
+      ind[p] = 0;
     }
   }
-  for (int ind = 0; ind < RPotsTotalNumber * NplaneMAX; ind++) {
+  for (auto &ind : HitsMultROC) {
     for (int roc = 0; roc < NROCsMAX; roc++) {
-      HitsMultROC[ind][roc] = 0;
+      ind[roc] = 0;
     }
   }
   Handle<DetSetVector<CTPPSPixelDigi>> pixDigi;
@@ -522,9 +522,9 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
       int rpot = theId.rp() & 0x7;
       int rpInd = getRPindex(arm, station, rpot);
 
-      for (DetSet<CTPPSPixelLocalTrack>::const_iterator dit = ds_tr.begin(); dit != ds_tr.end(); ++dit) {
+      for (const auto &dit : ds_tr) {
         ++pixRPTracks[rpInd];
-        int nh_tr = (dit->ndf() + TrackFitDimension) / 2;
+        int nh_tr = (dit.ndf() + TrackFitDimension) / 2;
         if (onlinePlots) {
           for (int i = 0; i <= NplaneMAX; i++) {
             if (i == nh_tr)
@@ -533,8 +533,8 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
               htrackHits[rpInd]->Fill(i, 0.);
           }
         }
-        float x0 = dit->x0();
-        float y0 = dit->y0();
+        float x0 = dit.x0();
+        float y0 = dit.y0();
         h2trackXY0[rpInd]->Fill(x0, y0);
 
         if (x0_MAX < x0)
@@ -547,7 +547,7 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
           y0_MIN = y0;
 
         if (offlinePlots) {
-          edm::DetSetVector<CTPPSPixelFittedRecHit> fittedHits = dit->hits();
+          edm::DetSetVector<CTPPSPixelFittedRecHit> fittedHits = dit.hits();
 
           std::map<int, int> numberOfPointPerPlaneEff;
           for (const auto &ds_frh : fittedHits) {
@@ -577,12 +577,11 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
             int plane = getPixPlane(ds_frh.id);
             if (isPlanePlotsTurnedOff[arm][station][rpot][plane])
               continue;
-            for (DetSet<CTPPSPixelFittedRecHit>::const_iterator frh_it = ds_frh.begin(); frh_it != ds_frh.end();
-                 ++frh_it) {
-              float frhX0 = frh_it->globalCoordinates().x() + frh_it->xResidual();
-              float frhY0 = frh_it->globalCoordinates().y() + frh_it->yResidual();
+            for (const auto &frh_it : ds_frh) {
+              float frhX0 = frh_it.globalCoordinates().x() + frh_it.xResidual();
+              float frhY0 = frh_it.globalCoordinates().y() + frh_it.yResidual();
               if (numberOfPointPerPlaneEff[plane] >= 3) {
-                if (frh_it->isRealHit())
+                if (frh_it.isRealHit())
                   h2Efficiency[rpInd][plane]->Fill(frhX0, frhY0, 1);
                 else
                   h2Efficiency[rpInd][plane]->Fill(frhX0, frhY0, 0);
@@ -638,10 +637,10 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
         }
         int rocHistIndex = getPlaneIndex(arm, station, rpot, plane);
 
-        for (DetSet<CTPPSPixelDigi>::const_iterator dit = ds_digi.begin(); dit != ds_digi.end(); ++dit) {
-          int row = dit->row();
-          int col = dit->column();
-          int adc = dit->adc();
+        for (auto dit : ds_digi) {
+          int row = dit.row();
+          int col = dit.column();
+          int adc = dit.adc();
 
           if (RPindexValid[index]) {
             if (!isPlanePlotsTurnedOff[arm][station][rpot][plane]) {
@@ -690,8 +689,8 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
     }  // end if(pixClus.isValid()) for(const auto &ds : *pixClus)
 
   bool allRPactivity = false;
-  for (int rp = 0; rp < RPotsTotalNumber; rp++)
-    if (RPactivity[rp] > 0)
+  for (int rp : RPactivity)
+    if (rp > 0)
       allRPactivity = true;
   for (int arm = 0; arm < 2; arm++) {
     for (int stn = 0; stn < NStationMAX; stn++) {
@@ -733,8 +732,8 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
           hRPotActivBXall[index]->Fill(event.bunchCrossing(), float(RPdigiSize[index]));
         }
         int rocf[NplaneMAX];
-        for (int r = 0; r < NROCsMAX; r++)
-          rocf[r] = 0;
+        for (int &r : rocf)
+          r = 0;
         for (int p = 0; p < NplaneMAX; p++) {
           int indp = getPlaneIndex(arm, stn, rp, p);
           for (int r = 0; r < NROCsMAX; r++)
@@ -747,9 +746,9 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
           }
         }
         int max = 0;
-        for (int r = 0; r < NROCsMAX; r++)
-          if (max < rocf[r])
-            max = rocf[r];
+        for (int r : rocf)
+          if (max < r)
+            max = r;
         if (max >= 4 && onlinePlots)
           hRPotActivBXroc[index]->Fill(event.bunchCrossing());
       }  // end for(int rp=0; rp<NRPotsMAX; rp++) {

@@ -95,8 +95,8 @@ uint16_t DCCDataUnpacker::getCCUValue(const int fed, const int ccu) const {
 
   // collect set of status codes of given CCU
   std::set<uint16_t> set;
-  for (size_t i = 0; i < xtals.size(); ++i) {
-    const uint16_t val = getChannelValue(xtals[i]);
+  for (auto xtal : xtals) {
+    const uint16_t val = getChannelValue(xtal);
     set.insert(val);
   }
 

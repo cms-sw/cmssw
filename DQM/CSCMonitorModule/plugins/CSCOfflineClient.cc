@@ -96,8 +96,7 @@ void CSCOfflineClient::dqmEndJob(DQMStore::IBooker& ib, DQMStore::IGetter& igett
    */
   ibooker->setCurrentFolder(config.getFOLDER_EMU());
   std::vector<std::string> me_names = igetter.getMEs();
-  for (std::vector<std::string>::iterator iter = me_names.begin(); iter != me_names.end(); iter++) {
-    std::string me_name = *iter;
+  for (auto me_name : me_names) {
     MonitorElement* me = igetter.get(config.getFOLDER_EMU() + me_name);
     cscdqm::HistoId id;
     if (me && cscdqm::HistoDef::getHistoIdByName(me_name, id)) {

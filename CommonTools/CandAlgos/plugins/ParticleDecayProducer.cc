@@ -64,15 +64,14 @@ void ParticleDecayProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   unique_ptr<CandidateCollection> mothercands(new CandidateCollection);
   unique_ptr<CandidateCollection> daughterscands(new CandidateCollection);
   size_t daughtersize = daughtersPdgId_.size();
-  for (CandidateCollection::const_iterator p = genCandidatesCollection->begin(); p != genCandidatesCollection->end();
-       ++p) {
-    if (p->pdgId() == motherPdgId_ && p->status() == 3) {
-      mothercands->push_back(p->clone());
-      size_t ndau = p->numberOfDaughters();
+  for (const auto& p : *genCandidatesCollection) {
+    if (p.pdgId() == motherPdgId_ && p.status() == 3) {
+      mothercands->push_back(p.clone());
+      size_t ndau = p.numberOfDaughters();
       for (size_t i = 0; i < ndau; ++i) {
         for (size_t j = 0; j < daughtersize; ++j) {
-          if (p->daughter(i)->pdgId() == daughtersPdgId_[j] && p->daughter(i)->status() == 3) {
-            daughterscands->push_back(p->daughter(i)->clone());
+          if (p.daughter(i)->pdgId() == daughtersPdgId_[j] && p.daughter(i)->status() == 3) {
+            daughterscands->push_back(p.daughter(i)->clone());
           }
         }
       }

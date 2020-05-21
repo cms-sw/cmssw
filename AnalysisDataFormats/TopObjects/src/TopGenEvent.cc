@@ -14,10 +14,10 @@ TopGenEvent::TopGenEvent(reco::GenParticleRefProd& decaySubset, reco::GenParticl
 const reco::GenParticle* TopGenEvent::candidate(int id, unsigned int parentId) const {
   const reco::GenParticle* cand = nullptr;
   const reco::GenParticleCollection& partsColl = *parts_;
-  for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (partsColl[i].pdgId() == id) {
-      if (parentId == 0 ? true : partsColl[i].mother() && std::abs(partsColl[i].mother()->pdgId()) == (int)parentId) {
-        cand = &partsColl[i];
+  for (const auto& i : partsColl) {
+    if (i.pdgId() == id) {
+      if (parentId == 0 ? true : i.mother() && std::abs(i.mother()->pdgId()) == (int)parentId) {
+        cand = &i;
       }
     }
   }
@@ -41,10 +41,10 @@ void TopGenEvent::print() const {
 int TopGenEvent::numberOfLeptons(bool fromWBoson) const {
   int lep = 0;
   const reco::GenParticleCollection& partsColl = *parts_;
-  for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (reco::isLepton(partsColl[i])) {
+  for (const auto& i : partsColl) {
+    if (reco::isLepton(i)) {
       if (fromWBoson) {
-        if (partsColl[i].mother() && std::abs(partsColl[i].mother()->pdgId()) == TopDecayID::WID) {
+        if (i.mother() && std::abs(i.mother()->pdgId()) == TopDecayID::WID) {
           ++lep;
         }
       } else {
@@ -74,21 +74,21 @@ int TopGenEvent::numberOfLeptons(WDecay::LeptonType typeRestriction, bool fromWB
   }
   int lep = 0;
   const reco::GenParticleCollection& partsColl = *parts_;
-  for (unsigned int i = 0; i < partsColl.size(); ++i) {
+  for (const auto& i : partsColl) {
     if (fromWBoson) {
       // restrict to particles originating from the W boson
-      if (!(partsColl[i].mother() && std::abs(partsColl[i].mother()->pdgId()) == TopDecayID::WID)) {
+      if (!(i.mother() && std::abs(i.mother()->pdgId()) == TopDecayID::WID)) {
         continue;
       }
     }
     if (leptonType > 0) {
       // in case of lepton type restriction
-      if (std::abs(partsColl[i].pdgId()) == leptonType) {
+      if (std::abs(i.pdgId()) == leptonType) {
         ++lep;
       }
     } else {
       // take any lepton type into account else
-      if (reco::isLepton(partsColl[i])) {
+      if (reco::isLepton(i)) {
         ++lep;
       }
     }
@@ -99,11 +99,11 @@ int TopGenEvent::numberOfLeptons(WDecay::LeptonType typeRestriction, bool fromWB
 int TopGenEvent::numberOfBQuarks(bool fromTopQuark) const {
   int bq = 0;
   const reco::GenParticleCollection& partsColl = *parts_;
-  for (unsigned int i = 0; i < partsColl.size(); ++i) {
+  for (const auto& i : partsColl) {
     //depend if radiation qqbar are included or not
-    if (std::abs(partsColl[i].pdgId()) == TopDecayID::bID) {
+    if (std::abs(i.pdgId()) == TopDecayID::bID) {
       if (fromTopQuark) {
-        if (partsColl[i].mother() && std::abs(partsColl[i].mother()->pdgId()) == TopDecayID::tID) {
+        if (i.mother() && std::abs(i.mother()->pdgId()) == TopDecayID::tID) {
           ++bq;
         }
       } else {
@@ -150,12 +150,10 @@ const reco::GenParticle* TopGenEvent::daughterQuarkOfTop(bool invertCharge) cons
 const reco::GenParticle* TopGenEvent::daughterQuarkOfWPlus(bool invertQuarkCharge, bool invertBosonCharge) const {
   const reco::GenParticle* cand = nullptr;
   const reco::GenParticleCollection& partsColl = *parts_;
-  for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (partsColl[i].mother() &&
-        partsColl[i].mother()->pdgId() == (invertBosonCharge ? -TopDecayID::WID : TopDecayID::WID) &&
-        std::abs(partsColl[i].pdgId()) <= TopDecayID::bID &&
-        (invertQuarkCharge ? reco::flavour(partsColl[i]) < 0 : reco::flavour(partsColl[i]) > 0)) {
-      cand = &partsColl[i];
+  for (const auto& i : partsColl) {
+    if (i.mother() && i.mother()->pdgId() == (invertBosonCharge ? -TopDecayID::WID : TopDecayID::WID) &&
+        std::abs(i.pdgId()) <= TopDecayID::bID && (invertQuarkCharge ? reco::flavour(i) < 0 : reco::flavour(i) > 0)) {
+      cand = &i;
     }
   }
   return cand;

@@ -143,11 +143,11 @@ void FastLineRecognition::getPatterns(const DetSetVector<TotemRPRecHit> &input,
 #endif
 
     // remove points belonging to the recognized line
-    for (vector<const Point *>::iterator hit = c.contents.begin(); hit != c.contents.end(); ++hit) {
-      for (vector<Point>::iterator dit = points.begin(); dit != points.end(); ++dit) {
+    for (auto &content : c.contents) {
+      for (auto &point : points) {
         //printf("\t\t1: %.2f, %p vs. 2: %.2f, %p\n", (*hit)->z, (*hit)->hit, dit->z, dit->hit);
-        if ((*hit)->hit == dit->hit) {
-          dit->usable = false;
+        if (content->hit == point.hit) {
+          point.usable = false;
           //points.erase(dit);
           break;
         }
@@ -222,8 +222,8 @@ bool FastLineRecognition::getOneLine(const vector<FastLineRecognition::Point> &p
 
       // add it to the appropriate cluster
       bool newCluster = true;
-      for (unsigned int k = 0; k < clusters.size(); k++) {
-        Cluster &c = clusters[k];
+      for (auto &cluster : clusters) {
+        Cluster &c = cluster;
         if (c.S1 < 1. || c.Sw <= 0.)
           continue;
 
@@ -241,7 +241,7 @@ bool FastLineRecognition::getOneLine(const vector<FastLineRecognition::Point> &p
 
         if ((std::abs(a - c.Saw / c.Sw) < chw_a) && (std::abs(b - c.Sbw / c.Sw) < chw_b)) {
           newCluster = false;
-          clusters[k].add(&(*it1), &(*it2), a, b, w);
+          cluster.add(&(*it1), &(*it2), a, b, w);
 #if CTPPS_DEBUG > 0
           printf("\t\t\t\t--> cluster %u\n", k);
 #endif
@@ -269,8 +269,8 @@ bool FastLineRecognition::getOneLine(const vector<FastLineRecognition::Point> &p
   double mw = -1.;
   for (unsigned int k = 0; k < clusters.size(); k++) {
     double w = 0;
-    for (vector<const Point *>::iterator it = clusters[k].contents.begin(); it != clusters[k].contents.end(); ++it)
-      w += (*it)->w;
+    for (auto &content : clusters[k].contents)
+      w += content->w;
     clusters[k].weight = w;
 
     if (w > mw) {

@@ -18,8 +18,8 @@ std::vector<CSCDetectorHit> &CSCWireHitSim::simulate(const CSCLayer *layer,
   const CSCLayerGeometry *geom = layer->geometry();
 
   theNewWireHits.clear();
-  for (edm::PSimHitContainer::const_iterator hitItr = simHits.begin(); hitItr != simHits.end(); ++hitItr) {
-    std::vector<LocalPoint> ionClusters = getIonizationClusters(*hitItr, layer, engine);
+  for (const auto &simHit : simHits) {
+    std::vector<LocalPoint> ionClusters = getIonizationClusters(simHit, layer, engine);
 
     unsigned nClusters = ionClusters.size();
     theNewWireHits.reserve(theNewWireHits.size() + nClusters);
@@ -31,7 +31,7 @@ std::vector<CSCDetectorHit> &CSCWireHitSim::simulate(const CSCLayer *layer,
       // The wire hit contains wire# and position measured _along the wire_
       // from where it intersects local y axis.
 
-      theNewWireHits.push_back(theDriftSim->getWireHit(ionClusters[icl], layer, nearestWire, *hitItr, engine));
+      theNewWireHits.push_back(theDriftSim->getWireHit(ionClusters[icl], layer, nearestWire, simHit, engine));
     }
   }
   return theNewWireHits;
@@ -54,17 +54,17 @@ std::vector<LocalPoint> CSCWireHitSim::getIonizationClusters(const PSimHit &simH
   std::vector<LocalPoint> results;  // start empty
 
   int j = 0;
-  for (std::vector<LocalPoint>::const_iterator pointItr = positions.begin(); pointItr != positions.end(); ++pointItr) {
+  for (const auto &position : positions) {
     ++j;
     // some verification
-    if (layer->geometry()->inside(*pointItr)) {
+    if (layer->geometry()->inside(position)) {
       // push the point for each electron at this point
 
       for (int ie = 1; ie <= electrons[j - 1]; ++ie) {
         // probability of getting attached
         float f_att = 0.5;
         if (CLHEP::RandFlat::shoot(engine) > f_att) {
-          results.push_back(*pointItr);
+          results.push_back(position);
         }
       }
     }

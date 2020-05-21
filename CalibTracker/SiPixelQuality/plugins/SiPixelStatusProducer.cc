@@ -102,13 +102,11 @@ void SiPixelStatusProducer::beginLuminosityBlock(edm::LuminosityBlock const& lum
 
   // init the SiPixelDetectorStatus fDet and sensor size fSensors in the begining (when countLumi is zero)
   if (countLumi_ == 0) {
-    for (TrackerGeometry::DetContainer::const_iterator it = trackerGeometry_->dets().begin();
-         it != trackerGeometry_->dets().end();
-         it++) {
-      const PixelGeomDetUnit* pgdu = dynamic_cast<const PixelGeomDetUnit*>((*it));
+    for (auto it : trackerGeometry_->dets()) {
+      const PixelGeomDetUnit* pgdu = dynamic_cast<const PixelGeomDetUnit*>(it);
       if (pgdu == nullptr)
         continue;
-      DetId detId = (*it)->geographicalId();
+      DetId detId = it->geographicalId();
       int detid = detId.rawId();
 
       // don't want to use magic number row 80 column 52
@@ -185,9 +183,9 @@ void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, const edm::Even
         }
 
         const vector<SiPixelCluster::Pixel>& pixvector = clu.pixels();
-        for (unsigned int i = 0; i < pixvector.size(); ++i) {
-          int mr0 = pixvector[i].x;  // constant column direction is along x-axis,
-          int mc0 = pixvector[i].y;  // constant row direction is along y-axis
+        for (auto i : pixvector) {
+          int mr0 = i.x;  // constant column direction is along x-axis,
+          int mc0 = i.y;  // constant row direction is along y-axis
 
           int irow = mr0 / rowsperroc;
           int icol = mc0 / colsperroc;
@@ -260,11 +258,9 @@ void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, const edm::Even
           std::vector<PixelFEDChannel> chs_tmp = tmpFEDerror25[detid];
 
           std::vector<PixelFEDChannel> chs_common;
-          for (unsigned int ich = 0; ich < chs.size(); ich++) {
-            PixelFEDChannel ch = chs[ich];
+          for (auto ch : chs) {
             // look over the current FEDerror25 channels, save the common FED channels
-            for (unsigned int ich_tmp = 0; ich_tmp < chs_tmp.size(); ich_tmp++) {
-              PixelFEDChannel ch_tmp = chs_tmp[ich_tmp];
+            for (auto ch_tmp : chs_tmp) {
               if ((ch.fed == ch_tmp.fed) && (ch.link == ch_tmp.link)) {  // the same FED channel
                 chs_common.push_back(ch);
                 break;
@@ -317,8 +313,8 @@ void SiPixelStatusProducer::endLuminosityBlockProduce(edm::LuminosityBlock& lumi
     for (itFEDerror25 = FEDerror25_.begin(); itFEDerror25 != FEDerror25_.end(); itFEDerror25++) {
       int detid = itFEDerror25->first;
       std::vector<PixelFEDChannel> chs = itFEDerror25->second;
-      for (unsigned int ich = 0; ich < chs.size(); ich++) {
-        fDet.fillFEDerror25(detid, chs[ich]);
+      for (auto ch : chs) {
+        fDet.fillFEDerror25(detid, ch);
       }
     }
   }

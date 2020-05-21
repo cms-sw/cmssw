@@ -158,10 +158,8 @@ namespace sistrip {
     } else {
       std::ostringstream ss;
       ss << "Found matches to event " << eventId << " with address " << uint16_t(apvAddress) << " in spy events ";
-      for (SpyEventList::const_iterator iMatchingSpyEvent = iMatch->second.begin();
-           iMatchingSpyEvent != iMatch->second.end();
-           ++iMatchingSpyEvent) {
-        ss << iMatchingSpyEvent->event() << " ";
+      for (auto iMatchingSpyEvent : iMatch->second) {
+        ss << iMatchingSpyEvent.event() << " ";
       }
       LogInfo(mlLabel_) << ss.str();
       return &(iMatch->second);
@@ -205,8 +203,8 @@ namespace sistrip {
     LogInfo(mlLabel_) << "Spy event " << event.id() << " has " << matchingFeds.size() << " matching FEDs";
     std::ostringstream ss;
     ss << "Matching FEDs for event " << event.id() << ": ";
-    for (std::set<uint16_t>::const_iterator iFedId = matchingFeds.begin(); iFedId != matchingFeds.end(); ++iFedId) {
-      ss << *iFedId << " ";
+    for (unsigned short matchingFed : matchingFeds) {
+      ss << matchingFed << " ";
     }
     LogDebug(mlLabel_) << ss.str();
     //check there are no duplicates
@@ -333,8 +331,7 @@ namespace sistrip {
     }
     //copy the data into output collections
     std::set<uint32_t> usedDetIds;
-    for (std::set<uint16_t>::const_iterator iFedId = matchingFeds.begin(); iFedId != matchingFeds.end(); ++iFedId) {
-      const uint32_t fedId = *iFedId;
+    for (uint32_t fedId : matchingFeds) {
       LogDebug(mlLabel_) << "Copying data for FED " << fedId;
       if (inputRawData.FEDData(fedId).size() && inputRawData.FEDData(fedId).data()) {
         outputRawData.FEDData(fedId) = inputRawData.FEDData(fedId);
@@ -367,19 +364,19 @@ namespace sistrip {
       if (inputVirginRawDigis) {
         std::set<uint32_t> fedDetIds;
         auto conns = cabling.fedConnections(fedId);
-        for (auto iConn = conns.begin(); iConn != conns.end(); ++iConn) {
-          if (!iConn->isConnected())
+        for (const auto& conn : conns) {
+          if (!conn.isConnected())
             continue;
-          const uint32_t detId = iConn->detId();
+          const uint32_t detId = conn.detId();
           if (usedDetIds.find(detId) != usedDetIds.end()) {
             LogError(mlLabel_) << "Duplicate DetID found " << detId << " skipping data for this Det from FED " << fedId;
             continue;
           }
-          fedDetIds.insert(iConn->detId());
+          fedDetIds.insert(conn.detId());
         }
         usedDetIds.insert(fedDetIds.begin(), fedDetIds.end());
-        for (std::set<uint32_t>::const_iterator iDetId = fedDetIds.begin(); iDetId != fedDetIds.end(); ++iDetId) {
-          edm::DetSetVector<SiStripRawDigi>::const_iterator iVirginRawDigis = inputVirginRawDigis->find(*iDetId);
+        for (unsigned int fedDetId : fedDetIds) {
+          edm::DetSetVector<SiStripRawDigi>::const_iterator iVirginRawDigis = inputVirginRawDigis->find(fedDetId);
           if (iVirginRawDigis != inputVirginRawDigis->end()) {
             outputVirginRawDigisVector->push_back(*iVirginRawDigis);
           }
@@ -400,10 +397,8 @@ namespace sistrip {
       if (mapFromEvent) {
         std::vector<uint32_t>* newVector = new std::vector<uint32_t>(FED_ID_MAX + 1, 0);
         if (mapKeyIsByFedID) {
-          for (std::map<uint32_t, uint32_t>::const_iterator iIdValue = mapFromEvent->begin();
-               iIdValue != mapFromEvent->end();
-               ++iIdValue) {
-            newVector->at(iIdValue->first) = iIdValue->second;
+          for (auto iIdValue : *mapFromEvent) {
+            newVector->at(iIdValue.first) = iIdValue.second;
           }
         } else {
           SpyUtilities::fillFEDMajorities(*mapFromEvent, *newVector);

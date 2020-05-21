@@ -106,8 +106,8 @@ void SiStripCorrelateBadStripAndNoise::correlateWithNoise(const uint32_t &detid,
     getHistos(detid, tTopo, histos);
     float yvalue = range < 21 ? 1. * range : 21;
 
-    for (size_t i = 0; i < histos.size(); ++i)
-      histos[i]->Fill(meanNoiseHotStrips / meanAPVNoise - 1., yvalue);
+    for (auto &histo : histos)
+      histo->Fill(meanNoiseHotStrips / meanAPVNoise - 1., yvalue);
 
     if (meanNoiseHotStrips / meanAPVNoise - 1. < -0.3)
       tkmap->fillc(detid, 0xFF0000);
@@ -169,9 +169,9 @@ TH2F *SiStripCorrelateBadStripAndNoise::getHisto(const long unsigned int &index)
 }
 
 void SiStripCorrelateBadStripAndNoise::endJob() {
-  for (size_t i = 0; i < vTH2.size(); i++)
-    if (vTH2[i] != nullptr)
-      vTH2[i]->Write();
+  for (auto &i : vTH2)
+    if (i != nullptr)
+      i->Write();
 
   file->Write();
   file->Close();

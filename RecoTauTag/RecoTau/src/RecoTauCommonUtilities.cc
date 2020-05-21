@@ -79,8 +79,8 @@ namespace reco {
       const CandPtrs& pfCands = jet.daughterPtrVector();
       CandPtrs output;
       // Get each desired candidate type, unsorted for now
-      for (std::vector<int>::const_iterator pdgId = pdgIds.begin(); pdgId != pdgIds.end(); ++pdgId) {
-        CandPtrs&& selectedPFCands = filterPFCandidates(pfCands.begin(), pfCands.end(), *pdgId, false);
+      for (int pdgId : pdgIds) {
+        CandPtrs&& selectedPFCands = filterPFCandidates(pfCands.begin(), pfCands.end(), pdgId, false);
         output.insert(output.end(), selectedPFCands.begin(), selectedPFCands.end());
       }
       if (sort)

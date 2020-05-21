@@ -102,7 +102,7 @@ void FWSiStripClusterProxyBuilder::build(const FWEventItem* iItem, TEveElementLi
     shape->SetRnrSelf(true);
     shapeIt++;
 
-    for (edmNew::DetSet<SiStripCluster>::const_iterator ic = set->begin(), icEnd = set->end(); ic != icEnd; ++ic) {
+    for (const auto& ic : *set) {
       TEveCompound* itemHolder = nullptr;
       TEveLine* line = nullptr;
 
@@ -126,7 +126,7 @@ void FWSiStripClusterProxyBuilder::build(const FWEventItem* iItem, TEveElementLi
       // setup line pnts
       float localTop[3] = {0.0, 0.0, 0.0};
       float localBottom[3] = {0.0, 0.0, 0.0};
-      fireworks::localSiStrip((*ic).firstStrip(), localTop, localBottom, iItem->getGeom()->getParameters(id), id);
+      fireworks::localSiStrip(ic.firstStrip(), localTop, localBottom, iItem->getGeom()->getParameters(id), id);
       float globalTop[3];
       float globalBottom[3];
       iItem->getGeom()->localToGlobal(id, localTop, globalTop, localBottom, globalBottom);

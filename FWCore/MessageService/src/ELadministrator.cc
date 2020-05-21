@@ -235,8 +235,8 @@ namespace edm {
       std::cerr << "ELadminstrator constructor\n";
 #endif
 
-      for (int lev = 0; lev < ELseverityLevel::nLevels; ++lev)
-        severityCounts_[lev] = 0;
+      for (int& severityCount : severityCounts_)
+        severityCount = 0;
     }
     //-*****************************
     // The ELadminstrator destructor

@@ -266,14 +266,13 @@ void FastPrimaryVertexWithWeightsProducer::produce(edm::Event& iEvent, const edm
   std::vector<float> zProjections;
   std::vector<float> zWeights;
   int jet_count = 0;
-  for (vector<const reco::Jet*>::iterator jit = selectedJets.begin(); jit != selectedJets.end();
-       jit++) {  //loop on selected jets
-    float px = (*jit)->px();
-    float py = (*jit)->py();
-    float pz = (*jit)->pz();
-    float pt = (*jit)->pt();
-    float eta = (*jit)->eta();
-    float jetZOverRho = (*jit)->momentum().Z() / (*jit)->momentum().Rho();
+  for (auto& selectedJet : selectedJets) {  //loop on selected jets
+    float px = selectedJet->px();
+    float py = selectedJet->py();
+    float pz = selectedJet->pz();
+    float pt = selectedJet->pt();
+    float eta = selectedJet->eta();
+    float jetZOverRho = selectedJet->momentum().Z() / selectedJet->momentum().Rho();
     float pt_weight = pt * m_ptWeighting_slope + m_ptWeighting_offset;
     for (SiPixelClusterCollectionNew::const_iterator it = pixelClusters.begin(); it != pixelClusters.end();
          it++)  //Loop on pixel modules with clusters
@@ -283,10 +282,10 @@ void FastPrimaryVertexWithWeightsProducer::produce(edm::Event& iEvent, const edm
       Point3DBase<float, GlobalTag> modulepos = trackerGeometry->idToDet(id)->position();
       float zmodule = modulepos.z() -
                       ((modulepos.x() - beamSpot->x0()) * px + (modulepos.y() - beamSpot->y0()) * py) / pt * pz / pt;
-      if ((std::abs(deltaPhi((*jit)->momentum().Phi(), modulepos.phi())) < m_maxDeltaPhi * 2) &&
+      if ((std::abs(deltaPhi(selectedJet->momentum().Phi(), modulepos.phi())) < m_maxDeltaPhi * 2) &&
           (std::abs(zmodule) < (m_maxZ + barrel_lenght))) {  //if it is a compatible module
-        for (size_t j = 0; j < detset.size(); j++) {         //loop on pixel clusters on this module
-          const SiPixelCluster& aCluster = detset[j];
+        for (const auto& j : detset) {                       //loop on pixel clusters on this module
+          const SiPixelCluster& aCluster = j;
           if (   //it is a cluster to project
               (  // barrel
                   m_barrel && std::abs(modulepos.z()) < barrel_lenght && pt >= m_minJetPt && jet_count < m_njets &&
@@ -302,9 +301,9 @@ void FastPrimaryVertexWithWeightsProducer::produce(edm::Event& iEvent, const edm
             GlobalPoint v_bs(v.x() - beamSpot->x0(), v.y() - beamSpot->y0(), v.z());
             if (  //it pass DeltaPhi(Jet,Cluster) requirements
                 (m_barrel && std::abs(modulepos.z()) < barrel_lenght &&
-                 std::abs(deltaPhi((*jit)->momentum().Phi(), v_bs.phi())) <= m_maxDeltaPhi) ||  //barrel
+                 std::abs(deltaPhi(selectedJet->momentum().Phi(), v_bs.phi())) <= m_maxDeltaPhi) ||  //barrel
                 (m_endCap && std::abs(modulepos.z()) > barrel_lenght &&
-                 std::abs(deltaPhi((*jit)->momentum().Phi(), v_bs.phi())) <= m_maxDeltaPhi_EC)  //EC
+                 std::abs(deltaPhi(selectedJet->momentum().Phi(), v_bs.phi())) <= m_maxDeltaPhi_EC)  //EC
             ) {
               //calculate z-projection
               float z = v.z() - ((v.x() - beamSpot->x0()) * px + (v.y() - beamSpot->y0()) * py) / pt * pz / pt;
@@ -329,7 +328,8 @@ void FastPrimaryVertexWithWeightsProducer::produce(edm::Event& iEvent, const edm
                   float weight_rho = ((m_weight_rho_up - rho) / m_weight_rho_up);
 
                   //calculate weight_dPhi
-                  float weight_dPhi = exp(-std::abs(deltaPhi((*jit)->momentum().Phi(), v_bs.phi())) / m_weight_dPhi);
+                  float weight_dPhi =
+                      exp(-std::abs(deltaPhi(selectedJet->momentum().Phi(), v_bs.phi())) / m_weight_dPhi);
 
                   //calculate weight_sizeX1
                   float weight_sizeX1 = (aCluster.sizeX() == 2) + (aCluster.sizeX() == 1) * m_weight_SizeX1;
@@ -348,7 +348,8 @@ void FastPrimaryVertexWithWeightsProducer::produce(edm::Event& iEvent, const edm
                 } else if (std::abs(modulepos.z()) > barrel_lenght)  // EC
                 {                                                    // EC
                                                                      //calculate weight_dPhi
-                  float weight_dPhi = exp(-std::abs(deltaPhi((*jit)->momentum().Phi(), v_bs.phi())) / m_weight_dPhi_EC);
+                  float weight_dPhi =
+                      exp(-std::abs(deltaPhi(selectedJet->momentum().Phi(), v_bs.phi())) / m_weight_dPhi_EC);
                   //calculate the final weight
                   weight = m_EC_weight * (weight_dPhi);
                 }
@@ -377,8 +378,8 @@ void FastPrimaryVertexWithWeightsProducer::produce(edm::Event& iEvent, const edm
 
   //calculate zWeightsSquared
   std::vector<float> zWeightsSquared;
-  for (std::vector<float>::iterator it = zWeights.begin(); it != zWeights.end(); it++) {
-    zWeightsSquared.push_back((*it) * (*it));
+  for (float& zWeight : zWeights) {
+    zWeightsSquared.push_back(zWeight * zWeight);
   }
 
   //do multi-step peak searching

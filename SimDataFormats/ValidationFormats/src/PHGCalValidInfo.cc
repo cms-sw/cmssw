@@ -28,18 +28,18 @@ void PHGCalValidInfo::fillhgcLayers(const double edepEE,
   edepHEFTot = (float)edepHEF;
   edepHEBTot = (float)edepHEB;
 
-  for (unsigned int i = 0; i < eedep.size(); i++) {
-    double en = 0.001 * eedep[i];  //GeV
+  for (double i : eedep) {
+    double en = 0.001 * i;  //GeV
     hgcEEedep.push_back((float)en);
   }
 
-  for (unsigned int i = 0; i < hefdep.size(); i++) {
-    double en = 0.001 * hefdep[i];  //GeV
+  for (double i : hefdep) {
+    double en = 0.001 * i;  //GeV
     hgcHEFedep.push_back((float)en);
   }
 
-  for (unsigned int i = 0; i < hebdep.size(); i++) {
-    double en = 0.001 * hebdep[i];  //GeV
+  for (double i : hebdep) {
+    double en = 0.001 * i;  //GeV
     hgcHEBedep.push_back((float)en);
   }
 }

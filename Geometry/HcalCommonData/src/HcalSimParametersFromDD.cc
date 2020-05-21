@@ -85,8 +85,8 @@ bool HcalSimParametersFromDD::build(const DDCompactView* cpv, HcalSimulationPara
     const DDLogicalPart& log = fv3.logicalPart();
     if (!isItHF(log.name().name(), php)) {
       bool notIn = true;
-      for (unsigned int i = 0; i < php.hcalMaterialNames_.size(); ++i) {
-        if (!strcmp(php.hcalMaterialNames_[i].c_str(), log.material().name().name().c_str())) {
+      for (auto& hcalMaterialName : php.hcalMaterialNames_) {
+        if (!strcmp(hcalMaterialName.c_str(), log.material().name().name().c_str())) {
           notIn = false;
           break;
         }
@@ -271,8 +271,8 @@ void HcalSimParametersFromDD::fillNameVector(const cms::DDCompactView& cpv,
 void HcalSimParametersFromDD::fillPMTs(const std::vector<double>& neta, bool lOrR, HcalSimulationParameters& php) {
   {
     BenchmarkGrd counter("HcalSimParametersFromDD::fillPMTs");
-    for (unsigned int ii = 0; ii < neta.size(); ii++) {
-      int index = static_cast<int>(neta[ii]);
+    for (double ii : neta) {
+      int index = static_cast<int>(ii);
       int ir = -1, ifib = -1;
       if (index >= 0) {
         ir = index / 10;
@@ -313,8 +313,8 @@ std::vector<std::string> HcalSimParametersFromDD::getNames(DDFilteredView& fv) {
     const DDLogicalPart& log = fv.logicalPart();
     bool ok = true;
 
-    for (unsigned int i = 0; i < tmp.size(); ++i) {
-      if (!strcmp(tmp[i].c_str(), log.name().name().c_str())) {
+    for (auto& i : tmp) {
+      if (!strcmp(i.c_str(), log.name().name().c_str())) {
         ok = false;
         break;
       }

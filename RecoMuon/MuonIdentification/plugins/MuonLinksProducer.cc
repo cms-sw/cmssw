@@ -40,10 +40,10 @@ void MuonLinksProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Ev
   edm::Handle<reco::MuonCollection> muons;
   iEvent.getByToken(muonToken_, muons);
 
-  for (reco::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon) {
-    if (!muon->isGlobalMuon())
+  for (const auto& muon : *muons) {
+    if (!muon.isGlobalMuon())
       continue;
-    output->push_back(reco::MuonTrackLinks(muon->track(), muon->standAloneMuon(), muon->combinedMuon()));
+    output->push_back(reco::MuonTrackLinks(muon.track(), muon.standAloneMuon(), muon.combinedMuon()));
   }
   iEvent.put(std::move(output));
 }

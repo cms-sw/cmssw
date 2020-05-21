@@ -139,14 +139,13 @@ void pat::PATJetSlimmer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
         }
       } else {
         std::map<unsigned int, reco::CandidatePtr> ptrs;
-        for (unsigned int i = 0; i < old.size(); i++) {
+        for (const auto& i : old) {
           //	jet.addDaughter(refToPtr((*pf2pc)[old[i]]));
-          ptrs[((*pf2pc)[old[i]]).key()] = refToPtr((*pf2pc)[old[i]]);
+          ptrs[((*pf2pc)[i]).key()] = refToPtr((*pf2pc)[i]);
         }
-        for (std::map<unsigned int, reco::CandidatePtr>::iterator itp = ptrs.begin(); itp != ptrs.end();
-             itp++)  //iterate on sorted items
+        for (auto& ptr : ptrs)  //iterate on sorted items
         {
-          jet.addDaughter(itp->second);
+          jet.addDaughter(ptr.second);
         }
       }
     }

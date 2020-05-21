@@ -181,9 +181,9 @@ namespace cscdqm {
    */
   const float Detector::Area(const Address& adr) const {
     float a = 0;
-    for (unsigned int i = 0; i < N_ELEMENTS; i++) {
-      if (boxes[i].adr == adr) {
-        a += fabs((boxes[i].xmax - boxes[i].xmin) * (boxes[i].ymax - boxes[i].ymin));
+    for (const auto& boxe : boxes) {
+      if (boxe.adr == adr) {
+        a += fabs((boxe.xmax - boxe.xmin) * (boxe.ymax - boxe.ymin));
       }
     }
     return a;

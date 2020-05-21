@@ -89,8 +89,8 @@ void CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
       LogTrace("CSCGEMCMotherboardME21") << clct << std::endl;
 
   int used_clct_mask[20];
-  for (int c = 0; c < 20; ++c)
-    used_clct_mask[c] = 0;
+  for (int& c : used_clct_mask)
+    c = 0;
 
   // retrieve pads and copads in a certain BX window for this CSC
 

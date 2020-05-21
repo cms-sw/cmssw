@@ -16,23 +16,19 @@ namespace noPuUtils {
 
     if (pfCandidate->charge() != 0) {
       vtxAssociationType = noPuUtils::kChNoAssoc;
-      for (PFCandToVertexAssMap::const_iterator pfCandToVertexAssociation = pfCandToVertexAssociations.begin();
-           pfCandToVertexAssociation != pfCandToVertexAssociations.end();
-           ++pfCandToVertexAssociation) {
-        const noPuUtils::CandQualityPairVector& pfCandidates_vertex = pfCandToVertexAssociation->val;
+      for (const auto& pfCandToVertexAssociation : pfCandToVertexAssociations) {
+        const noPuUtils::CandQualityPairVector& pfCandidates_vertex = pfCandToVertexAssociation.val;
 
-        for (noPuUtils::CandQualityPairVector::const_iterator pfCandidate_vertex = pfCandidates_vertex.begin();
-             pfCandidate_vertex != pfCandidates_vertex.end();
-             ++pfCandidate_vertex) {
-          const reco::PFCandidatePtr pfcVtx = edm::refToPtr(pfCandidate_vertex->first);  //<reco::PFCandidatePtr>
+        for (const auto& pfCandidate_vertex : pfCandidates_vertex) {
+          const reco::PFCandidatePtr pfcVtx = edm::refToPtr(pfCandidate_vertex.first);  //<reco::PFCandidatePtr>
           //std::cout<<pfCandidate<<"   "<<test<<std::endl;
 
           if (pfCandidate != pfcVtx)
             continue;  //std::cout<<" pouet "<<pfCandidate<<"  "<<test<<std::endl;
 
           //if(deltaR2(pfCandidate->p4(), pfCandidate_vertex->first->p4()) > dR2Min ) continue;
-          double z = pfCandToVertexAssociation->key->position().z();
-          int quality = pfCandidate_vertex->second;
+          double z = pfCandToVertexAssociation.key->position().z();
+          int quality = pfCandidate_vertex.second;
           promoteAssocToHSAssoc(quality, z, vertices, dZ, vtxAssociationType, false);
         }
       }
@@ -45,16 +41,12 @@ namespace noPuUtils {
       const PFCandToVertexAssMap& pfCandToVertexAssociations) {
     noPuUtils::reversedPFCandToVertexAssMap revPfCandToVtxAssoc;
 
-    for (PFCandToVertexAssMap::const_iterator pfCandToVertexAssociation = pfCandToVertexAssociations.begin();
-         pfCandToVertexAssociation != pfCandToVertexAssociations.end();
-         ++pfCandToVertexAssociation) {
-      const reco::VertexRef& vertex = pfCandToVertexAssociation->key;
+    for (const auto& pfCandToVertexAssociation : pfCandToVertexAssociations) {
+      const reco::VertexRef& vertex = pfCandToVertexAssociation.key;
 
-      const noPuUtils::CandQualityPairVector& pfCandidates_vertex = pfCandToVertexAssociation->val;
-      for (noPuUtils::CandQualityPairVector::const_iterator pfCandidate_vertex = pfCandidates_vertex.begin();
-           pfCandidate_vertex != pfCandidates_vertex.end();
-           ++pfCandidate_vertex) {
-        revPfCandToVtxAssoc.insert(pfCandidate_vertex->first, std::make_pair(vertex, pfCandidate_vertex->second));
+      const noPuUtils::CandQualityPairVector& pfCandidates_vertex = pfCandToVertexAssociation.val;
+      for (const auto& pfCandidate_vertex : pfCandidates_vertex) {
+        revPfCandToVtxAssoc.insert(pfCandidate_vertex.first, std::make_pair(vertex, pfCandidate_vertex.second));
       }
     }
 
@@ -78,21 +70,17 @@ namespace noPuUtils {
       if (itPfcToVtxAss != pfCandToVertexAssociations.end()) {
         pfCandAssocVtxs = &itPfcToVtxAss->val;
       } else {
-        for (noPuUtils::reversedPFCandToVertexAssMap::const_iterator pfcToVtxAssoc = pfCandToVertexAssociations.begin();
-             pfcToVtxAssoc != pfCandToVertexAssociations.end();
-             ++pfcToVtxAssoc) {
-          if (deltaR2(pfCandidate->p4(), pfcToVtxAssoc->key->p4()) < dR2Min) {
-            pfCandAssocVtxs = &pfcToVtxAssoc->val;
+        for (const auto& pfCandToVertexAssociation : pfCandToVertexAssociations) {
+          if (deltaR2(pfCandidate->p4(), pfCandToVertexAssociation.key->p4()) < dR2Min) {
+            pfCandAssocVtxs = &pfCandToVertexAssociation.val;
             break;
           }
         }
       }
       if (pfCandAssocVtxs != nullptr) {
-        for (noPuUtils::VertexQualityPairVector::const_iterator pfcAssVtx = pfCandAssocVtxs->begin();
-             pfcAssVtx != pfCandAssocVtxs->end();
-             ++pfcAssVtx) {
-          double z = pfcAssVtx->first->position().z();
-          int quality = pfcAssVtx->second;
+        for (const auto& pfCandAssocVtx : *pfCandAssocVtxs) {
+          double z = pfCandAssocVtx.first->position().z();
+          int quality = pfCandAssocVtx.second;
           promoteAssocToHSAssoc(quality, z, vertices, dZ, vtxAssociationType, false);
         }
       }
@@ -108,8 +96,8 @@ namespace noPuUtils {
                              int& vtxAssociationType,
                              bool checkdR2) {
     if (quality >= noPuUtils::kChHSAssoc) {
-      for (reco::VertexCollection::const_iterator vertex = vertices.begin(); vertex != vertices.end(); ++vertex) {
-        if (std::abs(z - vertex->position().z()) < dZ) {
+      for (const auto& vertice : vertices) {
+        if (std::abs(z - vertice.position().z()) < dZ) {
           if (vtxAssociationType < noPuUtils::kChHSAssoc)
             vtxAssociationType = noPuUtils::kChHSAssoc;
         }

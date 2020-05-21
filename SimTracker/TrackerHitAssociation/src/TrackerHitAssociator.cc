@@ -668,9 +668,8 @@ inline std::string TrackerHitAssociator::printDetBnchEvtTrk(const DetId& detid,
                                                             std::vector<SimHitIdpr>& simtrackid) const {
   std::stringstream message;
   message << "recHit subdet, detID = " << detid.subdetId() << ", " << detID << ", (bnch, evt, trk) = ";
-  for (size_t i = 0; i < simtrackid.size(); ++i)
-    message << ", (" << simtrackid[i].second.bunchCrossing() << ", " << simtrackid[i].second.event() << ", "
-            << simtrackid[i].first << ")";
+  for (auto& i : simtrackid)
+    message << ", (" << i.second.bunchCrossing() << ", " << i.second.event() << ", " << i.first << ")";
   // message << std::endl;
   return message.str();
 }

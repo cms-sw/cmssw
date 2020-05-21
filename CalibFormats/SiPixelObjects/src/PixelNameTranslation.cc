@@ -64,9 +64,9 @@ PixelNameTranslation::PixelNameTranslation(std::vector<std::vector<std::string> 
   colNames.push_back("TBM_MODE");      //15
 
   for (unsigned int c = 0; c < tableMat[0].size(); c++) {
-    for (unsigned int n = 0; n < colNames.size(); n++) {
-      if (tableMat[0][c] == colNames[n]) {
-        colM[colNames[n]] = c;
+    for (const auto& colName : colNames) {
+      if (tableMat[0][c] == colName) {
+        colM[colName] = c;
         break;
       }
     }
@@ -392,10 +392,8 @@ std::ostream& operator<<(std::ostream& s, const PixelNameTranslation& table) {
 
 std::list<const PixelROCName*> PixelNameTranslation::getROCs() const {
   std::list<const PixelROCName*> listOfROCs;
-  for (std::map<PixelROCName, PixelHdwAddress>::const_iterator translationTableEntry = translationtable_.begin();
-       translationTableEntry != translationtable_.end();
-       ++translationTableEntry) {
-    listOfROCs.push_back(&(translationTableEntry->first));
+  for (const auto& translationTableEntry : translationtable_) {
+    listOfROCs.push_back(&(translationTableEntry.first));
   }
 
   return listOfROCs;
@@ -403,21 +401,18 @@ std::list<const PixelROCName*> PixelNameTranslation::getROCs() const {
 
 std::list<const PixelModuleName*> PixelNameTranslation::getModules() const {
   std::list<const PixelModuleName*> listOfModules;
-  for (std::map<PixelChannel, PixelHdwAddress>::const_iterator channelTranslationTable_itr =
-           channelTranslationTable_.begin();
-       channelTranslationTable_itr != channelTranslationTable_.end();
-       ++channelTranslationTable_itr) {
+  for (const auto& channelTranslationTable_itr : channelTranslationTable_) {
     bool foundOne = false;
     for (std::list<const PixelModuleName*>::const_iterator listOfModules_itr = listOfModules.begin();
          listOfModules_itr != listOfModules.end();
          ++listOfModules_itr) {
-      if (*(*listOfModules_itr) == channelTranslationTable_itr->first.module()) {
+      if (*(*listOfModules_itr) == channelTranslationTable_itr.first.module()) {
         foundOne = true;
         break;
       }
     }
     if (!foundOne)
-      listOfModules.push_back(&(channelTranslationTable_itr->first.module()));
+      listOfModules.push_back(&(channelTranslationTable_itr.first.module()));
   }
 
   return listOfModules;
@@ -425,23 +420,17 @@ std::list<const PixelModuleName*> PixelNameTranslation::getModules() const {
 
 std::set<PixelChannel> PixelNameTranslation::getChannels() const {
   std::set<PixelChannel> channelSet;
-  for (std::map<PixelChannel, PixelHdwAddress>::const_iterator channelTranslationTable_itr =
-           channelTranslationTable_.begin();
-       channelTranslationTable_itr != channelTranslationTable_.end();
-       ++channelTranslationTable_itr) {
-    channelSet.insert(channelTranslationTable_itr->first);
+  for (const auto& channelTranslationTable_itr : channelTranslationTable_) {
+    channelSet.insert(channelTranslationTable_itr.first);
   }
   return channelSet;
 }
 
 std::set<PixelChannel> PixelNameTranslation::getChannels(const PixelDetectorConfig& aDetectorConfig) const {
   std::set<PixelChannel> channelSet;
-  for (std::map<PixelChannel, PixelHdwAddress>::const_iterator channelTranslationTable_itr =
-           channelTranslationTable_.begin();
-       channelTranslationTable_itr != channelTranslationTable_.end();
-       ++channelTranslationTable_itr) {
-    if (aDetectorConfig.containsModule(channelTranslationTable_itr->first.module()))
-      channelSet.insert(channelTranslationTable_itr->first);
+  for (const auto& channelTranslationTable_itr : channelTranslationTable_) {
+    if (aDetectorConfig.containsModule(channelTranslationTable_itr.first.module()))
+      channelSet.insert(channelTranslationTable_itr.first);
   }
   return channelSet;
 }
@@ -502,12 +491,9 @@ const PixelChannel& PixelNameTranslation::getChannelForROC(const PixelROCName& a
 
 std::set<PixelChannel> PixelNameTranslation::getChannelsOnModule(const PixelModuleName& aModule) const {
   std::set<PixelChannel> returnThis;
-  for (std::map<PixelChannel, PixelHdwAddress>::const_iterator channelTranslationTable_itr =
-           channelTranslationTable_.begin();
-       channelTranslationTable_itr != channelTranslationTable_.end();
-       ++channelTranslationTable_itr) {
-    if (channelTranslationTable_itr->first.module() == aModule)
-      returnThis.insert(channelTranslationTable_itr->first);
+  for (const auto& channelTranslationTable_itr : channelTranslationTable_) {
+    if (channelTranslationTable_itr.first.module() == aModule)
+      returnThis.insert(channelTranslationTable_itr.first);
   }
   assert(returnThis.size() <= 2);
   return returnThis;
@@ -856,14 +842,10 @@ std::vector<PixelROCName> PixelNameTranslation::getROCsFromModule(const PixelMod
   std::vector<PixelROCName> returnThis;
 
   std::set<PixelChannel> channelsOnThisModule = getChannelsOnModule(aModule);
-  for (std::set<PixelChannel>::const_iterator channelsOnThisModule_itr = channelsOnThisModule.begin();
-       channelsOnThisModule_itr != channelsOnThisModule.end();
-       ++channelsOnThisModule_itr) {
-    std::vector<PixelROCName> ROCsOnThisChannel = getROCsFromChannel(*channelsOnThisModule_itr);
-    for (std::vector<PixelROCName>::const_iterator ROCsOnThisChannel_itr = ROCsOnThisChannel.begin();
-         ROCsOnThisChannel_itr != ROCsOnThisChannel.end();
-         ++ROCsOnThisChannel_itr) {
-      returnThis.push_back(*ROCsOnThisChannel_itr);
+  for (const auto& channelsOnThisModule_itr : channelsOnThisModule) {
+    std::vector<PixelROCName> ROCsOnThisChannel = getROCsFromChannel(channelsOnThisModule_itr);
+    for (const auto& ROCsOnThisChannel_itr : ROCsOnThisChannel) {
+      returnThis.push_back(ROCsOnThisChannel_itr);
     }
   }
 

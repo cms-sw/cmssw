@@ -84,8 +84,8 @@ namespace hitfit {
   //
   {
     s << o._i << " " << o._j;
-    for (unsigned k = 0; k < o._for_constraint.size(); ++k)
-      s << " " << static_cast<int>(o._for_constraint[k]);
+    for (signed char k : o._for_constraint)
+      s << " " << static_cast<int>(k);
     return s;
   }
 

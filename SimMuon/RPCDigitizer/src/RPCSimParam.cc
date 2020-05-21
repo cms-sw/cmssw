@@ -48,10 +48,10 @@ void RPCSimParam::simulate(const RPCRoll* roll, const edm::PSimHitContainer& rpc
 
   const Topology& topology = roll->specs()->topology();
 
-  for (edm::PSimHitContainer::const_iterator _hit = rpcHits.begin(); _hit != rpcHits.end(); ++_hit) {
+  for (const auto& rpcHit : rpcHits) {
     // Here I hould check if the RPC are up side down;
-    const LocalPoint& entr = _hit->entryPoint();
-    int time_hit = _rpcSync->getSimHitBx(&(*_hit), engine);
+    const LocalPoint& entr = rpcHit.entryPoint();
+    int time_hit = _rpcSync->getSimHitBx(&rpcHit, engine);
 
     // Effinciecy
     float eff = CLHEP::RandFlat::shoot(engine);
@@ -95,11 +95,11 @@ void RPCSimParam::simulate(const RPCRoll* roll, const edm::PSimHitContainer& rpc
         }
       }
 
-      for (std::vector<int>::iterator i = cls.begin(); i != cls.end(); i++) {
+      for (int& cl : cls) {
         // Check the timing of the adjacent strip
-        std::pair<unsigned int, int> digi(*i, time_hit);
+        std::pair<unsigned int, int> digi(cl, time_hit);
 
-        theDetectorHitMap.insert(DetectorHitMap::value_type(digi, &(*_hit)));
+        theDetectorHitMap.insert(DetectorHitMap::value_type(digi, &rpcHit));
         strips.insert(digi);
       }
     }

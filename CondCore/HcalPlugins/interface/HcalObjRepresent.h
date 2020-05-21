@@ -547,9 +547,9 @@ namespace HcalObjRepresent {
   //functions for making plot:
   void setBinLabels(std::vector<TH2F>& depth) {
     // Set labels for all depth histograms
-    for (unsigned int i = 0; i < depth.size(); ++i) {
-      depth[i].SetXTitle("i#eta");
-      depth[i].SetYTitle("i#phi");
+    for (auto& i : depth) {
+      i.SetXTitle("i#eta");
+      i.SetYTitle("i#phi");
     }
 
     std::stringstream label;
@@ -1059,10 +1059,10 @@ namespace HcalObjRepresent {
   }
 
   void Reset(std::vector<TH2F>& depth) {
-    for (unsigned int d = 0; d < depth.size(); d++)
+    for (auto& d : depth)
       //BUG CAN BE HERE:
       //if(depth[d])
-      depth[d].Reset();
+      d.Reset();
   }  // void Reset(void)
 
   void setup(std::vector<TH2F>& depth, std::string name, std::string units = "") {
@@ -1126,8 +1126,8 @@ namespace HcalObjRepresent {
                          0.5,
                          72.5));
 
-    for (unsigned int i = 0; i < depth.size(); ++i)
-      depth[i].Draw("colz");
+    for (auto& i : depth)
+      i.Draw("colz");
 
     setBinLabels(depth);  // set axis titles, special bins
   }
@@ -1355,8 +1355,8 @@ namespace HcalObjRepresent {
                            0.5,
                            72.5));
 
-      for (unsigned int i = 0; i < depth.size(); ++i)
-        depth[i].Draw("colz");
+      for (auto& i : depth)
+        i.Draw("colz");
 
       setBinLabels(depth);  // set axis titles, special bins
     }
@@ -1364,9 +1364,9 @@ namespace HcalObjRepresent {
     //functions for making plot:
     void setBinLabels(std::vector<TH2F>& depth) {
       // Set labels for all depth histograms
-      for (unsigned int i = 0; i < depth.size(); ++i) {
-        depth[i].SetXTitle("i#eta");
-        depth[i].SetYTitle("i#phi");
+      for (auto& i : depth) {
+        i.SetXTitle("i#eta");
+        i.SetYTitle("i#phi");
       }
 
       std::stringstream label;

@@ -21,10 +21,9 @@ std::unique_ptr<SiStripBadStrip> SiStripBadChannelBuilder::getNewObject() {
 
   SiStripDetInfoFileReader reader(fp_.fullPath());
 
-  for (Parameters::iterator iBadComponent = BadComponentList_.begin(); iBadComponent != BadComponentList_.end();
-       ++iBadComponent) {
-    uint32_t BadModule_ = iBadComponent->getParameter<uint32_t>("BadModule");
-    std::vector<uint32_t> BadChannelList_ = iBadComponent->getParameter<std::vector<uint32_t> >("BadChannelList");
+  for (auto& iBadComponent : BadComponentList_) {
+    uint32_t BadModule_ = iBadComponent.getParameter<uint32_t>("BadModule");
+    std::vector<uint32_t> BadChannelList_ = iBadComponent.getParameter<std::vector<uint32_t> >("BadChannelList");
 
     std::vector<unsigned int> theSiStripVector;
     unsigned int NStrips = reader.getNumberOfApvsAndStripLength(BadModule_).first * 128;
@@ -33,10 +32,10 @@ std::unique_ptr<SiStripBadStrip> SiStripBadChannelBuilder::getNewObject() {
     unsigned short firstBadStrip = 0, NconsecutiveBadStrips = 0;
     unsigned int theBadStripRange;
 
-    for (std::vector<uint32_t>::const_iterator is = BadChannelList_.begin(); is != BadChannelList_.end(); ++is) {
-      if (*is > NStrips - 1)
+    for (unsigned int is : BadChannelList_) {
+      if (is > NStrips - 1)
         break;
-      if (*is != lastBad + 1) {
+      if (is != lastBad + 1) {
         //new set
 
         if (lastBad != 999) {
@@ -53,11 +52,11 @@ std::unique_ptr<SiStripBadStrip> SiStripBadChannelBuilder::getNewObject() {
           theSiStripVector.push_back(theBadStripRange);
         }
 
-        firstBadStrip = *is;
+        firstBadStrip = is;
         NconsecutiveBadStrips = 0;
       }
       NconsecutiveBadStrips++;
-      lastBad = *is;
+      lastBad = is;
     }
 
     theBadStripRange = obj->encode(firstBadStrip, NconsecutiveBadStrips);

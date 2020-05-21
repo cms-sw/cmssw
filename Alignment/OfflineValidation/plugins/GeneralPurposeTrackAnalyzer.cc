@@ -321,9 +321,9 @@ public:
 
     int nHighPurityTracks = 0;
 
-    for (auto track = tC.cbegin(); track != tC.cend(); track++) {
+    for (const auto &track : tC) {
       unsigned int nHit2D = 0;
-      for (auto iHit = track->recHitsBegin(); iHit != track->recHitsEnd(); ++iHit) {
+      for (auto iHit = track.recHitsBegin(); iHit != track.recHitsEnd(); ++iHit) {
         if (this->isHit2D(**iHit)) {
           ++nHit2D;
         }
@@ -373,212 +373,212 @@ public:
         }
       }
       hHit2D->Fill(nHit2D);
-      hHit->Fill(track->numberOfValidHits());
-      hnhpxb->Fill(track->hitPattern().numberOfValidPixelBarrelHits());
-      hnhpxe->Fill(track->hitPattern().numberOfValidPixelEndcapHits());
-      hnhTIB->Fill(track->hitPattern().numberOfValidStripTIBHits());
-      hnhTID->Fill(track->hitPattern().numberOfValidStripTIDHits());
-      hnhTOB->Fill(track->hitPattern().numberOfValidStripTOBHits());
-      hnhTEC->Fill(track->hitPattern().numberOfValidStripTECHits());
+      hHit->Fill(track.numberOfValidHits());
+      hnhpxb->Fill(track.hitPattern().numberOfValidPixelBarrelHits());
+      hnhpxe->Fill(track.hitPattern().numberOfValidPixelEndcapHits());
+      hnhTIB->Fill(track.hitPattern().numberOfValidStripTIBHits());
+      hnhTID->Fill(track.hitPattern().numberOfValidStripTIDHits());
+      hnhTOB->Fill(track.hitPattern().numberOfValidStripTOBHits());
+      hnhTEC->Fill(track.hitPattern().numberOfValidStripTECHits());
 
       // fill hit composition histogram
-      if (track->hitPattern().numberOfValidPixelBarrelHits() != 0) {
-        hHitComposition->Fill(0., track->hitPattern().numberOfValidPixelBarrelHits());
+      if (track.hitPattern().numberOfValidPixelBarrelHits() != 0) {
+        hHitComposition->Fill(0., track.hitPattern().numberOfValidPixelBarrelHits());
 
-        pNBpixHitsVsVx->Fill(track->vx(), track->hitPattern().numberOfValidPixelBarrelHits());
-        pNBpixHitsVsVy->Fill(track->vy(), track->hitPattern().numberOfValidPixelBarrelHits());
-        pNBpixHitsVsVz->Fill(track->vz(), track->hitPattern().numberOfValidPixelBarrelHits());
+        pNBpixHitsVsVx->Fill(track.vx(), track.hitPattern().numberOfValidPixelBarrelHits());
+        pNBpixHitsVsVy->Fill(track.vy(), track.hitPattern().numberOfValidPixelBarrelHits());
+        pNBpixHitsVsVz->Fill(track.vz(), track.hitPattern().numberOfValidPixelBarrelHits());
       }
-      if (track->hitPattern().numberOfValidPixelEndcapHits() != 0) {
-        hHitComposition->Fill(1., track->hitPattern().numberOfValidPixelEndcapHits());
+      if (track.hitPattern().numberOfValidPixelEndcapHits() != 0) {
+        hHitComposition->Fill(1., track.hitPattern().numberOfValidPixelEndcapHits());
       }
-      if (track->hitPattern().numberOfValidStripTIBHits() != 0) {
-        hHitComposition->Fill(2., track->hitPattern().numberOfValidStripTIBHits());
+      if (track.hitPattern().numberOfValidStripTIBHits() != 0) {
+        hHitComposition->Fill(2., track.hitPattern().numberOfValidStripTIBHits());
       }
-      if (track->hitPattern().numberOfValidStripTIDHits() != 0) {
-        hHitComposition->Fill(3., track->hitPattern().numberOfValidStripTIDHits());
+      if (track.hitPattern().numberOfValidStripTIDHits() != 0) {
+        hHitComposition->Fill(3., track.hitPattern().numberOfValidStripTIDHits());
       }
-      if (track->hitPattern().numberOfValidStripTOBHits() != 0) {
-        hHitComposition->Fill(4., track->hitPattern().numberOfValidStripTOBHits());
+      if (track.hitPattern().numberOfValidStripTOBHits() != 0) {
+        hHitComposition->Fill(4., track.hitPattern().numberOfValidStripTOBHits());
       }
-      if (track->hitPattern().numberOfValidStripTECHits() != 0) {
-        hHitComposition->Fill(5., track->hitPattern().numberOfValidStripTECHits());
-      }
-
-      hCharge->Fill(track->charge());
-      hQoverP->Fill(track->qoverp());
-      hQoverPZoom->Fill(track->qoverp());
-      hPt->Fill(track->pt());
-      hP->Fill(track->p());
-      hchi2ndof->Fill(track->normalizedChi2());
-      hEta->Fill(track->eta());
-      hPhi->Fill(track->phi());
-
-      if (fabs(track->eta()) < 0.8) {
-        hPhiBarrel->Fill(track->phi());
-      }
-      if (track->eta() > 0.8 && track->eta() < 1.4) {
-        hPhiOverlapPlus->Fill(track->phi());
-      }
-      if (track->eta() < -0.8 && track->eta() > -1.4) {
-        hPhiOverlapMinus->Fill(track->phi());
-      }
-      if (track->eta() > 1.4) {
-        hPhiEndcapPlus->Fill(track->phi());
-      }
-      if (track->eta() < -1.4) {
-        hPhiEndcapMinus->Fill(track->phi());
+      if (track.hitPattern().numberOfValidStripTECHits() != 0) {
+        hHitComposition->Fill(5., track.hitPattern().numberOfValidStripTECHits());
       }
 
-      hd0->Fill(track->d0());
-      hdz->Fill(track->dz());
-      hdxy->Fill(track->dxy());
-      hvx->Fill(track->vx());
-      hvy->Fill(track->vy());
-      hvz->Fill(track->vz());
+      hCharge->Fill(track.charge());
+      hQoverP->Fill(track.qoverp());
+      hQoverPZoom->Fill(track.qoverp());
+      hPt->Fill(track.pt());
+      hP->Fill(track.p());
+      hchi2ndof->Fill(track.normalizedChi2());
+      hEta->Fill(track.eta());
+      hPhi->Fill(track.phi());
 
-      htrkAlgo->Fill(static_cast<int>(track->algo()));
-      htrkOriAlgo->Fill(static_cast<int>(track->originalAlgo()));
+      if (fabs(track.eta()) < 0.8) {
+        hPhiBarrel->Fill(track.phi());
+      }
+      if (track.eta() > 0.8 && track.eta() < 1.4) {
+        hPhiOverlapPlus->Fill(track.phi());
+      }
+      if (track.eta() < -0.8 && track.eta() > -1.4) {
+        hPhiOverlapMinus->Fill(track.phi());
+      }
+      if (track.eta() > 1.4) {
+        hPhiEndcapPlus->Fill(track.phi());
+      }
+      if (track.eta() < -1.4) {
+        hPhiEndcapMinus->Fill(track.phi());
+      }
+
+      hd0->Fill(track.d0());
+      hdz->Fill(track.dz());
+      hdxy->Fill(track.dxy());
+      hvx->Fill(track.vx());
+      hvy->Fill(track.vy());
+      hvz->Fill(track.vz());
+
+      htrkAlgo->Fill(static_cast<int>(track.algo()));
+      htrkOriAlgo->Fill(static_cast<int>(track.originalAlgo()));
 
       int myquality = -99;
-      if (track->quality(reco::TrackBase::undefQuality)) {
+      if (track.quality(reco::TrackBase::undefQuality)) {
         myquality = -1;
         htrkQuality->Fill(myquality);
       }
-      if (track->quality(reco::TrackBase::loose)) {
+      if (track.quality(reco::TrackBase::loose)) {
         myquality = 0;
         htrkQuality->Fill(myquality);
       }
-      if (track->quality(reco::TrackBase::tight)) {
+      if (track.quality(reco::TrackBase::tight)) {
         myquality = 1;
         htrkQuality->Fill(myquality);
       }
-      if (track->quality(reco::TrackBase::highPurity) && (!isCosmics_)) {
+      if (track.quality(reco::TrackBase::highPurity) && (!isCosmics_)) {
         myquality = 2;
         htrkQuality->Fill(myquality);
-        hPhp->Fill(track->p());
-        hPthp->Fill(track->pt());
-        hHithp->Fill(track->numberOfValidHits());
-        hEtahp->Fill(track->eta());
-        hPhihp->Fill(track->phi());
-        hchi2ndofhp->Fill(track->normalizedChi2());
-        hchi2Probhp->Fill(TMath::Prob(track->chi2(), track->ndof()));
+        hPhp->Fill(track.p());
+        hPthp->Fill(track.pt());
+        hHithp->Fill(track.numberOfValidHits());
+        hEtahp->Fill(track.eta());
+        hPhihp->Fill(track.phi());
+        hchi2ndofhp->Fill(track.normalizedChi2());
+        hchi2Probhp->Fill(TMath::Prob(track.chi2(), track.ndof()));
         nHighPurityTracks++;
       }
-      if (track->quality(reco::TrackBase::confirmed)) {
+      if (track.quality(reco::TrackBase::confirmed)) {
         myquality = 3;
         htrkQuality->Fill(myquality);
       }
-      if (track->quality(reco::TrackBase::goodIterative)) {
+      if (track.quality(reco::TrackBase::goodIterative)) {
         myquality = 4;
         htrkQuality->Fill(myquality);
       }
 
       // Fill 1D track histos
       static const int etaindex = this->GetIndex(vTrackHistos_, "h_tracketa");
-      vTrackHistos_[etaindex]->Fill(track->eta());
+      vTrackHistos_[etaindex]->Fill(track.eta());
       static const int phiindex = this->GetIndex(vTrackHistos_, "h_trackphi");
-      vTrackHistos_[phiindex]->Fill(track->phi());
+      vTrackHistos_[phiindex]->Fill(track.phi());
       static const int numOfValidHitsindex = this->GetIndex(vTrackHistos_, "h_trackNumberOfValidHits");
-      vTrackHistos_[numOfValidHitsindex]->Fill(track->numberOfValidHits());
+      vTrackHistos_[numOfValidHitsindex]->Fill(track.numberOfValidHits());
       static const int numOfLostHitsindex = this->GetIndex(vTrackHistos_, "h_trackNumberOfLostHits");
-      vTrackHistos_[numOfLostHitsindex]->Fill(track->numberOfLostHits());
+      vTrackHistos_[numOfLostHitsindex]->Fill(track.numberOfLostHits());
 
-      GlobalPoint gPoint(track->vx(), track->vy(), track->vz());
+      GlobalPoint gPoint(track.vx(), track.vy(), track.vz());
       double theLocalMagFieldInInverseGeV = magneticField_->inInverseGeV(gPoint).z();
-      double kappa = -track->charge() * theLocalMagFieldInInverseGeV / track->pt();
+      double kappa = -track.charge() * theLocalMagFieldInInverseGeV / track.pt();
 
       static const int kappaindex = this->GetIndex(vTrackHistos_, "h_curvature");
       vTrackHistos_[kappaindex]->Fill(kappa);
       static const int kappaposindex = this->GetIndex(vTrackHistos_, "h_curvature_pos");
-      if (track->charge() > 0)
+      if (track.charge() > 0)
         vTrackHistos_[kappaposindex]->Fill(fabs(kappa));
       static const int kappanegindex = this->GetIndex(vTrackHistos_, "h_curvature_neg");
-      if (track->charge() < 0)
+      if (track.charge() < 0)
         vTrackHistos_[kappanegindex]->Fill(fabs(kappa));
 
-      double chi2Prob = TMath::Prob(track->chi2(), track->ndof());
-      double normchi2 = track->normalizedChi2();
+      double chi2Prob = TMath::Prob(track.chi2(), track.ndof());
+      double normchi2 = track.normalizedChi2();
 
       static const int normchi2index = this->GetIndex(vTrackHistos_, "h_normchi2");
       vTrackHistos_[normchi2index]->Fill(normchi2);
       static const int chi2index = this->GetIndex(vTrackHistos_, "h_chi2");
-      vTrackHistos_[chi2index]->Fill(track->chi2());
+      vTrackHistos_[chi2index]->Fill(track.chi2());
       static const int chi2Probindex = this->GetIndex(vTrackHistos_, "h_chi2Prob");
       vTrackHistos_[chi2Probindex]->Fill(chi2Prob);
       static const int ptindex = this->GetIndex(vTrackHistos_, "h_pt");
       static const int pt2index = this->GetIndex(vTrackHistos_, "h_ptrebin");
-      vTrackHistos_[ptindex]->Fill(track->pt());
-      vTrackHistos_[pt2index]->Fill(track->pt());
-      if (track->ptError() != 0.) {
+      vTrackHistos_[ptindex]->Fill(track.pt());
+      vTrackHistos_[pt2index]->Fill(track.pt());
+      if (track.ptError() != 0.) {
         static const int ptResolutionindex = this->GetIndex(vTrackHistos_, "h_ptResolution");
-        vTrackHistos_[ptResolutionindex]->Fill(track->ptError() / track->pt());
+        vTrackHistos_[ptResolutionindex]->Fill(track.ptError() / track.pt());
       }
       // Fill track profiles
       static const int d0phiindex = this->GetIndex(vTrackProfiles_, "p_d0_vs_phi");
-      vTrackProfiles_[d0phiindex]->Fill(track->phi(), track->d0());
+      vTrackProfiles_[d0phiindex]->Fill(track.phi(), track.d0());
       static const int dzphiindex = this->GetIndex(vTrackProfiles_, "p_dz_vs_phi");
-      vTrackProfiles_[dzphiindex]->Fill(track->phi(), track->dz());
+      vTrackProfiles_[dzphiindex]->Fill(track.phi(), track.dz());
       static const int d0etaindex = this->GetIndex(vTrackProfiles_, "p_d0_vs_eta");
-      vTrackProfiles_[d0etaindex]->Fill(track->eta(), track->d0());
+      vTrackProfiles_[d0etaindex]->Fill(track.eta(), track.d0());
       static const int dzetaindex = this->GetIndex(vTrackProfiles_, "p_dz_vs_eta");
-      vTrackProfiles_[dzetaindex]->Fill(track->eta(), track->dz());
+      vTrackProfiles_[dzetaindex]->Fill(track.eta(), track.dz());
       static const int chiProbphiindex = this->GetIndex(vTrackProfiles_, "p_chi2Prob_vs_phi");
-      vTrackProfiles_[chiProbphiindex]->Fill(track->phi(), chi2Prob);
+      vTrackProfiles_[chiProbphiindex]->Fill(track.phi(), chi2Prob);
       static const int chiProbabsd0index = this->GetIndex(vTrackProfiles_, "p_chi2Prob_vs_d0");
-      vTrackProfiles_[chiProbabsd0index]->Fill(fabs(track->d0()), chi2Prob);
+      vTrackProfiles_[chiProbabsd0index]->Fill(fabs(track.d0()), chi2Prob);
       static const int chiProbabsdzindex = this->GetIndex(vTrackProfiles_, "p_chi2Prob_vs_dz");
-      vTrackProfiles_[chiProbabsdzindex]->Fill(track->dz(), chi2Prob);
+      vTrackProfiles_[chiProbabsdzindex]->Fill(track.dz(), chi2Prob);
       static const int chiphiindex = this->GetIndex(vTrackProfiles_, "p_chi2_vs_phi");
-      vTrackProfiles_[chiphiindex]->Fill(track->phi(), track->chi2());
+      vTrackProfiles_[chiphiindex]->Fill(track.phi(), track.chi2());
       static const int normchiphiindex = this->GetIndex(vTrackProfiles_, "p_normchi2_vs_phi");
-      vTrackProfiles_[normchiphiindex]->Fill(track->phi(), normchi2);
+      vTrackProfiles_[normchiphiindex]->Fill(track.phi(), normchi2);
       static const int chietaindex = this->GetIndex(vTrackProfiles_, "p_chi2_vs_eta");
-      vTrackProfiles_[chietaindex]->Fill(track->eta(), track->chi2());
+      vTrackProfiles_[chietaindex]->Fill(track.eta(), track.chi2());
       static const int normchiptindex = this->GetIndex(vTrackProfiles_, "p_normchi2_vs_pt");
-      vTrackProfiles_[normchiptindex]->Fill(track->pt(), normchi2);
+      vTrackProfiles_[normchiptindex]->Fill(track.pt(), normchi2);
       static const int normchipindex = this->GetIndex(vTrackProfiles_, "p_normchi2_vs_p");
-      vTrackProfiles_[normchipindex]->Fill(track->p(), normchi2);
+      vTrackProfiles_[normchipindex]->Fill(track.p(), normchi2);
       static const int chiProbetaindex = this->GetIndex(vTrackProfiles_, "p_chi2Prob_vs_eta");
-      vTrackProfiles_[chiProbetaindex]->Fill(track->eta(), chi2Prob);
+      vTrackProfiles_[chiProbetaindex]->Fill(track.eta(), chi2Prob);
       static const int normchietaindex = this->GetIndex(vTrackProfiles_, "p_normchi2_vs_eta");
-      vTrackProfiles_[normchietaindex]->Fill(track->eta(), normchi2);
+      vTrackProfiles_[normchietaindex]->Fill(track.eta(), normchi2);
       static const int kappaphiindex = this->GetIndex(vTrackProfiles_, "p_kappa_vs_phi");
-      vTrackProfiles_[kappaphiindex]->Fill(track->phi(), kappa);
+      vTrackProfiles_[kappaphiindex]->Fill(track.phi(), kappa);
       static const int kappaetaindex = this->GetIndex(vTrackProfiles_, "p_kappa_vs_eta");
-      vTrackProfiles_[kappaetaindex]->Fill(track->eta(), kappa);
+      vTrackProfiles_[kappaetaindex]->Fill(track.eta(), kappa);
       static const int ptResphiindex = this->GetIndex(vTrackProfiles_, "p_ptResolution_vs_phi");
-      vTrackProfiles_[ptResphiindex]->Fill(track->phi(), track->ptError() / track->pt());
+      vTrackProfiles_[ptResphiindex]->Fill(track.phi(), track.ptError() / track.pt());
       static const int ptResetaindex = this->GetIndex(vTrackProfiles_, "p_ptResolution_vs_eta");
-      vTrackProfiles_[ptResetaindex]->Fill(track->eta(), track->ptError() / track->pt());
+      vTrackProfiles_[ptResetaindex]->Fill(track.eta(), track.ptError() / track.pt());
 
       // Fill 2D track histos
       static const int d0phiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_d0_vs_phi");
-      vTrack2DHistos_[d0phiindex_2d]->Fill(track->phi(), track->d0());
+      vTrack2DHistos_[d0phiindex_2d]->Fill(track.phi(), track.d0());
       static const int dzphiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_dz_vs_phi");
-      vTrack2DHistos_[dzphiindex_2d]->Fill(track->phi(), track->dz());
+      vTrack2DHistos_[dzphiindex_2d]->Fill(track.phi(), track.dz());
       static const int d0etaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_d0_vs_eta");
-      vTrack2DHistos_[d0etaindex_2d]->Fill(track->eta(), track->d0());
+      vTrack2DHistos_[d0etaindex_2d]->Fill(track.eta(), track.d0());
       static const int dzetaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_dz_vs_eta");
-      vTrack2DHistos_[dzetaindex_2d]->Fill(track->eta(), track->dz());
+      vTrack2DHistos_[dzetaindex_2d]->Fill(track.eta(), track.dz());
       static const int chiphiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_chi2_vs_phi");
-      vTrack2DHistos_[chiphiindex_2d]->Fill(track->phi(), track->chi2());
+      vTrack2DHistos_[chiphiindex_2d]->Fill(track.phi(), track.chi2());
       static const int chiProbphiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_chi2Prob_vs_phi");
-      vTrack2DHistos_[chiProbphiindex_2d]->Fill(track->phi(), chi2Prob);
+      vTrack2DHistos_[chiProbphiindex_2d]->Fill(track.phi(), chi2Prob);
       static const int chiProbabsd0index_2d = this->GetIndex(vTrack2DHistos_, "h2_chi2Prob_vs_d0");
-      vTrack2DHistos_[chiProbabsd0index_2d]->Fill(fabs(track->d0()), chi2Prob);
+      vTrack2DHistos_[chiProbabsd0index_2d]->Fill(fabs(track.d0()), chi2Prob);
       static const int normchiphiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_normchi2_vs_phi");
-      vTrack2DHistos_[normchiphiindex_2d]->Fill(track->phi(), normchi2);
+      vTrack2DHistos_[normchiphiindex_2d]->Fill(track.phi(), normchi2);
       static const int chietaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_chi2_vs_eta");
-      vTrack2DHistos_[chietaindex_2d]->Fill(track->eta(), track->chi2());
+      vTrack2DHistos_[chietaindex_2d]->Fill(track.eta(), track.chi2());
       static const int chiProbetaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_chi2Prob_vs_eta");
-      vTrack2DHistos_[chiProbetaindex_2d]->Fill(track->eta(), chi2Prob);
+      vTrack2DHistos_[chiProbetaindex_2d]->Fill(track.eta(), chi2Prob);
       static const int normchietaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_normchi2_vs_eta");
-      vTrack2DHistos_[normchietaindex_2d]->Fill(track->eta(), normchi2);
+      vTrack2DHistos_[normchietaindex_2d]->Fill(track.eta(), normchi2);
       static const int kappaphiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_kappa_vs_phi");
-      vTrack2DHistos_[kappaphiindex_2d]->Fill(track->phi(), kappa);
+      vTrack2DHistos_[kappaphiindex_2d]->Fill(track.phi(), kappa);
       static const int kappaetaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_kappa_vs_eta");
-      vTrack2DHistos_[kappaetaindex_2d]->Fill(track->eta(), kappa);
+      vTrack2DHistos_[kappaetaindex_2d]->Fill(track.eta(), kappa);
       static const int normchi2kappa_2d = this->GetIndex(vTrack2DHistos_, "h2_normchi2_vs_kappa");
       vTrack2DHistos_[normchi2kappa_2d]->Fill(normchi2, kappa);
 
@@ -589,8 +589,8 @@ public:
       if (beamSpotHandle.isValid()) {
         beamSpot = *beamSpotHandle;
         math::XYZPoint point(beamSpot.x0(), beamSpot.y0(), beamSpot.z0());
-        double dxy = track->dxy(point);
-        double dz = track->dz(point);
+        double dxy = track.dxy(point);
+        double dz = track.dz(point);
         hdxyBS->Fill(dxy);
         hd0BS->Fill(-dxy);
         hdzBS->Fill(dz);
@@ -604,11 +604,11 @@ public:
       double mindxy = 100.;
       double dz = 100;
       if (vertexHandle.isValid()) {
-        for (auto pvtx = vertexHandle->cbegin(); pvtx != vertexHandle->cend(); ++pvtx) {
-          math::XYZPoint mypoint(pvtx->x(), pvtx->y(), pvtx->z());
-          if (abs(mindxy) > abs(track->dxy(mypoint))) {
-            mindxy = track->dxy(mypoint);
-            dz = track->dz(mypoint);
+        for (const auto &pvtx : *vertexHandle) {
+          math::XYZPoint mypoint(pvtx.x(), pvtx.y(), pvtx.z());
+          if (abs(mindxy) > abs(track.dxy(mypoint))) {
+            mindxy = track.dxy(mypoint);
+            dz = track.dz(mypoint);
           }
         }
 
@@ -616,9 +616,9 @@ public:
         hd0PV->Fill(-mindxy);
         hdzPV->Fill(dz);
 
-        hd0PVvsphi->Fill(track->phi(), -mindxy);
-        hd0PVvseta->Fill(track->eta(), -mindxy);
-        hd0PVvspt->Fill(track->pt(), -mindxy);
+        hd0PVvsphi->Fill(track.phi(), -mindxy);
+        hd0PVvseta->Fill(track.eta(), -mindxy);
+        hd0PVvspt->Fill(track.pt(), -mindxy);
 
       } else {
         hdxyPV->Fill(100);

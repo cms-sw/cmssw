@@ -44,9 +44,9 @@ PixelDetectorConfig::PixelDetectorConfig(std::vector<std::vector<std::string> > 
   colNames.push_back("ROC_STATUS");
 
   for (unsigned int c = 0; c < ins.size(); c++) {
-    for (unsigned int n = 0; n < colNames.size(); n++) {
-      if (tableMat[0][c] == colNames[n]) {
-        colM[colNames[n]] = c;
+    for (const auto &colName : colNames) {
+      if (tableMat[0][c] == colName) {
+        colM[colName] = c;
         break;
       }
     }
@@ -252,10 +252,8 @@ std::set<unsigned int> PixelDetectorConfig::getFEDs(PixelNameTranslation *transl
 
   for (; imodule != modules_.end(); ++imodule) {
     std::set<PixelChannel> channelsOnThisModule = translation->getChannelsOnModule(*imodule);
-    for (std::set<PixelChannel>::const_iterator channelsOnThisModule_itr = channelsOnThisModule.begin();
-         channelsOnThisModule_itr != channelsOnThisModule.end();
-         ++channelsOnThisModule_itr) {
-      const PixelHdwAddress &channel_hdwaddress = translation->getHdwAddress(*channelsOnThisModule_itr);
+    for (const auto &channelsOnThisModule_itr : channelsOnThisModule) {
+      const PixelHdwAddress &channel_hdwaddress = translation->getHdwAddress(channelsOnThisModule_itr);
       unsigned int fednumber = channel_hdwaddress.fednumber();
       feds.insert(fednumber);
     }
@@ -275,10 +273,8 @@ std::map<unsigned int, std::set<unsigned int> > PixelDetectorConfig::getFEDsAndC
 
   for (; imodule != modules_.end(); ++imodule) {
     std::set<PixelChannel> channelsOnThisModule = translation->getChannelsOnModule(*imodule);
-    for (std::set<PixelChannel>::const_iterator channelsOnThisModule_itr = channelsOnThisModule.begin();
-         channelsOnThisModule_itr != channelsOnThisModule.end();
-         ++channelsOnThisModule_itr) {
-      const PixelHdwAddress &channel_hdwaddress = translation->getHdwAddress(*channelsOnThisModule_itr);
+    for (const auto &channelsOnThisModule_itr : channelsOnThisModule) {
+      const PixelHdwAddress &channel_hdwaddress = translation->getHdwAddress(channelsOnThisModule_itr);
       unsigned int fednumber = channel_hdwaddress.fednumber();
       unsigned int fedchannel = channel_hdwaddress.fedchannel();
       fedsChannels[fednumber].insert(fedchannel);
@@ -289,9 +285,8 @@ std::map<unsigned int, std::set<unsigned int> > PixelDetectorConfig::getFEDsAndC
 }
 
 bool PixelDetectorConfig::containsModule(const PixelModuleName &moduleToFind) const {
-  for (std::vector<PixelModuleName>::const_iterator modules_itr = modules_.begin(); modules_itr != modules_.end();
-       ++modules_itr) {
-    if (*modules_itr == moduleToFind)
+  for (const auto &module : modules_) {
+    if (module == moduleToFind)
       return true;
   }
   return false;

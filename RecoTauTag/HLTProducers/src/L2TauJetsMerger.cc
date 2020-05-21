@@ -11,8 +11,8 @@ using namespace edm;
 
 L2TauJetsMerger::L2TauJetsMerger(const edm::ParameterSet& iConfig)
     : jetSrc(iConfig.getParameter<vtag>("JetSrc")), mEt_Min(iConfig.getParameter<double>("EtMin")) {
-  for (vtag::const_iterator it = jetSrc.begin(); it != jetSrc.end(); ++it) {
-    edm::EDGetTokenT<CaloJetCollection> aToken = consumes<CaloJetCollection>(*it);
+  for (const auto& it : jetSrc) {
+    edm::EDGetTokenT<CaloJetCollection> aToken = consumes<CaloJetCollection>(it);
     jetSrc_token.push_back(aToken);
   }
 
@@ -31,13 +31,13 @@ void L2TauJetsMerger::produce(edm::StreamID iSId, edm::Event& iEvent, const edm:
   CaloJetCollection myTmpJets;
 
   int iL1Jet = 0;
-  for (vtoken_cjets::const_iterator s = jetSrc_token.begin(); s != jetSrc_token.end(); ++s) {
+  for (auto s : jetSrc_token) {
     edm::Handle<CaloJetCollection> tauJets;
-    iEvent.getByToken(*s, tauJets);
-    for (CaloJetCollection::const_iterator iTau = tauJets->begin(); iTau != tauJets->end(); ++iTau) {
-      if (iTau->et() > mEt_Min) {
+    iEvent.getByToken(s, tauJets);
+    for (const auto& iTau : *tauJets) {
+      if (iTau.et() > mEt_Min) {
         //Add the Pdg Id here
-        CaloJet myJet = *iTau;
+        CaloJet myJet = iTau;
         myJet.setPdgId(15);
         myTmpJets.push_back(myJet);
       }

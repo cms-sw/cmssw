@@ -50,11 +50,11 @@ MTDGeometry::MTDGeometry(GeometricTimingDet const* gd) : theTrackerDet(gd) {
   edm::LogInfo("BuildingSubDetTypeMap")
       << "MTD GeometricTimingDet and GeomDetEnumerators enumerator values of the subdetectors" << std::endl;
 #endif
-  for (unsigned int i = 0; i < subdetgd.size(); ++i) {
-    MTDDetId mtdid(subdetgd[i]->geographicalId());
+  for (auto& i : subdetgd) {
+    MTDDetId mtdid(i->geographicalId());
     assert(mtdid.mtdSubDetector() > 0 && mtdid.mtdSubDetector() < 3);
-    theSubDetTypeMap[mtdid.mtdSubDetector() - 1] = geometricDetToGeomDet(subdetgd[i]->type());
-    theNumberOfLayers[mtdid.mtdSubDetector() - 1] = subdetgd[i]->components().size();
+    theSubDetTypeMap[mtdid.mtdSubDetector() - 1] = geometricDetToGeomDet(i->type());
+    theNumberOfLayers[mtdid.mtdSubDetector() - 1] = i->components().size();
 #ifdef EDM_ML_DEBUG
     LogTrace("BuildingSubDetTypeMap") << "MTD subdet " << i << " Geometric Det type " << subdetgd[i]->type()
                                       << " Geom Det type " << theSubDetTypeMap[mtdid.mtdSubDetector() - 1] << " detid "

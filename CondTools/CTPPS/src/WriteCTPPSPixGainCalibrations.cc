@@ -193,10 +193,9 @@ void WriteCTPPSPixGainCalibrations::fillDB() {
 
   //  std::cout<<"Here! "<<std::endl;
 
-  for (std::map<uint32_t, std::vector<int> >::iterator it = detidROCsPresent.begin(); it != detidROCsPresent.end();
-       ++it) {
-    uint32_t tempdetid = it->first;
-    std::vector<int> rocs = it->second;
+  for (auto& it : detidROCsPresent) {
+    uint32_t tempdetid = it.first;
+    std::vector<int> rocs = it.second;
     unsigned int nrocs = rocs.size();
     std::map<int, int> mapIPixIndx;
 

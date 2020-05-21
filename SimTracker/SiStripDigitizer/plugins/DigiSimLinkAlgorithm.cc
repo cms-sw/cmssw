@@ -316,18 +316,16 @@ void DigiSimLinkAlgorithm::push_link(const DigitalVecType& digis,
                                      const std::vector<float>& afterNoise,
                                      unsigned int detID) {
   link_coll.clear();
-  for (DigitalVecType::const_iterator i = digis.begin(); i != digis.end(); i++) {
+  for (auto digi : digis) {
     // Instead of checking the validity of the links against the digis,
     //  let's loop over digis and push the corresponding link
-    HitToDigisMapType::const_iterator mi(htd.find(i->strip()));
+    HitToDigisMapType::const_iterator mi(htd.find(digi.strip()));
     if (mi == htd.end())
       continue;
-    HitCounterToDigisMapType::const_iterator cmi(hctd.find(i->strip()));
+    HitCounterToDigisMapType::const_iterator cmi(hctd.find(digi.strip()));
     std::map<const PSimHit*, Amplitude> totalAmplitudePerSimHit;
-    for (std::vector<std::pair<const PSimHit*, Amplitude> >::const_iterator simul = (*mi).second.begin();
-         simul != (*mi).second.end();
-         simul++) {
-      totalAmplitudePerSimHit[(*simul).first] += (*simul).second;
+    for (const auto& simul : (*mi).second) {
+      totalAmplitudePerSimHit[simul.first] += simul.second;
     }
 
     //--- include the noise as well
@@ -344,11 +342,9 @@ void DigiSimLinkAlgorithm::push_link(const DigitalVecType& digis,
         // Noise fluctuation could make fraction>1. Unphysical, set it by hand = 1.
         if (fraction > 1.)
           fraction = 1.;
-        for (std::vector<std::pair<const PSimHit*, int> >::const_iterator simcount = (*cmi).second.begin();
-             simcount != (*cmi).second.end();
-             ++simcount) {
-          if ((*iter).first == (*simcount).first)
-            sim_counter = (*simcount).second;
+        for (const auto& simcount : (*cmi).second) {
+          if ((*iter).first == simcount.first)
+            sim_counter = simcount.second;
         }
         link_coll.push_back(StripDigiSimLink((*mi).first,                 //channel
                                              ((*iter).first)->trackId(),  //simhit trackId
@@ -376,10 +372,8 @@ void DigiSimLinkAlgorithm::push_link_raw(const DigitalRawVecType& digis,
     if (mi == htd.end())
       continue;
     std::map<const PSimHit*, Amplitude> totalAmplitudePerSimHit;
-    for (std::vector<std::pair<const PSimHit*, Amplitude> >::const_iterator simul = (*mi).second.begin();
-         simul != (*mi).second.end();
-         simul++) {
-      totalAmplitudePerSimHit[(*simul).first] += (*simul).second;
+    for (const auto& simul : (*mi).second) {
+      totalAmplitudePerSimHit[simul.first] += simul.second;
     }
 
     //--- include the noise as well
@@ -397,11 +391,9 @@ void DigiSimLinkAlgorithm::push_link_raw(const DigitalRawVecType& digis,
         if (fraction > 1.)
           fraction = 1.;
         //add counter information
-        for (std::vector<std::pair<const PSimHit*, int> >::const_iterator simcount = (*cmi).second.begin();
-             simcount != (*cmi).second.end();
-             ++simcount) {
-          if ((*iter).first == (*simcount).first)
-            sim_counter_raw = (*simcount).second;
+        for (const auto& simcount : (*cmi).second) {
+          if ((*iter).first == simcount.first)
+            sim_counter_raw = simcount.second;
         }
         link_coll.push_back(StripDigiSimLink((*mi).first,                 //channel
                                              ((*iter).first)->trackId(),  //simhit trackId

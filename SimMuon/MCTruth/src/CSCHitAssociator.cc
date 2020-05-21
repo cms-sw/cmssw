@@ -42,10 +42,10 @@ std::vector<CSCHitAssociator::SimHitIdpr> CSCHitAssociator::associateCSCHitId(co
       int istrip = cscrechit->channels(idigi);
       int channel = laygeom->channel(istrip);
 
-      for (LayerLinks::const_iterator link = layerLinks->begin(); link != layerLinks->end(); ++link) {
-        int ch = static_cast<int>(link->channel());
+      for (const auto &link : *layerLinks) {
+        int ch = static_cast<int>(link.channel());
         if (ch == channel) {
-          SimHitIdpr currentId(link->SimTrackId(), link->eventId());
+          SimHitIdpr currentId(link.SimTrackId(), link.eventId());
           if (find(simtrackids.begin(), simtrackids.end(), currentId) == simtrackids.end())
             simtrackids.push_back(currentId);
         }
@@ -78,10 +78,10 @@ std::vector<CSCHitAssociator::SimHitIdpr> CSCHitAssociator::associateHitId(const
         int istrip = cscrechit->channels(idigi);
         int channel = laygeom->channel(istrip);
 
-        for (LayerLinks::const_iterator link = layerLinks->begin(); link != layerLinks->end(); ++link) {
-          int ch = static_cast<int>(link->channel());
+        for (const auto &link : *layerLinks) {
+          int ch = static_cast<int>(link.channel());
           if (ch == channel) {
-            SimHitIdpr currentId(link->SimTrackId(), link->eventId());
+            SimHitIdpr currentId(link.SimTrackId(), link.eventId());
             if (find(simtrackids.begin(), simtrackids.end(), currentId) == simtrackids.end())
               simtrackids.push_back(currentId);
           }

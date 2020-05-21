@@ -78,36 +78,36 @@ MuonDTSeedFromRecHits::ConstMuonRecHitPointer MuonDTSeedFromRecHits::bestBarrelH
   MuonRecHitPointer best = nullptr;
   MuonRecHitPointer alter = nullptr;
 
-  for (MuonRecHitContainer::const_iterator iter = barrelHits.begin(); iter != barrelHits.end(); iter++) {
-    bool hasZed = ((*iter)->projectionMatrix()[1][1] == 1);
+  for (const auto& barrelHit : barrelHits) {
+    bool hasZed = (barrelHit->projectionMatrix()[1][1] == 1);
 
     cur_npt = 0;
-    vector<TrackingRecHit*> slrhs = (*iter)->recHits();
-    for (vector<TrackingRecHit*>::const_iterator slrh = slrhs.begin(); slrh != slrhs.end(); ++slrh) {
-      cur_npt += (*slrh)->recHits().size();
+    vector<TrackingRecHit*> slrhs = barrelHit->recHits();
+    for (auto slrh : slrhs) {
+      cur_npt += slrh->recHits().size();
     }
-    float radius1 = (*iter)->det()->position().perp();
+    float radius1 = barrelHit->det()->position().perp();
 
     if (hasZed) {
       if (cur_npt > best_npt) {
-        best = (*iter);
+        best = barrelHit;
         best_npt = cur_npt;
       } else if (best && cur_npt == best_npt) {
         float radius2 = best->det()->position().perp();
         if (radius1 < radius2) {
-          best = (*iter);
+          best = barrelHit;
           best_npt = cur_npt;
         }
       }
     }
 
     if (cur_npt > alt_npt) {
-      alter = (*iter);
+      alter = barrelHit;
       alt_npt = cur_npt;
     } else if (alter && cur_npt == alt_npt) {
       float radius2 = alter->det()->position().perp();
       if (radius1 < radius2) {
-        alter = (*iter);
+        alter = barrelHit;
         alt_npt = cur_npt;
       }
     }
@@ -155,19 +155,19 @@ float MuonDTSeedFromRecHits::bestEta() const {
 void MuonDTSeedFromRecHits::computePtWithVtx(double* pt, double* spt) const {
   float eta0 = bestEta();
 
-  for (MuonRecHitContainer::const_iterator iter = theRhits.begin(); iter != theRhits.end(); iter++) {
+  for (const auto& theRhit : theRhits) {
     //+vvp !:
 
-    float eta1 = (*iter)->globalPosition().eta();
+    float eta1 = theRhit->globalPosition().eta();
     if (fabs(eta1 - eta0) > .2)
       continue;  //   !!! +vvp
 
     // assign Pt from MB1 & vtx
-    unsigned int stat = DTChamberId((**iter).geographicalId()).station();
+    unsigned int stat = DTChamberId((*theRhit).geographicalId()).station();
     if (stat > 2)
       continue;
 
-    double thispt = thePtExtractor->pT_extract(*iter, *iter)[0];
+    double thispt = thePtExtractor->pT_extract(theRhit, theRhit)[0];
     float ptmax = 2000.;
     if (thispt > ptmax)
       thispt = ptmax;

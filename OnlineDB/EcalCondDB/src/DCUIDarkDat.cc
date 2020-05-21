@@ -123,8 +123,8 @@ void DCUIDarkDat::writeArrayDB(const std::map<EcalLogicID, DCUIDarkDat>* data, D
   const DCUIDarkDat* dataitem;
   int count = 0;
   typedef map<EcalLogicID, DCUIDarkDat>::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
-    channel = &(p->first);
+  for (const auto& p : *data) {
+    channel = &(p.first);
     int logicID = channel->getLogicID();
     if (!logicID) {
       throw(std::runtime_error("DCUIDarkDat::writeArrayDB:  Bad EcalLogicID"));
@@ -132,7 +132,7 @@ void DCUIDarkDat::writeArrayDB(const std::map<EcalLogicID, DCUIDarkDat>* data, D
     ids[count] = logicID;
     iovid_vec[count] = iovID;
 
-    dataitem = &(p->second);
+    dataitem = &(p.second);
     // dataIface.writeDB( channel, dataitem, iov);
     float x = dataitem->getAPDIDark();
 

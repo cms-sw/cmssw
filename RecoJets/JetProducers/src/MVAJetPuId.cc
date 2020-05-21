@@ -125,17 +125,17 @@ void SetPtEtaPhi(const reco::Candidate &p, float &pt, float &eta, float &phi) {
 void MVAJetPuId::bookReader() {
   reader_ = new TMVA::Reader("!Color:Silent");
   assert(!tmvaMethod_.empty() && !tmvaWeights_.empty());
-  for (std::vector<std::string>::iterator it = tmvaVariables_.begin(); it != tmvaVariables_.end(); ++it) {
-    if (tmvaNames_[*it].empty()) {
-      tmvaNames_[*it] = *it;
+  for (auto &tmvaVariable : tmvaVariables_) {
+    if (tmvaNames_[tmvaVariable].empty()) {
+      tmvaNames_[tmvaVariable] = tmvaVariable;
     }
-    reader_->AddVariable(*it, variables_[tmvaNames_[*it]].first);
+    reader_->AddVariable(tmvaVariable, variables_[tmvaNames_[tmvaVariable]].first);
   }
-  for (std::vector<std::string>::iterator it = tmvaSpectators_.begin(); it != tmvaSpectators_.end(); ++it) {
-    if (tmvaNames_[*it].empty()) {
-      tmvaNames_[*it] = *it;
+  for (auto &tmvaSpectator : tmvaSpectators_) {
+    if (tmvaNames_[tmvaSpectator].empty()) {
+      tmvaNames_[tmvaSpectator] = tmvaSpectator;
     }
-    reader_->AddSpectator(*it, variables_[tmvaNames_[*it]].first);
+    reader_->AddSpectator(tmvaSpectator, variables_[tmvaNames_[tmvaSpectator]].first);
   }
   reco::details::loadTMVAWeights(reader_, tmvaMethod_, tmvaWeights_);
 }
@@ -233,13 +233,13 @@ PileupJetIdentifier MVAJetPuId::computeIdVariables(const reco::Jet *jet,
       *jet, internalId_.jetPt_, internalId_.jetEta_, internalId_.jetPhi_);  // use corrected pt for jet kinematics
   internalId_.jetM_ = jet->mass();
   internalId_.rho_ = rho;  //allvtx.size();
-  for (constituents_iterator it = constituents.begin(); it != constituents.end(); ++it) {
-    reco::PFCandidatePtr &icand = *it;
+  for (auto &constituent : constituents) {
+    reco::PFCandidatePtr &icand = constituent;
     float candPt = icand->pt();
     float candPtFrac = candPt / jetPt;
-    float candDr = reco::deltaR(**it, *jet);
-    float candDeta = fabs((*it)->eta() - jet->eta());
-    float candDphi = reco::deltaPhi(**it, *jet);
+    float candDr = reco::deltaR(*constituent, *jet);
+    float candDeta = fabs(constituent->eta() - jet->eta());
+    float candDphi = reco::deltaPhi(*constituent, *jet);
     float candPtDr = candPt * candDr;
     size_t icone = std::lower_bound(&cones[0], &cones[ncones], candDr) - &cones[0];
     float weight2 = candPt * candPt;
@@ -306,8 +306,7 @@ PileupJetIdentifier MVAJetPuId::computeIdVariables(const reco::Jet *jet,
 
       double dZ0 = fabs(icand->trackRef()->dz(vtx->position()));
       double dZ = dZ0;
-      for (reco::VertexCollection::const_iterator vi = allvtx.begin(); vi != allvtx.end(); ++vi) {
-        const reco::Vertex &iv = *vi;
+      for (const auto &iv : allvtx) {
         if (iv.isFake() || iv.ndof() < 4) {
           continue;
         }
@@ -404,8 +403,8 @@ PileupJetIdentifier MVAJetPuId::computeIdVariables(const reco::Jet *jet,
 
     double ptMean = sumPt / internalId_.nParticles_;
     double ptRMS = 0;
-    for (unsigned int i0 = 0; i0 < frac.size(); i0++) {
-      ptRMS += (frac[i0] - ptMean) * (frac[i0] - ptMean);
+    for (float i0 : frac) {
+      ptRMS += (i0 - ptMean) * (i0 - ptMean);
     }
     ptRMS /= internalId_.nParticles_;
     ptRMS = sqrt(ptRMS);
@@ -479,17 +478,17 @@ PileupJetIdentifier MVAJetPuId::computeIdVariables(const reco::Jet *jet,
 
 std::string MVAJetPuId::dumpVariables() const {
   std::stringstream out;
-  for (variables_list_t::const_iterator it = variables_.begin(); it != variables_.end(); ++it) {
-    out << std::setw(15) << it->first << std::setw(3) << "=" << std::setw(5) << *it->second.first << " ("
-        << std::setw(5) << it->second.second << ")" << std::endl;
+  for (const auto &variable : variables_) {
+    out << std::setw(15) << variable.first << std::setw(3) << "=" << std::setw(5) << *variable.second.first << " ("
+        << std::setw(5) << variable.second.second << ")" << std::endl;
   }
   return out.str();
 }
 
 void MVAJetPuId::resetVariables() {
   internalId_.idFlag_ = 0;
-  for (variables_list_t::iterator it = variables_.begin(); it != variables_.end(); ++it) {
-    *it->second.first = it->second.second;
+  for (auto &variable : variables_) {
+    *variable.second.first = variable.second.second;
   }
 }
 

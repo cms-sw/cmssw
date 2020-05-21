@@ -70,8 +70,8 @@ std::vector<double> L1GctHtMissLut::getThresholdsGeV() const { return m_etScale-
 std::vector<unsigned> L1GctHtMissLut::getThresholdsGct() const {
   std::vector<unsigned> result;
   std::vector<double> thresholdsGeV = m_etScale->getThresholds();
-  for (std::vector<double>::const_iterator thr = thresholdsGeV.begin(); thr != thresholdsGeV.end(); thr++) {
-    result.push_back(static_cast<unsigned>((*thr) / (m_componentLsb)));
+  for (double thr : thresholdsGeV) {
+    result.push_back(static_cast<unsigned>(thr / (m_componentLsb)));
   }
   return result;
 }

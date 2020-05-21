@@ -331,8 +331,7 @@ void FWRPZView::voteCaloMaxVal() {
     typedef std::vector<TEveCaloData::vCellId_t*>::iterator vBinCells_i;
 
     vBinCells_t cellLists = m_calo->GetBinLists();
-    for (vBinCells_i it = cellLists.begin(); it != cellLists.end(); it++) {
-      TEveCaloData::vCellId_t* binCells = *it;
+    for (auto binCells : cellLists) {
       if (binCells) {
         sumEt = 0;
         sumE = 0;

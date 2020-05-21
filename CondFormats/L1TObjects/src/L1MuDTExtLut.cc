@@ -65,9 +65,9 @@ L1MuDTExtLut::L1MuDTExtLut() {
 
 L1MuDTExtLut::~L1MuDTExtLut() {
   typedef vector<LUT>::iterator LI;
-  for (LI iter = ext_lut.begin(); iter != ext_lut.end(); iter++) {
-    (*iter).low.clear();
-    (*iter).high.clear();
+  for (auto& iter : ext_lut) {
+    iter.low.clear();
+    iter.high.clear();
   }
 
   ext_lut.clear();

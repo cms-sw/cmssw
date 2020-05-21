@@ -39,8 +39,8 @@ namespace spr {
       maxNearP = -1.0;
       cHadronEne = nHadronEne = eleEne = muEne = photonEne = 0.0;
       isChargedIso = true;
-      for (int i = 0; i < 3; ++i)
-        cHadronEne_[i] = 0.0;
+      for (double& i : cHadronEne_)
+        i = 0.0;
     }
     double maxNearP;
     double cHadronEne, nHadronEne, eleEne, muEne, photonEne;

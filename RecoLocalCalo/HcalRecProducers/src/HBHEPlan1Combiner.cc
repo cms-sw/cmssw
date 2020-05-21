@@ -107,12 +107,12 @@ void HBHEPlan1Combiner::produce(edm::Event& iEvent, const edm::EventSetup& event
   // Iterate over the input collection. Copy QIE8 rechits directly into
   // the output collection and prepare to combine QIE11 rechits.
   combiner_->clear();
-  for (typename HBHERecHitCollection::const_iterator it = inputRechits->begin(); it != inputRechits->end(); ++it) {
+  for (const auto& it : *inputRechits) {
     // If the rechit has TDC time info, it corresponds to QIE11
-    if (plan1Mode && CaloRecHitAuxSetter::getBit(it->auxPhase1(), HBHERecHitAuxSetter::OFF_TDC_TIME))
-      combiner_->add(*it);
+    if (plan1Mode && CaloRecHitAuxSetter::getBit(it.auxPhase1(), HBHERecHitAuxSetter::OFF_TDC_TIME))
+      combiner_->add(it);
     else
-      outputRechits->push_back(*it);
+      outputRechits->push_back(it);
   }
 
   // Combine QIE11 rechits and fill the output collection

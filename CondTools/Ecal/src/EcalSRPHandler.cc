@@ -845,8 +845,8 @@ void popcon::EcalSRPHandler::PrintPayload(EcalSRSettings& sr, std::ofstream& fou
   fout << " dccNormalizedWeights" << std::endl;
   for (int i = 0; i < (int)sr.dccNormalizedWeights_.size(); ++i) {
     fout << " Channel " << i;
-    for (int j = 0; j < (int)sr.dccNormalizedWeights_[i].size(); ++j)
-      fout << " " << sr.dccNormalizedWeights_[i][j];
+    for (float j : sr.dccNormalizedWeights_[i])
+      fout << " " << j;
     fout << std::endl;
   }
 
@@ -886,9 +886,9 @@ void popcon::EcalSRPHandler::PrintPayload(EcalSRSettings& sr, std::ofstream& fou
   fout << std::endl;
 
   fout << " srpMasksFromConfig" << std::endl;
-  for (int i = 0; i < (int)sr.srpMasksFromConfig_.size(); ++i) {
-    for (int j = 0; j < (int)sr.srpMasksFromConfig_[i].size(); ++j)
-      fout << sr.srpMasksFromConfig_[i][j] << " ";
+  for (auto& i : sr.srpMasksFromConfig_) {
+    for (int j = 0; j < (int)i.size(); ++j)
+      fout << i[j] << " ";
     fout << std::endl;
   }
 
@@ -907,9 +907,9 @@ void popcon::EcalSRPHandler::PrintPayload(EcalSRSettings& sr, std::ofstream& fou
   fout << std::endl;
 
   fout << "substitutionSrfs" << std::endl;
-  for (int i = 0; i < (int)sr.substitutionSrfs_.size(); ++i) {
-    for (int j = 0; j < (int)sr.substitutionSrfs_[i].size(); ++j)
-      fout << sr.substitutionSrfs_[i][j] << " ";
+  for (auto& substitutionSrf : sr.substitutionSrfs_) {
+    for (int j = 0; j < (int)substitutionSrf.size(); ++j)
+      fout << substitutionSrf[j] << " ";
     fout << std::endl;
   }
 

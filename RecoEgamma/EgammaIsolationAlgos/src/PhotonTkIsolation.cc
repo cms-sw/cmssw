@@ -74,37 +74,36 @@ std::pair<int, float> PhotonTkIsolation::getIso(const reco::Candidate* photon) c
   float photonEta = photon->eta();
 
   //loop over tracks
-  for (reco::TrackCollection::const_iterator trItr = trackCollection_->begin(); trItr != trackCollection_->end();
-       ++trItr) {
+  for (const auto& trItr : *trackCollection_) {
     //check z-distance of vertex
     float dzCut = 0;
     switch (dzOption_) {
       case egammaisolation::EgammaTrackSelector::dz:
-        dzCut = fabs((*trItr).dz() - photon->vertex().z());
+        dzCut = fabs(trItr.dz() - photon->vertex().z());
         break;
       case egammaisolation::EgammaTrackSelector::vz:
-        dzCut = fabs((*trItr).vz() - photon->vertex().z());
+        dzCut = fabs(trItr.vz() - photon->vertex().z());
         break;
       case egammaisolation::EgammaTrackSelector::bs:
-        dzCut = fabs((*trItr).dz(beamPoint_) - photon->vertex().z());
+        dzCut = fabs(trItr.dz(beamPoint_) - photon->vertex().z());
         break;
       case egammaisolation::EgammaTrackSelector::vtx:
-        dzCut = fabs((*trItr).dz(photon->vertex()));
+        dzCut = fabs(trItr.dz(photon->vertex()));
         break;
       default:
-        dzCut = fabs((*trItr).vz() - photon->vertex().z());
+        dzCut = fabs(trItr.vz() - photon->vertex().z());
         break;
     }
     if (dzCut > lip_)
       continue;
 
-    float this_pt = (*trItr).pt();
+    float this_pt = trItr.pt();
     if (this_pt < etLow_)
       continue;
-    if (fabs((*trItr).dxy(beamPoint_)) > drb_)
+    if (fabs(trItr.dxy(beamPoint_)) > drb_)
       continue;  // only consider tracks from the main vertex
-    float dr2 = reco::deltaR2(*trItr, *photon);
-    float deta = (*trItr).eta() - photonEta;
+    float dr2 = reco::deltaR2(trItr, *photon);
+    float deta = trItr.eta() - photonEta;
     if (fabs(photonEta) < 1.479) {
       if (dr2 < extRadius2_ && dr2 >= intRadiusBarrel2_ && fabs(deta) >= stripBarrel_) {
         ++counter;

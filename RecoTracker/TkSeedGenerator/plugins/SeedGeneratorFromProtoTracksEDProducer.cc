@@ -92,8 +92,7 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
   ///
   /// need optimization: all es stuff should go out of the loop
   ///
-  for (TrackCollection::const_iterator it = protos.begin(); it != protos.end(); ++it) {
-    const Track& proto = (*it);
+  for (const auto& proto : protos) {
     GlobalPoint vtx(proto.vertex().x(), proto.vertex().y(), proto.vertex().z());
 
     // check the compatibility with a primary vertex
@@ -110,8 +109,8 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
         keepTrack = true;
       }
     } else {
-      for (reco::VertexCollection::const_iterator iv = vertices->begin(); iv != vertices->end(); ++iv) {
-        GlobalPoint aPV(iv->position().x(), iv->position().y(), iv->position().z());
+      for (const auto& iv : *vertices) {
+        GlobalPoint aPV(iv.position().x(), iv.position().y(), iv.position().z());
         double distR2 = sqr(vtx.x() - aPV.x()) + sqr(vtx.y() - aPV.y());
         double distZ = fabs(vtx.z() - aPV.z());
         if (distR2 < sqr(originRadius) && distZ < originHalfLength) {

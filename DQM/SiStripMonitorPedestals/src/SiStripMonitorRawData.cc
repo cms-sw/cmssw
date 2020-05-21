@@ -98,15 +98,13 @@ void SiStripMonitorRawData::analyze(edm::Event const &iEvent, edm::EventSetup co
   edm::Handle<edm::DetSetVector<SiStripRawDigi>> digi_collection;
   iEvent.getByToken(digiToken_, digi_collection);
 
-  for (std::vector<uint32_t>::const_iterator idetid = SelectedDetIds.begin(), iEnd = SelectedDetIds.end();
-       idetid != iEnd;
-       ++idetid) {
-    std::vector<edm::DetSet<SiStripRawDigi>>::const_iterator digis = digi_collection->find((*idetid));
+  for (unsigned int SelectedDetId : SelectedDetIds) {
+    std::vector<edm::DetSet<SiStripRawDigi>>::const_iterator digis = digi_collection->find(SelectedDetId);
     if (digis == digi_collection->end() || digis->data.empty() || digis->data.size() > 768) {
-      std::vector<const FedChannelConnection *> fed_conns = detcabling->getConnections((*idetid));
-      for (unsigned int k = 0; k < fed_conns.size(); k++) {
-        if (fed_conns[k] && fed_conns[k]->isConnected()) {
-          float fed_id = fed_conns[k]->fedId() + 0.01 * fed_conns[k]->fedCh();
+      std::vector<const FedChannelConnection *> fed_conns = detcabling->getConnections(SelectedDetId);
+      for (auto &fed_conn : fed_conns) {
+        if (fed_conn && fed_conn->isConnected()) {
+          float fed_id = fed_conn->fedId() + 0.01 * fed_conn->fedCh();
           BadFedNumber->Fill(fed_id);
         }
       }

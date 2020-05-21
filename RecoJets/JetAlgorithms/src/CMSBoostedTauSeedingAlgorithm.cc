@@ -162,21 +162,18 @@ FASTJET_BEGIN_NAMESPACE  // defined in fastjet/internal/base.hh
         std::cout << "after recombination:" << std::endl;
         std::vector<fastjet::PseudoJet> subjets = result_local.pieces();
         int idx_subjet = 0;
-        for (std::vector<fastjet::PseudoJet>::const_iterator subjet = subjets.begin(); subjet != subjets.end();
-             ++subjet) {
-          std::cout << " subjet #" << idx_subjet << ": Pt = " << subjet->pt() << ", eta = " << subjet->eta()
-                    << ", phi = " << subjet->phi() << ", mass = " << subjet->m()
-                    << " (#constituents = " << subjet->constituents().size() << ")" << std::endl;
-          std::vector<fastjet::PseudoJet> constituents = subjet->constituents();
+        for (const auto& subjet : subjets) {
+          std::cout << " subjet #" << idx_subjet << ": Pt = " << subjet.pt() << ", eta = " << subjet.eta()
+                    << ", phi = " << subjet.phi() << ", mass = " << subjet.m()
+                    << " (#constituents = " << subjet.constituents().size() << ")" << std::endl;
+          std::vector<fastjet::PseudoJet> constituents = subjet.constituents();
           int idx_constituent = 0;
-          for (std::vector<fastjet::PseudoJet>::const_iterator constituent = constituents.begin();
-               constituent != constituents.end();
-               ++constituent) {
-            if (constituent->pt() < 1.e-3)
+          for (const auto& constituent : constituents) {
+            if (constituent.pt() < 1.e-3)
               continue;  // CV: skip ghosts
-            std::cout << "  constituent #" << idx_constituent << ": Pt = " << constituent->pt()
-                      << ", eta = " << constituent->eta() << ", phi = " << constituent->phi() << ","
-                      << " mass = " << constituent->m() << std::endl;
+            std::cout << "  constituent #" << idx_constituent << ": Pt = " << constituent.pt()
+                      << ", eta = " << constituent.eta() << ", phi = " << constituent.phi() << ","
+                      << " mass = " << constituent.m() << std::endl;
             ++idx_constituent;
           }
           ++idx_subjet;

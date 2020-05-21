@@ -63,8 +63,8 @@ HSCParticleProducer::HSCParticleProducer(const edm::ParameterSet& iConfig) {
   // Load all the selections
   std::vector<edm::ParameterSet> SelectionParameters =
       iConfig.getParameter<std::vector<edm::ParameterSet> >("SelectionParameters");
-  for (unsigned int i = 0; i < SelectionParameters.size(); i++) {
-    Selectors.push_back(new CandidateSelector(SelectionParameters[i]));
+  for (const auto& SelectionParameter : SelectionParameters) {
+    Selectors.push_back(new CandidateSelector(SelectionParameter));
   }
 
   // what I produce
@@ -116,10 +116,9 @@ bool HSCParticleProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSet
   *hscp = getHSCPSeedCollection(trackCollectionHandle, muonCollectionHandle, MTmuonCollectionHandle);
 
   // find the track ref for isolation purposed (main track is supposed to be the Iso track after refitting)
-  for (susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate != hscp->end();
-       ++hscpcandidate) {
+  for (auto& hscpcandidate : *hscp) {
     // Matching is needed because input track collection and muon inner track may lightly differs due to track refit
-    reco::TrackRef track = hscpcandidate->trackRef();
+    reco::TrackRef track = hscpcandidate.trackRef();
     if (track.isNull())
       continue;
     float dRMin = 1000;
@@ -135,30 +134,27 @@ bool HSCParticleProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSet
       }
     }
     if (found >= 0)
-      hscpcandidate->setTrackIso(reco::TrackRef(trackIsoCollectionHandle, found));
+      hscpcandidate.setTrackIso(reco::TrackRef(trackIsoCollectionHandle, found));
   }
 
   // compute the TRACKER contribution
   if (useBetaFromTk) {
-    for (susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate != hscp->end();
-         ++hscpcandidate) {
-      beta_calculator_TK->addInfoToCandidate(*hscpcandidate, iEvent, iSetup);
+    for (auto& hscpcandidate : *hscp) {
+      beta_calculator_TK->addInfoToCandidate(hscpcandidate, iEvent, iSetup);
     }
   }
 
   // compute the MUON contribution
   if (useBetaFromMuon) {
-    for (susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate != hscp->end();
-         ++hscpcandidate) {
-      beta_calculator_MUON->addInfoToCandidate(*hscpcandidate, iEvent, iSetup);
+    for (auto& hscpcandidate : *hscp) {
+      beta_calculator_MUON->addInfoToCandidate(hscpcandidate, iEvent, iSetup);
     }
   }
 
   // compute the RPC contribution
   if (useBetaFromRpc) {
-    for (susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate != hscp->end();
-         ++hscpcandidate) {
-      beta_calculator_RPC->addInfoToCandidate(*hscpcandidate, iEvent, iSetup);
+    for (auto& hscpcandidate : *hscp) {
+      beta_calculator_RPC->addInfoToCandidate(hscpcandidate, iEvent, iSetup);
     }
   }
 
@@ -177,8 +173,8 @@ bool HSCParticleProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSet
   for (int i = 0; i < (int)hscp->size(); i++) {
     susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin() + i;
     bool decision = false;
-    for (unsigned int s = 0; s < Selectors.size(); s++) {
-      decision |= Selectors[s]->isSelected(*hscpcandidate);
+    for (auto& Selector : Selectors) {
+      decision |= Selector->isSelected(*hscpcandidate);
     }
     if (!decision) {
       hscp->erase(hscpcandidate);
@@ -350,9 +346,9 @@ std::vector<HSCParticle> HSCParticleProducer::getHSCPSeedCollection(
   }
 
   // Loop on tracks not matching muon and create Track HSCP Candidate
-  for (unsigned int i = 0; i < tracks.size(); i++) {
+  for (const auto& track : tracks) {
     HSCParticle candidate;
-    candidate.setTrack(tracks[i]);
+    candidate.setTrack(track);
     HSCPCollection.push_back(candidate);
   }
 

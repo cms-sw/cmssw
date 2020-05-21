@@ -12,8 +12,8 @@ HcalHistogramRawToDigi::HcalHistogramRawToDigi(edm::ParameterSet const& conf)
       fedUnpackList_(conf.getUntrackedParameter<std::vector<int> >("FEDs")),
       firstFED_(conf.getUntrackedParameter<int>("HcalFirstFED", FEDNumbering::MINHCALFEDID)) {
   std::ostringstream ss;
-  for (unsigned int i = 0; i < fedUnpackList_.size(); i++)
-    ss << fedUnpackList_[i] << " ";
+  for (int i : fedUnpackList_)
+    ss << i << " ";
   edm::LogInfo("HCAL") << "HcalHistogramRawToDigi will unpack FEDs ( " << ss.str() << ")";
 
   tok_data_ = consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("InputLabel"));
@@ -40,8 +40,8 @@ void HcalHistogramRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
   std::vector<HcalHistogramDigi> digis;
 
   // Step C: unpack all requested FEDs
-  for (std::vector<int>::const_iterator i = fedUnpackList_.begin(); i != fedUnpackList_.end(); i++) {
-    const FEDRawData& fed = rawraw->FEDData(*i);
+  for (int i : fedUnpackList_) {
+    const FEDRawData& fed = rawraw->FEDData(i);
 
     unpacker_.unpack(fed, *readoutMap, digis);
   }

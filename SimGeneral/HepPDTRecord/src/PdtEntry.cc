@@ -61,13 +61,13 @@ namespace edm {
       std::vector<PdtEntry> ret;
       if (e.typeCode() == 'i') {
         std::vector<int> v(e.getVInt32());
-        for (std::vector<int>::const_iterator i = v.begin(); i != v.end(); ++i)
-          ret.push_back(PdtEntry(*i));
+        for (int i : v)
+          ret.push_back(PdtEntry(i));
         return ret;
       } else if (e.typeCode() == 's') {
         std::vector<std::string> v(e.getVString());
-        for (std::vector<std::string>::const_iterator i = v.begin(); i != v.end(); ++i)
-          ret.push_back(PdtEntry(*i));
+        for (const auto &i : v)
+          ret.push_back(PdtEntry(i));
         return ret;
       } else
         throw Exception(errors::Configuration, "EntryError")

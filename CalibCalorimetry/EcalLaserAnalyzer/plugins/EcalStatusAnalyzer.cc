@@ -119,21 +119,20 @@ void EcalStatusAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) 
   // Decode Basic DCCHeader Information
   // ====================================
 
-  for (EcalRawDataCollection::const_iterator headerItr = DCCHeader->begin(); headerItr != DCCHeader->end();
-       ++headerItr) {
+  for (const auto& headerItr : *DCCHeader) {
     // Get run type and run number
-    runType = headerItr->getRunType();
-    runNum = headerItr->getRunNumber();
-    event = headerItr->getLV1();
-    dccID = headerItr->getDccInTCCCommand();
-    fedID = headerItr->fedId();
+    runType = headerItr.getRunType();
+    runNum = headerItr.getRunNumber();
+    event = headerItr.getLV1();
+    dccID = headerItr.getDccInTCCCommand();
+    fedID = headerItr.fedId();
 
-    short VFEGain = headerItr->getMgpaGain();
-    short MEMGain = headerItr->getMemGain();
+    short VFEGain = headerItr.getMgpaGain();
+    short MEMGain = headerItr.getMemGain();
 
     // Retrieve laser color and event number
 
-    EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr->getEventSettings();
+    EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr.getEventSettings();
 
     int laser_color = settings.wavelength;
     int laser_power = settings.LaserPower;

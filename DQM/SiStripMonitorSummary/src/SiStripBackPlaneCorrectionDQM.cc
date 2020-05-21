@@ -77,9 +77,9 @@ void SiStripBackPlaneCorrectionDQM::fillSummaryMEs(const std::vector<uint32_t> &
     }
   }
 
-  for (std::map<uint32_t, ModMEs>::iterator iter = SummaryMEsMap_.begin(); iter != SummaryMEsMap_.end(); iter++) {
+  for (auto &iter : SummaryMEsMap_) {
     ModMEs selME;
-    selME = iter->second;
+    selME = iter.second;
 
     if (SummaryOnStringLevel_On_) {
       if (fPSet_.getParameter<bool>("OutputSummaryProfileAtLayerLevelAsImage")) {
@@ -213,8 +213,8 @@ void SiStripBackPlaneCorrectionDQM::fillMEsForLayer(
     hSummaryOfCumul_name = hidmanager.createHistoLayer(
         hSummaryOfCumul_description, "layer", getStringNameAndId(selDetId_, tTopo).first, "");
 
-    for (unsigned int i = 0; i < sameLayerDetIds_.size(); i++) {
-      selME_.SummaryOfCumulDistr->Fill(bpcorrectionHandle_->getBackPlaneCorrection(sameLayerDetIds_[i]));
+    for (unsigned int sameLayerDetId : sameLayerDetIds_) {
+      selME_.SummaryOfCumulDistr->Fill(bpcorrectionHandle_->getBackPlaneCorrection(sameLayerDetId));
     }
   }  // FILLING FOR STRING LEVEL
 
@@ -268,8 +268,8 @@ void SiStripBackPlaneCorrectionDQM::fillMEsForLayer(
       hSummaryOfCumul_name = hidmanager.createHistoLayer(
           hSummaryOfCumul_description, "layer", getLayerNameAndId(selDetId_, tTopo).first, "");
 
-      for (unsigned int i = 0; i < sameLayerDetIds_.size(); i++) {
-        selME_.SummaryOfCumulDistr->Fill(bpcorrectionHandle_->getBackPlaneCorrection(sameLayerDetIds_[i]));
+      for (unsigned int sameLayerDetId : sameLayerDetIds_) {
+        selME_.SummaryOfCumulDistr->Fill(bpcorrectionHandle_->getBackPlaneCorrection(sameLayerDetId));
       }
     }  // if Fill ...
   }    // FILLING FOR LAYER LEVEL

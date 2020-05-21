@@ -78,13 +78,13 @@ L1RpcTBMuonsVec RPCTriggerBoard::runTBGB() {  //4 muons or empty vector
     return L1RpcTBMuonsVec();
 
   L1RpcTBMuonsVec2 gbMuons(RPCConst::m_TOWERS_ON_TB_CNT, L1RpcTBMuonsVec());
-  for (unsigned int iMu = 0; iMu < m_PacsMuonsVec.size(); iMu++) {
-    int tbTower = m_TriggerConfig->getTowerNumOnTb(m_PacsMuonsVec[iMu].getConeCrdnts());
+  for (auto& iMu : m_PacsMuonsVec) {
+    int tbTower = m_TriggerConfig->getTowerNumOnTb(iMu.getConeCrdnts());
 
     if (gbMuons[tbTower].empty())
       gbMuons[tbTower].assign(RPCConst::m_SEGMENTS_IN_SECTOR_CNT, RPCTBMuon());
 
-    gbMuons[tbTower][m_PacsMuonsVec[iMu].getLogSegment()] = m_PacsMuonsVec[iMu];
+    gbMuons[tbTower][iMu.getLogSegment()] = iMu;
   }
 
   m_PacsMuonsVec.clear();

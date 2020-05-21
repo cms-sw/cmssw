@@ -21,8 +21,8 @@ typedef GeometricSearchDet::DetWithState DetWithState;
 
 PixelForwardLayer::PixelForwardLayer(vector<const PixelBlade*>& blades)
     : ForwardDetLayer(true), theComps(blades.begin(), blades.end()) {
-  for (vector<const GeometricSearchDet*>::const_iterator it = theComps.begin(); it != theComps.end(); it++) {
-    theBasicComps.insert(theBasicComps.end(), (**it).basicComponents().begin(), (**it).basicComponents().end());
+  for (auto theComp : theComps) {
+    theBasicComps.insert(theBasicComps.end(), (*theComp).basicComponents().begin(), (*theComp).basicComponents().end());
   }
 
   //They should be already phi-ordered. TO BE CHECKED!!
@@ -40,9 +40,9 @@ PixelForwardLayer::PixelForwardLayer(vector<const PixelBlade*>& blades)
                           << "PixelForwardLayer.surfcace.innerR(): " << this->specificSurface().innerRadius() << "\n"
                           << "PixelForwardLayer.surfcace.outerR(): " << this->specificSurface().outerRadius();
 
-  for (vector<const GeometricSearchDet*>::const_iterator it = theComps.begin(); it != theComps.end(); it++) {
-    LogDebug("TkDetLayers") << "blades phi,z,r: " << (*it)->surface().position().phi() << " , "
-                            << (*it)->surface().position().z() << " , " << (*it)->surface().position().perp();
+  for (auto theComp : theComps) {
+    LogDebug("TkDetLayers") << "blades phi,z,r: " << theComp->surface().position().phi() << " , "
+                            << theComp->surface().position().z() << " , " << theComp->surface().position().perp();
   }
   //-----------------------------------
 }

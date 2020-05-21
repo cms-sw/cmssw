@@ -78,8 +78,8 @@ PATTriggerEventProducer::PATTriggerEventProducer(const ParameterSet& iConfig)
     }
   });
 
-  for (size_t iMatch = 0; iMatch < tagsTriggerMatcher_.size(); ++iMatch) {
-    produces<TriggerObjectMatch>(tagsTriggerMatcher_.at(iMatch).label());
+  for (auto& iMatch : tagsTriggerMatcher_) {
+    produces<TriggerObjectMatch>(iMatch.label());
   }
   produces<TriggerEvent>();
 }

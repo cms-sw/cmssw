@@ -113,11 +113,10 @@ void VertexClassifier::processesAtGenerator() {
   VertexHistory::GenVertexTrail const &genVertexTrail = tracer_.genVertexTrail();
 
   // Loop over the generated vertices
-  for (VertexHistory::GenVertexTrail::const_iterator ivertex = genVertexTrail.begin(); ivertex != genVertexTrail.end();
-       ++ivertex) {
+  for (auto ivertex : genVertexTrail) {
     // Get the pointer to the vertex by removing the const-ness (no const methos
     // in HepMC::GenVertex)
-    HepMC::GenVertex *vertex = const_cast<HepMC::GenVertex *>(*ivertex);
+    HepMC::GenVertex *vertex = const_cast<HepMC::GenVertex *>(ivertex);
 
     // Loop over the sources looking for specific decays
     for (HepMC::GenVertex::particle_iterator iparent = vertex->particles_begin(HepMC::parents);
@@ -159,8 +158,7 @@ void VertexClassifier::processesAtGenerator() {
 void VertexClassifier::processesAtSimulation() {
   VertexHistory::SimVertexTrail const &simVertexTrail = tracer_.simVertexTrail();
 
-  for (VertexHistory::SimVertexTrail::const_iterator ivertex = simVertexTrail.begin(); ivertex != simVertexTrail.end();
-       ++ivertex) {
+  for (const auto &ivertex : simVertexTrail) {
     // pdgid of the real source parent vertex
     int pdgid = 0;
 
@@ -168,8 +166,8 @@ void VertexClassifier::processesAtSimulation() {
     bool flag = false;
     TrackingVertex::tp_iterator itd, its;
 
-    for (its = (*ivertex)->sourceTracks_begin(); its != (*ivertex)->sourceTracks_end(); ++its) {
-      for (itd = (*ivertex)->daughterTracks_begin(); itd != (*ivertex)->daughterTracks_end(); ++itd)
+    for (its = ivertex->sourceTracks_begin(); its != ivertex->sourceTracks_end(); ++its) {
+      for (itd = ivertex->daughterTracks_begin(); itd != ivertex->daughterTracks_end(); ++itd)
         if (itd != its) {
           flag = true;
           break;
@@ -178,7 +176,7 @@ void VertexClassifier::processesAtSimulation() {
         break;
     }
     // Collect the pdgid of the original source track
-    if (its != (*ivertex)->sourceTracks_end())
+    if (its != ivertex->sourceTracks_end())
       pdgid = std::abs((*its)->pdgId());
     else
       pdgid = 0;
@@ -187,8 +185,8 @@ void VertexClassifier::processesAtSimulation() {
     // the TrackingVertex
     unsigned int processG4 = 0;
 
-    if ((*ivertex)->nG4Vertices() > 0) {
-      processG4 = (*(*ivertex)->g4Vertices_begin()).processType();
+    if (ivertex->nG4Vertices() > 0) {
+      processG4 = (*ivertex->g4Vertices_begin()).processType();
     }
 
     unsigned int process = g4toCMSProcMap_.processId(processG4);
@@ -215,8 +213,8 @@ void VertexClassifier::processesAtSimulation() {
     update(flags_[MuNuclProcess], process == CMS::MuNucl);
 
     // Loop over the simulated particles
-    for (TrackingVertex::tp_iterator iparticle = (*ivertex)->daughterTracks_begin();
-         iparticle != (*ivertex)->daughterTracks_end();
+    for (TrackingVertex::tp_iterator iparticle = ivertex->daughterTracks_begin();
+         iparticle != ivertex->daughterTracks_end();
          ++iparticle) {
       if ((*iparticle)->numberOfTrackerLayers()) {
         // Special treatment for decays
@@ -270,12 +268,11 @@ void VertexClassifier::vertexInformation() {
   double const mm = 0.1;
 
   // Loop over the generated vertexes
-  for (VertexHistory::GenVertexTrail::const_iterator ivertex = genVertexTrail.begin(); ivertex != genVertexTrail.end();
-       ++ivertex) {
+  for (auto ivertex : genVertexTrail) {
     // Check vertex exist
-    if (*ivertex) {
+    if (ivertex) {
       // Measure the distance2 respecto the primary vertex
-      HepMC::ThreeVector p = (*ivertex)->point3d();
+      HepMC::ThreeVector p = ivertex->point3d();
       double distance =
           sqrt(pow(p.x() * mm - genpv.x, 2) + pow(p.y() * mm - genpv.y, 2) + pow(p.z() * mm - genpv.z, 2));
 

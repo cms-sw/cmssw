@@ -24,9 +24,7 @@ const PFIsoDepositAlgo::IsoDeposits& PFIsoDepositAlgo::produce(const ParticleCol
   isoDeposits_.clear();
   isoDeposits_.reserve(toBeIsolated.size());
 
-  for (unsigned i = 0; i < toBeIsolated.size(); i++) {
-    const reco::PFCandidate& toBeIso = toBeIsolated[i];
-
+  for (const auto& toBeIso : toBeIsolated) {
     if (verbose_)
       cout << "to be isolated: " << toBeIso << endl;
 
@@ -48,9 +46,7 @@ IsoDeposit PFIsoDepositAlgo::buildIsoDeposit(const Particle& particle, const Par
 
   IsoDeposit isoDep(pfDir);
 
-  for (unsigned i = 0; i < forIsolation.size(); i++) {
-    const reco::PFCandidate& pfc = forIsolation[i];
-
+  for (const auto& pfc : forIsolation) {
     // need to remove "particle"!
 
     if (sameParticle(particle, pfc))

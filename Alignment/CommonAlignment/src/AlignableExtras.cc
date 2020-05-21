@@ -33,8 +33,8 @@ void AlignableExtras::dump(void) const {
   edm::LogInfo("AlignableDump") << " AlignableExtras knows " << comp.size() << " alignable(s)" << std::endl;
 
   // Dump components
-  for (Alignables::iterator i = comp.begin(); i != comp.end(); ++i)
-    (*i)->dump();
+  for (auto& i : comp)
+    i->dump();
 }
 
 //__________________________________________________________________________________________________
@@ -42,8 +42,8 @@ Alignments* AlignableExtras::alignments(void) const {
   align::Alignables comp = this->components();
   Alignments* m_alignments = new Alignments();
   // Add components recursively
-  for (align::Alignables::iterator i = comp.begin(); i != comp.end(); ++i) {
-    Alignments* tmpAlignments = (*i)->alignments();
+  for (auto& i : comp) {
+    Alignments* tmpAlignments = i->alignments();
     std::copy(tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(), std::back_inserter(m_alignments->m_align));
     delete tmpAlignments;
   }
@@ -60,8 +60,8 @@ AlignmentErrorsExtended* AlignableExtras::alignmentErrors(void) const {
   AlignmentErrorsExtended* m_alignmentErrors = new AlignmentErrorsExtended();
 
   // Add components recursively
-  for (align::Alignables::iterator i = comp.begin(); i != comp.end(); ++i) {
-    AlignmentErrorsExtended* tmpAlignmentErrorsExtended = (*i)->alignmentErrors();
+  for (auto& i : comp) {
+    AlignmentErrorsExtended* tmpAlignmentErrorsExtended = i->alignmentErrors();
     std::copy(tmpAlignmentErrorsExtended->m_alignError.begin(),
               tmpAlignmentErrorsExtended->m_alignError.end(),
               std::back_inserter(m_alignmentErrors->m_alignError));

@@ -50,8 +50,8 @@ const CastorRawGain* CastorRawGains::getValues(DetId fId) const {
 
 std::vector<DetId> CastorRawGains::getAllChannels() const {
   std::vector<DetId> result;
-  for (std::vector<Item>::const_iterator item = mItems.begin(); item != mItems.end(); item++) {
-    result.push_back(DetId(item->rawId()));
+  for (const auto& mItem : mItems) {
+    result.push_back(DetId(mItem.rawId()));
   }
   return result;
 }

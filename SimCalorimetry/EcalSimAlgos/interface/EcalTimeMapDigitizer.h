@@ -52,8 +52,8 @@ public:
     };
 
     bool zero() {
-      for (unsigned int i(0); i < time_average_capacity; ++i) {
-        if (nhits[i] > 0)
+      for (unsigned int nhit : nhits) {
+        if (nhit > 0)
           return false;
       }
       return true;

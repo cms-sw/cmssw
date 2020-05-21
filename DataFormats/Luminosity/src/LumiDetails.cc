@@ -172,17 +172,13 @@ std::ostream& operator<<(std::ostream& s, LumiDetails const& lumiDetails) {
   }
   s << "beam 1 intensities:\n";
   std::vector<float> const& beam1Intensities = lumiDetails.lumiBeam1Intensities();
-  for (std::vector<float>::const_iterator intensity = beam1Intensities.begin(), iEnd = beam1Intensities.end();
-       intensity != iEnd;
-       ++intensity) {
-    s << *intensity << "\n";
+  for (float beam1Intensitie : beam1Intensities) {
+    s << beam1Intensitie << "\n";
   }
   s << "\nbeam 2 intensities:\n";
   std::vector<float> const& beam2Intensities = lumiDetails.lumiBeam2Intensities();
-  for (std::vector<float>::const_iterator intensity = beam2Intensities.begin(), iEnd = beam2Intensities.end();
-       intensity != iEnd;
-       ++intensity) {
-    s << *intensity << "\n";
+  for (float beam2Intensitie : beam2Intensities) {
+    s << beam2Intensitie << "\n";
   }
   s << "\n";
   return s;

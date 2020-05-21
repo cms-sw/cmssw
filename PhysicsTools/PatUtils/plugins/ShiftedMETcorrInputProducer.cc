@@ -20,41 +20,38 @@ ShiftedMETcorrInputProducer::ShiftedMETcorrInputProducer(const edm::ParameterSet
   if (cfg.exists("binning")) {
     typedef std::vector<edm::ParameterSet> vParameterSet;
     vParameterSet cfgBinning = cfg.getParameter<vParameterSet>("binning");
-    for (vParameterSet::const_iterator cfgBinningEntry = cfgBinning.begin(); cfgBinningEntry != cfgBinning.end();
-         ++cfgBinningEntry) {
-      binning_.push_back(new binningEntryType(*cfgBinningEntry));
+    for (const auto& cfgBinningEntry : cfgBinning) {
+      binning_.push_back(new binningEntryType(cfgBinningEntry));
     }
   } else {
     double uncertainty = cfg.getParameter<double>("uncertainty");
     binning_.push_back(new binningEntryType(uncertainty));
   }
 
-  for (vInputTag::const_iterator src_i = src_.begin(); src_i != src_.end(); ++src_i) {
-    for (std::vector<binningEntryType*>::const_iterator binningEntry = binning_.begin(); binningEntry != binning_.end();
-         ++binningEntry) {
-      srcTokens_.push_back(consumes<CorrMETData>(
-          edm::InputTag(src_i->label(), (*binningEntry)->getInstanceLabel_full(src_i->instance()))));
-      produces<CorrMETData>((*binningEntry)->getInstanceLabel_full(src_i->instance()));
+  for (const auto& src_i : src_) {
+    for (auto binningEntry : binning_) {
+      srcTokens_.push_back(
+          consumes<CorrMETData>(edm::InputTag(src_i.label(), binningEntry->getInstanceLabel_full(src_i.instance()))));
+      produces<CorrMETData>(binningEntry->getInstanceLabel_full(src_i.instance()));
     }
   }
 }
 
 ShiftedMETcorrInputProducer::~ShiftedMETcorrInputProducer() {
-  for (std::vector<binningEntryType*>::const_iterator it = binning_.begin(); it != binning_.end(); ++it) {
-    delete (*it);
+  for (auto it : binning_) {
+    delete it;
   }
 }
 
 void ShiftedMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   unsigned countToken(0);
-  for (vInputTag::const_iterator src_i = src_.begin(); src_i != src_.end(); ++src_i) {
-    for (std::vector<binningEntryType*>::iterator binningEntry = binning_.begin(); binningEntry != binning_.end();
-         ++binningEntry) {
+  for (const auto& src_i : src_) {
+    for (auto& binningEntry : binning_) {
       edm::Handle<CorrMETData> originalObject;
       evt.getByToken(srcTokens_.at(countToken), originalObject);
       ++countToken;
 
-      double shift = shiftBy_ * (*binningEntry)->binUncertainty_;
+      double shift = shiftBy_ * binningEntry->binUncertainty_;
 
       auto shiftedObject = std::make_unique<CorrMETData>(*originalObject);
       //--- MET balances momentum of reconstructed particles,
@@ -63,7 +60,7 @@ void ShiftedMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup
       shiftedObject->mey = -shift * originalObject->mey;
       shiftedObject->sumet = shift * originalObject->sumet;
 
-      evt.put(std::move(shiftedObject), (*binningEntry)->getInstanceLabel_full(src_i->instance()));
+      evt.put(std::move(shiftedObject), binningEntry->getInstanceLabel_full(src_i.instance()));
     }
   }
 }

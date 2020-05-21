@@ -155,9 +155,8 @@ void PPSSimTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   (*NewCorrespondenceMap).swap(thisLink);
 
   if (m_verbosity) {
-    for (unsigned int i = 0; i < (*NewCorrespondenceMap).size(); i++)
-      LogDebug("ProtonTransportEventProcessing")
-          << "ProtonTransport correspondence table: " << (*NewCorrespondenceMap)[i];
+    for (auto i : (*NewCorrespondenceMap))
+      LogDebug("ProtonTransportEventProcessing") << "ProtonTransport correspondence table: " << i;
   }
 
   iEvent.put(std::move(NewCorrespondenceMap));

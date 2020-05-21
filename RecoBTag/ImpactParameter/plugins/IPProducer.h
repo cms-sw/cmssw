@@ -338,8 +338,7 @@ void IPProducer<Container, Base, Helper>::produce(edm::Event& iEvent, const edm:
     std::vector<float> prob2D, prob3D;
     std::vector<reco::btag::TrackIPData> ipData;
 
-    for (unsigned int ind = 0; ind < transientTracks.size(); ind++) {
-      const reco::TransientTrack& transientTrack = transientTracks[ind];
+    for (const auto& transientTrack : transientTracks) {
       const reco::Track& track = transientTrack.track();
 
       reco::btag::TrackIPData trackIP;

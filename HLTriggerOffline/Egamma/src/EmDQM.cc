@@ -233,10 +233,9 @@ void EmDQM::dqmBeginRun(edm::Run const &iRun, edm::EventSetup const &iSetup) {
           std::string moduleLabel;
 
           // loop over filtermodules of current trigger path
-          for (std::vector<std::string>::iterator filter = filterModules.begin(); filter != filterModules.end();
-               ++filter) {
-            std::string moduleType = hltConfig_.modulePSet(*filter).getParameter<std::string>("@module_type");
-            moduleLabel = hltConfig_.modulePSet(*filter).getParameter<std::string>("@module_label");
+          for (auto &filterModule : filterModules) {
+            std::string moduleType = hltConfig_.modulePSet(filterModule).getParameter<std::string>("@module_type");
+            moduleLabel = hltConfig_.modulePSet(filterModule).getParameter<std::string>("@module_label");
 
             // first check if it is a filter we are not interrested in
             if (moduleType == "Pythia6GeneratorFilter" || moduleType == "HLTTriggerTypeFilter" ||
@@ -1661,20 +1660,19 @@ void EmDQM::SetVarsFromPSet(std::vector<edm::ParameterSet>::iterator psetIt) {
   nCandCuts.clear();
 
   int i = 0;
-  for (std::vector<edm::ParameterSet>::iterator filterconf = filters.begin(); filterconf != filters.end();
-       filterconf++) {
-    theHLTCollectionLabels.push_back(filterconf->getParameter<edm::InputTag>("HLTCollectionLabels"));
-    theHLTOutputTypes.push_back(filterconf->getParameter<int>("theHLTOutputTypes"));
+  for (auto &filter : filters) {
+    theHLTCollectionLabels.push_back(filter.getParameter<edm::InputTag>("HLTCollectionLabels"));
+    theHLTOutputTypes.push_back(filter.getParameter<int>("theHLTOutputTypes"));
     // Grab the human-readable name, if it is not specified, use the Collection
     // Label
     theHLTCollectionHumanNames.push_back(
-        filterconf->getUntrackedParameter<std::string>("HLTCollectionHumanName", theHLTCollectionLabels[i].label()));
+        filter.getUntrackedParameter<std::string>("HLTCollectionHumanName", theHLTCollectionLabels[i].label()));
 
-    std::vector<double> bounds = filterconf->getParameter<std::vector<double>>("PlotBounds");
+    std::vector<double> bounds = filter.getParameter<std::vector<double>>("PlotBounds");
     // If the size of plot "bounds" vector != 2, abort
     assert(bounds.size() == 2);
     plotBounds.push_back(std::pair<double, double>(bounds[0], bounds[1]));
-    isoNames.push_back(filterconf->getParameter<std::vector<edm::InputTag>>("IsoCollections"));
+    isoNames.push_back(filter.getParameter<std::vector<edm::InputTag>>("IsoCollections"));
 
     // for (unsigned int i=0; i<isoNames.back().size(); i++) {
     //  switch(theHLTOutputTypes.back())  {
@@ -1709,7 +1707,7 @@ void EmDQM::SetVarsFromPSet(std::vector<edm::ParameterSet>::iterator psetIt) {
       else
         plotiso.push_back(false);
     }
-    nCandCuts.push_back(filterconf->getParameter<int>("ncandcut"));
+    nCandCuts.push_back(filter.getParameter<int>("ncandcut"));
     i++;
   }  // END of loop over parameter sets
 

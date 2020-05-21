@@ -80,9 +80,9 @@ void HIPixelMedianVtxProducer::produce(edm::Event& ev, const edm::EventSetup& es
     // Find maximum bin
     TH1F hmax("hmax", "hmax", thePeakFindBinning * 2.0 * thePeakFindMaxZ, -1.0 * thePeakFindMaxZ, thePeakFindMaxZ);
 
-    for (std::vector<const reco::Track*>::const_iterator track = tracks.begin(); track != tracks.end(); track++)
-      if (fabs((*track)->vz()) < thePeakFindMaxZ)
-        hmax.Fill((*track)->vz());
+    for (auto track : tracks)
+      if (fabs(track->vz()) < thePeakFindMaxZ)
+        hmax.Fill(track->vz());
 
     int maxBin = hmax.GetMaximumBin();
 
@@ -116,9 +116,9 @@ void HIPixelMedianVtxProducer::produce(edm::Event& ev, const edm::EventSetup& es
   TH1F histo("histo", "histo", theFitBinning * 2.0 * theFitMaxZ, -1.0 * theFitMaxZ, theFitMaxZ);
   histo.Sumw2();
 
-  for (std::vector<const reco::Track*>::const_iterator track = tracks.begin(); track != tracks.end(); track++)
-    if (fabs((*track)->vz() - med) < theFitMaxZ)
-      histo.Fill((*track)->vz() - med);
+  for (auto track : tracks)
+    if (fabs(track->vz() - med) < theFitMaxZ)
+      histo.Fill(track->vz() - med);
 
   LogTrace("MinBiasTracking") << "  [vertex position] most prob for fit = "
                               << med + histo.GetBinCenter(histo.GetMaximumBin()) << " cm";

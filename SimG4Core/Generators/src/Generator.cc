@@ -70,8 +70,8 @@ Generator::Generator(const ParameterSet &p)
       } else {
         ss << " Filtering out PDG ID = ";
       }
-      for (unsigned int ii = 0; ii < pdgFilter.size(); ++ii) {
-        ss << pdgFilter[ii] << "  ";
+      for (int ii : pdgFilter) {
+        ss << ii << "  ";
       }
       edm::LogVerbatim("SimG4CoreGenerator") << ss.str();
     }

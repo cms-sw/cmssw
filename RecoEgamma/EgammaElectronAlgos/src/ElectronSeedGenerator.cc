@@ -217,10 +217,10 @@ void ElectronSeedGenerator::run(edm::Event &e,
   if (useRecoVertex_)
     vertices = &e.get(verticesTag_);
 
-  for (unsigned int i = 0; i < sclRefs.size(); ++i) {
+  for (const auto &sclRef : sclRefs) {
     // Find the seeds
     LogDebug("ElectronSeedGenerator") << "new cluster, calling seedsFromThisCluster";
-    seedsFromThisCluster(sclRefs[i], beamSpot, vertices, out);
+    seedsFromThisCluster(sclRef, beamSpot, vertices, out);
   }
 
   LogDebug("ElectronSeedGenerator") << ": For event " << e.id();

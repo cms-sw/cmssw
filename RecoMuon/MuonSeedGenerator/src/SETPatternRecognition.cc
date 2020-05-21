@@ -56,36 +56,36 @@ void SETPatternRecognition::produce(const edm::Event& event,
   event.getByToken(dtToken, dtRecHits);
   std::vector<DTChamberId> chambers_DT;
   std::vector<DTChamberId>::const_iterator chIt_DT;
-  for (DTRecSegment4DCollection::const_iterator rechit = dtRecHits->begin(); rechit != dtRecHits->end(); ++rechit) {
+  for (const auto& rechit : *dtRecHits) {
     bool insert = true;
     for (chIt_DT = chambers_DT.begin(); chIt_DT != chambers_DT.end(); ++chIt_DT) {
-      if (((*rechit).chamberId().wheel()) == ((*chIt_DT).wheel()) &&
-          ((*rechit).chamberId().station() == (*chIt_DT).station()) &&
-          ((*rechit).chamberId().sector() == (*chIt_DT).sector())) {
+      if ((rechit.chamberId().wheel()) == ((*chIt_DT).wheel()) &&
+          (rechit.chamberId().station() == (*chIt_DT).station()) &&
+          (rechit.chamberId().sector() == (*chIt_DT).sector())) {
         insert = false;
       }
     }
     if (insert) {
-      chambers_DT.push_back((*rechit).chamberId());
+      chambers_DT.push_back(rechit.chamberId());
     }
-    if (segmentCleaning((*rechit).geographicalId(),
-                        rechit->localPosition(),
-                        rechit->localPositionError(),
-                        rechit->localDirection(),
-                        rechit->localDirectionError(),
-                        rechit->chi2(),
-                        rechit->degreesOfFreedom())) {
+    if (segmentCleaning(rechit.geographicalId(),
+                        rechit.localPosition(),
+                        rechit.localPositionError(),
+                        rechit.localDirection(),
+                        rechit.localDirectionError(),
+                        rechit.chi2(),
+                        rechit.degreesOfFreedom())) {
       continue;
     }
-    if ((rechit->hasZed() && rechit->hasPhi())) {
+    if ((rechit.hasZed() && rechit.hasPhi())) {
       muonRecHits.push_back(MuonTransientTrackingRecHit::specificBuild(
-          theService->trackingGeometry()->idToDet((*rechit).geographicalId()), &*rechit));
-    } else if (rechit->hasZed()) {
+          theService->trackingGeometry()->idToDet(rechit.geographicalId()), &rechit));
+    } else if (rechit.hasZed()) {
       muonRecHits_DT2D_hasZed.push_back(MuonTransientTrackingRecHit::specificBuild(
-          theService->trackingGeometry()->idToDet((*rechit).geographicalId()), &*rechit));
-    } else if (rechit->hasPhi()) {  // safeguard
+          theService->trackingGeometry()->idToDet(rechit.geographicalId()), &rechit));
+    } else if (rechit.hasPhi()) {  // safeguard
       muonRecHits_DT2D_hasPhi.push_back(MuonTransientTrackingRecHit::specificBuild(
-          theService->trackingGeometry()->idToDet((*rechit).geographicalId()), &*rechit));
+          theService->trackingGeometry()->idToDet(rechit.geographicalId()), &rechit));
     } else {
       //std::cout<<"Warning in "<<metname<<": DT segment which claims to have neither phi nor Z."<<std::endl;
     }
@@ -100,30 +100,29 @@ void SETPatternRecognition::produce(const edm::Event& event,
   event.getByToken(cscToken, cscSegments);
   std::vector<CSCDetId> chambers_CSC;
   std::vector<CSCDetId>::const_iterator chIt_CSC;
-  for (CSCSegmentCollection::const_iterator rechit = cscSegments->begin(); rechit != cscSegments->end(); ++rechit) {
+  for (const auto& rechit : *cscSegments) {
     bool insert = true;
     for (chIt_CSC = chambers_CSC.begin(); chIt_CSC != chambers_CSC.end(); ++chIt_CSC) {
-      if (((*rechit).cscDetId().chamber() == (*chIt_CSC).chamber()) &&
-          ((*rechit).cscDetId().station() == (*chIt_CSC).station()) &&
-          ((*rechit).cscDetId().ring() == (*chIt_CSC).ring()) &&
-          ((*rechit).cscDetId().endcap() == (*chIt_CSC).endcap())) {
+      if ((rechit.cscDetId().chamber() == (*chIt_CSC).chamber()) &&
+          (rechit.cscDetId().station() == (*chIt_CSC).station()) && (rechit.cscDetId().ring() == (*chIt_CSC).ring()) &&
+          (rechit.cscDetId().endcap() == (*chIt_CSC).endcap())) {
         insert = false;
       }
     }
     if (insert) {
-      chambers_CSC.push_back((*rechit).cscDetId().chamberId());
+      chambers_CSC.push_back(rechit.cscDetId().chamberId());
     }
-    if (segmentCleaning((*rechit).geographicalId(),
-                        rechit->localPosition(),
-                        rechit->localPositionError(),
-                        rechit->localDirection(),
-                        rechit->localDirectionError(),
-                        rechit->chi2(),
-                        rechit->degreesOfFreedom())) {
+    if (segmentCleaning(rechit.geographicalId(),
+                        rechit.localPosition(),
+                        rechit.localPositionError(),
+                        rechit.localDirection(),
+                        rechit.localDirectionError(),
+                        rechit.chi2(),
+                        rechit.degreesOfFreedom())) {
       continue;
     }
     muonRecHits.push_back(MuonTransientTrackingRecHit::specificBuild(
-        theService->trackingGeometry()->idToDet((*rechit).geographicalId()), &*rechit));
+        theService->trackingGeometry()->idToDet(rechit.geographicalId()), &rechit));
   }
   //std::cout<<"CSC done"<<std::endl;
 
@@ -134,15 +133,15 @@ void SETPatternRecognition::produce(const edm::Event& event,
   edm::Handle<RPCRecHitCollection> rpcRecHits;
   event.getByToken(rpcToken, rpcRecHits);
   if (useRPCs) {
-    for (RPCRecHitCollection::const_iterator rechit = rpcRecHits->begin(); rechit != rpcRecHits->end(); ++rechit) {
+    for (const auto& rechit : *rpcRecHits) {
       // RPCs are special
       const LocalVector localDirection(0., 0., 1.);
       const LocalError localDirectionError(0., 0., 0.);
       const double chi2 = 1.;
       const int ndf = 1;
-      if (segmentCleaning((*rechit).geographicalId(),
-                          rechit->localPosition(),
-                          rechit->localPositionError(),
+      if (segmentCleaning(rechit.geographicalId(),
+                          rechit.localPosition(),
+                          rechit.localPositionError(),
                           localDirection,
                           localDirectionError,
                           chi2,
@@ -150,7 +149,7 @@ void SETPatternRecognition::produce(const edm::Event& event,
         continue;
       }
       muonRecHits_RPC.push_back(MuonTransientTrackingRecHit::specificBuild(
-          theService->trackingGeometry()->idToDet((*rechit).geographicalId()), &*rechit));
+          theService->trackingGeometry()->idToDet(rechit.geographicalId()), &rechit));
     }
   }
   //std::cout<<"RPC done"<<std::endl;
@@ -208,7 +207,7 @@ void SETPatternRecognition::produce(const edm::Event& event,
   // split rechits into subvectors and return vector of vectors:
   // Loop over rechits
   // Create one seed per hit
-  for (MuonRecHitContainer::const_iterator it = muonRecHits.begin(); it != muonRecHits.end(); ++it) {
+  for (const auto& muonRecHit : muonRecHits) {
     // try to avoid using 2D DT segments. We will add them later to the
     // clusters they are most likely to belong to. Might need to add them
     // to more than just one cluster, if we find them to be consistent with
@@ -217,21 +216,21 @@ void SETPatternRecognition::produce(const edm::Event& event,
 
     temp.clear();
 
-    temp.push_back((*it));
+    temp.push_back(muonRecHit);
 
     seeds.push_back(temp);
 
     // First added hit in seed defines the mean to which the next hit is compared
     // for this seed.
 
-    running_meanX.push_back((*it)->globalPosition().phi());
-    running_meanY.push_back((*it)->globalPosition().theta());
+    running_meanX.push_back(muonRecHit->globalPosition().phi());
+    running_meanY.push_back(muonRecHit->globalPosition().theta());
 
     // set min/max X and Y for box containing the hits in the precluster:
-    seed_minX.push_back((*it)->globalPosition().phi());
-    seed_maxX.push_back((*it)->globalPosition().phi());
-    seed_minY.push_back((*it)->globalPosition().theta());
-    seed_maxY.push_back((*it)->globalPosition().theta());
+    seed_minX.push_back(muonRecHit->globalPosition().phi());
+    seed_maxX.push_back(muonRecHit->globalPosition().phi());
+    seed_minY.push_back(muonRecHit->globalPosition().theta());
+    seed_maxY.push_back(muonRecHit->globalPosition().theta());
   }
 
   // merge clusters that are too close
@@ -350,21 +349,19 @@ void SETPatternRecognition::produce(const edm::Event& event,
 
     // We have a valid cluster - loop over all 2D segments.
     if (useDT2D_hasZed) {
-      for (MuonRecHitContainer::const_iterator it2 = muonRecHits_DT2D_hasZed.begin();
-           it2 != muonRecHits_DT2D_hasZed.end();
-           ++it2) {
+      for (const auto& it2 : muonRecHits_DT2D_hasZed) {
         // check that global theta of 2-D segment lies within cluster box plus or minus allowed slop
-        if (((*it2)->globalPosition().theta() < seed_maxY[NNN] + dYclusBoxMax) &&
-            ((*it2)->globalPosition().theta() > seed_minY[NNN] - dYclusBoxMax)) {
+        if ((it2->globalPosition().theta() < seed_maxY[NNN] + dYclusBoxMax) &&
+            (it2->globalPosition().theta() > seed_minY[NNN] - dYclusBoxMax)) {
           // check that global phi of 2-D segment (assumed to be center of chamber since no phi hit info)
           // matches with cluster box plus or minus allowed slop given that the true phi value could be
           // anywhere within a given chamber (+/- 5 degrees ~ 0.09 radians from center)
-          if (!((((*it2)->globalPosition().phi() + 0.09) < (seed_minX[NNN] - dXclusBoxMax) &&
-                 ((*it2)->globalPosition().phi() - 0.09) < (seed_minX[NNN] - dXclusBoxMax)) ||
-                (((*it2)->globalPosition().phi() + 0.09) > (seed_maxX[NNN] + dXclusBoxMax) &&
+          if (!(((it2->globalPosition().phi() + 0.09) < (seed_minX[NNN] - dXclusBoxMax) &&
+                 (it2->globalPosition().phi() - 0.09) < (seed_minX[NNN] - dXclusBoxMax)) ||
+                ((it2->globalPosition().phi() + 0.09) > (seed_maxX[NNN] + dXclusBoxMax) &&
                  // we have checked that the 2Dsegment is within tight theta boundaries and loose phi boundaries of the current cluster -> add it
-                 ((*it2)->globalPosition().phi() - 0.09) > (seed_maxX[NNN] + dXclusBoxMax)))) {
-            seeds[NNN].push_back((*it2));
+                 (it2->globalPosition().phi() - 0.09) > (seed_maxX[NNN] + dXclusBoxMax)))) {
+            seeds[NNN].push_back(it2);
           }
         }
       }
@@ -372,17 +369,15 @@ void SETPatternRecognition::produce(const edm::Event& event,
 
     // put DT hasphi loop here
     if (useDT2D_hasPhi) {
-      for (MuonRecHitContainer::const_iterator it2 = muonRecHits_DT2D_hasPhi.begin();
-           it2 != muonRecHits_DT2D_hasPhi.end();
-           ++it2) {
-        if (((*it2)->globalPosition().phi() < seed_maxX[NNN] + dXclusBoxMax) &&
-            ((*it2)->globalPosition().phi() > seed_minX[NNN] - dXclusBoxMax)) {
-          if (!((((*it2)->globalPosition().theta() + 0.3) < (seed_minY[NNN] - dYclusBoxMax) &&
-                 ((*it2)->globalPosition().theta() - 0.3) < (seed_minY[NNN] - dYclusBoxMax)) ||
-                (((*it2)->globalPosition().theta() + 0.3) > (seed_maxY[NNN] + dYclusBoxMax) &&
+      for (const auto& it2 : muonRecHits_DT2D_hasPhi) {
+        if ((it2->globalPosition().phi() < seed_maxX[NNN] + dXclusBoxMax) &&
+            (it2->globalPosition().phi() > seed_minX[NNN] - dXclusBoxMax)) {
+          if (!(((it2->globalPosition().theta() + 0.3) < (seed_minY[NNN] - dYclusBoxMax) &&
+                 (it2->globalPosition().theta() - 0.3) < (seed_minY[NNN] - dYclusBoxMax)) ||
+                ((it2->globalPosition().theta() + 0.3) > (seed_maxY[NNN] + dYclusBoxMax) &&
                  // we have checked that the 2Dsegment is within tight phi boundaries and loose theta boundaries of the current cluster -> add it
-                 ((*it2)->globalPosition().theta() - 0.3) > (seed_maxY[NNN] + dYclusBoxMax)))) {
-            seeds[NNN].push_back((*it2));  // warning - neeed eta/theta switch here
+                 (it2->globalPosition().theta() - 0.3) > (seed_maxY[NNN] + dYclusBoxMax)))) {
+            seeds[NNN].push_back(it2);  // warning - neeed eta/theta switch here
           }
         }
       }
@@ -402,15 +397,15 @@ void SETPatternRecognition::produce(const edm::Event& event,
     }
 
     if (useRPCs && !secondCh && !tooCloseClusters) {
-      for (MuonRecHitContainer::const_iterator it2 = muonRecHits_RPC.begin(); it2 != muonRecHits_RPC.end(); ++it2) {
-        if (((*it2)->globalPosition().phi() < seed_maxX[NNN] + dXclusBoxMax) &&
-            ((*it2)->globalPosition().phi() > seed_minX[NNN] - dXclusBoxMax)) {
-          if (!((((*it2)->globalPosition().theta() + 0.3) < (seed_minY[NNN] - dYclusBoxMax) &&
-                 ((*it2)->globalPosition().theta() - 0.3) < (seed_minY[NNN] - dYclusBoxMax)) ||
-                (((*it2)->globalPosition().theta() + 0.3) > (seed_maxY[NNN] + dYclusBoxMax) &&
+      for (const auto& it2 : muonRecHits_RPC) {
+        if ((it2->globalPosition().phi() < seed_maxX[NNN] + dXclusBoxMax) &&
+            (it2->globalPosition().phi() > seed_minX[NNN] - dXclusBoxMax)) {
+          if (!(((it2->globalPosition().theta() + 0.3) < (seed_minY[NNN] - dYclusBoxMax) &&
+                 (it2->globalPosition().theta() - 0.3) < (seed_minY[NNN] - dYclusBoxMax)) ||
+                ((it2->globalPosition().theta() + 0.3) > (seed_maxY[NNN] + dYclusBoxMax) &&
                  // we have checked that the 2Dsegment is within tight phi boundaries and loose theta boundaries of the current cluster -> add it
-                 ((*it2)->globalPosition().theta() - 0.3) > (seed_maxY[NNN] + dYclusBoxMax)))) {
-            seeds[NNN].push_back((*it2));  // warning - neeed eta/theta switch here
+                 (it2->globalPosition().theta() - 0.3) > (seed_maxY[NNN] + dYclusBoxMax)))) {
+            seeds[NNN].push_back(it2);  // warning - neeed eta/theta switch here
           }
         }
       }

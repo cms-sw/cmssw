@@ -13,8 +13,8 @@ PFMETProducerMVA::PFMETProducerMVA(const edm::ParameterSet& cfg) : mvaMEtAlgo_(c
   srcPFCandidatesView_ = consumes<reco::CandidateView>(cfg.getParameter<edm::InputTag>("srcPFCandidates"));
   srcVertices_ = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("srcVertices"));
   vInputTag srcLeptonsTags = cfg.getParameter<vInputTag>("srcLeptons");
-  for (vInputTag::const_iterator it = srcLeptonsTags.begin(); it != srcLeptonsTags.end(); it++) {
-    srcLeptons_.push_back(consumes<reco::CandidateView>(*it));
+  for (const auto& srcLeptonsTag : srcLeptonsTags) {
+    srcLeptons_.push_back(consumes<reco::CandidateView>(srcLeptonsTag));
   }
   mJetCorrector_ = consumes<reco::JetCorrector>(cfg.getParameter<edm::InputTag>("corrector"));
   minNumLeptons_ = cfg.getParameter<int>("minNumLeptons");
@@ -35,11 +35,9 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es) {
   // CV: check if the event is to be skipped
   if (minNumLeptons_ > 0) {
     int numLeptons = 0;
-    for (std::vector<edm::EDGetTokenT<reco::CandidateView> >::const_iterator srcLeptons_i = srcLeptons_.begin();
-         srcLeptons_i != srcLeptons_.end();
-         ++srcLeptons_i) {
+    for (auto srcLepton : srcLeptons_) {
       edm::Handle<reco::CandidateView> leptons;
-      evt.getByToken(*srcLeptons_i, leptons);
+      evt.getByToken(srcLepton, leptons);
       numLeptons += leptons->size();
     }
     if (!(numLeptons >= minNumLeptons_)) {
@@ -151,11 +149,9 @@ std::vector<reco::PUSubMETCandInfo> PFMETProducerMVA::computeLeptonInfo(
     evt.getByToken(*srcLeptons_i, leptons);
     for (reco::CandidateView::const_iterator lepton1 = leptons->begin(); lepton1 != leptons->end(); ++lepton1) {
       bool pMatch = false;
-      for (std::vector<edm::EDGetTokenT<reco::CandidateView> >::const_iterator srcLeptons_j = srcLeptons_.begin();
-           srcLeptons_j != srcLeptons_.end();
-           ++srcLeptons_j) {
+      for (auto srcLepton : srcLeptons_) {
         edm::Handle<reco::CandidateView> leptons2;
-        evt.getByToken(*srcLeptons_j, leptons2);
+        evt.getByToken(srcLepton, leptons2);
         for (reco::CandidateView::const_iterator lepton2 = leptons2->begin(); lepton2 != leptons2->end(); ++lepton2) {
           if (&(*lepton1) == &(*lepton2)) {
             continue;
@@ -172,8 +168,8 @@ std::vector<reco::PUSubMETCandInfo> PFMETProducerMVA::computeLeptonInfo(
           }
           if (pMatch && lepton1->pt() == lepton2->pt()) {
             pMatch = false;
-            for (unsigned int i0 = 0; i0 < leptonInfo.size(); i0++) {
-              if (std::abs(lepton1->pt() - leptonInfo[i0].p4().pt()) < dPtMatch) {
+            for (auto& i0 : leptonInfo) {
+              if (std::abs(lepton1->pt() - i0.p4().pt()) < dPtMatch) {
                 pMatch = true;
                 break;
               }
@@ -212,8 +208,7 @@ std::vector<reco::PUSubMETCandInfo> PFMETProducerMVA::computeJetInfo(const reco:
                                                                      std::vector<reco::PUSubMETCandInfo>& iLeptons,
                                                                      std::vector<reco::PUSubMETCandInfo>& iCands) {
   std::vector<reco::PUSubMETCandInfo> retVal;
-  for (reco::PFJetCollection::const_iterator uncorrJet = uncorrJets.begin(); uncorrJet != uncorrJets.end();
-       ++uncorrJet) {
+  for (const auto& uncorrJet : uncorrJets) {
     // for ( reco::PFJetCollection::const_iterator corrJet = corrJets.begin();
     // 	  corrJet != corrJets.end(); ++corrJet ) {
     auto corrJet = corrJets->begin();
@@ -221,13 +216,13 @@ std::vector<reco::PUSubMETCandInfo> PFMETProducerMVA::computeJetInfo(const reco:
       reco::PFJetRef corrJetRef(corrJets, cjIdx);
 
       // match corrected and uncorrected jets
-      if (uncorrJet->jetArea() != corrJet->jetArea())
+      if (uncorrJet.jetArea() != corrJet->jetArea())
         continue;
-      if (deltaR2(corrJet->p4(), uncorrJet->p4()) > dR2Min)
+      if (deltaR2(corrJet->p4(), uncorrJet.p4()) > dR2Min)
         continue;
 
       // check that jet passes loose PFJet id.
-      if (!passPFLooseId(&(*uncorrJet)))
+      if (!passPFLooseId(&uncorrJet))
         continue;
 
       // compute jet energy correction factor
@@ -239,16 +234,16 @@ std::vector<reco::PUSubMETCandInfo> PFMETProducerMVA::computeJetInfo(const reco:
       jetInfo.setP4(corrJet->p4());
       double lType1Corr = 0;
       if (useType1_) {  //Compute the type 1 correction ===> This code is crap
-        double pCorr = iCorrector.correction(*uncorrJet);
-        lType1Corr = std::abs(corrJet->pt() - pCorr * uncorrJet->pt());
+        double pCorr = iCorrector.correction(uncorrJet);
+        lType1Corr = std::abs(corrJet->pt() - pCorr * uncorrJet.pt());
         TLorentzVector pVec;
         pVec.SetPtEtaPhiM(lType1Corr, 0, corrJet->phi(), 0);
         reco::Candidate::LorentzVector pType1Corr;
         pType1Corr.SetCoordinates(pVec.Px(), pVec.Py(), pVec.Pz(), pVec.E());
         //Filter to leptons
         bool pOnLepton = false;
-        for (unsigned int i0 = 0; i0 < iLeptons.size(); i0++) {
-          if (deltaR2(iLeptons[i0].p4(), corrJet->p4()) < dR2Max) {
+        for (auto& iLepton : iLeptons) {
+          if (deltaR2(iLepton.p4(), corrJet->p4()) < dR2Max) {
             pOnLepton = true;
             break;
           }
@@ -261,7 +256,7 @@ std::vector<reco::PUSubMETCandInfo> PFMETProducerMVA::computeJetInfo(const reco:
           iCands.push_back(pfCandidateInfo);
         }
         //Scale
-        lType1Corr = (pCorr * uncorrJet->pt() - uncorrJet->pt());
+        lType1Corr = (pCorr * uncorrJet.pt() - uncorrJet.pt());
         lType1Corr /= corrJet->pt();
       }
 
@@ -270,8 +265,8 @@ std::vector<reco::PUSubMETCandInfo> PFMETProducerMVA::computeJetInfo(const reco:
         continue;
 
       jetInfo.setMvaVal(jetIds[corrJetRef]);
-      float chEnF = (uncorrJet->chargedEmEnergy() + uncorrJet->chargedHadronEnergy() + uncorrJet->chargedMuEnergy()) /
-                    uncorrJet->energy();
+      float chEnF = (uncorrJet.chargedEmEnergy() + uncorrJet.chargedHadronEnergy() + uncorrJet.chargedMuEnergy()) /
+                    uncorrJet.energy();
       if (useType1_)
         chEnF += lType1Corr * (1 - jetInfo.chargedEnFrac());
       jetInfo.setChargedEnFrac(chEnF);
@@ -319,14 +314,14 @@ std::vector<reco::PUSubMETCandInfo> PFMETProducerMVA::computePFCandidateInfo(con
 
 std::vector<reco::Vertex::Point> PFMETProducerMVA::computeVertexInfo(const reco::VertexCollection& vertices) {
   std::vector<reco::Vertex::Point> retVal;
-  for (reco::VertexCollection::const_iterator vertex = vertices.begin(); vertex != vertices.end(); ++vertex) {
-    if (std::abs(vertex->z()) > 24.)
+  for (const auto& vertice : vertices) {
+    if (std::abs(vertice.z()) > 24.)
       continue;
-    if (vertex->ndof() < 4.)
+    if (vertice.ndof() < 4.)
       continue;
-    if (vertex->position().Rho() > 2.)
+    if (vertice.position().Rho() > 2.)
       continue;
-    retVal.push_back(vertex->position());
+    retVal.push_back(vertice.position());
   }
   return retVal;
 }
@@ -347,11 +342,11 @@ double PFMETProducerMVA::chargedEnFrac(const reco::Candidate* iCand,
   const reco::PFTau* lPFTau = nullptr;
   lPFTau = dynamic_cast<const reco::PFTau*>(iCand);
   if (lPFTau != nullptr) {
-    for (UInt_t i0 = 0; i0 < lPFTau->signalCands().size(); i0++) {
-      lPtTot += (lPFTau->signalCands())[i0]->pt();
-      if ((lPFTau->signalCands())[i0]->charge() == 0)
+    for (const auto& i0 : lPFTau->signalCands()) {
+      lPtTot += i0->pt();
+      if (i0->charge() == 0)
         continue;
-      lPtCharged += (lPFTau->signalCands())[i0]->pt();
+      lPtCharged += i0->pt();
     }
   } else {
     const pat::Tau* lPatPFTau = nullptr;

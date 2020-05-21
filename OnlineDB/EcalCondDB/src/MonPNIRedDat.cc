@@ -164,8 +164,8 @@ void MonPNIRedDat::writeArrayDB(const std::map<EcalLogicID, MonPNIRedDat>* data,
   const MonPNIRedDat* dataitem;
   int count = 0;
   typedef map<EcalLogicID, MonPNIRedDat>::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
-    channel = &(p->first);
+  for (const auto& p : *data) {
+    channel = &(p.first);
     int logicID = channel->getLogicID();
     if (!logicID) {
       throw(std::runtime_error("MonPNIRedDat::writeArrayDB:  Bad EcalLogicID"));
@@ -173,7 +173,7 @@ void MonPNIRedDat::writeArrayDB(const std::map<EcalLogicID, MonPNIRedDat>* data,
     ids[count] = logicID;
     iovid_vec[count] = iovID;
 
-    dataitem = &(p->second);
+    dataitem = &(p.second);
     // dataIface.writeDB( channel, dataitem, iov);
     float x = dataitem->getADCMeanG1();
     float y = dataitem->getADCRMSG1();

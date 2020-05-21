@@ -28,11 +28,11 @@ const ParabolaFit::Result& ParabolaFit::result(bool doErrors) const {
   F0 = F1 = F2 = F3 = F4 = F0y = F1y = F2y = 0.;
 
   typedef vector<Point>::const_iterator IT;
-  for (IT ip = points.begin(); ip != points.end(); ip++) {
+  for (const auto& point : points) {
     double pow;
-    double x = ip->x;
-    double y = ip->y;
-    double w = ip->w;
+    double x = point.x;
+    double y = point.y;
+    double w = point.w;
 
     F0 += w;
     F0y += w * y;
@@ -76,14 +76,14 @@ const ParabolaFit::Result& ParabolaFit::result(bool doErrors) const {
   if (!hasWeights && dof() > 0) {
     //     cout <<" CHI2: " << chi2() <<" DOF: " << dof() << endl;
     double scale_w = 1. / chi2() / dof();
-    for (IT ip = points.begin(); ip != points.end(); ip++)
-      ip->w *= scale_w;
+    for (const auto& point : points)
+      point.w *= scale_w;
     //     cout <<" CHI2: " << chi2() <<" DOF: " << dof() << endl;
   }
 
-  for (IT ip = points.begin(); ip != points.end(); ip++) {
-    double w = ip->w;
-    Column cX = {1., ip->x, sqr(ip->x)};
+  for (const auto& point : points) {
+    double w = point.w;
+    Column cX = {1., point.x, sqr(point.x)};
 
     double dXBC = det(cX, cB, cC);
     double dAXC = det(cA, cX, cC);
@@ -110,8 +110,8 @@ const ParabolaFit::Result& ParabolaFit::result(bool doErrors) const {
 
 double ParabolaFit::chi2() const {
   double mychi2 = 0.;
-  for (vector<Point>::const_iterator ip = points.begin(); ip != points.end(); ip++) {
-    mychi2 += ip->w * sqr(ip->y - fun(ip->x));
+  for (const auto& point : points) {
+    mychi2 += point.w * sqr(point.y - fun(point.x));
   }
   return mychi2;
 }

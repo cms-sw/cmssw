@@ -69,9 +69,8 @@ MuPFIsoEmbedder::MuPFIsoEmbedder(const edm::ParameterSet& iConfig)
   isolationLabels.push_back("pfIsoSumDRProfileR04");
 
   //Fill the label,pet map and initialize MuPFIsoHelper
-  for (std::vector<std::string>::const_iterator label = isolationLabels.begin(); label != isolationLabels.end();
-       ++label)
-    psetMap[*label] = iConfig.getParameter<edm::ParameterSet>(*label);
+  for (const auto& isolationLabel : isolationLabels)
+    psetMap[isolationLabel] = iConfig.getParameter<edm::ParameterSet>(isolationLabel);
   helper_ = new MuPFIsoHelper(psetMap, consumesCollector());
   muonToken_ = consumes<reco::MuonCollection>(muons_);
   produces<reco::MuonCollection>();

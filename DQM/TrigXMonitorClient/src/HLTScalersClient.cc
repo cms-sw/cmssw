@@ -540,21 +540,21 @@ std::pair<double, double> HLTScalersClient::getSlope_(const HLTScalersClient::Co
     double xsq = 0;
     double y = 0;
     double n = double(points.size());
-    for (auto i(points.begin()); i != points.end(); ++i) {
+    for (const auto &point : points) {
       if (debug_)
-        std::cout << "x = " << i->first << ", y = " << i->second << std::endl;
-      xy += i->first * i->second;
-      x += i->first;
-      xsq += i->first * i->first;
-      y += i->second;
+        std::cout << "x = " << point.first << ", y = " << point.second << std::endl;
+      xy += point.first * point.second;
+      x += point.first;
+      xsq += point.first * point.first;
+      y += point.second;
     }
     slope = (n * xy - x * y) / (n * xsq - x * x);
 
     // now get the uncertainty on the slope. Need intercept for this.
     double intercept = (xsq * y - xy * x) / (n * xsq - x * x);
     double sigma_ysq = 0;
-    for (auto i(points.begin()); i != points.end(); ++i) {
-      sigma_ysq += pow((i->second - slope * i->first - intercept), 2.);
+    for (const auto &point : points) {
+      sigma_ysq += pow((point.second - slope * point.first - intercept), 2.);
     }
     //     if ( debug_ )
     //       std::cout << "chi^2 = " << sigma_ysq << std::endl;

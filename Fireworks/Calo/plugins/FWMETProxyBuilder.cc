@@ -67,14 +67,14 @@ void FWMETProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType 
   FWViewEnergyScale* caloScale = vc->getEnergyScale();
 
   //   printf("MET %s %p -> %f\n",  item()->name().c_str(),  vc, caloScale->getScaleFactor3D() );
-  for (Lines_t::iterator i = m_lines.begin(); i != m_lines.end(); ++i) {
-    if (vc == (*i).m_vc) {
+  for (auto& m_line : m_lines) {
+    if (vc == m_line.m_vc) {
       // printf("lineset %s  %p val %f ...%f\n", item()->name().c_str(), (*i).m_ls , (*i).m_et, caloScale->getScaleFactor3D()*(*i).m_et);
-      float value = caloScale->getPlotEt() ? (*i).m_et : (*i).m_energy;
+      float value = caloScale->getPlotEt() ? m_line.m_et : m_line.m_energy;
 
-      (*i).m_ls->SetScale(caloScale->getScaleFactor3D() * value);
+      m_line.m_ls->SetScale(caloScale->getScaleFactor3D() * value);
 
-      TEveProjectable* pable = static_cast<TEveProjectable*>((*i).m_ls);
+      TEveProjectable* pable = static_cast<TEveProjectable*>(m_line.m_ls);
       for (TEveProjectable::ProjList_i j = pable->BeginProjecteds(); j != pable->EndProjecteds(); ++j) {
         (*j)->UpdateProjection();
       }

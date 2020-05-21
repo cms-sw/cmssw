@@ -36,19 +36,18 @@ BTagPerformanceHarvester::BTagPerformanceHarvester(const edm::ParameterSet& pSet
   if (ptRanges.size() <= 1)
     ptRanges = {pSet.getParameter<double>("ptRecJetMin"), pSet.getParameter<double>("ptRecJetMax")};
 
-  for (vector<edm::ParameterSet>::const_iterator iModule = moduleConfig.begin(); iModule != moduleConfig.end();
-       ++iModule) {
-    const string& dataFormatType = iModule->exists("type") ? iModule->getParameter<string>("type") : "JetTag";
+  for (const auto& iModule : moduleConfig) {
+    const string& dataFormatType = iModule.exists("type") ? iModule.getParameter<string>("type") : "JetTag";
     if (dataFormatType == "JetTag") {
-      const InputTag& moduleLabel = iModule->getParameter<InputTag>("label");
+      const InputTag& moduleLabel = iModule.getParameter<InputTag>("label");
       jetTagInputTags.push_back(moduleLabel);
       binJetTagPlotters.push_back(vector<std::shared_ptr<JetTagPlotter>>());
       if (mcPlots_ && makeDiffPlots_) {
         differentialPlots.push_back(vector<std::unique_ptr<BTagDifferentialPlot>>());
       }
     } else if (dataFormatType == "TagCorrelation") {
-      const InputTag& label1 = iModule->getParameter<InputTag>("label1");
-      const InputTag& label2 = iModule->getParameter<InputTag>("label2");
+      const InputTag& label1 = iModule.getParameter<InputTag>("label1");
+      const InputTag& label2 = iModule.getParameter<InputTag>("label2");
       tagCorrelationInputTags.push_back(std::pair<edm::InputTag, edm::InputTag>(label1, label2));
       binTagCorrelationPlotters.push_back(vector<std::unique_ptr<TagCorrelationPlotter>>());
     } else {
@@ -104,14 +103,13 @@ void BTagPerformanceHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGe
   int iTag = -1;
   int iTagCorr = -1;
   int iInfoTag = -1;
-  for (vector<edm::ParameterSet>::const_iterator iModule = moduleConfig.begin(); iModule != moduleConfig.end();
-       ++iModule) {
-    const string& dataFormatType = iModule->exists("type") ? iModule->getParameter<string>("type") : "JetTag";
-    const bool& doCTagPlots = iModule->exists("doCTagPlots") ? iModule->getParameter<bool>("doCTagPlots") : false;
+  for (const auto& iModule : moduleConfig) {
+    const string& dataFormatType = iModule.exists("type") ? iModule.getParameter<string>("type") : "JetTag";
+    const bool& doCTagPlots = iModule.exists("doCTagPlots") ? iModule.getParameter<bool>("doCTagPlots") : false;
 
     if (dataFormatType == "JetTag") {
       iTag++;
-      const string& folderName = iModule->getParameter<string>("folder");
+      const string& folderName = iModule.getParameter<string>("folder");
 
       // Contains plots for each bin of rapidity and pt.
       auto differentialPlotsConstantEta = std::make_unique<std::vector<std::unique_ptr<BTagDifferentialPlot>>>();
@@ -119,7 +117,7 @@ void BTagPerformanceHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGe
       if (mcPlots_ && makeDiffPlots_) {
         // the constant b-efficiency for the differential plots versus pt and eta
         const double& effBConst =
-            iModule->getParameter<edm::ParameterSet>("parameters").getParameter<double>("effBConst");
+            iModule.getParameter<edm::ParameterSet>("parameters").getParameter<double>("effBConst");
 
         // the objects for the differential plots vs. eta,pt for
         for (int iEta = iEtaStart; iEta < iEtaEnd; iEta++) {
@@ -143,11 +141,11 @@ void BTagPerformanceHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGe
 
           // Instantiate the generic b tag plotter
           bool doDifferentialPlots =
-              iModule->exists("differentialPlots") && iModule->getParameter<bool>("differentialPlots") == true;
+              iModule.exists("differentialPlots") && iModule.getParameter<bool>("differentialPlots") == true;
           std::shared_ptr<JetTagPlotter> jetTagPlotter =
               std::make_shared<JetTagPlotter>(folderName,
                                               etaPtBin,
-                                              iModule->getParameter<edm::ParameterSet>("parameters"),
+                                              iModule.getParameter<edm::ParameterSet>("parameters"),
                                               mcPlots_,
                                               true,
                                               ibook,
@@ -176,8 +174,8 @@ void BTagPerformanceHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGe
       }
     } else if (dataFormatType == "TagCorrelation") {
       iTagCorr++;
-      const InputTag& label1 = iModule->getParameter<InputTag>("label1");
-      const InputTag& label2 = iModule->getParameter<InputTag>("label2");
+      const InputTag& label1 = iModule.getParameter<InputTag>("label1");
+      const InputTag& label2 = iModule.getParameter<InputTag>("label2");
 
       // eta loop
       for (int iEta = iEtaStart; iEta != iEtaEnd; ++iEta) {
@@ -189,7 +187,7 @@ void BTagPerformanceHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGe
               std::make_unique<TagCorrelationPlotter>(label1.label(),
                                                       label2.label(),
                                                       etaPtBin,
-                                                      iModule->getParameter<edm::ParameterSet>("parameters"),
+                                                      iModule.getParameter<edm::ParameterSet>("parameters"),
                                                       mcPlots_,
                                                       doCTagPlots,
                                                       true,
@@ -200,8 +198,8 @@ void BTagPerformanceHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGe
     } else {
       iInfoTag++;
       // tag info retrievel is deferred(needs availability of EventSetup)
-      const InputTag& moduleLabel = iModule->getParameter<InputTag>("label");
-      const string& folderName = iModule->getParameter<string>("folder");
+      const InputTag& moduleLabel = iModule.getParameter<InputTag>("label");
+      const string& folderName = iModule.getParameter<string>("folder");
       // eta loop
       for (int iEta = iEtaStart; iEta < iEtaEnd; iEta++) {
         // pt loop
@@ -214,7 +212,7 @@ void BTagPerformanceHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGe
               theFactory.buildPlotter(dataFormatType,
                                       moduleLabel.label(),
                                       etaPtBin,
-                                      iModule->getParameter<edm::ParameterSet>("parameters"),
+                                      iModule.getParameter<edm::ParameterSet>("parameters"),
                                       folderName,
                                       mcPlots_,
                                       true,

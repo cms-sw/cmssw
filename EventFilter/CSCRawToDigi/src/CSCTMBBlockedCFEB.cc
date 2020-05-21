@@ -106,13 +106,12 @@ void CSCTMBBlockedCFEB::print() const {
     anyCFEB = getSingleCFEBList(z);
     std::cout << " CFEB# " << z << std::endl;
     int LayerCnt = 0;
-    for (std::vector<std::vector<int> >::const_iterator layerIt = anyCFEB.begin(); layerIt != anyCFEB.end();
-         layerIt++) {
-      anyLayer = *layerIt;
+    for (const auto &layerIt : anyCFEB) {
+      anyLayer = layerIt;
       std::cout << " Layer: " << LayerCnt;
       if (!anyLayer.empty()) {
-        for (int i = 0; i < (int)anyLayer.size(); i++) {
-          std::cout << " " << anyLayer[i];
+        for (int i : anyLayer) {
+          std::cout << " " << i;
         }
       } else
         std::cout << " No Blocked DiStrips on the Layer ";

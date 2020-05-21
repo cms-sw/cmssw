@@ -61,21 +61,17 @@ void ShallowGainCalibration::produce(edm::Event& iEvent, const edm::EventSetup& 
   edm::Handle<TrajTrackAssociationCollection> associations;
   iEvent.getByToken(association_token_, associations);
 
-  for (TrajTrackAssociationCollection::const_iterator association = associations->begin();
-       association != associations->end();
-       association++) {
-    const Trajectory* traj = association->key.get();
-    const reco::Track* track = association->val.get();
+  for (const auto& association : *associations) {
+    const Trajectory* traj = association.key.get();
+    const reco::Track* track = association.val.get();
 
     vector<TrajectoryMeasurement> measurements = traj->measurements();
-    for (vector<TrajectoryMeasurement>::const_iterator measurement_it = measurements.begin();
-         measurement_it != measurements.end();
-         measurement_it++) {
-      TrajectoryStateOnSurface trajState = measurement_it->updatedState();
+    for (const auto& measurement : measurements) {
+      TrajectoryStateOnSurface trajState = measurement.updatedState();
       if (!trajState.isValid())
         continue;
 
-      const TrackingRecHit* hit = (*measurement_it->recHit()).hit();
+      const TrackingRecHit* hit = (*measurement.recHit()).hit();
       const SiStripRecHit1D* sistripsimple1dhit = dynamic_cast<const SiStripRecHit1D*>(hit);
       const SiStripRecHit2D* sistripsimplehit = dynamic_cast<const SiStripRecHit2D*>(hit);
       const SiStripMatchedRecHit2D* sistripmatchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
@@ -130,11 +126,11 @@ void ShallowGainCalibration::produce(edm::Event& iEvent, const edm::EventSetup& 
             PrevGainTick = gainHandle->getApvGain(APVId, gainHandle->getRange(DetId, 0), 1);
           }
 
-          for (unsigned int a = 0; a < Ampls.size(); a++) {
-            Charge += Ampls[a];
-            if (Ampls[a] >= 254)
+          for (unsigned char Ampl : Ampls) {
+            Charge += Ampl;
+            if (Ampl >= 254)
               Saturation = true;
-            amplitude->push_back(Ampls[a]);
+            amplitude->push_back(Ampl);
           }
 
           if (FirstStrip == 0)
@@ -182,9 +178,9 @@ void ShallowGainCalibration::produce(edm::Event& iEvent, const edm::EventSetup& 
           Saturation = false;
           Overlapping = false;
 
-          for (unsigned int a = 0; a < Ampls.size(); a++) {
-            Charge += Ampls[a];
-            if (Ampls[a] >= 254)
+          for (unsigned short Ampl : Ampls) {
+            Charge += Ampl;
+            if (Ampl >= 254)
               Saturation = true;
           }
         }

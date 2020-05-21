@@ -107,8 +107,8 @@ public:
   }
 
   bool setRCTInfoCrateID(std::vector<RCTInfo> &rctInfoVector, unsigned int crateID) {
-    for (unsigned int i = 0; i < rctInfoVector.size(); i++) {
-      rctInfoVector.at(i).crateID = crateID;
+    for (auto &i : rctInfoVector) {
+      i.crateID = crateID;
     }
 
     return true;

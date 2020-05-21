@@ -149,8 +149,8 @@ void RPCSeedPattern::ThreePointsAlgorithm() {
     isStraight = false;
     Center /= (NumberofPart - NumberofStraight);
     double meanR = 0.;
-    for (ConstMuonRecHitContainer::const_iterator iter = theRecHits.begin(); iter != theRecHits.end(); iter++)
-      meanR += getDistance(*iter, Center);
+    for (const auto& theRecHit : theRecHits)
+      meanR += getDistance(theRecHit, Center);
     meanR /= NumberofHitsinSeed;
     meanRadius = meanR;
   }
@@ -178,9 +178,9 @@ void RPCSeedPattern::MiddlePointsAlgorithm() {
   double* X = new double[NumberofHitsinSeed];
   double* Y = new double[NumberofHitsinSeed];
   unsigned int n = 0;
-  for (ConstMuonRecHitContainer::const_iterator iter = theRecHits.begin(); iter != theRecHits.end(); iter++) {
-    X[n] = (*iter)->globalPosition().x();
-    Y[n] = (*iter)->globalPosition().y();
+  for (const auto& theRecHit : theRecHits) {
+    X[n] = theRecHit->globalPosition().x();
+    Y[n] = theRecHit->globalPosition().y();
     cout << "X[" << n << "] = " << X[n] << ", Y[" << n << "]= " << Y[n] << endl;
     n++;
   }
@@ -203,8 +203,8 @@ void RPCSeedPattern::MiddlePointsAlgorithm() {
   if (!checkStraight) {
     GlobalVector Center_temp = computePtWithThreerecHits(pt, pt_err, x, y);
     double meanR = 0.;
-    for (ConstMuonRecHitContainer::const_iterator iter = theRecHits.begin(); iter != theRecHits.end(); iter++)
-      meanR += getDistance(*iter, Center_temp);
+    for (const auto& theRecHit : theRecHits)
+      meanR += getDistance(theRecHit, Center_temp);
     meanR /= NumberofHitsinSeed;
     // For simple pattern
     isStraight = false;
@@ -259,8 +259,8 @@ void RPCSeedPattern::SegmentAlgorithm() {
     isStraight = false;
     Center /= (NumberofSegment - 1 - NumberofStraight);
     double meanR = 0.;
-    for (ConstMuonRecHitContainer::const_iterator iter = theRecHits.begin(); iter != theRecHits.end(); iter++)
-      meanR += getDistance(*iter, Center);
+    for (const auto& theRecHit : theRecHits)
+      meanR += getDistance(theRecHit, Center);
     meanR /= NumberofHitsinSeed;
     meanRadius = meanR;
   } else {
@@ -361,16 +361,16 @@ void RPCSeedPattern::SegmentAlgorithmSpecial(const edm::EventSetup& eSetup) {
   }
   delete[] gp;
   GlobalVector meanB2(0, 0, 0);
-  for (std::vector<GlobalVector>::const_iterator BIter = BValue.begin(); BIter != BValue.end(); BIter++)
-    meanB2 += (*BIter);
+  for (const auto& BIter : BValue)
+    meanB2 += BIter;
   meanB2 /= BValue.size();
   cout << "Mean B field is " << meanB2 << endl;
   meanMagneticField2 = meanB2;
 
   double meanBz2 = meanB2.z();
   double deltaBz2 = 0.;
-  for (std::vector<GlobalVector>::const_iterator BIter = BValue.begin(); BIter != BValue.end(); BIter++)
-    deltaBz2 += (BIter->z() - meanBz2) * (BIter->z() - meanBz2);
+  for (const auto& BIter : BValue)
+    deltaBz2 += (BIter.z() - meanBz2) * (BIter.z() - meanBz2);
   deltaBz2 /= BValue.size();
   deltaBz2 = sqrt(deltaBz2);
   cout << "delta Bz is " << deltaBz2 << endl;
@@ -441,9 +441,9 @@ bool RPCSeedPattern::checkSegment() const {
   bool isFit = true;
   unsigned int count = 0;
   // first 4 recHits should be located in RB1 and RB2
-  for (ConstMuonRecHitContainer::const_iterator iter = theRecHits.begin(); iter != theRecHits.end(); iter++) {
+  for (const auto& theRecHit : theRecHits) {
     count++;
-    const GeomDet* Detector = (*iter)->det();
+    const GeomDet* Detector = theRecHit->det();
     if (dynamic_cast<const RPCChamber*>(Detector) != nullptr) {
       const RPCChamber* RPCCh = dynamic_cast<const RPCChamber*>(Detector);
       RPCDetId RPCId = RPCCh->id();
@@ -472,11 +472,11 @@ MuonTransientTrackingRecHit::ConstMuonRecHitPointer RPCSeedPattern::BestRefRecHi
   int index = 0;
   // Use the last one for recHit on last layer has minmum delta Z for barrel or delta R for endcap while calculating the momentum
   // But for Algorithm 3 we use the 4th recHit on the 2nd segment for more accurate
-  for (ConstMuonRecHitContainer::const_iterator iter = theRecHits.begin(); iter != theRecHits.end(); iter++) {
+  for (const auto& theRecHit : theRecHits) {
     if (AlgorithmType != 3)
-      best = (*iter);
+      best = theRecHit;
     else if (index < 4)
-      best = (*iter);
+      best = theRecHit;
     index++;
   }
   return best;
@@ -615,8 +615,8 @@ void RPCSeedPattern::checkSimplePattern(const edm::EventSetup& eSetup) {
   unsigned int NumberofHitsinSeed = nrhit();
 
   // Print the recHit's position
-  for (ConstMuonRecHitContainer::const_iterator iter = theRecHits.begin(); iter != theRecHits.end(); iter++)
-    cout << "Position of recHit is: " << (*iter)->globalPosition() << endl;
+  for (const auto& theRecHit : theRecHits)
+    cout << "Position of recHit is: " << theRecHit->globalPosition() << endl;
 
   // Get magnetice field information
   std::vector<double> BzValue;
@@ -637,13 +637,13 @@ void RPCSeedPattern::checkSimplePattern(const edm::EventSetup& eSetup) {
     delete[] gp;
   }
   meanBz = 0.;
-  for (unsigned int index = 0; index < BzValue.size(); index++)
-    meanBz += BzValue[index];
+  for (double index : BzValue)
+    meanBz += index;
   meanBz /= BzValue.size();
   cout << "Mean Bz is " << meanBz << endl;
   deltaBz = 0.;
-  for (unsigned int index = 0; index < BzValue.size(); index++)
-    deltaBz += (BzValue[index] - meanBz) * (BzValue[index] - meanBz);
+  for (double index : BzValue)
+    deltaBz += (index - meanBz) * (index - meanBz);
   deltaBz /= BzValue.size();
   deltaBz = sqrt(deltaBz);
   cout << "delata Bz is " << deltaBz << endl;
@@ -680,10 +680,10 @@ void RPCSeedPattern::checkSimplePattern(const edm::EventSetup& eSetup) {
     // Check clockwise direction
     GlobalVector* vec = new GlobalVector[NumberofHitsinSeed];
     unsigned int index = 0;
-    for (ConstMuonRecHitContainer::const_iterator iter = theRecHits.begin(); iter != theRecHits.end(); iter++) {
-      GlobalVector vec_temp(((*iter)->globalPosition().x() - Center.x()),
-                            ((*iter)->globalPosition().y() - Center.y()),
-                            ((*iter)->globalPosition().z() - Center.z()));
+    for (const auto& theRecHit : theRecHits) {
+      GlobalVector vec_temp((theRecHit->globalPosition().x() - Center.x()),
+                            (theRecHit->globalPosition().y() - Center.y()),
+                            (theRecHit->globalPosition().z() - Center.z()));
       vec[index] = vec_temp;
       index++;
     }
@@ -719,8 +719,8 @@ void RPCSeedPattern::checkSimplePattern(const edm::EventSetup& eSetup) {
     cout << " meanPt is " << meanPt << endl;
 
     double deltaR = 0.;
-    for (ConstMuonRecHitContainer::const_iterator iter = theRecHits.begin(); iter != theRecHits.end(); iter++) {
-      deltaR += (getDistance(*iter, Center) - meanRadius) * (getDistance(*iter, Center) - meanRadius);
+    for (const auto& theRecHit : theRecHits) {
+      deltaR += (getDistance(theRecHit, Center) - meanRadius) * (getDistance(theRecHit, Center) - meanRadius);
     }
     deltaR = deltaR / NumberofHitsinSeed;
     deltaR = sqrt(deltaR);
@@ -759,8 +759,8 @@ void RPCSeedPattern::checkSegmentAlgorithmSpecial(const edm::EventSetup& eSetup)
   isGoodPattern = 1;
 
   // Print the recHit's position
-  for (ConstMuonRecHitContainer::const_iterator iter = theRecHits.begin(); iter != theRecHits.end(); iter++)
-    cout << "Position of recHit is: " << (*iter)->globalPosition() << endl;
+  for (const auto& theRecHit : theRecHits)
+    cout << "Position of recHit is: " << theRecHit->globalPosition() << endl;
 
   // Check the Z direction
   if (fabs((*(theRecHits.end() - 1))->globalPosition().z() - (*(theRecHits.begin()))->globalPosition().z()) > ZError) {
@@ -1002,8 +1002,8 @@ RPCSeedPattern::weightedTrajectorySeed RPCSeedPattern::createFakeSeed(int& isGoo
   PTrajectoryStateOnDet seedTSOS = trajectoryStateTransform::persistentState(tsos, id.rawId());
 
   edm::OwnVector<TrackingRecHit> container;
-  for (ConstMuonRecHitContainer::const_iterator iter = theRecHits.begin(); iter != theRecHits.end(); iter++)
-    container.push_back((*iter)->hit()->clone());
+  for (const auto& theRecHit : theRecHits)
+    container.push_back(theRecHit->hit()->clone());
 
   TrajectorySeed theSeed(seedTSOS, container, alongMomentum);
   weightedTrajectorySeed theweightedSeed;
@@ -1088,12 +1088,12 @@ RPCSeedPattern::weightedTrajectorySeed RPCSeedPattern::createSeed(int& isGoodSee
   PTrajectoryStateOnDet const& seedTSOS = trajectoryStateTransform::persistentState(tsos, id.rawId());
 
   edm::OwnVector<TrackingRecHit> container;
-  for (ConstMuonRecHitContainer::const_iterator iter = theRecHits.begin(); iter != theRecHits.end(); iter++) {
+  for (const auto& theRecHit : theRecHits) {
     // This casting withou clone will cause memory overflow when used in push_back
     // Since container's deconstructor functiion free the pointer menber!
     //TrackingRecHit* pt = dynamic_cast<TrackingRecHit*>(&*(*iter));
     //cout << "Push recHit type " << pt->getType() << endl;
-    container.push_back((*iter)->hit()->clone());
+    container.push_back(theRecHit->hit()->clone());
   }
 
   TrajectorySeed theSeed(seedTSOS, container, alongMomentum);

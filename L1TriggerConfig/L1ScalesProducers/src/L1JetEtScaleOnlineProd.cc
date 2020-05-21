@@ -173,9 +173,9 @@ std::unique_ptr<L1CaloEtScale> L1JetEtScaleOnlineProd::newObject(const std::stri
   {
     edm::LogError("L1-O2O") << "Problem with L1JetEtScale key : when reading scale.";
   } else {
-    for (std::vector<std::string>::iterator thresh = queryStrings.begin(); thresh != queryStrings.end(); ++thresh) {
+    for (auto& queryString : queryStrings) {
       float tempScale = 0.0;
-      scaleResults.fillVariable(*thresh, tempScale);
+      scaleResults.fillVariable(queryString, tempScale);
       thresholds.push_back(tempScale);
     }
   }

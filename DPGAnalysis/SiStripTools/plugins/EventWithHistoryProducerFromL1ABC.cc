@@ -128,10 +128,10 @@ void EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::E
       }
     } else {
       if (!_forceNoOffset) {
-        for (L1AcceptBunchCrossingCollection::const_iterator l1abc = pIn->begin(); l1abc != pIn->end(); ++l1abc) {
-          if (l1abc->l1AcceptOffset() == 0) {
-            orbitoffset = (long long)l1abc->orbitNumber() - (long long)iEvent.orbitNumber();
-            bxoffset = l1abc->bunchCrossing() - iEvent.bunchCrossing();
+        for (const auto& l1abc : *pIn) {
+          if (l1abc.l1AcceptOffset() == 0) {
+            orbitoffset = (long long)l1abc.orbitNumber() - (long long)iEvent.orbitNumber();
+            bxoffset = l1abc.bunchCrossing() - iEvent.bunchCrossing();
           }
         }
       }
@@ -158,8 +158,8 @@ void EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::E
           if (useTCDS) {
             edm::LogVerbatim("AbsoluteBXOffsetChanged") << *tcdsRecord;  // Not sure about this
           } else {
-            for (L1AcceptBunchCrossingCollection::const_iterator l1abc = pIn->begin(); l1abc != pIn->end(); ++l1abc) {
-              edm::LogVerbatim("AbsoluteBXOffsetChanged") << *l1abc;
+            for (const auto& l1abc : *pIn) {
+              edm::LogVerbatim("AbsoluteBXOffsetChanged") << l1abc;
             }
           }
         }

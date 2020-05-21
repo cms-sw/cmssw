@@ -31,15 +31,15 @@ void RPCStripNoisesRcdRead::analyze(const edm::Event& evt, const edm::EventSetup
   std::vector<RPCStripNoises::NoiseItem> vnoise = noiseRcd->getVNoise();
   std::vector<float> vcls = noiseRcd->getCls();
 
-  for (unsigned int n = 0; n < vcls.size(); ++n) {
-    std::cout << "Cls Value: " << vcls[n] << std::endl;
+  for (float vcl : vcls) {
+    std::cout << "Cls Value: " << vcl << std::endl;
   }
 
   int i = 1;
-  for (std::vector<RPCStripNoises::NoiseItem>::iterator it = vnoise.begin(); it != vnoise.end(); ++it) {
+  for (auto& it : vnoise) {
     if (i % 96 == 0)
-      std::cout << "DetId:  " << it->dpid << "  " << it->time << "  " << std::endl;
-    std::cout << "                                    Noise Value: " << (it->noise) << "  " << (it->eff) << std::endl;
+      std::cout << "DetId:  " << it.dpid << "  " << it.time << "  " << std::endl;
+    std::cout << "                                    Noise Value: " << (it.noise) << "  " << (it.eff) << std::endl;
     i++;
   }
 }

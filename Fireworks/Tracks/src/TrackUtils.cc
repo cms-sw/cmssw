@@ -80,10 +80,8 @@ namespace fireworks {
         refStates.push_back(State(TEveVector(v.x(), v.y(), v.z()), TEveVector(p.x(), p.y(), p.z())));
       }
     }
-    for (std::vector<TEveVector>::const_iterator point = extraRefPoints.begin(), pointEnd = extraRefPoints.end();
-         point != pointEnd;
-         ++point)
-      refStates.push_back(State(*point));
+    for (auto extraRefPoint : extraRefPoints)
+      refStates.push_back(State(extraRefPoint));
     if (track.pt() > 1)
       std::sort(refStates.begin(), refStates.end(), StateOrdering(trackMomentum));
 
@@ -381,17 +379,14 @@ namespace fireworks {
         if (allClusters != nullptr) {
           const edmNew::DetSet<SiStripCluster>& clustersOnThisDet = (*allClusters)[rechit->geographicalId().rawId()];
 
-          for (edmNew::DetSet<SiStripCluster>::const_iterator itc = clustersOnThisDet.begin(),
-                                                              edc = clustersOnThisDet.end();
-               itc != edc;
-               ++itc) {
+          for (const auto& itc : clustersOnThisDet) {
             TEveStraightLineSet* scposition = new TEveStraightLineSet;
             scposition->SetDepthTest(false);
             scposition->SetPickable(kTRUE);
 
-            short firststrip = itc->firstStrip();
+            short firststrip = itc.firstStrip();
 
-            if (&*itc == cluster) {
+            if (&itc == cluster) {
               scposition->SetTitle(Form("Exact SiStripCluster from TrackingRecHit, first strip %d", firststrip));
               scposition->SetLineColor(kGreen);
             } else {
@@ -440,11 +435,8 @@ namespace fireworks {
           edmNew::DetSetVector<SiStripCluster>::const_iterator itds = allClusters->find(rawid);
           if (itds != allClusters->end()) {
             const edmNew::DetSet<SiStripCluster>& clustersOnThisDet = *itds;
-            for (edmNew::DetSet<SiStripCluster>::const_iterator itc = clustersOnThisDet.begin(),
-                                                                edc = clustersOnThisDet.end();
-                 itc != edc;
-                 ++itc) {
-              short firststrip = itc->firstStrip();
+            for (const auto& itc : clustersOnThisDet) {
+              short firststrip = itc.firstStrip();
 
               TEveStraightLineSet* scposition = new TEveStraightLineSet;
               scposition->SetDepthTest(false);
@@ -517,12 +509,9 @@ namespace fireworks {
       edmNew::DetSetVector<SiPixelCluster>::const_iterator itds = allClusters->find(id.rawId());
       if (itds != allClusters->end()) {
         const edmNew::DetSet<SiPixelCluster>& clustersOnThisDet = *itds;
-        for (edmNew::DetSet<SiPixelCluster>::const_iterator itc = clustersOnThisDet.begin(),
-                                                            edc = clustersOnThisDet.end();
-             itc != edc;
-             ++itc) {
-          if (&*itc != hitCluster)
-            pushPixelCluster(pixelPoints, *geom, id, *itc, geom->getParameters(id));
+        for (const auto& itc : clustersOnThisDet) {
+          if (&itc != hitCluster)
+            pushPixelCluster(pixelPoints, *geom, id, itc, geom->getParameters(id));
         }
       }
     }
@@ -715,8 +704,8 @@ namespace fireworks {
 
   std::string info(const std::set<DetId>& idSet) {
     std::string text;
-    for (std::set<DetId>::const_iterator id = idSet.begin(), idEnd = idSet.end(); id != idEnd; ++id) {
-      text += info(*id);
+    for (auto id : idSet) {
+      text += info(id);
       text += "\n";
     }
     return text;
@@ -724,8 +713,8 @@ namespace fireworks {
 
   std::string info(const std::vector<DetId>& idSet) {
     std::string text;
-    for (std::vector<DetId>::const_iterator id = idSet.begin(), idEnd = idSet.end(); id != idEnd; ++id) {
-      text += info(*id);
+    for (auto id : idSet) {
+      text += info(id);
       text += "\n";
     }
     return text;

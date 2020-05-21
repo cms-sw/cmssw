@@ -36,8 +36,8 @@ void CheckOverlap::update(const BeginOfRun* run) {
     std::vector<G4LogicalVolume*>::const_iterator lvcite;
     int i = 0;
     for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
-      for (unsigned int ii = 0; ii < nodeNames.size(); ii++) {
-        if ((*lvcite)->GetName() == (G4String)(nodeNames[ii])) {
+      for (auto& nodeName : nodeNames) {
+        if ((*lvcite)->GetName() == (G4String)nodeName) {
           topLV.push_back((*lvcite));
           break;
         }
@@ -54,9 +54,9 @@ void CheckOverlap::update(const BeginOfRun* run) {
   if (topLV.empty()) {
     G4cout << "No Top LV Found" << G4endl;
   } else {
-    for (unsigned int ii = 0; ii < topLV.size(); ++ii) {
-      G4cout << "Top LV Name " << topLV[ii]->GetName() << G4endl;
-      checkHierarchyLeafPVLV(topLV[ii], 0);
+    for (auto& ii : topLV) {
+      G4cout << "Top LV Name " << ii->GetName() << G4endl;
+      checkHierarchyLeafPVLV(ii, 0);
     }
   }
 }

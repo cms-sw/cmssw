@@ -37,8 +37,8 @@ bool GenericDauHepMCFilter::filter(const HepMC::GenEvent* evt) {
            ++des) {
         ++ndau;
         //       cout << "   -> Daughter = " << (*des)->pdg_id() << endl;
-        for (unsigned int i = 0; i < dauIDs.size(); ++i) {
-          if ((*des)->pdg_id() != dauIDs[i])
+        for (int dauID : dauIDs) {
+          if ((*des)->pdg_id() != dauID)
             continue;
           if ((*des)->momentum().perp() > minptcut && (*des)->momentum().perp() < maxptcut &&
               (*des)->momentum().eta() > minetacut && (*des)->momentum().eta() < maxetacut) {
@@ -65,9 +65,9 @@ bool GenericDauHepMCFilter::filter(const HepMC::GenEvent* evt) {
              des != (*p)->end_vertex()->particles_end(HepMC::children);
              ++des) {
           ++ndau;
-          for (unsigned int i = 0; i < dauIDs.size(); ++i) {
-            bool has_antipart = !(dauIDs[i] == 22 || dauIDs[i] == 23);
-            int IDanti = has_antipart ? -dauIDs[i] : dauIDs[i];
+          for (int dauID : dauIDs) {
+            bool has_antipart = !(dauID == 22 || dauID == 23);
+            int IDanti = has_antipart ? -dauID : dauID;
             if ((*des)->pdg_id() != IDanti)
               continue;
             if ((*des)->momentum().perp() > minptcut && (*des)->momentum().perp() < maxptcut &&

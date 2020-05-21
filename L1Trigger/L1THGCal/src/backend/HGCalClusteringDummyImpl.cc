@@ -16,10 +16,8 @@ HGCalClusteringDummyImpl::HGCalClusteringDummyImpl(const edm::ParameterSet& conf
 void HGCalClusteringDummyImpl::clusterizeDummy(const std::vector<edm::Ptr<l1t::HGCalTriggerCell>>& triggerCellsPtrs,
                                                l1t::HGCalClusterBxCollection& clusters) {
   std::vector<l1t::HGCalCluster> clustersTmp;
-  for (std::vector<edm::Ptr<l1t::HGCalTriggerCell>>::const_iterator tc = triggerCellsPtrs.begin();
-       tc != triggerCellsPtrs.end();
-       ++tc) {
-    clustersTmp.emplace_back(*tc);
+  for (const auto& triggerCellsPtr : triggerCellsPtrs) {
+    clustersTmp.emplace_back(triggerCellsPtr);
   }
 
   /* store clusters in the persistent collection */

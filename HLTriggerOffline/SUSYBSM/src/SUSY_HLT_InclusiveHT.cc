@@ -86,8 +86,8 @@ void SUSY_HLT_InclusiveHT::analyze(edm::Event const &e, edm::EventSetup const &e
   trigger::TriggerObjectCollection triggerObjects = triggerSummary->getObjects();
   if (!(filterIndex >= triggerSummary->sizeFilters())) {
     const trigger::Keys &keys = triggerSummary->filterKeys(filterIndex);
-    for (size_t j = 0; j < keys.size(); ++j) {
-      trigger::TriggerObject foundObject = triggerObjects[keys[j]];
+    for (unsigned short key : keys) {
+      trigger::TriggerObject foundObject = triggerObjects[key];
       // if(foundObject.id() == 85 && foundObject.pt() > 40.0 &&
       // fabs(foundObject.eta()) < 3.0){
       //  h_triggerJetPt->Fill(foundObject.pt());
@@ -119,37 +119,33 @@ void SUSY_HLT_InclusiveHT::analyze(edm::Event const &e, edm::EventSetup const &e
   if (hasFiredAuxiliaryForHadronicLeg || !e.isRealData()) {
     float caloHT = 0.0;
     float pfHT = 0.0;
-    for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end();
-         ++i_pfjet) {
-      if (i_pfjet->pt() < ptThrJet_)
+    for (const auto &i_pfjet : *pfJetCollection) {
+      if (i_pfjet.pt() < ptThrJet_)
         continue;
-      if (fabs(i_pfjet->eta()) > etaThrJet_)
+      if (fabs(i_pfjet.eta()) > etaThrJet_)
         continue;
-      pfHT += i_pfjet->pt();
+      pfHT += i_pfjet.pt();
     }
 
     if (hasFired) {
-      for (reco::CaloJetCollection::const_iterator i_calojet = caloJetCollection->begin();
-           i_calojet != caloJetCollection->end();
-           ++i_calojet) {
-        if (i_calojet->pt() < ptThrJet_)
+      for (const auto &i_calojet : *caloJetCollection) {
+        if (i_calojet.pt() < ptThrJet_)
           continue;
-        if (fabs(i_calojet->eta()) > etaThrJet_)
+        if (fabs(i_calojet.eta()) > etaThrJet_)
           continue;
-        h_caloJetPt->Fill(i_calojet->pt());
-        h_caloJetEta->Fill(i_calojet->eta());
-        h_caloJetPhi->Fill(i_calojet->phi());
-        caloHT += i_calojet->pt();
+        h_caloJetPt->Fill(i_calojet.pt());
+        h_caloJetEta->Fill(i_calojet.eta());
+        h_caloJetPhi->Fill(i_calojet.phi());
+        caloHT += i_calojet.pt();
       }
-      for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end();
-           ++i_pfjet) {
-        if (i_pfjet->pt() < ptThrJet_)
+      for (const auto &i_pfjet : *pfJetCollection) {
+        if (i_pfjet.pt() < ptThrJet_)
           continue;
-        if (fabs(i_pfjet->eta()) > etaThrJet_)
+        if (fabs(i_pfjet.eta()) > etaThrJet_)
           continue;
-        h_pfJetPt->Fill(i_pfjet->pt());
-        h_pfJetEta->Fill(i_pfjet->eta());
-        h_pfJetPhi->Fill(i_pfjet->phi());
+        h_pfJetPt->Fill(i_pfjet.pt());
+        h_pfJetEta->Fill(i_pfjet.eta());
+        h_pfJetPhi->Fill(i_pfjet.phi());
       }
       h_pfMet->Fill(pfMETCollection->begin()->et());
       h_pfMetPhi->Fill(pfMETCollection->begin()->phi());

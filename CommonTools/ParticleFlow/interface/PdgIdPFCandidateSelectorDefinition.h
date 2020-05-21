@@ -21,8 +21,8 @@ namespace pf2pat {
 
       unsigned key = 0;
       for (collection::const_iterator pfc = hc->begin(); pfc != hc->end(); ++pfc, ++key) {
-        for (unsigned iId = 0; iId < pdgIds_.size(); iId++) {
-          if (pfc->pdgId() == pdgIds_[iId]) {
+        for (int pdgId : pdgIds_) {
+          if (pfc->pdgId() == pdgId) {
             selected_.push_back(reco::PFCandidate(*pfc));
             reco::PFCandidatePtr ptrToMother(hc, key);
             selected_.back().setSourceCandidatePtr(ptrToMother);

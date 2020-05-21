@@ -58,8 +58,8 @@ void RawDataConverter::beginRun(edm::Run const& theRun, edm::EventSetup const& t
   std::vector<edm::eventsetup::EventSetupRecordKey> oToFill;
   theEventSetup.fillAvailableRecordKeys(oToFill);
   std::ostringstream o;
-  for (std::vector<edm::eventsetup::EventSetupRecordKey>::size_type i = 0; i < oToFill.size(); i++) {
-    o << oToFill[i].name() << "\n";
+  for (auto& i : oToFill) {
+    o << i.name() << "\n";
   }
   LogDebug("RawDataConverter") << "The size of EventSetup is: " << oToFill.size() << "\n" << o.str();
 }
@@ -80,41 +80,37 @@ RawDataConverter::DigiType RawDataConverter::GetValidLabels(
   std::ostringstream search_message;
   search_message << "Searching for SiStripDigis\n";
   // Loop through Module and instance labels that were defined in the configuration
-  for (std::vector<std::string>::iterator moduleLabel = theDigiModuleLabels.begin();
-       moduleLabel != theDigiModuleLabels.end();
-       ++moduleLabel) {
-    for (std::vector<std::string>::iterator instanceLabel = theProductInstanceLabels.begin();
-         instanceLabel != theProductInstanceLabels.end();
-         ++instanceLabel) {
-      search_message << "Checking for Module " << *moduleLabel << " Instance " << *instanceLabel << "\n";
+  for (auto& theDigiModuleLabel : theDigiModuleLabels) {
+    for (auto& theProductInstanceLabel : theProductInstanceLabels) {
+      search_message << "Checking for Module " << theDigiModuleLabel << " Instance " << theProductInstanceLabel << "\n";
 
       //First try ZeroSuppressed Digis
-      iEvent.getByLabel(*moduleLabel, *instanceLabel, theStripDigis);
+      iEvent.getByLabel(theDigiModuleLabel, theProductInstanceLabel, theStripDigis);
       if (theStripDigis.isValid()) {
         search_message << "Found ZeroSuppressed\n";
         edm::LogInfo("RawDataConverter") << search_message.str();
-        CurrentModuleLabel = *moduleLabel;
-        CurrentInstanceLabel = *instanceLabel;
+        CurrentModuleLabel = theDigiModuleLabel;
+        CurrentInstanceLabel = theProductInstanceLabel;
         return ZeroSuppressed;
       }
 
       // Next try VirginRaw Digis
-      iEvent.getByLabel(*moduleLabel, *instanceLabel, theStripRawDigis);
+      iEvent.getByLabel(theDigiModuleLabel, theProductInstanceLabel, theStripRawDigis);
       if (theStripRawDigis.isValid()) {
         search_message << "Found Raw\n";
         edm::LogInfo("RawDataConverter") << search_message.str();
-        CurrentModuleLabel = *moduleLabel;
-        CurrentInstanceLabel = *instanceLabel;
+        CurrentModuleLabel = theDigiModuleLabel;
+        CurrentInstanceLabel = theProductInstanceLabel;
         return VirginRaw;
       }
 
       // Next try ProcessedRaw Digis
-      iEvent.getByLabel(*moduleLabel, *instanceLabel, theStripProcessedRawDigis);
+      iEvent.getByLabel(theDigiModuleLabel, theProductInstanceLabel, theStripProcessedRawDigis);
       if (theStripProcessedRawDigis.isValid()) {
         search_message << "Found ProcessedRaw\n";
         edm::LogInfo("RawDataConverter") << search_message.str();
-        CurrentModuleLabel = *moduleLabel;
-        CurrentInstanceLabel = *instanceLabel;
+        CurrentModuleLabel = theDigiModuleLabel;
+        CurrentInstanceLabel = theProductInstanceLabel;
         return ProcessedRaw;
       }
     }

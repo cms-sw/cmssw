@@ -305,8 +305,8 @@ TrackingRecHitProductPtr PixelTemplateSmearerBase::process(TrackingRecHitProduct
   //    listOfUnmergedHits simply goes out of scope.  However, we
   //    created the MergeGroups and thus we need to get rid of them.
   //
-  for (auto mg_it = listOfMergeGroups.begin(); mg_it != listOfMergeGroups.end(); ++mg_it) {
-    delete *mg_it;  // each MergeGroup is deleted; its ptrs to PSimHits we do not own...
+  for (auto& listOfMergeGroup : listOfMergeGroups) {
+    delete listOfMergeGroup;  // each MergeGroup is deleted; its ptrs to PSimHits we do not own...
   }
 
   return product;
@@ -687,10 +687,10 @@ TrackingRecHitProductPtr PixelTemplateSmearerBase::processMergeGroups(std::vecto
                                                                       const double boundX,
                                                                       const double boundY,
                                                                       RandomEngineAndDistribution const* random) const {
-  for (auto mg_it = mergeGroups.begin(); mg_it != mergeGroups.end(); ++mg_it) {
-    if ((*mg_it)->smearIt) {
-      FastSingleTrackerRecHit recHit = smearMergeGroup(*mg_it, detUnit, boundX, boundY, random);
-      product->addRecHit(recHit, (*mg_it)->group);
+  for (auto& mergeGroup : mergeGroups) {
+    if (mergeGroup->smearIt) {
+      FastSingleTrackerRecHit recHit = smearMergeGroup(mergeGroup, detUnit, boundX, boundY, random);
+      product->addRecHit(recHit, mergeGroup->group);
     }
   }
   return product;
@@ -712,8 +712,8 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearMergeGroup(MergeGroup* mg
   float locpy = 0;
   float locpz = 0;
 
-  for (auto hit_it = mg->group.begin(); hit_it != mg->group.end(); ++hit_it) {
-    const PSimHit simHit = *hit_it->second;
+  for (auto& hit_it : mg->group) {
+    const PSimHit simHit = *hit_it.second;
     //getting local momentum and adding all of the hits' momentums up
     LocalVector localDir = simHit.momentumAtEntry().unit();
     loccx += localDir.x();

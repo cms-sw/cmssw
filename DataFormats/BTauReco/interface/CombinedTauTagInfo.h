@@ -78,8 +78,8 @@ namespace reco {
       int signal_Tks_qsum_ = std::numeric_limits<int>::quiet_NaN();
       if ((int)(signal_Tks_.size()) != 0) {
         signal_Tks_qsum_ = 0;
-        for (TrackRefVector::const_iterator iTk = signal_Tks_.begin(); iTk != signal_Tks_.end(); iTk++) {
-          signal_Tks_qsum_ += (**iTk).charge();
+        for (auto&& signal_Tk : signal_Tks_) {
+          signal_Tks_qsum_ += (*signal_Tk).charge();
         }
       }
       return signal_Tks_qsum_;

@@ -87,20 +87,19 @@ namespace reco::tau {
   namespace {
     void checkOverlap(const CandidatePtr& neutral, const std::vector<CandidatePtr>& pfGammas, bool& isUnique) {
       LogDebug("TauConstructorCheckOverlap") << " pfGammas: #entries = " << pfGammas.size();
-      for (std::vector<CandidatePtr>::const_iterator pfGamma = pfGammas.begin(); pfGamma != pfGammas.end(); ++pfGamma) {
-        LogDebug("TauConstructorCheckOverlap") << "pfGamma = " << pfGamma->id() << ":" << pfGamma->key();
-        if ((*pfGamma).refCore() == neutral.refCore() && (*pfGamma).key() == neutral.key())
+      for (const auto& pfGamma : pfGammas) {
+        LogDebug("TauConstructorCheckOverlap") << "pfGamma = " << pfGamma.id() << ":" << pfGamma.key();
+        if (pfGamma.refCore() == neutral.refCore() && pfGamma.key() == neutral.key())
           isUnique = false;
       }
     }
 
     void checkOverlap(const CandidatePtr& neutral, const std::vector<reco::RecoTauPiZero>& piZeros, bool& isUnique) {
       LogDebug("TauConstructorCheckOverlap") << " piZeros: #entries = " << piZeros.size();
-      for (std::vector<reco::RecoTauPiZero>::const_iterator piZero = piZeros.begin(); piZero != piZeros.end();
-           ++piZero) {
-        size_t numPFGammas = piZero->numberOfDaughters();
+      for (const auto& piZero : piZeros) {
+        size_t numPFGammas = piZero.numberOfDaughters();
         for (size_t iPFGamma = 0; iPFGamma < numPFGammas; ++iPFGamma) {
-          reco::CandidatePtr pfGamma = piZero->daughterPtr(iPFGamma);
+          reco::CandidatePtr pfGamma = piZero.daughterPtr(iPFGamma);
           LogDebug("TauConstructorCheckOverlap") << "pfGamma = " << pfGamma.id() << ":" << pfGamma.key();
           if (pfGamma.id() == neutral.id() && pfGamma.key() == neutral.key())
             isUnique = false;
@@ -115,22 +114,22 @@ namespace reco::tau {
     // CV: need to make sure that PFGammas merged with ChargedHadrons are not part of PiZeros
     const std::vector<CandidatePtr>& neutrals = chargedHadron.getNeutralPFCandidates();
     std::vector<CandidatePtr> neutrals_cleaned;
-    for (std::vector<CandidatePtr>::const_iterator neutral = neutrals.begin(); neutral != neutrals.end(); ++neutral) {
-      LogDebug("TauConstructorAddChH") << "neutral = " << neutral->id() << ":" << neutral->key();
+    for (const auto& neutral : neutrals) {
+      LogDebug("TauConstructorAddChH") << "neutral = " << neutral.id() << ":" << neutral.key();
       bool isUnique = true;
       if (copyGammas_)
-        checkOverlap(*neutral, *getSortedCollection(kSignal, kGamma), isUnique);
+        checkOverlap(neutral, *getSortedCollection(kSignal, kGamma), isUnique);
       else
-        checkOverlap(*neutral, tau_->signalPiZeroCandidatesRestricted(), isUnique);
+        checkOverlap(neutral, tau_->signalPiZeroCandidatesRestricted(), isUnique);
       if (region == kIsolation) {
         if (copyGammas_)
-          checkOverlap(*neutral, *getSortedCollection(kIsolation, kGamma), isUnique);
+          checkOverlap(neutral, *getSortedCollection(kIsolation, kGamma), isUnique);
         else
-          checkOverlap(*neutral, tau_->isolationPiZeroCandidatesRestricted(), isUnique);
+          checkOverlap(neutral, tau_->isolationPiZeroCandidatesRestricted(), isUnique);
       }
       LogDebug("TauConstructorAddChH") << "--> isUnique = " << isUnique;
       if (isUnique)
-        neutrals_cleaned.push_back(*neutral);
+        neutrals_cleaned.push_back(neutral);
     }
     PFRecoTauChargedHadron chargedHadron_cleaned = chargedHadron;
     if (neutrals_cleaned.size() != neutrals.size()) {
@@ -144,11 +143,11 @@ namespace reco::tau {
         addPFCand(kSignal, kChargedHadron, convertToPtr(chargedHadron_cleaned.getChargedPFCandidate()), true);
       }
       const std::vector<CandidatePtr>& neutrals = chargedHadron_cleaned.getNeutralPFCandidates();
-      for (std::vector<CandidatePtr>::const_iterator neutral = neutrals.begin(); neutral != neutrals.end(); ++neutral) {
-        if (std::abs((*neutral)->pdgId()) == 22)
-          addPFCand(kSignal, kGamma, convertToPtr(*neutral), true);
-        else if (std::abs((*neutral)->pdgId()) == 130)
-          addPFCand(kSignal, kNeutralHadron, convertToPtr(*neutral), true);
+      for (const auto& neutral : neutrals) {
+        if (std::abs(neutral->pdgId()) == 22)
+          addPFCand(kSignal, kGamma, convertToPtr(neutral), true);
+        else if (std::abs(neutral->pdgId()) == 130)
+          addPFCand(kSignal, kNeutralHadron, convertToPtr(neutral), true);
       };
     } else {
       tau_->isolationTauChargedHadronCandidatesRestricted().push_back(chargedHadron_cleaned);
@@ -159,11 +158,11 @@ namespace reco::tau {
           addPFCand(kIsolation, kNeutralHadron, convertToPtr(chargedHadron_cleaned.getChargedPFCandidate()));
       }
       const std::vector<CandidatePtr>& neutrals = chargedHadron_cleaned.getNeutralPFCandidates();
-      for (std::vector<CandidatePtr>::const_iterator neutral = neutrals.begin(); neutral != neutrals.end(); ++neutral) {
-        if (std::abs((*neutral)->pdgId()) == 22)
-          addPFCand(kIsolation, kGamma, convertToPtr(*neutral));
-        else if (std::abs((*neutral)->pdgId()) == 130)
-          addPFCand(kIsolation, kNeutralHadron, convertToPtr(*neutral));
+      for (const auto& neutral : neutrals) {
+        if (std::abs(neutral->pdgId()) == 22)
+          addPFCand(kIsolation, kGamma, convertToPtr(neutral));
+        else if (std::abs(neutral->pdgId()) == 130)
+          addPFCand(kIsolation, kNeutralHadron, convertToPtr(neutral));
       };
     }
   }
@@ -268,10 +267,8 @@ namespace reco::tau {
       SortedListPtr sortedCollection = sortedCollections_[colkey.first];
       std::sort(sortedCollection->begin(), sortedCollection->end(), ptDescendingPtr<CandidatePtr>);
       // Copy into the real tau collection
-      for (std::vector<CandidatePtr>::const_iterator particle = sortedCollection->begin();
-           particle != sortedCollection->end();
-           ++particle) {
-        colkey.second->push_back(*particle);
+      for (const auto& particle : *sortedCollection) {
+        colkey.second->push_back(particle);
       }
     }
   }
@@ -290,12 +287,12 @@ namespace reco::tau {
 
       unsigned int nPiZeros = 0;
       const std::vector<RecoTauPiZero>& piZeros = tau.signalPiZeroCandidates();
-      for (std::vector<RecoTauPiZero>::const_iterator piZero = piZeros.begin(); piZero != piZeros.end(); ++piZero) {
+      for (const auto& piZero : piZeros) {
         double photonSumPt_insideSignalCone = 0.;
         double photonSumPt_outsideSignalCone = 0.;
-        int numPhotons = piZero->numberOfDaughters();
+        int numPhotons = piZero.numberOfDaughters();
         for (int idxPhoton = 0; idxPhoton < numPhotons; ++idxPhoton) {
-          const reco::Candidate* photon = piZero->daughter(idxPhoton);
+          const reco::Candidate* photon = piZero.daughter(idxPhoton);
           double dR = deltaR(photon->p4(), tau.p4());
           if (dR < dRsignalCone) {
             photonSumPt_insideSignalCone += photon->pt();
@@ -344,17 +341,14 @@ namespace reco::tau {
     int charge = 0;
     double leadChargedHadronPt = 0.;
     int leadChargedHadronCharge = 0;
-    for (std::vector<PFRecoTauChargedHadron>::const_iterator chargedHadron =
-             tau_->signalTauChargedHadronCandidatesRestricted().begin();
-         chargedHadron != tau_->signalTauChargedHadronCandidatesRestricted().end();
-         ++chargedHadron) {
-      if (chargedHadron->algoIs(PFRecoTauChargedHadron::kChargedPFCandidate) ||
-          chargedHadron->algoIs(PFRecoTauChargedHadron::kTrack)) {
+    for (const auto& chargedHadron : tau_->signalTauChargedHadronCandidatesRestricted()) {
+      if (chargedHadron.algoIs(PFRecoTauChargedHadron::kChargedPFCandidate) ||
+          chargedHadron.algoIs(PFRecoTauChargedHadron::kTrack)) {
         ++nCharged;
-        charge += chargedHadron->charge();
-        if (chargedHadron->pt() > leadChargedHadronPt) {
-          leadChargedHadronPt = chargedHadron->pt();
-          leadChargedHadronCharge = chargedHadron->charge();
+        charge += chargedHadron.charge();
+        if (chargedHadron.pt() > leadChargedHadronPt) {
+          leadChargedHadronPt = chargedHadron.pt();
+          leadChargedHadronCharge = chargedHadron.charge();
         }
       }
     }

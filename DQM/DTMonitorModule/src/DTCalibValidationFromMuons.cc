@@ -211,9 +211,8 @@ void DTCalibValidationFromMuons::compute(const DTGeometry *dtGeom, const DTRecSe
     ++rightSegment;
 
     // Loop over 1D RecHit inside 4D segment
-    for (vector<DTRecHit1D>::const_iterator recHit1D = recHits1D_S3.begin(); recHit1D != recHits1D_S3.end();
-         ++recHit1D) {
-      const DTWireId wireId = (*recHit1D).wireId();
+    for (const auto &recHit1D : recHits1D_S3) {
+      const DTWireId wireId = recHit1D.wireId();
 
       // Get the layer and the wire position
       const DTLayer *layer = dtGeom->layer(wireId);
@@ -223,9 +222,9 @@ void DTCalibValidationFromMuons::compute(const DTGeometry *dtGeom, const DTRecSe
       // Get wire position in chamber RF
       // (y and z must be those of the hit to be coherent in the transf. of RF
       // in case of rotations of the layer alignment)
-      LocalPoint wirePosInLay(wireX, (*recHit1D).localPosition().y(), (*recHit1D).localPosition().z());
+      LocalPoint wirePosInLay(wireX, recHit1D.localPosition().y(), recHit1D.localPosition().z());
       GlobalPoint wirePosGlob = layer->toGlobal(wirePosInLay);
-      const DTChamber *chamber = dtGeom->chamber((*recHit1D).wireId().layerId().chamberId());
+      const DTChamber *chamber = dtGeom->chamber(recHit1D.wireId().layerId().chamberId());
       LocalPoint wirePosInChamber = chamber->toLocal(wirePosGlob);
 
       // Segment position at Wire z in chamber local frame
@@ -249,7 +248,7 @@ void DTCalibValidationFromMuons::compute(const DTGeometry *dtGeom, const DTRecSe
         LogTrace("DTCalibValidationFromMuons") << "  Warning: dist segment-wire: " << SegmDistance;
 
       // Compute the distance of the recHit from the wire
-      float recHitWireDist = recHitDistFromWire(*recHit1D, layer);
+      float recHitWireDist = recHitDistFromWire(recHit1D, layer);
       LogTrace("DTCalibValidationFromMuons") << "recHitWireDist: " << recHitWireDist;
 
       // Compute the residuals
@@ -258,10 +257,10 @@ void DTCalibValidationFromMuons::compute(const DTGeometry *dtGeom, const DTRecSe
       float residualOnPosition = -1;
       float recHitPos = -1;
       if (sl == 1 || sl == 3) {
-        recHitPos = recHitPosition(*recHit1D, layer, chamber, segPosAtZWire.x(), sl);
+        recHitPos = recHitPosition(recHit1D, layer, chamber, segPosAtZWire.x(), sl);
         residualOnPosition = recHitPos - segPosAtZWire.x();
       } else {
-        recHitPos = recHitPosition(*recHit1D, layer, chamber, segPosAtZWire.y(), sl);
+        recHitPos = recHitPosition(recHit1D, layer, chamber, segPosAtZWire.y(), sl);
         residualOnPosition = recHitPos - segPosAtZWire.y();
       }
       LogTrace("DTCalibValidationFromMuons") << "WireId: " << wireId << "  ResidualOnPosition: " << residualOnPosition;

@@ -65,8 +65,7 @@ void RandomtXiGunProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   // loop over particles
   //
   int barcode = 1;
-  for (unsigned int ip = 0; ip < fPartIDs.size(); ++ip) {
-    int PartID = fPartIDs[ip];
+  for (int PartID : fPartIDs) {
     //  t = -2*P*P'*(1-cos(theta)) -> t/(2*P*P')+1=cos(theta)
     // xi = 1 - P'/P  --> P'= (1-xi)*P
     //

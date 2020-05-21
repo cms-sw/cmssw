@@ -20,8 +20,8 @@ SimG4FluxProducer::SimG4FluxProducer(const edm::ParameterSet& p) : count_(0), in
   LVNames_ = m_FP.getUntrackedParameter<std::vector<std::string>>("LVNames");
   LVTypes_ = m_FP.getUntrackedParameter<std::vector<int>>("LVTypes");
 
-  for (unsigned int k = 0; k < LVNames_.size(); ++k) {
-    produces<ParticleFlux>(Form("%sParticleFlux", LVNames_[k].c_str()));
+  for (auto& LVName : LVNames_) {
+    produces<ParticleFlux>(Form("%sParticleFlux", LVName.c_str()));
 #ifdef EDM_ML_DEBUG
     std::cout << "Collection name[" << k << "] ParticleFlux" << LVNames_[k] << " and type " << LVTypes_[k] << std::endl;
 #endif

@@ -6,8 +6,8 @@
 using namespace reco::parser;
 bool reco::parser::cutParser(const edm::TypeWithDict& t, const std::string& cut, SelectorPtr& sel, bool lazy = false) {
   bool justBlanks = true;
-  for (std::string::const_iterator c = cut.begin(); c != cut.end(); ++c) {
-    if (*c != ' ') {
+  for (char c : cut) {
+    if (c != ' ') {
       justBlanks = false;
       break;
     }

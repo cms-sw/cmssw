@@ -337,8 +337,8 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits(const Event& event,
 
       //! and now pitch those in the crossed list
       if (!(vetoTowerHOCal && vetoTowerHcal && vetoTowerEcal)) {
-        for (unsigned int iH = 0; iH < mInfo.crossedTowerIds.size(); ++iH) {
-          if (mInfo.crossedTowerIds[iH].rawId() == calCPtr->id().rawId()) {
+        for (auto& crossedTowerId : mInfo.crossedTowerIds) {
+          if (crossedTowerId.rawId() == calCPtr->id().rawId()) {
             vetoTowerEcal = true;
             vetoTowerHcal = true;
             vetoTowerHOCal = true;

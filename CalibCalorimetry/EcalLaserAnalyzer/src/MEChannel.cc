@@ -25,15 +25,15 @@ MEChannel::MEChannel(int ix, int iy, int id_, MEChannel* mother) : _m(mother) {
 }
 
 MEChannel::~MEChannel() {
-  for (unsigned ii = 0; ii < _d.size(); ii++) {
-    delete _d[ii];
+  for (auto& ii : _d) {
+    delete ii;
   }
 }
 
 MEChannel* MEChannel::getDaughter(int ix, int iy, int id_) {
-  for (unsigned ii = 0; ii < _d.size(); ii++) {
-    if (_d[ii]->id() == id_) {
-      return _d[ii];
+  for (auto& ii : _d) {
+    if (ii->id() == id_) {
+      return ii;
     }
   }
   return addDaughter(ix, iy, id_);
@@ -106,8 +106,8 @@ MEChannel* MEChannel::getDescendant(int ig, int id_) {
   if (!OK)
     return nullptr;
   MEChannel* leaf(nullptr);
-  for (unsigned int ii = 0; ii < vec.size(); ii++) {
-    leaf = vec[ii];
+  for (auto& ii : vec) {
+    leaf = ii;
     if (leaf->id() == id_)
       return leaf;
   }

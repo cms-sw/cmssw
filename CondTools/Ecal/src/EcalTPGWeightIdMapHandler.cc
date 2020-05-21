@@ -117,14 +117,14 @@ void popcon::EcalTPGWeightIdMapHandler::getNewObjects() {
 
     unsigned int irun;
     if (num_runs > 0) {
-      for (size_t kr = 0; kr < run_vec.size(); kr++) {
-        irun = static_cast<unsigned int>(run_vec[kr].getRunNumber());
+      for (auto& kr : run_vec) {
+        irun = static_cast<unsigned int>(kr.getRunNumber());
 
         edm::LogInfo(" run= ") << irun;
 
         // retrieve the data :
         std::map<EcalLogicID, RunTPGConfigDat> dataset;
-        econn->fetchDataSet(&dataset, &run_vec[kr]);
+        econn->fetchDataSet(&dataset, &kr);
 
         std::string the_config_tag = "";
         int the_config_version = 0;
@@ -307,12 +307,12 @@ void popcon::EcalTPGWeightIdMapHandler::readxmlFile() {
     }
     for (int i = 0; i < 2; i++)
       std::getline(fxml, dummyLine);  // < second
-    for (int i = 0; i < 5; i++) {
+    for (unsigned int& i : wloc) {
       fxml >> bid;
       found = bid.find("</");
       stt = bid.substr(5, found - 5);
       std::istringstream w(stt);
-      w >> wloc[i];
+      w >> i;
     }
     w.setValues(wloc[0], wloc[1], wloc[2], wloc[3], wloc[4]);
     weightMap->setValue(igroups, w);

@@ -17,13 +17,13 @@ std::vector<short> SiPixelCalibConfiguration::columnPatternForEvent(const uint32
   uint32_t colpatternnumber = patternnumber % nColumnPatterns();
 
   uint32_t nminuscol = 0;
-  for (size_t icol = 0; icol < fColumnPattern.size(); icol++) {
-    if (fColumnPattern[icol] == -1)
+  for (short icol : fColumnPattern) {
+    if (icol == -1)
       nminuscol++;
     else if (nminuscol > colpatternnumber)
       break;
     else if (nminuscol == colpatternnumber) {
-      short val = fColumnPattern[icol];
+      short val = icol;
       result.push_back(val);
     }
   }
@@ -36,13 +36,13 @@ std::vector<short> SiPixelCalibConfiguration::rowPatternForEvent(const uint32_t 
   uint32_t rowpatternnumber = patternnumber / nColumnPatterns();
 
   uint32_t nminusrow = 0;
-  for (size_t irow = 0; irow < fRowPattern.size(); irow++) {
-    if (fRowPattern[irow] == -1)
+  for (short irow : fRowPattern) {
+    if (irow == -1)
       nminusrow++;
     else if (nminusrow > rowpatternnumber)
       break;
     else if (nminusrow == rowpatternnumber) {
-      short val = fRowPattern[irow];
+      short val = irow;
       result.push_back(val);
     }
   }
@@ -77,16 +77,16 @@ SiPixelCalibConfiguration::SiPixelCalibConfiguration(const pos::PixelCalibConfig
 
   std::vector<std::vector<uint32_t> > cols = fancyConfig.columnList();
   std::vector<std::vector<uint32_t> > rows = fancyConfig.rowList();
-  for (uint32_t i = 0; i < cols.size(); ++i) {
-    for (uint32_t j = 0; j < cols[i].size(); ++j) {
-      short colval = cols[i][j];
+  for (auto &col : cols) {
+    for (uint32_t j = 0; j < col.size(); ++j) {
+      short colval = col[j];
       fColumnPattern.push_back(colval);
     }
     fColumnPattern.push_back(-1);
   }
-  for (uint32_t i = 0; i < rows.size(); ++i) {
-    for (uint32_t j = 0; j < rows[i].size(); ++j) {
-      short rowval = rows[i][j];
+  for (auto &row : rows) {
+    for (uint32_t j = 0; j < row.size(); ++j) {
+      short rowval = row[j];
       fRowPattern.push_back(rowval);
     }
     fRowPattern.push_back(-1);
@@ -96,8 +96,8 @@ SiPixelCalibConfiguration::SiPixelCalibConfiguration(const pos::PixelCalibConfig
 
 uint32_t SiPixelCalibConfiguration::nRowPatterns() const {
   uint32_t nrows = 0;
-  for (std::vector<short>::const_iterator i = fRowPattern.begin(); i != fRowPattern.end(); ++i) {
-    if (*i == -1)
+  for (short i : fRowPattern) {
+    if (i == -1)
       nrows++;
   }
   return nrows;
@@ -105,8 +105,8 @@ uint32_t SiPixelCalibConfiguration::nRowPatterns() const {
 uint32_t SiPixelCalibConfiguration::nColumnPatterns() const {
   uint32_t ncols = 0;
 
-  for (std::vector<short>::const_iterator i = fColumnPattern.begin(); i != fColumnPattern.end(); ++i) {
-    if (*i == -1)
+  for (short i : fColumnPattern) {
+    if (i == -1)
       ncols++;
   }
   return ncols;

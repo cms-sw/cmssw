@@ -86,18 +86,18 @@ bool ECALActivity::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // now loop over them
   if (EBRecHits) {
-    for (EBRecHitCollection::const_iterator it = EBRecHits->begin(); it != EBRecHits->end(); ++it) {
-      if (it->energy() > EBthresh)
+    for (const auto& EBRecHit : *EBRecHits) {
+      if (EBRecHit.energy() > EBthresh)
         ebabovethresh++;
-      if (it->energy() > ETOTthresh)
+      if (EBRecHit.energy() > ETOTthresh)
         etotabovethresh++;
     }
   }
   if (EERecHits) {
-    for (EERecHitCollection::const_iterator it = EERecHits->begin(); it != EERecHits->end(); ++it) {
-      if (it->energy() > EEthresh)
+    for (const auto& EERecHit : *EERecHits) {
+      if (EERecHit.energy() > EEthresh)
         eeabovethresh++;
-      if (it->energy() > ETOTthresh)
+      if (EERecHit.energy() > ETOTthresh)
         etotabovethresh++;
     }
   }

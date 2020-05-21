@@ -83,11 +83,11 @@ void FlatEGunASCIIWriter::analyze(const Event&, const EventSetup& /* not used so
 
   // loop over particles
   //
-  for (unsigned int ip = 0; ip < fPartIDs.size(); ip++) {
+  for (int fPartID : fPartIDs) {
     double energy = CLHEP::RandFlat::shoot(fMinE, fMaxE);
     double eta = CLHEP::RandFlat::shoot(fMinEta, fMaxEta);
     double phi = CLHEP::RandFlat::shoot(fMinPhi, fMaxPhi);
-    const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(fPartIDs[ip])));
+    const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(fPartID)));
     double mass = PData->mass().value();
     double mom2 = energy * energy - mass * mass;
     double mom = 0.;
@@ -101,7 +101,7 @@ void FlatEGunASCIIWriter::analyze(const Event&, const EventSetup& /* not used so
     //HepMC::GenParticle* Part =
     //    new HepMC::GenParticle(CLHEP::HepLorentzVector(p,energy),fPartIDs[ip],1);
     HepMC::FourVector p(px, py, pz, energy);
-    HepMC::GenParticle* Part = new HepMC::GenParticle(p, fPartIDs[ip], 1);
+    HepMC::GenParticle* Part = new HepMC::GenParticle(p, fPartID, 1);
     Vtx->add_particle_out(Part);
   }
   fEvt->add_vertex(Vtx);

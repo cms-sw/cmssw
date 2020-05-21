@@ -46,14 +46,12 @@ void FWSiPixelDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList*
   }
   const FWGeometry* geom = iItem->getGeom();
 
-  for (edm::DetSetVector<PixelDigi>::const_iterator it = digis->begin(), end = digis->end(); it != end; ++it) {
-    edm::DetSet<PixelDigi> ds = *it;
+  for (auto ds : *digis) {
     unsigned int id = ds.id;
 
     const float* pars = geom->getParameters(id);
 
-    for (edm::DetSet<PixelDigi>::const_iterator idigi = ds.data.begin(), idigiEnd = ds.data.end(); idigi != idigiEnd;
-         ++idigi) {
+    for (auto idigi : ds.data) {
       TEvePointSet* pointSet = new TEvePointSet;
       pointSet->SetMarkerSize(2);
       pointSet->SetMarkerStyle(2);
@@ -63,7 +61,7 @@ void FWSiPixelDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList*
         fwLog(fwlog::kWarning) << "failed get geometry of SiPixelDigi with detid: " << id << std::endl;
       } else {
         float localPoint[3] = {
-            fireworks::pixelLocalX((*idigi).row(), pars), fireworks::pixelLocalY((*idigi).column(), pars), 0.0};
+            fireworks::pixelLocalX(idigi.row(), pars), fireworks::pixelLocalY(idigi.column(), pars), 0.0};
 
         float globalPoint[3];
         geom->localToGlobal(id, localPoint, globalPoint);

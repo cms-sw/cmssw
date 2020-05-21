@@ -120,23 +120,23 @@ void reco::helper::JetIDHelper::calculate(const edm::Event &event,
       event, jet, subtowers, Ecal_subtowers, Hcal_subtowers, HO_subtowers, HPD_energies, RBX_energies, iDbg);
   if (iDbg > 1) {
     cout << "E:";
-    for (unsigned int i = 0; i < subtowers.size(); ++i)
-      cout << " " << subtowers[i].E << "," << subtowers[i].Nhit;
+    for (auto &subtower : subtowers)
+      cout << " " << subtower.E << "," << subtower.Nhit;
     cout << "\nECal_E:";
-    for (unsigned int i = 0; i < Ecal_subtowers.size(); ++i)
-      cout << " " << Ecal_subtowers[i].E << "," << Ecal_subtowers[i].Nhit;
+    for (auto &Ecal_subtower : Ecal_subtowers)
+      cout << " " << Ecal_subtower.E << "," << Ecal_subtower.Nhit;
     cout << "\nHCal_E:";
-    for (unsigned int i = 0; i < Hcal_subtowers.size(); ++i)
-      cout << " " << Hcal_subtowers[i].E << "," << Hcal_subtowers[i].Nhit;
+    for (auto &Hcal_subtower : Hcal_subtowers)
+      cout << " " << Hcal_subtower.E << "," << Hcal_subtower.Nhit;
     cout << "\nHO_E:";
-    for (unsigned int i = 0; i < HO_subtowers.size(); ++i)
-      cout << " " << HO_subtowers[i].E << "," << HO_subtowers[i].Nhit;
+    for (auto &HO_subtower : HO_subtowers)
+      cout << " " << HO_subtower.E << "," << HO_subtower.Nhit;
     cout << "\nHPD_E:";
-    for (unsigned int i = 0; i < HPD_energies.size(); ++i)
-      cout << " " << HPD_energies[i];
+    for (double HPD_energie : HPD_energies)
+      cout << " " << HPD_energie;
     cout << "\nRBX_E:";
-    for (unsigned int i = 0; i < RBX_energies.size(); ++i)
-      cout << " " << RBX_energies[i];
+    for (double RBX_energie : RBX_energies)
+      cout << " " << RBX_energie;
     cout << endl;
   }
 
@@ -233,8 +233,8 @@ void reco::helper::JetIDHelper::calculate(const edm::Event &event,
 
 unsigned int reco::helper::JetIDHelper::nCarrying(double fraction, const std::vector<double> &descending_energies) {
   double totalE = 0;
-  for (unsigned int i = 0; i < descending_energies.size(); ++i)
-    totalE += descending_energies[i];
+  for (double descending_energie : descending_energies)
+    totalE += descending_energie;
 
   double runningE = 0;
   unsigned int NC = descending_energies.size();
@@ -251,8 +251,8 @@ unsigned int reco::helper::JetIDHelper::nCarrying(double fraction, const std::ve
 unsigned int reco::helper::JetIDHelper::hitsInNCarrying(double fraction,
                                                         const std::vector<subtower> &descending_towers) {
   double totalE = 0;
-  for (unsigned int i = 0; i < descending_towers.size(); ++i)
-    totalE += descending_towers[i].E;
+  for (auto descending_tower : descending_towers)
+    totalE += descending_tower.E;
 
   double runningE = 0;
   unsigned int NH = 0;

@@ -24,20 +24,17 @@ void ViewTranslator::buildMaps(const SiStripFedCabling& cabling, Mapping& det_to
   // Iterator through cabling, construct keys and push back into std::map
   for (auto ifed = cabling.fedIds().begin(); ifed != cabling.fedIds().end(); ++ifed) {
     auto conns = cabling.fedConnections(*ifed);
-    for (auto ichan = conns.begin(); ichan != conns.end(); ichan++) {
-      if (ichan->fedId()) {
+    for (const auto& conn : conns) {
+      if (conn.fedId()) {
         uint32_t fed =
-            SiStripFedKey(*ifed, SiStripFedKey::feUnit(ichan->fedCh()), SiStripFedKey::feChan(ichan->fedCh())).key();
+            SiStripFedKey(*ifed, SiStripFedKey::feUnit(conn.fedCh()), SiStripFedKey::feChan(conn.fedCh())).key();
 
-        uint32_t fec = SiStripFecKey(ichan->fecCrate(),
-                                     ichan->fecSlot(),
-                                     ichan->fecRing(),
-                                     ichan->ccuAddr(),
-                                     ichan->ccuChan(),
-                                     ichan->lldChannel())
-                           .key();
+        uint32_t fec =
+            SiStripFecKey(
+                conn.fecCrate(), conn.fecSlot(), conn.fecRing(), conn.ccuAddr(), conn.ccuChan(), conn.lldChannel())
+                .key();
 
-        SiStripDetId det_id(ichan->detId(), ichan->apvPairNumber());
+        SiStripDetId det_id(conn.detId(), conn.apvPairNumber());
         uint32_t det = SiStripDetKey(det_id).key();
 
         det_to_fec[det] = fec;

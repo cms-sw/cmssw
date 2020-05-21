@@ -132,8 +132,8 @@ TransientTrackingRecHit::ConstRecHitContainer TrackTransformerForGlobalCosmicMuo
 */
   copy(staHits.begin(), staHits.end(), back_inserter(tkHits));
 
-  for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator hit = tkHits.begin(); hit != tkHits.end(); ++hit) {
-    DetId hitId = (*hit)->geographicalId();
+  for (const auto& tkHit : tkHits) {
+    DetId hitId = tkHit->geographicalId();
     GlobalPoint glbpoint = trackingGeometry()->idToDet(hitId)->position();
 
     if (hitId.det() == DetId::Tracker) {

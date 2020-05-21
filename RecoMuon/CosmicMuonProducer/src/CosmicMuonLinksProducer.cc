@@ -41,9 +41,9 @@ CosmicMuonLinksProducer::CosmicMuonLinksProducer(const ParameterSet& iConfig) {
   theService = new MuonServiceProxy(serviceParameters, consumesCollector());
 
   std::vector<edm::ParameterSet> theMapPSets = iConfig.getParameter<std::vector<edm::ParameterSet> >("Maps");
-  for (std::vector<edm::ParameterSet>::const_iterator iMPS = theMapPSets.begin(); iMPS != theMapPSets.end(); iMPS++) {
-    edm::InputTag sTag = (*iMPS).getParameter<edm::InputTag>("subTrack");
-    edm::InputTag pTag = (*iMPS).getParameter<edm::InputTag>("parentTrack");
+  for (const auto& theMapPSet : theMapPSets) {
+    edm::InputTag sTag = theMapPSet.getParameter<edm::InputTag>("subTrack");
+    edm::InputTag pTag = theMapPSet.getParameter<edm::InputTag>("parentTrack");
 
     edm::EDGetTokenT<reco::TrackCollection> subTrackTag = consumes<reco::TrackCollection>(sTag);
     edm::EDGetTokenT<reco::TrackCollection> parentTrackTag = consumes<reco::TrackCollection>(pTag);
@@ -69,10 +69,7 @@ void CosmicMuonLinksProducer::produce(Event& iEvent, const EventSetup& iSetup) {
 
   unsigned int counter =
       0;  ///DAMN I cannot read the label of the TOKEN so I need to do this stupid thing to create the labels of the products!
-  for (std::vector<std::pair<edm::EDGetTokenT<reco::TrackCollection>,
-                             edm::EDGetTokenT<reco::TrackCollection> > >::const_iterator iLink = theTrackLinks.begin();
-       iLink != theTrackLinks.end();
-       iLink++) {
+  for (const auto& theTrackLink : theTrackLinks) {
 #ifdef EDM_ML_DEBUG
     edm::EDConsumerBase::Labels labels_first;
     edm::EDConsumerBase::Labels labels_second;
@@ -86,8 +83,8 @@ void CosmicMuonLinksProducer::produce(Event& iEvent, const EventSetup& iSetup) {
     Handle<reco::TrackCollection> subTracks;
     Handle<reco::TrackCollection> parentTracks;
 
-    iEvent.getByToken((*iLink).first, subTracks);
-    iEvent.getByToken((*iLink).second, parentTracks);
+    iEvent.getByToken(theTrackLink.first, subTracks);
+    iEvent.getByToken(theTrackLink.second, parentTracks);
 
     ttmap = mapTracks(subTracks, parentTracks);
     LogTrace(category_) << "Mapped: " << theTrackLinkNames[counter].first << " " << subTracks->size() << " and "

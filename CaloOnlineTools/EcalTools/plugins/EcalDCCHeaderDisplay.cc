@@ -22,8 +22,7 @@ void EcalDCCHeaderDisplay::analyze(const edm::Event& e, const edm::EventSetup& c
   std::cout << "          [EcalDCCHeaderDisplay]  the Header(s)\n" << std::endl;
   //short dumpConter =0;
 
-  for (EcalRawDataCollection::const_iterator headerItr = DCCHeaders->begin(); headerItr != DCCHeaders->end();
-       ++headerItr) {
+  for (const auto& headerItr : *DCCHeaders) {
     //      int nevt =headerItr->getLV1();
     bool skip = false;
 
@@ -31,21 +30,21 @@ void EcalDCCHeaderDisplay::analyze(const edm::Event& e, const edm::EventSetup& c
       continue;
     }
     std::cout << "###################################################################### \n";
-    std::cout << "FedId: " << headerItr->fedId() << "\n";
+    std::cout << "FedId: " << headerItr.fedId() << "\n";
 
-    std::cout << "DCCErrors: " << headerItr->getDCCErrors() << "\n";
-    std::cout << "Run Number: " << headerItr->getRunNumber() << "\n";
-    std::cout << "Event number (LV1): " << headerItr->getLV1() << "\n";
-    std::cout << "Orbit: " << headerItr->getOrbit() << "\n";
-    std::cout << "BX: " << headerItr->getBX() << "\n";
-    std::cout << "TRIGGER TYPE: " << headerItr->getBasicTriggerType() << "\n";
+    std::cout << "DCCErrors: " << headerItr.getDCCErrors() << "\n";
+    std::cout << "Run Number: " << headerItr.getRunNumber() << "\n";
+    std::cout << "Event number (LV1): " << headerItr.getLV1() << "\n";
+    std::cout << "Orbit: " << headerItr.getOrbit() << "\n";
+    std::cout << "BX: " << headerItr.getBX() << "\n";
+    std::cout << "TRIGGER TYPE: " << headerItr.getBasicTriggerType() << "\n";
 
-    std::cout << "RUNTYPE: " << headerItr->getRunType() << "\n";
-    std::cout << "Half: " << headerItr->getRtHalf() << "\n";
-    std::cout << "DCCIdInTCCCommand: " << headerItr->getDccInTCCCommand() << "\n";
-    std::cout << "MGPA gain: " << headerItr->getMgpaGain() << "\n";
-    std::cout << "MEM gain: " << headerItr->getMemGain() << "\n";
-    EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr->getEventSettings();
+    std::cout << "RUNTYPE: " << headerItr.getRunType() << "\n";
+    std::cout << "Half: " << headerItr.getRtHalf() << "\n";
+    std::cout << "DCCIdInTCCCommand: " << headerItr.getDccInTCCCommand() << "\n";
+    std::cout << "MGPA gain: " << headerItr.getMgpaGain() << "\n";
+    std::cout << "MEM gain: " << headerItr.getMemGain() << "\n";
+    EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr.getEventSettings();
     std::cout << "LaserPower: " << settings.LaserPower << "\n";
     std::cout << "LAserFilter: " << settings.LaserFilter << "\n";
     std::cout << "Wavelenght: " << settings.wavelength << "\n";
@@ -54,20 +53,20 @@ void EcalDCCHeaderDisplay::analyze(const edm::Event& e, const edm::EventSetup& c
     std::cout << "MGPA content: " << settings.mgpa_content << "\n";
     std::cout << "Ped offset dac: " << settings.ped_offset << "\n";
 
-    std::cout << "Selective Readout: " << headerItr->getSelectiveReadout() << "\n";
-    std::cout << "ZS: " << headerItr->getZeroSuppression() << "\n";
-    std::cout << "TZS: " << headerItr->getTestZeroSuppression() << "\n";
-    std::cout << "SRStatus: " << headerItr->getSrpStatus() << "\n";
+    std::cout << "Selective Readout: " << headerItr.getSelectiveReadout() << "\n";
+    std::cout << "ZS: " << headerItr.getZeroSuppression() << "\n";
+    std::cout << "TZS: " << headerItr.getTestZeroSuppression() << "\n";
+    std::cout << "SRStatus: " << headerItr.getSrpStatus() << "\n";
 
-    std::vector<short> TCCStatus = headerItr->getTccStatus();
+    std::vector<short> TCCStatus = headerItr.getTccStatus();
     std::cout << "TCC Status size: " << TCCStatus.size() << std::endl;
     std::cout << "TCC Status: ";
-    for (unsigned u = 0; u < TCCStatus.size(); u++) {
-      std::cout << TCCStatus[u] << " ";
+    for (short TCCStatu : TCCStatus) {
+      std::cout << TCCStatu << " ";
     }
     std::cout << std::endl;
 
-    std::vector<short> TTStatus = headerItr->getFEStatus();
+    std::vector<short> TTStatus = headerItr.getFEStatus();
     std::cout << "TT Status size: " << TTStatus.size() << std::endl;
     std::cout << "TT Statuses: ";
     for (unsigned u = 0; u < TTStatus.size(); u++) {

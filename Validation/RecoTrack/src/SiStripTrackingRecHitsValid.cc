@@ -1162,8 +1162,8 @@ void SiStripTrackingRecHitsValid::rechitanalysis_matched(LocalVector ldir,
   const auto &amplitudes = clust->amplitudes();
   rechitpro.clusiz = amplitudes.size();
   int totcharge = 0;
-  for (size_t ia = 0; ia < amplitudes.size(); ++ia) {
-    totcharge += amplitudes[ia];
+  for (unsigned char amplitude : amplitudes) {
+    totcharge += amplitude;
   }
 
   rechitpro.x = position.x();
@@ -1305,16 +1305,16 @@ void SiStripTrackingRecHitsValid::rechitanalysis(LocalVector ldir,
     clust1d = hit1d->cluster();
     const auto &amplitudes1d = clust1d->amplitudes();
     rechitpro.clusiz = amplitudes1d.size();
-    for (size_t ia = 0; ia < amplitudes1d.size(); ++ia) {
-      totcharge += amplitudes1d[ia];
+    for (unsigned char ia : amplitudes1d) {
+      totcharge += ia;
     }
   } else {
     SiStripRecHit2D::ClusterRef clust2d;
     clust2d = hit2d->cluster();
     const auto &amplitudes2d = clust2d->amplitudes();
     rechitpro.clusiz = amplitudes2d.size();
-    for (size_t ia = 0; ia < amplitudes2d.size(); ++ia) {
-      totcharge += amplitudes2d[ia];
+    for (unsigned char ia : amplitudes2d) {
+      totcharge += ia;
     }
   }
 

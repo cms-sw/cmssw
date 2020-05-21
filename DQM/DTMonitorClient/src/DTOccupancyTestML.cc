@@ -132,9 +132,8 @@ void DTOccupancyTestML::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
   // Create session
   tensorflow::Session* session = tensorflow::createSession(graphDef);
 
-  for (vector<const DTChamber*>::const_iterator chamber = chambers.begin(); chamber != chambers.end();
-       ++chamber) {  // Loop over all chambers
-    DTChamberId chId = (*chamber)->id();
+  for (auto chamber : chambers) {  // Loop over all chambers
+    DTChamberId chId = chamber->id();
 
     MonitorElement* chamberOccupancyHisto = igetter.get(getMEName(nameMonitoredHisto, chId));
 

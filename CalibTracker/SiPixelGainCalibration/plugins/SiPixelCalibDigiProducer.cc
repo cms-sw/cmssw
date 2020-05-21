@@ -207,22 +207,22 @@ void SiPixelCalibDigiProducer::setPattern() {
   uint32_t nminuscol = 0;
   uint32_t nminusrow = 0;
   uint32_t npatterns = 0;
-  for (uint32_t icol = 0; icol < calibcols.size(); icol++) {
-    if (calibcols[icol] == -1) {
+  for (short calibcol : calibcols) {
+    if (calibcol == -1) {
       nminuscol++;
     } else if (nminuscol == colpatternnumber) {
       //edm::LogInfo("SiPixelCalibProducer") << "col " << calibcols[icol] << std::endl;
-      short val = calibcols[icol];
+      short val = calibcol;
       tempcolvals.push_back(val);
     } else if (nminuscol > colpatternnumber)
       break;
   }
-  for (uint32_t irow = 0; irow < calibrows.size(); irow++) {
+  for (short calibrow : calibrows) {
     // edm::LogInfo("SiPixelCalibProducer") << "row " << irow <<" "<< nminusrow<<" "  << calibrows[irow] << std::endl;
-    if (calibrows[irow] == -1)
+    if (calibrow == -1)
       nminusrow++;
     else if (nminusrow == rowpatternnumber) {
-      short val = calibrows[irow];
+      short val = calibrow;
       temprowvals.push_back(val);
     } else if (nminusrow > rowpatternnumber)
       break;
@@ -231,9 +231,9 @@ void SiPixelCalibDigiProducer::setPattern() {
   while (currentpattern_.size() > temprowvals.size() * tempcolvals.size()) {
     currentpattern_.erase(currentpattern_.end());
   }
-  for (uint32_t irow = 0; irow < temprowvals.size(); irow++) {
-    for (uint32_t icol = 0; icol < tempcolvals.size(); icol++) {
-      std::pair<short, short> pattern(temprowvals[irow], tempcolvals[icol]);
+  for (short& temprowval : temprowvals) {
+    for (short& tempcolval : tempcolvals) {
+      std::pair<short, short> pattern(temprowval, tempcolval);
       npatterns++;
       if (npatterns > currentpattern_.size())
         currentpattern_.push_back(pattern);
@@ -330,9 +330,9 @@ bool SiPixelCalibDigiProducer::checkPixel(uint32_t detid, short row, short col) 
   currentpair_.first = locpixel.rocRow();
   currentpair_.second = locpixel.rocCol();
 
-  for (uint32_t i = 0; i < currentpattern_.size(); ++i) {
+  for (const auto& i : currentpattern_) {
     //    edm::LogInfo("SiPixelCalibDigiProducer") << "found pair " << currentpair_.first << "," << currentpair_.second << " calib " << currentpattern_[i].first << ","<< currentpattern_[i].second << " input " << row << "," << col << std::endl;
-    if (currentpair_ == currentpattern_[i]) {
+    if (currentpair_ == i) {
       return true;
     }
   }

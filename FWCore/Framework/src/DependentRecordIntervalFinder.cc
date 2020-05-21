@@ -57,12 +57,10 @@ namespace edm {
         }
       }
       bool intervalsWereComparible = true;
-      for (Providers::iterator itProvider = providers_.begin(), itProviderEnd = providers_.end();
-           itProvider != itProviderEnd;
-           ++itProvider) {
-        if ((*itProvider)->setValidityIntervalFor(iTime)) {
+      for (auto& provider : providers_) {
+        if (provider->setValidityIntervalFor(iTime)) {
           haveAValidDependentRecord = true;
-          ValidityInterval providerInterval = (*itProvider)->validityInterval();
+          ValidityInterval providerInterval = provider->validityInterval();
           if ((!newInterval.first().comparable(providerInterval.first())) ||
               (!newInterval.last().comparable(providerInterval.last()))) {
             intervalsWereComparible = false;

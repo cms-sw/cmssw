@@ -76,27 +76,29 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(const std::vector<SimTrack>
 
   int npv = 0;
 
-  for (std::vector<SimTrack>::const_iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk) {
-    if ((*iSimTk).noVertex())
+  for (const auto& theSimTrack : theSimTracks) {
+    if (theSimTrack.noVertex())
       continue;
 
-    int vertexId = (*iSimTk).vertIndex();
+    int vertexId = theSimTrack.vertIndex();
     SimVertex vertex = theSimVertices[vertexId];
 
-    std::cout << " Particle type " << (*iSimTk).type() << " Sim Track ID " << (*iSimTk).trackId() << " momentum "
-              << (*iSimTk).momentum() << " vertex position " << vertex.position() << std::endl;
+    std::cout << " Particle type " << theSimTrack.type() << " Sim Track ID " << theSimTrack.trackId() << " momentum "
+              << theSimTrack.momentum() << " vertex position " << vertex.position() << std::endl;
 
-    if ((*iSimTk).vertIndex() == iPV) {
+    if (theSimTrack.vertIndex() == iPV) {
       npv++;
-      if (std::abs((*iSimTk).type()) == 111) {
-        std::cout << " Found a primary pizero with ID  " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum()
-                  << std::endl;
+      if (std::abs(theSimTrack.type()) == 111) {
+        std::cout << " Found a primary pizero with ID  " << theSimTrack.trackId() << " momentum "
+                  << theSimTrack.momentum() << std::endl;
 
-        pizeroTracks.push_back(*iSimTk);
+        pizeroTracks.push_back(theSimTrack);
 
         // CLHEP::HepLorentzVector momentum = (*iSimTk).momentum();
-        math::XYZTLorentzVectorD momentum(
-            (*iSimTk).momentum().x(), (*iSimTk).momentum().y(), (*iSimTk).momentum().z(), (*iSimTk).momentum().e());
+        math::XYZTLorentzVectorD momentum(theSimTrack.momentum().x(),
+                                          theSimTrack.momentum().y(),
+                                          theSimTrack.momentum().z(),
+                                          theSimTrack.momentum().e());
       }
     }
   }
@@ -123,29 +125,31 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(const std::vector<SimTrack>
   //  }
   //}
 
-  for (std::vector<SimTrack>::iterator iPizTk = pizeroTracks.begin(); iPizTk != pizeroTracks.end(); ++iPizTk) {
-    std::cout << " Looping on the primary pizero pt  " << sqrt((*iPizTk).momentum().perp2()) << " pizero track ID "
-              << (*iPizTk).trackId() << std::endl;
+  for (auto& pizeroTrack : pizeroTracks) {
+    std::cout << " Looping on the primary pizero pt  " << sqrt(pizeroTrack.momentum().perp2()) << " pizero track ID "
+              << pizeroTrack.trackId() << std::endl;
 
     photonsFromPizero.clear();
     std::cout << " mcPhotons.size " << mcPhotons.size() << std::endl;
-    for (std::vector<PhotonMCTruth>::iterator iPho = mcPhotons.begin(); iPho != mcPhotons.end(); ++iPho) {
-      int phoVtxIndex = (*iPho).vertexInd();
+    for (auto& mcPhoton : mcPhotons) {
+      int phoVtxIndex = mcPhoton.vertexInd();
       SimVertex phoVtx = theSimVertices[phoVtxIndex];
       unsigned int phoParentInd = phoVtx.parentIndex();
       std::cout << " photon parent vertex index " << phoParentInd << std::endl;
 
-      if (phoParentInd == (*iPizTk).trackId()) {
-        std::cout << "Matched Photon ID " << (*iPho).trackId() << "  vtx " << phoParentInd << " with pizero "
-                  << (*iPizTk).trackId() << std::endl;
-        photonsFromPizero.push_back(*iPho);
+      if (phoParentInd == pizeroTrack.trackId()) {
+        std::cout << "Matched Photon ID " << mcPhoton.trackId() << "  vtx " << phoParentInd << " with pizero "
+                  << pizeroTrack.trackId() << std::endl;
+        photonsFromPizero.push_back(mcPhoton);
       }
     }
     std::cout << " Photon matching the pizero vertex " << photonsFromPizero.size() << std::endl;
 
     // build pizero MC thruth
-    CLHEP::HepLorentzVector tmpMom(
-        (*iPizTk).momentum().px(), (*iPizTk).momentum().py(), (*iPizTk).momentum().pz(), (*iPizTk).momentum().e());
+    CLHEP::HepLorentzVector tmpMom(pizeroTrack.momentum().px(),
+                                   pizeroTrack.momentum().py(),
+                                   pizeroTrack.momentum().pz(),
+                                   pizeroTrack.momentum().e());
     CLHEP::HepLorentzVector tmpPos(
         primVtx.position().x(), primVtx.position().y(), primVtx.position().z(), primVtx.position().t());
     result.push_back(PizeroMCTruth(tmpMom, photonsFromPizero, tmpPos));

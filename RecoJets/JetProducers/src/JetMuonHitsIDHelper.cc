@@ -72,10 +72,7 @@ void reco::helper::JetMuonHitsIDHelper::calculate(const edm::Event& event,
 
     //####calculate rpc  variables for each jet########
 
-    for (RPCRecHitCollection::const_iterator itRPC = rpcRecHits_handle->begin(), itRPCEnd = rpcRecHits_handle->end();
-         itRPC != itRPCEnd;
-         ++itRPC) {
-      RPCRecHit const& hit = *itRPC;
+    for (const auto& hit : *rpcRecHits_handle) {
       DetId detid = hit.geographicalId();
       LocalPoint lp = hit.localPosition();
       const GeomDet* gd = trackingGeometry->idToDet(detid);

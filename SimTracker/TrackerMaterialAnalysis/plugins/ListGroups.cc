@@ -40,9 +40,9 @@
 static bool dddGetStringRaw(const DDFilteredView &view, const std::string &name, std::string &value) {
   std::vector<const DDsvalues_type *> result;
   view.specificsV(result);
-  for (std::vector<const DDsvalues_type *>::iterator it = result.begin(); it != result.end(); ++it) {
+  for (auto &it : result) {
     DDValue parameter(name);
-    if (DDfetch(*it, parameter)) {
+    if (DDfetch(it, parameter)) {
       if (parameter.strings().size() == 1) {
         value = parameter.strings().front();
         return true;

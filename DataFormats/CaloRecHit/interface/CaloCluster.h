@@ -125,8 +125,8 @@ namespace reco {
           position_(position),
           algoID_(algoId) {
       hitsAndFractions_.reserve(usedHits.size());
-      for (size_t i = 0; i < usedHits.size(); i++)
-        hitsAndFractions_.push_back(std::pair<DetId, float>(usedHits[i], 1.));
+      for (auto usedHit : usedHits)
+        hitsAndFractions_.push_back(std::pair<DetId, float>(usedHit, 1.));
       flags_ = flags & flagsMask_;
     }
 

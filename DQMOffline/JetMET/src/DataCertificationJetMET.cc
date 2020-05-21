@@ -87,16 +87,16 @@ void DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGe
   bool found_METreco_dir = false;
   bool found_METminiaod_dir = false;
   //check if proper directories are inside the files
-  for (int i = 0; i < int(subDirVecMET.size()); i++) {
-    ibook_.setCurrentFolder(subDirVecMET[i]);
-    if ((subDirVecMET[i] + "/Cleaned") == (RunDirMET + inputMETLabelRECO_.label() + "/Cleaned")) {
+  for (const auto& i : subDirVecMET) {
+    ibook_.setCurrentFolder(i);
+    if ((i + "/Cleaned") == (RunDirMET + inputMETLabelRECO_.label() + "/Cleaned")) {
       found_METreco_dir = true;
     }
-    if (((subDirVecMET[i] + "/Uncleaned") == (RunDirMET + inputMETLabelRECOUncleaned_.label() + "/Uncleaned")) ||
-        ((subDirVecMET[i] + "/Uncleaned") == (RunDirMET + inputMETLabelMiniAOD_.label() + "/Uncleaned"))) {
+    if (((i + "/Uncleaned") == (RunDirMET + inputMETLabelRECOUncleaned_.label() + "/Uncleaned")) ||
+        ((i + "/Uncleaned") == (RunDirMET + inputMETLabelMiniAOD_.label() + "/Uncleaned"))) {
       //check filters in uncleaned directory
       std::string rundirMET_reco = "";
-      if ((subDirVecMET[i] + "/Uncleaned") == (RunDirMET + inputMETLabelRECOUncleaned_.label() + "/Uncleaned")) {
+      if ((i + "/Uncleaned") == (RunDirMET + inputMETLabelRECOUncleaned_.label() + "/Uncleaned")) {
         rundirMET_reco = RunDirMET + inputMETLabelRECOUncleaned_.label() + "/Uncleaned";
       } else {
         rundirMET_reco = RunDirMET + inputMETLabelMiniAOD_.label() + "/Uncleaned";
@@ -193,7 +193,7 @@ void DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGe
         }
       }
     }
-    if ((subDirVecMET[i] + "/Cleaned") == (RunDirMET + inputMETLabelMiniAOD_.label() + "/Cleaned")) {
+    if ((i + "/Cleaned") == (RunDirMET + inputMETLabelMiniAOD_.label() + "/Cleaned")) {
       found_METminiaod_dir = true;
     }
   }
@@ -361,12 +361,12 @@ void DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGe
   subDirVecJet = iget_.getSubdirs();
   bool found_Jetreco_dir = false;
   bool found_Jetminiaod_dir = false;
-  for (int i = 0; i < int(subDirVecJet.size()); i++) {
-    ibook_.setCurrentFolder(subDirVecJet[i]);
-    if (subDirVecJet[i] == (RunDirJet + "Cleaned" + inputJetLabelRECO_.label())) {
+  for (const auto& i : subDirVecJet) {
+    ibook_.setCurrentFolder(i);
+    if (i == (RunDirJet + "Cleaned" + inputJetLabelRECO_.label())) {
       found_Jetreco_dir = true;
     }
-    if (subDirVecJet[i] == (RunDirJet + "Cleaned" + inputJetLabelMiniAOD_.label())) {
+    if (i == (RunDirJet + "Cleaned" + inputJetLabelMiniAOD_.label())) {
       found_Jetminiaod_dir = true;
     }
   }

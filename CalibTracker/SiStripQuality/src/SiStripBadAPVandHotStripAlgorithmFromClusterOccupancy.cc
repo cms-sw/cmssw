@@ -442,18 +442,18 @@ void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::CalculateMeanAndRMS(
       tot2[j] = 0;
     }
 
-    for (uint32_t it = 0; it < a.size(); it++) {
-      Moduleposition = (a[it].modulePosition) - 1;
+    for (const auto& it : a) {
+      Moduleposition = (it.modulePosition) - 1;
 
-      for (int apv = 0; apv < a[it].numberApvs; apv++) {
+      for (int apv = 0; apv < it.numberApvs; apv++) {
         if (i > 0) {
-          if (a[it].apvMedian[apv] < (Mean[Moduleposition] - 3 * Rms[Moduleposition]) ||
-              (a[it].apvMedian[apv] > (Mean[Moduleposition] + 5 * Rms[Moduleposition]))) {
+          if (it.apvMedian[apv] < (Mean[Moduleposition] - 3 * Rms[Moduleposition]) ||
+              (it.apvMedian[apv] > (Mean[Moduleposition] + 5 * Rms[Moduleposition]))) {
             continue;
           }
         }
-        tot[Moduleposition] += a[it].apvMedian[apv];
-        tot2[Moduleposition] += (a[it].apvMedian[apv]) * (a[it].apvMedian[apv]);
+        tot[Moduleposition] += it.apvMedian[apv];
+        tot2[Moduleposition] += (it.apvMedian[apv]) * (it.apvMedian[apv]);
         n[Moduleposition]++;
       }
     }
@@ -480,9 +480,9 @@ void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::AnalyzeOccupancy(
   int Moduleposition;
   uint32_t Detid;
 
-  for (uint32_t it = 0; it < medianValues.size(); it++) {
-    Moduleposition = (medianValues[it].modulePosition) - 1;
-    Detid = medianValues[it].detrawId;
+  for (auto& medianValue : medianValues) {
+    Moduleposition = (medianValue.modulePosition) - 1;
+    Detid = medianValue.detrawId;
 
     setBasicTreeParameters(Detid);
 
@@ -494,7 +494,7 @@ void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::AnalyzeOccupancy(
     hotstripspermodule = 0;
     vHotStripsInModule.clear();
 
-    for (int apv = 0; apv < medianValues[it].numberApvs; apv++) {
+    for (int apv = 0; apv < medianValue.numberApvs; apv++) {
       double logMedianOccupancy = -1;
       double logAbsoluteOccupancy = -1;
 
@@ -505,10 +505,10 @@ void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::AnalyzeOccupancy(
         poissonprob[i] = 0;
       }
 
-      number_strips = (medianValues[it].numberApvs) * 128;
+      number_strips = (medianValue.numberApvs) * 128;
       apv_number = apv + 1;
-      apvMedianOccupancy = medianValues[it].apvMedian[apv];
-      apvAbsoluteOccupancy = medianValues[it].apvabsoluteOccupancy[apv];
+      apvMedianOccupancy = medianValue.apvMedian[apv];
+      apvAbsoluteOccupancy = medianValue.apvabsoluteOccupancy[apv];
       isBad = 0;
       hotstripsperapv[apv] = 0;
 
@@ -598,22 +598,22 @@ void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::AnalyzeOccupancy(
         }
       }
 
-      if (medianValues[it].apvMedian[apv] > minNevents_) {
-        if ((medianValues[it].apvMedian[apv] >
+      if (medianValue.apvMedian[apv] > minNevents_) {
+        if ((medianValue.apvMedian[apv] >
              (MeanAndRms[Moduleposition].first + highoccupancy_ * MeanAndRms[Moduleposition].second)) &&
-            (medianValues[it].apvMedian[apv] > absolutelow_)) {
+            (medianValue.apvMedian[apv] > absolutelow_)) {
           BadStripList.push_back(pQuality->encode((apv * 128), 128, 0));
           isBad = 1;
         }
-      } else if (medianValues[it].apvMedian[apv] <
+      } else if (medianValue.apvMedian[apv] <
                      (MeanAndRms[Moduleposition].first - lowoccupancy_ * MeanAndRms[Moduleposition].second) &&
-                 (MeanAndRms[Moduleposition].first > 2 || medianValues[it].apvabsoluteOccupancy[apv] == 0)) {
+                 (MeanAndRms[Moduleposition].first > 2 || medianValue.apvabsoluteOccupancy[apv] == 0)) {
         BadStripList.push_back(pQuality->encode((apv * 128), 128, 0));
         isBad = 1;
       }
 
       if (isBad != 1) {
-        iterativeSearch(medianValues[it], BadStripList, apv);
+        iterativeSearch(medianValue, BadStripList, apv);
       }
 
       if (WriteOutputFile_ == true) {

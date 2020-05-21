@@ -74,10 +74,10 @@ void ClusterShapeHitFilter::loadPixelLimits(std::string const& file, PixelLimits
     const PixelKeys key(part, dx, dy);
     auto& pl = plim[key];
 
-    for (int b = 0; b < 2; b++)      // branch
+    for (auto& b : pl.data)          // branch
       for (int d = 0; d < 2; d++)    // direction
         for (int k = 0; k < 2; k++)  // lower and upper
-          inFile >> pl.data[b][d][k];
+          inFile >> b[d][k];
 
     double f;
     int d;
@@ -106,9 +106,9 @@ void ClusterShapeHitFilter::loadStripLimits() {
     StripKeys key(dx);
     auto& sl = stripLimits[key];
 
-    for (int b = 0; b < 2; b++)    // branch
+    for (auto& b : sl.data)        // branch
       for (int k = 0; k < 2; k++)  // lower and upper
-        inFile >> sl.data[b][k];
+        inFile >> b[k];
   }
 
   inFile.close();

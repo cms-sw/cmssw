@@ -254,6 +254,6 @@ void HDRShower::setFuncParam() {
 
   for (int i = 1; i < R_range; i++)
     rpdf[i] += rpdf[i - 1];
-  for (int i = 0; i < R_range; i++)
-    rpdf[i] /= rpdf[R_range - 1];
+  for (float& i : rpdf)
+    i /= rpdf[R_range - 1];
 }

@@ -233,14 +233,11 @@ void FWTableViewTableManager::updateEvaluators() {
   }
   std::vector<FWExpressionEvaluator> &ev = m_evaluators;
   ev.clear();
-  for (std::vector<FWTableViewManager::TableEntry>::const_iterator i = m_tableFormats->begin(),
-                                                                   end = m_tableFormats->end();
-       i != end;
-       ++i) {
+  for (const auto &m_tableFormat : *m_tableFormats) {
     try {
-      ev.push_back(FWExpressionEvaluator(i->expression, item->modelType()->GetName()));
+      ev.push_back(FWExpressionEvaluator(m_tableFormat.expression, item->modelType()->GetName()));
     } catch (...) {
-      fwLog(fwlog::kError) << "expression " << i->expression << " is not valid, skipping\n";
+      fwLog(fwlog::kError) << "expression " << m_tableFormat.expression << " is not valid, skipping\n";
       ev.push_back(FWExpressionEvaluator("0", item->modelType()->GetName()));
     }
   }

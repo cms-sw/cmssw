@@ -520,14 +520,13 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
         tagMuons.push_back(m);
     }
 
-    for (int i = 0; i < int(tagMuons.size()); i++) {
+    for (auto& tagMuon : tagMuons) {
       for (auto const& m : *muoHandle) {
         if (!matchToTrigger(hltpath, m))
           continue;
-        if ((tagMuons[i].pt() == m.pt()))
+        if ((tagMuon.pt() == m.pt()))
           continue;  //not the same
-        if ((tagMuons[i].p4() + m.p4()).M() > minmass_ &&
-            (tagMuons[i].p4() + m.p4()).M() < maxmass_) {  //near to J/psi mass
+        if ((tagMuon.p4() + m.p4()).M() > minmass_ && (tagMuon.p4() + m.p4()).M() < maxmass_) {  //near to J/psi mass
           muPhi_.denominator->Fill(m.phi());
           muEta_.denominator->Fill(m.eta());
           muPt_.denominator->Fill(m.pt());

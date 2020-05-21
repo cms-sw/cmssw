@@ -125,14 +125,14 @@ edm::eventsetup::DataProxyProvider::KeyedProxiesVector FWLiteESSource::registerP
   TypesAndLabels typesAndLabels = rec.typeAndLabelOfAvailableData();
 
   std::cout << "Looking for data in record " << iRecordKey.name() << std::endl;
-  for (TypesAndLabels::const_iterator it = typesAndLabels.begin(), itEnd = typesAndLabels.end(); it != itEnd; ++it) {
-    std::cout << " need type " << it->first << std::endl;
-    HCTypeTag tt = HCTypeTag::findType(it->first);
+  for (const auto& typesAndLabel : typesAndLabels) {
+    std::cout << " need type " << typesAndLabel.first << std::endl;
+    HCTypeTag tt = HCTypeTag::findType(typesAndLabel.first);
     if (tt != HCTypeTag()) {
-      edm::eventsetup::DataKey dk(tt, edm::eventsetup::IdTags(it->second.c_str()));
+      edm::eventsetup::DataKey dk(tt, edm::eventsetup::IdTags(typesAndLabel.second.c_str()));
       keyedProxiesVector.emplace_back(dk, std::make_shared<FWLiteProxy>(TypeID(tt.value()), &rec));
     } else {
-      LogDebug("UnknownESType") << "The type '" << it->first << "' is unknown in this job";
+      LogDebug("UnknownESType") << "The type '" << typesAndLabel.first << "' is unknown in this job";
       std::cout << "    *****FAILED*****" << std::endl;
     }
   }
@@ -156,14 +156,13 @@ void FWLiteESSource::delaySettingRecords() {
   using edm::eventsetup::heterocontainer::HCTypeTag;
   std::vector<std::string> recordNames = m_es.namesOfAvailableRecords();
 
-  for (std::vector<std::string>::const_iterator it = recordNames.begin(), itEnd = recordNames.end(); it != itEnd;
-       ++it) {
-    HCTypeTag t = HCTypeTag::findType(*it);
+  for (const auto& recordName : recordNames) {
+    HCTypeTag t = HCTypeTag::findType(recordName);
     if (t != HCTypeTag()) {
       EventSetupRecordKey key(t);
       findingRecordWithKey(key);
       usingRecordWithKey(key);
-      m_keyToID[key] = m_es.recordID(it->c_str());
+      m_keyToID[key] = m_es.recordID(recordName.c_str());
     }
   }
 }

@@ -29,8 +29,8 @@ static bool dddGetStringRaw(const DDFilteredView &view, const std::string &name,
   DDValue parameter(name);
   std::vector<const DDsvalues_type *> result;
   view.specificsV(result);
-  for (std::vector<const DDsvalues_type *>::iterator it = result.begin(); it != result.end(); ++it) {
-    if (DDfetch(*it, parameter)) {
+  for (auto &it : result) {
+    if (DDfetch(it, parameter)) {
       if (parameter.strings().size() == 1) {
         value = parameter.strings().front();
         return true;
@@ -139,8 +139,8 @@ void ListIds::analyze(const edm::Event &evt, const edm::EventSetup &setup) {
 
   std::cout << std::fixed << std::setprecision(3);
   auto const &dets = hGeo->dets();
-  for (unsigned int i = 0; i < dets.size(); ++i) {
-    const GeomDet &det = *dets[i];
+  for (auto i : dets) {
+    const GeomDet &det = *i;
 
     // Surface::PositionType is a typedef for Point3DBase<float,GlobalTag> a.k.a. GlobalPoint
     const Surface::PositionType &p = det.position();

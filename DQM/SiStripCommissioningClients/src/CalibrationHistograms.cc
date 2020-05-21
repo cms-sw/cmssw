@@ -205,23 +205,23 @@ void CalibrationHistograms::save(std::string& path, uint32_t run_number, std::st
 
       outputFile->cd("DQMData/" + directory);
 
-      for (size_t igraph = 0; igraph < anal->decayTimeVsVFS().size(); igraph++) {
-        graph_vfs->Add(anal->decayTimeVsVFS()[igraph]);
-        anal->decayTimeVsVFS()[igraph]->Write();
+      for (auto igraph : anal->decayTimeVsVFS()) {
+        graph_vfs->Add(igraph);
+        igraph->Write();
         save_graph_vfs = true;
       }
 
-      for (size_t igraph = 0; igraph < anal->riseTimeVsISHA().size(); igraph++) {
-        graph_isha->Add(anal->riseTimeVsISHA()[igraph]);
-        anal->riseTimeVsISHA()[igraph]->Write();
+      for (auto igraph : anal->riseTimeVsISHA()) {
+        graph_isha->Add(igraph);
+        igraph->Write();
         save_graph_isha = true;
       }
 
-      for (size_t igraph = 0; igraph < anal->riseTimeVsISHAVsVFS().size(); igraph++)
-        anal->riseTimeVsISHAVsVFS()[igraph]->Write();
+      for (auto igraph : anal->riseTimeVsISHAVsVFS())
+        igraph->Write();
 
-      for (size_t igraph = 0; igraph < anal->decayTimeVsISHAVsVFS().size(); igraph++)
-        anal->decayTimeVsISHAVsVFS()[igraph]->Write();
+      for (auto igraph : anal->decayTimeVsISHAVsVFS())
+        igraph->Write();
 
       outputFile->cd();
     }

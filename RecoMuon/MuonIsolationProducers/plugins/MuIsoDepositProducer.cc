@@ -62,11 +62,11 @@ MuIsoDepositProducer::MuIsoDepositProducer(const ParameterSet& par)
                           .getParameter<std::vector<std::string>>("DepositInstanceLabels");
   }
 
-  for (unsigned int i = 0; i < theDepositNames.size(); ++i) {
+  for (auto& theDepositName : theDepositNames) {
     std::string alias = par.getParameter<std::string>("@module_label");
-    if (!theDepositNames[i].empty())
-      alias += "_" + theDepositNames[i];
-    produces<reco::IsoDepositMap>(theDepositNames[i]).setBranchAlias(alias);
+    if (!theDepositName.empty())
+      alias += "_" + theDepositName;
+    produces<reco::IsoDepositMap>(theDepositName).setBranchAlias(alias);
   }
 
   edm::ParameterSet extractorPSet = par.getParameter<edm::ParameterSet>("ExtractorPSet");

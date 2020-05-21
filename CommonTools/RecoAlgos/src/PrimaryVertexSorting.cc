@@ -24,8 +24,7 @@ float PrimaryVertexSorting::score(const reco::Vertex &pv,
   std::vector<fastjet::PseudoJet> fjInputs_;
   fjInputs_.clear();
   size_t countScale0 = 0;
-  for (size_t i = 0; i < cands.size(); i++) {
-    const reco::Candidate *c = cands[i];
+  for (auto c : cands) {
     float scale = 1.;
     if (c->bestTrack() != nullptr) {
       if (c->pt() != 0) {

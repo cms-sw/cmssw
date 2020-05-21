@@ -74,10 +74,10 @@ void CaloMuonMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   out->reserve(muons->size() + (mergeTracks_ ? tracks->size() : 0));
 
   // copy reco::Muons, turning on the CaloCompatibility flag if enabled and possible
-  for (std::vector<reco::Muon>::const_iterator it = muons->begin(), ed = muons->end(); it != ed; ++it) {
-    if (!muonsCut_(*it))
+  for (const auto& it : *muons) {
+    if (!muonsCut_(it))
       continue;
-    out->push_back(*it);
+    out->push_back(it);
     reco::Muon& mu = out->back();
     if (mergeCaloMuons_ && mu.track().isNonnull()) {
       if (mu.isCaloCompatibilityValid()) {
@@ -92,18 +92,18 @@ void CaloMuonMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   if (mergeCaloMuons_) {
     // copy reco::CaloMuon
-    for (std::vector<reco::CaloMuon>::const_iterator it = caloMuons->begin(), ed = caloMuons->end(); it != ed; ++it) {
-      if (!caloMuonsCut_(*it))
+    for (const auto& it : *caloMuons) {
+      if (!caloMuonsCut_(it))
         continue;
       // make a reco::Muon
-      reco::TrackRef track = it->track();
+      reco::TrackRef track = it.track();
       double energy = sqrt(track->p() * track->p() + 0.011163691);
       math::XYZTLorentzVector p4(track->px(), track->py(), track->pz(), energy);
       out->push_back(reco::Muon(track->charge(), p4, track->vertex()));
       reco::Muon& mu = out->back();
       // fill info
-      mu.setCalEnergy(it->calEnergy());
-      mu.setCaloCompatibility(it->caloCompatibility());
+      mu.setCalEnergy(it.calEnergy());
+      mu.setCaloCompatibility(it.caloCompatibility());
       mu.setInnerTrack(track);
       mu.setType(reco::Muon::CaloMuon);
     }

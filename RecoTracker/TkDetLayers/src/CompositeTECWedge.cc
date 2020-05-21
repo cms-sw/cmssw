@@ -50,14 +50,15 @@ CompositeTECWedge::CompositeTECWedge(vector<const GeomDet*>& innerDets, vector<c
                           << this->position().perp() << " , " << theDiskSector->innerRadius() << " , "
                           << theDiskSector->outerRadius();
 
-  for (vector<const GeomDet*>::const_iterator it = theFrontDets.begin(); it != theFrontDets.end(); it++) {
-    LogDebug("TkDetLayers") << "frontDet phi,z,r: " << (*it)->surface().position().phi() << " , "
-                            << (*it)->surface().position().z() << " , " << (*it)->surface().position().perp();
+  for (auto theFrontDet : theFrontDets) {
+    LogDebug("TkDetLayers") << "frontDet phi,z,r: " << theFrontDet->surface().position().phi() << " , "
+                            << theFrontDet->surface().position().z() << " , "
+                            << theFrontDet->surface().position().perp();
   }
 
-  for (vector<const GeomDet*>::const_iterator it = theBackDets.begin(); it != theBackDets.end(); it++) {
-    LogDebug("TkDetLayers") << "backDet phi,z,r: " << (*it)->surface().phi() << " , " << (*it)->surface().position().z()
-                            << " , " << (*it)->surface().position().perp();
+  for (auto theBackDet : theBackDets) {
+    LogDebug("TkDetLayers") << "backDet phi,z,r: " << theBackDet->surface().phi() << " , "
+                            << theBackDet->surface().position().z() << " , " << theBackDet->surface().position().perp();
   }
   //-----------------------------------
 }

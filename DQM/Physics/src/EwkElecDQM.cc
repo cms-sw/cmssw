@@ -398,8 +398,7 @@ void EwkElecDQM::analyze(const Event& ev, const EventSetup& iSet) {
     return;
   }
 
-  for (unsigned int i = 0; i < vertexCollection->size(); i++) {
-    const Vertex& vertex = vertexCollection->at(i);
+  for (const auto& vertex : *vertexCollection) {
     if (vertex.isValid())
       npvCount++;
   }
@@ -628,8 +627,8 @@ hltConfigProvider.prescaleValue(ps, trigName) ;
   }
 
   for (unsigned int i = 0; i < electronCollectionSize; i++) {
-    for (int j = 0; j < NFLAGS; ++j) {
-      electron_sel[j] = false;
+    for (bool& j : electron_sel) {
+      j = false;
     }
 
     const GsfElectron& elec = electronCollection->at(i);

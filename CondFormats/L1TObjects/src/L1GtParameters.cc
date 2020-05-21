@@ -74,8 +74,8 @@ void L1GtParameters::print(std::ostream& myCout) const {
          << std::endl;
 
   int iBit = 0;
-  for (std::vector<int>::const_iterator cIt = m_daqNrBxBoard.begin(); cIt != m_daqNrBxBoard.end(); ++cIt) {
-    myCout << "    Board active bit " << iBit << ": " << (*cIt) << " BXs" << std::endl;
+  for (int cIt : m_daqNrBxBoard) {
+    myCout << "    Board active bit " << iBit << ": " << cIt << " BXs" << std::endl;
     iBit++;
   }
 
@@ -85,8 +85,8 @@ void L1GtParameters::print(std::ostream& myCout) const {
          << std::endl;
 
   iBit = 0;
-  for (std::vector<int>::const_iterator cIt = m_evmNrBxBoard.begin(); cIt != m_evmNrBxBoard.end(); ++cIt) {
-    myCout << "    Board active bit " << iBit << ": " << (*cIt) << " BXs" << std::endl;
+  for (int cIt : m_evmNrBxBoard) {
+    myCout << "    Board active bit " << iBit << ": " << cIt << " BXs" << std::endl;
     iBit++;
   }
 

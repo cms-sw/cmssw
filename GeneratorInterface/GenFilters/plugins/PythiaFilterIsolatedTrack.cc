@@ -144,8 +144,7 @@ bool PythiaFilterIsolatedTrack::filter(edm::Event &iEvent, edm::EventSetup const
 
   // loop over all the seeds and see if any of them are isolated
   unsigned int ntrk(0);
-  for (std::vector<const HepMC::GenParticle *>::const_iterator it1 = seeds.begin(); it1 != seeds.end(); ++it1) {
-    const HepMC::GenParticle *p1 = *it1;
+  for (auto p1 : seeds) {
     if (!(pdt->particle(p1->pdg_id())))
       continue;
     if (p1->pdg_id() < -100 || p1->pdg_id() > 100 || (!onlyHadrons_)) {  // Select hadrons only
@@ -157,11 +156,7 @@ bool PythiaFilterIsolatedTrack::filter(edm::Event &iEvent, edm::EventSetup const
 
       // loop over all of the other charged particles in the event, and see if any are close by
       bool failsIso = false;
-      for (std::vector<const HepMC::GenParticle *>::const_iterator it2 = chargedParticles.begin();
-           it2 != chargedParticles.end();
-           ++it2) {
-        const HepMC::GenParticle *p2 = *it2;
-
+      for (auto p2 : chargedParticles) {
         // don't consider the seed particle among the other charge particles
         if (p1 != p2) {
           std::pair<double, double> EtaPhi2 = GetEtaPhiAtEcal(p2->momentum().eta(),

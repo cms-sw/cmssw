@@ -18,8 +18,7 @@ GhostTrackPrediction PositiveSideGhostTrackFitter::fit(const GhostTrackFitter::P
                                                        double &ndof,
                                                        double &chi2) {
   double rho = prior.rho();
-  for (unsigned int i = 0; i < states.size(); i++) {
-    GhostTrackState &state = states[i];
+  for (auto &state : states) {
     state.linearize(prior, true, .5 / rho);
   }
 
@@ -27,8 +26,7 @@ GhostTrackPrediction PositiveSideGhostTrackFitter::fit(const GhostTrackFitter::P
 
   double origin = pred.lambda(origin_);
   bool done = true;
-  for (unsigned int i = 0; i < states.size(); i++) {
-    GhostTrackState &state = states[i];
+  for (auto &state : states) {
     double lambda = state.lambda();
     if (lambda < origin && (origin - lambda) < 3.5) {
       GhostTrackState testState = state;
@@ -50,8 +48,7 @@ GhostTrackPrediction PositiveSideGhostTrackFitter::fit(const GhostTrackFitter::P
   }
 
   if (!done) {
-    for (unsigned int i = 0; i < states.size(); i++) {
-      GhostTrackState &state = states[i];
+    for (auto &state : states) {
       double lambda = state.lambda();
       if (state.weight() != 1. && lambda < origin) {
         double weight = std::exp(10. * (origin - lambda) - .1);

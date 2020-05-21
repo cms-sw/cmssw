@@ -50,10 +50,10 @@ std::unique_ptr<SiPixelGainCalibrationOffline> SiPixelFakeGainOfflineESSource::p
   const std::vector<uint32_t>& DetIds = reader.getAllDetIds();
 
   // Loop over detectors
-  for (std::vector<uint32_t>::const_iterator detit = DetIds.begin(); detit != DetIds.end(); detit++) {
+  for (unsigned int DetId : DetIds) {
     nmodules++;
     std::vector<char> theSiPixelGainCalibrationOffline;
-    const std::pair<int, int>& detUnitDimensions = reader.getDetUnitDimensions(*detit);
+    const std::pair<int, int>& detUnitDimensions = reader.getDetUnitDimensions(DetId);
 
     // Loop over columns and rows
     for (int i = 0; i < detUnitDimensions.first; i++) {
@@ -80,7 +80,7 @@ std::unique_ptr<SiPixelGainCalibrationOffline> SiPixelFakeGainOfflineESSource::p
     SiPixelGainCalibrationOffline::Range range(theSiPixelGainCalibrationOffline.begin(),
                                                theSiPixelGainCalibrationOffline.end());
     // the 80 in the line below represents the number of columns averaged over.
-    if (!obj->put(*detit, range, detUnitDimensions.first))
+    if (!obj->put(DetId, range, detUnitDimensions.first))
       edm::LogError("SiPixelFakeGainOfflineESSource")
           << "[SiPixelFakeGainOfflineESSource::produce] detid already exists" << std::endl;
   }

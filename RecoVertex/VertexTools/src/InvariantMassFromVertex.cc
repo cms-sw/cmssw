@@ -125,9 +125,9 @@ double InvariantMassFromVertex::uncertainty(const LorentzVector& totalP4,
     //off diagonal elements: track momentum - track momentum corellations
 
     int j_int = 0;
-    for (std::vector<RefCountedVertexTrack>::const_iterator rt_j = refTracks.begin(); rt_j != refTracks.end(); rt_j++) {
+    for (const auto& refTrack : refTracks) {
       if (i_int < j_int) {
-        AlgebraicMatrix i_k_cov_m = asHepMatrix<3, 3>(vertex.tkToTkCovariance((*rt_i), (*rt_j)));
+        AlgebraicMatrix i_k_cov_m = asHepMatrix<3, 3>(vertex.tkToTkCovariance((*rt_i), refTrack));
         cov.sub(i_int * 3 + 1, j_int * 3 + 1, i_k_cov_m);
         cov.sub(j_int * 3 + 1, i_int * 3 + 1, i_k_cov_m.T());
       }

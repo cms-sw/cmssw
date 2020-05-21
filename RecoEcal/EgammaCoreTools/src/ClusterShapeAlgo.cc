@@ -345,13 +345,13 @@ void ClusterShapeAlgo::Calculate_Covariances(const reco::BasicCluster& passedClu
 
     // first find energy-weighted mean position - doing it when filling the energy map might save time
     math::XYZVector meanPosition(0.0, 0.0, 0.0);
-    for (int i = 0; i < 5; ++i) {
+    for (auto& i : energyMap_) {
       for (int j = 0; j < 5; ++j) {
-        DetId id = energyMap_[i][j].first;
+        DetId id = i[j].first;
         if (id != DetId(0)) {
           GlobalPoint positionGP = geometry->getGeometry(id)->getPosition();
           math::XYZVector position(positionGP.x(), positionGP.y(), positionGP.z());
-          meanPosition = meanPosition + energyMap_[i][j].second * position;
+          meanPosition = meanPosition + i[j].second * position;
         }
       }
     }
@@ -364,9 +364,9 @@ void ClusterShapeAlgo::Calculate_Covariances(const reco::BasicCluster& passedClu
     double numeratorPhiPhi = 0;
     double denominator = 0;
 
-    for (int i = 0; i < 5; ++i) {
+    for (auto& i : energyMap_) {
       for (int j = 0; j < 5; ++j) {
-        DetId id = energyMap_[i][j].first;
+        DetId id = i[j].first;
         if (id != DetId(0)) {
           GlobalPoint position = geometry->getGeometry(id)->getPosition();
 
@@ -380,8 +380,8 @@ void ClusterShapeAlgo::Calculate_Covariances(const reco::BasicCluster& passedClu
 
           double dEta = position.eta() - meanPosition.eta();
           double w = 0.;
-          if (energyMap_[i][j].second > 0.)
-            w = std::max(0.0, w0_ + log(energyMap_[i][j].second / e5x5_));
+          if (i[j].second > 0.)
+            w = std::max(0.0, w0_ + log(i[j].second / e5x5_));
 
           denominator += w;
           numeratorEtaEta += w * dEta * dEta;

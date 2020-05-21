@@ -303,8 +303,8 @@ TrajectorySeed MuonSeedCreator::createSeed(
   PTrajectoryStateOnDet seedTSOS = trajectoryStateTransform::persistentState(tsos, id.rawId());
 
   edm::OwnVector<TrackingRecHit> container;
-  for (unsigned l = 0; l < seg.size(); l++) {
-    container.push_back(seg[l]->hit()->clone());
+  for (const auto& l : seg) {
+    container.push_back(l->hit()->clone());
     //container.push_back(seg[l]->hit());
   }
 

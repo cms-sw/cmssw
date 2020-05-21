@@ -123,9 +123,9 @@ void calcTopMass::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetu
 
   bool isQuarkFound[6] = {false};
 
-  for (JetMatchedPartonsCollection::const_iterator j = theJetPartonMatch->begin(); j != theJetPartonMatch->end(); j++) {
-    const math::XYZTLorentzVector theJet = (*j).first.get()->p4();
-    const MatchedPartons aMatch = (*j).second;
+  for (const auto &j : *theJetPartonMatch) {
+    const math::XYZTLorentzVector theJet = j.first.get()->p4();
+    const MatchedPartons aMatch = j.second;
     const GenParticleRef &thePhyDef = aMatch.physicsDefinitionParton();
 
     if (thePhyDef.isNonnull()) {

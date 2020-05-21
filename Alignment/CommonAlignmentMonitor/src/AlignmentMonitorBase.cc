@@ -94,10 +94,10 @@ TFileDirectory *AlignmentMonitorBase::directory(std::string dir) {
 
   std::vector<std::string> partial;
   TFileDirectory *last = (*theMap)[partial];
-  for (unsigned int i = 0; i < dirs.size(); i++) {
-    partial.push_back(dirs[i]);
+  for (const auto &dir : dirs) {
+    partial.push_back(dir);
     if (theMap->find(partial) == theMap->end()) {
-      (*theMap)[partial] = new TFileDirectory(last->mkdir(dirs[i]));
+      (*theMap)[partial] = new TFileDirectory(last->mkdir(dir));
     }
     last = (*theMap)[partial];
   }

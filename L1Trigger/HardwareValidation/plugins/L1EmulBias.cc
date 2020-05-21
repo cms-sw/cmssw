@@ -24,8 +24,8 @@ L1EmulBias::L1EmulBias(const edm::ParameterSet& iConfig) {
 
   if (verbose()) {
     std::cout << "[L1EmulBias] do sys? ";
-    for (int i = 0; i < DEnsys; i++)
-      std::cout << m_doSys[i];
+    for (bool m_doSy : m_doSys)
+      std::cout << m_doSy;
     std::cout << "\n\t";
     for (int i = 0; i < DEnsys; i++)
       if (m_doSys[i])
@@ -34,9 +34,9 @@ L1EmulBias::L1EmulBias(const edm::ParameterSet& iConfig) {
   }
 
   std::string CollInstName[DEnsys][5];
-  for (int i = 0; i < DEnsys; i++)
+  for (auto& i : CollInstName)
     for (int j = 0; j < 5; j++)
-      CollInstName[i][j] = std::string("");
+      i[j] = std::string("");
 
   CollInstName[GCT][0] += "isoEm";
   CollInstName[GCT][1] += "nonIsoEm";

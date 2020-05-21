@@ -300,22 +300,22 @@ void TrackSplittingMonitor::analyze(const edm::Event& iEvent, const edm::EventSe
               double bottomGlobalMuonNorchi2 = 1e10;
 
               // check if usable split global muons
-              for (std::vector<reco::Muon>::const_iterator gmI = splitMuons->begin(); gmI != splitMuons->end(); gmI++) {
-                if (gmI->isTrackerMuon() && gmI->isStandAloneMuon() && gmI->isGlobalMuon()) {
+              for (const auto& gmI : *splitMuons) {
+                if (gmI.isTrackerMuon() && gmI.isStandAloneMuon() && gmI.isGlobalMuon()) {
                   reco::TrackRef trackerTrackRef1(splitTracks, 0);
                   reco::TrackRef trackerTrackRef2(splitTracks, 1);
 
-                  if (gmI->innerTrack() == trackerTrackRef1) {
-                    if (gmI->globalTrack()->normalizedChi2() < topGlobalMuonNorchi2) {
+                  if (gmI.innerTrack() == trackerTrackRef1) {
+                    if (gmI.globalTrack()->normalizedChi2() < topGlobalMuonNorchi2) {
                       topGlobalMuonFlag = true;
-                      topGlobalMuonNorchi2 = gmI->globalTrack()->normalizedChi2();
+                      topGlobalMuonNorchi2 = gmI.globalTrack()->normalizedChi2();
                       topGlobalMuon = gmCtr;
                     }
                   }
-                  if (gmI->innerTrack() == trackerTrackRef2) {
-                    if (gmI->globalTrack()->normalizedChi2() < bottomGlobalMuonNorchi2) {
+                  if (gmI.innerTrack() == trackerTrackRef2) {
+                    if (gmI.globalTrack()->normalizedChi2() < bottomGlobalMuonNorchi2) {
                       bottomGlobalMuonFlag = true;
-                      bottomGlobalMuonNorchi2 = gmI->globalTrack()->normalizedChi2();
+                      bottomGlobalMuonNorchi2 = gmI.globalTrack()->normalizedChi2();
                       bottomGlobalMuon = gmCtr;
                     }
                   }

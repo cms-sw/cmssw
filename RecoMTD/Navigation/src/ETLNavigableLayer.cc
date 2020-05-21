@@ -92,47 +92,47 @@ vector<const DetLayer*> ETLNavigableLayer::compatibleLayers(const FreeTrajectory
 }
 
 void ETLNavigableLayer::pushResult(vector<const DetLayer*>& result, const MapB& map) const {
-  for (MapBI i = map.begin(); i != map.end(); i++)
-    result.push_back((*i).first);
+  for (const auto& i : map)
+    result.push_back(i.first);
 }
 
 void ETLNavigableLayer::pushResult(vector<const DetLayer*>& result, const MapE& map) const {
-  for (MapEI i = map.begin(); i != map.end(); i++)
-    result.push_back((*i).first);
+  for (const auto& i : map)
+    result.push_back(i.first);
 }
 
 void ETLNavigableLayer::pushResult(vector<const DetLayer*>& result,
                                    const MapE& map,
                                    const FreeTrajectoryState& fts) const {
-  for (MapEI i = map.begin(); i != map.end(); i++)
-    if ((*i).second.isInside(fts.position().eta()))
-      result.push_back((*i).first);
+  for (const auto& i : map)
+    if (i.second.isInside(fts.position().eta()))
+      result.push_back(i.first);
 }
 
 void ETLNavigableLayer::pushResult(vector<const DetLayer*>& result,
                                    const MapB& map,
                                    const FreeTrajectoryState& fts) const {
-  for (MapBI i = map.begin(); i != map.end(); i++)
-    if ((*i).second.isInside(fts.position().eta()))
-      result.push_back((*i).first);
+  for (const auto& i : map)
+    if (i.second.isInside(fts.position().eta()))
+      result.push_back(i.first);
 }
 
 void ETLNavigableLayer::pushCompatibleResult(vector<const DetLayer*>& result,
                                              const MapB& map,
                                              const FreeTrajectoryState& fts) const {
   MTDEtaRange range = trackingRange(fts);
-  for (MapBI i = map.begin(); i != map.end(); i++)
-    if ((*i).second.isCompatible(range))
-      result.push_back((*i).first);
+  for (const auto& i : map)
+    if (i.second.isCompatible(range))
+      result.push_back(i.first);
 }
 
 void ETLNavigableLayer::pushCompatibleResult(vector<const DetLayer*>& result,
                                              const MapE& map,
                                              const FreeTrajectoryState& fts) const {
   MTDEtaRange range = trackingRange(fts);
-  for (MapEI i = map.begin(); i != map.end(); i++)
-    if ((*i).second.isCompatible(range))
-      result.push_back((*i).first);
+  for (const auto& i : map)
+    if (i.second.isCompatible(range))
+      result.push_back(i.first);
 }
 
 const DetLayer* ETLNavigableLayer::detLayer() const { return theDetLayer; }

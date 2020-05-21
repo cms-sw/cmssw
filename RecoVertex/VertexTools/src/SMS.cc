@@ -69,8 +69,8 @@ GlobalPoint SMS::location(const std::vector<GlobalPoint>& data) const {
   for (std::vector<GlobalPoint>::const_iterator i = data.begin(); i != data.end(); ++i) {
     std::vector<float> D;
     // Compute squared distances to all points
-    for (std::vector<GlobalPoint>::const_iterator j = data.begin(); j != data.end(); ++j) {
-      D.push_back((*j - *i).mag2());
+    for (const auto& j : data) {
+      D.push_back((j - *i).mag2());
     }
     // Find q-quantile in each row of the distance matrix
     sort(D.begin(), D.end());
@@ -107,8 +107,8 @@ GlobalPoint SMS::location(const std::vector<GlobalPoint>& data) const {
 GlobalPoint SMS::location(const std::vector<GlPtWt>& wdata) const {
   if (!(theType & Weighted)) {
     std::vector<GlobalPoint> points;
-    for (std::vector<GlPtWt>::const_iterator i = wdata.begin(); i != wdata.end(); ++i) {
-      points.push_back(i->first);
+    for (const auto& i : wdata) {
+      points.push_back(i.first);
     };
     if (debug()) {
       std::cout << "[SMS] Unweighted SMS was asked for; ignoring the weights." << std::endl;

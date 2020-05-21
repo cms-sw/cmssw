@@ -332,13 +332,13 @@ double HBHEPulseShapeFlagSetter::PerformDualNominalFit(const std::vector<double>
   // loop over possible pulse distances between two components
   bool isFirst = true;
 
-  for (int k = 0; k < 6; k++) {
+  for (int k : AvailableDistance) {
     double SingleMinimumChi2 = 1000000;
     int MinOffset = 0;
 
     // scan coarsely through different offsets and find the minimum
     for (int i = 0; i + 250 < (int)CumulativeIdealPulse.size(); i += 10) {
-      double Chi2 = DualNominalFitSingleTry(Charge, i, AvailableDistance[k], isFirst);
+      double Chi2 = DualNominalFitSingleTry(Charge, i, k, isFirst);
       isFirst = false;
       if (Chi2 < SingleMinimumChi2) {
         SingleMinimumChi2 = Chi2;
@@ -348,7 +348,7 @@ double HBHEPulseShapeFlagSetter::PerformDualNominalFit(const std::vector<double>
 
     // around the minimum, scan finer for better a better minimum
     for (int i = MinOffset - 15; i + 250 < (int)CumulativeIdealPulse.size() && i < MinOffset + 15; i++) {
-      double Chi2 = DualNominalFitSingleTry(Charge, i, AvailableDistance[k], false);
+      double Chi2 = DualNominalFitSingleTry(Charge, i, k, false);
       if (Chi2 < SingleMinimumChi2)
         SingleMinimumChi2 = Chi2;
     }

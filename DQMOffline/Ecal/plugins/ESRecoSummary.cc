@@ -83,11 +83,10 @@ void ESRecoSummary::analyze(const edm::Event &ev, const edm::EventSetup &) {
 
   float maxRecHitEnergyES = -999.;
 
-  for (ESRecHitCollection::const_iterator esItr = thePreShowerRecHits->begin(); esItr != thePreShowerRecHits->end();
-       ++esItr) {
-    h_recHits_ES_time->Fill(esItr->time());
-    if (esItr->energy() > maxRecHitEnergyES)
-      maxRecHitEnergyES = esItr->energy();
+  for (const auto &thePreShowerRecHit : *thePreShowerRecHits) {
+    h_recHits_ES_time->Fill(thePreShowerRecHit.time());
+    if (thePreShowerRecHit.energy() > maxRecHitEnergyES)
+      maxRecHitEnergyES = thePreShowerRecHit.energy();
 
   }  // end loop over ES rec Hits
 
@@ -112,35 +111,30 @@ void ESRecoSummary::analyze(const edm::Event &ev, const edm::EventSetup &) {
   }
 
   // loop over all super clusters
-  for (reco::SuperClusterCollection::const_iterator itSC = theEndcapSuperClusters->begin();
-       itSC != theEndcapSuperClusters->end();
-       ++itSC) {
-    if (fabs(itSC->eta()) < 1.65 || fabs(itSC->eta()) > 2.6)
+  for (const auto &theEndcapSuperCluster : *theEndcapSuperClusters) {
+    if (fabs(theEndcapSuperCluster.eta()) < 1.65 || fabs(theEndcapSuperCluster.eta()) > 2.6)
       continue;
 
     float ESenergyPlane1 = 0.;
     float ESenergyPlane2 = 0.;
 
     // Loop over all ECAL Basic clusters in the supercluster
-    for (reco::CaloCluster_iterator ecalBasicCluster = itSC->clustersBegin(); ecalBasicCluster != itSC->clustersEnd();
+    for (reco::CaloCluster_iterator ecalBasicCluster = theEndcapSuperCluster.clustersBegin();
+         ecalBasicCluster != theEndcapSuperCluster.clustersEnd();
          ecalBasicCluster++) {
       const reco::CaloClusterPtr ecalBasicClusterPtr = *(ecalBasicCluster);
 
-      for (reco::PreshowerClusterCollection::const_iterator iESClus = ESclustersX->begin();
-           iESClus != ESclustersX->end();
-           ++iESClus) {
-        const reco::CaloClusterPtr preshBasicCluster = iESClus->basicCluster();
-        const reco::PreshowerCluster *esCluster = &*iESClus;
+      for (const auto &iESClus : *ESclustersX) {
+        const reco::CaloClusterPtr preshBasicCluster = iESClus.basicCluster();
+        const reco::PreshowerCluster *esCluster = &iESClus;
         if (preshBasicCluster == ecalBasicClusterPtr) {
           ESenergyPlane1 += esCluster->energy();
         }
       }  // end of x loop
 
-      for (reco::PreshowerClusterCollection::const_iterator iESClus = ESclustersY->begin();
-           iESClus != ESclustersY->end();
-           ++iESClus) {
-        const reco::CaloClusterPtr preshBasicCluster = iESClus->basicCluster();
-        const reco::PreshowerCluster *esCluster = &*iESClus;
+      for (const auto &iESClus : *ESclustersY) {
+        const reco::CaloClusterPtr preshBasicCluster = iESClus.basicCluster();
+        const reco::PreshowerCluster *esCluster = &iESClus;
         if (preshBasicCluster == ecalBasicClusterPtr) {
           ESenergyPlane2 += esCluster->energy();
         }

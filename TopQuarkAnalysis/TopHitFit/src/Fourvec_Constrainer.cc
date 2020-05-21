@@ -234,8 +234,8 @@ namespace hitfit {
       s << "(E)";
     s << "\n";
 
-    for (std::vector<Constraint>::size_type i = 0; i < c._constraints.size(); i++)
-      s << "  " << c._constraints[i] << "\n";
+    for (const auto& _constraint : c._constraints)
+      s << "  " << _constraint << "\n";
 
     if (!c._mass_constraint.empty()) {
       s << "Mass constraint:\n";

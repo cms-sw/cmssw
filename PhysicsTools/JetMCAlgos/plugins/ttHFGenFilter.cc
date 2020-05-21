@@ -189,8 +189,8 @@ bool ttHFGenFilter::analyzeMothersRecursive(const reco::Candidate* particle,
   if (particle->status() > 20 && particle->status() < 30) {  //particle comes from hardest process in event
     return true;
   }
-  for (unsigned int k = 0; k < AllTopMothers.size(); k++) {
-    if (particle == AllTopMothers[k]) {  //particle comes from  ISR
+  for (auto& AllTopMother : AllTopMothers) {
+    if (particle == AllTopMother) {  //particle comes from  ISR
       return true;
     }
   }
@@ -218,9 +218,8 @@ std::vector<const reco::Candidate*> ttHFGenFilter::GetTops(const std::vector<rec
   //then find all mothers of the Tops
   //this is then used to  if the b-hadron is an inital state radiation particle
 
-  for (reco::GenParticleCollection::const_iterator i_particle = genParticles.begin(); i_particle != genParticles.end();
-       ++i_particle) {
-    const reco::GenParticle* thisParticle = &*i_particle;
+  for (const auto& genParticle : genParticles) {
+    const reco::GenParticle* thisParticle = &genParticle;
     if (!foundTop && thisParticle->pdgId() == 6) {
       firstTop = thisParticle;
       for (unsigned int i = 0; i < firstTop->numberOfMothers(); i++) {

@@ -37,14 +37,13 @@ T* PixelBladeBuilder<T>::build(const GeometricDet* geometricDetFrontPanel,
   std::vector<const GeomDet*> theFrontGeomDets;
   std::vector<const GeomDet*> theBackGeomDets;
 
-  for (std::vector<const GeometricDet*>::iterator it = frontGeometricDets.begin(); it != frontGeometricDets.end();
-       it++) {
-    const GeomDet* theGeomDet = theGeomDetGeometry->idToDet((*it)->geographicalID());
+  for (auto& frontGeometricDet : frontGeometricDets) {
+    const GeomDet* theGeomDet = theGeomDetGeometry->idToDet(frontGeometricDet->geographicalID());
     theFrontGeomDets.push_back(theGeomDet);
   }
 
-  for (std::vector<const GeometricDet*>::iterator it = backGeometricDets.begin(); it != backGeometricDets.end(); it++) {
-    const GeomDet* theGeomDet = theGeomDetGeometry->idToDet((*it)->geographicalID());
+  for (auto& backGeometricDet : backGeometricDets) {
+    const GeomDet* theGeomDet = theGeomDetGeometry->idToDet(backGeometricDet->geographicalID());
     theBackGeomDets.push_back(theGeomDet);
   }
 

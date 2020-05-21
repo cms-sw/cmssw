@@ -440,11 +440,11 @@ void HeavyFlavorValidation::analyze(const Event &iEvent, const EventSetup &iSetu
   Handle<GenParticleCollection> genParticles;
   iEvent.getByToken(genParticlesToken, genParticles);
   if (genParticles.isValid()) {
-    for (GenParticleCollection::const_iterator p = genParticles->begin(); p != genParticles->end(); ++p) {
-      if (p->status() == 1 && std::abs(p->pdgId()) == 13 &&
+    for (const auto &p : *genParticles) {
+      if (p.status() == 1 && std::abs(p.pdgId()) == 13 &&
           (find(motherIDs.begin(), motherIDs.end(), -1) != motherIDs.end() ||
-           find(motherIDs.begin(), motherIDs.end(), getMotherId(&(*p))) != motherIDs.end())) {
-        genMuons.push_back(*p);
+           find(motherIDs.begin(), motherIDs.end(), getMotherId(&p)) != motherIDs.end())) {
+        genMuons.push_back(p);
       }
     }
   } else {
@@ -460,13 +460,13 @@ void HeavyFlavorValidation::analyze(const Event &iEvent, const EventSetup &iSetu
   Handle<MuonCollection> recoMuonsHandle;
   iEvent.getByToken(recoMuonsToken, recoMuonsHandle);
   if (recoMuonsHandle.isValid()) {
-    for (MuonCollection::const_iterator p = recoMuonsHandle->begin(); p != recoMuonsHandle->end(); ++p) {
-      if (p->isGlobalMuon()) {
-        globMuons.push_back(*p);
-        globMuons_position.push_back(LeafCandidate(p->charge(),
-                                                   math::XYZTLorentzVector(p->outerTrack()->innerPosition().x(),
-                                                                           p->outerTrack()->innerPosition().y(),
-                                                                           p->outerTrack()->innerPosition().z(),
+    for (const auto &p : *recoMuonsHandle) {
+      if (p.isGlobalMuon()) {
+        globMuons.push_back(p);
+        globMuons_position.push_back(LeafCandidate(p.charge(),
+                                                   math::XYZTLorentzVector(p.outerTrack()->innerPosition().x(),
+                                                                           p.outerTrack()->innerPosition().y(),
+                                                                           p.outerTrack()->innerPosition().z(),
                                                                            0.)));
       }
     }
@@ -493,20 +493,20 @@ void HeavyFlavorValidation::analyze(const Event &iEvent, const EventSetup &iSetu
         if (filterNamesLevels[i].second == 1) {
           vector<L1MuonParticleRef> l1Cands;
           rawTriggerEvent->getObjects(index, TriggerL1Mu, l1Cands);
-          for (size_t j = 0; j < l1Cands.size(); j++) {
-            muonsAtFilter[i].push_back(*l1Cands[j]);
+          for (auto &l1Cand : l1Cands) {
+            muonsAtFilter[i].push_back(*l1Cand);
           }
         } else {
           vector<RecoChargedCandidateRef> hltCands;
           rawTriggerEvent->getObjects(index, TriggerMuon, hltCands);
-          for (size_t j = 0; j < hltCands.size(); j++) {
-            muonsAtFilter[i].push_back(*hltCands[j]);
+          for (auto &hltCand : hltCands) {
+            muonsAtFilter[i].push_back(*hltCand);
             if (filterNamesLevels[i].second == 2) {
               muonPositionsAtFilter[i].push_back(
-                  LeafCandidate(hltCands[j]->charge(),
-                                math::XYZTLorentzVector(hltCands[j]->track()->innerPosition().x(),
-                                                        hltCands[j]->track()->innerPosition().y(),
-                                                        hltCands[j]->track()->innerPosition().z(),
+                  LeafCandidate(hltCand->charge(),
+                                math::XYZTLorentzVector(hltCand->track()->innerPosition().x(),
+                                                        hltCand->track()->innerPosition().y(),
+                                                        hltCand->track()->innerPosition().z(),
                                                         0.)));
             }
           }
@@ -529,11 +529,11 @@ void HeavyFlavorValidation::analyze(const Event &iEvent, const EventSetup &iSetu
     for (int i = 0; i < aodTriggerEvent->sizeFilters(); i++) {
       if (aodTriggerEvent->filterTag(i) == InputTag((filterNamesLevels.end() - 1)->first, "", triggerProcessName)) {
         Keys keys = aodTriggerEvent->filterKeys(i);
-        for (size_t j = 0; j < keys.size(); j++) {
-          pathMuons.push_back(LeafCandidate(
-              allObjects[keys[j]].id() > 0 ? 1 : -1,
-              math::PtEtaPhiMLorentzVector(
-                  allObjects[keys[j]].pt(), allObjects[keys[j]].eta(), allObjects[keys[j]].phi(), muonMass)));
+        for (unsigned short key : keys) {
+          pathMuons.push_back(
+              LeafCandidate(allObjects[key].id() > 0 ? 1 : -1,
+                            math::PtEtaPhiMLorentzVector(
+                                allObjects[key].pt(), allObjects[key].eta(), allObjects[key].phi(), muonMass)));
         }
       }
     }

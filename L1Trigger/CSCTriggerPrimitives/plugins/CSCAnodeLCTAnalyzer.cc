@@ -182,16 +182,15 @@ void CSCAnodeLCTAnalyzer::digiSimHitAssociator(CSCAnodeLayerInfo& info, const ed
     bool me11 = (layerId.station() == 1) && (layerId.ring() == 1);
 
     // Get simHits in this layer.
-    for (edm::PSimHitContainer::const_iterator simHitIt = allSimHits->begin(); simHitIt != allSimHits->end();
-         simHitIt++) {
+    for (const auto& allSimHit : *allSimHits) {
       // Find detId where simHit is located.
-      CSCDetId hitId = (CSCDetId)(*simHitIt).detUnitId();
+      CSCDetId hitId = (CSCDetId)allSimHit.detUnitId();
       if (hitId == layerId)
-        simHits.push_back(*simHitIt);
+        simHits.push_back(allSimHit);
       if (me11) {
         CSCDetId layerId_me1a(layerId.endcap(), layerId.station(), 4, layerId.chamber(), layerId.layer());
         if (hitId == layerId_me1a)
-          simHits.push_back(*simHitIt);
+          simHits.push_back(allSimHit);
       }
     }
 
@@ -202,18 +201,18 @@ void CSCAnodeLCTAnalyzer::digiSimHitAssociator(CSCAnodeLayerInfo& info, const ed
       }
 
       // Get the wire number for every digi and convert to eta.
-      for (vector<CSCWireDigi>::const_iterator prd = thisLayerDigis.begin(); prd != thisLayerDigis.end(); prd++) {
+      for (auto thisLayerDigi : thisLayerDigis) {
         double deltaEtaMin = 999.;
         double bestHitEta = 999.;
         PSimHit* bestHit = nullptr;
 
-        int wiregroup = prd->getWireGroup();  // counted from 1
+        int wiregroup = thisLayerDigi.getWireGroup();  // counted from 1
         double digiEta = getWGEta(layerId, wiregroup - 1);
 
         const CSCLayer* csclayer = geom_->layer(layerId);
-        for (vector<PSimHit>::iterator psh = simHits.begin(); psh != simHits.end(); psh++) {
+        for (auto& simHit : simHits) {
           // Get the local eta for the simHit.
-          LocalPoint hitLP = psh->localPosition();
+          LocalPoint hitLP = simHit.localPosition();
           GlobalPoint hitGP = csclayer->toGlobal(hitLP);
           double hitEta = hitGP.eta();
           if (debug)
@@ -222,7 +221,7 @@ void CSCAnodeLCTAnalyzer::digiSimHitAssociator(CSCAnodeLayerInfo& info, const ed
           double deltaEta = fabs(hitEta - digiEta);
           if (deltaEta < deltaEtaMin) {
             deltaEtaMin = deltaEta;
-            bestHit = &(*psh);
+            bestHit = &simHit;
             bestHitEta = hitEta;
           }
         }

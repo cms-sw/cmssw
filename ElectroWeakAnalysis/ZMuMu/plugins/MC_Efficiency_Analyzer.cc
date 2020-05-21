@@ -166,8 +166,8 @@ public:
       cout << " effSta == " << (double)(nSta + nMureco) / nMuMC << endl;
     }
 
-    for (unsigned int i = 0; i < v_.size(); ++i) {
-      cout << " delta R Mu Sta == " << v_[i] << endl;
+    for (double i : v_) {
+      cout << " delta R Mu Sta == " << i << endl;
     }
   }
 

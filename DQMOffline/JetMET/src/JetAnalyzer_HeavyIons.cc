@@ -84,8 +84,8 @@ JetAnalyzer_HeavyIons::JetAnalyzer_HeavyIons(const edm::ParameterSet &iConfig)
     mPFDeltaR = nullptr;
     mPFDeltaR_Scaled_R = nullptr;
 
-    for (int ieta = 0; ieta < etaBins_; ieta++) {
-      mSumPFPtEtaDep[ieta] = nullptr;
+    for (auto &ieta : mSumPFPtEtaDep) {
+      ieta = nullptr;
     }
 
     //cs-specific histograms
@@ -153,8 +153,8 @@ JetAnalyzer_HeavyIons::JetAnalyzer_HeavyIons(const edm::ParameterSet &iConfig)
     mSumSquaredCaloPt_eta = nullptr;
     mSumCaloPt_HF = nullptr;
 
-    for (int ieta = 0; ieta < etaBins_; ieta++) {
-      mSumCaloPtEtaDep[ieta] = nullptr;
+    for (auto &ieta : mSumCaloPtEtaDep) {
+      ieta = nullptr;
     }
   }
 
@@ -1004,53 +1004,53 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event &mEvent, const edm::EventSe
 
   mNJets->Fill(recoJets.size());
 
-  for (unsigned ijet = 0; ijet < recoJets.size(); ijet++) {
-    if (recoJets[ijet].pt() > mRecoJetPtThreshold) {
+  for (auto &recoJet : recoJets) {
+    if (recoJet.pt() > mRecoJetPtThreshold) {
       //counting forward and barrel jets
       // get an idea of no of jets with pT>40 GeV
-      if (recoJets[ijet].pt() > 40)
+      if (recoJet.pt() > 40)
         nJet_40++;
       if (mEta)
-        mEta->Fill(recoJets[ijet].eta());
+        mEta->Fill(recoJet.eta());
       if (mjetpileup)
-        mjetpileup->Fill(recoJets[ijet].pileup());
+        mjetpileup->Fill(recoJet.pileup());
       if (mJetArea)
-        mJetArea->Fill(recoJets[ijet].jetArea());
+        mJetArea->Fill(recoJet.jetArea());
       if (mPhi)
-        mPhi->Fill(recoJets[ijet].phi());
+        mPhi->Fill(recoJet.phi());
       if (mEnergy)
-        mEnergy->Fill(recoJets[ijet].energy());
+        mEnergy->Fill(recoJet.energy());
       if (mP)
-        mP->Fill(recoJets[ijet].p());
+        mP->Fill(recoJet.p());
       if (mPt)
-        mPt->Fill(recoJets[ijet].pt());
+        mPt->Fill(recoJet.pt());
       if (mMass)
-        mMass->Fill(recoJets[ijet].mass());
+        mMass->Fill(recoJet.mass());
       if (mConstituents)
-        mConstituents->Fill(recoJets[ijet].nConstituents());
+        mConstituents->Fill(recoJet.nConstituents());
 
       if (std::string("Cs") == UEAlgo) {
         int ipt = 0, ieta = 0;
-        while (recoJets[ijet].pt() > ptBin[ipt + 1] && ipt < ptBins_ - 1)
+        while (recoJet.pt() > ptBin[ipt + 1] && ipt < ptBins_ - 1)
           ipt++;
-        while (recoJets[ijet].eta() > etaRanges->at(ieta + 1) && ieta < (int)(rho->size() - 1))
+        while (recoJet.eta() > etaRanges->at(ieta + 1) && ieta < (int)(rho->size() - 1))
           ieta++;
-        mSubtractedEFrac[ipt][ieta]->Fill((double)recoJets[ijet].pileup() / (double)recoJets[ijet].energy());
-        mSubtractedE[ipt][ieta]->Fill(recoJets[ijet].pileup());
+        mSubtractedEFrac[ipt][ieta]->Fill((double)recoJet.pileup() / (double)recoJet.energy());
+        mSubtractedE[ipt][ieta]->Fill(recoJet.pileup());
 
         for (unsigned irho = 0; irho < rho->size(); irho++) {
-          mRhoDist_vsEta->Fill(recoJets[ijet].eta(), rho->at(irho));
-          mRhoMDist_vsEta->Fill(recoJets[ijet].eta(), rhom->at(irho));
-          mRhoDist_vsPt->Fill(recoJets[ijet].pt(), rho->at(irho));
-          mRhoMDist_vsPt->Fill(recoJets[ijet].pt(), rhom->at(irho));
+          mRhoDist_vsEta->Fill(recoJet.eta(), rho->at(irho));
+          mRhoMDist_vsEta->Fill(recoJet.eta(), rhom->at(irho));
+          mRhoDist_vsPt->Fill(recoJet.pt(), rho->at(irho));
+          mRhoMDist_vsPt->Fill(recoJet.pt(), rhom->at(irho));
           mRhoDist_vsCent[ieta]->Fill(HF_energy, rho->at(irho));
           mRhoMDist_vsCent[ieta]->Fill(HF_energy, rhom->at(irho));
         }
       }
 
-      for (size_t iii = 0; iii < numbers.size(); iii++) {
-        pfDeltaR = sqrt((numbers[iii][2] - recoJets[ijet].phi()) * (numbers[iii][2] - recoJets[ijet].phi()) +
-                        (numbers[iii][1] - recoJets[ijet].eta()) * (numbers[iii][1] - recoJets[ijet].eta()));  //MZ
+      for (auto &number : numbers) {
+        pfDeltaR = sqrt((number[2] - recoJet.phi()) * (number[2] - recoJet.phi()) +
+                        (number[1] - recoJet.eta()) * (number[1] - recoJet.eta()));  //MZ
 
         mPFDeltaR->Fill(pfDeltaR);                                  //MZ
         mPFDeltaR_Scaled_R->Fill(pfDeltaR, 1. / pow(pfDeltaR, 2));  //MZ

@@ -40,15 +40,15 @@ FWInteractionList::FWInteractionList(const FWEventItem* item) : m_item(item) {}
 // }
 
 FWInteractionList::~FWInteractionList() {
-  for (std::vector<TEveCompound*>::iterator i = m_compounds.begin(); i != m_compounds.end(); ++i) {
+  for (auto& m_compound : m_compounds) {
     // Interaction are created only in the standard use case, where user data is FWFromEveSelectorBase.
     // This is defined with return value of virtual function FWPRoxyBuilderBase::willHandleInteraction().
 
-    if ((*i)->GetUserData())
-      delete reinterpret_cast<FWFromEveSelectorBase*>((*i)->GetUserData());
+    if (m_compound->GetUserData())
+      delete reinterpret_cast<FWFromEveSelectorBase*>(m_compound->GetUserData());
 
-    (*i)->RemoveElements();
-    (*i)->DecDenyDestroy();
+    m_compound->RemoveElements();
+    m_compound->DecDenyDestroy();
   }
 }
 
@@ -104,11 +104,11 @@ void FWInteractionList::added(TEveElement* el, unsigned int idx) {
 void FWInteractionList::modelChanges(const FWModelIds& iIds) {
   assert(m_compounds.size() >= m_item->size());
 
-  for (std::set<FWModelId>::const_iterator it = iIds.begin(); it != iIds.end(); ++it) {
-    const FWEventItem::ModelInfo& info = m_item->modelInfo(it->index());
+  for (auto iId : iIds) {
+    const FWEventItem::ModelInfo& info = m_item->modelInfo(iId.index());
     // std::cout <<" FWInteractionList::modelChanges  color "<< info.displayProperties().color()  << "(*it).index() " <<(*it).index() << "  " << m_item->name() <<std::endl;
     const FWDisplayProperties& p = info.displayProperties();
-    TEveElement* comp = m_compounds[it->index()];
+    TEveElement* comp = m_compounds[iId.index()];
     comp->EnableListElements(p.isVisible(), p.isVisible());
     comp->SetMainColor(p.color());
     comp->SetMainTransparency(p.transparency());

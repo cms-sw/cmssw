@@ -58,8 +58,8 @@ public:
     memset(id_md5_, 0, length * sizeof(unsigned char));
     MD5((unsigned char*)tracked.c_str(), tracked.size(), id_md5_);
     char buf[32];
-    for (unsigned i = 0; i < MD5_DIGEST_LENGTH; ++i) {
-      sprintf(buf, "%02x", id_md5_[i]);
+    for (auto& i : id_md5_) {
+      sprintf(buf, "%02x", i);
       md5_string_.append(buf);
     }
     initialize(conf);

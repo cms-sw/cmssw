@@ -71,12 +71,10 @@ reco::VertexRecoToSimCollection VertexAssociatorByTracks::associateRecoToSim(
         std::vector<std::pair<TrackingParticleRef, double>> associations = (*trackRecoToSimAssociation_)[*recoDaughter];
 
         // Loop over TrackingParticles associated with RecoDaughter
-        for (std::vector<std::pair<TrackingParticleRef, double>>::const_iterator association = associations.begin();
-             association != associations.end();
-             ++association) {
+        for (const auto &association : associations) {
           // Get a reference to parent vertex of TrackingParticle associated to
           // the RecoDaughter
-          TrackingVertexRef trackingVertex = association->first->parentVertex();
+          TrackingVertexRef trackingVertex = association.first->parentVertex();
           // Store matched RecoDaughter to the trackingVertex
           matches[trackingVertex].first += recoVertex->trackWeight(*recoDaughter);
           matches[trackingVertex].second++;
@@ -167,10 +165,8 @@ reco::VertexSimToRecoCollection VertexAssociatorByTracks::associateSimToReco(
         std::vector<std::pair<reco::TrackBaseRef, double>> associations = (*trackSimToRecoAssociation_)[*simDaughter];
 
         // Loop over RecoTracks associated with TrackingParticle
-        for (std::vector<std::pair<reco::TrackBaseRef, double>>::const_iterator association = associations.begin();
-             association != associations.end();
-             ++association) {
-          reco::TrackBaseRef recoTrack = association->first;
+        for (const auto &association : associations) {
+          reco::TrackBaseRef recoTrack = association.first;
 
           for (std::size_t recoIndex = 0; recoIndex < recoVertexes->size(); ++recoIndex) {
             reco::VertexBaseRef recoVertex(recoVertexes, recoIndex);

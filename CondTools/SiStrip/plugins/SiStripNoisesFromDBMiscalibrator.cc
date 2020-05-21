@@ -173,15 +173,15 @@ void SiStripNoisesFromDBMiscalibrator::analyze(const edm::Event& iEvent, const e
 
     SiStripMiscalibrate::Smearings params = SiStripMiscalibrate::Smearings();
 
-    for (unsigned int j = 0; j < regions.size(); j++) {
-      bool checkRegion = (mapOfSmearings.count(regions[j]) != 0);
+    for (auto region : regions) {
+      bool checkRegion = (mapOfSmearings.count(region) != 0);
 
       if (!checkRegion) {
         // if the subdetector is not in the list and there's no indication for the whole tracker, just use the default
         // i.e. no change
         continue;
       } else {
-        params = mapOfSmearings[regions[j]];
+        params = mapOfSmearings[region];
         break;
       }
     }
@@ -300,17 +300,15 @@ std::unique_ptr<SiStripNoises> SiStripNoisesFromDBMiscalibrator::getNewObject_wi
 
   std::vector<uint32_t> missingDetIds;
 
-  for (std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator it = DetInfos.begin();
-       it != DetInfos.end();
-       it++) {
+  for (const auto& it : DetInfos) {
     //Generate Noise for det detid
     bool isMissing(false);
     SiStripNoises::InputVector theSiStripVector;
-    for (int t_strip = 0; t_strip < 128 * it->second.nApvs; ++t_strip) {
-      std::pair<uint32_t, int> index = std::make_pair(it->first, t_strip);
+    for (int t_strip = 0; t_strip < 128 * it.second.nApvs; ++t_strip) {
+      std::pair<uint32_t, int> index = std::make_pair(it.first, t_strip);
 
       if (theMap.find(index) == theMap.end()) {
-        LogDebug("SiStripNoisesFromDBMiscalibrator") << "detid " << it->first << " \t"
+        LogDebug("SiStripNoisesFromDBMiscalibrator") << "detid " << it.first << " \t"
                                                      << " strip " << t_strip << " \t"
                                                      << " not found" << std::endl;
 
@@ -324,9 +322,9 @@ std::unique_ptr<SiStripNoises> SiStripNoisesFromDBMiscalibrator::getNewObject_wi
     }
 
     if (isMissing)
-      missingDetIds.push_back(it->first);
+      missingDetIds.push_back(it.first);
 
-    if (!obj->put(it->first, theSiStripVector)) {
+    if (!obj->put(it.first, theSiStripVector)) {
       edm::LogError("SiStripNoisesFromDBMiscalibrator")
           << "[SiStripNoisesFromDBMiscalibrator::analyze] detid already exists" << std::endl;
     }

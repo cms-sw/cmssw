@@ -548,29 +548,29 @@ DetId ElectronCalibrationUniv::findMaxHit(const std::vector<DetId>& v1,
   double currEnergy = 0.;
   DetId maxHit;
 
-  for (std::vector<DetId>::const_iterator idsIt = v1.begin(); idsIt != v1.end(); ++idsIt) {
-    if (idsIt->subdetId() == 1) {
+  for (auto idsIt : v1) {
+    if (idsIt.subdetId() == 1) {
       EBRecHitCollection::const_iterator itrechit;
-      itrechit = EBhits->find(*idsIt);
+      itrechit = EBhits->find(idsIt);
       if (itrechit == EBhits->end()) {
-        std::cout << "ElectronCalibration::findMaxHit: rechit not found! " << (EBDetId)(*idsIt) << std::endl;
+        std::cout << "ElectronCalibration::findMaxHit: rechit not found! " << (EBDetId)idsIt << std::endl;
         continue;
       }
       if (itrechit->energy() > currEnergy) {
         currEnergy = itrechit->energy();
-        maxHit = *idsIt;
+        maxHit = idsIt;
       }
     } else {
       EERecHitCollection::const_iterator itrechit;
-      itrechit = EEhits->find(*idsIt);
+      itrechit = EEhits->find(idsIt);
       if (itrechit == EEhits->end()) {
-        std::cout << "ElectronCalibration::findMaxHit: rechit not found! idsIt = " << (EEDetId)(*idsIt) << std::endl;
+        std::cout << "ElectronCalibration::findMaxHit: rechit not found! idsIt = " << (EEDetId)idsIt << std::endl;
         continue;
       }
 
       if (itrechit->energy() > currEnergy) {
         currEnergy = itrechit->energy();
-        maxHit = *idsIt;
+        maxHit = idsIt;
       }
     }
   }
@@ -695,10 +695,8 @@ void ElectronCalibrationUniv::analyze(const edm::Event& iEvent, const edm::Event
 
   std::vector<DetId> v1;
   //Loop to fill the vector of DetIds
-  for (std::vector<std::pair<DetId, float> >::const_iterator idsIt = sc.hitsAndFractions().begin();
-       idsIt != sc.hitsAndFractions().end();
-       ++idsIt) {
-    v1.push_back(idsIt->first);
+  for (const auto& idsIt : sc.hitsAndFractions()) {
+    v1.push_back(idsIt.first);
   }
 
   DetId maxHitId;

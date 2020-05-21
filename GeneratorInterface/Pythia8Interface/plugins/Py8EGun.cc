@@ -40,8 +40,8 @@ namespace gen {
 
     int colorindex = 101;
 
-    for (size_t i = 0; i < fPartIDs.size(); i++) {
-      int particleID = fPartIDs[i];  // this is PDG - need to convert to Py8 ???
+    for (int particleID : fPartIDs) {
+      // this is PDG - need to convert to Py8 ???
       if ((std::abs(particleID) <= 6 || particleID == 21) && !(fAddAntiParticle)) {
         throw cms::Exception("PythiaError") << "Attempting to generate quarks or gluons without setting "
                                                "AddAntiParticle to true. This will not handle color properly."

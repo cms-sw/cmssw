@@ -92,11 +92,9 @@ void MuonMesh::fillMesh(std::vector<reco::Muon>* inputMuons) {
 
   // one muon: mark all segments belonging to a muon as cleaned as there are no other muons to fight with
   if (mesh_.size() == 1) {
-    for (std::vector<reco::MuonChamberMatch>::iterator chamberIter1 = mesh_.begin()->first->matches().begin();
-         chamberIter1 != mesh_.begin()->first->matches().end();
-         ++chamberIter1) {
-      for (std::vector<reco::MuonSegmentMatch>::iterator segmentIter1 = chamberIter1->segmentMatches.begin();
-           segmentIter1 != chamberIter1->segmentMatches.end();
+    for (auto& chamberIter1 : mesh_.begin()->first->matches()) {
+      for (std::vector<reco::MuonSegmentMatch>::iterator segmentIter1 = chamberIter1.segmentMatches.begin();
+           segmentIter1 != chamberIter1.segmentMatches.end();
            ++segmentIter1) {
         segmentIter1->setMask(reco::MuonSegmentMatch::BelongsToTrackByCleaning);
       }  // segmentIter1
@@ -106,16 +104,16 @@ void MuonMesh::fillMesh(std::vector<reco::Muon>* inputMuons) {
   // segments that are not shared amongst muons and the have won all segment arbitration flags need to be promoted
   // also promote DT segments
   if (mesh_.size() > 1) {
-    for (MeshType::iterator i = mesh_.begin(); i != mesh_.end(); ++i) {
-      for (std::vector<reco::MuonChamberMatch>::iterator chamberIter1 = i->first->matches().begin();
-           chamberIter1 != i->first->matches().end();
+    for (auto& i : mesh_) {
+      for (std::vector<reco::MuonChamberMatch>::iterator chamberIter1 = i.first->matches().begin();
+           chamberIter1 != i.first->matches().end();
            ++chamberIter1) {
         for (std::vector<reco::MuonSegmentMatch>::iterator segmentIter1 = chamberIter1->segmentMatches.begin();
              segmentIter1 != chamberIter1->segmentMatches.end();
              ++segmentIter1) {
           bool shared(false);
 
-          for (AssociationType::iterator j = i->second.begin(); j != i->second.end(); ++j) {
+          for (AssociationType::iterator j = i.second.begin(); j != i.second.end(); ++j) {
             if (segmentIter1->cscSegmentRef.isNonnull() && j->second.second->cscSegmentRef.isNonnull()) {
               if (chamberIter1->id.subdetId() == MuonSubdetId::CSC &&
                   j->second.first->id.subdetId() == MuonSubdetId::CSC) {
@@ -149,10 +147,10 @@ void MuonMesh::fillMesh(std::vector<reco::Muon>* inputMuons) {
 }
 
 void MuonMesh::pruneMesh() {
-  for (MeshType::iterator i = mesh_.begin(); i != mesh_.end(); ++i) {
-    for (AssociationType::iterator j = i->second.begin(); j != i->second.end(); ++j) {
-      for (std::vector<reco::MuonChamberMatch>::iterator chamberIter1 = i->first->matches().begin();
-           chamberIter1 != i->first->matches().end();
+  for (auto& i : mesh_) {
+    for (AssociationType::iterator j = i.second.begin(); j != i.second.end(); ++j) {
+      for (std::vector<reco::MuonChamberMatch>::iterator chamberIter1 = i.first->matches().begin();
+           chamberIter1 != i.first->matches().end();
            ++chamberIter1) {
         for (std::vector<reco::MuonSegmentMatch>::iterator segmentIter1 = chamberIter1->segmentMatches.begin();
              segmentIter1 != chamberIter1->segmentMatches.end();
@@ -164,13 +162,13 @@ void MuonMesh::pruneMesh() {
             if (doOverlaps &&
                 isDuplicateOf(std::make_pair(CSCDetId(chamberIter1->id), segmentIter1->cscSegmentRef),
                               std::make_pair(CSCDetId(j->second.first->id), j->second.second->cscSegmentRef))) {
-              if (i->first->numberOfMatches((reco::Muon::ArbitrationType)0x1e0000) >
+              if (i.first->numberOfMatches((reco::Muon::ArbitrationType)0x1e0000) >
                   j->first->numberOfMatches((reco::Muon::ArbitrationType)0x1e0000)) {
                 segmentIter1->setMask(reco::MuonSegmentMatch::BelongsToTrackByOvlClean);
                 segmentIter1->setMask(reco::MuonSegmentMatch::BelongsToTrackByCleaning);
 
                 //UNUSED:		overlap = true;
-              } else if (i->first->numberOfMatches((reco::Muon::ArbitrationType)0x1e0000) ==
+              } else if (i.first->numberOfMatches((reco::Muon::ArbitrationType)0x1e0000) ==
                          j->first->numberOfMatches(
                              (reco::Muon::ArbitrationType)0x1e0000)) {  // muon with more matched stations wins
 
@@ -194,9 +192,8 @@ void MuonMesh::pruneMesh() {
                 CSCDetId(chamberIter1->id).ring() == 4 && CSCDetId(j->second.first->id).ring() == 4 &&
                 chamberIter1->id == j->second.first->id) {
               if (j->first->numberOfMatches((reco::Muon::ArbitrationType)0x1e0000) <
-                  i->first->numberOfMatches((reco::Muon::ArbitrationType)0x1e0000)) {
-                for (AssociationType::iterator AsscIter1 = i->second.begin(); AsscIter1 != i->second.end();
-                     ++AsscIter1) {
+                  i.first->numberOfMatches((reco::Muon::ArbitrationType)0x1e0000)) {
+                for (AssociationType::iterator AsscIter1 = i.second.begin(); AsscIter1 != i.second.end(); ++AsscIter1) {
                   if (AsscIter1->second.second->cscSegmentRef.isNonnull())
                     if (j->first == AsscIter1->first && j->second.first == AsscIter1->second.first &&
                         isDuplicateOf(segmentIter1->cscSegmentRef, AsscIter1->second.second->cscSegmentRef)) {
@@ -206,13 +203,12 @@ void MuonMesh::pruneMesh() {
 
                 //UNUSED:		me1a = true;
               } else if (j->first->numberOfMatches((reco::Muon::ArbitrationType)0x1e0000) ==
-                         i->first->numberOfMatches(
+                         i.first->numberOfMatches(
                              (reco::Muon::ArbitrationType)0x1e0000)) {  // muon with best arbitration wins
 
                 bool bestArb(true);
 
-                for (AssociationType::iterator AsscIter1 = i->second.begin(); AsscIter1 != i->second.end();
-                     ++AsscIter1) {
+                for (AssociationType::iterator AsscIter1 = i.second.begin(); AsscIter1 != i.second.end(); ++AsscIter1) {
                   if (AsscIter1->second.second->cscSegmentRef.isNonnull())
                     if (j->first == AsscIter1->first && j->second.first == AsscIter1->second.first &&
                         isDuplicateOf(segmentIter1->cscSegmentRef, AsscIter1->second.second->cscSegmentRef) &&
@@ -221,7 +217,7 @@ void MuonMesh::pruneMesh() {
                 }
 
                 if (bestArb) {
-                  for (AssociationType::iterator AsscIter1 = i->second.begin(); AsscIter1 != i->second.end();
+                  for (AssociationType::iterator AsscIter1 = i.second.begin(); AsscIter1 != i.second.end();
                        ++AsscIter1) {
                     if (AsscIter1->second.second->cscSegmentRef.isNonnull())
                       if (j->first == AsscIter1->first && j->second.first == AsscIter1->second.first &&
@@ -238,13 +234,13 @@ void MuonMesh::pruneMesh() {
             if (doClustering &&
                 isClusteredWith(std::make_pair(CSCDetId(chamberIter1->id), segmentIter1->cscSegmentRef),
                                 std::make_pair(CSCDetId(j->second.first->id), j->second.second->cscSegmentRef))) {
-              if (i->first->numberOfMatches((reco::Muon::ArbitrationType)0x1e0000) >
+              if (i.first->numberOfMatches((reco::Muon::ArbitrationType)0x1e0000) >
                   j->first->numberOfMatches((reco::Muon::ArbitrationType)0x1e0000)) {
                 segmentIter1->setMask(reco::MuonSegmentMatch::BelongsToTrackByClusClean);
                 segmentIter1->setMask(reco::MuonSegmentMatch::BelongsToTrackByCleaning);
 
                 //UNUSED:		 cluster = true;
-              } else if (i->first->numberOfMatches((reco::Muon::ArbitrationType)0x1e0000) <
+              } else if (i.first->numberOfMatches((reco::Muon::ArbitrationType)0x1e0000) <
                          j->first->numberOfMatches((reco::Muon::ArbitrationType)0x1e0000)) {
                 j->second.second->setMask(reco::MuonSegmentMatch::BelongsToTrackByClusClean);
                 j->second.second->setMask(reco::MuonSegmentMatch::BelongsToTrackByCleaning);
@@ -279,16 +275,14 @@ void MuonMesh::pruneMesh() {
 
   // final step: make sure everything that's won a cleaning flag has the "BelongsToTrackByCleaning" flag
 
-  for (MeshType::iterator i = mesh_.begin(); i != mesh_.end(); ++i) {
-    for (std::vector<reco::MuonChamberMatch>::iterator chamberIter1 = i->first->matches().begin();
-         chamberIter1 != i->first->matches().end();
+  for (auto& i : mesh_) {
+    for (std::vector<reco::MuonChamberMatch>::iterator chamberIter1 = i.first->matches().begin();
+         chamberIter1 != i.first->matches().end();
          ++chamberIter1) {
-      for (std::vector<reco::MuonSegmentMatch>::iterator segmentIter1 = chamberIter1->segmentMatches.begin();
-           segmentIter1 != chamberIter1->segmentMatches.end();
-           ++segmentIter1) {
+      for (auto& segmentMatche : chamberIter1->segmentMatches) {
         // set cleaning bit if initial no cleaning bit but there are cleaning algorithm bits set.
-        if (!segmentIter1->isMask(reco::MuonSegmentMatch::BelongsToTrackByCleaning) && segmentIter1->isMask(0xe00000))
-          segmentIter1->setMask(reco::MuonSegmentMatch::BelongsToTrackByCleaning);
+        if (!segmentMatche.isMask(reco::MuonSegmentMatch::BelongsToTrackByCleaning) && segmentMatche.isMask(0xe00000))
+          segmentMatche.setMask(reco::MuonSegmentMatch::BelongsToTrackByCleaning);
       }  // segmentIter1
     }    // chamberIter1
   }      // i
@@ -316,19 +310,18 @@ bool MuonMesh::isDuplicateOf(const CSCSegmentRef& lhs, const CSCSegmentRef& rhs)
       fabs(lhs->localDirectionError().yy() - rhs->localDirectionError().yy()) < 1E-3)
     result = true;
 
-  for (std::vector<CSCSegment>::const_iterator segIter1 = lhs_duplicates.begin(); segIter1 != lhs_duplicates.end();
-       ++segIter1) {  // loop over lhs duplicates
+  for (const auto& lhs_duplicate : lhs_duplicates) {  // loop over lhs duplicates
 
-    if (fabs(segIter1->localPosition().x() - rhs->localPosition().x()) < 1E-3 &&
-        fabs(segIter1->localPosition().y() - rhs->localPosition().y()) < 1E-3 &&
-        fabs(segIter1->localDirection().x() / segIter1->localDirection().z() -
+    if (fabs(lhs_duplicate.localPosition().x() - rhs->localPosition().x()) < 1E-3 &&
+        fabs(lhs_duplicate.localPosition().y() - rhs->localPosition().y()) < 1E-3 &&
+        fabs(lhs_duplicate.localDirection().x() / lhs_duplicate.localDirection().z() -
              rhs->localDirection().x() / rhs->localDirection().z()) < 1E-3 &&
-        fabs(segIter1->localDirection().y() / segIter1->localDirection().z() -
+        fabs(lhs_duplicate.localDirection().y() / lhs_duplicate.localDirection().z() -
              rhs->localDirection().y() / rhs->localDirection().z()) < 1E-3 &&
-        fabs(segIter1->localPositionError().xx() - rhs->localPositionError().xx()) < 1E-3 &&
-        fabs(segIter1->localPositionError().yy() - rhs->localPositionError().yy()) < 1E-3 &&
-        fabs(segIter1->localDirectionError().xx() - rhs->localDirectionError().xx()) < 1E-3 &&
-        fabs(segIter1->localDirectionError().yy() - rhs->localDirectionError().yy()) < 1E-3)
+        fabs(lhs_duplicate.localPositionError().xx() - rhs->localPositionError().xx()) < 1E-3 &&
+        fabs(lhs_duplicate.localPositionError().yy() - rhs->localPositionError().yy()) < 1E-3 &&
+        fabs(lhs_duplicate.localDirectionError().xx() - rhs->localDirectionError().xx()) < 1E-3 &&
+        fabs(lhs_duplicate.localDirectionError().yy() - rhs->localDirectionError().yy()) < 1E-3)
       result = true;
     /*
     if(fabs(segIter1->localPosition().x()        - rhs->localPosition().x()      ) < 2*sqrt(segIter1->localPositionError().xx()) &&
@@ -398,7 +391,7 @@ bool MuonMesh::isDuplicateOf(const std::pair<CSCDetId, CSCSegmentRef>& rhs,
       double rhs_theta = geometry_->chamber(rhs.first)->toGlobal(rhs.second->localPosition()).theta();
       double rhs_z = geometry_->chamber(rhs.first)->toGlobal(rhs.second->localPosition()).z();
 
-      for (std::vector<CSCSegment>::const_iterator ilhs = thesegments.begin(); ilhs != thesegments.end(); ++ilhs) {
+      for (const auto& thesegment : thesegments) {
         // lhs local direction info
         /*
 	double lhs_dydz = geometry_->chamber(lhs.first)->toGlobal(ilhs->localDirection()).y()/
@@ -410,9 +403,9 @@ bool MuonMesh::isDuplicateOf(const std::pair<CSCDetId, CSCSegmentRef>& rhs,
 	*/
 
         //lhs global position info
-        double lhs_phi = geometry_->chamber(lhs.first)->toGlobal(ilhs->localPosition()).phi();
-        double lhs_theta = geometry_->chamber(lhs.first)->toGlobal(ilhs->localPosition()).theta();
-        double lhs_z = geometry_->chamber(lhs.first)->toGlobal(ilhs->localPosition()).z();
+        double lhs_phi = geometry_->chamber(lhs.first)->toGlobal(thesegment.localPosition()).phi();
+        double lhs_theta = geometry_->chamber(lhs.first)->toGlobal(thesegment.localPosition()).theta();
+        double lhs_z = geometry_->chamber(lhs.first)->toGlobal(thesegment.localPosition()).z();
         /*
 	  std::cout << "RHS Segment Parameters:" << std::endl
 	  << "\t RHS Phi   : " << rhs_phi << std::endl
@@ -474,7 +467,7 @@ bool MuonMesh::isClusteredWith(const std::pair<CSCDetId, CSCSegmentRef>& lhs,
     double rhs_phi = geometry_->chamber(rhs.first)->toGlobal(rhs.second->localPosition()).phi();
     double rhs_theta = geometry_->chamber(rhs.first)->toGlobal(rhs.second->localPosition()).theta();
 
-    for (std::vector<CSCSegment>::const_iterator ilhs = thesegments.begin(); ilhs != thesegments.end(); ++ilhs) {
+    for (const auto& thesegment : thesegments) {
       // lhs local direction info
       /*
 	double lhs_dydz = geometry_->chamber(lhs.first)->toGlobal(ilhs->localDirection()).y()/
@@ -486,8 +479,8 @@ bool MuonMesh::isClusteredWith(const std::pair<CSCDetId, CSCSegmentRef>& lhs,
 	*/
 
       //lhs global position info
-      double lhs_phi = geometry_->chamber(lhs.first)->toGlobal(ilhs->localPosition()).phi();
-      double lhs_theta = geometry_->chamber(lhs.first)->toGlobal(ilhs->localPosition()).theta();
+      double lhs_phi = geometry_->chamber(lhs.first)->toGlobal(thesegment.localPosition()).phi();
+      double lhs_theta = geometry_->chamber(lhs.first)->toGlobal(thesegment.localPosition()).theta();
       /*
 	  std::cout << "RHS Segment Parameters:" << std::endl
 	  << "\t RHS Phi   : " << rhs_phi << std::endl

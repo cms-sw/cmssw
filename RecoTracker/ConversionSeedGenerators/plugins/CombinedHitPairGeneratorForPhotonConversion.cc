@@ -39,8 +39,8 @@ void CombinedHitPairGeneratorForPhotonConversion::hitPairs(const ConversionRegio
   const SeedingLayerSetsHits& layers = *hlayers;
   assert(layers.numberOfLayersInSet() == 2);
 
-  for (SeedingLayerSetsHits::LayerSetIndex i = 0; i < layers.size(); ++i) {
-    theGenerator->hitPairs(convRegion, region, result, layers[i], ev, es);
+  for (const auto& layer : layers) {
+    theGenerator->hitPairs(convRegion, region, result, layer, ev, es);
   }
 }
 

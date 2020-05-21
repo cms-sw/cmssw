@@ -137,8 +137,8 @@ void SiStripCorrelateNoise::DoAnalysis(const edm::EventSetup &es,
       // << strip << " value " << iter->values[strip];
       value = iter->values[strip] * gainRatio;
       tkmap->fill(iter->detid, value);
-      for (size_t i = 0; i < histos.size(); ++i)
-        histos[i]->Fill(value);
+      for (auto &histo : histos)
+        histo->Fill(value);
     }
   }
 }

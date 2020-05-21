@@ -296,10 +296,10 @@ vector<GlobalMuonTrackMatcher::TrackCand> GlobalMuonTrackMatcher::match(const Tr
     }
   }
 
-  for (vector<TrackCand>::const_iterator iTk = result.begin(); iTk != result.end(); ++iTk) {
+  for (const auto& iTk : result) {
     LogTrace(category) << "   -----" << endl
-                       << "selected pt " << iTk->second->pt() << " eta " << iTk->second->eta() << " phi "
-                       << iTk->second->phi() << endl;
+                       << "selected pt " << iTk.second->pt() << " eta " << iTk.second->eta() << " phi "
+                       << iTk.second->phi() << endl;
   }
 
   if (result.size() < 2)
@@ -344,10 +344,10 @@ vector<GlobalMuonTrackMatcher::TrackCand> GlobalMuonTrackMatcher::match(const Tr
     }
   }
 
-  for (vector<TrackCand>::const_iterator iTk = result.begin(); iTk != result.end(); ++iTk) {
+  for (const auto& iTk : result) {
     LogTrace(category) << "   -----" << endl
-                       << "selected pt " << iTk->second->pt() << " eta " << iTk->second->eta() << " phi "
-                       << iTk->second->phi() << endl;
+                       << "selected pt " << iTk.second->pt() << " eta " << iTk.second->eta() << " phi "
+                       << iTk.second->phi() << endl;
   }
 
   return result;

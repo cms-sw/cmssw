@@ -19,26 +19,26 @@ UCTCard::UCTCard(uint32_t crt, uint32_t crd, int fwv) : crate(crt), card(crd), c
 }
 
 UCTCard::~UCTCard() {
-  for (uint32_t i = 0; i < regions.size(); i++) {
-    if (regions[i] != nullptr)
-      delete regions[i];
+  for (auto& region : regions) {
+    if (region != nullptr)
+      delete region;
   }
 }
 
 bool UCTCard::process() {
   cardSummary = 0;
-  for (uint32_t i = 0; i < regions.size(); i++) {
-    if (regions[i] != nullptr)
-      regions[i]->process();
-    cardSummary += regions[i]->et();
+  for (auto& region : regions) {
+    if (region != nullptr)
+      region->process();
+    cardSummary += region->et();
   }
   return true;
 }
 
 bool UCTCard::clearEvent() {
   cardSummary = 0;
-  for (uint32_t i = 0; i < regions.size(); i++) {
-    if (!regions[i]->clearEvent())
+  for (auto& region : regions) {
+    if (!region->clearEvent())
       return false;
   }
   return true;

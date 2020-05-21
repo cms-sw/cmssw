@@ -305,8 +305,8 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int &, double *, double &, double *,
   int smierflg;  //second MIGRAD ierflg
 
   // chi^2 errors should be 1.0, log-likelihood should be 0.5
-  for (int i = 0; i < 10; i++)
-    arglist[i] = 0.;
+  for (double &i : arglist)
+    i = 0.;
   arglist[0] = 0.5;
   ierflg = 0;
   smierflg = 0;
@@ -318,8 +318,8 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int &, double *, double &, double *,
   }
 
   // set strategy = 2 (more refined fits)
-  for (int i = 0; i < 10; i++)
-    arglist[i] = 0.;
+  for (double &i : arglist)
+    i = 0.;
   arglist[0] = m_strategy;
   ierflg = 0;
   MuonResidualsFitter_TMinuit->mnexcm("SET STR", arglist, 1, ierflg);
@@ -332,8 +332,8 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int &, double *, double &, double *,
   bool try_again = false;
 
   // minimize
-  for (int i = 0; i < 10; i++)
-    arglist[i] = 0.;
+  for (double &i : arglist)
+    i = 0.;
   arglist[0] = 50000;
   ierflg = 0;
   MuonResidualsFitter_TMinuit->mnexcm("MIGRAD", arglist, 1, ierflg);
@@ -342,8 +342,8 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int &, double *, double &, double *,
 
   // just once more, if needed (using the final Minuit parameters from the failed fit; often works)
   if (try_again) {
-    for (int i = 0; i < 10; i++)
-      arglist[i] = 0.;
+    for (double &i : arglist)
+      i = 0.;
     arglist[0] = 50000;
     MuonResidualsFitter_TMinuit->mnexcm("MIGRAD", arglist, 1, smierflg);
   }
@@ -353,8 +353,8 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int &, double *, double &, double *,
   MuonResidualsFitter_TMinuit->mnstat(fmin, fedm, errdef, npari, nparx, istat);
 
   if (istat != 3) {
-    for (int i = 0; i < 10; i++)
-      arglist[i] = 0.;
+    for (double &i : arglist)
+      i = 0.;
     ierflg = 0;
     MuonResidualsFitter_TMinuit->mnexcm("HESSE", arglist, 0, ierflg);
   }
@@ -511,9 +511,9 @@ void MuonResidualsFitter::computeHistogramRangeAndBinning(int which, int &nbins,
   // first, make a numeric array while discarding some crazy outliers
   double *data = new double[numResiduals()];
   int n = 0;
-  for (std::vector<double *>::const_iterator r = m_residuals.begin(); r != m_residuals.end(); r++)
-    if (fabs((*r)[which]) < 50.) {
-      data[n] = (*r)[which];
+  for (auto m_residual : m_residuals)
+    if (fabs(m_residual[which]) < 50.) {
+      data[n] = m_residual[which];
       n++;
     }
 
@@ -535,8 +535,8 @@ void MuonResidualsFitter::computeHistogramRangeAndBinning(int which, int &nbins,
   nbins = (int)((b - a) / hbin + 3.);  // add extra safety margin of 3
 
   std::cout << "   quantiles: ";
-  for (int i = 0; i < n_quantiles; i++)
-    std::cout << quantiles[i] << " ";
+  for (double quantile : quantiles)
+    std::cout << quantile << " ";
   std::cout << std::endl;
   //cout<<"n="<<select_count<<" quantiles ["<<quantiles[1]<<", "<<quantiles[2]<<"]  IQR="<<iqr
   //  <<"  full range=["<<minx<<","<<maxx<<"]"<<"  2 normal sigma quantile range = ["<<quantiles[0]<<", "<<quantiles[3]<<"]"<<endl;
@@ -554,8 +554,8 @@ void MuonResidualsFitter::histogramChi2GaussianFit(int which, double &fit_mean, 
   }
 
   TH1D *hist = new TH1D("htmp", "", nbins, a, b);
-  for (std::vector<double *>::const_iterator r = m_residuals.begin(); r != m_residuals.end(); ++r)
-    hist->Fill((*r)[which]);
+  for (auto m_residual : m_residuals)
+    hist->Fill(m_residual[which]);
 
   // do simple chi2 gaussian fit
   TF1 *f1 = new TF1("f1", "gaus", a, b);
@@ -854,19 +854,19 @@ void MuonResidualsFitter::correctBField(int idx_momentum, int idx_q) {
     if (psize > nsize) {
       while (idx_set.size() < psize - nsize)
         idx_set.insert(gRandom->Integer(psize));
-      for (std::set<int>::iterator it = idx_set.begin(); it != idx_set.end(); it++)
-        to_erase.push_back(pos[j][*it]);
+      for (int it : idx_set)
+        to_erase.push_back(pos[j][it]);
     } else {
       while (idx_set.size() < nsize - psize)
         idx_set.insert(gRandom->Integer(nsize));
-      for (std::set<int>::iterator it = idx_set.begin(); it != idx_set.end(); it++)
-        to_erase.push_back(neg[j][*it]);
+      for (int it : idx_set)
+        to_erase.push_back(neg[j][it]);
     }
   }
   // sort in descending order, so we safely go from higher to lower indices:
   std::sort(to_erase.begin(), to_erase.end(), std::greater<int>());
-  for (std::vector<size_t>::const_iterator e = to_erase.begin(); e != to_erase.end(); ++e) {
-    m_residuals_ok[*e] = false;
+  for (unsigned long e : to_erase) {
+    m_residuals_ok[e] = false;
     //delete[] *(m_residuals.begin() + *e);
     //m_residuals.erase(m_residuals.begin() + *e);
   }

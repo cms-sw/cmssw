@@ -226,18 +226,18 @@ void CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     v_ntrk.push_back(tracks->size());
 
   ntrk = 0;
-  for (TrackCollection::const_iterator itTrack1 = tracks->begin(); itTrack1 != tracks->end(); ++itTrack1) {
-    pt.push_back(itTrack1->pt());
-    charge.push_back(itTrack1->charge());
-    chi2.push_back(itTrack1->chi2());
-    chi2_ndof.push_back(itTrack1->normalizedChi2());
-    eta.push_back(itTrack1->eta());
-    theta.push_back(itTrack1->theta());
-    phi.push_back(itTrack1->phi());
-    p.push_back(itTrack1->p());
-    d0.push_back(itTrack1->d0());
-    dz.push_back(itTrack1->dz());
-    nvh.push_back(itTrack1->numberOfValidHits());
+  for (const auto& itTrack1 : *tracks) {
+    pt.push_back(itTrack1.pt());
+    charge.push_back(itTrack1.charge());
+    chi2.push_back(itTrack1.chi2());
+    chi2_ndof.push_back(itTrack1.normalizedChi2());
+    eta.push_back(itTrack1.eta());
+    theta.push_back(itTrack1.theta());
+    phi.push_back(itTrack1.phi());
+    p.push_back(itTrack1.p());
+    d0.push_back(itTrack1.d0());
+    dz.push_back(itTrack1.dz());
+    nvh.push_back(itTrack1.numberOfValidHits());
 
     int nhitinBPIX = 0;
     int nhitinFPIX = 0;
@@ -252,7 +252,7 @@ void CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     int nhitinTIDplus = 0;
     int countHit = 0;
 
-    for (auto const& hit1 : itTrack1->recHits()) {
+    for (auto const& hit1 : itTrack1.recHits()) {
       const DetId detId1(hit1->geographicalId());
       const int subdetId1 = detId1.subdetId();
       if (!hit1->isValid())
@@ -364,9 +364,9 @@ void CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   iEvent.getByToken(muonTags_, muH);
   const reco::MuonCollection& muonsT0 = *(muH.product());
   float time = -9999.;
-  for (unsigned int i = 0; i < muonsT0.size(); i++) {
+  for (const auto& i : muonsT0) {
     //DT time
-    reco::MuonTime mt0 = muonsT0[i].time();
+    reco::MuonTime mt0 = i.time();
     time = mt0.timeAtIpInOut;
     DTtime.push_back(time);
   }

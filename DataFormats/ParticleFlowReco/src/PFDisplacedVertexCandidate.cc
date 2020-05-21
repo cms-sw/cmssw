@@ -199,18 +199,18 @@ void PFDisplacedVertexCandidate::Dump(ostream& out) const {
 
   // Build element label (string) : elid from type, layer and occurence number
   // use stringstream instead of sprintf to concatenate string and integer into string
-  for (unsigned ie = 0; ie < elements.size(); ie++) {
-    math::XYZPoint Pi(elements[ie].get()->innerPosition());
-    math::XYZPoint Po(elements[ie].get()->outerPosition());
+  for (const auto& element : elements) {
+    math::XYZPoint Pi(element.get()->innerPosition());
+    math::XYZPoint Po(element.get()->outerPosition());
 
     float innermost_radius = sqrt(Pi.x() * Pi.x() + Pi.y() * Pi.y() + Pi.z() * Pi.z());
     float outermost_radius = sqrt(Po.x() * Po.x() + Po.y() * Po.y() + Po.z() * Po.z());
     float innermost_rho = sqrt(Pi.x() * Pi.x() + Pi.y() * Pi.y());
     float outermost_rho = sqrt(Po.x() * Po.x() + Po.y() * Po.y());
 
-    double pt = elements[ie]->pt();
+    double pt = element->pt();
 
-    out << "ie = " << elements[ie].key() << " pt = " << pt << " innermost hit radius = " << innermost_radius
+    out << "ie = " << element.key() << " pt = " << pt << " innermost hit radius = " << innermost_radius
         << " rho = " << innermost_rho << " outermost hit radius = " << outermost_radius << " rho = " << outermost_rho
         << endl;
   }

@@ -313,8 +313,8 @@ namespace dqmservices {
       }
       if (matches.size() > 1) {
         op_ = OR;
-        for (size_t l = 0; l < matches.size(); l++)
-          children_.push_back(new TreeElement(*(matches[l]), tr, this));
+        for (auto& matche : matches)
+          children_.push_back(new TreeElement(*matche, tr, this));
       }
     }
   }
@@ -335,8 +335,7 @@ namespace dqmservices {
   std::string TriggerSelector::makeXMLString(std::string const& input) {
     std::string output;
     if (!input.empty()) {
-      for (size_t pos = 0; pos < input.size(); pos++) {
-        char ch = input.at(pos);
+      for (char ch : input) {
         if (ch == '&')
           output.append("&amp;");
         else
@@ -370,13 +369,13 @@ namespace dqmservices {
     }
     if (op_ == AND) {  // AND
       bool status = true;
-      for (size_t i = 0; i < children_.size(); i++)
-        status = status && children_[i]->returnStatus(trStatus);
+      for (auto i : children_)
+        status = status && i->returnStatus(trStatus);
       return status;
     } else if (op_ == OR) {  // OR
       bool status = false;
-      for (size_t i = 0; i < children_.size(); i++)
-        status = status || children_[i]->returnStatus(trStatus);
+      for (auto i : children_)
+        status = status || i->returnStatus(trStatus);
       return status;
     }
     throw edm::Exception(edm::errors::Configuration)
@@ -385,8 +384,8 @@ namespace dqmservices {
   }
 
   TriggerSelector::TreeElement::~TreeElement() {
-    for (std::vector<TreeElement*>::iterator it = children_.begin(); it != children_.end(); it++)
-      delete *it;
+    for (auto& it : children_)
+      delete it;
     children_.clear();
   }
 }  // namespace dqmservices

@@ -245,12 +245,12 @@ void L1TCompare::analyze(const Event& e, const EventSetup& c) {
 
   // GCT
   if (verbose()) {
-    for (L1GctEmCandCollection::const_iterator iem = gctIsoEmCands->begin(); iem != gctIsoEmCands->end(); ++iem) {
-      if (!iem->empty())
-        std::cout << "GCT EM: " << iem->rank() << ", " << iem->etaIndex()
+    for (const auto& iem : *gctIsoEmCands) {
+      if (!iem.empty())
+        std::cout << "GCT EM: " << iem.rank() << ", " << iem.etaIndex()
                   << "("
                   //<< int(iem->etaIndex()&0x3)*((iem->etaIndex()&0x4)?1:-1)
-                  << "), " << iem->phiIndex() << std::endl;
+                  << "), " << iem.phiIndex() << std::endl;
     }
   }
   // rct phi: 0-17
@@ -260,14 +260,14 @@ void L1TCompare::analyze(const Event& e, const EventSetup& c) {
 
   // Regions
   RctObjectCollection rcj, rcj_iso, rcj_non_iso;
-  for (L1CaloEmCollection::const_iterator iem = em->begin(); iem != em->end(); ++iem) {
+  for (const auto& iem : *em) {
     //   L1CaloRegionDetId id(false, iem->rctCrate(), iem->rctCard(),
     //			 iem->rctRegion());
-    L1CaloRegionDetId id(iem->rctCrate(), iem->rctCard(), iem->rctRegion());
+    L1CaloRegionDetId id(iem.rctCrate(), iem.rctCard(), iem.rctRegion());
 
     // RctObject h(id.gctEta(), id.gctPhi(), iem->rank());
-    RctObject h(id.rctEta(), id.rctPhi(), iem->rank());
-    if (!iem->isolated())
+    RctObject h(id.rctEta(), id.rctPhi(), iem.rank());
+    if (!iem.isolated())
       rcj_non_iso.push_back(h);
     else
       rcj_iso.push_back(h);
@@ -293,13 +293,13 @@ void L1TCompare::analyze(const Event& e, const EventSetup& c) {
 
   // non-isolated
   if (verbose()) {
-    for (L1GctEmCandCollection::const_iterator iem = gctNonIsoEmCands->begin(); iem != gctNonIsoEmCands->end(); ++iem) {
-      if (!iem->empty())
-        std::cout << "GCT EM non: " << iem->rank() << ", "
-                  << iem->etaIndex()  //<< "("
-                                      //<< int(iem->etaIndex()&0x3)*((iem->etaIndex()&0x4)?1:-1)
+    for (const auto& iem : *gctNonIsoEmCands) {
+      if (!iem.empty())
+        std::cout << "GCT EM non: " << iem.rank() << ", "
+                  << iem.etaIndex()  //<< "("
+                                     //<< int(iem->etaIndex()&0x3)*((iem->etaIndex()&0x4)?1:-1)
                   //<< ")"
-                  << ", " << iem->phiIndex() << std::endl;
+                  << ", " << iem.phiIndex() << std::endl;
     }
   }
   if (verbose()) {
@@ -325,8 +325,8 @@ void L1TCompare::analyze(const Event& e, const EventSetup& c) {
     return;
   }
   RctObjectCollection ecalobs;
-  for (EcalTrigPrimDigiCollection::const_iterator ieTP = eTP->begin(); ieTP != eTP->end(); ieTP++) {
-    ecalobs.push_back(RctObject(ieTP->id().ieta(), ieTP->id().iphi(), ieTP->compressedEt()));
+  for (const auto& ieTP : *eTP) {
+    ecalobs.push_back(RctObject(ieTP.id().ieta(), ieTP.id().iphi(), ieTP.compressedEt()));
   }
   std::sort(ecalobs.begin(), ecalobs.end(), rctObjectComp);
   if (verbose()) {

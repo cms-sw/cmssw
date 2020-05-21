@@ -183,18 +183,16 @@ std::vector<const TrackingRecHit *> TrackerMuonHitExtractor::getMuonHits(const r
           if (segment->hasPhi()) {
             const DTChamberRecSegment2D *phiSeg = segment->phiSegment();
             std::vector<const TrackingRecHit *> phiHits = phiSeg->recHits();
-            for (std::vector<const TrackingRecHit *>::const_iterator ihit = phiHits.begin(); ihit != phiHits.end();
-                 ++ihit) {
-              ret.push_back(*ihit);
+            for (auto phiHit : phiHits) {
+              ret.push_back(phiHit);
             }
           }
 
           if (segment->hasZed()) {
             const DTSLRecSegment2D *zSeg = (*segment).zSegment();
             std::vector<const TrackingRecHit *> zedHits = zSeg->recHits();
-            for (std::vector<const TrackingRecHit *>::const_iterator ihit = zedHits.begin(); ihit != zedHits.end();
-                 ++ihit) {
-              ret.push_back(*ihit);
+            for (auto zedHit : zedHits) {
+              ret.push_back(zedHit);
             }
           }
         } else
@@ -220,8 +218,8 @@ std::vector<const TrackingRecHit *> TrackerMuonHitExtractor::getMuonHits(const r
               << "\t ===> MATCHING with CSC segment with index = " << segmentCSC.key();
 
           std::vector<const TrackingRecHit *> hits = segment->recHits();
-          for (std::vector<const TrackingRecHit *>::const_iterator ihit = hits.begin(); ihit != hits.end(); ++ihit) {
-            ret.push_back(*ihit);
+          for (auto hit : hits) {
+            ret.push_back(hit);
           }
         } else
           edm::LogWarning("TrackerMuonHitExtractor") << "\n***WARNING: UNMATCHED CSC segment ! \n";

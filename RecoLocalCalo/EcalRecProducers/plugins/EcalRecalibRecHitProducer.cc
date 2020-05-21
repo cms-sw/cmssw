@@ -100,23 +100,23 @@ void EcalRecalibRecHitProducer::produce(edm::StreamID sid, edm::Event& evt, cons
 
   if (EBRecHits) {
     // loop over uncalibrated rechits to make calibrated ones
-    for (EBRecHitCollection::const_iterator it = EBRecHits->begin(); it != EBRecHits->end(); ++it) {
+    for (const auto& EBRecHit : *EBRecHits) {
       EcalIntercalibConstant icalconst = 1.;
       if (doIntercalib_) {
         // find intercalib constant for this xtal
         const EcalIntercalibConstantMap& icalMap = ical->getMap();
-        EcalIntercalibConstantMap::const_iterator icalit = icalMap.find(it->id());
+        EcalIntercalibConstantMap::const_iterator icalit = icalMap.find(EBRecHit.id());
         if (icalit != icalMap.end()) {
           icalconst = (*icalit);
         } else {
-          edm::LogError("EcalRecHitError") << "No intercalib const found for xtal " << EBDetId(it->id())
+          edm::LogError("EcalRecHitError") << "No intercalib const found for xtal " << EBDetId(EBRecHit.id())
                                            << "! something wrong with EcalIntercalibConstants in your DB? ";
         }
       }
       // get laser coefficient
       float lasercalib = 1;
       if (doLaserCorrections_) {
-        lasercalib = pLaser->getLaserCorrection(EBDetId(it->id()), evt.time());
+        lasercalib = pLaser->getLaserCorrection(EBDetId(EBRecHit.id()), evt.time());
       }
 
       // make the rechit and put in the output collection
@@ -129,30 +129,30 @@ void EcalRecalibRecHitProducer::produce(edm::StreamID sid, edm::Event& evt, cons
         lasercalib = 1.0 / lasercalib;
       }
 
-      EcalRecHit aHit((*it).id(), (*it).energy() * agc_eb * icalconst * lasercalib, (*it).time());
+      EcalRecHit aHit(EBRecHit.id(), EBRecHit.energy() * agc_eb * icalconst * lasercalib, EBRecHit.time());
       EBRecalibRecHits->push_back(aHit);
     }
   }
 
   if (EERecHits) {
     // loop over uncalibrated rechits to make calibrated ones
-    for (EERecHitCollection::const_iterator it = EERecHits->begin(); it != EERecHits->end(); ++it) {
+    for (const auto& EERecHit : *EERecHits) {
       // find intercalib constant for this xtal
       EcalIntercalibConstant icalconst = 1.;
       if (doIntercalib_) {
         const EcalIntercalibConstantMap& icalMap = ical->getMap();
-        EcalIntercalibConstantMap::const_iterator icalit = icalMap.find(it->id());
+        EcalIntercalibConstantMap::const_iterator icalit = icalMap.find(EERecHit.id());
         if (icalit != icalMap.end()) {
           icalconst = (*icalit);
         } else {
-          edm::LogError("EcalRecHitError") << "No intercalib const found for xtal " << EEDetId(it->id())
+          edm::LogError("EcalRecHitError") << "No intercalib const found for xtal " << EEDetId(EERecHit.id())
                                            << "! something wrong with EcalIntercalibConstants in your DB? ";
         }
       }
       // get laser coefficient
       float lasercalib = 1;
       if (doLaserCorrections_) {
-        lasercalib = pLaser->getLaserCorrection(EEDetId(it->id()), evt.time());
+        lasercalib = pLaser->getLaserCorrection(EEDetId(EERecHit.id()), evt.time());
       }
 
       if (doIntercalibInverse_) {
@@ -163,7 +163,7 @@ void EcalRecalibRecHitProducer::produce(edm::StreamID sid, edm::Event& evt, cons
       }
 
       // make the rechit and put in the output collection
-      EcalRecHit aHit((*it).id(), (*it).energy() * agc_ee * icalconst * lasercalib, (*it).time());
+      EcalRecHit aHit(EERecHit.id(), EERecHit.energy() * agc_ee * icalconst * lasercalib, EERecHit.time());
       EERecalibRecHits->push_back(aHit);
     }
   }

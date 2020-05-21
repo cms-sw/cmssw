@@ -19,10 +19,10 @@
 METCorrectorParameters::Definitions::Definitions(const std::vector<std::string>& fBinVar,
                                                  const std::vector<std::string>& fParVar,
                                                  const std::string& fFormula) {
-  for (unsigned i = 0; i < fBinVar.size(); i++)
-    mBinVar.push_back(fBinVar[i]);
-  for (unsigned i = 0; i < fParVar.size(); i++)
-    mParVar.push_back(fParVar[i]);
+  for (const auto& i : fBinVar)
+    mBinVar.push_back(i);
+  for (const auto& i : fParVar)
+    mParVar.push_back(i);
   mFormula = fFormula;
 }
 //------------------------------------------------------------------------

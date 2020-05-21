@@ -31,16 +31,14 @@ namespace pf2pat {
         mask_ = 0;
         if (cfg.existsAs<std::vector<std::string> >("bitsToCheck")) {
           std::vector<std::string> strbits = cfg.getParameter<std::vector<std::string> >("bitsToCheck");
-          for (std::vector<std::string>::const_iterator istrbit = strbits.begin(), estrbit = strbits.end();
-               istrbit != estrbit;
-               ++istrbit) {
-            if (*istrbit == "id") {
+          for (const auto& strbit : strbits) {
+            if (strbit == "id") {
               mask_ |= 1;
-            } else if (*istrbit == "iso") {
+            } else if (strbit == "iso") {
               mask_ |= 2;
-            } else if (*istrbit == "conv") {
+            } else if (strbit == "conv") {
               mask_ |= 4;
-            } else if (*istrbit == "ip") {
+            } else if (strbit == "ip") {
               mask_ |= 8;
             } else
               throw cms::Exception("Configuration")

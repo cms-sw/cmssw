@@ -68,10 +68,10 @@ G4bool FiberSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
 
   if (!hits.empty()) {
     std::vector<HFShowerPhoton> thePE;
-    for (unsigned int i = 0; i < hits.size(); i++) {
+    for (auto& hit : hits) {
       //std::cout<<"hit position z "<<hits[i].position.z()<<std::endl;
-      HFShowerPhoton pe = HFShowerPhoton(
-          hits[i].position.x(), hits[i].position.y(), hits[i].position.z(), hits[i].wavelength, hits[i].time);
+      HFShowerPhoton pe =
+          HFShowerPhoton(hit.position.x(), hit.position.y(), hit.position.z(), hit.wavelength, hit.time);
       thePE.push_back(pe);
     }
     int trackID = aStep->GetTrack()->GetTrackID();

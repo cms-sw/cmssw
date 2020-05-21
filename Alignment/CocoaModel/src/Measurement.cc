@@ -102,8 +102,8 @@ void Measurement::constructFromOA(OpticalAlignMeasurementInfo& measInfo) {
   if (ALIUtils::debug >= 3) {
     std::cout << "@@@@ Reading Measurement " << name() << " TYPE= " << type() << " " << measInfo << std::endl
               << " MEASURED OPTO NAMES: ";
-    for (size_t ii = 0; ii < _OptONameList.size(); ii++) {
-      std::cout << _OptONameList[ii] << " ";
+    for (const auto& ii : _OptONameList) {
+      std::cout << ii << " ";
     }
     std::cout << std::endl;
   }

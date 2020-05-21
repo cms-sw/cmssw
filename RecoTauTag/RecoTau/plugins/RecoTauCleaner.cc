@@ -81,13 +81,13 @@ RecoTauCleanerImpl<Prod>::RecoTauCleanerImpl(const edm::ParameterSet& pset) {
   typedef std::vector<edm::ParameterSet> VPSet;
   // Get each of our tau builders
   const VPSet& cleaners = pset.getParameter<VPSet>("cleaners");
-  for (VPSet::const_iterator cleanerPSet = cleaners.begin(); cleanerPSet != cleaners.end(); ++cleanerPSet) {
+  for (const auto& cleaner : cleaners) {
     auto cleanerEntry = std::make_unique<CleanerEntryType>();
     // Get plugin name
-    const std::string& pluginType = cleanerPSet->getParameter<std::string>("plugin");
+    const std::string& pluginType = cleaner.getParameter<std::string>("plugin");
     // Build the plugin
-    cleanerEntry->plugin_ = RecoTauCleanerPluginFactory::get()->create(pluginType, *cleanerPSet, consumesCollector());
-    cleanerEntry->tolerance_ = cleanerPSet->getParameter<double>("tolerance");
+    cleanerEntry->plugin_ = RecoTauCleanerPluginFactory::get()->create(pluginType, cleaner, consumesCollector());
+    cleanerEntry->tolerance_ = cleaner.getParameter<double>("tolerance");
     cleaners_.emplace_back(std::move(cleanerEntry));
   }
 
@@ -277,14 +277,14 @@ void RecoTauCleanerImpl<Prod>::produce(edm::Event& evt, const edm::EventSetup& e
   //output->reserve(cleanTaus.size());
 
   // Copy clean refs into output
-  for (PFTauRefs::const_iterator tau = cleanTaus.begin(); tau != cleanTaus.end(); ++tau) {
+  for (const auto& cleanTau : cleanTaus) {
     // If we are applying an output selection, check if it passes
     bool selected = true;
-    if (outputSelector_.get() && !(*outputSelector_)(**tau)) {
+    if (outputSelector_.get() && !(*outputSelector_)(*cleanTau)) {
       selected = false;
     }
     if (selected) {
-      output->push_back(convert<output_type>(*tau));
+      output->push_back(convert<output_type>(cleanTau));
     }
   }
   evt.put(std::move(output));

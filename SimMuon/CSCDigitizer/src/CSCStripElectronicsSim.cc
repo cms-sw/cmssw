@@ -110,9 +110,7 @@ void CSCStripElectronicsSim::runComparator(std::vector<CSCComparatorDigi> &resul
   }
   // no need to sort
   comparatorsWithSignal.unique();
-  for (std::list<int>::iterator listItr = comparatorsWithSignal.begin(); listItr != comparatorsWithSignal.end();
-       ++listItr) {
-    int iComparator = *listItr;
+  for (int iComparator : comparatorsWithSignal) {
     // find signal1 and signal2
     // iComparator counts from 0
     // icomp =0->1,2,  =1->3,4,  =2->5,6, ...
@@ -206,10 +204,9 @@ void CSCStripElectronicsSim::runComparator(std::vector<CSCComparatorDigi> &resul
 
 std::list<int> CSCStripElectronicsSim::getKeyStrips(const std::vector<CSCComparatorDigi> &comparators) const {
   std::list<int> result;
-  for (std::vector<CSCComparatorDigi>::const_iterator compItr = comparators.begin(); compItr != comparators.end();
-       ++compItr) {
-    if (std::abs(compItr->getTimeBin() - theOffsetOfBxZero) <= 2) {
-      result.push_back(compItr->getStrip());
+  for (auto comparator : comparators) {
+    if (std::abs(comparator.getTimeBin() - theOffsetOfBxZero) <= 2) {
+      result.push_back(comparator.getStrip());
     }
   }
   // need sort for unique to work.
@@ -389,8 +386,8 @@ void CSCStripElectronicsSim::createDigi(int channel,
 
 void CSCStripElectronicsSim::doSaturation(CSCStripDigi &digi) {
   std::vector<int> scaCounts(digi.getADCCounts());
-  for (unsigned scaBin = 0; scaBin < scaCounts.size(); ++scaBin) {
-    scaCounts[scaBin] = std::min(scaCounts[scaBin], 4095);
+  for (int &scaCount : scaCounts) {
+    scaCount = std::min(scaCount, 4095);
   }
   digi.setADCCounts(scaCounts);
 }
@@ -404,12 +401,10 @@ void CSCStripElectronicsSim::fillMissingLayer(const CSCLayer *layer,
   CSCDetId chamberId(theLayerId.chamberId());
   // find all comparator key strips in this chamber
   std::list<int> chamberKeyStrips;
-  for (CSCComparatorDigiCollection::DigiRangeIterator comparatorItr = comparators.begin();
-       comparatorItr != comparators.end();
-       ++comparatorItr) {
+  for (auto &&comparator : comparators) {
     // could be more efficient
-    if (CSCDetId((*comparatorItr).first).chamberId() == chamberId) {
-      std::vector<CSCComparatorDigi> layerComparators((*comparatorItr).second.first, (*comparatorItr).second.second);
+    if (CSCDetId(comparator.first).chamberId() == chamberId) {
+      std::vector<CSCComparatorDigi> layerComparators(comparator.second.first, comparator.second.second);
       std::list<int> layerKeyStrips = getKeyStrips(layerComparators);
       chamberKeyStrips.insert(chamberKeyStrips.end(), layerKeyStrips.begin(), layerKeyStrips.end());
     }

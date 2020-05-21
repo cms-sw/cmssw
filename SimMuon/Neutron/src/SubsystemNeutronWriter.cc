@@ -63,10 +63,9 @@ SubsystemNeutronWriter::~SubsystemNeutronWriter() {
 
 void SubsystemNeutronWriter::printStats() {
   edm::LogInfo("SubsystemNeutronWriter") << "SubsystemNeutronWriter Statistics:\n";
-  for (map<int, int>::iterator mapItr = theCountPerChamberType.begin(); mapItr != theCountPerChamberType.end();
-       ++mapItr) {
+  for (auto& mapItr : theCountPerChamberType) {
     edm::LogInfo("SubsystemNeutronWriter")
-        << "   theEventOccupancy[" << mapItr->first << "] = " << mapItr->second << " / " << theNEvents << " / NCT \n";
+        << "   theEventOccupancy[" << mapItr.first << "] = " << mapItr.second << " / " << theNEvents << " / NCT \n";
   }
 }
 
@@ -83,17 +82,15 @@ void SubsystemNeutronWriter::produce(edm::Event& e, edm::EventSetup const& c) {
 
   // sort hits by chamber
   map<int, edm::PSimHitContainer> hitsByChamber;
-  for (edm::PSimHitContainer::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr) {
-    int chamberIndex = chamberId(hitItr->detUnitId());
-    hitsByChamber[chamberIndex].push_back(*hitItr);
+  for (const auto& hitItr : *hits) {
+    int chamberIndex = chamberId(hitItr.detUnitId());
+    hitsByChamber[chamberIndex].push_back(hitItr);
   }
 
   // now write out each chamber's contents
-  for (map<int, edm::PSimHitContainer>::iterator hitsByChamberItr = hitsByChamber.begin();
-       hitsByChamberItr != hitsByChamber.end();
-       ++hitsByChamberItr) {
-    int chambertype = chamberType(hitsByChamberItr->first);
-    writeHits(chambertype, hitsByChamberItr->second, engine);
+  for (auto& hitsByChamberItr : hitsByChamber) {
+    int chambertype = chamberType(hitsByChamberItr.first);
+    writeHits(chambertype, hitsByChamberItr.second, engine);
   }
   theHitWriter->endEvent();
 }
@@ -111,8 +108,7 @@ void SubsystemNeutronWriter::writeHits(int chamberType,
   edm::PSimHitContainer cluster;
   float startTime = -1000.;
   float smearing = 0.;
-  for (size_t i = 0; i < chamberHits.size(); ++i) {
-    PSimHit hit = chamberHits[i];
+  for (auto hit : chamberHits) {
     float tof = hit.tof();
     LogDebug("SubsystemNeutronWriter") << "found hit from part type " << hit.particleType() << " at tof " << tof
                                        << " p " << hit.pabs() << " on det " << hit.detUnitId() << " chamber type "

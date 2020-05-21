@@ -138,8 +138,8 @@ namespace edm {
 
   bool ProductRegistry::anyProducts(BranchType brType) const {
     throwIfNotFrozen();
-    for (ProductList::const_iterator it = productList_.begin(), itEnd = productList_.end(); it != itEnd; ++it) {
-      if (it->second.branchType() == brType) {
+    for (const auto& it : productList_) {
+      if (it.second.branchType() == brType) {
         return true;
       }
     }

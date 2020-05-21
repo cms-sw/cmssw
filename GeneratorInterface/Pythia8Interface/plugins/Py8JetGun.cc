@@ -47,8 +47,8 @@ namespace gen {
     double totM = 0.;
     double phi, eta, the, ee, pp;
 
-    for (size_t i = 0; i < fPartIDs.size(); i++) {
-      int particleID = fPartIDs[i];  // this is PDG - need to convert to Py8 ???
+    for (int particleID : fPartIDs) {
+      // this is PDG - need to convert to Py8 ???
 
       phi = 2. * M_PI * randomEngine().flat();
       the = acos(-1. + 2. * randomEngine().flat());

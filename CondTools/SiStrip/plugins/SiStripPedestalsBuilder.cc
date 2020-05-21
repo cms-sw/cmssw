@@ -21,26 +21,24 @@ void SiStripPedestalsBuilder::analyze(const edm::Event& evt, const edm::EventSet
   const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>& DetInfos = reader.getAllData();
 
   int count = -1;
-  for (std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator it = DetInfos.begin();
-       it != DetInfos.end();
-       it++) {
+  for (const auto& it : DetInfos) {
     count++;
     //Generate Pedestal for det detid
     SiStripPedestals::InputVector theSiStripVector;
-    for (int strip = 0; strip < 128 * it->second.nApvs; ++strip) {
+    for (int strip = 0; strip < 128 * it.second.nApvs; ++strip) {
       float MeanPed = 100;
       float RmsPed = 5;
 
       float ped = CLHEP::RandGauss::shoot(MeanPed, RmsPed);
 
       if (count < static_cast<int>(printdebug_))
-        edm::LogInfo("SiStripPedestalsBuilder") << "detid " << it->first << " \t"
+        edm::LogInfo("SiStripPedestalsBuilder") << "detid " << it.first << " \t"
                                                 << " strip " << strip << " \t" << ped << " \t" << std::endl;
       obj->setData(ped, theSiStripVector);
     }
 
     //SiStripPedestals::Range range(theSiStripVector.begin(),theSiStripVector.end());
-    if (!obj->put(it->first, theSiStripVector))
+    if (!obj->put(it.first, theSiStripVector))
       edm::LogError("SiStripPedestalsBuilder")
           << "[SiStripPedestalsBuilder::analyze] detid already exists" << std::endl;
   }

@@ -280,55 +280,55 @@ void L1GtBoard::print(std::ostream& myCout) const {
     myCout << "PSB Input per Cable: DEPRECATED" << std::endl;
   }
 
-  for (std::vector<L1GtPsbQuad>::const_iterator cIt = m_gtQuadInPsb.begin(); cIt != m_gtQuadInPsb.end(); ++cIt) {
+  for (auto cIt : m_gtQuadInPsb) {
     std::string objType;
 
-    if (*cIt == TechTr) {
+    if (cIt == TechTr) {
       objType = "TechTr";
-    } else if (*cIt == IsoEGQ) {
+    } else if (cIt == IsoEGQ) {
       objType = "IsoEGQ";
-    } else if (*cIt == NoIsoEGQ) {
+    } else if (cIt == NoIsoEGQ) {
       objType = "NoIsoEGQ";
-    } else if (*cIt == CenJetQ) {
+    } else if (cIt == CenJetQ) {
       objType = "CenJetQ";
-    } else if (*cIt == ForJetQ) {
+    } else if (cIt == ForJetQ) {
       objType = "ForJetQ";
-    } else if (*cIt == TauJetQ) {
+    } else if (cIt == TauJetQ) {
       objType = "TauJetQ";
-    } else if (*cIt == ESumsQ) {
+    } else if (cIt == ESumsQ) {
       objType = "ESumsQ";
-    } else if (*cIt == JetCountsQ) {
+    } else if (cIt == JetCountsQ) {
       objType = "JetCountsQ";
-    } else if (*cIt == MQB1) {
+    } else if (cIt == MQB1) {
       objType = "MQB1";
-    } else if (*cIt == MQB2) {
+    } else if (cIt == MQB2) {
       objType = "MQB2";
-    } else if (*cIt == MQF3) {
+    } else if (cIt == MQF3) {
       objType = "MQF3";
-    } else if (*cIt == MQF4) {
+    } else if (cIt == MQF4) {
       objType = "MQF4";
-    } else if (*cIt == MQB5) {
+    } else if (cIt == MQB5) {
       objType = "MQB5";
-    } else if (*cIt == MQB6) {
+    } else if (cIt == MQB6) {
       objType = "MQB6";
-    } else if (*cIt == MQF7) {
+    } else if (cIt == MQF7) {
       objType = "MQF7";
-    } else if (*cIt == MQF8) {
+    } else if (cIt == MQF8) {
       objType = "MQF8";
-    } else if (*cIt == MQB9) {
+    } else if (cIt == MQB9) {
       objType = "MQB9";
-    } else if (*cIt == MQB10) {
+    } else if (cIt == MQB10) {
       objType = "MQB10";
-    } else if (*cIt == MQF11) {
+    } else if (cIt == MQF11) {
       objType = "MQF11";
-    } else if (*cIt == MQF12) {
+    } else if (cIt == MQF12) {
       objType = "MQF12";
-    } else if (*cIt == Free) {
+    } else if (cIt == Free) {
       objType = "Free";
-    } else if (*cIt == HfQ) {
+    } else if (cIt == HfQ) {
       objType = "HfQ";
     } else {
-      myCout << "\n\nError: no such member " << (*cIt) << " in enum L1GtPsbQuad\n\n" << std::endl;
+      myCout << "\n\nError: no such member " << cIt << " in enum L1GtPsbQuad\n\n" << std::endl;
       objType = "ERROR";
     }
 
@@ -340,12 +340,13 @@ void L1GtBoard::print(std::ostream& myCout) const {
     myCout << "Input objects pro channel:";
   }
 
-  for (std::map<int, std::vector<L1GtObject> >::const_iterator cIt = m_gtInputPsbChannels.begin();
-       cIt != m_gtInputPsbChannels.end();
-       ++cIt) {
-    myCout << "\n  Channel " << cIt->first << " (" << (cIt->second).size() << " objects): ";
+  for (const auto& m_gtInputPsbChannel : m_gtInputPsbChannels) {
+    myCout << "\n  Channel " << m_gtInputPsbChannel.first << " (" << (m_gtInputPsbChannel.second).size()
+           << " objects): ";
 
-    for (std::vector<L1GtObject>::const_iterator itObj = (cIt->second).begin(); itObj != (cIt->second).end(); ++itObj) {
+    for (std::vector<L1GtObject>::const_iterator itObj = (m_gtInputPsbChannel.second).begin();
+         itObj != (m_gtInputPsbChannel.second).end();
+         ++itObj) {
       switch (*itObj) {
         case Mu: {
           myCout << " Mu ";

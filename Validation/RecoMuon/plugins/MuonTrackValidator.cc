@@ -24,10 +24,9 @@ using namespace edm;
 void MuonTrackValidator::bookHistograms(DQMEDAnalyzer::DQMStore::IBooker& ibooker,
                                         edm::Run const&,
                                         edm::EventSetup const& setup) {
-  for (unsigned int ww = 0; ww < associators.size(); ww++) {
-    for (unsigned int www = 0; www < label.size(); www++) {
+  for (const auto& associator : associators) {
+    for (auto algo : label) {
       ibooker.cd();
-      InputTag algo = label[www];
       string dirName = dirName_;
 
       auto setBinLogX = [this](TH1* th1) {
@@ -48,7 +47,7 @@ void MuonTrackValidator::bookHistograms(DQMEDAnalyzer::DQMStore::IBooker& ibooke
       if (dirName.find("UpdatedAtVtx") < dirName.length()) {
         dirName.replace(dirName.find("UpdatedAtVtx"), 12, "UpdAtVtx");
       }
-      string assoc = associators[ww];
+      string assoc = associator;
       if (assoc.find("tpToTkmuTrackAssociation") < assoc.length()) {
         dirName += "_TkAsso";
       }
@@ -343,10 +342,10 @@ void MuonTrackValidator::bookHistograms(DQMEDAnalyzer::DQMStore::IBooker& ibooke
             ibooker.book2D("PurityVsQuality", "Purity vs Quality (MABH)", 20, 0.01, 1.01, 20, 0.01, 1.01));
       }
 
-      if (associators[ww] == "trackAssociatorByChi2") {
+      if (associator == "trackAssociatorByChi2") {
         h_assochi2.push_back(ibooker.book1D("assocChi2", "track association #chi^{2}", 1000, 0., 100.));
         h_assochi2_prob.push_back(ibooker.book1D("assocChi2_prob", "probability of association #chi^{2}", 100, 0., 1.));
-      } else if (associators[ww] == "trackAssociatorByHits") {
+      } else if (associator == "trackAssociatorByHits") {
         h_assocFraction.push_back(ibooker.book1D("assocFraction", "fraction of shared hits", 22, 0., 1.1));
         h_assocSharedHit.push_back(ibooker.book1D("assocSharedHit", "number of shared hits", 41, -0.5, 40.5));
       }
@@ -376,10 +375,9 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 
     // PileupSummaryInfo is contained only in collision events
     event.getByToken(pileupinfo_Token, puinfoH);
-    for (std::vector<PileupSummaryInfo>::const_iterator puInfoIt = puinfoH->begin(); puInfoIt != puinfoH->end();
-         ++puInfoIt) {
-      if (puInfoIt->getBunchCrossing() == 0) {
-        PU_NumInteractions = puInfoIt->getPU_NumInteractions();
+    for (const auto& puInfoIt : *puinfoH) {
+      if (puInfoIt.getBunchCrossing() == 0) {
+        PU_NumInteractions = puInfoIt.getPU_NumInteractions();
         break;
       }
     }

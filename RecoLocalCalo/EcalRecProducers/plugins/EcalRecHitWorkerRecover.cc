@@ -90,8 +90,8 @@ bool EcalRecHitWorkerRecover::run(const edm::Event& evt,
     if (flags == EcalRecHitWorkerRecover::EB_FE && !recoverEBFE_) {
       EcalTrigTowerDetId ttDetId(((EBDetId)detId).tower());
       std::vector<DetId> vid = ttMap_->constituentsOf(ttDetId);
-      for (std::vector<DetId>::const_iterator dit = vid.begin(); dit != vid.end(); ++dit) {
-        EcalRecHit hit((*dit), 0., 0., EcalRecHit::kDead);
+      for (auto dit : vid) {
+        EcalRecHit hit(dit, 0., 0., EcalRecHit::kDead);
         hit.setFlag(EcalRecHit::kDead);
         insertRecHit(hit, result);  // insert trivial rechit with kDead flag
       }
@@ -112,8 +112,8 @@ bool EcalRecHitWorkerRecover::run(const edm::Event& evt,
           }
         }
       }
-      for (size_t i = 0; i < eeC.size(); ++i) {
-        EcalRecHit hit(eeC[i], 0., 0., EcalRecHit::kDead);
+      for (auto i : eeC) {
+        EcalRecHit hit(i, 0., 0., EcalRecHit::kDead);
         hit.setFlag(EcalRecHit::kDead);
         insertRecHit(hit, result);  // insert trivial rechit with kDead flag
       }
@@ -203,10 +203,10 @@ bool EcalRecHitWorkerRecover::run(const edm::Event& evt,
       } else {
         // tp not found => recovery failed
         std::vector<DetId> vid = ttMap_->constituentsOf(ttDetId);
-        for (std::vector<DetId>::const_iterator dit = vid.begin(); dit != vid.end(); ++dit) {
-          if (alreadyInserted(*dit))
+        for (auto dit : vid) {
+          if (alreadyInserted(dit))
             continue;
-          EcalRecHit hit(*dit, 0., 0.);
+          EcalRecHit hit(dit, 0., 0.);
           hit.setFlag(EcalRecHit::kDead);
           insertRecHit(hit, result);
         }
@@ -245,19 +245,19 @@ bool EcalRecHitWorkerRecover::run(const edm::Event& evt,
 
     // associated trigger towers
     std::set<EcalTrigTowerDetId> aTT;
-    for (std::set<DetId>::const_iterator it = eeC.begin(); it != eeC.end(); ++it) {
-      aTT.insert(ttMap_->towerOf(*it));
+    for (auto it : eeC) {
+      aTT.insert(ttMap_->towerOf(it));
     }
     // associated trigger towers: total energy
     float totE = 0;
     // associated trigger towers: EEDetId constituents
     std::set<DetId> aTTC;
     bool atLeastOneTPSaturated = false;
-    for (std::set<EcalTrigTowerDetId>::const_iterator it = aTT.begin(); it != aTT.end(); ++it) {
+    for (auto it : aTT) {
       // add the energy of this trigger tower
-      EcalTrigPrimDigiCollection::const_iterator itTP = tpDigis->find(*it);
+      EcalTrigPrimDigiCollection::const_iterator itTP = tpDigis->find(it);
       if (itTP != tpDigis->end()) {
-        std::vector<DetId> v = ttMap_->constituentsOf(*it);
+        std::vector<DetId> v = ttMap_->constituentsOf(it);
 
         // from the constituents, remove dead channels
         std::vector<DetId>::iterator ttcons = v.begin();
@@ -292,18 +292,18 @@ bool EcalRecHitWorkerRecover::run(const edm::Event& evt,
 					  //std::cout << count << ", " << v.size() << std::endl;
 					  totE+=((float)count/(float)v.size())* ((it->ietaAbs()>26)?2*ecalScale_.getTPGInGeV( itTP->compressedEt(), itTP->id() ):ecalScale_.getTPGInGeV( itTP->compressedEt(), itTP->id() ));*/
         } else {
-          totE += ((it->ietaAbs() > 26) ? 2 : 1) * ecalScale_.getTPGInGeV(itTP->compressedEt(), itTP->id());
+          totE += ((it.ietaAbs() > 26) ? 2 : 1) * ecalScale_.getTPGInGeV(itTP->compressedEt(), itTP->id());
         }
 
         // get the trigger tower constituents
 
         if (itTP->compressedEt() == 0) {  // If there's no energy in TT, the constituents are removed from the recovery.
-          for (size_t i = 0; i < v.size(); ++i)
-            eeC.erase(v[i]);
+          for (auto i : v)
+            eeC.erase(i);
         } else if (itTP->compressedEt() != 0xFF) {
           //If it's saturated the energy has already been determined, so we do not want to subtract any channels
-          for (size_t j = 0; j < v.size(); ++j) {
-            aTTC.insert(v[j]);
+          for (auto j : v) {
+            aTTC.insert(j);
           }
         }
       }
@@ -312,13 +312,13 @@ bool EcalRecHitWorkerRecover::run(const edm::Event& evt,
     // (this step is not needed if sure that SC crystals are not
     // in the recHit collection)
 
-    for (std::set<DetId>::const_iterator it = eeC.begin(); it != eeC.end(); ++it) {
-      aTTC.erase(*it);
+    for (auto it : eeC) {
+      aTTC.erase(it);
     }
     // compute the total energy for the dead SC
     const EcalRecHitCollection* hits = &result;
-    for (std::set<DetId>::const_iterator it = aTTC.begin(); it != aTTC.end(); ++it) {
-      EcalRecHitCollection::const_iterator jt = hits->find(*it);
+    for (auto it : aTTC) {
+      EcalRecHitCollection::const_iterator jt = hits->find(it);
       if (jt != hits->end()) {
         float energy = jt->energy();  // Correct conversion to Et
         float eta = geo_->getPosition(jt->id()).eta();
@@ -359,11 +359,11 @@ float EcalRecHitWorkerRecover::estimateEnergy(int ieta,
                                               const std::vector<DetId>& vId) {
   float xtalE = 0;
   int count = 0;
-  for (std::vector<DetId>::const_iterator vIdit = vId.begin(); vIdit != vId.end(); ++vIdit) {
-    std::set<DetId>::const_iterator sIdit = sId.find(*vIdit);
+  for (auto vIdit : vId) {
+    std::set<DetId>::const_iterator sIdit = sId.find(vIdit);
     if (sIdit == sId.end()) {
-      float energy = hits->find(*vIdit)->energy();
-      float eta = geo_->getPosition(*vIdit).eta();
+      float energy = hits->find(vIdit)->energy();
+      float eta = geo_->getPosition(vIdit).eta();
       float pf = 1.0 / cosh(eta);
       xtalE += energy * pf;
       count++;
@@ -436,9 +436,8 @@ bool EcalRecHitWorkerRecover::checkChannelStatus(const DetId& id, const std::vec
                                     << "! something wrong with EcalChannelStatus in your DB? ";
   }
 
-  for (std::vector<int>::const_iterator status = statusestoexclude.begin(); status != statusestoexclude.end();
-       ++status) {
-    if (*status == dbStatus)
+  for (int status : statusestoexclude) {
+    if (status == dbStatus)
       return false;
   }
 

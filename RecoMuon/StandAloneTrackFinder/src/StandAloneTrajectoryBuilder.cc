@@ -433,9 +433,9 @@ StandAloneMuonTrajectoryBuilder::DetLayerWithState StandAloneMuonTrajectoryBuild
 
   if (!detLayers.empty()) {
     LogTrace(metname) << "Compatible layers:" << endl;
-    for (vector<const DetLayer*>::const_iterator layer = detLayers.begin(); layer != detLayers.end(); layer++) {
-      LogTrace(metname) << debug.dumpMuonId((*layer)->basicComponents().front()->geographicalId());
-      LogTrace(metname) << debug.dumpLayer(*layer);
+    for (auto detLayer : detLayers) {
+      LogTrace(metname) << debug.dumpMuonId(detLayer->basicComponents().front()->geographicalId());
+      LogTrace(metname) << debug.dumpLayer(detLayer);
     }
 
     const DetLayer* finalLayer = detLayers.back();

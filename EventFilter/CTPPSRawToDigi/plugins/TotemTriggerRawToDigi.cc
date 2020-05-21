@@ -81,8 +81,8 @@ int TotemTriggerRawToDigi::ProcessLoneGFrame(uint64_t *oBuf, unsigned long size,
 
   // buffer mapping: OptoRx buffer --> LoneG buffer
   uint64_t buf[5];
-  for (unsigned int i = 0; i < 5; i++)
-    buf[i] = 0;
+  for (unsigned long &i : buf)
+    i = 0;
 
   for (unsigned int i = 0; i < 20; i++) {
     int row = i / 4;

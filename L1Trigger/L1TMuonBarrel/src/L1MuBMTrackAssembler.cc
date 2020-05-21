@@ -459,10 +459,10 @@ void L1MuBMTrackAssembler::run() {
 // reset Track Assembler
 //
 void L1MuBMTrackAssembler::reset() {
-  for (int i = 0; i < 68; i++)
-    m_theLastAddress[i] = 15;
-  for (int j = 0; j < 12; j++)
-    m_theLastAddressI[j] = 15;
+  for (unsigned int& m_theLastAddres : m_theLastAddress)
+    m_theLastAddres = 15;
+  for (unsigned int& j : m_theLastAddressI)
+    j = 15;
   m_thePriorityTable1.reset();
   m_thePriorityTable2.reset();
   m_theTCs[0] = UNDEF;

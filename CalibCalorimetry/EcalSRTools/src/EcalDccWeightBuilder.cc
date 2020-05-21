@@ -132,9 +132,9 @@ void EcalDccWeightBuilder::computeAllWeights(bool withIntercalib, const edm::Eve
     copy(inputWeights_.begin(), inputWeights_.end(), baseWeights.begin());
   }
 
-  for (vector<DetId>::const_iterator it = detIds.begin(); it != detIds.end(); ++it) {
-    double phase = parameterMap.simParameters(*it).timePhase();
-    int binOfMax = parameterMap.simParameters(*it).binOfMaximum();
+  for (auto detId : detIds) {
+    double phase = parameterMap.simParameters(detId).timePhase();
+    int binOfMax = parameterMap.simParameters(detId).binOfMaximum();
 
 #if 0
     //for debugging...
@@ -162,9 +162,9 @@ void EcalDccWeightBuilder::computeAllWeights(bool withIntercalib, const edm::Eve
       EEShape eeShape(useDBShape);
       EcalShapeBase* pShape;
 
-      if (it->subdetId() == EcalBarrel) {
+      if (detId.subdetId() == EcalBarrel) {
         pShape = &ebShape;
-      } else if (it->subdetId() == EcalEndcap) {
+      } else if (detId.subdetId() == EcalEndcap) {
         pShape = &eeShape;
       } else {
         throw cms::Exception("EcalDccWeightBuilder") << "Bug found in " << __FILE__ << ":" << __LINE__ << ": "
@@ -174,7 +174,7 @@ void EcalDccWeightBuilder::computeAllWeights(bool withIntercalib, const edm::Eve
 
       if (phase != prevPhase) {
         if (imode_ == COMPUTE_WEIGHTS) {
-          if (it->subdetId() == EcalBarrel) {
+          if (detId.subdetId() == EcalBarrel) {
             computeWeights(*pShape, binOfMax, phase, dcc1stSample_ - 1, nDccWeights_, iSkip0_, baseWeights);
           }
           prevPhase = phase;
@@ -183,20 +183,20 @@ void EcalDccWeightBuilder::computeAllWeights(bool withIntercalib, const edm::Eve
       for (int i = 0; i < nw; ++i) {
         w[i] = baseWeights[i];
         if (withIntercalib)
-          w[i] *= intercalib(*it);
+          w[i] *= intercalib(detId);
       }
       unbiasWeights(w, &W);
-      encodedWeights_[*it] = W;
+      encodedWeights_[detId] = W;
     } catch (std::exception& e) {
       cout << __FILE__ << ":" << __LINE__ << ": ";
-      if (it->subdetId() == EcalBarrel) {
-        cout << "ieta = " << setw(4) << ((EBDetId)(*it)).ieta() << " iphi = " << setw(4) << ((EBDetId)(*it)).iphi()
+      if (detId.subdetId() == EcalBarrel) {
+        cout << "ieta = " << setw(4) << ((EBDetId)detId).ieta() << " iphi = " << setw(4) << ((EBDetId)detId).iphi()
              << " ";
-      } else if (it->subdetId() == EcalEndcap) {
-        cout << "ix = " << setw(3) << ((EEDetId)(*it)).ix() << " iy = " << setw(3) << ((EEDetId)(*it)).iy()
-             << " iz = " << setw(1) << ((EEDetId)(*it)).iy() << " ";
+      } else if (detId.subdetId() == EcalEndcap) {
+        cout << "ix = " << setw(3) << ((EEDetId)detId).ix() << " iy = " << setw(3) << ((EEDetId)detId).iy()
+             << " iz = " << setw(1) << ((EEDetId)detId).iy() << " ";
       } else {
-        cout << "DetId " << (uint32_t)(*it);
+        cout << "DetId " << (uint32_t)detId;
       }
       cout << "phase: " << phase << "\n";
       throw;
@@ -446,8 +446,8 @@ void EcalDccWeightBuilder::writeWeightToAsciiFile() {
     file << delim << setw(2) << ruId;
     file << delim << setw(2) << xtalId;
 
-    for (unsigned i = 0; i < weights.size(); ++i) {
-      file << delim << setw(5) << weights[i];
+    for (int weight : weights) {
+      file << delim << setw(5) << weight;
     }
     if (sqlMode_)
       file << ");";

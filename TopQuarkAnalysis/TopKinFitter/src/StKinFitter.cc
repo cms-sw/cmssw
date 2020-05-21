@@ -258,16 +258,16 @@ void StKinFitter::setupFitter() {
   std::cout << "  lepton parametrisation:  " << param(lepParam_) << std::endl;
   std::cout << "  met parametrisation:     " << param(metParam_) << std::endl;
   std::cout << "  constraints:  " << std::endl;
-  for (unsigned int i = 0; i < constraints_.size(); i++) {
-    if (constraints_[i] == 1)
+  for (int constraint : constraints_) {
+    if (constraint == 1)
       std::cout << "    - hadronic W-mass" << std::endl;
-    if (constraints_[i] == 2)
+    if (constraint == 2)
       std::cout << "    - leptonic W-mass" << std::endl;
-    if (constraints_[i] == 3)
+    if (constraint == 3)
       std::cout << "    - hadronic top mass" << std::endl;
-    if (constraints_[i] == 4)
+    if (constraint == 4)
       std::cout << "    - leptonic top mass" << std::endl;
-    if (constraints_[i] == 5)
+    if (constraint == 5)
       std::cout << "    - neutrino mass" << std::endl;
   }
   std::cout << "Max. number of iterations: " << maxNrIter_ << std::endl;
@@ -309,12 +309,12 @@ void StKinFitter::setupFitter() {
   cons3_ = new TFitConstraintM("MassConstraint", "Mass-Constraint", nullptr, nullptr, 0.);
   cons3_->addParticle1(fitNeutrino_);
 
-  for (unsigned int i = 0; i < constraints_.size(); i++) {
-    if (constraints_[i] == 1)
+  for (int constraint : constraints_) {
+    if (constraint == 1)
       fitter_->addConstraint(cons1_);
-    if (constraints_[i] == 2)
+    if (constraint == 2)
       fitter_->addConstraint(cons2_);
-    if (constraints_[i] == 3)
+    if (constraint == 3)
       fitter_->addConstraint(cons3_);
   }
   fitter_->addMeasParticle(fitBottom_);

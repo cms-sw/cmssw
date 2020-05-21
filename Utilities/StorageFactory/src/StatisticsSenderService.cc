@@ -54,11 +54,11 @@ void StatisticsSenderService::FileStatistics::fillUDP(std::ostringstream &os) {
   ssize_t read_vector_count_sum = 0;
   ssize_t read_vector_count_square = 0;
   auto token = StorageAccount::tokenForStorageClassName("tstoragefile");
-  for (StorageAccount::StorageStats::const_iterator i = stats.begin(); i != stats.end(); ++i) {
-    if (i->first == token.value()) {
+  for (auto &stat : stats) {
+    if (stat.first == token.value()) {
       continue;
     }
-    for (StorageAccount::OperationStats::const_iterator j = i->second.begin(); j != i->second.end(); ++j) {
+    for (StorageAccount::OperationStats::const_iterator j = stat.second.begin(); j != stat.second.end(); ++j) {
       if (j->first == static_cast<int>(StorageAccount::Operation::readv)) {
         read_vector_operations += j->second.attempts;
         read_vector_bytes += j->second.amount;

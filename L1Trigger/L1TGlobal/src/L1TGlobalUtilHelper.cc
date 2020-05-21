@@ -85,11 +85,8 @@ void l1t::L1TGlobalUtilHelper::operator()(edm::BranchDescription const& branchDe
       }
     } else {
       // no preferred input tag found yet, check now with the actual tag
-      for (std::vector<edm::InputTag>::const_iterator itPrefTag = preferredL1TAlgBlkInputTag.begin(),
-                                                      itPrefTagEnd = preferredL1TAlgBlkInputTag.end();
-           itPrefTag != itPrefTagEnd;
-           ++itPrefTag) {
-        if (branchDescription.moduleLabel() == itPrefTag->label()) {
+      for (const auto& itPrefTag : preferredL1TAlgBlkInputTag) {
+        if (branchDescription.moduleLabel() == itPrefTag.label()) {
           m_l1tAlgBlkInputTag = tag;
           m_l1tAlgBlkToken = m_consumesCollector.consumes<GlobalAlgBlkBxCollection>(tag);
           m_foundPreferredL1TAlgBlk = true;
@@ -156,11 +153,8 @@ void l1t::L1TGlobalUtilHelper::operator()(edm::BranchDescription const& branchDe
     } else {
       // no preferred input tag found yet, check now with the actual tag
 
-      for (std::vector<edm::InputTag>::const_iterator itPrefTag = preferredL1TExtBlkInputTag.begin(),
-                                                      itPrefTagEnd = preferredL1TExtBlkInputTag.end();
-           itPrefTag != itPrefTagEnd;
-           ++itPrefTag) {
-        if (branchDescription.moduleLabel() == itPrefTag->label()) {
+      for (const auto& itPrefTag : preferredL1TExtBlkInputTag) {
+        if (branchDescription.moduleLabel() == itPrefTag.label()) {
           m_l1tExtBlkInputTag = tag;
           m_l1tExtBlkToken = m_consumesCollector.consumes<GlobalExtBlkBxCollection>(tag);
           m_foundPreferredL1TExtBlk = true;

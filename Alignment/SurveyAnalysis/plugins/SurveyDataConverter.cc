@@ -66,8 +66,8 @@ void SurveyDataConverter::analyze(const edm::Event& iEvent, const edm::EventSetu
 void SurveyDataConverter::applyFineSurveyInfo(TrackerAlignment& tr_align, const MapType& map) {
   std::cout << "Apply fine info: " << std::endl;
 
-  for (MapType::const_iterator it = map.begin(); it != map.end(); it++) {
-    const align::Scalars& align_params = (it)->second;
+  for (const auto& it : map) {
+    const align::Scalars& align_params = it.->second;
 
     align::Scalars translations;
     translations.push_back(align_params[0]);
@@ -95,7 +95,7 @@ void SurveyDataConverter::applyFineSurveyInfo(TrackerAlignment& tr_align, const 
                                   align_params[14]);
 
     // Use "false" for debugging only
-    tr_align.moveAlignableTIBTIDs((it)->first, translations, bRotation, fRotation, true);
+    tr_align.moveAlignableTIBTIDs(it.->first, translations, bRotation, fRotation, true);
   }
 }
 

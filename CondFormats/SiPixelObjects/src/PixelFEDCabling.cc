@@ -30,16 +30,16 @@ bool PixelFEDCabling::checkLinkNumbering() const {
   bool result = true;
   typedef Links::const_iterator IL;
   unsigned int idx_expected = 0;
-  for (IL il = theLinks.begin(); il != theLinks.end(); il++) {
+  for (const auto& theLink : theLinks) {
     idx_expected++;
-    if ((*il).id() != 0 && idx_expected != (*il).id()) {
+    if (theLink.id() != 0 && idx_expected != theLink.id()) {
       result = false;
       cout << " ** PixelFEDCabling ** link numbering inconsistency, expected id: " << idx_expected
-           << " has: " << (*il).id() << endl;
+           << " has: " << theLink.id() << endl;
     }
-    if (!(*il).checkRocNumbering()) {
+    if (!theLink.checkRocNumbering()) {
       result = false;
-      cout << "** PixelFEDCabling ** inconsistent ROC numbering in link id: " << (*il).id() << endl;
+      cout << "** PixelFEDCabling ** inconsistent ROC numbering in link id: " << theLink.id() << endl;
     }
   }
   return result;
@@ -50,8 +50,8 @@ string PixelFEDCabling::print(int depth) const {
   typedef vector<PixelFEDLink>::const_iterator IT;
   if (depth-- >= 0) {
     out << "FED: " << id() << endl;
-    for (IT it = theLinks.begin(); it != theLinks.end(); it++)
-      out << (*it).print(depth);
+    for (const auto& theLink : theLinks)
+      out << theLink.print(depth);
     out << "# total number of Links: " << numberOfLinks() << endl;
   }
   out << endl;

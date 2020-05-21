@@ -55,6 +55,6 @@ bool GenJetParticleSelector::operator()(const reco::Candidate& p) {
 }
 
 void GenJetParticleSelector::init(const edm::EventSetup& es) {
-  for (vpdt::iterator i = pdtList_.begin(); i != pdtList_.end(); ++i)
-    i->setup(es);
+  for (auto& i : pdtList_)
+    i.setup(es);
 }

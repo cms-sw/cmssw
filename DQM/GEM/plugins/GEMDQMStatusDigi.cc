@@ -791,14 +791,14 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
       listCurr.h2Histo->setBinContent(nX, nY, listCurr.h2Histo->getBinContent(nX, nY) + 1);
   };
 
-  for (GEMVfatStatusDigiCollection::DigiRangeIterator vfatIt = gemVFAT->begin(); vfatIt != gemVFAT->end(); ++vfatIt) {
-    GEMDetId gemid = (*vfatIt).first;
+  for (auto &&vfatIt : *gemVFAT) {
+    GEMDetId gemid = vfatIt.first;
     GEMDetId gemchId = gemid.chamberId();
     GEMDetId gemOnlychId(0, 1, 1, (bPerSuperchamber_ ? 0 : gemid.layer()), gemid.chamber(), 0);
 
     int nIdx = seekIdx(m_listChambers, gemOnlychId);
     int nRoll = gemid.roll();
-    const GEMVfatStatusDigiCollection::Range &range = (*vfatIt).second;
+    const GEMVfatStatusDigiCollection::Range &range = vfatIt.second;
 
     GEMDetId chIdStatus(gemid.region(), gemid.ring(), gemid.station(), gemid.layer(), gemid.chamber(), 1);
     if (listTimeStore_.find((UInt_t)chIdStatus) == listTimeStore_.end()) {
@@ -839,8 +839,8 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
     }
   }
 
-  for (GEMGEBdataCollection::DigiRangeIterator gebIt = gemGEB->begin(); gebIt != gemGEB->end(); ++gebIt) {
-    GEMDetId gemid = (*gebIt).first;
+  for (auto &&gebIt : *gemGEB) {
+    GEMDetId gemid = gebIt.first;
     GEMDetId lid(gemid.region(), gemid.ring(), gemid.station(), (bPerSuperchamber_ ? gemid.layer() : 0), 0, 0);
     GEMDetId chid(0, 1, 1, (bPerSuperchamber_ ? 0 : gemid.layer()), gemid.chamber(), 0);
 
@@ -854,7 +854,7 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
 
     auto &listCurr = listTimeStore_[lid];
 
-    const GEMGEBdataCollection::Range &range = (*gebIt).second;
+    const GEMGEBdataCollection::Range &range = gebIt.second;
     for (auto GEBStatus = range.first; GEBStatus != range.second; ++GEBStatus) {
       bIsNotEmpty = true;
 
@@ -912,8 +912,8 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
     return -1;
   };
 
-  for (GEMAMCdataCollection::DigiRangeIterator amcIt = gemAMC->begin(); amcIt != gemAMC->end(); ++amcIt) {
-    const GEMAMCdataCollection::Range &range = (*amcIt).second;
+  for (auto &&amcIt : *gemAMC) {
+    const GEMAMCdataCollection::Range &range = amcIt.second;
     auto &listCurr = listTimeStore_[0];
     for (auto amc = range.first; amc != range.second; ++amc) {
       Int_t nIdAMC = findAMCIdx(amc->amcNum());

@@ -6,8 +6,8 @@
 
 GlobalPoint HsmModeFinder3d::operator()(const std::vector<PointAndDistance>& values) const {
   std::vector<GlobalPoint> v;
-  for (std::vector<PointAndDistance>::const_iterator i = values.begin(); i != values.end(); ++i) {
-    v.push_back(i->first);
+  for (const auto& value : values) {
+    v.push_back(value.first);
   };
   return hsm_3d(v);
 }

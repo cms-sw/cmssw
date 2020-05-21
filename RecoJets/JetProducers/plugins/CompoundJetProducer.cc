@@ -111,8 +111,8 @@ void CompoundJetProducer::writeCompoundJets(edm::Event& iEvent, edm::EventSetup 
     std::vector<int>& ind = indices[p4_index];
     std::vector<reco::CandidatePtr> i_hardJetConstituents;
     // Add the subjets to the hard jet
-    for (std::vector<int>::const_iterator isub = ind.begin(); isub != ind.end(); ++isub) {
-      reco::CandidatePtr candPtr(subjetHandleAfterPut, *isub, false);
+    for (int isub : ind) {
+      reco::CandidatePtr candPtr(subjetHandleAfterPut, isub, false);
       i_hardJetConstituents.push_back(candPtr);
     }
     reco::Particle::Point point(0, 0, 0);

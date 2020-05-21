@@ -119,11 +119,11 @@ void HiggsValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       Higgs_pt->Fill((*iter)->momentum().perp(), weight);
       Higgs_eta->Fill((*iter)->momentum().eta(), weight);
       Higgs_mass->Fill((*iter)->momentum().m(), weight);
-      for (unsigned int i = 0; i < decayprod.size(); i++) {
-        int idx = monitoredDecays->isDecayParticle(decayprod.at(i)->pdg_id());
+      for (auto& i : decayprod) {
+        int idx = monitoredDecays->isDecayParticle(i->pdg_id());
         if (0 <= idx && idx <= (int)HiggsDecayProd_pt.size()) {
-          HiggsDecayProd_pt.at(idx)->Fill(decayprod.at(i)->momentum().perp(), weight);
-          HiggsDecayProd_eta.at(idx)->Fill(decayprod.at(i)->momentum().eta(), weight);
+          HiggsDecayProd_pt.at(idx)->Fill(i->momentum().perp(), weight);
+          HiggsDecayProd_eta.at(idx)->Fill(i->momentum().eta(), weight);
         }
       }
       filled = true;

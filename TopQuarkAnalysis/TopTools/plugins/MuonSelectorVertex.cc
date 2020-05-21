@@ -41,9 +41,9 @@ void MuonSelectorVertex::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   std::vector<pat::Muon>* selectedMuons(new std::vector<pat::Muon>);
 
   if (!vertices->empty()) {
-    for (unsigned iMuon = 0; iMuon < muons->size(); ++iMuon) {
-      if (std::fabs(muons->at(iMuon).vertex().z() - vertices->at(0).z()) < maxDZ_) {
-        selectedMuons->push_back(muons->at(iMuon));
+    for (const auto& iMuon : *muons) {
+      if (std::fabs(iMuon.vertex().z() - vertices->at(0).z()) < maxDZ_) {
+        selectedMuons->push_back(iMuon);
       }
     }
   }

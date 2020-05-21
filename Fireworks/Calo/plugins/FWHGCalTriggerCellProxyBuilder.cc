@@ -60,16 +60,16 @@ void FWHGCalTriggerCellProxyBuilder::build(const l1t::HGCalTriggerCell &iData,
 
   std::unordered_set<unsigned> cells = getCellsFromTriggerCell(iData.detId());
 
-  for (std::unordered_set<unsigned>::const_iterator it = cells.begin(), itEnd = cells.end(); it != itEnd; ++it) {
-    const bool z = (*it >> 25) & 0x1;
+  for (unsigned int cell : cells) {
+    const bool z = (cell >> 25) & 0x1;
 
     // discard everything thats not at the side that we are intersted in
     if (((z_plus & z_minus) != 1) && (((z_plus | z_minus) == 0) || !(z == z_minus || z == !z_plus)))
       continue;
 
-    const float *corners = item()->getGeom()->getCorners(*it);
-    const float *parameters = item()->getGeom()->getParameters(*it);
-    const float *shapes = item()->getGeom()->getShapePars(*it);
+    const float *corners = item()->getGeom()->getCorners(cell);
+    const float *parameters = item()->getGeom()->getParameters(cell);
+    const float *shapes = item()->getGeom()->getShapePars(cell);
 
     if (corners == nullptr || parameters == nullptr || shapes == nullptr) {
       continue;
@@ -77,7 +77,7 @@ void FWHGCalTriggerCellProxyBuilder::build(const l1t::HGCalTriggerCell &iData,
 
     const int total_points = parameters[0];
     const bool isScintillator = (total_points == 4);
-    const uint8_t type = ((*it >> 28) & 0xF);
+    const uint8_t type = ((cell >> 28) & 0xF);
 
     uint8_t ll = layer;
     if (layer > 0) {
@@ -92,7 +92,7 @@ void FWHGCalTriggerCellProxyBuilder::build(const l1t::HGCalTriggerCell &iData,
         }
       }
 
-      if (ll != ((*it >> (isScintillator ? 17 : 20)) & 0x1F))
+      if (ll != ((cell >> (isScintillator ? 17 : 20)) & 0x1F))
         continue;
     }
 

@@ -48,10 +48,8 @@ namespace {  // anonymous
       return;
 
     unsigned int categories = 1;
-    for (std::vector<BinLimits>::const_iterator bin = calib->variableBinLimits.begin();
-         bin != calib->variableBinLimits.end();
-         bin++)
-      categories *= (bin->size() + 1);
+    for (const auto &variableBinLimit : calib->variableBinLimits)
+      categories *= (variableBinLimit.size() + 1);
 
     if (calib->categoryMapping.size() != categories)
       return;

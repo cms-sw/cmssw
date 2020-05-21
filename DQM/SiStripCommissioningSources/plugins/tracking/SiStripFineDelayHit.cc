@@ -322,23 +322,23 @@ std::pair<const SiStripCluster*, double> SiStripFineDelayHit::closestCluster(
     return result;
   if (homeMadeClusters_) {
     // take the list of digis on the module
-    for (edm::DetSetVector<SiStripDigi>::const_iterator DSViter = hits.begin(); DSViter != hits.end(); DSViter++) {
-      if (DSViter->id == det_id) {
+    for (const auto& hit : hits) {
+      if (hit.id == det_id) {
         // loop from hitstrip-n to hitstrip+n (explorationWindow_) and select the highest strip
         int minStrip = int(round(hitStrip)) - explorationWindow_;
         minStrip = minStrip < 0 ? 0 : minStrip;
         int maxStrip = int(round(hitStrip)) + explorationWindow_ + 1;
         maxStrip = maxStrip >= nstrips ? nstrips - 1 : maxStrip;
-        edm::DetSet<SiStripDigi>::const_iterator rangeStart = DSViter->end();
-        edm::DetSet<SiStripDigi>::const_iterator rangeStop = DSViter->end();
-        for (edm::DetSet<SiStripDigi>::const_iterator digiIt = DSViter->begin(); digiIt != DSViter->end(); ++digiIt) {
-          if (digiIt->strip() >= minStrip && rangeStart == DSViter->end())
+        edm::DetSet<SiStripDigi>::const_iterator rangeStart = hit.end();
+        edm::DetSet<SiStripDigi>::const_iterator rangeStop = hit.end();
+        for (edm::DetSet<SiStripDigi>::const_iterator digiIt = hit.begin(); digiIt != hit.end(); ++digiIt) {
+          if (digiIt->strip() >= minStrip && rangeStart == hit.end())
             rangeStart = digiIt;
           if (digiIt->strip() <= maxStrip)
             rangeStop = digiIt;
         }
-        if (rangeStart != DSViter->end()) {
-          if (rangeStop != DSViter->end())
+        if (rangeStart != hit.end()) {
+          if (rangeStop != hit.end())
             ++rangeStop;
           // build a fake cluster
           LogDebug("closestCluster") << "build a fake cluster ";

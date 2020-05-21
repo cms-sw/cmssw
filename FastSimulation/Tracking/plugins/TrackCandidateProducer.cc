@@ -193,12 +193,12 @@ void TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
       // split hits / store copies for the track candidate
       edm::OwnVector<TrackingRecHit> hitsForTrackCandidate;
-      for (unsigned index = 0; index < selectedRecHits.size(); ++index) {
+      for (auto& selectedRecHit : selectedRecHits) {
         if (splitHits) {
           // add split hits to splitSelectedRecHits
-          hitSplitter.split(*selectedRecHits[index], hitsForTrackCandidate, hitsAlongMomentum);
+          hitSplitter.split(*selectedRecHit, hitsForTrackCandidate, hitsAlongMomentum);
         } else {
-          hitsForTrackCandidate.push_back(selectedRecHits[index]->clone());
+          hitsForTrackCandidate.push_back(selectedRecHit->clone());
         }
       }
 

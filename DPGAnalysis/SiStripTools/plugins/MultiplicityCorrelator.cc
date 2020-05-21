@@ -88,24 +88,23 @@ MultiplicityCorrelator::MultiplicityCorrelator(const edm::ParameterSet& iConfig)
   std::vector<edm::ParameterSet> correlationConfigs =
       iConfig.getParameter<std::vector<edm::ParameterSet> >("correlationConfigurations");
 
-  for (std::vector<edm::ParameterSet>::const_iterator ps = correlationConfigs.begin(); ps != correlationConfigs.end();
-       ++ps) {
+  for (const auto& correlationConfig : correlationConfigs) {
     m_xMultiplicityMapTokens.push_back(
-        consumes<std::map<unsigned int, int> >(ps->getParameter<edm::InputTag>("xMultiplicityMap")));
+        consumes<std::map<unsigned int, int> >(correlationConfig.getParameter<edm::InputTag>("xMultiplicityMap")));
     m_yMultiplicityMapTokens.push_back(
-        consumes<std::map<unsigned int, int> >(ps->getParameter<edm::InputTag>("yMultiplicityMap")));
-    m_xLabels.push_back(ps->getParameter<std::string>("xDetLabel"));
-    m_yLabels.push_back(ps->getParameter<std::string>("yDetLabel"));
-    m_xSelections.push_back(ps->getParameter<unsigned int>("xDetSelection"));
-    m_ySelections.push_back(ps->getParameter<unsigned int>("yDetSelection"));
+        consumes<std::map<unsigned int, int> >(correlationConfig.getParameter<edm::InputTag>("yMultiplicityMap")));
+    m_xLabels.push_back(correlationConfig.getParameter<std::string>("xDetLabel"));
+    m_yLabels.push_back(correlationConfig.getParameter<std::string>("yDetLabel"));
+    m_xSelections.push_back(correlationConfig.getParameter<unsigned int>("xDetSelection"));
+    m_ySelections.push_back(correlationConfig.getParameter<unsigned int>("yDetSelection"));
 
-    m_mchms.push_back(new MultiplicityCorrelatorHistogramMaker(*ps, consumesCollector()));
+    m_mchms.push_back(new MultiplicityCorrelatorHistogramMaker(correlationConfig, consumesCollector()));
   }
 }
 
 MultiplicityCorrelator::~MultiplicityCorrelator() {
-  for (unsigned int i = 0; i < m_mchms.size(); ++i) {
-    delete m_mchms[i];
+  for (auto& m_mchm : m_mchms) {
+    delete m_mchm;
   }
 }
 
@@ -142,8 +141,8 @@ void MultiplicityCorrelator::analyze(const edm::Event& iEvent, const edm::EventS
 void MultiplicityCorrelator::beginJob() {}
 
 void MultiplicityCorrelator::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  for (unsigned int i = 0; i < m_mchms.size(); ++i) {
-    m_mchms[i]->beginRun(iRun);
+  for (auto& m_mchm : m_mchms) {
+    m_mchm->beginRun(iRun);
   }
 }
 // ------------ method called once each job just after ending the event loop  ------------

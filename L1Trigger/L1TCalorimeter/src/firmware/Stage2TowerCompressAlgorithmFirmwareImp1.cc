@@ -17,15 +17,15 @@ l1t::Stage2TowerCompressAlgorithmFirmwareImp1::~Stage2TowerCompressAlgorithmFirm
 void l1t::Stage2TowerCompressAlgorithmFirmwareImp1::processEvent(const std::vector<l1t::CaloTower>& inTowers,
                                                                  std::vector<l1t::CaloTower>& outTowers) {
   outTowers.reserve(outTowers.size() + inTowers.size());
-  for (auto tow = inTowers.begin(); tow != inTowers.end(); ++tow) {
+  for (const auto& inTower : inTowers) {
     if (!params_->doTowerEncoding()) {
-      outTowers.push_back(*tow);
+      outTowers.push_back(inTower);
 
     }
 
     else {
-      int etEm = tow->hwEtEm();
-      int etHad = tow->hwEtHad();
+      int etEm = inTower.hwEtEm();
+      int etHad = inTower.hwEtHad();
 
       int ratio = 0;
       if (etEm > 0 && etHad > 0) {
@@ -47,13 +47,13 @@ void l1t::Stage2TowerCompressAlgorithmFirmwareImp1::processEvent(const std::vect
       int qual = 0;
       qual |= (etEm == 0 || etHad == 0 ? 0x1 : 0x0);                    // denominator ==0 flag
       qual |= ((etHad == 0 && etEm > 0) || etEm >= etHad ? 0x2 : 0x0);  // E/H flag
-      qual |= (tow->hwQual() & 0xc);                                    // get feature bits from existing tower
+      qual |= (inTower.hwQual() & 0xc);                                 // get feature bits from existing tower
 
       l1t::CaloTower newTow;
       newTow.setHwEtEm(etEm);
       newTow.setHwEtHad(etHad);
-      newTow.setHwEta(tow->hwEta());
-      newTow.setHwPhi(tow->hwPhi());
+      newTow.setHwEta(inTower.hwEta());
+      newTow.setHwPhi(inTower.hwPhi());
       newTow.setHwPt(sum);
       newTow.setHwEtRatio(ratio);
       newTow.setHwQual(qual);

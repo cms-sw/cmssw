@@ -20,8 +20,8 @@
 using namespace sistrip;
 
 std::ostream &operator<<(std::ostream &rOut, ApvAnalysis::PedestalType &rPEDS) {
-  for (ApvAnalysis::PedestalType::const_iterator pedsIter = rPEDS.begin(); pedsIter != rPEDS.end(); ++pedsIter) {
-    rOut << ' ' << *pedsIter;
+  for (float pedsIter : rPEDS) {
+    rOut << ' ' << pedsIter;
   }
 
   return rOut;
@@ -243,13 +243,11 @@ void NoiseTask::update() {
     // Samvel: Assume Once CM value is calculated per chip.
     //         In principle Chip can be divided into a several ranges. Then CM
     //         will be calculated per range. !!! UPDATE CODE THEN !!!
-    for (ApvAnalysis::PedestalType::const_iterator cmIterator = lclCommonMode.begin();
-         cmIterator != lclCommonMode.end();
-         ++cmIterator) {
+    for (float cmIterator : lclCommonMode) {
       //uint32_t nCM = static_cast<uint32_t>( *cmIterator);
       //if( nCM >= 1024) nCM = 1023;
       //updateHistoSet( cm_[nApv], nCM);
-      float nCM = static_cast<float>(*cmIterator);
+      float nCM = static_cast<float>(cmIterator);
       updateHistoSet(cm_[nApv], nCM);
     }
 

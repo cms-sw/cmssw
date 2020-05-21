@@ -87,16 +87,16 @@ void RPCSimModelTiming::simulate(const RPCRoll* roll,
 
   const Topology& topology = roll->specs()->topology();
 
-  for (edm::PSimHitContainer::const_iterator _hit = rpcHits.begin(); _hit != rpcHits.end(); ++_hit) {
-    if (!eledig && _hit->particleType() == 11)
+  for (const auto& rpcHit : rpcHits) {
+    if (!eledig && rpcHit.particleType() == 11)
       continue;
     // Here I hould check if the RPC are up side down;
-    const LocalPoint& entr = _hit->entryPoint();
+    const LocalPoint& entr = rpcHit.entryPoint();
 
-    int time_hit = _rpcSync->getSimHitBxAndTimingForIRPC(&(*_hit), engine);
+    int time_hit = _rpcSync->getSimHitBxAndTimingForIRPC(&rpcHit, engine);
     double precise_time = _rpcSync->getSmearedTime();
 
-    float posX = roll->strip(_hit->localPosition()) - static_cast<int>(roll->strip(_hit->localPosition()));
+    float posX = roll->strip(rpcHit.localPosition()) - static_cast<int>(roll->strip(rpcHit.localPosition()));
 
     std::vector<float> veff = (getRPCSimSetUp())->getEff(rpcId.rawId());
 
@@ -105,7 +105,7 @@ void RPCSimModelTiming::simulate(const RPCRoll* roll,
     ;
     float fire = CLHEP::RandFlat::shoot(engine);
 
-    float smearedPositionY = CLHEP::RandGaussQ::shoot(engine, _hit->localPosition().y(), sigmaY);
+    float smearedPositionY = CLHEP::RandGaussQ::shoot(engine, rpcHit.localPosition().y(), sigmaY);
 
     if (fire < veff[centralStrip - 1]) {
       int fstrip = centralStrip;
@@ -147,9 +147,9 @@ void RPCSimModelTiming::simulate(const RPCRoll* roll,
       //digitize all the strips in the cluster
       //in the previuos version some strips were dropped
       //leading to un-physical "shift" of the cluster
-      for (std::vector<int>::iterator i = cls.begin(); i != cls.end(); i++) {
-        std::pair<int, int> digi(*i, time_hit);
-        RPCDigi adigi(*i, time_hit);
+      for (int& cl : cls) {
+        std::pair<int, int> digi(cl, time_hit);
+        RPCDigi adigi(cl, time_hit);
         adigi.hasTime(true);
         adigi.setTime(precise_time);
         if (do_Y) {
@@ -158,7 +158,7 @@ void RPCSimModelTiming::simulate(const RPCRoll* roll,
           adigi.setDeltaY(sigmaY);
         }
         irpc_digis.insert(adigi);
-        theDetectorHitMap.insert(DetectorHitMap::value_type(digi, &(*_hit)));
+        theDetectorHitMap.insert(DetectorHitMap::value_type(digi, &rpcHit));
       }
     }
   }

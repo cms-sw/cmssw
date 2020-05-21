@@ -21,11 +21,11 @@ HltSusyExoPostProcessor::HltSusyExoPostProcessor(const edm::ParameterSet &pset)
       mcFlag(pset.getUntrackedParameter<bool>("mc_flag", true)),
       reco_parametersets(pset.getParameter<VParameterSet>("reco_parametersets")),
       mc_parametersets(pset.getParameter<VParameterSet>("mc_parametersets")) {
-  for (unsigned int i = 0; i < reco_parametersets.size(); ++i) {
-    reco_dirs.push_back(reco_parametersets[i].getParameter<string>("name"));
+  for (auto &reco_parameterset : reco_parametersets) {
+    reco_dirs.push_back(reco_parameterset.getParameter<string>("name"));
   }
-  for (unsigned int i = 0; i < mc_parametersets.size(); ++i) {
-    mc_dirs.push_back(mc_parametersets[i].getParameter<string>("name"));
+  for (auto &mc_parameterset : mc_parametersets) {
+    mc_dirs.push_back(mc_parameterset.getParameter<string>("name"));
   }
 }
 
@@ -63,11 +63,11 @@ void HltSusyExoPostProcessor::dqmEndJob(DQMStore::IBooker &iBooker_, DQMStore::I
   for (int i = 0; i < nHltbins - 1 * mcFlag; ++i)
     Hltplacement.push_back(7);
   int L1bins[7];
-  for (unsigned int i = 0; i < sizeof(L1bins) / sizeof(L1bins[0]); ++i)
-    L1bins[i] = 0;
+  for (int &L1bin : L1bins)
+    L1bin = 0;
   int Hltbins[8];
-  for (unsigned int i = 0; i < sizeof(Hltbins) / sizeof(Hltbins[0]); ++i)
-    Hltbins[i] = 0;
+  for (int &Hltbin : Hltbins)
+    Hltbin = 0;
   string L1search[8] = {"Mu", "EG", "Jet", "ET", "TauJet", "X", ""};
   string L1search3 = "HTT", L1search6 = "Bias";
   string Hltsearch[8] = {"Mu", "Ele", "Jet", "Photon", "MET", "Tau", "X", ""};
@@ -136,9 +136,9 @@ void HltSusyExoPostProcessor::dqmEndJob(DQMStore::IBooker &iBooker_, DQMStore::I
     }
   }
 
-  for (unsigned int i = 0; i < L1placement.size(); ++i)
-    if (L1placement[i] != -1)
-      ++L1bins[L1placement[i]];
+  for (int i : L1placement)
+    if (i != -1)
+      ++L1bins[i];
 
   for (int i = 0; i < nHltbins - 1 * mcFlag; i++) {
     value =
@@ -171,9 +171,9 @@ void HltSusyExoPostProcessor::dqmEndJob(DQMStore::IBooker &iBooker_, DQMStore::I
     }
   }
 
-  for (unsigned int i = 0; i < Hltplacement.size(); ++i)
-    if (Hltplacement[i] != -1)
-      ++Hltbins[Hltplacement[i]];
+  for (int i : Hltplacement)
+    if (i != -1)
+      ++Hltbins[i];
 
   LogDebug("HltSusyExoPostProcessor") << "MonitorElements filled";
 
@@ -216,11 +216,11 @@ void HltSusyExoPostProcessor::dqmEndJob(DQMStore::IBooker &iBooker_, DQMStore::I
           new TProfile("Hlt_Overflow", "Efficiencies of HL Unsorted Triggers", Hltbins[7], 0, Hltbins[7]))};
 
   int L1bincounter[8];
-  for (unsigned int i = 0; i < sizeof(L1bincounter) / sizeof(L1bincounter[0]); ++i)
-    L1bincounter[i] = 0;
+  for (int &i : L1bincounter)
+    i = 0;
   int Hltbincounter[8];
-  for (unsigned int i = 0; i < sizeof(Hltbincounter) / sizeof(Hltbincounter[0]); ++i)
-    Hltbincounter[i] = 0;
+  for (int &i : Hltbincounter)
+    i = 0;
   TProfile *hL1_ = (TProfile *)hL1EffBeforeCuts->getTProfile();
   TProfile *hHlt_ = (TProfile *)hHltEffBeforeCuts->getTProfile();
   //  for(int i = 0; i<hHlt_->GetXaxis()->GetNbins(); i++) cout <<
@@ -245,34 +245,34 @@ void HltSusyExoPostProcessor::dqmEndJob(DQMStore::IBooker &iBooker_, DQMStore::I
     }
   }
 
-  for (unsigned int i = 0; i < mc_dirs.size(); ++i) {
+  for (auto &mc_dir : mc_dirs) {
     // Calculate the efficiencies for histos after MC selection
-    iGetter_.setCurrentFolder(subDir_ + mcSelBitsDir + "/" + mc_dirs[i]);
+    iGetter_.setCurrentFolder(subDir_ + mcSelBitsDir + "/" + mc_dir);
     // book the MonitorElements for the efficiencies
     char set_name_L1[256], set_name_Hlt[256];
-    sprintf(set_name_L1, "L1Eff_%s", mc_dirs[i].c_str());
-    sprintf(set_name_Hlt, "HltEff_%s", mc_dirs[i].c_str());
-    MonitorElement *hL1EffAfterMcCuts = bookEffMEProfileFromTH1(
-        iGetter_.get(subDir_ + mcSelBitsDir + "/" + mc_dirs[i] + "/L1Paths_" + mc_dirs[i])->getTH1F(),
-        (std::string)set_name_L1,
-        iBooker_);
-    hL1EffAfterMcCuts->setTitle("L1 Efficiencies for " + mc_dirs[i] + " selection");
-    MonitorElement *hHltEffAfterMcCuts = bookEffMEProfileFromTH1(
-        iGetter_.get(subDir_ + mcSelBitsDir + "/" + mc_dirs[i] + "/HltPaths_" + mc_dirs[i])->getTH1F(),
-        (std::string)set_name_Hlt,
-        iBooker_);
-    hHltEffAfterMcCuts->setTitle("HLT Efficiencies for " + mc_dirs[i] + " selection");
+    sprintf(set_name_L1, "L1Eff_%s", mc_dir.c_str());
+    sprintf(set_name_Hlt, "HltEff_%s", mc_dir.c_str());
+    MonitorElement *hL1EffAfterMcCuts =
+        bookEffMEProfileFromTH1(iGetter_.get(subDir_ + mcSelBitsDir + "/" + mc_dir + "/L1Paths_" + mc_dir)->getTH1F(),
+                                (std::string)set_name_L1,
+                                iBooker_);
+    hL1EffAfterMcCuts->setTitle("L1 Efficiencies for " + mc_dir + " selection");
+    MonitorElement *hHltEffAfterMcCuts =
+        bookEffMEProfileFromTH1(iGetter_.get(subDir_ + mcSelBitsDir + "/" + mc_dir + "/HltPaths_" + mc_dir)->getTH1F(),
+                                (std::string)set_name_Hlt,
+                                iBooker_);
+    hHltEffAfterMcCuts->setTitle("HLT Efficiencies for " + mc_dir + " selection");
 
-    LogDebug("HltSusyExoPostProcessor") << "MonitorElements for " << mc_dirs[i] << " selection booked";
+    LogDebug("HltSusyExoPostProcessor") << "MonitorElements for " << mc_dir << " selection booked";
 
     // get the total number of events
     float nTotalAfterMcCuts;
     if (mcFlag)
       nTotalAfterMcCuts =
-          iGetter_.get(subDir_ + mcSelBitsDir + "/" + mc_dirs[i] + "/L1Bits_" + mc_dirs[i])->getBinContent(nL1bins);
+          iGetter_.get(subDir_ + mcSelBitsDir + "/" + mc_dir + "/L1Bits_" + mc_dir)->getBinContent(nL1bins);
     else
-      nTotalAfterMcCuts = iGetter_.get(subDir_ + mcSelBitsDir + "/" + mc_dirs[i] + "/HltBits_" + mc_dirs[i])
-                              ->getBinContent(reference_bin);
+      nTotalAfterMcCuts =
+          iGetter_.get(subDir_ + mcSelBitsDir + "/" + mc_dir + "/HltBits_" + mc_dir)->getBinContent(reference_bin);
 
     LogDebug("HltSusyExoPostProcessor") << "Total number of events = " << nTotalAfterMcCuts;
 
@@ -284,31 +284,31 @@ void HltSusyExoPostProcessor::dqmEndJob(DQMStore::IBooker &iBooker_, DQMStore::I
     string Hlt_nametags[8] = {"Mu", "Ele", "Jet", "Photon", "MET_HT", "Tau_BTag", "XTrigger", "Overflow"};
     string Hlt_titletags[8] = {"Muon", "Electron", "Jet", "Photon", "MET and HT", "Tau and BTag", "Cross", "Unsorted"};
     for (unsigned int j = 0; j < sizeof(hL1EffSorted_mc) / sizeof(hL1EffSorted_mc[0]); ++j) {
-      sprintf(buffer1, "L1_%s_%s", mc_dirs[i].c_str(), L1_nametags[j].c_str());
-      sprintf(buffer2, "Efficiencies of L1 %s Triggers for %s Selection", L1_titletags[j].c_str(), mc_dirs[i].c_str());
+      sprintf(buffer1, "L1_%s_%s", mc_dir.c_str(), L1_nametags[j].c_str());
+      sprintf(buffer2, "Efficiencies of L1 %s Triggers for %s Selection", L1_titletags[j].c_str(), mc_dir.c_str());
       hL1EffSorted_mc[j] = iBooker_.bookProfile(buffer1, new TProfile(buffer1, buffer2, L1bins[j], 0, L1bins[j]));
     }
     for (unsigned int j = 0; j < sizeof(hHltEffSorted_mc) / sizeof(hHltEffSorted_mc[0]); ++j) {
-      sprintf(buffer1, "Hlt_%s_%s", mc_dirs[i].c_str(), Hlt_nametags[j].c_str());
-      sprintf(buffer2, "Efficiencies of HL %s Triggers for %s Selection", Hlt_titletags[j].c_str(), mc_dirs[i].c_str());
+      sprintf(buffer1, "Hlt_%s_%s", mc_dir.c_str(), Hlt_nametags[j].c_str());
+      sprintf(buffer2, "Efficiencies of HL %s Triggers for %s Selection", Hlt_titletags[j].c_str(), mc_dir.c_str());
       hHltEffSorted_mc[j] = iBooker_.bookProfile(buffer1, new TProfile(buffer1, buffer2, Hltbins[j], 0, Hltbins[j]));
     }
 
     // fill the eff histo
     int L1bincounter_mc[8];
-    for (unsigned int j = 0; j < sizeof(L1bincounter_mc) / sizeof(L1bincounter_mc[0]); ++j)
-      L1bincounter_mc[j] = 0;
+    for (int &j : L1bincounter_mc)
+      j = 0;
     int Hltbincounter_mc[8];
-    for (unsigned int j = 0; j < sizeof(Hltbincounter_mc) / sizeof(Hltbincounter_mc[0]); ++j)
-      Hltbincounter_mc[j] = 0;
+    for (int &j : Hltbincounter_mc)
+      j = 0;
     TProfile *hL1_mc = (TProfile *)hL1EffAfterMcCuts->getTProfile();
     TProfile *hHlt_mc = (TProfile *)hHltEffAfterMcCuts->getTProfile();
     for (unsigned int j = 0; j < L1placement.size(); j++) {
-      value = nTotalAfterMcCuts
-                  ? (float)iGetter_.get(subDir_ + mcSelBitsDir + "/" + mc_dirs[i] + "/L1Paths_" + mc_dirs[i])
-                            ->getBinContent(j + 1) /
-                        nTotalAfterMcCuts
-                  : 0;
+      value =
+          nTotalAfterMcCuts
+              ? (float)iGetter_.get(subDir_ + mcSelBitsDir + "/" + mc_dir + "/L1Paths_" + mc_dir)->getBinContent(j + 1) /
+                    nTotalAfterMcCuts
+              : 0;
       error = nTotalAfterMcCuts ? sqrt(value * (1 - value) / nTotalAfterMcCuts) : 0;
       hL1EffAfterMcCuts->setBinContent(j + 1, value);
       hL1EffAfterMcCuts->setBinEntries(j + 1, 1);
@@ -324,22 +324,20 @@ void HltSusyExoPostProcessor::dqmEndJob(DQMStore::IBooker &iBooker_, DQMStore::I
       }
     }
     if (nL1bins != int(L1placement.size())) {
-      value = nTotalAfterMcCuts
-                  ? (float)iGetter_.get(subDir_ + mcSelBitsDir + "/" + mc_dirs[i] + "/L1Paths_" + mc_dirs[i])
-                            ->getBinContent(nL1bins) /
-                        nTotalAfterMcCuts
-                  : 0;
+      value = nTotalAfterMcCuts ? (float)iGetter_.get(subDir_ + mcSelBitsDir + "/" + mc_dir + "/L1Paths_" + mc_dir)
+                                          ->getBinContent(nL1bins) /
+                                      nTotalAfterMcCuts
+                                : 0;
       error = nTotalAfterMcCuts ? sqrt(value * (1 - value) / nTotalAfterMcCuts) : 0;
       hL1EffAfterMcCuts->setBinContent(nL1bins, value);
       hL1EffAfterMcCuts->setBinEntries(nL1bins, 1);
       hL1EffAfterMcCuts->setBinError(nL1bins, error);
     }
     for (unsigned int j = 0; j < Hltplacement.size(); j++) {
-      value = nTotalAfterMcCuts
-                  ? (float)iGetter_.get(subDir_ + mcSelBitsDir + "/" + mc_dirs[i] + "/HltPaths_" + mc_dirs[i])
-                            ->getBinContent(j + 1) /
-                        nTotalAfterMcCuts
-                  : 0;
+      value = nTotalAfterMcCuts ? (float)iGetter_.get(subDir_ + mcSelBitsDir + "/" + mc_dir + "/HltPaths_" + mc_dir)
+                                          ->getBinContent(j + 1) /
+                                      nTotalAfterMcCuts
+                                : 0;
       error = nTotalAfterMcCuts ? sqrt(value * (1 - value) / nTotalAfterMcCuts) : 0;
       hHltEffAfterMcCuts->setBinContent(j + 1, value);
       hHltEffAfterMcCuts->setBinEntries(j + 1, 1);
@@ -356,47 +354,46 @@ void HltSusyExoPostProcessor::dqmEndJob(DQMStore::IBooker &iBooker_, DQMStore::I
       }
     }
     if (nHltbins != int(Hltplacement.size())) {
-      value = nTotalAfterMcCuts
-                  ? (float)iGetter_.get(subDir_ + mcSelBitsDir + "/" + mc_dirs[i] + "/HltPaths_" + mc_dirs[i])
-                            ->getBinContent(nHltbins) /
-                        nTotalAfterMcCuts
-                  : 0;
+      value = nTotalAfterMcCuts ? (float)iGetter_.get(subDir_ + mcSelBitsDir + "/" + mc_dir + "/HltPaths_" + mc_dir)
+                                          ->getBinContent(nHltbins) /
+                                      nTotalAfterMcCuts
+                                : 0;
       error = nTotalAfterMcCuts ? sqrt(value * (1 - value) / nTotalAfterMcCuts) : 0;
       hHltEffAfterMcCuts->setBinContent(nHltbins, value);
       hHltEffAfterMcCuts->setBinEntries(nHltbins, 1);
       hHltEffAfterMcCuts->setBinError(nHltbins, error);
     }
-    LogDebug("HltSusyExoPostProcessor") << "MonitorElements filled for " << mc_dirs[i] << " selection";
+    LogDebug("HltSusyExoPostProcessor") << "MonitorElements filled for " << mc_dir << " selection";
   }
 
-  for (unsigned int i = 0; i < reco_dirs.size(); ++i) {
+  for (auto &reco_dir : reco_dirs) {
     // Calculate the efficiencies for histos after RECO selection
-    iGetter_.setCurrentFolder(subDir_ + recoSelBitsDir + "/" + reco_dirs[i]);
+    iGetter_.setCurrentFolder(subDir_ + recoSelBitsDir + "/" + reco_dir);
     // book the MonitorElements for the efficiencies
     char set_name_L1[256], set_name_Hlt[256];
-    sprintf(set_name_L1, "L1Eff_%s", reco_dirs[i].c_str());
-    sprintf(set_name_Hlt, "HltEff_%s", reco_dirs[i].c_str());
+    sprintf(set_name_L1, "L1Eff_%s", reco_dir.c_str());
+    sprintf(set_name_Hlt, "HltEff_%s", reco_dir.c_str());
     MonitorElement *hL1EffAfterRecoCuts = bookEffMEProfileFromTH1(
-        iGetter_.get(subDir_ + recoSelBitsDir + "/" + reco_dirs[i] + "/L1Paths_" + reco_dirs[i])->getTH1F(),
+        iGetter_.get(subDir_ + recoSelBitsDir + "/" + reco_dir + "/L1Paths_" + reco_dir)->getTH1F(),
         (std::string)set_name_L1,
         iBooker_);
-    hL1EffAfterRecoCuts->setTitle("L1 Efficiencies for " + reco_dirs[i] + " selection");
+    hL1EffAfterRecoCuts->setTitle("L1 Efficiencies for " + reco_dir + " selection");
     MonitorElement *hHltEffAfterRecoCuts = bookEffMEProfileFromTH1(
-        iGetter_.get(subDir_ + recoSelBitsDir + "/" + reco_dirs[i] + "/HltPaths_" + reco_dirs[i])->getTH1F(),
+        iGetter_.get(subDir_ + recoSelBitsDir + "/" + reco_dir + "/HltPaths_" + reco_dir)->getTH1F(),
         (std::string)set_name_Hlt,
         iBooker_);
-    hHltEffAfterRecoCuts->setTitle("HLT Efficiencies for " + reco_dirs[i] + " selection");
+    hHltEffAfterRecoCuts->setTitle("HLT Efficiencies for " + reco_dir + " selection");
 
-    LogDebug("HltSusyExoPostProcessor") << "MonitorElements for " << reco_dirs[i] << " selection booked";
+    LogDebug("HltSusyExoPostProcessor") << "MonitorElements for " << reco_dir << " selection booked";
 
     // get the total number of events
     float nTotalAfterRecoCuts;
     if (mcFlag)
-      nTotalAfterRecoCuts = iGetter_.get(subDir_ + recoSelBitsDir + "/" + reco_dirs[i] + "/L1Bits_" + reco_dirs[i])
-                                ->getBinContent(nL1bins);
+      nTotalAfterRecoCuts =
+          iGetter_.get(subDir_ + recoSelBitsDir + "/" + reco_dir + "/L1Bits_" + reco_dir)->getBinContent(nL1bins);
     else
-      nTotalAfterRecoCuts = iGetter_.get(subDir_ + recoSelBitsDir + "/" + reco_dirs[i] + "/HltBits_" + reco_dirs[i])
-                                ->getBinContent(reference_bin);
+      nTotalAfterRecoCuts =
+          iGetter_.get(subDir_ + recoSelBitsDir + "/" + reco_dir + "/HltBits_" + reco_dir)->getBinContent(reference_bin);
 
     LogDebug("HltSusyExoPostProcessor") << "Total number of events = " << nTotalAfterRecoCuts;
 
@@ -408,30 +405,28 @@ void HltSusyExoPostProcessor::dqmEndJob(DQMStore::IBooker &iBooker_, DQMStore::I
     string Hlt_nametags[8] = {"Mu", "Ele", "Jet", "Photon", "MET_HT", "Tau_BTag", "XTrigger", "Overflow"};
     string Hlt_titletags[8] = {"Muon", "Electron", "Jet", "Photon", "MET and HT", "Tau and BTag", "Cross", "Unsorted"};
     for (unsigned int j = 0; j < sizeof(hL1EffSorted_reco) / sizeof(hL1EffSorted_reco[0]); ++j) {
-      sprintf(buffer1, "L1_%s_%s", reco_dirs[i].c_str(), L1_nametags[j].c_str());
-      sprintf(
-          buffer2, "Efficiencies of L1 %s Triggers for %s Selection", L1_titletags[j].c_str(), reco_dirs[i].c_str());
+      sprintf(buffer1, "L1_%s_%s", reco_dir.c_str(), L1_nametags[j].c_str());
+      sprintf(buffer2, "Efficiencies of L1 %s Triggers for %s Selection", L1_titletags[j].c_str(), reco_dir.c_str());
       hL1EffSorted_reco[j] = iBooker_.bookProfile(buffer1, new TProfile(buffer1, buffer2, L1bins[j], 0, L1bins[j]));
     }
     for (unsigned int j = 0; j < sizeof(hHltEffSorted_reco) / sizeof(hHltEffSorted_reco[0]); ++j) {
-      sprintf(buffer1, "Hlt_%s_%s", reco_dirs[i].c_str(), Hlt_nametags[j].c_str());
-      sprintf(
-          buffer2, "Efficiencies of HL %s Triggers for %s Selection", Hlt_titletags[j].c_str(), reco_dirs[i].c_str());
+      sprintf(buffer1, "Hlt_%s_%s", reco_dir.c_str(), Hlt_nametags[j].c_str());
+      sprintf(buffer2, "Efficiencies of HL %s Triggers for %s Selection", Hlt_titletags[j].c_str(), reco_dir.c_str());
       hHltEffSorted_reco[j] = iBooker_.bookProfile(buffer1, new TProfile(buffer1, buffer2, Hltbins[j], 0, Hltbins[j]));
     }
 
     // fill the eff histo
     int L1bincounter_reco[8];
-    for (unsigned int j = 0; j < sizeof(L1bincounter_reco) / sizeof(L1bincounter_reco[0]); ++j)
-      L1bincounter_reco[j] = 0;
+    for (int &j : L1bincounter_reco)
+      j = 0;
     int Hltbincounter_reco[8];
-    for (unsigned int j = 0; j < sizeof(Hltbincounter_reco) / sizeof(Hltbincounter_reco[0]); ++j)
-      Hltbincounter_reco[j] = 0;
+    for (int &j : Hltbincounter_reco)
+      j = 0;
     TProfile *hL1_reco = (TProfile *)hL1EffAfterRecoCuts->getTProfile();
     TProfile *hHlt_reco = (TProfile *)hHltEffAfterRecoCuts->getTProfile();
     for (unsigned int j = 0; j < L1placement.size(); j++) {
       value = nTotalAfterRecoCuts
-                  ? (float)iGetter_.get(subDir_ + recoSelBitsDir + "/" + reco_dirs[i] + "/L1Paths_" + reco_dirs[i])
+                  ? (float)iGetter_.get(subDir_ + recoSelBitsDir + "/" + reco_dir + "/L1Paths_" + reco_dir)
                             ->getBinContent(j + 1) /
                         nTotalAfterRecoCuts
                   : 0;
@@ -452,7 +447,7 @@ void HltSusyExoPostProcessor::dqmEndJob(DQMStore::IBooker &iBooker_, DQMStore::I
     }
     if (nL1bins != int(L1placement.size())) {
       value = nTotalAfterRecoCuts
-                  ? (float)iGetter_.get(subDir_ + recoSelBitsDir + "/" + reco_dirs[i] + "/L1Paths_" + reco_dirs[i])
+                  ? (float)iGetter_.get(subDir_ + recoSelBitsDir + "/" + reco_dir + "/L1Paths_" + reco_dir)
                             ->getBinContent(nL1bins) /
                         nTotalAfterRecoCuts
                   : 0;
@@ -463,7 +458,7 @@ void HltSusyExoPostProcessor::dqmEndJob(DQMStore::IBooker &iBooker_, DQMStore::I
     }
     for (unsigned int j = 0; j < Hltplacement.size(); j++) {
       value = nTotalAfterRecoCuts
-                  ? (float)iGetter_.get(subDir_ + recoSelBitsDir + "/" + reco_dirs[i] + "/HltPaths_" + reco_dirs[i])
+                  ? (float)iGetter_.get(subDir_ + recoSelBitsDir + "/" + reco_dir + "/HltPaths_" + reco_dir)
                             ->getBinContent(j + 1) /
                         nTotalAfterRecoCuts
                   : 0;
@@ -484,7 +479,7 @@ void HltSusyExoPostProcessor::dqmEndJob(DQMStore::IBooker &iBooker_, DQMStore::I
     }
     if (nHltbins != int(Hltplacement.size())) {
       value = nTotalAfterRecoCuts
-                  ? (float)iGetter_.get(subDir_ + recoSelBitsDir + "/" + reco_dirs[i] + "/HltPaths_" + reco_dirs[i])
+                  ? (float)iGetter_.get(subDir_ + recoSelBitsDir + "/" + reco_dir + "/HltPaths_" + reco_dir)
                             ->getBinContent(nHltbins) /
                         nTotalAfterRecoCuts
                   : 0;

@@ -49,10 +49,10 @@ std::unique_ptr<SiPixelGainCalibration> SiPixelFakeGainESSource::produce(const S
   const std::vector<uint32_t>& DetIds = reader.getAllDetIds();
 
   // Loop over detectors
-  for (std::vector<uint32_t>::const_iterator detit = DetIds.begin(); detit != DetIds.end(); detit++) {
+  for (unsigned int DetId : DetIds) {
     nmodules++;
     std::vector<char> theSiPixelGainCalibration;
-    const std::pair<int, int>& detUnitDimensions = reader.getDetUnitDimensions(*detit);
+    const std::pair<int, int>& detUnitDimensions = reader.getDetUnitDimensions(DetId);
 
     // Loop over columns and rows
     for (int i = 0; i < detUnitDimensions.first; i++) {
@@ -67,7 +67,7 @@ std::unique_ptr<SiPixelGainCalibration> SiPixelFakeGainESSource::produce(const S
     //std::cout << "detid " << (*detit) << std::endl;
 
     SiPixelGainCalibration::Range range(theSiPixelGainCalibration.begin(), theSiPixelGainCalibration.end());
-    if (!obj->put(*detit, range, detUnitDimensions.first))
+    if (!obj->put(DetId, range, detUnitDimensions.first))
       edm::LogError("SiPixelFakeGainESSource")
           << "[SiPixelFakeGainESSource::produce] detid already exists" << std::endl;
   }

@@ -38,9 +38,9 @@ DigiVertexCorrHistogramMaker::DigiVertexCorrHistogramMaker(const edm::ParameterS
   std::vector<edm::ParameterSet> wantedsubds(iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >(
       "wantedSubDets", std::vector<edm::ParameterSet>()));
 
-  for (std::vector<edm::ParameterSet>::iterator ps = wantedsubds.begin(); ps != wantedsubds.end(); ++ps) {
-    m_labels[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<std::string>("detLabel");
-    m_binmax[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<int>("binMax");
+  for (auto& wantedsubd : wantedsubds) {
+    m_labels[wantedsubd.getParameter<unsigned int>("detSelection")] = wantedsubd.getParameter<std::string>("detLabel");
+    m_binmax[wantedsubd.getParameter<unsigned int>("detSelection")] = wantedsubd.getParameter<int>("binMax");
   }
 }
 
@@ -143,14 +143,14 @@ void DigiVertexCorrHistogramMaker::fill(const edm::Event& iEvent,
                                         const std::map<unsigned int, int>& ndigi) {
   edm::Service<TFileService> tfserv;
 
-  for (std::map<unsigned int, int>::const_iterator digi = ndigi.begin(); digi != ndigi.end(); digi++) {
-    if (m_labels.find(digi->first) != m_labels.end()) {
-      const unsigned int i = digi->first;
-      m_nmultvsnvtx[i]->Fill(nvtx, digi->second);
-      m_nmultvsnvtxprof[i]->Fill(nvtx, digi->second);
+  for (auto digi : ndigi) {
+    if (m_labels.find(digi.first) != m_labels.end()) {
+      const unsigned int i = digi.first;
+      m_nmultvsnvtx[i]->Fill(nvtx, digi.second);
+      m_nmultvsnvtxprof[i]->Fill(nvtx, digi.second);
 
       if (m_nmultvsnvtxvsbxprofrun[i] && *m_nmultvsnvtxvsbxprofrun[i])
-        (*m_nmultvsnvtxvsbxprofrun[i])->Fill(iEvent.bunchCrossing() % 3564, nvtx, digi->second);
+        (*m_nmultvsnvtxvsbxprofrun[i])->Fill(iEvent.bunchCrossing() % 3564, nvtx, digi.second);
     }
   }
 }

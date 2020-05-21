@@ -81,12 +81,12 @@ int main(int argc, char* argv[]) {
 
     // fill histograms
     noJets->Fill(jets.size());
-    for (unsigned idx = 0; idx < jets.size(); ++idx) {
+    for (auto& jet : jets) {
       // fill histograms
-      ptJets->Fill(jets[idx].pt());
-      enJets->Fill(jets[idx].energy());
-      etaJets->Fill(jets[idx].eta());
-      phiJets->Fill(jets[idx].phi());
+      ptJets->Fill(jet.pt());
+      enJets->Fill(jet.energy());
+      etaJets->Fill(jet.eta());
+      phiJets->Fill(jet.phi());
     }
   }
   // -------------------------------------------------

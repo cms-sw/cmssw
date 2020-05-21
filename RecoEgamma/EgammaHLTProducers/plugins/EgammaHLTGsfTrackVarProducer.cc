@@ -168,20 +168,19 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
       oneOverESuperMinusOneOverPValue = 0;
       oneOverESeedMinusOneOverPValue = 0;
     } else {
-      for (size_t trkNr = 0; trkNr < gsfTracks.size(); trkNr++) {
+      for (auto& gsfTrack : gsfTracks) {
         GlobalPoint scPos(scRef->x(), scRef->y(), scRef->z());
 
         GlobalPoint trackExtrapToSC;
         {
-          auto innTSOS =
-              MultiTrajectoryStateTransform::innerStateOnSurface(*gsfTracks[trkNr], trackerGeometry, &magneticField);
+          auto innTSOS = MultiTrajectoryStateTransform::innerStateOnSurface(*gsfTrack, trackerGeometry, &magneticField);
           auto posTSOS = extrapolator.extrapolate(innTSOS, scPos);
           multiTrajectoryStateMode::positionFromModeCartesian(posTSOS, trackExtrapToSC);
         }
 
         EleRelPointPair scAtVtx(scRef->position(), trackExtrapToSC, beamSpotPosition);
 
-        float trkP = gsfTracks[trkNr]->p();
+        float trkP = gsfTrack->p();
         if (scRef->energy() != 0 && trkP != 0) {
           if (std::abs(1 / scRef->energy() - 1 / trkP) < oneOverESuperMinusOneOverPValue) {
             oneOverESuperMinusOneOverPValue = std::abs(1 / scRef->energy() - 1 / trkP);
@@ -193,16 +192,16 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
           }
         }
 
-        if (gsfTracks[trkNr]->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) < missingHitsValue) {
-          missingHitsValue = gsfTracks[trkNr]->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+        if (gsfTrack->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) < missingHitsValue) {
+          missingHitsValue = gsfTrack->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
         }
 
-        if (gsfTracks[trkNr]->numberOfValidHits() < validHitsValue) {
-          validHitsValue = gsfTracks[trkNr]->numberOfValidHits();
+        if (gsfTrack->numberOfValidHits() < validHitsValue) {
+          validHitsValue = gsfTrack->numberOfValidHits();
         }
 
-        if (gsfTracks[trkNr]->numberOfValidHits() < chi2Value) {
-          chi2Value = gsfTracks[trkNr]->normalizedChi2();
+        if (gsfTrack->numberOfValidHits() < chi2Value) {
+          chi2Value = gsfTrack->normalizedChi2();
         }
 
         if (std::abs(scAtVtx.dEta()) < dEtaInValue) {

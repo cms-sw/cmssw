@@ -72,9 +72,9 @@ HepMC::GenEvent* PhotosInterface::apply(HepMC::GenEvent* evt) {
   // loop over HepMC::GenEvent, find vertices
 
   // for ( int ip=0; ip<evt->particles_size(); ip++ )
-  for (int ip = 0; ip < 4000; ip++)  // 4000 is the max size of the array
+  for (bool& ip : phoqed_.qedrad)  // 4000 is the max size of the array
   {
-    phoqed_.qedrad[ip] = true;
+    ip = true;
   }
 
   //

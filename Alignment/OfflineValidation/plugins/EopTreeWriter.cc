@@ -151,8 +151,8 @@ void EopTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   for (i = ecalLabels_.begin(); i != ecalLabels_.end(); i++) {
     edm::Handle<EcalRecHitCollection> ec;
     iEvent.getByLabel(*i, ec);
-    for (EcalRecHitCollection::const_iterator recHit = (*ec).begin(); recHit != (*ec).end(); ++recHit) {
-      tmpEcalRecHitCollection->push_back(*recHit);
+    for (const auto& recHit : (*ec)) {
+      tmpEcalRecHitCollection->push_back(recHit);
     }
   }
 
@@ -236,22 +236,20 @@ void EopTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     EnergyIn = 0;
     EnergyOut = 0;
     if (noChargedTracks) {
-      for (std::vector<EcalRecHit>::const_iterator ehit = tmpEcalRecHitCollection->begin();
-           ehit != tmpEcalRecHitCollection->end();
-           ehit++) {
+      for (const auto& ehit : *tmpEcalRecHitCollection) {
         ////////////////////// FIND ECAL CLUSTER ENERGY
         // R-scheme of ECAL CLUSTERIZATION
-        const GlobalPoint& posH = geo->getPosition((*ehit).detid());
+        const GlobalPoint& posH = geo->getPosition(ehit.detid());
         double phihit = posH.phi();
         double etahit = posH.eta();
 
         double dHitCM = getDistInCM(etaecal, phiecal, etahit, phihit);
 
         if (dHitCM < 9.0) {
-          EnergyIn += ehit->energy();
+          EnergyIn += ehit.energy();
         }
         if (dHitCM > 15.0 && dHitCM < 35.0) {
-          EnergyOut += ehit->energy();
+          EnergyOut += ehit.energy();
         }
       }
 

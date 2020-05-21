@@ -114,8 +114,8 @@ std::vector<float> SiStripSummary::getSummaryObj(uint32_t& detID, const std::vec
   std::vector<float> SummaryObj;
   const SiStripSummary::Range range = getRange(detID);
   if (range.first != range.second) {
-    for (unsigned int i = 0; i < list.size(); i++) {
-      const short pos = getPosition(list.at(i));
+    for (const auto& i : list) {
+      const short pos = getPosition(i);
 
       if (pos != -1)
         SummaryObj.push_back(*((range.first) + pos));
@@ -157,8 +157,8 @@ std::vector<float> SiStripSummary::getSummaryObj(std::string elementName) const 
   const short pos = getPosition(elementName);
 
   if (pos != -1) {
-    for (unsigned int i = 0; i < DetIds_.size(); i++) {
-      const SiStripSummary::Range range = getRange(DetIds_.at(i));
+    for (unsigned int DetId : DetIds_) {
+      const SiStripSummary::Range range = getRange(DetId);
       if (range.first != range.second) {
         vSumElement.push_back(*((range.first) + pos));
       } else {

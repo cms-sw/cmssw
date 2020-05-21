@@ -17,28 +17,24 @@ Phase2EndcapRing* Phase2EndcapRingBuilder::build(const GeometricDet* aPhase2Endc
 
   if (!useBrothers) {
     //---- to evaluate meanZ
-    for (vector<const GeometricDet*>::const_iterator compGeometricDets = allGeometricDets.begin();
-         compGeometricDets != allGeometricDets.end();
-         compGeometricDets++) {
-      LogTrace("TkDetLayers") << " compGeometricDets->positionBounds().perp() "
-                              << (*compGeometricDets)->positionBounds().z() << std::endl;
-      meanZ = meanZ + (*compGeometricDets)->positionBounds().z();
+    for (auto allGeometricDet : allGeometricDets) {
+      LogTrace("TkDetLayers") << " compGeometricDets->positionBounds().perp() " << allGeometricDet->positionBounds().z()
+                              << std::endl;
+      meanZ = meanZ + allGeometricDet->positionBounds().z();
     }
     meanZ = meanZ / allGeometricDets.size();
     LogDebug("TkDetLayers") << " meanZ " << meanZ << std::endl;
 
-    for (vector<const GeometricDet*>::const_iterator compGeometricDets = allGeometricDets.begin();
-         compGeometricDets != allGeometricDets.end();
-         compGeometricDets++) {
-      const GeomDet* theGeomDet = theGeomDetGeometry->idToDet((*compGeometricDets)->geographicalID());
+    for (auto allGeometricDet : allGeometricDets) {
+      const GeomDet* theGeomDet = theGeomDetGeometry->idToDet(allGeometricDet->geographicalID());
 
-      if (fabs((*compGeometricDets)->positionBounds().z()) < fabs(meanZ))
+      if (fabs(allGeometricDet->positionBounds().z()) < fabs(meanZ))
         frontGeomDets.push_back(theGeomDet);
 
-      if (fabs((*compGeometricDets)->positionBounds().z()) > fabs(meanZ))
+      if (fabs(allGeometricDet->positionBounds().z()) > fabs(meanZ))
         backGeomDets.push_back(theGeomDet);
 
-      if (fabs((*compGeometricDets)->positionBounds().z()) == fabs(meanZ))
+      if (fabs(allGeometricDet->positionBounds().z()) == fabs(meanZ))
         throw DetLayerException("Not possible to assiciate this GeometricDet in front or back");
     }
 
@@ -55,9 +51,8 @@ Phase2EndcapRing* Phase2EndcapRingBuilder::build(const GeometricDet* aPhase2Endc
     //---- to evaluate meanZ
     double meanZ = 0;
     double meanZBrothers = 0;
-    for (vector<const GeometricDet*>::const_iterator it = allGeometricDets.begin(); it != allGeometricDets.end();
-         it++) {
-      compGeometricDets = (*it)->components();
+    for (auto allGeometricDet : allGeometricDets) {
+      compGeometricDets = allGeometricDet->components();
       if (compGeometricDets.size() != 2) {
         throw DetLayerException("Phase2OTEndcapRing is considered as a stack but does not have two components");
       } else {
@@ -74,9 +69,8 @@ Phase2EndcapRing* Phase2EndcapRingBuilder::build(const GeometricDet* aPhase2Endc
     LogDebug("TkDetLayers") << " meanZ Lower " << meanZ << std::endl;
     LogDebug("TkDetLayers") << " meanZ Upper " << meanZBrothers << std::endl;
 
-    for (vector<const GeometricDet*>::const_iterator it = allGeometricDets.begin(); it != allGeometricDets.end();
-         it++) {
-      compGeometricDets = (*it)->components();
+    for (auto allGeometricDet : allGeometricDets) {
+      compGeometricDets = allGeometricDet->components();
       const GeomDet* theGeomDet = theGeomDetGeometry->idToDet(compGeometricDets[0]->geographicalID());
 
       if (fabs(compGeometricDets[0]->positionBounds().z()) < fabs(meanZ))

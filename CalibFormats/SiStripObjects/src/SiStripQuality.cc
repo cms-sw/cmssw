@@ -536,20 +536,20 @@ bool SiStripQuality::cleanUp(bool force) {
 void SiStripQuality::fillBadComponents() {
   BadComponentVect.clear();
 
-  for (SiStripBadStrip::RegistryIterator basep = indexes.begin(); basep != indexes.end(); ++basep) {
-    SiStripBadStrip::Range range(v_badstrips.begin() + basep->ibegin, v_badstrips.begin() + basep->iend);
+  for (auto indexe : indexes) {
+    SiStripBadStrip::Range range(v_badstrips.begin() + indexe.ibegin, v_badstrips.begin() + indexe.iend);
 
     // Fill BadModules, BadFibers, BadApvs vectors
     unsigned short resultA = 0, resultF = 0;
     BadComponent result;
 
     SiStripBadStrip::data fs;
-    unsigned short Nstrips = reader->getNumberOfApvsAndStripLength(basep->detid).first * 128;
+    unsigned short Nstrips = reader->getNumberOfApvsAndStripLength(indexe.detid).first * 128;
 
     // BadModules
     fs = decode(*(range.first));
-    if (basep->iend - basep->ibegin == 1 && fs.firstStrip == 0 && fs.range == Nstrips) {
-      result.detid = basep->detid;
+    if (indexe.iend - indexe.ibegin == 1 && fs.firstStrip == 0 && fs.range == Nstrips) {
+      result.detid = indexe.detid;
       result.BadModule = true;
       result.BadFibers = (1 << (Nstrips / 256)) - 1;
       result.BadApvs = (1 << (Nstrips / 128)) - 1;
@@ -575,7 +575,7 @@ void SiStripQuality::fillBadComponents() {
         }
       }
       if (resultA != 0) {
-        result.detid = basep->detid;
+        result.detid = indexe.detid;
         result.BadModule = false;
         result.BadFibers = resultF;
         result.BadApvs = resultA;

@@ -63,16 +63,16 @@ void HcalCalibFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   HcalFEDList calibFeds(calibType);
   selFEDs = calibFeds.getListOfFEDs();
-  for (unsigned int i = 0; i < extraFEDs_.size(); i++) {
+  for (int extraFED : extraFEDs_) {
     bool duplicate = false;
-    for (unsigned int j = 0; j < selFEDs.size(); j++) {
-      if (extraFEDs_.at(i) == selFEDs.at(j)) {
+    for (int selFED : selFEDs) {
+      if (extraFED == selFED) {
         duplicate = true;
         break;
       }
     }
     if (!duplicate)
-      selFEDs.push_back(extraFEDs_.at(i));
+      selFEDs.push_back(extraFED);
   }
 
   // Copying:
@@ -80,8 +80,8 @@ void HcalCalibFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   for (int j = 0; j < FEDNumbering::lastFEDId(); ++j) {
     bool rightFED = false;
-    for (uint32_t k = 0; k < selFEDs.size(); k++) {
-      if (j == selFEDs[k]) {
+    for (int selFED : selFEDs) {
+      if (j == selFED) {
         rightFED = true;
       }
     }

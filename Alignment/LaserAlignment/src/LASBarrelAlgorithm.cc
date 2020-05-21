@@ -667,12 +667,12 @@ void LASBarrelAlgorithm::Dump(void) {
 
   // det parameters once again without leading column (for easy read-in), into a file
   std::ofstream file("/afs/cern.ch/user/o/olzem/public/parameters_det.txt");
-  for (int subdet = 0; subdet < 6; ++subdet) {
-    for (int par = subdetParMap[subdet]; par <= subdetParMap[subdet] + 4; par += 2) {
+  for (int subdet : subdetParMap) {
+    for (int par = subdet; par <= subdet + 4; par += 2) {
       minuit->GetParameter(par, value, error);
       file << std::setw(12) << std::setprecision(6) << std::fixed << value;
     }
-    for (int par = subdetParMap[subdet] + 1; par <= subdetParMap[subdet] + 5; par += 2) {
+    for (int par = subdet + 1; par <= subdet + 5; par += 2) {
       minuit->GetParameter(par, value, error);
       file << std::setw(12) << std::setprecision(6) << std::fixed << value;
     }
@@ -829,12 +829,12 @@ void LASBarrelAlgorithm::ReadStartParametersFromFile(const char* filename, float
   // map to the minuit par array
   const int subdetParMap[6] = {24, 30, 0, 6, 12, 18};
 
-  for (int det = 0; det < 6; ++det) {
-    file >> values[subdetParMap[det]];      // phi1
-    file >> values[subdetParMap[det] + 2];  // x1
-    file >> values[subdetParMap[det] + 4];  // y1
-    file >> values[subdetParMap[det] + 1];  // phi2
-    file >> values[subdetParMap[det] + 3];  // x2
-    file >> values[subdetParMap[det] + 5];  // y2
+  for (int det : subdetParMap) {
+    file >> values[det];      // phi1
+    file >> values[det + 2];  // x1
+    file >> values[det + 4];  // y1
+    file >> values[det + 1];  // phi2
+    file >> values[det + 3];  // x2
+    file >> values[det + 5];  // y2
   }
 }

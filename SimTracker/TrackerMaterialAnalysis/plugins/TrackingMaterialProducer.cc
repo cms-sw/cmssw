@@ -42,14 +42,14 @@ static const G4LogicalVolume* GetVolume(const std::string& name) {
   const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
 
 #ifdef DEBUG_G4_VOLUMES
-  for (G4LogicalVolumeStore::const_iterator volume = lvs->begin(); volume != lvs->end(); ++volume)
-    LogInfo("TrackingMaterialProducer") << "TrackingMaterialProducer: G4 registered volumes " << (*volume)->GetName()
+  for (auto lv : *lvs)
+    LogInfo("TrackingMaterialProducer") << "TrackingMaterialProducer: G4 registered volumes " << lv->GetName()
                                         << std::endl;
 #endif
 
-  for (G4LogicalVolumeStore::const_iterator volume = lvs->begin(); volume != lvs->end(); ++volume) {
-    if ((const std::string&)(*volume)->GetName() == name)
-      return (*volume);
+  for (auto lv : *lvs) {
+    if ((const std::string&)lv->GetName() == name)
+      return lv;
   }
   return nullptr;
 }
@@ -117,16 +117,14 @@ void TrackingMaterialProducer::update(const EndOfJob* event) {
 void TrackingMaterialProducer::update(const BeginOfJob* event) {
   // INFO
   LogInfo("TrackingMaterialProducer") << "TrackingMaterialProducer: List of the selected volumes: " << std::endl;
-  for (std::vector<std::string>::const_iterator volume_name = m_selectedNames.begin();
-       volume_name != m_selectedNames.end();
-       ++volume_name) {
-    const G4LogicalVolume* volume = GetVolume(*volume_name);
+  for (const auto& m_selectedName : m_selectedNames) {
+    const G4LogicalVolume* volume = GetVolume(m_selectedName);
     if (volume) {
-      LogInfo("TrackingMaterialProducer") << "TrackingMaterialProducer: " << *volume_name << std::endl;
+      LogInfo("TrackingMaterialProducer") << "TrackingMaterialProducer: " << m_selectedName << std::endl;
       m_selectedVolumes.push_back(volume);
     } else {
       // FIXME: throw an exception ?
-      std::cerr << "TrackingMaterialProducer::update(const BeginOfJob*): WARNING: selected volume \"" << *volume_name
+      std::cerr << "TrackingMaterialProducer::update(const BeginOfJob*): WARNING: selected volume \"" << m_selectedName
                 << "\" not found in geometry " << std::endl;
     }
   }
@@ -339,9 +337,9 @@ void TrackingMaterialProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
 //-------------------------------------------------------------------------
 bool TrackingMaterialProducer::isSelected(const G4VTouchable* touchable) {
-  for (size_t i = 0; i < m_selectedVolumes.size(); ++i)
-    if (m_selectedVolumes[i]->IsAncestor(touchable->GetVolume()) or
-        m_selectedVolumes[i] == touchable->GetVolume()->GetLogicalVolume())
+  for (auto& m_selectedVolume : m_selectedVolumes)
+    if (m_selectedVolume->IsAncestor(touchable->GetVolume()) or
+        m_selectedVolume == touchable->GetVolume()->GetLogicalVolume())
       return true;
 
   return false;

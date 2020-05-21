@@ -47,12 +47,11 @@ void SiPixelCPEGenericErrorParm::fillCPEGenericErrorParm(double version, std::st
 }
 
 std::ostream& operator<<(std::ostream& s, const SiPixelCPEGenericErrorParm& genericErrors) {
-  for (unsigned int count = 0; count < genericErrors.errors_.size(); ++count) {
+  for (const auto& error : genericErrors.errors_) {
     s.precision(6);
 
-    s << genericErrors.errors_[count].bias << " " << genericErrors.errors_[count].pix_height << " "
-      << genericErrors.errors_[count].ave_Qclus << " " << std::fixed << genericErrors.errors_[count].sigma << " "
-      << genericErrors.errors_[count].rms << std::endl;
+    s << error.bias << " " << error.pix_height << " " << error.ave_Qclus << " " << std::fixed << error.sigma << " "
+      << error.rms << std::endl;
 
     s.unsetf(std::ios_base::fixed);
   }

@@ -55,9 +55,7 @@ void FWPhase2TrackerCluster1DProxyBuilder::build(const FWEventItem* iItem,
 
     const edmNew::DetSet<Phase2TrackerCluster1D>& clusters = *set;
 
-    for (edmNew::DetSet<Phase2TrackerCluster1D>::const_iterator itc = clusters.begin(), edc = clusters.end();
-         itc != edc;
-         ++itc) {
+    for (auto cluster : clusters) {
       TEveElement* itemHolder = createCompound();
       product->AddElement(itemHolder);
 
@@ -68,8 +66,8 @@ void FWPhase2TrackerCluster1DProxyBuilder::build(const FWEventItem* iItem,
         continue;
       }
 
-      float localPoint[3] = {fireworks::phase2PixelLocalX((*itc).center(), pars, shape),
-                             fireworks::phase2PixelLocalY((*itc).column(), pars, shape),
+      float localPoint[3] = {fireworks::phase2PixelLocalX(cluster.center(), pars, shape),
+                             fireworks::phase2PixelLocalY(cluster.column(), pars, shape),
                              0.0};
 
       float globalPoint[3];

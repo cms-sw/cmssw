@@ -276,10 +276,10 @@ void FW3DViewGeometry::showPixelBarrel(bool showPixelBarrel) {
     m_pixelBarrelElements = new TEveElementList("PixelBarrel");
     m_pixelBarrelElements->SetRnrState(showPixelBarrel);
     std::vector<unsigned int> ids = m_geom->getMatchedIds(FWGeometry::Tracker, FWGeometry::PixelBarrel);
-    for (std::vector<unsigned int>::const_iterator id = ids.begin(); id != ids.end(); ++id) {
-      TEveGeoShape* shape = m_geom->getEveShape(*id);
+    for (unsigned int id : ids) {
+      TEveGeoShape* shape = m_geom->getEveShape(id);
 
-      uint32_t rawId = *id;
+      uint32_t rawId = id;
       DetId did = DetId(rawId);
       std::string title = m_geom->getTrackerTopology()->print(did);
       shape->SetTitle(title.c_str());
@@ -301,9 +301,9 @@ void FW3DViewGeometry::showPixelEndcap(bool showPixelEndcap) {
   if (showPixelEndcap && !m_pixelEndcapElements) {
     m_pixelEndcapElements = new TEveElementList("PixelEndcap");
     std::vector<unsigned int> ids = m_geom->getMatchedIds(FWGeometry::Tracker, FWGeometry::PixelEndcap);
-    for (std::vector<unsigned int>::const_iterator id = ids.begin(); id != ids.end(); ++id) {
-      TEveGeoShape* shape = m_geom->getEveShape(*id);
-      uint32_t rawId = *id;
+    for (unsigned int id : ids) {
+      TEveGeoShape* shape = m_geom->getEveShape(id);
+      uint32_t rawId = id;
       DetId did = DetId(rawId);
       std::string title = m_geom->getTrackerTopology()->print(did);
       shape->SetTitle(title.c_str());
@@ -325,15 +325,15 @@ void FW3DViewGeometry::showTrackerBarrel(bool showTrackerBarrel) {
     m_trackerBarrelElements = new TEveElementList("TrackerBarrel");
     m_trackerBarrelElements->SetRnrState(showTrackerBarrel);
     std::vector<unsigned int> ids = m_geom->getMatchedIds(FWGeometry::Tracker, FWGeometry::TIB);
-    for (std::vector<unsigned int>::const_iterator id = ids.begin(); id != ids.end(); ++id) {
-      TEveGeoShape* shape = m_geom->getEveShape(*id);
+    for (unsigned int id : ids) {
+      TEveGeoShape* shape = m_geom->getEveShape(id);
       addToCompound(shape, kFWTrackerBarrelColorIndex);
       m_trackerBarrelElements->AddElement(shape);
     }
     ids = m_geom->getMatchedIds(FWGeometry::Tracker, FWGeometry::TOB);
-    for (std::vector<unsigned int>::const_iterator id = ids.begin(); id != ids.end(); ++id) {
-      TEveGeoShape* shape = m_geom->getEveShape(*id);
-      shape->SetTitle(Form("TrackerBarrel %d", *id));
+    for (unsigned int id : ids) {
+      TEveGeoShape* shape = m_geom->getEveShape(id);
+      shape->SetTitle(Form("TrackerBarrel %d", id));
       addToCompound(shape, kFWTrackerBarrelColorIndex);
       m_trackerBarrelElements->AddElement(shape);
     }
@@ -351,16 +351,16 @@ void FW3DViewGeometry::showTrackerEndcap(bool showTrackerEndcap) {
   if (showTrackerEndcap && !m_trackerEndcapElements) {
     m_trackerEndcapElements = new TEveElementList("TrackerEndcap");
     std::vector<unsigned int> ids = m_geom->getMatchedIds(FWGeometry::Tracker, FWGeometry::TID);
-    for (std::vector<unsigned int>::const_iterator id = ids.begin(); id != ids.end(); ++id) {
-      TEveGeoShape* shape = m_geom->getEveShape(*id);
+    for (unsigned int id : ids) {
+      TEveGeoShape* shape = m_geom->getEveShape(id);
       addToCompound(shape, kFWTrackerEndcapColorIndex);
       m_trackerEndcapElements->AddElement(shape);
     }
     ids = m_geom->getMatchedIds(FWGeometry::Tracker, FWGeometry::TEC);
-    for (std::vector<unsigned int>::const_iterator id = ids.begin(); id != ids.end(); ++id) {
-      TEveGeoShape* shape = m_geom->getEveShape(*id);
+    for (unsigned int id : ids) {
+      TEveGeoShape* shape = m_geom->getEveShape(id);
 
-      shape->SetTitle(Form("TrackerEndcap %d", *id));
+      shape->SetTitle(Form("TrackerEndcap %d", id));
       addToCompound(shape, kFWTrackerEndcapColorIndex);
       m_trackerEndcapElements->AddElement(shape);
     }

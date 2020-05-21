@@ -83,15 +83,15 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter
   int nPhoton = 0;
 
   // find the number of electron and photon paths
-  for (std::vector<std::string>::iterator dir = subdirectories.begin(); dir != subdirectories.end(); ++dir) {
-    if (dir->find("Ele") != std::string::npos || dir->find("_SC") != std::string::npos)
+  for (auto &subdirectorie : subdirectories) {
+    if (subdirectorie.find("Ele") != std::string::npos || subdirectorie.find("_SC") != std::string::npos)
       ++nEle;
-    else if (dir->find("Photon") != std::string::npos)
+    else if (subdirectorie.find("Photon") != std::string::npos)
       ++nPhoton;
   }
 
   std::vector<TProfile *> allPhotonPaths;
-  for (std::vector<std::string>::iterator postfix = postfixes.begin(); postfix != postfixes.end(); postfix++) {
+  for (auto &postfixe : postfixes) {
     bool pop = false;
     int elePos = 1;
     int photonPos = 1;
@@ -100,23 +100,23 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter
     // computer per-event efficiencies //
     /////////////////////////////////////
 
-    std::string histoName = "efficiency_by_step" + *postfix;
-    std::string baseName = "total_eff" + *postfix;
+    std::string histoName = "efficiency_by_step" + postfixe;
+    std::string baseName = "total_eff" + postfixe;
 
-    std::string allEleHistoName = "EfficiencyByPath_Ele" + *postfix;
-    std::string allEleHistoLabel = "Efficiency_for_each_validated_electron_path" + *postfix;
+    std::string allEleHistoName = "EfficiencyByPath_Ele" + postfixe;
+    std::string allEleHistoLabel = "Efficiency_for_each_validated_electron_path" + postfixe;
     allElePaths.push_back(
         new TProfile(allEleHistoName.c_str(), allEleHistoLabel.c_str(), nEle, 0., (double)nEle, 0., 1.2));
-    std::string allPhotonHistoName = "EfficiencyByPath_Photon" + *postfix;
-    std::string allPhotonHistoLabel = "Efficiency_for_each_validated_photon_path" + *postfix;
+    std::string allPhotonHistoName = "EfficiencyByPath_Photon" + postfixe;
+    std::string allPhotonHistoLabel = "Efficiency_for_each_validated_photon_path" + postfixe;
     allPhotonPaths.push_back(
         new TProfile(allPhotonHistoName.c_str(), allPhotonHistoLabel.c_str(), nPhoton, 0., (double)nPhoton, 0., 1.2));
 
-    for (std::vector<std::string>::iterator dir = subdirectories.begin(); dir != subdirectories.end(); dir++) {
-      ibooker.cd(*dir);
+    for (auto &subdirectorie : subdirectories) {
+      ibooker.cd(subdirectorie);
 
       // get the current trigger name
-      std::string trigName = dir->substr(dir->rfind("/") + 1);
+      std::string trigName = subdirectorie.substr(subdirectorie.rfind("/") + 1);
       trigName = trigName.replace(trigName.rfind("_DQM"), 4, "");
 
       // Get the gen-level (or reco, for data) plots
@@ -169,7 +169,7 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter
                                                     1.2);
       meTotal->setEfficiencyFlag();
       TProfile *total = meTotal->getTProfile();
-      ibooker.cd(*dir);
+      ibooker.cd(subdirectorie);
       total->GetXaxis()->SetBinLabel(1, basehist->GetXaxis()->GetBinLabel(1));
 
       //       std::vector<std::string> mes = igetter.getMEs();
@@ -273,30 +273,30 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter
       // Get the L1 over gen filter first
       filterName2 = total->GetXaxis()->GetBinLabel(1);
       // loop over variables (eta/phi/et)
-      for (std::vector<std::string>::iterator var = varNames.begin(); var != varNames.end(); var++) {
-        numName = ibooker.pwd() + "/" + filterName2 + *var + *postfix;
+      for (auto &varName : varNames) {
+        numName = ibooker.pwd() + "/" + filterName2 + varName + postfixe;
 
         if (normalizeToReco)
-          genName = ibooker.pwd() + "/reco_" + *var;
+          genName = ibooker.pwd() + "/reco_" + varName;
         else
-          genName = ibooker.pwd() + "/gen_" + *var;
+          genName = ibooker.pwd() + "/gen_" + varName;
 
-        if ((*var).find("etaphi") != std::string::npos) {
+        if (varName.find("etaphi") != std::string::npos) {
           if (!dividehistos2D(ibooker,
                               igetter,
                               numName,
                               genName,
-                              "efficiency_" + filterName2 + "_vs_" + *var + *postfix,
-                              *var,
-                              "eff. of" + filterName2 + " vs " + *var + *postfix))
+                              "efficiency_" + filterName2 + "_vs_" + varName + postfixe,
+                              varName,
+                              "eff. of" + filterName2 + " vs " + varName + postfixe))
             break;
         } else if (!dividehistos(ibooker,
                                  igetter,
                                  numName,
                                  genName,
-                                 "efficiency_" + filterName2 + "_vs_" + *var + *postfix,
-                                 *var,
-                                 "eff. of" + filterName2 + " vs " + *var + *postfix))
+                                 "efficiency_" + filterName2 + "_vs_" + varName + postfixe,
+                                 varName,
+                                 "eff. of" + filterName2 + " vs " + varName + postfixe))
           break;
       }  // loop over variables
 
@@ -306,54 +306,54 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter
         filterName2 = total->GetXaxis()->GetBinLabel(filter + 1);
 
         // loop over variables (eta/et/phi)
-        for (std::vector<std::string>::iterator var = varNames.begin(); var != varNames.end(); var++) {
-          numName = ibooker.pwd() + "/" + filterName2 + *var + *postfix;
-          denomName = ibooker.pwd() + "/" + filterName + *var + *postfix;
+        for (auto &varName : varNames) {
+          numName = ibooker.pwd() + "/" + filterName2 + varName + postfixe;
+          denomName = ibooker.pwd() + "/" + filterName + varName + postfixe;
 
           // Is this the last filter? Book efficiency vs gen (or reco, for data)
           // level
-          std::string temp = *postfix;
+          std::string temp = postfixe;
           if (filter == total->GetNbinsX() - 3 && temp.find("matched") != std::string::npos) {
             if (normalizeToReco)
-              genName = ibooker.pwd() + "/reco_" + *var;
+              genName = ibooker.pwd() + "/reco_" + varName;
             else
-              genName = ibooker.pwd() + "/gen_" + *var;
+              genName = ibooker.pwd() + "/gen_" + varName;
 
-            if ((*var).find("etaphi") != std::string::npos) {
+            if (varName.find("etaphi") != std::string::npos) {
               if (!dividehistos2D(ibooker,
                                   igetter,
                                   numName,
                                   genName,
-                                  "final_eff_vs_" + *var,
-                                  *var,
-                                  "Efficiency Compared to " + shortReferenceName + " vs " + *var))
+                                  "final_eff_vs_" + varName,
+                                  varName,
+                                  "Efficiency Compared to " + shortReferenceName + " vs " + varName))
                 break;
             } else if (!dividehistos(ibooker,
                                      igetter,
                                      numName,
                                      genName,
-                                     "final_eff_vs_" + *var,
-                                     *var,
-                                     "Efficiency Compared to " + shortReferenceName + " vs " + *var))
+                                     "final_eff_vs_" + varName,
+                                     varName,
+                                     "Efficiency Compared to " + shortReferenceName + " vs " + varName))
               break;
           }
 
-          if ((*var).find("etaphi") != std::string::npos) {
+          if (varName.find("etaphi") != std::string::npos) {
             if (!dividehistos2D(ibooker,
                                 igetter,
                                 numName,
                                 denomName,
-                                "efficiency_" + filterName2 + "_vs_" + *var + *postfix,
-                                *var,
-                                "efficiency_" + filterName2 + "_vs_" + *var + *postfix))
+                                "efficiency_" + filterName2 + "_vs_" + varName + postfixe,
+                                varName,
+                                "efficiency_" + filterName2 + "_vs_" + varName + postfixe))
               break;
           } else if (!dividehistos(ibooker,
                                    igetter,
                                    numName,
                                    denomName,
-                                   "efficiency_" + filterName2 + "_vs_" + *var + *postfix,
-                                   *var,
-                                   "efficiency_" + filterName2 + "_vs_" + *var + *postfix))
+                                   "efficiency_" + filterName2 + "_vs_" + varName + postfixe,
+                                   varName,
+                                   "efficiency_" + filterName2 + "_vs_" + varName + postfixe))
             break;
 
         }  // loop over variables

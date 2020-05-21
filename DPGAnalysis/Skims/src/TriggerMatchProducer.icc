@@ -85,15 +85,13 @@ void TriggerMatchProducer<object>::produce(edm::Event& event, const edm::EventSe
   //      if ( triggerUnprescaled.find((*iMyHLT).label()) == triggerUnprescaled.end() )
   //        triggerUnprescaled[(*iMyHLT).label()] = false;
   //    }
-  for (std::vector<std::string>::const_iterator iHLT = activeHLTPathsInThisEvent.begin();
-       iHLT != activeHLTPathsInThisEvent.end();
-       ++iHLT) {
+  for (const auto& iHLT : activeHLTPathsInThisEvent) {
     //        cout << "######## " << *iHLT << endl;
 
-    if (TString(*iHLT).Contains(TRegexp(hltTag_))) {
-      triggerInMenu[*iHLT] = true;
-      if (hltPrescaleProvider_.prescaleValue(event, eventSetup, *iHLT) == 1)
-        triggerUnprescaled[*iHLT] = true;
+    if (TString(iHLT).Contains(TRegexp(hltTag_))) {
+      triggerInMenu[iHLT] = true;
+      if (hltPrescaleProvider_.prescaleValue(event, eventSetup, iHLT) == 1)
+        triggerUnprescaled[iHLT] = true;
     }
   }
 
@@ -135,11 +133,11 @@ void TriggerMatchProducer<object>::produce(edm::Event& event, const edm::EventSe
       continue;
     }
 
-    for (std::vector<std::string>::iterator filter = filters.begin(); filter != filters.end(); ++filter) {
-      edm::InputTag testTag(*filter, "", triggerEventTag_.process());
+    for (auto& filter : filters) {
+      edm::InputTag testTag(filter, "", triggerEventTag_.process());
       int testindex = trgEvent->filterIndex(testTag);
       if (!(testindex >= trgEvent->sizeFilters())) {
-        filterName_ = *filter;
+        filterName_ = filter;
         filterTag = testTag;
       }
     }
@@ -163,10 +161,10 @@ void TriggerMatchProducer<object>::produce(edm::Event& event, const edm::EventSe
   unsigned int counter = 0;
   for (typename edm::View<object>::const_iterator j = candHandle->begin(); j != candHandle->end(); ++j, ++counter) {
     bool hltTrigger = false;
-    for (unsigned int idx = 0; idx < index.size(); ++idx) {
+    for (int idx : index) {
       if (hltTrigger)
         continue;
-      const trigger::Keys& KEYS(trgEvent->filterKeys(index[idx]));
+      const trigger::Keys& KEYS(trgEvent->filterKeys(idx));
       const size_type nK(KEYS.size());
       // Get cut decision for each candidate
       // Did this candidate cause a HLT trigger?

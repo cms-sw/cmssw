@@ -98,14 +98,14 @@ public:
       modules_.push_back(newMod);
     }
 
-    for (size_t i = 0; i < paths_.size(); ++i) {
-      if (!(paths_[i] == path))
+    for (auto &i : paths_) {
+      if (!(i == path))
         continue;
       // we found the path, add module to the end
       for (size_t j = 0; j < modules_.size(); ++j) {
         if (!(modules_[j] == mod))
           continue;
-        paths_[i].addModuleRef(j);
+        i.addModuleRef(j);
         break;
       }
       break;
@@ -122,8 +122,8 @@ public:
     paths_.clear();
   }
   void clearModules() {
-    for (size_t i = 0; i < modules_.size(); ++i) {
-      modules_[i].clear();
+    for (auto &module : modules_) {
+      module.clear();
     }
   }
 

@@ -16,8 +16,8 @@ ParameterCollector::ParameterCollector() {}
 ParameterCollector::ParameterCollector(const edm::ParameterSet &pset) {
   std::vector<std::string> names = pset.getParameterNamesForType<std::vector<std::string> >();
 
-  for (std::vector<std::string>::const_iterator it = names.begin(); it != names.end(); ++it)
-    contents_[*it] = pset.getParameter<std::vector<std::string> >(*it);
+  for (const auto &name : names)
+    contents_[name] = pset.getParameter<std::vector<std::string> >(name);
 }
 
 ParameterCollector::~ParameterCollector() {}

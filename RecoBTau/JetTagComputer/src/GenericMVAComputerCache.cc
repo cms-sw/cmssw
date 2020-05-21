@@ -23,8 +23,8 @@ GenericMVAComputerCache::GenericMVAComputerCache(const std::vector<std::string> 
       empty(true),
       errorUpdatingLabel() {
   std::vector<IndividualComputer>::iterator computer = computers.begin();
-  for (std::vector<std::string>::const_iterator iter = labels.begin(); iter != labels.end(); iter++) {
-    computer->label = *iter;
+  for (const auto &label : labels) {
+    computer->label = label;
     computer->cacheId = MVAComputer::CacheId();
     computer++;
   }
@@ -58,40 +58,40 @@ bool GenericMVAComputerCache::update(const MVAComputerContainer *calib) {
   empty = true;
 
   bool changed = false;
-  for (std::vector<IndividualComputer>::iterator iter = computers.begin(); iter != computers.end(); iter++) {
+  for (auto &computer : computers) {
     // empty labels means we don't want a computer
-    if (iter->label.empty())
+    if (computer.label.empty())
       continue;
 
     // Delay throwing if the label cannot be found until getComputer is called
     // Sometimes this cache is updated and never used.
-    if (!calib->contains(iter->label)) {
-      errorUpdatingLabel = iter->label;
+    if (!calib->contains(computer.label)) {
+      errorUpdatingLabel = computer.label;
       continue;
     }
 
-    const MVAComputer *computerCalib = &calib->find(iter->label);
+    const MVAComputer *computerCalib = &calib->find(computer.label);
     if (!computerCalib) {
-      iter->computer.reset();
+      computer.computer.reset();
       continue;
     }
 
     // check container content for changes
-    if (iter->computer.get() && !computerCalib->changed(iter->cacheId)) {
+    if (computer.computer.get() && !computerCalib->changed(computer.cacheId)) {
       empty = false;
       continue;
     }
 
     // drop old computer
-    iter->computer.reset();
+    computer.computer.reset();
 
     if (!computerCalib)
       continue;
 
     // instantiate new MVAComputer with uptodate calibration
-    iter->computer = std::unique_ptr<GenericMVAComputer>(new GenericMVAComputer(computerCalib));
+    computer.computer = std::unique_ptr<GenericMVAComputer>(new GenericMVAComputer(computerCalib));
 
-    iter->cacheId = computerCalib->getCacheId();
+    computer.cacheId = computerCalib->getCacheId();
 
     changed = true;
     empty = false;

@@ -215,68 +215,59 @@ void JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& 
     double denominator_tracks = 0.;
     int ntracks = 0;
 
-    for (reco::TrackRefVector::const_iterator it = pions.inVertexInCalo_.begin(); it != pions.inVertexInCalo_.end();
-         it++) {
-      double deR = deltaR((*it)->eta(), (*it)->phi(), p4.eta(), p4.phi());
-      double deEta = (*it)->eta() - p4.eta();
-      double dePhi = deltaPhi((*it)->phi(), p4.phi());
-      if ((**it).ptError() / (**it).pt() < 0.1) {
-        deR2Tr = deR2Tr + deR * deR * (*it)->pt();
-        deEta2Tr = deEta2Tr + deEta * deEta * (*it)->pt();
-        dePhi2Tr = dePhi2Tr + dePhi * dePhi * (*it)->pt();
-        denominator_tracks = denominator_tracks + (*it)->pt();
-        Zch = Zch + (*it)->pt();
+    for (auto&& it : pions.inVertexInCalo_) {
+      double deR = deltaR((it)->eta(), (it)->phi(), p4.eta(), p4.phi());
+      double deEta = (it)->eta() - p4.eta();
+      double dePhi = deltaPhi((it)->phi(), p4.phi());
+      if ((*it).ptError() / (*it).pt() < 0.1) {
+        deR2Tr = deR2Tr + deR * deR * (it)->pt();
+        deEta2Tr = deEta2Tr + deEta * deEta * (it)->pt();
+        dePhi2Tr = dePhi2Tr + dePhi * dePhi * (it)->pt();
+        denominator_tracks = denominator_tracks + (it)->pt();
+        Zch = Zch + (it)->pt();
 
-        Pout2 = Pout2 + (**it).p() * (**it).p() - (Zch * p4.P()) * (Zch * p4.P());
+        Pout2 = Pout2 + (*it).p() * (*it).p() - (Zch * p4.P()) * (Zch * p4.P());
         ntracks++;
       }
     }
-    for (reco::TrackRefVector::const_iterator it = muons.inVertexInCalo_.begin(); it != muons.inVertexInCalo_.end();
-         it++) {
-      double deR = deltaR((*it)->eta(), (*it)->phi(), p4.eta(), p4.phi());
-      double deEta = (*it)->eta() - p4.eta();
-      double dePhi = deltaPhi((*it)->phi(), p4.phi());
-      if ((**it).ptError() / (**it).pt() < 0.1) {
-        deR2Tr = deR2Tr + deR * deR * (*it)->pt();
-        deEta2Tr = deEta2Tr + deEta * deEta * (*it)->pt();
-        dePhi2Tr = dePhi2Tr + dePhi * dePhi * (*it)->pt();
-        denominator_tracks = denominator_tracks + (*it)->pt();
-        Zch = Zch + (*it)->pt();
+    for (auto&& it : muons.inVertexInCalo_) {
+      double deR = deltaR((it)->eta(), (it)->phi(), p4.eta(), p4.phi());
+      double deEta = (it)->eta() - p4.eta();
+      double dePhi = deltaPhi((it)->phi(), p4.phi());
+      if ((*it).ptError() / (*it).pt() < 0.1) {
+        deR2Tr = deR2Tr + deR * deR * (it)->pt();
+        deEta2Tr = deEta2Tr + deEta * deEta * (it)->pt();
+        dePhi2Tr = dePhi2Tr + dePhi * dePhi * (it)->pt();
+        denominator_tracks = denominator_tracks + (it)->pt();
+        Zch = Zch + (it)->pt();
 
-        Pout2 = Pout2 + (**it).p() * (**it).p() - (Zch * p4.P()) * (Zch * p4.P());
+        Pout2 = Pout2 + (*it).p() * (*it).p() - (Zch * p4.P()) * (Zch * p4.P());
         ntracks++;
       }
     }
-    for (reco::TrackRefVector::const_iterator it = elecs.inVertexInCalo_.begin(); it != elecs.inVertexInCalo_.end();
-         it++) {
-      double deR = deltaR((*it)->eta(), (*it)->phi(), p4.eta(), p4.phi());
-      double deEta = (*it)->eta() - p4.eta();
-      double dePhi = deltaPhi((*it)->phi(), p4.phi());
-      if ((**it).ptError() / (**it).pt() < 0.1) {
-        deR2Tr = deR2Tr + deR * deR * (*it)->pt();
-        deEta2Tr = deEta2Tr + deEta * deEta * (*it)->pt();
-        dePhi2Tr = dePhi2Tr + dePhi * dePhi * (*it)->pt();
-        denominator_tracks = denominator_tracks + (*it)->pt();
-        Zch = Zch + (*it)->pt();
+    for (auto&& it : elecs.inVertexInCalo_) {
+      double deR = deltaR((it)->eta(), (it)->phi(), p4.eta(), p4.phi());
+      double deEta = (it)->eta() - p4.eta();
+      double dePhi = deltaPhi((it)->phi(), p4.phi());
+      if ((*it).ptError() / (*it).pt() < 0.1) {
+        deR2Tr = deR2Tr + deR * deR * (it)->pt();
+        deEta2Tr = deEta2Tr + deEta * deEta * (it)->pt();
+        dePhi2Tr = dePhi2Tr + dePhi * dePhi * (it)->pt();
+        denominator_tracks = denominator_tracks + (it)->pt();
+        Zch = Zch + (it)->pt();
 
-        Pout2 = Pout2 + (**it).p() * (**it).p() - (Zch * p4.P()) * (Zch * p4.P());
+        Pout2 = Pout2 + (*it).p() * (*it).p() - (Zch * p4.P()) * (Zch * p4.P());
         ntracks++;
       }
     }
-    for (reco::TrackRefVector::const_iterator it = pions.inVertexOutOfCalo_.begin();
-         it != pions.inVertexOutOfCalo_.end();
-         it++) {
-      Zch = Zch + (*it)->pt();
+    for (auto&& it : pions.inVertexOutOfCalo_) {
+      Zch = Zch + (it)->pt();
     }
-    for (reco::TrackRefVector::const_iterator it = muons.inVertexOutOfCalo_.begin();
-         it != muons.inVertexOutOfCalo_.end();
-         it++) {
-      Zch = Zch + (*it)->pt();
+    for (auto&& it : muons.inVertexOutOfCalo_) {
+      Zch = Zch + (it)->pt();
     }
-    for (reco::TrackRefVector::const_iterator it = elecs.inVertexOutOfCalo_.begin();
-         it != elecs.inVertexOutOfCalo_.end();
-         it++) {
-      Zch = Zch + (*it)->pt();
+    for (auto&& it : elecs.inVertexOutOfCalo_) {
+      Zch = Zch + (it)->pt();
     }
 
     if (mJPTalgo->getSumPtForBeta() > 0.)
@@ -384,7 +375,7 @@ reco::TrackRefVector JetPlusTrackProducerAA::calculateBGtracksJet(
     reco::TrackRefVector& trBgOutOfCalo) {
   reco::TrackRefVector trBgOutOfVertex;
 
-  for (unsigned t = 0; t < fTracks.size(); ++t) {
+  for (auto& fTrack : fTracks) {
     int track_bg = 0;
 
     // if(!(*fTracks[t]).quality(trackQuality_))
@@ -393,7 +384,7 @@ reco::TrackRefVector JetPlusTrackProducerAA::calculateBGtracksJet(
     // continue;
     // }
 
-    const reco::Track* track = &*(fTracks[t]);
+    const reco::Track* track = &*fTrack;
     double trackEta = track->eta();
     double trackPhi = track->phi();
 
@@ -401,8 +392,8 @@ reco::TrackRefVector JetPlusTrackProducerAA::calculateBGtracksJet(
     //           <<" coneSize="<<mConeSize<<std::endl;
 
     //loop on jets
-    for (unsigned j = 0; j < fJets.size(); ++j) {
-      const reco::Jet* jet = &(fJets[j]);
+    for (auto& fJet : fJets) {
+      const reco::Jet* jet = &fJet;
       double jetEta = jet->eta();
       double jetPhi = jet->phi();
 
@@ -424,7 +415,7 @@ reco::TrackRefVector JetPlusTrackProducerAA::calculateBGtracksJet(
     }  //jets
 
     if (track_bg == 0) {
-      trBgOutOfVertex.push_back(fTracks[t]);
+      trBgOutOfVertex.push_back(fTrack);
 
       //       std::cout<<"------Track outside jet at vertex, track_bg="<< track_bg<<" track="<<t
       //               <<" trackEta="<<trackEta<<" trackPhi="<<trackPhi <<std::endl;

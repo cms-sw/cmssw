@@ -2,13 +2,13 @@
 #include <iomanip>
 
 HcalHistogramDigi::HcalHistogramDigi() : id_(0) {
-  for (int i = 0; i < BINS_PER_HISTOGRAM * 4; i++)
-    bins_[i] = 0;
+  for (unsigned short& bin : bins_)
+    bin = 0;
 }
 
 HcalHistogramDigi::HcalHistogramDigi(const HcalDetId& id) : id_(id) {
-  for (int i = 0; i < BINS_PER_HISTOGRAM * 4; i++)
-    bins_[i] = 0;
+  for (unsigned short& bin : bins_)
+    bin = 0;
 }
 
 uint16_t HcalHistogramDigi::get(int capid, int bin) const {

@@ -111,14 +111,13 @@ namespace PhysicsTools {
 
     MVAComputer::MVAComputer(const MVAComputer &orig)
         : inputSet(orig.inputSet), output(orig.output), cacheId(orig.cacheId) {
-      for (std::vector<VarProcessor *>::const_iterator iter = orig.processors.begin(); iter != orig.processors.end();
-           ++iter)
-        addProcessor(*iter);
+      for (auto processor : orig.processors)
+        addProcessor(processor);
     }
 
     MVAComputer::~MVAComputer() {
-      for (std::vector<VarProcessor *>::iterator iter = processors.begin(); iter != processors.end(); ++iter)
-        delete *iter;
+      for (auto &processor : processors)
+        delete processor;
       processors.clear();
     }
 
@@ -127,13 +126,12 @@ namespace PhysicsTools {
       output = orig.output;
       cacheId = orig.cacheId;
 
-      for (std::vector<VarProcessor *>::iterator iter = processors.begin(); iter != processors.end(); ++iter)
-        delete *iter;
+      for (auto &processor : processors)
+        delete processor;
       processors.clear();
 
-      for (std::vector<VarProcessor *>::const_iterator iter = orig.processors.begin(); iter != orig.processors.end();
-           ++iter)
-        addProcessor(*iter);
+      for (auto processor : orig.processors)
+        addProcessor(processor);
 
       return *this;
     }

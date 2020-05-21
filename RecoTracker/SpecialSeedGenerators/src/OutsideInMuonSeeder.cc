@@ -246,44 +246,41 @@ int OutsideInMuonSeeder::doLayer(const GeometricSearchDet &layer,
   }
 
   std::vector<TrajectoryMeasurement> meas;
-  for (std::vector<GeometricSearchDet::DetWithState>::const_iterator it = dets.begin(), ed = dets.end(); it != ed;
-       ++it) {
-    MeasurementDetWithData det = measurementTracker.idToDet(it->first->geographicalId());
+  for (const auto &it : dets) {
+    MeasurementDetWithData det = measurementTracker.idToDet(it.first->geographicalId());
     if (det.isNull()) {
-      std::cerr << "BOGUS detid " << it->first->geographicalId().rawId() << std::endl;
+      std::cerr << "BOGUS detid " << it.first->geographicalId().rawId() << std::endl;
       continue;
     }
-    if (!it->second.isValid())
+    if (!it.second.isValid())
       continue;
-    std::vector<TrajectoryMeasurement> mymeas =
-        det.fastMeasurements(it->second, state, tracker_propagator, *estimator_);
+    std::vector<TrajectoryMeasurement> mymeas = det.fastMeasurements(it.second, state, tracker_propagator, *estimator_);
     if (debug_)
-      LogDebug("OutsideInMuonSeeder") << "Query on detector " << it->first->geographicalId().rawId() << " returned "
+      LogDebug("OutsideInMuonSeeder") << "Query on detector " << it.first->geographicalId().rawId() << " returned "
                                       << mymeas.size() << " measurements." << std::endl;
-    for (std::vector<TrajectoryMeasurement>::const_iterator it2 = mymeas.begin(), ed2 = mymeas.end(); it2 != ed2;
-         ++it2) {
-      if (it2->recHit()->isValid())
-        meas.push_back(*it2);
+    for (const auto &mymea : mymeas) {
+      if (mymea.recHit()->isValid())
+        meas.push_back(mymea);
     }
   }
   int found = 0;
   std::sort(meas.begin(), meas.end(), TrajMeasLessEstim());
-  for (std::vector<TrajectoryMeasurement>::const_iterator it2 = meas.begin(), ed2 = meas.end(); it2 != ed2; ++it2) {
+  for (const auto &mea : meas) {
     if (debug_) {
-      LogDebug("OutsideInMuonSeeder") << "  inspecting Hit with chi2 = " << it2->estimate() << std::endl;
-      LogDebug("OutsideInMuonSeeder") << "        track state     " << it2->forwardPredictedState().globalPosition()
+      LogDebug("OutsideInMuonSeeder") << "  inspecting Hit with chi2 = " << mea.estimate() << std::endl;
+      LogDebug("OutsideInMuonSeeder") << "        track state     " << mea.forwardPredictedState().globalPosition()
                                       << std::endl;
-      LogDebug("OutsideInMuonSeeder") << "        rechit position " << it2->recHit()->globalPosition() << std::endl;
+      LogDebug("OutsideInMuonSeeder") << "        rechit position " << mea.recHit()->globalPosition() << std::endl;
     }
-    TrajectoryStateOnSurface updated = updator_->update(it2->forwardPredictedState(), *it2->recHit());
+    TrajectoryStateOnSurface updated = updator_->update(mea.forwardPredictedState(), *mea.recHit());
     if (updated.isValid()) {
       if (debug_)
         LogDebug("OutsideInMuonSeeder") << "          --> updated state: x = " << updated.globalPosition()
                                         << ", p = " << updated.globalMomentum() << std::endl;
       edm::OwnVector<TrackingRecHit> seedHits;
-      seedHits.push_back(*it2->recHit()->hit());
+      seedHits.push_back(*mea.recHit()->hit());
       PTrajectoryStateOnDet const &pstate =
-          trajectoryStateTransform::persistentState(updated, it2->recHit()->geographicalId().rawId());
+          trajectoryStateTransform::persistentState(updated, mea.recHit()->geographicalId().rawId());
       TrajectorySeed seed(pstate, std::move(seedHits), oppositeToMomentum);
       out.push_back(seed);
       found++;

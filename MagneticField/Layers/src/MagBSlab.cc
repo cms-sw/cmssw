@@ -18,17 +18,17 @@ using namespace std;
 MagBSlab::MagBSlab(const vector<MagVolume*>& volumes, double zMin) : theVolumes(volumes), theZMin(zMin) {}
 
 MagBSlab::~MagBSlab() {
-  for (vector<MagVolume*>::const_iterator ivol = theVolumes.begin(); ivol != theVolumes.end(); ++ivol) {
-    delete (*ivol);
+  for (auto theVolume : theVolumes) {
+    delete theVolume;
   }
 }
 
 const MagVolume* MagBSlab::findVolume(const GlobalPoint& gp, double tolerance) const {
-  for (vector<MagVolume*>::const_iterator ivol = theVolumes.begin(); ivol != theVolumes.end(); ++ivol) {
+  for (auto theVolume : theVolumes) {
     // FIXME : use a binfinder
-    LogTrace("MagGeometry") << "        Trying volume " << (static_cast<MagVolume6Faces*>(*ivol))->volumeNo << endl;
-    if ((*ivol)->inside(gp, tolerance))
-      return (*ivol);
+    LogTrace("MagGeometry") << "        Trying volume " << (static_cast<MagVolume6Faces*>(theVolume))->volumeNo << endl;
+    if (theVolume->inside(gp, tolerance))
+      return theVolume;
   }
 
   return nullptr;

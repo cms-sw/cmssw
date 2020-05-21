@@ -91,8 +91,8 @@ void AlignmentMonitorTemplate::event(const edm::Event& iEvent,
   TrajectoryStateCombiner tsoscomb;
 
   // This is a procedure that loops over tracks/hits, calculates residuals, and fills the appropriate histogram.
-  for (ConstTrajTrackPairCollection::const_iterator it = tracks.begin(); it != tracks.end(); ++it) {
-    const Trajectory* traj = it->first;
+  for (const auto& track : tracks) {
+    const Trajectory* traj = track.first;
     //      const reco::Track* track = it->second;
     // If your tracks are refit using the producer in RecoTracker, you'll get updated reco::Track objects with
     // each iteration, and it makes sense to make plots using these.
@@ -100,8 +100,7 @@ void AlignmentMonitorTemplate::event(const edm::Event& iEvent,
     // We're working on that.  I'll try to remember to change this comment when the update is ready.
 
     std::vector<TrajectoryMeasurement> measurements = traj->measurements();
-    for (std::vector<TrajectoryMeasurement>::const_iterator im = measurements.begin(); im != measurements.end(); ++im) {
-      const TrajectoryMeasurement meas = *im;
+    for (auto meas : measurements) {
       const TransientTrackingRecHit* hit = &(*meas.recHit());
       const DetId id = hit->geographicalId();
 

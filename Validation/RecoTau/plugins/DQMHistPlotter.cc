@@ -108,10 +108,8 @@ void checkCfgDefs(const std::vector<std::string>& cfgEntryNames,
                   int& errorFlag,
                   const std::string& defType,
                   const std::string& drawJobName) {
-  for (std::vector<std::string>::const_iterator cfgEntryName = cfgEntryNames.begin();
-       cfgEntryName != cfgEntryNames.end();
-       ++cfgEntryName) {
-    checkCfgDef(*cfgEntryName, def, errorFlag, defType, drawJobName);
+  for (const auto& cfgEntryName : cfgEntryNames) {
+    checkCfgDef(cfgEntryName, def, errorFlag, defType, drawJobName);
   }
 }
 
@@ -137,9 +135,9 @@ const T* findCfgDef(const std::string& cfgEntryName,
 typedef std::pair<TH1*, std::string> histoDrawEntry;
 
 void drawHistograms(const std::list<histoDrawEntry>& histogramList, bool& isFirstHistogram) {
-  for (std::list<histoDrawEntry>::const_iterator it = histogramList.begin(); it != histogramList.end(); ++it) {
-    std::string drawOption = (isFirstHistogram) ? it->second : std::string(it->second).append("same");
-    it->first->Draw(drawOption.data());
+  for (const auto& it : histogramList) {
+    std::string drawOption = (isFirstHistogram) ? it.second : std::string(it.second).append("same");
+    it.first->Draw(drawOption.data());
     isFirstHistogram = false;
   }
 }
@@ -149,8 +147,8 @@ void drawHistograms(const std::list<histoDrawEntry>& histogramList, bool& isFirs
 //
 
 bool find_vstring(const std::vector<std::string>& vs, const std::string& s) {
-  for (std::vector<std::string>::const_iterator it = vs.begin(); it != vs.end(); ++it) {
-    if ((*it) == s)
+  for (const auto& v : vs) {
+    if (v == s)
       return true;
   }
   return false;
@@ -385,8 +383,8 @@ void TauDQMHistPlotter::cfgEntryLabel::applyTo(TPaveText* label) const {
     label->SetTextSize(textSize_);
     label->SetTextAlign(textAlign_);
     label->SetTextAngle(textAngle_);
-    for (vstring::const_iterator line = text_.begin(); line != text_.end(); ++line) {
-      label->AddText(line->data());
+    for (const auto& line : text_) {
+      label->AddText(line.data());
     }
   }
 }
@@ -515,8 +513,8 @@ TauDQMHistPlotter::cfgEntryDrawJob::cfgEntryDrawJob(const std::string& name,
                                                     const vstring& labels) {
   name_ = name;
 
-  for (plotDefList::const_iterator it = plotDefList.begin(); it != plotDefList.end(); ++it) {
-    plots_.push_back(plotDefEntry(*it));
+  for (const auto& it : plotDefList) {
+    plots_.push_back(plotDefEntry(it));
   }
 
   title_ = title;
@@ -526,8 +524,8 @@ TauDQMHistPlotter::cfgEntryDrawJob::cfgEntryDrawJob(const std::string& name,
 
   legend_ = legend;
 
-  for (vstring::const_iterator it = labels.begin(); it != labels.end(); ++it) {
-    labels_.push_back(std::string(*it));
+  for (const auto& label : labels) {
+    labels_.push_back(std::string(label));
   }
 
   if (verbosity)
@@ -538,8 +536,8 @@ void TauDQMHistPlotter::cfgEntryDrawJob::print() const {
   std::cout << "<TauDQMHistPlotter::cfgSetDrawJob::print>:" << std::endl;
   std::cout << " name = " << name_ << std::endl;
   std::cout << "plots = {" << std::endl;
-  for (plotDefList::const_iterator plot = plots_.begin(); plot != plots_.end(); ++plot) {
-    plot->print();
+  for (const auto& plot : plots_) {
+    plot.print();
   }
   std::cout << "}" << std::endl;
   std::cout << " title = " << title_ << std::endl;
@@ -615,19 +613,15 @@ TauDQMHistPlotter::TauDQMHistPlotter(const edm::ParameterSet& cfg) {
   if (cfg.exists("drawOptionSets")) {
     edm::ParameterSet drawOptionSets = cfg.getParameter<edm::ParameterSet>("drawOptionSets");
     vstring drawOptionSetNames = drawOptionSets.getParameterNamesForType<edm::ParameterSet>();
-    for (vstring::const_iterator drawOptionSetName = drawOptionSetNames.begin();
-         drawOptionSetName != drawOptionSetNames.end();
-         ++drawOptionSetName) {
-      edm::ParameterSet drawOptionSet = drawOptionSets.getParameter<edm::ParameterSet>(*drawOptionSetName);
+    for (const auto& drawOptionSetName : drawOptionSetNames) {
+      edm::ParameterSet drawOptionSet = drawOptionSets.getParameter<edm::ParameterSet>(drawOptionSetName);
 
       vstring drawOptionEntryNames = drawOptionSet.getParameterNamesForType<edm::ParameterSet>();
-      for (vstring::const_iterator drawOptionEntryName = drawOptionEntryNames.begin();
-           drawOptionEntryName != drawOptionEntryNames.end();
-           ++drawOptionEntryName) {
-        edm::ParameterSet drawOptionEntry = drawOptionSet.getParameter<edm::ParameterSet>(*drawOptionEntryName);
+      for (const auto& drawOptionEntryName : drawOptionEntryNames) {
+        edm::ParameterSet drawOptionEntry = drawOptionSet.getParameter<edm::ParameterSet>(drawOptionEntryName);
 
         std::string drawOptionEntryName_full =
-            std::string(*drawOptionSetName).append(drawOptionSeparator).append(*drawOptionEntryName);
+            std::string(drawOptionSetName).append(drawOptionSeparator).append(drawOptionEntryName);
         drawOptionEntries_.insert(std::pair<std::string, cfgEntryDrawOption>(
             drawOptionEntryName_full, cfgEntryDrawOption(drawOptionEntryName_full, drawOptionEntry)));
       }
@@ -643,8 +637,8 @@ TauDQMHistPlotter::TauDQMHistPlotter(const edm::ParameterSet& cfg) {
   //std::cout << "--> configuring drawJobs..." << std::endl;
   edm::ParameterSet drawJobs = cfg.getParameter<edm::ParameterSet>("drawJobs");
   vstring drawJobNames = drawJobs.getParameterNamesForType<edm::ParameterSet>();
-  for (vstring::const_iterator drawJobName = drawJobNames.begin(); drawJobName != drawJobNames.end(); ++drawJobName) {
-    edm::ParameterSet drawJob = drawJobs.getParameter<edm::ParameterSet>(*drawJobName);
+  for (const auto& drawJobName : drawJobNames) {
+    edm::ParameterSet drawJob = drawJobs.getParameter<edm::ParameterSet>(drawJobName);
 
     std::map<int, plotDefList> plotDefMap;
 
@@ -659,15 +653,13 @@ TauDQMHistPlotter::TauDQMHistPlotter(const edm::ParameterSet& cfg) {
 
       vstring stack = (cfg.exists("stack")) ? drawJob.getParameter<vstring>("stack") : vstring();
 
-      for (vstring::const_iterator process = processes.begin(); process != processes.end(); ++process) {
+      for (const auto& processe : processes) {
         int index = 0;
-        for (vstring::const_iterator dqmMonitorElement = dqmMonitorElements.begin();
-             dqmMonitorElement != dqmMonitorElements.end();
-             ++dqmMonitorElement) {
-          bool stack_dqmMonitorElement = find_vstring(stack, *process);
-          std::string drawOptionEntry = std::string(drawOptionSet).append(drawOptionSeparator).append(*process);
+        for (const auto& dqmMonitorElement : dqmMonitorElements) {
+          bool stack_dqmMonitorElement = find_vstring(stack, processe);
+          std::string drawOptionEntry = std::string(drawOptionSet).append(drawOptionSeparator).append(processe);
           plotDefMap[index].push_back(
-              plotDefEntry(*dqmMonitorElement, drawOptionEntry, "", "", *process, stack_dqmMonitorElement));
+              plotDefEntry(dqmMonitorElement, drawOptionEntry, "", "", processe, stack_dqmMonitorElement));
           ++index;
         }
       }
@@ -678,32 +670,30 @@ TauDQMHistPlotter::TauDQMHistPlotter(const edm::ParameterSet& cfg) {
       std::string process = (drawJob.exists("process")) ? drawJob.getParameter<std::string>("process") : "";
       //std::cout << "process (globally set) = " << process << std::endl;
 
-      for (vParameterSet::const_iterator plot = plots.begin(); plot != plots.end(); ++plot) {
-        if (process.empty() || plot->exists("process")) {
-          process = plot->getParameter<std::string>("process");
+      for (const auto& plot : plots) {
+        if (process.empty() || plot.exists("process")) {
+          process = plot.getParameter<std::string>("process");
           //std::cout << "process (locally set) = " << process << std::endl;
         }
 
-        std::string drawOptionEntry = plot->getParameter<std::string>("drawOptionEntry");
+        std::string drawOptionEntry = plot.getParameter<std::string>("drawOptionEntry");
         //std::cout << "drawOptionEntry = " << drawOptionEntry << std::endl;
 
         std::string legendEntry = "", legendEntryErrorBand = "";
-        if (plot->exists("legendEntry")) {
-          legendEntry = plot->getParameter<std::string>("legendEntry");
-          legendEntryErrorBand = (plot->exists("legendEntryErrorBand"))
-                                     ? plot->getParameter<std::string>("legendEntryErrorBand")
+        if (plot.exists("legendEntry")) {
+          legendEntry = plot.getParameter<std::string>("legendEntry");
+          legendEntryErrorBand = (plot.exists("legendEntryErrorBand"))
+                                     ? plot.getParameter<std::string>("legendEntryErrorBand")
                                      : std::string(legendEntry).append(" Uncertainty");
         }
         //std::cout << "legendEntry = " << legendEntry << std::endl;
         //std::cout << "legendEntryErrorBand = " << legendEntryErrorBand << std::endl;
 
-        vstring dqmMonitorElements = plot->getParameter<vstring>("dqmMonitorElements");
+        vstring dqmMonitorElements = plot.getParameter<vstring>("dqmMonitorElements");
         int index = 0;
-        for (vstring::const_iterator dqmMonitorElement = dqmMonitorElements.begin();
-             dqmMonitorElement != dqmMonitorElements.end();
-             ++dqmMonitorElement) {
+        for (const auto& dqmMonitorElement : dqmMonitorElements) {
           plotDefMap[index].push_back(
-              plotDefEntry(*dqmMonitorElement, drawOptionEntry, legendEntry, legendEntryErrorBand, process, false));
+              plotDefEntry(dqmMonitorElement, drawOptionEntry, legendEntry, legendEntryErrorBand, process, false));
           ++index;
         }
       }
@@ -720,15 +710,15 @@ TauDQMHistPlotter::TauDQMHistPlotter(const edm::ParameterSet& cfg) {
         if (plot->second.size() != numMonitorElements_ref) {
           edm::LogError("TauDQMHistPlotter::TauDQMHistPlotter")
               << " Numbers of dqmMonitorElements must be the same for all plots"
-              << " --> skipping drawJob = " << (*drawJobName) << " !!";
+              << " --> skipping drawJob = " << drawJobName << " !!";
           cfgError_ = 1;
         }
       }
     }
 
     //--- expand process directories in names of dqmMonitorElements
-    for (std::map<int, plotDefList>::iterator plot = plotDefMap.begin(); plot != plotDefMap.end(); ++plot) {
-      for (plotDefList::iterator entry = plot->second.begin(); entry != plot->second.end(); ++entry) {
+    for (auto& plot : plotDefMap) {
+      for (plotDefList::iterator entry = plot.second.begin(); entry != plot.second.end(); ++entry) {
         std::string dqmMonitorElement = entry->dqmMonitorElement_;
         std::string process = entry->process_;
 
@@ -766,20 +756,20 @@ TauDQMHistPlotter::TauDQMHistPlotter(const edm::ParameterSet& cfg) {
 
     //--- expand parameters in names of dqmMonitorElements;
     //    create drawJob objects
-    for (std::map<int, plotDefList>::iterator plot = plotDefMap.begin(); plot != plotDefMap.end(); ++plot) {
+    for (auto& plot : plotDefMap) {
       if (drawJob.exists("parameter")) {
         vstring vparameter = drawJob.getParameter<vstring>("parameter");
         //std::cout << "replacing parameter = " << format_vstring(vparameter) << " in drawJob = " << (*drawJobName) << std::endl;
 
-        for (vstring::const_iterator parameter = vparameter.begin(); parameter != vparameter.end(); ++parameter) {
+        for (const auto& parameter : vparameter) {
           plotDefList plot_expanded;
 
-          for (plotDefList::const_iterator entry = plot->second.begin(); entry != plot->second.end(); ++entry) {
+          for (plotDefList::const_iterator entry = plot.second.begin(); entry != plot.second.end(); ++entry) {
             std::string dqmMonitorElement = entry->dqmMonitorElement_;
 
             int errorFlag = 0;
             std::string dqmMonitorElement_expanded =
-                replace_string(dqmMonitorElement, parKeyword, *parameter, 1, 1, errorFlag);
+                replace_string(dqmMonitorElement, parKeyword, parameter, 1, 1, errorFlag);
             //std::cout << " dqmMonitorElement_expanded = " << dqmMonitorElement_expanded << std::endl;
             if (!errorFlag) {
               plot_expanded.push_back(plotDefEntry(dqmMonitorElement_expanded,
@@ -794,16 +784,16 @@ TauDQMHistPlotter::TauDQMHistPlotter(const edm::ParameterSet& cfg) {
           }
 
           int errorFlag = 0;
-          std::string title_expanded = replace_string(title, parKeyword, *parameter, 0, 1, errorFlag);
+          std::string title_expanded = replace_string(title, parKeyword, parameter, 0, 1, errorFlag);
           //std::cout << " title_expanded = " << title_expanded << std::endl;
-          std::string xAxis_expanded = replace_string(xAxis, parKeyword, *parameter, 0, 1, errorFlag);
+          std::string xAxis_expanded = replace_string(xAxis, parKeyword, parameter, 0, 1, errorFlag);
           //std::cout << " xAxis_expanded = " << xAxis_expanded << std::endl;
-          std::string yAxis_expanded = replace_string(yAxis, parKeyword, *parameter, 0, 1, errorFlag);
+          std::string yAxis_expanded = replace_string(yAxis, parKeyword, parameter, 0, 1, errorFlag);
           //std::cout << " yAxis_expanded = " << yAxis_expanded << std::endl;
           if (errorFlag)
             cfgError_ = 1;
 
-          drawJobs_.push_back(cfgEntryDrawJob(std::string(*drawJobName).append(*parameter),
+          drawJobs_.push_back(cfgEntryDrawJob(std::string(drawJobName).append(parameter),
                                               plot_expanded,
                                               title_expanded,
                                               xAxis_expanded,
@@ -812,7 +802,7 @@ TauDQMHistPlotter::TauDQMHistPlotter(const edm::ParameterSet& cfg) {
                                               labels));
         }
       } else {
-        drawJobs_.push_back(cfgEntryDrawJob(*drawJobName, plot->second, title, xAxis, yAxis, legend, labels));
+        drawJobs_.push_back(cfgEntryDrawJob(drawJobName, plot.second, title, xAxis, yAxis, legend, labels));
       }
     }
   }
@@ -945,9 +935,9 @@ void TauDQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c) {
     typedef std::pair<TH1*, const plotDefEntry*> histogram_drawOption_pair;
     std::list<histogram_drawOption_pair> allHistograms;
 
-    for (plotDefList::const_iterator plot = drawJob->plots_.begin(); plot != drawJob->plots_.end(); ++plot) {
+    for (const auto& plot : drawJob->plots_) {
       std::string dqmMonitorElementName_full =
-          dqmDirectoryName(std::string(dqmRootDirectory)).append(plot->dqmMonitorElement_);
+          dqmDirectoryName(std::string(dqmRootDirectory)).append(plot.dqmMonitorElement_);
       if (verbosity)
         std::cout << " dqmMonitorElementName_full = " << dqmMonitorElementName_full << std::endl;
       MonitorElement* dqmMonitorElement = dqmStore.get(dqmMonitorElementName_full);
@@ -968,7 +958,7 @@ void TauDQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c) {
         histogram->Sumw2();
 
       const cfgEntryDrawOption* drawOptionConfig =
-          findCfgDef<cfgEntryDrawOption>(plot->drawOptionEntry_, drawOptionEntries_, "drawOptionEntry", drawJobName);
+          findCfgDef<cfgEntryDrawOption>(plot.drawOptionEntry_, drawOptionEntries_, "drawOptionEntry", drawJobName);
       if (drawOptionConfig == nullptr) {
         edm::LogError("endJob") << " Failed to access information needed by drawJob = " << drawJobName
                                 << " --> histograms will NOT be plotted !!";
@@ -984,14 +974,14 @@ void TauDQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c) {
         drawOptionConfig_centralValue.fillStyle_ = 0;
         drawOptionConfig_centralValue.drawOption_ = "hist";
         drawOptionConfig_centralValue.drawOptionLegend_ = "l";
-        std::string drawOptionName_centralValue = std::string(plot->drawOptionEntry_).append("_centralValue");
+        std::string drawOptionName_centralValue = std::string(plot.drawOptionEntry_).append("_centralValue");
         //--- entries in std::map need to be unique,
         //    so need to check whether drawOptionEntry already exists...
         if (drawOptionEntries_.find(drawOptionName_centralValue) == drawOptionEntries_.end())
           drawOptionEntries_.insert(std::pair<std::string, cfgEntryDrawOption>(
               drawOptionName_centralValue,
               cfgEntryDrawOption(drawOptionName_centralValue, drawOptionConfig_centralValue)));
-        plotDefEntry* plot_centralValue = new plotDefEntry(*plot);
+        plotDefEntry* plot_centralValue = new plotDefEntry(plot);
         plot_centralValue->drawOptionEntry_ = drawOptionName_centralValue;
         allHistograms.push_back(histogram_drawOption_pair(histogram_centralValue, plot_centralValue));
         histogramsToDelete.push_back(histogram_centralValue);
@@ -1007,27 +997,27 @@ void TauDQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c) {
         drawOptionConfig_ErrorBand.lineWidth_ = 0;
         drawOptionConfig_ErrorBand.drawOption_ = "e2";
         drawOptionConfig_ErrorBand.drawOptionLegend_ = "f";
-        std::string drawOptionName_ErrorBand = std::string(plot->drawOptionEntry_).append("_ErrorBand");
+        std::string drawOptionName_ErrorBand = std::string(plot.drawOptionEntry_).append("_ErrorBand");
         //--- entries in std::map need to be unique,
         //    so need to check whether drawOptionEntry already exists...
         if (drawOptionEntries_.find(drawOptionName_ErrorBand) == drawOptionEntries_.end())
           drawOptionEntries_.insert(std::pair<std::string, cfgEntryDrawOption>(
               drawOptionName_ErrorBand, cfgEntryDrawOption(drawOptionName_ErrorBand, drawOptionConfig_ErrorBand)));
-        plotDefEntry* plot_ErrorBand = new plotDefEntry(*plot);
+        plotDefEntry* plot_ErrorBand = new plotDefEntry(plot);
         plot_ErrorBand->drawOptionEntry_ = drawOptionName_ErrorBand;
         plot_ErrorBand->isErrorBand_ = true;
         allHistograms.push_back(histogram_drawOption_pair(histogram_ErrorBand, plot_ErrorBand));
         histogramsToDelete.push_back(histogram_ErrorBand);
         drawOptionsToDelete.push_back(plot_ErrorBand);
-      } else if (plot->doStack_) {
+      } else if (plot.doStack_) {
         TH1* stackedHistogram = dynamic_cast<TH1*>(histogram->Clone());
         if (stackedHistogram_sum)
           stackedHistogram->Add(stackedHistogram_sum);
         stackedHistogram_sum = stackedHistogram;
         histogramsToDelete.push_back(stackedHistogram);
-        allHistograms.push_back(histogram_drawOption_pair(stackedHistogram, &(*plot)));
+        allHistograms.push_back(histogram_drawOption_pair(stackedHistogram, &plot));
       } else {
-        allHistograms.push_back(histogram_drawOption_pair(histogram, &(*plot)));
+        allHistograms.push_back(histogram_drawOption_pair(histogram, &plot));
       }
     }
 
@@ -1122,9 +1112,8 @@ void TauDQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c) {
     }
 
     std::list<TPaveText> labels;
-    for (vstring::const_iterator labelName = drawJob->labels_.begin(); labelName != drawJob->labels_.end();
-         ++labelName) {
-      const cfgEntryLabel* labelConfig = findCfgDef<cfgEntryLabel>(*labelName, labels_, "label", drawJobName);
+    for (const auto& labelName : drawJob->labels_) {
+      const cfgEntryLabel* labelConfig = findCfgDef<cfgEntryLabel>(labelName, labels_, "label", drawJobName);
 
       TPaveText label;
       labelConfig->applyTo(&label);
@@ -1158,8 +1147,8 @@ void TauDQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
     legend.Draw();
 
-    for (std::list<TPaveText>::iterator label = labels.begin(); label != labels.end(); ++label) {
-      label->Draw();
+    for (auto& label : labels) {
+      label.Draw();
     }
 
     //pad.RedrawAxis();

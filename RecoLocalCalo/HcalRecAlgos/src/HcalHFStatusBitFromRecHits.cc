@@ -88,15 +88,15 @@ void HcalHFStatusBitFromRecHits::hfSetFlagFromRecHits(HFRecHitCollection& rec,
       continue;  // partner was dropped; don't set flag
 
     // inner loop will find 'partner' channel (same ieta, iphi, different depth)
-    for (HFRecHitCollection::iterator iHF2 = rec.begin(); iHF2 != rec.end(); ++iHF2) {
-      if (iHF2->id().ieta() != ieta)
+    for (auto& iHF2 : rec) {
+      if (iHF2.id().ieta() != ieta)
         continue;  // require ieta match
-      if (iHF2->id().iphi() != iphi)
+      if (iHF2.id().iphi() != iphi)
         continue;  // require iphi match
-      if (iHF2->id().depth() == depth)
+      if (iHF2.id().depth() == depth)
         continue;  // require short/long combo
 
-      en2 = iHF2->energy();
+      en2 = iHF2.energy();
 
       /* 
 	     We used to use absolute values of energies for ratios, but I don't think we want to do this any more.

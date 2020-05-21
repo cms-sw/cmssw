@@ -45,16 +45,15 @@ void JetSignalVertexCompatibility::produce(edm::Event &event, const edm::EventSe
 
   auto result = std::make_unique<JetFloatAssociation::Container>(jetTracksAssoc->keyProduct());
 
-  for (JetTracksAssociationCollection::const_iterator iter = jetTracksAssoc->begin(); iter != jetTracksAssoc->end();
-       ++iter) {
+  for (const auto &iter : *jetTracksAssoc) {
     if (primaryVertices->empty())
-      (*result)[iter->first] = -1.;
+      (*result)[iter.first] = -1.;
 
-    const TrackRefVector &tracks = iter->second;
+    const TrackRefVector &tracks = iter.second;
     std::vector<float> compatibility = algo.compatibility(*primaryVertices, tracks);
 
     // the first vertex is the presumed signal vertex
-    (*result)[iter->first] = compatibility[0];
+    (*result)[iter.first] = compatibility[0];
   }
 
   algo.resetEvent(nullptr);

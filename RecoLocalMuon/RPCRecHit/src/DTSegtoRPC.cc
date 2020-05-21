@@ -173,9 +173,8 @@ DTSegtoRPC::DTSegtoRPC(const DTRecSegment4DCollection* all4DSegments,
 
         if (debug)
           std::cout << "DT  \t \t Loop over all the rolls asociated to this DT" << std::endl;
-        for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisDT.begin(); iteraRoll != rollsForThisDT.end();
-             iteraRoll++) {
-          const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
+        for (auto iteraRoll : rollsForThisDT) {
+          const RPCRoll* rollasociated = rpcGeo->roll(iteraRoll);
           RPCDetId rpcId = rollasociated->id();
           const BoundPlane& RPCSurface = rollasociated->surface();
 
@@ -413,10 +412,8 @@ DTSegtoRPC::DTSegtoRPC(const DTRecSegment4DCollection* all4DSegments,
 
                     if (debug)
                       std::cout << "MB4  \t \t Loop over all the rolls asociated to this DT" << std::endl;
-                    for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisDT.begin();
-                         iteraRoll != rollsForThisDT.end();
-                         iteraRoll++) {
-                      const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);  //roll asociado a MB4
+                    for (auto iteraRoll : rollsForThisDT) {
+                      const RPCRoll* rollasociated = rpcGeo->roll(iteraRoll);  //roll asociado a MB4
                       RPCDetId rpcId = rollasociated->id();
                       const BoundPlane& RPCSurfaceRB4 = rollasociated->surface();  //surface MB4
 
@@ -560,8 +557,8 @@ DTSegtoRPC::DTSegtoRPC(const DTRecSegment4DCollection* all4DSegments,
                             std::cout << "MB4 \t \t \t \t Extrapolations done after this point = "
                                       << extrapolatedRolls.size() << std::endl;
                           if (debug)
-                            for (uint32_t m = 0; m < extrapolatedRolls.size(); m++)
-                              std::cout << "MB4 \t \t \t \t" << extrapolatedRolls.at(m) << std::endl;
+                            for (unsigned int extrapolatedRoll : extrapolatedRolls)
+                              std::cout << "MB4 \t \t \t \t" << extrapolatedRoll << std::endl;
                         } else {
                           if (debug)
                             std::cout << "MB4 \t \t \t \t No the prediction is outside of this roll" << std::endl;

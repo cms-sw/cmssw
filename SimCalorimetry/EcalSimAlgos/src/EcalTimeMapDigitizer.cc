@@ -75,24 +75,24 @@ EcalTimeMapDigitizer::~EcalTimeMapDigitizer() {}
 
 void EcalTimeMapDigitizer::add(const std::vector<PCaloHit>& hits, int bunchCrossing) {
   if (bunchCrossing >= m_minBunch && bunchCrossing <= m_maxBunch) {
-    for (std::vector<PCaloHit>::const_iterator it = hits.begin(), itEnd = hits.end(); it != itEnd; ++it) {
+    for (const auto& hit : hits) {
       //here goes the map logic
 
-      if (edm::isNotFinite((*it).time()))
+      if (edm::isNotFinite(hit.time()))
         continue;
 
       //Just consider only the hits belonging to the specified time layer
-      int depth2 = (((*it).depth() >> PCaloHit::kEcalDepthOffset) & PCaloHit::kEcalDepthMask);
+      int depth2 = ((hit.depth() >> PCaloHit::kEcalDepthOffset) & PCaloHit::kEcalDepthMask);
 
       if (depth2 != m_timeLayerId)
         continue;
 
-      if ((*it).energy() < MIN_ENERGY_THRESHOLD)  //apply a minimal cut on the hit energy
+      if (hit.energy() < MIN_ENERGY_THRESHOLD)  //apply a minimal cut on the hit energy
         continue;
 
-      const DetId detId((*it).id());
+      const DetId detId(hit.id());
 
-      double time = (*it).time();
+      double time = hit.time();
 
       //time of flight is not corrected here for the vertex position
       const double jitter(time - timeOfFlight(detId, m_timeLayerId));
@@ -100,8 +100,8 @@ void EcalTimeMapDigitizer::add(const std::vector<PCaloHit>& hits, int bunchCross
       TimeSamples& result(*findSignal(detId));
 
       //here fill the result for the given bunch crossing
-      result.average_time[bunchCrossing - m_minBunch] += jitter * (*it).energy();
-      result.tot_energy[bunchCrossing - m_minBunch] += (*it).energy();
+      result.average_time[bunchCrossing - m_minBunch] += jitter * hit.energy();
+      result.tot_energy[bunchCrossing - m_minBunch] += hit.energy();
       result.nhits[bunchCrossing - m_minBunch]++;
 
 #ifdef ecal_time_debug

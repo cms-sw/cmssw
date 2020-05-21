@@ -85,9 +85,9 @@ const std::vector<GEMCoPadDigi>& GEMCoPadProcessor::readoutCoPads() const { retu
 
 void GEMCoPadProcessor::declusterize(const GEMPadDigiClusterCollection* in_clusters,
                                      GEMPadDigiCollection& out_pads) const {
-  for (auto detUnitIt = in_clusters->begin(); detUnitIt != in_clusters->end(); ++detUnitIt) {
-    const GEMDetId& id = (*detUnitIt).first;
-    const auto& range = (*detUnitIt).second;
+  for (auto&& in_cluster : *in_clusters) {
+    const GEMDetId& id = in_cluster.first;
+    const auto& range = in_cluster.second;
     for (auto digiIt = range.first; digiIt != range.second; ++digiIt) {
       for (const auto& p : digiIt->pads()) {
         out_pads.insertDigi(id, GEMPadDigi(p, digiIt->bx()));

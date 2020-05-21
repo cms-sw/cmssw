@@ -55,8 +55,8 @@ void RPCMonitorDigi::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& 
       const RPCChamber* ch = dynamic_cast<const RPCChamber*>(*it);
       std::vector<const RPCRoll*> roles = (ch->rolls());
       if (useRollInfo_) {
-        for (std::vector<const RPCRoll*>::const_iterator r = roles.begin(); r != roles.end(); ++r) {
-          RPCDetId rpcId = (*r)->id();
+        for (auto role : roles) {
+          RPCDetId rpcId = role->id();
 
           //get station and inner ring
           if (rpcId.region() != 0) {
@@ -189,8 +189,8 @@ void RPCMonitorDigi::analyze(const edm::Event& event, const edm::EventSetup& set
 
   if (rpcHits.isValid()) {
     //    RPC rec hits NOT associated to a muon
-    for (auto rpcRecHitIter = rpcHits->begin(); rpcRecHitIter != rpcHits->end(); rpcRecHitIter++) {
-      RPCRecHit rpcRecHit = (*rpcRecHitIter);
+    for (const auto& rpcRecHitIter : *rpcHits) {
+      RPCRecHit rpcRecHit = rpcRecHitIter;
       int detId = (int)rpcRecHit.rpcId();
       if (rechitNoise.find(detId) == rechitNoise.end() || rechitNoise[detId].empty()) {
         std::vector<RPCRecHit> myVect(1, rpcRecHit);
@@ -324,9 +324,8 @@ void RPCMonitorDigi::performSourceOperation(std::map<RPCDetId, std::vector<RPCRe
     std::map<std::string, MonitorElement*> meMap = meRollCollection[nameRoll];
 
     //Loop on recHits
-    for (std::vector<RPCRecHit>::const_iterator recHitIter = recHits.begin(); recHitIter != recHits.end();
-         recHitIter++) {
-      RPCRecHit recHit = (*recHitIter);
+    for (const auto& recHitIter : recHits) {
+      RPCRecHit recHit = recHitIter;
 
       int bx = recHit.BunchX();
       bxSet.insert(bx);

@@ -320,8 +320,8 @@ vector<double> L1TOMDSHelper::getRelativeBunchLumi(int lhcFillNumber, int &error
       }
 
       //-> We calculate the relative luminosity for each bunch
-      for (unsigned int i = 0; i < InitBunchLumi.size(); i++) {
-        RelativeBunchLumi.push_back(InitBunchLumi[i] / InitTotalLumi);
+      for (float i : InitBunchLumi) {
+        RelativeBunchLumi.push_back(i / InitTotalLumi);
       }
     }
   }

@@ -11,12 +11,12 @@ BoundDiskSector* ForwardDiskSectorBuilderFromWedges::operator()(const vector<con
   float phiStart = wedges.front()->position().phi();
   float zStart = wedges.front()->position().z();
   float wphimin, wphimax;
-  for (vector<const TECWedge*>::const_iterator i = wedges.begin(); i != wedges.end(); i++) {
-    float zdiff = (**i).surface().position().z() - zStart;
+  for (auto wedge : wedges) {
+    float zdiff = (*wedge).surface().position().z() - zStart;
     if (std::abs(zdiff) > 5.)
       edm::LogError("TkDetLayers") << " ForwardDiskSectorBuilderFromWedges: Trying to build "
                                    << "Petal from Wedges at different z ! Delta Z = " << zdiff;
-    float wphi = (**i).surface().position().phi();
+    float wphi = (*wedge).surface().position().phi();
     if (Geom::phiLess(phiStart, wphi)) {
       wphimin = phiStart;
       wphimax = wphi;
@@ -49,15 +49,15 @@ pair<DiskSectorBounds*, GlobalVector> ForwardDiskSectorBuilderFromWedges::comput
   float phimin((**(wedges.begin())).surface().position().phi());
   float phimax(phimin);
 
-  for (vector<const TECWedge*>::const_iterator iw = wedges.begin(); iw != wedges.end(); iw++) {
+  for (auto wedge : wedges) {
     // edm::LogInfo(TkDetLayers) << "---------------------------------------------" ;
     // edm::LogInfo(TkDetLayers) <<   " Builder: Position of wedge     :" << (**iw).position() ;
-    float ri = (**iw).specificSurface().innerRadius();
-    float ro = (**iw).specificSurface().outerRadius();
-    float zmi = (**iw).surface().position().z() - (**iw).specificSurface().bounds().thickness() / 2.;
-    float zma = (**iw).surface().position().z() + (**iw).specificSurface().bounds().thickness() / 2.;
-    float phi1 = (**iw).surface().position().phi() - (**iw).specificSurface().phiHalfExtension();
-    float phi2 = (**iw).surface().position().phi() + (**iw).specificSurface().phiHalfExtension();
+    float ri = (*wedge).specificSurface().innerRadius();
+    float ro = (*wedge).specificSurface().outerRadius();
+    float zmi = (*wedge).surface().position().z() - (*wedge).specificSurface().bounds().thickness() / 2.;
+    float zma = (*wedge).surface().position().z() + (*wedge).specificSurface().bounds().thickness() / 2.;
+    float phi1 = (*wedge).surface().position().phi() - (*wedge).specificSurface().phiHalfExtension();
+    float phi2 = (*wedge).surface().position().phi() + (*wedge).specificSurface().phiHalfExtension();
     rmin = min(rmin, ri);
     rmax = max(rmax, ro);
     zmin = min(zmin, zmi);

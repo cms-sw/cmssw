@@ -34,11 +34,11 @@ void PlotPixelMultVtxPos(TFile* ff, const char* module) {
 
   std::vector<TProfile*> profs;
 
-  for (unsigned int i = 0; i < labels.size(); ++i) {
-    std::string path = "VtxPosCorr/" + labels[i];
+  for (const auto& label : labels) {
+    std::string path = "VtxPosCorr/" + label;
     camult.setPath(path.c_str());
 
-    std::string hname = "n" + labels[i] + "digivsvtxposprof";
+    std::string hname = "n" + label + "digivsvtxposprof";
     profs.push_back((TProfile*)camult.getObject(hname.c_str()));
   }
 
@@ -108,11 +108,11 @@ TH1D* AverageRunMultiplicity(TFile& ff,
   std::sort(runs.begin(), runs.end());
 
   {
-    for (unsigned int i = 0; i < runs.size(); ++i) {
+    for (unsigned int run : runs) {
       char runlabel[100];
-      sprintf(runlabel, "%d", runs[i]);
+      sprintf(runlabel, "%d", run);
       char runpath[100];
-      sprintf(runpath, "run_%d", runs[i]);
+      sprintf(runpath, "run_%d", run);
       camult.setPath(runpath);
 
       TProfile* multvstime = nullptr;

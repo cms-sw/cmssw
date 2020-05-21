@@ -107,10 +107,10 @@ void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack) {
   std::vector<HFShowerLibrary::Hit> hits =
       hfshower->fillHits(vertex, direction, parCode, eGen, ok, weight, tSlice, false);
 
-  for (unsigned int i = 0; i < hits.size(); ++i) {
-    G4ThreeVector pos = hits[i].position;
-    int depth = hits[i].depth;
-    double time = hits[i].time;
+  for (auto& hit : hits) {
+    G4ThreeVector pos = hit.position;
+    int depth = hit.depth;
+    double time = hit.time;
     if (!applyFidCut || (HFFibreFiducial::PMTNumber(pos) > 0)) {
       //    if (!applyFidCut || (applyFidCut && HFFibreFiducial::PMTNumber(pos)>0)) {
       int det = 5;

@@ -127,8 +127,8 @@ void L1TMuonBarrelParamsHelper::configFromDB(l1t::TriggerSystem& trgSys) {
   //Cleaning the default masking from the prototype
   l1mudttfmasks.reset();
 
-  for (auto it_proc = procRole.begin(); it_proc != procRole.end(); it_proc++) {
-    std::string procId = it_proc->first;
+  for (auto& it_proc : procRole) {
+    std::string procId = it_proc.first;
 
     std::map<std::string, l1t::Parameter> settings = trgSys.getParameters(procId.c_str());
 
@@ -154,8 +154,8 @@ void L1TMuonBarrelParamsHelper::configFromDB(l1t::TriggerSystem& trgSys) {
 
       string masks[5] = {"mask_ctrl_N2", "mask_ctrl_N1", "mask_ctrl_0", "mask_ctrl_P1", "mask_ctrl_P2"};
 
-      for (int m = 0; m < 5; m++) {
-        if (paths[row].find(masks[m]) != std::string::npos) {
+      for (const auto& m : masks) {
+        if (paths[row].find(m) != std::string::npos) {
           ///Converts the last bit to int
           int mask = 0x1 & vals[row];
           int mask_all = vals[row];
@@ -166,26 +166,26 @@ void L1TMuonBarrelParamsHelper::configFromDB(l1t::TriggerSystem& trgSys) {
 
           if ((mask & 1) > 0) {
             for (int sec = 0; sec < 12; sec++) {
-              if (masks[m] == "mask_ctrl_N2") {
+              if (m == "mask_ctrl_N2") {
                 l1mudttfmasks.set_inrec_chdis_st1(-3, sec, true);
                 //l1mudttfmasks.set_etsoc_chdis_st1(-3,sec,true);
               }
-              if (masks[m] == "mask_ctrl_N1") {
+              if (m == "mask_ctrl_N1") {
                 l1mudttfmasks.set_inrec_chdis_st1(-2, sec, true);
                 //l1mudttfmasks.set_etsoc_chdis_st1(-2,sec,true);
               }
 
-              if (masks[m] == "mask_ctrl_0") {
+              if (m == "mask_ctrl_0") {
                 l1mudttfmasks.set_inrec_chdis_st1(-1, sec, true);
                 l1mudttfmasks.set_inrec_chdis_st1(1, sec, true);
                 //l1mudttfmasks.set_etsoc_chdis_st1(-1,sec,true);
                 //l1mudttfmasks.set_etsoc_chdis_st1(1,sec,true);
               }
-              if (masks[m] == "mask_ctrl_P1") {
+              if (m == "mask_ctrl_P1") {
                 l1mudttfmasks.set_inrec_chdis_st1(2, sec, true);
                 //l1mudttfmasks.set_etsoc_chdis_st1(2,sec,true);
               }
-              if (masks[m] == "mask_ctrl_P2") {
+              if (m == "mask_ctrl_P2") {
                 l1mudttfmasks.set_inrec_chdis_st1(3, sec, true);
                 //l1mudttfmasks.set_etsoc_chdis_st1(3,sec,true);
               }
@@ -194,26 +194,26 @@ void L1TMuonBarrelParamsHelper::configFromDB(l1t::TriggerSystem& trgSys) {
 
           if ((mask & 2) > 0) {
             for (int sec = 0; sec < 12; sec++) {
-              if (masks[m] == "mask_ctrl_N2") {
+              if (m == "mask_ctrl_N2") {
                 l1mudttfmasks.set_inrec_chdis_st2(-3, sec, true);
                 //l1mudttfmasks.set_etsoc_chdis_st2(-3,sec,true);
               }
-              if (masks[m] == "mask_ctrl_N1") {
+              if (m == "mask_ctrl_N1") {
                 l1mudttfmasks.set_inrec_chdis_st2(-2, sec, true);
                 //l1mudttfmasks.set_etsoc_chdis_st2(-2,sec,true);
               }
 
-              if (masks[m] == "mask_ctrl_0") {
+              if (m == "mask_ctrl_0") {
                 l1mudttfmasks.set_inrec_chdis_st2(-1, sec, true);
                 l1mudttfmasks.set_inrec_chdis_st2(1, sec, true);
                 //l1mudttfmasks.set_etsoc_chdis_st2(-1,sec,true);
                 //l1mudttfmasks.set_etsoc_chdis_st2(1,sec,true);
               }
-              if (masks[m] == "mask_ctrl_P1") {
+              if (m == "mask_ctrl_P1") {
                 l1mudttfmasks.set_inrec_chdis_st2(2, sec, true);
                 //l1mudttfmasks.set_etsoc_chdis_st2(2,sec,true);
               }
-              if (masks[m] == "mask_ctrl_P2") {
+              if (m == "mask_ctrl_P2") {
                 l1mudttfmasks.set_inrec_chdis_st2(3, sec, true);
                 //l1mudttfmasks.set_etsoc_chdis_st2(3,sec,true);
               }
@@ -222,26 +222,26 @@ void L1TMuonBarrelParamsHelper::configFromDB(l1t::TriggerSystem& trgSys) {
 
           if ((mask & 4) > 0) {
             for (int sec = 0; sec < 12; sec++) {
-              if (masks[m] == "mask_ctrl_N2") {
+              if (m == "mask_ctrl_N2") {
                 l1mudttfmasks.set_inrec_chdis_st3(-3, sec, true);
                 //l1mudttfmasks.set_etsoc_chdis_st3(-3,sec,true);
               }
-              if (masks[m] == "mask_ctrl_N1") {
+              if (m == "mask_ctrl_N1") {
                 l1mudttfmasks.set_inrec_chdis_st3(-2, sec, true);
                 //l1mudttfmasks.set_etsoc_chdis_st3(-2,sec,true);
               }
 
-              if (masks[m] == "mask_ctrl_0") {
+              if (m == "mask_ctrl_0") {
                 l1mudttfmasks.set_inrec_chdis_st3(-1, sec, true);
                 l1mudttfmasks.set_inrec_chdis_st3(1, sec, true);
                 //l1mudttfmasks.set_etsoc_chdis_st3(-1,sec,true);
                 //l1mudttfmasks.set_etsoc_chdis_st3(1,sec,true);
               }
-              if (masks[m] == "mask_ctrl_P1") {
+              if (m == "mask_ctrl_P1") {
                 l1mudttfmasks.set_inrec_chdis_st3(2, sec, true);
                 //l1mudttfmasks.set_etsoc_chdis_st3(2,sec,true);
               }
-              if (masks[m] == "mask_ctrl_P2") {
+              if (m == "mask_ctrl_P2") {
                 l1mudttfmasks.set_inrec_chdis_st3(3, sec, true);
                 //l1mudttfmasks.set_etsoc_chdis_st3(3,sec,true);
               }
@@ -250,21 +250,21 @@ void L1TMuonBarrelParamsHelper::configFromDB(l1t::TriggerSystem& trgSys) {
 
           if ((mask & 8) > 0) {
             for (int sec = 0; sec < 12; sec++) {
-              if (masks[m] == "mask_ctrl_N2") {
+              if (m == "mask_ctrl_N2") {
                 l1mudttfmasks.set_inrec_chdis_st4(-3, sec, true);
               }
-              if (masks[m] == "mask_ctrl_N1") {
+              if (m == "mask_ctrl_N1") {
                 l1mudttfmasks.set_inrec_chdis_st4(-2, sec, true);
               }
 
-              if (masks[m] == "mask_ctrl_0") {
+              if (m == "mask_ctrl_0") {
                 l1mudttfmasks.set_inrec_chdis_st4(-1, sec, true);
                 l1mudttfmasks.set_inrec_chdis_st4(1, sec, true);
               }
-              if (masks[m] == "mask_ctrl_P1") {
+              if (m == "mask_ctrl_P1") {
                 l1mudttfmasks.set_inrec_chdis_st4(2, sec, true);
               }
-              if (masks[m] == "mask_ctrl_P2") {
+              if (m == "mask_ctrl_P2") {
                 l1mudttfmasks.set_inrec_chdis_st4(3, sec, true);
               }
             }

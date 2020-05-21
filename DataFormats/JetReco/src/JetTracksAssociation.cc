@@ -15,8 +15,8 @@ reco::JetTracksAssociation::LorentzVector reco::JetTracksAssociation::tracksP4(c
                                                                                const reco::JetBaseRef fJet) {
   const reco::TrackRefVector* tracks = &getValue(fContainer, fJet);
   math::XYZTLorentzVector result(0, 0, 0, 0);
-  for (unsigned t = 0; t < tracks->size(); ++t) {
-    const reco::Track& track = *((*tracks)[t]);
+  for (const auto& t : *tracks) {
+    const reco::Track& track = *(t);
     result += math::XYZTLorentzVector(track.px(), track.py(), track.pz(), track.p());  // massless hypothesis
   }
   return reco::JetTracksAssociation::LorentzVector(result);
@@ -25,8 +25,8 @@ reco::JetTracksAssociation::LorentzVector reco::JetTracksAssociation::tracksP4(c
                                                                                const reco::Jet& fJet) {
   const reco::TrackRefVector* tracks = &getValue(fContainer, fJet);
   math::XYZTLorentzVector result(0, 0, 0, 0);
-  for (unsigned t = 0; t < tracks->size(); ++t) {
-    const reco::Track& track = *((*tracks)[t]);
+  for (const auto& t : *tracks) {
+    const reco::Track& track = *(t);
     result += math::XYZTLorentzVector(track.px(), track.py(), track.pz(), track.p());  // massless hypothesis
   }
   return reco::JetTracksAssociation::LorentzVector(result);

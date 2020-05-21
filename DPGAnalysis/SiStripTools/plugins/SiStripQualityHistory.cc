@@ -103,8 +103,8 @@ SiStripQualityHistory::SiStripQualityHistory(const edm::ParameterSet& iConfig)
 
   edm::Service<TFileService> tfserv;
 
-  for (std::vector<edm::ParameterSet>::const_iterator ps = _monitoredssq.begin(); ps != _monitoredssq.end(); ++ps) {
-    std::string name = ps->getParameter<std::string>("name");
+  for (const auto& ps : _monitoredssq) {
+    std::string name = ps.getParameter<std::string>("name");
     //    _history[name] = tfserv->make<TGraph>();
     //    _history[name]->SetName(name.c_str());     _history[name]->SetTitle(name.c_str());
 
@@ -132,9 +132,9 @@ SiStripQualityHistory::~SiStripQualityHistory() {
 void SiStripQualityHistory::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //  edm::LogInfo("EventProcessing") << "event being processed";
 
-  for (std::vector<edm::ParameterSet>::const_iterator ps = _monitoredssq.begin(); ps != _monitoredssq.end(); ++ps) {
-    std::string name = ps->getParameter<std::string>("name");
-    std::string label = ps->getParameter<std::string>("ssqLabel");
+  for (const auto& ps : _monitoredssq) {
+    std::string name = ps.getParameter<std::string>("name");
+    std::string label = ps.getParameter<std::string>("ssqLabel");
 
     edm::ESHandle<SiStripQuality> ssq;
     iSetup.get<SiStripQualityRcd>().get(label, ssq);
@@ -146,18 +146,18 @@ void SiStripQualityHistory::analyze(const edm::Event& iEvent, const edm::EventSe
     int nbad = 0;
 
     if (_mode == Module || _mode == Fiber || _mode == APV) {
-      for (std::vector<SiStripQuality::BadComponent>::const_iterator bc = bads.begin(); bc != bads.end(); ++bc) {
+      for (auto bad : bads) {
         if (_mode == Module) {
-          if (bc->BadModule)
+          if (bad.BadModule)
             ++nbad;
         } else if (_mode == Fiber) {
           for (int fiber = 1; fiber < 5; fiber *= 2) {
-            if ((bc->BadFibers & fiber) > 0)
+            if ((bad.BadFibers & fiber) > 0)
               ++nbad;
           }
         } else if (_mode == APV) {
           for (int apv = 1; apv < 33; apv *= 2) {
-            if ((bc->BadApvs & apv) > 0)
+            if ((bad.BadApvs & apv) > 0)
               ++nbad;
           }
         }
@@ -181,9 +181,9 @@ void SiStripQualityHistory::beginRun(const edm::Run& iRun, const edm::EventSetup
 
   // loop on all the SiStripQuality objects to be monitored
 
-  for (std::vector<edm::ParameterSet>::const_iterator ps = _monitoredssq.begin(); ps != _monitoredssq.end(); ++ps) {
-    std::string name = ps->getParameter<std::string>("name");
-    std::string label = ps->getParameter<std::string>("ssqLabel");
+  for (const auto& ps : _monitoredssq) {
+    std::string name = ps.getParameter<std::string>("name");
+    std::string label = ps.getParameter<std::string>("ssqLabel");
 
     if (m_badmodrun.find(name) != m_badmodrun.end()) {
       if (m_badmodrun[name] && *m_badmodrun[name]) {
@@ -204,18 +204,18 @@ void SiStripQualityHistory::beginRun(const edm::Run& iRun, const edm::EventSetup
       int nbad = 0;
 
       if (_mode == Module || _mode == Fiber || _mode == APV) {
-        for (std::vector<SiStripQuality::BadComponent>::const_iterator bc = bads.begin(); bc != bads.end(); ++bc) {
+        for (auto bad : bads) {
           if (_mode == Module) {
-            if (bc->BadModule)
+            if (bad.BadModule)
               ++nbad;
           } else if (_mode == Fiber) {
             for (int fiber = 1; fiber < 5; fiber *= 2) {
-              if ((bc->BadFibers & fiber) > 0)
+              if ((bad.BadFibers & fiber) > 0)
                 ++nbad;
             }
           } else if (_mode == APV) {
             for (int apv = 1; apv < 33; apv *= 2) {
-              if ((bc->BadApvs & apv) > 0)
+              if ((bad.BadApvs & apv) > 0)
                 ++nbad;
             }
           }

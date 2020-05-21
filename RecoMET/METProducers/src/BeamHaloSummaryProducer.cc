@@ -151,8 +151,8 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   edm::ValueMap<float> vm_Roundness = EcalData.GetShowerShapesRoundness();
 
   //Access selected SuperClusters
-  for (unsigned int n = 0; n < EcalData.GetSuperClusters().size(); n++) {
-    edm::Ref<SuperClusterCollection> cluster(EcalData.GetSuperClusters()[n]);
+  for (const auto& n : EcalData.GetSuperClusters()) {
+    edm::Ref<SuperClusterCollection> cluster(n);
 
     float angle = vm_Angle[cluster];
     float roundness = vm_Roundness[cluster];
@@ -185,30 +185,30 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   const HcalHaloData HcalData = (*TheHcalHaloData.product());
   const std::vector<PhiWedge>& HcalWedges = HcalData.GetPhiWedges();
   bool HcalLooseId = false, HcalTightId = false;
-  for (std::vector<PhiWedge>::const_iterator iWedge = HcalWedges.begin(); iWedge != HcalWedges.end(); iWedge++) {
+  for (const auto& HcalWedge : HcalWedges) {
     bool HcaliPhi = false;
     //Loose Id
-    if (iWedge->Energy() > L_HcalPhiWedgeEnergy && iWedge->NumberOfConstituents() > L_HcalPhiWedgeConstituents &&
-        std::abs(iWedge->ZDirectionConfidence()) > L_HcalPhiWedgeConfidence) {
+    if (HcalWedge.Energy() > L_HcalPhiWedgeEnergy && HcalWedge.NumberOfConstituents() > L_HcalPhiWedgeConstituents &&
+        std::abs(HcalWedge.ZDirectionConfidence()) > L_HcalPhiWedgeConfidence) {
       HcalLooseId = true;
       HcaliPhi = true;
     }
 
     //Tight Id
-    if (iWedge->Energy() > T_HcalPhiWedgeEnergy && iWedge->NumberOfConstituents() > T_HcalPhiWedgeConstituents &&
-        std::abs(iWedge->ZDirectionConfidence()) > T_HcalPhiWedgeConfidence) {
+    if (HcalWedge.Energy() > T_HcalPhiWedgeEnergy && HcalWedge.NumberOfConstituents() > T_HcalPhiWedgeConstituents &&
+        std::abs(HcalWedge.ZDirectionConfidence()) > T_HcalPhiWedgeConfidence) {
       HcalTightId = true;
       HcaliPhi = true;
     }
 
-    for (unsigned int i = 0; i < TheBeamHaloSummary->GetHcaliPhiSuspects().size(); i++) {
-      if (iWedge->iPhi() == TheBeamHaloSummary->GetHcaliPhiSuspects()[i]) {
+    for (int i : TheBeamHaloSummary->GetHcaliPhiSuspects()) {
+      if (HcalWedge.iPhi() == i) {
         HcaliPhi = false;  // already stored this iPhi
         continue;
       }
     }
     if (HcaliPhi)
-      TheBeamHaloSummary->GetHcaliPhiSuspects().push_back(iWedge->iPhi());
+      TheBeamHaloSummary->GetHcaliPhiSuspects().push_back(HcalWedge.iPhi());
   }
 
   if (HcalLooseId)
@@ -216,8 +216,7 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   if (HcalTightId)
     TheBeamHaloSummary->GetHcalHaloReport()[1] = 1;
 
-  for (unsigned int i = 0; i < HcalData.getProblematicStrips().size(); i++) {
-    auto const& problematicStrip = HcalData.getProblematicStrips()[i];
+  for (const auto& problematicStrip : HcalData.getProblematicStrips()) {
     if (problematicStrip.cellTowerIds.size() < (unsigned int)problematicStripMinLength)
       continue;
 
@@ -240,19 +239,17 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup) {
     GlobalLooseId = true;
 
   //Tight Id
-  for (std::vector<PhiWedge>::const_iterator iWedge = MatchedEcalWedges.begin(); iWedge != MatchedEcalWedges.end();
-       iWedge++) {
-    if (iWedge->NumberOfConstituents() > T_EcalPhiWedgeConstituents)
+  for (const auto& MatchedEcalWedge : MatchedEcalWedges) {
+    if (MatchedEcalWedge.NumberOfConstituents() > T_EcalPhiWedgeConstituents)
       GlobalTightId = true;
-    if (std::abs(iWedge->ZDirectionConfidence()) > T_EcalPhiWedgeConfidence)
+    if (std::abs(MatchedEcalWedge.ZDirectionConfidence()) > T_EcalPhiWedgeConfidence)
       GlobalTightId = true;
   }
 
-  for (std::vector<PhiWedge>::const_iterator iWedge = MatchedHcalWedges.begin(); iWedge != MatchedHcalWedges.end();
-       iWedge++) {
-    if (iWedge->NumberOfConstituents() > T_HcalPhiWedgeConstituents)
+  for (const auto& MatchedHcalWedge : MatchedHcalWedges) {
+    if (MatchedHcalWedge.NumberOfConstituents() > T_HcalPhiWedgeConstituents)
       GlobalTightId = true;
-    if (std::abs(iWedge->ZDirectionConfidence()) > T_HcalPhiWedgeConfidence)
+    if (std::abs(MatchedHcalWedge.ZDirectionConfidence()) > T_HcalPhiWedgeConfidence)
       GlobalTightId = true;
   }
 

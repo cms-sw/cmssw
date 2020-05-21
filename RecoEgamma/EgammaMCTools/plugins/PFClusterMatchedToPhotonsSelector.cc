@@ -160,9 +160,9 @@ void PFClusterMatchedToPhotonsSelector::produce(edm::Event& iEvent, const edm::E
 
     if (isMatched) {
       out->push_back(pfCluster);
-      for (size_t i = 0; i < associationHandle_.product()->size(); i++) {
-        if (associationHandle_.product()->at(i).first == iP) {
-          association_out->push_back(std::make_pair(iN, associationHandle_.product()->at(i).second));
+      for (const auto& i : *associationHandle_.product()) {
+        if (i.first == iP) {
+          association_out->push_back(std::make_pair(iN, i.second));
         }
       }
       genmatching.push_back(edm::Ref<reco::GenParticleCollection>(genParticleHandle_, matchedKey));

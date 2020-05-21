@@ -68,12 +68,11 @@ namespace cscdqm {
       sumstrip = 0;
       sumtime = 0;
       sumheight = 0;
-      for (uint32_t k = 0; k < MEStripClusters[i].ClusterPulseMapHeight.size(); k++) {
+      for (auto& k : MEStripClusters[i].ClusterPulseMapHeight) {
         for (int l = 0; l < 16; l++) {
-          sumstrip += MEStripClusters[i].ClusterPulseMapHeight[k].height_[l] *
-                      (MEStripClusters[i].ClusterPulseMapHeight[k].channel_ + 1);
-          sumtime += MEStripClusters[i].ClusterPulseMapHeight[k].height_[l] * (l + 1);
-          sumheight += MEStripClusters[i].ClusterPulseMapHeight[k].height_[l];
+          sumstrip += k.height_[l] * (k.channel_ + 1);
+          sumtime += k.height_[l] * (l + 1);
+          sumheight += k.height_[l];
         }
       }
       if (sumheight) {
@@ -343,16 +342,16 @@ namespace cscdqm {
         jT = MEStripClusters[i].localMax[j].Time;
 
         //      std::cout << "Local Max: " << j << " Strip: " << iS << " Time: " << jT << std::endl;
-        for (uint32_t k = 0; k < MEStripClusters[i].ClusterPulseMapHeight.size(); k++) {
-          if (MEStripClusters[i].ClusterPulseMapHeight[k].channel_ == iS)
+        for (auto& k : MEStripClusters[i].ClusterPulseMapHeight) {
+          if (k.channel_ == iS)
             std::cout << "Local Max: " << j + 1 << " Strip: " << iS + 1 << " Time: " << jT + 1
-                      << " Height: " << MEStripClusters[i].ClusterPulseMapHeight[k].height_[jT] << std::endl;
+                      << " Height: " << k.height_[jT] << std::endl;
         }
       }
-      for (uint32_t k = 0; k < MEStripClusters[i].ClusterPulseMapHeight.size(); k++) {
-        std::cout << "Strip: " << MEStripClusters[i].ClusterPulseMapHeight[k].channel_ + 1;
+      for (auto& k : MEStripClusters[i].ClusterPulseMapHeight) {
+        std::cout << "Strip: " << k.channel_ + 1;
         for (int l = 0; l < 16; l++)
-          std::cout << " " << MEStripClusters[i].ClusterPulseMapHeight[k].height_[l];
+          std::cout << " " << k.height_[l];
         std::cout << std::endl;
       }
 

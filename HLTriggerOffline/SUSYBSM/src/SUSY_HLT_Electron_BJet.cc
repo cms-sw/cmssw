@@ -36,8 +36,8 @@ void SUSY_HLT_Electron_BJet::dqmBeginRun(edm::Run const &run, edm::EventSetup co
 
   bool pathFound = false;
   const std::vector<std::string> allTrigNames = fHltConfig.triggerNames();
-  for (size_t j = 0; j < allTrigNames.size(); ++j) {
-    if (allTrigNames[j].find(triggerPath_) != std::string::npos) {
+  for (const auto &allTrigName : allTrigNames) {
+    if (allTrigName.find(triggerPath_) != std::string::npos) {
       pathFound = true;
     }
   }
@@ -84,13 +84,13 @@ void SUSY_HLT_Electron_BJet::analyze(edm::Event const &e, edm::EventSetup const 
   trigger::TriggerObjectCollection triggerObjects = triggerSummary->getObjects();
   if (!(filterIndex >= triggerSummary->sizeFilters())) {
     const trigger::Keys &keys = triggerSummary->filterKeys(filterIndex);
-    for (size_t j = 0; j < keys.size(); ++j) {
-      trigger::TriggerObject foundObject = triggerObjects[keys[j]];
+    for (unsigned short key : keys) {
+      trigger::TriggerObject foundObject = triggerObjects[key];
       if (fabs(foundObject.id()) == 11) {  // It's an electron
 
         bool same = false;
-        for (unsigned int x = 0; x < ptElectron.size(); x++) {
-          if (fabs(ptElectron[x] - foundObject.pt()) < 0.01)
+        for (float x : ptElectron) {
+          if (fabs(x - foundObject.pt()) < 0.01)
             same = true;
         }
 
@@ -107,8 +107,8 @@ void SUSY_HLT_Electron_BJet::analyze(edm::Event const &e, edm::EventSetup const 
   size_t filterIndex2 = triggerSummary->filterIndex(triggerFilterJet_);
   if (!(filterIndex2 >= triggerSummary->sizeFilters())) {
     const trigger::Keys &keys = triggerSummary->filterKeys(filterIndex2);
-    for (size_t j = 0; j < keys.size(); ++j) {
-      trigger::TriggerObject foundObject = triggerObjects[keys[j]];
+    for (unsigned short key : keys) {
+      trigger::TriggerObject foundObject = triggerObjects[key];
       h_triggerJetPt->Fill(foundObject.pt());
       h_triggerJetEta->Fill(foundObject.eta());
       h_triggerJetPhi->Fill(foundObject.phi());

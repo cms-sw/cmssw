@@ -72,8 +72,8 @@ void EcalSimHitsValidProducer::fillEventInfo(PEcalValidInfo &product) {
     product.ee9 = ee9;
     product.ee16 = ee16;
     product.ee25 = ee25;
-    for (int i = 0; i < 26; i++) {
-      product.eEX0.push_back(eEX0[i]);
+    for (float i : eEX0) {
+      product.eEX0.push_back(i);
     }
   }
 
@@ -83,8 +83,8 @@ void EcalSimHitsValidProducer::fillEventInfo(PEcalValidInfo &product) {
     product.eb9 = eb9;
     product.eb16 = eb16;
     product.eb25 = eb25;
-    for (int i = 0; i < 26; i++) {
-      product.eBX0.push_back(eBX0[i]);
+    for (float i : eBX0) {
+      product.eBX0.push_back(i);
     }
   }
 

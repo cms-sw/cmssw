@@ -199,11 +199,11 @@ void EcalRingCalibrationTools::initializeFromGeometry(CaloGeometry const* geomet
 
   std::vector<DetId> const& endcapCells = geometry->getValidDetIds(DetId::Ecal, EcalEndcap);
 
-  for (std::vector<DetId>::const_iterator endcapIt = endcapCells.begin(); endcapIt != endcapCells.end(); ++endcapIt) {
-    EEDetId ee(*endcapIt);
+  for (auto endcapCell : endcapCells) {
+    EEDetId ee(endcapCell);
     if (ee.zside() == -1)
       continue;  //Just using +side to fill absEta x,y map
-    auto cellGeometry = endcapGeometry->getGeometry(*endcapIt);
+    auto cellGeometry = endcapGeometry->getGeometry(endcapCell);
     int ics = ee.ix() - 1;
     int ips = ee.iy() - 1;
     cellPosEta[ics][ips] = fabs(cellGeometry->getPosition().eta());
@@ -233,8 +233,8 @@ void EcalRingCalibrationTools::initializeFromGeometry(CaloGeometry const* geomet
 
   std::vector<DetId> const& barrelCells = geometry->getValidDetIds(DetId::Ecal, EcalBarrel);
 
-  for (std::vector<DetId>::const_iterator barrelIt = barrelCells.begin(); barrelIt != barrelCells.end(); ++barrelIt) {
-    EBDetId eb(*barrelIt);
+  for (auto barrelCell : barrelCells) {
+    EBDetId eb(barrelCell);
   }
 
   //EB

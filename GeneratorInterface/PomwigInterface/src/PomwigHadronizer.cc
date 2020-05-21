@@ -269,8 +269,8 @@ namespace gen {
   }
 
   bool PomwigHadronizer::declareStableParticles(const std::vector<int> &pdgIds) {
-    for (std::vector<int>::const_iterator iter = pdgIds.begin(); iter != pdgIds.end(); ++iter)
-      if (!markStable(*iter))
+    for (int pdgId : pdgIds)
+      if (!markStable(pdgId))
         return false;
     return true;
   }

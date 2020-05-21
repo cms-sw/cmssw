@@ -146,8 +146,8 @@ void MillePedeDQMModule ::fillExpertHistos() {
   auto myMap = mpReader_->getThresholdMap();
 
   std::vector<std::string> alignablesList;
-  for (auto it = myMap.begin(); it != myMap.end(); ++it) {
-    alignablesList.push_back(it->first);
+  for (auto& it : myMap) {
+    alignablesList.push_back(it.first);
   }
 
   for (auto& alignable : alignablesList) {

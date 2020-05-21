@@ -76,16 +76,16 @@ namespace hcaltb {
       qdc_gain[i] = 1.;
     }
     // Pedestal and gains from configuration file.
-    for (unsigned int ii = 0; ii < calibLines_.size(); ii++) {
-      if (calibLines_[ii][0] == "QDC") {
-        if (calibLines_[ii].size() == 4) {
-          int channel = atoi(calibLines_[ii][1].c_str());
-          qdc_ped[channel] = atof(calibLines_[ii][2].c_str());
-          qdc_gain[channel] = atof(calibLines_[ii][3].c_str());
+    for (const auto& calibLine : calibLines_) {
+      if (calibLine[0] == "QDC") {
+        if (calibLine.size() == 4) {
+          int channel = atoi(calibLine[1].c_str());
+          qdc_ped[channel] = atof(calibLine[2].c_str());
+          qdc_gain[channel] = atof(calibLine[3].c_str());
           //	  printf("Got QDC %i ped %f , gain %f\n",channel, qdc_ped[channel],qdc_gain[channel]);
         } else {
           throw cms::Exception("Incomplete configuration")
-              << "Wrong QADC configuration format: expected 3 parameters, got " << calibLines_[ii].size() - 1;
+              << "Wrong QADC configuration format: expected 3 parameters, got " << calibLine.size() - 1;
         }
       }
     }  // End of calibLines.

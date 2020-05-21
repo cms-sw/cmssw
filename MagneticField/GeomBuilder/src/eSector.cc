@@ -74,8 +74,8 @@ eSector::eSector(handles::const_iterator begin, handles::const_iterator end, boo
 MagESector* eSector::buildMagESector() const {
   if (msector == nullptr) {
     vector<MagELayer*> mLayers;
-    for (vector<eLayer>::const_iterator lay = layers.begin(); lay != layers.end(); ++lay) {
-      mLayers.push_back((*lay).buildMagELayer());
+    for (const auto& layer : layers) {
+      mLayers.push_back(layer.buildMagELayer());
     }
     msector = new MagESector(mLayers, theVolumes.front()->minPhi());  //FIXME
   }

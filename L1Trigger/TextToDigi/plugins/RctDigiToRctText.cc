@@ -32,8 +32,8 @@ RctDigiToRctText::RctDigiToRctText(const edm::ParameterSet &iConfig)
 
 RctDigiToRctText::~RctDigiToRctText() {
   /// close  files
-  for (unsigned i = 0; i < NUM_RCT_CRATES; i++)
-    m_file[i].close();
+  for (auto &i : m_file)
+    i.close();
   fdebug.close();
 }
 
@@ -51,8 +51,8 @@ void RctDigiToRctText::analyze(const edm::Event &iEvent, const edm::EventSetup &
   /// debug flags and stream
   bool ldebug = false;
   bool debug_NOTEMPTY[18] = {false};
-  for (int i = 0; i < 18; i++)
-    debug_NOTEMPTY[i] = false;
+  for (bool &i : debug_NOTEMPTY)
+    i = false;
   std::stringstream dstrm;
 
   /// --- ELECTRONS ---
@@ -63,10 +63,10 @@ void RctDigiToRctText::analyze(const edm::Event &iEvent, const edm::EventSetup &
   bool iso;
   int id;
 
-  for (L1CaloEmCollection::const_iterator iem = em->begin(); iem != em->end(); iem++) {
-    int crate = iem->rctCrate();
-    iso = iem->isolated();
-    unsigned data = iem->raw();
+  for (const auto &iem : *em) {
+    int crate = iem.rctCrate();
+    iso = iem.isolated();
+    unsigned data = iem.raw();
 
     id = iso ? n_iso[crate]++ : 4 + n_niso[crate]++;
 
@@ -80,7 +80,7 @@ void RctDigiToRctText::analyze(const edm::Event &iEvent, const edm::EventSetup &
       debug_NOTEMPTY[crate] = true;
     dstrm.str("");
     dstrm << "electron "
-          << " bx:" << nevt << " crate:" << crate << " iso:" << iso << " raw:" << data << " \t cand:" << *iem;
+          << " bx:" << nevt << " crate:" << crate << " iso:" << iso << " raw:" << data << " \t cand:" << iem;
     if (debug_NOTEMPTY[crate])
       fdebug << dstrm.str() << std::endl;
   }
@@ -94,34 +94,34 @@ void RctDigiToRctText::analyze(const edm::Event &iEvent, const edm::EventSetup &
   unsigned short RCtau[18][7][2] = {{{0}}};
   unsigned short HF[18][4][2] = {{{0}}};
 
-  for (L1CaloRegionCollection::const_iterator irgn = rgn->begin(); irgn != rgn->end(); irgn++) {
-    int crate = irgn->rctCrate();
-    int card = irgn->rctCard();
-    int rgnidx = irgn->rctRegionIndex();
+  for (const auto &irgn : *rgn) {
+    int crate = irgn.rctCrate();
+    int card = irgn.rctCard();
+    int rgnidx = irgn.rctRegionIndex();
 
     dstrm.str("");
-    if (!irgn->id().isHf()) {
-      RC[crate][card][rgnidx] = irgn->et();
-      RCof[crate][card][rgnidx] = irgn->overFlow();
-      RCtau[crate][card][rgnidx] = irgn->tauVeto();
-      MIPbits[crate][card][rgnidx] = irgn->mip();
-      QIEbits[crate][card][rgnidx] = irgn->quiet();
+    if (!irgn.id().isHf()) {
+      RC[crate][card][rgnidx] = irgn.et();
+      RCof[crate][card][rgnidx] = irgn.overFlow();
+      RCtau[crate][card][rgnidx] = irgn.tauVeto();
+      MIPbits[crate][card][rgnidx] = irgn.mip();
+      QIEbits[crate][card][rgnidx] = irgn.quiet();
       // debug info
-      dstrm << hex << "Et=" << irgn->et() << " OverFlow=" << irgn->overFlow() << " tauVeto=" << irgn->tauVeto()
-            << " mip=" << irgn->mip() << " quiet=" << irgn->quiet() << " Card=" << irgn->rctCard()
-            << " Region=" << irgn->rctRegionIndex() << " Crate=" << irgn->rctCrate() << dec;
+      dstrm << hex << "Et=" << irgn.et() << " OverFlow=" << irgn.overFlow() << " tauVeto=" << irgn.tauVeto()
+            << " mip=" << irgn.mip() << " quiet=" << irgn.quiet() << " Card=" << irgn.rctCard()
+            << " Region=" << irgn.rctRegionIndex() << " Crate=" << irgn.rctCrate() << dec;
       if (ldebug)
         LogDebug("Regions") << dstrm.str();
     } else {
-      HF[crate][irgn->id().rctEta() - 7][irgn->id().rctPhi()] = irgn->et();
+      HF[crate][irgn.id().rctEta() - 7][irgn.id().rctPhi()] = irgn.et();
       // debug info
-      dstrm << hex << "Et=" << irgn->et() << " FGrain=" << irgn->fineGrain() << " Eta=" << irgn->id().rctEta()
-            << " Phi=" << irgn->id().rctPhi() << " Crate=" << irgn->rctCrate() << dec;
+      dstrm << hex << "Et=" << irgn.et() << " FGrain=" << irgn.fineGrain() << " Eta=" << irgn.id().rctEta()
+            << " Phi=" << irgn.id().rctPhi() << " Crate=" << irgn.rctCrate() << dec;
       if (ldebug)
         LogDebug("HFRegions") << dstrm.str();
     }
 
-    if (ldebug && irgn->et() != 0)
+    if (ldebug && irgn.et() != 0)
       debug_NOTEMPTY[crate] = true;  // debug
     if (debug_NOTEMPTY[crate]) {
       fdebug << "region"
@@ -215,8 +215,8 @@ void RctDigiToRctText::analyze(const edm::Event &iEvent, const edm::EventSetup &
   }  // end crate loop
 
   /// flush data to files
-  for (unsigned i = 0; i < NUM_RCT_CRATES; i++)
-    m_file[i] << std::flush;
+  for (auto &i : m_file)
+    i << std::flush;
 
   fdebug << std::flush;
 }

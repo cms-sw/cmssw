@@ -83,8 +83,7 @@ bool EMEnrichingFilterAlgo::filterPhotonElectronSeed(float clusterthreshold,
 
   vector<reco::GenParticle> seeds;
   //find electron and photon seeds - must have E>seedthreshold GeV
-  for (uint32_t is = 0; is < genParsCurved.size(); is++) {
-    reco::GenParticle gp = genParsCurved.at(is);
+  for (auto gp : genParsCurved) {
     if (gp.status() != 1 || fabs(gp.eta()) > FILTER_ETA_MAX_ || fabs(gp.eta()) < FILTER_ETA_MIN_)
       continue;
     int absid = abs(gp.pdgId());
@@ -97,13 +96,13 @@ bool EMEnrichingFilterAlgo::filterPhotonElectronSeed(float clusterthreshold,
   bool matchtrack = false;
 
   //for every seed, try to cluster stable particles about it in cone
-  for (uint32_t is = 0; is < seeds.size(); is++) {
+  for (auto &seed : seeds) {
     float eTInCone = 0;   //eT associated to the electron cluster
     float tkIsoET = 0;    //tracker isolation energy
     float caloIsoET = 0;  //calorimeter isolation energy
     float hadET =
         0;  //isolation energy from heavy hadrons that goes in the same area as the "electron" - so contributes to H/E
-    bool isBarrel = fabs(seeds.at(is).eta()) < ECALBARRELMAXETA_;
+    bool isBarrel = fabs(seed.eta()) < ECALBARRELMAXETA_;
     for (uint32_t ig = 0; ig < genParsCurved.size(); ig++) {
       reco::GenParticle gp = genParsCurved.at(ig);
       reco::GenParticle gpUnCurv = genPars.at(ig);  //for tk isolation, p at vertex
@@ -114,9 +113,9 @@ bool EMEnrichingFilterAlgo::filterPhotonElectronSeed(float clusterthreshold,
         continue;  //ignore very soft particles
       //BARREL
       if (isBarrel) {
-        float dr = deltaR(seeds.at(is), gp);
-        float dphi = deltaPhi(seeds.at(is).phi(), gp.phi());
-        float deta = fabs(seeds.at(is).eta() - gp.eta());
+        float dr = deltaR(seed, gp);
+        float dphi = deltaPhi(seed.phi(), gp.phi());
+        float deta = fabs(seed.eta() - gp.eta());
         if (deta < 0.03 && dphi < 0.2) {
           if (gpabsid == 22 || gpabsid == 11 || gpabsid == 211 || gpabsid == 321) {
             //contributes to electron
@@ -129,7 +128,7 @@ bool EMEnrichingFilterAlgo::filterPhotonElectronSeed(float clusterthreshold,
             hadET += gp.et();
           }
         } else {
-          float drUnCurv = deltaR(seeds.at(is), gpUnCurv);
+          float drUnCurv = deltaR(seed, gpUnCurv);
           if ((gp.charge() == 0 && dr < isoConeSize && gpabsid != 22) || (gp.charge() != 0 && drUnCurv < isoConeSize)) {
             //contributes to calo isolation energy
             caloIsoET += gp.et();
@@ -141,8 +140,8 @@ bool EMEnrichingFilterAlgo::filterPhotonElectronSeed(float clusterthreshold,
         }
         //ENDCAP
       } else {
-        float drxy = deltaRxyAtEE(seeds.at(is), gp);
-        float dr = deltaR(seeds.at(is), gp);  //the isolation is done in dR
+        float drxy = deltaRxyAtEE(seed, gp);
+        float dr = deltaR(seed, gp);  //the isolation is done in dR
         if (drxy < conesizeendcap) {
           if (gpabsid == 22 || gpabsid == 11 || gpabsid == 211 || gpabsid == 321) {
             //contributes to electron
@@ -155,7 +154,7 @@ bool EMEnrichingFilterAlgo::filterPhotonElectronSeed(float clusterthreshold,
             hadET += gp.et();
           }
         } else {
-          float drUnCurv = deltaR(seeds.at(is), gpUnCurv);
+          float drUnCurv = deltaR(seed, gpUnCurv);
           if ((gp.charge() == 0 && dr < isoConeSize && gpabsid != 22) || (gp.charge() != 0 && drUnCurv < isoConeSize)) {
             //contributes to calo isolation energy
             caloIsoET += gp.et();
@@ -195,8 +194,7 @@ std::vector<reco::GenParticle> EMEnrichingFilterAlgo::applyBFieldCurv(const std:
 
   AnalyticalPropagator propagator(magField, alongMomentum);
 
-  for (uint32_t ig = 0; ig < genPars.size(); ig++) {
-    reco::GenParticle gp = genPars.at(ig);
+  for (auto gp : genPars) {
     //don't bend trajectories of neutral particles, unstable particles, particles with < 1 GeV
     //particles with < ~0.9 GeV don't reach the barrel
     //so just put them as-is into the new vector

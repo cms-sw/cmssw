@@ -308,8 +308,8 @@ void SETSeedFinder::validSetsPrePruning(std::vector<SETSeedFinder::MuonRecHitCon
   //---- it is intended to remove only very "wild" segments from a set;
   //---- no "good" segment is to be lost (otherwise - widen the parameters)
 
-  for (unsigned int iSet = 0; iSet < allValidSets.size(); ++iSet) {
-    pre_prune(allValidSets[iSet]);
+  for (auto& allValidSet : allValidSets) {
+    pre_prune(allValidSet);
   }
 }
 
@@ -409,7 +409,7 @@ std::vector<SeedCandidate> SETSeedFinder::fillSeedCandidates(std::vector<MuonRec
   std::vector<SeedCandidate> seedCandidates_inCluster;
   // calculate and fill the inputs needed
   // loop over all valid sets
-  for (unsigned int iSet = 0; iSet < allValidSets.size(); ++iSet) {
+  for (const auto& allValidSet : allValidSets) {
     //
     //std::cout<<"  This is SET number : "<<iSet<<std::endl;
     //for(unsigned int iHit = 0;iHit<allValidSets[iSet].size();++iHit){
@@ -419,12 +419,12 @@ std::vector<SeedCandidate> SETSeedFinder::fillSeedCandidates(std::vector<MuonRec
 
     CLHEP::Hep3Vector momEstimate;
     int chargeEstimate;
-    estimateMomentum(allValidSets[iSet], momEstimate, chargeEstimate);
+    estimateMomentum(allValidSet, momEstimate, chargeEstimate);
     MuonRecHitContainer MuonRecHitContainer_theSet_prep;
     // currently hardcoded - will be in proper loop of course:
 
     SeedCandidate seedCandidates_inCluster_prep;
-    seedCandidates_inCluster_prep.theSet = allValidSets[iSet];
+    seedCandidates_inCluster_prep.theSet = allValidSet;
     seedCandidates_inCluster_prep.momentum = momEstimate;
     seedCandidates_inCluster_prep.charge = chargeEstimate;
     seedCandidates_inCluster.push_back(seedCandidates_inCluster_prep);
@@ -593,8 +593,8 @@ void SETSeedFinder::estimateMomentum(const MuonRecHitContainer& validSet,
 TrajectorySeed SETSeedFinder::makeSeed(const TrajectoryStateOnSurface& firstTSOS,
                                        const TransientTrackingRecHit::ConstRecHitContainer& hits) const {
   edm::OwnVector<TrackingRecHit> recHitsContainer;
-  for (unsigned int iHit = 0; iHit < hits.size(); ++iHit) {
-    recHitsContainer.push_back(hits.at(iHit)->hit()->clone());
+  for (const auto& hit : hits) {
+    recHitsContainer.push_back(hit->hit()->clone());
   }
   PropagationDirection dir = oppositeToMomentum;
   if (useSegmentsInTrajectory) {

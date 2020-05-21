@@ -29,10 +29,10 @@ PFClusterWidthAlgo::PFClusterWidthAlgo(const std::vector<const reco::PFCluster*>
     for (unsigned int icl = 0; icl < nclust; ++icl) {
       const std::vector<reco::PFRecHitFraction>& PFRecHits = pfclust[icl]->recHitFractions();
 
-      for (std::vector<reco::PFRecHitFraction>::const_iterator it = PFRecHits.begin(); it != PFRecHits.end(); ++it) {
-        const PFRecHitRef& RefPFRecHit = it->recHitRef();
+      for (const auto& PFRecHit : PFRecHits) {
+        const PFRecHitRef& RefPFRecHit = PFRecHit.recHitRef();
         //compute rechit energy taking into account fractions
-        double energyHit = RefPFRecHit->energy() * it->fraction();
+        double energyHit = RefPFRecHit->energy() * PFRecHit.fraction();
 
         sclusterE += energyHit;
         posX += energyHit * RefPFRecHit->position().x();
@@ -60,10 +60,10 @@ PFClusterWidthAlgo::PFClusterWidthAlgo(const std::vector<const reco::PFCluster*>
     for (unsigned int icl = 0; icl < nclust; ++icl) {
       const auto& PFRecHits = pfclust[icl]->recHitFractions();
 
-      for (auto it = PFRecHits.begin(); it != PFRecHits.end(); ++it) {
-        const PFRecHitRef& RefPFRecHit = it->recHitRef();
+      for (const auto& PFRecHit : PFRecHits) {
+        const PFRecHitRef& RefPFRecHit = PFRecHit.recHitRef();
         //compute rechit energy taking into account fractions
-        double energyHit = RefPFRecHit->energy() * it->fraction();
+        double energyHit = RefPFRecHit->energy() * PFRecHit.fraction();
 
         //only for the first cluster (from GSF) find the seed
         if (icl == 0) {
@@ -83,8 +83,8 @@ PFClusterWidthAlgo::PFClusterWidthAlgo(const std::vector<const reco::PFCluster*>
 
     //for the first cluster (from GSF) computed sigmaEtaEta
     const auto& PFRecHits = pfclust[0]->recHitFractions();
-    for (auto it = PFRecHits.begin(); it != PFRecHits.end(); ++it) {
-      const auto& RefPFRecHit = it->recHitRef();
+    for (const auto& PFRecHit : PFRecHits) {
+      const auto& RefPFRecHit = PFRecHit.recHitRef();
       if (!RefPFRecHit.isAvailable())
         return;
       double energyHit = RefPFRecHit->energy();

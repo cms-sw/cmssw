@@ -54,41 +54,38 @@ void FWPFTauProxyBuilder::buildViewType(const FWEventItem* iItem,
   if (pfTaus == nullptr)
     return;
 
-  for (reco::PFTauCollection::const_iterator it = pfTaus->begin(), itEnd = pfTaus->end(); it != itEnd; ++it) {
+  for (const auto& pfTau : *pfTaus) {
     TEveCompound* comp = createCompound();
     if (viewType == FWViewType::kLego) {
-      fireworks::addCircle((*it).eta(), (*it).phi(), 0.5, 20, comp, this);
+      fireworks::addCircle(pfTau.eta(), pfTau.phi(), 0.5, 20, comp, this);
     } else {
       // prepare phi-list and theta range
       try {
-        const reco::PFTauTagInfo* tauTagInfo = dynamic_cast<const reco::PFTauTagInfo*>((*it).pfTauTagInfoRef().get());
+        const reco::PFTauTagInfo* tauTagInfo = dynamic_cast<const reco::PFTauTagInfo*>(pfTau.pfTauTagInfoRef().get());
         const reco::Jet* jet = tauTagInfo->pfjetRef().get();
         m_minTheta = 100;
         m_maxTheta = -100;
         std::vector<double> phis;
         std::vector<const reco::Candidate*> candidates = jet->getJetConstituentsQuick();
-        for (std::vector<const reco::Candidate*>::const_iterator candidate = candidates.begin(),
-                                                                 candidateEnd = candidates.end();
-             candidate != candidateEnd;
-             ++candidate) {
-          double itheta = (*candidate)->theta();
+        for (auto candidate : candidates) {
+          double itheta = candidate->theta();
           if (itheta > m_maxTheta)
             m_maxTheta = itheta;
           if (itheta < m_minTheta)
             m_minTheta = itheta;
 
-          m_phis.push_back((*candidate)->phi());
+          m_phis.push_back(candidate->phi());
         }
         if (m_minTheta > m_maxTheta) {
           m_minTheta = 0;
           m_maxTheta = 0;
         }
 
-        buildBaseTau(*it, jet, comp, viewType, vc);
+        buildBaseTau(pfTau, jet, comp, viewType, vc);
         m_phis.clear();
       } catch (std::exception& e) {
         fwLog(fwlog::kInfo) << "FWPFTauProxyBuilder missing PFTauTagInfo. Skip drawing of jets.\n";
-        buildBaseTau(*it, nullptr, comp, viewType, vc);
+        buildBaseTau(pfTau, nullptr, comp, viewType, vc);
       }
     }
     setupAddElement(comp, product);

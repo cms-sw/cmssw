@@ -230,8 +230,8 @@ namespace gen {
     std::vector<int> pdg = _pdg;
     //return pythia6Hadronizer_->declareStableParticles(pdg);
 
-    for (size_t i = 0; i < pdg.size(); i++) {
-      int pyCode = pycomp(pdg[i]);
+    for (int& i : pdg) {
+      int pyCode = pycomp(i);
       std::ostringstream pyCard;
       pyCard << "MDCY(" << pyCode << ",1)=0";
       std::cout << pyCard.str() << std::endl;

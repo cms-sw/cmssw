@@ -41,16 +41,16 @@ static void createWatchers(const edm::ParameterSet &iP,
   } catch (edm::Exception const &) {
   }
 
-  for (std::vector<ParameterSet>::iterator itWatcher = watchers.begin(); itWatcher != watchers.end(); ++itWatcher) {
+  for (auto &watcher : watchers) {
     std::unique_ptr<SimWatcherMakerBase> maker(
-        SimWatcherFactory::get()->create(itWatcher->getParameter<std::string>("type")));
+        SimWatcherFactory::get()->create(watcher.getParameter<std::string>("type")));
     if (maker.get() == nullptr) {
       throw cms::Exception("SimG4CoreGeometryProducer", " createWatchers: Unable to find the requested Watcher");
     }
 
     std::shared_ptr<SimWatcher> watcherTemp;
     std::shared_ptr<SimProducer> producerTemp;
-    maker->make(*itWatcher, iReg, watcherTemp, producerTemp);
+    maker->make(watcher, iReg, watcherTemp, producerTemp);
     oWatchers.push_back(watcherTemp);
     if (producerTemp)
       oProds.push_back(producerTemp);
@@ -145,8 +145,8 @@ void GeometryProducer::produce(edm::Event &e, const edm::EventSetup &es) {
                                      << " Tk type Producers, and " << m_sensCaloDets.size() << " Calo type producers ";
   }
 
-  for (Producers::iterator itProd = m_producers.begin(); itProd != m_producers.end(); ++itProd) {
-    (*itProd)->produce(e, es);
+  for (auto &m_producer : m_producers) {
+    m_producer->produce(e, es);
   }
 }
 

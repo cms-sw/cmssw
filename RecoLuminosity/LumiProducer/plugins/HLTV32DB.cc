@@ -211,11 +211,10 @@ namespace lumi {
     bool lscountfromzero = false;
 
     /**select t.l1pass,t.paccept,t.pathid,m.psvalue from cms_runinfo.hlt_supervisor_triggerpaths t, cms_runinfo.hlt_supervisor_scalar_map_v2 m where m.pathid=t.pathid and m.runnumber=t.runnumber and m.runnumber=:runnum and m.psindex=:0 and t.lsnumber=:ls **/
-    for (std::vector<std::pair<unsigned int, unsigned int> >::iterator it = psindexmap.begin(); it != psindexmap.end();
-         ++it) {
+    for (auto& it : psindexmap) {
       //loop over ls
-      unsigned int lsnum = it->first;
-      unsigned int psindex = it->second;
+      unsigned int lsnum = it.first;
+      unsigned int psindex = it.second;
       coral::AttributeList hltdataVariableList;
       hltdataVariableList.extend("runnumber", typeid(unsigned int));
       hltdataVariableList.extend("lsnum", typeid(unsigned int));

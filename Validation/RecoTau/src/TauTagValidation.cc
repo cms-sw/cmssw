@@ -88,23 +88,25 @@ TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig)
   tauProducerInputTagToken_ = consumes<reco::PFTauCollection>(iConfig.getParameter<InputTag>("TauProducer"));
   std::vector<edm::ParameterSet> temp_plainDiscriminators;
   std::vector<edm::ParameterSet> temp_discriminatorContainers;
-  for (std::vector<edm::ParameterSet>::iterator it = discriminators_.begin(); it != discriminators_.end(); ++it) {
-    if (it->getParameter<string>("container").empty()) {
-      temp_plainDiscriminators.push_back(*it);
+  for (auto& discriminator : discriminators_) {
+    if (discriminator.getParameter<string>("container").empty()) {
+      temp_plainDiscriminators.push_back(discriminator);
       currentDiscriminatorToken_.push_back(
-          consumes<reco::PFTauDiscriminator>(edm::InputTag(it->getParameter<string>("discriminator"))));
+          consumes<reco::PFTauDiscriminator>(edm::InputTag(discriminator.getParameter<string>("discriminator"))));
     } else {
-      temp_discriminatorContainers.push_back(*it);
+      temp_discriminatorContainers.push_back(discriminator);
       currentDiscriminatorContainerToken_.push_back(std::pair<edm::EDGetTokenT<reco::TauDiscriminatorContainer>, int>(
-          consumes<reco::TauDiscriminatorContainer>(edm::InputTag(it->getParameter<string>("container"))), -99));
-      auto const prov_cfg_label = it->getParameter<std::string>("provenanceConfigLabel");
+          consumes<reco::TauDiscriminatorContainer>(edm::InputTag(discriminator.getParameter<string>("container"))),
+          -99));
+      auto const prov_cfg_label = discriminator.getParameter<std::string>("provenanceConfigLabel");
       if (prov_cfg_label != "rawValues" && prov_cfg_label != "workingPoints" && prov_cfg_label != "IDdefinitions" &&
           prov_cfg_label != "IDWPdefinitions" && prov_cfg_label != "direct_rawValues" &&
           prov_cfg_label != "direct_workingPoints")
         throw cms::Exception("Configuration")
             << "TauTagValidation: Parameter 'provenanceConfigLabel' does only accept 'rawValues', 'workingPoints', "
                "'IDdefinitions', 'IDWPdefinitions', 'direct_rawValues', 'direct_workingPoints'\n";
-      currentDiscriminatorContainerIdName_.push_back({prov_cfg_label, it->getParameter<std::string>("idLabel")});
+      currentDiscriminatorContainerIdName_.push_back(
+          {prov_cfg_label, discriminator.getParameter<std::string>("idLabel")});
     }
   }
   //sort discriminators_: first of type PFTauDiscriminator then TauDiscriminatorContainer
@@ -859,10 +861,8 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 double TauTagValidation::getSumPt(const std::vector<edm::Ptr<reco::Candidate>>& candidates) {
   double sumPt = 0.;
-  for (std::vector<edm::Ptr<reco::Candidate>>::const_iterator candidate = candidates.begin();
-       candidate != candidates.end();
-       ++candidate) {
-    sumPt += (*candidate)->pt();
+  for (const auto& candidate : candidates) {
+    sumPt += candidate->pt();
   }
   return sumPt;
 }

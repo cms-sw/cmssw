@@ -37,8 +37,8 @@ PATSingleVertexSelector::PATSingleVertexSelector(const edm::ParameterSet &iConfi
   modes_.push_back(parseMode(iConfig.getParameter<std::string>("mode")));
   if (iConfig.exists("fallbacks")) {
     vector<string> modes = iConfig.getParameter<vector<string>>("fallbacks");
-    for (vector<string>::const_iterator it = modes.begin(), ed = modes.end(); it != ed; ++it) {
-      modes_.push_back(parseMode(*it));
+    for (const auto &mode : modes) {
+      modes_.push_back(parseMode(mode));
     }
   }
   if (hasMode_(First) || hasMode_(NearestToCand)) {
@@ -87,12 +87,9 @@ bool PATSingleVertexSelector::filter(edm::Event &iEvent, const edm::EventSetup &
   // -- candidate data --
   if (hasMode_(NearestToCand) || hasMode_(FromCand)) {
     vector<pair<double, reco::CandidatePtr>> cands;
-    for (vector<edm::EDGetTokenT<edm::View<reco::Candidate>>>::const_iterator itt = candidatesToken_.begin(),
-                                                                              edt = candidatesToken_.end();
-         itt != edt;
-         ++itt) {
+    for (auto itt : candidatesToken_) {
       Handle<View<reco::Candidate>> theseCands;
-      iEvent.getByToken(*itt, theseCands);
+      iEvent.getByToken(itt, theseCands);
       for (View<reco::Candidate>::const_iterator itc = theseCands->begin(), edc = theseCands->end(); itc != edc;
            ++itc) {
         if (!(candPreselection_(*itc)))
@@ -108,8 +105,8 @@ bool PATSingleVertexSelector::filter(edm::Event &iEvent, const edm::EventSetup &
   bool passes = false;
   std::unique_ptr<vector<reco::Vertex>> result;
   // Run main mode + possible fallback modes
-  for (std::vector<Mode>::const_iterator itm = modes_.begin(), endm = modes_.end(); itm != endm; ++itm) {
-    result = filter_(*itm, iEvent, iSetup);
+  for (auto mode : modes_) {
+    result = filter_(mode, iEvent, iSetup);
     // Check if we got any vertices.  If so, take them.
     if (!result->empty()) {
       passes = true;
@@ -159,11 +156,11 @@ std::unique_ptr<std::vector<reco::Vertex>> PATSingleVertexSelector::filter_(Mode
         return result;
       reco::VertexRef which;
       float dzmin = 9999.0;
-      for (auto itv = selVtxs_.begin(), edv = selVtxs_.end(); itv != edv; ++itv) {
-        float dz = std::abs((*itv)->z() - bestCand_->vz());
+      for (auto &selVtx : selVtxs_) {
+        float dz = std::abs(selVtx->z() - bestCand_->vz());
         if (dz < dzmin) {
           dzmin = dz;
-          which = *itv;
+          which = selVtx;
         }
       }
       if (which.isNonnull())  // actually it should not happen, but better safe than sorry

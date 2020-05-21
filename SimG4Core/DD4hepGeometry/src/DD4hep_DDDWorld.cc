@@ -31,10 +31,10 @@ DDDWorld::DDDWorld(const DDDetector* ddd, dd4hep::sim::Geant4GeometryMaps::Volum
 
   if (geometry) {
     LogVerbatim("Geometry").log([&](auto& log) {
-      for (auto iter = map.begin(); iter != map.end(); ++iter) {
-        log << iter->first.name() << " = ";
-        if (iter->second)
-          log << iter->second->GetName() << "; ";
+      for (auto& iter : map) {
+        log << iter.first.name() << " = ";
+        if (iter.second)
+          log << iter.second->GetName() << "; ";
         else
           log << "***none***; ";
       }

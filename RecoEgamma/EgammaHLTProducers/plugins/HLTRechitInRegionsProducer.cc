@@ -284,9 +284,7 @@ void HLTRechitInRegionsProducer<l1extra::L1EmParticle>::getEtaPhiRegions(
     T1Collection theCandidateCollection,
     const L1CaloGeometry& l1CaloGeom,
     bool isolatedCase) {
-  for (unsigned int candItr = 0; candItr < theCandidateCollection.size(); candItr++) {
-    l1extra::L1EmParticle emItr = theCandidateCollection.at(candItr);
-
+  for (auto emItr : theCandidateCollection) {
     if (!isolatedCase) {
       if (doIsolated_ and (emItr.et() < l1LowerThrIgnoreIsolation_))
         continue;

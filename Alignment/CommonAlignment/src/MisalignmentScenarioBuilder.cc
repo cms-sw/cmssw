@@ -29,9 +29,9 @@ void MisalignmentScenarioBuilder::decodeMovements_(const edm::ParameterSet& pSet
   // first create a map with one align::Alignables per type (=levelName)
   using AlignablesMap = std::map<std::string, align::Alignables>;
   AlignablesMap alisMap;
-  for (align::Alignables::const_iterator iA = alignables.begin(); iA != alignables.end(); ++iA) {
-    const std::string& levelName = alignableObjectId_.idToString((*iA)->alignableObjectId());
-    alisMap[levelName].push_back(*iA);  // either first entry of new level or add to an old one
+  for (auto alignable : alignables) {
+    const std::string& levelName = alignableObjectId_.idToString(alignable->alignableObjectId());
+    alisMap[levelName].push_back(alignable);  // either first entry of new level or add to an old one
   }
 
   // Now call the more general version for each entry in the map.
@@ -74,7 +74,7 @@ void MisalignmentScenarioBuilder::decodeMovements_(const edm::ParameterSet& pSet
 
   // Loop on alignables
   int iComponent = 0;  // physical numbering starts at 1...
-  for (align::Alignables::const_iterator iter = alignables.begin(); iter != alignables.end(); ++iter) {
+  for (auto alignable : alignables) {
     iComponent++;
 
     // Check for special parameters -> merge with global
@@ -89,7 +89,7 @@ void MisalignmentScenarioBuilder::decodeMovements_(const edm::ParameterSet& pSet
     // Retrieve and apply parameters
     LogDebug("PrintParameters") << indent_ << " parameters to apply:" << std::endl;
     this->printParameters_(localParameters, true);
-    if (theModifier.modify((*iter), localParameters)) {
+    if (theModifier.modify(alignable, localParameters)) {
       theModifierCounter++;
       LogDebug("PrintParameters") << indent_ << "Movements applied to " << name.str();
     }
@@ -97,9 +97,9 @@ void MisalignmentScenarioBuilder::decodeMovements_(const edm::ParameterSet& pSet
     // Apply movements to components
     std::vector<std::string> parameterSetNames;
     localParameters.getParameterSetNames(parameterSetNames, true);
-    if ((*iter)->size() > 0 && !parameterSetNames.empty())
+    if (alignable->size() > 0 && !parameterSetNames.empty())
       // Has components and remaining parameter sets
-      this->decodeMovements_(localParameters, (*iter)->components());
+      this->decodeMovements_(localParameters, alignable->components());
   }
 
   indent_ = indent_.substr(0, indent_.length() - 1);
@@ -114,22 +114,21 @@ void MisalignmentScenarioBuilder::mergeParameters_(edm::ParameterSet& localSet,
 
   // Loop on globalSet. Add to localSet all non-existing parameters
   std::vector<std::string> globalParameterNames = globalSet.getParameterNames();
-  for (std::vector<std::string>::iterator iter = globalParameterNames.begin(); iter != globalParameterNames.end();
-       iter++) {
-    if (globalSet.existsAs<edm::ParameterSet>(*iter)) {
+  for (auto& globalParameterName : globalParameterNames) {
+    if (globalSet.existsAs<edm::ParameterSet>(globalParameterName)) {
       // This is a parameter set: check it
-      edm::ParameterSet subLocalSet = this->getParameterSet_((*iter), localSet);
+      edm::ParameterSet subLocalSet = this->getParameterSet_(globalParameterName, localSet);
       if (subLocalSet.empty()) {
         // No local subset exists: just insert it
-        localSet.copyFrom(globalSet, (*iter));
+        localSet.copyFrom(globalSet, globalParameterName);
       } else {
         // Merge with local subset and replace
-        this->mergeParameters_(subLocalSet, globalSet.getParameter<edm::ParameterSet>(*iter));
-        localSet.addParameter<edm::ParameterSet>((*iter), subLocalSet);
+        this->mergeParameters_(subLocalSet, globalSet.getParameter<edm::ParameterSet>(globalParameterName));
+        localSet.addParameter<edm::ParameterSet>(globalParameterName, subLocalSet);
       }
     } else {
       // If (*iter) exists, (silently...) not replaced:
-      localSet.copyFrom(globalSet, (*iter));
+      localSet.copyFrom(globalSet, globalParameterName);
     }
   }
 
@@ -146,31 +145,31 @@ void MisalignmentScenarioBuilder::propagateParameters_(const edm::ParameterSet& 
 
   // Propagate some given parameters
   std::vector<std::string> parameterNames = pSet.getParameterNames();
-  for (std::vector<std::string>::iterator iter = parameterNames.begin(); iter != parameterNames.end(); ++iter) {
-    if (theModifier.isPropagated(*iter)) {  // like 'distribution', 'scale', etc.
-      LogDebug("PropagateParameters") << indent_ << " - adding parameter " << (*iter) << std::endl;
-      subSet.copyFrom(pSet, (*iter));  // If existing, is not replaced.
+  for (auto& parameterName : parameterNames) {
+    if (theModifier.isPropagated(parameterName)) {  // like 'distribution', 'scale', etc.
+      LogDebug("PropagateParameters") << indent_ << " - adding parameter " << parameterName << std::endl;
+      subSet.copyFrom(pSet, parameterName);  // If existing, is not replaced.
     }
   }
 
   // Propagate all tracked parameter sets
   std::vector<std::string> pSetNames;
   if (pSet.getParameterSetNames(pSetNames, true) > 0) {
-    for (std::vector<std::string>::const_iterator it = pSetNames.begin(); it != pSetNames.end(); ++it) {
-      const std::string rootName = this->rootName_(*it);
+    for (const auto& pSetName : pSetNames) {
+      const std::string rootName = this->rootName_(pSetName);
       const std::string globalRoot(this->rootName_(globalName));
       if (rootName.compare(0, rootName.length(), globalRoot) == 0) {
         // Parameter for this level: skip
-        LogDebug("PropagateParameters") << indent_ << " - skipping PSet " << (*it) << " from global " << globalName
+        LogDebug("PropagateParameters") << indent_ << " - skipping PSet " << pSetName << " from global " << globalName
                                         << std::endl;
-      } else if (this->isTopLevel_(*it)) {
+      } else if (this->isTopLevel_(pSetName)) {
         // Top-level parameters should not be propagated
-        LogDebug("PropagateParameters") << indent_ << " - skipping top-level PSet " << (*it) << " global " << globalName
-                                        << std::endl;
+        LogDebug("PropagateParameters") << indent_ << " - skipping top-level PSet " << pSetName << " global "
+                                        << globalName << std::endl;
 
-      } else if (!this->possiblyPartOf(*it, globalRoot)) {
+      } else if (!this->possiblyPartOf(pSetName, globalRoot)) {
         // (*it) is a part of the detector that does not fit to globalName
-        LogDebug("PropagateParameters") << indent_ << " - skipping PSet " << (*it) << " not fitting into global "
+        LogDebug("PropagateParameters") << indent_ << " - skipping PSet " << pSetName << " not fitting into global "
                                         << globalName << std::endl;
 
       } else if (alignableObjectId_.stringToId(rootName) == align::invalid) {
@@ -179,10 +178,10 @@ void MisalignmentScenarioBuilder::propagateParameters_(const edm::ParameterSet& 
       } else {
         // Pass down any other: in order to merge PSets, create dummy PSet
         // only containing this PSet and merge it recursively.
-        LogDebug("PropagateParameters") << indent_ << " - adding PSet " << (*it) << " global " << globalName
+        LogDebug("PropagateParameters") << indent_ << " - adding PSet " << pSetName << " global " << globalName
                                         << std::endl;
         edm::ParameterSet m_subSet;
-        m_subSet.addParameter<edm::ParameterSet>((*it), pSet.getParameter<edm::ParameterSet>(*it));
+        m_subSet.addParameter<edm::ParameterSet>(pSetName, pSet.getParameter<edm::ParameterSet>(pSetName));
         this->mergeParameters_(subSet, m_subSet);
       }
     }
@@ -218,11 +217,11 @@ edm::ParameterSet MisalignmentScenarioBuilder::getParameterSet_(const std::strin
 
   // Get list of parameter set names and look for requested one
   std::vector<std::string> pNames = pSet.getParameterNames();
-  for (std::vector<std::string>::iterator iter = pNames.begin(); iter != pNames.end(); ++iter) {
-    if (iter->find(levelName) != 0)
+  for (auto& pName : pNames) {
+    if (pName.find(levelName) != 0)
       continue;  // parameter not starting with levelName
 
-    const std::string numberString(*iter, levelName.size());
+    const std::string numberString(pName, levelName.size());
     //    if (numberString.empty() || numberString == "s") { // "s" only left means we have e.g. 'TOBs'
     if (numberString.empty()) {  // check on "s" not needed, see below
       continue;                  // nothing left in levelName to be iComponent...
@@ -234,23 +233,23 @@ edm::ParameterSet MisalignmentScenarioBuilder::getParameterSet_(const std::strin
       const std::string digit(numberString.substr(lastPos, pos - lastPos));
 
       bool isDigit = !digit.empty();
-      for (std::string::const_iterator dIt = digit.begin(); dIt != digit.end(); ++dIt) {
-        if (!isdigit(*dIt))
+      for (char dIt : digit) {
+        if (!isdigit(dIt))
           isDigit = false;  // check all 'letters' to be a digit
       }
       if (!isDigit) {
         if (lastPos != 0) {  // do not throw if e.g. after 'TOB' ('Det') you find only 's' (Unit<n>)
           throw cms::Exception("BadConfig")
               << "[MisalignmentScenarioBuilder::getParameterSet_] "
-              << "Expect only numbers, separated by '_' after " << levelName << " in " << *iter << std::endl;
+              << "Expect only numbers, separated by '_' after " << levelName << " in " << pName << std::endl;
         }
         break;
       }
 
       if (atoi(digit.c_str()) == iComponent) {
         ++nFittingPsets;
-        LogDebug("getParameterSet_") << indent_ << "found " << *iter << " matching " << levelName << iComponent;
-        result = pSet.getParameter<edm::ParameterSet>(*iter);
+        LogDebug("getParameterSet_") << indent_ << "found " << pName << " matching " << levelName << iComponent;
+        result = pSet.getParameter<edm::ParameterSet>(pName);
         break;
       }
       lastPos = numberString.find_first_not_of('_', pos);
@@ -279,8 +278,8 @@ bool MisalignmentScenarioBuilder::hasParameter_(const std::string& name, const e
 // Print parameter set. If showPsets is 'false', do not print PSets
 void MisalignmentScenarioBuilder::printParameters_(const edm::ParameterSet& pSet, const bool showPsets) const {
   std::vector<std::string> parameterNames = pSet.getParameterNames();
-  for (std::vector<std::string>::iterator iter = parameterNames.begin(); iter != parameterNames.end(); ++iter) {
-    if (showPsets || !pSet.existsAs<edm::ParameterSet>(*iter)) {
+  for (auto& parameterName : parameterNames) {
+    if (showPsets || !pSet.existsAs<edm::ParameterSet>(parameterName)) {
       //       LogTrace("PrintParameters") << indent_ << "   " << (*iter) << " = "
       // 				  << pSet.retrieve( *iter ).toString() << std::endl;
       // From Bill Tannenbaum:

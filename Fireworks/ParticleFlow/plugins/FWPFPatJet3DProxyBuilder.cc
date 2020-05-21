@@ -17,12 +17,8 @@ void FWPFPatJet3DProxyBuilder<T>::build(const T& iData,
     std::vector<reco::PFCandidatePtr> consts = iData.getPFConstituents();
     typedef std::vector<reco::PFCandidatePtr>::const_iterator IC;
 
-    for (IC ic = consts.begin();  // If consts has no constituents then the loop simply won't execute
-         ic != consts.end();
-         ic++)  // and so no segmentation fault should occur
+    for (auto pfCandPtr : consts)  // and so no segmentation fault should occur
     {
-      const reco::PFCandidatePtr pfCandPtr = *ic;
-
       TEveRecTrack t;
       t.fBeta = 1;
       t.fP = TEveVector(pfCandPtr->px(), pfCandPtr->py(), pfCandPtr->pz());

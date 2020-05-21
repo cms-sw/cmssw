@@ -6,11 +6,10 @@ using namespace std;
 RootNeutronWriter::RootNeutronWriter(const string& fileName) { theFile = new TFile(fileName.c_str(), "update"); }
 
 RootNeutronWriter::~RootNeutronWriter() {
-  for (std::map<int, RootChamberWriter>::iterator mapItr = theChamberWriters.begin(); mapItr != theChamberWriters.end();
-       ++mapItr) {
-    mapItr->second.tree()->Print();
+  for (auto& theChamberWriter : theChamberWriters) {
+    theChamberWriter.second.tree()->Print();
     // the tree will remember which file it's from
-    theFile = mapItr->second.tree()->GetCurrentFile();
+    theFile = theChamberWriter.second.tree()->GetCurrentFile();
   }
   theFile->Write();
   //  theFile->Close();

@@ -48,16 +48,16 @@ void SiStripSummaryCreator::createSummary(DQMStore& dqm_store) {
   std::string currDir = dqm_store.pwd();
   std::vector<std::string> subdirs = dqm_store.getSubdirs();
   int nmod = 0;
-  for (std::vector<std::string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
-    if ((*it).find("module_") == std::string::npos)
+  for (const auto& subdir : subdirs) {
+    if (subdir.find("module_") == std::string::npos)
       continue;
     nmod++;
   }
   if (nmod > 0) {
     fillSummaryHistos(dqm_store);
   } else {
-    for (std::vector<std::string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
-      dqm_store.cd(*it);
+    for (const auto& subdir : subdirs) {
+      dqm_store.cd(subdir);
       createSummary(dqm_store);
       dqm_store.goUp();
     }
@@ -80,15 +80,14 @@ void SiStripSummaryCreator::fillSummaryHistos(DQMStore& dqm_store) {
     int iBinStep = 0;
     int ndet = 0;
     std::string htype = isum->second;
-    for (std::vector<std::string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
-      if ((*it).find("module_") == std::string::npos)
+    for (const auto& subdir : subdirs) {
+      if (subdir.find("module_") == std::string::npos)
         continue;
-      dqm_store.cd(*it);
+      dqm_store.cd(subdir);
       ndet++;
       std::vector<MonitorElement*> contents = dqm_store.getContents(dqm_store.pwd());
       dqm_store.goUp();
-      for (std::vector<MonitorElement*>::const_iterator im = contents.begin(); im != contents.end(); im++) {
-        MonitorElement* me_i = (*im);
+      for (auto me_i : contents) {
         if (!me_i)
           continue;
         std::string name_i = me_i->getName();
@@ -135,12 +134,11 @@ void SiStripSummaryCreator::fillGrandSummaryHistos(DQMStore& dqm_store) {
       summary_name = "Summary_Mean" + isum->first;
     std::string htype = isum->second;
     int ibinStep = 0;
-    for (std::vector<std::string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
-      dqm_store.cd(*it);
+    for (const auto& subdir : subdirs) {
+      dqm_store.cd(subdir);
       std::vector<MonitorElement*> contents = dqm_store.getContents(dqm_store.pwd());
       dqm_store.goUp();
-      for (std::vector<MonitorElement*>::const_iterator im = contents.begin(); im != contents.end(); im++) {
-        MonitorElement* me_i = (*im);
+      for (auto me_i : contents) {
         if (!me_i)
           continue;
         std::string name_i = me_i->getName();
@@ -188,8 +186,7 @@ SiStripSummaryCreator::MonitorElement* SiStripSummaryCreator::getSummaryME(DQMSt
   }
   // If already booked
   std::vector<MonitorElement*> contents = dqm_store.getContents(currDir);
-  for (std::vector<MonitorElement*>::const_iterator im = contents.begin(); im != contents.end(); im++) {
-    MonitorElement* me = (*im);
+  for (auto me : contents) {
     if (!me)
       continue;
     std::string me_name = me->getName();

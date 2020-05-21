@@ -223,8 +223,8 @@ int CMSCGEN::initialize(double pmin_in,
   //
   ce = 0.5 / ce;
 
-  for (int k = 0; k < 9; k++) {
-    pe[k] = pe[k] * ce;
+  for (double &k : pe) {
+    k = k * ce;
   }
 
   cemax = cemax0 * corr[50];

@@ -200,10 +200,10 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   TrajectoryStateCombiner combiner;
 
-  for (TrackCandidateCollection::const_iterator i = theTCCollection->begin(); i != theTCCollection->end(); i++) {
+  for (const auto& i : *theTCCollection) {
     LogTrace("TestSmoothHits") << "new candidate" << std::endl;
 
-    const TrackCandidate* theTC = &(*i);
+    const TrackCandidate* theTC = &i;
     PTrajectoryStateOnDet state = theTC->trajectoryStateOnDet();
     const TrackCandidate::range& recHitVec = theTC->recHits();
 
@@ -227,8 +227,8 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     std::vector<Trajectory> fitted = fit->fit(theTC->seed(), hits, theTSOS);
     //call the smoother
     std::vector<Trajectory> result;
-    for (std::vector<Trajectory>::iterator it = fitted.begin(); it != fitted.end(); it++) {
-      std::vector<Trajectory> smoothed = smooth->trajectories(*it);
+    for (auto& it : fitted) {
+      std::vector<Trajectory> smoothed = smooth->trajectories(it);
       result.insert(result.end(), smoothed.begin(), smoothed.end());
     }
     if (result.empty())
@@ -236,8 +236,8 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     std::vector<TrajectoryMeasurement> vtm = result[0].measurements();
 
     TSOS lastState = theTSOS;
-    for (std::vector<TrajectoryMeasurement>::iterator tm = vtm.begin(); tm != vtm.end(); tm++) {
-      TransientTrackingRecHit::ConstRecHitPointer rhit = tm->recHit();
+    for (auto& tm : vtm) {
+      TransientTrackingRecHit::ConstRecHitPointer rhit = tm.recHit();
       if ((rhit)->isValid() == 0 && rhit->det() != nullptr)
         continue;
       LogTrace("TestSmoothHits") << "new hit";
@@ -261,12 +261,12 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         }
       }
 
-      TSOS currentState = combiner(tm->backwardPredictedState(), tm->forwardPredictedState());
-      TSOS updatedState = tm->updatedState();
+      TSOS currentState = combiner(tm.backwardPredictedState(), tm.forwardPredictedState());
+      TSOS updatedState = tm.updatedState();
 
       //plot chi2 increment
-      double chi2increment = tm->estimate();
-      LogTrace("TestSmoothHits") << "tm->estimate()=" << tm->estimate();
+      double chi2increment = tm.estimate();
+      LogTrace("TestSmoothHits") << "tm->estimate()=" << tm.estimate();
       title.str("");
       title << "Chi2Increment_" << subdetId << "-" << layerId;
       hChi2Increment[title.str()]->Fill(chi2increment);

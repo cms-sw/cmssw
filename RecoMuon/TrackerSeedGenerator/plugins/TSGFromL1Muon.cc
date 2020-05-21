@@ -87,9 +87,9 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
 
     typedef std::vector<std::unique_ptr<TrackingRegion> > Regions;
     Regions regions = theRegionProducer->regions();
-    for (Regions::const_iterator ir = regions.begin(); ir != regions.end(); ++ir) {
+    for (const auto& ir : regions) {
       L1MuonSeedsMerger::TracksAndHits tracks;
-      const TrackingRegion& region = **ir;
+      const TrackingRegion& region = *ir;
       const OrderedSeedingHits& candidates = theHitGenerator->run(region, ev, es);
 
       unsigned int nSets = candidates.size();
@@ -113,8 +113,8 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
 
       if (theMerger)
         theMerger->resolve(tracks);
-      for (L1MuonSeedsMerger::TracksAndHits::const_iterator it = tracks.begin(); it != tracks.end(); ++it) {
-        SeedFromProtoTrack seed(*(it->first), it->second, es);
+      for (const auto& track : tracks) {
+        SeedFromProtoTrack seed(*(track.first), track.second, es);
         if (seed.isValid())
           (*result).push_back(L3MuonTrajectorySeed(seed.trajectorySeed(), l1Ref));
 
@@ -122,7 +122,7 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
         //                                               0, 0, sqr(region->originZBound()));
         //      SeedFromConsecutiveHits seed( candidates[ic],region->origin(), vtxerr, es);
         //      if (seed.isValid()) (*result).push_back( seed.TrajSeed() );
-        delete it->first;
+        delete track.first;
       }
     }
   }

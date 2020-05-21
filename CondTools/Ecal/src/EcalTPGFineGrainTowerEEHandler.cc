@@ -108,8 +108,8 @@ void popcon::EcalTPGFineGrainTowerEEHandler::getNewObjects() {
         "EE_trigger_tower", 1, 200, 1, 70, EcalLogicID::NULLID, EcalLogicID::NULLID, "EE_offline_towerid", 12);
     std::cout << " GOT the logic ID for the EE trigger towers " << std::endl;
 
-    for (size_t kr = 0; kr < run_vec.size(); kr++) {
-      irun = static_cast<unsigned int>(run_vec[kr].getRunNumber());
+    for (auto &kr : run_vec) {
+      irun = static_cast<unsigned int>(kr.getRunNumber());
 
       std::cout << " **************** " << std::endl;
       std::cout << " **************** " << std::endl;
@@ -117,7 +117,7 @@ void popcon::EcalTPGFineGrainTowerEEHandler::getNewObjects() {
 
       // retrieve the data
       std::map<EcalLogicID, RunTPGConfigDat> dataset;
-      econn->fetchDataSet(&dataset, &run_vec[kr]);
+      econn->fetchDataSet(&dataset, &kr);
 
       std::string the_config_tag = "";
       int the_config_version = 0;
@@ -181,11 +181,10 @@ void popcon::EcalTPGFineGrainTowerEEHandler::getNewObjects() {
 
                 bool set_the_tower = false;
                 int towid;
-                for (size_t itower = 0; itower < my_TTEcalLogicId_EE.size(); itower++) {
+                for (auto &itower : my_TTEcalLogicId_EE) {
                   if (!set_the_tower) {
-                    if (my_TTEcalLogicId_EE[itower].getID1() == tccid &&
-                        my_TTEcalLogicId_EE[itower].getID2() == towerid) {
-                      towid = my_TTEcalLogicId_EE[itower].getLogicID();
+                    if (itower.getID1() == tccid && itower.getID2() == towerid) {
+                      towid = itower.getLogicID();
                       set_the_tower = true;
                       break;
                     }

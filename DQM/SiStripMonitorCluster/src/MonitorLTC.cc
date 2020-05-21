@@ -54,7 +54,7 @@ void MonitorLTC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   //  unsigned int ltc_orbit;
   //  unsigned int ltc_bunch;
   //  unsigned int ltc_inhibit;
-  for (LTCDigiCollection::const_iterator ltcdigiItr = ltcdigis->begin(); ltcdigiItr != ltcdigis->end(); ++ltcdigiItr) {
+  for (const auto& ltcdigiItr : *ltcdigis) {
     //    ltc_run = ltcdigiItr->runNumber();
     //    ltc_event = ltcdigiItr->eventNumber();
     //    ltc_triggerNumber = ltcdigiItr->eventID();
@@ -64,7 +64,7 @@ void MonitorLTC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     //    ltc_mask = (unsigned int)(ltcdigiItr->externTriggerMask());
     //    ltc_gpstime = ltcdigiItr->bstGpsTime();
     for (int ibit = 0; ibit < 7; ++ibit) {
-      if (ltcdigiItr->HasTriggered(ibit)) {
+      if (ltcdigiItr.HasTriggered(ibit)) {
         LTCTriggerDecision_all->Fill(ibit, 1.);
       }
     }

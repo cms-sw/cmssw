@@ -115,8 +115,8 @@ void EcalFEtoDigi::readInput() {
 
   if (!singlefile)
     sm_ = -1;
-  for (int i = 0; i < N_SM; i++)
-    inputdata_[i].clear();
+  for (auto &i : inputdata_)
+    i.clear();
 
   std::stringstream s;
   int tcc;

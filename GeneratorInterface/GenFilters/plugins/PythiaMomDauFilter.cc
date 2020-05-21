@@ -126,8 +126,8 @@ bool PythiaMomDauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
              dau != (*p)->end_vertex()->particles_end(HepMC::children);
              ++dau) {
           ++ndau;
-          for (unsigned int i = 0; i < dauIDs.size(); ++i) {
-            if ((*dau)->pdg_id() != dauIDs[i])
+          for (int dauID : dauIDs) {
+            if ((*dau)->pdg_id() != dauID)
               continue;
             ++ndauac;
             break;
@@ -137,8 +137,8 @@ bool PythiaMomDauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
                  des != (*des)->end_vertex()->particles_end(HepMC::children);
                  ++des) {
               ++ndes;
-              for (unsigned int i = 0; i < desIDs.size(); ++i) {
-                if ((*des)->pdg_id() != desIDs[i])
+              for (int desID : desIDs) {
+                if ((*des)->pdg_id() != desID)
                   continue;
                 HepMC::FourVector dau_i = MCFilterZboostHelper::zboost((*des)->momentum(), betaBoost);
                 if ((*des)->momentum().perp() > minptcut && (*des)->momentum().perp() < maxptcut &&
@@ -177,12 +177,12 @@ bool PythiaMomDauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
                dau != (*p)->end_vertex()->particles_end(HepMC::children);
                ++dau) {
             ++ndau;
-            for (unsigned int i = 0; i < dauIDs.size(); ++i) {
-              int IDanti = -dauIDs[i];
-              int pythiaCode = PYCOMP(dauIDs[i]);
+            for (int& dauID : dauIDs) {
+              int IDanti = -dauID;
+              int pythiaCode = PYCOMP(dauID);
               int has_antipart = pydat2.kchg[3 - 1][pythiaCode - 1];
               if (has_antipart == 0)
-                IDanti = dauIDs[i];
+                IDanti = dauID;
               if ((*dau)->pdg_id() != IDanti)
                 continue;
               ++ndauac;
@@ -198,12 +198,12 @@ bool PythiaMomDauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
                    des != (*des)->end_vertex()->particles_end(HepMC::children);
                    ++des) {
                 ++ndes;
-                for (unsigned int i = 0; i < desIDs.size(); ++i) {
-                  int IDanti = -desIDs[i];
-                  int pythiaCode = PYCOMP(desIDs[i]);
+                for (int& desID : desIDs) {
+                  int IDanti = -desID;
+                  int pythiaCode = PYCOMP(desID);
                   int has_antipart = pydat2.kchg[3 - 1][pythiaCode - 1];
                   if (has_antipart == 0)
-                    IDanti = desIDs[i];
+                    IDanti = desID;
                   if ((*des)->pdg_id() != IDanti)
                     continue;
                   HepMC::FourVector dau_i = MCFilterZboostHelper::zboost((*des)->momentum(), betaBoost);

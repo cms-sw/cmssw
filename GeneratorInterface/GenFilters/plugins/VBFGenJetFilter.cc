@@ -87,8 +87,8 @@ vector<const reco::GenParticle*> VBFGenJetFilter::filterGenLeptons(const vector<
 vector<const reco::GenJet*> VBFGenJetFilter::filterGenJets(const vector<reco::GenJet>* jets) const {
   vector<const reco::GenJet*> out;
 
-  for (unsigned i = 0; i < jets->size(); i++) {
-    const reco::GenJet* j = &((*jets)[i]);
+  for (const auto& jet : *jets) {
+    const reco::GenJet* j = &jet;
 
     if (j->p4().pt() > ptMin && j->p4().eta() > etaMin && j->p4().eta() < etaMax) {
       out.push_back(j);

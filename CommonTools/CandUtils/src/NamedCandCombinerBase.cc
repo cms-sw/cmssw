@@ -215,16 +215,16 @@ void NamedCandCombinerBase::combine(size_t collectionIndex,
   } else {
     const CandidatePtrVector& src = *collBegin;
     size_t candBegin = 0, candEnd = src.size();
-    for (CandStack::const_iterator i = stack.begin(); i != stack.end(); ++i)
-      if (src == *i->second)
-        candBegin = i->first.second + 1;
+    for (const auto& i : stack)
+      if (src == *i.second)
+        candBegin = i.first.second + 1;
     for (size_t candIndex = candBegin; candIndex != candEnd; ++candIndex) {
       const CandidatePtr& candPtr(src[candIndex]);
 
       bool noOverlap = true;
       const Candidate& cand = *candPtr;
-      for (CandStack::const_iterator i = stack.begin(); i != stack.end(); ++i)
-        if (checkOverlap_ && overlap_(cand, *(i->first.first))) {
+      for (const auto& i : stack)
+        if (checkOverlap_ && overlap_(cand, *(i.first.first))) {
           noOverlap = false;
           break;
         }

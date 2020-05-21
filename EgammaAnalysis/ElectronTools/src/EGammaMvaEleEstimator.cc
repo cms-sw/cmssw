@@ -32,9 +32,9 @@ EGammaMvaEleEstimator::EGammaMvaEleEstimator()
 
 //--------------------------------------------------------------------------------------------------
 EGammaMvaEleEstimator::~EGammaMvaEleEstimator() {
-  for (unsigned int i = 0; i < fTMVAReader.size(); ++i) {
-    if (fTMVAReader[i])
-      delete fTMVAReader[i];
+  for (auto& i : fTMVAReader) {
+    if (i)
+      delete i;
   }
 }
 
@@ -53,9 +53,9 @@ void EGammaMvaEleEstimator::initialize(std::string methodName,
                                        Bool_t useBinnedVersion,
                                        std::vector<std::string> weightsfiles) {
   //clean up first
-  for (unsigned int i = 0; i < fTMVAReader.size(); ++i) {
-    if (fTMVAReader[i])
-      delete fTMVAReader[i];
+  for (auto& i : fTMVAReader) {
+    if (i)
+      delete i;
   }
   fTMVAReader.clear();
   fTMVAMethod.clear();
@@ -1388,19 +1388,19 @@ Double_t EGammaMvaEleEstimator::isoMvaValue(const reco::GsfElectron& ele,
     electronTrackZ = ele.closestCtfTrackRef()->dz(vertex.position());
   }
 
-  for (reco::PFCandidateCollection::const_iterator iP = PFCandidates.begin(); iP != PFCandidates.end(); ++iP) {
+  for (const auto& iP : PFCandidates) {
     //exclude the electron itself
-    if (iP->gsfTrackRef().isNonnull() && ele.gsfTrack().isNonnull() &&
-        refToPtr(iP->gsfTrackRef()) == refToPtr(ele.gsfTrack()))
+    if (iP.gsfTrackRef().isNonnull() && ele.gsfTrack().isNonnull() &&
+        refToPtr(iP.gsfTrackRef()) == refToPtr(ele.gsfTrack()))
       continue;
-    if (iP->trackRef().isNonnull() && ele.closestCtfTrackRef().isNonnull() &&
-        refToPtr(iP->trackRef()) == refToPtr(ele.closestCtfTrackRef()))
+    if (iP.trackRef().isNonnull() && ele.closestCtfTrackRef().isNonnull() &&
+        refToPtr(iP.trackRef()) == refToPtr(ele.closestCtfTrackRef()))
       continue;
 
     //************************************************************
     // New Isolation Calculations
     //************************************************************
-    double dr = sqrt(pow(iP->eta() - ele.eta(), 2) + pow(acos(cos(iP->phi() - ele.phi())), 2));
+    double dr = sqrt(pow(iP.eta() - ele.eta(), 2) + pow(acos(cos(iP.phi() - ele.phi())), 2));
     //Double_t deta = (iP->eta() - ele.eta());
 
     if (dr < 1.0) {
@@ -1408,45 +1408,46 @@ Double_t EGammaMvaEleEstimator::isoMvaValue(const reco::GsfElectron& ele,
       //************************************************************
       // Lepton Footprint Removal
       //************************************************************
-      for (reco::GsfElectronCollection::const_iterator iE = IdentifiedElectrons.begin();
-           iE != IdentifiedElectrons.end();
-           ++iE) {
+      for (const auto& IdentifiedElectron : IdentifiedElectrons) {
         //if pf candidate matches an electron passing ID cuts, then veto it
-        if (iP->gsfTrackRef().isNonnull() && iE->gsfTrack().isNonnull() &&
-            refToPtr(iP->gsfTrackRef()) == refToPtr(iE->gsfTrack()))
+        if (iP.gsfTrackRef().isNonnull() && IdentifiedElectron.gsfTrack().isNonnull() &&
+            refToPtr(iP.gsfTrackRef()) == refToPtr(IdentifiedElectron.gsfTrack()))
           IsLeptonFootprint = kTRUE;
-        if (iP->trackRef().isNonnull() && iE->closestCtfTrackRef().isNonnull() &&
-            refToPtr(iP->trackRef()) == refToPtr(iE->closestCtfTrackRef()))
+        if (iP.trackRef().isNonnull() && IdentifiedElectron.closestCtfTrackRef().isNonnull() &&
+            refToPtr(iP.trackRef()) == refToPtr(IdentifiedElectron.closestCtfTrackRef()))
           IsLeptonFootprint = kTRUE;
 
         //if pf candidate lies in veto regions of electron passing ID cuts, then veto it
-        double tmpDR = sqrt(pow(iP->eta() - iE->eta(), 2) + pow(acos(cos(iP->phi() - iE->phi())), 2));
-        if (iP->trackRef().isNonnull() && fabs(iE->superCluster()->eta()) >= 1.479 && tmpDR < 0.015)
+        double tmpDR =
+            sqrt(pow(iP.eta() - IdentifiedElectron.eta(), 2) + pow(acos(cos(iP.phi() - IdentifiedElectron.phi())), 2));
+        if (iP.trackRef().isNonnull() && fabs(IdentifiedElectron.superCluster()->eta()) >= 1.479 && tmpDR < 0.015)
           IsLeptonFootprint = kTRUE;
-        if (iP->particleId() == reco::PFCandidate::gamma && fabs(iE->superCluster()->eta()) >= 1.479 && tmpDR < 0.08)
+        if (iP.particleId() == reco::PFCandidate::gamma && fabs(IdentifiedElectron.superCluster()->eta()) >= 1.479 &&
+            tmpDR < 0.08)
           IsLeptonFootprint = kTRUE;
       }
-      for (reco::MuonCollection::const_iterator iM = IdentifiedMuons.begin(); iM != IdentifiedMuons.end(); ++iM) {
+      for (const auto& IdentifiedMuon : IdentifiedMuons) {
         //if pf candidate matches an muon passing ID cuts, then veto it
-        if (iP->trackRef().isNonnull() && iM->innerTrack().isNonnull() &&
-            refToPtr(iP->trackRef()) == refToPtr(iM->innerTrack()))
+        if (iP.trackRef().isNonnull() && IdentifiedMuon.innerTrack().isNonnull() &&
+            refToPtr(iP.trackRef()) == refToPtr(IdentifiedMuon.innerTrack()))
           IsLeptonFootprint = kTRUE;
 
         //if pf candidate lies in veto regions of muon passing ID cuts, then veto it
-        double tmpDR = sqrt(pow(iP->eta() - iM->eta(), 2) + pow(acos(cos(iP->phi() - iM->phi())), 2));
-        if (iP->trackRef().isNonnull() && tmpDR < 0.01)
+        double tmpDR =
+            sqrt(pow(iP.eta() - IdentifiedMuon.eta(), 2) + pow(acos(cos(iP.phi() - IdentifiedMuon.phi())), 2));
+        if (iP.trackRef().isNonnull() && tmpDR < 0.01)
           IsLeptonFootprint = kTRUE;
       }
 
       if (!IsLeptonFootprint) {
         Bool_t passVeto = kTRUE;
         //Charged
-        if (iP->trackRef().isNonnull()) {
-          if (!(fabs(iP->trackRef()->dz(vertex.position()) - electronTrackZ) < 0.2))
+        if (iP.trackRef().isNonnull()) {
+          if (!(fabs(iP.trackRef()->dz(vertex.position()) - electronTrackZ) < 0.2))
             passVeto = kFALSE;
           //************************************************************
           // Veto any PFmuon, or PFEle
-          if (iP->particleId() == reco::PFCandidate::e || iP->particleId() == reco::PFCandidate::mu)
+          if (iP.particleId() == reco::PFCandidate::e || iP.particleId() == reco::PFCandidate::mu)
             passVeto = kFALSE;
           //************************************************************
           //************************************************************
@@ -1456,19 +1457,19 @@ Double_t EGammaMvaEleEstimator::isoMvaValue(const reco::GsfElectron& ele,
           //************************************************************
           if (passVeto) {
             if (dr < 0.1)
-              tmpChargedIso_DR0p0To0p1 += iP->pt();
+              tmpChargedIso_DR0p0To0p1 += iP.pt();
             if (dr >= 0.1 && dr < 0.2)
-              tmpChargedIso_DR0p1To0p2 += iP->pt();
+              tmpChargedIso_DR0p1To0p2 += iP.pt();
             if (dr >= 0.2 && dr < 0.3)
-              tmpChargedIso_DR0p2To0p3 += iP->pt();
+              tmpChargedIso_DR0p2To0p3 += iP.pt();
             if (dr >= 0.3 && dr < 0.4)
-              tmpChargedIso_DR0p3To0p4 += iP->pt();
+              tmpChargedIso_DR0p3To0p4 += iP.pt();
             if (dr >= 0.4 && dr < 0.5)
-              tmpChargedIso_DR0p4To0p5 += iP->pt();
+              tmpChargedIso_DR0p4To0p5 += iP.pt();
           }  //pass veto
         }
         //Gamma
-        else if (iP->particleId() == reco::PFCandidate::gamma) {
+        else if (iP.particleId() == reco::PFCandidate::gamma) {
           //************************************************************
           // Footprint Veto
           if (fabs(fMVAVar_eta) > 1.479 && dr < 0.08)
@@ -1476,29 +1477,29 @@ Double_t EGammaMvaEleEstimator::isoMvaValue(const reco::GsfElectron& ele,
           //************************************************************
           if (passVeto) {
             if (dr < 0.1)
-              tmpGammaIso_DR0p0To0p1 += iP->pt();
+              tmpGammaIso_DR0p0To0p1 += iP.pt();
             if (dr >= 0.1 && dr < 0.2)
-              tmpGammaIso_DR0p1To0p2 += iP->pt();
+              tmpGammaIso_DR0p1To0p2 += iP.pt();
             if (dr >= 0.2 && dr < 0.3)
-              tmpGammaIso_DR0p2To0p3 += iP->pt();
+              tmpGammaIso_DR0p2To0p3 += iP.pt();
             if (dr >= 0.3 && dr < 0.4)
-              tmpGammaIso_DR0p3To0p4 += iP->pt();
+              tmpGammaIso_DR0p3To0p4 += iP.pt();
             if (dr >= 0.4 && dr < 0.5)
-              tmpGammaIso_DR0p4To0p5 += iP->pt();
+              tmpGammaIso_DR0p4To0p5 += iP.pt();
           }
         }
         //NeutralHadron
         else {
           if (dr < 0.1)
-            tmpNeutralHadronIso_DR0p0To0p1 += iP->pt();
+            tmpNeutralHadronIso_DR0p0To0p1 += iP.pt();
           if (dr >= 0.1 && dr < 0.2)
-            tmpNeutralHadronIso_DR0p1To0p2 += iP->pt();
+            tmpNeutralHadronIso_DR0p1To0p2 += iP.pt();
           if (dr >= 0.2 && dr < 0.3)
-            tmpNeutralHadronIso_DR0p2To0p3 += iP->pt();
+            tmpNeutralHadronIso_DR0p2To0p3 += iP.pt();
           if (dr >= 0.3 && dr < 0.4)
-            tmpNeutralHadronIso_DR0p3To0p4 += iP->pt();
+            tmpNeutralHadronIso_DR0p3To0p4 += iP.pt();
           if (dr >= 0.4 && dr < 0.5)
-            tmpNeutralHadronIso_DR0p4To0p5 += iP->pt();
+            tmpNeutralHadronIso_DR0p4To0p5 += iP.pt();
         }
       }  //not lepton footprint
     }    //in 1.0 dr cone
@@ -1727,17 +1728,17 @@ Double_t EGammaMvaEleEstimator::IDIsoCombinedMvaValue(const reco::GsfElectron& e
   Double_t tmpNeutralHadronIso_DR0p3To0p4 = 0;
   Double_t tmpNeutralHadronIso_DR0p4To0p5 = 0;
 
-  for (reco::PFCandidateCollection::const_iterator iP = PFCandidates.begin(); iP != PFCandidates.end(); ++iP) {
-    double dr = sqrt(pow(iP->eta() - ele.eta(), 2) + pow(acos(cos(iP->phi() - ele.phi())), 2));
+  for (const auto& iP : PFCandidates) {
+    double dr = sqrt(pow(iP.eta() - ele.eta(), 2) + pow(acos(cos(iP.phi() - ele.phi())), 2));
 
     Bool_t passVeto = kTRUE;
     //Charged
-    if (iP->trackRef().isNonnull()) {
+    if (iP.trackRef().isNonnull()) {
       //make sure charged pf candidates pass the PFNoPU condition (assumed)
 
       //************************************************************
       // Veto any PFmuon, or PFEle
-      if (iP->particleId() == reco::PFCandidate::e || iP->particleId() == reco::PFCandidate::mu)
+      if (iP.particleId() == reco::PFCandidate::e || iP.particleId() == reco::PFCandidate::mu)
         passVeto = kFALSE;
       //************************************************************
       //************************************************************
@@ -1747,19 +1748,19 @@ Double_t EGammaMvaEleEstimator::IDIsoCombinedMvaValue(const reco::GsfElectron& e
       //************************************************************
       if (passVeto) {
         if (dr < 0.1)
-          tmpChargedIso_DR0p0To0p1 += iP->pt();
+          tmpChargedIso_DR0p0To0p1 += iP.pt();
         if (dr >= 0.1 && dr < 0.2)
-          tmpChargedIso_DR0p1To0p2 += iP->pt();
+          tmpChargedIso_DR0p1To0p2 += iP.pt();
         if (dr >= 0.2 && dr < 0.3)
-          tmpChargedIso_DR0p2To0p3 += iP->pt();
+          tmpChargedIso_DR0p2To0p3 += iP.pt();
         if (dr >= 0.3 && dr < 0.4)
-          tmpChargedIso_DR0p3To0p4 += iP->pt();
+          tmpChargedIso_DR0p3To0p4 += iP.pt();
         if (dr >= 0.4 && dr < 0.5)
-          tmpChargedIso_DR0p4To0p5 += iP->pt();
+          tmpChargedIso_DR0p4To0p5 += iP.pt();
       }  //pass veto
     }
     //Gamma
-    else if (iP->particleId() == reco::PFCandidate::gamma) {
+    else if (iP.particleId() == reco::PFCandidate::gamma) {
       //************************************************************
       // Footprint Veto
       if (fabs(fMVAVar_eta) > 1.479 && dr < 0.08)
@@ -1767,29 +1768,29 @@ Double_t EGammaMvaEleEstimator::IDIsoCombinedMvaValue(const reco::GsfElectron& e
       //************************************************************
       if (passVeto) {
         if (dr < 0.1)
-          tmpGammaIso_DR0p0To0p1 += iP->pt();
+          tmpGammaIso_DR0p0To0p1 += iP.pt();
         if (dr >= 0.1 && dr < 0.2)
-          tmpGammaIso_DR0p1To0p2 += iP->pt();
+          tmpGammaIso_DR0p1To0p2 += iP.pt();
         if (dr >= 0.2 && dr < 0.3)
-          tmpGammaIso_DR0p2To0p3 += iP->pt();
+          tmpGammaIso_DR0p2To0p3 += iP.pt();
         if (dr >= 0.3 && dr < 0.4)
-          tmpGammaIso_DR0p3To0p4 += iP->pt();
+          tmpGammaIso_DR0p3To0p4 += iP.pt();
         if (dr >= 0.4 && dr < 0.5)
-          tmpGammaIso_DR0p4To0p5 += iP->pt();
+          tmpGammaIso_DR0p4To0p5 += iP.pt();
       }
     }
     //NeutralHadron
     else {
       if (dr < 0.1)
-        tmpNeutralHadronIso_DR0p0To0p1 += iP->pt();
+        tmpNeutralHadronIso_DR0p0To0p1 += iP.pt();
       if (dr >= 0.1 && dr < 0.2)
-        tmpNeutralHadronIso_DR0p1To0p2 += iP->pt();
+        tmpNeutralHadronIso_DR0p1To0p2 += iP.pt();
       if (dr >= 0.2 && dr < 0.3)
-        tmpNeutralHadronIso_DR0p2To0p3 += iP->pt();
+        tmpNeutralHadronIso_DR0p2To0p3 += iP.pt();
       if (dr >= 0.3 && dr < 0.4)
-        tmpNeutralHadronIso_DR0p3To0p4 += iP->pt();
+        tmpNeutralHadronIso_DR0p3To0p4 += iP.pt();
       if (dr >= 0.4 && dr < 0.5)
-        tmpNeutralHadronIso_DR0p4To0p5 += iP->pt();
+        tmpNeutralHadronIso_DR0p4To0p5 += iP.pt();
     }
   }  //loop over PF candidates
 

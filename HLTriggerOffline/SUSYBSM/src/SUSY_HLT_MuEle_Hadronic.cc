@@ -41,8 +41,8 @@ void SUSY_HLT_MuEle_Hadronic::dqmBeginRun(edm::Run const &run, edm::EventSetup c
 
   bool pathFound = false;
   const std::vector<std::string> allTrigNames = fHltConfig.triggerNames();
-  for (size_t j = 0; j < allTrigNames.size(); ++j) {
-    if (allTrigNames[j].find(triggerPath_) != std::string::npos) {
+  for (const auto &allTrigName : allTrigNames) {
+    if (allTrigName.find(triggerPath_) != std::string::npos) {
       pathFound = true;
     }
   }
@@ -134,8 +134,8 @@ void SUSY_HLT_MuEle_Hadronic::analyze(edm::Event const &e, edm::EventSetup const
   trigger::TriggerObjectCollection triggerObjects = triggerSummary->getObjects();
   if (!(filterIndexEle >= triggerSummary->sizeFilters())) {
     const trigger::Keys &keys = triggerSummary->filterKeys(filterIndexEle);
-    for (size_t j = 0; j < keys.size(); ++j) {
-      trigger::TriggerObject foundObject = triggerObjects[keys[j]];
+    for (unsigned short key : keys) {
+      trigger::TriggerObject foundObject = triggerObjects[key];
       if (foundObject.id() == trigger::TriggerElectron) {  // It's an electron
 
         bool same = false;
@@ -157,8 +157,8 @@ void SUSY_HLT_MuEle_Hadronic::analyze(edm::Event const &e, edm::EventSetup const
       if (foundObject.id() == trigger::TriggerMuon) {  // It's a muon
 
         bool same = false;
-        for (unsigned int x = 0; x < ptMuon.size(); x++) {
-          if (fabs(ptMuon[x] - foundObject.pt()) < 0.01)
+        for (float x : ptMuon) {
+          if (fabs(x - foundObject.pt()) < 0.01)
             same = true;
         }
 
@@ -238,22 +238,19 @@ void SUSY_HLT_MuEle_Hadronic::analyze(edm::Event const &e, edm::EventSetup const
 
     float caloHT = 0.0;
     float pfHT = 0.0;
-    for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end();
-         ++i_pfjet) {
-      if (i_pfjet->pt() < ptThrJet_)
+    for (const auto &i_pfjet : *pfJetCollection) {
+      if (i_pfjet.pt() < ptThrJet_)
         continue;
-      if (fabs(i_pfjet->eta()) > etaThrJet_)
+      if (fabs(i_pfjet.eta()) > etaThrJet_)
         continue;
-      pfHT += i_pfjet->pt();
+      pfHT += i_pfjet.pt();
     }
-    for (reco::CaloJetCollection::const_iterator i_calojet = caloJetCollection->begin();
-         i_calojet != caloJetCollection->end();
-         ++i_calojet) {
-      if (i_calojet->pt() < ptThrJet_)
+    for (const auto &i_calojet : *caloJetCollection) {
+      if (i_calojet.pt() < ptThrJet_)
         continue;
-      if (fabs(i_calojet->eta()) > etaThrJet_)
+      if (fabs(i_calojet.eta()) > etaThrJet_)
         continue;
-      caloHT += i_calojet->pt();
+      caloHT += i_calojet.pt();
     }
 
     if (hasFiredAuxiliaryForMuEleLeg && !MuonCollection->empty() && !ElectronCollection->empty()) {

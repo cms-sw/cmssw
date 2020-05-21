@@ -29,21 +29,19 @@ RPCStripNoises *RPCFakeCalibration::makeNoise() {
 
   std::map<int, std::vector<double>>::iterator itc;
   for (itc = (theRPCCalibSetUp->_clsMap).begin(); itc != (theRPCCalibSetUp->_clsMap).end(); ++itc) {
-    for (unsigned int n = 0; n < (itc->second).size(); ++n) {
-      (obj->v_cls).push_back((itc->second)[n]);
+    for (double n : (itc->second)) {
+      (obj->v_cls).push_back(n);
     }
   }
 
   RPCStripNoises::NoiseItem tipoprova;
-  for (std::map<uint32_t, std::vector<float>>::iterator it = (theRPCCalibSetUp->_mapDetIdNoise).begin();
-       it != (theRPCCalibSetUp->_mapDetIdNoise).end();
-       ++it) {
-    tipoprova.dpid = it->first;
-    tipoprova.time = theRPCCalibSetUp->getTime(it->first);
+  for (auto &it : (theRPCCalibSetUp->_mapDetIdNoise)) {
+    tipoprova.dpid = it.first;
+    tipoprova.time = theRPCCalibSetUp->getTime(it.first);
 
     for (unsigned int k = 0; k < 96; ++k) {
-      tipoprova.noise = ((it->second))[k];
-      tipoprova.eff = (theRPCCalibSetUp->getEff(it->first))[k];
+      tipoprova.noise = ((it.second))[k];
+      tipoprova.eff = (theRPCCalibSetUp->getEff(it.first))[k];
       (obj->v_noises).push_back(tipoprova);
     }
   }
@@ -55,13 +53,11 @@ RPCClusterSize *RPCFakeCalibration::makeCls() {
   RPCClusterSize *obj = new RPCClusterSize();
   RPCClusterSize::ClusterSizeItem rpcClsItem;
 
-  for (std::map<uint32_t, std::vector<double>>::iterator it = (theRPCCalibSetUp->_mapDetClsMap).begin();
-       it != (theRPCCalibSetUp->_mapDetClsMap).end();
-       ++it) {
-    rpcClsItem.dpid = it->first;
+  for (auto &it : (theRPCCalibSetUp->_mapDetClsMap)) {
+    rpcClsItem.dpid = it.first;
 
     for (unsigned int k = 0; k < 100; k++) {
-      rpcClsItem.clusterSize = (theRPCCalibSetUp->getCls(it->first))[k];
+      rpcClsItem.clusterSize = (theRPCCalibSetUp->getCls(it.first))[k];
       (obj->v_cls).push_back(rpcClsItem);
     }
   }

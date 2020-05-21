@@ -124,10 +124,9 @@ public:
       if (isoPixTrackRefs.empty())
         return result;
 
-      for (uint32_t p = 0; p < isoPixTrackRefs.size(); p++) {
-        GlobalVector ptrVec((isoPixTrackRefs[p]->track())->px(),
-                            (isoPixTrackRefs[p]->track())->py(),
-                            (isoPixTrackRefs[p]->track())->pz());
+      for (auto& isoPixTrackRef : isoPixTrackRefs) {
+        GlobalVector ptrVec(
+            (isoPixTrackRef->track())->px(), (isoPixTrackRef->track())->py(), (isoPixTrackRef->track())->pz());
         globalVector = ptrVec;
 
         result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(
@@ -153,8 +152,8 @@ public:
       if (jets->empty())
         return result;
 
-      for (l1extra::L1JetParticleCollection::const_iterator iJet = jets->begin(); iJet != jets->end(); iJet++) {
-        GlobalVector jetVector(iJet->p4().x(), iJet->p4().y(), iJet->p4().z());
+      for (const auto& iJet : *jets) {
+        GlobalVector jetVector(iJet.p4().x(), iJet.p4().y(), iJet.p4().z());
         GlobalPoint vertex(0, 0, originz);
 
         result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(

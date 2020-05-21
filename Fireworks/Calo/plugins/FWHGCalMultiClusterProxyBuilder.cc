@@ -55,21 +55,19 @@ void FWHGCalMultiClusterProxyBuilder::build(const reco::HGCalMultiCluster &iData
   for (const auto &c : clusters) {
     std::vector<std::pair<DetId, float>> clusterDetIds = c->hitsAndFractions();
 
-    for (std::vector<std::pair<DetId, float>>::iterator it = clusterDetIds.begin(), itEnd = clusterDetIds.end();
-         it != itEnd;
-         ++it) {
-      if (heatmap && hitmap.find(it->first) == hitmap.end())
+    for (auto &clusterDetId : clusterDetIds) {
+      if (heatmap && hitmap.find(clusterDetId.first) == hitmap.end())
         continue;
 
-      const bool z = (it->first >> 25) & 0x1;
+      const bool z = (clusterDetId.first >> 25) & 0x1;
 
       // discard everything thats not at the side that we are intersted in
       if (((z_plus & z_minus) != 1) && (((z_plus | z_minus) == 0) || !(z == z_minus || z == !z_plus)))
         continue;
 
-      const float *corners = item()->getGeom()->getCorners(it->first);
-      const float *parameters = item()->getGeom()->getParameters(it->first);
-      const float *shapes = item()->getGeom()->getShapePars(it->first);
+      const float *corners = item()->getGeom()->getCorners(clusterDetId.first);
+      const float *parameters = item()->getGeom()->getParameters(clusterDetId.first);
+      const float *shapes = item()->getGeom()->getShapePars(clusterDetId.first);
 
       if (corners == nullptr || parameters == nullptr || shapes == nullptr) {
         continue;
@@ -77,7 +75,7 @@ void FWHGCalMultiClusterProxyBuilder::build(const reco::HGCalMultiCluster &iData
 
       const int total_points = parameters[0];
       const bool isScintillator = (total_points == 4);
-      const uint8_t type = ((it->first >> 28) & 0xF);
+      const uint8_t type = ((clusterDetId.first >> 28) & 0xF);
 
       uint8_t ll = layer;
       if (layer > 0) {
@@ -92,7 +90,7 @@ void FWHGCalMultiClusterProxyBuilder::build(const reco::HGCalMultiCluster &iData
           }
         }
 
-        if (ll != ((it->first >> (isScintillator ? 17 : 20)) & 0x1F))
+        if (ll != ((clusterDetId.first >> (isScintillator ? 17 : 20)) & 0x1F))
           continue;
       }
 
@@ -112,7 +110,8 @@ void FWHGCalMultiClusterProxyBuilder::build(const reco::HGCalMultiCluster &iData
         }
         boxset->AddBox(&pnts[0]);
         if (heatmap) {
-          const uint8_t colorFactor = gradient_steps * (fmin(hitmap[it->first]->energy() / saturation_energy, 1.0f));
+          const uint8_t colorFactor =
+              gradient_steps * (fmin(hitmap[clusterDetId.first]->energy() / saturation_energy, 1.0f));
           boxset->DigitColor(gradient[0][colorFactor], gradient[1][colorFactor], gradient[2][colorFactor]);
         }
 
@@ -127,7 +126,8 @@ void FWHGCalMultiClusterProxyBuilder::build(const reco::HGCalMultiCluster &iData
         float radius = fabs(corners[6] - corners[6 + offset]) / 2;
         hex_boxset->AddHex(TEveVector(centerX, centerY, corners[2]), radius, 90.0, shapes[3]);
         if (heatmap) {
-          const uint8_t colorFactor = gradient_steps * (fmin(hitmap[it->first]->energy() / saturation_energy, 1.0f));
+          const uint8_t colorFactor =
+              gradient_steps * (fmin(hitmap[clusterDetId.first]->energy() / saturation_energy, 1.0f));
           hex_boxset->DigitColor(gradient[0][colorFactor], gradient[1][colorFactor], gradient[2][colorFactor]);
         }
 

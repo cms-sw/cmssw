@@ -59,14 +59,14 @@ TevMuonProducer::TevMuonProducer(const ParameterSet& parameterSet) {
   theRefits = parameterSet.getParameter<std::vector<std::string> >("Refits");
   theRefitIndex = parameterSet.getParameter<std::vector<int> >("RefitIndex");
 
-  for (unsigned int ww = 0; ww < theRefits.size(); ww++) {
-    LogDebug("Muon|RecoMuon|TevMuonProducer") << "Refit " << theRefits[ww];
-    produces<reco::TrackCollection>(theRefits[ww]);
-    produces<TrackingRecHitCollection>(theRefits[ww]);
-    produces<reco::TrackExtraCollection>(theRefits[ww]);
-    produces<vector<Trajectory> >(theRefits[ww]);
-    produces<TrajTrackAssociationCollection>(theRefits[ww]);
-    produces<reco::TrackToTrackMap>(theRefits[ww]);
+  for (const auto& theRefit : theRefits) {
+    LogDebug("Muon|RecoMuon|TevMuonProducer") << "Refit " << theRefit;
+    produces<reco::TrackCollection>(theRefit);
+    produces<TrackingRecHitCollection>(theRefit);
+    produces<reco::TrackExtraCollection>(theRefit);
+    produces<vector<Trajectory> >(theRefit);
+    produces<TrajTrackAssociationCollection>(theRefit);
+    produces<reco::TrackToTrackMap>(theRefit);
   }
   produces<DYTestimators>("dytInfo");
 }

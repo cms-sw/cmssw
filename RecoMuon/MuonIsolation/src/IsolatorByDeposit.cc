@@ -51,11 +51,11 @@ double IsolatorByDeposit::weightedSum(const DepositContainer& deposits, float dR
   vector<double>::const_iterator dThresh = theDepThresholds.begin();
 
   typedef DepositContainer::const_iterator DI;
-  for (DI dep = deposits.begin(), depEnd = deposits.end(); dep != depEnd; ++dep) {
-    if (dep->vetos != nullptr) {
-      sumDep += dep->dep->depositAndCountWithin(dRcone, *dep->vetos, (*dThresh)).first * (*w);
+  for (auto deposit : deposits) {
+    if (deposit.vetos != nullptr) {
+      sumDep += deposit.dep->depositAndCountWithin(dRcone, *deposit.vetos, (*dThresh)).first * (*w);
     } else {
-      sumDep += dep->dep->depositAndCountWithin(dRcone, Vetos(), (*dThresh)).first * (*w);
+      sumDep += deposit.dep->depositAndCountWithin(dRcone, Vetos(), (*dThresh)).first * (*w);
     }
     //  cout << "IsolatorByDeposit: type = " << (*dep)->type() << " weight = " << (*w) << endl;
     w++;

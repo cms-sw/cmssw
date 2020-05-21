@@ -54,8 +54,8 @@ vector<DetLayer*> BTLDetLayerGeometryBuilder::buildLayers(const MTDGeometry& geo
                     << "    New MTDTrayBarrelLayer with " << btlDetTrays.size() << " rods, at R "
                     << result.back()->specificSurface().radius();
 
-  for (vector<MTDTrayBarrelLayer*>::const_iterator it = result.begin(); it != result.end(); it++)
-    detlayers.push_back((DetLayer*)(*it));
+  for (auto it : result)
+    detlayers.push_back((DetLayer*)it);
 
   return detlayers;
 }

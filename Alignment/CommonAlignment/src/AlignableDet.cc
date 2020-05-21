@@ -28,8 +28,8 @@ AlignableDet::AlignableDet(const GeomDet* geomDet, bool addComponents)
                                            << " has no components, use AlignableDetUnit.\n";
     } else {  // Push back all components
       const std::vector<const GeomDet*>& geomDets = geomDet->components();
-      for (std::vector<const GeomDet*>::const_iterator idet = geomDets.begin(); idet != geomDets.end(); ++idet) {
-        const GeomDetUnit* unit = dynamic_cast<const GeomDetUnit*>(*idet);
+      for (auto geomDet : geomDets) {
+        const GeomDetUnit* unit = dynamic_cast<const GeomDetUnit*>(geomDet);
         if (!unit) {
           throw cms::Exception("BadHierarchy")
               << "[AlignableDet] component not GeomDetUnit, call with addComponents==false"

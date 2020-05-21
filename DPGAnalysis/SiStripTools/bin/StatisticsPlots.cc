@@ -26,8 +26,8 @@ void DeadTimeAPVCycle(TH1F* hist, const std::vector<int>& bins) {
 
   for (int i = 1; i < hist->GetNbinsX() + 1; ++i) {
     bool isSpecial = false;
-    for (unsigned int special = 0; special < bins.size(); ++special) {
-      if (i == bins[special]) {
+    for (int bin : bins) {
+      if (i == bin) {
         isSpecial = true;
         break;
       }
@@ -78,11 +78,11 @@ TH1F* CombinedHisto(TFile& ff, const char* module, const char* histname) {
   std::sort(runs.begin(), runs.end());
 
   {
-    for (unsigned int i = 0; i < runs.size(); ++i) {
+    for (unsigned int run : runs) {
       char runlabel[100];
-      sprintf(runlabel, "%d", runs[i]);
+      sprintf(runlabel, "%d", run);
       char runpath[100];
-      sprintf(runpath, "run_%d", runs[i]);
+      sprintf(runpath, "run_%d", run);
       castat.setPath(runpath);
 
       TH1F* hist = (TH1F*)castat.getObject(histname);
@@ -140,11 +140,11 @@ TH1D* SummaryHisto(TFile& ff, const char* module) {
   std::sort(runs.begin(), runs.end());
 
   {
-    for (unsigned int i = 0; i < runs.size(); ++i) {
+    for (unsigned int run : runs) {
       char runlabel[100];
-      sprintf(runlabel, "%d", runs[i]);
+      sprintf(runlabel, "%d", run);
       char runpath[100];
-      sprintf(runpath, "run_%d", runs[i]);
+      sprintf(runpath, "run_%d", run);
       castat.setPath(runpath);
 
       TH1F* orbit = nullptr;
@@ -195,11 +195,11 @@ TH2F* Combined2DHisto(TFile& ff, const char* module, const char* histname) {
   std::sort(runs.begin(), runs.end());
 
   {
-    for (unsigned int i = 0; i < runs.size(); ++i) {
+    for (unsigned int run : runs) {
       char runlabel[100];
-      sprintf(runlabel, "%d", runs[i]);
+      sprintf(runlabel, "%d", run);
       char runpath[100];
-      sprintf(runpath, "run_%d", runs[i]);
+      sprintf(runpath, "run_%d", run);
       castat.setPath(runpath);
 
       TH2F* hist = (TH2F*)castat.getObject(histname);
@@ -268,11 +268,11 @@ void StatisticsPlots(const char* fullname,
   {
     std::cout << "Collision Events" << std::endl;
 
-    for (unsigned int i = 0; i < runs.size(); ++i) {
+    for (unsigned int run : runs) {
       char runlabel[100];
-      sprintf(runlabel, "%d", runs[i]);
+      sprintf(runlabel, "%d", run);
       char runpath[100];
-      sprintf(runpath, "run_%d", runs[i]);
+      sprintf(runpath, "run_%d", run);
       castat.setPath(runpath);
 
       TH1* orbit = nullptr;

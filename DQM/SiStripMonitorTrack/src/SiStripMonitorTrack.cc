@@ -115,10 +115,9 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& iS
   iLumisection = e.orbitNumber() / 262144.0;
 
   // initialise # of clusters
-  for (std::map<std::string, SubDetMEs>::iterator iSubDet = SubDetMEsMap.begin(); iSubDet != SubDetMEsMap.end();
-       iSubDet++) {
-    iSubDet->second.totNClustersOnTrack = 0;
-    iSubDet->second.totNClustersOffTrack = 0;
+  for (auto& iSubDet : SubDetMEsMap) {
+    iSubDet.second.totNClustersOnTrack = 0;
+    iSubDet.second.totNClustersOffTrack = 0;
   }
 
   trackerTopology_ = &iSetup.getData(trackerTopologyEventToken_);
@@ -201,10 +200,8 @@ void SiStripMonitorTrack::book(DQMStore::IBooker& ibooker, const TrackerTopology
   SiStripHistoId hidmanager;
 
   if (Mod_On_) {
-    for (std::vector<uint32_t>::const_iterator detid_iter = vdetId_.begin(), detid_end = vdetId_.end();
-         detid_iter != detid_end;
-         ++detid_iter) {  //loop on all the active detid
-      uint32_t detid = *detid_iter;
+    for (unsigned int detid_iter : vdetId_) {  //loop on all the active detid
+      uint32_t detid = detid_iter;
 
       if (detid < 1) {
         edm::LogError("SiStripMonitorTrack") << "[" << __PRETTY_FUNCTION__ << "] invalid detid " << detid << std::endl;
@@ -248,14 +245,10 @@ void SiStripMonitorTrack::book(DQMStore::IBooker& ibooker, const TrackerTopology
       }
       // book module plots
       folder_organizer.setDetectorFolder(detid, tTopo);
-      bookModMEs(ibooker, *detid_iter);
+      bookModMEs(ibooker, detid_iter);
     }  //end loop on detectors detid
   } else {
-    for (std::vector<uint32_t>::const_iterator detid_iter = vdetId_.begin(), detid_end = vdetId_.end();
-         detid_iter != detid_end;
-         ++detid_iter) {  //loop on all the active detid
-      uint32_t detid = *detid_iter;
-
+    for (unsigned int detid : vdetId_) {  //loop on all the active detid
       if (detid < 1) {
         edm::LogError("SiStripMonitorTrack") << "[" << __PRETTY_FUNCTION__ << "] invalid detid " << detid << std::endl;
         continue;
@@ -1089,13 +1082,11 @@ void SiStripMonitorTrack::trackStudyFromTrack(edm::Handle<reco::TrackCollection>
                                               const edm::Event& ev) {
   //numTracks = trackCollectionHandle->size();
   reco::TrackCollection trackCollection = *trackCollectionHandle;
-  for (reco::TrackCollection::const_iterator track = trackCollection.begin(), etrack = trackCollection.end();
-       track != etrack;
-       ++track) {
-    bool track_ok = trackFilter(*track);
+  for (const auto& track : trackCollection) {
+    bool track_ok = trackFilter(track);
     //    const reco::TransientTrack transientTrack = transientTrackBuilder->build(track);
 
-    for (trackingRecHit_iterator hit = track->recHitsBegin(), ehit = track->recHitsEnd(); hit != ehit; ++hit) {
+    for (trackingRecHit_iterator hit = track.recHitsBegin(), ehit = track.recHitsEnd(); hit != ehit; ++hit) {
       if (TkHistoMap_On_) {
         uint32_t thedetid = (*hit)->rawId();
         if (SiStripDetId(thedetid).subDetector() >= 3 &&
@@ -1168,9 +1159,7 @@ void SiStripMonitorTrack::trackStudyFromTrajectory(edm::Handle<reco::TrackCollec
   int i = 0;
   reco::TrackCollection trackCollection = *trackCollectionHandle;
   numTracks = trackCollection.size();
-  for (reco::TrackCollection::const_iterator track = trackCollection.begin(), etrack = trackCollection.end();
-       track != etrack;
-       ++track) {
+  for (const auto& track : trackCollection) {
     LogDebug("SiStripMonitorTrack") << "Track number " << ++i << std::endl;
     //      << "\n\tmomentum: " << trackref->momentum()
     //      << "\n\tPT: " << trackref->pt()
@@ -1182,8 +1171,8 @@ void SiStripMonitorTrack::trackStudyFromTrajectory(edm::Handle<reco::TrackCollec
     //      <<"\n\t\touter PT "<< trackref->outerPt()<<std::endl;
 
     //    trajectoryStudy(traj_iterator,trackref);
-    bool track_ok = trackFilter(*track);
-    trajectoryStudy(*track, digilist, ev, track_ok);
+    bool track_ok = trackFilter(track);
+    trajectoryStudy(track, digilist, ev, track_ok);
   }
 }
 //------------------------------------------------------------------------
@@ -1275,11 +1264,9 @@ void SiStripMonitorTrack::AllClusters(const edm::Event& ev) {
       LogDebug("SiStripMonitorTrack") << "on detid " << detid << " N Cluster= " << DSViter->size();
 
       //Loop on Clusters
-      for (edmNew::DetSet<SiStripCluster>::const_iterator ClusIter = DSViter->begin(), ClusEnd = DSViter->end();
-           ClusIter != ClusEnd;
-           ++ClusIter) {
-        if (vPSiStripCluster.find(&*ClusIter) == vPSiStripCluster.end()) {
-          siStripClusterInfo_.setCluster(*ClusIter, detid);
+      for (const auto& ClusIter : *DSViter) {
+        if (vPSiStripCluster.find(&ClusIter) == vPSiStripCluster.end()) {
+          siStripClusterInfo_.setCluster(ClusIter, detid);
 
           /*const StripGeomDetUnit * stripdet = (const StripGeomDetUnit*) tkgeom->idToDetUnit(detid);
     	  StripClusterParameterEstimator::LocalValues parameters=stripcpe.localParameters(*ClusIter, *stripdet);

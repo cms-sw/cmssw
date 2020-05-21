@@ -86,10 +86,8 @@ DIPLumiProducer::ReturnSummaryType DIPLumiProducer::produceSummary(const DIPLumi
   }
   if (m_summarycache.find(currentls) == m_summarycache.end()) {
     std::vector<unsigned int> v;
-    for (std::map<unsigned int, std::shared_ptr<const DIPLumiSummary> >::iterator it = m_summarycache.begin();
-         it != m_summarycache.end();
-         ++it) {
-      v.push_back(it->first);
+    for (auto& it : m_summarycache) {
+      v.push_back(it.first);
     }
     m_summaryresult = m_summarycache[v.back()];
   } else {
@@ -118,10 +116,8 @@ DIPLumiProducer::ReturnDetailType DIPLumiProducer::produceDetail(const DIPLumino
   }
   if (m_detailcache.find(currentls) == m_detailcache.end()) {
     std::vector<unsigned int> v;
-    for (std::map<unsigned int, std::shared_ptr<const DIPLumiDetail> >::iterator it = m_detailcache.begin();
-         it != m_detailcache.end();
-         ++it) {
-      v.push_back(it->first);
+    for (auto& it : m_detailcache) {
+      v.push_back(it.first);
     }
     m_detailresult = m_detailcache[v.back()];
   } else {

@@ -113,14 +113,14 @@ bool PhotonIsoProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   unsigned int ivtx = 0;
   reco::VertexRef myVtxRef(vertexCollection, ivtx);
 
-  for (reco::PhotonCollection::const_iterator aPho = recoPho->begin(); aPho != recoPho->end(); ++aPho) {
-    isolator.fGetIsolation(&*aPho, &thePfColl, myVtxRef, vertexCollection);
+  for (const auto& aPho : *recoPho) {
+    isolator.fGetIsolation(&aPho, &thePfColl, myVtxRef, vertexCollection);
 
     if (verbose_) {
       std::cout << " run " << iEvent.id().run() << " lumi " << iEvent.id().luminosityBlock() << " event "
                 << iEvent.id().event();
-      std::cout << " pt " << aPho->pt() << " eta " << aPho->eta() << " phi " << aPho->phi() << " charge "
-                << aPho->charge() << " : " << std::endl;
+      std::cout << " pt " << aPho.pt() << " eta " << aPho.eta() << " phi " << aPho.phi() << " charge " << aPho.charge()
+                << " : " << std::endl;
       ;
 
       std::cout << " ChargedIso " << isolator.getIsolationCharged() << std::endl;

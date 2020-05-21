@@ -129,8 +129,7 @@ void TICLCandidateFromTrackstersProducer::produce(edm::Event& evt, const edm::Ev
   track_algo_->setTrack(trackster_ptrs, *result, evt);
 
   // charge assignment
-  for (size_t i = 0; i < result->size(); ++i) {
-    auto& ticl_cand = result->at(i);
+  for (auto& ticl_cand : *result) {
     auto pdg_id = ticl_cand.pdgId();
     if (pdg_id == -11 || pdg_id == -13 || pdg_id == 211) {
       if (ticl_cand.trackPtr().isNonnull()) {

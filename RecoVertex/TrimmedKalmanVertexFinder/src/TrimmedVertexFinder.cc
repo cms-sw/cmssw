@@ -94,12 +94,12 @@ std::vector<TransientVertex> TrimmedVertexFinder::vertices(std::vector<Transient
       int n_tracks_in_vertex = selected.size();
 
       // now return all tracks with weight < 0.5 to 'remain'.
-      for (std::vector<RefCountedVertexTrack>::const_iterator t = selected.begin(); t != selected.end(); ++t) {
-        if ((**t).weight() < 0.5) {
+      for (const auto& t : selected) {
+        if ((*t).weight() < 0.5) {
           /*
           cout << "[TrimmedVertexFinder] recycling track with weight "
                << (**t).weight() << endl;*/
-          remain.push_back(*t);
+          remain.push_back(t);
           n_tracks_in_vertex--;  // one 'good' track less in the vertex
         };
       };
@@ -114,9 +114,9 @@ std::vector<TransientVertex> TrimmedVertexFinder::vertices(std::vector<Transient
 
   // modify list of incompatible tracks
   tks.clear();
-  for (std::vector<RefCountedVertexTrack>::const_iterator i = remain.begin(); i != remain.end(); i++) {
+  for (const auto& i : remain) {
     const PerigeeLinearizedTrackState* plts =
-        dynamic_cast<const PerigeeLinearizedTrackState*>((**i).linearizedTrack().get());
+        dynamic_cast<const PerigeeLinearizedTrackState*>((*i).linearizedTrack().get());
     if (plts == nullptr) {
       throw cms::Exception("TrimmedVertexFinder: can't take track from non-perigee track state");
     }

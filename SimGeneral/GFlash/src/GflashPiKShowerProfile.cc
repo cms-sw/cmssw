@@ -116,8 +116,8 @@ void GflashPiKShowerProfile::loadParameters() {
   getFluctuationVector(rhoHcal, correlationVectorHcal);
 
   double normalZ[Gflash::NPar];
-  for (int i = 0; i < Gflash::NPar; i++)
-    normalZ[i] = CLHEP::RandGaussQ::shoot();
+  for (double &i : normalZ)
+    i = CLHEP::RandGaussQ::shoot();
 
   for (int i = 0; i < Gflash::NPar; i++) {
     double correlationSum = 0.0;
@@ -149,8 +149,8 @@ void GflashPiKShowerProfile::loadParameters() {
 
     getFluctuationVector(rhoEcal, correlationVectorEcal);
 
-    for (int i = 0; i < Gflash::NPar; i++)
-      normalZ[i] = CLHEP::RandGaussQ::shoot();
+    for (double &i : normalZ)
+      i = CLHEP::RandGaussQ::shoot();
     for (int i = 0; i < Gflash::NPar; i++) {
       double correlationSum = 0.0;
 

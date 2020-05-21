@@ -565,10 +565,8 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
   /// Loop over the list of required algorithms for seeding
   /// /////////////////////////////////////////////////////
 
-  for (std::vector<GlobalLogicParser::OperandToken>::const_iterator itSeed = m_l1AlgoSeeds.begin();
-       itSeed != m_l1AlgoSeeds.end();
-       ++itSeed) {
-    std::string algoSeedName = (*itSeed).tokenName;
+  for (const auto& m_l1AlgoSeed : m_l1AlgoSeeds) {
+    std::string algoSeedName = m_l1AlgoSeed.tokenName;
 
     LogTrace("HLTL1TSeed") << "\n ----------------  algo seed name = " << algoSeedName << endl;
 

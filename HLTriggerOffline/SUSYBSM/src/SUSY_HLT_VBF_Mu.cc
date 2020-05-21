@@ -58,8 +58,8 @@ void SUSY_HLT_VBF_Mu::dqmBeginRun(edm::Run const &run, edm::EventSetup const &e)
 
   bool pathFound = false;
   const std::vector<std::string> allTrigNames = fHltConfig.triggerNames();
-  for (size_t j = 0; j < allTrigNames.size(); ++j) {
-    if (allTrigNames[j].find(triggerPath_) != std::string::npos) {
+  for (const auto &allTrigName : allTrigNames) {
+    if (allTrigName.find(triggerPath_) != std::string::npos) {
       pathFound = true;
     }
   }
@@ -159,13 +159,13 @@ void SUSY_HLT_VBF_Mu::analyze(edm::Event const &e, edm::EventSetup const &eSetup
   trigger::TriggerObjectCollection triggerObjects = triggerSummary->getObjects();
   if (!(filterIndexMu >= triggerSummary->sizeFilters())) {
     const trigger::Keys &keys = triggerSummary->filterKeys(filterIndexMu);
-    for (size_t j = 0; j < keys.size(); ++j) {
-      trigger::TriggerObject foundObject = triggerObjects[keys[j]];
+    for (unsigned short key : keys) {
+      trigger::TriggerObject foundObject = triggerObjects[key];
       if (fabs(foundObject.id()) == 13) {  // It's a muon
 
         bool same = false;
-        for (unsigned int x = 0; x < ptMuon.size(); x++) {
-          if (fabs(ptMuon[x] - foundObject.pt()) < 0.01)
+        for (float x : ptMuon) {
+          if (fabs(x - foundObject.pt()) < 0.01)
             same = true;
         }
 
@@ -188,8 +188,8 @@ void SUSY_HLT_VBF_Mu::analyze(edm::Event const &e, edm::EventSetup const &eSetup
 
   if (!(filterIndexMet >= triggerSummary->sizeFilters())) {
     const trigger::Keys &keys = triggerSummary->filterKeys(filterIndexMet);
-    for (size_t j = 0; j < keys.size(); ++j) {
-      trigger::TriggerObject foundObject = triggerObjects[keys[j]];
+    for (unsigned short key : keys) {
+      trigger::TriggerObject foundObject = triggerObjects[key];
       h_triggerMet->Fill(foundObject.pt());
       h_triggerMetPhi->Fill(foundObject.phi());
     }
@@ -261,9 +261,9 @@ void SUSY_HLT_VBF_Mu::analyze(edm::Event const &e, edm::EventSetup const &eSetup
   // Matching the muon
   int indexOfMatchedMuon = -1;
   int offlineCounter = 0;
-  for (reco::MuonCollection::const_iterator muon = MuonCollection->begin(); muon != MuonCollection->end(); ++muon) {
+  for (const auto &muon : *MuonCollection) {
     for (size_t off_i = 0; off_i < ptMuon.size(); ++off_i) {
-      if (reco::deltaR(muon->eta(), muon->phi(), etaMuon[off_i], phiMuon[off_i]) < 0.5) {
+      if (reco::deltaR(muon.eta(), muon.phi(), etaMuon[off_i], phiMuon[off_i]) < 0.5) {
         indexOfMatchedMuon = offlineCounter;
         break;
       }
@@ -273,13 +273,12 @@ void SUSY_HLT_VBF_Mu::analyze(edm::Event const &e, edm::EventSetup const &eSetup
 
   float pfHT = 0.0;
 
-  for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end();
-       ++i_pfjet) {
-    if (i_pfjet->pt() < ptThrJet_)
+  for (const auto &i_pfjet : *pfJetCollection) {
+    if (i_pfjet.pt() < ptThrJet_)
       continue;
-    if (fabs(i_pfjet->eta()) > etaThrJet_)
+    if (fabs(i_pfjet.eta()) > etaThrJet_)
       continue;
-    pfHT += i_pfjet->pt();
+    pfHT += i_pfjet.pt();
   }
 
   //

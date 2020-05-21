@@ -37,13 +37,11 @@ void PFClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter)
 // -- Create Summaries
 //
 void PFClient::doSummaries(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
-  for (std::vector<std::string>::const_iterator ifolder = folderNames_.begin(); ifolder != folderNames_.end();
-       ifolder++) {
-    std::string path = "ParticleFlow/" + (*ifolder);
+  for (const auto &folderName : folderNames_) {
+    std::string path = "ParticleFlow/" + folderName;
 
-    for (std::vector<std::string>::const_iterator ihist = histogramNames_.begin(); ihist != histogramNames_.end();
-         ihist++) {
-      std::string hname = (*ihist);
+    for (const auto &histogramName : histogramNames_) {
+      std::string hname = histogramName;
       createResolutionPlots(ibooker, igetter, path, hname);
     }
   }
@@ -53,14 +51,11 @@ void PFClient::doSummaries(DQMStore::IBooker &ibooker, DQMStore::IGetter &igette
 // -- Create Projection
 //
 void PFClient::doProjection(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
-  for (std::vector<std::string>::const_iterator ifolder = folderNames_.begin(); ifolder != folderNames_.end();
-       ifolder++) {
-    std::string path = "ParticleFlow/" + (*ifolder);
+  for (const auto &folderName : folderNames_) {
+    std::string path = "ParticleFlow/" + folderName;
 
-    for (std::vector<std::string>::const_iterator ihist = projectionHistogramNames_.begin();
-         ihist != projectionHistogramNames_.end();
-         ihist++) {
-      std::string hname = (*ihist);
+    for (const auto &projectionHistogramName : projectionHistogramNames_) {
+      std::string hname = projectionHistogramName;
       createProjectionPlots(ibooker, igetter, path, hname);
     }
   }
@@ -70,14 +65,11 @@ void PFClient::doProjection(DQMStore::IBooker &ibooker, DQMStore::IGetter &igett
 // -- Create Profile
 //
 void PFClient::doProfiles(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
-  for (std::vector<std::string>::const_iterator ifolder = folderNames_.begin(); ifolder != folderNames_.end();
-       ifolder++) {
-    std::string path = "ParticleFlow/" + (*ifolder);
+  for (const auto &folderName : folderNames_) {
+    std::string path = "ParticleFlow/" + folderName;
 
-    for (std::vector<std::string>::const_iterator ihist = profileHistogramNames_.begin();
-         ihist != profileHistogramNames_.end();
-         ihist++) {
-      std::string hname = (*ihist);
+    for (const auto &profileHistogramName : profileHistogramNames_) {
+      std::string hname = profileHistogramName;
       createProfilePlots(ibooker, igetter, path, hname);
     }
   }
@@ -87,13 +79,11 @@ void PFClient::doProfiles(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter
 // -- Create Efficiency
 //
 void PFClient::doEfficiency(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
-  for (std::vector<std::string>::const_iterator ifolder = folderNames_.begin(); ifolder != folderNames_.end();
-       ifolder++) {
-    std::string path = "ParticleFlow/" + (*ifolder);
+  for (const auto &folderName : folderNames_) {
+    std::string path = "ParticleFlow/" + folderName;
 
-    for (std::vector<std::string>::const_iterator ihist = effHistogramNames_.begin(); ihist != effHistogramNames_.end();
-         ihist++) {
-      std::string hname = (*ihist);
+    for (const auto &effHistogramName : effHistogramNames_) {
+      std::string hname = effHistogramName;
       createEfficiencyPlots(ibooker, igetter, path, hname);
     }
   }
@@ -262,20 +252,20 @@ void PFClient::createProfilePlots(DQMStore::IBooker &ibooker,
     Double_t stats[NUM_STAT] = {0};
     th->GetStats(stats);
 
-    for (Int_t i = 0; i < 2; i++) {
-      if (me_profile[i]) {
+    for (auto &i : me_profile) {
+      if (i) {
         for (size_t ix = 0; ix <= nbinx + 1; ++ix) {
-          me_profile[i]->setBinContent(ix, profileX->GetBinContent(ix) * profileX->GetBinEntries(ix));
+          i->setBinContent(ix, profileX->GetBinContent(ix) * profileX->GetBinEntries(ix));
           // me_profile[i]->Fill( profileX->GetBinCenter(ix),
           // profileX->GetBinContent(ix)*profileX->GetBinEntries(ix) ) ;
-          me_profile[i]->setBinEntries(ix, profileX->GetBinEntries(ix));
-          me_profile[i]->getTProfile()->GetSumw2()->fArray[ix] = profileX->GetSumw2()->fArray[ix];
+          i->setBinEntries(ix, profileX->GetBinEntries(ix));
+          i->getTProfile()->GetSumw2()->fArray[ix] = profileX->GetSumw2()->fArray[ix];
           // me_profile[i]->getTProfile()->GetBinSumw2()->fArray[ix] =
           // profileX->GetBinSumw2()->fArray[ix]; // segmentation violation
         }
       }
-      me_profile[i]->getTProfile()->PutStats(stats);
-      me_profile[i]->setEntries(profileX->GetEntries());
+      i->getTProfile()->PutStats(stats);
+      i->setEntries(profileX->GetEntries());
     }
 
     delete[] xbins;

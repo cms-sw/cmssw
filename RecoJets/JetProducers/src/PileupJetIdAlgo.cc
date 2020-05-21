@@ -150,8 +150,8 @@ void PileupJetIdAlgo::set(const PileupJetIdentifier& id) { internalId_ = id; }
 float PileupJetIdAlgo::getMVAval(const std::vector<std::string>& varList,
                                  const std::unique_ptr<const GBRForest>& reader) {
   std::vector<float> vars;
-  for (std::vector<std::string>::const_iterator it = varList.begin(); it != varList.end(); ++it) {
-    std::pair<float*, float> var = variables_.at(*it);
+  for (const auto& it : varList) {
+    std::pair<float*, float> var = variables_.at(it);
     vars.push_back(*var.first);
   }
   return reader->GetClassifier(vars.data());
@@ -445,8 +445,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
           // alternative beta definition based on track-vertex distance of closest approach
           double dZ0 = std::abs(lPF->trackRef()->dz(vtx->position()));
           double dZ = dZ0;
-          for (reco::VertexCollection::const_iterator vi = allvtx.begin(); vi != allvtx.end(); ++vi) {
-            const reco::Vertex& iv = *vi;
+          for (const auto& iv : allvtx) {
             if (iv.isFake() || iv.ndof() < 4) {
               continue;
             }
@@ -672,8 +671,8 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
   //http://jets.physics.harvard.edu/qvg/
   double ptMean = sumPt / internalId_.nParticles_;
   double ptRMS = 0;
-  for (unsigned int i0 = 0; i0 < frac.size(); i0++) {
-    ptRMS += (frac[i0] - ptMean) * (frac[i0] - ptMean);
+  for (float i0 : frac) {
+    ptRMS += (i0 - ptMean) * (i0 - ptMean);
   }
   ptRMS /= internalId_.nParticles_;
   ptRMS = sqrt(ptRMS);
@@ -712,9 +711,9 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
 // ------------------------------------------------------------------------------------------
 std::string PileupJetIdAlgo::dumpVariables() const {
   std::stringstream out;
-  for (variables_list_t::const_iterator it = variables_.begin(); it != variables_.end(); ++it) {
-    out << std::setw(15) << it->first << std::setw(3) << "=" << std::setw(5) << *it->second.first << " ("
-        << std::setw(5) << it->second.second << ")" << std::endl;
+  for (const auto& variable : variables_) {
+    out << std::setw(15) << variable.first << std::setw(3) << "=" << std::setw(5) << *variable.second.first << " ("
+        << std::setw(5) << variable.second.second << ")" << std::endl;
   }
   return out.str();
 }
@@ -722,8 +721,8 @@ std::string PileupJetIdAlgo::dumpVariables() const {
 // ------------------------------------------------------------------------------------------
 void PileupJetIdAlgo::resetVariables() {
   internalId_.idFlag_ = 0;
-  for (variables_list_t::iterator it = variables_.begin(); it != variables_.end(); ++it) {
-    *it->second.first = it->second.second;
+  for (auto& variable : variables_) {
+    *variable.second.first = variable.second.second;
   }
 }
 

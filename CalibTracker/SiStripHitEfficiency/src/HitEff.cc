@@ -339,11 +339,9 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
     // actually should do a loop over all the tracks in the event here
 
     // Looping over traj-track associations to be able to get traj & track informations
-    for (TrajTrackAssociationCollection::const_iterator it = trajTrackAssociationHandle->begin();
-         it != trajTrackAssociationHandle->end();
-         it++) {
-      edm::Ref<std::vector<Trajectory> > itraj = it->key;
-      reco::TrackRef itrack = it->val;
+    for (const auto& it : *trajTrackAssociationHandle) {
+      edm::Ref<std::vector<Trajectory> > itraj = it.key;
+      reco::TrackRef itrack = it.val;
 
       // for each track, fill some variables such as number of hits and momentum
       nHits = itraj->foundHits();
@@ -551,32 +549,32 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
         // Modules Constraints
 
-        for (std::vector<TrajectoryAtInvalidHit>::const_iterator TM = TMs.begin(); TM != TMs.end(); ++TM) {
+        for (const auto& TM : TMs) {
           // --> Get trajectory from combinatedState
-          iidd = TM->monodet_id();
+          iidd = TM.monodet_id();
           LogDebug("SiStripHitEfficiency:HitEff") << "setting iidd = " << iidd << " before checking efficiency and ";
 
-          xloc = TM->localX();
-          yloc = TM->localY();
+          xloc = TM.localX();
+          yloc = TM.localY();
 
-          angleX = atan(TM->localDxDz());
-          angleY = atan(TM->localDyDz());
+          angleX = atan(TM.localDxDz());
+          angleY = atan(TM.localDyDz());
 
           TrajLocErrX = 0.0;
           TrajLocErrY = 0.0;
 
-          xglob = TM->globalX();
-          yglob = TM->globalY();
-          zglob = TM->globalZ();
-          xErr = TM->localErrorX();
-          yErr = TM->localErrorY();
+          xglob = TM.globalX();
+          yglob = TM.globalY();
+          zglob = TM.globalZ();
+          xErr = TM.localErrorX();
+          yErr = TM.localErrorY();
 
           TrajGlbX = 0.0;
           TrajGlbY = 0.0;
           TrajGlbZ = 0.0;
-          withinAcceptance = TM->withinAcceptance();
+          withinAcceptance = TM.withinAcceptance();
 
-          trajHitValid = TM->validHit();
+          trajHitValid = TM.validHit();
           int TrajStrip = -1;
 
           // reget layer from iidd here, to account for TOB 6 and TEC 9 TKlayers being off
@@ -655,10 +653,9 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
                     //cout<<" Layer "<<TKlayers<<" TrajStrip: "<<nstrips<<" "<<pitch<<" "<<TrajStrip<<endl;
                   }
 
-                  for (edmNew::DetSet<SiStripCluster>::const_iterator iter = DSViter->begin(); iter != DSViter->end();
-                       ++iter) {
+                  for (const auto& iter : *DSViter) {
                     //iter is a single SiStripCluster
-                    StripClusterParameterEstimator::LocalValues parameters = stripcpe.localParameters(*iter, *stripdet);
+                    StripClusterParameterEstimator::LocalValues parameters = stripcpe.localParameters(iter, *stripdet);
                     float res = (parameters.first.x() - xloc);
                     float sigma = checkConsistency(parameters, xloc, xErr);
                     // The consistency is probably more accurately measured with the Chi2MeasurementEstimator. To use it
@@ -674,7 +671,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
                                    yErr * yErr * xloc * xloc * uylfac * uylfac / uxlden / uxlden / uxlden / uxlden);
                     }
 
-                    siStripClusterInfo_.setCluster(*iter, ClusterId);
+                    siStripClusterInfo_.setCluster(iter, ClusterId);
                     // signal to noise from SiStripClusterInfo not working in 225. I'll fix this after the interface
                     // redesign in 300 -ku
                     //float cluster_info[7] = {res, sigma, parameters.first.x(), sqrt(parameters.second.xx()), parameters.first.y(), sqrt(parameters.second.yy()), signal_to_noise};
@@ -933,8 +930,8 @@ bool HitEff::check2DPartner(unsigned int iidd, const std::vector<TrajectoryMeasu
     partner_iidd = iidd - 1;
   // next look in the trajectory measurements for a measurement from that detector
   // loop through trajectory measurements to find the partner_iidd
-  for (std::vector<TrajectoryMeasurement>::const_iterator iTM = traj.begin(); iTM != traj.end(); ++iTM) {
-    if (iTM->recHit()->geographicalId().rawId() == partner_iidd) {
+  for (const auto& iTM : traj) {
+    if (iTM.recHit()->geographicalId().rawId() == partner_iidd) {
       found2DPartner = true;
     }
   }

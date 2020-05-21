@@ -109,8 +109,8 @@ bool PythiaDauVFilterMatchID::filter(edm::StreamID, edm::Event& iEvent, const ed
     }
     if (fVerbose > 10) {
       edm::LogInfo("PythiaDauVFilterMatchID") << "created target: ";
-      for (unsigned int i = 0; i < targets.size(); i++) {
-        edm::LogInfo("PythiaDauVFilterMatchID") << targets[i].pdgID << " ";
+      for (auto& target : targets) {
+        edm::LogInfo("PythiaDauVFilterMatchID") << target.pdgID << " ";
       }
       edm::LogInfo("PythiaDauVFilterMatchID") << endl;
     }
@@ -162,8 +162,8 @@ bool PythiaDauVFilterMatchID::filter(edm::StreamID, edm::Event& iEvent, const ed
           }
           if (fVerbose > 10) {
             edm::LogInfo("PythiaDauVFilterMatchID") << "remaining targets: ";
-            for (unsigned int i = 0; i < targets.size(); i++) {
-              edm::LogInfo("PythiaDauVFilterMatchID") << targets[i].pdgID << " ";
+            for (auto& target : targets) {
+              edm::LogInfo("PythiaDauVFilterMatchID") << target.pdgID << " ";
             }
             edm::LogInfo("PythiaDauVFilterMatchID") << endl;
           }
@@ -175,8 +175,8 @@ bool PythiaDauVFilterMatchID::filter(edm::StreamID, edm::Event& iEvent, const ed
       accepted = true;
       if (fVerbose > 0) {
         edm::LogInfo("PythiaDauVFilterMatchID") << "  accepted this decay: ";
-        for (unsigned int iv = 0; iv < vparticles.size(); ++iv)
-          edm::LogInfo("PythiaDauVFilterMatchID") << vparticles[iv] << " ";
+        for (int vparticle : vparticles)
+          edm::LogInfo("PythiaDauVFilterMatchID") << vparticle << " ";
         edm::LogInfo("PythiaDauVFilterMatchID") << " from mother = " << motherID << endl;
       }
       break;
@@ -233,8 +233,8 @@ bool PythiaDauVFilterMatchID::filter(edm::StreamID, edm::Event& iEvent, const ed
       }
       if (fVerbose > 10) {
         edm::LogInfo("PythiaDauVFilterMatchID") << "created anti target: ";
-        for (unsigned int i = 0; i < targets.size(); i++) {
-          edm::LogInfo("PythiaDauVFilterMatchID") << targets[i].pdgID << " ";
+        for (auto& target : targets) {
+          edm::LogInfo("PythiaDauVFilterMatchID") << target.pdgID << " ";
         }
         edm::LogInfo("PythiaDauVFilterMatchID") << endl;
       }
@@ -286,8 +286,8 @@ bool PythiaDauVFilterMatchID::filter(edm::StreamID, edm::Event& iEvent, const ed
             }
             if (fVerbose > 10) {
               edm::LogInfo("PythiaDauVFilterMatchID") << "remaining targets: ";
-              for (unsigned int i = 0; i < targets.size(); i++) {
-                edm::LogInfo("PythiaDauVFilterMatchID") << targets[i].pdgID << " ";
+              for (auto& target : targets) {
+                edm::LogInfo("PythiaDauVFilterMatchID") << target.pdgID << " ";
               }
               edm::LogInfo("PythiaDauVFilterMatchID") << endl;
             }
@@ -298,8 +298,8 @@ bool PythiaDauVFilterMatchID::filter(edm::StreamID, edm::Event& iEvent, const ed
         accepted = true;
         if (fVerbose > 0) {
           edm::LogInfo("PythiaDauVFilterMatchID") << "  accepted this decay: ";
-          for (unsigned int iv = 0; iv < vparticles.size(); ++iv)
-            edm::LogInfo("PythiaDauVFilterMatchID") << vparticles[iv] << " ";
+          for (int vparticle : vparticles)
+            edm::LogInfo("PythiaDauVFilterMatchID") << vparticle << " ";
           edm::LogInfo("PythiaDauVFilterMatchID") << " from mother = " << motherID << endl;
         }
         break;

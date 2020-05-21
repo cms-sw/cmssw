@@ -43,12 +43,12 @@ RPCPacMuon RPCPac::run(const RPCLogCone& cone) const {  //symualcja
 RPCPacMuon RPCPac::runTrackPatternsGroup(const RPCLogCone& cone) const {
   RPCPacMuon bestMuon;
 
-  for (unsigned int vecNum = 0; vecNum < m_pacData->m_TrackPatternsGroup.m_PatternsItVec.size(); vecNum++) {
+  for (auto vecNum : m_pacData->m_TrackPatternsGroup.m_PatternsItVec) {
     RPCMuon::TDigiLinkVec digiIdx;
     unsigned short firedPlanes = 0;
     int firedPlanesCount = 0;
     unsigned short one = 1;
-    const RPCPattern& pattern = *(m_pacData->m_TrackPatternsGroup.m_PatternsItVec[vecNum]);
+    const RPCPattern& pattern = *vecNum;
     for (int logPlane = RPCConst::m_FIRST_PLANE;
          logPlane < RPCConst::m_USED_PLANES_COUNT[std::abs(m_ConeCrdnts.m_Tower)];
          logPlane++) {
@@ -143,9 +143,8 @@ RPCPacMuon RPCPac::runEnergeticPatternsGroups(const RPCLogCone& cone) const {
       continue;
 
     RPCPacMuon bufMuon;
-    for (unsigned int vecNum = 0; vecNum < iEGroup->m_PatternsItVec.size(); vecNum++) {
+    for (auto patternIt : iEGroup->m_PatternsItVec) {
       RPCMuon::TDigiLinkVec digiIdx;
-      const RPCPattern::RPCPatVec::const_iterator patternIt = iEGroup->m_PatternsItVec[vecNum];
       const RPCPattern& pattern = *patternIt;
       bool wasHit = false;
       unsigned short one1 = 1;

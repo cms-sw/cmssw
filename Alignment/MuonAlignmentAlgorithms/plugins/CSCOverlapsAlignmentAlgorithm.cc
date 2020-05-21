@@ -34,16 +34,14 @@ CSCOverlapsAlignmentAlgorithm::CSCOverlapsAlignmentAlgorithm(const edm::Paramete
     throw cms::Exception("BadConfig") << "mode must be one of \"phiy\", \"phipos\", \"phiz\", \"radius\"" << std::endl;
 
   std::vector<edm::ParameterSet> fitters = iConfig.getParameter<std::vector<edm::ParameterSet> >("fitters");
-  for (std::vector<edm::ParameterSet>::const_iterator fitter = fitters.begin(); fitter != fitters.end(); ++fitter) {
-    m_fitters.push_back(CSCChamberFitter(*fitter, m_residualsConstraints));
+  for (const auto& fitter : fitters) {
+    m_fitters.push_back(CSCChamberFitter(fitter, m_residualsConstraints));
   }
 
-  for (std::vector<CSCPairResidualsConstraint*>::const_iterator residualsConstraint = m_residualsConstraints.begin();
-       residualsConstraint != m_residualsConstraints.end();
-       ++residualsConstraint) {
-    (*residualsConstraint)->configure(this);
-    m_quickChamberLookup[std::pair<CSCDetId, CSCDetId>((*residualsConstraint)->id_i(), (*residualsConstraint)->id_j())] =
-        *residualsConstraint;
+  for (auto m_residualsConstraint : m_residualsConstraints) {
+    m_residualsConstraint->configure(this);
+    m_quickChamberLookup[std::pair<CSCDetId, CSCDetId>(m_residualsConstraint->id_i(), m_residualsConstraint->id_j())] =
+        m_residualsConstraint;
   }
 
   if (m_slopeFromTrackRefit) {
@@ -210,8 +208,8 @@ void CSCOverlapsAlignmentAlgorithm::initialize(const edm::EventSetup& iSetup,
     }
 
     std::vector<bool> selector = alignable->alignmentParameters()->selector();
-    for (std::vector<bool>::const_iterator i = selector.begin(); i != selector.end(); ++i) {
-      if (!(*i))
+    for (std::_Bit_const_iterator::const_reference i : selector) {
+      if (!i)
         throw cms::Exception("BadConfig") << "All selector strings should be \"111111\"" << std::endl;
     }
   }
@@ -219,28 +217,22 @@ void CSCOverlapsAlignmentAlgorithm::initialize(const edm::EventSetup& iSetup,
   edm::ESHandle<CSCGeometry> cscGeometry;
   iSetup.get<MuonGeometryRecord>().get(cscGeometry);
 
-  for (std::vector<CSCPairResidualsConstraint*>::const_iterator residualsConstraint = m_residualsConstraints.begin();
-       residualsConstraint != m_residualsConstraints.end();
-       ++residualsConstraint) {
-    (*residualsConstraint)->setZplane(&*cscGeometry);
+  for (auto m_residualsConstraint : m_residualsConstraints) {
+    m_residualsConstraint->setZplane(&*cscGeometry);
   }
 
   if (!m_readTemporaryFiles.empty()) {
     std::vector<std::ifstream*> input;
-    for (std::vector<std::string>::const_iterator fileName = m_readTemporaryFiles.begin();
-         fileName != m_readTemporaryFiles.end();
-         ++fileName) {
-      input.push_back(new std::ifstream(fileName->c_str()));
+    for (const auto& m_readTemporaryFile : m_readTemporaryFiles) {
+      input.push_back(new std::ifstream(m_readTemporaryFile.c_str()));
     }
 
-    for (std::vector<CSCPairResidualsConstraint*>::const_iterator residualsConstraint = m_residualsConstraints.begin();
-         residualsConstraint != m_residualsConstraints.end();
-         ++residualsConstraint) {
-      (*residualsConstraint)->read(input, m_readTemporaryFiles);
+    for (auto m_residualsConstraint : m_residualsConstraints) {
+      m_residualsConstraint->read(input, m_readTemporaryFiles);
     }
 
-    for (std::vector<std::ifstream*>::const_iterator file = input.begin(); file != input.end(); ++file) {
-      delete (*file);
+    for (auto file : input) {
+      delete file;
     }
   }
 }
@@ -252,11 +244,8 @@ void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const Eve
     if (m_propagatorPointer != &*propagator) {
       m_propagatorPointer = &*propagator;
 
-      for (std::vector<CSCPairResidualsConstraint*>::const_iterator residualsConstraint =
-               m_residualsConstraints.begin();
-           residualsConstraint != m_residualsConstraints.end();
-           ++residualsConstraint) {
-        (*residualsConstraint)->setPropagator(m_propagatorPointer);
+      for (auto m_residualsConstraint : m_residualsConstraints) {
+        m_residualsConstraint->setPropagator(m_propagatorPointer);
       }
     }
   }
@@ -268,10 +257,9 @@ void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const Eve
     m_trackTransformer->setServices(iSetup);
 
   const ConstTrajTrackPairCollection& trajtracks = eventInfo.trajTrackPairs();
-  for (ConstTrajTrackPairCollection::const_iterator trajtrack = trajtracks.begin(); trajtrack != trajtracks.end();
-       ++trajtrack) {
-    const Trajectory* traj = (*trajtrack).first;
-    const reco::Track* track = (*trajtrack).second;
+  for (const auto& trajtrack : trajtracks) {
+    const Trajectory* traj = trajtrack.first;
+    const reco::Track* track = trajtrack.second;
 
     if (m_makeHistograms) {
       m_histP10->Fill(track->p());
@@ -283,10 +271,8 @@ void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const Eve
       reco::TransientTrack transientTrack = transientTrackBuilder->build(track);
 
       std::map<int, std::map<CSCDetId, bool> > stationsToChambers;
-      for (std::vector<TrajectoryMeasurement>::const_iterator measurement = measurements.begin();
-           measurement != measurements.end();
-           ++measurement) {
-        DetId id = measurement->recHit()->geographicalId();
+      for (const auto& measurement : measurements) {
+        DetId id = measurement.recHit()->geographicalId();
         if (id.det() == DetId::Muon && id.subdetId() == MuonSubdetId::CSC) {
           CSCDetId cscid(id.rawId());
           CSCDetId chamberId(cscid.endcap(), cscid.station(), cscid.ring(), cscid.chamber(), 0);
@@ -299,7 +285,7 @@ void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const Eve
           stationsToChambers[station][chamberId] = true;
 
           if (m_makeHistograms) {
-            GlobalPoint pos = measurement->recHit()->globalPosition();
+            GlobalPoint pos = measurement.recHit()->globalPosition();
             if (cscid.endcap() == 1 && cscid.station() == 1) {
               m_XYpos_mep1->Fill(pos.x(), pos.y());
               m_RPhipos_mep1->Fill(pos.phi(), pos.perp());
@@ -371,10 +357,8 @@ void CSCOverlapsAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup) {
   // write residuals partial fits to temporary files for collection
   if (m_writeTemporaryFile != std::string("")) {
     std::ofstream output(m_writeTemporaryFile.c_str());
-    for (std::vector<CSCPairResidualsConstraint*>::const_iterator residualsConstraint = m_residualsConstraints.begin();
-         residualsConstraint != m_residualsConstraints.end();
-         ++residualsConstraint) {
-      (*residualsConstraint)->write(output);
+    for (auto m_residualsConstraint : m_residualsConstraints) {
+      m_residualsConstraint->write(output);
     }
   }
 
@@ -439,24 +423,21 @@ void CSCOverlapsAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup) {
              << std::endl;
     }
 
-    for (std::vector<CSCChamberFitter>::const_iterator fitter = m_fitters.begin(); fitter != m_fitters.end();
-         ++fitter) {
+    for (const auto& m_fitter : m_fitters) {
       if (m_mode == CSCPairResidualsConstraint::kModeRadius) {
-        fitter->radiusCorrection(m_alignableNavigator, m_alignmentParameterStore, m_combineME11);
+        m_fitter.radiusCorrection(m_alignableNavigator, m_alignmentParameterStore, m_combineME11);
 
       } else {
         std::vector<CSCAlignmentCorrections*> corrections;
-        fitter->fit(corrections);
+        m_fitter.fit(corrections);
 
         // corrections only exist if the fit was successful
-        for (std::vector<CSCAlignmentCorrections*>::iterator correction = corrections.begin();
-             correction != corrections.end();
-             ++correction) {
-          (*correction)->applyAlignment(m_alignableNavigator, m_alignmentParameterStore, m_mode, m_combineME11);
+        for (auto& correction : corrections) {
+          correction->applyAlignment(m_alignableNavigator, m_alignmentParameterStore, m_mode, m_combineME11);
           if (m_makeHistograms)
-            (*correction)->plot();
+            correction->plot();
           if (writeReport)
-            (*correction)->report(report);
+            correction->report(report);
         }
       }
     }

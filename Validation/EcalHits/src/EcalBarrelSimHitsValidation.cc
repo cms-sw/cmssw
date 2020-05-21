@@ -26,8 +26,8 @@ EcalBarrelSimHitsValidation::EcalBarrelSimHitsValidation(const edm::ParameterSet
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   myEntries = 0;
-  for (int myStep = 0; myStep < 26; myStep++) {
-    eRLength[myStep] = 0.0;
+  for (float &myStep : eRLength) {
+    myStep = 0.0;
   }
 }
 
@@ -137,46 +137,47 @@ void EcalBarrelSimHitsValidation::analyze(const edm::Event &e, const edm::EventS
   MapType ebmap;
   uint32_t nEBHits = 0;
 
-  for (std::vector<PCaloHit>::iterator isim = theEBCaloHits.begin(); isim != theEBCaloHits.end(); ++isim) {
-    if (isim->time() > 500.) {
+  for (auto &theEBCaloHit : theEBCaloHits) {
+    if (theEBCaloHit.time() > 500.) {
       continue;
     }
 
-    CaloHitMap[isim->id()].push_back(&(*isim));
+    CaloHitMap[theEBCaloHit.id()].push_back(&theEBCaloHit);
 
-    EBDetId ebid(isim->id());
+    EBDetId ebid(theEBCaloHit.id());
 
-    LogDebug("HitInfo") << " CaloHit " << isim->getName() << "\n"
-                        << " DetID = " << isim->id() << " EBDetId = " << ebid.ieta() << " " << ebid.iphi() << "\n"
-                        << " Time = " << isim->time() << "\n"
-                        << " Track Id = " << isim->geantTrackId() << "\n"
-                        << " Energy = " << isim->energy();
+    LogDebug("HitInfo") << " CaloHit " << theEBCaloHit.getName() << "\n"
+                        << " DetID = " << theEBCaloHit.id() << " EBDetId = " << ebid.ieta() << " " << ebid.iphi()
+                        << "\n"
+                        << " Time = " << theEBCaloHit.time() << "\n"
+                        << " Track Id = " << theEBCaloHit.geantTrackId() << "\n"
+                        << " Energy = " << theEBCaloHit.energy();
 
     meEBOccupancy_->Fill(ebid.iphi(), ebid.ieta());
 
     uint32_t crystid = ebid.rawId();
-    ebmap[crystid] += isim->energy();
+    ebmap[crystid] += theEBCaloHit.energy();
 
-    EBEnergy_ += isim->energy();
+    EBEnergy_ += theEBCaloHit.energy();
     nEBHits++;
-    meEBhitEnergy_->Fill(isim->energy());
-    if (isim->energy() > 0) {
-      meEBhitLog10Energy_->Fill(log10(isim->energy()));
-      int log10i = int((log10(isim->energy()) + 10.) * 10.);
+    meEBhitEnergy_->Fill(theEBCaloHit.energy());
+    if (theEBCaloHit.energy() > 0) {
+      meEBhitLog10Energy_->Fill(log10(theEBCaloHit.energy()));
+      int log10i = int((log10(theEBCaloHit.energy()) + 10.) * 10.);
       if (log10i >= 0 && log10i < 140)
-        econtr[log10i] += isim->energy();
+        econtr[log10i] += theEBCaloHit.energy();
     }
-    meEBhitEnergy2_->Fill(isim->energy());
+    meEBhitEnergy2_->Fill(theEBCaloHit.energy());
   }
 
   menEBCrystals_->Fill(ebmap.size());
   if (meEBcrystalEnergy_) {
-    for (std::map<uint32_t, float, std::less<uint32_t>>::iterator it = ebmap.begin(); it != ebmap.end(); ++it)
-      meEBcrystalEnergy_->Fill((*it).second);
+    for (auto &it : ebmap)
+      meEBcrystalEnergy_->Fill(it.second);
   }
   if (meEBcrystalEnergy2_) {
-    for (std::map<uint32_t, float, std::less<uint32_t>>::iterator it = ebmap.begin(); it != ebmap.end(); ++it)
-      meEBcrystalEnergy2_->Fill((*it).second);
+    for (auto &it : ebmap)
+      meEBcrystalEnergy2_->Fill(it.second);
   }
 
   menEBHits_->Fill(nEBHits);
@@ -198,11 +199,11 @@ void EcalBarrelSimHitsValidation::analyze(const edm::Event &e, const edm::EventS
     ids25 = getIdsAroundMax(5, 5, bx, by, bz, ebmap);
 
     for (unsigned i = 0; i < 25; i++) {
-      for (unsigned int j = 0; j < CaloHitMap[ids25[i]].size(); j++) {
-        if (CaloHitMap[ids25[i]][j]->energy() > 0) {
-          int log10i = int((log10(CaloHitMap[ids25[i]][j]->energy()) + 10.) * 10.);
+      for (auto &j : CaloHitMap[ids25[i]]) {
+        if (j->energy() > 0) {
+          int log10i = int((log10(j->energy()) + 10.) * 10.);
           if (log10i >= 0 && log10i < 140)
-            econtr25[log10i] += CaloHitMap[ids25[i]][j]->energy();
+            econtr25[log10i] += j->energy();
         }
       }
     }

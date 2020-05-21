@@ -100,9 +100,9 @@ L1TCSCTF::L1TCSCTF(const ParameterSet& ps)
 
 L1TCSCTF::~L1TCSCTF() {
   for (unsigned int j = 0; j < 2; j++)
-    for (unsigned int i = 0; i < 5; i++)
+    for (auto& srLUT : srLUTs_)
       for (unsigned int s = 0; s < 6; s++)
-        delete srLUTs_[i][j][s];  //free the array of pointers
+        delete srLUT[j][s];  //free the array of pointers
 }
 
 void L1TCSCTF::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) {
@@ -735,20 +735,19 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c) {
     bool integrity = status->first, se = false, sm = false, bx = false, af = false, fmm = false;
     int nStat = 0;
 
-    for (std::vector<L1CSCSPStatusDigi>::const_iterator stat = status->second.begin(); stat != status->second.end();
-         stat++) {
-      se |= stat->SEs() & 0xFFF;
-      sm |= stat->SMs() & 0xFFF;
-      bx |= stat->BXs() & 0xFFF;
-      af |= stat->AFs() & 0xFFF;
-      fmm |= stat->FMM() != 8;
+    for (const auto& stat : status->second) {
+      se |= stat.SEs() & 0xFFF;
+      sm |= stat.SMs() & 0xFFF;
+      bx |= stat.BXs() & 0xFFF;
+      af |= stat.AFs() & 0xFFF;
+      fmm |= stat.FMM() != 8;
 
-      int ise = stat->SEs() & 0xFFF;
-      int ism = stat->SMs() & 0xFFF;
-      int ibx = stat->BXs() & 0xFFF;
-      int iaf = stat->AFs() & 0xFFF;
-      int ifmm = stat->FMM();
-      int slot = stat->slot();
+      int ise = stat.SEs() & 0xFFF;
+      int ism = stat.SMs() & 0xFFF;
+      int ibx = stat.BXs() & 0xFFF;
+      int iaf = stat.AFs() & 0xFFF;
+      int ifmm = stat.FMM();
+      int slot = stat.slot();
 
       for (int j = 0; j < 15; j++) {
         int link = j + 1;
@@ -907,8 +906,8 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c) {
           csctferrors_mpc->Fill(5.5, mpc_id);
       }
 
-      if (stat->VPs() != 0) {
-        L1ABXN += stat->BXN();
+      if (stat.VPs() != 0) {
+        L1ABXN += stat.BXN();
         nStat++;
       }
     }
@@ -1486,32 +1485,32 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c) {
 
     // loop on the DT stubs
     std::vector<csctf::TrackStub> vstubs = dtStubs->get();
-    for (std::vector<csctf::TrackStub>::const_iterator stub = vstubs.begin(); stub != vstubs.end(); stub++) {
+    for (const auto& vstub : vstubs) {
       if (verbose_) {
-        edm::LogInfo("DataNotFound") << "\n mbEndcap: " << stub->endcap();
-        edm::LogInfo("DataNotFound") << "\n stub->getStrip()[FLAG]: " << stub->getStrip();
-        edm::LogInfo("DataNotFound") << "\n stub->getKeyWG()[CAL]: " << stub->getKeyWG();
-        edm::LogInfo("DataNotFound") << "\n stub->BX(): " << stub->BX();
-        edm::LogInfo("DataNotFound") << "\n stub->sector(): " << stub->sector();
-        edm::LogInfo("DataNotFound") << "\n stub->subsector(): " << stub->subsector();
-        edm::LogInfo("DataNotFound") << "\n stub->station(): " << stub->station();
-        edm::LogInfo("DataNotFound") << "\n stub->phiPacked(): " << stub->phiPacked();
-        edm::LogInfo("DataNotFound") << "\n stub->getBend(): " << stub->getBend();
-        edm::LogInfo("DataNotFound") << "\n stub->getQuality(): " << stub->getQuality();
-        edm::LogInfo("DataNotFound") << "\n stub->cscid(): " << stub->cscid() << endl;
+        edm::LogInfo("DataNotFound") << "\n mbEndcap: " << vstub.endcap();
+        edm::LogInfo("DataNotFound") << "\n stub->getStrip()[FLAG]: " << vstub.getStrip();
+        edm::LogInfo("DataNotFound") << "\n stub->getKeyWG()[CAL]: " << vstub.getKeyWG();
+        edm::LogInfo("DataNotFound") << "\n stub->BX(): " << vstub.BX();
+        edm::LogInfo("DataNotFound") << "\n stub->sector(): " << vstub.sector();
+        edm::LogInfo("DataNotFound") << "\n stub->subsector(): " << vstub.subsector();
+        edm::LogInfo("DataNotFound") << "\n stub->station(): " << vstub.station();
+        edm::LogInfo("DataNotFound") << "\n stub->phiPacked(): " << vstub.phiPacked();
+        edm::LogInfo("DataNotFound") << "\n stub->getBend(): " << vstub.getBend();
+        edm::LogInfo("DataNotFound") << "\n stub->getQuality(): " << vstub.getQuality();
+        edm::LogInfo("DataNotFound") << "\n stub->cscid(): " << vstub.cscid() << endl;
       }
       // define the sector ID
-      int mbId = (stub->endcap() == 2) ? 6 : 0;
-      mbId += stub->sector();
+      int mbId = (vstub.endcap() == 2) ? 6 : 0;
+      mbId += vstub.sector();
       // *** do not fill if CalMB variable is set ***
       // horrible! They used the same class to write up the LCT and MB info,
       // but given the MB does not have strip and WG they replaced this two
       // with the flag and cal bits... :S
-      if (stub->getKeyWG() == 0)  //!CAL as Janos adviced
+      if (vstub.getKeyWG() == 0)  //!CAL as Janos adviced
       {
         // if FLAG =1, muon belong to previous BX
-        int bxDT = stub->BX() - stub->getStrip();  // correct by the FLAG
-        int subDT = stub->subsector();
+        int bxDT = vstub.BX() - vstub.getStrip();  // correct by the FLAG
+        int subDT = vstub.subsector();
 
         // Fill the event only if CSC had or would have triggered
         if (isCSCcand_) {
@@ -1527,8 +1526,8 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c) {
                   << " Endcap: " << trk->first.endcap();
 
               edm::LogInfo("DataNotFound")
-                  << "\n DT  BX: " << stub->BX() << " Sector: " << mbId << " SubSector: " << stub->subsector()
-                  << " Endcap: " << stub->endcap() << endl;
+                  << "\n DT  BX: " << vstub.BX() << " Sector: " << mbId << " SubSector: " << vstub.subsector()
+                  << " Endcap: " << vstub.endcap() << endl;
             }
 
             if (mbId == trkId) {

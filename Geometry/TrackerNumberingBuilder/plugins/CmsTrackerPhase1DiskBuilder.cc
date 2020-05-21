@@ -44,16 +44,16 @@ void CmsTrackerPhase1DiskBuilder<FilteredView>::PhiPosNegSplit_innerOuter(
   double radius_split = 100.;
   std::vector<const GeometricDet*> theCompsInnerOuter;
   unsigned int num_inner = 0;
-  for (vector<const GeometricDet*>::const_iterator it = theCompsPosNeg.begin(); it != theCompsPosNeg.end(); it++) {
-    if ((**it).rho() <= radius_split) {
-      theCompsInnerOuter.emplace_back(*it);
+  for (auto it : theCompsPosNeg) {
+    if ((*it).rho() <= radius_split) {
+      theCompsInnerOuter.emplace_back(it);
       num_inner++;
     }
   }
 
-  for (vector<const GeometricDet*>::const_iterator it = theCompsPosNeg.begin(); it != theCompsPosNeg.end(); it++) {
-    if ((**it).rho() > radius_split)
-      theCompsInnerOuter.emplace_back(*it);
+  for (auto it : theCompsPosNeg) {
+    if ((*it).rho() > radius_split)
+      theCompsInnerOuter.emplace_back(it);
   }
   //  std::cout << "num of inner = " << num_inner << " with radius less than " << radius_split << std::endl;
   // now shift outer by one

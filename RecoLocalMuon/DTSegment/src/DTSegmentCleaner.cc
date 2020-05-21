@@ -90,8 +90,8 @@ vector<DTSegmentCand*> DTSegmentCleaner::solveConflict(const std::vector<DTSegme
               badCand = (DAlpha1 > DAlpha2) ? (*cand) : (*cand2);
             }
 
-            for (DTSegmentCand::AssPointCont::const_iterator cHit = confHits.begin(); cHit != confHits.end(); ++cHit) {
-              badCand->removeHit(*cHit);
+            for (const auto& confHit : confHits) {
+              badCand->removeHit(confHit);
             }
 
           } else {  // mode 3: keep both candidates
@@ -105,8 +105,8 @@ vector<DTSegmentCand*> DTSegmentCleaner::solveConflict(const std::vector<DTSegme
           if (((*cand)->t0() * (*cand2)->t0() != 0) || ((*cand)->t0() == (*cand2)->t0())) {
             DTSegmentCand* badCand = (**cand) < (**cand2) ? (*cand) : (*cand2);
             //cout << " Remove hits in " << (*badCand) << endl;
-            for (DTSegmentCand::AssPointCont::const_iterator cHit = confHits.begin(); cHit != confHits.end(); ++cHit)
-              badCand->removeHit(*cHit);
+            for (const auto& confHit : confHits)
+              badCand->removeHit(confHit);
           }
         }
       }
@@ -162,18 +162,18 @@ vector<DTSegmentCand*> DTSegmentCleaner::ghostBuster(const std::vector<DTSegment
   }
 
   vector<DTSegmentCand*> result;
-  for (vector<DTSegmentCand*>::const_iterator cand = inputCands.begin(); cand != inputCands.end(); ++cand) {
+  for (auto inputCand : inputCands) {
     bool isGhost = false;
-    for (vector<DTSegmentCand*>::const_iterator ghost = ghosts.begin(); ghost != ghosts.end(); ++ghost) {
-      if ((*cand) == (*ghost)) {
+    for (auto ghost : ghosts) {
+      if (inputCand == ghost) {
         isGhost = true;
         break;
       }
     }
     if (!isGhost)
-      result.push_back(*cand);
+      result.push_back(inputCand);
     else
-      delete *cand;
+      delete inputCand;
   }
   // cout << "No Ghosts ------" << endl;
   // for (vector<DTSegmentCand*>::iterator cand=result.begin();

@@ -175,9 +175,9 @@ void FastFedCablingAlgorithm::analyse() {
   // Find mean and rms in "low" samples
   anal->lowMean_ = 0.;
   anal->lowRms_ = 0.;
-  for (uint16_t ibin = 0; ibin < low.size(); ibin++) {
-    anal->lowMean_ += low[ibin];
-    anal->lowRms_ += low[ibin] * low[ibin];
+  for (float ibin : low) {
+    anal->lowMean_ += ibin;
+    anal->lowRms_ += ibin * ibin;
   }
   if (!low.empty()) {
     anal->lowMean_ = anal->lowMean_ / low.size();
@@ -196,9 +196,9 @@ void FastFedCablingAlgorithm::analyse() {
   // Find mean and rms in "high" samples
   anal->highMean_ = 0.;
   anal->highRms_ = 0.;
-  for (uint16_t ibin = 0; ibin < high.size(); ibin++) {
-    anal->highMean_ += high[ibin];
-    anal->highRms_ += high[ibin] * high[ibin];
+  for (float ibin : high) {
+    anal->highMean_ += ibin;
+    anal->highRms_ += ibin * ibin;
   }
   if (!high.empty()) {
     anal->highMean_ = anal->highMean_ / high.size();

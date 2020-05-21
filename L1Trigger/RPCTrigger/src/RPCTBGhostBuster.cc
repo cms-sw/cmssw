@@ -14,8 +14,8 @@ using namespace std;
 
 L1RpcTBMuonsVec RPCTBGhostBuster::run(L1RpcTBMuonsVec2 &pacMuonsVec2) const {
   L1RpcTBMuonsVec2 gbPhiMuonsVec2;
-  for (unsigned int iTow = 0; iTow < pacMuonsVec2.size(); iTow++) {
-    gbPhiMuonsVec2.push_back(gBPhi(pacMuonsVec2[iTow]));
+  for (auto &iTow : pacMuonsVec2) {
+    gbPhiMuonsVec2.push_back(gBPhi(iTow));
   }
 
   return gBEta(gbPhiMuonsVec2);

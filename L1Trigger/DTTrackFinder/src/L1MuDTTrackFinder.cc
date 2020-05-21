@@ -312,8 +312,8 @@ void L1MuDTTrackFinder::clear() {
 //
 int L1MuDTTrackFinder::numberOfTracks(int bx) {
   int number = 0;
-  for (TFtracks_const_iter it = _cache.begin(); it != _cache.end(); it++) {
-    if ((*it).bx() == bx)
+  for (const auto& it : _cache) {
+    if (it.bx() == bx)
       number++;
   }
 

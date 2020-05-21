@@ -11,9 +11,9 @@ Measurement1D PVPositionBuilder::average(const reco::TrackRefVector &trks) const
     return Measurement1D(0., 0.);
   double sumZIP = 0;
   double err = 0;
-  for (unsigned int i = 0; i < trks.size(); i++) {
-    sumZIP += trks[i]->dz();    // Z at IP
-    err += trks[i]->dzError();  // error on Z at IP (I hope). Fix d.k.
+  for (const auto &trk : trks) {
+    sumZIP += trk->dz();    // Z at IP
+    err += trk->dzError();  // error on Z at IP (I hope). Fix d.k.
   }
   return Measurement1D(sumZIP / ntracks, err / ntracks / std::sqrt(ntracks));
 }
@@ -25,12 +25,12 @@ Measurement1D PVPositionBuilder::wtAverage(const reco::TrackRefVector &trks) con
   double sumUp = 0;
   double sumDown = 0;
   double err = 0;
-  for (unsigned int i = 0; i < trks.size(); i++) {
+  for (const auto &trk : trks) {
     //    double err2 = trks[i]->covariance(3,3); // error on Z at IP (I hope)
-    double err2 = trks[i]->dzError();  // Fix d.k.
+    double err2 = trk->dzError();  // Fix d.k.
     err2 *= err2;
     if (err2 != 0) {
-      sumUp += trks[i]->dz() * 1 / err2;  // error-weighted average of Z at IP
+      sumUp += trk->dz() * 1 / err2;  // error-weighted average of Z at IP
       sumDown += 1 / err2;
     }
     err += std::sqrt(err2);

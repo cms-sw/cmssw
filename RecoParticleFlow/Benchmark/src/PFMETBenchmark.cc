@@ -288,15 +288,14 @@ void PFMETBenchmark::calculateQuantities(const reco::PFMETCollection& pfMets,
   ;
 
   //  for( genParticle = genParticleList.begin(); genParticle != genParticleList.end(); genParticle++ )
-  for (unsigned i = 0; i < genParticleList.size(); i++) {
-    if (genParticleList[i].status() == 1 && fabs(genParticleList[i].eta()) < 5.0) {
-      if (std::abs(genParticleList[i].pdgId()) == 12 || std::abs(genParticleList[i].pdgId()) == 14 ||
-          std::abs(genParticleList[i].pdgId()) == 16 || std::abs(genParticleList[i].pdgId()) < 7 ||
-          std::abs(genParticleList[i].pdgId()) == 21) {
-        trueMEX += genParticleList[i].px();
-        trueMEY += genParticleList[i].py();
+  for (const auto& i : genParticleList) {
+    if (i.status() == 1 && fabs(i.eta()) < 5.0) {
+      if (std::abs(i.pdgId()) == 12 || std::abs(i.pdgId()) == 14 || std::abs(i.pdgId()) == 16 ||
+          std::abs(i.pdgId()) < 7 || std::abs(i.pdgId()) == 21) {
+        trueMEX += i.px();
+        trueMEY += i.py();
       } else {
-        true_set += genParticleList[i].pt();
+        true_set += i.pt();
       }
     }
   }
@@ -345,15 +344,14 @@ void PFMETBenchmark::calculateQuantities(const reco::PFMETCollection& pfMets,
   ;
 
   //  for( genParticle = genParticleList.begin(); genParticle != genParticleList.end(); genParticle++ )
-  for (unsigned i = 0; i < genParticleList.size(); i++) {
-    if (genParticleList[i].status() == 1 && fabs(genParticleList[i].eta()) < 5.0) {
-      if (std::abs(genParticleList[i].pdgId()) == 12 || std::abs(genParticleList[i].pdgId()) == 14 ||
-          std::abs(genParticleList[i].pdgId()) == 16 || std::abs(genParticleList[i].pdgId()) < 7 ||
-          std::abs(genParticleList[i].pdgId()) == 21) {
-        trueMEX += genParticleList[i].px();
-        trueMEY += genParticleList[i].py();
+  for (const auto& i : genParticleList) {
+    if (i.status() == 1 && fabs(i.eta()) < 5.0) {
+      if (std::abs(i.pdgId()) == 12 || std::abs(i.pdgId()) == 14 || std::abs(i.pdgId()) == 16 ||
+          std::abs(i.pdgId()) < 7 || std::abs(i.pdgId()) == 21) {
+        trueMEX += i.px();
+        trueMEY += i.py();
       } else {
-        true_set += genParticleList[i].pt();
+        true_set += i.pt();
       }
     }
   }
@@ -371,22 +369,22 @@ void PFMETBenchmark::calculateQuantities(const reco::PFMETCollection& pfMets,
   double caloJetCorPX = 0.0;
   double caloJetCorPY = 0.0;
 
-  for (unsigned int caloJetc = 0; caloJetc < caloJets.size(); ++caloJetc) {
+  for (const auto& caloJet : caloJets) {
     //std::cout << "caloJets[" << caloJetc << "].pt() = " << caloJets[caloJetc].pt() << std::endl;
     //std::cout << "caloJets[" << caloJetc << "].phi() = " << caloJets[caloJetc].phi() << std::endl;
     //std::cout << "caloJets[" << caloJetc << "].eta() = " << caloJets[caloJetc].eta() << std::endl;
     //}
-    for (unsigned int corr_caloJetc = 0; corr_caloJetc < corr_caloJets.size(); ++corr_caloJetc) {
+    for (const auto& corr_caloJet : corr_caloJets) {
       //std::cout << "corr_caloJets[" << corr_caloJetc << "].pt() = " << corr_caloJets[corr_caloJetc].pt() << std::endl;
       //std::cout << "corr_caloJets[" << corr_caloJetc << "].phi() = " << corr_caloJets[corr_caloJetc].phi() << std::endl;
       //std::cout << "corr_caloJets[" << corr_caloJetc << "].eta() = " << corr_caloJets[corr_caloJetc].eta() << std::endl;
       //}
-      Float_t DeltaPhi = corr_caloJets[corr_caloJetc].phi() - caloJets[caloJetc].phi();
-      Float_t DeltaEta = corr_caloJets[corr_caloJetc].eta() - caloJets[caloJetc].eta();
+      Float_t DeltaPhi = corr_caloJet.phi() - caloJet.phi();
+      Float_t DeltaEta = corr_caloJet.eta() - caloJet.eta();
       Float_t DeltaR2 = DeltaPhi * DeltaPhi + DeltaEta * DeltaEta;
-      if (DeltaR2 < 0.0001 && caloJets[caloJetc].pt() > 20.0) {
-        caloJetCorPX += (corr_caloJets[corr_caloJetc].px() - caloJets[caloJetc].px());
-        caloJetCorPY += (corr_caloJets[corr_caloJetc].py() - caloJets[caloJetc].py());
+      if (DeltaR2 < 0.0001 && caloJet.pt() > 20.0) {
+        caloJetCorPX += (corr_caloJet.px() - caloJet.px());
+        caloJetCorPY += (corr_caloJet.py() - caloJet.py());
       }
     }
   }

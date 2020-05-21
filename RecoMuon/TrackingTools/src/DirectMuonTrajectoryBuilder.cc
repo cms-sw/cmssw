@@ -41,9 +41,8 @@ MuonTrajectoryBuilder::TrajectoryContainer DirectMuonTrajectoryBuilder::trajecto
   vector<Trajectory> seedTrajectories = theSeedTransformer->seedTransform(seed);
 
   if (!seedTrajectories.empty())
-    for (vector<Trajectory>::const_iterator trajectory = seedTrajectories.begin(); trajectory != seedTrajectories.end();
-         ++trajectory)
-      trajectoryContainer.push_back(std::make_unique<Trajectory>(*trajectory));
+    for (const auto& seedTrajectorie : seedTrajectories)
+      trajectoryContainer.push_back(std::make_unique<Trajectory>(seedTrajectorie));
   else
     LogTrace(metname) << "Seed not refitted";
 

@@ -240,16 +240,16 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
           }
         }
       }
-      for (size_t s = 0; s < evtsols->size(); s++) {
-        (*evtsols)[s].setMCBestJetComb(bestSolution);
-        (*evtsols)[s].setMCChangeWQ(bestSolutionChangeWQ);
+      for (auto& evtsol : *evtsols) {
+        evtsol.setMCBestJetComb(bestSolution);
+        evtsol.setMCChangeWQ(bestSolutionChangeWQ);
       }
     }
 
     // add TtSemiSimpleBestJetComb to solutions
     int simpleBestJetComb = (*mySimpleBestJetComb)(*evtsols);
-    for (size_t s = 0; s < evtsols->size(); s++)
-      (*evtsols)[s].setSimpleBestJetComb(simpleBestJetComb);
+    for (auto& evtsol : *evtsols)
+      evtsol.setSimpleBestJetComb(simpleBestJetComb);
 
     // choose the best jet combination according to LR value
     if (addLRJetComb_ && !evtsols->empty()) {
@@ -261,8 +261,8 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
           bestSol = s;
         }
       }
-      for (size_t s = 0; s < evtsols->size(); s++) {
-        (*evtsols)[s].setLRBestJetComb(bestSol);
+      for (auto& evtsol : *evtsols) {
+        evtsol.setLRBestJetComb(bestSol);
       }
     }
 
@@ -331,8 +331,8 @@ TtSemiLepKinFitter::Constraint TtSemiEvtSolutionMaker::constraint(unsigned val) 
 
 std::vector<TtSemiLepKinFitter::Constraint> TtSemiEvtSolutionMaker::constraints(std::vector<unsigned>& val) {
   std::vector<TtSemiLepKinFitter::Constraint> result;
-  for (unsigned i = 0; i < val.size(); ++i) {
-    result.push_back(constraint(val[i]));
+  for (unsigned int i : val) {
+    result.push_back(constraint(i));
   }
   return result;
 }

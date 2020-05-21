@@ -187,12 +187,12 @@ public:
     }
     std::map<std::string, bool> ret;
     bool global = true;
-    for (iterator filter = begin(); filter != end(); ++filter) {
-      const std::string& fName = (*filter)->name();
+    for (auto& filter : *this) {
+      const std::string& fName = filter->name();
       Count& count = counts_[fName];
       count.nSeen_++;
-      bool decision = (*filter)->accept(iEvent);
-      bool inverted = (*filter).inverted();
+      bool decision = filter->accept(iEvent);
+      bool inverted = filter.inverted();
       if (inverted)
         decision = !decision;
       ret[fName] = decision;
@@ -207,8 +207,8 @@ public:
       std::stringstream summary;
       summary << std::setw(20) << name().substr(0, 19) << " : " << std::setw(10) << iEvent.id().run() << " : "
               << std::setw(10) << iEvent.id().event();
-      for (iterator filter = begin(); filter != end(); ++filter) {
-        const std::string& fName = (*filter)->name();
+      for (auto& filter : *this) {
+        const std::string& fName = filter->name();
         summary << " : " << std::setw(10) << (ret[fName] ? "pass" : "reject");
       }
       edm::LogVerbatim(detailledPrintoutCategory_) << summary.str();
@@ -225,8 +225,8 @@ public:
       summary << std::setw(20) << " selection name "
               << " : " << std::setw(10) << " run "
               << " : " << std::setw(10) << " event ";
-      for (iterator filter = begin(); filter != end(); ++filter) {
-        summary << " : " << std::setw(10) << (*filter)->name().substr(0, 9);
+      for (auto& filter : *this) {
+        summary << " : " << std::setw(10) << filter->name().substr(0, 9);
       }
       edm::LogVerbatim(detailledPrintoutCategory_) << summary.str();
     }
@@ -237,9 +237,9 @@ public:
       return;
 
     unsigned int maxFnameSize = 20;
-    for (iterator filter = begin(); filter != end(); ++filter) {
-      if ((*filter)->name().size() > maxFnameSize)
-        maxFnameSize = (*filter)->name().size() + 1;
+    for (auto& filter : *this) {
+      if (filter->name().size() > maxFnameSize)
+        maxFnameSize = filter->name().size() + 1;
     }
 
     //    const std::string category ="Selections|"+name();
@@ -249,18 +249,18 @@ public:
     if (nSeen_ == 0)
       return;
     if (description) {
-      for (iterator filter = begin(); filter != end(); ++filter) {
-        const std::string& fName = (*filter)->name();
-        summary << "filter: " << std::right << std::setw(10) << fName << "\n" << (*filter)->descriptionText() << "\n";
+      for (auto& filter : *this) {
+        const std::string& fName = filter->name();
+        summary << "filter: " << std::right << std::setw(10) << fName << "\n" << filter->descriptionText() << "\n";
       }
     }
     summary << " filter stand-alone pass: " << std::endl;
     summary << std::right << std::setw(maxFnameSize) << "total read"
             << ": " << std::right << std::setw(10) << nSeen_ << std::endl;
-    for (iterator filter = begin(); filter != end(); ++filter) {
-      std::string fName = (*filter)->name();
+    for (auto& filter : *this) {
+      std::string fName = filter->name();
       const Count& count = counts_[fName];
-      if ((*filter).inverted())
+      if (filter.inverted())
         fName = '!' + fName;
       summary << std::right << std::setw(maxFnameSize) << fName << ": " << std::right << std::setw(10) << count.nPass_
               << " passed events. " << std::right << std::setw(10) << std::setprecision(5)
@@ -270,10 +270,10 @@ public:
     summary << std::right << std::setw(maxFnameSize) << "total read"
             << ": " << std::right << std::setw(10) << nSeen_ << std::endl;
     unsigned int lastCount = nSeen_;
-    for (iterator filter = begin(); filter != end(); ++filter) {
-      std::string fName = (*filter)->name();
+    for (auto& filter : *this) {
+      std::string fName = filter->name();
       const Count& count = counts_[fName];
-      if ((*filter).inverted())
+      if (filter.inverted())
         fName = '!' + fName;
       summary << std::right << std::setw(maxFnameSize) << fName << ": " << std::right << std::setw(10)
               << count.nCumulative_ << " passed events. " << std::right << std::setw(10) << std::setprecision(5)
@@ -403,8 +403,7 @@ public:
 
       //parse the vector of filterNames
       std::vector<std::string>& listOfFilters = selectionFilters[sName];
-      for (std::vector<std::string>::iterator fIt = listOfFilters.begin(); fIt != listOfFilters.end(); ++fIt) {
-        std::string fOsName = *fIt;
+      for (auto fOsName : listOfFilters) {
         bool inverted = false;
         if (fOsName[0] == '!') {
           inverted = true;
@@ -415,9 +414,9 @@ public:
           // JR-2014 include the selection here, directly !
           bool replaceBySelection = false;
           //find an existing selection that match that name
-          for (std::vector<FilterSelection>::iterator sit = selections_.begin(); sit != selections_.end(); ++sit) {
-            if (fOsName == sit->name_) {
-              selection.filters_.push_back(SFilter(&(*sit), inverted));
+          for (auto& sit : selections_) {
+            if (fOsName == sit.name_) {
+              selection.filters_.push_back(SFilter(&sit, inverted));
               replaceBySelection = true;
             }
           }
@@ -432,8 +431,8 @@ public:
       }
     }
 
-    for (iterator sIt = begin(); sIt != end(); ++sIt)
-      sIt->printDetailledPrintoutHeader();
+    for (auto& sIt : *this)
+      sIt.printDetailledPrintoutHeader();
   }
 
   iterator begin() { return selections_.begin(); }
@@ -441,8 +440,8 @@ public:
 
   //print each selection
   void print() {
-    for (std::vector<FilterSelection>::iterator sIt = selections_.begin(); sIt != selections_.end(); ++sIt)
-      sIt->print();
+    for (auto& selection : selections_)
+      selection.print();
   }
 
 private:

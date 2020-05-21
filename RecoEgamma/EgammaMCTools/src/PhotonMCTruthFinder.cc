@@ -81,20 +81,20 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(const std::vector<SimTrack>
     //int iPho=0;
     //int iPizero=0;
     //   theSimTracks.reset();
-    for (std::vector<SimTrack>::const_iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk) {
-      if ((*iSimTk).noVertex())
+    for (const auto& theSimTrack : theSimTracks) {
+      if (theSimTrack.noVertex())
         continue;
 
       //int vertexId = (*iSimTk).vertIndex();
       //SimVertex vertex = theSimVertices[vertexId];
 
       //    std::cout << " Particle type " <<  (*iSimTk).type() << " Sim Track ID " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  " vertex position " << vertex.position() << " vertex index " << (*iSimTk).vertIndex() << std::endl;
-      if ((*iSimTk).vertIndex() == iPV) {
+      if (theSimTrack.vertIndex() == iPV) {
         npv++;
-        if ((*iSimTk).type() == 22) {
+        if (theSimTrack.type() == 22) {
           //	std::cout << " Found a primary photon with ID  " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  std::endl;
 
-          photonTracks.push_back(&(const_cast<SimTrack&>(*iSimTk)));
+          photonTracks.push_back(&(const_cast<SimTrack&>(theSimTrack)));
         }
       }
     }

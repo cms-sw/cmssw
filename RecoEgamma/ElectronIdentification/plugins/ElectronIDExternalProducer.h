@@ -44,8 +44,8 @@ void ElectronIDExternalProducer<algo>::produce(edm::Event& iEvent, const edm::Ev
   // prepare room for output
   std::vector<float> values;
   values.reserve(electrons->size());
-  for (reco::GsfElectronCollection::const_iterator eleIt = electrons->begin(); eleIt != electrons->end(); ++eleIt) {
-    values.push_back(float(select_((*eleIt), iEvent, iSetup)));
+  for (const auto& eleIt : *electrons) {
+    values.push_back(float(select_(eleIt, iEvent, iSetup)));
   }
 
   // fill in the ValueMap

@@ -147,24 +147,24 @@ double candIsolation(const reco::Candidate *c,
 ZToLLEdmNtupleDumper::ZToLLEdmNtupleDumper(const ParameterSet &cfg) {
   string alias;
   vector<ParameterSet> psets = cfg.getParameter<vector<ParameterSet> >("zBlocks");
-  for (std::vector<edm::ParameterSet>::const_iterator i = psets.begin(); i != psets.end(); ++i) {
-    string zName = i->getParameter<string>("zName");
-    edm::EDGetTokenT<CandidateView> zToken = consumes<CandidateView>(i->getParameter<InputTag>("z"));
+  for (const auto &pset : psets) {
+    string zName = pset.getParameter<string>("zName");
+    edm::EDGetTokenT<CandidateView> zToken = consumes<CandidateView>(pset.getParameter<InputTag>("z"));
     edm::EDGetTokenT<GenParticleMatch> zGenParticlesMatchToken =
-        consumes<GenParticleMatch>(i->getParameter<InputTag>("zGenParticlesMatch"));
-    beamSpotToken_ = consumes<BeamSpot>(i->getParameter<InputTag>("beamSpot"));
-    primaryVerticesToken_ = consumes<VertexCollection>(i->getParameter<InputTag>("primaryVertices"));
-    double ptThreshold = i->getParameter<double>("ptThreshold");
-    double etEcalThreshold = i->getParameter<double>("etEcalThreshold");
-    double etHcalThreshold = i->getParameter<double>("etHcalThreshold");
-    double dRVetoTrk = i->getParameter<double>("deltaRVetoTrk");
-    double dRTrk = i->getParameter<double>("deltaRTrk");
-    double dREcal = i->getParameter<double>("deltaREcal");
-    double dRHcal = i->getParameter<double>("deltaRHcal");
-    double alpha = i->getParameter<double>("alpha");
-    double beta = i->getParameter<double>("beta");
-    bool relativeIsolation = i->getParameter<bool>("relativeIsolation");
-    string hltPath = i->getParameter<std::string>("hltPath");
+        consumes<GenParticleMatch>(pset.getParameter<InputTag>("zGenParticlesMatch"));
+    beamSpotToken_ = consumes<BeamSpot>(pset.getParameter<InputTag>("beamSpot"));
+    primaryVerticesToken_ = consumes<VertexCollection>(pset.getParameter<InputTag>("primaryVertices"));
+    double ptThreshold = pset.getParameter<double>("ptThreshold");
+    double etEcalThreshold = pset.getParameter<double>("etEcalThreshold");
+    double etHcalThreshold = pset.getParameter<double>("etHcalThreshold");
+    double dRVetoTrk = pset.getParameter<double>("deltaRVetoTrk");
+    double dRTrk = pset.getParameter<double>("deltaRTrk");
+    double dREcal = pset.getParameter<double>("deltaREcal");
+    double dRHcal = pset.getParameter<double>("deltaRHcal");
+    double alpha = pset.getParameter<double>("alpha");
+    double beta = pset.getParameter<double>("beta");
+    bool relativeIsolation = pset.getParameter<bool>("relativeIsolation");
+    string hltPath = pset.getParameter<std::string>("hltPath");
     zName_.push_back(zName);
     zTokens_.push_back(zToken);
     zGenParticlesMatchTokens_.push_back(zGenParticlesMatchToken);

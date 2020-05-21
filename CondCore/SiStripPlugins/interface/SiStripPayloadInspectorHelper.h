@@ -617,60 +617,58 @@ namespace SiStripPI {
   {
     std::vector<SiStripQuality::BadComponent> BC = siStripQuality_->getBadComponentList();
 
-    for (size_t i = 0; i < BC.size(); ++i) {
+    for (auto& i : BC) {
       //&&&&&&&&&&&&&
       //Full Tk
       //&&&&&&&&&&&&&
 
-      if (BC.at(i).BadModule)
+      if (i.BadModule)
         NTkBadComponent[0]++;
-      if (BC.at(i).BadFibers)
-        NTkBadComponent[1] +=
-            ((BC.at(i).BadFibers >> 2) & 0x1) + ((BC.at(i).BadFibers >> 1) & 0x1) + ((BC.at(i).BadFibers) & 0x1);
-      if (BC.at(i).BadApvs)
-        NTkBadComponent[2] += ((BC.at(i).BadApvs >> 5) & 0x1) + ((BC.at(i).BadApvs >> 4) & 0x1) +
-                              ((BC.at(i).BadApvs >> 3) & 0x1) + ((BC.at(i).BadApvs >> 2) & 0x1) +
-                              ((BC.at(i).BadApvs >> 1) & 0x1) + ((BC.at(i).BadApvs) & 0x1);
+      if (i.BadFibers)
+        NTkBadComponent[1] += ((i.BadFibers >> 2) & 0x1) + ((i.BadFibers >> 1) & 0x1) + ((i.BadFibers) & 0x1);
+      if (i.BadApvs)
+        NTkBadComponent[2] += ((i.BadApvs >> 5) & 0x1) + ((i.BadApvs >> 4) & 0x1) + ((i.BadApvs >> 3) & 0x1) +
+                              ((i.BadApvs >> 2) & 0x1) + ((i.BadApvs >> 1) & 0x1) + ((i.BadApvs) & 0x1);
 
       //&&&&&&&&&&&&&&&&&
       //Single SubSyste
       //&&&&&&&&&&&&&&&&&
       int component;
-      DetId detectorId = DetId(BC.at(i).detid);
+      DetId detectorId = DetId(i.detid);
       int subDet = detectorId.subdetId();
       if (subDet == StripSubdetector::TIB) {
         //&&&&&&&&&&&&&&&&&
         //TIB
         //&&&&&&&&&&&&&&&&&
 
-        component = m_trackerTopo.tibLayer(BC.at(i).detid);
-        SiStripPI::setBadComponents(0, component, BC.at(i), NBadComponent);
+        component = m_trackerTopo.tibLayer(i.detid);
+        SiStripPI::setBadComponents(0, component, i, NBadComponent);
 
       } else if (subDet == StripSubdetector::TID) {
         //&&&&&&&&&&&&&&&&&
         //TID
         //&&&&&&&&&&&&&&&&&
 
-        component = m_trackerTopo.tidSide(BC.at(i).detid) == 2 ? m_trackerTopo.tidWheel(BC.at(i).detid)
-                                                               : m_trackerTopo.tidWheel(BC.at(i).detid) + 3;
-        SiStripPI::setBadComponents(1, component, BC.at(i), NBadComponent);
+        component =
+            m_trackerTopo.tidSide(i.detid) == 2 ? m_trackerTopo.tidWheel(i.detid) : m_trackerTopo.tidWheel(i.detid) + 3;
+        SiStripPI::setBadComponents(1, component, i, NBadComponent);
 
       } else if (subDet == StripSubdetector::TOB) {
         //&&&&&&&&&&&&&&&&&
         //TOB
         //&&&&&&&&&&&&&&&&&
 
-        component = m_trackerTopo.tobLayer(BC.at(i).detid);
-        SiStripPI::setBadComponents(2, component, BC.at(i), NBadComponent);
+        component = m_trackerTopo.tobLayer(i.detid);
+        SiStripPI::setBadComponents(2, component, i, NBadComponent);
 
       } else if (subDet == StripSubdetector::TEC) {
         //&&&&&&&&&&&&&&&&&
         //TEC
         //&&&&&&&&&&&&&&&&&
 
-        component = m_trackerTopo.tecSide(BC.at(i).detid) == 2 ? m_trackerTopo.tecWheel(BC.at(i).detid)
-                                                               : m_trackerTopo.tecWheel(BC.at(i).detid) + 9;
-        SiStripPI::setBadComponents(3, component, BC.at(i), NBadComponent);
+        component =
+            m_trackerTopo.tecSide(i.detid) == 2 ? m_trackerTopo.tecWheel(i.detid) : m_trackerTopo.tecWheel(i.detid) + 9;
+        SiStripPI::setBadComponents(3, component, i, NBadComponent);
       }
     }
 

@@ -106,25 +106,25 @@ JetCorrFactorsProducer::JetCorrFactorsProducer(const edm::ParameterSet& cfg)
 std::vector<std::string> JetCorrFactorsProducer::expand(const std::vector<std::string>& levels,
                                                         const JetCorrFactors::Flavor& flavor) {
   std::vector<std::string> expand;
-  for (std::vector<std::string>::const_iterator level = levels.begin(); level != levels.end(); ++level) {
-    if ((*level) == "L5Flavor" || (*level) == "L7Parton") {
+  for (const auto& level : levels) {
+    if (level == "L5Flavor" || level == "L7Parton") {
       if (flavor == JetCorrFactors::GLUON) {
-        if (*level == "L7Parton" && type_ == "T") {
+        if (level == "L7Parton" && type_ == "T") {
           edm::LogWarning message("L7Parton::GLUON not available");
           message << "Jet energy corrections requested for level: L7Parton and type: 'T'. \n"
                   << "For this combination there is no GLUON correction available. The    \n"
                   << "correction for this flavor type will be taken from 'J'.";
         }
-        expand.push_back(std::string(*level).append("_").append("g").append("J"));
+        expand.push_back(std::string(level).append("_").append("g").append("J"));
       }
       if (flavor == JetCorrFactors::UDS)
-        expand.push_back(std::string(*level).append("_").append("q").append(type_));
+        expand.push_back(std::string(level).append("_").append("q").append(type_));
       if (flavor == JetCorrFactors::CHARM)
-        expand.push_back(std::string(*level).append("_").append("c").append(type_));
+        expand.push_back(std::string(level).append("_").append("c").append(type_));
       if (flavor == JetCorrFactors::BOTTOM)
-        expand.push_back(std::string(*level).append("_").append("b").append(type_));
+        expand.push_back(std::string(level).append("_").append("b").append(type_));
     } else {
-      expand.push_back(*level);
+      expand.push_back(level);
     }
   }
   return expand;
@@ -133,8 +133,8 @@ std::vector<std::string> JetCorrFactorsProducer::expand(const std::vector<std::s
 std::vector<JetCorrectorParameters> JetCorrFactorsProducer::params(const JetCorrectorParametersCollection& parameters,
                                                                    const std::vector<std::string>& levels) const {
   std::vector<JetCorrectorParameters> params;
-  for (std::vector<std::string>::const_iterator level = levels.begin(); level != levels.end(); ++level) {
-    const JetCorrectorParameters& ip = parameters[*level];  //ip.printScreen();
+  for (const auto& level : levels) {
+    const JetCorrectorParameters& ip = parameters[level];  //ip.printScreen();
     params.push_back(ip);
   }
   return params;

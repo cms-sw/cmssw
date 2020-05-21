@@ -165,10 +165,10 @@ namespace reco {
       pv = GlobalPoint(primaryVertex()->x(), primaryVertex()->y(), primaryVertex()->z());
 
     std::vector<size_t> indexes = sortedIndexes();  // use default criterium
-    for (std::vector<size_t>::const_iterator it = indexes.begin(); it != indexes.end(); ++it) {
+    for (unsigned long indexe : indexes) {
       using namespace ROOT::Math;
-      const Track* track = selectedTrack(*it);
-      const btag::TrackIPData* data = &m_data[*it];
+      const Track* track = selectedTrack(indexe);
+      const btag::TrackIPData* data = &m_data[indexe];
       const math::XYZVector& trackMom = track->momentum();
       double trackMag = std::sqrt(trackMom.Mag2());
 
@@ -201,8 +201,8 @@ namespace reco {
   template <class Container, class Base>
   Container IPTagInfo<Container, Base>::sorted(const std::vector<size_t>& indexes) const {
     Container tr;
-    for (size_t i = 0; i < indexes.size(); i++)
-      tr.push_back(m_selected[indexes[i]]);
+    for (unsigned long indexe : indexes)
+      tr.push_back(m_selected[indexe]);
     return tr;
   }
 
@@ -284,9 +284,9 @@ namespace reco {
     } else
     //Ascending:
     {
-      for (std::multimap<float, size_t>::iterator it = sortedIdx.begin(); it != sortedIdx.end(); it++)
-        if (it->first <= cut)
-          result.push_back(it->second);
+      for (auto& it : sortedIdx)
+        if (it.first <= cut)
+          result.push_back(it.second);
     }
     return result;
   }

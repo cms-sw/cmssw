@@ -57,8 +57,8 @@ bool PythiaDauFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Event
            des != (*p)->end_vertex()->particles_end(HepMC::children);
            ++des) {
         ++ndau;
-        for (unsigned int i = 0; i < dauIDs.size(); ++i) {
-          if ((*des)->pdg_id() != dauIDs[i])
+        for (int dauID : dauIDs) {
+          if ((*des)->pdg_id() != dauID)
             continue;
           if ((*des)->momentum().perp() > minptcut && (*des)->momentum().perp() < maxptcut &&
               (*des)->momentum().eta() > minetacut && (*des)->momentum().eta() < maxetacut) {
@@ -86,10 +86,10 @@ bool PythiaDauFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Event
              des != (*p)->end_vertex()->particles_end(HepMC::children);
              ++des) {
           ++ndau;
-          for (unsigned int i = 0; i < dauIDs.size(); ++i) {
-            int IDanti = -dauIDs[i];
+          for (int dauID : dauIDs) {
+            int IDanti = -dauID;
             if (!(fLookupGen->particleData.isParticle(IDanti)))
-              IDanti = dauIDs[i];
+              IDanti = dauID;
             if ((*des)->pdg_id() != IDanti)
               continue;
             if ((*des)->momentum().perp() > minptcut && (*des)->momentum().perp() < maxptcut &&

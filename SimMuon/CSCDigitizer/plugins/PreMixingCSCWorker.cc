@@ -62,8 +62,8 @@ void PreMixingMuonWorker<CSCStripDigiCollection>::put(edm::Event &iEvent) {
 
               std::vector<int>::const_iterator newsig = signal_adc.begin();
 
-              for (std::vector<int>::const_iterator ibin = pileup_adc.begin(); ibin != pileup_adc.end(); ++ibin) {
-                new_adc.push_back((*newsig) + (*ibin) - minvalue);
+              for (int ibin : pileup_adc) {
+                new_adc.push_back((*newsig) + ibin - minvalue);
 
                 ++newsig;
               }

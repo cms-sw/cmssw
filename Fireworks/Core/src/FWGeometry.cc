@@ -251,9 +251,9 @@ const TGeoMatrix* FWGeometry::getMatrix(unsigned int id) const {
 std::vector<unsigned int> FWGeometry::getMatchedIds(Detector det, SubDetector subdet) const {
   std::vector<unsigned int> ids;
   unsigned int mask = (det << 4) | (subdet);
-  for (IdToInfoItr it = m_idToInfo.begin(), itEnd = m_idToInfo.end(); it != itEnd; ++it) {
-    if (FWGeometry::match_id(*it, mask))
-      ids.push_back((*it).id);
+  for (const auto& it : m_idToInfo) {
+    if (FWGeometry::match_id(it, mask))
+      ids.push_back(it.id);
   }
 
   return ids;

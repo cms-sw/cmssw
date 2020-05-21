@@ -504,8 +504,8 @@ void PATTriggerProducer::produce(Event& iEvent, const EventSetup& iSetup) {
         }
         // add L1 seeds
         const L1SeedCollection& l1Seeds(hltConfig.hltL1GTSeeds(namePath));
-        for (L1SeedCollection::const_iterator iSeed = l1Seeds.begin(); iSeed != l1Seeds.end(); ++iSeed) {
-          triggerPath.addL1Seed(*iSeed);
+        for (const auto& l1Seed : l1Seeds) {
+          triggerPath.addL1Seed(l1Seed);
         }
         // store path
         triggerPaths->push_back(triggerPath);
@@ -568,8 +568,8 @@ void PATTriggerProducer::produce(Event& iEvent, const EventSetup& iSetup) {
       TriggerObjectStandAlone triggerObjectStandAlone(triggerObject);
       // check for excluded collections
       bool excluded(false);
-      for (size_t iE = 0; iE < exludeCollections_.size(); ++iE) {
-        if (triggerObjectStandAlone.hasCollection(exludeCollections_.at(iE))) {
+      for (const auto& exludeCollection : exludeCollections_) {
+        if (triggerObjectStandAlone.hasCollection(exludeCollection)) {
           if (!onlyStandAlone_)
             newObjectKeys[iO] = trigger::size_type(sizeObjects);
           excluded = true;
@@ -584,10 +584,9 @@ void PATTriggerProducer::produce(Event& iEvent, const EventSetup& iSetup) {
         triggerObjectStandAlone.addFilterLabel(frange.first->second);
         const std::vector<ModuleLabelToPathAndFlags::PathAndFlags>& paths =
             moduleLabelToPathAndFlags_[frange.first->second];
-        for (std::vector<ModuleLabelToPathAndFlags::PathAndFlags>::const_iterator iP = paths.begin(); iP != paths.end();
-             ++iP) {
-          bool pathFired = handleTriggerResults->wasrun(iP->pathIndex) && handleTriggerResults->accept(iP->pathIndex);
-          triggerObjectStandAlone.addPathName(iP->pathName, pathFired && iP->lastFilter, pathFired && iP->l3Filter);
+        for (const auto& path : paths) {
+          bool pathFired = handleTriggerResults->wasrun(path.pathIndex) && handleTriggerResults->accept(path.pathIndex);
+          triggerObjectStandAlone.addPathName(path.pathName, pathFired && path.lastFilter, pathFired && path.l3Filter);
         }
       }
 
@@ -948,8 +947,8 @@ void PATTriggerProducer::produce(Event& iEvent, const EventSetup& iSetup) {
       auto const& l1GtConditionsVector = handleL1GtTriggerMenu->gtConditionMap();
       // cache conditions in one single condition map
       ConditionMap l1GtConditions;
-      for (size_t iCv = 0; iCv < l1GtConditionsVector.size(); ++iCv) {
-        l1GtConditions.insert(l1GtConditionsVector.at(iCv).begin(), l1GtConditionsVector.at(iCv).end());
+      for (const auto& iCv : l1GtConditionsVector) {
+        l1GtConditions.insert(iCv.begin(), iCv.end());
       }
       triggerAlgos->reserve(l1GtAlgorithms.size() + l1GtTechTriggers.size());
       Handle<L1GlobalTriggerObjectMaps> handleL1GlobalTriggerObjectMaps;
@@ -974,11 +973,11 @@ void PATTriggerProducer::produce(Event& iEvent, const EventSetup& iSetup) {
         }
       }
       // physics algorithms
-      for (CItAlgo iAlgo = l1GtAlgorithms.begin(); iAlgo != l1GtAlgorithms.end(); ++iAlgo) {
-        const std::string& algoName(iAlgo->second.algoName());
-        if (!(iAlgo->second.algoBitNumber() < int(L1GlobalTriggerReadoutSetup::NumberPhysTriggers))) {
+      for (const auto& l1GtAlgorithm : l1GtAlgorithms) {
+        const std::string& algoName(l1GtAlgorithm.second.algoName());
+        if (!(l1GtAlgorithm.second.algoBitNumber() < int(L1GlobalTriggerReadoutSetup::NumberPhysTriggers))) {
           LogError("l1Algo") << "L1 physics algorithm '" << algoName << "' has bit number "
-                             << iAlgo->second.algoBitNumber()
+                             << l1GtAlgorithm.second.algoBitNumber()
                              << " >= " << L1GlobalTriggerReadoutSetup::NumberPhysTriggers << "\n"
                              << "Skipping";
           continue;
@@ -1008,14 +1007,14 @@ void PATTriggerProducer::produce(Event& iEvent, const EventSetup& iSetup) {
           continue;
         }
         TriggerAlgorithm triggerAlgo(algoName,
-                                     iAlgo->second.algoAlias(),
+                                     l1GtAlgorithm.second.algoAlias(),
                                      category == L1GtUtils::TechnicalTrigger,
                                      (unsigned)bit,
                                      (unsigned)prescale,
                                      (bool)mask,
                                      decisionBeforeMask,
                                      decisionAfterMask);
-        triggerAlgo.setLogicalExpression(iAlgo->second.algoLogicalExpression());
+        triggerAlgo.setLogicalExpression(l1GtAlgorithm.second.algoLogicalExpression());
         // GTL result and used conditions in physics algorithm
         if (!handleL1GlobalTriggerObjectMaps.isValid()) {
           triggerAlgos->push_back(triggerAlgo);
@@ -1079,8 +1078,8 @@ void PATTriggerProducer::produce(Event& iEvent, const EventSetup& iSetup) {
               triggerCond.setCategory(l1GtConditions[triggerCond.name()]->condCategory());
               triggerCond.setType(l1GtConditions[triggerCond.name()]->condType());
               const std::vector<L1GtObject> l1ObjectTypes(l1GtConditions[triggerCond.name()]->objectType());
-              for (size_t iType = 0; iType < l1ObjectTypes.size(); ++iType) {
-                triggerCond.addTriggerObjectType(mapObjectTypes[l1ObjectTypes.at(iType)]);
+              for (auto l1ObjectType : l1ObjectTypes) {
+                triggerCond.addTriggerObjectType(mapObjectTypes[l1ObjectType]);
               }
               // objects in condition
               L1GlobalTriggerObjectMaps::CombinationsInCondition combinations =
@@ -1119,11 +1118,11 @@ void PATTriggerProducer::produce(Event& iEvent, const EventSetup& iSetup) {
         triggerAlgos->push_back(triggerAlgo);
       }
       // technical triggers
-      for (CItAlgo iAlgo = l1GtTechTriggers.begin(); iAlgo != l1GtTechTriggers.end(); ++iAlgo) {
-        const std::string& algoName(iAlgo->second.algoName());
-        if (!(iAlgo->second.algoBitNumber() < int(L1GlobalTriggerReadoutSetup::NumberTechnicalTriggers))) {
+      for (const auto& l1GtTechTrigger : l1GtTechTriggers) {
+        const std::string& algoName(l1GtTechTrigger.second.algoName());
+        if (!(l1GtTechTrigger.second.algoBitNumber() < int(L1GlobalTriggerReadoutSetup::NumberTechnicalTriggers))) {
           LogError("l1Algo") << "L1 technical trigger '" << algoName << "' has bit number "
-                             << iAlgo->second.algoBitNumber()
+                             << l1GtTechTrigger.second.algoBitNumber()
                              << " >= " << L1GlobalTriggerReadoutSetup::NumberTechnicalTriggers << "\n"
                              << "Skipping";
           continue;
@@ -1153,14 +1152,14 @@ void PATTriggerProducer::produce(Event& iEvent, const EventSetup& iSetup) {
           continue;
         }
         TriggerAlgorithm triggerAlgo(algoName,
-                                     iAlgo->second.algoAlias(),
+                                     l1GtTechTrigger.second.algoAlias(),
                                      category == L1GtUtils::TechnicalTrigger,
                                      (unsigned)bit,
                                      (unsigned)prescale,
                                      (bool)mask,
                                      decisionBeforeMask,
                                      decisionAfterMask);
-        triggerAlgo.setLogicalExpression(iAlgo->second.algoLogicalExpression());
+        triggerAlgo.setLogicalExpression(l1GtTechTrigger.second.algoLogicalExpression());
         triggerAlgos->push_back(triggerAlgo);
       }
     }

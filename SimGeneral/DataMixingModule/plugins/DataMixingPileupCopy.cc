@@ -70,15 +70,13 @@ namespace edm {
 
     // Gen. PU protons
     std::shared_ptr<edm::Wrapper<std::vector<reco::GenParticle>> const> GenPUProtonsPTR;
-    for (std::vector<edm::InputTag>::const_iterator it_InputTag = GenPUProtonsInputTags_.begin();
-         it_InputTag != GenPUProtonsInputTags_.end();
-         ++it_InputTag) {
-      GenPUProtonsPTR = getProductByTag<std::vector<reco::GenParticle>>(*ep, *it_InputTag, mcc);
+    for (const auto &GenPUProtonsInputTag : GenPUProtonsInputTags_) {
+      GenPUProtonsPTR = getProductByTag<std::vector<reco::GenParticle>>(*ep, GenPUProtonsInputTag, mcc);
       if (GenPUProtonsPTR != nullptr) {
         GenPUProtons_.push_back(*(GenPUProtonsPTR->product()));
-        GenPUProtons_labels_.push_back(it_InputTag->label());
+        GenPUProtons_labels_.push_back(GenPUProtonsInputTag.label());
       } else
-        edm::LogWarning("DataMixingPileupCopy") << "Missing product with label: " << (*it_InputTag).label();
+        edm::LogWarning("DataMixingPileupCopy") << "Missing product with label: " << GenPUProtonsInputTag.label();
     }
 
     // Playback

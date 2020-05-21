@@ -52,10 +52,10 @@ int TTrigger::getTriggerObjectBit(const std::string &iName, const std::string &i
   if (lId == -1)
     return -1;
 
-  for (unsigned int i0 = 0; i0 < fRecords[lId].objectMap.size(); i0++) {
-    if (iObjName != fRecords[lId].objectMap[i0].first)
+  for (const auto &i0 : fRecords[lId].objectMap) {
+    if (iObjName != i0.first)
       continue;
-    return fRecords[lId].objectMap[i0].second;
+    return i0.second;
   }
 
   return -1;

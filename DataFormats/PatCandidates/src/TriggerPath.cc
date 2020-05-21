@@ -54,9 +54,9 @@ int TriggerPath::indexModule(const std::string& name) const {
 // Get names of all L1 seeds with a certain decision
 std::vector<std::string> TriggerPath::l1Seeds(const bool decision) const {
   std::vector<std::string> seeds;
-  for (L1SeedCollection::const_iterator iSeed = l1Seeds().begin(); iSeed != l1Seeds().end(); ++iSeed) {
-    if (iSeed->first == decision)
-      seeds.push_back(iSeed->second);
+  for (const auto& iSeed : l1Seeds()) {
+    if (iSeed.first == decision)
+      seeds.push_back(iSeed.second);
   }
   return seeds;
 }

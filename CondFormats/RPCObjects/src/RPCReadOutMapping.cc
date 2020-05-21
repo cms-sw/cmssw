@@ -26,8 +26,8 @@ void RPCReadOutMapping::add(const DccSpec &dcc) { theFeds[dcc.id()] = dcc; }
 std::vector<const DccSpec *> RPCReadOutMapping::dccList() const {
   std::vector<const DccSpec *> result;
   result.reserve(theFeds.size());
-  for (IMAP im = theFeds.begin(); im != theFeds.end(); im++) {
-    result.push_back(&(im->second));
+  for (const auto &theFed : theFeds) {
+    result.push_back(&(theFed.second));
   }
   return result;
 }
@@ -51,19 +51,16 @@ std::vector<std::pair<LinkBoardElectronicIndex, LinkBoardPackedStrip> > RPCReadO
   const uint32_t &rawDetId = stripInDetUnit.first;
   const int &stripInDU = stripInDetUnit.second;
 
-  for (IMAP im = theFeds.begin(); im != theFeds.end(); im++) {
-    const DccSpec &dccSpec = (*im).second;
+  for (const auto &theFed : theFeds) {
+    const DccSpec &dccSpec = theFed.second;
     const std::vector<TriggerBoardSpec> &triggerBoards = dccSpec.triggerBoards();
-    for (std::vector<TriggerBoardSpec>::const_iterator it = triggerBoards.begin(); it != triggerBoards.end(); it++) {
-      const TriggerBoardSpec &triggerBoard = (*it);
+    for (const auto &triggerBoard : triggerBoards) {
       typedef std::vector<const LinkConnSpec *> LINKS;
       LINKS linkConns = triggerBoard.enabledLinkConns();
-      for (LINKS::const_iterator ic = linkConns.begin(); ic != linkConns.end(); ic++) {
-        const LinkConnSpec &link = **ic;
+      for (auto linkConn : linkConns) {
+        const LinkConnSpec &link = *linkConn;
         const std::vector<LinkBoardSpec> &boards = link.linkBoards();
-        for (std::vector<LinkBoardSpec>::const_iterator ib = boards.begin(); ib != boards.end(); ib++) {
-          const LinkBoardSpec &board = (*ib);
-
+        for (const auto &board : boards) {
           eleIndex.dccId = dccSpec.id();
           eleIndex.dccInputChannelNum = triggerBoard.dccInputChannelNum();
           eleIndex.tbLinkInputNum = link.triggerBoardInputNumber();
@@ -71,8 +68,7 @@ std::vector<std::pair<LinkBoardElectronicIndex, LinkBoardPackedStrip> > RPCReadO
 
           const std::vector<FebConnectorSpec> &febs = board.febs();
           int febCheck = 0;
-          for (std::vector<FebConnectorSpec>::const_iterator ifc = febs.begin(); ifc != febs.end(); ifc++) {
-            const FebConnectorSpec &febConnector = (*ifc);
+          for (const auto &febConnector : febs) {
             febCheck++;
             if (febConnector.rawId() != rawDetId)
               continue;

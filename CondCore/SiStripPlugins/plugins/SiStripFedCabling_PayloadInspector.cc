@@ -56,9 +56,8 @@ namespace {
 
       for (const auto& detId : activeDetIds) {
         int32_t n_conn = 0;
-        for (uint32_t connDet_i = 0; connDet_i < detCabling_->getConnections(detId).size(); connDet_i++) {
-          if (detCabling_->getConnections(detId)[connDet_i] != nullptr &&
-              detCabling_->getConnections(detId)[connDet_i]->isConnected() != 0)
+        for (auto connDet_i : detCabling_->getConnections(detId)) {
+          if (connDet_i != nullptr && connDet_i->isConnected() != 0)
             n_conn++;
         }
         if (n_conn != 0) {

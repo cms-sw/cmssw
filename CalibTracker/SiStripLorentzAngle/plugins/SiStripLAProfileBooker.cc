@@ -168,9 +168,9 @@ void SiStripLAProfileBooker::beginRun(const edm::Run&, const edm::EventSetup& c)
 
   //get all detids
 
-  for (std::vector<uint32_t>::const_iterator Id = activeDets.begin(); Id != activeDets.end(); Id++) {
+  for (unsigned int activeDet : activeDets) {
     //  for(Iditer=Id.begin();Iditer!=Id.end();Iditer++){ //loop on detids
-    DetId Iditero = DetId(*Id);
+    DetId Iditero = DetId(activeDet);
     DetId* Iditer = &Iditero;
     if ((Iditer->subdetId() == int(StripSubdetector::TIB)) ||
         (Iditer->subdetId() == int(StripSubdetector::TOB))) {  //include only barrel

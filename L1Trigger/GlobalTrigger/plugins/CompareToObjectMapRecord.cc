@@ -64,14 +64,12 @@ void CompareToObjectMapRecord::analyze(edm::Event const &event, edm::EventSetup 
   std::vector<int> algoBitNumbers1;
   std::vector<L1GlobalTriggerObjectMap> const &vectorInRecord = gtObjectMapRecord->gtObjectMap();
   algoBitNumbers1.reserve(vectorInRecord.size());
-  for (std::vector<L1GlobalTriggerObjectMap>::const_iterator i = vectorInRecord.begin(), iEnd = vectorInRecord.end();
-       i != iEnd;
-       ++i) {
-    algoBitNumbers1.push_back(i->algoBitNumber());
+  for (const auto &i : vectorInRecord) {
+    algoBitNumbers1.push_back(i.algoBitNumber());
     if (verbose_) {
       // This will print out all the data from the
       // L1GlobalTriggerObjectMapRecord
-      i->print(std::cout);
+      i.print(std::cout);
     }
   }
   edm::sort_all(algoBitNumbers1);
@@ -103,13 +101,11 @@ void CompareToObjectMapRecord::analyze(edm::Event const &event, edm::EventSetup 
   }
 
   // Main loop over algorithms
-  for (std::vector<int>::const_iterator iBit = algoBitNumbers1.begin(), endBits = algoBitNumbers1.end();
-       iBit != endBits;
-       ++iBit) {
-    L1GlobalTriggerObjectMap const *objMap = gtObjectMapRecord->getObjectMap(*iBit);
+  for (int iBit : algoBitNumbers1) {
+    L1GlobalTriggerObjectMap const *objMap = gtObjectMapRecord->getObjectMap(iBit);
     const std::string &algoName1 = objMap->algoName();
 
-    if (algoName1 != algoNames2.at(*iBit)) {
+    if (algoName1 != algoNames2.at(iBit)) {
       cms::Exception ex("L1GlobalTrigger");
       ex << "Algorithm names do not match";
       ex.addContext("Calling CompareToObjectMapRecord::analyze");
@@ -117,7 +113,7 @@ void CompareToObjectMapRecord::analyze(edm::Event const &event, edm::EventSetup 
     }
 
     // Now test the algorithm results
-    if (objMap->algoGtlResult() != gtObjectMaps->algorithmResult(*iBit)) {
+    if (objMap->algoGtlResult() != gtObjectMaps->algorithmResult(iBit)) {
       cms::Exception ex("L1GlobalTrigger");
       ex << "Algorithm results do not match";
       ex.addContext("Calling CompareToObjectMapRecord::analyze");
@@ -126,7 +122,7 @@ void CompareToObjectMapRecord::analyze(edm::Event const &event, edm::EventSetup 
 
     std::vector<L1GtLogicParser::OperandToken> const &operandTokens1 = objMap->operandTokenVector();
 
-    L1GlobalTriggerObjectMaps::ConditionsInAlgorithm conditions2 = gtObjectMaps->getConditionsInAlgorithm(*iBit);
+    L1GlobalTriggerObjectMaps::ConditionsInAlgorithm conditions2 = gtObjectMaps->getConditionsInAlgorithm(iBit);
     if (conditions2.nConditions() != operandTokens1.size()) {
       cms::Exception ex("L1GlobalTrigger");
       ex << "Number of conditions does not match";
@@ -135,17 +131,17 @@ void CompareToObjectMapRecord::analyze(edm::Event const &event, edm::EventSetup 
     }
 
     std::vector<std::string> conditionNames2;
-    conditionNames2 = pset->getParameter<std::vector<std::string>>(algoNames2.at(*iBit));
+    conditionNames2 = pset->getParameter<std::vector<std::string>>(algoNames2.at(iBit));
 
     // Print out data from L1GlobalTriggerObjectMaps and ParameterSet registry
     if (verbose_) {
-      std::cout << *iBit << "  " << algoNames2[*iBit] << "  " << gtObjectMaps->algorithmResult(*iBit) << "\n";
+      std::cout << iBit << "  " << algoNames2[iBit] << "  " << gtObjectMaps->algorithmResult(iBit) << "\n";
 
-      for (unsigned j = 0; j < gtObjectMaps->getNumberOfConditions(*iBit); ++j) {
-        L1GlobalTriggerObjectMaps::ConditionsInAlgorithm conditions = gtObjectMaps->getConditionsInAlgorithm(*iBit);
+      for (unsigned j = 0; j < gtObjectMaps->getNumberOfConditions(iBit); ++j) {
+        L1GlobalTriggerObjectMaps::ConditionsInAlgorithm conditions = gtObjectMaps->getConditionsInAlgorithm(iBit);
         std::cout << "    " << j << "  " << conditionNames2[j] << "  " << conditions.getConditionResult(j) << "\n";
         L1GlobalTriggerObjectMaps::CombinationsInCondition combinations =
-            gtObjectMaps->getCombinationsInCondition(*iBit, j);
+            gtObjectMaps->getCombinationsInCondition(iBit, j);
         for (unsigned m = 0; m < combinations.nCombinations(); ++m) {
           std::cout << "    ";
           for (unsigned n = 0; n < combinations.nObjectsPerCombination(); ++n) {
@@ -188,7 +184,7 @@ void CompareToObjectMapRecord::analyze(edm::Event const &event, edm::EventSetup 
 
       // Compare the combinations of Indexes into the L1 collections
       L1GlobalTriggerObjectMaps::CombinationsInCondition combinations2 =
-          gtObjectMaps->getCombinationsInCondition(*iBit, iCondition);
+          gtObjectMaps->getCombinationsInCondition(iBit, iCondition);
 
       CombinationsInCond const *combinations1 = objMap->getCombinationsInCond(iToken1->tokenNumber);
       if (combinations1->size() != combinations2.nCombinations()) {

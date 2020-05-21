@@ -169,8 +169,8 @@ bool HcalLaserEventFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::
 
   // Veto events by run/event numbers
   if (vetoByRunEventNumber_) {
-    for (unsigned int i = 0; i < RunEventData_.size(); ++i) {
-      if (iEvent.id().run() == RunEventData_[i].first && iEvent.id().event() == RunEventData_[i].second) {
+    for (const auto& i : RunEventData_) {
+      if (iEvent.id().run() == i.first && iEvent.id().event() == i.second) {
         if (debug_)
           edm::LogInfo("HcalLaserEventFilter") << "\t<HcalLaserEventFilter> Filtering bad event;  Run "
                                                << iEvent.id().run() << " Event = " << iEvent.id().event();

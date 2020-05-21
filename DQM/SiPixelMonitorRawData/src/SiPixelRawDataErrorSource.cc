@@ -199,8 +199,8 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup &iSetup) {
   // LogVerbatim ("PixelDQM") << " *** I have " << pDD->detTypes().size() <<"
   // types"<<std::endl;
 
-  for (TrackerGeometry::DetContainer::const_iterator it = pDD->detsPXB().begin(); it != pDD->detsPXB().end(); it++) {
-    const GeomDetUnit *geoUnit = dynamic_cast<const GeomDetUnit *>(*it);
+  for (auto it : pDD->detsPXB()) {
+    const GeomDetUnit *geoUnit = dynamic_cast<const GeomDetUnit *>(it);
     // check if it is a detUnit
     if (geoUnit == nullptr)
       LogError("PixelDQM") << "Pixel GeomDet is not a GeomDetUnit!" << std::endl;
@@ -210,15 +210,15 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup &iSetup) {
 
     if (isPIB)
       continue;
-    DetId detId = (*it)->geographicalId();
+    DetId detId = it->geographicalId();
     LogDebug("PixelDQM") << " ---> Adding Barrel Module " << detId.rawId() << endl;
     uint32_t id = detId();
     SiPixelRawDataErrorModule *theModule = new SiPixelRawDataErrorModule(id, ncols, nrows);
     thePixelStructure.insert(pair<uint32_t, SiPixelRawDataErrorModule *>(id, theModule));
   }
 
-  for (TrackerGeometry::DetContainer::const_iterator it = pDD->detsPXF().begin(); it != pDD->detsPXF().end(); it++) {
-    const GeomDetUnit *geoUnit = dynamic_cast<const GeomDetUnit *>(*it);
+  for (auto it : pDD->detsPXF()) {
+    const GeomDetUnit *geoUnit = dynamic_cast<const GeomDetUnit *>(it);
     // check if it is a detUnit
     if (geoUnit == nullptr)
       LogError("PixelDQM") << "Pixel GeomDet is not a GeomDetUnit!" << std::endl;
@@ -226,7 +226,7 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup &iSetup) {
     int nrows = (pixDet->specificTopology()).nrows();
     int ncols = (pixDet->specificTopology()).ncolumns();
 
-    DetId detId = (*it)->geographicalId();
+    DetId detId = it->geographicalId();
     LogDebug("PixelDQM") << " ---> Adding Endcap Module " << detId.rawId() << endl;
     uint32_t id = detId();
     SiPixelRawDataErrorModule *theModule = new SiPixelRawDataErrorModule(id, ncols, nrows);

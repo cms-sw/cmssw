@@ -111,11 +111,11 @@ void LaserBeamsBarrel::GeneratePrimaries(G4Event *myEvent) {
   G4ParticleDefinition *theOpticalPhoton = theParticleTable->FindParticle("opticalphoton");
 
   // loop over the LaserBeams
-  for (int theBeam = 0; theBeam < nLaserBeams; theBeam++) {
+  for (double theBeam : LaserPhi) {
     // code for forward and backward beam
     // calculate x and y position of the current laser diode
-    G4double LaserPositionX = cos(LaserPhi[theBeam]) * LaserRingRadius;
-    G4double LaserPositionY = sin(LaserPhi[theBeam]) * LaserRingRadius;
+    G4double LaserPositionX = cos(theBeam) * LaserRingRadius;
+    G4double LaserPositionY = sin(theBeam) * LaserRingRadius;
 
     // loop over all the particles in one beam
     for (int theParticle = 0; theParticle < thenParticle; theParticle++) {

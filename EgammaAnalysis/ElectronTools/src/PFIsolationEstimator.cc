@@ -210,9 +210,7 @@ std::vector<float> PFIsolationEstimator::fGetIsolationInRings(const reco::PFCand
 
   pivotInBarrel = std::abs(pfCandidate->positionAtECALEntrance().eta()) < 1.479;
 
-  for (unsigned iPF = 0; iPF < pfParticlesColl->size(); iPF++) {
-    const reco::PFCandidate& pfParticle = (*pfParticlesColl)[iPF];
-
+  for (const auto& pfParticle : *pfParticlesColl) {
     if (&pfParticle == (pfCandidate))
       continue;
 
@@ -276,9 +274,7 @@ std::vector<float> PFIsolationEstimator::fGetIsolationInRings(const reco::Photon
   refSC = photon->superCluster();
   pivotInBarrel = std::abs((refSC->position().eta())) < 1.479;
 
-  for (unsigned iPF = 0; iPF < pfParticlesColl->size(); iPF++) {
-    const reco::PFCandidate& pfParticle = (*pfParticlesColl)[iPF];
-
+  for (const auto& pfParticle : *pfParticlesColl) {
     if (pfParticle.superClusterRef().isNonnull() && photon->superCluster().isNonnull() &&
         pfParticle.superClusterRef() == photon->superCluster())
       continue;
@@ -385,9 +381,7 @@ std::vector<float> PFIsolationEstimator::fGetIsolationInRings(const reco::GsfEle
   refSC = electron->superCluster();
   pivotInBarrel = std::abs((refSC->position().eta())) < 1.479;
 
-  for (unsigned iPF = 0; iPF < pfParticlesColl->size(); iPF++) {
-    const reco::PFCandidate& pfParticle = (*pfParticlesColl)[iPF];
-
+  for (const auto& pfParticle : *pfParticlesColl) {
     if (pfParticle.pdgId() == 22) {
       if (isPhotonParticleVetoed(&pfParticle) >= 0.) {
         isoBin = (int)(fDeltaR / fRingSize);
@@ -704,8 +698,7 @@ int PFIsolationEstimator::matchPFObject(const reco::Photon* photon, const reco::
   Int_t iMatch = -1;
 
   int i = 0;
-  for (reco::PFCandidateCollection::const_iterator iPF = Candidates->begin(); iPF != Candidates->end(); iPF++) {
-    const reco::PFCandidate& pfParticle = (*iPF);
+  for (const auto& pfParticle : *Candidates) {
     //    if((((pfParticle.pdgId()==22 && pfParticle.mva_nothing_gamma()>0.01) || TMath::Abs(pfParticle.pdgId())==11) )){
     if ((((pfParticle.pdgId() == 22) || TMath::Abs(pfParticle.pdgId()) == 11))) {
       if (pfParticle.superClusterRef() == photon->superCluster())
@@ -743,8 +736,7 @@ int PFIsolationEstimator::matchPFObject(const reco::GsfElectron* electron,
   Int_t iMatch = -1;
 
   int i = 0;
-  for (reco::PFCandidateCollection::const_iterator iPF = Candidates->begin(); iPF != Candidates->end(); iPF++) {
-    const reco::PFCandidate& pfParticle = (*iPF);
+  for (const auto& pfParticle : *Candidates) {
     //    if((((pfParticle.pdgId()==22 && pfParticle.mva_nothing_gamma()>0.01) || TMath::Abs(pfParticle.pdgId())==11) )){
     if ((((pfParticle.pdgId() == 22) || TMath::Abs(pfParticle.pdgId()) == 11))) {
       if (pfParticle.superClusterRef() == electron->superCluster())
@@ -757,8 +749,7 @@ int PFIsolationEstimator::matchPFObject(const reco::GsfElectron* electron,
   if (iMatch == -1) {
     i = 0;
     float fPt = -1;
-    for (reco::PFCandidateCollection::const_iterator iPF = Candidates->begin(); iPF != Candidates->end(); iPF++) {
-      const reco::PFCandidate& pfParticle = (*iPF);
+    for (const auto& pfParticle : *Candidates) {
       if ((((pfParticle.pdgId() == 22) || TMath::Abs(pfParticle.pdgId()) == 11))) {
         if (pfParticle.pt() > fPt) {
           fDeltaR = deltaR(pfParticle.eta(), pfParticle.phi(), electron->eta(), electron->phi());

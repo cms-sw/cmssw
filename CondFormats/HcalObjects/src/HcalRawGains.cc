@@ -52,8 +52,8 @@ const HcalRawGain* HcalRawGains::getValues(DetId fId) const {
 
 std::vector<DetId> HcalRawGains::getAllChannels() const {
   std::vector<DetId> result;
-  for (std::vector<Item>::const_iterator item = mItems.begin(); item != mItems.end(); item++) {
-    result.push_back(DetId(item->rawId()));
+  for (const auto& mItem : mItems) {
+    result.push_back(DetId(mItem.rawId()));
   }
   return result;
 }

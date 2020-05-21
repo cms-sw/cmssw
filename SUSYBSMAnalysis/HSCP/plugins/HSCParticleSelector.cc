@@ -41,8 +41,8 @@ HSCParticleSelector::HSCParticleSelector(const edm::ParameterSet& iConfig) {
   // Load all the selections
   std::vector<edm::ParameterSet> SelectionParameters =
       iConfig.getParameter<std::vector<edm::ParameterSet> >("SelectionParameters");
-  for (unsigned int i = 0; i < SelectionParameters.size(); i++) {
-    Selectors.push_back(new CandidateSelector(SelectionParameters[i]));
+  for (const auto& SelectionParameter : SelectionParameters) {
+    Selectors.push_back(new CandidateSelector(SelectionParameter));
   }
 }
 
@@ -73,8 +73,8 @@ bool HSCParticleSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSet
   for (susybsm::HSCParticleCollection::iterator hscpcandidate = Source.begin(); hscpcandidate < Source.end();
        ++hscpcandidate) {
     bool decision = false;
-    for (unsigned int i = 0; i < Selectors.size(); i++) {
-      decision |= Selectors[i]->isSelected(*hscpcandidate);
+    for (auto& Selector : Selectors) {
+      decision |= Selector->isSelected(*hscpcandidate);
     }
     if (decision) {
       susybsm::HSCParticle* newhscp = new susybsm::HSCParticle(*hscpcandidate);

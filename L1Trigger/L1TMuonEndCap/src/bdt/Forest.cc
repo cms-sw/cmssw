@@ -55,9 +55,9 @@ Forest::~Forest() {
   // The user may want the events to remain after they destroy the forest
   // this should be changed in future upgrades.
 
-  for (unsigned int i = 0; i < trees.size(); i++) {
-    if (trees[i])
-      delete trees[i];
+  for (auto& tree : trees) {
+    if (tree)
+      delete tree;
   }
 }
 
@@ -68,9 +68,9 @@ Forest::Forest(const Forest& forest) {
 }
 
 Forest& Forest::operator=(const Forest& forest) {
-  for (unsigned int i = 0; i < trees.size(); i++) {
-    if (trees[i])
-      delete trees[i];
+  for (auto& tree : trees) {
+    if (tree)
+      delete tree;
   }
   trees.resize(0);
 
@@ -147,8 +147,8 @@ void Forest::listEvents(std::vector<std::vector<Event*>>& e) {
 
   for (unsigned int i = 0; i < e.size(); i++) {
     std::cout << std::endl << "Variable " << i << " vector contents: " << std::endl;
-    for (unsigned int j = 0; j < e[i].size(); j++) {
-      e[i][j]->outputEvent();
+    for (auto& j : e[i]) {
+      j->outputEvent();
     }
     std::cout << std::endl;
   }
@@ -207,15 +207,15 @@ void Forest::rankVariables(std::vector<int>& rank) {
 
   //std::cout << std::endl << "Ranking Variables by Net Error Reduction... " << std::endl;
 
-  for (unsigned int j = 0; j < trees.size(); j++) {
-    trees[j]->rankVariables(v);
+  for (auto& tree : trees) {
+    tree->rankVariables(v);
   }
 
   double max = *std::max_element(v.begin(), v.end());
 
   // Scale the importance. Maximum importance = 100.
-  for (unsigned int i = 0; i < v.size(); i++) {
-    v[i] = 100 * v[i] / max;
+  for (double& i : v) {
+    i = 100 * i / max;
   }
 
   // Change the storage format so that we can keep the index
@@ -255,24 +255,24 @@ void Forest::saveSplitValues(const char* savefilename) {
   //std::cout << std::endl << "Gathering split values... " << std::endl;
 
   // Gather the split values from each tree in the forest.
-  for (unsigned int j = 0; j < trees.size(); j++) {
-    trees[j]->getSplitValues(v);
+  for (auto& tree : trees) {
+    tree->getSplitValues(v);
   }
 
   // Sort the lists of split values and remove the duplicates.
-  for (unsigned int i = 0; i < v.size(); i++) {
-    std::sort(v[i].begin(), v[i].end());
-    v[i].erase(unique(v[i].begin(), v[i].end()), v[i].end());
+  for (auto& i : v) {
+    std::sort(i.begin(), i.end());
+    i.erase(unique(i.begin(), i.end()), i.end());
   }
 
   // Output the results after removing duplicates.
   // The 0th variable is special and is not used for splitting, so we start at 1.
   for (unsigned int i = 1; i < v.size(); i++) {
     TString splitValues;
-    for (unsigned int j = 0; j < v[i].size(); j++) {
+    for (double j : v[i]) {
       std::stringstream ss;
       ss.precision(14);
-      ss << std::scientific << v[i][j];
+      ss << std::scientific << j;
       splitValues += ",";
       splitValues += ss.str().c_str();
     }
@@ -295,9 +295,9 @@ void Forest::updateRegTargets(Tree* tree, double learningRate, LossFunction* l) 
   std::list<Node*>& tn = tree->getTerminalNodes();
 
   // Loop through the terminal nodes.
-  for (std::list<Node*>::iterator it = tn.begin(); it != tn.end(); it++) {
+  for (auto& it : tn) {
     // Get the events in the current terminal region.
-    std::vector<Event*>& v = (*it)->getEvents()[0];
+    std::vector<Event*>& v = it->getEvents()[0];
 
     // Fit the events depending on the loss function criteria.
     double fit = l->fit(v);
@@ -306,18 +306,17 @@ void Forest::updateRegTargets(Tree* tree, double learningRate, LossFunction* l) 
     fit = learningRate * fit;
 
     // Store the official fit value in the terminal node.
-    (*it)->setFitValue(fit);
+    it->setFitValue(fit);
 
     // Loop through each event in the terminal region and update the
     // the target for the next tree.
-    for (unsigned int j = 0; j < v.size(); j++) {
-      Event* e = v[j];
+    for (auto e : v) {
       e->predictedValue += fit;
       e->data[0] = l->target(e);
     }
 
     // Release memory.
-    (*it)->getEvents() = std::vector<std::vector<Event*>>();
+    it->getEvents() = std::vector<std::vector<Event*>>();
   }
 }
 
@@ -332,19 +331,18 @@ void Forest::updateEvents(Tree* tree) {
   std::list<Node*>& tn = tree->getTerminalNodes();
 
   // Loop through the terminal nodes.
-  for (std::list<Node*>::iterator it = tn.begin(); it != tn.end(); it++) {
-    std::vector<Event*>& v = (*it)->getEvents()[0];
-    double fit = (*it)->getFitValue();
+  for (auto& it : tn) {
+    std::vector<Event*>& v = it->getEvents()[0];
+    double fit = it->getFitValue();
 
     // Loop through each event in the terminal region and update the
     // the global event it maps to.
-    for (unsigned int j = 0; j < v.size(); j++) {
-      Event* e = v[j];
+    for (auto e : v) {
       e->predictedValue += fit;
     }
 
     // Release memory.
-    (*it)->getEvents() = std::vector<std::vector<Event*>>();
+    it->getEvents() = std::vector<std::vector<Event*>>();
   }
 }
 
@@ -500,9 +498,9 @@ void Forest::loadFromCondPayload(const L1TMuonEndCapForest::DForest& forest) {
   unsigned int numTrees = forest.size();
 
   // clean-up leftovers from previous initialization (if any)
-  for (unsigned int i = 0; i < trees.size(); i++) {
-    if (trees[i])
-      delete trees[i];
+  for (auto& tree : trees) {
+    if (tree)
+      delete tree;
   }
 
   trees = std::vector<Tree*>(numTrees);
@@ -534,8 +532,8 @@ void Forest::prepareRandomSubsample(double fraction) {
   std::vector<Event*> v(events[0].begin(), events[0].begin() + subSampleSize);
 
   // Initialize and sort the subSample collection.
-  for (unsigned int i = 0; i < subSample.size(); i++) {
-    subSample[i] = v;
+  for (auto& i : subSample) {
+    i = v;
   }
 
   sortEventVectors(subSample);

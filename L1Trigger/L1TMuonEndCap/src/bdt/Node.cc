@@ -158,8 +158,8 @@ void Node::calcOptimumSplit() {
 
   // Calculate the sum of the target variables and the sum of
   // the target variables squared. We use these later.
-  for (unsigned int i = 0; i < events[0].size(); i++) {
-    double target = events[0][i]->data[0];
+  for (auto& i : events[0]) {
+    double target = i->data[0];
     SUM += target;
     SSUM += target * target;
   }
@@ -241,8 +241,8 @@ void Node::listEvents() {
 
   for (unsigned int i = 0; i < events.size(); i++) {
     std::cout << std::endl << "Variable " << i << " vector contents: " << std::endl;
-    for (unsigned int j = 0; j < events[i].size(); j++) {
-      events[i][j]->outputEvent();
+    for (auto& j : events[i]) {
+      j->outputEvent();
     }
     std::cout << std::endl;
   }

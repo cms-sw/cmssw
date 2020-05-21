@@ -47,10 +47,9 @@ const HcalPulseContainmentCorrection* HcalPulseContainmentManager::get(const Hca
                                                                        float fixedphase_ns) {
   // const HcalPulseShape * shape = &(shapes_.shape(detId));
   const HcalPulseShape* shape = &(shapes_.shapeForReco(detId));
-  for (std::vector<HcalPulseContainmentEntry>::const_iterator entryItr = entries_.begin(); entryItr != entries_.end();
-       ++entryItr) {
-    if (entryItr->shape_ == shape && entryItr->toAdd_ == toAdd && entryItr->fixedphase_ns_ == fixedphase_ns) {
-      return &entryItr->correction_;
+  for (const auto& entrie : entries_) {
+    if (entrie.shape_ == shape && entrie.toAdd_ == toAdd && entrie.fixedphase_ns_ == fixedphase_ns) {
+      return &entrie.correction_;
     }
   }
 

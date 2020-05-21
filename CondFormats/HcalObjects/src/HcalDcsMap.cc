@@ -119,9 +119,9 @@ HcalDcsDetId HcalDcsMap::lookup(HcalDetId fId, HcalDcsDetId::DcsType type) const
 //FIXME: remove duplicates
 std::vector<HcalDcsDetId> HcalDcsMap::allHcalDcsDetId() const {
   std::vector<HcalDcsDetId> result;
-  for (std::vector<Item>::const_iterator item = mItems.begin(); item != mItems.end(); item++)
-    if (item->mDcsId)
-      result.push_back(HcalDcsDetId(item->mDcsId));
+  for (auto mItem : mItems)
+    if (mItem.mDcsId)
+      result.push_back(HcalDcsDetId(mItem.mDcsId));
   return result;
 }
 
@@ -129,11 +129,11 @@ std::vector<HcalDcsDetId> HcalDcsMap::allHcalDcsDetId() const {
 std::vector<HcalGenericDetId> HcalDcsMap::allHcalDetId() const {
   std::vector<HcalGenericDetId> result;
   std::set<unsigned long> allIds;
-  for (std::vector<Item>::const_iterator item = mItems.begin(); item != mItems.end(); item++)
-    if (item->mId)
-      allIds.insert(item->mId);
-  for (std::set<unsigned long>::const_iterator channel = allIds.begin(); channel != allIds.end(); channel++) {
-    result.push_back(HcalGenericDetId(*channel));
+  for (auto mItem : mItems)
+    if (mItem.mId)
+      allIds.insert(mItem.mId);
+  for (unsigned long allId : allIds) {
+    result.push_back(HcalGenericDetId(allId));
   }
   return result;
 }

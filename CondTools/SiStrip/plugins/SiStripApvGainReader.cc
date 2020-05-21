@@ -39,17 +39,17 @@ void SiStripApvGainReader::analyze(const edm::Event& e, const edm::EventSetup& i
   FILE* pFile = nullptr;
   if (!formatedOutput_.empty())
     pFile = fopen(formatedOutput_.c_str(), "w");
-  for (size_t id = 0; id < detid.size(); id++) {
-    SiStripApvGain::Range range = SiStripApvGain_->getRange(detid[id], gainType_);
+  for (unsigned int id : detid) {
+    SiStripApvGain::Range range = SiStripApvGain_->getRange(id, gainType_);
     if (printdebug_) {
       int apv = 0;
       for (int it = 0; it < range.second - range.first; it++) {
-        edm::LogInfo("SiStripApvGainReader") << "detid " << detid[id] << " \t " << apv++ << " \t "
-                                             << SiStripApvGain_->getApvGain(it, range) << std::endl;
+        edm::LogInfo("SiStripApvGainReader")
+            << "detid " << id << " \t " << apv++ << " \t " << SiStripApvGain_->getApvGain(it, range) << std::endl;
         id_++;
 
         if (tree_) {
-          detId_ = detid[id];
+          detId_ = id;
           apvId_ = apv;
           gain_ = SiStripApvGain_->getApvGain(it, range);
           tree_->Fill();
@@ -58,7 +58,7 @@ void SiStripApvGainReader::analyze(const edm::Event& e, const edm::EventSetup& i
     }
 
     if (pFile) {
-      fprintf(pFile, "%i ", detid[id]);
+      fprintf(pFile, "%i ", id);
       for (int it = 0; it < range.second - range.first; it++) {
         fprintf(pFile, "%f ", SiStripApvGain_->getApvGain(it, range));
       }

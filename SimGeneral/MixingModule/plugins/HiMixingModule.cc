@@ -181,16 +181,15 @@ namespace edm {
     if (simtags.size() != gentags.size())
       LogError("MixingInput") << "Generator and Simulation input lists are not matching each other" << endl;
 
-    for (std::vector<string>::iterator it = names.begin(); it != names.end(); ++it) {
-      ParameterSet pstag = ps.getParameter<ParameterSet>((*it));
+    for (auto& name : names) {
+      ParameterSet pstag = ps.getParameter<ParameterSet>(name);
       if (!pstag.exists("type"))
         continue;  //to allow replacement by empty pset
       std::string object = pstag.getParameter<std::string>("type");
       std::vector<InputTag> tags = pstag.getParameter<std::vector<InputTag> >("input");
 
       std::string signal;
-      for (size_t itag = 0; itag < tags.size(); ++itag) {
-        InputTag tag = tags[itag];
+      for (auto tag : tags) {
         std::vector<InputTag> inputs;
 
         for (size_t input = 0; input < simtags.size(); ++input) {
@@ -247,8 +246,8 @@ namespace edm {
   void HiMixingModule::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     using namespace edm;
 
-    for (size_t i = 0; i < workers_.size(); ++i) {
-      (workers_[i])->addSignals(iEvent);
+    for (auto& worker : workers_) {
+      worker->addSignals(iEvent);
     }
 
     std::unique_ptr<PileupMixingContent> PileupMixing_ =
@@ -270,12 +269,10 @@ namespace edm {
     else
       lookfor = "std::vector<" + object + ">";
     bool found = false;
-    for (edm::ProductRegistry::ProductList::const_iterator it = reg->productList().begin();
-         it != reg->productList().end();
-         ++it) {
+    for (const auto& it : reg->productList()) {
       // See FWCore/Framework/interface/BranchDescription.h
       // BranchDescription contains all the information for the product.
-      edm::BranchDescription desc = it->second;
+      edm::BranchDescription desc = it.second;
       if (desc.className() == lookfor && desc.moduleLabel() == tag.label() &&
           desc.productInstanceName() == tag.instance()) {
         label = desc.moduleLabel() + desc.productInstanceName();

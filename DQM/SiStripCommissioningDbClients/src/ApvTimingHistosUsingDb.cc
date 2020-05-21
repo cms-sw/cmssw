@@ -237,15 +237,15 @@ void ApvTimingHistosUsingDb::update(SiStripConfigDb::FedDescriptionsRange feds) 
 
   // Iterate through feds and update fed descriptions
   uint16_t updated = 0;
-  for (auto ifed = feds.begin(); ifed != feds.end(); ++ifed) {
+  for (auto fed : feds) {
     // If FED id not found in list (from cabling), then continue
-    if (find(ids.begin(), ids.end(), (*ifed)->getFedId()) == ids.end()) {
+    if (find(ids.begin(), ids.end(), fed->getFedId()) == ids.end()) {
       continue;
     }
 
     for (uint16_t ichan = 0; ichan < sistrip::FEDCH_PER_FED; ichan++) {
       // Build FED and FEC keys
-      const FedChannelConnection& conn = cabling()->fedConnection((*ifed)->getFedId(), ichan);
+      const FedChannelConnection& conn = cabling()->fedConnection(fed->getFedId(), ichan);
       if (conn.fecCrate() == sistrip::invalid_ || conn.fecSlot() == sistrip::invalid_ ||
           conn.fecRing() == sistrip::invalid_ || conn.ccuAddr() == sistrip::invalid_ ||
           conn.ccuChan() == sistrip::invalid_ || conn.lldChannel() == sistrip::invalid_) {
@@ -267,12 +267,12 @@ void ApvTimingHistosUsingDb::update(SiStripConfigDb::FedDescriptionsRange feds) 
 
         // Update frame finding threshold
         Fed9U::Fed9UAddress addr(ichan);
-        uint16_t old_threshold = static_cast<uint16_t>((*ifed)->getFrameThreshold(addr));
+        uint16_t old_threshold = static_cast<uint16_t>(fed->getFrameThreshold(addr));
         if (anal->isValid()) {
-          (*ifed)->setFrameThreshold(addr, anal->frameFindingThreshold());
+          fed->setFrameThreshold(addr, anal->frameFindingThreshold());
           updated++;
         }
-        uint16_t new_threshold = static_cast<uint16_t>((*ifed)->getFrameThreshold(addr));
+        uint16_t new_threshold = static_cast<uint16_t>(fed->getFrameThreshold(addr));
 
         // Debug
         std::stringstream ss;

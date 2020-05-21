@@ -99,8 +99,8 @@ AlignmentGlobalTrackSelector::Tracks AlignmentGlobalTrackSelector::findMuons(con
   iEvent.getByToken(theMuonToken, muons);
 
   if (muons.isValid()) {
-    for (reco::MuonCollection::const_iterator itMuon = muons->begin(); itMuon != muons->end(); ++itMuon) {
-      const reco::Track* muonTrack = (*itMuon).get<reco::TrackRef>().get();
+    for (const auto& itMuon : *muons) {
+      const reco::Track* muonTrack = itMuon.get<reco::TrackRef>().get();
       if (!muonTrack) {
         LogDebug("Alignment") << "@SUB=AlignmentGlobalTrackSelector::findMuons"
                               << "Found muon without track: Standalone Muon!";
@@ -131,13 +131,13 @@ AlignmentGlobalTrackSelector::Tracks AlignmentGlobalTrackSelector::checkIsolatio
   iEvent.getByToken(theJetIsoToken, jets);
 
   if (jets.isValid()) {
-    for (Tracks::const_iterator it = cands.begin(); it != cands.end(); ++it) {
+    for (auto cand : cands) {
       bool isolated = true;
-      for (reco::CaloJetCollection::const_iterator itJet = jets->begin(); itJet != jets->end(); ++itJet)
-        isolated &= !((*itJet).pt() > theMaxJetPt && deltaR(*(*it), (*itJet)) < theMinJetDeltaR);
+      for (const auto& itJet : *jets)
+        isolated &= !(itJet.pt() > theMaxJetPt && deltaR(*cand, itJet) < theMinJetDeltaR);
 
       if (isolated)
-        result.push_back(*it);
+        result.push_back(cand);
     }
     //    LogDebug("Alignment") << "D  Found "<<result.size()<<" isolated of "<< cands.size()<<" Tracks!";
 
@@ -162,8 +162,8 @@ AlignmentGlobalTrackSelector::Tracks AlignmentGlobalTrackSelector::checkJetCount
 
   if (jets.isValid()) {
     int jetCount = 0;
-    for (reco::CaloJetCollection::const_iterator itJet = jets->begin(); itJet != jets->end(); ++itJet) {
-      if ((*itJet).pt() > theMinJetPt)
+    for (const auto& itJet : *jets) {
+      if (itJet.pt() > theMinJetPt)
         jetCount++;
     }
 
@@ -184,13 +184,13 @@ AlignmentGlobalTrackSelector::Tracks AlignmentGlobalTrackSelector::checkJetCount
 AlignmentGlobalTrackSelector::Tracks AlignmentGlobalTrackSelector::matchTracks(const Tracks& src,
                                                                                const Tracks& comp) const {
   Tracks result;
-  for (Tracks::const_iterator itComp = comp.begin(); itComp != comp.end(); ++itComp) {
+  for (auto itComp : comp) {
     int match = -1;
     double min = theMaxTrackDeltaR;
     for (unsigned int i = 0; i < src.size(); i++) {
       // LogDebug("Alignment") << "> Trackmatch dist: "<<deltaR(src.at(i),*itComp);
-      if (min > deltaR(*(src.at(i)), *(*itComp))) {
-        min = deltaR(*(src.at(i)), *(*itComp));
+      if (min > deltaR(*(src.at(i)), *itComp)) {
+        min = deltaR(*(src.at(i)), *itComp);
         match = static_cast<int>(i);
       }
     }

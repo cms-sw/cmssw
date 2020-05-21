@@ -323,12 +323,12 @@ namespace hitfit {
   //
   {
     Fourvec out;
-    for (std::vector<Lepjets_Event_Lep>::size_type i = 0; i < _leps.size(); i++)
-      if (_leps[i].type() == type)
-        out += _leps[i].p();
-    for (std::vector<Lepjets_Event_Jet>::size_type i = 0; i < _jets.size(); i++)
-      if (_jets[i].type() == type)
-        out += _jets[i].p();
+    for (const auto& _lep : _leps)
+      if (_lep.type() == type)
+        out += _lep.p();
+    for (const auto& _jet : _jets)
+      if (_jet.type() == type)
+        out += _jet.p();
     return out;
   }
 
@@ -340,10 +340,10 @@ namespace hitfit {
   //   The event kt.
   {
     Fourvec v = _met;
-    for (std::vector<Lepjets_Event_Lep>::size_type i = 0; i < _leps.size(); i++)
-      v += _leps[i].p();
-    for (std::vector<Lepjets_Event_Jet>::size_type i = 0; i < _jets.size(); i++)
-      v += _jets[i].p();
+    for (const auto& _lep : _leps)
+      v += _lep.p();
+    for (const auto& _jet : _jets)
+      v += _jet.p();
     return v;
   }
 
@@ -379,15 +379,15 @@ namespace hitfit {
   //
   {
     Fourvec before, after;
-    for (std::vector<Lepjets_Event_Lep>::size_type i = 0; i < _leps.size(); i++) {
-      before += _leps[i].p();
-      _leps[i].smear(engine, smear_dir);
-      after += _leps[i].p();
+    for (auto& _lep : _leps) {
+      before += _lep.p();
+      _lep.smear(engine, smear_dir);
+      after += _lep.p();
     }
-    for (std::vector<Lepjets_Event_Jet>::size_type i = 0; i < _jets.size(); i++) {
-      before += _jets[i].p();
-      _jets[i].smear(engine, smear_dir);
-      after += _jets[i].p();
+    for (auto& _jet : _jets) {
+      before += _jet.p();
+      _jet.smear(engine, smear_dir);
+      after += _jet.p();
     }
 
     Fourvec kt = _met + before;
@@ -521,15 +521,15 @@ namespace hitfit {
   {
     s << "Run: " << _runnum << "  Event: " << _evnum << "\n";
     s << "Leptons:\n";
-    for (std::vector<Lepjets_Event_Lep>::size_type i = 0; i < _leps.size(); i++) {
+    for (const auto& _lep : _leps) {
       s << "  ";
-      _leps[i].dump(s, full);
+      _lep.dump(s, full);
       s << "\n";
     }
     s << "Jets:\n";
-    for (std::vector<Lepjets_Event_Jet>::size_type i = 0; i < _jets.size(); i++) {
+    for (const auto& _jet : _jets) {
       s << "  ";
-      _jets[i].dump(s, full);
+      _jet.dump(s, full);
       s << "\n";
     }
     s << "Missing Et: " << _met << "\n";

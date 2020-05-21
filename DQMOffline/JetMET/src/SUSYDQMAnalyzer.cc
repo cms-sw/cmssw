@@ -151,13 +151,13 @@ void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     return;
 
   std::vector<math::XYZTLorentzVector> Ps;
-  for (reco::CaloJetCollection::const_iterator jet = CaloJetcoll->begin(); jet != CaloJetcoll->end(); ++jet) {
-    if ((jet->pt() > _ptThreshold) && (abs(jet->eta()) < _maxAbsEta)) {
+  for (const auto& jet : *CaloJetcoll) {
+    if ((jet.pt() > _ptThreshold) && (abs(jet.eta()) < _maxAbsEta)) {
       if (Ps.size() > _maxNJets) {
         edm::LogInfo(messageLoggerCatregory) << "NMax Jets exceded..";
         break;
       }
-      Ps.push_back(jet->p4());
+      Ps.push_back(jet.p4());
     }
   }
 
@@ -179,13 +179,13 @@ void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     return;
 
   Ps.clear();
-  for (reco::PFJetCollection::const_iterator jet = PFjetcoll->begin(); jet != PFjetcoll->end(); ++jet) {
-    if ((jet->pt() > _ptThreshold) && (abs(jet->eta()) < _maxAbsEta)) {
+  for (const auto& jet : *PFjetcoll) {
+    if ((jet.pt() > _ptThreshold) && (abs(jet.eta()) < _maxAbsEta)) {
       if (Ps.size() > _maxNJets) {
         edm::LogInfo(messageLoggerCatregory) << "NMax Jets exceded..";
         break;
       }
-      Ps.push_back(jet->p4());
+      Ps.push_back(jet.p4());
     }
   }
   hPFAlpha_T->Fill(alpha_T()(Ps));

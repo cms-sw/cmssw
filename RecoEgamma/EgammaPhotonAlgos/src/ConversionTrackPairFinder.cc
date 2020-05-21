@@ -44,19 +44,19 @@ ConversionTrackPairFinder::run(const std::vector<reco::TransientTrack>& outInTrk
   bool noTrack = false;
 
   int iTrk = 0;
-  for (std::vector<reco::TransientTrack>::const_iterator iTk = outInTrk.begin(); iTk != outInTrk.end(); iTk++) {
+  for (const auto& iTk : outInTrk) {
     edm::Ref<reco::TrackCollection> trackRef(outInTrkHandle, iTrk);
     iTrk++;
 
-    if (iTk->numberOfValidHits() < 3 || iTk->normalizedChi2() > 5000)
+    if (iTk.numberOfValidHits() < 3 || iTk.normalizedChi2() > 5000)
       continue;
-    if (fabs(iTk->impactPointState().globalPosition().x()) > 110 ||
-        fabs(iTk->impactPointState().globalPosition().y()) > 110 ||
-        fabs(iTk->impactPointState().globalPosition().z()) > 280)
+    if (fabs(iTk.impactPointState().globalPosition().x()) > 110 ||
+        fabs(iTk.impactPointState().globalPosition().y()) > 110 ||
+        fabs(iTk.impactPointState().globalPosition().z()) > 280)
       continue;
 
     //    std::cout  << " Out In Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner pt  " << sqrt(iTk->track().innerMomentum().perp2()) << "\n";
-    const reco::TrackTransientTrack* ttt = dynamic_cast<const reco::TrackTransientTrack*>(iTk->basicTransientTrack());
+    const reco::TrackTransientTrack* ttt = dynamic_cast<const reco::TrackTransientTrack*>(iTk.basicTransientTrack());
     reco::TrackRef myTkRef = ttt->persistentTrackRef();
     //std::cout <<  " ConversionTrackPairFinder persistent track ref hits " << myTkRef->recHitsSize() << " inner pt  " << sqrt(iTk->track().innerMomentum().perp2()) << "\n";
     //    std::cout <<  " ConversionTrackPairFinder track from handle hits " << trackRef->recHitsSize() << " inner pt  " << sqrt(iTk->track().innerMomentum().perp2()) << "\n";
@@ -66,27 +66,27 @@ ConversionTrackPairFinder::run(const std::vector<reco::TransientTrack>& outInTrk
     //    std::cout << "ConversionTrackPairFinder  Reading the OutIn Map  " << *outInTrackSCAss[trackRef] <<  " " << &outInTrackSCAss[trackRef] <<  std::endl;
     //    std::cout << "ConversionTrackPairFinder  Out In track belonging to SC with energy " << aClus->energy() << "\n";
 
-    int nHits = iTk->recHitsSize();
-    scTrkAssocMap[*iTk] = aClus;
-    auxMap.insert(std::pair<int, reco::TransientTrack>(nHits, (*iTk)));
-    selectedOutInTk.push_back(*iTk);
-    allSelectedTk.push_back(*iTk);
+    int nHits = iTk.recHitsSize();
+    scTrkAssocMap[iTk] = aClus;
+    auxMap.insert(std::pair<int, reco::TransientTrack>(nHits, iTk));
+    selectedOutInTk.push_back(iTk);
+    allSelectedTk.push_back(iTk);
   }
 
   iTrk = 0;
-  for (std::vector<reco::TransientTrack>::const_iterator iTk = inOutTrk.begin(); iTk != inOutTrk.end(); iTk++) {
+  for (const auto& iTk : inOutTrk) {
     edm::Ref<reco::TrackCollection> trackRef(inOutTrkHandle, iTrk);
     iTrk++;
 
-    if (iTk->numberOfValidHits() < 3 || iTk->normalizedChi2() > 5000)
+    if (iTk.numberOfValidHits() < 3 || iTk.normalizedChi2() > 5000)
       continue;
-    if (fabs(iTk->impactPointState().globalPosition().x()) > 110 ||
-        fabs(iTk->impactPointState().globalPosition().y()) > 110 ||
-        fabs(iTk->impactPointState().globalPosition().z()) > 280)
+    if (fabs(iTk.impactPointState().globalPosition().x()) > 110 ||
+        fabs(iTk.impactPointState().globalPosition().y()) > 110 ||
+        fabs(iTk.impactPointState().globalPosition().z()) > 280)
       continue;
 
     //    std::cout << " In Out Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner pt  " << sqrt(iTk->track().innerMomentum().perp2()) << "\n";
-    const reco::TrackTransientTrack* ttt = dynamic_cast<const reco::TrackTransientTrack*>(iTk->basicTransientTrack());
+    const reco::TrackTransientTrack* ttt = dynamic_cast<const reco::TrackTransientTrack*>(iTk.basicTransientTrack());
     reco::TrackRef myTkRef = ttt->persistentTrackRef();
     // std::cout <<  " ConversionTrackPairFinder persistent track ref hits " << myTkRef->recHitsSize() << " inner pt  " << sqrt(iTk->track().innerMomentum().perp2()) << "\n";
     //    std::cout <<  " ConversionTrackPairFinder track from handle hits " << trackRef->recHitsSize() << " inner pt  " << sqrt(iTk->track().innerMomentum().perp2()) << "\n";
@@ -96,11 +96,11 @@ ConversionTrackPairFinder::run(const std::vector<reco::TransientTrack>& outInTrk
     //    std::cout << "ConversionTrackPairFinder  Filling the InOut Map  " << &(*inOutTrackSCAss[trackRef]) << " " << &inOutTrackSCAss[trackRef] <<  std::endl;
     // std::cout << "ConversionTrackPairFinder  In Out  track belonging to SC with energy " << aClus.energy() << "\n";
 
-    scTrkAssocMap[*iTk] = aClus;
-    int nHits = iTk->recHitsSize();
-    auxMap.insert(std::pair<int, reco::TransientTrack>(nHits, (*iTk)));
-    selectedInOutTk.push_back(*iTk);
-    allSelectedTk.push_back(*iTk);
+    scTrkAssocMap[iTk] = aClus;
+    int nHits = iTk.recHitsSize();
+    auxMap.insert(std::pair<int, reco::TransientTrack>(nHits, iTk));
+    selectedInOutTk.push_back(iTk);
+    allSelectedTk.push_back(iTk);
   }
 
   //  std::cout << " ConversionTrackPairFinder allSelectedTk size " << allSelectedTk.size() << "  scTrkAssocMap  size " <<  scTrkAssocMap.size() << "\n";

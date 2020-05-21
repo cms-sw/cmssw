@@ -11,9 +11,8 @@
 
 GeometryConfiguration::GeometryConfiguration(const edm::ParameterSet& pset) : dummyLocation_("") {
   relFiles_ = pset.getParameter<std::vector<std::string> >("geomXMLFiles");
-  for (std::vector<std::string>::const_iterator rit = relFiles_.begin(), ritEnd = relFiles_.end(); rit != ritEnd;
-       ++rit) {
-    edm::FileInPath fp(*rit);
+  for (const auto& relFile : relFiles_) {
+    edm::FileInPath fp(relFile);
     files_.emplace_back(fp.fullPath());
     emptyStrings_.emplace_back("");
   }

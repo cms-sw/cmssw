@@ -80,48 +80,48 @@ namespace edmtest {
 
       AlignPCLThresholds::threshold_map m_thresholds = thresholds->getThreshold_Map();
 
-      for (auto it = m_thresholds.begin(); it != m_thresholds.end(); ++it) {
+      for (auto& m_threshold : m_thresholds) {
         fprintf(pFile,
                 " ====================================================================================================="
                 "============== \n");
-        fprintf(pFile, "key : %s \n ", (it->first).c_str());
-        fprintf(pFile, "- Xcut             : %8.3f   um   ", (it->second).getXcut());
-        fprintf(pFile, "| sigXcut          : %8.3f        ", (it->second).getSigXcut());
-        fprintf(pFile, "| maxMoveXcut      : %8.3f   um   ", (it->second).getMaxMoveXcut());
-        fprintf(pFile, "| ErrorXcut        : %8.3f   um\n ", (it->second).getErrorXcut());
+        fprintf(pFile, "key : %s \n ", (m_threshold.first).c_str());
+        fprintf(pFile, "- Xcut             : %8.3f   um   ", (m_threshold.second).getXcut());
+        fprintf(pFile, "| sigXcut          : %8.3f        ", (m_threshold.second).getSigXcut());
+        fprintf(pFile, "| maxMoveXcut      : %8.3f   um   ", (m_threshold.second).getMaxMoveXcut());
+        fprintf(pFile, "| ErrorXcut        : %8.3f   um\n ", (m_threshold.second).getErrorXcut());
 
-        fprintf(pFile, "- thetaXcut        : %8.3f urad   ", (it->second).getThetaXcut());
-        fprintf(pFile, "| sigThetaXcut     : %8.3f        ", (it->second).getSigThetaXcut());
-        fprintf(pFile, "| maxMoveThetaXcut : %8.3f urad   ", (it->second).getMaxMoveThetaXcut());
-        fprintf(pFile, "| ErrorThetaXcut   : %8.3f urad\n ", (it->second).getErrorThetaXcut());
+        fprintf(pFile, "- thetaXcut        : %8.3f urad   ", (m_threshold.second).getThetaXcut());
+        fprintf(pFile, "| sigThetaXcut     : %8.3f        ", (m_threshold.second).getSigThetaXcut());
+        fprintf(pFile, "| maxMoveThetaXcut : %8.3f urad   ", (m_threshold.second).getMaxMoveThetaXcut());
+        fprintf(pFile, "| ErrorThetaXcut   : %8.3f urad\n ", (m_threshold.second).getErrorThetaXcut());
 
-        fprintf(pFile, "- Ycut             : %8.3f   um   ", (it->second).getYcut());
-        fprintf(pFile, "| sigYcut          : %8.3f        ", (it->second).getSigXcut());
-        fprintf(pFile, "| maxMoveYcut      : %8.3f   um   ", (it->second).getMaxMoveYcut());
-        fprintf(pFile, "| ErrorYcut        : %8.3f   um\n ", (it->second).getErrorYcut());
+        fprintf(pFile, "- Ycut             : %8.3f   um   ", (m_threshold.second).getYcut());
+        fprintf(pFile, "| sigYcut          : %8.3f        ", (m_threshold.second).getSigXcut());
+        fprintf(pFile, "| maxMoveYcut      : %8.3f   um   ", (m_threshold.second).getMaxMoveYcut());
+        fprintf(pFile, "| ErrorYcut        : %8.3f   um\n ", (m_threshold.second).getErrorYcut());
 
-        fprintf(pFile, "- thetaYcut        : %8.3f urad   ", (it->second).getThetaYcut());
-        fprintf(pFile, "| sigThetaYcut     : %8.3f        ", (it->second).getSigThetaYcut());
-        fprintf(pFile, "| maxMoveThetaYcut : %8.3f urad   ", (it->second).getMaxMoveThetaYcut());
-        fprintf(pFile, "| ErrorThetaYcut   : %8.3f urad\n ", (it->second).getErrorThetaYcut());
+        fprintf(pFile, "- thetaYcut        : %8.3f urad   ", (m_threshold.second).getThetaYcut());
+        fprintf(pFile, "| sigThetaYcut     : %8.3f        ", (m_threshold.second).getSigThetaYcut());
+        fprintf(pFile, "| maxMoveThetaYcut : %8.3f urad   ", (m_threshold.second).getMaxMoveThetaYcut());
+        fprintf(pFile, "| ErrorThetaYcut   : %8.3f urad\n ", (m_threshold.second).getErrorThetaYcut());
 
-        fprintf(pFile, "- Zcut             : %8.3f   um   ", (it->second).getZcut());
-        fprintf(pFile, "| sigZcut          : %8.3f        ", (it->second).getSigZcut());
-        fprintf(pFile, "| maxMoveZcut      : %8.3f   um   ", (it->second).getMaxMoveZcut());
-        fprintf(pFile, "| ErrorZcut        : %8.3f   um\n ", (it->second).getErrorZcut());
+        fprintf(pFile, "- Zcut             : %8.3f   um   ", (m_threshold.second).getZcut());
+        fprintf(pFile, "| sigZcut          : %8.3f        ", (m_threshold.second).getSigZcut());
+        fprintf(pFile, "| maxMoveZcut      : %8.3f   um   ", (m_threshold.second).getMaxMoveZcut());
+        fprintf(pFile, "| ErrorZcut        : %8.3f   um\n ", (m_threshold.second).getErrorZcut());
 
-        fprintf(pFile, "- thetaZcut        : %8.3f urad   ", (it->second).getThetaZcut());
-        fprintf(pFile, "| sigThetaZcut     : %8.3f        ", (it->second).getSigThetaZcut());
-        fprintf(pFile, "| maxMoveThetaZcut : %8.3f urad   ", (it->second).getMaxMoveThetaZcut());
-        fprintf(pFile, "| ErrorThetaZcut   : %8.3f urad\n ", (it->second).getErrorThetaZcut());
+        fprintf(pFile, "- thetaZcut        : %8.3f urad   ", (m_threshold.second).getThetaZcut());
+        fprintf(pFile, "| sigThetaZcut     : %8.3f        ", (m_threshold.second).getSigThetaZcut());
+        fprintf(pFile, "| maxMoveThetaZcut : %8.3f urad   ", (m_threshold.second).getMaxMoveThetaZcut());
+        fprintf(pFile, "| ErrorThetaZcut   : %8.3f urad\n ", (m_threshold.second).getErrorThetaZcut());
 
-        if ((it->second).hasExtraDOF()) {
-          for (unsigned int j = 0; j < (it->second).extraDOFSize(); j++) {
-            std::array<float, 4> extraDOFCuts = thresholds->getExtraDOFCutsForAlignable(it->first, j);
+        if ((m_threshold.second).hasExtraDOF()) {
+          for (unsigned int j = 0; j < (m_threshold.second).extraDOFSize(); j++) {
+            std::array<float, 4> extraDOFCuts = thresholds->getExtraDOFCutsForAlignable(m_threshold.first, j);
             fprintf(pFile,
                     "Extra DOF: %i with label %s \n ",
                     j,
-                    thresholds->getExtraDOFLabelForAlignable(it->first, j).c_str());
+                    thresholds->getExtraDOFLabelForAlignable(m_threshold.first, j).c_str());
             fprintf(pFile, "- cut              : %8.3f        ", extraDOFCuts.at(0));
             fprintf(pFile, "| sigCut           : %8.3f        ", extraDOFCuts.at(1));
             fprintf(pFile, "| maxMoveCut       : %8.3f        ", extraDOFCuts.at(2));

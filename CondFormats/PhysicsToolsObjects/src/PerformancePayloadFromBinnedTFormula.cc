@@ -9,11 +9,11 @@ const int PerformancePayloadFromBinnedTFormula::InvalidPos = -1;
 using namespace std;
 
 void PerformancePayloadFromBinnedTFormula::initialize() {
-  for (unsigned int t = 0; t < pls.size(); ++t) {
+  for (auto& pl : pls) {
     std::vector<std::shared_ptr<TFormula> > temp;
-    for (unsigned int i = 0; i < (pls[t].formulas()).size(); ++i) {
+    for (unsigned int i = 0; i < (pl.formulas()).size(); ++i) {
       const auto formulaUniqueName = edm::createGlobalIdentifier();
-      PhysicsTFormulaPayload tmp = pls[t];
+      PhysicsTFormulaPayload tmp = pl;
       std::shared_ptr<TFormula> tt(new TFormula(formulaUniqueName.c_str(), tmp.formulas()[i].c_str()));
       tt->Compile();
       temp.push_back(tt);
@@ -81,14 +81,14 @@ bool PerformancePayloadFromBinnedTFormula::isOk(const BinningPointByMap& _p, uns
   for (unsigned int ti = 0; ti < pls.size(); ++ti) {
     bool result = true;
     std::vector<BinningVariables::BinningVariablesType> t = myBinning();
-    for (std::vector<BinningVariables::BinningVariablesType>::const_iterator it = t.begin(); it != t.end(); ++it) {
+    for (auto it : t) {
       //
       // now looking into a single payload
       //
-      if (!p.isKeyAvailable(*it))
+      if (!p.isKeyAvailable(it))
         return false;
-      float v = p.value(*it);
-      int pos = limitPos(*it);
+      float v = p.value(it);
+      int pos = limitPos(it);
       std::pair<float, float> limits = (pls[ti].limits())[pos];
       if (v < limits.first || v > limits.second)
         result = false;
@@ -131,10 +131,10 @@ void PerformancePayloadFromBinnedTFormula::printFormula(PerformanceResult::Resul
   //
   std::vector<BinningVariables::BinningVariablesType> t = myBinning();
 
-  for (std::vector<BinningVariables::BinningVariablesType>::const_iterator it = t.begin(); it != t.end(); ++it) {
-    int pos = limitPos(*it);
+  for (auto it : t) {
+    int pos = limitPos(it);
     std::pair<float, float> limits = (pls[whichone].limits())[pos];
-    cout << "      Variable: " << *it << " with limits: "
+    cout << "      Variable: " << it << " with limits: "
          << "from: " << limits.first << " to: " << limits.second << endl;
   }
 }

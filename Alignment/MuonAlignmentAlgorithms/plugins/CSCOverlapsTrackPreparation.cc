@@ -125,7 +125,7 @@ void CSCOverlapsTrackPreparation::produce(edm::Event& iEvent, const edm::EventSe
   edm::Ref<std::vector<Trajectory>>::key_type trajCounter = 0;
   edm::Ref<reco::TrackCollection>::key_type trackCounter = 0;
 
-  for (reco::TrackCollection::const_iterator track = tracks->begin(); track != tracks->end(); ++track) {
+  for (const auto& track : *tracks) {
     trackCounter++;
 
     // now we'll actually put hits on the new trajectory
@@ -134,7 +134,7 @@ void CSCOverlapsTrackPreparation::produce(edm::Event& iEvent, const edm::EventSe
     std::vector<TrajectoryMeasurement::ConstRecHitPointer> transHits;
     std::vector<TrajectoryStateOnSurface> TSOSes;
 
-    for (auto const& hit : track->recHits()) {
+    for (auto const& hit : track.recHits()) {
       DetId id = hit->geographicalId();
       if (id.det() == DetId::Muon && id.subdetId() == MuonSubdetId::CSC) {
         const Surface& layerSurface = cscGeometry->idToDet(id)->surface();

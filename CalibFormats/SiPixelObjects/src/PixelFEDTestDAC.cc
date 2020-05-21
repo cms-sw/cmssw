@@ -47,16 +47,16 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::vector<std::vector<std::string> > &tableMa
   colNames.push_back("CALIB_OBJ_DATA_CLOB");
 
   for (unsigned int c = 0; c < tableMat[0].size(); c++) {
-    for (unsigned int n = 0; n < colNames.size(); n++) {
-      if (tableMat[0][c] == colNames[n]) {
-        colM[colNames[n]] = c;
+    for (const auto &colName : colNames) {
+      if (tableMat[0][c] == colName) {
+        colM[colName] = c;
         break;
       }
     }
   }  //end for
-  for (unsigned int n = 0; n < colNames.size(); n++) {
-    if (colM.find(colNames[n]) == colM.end()) {
-      std::cerr << __LINE__ << "]\t" << mthn << "Couldn't find in the database the column with name " << colNames[n]
+  for (const auto &colName : colNames) {
+    if (colM.find(colName) == colM.end()) {
+      std::cerr << __LINE__ << "]\t" << mthn << "Couldn't find in the database the column with name " << colName
                 << std::endl;
       assert(0);
     }
@@ -66,8 +66,8 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::vector<std::vector<std::string> > &tableMa
   fin.str(tableMat[1][colM["CALIB_OBJ_DATA_CLOB"]]);
 
   // Initialise the pulseTrain to offset+black
-  for (unsigned int i = 0; i < pulseTrain.size(); ++i) {
-    pulseTrain[i] = offset + B;
+  for (unsigned int &i : pulseTrain) {
+    i = offset + B;
   }
 
   i = start;
@@ -228,8 +228,8 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::string filename) {
   int i;
 
   // Initialise the pulseTrain to offset+black
-  for (unsigned int i = 0; i < pulseTrain.size(); ++i) {
-    pulseTrain[i] = offset + B;
+  for (unsigned int &i : pulseTrain) {
+    i = offset + B;
   }
 
   ifstream fin(filename.c_str());

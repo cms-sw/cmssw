@@ -110,12 +110,12 @@ void SoftKillerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   // To satisfy the value map, the size of the "killed" collection needs to be the
   // same size as the input collection, so if the constituent is killed, just set E = 0
-  for (auto j = fjInputs.begin(), jend = fjInputs.end(); j != jend; ++j) {
-    const reco::Candidate& cand = pfCandidates->at(j->user_index());
+  for (auto& fjInput : fjInputs) {
+    const reco::Candidate& cand = pfCandidates->at(fjInput.user_index());
     auto id = dummySinceTranslateIsNotStatic.translatePdgIdToType(cand.pdgId());
     const reco::PFCandidate* pPF = dynamic_cast<const reco::PFCandidate*>(&cand);
     reco::PFCandidate pCand(pPF ? *pPF : reco::PFCandidate(cand.charge(), cand.p4(), id));
-    auto val = j->user_index();
+    auto val = fjInput.user_index();
     auto skmatch = find_if(soft_killed_event.begin(), soft_killed_event.end(), [&val](fastjet::PseudoJet const& i) {
       return i.user_index() == val;
     });

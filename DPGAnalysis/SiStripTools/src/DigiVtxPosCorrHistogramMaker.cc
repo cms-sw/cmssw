@@ -36,9 +36,9 @@ DigiVtxPosCorrHistogramMaker::DigiVtxPosCorrHistogramMaker(const edm::ParameterS
   std::vector<edm::ParameterSet> wantedsubds(iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >(
       "wantedSubDets", std::vector<edm::ParameterSet>()));
 
-  for (std::vector<edm::ParameterSet>::iterator ps = wantedsubds.begin(); ps != wantedsubds.end(); ++ps) {
-    m_labels[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<std::string>("detLabel");
-    m_binmax[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<int>("binMax");
+  for (auto& wantedsubd : wantedsubds) {
+    m_labels[wantedsubd.getParameter<unsigned int>("detSelection")] = wantedsubd.getParameter<std::string>("detLabel");
+    m_binmax[wantedsubd.getParameter<unsigned int>("detSelection")] = wantedsubd.getParameter<int>("binMax");
   }
 }
 
@@ -119,11 +119,11 @@ void DigiVtxPosCorrHistogramMaker::fill(const edm::Event& iEvent, const std::map
     if (Evt->vertices_begin() != Evt->vertices_end()) {
       double vtxz = (*Evt->vertices_begin())->point3d().z() / 10.;
 
-      for (std::map<unsigned int, int>::const_iterator digi = ndigi.begin(); digi != ndigi.end(); digi++) {
-        if (m_labels.find(digi->first) != m_labels.end()) {
-          const unsigned int i = digi->first;
-          m_nmultvsvtxpos[i]->Fill(vtxz, digi->second);
-          m_nmultvsvtxposprof[i]->Fill(vtxz, digi->second);
+      for (auto digi : ndigi) {
+        if (m_labels.find(digi.first) != m_labels.end()) {
+          const unsigned int i = digi.first;
+          m_nmultvsvtxpos[i]->Fill(vtxz, digi.second);
+          m_nmultvsvtxposprof[i]->Fill(vtxz, digi.second);
         }
       }
     }

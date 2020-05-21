@@ -92,8 +92,8 @@ namespace cscdqm {
               std::string id(XMLString::transcode(el->getAttribute(XMLString::transcode(XML_BOOK_DEFINITION_REF))));
 
               CoHistoProps d = definitions[id];
-              for (CoHistoProps::iterator it = d.begin(); it != d.end(); it++) {
-                hp[it->first] = it->second;
+              for (auto& it : d) {
+                hp[it.first] = it.second;
               }
             }
 
@@ -306,13 +306,13 @@ namespace cscdqm {
     CoHistoMap::const_iterator i = collection.find("EMU");
     if (i != collection.end()) {
       const CoHisto hs = i->second;
-      for (CoHisto::const_iterator j = hs.begin(); j != hs.end(); j++) {
+      for (const auto& h : hs) {
         std::string s = "";
-        if (getHistoValue(j->second, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_FALSE) {
+        if (getHistoValue(h.second, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_FALSE) {
           HistoId hid = 0;
-          if (HistoDef::getHistoIdByName(j->first, hid)) {
+          if (HistoDef::getHistoIdByName(h.first, hid)) {
             EMUHistoDef hdef(hid);
-            book(hdef, j->second, config->getFOLDER_EMU());
+            book(hdef, h.second, config->getFOLDER_EMU());
           }
         }
       }
@@ -328,13 +328,13 @@ namespace cscdqm {
     CoHistoMap::const_iterator i = collection.find("FED");
     if (i != collection.end()) {
       const CoHisto hs = i->second;
-      for (CoHisto::const_iterator j = hs.begin(); j != hs.end(); j++) {
+      for (const auto& h : hs) {
         std::string s = "";
-        if (getHistoValue(j->second, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_FALSE) {
+        if (getHistoValue(h.second, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_FALSE) {
           HistoId hid = 0;
-          if (HistoDef::getHistoIdByName(j->first, hid)) {
+          if (HistoDef::getHistoIdByName(h.first, hid)) {
             FEDHistoDef hdef(hid, fedId);
-            book(hdef, j->second, config->getFOLDER_FED());
+            book(hdef, h.second, config->getFOLDER_FED());
           }
         }
       }
@@ -350,13 +350,13 @@ namespace cscdqm {
     CoHistoMap::const_iterator i = collection.find("DDU");
     if (i != collection.end()) {
       const CoHisto hs = i->second;
-      for (CoHisto::const_iterator j = hs.begin(); j != hs.end(); j++) {
+      for (const auto& h : hs) {
         std::string s = "";
-        if (getHistoValue(j->second, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_FALSE) {
+        if (getHistoValue(h.second, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_FALSE) {
           HistoId hid = 0;
-          if (HistoDef::getHistoIdByName(j->first, hid)) {
+          if (HistoDef::getHistoIdByName(h.first, hid)) {
             DDUHistoDef hdef(hid, dduId);
-            book(hdef, j->second, config->getFOLDER_DDU());
+            book(hdef, h.second, config->getFOLDER_DDU());
           }
         }
       }
@@ -373,20 +373,20 @@ namespace cscdqm {
     CoHistoMap::const_iterator i = collection.find("CSC");
     if (i != collection.end()) {
       const CoHisto hs = i->second;
-      for (CoHisto::const_iterator j = hs.begin(); j != hs.end(); j++) {
+      for (const auto& h : hs) {
         std::string s = "";
         HistoId hid = 0;
-        if (HistoDef::getHistoIdByName(j->first, hid)) {
-          if (getHistoValue(j->second, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_FALSE) {
+        if (HistoDef::getHistoIdByName(h.first, hid)) {
+          if (getHistoValue(h.second, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_FALSE) {
             CSCHistoDef hdef(hid, crateId, dmbId);
-            book(hdef, j->second, config->getFOLDER_CSC());
+            book(hdef, h.second, config->getFOLDER_CSC());
           } else {
             int from = 0, to = 0;
-            if (checkHistoValue(j->second, XML_BOOK_NAME_FROM, from) &&
-                checkHistoValue(j->second, XML_BOOK_NAME_TO, to)) {
+            if (checkHistoValue(h.second, XML_BOOK_NAME_FROM, from) &&
+                checkHistoValue(h.second, XML_BOOK_NAME_TO, to)) {
               for (int k = from; k <= to; k++) {
                 CSCHistoDef hdef(hid, crateId, dmbId, k);
-                book(hdef, j->second, config->getFOLDER_CSC());
+                book(hdef, h.second, config->getFOLDER_CSC());
               }
             }
           }
@@ -553,16 +553,16 @@ namespace cscdqm {
         std::map<int, std::string> labels;
         ParseAxisLabels(s, labels);
         th->GetXaxis()->SetNoAlphanumeric();  // For ROOT6 to prevent getting zero means values
-        for (std::map<int, std::string>::iterator l_itr = labels.begin(); l_itr != labels.end(); ++l_itr) {
-          th->GetXaxis()->SetBinLabel(l_itr->first, l_itr->second.c_str());
+        for (auto& label : labels) {
+          th->GetXaxis()->SetBinLabel(label.first, label.second.c_str());
         }
       }
       if (checkHistoValue(p, "SetYLabels", s)) {
         std::map<int, std::string> labels;
         ParseAxisLabels(s, labels);
         th->GetYaxis()->SetNoAlphanumeric();  // For ROOT6 to prevent getting zero means values
-        for (std::map<int, std::string>::iterator l_itr = labels.begin(); l_itr != labels.end(); ++l_itr) {
-          th->GetYaxis()->SetBinLabel(l_itr->first, l_itr->second.c_str());
+        for (auto& label : labels) {
+          th->GetYaxis()->SetBinLabel(label.first, label.second.c_str());
         }
       }
       if (checkHistoValue(p, "LabelOption", s)) {
@@ -641,12 +641,12 @@ namespace cscdqm {
   */
   void Collection::printCollection() const {
     std::ostringstream buffer;
-    for (CoHistoMap::const_iterator hdmi = collection.begin(); hdmi != collection.end(); hdmi++) {
-      buffer << hdmi->first << " [" << std::endl;
-      for (CoHisto::const_iterator hdi = hdmi->second.begin(); hdi != hdmi->second.end(); hdi++) {
+    for (const auto& hdmi : collection) {
+      buffer << hdmi.first << " [" << std::endl;
+      for (CoHisto::const_iterator hdi = hdmi.second.begin(); hdi != hdmi.second.end(); hdi++) {
         buffer << "   " << hdi->first << " [" << std::endl;
-        for (CoHistoProps::const_iterator hi = hdi->second.begin(); hi != hdi->second.end(); hi++) {
-          buffer << "     " << hi->first << " = " << hi->second << std::endl;
+        for (const auto& hi : hdi->second) {
+          buffer << "     " << hi.first << " = " << hi.second << std::endl;
         }
         buffer << "   ]" << std::endl;
       }

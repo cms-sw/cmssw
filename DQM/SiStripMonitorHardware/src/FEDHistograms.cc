@@ -217,18 +217,18 @@ void FEDHistograms::fillFEDHistograms(FEDErrors& aFedErr,
 
   std::vector<FEDErrors::FELevelErrors>& lFeVec = aFedErr.getFELevelErrors();
 
-  for (unsigned int iFe(0); iFe < lFeVec.size(); iFe++) {
-    fillFEHistograms(lFedId, lFeVec[iFe], aFedErr.getEventProperties());
+  for (const auto& iFe : lFeVec) {
+    fillFEHistograms(lFedId, iFe, aFedErr.getEventProperties());
   }
 
   std::vector<FEDErrors::ChannelLevelErrors>& lChVec = aFedErr.getChannelLevelErrors();
-  for (unsigned int iCh(0); iCh < lChVec.size(); iCh++) {
-    fillChannelsHistograms(lFedId, lChVec[iCh], lFullDebug);
+  for (auto iCh : lChVec) {
+    fillChannelsHistograms(lFedId, iCh, lFullDebug);
   }
 
   std::vector<FEDErrors::APVLevelErrors>& lAPVVec = aFedErr.getAPVLevelErrors();
-  for (unsigned int iApv(0); iApv < lAPVVec.size(); iApv++) {
-    fillAPVsHistograms(lFedId, lAPVVec[iApv], lFullDebug);
+  for (auto iApv : lAPVVec) {
+    fillAPVsHistograms(lFedId, iApv, lFullDebug);
   }
 
   double numChannelLevelErrors = 0;
@@ -325,8 +325,8 @@ void FEDHistograms::fillMajorityHistograms(const unsigned int aPart,
   else if (aPart == 3)
     fillHistogram(feMajFracTECF_, aValue);
 
-  for (unsigned int iFed(0); iFed < aFedIdVec.size(); ++iFed) {
-    fillHistogram(badMajorityInPartition_, aFedIdVec[iFed]);
+  for (unsigned int iFed : aFedIdVec) {
+    fillHistogram(badMajorityInPartition_, iFed);
   }
 }
 

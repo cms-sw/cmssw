@@ -171,8 +171,8 @@ bool HLTEgammaGenericQuadraticEtaFilter::hltFilter(edm::Event& iEvent,
 
   // look at all photons, check cuts and add to filter object
   int n = 0;
-  for (unsigned int i = 0; i < recoecalcands.size(); i++) {
-    ref = recoecalcands[i];
+  for (const auto& recoecalcand : recoecalcands) {
+    ref = recoecalcand;
     reco::RecoEcalCandidateIsolationMap::const_iterator mapi = (*depMap).find(ref);
 
     float vali = mapi->val;

@@ -167,16 +167,16 @@ void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup &setup,
             dataFrames[iXstal].id().rawId(), ecaltpPed_, ecaltpLin_, ecaltpgBadX_);
         this->getLinearizer(iXstal)->process(dataFrames[iXstal], lin_out_[iXstal]);
 
-        for (unsigned int i = 0; i < lin_out_[iXstal].size(); i++) {
-          if ((lin_out_[iXstal])[i] > 0X3FFFF)
-            (lin_out_[iXstal])[i] = 0X3FFFF;
+        for (int &i : lin_out_[iXstal]) {
+          if (i > 0X3FFFF)
+            i = 0X3FFFF;
         }
 
         if (debug_) {
           std::cout << "output of linearizer for channel " << iXstal << std::endl;
           std::cout << " lin_out[iXstal].size()= " << std::dec << lin_out_[iXstal].size() << std::endl;
-          for (unsigned int i = 0; i < lin_out_[iXstal].size(); i++) {
-            std::cout << " " << std::dec << (lin_out_[iXstal])[i];
+          for (int i : lin_out_[iXstal]) {
+            std::cout << " " << std::dec << i;
           }
           std::cout << std::endl;
         }
@@ -187,8 +187,8 @@ void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup &setup,
 
         if (debug_) {
           std::cout << "output of filter is a vector of size: " << std::dec << filt_out_.size() << std::endl;
-          for (unsigned int ix = 0; ix < filt_out_.size(); ix++) {
-            std::cout << std::dec << filt_out_[ix] << " ";
+          for (int ix : filt_out_) {
+            std::cout << std::dec << ix << " ";
           }
           std::cout << std::endl;
         }
@@ -198,8 +198,8 @@ void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup &setup,
 
         if (debug_) {
           std::cout << "output of peakfinder is a vector of size: " << std::dec << peak_out_.size() << std::endl;
-          for (unsigned int ix = 0; ix < peak_out_.size(); ix++) {
-            std::cout << std::dec << peak_out_[ix] << " ";
+          for (int ix : peak_out_) {
+            std::cout << std::dec << ix << " ";
           }
           std::cout << std::endl;
         }
@@ -210,8 +210,8 @@ void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup &setup,
 
         if (debug_) {
           std::cout << "output of formatter is a vector of size: " << format_out_.size() << std::endl;
-          for (unsigned int i = 0; i < format_out_.size(); i++) {
-            std::cout << " " << std::dec << format_out_[i] << " ";
+          for (int i : format_out_) {
+            std::cout << " " << std::dec << i << " ";
           }
           std::cout << std::endl;
         }

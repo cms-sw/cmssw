@@ -88,8 +88,8 @@ void QjetsAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     double mean = std::accumulate(qjetmass.begin(), qjetmass.end(), 0) / qjetmass.size();
     float totalsquared = 0.;
-    for (unsigned int i = 0; i < qjetmass.size(); i++) {
-      totalsquared += (qjetmass[i] - mean) * (qjetmass[i] - mean);
+    for (double qjetmas : qjetmass) {
+      totalsquared += (qjetmas - mean) * (qjetmas - mean);
     }
     float variance = sqrt(totalsquared / qjetmass.size());
 

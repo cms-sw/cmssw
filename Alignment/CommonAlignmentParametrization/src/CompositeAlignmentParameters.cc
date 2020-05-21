@@ -83,8 +83,8 @@ AlgebraicMatrix CompositeAlignmentParameters::derivatives(const std::vector<Traj
 AlgebraicMatrix CompositeAlignmentParameters::derivatives(const std::vector<TrajectoryStateOnSurface> &tsosvec,
                                                           const std::vector<AlignableDetOrUnitPtr> &alidetvec) const {
   align::Alignables alivec;
-  for (std::vector<AlignableDetOrUnitPtr>::const_iterator it = alidetvec.begin(); it != alidetvec.end(); ++it)
-    alivec.push_back(alignableFromAlignableDet(*it));
+  for (const auto &it : alidetvec)
+    alivec.push_back(alignableFromAlignableDet(it));
 
   CompositeAlignmentDerivativesExtractor extractor(alivec, alidetvec, tsosvec);
   return extractor.derivatives();
@@ -103,8 +103,8 @@ AlgebraicVector CompositeAlignmentParameters::correctionTerm(const std::vector<T
 AlgebraicVector CompositeAlignmentParameters::correctionTerm(
     const std::vector<TrajectoryStateOnSurface> &tsosvec, const std::vector<AlignableDetOrUnitPtr> &alidetvec) const {
   align::Alignables alivec;
-  for (std::vector<AlignableDetOrUnitPtr>::const_iterator it = alidetvec.begin(); it != alidetvec.end(); ++it)
-    alivec.push_back(alignableFromAlignableDet(*it));
+  for (const auto &it : alidetvec)
+    alivec.push_back(alignableFromAlignableDet(it));
 
   CompositeAlignmentDerivativesExtractor extractor(alivec, alidetvec, tsosvec);
   return extractor.correctionTerm();
@@ -168,8 +168,8 @@ AlgebraicMatrix CompositeAlignmentParameters::derivativesLegacy(const std::vecto
 
   int ipos = 1;
   AlgebraicMatrix selderiv(nparam, 2);
-  for (std::vector<AlgebraicMatrix>::const_iterator imat = vecderiv.begin(); imat != vecderiv.end(); ++imat) {
-    AlgebraicMatrix thisselderiv = (*imat);
+  for (const auto &imat : vecderiv) {
+    AlgebraicMatrix thisselderiv = imat;
     int npar = thisselderiv.num_row();
     selderiv.sub(ipos, 1, thisselderiv);
     ipos += npar;

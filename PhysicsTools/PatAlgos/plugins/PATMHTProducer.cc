@@ -176,8 +176,8 @@ double pat::PATMHTProducer::getJets(edm::Event& iEvent, const edm::EventSetup& i
     std::vector<CaloTowerPtr> v_towers = jet_iter->getCaloConstituents();
     //std::cout << "tower size = " << v_towers.size() << std::endl;
 
-    for (unsigned int ii = 0; ii < v_towers.size(); ii++) {
-      s_clusteredTowers.insert((*v_towers.at(ii)).id());
+    for (auto& v_tower : v_towers) {
+      s_clusteredTowers.insert((*v_tower).id());
       //std::cout << "tower id = " << (*v_towers.at(ii)).id() << std::endl;
     }
   }

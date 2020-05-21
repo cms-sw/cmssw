@@ -99,8 +99,8 @@ std::ostream &operator<<(std::ostream &out, const GoldenPattern &aPattern) {
   out << "Mean dist phi per layer:" << std::endl;
   for (unsigned int iRefLayer = 0; iRefLayer < aPattern.meanDistPhi[0].size(); ++iRefLayer) {
     out << "Ref layer: " << iRefLayer << " (";
-    for (unsigned int iLayer = 0; iLayer < aPattern.meanDistPhi.size(); ++iLayer) {
-      out << std::setw(3) << aPattern.meanDistPhi[iLayer][iRefLayer] << "\t";
+    for (const auto &iLayer : aPattern.meanDistPhi) {
+      out << std::setw(3) << iLayer[iRefLayer] << "\t";
     }
     out << ")" << std::endl;
   }

@@ -222,20 +222,19 @@ void EcalPerEvtLaserAnalyzer::analyze(const edm::Event& e, const edm::EventSetup
   // Decode Basic DCCHeader Information
   // ====================================
 
-  for (EcalRawDataCollection::const_iterator headerItr = DCCHeader->begin(); headerItr != DCCHeader->end();
-       ++headerItr) {
+  for (const auto& headerItr : *DCCHeader) {
     // Get run type and run number
 
-    int fed = headerItr->fedId();
+    int fed = headerItr.fedId();
 
     if (fed != _fedid && _fedid != -999)
       continue;
 
-    runType = headerItr->getRunType();
-    runNum = headerItr->getRunNumber();
-    event = headerItr->getLV1();
-    dccID = headerItr->getDccInTCCCommand();
-    fedID = headerItr->fedId();
+    runType = headerItr.getRunType();
+    runNum = headerItr.getRunNumber();
+    event = headerItr.getLV1();
+    dccID = headerItr.getDccInTCCCommand();
+    fedID = headerItr.fedId();
 
     // take event only if the fed corresponds to the DCC in TCC
     if (600 + dccID != fedID)
@@ -279,7 +278,7 @@ void EcalPerEvtLaserAnalyzer::analyze(const edm::Event& e, const edm::EventSetup
 
     // Retrieve laser color and event number
 
-    EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr->getEventSettings();
+    EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr.getEventSettings();
     int color = settings.wavelength;
 
     vector<int>::iterator iter = find(colors.begin(), colors.end(), color);
@@ -313,11 +312,10 @@ void EcalPerEvtLaserAnalyzer::analyze(const edm::Event& e, const edm::EventSetup
 
   std::vector<double> allPNAmpl;
 
-  for (EcalPnDiodeDigiCollection::const_iterator pnItr = PNDigi->begin(); pnItr != PNDigi->end();
-       ++pnItr) {  // Loop on PNs
+  for (const auto& pnItr : *PNDigi) {  // Loop on PNs
 
-    for (int samId = 0; samId < (*pnItr).size(); samId++) {  // Loop on PN samples
-      pn[samId] = (*pnItr).sample(samId).adc();
+    for (int samId = 0; samId < pnItr.size(); samId++) {  // Loop on PN samples
+      pn[samId] = pnItr.sample(samId).adc();
     }
 
     for (dsum = 0., k = 0; k < _presamplePN; k++) {

@@ -520,10 +520,10 @@ namespace lhef {
           std::shared_ptr<LHEEvent> lheevent;
           lheevent.reset(new LHEEvent(curRunInfo, data));
           const XMLHandler::wgt_info &info = handler->weightsinevent;
-          for (size_t i = 0; i < info.size(); ++i) {
+          for (const auto &i : info) {
             double num = -1.0;
-            sscanf(info[i].second.c_str(), "%le", &num);
-            lheevent->addWeight(gen::WeightsInfo(info[i].first, num));
+            sscanf(i.second.c_str(), "%le", &num);
+            lheevent->addWeight(gen::WeightsInfo(i.first, num));
           }
           lheevent->setNpLO(handler->npLO);
           lheevent->setNpNLO(handler->npNLO);

@@ -20,13 +20,11 @@ void SiStripNoisesBuilder::analyze(const edm::Event& evt, const edm::EventSetup&
   const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>& DetInfos = reader.getAllData();
 
   int count = -1;
-  for (std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator it = DetInfos.begin();
-       it != DetInfos.end();
-       it++) {
+  for (const auto& it : DetInfos) {
     count++;
     //Generate Noise for det detid
     SiStripNoises::InputVector theSiStripVector;
-    for (int strip = 0; strip < 128 * it->second.nApvs; ++strip) {
+    for (int strip = 0; strip < 128 * it.second.nApvs; ++strip) {
       float MeanNoise = 5;
       float RmsNoise = 1;
       float noise = CLHEP::RandGauss::shoot(MeanNoise, RmsNoise);
@@ -37,11 +35,11 @@ void SiStripNoisesBuilder::analyze(const edm::Event& evt, const edm::EventSetup&
       obj->setData(noise, theSiStripVector);
       if (count < static_cast<int>(printdebug_))
         edm::LogInfo("SiStripNoisesBuilder")
-            << "detid " << it->first << " \t"
+            << "detid " << it.first << " \t"
             << " strip " << strip << " \t" << noise << " \t" << theSiStripVector.back() / 10 << " \t" << std::endl;
     }
 
-    if (!obj->put(it->first, theSiStripVector))
+    if (!obj->put(it.first, theSiStripVector))
       edm::LogError("SiStripNoisesBuilder") << "[SiStripNoisesBuilder::analyze] detid already exists" << std::endl;
   }
 

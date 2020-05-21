@@ -74,8 +74,8 @@ namespace edm {
 
     ParameterSet ps = ps_mix.getParameter<ParameterSet>("mixObjects");
     std::vector<std::string> names = ps.getParameterNames();
-    for (std::vector<std::string>::iterator it = names.begin(); it != names.end(); ++it) {
-      ParameterSet pset = ps.getParameter<ParameterSet>((*it));
+    for (auto& name : names) {
+      ParameterSet pset = ps.getParameter<ParameterSet>(name);
       if (!pset.exists("type"))
         continue;  //to allow replacement by empty pset
       std::string object = pset.getParameter<std::string>("type");
@@ -251,8 +251,8 @@ namespace edm {
     }  //while over the mixObjects parameters
 
     sort_all(wantedBranches_);
-    for (unsigned int branch = 0; branch < wantedBranches_.size(); ++branch)
-      LogDebug("MixingModule") << "Will keep branch " << wantedBranches_[branch] << " for mixing ";
+    for (const auto& wantedBranche : wantedBranches_)
+      LogDebug("MixingModule") << "Will keep branch " << wantedBranche << " for mixing ";
 
     dropUnwantedBranches(wantedBranches_);
 
@@ -290,8 +290,8 @@ namespace edm {
     maxBunch_ = config->maxBunch();
     bunchSpace_ = config->bunchSpace();
     //propagate to change the workers
-    for (unsigned int ii = 0; ii < workersObjects_.size(); ++ii) {
-      workersObjects_[ii]->reload(setup);
+    for (auto& workersObject : workersObjects_) {
+      workersObject->reload(setup);
     }
   }
 
@@ -330,8 +330,8 @@ namespace edm {
     //create playback info
     playbackInfo_ = new CrossingFramePlaybackInfoNew(minBunch_, maxBunch_, maxNbSources_);
     //and CrossingFrames
-    for (unsigned int ii = 0; ii < workers_.size(); ++ii) {
-      workers_[ii]->createnewEDProduct();
+    for (auto& worker : workers_) {
+      worker->createnewEDProduct();
     }
   }
 
@@ -355,8 +355,8 @@ namespace edm {
 
     accumulateEvent(e, setup);
     // fill in signal part of CrossingFrame
-    for (unsigned int ii = 0; ii < workers_.size(); ++ii) {
-      workers_[ii]->addSignals(e);
+    for (auto& worker : workers_) {
+      worker->addSignals(e);
     }
   }
 
@@ -479,10 +479,8 @@ namespace edm {
       }
     }
 
-    for (Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end();
-         accItr != accEnd;
-         ++accItr) {
-      (*accItr)->StorePileupInformation(
+    for (auto digiAccumulator : digiAccumulators_) {
+      digiAccumulator->StorePileupInformation(
           bunchCrossingList, numInteractionList, TrueInteractionList, eventInfoList, bunchSpace_);
     }
 
@@ -491,13 +489,11 @@ namespace edm {
     //}
 
     for (int bunchIdx = minBunch_; bunchIdx <= maxBunch_; ++bunchIdx) {
-      for (size_t setBcrIdx = 0; setBcrIdx < workers_.size(); ++setBcrIdx) {
-        workers_[setBcrIdx]->setBcrOffset();
+      for (auto& worker : workers_) {
+        worker->setBcrOffset();
       }
-      for (Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end();
-           accItr != accEnd;
-           ++accItr) {
-        (*accItr)->initializeBunchCrossing(e, setup, bunchIdx);
+      for (auto digiAccumulator : digiAccumulators_) {
+        digiAccumulator->initializeBunchCrossing(e, setup, bunchIdx);
       }
 
       for (size_t readSrcIdx = 0; readSrcIdx < maxNbSources_; ++readSrcIdx) {
@@ -505,8 +501,8 @@ namespace edm {
                                                                      // new PileUp objects for each
                                                                      // source for each event?
                                                                      // Why?
-        for (size_t setSrcIdx = 0; setSrcIdx < workers_.size(); ++setSrcIdx) {
-          workers_[setSrcIdx]->setSourceOffset(readSrcIdx);
+        for (auto& worker : workers_) {
+          worker->setSourceOffset(readSrcIdx);
         }
 
         if (!source || !source->doPileUp(bunchIdx)) {
@@ -584,10 +580,8 @@ namespace edm {
                                                           e.streamID()));
         }
       }
-      for (Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end();
-           accItr != accEnd;
-           ++accItr) {
-        (*accItr)->finalizeBunchCrossing(e, setup, bunchIdx);
+      for (auto digiAccumulator : digiAccumulators_) {
+        digiAccumulator->finalizeBunchCrossing(e, setup, bunchIdx);
       }
     }
 
@@ -609,9 +603,9 @@ namespace edm {
     e.put(std::move(PileupMixing_));
 
     // we have to do the ToF transformation for PSimHits once all pileup has been added
-    for (unsigned int ii = 0; ii < workers_.size(); ++ii) {
-      workers_[ii]->setTof();
-      workers_[ii]->put(e);
+    for (auto& worker : workers_) {
+      worker->setTof();
+      worker->put(e);
     }
   }
 
@@ -623,72 +617,56 @@ namespace edm {
   }
 
   void MixingModule::beginRun(edm::Run const& run, edm::EventSetup const& setup) {
-    for (Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end();
-         accItr != accEnd;
-         ++accItr) {
-      (*accItr)->beginRun(run, setup);
+    for (auto digiAccumulator : digiAccumulators_) {
+      digiAccumulator->beginRun(run, setup);
     }
     BMixingModule::beginRun(run, setup);
   }
 
   void MixingModule::endRun(edm::Run const& run, edm::EventSetup const& setup) {
-    for (Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end();
-         accItr != accEnd;
-         ++accItr) {
-      (*accItr)->endRun(run, setup);
+    for (auto digiAccumulator : digiAccumulators_) {
+      digiAccumulator->endRun(run, setup);
     }
     BMixingModule::endRun(run, setup);
   }
 
   void MixingModule::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) {
-    for (Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end();
-         accItr != accEnd;
-         ++accItr) {
-      (*accItr)->beginLuminosityBlock(lumi, setup);
+    for (auto digiAccumulator : digiAccumulators_) {
+      digiAccumulator->beginLuminosityBlock(lumi, setup);
     }
     BMixingModule::beginLuminosityBlock(lumi, setup);
   }
 
   void MixingModule::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) {
-    for (Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end();
-         accItr != accEnd;
-         ++accItr) {
-      (*accItr)->endLuminosityBlock(lumi, setup);
+    for (auto digiAccumulator : digiAccumulators_) {
+      digiAccumulator->endLuminosityBlock(lumi, setup);
     }
     BMixingModule::endLuminosityBlock(lumi, setup);
   }
 
   void MixingModule::initializeEvent(edm::Event const& event, edm::EventSetup const& setup) {
-    for (Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end();
-         accItr != accEnd;
-         ++accItr) {
-      (*accItr)->initializeEvent(event, setup);
+    for (auto digiAccumulator : digiAccumulators_) {
+      digiAccumulator->initializeEvent(event, setup);
     }
   }
 
   void MixingModule::accumulateEvent(edm::Event const& event, edm::EventSetup const& setup) {
-    for (Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end();
-         accItr != accEnd;
-         ++accItr) {
-      (*accItr)->accumulate(event, setup);
+    for (auto digiAccumulator : digiAccumulators_) {
+      digiAccumulator->accumulate(event, setup);
     }
   }
 
   void MixingModule::accumulateEvent(PileUpEventPrincipal const& event,
                                      edm::EventSetup const& setup,
                                      edm::StreamID const& streamID) {
-    for (Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end();
-         accItr != accEnd;
-         ++accItr) {
-      (*accItr)->accumulate(event, setup, streamID);
+    for (auto digiAccumulator : digiAccumulators_) {
+      digiAccumulator->accumulate(event, setup, streamID);
     }
   }
 
   void MixingModule::finalizeEvent(edm::Event& event, edm::EventSetup const& setup) {
-    for (Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end();
-         accItr != accEnd;
-         ++accItr) {
-      (*accItr)->finalizeEvent(event, setup);
+    for (auto digiAccumulator : digiAccumulators_) {
+      digiAccumulator->finalizeEvent(event, setup);
     }
   }
 }  // namespace edm

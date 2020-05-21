@@ -95,15 +95,14 @@ std::unique_ptr<L1GtPrescaleFactors> L1GtPrescaleFactorsAlgoTrigConfigOnlineProd
   int countSet = -1;
 
   for (int iRow = 0; iRow < resultsViewRows; ++iRow) {
-    for (std::vector<std::string>::const_iterator constIt = columnsView.begin(); constIt != columnsView.end();
-         ++constIt) {
-      if ((*constIt) == "PRESCALE_INDEX") {
-        resultsView.fillVariableFromRow(*constIt, iRow, prescaleFactorsSetIndex);
-      } else if ((*constIt) == "PRESCALE_FACTORS_ALGO_FK") {
-        resultsView.fillVariableFromRow(*constIt, iRow, objectKeyPrescaleFactorsSet);
+    for (const auto& constIt : columnsView) {
+      if (constIt == "PRESCALE_INDEX") {
+        resultsView.fillVariableFromRow(constIt, iRow, prescaleFactorsSetIndex);
+      } else if (constIt == "PRESCALE_FACTORS_ALGO_FK") {
+        resultsView.fillVariableFromRow(constIt, iRow, objectKeyPrescaleFactorsSet);
       } else {
         LogTrace("L1GtPrescaleFactorsAlgoTrigConfigOnlineProd")
-            << "\nUnknown field " << (*constIt) << " requested for columns in GT_RUN_SETTINGS_PRESC_VIEW" << std::endl;
+            << "\nUnknown field " << constIt << " requested for columns in GT_RUN_SETTINGS_PRESC_VIEW" << std::endl;
       }
     }
 
@@ -126,8 +125,8 @@ std::unique_ptr<L1GtPrescaleFactors> L1GtPrescaleFactorsAlgoTrigConfigOnlineProd
       LogTrace("L1GtPrescaleFactorsAlgoTrigConfigOnlineProd")
           << "\nColumn names for GT_FDL_PRESCALE_FACTORS_ALGO" << std::endl;
 
-      for (std::vector<std::string>::const_iterator iter = columns.begin(); iter != columns.end(); iter++) {
-        LogTrace("L1GtPrescaleFactorsAlgoTrigConfigOnlineProd") << (*iter) << std::endl;
+      for (const auto& column : columns) {
+        LogTrace("L1GtPrescaleFactorsAlgoTrigConfigOnlineProd") << column << std::endl;
       }
     }
 

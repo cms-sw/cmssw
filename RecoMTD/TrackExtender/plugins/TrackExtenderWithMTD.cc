@@ -774,8 +774,8 @@ namespace {
         for (const auto& detWithState : compDets) {
           auto range = hits.equal_range(detWithState.first->geographicalId(), cmp_for_detset);
           for (auto detitr = range.first; detitr != range.second; ++detitr) {
-            for (auto itr = detitr->begin(); itr != detitr->end(); ++itr) {
-              auto est = theEstimator->estimate(detWithState.second, *itr);
+            for (auto& itr : *detitr) {
+              auto est = theEstimator->estimate(detWithState.second, itr);
               auto pl = prop->propagateWithPath(tsos, detWithState.second.surface());
 
               if (!est.first || std::abs(pl.second) == 0.)
@@ -791,13 +791,13 @@ namespace {
 
               TrackTofPidInfo tof = computeTrackTofPidInfo(p.mag2(),
                                                            tot_pl,
-                                                           itr->time(),
+                                                           itr.time(),
                                                            t_res_manual,  //put hit error by hand for the moment
                                                            t_vtx,
                                                            t_vtx_err,  //put vtx error by hand for the moment
                                                            false);
               MTDHitMatchingInfo mi;
-              mi.hit = &(*itr);
+              mi.hit = &itr;
               mi.estChi2 = est.second;
               mi.timeChi2 = tof.dtchi2_best;  //use the chi2 for the best matching hypothesis
 

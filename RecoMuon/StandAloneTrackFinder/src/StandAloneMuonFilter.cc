@@ -268,10 +268,8 @@ void StandAloneMuonFilter::refit(const TrajectoryStateOnSurface& initialTSOS,
     if (!bestMeasurements.empty()) {
       incrementCompatibleChamberCounters(*layer);
       bool added = false;
-      for (std::vector<TrajectoryMeasurement>::const_iterator tmItr = bestMeasurements.begin();
-           tmItr != bestMeasurements.end();
-           ++tmItr) {
-        added |= update(*layer, &(*tmItr), trajectory);
+      for (const auto& bestMeasurement : bestMeasurements) {
+        added |= update(*layer, &bestMeasurement, trajectory);
         lastTSOS = theLastUpdatedTSOS;
       }
       if (added) {
@@ -310,10 +308,8 @@ std::vector<TrajectoryMeasurement> StandAloneMuonFilter::findBestMeasurements(co
       // RecoMuon/DetLayers/MuRingForwardDoubleLayer
     }
 
-    for (std::vector<TrajectoryMeasurementGroup>::const_iterator tmGroupItr = measurementGroups.begin();
-         tmGroupItr != measurementGroups.end();
-         ++tmGroupItr) {
-      measurements = tmGroupItr->measurements();
+    for (const auto& measurementGroup : measurementGroups) {
+      measurements = measurementGroup.measurements();
       LogTrace(metname) << "Number of Trajectory Measurement: " << measurements.size();
 
       const TrajectoryMeasurement* bestMeasurement =
@@ -359,16 +355,16 @@ void StandAloneMuonFilter::createDefaultTrajectory(const Trajectory& oldTraj, Tr
   Trajectory::DataContainer const& oldMeas = oldTraj.measurements();
   defTraj.reserve(oldMeas.size());
 
-  for (Trajectory::DataContainer::const_iterator itm = oldMeas.begin(); itm != oldMeas.end(); itm++) {
-    if (!(*itm).recHit()->isValid())
-      defTraj.push(*itm, (*itm).estimate());
+  for (const auto& oldMea : oldMeas) {
+    if (!oldMea.recHit()->isValid())
+      defTraj.push(oldMea, oldMea.estimate());
     else {
       MuonTransientTrackingRecHit::MuonRecHitPointer invRhPtr =
-          MuonTransientTrackingRecHit::specificBuild((*itm).recHit()->det(), (*itm).recHit()->hit());
+          MuonTransientTrackingRecHit::specificBuild(oldMea.recHit()->det(), oldMea.recHit()->hit());
       invRhPtr->invalidateHit();
       TrajectoryMeasurement invRhMeas(
-          (*itm).forwardPredictedState(), (*itm).updatedState(), invRhPtr, (*itm).estimate(), (*itm).layer());
-      defTraj.push(std::move(invRhMeas), (*itm).estimate());
+          oldMea.forwardPredictedState(), oldMea.updatedState(), invRhPtr, oldMea.estimate(), oldMea.layer());
+      defTraj.push(std::move(invRhMeas), oldMea.estimate());
     }
 
   }  // end for

@@ -729,8 +729,8 @@ CommissioningHistograms::Analyses& CommissioningHistograms::data(bool getMaskedD
         SiStripFedKey fedkey = anal->fedKey();
         SiStripFecKey feckey = anal->fecKey();
         bool maskThisAnal_ = false;
-        for (std::size_t i = 0; i < fedMaskVector_.size(); i++) {
-          if (fedkey.fedId() == fedMaskVector_[i])
+        for (unsigned int i : fedMaskVector_) {
+          if (fedkey.fedId() == i)
             maskThisAnal_ = true;
         }
         for (std::size_t i = 0; i < fecMaskVector_.size(); i++) {

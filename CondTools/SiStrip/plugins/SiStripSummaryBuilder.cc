@@ -29,23 +29,23 @@ void SiStripSummaryBuilder::analyze(const edm::Event& evt, const edm::EventSetup
     std::string keyName = ithistoList->getUntrackedParameter<std::string>("keyName");
     std::vector<std::string> Quantities =
         ithistoList->getUntrackedParameter<std::vector<std::string> >("quantitiesToExtract");
-    for (size_t i = 0; i < Quantities.size(); ++i) {
-      if (Quantities[i] == "landau") {
+    for (const auto& Quantitie : Quantities) {
+      if (Quantitie == "landau") {
         userDBContent.push_back(keyName + std::string("@") + std::string("landauPeak"));
         userDBContent.push_back(keyName + std::string("@") + std::string("landauPeakErr"));
         userDBContent.push_back(keyName + std::string("@") + std::string("landauSFWHM"));
         userDBContent.push_back(keyName + std::string("@") + std::string("landauChi2NDF"));
-      } else if (Quantities[i] == "gauss") {
+      } else if (Quantitie == "gauss") {
         userDBContent.push_back(keyName + std::string("@") + std::string("gaussMean"));
         userDBContent.push_back(keyName + std::string("@") + std::string("gaussSigma"));
         userDBContent.push_back(keyName + std::string("@") + std::string("gaussChi2NDF"));
-      } else if (Quantities[i] == "stat") {
+      } else if (Quantitie == "stat") {
         userDBContent.push_back(keyName + std::string("@") + std::string("entries"));
         userDBContent.push_back(keyName + std::string("@") + std::string("mean"));
         userDBContent.push_back(keyName + std::string("@") + std::string("rms"));
       } else {
         edm::LogError("SiStripSummaryBuilder")
-            << "Quantity " << Quantities[i] << " cannot be handled\nAllowed quantities are"
+            << "Quantity " << Quantitie << " cannot be handled\nAllowed quantities are"
             << "\n  'stat'   that includes: entries, mean, rms"
             << "\n  'landau' that includes: landauPeak, landauPeakErr, landauSFWHM, landauChi2NDF"
             << "\n  'gauss'  that includes: gaussMean, gaussSigma, gaussChi2NDF" << std::endl;
@@ -58,8 +58,8 @@ void SiStripSummaryBuilder::analyze(const edm::Event& evt, const edm::EventSetup
   ss1 << "QUANTITIES TO BE INSERTED IN DB :"
       << " \n";
   std::vector<std::string> userDBContentA = obj->getUserDBContent();
-  for (size_t i = 0; i < userDBContentA.size(); ++i)
-    ss1 << userDBContentA[i] << std::endl;
+  for (const auto& i : userDBContentA)
+    ss1 << i << std::endl;
   edm::LogInfo("SiStripSummaryBuilder") << ss1.str();
 
   //* Loop over detids and create dummy data for each *//

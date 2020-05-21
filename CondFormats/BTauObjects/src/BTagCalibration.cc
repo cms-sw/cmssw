@@ -50,10 +50,10 @@ void BTagCalibration::readCSV(std::istream &s) {
 
 void BTagCalibration::makeCSV(std::ostream &s) const {
   s << tagger_ << ";" << BTagEntry::makeCSVHeader();
-  for (std::map<std::string, std::vector<BTagEntry> >::const_iterator i = data_.cbegin(); i != data_.cend(); ++i) {
-    const std::vector<BTagEntry> &vec = i->second;
-    for (std::vector<BTagEntry>::const_iterator j = vec.cbegin(); j != vec.cend(); ++j) {
-      s << j->makeCSVLine();
+  for (const auto &i : data_) {
+    const std::vector<BTagEntry> &vec = i.second;
+    for (const auto &j : vec) {
+      s << j.makeCSVLine();
     }
   }
 }

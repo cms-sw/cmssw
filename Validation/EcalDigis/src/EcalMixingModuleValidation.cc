@@ -192,22 +192,22 @@ void EcalMixingModuleValidation::dqmEndRun(const edm::Run& run, const edm::Event
   // add shapes for each bunch crossing and divide the digi by the result
 
   std::vector<MonitorElement*> theBunches;
-  for (int i = 0; i < nBunch; i++) {
-    theBunches.push_back(meEBBunchShape_[i]);
+  for (auto i : meEBBunchShape_) {
+    theBunches.push_back(i);
   }
   bunchSumTest(theBunches, meEBShape_, meEBShapeRatio_, EcalDataFrame::MAXSAMPLES);
 
   theBunches.clear();
 
-  for (int i = 0; i < nBunch; i++) {
-    theBunches.push_back(meEEBunchShape_[i]);
+  for (auto i : meEEBunchShape_) {
+    theBunches.push_back(i);
   }
   bunchSumTest(theBunches, meEEShape_, meEEShapeRatio_, EcalDataFrame::MAXSAMPLES);
 
   theBunches.clear();
 
-  for (int i = 0; i < nBunch; i++) {
-    theBunches.push_back(meESBunchShape_[i]);
+  for (auto i : meESBunchShape_) {
+    theBunches.push_back(i);
   }
   bunchSumTest(theBunches, meESShape_, meESShapeRatio_, ESDataFrame::MAXSAMPLES);
 }
@@ -726,10 +726,10 @@ void EcalMixingModuleValidation::computeSDBunchDigi(const edm::EventSetup& event
   const std::vector<DetId>& theSDId = theGeometry->getValidDetIds(DetId::Ecal, thisDet);
 
   std::vector<DetId> theOverThresholdId;
-  for (unsigned int i = 0; i < theSDId.size(); i++) {
-    int sdId = theSDId[i].rawId();
+  for (auto i : theSDId) {
+    int sdId = i.rawId();
     if (SignalSimMap[sdId] > theSimThreshold)
-      theOverThresholdId.push_back(theSDId[i]);
+      theOverThresholdId.push_back(i);
   }
 
   int limit = CaloSamples::MAXSAMPLES;
@@ -754,16 +754,15 @@ void EcalMixingModuleValidation::computeSDBunchDigi(const edm::EventSetup& event
 
     int iHisto = iBunch - theMinBunch;
 
-    for (std::vector<DetId>::const_iterator idItr = theOverThresholdId.begin(); idItr != theOverThresholdId.end();
-         ++idItr) {
+    for (auto idItr : theOverThresholdId) {
       CaloSamples* analogSignal;
       //if ( isCrystal )
       if (thisDet == EcalBarrel) {
-        analogSignal = theEBResponse->findSignal(*idItr);
+        analogSignal = theEBResponse->findSignal(idItr);
       } else if (thisDet == EcalEndcap) {
-        analogSignal = theEEResponse->findSignal(*idItr);
+        analogSignal = theEEResponse->findSignal(idItr);
       } else {
-        analogSignal = theESResponse->findSignal(*idItr);
+        analogSignal = theESResponse->findSignal(idItr);
       }
 
       if (analogSignal) {

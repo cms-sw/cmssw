@@ -37,33 +37,33 @@ namespace hcaltb {
       tdc_ped[i] = 0.;
       tdc_convers[i] = 1.;
     }
-    for (unsigned int ii = 0; ii < calibLines_.size(); ii++) {
+    for (const auto& calibLine : calibLines_) {
       //   TDC configuration
-      if (calibLines_[ii][0] == "TDC") {
-        if (calibLines_[ii].size() == 4) {
-          int channel = atoi(calibLines_[ii][1].c_str());
-          tdc_ped[channel] = atof(calibLines_[ii][2].c_str());
-          tdc_convers[channel] = atof(calibLines_[ii][3].c_str());
+      if (calibLine[0] == "TDC") {
+        if (calibLine.size() == 4) {
+          int channel = atoi(calibLine[1].c_str());
+          tdc_ped[channel] = atof(calibLine[2].c_str());
+          tdc_convers[channel] = atof(calibLine[3].c_str());
           //        printf("Got TDC %i ped %f , conversion %f\n",channel, tdc_ped[channel],tdc_convers[channel]);
         } else {
           throw cms::Exception("Incomplete configuration")
-              << "Wrong TDC configuration format : expected 3 parameters, got " << calibLines_[ii].size() - 1;
+              << "Wrong TDC configuration format : expected 3 parameters, got " << calibLine.size() - 1;
         }
       }  // End of the TDCs
 
       //   Wire chambers calibration
-      if (calibLines_[ii][0] == "WC") {
-        if (calibLines_[ii].size() == 6) {
-          int plane = atoi(calibLines_[ii][1].c_str());
-          wc_[plane].b0 = atof(calibLines_[ii][2].c_str());
-          wc_[plane].b1 = atof(calibLines_[ii][3].c_str());
-          wc_[plane].mean = atof(calibLines_[ii][4].c_str());
-          wc_[plane].sigma = atof(calibLines_[ii][5].c_str());
+      if (calibLine[0] == "WC") {
+        if (calibLine.size() == 6) {
+          int plane = atoi(calibLine[1].c_str());
+          wc_[plane].b0 = atof(calibLine[2].c_str());
+          wc_[plane].b1 = atof(calibLine[3].c_str());
+          wc_[plane].mean = atof(calibLine[4].c_str());
+          wc_[plane].sigma = atof(calibLine[5].c_str());
           //         printf("Got WC plane %i b0 %f, b1 %f, mean %f, sigma %f\n",plane,
           //		 wc_[plane].b0,wc_[plane].b1,wc_[plane].mean,wc_[plane].sigma);
         } else {
           throw cms::Exception("Incomplete configuration")
-              << "Wrong Wire Chamber configuration format : expected 5 parameters, got " << calibLines_[ii].size() - 1;
+              << "Wrong Wire Chamber configuration format : expected 5 parameters, got " << calibLine.size() - 1;
         }
       }  // End of the Wire Chambers
 
@@ -131,8 +131,8 @@ namespace hcaltb {
 
     // new TDC (V775)
     int v775[32];
-    for (int i = 0; i < 32; i++)
-      v775[i] = -1;
+    for (int& i : v775)
+      i = -1;
     if (tdc->n_max_hits != 192) {
       const CombinedTDCQDCDataFormat* qdctdc = (const CombinedTDCQDCDataFormat*)raw.data();
       hitbase = (const unsigned int*)(qdctdc);
@@ -318,17 +318,17 @@ void HcalTBTDCUnpacker::setupWC() {
       chan2 = WC_CHANNELIDS[plane * 3 + 1];
       chanA = WC_CHANNELIDS[plane * 3 + 2];
 
-      for (std::vector<Hit>::const_iterator j = hits.begin(); j != hits.end(); j++) {
-        if (j->channel == chan1 && n1 < MAX_HITS) {
-          hits1[n1] = j->time - TDC_OFFSET_CONSTANT;
+      for (auto hit : hits) {
+        if (hit.channel == chan1 && n1 < MAX_HITS) {
+          hits1[n1] = hit.time - TDC_OFFSET_CONSTANT;
           n1++;
         }
-        if (j->channel == chan2 && n2 < MAX_HITS) {
-          hits2[n2] = j->time - TDC_OFFSET_CONSTANT;
+        if (hit.channel == chan2 && n2 < MAX_HITS) {
+          hits2[n2] = hit.time - TDC_OFFSET_CONSTANT;
           n2++;
         }
-        if (j->channel == chanA && nA < MAX_HITS) {
-          hitsA[nA] = j->time - TDC_OFFSET_CONSTANT;
+        if (hit.channel == chanA && nA < MAX_HITS) {
+          hitsA[nA] = hit.time - TDC_OFFSET_CONSTANT;
           nA++;
         }
       }

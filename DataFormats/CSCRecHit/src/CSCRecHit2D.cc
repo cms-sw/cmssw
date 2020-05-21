@@ -15,8 +15,8 @@ CSCRecHit2D::CSCRecHit2D()
       nTimeBins_(0),
       theLocalPosition(0., 0.),
       theLocalError(0., 0., 0.) {
-  for (unsigned int i = 0; i < MAXSTRIPS; i++)
-    theStrips_[i] = 0;
+  for (unsigned char& theStrip : theStrips_)
+    theStrip = 0;
   for (unsigned int i = 0; i < MAXSTRIPS; i++)
     for (unsigned int j = 0; j < MAXTIMEBINS; j++)
       theADCs_[i * MAXTIMEBINS + j] = 0;
@@ -55,10 +55,10 @@ CSCRecHit2D::CSCRecHit2D(const CSCDetId& id,
     nStrips_ = MAXSTRIPS;
   }
 
-  for (unsigned int i = 0; i < MAXSTRIPS; i++)
-    theStrips_[i] = 0;
-  for (unsigned int i = 0; i < MAXSTRIPS; i++)
-    theL1APhaseBits_[i] = 0;
+  for (unsigned char& theStrip : theStrips_)
+    theStrip = 0;
+  for (unsigned char& theL1APhaseBit : theL1APhaseBits_)
+    theL1APhaseBit = 0;
   for (unsigned int i = 0; i < MAXSTRIPS; i++)
     for (unsigned int j = 0; j < MAXTIMEBINS; j++)
       theADCs_[i * MAXTIMEBINS + j] = 0;

@@ -152,8 +152,8 @@ void HcalNoiseRBXArray::findHPD(const CaloTower& tower,
   // find the HPD indices
   std::vector<int> hpdindices;
   HcalHPDRBXMap::indexHPDfromEtaPhi(tower.ieta(), tower.iphi(), hpdindices);
-  for (std::vector<int>::const_iterator it = hpdindices.begin(); it != hpdindices.end(); ++it)
-    vec.push_back(findHPD(*it));
+  for (int hpdindice : hpdindices)
+    vec.push_back(findHPD(hpdindice));
 
   return;
 }
@@ -169,8 +169,8 @@ void HcalNoiseRBXArray::findHPD(const CaloTower& tower, std::vector<std::vector<
   // find the HPD indices
   std::vector<int> hpdindices;
   HcalHPDRBXMap::indexHPDfromEtaPhi(tower.ieta(), tower.iphi(), hpdindices);
-  for (std::vector<int>::const_iterator it = hpdindices.begin(); it != hpdindices.end(); ++it)
-    vec.push_back(findHPD(*it));
+  for (int hpdindice : hpdindices)
+    vec.push_back(findHPD(hpdindice));
 
   return;
 }
@@ -186,8 +186,8 @@ void HcalNoiseRBXArray::findRBX(const CaloTower& tower, std::vector<HcalNoiseRBX
   // find the RBX indices
   std::vector<int> rbxindices;
   HcalHPDRBXMap::indexRBXfromEtaPhi(tower.ieta(), tower.iphi(), rbxindices);
-  for (std::vector<int>::const_iterator it = rbxindices.begin(); it != rbxindices.end(); ++it)
-    vec.push_back(findRBX(*it));
+  for (int rbxindice : rbxindices)
+    vec.push_back(findRBX(rbxindice));
 
   return;
 }
@@ -203,8 +203,8 @@ void HcalNoiseRBXArray::findRBX(const CaloTower& tower, std::vector<HcalNoiseRBX
   // find the RBX indices
   std::vector<int> rbxindices;
   HcalHPDRBXMap::indexRBXfromEtaPhi(tower.ieta(), tower.iphi(), rbxindices);
-  for (std::vector<int>::const_iterator it = rbxindices.begin(); it != rbxindices.end(); ++it)
-    vec.push_back(findRBX(*it));
+  for (int rbxindice : rbxindices)
+    vec.push_back(findRBX(rbxindice));
 
   return;
 }

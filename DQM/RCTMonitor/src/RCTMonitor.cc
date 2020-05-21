@@ -82,41 +82,39 @@ void RCTMonitor::FillRCT(const edm::Event &iEvent, const edm::EventSetup &iSetup
   iEvent.getByToken(m_rctSourceToken_, em);
 
   // Isolated and non-isolated EM with cut at >1 GeV
-  for (L1CaloEmCollection::const_iterator iem = em->begin(); iem != em->end(); iem++) {
-    if (iem->rank() > 1.) {   // applies the 1 GeV cut
-      if (iem->isolated()) {  // looks for isolated EM candidates only
-        m_rctIsoEmRank1->Fill(iem->rank());
+  for (const auto &iem : *em) {
+    if (iem.rank() > 1.) {   // applies the 1 GeV cut
+      if (iem.isolated()) {  // looks for isolated EM candidates only
+        m_rctIsoEmRank1->Fill(iem.rank());
         // std::cout << "Just to show what is there " << iem->rank() <<
         // std::endl ;
-        m_rctIsoEmRankEtaPhi1->Fill(iem->regionId().iphi(), iem->regionId().ieta(), iem->rank());
-        m_rctIsoEmOccEtaPhi1->Fill(
-            iem->regionId().iphi(), iem->regionId().ieta(), DynamicScale(iem->regionId().ieta()));
-        m_rctRelaxedEmRankEtaPhi1->Fill(iem->regionId().iphi(), iem->regionId().ieta(), iem->rank());
+        m_rctIsoEmRankEtaPhi1->Fill(iem.regionId().iphi(), iem.regionId().ieta(), iem.rank());
+        m_rctIsoEmOccEtaPhi1->Fill(iem.regionId().iphi(), iem.regionId().ieta(), DynamicScale(iem.regionId().ieta()));
+        m_rctRelaxedEmRankEtaPhi1->Fill(iem.regionId().iphi(), iem.regionId().ieta(), iem.rank());
         m_rctRelaxedEmOccEtaPhi1->Fill(
-            iem->regionId().iphi(), iem->regionId().ieta(), DynamicScale(iem->regionId().ieta()));
-        m_rctRelaxedEmRank1->Fill(iem->rank());
+            iem.regionId().iphi(), iem.regionId().ieta(), DynamicScale(iem.regionId().ieta()));
+        m_rctRelaxedEmRank1->Fill(iem.rank());
       } else {  // instructions for Non-isolated EM candidates
-        m_rctNonIsoEmRank1->Fill(iem->rank());
-        m_rctNonIsoEmRankEtaPhi1->Fill(iem->regionId().iphi(), iem->regionId().ieta(), iem->rank());
+        m_rctNonIsoEmRank1->Fill(iem.rank());
+        m_rctNonIsoEmRankEtaPhi1->Fill(iem.regionId().iphi(), iem.regionId().ieta(), iem.rank());
         m_rctNonIsoEmOccEtaPhi1->Fill(
-            iem->regionId().iphi(), iem->regionId().ieta(), DynamicScale(iem->regionId().ieta()));
-        m_rctRelaxedEmRankEtaPhi1->Fill(iem->regionId().iphi(), iem->regionId().ieta(), iem->rank());
+            iem.regionId().iphi(), iem.regionId().ieta(), DynamicScale(iem.regionId().ieta()));
+        m_rctRelaxedEmRankEtaPhi1->Fill(iem.regionId().iphi(), iem.regionId().ieta(), iem.rank());
         m_rctRelaxedEmOccEtaPhi1->Fill(
-            iem->regionId().iphi(), iem->regionId().ieta(), DynamicScale(iem->regionId().ieta()));
-        m_rctRelaxedEmRank1->Fill(iem->rank());
+            iem.regionId().iphi(), iem.regionId().ieta(), DynamicScale(iem.regionId().ieta()));
+        m_rctRelaxedEmRank1->Fill(iem.rank());
       }
     }
-    if (iem->rank() > 10.) {  // applies the 10 GeV cut
-      if (iem->isolated()) {  // looks for isolated EM candidates only
-        m_rctIsoEmOccEtaPhi10->Fill(
-            iem->regionId().iphi(), iem->regionId().ieta(), DynamicScale(iem->regionId().ieta()));
+    if (iem.rank() > 10.) {  // applies the 10 GeV cut
+      if (iem.isolated()) {  // looks for isolated EM candidates only
+        m_rctIsoEmOccEtaPhi10->Fill(iem.regionId().iphi(), iem.regionId().ieta(), DynamicScale(iem.regionId().ieta()));
         m_rctRelaxedEmOccEtaPhi10->Fill(
-            iem->regionId().iphi(), iem->regionId().ieta(), DynamicScale(iem->regionId().ieta()));
+            iem.regionId().iphi(), iem.regionId().ieta(), DynamicScale(iem.regionId().ieta()));
       } else {  // instructions for Non-isolated EM candidates
         m_rctNonIsoEmOccEtaPhi10->Fill(
-            iem->regionId().iphi(), iem->regionId().ieta(), DynamicScale(iem->regionId().ieta()));
+            iem.regionId().iphi(), iem.regionId().ieta(), DynamicScale(iem.regionId().ieta()));
         m_rctRelaxedEmOccEtaPhi10->Fill(
-            iem->regionId().iphi(), iem->regionId().ieta(), DynamicScale(iem->regionId().ieta()));
+            iem.regionId().iphi(), iem.regionId().ieta(), DynamicScale(iem.regionId().ieta()));
       }
     }
   }

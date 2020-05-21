@@ -206,8 +206,7 @@ void Herwig6Hadronizer::clear() {
 void Herwig6Hadronizer::setSLHAFromHeader(const std::vector<std::string> &lines) {
   std::set<std::string> blocks;
   std::string block;
-  for (std::vector<std::string>::const_iterator iter = lines.begin(); iter != lines.end(); ++iter) {
-    std::string line = *iter;
+  for (auto line : lines) {
     std::transform(line.begin(), line.end(), line.begin(), (int (*)(int))std::toupper);
     std::string::size_type pos = line.find('#');
     if (pos != std::string::npos)
@@ -601,8 +600,8 @@ bool Herwig6Hadronizer::declareStableParticles(const std::vector<int> &pdgIds) {
   markStable(310);    // K_S0
   markStable(130);    // K_L0
 
-  for (std::vector<int>::const_iterator iter = pdgIds.begin(); iter != pdgIds.end(); ++iter)
-    if (!markStable(*iter))
+  for (int pdgId : pdgIds)
+    if (!markStable(pdgId))
       return false;
   return true;
 }
@@ -876,10 +875,10 @@ void Herwig6Hadronizer::upInit() {
   // pass HERWIG paramaters fomr header (if present)
   std::string mcnloHeader = "herwig6header";
   std::vector<lhef::LHERunInfo::Header> headers = lheRunInfo()->getHeaders();
-  for (std::vector<lhef::LHERunInfo::Header>::const_iterator hIter = headers.begin(); hIter != headers.end(); ++hIter) {
-    if (hIter->tag() == mcnloHeader) {
+  for (const auto &header : headers) {
+    if (header.tag() == mcnloHeader) {
       readMCatNLOfile = true;
-      for (lhef::LHERunInfo::Header::const_iterator lIter = hIter->begin(); lIter != hIter->end(); ++lIter) {
+      for (lhef::LHERunInfo::Header::const_iterator lIter = header.begin(); lIter != header.end(); ++lIter) {
         if ((lIter->c_str())[0] != '#' && (lIter->c_str())[0] != '\n') {  // it's not a comment)
           if (!give(*lIter))
             throw edm::Exception(edm::errors::Configuration)
@@ -895,10 +894,8 @@ void Herwig6Hadronizer::upEvnt() {
 
   // if MCatNLO external file is read, read comment & pass IHPRO to HERWIG
   if (readMCatNLOfile) {
-    for (std::vector<std::string>::const_iterator iter = lheEvent()->getComments().begin();
-         iter != lheEvent()->getComments().end();
-         ++iter) {
-      std::string toParse(iter->substr(1));
+    for (const auto &iter : lheEvent()->getComments()) {
+      std::string toParse(iter.substr(1));
       if (!give(toParse))
         throw edm::Exception(edm::errors::Configuration)
             << "Herwig 6 did not accept the following: \"" << toParse << "\"." << std::endl;

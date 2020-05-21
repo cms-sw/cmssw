@@ -282,13 +282,12 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
     }
 
     // Assumption: reco photons are ordered by Et
-    for (PhotonCollection::const_iterator recoPhoton = photonCollection->begin(); recoPhoton != photonCollection->end();
-         recoPhoton++) {
+    for (const auto& recoPhoton : *photonCollection) {
       // stop looping over photons once we get to too low Et
-      if (recoPhoton->et() < theMinPhotonEt_)
+      if (recoPhoton.et() < theMinPhotonEt_)
         break;
 
-      h_photon_et_beforeCuts->Fill(recoPhoton->et());
+      h_photon_et_beforeCuts->Fill(recoPhoton.et());
       break;  // leading photon only
     }
 
@@ -319,8 +318,8 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   // if (vtx_isFake || fabs(vtx_z)>15 || vtx_ndof<4) return;
 
   int nvvertex = 0;
-  for (unsigned int i = 0; i < vertexCollection.size(); ++i) {
-    if (vertexCollection[i].isValid())
+  for (auto& i : vertexCollection) {
+    if (i.isValid())
       nvvertex++;
   }
   if (nvvertex == 0)
@@ -427,8 +426,8 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   float jet2_eta = -9.0;
   float jet2_phi = -9.0;
   // Assumption: jets are ordered by Et
-  for (unsigned int i_jet = 0; i_jet < jetCollection->size(); i_jet++) {
-    const Jet* jet = &jetCollection->at(i_jet);
+  for (const auto& i_jet : *jetCollection) {
+    const Jet* jet = &i_jet;
 
     float jet_current_pt = jet->pt();
 

@@ -113,16 +113,16 @@ bool BTagSkimLeptonJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   // Jet cuts
   int nJet = 0;
-  for (CaloJetCollection::const_iterator ajet = TheCaloJets.begin(); ajet != TheCaloJets.end(); ++ajet) {
-    if ((fabs(ajet->eta()) < MaxCaloJetEta_) && (ajet->pt() > MinCaloJetPt_)) {
+  for (const auto& TheCaloJet : TheCaloJets) {
+    if ((fabs(TheCaloJet.eta()) < MaxCaloJetEta_) && (TheCaloJet.pt() > MinCaloJetPt_)) {
       if (LeptonType_ == "muon") {
-        for (MuonCollection::const_iterator amuon = TheMuons.begin(); amuon != TheMuons.end(); ++amuon) {
+        for (const auto& TheMuon : TheMuons) {
           // select good muon
-          if ((amuon->pt() > MinLeptonPt_) && (fabs(amuon->eta()) < MaxLeptonEta_)) {
-            double deltar = ROOT::Math::VectorUtil::DeltaR(ajet->p4().Vect(), amuon->momentum());
+          if ((TheMuon.pt() > MinLeptonPt_) && (fabs(TheMuon.eta()) < MaxLeptonEta_)) {
+            double deltar = ROOT::Math::VectorUtil::DeltaR(TheCaloJet.p4().Vect(), TheMuon.momentum());
 
-            TVector3 jetvec(ajet->p4().Vect().X(), ajet->p4().Vect().Y(), ajet->p4().Vect().Z());
-            TVector3 muvec(amuon->momentum().X(), amuon->momentum().Y(), amuon->momentum().Z());
+            TVector3 jetvec(TheCaloJet.p4().Vect().X(), TheCaloJet.p4().Vect().Y(), TheCaloJet.p4().Vect().Z());
+            TVector3 muvec(TheMuon.momentum().X(), TheMuon.momentum().Y(), TheMuon.momentum().Z());
             jetvec += muvec;
             double ptrel = muvec.Perp(jetvec);
 
@@ -135,13 +135,12 @@ bool BTagSkimLeptonJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
       }
 
       if (LeptonType_ == "electron") {
-        for (GsfElectronCollection::const_iterator anelectron = TheElectrons.begin(); anelectron != TheElectrons.end();
-             anelectron++) {
-          if ((anelectron->pt() > MinLeptonPt_) && (fabs(anelectron->eta()) < MaxLeptonEta_)) {
-            double deltar = ROOT::Math::VectorUtil::DeltaR(ajet->p4().Vect(), anelectron->momentum());
+        for (const auto& TheElectron : TheElectrons) {
+          if ((TheElectron.pt() > MinLeptonPt_) && (fabs(TheElectron.eta()) < MaxLeptonEta_)) {
+            double deltar = ROOT::Math::VectorUtil::DeltaR(TheCaloJet.p4().Vect(), TheElectron.momentum());
 
-            TVector3 jetvec(ajet->p4().Vect().X(), ajet->p4().Vect().Y(), ajet->p4().Vect().Z());
-            TVector3 evec(anelectron->momentum().X(), anelectron->momentum().Y(), anelectron->momentum().Z());
+            TVector3 jetvec(TheCaloJet.p4().Vect().X(), TheCaloJet.p4().Vect().Y(), TheCaloJet.p4().Vect().Z());
+            TVector3 evec(TheElectron.momentum().X(), TheElectron.momentum().Y(), TheElectron.momentum().Z());
             jetvec += evec;
             double ptrel = evec.Perp(jetvec);
 

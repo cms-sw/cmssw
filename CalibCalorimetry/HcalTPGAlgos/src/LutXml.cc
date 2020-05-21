@@ -242,8 +242,8 @@ std::string LutXml::get_checksum(std::vector<unsigned int> &lut) {
     exit(-1);
   }
   md5_finish(&md5er, digest);
-  for (int i = 0; i < 16; i++)
-    result << std::hex << (((int)(digest[i])) & 0xFF);
+  for (unsigned char &i : digest)
+    result << std::hex << (((int)i) & 0xFF);
 
   return result.str();
 }
@@ -260,30 +260,30 @@ int LutXml::test_access(std::string filename) {
   edm::LogInfo("LutXml") << "HcalEmap contains " << _map.size() << " entries";
 
   int _counter = 0;
-  for (std::vector<HcalEmap::HcalEmapRow>::const_iterator row = _map.begin(); row != _map.end(); ++row) {
-    if (row->subdet == "HB") {
-      HcalDetId det_id(HcalBarrel, row->ieta, row->iphi, row->idepth);
+  for (const auto &row : _map) {
+    if (row.subdet == "HB") {
+      HcalDetId det_id(HcalBarrel, row.ieta, row.iphi, row.idepth);
       uint32_t raw_id = det_id.rawId();
       std::vector<unsigned int> *l = getLutFast(raw_id);
       if (l)
         _counter++;
     }
-    if (row->subdet == "HE") {
-      HcalDetId det_id(HcalEndcap, row->ieta, row->iphi, row->idepth);
+    if (row.subdet == "HE") {
+      HcalDetId det_id(HcalEndcap, row.ieta, row.iphi, row.idepth);
       uint32_t raw_id = det_id.rawId();
       std::vector<unsigned int> *l = getLutFast(raw_id);
       if (l)
         _counter++;
     }
-    if (row->subdet == "HF") {
-      HcalDetId det_id(HcalForward, row->ieta, row->iphi, row->idepth);
+    if (row.subdet == "HF") {
+      HcalDetId det_id(HcalForward, row.ieta, row.iphi, row.idepth);
       uint32_t raw_id = det_id.rawId();
       std::vector<unsigned int> *l = getLutFast(raw_id);
       if (l)
         _counter++;
     }
-    if (row->subdet == "HO") {
-      HcalDetId det_id(HcalOuter, row->ieta, row->iphi, row->idepth);
+    if (row.subdet == "HO") {
+      HcalDetId det_id(HcalOuter, row.ieta, row.iphi, row.idepth);
       uint32_t raw_id = det_id.rawId();
       std::vector<unsigned int> *l = getLutFast(raw_id);
       if (l)

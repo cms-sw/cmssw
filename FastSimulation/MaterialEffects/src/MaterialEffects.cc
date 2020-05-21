@@ -137,40 +137,40 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff)
     std::map<int, int> idMap;
     // Protons
     std::vector<int> idProtons = matEff.getUntrackedParameter<std::vector<int> >("protons");
-    for (unsigned i = 0; i < idProtons.size(); ++i)
-      idMap[idProtons[i]] = 2212;
+    for (int idProton : idProtons)
+      idMap[idProton] = 2212;
     // Anti-Protons
     std::vector<int> idAntiProtons = matEff.getUntrackedParameter<std::vector<int> >("antiprotons");
-    for (unsigned i = 0; i < idAntiProtons.size(); ++i)
-      idMap[idAntiProtons[i]] = -2212;
+    for (int idAntiProton : idAntiProtons)
+      idMap[idAntiProton] = -2212;
     // Neutrons
     std::vector<int> idNeutrons = matEff.getUntrackedParameter<std::vector<int> >("neutrons");
-    for (unsigned i = 0; i < idNeutrons.size(); ++i)
-      idMap[idNeutrons[i]] = 2112;
+    for (int idNeutron : idNeutrons)
+      idMap[idNeutron] = 2112;
     // Anti-Neutrons
     std::vector<int> idAntiNeutrons = matEff.getUntrackedParameter<std::vector<int> >("antineutrons");
-    for (unsigned i = 0; i < idAntiNeutrons.size(); ++i)
-      idMap[idAntiNeutrons[i]] = -2112;
+    for (int idAntiNeutron : idAntiNeutrons)
+      idMap[idAntiNeutron] = -2112;
     // K0L's
     std::vector<int> idK0Ls = matEff.getUntrackedParameter<std::vector<int> >("K0Ls");
-    for (unsigned i = 0; i < idK0Ls.size(); ++i)
-      idMap[idK0Ls[i]] = 130;
+    for (int idK0L : idK0Ls)
+      idMap[idK0L] = 130;
     // K+'s
     std::vector<int> idKplusses = matEff.getUntrackedParameter<std::vector<int> >("Kplusses");
-    for (unsigned i = 0; i < idKplusses.size(); ++i)
-      idMap[idKplusses[i]] = 321;
+    for (int idKplusse : idKplusses)
+      idMap[idKplusse] = 321;
     // K-'s
     std::vector<int> idKminusses = matEff.getUntrackedParameter<std::vector<int> >("Kminusses");
-    for (unsigned i = 0; i < idKminusses.size(); ++i)
-      idMap[idKminusses[i]] = -321;
+    for (int idKminusse : idKminusses)
+      idMap[idKminusse] = -321;
     // pi+'s
     std::vector<int> idPiplusses = matEff.getUntrackedParameter<std::vector<int> >("Piplusses");
-    for (unsigned i = 0; i < idPiplusses.size(); ++i)
-      idMap[idPiplusses[i]] = 211;
+    for (int idPiplusse : idPiplusses)
+      idMap[idPiplusse] = 211;
     // pi-'s
     std::vector<int> idPiminusses = matEff.getUntrackedParameter<std::vector<int> >("Piminusses");
-    for (unsigned i = 0; i < idPiminusses.size(); ++i)
-      idMap[idPiminusses[i]] = -211;
+    for (int idPiminusse : idPiminusses)
+      idMap[idPiminusse] = -211;
 
     // Construction
     if (doG4NuclInteraction) {

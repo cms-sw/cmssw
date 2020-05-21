@@ -66,8 +66,8 @@ void RPCSeedrecHitFinder::fillrecHits() {
     return;
   }
   cout << "Now fill recHits from Layers: ";
-  for (unsigned int k = 0; k < LayersinRPC.size(); k++)
-    cout << LayersinRPC[k] << " ";
+  for (unsigned int k : LayersinRPC)
+    cout << k << " ";
   cout << endl;
   unsigned int LayerIndex = 0;
   therecHits.clear();
@@ -103,8 +103,8 @@ void RPCSeedrecHitFinder::complete(unsigned int LayerIndex) {
     bool Clustercheck = false;
     if (ClusterSet.empty())
       Clustercheck = true;
-    for (std::vector<int>::const_iterator CluIter = ClusterSet.begin(); CluIter != ClusterSet.end(); CluIter++)
-      if (ClusterSize == (*CluIter))
+    for (int CluIter : ClusterSet)
+      if (ClusterSize == CluIter)
         Clustercheck = true;
     if (Clustercheck != true)
       continue;
@@ -143,8 +143,8 @@ double RPCSeedrecHitFinder::getdeltaPhifromrecHits() {
   ConstMuonRecHitContainer sortRecHits = therecHits;
   sort(sortRecHits.begin(), sortRecHits.end(), lessPhi);
   cout << "Sorted recHit's Phi: ";
-  for (ConstMuonRecHitContainer::const_iterator iter = sortRecHits.begin(); iter != sortRecHits.end(); iter++)
-    cout << (*iter)->globalPosition().phi() << ", ";
+  for (const auto& sortRecHit : sortRecHits)
+    cout << sortRecHit->globalPosition().phi() << ", ";
   cout << endl;
   // Calculate the deltaPhi, take care Geom::Phi always in range [-pi,pi)
   // In case of some deltaPhi larger then Pi, use value() in Geom::Phi to get the true value in radians of Phi, then do the calculation

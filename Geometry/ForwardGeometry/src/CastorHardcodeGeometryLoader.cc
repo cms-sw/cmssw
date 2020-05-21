@@ -70,9 +70,8 @@ void CastorHardcodeGeometryLoader::fill(HcalCastorDetId::Section section, CaloSu
 
   // for each new HcalCastorDetId, make a CaloCellGeometry
 
-  for (std::vector<HcalCastorDetId>::const_iterator castorIdItr(castorIds.begin()); castorIdItr != castorIds.end();
-       ++castorIdItr) {
-    makeCell(*castorIdItr, geom);
+  for (auto castorId : castorIds) {
+    makeCell(castorId, geom);
   }
 }
 

@@ -345,17 +345,17 @@ void AnalyzerMinbias::analyzeHcal(const HcalRespCorrs* myRecalib,
   std::map<std::pair<int, HcalDetId>, myInfo> tmpMap;
   tmpMap.clear();
 
-  for (HBHERecHitCollection::const_iterator hbheItr = HithbheNS.begin(); hbheItr != HithbheNS.end(); hbheItr++) {
+  for (const auto& hbheItr : HithbheNS) {
     // Recalibration of energy
     float icalconst = 1.;
-    DetId mydetid = hbheItr->id().rawId();
+    DetId mydetid = hbheItr.id().rawId();
     if (theRecalib_)
       icalconst = myRecalib->getValues(mydetid)->getValue();
 
-    HBHERecHit aHit(hbheItr->id(), hbheItr->energy() * icalconst, hbheItr->time());
+    HBHERecHit aHit(hbheItr.id(), hbheItr.energy() * icalconst, hbheItr.time());
     double energyhit = aHit.energy();
 
-    DetId id = (*hbheItr).detid();
+    DetId id = hbheItr.detid();
     HcalDetId hid = HcalDetId(id);
     std::map<std::pair<int, HcalDetId>, myInfo>::iterator itr1 = myMap_.find(std::pair<int, HcalDetId>(algoBit, hid));
     if (itr1 == myMap_.end()) {
@@ -389,17 +389,17 @@ void AnalyzerMinbias::analyzeHcal(const HcalRespCorrs* myRecalib,
 
   // Signal part for HB HE
 
-  for (HBHERecHitCollection::const_iterator hbheItr = HithbheMB.begin(); hbheItr != HithbheMB.end(); hbheItr++) {
+  for (const auto& hbheItr : HithbheMB) {
     // Recalibration of energy
     float icalconst = 1.;
-    DetId mydetid = hbheItr->id().rawId();
+    DetId mydetid = hbheItr.id().rawId();
     if (theRecalib_)
       icalconst = myRecalib->getValues(mydetid)->getValue();
 
-    HBHERecHit aHit(hbheItr->id(), hbheItr->energy() * icalconst, hbheItr->time());
+    HBHERecHit aHit(hbheItr.id(), hbheItr.energy() * icalconst, hbheItr.time());
     double energyhit = aHit.energy();
 
-    DetId id = (*hbheItr).detid();
+    DetId id = hbheItr.detid();
     HcalDetId hid = HcalDetId(id);
 
     std::map<std::pair<int, HcalDetId>, myInfo>::iterator itr1 = myMap_.find(std::pair<int, HcalDetId>(algoBit, hid));
@@ -430,19 +430,19 @@ void AnalyzerMinbias::analyzeHcal(const HcalRespCorrs* myRecalib,
 
   // HF
 
-  for (HFRecHitCollection::const_iterator hbheItr = HithfNS.begin(); hbheItr != HithfNS.end(); hbheItr++) {
+  for (const auto& hbheItr : HithfNS) {
     // Recalibration of energy
     float icalconst = 1.;
-    DetId mydetid = hbheItr->id().rawId();
+    DetId mydetid = hbheItr.id().rawId();
     if (theRecalib_)
       icalconst = myRecalib->getValues(mydetid)->getValue();
 
-    HFRecHit aHit(hbheItr->id(), hbheItr->energy() * icalconst, hbheItr->time());
+    HFRecHit aHit(hbheItr.id(), hbheItr.energy() * icalconst, hbheItr.time());
     double energyhit = aHit.energy();
     // Remove PMT hits
     if (fabs(energyhit) > 40.)
       continue;
-    DetId id = (*hbheItr).detid();
+    DetId id = hbheItr.detid();
     HcalDetId hid = HcalDetId(id);
 
     std::map<std::pair<int, HcalDetId>, myInfo>::iterator itr1 = myMap_.find(std::pair<int, HcalDetId>(algoBit, hid));
@@ -478,20 +478,20 @@ void AnalyzerMinbias::analyzeHcal(const HcalRespCorrs* myRecalib,
 
   // Signal part for HF
 
-  for (HFRecHitCollection::const_iterator hbheItr = HithfMB.begin(); hbheItr != HithfMB.end(); hbheItr++) {
+  for (const auto& hbheItr : HithfMB) {
     // Recalibration of energy
     float icalconst = 1.;
-    DetId mydetid = hbheItr->id().rawId();
+    DetId mydetid = hbheItr.id().rawId();
     if (theRecalib_)
       icalconst = myRecalib->getValues(mydetid)->getValue();
-    HFRecHit aHit(hbheItr->id(), hbheItr->energy() * icalconst, hbheItr->time());
+    HFRecHit aHit(hbheItr.id(), hbheItr.energy() * icalconst, hbheItr.time());
 
     double energyhit = aHit.energy();
     // Remove PMT hits
     if (fabs(energyhit) > 40.)
       continue;
 
-    DetId id = (*hbheItr).detid();
+    DetId id = hbheItr.detid();
     HcalDetId hid = HcalDetId(id);
 
     std::map<std::pair<int, HcalDetId>, myInfo>::iterator itr1 = myMap_.find(std::pair<int, HcalDetId>(algoBit, hid));

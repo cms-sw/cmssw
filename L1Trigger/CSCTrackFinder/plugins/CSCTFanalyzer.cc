@@ -107,13 +107,13 @@ void CSCTFanalyzer::analyze(edm::Event const& e, edm::EventSetup const& es) {
     e.getByLabel(mbProducer.label(), mbProducer.instance(), dtStubs);
     if (dtStubs.isValid()) {
       std::vector<csctf::TrackStub> vstubs = dtStubs->get();
-      for (std::vector<csctf::TrackStub>::const_iterator stub = vstubs.begin(); stub != vstubs.end(); stub++) {
+      for (const auto& vstub : vstubs) {
         //int dtSector =(stub->sector()-1)*2 + stub->subsector()-1;
         //int dtEndcap = stub->endcap()-1;
-        std::cout << "   DT data: tbin=" << stub->BX() << " (CSC) sector=" << stub->sector()
-                  << " (CSC) subsector=" << stub->subsector() << " station=" << stub->station()
-                  << " endcap=" << stub->endcap() << " phi=" << stub->phiPacked() << " phiBend=" << stub->getBend()
-                  << " quality=" << stub->getQuality() << " id=" << stub->getMPCLink() << " mb_bxn=" << stub->cscid()
+        std::cout << "   DT data: tbin=" << vstub.BX() << " (CSC) sector=" << vstub.sector()
+                  << " (CSC) subsector=" << vstub.subsector() << " station=" << vstub.station()
+                  << " endcap=" << vstub.endcap() << " phi=" << vstub.phiPacked() << " phiBend=" << vstub.getBend()
+                  << " quality=" << vstub.getQuality() << " id=" << vstub.getMPCLink() << " mb_bxn=" << vstub.cscid()
                   << std::endl;
       }
 
@@ -169,10 +169,10 @@ void CSCTFanalyzer::analyze(edm::Event const& e, edm::EventSetup const& es) {
     // Muon sorter emulation:
     std::vector<csc::L1Track> result;
     CSCTriggerContainer<csc::L1Track> stripped_tracks;
-    for (L1CSCTrackCollection::const_iterator tmp_trk = tracks->begin(); tmp_trk != tracks->end(); tmp_trk++) {
-      csc::L1Track qqq(tmp_trk->first);
+    for (const auto& tmp_trk : *tracks) {
+      csc::L1Track qqq(tmp_trk.first);
       qqq.setOutputLink(0);
-      CSCCorrelatedLCTDigiCollection qwe = tmp_trk->second;
+      CSCCorrelatedLCTDigiCollection qwe = tmp_trk.second;
       for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator csc = qwe.begin(); csc != qwe.end(); csc++) {
         CSCCorrelatedLCTDigiCollection::Range range1 = qwe.get((*csc).first);
         for (CSCCorrelatedLCTDigiCollection::const_iterator lct = range1.first; lct != range1.second; lct++)
@@ -186,24 +186,24 @@ void CSCTFanalyzer::analyze(edm::Event const& e, edm::EventSetup const& es) {
       std::sort(tks.begin(), tks.end(), std::greater<csc::L1Track>());
       if (tks.size() > 4)
         tks.resize(4);  // resize to max number of muons the MS can output
-      for (std::vector<csc::L1Track>::iterator itr = tks.begin(); itr != tks.end(); itr++) {
+      for (auto& tk : tks) {
         unsigned gbl_phi =
-            itr->localPhi() + ((itr->sector() - 1) * 24) + 6;  // for now, convert using this.. LUT in the future
+            tk.localPhi() + ((tk.sector() - 1) * 24) + 6;  // for now, convert using this.. LUT in the future
         if (gbl_phi > 143)
           gbl_phi -= 143;
-        itr->setPhiPacked(gbl_phi & 0xff);
-        unsigned eta_sign = (itr->endcap() == 1 ? 0 : 1);
-        int gbl_eta = itr->eta_packed() | eta_sign << (L1MuRegionalCand::ETA_LENGTH - 1);
-        itr->setEtaPacked(gbl_eta & 0x3f);
-        itr->setQualityPacked((itr->rank() >> 4) & 0x3);
-        itr->setPtPacked(itr->rank() & 0x1f);
-        if (!itr->empty())
-          result.push_back(*itr);
+        tk.setPhiPacked(gbl_phi & 0xff);
+        unsigned eta_sign = (tk.endcap() == 1 ? 0 : 1);
+        int gbl_eta = tk.eta_packed() | eta_sign << (L1MuRegionalCand::ETA_LENGTH - 1);
+        tk.setEtaPacked(gbl_eta & 0x3f);
+        tk.setQualityPacked((tk.rank() >> 4) & 0x3);
+        tk.setPtPacked(tk.rank() & 0x1f);
+        if (!tk.empty())
+          result.push_back(tk);
       }
     }
     //		for(std::vector<csc::L1Track>::const_iterator trk=result.begin(); trk!=result.end(); trk++){
-    for (L1CSCTrackCollection::const_iterator _trk = tracks->begin(); _trk != tracks->end(); _trk++) {
-      const csc::L1Track* trk = &(_trk->first);
+    for (const auto& _trk : *tracks) {
+      const csc::L1Track* trk = &(_trk.first);
       switch (nDataMuons) {
         case 0:
           dphi1 = ts->getPhiScale()->getLowEdge(trk->phi_packed());
@@ -251,39 +251,39 @@ void CSCTFanalyzer::analyze(edm::Event const& e, edm::EventSetup const& es) {
   if (emulTrackProducer.label() != "null") {
     edm::Handle<L1CSCTrackCollection> tracks;
     e.getByLabel(emulTrackProducer.label(), emulTrackProducer.instance(), tracks);
-    for (L1CSCTrackCollection::const_iterator trk = tracks.product()->begin(); trk != tracks.product()->end(); trk++) {
+    for (const auto& trk : *tracks.product()) {
       switch (nEmulMuons) {
         case 0:
-          ephi1 = trk->first.localPhi();
-          eeta1 = trk->first.eta_packed();
-          ept1 = trk->first.pt_packed();
-          ech1 = trk->first.charge_packed();
-          ebx1 = trk->first.BX();
+          ephi1 = trk.first.localPhi();
+          eeta1 = trk.first.eta_packed();
+          ept1 = trk.first.pt_packed();
+          ech1 = trk.first.charge_packed();
+          ebx1 = trk.first.BX();
           break;
         case 1:
-          ephi2 = trk->first.localPhi();
-          eeta2 = trk->first.eta_packed();
-          ept2 = trk->first.pt_packed();
-          ech2 = trk->first.charge_packed();
-          ebx2 = trk->first.BX();
+          ephi2 = trk.first.localPhi();
+          eeta2 = trk.first.eta_packed();
+          ept2 = trk.first.pt_packed();
+          ech2 = trk.first.charge_packed();
+          ebx2 = trk.first.BX();
           break;
         case 2:
-          ephi3 = trk->first.localPhi();
-          eeta3 = trk->first.eta_packed();
-          ept3 = trk->first.pt_packed();
-          ech3 = trk->first.charge_packed();
-          ebx3 = trk->first.BX();
+          ephi3 = trk.first.localPhi();
+          eeta3 = trk.first.eta_packed();
+          ept3 = trk.first.pt_packed();
+          ech3 = trk.first.charge_packed();
+          ebx3 = trk.first.BX();
           break;
         default:
           break;
       }
       if ((verbose & 2) == 2)
-        std::cout << "Emulator: TRK in endcap=" << trk->first.endcap() << " sector=" << trk->first.sector()
-                  << " bx=" << trk->first.BX() << " (rank=" << trk->first.rank()
-                  << " localPhi=" << trk->first.localPhi() << " etaPacked=" << trk->first.eta_packed()
-                  << " me1D=" << trk->first.me1ID() << " me2D=" << trk->first.me2ID() << " me3D=" << trk->first.me3ID()
-                  << " me4D=" << trk->first.me4ID() << " mb1D=" << trk->first.mb1ID() << " pTaddr=" << std::hex
-                  << trk->first.ptLUTAddress() << std::dec << ")" << std::endl;
+        std::cout << "Emulator: TRK in endcap=" << trk.first.endcap() << " sector=" << trk.first.sector()
+                  << " bx=" << trk.first.BX() << " (rank=" << trk.first.rank() << " localPhi=" << trk.first.localPhi()
+                  << " etaPacked=" << trk.first.eta_packed() << " me1D=" << trk.first.me1ID()
+                  << " me2D=" << trk.first.me2ID() << " me3D=" << trk.first.me3ID() << " me4D=" << trk.first.me4ID()
+                  << " mb1D=" << trk.first.mb1ID() << " pTaddr=" << std::hex << trk.first.ptLUTAddress() << std::dec
+                  << ")" << std::endl;
       nEmulMuons++;
     }
   }

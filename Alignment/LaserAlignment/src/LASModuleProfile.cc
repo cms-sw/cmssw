@@ -78,8 +78,8 @@ void LASModuleProfile::SetAllValuesTo(const double& theValue) {
   ///
   ///
 
-  for (unsigned int i = 0; i < data.size(); ++i)
-    data.at(i) = theValue;
+  for (double& i : data)
+    i = theValue;
 }
 
 void LASModuleProfile::DumpToArray(double array[512]) {

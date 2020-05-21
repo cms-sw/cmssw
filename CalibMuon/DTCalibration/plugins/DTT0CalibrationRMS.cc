@@ -61,11 +61,11 @@ DTT0CalibrationRMS::DTT0CalibrationRMS(const edm::ParameterSet& pset) {
   vector<string> defaultCell;
   defaultCell.push_back("None");
   cellsWithHistos = pset.getUntrackedParameter<vector<string> >("cellsWithHisto", defaultCell);
-  for (vector<string>::const_iterator cell = cellsWithHistos.begin(); cell != cellsWithHistos.end(); ++cell) {
-    if ((*cell) != "None") {
+  for (const auto& cellsWithHisto : cellsWithHistos) {
+    if (cellsWithHisto != "None") {
       stringstream linestr;
       int wheel, sector, station, sl, layer, wire;
-      linestr << (*cell);
+      linestr << cellsWithHisto;
       linestr >> wheel >> sector >> station >> sl >> layer >> wire;
       wireIdWithHistos.push_back(DTWireId(wheel, station, sector, sl, layer, wire));
     }
@@ -338,7 +338,7 @@ void DTT0CalibrationRMS::endJob() {
     // Get all the sls from the setup
     const vector<const DTSuperLayer*> superLayers = dtGeom->superLayers();
     // Loop over all SLs
-    for (vector<const DTSuperLayer*>::const_iterator sl = superLayers.begin(); sl != superLayers.end(); sl++) {
+    for (auto superLayer : superLayers) {
       //Compute mean for odd and even superlayers
       double oddLayersMean = 0;
       double evenLayersMean = 0;
@@ -347,10 +347,10 @@ void DTT0CalibrationRMS::endJob() {
       for (map<DTWireId, double>::const_iterator wiret0 = theRelativeT0PerWire.begin();
            wiret0 != theRelativeT0PerWire.end();
            ++wiret0) {
-        if ((*wiret0).first.layerId().superlayerId() == (*sl)->id()) {
+        if ((*wiret0).first.layerId().superlayerId() == superLayer->id()) {
           if (debug)
-            cout << "[DTT0CalibrationRMS] Superlayer " << (*sl)->id() << "layer " << (*wiret0).first.layerId().layer()
-                 << " with " << (*wiret0).second << endl;
+            cout << "[DTT0CalibrationRMS] Superlayer " << superLayer->id() << "layer "
+                 << (*wiret0).first.layerId().layer() << " with " << (*wiret0).second << endl;
           if (((*wiret0).first.layerId().layer()) % 2) {
             oddLayersMean = oddLayersMean + (*wiret0).second;
             oddLayersDen++;
@@ -372,7 +372,7 @@ void DTT0CalibrationRMS::endJob() {
       for (map<DTWireId, double>::const_iterator wiret0 = theRelativeT0PerWire.begin();
            wiret0 != theRelativeT0PerWire.end();
            ++wiret0) {
-        if ((*wiret0).first.layerId().superlayerId() == (*sl)->id()) {
+        if ((*wiret0).first.layerId().superlayerId() == superLayer->id()) {
           if (((*wiret0).first.layerId().layer()) % 2) {
             oddLayersSigma = oddLayersSigma + ((*wiret0).second - oddLayersMean) * ((*wiret0).second - oddLayersMean);
           } else {
@@ -396,7 +396,7 @@ void DTT0CalibrationRMS::endJob() {
       for (map<DTWireId, double>::const_iterator wiret0 = theRelativeT0PerWire.begin();
            wiret0 != theRelativeT0PerWire.end();
            ++wiret0) {
-        if ((*wiret0).first.layerId().superlayerId() == (*sl)->id()) {
+        if ((*wiret0).first.layerId().superlayerId() == superLayer->id()) {
           if (((*wiret0).first.layerId().layer()) % 2) {
             if (abs((*wiret0).second - oddLayersMean) < (2 * oddLayersSigma))
               oddLayersFinalMean = oddLayersFinalMean + (*wiret0).second;
@@ -415,7 +415,7 @@ void DTT0CalibrationRMS::endJob() {
       for (map<DTWireId, double>::const_iterator wiret0 = theRelativeT0PerWire.begin();
            wiret0 != theRelativeT0PerWire.end();
            ++wiret0) {
-        if ((*wiret0).first.layerId().superlayerId() == (*sl)->id()) {
+        if ((*wiret0).first.layerId().superlayerId() == superLayer->id()) {
           double t0 = -999;
           if (((*wiret0).first.layerId().layer()) % 2)
             t0 = (*wiret0).second + (evenLayersFinalMean - oddLayersFinalMean);

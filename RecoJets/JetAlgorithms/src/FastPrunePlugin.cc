@@ -134,16 +134,16 @@ void FastPrunePlugin::run_clustering(ClusterSequence& input_seq) const {
   // now, for each jet, construct a pruned version:
   vector<PseudoJet> unpruned_jets = sorted_by_pt(_unpruned_seq->inclusive_jets(_minpT));
 
-  for (unsigned int i = 0; i < unpruned_jets.size(); i++) {
-    _cut_setter->SetCuts(unpruned_jets[i], *_unpruned_seq);
+  for (const auto& unpruned_jet : unpruned_jets) {
+    _cut_setter->SetCuts(unpruned_jet, *_unpruned_seq);
     _pruned_recombiner->reset(_cut_setter->zcut, _cut_setter->Rcut);
     _prune_definition.set_recombiner(_pruned_recombiner);
 
     // temp way to get constituents, to compare to new version
     vector<PseudoJet> constituents;
-    for (size_t j = 0; j < inputs.size(); ++j)
-      if (_unpruned_seq->object_in_jet(inputs[j], unpruned_jets[i])) {
-        constituents.push_back(inputs[j]);
+    for (const auto& input : inputs)
+      if (_unpruned_seq->object_in_jet(input, unpruned_jet)) {
+        constituents.push_back(input);
       }
     ClusterSequence pruned_seq(constituents, _prune_definition);
 

@@ -27,11 +27,11 @@ ESDigiToRaw::ESDigiToRaw(const edm::ParameterSet& ps)
 
   produces<FEDRawDataCollection>();
   // initialize look-up table
-  for (int i = 0; i < 2; ++i)
+  for (auto& i : fedId_)
     for (int j = 0; j < 2; ++j)
       for (int k = 0; k < 40; ++k)
         for (int m = 0; m < 40; m++)
-          fedId_[i][j][k][m] = -1;
+          i[j][k][m] = -1;
 
   // read in look-up table
   int nLines, iz, ip, ix, iy, fed, kchip, pace, bundle, fiber, optorx;

@@ -93,8 +93,8 @@ void TtFullHadKinFitProducer::produce(edm::Event& event, const edm::EventSetup& 
     if (match.size() != nPartons) {
       invalidMatch = true;
     } else {
-      for (unsigned int idx = 0; idx < match.size(); ++idx) {
-        if (match[idx] < 0 || match[idx] >= (int)jets->size()) {
+      for (int idx : match) {
+        if (idx < 0 || idx >= (int)jets->size()) {
           invalidMatch = true;
           break;
         }

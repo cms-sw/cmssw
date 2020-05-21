@@ -92,9 +92,9 @@ void EcalFEDWithCRCErrorProducer::produce(edm::Event& iEvent, const edm::EventSe
   // get fed raw data and SM id
 
   // loop over FEDS
-  for (std::vector<int>::const_iterator i = fedUnpackList_.begin(); i != fedUnpackList_.end(); i++) {
+  for (int i : fedUnpackList_) {
     // get fed raw data and SM id
-    const FEDRawData& fedData = rawdata->FEDData(*i);
+    const FEDRawData& fedData = rawdata->FEDData(i);
     int length = fedData.size() / sizeof(uint64_t);
 
     //    LogDebug("EcalRawToDigi") << "raw data length: " << length ;
@@ -106,7 +106,7 @@ void EcalFEDWithCRCErrorProducer::produce(edm::Event& iEvent, const edm::EventSe
       bool crcError = (*fedTrailer >> 2) & 0x1;
       // this fed has data -- lets copy it
       if (writeAllEcalFEDs_ || crcError) {
-        FEDRawData& fedDataProd = producedData->FEDData(*i);
+        FEDRawData& fedDataProd = producedData->FEDData(i);
         if (fedDataProd.size() != 0) {
           //                std::cout << " More than one FEDRawDataCollection with data in FED ";
           //                std::cout << j << " Skipping the 2nd\n";

@@ -147,26 +147,26 @@ CondDBESSource::CondDBESSource(const edm::ParameterSet& iConfig)
   if (iConfig.exists("toGet")) {
     typedef std::vector<edm::ParameterSet> Parameters;
     Parameters toGet = iConfig.getParameter<Parameters>("toGet");
-    for (Parameters::iterator itToGet = toGet.begin(); itToGet != toGet.end(); ++itToGet) {
-      std::string recordname = itToGet->getParameter<std::string>("record");
+    for (auto& itToGet : toGet) {
+      std::string recordname = itToGet.getParameter<std::string>("record");
       if (recordname.empty())
         throw cond::Exception("ESSource: The record name has not been provided in a \"toGet\" entry.");
-      std::string labelname = itToGet->getUntrackedParameter<std::string>("label", "");
+      std::string labelname = itToGet.getUntrackedParameter<std::string>("label", "");
       std::string pfn("");
-      if (m_connectionString.empty() || itToGet->exists("connect"))
-        pfn = itToGet->getParameter<std::string>("connect");
+      if (m_connectionString.empty() || itToGet.exists("connect"))
+        pfn = itToGet.getParameter<std::string>("connect");
       std::string tag("");
       std::string fqTag("");
-      if (itToGet->exists("tag")) {
-        tag = itToGet->getParameter<std::string>("tag");
+      if (itToGet.exists("tag")) {
+        tag = itToGet.getParameter<std::string>("tag");
         fqTag = cond::persistency::fullyQualifiedTag(tag, pfn);
       }
       boost::posix_time::ptime tagSnapshotTime =
           boost::posix_time::time_from_string(std::string(cond::time::MAX_TIMESTAMP));
-      if (itToGet->exists("snapshotTime"))
-        tagSnapshotTime = boost::posix_time::time_from_string(itToGet->getParameter<std::string>("snapshotTime"));
-      if (itToGet->exists("refreshTime")) {
-        cond::Time_t refreshTime = itToGet->getParameter<unsigned long long>("refreshTime");
+      if (itToGet.exists("snapshotTime"))
+        tagSnapshotTime = boost::posix_time::time_from_string(itToGet.getParameter<std::string>("snapshotTime"));
+      if (itToGet.exists("refreshTime")) {
+        cond::Time_t refreshTime = itToGet.getParameter<unsigned long long>("refreshTime");
         m_refreshTimeForRecord.insert(std::make_pair(recordname, refreshTime));
       }
 

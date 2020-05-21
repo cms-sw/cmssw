@@ -140,8 +140,8 @@ void PatTrackAnalyzer::analyze(const edm::Event &event, const edm::EventSetup &e
     //       This means we are using the global fit over both
     //       the inner tracker and the muon stations!
     //       other alternatives are: innerTrack(), outerTrack()
-    for (pat::MuonCollection::const_iterator iter = muonsHandle->begin(); iter != muonsHandle->end(); ++iter) {
-      reco::TrackRef track = iter->globalTrack();
+    for (const auto &iter : *muonsHandle) {
+      reco::TrackRef track = iter.globalTrack();
       // the muon might not be a "global" muon
       if (track.isNonnull())
         tracks.push_back(&*track);
@@ -162,9 +162,9 @@ void PatTrackAnalyzer::analyze(const edm::Event &event, const edm::EventSetup &e
     Plots &plots = plots_[i];
 
     // now loop over the tracks
-    for (std::vector<const reco::Track *>::const_iterator iter = tracks.begin(); iter != tracks.end(); ++iter) {
+    for (auto iter : tracks) {
       // this is our track
-      const reco::Track &track = **iter;
+      const reco::Track &track = *iter;
 
       // ignore tracks that fail the quality cut
       if (!track.quality(quality))

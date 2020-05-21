@@ -254,18 +254,17 @@ void HitParentTest::endJob() {
 
   edm::LogVerbatim("HitParentTest") << "HitParentTest::Frequency particle types through the APD "
                                     << "(pid/frequency):";
-  for (unsigned i = 0; i < sorted_pids.size(); ++i) {
-    int pid = sorted_pids[i];
+  for (int pid : sorted_pids) {
     edm::LogVerbatim("HitParentTest") << "  pid " << boost::format("%6d") % pid << ": count "
                                       << boost::format("%6d") % particle_type_count[pid];
   }
 }
 
 void HitParentTest::analyzeHits(const std::vector<PCaloHit>& hits, int type) {
-  for (std::vector<PCaloHit>::const_iterator hit_it = hits.begin(); hit_it != hits.end(); ++hit_it) {
+  for (const auto& hit : hits) {
     int id(type), flag(0);
     if (type == 3) {
-      HcalDetId id_ = HcalDetId(hit_it->id());
+      HcalDetId id_ = HcalDetId(hit.id());
       int subdet = id_.subdet();
       if (subdet == static_cast<int>(HcalEndcap))
         id = type + 1;
@@ -277,7 +276,7 @@ void HitParentTest::analyzeHits(const std::vector<PCaloHit>& hits, int type) {
     ++totalHits[id];
 
     // get the geant track id
-    int hit_geant_track_id = hit_it->geantTrackId();
+    int hit_geant_track_id = hit.geantTrackId();
 
     if (hit_geant_track_id <= 0) {
       ++noParent[id];
@@ -332,12 +331,12 @@ void HitParentTest::analyzeHits(const std::vector<PCaloHit>& hits, int type) {
 }
 
 void HitParentTest::analyzeAPDHits(const std::vector<PCaloHit>& hits, int depth) {
-  for (std::vector<PCaloHit>::const_iterator hit_it = hits.begin(); hit_it != hits.end(); ++hit_it) {
-    if (hit_it->depth() == depth) {
+  for (const auto& hit : hits) {
+    if (hit.depth() == depth) {
       ++total_num_apd_hits_seen[depth - 1];
 
       // get the geant track id
-      int hit_geant_track_id = hit_it->geantTrackId();
+      int hit_geant_track_id = hit.geantTrackId();
 
       if (hit_geant_track_id <= 0) {
         ++num_apd_hits_no_parent[depth - 1];
@@ -376,7 +375,7 @@ void HitParentTest::analyzeAPDHits(const std::vector<PCaloHit>& hits, int depth)
 
             edm::LogVerbatim("HitParentTest")
                 << "APD hit pid = " << apd_pid << " APD hit track id = " << hit_geant_track_id
-                << " depth = " << hit_it->depth() << " OLDEST PARENT'S VERTEX: " << oldest_parent_vertex
+                << " depth = " << hit.depth() << " OLDEST PARENT'S VERTEX: " << oldest_parent_vertex
                 << " rho = " << oldest_parent_vertex.Rho() << " OLDEST PARENT'S PID: " << oldest_parent_track->type()
                 << " OLDEST PARENT'S track id: " << oldest_parent_track->trackId() << "\n"
                 << "APD hit vertex index: " << simTrkItr->vertIndex() << " (tot #vertices: " << SimVtx->size() << ")"
@@ -395,8 +394,8 @@ void HitParentTest::analyzeAPDHits(const std::vector<PCaloHit>& hits, int depth)
 }
 
 bool HitParentTest::simTrackPresent(int id) {
-  for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); ++simTrkItr) {
-    if ((int)(simTrkItr->trackId()) == id)
+  for (const auto& simTrkItr : *SimTk) {
+    if ((int)(simTrkItr.trackId()) == id)
       return true;
   }
   return false;

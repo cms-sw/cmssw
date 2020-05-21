@@ -59,13 +59,11 @@ namespace edm {
   void BranchIDListHelper::updateFromRegistry(ProductRegistry const& preg) {
     BranchIDList bidlist;
     // Add entries for current process for ProductID to BranchID mapping.
-    for (ProductRegistry::ProductList::const_iterator it = preg.productList().begin(), itEnd = preg.productList().end();
-         it != itEnd;
-         ++it) {
+    for (const auto& it : preg.productList()) {
       //In the case of the alias, we always use the original branches BranchID
-      if (it->second.produced() and not it->second.isAlias()) {
-        if (it->second.branchType() == InEvent) {
-          bidlist.push_back(it->second.branchID().id());
+      if (it.second.produced() and not it.second.isAlias()) {
+        if (it.second.branchType() == InEvent) {
+          bidlist.push_back(it.second.branchID().id());
         }
       }
     }

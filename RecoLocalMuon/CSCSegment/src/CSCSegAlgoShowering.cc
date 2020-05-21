@@ -57,8 +57,8 @@ CSCSegment CSCSegAlgoShowering::showerSeg(const CSCChamber* aChamber, const Cham
   }
 
   // Loop over hits to find center-of-mass position in each layer
-  for (ChamberHitContainer::const_iterator it = rechits.begin(); it != rechits.end(); ++it) {
-    const CSCRecHit2D& hit = (**it);
+  for (auto rechit : rechits) {
+    const CSCRecHit2D& hit = (*rechit);
     const CSCDetId id = hit.cscDetId();
     int l_id = id.layer();
     const CSCLayer* layer = theChamber->layer(hit.cscDetId().layer());
@@ -136,8 +136,8 @@ CSCSegment CSCSegAlgoShowering::showerSeg(const CSCChamber* aChamber, const Cham
   int idx = 0;
 
   // Loop over all hits and find hit closest to com for that layer.
-  for (ChamberHitContainer::const_iterator it = rechits.begin(); it != rechits.end(); ++it) {
-    const CSCRecHit2D& hit = (**it);
+  for (auto rechit : rechits) {
+    const CSCRecHit2D& hit = (*rechit);
     int layId = hit.cscDetId().layer();
 
     const CSCLayer* layer = theChamber->layer(layId);
@@ -161,12 +161,12 @@ CSCSegment CSCSegAlgoShowering::showerSeg(const CSCChamber* aChamber, const Cham
   idx = 0;
 
   // Loop over all hits and find hit closest to com for that layer.
-  for (ChamberHitContainer::const_iterator it = rechits.begin(); it != rechits.end(); ++it) {
-    const CSCRecHit2D& hit = (**it);
+  for (auto rechit : rechits) {
+    const CSCRecHit2D& hit = (*rechit);
     int layId = hit.cscDetId().layer();
 
     if (idx == id[layId - 1])
-      protoSegment.push_back(*it);
+      protoSegment.push_back(rechit);
 
     ++idx;
   }
@@ -190,8 +190,7 @@ CSCSegment CSCSegAlgoShowering::showerSeg(const CSCChamber* aChamber, const Cham
     pruneFromResidual();
 
   // If any hit on a layer is closer to segment than original, replace it and refit
-  for (ChamberHitContainer::const_iterator it = rechits.begin(); it != rechits.end(); it++) {
-    const CSCRecHit2D* h = *it;
+  for (auto h : rechits) {
     int layer = h->cscDetId().layer();
     if (isHitNearSegment(h))
       compareProtoSegment(h, layer);
@@ -284,8 +283,8 @@ bool CSCSegAlgoShowering::addHit(const CSCRecHit2D* aHit, int layer) {
   bool ok = true;
 
   // Test that we are not trying to add the same hit again
-  for (ChamberHitContainer::const_iterator it = protoSegment.begin(); it != protoSegment.end(); it++)
-    if (aHit == (*it))
+  for (auto it : protoSegment)
+    if (aHit == it)
       return false;
 
   protoSegment.push_back(aHit);

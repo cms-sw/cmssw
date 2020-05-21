@@ -240,13 +240,11 @@ namespace reco {
     MustacheClust(clusters, insideMust, outsideMust);
     included_ = insideMust.size();
     excluded_ = outsideMust.size();
-    for (unsigned int i = 0; i < insideMust.size(); ++i) {
-      unsigned int index = insideMust[i];
+    for (unsigned int index : insideMust) {
       Energy_In_Mustache_ = clusters[index].energy() + Energy_In_Mustache_;
       OrderedClust.insert(make_pair(clusters[index].energy(), index));
     }
-    for (unsigned int i = 0; i < outsideMust.size(); ++i) {
-      unsigned int index = outsideMust[i];
+    for (unsigned int index : outsideMust) {
       Energy_Outside_Mustache_ = clusters[index].energy() + Energy_Outside_Mustache_;
       Et_Outside_Mustache_ = clusters[index].energy() * sin(clusters[index].position().theta()) + Et_Outside_Mustache_;
     }

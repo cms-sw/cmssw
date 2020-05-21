@@ -95,9 +95,9 @@ void VertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (pvHandle.isValid()) {
     totalNumPV = pvHandle->size();
     //      std::cout << "totalNumPV : " << totalNumPV << std::endl;
-    for (reco::VertexCollection::const_iterator pv = pvHandle->begin(); pv != pvHandle->end(); ++pv) {
+    for (const auto& pv : *pvHandle) {
       //--- count pv w/ ndof < 4
-      if (pv->ndof() < 4.)
+      if (pv.ndof() < 4.)
         totalNumBADndofPV++;
     }
   } else

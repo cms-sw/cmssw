@@ -38,8 +38,8 @@ TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::buildMultiRe
       << "Calling SiTrackerMultiRecHitUpdator::buildMultiRecHit with AnnealingFactor: " << annealing;
 
   TransientTrackingRecHit::ConstRecHitContainer tcomponents;
-  for (std::vector<const TrackingRecHit*>::const_iterator iter = rhv.begin(); iter != rhv.end(); iter++) {
-    TransientTrackingRecHit::RecHitPointer transient = theBuilder->build(*iter);
+  for (auto iter : rhv) {
+    TransientTrackingRecHit::RecHitPointer transient = theBuilder->build(iter);
     if (transient->isValid())
       tcomponents.push_back(transient);
   }
@@ -326,9 +326,7 @@ SiTrackerMultiRecHitUpdator::LocalParameters SiTrackerMultiRecHitUpdator::calcPa
   //for TID and TEC the correlation is really high -> need to be scorrelated and then correlated again
   float s = 0.1;
 
-  for (std::vector<std::pair<const TrackingRecHit*, float> >::const_iterator ihit = aHitMap.begin();
-       ihit != aHitMap.end();
-       ihit++) {
+  for (const auto& ihit : aHitMap) {
     // define variables that will be used to setup the KfComponentsHolder
     ProjectMatrix<double, 5, N> pf;
     typename AlgebraicROOTObject<N>::Vector r, rMeas;
@@ -339,13 +337,13 @@ SiTrackerMultiRecHitUpdator::LocalParameters SiTrackerMultiRecHitUpdator::calcPa
     // setup the holder with the correct dimensions and get the values
     KfComponentsHolder holder;
     holder.template setup<N>(&r, &V, &pf, &rMeas, &VMeas, x, C);
-    (ihit->first)->getKfComponents(holder);
+    (ihit.first)->getKfComponents(holder);
 
     LogTrace("SiTrackerMultiRecHitUpdator") << "\t position: " << r;
     LogTrace("SiTrackerMultiRecHitUpdator") << "\t error: " << V;
 
     //scorrelation  in TID and TEC
-    if (N == 2 && TIDorTEChit(ihit->first)) {
+    if (N == 2 && TIDorTEChit(ihit.first)) {
       V(0, 1) = V(1, 0) = V(0, 1) * s;
       //      V(1,0) = V(1,0)*s;
       LogTrace("SiTrackerMultiRecHitUpdator") << "\t error scorr: " << V;
@@ -358,8 +356,8 @@ SiTrackerMultiRecHitUpdator::LocalParameters SiTrackerMultiRecHitUpdator::calcPa
     LogTrace("SiTrackerMultiRecHitUpdator") << "\t inverse error: " << V;
 
     //compute m_sum and W_sum
-    m_sum += (ihit->second * V * r);
-    W_sum += (ihit->second * V);
+    m_sum += (ihit.second * V * r);
+    W_sum += (ihit.second * V);
   }
 
   bool ierr_sum = invertPosDefMatrix(W_sum);

@@ -42,8 +42,8 @@ void FWTracksRecHitsProxyBuilder::build(const reco::Track& track,
     fireworks::pushPixelHits(points, iItem, track);
 
     TEvePointSet* pointSet = new TEvePointSet();
-    for (std::vector<TVector3>::const_iterator it = points.begin(), itEnd = points.end(); it != itEnd; ++it) {
-      pointSet->SetNextPoint(it->x(), it->y(), it->z());
+    for (const auto& point : points) {
+      pointSet->SetNextPoint(point.x(), point.y(), point.z());
     }
     setupAddElement(pointSet, &oItemHolder);
 

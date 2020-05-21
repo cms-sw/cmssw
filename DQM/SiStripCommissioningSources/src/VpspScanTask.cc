@@ -91,7 +91,7 @@ void VpspScanTask::fill(const SiStripEventSummary& summary, const edm::DetSet<Si
 // -----------------------------------------------------------------------------
 //
 void VpspScanTask::update() {
-  for (uint32_t iapv = 0; iapv < vpsp_.size(); iapv++) {
-    updateHistoSet(vpsp_[iapv]);
+  for (auto& iapv : vpsp_) {
+    updateHistoSet(iapv);
   }
 }

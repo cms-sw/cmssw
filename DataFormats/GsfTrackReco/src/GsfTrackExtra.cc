@@ -15,8 +15,8 @@ GsfTrackExtra::GsfTrackExtra(const std::vector<GsfComponent5D>& outerStates,
 std::vector<double> GsfTrackExtra::weights(const std::vector<GsfComponent5D>& states) const {
   std::vector<double> result(states.size());
   std::vector<double>::iterator ir(result.begin());
-  for (std::vector<GsfComponent5D>::const_iterator i = states.begin(); i != states.end(); ++i) {
-    *(ir++) = (*i).weight();
+  for (const auto& state : states) {
+    *(ir++) = state.weight();
   }
   return result;
 }
@@ -25,8 +25,8 @@ std::vector<GsfTrackExtra::LocalParameterVector> GsfTrackExtra::parameters(
     const std::vector<GsfComponent5D>& states) const {
   std::vector<LocalParameterVector> result(states.size());
   std::vector<LocalParameterVector>::iterator ir(result.begin());
-  for (std::vector<GsfComponent5D>::const_iterator i = states.begin(); i != states.end(); ++i) {
-    *(ir++) = (*i).parameters();
+  for (const auto& state : states) {
+    *(ir++) = state.parameters();
   }
   return result;
 }
@@ -35,8 +35,8 @@ std::vector<GsfTrackExtra::LocalCovarianceMatrix> GsfTrackExtra::covariances(
     const std::vector<GsfComponent5D>& states) const {
   std::vector<LocalCovarianceMatrix> result(states.size());
   std::vector<LocalCovarianceMatrix>::iterator ir(result.begin());
-  for (std::vector<GsfComponent5D>::const_iterator i = states.begin(); i != states.end(); ++i) {
-    (*i).covariance(*(ir++));
+  for (const auto& state : states) {
+    state.covariance(*(ir++));
   }
   return result;
 }

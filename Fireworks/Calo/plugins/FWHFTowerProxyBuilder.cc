@@ -81,8 +81,8 @@ void FWHFTowerProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem) {
   if (nullptr != m_hits) {
     //reset values for this slice
     std::vector<float>& sliceVals = m_vecData->GetSliceVals(m_sliceIndex);
-    for (std::vector<float>::iterator i = sliceVals.begin(); i != sliceVals.end(); ++i) {
-      *i = 0;
+    for (float& sliceVal : sliceVals) {
+      sliceVal = 0;
     }
   }
   FWCaloDataProxyBuilderBase::itemBeingDestroyed(iItem);
@@ -91,8 +91,8 @@ void FWHFTowerProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem) {
 void FWHFTowerProxyBuilderBase::fillCaloData() {
   //reset values for this slice
   std::vector<float>& sliceVals = m_vecData->GetSliceVals(m_sliceIndex);
-  for (std::vector<float>::iterator i = sliceVals.begin(); i != sliceVals.end(); ++i) {
-    *i = 0;
+  for (float& sliceVal : sliceVals) {
+    sliceVal = 0;
   }
 
   if (m_hits) {
@@ -155,10 +155,10 @@ int FWHFTowerProxyBuilderBase::fillTowerForDetId(unsigned int rawid, float val) 
 
   // check for cell around phi and move up edge to negative side
   if (plusSignPhi && minusSignPhi) {
-    for (int i = 0; i < 4; ++i) {
-      if (phi[i] >= upPhiLimit) {
+    for (float& i : phi) {
+      if (i >= upPhiLimit) {
         //  printf("over phi max limit %f \n", phi[i]);
-        phi[i] -= TwoPi();
+        i -= TwoPi();
       }
     }
   }

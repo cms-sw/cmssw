@@ -639,12 +639,11 @@ Bool_t ZeeCandidateFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSe
   std::vector<Double_t> ETs;
   pat::ElectronCollection myElectrons;
 
-  for (pat::ElectronCollection::const_iterator elec = pElecs->begin(); elec != pElecs->end();
-       ++elec) {  //  the definition of  the electron ET is wrt Gsf track eta
-    Double_t sc_et = elec->caloEnergy() / TMath::CosH(elec->gsfTrack()->eta());
+  for (const auto &pElec : *pElecs) {  //  the definition of  the electron ET is wrt Gsf track eta
+    Double_t sc_et = pElec.caloEnergy() / TMath::CosH(pElec.gsfTrack()->eta());
     indices.push_back(counter);
     ETs.push_back(sc_et);
-    myElectrons.push_back(*elec);
+    myElectrons.push_back(pElec);
     ++counter;
   }
 

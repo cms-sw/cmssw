@@ -33,12 +33,12 @@ void HcalDigisClient::runClient(DQMStore::IBooker& ib, DQMStore::IGetter& ig) {
   // Since out folders are fixed to three, we can just go over these three folders
   // i.e., CaloTowersV/CaloTowersTask, HcalRecHitsV/HcalRecHitTask, NoiseRatesV/NoiseRatesTask.
   std::vector<std::string> fullPathHLTFolders = ig.getSubdirs();
-  for (unsigned int i = 0; i < fullPathHLTFolders.size(); i++) {
-    ig.setCurrentFolder(fullPathHLTFolders[i]);
+  for (const auto& fullPathHLTFolder : fullPathHLTFolders) {
+    ig.setCurrentFolder(fullPathHLTFolder);
     std::vector<std::string> fullSubPathHLTFolders = ig.getSubdirs();
-    for (unsigned int j = 0; j < fullSubPathHLTFolders.size(); j++) {
-      if (strcmp(fullSubPathHLTFolders[j].c_str(), "HcalDigisV/HcalDigiTask") == 0) {
-        hcalMEs = ig.getContents(fullSubPathHLTFolders[j]);
+    for (auto& fullSubPathHLTFolder : fullSubPathHLTFolders) {
+      if (strcmp(fullSubPathHLTFolder.c_str(), "HcalDigisV/HcalDigiTask") == 0) {
+        hcalMEs = ig.getContents(fullSubPathHLTFolder);
         ig.setCurrentFolder("HcalDigisV/HcalDigiTask");
         if (!HcalDigisEndjob(hcalMEs, "HB", ib))
           edm::LogError("HcalDigisClient") << "Error in HcalDigisEndjob! HB";
@@ -66,24 +66,24 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*>& hcalMEs
 
   // std::cout << " Number of histos " <<     hcalMEs.size() << std::endl;
 
-  for (unsigned int ih = 0; ih < hcalMEs.size(); ih++) {
-    if (hcalMEs[ih]->getName() == "nevtot") {
-      nevtot = hcalMEs[ih];
+  for (auto hcalME : hcalMEs) {
+    if (hcalME->getName() == "nevtot") {
+      nevtot = hcalME;
       continue;
     }
 
     //We search the occupancy maps corresponding to this subdetector
-    if ((hcalMEs[ih]->getName().find("HcalDigiTask_ieta_iphi_occupancy_map_depth") != std::string::npos) &&
-        (hcalMEs[ih]->getName().find(subdet_) != std::string::npos)) {
-      ieta_iphi_occupancy_maps.push_back(hcalMEs[ih]);
+    if ((hcalME->getName().find("HcalDigiTask_ieta_iphi_occupancy_map_depth") != std::string::npos) &&
+        (hcalME->getName().find(subdet_) != std::string::npos)) {
+      ieta_iphi_occupancy_maps.push_back(hcalME);
 
       std::string start = "depth";
       std::string end = "_H";
 
-      int position = hcalMEs[ih]->getName().find(start) + start.length();
-      int length = hcalMEs[ih]->getName().find(end) - position;
+      int position = hcalME->getName().find(start) + start.length();
+      int length = hcalME->getName().find(end) - position;
 
-      depthID.push_back(hcalMEs[ih]->getName().substr(position, length));
+      depthID.push_back(hcalME->getName().substr(position, length));
 
       continue;
     }

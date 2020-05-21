@@ -192,20 +192,17 @@ void StudyTriggerHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& i
   iEvent.getByToken(tok_genTrack_, trackEventHandle);
   edm::LogVerbatim("StudyHLT") << "Muon Handle " << muonEventHandle.isValid() << " Track Handle "
                                << trackEventHandle.isValid();
-  for (reco::TrackCollection::const_iterator track1 = trackEventHandle->begin(); track1 != trackEventHandle->end();
-       ++track1) {
+  for (const auto& track1 : *trackEventHandle) {
     double localMin = 1000;
     if (muonEventHandle.isValid()) {
-      for (reco::MuonCollection::const_iterator recMuon = muonEventHandle->begin(); recMuon != muonEventHandle->end();
-           ++recMuon) {
-        if (((recMuon->isPFMuon()) && (recMuon->isGlobalMuon() || recMuon->isTrackerMuon())) &&
-            (recMuon->innerTrack()->validFraction() > 0.49)) {
-          double chiGlobal = ((recMuon->globalTrack().isNonnull()) ? recMuon->globalTrack()->normalizedChi2() : 999);
-          bool goodGlob =
-              (recMuon->isGlobalMuon() && chiGlobal < 3 && recMuon->combinedQuality().chi2LocalPosition < 12 &&
-               recMuon->combinedQuality().trkKink < 20);
-          if (muon::segmentCompatibility(*recMuon) > (goodGlob ? 0.303 : 0.451)) {
-            double dr = deltaR(track1->eta(), track1->phi(), recMuon->eta(), recMuon->phi());
+      for (const auto& recMuon : *muonEventHandle) {
+        if (((recMuon.isPFMuon()) && (recMuon.isGlobalMuon() || recMuon.isTrackerMuon())) &&
+            (recMuon.innerTrack()->validFraction() > 0.49)) {
+          double chiGlobal = ((recMuon.globalTrack().isNonnull()) ? recMuon.globalTrack()->normalizedChi2() : 999);
+          bool goodGlob = (recMuon.isGlobalMuon() && chiGlobal < 3 &&
+                           recMuon.combinedQuality().chi2LocalPosition < 12 && recMuon.combinedQuality().trkKink < 20);
+          if (muon::segmentCompatibility(recMuon) > (goodGlob ? 0.303 : 0.451)) {
+            double dr = deltaR(track1.eta(), track1.phi(), recMuon.eta(), recMuon.phi());
             if (dr < localMin) {
               localMin = dr;
               if (localMin < globalMin)
@@ -215,13 +212,13 @@ void StudyTriggerHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& i
         }
       }
     }
-    h_pt->Fill(track1->pt());
-    h_eta->Fill(track1->eta());
-    h_phi->Fill(track1->phi());
+    h_pt->Fill(track1.pt());
+    h_eta->Fill(track1.eta());
+    h_phi->Fill(track1.phi());
     h_dr1->Fill(localMin);
-    if (track1->quality(trackQuality_))
+    if (track1.quality(trackQuality_))
       h_dr3->Fill(localMin);
-    edm::LogVerbatim("StudyHLT") << "Track pT " << track1->pt() << " eta " << track1->eta() << " phi " << track1->phi()
+    edm::LogVerbatim("StudyHLT") << "Track pT " << track1.pt() << " eta " << track1.eta() << " phi " << track1.phi()
                                  << " minimum distance " << localMin;
   }
   edm::LogVerbatim("StudyHLT") << "GlobalMinimum  = " << globalMin;

@@ -109,14 +109,14 @@ void SETMuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& even
 
   //std::cout<<"We have formed "<<MuonRecHitContainer_clusters.size()<<" clusters"<<std::endl;
   //---- for each cluster,
-  for (unsigned int cluster = 0; cluster < MuonRecHitContainer_clusters.size(); ++cluster) {
+  for (auto& MuonRecHitContainer_cluster : MuonRecHitContainer_clusters) {
     //std::cout<<" This is cluster number : "<<cluster<<std::endl;
     std::vector<SeedCandidate> seedCandidates_inCluster;
     //---- group hits in detector layers (if in same layer); the idea is that
     //---- some hits could not belong to a track simultaneously - these will be in a
     //---- group; two hits from one and the same group will not go to the same track
     std::vector<MuonRecHitContainer> MuonRecHitContainer_perLayer =
-        theSeedFinder.sortByLayer(MuonRecHitContainer_clusters[cluster]);
+        theSeedFinder.sortByLayer(MuonRecHitContainer_cluster);
     //---- Add protection against huge memory consumption
     //---- Delete busy layers if needed (due to combinatorics)
     theSeedFinder.limitCombinatorics(MuonRecHitContainer_perLayer);
@@ -144,16 +144,16 @@ void SETMuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& even
         //std::cout<<"  fwfit_SET failed!"<<std::endl;
         continue;
       }
-      for (unsigned int iSet = 0; iSet < bestSets_inCluster.size(); ++iSet) {
-        seedCandidates_AllChosen.push_back(bestSets_inCluster[iSet]);
+      for (const auto& iSet : bestSets_inCluster) {
+        seedCandidates_AllChosen.push_back(iSet);
       }
     }
   }
   //---- loop over all the SETs candidates
-  for (unsigned int iMuon = 0; iMuon < seedCandidates_AllChosen.size(); ++iMuon) {
+  for (auto& iMuon : seedCandidates_AllChosen) {
     //std::cout<<" chosen iMuon = "<<iMuon<<std::endl;
     Trajectory::DataContainer finalCandidate;
-    SeedCandidate* aFinalSet = &(seedCandidates_AllChosen[iMuon]);
+    SeedCandidate* aFinalSet = &iMuon;
     fwFitFailed = !(filter()->buildTrajectoryMeasurements(aFinalSet, finalCandidate));
     if (fwFitFailed) {
       //std::cout<<"  buildTrajectoryMeasurements failed!"<<std::endl;
@@ -185,8 +185,8 @@ void SETMuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& even
         //output->push_back( theSeedFinder.makeSeed(firstTSOS, hitContainer) );
 
         edm::OwnVector<TrackingRecHit> recHitsContainer;
-        for (unsigned int iHit = 0; iHit < hitContainer.size(); ++iHit) {
-          recHitsContainer.push_back(hitContainer.at(iHit)->hit()->clone());
+        for (auto& iHit : hitContainer) {
+          recHitsContainer.push_back(iHit->hit()->clone());
         }
         PropagationDirection dir = oppositeToMomentum;
         if (useSegmentsInTrajectory) {

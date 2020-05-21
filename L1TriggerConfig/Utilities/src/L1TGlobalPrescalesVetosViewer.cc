@@ -102,8 +102,8 @@ void L1TGlobalPrescalesVetosViewer::analyze(const edm::Event& iEvent, const edm:
     cout << endl;
     size_t nRows = (ptr->prescale_table_)[0].size();
     for (size_t row = 0; row < nRows; row++) {
-      for (size_t col = 0; col < ptr->prescale_table_.size(); col++)
-        cout << setw(8) << (ptr->prescale_table_)[col][row];
+      for (auto& col : ptr->prescale_table_)
+        cout << setw(8) << col[row];
       cout << endl;
     }
     cout << endl;
@@ -125,8 +125,8 @@ void L1TGlobalPrescalesVetosViewer::analyze(const edm::Event& iEvent, const edm:
     }
     if (bxmask_map_verbosity > 1) {
       cout << "  bxmask_map_[" << it->first << "][" << it->second.size() << "] = ";
-      for (size_t algo = 0; algo < it->second.size(); algo++)
-        cout << it->second[algo] << ", ";
+      for (int algo : it->second)
+        cout << algo << ", ";
       cout << endl;
     }
   }

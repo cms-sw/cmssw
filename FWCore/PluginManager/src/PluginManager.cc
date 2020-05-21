@@ -70,8 +70,8 @@ namespace edmplugin {
     // When building a single big executable the plugins are already registered in the
     // PluginFactoryManager, we therefore only need to populate the categoryToInfos_ map
     // with the relevant information.
-    for (PluginFactoryManager::const_iterator i = pfm->begin(), e = pfm->end(); i != e; ++i) {
-      categoryToInfos_[(*i)->category()] = (*i)->available();
+    for (auto i : *pfm) {
+      categoryToInfos_[i->category()] = i->available();
     }
 
     //read in the files
@@ -79,14 +79,13 @@ namespace edmplugin {
     // in that order
     bool foundAtLeastOneCacheFile = false;
     std::set<std::string> alreadySeen;
-    for (SearchPath::const_iterator itPath = searchPath_.begin(), itEnd = searchPath_.end(); itPath != itEnd;
-         ++itPath) {
+    for (const auto& itPath : searchPath_) {
       //take care of the case where the same path is passed in multiple times
-      if (alreadySeen.find(*itPath) != alreadySeen.end()) {
+      if (alreadySeen.find(itPath) != alreadySeen.end()) {
         continue;
       }
-      alreadySeen.insert(*itPath);
-      boost::filesystem::path dir(*itPath);
+      alreadySeen.insert(itPath);
+      boost::filesystem::path dir(itPath);
       if (exists(dir)) {
         if (not is_directory(dir)) {
           throw cms::Exception("PluginManagerBadPath")

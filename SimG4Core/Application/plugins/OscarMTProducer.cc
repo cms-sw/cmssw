@@ -126,8 +126,8 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMaster
   //register any products
   auto& producers = m_runManagerWorker->producers();
 
-  for (Producers::iterator itProd = producers.begin(); itProd != producers.end(); ++itProd) {
-    (*itProd)->registerProducts(producesCollector());
+  for (auto& producer : producers) {
+    producer->registerProducts(producesCollector());
   }
 }
 

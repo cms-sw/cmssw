@@ -44,8 +44,8 @@ public:
   }
 
   void add(const RecordToKey& map) {
-    for (RecordToKey::const_iterator itr = map.begin(); itr != map.end(); ++itr) {
-      m_recordToKey.insert(std::make_pair(itr->first, itr->second.empty() ? kNullKey : itr->second));
+    for (const auto& itr : map) {
+      m_recordToKey.insert(std::make_pair(itr.first, itr.second.empty() ? kNullKey : itr.second));
     }
   }
 

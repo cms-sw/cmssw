@@ -131,8 +131,8 @@ HiEvtPlaneFlatProducer::HiEvtPlaneFlatProducer(const edm::ParameterSet& iConfig)
 HiEvtPlaneFlatProducer::~HiEvtPlaneFlatProducer() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
-  for (int i = 0; i < hi::NumEPNames; i++) {
-    delete flat[i];
+  for (auto& i : flat) {
+    delete i;
   }
 }
 
@@ -205,8 +205,8 @@ void HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
   auto evtplaneOutput = std::make_unique<EvtPlaneCollection>();
   EvtPlane* ep[hi::NumEPNames];
-  for (int i = 0; i < hi::NumEPNames; i++) {
-    ep[i] = nullptr;
+  for (auto& i : ep) {
+    i = nullptr;
   }
   int indx = 0;
   for (auto const& rp : iEvent.get(inputPlanesToken)) {
@@ -231,9 +231,9 @@ void HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     ++indx;
   }
 
-  for (int i = 0; i < hi::NumEPNames; i++) {
-    if (ep[i] != nullptr)
-      evtplaneOutput->push_back(*ep[i]);
+  for (auto& i : ep) {
+    if (i != nullptr)
+      evtplaneOutput->push_back(*i);
   }
   iEvent.put(std::move(evtplaneOutput));
   for (int i = 0; i < indx; i++)

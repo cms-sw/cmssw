@@ -113,17 +113,17 @@ void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
 
   if (event.getByToken(staMuonsTrajToken, staMuonsTraj) && event.getByToken(staAssoMapToken, staAssoMap) &&
       event.getByToken(updatedStaAssoMapToken, updatedStaAssoMap)) {
-    for (TrajTrackAssociationCollection::const_iterator it = staAssoMap->begin(); it != staAssoMap->end(); ++it) {
-      const Ref<vector<Trajectory> > traj = it->key;
-      const reco::TrackRef tkRegular = it->val;
+    for (const auto& it : *staAssoMap) {
+      const Ref<vector<Trajectory> > traj = it.key;
+      const reco::TrackRef tkRegular = it.val;
       reco::TrackRef tkUpdated;
       reco::TrackToTrackMap::const_iterator iEnd;
       reco::TrackToTrackMap::const_iterator iii;
       if (theSTACollectionLabel.instance() == "UpdatedAtVtx") {
         iEnd = updatedStaAssoMap->end();
-        iii = updatedStaAssoMap->find(it->val);
+        iii = updatedStaAssoMap->find(it.val);
         if (iii != iEnd)
-          tkUpdated = (*updatedStaAssoMap)[it->val];
+          tkUpdated = (*updatedStaAssoMap)[it.val];
       }
 
       int etaFlip1 =

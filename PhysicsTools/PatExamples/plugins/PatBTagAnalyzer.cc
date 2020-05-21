@@ -125,10 +125,10 @@ void PatBTagAnalyzer::beginJob() {
   TString suffix1 = "_test";
 
   //set performance variables collector
-  for (int i = 0; i < 10; i++) {
-    BTagPerf[i].Set(BTagmethod_);
-    BTagPerf[i].SetMinDiscriminator(BTagdisccut_);
-    BTagPerf[i].SetMaxDiscriminator(BTagdiscmax_);
+  for (auto &i : BTagPerf) {
+    i.Set(BTagmethod_);
+    i.SetMinDiscriminator(BTagdisccut_);
+    i.SetMaxDiscriminator(BTagdiscmax_);
   }
 
   histocontainer_["njets"] = fs->make<TH1D>("njets", "jet multiplicity for jets with p_{T} > 50 GeV/c", 10, 0, 10);

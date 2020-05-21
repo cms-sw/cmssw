@@ -28,30 +28,30 @@ int CaloTowersDQMClient::CaloTowersEndjob(const std::vector<MonitorElement *> &h
   MonitorElement *Ntowers_vs_ieta = nullptr;
   MonitorElement *mapEnergy_N = nullptr, *mapEnergy_E = nullptr, *mapEnergy_H = nullptr, *mapEnergy_EH = nullptr;
   MonitorElement *occupancy_map = nullptr, *occupancy_vs_ieta = nullptr;
-  for (unsigned int ih = 0; ih < hcalMEs.size(); ih++) {
-    if (strcmp(hcalMEs[ih]->getName().c_str(), "Ntowers_per_event_vs_ieta") == 0) {
-      Ntowers_vs_ieta = hcalMEs[ih];
+  for (auto hcalME : hcalMEs) {
+    if (strcmp(hcalME->getName().c_str(), "Ntowers_per_event_vs_ieta") == 0) {
+      Ntowers_vs_ieta = hcalME;
     }
-    if (strcmp(hcalMEs[ih]->getName().c_str(), "CaloTowersTask_map_Nentries") == 0) {
-      mapEnergy_N = hcalMEs[ih];
+    if (strcmp(hcalME->getName().c_str(), "CaloTowersTask_map_Nentries") == 0) {
+      mapEnergy_N = hcalME;
     }
-    if (strcmp(hcalMEs[ih]->getName().c_str(), "CaloTowersTask_map_energy_H") == 0) {
+    if (strcmp(hcalME->getName().c_str(), "CaloTowersTask_map_energy_H") == 0) {
       useAllHistos++;
-      mapEnergy_H = hcalMEs[ih];
+      mapEnergy_H = hcalME;
     }
-    if (strcmp(hcalMEs[ih]->getName().c_str(), "CaloTowersTask_map_energy_E") == 0) {
+    if (strcmp(hcalME->getName().c_str(), "CaloTowersTask_map_energy_E") == 0) {
       useAllHistos++;
-      mapEnergy_E = hcalMEs[ih];
+      mapEnergy_E = hcalME;
     }
-    if (strcmp(hcalMEs[ih]->getName().c_str(), "CaloTowersTask_map_energy_EH") == 0) {
+    if (strcmp(hcalME->getName().c_str(), "CaloTowersTask_map_energy_EH") == 0) {
       useAllHistos++;
-      mapEnergy_EH = hcalMEs[ih];
+      mapEnergy_EH = hcalME;
     }
-    if (strcmp(hcalMEs[ih]->getName().c_str(), "CaloTowersTask_map_occupancy") == 0) {
-      occupancy_map = hcalMEs[ih];
+    if (strcmp(hcalME->getName().c_str(), "CaloTowersTask_map_occupancy") == 0) {
+      occupancy_map = hcalME;
     }
-    if (strcmp(hcalMEs[ih]->getName().c_str(), "CaloTowersTask_occupancy_vs_ieta") == 0) {
-      occupancy_vs_ieta = hcalMEs[ih];
+    if (strcmp(hcalME->getName().c_str(), "CaloTowersTask_occupancy_vs_ieta") == 0) {
+      occupancy_vs_ieta = hcalME;
     }
   }
   if (useAllHistos != 0 && useAllHistos != 3)
@@ -155,18 +155,18 @@ void CaloTowersDQMClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGette
   // folders i.e., CaloTowersD/CaloTowersTask, HcalRecHitsD/HcalRecHitTask,
   // NoiseRatesV/NoiseRatesTask.
   std::vector<std::string> fullPathHLTFolders = igetter.getSubdirs();
-  for (unsigned int i = 0; i < fullPathHLTFolders.size(); i++) {
+  for (const auto &fullPathHLTFolder : fullPathHLTFolders) {
     if (verbose_)
-      std::cout << "\nfullPath: " << fullPathHLTFolders[i] << std::endl;
-    igetter.setCurrentFolder(fullPathHLTFolders[i]);
+      std::cout << "\nfullPath: " << fullPathHLTFolder << std::endl;
+    igetter.setCurrentFolder(fullPathHLTFolder);
 
     std::vector<std::string> fullSubPathHLTFolders = igetter.getSubdirs();
-    for (unsigned int j = 0; j < fullSubPathHLTFolders.size(); j++) {
+    for (auto &fullSubPathHLTFolder : fullSubPathHLTFolders) {
       if (verbose_)
-        std::cout << "fullSub: " << fullSubPathHLTFolders[j] << std::endl;
+        std::cout << "fullSub: " << fullSubPathHLTFolder << std::endl;
 
-      if (strcmp(fullSubPathHLTFolders[j].c_str(), "CaloTowersD/CaloTowersTask") == 0) {
-        hcalMEs = igetter.getContents(fullSubPathHLTFolders[j]);
+      if (strcmp(fullSubPathHLTFolder.c_str(), "CaloTowersD/CaloTowersTask") == 0) {
+        hcalMEs = igetter.getContents(fullSubPathHLTFolder);
         if (verbose_)
           std::cout << "hltMES size : " << hcalMEs.size() << std::endl;
         if (!CaloTowersEndjob(hcalMEs))

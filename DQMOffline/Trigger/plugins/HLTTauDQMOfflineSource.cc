@@ -121,8 +121,8 @@ void HLTTauDQMOfflineSource::dqmBeginRun(const edm::Run& iRun, const edm::EventS
           edm::ParameterSet denpset = tpset.getParameter<edm::ParameterSet>("denominator");
           std::vector<std::string> denominators = denpset.getParameter<std::vector<std::string> >("hltPaths");
           std::vector<std::string> updatedDenominators;
-          for (size_t i = 0; i < denominators.size(); ++i) {
-            const std::regex denRegex_(denominators[i]);
+          for (const auto& denominator : denominators) {
+            const std::regex denRegex_(denominator);
             for (const std::string& pathName : HLTCP_.triggerNames()) {
               if (std::regex_search(pathName, what, denRegex_)) {
                 updatedDenominators.push_back(pathName);

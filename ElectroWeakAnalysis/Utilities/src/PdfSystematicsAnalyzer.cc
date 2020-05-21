@@ -52,8 +52,8 @@ void PdfSystematicsAnalyzer::beginJob() {
   originalEvents_ = 0;
   selectedEvents_ = 0;
   edm::LogVerbatim("PDFAnalysis") << "PDF uncertainties will be determined for the following sets: ";
-  for (unsigned int i = 0; i < pdfWeightTags_.size(); ++i) {
-    edm::LogVerbatim("PDFAnalysis") << "\t" << pdfWeightTags_[i].instance();
+  for (auto& pdfWeightTag : pdfWeightTags_) {
+    edm::LogVerbatim("PDFAnalysis") << "\t" << pdfWeightTag.instance();
     pdfStart_.push_back(-1);
   }
 }

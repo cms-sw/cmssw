@@ -188,15 +188,15 @@ void L1MuBMWedgeSorter::runCOL(vector<L1MuBMTrack*>& cands) const {
       continue;
     L1MuBMSecProcId sp1 = (*iter1)->spid();
     int qual1 = (*iter1)->quality();
-    for (TI iter2 = cands.begin(); iter2 != cands.end(); iter2++) {
-      if (*iter2 == nullptr)
+    for (auto& cand : cands) {
+      if (cand == nullptr)
         continue;
-      if (*iter1 == *iter2)
+      if (*iter1 == cand)
         continue;
-      if ((*iter2)->empty())
+      if (cand->empty())
         continue;
-      L1MuBMSecProcId sp2 = (*iter2)->spid();
-      int qual2 = (*iter2)->quality();
+      L1MuBMSecProcId sp2 = cand->spid();
+      int qual2 = cand->quality();
       if (sp1 == sp2)
         continue;
       if (!neighbour(sp1, sp2))
@@ -205,7 +205,7 @@ void L1MuBMWedgeSorter::runCOL(vector<L1MuBMTrack*>& cands) const {
       int countTS = 0;
       for (int stat = 2; stat <= 4; stat++) {
         int adr1 = (*iter1)->address(stat);
-        int adr2 = (*iter2)->address(stat);
+        int adr2 = cand->address(stat);
         if (adr1 == 15 || adr2 == 15)
           continue;
         if ((adr2 / 2) % 2 == 1)
@@ -224,9 +224,9 @@ void L1MuBMWedgeSorter::runCOL(vector<L1MuBMTrack*>& cands) const {
         } else {
           if (L1MuBMTFConfig::Debug(5)) {
             cout << "Wedge Sorter cancel : ";
-            (*iter2)->print();
+            cand->print();
           }
-          (*iter2)->disable();
+          cand->disable();
         }
       }
     }

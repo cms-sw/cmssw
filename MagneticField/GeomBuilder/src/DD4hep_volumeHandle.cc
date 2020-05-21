@@ -36,8 +36,8 @@ volumeHandle::volumeHandle(const cms::DDFilteredView &fv, bool expand2Pi, bool d
   volName.erase(0, volName.rfind('_') + 1);
   volumeno = static_cast<unsigned short>(std::atoi(volName.c_str()));
 
-  for (int i = 0; i < 6; ++i) {
-    isAssigned[i] = false;
+  for (bool &i : isAssigned) {
+    i = false;
   }
   referencePlane(fv);
   switch (theShape) {

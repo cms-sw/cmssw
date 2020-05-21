@@ -117,21 +117,21 @@ void L1Analysis::L1AnalysisL1Extra::SetMuon(const edm::Handle<l1extra::L1MuonPar
 }
 
 void L1Analysis::L1AnalysisL1Extra::SetMet(const edm::Handle<l1extra::L1EtMissParticleCollection> mets) {
-  for (l1extra::L1EtMissParticleCollection::const_iterator it = mets->begin(); it != mets->end(); it++) {
-    l1extra_.et.push_back(it->etTotal());
-    l1extra_.met.push_back(it->et());
-    l1extra_.metPhi.push_back(it->phi());
-    l1extra_.metBx.push_back(it->bx());
+  for (const auto& it : *mets) {
+    l1extra_.et.push_back(it.etTotal());
+    l1extra_.met.push_back(it.et());
+    l1extra_.metPhi.push_back(it.phi());
+    l1extra_.metBx.push_back(it.bx());
     l1extra_.nMet++;
   }
 }
 
 void L1Analysis::L1AnalysisL1Extra::SetMht(const edm::Handle<l1extra::L1EtMissParticleCollection> mhts) {
-  for (l1extra::L1EtMissParticleCollection::const_iterator it = mhts->begin(); it != mhts->end(); it++) {
-    l1extra_.ht.push_back(it->etTotal());
-    l1extra_.mht.push_back(it->et());
-    l1extra_.mhtPhi.push_back(it->phi());
-    l1extra_.mhtBx.push_back(it->bx());
+  for (const auto& it : *mhts) {
+    l1extra_.ht.push_back(it.etTotal());
+    l1extra_.mht.push_back(it.et());
+    l1extra_.mhtPhi.push_back(it.phi());
+    l1extra_.mhtBx.push_back(it.bx());
     l1extra_.nMht++;
   }
 }

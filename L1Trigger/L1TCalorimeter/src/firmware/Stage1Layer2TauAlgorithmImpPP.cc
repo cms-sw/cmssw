@@ -79,10 +79,9 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
     int highestNeighborTauVeto = 999;
 
     //Find neighbor with highest Et
-    for (CaloRegionBxCollection::const_iterator neighbor = subRegions.begin(); neighbor != subRegions.end();
-         neighbor++) {
-      int neighborPhi = neighbor->hwPhi();
-      int neighborEta = neighbor->hwEta();
+    for (const auto& subRegion : subRegions) {
+      int neighborPhi = subRegion.hwPhi();
+      int neighborEta = subRegion.hwEta();
       if (neighborEta < 4 || neighborEta > 17)
         continue;  // Taus cannot come from HF
 
@@ -94,11 +93,11 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
       int deltaEta = std::abs(regionEta - neighborEta);
 
       if (deltaPhi + deltaEta > 0 && deltaPhi + deltaEta < 2) {  //nondiagonal neighbors
-        if (neighbor->hwPt() > highestNeighborEt) {
-          highestNeighborEt = neighbor->hwPt();
-          highestNeighborEta = neighbor->hwEta();
-          highestNeighborPhi = neighbor->hwPhi();
-          int neighborTauVeto = neighbor->hwQual() & 0x1;  // tauVeto should be the first bit of quality integer
+        if (subRegion.hwPt() > highestNeighborEt) {
+          highestNeighborEt = subRegion.hwPt();
+          highestNeighborEta = subRegion.hwEta();
+          highestNeighborPhi = subRegion.hwPhi();
+          int neighborTauVeto = subRegion.hwQual() & 0x1;  // tauVeto should be the first bit of quality integer
           highestNeighborTauVeto = neighborTauVeto;
         }
       }
@@ -164,9 +163,9 @@ double l1t::Stage1Layer2TauAlgorithmImpPP::JetIsolation(int et,
                                                         int ieta,
                                                         int iphi,
                                                         const std::vector<l1t::Jet>& jets) const {
-  for (JetBxCollection::const_iterator jet = jets.begin(); jet != jets.end(); jet++) {
-    if (ieta == jet->hwEta() && iphi == jet->hwPhi()) {
-      double isolation = (double)(jet->hwPt() - et);
+  for (const auto& jet : jets) {
+    if (ieta == jet.hwEta() && iphi == jet.hwPhi()) {
+      double isolation = (double)(jet.hwPt() - et);
       return isolation / et;
     }
   }
@@ -204,11 +203,11 @@ string l1t::Stage1Layer2TauAlgorithmImpPP::findNESW(int ieta, int iphi, int neta
 int l1t::Stage1Layer2TauAlgorithmImpPP::AssociatedJetPt(int ieta, int iphi, const std::vector<l1t::Jet>* jets) const {
   int pt = -1;
 
-  for (JetBxCollection::const_iterator itJet = jets->begin(); itJet != jets->end(); ++itJet) {
-    int jetEta = itJet->hwEta();
-    int jetPhi = itJet->hwPhi();
+  for (const auto& jet : *jets) {
+    int jetEta = jet.hwEta();
+    int jetPhi = jet.hwPhi();
     if ((jetEta == ieta) && (jetPhi == iphi)) {
-      pt = itJet->hwPt();
+      pt = jet.hwPt();
       break;
     }
   }

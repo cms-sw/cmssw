@@ -4,13 +4,13 @@ RecHitSplitter::RecHitContainer RecHitSplitter::split(const RecHitContainer& hit
   RecHitContainer singles;
   singles.reserve(2 * hits.size());
 
-  for (RecHitContainer::const_iterator ihit = hits.begin(); ihit != hits.end(); ihit++) {
-    if (!(**ihit).isValid()) {
-      singles.push_back((*ihit));
+  for (const auto& hit : hits) {
+    if (!(*hit).isValid()) {
+      singles.push_back(hit);
     } else {
-      RecHitContainer shits = (**ihit).transientHits();
-      for (RecHitContainer::const_iterator ishit = shits.begin(); ishit != shits.end(); ishit++) {
-        singles.push_back(*ishit);
+      RecHitContainer shits = (*hit).transientHits();
+      for (const auto& shit : shits) {
+        singles.push_back(shit);
       }
     }
   }

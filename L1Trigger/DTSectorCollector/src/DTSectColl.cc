@@ -49,14 +49,14 @@ DTSectColl::DTSectColl(DTSectCollId id) : _sectcollid(id) {
 
   // create SC Chips
   for (int istat = 0; istat < 4; istat++) {
-    for (int istep = 0; istep < DTConfigSectColl::NSTEPL - DTConfigSectColl::NSTEPF + 1; istep++) {
-      _tsc[istep][istat] = new DTSC(istat + 1);
+    for (auto& istep : _tsc) {
+      istep[istat] = new DTSC(istat + 1);
     }
   }
-  for (int istat = 0; istat < 5; istat++)
-    _tsphi[istat] = nullptr;
-  for (int istat = 0; istat < 3; istat++)
-    _tstheta[istat] = nullptr;
+  for (auto& istat : _tsphi)
+    istat = nullptr;
+  for (auto& istat : _tstheta)
+    istat = nullptr;
 }
 
 //--------------
@@ -66,8 +66,8 @@ DTSectColl::~DTSectColl() {
   localClear();
 
   for (int istat = 0; istat < 4; istat++) {
-    for (int istep = 0; istep < DTConfigSectColl::NSTEPL - DTConfigSectColl::NSTEPF + 1; istep++) {
-      delete _tsc[istep][istat];
+    for (auto& istep : _tsc) {
+      delete istep[istat];
     }
   }
 }
@@ -79,17 +79,17 @@ DTSectColl::~DTSectColl() {
 void DTSectColl::localClear() {
   // clear all sector collectors
   for (int istat = 0; istat < 4; istat++) {
-    for (int istep = 0; istep < DTConfigSectColl::NSTEPL - DTConfigSectColl::NSTEPF + 1; istep++) {
-      _tsc[istep][istat]->clear();
+    for (auto& istep : _tsc) {
+      istep[istat]->clear();
     }
   }
 
-  for (int iph = 0; iph < 2; ++iph) {
-    std::vector<DTSectCollPhCand*>::const_iterator phbi = _incand_ph[iph].begin();
-    std::vector<DTSectCollPhCand*>::const_iterator phei = _incand_ph[iph].end();
+  for (auto& iph : _incand_ph) {
+    std::vector<DTSectCollPhCand*>::const_iterator phbi = iph.begin();
+    std::vector<DTSectCollPhCand*>::const_iterator phei = iph.end();
     for (std::vector<DTSectCollPhCand*>::const_iterator iphit = phbi; iphit != phei; ++iphit)
       delete (*iphit);
-    _incand_ph[iph].clear();
+    iph.clear();
   }
 
   _outcand_ph.clear();
@@ -107,8 +107,8 @@ void DTSectColl::setConfig(const DTConfigManager* conf) {
   _config = conf->getDTConfigSectColl(_sectcollid);
 
   for (int istat = 0; istat < 4; istat++) {
-    for (int istep = 0; istep < DTConfigSectColl::NSTEPL - DTConfigSectColl::NSTEPF + 1; istep++) {
-      _tsc[istep][istat]->setConfig(config());
+    for (auto& istep : _tsc) {
+      istep[istat]->setConfig(config());
     }
   }
 }

@@ -59,14 +59,14 @@ namespace pf2pat {
         double isoSumCharged = 0.0;
         double isoSumNeutral = 0.0;
 
-        for (unsigned iMap = 0; iMap < isoMapsCharged.size(); ++iMap) {
-          const IsoMap& isoMap = *(isoMapsCharged[iMap]);
+        for (auto& iMap : isoMapsCharged) {
+          const IsoMap& isoMap = *iMap;
           double val = isoMap[candidate];
           isoSumCharged += val;
         }
 
-        for (unsigned iMap = 0; iMap < isoMapsNeutral.size(); ++iMap) {
-          const IsoMap& isoMap = *(isoMapsNeutral[iMap]);
+        for (auto& iMap : isoMapsNeutral) {
+          const IsoMap& isoMap = *iMap;
           double val = isoMap[candidate];
           isoSumNeutral += val;
         }

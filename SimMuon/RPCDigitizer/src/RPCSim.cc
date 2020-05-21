@@ -10,13 +10,13 @@ void RPCSim::fillDigis(int rollDetId, RPCDigiCollection& digis) {
   //  std::vector<std::pair<int,int> > vdigi;
   //  vdigi.clear();
 
-  for (std::set<std::pair<int, int> >::iterator i = strips.begin(); i != strips.end(); i++) {
-    if (i->second != -999) {
-      RPCDigi rpcDigi(i->first, i->second);
+  for (const auto& strip : strips) {
+    if (strip.second != -999) {
+      RPCDigi rpcDigi(strip.first, strip.second);
 
       //NCA
       digis.insertDigi(RPCDetId(rollDetId), rpcDigi);
-      this->addLinks(i->first, i->second);
+      this->addLinks(strip.first, strip.second);
     }
   }
   strips.clear();

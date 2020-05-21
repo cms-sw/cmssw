@@ -4,11 +4,11 @@
 CSCWireHit::CSCWireHit()
     : theDetId(), theWireHitPosition(), theWgroups(), theWireHitTmax(), theDeadWG(), theTimeBinsOn(0) {
   theWgroupsHighBits.clear();
-  for (int i = 0; i < (int)theWgroups.size(); i++)
-    theWgroupsHighBits.push_back((theWgroups[i] >> 16) & 0x0000FFFF);
+  for (int theWgroup : theWgroups)
+    theWgroupsHighBits.push_back((theWgroup >> 16) & 0x0000FFFF);
   theWgroupsLowBits.clear();
-  for (int i = 0; i < (int)theWgroups.size(); i++)
-    theWgroupsLowBits.push_back(theWgroups[i] & 0x0000FFFF);
+  for (int theWgroup : theWgroups)
+    theWgroupsLowBits.push_back(theWgroup & 0x0000FFFF);
 }
 
 CSCWireHit::CSCWireHit(const CSCDetId& id,
@@ -24,11 +24,11 @@ CSCWireHit::CSCWireHit(const CSCDetId& id,
       theDeadWG(deadWG),
       theTimeBinsOn(timeBinsOn) {
   theWgroupsHighBits.clear();
-  for (int i = 0; i < (int)theWgroups.size(); i++)
-    theWgroupsHighBits.push_back((theWgroups[i] >> 16) & 0x0000FFFF);
+  for (int theWgroup : theWgroups)
+    theWgroupsHighBits.push_back((theWgroup >> 16) & 0x0000FFFF);
   theWgroupsLowBits.clear();
-  for (int i = 0; i < (int)theWgroups.size(); i++)
-    theWgroupsLowBits.push_back(theWgroups[i] & 0x0000FFFF);
+  for (int theWgroup : theWgroups)
+    theWgroupsLowBits.push_back(theWgroup & 0x0000FFFF);
 }
 
 CSCWireHit::~CSCWireHit() {}

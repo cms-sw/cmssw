@@ -68,8 +68,7 @@ void DQMGenericTnPClient::endRun(const edm::Run& run, const edm::EventSetup& set
   if (!myDQMrootFolder.empty())
     subDirSet.insert(myDQMrootFolder);
   else {
-    for (auto iSubDir = subDirs.begin(); iSubDir != subDirs.end(); ++iSubDir) {
-      std::string subDir = *iSubDir;
+    for (auto subDir : subDirs) {
       if (subDir[subDir.size() - 1] == '/')
         subDir.erase(subDir.size() - 1);
       if (TString(subDir).Contains(metacharacters)) {
@@ -193,10 +192,10 @@ void DQMGenericTnPClient::findAllSubdirectories(const std::string& dir,
     TPRegexp regexp(pattern);
     dqmStore->cd(dir);
     vector<string> foundDirs = dqmStore->getSubdirs();
-    for (auto iDir = foundDirs.begin(); iDir != foundDirs.end(); ++iDir) {
-      TString dirName = iDir->substr(iDir->rfind('/') + 1, iDir->length());
+    for (auto& foundDir : foundDirs) {
+      TString dirName = foundDir.substr(foundDir.rfind('/') + 1, foundDir.length());
       if (dirName.Contains(regexp))
-        findAllSubdirectories(*iDir, myList);
+        findAllSubdirectories(foundDir, myList);
     }
   } else if (dqmStore->dirExists(dir)) {
     myList->insert(dir);

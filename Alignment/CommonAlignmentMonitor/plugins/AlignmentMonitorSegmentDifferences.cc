@@ -374,10 +374,9 @@ void AlignmentMonitorSegmentDifferences::event(const edm::Event &iEvent,
 
   if (m_muonCollectionTag.label().empty())  // use trajectories
   {
-    for (ConstTrajTrackPairCollection::const_iterator trajtrack = trajtracks.begin(); trajtrack != trajtracks.end();
-         ++trajtrack) {
-      const Trajectory *traj = (*trajtrack).first;
-      const reco::Track *track = (*trajtrack).second;
+    for (const auto &trajtrack : trajtracks) {
+      const Trajectory *traj = trajtrack.first;
+      const reco::Track *track = trajtrack.second;
 
       if (track->pt() > m_minTrackPt && track->p() > m_minTrackP && fabs(track->dxy(beamSpot->position())) < m_maxDxy) {
         MuonResidualsFromTrack muonResidualsFromTrack(
@@ -389,13 +388,13 @@ void AlignmentMonitorSegmentDifferences::event(const edm::Event &iEvent,
     edm::Handle<reco::MuonCollection> muons;
     iEvent.getByLabel(m_muonCollectionTag, muons);
 
-    for (reco::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon) {
-      if (!(muon->isTrackerMuon() && muon->innerTrack().isNonnull()))
+    for (const auto &muon : *muons) {
+      if (!(muon.isTrackerMuon() && muon.innerTrack().isNonnull()))
         continue;
 
-      if (m_minTrackPt < muon->pt() && m_minTrackP < muon->p() &&
-          fabs(muon->innerTrack()->dxy(beamSpot->position())) < m_maxDxy) {
-        MuonResidualsFromTrack muonResidualsFromTrack(globalGeometry, &(*muon), pNavigator(), 100.);
+      if (m_minTrackPt < muon.pt() && m_minTrackP < muon.p() &&
+          fabs(muon.innerTrack()->dxy(beamSpot->position())) < m_maxDxy) {
+        MuonResidualsFromTrack muonResidualsFromTrack(globalGeometry, &muon, pNavigator(), 100.);
         processMuonResidualsFromTrack(muonResidualsFromTrack);
       }
     }
@@ -412,8 +411,8 @@ void AlignmentMonitorSegmentDifferences::processMuonResidualsFromTrack(MuonResid
 
   int nMuChambers = 0;
   std::vector<DetId> chamberIds = mrft.chamberIds();
-  for (unsigned ch = 0; ch < chamberIds.size(); ch++)
-    if (chamberIds[ch].det() == DetId::Muon)
+  for (auto &chamberId : chamberIds)
+    if (chamberId.det() == DetId::Muon)
       nMuChambers++;
   if (nMuChambers < m_minNCrossedChambers)
     return;
@@ -434,12 +433,12 @@ void AlignmentMonitorSegmentDifferences::processMuonResidualsFromTrack(MuonResid
 
       if (dt13 != nullptr && dt13->numHits() >= m_minDT13Hits) {
         DTChamberId thisid(chamberId->rawId());
-        for (std::vector<DetId>::const_iterator otherId = chamberIds.begin(); otherId != chamberIds.end(); ++otherId) {
-          if (otherId->det() == DetId::Muon && otherId->subdetId() == MuonSubdetId::DT) {
-            DTChamberId thatid(otherId->rawId());
+        for (auto chamberId : chamberIds) {
+          if (chamberId.det() == DetId::Muon && chamberId.subdetId() == MuonSubdetId::DT) {
+            DTChamberId thatid(chamberId.rawId());
             if (thisid.rawId() != thatid.rawId() && thisid.wheel() == thatid.wheel() &&
                 thisid.sector() == thatid.sector()) {
-              MuonChamberResidual *dt13other = mrft.chamberResidual(*otherId, MuonChamberResidual::kDT13);
+              MuonChamberResidual *dt13other = mrft.chamberResidual(chamberId, MuonChamberResidual::kDT13);
               if (dt13other != nullptr && dt13other->numHits() >= m_minDT13Hits) {
                 double slopediff = 1000. * (dt13->global_resslope() - dt13other->global_resslope());
                 //double length = dt13->chamberAlignable()->surface().toGlobal(align::LocalPoint(0,0,0)).perp() -
@@ -469,13 +468,13 @@ void AlignmentMonitorSegmentDifferences::processMuonResidualsFromTrack(MuonResid
           // only do it for DT stubs in W+-2 St1&2:
           if (!(abs(thisid.wheel()) == 2 && (thisid.station() == 1 || thisid.station() == 2)))
             continue;
-          if (otherId->det() == DetId::Muon && otherId->subdetId() == MuonSubdetId::CSC) {
-            CSCDetId thatid(otherId->rawId());
+          if (chamberId.det() == DetId::Muon && chamberId.subdetId() == MuonSubdetId::CSC) {
+            CSCDetId thatid(chamberId.rawId());
             //only do it for CSC stubs in St1R3 or St2R2:
             if (!((thatid.station() == 1 && thatid.ring() == 3) || (thatid.station() == 2 && thatid.ring() == 2)))
               continue;
 
-            MuonChamberResidual *cscother = mrft.chamberResidual(*otherId, MuonChamberResidual::kCSC);
+            MuonChamberResidual *cscother = mrft.chamberResidual(chamberId, MuonChamberResidual::kCSC);
             if (cscother != nullptr && cscother->numHits() >= m_minCSCHits) {
               // scale to adjust the csc residual size to be comparabe to dt's one
               double csc_scale = dt13->chamberAlignable()
@@ -511,12 +510,12 @@ void AlignmentMonitorSegmentDifferences::processMuonResidualsFromTrack(MuonResid
       // z-direction
       if (dt2 != nullptr && dt2->numHits() >= m_minDT2Hits && (dt2->chi2() / double(dt2->ndof())) < 2.0) {
         DTChamberId thisid(chamberId->rawId());
-        for (std::vector<DetId>::const_iterator otherId = chamberIds.begin(); otherId != chamberIds.end(); ++otherId) {
-          if (otherId->det() == DetId::Muon && otherId->subdetId() == MuonSubdetId::DT) {
-            DTChamberId thatid(otherId->rawId());
+        for (auto chamberId : chamberIds) {
+          if (chamberId.det() == DetId::Muon && chamberId.subdetId() == MuonSubdetId::DT) {
+            DTChamberId thatid(chamberId.rawId());
             if (thisid.rawId() != thatid.rawId() && thisid.wheel() == thatid.wheel() &&
                 thisid.sector() == thatid.sector()) {
-              MuonChamberResidual *dt2other = mrft.chamberResidual(*otherId, MuonChamberResidual::kDT2);
+              MuonChamberResidual *dt2other = mrft.chamberResidual(chamberId, MuonChamberResidual::kDT2);
               if (dt2other != nullptr && dt2other->numHits() >= m_minDT2Hits) {
                 double slopediff = 1000. * (dt2->global_resslope() - dt2other->global_resslope());
                 //double length = dt2->chamberAlignable()->surface().toGlobal(align::LocalPoint(0,0,0)).perp() -
@@ -550,11 +549,11 @@ void AlignmentMonitorSegmentDifferences::processMuonResidualsFromTrack(MuonResid
       MuonChamberResidual *csc = mrft.chamberResidual(*chamberId, MuonChamberResidual::kCSC);
       if (csc->numHits() >= m_minCSCHits) {
         CSCDetId thisid(chamberId->rawId());
-        for (std::vector<DetId>::const_iterator otherId = chamberIds.begin(); otherId != chamberIds.end(); ++otherId) {
-          if (otherId->det() == DetId::Muon && otherId->subdetId() == MuonSubdetId::CSC) {
-            CSCDetId thatid(otherId->rawId());
+        for (auto chamberId : chamberIds) {
+          if (chamberId.det() == DetId::Muon && chamberId.subdetId() == MuonSubdetId::CSC) {
+            CSCDetId thatid(chamberId.rawId());
             if (thisid.rawId() != thatid.rawId() && thisid.endcap() == thatid.endcap()) {
-              MuonChamberResidual *cscother = mrft.chamberResidual(*otherId, MuonChamberResidual::kCSC);
+              MuonChamberResidual *cscother = mrft.chamberResidual(chamberId, MuonChamberResidual::kCSC);
               if (cscother != nullptr && cscother->numHits() >= m_minCSCHits) {
                 double slopediff = 1000. * (csc->global_resslope() - cscother->global_resslope());
                 //double length = csc->chamberAlignable()->surface().toGlobal(align::LocalPoint(0,0,0)).z() -

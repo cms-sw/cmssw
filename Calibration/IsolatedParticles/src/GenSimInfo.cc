@@ -201,21 +201,21 @@ namespace spr {
     info.maxNearP = -1.0;
     info.cHadronEne = info.nHadronEne = info.eleEne = info.muEne = info.photonEne = 0.0;
     info.isChargedIso = true;
-    for (int i = 0; i < 3; ++i)
-      info.cHadronEne_[i] = 0.0;
-    for (unsigned int i = 0; i < trackIds.size(); ++i) {
-      HepMC::GenEvent::particle_const_iterator trkItr2 = trackIds[i].trkItr;
+    for (double& i : info.cHadronEne_)
+      i = 0.0;
+    for (auto& trackId : trackIds) {
+      HepMC::GenEvent::particle_const_iterator trkItr2 = trackId.trkItr;
       // avoid the track under consideration
-      if ((trkItr2 != trkItr) && trackIds[i].ok) {
-        int charge = trackIds[i].charge;
-        int pdgid = trackIds[i].pdgId;
+      if ((trkItr2 != trkItr) && trackId.ok) {
+        int charge = trackId.charge;
+        int pdgid = trackId.pdgId;
         double p = (*trkItr2)->momentum().rho();
         bool isolat = false;
         if (ifECAL) {
-          const DetId anyCell = trackIds[i].detIdECAL;
+          const DetId anyCell = trackId.detIdECAL;
           isolat = spr::chargeIsolation(anyCell, vdets);
         } else {
-          const DetId anyCell = trackIds[i].detIdHCAL;
+          const DetId anyCell = trackId.detIdHCAL;
           isolat = spr::chargeIsolation(anyCell, vdets);
         }
         if (!isolat)
@@ -241,21 +241,21 @@ namespace spr {
     info.maxNearP = -1.0;
     info.cHadronEne = info.nHadronEne = info.eleEne = info.muEne = info.photonEne = 0.0;
     info.isChargedIso = true;
-    for (int i = 0; i < 3; ++i)
-      info.cHadronEne_[i] = 0.0;
-    for (unsigned int i = 0; i < trackIds.size(); ++i) {
-      reco::GenParticleCollection::const_iterator trkItr2 = trackIds[i].trkItr;
+    for (double& i : info.cHadronEne_)
+      i = 0.0;
+    for (auto& trackId : trackIds) {
+      reco::GenParticleCollection::const_iterator trkItr2 = trackId.trkItr;
       // avoid the track under consideration
-      if ((trkItr2 != trkItr) && trackIds[i].ok) {
-        int charge = trackIds[i].charge;
-        int pdgid = trackIds[i].pdgId;
+      if ((trkItr2 != trkItr) && trackId.ok) {
+        int charge = trackId.charge;
+        int pdgid = trackId.pdgId;
         double p = trkItr2->momentum().R();
         bool isolat = false;
         if (ifECAL) {
-          const DetId anyCell = trackIds[i].detIdECAL;
+          const DetId anyCell = trackId.detIdECAL;
           isolat = spr::chargeIsolation(anyCell, vdets);
         } else {
-          const DetId anyCell = trackIds[i].detIdHCAL;
+          const DetId anyCell = trackId.detIdHCAL;
           isolat = spr::chargeIsolation(anyCell, vdets);
         }
         if (!isolat)

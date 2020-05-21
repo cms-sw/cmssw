@@ -245,10 +245,9 @@ void BTagDifferentialPlot::bookHisto(DQMStore::IBooker& ibook) {
 
 void BTagDifferentialPlot::fillHisto() {
   // loop over bins and find corresponding misid. in the MisIdVs..... histo
-  for (vector<std::shared_ptr<JetTagPlotter>>::const_iterator iP = theBinPlotters.begin(); iP != theBinPlotters.end();
-       ++iP) {
-    const EtaPtBin& currentBin = (*iP)->etaPtBin();
-    EffPurFromHistos& currentEffPurFromHistos = (*iP)->getEffPurFromHistos();
+  for (const auto& theBinPlotter : theBinPlotters) {
+    const EtaPtBin& currentBin = theBinPlotter->etaPtBin();
+    EffPurFromHistos& currentEffPurFromHistos = theBinPlotter->getEffPurFromHistos();
     //
     bool isActive = true;
     double valueXAxis = -999.99;
@@ -299,11 +298,9 @@ void BTagDifferentialPlot::fillHisto() {
           make_pair(currentEffPurFromHistos.getEffFlavVsBEff_dus(), theDifferentialHistoB_dus->getTH1F()));
     }
 
-    for (vector<pair<TH1F*, TH1F*>>::const_iterator itP = effPurDifferentialPairs.begin();
-         itP != effPurDifferentialPairs.end();
-         ++itP) {
-      TH1F* effPurHist = itP->first;
-      TH1F* diffHist = itP->second;
+    for (const auto& effPurDifferentialPair : effPurDifferentialPairs) {
+      TH1F* effPurHist = effPurDifferentialPair.first;
+      TH1F* diffHist = effPurDifferentialPair.second;
       pair<double, double> mistag = getMistag(fixedBEfficiency, effPurHist);
       int iBinSet = diffHist->FindBin(valueXAxis);
       diffHist->SetBinContent(iBinSet, mistag.first);

@@ -299,13 +299,13 @@ MuonSegFit::SMatrixSym12 MuonSegFit::weightMatrix() {
 
   int row = 0;
 
-  for (MuonRecHitContainer::const_iterator it = hits_.begin(); it != hits_.end(); ++it) {
+  for (const auto& hit : hits_) {
     // Note scaleXError allows rescaling the x error if necessary
-    matrix(row, row) = scaleXError() * (*it)->localPositionError().xx();
-    matrix(row, row + 1) = (*it)->localPositionError().xy();
+    matrix(row, row) = scaleXError() * hit->localPositionError().xx();
+    matrix(row, row + 1) = hit->localPositionError().xy();
     ++row;
-    matrix(row, row - 1) = (*it)->localPositionError().xy();
-    matrix(row, row) = (*it)->localPositionError().yy();
+    matrix(row, row - 1) = hit->localPositionError().xy();
+    matrix(row, row) = hit->localPositionError().yy();
     ++row;
   }
 
@@ -321,8 +321,8 @@ MuonSegFit::SMatrix12by4 MuonSegFit::derivativeMatrix() {
   SMatrix12by4 matrix;  // 12x4, init to 0
   int row = 0;
 
-  for (MuonRecHitContainer::const_iterator it = hits_.begin(); it != hits_.end(); ++it) {
-    LocalPoint lp = (*it)->localPosition();
+  for (const auto& hit : hits_) {
+    LocalPoint lp = hit->localPosition();
 
     float z = lp.z();
 

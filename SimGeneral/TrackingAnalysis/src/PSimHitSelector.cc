@@ -12,9 +12,9 @@ PSimHitSelector::PSimHitSelector(edm::ParameterSet const &config) {
 
   mixLabel_ = config.getParameter<std::string>("mixLabel");
 
-  for (size_t i = 0; i < subdetectors.size(); ++i) {
+  for (auto &subdetector : subdetectors) {
     pSimHitCollectionMap_.insert(std::pair<std::string, std::vector<std::string>>(
-        subdetectors[i], pSimHitCollections.getParameter<std::vector<std::string>>(subdetectors[i])));
+        subdetector, pSimHitCollections.getParameter<std::vector<std::string>>(subdetector)));
   }
 }
 
@@ -31,8 +31,8 @@ void PSimHitSelector::select(PSimHitCollection &selection,
     edm::Handle<CrossingFrame<PSimHit>> cfPSimHits;
 
     // Collect the product pointers to the different psimhit collection
-    for (std::size_t i = 0; i < pSimHitCollections->second.size(); ++i) {
-      event.getByLabel(mixLabel_, pSimHitCollections->second[i], cfPSimHits);
+    for (const auto &i : pSimHitCollections->second) {
+      event.getByLabel(mixLabel_, i, cfPSimHits);
       cfPSimHitProductPointers.push_back(cfPSimHits.product());
     }
   }

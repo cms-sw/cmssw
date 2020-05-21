@@ -109,10 +109,8 @@ void HLTJetCollectionsForBoostedLeptonPlusJets<jetType>::produce(edm::Event& iEv
           continue;
         if (deltaR((*muonCands[candNr]), cleanedJet) <= minDeltaR_) {
           std::vector<edm::Ptr<reco::PFCandidate>> pfConstituents = cleanedJet.getPFConstituents();
-          for (std::vector<edm::Ptr<reco::PFCandidate>>::const_iterator i_candidate = pfConstituents.begin();
-               i_candidate != pfConstituents.end();
-               ++i_candidate) {
-            if (deltaR((*muonCands[candNr]), (**i_candidate)) < 0.001) {
+          for (const auto& pfConstituent : pfConstituents) {
+            if (deltaR((*muonCands[candNr]), (*pfConstituent)) < 0.001) {
               cleanedJet.setP4(cleanedJet.p4() - muonCands[candNr]->p4());
               usedCands.push_back(candNr);
               break;
@@ -133,10 +131,8 @@ void HLTJetCollectionsForBoostedLeptonPlusJets<jetType>::produce(edm::Event& iEv
           continue;
         if (deltaR((*eleCands[candNr]), cleanedJet) <= minDeltaR_) {
           std::vector<edm::Ptr<reco::PFCandidate>> pfConstituents = cleanedJet.getPFConstituents();
-          for (std::vector<edm::Ptr<reco::PFCandidate>>::const_iterator i_candidate = pfConstituents.begin();
-               i_candidate != pfConstituents.end();
-               ++i_candidate) {
-            if (deltaR((*eleCands[candNr]), (**i_candidate)) < 0.001) {
+          for (const auto& pfConstituent : pfConstituents) {
+            if (deltaR((*eleCands[candNr]), (*pfConstituent)) < 0.001) {
               cleanedJet.setP4(cleanedJet.p4() - eleCands[candNr]->p4());
               usedCands.push_back(candNr);
               break;
@@ -157,10 +153,8 @@ void HLTJetCollectionsForBoostedLeptonPlusJets<jetType>::produce(edm::Event& iEv
           continue;
         if (deltaR((*photonCands[candNr]), cleanedJet) <= minDeltaR_) {
           std::vector<edm::Ptr<reco::PFCandidate>> pfConstituents = cleanedJet.getPFConstituents();
-          for (std::vector<edm::Ptr<reco::PFCandidate>>::const_iterator i_candidate = pfConstituents.begin();
-               i_candidate != pfConstituents.end();
-               ++i_candidate) {
-            if (deltaR((*photonCands[candNr]), (**i_candidate)) < 0.001) {
+          for (const auto& pfConstituent : pfConstituents) {
+            if (deltaR((*photonCands[candNr]), (*pfConstituent)) < 0.001) {
               cleanedJet.setP4(cleanedJet.p4() - photonCands[candNr]->p4());
               usedCands.push_back(candNr);
               break;
@@ -181,10 +175,8 @@ void HLTJetCollectionsForBoostedLeptonPlusJets<jetType>::produce(edm::Event& iEv
           continue;
         if (deltaR((*clusCands[candNr]), cleanedJet) <= minDeltaR_) {
           std::vector<edm::Ptr<reco::PFCandidate>> pfConstituents = cleanedJet.getPFConstituents();
-          for (std::vector<edm::Ptr<reco::PFCandidate>>::const_iterator i_candidate = pfConstituents.begin();
-               i_candidate != pfConstituents.end();
-               ++i_candidate) {
-            if (deltaR((*clusCands[candNr]), (**i_candidate)) < 0.001) {
+          for (const auto& pfConstituent : pfConstituents) {
+            if (deltaR((*clusCands[candNr]), (*pfConstituent)) < 0.001) {
               cleanedJet.setP4(cleanedJet.p4() - clusCands[candNr]->p4());
               usedCands.push_back(candNr);
               break;

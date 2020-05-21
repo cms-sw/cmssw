@@ -47,8 +47,8 @@ void mySiStripNoises::encode(InputVector& Vi, std::vector<unsigned char>& Vo) {
   static const uint16_t BITS_PER_STRIP = 9;
   const size_t VoSize = (size_t)((Vi.size() * BITS_PER_STRIP) / 8 + .999);
   Vo.resize(VoSize);
-  for (size_t i = 0; i < Vo.size(); ++i)
-    Vo[i] &= 0x00u;
+  for (unsigned char& i : Vo)
+    i &= 0x00u;
 
   for (unsigned int stripIndex = 0; stripIndex < Vi.size(); ++stripIndex) {
     unsigned char* data = &Vo[Vo.size() - 1];

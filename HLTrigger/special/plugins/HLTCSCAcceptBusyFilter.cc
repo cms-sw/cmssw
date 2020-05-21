@@ -128,10 +128,10 @@ bool HLTCSCAcceptBusyFilter::AcceptManyHitsInChamber(unsigned int maxRecHitsPerC
   const unsigned int nChambers(36);
   unsigned int allRechits[nEndcaps][nStations][nRings][nChambers];
   for (auto& allRechit : allRechits) {
-    for (unsigned int iS = 0; iS < nStations; ++iS) {
+    for (auto& iS : allRechit) {
       for (unsigned int iR = 0; iR < nRings; ++iR) {
         for (unsigned int iC = 0; iC < nChambers; ++iC) {
-          allRechit[iS][iR][iC] = 0;
+          iS[iR][iC] = 0;
         }
       }
     }
@@ -143,11 +143,11 @@ bool HLTCSCAcceptBusyFilter::AcceptManyHitsInChamber(unsigned int maxRecHitsPerC
   }
 
   for (auto& allRechit : allRechits) {
-    for (unsigned int iS = 0; iS < nStations; ++iS) {
+    for (auto& iS : allRechit) {
       for (unsigned int iR = 0; iR < nRings; ++iR) {
         for (unsigned int iC = 0; iC < nChambers; ++iC) {
-          if (allRechit[iS][iR][iC] > maxNRecHitsPerChamber) {
-            maxNRecHitsPerChamber = allRechit[iS][iR][iC];
+          if (iS[iR][iC] > maxNRecHitsPerChamber) {
+            maxNRecHitsPerChamber = iS[iR][iC];
           }
           if (maxNRecHitsPerChamber > maxRecHitsPerChamber) {
             return true;

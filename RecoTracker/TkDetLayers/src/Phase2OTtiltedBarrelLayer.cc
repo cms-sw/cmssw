@@ -26,8 +26,8 @@ Phase2OTtiltedBarrelLayer::Phase2OTtiltedBarrelLayer(std::vector<const Phase2OTB
   theComps.insert(theComps.end(), negRings.begin(), negRings.end());
   theComps.insert(theComps.end(), posRings.begin(), posRings.end());
 
-  for (vector<const GeometricSearchDet*>::const_iterator it = theComps.begin(); it != theComps.end(); it++) {
-    theBasicComps.insert(theBasicComps.end(), (**it).basicComponents().begin(), (**it).basicComponents().end());
+  for (auto theComp : theComps) {
+    theBasicComps.insert(theBasicComps.end(), (*theComp).basicComponents().begin(), (*theComp).basicComponents().end());
   }
 
   BarrelDetLayer::initialize();

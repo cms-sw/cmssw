@@ -45,11 +45,11 @@ bool DivisiveVertexFinder::findVertexes(const reco::TrackRefVector &trks,    // 
   err(2, 2) = vz.error() * vz.error();
 
   reco::Vertex v(reco::Vertex::Point(0, 0, vz.value()), err, 0, 1, trks.size());
-  for (unsigned int i = 0; i < trks.size(); i++) {
-    double vz = trks[i]->vz();
+  for (const auto &trk : trks) {
+    double vz = trk->vz();
     if (edm::isNotFinite(vz))
       continue;
-    v.add(reco::TrackBaseRef(trks[i]));
+    v.add(reco::TrackBaseRef(trk));
   }
 
   vertexes.push_back(v);
@@ -67,16 +67,16 @@ bool DivisiveVertexFinder::findVertexesAlt(const reco::TrackRefVector &trks,  //
   // Need to save a map to reconvert from bare pointers, oy vey
   std::map<const reco::Track *, reco::TrackRef> mapa;
   //  std::vector< std::vector< const reco::Track* > > trkps;
-  for (unsigned int i = 0; i < trks.size(); ++i) {
-    double vz = trks[i]->vz();
+  for (const auto &trk : trks) {
+    double vz = trk->vz();
     if (edm::isNotFinite(vz))
       continue;
     std::vector<const reco::Track *> temp;
     temp.clear();
-    temp.push_back(&(*trks[i]));
+    temp.push_back(&(*trk));
 
-    in.push_back(PVCluster(Measurement1D(trks[i]->dz(bs), trks[i]->dzError()), temp));
-    mapa[temp[0]] = trks[i];
+    in.push_back(PVCluster(Measurement1D(trk->dz(bs), trk->dzError()), temp));
+    mapa[temp[0]] = trk;
   }
 
   if (verbose_ > 0) {

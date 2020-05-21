@@ -287,8 +287,8 @@ void EcalTPCondAnalyzer::printCRYSTAL(const EcalTPGPedestals *ecaltpPed, const E
   const std::vector<DetId> &ebCells = theBarrelGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
 
   std::cout << "COMMENT ====== barrel crystals ====== " << std::endl;
-  for (std::vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
-    EBDetId id(*it);
+  for (auto ebCell : ebCells) {
+    EBDetId id(ebCell);
     std::cout << "CRYSTAL " << std::dec << id.rawId() << std::endl;
     const EcalTPGPedestal &ped = pedMap[id.rawId()];
     const EcalTPGLinearizationConstant &lin = linMap[id.rawId()];
@@ -299,8 +299,8 @@ void EcalTPCondAnalyzer::printCRYSTAL(const EcalTPGPedestals *ecaltpPed, const E
 
   const std::vector<DetId> &eeCells = theEndcapGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
   std::cout << "COMMENT ====== endcap crystals ====== " << std::endl;
-  for (std::vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
-    EEDetId id(*it);
+  for (auto eeCell : eeCells) {
+    EEDetId id(eeCell);
     std::cout << "CRYSTAL " << std::dec << id.rawId() << std::endl;
     const EcalTPGPedestal &ped = pedMap[id.rawId()];
     const EcalTPGLinearizationConstant &lin = linMap[id.rawId()];

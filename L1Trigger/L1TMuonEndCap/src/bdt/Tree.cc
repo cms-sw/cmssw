@@ -174,8 +174,8 @@ void Tree::calcError() {
 
   double totalSquaredError = 0;
 
-  for (std::list<Node*>::iterator it = terminalNodes.begin(); it != terminalNodes.end(); it++) {
-    totalSquaredError += (*it)->getTotalError();
+  for (auto& terminalNode : terminalNodes) {
+    totalSquaredError += terminalNode->getTotalError();
   }
   rmsError = sqrt(totalSquaredError / rootNode->getNumEvents());
 }
@@ -193,10 +193,10 @@ void Tree::buildTree(int nodeLimit) {
     //        std::cout << std::endl << "  " << numTerminalNodes << " Nodes : " << rmsError << std::endl;
   }
 
-  for (std::list<Node*>::iterator it = terminalNodes.begin(); it != terminalNodes.end(); it++) {
-    if ((*it)->getErrorReduction() > bestNodeErrorReduction) {
-      bestNodeErrorReduction = (*it)->getErrorReduction();
-      nodeToSplit = (*it);
+  for (auto& terminalNode : terminalNodes) {
+    if (terminalNode->getErrorReduction() > bestNodeErrorReduction) {
+      bestNodeErrorReduction = terminalNode->getErrorReduction();
+      nodeToSplit = terminalNode;
     }
   }
 

@@ -31,11 +31,9 @@
 
 /// return the object map for the algorithm algoNameVal
 const L1GlobalTriggerObjectMap* L1GlobalTriggerObjectMapRecord::getObjectMap(const std::string& algoNameVal) const {
-  for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
-       itObj != m_gtObjectMap.end();
-       ++itObj) {
-    if (itObj->algoName() == algoNameVal) {
-      return &((*itObj));
+  for (const auto& itObj : m_gtObjectMap) {
+    if (itObj.algoName() == algoNameVal) {
+      return &(itObj);
     }
   }
 
@@ -49,11 +47,9 @@ const L1GlobalTriggerObjectMap* L1GlobalTriggerObjectMapRecord::getObjectMap(con
 
 /// return the object map for the algorithm with bit number const int algoBitNumberVal
 const L1GlobalTriggerObjectMap* L1GlobalTriggerObjectMapRecord::getObjectMap(const int algoBitNumberVal) const {
-  for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
-       itObj != m_gtObjectMap.end();
-       ++itObj) {
-    if (itObj->algoBitNumber() == algoBitNumberVal) {
-      return &((*itObj));
+  for (const auto& itObj : m_gtObjectMap) {
+    if (itObj.algoBitNumber() == algoBitNumberVal) {
+      return &(itObj);
     }
   }
 
@@ -70,11 +66,9 @@ const L1GlobalTriggerObjectMap* L1GlobalTriggerObjectMapRecord::getObjectMap(con
 // from algorithm algoNameVal
 const CombinationsInCond* L1GlobalTriggerObjectMapRecord::getCombinationsInCond(const std::string& algoNameVal,
                                                                                 const std::string& condNameVal) const {
-  for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
-       itObj != m_gtObjectMap.end();
-       ++itObj) {
-    if (itObj->algoName() == algoNameVal) {
-      return itObj->getCombinationsInCond(condNameVal);
+  for (const auto& itObj : m_gtObjectMap) {
+    if (itObj.algoName() == algoNameVal) {
+      return itObj.getCombinationsInCond(condNameVal);
     }
   }
 
@@ -91,11 +85,9 @@ const CombinationsInCond* L1GlobalTriggerObjectMapRecord::getCombinationsInCond(
 // from algorithm with bit number algoBitNumberVal
 const CombinationsInCond* L1GlobalTriggerObjectMapRecord::getCombinationsInCond(const int algoBitNumberVal,
                                                                                 const std::string& condNameVal) const {
-  for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
-       itObj != m_gtObjectMap.end();
-       ++itObj) {
-    if (itObj->algoBitNumber() == algoBitNumberVal) {
-      return itObj->getCombinationsInCond(condNameVal);
+  for (const auto& itObj : m_gtObjectMap) {
+    if (itObj.algoBitNumber() == algoBitNumberVal) {
+      return itObj.getCombinationsInCond(condNameVal);
     }
   }
 
@@ -112,11 +104,9 @@ const CombinationsInCond* L1GlobalTriggerObjectMapRecord::getCombinationsInCond(
 // from algorithm with name algoNameVal
 bool L1GlobalTriggerObjectMapRecord::getConditionResult(const std::string& algoNameVal,
                                                         const std::string& condNameVal) const {
-  for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
-       itObj != m_gtObjectMap.end();
-       ++itObj) {
-    if (itObj->algoName() == algoNameVal) {
-      return itObj->getConditionResult(condNameVal);
+  for (const auto& itObj : m_gtObjectMap) {
+    if (itObj.algoName() == algoNameVal) {
+      return itObj.getConditionResult(condNameVal);
     }
   }
 
@@ -133,11 +123,9 @@ bool L1GlobalTriggerObjectMapRecord::getConditionResult(const std::string& algoN
 // from algorithm with bit number algoBitNumberVal
 bool L1GlobalTriggerObjectMapRecord::getConditionResult(const int algoBitNumberVal,
                                                         const std::string& condNameVal) const {
-  for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
-       itObj != m_gtObjectMap.end();
-       ++itObj) {
-    if (itObj->algoBitNumber() == algoBitNumberVal) {
-      return itObj->getConditionResult(condNameVal);
+  for (const auto& itObj : m_gtObjectMap) {
+    if (itObj.algoBitNumber() == algoBitNumberVal) {
+      return itObj.getConditionResult(condNameVal);
     }
   }
 

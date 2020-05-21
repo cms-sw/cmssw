@@ -170,9 +170,9 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg)
   _alignTree->Branch("type", &_type, "type/I");
   _alignTree->Branch("surfDeform", &_surfDeform, "surfDeform[13]/D");
 
-  for (std::vector<TrackerMap>::iterator it = m_vtkmap.begin(); it != m_vtkmap.end(); ++it) {
-    it->setPalette(1);
-    it->addPixel(true);
+  for (auto& it : m_vtkmap) {
+    it.setPalette(1);
+    it.addPixel(true);
   }
 
   edm::Service<TFileService> fs;
@@ -201,14 +201,14 @@ void TrackerGeometryCompare::beginJob() { firstEvent_ = true; }
 
 void TrackerGeometryCompare::endJob() {
   int iname(0);
-  for (std::vector<TrackerMap>::iterator it = m_vtkmap.begin(); it != m_vtkmap.end(); ++it) {
+  for (auto& it : m_vtkmap) {
     std::stringstream mapname;
     mapname << "TkMap_SurfDeform" << iname << ".png";
-    it->save(true, 0, 0, mapname.str());
+    it.save(true, 0, 0, mapname.str());
     mapname.str(std::string());
     mapname.clear();
     mapname << "TkMap_SurfDeform" << iname << ".pdf";
-    it->save(true, 0, 0, mapname.str());
+    it.save(true, 0, 0, mapname.str());
     ++iname;
   }
 
@@ -479,8 +479,8 @@ void TrackerGeometryCompare::compareSurfaceDeformations(TTree* refTree, TTree* c
     for (unsigned int iEntry = 0; iEntry < nEntries12; ++iEntry) {
       refTree->GetEntry(iEntry);
       curTree->GetEntry(iEntry);
-      for (int ii = 0; ii < 13; ++ii) {
-        _surfDeform[ii] = -1.0;
+      for (double& ii : _surfDeform) {
+        ii = -1.0;
       }
       for (int npar = 0; npar < int(inputDpar2.size()); ++npar) {
         if (inputRawid1 == inputRawid2) {
@@ -609,8 +609,8 @@ void TrackerGeometryCompare::compareGeometries(Alignable* refAli,
   unsigned int nComp = refComp.size();
   //only perform for designate levels
   bool useLevel = false;
-  for (unsigned int i = 0; i < m_theLevels.size(); ++i) {
-    if (refAli->alignableObjectId() == m_theLevels[i])
+  for (auto& m_theLevel : m_theLevels) {
+    if (refAli->alignableObjectId() == m_theLevel)
       useLevel = true;
   }
 
@@ -833,8 +833,8 @@ void TrackerGeometryCompare::fillTree(Alignable* refAli,
 
   //check if module is in a given list of bad/untouched etc. modules
   _inModuleList = 0;
-  for (unsigned int i = 0; i < _moduleList.size(); i++) {
-    if (_moduleList[i] == _id) {
+  for (int i : _moduleList) {
+    if (i == _id) {
       _inModuleList = 1;
       break;
     }

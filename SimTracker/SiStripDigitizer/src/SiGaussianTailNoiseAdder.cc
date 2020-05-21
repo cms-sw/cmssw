@@ -24,9 +24,9 @@ void SiGaussianTailNoiseAdder::addNoise(std::vector<float> &in,
 
   // Noise on the other strips
   typedef std::vector<std::pair<int, float> >::const_iterator VI;
-  for (VI p = generatedNoise.begin(); p != generatedNoise.end(); p++) {
-    if (in[(*p).first] == 0) {
-      in[(*p).first] += (*p).second;
+  for (const auto &p : generatedNoise) {
+    if (in[p.first] == 0) {
+      in[p.first] += p.second;
     }
   }
 }

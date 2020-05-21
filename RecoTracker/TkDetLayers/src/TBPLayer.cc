@@ -21,8 +21,8 @@ void TBPLayer::construct() {
   theComps.assign(theInnerComps.begin(), theInnerComps.end());
   theComps.insert(theComps.end(), theOuterComps.begin(), theOuterComps.end());
 
-  for (vector<const GeometricSearchDet*>::const_iterator it = theComps.begin(); it != theComps.end(); it++) {
-    theBasicComps.insert(theBasicComps.end(), (**it).basicComponents().begin(), (**it).basicComponents().end());
+  for (auto theComp : theComps) {
+    theBasicComps.insert(theBasicComps.end(), (*theComp).basicComponents().begin(), (*theComp).basicComponents().end());
   }
 
   theInnerCylinder = cylinder(theInnerComps);
@@ -47,16 +47,16 @@ void TBPLayer::construct() {
   LogDebug("TkDetLayers") << "Cyl radius, thickness, lenght: " << specificSurface().radius() << " , "
                           << specificSurface().bounds().thickness() << " , " << specificSurface().bounds().length();
 
-  for (vector<const GeometricSearchDet*>::const_iterator i = theInnerComps.begin(); i != theInnerComps.end(); i++) {
-    LogDebug("TkDetLayers") << "inner Rod pos z,perp,eta,phi: " << (**i).position().z() << " , "
-                            << (**i).position().perp() << " , " << (**i).position().eta() << " , "
-                            << (**i).position().phi();
+  for (auto theInnerComp : theInnerComps) {
+    LogDebug("TkDetLayers") << "inner Rod pos z,perp,eta,phi: " << (*theInnerComp).position().z() << " , "
+                            << (*theInnerComp).position().perp() << " , " << (*theInnerComp).position().eta() << " , "
+                            << (*theInnerComp).position().phi();
   }
 
-  for (vector<const GeometricSearchDet*>::const_iterator i = theOuterComps.begin(); i != theOuterComps.end(); i++) {
-    LogDebug("TkDetLayers") << "outer Rod pos z,perp,eta,phi: " << (**i).position().z() << " , "
-                            << (**i).position().perp() << " , " << (**i).position().eta() << " , "
-                            << (**i).position().phi();
+  for (auto theOuterComp : theOuterComps) {
+    LogDebug("TkDetLayers") << "outer Rod pos z,perp,eta,phi: " << (*theOuterComp).position().z() << " , "
+                            << (*theOuterComp).position().perp() << " , " << (*theOuterComp).position().eta() << " , "
+                            << (*theOuterComp).position().phi();
   }
   LogDebug("TkDetLayers") << "==== end DEBUG TBPLayer =====";
 }
@@ -65,8 +65,8 @@ TBPLayer::~TBPLayer() {}
 
 BoundCylinder* TBPLayer::cylinder(const vector<const GeometricSearchDet*>& rods) const {
   vector<const GeomDet*> tmp;
-  for (vector<const GeometricSearchDet*>::const_iterator it = rods.begin(); it != rods.end(); it++) {
-    tmp.insert(tmp.end(), (*it)->basicComponents().begin(), (*it)->basicComponents().end());
+  for (auto rod : rods) {
+    tmp.insert(tmp.end(), rod->basicComponents().begin(), rod->basicComponents().end());
   }
   return CylinderBuilderFromDet()(tmp.begin(), tmp.end());
 }

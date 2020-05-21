@@ -1670,8 +1670,8 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
       folderNames_.push_back("ZJets");
     }
     //book for each of these selection default histograms
-    for (std::vector<std::string>::const_iterator ic = folderNames_.begin(); ic != folderNames_.end(); ic++) {
-      bookMESetSelection(DirName + "/" + *ic, ibooker);
+    for (const auto& folderName : folderNames_) {
+      bookMESetSelection(DirName + "/" + folderName, ibooker);
     }
   }
 
@@ -2232,10 +2232,9 @@ void JetAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
   edm::ESHandle<L1GtTriggerMenu> menuRcd;
   iSetup.get<L1GtTriggerMenuRcd>().get(menuRcd);
   const L1GtTriggerMenu* menu = menuRcd.product();
-  for (CItAlgo techTrig = menu->gtTechnicalTriggerMap().begin(); techTrig != menu->gtTechnicalTriggerMap().end();
-       ++techTrig) {
-    if ((techTrig->second).algoName() == m_l1algoname_) {
-      m_bitAlgTechTrig_ = (techTrig->second).algoBitNumber();
+  for (const auto& techTrig : menu->gtTechnicalTriggerMap()) {
+    if ((techTrig.second).algoName() == m_l1algoname_) {
+      m_bitAlgTechTrig_ = (techTrig.second).algoBitNumber();
       break;
     }
   }

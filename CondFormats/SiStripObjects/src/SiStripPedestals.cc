@@ -60,8 +60,8 @@ void SiStripPedestals::encode(InputVector& Vi, std::vector<unsigned char>& Vo) {
   static const uint16_t BITS_PER_STRIP = 10;
   const size_t VoSize = (size_t)((Vi.size() * BITS_PER_STRIP) / 8 + .999);
   Vo.resize(VoSize);
-  for (size_t i = 0; i < Vo.size(); ++i)
-    Vo[i] &= 0x00u;
+  for (unsigned char& i : Vo)
+    i &= 0x00u;
 
   for (unsigned int stripIndex = 0; stripIndex < Vi.size(); ++stripIndex) {
     unsigned char* data = &Vo[Vo.size() - 1];
@@ -172,10 +172,10 @@ void SiStripPedestals::printSummary(std::stringstream& ss, const TrackerTopology
   std::vector<uint32_t> detid;
   getDetIds(detid);
   SiStripDetSummary summary{trackerTopo};
-  for (size_t id = 0; id < detid.size(); ++id) {
-    SiStripPedestals::Range range = getRange(detid[id]);
+  for (unsigned int id : detid) {
+    SiStripPedestals::Range range = getRange(id);
     for (int it = 0; it < (range.second - range.first) * 8 / 10; ++it) {
-      summary.add(detid[id], getPed(it, range));
+      summary.add(id, getPed(it, range));
     }
   }
   ss << "Summary of pedestals:" << std::endl;
@@ -188,18 +188,18 @@ void SiStripPedestals::printDebug(std::stringstream& ss, const TrackerTopology* 
 
   ss << "Number of detids = " << detid.size() << std::endl;
 
-  for (size_t id = 0; id < detid.size(); ++id) {
-    SiStripPedestals::Range range = getRange(detid[id]);
+  for (unsigned int id : detid) {
+    SiStripPedestals::Range range = getRange(id);
 
     int strip = 0;
     ss << "detid" << std::setw(15) << "strip" << std::setw(10) << "pedestal" << std::endl;
     int detId = 0;
     int oldDetId = 0;
     for (int it = 0; it < (range.second - range.first) * 8 / 10; ++it) {
-      detId = detid[id];
+      detId = id;
       if (detId != oldDetId) {
         oldDetId = detId;
-        ss << detid[id];
+        ss << id;
       } else
         ss << "   ";
       ss << std::setw(15) << strip++ << std::setw(10) << getPed(it, range) << std::endl;

@@ -107,8 +107,8 @@ std::cout<<str.str()<<std::endl;
     }
 
     void fillPlot_align(std::vector<float>& vect, TH2F* align, float column, double& row) {
-      for (std::vector<float>::const_iterator i = vect.begin(); i != vect.end(); i++) {
-        align->Fill(column, row, *i);
+      for (float i : vect) {
+        align->Fill(column, row, i);
         row = row - 1;
       }
     }
@@ -199,11 +199,11 @@ std::cout<<str.str()<<std::endl;
         const std::vector<float>& vect, TH2F* align, float val[], const float column, double row, unsigned irun) {
       int irow = 0;
 
-      for (std::vector<float>::const_iterator i = vect.begin(); i != vect.end(); ++i) {
+      for (float i : vect) {
         if (irun == 0) {
-          val[irow] = (*i);
+          val[irow] = i;
         } else {
-          align->Fill(column, row, (*i) - val[irow]);
+          align->Fill(column, row, i - val[irow]);
           row--;
         }
         irow++;

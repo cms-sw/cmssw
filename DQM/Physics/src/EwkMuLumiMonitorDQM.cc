@@ -128,8 +128,7 @@ double EwkMuLumiMonitorDQM::tkIso(const reco::Track& tk,
                                   Handle<TrackCollection> tracks,
                                   Handle<CaloTowerCollection> calotower) {
   double ptSum = 0;
-  for (size_t i = 0; i < tracks->size(); ++i) {
-    const reco::Track& elem = tracks->at(i);
+  for (const auto& elem : *tracks) {
     double elemPt = elem.pt();
     // same parameter used for muIsolation: dR [0.01, IsoCut03_], |dZ|<0.2,
     // |d_r(xy)|<0.1
@@ -152,13 +151,13 @@ double EwkMuLumiMonitorDQM::tkIso(const reco::Track& tk,
   }
   if (isCombinedIso_) {
     // loop on clusters....
-    for (CaloTowerCollection::const_iterator it = calotower->begin(); it != calotower->end(); ++it) {
-      double dR = deltaR(it->eta(), it->phi(), tk.outerEta(), tk.outerPhi());
+    for (const auto& it : *calotower) {
+      double dR = deltaR(it.eta(), it.phi(), tk.outerEta(), tk.outerPhi());
       // veto value is 0.1 for towers....
       if ((dR < 0.1) || (dR > 0.3))
         continue;
-      ptSum += it->emEnergy();
-      ptSum += it->hadEnergy();
+      ptSum += it.emEnergy();
+      ptSum += it.hadEnergy();
     }
   }
   if (isRelativeIso_)
@@ -225,8 +224,7 @@ void EwkMuLumiMonitorDQM::analyze(const Event& ev, const EventSetup&) {
   string lowestMuonUnprescaledTrig = "";
   bool lowestMuonUnprescaledTrigFound = false;
   const std::vector<std::string>& triggerNames = hltConfigProvider_.triggerNames();
-  for (size_t ts = 0; ts < triggerNames.size(); ts++) {
-    string trig = triggerNames[ts];
+  for (auto trig : triggerNames) {
     size_t f = trig.find("HLT_Mu");
     if ((f != std::string::npos)) {
       // std::cout << "single muon trigger present: " << trig << std::endl;
@@ -332,14 +330,14 @@ void EwkMuLumiMonitorDQM::analyze(const Event& ev, const EventSetup&) {
     }
     if (!toc.empty()) {
       const trigger::Keys& k = handleTriggerEvent->filterKeys(ia);
-      for (trigger::Keys::const_iterator ki = k.begin(); ki != k.end(); ++ki) {
+      for (unsigned short ki : k) {
         // looking at all the single muon l3 trigger present, for example
         // hltSingleMu15L3Filtered15.....
         if (name == L3FilterName_) {
           // trigger_fired = true;
           hlt_sel = true;
           nhlt++;
-          HLTMuMatched.push_back(toc[*ki].particle());
+          HLTMuMatched.push_back(toc[ki].particle());
           nMuHLT++;
         }
       }
@@ -365,8 +363,7 @@ void EwkMuLumiMonitorDQM::analyze(const Event& ev, const EventSetup&) {
   std::vector<reco::Muon> highPtGlbMuons;
   std::vector<reco::Muon> highPtStaMuons;
 
-  for (size_t i = 0; i < muons->size(); i++) {
-    const reco::Muon& mu = muons->at(i);
+  for (const auto& mu : *muons) {
     double pt = mu.pt();
     double eta = mu.eta();
     if (pt > ptMuCut_ && fabs(eta) < etaMuCut_) {

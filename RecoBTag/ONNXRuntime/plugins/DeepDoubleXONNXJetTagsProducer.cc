@@ -152,8 +152,7 @@ void DeepDoubleXONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::Even
 
     // get the outputs
     unsigned i_output = 0;
-    for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
-      const auto& taginfo = tag_infos->at(jet_n);
+    for (const auto& taginfo : *tag_infos) {
       const auto& jet_ref = taginfo.jet();
       for (std::size_t flav_n = 0; flav_n < flav_names_.size(); flav_n++) {
         if (!taginfo.features().empty()) {

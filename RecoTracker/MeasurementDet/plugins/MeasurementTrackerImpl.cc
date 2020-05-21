@@ -217,24 +217,24 @@ void MeasurementTrackerImpl::initPhase2OTMeasurementConditionSet(std::vector<TkP
 
 void MeasurementTrackerImpl::addDets(const TrackingGeometry::DetContainer& dets, bool subIsPixel, bool subIsOT) {
   //in phase2, we can have composed subDetector made by Pixel or Strip
-  for (TrackerGeometry::DetContainer::const_iterator gd = dets.begin(); gd != dets.end(); gd++) {
-    const GeomDetUnit* gdu = dynamic_cast<const GeomDetUnit*>(*gd);
+  for (auto det : dets) {
+    const GeomDetUnit* gdu = dynamic_cast<const GeomDetUnit*>(det);
 
     //Pixel or Strip GeomDetUnit
     if (gdu->isLeaf()) {
       if (subIsPixel) {
         if (!subIsOT) {
-          addPixelDet(*gd);
+          addPixelDet(det);
         } else {
-          addPhase2Det(*gd);
+          addPhase2Det(det);
         }
       } else {
-        addStripDet(*gd);
+        addStripDet(det);
       }
     } else {
       //Glued or Stack GeomDet
-      const GluedGeomDet* gluedDet = dynamic_cast<const GluedGeomDet*>(*gd);
-      const StackGeomDet* stackDet = dynamic_cast<const StackGeomDet*>(*gd);
+      const GluedGeomDet* gluedDet = dynamic_cast<const GluedGeomDet*>(det);
+      const StackGeomDet* stackDet = dynamic_cast<const StackGeomDet*>(det);
 
       if ((gluedDet == nullptr && stackDet == nullptr) || (gluedDet != nullptr && stackDet != nullptr)) {
         throw MeasurementDetException("MeasurementTracker ERROR: GeomDet neither DetUnit nor GluedDet nor StackDet");
@@ -396,11 +396,11 @@ void MeasurementTrackerImpl::initializePixelStatus(const SiPixelQuality* quality
   if ((quality != nullptr) && (qualityFlags != 0)) {
     edm::LogInfo("MeasurementTracker") << "qualityFlags = " << qualityFlags;
     unsigned int on = 0, tot = 0, badrocs = 0;
-    for (std::vector<TkPixelMeasurementDet>::iterator i = thePixelDets.begin(); i != thePixelDets.end(); i++) {
-      uint32_t detid = ((*i).geomDet().geographicalId()).rawId();
+    for (auto& thePixelDet : thePixelDets) {
+      uint32_t detid = (thePixelDet.geomDet().geographicalId()).rawId();
       if (qualityFlags & BadModules) {
         bool isOn = quality->IsModuleUsable(detid);
-        (i)->setActive(isOn);
+        thePixelDet.->setActive(isOn);
         tot++;
         on += (unsigned int)isOn;
         if (qualityDebugFlags & BadModules) {
@@ -408,14 +408,14 @@ void MeasurementTrackerImpl::initializePixelStatus(const SiPixelQuality* quality
               << "MeasurementTrackerImpl::initializePixelStatus : detid " << detid << " is " << (isOn ? "on" : "off");
         }
       } else {
-        (i)->setActive(true);
+        thePixelDet.->setActive(true);
       }
       if ((qualityFlags & BadROCs) && (quality->getBadRocs(detid) != 0)) {
         std::vector<LocalPoint> badROCs = quality->getBadRocPositions(detid, *theTrackerGeom, pixelCabling);
         badrocs += badROCs.size();
-        (i)->setBadRocPositions(badROCs);
+        thePixelDet.->setBadRocPositions(badROCs);
       } else {
-        (i)->clearBadRocPositions();
+        thePixelDet.->clearBadRocPositions();
       }
     }
     if (qualityDebugFlags & BadModules) {
@@ -426,8 +426,8 @@ void MeasurementTrackerImpl::initializePixelStatus(const SiPixelQuality* quality
       edm::LogInfo("MeasurementTracker PixelROCStatus") << " Total of bad ROCs: " << badrocs;
     }
   } else {
-    for (std::vector<TkPixelMeasurementDet>::iterator i = thePixelDets.begin(); i != thePixelDets.end(); i++) {
-      (i)->setActive(true);  // module ON
+    for (auto& thePixelDet : thePixelDets) {
+      thePixelDet.->setActive(true);  // module ON
     }
   }
 }

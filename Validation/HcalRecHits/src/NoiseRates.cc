@@ -137,9 +137,7 @@ void NoiseRates::analyze(const edm::Event &iEvent, const edm::EventSetup &evSetu
   hNoise_maxHPDNoOtherHits_->Fill(summary.maxHPDNoOtherHits());
 
   // loop over the RBXs and fill the histograms
-  for (reco::HcalNoiseRBXCollection::const_iterator it = handle->begin(); it != handle->end(); ++it) {
-    const reco::HcalNoiseRBX &rbx = (*it);
-
+  for (const auto &rbx : *handle) {
     double energy = rbx.recHitEnergy(minHitEnergy_);
 
     int nhits = rbx.numRecHits(minHitEnergy_);

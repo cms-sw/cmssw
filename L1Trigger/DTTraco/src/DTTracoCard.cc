@@ -83,8 +83,8 @@ void DTTracoCard::setConfig(const DTConfigManager *conf) {
 
 void DTTracoCard::localClear() {
   // Clear the map
-  for (TRACO_iter p = _tracomap.begin(); p != _tracomap.end(); p++) {
-    delete (*p).second;
+  for (auto &p : _tracomap) {
+    delete p.second;
   }
   _tracomap.clear();
 }

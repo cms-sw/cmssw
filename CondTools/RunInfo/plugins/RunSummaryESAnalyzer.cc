@@ -69,8 +69,8 @@ namespace edmtest {
     summary->printAllValues();
     std::vector<std::string> subdet = summary->getSubdtIn();
     std::cout << "subdetector in the run " << std::endl;
-    for (size_t i = 0; i < subdet.size(); i++) {
-      std::cout << "--> " << subdet[i] << std::endl;
+    for (const auto& i : subdet) {
+      std::cout << "--> " << i << std::endl;
     }
   }
   DEFINE_FWK_MODULE(RunSummaryESAnalyzer);

@@ -8,11 +8,9 @@
 
 namespace align {
   const AlignTransform &DetectorGlobalPosition(const Alignments &allGlobals, const DetId &id) {
-    for (std::vector<AlignTransform>::const_iterator iter = allGlobals.m_align.begin();
-         iter != allGlobals.m_align.end();
-         ++iter) {
-      if (iter->rawId() == id.rawId()) {
-        return *iter;
+    for (const auto &iter : allGlobals.m_align) {
+      if (iter.rawId() == id.rawId()) {
+        return iter;
       }
     }
 

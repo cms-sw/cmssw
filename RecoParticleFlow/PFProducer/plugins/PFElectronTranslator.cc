@@ -561,9 +561,9 @@ void PFElectronTranslator::createSuperClusters(const reco::PFCandidateCollection
       //	  std::cout <<"Adding Ref to SC " << basicClusterPtr_[iGSF][ibc].index() << std::endl;
       const std::vector<std::pair<DetId, float>>& v1 = basicClusters_[iGSF][ibc].hitsAndFractions();
       //	  std::cout << " Number of cells " << v1.size() << std::endl;
-      for (std::vector<std::pair<DetId, float>>::const_iterator diIt = v1.begin(); diIt != v1.end(); ++diIt) {
+      for (const auto& diIt : v1) {
         //	    std::cout << " Adding DetId " << (diIt->first).rawId() << " " << diIt->second << std::endl;
-        mySuperCluster.addHitAndFraction(diIt->first, diIt->second);
+        mySuperCluster.addHitAndFraction(diIt.first, diIt.second);
       }  // loop over rechits
     }
 

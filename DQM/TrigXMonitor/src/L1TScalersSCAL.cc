@@ -408,20 +408,19 @@ void L1TScalersSCAL::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     int l1accept;
     unsigned int bx_current = 0, orbitnumber_current = 0, bxdiff = 0;
 
-    for (L1AcceptBunchCrossingCollection::const_iterator it4 = bunchCrossings->begin(); it4 != bunchCrossings->end();
-         ++it4) {
-      l1accept = std::abs(it4->l1AcceptOffset());
+    for (const auto& it4 : *bunchCrossings) {
+      l1accept = std::abs(it4.l1AcceptOffset());
       if (l1accept == 0) {
-        orbitnumber_current = it4->orbitNumber();
+        orbitnumber_current = it4.orbitNumber();
         orbitNumL1A[l1accept]->Fill(orbitnumber_current);
 
-        bx_current = it4->bunchCrossing();
+        bx_current = it4.bunchCrossing();
         bunchCrossingL1A[l1accept]->Fill(bx_current);
       } else if (l1accept == 1 || l1accept == 2 || l1accept == 3) {
-        orbitNumL1A[l1accept]->Fill(it4->orbitNumber());
-        bunchCrossingL1A[l1accept]->Fill(it4->bunchCrossing());
-        bunchCrossingCorr[l1accept - 1]->Fill(bx_current, it4->bunchCrossing());
-        bxdiff = 3564 * (orbitnumber_current - it4->orbitNumber()) + bx_current - it4->bunchCrossing();
+        orbitNumL1A[l1accept]->Fill(it4.orbitNumber());
+        bunchCrossingL1A[l1accept]->Fill(it4.bunchCrossing());
+        bunchCrossingCorr[l1accept - 1]->Fill(bx_current, it4.bunchCrossing());
+        bxdiff = 3564 * (orbitnumber_current - it4.orbitNumber()) + bx_current - it4.bunchCrossing();
         bunchCrossingDiff[l1accept - 1]->Fill(bxdiff);
         bunchCrossingDiff_small[l1accept - 1]->Fill(bxdiff);
       }

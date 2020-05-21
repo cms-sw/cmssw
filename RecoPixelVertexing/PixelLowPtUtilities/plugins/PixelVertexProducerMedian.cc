@@ -78,9 +78,9 @@ void PixelVertexProducerMedian::produce(edm::Event& ev, const edm::EventSetup& e
       // Most probable
       TH1F histo("histo", "histo", nBin, -halfWidth, halfWidth);
 
-      for (std::vector<const reco::Track*>::const_iterator track = tracks.begin(); track != tracks.end(); track++)
-        if (fabs((*track)->vz() - med) < halfWidth)
-          histo.Fill((*track)->vz() - med);
+      for (auto track : tracks)
+        if (fabs(track->vz() - med) < halfWidth)
+          histo.Fill(track->vz() - med);
 
       LogTrace("MinBiasTracking") << "  [vertex position] most prob = "
                                   << med + histo.GetBinCenter(histo.GetMaximumBin()) << " cm";

@@ -23,8 +23,8 @@ class DTuROSROSData {
 public:
   /// Constructor
   DTuROSROSData() : slot_(-1), header1_(0), header2_(0), trailer_(0), okword1_(0), okword2_(0) {
-    for (int i = 0; i < SEISXOK; i++)
-      okxword_[i] = 0;
+    for (long& i : okxword_)
+      i = 0;
   }
 
   /// Destructor
@@ -104,8 +104,8 @@ class DTuROSFEDData {
 public:
   /// Constructor
   DTuROSFEDData() : header1_(0), header2_(0), trailer_(0), fed_(-1), nslots_(0), evtLgth_(0) {
-    for (int i = 0; i < DOCESLOTS; i++)
-      rsize_[i] = 0;
+    for (int& i : rsize_)
+      i = 0;
   }
 
   /// Destructor

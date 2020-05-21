@@ -74,8 +74,8 @@ public:
 
   void add(const std::vector<PCaloHit> &hits, int bunchCrossing, CLHEP::HepRandomEngine *engine) {
     if (theHitResponse->withinBunchRange(bunchCrossing)) {
-      for (std::vector<PCaloHit>::const_iterator it = hits.begin(), itEnd = hits.end(); it != itEnd; ++it) {
-        theHitResponse->add(*it, engine);
+      for (const auto &hit : hits) {
+        theHitResponse->add(hit, engine);
       }
     }
   }
@@ -136,10 +136,8 @@ public:
     // noise signals need to be in units of photoelectrons.  Fractional is OK
     theNoiseSignalGenerator->fillEvent(engine);
     theNoiseSignalGenerator->getNoiseSignals(noiseSignals);
-    for (std::vector<CaloSamples>::const_iterator signalItr = noiseSignals.begin(), signalEnd = noiseSignals.end();
-         signalItr != signalEnd;
-         ++signalItr) {
-      theHitResponse->add(*signalItr);
+    for (const auto &noiseSignal : noiseSignals) {
+      theHitResponse->add(noiseSignal);
     }
   }
 

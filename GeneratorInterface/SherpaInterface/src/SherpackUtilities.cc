@@ -412,13 +412,13 @@ namespace spu {
 
       if (longlinkname || longpathname) {
         if (buff[156] == 'K') {
-          for (int ll = 0; ll < 512; ll++) {
-            printf("%c", buff[ll]);
+          for (char ll : buff) {
+            printf("%c", ll);
           }
           printf("\n");
           bytes_read = fread(buff, 1, 512, a);
-          for (int ll = 0; ll < 512; ll++) {
-            printf("%c", buff[ll]);
+          for (char ll : buff) {
+            printf("%c", ll);
           }
           printf("\n");
           for (int k = 0; k < filesize; k++) {

@@ -427,12 +427,10 @@ int main(int argc, char* argv[]) {
           }
           if (doTracks) {
             TLorentzVector p4_tracks(0, 0, 0, 0);
-            for (reco::TrackRefVector::const_iterator itrk = jetTracks.begin(), itrkEnd = jetTracks.end();
-                 itrk != itrkEnd;
-                 ++itrk) {
+            for (auto&& jetTrack : jetTracks) {
               TLorentzVector p4_trk;
               double M_PION = 0.140;
-              p4_trk.SetPtEtaPhiM((*itrk)->pt(), (*itrk)->eta(), (*itrk)->phi(), M_PION);
+              p4_trk.SetPtEtaPhiM((jetTrack)->pt(), (jetTrack)->eta(), (jetTrack)->phi(), M_PION);
               p4_tracks += p4_trk;
             }
             hists["hist_jetCHF"]->Fill(p4_tracks.Energy() / jet.energy());

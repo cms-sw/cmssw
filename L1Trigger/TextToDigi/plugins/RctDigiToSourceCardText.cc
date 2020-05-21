@@ -73,21 +73,21 @@ void RctDigiToSourceCardText::analyze(const edm::Event &iEvent, const edm::Event
   unsigned numIsoEM[18] = {0};
   unsigned numNonIsoEM[18] = {0};
 
-  for (L1CaloEmCollection::const_iterator iem = em->begin(); iem != em->end(); iem++) {
-    if (iem->isolated()) {
-      eIsoRank[iem->rctCrate()][numIsoEM[iem->rctCrate()]] = iem->rank();
-      eIsoCardId[iem->rctCrate()][numIsoEM[iem->rctCrate()]] = iem->rctCard();
-      eIsoRegionId[iem->rctCrate()][numIsoEM[iem->rctCrate()]] = iem->rctRegion();
-      numIsoEM[iem->rctCrate()]++;
+  for (const auto &iem : *em) {
+    if (iem.isolated()) {
+      eIsoRank[iem.rctCrate()][numIsoEM[iem.rctCrate()]] = iem.rank();
+      eIsoCardId[iem.rctCrate()][numIsoEM[iem.rctCrate()]] = iem.rctCard();
+      eIsoRegionId[iem.rctCrate()][numIsoEM[iem.rctCrate()]] = iem.rctRegion();
+      numIsoEM[iem.rctCrate()]++;
     } else {
-      eNonIsoRank[iem->rctCrate()][numNonIsoEM[iem->rctCrate()]] = iem->rank();
-      eNonIsoCardId[iem->rctCrate()][numNonIsoEM[iem->rctCrate()]] = iem->rctCard();
-      eNonIsoRegionId[iem->rctCrate()][numNonIsoEM[iem->rctCrate()]] = iem->rctRegion();
-      numNonIsoEM[iem->rctCrate()]++;
+      eNonIsoRank[iem.rctCrate()][numNonIsoEM[iem.rctCrate()]] = iem.rank();
+      eNonIsoCardId[iem.rctCrate()][numNonIsoEM[iem.rctCrate()]] = iem.rctCard();
+      eNonIsoRegionId[iem.rctCrate()][numNonIsoEM[iem.rctCrate()]] = iem.rctRegion();
+      numNonIsoEM[iem.rctCrate()]++;
     }
     // Debug info
-    LogDebug("Electrons") << "Rank=" << iem->rank() << " Card=" << iem->rctCard() << " Region=" << iem->rctRegion()
-                          << " Crate=" << iem->rctCrate() << " Isolated=" << iem->isolated();
+    LogDebug("Electrons") << "Rank=" << iem.rank() << " Card=" << iem.rctCard() << " Region=" << iem.rctRegion()
+                          << " Crate=" << iem.rctCrate() << " Isolated=" << iem.isolated();
   }
 
   // Arrays to hold region variables
@@ -100,24 +100,23 @@ void RctDigiToSourceCardText::analyze(const edm::Event &iEvent, const edm::Event
   unsigned short Qbits[18][7][2] = {{{0}}};
 
   // Fill regions
-  for (L1CaloRegionCollection::const_iterator irgn = rgn->begin(); irgn != rgn->end(); irgn++) {
-    if (irgn->id().isHf()) {
-      HF[irgn->rctCrate()][irgn->id().rctEta() - 7][irgn->id().rctPhi()] = irgn->et();
-      HFQ[irgn->rctCrate()][irgn->id().rctEta() - 7][irgn->id().rctPhi()] = irgn->fineGrain();
+  for (const auto &irgn : *rgn) {
+    if (irgn.id().isHf()) {
+      HF[irgn.rctCrate()][irgn.id().rctEta() - 7][irgn.id().rctPhi()] = irgn.et();
+      HFQ[irgn.rctCrate()][irgn.id().rctEta() - 7][irgn.id().rctPhi()] = irgn.fineGrain();
       // Debug info
-      LogDebug("HFRegions") << "Et=" << irgn->et() << " FineGrain=" << irgn->fineGrain()
-                            << " Eta=" << irgn->id().rctEta() << " Phi=" << irgn->id().rctPhi()
-                            << " Crate=" << irgn->rctCrate();
+      LogDebug("HFRegions") << "Et=" << irgn.et() << " FineGrain=" << irgn.fineGrain() << " Eta=" << irgn.id().rctEta()
+                            << " Phi=" << irgn.id().rctPhi() << " Crate=" << irgn.rctCrate();
     } else {
-      RC[irgn->rctCrate()][irgn->rctCard()][irgn->rctRegionIndex()] = irgn->et();
-      RCof[irgn->rctCrate()][irgn->rctCard()][irgn->rctRegionIndex()] = irgn->overFlow();
-      RCtau[irgn->rctCrate()][irgn->rctCard()][irgn->rctRegionIndex()] = irgn->tauVeto();
-      MIPbits[irgn->rctCrate()][irgn->rctCard()][irgn->rctRegionIndex()] = irgn->mip();
-      Qbits[irgn->rctCrate()][irgn->rctCard()][irgn->rctRegionIndex()] = irgn->quiet();
+      RC[irgn.rctCrate()][irgn.rctCard()][irgn.rctRegionIndex()] = irgn.et();
+      RCof[irgn.rctCrate()][irgn.rctCard()][irgn.rctRegionIndex()] = irgn.overFlow();
+      RCtau[irgn.rctCrate()][irgn.rctCard()][irgn.rctRegionIndex()] = irgn.tauVeto();
+      MIPbits[irgn.rctCrate()][irgn.rctCard()][irgn.rctRegionIndex()] = irgn.mip();
+      Qbits[irgn.rctCrate()][irgn.rctCard()][irgn.rctRegionIndex()] = irgn.quiet();
       // Debug info
-      LogDebug("Regions") << "Et=" << irgn->et() << " OverFlow=" << irgn->overFlow() << " tauVeto=" << irgn->tauVeto()
-                          << " mip=" << irgn->mip() << " quiet=" << irgn->quiet() << " Card=" << irgn->rctCard()
-                          << " Region=" << irgn->rctRegionIndex() << " Crate=" << irgn->rctCrate();
+      LogDebug("Regions") << "Et=" << irgn.et() << " OverFlow=" << irgn.overFlow() << " tauVeto=" << irgn.tauVeto()
+                          << " mip=" << irgn.mip() << " quiet=" << irgn.quiet() << " Card=" << irgn.rctCard()
+                          << " Region=" << irgn.rctRegionIndex() << " Crate=" << irgn.rctCrate();
     }
   }
 

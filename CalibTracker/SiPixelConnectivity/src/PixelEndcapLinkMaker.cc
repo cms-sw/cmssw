@@ -92,8 +92,8 @@ PixelEndcapLinkMaker::Links PixelEndcapLinkMaker::links(const Names& n, const De
   // DEBUG
   //
   ostringstream str;
-  for (CIU it = linkItems.begin(); it != linkItems.end(); it++) {
-    str << (*it).name->name() << " r=" << (*it).rocIds << endl;
+  for (const auto& linkItem : linkItems) {
+    str << linkItem.name->name() << " r=" << linkItem.rocIds << endl;
   }
   LogDebug(" sorted ENDCAP links: ") << str.str();
 
@@ -103,9 +103,9 @@ PixelEndcapLinkMaker::Links PixelEndcapLinkMaker::links(const Names& n, const De
   int idRoc = 0;
   PixelFEDLink link(idLink);  // dummy object, id=0
 
-  for (CIU it = linkItems.begin(); it != linkItems.end(); it++) {
+  for (const auto& linkItem : linkItems) {
     PixelFEDLink::ROCs rocs;
-    int pannelId = it->name->pannelName();
+    int pannelId = linkItem.name->pannelName();
 
     if (pannelId != lastPannelId) {
       lastPannelId = pannelId;
@@ -115,9 +115,9 @@ PixelEndcapLinkMaker::Links PixelEndcapLinkMaker::links(const Names& n, const De
       link = PixelFEDLink(++idLink);  // real link, to be filled
     }
 
-    for (int id = (*it).rocIds.min(); id <= (*it).rocIds.max(); id++) {
+    for (int id = linkItem.rocIds.min(); id <= linkItem.rocIds.max(); id++) {
       ++idRoc;
-      rocs.push_back(PixelROC(it->unit, id, idRoc));
+      rocs.push_back(PixelROC(linkItem.unit, id, idRoc));
     }
 
     link.add(rocs);

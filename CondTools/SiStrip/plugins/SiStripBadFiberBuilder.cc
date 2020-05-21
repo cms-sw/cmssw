@@ -24,18 +24,17 @@ std::unique_ptr<SiStripBadStrip> SiStripBadFiberBuilder::getNewObject() {
   SiStripDetInfoFileReader reader(fp_.fullPath());
 
   std::stringstream ss;
-  for (Parameters::iterator iBadComponent = BadComponentList_.begin(); iBadComponent != BadComponentList_.end();
-       ++iBadComponent) {
-    uint32_t BadModule_ = iBadComponent->getParameter<uint32_t>("BadModule");
-    std::vector<uint32_t> BadApvList_ = iBadComponent->getParameter<std::vector<uint32_t> >("BadApvList");
+  for (auto& iBadComponent : BadComponentList_) {
+    uint32_t BadModule_ = iBadComponent.getParameter<uint32_t>("BadModule");
+    std::vector<uint32_t> BadApvList_ = iBadComponent.getParameter<std::vector<uint32_t> >("BadApvList");
 
     std::vector<unsigned int> theSiStripVector;
 
     unsigned short firstBadStrip = 0, NconsecutiveBadStrips = 0;
     unsigned int theBadStripRange;
 
-    for (std::vector<uint32_t>::const_iterator is = BadApvList_.begin(); is != BadApvList_.end(); ++is) {
-      firstBadStrip = (*is) * 128;
+    for (unsigned int is : BadApvList_) {
+      firstBadStrip = is * 128;
       NconsecutiveBadStrips = 128;
 
       theBadStripRange = obj->encode(firstBadStrip, NconsecutiveBadStrips);

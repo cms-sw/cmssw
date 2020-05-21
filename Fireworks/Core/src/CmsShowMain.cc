@@ -667,8 +667,7 @@ void CmsShowMain::setupDataHandling() {
   // init data from  CmsShowNavigator configuration, can do this with signals since there were not connected yet
   guiManager()->setFilterButtonIcon(m_navigator->getFilterState());
 
-  for (unsigned int ii = 0; ii < m_inputFiles.size(); ++ii) {
-    const std::string& fname = m_inputFiles[ii];
+  for (const auto& fname : m_inputFiles) {
     if (fname.empty())
       continue;
     guiManager()->updateStatus("loading data file ...");

@@ -475,15 +475,14 @@ namespace gen {
     vector<string> AllSets = fParameters.getParameter<vector<string> >("parameterSets");
 
     //-- loop over the different sets
-    for (unsigned i = 0; i < AllSets.size(); ++i) {
-      string Set = AllSets[i];
+    for (auto Set : AllSets) {
       vector<string> Para_Set = fParameters.getParameter<vector<string> >(Set);
 
       //-- loop over all the parameters and stop in case of mistake
-      for (vector<string>::const_iterator itPara = Para_Set.begin(); itPara != Para_Set.end(); ++itPara) {
-        if (!cascadeReadParameters(*itPara)) {
+      for (const auto& itPara : Para_Set) {
+        if (!cascadeReadParameters(itPara)) {
           throw edm::Exception(edm::errors::Configuration, "CascadeError")
-              << " Cascade did not accept the following parameter: \"" << *itPara << "\"" << endl;
+              << " Cascade did not accept the following parameter: \"" << itPara << "\"" << endl;
         }
       }  //-- end loop over all the parameters
     }    //-- end loop over the different sets
@@ -514,8 +513,8 @@ namespace gen {
 
   bool Cascade2Hadronizer::declareStableParticles(const vector<int>& _pdg) {
     vector<int> pdg = _pdg;
-    for (size_t i = 0; i < pdg.size(); i++) {
-      int PyID = HepPID::translatePDTtoPythia(pdg[i]);
+    for (int i : pdg) {
+      int PyID = HepPID::translatePDTtoPythia(i);
       int pyCode = pycomp_(PyID);
 
       if (pyCode > 0) {

@@ -180,15 +180,15 @@ void HcalLuttoDB::writeoutlut1(HcalDetId id,
   }
   md5_finish(&md5er, digest);
   os << " <Parameter name='CHECKSUM' type='string'>";
-  for (int i = 0; i < 16; i++)
-    os << std::hex << (((int)(digest[i])) & 0xFF);
+  for (unsigned char& i : digest)
+    os << std::hex << (((int)i) & 0xFF);
   os << "</Parameter>\n";
 
   *oc_ << "  <Data crate='" << eid.readoutVMECrateId() << "' slot='" << eid.htrSlot() << "' fpga='"
        << eid.htrTopBottom() << "' fiber='" << eid.fiberIndex() << "' fiberchan='" << eid.fiberChanId()
        << "' luttype='1' elements='1' encoding='hex'>";
-  for (int i = 0; i < 16; i++)
-    *oc_ << std::hex << (((int)(digest[i])) & 0xFF);
+  for (unsigned char& i : digest)
+    *oc_ << std::hex << (((int)i) & 0xFF);
   *oc_ << "</Data>\n";
 
   os << " <Data elements='128' encoding='hex'> " << std::endl;
@@ -230,15 +230,15 @@ void HcalLuttoDB::writeoutlut2(HcalTrigTowerDetId id,
   md5_append(&md5er, &(lut[0]), 1024);
   md5_finish(&md5er, digest);
   os << " <Parameter name='CHECKSUM' type='string'>";
-  for (int i = 0; i < 16; i++)
-    os << std::hex << (((int)(digest[i])) & 0xFF);
+  for (unsigned char& i : digest)
+    os << std::hex << (((int)i) & 0xFF);
   os << "</Parameter>\n";
 
   *oc_ << "  <Data crate='" << eid.readoutVMECrateId() << "' slot='" << eid.htrSlot() << "' fpga='"
        << eid.htrTopBottom() << "' slb='" << eid.slbSiteNumber() << "' slbchan='" << eid.slbChannelIndex()
        << "' luttype='2' elements='1' encoding='hex'>";
-  for (int i = 0; i < 16; i++)
-    *oc_ << std::hex << (((int)(digest[i])) & 0xFF);
+  for (unsigned char& i : digest)
+    *oc_ << std::hex << (((int)i) & 0xFF);
   *oc_ << "</Data>\n";
 
   os << " <Data elements='1024' encoding='hex'> " << std::endl;

@@ -185,8 +185,8 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
 
   vector<string> hists(ps.getUntrackedParameter<vector<string> >("histograms", vector<string>(1, "all")));
 
-  for (vector<string>::iterator it = hists.begin(); it != hists.end(); ++it)
-    histList_.insert(*it);
+  for (auto& hist : hists)
+    histList_.insert(hist);
   if (histList_.find("all") != histList_.end())
     allHists_ = true;
 }
@@ -292,14 +292,14 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event, const ed
   nEeZsErrors_ = 0;
   nEeZsErrorsType1_ = 0;
 
-  for (int iZ0 = 0; iZ0 < nEndcaps; ++iZ0) {
+  for (auto& eeEnergie : eeEnergies) {
     for (int iX0 = 0; iX0 < nEeX; ++iX0) {
       for (int iY0 = 0; iY0 < nEeY; ++iY0) {
-        eeEnergies[iZ0][iX0][iY0].noZsRecE = -numeric_limits<double>::max();
-        eeEnergies[iZ0][iX0][iY0].recE = -numeric_limits<double>::max();
-        eeEnergies[iZ0][iX0][iY0].simE = 0;  //must be set to zero.
-        eeEnergies[iZ0][iX0][iY0].simHit = 0;
-        eeEnergies[iZ0][iX0][iY0].gain12 = false;
+        eeEnergie[iX0][iY0].noZsRecE = -numeric_limits<double>::max();
+        eeEnergie[iX0][iY0].recE = -numeric_limits<double>::max();
+        eeEnergie[iX0][iY0].simE = 0;  //must be set to zero.
+        eeEnergie[iX0][iY0].simHit = 0;
+        eeEnergie[iX0][iY0].gain12 = false;
       }
     }
   }
@@ -343,8 +343,7 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event, const ed
 
   //EE rec hits:
   if (!localReco_) {
-    for (RecHitCollection::const_iterator it = eeRecHits_->begin(); it != eeRecHits_->end(); ++it) {
-      const RecHit& hit = *it;
+    for (const auto& hit : *eeRecHits_) {
       int iX0 = iXY2cIndex(static_cast<const EEDetId&>(hit.id()).ix());
       int iY0 = iXY2cIndex(static_cast<const EEDetId&>(hit.id()).iy());
       int iZ0 = static_cast<const EEDetId&>(hit.id()).zside() > 0 ? 1 : 0;
@@ -363,8 +362,7 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event, const ed
   }
 
   //EE sim hits:
-  for (vector<PCaloHit>::const_iterator it = eeSimHits_->begin(); it != eeSimHits_->end(); ++it) {
-    const PCaloHit& simHit = *it;
+  for (const auto& simHit : *eeSimHits_) {
     EEDetId detId(simHit.id());
     int iX = detId.ix();
     int iX0 = iXY2cIndex(iX);
@@ -469,25 +467,25 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event, const ed
     }
   }
 
-  for (int iZ0 = 0; iZ0 < nEndcaps; ++iZ0) {
+  for (auto& eeEnergie : eeEnergies) {
     for (int iX0 = 0; iX0 < nEeX; ++iX0) {
       for (int iY0 = 0; iY0 < nEeY; ++iY0) {
-        double recE = eeEnergies[iZ0][iX0][iY0].recE;
+        double recE = eeEnergie[iX0][iY0].recE;
         if (recE == -numeric_limits<double>::max())
           continue;  //not a crystal or ZS
-        fill(meEeRecE_, eeEnergies[iZ0][iX0][iY0].recE);
+        fill(meEeRecE_, eeEnergie[iX0][iY0].recE);
 
-        fill(meEeEMean_, ievt_ + 1, eeEnergies[iZ0][iX0][iY0].recE);
+        fill(meEeEMean_, ievt_ + 1, eeEnergie[iX0][iY0].recE);
 
         if (withEeSimHit_) {
-          if (!eeEnergies[iZ0][iX0][iY0].simHit) {  //noise only crystal channel
-            fill(meEeNoise_, eeEnergies[iZ0][iX0][iY0].noZsRecE);
+          if (!eeEnergie[iX0][iY0].simHit) {  //noise only crystal channel
+            fill(meEeNoise_, eeEnergie[iX0][iY0].noZsRecE);
           } else {
-            fill(meEeSimE_, eeEnergies[iZ0][iX0][iY0].simE);
-            fill(meEeRecEHitXtal_, eeEnergies[iZ0][iX0][iY0].recE);
+            fill(meEeSimE_, eeEnergie[iX0][iY0].simE);
+            fill(meEeRecEHitXtal_, eeEnergie[iX0][iY0].recE);
           }
-          fill(meEeRecVsSimE_, eeEnergies[iZ0][iX0][iY0].simE, eeEnergies[iZ0][iX0][iY0].recE);
-          fill(meEeNoZsRecVsSimE_, eeEnergies[iZ0][iX0][iY0].simE, eeEnergies[iZ0][iX0][iY0].noZsRecE);
+          fill(meEeRecVsSimE_, eeEnergie[iX0][iY0].simE, eeEnergie[iX0][iY0].recE);
+          fill(meEeNoZsRecVsSimE_, eeEnergie[iX0][iY0].simE, eeEnergie[iX0][iY0].noZsRecE);
         }
       }
     }
@@ -510,8 +508,7 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event, const ed
   char eeSrfMark[2][20][20];
   bzero(eeSrfMark, sizeof(eeSrfMark));
   //Filling RU histo
-  for (EESrFlagCollection::const_iterator it = eeSrFlags_->begin(); it != eeSrFlags_->end(); ++it) {
-    const EESrFlag& srf = *it;
+  for (const auto& srf : *eeSrFlags_) {
     // srf.id() is EcalScDetId; 1 <= ix <= 20 1 <= iy <= 20
     int iX = srf.id().ix();
     int iY = srf.id().iy();
@@ -616,8 +613,7 @@ void EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event, const ed
   }  //next non-zs digi
 
   //EB sim hits
-  for (vector<PCaloHit>::const_iterator it = ebSimHits_->begin(); it != ebSimHits_->end(); ++it) {
-    const PCaloHit& simHit = *it;
+  for (const auto& simHit : *ebSimHits_) {
     EBDetId detId(simHit.id());
     int iEta = detId.ieta();
     int iEta0 = iEta2cIndex(iEta);
@@ -722,9 +718,8 @@ void EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event, const ed
   }
 
   if (!localReco_) {
-    for (RecHitCollection::const_iterator it = ebRecHits_->begin(); it != ebRecHits_->end(); ++it) {
+    for (const auto& hit : *ebRecHits_) {
       ++nEbDigi;
-      const RecHit& hit = *it;
       int iEta = static_cast<const EBDetId&>(hit.id()).ieta();
       int iPhi = static_cast<const EBDetId&>(hit.id()).iphi();
       int iEta0 = iEta2cIndex(iEta);
@@ -741,9 +736,9 @@ void EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event, const ed
     }
   }
 
-  for (unsigned int i = 0; i < xtalEtaPhi.size(); ++i) {
-    int iEta0 = xtalEtaPhi[i].first;
-    int iPhi0 = xtalEtaPhi[i].second;
+  for (auto& i : xtalEtaPhi) {
+    int iEta0 = i.first;
+    int iPhi0 = i.second;
     energiesEb_t& energies = ebEnergies[iEta0][iPhi0];
 
     double recE = energies.recE;
@@ -783,8 +778,7 @@ void EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event, const ed
   char ebSrfMark[2][17][72];
   bzero(ebSrfMark, sizeof(ebSrfMark));
   //      int idbg = 0;
-  for (EBSrFlagCollection::const_iterator it = ebSrFlags_->begin(); it != ebSrFlags_->end(); ++it) {
-    const EBSrFlag& srf = *it;
+  for (const auto& srf : *ebSrFlags_) {
     int iEtaAbs = srf.id().ietaAbs();
     int iPhi = srf.id().iphi();
     int iZ = srf.id().zside();
@@ -1471,9 +1465,9 @@ void EcalSelectiveReadoutValidation::bookHistograms(DQMStore::IBooker& ibooker,
 
   //check the histList parameter:
   stringstream s;
-  for (set<string>::iterator it = histList_.begin(); it != histList_.end(); ++it) {
-    if (*it != string("all") && availableHistList_.find(*it) == availableHistList_.end()) {
-      s << (s.str().empty() ? "" : ", ") << *it;
+  for (const auto& it : histList_) {
+    if (it != string("all") && availableHistList_.find(it) == availableHistList_.end()) {
+      s << (s.str().empty() ? "" : ", ") << it;
     }
   }
   if (!s.str().empty()) {
@@ -1488,8 +1482,8 @@ void EcalSelectiveReadoutValidation::analyzeTP(edm::Event const& event, edm::Eve
   int LiTTFlagCount[nTtEta][nTtPhi];
   int MiTTFlagCount[nTtEta][nTtPhi];
   int HiTTFlagCount[nTtEta][nTtPhi];
-  for (int iTTFlag(0); iTTFlag < 8; iTTFlag++) {
-    TTFlagCount[iTTFlag] = 0;
+  for (int& iTTFlag : TTFlagCount) {
+    iTTFlag = 0;
   }
   for (int iTtEta(0); iTtEta < nTtEta; iTtEta++) {
     for (int iTtPhi(0); iTtPhi < nTtPhi; iTtPhi++) {
@@ -1499,8 +1493,8 @@ void EcalSelectiveReadoutValidation::analyzeTP(edm::Event const& event, edm::Eve
     }
   }
   int tpEtCount[100];
-  for (int iEt(0); iEt < 100; iEt++) {
-    tpEtCount[iEt] = 0;
+  for (int& iEt : tpEtCount) {
+    iEt = 0;
   }
 
   edm::ESHandle<EcalTPGPhysicsConst> physHandle;
@@ -1520,11 +1514,11 @@ void EcalSelectiveReadoutValidation::analyzeTP(edm::Event const& event, edm::Eve
   EcalTPGPhysicsConstMapIterator eeItr(physMap.find(DetId(DetId::Ecal, EcalEndcap).rawId()));
   double lsb10bitsEE(eeItr == physMap.end() ? 0. : eeItr->second.EtSat / 1024.);
 
-  for (EcalTrigPrimDigiCollection::const_iterator it = tps_->begin(); it != tps_->end(); ++it) {
+  for (const auto& it : *tps_) {
     double tpEt;
     if (tpInGeV_) {
-      EcalTrigTowerDetId const& towerId(it->id());
-      unsigned int ADC = it->compressedEt();
+      EcalTrigTowerDetId const& towerId(it.id());
+      unsigned int ADC = it.compressedEt();
 
       double lsb10bits(0.);
       if (towerId.subDet() == EcalBarrel)
@@ -1550,11 +1544,11 @@ void EcalSelectiveReadoutValidation::analyzeTP(edm::Event const& event, edm::Eve
 
       tpEt = lsb10bits * tpg10bits;
     } else {
-      tpEt = it->compressedEt();
+      tpEt = it.compressedEt();
     }
-    int iEta = it->id().ieta();
+    int iEta = it.id().ieta();
     int iEta0 = iTtEta2cIndex(iEta);
-    int iPhi = it->id().iphi();
+    int iPhi = it.id().iphi();
     int iPhi0 = iTtPhi2cIndex(iPhi);
     double etSum = ttEtSums[iEta0][iPhi0];
 
@@ -1568,20 +1562,20 @@ void EcalSelectiveReadoutValidation::analyzeTP(edm::Event const& event, edm::Eve
     }
 
     fill(meTpVsEtSum_, etSum, tpEt);
-    ++TTFlagCount[it->ttFlag()];
-    if ((it->ttFlag() & 0x3) == 0) {
+    ++TTFlagCount[it.ttFlag()];
+    if ((it.ttFlag() & 0x3) == 0) {
       LiTTFlagCount[iEta0][iPhi0] += 1;
-    } else if ((it->ttFlag() & 0x3) == 1) {
+    } else if ((it.ttFlag() & 0x3) == 1) {
       MiTTFlagCount[iEta0][iPhi0] += 1;
-    } else if ((it->ttFlag() & 0x3) == 3) {
+    } else if ((it.ttFlag() & 0x3) == 3) {
       HiTTFlagCount[iEta0][iPhi0] += 1;
     }
-    if ((it->ttFlag() & 0x4)) {
+    if ((it.ttFlag() & 0x4)) {
       fill(meForcedTtf_, iEta, iPhi);
     }
 
-    fill(meTtfVsTp_, tpEt, it->ttFlag());
-    fill(meTtfVsEtSum_, etSum, it->ttFlag());
+    fill(meTtfVsTp_, tpEt, it.ttFlag());
+    fill(meTtfVsEtSum_, etSum, it.ttFlag());
     fill(meTpMap_, iEta, iPhi, tpEt, 1.);
   }
 
@@ -1759,8 +1753,8 @@ double EcalSelectiveReadoutValidation::frame2Energy(const EcalDataFrame& frame) 
   if (firstCall.compare_exchange_strong(expected, false)) {
     stringstream buf;
     buf << "Weights:";
-    for (unsigned i = 0; i < weights_.size(); ++i) {
-      buf << "\t" << weights_[i];
+    for (double weight : weights_) {
+      buf << "\t" << weight;
     }
     edm::LogInfo("EcalSrValid") << buf.str() << "\n";
     firstCall = false;
@@ -1877,9 +1871,9 @@ void EcalSelectiveReadoutValidation::setTtEtSums(const edm::EventSetup& es,
   }
 
   //init etSum array:
-  for (int iEta0 = 0; iEta0 < nTtEta; ++iEta0) {
+  for (auto& ttEtSum : ttEtSums) {
     for (int iPhi0 = 0; iPhi0 < nTtPhi; ++iPhi0) {
-      ttEtSums[iEta0][iPhi0] = 0.;
+      ttEtSum[iPhi0] = 0.;
     }
   }
 
@@ -1911,8 +1905,7 @@ void EcalSelectiveReadoutValidation::setTtEtSums(const edm::EventSetup& es,
 
   //dealing with pseudo-TT in two inner EE eta-ring:
   int innerTTEtas[] = {0, 1, 54, 55};
-  for (unsigned iRing = 0; iRing < sizeof(innerTTEtas) / sizeof(innerTTEtas[0]); ++iRing) {
-    int iTtEta0 = innerTTEtas[iRing];
+  for (int iTtEta0 : innerTTEtas) {
     //this detector eta-section is divided in only 36 phi bins
     //For this eta regions,
     //current tower eta numbering scheme is inconsistent. For geometry
@@ -2067,8 +2060,8 @@ void EcalSelectiveReadoutValidation::readAllCollections(const edm::Event& event)
 void EcalSelectiveReadoutValidation::printAvailableHists() {
   LogInfo log("HistoList");
   log << "Avalailable histograms (DQM monitor elements): \n";
-  for (map<string, string>::iterator it = availableHistList_.begin(); it != availableHistList_.end(); ++it) {
-    log << it->first << ": " << it->second << "\n";
+  for (auto& it : availableHistList_) {
+    log << it.first << ": " << it.second << "\n";
   }
   log << "\nTo include an histogram add its name in the vstring parameter "
          "'histograms' of the EcalSelectiveReadoutValidation module\n";
@@ -2161,10 +2154,10 @@ std::vector<int> EcalSelectiveReadoutValidation::getFIRWeights(const std::vector
 void EcalSelectiveReadoutValidation::configFirWeights(const vector<double>& weightsForZsFIR) {
   bool notNormalized = false;
   bool notInt = false;
-  for (unsigned i = 0; i < weightsForZsFIR.size(); ++i) {
-    if (weightsForZsFIR[i] > 1.)
+  for (double i : weightsForZsFIR) {
+    if (i > 1.)
       notNormalized = true;
-    if ((int)weightsForZsFIR[i] != weightsForZsFIR[i])
+    if ((int)i != i)
       notInt = true;
   }
   if (notInt && notNormalized) {
@@ -2184,21 +2177,21 @@ void EcalSelectiveReadoutValidation::configFirWeights(const vector<double>& weig
   }
 
   log << "Input weights for FIR: ";
-  for (unsigned i = 0; i < weightsForZsFIR.size(); ++i) {
-    log << weightsForZsFIR[i] << "\t";
+  for (double i : weightsForZsFIR) {
+    log << i << "\t";
   }
 
   double s2 = 0.;
   log << "\nActual FIR weights: ";
-  for (unsigned i = 0; i < firWeights_.size(); ++i) {
-    log << firWeights_[i] << "\t";
-    s2 += firWeights_[i] * firWeights_[i];
+  for (int firWeight : firWeights_) {
+    log << firWeight << "\t";
+    s2 += firWeight * firWeight;
   }
 
   s2 = sqrt(s2);
   log << "\nNormalized FIR weights after hw representation rounding: ";
-  for (unsigned i = 0; i < firWeights_.size(); ++i) {
-    log << firWeights_[i] / (double)(1 << 10) << "\t";
+  for (int firWeight : firWeights_) {
+    log << firWeight / (double)(1 << 10) << "\t";
   }
 
   log << "\nFirst FIR sample: " << firstFIRSample_;
@@ -2292,14 +2285,14 @@ int EcalSelectiveReadoutValidation::dccId(const EcalTrigTowerDetId& detId) const
 void EcalSelectiveReadoutValidation::selectFedsForLog() {
   logErrForDccs_ = vector<bool>(nDccs_, false);
 
-  for (EBSrFlagCollection::const_iterator it = ebSrFlags_->begin(); it != ebSrFlags_->end(); ++it) {
-    int iDcc = dccId(it->id()) - minDccId_;
+  for (const auto& it : *ebSrFlags_) {
+    int iDcc = dccId(it.id()) - minDccId_;
 
     logErrForDccs_.at(iDcc) = true;
   }
 
-  for (EESrFlagCollection::const_iterator it = eeSrFlags_->begin(); it != eeSrFlags_->end(); ++it) {
-    int iDcc = dccId(it->id()) - minDccId_;
+  for (const auto& it : *eeSrFlags_) {
+    int iDcc = dccId(it.id()) - minDccId_;
 
     logErrForDccs_.at(iDcc) = true;
   }

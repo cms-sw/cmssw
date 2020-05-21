@@ -456,8 +456,8 @@ ostream& reco::operator<<(ostream& out, const PFSimParticle& particle) {
   out << resetiosflags(ios::right | ios::fixed);
 
   out << "\tdaughters : ";
-  for (unsigned i = 0; i < particle.daughterIds().size(); i++)
-    out << particle.daughterIds()[i] << " ";
+  for (int i : particle.daughterIds())
+    out << i << " ";
 
   //   out<<endl;
   //   for(unsigned i=0; i<particle.trajectoryPoints_.size(); i++)

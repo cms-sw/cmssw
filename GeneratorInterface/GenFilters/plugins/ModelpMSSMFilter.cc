@@ -97,8 +97,7 @@ bool ModelpMSSMFilter::filter(edm::StreamID, edm::Event& evt, const edm::EventSe
   int loosegamma = 0;
   int veryloosegamma = 0;
   float decaylength;
-  for (std::vector<reco::GenParticle>::const_iterator it = gps->begin(); it != gps->end(); ++it) {
-    const reco::GenParticle& gp = *it;
+  for (const auto& gp : *gps) {
     if (gp.isLastCopy()) {
       if (fabs(gp.pdgId()) == 15) {
         if (gp.pt() > tauPtCut_ && fabs(gp.eta()) < tauEtaCut_) {
@@ -152,8 +151,7 @@ bool ModelpMSSMFilter::filter(edm::StreamID, edm::Event& evt, const edm::EventSe
     return true;
   }
   double genHT = 0.0;
-  for (std::vector<reco::GenJet>::const_iterator it = generatedJets->begin(); it != generatedJets->end(); ++it) {
-    const reco::GenJet& gjet = *it;
+  for (const auto& gjet : *generatedJets) {
     //Add GenJet pt to genHT if GenJet complies with given HT definition
     if (gjet.pt() > jetPtCut_ && fabs(gjet.eta()) < jetEtaCut_) {
       genHT += gjet.pt();

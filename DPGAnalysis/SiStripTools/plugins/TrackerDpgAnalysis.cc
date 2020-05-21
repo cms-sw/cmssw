@@ -609,8 +609,8 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
   iEvent.getByToken(vertexToken_, vertexCollectionHandle);
   const reco::VertexCollection vertexColl = *(vertexCollectionHandle.product());
   nVertices_ = 0;
-  for (reco::VertexCollection::const_iterator v = vertexColl.begin(); v != vertexColl.end(); ++v) {
-    if (v->isValid() && !v->isFake())
+  for (const auto& v : vertexColl) {
+    if (v.isValid() && !v.isFake())
       ++nVertices_;
   }
 
@@ -688,12 +688,9 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
   // load the tracks/traj association maps
   std::vector<TrajTrackAssociationCollection> TrajToTrackMap;
   Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
-  for (std::vector<edm::EDGetTokenT<TrajTrackAssociationCollection> >::const_iterator token =
-           trajTrackAssoTokens_.begin();
-       token != trajTrackAssoTokens_.end();
-       ++token) {
+  for (auto trajTrackAssoToken : trajTrackAssoTokens_) {
     try {
-      iEvent.getByToken(*token, trajTrackAssociationHandle);
+      iEvent.getByToken(trajTrackAssoToken, trajTrackAssociationHandle);
     } catch (cms::Exception&) {
       ;
     }
@@ -712,17 +709,17 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   // iterate over vertices
   if (functionality_vertices_) {
-    for (reco::VertexCollection::const_iterator v = vertexColl.begin(); v != vertexColl.end(); ++v) {
-      nTracks_pvtx_ = v->tracksSize();
-      sumptsq_pvtx_ = sumPtSquared(*v);
-      isValid_pvtx_ = int(v->isValid());
-      isFake_pvtx_ = int(v->isFake());
-      recx_pvtx_ = v->x();
-      recy_pvtx_ = v->y();
-      recz_pvtx_ = v->z();
-      recx_err_pvtx_ = v->xError();
-      recy_err_pvtx_ = v->yError();
-      recz_err_pvtx_ = v->zError();
+    for (const auto& v : vertexColl) {
+      nTracks_pvtx_ = v.tracksSize();
+      sumptsq_pvtx_ = sumPtSquared(v);
+      isValid_pvtx_ = int(v.isValid());
+      isFake_pvtx_ = int(v.isFake());
+      recx_pvtx_ = v.x();
+      recy_pvtx_ = v.y();
+      recz_pvtx_ = v.z();
+      recx_err_pvtx_ = v.xError();
+      recy_err_pvtx_ = v.yError();
+      recz_err_pvtx_ = v.zError();
       globalvertexid_++;
       vertices_->Fill();
     }
@@ -730,17 +727,17 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   // iterate over pixel vertices
   if (functionality_pixvertices_) {
-    for (reco::VertexCollection::const_iterator v = pixelVertexColl.begin(); v != pixelVertexColl.end(); ++v) {
-      nTracks_pvtx_ = v->tracksSize();
-      sumptsq_pvtx_ = sumPtSquared(*v);
-      isValid_pvtx_ = int(v->isValid());
-      isFake_pvtx_ = int(v->isFake());
-      recx_pvtx_ = v->x();
-      recy_pvtx_ = v->y();
-      recz_pvtx_ = v->z();
-      recx_err_pvtx_ = v->xError();
-      recy_err_pvtx_ = v->yError();
-      recz_err_pvtx_ = v->zError();
+    for (const auto& v : pixelVertexColl) {
+      nTracks_pvtx_ = v.tracksSize();
+      sumptsq_pvtx_ = sumPtSquared(v);
+      isValid_pvtx_ = int(v.isValid());
+      isFake_pvtx_ = int(v.isFake());
+      recx_pvtx_ = v.x();
+      recy_pvtx_ = v.y();
+      recz_pvtx_ = v.z();
+      recx_err_pvtx_ = v.xError();
+      recy_err_pvtx_ = v.yError();
+      recz_err_pvtx_ = v.zError();
       pixelVertices_->Fill();
     }
   }
@@ -842,19 +839,19 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
       // add missing hits (separate tree, common strip + pixel)
       Trajectory::DataContainer const& measurements = traj->measurements();
       if (functionality_missingHits_) {
-        for (Trajectory::DataContainer::const_iterator it = measurements.begin(); it != measurements.end(); ++it) {
-          TrajectoryMeasurement::ConstRecHitPointer rechit = it->recHit();
+        for (const auto& measurement : measurements) {
+          TrajectoryMeasurement::ConstRecHitPointer rechit = measurement.recHit();
           if (!rechit->isValid()) {
             // detid
             detid_ = rechit->geographicalId();
             // status
             type_ = rechit->getType();
             // position
-            LocalPoint local = it->predictedState().localPosition();
+            LocalPoint local = measurement.predictedState().localPosition();
             clPositionX_ = local.x();
             clPositionY_ = local.y();
             // global position
-            GlobalPoint global = it->predictedState().globalPosition();
+            GlobalPoint global = measurement.predictedState().globalPosition();
             globalX_ = global.x();
             globalY_ = global.y();
             globalZ_ = global.z();
@@ -871,7 +868,7 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
               }
             }
             // local error
-            LocalError error = it->predictedState().localError().positionError();
+            LocalError error = measurement.predictedState().localError().positionError();
             errorX_ = error.xx();
             errorY_ = error.yy();
             // fill
@@ -1137,9 +1134,9 @@ std::vector<double> TrackerDpgAnalysis::onTrackAngles(edm::Handle<edmNew::DetSet
   std::multimap<const uint32_t, std::pair<LocalPoint, double> > onTrackPositions;
   for (std::vector<Trajectory>::const_iterator traj = trajVec.begin(); traj < trajVec.end(); ++traj) {
     Trajectory::DataContainer measurements = traj->measurements();
-    for (Trajectory::DataContainer::iterator meas = measurements.begin(); meas != measurements.end(); ++meas) {
-      double tla = meas->updatedState().localDirection().theta();
-      insertMeasurement(onTrackPositions, &(*(meas->recHit())), tla);
+    for (auto& measurement : measurements) {
+      double tla = measurement.updatedState().localDirection().theta();
+      insertMeasurement(onTrackPositions, &(*(measurement.recHit())), tla);
     }
   }
   // then loop over the clusters to check
@@ -1181,8 +1178,8 @@ void TrackerDpgAnalysis::insertMeasurement(std::multimap<const uint32_t, std::pa
         std::make_pair(singlehit->geographicalId().rawId(), std::make_pair(singlehit->localPosition(), tla)));
   } else if (multihit) {
     std::vector<const TrackingRecHit*> childs = multihit->recHits();
-    for (std::vector<const TrackingRecHit*>::const_iterator it = childs.begin(); it != childs.end(); ++it) {
-      insertMeasurement(collection, dynamic_cast<const TrackingRecHit*>(*it), tla);
+    for (auto child : childs) {
+      insertMeasurement(collection, dynamic_cast<const TrackingRecHit*>(child), tla);
     }
   }
 }
@@ -1239,8 +1236,8 @@ void TrackerDpgAnalysis::insertMeasurement(std::multimap<const uint32_t, std::pa
                                      std::make_pair(int(singlehit->cluster()->barycenter()), trackid)));
   } else if (multihit) {
     std::vector<const TrackingRecHit*> childs = multihit->recHits();
-    for (std::vector<const TrackingRecHit*>::const_iterator it = childs.begin(); it != childs.end(); ++it) {
-      insertMeasurement(collection, *it, trackid);
+    for (auto child : childs) {
+      insertMeasurement(collection, child, trackid);
     }
   }
 }
@@ -1268,11 +1265,11 @@ std::vector<std::pair<double, double> > TrackerDpgAnalysis::onTrackAngles(
   std::multimap<const uint32_t, std::pair<LocalPoint, std::pair<double, double> > > onTrackPositions;
   for (std::vector<Trajectory>::const_iterator traj = trajVec.begin(); traj < trajVec.end(); ++traj) {
     Trajectory::DataContainer measurements = traj->measurements();
-    for (Trajectory::DataContainer::iterator meas = measurements.begin(); meas != measurements.end(); ++meas) {
-      LocalVector localDir = meas->updatedState().localDirection();
+    for (auto& measurement : measurements) {
+      LocalVector localDir = measurement.updatedState().localDirection();
       double alpha = atan2(localDir.z(), localDir.x());
       double beta = atan2(localDir.z(), localDir.y());
-      insertMeasurement(onTrackPositions, &(*(meas->recHit())), alpha, beta);
+      insertMeasurement(onTrackPositions, &(*(measurement.recHit())), alpha, beta);
     }
   }
   // then loop over the clusters to check

@@ -199,8 +199,8 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
 
   // Input tags for HF cleaned rechits
   std::vector<edm::InputTag> tags = iConfig.getParameter<std::vector<edm::InputTag>>("cleanedHF");
-  for (unsigned int i = 0; i < tags.size(); ++i)
-    inputTagCleanedHF_.push_back(consumes<reco::PFRecHitCollection>(tags[i]));
+  for (const auto& tag : tags)
+    inputTagCleanedHF_.push_back(consumes<reco::PFRecHitCollection>(tag));
   //MIKE: Vertex Parameters
   vertices_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection"));
   useVerticesForNeutral_ = iConfig.getParameter<bool>("useVerticesForNeutral");
@@ -257,13 +257,13 @@ void PFProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   // Check HF overcleaning
   if (postHFCleaning_) {
     reco::PFRecHitCollection hfCopy;
-    for (unsigned ihf = 0; ihf < inputTagCleanedHF_.size(); ++ihf) {
+    for (auto ihf : inputTagCleanedHF_) {
       Handle<reco::PFRecHitCollection> hfCleaned;
-      bool foundHF = iEvent.getByToken(inputTagCleanedHF_[ihf], hfCleaned);
+      bool foundHF = iEvent.getByToken(ihf, hfCleaned);
       if (!foundHF)
         continue;
-      for (unsigned jhf = 0; jhf < (*hfCleaned).size(); ++jhf) {
-        hfCopy.push_back((*hfCleaned)[jhf]);
+      for (const auto& jhf : (*hfCleaned)) {
+        hfCopy.push_back(jhf);
       }
     }
     pfAlgo_.checkCleaning(hfCopy);

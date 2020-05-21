@@ -129,39 +129,37 @@ void EcalBarrelRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
 
   // ----------------------
   // loop over UncalibRecHits
-  for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EBUncalibRecHit->begin();
-       uncalibRecHit != EBUncalibRecHit->end();
-       ++uncalibRecHit) {
-    EBDetId EBid = EBDetId(uncalibRecHit->id());
+  for (const auto &uncalibRecHit : *EBUncalibRecHit) {
+    EBDetId EBid = EBDetId(uncalibRecHit.id());
 
     // general checks
     if (meEBUncalibRecHitsOccupancy_)
       meEBUncalibRecHitsOccupancy_->Fill(EBid.ieta(), EBid.iphi());
     if (meEBUncalibRecHitsAmplitude_)
-      meEBUncalibRecHitsAmplitude_->Fill(uncalibRecHit->amplitude());
+      meEBUncalibRecHitsAmplitude_->Fill(uncalibRecHit.amplitude());
     if (meEBUncalibRecHitsPedestal_)
-      meEBUncalibRecHitsPedestal_->Fill(uncalibRecHit->pedestal());
+      meEBUncalibRecHitsPedestal_->Fill(uncalibRecHit.pedestal());
     if (meEBUncalibRecHitsJitter_)
-      meEBUncalibRecHitsJitter_->Fill(uncalibRecHit->jitter());
+      meEBUncalibRecHitsJitter_->Fill(uncalibRecHit.jitter());
     if (meEBUncalibRecHitsChi2_)
-      meEBUncalibRecHitsChi2_->Fill(uncalibRecHit->chi2());
+      meEBUncalibRecHitsChi2_->Fill(uncalibRecHit.chi2());
     if (meEBUncalibRecHitsAmpFullMap_)
-      meEBUncalibRecHitsAmpFullMap_->Fill(EBid.ieta(), EBid.iphi(), uncalibRecHit->amplitude());
+      meEBUncalibRecHitsAmpFullMap_->Fill(EBid.ieta(), EBid.iphi(), uncalibRecHit.amplitude());
     if (meEBUncalibRecHitsPedFullMap_)
-      meEBUncalibRecHitsPedFullMap_->Fill(EBid.ieta(), EBid.iphi(), uncalibRecHit->pedestal());
+      meEBUncalibRecHitsPedFullMap_->Fill(EBid.ieta(), EBid.iphi(), uncalibRecHit.pedestal());
 
     // general checks, with threshold at 3.5 GeV = 100 ADC counts
-    if (uncalibRecHit->amplitude() > 100) {
+    if (uncalibRecHit.amplitude() > 100) {
       if (meEBUncalibRecHitsOccupancyGt100adc_)
         meEBUncalibRecHitsOccupancyGt100adc_->Fill(EBid.ieta(), EBid.iphi());
       if (meEBUncalibRecHitsAmplitudeGt100adc_)
-        meEBUncalibRecHitsAmplitudeGt100adc_->Fill(uncalibRecHit->amplitude());
+        meEBUncalibRecHitsAmplitudeGt100adc_->Fill(uncalibRecHit.amplitude());
       if (meEBUncalibRecHitsPedestalGt100adc_)
-        meEBUncalibRecHitsPedestalGt100adc_->Fill(uncalibRecHit->pedestal());
+        meEBUncalibRecHitsPedestalGt100adc_->Fill(uncalibRecHit.pedestal());
       if (meEBUncalibRecHitsJitterGt100adc_)
-        meEBUncalibRecHitsJitterGt100adc_->Fill(uncalibRecHit->jitter());
+        meEBUncalibRecHitsJitterGt100adc_->Fill(uncalibRecHit.jitter());
       if (meEBUncalibRecHitsChi2Gt100adc_)
-        meEBUncalibRecHitsChi2Gt100adc_->Fill(uncalibRecHit->chi2());
+        meEBUncalibRecHitsChi2Gt100adc_->Fill(uncalibRecHit.chi2());
     }
 
     // supermodule maps
@@ -172,9 +170,9 @@ void EcalBarrelRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
     float xie = ie - 0.5;
     float xip = ip - 0.5;
     if (meEBUncalibRecHitPedMap_[ism - 1])
-      meEBUncalibRecHitPedMap_[ism - 1]->Fill(xie, xip, uncalibRecHit->pedestal());
+      meEBUncalibRecHitPedMap_[ism - 1]->Fill(xie, xip, uncalibRecHit.pedestal());
     if (meEBUncalibRecHitAmplMap_[ism - 1])
-      meEBUncalibRecHitAmplMap_[ism - 1]->Fill(xie, xip, uncalibRecHit->amplitude());
+      meEBUncalibRecHitAmplMap_[ism - 1]->Fill(xie, xip, uncalibRecHit.amplitude());
 
     if (!skipDigis) {
       // find the rechit corresponding digi and the max sample
@@ -200,12 +198,12 @@ void EcalBarrelRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
         if (eMax > (*it).mean_x1 + 5 * (*it).rms_x1 && eMax != 0) {  // only real signal RecHit
 
           if (meEBUncalibRecHitMaxSampleRatio_)
-            meEBUncalibRecHitMaxSampleRatio_->Fill((uncalibRecHit->amplitude() + uncalibRecHit->pedestal()) / eMax);
-          if (meEBUncalibRecHitMaxSampleRatioGt100adc_ && (uncalibRecHit->amplitude() > 100))
-            meEBUncalibRecHitMaxSampleRatioGt100adc_->Fill((uncalibRecHit->amplitude() + uncalibRecHit->pedestal()) /
+            meEBUncalibRecHitMaxSampleRatio_->Fill((uncalibRecHit.amplitude() + uncalibRecHit.pedestal()) / eMax);
+          if (meEBUncalibRecHitMaxSampleRatioGt100adc_ && (uncalibRecHit.amplitude() > 100))
+            meEBUncalibRecHitMaxSampleRatioGt100adc_->Fill((uncalibRecHit.amplitude() + uncalibRecHit.pedestal()) /
                                                            eMax);
           LogDebug("EcalRecHitsTaskInfo")
-              << "barrel, eMax = " << eMax << " Amplitude = " << uncalibRecHit->amplitude() + uncalibRecHit->pedestal();
+              << "barrel, eMax = " << eMax << " Amplitude = " << uncalibRecHit.amplitude() + uncalibRecHit.pedestal();
         } else
           continue;
       } else

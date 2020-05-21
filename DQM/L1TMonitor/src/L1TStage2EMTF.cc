@@ -483,27 +483,27 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
   edm::Handle<l1t::EMTFDaqOutCollection> DaqOutCollection;
   e.getByToken(daqToken, DaqOutCollection);
 
-  for (auto DaqOut = DaqOutCollection->begin(); DaqOut != DaqOutCollection->end(); ++DaqOut) {
-    const l1t::emtf::MECollection* MECollection = DaqOut->PtrMECollection();
-    for (auto ME = MECollection->begin(); ME != MECollection->end(); ++ME) {
-      if (ME->SE())
+  for (const auto& DaqOut : *DaqOutCollection) {
+    const l1t::emtf::MECollection* MECollection = DaqOut.PtrMECollection();
+    for (const auto& ME : *MECollection) {
+      if (ME.SE())
         emtfErrors->Fill(1);
-      if (ME->SM())
+      if (ME.SM())
         emtfErrors->Fill(2);
-      if (ME->BXE())
+      if (ME.BXE())
         emtfErrors->Fill(3);
-      if (ME->AF())
+      if (ME.AF())
         emtfErrors->Fill(4);
     }
 
-    const l1t::emtf::EventHeader* EventHeader = DaqOut->PtrEventHeader();
+    const l1t::emtf::EventHeader* EventHeader = DaqOut.PtrEventHeader();
     if (!EventHeader->Rdy())
       emtfErrors->Fill(5);
 
     // Fill MPC input link errors
     int offset = (EventHeader->Sector() - 1) * 9;
     int endcap = EventHeader->Endcap();
-    l1t::emtf::Counters CO = DaqOut->GetCounters();
+    l1t::emtf::Counters CO = DaqOut.GetCounters();
     const std::array<std::array<int, 9>, 5> counters{
         {{{CO.ME1a_1(),
            CO.ME1a_2(),
@@ -595,28 +595,28 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
   // Reverse 'rotate by 2' for RPC subsector
   auto get_subsector_rpc_cppf = [](int subsector_rpc) { return ((subsector_rpc + 3) % 6) + 1; };
 
-  for (auto Hit = HitCollection->begin(); Hit != HitCollection->end(); ++Hit) {
-    int endcap = Hit->Endcap();
-    int sector = Hit->Sector();
-    int station = Hit->Station();
-    int ring = Hit->Ring();
-    int cscid = Hit->CSC_ID();
-    int chamber = Hit->Chamber();
-    int strip = Hit->Strip();
-    int wire = Hit->Wire();
+  for (const auto& Hit : *HitCollection) {
+    int endcap = Hit.Endcap();
+    int sector = Hit.Sector();
+    int station = Hit.Station();
+    int ring = Hit.Ring();
+    int cscid = Hit.CSC_ID();
+    int chamber = Hit.Chamber();
+    int strip = Hit.Strip();
+    int wire = Hit.Wire();
     int cscid_offset = (sector - 1) * 9;
 
     int hist_index = 0;
     if (ring == 4 && strip >= 128)
       strip -= 128;
 
-    if (Hit->Is_CSC() == true) {
+    if (Hit.Is_CSC() == true) {
       hist_index = histIndexCSC.at({station, ring});
       if (endcap > 0)
         hist_index = 19 - hist_index;
-      cscLCTBX->Fill(Hit->BX(), hist_index);
-      float evt_wgt = (Hit->Station() > 1 && Hit->Ring() == 1) ? 0.5 : 1.0;
-      if (Hit->Neighbor() == false) {
+      cscLCTBX->Fill(Hit.BX(), hist_index);
+      float evt_wgt = (Hit.Station() > 1 && Hit.Ring() == 1) ? 0.5 : 1.0;
+      if (Hit.Neighbor() == false) {
         //Map for cscDQMOccupancy plot
         cscDQMOccupancy->Fill(chamber_bin(station, ring, chamber), hist_index, evt_wgt);
         if (station > 1 && (ring % 2) == 1) {
@@ -626,7 +626,7 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
         cscLCTWire[hist_index]->Fill(wire);
         cscChamberStrip[hist_index]->Fill(chamber, strip);
         cscChamberWire[hist_index]->Fill(chamber, wire);
-        if (Hit->Subsector() == 1) {
+        if (Hit.Subsector() == 1) {
           cscLCTOccupancy->Fill(cscid + cscid_offset, endcap * (station - 0.5));
         } else {
           cscLCTOccupancy->Fill(cscid + cscid_offset, endcap * (station + 0.5));
@@ -636,27 +636,27 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
         int cscid_n = (station == 1 ? (cscid / 3) : (station * 2) + ((cscid - 3) / 6));
         cscLCTOccupancy->Fill(cscid_n + cscid_offset, endcap * 5.5);
       }
-      if (Hit->Neighbor() == true) {
+      if (Hit.Neighbor() == true) {
         cscDQMOccupancy->Fill(sector * 7 - 4, hist_index, evt_wgt);
       }
     }
 
-    if (Hit->Is_RPC() == true) {
+    if (Hit.Is_RPC() == true) {
       hist_index = histIndexRPC.at({station, ring});
       if (endcap > 0)
         hist_index = 11 - hist_index;
 
-      rpcHitBX->Fill(Hit->BX(), hist_index);
+      rpcHitBX->Fill(Hit.BX(), hist_index);
 
-      if (Hit->Neighbor() == false) {
-        rpcHitPhi[hist_index]->Fill(Hit->Phi_fp() / 4);
-        rpcHitTheta[hist_index]->Fill(Hit->Theta_fp() / 4);
-        rpcChamberPhi[hist_index]->Fill(chamber, Hit->Phi_fp() / 4);
-        rpcChamberTheta[hist_index]->Fill(chamber, Hit->Theta_fp() / 4);
-        rpcHitOccupancy->Fill((Hit->Sector_RPC() - 1) * 7 + get_subsector_rpc_cppf(Hit->Subsector_RPC()),
+      if (Hit.Neighbor() == false) {
+        rpcHitPhi[hist_index]->Fill(Hit.Phi_fp() / 4);
+        rpcHitTheta[hist_index]->Fill(Hit.Theta_fp() / 4);
+        rpcChamberPhi[hist_index]->Fill(chamber, Hit.Phi_fp() / 4);
+        rpcChamberTheta[hist_index]->Fill(chamber, Hit.Theta_fp() / 4);
+        rpcHitOccupancy->Fill((Hit.Sector_RPC() - 1) * 7 + get_subsector_rpc_cppf(Hit.Subsector_RPC()),
                               hist_index + 0.5);
-      } else if (Hit->Neighbor() == true) {
-        rpcHitOccupancy->Fill((Hit->Sector_RPC() - 1) * 7 + 7, hist_index + 0.5);
+      } else if (Hit.Neighbor() == true) {
+        rpcHitOccupancy->Fill((Hit.Sector_RPC() - 1) * 7 + 7, hist_index + 0.5);
       }
     }
   }
@@ -669,16 +669,16 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   emtfnTracks->Fill(std::min(nTracks, emtfnTracks->getTH1F()->GetNbinsX() - 1));
 
-  for (auto Track = TrackCollection->begin(); Track != TrackCollection->end(); ++Track) {
-    int endcap = Track->Endcap();
-    int sector = Track->Sector();
-    float eta = Track->Eta();
-    float phi_glob_rad = Track->Phi_glob() * M_PI / 180.;
-    int mode = Track->Mode();
-    int quality = Track->GMT_quality();
-    int numHits = Track->NumHits();
-    int modeNeighbor = Track->Mode_neighbor();
-    int modeRPC = Track->Mode_RPC();
+  for (const auto& Track : *TrackCollection) {
+    int endcap = Track.Endcap();
+    int sector = Track.Sector();
+    float eta = Track.Eta();
+    float phi_glob_rad = Track.Phi_glob() * M_PI / 180.;
+    int mode = Track.Mode();
+    int quality = Track.GMT_quality();
+    int numHits = Track.NumHits();
+    int modeNeighbor = Track.Mode_neighbor();
+    int modeRPC = Track.Mode_RPC();
     int singleMuQuality = 12;
     int singleMuPT = 22;
 
@@ -687,8 +687,8 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
       continue;
 
     emtfTracknHits->Fill(numHits);
-    emtfTrackBX->Fill(endcap * (sector - 0.5), Track->BX());
-    emtfTrackPt->Fill(Track->Pt());
+    emtfTrackBX->Fill(endcap * (sector - 0.5), Track.BX());
+    emtfTrackPt->Fill(Track.Pt());
     emtfTrackEta->Fill(eta);
 
     emtfTrackOccupancy->Fill(eta, phi_glob_rad);
@@ -699,12 +699,12 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     emtfTrackPhi->Fill(phi_glob_rad);
 
     if (quality >= singleMuQuality) {
-      emtfTrackPtHighQuality->Fill(Track->Pt());
+      emtfTrackPtHighQuality->Fill(Track.Pt());
       emtfTrackEtaHighQuality->Fill(eta);
       emtfTrackPhiHighQuality->Fill(phi_glob_rad);
       emtfTrackOccupancyHighQuality->Fill(eta, phi_glob_rad);
-      if (Track->Pt() >= singleMuPT) {
-        emtfTrackPtHighQualityHighPT->Fill(Track->Pt());
+      if (Track.Pt() >= singleMuPT) {
+        emtfTrackPtHighQualityHighPT->Fill(Track.Pt());
         emtfTrackEtaHighQualityHighPT->Fill(eta);
         emtfTrackPhiHighQualityHighPT->Fill(phi_glob_rad);
         emtfTrackOccupancyHighQualityHighPT->Fill(eta, phi_glob_rad);
@@ -718,29 +718,29 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
       // LCT and RPC Timing
       if (numHits < 2 || numHits > 4)
         continue;
-      l1t::EMTFHitCollection tmp_hits = Track->Hits();
+      l1t::EMTFHitCollection tmp_hits = Track.Hits();
       int numHitsInTrack_BX0 = 0;
       unsigned int hist_index2 = 4 - numHits;
 
-      for (const auto& iTrkHit : Track->Hits()) {
+      for (const auto& iTrkHit : Track.Hits()) {
         if (iTrkHit.Is_CSC() == true) {
-          emtfTrackBXVsCSCLCT[hist_index2]->Fill(iTrkHit.BX(), Track->BX());
+          emtfTrackBXVsCSCLCT[hist_index2]->Fill(iTrkHit.BX(), Track.BX());
         } else if (iTrkHit.Is_RPC() == true) {
-          emtfTrackBXVsRPCHit[hist_index2]->Fill(iTrkHit.BX(), Track->BX());
+          emtfTrackBXVsRPCHit[hist_index2]->Fill(iTrkHit.BX(), Track.BX());
         }
       }
 
       // Select well-timed tracks: >= 3 hits, with <= 1 in BX != 0
       if (numHits < 3)
         continue;
-      for (const auto& jTrkHit : Track->Hits()) {
+      for (const auto& jTrkHit : Track.Hits()) {
         if (jTrkHit.BX() == 0)
           numHitsInTrack_BX0++;
       }
       if (numHitsInTrack_BX0 < numHits - 1)
         continue;
 
-      for (const auto& TrkHit : Track->Hits()) {
+      for (const auto& TrkHit : Track.Hits()) {
         int trackHitBX = TrkHit.BX();
         //int cscid        = TrkHit.CSC_ID();
         int ring = TrkHit.Ring();
@@ -779,23 +779,23 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
           // Fill RPC timing with matched CSC LCTs
           if (trackHitBX == 0 && ring == 2) {
-            for (auto Hit = HitCollection->begin(); Hit != HitCollection->end(); ++Hit) {
-              if (Hit->Is_RPC() == false || neighbor == true)
+            for (const auto& Hit : *HitCollection) {
+              if (Hit.Is_RPC() == false || neighbor == true)
                 continue;
-              if (std::abs(Track->Eta() - Hit->Eta()) > 0.1)
+              if (std::abs(Track.Eta() - Hit.Eta()) > 0.1)
                 continue;
-              if (Hit->Endcap() != endcap || Hit->Station() != station || Hit->Chamber() != chamber)
+              if (Hit.Endcap() != endcap || Hit.Station() != station || Hit.Chamber() != chamber)
                 continue;
-              if (std::abs(Hit->BX()) > 2)
+              if (std::abs(Hit.BX()) > 2)
                 continue;
 
-              hist_index = histIndexRPC.at({Hit->Station(), Hit->Ring()});
-              if (Hit->Endcap() > 0)
+              hist_index = histIndexRPC.at({Hit.Station(), Hit.Ring()});
+              if (Hit.Endcap() > 0)
                 hist_index = 11 - hist_index;
-              rpcHitTimingInTrack->Fill(Hit->BX(), hist_index + 0.5);
-              rpcHitTiming[histIndexBX.at(Hit->BX())]->Fill(
-                  (Hit->Sector_RPC() - 1) * 7 + get_subsector_rpc_cppf(Hit->Subsector_RPC()), hist_index + 0.5);
-              rpcHitTimingTot->Fill((Hit->Sector_RPC() - 1) * 7 + get_subsector_rpc_cppf(Hit->Subsector_RPC()),
+              rpcHitTimingInTrack->Fill(Hit.BX(), hist_index + 0.5);
+              rpcHitTiming[histIndexBX.at(Hit.BX())]->Fill(
+                  (Hit.Sector_RPC() - 1) * 7 + get_subsector_rpc_cppf(Hit.Subsector_RPC()), hist_index + 0.5);
+              rpcHitTimingTot->Fill((Hit.Sector_RPC() - 1) * 7 + get_subsector_rpc_cppf(Hit.Subsector_RPC()),
                                     hist_index + 0.5);
             }  // End loop: for (auto Hit = HitCollection->begin(); Hit != HitCollection->end(); ++Hit)
           }    // End conditional: if (trackHitBX == 0 && ring == 2)

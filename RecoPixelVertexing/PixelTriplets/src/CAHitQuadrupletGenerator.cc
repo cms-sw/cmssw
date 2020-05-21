@@ -73,12 +73,12 @@ void CAHitQuadrupletGenerator::initEvent(const edm::Event& ev, const edm::EventS
 }
 namespace {
   void createGraphStructure(const SeedingLayerSetsHits& layers, CAGraph& g) {
-    for (unsigned int i = 0; i < layers.size(); i++) {
+    for (const auto& layer : layers) {
       for (unsigned int j = 0; j < 4; ++j) {
         auto vertexIndex = 0;
-        auto foundVertex = std::find(g.theLayers.begin(), g.theLayers.end(), layers[i][j].name());
+        auto foundVertex = std::find(g.theLayers.begin(), g.theLayers.end(), layer[j].name());
         if (foundVertex == g.theLayers.end()) {
-          g.theLayers.emplace_back(layers[i][j].name(), layers[i][j].hits().size());
+          g.theLayers.emplace_back(layer[j].name(), layer[j].hits().size());
           vertexIndex = g.theLayers.size() - 1;
         } else {
           vertexIndex = foundVertex - g.theLayers.begin();
@@ -93,12 +93,12 @@ namespace {
   }
   void clearGraphStructure(const SeedingLayerSetsHits& layers, CAGraph& g) {
     g.theLayerPairs.clear();
-    for (unsigned int i = 0; i < g.theLayers.size(); i++) {
-      g.theLayers[i].theInnerLayers.clear();
-      g.theLayers[i].theInnerLayerPairs.clear();
-      g.theLayers[i].theOuterLayers.clear();
-      g.theLayers[i].theOuterLayerPairs.clear();
-      for (auto& v : g.theLayers[i].isOuterHitOfCell)
+    for (auto& theLayer : g.theLayers) {
+      theLayer.theInnerLayers.clear();
+      theLayer.theInnerLayerPairs.clear();
+      theLayer.theOuterLayers.clear();
+      theLayer.theOuterLayerPairs.clear();
+      for (auto& v : theLayer.isOuterHitOfCell)
         v.clear();
     }
   }
@@ -106,10 +106,10 @@ namespace {
                  const IntermediateHitDoublets::RegionLayerSets& regionLayerPairs,
                  CAGraph& g,
                  std::vector<const HitDoublets*>& hitDoublets) {
-    for (unsigned int i = 0; i < layers.size(); i++) {
+    for (const auto& layer : layers) {
       for (unsigned int j = 0; j < 4; ++j) {
         auto vertexIndex = 0;
-        auto foundVertex = std::find(g.theLayers.begin(), g.theLayers.end(), layers[i][j].name());
+        auto foundVertex = std::find(g.theLayers.begin(), g.theLayers.end(), layer[j].name());
         if (foundVertex == g.theLayers.end()) {
           vertexIndex = g.theLayers.size() - 1;
         } else {
@@ -117,7 +117,7 @@ namespace {
         }
 
         if (j > 0) {
-          auto innerVertex = std::find(g.theLayers.begin(), g.theLayers.end(), layers[i][j - 1].name());
+          auto innerVertex = std::find(g.theLayers.begin(), g.theLayers.end(), layer[j - 1].name());
 
           CALayerPair tmpInnerLayerPair(innerVertex - g.theLayers.begin(), vertexIndex);
 
@@ -125,8 +125,8 @@ namespace {
             auto found = std::find_if(regionLayerPairs.begin(),
                                       regionLayerPairs.end(),
                                       [&](const IntermediateHitDoublets::LayerPairHitDoublets& pair) {
-                                        return pair.innerLayerIndex() == layers[i][j - 1].index() &&
-                                               pair.outerLayerIndex() == layers[i][j].index();
+                                        return pair.innerLayerIndex() == layer[j - 1].index() &&
+                                               pair.outerLayerIndex() == layer[j].index();
                                       });
             if (found != regionLayerPairs.end()) {
               hitDoublets.emplace_back(&(found->doublets()));

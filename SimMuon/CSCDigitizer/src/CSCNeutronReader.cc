@@ -18,11 +18,9 @@ void CSCNeutronReader::addHits(std::map<int, edm::PSimHitContainer> &hitMap, CLH
       generateChamberNoise(chamberType(chamberIndex), chamberIndex, neutronHits, engine);
 
       // add these hits to the original map
-      for (edm::PSimHitContainer::const_iterator neutronHitItr = neutronHits.begin();
-           neutronHitItr != neutronHits.end();
-           ++neutronHitItr) {
-        uint32_t layerId = neutronHitItr->detUnitId();
-        hitMap[layerId].push_back(*neutronHitItr);
+      for (const auto &neutronHit : neutronHits) {
+        uint32_t layerId = neutronHit.detUnitId();
+        hitMap[layerId].push_back(neutronHit);
       }
       // mark chamber as done
       chambersDone.push_back(chamberIndex);

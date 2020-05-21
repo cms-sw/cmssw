@@ -136,9 +136,8 @@ void DTTTrigOffsetCalibration::endJob() {
 
   for (ChamberHistosMap::const_iterator itChHistos = theT0SegHistoMap_.begin(); itChHistos != theT0SegHistoMap_.end();
        ++itChHistos) {
-    for (vector<TH1F*>::const_iterator itHist = (*itChHistos).second.begin(); itHist != (*itChHistos).second.end();
-         ++itHist)
-      (*itHist)->Write();
+    for (auto itHist : (*itChHistos).second)
+      itHist->Write();
   }
 
   if (doTTrigCorrection_) {
@@ -155,22 +154,22 @@ void DTTTrigOffsetCalibration::endJob() {
       if (chId.station() != 4)
         slIds.push_back(DTSuperLayerId(chId, 2));
 
-      for (vector<DTSuperLayerId>::const_iterator itSl = slIds.begin(); itSl != slIds.end(); ++itSl) {
+      for (const auto& slId : slIds) {
         // Get old values from DB
         float ttrigMean = 0;
         float ttrigSigma = 0;
         float kFactor = 0;
-        tTrigMap_->get(*itSl, ttrigMean, ttrigSigma, kFactor, DTTimeUnits::ns);
+        tTrigMap_->get(slId, ttrigMean, ttrigSigma, kFactor, DTTimeUnits::ns);
         //FIXME: verify if values make sense
         // Set new values
         float ttrigMeanNew = ttrigMean;
         float ttrigSigmaNew = ttrigSigma;
         float t0SegMean =
-            (itSl->superLayer() != 2) ? itChHistos->second[0]->GetMean() : itChHistos->second[1]->GetMean();
+            (slId.superLayer() != 2) ? itChHistos->second[0]->GetMean() : itChHistos->second[1]->GetMean();
 
         float kFactorNew = (kFactor * ttrigSigma + t0SegMean) / ttrigSigma;
 
-        tTrig->set(*itSl, ttrigMeanNew, ttrigSigmaNew, kFactorNew, DTTimeUnits::ns);
+        tTrig->set(slId, ttrigMeanNew, ttrigSigmaNew, kFactorNew, DTTimeUnits::ns);
       }
     }
     LogVerbatim("Calibration") << "[DTTTrigOffsetCalibration] Writing ttrig object to DB!" << endl;

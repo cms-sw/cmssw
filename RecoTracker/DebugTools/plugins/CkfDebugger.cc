@@ -168,15 +168,15 @@ void CkfDebugger::printSimHits(const edm::Event& iEvent) {
   std::map<unsigned int, std::vector<PSimHit> >& theHitsMap = hitAssociator->SimHitMap;
   idHitsMap.clear();
 
-  for (std::map<unsigned int, std::vector<PSimHit> >::iterator it = theHitsMap.begin(); it != theHitsMap.end(); it++) {
-    for (std::vector<PSimHit>::iterator isim = it->second.begin(); isim != it->second.end(); ++isim) {
+  for (auto& it : theHitsMap) {
+    for (std::vector<PSimHit>::iterator isim = it.second.begin(); isim != it.second.end(); ++isim) {
       idHitsMap[isim->trackId()].push_back(&*isim);
     }
   }
 
-  for (std::map<unsigned int, std::vector<PSimHit*> >::iterator it = idHitsMap.begin(); it != idHitsMap.end(); it++) {
-    sort(it->second.begin(), it->second.end(), [](auto* a, auto* b) { return a->timeOfFlight() < b->timeOfFlight(); });
-    for (std::vector<PSimHit*>::iterator isim = it->second.begin(); isim != it->second.end(); ++isim) {
+  for (auto& it : idHitsMap) {
+    sort(it.second.begin(), it.second.end(), [](auto* a, auto* b) { return a->timeOfFlight() < b->timeOfFlight(); });
+    for (std::vector<PSimHit*>::iterator isim = it.second.begin(); isim != it.second.end(); ++isim) {
       const GeomDetUnit* detUnit = theTrackerGeom->idToDetUnit(DetId((*isim)->detUnitId()));
       dumpSimHit(SimHit((*isim), detUnit));
     }
@@ -198,9 +198,9 @@ bool CkfDebugger::analyseCompatibleMeasurements(const Trajectory& traj,
                                                 const TransientTrackingRecHitBuilder* aTTRHBuilder) {
   LogTrace("CkfDebugger") << "\nnow in analyseCompatibleMeasurements";
   LogTrace("CkfDebugger") << "number of input hits:" << meas.size();
-  for (std::vector<TrajectoryMeasurement>::const_iterator tmpIt = meas.begin(); tmpIt != meas.end(); tmpIt++) {
-    if (tmpIt->recHit()->isValid())
-      LogTrace("CkfDebugger") << "valid hit at position:" << tmpIt->recHit()->globalPosition();
+  for (const auto& mea : meas) {
+    if (mea.recHit()->isValid())
+      LogTrace("CkfDebugger") << "valid hit at position:" << mea.recHit()->globalPosition();
   }
   theForwardPropagator = propagator;
   theChi2 = estimator;
@@ -230,9 +230,9 @@ bool CkfDebugger::analyseCompatibleMeasurements(const Trajectory& traj,
   if (correctHits.empty())
     return true;  // no more simhits on this track
 
-  for (std::vector<const PSimHit*>::iterator corHit = correctHits.begin(); corHit != correctHits.end(); corHit++) {
+  for (auto& correctHit : correctHits) {
     for (std::vector<TM>::const_iterator i = meas.begin(); i != meas.end(); i++) {
-      if (correctMeas(*i, *corHit)) {
+      if (correctMeas(*i, correctHit)) {
         LogTrace("CkfDebugger") << "Correct hit found at position " << i - meas.begin();
         return true;
       }
@@ -252,18 +252,18 @@ bool CkfDebugger::analyseCompatibleMeasurements(const Trajectory& traj,
   dump[0]++;
   problems++;
 
-  for (std::vector<TM>::const_iterator i = meas.begin(); i != meas.end(); i++) {
-    edm::LogVerbatim("CkfDebugger") << "Is the hit valid? " << i->recHit()->isValid();
-    if (i->recHit()->isValid()) {
-      edm::LogVerbatim("CkfDebugger") << "RecHit at " << i->recHit()->globalPosition() << " layer "
-                                      << ((i->recHit()->det()->geographicalId().rawId() >> 16) & 0xF) << " subdet "
-                                      << i->recHit()->det()->geographicalId().subdetId() << " Chi2 " << i->estimate();
-    } else if (i->recHit()->det() == nullptr) {
+  for (const auto& mea : meas) {
+    edm::LogVerbatim("CkfDebugger") << "Is the hit valid? " << mea.recHit()->isValid();
+    if (mea.recHit()->isValid()) {
+      edm::LogVerbatim("CkfDebugger") << "RecHit at " << mea.recHit()->globalPosition() << " layer "
+                                      << ((mea.recHit()->det()->geographicalId().rawId() >> 16) & 0xF) << " subdet "
+                                      << mea.recHit()->det()->geographicalId().subdetId() << " Chi2 " << mea.estimate();
+    } else if (mea.recHit()->det() == nullptr) {
       edm::LogVerbatim("CkfDebugger") << "Invalid RecHit returned with zero Det pointer";
-    } else if (i->recHit()->det() == det(correctHit)) {
+    } else if (mea.recHit()->det() == det(correctHit)) {
       edm::LogVerbatim("CkfDebugger") << "Invalid hit returned in correct Det";
     } else {
-      edm::LogVerbatim("CkfDebugger") << "Invalid hit returned in Det at gpos " << i->recHit()->det()->position()
+      edm::LogVerbatim("CkfDebugger") << "Invalid hit returned in Det at gpos " << mea.recHit()->det()->position()
                                       << " correct Det is at " << det(correctHit)->position();
     }
   }
@@ -502,18 +502,18 @@ bool CkfDebugger::correctTrajectory(const Trajectory& traj, unsigned int& trajId
   if (currentTrackId.empty())
     return false;
 
-  for (Trajectory::RecHitContainer::const_iterator rh = hits.begin(); rh != hits.end(); ++rh) {
+  for (const auto& hit : hits) {
     //if invalid hit exit
-    if (!(*rh)->hit()->isValid()) {
+    if (!hit->hit()->isValid()) {
       //LogTrace("CkfDebugger") << "invalid hit" ;
       return false;
     }
 
     //if hits from deltas exit
     bool nogoodhit = true;
-    std::vector<PSimHit> assSimHits = hitAssociator->associateHit(*(*rh)->hit());
-    for (std::vector<PSimHit>::iterator shit = assSimHits.begin(); shit != assSimHits.end(); shit++) {
-      if (goodSimHit(*shit))
+    std::vector<PSimHit> assSimHits = hitAssociator->associateHit(*hit->hit());
+    for (auto& assSimHit : assSimHits) {
+      if (goodSimHit(assSimHit))
         nogoodhit = false;
     }
     if (nogoodhit)
@@ -521,13 +521,13 @@ bool CkfDebugger::correctTrajectory(const Trajectory& traj, unsigned int& trajId
 
     //all hits must be associated to the same sim track
     bool test = true;
-    std::vector<SimHitIdpr> nextTrackId = hitAssociator->associateHitId(*(*rh)->hit());
-    for (std::vector<SimHitIdpr>::iterator i = currentTrackId.begin(); i != currentTrackId.end(); i++) {
-      for (std::vector<SimHitIdpr>::iterator j = nextTrackId.begin(); j != nextTrackId.end(); j++) {
-        if (i->first == j->first)
+    std::vector<SimHitIdpr> nextTrackId = hitAssociator->associateHitId(*hit->hit());
+    for (auto& i : currentTrackId) {
+      for (auto& j : nextTrackId) {
+        if (i.first == j.first)
           test = false;
         //LogTrace("CkfDebugger") << "valid " << *i << " " << *j ;
-        trajId = j->first;
+        trajId = j.first;
       }
     }
     if (test) { /*LogTrace("CkfDebugger") << "returning false" ;*/
@@ -563,10 +563,10 @@ vector<const PSimHit*> CkfDebugger::nextCorrectHits(const Trajectory& traj, unsi
   TransientTrackingRecHit::RecHitContainer comp = lastRecHit->transientHits();
   if (!comp.empty()) {
     float maxR = 0;
-    for (TransientTrackingRecHit::RecHitContainer::const_iterator ch = comp.begin(); ch != comp.end(); ++ch) {
-      if ((*ch)->globalPosition().mag() > maxR)
-        lastRecHit = *ch;
-      maxR = (*ch)->globalPosition().mag();
+    for (const auto& ch : comp) {
+      if (ch->globalPosition().mag() > maxR)
+        lastRecHit = ch;
+      maxR = ch->globalPosition().mag();
     }
   }
   edm::LogVerbatim("CkfDebugger") << "CkfDebugger: lastRecHit is at gpos " << lastRecHit->globalPosition() << " layer "
@@ -575,21 +575,21 @@ vector<const PSimHit*> CkfDebugger::nextCorrectHits(const Trajectory& traj, unsi
 
   //find the simHits associated to the recHit
   const std::vector<PSimHit>& pSimHitVec = hitAssociator->associateHit(*lastRecHit->hit());
-  for (std::vector<PSimHit>::const_iterator shit = pSimHitVec.begin(); shit != pSimHitVec.end(); shit++) {
-    const GeomDetUnit* detUnit = theTrackerGeom->idToDetUnit(DetId(shit->detUnitId()));
-    LogTrace("CkfDebugger") << "from hitAssociator SimHits are at GP=" << detUnit->toGlobal(shit->localPosition())
-                            << " traId=" << shit->trackId() << " particleType " << shit->particleType()
-                            << " pabs=" << shit->pabs() << " detUnitId=" << shit->detUnitId() << " layer "
-                            << layer((det(&*shit))) << " subdet " << det(&*shit)->geographicalId().subdetId();
+  for (const auto& shit : pSimHitVec) {
+    const GeomDetUnit* detUnit = theTrackerGeom->idToDetUnit(DetId(shit.detUnitId()));
+    LogTrace("CkfDebugger") << "from hitAssociator SimHits are at GP=" << detUnit->toGlobal(shit.localPosition())
+                            << " traId=" << shit.trackId() << " particleType " << shit.particleType()
+                            << " pabs=" << shit.pabs() << " detUnitId=" << shit.detUnitId() << " layer "
+                            << layer((det(&shit))) << " subdet " << det(&shit)->geographicalId().subdetId();
   }
 
   //choose the simHit from the same track that has the highest tof
   const PSimHit* lastPSH = nullptr;
   if (!pSimHitVec.empty()) {
     float maxTOF = 0;
-    for (std::vector<PSimHit>::const_iterator ch = pSimHitVec.begin(); ch != pSimHitVec.end(); ++ch) {
-      if ((ch->trackId() == trajId) && (ch->timeOfFlight() > maxTOF) && (goodSimHit(*ch))) {
-        lastPSH = &*ch;
+    for (const auto& ch : pSimHitVec) {
+      if ((ch.trackId() == trajId) && (ch.timeOfFlight() > maxTOF) && (goodSimHit(ch))) {
+        lastPSH = &ch;
         maxTOF = lastPSH->timeOfFlight();
       }
     }
@@ -648,14 +648,13 @@ bool CkfDebugger::associated(CTTRHp rechit, const PSimHit& pSimHit) const {
   //   LogTrace("CkfDebugger") << "rec hit valid" ;
   const std::vector<PSimHit>& pSimHitVec = hitAssociator->associateHit(*rechit->hit());
   //   LogTrace("CkfDebugger") << "size=" << pSimHitVec.size() ;
-  for (std::vector<PSimHit>::const_iterator shit = pSimHitVec.begin(); shit != pSimHitVec.end(); shit++) {
+  for (const auto& shit : pSimHitVec) {
     //const GeomDetUnit* detUnit = theTrackerGeom->idToDetUnit( DetId(shit->detUnitId()));
     //         LogTrace("CkfDebugger") << "pSimHit.timeOfFlight()=" << pSimHit.timeOfFlight()
     //     	 << " pSimHit.pabs()=" << pSimHit.pabs() << " GP=" << position(&pSimHit);
     //         LogTrace("CkfDebugger") << "(*shit).timeOfFlight()=" << (*shit).timeOfFlight()
     //     	 << " (*shit).pabs()=" << (*shit).pabs() << " GP=" << detUnit->toGlobal( shit->localPosition());
-    if ((fabs((*shit).timeOfFlight() - pSimHit.timeOfFlight()) < 1e-9) &&
-        (fabs((*shit).pabs() - pSimHit.pabs()) < 1e-9))
+    if ((fabs(shit.timeOfFlight() - pSimHit.timeOfFlight()) < 1e-9) && (fabs(shit.pabs() - pSimHit.pabs()) < 1e-9))
       return true;
   }
   return false;
@@ -681,9 +680,9 @@ bool CkfDebugger::correctMeas(const TM& tm, const PSimHit* correctHit) const {
           // 	  LogTrace("CkfDebugger") << "correctHit->trackId()=" << correctHit->trackId() ;
           bool test = true;
           std::vector<SimHitIdpr> ids = hitAssociator->associateHitId(*(*ch2)->hit());
-          for (std::vector<SimHitIdpr>::iterator j = ids.begin(); j != ids.end(); j++) {
+          for (auto& id : ids) {
             // 	    LogTrace("CkfDebugger") << "j=" <<j->first;
-            if (correctHit->trackId() == j->first) {
+            if (correctHit->trackId() == id.first) {
               test = false;
               // 	      LogTrace("CkfDebugger") << correctHit->trackId()<< " " <<j->first;
             }
@@ -919,11 +918,11 @@ pair<CTTRHp, double> CkfDebugger::analyseRecHitExistance(const PSimHit& sh, cons
 }
 
 const PSimHit* CkfDebugger::pSimHit(unsigned int tkId, DetId detId) {
-  for (std::vector<PSimHit*>::iterator shi = idHitsMap[tkId].begin(); shi != idHitsMap[tkId].end(); ++shi) {
-    if ((*shi)->detUnitId() == detId.rawId() &&
+  for (auto& shi : idHitsMap[tkId]) {
+    if (shi->detUnitId() == detId.rawId() &&
         //(shi)->trackId() == tkId &&
-        goodSimHit(**shi)) {
-      return (*shi);
+        goodSimHit(*shi)) {
+      return shi;
     }
   }
   return nullptr;
@@ -947,22 +946,22 @@ int CkfDebugger::analyseRecHitNotFound(const Trajectory& traj, CTTRHp correctRec
   const DetLayer* detLayer = nullptr;
   bool navLayerAfter = false;
   bool test = false;
-  for (std::vector<const DetLayer*>::iterator il = nl.begin(); il != nl.end(); il++) {
-    if (dynamic_cast<const BarrelDetLayer*>(*il)) {
-      const BarrelDetLayer* pbl = dynamic_cast<const BarrelDetLayer*>(*il);
+  for (auto& il : nl) {
+    if (dynamic_cast<const BarrelDetLayer*>(il)) {
+      const BarrelDetLayer* pbl = dynamic_cast<const BarrelDetLayer*>(il);
       LogTrace("CkfDebugger") << "pbl->specificSurface().bounds().length()="
                               << pbl->specificSurface().bounds().length();
       LogTrace("CkfDebugger") << "pbl->specificSurface().bounds().width()=" << pbl->specificSurface().bounds().width();
     }
-    int layId = layer(((*(*il)->basicComponents().begin())));
-    LogTrace("CkfDebugger") << " subdet=" << (*(*il)->basicComponents().begin())->geographicalId().subdetId()
+    int layId = layer(((*il->basicComponents().begin())));
+    LogTrace("CkfDebugger") << " subdet=" << (*il->basicComponents().begin())->geographicalId().subdetId()
                             << "layer id=" << layId;
     if (layId == correctLayId) {
       test = true;
-      detLayer = &**il;
+      detLayer = &*il;
       break;
     }
-    if (lless(*il, theGeomSearchTracker->detLayer(correctRecHit->det()->geographicalId())))
+    if (lless(il, theGeomSearchTracker->detLayer(correctRecHit->det()->geographicalId())))
       navLayerAfter = true;  //it is enough that only one layer is after the correct one?
   }
 
@@ -994,8 +993,8 @@ int CkfDebugger::analyseRecHitNotFound(const Trajectory& traj, CTTRHp correctRec
   //     LogTrace("CkfDebugger") << "detId=" << detId ;
   //   }
   bool test2 = false;
-  for (std::vector<DetWithState>::iterator det = compatDets.begin(); det != compatDets.end(); det++) {
-    unsigned int detId = det->first->geographicalId().rawId();
+  for (auto& compatDet : compatDets) {
+    unsigned int detId = compatDet.first->geographicalId().rawId();
     //     LogTrace("CkfDebugger") << "detId=" << detId
     // 	 << "\ncorrectRecHit->det()->geographicalId().rawId()=" << correctRecHit->det()->geographicalId().rawId()
     // 	 << "\ngluedId(correctRecHit->det()->geographicalId()).rawId()=" << gluedId(correctRecHit->det()->geographicalId()).rawId()

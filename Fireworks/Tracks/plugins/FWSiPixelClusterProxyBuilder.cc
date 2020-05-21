@@ -57,8 +57,7 @@ void FWSiPixelClusterProxyBuilder::build(const FWEventItem* iItem, TEveElementLi
 
     const edmNew::DetSet<SiPixelCluster>& clusters = *set;
 
-    for (edmNew::DetSet<SiPixelCluster>::const_iterator itc = clusters.begin(), edc = clusters.end(); itc != edc;
-         ++itc) {
+    for (const auto& cluster : clusters) {
       TEveElement* itemHolder = createCompound();
       product->AddElement(itemHolder);
 
@@ -69,8 +68,9 @@ void FWSiPixelClusterProxyBuilder::build(const FWEventItem* iItem, TEveElementLi
         continue;
       }
 
-      float localPoint[3] = {
-          fireworks::pixelLocalX((*itc).minPixelRow(), pars), fireworks::pixelLocalY((*itc).minPixelCol(), pars), 0.0};
+      float localPoint[3] = {fireworks::pixelLocalX(cluster.minPixelRow(), pars),
+                             fireworks::pixelLocalY(cluster.minPixelCol(), pars),
+                             0.0};
 
       float globalPoint[3];
       geom->localToGlobal(id, localPoint, globalPoint);
@@ -80,7 +80,7 @@ void FWSiPixelClusterProxyBuilder::build(const FWEventItem* iItem, TEveElementLi
       setupAddElement(pointSet, itemHolder);
 
       TEveStraightLineSet* ls = new TEveStraightLineSet();
-      for (int j = 0; j < (*itc).size(); j++) {
+      for (int j = 0; j < cluster.size(); j++) {
         //            float adc= (*itc).pixel(j).adc*0.03/5000.;
         float adc = 0.025;
         float offsetx[4] = {-0.4, -0.4, +0.4, +0.4};
@@ -89,8 +89,8 @@ void FWSiPixelClusterProxyBuilder::build(const FWEventItem* iItem, TEveElementLi
 
         std::vector<TEveVector> boxCorners;
         for (int of = 0; of < 8; of++) {
-          float lp[3] = {fireworks::pixelLocalX((*itc).pixel(j).x + offsetx[of % 4], pars),
-                         fireworks::pixelLocalY((*itc).pixel(j).y + offsety[of % 4], pars),
+          float lp[3] = {fireworks::pixelLocalX(cluster.pixel(j).x + offsetx[of % 4], pars),
+                         fireworks::pixelLocalY(cluster.pixel(j).y + offsety[of % 4], pars),
                          (of < 4) ? (0.0f) : (adc)};
 
           TEveVector p;

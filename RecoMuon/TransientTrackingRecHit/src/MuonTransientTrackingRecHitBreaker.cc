@@ -35,11 +35,9 @@ TransientTrackingRecHit::ConstRecHitContainer MuonTransientTrackingRecHitBreaker
         TransientTrackingRecHit::ConstRecHitContainer segments2D = muonRecHit->transientHits();
 
         // loop over segment
-        for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator segment = segments2D.begin();
-             segment != segments2D.end();
-             ++segment) {
+        for (const auto& segment : segments2D) {
           // asking for 1D Rec Hit
-          TransientTrackingRecHit::ConstRecHitContainer rechit1D = (**segment).transientHits();
+          TransientTrackingRecHit::ConstRecHitContainer rechit1D = (*segment).transientHits();
 
           // load them into the recHitsForFit container
           copy(rechit1D.begin(), rechit1D.end(), back_inserter(recHitsForFit));

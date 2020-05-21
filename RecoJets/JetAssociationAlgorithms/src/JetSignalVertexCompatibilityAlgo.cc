@@ -65,12 +65,12 @@ std::vector<float> JetSignalVertexCompatibilityAlgo::compatibility(const reco::V
   std::vector<float> result(vertices.size(), 0.);
   float sum = 0.;
 
-  for (TrackRefVector::const_iterator track = tracks.begin(); track != tracks.end(); ++track) {
-    const TransientTrack &transientTrack = convert(TrackBaseRef(*track));
+  for (auto &&track : tracks) {
+    const TransientTrack &transientTrack = convert(TrackBaseRef(track));
 
     for (unsigned int i = 0; i < vertices.size(); i++) {
       double compat = trackVertexCompat(vertices[i], transientTrack);
-      double contribution = activation(compat) * (*track)->pt();
+      double contribution = activation(compat) * (track)->pt();
 
       result[i] += contribution;
       sum += contribution;
@@ -81,8 +81,8 @@ std::vector<float> JetSignalVertexCompatibilityAlgo::compatibility(const reco::V
     for (unsigned int i = 0; i < result.size(); i++)
       result[i] = 1.0 / result.size();
   } else {
-    for (unsigned int i = 0; i < result.size(); i++)
-      result[i] /= sum;
+    for (float &i : result)
+      i /= sum;
   }
 
   return result;

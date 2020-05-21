@@ -187,9 +187,9 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig, const goodseedhe
 
   //now do what ever initialization is needed
   std::vector<edm::InputTag> tags = iConfig.getParameter<vector<InputTag>>("TkColList");
-  for (unsigned int i = 0; i < tags.size(); ++i) {
-    trajContainers_.push_back(consumes<vector<Trajectory>>(tags[i]));
-    tracksContainers_.push_back(consumes<reco::TrackCollection>(tags[i]));
+  for (const auto& tag : tags) {
+    trajContainers_.push_back(consumes<vector<Trajectory>>(tag));
+    tracksContainers_.push_back(consumes<reco::TrackCollection>(tag));
   }
 
   minPt_ = iConfig.getParameter<double>("MinPt");

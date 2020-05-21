@@ -165,9 +165,8 @@ TransientTrackingRecHit::ConstRecHitContainer TrackTransformerForCosmicMuons::ge
   printout = quad1;
 
   if (printout)
-    for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator hit = tkHits.begin(); hit != tkHits.end();
-         ++hit) {
-      DetId hitId = (*hit)->geographicalId();
+    for (const auto& tkHit : tkHits) {
+      DetId hitId = tkHit->geographicalId();
       GlobalPoint glbpoint = trackingGeometry()->idToDet(hitId)->position();
 
       if (hitId.det() == DetId::Muon) {
@@ -391,10 +390,8 @@ vector<Trajectory> TrackTransformerForCosmicMuons::transform(const reco::Track& 
     if (!firstTSOS.isValid()) {
       std::cout << "Propagation error! Dumping RecHits..." << std::endl;
 
-      for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator hit = recHitsForReFit.begin();
-           hit != recHitsForReFit.end();
-           ++hit) {
-        DetId hitId = (*hit)->geographicalId();
+      for (const auto& hit : recHitsForReFit) {
+        DetId hitId = hit->geographicalId();
         GlobalPoint glbpoint = trackingGeometry()->idToDet(hitId)->position();
         if (hitId.subdetId() == MuonSubdetId::DT)
           std::cout << glbpoint << " I am DT " << DTWireId(hitId) << std::endl;
@@ -440,8 +437,8 @@ bool TrackTransformerForCosmicMuons::SlopeSum(const TransientTrackingRecHit::Con
   float sumdy = 0;
   float sumdz = 0;
 
-  for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator hit = tkHits.begin(); hit != tkHits.end(); ++hit) {
-    DetId hitId = (*hit)->geographicalId();
+  for (const auto& tkHit : tkHits) {
+    DetId hitId = tkHit->geographicalId();
     GlobalPoint glbpoint = trackingGeometry()->idToDet(hitId)->position();
     if (hitId.det() != DetId::Muon || hitId.subdetId() == 3)
       continue;
@@ -496,8 +493,8 @@ float TrackTransformerForCosmicMuons::SumDy(const TransientTrackingRecHit::Const
   float sumdy = 0;
   float sumdz = 0;
 
-  for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator hit = tkHits.begin(); hit != tkHits.end(); ++hit) {
-    DetId hitId = (*hit)->geographicalId();
+  for (const auto& tkHit : tkHits) {
+    DetId hitId = tkHit->geographicalId();
     GlobalPoint glbpoint = trackingGeometry()->idToDet(hitId)->position();
     if (hitId.det() != DetId::Muon || hitId.subdetId() == 3)
       continue;

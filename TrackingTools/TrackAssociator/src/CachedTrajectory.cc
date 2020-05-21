@@ -494,10 +494,10 @@ std::vector<GlobalPoint>* CachedTrajectory::getWideTrajectory(const std::vector<
   if (!wideTrajectory)
     return nullptr;
 
-  for (std::vector<SteppingHelixStateInfo>::const_iterator state = states.begin(); state != states.end(); state++) {
+  for (const auto& state : states) {
     // defined a normal plane wrt the particle trajectory direction
     // let's hope that I computed the rotation matrix correctly.
-    GlobalVector vector(state->momentum().unit());
+    GlobalVector vector(state.momentum().unit());
     float r21 = 0;
     float r22 = vector.z() / sqrt(1 - pow(vector.x(), 2));
     float r23 = -vector.y() / sqrt(1 - pow(vector.x(), 2));
@@ -509,9 +509,9 @@ std::vector<GlobalPoint>* CachedTrajectory::getWideTrajectory(const std::vector<
     float r13 = -r22 * r31;
 
     Plane::RotationType rotation(r11, r12, r13, r21, r22, r23, r31, r32, r33);
-    Plane* target = new Plane(state->position(), rotation);
+    Plane* target = new Plane(state.position(), rotation);
 
-    TrajectoryStateOnSurface tsos = state->getStateOnSurface(*target);
+    TrajectoryStateOnSurface tsos = state.getStateOnSurface(*target);
 
     if (!tsos.isValid()) {
       LogTrace("TrackAssociator") << "[getWideTrajectory] TSOS not valid";
@@ -556,9 +556,9 @@ std::vector<GlobalPoint>* CachedTrajectory::getWideTrajectory(const std::vector<
     // LogTrace("TrackAssociator") << "Axes " << semi1 <<","<< semi2 <<"   phi "<< phi;
     // LogTrace("TrackAssociator") << "Local error ellipse: " << bounds[0] << bounds[1] << bounds[2] << bounds[3];
 
-    wideTrajectory->push_back(state->position());
-    for (int index = 0; index < 4; ++index)
-      wideTrajectory->push_back(target->toGlobal(bounds[index]));
+    wideTrajectory->push_back(state.position());
+    for (const auto& bound : bounds)
+      wideTrajectory->push_back(target->toGlobal(bound));
 
     //LogTrace("TrackAssociator") <<"Global error ellipse: (" << target->toGlobal(bounds[0]) <<","<< target->toGlobal(bounds[1])
     //         <<","<< target->toGlobal(bounds[2]) <<","<< target->toGlobal(bounds[3]) <<","<<state->position() <<")";

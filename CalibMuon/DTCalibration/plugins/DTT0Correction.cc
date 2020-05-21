@@ -54,11 +54,8 @@ void DTT0Correction::endJob() {
   DTT0* t0NewMap = new DTT0();
 
   // Loop over all channels
-  for (vector<const DTSuperLayer*>::const_iterator sl = muonGeom_->superLayers().begin();
-       sl != muonGeom_->superLayers().end();
-       ++sl) {
-    for (vector<const DTLayer*>::const_iterator layer = (*sl)->layers().begin(); layer != (*sl)->layers().end();
-         ++layer) {
+  for (auto sl : muonGeom_->superLayers()) {
+    for (vector<const DTLayer*>::const_iterator layer = sl->layers().begin(); layer != sl->layers().end(); ++layer) {
       // Access layer topology
       const DTTopology& dtTopo = (*layer)->specificTopology();
       const int firstWire = dtTopo.firstChannel();

@@ -147,8 +147,8 @@ JetPartonCorrector::JetPartonCorrector(const edm::ParameterSet& fConfig) {
 }
 
 JetPartonCorrector::~JetPartonCorrector() {
-  for (ParametersMap::iterator ip = parametrization.begin(); ip != parametrization.end(); ip++)
-    delete ip->second;
+  for (auto& ip : parametrization)
+    delete ip.second;
 }
 
 void JetPartonCorrector::setParameters(std::string aCalibrationType, double aJetFinderRadius, int aPartonMixture) {

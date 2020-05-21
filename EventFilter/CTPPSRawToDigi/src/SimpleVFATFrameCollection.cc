@@ -18,10 +18,10 @@ const VFATFrame* SimpleVFATFrameCollection::GetFrameByID(unsigned int ID) const 
   // first convert ID to 12bit form
   ID = ID & 0xFFF;
 
-  for (MapType::const_iterator it = data.begin(); it != data.end(); ++it)
-    if (it->second.getChipID() == ID)
-      if (it->second.checkFootprint() && it->second.checkCRC())
-        return &(it->second);
+  for (const auto& it : data)
+    if (it.second.getChipID() == ID)
+      if (it.second.checkFootprint() && it.second.checkCRC())
+        return &(it.second);
 
   return nullptr;
 }

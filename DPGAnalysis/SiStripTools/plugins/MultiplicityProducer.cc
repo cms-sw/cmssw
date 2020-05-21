@@ -88,10 +88,10 @@ MultiplicityProducer<T>::MultiplicityProducer(const edm::ParameterSet& iConfig)
 
   std::vector<edm::ParameterSet> wantedsubds(iConfig.getParameter<std::vector<edm::ParameterSet> >("wantedSubDets"));
 
-  for (std::vector<edm::ParameterSet>::iterator ps = wantedsubds.begin(); ps != wantedsubds.end(); ++ps) {
-    m_subdets[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<std::string>("detLabel");
-    m_subdetsels[ps->getParameter<unsigned int>("detSelection")] =
-        DetIdSelector(ps->getUntrackedParameter<std::vector<std::string> >("selection", std::vector<std::string>()));
+  for (auto& wantedsubd : wantedsubds) {
+    m_subdets[wantedsubd.getParameter<unsigned int>("detSelection")] = wantedsubd.getParameter<std::string>("detLabel");
+    m_subdetsels[wantedsubd.getParameter<unsigned int>("detSelection")] = DetIdSelector(
+        wantedsubd.getUntrackedParameter<std::vector<std::string> >("selection", std::vector<std::string>()));
   }
 }
 
@@ -182,9 +182,9 @@ int MultiplicityProducer<edmNew::DetSetVector<SiStripCluster> >::detSetMultiplic
     edmNew::DetSetVector<SiStripCluster>::const_iterator det) const {
   int mult = 0;
 
-  for (edmNew::DetSet<SiStripCluster>::const_iterator clus = det->begin(); clus != det->end(); ++clus) {
+  for (const auto& clus : *det) {
     //    edm::LogInfo("multiplicitywithcustersize") << "sono qua";
-    mult += clus->amplitudes().size();
+    mult += clus.amplitudes().size();
   }
 
   return mult;
@@ -195,8 +195,8 @@ int MultiplicityProducer<edmNew::DetSetVector<SiPixelCluster> >::detSetMultiplic
     edmNew::DetSetVector<SiPixelCluster>::const_iterator det) const {
   int mult = 0;
 
-  for (edmNew::DetSet<SiPixelCluster>::const_iterator clus = det->begin(); clus != det->end(); ++clus) {
-    mult += clus->size();
+  for (const auto& clus : *det) {
+    mult += clus.size();
   }
 
   return mult;

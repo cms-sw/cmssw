@@ -97,8 +97,8 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean, float sptmean, Cons
   PTrajectoryStateOnDet const& seedTSOS = trajectoryStateTransform::persistentState(tsos, id.rawId());
 
   edm::OwnVector<TrackingRecHit> container;
-  for (unsigned l = 0; l < theRhits.size(); l++) {
-    container.push_back(theRhits[l]->hit()->clone());
+  for (const auto& theRhit : theRhits) {
+    container.push_back(theRhit->hit()->clone());
   }
 
   TrajectorySeed theSeed(seedTSOS, container, alongMomentum);

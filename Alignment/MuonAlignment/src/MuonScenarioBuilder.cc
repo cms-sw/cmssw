@@ -64,29 +64,29 @@ align::Scalars MuonScenarioBuilder::extractParameters(const edm::ParameterSet& p
   std::ostringstream error;
   edm::ParameterSet Parameters = this->getParameterSet_((std::string)blockId, pSet);
   std::vector<std::string> parameterNames = Parameters.getParameterNames();
-  for (std::vector<std::string>::iterator iParam = parameterNames.begin(); iParam != parameterNames.end(); iParam++) {
-    if ((*iParam) == "scale")
-      scale_ = Parameters.getParameter<double>(*iParam);
-    else if ((*iParam) == "distribution")
-      distribution_ = Parameters.getParameter<std::string>(*iParam);
-    else if ((*iParam) == "scaleError")
-      scaleError_ = Parameters.getParameter<double>(*iParam);
-    else if ((*iParam) == "phiX")
-      phiX_ = Parameters.getParameter<double>(*iParam);
-    else if ((*iParam) == "phiY")
-      phiY_ = Parameters.getParameter<double>(*iParam);
-    else if ((*iParam) == "phiZ")
-      phiZ_ = Parameters.getParameter<double>(*iParam);
-    else if ((*iParam) == "dX")
-      dX_ = Parameters.getParameter<double>(*iParam);
-    else if ((*iParam) == "dY")
-      dY_ = Parameters.getParameter<double>(*iParam);
-    else if ((*iParam) == "dZ")
-      dZ_ = Parameters.getParameter<double>(*iParam);
-    else if (Parameters.retrieve(*iParam).typeCode() != 'P') {  // Add unknown parameter to list
+  for (auto& parameterName : parameterNames) {
+    if (parameterName == "scale")
+      scale_ = Parameters.getParameter<double>(parameterName);
+    else if (parameterName == "distribution")
+      distribution_ = Parameters.getParameter<std::string>(parameterName);
+    else if (parameterName == "scaleError")
+      scaleError_ = Parameters.getParameter<double>(parameterName);
+    else if (parameterName == "phiX")
+      phiX_ = Parameters.getParameter<double>(parameterName);
+    else if (parameterName == "phiY")
+      phiY_ = Parameters.getParameter<double>(parameterName);
+    else if (parameterName == "phiZ")
+      phiZ_ = Parameters.getParameter<double>(parameterName);
+    else if (parameterName == "dX")
+      dX_ = Parameters.getParameter<double>(parameterName);
+    else if (parameterName == "dY")
+      dY_ = Parameters.getParameter<double>(parameterName);
+    else if (parameterName == "dZ")
+      dZ_ = Parameters.getParameter<double>(parameterName);
+    else if (Parameters.retrieve(parameterName).typeCode() != 'P') {  // Add unknown parameter to list
       if (!error.str().length())
         error << "Unknown parameter name(s): ";
-      error << " " << *iParam;
+      error << " " << parameterName;
     }
   }
   align::Scalars param;
@@ -153,7 +153,7 @@ void MuonScenarioBuilder::moveDTSectors(const edm::ParameterSet& pSet) {
     index[myId.wheel() + 2][myId.station() - 1][myId.sector() - 1] = counter;
     counter++;
   }
-  for (int wheel = 0; wheel < 5; wheel++) {
+  for (auto& wheel : index) {
     for (int sector = 0; sector < 12; sector++) {
       align::Scalars disp;
       align::Scalars rotation;
@@ -184,13 +184,13 @@ void MuonScenarioBuilder::moveDTSectors(const edm::ParameterSet& pSet) {
         rotation.push_back(phiz);
       }
       for (int station = 0; station < 4; station++) {
-        Alignable* myAlign = DTchambers.at(index[wheel][station][sector]);
+        Alignable* myAlign = DTchambers.at(wheel[station][sector]);
         this->moveChamberInSector(myAlign, disp, rotation, errorDisp, errorRotation);
         if (sector == 3 && station == 3) {
-          Alignable* myAlignD = DTchambers.at(index[wheel][station][12]);
+          Alignable* myAlignD = DTchambers.at(wheel[station][12]);
           this->moveChamberInSector(myAlignD, disp, rotation, errorDisp, errorRotation);
         } else if (sector == 9 && station == 3) {
-          Alignable* myAlignD = DTchambers.at(index[wheel][station][13]);
+          Alignable* myAlignD = DTchambers.at(wheel[station][13]);
           this->moveChamberInSector(myAlignD, disp, rotation, errorDisp, errorRotation);
         }
       }
@@ -291,10 +291,10 @@ void MuonScenarioBuilder::moveCSCSectors(const edm::ParameterSet& pSet) {
               r_ring[0] = 1;
               r_ring[1] = 2;
             }
-            for (int r_counter = 0; r_counter < 2; r_counter++) {
+            for (int r_counter : r_ring) {
               for (int chamber = 0; chamber < 36; chamber++) {
-                if (sector == (sector_index[endcap][station][r_ring[r_counter]][chamber] + 1) / 2) {
-                  Alignable* myAlign = CSCchambers.at(index[endcap][station][r_ring[r_counter]][chamber]);
+                if (sector == (sector_index[endcap][station][r_counter][chamber] + 1) / 2) {
+                  Alignable* myAlign = CSCchambers.at(index[endcap][station][r_counter][chamber]);
                   this->moveChamberInSector(myAlign, disp, rotation, errorDisp, errorRotation);
                 }
               }

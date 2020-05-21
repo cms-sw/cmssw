@@ -19,16 +19,16 @@ HLTPerformanceInfo::Modules::iterator HLTPerformanceInfo::findModule(const char*
 
 double HLTPerformanceInfo::totalTime() const {
   double t = 0;
-  for (size_t i = 0; i < modules_.size(); ++i) {
-    t += modules_[i].time();
+  for (const auto& module : modules_) {
+    t += module.time();
   }
   return t;
 }
 
 double HLTPerformanceInfo::totalCPUTime() const {
   double t = 0;
-  for (size_t i = 0; i < modules_.size(); ++i) {
-    t += modules_[i].cputime();
+  for (const auto& module : modules_) {
+    t += module.cputime();
   }
   return t;
 }
@@ -61,16 +61,16 @@ double HLTPerformanceInfo::totalPathCPUTime(const size_t pathnumber) {
 
 double HLTPerformanceInfo::longestModuleTime() const {
   double t = -1;
-  for (Modules::const_iterator i = modules_.begin(); i != modules_.end(); ++i) {
-    t = std::max(i->time(), t);
+  for (const auto& module : modules_) {
+    t = std::max(module.time(), t);
   }
   return t;
 }
 
 double HLTPerformanceInfo::longestModuleCPUTime() const {
   double t = -1;
-  for (Modules::const_iterator i = modules_.begin(); i != modules_.end(); ++i) {
-    t = std::max(i->cputime(), t);
+  for (const auto& module : modules_) {
+    t = std::max(module.cputime(), t);
   }
   return t;
 }
@@ -78,10 +78,10 @@ double HLTPerformanceInfo::longestModuleCPUTime() const {
 std::string HLTPerformanceInfo::longestModuleTimeName() const {
   double t = -1;
   std::string slowpoke("unknown");
-  for (Modules::const_iterator i = modules_.begin(); i != modules_.end(); ++i) {
-    if (i->time() > t) {
-      slowpoke = i->name();
-      t = i->time();
+  for (const auto& module : modules_) {
+    if (module.time() > t) {
+      slowpoke = module.name();
+      t = module.time();
     }
   }
   return slowpoke;
@@ -90,10 +90,10 @@ std::string HLTPerformanceInfo::longestModuleTimeName() const {
 std::string HLTPerformanceInfo::longestModuleCPUTimeName() const {
   double t = -1;
   std::string slowpoke("unknown");
-  for (Modules::const_iterator i = modules_.begin(); i != modules_.end(); ++i) {
-    if (i->cputime() > t) {
-      slowpoke = i->name();
-      t = i->cputime();
+  for (const auto& module : modules_) {
+    if (module.cputime() > t) {
+      slowpoke = module.name();
+      t = module.cputime();
     }
   }
   return slowpoke;
@@ -121,9 +121,9 @@ const HLTPerformanceInfo::Module& HLTPerformanceInfo::getModuleOnPath(size_t m, 
 
 bool HLTPerformanceInfo::uniqueModule(const char* mod) const {
   int mCtr = 0;
-  for (size_t p = 0; p < paths_.size(); ++p) {
-    for (size_t m = 0; m < paths_[p].numberOfModules(); ++m) {
-      size_t modIndex = paths_[p].getModuleIndex(m);
+  for (const auto& path : paths_) {
+    for (size_t m = 0; m < path.numberOfModules(); ++m) {
+      size_t modIndex = path.getModuleIndex(m);
       if (modules_[modIndex].name() == std::string(mod))
         ++mCtr;
       if (mCtr > 1)
@@ -141,8 +141,8 @@ int HLTPerformanceInfo::moduleIndexInPath(const char* mod, const char* path) {
   if (p == endPaths())
     return -1;  // Path doesn't exist
   int ctr = 0;
-  for (ModulesInPath::const_iterator j = p->begin(); j != p->end(); ++j) {
-    if (modules_.at(*j) == mod)
+  for (unsigned int j : *p) {
+    if (modules_.at(j) == mod)
       return ctr;
     ctr++;
   }

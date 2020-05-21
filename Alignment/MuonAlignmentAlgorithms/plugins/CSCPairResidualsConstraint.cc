@@ -92,10 +92,8 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
   std::vector<const TransientTrackingRecHit *> hits_i;
   std::vector<const TransientTrackingRecHit *> hits_j;
 
-  for (std::vector<TrajectoryMeasurement>::const_iterator measurement = measurements.begin();
-       measurement != measurements.end();
-       ++measurement) {
-    const TransientTrackingRecHit *hit = &*(measurement->recHit());
+  for (const auto &measurement : measurements) {
+    const TransientTrackingRecHit *hit = &*(measurement.recHit());
 
     DetId id = hit->geographicalId();
     if (id.det() == DetId::Muon && id.subdetId() == MuonSubdetId::CSC) {
@@ -140,11 +138,10 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
     if (dphidzFromTrack(measurements, track, trackTransformer, dphidz)) {
       double sum1_i = 0.;
       double sumy_i = 0.;
-      for (std::vector<const TransientTrackingRecHit *>::const_iterator hit = hits_i.begin(); hit != hits_i.end();
-           ++hit) {
+      for (auto hit : hits_i) {
         double phi, phierr2;
-        calculatePhi(*hit, phi, phierr2, false, true);
-        double z = (*hit)->globalPosition().z() - m_Zplane;
+        calculatePhi(hit, phi, phierr2, false, true);
+        double z = hit->globalPosition().z() - m_Zplane;
 
         double weight = 1.;
         if (m_parent->m_useHitWeights)
@@ -155,11 +152,10 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
 
       double sum1_j = 0.;
       double sumy_j = 0.;
-      for (std::vector<const TransientTrackingRecHit *>::const_iterator hit = hits_j.begin(); hit != hits_j.end();
-           ++hit) {
+      for (auto hit : hits_j) {
         double phi, phierr2;
-        calculatePhi(*hit, phi, phierr2, false, true);
-        double z = (*hit)->globalPosition().z() - m_Zplane;
+        calculatePhi(hit, phi, phierr2, false, true);
+        double z = hit->globalPosition().z() - m_Zplane;
 
         double weight = 1.;
         if (m_parent->m_useHitWeights)
@@ -187,11 +183,10 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
     double sumy_i = 0.;
     double sumxx_i = 0.;
     double sumxy_i = 0.;
-    for (std::vector<const TransientTrackingRecHit *>::const_iterator hit = hits_i.begin(); hit != hits_i.end();
-         ++hit) {
+    for (auto hit : hits_i) {
       double phi, phierr2;
-      calculatePhi(*hit, phi, phierr2, false, true);
-      double z = (*hit)->globalPosition().z() - m_Zplane;
+      calculatePhi(hit, phi, phierr2, false, true);
+      double z = hit->globalPosition().z() - m_Zplane;
 
       double weight = 1.;
       if (m_parent->m_useHitWeights)
@@ -208,11 +203,10 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
     double sumy_j = 0.;
     double sumxx_j = 0.;
     double sumxy_j = 0.;
-    for (std::vector<const TransientTrackingRecHit *>::const_iterator hit = hits_j.begin(); hit != hits_j.end();
-         ++hit) {
+    for (auto hit : hits_j) {
       double phi, phierr2;
-      calculatePhi(*hit, phi, phierr2, false, true);
-      double z = (*hit)->globalPosition().z() - m_Zplane;
+      calculatePhi(hit, phi, phierr2, false, true);
+      double z = hit->globalPosition().z() - m_Zplane;
 
       double weight = 1.;
       if (m_parent->m_useHitWeights)
@@ -246,9 +240,9 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
   double sumy_ri = 0.;
   double sumxx_ri = 0.;
   double sumxy_ri = 0.;
-  for (std::vector<const TransientTrackingRecHit *>::const_iterator hit = hits_i.begin(); hit != hits_i.end(); ++hit) {
-    double r = (*hit)->globalPosition().perp();
-    double z = (*hit)->globalPosition().z() - m_Zplane;
+  for (auto hit : hits_i) {
+    double r = hit->globalPosition().perp();
+    double z = hit->globalPosition().z() - m_Zplane;
     sum1_ri += 1.;
     sumx_ri += z;
     sumy_ri += r;
@@ -267,9 +261,9 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
   double sumy_rj = 0.;
   double sumxx_rj = 0.;
   double sumxy_rj = 0.;
-  for (std::vector<const TransientTrackingRecHit *>::const_iterator hit = hits_j.begin(); hit != hits_j.end(); ++hit) {
-    double r = (*hit)->globalPosition().perp();
-    double z = (*hit)->globalPosition().z() - m_Zplane;
+  for (auto hit : hits_j) {
+    double r = hit->globalPosition().perp();
+    double z = hit->globalPosition().z() - m_Zplane;
     sum1_rj += 1.;
     sumx_rj += z;
     sumy_rj += r;
@@ -466,10 +460,8 @@ bool CSCPairResidualsConstraint::dphidzFromTrack(const std::vector<TrajectoryMea
   std::map<int, int> stations;
   int total = 0;
   TransientTrackingRecHit::ConstRecHitContainer cscHits;
-  for (std::vector<TrajectoryMeasurement>::const_iterator measurement = measurements.begin();
-       measurement != measurements.end();
-       ++measurement) {
-    DetId id = measurement->recHit()->geographicalId();
+  for (const auto &measurement : measurements) {
+    DetId id = measurement.recHit()->geographicalId();
     if (id.det() == DetId::Muon && id.subdetId() == MuonSubdetId::CSC) {
       CSCDetId cscid(id.rawId());
       CSCDetId chamberId(cscid.endcap(), cscid.station(), cscid.ring(), cscid.chamber(), 0);
@@ -484,7 +476,7 @@ bool CSCPairResidualsConstraint::dphidzFromTrack(const std::vector<TrajectoryMea
         stations[station]++;
         total++;
 
-        cscHits.push_back(measurement->recHit());
+        cscHits.push_back(measurement.recHit());
       }
     }
   }
@@ -508,21 +500,19 @@ bool CSCPairResidualsConstraint::dphidzFromTrack(const std::vector<TrajectoryMea
       bool found_plus = false;
       bool found_minus = false;
       TrajectoryStateOnSurface tsos_plus, tsos_minus;
-      for (std::vector<TrajectoryMeasurement>::const_iterator measurement = measurements2.begin();
-           measurement != measurements2.end();
-           ++measurement) {
-        double z = measurement->recHit()->globalPosition().z();
+      for (const auto &measurement : measurements2) {
+        double z = measurement.recHit()->globalPosition().z();
         if (z > m_Zplane) {
           if (!found_plus || fabs(z - m_Zplane) < fabs(tsos_plus.globalPosition().z() - m_Zplane)) {
-            tsos_plus = TrajectoryStateCombiner().combine(measurement->forwardPredictedState(),
-                                                          measurement->backwardPredictedState());
+            tsos_plus = TrajectoryStateCombiner().combine(measurement.forwardPredictedState(),
+                                                          measurement.backwardPredictedState());
           }
           if (tsos_plus.isValid())
             found_plus = true;
         } else {
           if (!found_minus || fabs(z - m_Zplane) < fabs(tsos_minus.globalPosition().z() - m_Zplane)) {
-            tsos_minus = TrajectoryStateCombiner().combine(measurement->forwardPredictedState(),
-                                                           measurement->backwardPredictedState());
+            tsos_minus = TrajectoryStateCombiner().combine(measurement.forwardPredictedState(),
+                                                           measurement.backwardPredictedState());
           }
           if (tsos_minus.isValid())
             found_minus = true;
@@ -703,11 +693,11 @@ bool CSCPairResidualsConstraint::isFiducial(std::vector<const TransientTrackingR
   double sumy = 0.;
   double sumxx = 0.;
   double sumxy = 0.;
-  for (std::vector<const TransientTrackingRecHit *>::const_iterator hit = hits.begin(); hit != hits.end(); ++hit) {
+  for (auto hit : hits) {
     double phi, phierr2;
-    calculatePhi(*hit, phi, phierr2);
+    calculatePhi(hit, phi, phierr2);
     double z = (is_i ? m_cscGeometry->idToDet(m_id_i)->surface() : m_cscGeometry->idToDet(m_id_j)->surface())
-                   .toLocal((*hit)->globalPosition())
+                   .toLocal(hit->globalPosition())
                    .z();
 
     if (m_parent->m_makeHistograms) {

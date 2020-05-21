@@ -56,8 +56,8 @@ FWConfigurableParameterizable::~FWConfigurableParameterizable() {}
 void FWConfigurableParameterizable::setFrom(const FWConfiguration& iFrom) {
   //need a way to handle versioning
   assert(iFrom.version() == m_version);
-  for (const_iterator it = begin(), itEnd = end(); it != itEnd; ++it) {
-    (*it)->setFrom(iFrom);
+  for (auto it : *this) {
+    it->setFrom(iFrom);
   }
 }
 
@@ -65,8 +65,8 @@ void FWConfigurableParameterizable::setFrom(const FWConfiguration& iFrom) {
 // const member functions
 //
 void FWConfigurableParameterizable::addTo(FWConfiguration& oTo) const {
-  for (const_iterator it = begin(), itEnd = end(); it != itEnd; ++it) {
-    (*it)->addTo(oTo);
+  for (auto it : *this) {
+    it->addTo(oTo);
   }
 }
 

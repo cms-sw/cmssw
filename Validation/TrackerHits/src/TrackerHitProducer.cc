@@ -164,20 +164,20 @@ void TrackerHitProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSet
     if (printProvenanceInfo && (verbosity > 0)) {
       TString eventout("\nProvenance info:\n");
 
-      for (unsigned int i = 0; i < AllProv.size(); ++i) {
+      for (auto &i : AllProv) {
         eventout += "\n       ******************************";
         eventout += "\n       Module       : ";
-        eventout += AllProv[i]->moduleLabel();
+        eventout += i->moduleLabel();
         eventout += "\n       ProductID process index: ";
-        eventout += AllProv[i]->productID().processIndex();
+        eventout += i->productID().processIndex();
         eventout += "\n       ProductID product index: ";
-        eventout += AllProv[i]->productID().productIndex();
+        eventout += i->productID().productIndex();
         eventout += "\n       ClassName    : ";
-        eventout += AllProv[i]->className();
+        eventout += i->className();
         eventout += "\n       InstanceName : ";
-        eventout += AllProv[i]->productInstanceName();
+        eventout += i->productInstanceName();
         eventout += "\n       BranchName   : ";
-        eventout += AllProv[i]->branchName();
+        eventout += i->branchName();
       }
       eventout += "       ******************************\n";
       edm::LogInfo("TrackerHitProducer::produce") << eventout;

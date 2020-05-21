@@ -204,8 +204,8 @@ bool AntiElectronIDCut2::isInEcalCrack(double eta) const {
   bool in_ecal_crack = false;
 
   eta = fabs(eta);
-  for (std::vector<pdouble>::const_iterator etaCrack = ecalCracks_.begin(); etaCrack != ecalCracks_.end(); ++etaCrack)
-    if (eta >= etaCrack->first && eta < etaCrack->second)
+  for (const auto& ecalCrack : ecalCracks_)
+    if (eta >= ecalCrack.first && eta < ecalCrack.second)
       in_ecal_crack = true;
 
   return in_ecal_crack;

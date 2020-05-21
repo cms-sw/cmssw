@@ -51,8 +51,8 @@ void SimpleSystematicsAnalyzer::beginJob() {
   originalEvents_ = 0;
   selectedEvents_ = 0;
   edm::LogVerbatim("SimpleSystematicsAnalysis") << "Uncertainties will be determined for the following tags: ";
-  for (unsigned int i = 0; i < weightTags_.size(); ++i) {
-    edm::LogVerbatim("SimpleSystematicsAnalysis") << "\t" << weightTags_[i].encode();
+  for (auto& weightTag : weightTags_) {
+    edm::LogVerbatim("SimpleSystematicsAnalysis") << "\t" << weightTag.encode();
     weightedEvents_.push_back(0.);
     weightedSelectedEvents_.push_back(0.);
     weighted2SelectedEvents_.push_back(0.);

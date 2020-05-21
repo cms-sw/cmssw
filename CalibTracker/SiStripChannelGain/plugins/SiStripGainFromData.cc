@@ -578,13 +578,13 @@ void SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup) {
   //   }
 
   unsigned int Id = 0;
-  for (unsigned int i = 0; i < Det.size(); i++) {
-    DetId Detid = Det[i]->geographicalId();
+  for (auto i : Det) {
+    DetId Detid = i->geographicalId();
     int SubDet = Detid.subdetId();
 
     if (SubDet == StripSubdetector::TIB || SubDet == StripSubdetector::TID || SubDet == StripSubdetector::TOB ||
         SubDet == StripSubdetector::TEC) {
-      auto DetUnit = dynamic_cast<StripGeomDetUnit const*>(Det[i]);
+      auto DetUnit = dynamic_cast<StripGeomDetUnit const*>(i);
       if (!DetUnit)
         continue;
 
@@ -647,20 +647,20 @@ void SiStripGainFromData::algoEndJob() {
     TH1::AddDirectory(kTRUE);
 
     TFile* file = nullptr;
-    for (unsigned int f = 0; f < VInputFiles.size(); f++) {
-      printf("Loading New Input File : %s\n", VInputFiles[f].c_str());
+    for (auto& VInputFile : VInputFiles) {
+      printf("Loading New Input File : %s\n", VInputFile.c_str());
       if (CheckIfFileExist) {
-        FILE* doesFileExist = fopen(VInputFiles[f].c_str(), "r");
+        FILE* doesFileExist = fopen(VInputFile.c_str(), "r");
         if (!doesFileExist) {
-          printf("File %s doesn't exist\n", VInputFiles[f].c_str());
+          printf("File %s doesn't exist\n", VInputFile.c_str());
           continue;
         } else {
           fclose(doesFileExist);
         }
       }
-      file = new TFile(VInputFiles[f].c_str());
+      file = new TFile(VInputFile.c_str());
       if (!file || file->IsZombie()) {
-        printf("### Bug With File %s\n### File will be skipped \n", VInputFiles[f].c_str());
+        printf("### Bug With File %s\n### File will be skipped \n", VInputFile.c_str());
         continue;
       }
       APV_Charge->Add((TH1*)file->FindObjectAny("APV_Charge"), 1);
@@ -760,8 +760,8 @@ void SiStripGainFromData::algoEndJob() {
         }
       } else if (CalibrationLevel > 1) {
         //	     printf("%8i %i--> %4.0f + %4.0f\n",APV->DetId, APV->APVId, 0.0, Proj->GetEntries());
-        for (auto it2 = APVsColl.begin(); it2 != APVsColl.end(); it2++) {
-          stAPVGain* APV2 = it2->second;
+        for (auto& it2 : APVsColl) {
+          stAPVGain* APV2 = it2.second;
 
           if (APV2->DetId != APV->DetId)
             continue;
@@ -891,8 +891,8 @@ void SiStripGainFromData::algoEndJob() {
     unsigned int BAD = 0;
     double MPVmean = MPVs->GetMean();
     MPVmean = 300;
-    for (auto it = APVsColl.begin(); it != APVsColl.end(); it++) {
-      stAPVGain* APV = it->second;
+    for (auto& it : APVsColl) {
+      stAPVGain* APV = it.second;
       if (APV->MPV > 0) {
         APV->Gain = APV->MPV / MPVmean;  // APV->MPV;
         GOOD++;
@@ -1097,8 +1097,7 @@ void SiStripGainFromData::algoEndJob() {
     fprintf(Gains, "NEvents = %i\n", NEvent);
     fprintf(Gains, "Number of APVs = %lu\n", static_cast<unsigned long>(APVsColl.size()));
     fprintf(Gains, "GoodFits = %i BadFits = %i ratio = %f\n", GOOD, BAD, (100.0 * GOOD) / (GOOD + BAD));
-    for (std::vector<stAPVGain*>::iterator it = APVsCollOrdered.begin(); it != APVsCollOrdered.end(); it++) {
-      stAPVGain* APV = *it;
+    for (auto APV : APVsCollOrdered) {
       fprintf(Gains,
               "%i | %i | PreviousGain = %7.5f NewGain = %7.5f\n",
               APV->DetId,
@@ -1109,8 +1108,7 @@ void SiStripGainFromData::algoEndJob() {
 
     std::vector<int> DetIdOfBuggedAPV;
     fprintf(Gains, "----------------------------------------------------------------------\n");
-    for (std::vector<stAPVGain*>::iterator it = APVsCollOrdered.begin(); it != APVsCollOrdered.end(); it++) {
-      stAPVGain* APV = *it;
+    for (auto APV : APVsCollOrdered) {
       if (APV->MPV > 0 && APV->MPV < 200) {
         bool tmpBug = false;
         for (unsigned int b = 0; b < DetIdOfBuggedAPV.size() && !tmpBug; b++) {
@@ -1143,9 +1141,7 @@ void SiStripGainFromData::algoBeginRun(const edm::Run&, const edm::EventSetup& i
       exit(0);
     }
 
-    for (std::vector<stAPVGain*>::iterator it = APVsCollOrdered.begin(); it != APVsCollOrdered.end(); it++) {
-      stAPVGain* APV = *it;
-
+    for (auto APV : APVsCollOrdered) {
       if (gainHandle.isValid()) {
         SiStripApvGain::Range detGainRange = gainHandle->getRange(APV->DetId);
         APV->PreviousGain = *(detGainRange.first + APV->APVId);
@@ -1180,9 +1176,9 @@ void SiStripGainFromData::algoAnalyze(const edm::Event& iEvent, const edm::Event
   iEvent.getByLabel(TrajToTrackProducer, TrajToTrackLabel, trajTrackAssociationHandle);
   const TrajTrackAssociationCollection TrajToTrackMap = *trajTrackAssociationHandle.product();
 
-  for (TrajTrackAssociationCollection::const_iterator it = TrajToTrackMap.begin(); it != TrajToTrackMap.end(); ++it) {
-    const Track track = *it->val;
-    const Trajectory traj = *it->key;
+  for (const auto& it : TrajToTrackMap) {
+    const Track track = *it.val;
+    const Trajectory traj = *it.key;
 
     if (track.p() < MinTrackMomentum || track.p() > MaxTrackMomentum || track.eta() < MinTrackEta ||
         track.eta() > MaxTrackEta)
@@ -1195,10 +1191,9 @@ void SiStripGainFromData::algoAnalyze(const edm::Event& iEvent, const edm::Event
     int ndof = 0;
     const Trajectory::RecHitContainer transRecHits = traj.recHits();
 
-    for (Trajectory::RecHitContainer::const_iterator rechit = transRecHits.begin(); rechit != transRecHits.end();
-         ++rechit)
-      if ((*rechit)->isValid())
-        ndof += (*rechit)->dimension();
+    for (const auto& transRecHit : transRecHits)
+      if (transRecHit->isValid())
+        ndof += transRecHit->dimension();
     ndof -= 5;
     //END TO COMPUTE NDOF FOR TRACKS NO IMPLEMENTED BEFORE 200pre3
 
@@ -1230,14 +1225,12 @@ void SiStripGainFromData::algoAnalyze(const edm::Event& iEvent, const edm::Event
       }
 */
 
-    for (vector<TrajectoryMeasurement>::const_iterator measurement_it = measurements.begin();
-         measurement_it != measurements.end();
-         measurement_it++) {
-      TrajectoryStateOnSurface trajState = measurement_it->updatedState();
+    for (const auto& measurement : measurements) {
+      TrajectoryStateOnSurface trajState = measurement.updatedState();
       if (!trajState.isValid())
         continue;
 
-      const TrackingRecHit* hit = (*measurement_it->recHit()).hit();
+      const TrackingRecHit* hit = (*measurement.recHit()).hit();
       const SiStripRecHit1D* sistripsimple1dhit = dynamic_cast<const SiStripRecHit1D*>(hit);
       const SiStripRecHit2D* sistripsimplehit = dynamic_cast<const SiStripRecHit2D*>(hit);
       const SiStripMatchedRecHit2D* sistripmatchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
@@ -1326,11 +1319,11 @@ double SiStripGainFromData::ComputeChargeOverPath(const SiStripCluster* Cluster,
    if(Overlaping)return -1;
 */
 
-  for (unsigned int a = 0; a < Ampls.size(); a++) {
-    Charge += Ampls[a];
-    if (Ampls[a] >= 254)
+  for (unsigned char Ampl : Ampls) {
+    Charge += Ampl;
+    if (Ampl >= 254)
       Saturation++;
-    if (Ampls[a] >= 20)
+    if (Ampl >= 20)
       NHighStrip++;
   }
   double path = (10.0 * APV->Thickness) / fabs(cosine);
@@ -1498,8 +1491,7 @@ std::unique_ptr<SiStripApvGain> SiStripGainFromData::getNewObject() {
   auto obj = std::make_unique<SiStripApvGain>();
   std::vector<float>* theSiStripVector = nullptr;
   int PreviousDetId = -1;
-  for (unsigned int a = 0; a < APVsCollOrdered.size(); a++) {
-    stAPVGain* APV = APVsCollOrdered[a];
+  for (auto APV : APVsCollOrdered) {
     if (APV == nullptr) {
       printf("Bug\n");
       continue;

@@ -35,10 +35,10 @@ DQMRivetClient::DQMRivetClient(const ParameterSet& pset) {
 
   // Parse Normalization commands
   vstring normCmds = pset.getUntrackedParameter<vstring>("normalizationToIntegral", vstring());
-  for (vstring::const_iterator normCmd = normCmds.begin(); normCmd != normCmds.end(); ++normCmd) {
-    if (normCmd->empty())
+  for (const auto& normCmd : normCmds) {
+    if (normCmd.empty())
       continue;
-    boost::tokenizer<elsc> tokens(*normCmd, commonEscapes);
+    boost::tokenizer<elsc> tokens(normCmd, commonEscapes);
 
     vector<string> args;
     for (boost::tokenizer<elsc>::const_iterator iToken = tokens.begin(); iToken != tokens.end(); ++iToken) {
@@ -60,20 +60,20 @@ DQMRivetClient::DQMRivetClient(const ParameterSet& pset) {
   }
 
   VPSet normSets = pset.getUntrackedParameter<VPSet>("normalizationToIntegralSets", VPSet());
-  for (VPSet::const_iterator normSet = normSets.begin(); normSet != normSets.end(); ++normSet) {
+  for (const auto& normSet : normSets) {
     NormOption opt;
-    opt.name = normSet->getUntrackedParameter<string>("name");
-    opt.normHistName = normSet->getUntrackedParameter<string>("normalizedTo", opt.name);
+    opt.name = normSet.getUntrackedParameter<string>("name");
+    opt.normHistName = normSet.getUntrackedParameter<string>("normalizedTo", opt.name);
 
     normOptions_.push_back(opt);
   }
 
   //normalize to lumi
   vstring lumiCmds = pset.getUntrackedParameter<vstring>("normalizationToLumi", vstring());
-  for (vstring::const_iterator lumiCmd = lumiCmds.begin(); lumiCmd != lumiCmds.end(); ++lumiCmd) {
-    if (lumiCmd->empty())
+  for (const auto& lumiCmd : lumiCmds) {
+    if (lumiCmd.empty())
       continue;
-    boost::tokenizer<elsc> tokens(*lumiCmd, commonEscapes);
+    boost::tokenizer<elsc> tokens(lumiCmd, commonEscapes);
 
     vector<string> args;
     for (boost::tokenizer<elsc>::const_iterator iToken = tokens.begin(); iToken != tokens.end(); ++iToken) {
@@ -99,10 +99,10 @@ DQMRivetClient::DQMRivetClient(const ParameterSet& pset) {
 
   //multiply by a number
   vstring scaleCmds = pset.getUntrackedParameter<vstring>("scaleBy", vstring());
-  for (vstring::const_iterator scaleCmd = scaleCmds.begin(); scaleCmd != scaleCmds.end(); ++scaleCmd) {
-    if (scaleCmd->empty())
+  for (const auto& scaleCmd : scaleCmds) {
+    if (scaleCmd.empty())
       continue;
-    boost::tokenizer<elsc> tokens(*scaleCmd, commonEscapes);
+    boost::tokenizer<elsc> tokens(scaleCmd, commonEscapes);
 
     vector<string> args;
     for (boost::tokenizer<elsc>::const_iterator iToken = tokens.begin(); iToken != tokens.end(); ++iToken) {
@@ -148,37 +148,28 @@ void DQMRivetClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
   // Process wildcard in the sub-directory
   set<string> subDirSet;
 
-  for (vstring::const_iterator iSubDir = subDirs_.begin(); iSubDir != subDirs_.end(); ++iSubDir) {
-    string subDir = *iSubDir;
-
+  for (auto subDir : subDirs_) {
     if (subDir[subDir.size() - 1] == '/')
       subDir.erase(subDir.size() - 1);
 
     subDirSet.insert(subDir);
   }
 
-  for (set<string>::const_iterator iSubDir = subDirSet.begin(); iSubDir != subDirSet.end(); ++iSubDir) {
-    const string& dirName = *iSubDir;
-    for (vector<NormOption>::const_iterator normOption = normOptions_.begin(); normOption != normOptions_.end();
-         ++normOption) {
-      normalizeToIntegral(dirName, normOption->name, normOption->normHistName);
+  for (const auto& dirName : subDirSet) {
+    for (const auto& normOption : normOptions_) {
+      normalizeToIntegral(dirName, normOption.name, normOption.normHistName);
     }
   }
 
-  for (set<string>::const_iterator iSubDir = subDirSet.begin(); iSubDir != subDirSet.end(); ++iSubDir) {
-    const string& dirName = *iSubDir;
-    for (vector<LumiOption>::const_iterator lumiOption = lumiOptions_.begin(); lumiOption != lumiOptions_.end();
-         ++lumiOption) {
-      normalizeToLumi(dirName, lumiOption->name, lumiOption->normHistName, lumiOption->xsection);
+  for (const auto& dirName : subDirSet) {
+    for (const auto& lumiOption : lumiOptions_) {
+      normalizeToLumi(dirName, lumiOption.name, lumiOption.normHistName, lumiOption.xsection);
     }
   }
 
-  for (set<string>::const_iterator iSubDir = subDirSet.begin(); iSubDir != subDirSet.end(); ++iSubDir) {
-    const string& dirName = *iSubDir;
-    for (vector<ScaleFactorOption>::const_iterator scaleOption = scaleOptions_.begin();
-         scaleOption != scaleOptions_.end();
-         ++scaleOption) {
-      scaleByFactor(dirName, scaleOption->name, scaleOption->scale);
+  for (const auto& dirName : subDirSet) {
+    for (const auto& scaleOption : scaleOptions_) {
+      scaleByFactor(dirName, scaleOption.name, scaleOption.scale);
     }
   }
 

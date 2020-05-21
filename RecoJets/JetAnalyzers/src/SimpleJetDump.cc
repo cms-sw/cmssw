@@ -42,14 +42,14 @@ void SimpleJetDump::analyze(const Event& evt, const EventSetup& es) {
        << ", Num Gen Jets=" << genJets->end() - genJets->begin() << endl;
   cout << "   *********************************************************" << endl;
   jetInd = 0;
-  for (CaloJetCollection::const_iterator jet = caloJets->begin(); jet != caloJets->end(); ++jet) {
-    cout << "Calo Jet: " << jetInd << ", pt=" << jet->pt() << ", eta=" << jet->eta() << ", phi=" << jet->phi() << endl;
+  for (const auto& jet : *caloJets) {
+    cout << "Calo Jet: " << jetInd << ", pt=" << jet.pt() << ", eta=" << jet.eta() << ", phi=" << jet.phi() << endl;
     jetInd++;
   }
   cout << "   *********************************************************" << endl;
   jetInd = 0;
-  for (GenJetCollection::const_iterator jet = genJets->begin(); jet != genJets->end(); ++jet) {
-    cout << "Gen Jet: " << jetInd << ", pt=" << jet->pt() << ", eta=" << jet->eta() << ", phi=" << jet->phi() << endl;
+  for (const auto& jet : *genJets) {
+    cout << "Gen Jet: " << jetInd << ", pt=" << jet.pt() << ", eta=" << jet.eta() << ", phi=" << jet.phi() << endl;
     jetInd++;
   }
   evtCount++;

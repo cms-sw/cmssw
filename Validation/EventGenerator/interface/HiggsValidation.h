@@ -50,8 +50,8 @@ private:
     MonitoredDecays(const edm::ParameterSet &iConfig) {
       fillMap();
       std::vector<std::string> input = iConfig.getParameter<std::vector<std::string> >("monitorDecays");
-      for (std::vector<std::string>::const_iterator i = input.begin(); i != input.end(); ++i) {
-        fill(*i);
+      for (const auto &i : input) {
+        fill(i);
       }
     }
 

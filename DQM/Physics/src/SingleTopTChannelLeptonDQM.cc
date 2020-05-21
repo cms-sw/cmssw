@@ -735,19 +735,18 @@ SingleTopTChannelLeptonDQM::SingleTopTChannelLeptonDQM(const edm::ParameterSet& 
   // configure the selection
   std::vector<edm::ParameterSet> sel = cfg.getParameter<std::vector<edm::ParameterSet>>("selection");
 
-  for (unsigned int i = 0; i < sel.size(); ++i) {
-    selectionOrder_.push_back(sel.at(i).getParameter<std::string>("label"));
+  for (auto& i : sel) {
+    selectionOrder_.push_back(i.getParameter<std::string>("label"));
     selection_[selectionStep(selectionOrder_.back())] = std::make_pair(
-        sel.at(i),
+        i,
         std::unique_ptr<SingleTopTChannelLepton::MonitorEnsemble>(
             new SingleTopTChannelLepton::MonitorEnsemble(selectionStep(selectionOrder_.back()).c_str(),
                                                          cfg.getParameter<edm::ParameterSet>("setup"),
                                                          cfg.getParameter<std::vector<edm::ParameterSet>>("selection"),
                                                          consumesCollector())));
   }
-  for (std::vector<std::string>::const_iterator selIt = selectionOrder_.begin(); selIt != selectionOrder_.end();
-       ++selIt) {
-    std::string key = selectionStep(*selIt), type = objectType(*selIt);
+  for (const auto& selIt : selectionOrder_) {
+    std::string key = selectionStep(selIt), type = objectType(selIt);
     if (selection_.find(key) != selection_.end()) {
       using std::unique_ptr;
 
@@ -785,8 +784,8 @@ SingleTopTChannelLeptonDQM::SingleTopTChannelLeptonDQM(const edm::ParameterSet& 
   }
 }
 void SingleTopTChannelLeptonDQM::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) {
-  for (auto selIt = selection_.begin(); selIt != selection_.end(); ++selIt) {
-    selIt->second.second->book(ibooker);
+  for (auto& selIt : selection_) {
+    selIt.second.second->book(ibooker);
   }
 }
 void SingleTopTChannelLeptonDQM::analyze(const edm::Event& event, const edm::EventSetup& setup) {
@@ -809,9 +808,8 @@ void SingleTopTChannelLeptonDQM::analyze(const edm::Event& event, const edm::Eve
   unsigned int nJetSteps = -1;
   unsigned int nPFJetSteps = -1;
   unsigned int nCaloJetSteps = -1;
-  for (std::vector<std::string>::const_iterator selIt = selectionOrder_.begin(); selIt != selectionOrder_.end();
-       ++selIt) {
-    std::string key = selectionStep(*selIt), type = objectType(*selIt);
+  for (const auto& selIt : selectionOrder_) {
+    std::string key = selectionStep(selIt), type = objectType(selIt);
     if (selection_.find(key) != selection_.end()) {
       if (type == "empty") {
         selection_[key].second->fill(event, setup);

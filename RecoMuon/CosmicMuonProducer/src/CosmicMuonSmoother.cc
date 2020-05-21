@@ -226,9 +226,9 @@ vector<Trajectory> CosmicMuonSmoother::fit(const TrajectorySeed& seed,
 
   std::vector<TrajectoryMeasurement> mytms = myTraj.measurements();
   LogTrace(category_) << "fit result " << mytms.size();
-  for (std::vector<TrajectoryMeasurement>::const_iterator itm = mytms.begin(); itm != mytms.end(); ++itm) {
-    LogTrace(category_) << "updated pos " << itm->updatedState().globalPosition() << "mom "
-                        << itm->updatedState().globalMomentum();
+  for (const auto& mytm : mytms) {
+    LogTrace(category_) << "updated pos " << mytm.updatedState().globalPosition() << "mom "
+                        << mytm.updatedState().globalMomentum();
   }
 
   return vector<Trajectory>(1, myTraj);
@@ -240,8 +240,8 @@ vector<Trajectory> CosmicMuonSmoother::fit(const TrajectorySeed& seed,
 vector<Trajectory> CosmicMuonSmoother::smooth(const vector<Trajectory>& tc) const {
   vector<Trajectory> result;
 
-  for (vector<Trajectory>::const_iterator it = tc.begin(); it != tc.end(); ++it) {
-    vector<Trajectory> smoothed = smooth(*it);
+  for (const auto& it : tc) {
+    vector<Trajectory> smoothed = smooth(it);
     result.insert(result.end(), smoothed.begin(), smoothed.end());
   }
 

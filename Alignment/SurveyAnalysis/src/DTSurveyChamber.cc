@@ -38,10 +38,10 @@ TMatrixD &DTSurveyChamber::makeVector() {
   TMatrixD *result = new TMatrixD(3 * getNumberPoints(), 1);
   result->Zero();
   int real = 0;
-  for (std::vector<TMatrixD>::iterator p = pointsDiff.begin(); p != pointsDiff.end(); ++p) {
-    (*result)(real * 3, 0) = (*p)(0, 0);
-    (*result)(real * 3 + 1, 0) = (*p)(1, 0);
-    (*result)(real * 3 + 2, 0) = (*p)(2, 0);
+  for (auto &p : pointsDiff) {
+    (*result)(real * 3, 0) = p(0, 0);
+    (*result)(real * 3 + 1, 0) = p(1, 0);
+    (*result)(real * 3 + 2, 0) = p(2, 0);
     ++real;
   }
   return *result;
@@ -51,8 +51,8 @@ TMatrixD &DTSurveyChamber::makeErrors() {
   TMatrixD *result = new TMatrixD(3 * getNumberPoints(), 3 * getNumberPoints());
   result->Zero();
   int real = 0;
-  for (std::vector<TMatrixD>::iterator p = pointsError.begin(); p != pointsError.end(); ++p) {
-    double rmsn = 1.0 / ((*p)(0, 0) * (*p)(0, 0));
+  for (auto &p : pointsError) {
+    double rmsn = 1.0 / (p(0, 0) * p(0, 0));
     (*result)(real * 3, real * 3) = rmsn;
     (*result)(real * 3 + 1, real * 3 + 1) = rmsn;
     (*result)(real * 3 + 2, real * 3 + 2) = rmsn;
@@ -65,16 +65,16 @@ TMatrixD &DTSurveyChamber::makeMatrix() {
   TMatrixD *result = new TMatrixD(3 * getNumberPoints(), 6);
   result->Zero();
   int real = 0;
-  for (std::vector<TMatrixD>::iterator p = pointsTheoretical.begin(); p != pointsTheoretical.end(); p++) {
+  for (auto &p : pointsTheoretical) {
     (*result)(real * 3, 0) = 1.0;
-    (*result)(real * 3, 3) = (*p)(1, 0);
-    (*result)(real * 3, 4) = (*p)(2, 0);
+    (*result)(real * 3, 3) = p(1, 0);
+    (*result)(real * 3, 4) = p(2, 0);
     (*result)(real * 3 + 1, 1) = 1.0;
-    (*result)(real * 3 + 1, 3) = -(*p)(0, 0);
-    (*result)(real * 3 + 1, 5) = (*p)(2, 0);
+    (*result)(real * 3 + 1, 3) = -p(0, 0);
+    (*result)(real * 3 + 1, 5) = p(2, 0);
     (*result)(real * 3 + 2, 2) = 1.0;
-    (*result)(real * 3 + 2, 4) = -(*p)(0, 0);
-    (*result)(real * 3 + 2, 5) = -(*p)(1, 0);
+    (*result)(real * 3 + 2, 4) = -p(0, 0);
+    (*result)(real * 3 + 2, 5) = -p(1, 0);
     real++;
   }
   return *result;

@@ -42,10 +42,10 @@ void MuonLinksProducerForHLT::produce(edm::StreamID, edm::Event& iEvent, const e
   edm::Handle<reco::TrackCollection> incTracks;
   iEvent.getByToken(trackToken_, incTracks);
 
-  for (reco::MuonTrackLinksCollection::const_iterator link = links->begin(); link != links->end(); ++link) {
+  for (const auto& link : *links) {
     bool found = false;
     unsigned int trackIndex = 0;
-    unsigned int muonTrackHits = link->trackerTrack()->extra()->recHitsSize();
+    unsigned int muonTrackHits = link.trackerTrack()->extra()->recHitsSize();
     for (reco::TrackCollection::const_iterator track = incTracks->begin(); track != incTracks->end();
          ++track, ++trackIndex) {
       if (track->pt() < ptMin)
@@ -58,8 +58,7 @@ void MuonLinksProducerForHLT::produce(edm::StreamID, edm::Event& iEvent, const e
       unsigned int smallestNumberOfHits = trackHits < muonTrackHits ? trackHits : muonTrackHits;
       int numberOfCommonDetIds = 0;
       for (auto hit = track->extra()->recHitsBegin(); hit != track->extra()->recHitsEnd(); ++hit) {
-        for (auto mit = link->trackerTrack()->extra()->recHitsBegin();
-             mit != link->trackerTrack()->extra()->recHitsEnd();
+        for (auto mit = link.trackerTrack()->extra()->recHitsBegin(); mit != link.trackerTrack()->extra()->recHitsEnd();
              ++mit) {
           if ((*hit)->geographicalId() == (*mit)->geographicalId() &&
               (*hit)->sharesInput((*mit), TrackingRecHit::some)) {
@@ -72,13 +71,13 @@ void MuonLinksProducerForHLT::produce(edm::StreamID, edm::Event& iEvent, const e
       // std::cout << "Overlap/Smallest/fraction = " << numberOfCommonDetIds << " " << smallestNumberOfHits << " " << fraction << std::endl;
       if (fraction > shareHitFraction) {
         output->push_back(
-            reco::MuonTrackLinks(reco::TrackRef(incTracks, trackIndex), link->standAloneTrack(), link->globalTrack()));
+            reco::MuonTrackLinks(reco::TrackRef(incTracks, trackIndex), link.standAloneTrack(), link.globalTrack()));
         found = true;
         break;
       }
     }
     if (!found)
-      output->push_back(reco::MuonTrackLinks(link->trackerTrack(), link->standAloneTrack(), link->globalTrack()));
+      output->push_back(reco::MuonTrackLinks(link.trackerTrack(), link.standAloneTrack(), link.globalTrack()));
   }
   iEvent.put(std::move(output));
 }

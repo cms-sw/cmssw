@@ -59,27 +59,27 @@ L1GlobalCaloTrigger::~L1GlobalCaloTrigger() {
   if (theJetFinalStage != nullptr)
     delete theJetFinalStage;
 
-  for (unsigned i = 0; i < theWheelEnergyFpgas.size(); ++i) {
-    if (theWheelEnergyFpgas.at(i) != nullptr)
-      delete theWheelEnergyFpgas.at(i);
+  for (auto& theWheelEnergyFpga : theWheelEnergyFpgas) {
+    if (theWheelEnergyFpga != nullptr)
+      delete theWheelEnergyFpga;
   }
   theWheelEnergyFpgas.clear();
 
-  for (unsigned i = 0; i < theWheelJetFpgas.size(); ++i) {
-    if (theWheelJetFpgas.at(i) != nullptr)
-      delete theWheelJetFpgas.at(i);
+  for (auto& theWheelJetFpga : theWheelJetFpgas) {
+    if (theWheelJetFpga != nullptr)
+      delete theWheelJetFpga;
   }
   theWheelJetFpgas.clear();
 
-  for (unsigned i = 0; i < theEmLeafCards.size(); ++i) {
-    if (theEmLeafCards.at(i) != nullptr)
-      delete theEmLeafCards.at(i);
+  for (auto& theEmLeafCard : theEmLeafCards) {
+    if (theEmLeafCard != nullptr)
+      delete theEmLeafCard;
   }
   theEmLeafCards.clear();
 
-  for (unsigned i = 0; i < theJetLeafCards.size(); ++i) {
-    if (theJetLeafCards.at(i) != nullptr)
-      delete theJetLeafCards.at(i);
+  for (auto& theJetLeafCard : theJetLeafCards) {
+    if (theJetLeafCard != nullptr)
+      delete theJetLeafCard;
   }
   theJetLeafCards.clear();
 }
@@ -605,8 +605,8 @@ L1GctInternJetDataCollection L1GlobalCaloTrigger::getInternalJets() const {
   L1GctInternJetDataCollection allJets, jfJets;
 
   // Loop over jetfinders, find the internal jets and add them to the list
-  for (unsigned jf = 0; jf < theJetFinders.size(); jf++) {
-    jfJets = theJetFinders.at(jf)->getInternalJets();
+  for (auto theJetFinder : theJetFinders) {
+    jfJets = theJetFinder->getInternalJets();
     allJets.insert(allJets.end(), jfJets.begin(), jfJets.end());
   }
 
@@ -667,8 +667,8 @@ L1GctInternEtSumCollection L1GlobalCaloTrigger::getInternalEtSums() const {
 
   // Go through all the processor types that process et sums
   // JetFinders
-  for (unsigned jf = 0; jf < theJetFinders.size(); jf++) {
-    procSums = theJetFinders.at(jf)->getInternalEtSums();
+  for (auto theJetFinder : theJetFinders) {
+    procSums = theJetFinder->getInternalEtSums();
     allSums.insert(allSums.end(), procSums.begin(), procSums.end());
   }
 
@@ -692,8 +692,8 @@ L1GctInternHtMissCollection L1GlobalCaloTrigger::getInternalHtMiss() const {
 
   // Go through all the processor types that process et sums
   // JetFinders
-  for (unsigned jf = 0; jf < theJetFinders.size(); jf++) {
-    procSums = theJetFinders.at(jf)->getInternalHtMiss();
+  for (auto theJetFinder : theJetFinders) {
+    procSums = theJetFinder->getInternalHtMiss();
     allSums.insert(allSums.end(), procSums.begin(), procSums.end());
   }
 

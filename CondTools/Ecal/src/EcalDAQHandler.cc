@@ -602,14 +602,14 @@ void popcon::EcalDAQHandler::getNewObjects() {
       // initialize this run status to all OK
       irun = (unsigned long)run_vec[kr].getRunNumber();
       for (int k = 0; k < 2; k++) {
-        for (int iphi = 0; iphi < 72; iphi++) {
+        for (auto& newEBStatu : newEBStatus) {
           for (int ieta = 0; ieta < 17; ieta++) {
-            newEBStatus[iphi][ieta][k] = 0;
+            newEBStatu[ieta][k] = 0;
           }
         }
-        for (int ix = 0; ix < 20; ix++) {
+        for (auto& newEEStatu : newEEStatus) {
           for (int iy = 0; iy < 20; iy++) {
-            newEEStatus[ix][iy][k] = 0;
+            newEEStatu[iy][k] = 0;
           }
         }
       }  // loop over side

@@ -108,71 +108,68 @@ void PatBTagCommonHistos::Fill(edm::View<pat::Jet>::const_iterator& jet_iter, st
     histocontainer_["jet_eta_" + flavor]->Fill(jet_iter->eta());
     histocontainer_["tracks_in_jet_" + flavor]->Fill(jet_iter->associatedTracks().size());
     h2_["jet_scatter_pt_" + flavor]->Fill(jet_iter->pt(), jet_iter->correctedJet("raw").pt());
-    for (size_t itrack = 0; itrack < jet_iter->associatedTracks().size(); ++itrack) {
-      histocontainer_["pt_tracks_in_jet_" + flavor]->Fill(jet_iter->associatedTracks()[itrack]->pt());
+    for (const auto& itrack : jet_iter->associatedTracks()) {
+      histocontainer_["pt_tracks_in_jet_" + flavor]->Fill(itrack->pt());
     }
     if (jet_iter->pt() < 30) {
       histocontainer_["jet_eta_" + flavor + "030"]->Fill(jet_iter->eta());
       histocontainer_["tracks_in_jet_" + flavor + "030"]->Fill(jet_iter->associatedTracks().size());
-      for (size_t itrack = 0; itrack < jet_iter->associatedTracks().size(); ++itrack) {
-        histocontainer_["pt_tracks_in_jet_" + flavor + "030"]->Fill(jet_iter->associatedTracks()[itrack]->pt());
+      for (const auto& itrack : jet_iter->associatedTracks()) {
+        histocontainer_["pt_tracks_in_jet_" + flavor + "030"]->Fill(itrack->pt());
       }
       if (fabs(jet_iter->eta()) < 1.5) {
-        for (size_t itrack = 0; itrack < jet_iter->associatedTracks().size(); ++itrack) {
-          histocontainer_["pt_tracks_in_jet_" + flavor + "_center030"]->Fill(
-              jet_iter->associatedTracks()[itrack]->pt());
+        for (const auto& itrack : jet_iter->associatedTracks()) {
+          histocontainer_["pt_tracks_in_jet_" + flavor + "_center030"]->Fill(itrack->pt());
         }
       }
       if (fabs(jet_iter->eta()) > 1.5 && fabs(jet_iter->eta()) < 2.4) {
-        for (size_t itrack = 0; itrack < jet_iter->associatedTracks().size(); ++itrack) {
-          histocontainer_["pt_tracks_in_jet_" + flavor + "_sides030"]->Fill(jet_iter->associatedTracks()[itrack]->pt());
+        for (const auto& itrack : jet_iter->associatedTracks()) {
+          histocontainer_["pt_tracks_in_jet_" + flavor + "_sides030"]->Fill(itrack->pt());
         }
       }
     }
     if (jet_iter->pt() > 30 && jet_iter->pt() < 50) {
       histocontainer_["jet_eta_" + flavor + "3050"]->Fill(jet_iter->eta());
       histocontainer_["tracks_in_jet_" + flavor + "3050"]->Fill(jet_iter->associatedTracks().size());
-      for (size_t itrack = 0; itrack < jet_iter->associatedTracks().size(); ++itrack) {
-        histocontainer_["pt_tracks_in_jet_" + flavor + "3050"]->Fill(jet_iter->associatedTracks()[itrack]->pt());
+      for (const auto& itrack : jet_iter->associatedTracks()) {
+        histocontainer_["pt_tracks_in_jet_" + flavor + "3050"]->Fill(itrack->pt());
       }
       if (fabs(jet_iter->eta()) < 1.5) {
-        for (size_t itrack = 0; itrack < jet_iter->associatedTracks().size(); ++itrack) {
-          histocontainer_["pt_tracks_in_jet_" + flavor + "_center3050"]->Fill(
-              jet_iter->associatedTracks()[itrack]->pt());
+        for (const auto& itrack : jet_iter->associatedTracks()) {
+          histocontainer_["pt_tracks_in_jet_" + flavor + "_center3050"]->Fill(itrack->pt());
         }
       }
       if (fabs(jet_iter->eta()) > 1.5 && fabs(jet_iter->eta()) < 2.4) {
-        for (size_t itrack = 0; itrack < jet_iter->associatedTracks().size(); ++itrack) {
-          histocontainer_["pt_tracks_in_jet_" + flavor + "_sides3050"]->Fill(
-              jet_iter->associatedTracks()[itrack]->pt());
+        for (const auto& itrack : jet_iter->associatedTracks()) {
+          histocontainer_["pt_tracks_in_jet_" + flavor + "_sides3050"]->Fill(itrack->pt());
         }
       }
     }
     if (jet_iter->pt() > 50) {
       histocontainer_["jet_eta_" + flavor + "50"]->Fill(jet_iter->eta());
       histocontainer_["tracks_in_jet_" + flavor + "50"]->Fill(jet_iter->associatedTracks().size());
-      for (size_t itrack = 0; itrack < jet_iter->associatedTracks().size(); ++itrack) {
-        histocontainer_["pt_tracks_in_jet_" + flavor + "50"]->Fill(jet_iter->associatedTracks()[itrack]->pt());
+      for (const auto& itrack : jet_iter->associatedTracks()) {
+        histocontainer_["pt_tracks_in_jet_" + flavor + "50"]->Fill(itrack->pt());
       }
       if (fabs(jet_iter->eta()) < 1.5) {
-        for (size_t itrack = 0; itrack < jet_iter->associatedTracks().size(); ++itrack) {
-          histocontainer_["pt_tracks_in_jet_" + flavor + "_center50"]->Fill(jet_iter->associatedTracks()[itrack]->pt());
+        for (const auto& itrack : jet_iter->associatedTracks()) {
+          histocontainer_["pt_tracks_in_jet_" + flavor + "_center50"]->Fill(itrack->pt());
         }
       }
       if (fabs(jet_iter->eta()) > 1.5 && fabs(jet_iter->eta()) < 2.4) {
-        for (size_t itrack = 0; itrack < jet_iter->associatedTracks().size(); ++itrack) {
-          histocontainer_["pt_tracks_in_jet_" + flavor + "_sides50"]->Fill(jet_iter->associatedTracks()[itrack]->pt());
+        for (const auto& itrack : jet_iter->associatedTracks()) {
+          histocontainer_["pt_tracks_in_jet_" + flavor + "_sides50"]->Fill(itrack->pt());
         }
       }
     }
     if (fabs(jet_iter->eta()) < 1.5) {
-      for (size_t itrack = 0; itrack < jet_iter->associatedTracks().size(); ++itrack) {
-        histocontainer_["pt_tracks_in_jet_" + flavor + "_center"]->Fill(jet_iter->associatedTracks()[itrack]->pt());
+      for (const auto& itrack : jet_iter->associatedTracks()) {
+        histocontainer_["pt_tracks_in_jet_" + flavor + "_center"]->Fill(itrack->pt());
       }
     }
     if (fabs(jet_iter->eta()) > 1.5 && fabs(jet_iter->eta()) < 2.4) {
-      for (size_t itrack = 0; itrack < jet_iter->associatedTracks().size(); ++itrack) {
-        histocontainer_["pt_tracks_in_jet_" + flavor + "_sides"]->Fill(jet_iter->associatedTracks()[itrack]->pt());
+      for (const auto& itrack : jet_iter->associatedTracks()) {
+        histocontainer_["pt_tracks_in_jet_" + flavor + "_sides"]->Fill(itrack->pt());
       }
     }
 
@@ -290,27 +287,27 @@ void PatBTagCommonHistos::Set(std::string flavor) {
   tagbl[0] = "0";
   tagbl[1] = "1";
   tagbl[2] = "2";
-  for (size_t i = 0; i < tagbl.size(); i++) {
-    histoid = "jet_pt_" + flavor + "_taggable" + tagbl[i];
+  for (const auto& i : tagbl) {
+    histoid = "jet_pt_" + flavor + "_taggable" + i;
     histotitle = flavor + " jet_taggable p_{T} [GeV/c]";
-    histocontainer_["jet_pt_" + flavor + "_taggable" + tagbl[i]] =
+    histocontainer_["jet_pt_" + flavor + "_taggable" + i] =
         fs->make<TH1D>(histoid.c_str(), histotitle.c_str(), njptarray - 1, jetptxbins);
-    histoid = "jet_pt_uncorr_" + flavor + "_taggable" + tagbl[i];
+    histoid = "jet_pt_uncorr_" + flavor + "_taggable" + i;
     histotitle = flavor + " jet_taggable p_{T} uncorr [GeV/c]";
-    histocontainer_["jet_pt_uncorr_" + flavor + "_taggable" + tagbl[i]] =
+    histocontainer_["jet_pt_uncorr_" + flavor + "_taggable" + i] =
         fs->make<TH1D>(histoid.c_str(), histotitle.c_str(), njptarray - 1, jetptxbins);
-    histoid = "jet_eta_" + flavor + "_taggable" + tagbl[i];
+    histoid = "jet_eta_" + flavor + "_taggable" + i;
     histotitle = flavor + " jet_taggable #eta";
-    histocontainer_["jet_eta_" + flavor + "_taggable" + tagbl[i]] =
+    histocontainer_["jet_eta_" + flavor + "_taggable" + i] =
         fs->make<TH1D>(histoid.c_str(), histotitle.c_str(), netaarray - 1, jetetabins);
-    histoid = "jet_eta_" + flavor + "_taggable" + tagbl[i] + "_030";
-    histocontainer_["jet_eta_" + flavor + "_taggable" + tagbl[i] + "_030"] =
+    histoid = "jet_eta_" + flavor + "_taggable" + i + "_030";
+    histocontainer_["jet_eta_" + flavor + "_taggable" + i + "_030"] =
         fs->make<TH1D>(histoid.c_str(), "jet #eta", netaarray - 1, jetetabins);
-    histoid = "jet_eta_" + flavor + "_taggable" + tagbl[i] + "_3050";
-    histocontainer_["jet_eta_" + flavor + "_taggable" + tagbl[i] + "_3050"] =
+    histoid = "jet_eta_" + flavor + "_taggable" + i + "_3050";
+    histocontainer_["jet_eta_" + flavor + "_taggable" + i + "_3050"] =
         fs->make<TH1D>(histoid.c_str(), "jet #eta", netaarray - 1, jetetabins);
-    histoid = "jet_eta_" + flavor + "_taggable" + tagbl[i] + "_50";
-    histocontainer_["jet_eta_" + flavor + "_taggable" + tagbl[i] + "_50"] =
+    histoid = "jet_eta_" + flavor + "_taggable" + i + "_50";
+    histocontainer_["jet_eta_" + flavor + "_taggable" + i + "_50"] =
         fs->make<TH1D>(histoid.c_str(), "jet #eta", netaarray - 1, jetetabins);
   }
 

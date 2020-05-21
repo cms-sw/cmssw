@@ -26,14 +26,14 @@ void l1t::Stage1Layer2CentralityAlgorithm::processEvent(const std::vector<l1t::C
   int sumET = 0;
   int regionET = 0;
 
-  for (std::vector<CaloRegion>::const_iterator region = regions.begin(); region != regions.end(); region++) {
-    int etaVal = region->hwEta();
+  for (const auto& region : regions) {
+    int etaVal = region.hwEta();
     if (etaVal > 3 && etaVal < 18)
       continue;  // never consider central regions, independent of mask
     if ((etaMask & (1 << etaVal)) >> etaVal)
       continue;
 
-    regionET = region->hwPt();
+    regionET = region.hwPt();
     sumET += regionET;
   }
 
@@ -91,17 +91,17 @@ void l1t::Stage1Layer2CentralityAlgorithm::processEvent(const std::vector<l1t::C
   // Begin MB Trigger //
   std::vector<int> thresholds = params_->minimumBiasThresholds();
   int numOverThresh[4] = {0};
-  for (std::vector<CaloRegion>::const_iterator region = regions.begin(); region != regions.end(); region++) {
-    if (region->hwEta() < 4) {
-      if (region->hwPt() >= thresholds.at(0))
+  for (const auto& region : regions) {
+    if (region.hwEta() < 4) {
+      if (region.hwPt() >= thresholds.at(0))
         numOverThresh[0]++;
-      if (region->hwPt() >= thresholds.at(2))
+      if (region.hwPt() >= thresholds.at(2))
         numOverThresh[2]++;
     }
-    if (region->hwEta() > 17) {
-      if (region->hwPt() >= thresholds.at(1))
+    if (region.hwEta() > 17) {
+      if (region.hwPt() >= thresholds.at(1))
         numOverThresh[1]++;
-      if (region->hwPt() >= thresholds.at(3))
+      if (region.hwPt() >= thresholds.at(3))
         numOverThresh[3]++;
     }
   }

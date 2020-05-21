@@ -170,8 +170,8 @@ namespace evf {
         ministateEncoded_.resize(nStreams);
         threadMicrostateEncoded_.resize(nThreads);
         inputState_.resize(nStreams);
-        for (unsigned int j = 0; j < inputState_.size(); j++)
-          inputState_[j] = 0;
+        for (unsigned int& j : inputState_)
+          j = 0;
 
         //tell FM to track these int vectors
         fm->registerStreamMonitorableUIntVec("Ministate", &ministateEncoded_, true, &ministateBins_);

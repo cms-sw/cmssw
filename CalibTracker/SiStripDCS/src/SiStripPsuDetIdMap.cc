@@ -99,50 +99,50 @@ void SiStripPsuDetIdMap::BuildMap(
   }
 
   //Remove duplicates for all 4 maps
-  for (PsuDetIdMap::iterator psu = LVMap.begin(); psu != LVMap.end(); psu++) {
-    RemoveDuplicateDetIDs(psu->second);
+  for (auto& psu : LVMap) {
+    RemoveDuplicateDetIDs(psu.second);
   }
-  for (PsuDetIdMap::iterator psuchan = HVMap.begin(); psuchan != HVMap.end(); psuchan++) {
-    RemoveDuplicateDetIDs(psuchan->second);
+  for (auto& psuchan : HVMap) {
+    RemoveDuplicateDetIDs(psuchan.second);
   }
-  for (PsuDetIdMap::iterator psu = HVUnmapped_Map.begin(); psu != HVUnmapped_Map.end(); psu++) {
-    RemoveDuplicateDetIDs(psu->second);
+  for (auto& psu : HVUnmapped_Map) {
+    RemoveDuplicateDetIDs(psu.second);
   }
-  for (PsuDetIdMap::iterator psu = HVCrosstalking_Map.begin(); psu != HVCrosstalking_Map.end(); psu++) {
-    RemoveDuplicateDetIDs(psu->second);
+  for (auto& psu : HVCrosstalking_Map) {
+    RemoveDuplicateDetIDs(psu.second);
   }
   if (debug) {
     //Print out all the 4 maps:
     std::cout << "Dumping the LV map" << std::endl;
     std::cout << "PSU->detids" << std::endl;
-    for (PsuDetIdMap::iterator psu = LVMap.begin(); psu != LVMap.end(); psu++) {
-      std::cout << psu->first << " corresponds to following detids" << endl;
-      for (unsigned int i = 0; i < psu->second.size(); i++) {
-        std::cout << "\t\t" << psu->second[i] << std::endl;
+    for (auto& psu : LVMap) {
+      std::cout << psu.first << " corresponds to following detids" << endl;
+      for (unsigned int i = 0; i < psu.second.size(); i++) {
+        std::cout << "\t\t" << psu.second[i] << std::endl;
       }
     }
     std::cout << "Dumping the HV map for HV mapped channels" << std::endl;
     std::cout << "PSUChannel->detids" << std::endl;
-    for (PsuDetIdMap::iterator psuchan = HVMap.begin(); psuchan != HVMap.end(); psuchan++) {
-      std::cout << psuchan->first << " corresponds to following detids" << endl;
-      for (unsigned int i = 0; i < psuchan->second.size(); i++) {
-        std::cout << "\t\t" << psuchan->second[i] << std::endl;
+    for (auto& psuchan : HVMap) {
+      std::cout << psuchan.first << " corresponds to following detids" << endl;
+      for (unsigned int i = 0; i < psuchan.second.size(); i++) {
+        std::cout << "\t\t" << psuchan.second[i] << std::endl;
       }
     }
     std::cout << "Dumping the HV map for HV UNmapped channels" << std::endl;
     std::cout << "PSU->detids" << std::endl;
-    for (PsuDetIdMap::iterator psu = HVUnmapped_Map.begin(); psu != HVUnmapped_Map.end(); psu++) {
-      std::cout << psu->first << " corresponds to following detids" << endl;
-      for (unsigned int i = 0; i < psu->second.size(); i++) {
-        std::cout << "\t\t" << psu->second[i] << std::endl;
+    for (auto& psu : HVUnmapped_Map) {
+      std::cout << psu.first << " corresponds to following detids" << endl;
+      for (unsigned int i = 0; i < psu.second.size(); i++) {
+        std::cout << "\t\t" << psu.second[i] << std::endl;
       }
     }
     std::cout << "Dumping the HV map for HV Crosstalking channels" << std::endl;
     std::cout << "PSU->detids" << std::endl;
-    for (PsuDetIdMap::iterator psu = HVCrosstalking_Map.begin(); psu != HVCrosstalking_Map.end(); psu++) {
-      std::cout << psu->first << " corresponds to following detids" << endl;
-      for (unsigned int i = 0; i < psu->second.size(); i++) {
-        std::cout << "\t\t" << psu->second[i] << std::endl;
+    for (auto& psu : HVCrosstalking_Map) {
+      std::cout << psu.first << " corresponds to following detids" << endl;
+      for (unsigned int i = 0; i < psu.second.size(); i++) {
+        std::cout << "\t\t" << psu.second[i] << std::endl;
       }
     }
     //Could add here consistency checks against the list of detIDs for Strip or Pixels
@@ -472,16 +472,16 @@ int SiStripPsuDetIdMap::IsHVChannel(std::string PSUChannel) {
 
 void SiStripPsuDetIdMap::clone(DcuPsuVector& input, DcuPsuVector& output) {
   output.clear();
-  for (unsigned int i = 0; i < input.size(); i++) {
-    output.push_back(new TkDcuPsuMap(*(input[i])));
+  for (auto& i : input) {
+    output.push_back(new TkDcuPsuMap(*i));
   }
 }
 
 void SiStripPsuDetIdMap::printMap() {
   stringstream pg;
   pg << "Map of power supplies to DET IDs: " << std::endl << "-- PSU name --          -- Det Id --" << std::endl;
-  for (unsigned int p = 0; p < pgMap.size(); p++) {
-    pg << pgMap[p].first << "         " << pgMap[p].second << std::endl;
+  for (auto& p : pgMap) {
+    pg << p.first << "         " << p.second << std::endl;
   }
   edm::LogInfo("SiStripPsuDetIdMap") << "[SiStripPsuDetIdMap::" << __func__ << "] " << pg.str();
 }
@@ -490,8 +490,8 @@ void SiStripPsuDetIdMap::printControlMap() {
   stringstream cg;
   cg << "Map of control power supplies to DET IDs: " << std::endl
      << "-- PSU name --                -- Det Id --" << std::endl;
-  for (unsigned int p = 0; p < cgMap.size(); p++) {
-    cg << cgMap[p].first << "         " << cgMap[p].second << std::endl;
+  for (auto& p : cgMap) {
+    cg << p.first << "         " << p.second << std::endl;
   }
   edm::LogInfo("SiStripPsuDetIdMap") << "[SiStripPsuDetIdMap::" << __func__ << "] " << cg.str();
 }
@@ -522,8 +522,8 @@ void SiStripPsuDetIdMap::checkMapInputValues(const SiStripConfigDb::DcuDetIdsV& 
     }
   }
   unsigned int numDpUsed = 0, numDpNotUsed = 0;
-  for (unsigned int dp = 0; dp < dpUsed.size(); dp++) {
-    if (dpUsed[dp]) {
+  for (auto&& dp : dpUsed) {
+    if (dp) {
       numDpUsed++;
     } else {
       numDpNotUsed++;
@@ -534,8 +534,8 @@ void SiStripPsuDetIdMap::checkMapInputValues(const SiStripConfigDb::DcuDetIdsV& 
   std::cout << "Number of unused DCU-PSU entries: " << numDpNotUsed << std::endl;
 
   unsigned int numDdUsed = 0, numDdNotUsed = 0;
-  for (unsigned int dd = 0; dd < ddUsed.size(); dd++) {
-    if (ddUsed[dd]) {
+  for (auto&& dd : ddUsed) {
+    if (dd) {
       numDdUsed++;
     } else {
       numDdNotUsed++;
@@ -571,9 +571,9 @@ std::vector<std::pair<std::vector<uint16_t>, std::vector<uint32_t> > > SiStripPs
             db_->getDeviceDescriptions(device_, iter->second.partitionName());
         if (!range.empty()) {
           SiStripConfigDb::DeviceDescriptionsV nextVec(range.begin(), range.end());
-          for (unsigned int i = 0; i < nextVec.size(); i++) {
-            dcuDescription* desc = dynamic_cast<dcuDescription*>(nextVec[i]);
-            resultVec.push_back(std::make_pair(desc->getDcuHardId(), db_->deviceAddress(*(nextVec[i]))));
+          for (auto& i : nextVec) {
+            dcuDescription* desc = dynamic_cast<dcuDescription*>(i);
+            resultVec.push_back(std::make_pair(desc->getDcuHardId(), db_->deviceAddress(*i)));
           }
         }
       }
@@ -601,14 +601,14 @@ std::vector<std::pair<std::vector<uint16_t>, std::vector<uint32_t> > > SiStripPs
     }
     // handle duplicates
     bool isDup = false;
-    for (unsigned int i = 0; i < testVec.size(); i++) {
-      if (fecInfo == testVec[i].first) {
+    for (auto& i : testVec) {
+      if (fecInfo == i.first) {
         isDup = true;
-        dcuids.insert(dcuids.end(), (testVec[i].second).begin(), (testVec[i].second).end());
+        dcuids.insert(dcuids.end(), (i.second).begin(), (i.second).end());
         std::sort(dcuids.begin(), dcuids.end());
         std::vector<uint32_t>::iterator it = std::unique(dcuids.begin(), dcuids.end());
         dcuids.resize(it - dcuids.begin());
-        testVec[i].second = dcuids;
+        i.second = dcuids;
       }
     }
     if (!isDup) {
@@ -639,9 +639,9 @@ std::vector<uint32_t> SiStripPsuDetIdMap::findDcuIdFromDeviceAddress(uint32_t dc
     if (dcu_iter != dcuids.end()) {
       res_iter = iter;
       if (!alreadyFound) {
-        for (unsigned int i = 0; i < dcuids.size(); i++) {
-          if (dcuids[i] != dcuid_) {
-            pgDcu.push_back(dcuids[i]);
+        for (unsigned int dcuid : dcuids) {
+          if (dcuid != dcuid_) {
+            pgDcu.push_back(dcuid);
           }
         }
       } else {

@@ -53,8 +53,8 @@ bool EcalRecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   bool accepted = true;
   int nRecHitsGreater1GevPerEvent = 0;
 
-  for (EcalRecHitCollection::const_iterator hitItr = EBhits->begin(); hitItr != EBhits->end(); ++hitItr) {
-    EcalRecHit hit = (*hitItr);
+  for (const auto& hitItr : *EBhits) {
+    EcalRecHit hit = hitItr;
     EBDetId det = hit.id();
 
     float ampli = hit.energy();

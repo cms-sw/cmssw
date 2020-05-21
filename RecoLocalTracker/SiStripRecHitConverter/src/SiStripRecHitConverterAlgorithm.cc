@@ -127,13 +127,10 @@ namespace {
     void closure(edmNew::DetSet<SiStripRecHit2D>::const_iterator it) {
       if (!m_collectorMatched.empty()) {
         nmatch += m_collectorMatched.size();
-        for (edm::OwnVector<SiStripMatchedRecHit2D>::const_iterator itm = m_collectorMatched.begin(),
-                                                                    edm = m_collectorMatched.end();
-             itm != edm;
-             ++itm) {
-          m_collector.push_back(*itm);
+        for (const auto& itm : m_collectorMatched) {
+          m_collector.push_back(itm);
           // mark the stereo hit cluster as used, so that the hit won't go in the unmatched stereo ones
-          m_matchedSteroClusters.push_back(itm->stereoClusterRef().key());
+          m_matchedSteroClusters.push_back(itm.stereoClusterRef().key());
         }
         m_collectorMatched.clear();
       } else {
@@ -246,10 +243,9 @@ void SiStripRecHitConverterAlgorithm::match(products& output, LocalVector trackd
     // now look for unmatched stereo hits
     SiStripRecHit2DCollection::FastFiller fillerStereoUnm(*output.stereoUnmatched, stereoHits.detId());
     std::sort(matchedSteroClusters.begin(), matchedSteroClusters.end());
-    for (edmNew::DetSet<SiStripRecHit2D>::const_iterator it = stereoHits.begin(), ed = stereoHits.end(); it != ed;
-         ++it) {
-      if (!std::binary_search(matchedSteroClusters.begin(), matchedSteroClusters.end(), it->cluster().key())) {
-        fillerStereoUnm.push_back(*it);
+    for (const auto& stereoHit : stereoHits) {
+      if (!std::binary_search(matchedSteroClusters.begin(), matchedSteroClusters.end(), stereoHit.cluster().key())) {
+        fillerStereoUnm.push_back(stereoHit);
       }
     }
     if (fillerStereoUnm.empty())

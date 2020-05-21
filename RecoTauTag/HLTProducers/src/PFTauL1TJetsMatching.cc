@@ -38,9 +38,9 @@ void PFTauL1TJetsMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const
   for (unsigned int iTau = 0; iTau < taus->size(); iTau++) {
     bool isMatched = false;
     if ((*taus)[iTau].pt() > minTauPt_) {
-      for (unsigned int iJet = 0; iJet < jetCandRefVec.size(); iJet++) {
-        if (jetCandRefVec[iJet]->pt() > minL1TPt_) {
-          if (reco::deltaR2((*taus)[iTau].p4(), jetCandRefVec[iJet]->p4()) < matchingR2_) {
+      for (auto& iJet : jetCandRefVec) {
+        if (iJet->pt() > minL1TPt_) {
+          if (reco::deltaR2((*taus)[iTau].p4(), iJet->p4()) < matchingR2_) {
             isMatched = true;
             break;
           }

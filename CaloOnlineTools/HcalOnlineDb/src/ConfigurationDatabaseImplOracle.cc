@@ -108,20 +108,20 @@ void ConfigurationDatabaseImplOracle::getLUTChecksums(
 
       m_parser.parseMultiple(buffer, items);
 
-      for (std::list<ConfigurationDatabaseStandardXMLParser::Item>::iterator i = items.begin(); i != items.end(); ++i) {
+      for (auto& item : items) {
         hcal::ConfigurationDatabase::FPGASelection ifpga =
-            (hcal::ConfigurationDatabase::FPGASelection)atoi(i->parameters["topbottom"].c_str());
-        int islot = atoi(i->parameters["slot"].c_str());
+            (hcal::ConfigurationDatabase::FPGASelection)atoi(item.parameters["topbottom"].c_str());
+        int islot = atoi(item.parameters["slot"].c_str());
         hcal::ConfigurationDatabase::LUTType ilut_type =
-            (hcal::ConfigurationDatabase::LUTType)atoi(i->parameters["luttype"].c_str());
-        int crate = atoi(i->parameters["crate"].c_str());
-        int islb = atoi(i->parameters["slb"].c_str());
-        int islbch = atoi(i->parameters["slbchan"].c_str());
+            (hcal::ConfigurationDatabase::LUTType)atoi(item.parameters["luttype"].c_str());
+        int crate = atoi(item.parameters["crate"].c_str());
+        int islb = atoi(item.parameters["slb"].c_str());
+        int islbch = atoi(item.parameters["slbchan"].c_str());
         hcal::ConfigurationDatabase::LUTId lut_id;
         lut_id = hcal::ConfigurationDatabase::LUTId(crate, islot, ifpga, islb, islbch, ilut_type);
 
         hcal::ConfigurationDatabase::MD5Fingerprint csum(16);
-        std::string encoded = (std::string)i->items[0];
+        std::string encoded = (std::string)item.items[0];
         for (int i = 0; i < 16; i++) {
           //converting hex2integer
           csum[i] = cvtChar(encoded[i * 2]) * 16 + cvtChar(encoded[i * 2 + 1]);
@@ -181,38 +181,38 @@ void ConfigurationDatabaseImplOracle::getLUTs_real(
       std::string buffer = clobToString(clob);
       m_parser.parseMultiple(buffer, items);
 
-      for (std::list<ConfigurationDatabaseStandardXMLParser::Item>::iterator i = items.begin(); i != items.end(); ++i) {
+      for (auto& item : items) {
         hcal::ConfigurationDatabase::FPGASelection ifpga =
-            (hcal::ConfigurationDatabase::FPGASelection)atoi(i->parameters["TOPBOTTOM"].c_str());
-        int islot = atoi(i->parameters["SLOT"].c_str());
+            (hcal::ConfigurationDatabase::FPGASelection)atoi(item.parameters["TOPBOTTOM"].c_str());
+        int islot = atoi(item.parameters["SLOT"].c_str());
 
         //If this is the desired slot
         //if (islot == slot) {
         hcal::ConfigurationDatabase::LUTType ilut_type =
-            (hcal::ConfigurationDatabase::LUTType)atoi(i->parameters["LUT_TYPE"].c_str());
+            (hcal::ConfigurationDatabase::LUTType)atoi(item.parameters["LUT_TYPE"].c_str());
         hcal::ConfigurationDatabase::LUTId lut_id;
         if (ilut_type == hcal::ConfigurationDatabase::LinearizerLUT) {
-          int ifiber = atoi(i->parameters["FIBER"].c_str());
-          int ifiberch = atoi(i->parameters["FIBERCHAN"].c_str());
+          int ifiber = atoi(item.parameters["FIBER"].c_str());
+          int ifiberch = atoi(item.parameters["FIBERCHAN"].c_str());
           lut_id = hcal::ConfigurationDatabase::LUTId(crate, islot, ifpga, ifiber, ifiberch, ilut_type);
         } else {
-          int islb = atoi(i->parameters["SLB"].c_str());
-          int islbch = atoi(i->parameters["SLBCHAN"].c_str());
+          int islb = atoi(item.parameters["SLB"].c_str());
+          int islbch = atoi(item.parameters["SLBCHAN"].c_str());
           lut_id = hcal::ConfigurationDatabase::LUTId(crate, islot, ifpga, islb, islbch, ilut_type);
         }
 
         hcal::ConfigurationDatabase::LUT lut;
-        lut.reserve(i->items.size());
+        lut.reserve(item.items.size());
 
         int strtol_base = 0;
-        if (i->encoding == "hex")
+        if (item.encoding == "hex")
           strtol_base = 16;
-        else if (i->encoding == "dec")
+        else if (item.encoding == "dec")
           strtol_base = 10;
 
         // convert the data
-        for (unsigned int j = 0; j < i->items.size(); j++)
-          lut.push_back(strtol(i->items[j].c_str(), nullptr, strtol_base));
+        for (unsigned int j = 0; j < item.items.size(); j++)
+          lut.push_back(strtol(item.items[j].c_str(), nullptr, strtol_base));
 
         LUTs.insert(make_pair(lut_id, lut));
         //}
@@ -271,27 +271,27 @@ void ConfigurationDatabaseImplOracle::getPatterns_real(
 
       m_parser.parseMultiple(buffer, items);
 
-      for (std::list<ConfigurationDatabaseStandardXMLParser::Item>::iterator i = items.begin(); i != items.end(); ++i) {
-        int islot = atoi(i->parameters["SLOT"].c_str());
+      for (auto& item : items) {
+        int islot = atoi(item.parameters["SLOT"].c_str());
         //If this is the desired slot
         //if (islot == slot) {
         hcal::ConfigurationDatabase::FPGASelection ifpga =
-            (hcal::ConfigurationDatabase::FPGASelection)atoi(i->parameters["TOPBOTTOM"].c_str());
-        int ifiber = atoi(i->parameters["FIBER"].c_str());
+            (hcal::ConfigurationDatabase::FPGASelection)atoi(item.parameters["TOPBOTTOM"].c_str());
+        int ifiber = atoi(item.parameters["FIBER"].c_str());
 
         hcal::ConfigurationDatabase::PatternId pat_id(crate, islot, ifpga, ifiber);
         hcal::ConfigurationDatabase::HTRPattern& pat = patterns[pat_id];
-        pat.reserve(i->items.size());
+        pat.reserve(item.items.size());
 
         int strtol_base = 0;
-        if (i->encoding == "hex")
+        if (item.encoding == "hex")
           strtol_base = 16;
-        else if (i->encoding == "dec")
+        else if (item.encoding == "dec")
           strtol_base = 10;
 
         // convert the data
-        for (unsigned int j = 0; j < i->items.size(); j++)
-          pat.push_back(strtol(i->items[j].c_str(), nullptr, strtol_base));
+        for (unsigned int j = 0; j < item.items.size(); j++)
+          pat.push_back(strtol(item.items[j].c_str(), nullptr, strtol_base));
         //}
       }
     }

@@ -63,8 +63,8 @@ void EGammaPCAHelper::fillHitMap(const HGCRecHitCollection& rechitsEE,
 void EGammaPCAHelper::storeRecHits(const reco::HGCalMultiCluster& cluster) {
   theCluster_ = &cluster;
   std::vector<std::pair<DetId, float>> result;
-  for (reco::HGCalMultiCluster::component_iterator it = cluster.begin(); it != cluster.end(); it++) {
-    const std::vector<std::pair<DetId, float>>& hf = (*it)->hitsAndFractions();
+  for (auto&& it : cluster) {
+    const std::vector<std::pair<DetId, float>>& hf = (it)->hitsAndFractions();
     result.insert(result.end(), hf.begin(), hf.end());
   }
   storeRecHits(result);

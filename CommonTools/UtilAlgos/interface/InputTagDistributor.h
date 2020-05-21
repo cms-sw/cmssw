@@ -15,8 +15,8 @@ class InputTagDistributor {
 public:
   InputTagDistributor(const edm::ParameterSet& pset, edm::ConsumesCollector& iC) {
     std::vector<std::string> inpuTags = pset.getParameterNamesForType<edm::InputTag>();
-    for (std::vector<std::string>::iterator i = inpuTags.begin(); i != inpuTags.end(); ++i)
-      inputTags_[*i] = pset.getParameter<edm::InputTag>(*i);
+    for (auto& inpuTag : inpuTags)
+      inputTags_[inpuTag] = pset.getParameter<edm::InputTag>(inpuTag);
   }
   const edm::InputTag& inputTag(std::string s) {
     std::map<std::string, edm::InputTag>::iterator findMe = inputTags_.find(s);

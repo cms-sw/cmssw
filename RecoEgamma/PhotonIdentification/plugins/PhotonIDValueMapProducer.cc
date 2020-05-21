@@ -168,8 +168,8 @@ PhotonIDValueMapProducer::PhotonIDValueMapProducer(const edm::ParameterSet& cfg)
           cfg.getParameter<edm::InputTag>("particleBasedIsolation")) /* ...only for AOD... */),
       isAOD_(cfg.getParameter<bool>("isAOD")) {
   // Declare producibles
-  for (int i = 0; i < nVars_; ++i)
-    produces<edm::ValueMap<float>>(names[i]);
+  for (const auto& name : names)
+    produces<edm::ValueMap<float>>(name);
 }
 
 void PhotonIDValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {

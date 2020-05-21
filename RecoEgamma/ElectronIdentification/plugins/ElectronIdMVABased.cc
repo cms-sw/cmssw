@@ -72,18 +72,17 @@ void ElectronIdMVABased::produce(edm::StreamID, edm::Event& iEvent, const edm::E
   edm::Handle<reco::GsfElectronCollection> egCollection;
   iEvent.getByToken(electronToken, egCollection);
   const reco::GsfElectronCollection egCandidates = (*egCollection.product());
-  for (reco::GsfElectronCollection::const_iterator egIter = egCandidates.begin(); egIter != egCandidates.end();
-       ++egIter) {
-    double mvaVal = mvaID_->mva(*egIter, nVtx);
-    double isoDr03 = egIter->dr03TkSumPt() + egIter->dr03EcalRecHitSumEt() + egIter->dr03HcalTowerSumEt();
-    double eleEta = fabs(egIter->eta());
+  for (const auto& egCandidate : egCandidates) {
+    double mvaVal = mvaID_->mva(egCandidate, nVtx);
+    double isoDr03 = egCandidate.dr03TkSumPt() + egCandidate.dr03EcalRecHitSumEt() + egCandidate.dr03HcalTowerSumEt();
+    double eleEta = fabs(egCandidate.eta());
     if (eleEta <= etaEBEE && mvaVal > thresholdBarrel && isoDr03 < thresholdIsoBarrel) {
-      mvaElectrons->push_back(*egIter);
+      mvaElectrons->push_back(egCandidate);
       reco::GsfElectron::MvaOutput myMvaOutput;
       myMvaOutput.mva_Isolated = mvaVal;
       mvaElectrons->back().setMvaOutput(myMvaOutput);
     } else if (eleEta > etaEBEE && mvaVal > thresholdEndcap && isoDr03 < thresholdIsoEndcap) {
-      mvaElectrons->push_back(*egIter);
+      mvaElectrons->push_back(egCandidate);
       reco::GsfElectron::MvaOutput myMvaOutput;
       myMvaOutput.mva_Isolated = mvaVal;
       mvaElectrons->back().setMvaOutput(myMvaOutput);

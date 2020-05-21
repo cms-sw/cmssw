@@ -44,8 +44,8 @@ void L1GtPatternLine::set(const std::string& name, uint32_t value) {
 
 void L1GtPatternLine::print(std::ostream& out) const {
   out << "BEGIN Columns: " << std::endl;
-  for (L1GtPatternLine::ColumnMap::const_iterator it = m_columns.begin(); it != m_columns.end(); ++it) {
-    out << it->first << ": " << std::hex << it->second << std::endl;
+  for (const auto& m_column : m_columns) {
+    out << m_column.first << ": " << std::hex << m_column.second << std::endl;
   }
   out << "END Columns." << std::endl;
 }

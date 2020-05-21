@@ -195,16 +195,13 @@ void FWConfiguration::streamTo(std::ostream& oTo, const FWConfiguration& iConfig
   std::string indentation(recursionLevel, ' ');
   oTo << indentation << "<config name=\"" << name << "\" version=\"" << iConfig.version() << "\">\n";
   if (iConfig.stringValues()) {
-    for (FWConfiguration::StringValues::const_iterator it = iConfig.stringValues()->begin();
-         it != iConfig.stringValues()->end();
-         ++it) {
-      oTo << indentation << "  <string>" << attrEscape(*it) << "</string>\n";
+    for (const auto& it : *iConfig.stringValues()) {
+      oTo << indentation << "  <string>" << attrEscape(it) << "</string>\n";
     }
   }
   if (iConfig.keyValues()) {
-    for (FWConfiguration::KeyValues::const_iterator it = iConfig.keyValues()->begin(); it != iConfig.keyValues()->end();
-         ++it) {
-      FWConfiguration::streamTo(oTo, it->second, attrEscape(it->first));
+    for (const auto& it : *iConfig.keyValues()) {
+      FWConfiguration::streamTo(oTo, it.second, attrEscape(it.first));
     }
   }
   oTo << indentation << "</config>" << std::endl;

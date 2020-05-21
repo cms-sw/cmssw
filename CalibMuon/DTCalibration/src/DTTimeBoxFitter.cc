@@ -224,12 +224,11 @@ void DTTimeBoxFitter::getFitSeeds(
   int delta = 999999;
   int beginning = -1;
   int tbWidth = -1;
-  for (vector<pair<int, int> >::const_iterator stAndL = startAndLenght.begin(); stAndL != startAndLenght.end();
-       ++stAndL) {
-    if (abs((*stAndL).second - tBoxWidth) < delta) {
-      delta = abs((*stAndL).second - tBoxWidth);
-      beginning = (*stAndL).first;
-      tbWidth = (*stAndL).second;
+  for (const auto& stAndL : startAndLenght) {
+    if (abs(stAndL.second - tBoxWidth) < delta) {
+      delta = abs(stAndL.second - tBoxWidth);
+      beginning = stAndL.first;
+      tbWidth = stAndL.second;
       if (theVerbosityLevel >= 2)
         cout << "   Candidate: First: " << beginning << ", width: " << tbWidth << ", delta: " << delta << endl;
     }

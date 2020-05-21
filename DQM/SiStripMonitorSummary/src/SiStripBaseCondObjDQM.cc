@@ -178,18 +178,15 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> &detIds_, const 
     std::vector<DetIdSelector> included_subdetsels;
     std::vector<std::string> included_subdets =
         fPSet_.getParameter<std::vector<std::string>>("ModulesToBeIncluded_DetIdSelector");
-    for (std::vector<std::string>::const_iterator wsdps = included_subdets.begin(); wsdps != included_subdets.end();
-         ++wsdps) {
-      included_subdetsels.push_back(DetIdSelector(*wsdps));
+    for (const auto &included_subdet : included_subdets) {
+      included_subdetsels.push_back(DetIdSelector(included_subdet));
     }
 
     std::vector<uint32_t> modulesToBeIncluded;
-    for (std::vector<uint32_t>::const_iterator detid = detIds_.begin(); detid != detIds_.end(); ++detid) {
-      for (std::vector<DetIdSelector>::const_iterator detidsel = included_subdetsels.begin();
-           detidsel != included_subdetsels.end();
-           ++detidsel) {
-        if (detidsel->isSelected(*detid)) {
-          modulesToBeIncluded.push_back(*detid);
+    for (unsigned int detId : detIds_) {
+      for (const auto &included_subdetsel : included_subdetsels) {
+        if (included_subdetsel.isSelected(detId)) {
+          modulesToBeIncluded.push_back(detId);
           break;
           //	  std::cout << "detId: " << *detid << " is selected" <<
           // std::endl;
@@ -202,18 +199,15 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> &detIds_, const 
     std::vector<DetIdSelector> excluded_subdetsels;
     std::vector<std::string> excluded_subdets =
         fPSet_.getParameter<std::vector<std::string>>("ModulesToBeExcluded_DetIdSelector");
-    for (std::vector<std::string>::const_iterator wsdps = excluded_subdets.begin(); wsdps != excluded_subdets.end();
-         ++wsdps) {
-      excluded_subdetsels.push_back(DetIdSelector(*wsdps));
+    for (const auto &excluded_subdet : excluded_subdets) {
+      excluded_subdetsels.push_back(DetIdSelector(excluded_subdet));
     }
 
     std::vector<uint32_t> modulesToBeExcluded;
-    for (std::vector<uint32_t>::const_iterator detid = detIds_.begin(); detid != detIds_.end(); ++detid) {
-      for (std::vector<DetIdSelector>::const_iterator detidsel = excluded_subdetsels.begin();
-           detidsel != excluded_subdetsels.end();
-           ++detidsel) {
-        if (detidsel->isSelected(*detid)) {
-          modulesToBeExcluded.push_back(*detid);
+    for (unsigned int detId : detIds_) {
+      for (const auto &excluded_subdetsel : excluded_subdetsels) {
+        if (excluded_subdetsel.isSelected(detId)) {
+          modulesToBeExcluded.push_back(detId);
           break;
         }
       }
@@ -256,9 +250,8 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> &detIds_, const 
 
     std::sort(detIds_.begin(), detIds_.end());
     if (!modulesToBeExcluded.empty()) {
-      for (std::vector<uint32_t>::const_iterator mod = modulesToBeExcluded.begin(); mod != modulesToBeExcluded.end();
-           mod++) {
-        std::vector<uint32_t>::iterator detid = std::lower_bound(detIds_.begin(), detIds_.end(), *mod);
+      for (unsigned int mod : modulesToBeExcluded) {
+        std::vector<uint32_t>::iterator detid = std::lower_bound(detIds_.begin(), detIds_.end(), mod);
         if (detid != detIds_.end())
           detIds_.erase(detid);
         detid--;
@@ -271,18 +264,16 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> &detIds_, const 
     if (*(SubDetectorsToBeExcluded_.begin()) != "none") {
       std::vector<uint32_t> tmp;
 
-      for (std::vector<std::string>::const_iterator modIter_ = SubDetectorsToBeExcluded_.begin();
-           modIter_ != SubDetectorsToBeExcluded_.end();
-           modIter_++) {
+      for (const auto &modIter_ : SubDetectorsToBeExcluded_) {
         tmp.clear();
 
-        if (*modIter_ == "TIB") {
+        if (modIter_ == "TIB") {
           SiStripSubStructure::getTIBDetectors(detIds_, tmp, tTopo, 0, 0, 0, 0);
-        } else if (*modIter_ == "TOB") {
+        } else if (modIter_ == "TOB") {
           SiStripSubStructure::getTOBDetectors(detIds_, tmp, tTopo, 0, 0, 0);
-        } else if (*modIter_ == "TID") {
+        } else if (modIter_ == "TID") {
           SiStripSubStructure::getTIDDetectors(detIds_, tmp, tTopo, 0, 0, 0, 0);
-        } else if (*modIter_ == "TEC") {
+        } else if (modIter_ == "TEC") {
           SiStripSubStructure::getTECDetectors(detIds_, tmp, tTopo, 0, 0, 0, 0, 0, 0);
         } else {
           edm::LogWarning("SiStripBaseCondObjDQM") << "[SiStripBaseCondObjDQM::selectModules] PLEASE CHECK : no "
@@ -720,10 +711,10 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs 
   if (CondObj_name_ == "quality") {
     unsigned int iBin = 0;
 
-    for (unsigned int i = 0; i < sameLayerDetIds_.size(); i++) {
+    for (unsigned int sameLayerDetId : sameLayerDetIds_) {
       iBin++;
       char sameLayerDetIds_Name[1024];
-      sprintf(sameLayerDetIds_Name, "%u", sameLayerDetIds_[i]);
+      sprintf(sameLayerDetIds_Name, "%u", sameLayerDetId);
       CondObj_ME.SummaryOfProfileDistr->setBinLabel(iBin, sameLayerDetIds_Name);
     }
   }
@@ -732,7 +723,7 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs 
     reverse(sameLayerDetIds_.begin(), sameLayerDetIds_.begin() + sameLayerDetIds_.size() / 2);
 
     unsigned int iBin = 0;
-    for (unsigned int i = 0; i < sameLayerDetIds_.size(); i++) {
+    for (unsigned int sameLayerDetId : sameLayerDetIds_) {
       iBin++;
       if (!SummaryOnStringLevel_On_) {
         // remove the label for detIds:
@@ -743,17 +734,17 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs 
         // Label with module position instead of detIds:
         char sameLayerDetIds_Name[1024];
         if (subdetectorId_ == 3) {  // re-abelling for TIB
-          if (tTopo->tibIsZPlusSide(sameLayerDetIds_[i])) {
-            sprintf(sameLayerDetIds_Name, "%i", tTopo->tibModule(sameLayerDetIds_[i]));
-          } else if (tTopo->tibIsZMinusSide(sameLayerDetIds_[i])) {
-            sprintf(sameLayerDetIds_Name, "%i", -tTopo->tibModule(sameLayerDetIds_[i]));
+          if (tTopo->tibIsZPlusSide(sameLayerDetId)) {
+            sprintf(sameLayerDetIds_Name, "%i", tTopo->tibModule(sameLayerDetId));
+          } else if (tTopo->tibIsZMinusSide(sameLayerDetId)) {
+            sprintf(sameLayerDetIds_Name, "%i", -tTopo->tibModule(sameLayerDetId));
           }
           CondObj_ME.SummaryOfProfileDistr->setBinLabel(iBin, sameLayerDetIds_Name);
         } else if (subdetectorId_ == 5) {  // re-abelling for TOB
-          if (tTopo->tobIsZPlusSide(sameLayerDetIds_[i])) {
-            sprintf(sameLayerDetIds_Name, "%i", tTopo->tobModule(sameLayerDetIds_[i]));
-          } else if (tTopo->tobIsZMinusSide(sameLayerDetIds_[i])) {
-            sprintf(sameLayerDetIds_Name, "%i", -tTopo->tobModule(sameLayerDetIds_[i]));
+          if (tTopo->tobIsZPlusSide(sameLayerDetId)) {
+            sprintf(sameLayerDetIds_Name, "%i", tTopo->tobModule(sameLayerDetId));
+          } else if (tTopo->tobIsZMinusSide(sameLayerDetId)) {
+            sprintf(sameLayerDetIds_Name, "%i", -tTopo->tobModule(sameLayerDetId));
           }
           CondObj_ME.SummaryOfProfileDistr->setBinLabel(iBin, sameLayerDetIds_Name);
         }
@@ -898,10 +889,10 @@ void SiStripBaseCondObjDQM::bookSummaryMEs(SiStripBaseCondObjDQM::ModMEs &CondOb
   // in order to get the right detId-number labelled in right bin of x-axis
   unsigned int iBin = 0;
 
-  for (unsigned int i = 0; i < sameLayerDetIds_.size(); i++) {
+  for (unsigned int sameLayerDetId : sameLayerDetIds_) {
     iBin++;
     char sameLayerDetIds_Name[1024];
-    sprintf(sameLayerDetIds_Name, "%u", sameLayerDetIds_[i]);
+    sprintf(sameLayerDetIds_Name, "%u", sameLayerDetId);
     if (iBin % 100 == 0)
       CondObj_ME.SummaryDistr->setBinLabel(iBin, sameLayerDetIds_Name);
   }
@@ -1152,8 +1143,8 @@ void SiStripBaseCondObjDQM::saveTkMap(const std::string &TkMapname, double minVa
 
     size_t imin = 0, imax = 0;
     float entries = 0;
-    for (size_t i = 0; i < tkMapScaler.size(); ++i)
-      entries += tkMapScaler[i];
+    for (int i : tkMapScaler)
+      entries += i;
 
     float min = 0;
     for (size_t i = 0; (i < tkMapScaler.size()) && (min < th); ++i) {
@@ -1203,9 +1194,8 @@ void SiStripBaseCondObjDQM::fillModMEs(const std::vector<uint32_t> &selectedDetI
 
   ModMEs CondObj_ME;
 
-  for (std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin(); detIter_ != selectedDetIds.end();
-       ++detIter_) {
-    fillMEsForDet(CondObj_ME, *detIter_, tTopo);
+  for (unsigned int selectedDetId : selectedDetIds) {
+    fillMEsForDet(CondObj_ME, selectedDetId, tTopo);
   }
 }
 
@@ -1216,14 +1206,13 @@ void SiStripBaseCondObjDQM::fillSummaryMEs(const std::vector<uint32_t> &selected
   es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology *const tTopo = tTopoHandle.product();
 
-  for (std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin(); detIter_ != selectedDetIds.end();
-       detIter_++) {
-    fillMEsForLayer(/*SummaryMEsMap_,*/ *detIter_, tTopo);
+  for (unsigned int selectedDetId : selectedDetIds) {
+    fillMEsForLayer(/*SummaryMEsMap_,*/ selectedDetId, tTopo);
   }
 
-  for (std::map<uint32_t, ModMEs>::iterator iter = SummaryMEsMap_.begin(); iter != SummaryMEsMap_.end(); iter++) {
+  for (auto &iter : SummaryMEsMap_) {
     ModMEs selME;
-    selME = iter->second;
+    selME = iter.second;
 
     if (hPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel") &&
         fPSet_.getParameter<bool>("OutputSummaryProfileAtLayerLevelAsImage")) {

@@ -81,8 +81,8 @@ void FWProxyBuilderConfiguration::keepEntries(bool b) { m_keepEntries = b; }
 
 template <class T>
 FWGenericParameter<T>* FWProxyBuilderConfiguration::assertParam(const std::string& name, T def) {
-  for (const_iterator i = begin(); i != end(); ++i) {
-    if ((*i)->name() == name) {
+  for (auto i : *this) {
+    if (i->name() == name) {
       return nullptr;
     }
   }
@@ -101,8 +101,8 @@ FWGenericParameter<T>* FWProxyBuilderConfiguration::assertParam(const std::strin
 
 template <class T>
 FWGenericParameterWithRange<T>* FWProxyBuilderConfiguration::assertParam(const std::string& name, T def, T min, T max) {
-  for (const_iterator i = begin(); i != end(); ++i) {
-    if ((*i)->name() == name) {
+  for (auto i : *this) {
+    if (i->name() == name) {
       return nullptr;
     }
   }
@@ -123,9 +123,9 @@ template <class T>
 T FWProxyBuilderConfiguration::value(const std::string& pname) {
   FWGenericParameter<T>* param = nullptr;
 
-  for (FWConfigurableParameterizable::const_iterator i = begin(); i != end(); ++i) {
-    if ((*i)->name() == pname) {
-      param = (FWGenericParameter<T>*)(*i);
+  for (auto i : *this) {
+    if (i->name() == pname) {
+      param = (FWGenericParameter<T>*)i;
       break;
     }
   }

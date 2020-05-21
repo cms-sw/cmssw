@@ -179,9 +179,9 @@ void SiStripCommissioningSource::endJob() {
 
   // ---------- Update histograms ----------
   // Cabling task
-  for (TaskMap::iterator itask = cablingTasks_.begin(); itask != cablingTasks_.end(); itask++) {
-    if (itask->second) {
-      itask->second->updateHistograms();
+  for (auto& cablingTask : cablingTasks_) {
+    if (cablingTask.second) {
+      cablingTask.second->updateHistograms();
     }
   }
 
@@ -198,12 +198,12 @@ void SiStripCommissioningSource::endJob() {
     auto ifed = fedCabling_->fedIds().begin();
     for (; ifed != fedCabling_->fedIds().end(); ifed++) {
       auto conns = fedCabling_->fedConnections(*ifed);
-      for (auto iconn = conns.begin(); iconn != conns.end(); iconn++) {
-        if (!iconn->isConnected()) {
+      for (const auto& conn : conns) {
+        if (!conn.isConnected()) {
           continue;
         }
-        fed_id = iconn->fedId();
-        fed_ch = iconn->fedCh();
+        fed_id = conn.fedId();
+        fed_ch = conn.fedCh();
         if (tasks_[fed_id][fed_ch]) {
           tasks_[fed_id][fed_ch]->updateHistograms();
           delete tasks_[fed_id][fed_ch];
@@ -442,9 +442,9 @@ void SiStripCommissioningSource::fillCablingHistos(const SiStripEventSummary* co
   }
 
   // Iterate through FED ids
-  for (auto ifed = fedCabling_->fedIds().begin(); ifed != fedCabling_->fedIds().end(); ifed++) {
+  for (unsigned short ifed : fedCabling_->fedIds()) {
     // Check if FedId is non-zero
-    if (*ifed == sistrip::invalid_) {
+    if (ifed == sistrip::invalid_) {
       continue;
     }
 
@@ -457,7 +457,7 @@ void SiStripCommissioningSource::fillCablingHistos(const SiStripEventSummary* co
     // Iterate through FED channels
     for (uint16_t ichan = 0; ichan < 96; ichan++) {
       // Retrieve digis for given FED key
-      uint32_t fed_key = ((*ifed & sistrip::invalid_) << 16) | (ichan & sistrip::invalid_);
+      uint32_t fed_key = ((ifed & sistrip::invalid_) << 16) | (ichan & sistrip::invalid_);
 
       std::vector<edm::DetSet<SiStripRawDigi> >::const_iterator digis = raw.find(fed_key);
       if (digis != raw.end()) {
@@ -466,8 +466,8 @@ void SiStripCommissioningSource::fillCablingHistos(const SiStripEventSummary* co
         }
 
         Averages ave;
-        for (uint16_t idigi = 0; idigi < digis->data.size(); idigi++) {
-          ave.add(static_cast<uint32_t>(digis->data[idigi].adc()));
+        for (auto idigi : digis->data) {
+          ave.add(static_cast<uint32_t>(idigi.adc()));
         }
         Averages::Params params;
         ave.calc(params);
@@ -518,7 +518,7 @@ void SiStripCommissioningSource::fillCablingHistos(const SiStripEventSummary* co
     std::map<uint16_t, float>::const_iterator ichan = medians.begin();
     for (; ichan != medians.end(); ichan++) {
       if (ichan->second > 200.) {
-        LogTrace(mlTest_) << "TEST FOUND SIGNAL HIGH: " << *ifed << " " << ichan->first << " " << ichan->second;
+        LogTrace(mlTest_) << "TEST FOUND SIGNAL HIGH: " << ifed << " " << ichan->first << " " << ichan->second;
         channels[ichan->first] = ichan->second;
       }
       ss2  //<< ichan->first << "/"
@@ -529,13 +529,13 @@ void SiStripCommissioningSource::fillCablingHistos(const SiStripEventSummary* co
 
     ss2 << std::endl;
     ss3 << std::endl;
-    LogTrace(mlTest_) << "DUMP for FED  " << *ifed << ": " << ss2.str();
-    LogTrace(mlTest_) << "FIRST ADC VAL " << *ifed << ": " << ss3.str();
+    LogTrace(mlTest_) << "DUMP for FED  " << ifed << ": " << ss2.str();
+    LogTrace(mlTest_) << "FIRST ADC VAL " << ifed << ": " << ss3.str();
 
     // Fill cabling histograms
     if (cablingTasks_.find(fec_key) != cablingTasks_.end()) {
       if (!channels.empty()) {
-        cablingTasks_[fec_key]->fillHistograms(*summary, *ifed, channels);
+        cablingTasks_[fec_key]->fillHistograms(*summary, ifed, channels);
         SiStripFecKey path(fec_key);
         std::stringstream ss;
         ss << "[SiStripCommissioningSource::" << __func__ << "]"
@@ -571,18 +571,18 @@ void SiStripCommissioningSource::fillHistos(const SiStripEventSummary* const sum
   for (; ifed != fedCabling_->fedIds().end(); ifed++) {
     // Iterate through connected FED channels
     auto conns = fedCabling_->fedConnections(*ifed);
-    for (auto iconn = conns.begin(); iconn != conns.end(); iconn++) {
-      if (!(iconn->fedId()) || iconn->fedId() > sistrip::valid_) {
+    for (const auto& conn : conns) {
+      if (!(conn.fedId()) || conn.fedId() > sistrip::valid_) {
         continue;
       }
-      if (!iconn->isConnected()) {
+      if (!conn.isConnected()) {
         continue;
       }
 
       // Create FED key and check if non-zero
       // note: the key is not computed using the same formula as in commissioning histograms.
       // beware that changes here must match changes in raw2digi and in SiStripFineDelayHit
-      uint32_t fed_key = ((iconn->fedId() & sistrip::invalid_) << 16) | (iconn->fedCh() & sistrip::invalid_);
+      uint32_t fed_key = ((conn.fedId() & sistrip::invalid_) << 16) | (conn.fedCh() & sistrip::invalid_);
       // Retrieve digis for given FED key and check if found
       std::vector<edm::DetSet<SiStripRawDigi> >::const_iterator digis = raw.find(fed_key);
 
@@ -599,14 +599,13 @@ void SiStripCommissioningSource::fillHistos(const SiStripEventSummary* const sum
       if (not clusters.empty()) {
         for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter = clusters.begin(); DSViter != clusters.end();
              DSViter++) {
-          if (DSViter->id() != iconn->detId())
+          if (DSViter->id() != conn.detId())
             continue;  // select clusters on this module
-          for (edmNew::DetSet<SiStripCluster>::const_iterator DSiter = DSViter->begin(); DSiter != DSViter->end();
-               DSiter++) {  // loop on the clusters
-            if (DSiter->firstStrip() >= iconn->apvPairNumber() * 256 and
-                DSiter->firstStrip() < (1 + iconn->apvPairNumber()) * 256) {  // found the right APV
-              for (size_t istrip = 0; istrip < DSiter->amplitudes().size(); istrip++) {
-                stripOnClusters.push_back(DSiter->firstStrip() + istrip - iconn->apvPairNumber() * 256);
+          for (const auto& DSiter : *DSViter) {  // loop on the clusters
+            if (DSiter.firstStrip() >= conn.apvPairNumber() * 256 and
+                DSiter.firstStrip() < (1 + conn.apvPairNumber()) * 256) {  // found the right APV
+              for (size_t istrip = 0; istrip < DSiter.amplitudes().size(); istrip++) {
+                stripOnClusters.push_back(DSiter.firstStrip() + istrip - conn.apvPairNumber() * 256);
               }
             }
           }
@@ -616,12 +615,12 @@ void SiStripCommissioningSource::fillHistos(const SiStripEventSummary* const sum
       if (digis != raw.end()) {
         // tasks involving tracking have partition-level histos, so treat separately
         if (task_ == sistrip::APV_LATENCY) {
-          if (tasks_[0][iconn->fecCrate() - 1]) {
-            tasks_[0][iconn->fecCrate() - 1]->fillHistograms(*summary, *digis);
+          if (tasks_[0][conn.fecCrate() - 1]) {
+            tasks_[0][conn.fecCrate() - 1]->fillHistograms(*summary, *digis);
           } else {
             std::stringstream ss;
             ss << "[SiStripCommissioningSource::" << __func__ << "]"
-               << " Unable to find CommissioningTask for FEC crate " << iconn->fecCrate()
+               << " Unable to find CommissioningTask for FEC crate " << conn.fecCrate()
                << ". Unable to fill histograms!";
             edm::LogWarning(mlDqmSource_) << ss.str();
           }
@@ -635,21 +634,21 @@ void SiStripCommissioningSource::fillHistos(const SiStripEventSummary* const sum
             edm::LogWarning(mlDqmSource_) << ss.str();
           }
         } else {
-          if (tasks_[iconn->fedId()][iconn->fedCh()]) {
+          if (tasks_[conn.fedId()][conn.fedCh()]) {
             if (not rawAlt.empty() or digisAlt == rawAlt.end())
-              tasks_[iconn->fedId()][iconn->fedCh()]->fillHistograms(*summary, *digis);
+              tasks_[conn.fedId()][conn.fedCh()]->fillHistograms(*summary, *digis);
             else {  // for spy-data
               if (stripOnClusters.empty())
-                tasks_[iconn->fedId()][iconn->fedCh()]->fillHistograms(*summary, *digis, *digisAlt);
+                tasks_[conn.fedId()][conn.fedCh()]->fillHistograms(*summary, *digis, *digisAlt);
               else {
-                tasks_[iconn->fedId()][iconn->fedCh()]->fillHistograms(*summary, *digis, *digisAlt, stripOnClusters);
+                tasks_[conn.fedId()][conn.fedCh()]->fillHistograms(*summary, *digis, *digisAlt, stripOnClusters);
               }
             }
           } else {
             std::stringstream ss;
             ss << "[SiStripCommissioningSource::" << __func__ << "]"
                << " Unable to find CommissioningTask object with FED key " << std::hex << std::setfill('0')
-               << std::setw(8) << fed_key << std::dec << " and FED id/ch " << iconn->fedId() << "/" << iconn->fedCh()
+               << std::setw(8) << fed_key << std::dec << " and FED id/ch " << conn.fedId() << "/" << conn.fedCh()
                << " Unable to fill histograms!";
             edm::LogWarning(mlDqmSource_) << ss.str();
           }
@@ -661,7 +660,7 @@ void SiStripCommissioningSource::fillHistos(const SiStripEventSummary* const sum
           std::stringstream ss;
           ss << "[SiStripCommissioningSource::" << __func__ << "]"
              << " Unable to find any DetSet containing digis for FED key " << std::hex << std::setfill('0')
-             << std::setw(8) << fed_key << std::dec << " and FED id/ch " << iconn->fedId() << "/" << iconn->fedCh();
+             << std::setw(8) << fed_key << std::dec << " and FED id/ch " << conn.fedId() << "/" << conn.fedCh();
           edm::LogWarning(mlDqmSource_) << ss.str();
         }
       }
@@ -771,10 +770,8 @@ void SiStripCommissioningSource::createTask(const SiStripEventSummary* const sum
 void SiStripCommissioningSource::createCablingTasks() {
   // Iterate through FEC cabling and create commissioning task objects
   uint16_t booked = 0;
-  for (std::vector<SiStripFecCrate>::const_iterator icrate = fecCabling_->crates().begin();
-       icrate != fecCabling_->crates().end();
-       icrate++) {
-    for (std::vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++) {
+  for (const auto& icrate : fecCabling_->crates()) {
+    for (std::vector<SiStripFec>::const_iterator ifec = icrate.fecs().begin(); ifec != icrate.fecs().end(); ifec++) {
       for (std::vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end();
            iring++) {
         for (std::vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end();
@@ -784,7 +781,7 @@ void SiStripCommissioningSource::createCablingTasks() {
                imodule++) {
             // Build FEC key
             SiStripFecKey path(
-                icrate->fecCrate(), ifec->fecSlot(), iring->fecRing(), iccu->ccuAddr(), imodule->ccuChan());
+                icrate.fecCrate(), ifec->fecSlot(), iring->fecRing(), iccu->ccuAddr(), imodule->ccuChan());
 
             // Check if FEC key is invalid
             if (!path.isValid()) {
@@ -801,7 +798,7 @@ void SiStripCommissioningSource::createCablingTasks() {
               SiStripModule::PairOfU16 apvs = imodule->activeApvPair(imodule->lldChannel(ipair));
 
               // Create connection object to hold all relevant info
-              FedChannelConnection conn(icrate->fecCrate(),
+              FedChannelConnection conn(icrate.fecCrate(),
                                         ifec->fecSlot(),
                                         iring->fecRing(),
                                         iccu->ccuAddr(),
@@ -813,7 +810,7 @@ void SiStripCommissioningSource::createCablingTasks() {
                                         imodule->nApvPairs());
 
               // Define key encoding control path
-              uint32_t key = SiStripFecKey(icrate->fecCrate(),
+              uint32_t key = SiStripFecKey(icrate.fecCrate(),
                                            ifec->fecSlot(),
                                            iring->fecRing(),
                                            iccu->ccuAddr(),
@@ -924,17 +921,15 @@ void SiStripCommissioningSource::createTasks(sistrip::RunType run_type, const ed
   } else {  // now do any other task
 
     // Iterate through FED ids and channels
-    for (auto ifed = fedCabling_->fedIds().begin(); ifed != fedCabling_->fedIds().end(); ++ifed) {
+    for (unsigned short ifed : fedCabling_->fedIds()) {
       // Iterate through connected FED channels
-      auto conns = fedCabling_->fedConnections(*ifed);
-      for (auto iconn = conns.begin(); iconn != conns.end(); ++iconn) {
+      auto conns = fedCabling_->fedConnections(ifed);
+      for (const auto& conn : conns) {
         // Create FEC key
-        SiStripFecKey fec_key(
-            iconn->fecCrate(), iconn->fecSlot(), iconn->fecRing(), iconn->ccuAddr(), iconn->ccuChan());
+        SiStripFecKey fec_key(conn.fecCrate(), conn.fecSlot(), conn.fecRing(), conn.ccuAddr(), conn.ccuChan());
         // Create FED key and check if non-zero
-        SiStripFedKey fed_key(
-            iconn->fedId(), SiStripFedKey::feUnit(iconn->fedCh()), SiStripFedKey::feChan(iconn->fedCh()));
-        if (!iconn->isConnected()) {
+        SiStripFedKey fed_key(conn.fedId(), SiStripFedKey::feUnit(conn.fedCh()), SiStripFedKey::feChan(conn.fedCh()));
+        if (!conn.isConnected()) {
           continue;
         }
 
@@ -956,7 +951,7 @@ void SiStripCommissioningSource::createTasks(sistrip::RunType run_type, const ed
           dir << fed_key.path();
         } else if (view_ == "DetView") {
           // currently just by detid from the connection, which is empty...
-          dir << sistrip::root_ << sistrip::dir_ << sistrip::detectorView_ << sistrip::dir_ << iconn->detId();
+          dir << sistrip::root_ << sistrip::dir_ << sistrip::detectorView_ << sistrip::dir_ << conn.detId();
         } else {
           edm::LogWarning(mlDqmSource_) << "[SiStripCommissioningSource::" << __func__ << "]"
                                         << " Invalid view " << view_ << std::endl
@@ -965,33 +960,33 @@ void SiStripCommissioningSource::createTasks(sistrip::RunType run_type, const ed
         dqm()->setCurrentFolder(dir.str());
 
         // Create commissioning task objects
-        if (!tasks_[iconn->fedId()][iconn->fedCh()]) {
+        if (!tasks_[conn.fedId()][conn.fedCh()]) {
           if (task_ == sistrip::FAST_CABLING) {
-            tasks_[iconn->fedId()][iconn->fedCh()] = new FastFedCablingTask(dqm(), *iconn);
+            tasks_[conn.fedId()][conn.fedCh()] = new FastFedCablingTask(dqm(), conn);
           } else if (task_ == sistrip::APV_TIMING) {
-            tasks_[iconn->fedId()][iconn->fedCh()] = new ApvTimingTask(dqm(), *iconn);
+            tasks_[conn.fedId()][conn.fedCh()] = new ApvTimingTask(dqm(), conn);
           } else if (task_ == sistrip::FED_TIMING) {
-            tasks_[iconn->fedId()][iconn->fedCh()] = new FedTimingTask(dqm(), *iconn);
+            tasks_[conn.fedId()][conn.fedCh()] = new FedTimingTask(dqm(), conn);
           } else if (task_ == sistrip::OPTO_SCAN) {
-            tasks_[iconn->fedId()][iconn->fedCh()] = new OptoScanTask(dqm(), *iconn);
+            tasks_[conn.fedId()][conn.fedCh()] = new OptoScanTask(dqm(), conn);
           } else if (task_ == sistrip::VPSP_SCAN) {
-            tasks_[iconn->fedId()][iconn->fedCh()] = new VpspScanTask(dqm(), *iconn);
+            tasks_[conn.fedId()][conn.fedCh()] = new VpspScanTask(dqm(), conn);
           } else if (task_ == sistrip::PEDESTALS) {
-            tasks_[iconn->fedId()][iconn->fedCh()] = new PedestalsTask(dqm(), *iconn);
+            tasks_[conn.fedId()][conn.fedCh()] = new PedestalsTask(dqm(), conn);
           } else if (task_ == sistrip::PEDS_ONLY) {
-            tasks_[iconn->fedId()][iconn->fedCh()] = new PedsOnlyTask(dqm(), *iconn);
+            tasks_[conn.fedId()][conn.fedCh()] = new PedsOnlyTask(dqm(), conn);
           } else if (task_ == sistrip::NOISE) {
-            tasks_[iconn->fedId()][iconn->fedCh()] = new NoiseTask(dqm(), *iconn);
+            tasks_[conn.fedId()][conn.fedCh()] = new NoiseTask(dqm(), conn);
           } else if (task_ == sistrip::PEDS_FULL_NOISE) {
-            tasks_[iconn->fedId()][iconn->fedCh()] = new PedsFullNoiseTask(dqm(), *iconn, parameters_);
+            tasks_[conn.fedId()][conn.fedCh()] = new PedsFullNoiseTask(dqm(), conn, parameters_);
           } else if (task_ == sistrip::DAQ_SCOPE_MODE) {
-            tasks_[iconn->fedId()][iconn->fedCh()] = new DaqScopeModeTask(dqm(), *iconn, parameters_);
+            tasks_[conn.fedId()][conn.fedCh()] = new DaqScopeModeTask(dqm(), conn, parameters_);
           } else if (task_ == sistrip::CALIBRATION_SCAN || task_ == sistrip::CALIBRATION_SCAN_DECO) {
-            tasks_[iconn->fedId()][iconn->fedCh()] =
-                new CalibrationScanTask(dqm(), *iconn, task_, filename_.c_str(), run_, setup);
+            tasks_[conn.fedId()][conn.fedCh()] =
+                new CalibrationScanTask(dqm(), conn, task_, filename_.c_str(), run_, setup);
           } else if (task_ == sistrip::CALIBRATION || task_ == sistrip::CALIBRATION_DECO) {
-            tasks_[iconn->fedId()][iconn->fedCh()] =
-                new CalibrationTask(dqm(), *iconn, task_, filename_.c_str(), run_, setup);
+            tasks_[conn.fedId()][conn.fedCh()] =
+                new CalibrationTask(dqm(), conn, task_, filename_.c_str(), run_, setup);
           } else if (task_ == sistrip::UNDEFINED_RUN_TYPE) {
             edm::LogWarning(mlDqmSource_) << "[SiStripCommissioningSource::" << __func__ << "]"
                                           << " Undefined CommissioningTask"
@@ -1003,19 +998,19 @@ void SiStripCommissioningSource::createTasks(sistrip::RunType run_type, const ed
           }
 
           // Check if fed_key is found and, if so, book histos and set update freq
-          if (tasks_[iconn->fedId()][iconn->fedCh()]) {
-            tasks_[iconn->fedId()][iconn->fedCh()]->eventSetup(&setup);
+          if (tasks_[conn.fedId()][conn.fedCh()]) {
+            tasks_[conn.fedId()][conn.fedCh()]->eventSetup(&setup);
 
             if (task_ != sistrip::CALIBRATION_SCAN and task_ != sistrip::CALIBRATION_SCAN_DECO and
                 task_ != sistrip::CALIBRATION and task_ != sistrip::CALIBRATION_DECO)
-              tasks_[iconn->fedId()][iconn->fedCh()]->bookHistograms();
+              tasks_[conn.fedId()][conn.fedCh()]->bookHistograms();
             else {
               if (task_ == sistrip::CALIBRATION_SCAN or task_ == sistrip::CALIBRATION_SCAN_DECO)
-                static_cast<CalibrationScanTask*>(tasks_[iconn->fedId()][iconn->fedCh()])->setCurrentFolder(dir.str());
+                static_cast<CalibrationScanTask*>(tasks_[conn.fedId()][conn.fedCh()])->setCurrentFolder(dir.str());
               else if (task_ == sistrip::CALIBRATION or task_ == sistrip::CALIBRATION_DECO)
-                static_cast<CalibrationTask*>(tasks_[iconn->fedId()][iconn->fedCh()])->setCurrentFolder(dir.str());
+                static_cast<CalibrationTask*>(tasks_[conn.fedId()][conn.fedCh()])->setCurrentFolder(dir.str());
             }
-            tasks_[iconn->fedId()][iconn->fedCh()]->updateFreq(updateFreq_);
+            tasks_[conn.fedId()][conn.fedCh()]->updateFreq(updateFreq_);
             booked++;
           } else {
             std::stringstream ss;
@@ -1045,9 +1040,9 @@ void SiStripCommissioningSource::clearCablingTasks() {
   if (cablingTasks_.empty()) {
     return;
   }
-  for (TaskMap::iterator itask = cablingTasks_.begin(); itask != cablingTasks_.end(); itask++) {
-    if (itask->second) {
-      delete itask->second;
+  for (auto& cablingTask : cablingTasks_) {
+    if (cablingTask.second) {
+      delete cablingTask.second;
     }
   }
   cablingTasks_.clear();

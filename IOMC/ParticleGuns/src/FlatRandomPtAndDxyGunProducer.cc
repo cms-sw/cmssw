@@ -55,7 +55,7 @@ void FlatRandomPtAndDxyGunProducer::produce(Event& e, const EventSetup& es) {
 
   // now actualy, cook up the event from PDGTable and gun parameters
   int barcode = 1;
-  for (unsigned int ip = 0; ip < fPartIDs.size(); ++ip) {
+  for (int PartID : fPartIDs) {
     double phi_vtx = 0;
     double dxy = 0;
     double pt = 0;
@@ -111,7 +111,6 @@ void FlatRandomPtAndDxyGunProducer::produce(Event& e, const EventSetup& es) {
 
     HepMC::GenVertex* Vtx1 = new HepMC::GenVertex(HepMC::FourVector(vx, vy, vz));
 
-    int PartID = fPartIDs[ip];
     const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID)));
     double mass = PData->mass().value();
     double energy2 = px * px + py * py + pz * pz + mass * mass;

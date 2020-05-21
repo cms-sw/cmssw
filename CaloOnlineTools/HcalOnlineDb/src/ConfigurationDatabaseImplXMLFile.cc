@@ -209,8 +209,8 @@ void ConfigurationDatabaseImplXMLFile::getLUTs(
           strtol_base = 10;
 
         // convert the data
-        for (unsigned int j = 0; j < values.size(); j++)
-          lut.push_back(strtol(values[j].c_str(), nullptr, strtol_base));
+        for (auto& value : values)
+          lut.push_back(strtol(value.c_str(), nullptr, strtol_base));
       }
   for (int tb = 0; tb <= 1; tb++)
     for (int slb = 1; slb <= 6; slb++)
@@ -247,8 +247,8 @@ void ConfigurationDatabaseImplXMLFile::getLUTs(
           strtol_base = 10;
 
         // convert the data
-        for (unsigned int j = 0; j < values.size(); j++)
-          lut.push_back(strtol(values[j].c_str(), nullptr, strtol_base));
+        for (auto& value : values)
+          lut.push_back(strtol(value.c_str(), nullptr, strtol_base));
       }
 }
 
@@ -322,8 +322,8 @@ void ConfigurationDatabaseImplXMLFile::getPatterns(
         strtol_base = 10;
 
       // convert the data
-      for (unsigned int j = 0; j < values.size(); j++)
-        lut.push_back(strtol(values[j].c_str(), nullptr, strtol_base));
+      for (auto& value : values)
+        lut.push_back(strtol(value.c_str(), nullptr, strtol_base));
     }
 }
 

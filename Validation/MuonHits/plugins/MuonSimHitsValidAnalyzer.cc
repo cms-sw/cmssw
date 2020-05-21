@@ -274,18 +274,18 @@ void MuonSimHitsValidAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
     if (printProvenanceInfo && (verbosity > 0)) {
       TString eventout("\nProvenance info:\n");
 
-      for (unsigned int i = 0; i < AllProv.size(); ++i) {
+      for (auto& i : AllProv) {
         eventout += "\n       ******************************";
         eventout += "\n       Module       : ";
-        eventout += AllProv[i]->moduleLabel();
+        eventout += i->moduleLabel();
         eventout += "\n       ProductID    : ";
-        eventout += AllProv[i]->productID().id();
+        eventout += i->productID().id();
         eventout += "\n       ClassName    : ";
-        eventout += AllProv[i]->className();
+        eventout += i->className();
         eventout += "\n       InstanceName : ";
-        eventout += AllProv[i]->productInstanceName();
+        eventout += i->productInstanceName();
         eventout += "\n       BranchName   : ";
-        eventout += AllProv[i]->branchName();
+        eventout += i->branchName();
       }
       eventout += "       ******************************\n";
       edm::LogInfo("MuonSimHitsValidAnalyzer::analyze") << eventout << "\n";

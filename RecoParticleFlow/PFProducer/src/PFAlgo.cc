@@ -803,8 +803,8 @@ bool PFAlgo::recoTracksNotHCAL(const reco::PFBlock& block,
       (*pfCandidates_)[tmpj].setPs2Energy(0.);
       (*pfCandidates_)[tmpj].addElementInBlock(blockref, iEcal);
       bNeutralProduced = true;
-      for (unsigned ic = 0; ic < kTrack.size(); ++ic)
-        (*pfCandidates_)[tmpj].addElementInBlock(blockref, kTrack[ic]);
+      for (unsigned int ic : kTrack)
+        (*pfCandidates_)[tmpj].addElementInBlock(blockref, ic);
     }  // End neutral energy
 
     // Set elements in blocks and ECAL energies to all tracks
@@ -1262,8 +1262,8 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
   // inds.trackIs can be empty, even if there are tracks in this block,
   // but what we want to check is if this block has any track including inactive ones
   if (!trackInBlock)
-    for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
-      PFBlockElement::Type type = elements[iEle].type();
+    for (const auto& element : elements) {
+      PFBlockElement::Type type = element.type();
       if (type == PFBlockElement::TRACK) {
         trackInBlock = true;
         break;
@@ -3017,9 +3017,7 @@ void PFAlgo::createCandidatesECAL(const reco::PFBlock& block,
 
   // for each ecal element iEcal = ecalIs[i] in turn:
 
-  for (unsigned i = 0; i < inds.ecalIs.size(); i++) {
-    unsigned iEcal = inds.ecalIs[i];
-
+  for (unsigned int iEcal : inds.ecalIs) {
     LogTrace("PFAlgo|createCandidatesECAL") << "elements[" << iEcal << "]=" << elements[iEcal];
 
     if (!active[iEcal]) {

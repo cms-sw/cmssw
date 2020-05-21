@@ -200,23 +200,18 @@ void L1GlobalTriggerRecord::printTechnicalTrigger(std::ostream& myCout) const {
 void L1GlobalTriggerRecord::reset() {
   m_gtGlobalDecision = false;
 
-  for (std::vector<bool>::iterator itBit = m_gtDecisionWord.begin(); itBit != m_gtDecisionWord.end(); ++itBit) {
-    *itBit = false;
+  for (auto&& itBit : m_gtDecisionWord) {
+    itBit = false;
   }
-  for (std::vector<bool>::iterator itBit = m_gtTechnicalTriggerWord.begin(); itBit != m_gtTechnicalTriggerWord.end();
-       ++itBit) {
-    *itBit = false;
+  for (auto&& itBit : m_gtTechnicalTriggerWord) {
+    itBit = false;
   }
-  for (std::vector<bool>::iterator itBit = m_gtDecisionWordBeforeMask.begin();
-       itBit != m_gtDecisionWordBeforeMask.end();
-       ++itBit) {
-    *itBit = false;
+  for (auto&& itBit : m_gtDecisionWordBeforeMask) {
+    itBit = false;
   }
 
-  for (std::vector<bool>::iterator itBit = m_gtTechnicalTriggerWordBeforeMask.begin();
-       itBit != m_gtTechnicalTriggerWordBeforeMask.end();
-       ++itBit) {
-    *itBit = false;
+  for (auto&& itBit : m_gtTechnicalTriggerWordBeforeMask) {
+    itBit = false;
   }
 
   m_gtPrescaleFactorIndexTech = 0;

@@ -103,43 +103,43 @@ void ODCCSConfig::setParameters(const std::map<string, string>& my_keys_map) {
   // parses the result of the XML parser that is a map of
   // string string with variable name variable value
 
-  for (std::map<std::string, std::string>::const_iterator ci = my_keys_map.begin(); ci != my_keys_map.end(); ci++) {
-    if (ci->first == "CCS_CONFIGURATION_ID")
-      setConfigTag(ci->second);
-    else if (ci->first == "DACCAL")
-      setDaccal(atoi(ci->second.c_str()));
-    else if (ci->first == "GAIN")
-      setGain(ci->second);
-    else if (ci->first == "MEMGAIN")
-      setMemGain(ci->second);
-    else if (ci->first == "OFFSET_HIGH")
-      setOffsetHigh(atoi(ci->second.c_str()));
-    else if (ci->first == "OFFSET_LOW")
-      setOffsetLow(atoi(ci->second.c_str()));
-    else if (ci->first == "OFFSET_MID")
-      setOffsetMid(atoi(ci->second.c_str()));
-    else if (ci->first == "TRG_MODE")
-      setTrgMode(ci->second);
-    else if (ci->first == "TRG_FILTER")
-      setTrgFilter(ci->second);
-    else if (ci->first == "CLOCK")
-      setClock(atoi(ci->second.c_str()));
-    else if (ci->first == "BGO_SOURCE")
-      setBGOSource(ci->second);
-    else if (ci->first == "TTS_MASK")
-      setTTSMask(atoi(ci->second.c_str()));
-    else if (ci->first == "DAQ_BCID_PRESET")
-      setDAQBCIDPreset(atoi(ci->second.c_str()));
-    else if (ci->first == "TRIG_BCID_PRESET")
-      setTrgBCIDPreset(atoi(ci->second.c_str()));
-    else if (ci->first == "BC0_COUNTER")
-      setBC0Counter(atoi(ci->second.c_str()));
-    else if (ci->first == "BC0_DELAY")
-      setBC0Delay(atoi(ci->second.c_str()));
-    else if (ci->first == "TE_DELAY")
-      setTEDelay(atoi(ci->second.c_str()));
-    else if (ci->first == "DELAY")
-      setDelay(atoi(ci->second.c_str()));
+  for (const auto& ci : my_keys_map) {
+    if (ci.first == "CCS_CONFIGURATION_ID")
+      setConfigTag(ci.second);
+    else if (ci.first == "DACCAL")
+      setDaccal(atoi(ci.second.c_str()));
+    else if (ci.first == "GAIN")
+      setGain(ci.second);
+    else if (ci.first == "MEMGAIN")
+      setMemGain(ci.second);
+    else if (ci.first == "OFFSET_HIGH")
+      setOffsetHigh(atoi(ci.second.c_str()));
+    else if (ci.first == "OFFSET_LOW")
+      setOffsetLow(atoi(ci.second.c_str()));
+    else if (ci.first == "OFFSET_MID")
+      setOffsetMid(atoi(ci.second.c_str()));
+    else if (ci.first == "TRG_MODE")
+      setTrgMode(ci.second);
+    else if (ci.first == "TRG_FILTER")
+      setTrgFilter(ci.second);
+    else if (ci.first == "CLOCK")
+      setClock(atoi(ci.second.c_str()));
+    else if (ci.first == "BGO_SOURCE")
+      setBGOSource(ci.second);
+    else if (ci.first == "TTS_MASK")
+      setTTSMask(atoi(ci.second.c_str()));
+    else if (ci.first == "DAQ_BCID_PRESET")
+      setDAQBCIDPreset(atoi(ci.second.c_str()));
+    else if (ci.first == "TRIG_BCID_PRESET")
+      setTrgBCIDPreset(atoi(ci.second.c_str()));
+    else if (ci.first == "BC0_COUNTER")
+      setBC0Counter(atoi(ci.second.c_str()));
+    else if (ci.first == "BC0_DELAY")
+      setBC0Delay(atoi(ci.second.c_str()));
+    else if (ci.first == "TE_DELAY")
+      setTEDelay(atoi(ci.second.c_str()));
+    else if (ci.first == "DELAY")
+      setDelay(atoi(ci.second.c_str()));
   }
 }
 

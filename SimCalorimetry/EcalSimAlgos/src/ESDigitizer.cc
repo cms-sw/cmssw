@@ -141,10 +141,10 @@ void ESDigitizer::run(ESDigiCollection& output, CLHEP::HepRandomEngine* engine) 
     createNoisyList(abThreshCh, engine);
 
   // first make a raw digi for every cell where we have noise
-  for (std::vector<DetId>::const_iterator idItr(abThreshCh.begin()); idItr != abThreshCh.end(); ++idItr) {
-    if (hitResponse()->findDetId(*idItr)->zero())  // only if no true hit!
+  for (auto idItr : abThreshCh) {
+    if (hitResponse()->findDetId(idItr)->zero())  // only if no true hit!
     {
-      ESHitResponse::ESSamples analogSignal(*idItr, 3);  // space for the noise hit
+      ESHitResponse::ESSamples analogSignal(idItr, 3);  // space for the noise hit
       uint32_t myBin((uint32_t)m_trip.size() * m_ranGeneral->shoot(engine));
       if (myBin == m_trip.size())
         --myBin;  // guard against roundup
@@ -153,7 +153,7 @@ void ESDigitizer::run(ESDigiCollection& output, CLHEP::HepRandomEngine* engine) 
       analogSignal[0] = m_histoInf + m_histoWid * trip.first;
       analogSignal[1] = m_histoInf + m_histoWid * trip.second;
       analogSignal[2] = m_histoInf + m_histoWid * trip.third;
-      ESDataFrame digi(*idItr);
+      ESDataFrame digi(idItr);
       const_cast<ESElectronicsSimFast*>(elecSim())->analogToDigital(engine, analogSignal, digi, true);
       output.push_back(std::move(digi));
     }

@@ -568,8 +568,8 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
   // Loop over recHits, fill histograms which does not need associations
   int sumClusterSizeBarrel = 0, sumClusterSizeEndcap = 0;
   int nRecHitBarrel = 0, nRecHitEndcap = 0;
-  for (RecHitIter recHitIter = recHitHandle->begin(); recHitIter != recHitHandle->end(); ++recHitIter) {
-    const RPCDetId detId = static_cast<const RPCDetId>(recHitIter->rpcId());
+  for (const auto &recHitIter : *recHitHandle) {
+    const RPCDetId detId = static_cast<const RPCDetId>(recHitIter.rpcId());
     const RPCRoll *roll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(detId()));
     if (!roll)
       continue;
@@ -581,14 +581,14 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
     // const int layer = roll->id().layer();
     // const int subSector = roll->id().subsector();
 
-    const double time = recHitIter->timeError() >= 0 ? recHitIter->time() : recHitIter->BunchX() * 25;
+    const double time = recHitIter.timeError() >= 0 ? recHitIter.time() : recHitIter.BunchX() * 25;
 
-    h_.clusterSize->Fill(recHitIter->clusterSize());
+    h_.clusterSize->Fill(recHitIter.clusterSize());
 
     if (region == 0) {
       ++nRecHitBarrel;
-      sumClusterSizeBarrel += recHitIter->clusterSize();
-      h_.clusterSizeBarrel->Fill(recHitIter->clusterSize());
+      sumClusterSizeBarrel += recHitIter.clusterSize();
+      h_.clusterSizeBarrel->Fill(recHitIter.clusterSize());
       h_.recHitOccupancyBarrel_wheel->Fill(ring);
       h_.recHitOccupancyBarrel_station->Fill(station);
       h_.recHitOccupancyBarrel_wheel_station->Fill(ring, station);
@@ -596,8 +596,8 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
       h_.timeBarrel->Fill(time);
     } else {
       ++nRecHitEndcap;
-      sumClusterSizeEndcap += recHitIter->clusterSize();
-      h_.clusterSizeEndcap->Fill(recHitIter->clusterSize());
+      sumClusterSizeEndcap += recHitIter.clusterSize();
+      h_.clusterSizeEndcap->Fill(recHitIter.clusterSize());
       h_.recHitOccupancyEndcap_disk->Fill(region * station);
       h_.recHitOccupancyEndcap_disk_ring->Fill(region * station, ring);
 
@@ -721,14 +721,14 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
   h_.nMatchHitEndcap->Fill(nMatchHitEndcap);
 
   // Reco Muon hits
-  for (reco::MuonCollection::const_iterator muon = muonHandle->begin(); muon != muonHandle->end(); ++muon) {
-    if (!muon->isGlobalMuon())
+  for (const auto &muon : *muonHandle) {
+    if (!muon.isGlobalMuon())
       continue;
 
     int nRPCHitBarrel = 0;
     int nRPCHitEndcap = 0;
 
-    const reco::TrackRef glbTrack = muon->globalTrack();
+    const reco::TrackRef glbTrack = muon.globalTrack();
     for (trackingRecHit_iterator recHit = glbTrack->recHitsBegin(); recHit != glbTrack->recHitsEnd(); ++recHit) {
       if (!(*recHit)->isValid())
         continue;
@@ -747,23 +747,23 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
     h_nRPCHitPerRecoMuon->Fill(nRPCHit);
     if (nRPCHitBarrel and nRPCHitEndcap) {
       h_nRPCHitPerRecoMuonOverlap->Fill(nRPCHit);
-      h_recoMuonOverlap_pt->Fill(muon->pt());
-      h_recoMuonOverlap_eta->Fill(muon->eta());
-      h_recoMuonOverlap_phi->Fill(muon->phi());
+      h_recoMuonOverlap_pt->Fill(muon.pt());
+      h_recoMuonOverlap_eta->Fill(muon.eta());
+      h_recoMuonOverlap_phi->Fill(muon.phi());
     } else if (nRPCHitBarrel) {
       h_nRPCHitPerRecoMuonBarrel->Fill(nRPCHit);
-      h_recoMuonBarrel_pt->Fill(muon->pt());
-      h_recoMuonBarrel_eta->Fill(muon->eta());
-      h_recoMuonBarrel_phi->Fill(muon->phi());
+      h_recoMuonBarrel_pt->Fill(muon.pt());
+      h_recoMuonBarrel_eta->Fill(muon.eta());
+      h_recoMuonBarrel_phi->Fill(muon.phi());
     } else if (nRPCHitEndcap) {
       h_nRPCHitPerRecoMuonEndcap->Fill(nRPCHit);
-      h_recoMuonEndcap_pt->Fill(muon->pt());
-      h_recoMuonEndcap_eta->Fill(muon->eta());
-      h_recoMuonEndcap_phi->Fill(muon->phi());
+      h_recoMuonEndcap_pt->Fill(muon.pt());
+      h_recoMuonEndcap_eta->Fill(muon.eta());
+      h_recoMuonEndcap_phi->Fill(muon.phi());
     } else {
-      h_recoMuonNoRPC_pt->Fill(muon->pt());
-      h_recoMuonNoRPC_eta->Fill(muon->eta());
-      h_recoMuonNoRPC_phi->Fill(muon->phi());
+      h_recoMuonNoRPC_pt->Fill(muon.pt());
+      h_recoMuonNoRPC_eta->Fill(muon.eta());
+      h_recoMuonNoRPC_phi->Fill(muon.phi());
     }
   }
 
@@ -814,8 +814,8 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
   }
 
   // Find noise recHits : RecHits without SimHit match
-  for (RecHitIter recHitIter = recHitHandle->begin(); recHitIter != recHitHandle->end(); ++recHitIter) {
-    const RPCDetId recDetId = static_cast<const RPCDetId>(recHitIter->rpcId());
+  for (const auto &recHitIter : *recHitHandle) {
+    const RPCDetId recDetId = static_cast<const RPCDetId>(recHitIter.rpcId());
     const RPCRoll *roll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(recDetId));
 
     const int region = roll->id().region();
@@ -825,12 +825,12 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
     // const int layer = roll->id().layer();
     // const int subsector = roll->id().subsector();
 
-    const double recX = recHitIter->localPosition().x();
-    const double recErrX = sqrt(recHitIter->localPositionError().xx());
+    const double recX = recHitIter.localPosition().x();
+    const double recErrX = sqrt(recHitIter.localPositionError().xx());
 
     bool matched = false;
-    for (SimHitIter simHitIter = simHitHandle->begin(); simHitIter != simHitHandle->end(); ++simHitIter) {
-      const RPCDetId simDetId = static_cast<const RPCDetId>(simHitIter->detUnitId());
+    for (const auto &simHitIter : *simHitHandle) {
+      const RPCDetId simDetId = static_cast<const RPCDetId>(simHitIter.detUnitId());
       const RPCRoll *simRoll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(simDetId));
       if (!simRoll)
         continue;
@@ -838,7 +838,7 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
       if (simDetId != recDetId)
         continue;
 
-      const double simX = simHitIter->localPosition().x();
+      const double simX = simHitIter.localPosition().x();
       const double dX = fabs(recX - simX);
 
       if (dX / recErrX < 5) {

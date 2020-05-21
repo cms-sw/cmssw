@@ -327,9 +327,9 @@ void L1GlobalTriggerFDL::run(edm::Event &iEvent,
   // fill everything we know in the L1GtFdlWord
 
   typedef std::vector<L1GtBoard>::const_iterator CItBoardMaps;
-  for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
-    if ((itBoard->gtBoardType() == FDL)) {
-      m_gtFdlWord->setBoardId(itBoard->gtBoardId());
+  for (const auto &boardMap : boardMaps) {
+    if ((boardMap.gtBoardType() == FDL)) {
+      m_gtFdlWord->setBoardId(boardMap.gtBoardId());
 
       // BxInEvent
       m_gtFdlWord->setBxInEvent(iBxInEvent);
@@ -392,10 +392,10 @@ void L1GlobalTriggerFDL::fillDaqFdlBlock(const int iBxInEvent,
                                          const std::vector<L1GtBoard> &boardMaps,
                                          L1GlobalTriggerReadoutRecord *gtDaqReadoutRecord) {
   typedef std::vector<L1GtBoard>::const_iterator CItBoardMaps;
-  for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
-    int iPosition = itBoard->gtPositionDaqRecord();
+  for (const auto &boardMap : boardMaps) {
+    int iPosition = boardMap.gtPositionDaqRecord();
     if (iPosition > 0) {
-      int iActiveBit = itBoard->gtBitDaqActiveBoards();
+      int iActiveBit = boardMap.gtBitDaqActiveBoards();
       bool activeBoard = false;
       bool writeBoard = false;
 
@@ -420,7 +420,7 @@ void L1GlobalTriggerFDL::fillDaqFdlBlock(const int iBxInEvent,
         }
       }
 
-      if (activeBoard && writeBoard && (itBoard->gtBoardType() == FDL)) {
+      if (activeBoard && writeBoard && (boardMap.gtBoardType() == FDL)) {
         gtDaqReadoutRecord->setGtFdlWord(*m_gtFdlWord);
       }
     }
@@ -436,17 +436,17 @@ void L1GlobalTriggerFDL::fillEvmFdlBlock(const int iBxInEvent,
                                          const std::vector<L1GtBoard> &boardMaps,
                                          L1GlobalTriggerEvmReadoutRecord *gtEvmReadoutRecord) {
   typedef std::vector<L1GtBoard>::const_iterator CItBoardMaps;
-  for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
-    int iPosition = itBoard->gtPositionEvmRecord();
+  for (const auto &boardMap : boardMaps) {
+    int iPosition = boardMap.gtPositionEvmRecord();
     if (iPosition > 0) {
-      int iActiveBit = itBoard->gtBitEvmActiveBoards();
+      int iActiveBit = boardMap.gtBitEvmActiveBoards();
       bool activeBoard = false;
 
       if (iActiveBit >= 0) {
         activeBoard = activeBoardsGtEvm & (1 << iActiveBit);
       }
 
-      if (activeBoard && (itBoard->gtBoardType() == FDL)) {
+      if (activeBoard && (boardMap.gtBoardType() == FDL)) {
         gtEvmReadoutRecord->setGtFdlWord(*m_gtFdlWord);
       }
     }

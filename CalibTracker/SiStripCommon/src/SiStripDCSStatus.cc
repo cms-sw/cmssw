@@ -124,9 +124,9 @@ void SiStripDCSStatus::initialise(edm::Event const& e, edm::EventSetup const& eS
 
   rawdataAbsent = false;
   const FEDRawDataCollection& rawDataCollection = *rawDataHandle;
-  for (std::vector<unsigned short>::const_iterator ifed = connectedFEDs.begin(); ifed != connectedFEDs.end(); ifed++) {
-    auto fedChannels = fedCabling_.fedConnections(*ifed);
-    if (!(rawDataCollection.FEDData(*ifed).size()) || !(rawDataCollection.FEDData(*ifed).data()))
+  for (unsigned short connectedFED : connectedFEDs) {
+    auto fedChannels = fedCabling_.fedConnections(connectedFED);
+    if (!(rawDataCollection.FEDData(connectedFED).size()) || !(rawDataCollection.FEDData(connectedFED).data()))
       continue;
     // Check Modules Connected
     for (std::vector<FedChannelConnection>::const_iterator iconn = fedChannels.begin(); iconn < fedChannels.end();

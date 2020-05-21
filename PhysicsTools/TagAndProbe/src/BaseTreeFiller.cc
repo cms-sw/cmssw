@@ -142,36 +142,38 @@ void tnp::BaseTreeFiller::addBranches_(TTree *tree,
   edm::ParameterSet variables = iConfig.getParameter<edm::ParameterSet>("variables");
   //.. the ones that are strings
   std::vector<std::string> stringVars = variables.getParameterNamesForType<std::string>();
-  for (std::vector<std::string>::const_iterator it = stringVars.begin(), ed = stringVars.end(); it != ed; ++it) {
-    vars_.push_back(tnp::ProbeVariable(branchNamePrefix + *it, variables.getParameter<std::string>(*it)));
+  for (const auto &stringVar : stringVars) {
+    vars_.push_back(tnp::ProbeVariable(branchNamePrefix + stringVar, variables.getParameter<std::string>(stringVar)));
   }
   //.. the ones that are InputTags
   std::vector<std::string> inputTagVars = variables.getParameterNamesForType<edm::InputTag>();
-  for (std::vector<std::string>::const_iterator it = inputTagVars.begin(), ed = inputTagVars.end(); it != ed; ++it) {
-    vars_.push_back(tnp::ProbeVariable(branchNamePrefix + *it,
-                                       iC.consumes<edm::ValueMap<float> >(variables.getParameter<edm::InputTag>(*it))));
+  for (const auto &inputTagVar : inputTagVars) {
+    vars_.push_back(
+        tnp::ProbeVariable(branchNamePrefix + inputTagVar,
+                           iC.consumes<edm::ValueMap<float> >(variables.getParameter<edm::InputTag>(inputTagVar))));
   }
   // set up flags
   edm::ParameterSet flags = iConfig.getParameter<edm::ParameterSet>("flags");
   //.. the ones that are strings
   std::vector<std::string> stringFlags = flags.getParameterNamesForType<std::string>();
-  for (std::vector<std::string>::const_iterator it = stringFlags.begin(), ed = stringFlags.end(); it != ed; ++it) {
-    flags_.push_back(tnp::ProbeFlag(branchNamePrefix + *it, flags.getParameter<std::string>(*it)));
+  for (const auto &stringFlag : stringFlags) {
+    flags_.push_back(tnp::ProbeFlag(branchNamePrefix + stringFlag, flags.getParameter<std::string>(stringFlag)));
   }
   //.. the ones that are InputTags
   std::vector<std::string> inputTagFlags = flags.getParameterNamesForType<edm::InputTag>();
-  for (std::vector<std::string>::const_iterator it = inputTagFlags.begin(), ed = inputTagFlags.end(); it != ed; ++it) {
-    flags_.push_back(tnp::ProbeFlag(branchNamePrefix + *it,
-                                    iC.consumes<edm::View<reco::Candidate> >(flags.getParameter<edm::InputTag>(*it))));
+  for (const auto &inputTagFlag : inputTagFlags) {
+    flags_.push_back(
+        tnp::ProbeFlag(branchNamePrefix + inputTagFlag,
+                       iC.consumes<edm::View<reco::Candidate> >(flags.getParameter<edm::InputTag>(inputTagFlag))));
   }
 
   // then make all the variables in the trees
-  for (std::vector<tnp::ProbeVariable>::iterator it = vars_.begin(), ed = vars_.end(); it != ed; ++it) {
-    tree->Branch(it->name().c_str(), it->address(), (it->name() + "/F").c_str());
+  for (auto &var : vars_) {
+    tree->Branch(var.name().c_str(), var.address(), (var.name() + "/F").c_str());
   }
 
-  for (std::vector<tnp::ProbeFlag>::iterator it = flags_.begin(), ed = flags_.end(); it != ed; ++it) {
-    tree->Branch(it->name().c_str(), it->address(), (it->name() + "/I").c_str());
+  for (auto &flag : flags_) {
+    tree->Branch(flag.name().c_str(), flag.address(), (flag.name() + "/I").c_str());
   }
 }
 
@@ -190,11 +192,11 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
   }
 
   totWeight_ = 1.;
-  for (std::vector<tnp::ProbeVariable>::const_iterator it = vars_.begin(), ed = vars_.end(); it != ed; ++it) {
-    it->init(iEvent);
+  for (const auto &var : vars_) {
+    var.init(iEvent);
   }
-  for (std::vector<tnp::ProbeFlag>::const_iterator it = flags_.begin(), ed = flags_.end(); it != ed; ++it) {
-    it->init(iEvent);
+  for (const auto &flag : flags_) {
+    flag.init(iEvent);
   }
   if (weightMode_ == External) {
     // edm::Handle<double> weight;

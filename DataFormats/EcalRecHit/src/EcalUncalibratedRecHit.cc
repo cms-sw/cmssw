@@ -5,8 +5,8 @@
 EcalUncalibratedRecHit::EcalUncalibratedRecHit()
     : amplitude_(0.), amplitudeError_(0.), pedestal_(0.), jitter_(0.), chi2_(10000.), flags_(0), aux_(0) {
   const unsigned int nsample = EcalDataFrame::MAXSAMPLES;
-  for (unsigned int ibx = 0; ibx < nsample; ++ibx)
-    OOTamplitudes_[ibx] = 0.;
+  for (float& OOTamplitude : OOTamplitudes_)
+    OOTamplitude = 0.;
 }
 
 EcalUncalibratedRecHit::EcalUncalibratedRecHit(
@@ -20,8 +20,8 @@ EcalUncalibratedRecHit::EcalUncalibratedRecHit(
       aux_(aux),
       id_(id) {
   const unsigned int nsample = EcalDataFrame::MAXSAMPLES;
-  for (unsigned int ibx = 0; ibx < nsample; ++ibx)
-    OOTamplitudes_[ibx] = 0.;
+  for (float& OOTamplitude : OOTamplitudes_)
+    OOTamplitude = 0.;
 }
 
 bool EcalUncalibratedRecHit::isSaturated() const { return EcalUncalibratedRecHit::checkFlag(kSaturated); }

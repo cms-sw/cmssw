@@ -130,13 +130,12 @@ double helper::ScannerBase::eval(const void *ptr, size_t iexpr) const {
 void helper::ScannerBase::print(const void *ptr) const {
   edm::ObjectWithDict obj(objType_, const_cast<void *>(ptr));
   if ((cuts_[0].get() == nullptr) || (*cuts_[0])(obj)) {
-    for (std::vector<reco::parser::ExpressionPtr>::const_iterator it = exprs_.begin(), ed = exprs_.end(); it != ed;
-         ++it) {
-      if (ptr == nullptr || it->get() == nullptr) {
+    for (const auto &expr : exprs_) {
+      if (ptr == nullptr || expr.get() == nullptr) {
         printf(" : %8s", "#ERR");
       } else {
         try {
-          double val = (*it)->value(obj);
+          double val = expr->value(obj);
           // I found no easy ways to enforce a fixed width from printf that works also with leading zeroes or large exponents (e.g. 1e15 or 1e101)
           // So we have to go the ugly way
           char buff[255];

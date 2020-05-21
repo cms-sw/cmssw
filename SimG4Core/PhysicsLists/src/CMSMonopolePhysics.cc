@@ -77,9 +77,9 @@ void CMSMonopolePhysics::ConstructProcess() {
   }
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
 
-  for (unsigned int ii = 0; ii < monopoles.size(); ++ii) {
-    if (monopoles[ii]) {
-      Monopole* mpl = monopoles[ii];
+  for (auto& monopole : monopoles) {
+    if (monopole) {
+      Monopole* mpl = monopole;
       G4ProcessManager* pmanager = mpl->GetProcessManager();
       if (!pmanager) {
         std::ostringstream o;

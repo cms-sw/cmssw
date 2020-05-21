@@ -24,10 +24,10 @@ public:
     Info(const std::string& iname) : name(iname) { init(); }
     Info(void) { init(); }
     void init(void) {
-      for (unsigned int i = 0; i < maxPoints_; ++i)
-        points[i] = 0;
-      for (unsigned int i = 0; i < 9; ++i)
-        topology[i] = 0;
+      for (float& point : points)
+        point = 0;
+      for (float& i : topology)
+        i = 0;
     }
     void fillPoints(std::vector<GlobalPoint>::const_iterator begin, std::vector<GlobalPoint>::const_iterator end) {
       unsigned int index(0);

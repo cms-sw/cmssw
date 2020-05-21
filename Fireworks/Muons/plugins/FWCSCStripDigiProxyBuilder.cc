@@ -47,9 +47,9 @@ void FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList
 
   int thresholdOffset = 9;
 
-  for (CSCStripDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end(); dri != driEnd; ++dri) {
-    unsigned int rawid = (*dri).first.rawId();
-    const CSCStripDigiCollection::Range& range = (*dri).second;
+  for (auto&& digi : *digis) {
+    unsigned int rawid = digi.first.rawId();
+    const CSCStripDigiCollection::Range& range = digi.second;
 
     if (!geom->contains(rawid)) {
       fwLog(fwlog::kWarning) << "failed to get geometry of CSC with detid: " << rawid << std::endl;

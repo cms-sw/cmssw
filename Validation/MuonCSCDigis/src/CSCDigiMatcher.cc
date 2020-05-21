@@ -55,9 +55,9 @@ void CSCDigiMatcher::match(const SimTrack& t, const SimVertex& v) {
 }
 
 void CSCDigiMatcher::matchComparatorsToSimTrack(const CSCComparatorDigiCollection& comparators) {
-  for (auto detUnitIt = comparators.begin(); detUnitIt != comparators.end(); ++detUnitIt) {
-    const CSCDetId& id = (*detUnitIt).first;
-    const auto& range = (*detUnitIt).second;
+  for (auto&& comparator : comparators) {
+    const CSCDetId& id = comparator.first;
+    const auto& range = comparator.second;
     for (auto digiIt = range.first; digiIt != range.second; ++digiIt) {
       if (id.station() == 1 and (id.ring() == 1 or id.ring() == 4))
         if (verboseComparator_)
@@ -99,9 +99,9 @@ void CSCDigiMatcher::matchComparatorsToSimTrack(const CSCComparatorDigiCollectio
 }
 
 void CSCDigiMatcher::matchStripsToSimTrack(const CSCStripDigiCollection& strips) {
-  for (auto detUnitIt = strips.begin(); detUnitIt != strips.end(); ++detUnitIt) {
-    const CSCDetId& id = (*detUnitIt).first;
-    const auto& range = (*detUnitIt).second;
+  for (auto&& strip : strips) {
+    const CSCDetId& id = strip.first;
+    const auto& range = strip.second;
     for (auto digiIt = range.first; digiIt != range.second; ++digiIt) {
       if (id.station() == 1 and (id.ring() == 1 or id.ring() == 4))
         if (verboseStrip_)

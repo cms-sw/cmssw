@@ -27,8 +27,8 @@ void metsig::SignPFSpecificAlgo::addPFJets(const edm::View<reco::PFJet>* PFJets)
   for (edm::View<reco::PFJet>::const_iterator jet = PFJets->begin(); jet != PFJets->end(); ++jet) {
     vobj.push_back(resolutions_->evalPFJet(&(*jet)));
     std::vector<reco::PFCandidatePtr> pfs = jet->getPFConstituents();
-    for (std::vector<reco::PFCandidatePtr>::const_iterator it = pfs.begin(); it != pfs.end(); ++it) {
-      reco::CandidatePtr ptr(*it);
+    for (const auto& pf : pfs) {
+      reco::CandidatePtr ptr(pf);
       clusteredParticlePtrs_.insert(ptr);
     }
   }

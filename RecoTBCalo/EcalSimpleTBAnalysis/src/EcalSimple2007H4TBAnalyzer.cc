@@ -358,10 +358,10 @@ void EcalSimple2007H4TBAnalyzer::analyze(edm::Event const& iEvent, edm::EventSet
   // Searching for max amplitude xtal alternative to use xtalInBeam_
   EEDetId maxHitId(0);
   float maxHit = -999999.;
-  for (EEUncalibratedRecHitCollection::const_iterator ithit = hits->begin(); ithit != hits->end(); ++ithit) {
-    if (ithit->amplitude() >= maxHit) {
-      maxHit = ithit->amplitude();
-      maxHitId = ithit->id();
+  for (const auto& hit : *hits) {
+    if (hit.amplitude() >= maxHit) {
+      maxHit = hit.amplitude();
+      maxHitId = hit.id();
     }
   }
   if (maxHitId == EEDetId(0)) {
@@ -371,8 +371,8 @@ void EcalSimple2007H4TBAnalyzer::analyze(edm::Event const& iEvent, edm::EventSet
 
   //Filling the digis shape for the xtalInBeam
   double samples_save[10];
-  for (int i = 0; i < 10; ++i)
-    samples_save[i] = 0.0;
+  for (double& i : samples_save)
+    i = 0.0;
 
   double eMax = 0.;
   for (EEDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr) {

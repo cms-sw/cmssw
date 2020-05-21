@@ -94,24 +94,24 @@ void EcalSimHitsValidation::analyze(const edm::Event &e, const edm::EventSetup &
   double EBEnergy_ = 0.;
   if (EcalHitsEB.isValid()) {
     theEBCaloHits.insert(theEBCaloHits.end(), EcalHitsEB->begin(), EcalHitsEB->end());
-    for (std::vector<PCaloHit>::iterator isim = theEBCaloHits.begin(); isim != theEBCaloHits.end(); ++isim) {
-      EBEnergy_ += isim->energy();
+    for (auto &theEBCaloHit : theEBCaloHits) {
+      EBEnergy_ += theEBCaloHit.energy();
     }
   }
 
   double EEEnergy_ = 0.;
   if (EcalHitsEE.isValid()) {
     theEECaloHits.insert(theEECaloHits.end(), EcalHitsEE->begin(), EcalHitsEE->end());
-    for (std::vector<PCaloHit>::iterator isim = theEECaloHits.begin(); isim != theEECaloHits.end(); ++isim) {
-      EEEnergy_ += isim->energy();
+    for (auto &theEECaloHit : theEECaloHits) {
+      EEEnergy_ += theEECaloHit.energy();
     }
   }
 
   double ESEnergy_ = 0.;
   if (EcalHitsES.isValid()) {
     theESCaloHits.insert(theESCaloHits.end(), EcalHitsES->begin(), EcalHitsES->end());
-    for (std::vector<PCaloHit>::iterator isim = theESCaloHits.begin(); isim != theESCaloHits.end(); ++isim) {
-      ESEnergy_ += isim->energy();
+    for (auto &theESCaloHit : theESCaloHits) {
+      ESEnergy_ += theESCaloHit.energy();
     }
   }
 

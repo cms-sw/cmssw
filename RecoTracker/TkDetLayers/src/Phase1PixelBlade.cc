@@ -39,18 +39,18 @@ Phase1PixelBlade::Phase1PixelBlade(vector<const GeomDet*>& frontDets, vector<con
                           << theFrontDiskSector->outerRadius() << "), (" << theBackDiskSector->innerRadius() << " , "
                           << theBackDiskSector->outerRadius() << ")" << std::endl;
 
-  for (vector<const GeomDet*>::const_iterator it = theFrontDets.begin(); it != theFrontDets.end(); it++) {
-    LogDebug("TkDetLayers") << "frontDet phi,z,r: " << (*it)->position().phi() << " , " << (*it)->position().z()
-                            << " , " << (*it)->position().perp() << " , "
-                            << " rmin: " << (*it)->surface().rSpan().first
-                            << " rmax: " << (*it)->surface().rSpan().second << std::endl;
+  for (auto theFrontDet : theFrontDets) {
+    LogDebug("TkDetLayers") << "frontDet phi,z,r: " << theFrontDet->position().phi() << " , "
+                            << theFrontDet->position().z() << " , " << theFrontDet->position().perp() << " , "
+                            << " rmin: " << theFrontDet->surface().rSpan().first
+                            << " rmax: " << theFrontDet->surface().rSpan().second << std::endl;
   }
 
-  for (vector<const GeomDet*>::const_iterator it = theBackDets.begin(); it != theBackDets.end(); it++) {
-    LogDebug("TkDetLayers") << "backDet phi,z,r: " << (*it)->position().phi() << " , " << (*it)->position().z() << " , "
-                            << (*it)->position().perp() << " , "
-                            << " rmin: " << (*it)->surface().rSpan().first
-                            << " rmax: " << (*it)->surface().rSpan().second << std::endl;
+  for (auto theBackDet : theBackDets) {
+    LogDebug("TkDetLayers") << "backDet phi,z,r: " << theBackDet->position().phi() << " , "
+                            << theBackDet->position().z() << " , " << theBackDet->position().perp() << " , "
+                            << " rmin: " << theBackDet->surface().rSpan().first
+                            << " rmax: " << theBackDet->surface().rSpan().second << std::endl;
   }
 }
 

@@ -86,8 +86,7 @@ namespace gen {
   static std::map<std::string, std::string> parseHeader(const std::vector<std::string> &header) {
     std::map<std::string, std::string> params;
 
-    for (std::vector<std::string>::const_iterator iter = header.begin(); iter != header.end(); ++iter) {
-      std::string line = *iter;
+    for (auto line : header) {
       if (line.empty() || line[0] == '#')
         continue;
 
@@ -214,8 +213,8 @@ namespace gen {
     if (!runInitialized)
       throw cms::Exception("Generator|PartonShowerVeto") << "Run not initialized in JetMatchingMGFastJet" << std::endl;
 
-    for (int i = 0; i < 3; i++) {
-      typeIdx[i].clear();
+    for (auto &i : typeIdx) {
+      i.clear();
     }
 
     // Sort original process final state into light/heavy jets and 'other'.

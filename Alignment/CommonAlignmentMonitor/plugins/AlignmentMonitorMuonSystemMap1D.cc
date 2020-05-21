@@ -270,11 +270,10 @@ void AlignmentMonitorMuonSystemMap1D::event(const edm::Event &iEvent,
 
   if (m_muonCollectionTag.label().empty())  // use trajectories
   {
-    for (ConstTrajTrackPairCollection::const_iterator trajtrack = trajtracks.begin(); trajtrack != trajtracks.end();
-         ++trajtrack) {
+    for (const auto &trajtrack : trajtracks) {
       m_counter_track++;
-      const Trajectory *traj = (*trajtrack).first;
-      const reco::Track *track = (*trajtrack).second;
+      const Trajectory *traj = trajtrack.first;
+      const reco::Track *track = trajtrack.second;
 
       if (m_minTrackPt < track->pt() && track->pt() < m_maxTrackPt && m_minTrackP < track->p() &&
           track->p() < m_maxTrackP) {
@@ -292,19 +291,18 @@ void AlignmentMonitorMuonSystemMap1D::event(const edm::Event &iEvent,
     edm::Handle<reco::MuonCollection> muons;
     iEvent.getByLabel(m_muonCollectionTag, muons);
 
-    for (reco::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon) {
-      if (!(muon->isTrackerMuon() && muon->innerTrack().isNonnull()))
+    for (const auto &muon : *muons) {
+      if (!(muon.isTrackerMuon() && muon.innerTrack().isNonnull()))
         continue;
 
       m_counter_track++;
 
-      if (m_minTrackPt < muon->pt() && muon->pt() < m_maxTrackPt && m_minTrackP < muon->p() &&
-          muon->p() < m_maxTrackP) {
+      if (m_minTrackPt < muon.pt() && muon.pt() < m_maxTrackPt && m_minTrackP < muon.p() && muon.p() < m_maxTrackP) {
         m_counter_trackmoment++;
-        if (fabs(muon->innerTrack()->dxy(beamSpot->position())) < m_maxDxy) {
+        if (fabs(muon.innerTrack()->dxy(beamSpot->position())) < m_maxDxy) {
           m_counter_trackdxy++;
 
-          MuonResidualsFromTrack muonResidualsFromTrack(globalGeometry, &(*muon), pNavigator(), 100.);
+          MuonResidualsFromTrack muonResidualsFromTrack(globalGeometry, &muon, pNavigator(), 100.);
           processMuonResidualsFromTrack(muonResidualsFromTrack, iEvent);
         }
       }
@@ -323,8 +321,8 @@ void AlignmentMonitorMuonSystemMap1D::processMuonResidualsFromTrack(MuonResidual
 
   int nMuChambers = 0;
   std::vector<DetId> chamberIds = mrft.chamberIds();
-  for (unsigned ch = 0; ch < chamberIds.size(); ch++)
-    if (chamberIds[ch].det() == DetId::Muon)
+  for (auto &chamberId : chamberIds)
+    if (chamberId.det() == DetId::Muon)
       nMuChambers++;
   if (nMuChambers < m_minNCrossedChambers)
     return;
@@ -335,14 +333,14 @@ void AlignmentMonitorMuonSystemMap1D::processMuonResidualsFromTrack(MuonResidual
 
   m_counter_trackokay++;
 
-  for (std::vector<DetId>::const_iterator chamberId = chamberIds.begin(); chamberId != chamberIds.end(); ++chamberId) {
-    if (chamberId->det() != DetId::Muon)
+  for (auto chamberId : chamberIds) {
+    if (chamberId.det() != DetId::Muon)
       continue;
 
-    if (m_doDT && chamberId->subdetId() == MuonSubdetId::DT) {
-      MuonChamberResidual *dt13 = mrft.chamberResidual(*chamberId, MuonChamberResidual::kDT13);
-      MuonChamberResidual *dt2 = mrft.chamberResidual(*chamberId, MuonChamberResidual::kDT2);
-      DTChamberId id(chamberId->rawId());
+    if (m_doDT && chamberId.subdetId() == MuonSubdetId::DT) {
+      MuonChamberResidual *dt13 = mrft.chamberResidual(chamberId, MuonChamberResidual::kDT13);
+      MuonChamberResidual *dt2 = mrft.chamberResidual(chamberId, MuonChamberResidual::kDT2);
+      DTChamberId id(chamberId.rawId());
 
       m_counter_dt++;
 
@@ -417,9 +415,9 @@ void AlignmentMonitorMuonSystemMap1D::processMuonResidualsFromTrack(MuonResidual
       }
     }
 
-    else if (m_doCSC && chamberId->subdetId() == MuonSubdetId::CSC) {
-      MuonChamberResidual *csc = mrft.chamberResidual(*chamberId, MuonChamberResidual::kCSC);
-      CSCDetId id(chamberId->rawId());
+    else if (m_doCSC && chamberId.subdetId() == MuonSubdetId::CSC) {
+      MuonChamberResidual *csc = mrft.chamberResidual(chamberId, MuonChamberResidual::kCSC);
+      CSCDetId id(chamberId.rawId());
 
       int ring = id.ring();
       if (id.ring() == 4)

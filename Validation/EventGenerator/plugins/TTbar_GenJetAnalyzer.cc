@@ -28,27 +28,27 @@ void TTbar_GenJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
     return;
   // loop Jet collection and fill histograms
   int njets = 0;
-  for (std::vector<reco::GenJet>::const_iterator jet_it = jets->begin(); jet_it != jets->end(); ++jet_it) {
+  for (const auto& jet_it : *jets) {
     ++njets;
 
-    hists_["jetPtAll"]->Fill(jet_it->pt(), weight);
-    hists_["jetEtaAll"]->Fill(jet_it->eta(), weight);
+    hists_["jetPtAll"]->Fill(jet_it.pt(), weight);
+    hists_["jetEtaAll"]->Fill(jet_it.eta(), weight);
 
     if (njets == 1) {
-      hists_["jetPt1"]->Fill(jet_it->pt(), weight);
-      hists_["jetEta1"]->Fill(jet_it->eta(), weight);
+      hists_["jetPt1"]->Fill(jet_it.pt(), weight);
+      hists_["jetEta1"]->Fill(jet_it.eta(), weight);
     }
     if (njets == 2) {
-      hists_["jetPt2"]->Fill(jet_it->pt(), weight);
-      hists_["jetEta2"]->Fill(jet_it->eta(), weight);
+      hists_["jetPt2"]->Fill(jet_it.pt(), weight);
+      hists_["jetEta2"]->Fill(jet_it.eta(), weight);
     }
     if (njets == 3) {
-      hists_["jetPt3"]->Fill(jet_it->pt(), weight);
-      hists_["jetEta3"]->Fill(jet_it->eta(), weight);
+      hists_["jetPt3"]->Fill(jet_it.pt(), weight);
+      hists_["jetEta3"]->Fill(jet_it.eta(), weight);
     }
     if (njets == 4) {
-      hists_["jetPt4"]->Fill(jet_it->pt(), weight);
-      hists_["jetEta4"]->Fill(jet_it->eta(), weight);
+      hists_["jetPt4"]->Fill(jet_it.pt(), weight);
+      hists_["jetEta4"]->Fill(jet_it.eta(), weight);
     }
   }
 }

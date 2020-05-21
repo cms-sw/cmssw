@@ -148,16 +148,15 @@ SeedMultiplicityAnalyzer::SeedMultiplicityAnalyzer(const edm::ParameterSet& iCon
   std::vector<edm::ParameterSet> seedCollectionConfigs =
       iConfig.getParameter<std::vector<edm::ParameterSet>>("seedCollections");
 
-  for (std::vector<edm::ParameterSet>::const_iterator scps = seedCollectionConfigs.begin();
-       scps != seedCollectionConfigs.end();
-       ++scps) {
-    _seedcollTokens.push_back(consumes<TrajectorySeedCollection>(scps->getParameter<edm::InputTag>("src")));
-    _seedbins.push_back(scps->getUntrackedParameter<unsigned int>("nBins", 1000));
-    _seedmax.push_back(scps->getUntrackedParameter<double>("maxValue", 100000.));
+  for (const auto& seedCollectionConfig : seedCollectionConfigs) {
+    _seedcollTokens.push_back(
+        consumes<TrajectorySeedCollection>(seedCollectionConfig.getParameter<edm::InputTag>("src")));
+    _seedbins.push_back(seedCollectionConfig.getUntrackedParameter<unsigned int>("nBins", 1000));
+    _seedmax.push_back(seedCollectionConfig.getUntrackedParameter<double>("maxValue", 100000.));
 
-    if (scps->exists("trackFilter")) {
-      _seedfilters.push_back(
-          FromTrackRefSeedFilter(consumesCollector(), scps->getParameter<edm::ParameterSet>("trackFilter")));
+    if (seedCollectionConfig.exists("trackFilter")) {
+      _seedfilters.push_back(FromTrackRefSeedFilter(
+          consumesCollector(), seedCollectionConfig.getParameter<edm::ParameterSet>("trackFilter")));
     } else {
       _seedfilters.push_back(FromTrackRefSeedFilter());
     }
@@ -166,15 +165,14 @@ SeedMultiplicityAnalyzer::SeedMultiplicityAnalyzer(const edm::ParameterSet& iCon
   std::vector<edm::ParameterSet> correlationConfigs =
       iConfig.getParameter<std::vector<edm::ParameterSet>>("multiplicityCorrelations");
 
-  for (std::vector<edm::ParameterSet>::const_iterator ps = correlationConfigs.begin(); ps != correlationConfigs.end();
-       ++ps) {
+  for (const auto& correlationConfig : correlationConfigs) {
     _multiplicityMapTokens.push_back(
-        consumes<std::map<unsigned int, int>>(ps->getParameter<edm::InputTag>("multiplicityMap")));
-    _labels.push_back(ps->getParameter<std::string>("detLabel"));
-    _selections.push_back(ps->getParameter<unsigned int>("detSelection"));
-    _binsmult.push_back(ps->getParameter<unsigned int>("nBins"));
-    _binseta.push_back(ps->getParameter<unsigned int>("nBinsEta"));
-    _maxs.push_back(ps->getParameter<double>("maxValue"));
+        consumes<std::map<unsigned int, int>>(correlationConfig.getParameter<edm::InputTag>("multiplicityMap")));
+    _labels.push_back(correlationConfig.getParameter<std::string>("detLabel"));
+    _selections.push_back(correlationConfig.getParameter<unsigned int>("detSelection"));
+    _binsmult.push_back(correlationConfig.getParameter<unsigned int>("nBins"));
+    _binseta.push_back(correlationConfig.getParameter<unsigned int>("nBinsEta"));
+    _maxs.push_back(correlationConfig.getParameter<double>("maxValue"));
   }
 
   edm::Service<TFileService> tfserv;
@@ -470,9 +468,8 @@ bool SeedMultiplicityAnalyzer::FromTrackRefSeedFilter::isSelected(const unsigned
     const reco::TrackRef trkref(m_tracks, iseed);
 
     // loop on the selected trackref to check if there is the same track
-    for (reco::TrackRefVector::const_iterator seltrkref = m_seltrackrefs->begin(); seltrkref != m_seltrackrefs->end();
-         ++seltrkref) {
-      if (trkref == *seltrkref)
+    for (auto&& seltrkref : *m_seltrackrefs) {
+      if (trkref == seltrkref)
         return true;
     }
   }

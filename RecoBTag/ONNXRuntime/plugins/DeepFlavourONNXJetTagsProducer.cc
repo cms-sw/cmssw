@@ -125,8 +125,8 @@ void DeepFlavourONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::Even
 
     // get the outputs
     unsigned i_output = 0;
-    for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
-      const auto& jet_ref = tag_infos->at(jet_n).jet();
+    for (const auto& jet_n : *tag_infos) {
+      const auto& jet_ref = jet_n.jet();
       for (std::size_t flav_n = 0; flav_n < flav_names_.size(); flav_n++) {
         (*(output_tags[flav_n]))[jet_ref] = outputs[i_output];
         ++i_output;

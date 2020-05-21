@@ -345,7 +345,7 @@ void SiPixelDQMRocLevelAnalyzer::RocSummary(std::string tagname) {
   bool bMNCS = false;
   int panelNumber = -1;
 
-  for (std::vector<MonitorElement *>::const_iterator ime = mes.begin(); ime != mes.end(); ++ime) {
+  for (auto me : mes) {
     bwasHM = bhalfMod;
     //set default values
     bMNCS = false;
@@ -353,9 +353,9 @@ void SiPixelDQMRocLevelAnalyzer::RocSummary(std::string tagname) {
     bforward = false;
     bhalfMod = false;
     //set name, (old) path
-    name = (*ime)->getName();
+    name = me->getName();
     oldPath = path;
-    path = (*ime)->getPathname();
+    path = me->getPathname();
 
     //determine module number if any
     if (path.find("Module_") < path.size()) {
@@ -446,7 +446,7 @@ void SiPixelDQMRocLevelAnalyzer::RocSummary(std::string tagname) {
         maxcrow = 1;
       }
 
-      RocSumOneModule(maxcrow, maxccol, (*ime), vbpixCN, vbpixM, vbpixSD, bchipNumber);
+      RocSumOneModule(maxcrow, maxccol, me, vbpixCN, vbpixM, vbpixSD, bchipNumber);
     }
 
     //ENDCAP ROC LEVEL PLOTS
@@ -456,7 +456,7 @@ void SiPixelDQMRocLevelAnalyzer::RocSummary(std::string tagname) {
       if (panelNumber == 1 && (moduleNumber == 1 || moduleNumber == 4))
         maxcrow = 1;
 
-      RocSumOneModule(maxcrow, maxccol, (*ime), vfpixCN, vfpixM, vfpixSD, fchipNumber);
+      RocSumOneModule(maxcrow, maxccol, me, vfpixCN, vfpixM, vfpixSD, fchipNumber);
     }
   }
 

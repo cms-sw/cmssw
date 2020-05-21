@@ -205,25 +205,24 @@ bool CSCEfficiency::filter(edm::Event &event, const edm::EventSetup &eventSetup)
       if (printalot) {
         std::cout << " goodMuons_it.size() = " << goodMuons_it.size() << std::endl;
       }
-      for (size_t iM = 0; iM < goodMuons_it.size(); ++iM) {
+      for (auto &iM : goodMuons_it) {
         //std::cout<<" iM = "<<iM<<" eta = "<<goodMuons_it[iM]->track()->eta()<<
         //" phi = "<<goodMuons_it[iM]->track()->phi()<<
         //" pt = "<<goodMuons_it[iM]->track()->pt()<<std::endl;
-        float deltaR = pow(track->phi() - goodMuons_it[iM]->track()->phi(), 2) +
-                       pow(track->eta() - goodMuons_it[iM]->track()->eta(), 2);
+        float deltaR = pow(track->phi() - iM->track()->phi(), 2) + pow(track->eta() - iM->track()->eta(), 2);
         deltaR = sqrt(deltaR);
         if (printalot) {
-          std::cout << " TR mu match to a tr: deltaR = " << deltaR
-                    << " dPt = " << track->pt() - goodMuons_it[iM]->track()->pt() << std::endl;
+          std::cout << " TR mu match to a tr: deltaR = " << deltaR << " dPt = " << track->pt() - iM->track()->pt()
+                    << std::endl;
         }
-        if (deltaR > 0.01 || fabs(track->pt() - goodMuons_it[iM]->track()->pt()) > 0.1) {
+        if (deltaR > 0.01 || fabs(track->pt() - iM->track()->pt()) > 0.1) {
           continue;
         } else {
           trackOK = true;
           if (printalot) {
             std::cout << " trackOK " << std::endl;
           }
-          muonOuterZPosition = goodMuons_it[iM]->combinedMuon()->outerPosition().z();
+          muonOuterZPosition = iM->combinedMuon()->outerPosition().z();
           break;
           //++nChosenTracks;
         }
@@ -403,17 +402,17 @@ bool CSCEfficiency::filter(edm::Event &event, const edm::EventSetup &eventSetup)
             //---- which chamber (and its closes neighbor) is penetrated by the track - candidates
             chamberCandidates(refME[iSt].station(), refME[iSt].ring(), phi, coupleOfChambers);
             //---- loop over the two chamber candidates
-            for (size_t iCh = 0; iCh < coupleOfChambers.size(); ++iCh) {
+            for (int coupleOfChamber : coupleOfChambers) {
               DataFlow->Fill(11.);
               if (printalot)
-                std::cout << " Check chamber N = " << coupleOfChambers.at(iCh) << std::endl;
+                std::cout << " Check chamber N = " << coupleOfChamber << std::endl;
               ;
               if ((!getAbsoluteEfficiency) &&
                   (true == emptyChambers[refME[iSt].endcap() - 1][refME[iSt].station() - 1][refME[iSt].ring() - 1]
-                                        [coupleOfChambers.at(iCh) - FirstCh])) {
+                                        [coupleOfChamber - FirstCh])) {
                 continue;
               }
-              CSCDetId theCSCId(refME[iSt].endcap(), refME[iSt].station(), refME[iSt].ring(), coupleOfChambers.at(iCh));
+              CSCDetId theCSCId(refME[iSt].endcap(), refME[iSt].station(), refME[iSt].ring(), coupleOfChamber);
               const CSCChamber *cscChamber = cscGeom->chamber(theCSCId.chamberId());
               const BoundPlane bpCh = cscGeom->idToDet(cscChamber->geographicalId())->surface();
               float zFTS = ftsStart.position().z();
@@ -723,10 +722,10 @@ void CSCEfficiency::fillLCT_info(edm::Handle<CSCALCTDigiCollection> &alcts,
                                  edm::Handle<CSCCorrelatedLCTDigiCollection> &correlatedlcts) {
   //---- ALCTDigis
   int nSize = 0;
-  for (CSCALCTDigiCollection::DigiRangeIterator j = alcts->begin(); j != alcts->end(); j++) {
+  for (auto &&j : *alcts) {
     ++nSize;
-    const CSCDetId &id = (*j).first;
-    const CSCALCTDigiCollection::Range &range = (*j).second;
+    const CSCDetId &id = j.first;
+    const CSCALCTDigiCollection::Range &range = j.second;
     for (CSCALCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; ++digiIt) {
       // Valid digi in the chamber (or in neighbouring chamber)
       if ((*digiIt).isValid()) {
@@ -737,11 +736,11 @@ void CSCEfficiency::fillLCT_info(edm::Handle<CSCALCTDigiCollection> &alcts,
   ALCTPerEvent->Fill(nSize);
   //---- CLCTDigis
   nSize = 0;
-  for (CSCCLCTDigiCollection::DigiRangeIterator j = clcts->begin(); j != clcts->end(); j++) {
+  for (auto &&j : *clcts) {
     ++nSize;
-    const CSCDetId &id = (*j).first;
-    std::vector<CSCCLCTDigi>::const_iterator digiIt = (*j).second.first;
-    std::vector<CSCCLCTDigi>::const_iterator last = (*j).second.second;
+    const CSCDetId &id = j.first;
+    std::vector<CSCCLCTDigi>::const_iterator digiIt = j.second.first;
+    std::vector<CSCCLCTDigi>::const_iterator last = j.second.second;
     for (; digiIt != last; ++digiIt) {
       // Valid digi in the chamber (or in neighbouring chamber)
       if ((*digiIt).isValid()) {
@@ -751,10 +750,10 @@ void CSCEfficiency::fillLCT_info(edm::Handle<CSCALCTDigiCollection> &alcts,
   }
   CLCTPerEvent->Fill(nSize);
   //---- CorrLCTDigis
-  for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator j = correlatedlcts->begin(); j != correlatedlcts->end(); j++) {
-    const CSCDetId &id = (*j).first;
-    std::vector<CSCCorrelatedLCTDigi>::const_iterator digiIt = (*j).second.first;
-    std::vector<CSCCorrelatedLCTDigi>::const_iterator last = (*j).second.second;
+  for (auto &&j : *correlatedlcts) {
+    const CSCDetId &id = j.first;
+    std::vector<CSCCorrelatedLCTDigi>::const_iterator digiIt = j.second.first;
+    std::vector<CSCCorrelatedLCTDigi>::const_iterator last = j.second.second;
     for (; digiIt != last; ++digiIt) {
       // Valid digi in the chamber (or in neighbouring chamber)
       if ((*digiIt).isValid()) {
@@ -766,13 +765,13 @@ void CSCEfficiency::fillLCT_info(edm::Handle<CSCALCTDigiCollection> &alcts,
 //
 void CSCEfficiency::fillWG_info(edm::Handle<CSCWireDigiCollection> &wires, edm::ESHandle<CSCGeometry> &cscGeom) {
   //---- WIRE GROUPS
-  for (CSCWireDigiCollection::DigiRangeIterator j = wires->begin(); j != wires->end(); j++) {
-    CSCDetId id = (CSCDetId)(*j).first;
+  for (auto &&j : *wires) {
+    CSCDetId id = (CSCDetId)j.first;
     const CSCLayer *layer_p = cscGeom->layer(id);
     const CSCLayerGeometry *layerGeom = layer_p->geometry();
     //
-    std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
-    std::vector<CSCWireDigi>::const_iterator last = (*j).second.second;
+    std::vector<CSCWireDigi>::const_iterator digiItr = j.second.first;
+    std::vector<CSCWireDigi>::const_iterator last = j.second.second;
     //
     for (; digiItr != last; ++digiItr) {
       std::pair<int, float> WG_pos(digiItr->getWireGroup(), layerGeom->yOfWireGroup(digiItr->getWireGroup()));
@@ -792,11 +791,11 @@ void CSCEfficiency::fillWG_info(edm::Handle<CSCWireDigiCollection> &wires, edm::
 }
 void CSCEfficiency::fillStrips_info(edm::Handle<CSCStripDigiCollection> &strips) {
   //---- STRIPS
-  for (CSCStripDigiCollection::DigiRangeIterator j = strips->begin(); j != strips->end(); j++) {
-    CSCDetId id = (CSCDetId)(*j).first;
+  for (auto &&j : *strips) {
+    CSCDetId id = (CSCDetId)j.first;
     int largestADCValue = -1;
-    std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
-    std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
+    std::vector<CSCStripDigi>::const_iterator digiItr = j.second.first;
+    std::vector<CSCStripDigi>::const_iterator last = j.second.second;
     for (; digiItr != last; ++digiItr) {
       int maxADC = largestADCValue;
       int myStrip = digiItr->getStrip();
@@ -805,11 +804,11 @@ void CSCEfficiency::fillStrips_info(edm::Handle<CSCStripDigiCollection> &strips)
       float threshold = 13.3;
       float diff = 0.;
       float peakADC = -1000.;
-      for (unsigned int iCount = 0; iCount < myADCVals.size(); iCount++) {
-        diff = (float)myADCVals[iCount] - thisPedestal;
+      for (int myADCVal : myADCVals) {
+        diff = (float)myADCVal - thisPedestal;
         if (diff > threshold) {
-          if (myADCVals[iCount] > largestADCValue) {
-            largestADCValue = myADCVals[iCount];
+          if (myADCVal > largestADCValue) {
+            largestADCValue = myADCVal;
           }
         }
         if (diff > threshold && diff > peakADC) {
@@ -910,33 +909,32 @@ void CSCEfficiency::fillRechitsSegments_info(edm::Handle<CSCRecHit2DCollection> 
     //printf("\t...start loop over segments...\n");
   }
   segmentsPerEvent->Fill(segments->size());
-  for (CSCSegmentCollection::const_iterator it = segments->begin(); it != segments->end(); it++) {
-    CSCDetId id = (CSCDetId)(*it).cscDetId();
-    StHist[id.endcap() - 1][id.station() - 1].segmentChi2_ndf->Fill((*it).chi2() / (*it).degreesOfFreedom());
-    StHist[id.endcap() - 1][id.station() - 1].hitsInSegment->Fill((*it).nRecHits());
+  for (const auto &it : *segments) {
+    CSCDetId id = (CSCDetId)it.cscDetId();
+    StHist[id.endcap() - 1][id.station() - 1].segmentChi2_ndf->Fill(it.chi2() / it.degreesOfFreedom());
+    StHist[id.endcap() - 1][id.station() - 1].hitsInSegment->Fill(it.nRecHits());
     if (printalot) {
       printf("\tendcap/station/ring/chamber: %i %i %i %i\n", id.endcap(), id.station(), id.ring(), id.chamber());
-      std::cout << "\tposition(loc) = " << (*it).localPosition() << " error(loc) = " << (*it).localPositionError()
+      std::cout << "\tposition(loc) = " << it.localPosition() << " error(loc) = " << it.localPositionError()
                 << std::endl;
-      std::cout << "\t chi2/ndf = " << (*it).chi2() / (*it).degreesOfFreedom() << " nhits = " << (*it).nRecHits()
-                << std::endl;
+      std::cout << "\t chi2/ndf = " << it.chi2() / it.degreesOfFreedom() << " nhits = " << it.nRecHits() << std::endl;
     }
     allSegments[id.endcap() - 1][id.station() - 1][id.ring() - 1][id.chamber() - FirstCh].push_back(
-        make_pair((*it).localPosition(), (*it).localDirection()));
+        make_pair(it.localPosition(), it.localDirection()));
 
     //---- try to get the CSC recHits that contribute to this segment.
     //if (printalot) printf("\tGet the recHits for this segment.\t");
-    std::vector<CSCRecHit2D> theseRecHits = (*it).specificRecHits();
-    int nRH = (*it).nRecHits();
+    std::vector<CSCRecHit2D> theseRecHits = it.specificRecHits();
+    int nRH = it.nRecHits();
     if (printalot) {
       printf("\tGet the recHits for this segment.\t");
       printf("    nRH = %i\n", nRH);
     }
     //---- Find which of the rechits in the chamber is in the segment
     int layerRH = 0;
-    for (vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
+    for (const auto &theseRecHit : theseRecHits) {
       ++layerRH;
-      CSCDetId idRH = (CSCDetId)(*iRH).cscDetId();
+      CSCDetId idRH = (CSCDetId)theseRecHit.cscDetId();
       if (printalot) {
         printf("\t%i RH\tendcap/station/ring/chamber/layer: %i/%i/%i/%i/%i\n",
                layerRH,
@@ -951,12 +949,14 @@ void CSCEfficiency::fillRechitsSegments_info(edm::Handle<CSCRecHit2DCollection> 
            allRechits[idRH.endcap() - 1][idRH.station() - 1][idRH.ring() - 1][idRH.chamber() - FirstCh][idRH.layer() - 1]
                .size();
            ++jRH) {
-        float xDiff = iRH->localPosition().x() - allRechits[idRH.endcap() - 1][idRH.station() - 1][idRH.ring() - 1]
-                                                           [idRH.chamber() - FirstCh][idRH.layer() - 1][jRH]
-                                                               .first.x();
-        float yDiff = iRH->localPosition().y() - allRechits[idRH.endcap() - 1][idRH.station() - 1][idRH.ring() - 1]
-                                                           [idRH.chamber() - FirstCh][idRH.layer() - 1][jRH]
-                                                               .first.y();
+        float xDiff =
+            theseRecHit.localPosition().x() - allRechits[idRH.endcap() - 1][idRH.station() - 1][idRH.ring() - 1]
+                                                        [idRH.chamber() - FirstCh][idRH.layer() - 1][jRH]
+                                                            .first.x();
+        float yDiff =
+            theseRecHit.localPosition().y() - allRechits[idRH.endcap() - 1][idRH.station() - 1][idRH.ring() - 1]
+                                                        [idRH.chamber() - FirstCh][idRH.layer() - 1][jRH]
+                                                            .first.y();
         if (fabs(xDiff) < 0.0001 && fabs(yDiff) < 0.0001) {
           std::pair<LocalPoint, bool> recHitPos(allRechits[idRH.endcap() - 1][idRH.station() - 1][idRH.ring() - 1]
                                                           [idRH.chamber() - FirstCh][idRH.layer() - 1][jRH]
@@ -1597,8 +1597,8 @@ bool CSCEfficiency::applyTrigger(edm::Handle<edm::TriggerResults> &hltR, const e
     if (!pointToTriggers.empty()) {
       if (printalot) {
         std::cout << "The following triggers will be required in the event: " << std::endl;
-        for (size_t imyT = 0; imyT < pointToTriggers.size(); ++imyT) {
-          std::cout << "  " << hlNames[pointToTriggers[imyT]];
+        for (int pointToTrigger : pointToTriggers) {
+          std::cout << "  " << hlNames[pointToTrigger];
         }
         std::cout << std::endl;
         std::cout << " in condition (AND/OR) : " << !andOr << "/" << andOr << std::endl;
@@ -1614,9 +1614,8 @@ bool CSCEfficiency::applyTrigger(edm::Handle<edm::TriggerResults> &hltR, const e
             << std::endl;
       }
     }
-    for (size_t imyT = 0; imyT < pointToTriggers.size(); ++imyT) {
-      if (hltR->wasrun(pointToTriggers[imyT]) && hltR->accept(pointToTriggers[imyT]) &&
-          !hltR->error(pointToTriggers[imyT])) {
+    for (int pointToTrigger : pointToTriggers) {
+      if (hltR->wasrun(pointToTrigger) && hltR->accept(pointToTrigger) && !hltR->error(pointToTrigger)) {
         triggerPassed = true;
         if (andOr) {
           break;

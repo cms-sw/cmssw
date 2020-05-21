@@ -24,20 +24,20 @@ TrajectorySeed MuonCSCSeedFromRecHits::seed() const {
   //@@ doesn't handle overlap between ME11 and ME12 correctly
   // sort by station
   MuonRecHitContainer station1Hits, station2Hits, station3Hits, station4Hits;
-  for (MuonRecHitContainer::const_iterator iter = theRhits.begin(), end = theRhits.end(); iter != end; ++iter) {
-    int station = CSCDetId((*iter)->geographicalId().rawId()).station();
-    if ((*iter)->isME0()) {
+  for (const auto& theRhit : theRhits) {
+    int station = CSCDetId(theRhit->geographicalId().rawId()).station();
+    if (theRhit->isME0()) {
       station = 1;  //ME0DetId((*iter)->geographicalId().rawId()).station();
     }
 
     if (station == 1) {
-      station1Hits.push_back(*iter);
+      station1Hits.push_back(theRhit);
     } else if (station == 2) {
-      station2Hits.push_back(*iter);
+      station2Hits.push_back(theRhit);
     } else if (station == 3) {
-      station3Hits.push_back(*iter);
+      station3Hits.push_back(theRhit);
     } else if (station == 4) {
-      station4Hits.push_back(*iter);
+      station4Hits.push_back(theRhit);
     }
   }
 
@@ -78,16 +78,16 @@ TrajectorySeed MuonCSCSeedFromRecHits::seed() const {
 bool MuonCSCSeedFromRecHits::makeSeed(const MuonRecHitContainer& hits1,
                                       const MuonRecHitContainer& hits2,
                                       TrajectorySeed& seed) const {
-  for (MuonRecHitContainer::const_iterator itr1 = hits1.begin(), end1 = hits1.end(); itr1 != end1; ++itr1) {
-    CSCDetId cscId1((*itr1)->geographicalId().rawId());
+  for (const auto& itr1 : hits1) {
+    CSCDetId cscId1(itr1->geographicalId().rawId());
     //int type1 = CSCChamberSpecs::whatChamberType(cscId1.station(), cscId1.ring());
 
-    for (MuonRecHitContainer::const_iterator itr2 = hits2.begin(), end2 = hits2.end(); itr2 != end2; ++itr2) {
-      CSCDetId cscId2((*itr2)->geographicalId().rawId());
+    for (const auto& itr2 : hits2) {
+      CSCDetId cscId2(itr2->geographicalId().rawId());
       //int type2 = CSCChamberSpecs::whatChamberType(cscId2.station(), cscId2.ring());
 
       // take the first pair that comes along.  Probably want to rank them later
-      std::vector<double> pts = thePtExtractor->pT_extract(*itr1, *itr2);
+      std::vector<double> pts = thePtExtractor->pT_extract(itr1, itr2);
 
       double pt = pts[0];
       double sigmapt = pts[1];
@@ -158,13 +158,13 @@ MuonCSCSeedFromRecHits::ConstMuonRecHitPointer MuonCSCSeedFromRecHits::bestEndca
   float bestdPhiGloDir = M_PI;    //  +v
   int quality1 = 0, quality = 0;  //  +v  I= 5,6-p. / II= 4p.  / III= 3p.
 
-  for (MuonRecHitContainer::const_iterator iter = endcapHits.begin(); iter != endcapHits.end(); iter++) {
-    if (!(*iter)->isCSC() && !(*iter)->isME0())
+  for (const auto& endcapHit : endcapHits) {
+    if (!endcapHit->isCSC() && !endcapHit->isME0())
       continue;
 
     // tmp compar. Glob-Dir for the same tr-segm:
 
-    meit = *iter;
+    meit = endcapHit;
 
     quality = segmentQuality(meit);
 

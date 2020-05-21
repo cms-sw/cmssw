@@ -83,12 +83,10 @@ namespace reco {
     if (!neutralPFCandidates_.empty()) {
       stream << std::endl;
       int idx = 0;
-      for (std::vector<CandidatePtr>::const_iterator neutralPFCandidate = neutralPFCandidates_.begin();
-           neutralPFCandidate != neutralPFCandidates_.end();
-           ++neutralPFCandidate) {
-        stream << " #" << idx << " (" << neutralPFCandidate->id() << ":" << neutralPFCandidate->key() << "):"
-               << " Pt = " << (*neutralPFCandidate)->pt() << ", eta = " << (*neutralPFCandidate)->eta()
-               << ", phi = " << (*neutralPFCandidate)->phi() << " (pdgId = " << (*neutralPFCandidate)->pdgId() << ")"
+      for (const auto& neutralPFCandidate : neutralPFCandidates_) {
+        stream << " #" << idx << " (" << neutralPFCandidate.id() << ":" << neutralPFCandidate.key() << "):"
+               << " Pt = " << neutralPFCandidate->pt() << ", eta = " << neutralPFCandidate->eta()
+               << ", phi = " << neutralPFCandidate->phi() << " (pdgId = " << neutralPFCandidate->pdgId() << ")"
                << std::endl;
         ++idx;
       }

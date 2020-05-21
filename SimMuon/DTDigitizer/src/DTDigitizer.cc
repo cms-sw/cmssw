@@ -194,17 +194,17 @@ void DTDigitizer::produce(Event &iEvent, const EventSetup &iSetup) {
       const DTLayer *layer = muonGeom->layer(wireId.layerId());
 
       // Loop on the hits of this wire
-      for (vector<const PSimHit *>::const_iterator hit = vhit.begin(); hit != vhit.end(); hit++) {
+      for (auto hit : vhit) {
         //************ 5 ***************
-        LocalPoint locPos = (*hit)->localPosition();
+        LocalPoint locPos = hit->localPosition();
 
         const LocalVector BLoc = layer->surface().toLocal(magnField->inTesla(layer->surface().toGlobal(locPos)));
 
-        time = computeTime(layer, wireId, *hit, BLoc, engine);
+        time = computeTime(layer, wireId, hit, BLoc, engine);
 
         //************ 6 ***************
         if (time.second) {
-          tdCont.push_back(make_pair((*hit), time.first));
+          tdCont.push_back(make_pair(hit, time.first));
         } else {
           if (debug)
             LogPrint("DTDigitizer") << "hit discarded" << endl;
@@ -514,13 +514,13 @@ void DTDigitizer::storeDigis(DTWireId &wireId,
   DTDigi digi;
 
   // loop over signal times and drop signals inside dead time
-  for (TDContainer::const_iterator hit = hits.begin(); hit != hits.end(); hit++) {
-    if (onlyMuHits && abs((*hit).first->particleType()) != 13)
+  for (const auto &hit : hits) {
+    if (onlyMuHits && abs(hit.first->particleType()) != 13)
       continue;
 
     //************ 7C ***************
 
-    float time = (*hit).second;
+    float time = hit.second;
     if (time > wakeTime) {
       // Note that digi is constructed with a float value (in ns)
       int wireN = wireId.wire();
@@ -528,8 +528,8 @@ void DTDigitizer::storeDigis(DTWireId &wireId,
       digi = DTDigi(wireN, time, digiN, base);
 
       // Add association between THIS digi and the corresponding SimTrack
-      unsigned int SimTrackId = (*hit).first->trackId();
-      EncodedEventId evId = (*hit).first->eventId();
+      unsigned int SimTrackId = hit.first->trackId();
+      EncodedEventId evId = hit.first->eventId();
       DTDigiSimLink digisimLink(wireN, digiN, time, SimTrackId, evId, base);
 
       if (debug) {
@@ -548,8 +548,8 @@ void DTDigitizer::storeDigis(DTWireId &wireId,
       resolTime = time + LinksTimeWindow;
     } else if (MultipleLinks && time < resolTime) {
       int wireN = wireId.wire();
-      unsigned int SimTrackId = (*hit).first->trackId();
-      EncodedEventId evId = (*hit).first->eventId();
+      unsigned int SimTrackId = hit.first->trackId();
+      EncodedEventId evId = hit.first->eventId();
       DTDigiSimLink digisimLink(wireN, digiN, time, SimTrackId, evId, base);
       DTLayerId layerID = wireId.layerId();
       outputLinks.insertDigi(layerID, digisimLink);

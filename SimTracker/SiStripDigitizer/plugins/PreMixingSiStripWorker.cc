@@ -199,13 +199,13 @@ void PreMixingSiStripWorker::initializeEvent(const edm::Event& e, edm::EventSetu
 
   iSetup.get<TrackerDigiGeometryRecord>().get(geometryType, pDD);
 
-  for (auto iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); ++iu) {
-    unsigned int detId = (*iu)->geographicalId().rawId();
+  for (auto iu : pDD->detUnits()) {
+    unsigned int detId = iu->geographicalId().rawId();
     DetId idet = DetId(detId);
     unsigned int isub = idet.subdetId();
     if ((isub == StripSubdetector::TIB) || (isub == StripSubdetector::TID) || (isub == StripSubdetector::TOB) ||
         (isub == StripSubdetector::TEC)) {
-      auto stripdet = dynamic_cast<StripGeomDetUnit const*>((*iu));
+      auto stripdet = dynamic_cast<StripGeomDetUnit const*>(iu);
       assert(stripdet != nullptr);
       DMinitializeDetUnit(stripdet, iSetup);
     }

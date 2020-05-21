@@ -80,11 +80,11 @@ void L1Analysis::L1AnalysisEvent::Set(const edm::Event& e, const edm::EDGetToken
     edm::Handle<std::vector<PileupSummaryInfo>> puInfo;
     e.getByToken(pileupSummaryInfoToken_, puInfo);
     if (puInfo.isValid()) {
-      for (std::vector<PileupSummaryInfo>::const_iterator pvi = puInfo->begin(); pvi != puInfo->end(); pvi++) {
-        int bx = pvi->getBunchCrossing();
+      for (const auto& pvi : *puInfo) {
+        int bx = pvi.getBunchCrossing();
         if (bx == 0) {
-          event_.nPV = pvi->getPU_NumInteractions();
-          event_.nPV_True = pvi->getTrueNumInteractions();
+          event_.nPV = pvi.getPU_NumInteractions();
+          event_.nPV_True = pvi.getTrueNumInteractions();
         }
       }
     }

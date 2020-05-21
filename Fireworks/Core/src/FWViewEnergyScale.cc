@@ -73,8 +73,8 @@ void FWViewEnergyScale::updateScaleFactors(float iMaxVal) {
 }
 
 void FWViewEnergyScale::setFrom(const FWConfiguration& iFrom) {
-  for (const_iterator it = begin(), itEnd = end(); it != itEnd; ++it) {
-    (*it)->setFrom(iFrom);
+  for (auto it : *this) {
+    it->setFrom(iFrom);
   }
 }
 

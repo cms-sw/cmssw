@@ -35,14 +35,14 @@ SimpleBarrelNavigableLayer::SimpleBarrelNavigableLayer(const BarrelDetLayer* det
   theNegOuterLayers.reserve(outerBLC.size() + outerLeftFL.size());
   thePosOuterLayers.reserve(outerBLC.size() + outerRightFL.size());
 
-  for (ConstBDLI bl = outerBLC.begin(); bl != outerBLC.end(); bl++)
-    theNegOuterLayers.push_back(*bl);
+  for (auto bl : outerBLC)
+    theNegOuterLayers.push_back(bl);
   thePosOuterLayers = theNegOuterLayers;  // barrel part the same
 
-  for (ConstFDLI fl = outerLeftFL.begin(); fl != outerLeftFL.end(); fl++)
-    theNegOuterLayers.push_back(*fl);
-  for (ConstFDLI fl = outerRightFL.begin(); fl != outerRightFL.end(); fl++)
-    thePosOuterLayers.push_back(*fl);
+  for (auto fl : outerLeftFL)
+    theNegOuterLayers.push_back(fl);
+  for (auto fl : outerRightFL)
+    thePosOuterLayers.push_back(fl);
 
   // sort the outer layers
   sort(theNegOuterLayers.begin(), theNegOuterLayers.end(), TkLayerLess());
@@ -60,17 +60,17 @@ vector<const DetLayer*> SimpleBarrelNavigableLayer::nextLayers(NavigationDirecti
 
   if (dir == insideOut) {
     result = theNegOuterLayers;
-    for (DLC::const_iterator i = thePosOuterLayers.begin(); i != thePosOuterLayers.end(); i++) {
+    for (auto thePosOuterLayer : thePosOuterLayers) {
       // avoid duplication of barrel layers
-      if ((**i).location() == GeomDetEnumerators::endcap)
-        result.push_back(*i);
+      if ((*thePosOuterLayer).location() == GeomDetEnumerators::endcap)
+        result.push_back(thePosOuterLayer);
     }
   } else {
     result = theNegInnerLayers;
-    for (DLC::const_iterator i = thePosInnerLayers.begin(); i != thePosInnerLayers.end(); i++) {
+    for (auto thePosInnerLayer : thePosInnerLayers) {
       // avoid duplication of barrel layers
-      if ((**i).location() == GeomDetEnumerators::endcap)
-        result.push_back(*i);
+      if ((*thePosInnerLayer).location() == GeomDetEnumerators::endcap)
+        result.push_back(thePosInnerLayer);
     }
   }
   return result;
@@ -199,14 +199,14 @@ void SimpleBarrelNavigableLayer::setInwardLinks(const BDLC& theBarrelv, const FD
   theNegInnerLayers.reserve(theInnerBarrelLayers.size() + theInnerLeftForwardLayers.size());
   thePosInnerLayers.reserve(theInnerBarrelLayers.size() + theInnerRightForwardLayers.size());
 
-  for (ConstBDLI bl = theInnerBarrelLayers.begin(); bl != theInnerBarrelLayers.end(); bl++)
-    theNegInnerLayers.push_back(*bl);
+  for (auto theInnerBarrelLayer : theInnerBarrelLayers)
+    theNegInnerLayers.push_back(theInnerBarrelLayer);
   thePosInnerLayers = theNegInnerLayers;  // barrel part the same
 
-  for (ConstFDLI fl = theInnerLeftForwardLayers.begin(); fl != theInnerLeftForwardLayers.end(); fl++)
-    theNegInnerLayers.push_back(*fl);
-  for (ConstFDLI fl = theInnerRightForwardLayers.begin(); fl != theInnerRightForwardLayers.end(); fl++)
-    thePosInnerLayers.push_back(*fl);
+  for (auto theInnerLeftForwardLayer : theInnerLeftForwardLayers)
+    theNegInnerLayers.push_back(theInnerLeftForwardLayer);
+  for (auto theInnerRightForwardLayer : theInnerRightForwardLayers)
+    thePosInnerLayers.push_back(theInnerRightForwardLayer);
 
   // sort the inner layers
   sort(theNegInnerLayers.begin(), theNegInnerLayers.end(), sorter);

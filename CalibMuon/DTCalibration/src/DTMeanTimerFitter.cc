@@ -60,21 +60,21 @@ vector<float> DTMeanTimerFitter::evaluateVDriftAndReso(const TString &N) {
     vector<Double_t> sigma;
     vector<Double_t> count;  //number of entries
 
-    for (vector<TH1F *>::const_iterator ith = hTMax.begin(); ith != hTMax.end(); ++ith) {
-      TF1 *funct = fitTMax(*ith);
+    for (auto ith : hTMax) {
+      TF1 *funct = fitTMax(ith);
       if (!funct) {
-        edm::LogError("DTMeanTimerFitter") << "Error when fitting TMax..histogram name" << (*ith)->GetName();
+        edm::LogError("DTMeanTimerFitter") << "Error when fitting TMax..histogram name" << ith->GetName();
         // return empty or -1 filled vector?
         vector<float> defvec(6, -1);
         return defvec;
       }
       hDebugFile->cd();
-      (*ith)->Write();
+      ith->Write();
 
       // Get mean, sigma and number of entries of each histogram
       mean.push_back(funct->GetParameter(1));
       sigma.push_back(funct->GetParameter(2));
-      count.push_back((*ith)->GetEntries());
+      count.push_back(ith->GetEntries());
     }
 
     Double_t tMaxMean = 0.;
@@ -114,8 +114,8 @@ vector<float> DTMeanTimerFitter::evaluateVDriftAndReso(const TString &N) {
 
     // Order t0 histogram by number of entries (choose histograms with higher nr. of entries)
     map<Double_t, TH1F *> hEntries;
-    for (vector<TH1F *>::const_iterator ith = hT0.begin(); ith != hT0.end(); ++ith) {
-      hEntries[(*ith)->GetEntries()] = (*ith);
+    for (auto ith : hT0) {
+      hEntries[ith->GetEntries()] = ith;
     }
 
     // add at the end of hT0 the two hists with the higher number of entries
@@ -135,20 +135,20 @@ vector<float> DTMeanTimerFitter::evaluateVDriftAndReso(const TString &N) {
     vector<Double_t> sigmaT0;
     vector<Double_t> countT0;
 
-    for (vector<TH1F *>::const_iterator ith = hT0.begin(); ith != hT0.end(); ++ith) {
+    for (auto ith : hT0) {
       try {
-        (*ith)->Fit("gaus");
+        ith->Fit("gaus");
       } catch (std::exception const &) {
-        edm::LogError("DTMeanTimerFitter") << "Exception when fitting T0..histogram " << (*ith)->GetName();
+        edm::LogError("DTMeanTimerFitter") << "Exception when fitting T0..histogram " << ith->GetName();
         // return empty or -1 filled vector?
         vector<float> defvec(6, -1);
         return defvec;
       }
-      TF1 *f1 = (*ith)->GetFunction("gaus");
+      TF1 *f1 = ith->GetFunction("gaus");
       // Get mean, sigma and number of entries of the  histograms
       meanT0.push_back(f1->GetParameter(1));
       sigmaT0.push_back(f1->GetParameter(2));
-      countT0.push_back((*ith)->GetEntries());
+      countT0.push_back(ith->GetEntries());
     }
     //calculate Delta(t0)
     if (hT0.size() != 6) {  // check if you have all the t0 hists

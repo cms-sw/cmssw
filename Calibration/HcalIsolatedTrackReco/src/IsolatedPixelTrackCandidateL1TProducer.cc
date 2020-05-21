@@ -104,9 +104,9 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
   //create vector of refs from input collections
   std::vector<reco::TrackRef> pixelTrackRefs;
 
-  for (unsigned int iPix = 0; iPix < toks_pix_.size(); iPix++) {
+  for (auto iPix : toks_pix_) {
     edm::Handle<reco::TrackCollection> iPixCol;
-    theEvent.getByToken(toks_pix_[iPix], iPixCol);
+    theEvent.getByToken(iPix, iPixCol);
     for (reco::TrackCollection::const_iterator pit = iPixCol->begin(); pit != iPixCol->end(); pit++) {
       pixelTrackRefs.push_back(reco::TrackRef(iPixCol, pit - iPixCol->begin()));
     }

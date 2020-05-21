@@ -27,8 +27,7 @@ void SiStripCablingTrackerMap::analyze(const edm::Event& e, const edm::EventSetu
   //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
   std::vector<uint32_t> vdetId_;
   SiStripDetCabling_->addActiveDetectorsRawIds(vdetId_);
-  for (std::vector<uint32_t>::const_iterator detid_iter = vdetId_.begin(); detid_iter != vdetId_.end(); detid_iter++) {
-    uint32_t detid = *detid_iter;
+  for (unsigned int detid : vdetId_) {
     tkMap_detCab->fill(detid, 1);
   }
 }

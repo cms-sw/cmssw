@@ -183,9 +183,8 @@ void DTLocalTriggerTask::beginLuminosityBlock(const LuminosityBlock& lumiSeg, co
     for (map<uint32_t, map<string, MonitorElement*> >::const_iterator histo = digiHistos.begin();
          histo != digiHistos.end();
          histo++) {
-      for (map<string, MonitorElement*>::const_iterator ht = (*histo).second.begin(); ht != (*histo).second.end();
-           ht++) {
-        (*ht).second->Reset();
+      for (const auto& ht : (*histo).second) {
+        ht.second->Reset();
       }
     }
   }
@@ -697,16 +696,16 @@ void DTLocalTriggerTask::triggerSource(const edm::Event& e) {
     Handle<LTCDigiCollection> ltcdigis;
     e.getByToken(ltcDigiCollectionToken_, ltcdigis);
 
-    for (std::vector<LTCDigi>::const_iterator ltc_it = ltcdigis->begin(); ltc_it != ltcdigis->end(); ltc_it++) {
+    for (const auto& ltc_it : *ltcdigis) {
       size_t otherTriggerSum = 0;
       for (size_t i = 1; i < 6; i++) {
-        otherTriggerSum += size_t((*ltc_it).HasTriggered(i));
+        otherTriggerSum += size_t(ltc_it.HasTriggered(i));
       }
-      if ((*ltc_it).HasTriggered(0) && otherTriggerSum == 0)
+      if (ltc_it.HasTriggered(0) && otherTriggerSum == 0)
         trigsrc = "_DTonly";
-      else if (!(*ltc_it).HasTriggered(0))
+      else if (!ltc_it.HasTriggered(0))
         trigsrc = "_NoDT";
-      else if ((*ltc_it).HasTriggered(0) && otherTriggerSum > 0)
+      else if (ltc_it.HasTriggered(0) && otherTriggerSum > 0)
         trigsrc = "_DTalso";
     }
     return;

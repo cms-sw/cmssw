@@ -200,8 +200,7 @@ void CSCCLCTData::add(const CSCComparatorDigi& digi, int layer) {
   assert(distrip < 8 && cfeb < 8 && halfStrip < 225);
 
   std::vector<int> timeBinsOn = digi.getTimeBinsOn();
-  for (std::vector<int>::const_iterator tbinItr = timeBinsOn.begin(); tbinItr != timeBinsOn.end(); ++tbinItr) {
-    int tbin = *tbinItr;
+  for (int tbin : timeBinsOn) {
     if (tbin >= 0 && tbin < ntbins_ - 2) {
       // First triad bit indicates the presence of the hit
       dataWord(cfeb, tbin, layer).set(distrip, true);
@@ -275,8 +274,7 @@ void CSCCLCTData::add(const CSCComparatorDigi& digi, const CSCDetId& cid) {
   }
 
   std::vector<int> timeBinsOn = digi.getTimeBinsOn();
-  for (std::vector<int>::const_iterator tbinItr = timeBinsOn.begin(); tbinItr != timeBinsOn.end(); ++tbinItr) {
-    int tbin = *tbinItr;
+  for (int tbin : timeBinsOn) {
     if (tbin >= 0 && tbin < ntbins_ - 2) {
       // First triad bit indicates the presence of the hit
       dataWord(cfeb, tbin, layer).set(distrip, true);

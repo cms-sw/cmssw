@@ -53,26 +53,26 @@ TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset)
   }
   const ParameterSet variables = pset.getParameter<ParameterSet>("Variables");
   vector<string> variableNames = variables.getParameterNamesForType<vector<string> >();
-  for (vector<string>::const_iterator name = variableNames.begin(); name != variableNames.end(); name++) {
-    vector<string> var = variables.getParameter<vector<string> >(*name);
+  for (const auto& variableName : variableNames) {
+    vector<string> var = variables.getParameter<vector<string> >(variableName);
     double lo, hi;
     if (var.size() >= 4 && !(istringstream(var[1]) >> lo).fail() && !(istringstream(var[2]) >> hi).fail()) {
-      fitter.addVariable(*name, var[0], lo, hi, var[3]);
+      fitter.addVariable(variableName, var[0], lo, hi, var[3]);
     } else {
       LogError("TagProbeFitTreeAnalyzer")
-          << "Could not create variable: " << *name
+          << "Could not create variable: " << variableName
           << ". Example: pt = cms.vstring(\"Probe pT\", \"1.0\", \"100.0\", \"GeV/c\") ";
     }
   }
 
   const ParameterSet categories = pset.getParameter<ParameterSet>("Categories");
   vector<string> categoryNames = categories.getParameterNamesForType<vector<string> >();
-  for (vector<string>::const_iterator name = categoryNames.begin(); name != categoryNames.end(); name++) {
-    vector<string> cat = categories.getParameter<vector<string> >(*name);
+  for (const auto& categoryName : categoryNames) {
+    vector<string> cat = categories.getParameter<vector<string> >(categoryName);
     if (cat.size() == 2) {
-      fitter.addCategory(*name, cat[0], cat[1]);
+      fitter.addCategory(categoryName, cat[0], cat[1]);
     } else {
-      LogError("TagProbeFitTreeAnalyzer") << "Could not create category: " << *name
+      LogError("TagProbeFitTreeAnalyzer") << "Could not create category: " << categoryName
                                           << ". Example: mcTrue = cms.vstring(\"MC True\", \"dummy[true=1,false=0]\") ";
     }
   }
@@ -80,14 +80,14 @@ TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset)
   if (pset.existsAs<ParameterSet>("Expressions")) {
     const ParameterSet exprs = pset.getParameter<ParameterSet>("Expressions");
     vector<string> exprNames = exprs.getParameterNamesForType<vector<string> >();
-    for (vector<string>::const_iterator name = exprNames.begin(); name != exprNames.end(); name++) {
-      vector<string> expr = exprs.getParameter<vector<string> >(*name);
+    for (const auto& exprName : exprNames) {
+      vector<string> expr = exprs.getParameter<vector<string> >(exprName);
       if (expr.size() >= 2) {
         vector<string> args(expr.begin() + 2, expr.end());
-        fitter.addExpression(*name, expr[0], expr[1], args);
+        fitter.addExpression(exprName, expr[0], expr[1], args);
       } else {
         LogError("TagProbeFitTreeAnalyzer")
-            << "Could not create expr: " << *name
+            << "Could not create expr: " << exprName
             << ". Example: qop = cms.vstring(\"qOverP\", \"charge/p\", \"charge\", \"p\") ";
       }
     }
@@ -96,12 +96,12 @@ TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset)
   if (pset.existsAs<ParameterSet>("Cuts")) {
     const ParameterSet cuts = pset.getParameter<ParameterSet>("Cuts");
     vector<string> cutNames = cuts.getParameterNamesForType<vector<string> >();
-    for (vector<string>::const_iterator name = cutNames.begin(); name != cutNames.end(); name++) {
-      vector<string> cat = cuts.getParameter<vector<string> >(*name);
+    for (const auto& cutName : cutNames) {
+      vector<string> cat = cuts.getParameter<vector<string> >(cutName);
       if (cat.size() == 3) {
-        fitter.addThresholdCategory(*name, cat[0], cat[1], atof(cat[2].c_str()));
+        fitter.addThresholdCategory(cutName, cat[0], cat[1], atof(cat[2].c_str()));
       } else {
-        LogError("TagProbeFitTreeAnalyzer") << "Could not create cut: " << *name
+        LogError("TagProbeFitTreeAnalyzer") << "Could not create cut: " << cutName
                                             << ". Example: matched = cms.vstring(\"Matched\", \"deltaR\", \"0.5\") ";
       }
     }
@@ -110,17 +110,17 @@ TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset)
   if (pset.existsAs<ParameterSet>("PDFs")) {
     const ParameterSet pdfs = pset.getParameter<ParameterSet>("PDFs");
     vector<string> pdfNames = pdfs.getParameterNamesForType<vector<string> >();
-    for (vector<string>::const_iterator name = pdfNames.begin(); name != pdfNames.end(); name++) {
-      vector<string> pdf = pdfs.getParameter<vector<string> >(*name);
-      fitter.addPdf(*name, pdf);
+    for (const auto& pdfName : pdfNames) {
+      vector<string> pdf = pdfs.getParameter<vector<string> >(pdfName);
+      fitter.addPdf(pdfName, pdf);
     }
   }
 
   const ParameterSet efficiencies = pset.getParameter<ParameterSet>("Efficiencies");
   vector<string> efficiencyNames = efficiencies.getParameterNamesForType<ParameterSet>();
-  for (vector<string>::const_iterator name = efficiencyNames.begin(); name != efficiencyNames.end(); name++) {
+  for (const auto& efficiencyName : efficiencyNames) {
     try {
-      calculateEfficiency(*name, efficiencies.getParameter<ParameterSet>(*name));
+      calculateEfficiency(efficiencyName, efficiencies.getParameter<ParameterSet>(efficiencyName));
     } catch (std::exception& ex) {
       throw cms::Exception("Error", ex.what());
     }
@@ -144,15 +144,15 @@ void TagProbeFitTreeAnalyzer::calculateEfficiency(string name, const edm::Parame
   const ParameterSet binVars = pset.getParameter<ParameterSet>("BinnedVariables");
   map<string, vector<double> > binnedVariables;
   vector<string> variableNames = binVars.getParameterNamesForType<vector<double> >();
-  for (vector<string>::const_iterator var = variableNames.begin(); var != variableNames.end(); var++) {
-    vector<double> binning = binVars.getParameter<vector<double> >(*var);
-    binnedVariables[*var] = binning;
+  for (const auto& variableName : variableNames) {
+    vector<double> binning = binVars.getParameter<vector<double> >(variableName);
+    binnedVariables[variableName] = binning;
   }
   map<string, vector<string> > mappedCategories;
   vector<string> categoryNames = binVars.getParameterNamesForType<vector<string> >();
-  for (vector<string>::const_iterator var = categoryNames.begin(); var != categoryNames.end(); var++) {
-    vector<string> map = binVars.getParameter<vector<string> >(*var);
-    mappedCategories[*var] = map;
+  for (const auto& categoryName : categoryNames) {
+    vector<string> map = binVars.getParameter<vector<string> >(categoryName);
+    mappedCategories[categoryName] = map;
   }
 
   vector<string> binToPDFmap;

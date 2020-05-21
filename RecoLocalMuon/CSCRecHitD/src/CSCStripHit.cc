@@ -21,13 +21,13 @@ CSCStripHit::CSCStripHit(const CSCDetId& id,
       theDeadStrip(deadStrip) {
   /// Extract the 2 lowest bytes for strip number
   theStripsLowBits.clear();
-  for (int i = 0; i < (int)theStrips.size(); i++) {
-    theStripsLowBits.push_back(theStrips[i] & 0x000000FF);
+  for (int theStrip : theStrips) {
+    theStripsLowBits.push_back(theStrip & 0x000000FF);
   }
   /// Extract the 2 highest bytes for L1A phase
   theStripsHighBits.clear();
-  for (int i = 0; i < (int)theStrips.size(); i++) {
-    theStripsHighBits.push_back(theStrips[i] & 0x0000FF00);
+  for (int theStrip : theStrips) {
+    theStripsHighBits.push_back(theStrip & 0x0000FF00);
   }
 }
 
@@ -37,35 +37,35 @@ void CSCStripHit::print() const {
   std::cout << "  sHitPos: " << sHitPos() << std::endl;
   std::cout << "  TMAX: " << tmax() << std::endl;
   std::cout << "  STRIPS: ";
-  for (int i = 0; i < (int)strips().size(); i++) {
-    std::cout << std::dec << strips()[i] << " ("
-              << "HEX: " << std::hex << strips()[i] << ")"
+  for (int i : strips()) {
+    std::cout << std::dec << i << " ("
+              << "HEX: " << std::hex << i << ")"
               << " ";
   }
   std::cout << std::endl;
 
   /// L1A
   std::cout << "  L1APhase: ";
-  for (int i = 0; i < (int)stripsl1a().size(); i++) {
+  for (int i : stripsl1a()) {
     //uint16_t L1ABitSet=(strips()[i] & 0xFF00);
     //std::cout << std::hex << (stripsl1a()[i] >> 15)<< " ";
 
     std::cout << "|";
     for (int k = 0; k < 8; k++) {
-      std::cout << ((stripsl1a()[i] >> (15 - k)) & 0x1) << " ";
+      std::cout << ((i >> (15 - k)) & 0x1) << " ";
     }
     std::cout << "| ";
   }
   std::cout << std::endl;
 
   std::cout << "  S_ADC: ";
-  for (int i = 0; i < (float)s_adc().size(); i++) {
-    std::cout << s_adc()[i] << " ";
+  for (float i : s_adc()) {
+    std::cout << i << " ";
   }
   std::cout << std::endl;
   std::cout << "  S_ADC_RAW: ";
-  for (int i = 0; i < (float)s_adcRaw().size(); i++) {
-    std::cout << s_adcRaw()[i] << " ";
+  for (float i : s_adcRaw()) {
+    std::cout << i << " ";
   }
   std::cout << std::endl;
 }

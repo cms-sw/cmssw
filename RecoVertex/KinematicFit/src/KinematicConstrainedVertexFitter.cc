@@ -79,8 +79,8 @@ RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(const std::vector<
   //making initial vector of parameters and initial particle-related covariance
   int nSt = 0;
   std::vector<KinematicState> inStates;
-  for (std::vector<RefCountedKinematicParticle>::const_iterator i = particles.begin(); i != particles.end(); i++) {
-    KinematicState state = (*i)->stateAtPoint(linPoint);
+  for (const auto &particle : particles) {
+    KinematicState state = particle->stateAtPoint(linPoint);
     if (!state.isValid()) {
       LogDebug("KinematicConstrainedVertexFitter") << "State is invalid at point: " << linPoint << std::endl;
       return ReferenceCountingPointer<KinematicTree>(new KinematicTree());

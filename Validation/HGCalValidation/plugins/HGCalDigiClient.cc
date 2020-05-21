@@ -63,18 +63,18 @@ void HGCalDigiClient::runClient_(DQMStore::IBooker &ib, DQMStore::IGetter &ig) {
   std::vector<MonitorElement *> hgcalMEs;
   std::vector<std::string> fullDirPath = ig.getSubdirs();
 
-  for (unsigned int i = 0; i < fullDirPath.size(); i++) {
+  for (const auto &i : fullDirPath) {
     if (verbosity_)
-      edm::LogVerbatim("HGCalValidation") << "\nfullPath: " << fullDirPath.at(i);
-    ig.setCurrentFolder(fullDirPath.at(i));
+      edm::LogVerbatim("HGCalValidation") << "\nfullPath: " << i;
+    ig.setCurrentFolder(i);
     std::vector<std::string> fullSubDirPath = ig.getSubdirs();
 
-    for (unsigned int j = 0; j < fullSubDirPath.size(); j++) {
+    for (auto &j : fullSubDirPath) {
       if (verbosity_)
-        edm::LogVerbatim("HGCalValidation") << "fullSubPath: " << fullSubDirPath.at(j);
+        edm::LogVerbatim("HGCalValidation") << "fullSubPath: " << j;
       std::string nameDirectory = "HGCAL/HGCalDigisV/" + nameDetector_;
-      if (strcmp(fullSubDirPath.at(j).c_str(), nameDirectory.c_str()) == 0) {
-        hgcalMEs = ig.getContents(fullSubDirPath.at(j));
+      if (strcmp(j.c_str(), nameDirectory.c_str()) == 0) {
+        hgcalMEs = ig.getContents(j);
         if (verbosity_)
           edm::LogVerbatim("HGCalValidation") << "hgcalMES size : " << hgcalMEs.size();
         if (!digisEndjob(hgcalMEs))
@@ -100,9 +100,9 @@ int HGCalDigiClient::digisEndjob(const std::vector<MonitorElement *> &hgcalMEs) 
     //charge
     name.str("");
     name << "charge_layer_" << ilayer;
-    for (unsigned int ih = 0; ih < hgcalMEs.size(); ih++) {
-      if (strcmp(hgcalMEs[ih]->getName().c_str(), name.str().c_str()) == 0)
-        charge_.push_back(hgcalMEs[ih]);
+    for (auto hgcalME : hgcalMEs) {
+      if (strcmp(hgcalME->getName().c_str(), name.str().c_str()) == 0)
+        charge_.push_back(hgcalME);
     }
     //normalization
     nevent = charge_.at(ilayer)->getEntries();
@@ -116,9 +116,9 @@ int HGCalDigiClient::digisEndjob(const std::vector<MonitorElement *> &hgcalMEs) 
     name.str("");
     name << "DigiOccupancy_XY_"
          << "layer_" << ilayer;
-    for (unsigned int ih = 0; ih < hgcalMEs.size(); ih++) {
-      if (strcmp(hgcalMEs[ih]->getName().c_str(), name.str().c_str()) == 0)
-        DigiOccupancy_XY_.push_back(hgcalMEs[ih]);
+    for (auto hgcalME : hgcalMEs) {
+      if (strcmp(hgcalME->getName().c_str(), name.str().c_str()) == 0)
+        DigiOccupancy_XY_.push_back(hgcalME);
     }
 
     //normalization of XY 2d
@@ -135,9 +135,9 @@ int HGCalDigiClient::digisEndjob(const std::vector<MonitorElement *> &hgcalMEs) 
     //ADC
     name.str("");
     name << "ADC_layer_" << ilayer;
-    for (unsigned int ih = 0; ih < hgcalMEs.size(); ih++) {
-      if (strcmp(hgcalMEs[ih]->getName().c_str(), name.str().c_str()) == 0)
-        ADC_.push_back(hgcalMEs[ih]);
+    for (auto hgcalME : hgcalMEs) {
+      if (strcmp(hgcalME->getName().c_str(), name.str().c_str()) == 0)
+        ADC_.push_back(hgcalME);
     }
 
     //normalization of ADC Histos
@@ -151,17 +151,17 @@ int HGCalDigiClient::digisEndjob(const std::vector<MonitorElement *> &hgcalMEs) 
     //Digi Occupancy
     name.str("");
     name << "DigiOccupancy_Plus_layer_" << ilayer;
-    for (unsigned int ih = 0; ih < hgcalMEs.size(); ih++) {
-      if (strcmp(hgcalMEs[ih]->getName().c_str(), name.str().c_str()) == 0) {
-        DigiOccupancy_Plus_.push_back(hgcalMEs[ih]);
+    for (auto hgcalME : hgcalMEs) {
+      if (strcmp(hgcalME->getName().c_str(), name.str().c_str()) == 0) {
+        DigiOccupancy_Plus_.push_back(hgcalME);
       }
     }
 
     name.str("");
     name << "DigiOccupancy_Minus_layer_" << ilayer;
-    for (unsigned int ih = 0; ih < hgcalMEs.size(); ih++) {
-      if (strcmp(hgcalMEs[ih]->getName().c_str(), name.str().c_str()) == 0) {
-        DigiOccupancy_Minus_.push_back(hgcalMEs[ih]);
+    for (auto hgcalME : hgcalMEs) {
+      if (strcmp(hgcalME->getName().c_str(), name.str().c_str()) == 0) {
+        DigiOccupancy_Minus_.push_back(hgcalME);
       }
     }
 
@@ -184,9 +184,9 @@ int HGCalDigiClient::digisEndjob(const std::vector<MonitorElement *> &hgcalMEs) 
 
   name.str("");
   name << "SUMOfDigiOccupancy_Plus";
-  for (unsigned int ih = 0; ih < hgcalMEs.size(); ih++) {
-    if (strcmp(hgcalMEs[ih]->getName().c_str(), name.str().c_str()) == 0) {
-      MeanDigiOccupancy_Plus_.push_back(hgcalMEs[ih]);
+  for (auto hgcalME : hgcalMEs) {
+    if (strcmp(hgcalME->getName().c_str(), name.str().c_str()) == 0) {
+      MeanDigiOccupancy_Plus_.push_back(hgcalME);
       unsigned indx = MeanDigiOccupancy_Plus_.size() - 1;
       for (int ilayer = 0; ilayer < (int)layers_; ++ilayer) {
         double meanVal = DigiOccupancy_Plus_.at(ilayer)->getMean();
@@ -198,9 +198,9 @@ int HGCalDigiClient::digisEndjob(const std::vector<MonitorElement *> &hgcalMEs) 
 
   name.str("");
   name << "SUMOfDigiOccupancy_Plus";
-  for (unsigned int ih = 0; ih < hgcalMEs.size(); ih++) {
-    if (strcmp(hgcalMEs[ih]->getName().c_str(), name.str().c_str()) == 0) {
-      MeanDigiOccupancy_Minus_.push_back(hgcalMEs[ih]);
+  for (auto hgcalME : hgcalMEs) {
+    if (strcmp(hgcalME->getName().c_str(), name.str().c_str()) == 0) {
+      MeanDigiOccupancy_Minus_.push_back(hgcalME);
       unsigned indx = MeanDigiOccupancy_Minus_.size() - 1;
       for (int ilayer = 0; ilayer < (int)layers_; ++ilayer) {
         double meanVal = DigiOccupancy_Minus_.at(ilayer)->getMean();

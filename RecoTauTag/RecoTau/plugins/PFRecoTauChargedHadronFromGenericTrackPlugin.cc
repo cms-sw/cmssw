@@ -321,15 +321,12 @@ namespace reco {
             1.0;  // CV: approximate ECAL + HCAL calorimeter resolution for hadrons by 100%*sqrt(E)
         double resolutionTrackP = track.p() * (getTrackPtError(track) / track.pt());
         double neutralEnSum = 0.;
-        for (std::vector<Candidate_withDistance>::const_iterator nextNeutral =
-                 neutralJetConstituents_withDistance.begin();
-             nextNeutral != neutralJetConstituents_withDistance.end();
-             ++nextNeutral) {
-          double nextNeutralEn = nextNeutral->pfCandidate_->energy();
+        for (const auto& nextNeutral : neutralJetConstituents_withDistance) {
+          double nextNeutralEn = nextNeutral.pfCandidate_->energy();
           double resolutionCaloEn = caloResolutionCoeff * sqrt(neutralEnSum + nextNeutralEn);
           double resolution = sqrt(resolutionTrackP * resolutionTrackP + resolutionCaloEn * resolutionCaloEn);
           if ((neutralEnSum + nextNeutralEn) < (track.p() + 2. * resolution)) {
-            chargedHadron->neutralPFCandidates_.push_back(nextNeutral->pfCandidate_);
+            chargedHadron->neutralPFCandidates_.push_back(nextNeutral.pfCandidate_);
             neutralEnSum += nextNeutralEn;
           } else {
             break;

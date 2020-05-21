@@ -40,8 +40,8 @@ GEMCSCSegment::GEMCSCSegment(const CSCSegment* csc_segment,
       theLocalDirection(direction),
       theCovMatrix(errors),
       theChi2(chi2) {
-  for (unsigned int i = 0; i < gem_rhs.size(); ++i) {
-    theGEMRecHits.push_back((*gem_rhs[i]));
+  for (auto gem_rh : gem_rhs) {
+    theGEMRecHits.push_back((*gem_rh));
   }
   theCSCSegment = *csc_segment;
   // LogDebug
@@ -60,21 +60,19 @@ GEMCSCSegment::~GEMCSCSegment() {}
 
 std::vector<const TrackingRecHit*> GEMCSCSegment::recHits() const {
   std::vector<const TrackingRecHit*> pointersOfRecHits;
-  for (std::vector<GEMRecHit>::const_iterator irh = theGEMRecHits.begin(); irh != theGEMRecHits.end(); ++irh) {
-    pointersOfRecHits.push_back(&(*irh));
+  for (const auto& theGEMRecHit : theGEMRecHits) {
+    pointersOfRecHits.push_back(&theGEMRecHit);
   }
-  for (std::vector<CSCRecHit2D>::const_iterator irh = theCSCSegment.specificRecHits().begin();
-       irh != theCSCSegment.specificRecHits().end();
-       ++irh) {
-    pointersOfRecHits.push_back(&(*irh));
+  for (const auto& irh : theCSCSegment.specificRecHits()) {
+    pointersOfRecHits.push_back(&irh);
   }
   return pointersOfRecHits;
 }
 
 std::vector<TrackingRecHit*> GEMCSCSegment::recHits() {
   std::vector<TrackingRecHit*> pointersOfRecHits;
-  for (std::vector<GEMRecHit>::iterator irh = theGEMRecHits.begin(); irh != theGEMRecHits.end(); ++irh) {
-    pointersOfRecHits.push_back(&(*irh));
+  for (auto& theGEMRecHit : theGEMRecHits) {
+    pointersOfRecHits.push_back(&theGEMRecHit);
   }
   return pointersOfRecHits;
 }

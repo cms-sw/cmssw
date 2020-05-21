@@ -155,10 +155,10 @@ void EcalDAQTowerStatusXMLTranslator::plot(std::string fn, const EcalDAQTowerSta
   if (record.endcapItems().empty())
     return;
   int valEE[2][20][20];
-  for (int k = 0; k < 2; k++)
+  for (auto& k : valEE)
     for (int ix = 0; ix < 20; ix++)
       for (int iy = 0; iy < 20; iy++)
-        valEE[k][ix][iy] = -1;
+        k[ix][iy] = -1;
   for (uint cellid = 0; cellid < EcalTrigTowerDetId::kEETotalTowers; ++cellid) {
     if (EcalScDetId::validHashIndex(cellid)) {
       EcalScDetId rawid = EcalScDetId::unhashIndex(cellid);

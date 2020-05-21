@@ -153,9 +153,9 @@ void FWPFCandidateWithHitsProxyBuilder::viewContextBoxScale(
 
 //______________________________________________________________________________
 const reco::PFRecHit* FWPFCandidateWithHitsProxyBuilder::getHitForDetId(unsigned candIdx) {
-  for (reco::PFRecHitCollection::const_iterator it = m_collectionHCAL->begin(); it != m_collectionHCAL->end(); ++it) {
-    if (it->detId() == candIdx) {
-      return &(*it);
+  for (const auto& it : *m_collectionHCAL) {
+    if (it.detId() == candIdx) {
+      return &it;
     }
   }
   return nullptr;
@@ -261,8 +261,8 @@ void FWPFCandidateWithHitsProxyBuilder::addHitsForCandidate(const reco::PFCandid
         }
 
         bool hitsFound = false;
-        for (int ihandf = 0, lastIdx = (int)(hitsandfracs.size()); ihandf < lastIdx; ihandf++) {
-          unsigned int hitDetId = hitsandfracs[ihandf].first;
+        for (const auto& hitsandfrac : hitsandfracs) {
+          unsigned int hitDetId = hitsandfrac.first;
           const float* corners = context().getGeom()->getCorners(hitDetId);
           const reco::PFRecHit* hit = getHitForDetId(hitDetId);
           if (hit) {

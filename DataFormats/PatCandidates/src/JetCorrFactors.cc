@@ -11,8 +11,8 @@ using namespace pat;
 
 JetCorrFactors::JetCorrFactors(const std::string& label, const std::vector<CorrectionFactor>& jec)
     : label_(label), jec_(jec) {
-  for (std::vector<CorrectionFactor>::const_iterator corrFactor = jec.begin(); corrFactor != jec.end(); ++corrFactor) {
-    if (!isValid(*corrFactor))
+  for (const auto& corrFactor : jec) {
+    if (!isValid(corrFactor))
       invalidFactor();
   }
 }
@@ -85,9 +85,8 @@ std::string JetCorrFactors::correctionLabelString() const {
 
 std::vector<std::string> JetCorrFactors::correctionLabels() const {
   std::vector<std::string> labels;
-  for (std::vector<CorrectionFactor>::const_iterator corrFactor = jec_.begin(); corrFactor != jec_.end();
-       ++corrFactor) {
-    labels.push_back(corrFactor->first);
+  for (const auto& corrFactor : jec_) {
+    labels.push_back(corrFactor.first);
   }
   return labels;
 }

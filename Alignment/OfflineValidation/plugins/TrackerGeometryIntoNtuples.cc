@@ -203,16 +203,14 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 
   //alignments
   addBranches();
-  for (std::vector<AlignTransform>::const_iterator i = theAlignments->m_align.begin();
-       i != theAlignments->m_align.end();
-       ++i) {
-    m_rawid = i->rawId();
-    CLHEP::Hep3Vector translation = i->translation();
+  for (const auto& i : theAlignments->m_align) {
+    m_rawid = i.rawId();
+    CLHEP::Hep3Vector translation = i.translation();
     m_x = translation.x();
     m_y = translation.y();
     m_z = translation.z();
 
-    CLHEP::HepRotation rotation = i->rotation();
+    CLHEP::HepRotation rotation = i.rotation();
     m_alpha = rotation.getPhi();
     m_beta = rotation.getTheta();
     m_gamma = rotation.getPsi();
@@ -231,9 +229,9 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
   delete theAlignments;
 
   std::vector<AlignTransformErrorExtended> alignErrors = alignmentErrors->m_alignError;
-  for (std::vector<AlignTransformErrorExtended>::const_iterator i = alignErrors.begin(); i != alignErrors.end(); ++i) {
-    m_rawid = i->rawId();
-    CLHEP::HepSymMatrix errMatrix = i->matrix();
+  for (const auto& alignError : alignErrors) {
+    m_rawid = alignError.rawId();
+    CLHEP::HepSymMatrix errMatrix = alignError.matrix();
     DetId detid(m_rawid);
     m_subdetid = detid.subdetId();
     m_xx = errMatrix[0][0];
@@ -249,14 +247,14 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
   auto const& detUnits = theCurTracker->detUnits();
   int detUnit(0);
   //\\for (unsigned int iDet = 0; iDet < detUnits.size(); ++iDet) {
-  for (auto iunit = detUnits.begin(); iunit != detUnits.end(); ++iunit) {
-    DetId detid = (*iunit)->geographicalId();
+  for (auto iunit : detUnits) {
+    DetId detid = iunit->geographicalId();
     m_rawid = detid.rawId();
     m_subdetid = detid.subdetId();
 
     ++detUnit;
     //\\GeomDetUnit* geomDetUnit = detUnits.at(iDet) ;
-    auto geomDetUnit = *iunit;
+    auto geomDetUnit = iunit;
 
     // Get SurfaceDeformation for this GeomDetUnit
     if (geomDetUnit->surfaceDeformation()) {
@@ -268,9 +266,8 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
       m_d2 = surfaceDeformParams.at(1);
       m_d3 = surfaceDeformParams.at(2);
       mp_dpar->clear();
-      for (std::vector<double>::const_iterator it = surfaceDeformParams.begin(); it != surfaceDeformParams.end();
-           ++it) {
-        mp_dpar->push_back((*it));
+      for (double surfaceDeformParam : surfaceDeformParams) {
+        mp_dpar->push_back(surfaceDeformParam);
         //edm::LogInfo("surfaceDeformParamsContent") << " surfaceDeformParam = " << (*it) << std::endl ;
       }
       m_treeDeformations->Fill();

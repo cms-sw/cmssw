@@ -40,8 +40,8 @@ ESDaqInfoTask::ESDaqInfoTask(const ParameterSet& ps) {
   meESDaqActiveMap_ = nullptr;
   meESDaqError_ = nullptr;
 
-  for (int i = 0; i < 56; i++) {
-    meESDaqActive_[i] = nullptr;
+  for (auto& i : meESDaqActive_) {
+    i = nullptr;
   }
 
   if (ps.exists("esMapping")) {
@@ -124,9 +124,7 @@ void ESDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
 
     float ESFedCount = 0.;
 
-    for (unsigned int fedItr = 0; fedItr < FedsInIds.size(); ++fedItr) {
-      int fedID = FedsInIds[fedItr];
-
+    for (int fedID : FedsInIds) {
       if (fedID >= ESFedRangeMin_ && fedID <= ESFedRangeMax_) {
         if (ESOnFed_[fedID - ESFedRangeMin_])
           ESFedCount++;
@@ -166,9 +164,9 @@ void ESDaqInfoTask::reset(void) {
   if (meESDaqFraction_)
     meESDaqFraction_->Reset();
 
-  for (int i = 0; i < 56; i++) {
-    if (meESDaqActive_[i])
-      meESDaqActive_[i]->Reset();
+  for (auto& i : meESDaqActive_) {
+    if (i)
+      i->Reset();
   }
 
   if (meESDaqActiveMap_)

@@ -2052,8 +2052,8 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event &event, const edm::EventSet
           //If the state is valid
           if (innerTSOS.isValid()) {
             //Loop over Associated segments
-            for (RecHitVector::iterator rechit = my4DTrack.begin(); rechit != my4DTrack.end(); ++rechit) {
-              const GeomDet *geomDet = theTrackingGeometry->idToDet((*rechit)->geographicalId());
+            for (auto &rechit : my4DTrack) {
+              const GeomDet *geomDet = theTrackingGeometry->idToDet(rechit->geographicalId());
               //Otherwise the propagator could throw an exception
               const Plane *pDest = dynamic_cast<const Plane *>(&geomDet->surface());
               const Cylinder *cDest = dynamic_cast<const Cylinder *>(&geomDet->surface());
@@ -2071,15 +2071,14 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event &event, const edm::EventSet
   std::cout << "<MuonAlignmentAnalyzer> Predicted: " << destiny.freeState()->position() << std::endl;
   std::cout << "<MuonAlignmentAnalyzer> Predicted local: " << destiny.localPosition() << std::endl;
 */
-                const long rawId = (*rechit)->geographicalId().rawId();
+                const long rawId = rechit->geographicalId().rawId();
                 int position = -1;
                 bool newDetector = true;
                 //Loop over the DetectorCollection to see if the detector is new and requires a new entry
-                for (std::vector<long>::iterator myIds = detectorCollection.begin(); myIds != detectorCollection.end();
-                     myIds++) {
+                for (long &myIds : detectorCollection) {
                   ++position;
                   //If matches newDetector = false
-                  if (*myIds == rawId) {
+                  if (myIds == rawId) {
                     newDetector = false;
                     break;
                   }
@@ -2104,20 +2103,20 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event &event, const edm::EventSet
 
                   //global
                   residualGlobalRPhi =
-                      geomDet->toGlobal((*rechit)->localPosition()).perp() *
-                          geomDet->toGlobal((*rechit)->localPosition()).barePhi() -
+                      geomDet->toGlobal(rechit->localPosition()).perp() *
+                          geomDet->toGlobal(rechit->localPosition()).barePhi() -
                       destiny.freeState()->position().perp() * destiny.freeState()->position().barePhi();
 
                   //local
-                  residualLocalX = (*rechit)->localPosition().x() - destiny.localPosition().x();
+                  residualLocalX = rechit->localPosition().x() - destiny.localPosition().x();
 
                   //global
-                  residualGlobalPhi = geomDet->toGlobal(((RecSegment *)(*rechit))->localDirection()).barePhi() -
+                  residualGlobalPhi = geomDet->toGlobal(((RecSegment *)rechit)->localDirection()).barePhi() -
                                       destiny.globalDirection().barePhi();
 
                   //local
-                  residualLocalPhi = atan2(((RecSegment *)(*rechit))->localDirection().z(),
-                                           ((RecSegment *)(*rechit))->localDirection().x()) -
+                  residualLocalPhi = atan2(((RecSegment *)rechit)->localDirection().z(),
+                                           ((RecSegment *)rechit)->localDirection().x()) -
                                      atan2(destiny.localDirection().z(), destiny.localDirection().x());
 
                   hResidualGlobalRPhiDT->Fill(residualGlobalRPhi);
@@ -2128,18 +2127,18 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event &event, const edm::EventSet
                   if (station != 4) {
                     //global
                     residualGlobalZ =
-                        geomDet->toGlobal((*rechit)->localPosition()).z() - destiny.freeState()->position().z();
+                        geomDet->toGlobal(rechit->localPosition()).z() - destiny.freeState()->position().z();
 
                     //local
-                    residualLocalY = (*rechit)->localPosition().y() - destiny.localPosition().y();
+                    residualLocalY = rechit->localPosition().y() - destiny.localPosition().y();
 
                     //global
-                    residualGlobalTheta = geomDet->toGlobal(((RecSegment *)(*rechit))->localDirection()).bareTheta() -
+                    residualGlobalTheta = geomDet->toGlobal(((RecSegment *)rechit)->localDirection()).bareTheta() -
                                           destiny.globalDirection().bareTheta();
 
                     //local
-                    residualLocalTheta = atan2(((RecSegment *)(*rechit))->localDirection().z(),
-                                               ((RecSegment *)(*rechit))->localDirection().y()) -
+                    residualLocalTheta = atan2(((RecSegment *)rechit)->localDirection().z(),
+                                               ((RecSegment *)rechit)->localDirection().y()) -
                                          atan2(destiny.localDirection().z(), destiny.localDirection().y());
 
                     hResidualGlobalThetaDT->Fill(residualGlobalTheta);
@@ -2183,36 +2182,36 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event &event, const edm::EventSet
 
                   //global
                   residualGlobalRPhi =
-                      geomDet->toGlobal((*rechit)->localPosition()).perp() *
-                          geomDet->toGlobal((*rechit)->localPosition()).barePhi() -
+                      geomDet->toGlobal(rechit->localPosition()).perp() *
+                          geomDet->toGlobal(rechit->localPosition()).barePhi() -
                       destiny.freeState()->position().perp() * destiny.freeState()->position().barePhi();
 
                   //local
-                  residualLocalX = (*rechit)->localPosition().x() - destiny.localPosition().x();
+                  residualLocalX = rechit->localPosition().x() - destiny.localPosition().x();
 
                   //global
                   residualGlobalR =
-                      geomDet->toGlobal((*rechit)->localPosition()).perp() - destiny.freeState()->position().perp();
+                      geomDet->toGlobal(rechit->localPosition()).perp() - destiny.freeState()->position().perp();
 
                   //local
-                  residualLocalY = (*rechit)->localPosition().y() - destiny.localPosition().y();
+                  residualLocalY = rechit->localPosition().y() - destiny.localPosition().y();
 
                   //global
-                  residualGlobalPhi = geomDet->toGlobal(((RecSegment *)(*rechit))->localDirection()).barePhi() -
+                  residualGlobalPhi = geomDet->toGlobal(((RecSegment *)rechit)->localDirection()).barePhi() -
                                       destiny.globalDirection().barePhi();
 
                   //local
-                  residualLocalPhi = atan2(((RecSegment *)(*rechit))->localDirection().y(),
-                                           ((RecSegment *)(*rechit))->localDirection().x()) -
+                  residualLocalPhi = atan2(((RecSegment *)rechit)->localDirection().y(),
+                                           ((RecSegment *)rechit)->localDirection().x()) -
                                      atan2(destiny.localDirection().y(), destiny.localDirection().x());
 
                   //global
-                  residualGlobalTheta = geomDet->toGlobal(((RecSegment *)(*rechit))->localDirection()).bareTheta() -
+                  residualGlobalTheta = geomDet->toGlobal(((RecSegment *)rechit)->localDirection()).bareTheta() -
                                         destiny.globalDirection().bareTheta();
 
                   //local
-                  residualLocalTheta = atan2(((RecSegment *)(*rechit))->localDirection().y(),
-                                             ((RecSegment *)(*rechit))->localDirection().z()) -
+                  residualLocalTheta = atan2(((RecSegment *)rechit)->localDirection().y(),
+                                             ((RecSegment *)rechit)->localDirection().z()) -
                                        atan2(destiny.localDirection().y(), destiny.localDirection().z());
 
                   hResidualGlobalRPhiCSC->Fill(residualGlobalRPhi);
@@ -2498,19 +2497,16 @@ RecHitVector MuonAlignmentAnalyzer::doMatching(const reco::Track &staTrack,
         bool isNewChamber = true;
 
         //Loop over segments already included in the vector of segments in the actual track
-        for (std::vector<int>::iterator positionIt = positionDT.begin(); positionIt != positionDT.end(); positionIt++) {
+        for (int &positionIt : positionDT) {
           //If this segment has been used before isNewChamber = false
-          if (NumberOfDTSegment == *positionIt)
+          if (NumberOfDTSegment == positionIt)
             isNewChamber = false;
         }
 
         //Loop over vectors of segments associated to previous tracks
-        for (std::vector<std::vector<int> >::iterator collect = indexCollectionDT->begin();
-             collect != indexCollectionDT->end();
-             ++collect) {
+        for (auto &collect : *indexCollectionDT) {
           //Loop over segments associated to a track
-          for (std::vector<int>::iterator positionIt = (*collect).begin(); positionIt != (*collect).end();
-               positionIt++) {
+          for (std::vector<int>::iterator positionIt = collect.begin(); positionIt != collect.end(); positionIt++) {
             //If this segment was used in a previos track then isNewChamber = false
             if (NumberOfDTSegment == *positionIt)
               isNewChamber = false;
@@ -2542,19 +2538,15 @@ RecHitVector MuonAlignmentAnalyzer::doMatching(const reco::Track &staTrack,
         bool isNewChamber = true;
 
         //Loop over segments in the current track
-        for (std::vector<int>::iterator positionIt = positionCSC.begin(); positionIt != positionCSC.end();
-             positionIt++) {
+        for (int &positionIt : positionCSC) {
           //If this segment has been used then newchamber = false
-          if (NumberOfCSCSegment == *positionIt)
+          if (NumberOfCSCSegment == positionIt)
             isNewChamber = false;
         }
         //Loop over vectors of segments in previous tracks
-        for (std::vector<std::vector<int> >::iterator collect = indexCollectionCSC->begin();
-             collect != indexCollectionCSC->end();
-             ++collect) {
+        for (auto &collect : *indexCollectionCSC) {
           //Loop over segments in a track
-          for (std::vector<int>::iterator positionIt = (*collect).begin(); positionIt != (*collect).end();
-               positionIt++) {
+          for (std::vector<int>::iterator positionIt = collect.begin(); positionIt != collect.end(); positionIt++) {
             //If the segment was used in a previous track isNewChamber = false
             if (NumberOfCSCSegment == *positionIt)
               isNewChamber = false;

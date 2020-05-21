@@ -118,10 +118,8 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet &parSet)
                                 << "\nInput tag for technical triggers:               " << std::endl;
 
     // loop over all producers of technical trigger records
-    for (std::vector<edm::InputTag>::const_iterator it = m_technicalTriggersInputTags.begin();
-         it != m_technicalTriggersInputTags.end();
-         it++) {
-      LogTrace("L1GlobalTrigger") << "\n  " << (*it) << std::endl;
+    for (const auto &m_technicalTriggersInputTag : m_technicalTriggersInputTags) {
+      LogTrace("L1GlobalTrigger") << "\n  " << m_technicalTriggersInputTag << std::endl;
     }
 
     LogTrace("L1GlobalTrigger")
@@ -491,10 +489,10 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
 
   bool receiveTechTr = false;
 
-  for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
-    int iPosition = itBoard->gtPositionDaqRecord();
+  for (const auto &boardMap : boardMaps) {
+    int iPosition = boardMap.gtPositionDaqRecord();
     if (iPosition > 0) {
-      int iActiveBit = itBoard->gtBitDaqActiveBoards();
+      int iActiveBit = boardMap.gtBitDaqActiveBoards();
       bool activeBoard = false;
 
       if (iActiveBit >= 0) {
@@ -505,7 +503,7 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
       // 0)
       //               in the record and ActiveBoardsMap, and active
       if ((iActiveBit < 0) || activeBoard) {
-        switch (itBoard->gtBoardType()) {
+        switch (boardMap.gtBoardType()) {
           case GTFE: {
             daqNrGtfeBoards++;
           }
@@ -520,10 +518,9 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
             daqNrPsbBoards++;
 
             // get the objects coming to this PSB
-            std::vector<L1GtPsbQuad> quadInPsb = itBoard->gtQuadInPsb();
-            for (std::vector<L1GtPsbQuad>::const_iterator itQuad = quadInPsb.begin(); itQuad != quadInPsb.end();
-                 ++itQuad) {
-              switch (*itQuad) {
+            std::vector<L1GtPsbQuad> quadInPsb = boardMap.gtQuadInPsb();
+            for (auto itQuad : quadInPsb) {
+              switch (itQuad) {
                 case TechTr: {
                   receiveTechTr = true;
                 }
@@ -658,10 +655,10 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
   }
 
   if (m_produceL1GtDaqRecord) {
-    for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
-      int iPosition = itBoard->gtPositionDaqRecord();
+    for (const auto &boardMap : boardMaps) {
+      int iPosition = boardMap.gtPositionDaqRecord();
       if (iPosition > 0) {
-        int iActiveBit = itBoard->gtBitDaqActiveBoards();
+        int iActiveBit = boardMap.gtBitDaqActiveBoards();
         bool activeBoard = false;
 
         if (iActiveBit >= 0) {
@@ -672,11 +669,11 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
         // 0)
         //               in the record and ActiveBoardsMap, and active
         if ((iActiveBit < 0) || activeBoard) {
-          switch (itBoard->gtBoardType()) {
+          switch (boardMap.gtBoardType()) {
             case GTFE: {
               L1GtfeWord gtfeWordValue;
 
-              gtfeWordValue.setBoardId(itBoard->gtBoardId());
+              gtfeWordValue.setBoardId(boardMap.gtBoardId());
 
               // cast int to uint16_t
               // there are normally 3 or 5 BxInEvent
@@ -747,10 +744,10 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
       LogTrace("L1GlobalTrigger") << "\n Length of BST message (in bytes): " << bstLengthBytes << "\n" << std::endl;
     }
 
-    for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
-      int iPosition = itBoard->gtPositionEvmRecord();
+    for (const auto &boardMap : boardMaps) {
+      int iPosition = boardMap.gtPositionEvmRecord();
       if (iPosition > 0) {
-        int iActiveBit = itBoard->gtBitEvmActiveBoards();
+        int iActiveBit = boardMap.gtBitEvmActiveBoards();
         bool activeBoard = false;
 
         if (iActiveBit >= 0) {
@@ -761,11 +758,11 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
         // 0)
         //               in the record and ActiveBoardsMap, and active
         if ((iActiveBit < 0) || activeBoard) {
-          switch (itBoard->gtBoardType()) {
+          switch (boardMap.gtBoardType()) {
             case GTFE: {
               L1GtfeExtWord gtfeWordValue(bstLengthBytes);
 
-              gtfeWordValue.setBoardId(itBoard->gtBoardId());
+              gtfeWordValue.setBoardId(boardMap.gtBoardId());
 
               // cast int to uint16_t
               // there are normally 3 or 5 BxInEvent
@@ -815,7 +812,7 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
             case TCS: {
               L1TcsWord tcsWordValue;
 
-              tcsWordValue.setBoardId(itBoard->gtBoardId());
+              tcsWordValue.setBoardId(boardMap.gtBoardId());
 
               // bunch crossing
               tcsWordValue.setBxNr(bxCrossHw);
@@ -1049,8 +1046,8 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
 
     const std::vector<L1GlobalTriggerObjectMap> objMapVec = gtObjectMapRecord->gtObjectMap();
 
-    for (std::vector<L1GlobalTriggerObjectMap>::const_iterator it = objMapVec.begin(); it != objMapVec.end(); ++it) {
-      (*it).print(myCoutStream);
+    for (const auto &it : objMapVec) {
+      it.print(myCoutStream);
     }
 
     LogDebug("L1GlobalTrigger") << "Test gtObjectMapRecord in L1GlobalTrigger \n\n"

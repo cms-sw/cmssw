@@ -30,13 +30,13 @@ SuperCluster::SuperCluster(double energy,
   preshowerEnergy2_ = Epreshower2;
 
   // set references to constituent basic clusters and update list of rechits
-  for (CaloClusterPtrVector::const_iterator bcit = clusters.begin(); bcit != clusters.end(); ++bcit) {
-    clusters_.push_back((*bcit));
+  for (auto&& cluster : clusters) {
+    clusters_.push_back((cluster));
 
     // updated list of used hits
-    const std::vector<std::pair<DetId, float> >& v1 = (*bcit)->hitsAndFractions();
-    for (std::vector<std::pair<DetId, float> >::const_iterator diIt = v1.begin(); diIt != v1.end(); ++diIt) {
-      hitsAndFractions_.push_back((*diIt));
+    const std::vector<std::pair<DetId, float> >& v1 = (cluster)->hitsAndFractions();
+    for (const auto& diIt : v1) {
+      hitsAndFractions_.push_back(diIt);
     }  // loop over rechits
   }    // loop over basic clusters
 
@@ -62,19 +62,19 @@ SuperCluster::SuperCluster(double energy,
   preshowerEnergy2_ = Epreshower2;
 
   // set references to constituent basic clusters and update list of rechits
-  for (CaloClusterPtrVector::const_iterator bcit = clusters.begin(); bcit != clusters.end(); ++bcit) {
-    clusters_.push_back((*bcit));
+  for (auto&& cluster : clusters) {
+    clusters_.push_back((cluster));
 
     // updated list of used hits
-    const std::vector<std::pair<DetId, float> >& v1 = (*bcit)->hitsAndFractions();
-    for (std::vector<std::pair<DetId, float> >::const_iterator diIt = v1.begin(); diIt != v1.end(); ++diIt) {
-      hitsAndFractions_.push_back((*diIt));
+    const std::vector<std::pair<DetId, float> >& v1 = (cluster)->hitsAndFractions();
+    for (const auto& diIt : v1) {
+      hitsAndFractions_.push_back(diIt);
     }  // loop over rechits
   }    // loop over basic clusters
 
   // set references to preshower clusters
-  for (CaloClusterPtrVector::const_iterator pcit = preshowerClusters.begin(); pcit != preshowerClusters.end(); ++pcit) {
-    preshowerClusters_.push_back((*pcit));
+  for (auto&& preshowerCluster : preshowerClusters) {
+    preshowerClusters_.push_back((preshowerCluster));
   }
   computeRawEnergy();
 }

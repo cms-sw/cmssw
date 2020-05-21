@@ -44,14 +44,12 @@ void FWSiStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList*
   }
   const FWGeometry* geom = iItem->getGeom();
 
-  for (edm::DetSetVector<SiStripDigi>::const_iterator it = digis->begin(), end = digis->end(); it != end; ++it) {
-    edm::DetSet<SiStripDigi> ds = *it;
+  for (auto ds : *digis) {
     const uint32_t& id = ds.id;
 
     const float* pars = geom->getParameters(id);
 
-    for (edm::DetSet<SiStripDigi>::const_iterator idigi = ds.data.begin(), idigiEnd = ds.data.end(); idigi != idigiEnd;
-         ++idigi) {
+    for (auto idigi : ds.data) {
       TEveStraightLineSet* lineSet = new TEveStraightLineSet;
       setupAddElement(lineSet, product);
 
@@ -62,7 +60,7 @@ void FWSiStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList*
       float localTop[3] = {0.0, 0.0, 0.0};
       float localBottom[3] = {0.0, 0.0, 0.0};
 
-      fireworks::localSiStrip((*idigi).strip(), localTop, localBottom, pars, id);
+      fireworks::localSiStrip(idigi.strip(), localTop, localBottom, pars, id);
 
       float globalTop[3];
       float globalBottom[3];

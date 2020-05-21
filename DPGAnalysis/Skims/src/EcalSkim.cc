@@ -72,10 +72,8 @@ bool EcalSkim::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // barrel
   const reco::SuperClusterCollection* clusterCollectionEB = bccHandle.product();
-  for (reco::SuperClusterCollection::const_iterator clus = clusterCollectionEB->begin();
-       clus != clusterCollectionEB->end();
-       ++clus) {
-    if (clus->energy() >= EnergyCutEB) {
+  for (const auto& clus : *clusterCollectionEB) {
+    if (clus.energy() >= EnergyCutEB) {
       acceptedEB = true;
       break;
     }
@@ -83,10 +81,8 @@ bool EcalSkim::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // endcap
   const reco::SuperClusterCollection* clusterCollectionEE = eccHandle.product();
-  for (reco::SuperClusterCollection::const_iterator clus = clusterCollectionEE->begin();
-       clus != clusterCollectionEE->end();
-       ++clus) {
-    if (clus->energy() >= EnergyCutEE) {
+  for (const auto& clus : *clusterCollectionEE) {
+    if (clus.energy() >= EnergyCutEE) {
       acceptedEE = true;
       break;
     }

@@ -47,8 +47,8 @@ namespace std {
   ostream& operator<<(std::ostream& o, vector<std::string> const& iValue) {
     std::string sep("");
     std::string commaSep(",");
-    for (std::vector<std::string>::const_iterator it = iValue.begin(), itEnd = iValue.end(); it != itEnd; ++it) {
-      o << sep << *it;
+    for (const auto& it : iValue) {
+      o << sep << it;
       sep = commaSep;
     }
     return o;
@@ -171,9 +171,8 @@ int main(int argc, char** argv) try {
     } else {
       //we have files
       directory = directory.branch_path();
-      for (std::vector<std::string>::iterator it = requestedPaths.begin(), itEnd = requestedPaths.end(); it != itEnd;
-           ++it) {
-        boost::filesystem::path f(*it);
+      for (auto& requestedPath : requestedPaths) {
+        boost::filesystem::path f(requestedPath);
         if (!exists(f)) {
           std::cerr << "the file '" << f.string() << "' does not exist" << std::endl;
           return 1;
@@ -291,8 +290,8 @@ int main(int argc, char** argv) try {
     }
     CacheParser::read(icf, ltp);
 
-    for (CacheParser::LoadableToPlugins::iterator itFile = ltp.begin(); itFile != ltp.end(); ++itFile) {
-      old[itFile->first] = itFile->second;
+    for (auto& itFile : ltp) {
+      old[itFile.first] = itFile.second;
     }
 
     // If required, we remove the plugins which are missing. Notice that old is

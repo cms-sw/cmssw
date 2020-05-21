@@ -14,8 +14,8 @@ HcalDTCHeader::HcalDTCHeader() {}
 
 unsigned int HcalDTCHeader::getTotalLengthBytes() const {
   unsigned int totalSize = sizeof(HcalDTCHeader);
-  for (int i = 0; i < SLOT_COUNT; i++)
-    totalSize += (slotInfo[i] & 0xFFF) * sizeof(uint16_t);
+  for (unsigned short i : slotInfo)
+    totalSize += (i & 0xFFF) * sizeof(uint16_t);
   return totalSize;
 }
 
@@ -41,8 +41,8 @@ void HcalDTCHeader::clear() {
   commondataformat3 = 0;
   dcch0 = 0x1;  // format version 1
   dcch1 = 0;
-  for (int i = 0; i < SLOT_COUNT; i++)
-    slotInfo[i] = 0;
+  for (unsigned short& i : slotInfo)
+    i = 0;
 }
 
 void HcalDTCHeader::setHeader(int sourceid, int bcn, int l1aN, int orbN) {

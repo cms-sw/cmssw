@@ -396,17 +396,16 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
                               << std::endl;
 
   // loop over all combinations which produced individually "true" as Type1s
-  for (std::vector<SingleCombInCond>::const_iterator it0Comb = cond0Comb.begin(); it0Comb != cond0Comb.end();
-       it0Comb++) {
+  for (const auto &it0Comb : cond0Comb) {
     // Type1s: there is 1 object only, no need for a loop, index 0 should be OK
     // in (*it0Comb)[0]
     // ... but add protection to not crash
     int obj0Index = -1;
 
-    if (!(*it0Comb).empty()) {
-      obj0Index = (*it0Comb)[0];
+    if (!it0Comb.empty()) {
+      obj0Index = it0Comb[0];
     } else {
-      LogTrace("L1GlobalTrigger") << "\n  SingleCombInCond (*it0Comb).size() " << ((*it0Comb).size()) << std::endl;
+      LogTrace("L1GlobalTrigger") << "\n  SingleCombInCond (*it0Comb).size() " << (it0Comb.size()) << std::endl;
       return false;
     }
 
@@ -510,16 +509,15 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
       } break;
     }
 
-    for (std::vector<SingleCombInCond>::const_iterator it1Comb = cond1Comb.begin(); it1Comb != cond1Comb.end();
-         it1Comb++) {
+    for (const auto &it1Comb : cond1Comb) {
       // Type1s: there is 1 object only, no need for a loop (*it1Comb)[0]
       // ... but add protection to not crash
       int obj1Index = -1;
 
-      if (!(*it1Comb).empty()) {
-        obj1Index = (*it1Comb)[0];
+      if (!it1Comb.empty()) {
+        obj1Index = it1Comb[0];
       } else {
-        LogTrace("L1GlobalTrigger") << "\n  SingleCombInCond (*it1Comb).size() " << ((*it1Comb).size()) << std::endl;
+        LogTrace("L1GlobalTrigger") << "\n  SingleCombInCond (*it1Comb).size() " << (it1Comb.size()) << std::endl;
         return false;
       }
 
@@ -675,8 +673,8 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
       // ...now check for each 64-bit integer against template requirements
       bool indResult = true;
 
-      for (size_t iDeltaPhi = 0; iDeltaPhi < deltaPhiRangeConv.size(); ++iDeltaPhi) {
-        if (!checkBit(deltaPhiRangeConv[iDeltaPhi], candDeltaPhi)) {
+      for (unsigned long long iDeltaPhi : deltaPhiRangeConv) {
+        if (!checkBit(iDeltaPhi, candDeltaPhi)) {
           indResult = false;
         }
       }
@@ -713,8 +711,8 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
       // ...now check for each 64-bit integer against template requirements
       indResult = true;
 
-      for (size_t iDeltaEta = 0; iDeltaEta < deltaEtaRangeConv.size(); ++iDeltaEta) {
-        if (!checkBit(deltaEtaRangeConv[iDeltaEta], candDeltaEta)) {
+      for (unsigned long long iDeltaEta : deltaEtaRangeConv) {
+        if (!checkBit(iDeltaEta, candDeltaEta)) {
           indResult = false;
         }
       }

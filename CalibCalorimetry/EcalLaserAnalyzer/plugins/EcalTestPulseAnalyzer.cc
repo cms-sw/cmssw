@@ -264,19 +264,18 @@ void EcalTestPulseAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& 
   // Decode Basic DCCHeader Information
   // ====================================
 
-  for (EcalRawDataCollection::const_iterator headerItr = DCCHeader->begin(); headerItr != DCCHeader->end();
-       ++headerItr) {
-    int fed = headerItr->fedId();
+  for (const auto& headerItr : *DCCHeader) {
+    int fed = headerItr.fedId();
 
     if (fed != _fedid && _fedid != -999)
       continue;
 
-    runType = headerItr->getRunType();
-    runNum = headerItr->getRunNumber();
-    event = headerItr->getLV1();
+    runType = headerItr.getRunType();
+    runNum = headerItr.getRunNumber();
+    event = headerItr.getLV1();
 
-    dccID = headerItr->getDccInTCCCommand();
-    fedID = headerItr->fedId();
+    dccID = headerItr.getDccInTCCCommand();
+    fedID = headerItr.fedId();
 
     if (600 + dccID != fedID)
       continue;
@@ -317,14 +316,13 @@ void EcalTestPulseAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& 
   std::map<int, std::vector<double> > allPNAmpl;
   std::map<int, std::vector<int> > allPNGain;
 
-  for (EcalPnDiodeDigiCollection::const_iterator pnItr = PNDigi->begin(); pnItr != PNDigi->end();
-       ++pnItr) {  // Loop on PNs
+  for (const auto& pnItr : *PNDigi) {  // Loop on PNs
 
-    EcalPnDiodeDetId pnDetId = EcalPnDiodeDetId((*pnItr).id());
+    EcalPnDiodeDetId pnDetId = EcalPnDiodeDetId(pnItr.id());
 
     bool isMemRelevant = false;
-    for (unsigned int imem = 0; imem < dccMEM.size(); imem++) {
-      if (pnDetId.iDCCId() == dccMEM[imem]) {
+    for (int imem : dccMEM) {
+      if (pnDetId.iDCCId() == imem) {
         isMemRelevant = true;
       }
     }
@@ -333,9 +331,9 @@ void EcalTestPulseAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& 
     if (!isMemRelevant)
       continue;
 
-    for (int samId = 0; samId < (*pnItr).size(); samId++) {  // Loop on PN samples
-      pn[samId] = (*pnItr).sample(samId).adc();
-      pnG[samId] = (*pnItr).sample(samId).gainId();
+    for (int samId = 0; samId < pnItr.size(); samId++) {  // Loop on PN samples
+      pn[samId] = pnItr.sample(samId).adc();
+      pnG[samId] = pnItr.sample(samId).gainId();
 
       if (pnG[samId] != 1)
         std::cout << "PN gain different from 1 for sample " << samId << std::endl;
@@ -744,8 +742,8 @@ void EcalTestPulseAnalyzer::endJob() {
 
     if (trees[iCry]->GetEntries() < 10) {
       flag = -1;
-      for (int j = 0; j < 6; j++) {
-        APD[j] = 0.0;
+      for (double& j : APD) {
+        j = 0.0;
       }
     } else
       flag = 1;

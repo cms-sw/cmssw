@@ -48,9 +48,9 @@ PixelFEDConfig::PixelFEDConfig(std::vector<std::vector<std::string> > &tableMat)
    colNames.push_back("VME_ADDRS_HEX"); //2
 */
   for (unsigned int c = 0; c < tableMat[0].size(); c++) {
-    for (unsigned int n = 0; n < colNames.size(); n++) {
-      if (tableMat[0][c] == colNames[n]) {
-        colM[colNames[n]] = c;
+    for (const auto &colName : colNames) {
+      if (tableMat[0][c] == colName) {
+        colM[colName] = c;
         break;
       }
     }
@@ -90,9 +90,8 @@ PixelFEDConfig::PixelFEDConfig(std::vector<std::vector<std::string> > &tableMat)
       tmp.setFEDParameters(fednum, (unsigned int)atoi(tableMat[r][colM["CRATE_NUMBER"]].c_str()), vme_base_address);
       fedconfig_.push_back(tmp);
     } else {
-      for (unsigned int y = 0; y < fedconfig_.size(); y++) {
-        if (fedconfig_[y].getFEDNumber() ==
-            fednum)  // This is to check if there are Pixel Feds already in the vector because
+      for (auto &y : fedconfig_) {
+        if (y.getFEDNumber() == fednum)  // This is to check if there are Pixel Feds already in the vector because
         {  // in the view of the database that I'm reading there are many repeated entries (AS FAR AS THESE PARAMS ARE CONCERNED).
           flag = true;  // This ensure that there are no objects in the fedconfig vector with repeated values.
           break;
@@ -188,9 +187,9 @@ void PixelFEDConfig::writeASCII(std::string dir) const {
   }
 
   out << " #FED number     crate     vme base address" << endl;
-  for (unsigned int i = 0; i < fedconfig_.size(); i++) {
-    out << fedconfig_[i].getFEDNumber() << "               " << fedconfig_[i].getCrate() << "         "
-        << "0x" << hex << fedconfig_[i].getVMEBaseAddress() << dec << endl;
+  for (const auto &i : fedconfig_) {
+    out << i.getFEDNumber() << "               " << i.getCrate() << "         "
+        << "0x" << hex << i.getVMEBaseAddress() << dec << endl;
   }
   out.close();
 }
@@ -214,9 +213,9 @@ unsigned int PixelFEDConfig::getVMEBaseAddress(unsigned int i) const {
 
 unsigned int PixelFEDConfig::crateFromFEDNumber(unsigned int fednumber) const {
   std::string mthn = "[PixelFEDConfig::crateFromFEDNumber()]\t\t\t    ";
-  for (unsigned int i = 0; i < fedconfig_.size(); i++) {
-    if (fedconfig_[i].getFEDNumber() == fednumber)
-      return fedconfig_[i].getCrate();
+  for (const auto &i : fedconfig_) {
+    if (i.getFEDNumber() == fednumber)
+      return i.getCrate();
   }
 
   std::cout << __LINE__ << "]\t" << mthn << "Could not find FED number: " << fednumber << std::endl;
@@ -228,9 +227,9 @@ unsigned int PixelFEDConfig::crateFromFEDNumber(unsigned int fednumber) const {
 
 unsigned int PixelFEDConfig::VMEBaseAddressFromFEDNumber(unsigned int fednumber) const {
   std::string mthn = "[PixelFEDConfig::VMEBaseAddressFromFEDNumber()]\t\t    ";
-  for (unsigned int i = 0; i < fedconfig_.size(); i++) {
-    if (fedconfig_[i].getFEDNumber() == fednumber)
-      return fedconfig_[i].getVMEBaseAddress();
+  for (const auto &i : fedconfig_) {
+    if (i.getFEDNumber() == fednumber)
+      return i.getVMEBaseAddress();
   }
 
   std::cout << __LINE__ << "]\t" << mthn << "Could not find FED number: " << fednumber << std::endl;
@@ -243,9 +242,9 @@ unsigned int PixelFEDConfig::VMEBaseAddressFromFEDNumber(unsigned int fednumber)
 unsigned int PixelFEDConfig::FEDNumberFromCrateAndVMEBaseAddress(unsigned int crate,
                                                                  unsigned int vmebaseaddress) const {
   std::string mthn = "[PixelFEDConfig::FEDNumberFromCrateAndVMEBaseAddress()]\t    ";
-  for (unsigned int i = 0; i < fedconfig_.size(); i++) {
-    if (fedconfig_[i].getCrate() == crate && fedconfig_[i].getVMEBaseAddress() == vmebaseaddress)
-      return fedconfig_[i].getFEDNumber();
+  for (const auto &i : fedconfig_) {
+    if (i.getCrate() == crate && i.getVMEBaseAddress() == vmebaseaddress)
+      return i.getFEDNumber();
   }
 
   std::cout << __LINE__ << "]\t" << mthn << "Could not find FED crate and address: " << crate << ", " << vmebaseaddress
@@ -298,12 +297,12 @@ void PixelFEDConfig::writeXMLHeader(pos::PixelConfigKey key,
 void PixelFEDConfig::writeXML(std::ofstream *outstream, std::ofstream *out1stream, std::ofstream *out2stream) const {
   std::string mthn = "[PixelFEDConfig::writeXML()]\t\t\t    ";
 
-  for (unsigned int i = 0; i < fedconfig_.size(); i++) {
+  for (const auto &i : fedconfig_) {
     *outstream << "  <DATA>" << endl;
-    *outstream << "   <PIXEL_FED>" << fedconfig_[i].getFEDNumber() << "</PIXEL_FED>" << endl;
-    *outstream << "   <CRATE_NUMBER>" << fedconfig_[i].getCrate() << "</CRATE_NUMBER>" << endl;
+    *outstream << "   <PIXEL_FED>" << i.getFEDNumber() << "</PIXEL_FED>" << endl;
+    *outstream << "   <CRATE_NUMBER>" << i.getCrate() << "</CRATE_NUMBER>" << endl;
     *outstream << "   <VME_ADDR>"
-               << "0x" << hex << fedconfig_[i].getVMEBaseAddress() << dec << "</VME_ADDR>" << endl;
+               << "0x" << hex << i.getVMEBaseAddress() << dec << "</VME_ADDR>" << endl;
     *outstream << "  </DATA>" << endl;
     *outstream << "" << endl;
   }

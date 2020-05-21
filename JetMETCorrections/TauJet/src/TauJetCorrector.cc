@@ -98,8 +98,8 @@ TauJetCorrector::TauJetCorrector(const edm::ParameterSet& fConfig) {
 }
 
 TauJetCorrector::~TauJetCorrector() {
-  for (ParametersMap::iterator ip = parametrization.begin(); ip != parametrization.end(); ip++)
-    delete ip->second;
+  for (auto& ip : parametrization)
+    delete ip.second;
 }
 
 void TauJetCorrector::setParameters(std::string aCalibrationType, int itype) {

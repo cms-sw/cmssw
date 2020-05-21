@@ -275,21 +275,21 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es) {
       return;
     }
 
-    for (L1CSCTrackCollection::const_iterator trk = tracks.product()->begin(); trk != tracks.product()->end(); trk++) {
+    for (const auto& trk : *tracks.product()) {
       if (nDataMuons >= 8)
         break;
-      if ((trk->first.BX() < 2) && (trk->first.BX() > -1)) {
+      if ((trk.first.BX() < 2) && (trk.first.BX() > -1)) {
         //int mOdE = (trk->first.ptLUTAddress()>>16)&0xf;
         //cout << "D->Mode: " << mOdE << ", Rank " << trk->first.rank() << endl;
-        dataMuonArray[nDataMuons][0] = trk->first.ptLUTAddress();
-        dataMuonArray[nDataMuons][1] = trk->first.sector();
-        dataMuonArray[nDataMuons][2] = trk->first.endcap();
-        dataMuonArray[nDataMuons][8] = trk->first.outputLink();
-        dataMuonArray[nDataMuons][4] = trk->first.BX();
-        dataMuonArray[nDataMuons][5] = trk->first.rank();
-        dataMuonArray[nDataMuons][6] = trk->first.localPhi();
-        dataMuonArray[nDataMuons][7] = trk->first.eta_packed();
-        dataMuonArray[nDataMuons][9] = trk->first.modeExtended();
+        dataMuonArray[nDataMuons][0] = trk.first.ptLUTAddress();
+        dataMuonArray[nDataMuons][1] = trk.first.sector();
+        dataMuonArray[nDataMuons][2] = trk.first.endcap();
+        dataMuonArray[nDataMuons][8] = trk.first.outputLink();
+        dataMuonArray[nDataMuons][4] = trk.first.BX();
+        dataMuonArray[nDataMuons][5] = trk.first.rank();
+        dataMuonArray[nDataMuons][6] = trk.first.localPhi();
+        dataMuonArray[nDataMuons][7] = trk.first.eta_packed();
+        dataMuonArray[nDataMuons][9] = trk.first.modeExtended();
         nDataMuons++;
       }
     }
@@ -307,20 +307,20 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es) {
       return;
     }
 
-    for (L1CSCTrackCollection::const_iterator trk = tracks.product()->begin(); trk != tracks.product()->end(); trk++) {
+    for (const auto& trk : *tracks.product()) {
       if (nEmulMuons >= 8)
         break;
-      if ((trk->first.BX() < 2) && (trk->first.BX() > -1)) {
+      if ((trk.first.BX() < 2) && (trk.first.BX() > -1)) {
         //int mOdE = (trk->first.ptLUTAddress()>>16)&0xf;
         //cout << "E->Mode: " << mOdE << ", Rank " << trk->first.rank() << endl;
-        emuMuonArray[nEmulMuons][0] = trk->first.ptLUTAddress();
-        emuMuonArray[nEmulMuons][1] = trk->first.sector();
-        emuMuonArray[nEmulMuons][2] = trk->first.endcap();
-        emuMuonArray[nEmulMuons][4] = trk->first.BX();
-        emuMuonArray[nEmulMuons][5] = trk->first.rank();
-        emuMuonArray[nEmulMuons][6] = trk->first.localPhi();
-        emuMuonArray[nEmulMuons][7] = trk->first.eta_packed();
-        emuMuonArray[nEmulMuons][9] = trk->first.modeExtended();
+        emuMuonArray[nEmulMuons][0] = trk.first.ptLUTAddress();
+        emuMuonArray[nEmulMuons][1] = trk.first.sector();
+        emuMuonArray[nEmulMuons][2] = trk.first.endcap();
+        emuMuonArray[nEmulMuons][4] = trk.first.BX();
+        emuMuonArray[nEmulMuons][5] = trk.first.rank();
+        emuMuonArray[nEmulMuons][6] = trk.first.localPhi();
+        emuMuonArray[nEmulMuons][7] = trk.first.eta_packed();
+        emuMuonArray[nEmulMuons][9] = trk.first.modeExtended();
         nEmulMuons++;
       }
     }

@@ -405,8 +405,8 @@ void GlobalDigisAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run co
   mehCSCStripn->setAxisTitle("Count", 2);
 
   std::string MuonRPCString[5] = {"Wmin2", "Wmin1", "W0", "Wpu1", "Wpu2"};
-  for (int i = 0; i < 5; ++i) {
-    mehRPCRes[i] = nullptr;
+  for (auto &mehRPCRe : mehRPCRes) {
+    mehRPCRe = nullptr;
   }
 
   for (int j = 0; j < 5; ++j) {
@@ -460,18 +460,18 @@ void GlobalDigisAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetu
     if (printProvenanceInfo && (verbosity >= 0)) {
       TString eventout("\nProvenance info:\n");
 
-      for (unsigned int i = 0; i < AllProv.size(); ++i) {
+      for (auto &i : AllProv) {
         eventout += "\n       ******************************";
         eventout += "\n       Module       : ";
-        eventout += AllProv[i]->moduleLabel();
+        eventout += i->moduleLabel();
         eventout += "\n       ProductID    : ";
-        eventout += AllProv[i]->productID().id();
+        eventout += i->productID().id();
         eventout += "\n       ClassName    : ";
-        eventout += AllProv[i]->className();
+        eventout += i->className();
         eventout += "\n       InstanceName : ";
-        eventout += AllProv[i]->productInstanceName();
+        eventout += i->productInstanceName();
         eventout += "\n       BranchName   : ";
-        eventout += AllProv[i]->branchName();
+        eventout += i->branchName();
       }
       eventout += "\n       ******************************\n";
       edm::LogInfo(MsgLoggerCat) << eventout << "\n";
@@ -850,22 +850,21 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event &iEvent, const edm::EventSet
   if (validhcalHits) {
     const edm::PCaloHitContainer *simhitResult = hcalHits.product();
 
-    for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin(); simhits != simhitResult->end();
-         ++simhits) {
-      HcalDetId detId(simhits->id());
+    for (const auto &simhits : *simhitResult) {
+      HcalDetId detId(simhits.id());
       uint32_t cellid = detId.rawId();
 
       if (detId.subdet() == sdHcalBrl) {
-        fHBEnergySimHits[cellid] += simhits->energy();
+        fHBEnergySimHits[cellid] += simhits.energy();
       }
       if (detId.subdet() == sdHcalEC) {
-        fHEEnergySimHits[cellid] += simhits->energy();
+        fHEEnergySimHits[cellid] += simhits.energy();
       }
       if (detId.subdet() == sdHcalOut) {
-        fHOEnergySimHits[cellid] += simhits->energy();
+        fHOEnergySimHits[cellid] += simhits.energy();
       }
       if (detId.subdet() == sdHcalFwd) {
-        fHFEnergySimHits[cellid] += simhits->energy();
+        fHFEnergySimHits[cellid] += simhits.energy();
       }
     }
   }
@@ -1397,9 +1396,9 @@ void GlobalDigisAnalyzer::fillMuon(const edm::Event &iEvent, const edm::EventSet
 
   if (validstrips) {
     int nStrips = 0;
-    for (CSCStripDigiCollection::DigiRangeIterator j = strips->begin(); j != strips->end(); ++j) {
-      std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
-      std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
+    for (auto &&j : *strips) {
+      std::vector<CSCStripDigi>::const_iterator digiItr = j.second.first;
+      std::vector<CSCStripDigi>::const_iterator last = j.second.second;
 
       for (; digiItr != last; ++digiItr) {
         ++nStrips;
@@ -1437,9 +1436,9 @@ void GlobalDigisAnalyzer::fillMuon(const edm::Event &iEvent, const edm::EventSet
 
   if (validwires) {
     int nWires = 0;
-    for (CSCWireDigiCollection::DigiRangeIterator j = wires->begin(); j != wires->end(); ++j) {
-      std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
-      std::vector<CSCWireDigi>::const_iterator endDigi = (*j).second.second;
+    for (auto &&j : *wires) {
+      std::vector<CSCWireDigi>::const_iterator digiItr = j.second.first;
+      std::vector<CSCWireDigi>::const_iterator endDigi = j.second.second;
 
       for (; digiItr != endDigi; ++digiItr) {
         ++nWires;

@@ -70,8 +70,8 @@ MethodInvoker& MethodInvoker::operator=(const MethodInvoker& rhs) {
 }
 
 void MethodInvoker::setArgs() {
-  for (size_t i = 0; i < ints_.size(); ++i) {
-    args_.push_back(boost::apply_visitor(AnyMethodArgument2VoidPtr(), ints_[i]));
+  for (auto& i : ints_) {
+    args_.push_back(boost::apply_visitor(AnyMethodArgument2VoidPtr(), i));
   }
 }
 

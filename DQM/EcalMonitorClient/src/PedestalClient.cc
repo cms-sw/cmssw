@@ -65,10 +65,10 @@ namespace ecaldqm {
     std::vector<double> inToleranceRMSEB(_params.getUntrackedParameter<std::vector<double> >("toleranceRMSEB"));
     std::vector<double> inToleranceRMSEE(_params.getUntrackedParameter<std::vector<double> >("toleranceRMSEE"));
 
-    for (std::map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr) {
-      unsigned iME(gainItr->second);
+    for (auto& gainItr : gainToME_) {
+      unsigned iME(gainItr.second);
       unsigned iGain(0);
-      switch (gainItr->first) {
+      switch (gainItr.first) {
         case 1:
           iGain = 0;
           break;
@@ -88,10 +88,10 @@ namespace ecaldqm {
 
     std::vector<double> inTolerancePNRMS(_params.getUntrackedParameter<std::vector<double> >("tolerancePNRMS"));
 
-    for (std::map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr) {
-      unsigned iME(gainItr->second);
+    for (auto& gainItr : pnGainToME_) {
+      unsigned iME(gainItr.second);
       unsigned iGain(0);
-      switch (gainItr->first) {
+      switch (gainItr.first) {
         case 1:
           iGain = 0;
           break;
@@ -121,16 +121,16 @@ namespace ecaldqm {
     MESetMulti const& sPedestal(static_cast<MESetMulti const&>(sources_.at("Pedestal")));
     MESetMulti const& sPNPedestal(static_cast<MESetMulti const&>(sources_.at("PNPedestal")));
 
-    for (map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr) {
-      meQuality.use(gainItr->second);
-      meQualitySummary.use(gainItr->second);
-      meMean.use(gainItr->second);
-      meRMS.use(gainItr->second);
+    for (auto& gainItr : gainToME_) {
+      meQuality.use(gainItr.second);
+      meQualitySummary.use(gainItr.second);
+      meMean.use(gainItr.second);
+      meRMS.use(gainItr.second);
 
-      sPedestal.use(gainItr->second);
+      sPedestal.use(gainItr.second);
 
       uint32_t mask(0);
-      switch (gainItr->first) {
+      switch (gainItr.first) {
         case 1:
           mask |= (1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR |
                    1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_RMS_ERROR);
@@ -170,7 +170,7 @@ namespace ecaldqm {
         meRMS.fill(id, rms);
 
         float toleranceRMS_ =
-            (id.subdetId() == EcalBarrel) ? toleranceRMSEB_[gainItr->second] : toleranceRMSEE_[gainItr->second];
+            (id.subdetId() == EcalBarrel) ? toleranceRMSEB_[gainItr.second] : toleranceRMSEE_[gainItr.second];
 
         if (abs(mean - expectedMean_) > toleranceMean_ || rms > toleranceRMS_)
           qItr->setBinContent(doMask ? kMBad : kBad);
@@ -181,14 +181,14 @@ namespace ecaldqm {
       towerAverage_(meQualitySummary, meQuality, 0.2);
     }
 
-    for (map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr) {
-      mePNQualitySummary.use(gainItr->second);
-      mePNRMS.use(gainItr->second);
+    for (auto& gainItr : pnGainToME_) {
+      mePNQualitySummary.use(gainItr.second);
+      mePNRMS.use(gainItr.second);
 
-      sPNPedestal.use(gainItr->second);
+      sPNPedestal.use(gainItr.second);
 
       uint32_t mask(0);
-      switch (gainItr->first) {
+      switch (gainItr.first) {
         case 1:
           mask |= (1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR |
                    1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_RMS_ERROR);
@@ -228,7 +228,7 @@ namespace ecaldqm {
 
           mePNRMS.fill(id, rms);
 
-          if (abs(mean - expectedPNMean_) > tolerancePNMean_ || rms > tolerancePNRMS_[gainItr->second])
+          if (abs(mean - expectedPNMean_) > tolerancePNMean_ || rms > tolerancePNRMS_[gainItr.second])
             mePNQualitySummary.setBinContent(id, doMask ? kMBad : kBad);
           else
             mePNQualitySummary.setBinContent(id, doMask ? kMGood : kGood);

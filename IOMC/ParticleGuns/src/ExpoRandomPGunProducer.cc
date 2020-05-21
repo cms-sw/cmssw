@@ -62,7 +62,7 @@ void ExpoRandomPGunProducer::produce(Event& e, const EventSetup& es) {
   // loop over particles
   //
   int barcode = 1;
-  for (unsigned int ip = 0; ip < fPartIDs.size(); ++ip) {
+  for (int PartID : fPartIDs) {
     double pmom = CLHEP::RandFlat::shoot(engine, fMinP, fMaxP);
     double y = (1. / fMinP) * CLHEP::RandFlat::shoot(engine, 0.0, 1.0);
     double f = 1. / pmom;
@@ -77,7 +77,6 @@ void ExpoRandomPGunProducer::produce(Event& e, const EventSetup& es) {
 
     double eta = CLHEP::RandFlat::shoot(engine, fMinEta, fMaxEta);
     double phi = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi);
-    int PartID = fPartIDs[ip];
     const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID)));
     double mass = PData->mass().value();
     double theta = 2. * atan(exp(-eta));

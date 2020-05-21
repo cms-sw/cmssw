@@ -24,9 +24,9 @@ TFParams::TFParams(int size, int size_sh) {
   //int  sdim = size;
   //int plshdim = size_sh;
 
-  for (int i = 0; i < 10; i++) {
+  for (auto &i : weight_matrix) {
     for (int j = 0; j < 10; j++) {
-      weight_matrix[i][j] = 8.;
+      i[j] = 8.;
     }
   }
 }

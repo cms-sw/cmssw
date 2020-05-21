@@ -167,9 +167,9 @@ void PuppiPhoton::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
       }
     } else {
       int iPho = -1;
-      for (std::vector<uint16_t>::const_iterator itPho = phoIndx.begin(); itPho != phoIndx.end(); itPho++) {
+      for (unsigned short itPho : phoIndx) {
         iPho++;
-        if (pupCol->refAt(iPF).key() != *itPho)
+        if (pupCol->refAt(iPF).key() != itPho)
           continue;
         pWeight = weight_;
         if (!useValueMap_ && itPF->pt() != 0)

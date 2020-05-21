@@ -123,9 +123,7 @@ void SiStripGainsPCLWorker::dqmBeginRun(edm::Run const& run,
   edm::ESHandle<SiStripQuality> SiStripQuality_;
   iSetup.get<SiStripQualityRcd>().get(SiStripQuality_);
 
-  for (unsigned int a = 0; a < histograms.APVsCollOrdered.size(); a++) {
-    std::shared_ptr<stAPVGain> APV = histograms.APVsCollOrdered[a];
-
+  for (auto APV : histograms.APVsCollOrdered) {
     if (APV->SubDet == PixelSubdetector::PixelBarrel || APV->SubDet == PixelSubdetector::PixelEndcap)
       continue;
 
@@ -443,13 +441,13 @@ void SiStripGainsPCLWorker::checkBookAPVColls(const TrackerGeometry* bareTkGeomP
 
     unsigned int Index = 0;
 
-    for (unsigned int i = 0; i < Det.size(); i++) {
-      DetId Detid = Det[i]->geographicalId();
+    for (auto i : Det) {
+      DetId Detid = i->geographicalId();
       int SubDet = Detid.subdetId();
 
       if (SubDet == StripSubdetector::TIB || SubDet == StripSubdetector::TID || SubDet == StripSubdetector::TOB ||
           SubDet == StripSubdetector::TEC) {
-        auto DetUnit = dynamic_cast<const StripGeomDetUnit*>(Det[i]);
+        auto DetUnit = dynamic_cast<const StripGeomDetUnit*>(i);
         if (!DetUnit)
           continue;
 
@@ -490,12 +488,12 @@ void SiStripGainsPCLWorker::checkBookAPVColls(const TrackerGeometry* bareTkGeomP
       }    // if is Strips
     }      // loop on dets
 
-    for (unsigned int i = 0; i < Det.size();
-         i++) {  //Make two loop such that the Pixel information is added at the end --> make transition simpler
-      DetId Detid = Det[i]->geographicalId();
+    for (auto i :
+         Det) {  //Make two loop such that the Pixel information is added at the end --> make transition simpler
+      DetId Detid = i->geographicalId();
       int SubDet = Detid.subdetId();
       if (SubDet == PixelSubdetector::PixelBarrel || SubDet == PixelSubdetector::PixelEndcap) {
-        auto DetUnit = dynamic_cast<const PixelGeomDetUnit*>(Det[i]);
+        auto DetUnit = dynamic_cast<const PixelGeomDetUnit*>(i);
         if (!DetUnit)
           continue;
 
@@ -671,26 +669,26 @@ void SiStripGainsPCLWorker::bookHistograms(DQMStore::IBooker& ibooker,
 
   std::vector<std::pair<std::string, std::string>> hnames =
       APVGain::monHnames(VChargeHisto, doChargeMonitorPerPlane, "");
-  for (unsigned int i = 0; i < hnames.size(); i++) {
-    std::string htag = (hnames[i]).first + stag;
-    histograms.Charge_1[elepos].push_back(ibooker.book1DD(htag.c_str(), (hnames[i]).second.c_str(), 100, 0., 1000.));
+  for (auto& hname : hnames) {
+    std::string htag = hname.first + stag;
+    histograms.Charge_1[elepos].push_back(ibooker.book1DD(htag.c_str(), hname.second.c_str(), 100, 0., 1000.));
   }
 
   hnames = APVGain::monHnames(VChargeHisto, doChargeMonitorPerPlane, "woG2");
-  for (unsigned int i = 0; i < hnames.size(); i++) {
-    std::string htag = (hnames[i]).first + stag;
-    histograms.Charge_2[elepos].push_back(ibooker.book1DD(htag.c_str(), (hnames[i]).second.c_str(), 100, 0., 1000.));
+  for (auto& hname : hnames) {
+    std::string htag = hname.first + stag;
+    histograms.Charge_2[elepos].push_back(ibooker.book1DD(htag.c_str(), hname.second.c_str(), 100, 0., 1000.));
   }
 
   hnames = APVGain::monHnames(VChargeHisto, doChargeMonitorPerPlane, "woG1");
-  for (unsigned int i = 0; i < hnames.size(); i++) {
-    std::string htag = (hnames[i]).first + stag;
-    histograms.Charge_3[elepos].push_back(ibooker.book1DD(htag.c_str(), (hnames[i]).second.c_str(), 100, 0., 1000.));
+  for (auto& hname : hnames) {
+    std::string htag = hname.first + stag;
+    histograms.Charge_3[elepos].push_back(ibooker.book1DD(htag.c_str(), hname.second.c_str(), 100, 0., 1000.));
   }
 
   hnames = APVGain::monHnames(VChargeHisto, doChargeMonitorPerPlane, "woG1G2");
-  for (unsigned int i = 0; i < hnames.size(); i++) {
-    std::string htag = (hnames[i]).first + stag;
-    histograms.Charge_4[elepos].push_back(ibooker.book1DD(htag.c_str(), (hnames[i]).second.c_str(), 100, 0., 1000.));
+  for (auto& hname : hnames) {
+    std::string htag = hname.first + stag;
+    histograms.Charge_4[elepos].push_back(ibooker.book1DD(htag.c_str(), hname.second.c_str(), 100, 0., 1000.));
   }
 }

@@ -14,11 +14,11 @@ void CSCDigiToPattern::analyze(edm::Event const& e, edm::EventSetup const& iSetu
   edm::Handle<CSCCorrelatedLCTDigiCollection> correlatedlcts;
   e.getByToken(d_token, correlatedlcts);
 
-  for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator j = correlatedlcts->begin(); j != correlatedlcts->end(); j++) {
-    CSCDetId id = (*j).first;
+  for (auto&& j : *correlatedlcts) {
+    CSCDetId id = j.first;
     std::cout << id << std::endl;
-    std::vector<CSCCorrelatedLCTDigi>::const_iterator digiIt = (*j).second.first;
-    std::vector<CSCCorrelatedLCTDigi>::const_iterator last = (*j).second.second;
+    std::vector<CSCCorrelatedLCTDigi>::const_iterator digiIt = j.second.first;
+    std::vector<CSCCorrelatedLCTDigi>::const_iterator last = j.second.second;
     for (; digiIt != last; ++digiIt) {
       uint16_t wire = digiIt->getKeyWG();       // 7 bits
       uint16_t pattern = digiIt->getPattern();  // 4 bits

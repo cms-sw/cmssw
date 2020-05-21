@@ -84,9 +84,9 @@ BeamSpotFakeConditions::BeamSpotFakeConditions(const edm::ParameterSet &params) 
     betastar = params.getParameter<double>("betaStar");
 
     // first set all elements (esp. off-diagonal elements to zero)
-    for (int i = 0; i < 7; i++) {
+    for (auto &i : cov) {
       for (int j = 0; j < 7; j++)
-        cov[i][j] = 0.0;
+        i[j] = 0.0;
     }
 
     // we ignore correlations when values are given by hand

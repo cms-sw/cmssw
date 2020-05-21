@@ -103,9 +103,9 @@ void SiPixelHLTSource::analyze(const edm::Event &iEvent, const edm::EventSetup &
 
   edm::DetSet<SiPixelRawDataError>::const_iterator di;
 
-  for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
-    if (GeomDetEnumerators::isTrackerPixel((*it)->subDetector())) {
-      uint32_t detId = (*it)->geographicalId();
+  for (auto it : pDD->dets()) {
+    if (GeomDetEnumerators::isTrackerPixel(it->subDetector())) {
+      uint32_t detId = it->geographicalId();
       edm::DetSetVector<SiPixelRawDataError>::const_iterator isearch = errorinput->find(detId);
       if (isearch != errorinput->end()) {
         for (di = isearch->data.begin(); di != isearch->data.end(); di++) {

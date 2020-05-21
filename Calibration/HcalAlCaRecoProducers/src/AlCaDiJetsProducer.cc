@@ -167,41 +167,34 @@ void AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
     //Copy from standard place
     auto miniPFjetCollection = std::make_unique<reco::PFJetCollection>();
-    for (reco::PFJetCollection::const_iterator pfjetItr = pfjets.begin(); pfjetItr != pfjets.end(); pfjetItr++) {
-      miniPFjetCollection->push_back(*pfjetItr);
+    for (const auto& pfjet : pfjets) {
+      miniPFjetCollection->push_back(pfjet);
     }
 
     auto miniPFCandCollection = std::make_unique<reco::PFCandidateCollection>();
-    for (reco::PFCandidateCollection::const_iterator pfcItr = pfcand.begin(); pfcItr != pfcand.end(); pfcItr++) {
-      miniPFCandCollection->push_back(*pfcItr);
+    for (const auto& pfcItr : pfcand) {
+      miniPFCandCollection->push_back(pfcItr);
     }
 
     auto miniVtxCollection = std::make_unique<reco::VertexCollection>();
-    for (reco::VertexCollection::const_iterator vtxItr = vtx.begin(); vtxItr != vtx.end(); vtxItr++) {
-      miniVtxCollection->push_back(*vtxItr);
+    for (const auto& vtxItr : vtx) {
+      miniVtxCollection->push_back(vtxItr);
     }
 
     auto miniHBHECollection =
         std::make_unique<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>>();
-    for (edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>::const_iterator hbheItr =
-             Hithbhe.begin();
-         hbheItr != Hithbhe.end();
-         hbheItr++) {
-      miniHBHECollection->push_back(*hbheItr);
+    for (const auto& hbheItr : Hithbhe) {
+      miniHBHECollection->push_back(hbheItr);
     }
 
     auto miniHOCollection = std::make_unique<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>>();
-    for (edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>::const_iterator hoItr = Hitho.begin();
-         hoItr != Hitho.end();
-         hoItr++) {
-      miniHOCollection->push_back(*hoItr);
+    for (const auto& hoItr : Hitho) {
+      miniHOCollection->push_back(hoItr);
     }
 
     auto miniHFCollection = std::make_unique<edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>>();
-    for (edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>::const_iterator hfItr = Hithf.begin();
-         hfItr != Hithf.end();
-         hfItr++) {
-      miniHFCollection->push_back(*hfItr);
+    for (const auto& hfItr : Hithf) {
+      miniHFCollection->push_back(hfItr);
     }
 
     //Put them in the event

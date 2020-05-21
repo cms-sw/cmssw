@@ -121,9 +121,8 @@ void rz_poly::Print() {
       cout << "OFF):" << endl;
     else
       cout << "ON):" << endl;
-    for (unsigned int it = 0; it < data[ip].size(); ++it) {
-      cout << "\tnr=" << data[ip][it].np[0] << "\tnz=" << data[ip][it].np[1] << "\tcoeff=" << data[ip][it].coeff
-           << endl;
+    for (auto &it : data[ip]) {
+      cout << "\tnr=" << it.np[0] << "\tnz=" << it.np[1] << "\tcoeff=" << it.coeff << endl;
     }
   }
 }
@@ -146,11 +145,11 @@ rz_poly rz_poly::Diff(int nvar, bool keep_empty) {
   for (unsigned int ip = 0; ip < data.size(); ++ip) {
     poly_vect v3x;
     v3x.reserve(data[ip].size());
-    for (unsigned int it = 0; it < data[ip].size(); ++it) {
-      v3 = data[ip][it];
-      v3.coeff = data[ip][it].coeff * data[ip][it].np[nvar];
+    for (auto &it : data[ip]) {
+      v3 = it;
+      v3.coeff = it.coeff * it.np[nvar];
       if (v3.coeff != 0) {
-        v3.np[nvar] = data[ip][it].np[nvar] - 1;
+        v3.np[nvar] = it.np[nvar] - 1;
         v3x.push_back(v3);
       }
     }
@@ -231,8 +230,8 @@ rz_poly &rz_poly::operator*=(double C) {
   for (unsigned int ip = 0; ip < data.size(); ++ip) {
     if (is_off[ip])
       continue;
-    for (unsigned int it = 0; it < data[ip].size(); ++it) {
-      data[ip][it].coeff *= C;
+    for (auto &it : data[ip]) {
+      it.coeff *= C;
     }
   }
   return *this;
@@ -245,8 +244,8 @@ rz_poly &rz_poly::operator*=(double *C) {
   for (unsigned int ip = 0; ip < data.size(); ++ip) {
     if (is_off[ip])
       continue;
-    for (unsigned int it = 0; it < data[ip].size(); ++it) {
-      data[ip][it].coeff *= *C;
+    for (auto &it : data[ip]) {
+      it.coeff *= *C;
     }
     ++C;
   }

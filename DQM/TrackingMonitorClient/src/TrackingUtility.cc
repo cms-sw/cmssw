@@ -11,8 +11,8 @@ int TrackingUtility::getMEList(std::string name, std::vector<std::string>& value
   prefix_str += "/";
   std::string temp_str = name.substr(name.find(":") + 1);
   split(temp_str, values, ",");
-  for (std::vector<std::string>::iterator it = values.begin(); it != values.end(); it++)
-    (*it).insert(0, prefix_str);
+  for (auto& value : values)
+    value.insert(0, prefix_str);
   return values.size();
 }
 //
@@ -36,9 +36,9 @@ bool TrackingUtility::checkME(std::string name, std::string me_name, std::string
   std::string temp_str = name.substr(name.find(":") + 1);
   std::vector<std::string> values;
   split(temp_str, values, ",");
-  for (std::vector<std::string>::iterator it = values.begin(); it != values.end(); it++) {
-    if ((*it).find(me_name) != std::string::npos) {
-      full_path = prefix_str + (*it);
+  for (auto& value : values) {
+    if (value.find(me_name) != std::string::npos) {
+      full_path = prefix_str + value;
       return true;
     }
   }
@@ -144,8 +144,8 @@ void TrackingUtility::getModuleFolderList(DQMStore::IBooker& ibooker,
     mfolders.push_back(currDir);
   } else {
     std::vector<std::string> subdirs = igetter.getSubdirs();
-    for (std::vector<std::string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
-      ibooker.cd(*it);
+    for (const auto& subdir : subdirs) {
+      ibooker.cd(subdir);
       getModuleFolderList(ibooker, igetter, mfolders);
       ibooker.goUp();
     }
@@ -197,8 +197,8 @@ bool TrackingUtility::goToDir(DQMStore::IBooker& ibooker, DQMStore::IGetter& ige
     return true;
   }
   std::vector<std::string> subDirVec = igetter.getSubdirs();
-  for (std::vector<std::string>::const_iterator ic = subDirVec.begin(); ic != subDirVec.end(); ic++) {
-    std::string fname = (*ic);
+  for (const auto& ic : subDirVec) {
+    std::string fname = ic;
     if ((fname.find("Reference") != std::string::npos) || (fname.find("AlCaReco") != std::string::npos) ||
         (fname.find("HLT") != std::string::npos))
       continue;

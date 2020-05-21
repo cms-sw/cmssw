@@ -222,24 +222,23 @@ void L1TdeRCT::analyze(const Event& e, const EventSetup& c) {
   }
 
   if (doEcal) {
-    for (EcalTrigPrimDigiCollection::const_iterator iEcalTp = ecalTpData->begin(); iEcalTp != ecalTpData->end();
-         iEcalTp++) {
-      if (iEcalTp->compressedEt() > 0) {
-        rctInputTPGEcalRank_->Fill(1. * (iEcalTp->compressedEt()));
+    for (const auto& iEcalTp : *ecalTpData) {
+      if (iEcalTp.compressedEt() > 0) {
+        rctInputTPGEcalRank_->Fill(1. * (iEcalTp.compressedEt()));
 
-        if (iEcalTp->id().ieta() > 0) {
-          rctInputTPGEcalOccNoCut_->Fill(1. * (iEcalTp->id().ieta()) - 0.5, iEcalTp->id().iphi());
-          if (iEcalTp->compressedEt() > 3)
-            rctInputTPGEcalOcc_->Fill(1. * (iEcalTp->id().ieta()) - 0.5, iEcalTp->id().iphi());
+        if (iEcalTp.id().ieta() > 0) {
+          rctInputTPGEcalOccNoCut_->Fill(1. * (iEcalTp.id().ieta()) - 0.5, iEcalTp.id().iphi());
+          if (iEcalTp.compressedEt() > 3)
+            rctInputTPGEcalOcc_->Fill(1. * (iEcalTp.id().ieta()) - 0.5, iEcalTp.id().iphi());
         } else {
-          rctInputTPGEcalOccNoCut_->Fill(1. * (iEcalTp->id().ieta()) + 0.5, iEcalTp->id().iphi());
-          if (iEcalTp->compressedEt() > 3)
-            rctInputTPGEcalOcc_->Fill(1. * (iEcalTp->id().ieta()) + 0.5, iEcalTp->id().iphi());
+          rctInputTPGEcalOccNoCut_->Fill(1. * (iEcalTp.id().ieta()) + 0.5, iEcalTp.id().iphi());
+          if (iEcalTp.compressedEt() > 3)
+            rctInputTPGEcalOcc_->Fill(1. * (iEcalTp.id().ieta()) + 0.5, iEcalTp.id().iphi());
         }
 
         if (verbose_)
-          std::cout << " ECAL data: Energy: " << iEcalTp->compressedEt() << " eta " << iEcalTp->id().ieta() << " phi "
-                    << iEcalTp->id().iphi() << std::endl;
+          std::cout << " ECAL data: Energy: " << iEcalTp.compressedEt() << " eta " << iEcalTp.id().ieta() << " phi "
+                    << iEcalTp.id().iphi() << std::endl;
       }
     }
   }
@@ -253,29 +252,28 @@ void L1TdeRCT::analyze(const Event& e, const EventSetup& c) {
   }
 
   if (doHcal) {
-    for (HcalTrigPrimDigiCollection::const_iterator iHcalTp = hcalTpData->begin(); iHcalTp != hcalTpData->end();
-         iHcalTp++) {
+    for (const auto& iHcalTp : *hcalTpData) {
       int highSample = 0;
       int highEt = 0;
 
       for (int nSample = 0; nSample < 10; nSample++) {
-        if (iHcalTp->sample(nSample).compressedEt() != 0) {
+        if (iHcalTp.sample(nSample).compressedEt() != 0) {
           if (verbose_)
-            std::cout << "HCAL data: Et " << iHcalTp->sample(nSample).compressedEt() << "  fg "
-                      << iHcalTp->sample(nSample).fineGrain() << "  ieta " << iHcalTp->id().ieta() << "  iphi "
-                      << iHcalTp->id().iphi() << "  sample " << nSample << std::endl;
-          if (iHcalTp->sample(nSample).compressedEt() > highEt) {
+            std::cout << "HCAL data: Et " << iHcalTp.sample(nSample).compressedEt() << "  fg "
+                      << iHcalTp.sample(nSample).fineGrain() << "  ieta " << iHcalTp.id().ieta() << "  iphi "
+                      << iHcalTp.id().iphi() << "  sample " << nSample << std::endl;
+          if (iHcalTp.sample(nSample).compressedEt() > highEt) {
             highSample = nSample;
-            highEt = iHcalTp->sample(nSample).compressedEt();
+            highEt = iHcalTp.sample(nSample).compressedEt();
           }
         }
       }
 
       if (highEt != 0) {
-        if (iHcalTp->id().ieta() > 0)
-          rctInputTPGHcalOcc_->Fill(1. * (iHcalTp->id().ieta()) - 0.5, iHcalTp->id().iphi());
+        if (iHcalTp.id().ieta() > 0)
+          rctInputTPGHcalOcc_->Fill(1. * (iHcalTp.id().ieta()) - 0.5, iHcalTp.id().iphi());
         else
-          rctInputTPGHcalOcc_->Fill(1. * (iHcalTp->id().ieta()) + 0.5, iHcalTp->id().iphi());
+          rctInputTPGHcalOcc_->Fill(1. * (iHcalTp.id().ieta()) + 0.5, iHcalTp.id().iphi());
         rctInputTPGHcalSample_->Fill(highSample, highEt);
         rctInputTPGHcalRank_->Fill(highEt);
       }
@@ -358,174 +356,174 @@ void L1TdeRCT::analyze(const Event& e, const EventSetup& c) {
 
   // StepII: fill variables
 
-  for (L1CaloEmCollection::const_iterator iem = emEmul->begin(); iem != emEmul->end(); iem++) {
-    if (iem->rank() >= 1) {
-      if (iem->isolated()) {
-        rctIsoEmEmulOcc_->Fill(iem->regionId().ieta(), iem->regionId().iphi());
+  for (const auto& iem : *emEmul) {
+    if (iem.rank() >= 1) {
+      if (iem.isolated()) {
+        rctIsoEmEmulOcc_->Fill(iem.regionId().ieta(), iem.regionId().iphi());
 
         // to  show bad channles in the 2D efficiency plots
-        rctIsoEmIneffOcc_->Fill(iem->regionId().ieta(), iem->regionId().iphi(), 0.01);
-        rctIsoEmEff1Occ_->Fill(iem->regionId().ieta(), iem->regionId().iphi(), 0.01);
+        rctIsoEmIneffOcc_->Fill(iem.regionId().ieta(), iem.regionId().iphi(), 0.01);
+        rctIsoEmEff1Occ_->Fill(iem.regionId().ieta(), iem.regionId().iphi(), 0.01);
 
         int channel;
 
-        channel = PHIBINS * iem->regionId().ieta() + iem->regionId().iphi();
+        channel = PHIBINS * iem.regionId().ieta() + iem.regionId().iphi();
         rctIsoEmEmulOcc1D_->Fill(channel);
-        electronEmulRank[0][nelectrIsoEmul] = iem->rank();
-        electronEmulEta[0][nelectrIsoEmul] = iem->regionId().ieta();
-        electronEmulPhi[0][nelectrIsoEmul] = iem->regionId().iphi();
+        electronEmulRank[0][nelectrIsoEmul] = iem.rank();
+        electronEmulEta[0][nelectrIsoEmul] = iem.regionId().ieta();
+        electronEmulPhi[0][nelectrIsoEmul] = iem.regionId().iphi();
         nelectrIsoEmul++;
       }
 
       else {
-        rctNisoEmEmulOcc_->Fill(iem->regionId().ieta(), iem->regionId().iphi());
+        rctNisoEmEmulOcc_->Fill(iem.regionId().ieta(), iem.regionId().iphi());
 
         // to  show bad channles in the 2D efficiency plots
-        rctNisoEmIneffOcc_->Fill(iem->regionId().ieta(), iem->regionId().iphi(), 0.01);
-        rctNisoEmEff1Occ_->Fill(iem->regionId().ieta(), iem->regionId().iphi(), 0.01);
+        rctNisoEmIneffOcc_->Fill(iem.regionId().ieta(), iem.regionId().iphi(), 0.01);
+        rctNisoEmEff1Occ_->Fill(iem.regionId().ieta(), iem.regionId().iphi(), 0.01);
 
         int channel;
         //
 
-        channel = PHIBINS * iem->regionId().ieta() + iem->regionId().iphi();
+        channel = PHIBINS * iem.regionId().ieta() + iem.regionId().iphi();
         rctNisoEmEmulOcc1D_->Fill(channel);
-        electronEmulRank[1][nelectrNisoEmul] = iem->rank();
-        electronEmulEta[1][nelectrNisoEmul] = iem->regionId().ieta();
-        electronEmulPhi[1][nelectrNisoEmul] = iem->regionId().iphi();
+        electronEmulRank[1][nelectrNisoEmul] = iem.rank();
+        electronEmulEta[1][nelectrNisoEmul] = iem.regionId().ieta();
+        electronEmulPhi[1][nelectrNisoEmul] = iem.regionId().iphi();
         nelectrNisoEmul++;
       }
     }
   }
 
-  for (L1CaloEmCollection::const_iterator iem = emData->begin(); iem != emData->end(); iem++) {
-    if (selectBX_ != -1 && selectBX_ != iem->bx())
+  for (const auto& iem : *emData) {
+    if (selectBX_ != -1 && selectBX_ != iem.bx())
       continue;
 
-    if (iem->rank() >= 1) {
-      if (iem->isolated()) {
-        rctIsoEmDataOcc_->Fill(iem->regionId().ieta(), iem->regionId().iphi());
+    if (iem.rank() >= 1) {
+      if (iem.isolated()) {
+        rctIsoEmDataOcc_->Fill(iem.regionId().ieta(), iem.regionId().iphi());
 
         // new stuff to avoid 0's in emulator 2D //
         // rctIsoEmEmulOcc_->Fill(iem->regionId().ieta(), iem->regionId().iphi(),0.01);
-        rctIsoEmOvereffOcc_->Fill(iem->regionId().ieta(), iem->regionId().iphi(), 0.01);
+        rctIsoEmOvereffOcc_->Fill(iem.regionId().ieta(), iem.regionId().iphi(), 0.01);
 
         int channel;
 
-        channel = PHIBINS * iem->regionId().ieta() + iem->regionId().iphi();
+        channel = PHIBINS * iem.regionId().ieta() + iem.regionId().iphi();
         rctIsoEmDataOcc1D_->Fill(channel);
 
         // new stuff to avoid 0's
         // rctIsoEmEmulOcc1D_->Fill(channel);
 
-        electronDataRank[0][nelectrIsoData] = iem->rank();
-        electronDataEta[0][nelectrIsoData] = iem->regionId().ieta();
-        electronDataPhi[0][nelectrIsoData] = iem->regionId().iphi();
+        electronDataRank[0][nelectrIsoData] = iem.rank();
+        electronDataEta[0][nelectrIsoData] = iem.regionId().ieta();
+        electronDataPhi[0][nelectrIsoData] = iem.regionId().iphi();
         nelectrIsoData++;
       }
 
       else {
-        rctNisoEmDataOcc_->Fill(iem->regionId().ieta(), iem->regionId().iphi());
+        rctNisoEmDataOcc_->Fill(iem.regionId().ieta(), iem.regionId().iphi());
 
         // new stuff to avoid 0's in emulator 2D //
         // rctNisoEmEmulOcc_->Fill(iem->regionId().ieta(), iem->regionId().iphi(),0.01);
-        rctNisoEmOvereffOcc_->Fill(iem->regionId().ieta(), iem->regionId().iphi(), 0.01);
+        rctNisoEmOvereffOcc_->Fill(iem.regionId().ieta(), iem.regionId().iphi(), 0.01);
 
         int channel;
 
-        channel = PHIBINS * iem->regionId().ieta() + iem->regionId().iphi();
+        channel = PHIBINS * iem.regionId().ieta() + iem.regionId().iphi();
         rctNisoEmDataOcc1D_->Fill(channel);
 
         // new stuff to avoid 0's
         // rctNisoEmEmulOcc1D_->Fill(channel);
 
-        electronDataRank[1][nelectrNisoData] = iem->rank();
-        electronDataEta[1][nelectrNisoData] = iem->regionId().ieta();
-        electronDataPhi[1][nelectrNisoData] = iem->regionId().iphi();
+        electronDataRank[1][nelectrNisoData] = iem.rank();
+        electronDataEta[1][nelectrNisoData] = iem.regionId().ieta();
+        electronDataPhi[1][nelectrNisoData] = iem.regionId().iphi();
         nelectrNisoData++;
       }
     }
   }
 
   // fill region/bit arrays for emulator
-  for (L1CaloRegionCollection::const_iterator ireg = rgnEmul->begin(); ireg != rgnEmul->end(); ireg++) {
+  for (const auto& ireg : *rgnEmul) {
     //     std::cout << "Emul: " << nRegionEmul << " " << ireg->gctEta() << " " << ireg->gctPhi() << std::endl;
-    if (ireg->overFlow())
-      rctBitEmulOverFlow2D_->Fill(ireg->gctEta(), ireg->gctPhi());
-    if (ireg->tauVeto())
-      rctBitEmulTauVeto2D_->Fill(ireg->gctEta(), ireg->gctPhi());
-    if (ireg->mip())
-      rctBitEmulMip2D_->Fill(ireg->gctEta(), ireg->gctPhi());
-    if (ireg->quiet())
-      rctBitEmulQuiet2D_->Fill(ireg->gctEta(), ireg->gctPhi());
-    if (ireg->fineGrain())
-      rctBitEmulHfPlusTau2D_->Fill(ireg->gctEta(), ireg->gctPhi());
-    if (ireg->et() > 0) {
-      rctRegEmulOcc1D_->Fill(PHIBINS * ireg->gctEta() + ireg->gctPhi());
-      rctRegEmulOcc2D_->Fill(ireg->gctEta(), ireg->gctPhi());
+    if (ireg.overFlow())
+      rctBitEmulOverFlow2D_->Fill(ireg.gctEta(), ireg.gctPhi());
+    if (ireg.tauVeto())
+      rctBitEmulTauVeto2D_->Fill(ireg.gctEta(), ireg.gctPhi());
+    if (ireg.mip())
+      rctBitEmulMip2D_->Fill(ireg.gctEta(), ireg.gctPhi());
+    if (ireg.quiet())
+      rctBitEmulQuiet2D_->Fill(ireg.gctEta(), ireg.gctPhi());
+    if (ireg.fineGrain())
+      rctBitEmulHfPlusTau2D_->Fill(ireg.gctEta(), ireg.gctPhi());
+    if (ireg.et() > 0) {
+      rctRegEmulOcc1D_->Fill(PHIBINS * ireg.gctEta() + ireg.gctPhi());
+      rctRegEmulOcc2D_->Fill(ireg.gctEta(), ireg.gctPhi());
     }
 
     // to show bad channels in 2D efficiency plots:
-    if (ireg->overFlow()) {
-      rctBitUnmatchedEmulOverFlow2D_->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
-      rctBitMatchedOverFlow2D_->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
+    if (ireg.overFlow()) {
+      rctBitUnmatchedEmulOverFlow2D_->Fill(ireg.gctEta(), ireg.gctPhi(), 0.01);
+      rctBitMatchedOverFlow2D_->Fill(ireg.gctEta(), ireg.gctPhi(), 0.01);
     }
 
-    if (ireg->tauVeto()) {
-      rctBitUnmatchedEmulTauVeto2D_->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
-      rctBitMatchedTauVeto2D_->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
+    if (ireg.tauVeto()) {
+      rctBitUnmatchedEmulTauVeto2D_->Fill(ireg.gctEta(), ireg.gctPhi(), 0.01);
+      rctBitMatchedTauVeto2D_->Fill(ireg.gctEta(), ireg.gctPhi(), 0.01);
     }
 
-    if (ireg->mip()) {
-      rctBitUnmatchedEmulMip2D_->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
-      rctBitMatchedMip2D_->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
+    if (ireg.mip()) {
+      rctBitUnmatchedEmulMip2D_->Fill(ireg.gctEta(), ireg.gctPhi(), 0.01);
+      rctBitMatchedMip2D_->Fill(ireg.gctEta(), ireg.gctPhi(), 0.01);
     }
 
-    if (ireg->quiet()) {
-      rctBitUnmatchedEmulQuiet2D_->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
-      rctBitMatchedQuiet2D_->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
+    if (ireg.quiet()) {
+      rctBitUnmatchedEmulQuiet2D_->Fill(ireg.gctEta(), ireg.gctPhi(), 0.01);
+      rctBitMatchedQuiet2D_->Fill(ireg.gctEta(), ireg.gctPhi(), 0.01);
     }
 
-    if (ireg->fineGrain()) {
-      rctBitUnmatchedEmulHfPlusTau2D_->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
-      rctBitMatchedHfPlusTau2D_->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
+    if (ireg.fineGrain()) {
+      rctBitUnmatchedEmulHfPlusTau2D_->Fill(ireg.gctEta(), ireg.gctPhi(), 0.01);
+      rctBitMatchedHfPlusTau2D_->Fill(ireg.gctEta(), ireg.gctPhi(), 0.01);
     }
 
-    if (ireg->et() > 0) {
-      rctRegUnmatchedEmulOcc2D_->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
-      rctRegMatchedOcc2D_->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
+    if (ireg.et() > 0) {
+      rctRegUnmatchedEmulOcc2D_->Fill(ireg.gctEta(), ireg.gctPhi(), 0.01);
+      rctRegMatchedOcc2D_->Fill(ireg.gctEta(), ireg.gctPhi(), 0.01);
       /*      rctRegDeltaEtOcc2D_->Fill       (ireg->gctEta(), ireg->gctPhi(), 0.01); */
     }
 
-    nRegionEmul = PHIBINS * ireg->gctEta() + ireg->gctPhi();
+    nRegionEmul = PHIBINS * ireg.gctEta() + ireg.gctPhi();
 
-    regionEmulRank[nRegionEmul] = ireg->et();
-    regionEmulEta[nRegionEmul] = ireg->gctEta();
-    regionEmulPhi[nRegionEmul] = ireg->gctPhi();
-    regionEmulOverFlow[nRegionEmul] = ireg->overFlow();
-    regionEmulTauVeto[nRegionEmul] = ireg->tauVeto();
-    regionEmulMip[nRegionEmul] = ireg->mip();
-    regionEmulQuiet[nRegionEmul] = ireg->quiet();
-    regionEmulHfPlusTau[nRegionEmul] = ireg->fineGrain();
+    regionEmulRank[nRegionEmul] = ireg.et();
+    regionEmulEta[nRegionEmul] = ireg.gctEta();
+    regionEmulPhi[nRegionEmul] = ireg.gctPhi();
+    regionEmulOverFlow[nRegionEmul] = ireg.overFlow();
+    regionEmulTauVeto[nRegionEmul] = ireg.tauVeto();
+    regionEmulMip[nRegionEmul] = ireg.mip();
+    regionEmulQuiet[nRegionEmul] = ireg.quiet();
+    regionEmulHfPlusTau[nRegionEmul] = ireg.fineGrain();
   }
   // fill region/bit arrays for hardware
-  for (L1CaloRegionCollection::const_iterator ireg = rgnData->begin(); ireg != rgnData->end(); ireg++) {
-    if (selectBX_ != -1 && selectBX_ != ireg->bx())
+  for (const auto& ireg : *rgnData) {
+    if (selectBX_ != -1 && selectBX_ != ireg.bx())
       continue;
 
     //     std::cout << "Data: " << nRegionData << " " << ireg->gctEta() << " " << ireg->gctPhi() << std::endl;
-    if (ireg->overFlow())
-      rctBitDataOverFlow2D_->Fill(ireg->gctEta(), ireg->gctPhi());
-    if (ireg->tauVeto())
-      rctBitDataTauVeto2D_->Fill(ireg->gctEta(), ireg->gctPhi());
-    if (ireg->mip())
-      rctBitDataMip2D_->Fill(ireg->gctEta(), ireg->gctPhi());
-    if (ireg->quiet())
-      rctBitDataQuiet2D_->Fill(ireg->gctEta(), ireg->gctPhi());
-    if (ireg->fineGrain())
-      rctBitDataHfPlusTau2D_->Fill(ireg->gctEta(), ireg->gctPhi());
-    if (ireg->et() > 0) {
-      rctRegDataOcc1D_->Fill(PHIBINS * ireg->gctEta() + ireg->gctPhi());
-      rctRegDataOcc2D_->Fill(ireg->gctEta(), ireg->gctPhi());
+    if (ireg.overFlow())
+      rctBitDataOverFlow2D_->Fill(ireg.gctEta(), ireg.gctPhi());
+    if (ireg.tauVeto())
+      rctBitDataTauVeto2D_->Fill(ireg.gctEta(), ireg.gctPhi());
+    if (ireg.mip())
+      rctBitDataMip2D_->Fill(ireg.gctEta(), ireg.gctPhi());
+    if (ireg.quiet())
+      rctBitDataQuiet2D_->Fill(ireg.gctEta(), ireg.gctPhi());
+    if (ireg.fineGrain())
+      rctBitDataHfPlusTau2D_->Fill(ireg.gctEta(), ireg.gctPhi());
+    if (ireg.et() > 0) {
+      rctRegDataOcc1D_->Fill(PHIBINS * ireg.gctEta() + ireg.gctPhi());
+      rctRegDataOcc2D_->Fill(ireg.gctEta(), ireg.gctPhi());
     }
     // to show bad channels in 2D inefficiency:
     // if(ireg->overFlow())  rctBitEmulOverFlow2D_ ->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
@@ -534,29 +532,29 @@ void L1TdeRCT::analyze(const Event& e, const EventSetup& c) {
     // if(ireg->quiet())     rctBitEmulQuiet2D_    ->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
     // if(ireg->fineGrain()) rctBitEmulHfPlusTau2D_->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
     // if(ireg->et() > 0)    rctRegEmulOcc2D_      ->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
-    if (ireg->overFlow())
-      rctBitUnmatchedDataOverFlow2D_->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
-    if (ireg->tauVeto())
-      rctBitUnmatchedDataTauVeto2D_->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
-    if (ireg->mip())
-      rctBitUnmatchedDataMip2D_->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
-    if (ireg->quiet())
-      rctBitUnmatchedDataQuiet2D_->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
-    if (ireg->fineGrain())
-      rctBitUnmatchedDataHfPlusTau2D_->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
-    if (ireg->et() > 0)
-      rctRegUnmatchedDataOcc2D_->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
+    if (ireg.overFlow())
+      rctBitUnmatchedDataOverFlow2D_->Fill(ireg.gctEta(), ireg.gctPhi(), 0.01);
+    if (ireg.tauVeto())
+      rctBitUnmatchedDataTauVeto2D_->Fill(ireg.gctEta(), ireg.gctPhi(), 0.01);
+    if (ireg.mip())
+      rctBitUnmatchedDataMip2D_->Fill(ireg.gctEta(), ireg.gctPhi(), 0.01);
+    if (ireg.quiet())
+      rctBitUnmatchedDataQuiet2D_->Fill(ireg.gctEta(), ireg.gctPhi(), 0.01);
+    if (ireg.fineGrain())
+      rctBitUnmatchedDataHfPlusTau2D_->Fill(ireg.gctEta(), ireg.gctPhi(), 0.01);
+    if (ireg.et() > 0)
+      rctRegUnmatchedDataOcc2D_->Fill(ireg.gctEta(), ireg.gctPhi(), 0.01);
 
-    nRegionData = PHIBINS * ireg->gctEta() + ireg->gctPhi();
+    nRegionData = PHIBINS * ireg.gctEta() + ireg.gctPhi();
 
-    regionDataRank[nRegionData] = ireg->et();
-    regionDataEta[nRegionData] = ireg->gctEta();
-    regionDataPhi[nRegionData] = ireg->gctPhi();
-    regionDataOverFlow[nRegionData] = ireg->overFlow();
-    regionDataTauVeto[nRegionData] = ireg->tauVeto();
-    regionDataMip[nRegionData] = ireg->mip();
-    regionDataQuiet[nRegionData] = ireg->quiet();
-    regionDataHfPlusTau[nRegionData] = ireg->fineGrain();
+    regionDataRank[nRegionData] = ireg.et();
+    regionDataEta[nRegionData] = ireg.gctEta();
+    regionDataPhi[nRegionData] = ireg.gctPhi();
+    regionDataOverFlow[nRegionData] = ireg.overFlow();
+    regionDataTauVeto[nRegionData] = ireg.tauVeto();
+    regionDataMip[nRegionData] = ireg.mip();
+    regionDataQuiet[nRegionData] = ireg.quiet();
+    regionDataHfPlusTau[nRegionData] = ireg.fineGrain();
   }
 
   if (verbose_) {
@@ -2094,8 +2092,7 @@ void L1TdeRCT::readFEDVector(MonitorElement* histogram, const edm::EventSetup& e
   std::vector<int> caloFeds;  // pare down the feds to the intresting ones
 
   const std::vector<int> Feds = summary->m_fed_in;
-  for (std::vector<int>::const_iterator cf = Feds.begin(); cf != Feds.end(); ++cf) {
-    int fedNum = *cf;
+  for (int fedNum : Feds) {
     if ((fedNum > 600 && fedNum < 724) || fedNum == 1118 || fedNum == 1120 || fedNum == 1122)
       caloFeds.push_back(fedNum);
   }

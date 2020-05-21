@@ -40,16 +40,13 @@ void RPCReadOutMappingWithFastSearch::init(const RPCReadOutMapping* arm) {
   for (DCCLIST::const_iterator idcc = dccList.begin(), idccEnd = dccList.end(); idcc < idccEnd; ++idcc) {
     const DccSpec& dccSpec = **idcc;
     const std::vector<TriggerBoardSpec>& triggerBoards = dccSpec.triggerBoards();
-    for (std::vector<TriggerBoardSpec>::const_iterator it = triggerBoards.begin(); it != triggerBoards.end(); it++) {
-      const TriggerBoardSpec& triggerBoard = (*it);
+    for (const auto& triggerBoard : triggerBoards) {
       typedef std::vector<const LinkConnSpec*> LINKS;
       LINKS linkConns = triggerBoard.enabledLinkConns();
-      for (LINKS::const_iterator ic = linkConns.begin(); ic != linkConns.end(); ic++) {
-        const LinkConnSpec& link = **ic;
+      for (auto linkConn : linkConns) {
+        const LinkConnSpec& link = *linkConn;
         const std::vector<LinkBoardSpec>& boards = link.linkBoards();
-        for (std::vector<LinkBoardSpec>::const_iterator ib = boards.begin(); ib != boards.end(); ib++) {
-          const LinkBoardSpec& board = (*ib);
-
+        for (const auto& board : boards) {
           LinkBoardElectronicIndex eleIndex;
           eleIndex.dccId = dccSpec.id();
           eleIndex.dccInputChannelNum = triggerBoard.dccInputChannelNum();

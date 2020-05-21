@@ -283,9 +283,9 @@ void SectorProcessorLUT::read_cppf_file(const std::string& filename,
   vec1.resize(2 * 6 * 6 * 6 * 3 * 64, 0);
   vec2.resize(2 * 6 * 6 * 6 * 3, 0);
 
-  for (size_t i = 0; i < cppf_filenames.size(); ++i) {
+  for (const auto& cppf_filename : cppf_filenames) {
     std::ifstream infile;
-    infile.open(edm::FileInPath(filename + cppf_filenames.at(i)).fullPath().c_str());
+    infile.open(edm::FileInPath(filename + cppf_filename).fullPath().c_str());
 
     // std::cout << "\n\nOpening CPPF LUT file " << cppf_filenames.at(i) << std::endl;
 

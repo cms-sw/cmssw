@@ -1073,16 +1073,16 @@ std::unique_ptr<EcalTBWeights> EcalTrivialConditionRetriever::produceEcalTBWeigh
 std::unique_ptr<EcalClusterLocalContCorrParameters>
 EcalTrivialConditionRetriever::produceEcalClusterLocalContCorrParameters(const EcalClusterLocalContCorrParametersRcd&) {
   auto ipar = std::make_unique<EcalClusterLocalContCorrParameters>();
-  for (size_t i = 0; i < localContCorrParameters_.size(); ++i) {
-    ipar->params().push_back(localContCorrParameters_[i]);
+  for (double localContCorrParameter : localContCorrParameters_) {
+    ipar->params().push_back(localContCorrParameter);
   }
   return ipar;
 }
 std::unique_ptr<EcalClusterCrackCorrParameters> EcalTrivialConditionRetriever::produceEcalClusterCrackCorrParameters(
     const EcalClusterCrackCorrParametersRcd&) {
   auto ipar = std::make_unique<EcalClusterCrackCorrParameters>();
-  for (size_t i = 0; i < crackCorrParameters_.size(); ++i) {
-    ipar->params().push_back(crackCorrParameters_[i]);
+  for (double crackCorrParameter : crackCorrParameters_) {
+    ipar->params().push_back(crackCorrParameter);
   }
   return ipar;
 }
@@ -1090,8 +1090,8 @@ std::unique_ptr<EcalClusterEnergyCorrectionParameters>
 EcalTrivialConditionRetriever::produceEcalClusterEnergyCorrectionParameters(
     const EcalClusterEnergyCorrectionParametersRcd&) {
   auto ipar = std::make_unique<EcalClusterEnergyCorrectionParameters>();
-  for (size_t i = 0; i < energyCorrectionParameters_.size(); ++i) {
-    ipar->params().push_back(energyCorrectionParameters_[i]);
+  for (double energyCorrectionParameter : energyCorrectionParameters_) {
+    ipar->params().push_back(energyCorrectionParameter);
   }
   return ipar;
 }
@@ -1099,8 +1099,8 @@ std::unique_ptr<EcalClusterEnergyUncertaintyParameters>
 EcalTrivialConditionRetriever::produceEcalClusterEnergyUncertaintyParameters(
     const EcalClusterEnergyUncertaintyParametersRcd&) {
   auto ipar = std::make_unique<EcalClusterEnergyUncertaintyParameters>();
-  for (size_t i = 0; i < energyUncertaintyParameters_.size(); ++i) {
-    ipar->params().push_back(energyUncertaintyParameters_[i]);
+  for (double energyUncertaintyParameter : energyUncertaintyParameters_) {
+    ipar->params().push_back(energyUncertaintyParameter);
   }
   return ipar;
 }
@@ -1108,8 +1108,8 @@ std::unique_ptr<EcalClusterEnergyCorrectionObjectSpecificParameters>
 EcalTrivialConditionRetriever::produceEcalClusterEnergyCorrectionObjectSpecificParameters(
     const EcalClusterEnergyCorrectionObjectSpecificParametersRcd&) {
   auto ipar = std::make_unique<EcalClusterEnergyCorrectionObjectSpecificParameters>();
-  for (size_t i = 0; i < energyCorrectionObjectSpecificParameters_.size(); ++i) {
-    ipar->params().push_back(energyCorrectionObjectSpecificParameters_[i]);
+  for (double energyCorrectionObjectSpecificParameter : energyCorrectionObjectSpecificParameters_) {
+    ipar->params().push_back(energyCorrectionObjectSpecificParameter);
   }
   return ipar;
 }

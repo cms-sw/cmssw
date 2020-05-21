@@ -136,10 +136,8 @@ void SubEventGenJetProducer::runAlgorithm(edm::Event& iEvent, edm::EventSetup co
 
   using namespace reco;
 
-  for (unsigned int ijet = 0; ijet < fjJets_.size(); ++ijet) {
+  for (const auto& fjJet : fjJets_) {
     GenJet jet;
-    const fastjet::PseudoJet& fjJet = fjJets_[ijet];
-
     std::vector<fastjet::PseudoJet> fjConstituents = sorted_by_pt(fjClusterSeq_->constituents(fjJet));
 
     std::vector<CandidatePtr> constituents = getConstituents(fjConstituents);

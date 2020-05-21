@@ -530,8 +530,8 @@ void CastorLedAnalysis::processLedEvent(const CastorDigiCollection& castor, cons
   try {
     if (castor.empty())
       throw(int) castor.size();
-    for (CastorDigiCollection::const_iterator j = castor.begin(); j != castor.end(); ++j) {
-      const CastorDataFrame digi = (const CastorDataFrame)(*j);
+    for (const auto& j : castor) {
+      const CastorDataFrame digi = (const CastorDataFrame)j;
       _meol = castorHists.LEDTRENDS.find(digi.id());
       if (_meol == castorHists.LEDTRENDS.end()) {
         SetupLEDHists(2, digi.id(), castorHists.LEDTRENDS);
@@ -598,8 +598,8 @@ void CastorLedAnalysis::LedCastorHists(const HcalDetId& detid,
   _mei = _meol->second;
   // Rest the histos if we're at the end of a 'bunch'
   if ((evt - 1) % m_nevtsample == 0 && state[0]) {
-    for (int k = 0; k < (int)state.size(); k++)
-      state[k] = false;
+    for (auto&& k : state)
+      k = false;
     for (int i = 0; i < 16; i++)
       _mei[i].first->Reset();
   }

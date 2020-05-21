@@ -356,9 +356,9 @@ void EDConsumerBase::labelsForToken(EDGetToken iToken, Labels& oLabels) const {
 bool EDConsumerBase::registeredToConsume(ProductResolverIndex iIndex,
                                          bool skipCurrentProcess,
                                          BranchType iBranch) const {
-  for (auto it = m_tokenInfo.begin<kLookupInfo>(), itEnd = m_tokenInfo.end<kLookupInfo>(); it != itEnd; ++it) {
-    if (it->m_index.productResolverIndex() == iIndex and it->m_index.skipCurrentProcess() == skipCurrentProcess and
-        it->m_branchType == iBranch) {
+  for (auto it : m_tokenInfo) {
+    if (it.m_index.productResolverIndex() == iIndex and it.m_index.skipCurrentProcess() == skipCurrentProcess and
+        it.m_branchType == iBranch) {
       return true;
     }
   }
@@ -366,10 +366,10 @@ bool EDConsumerBase::registeredToConsume(ProductResolverIndex iIndex,
 }
 
 bool EDConsumerBase::registeredToConsumeMany(TypeID const& iType, BranchType iBranch) const {
-  for (auto it = m_tokenInfo.begin<kLookupInfo>(), itEnd = m_tokenInfo.end<kLookupInfo>(); it != itEnd; ++it) {
+  for (auto it : m_tokenInfo) {
     //consumesMany entries do not have their index resolved
-    if (it->m_index.productResolverIndex() == ProductResolverIndexInvalid and it->m_type == iType and
-        it->m_branchType == iBranch) {
+    if (it.m_index.productResolverIndex() == ProductResolverIndexInvalid and it.m_type == iType and
+        it.m_branchType == iBranch) {
       return true;
     }
   }
@@ -515,21 +515,21 @@ void EDConsumerBase::convertCurrentProcessAlias(std::string const& processName) 
     // first calculate the size of the new vector and reserve memory for it
     std::vector<char>::size_type newSize = 0;
     std::string newProcessName;
-    for (auto iter = m_tokenInfo.begin<kLabels>(), itEnd = m_tokenInfo.end<kLabels>(); iter != itEnd; ++iter) {
-      newProcessName = &m_tokenLabels[iter->m_startOfModuleLabel + iter->m_deltaToProcessName];
+    for (auto& iter : m_tokenInfo) {
+      newProcessName = &m_tokenLabels[iter.m_startOfModuleLabel + iter.m_deltaToProcessName];
       if (newProcessName == InputTag::kCurrentProcess) {
         newProcessName = processName;
       }
-      newSize += (iter->m_deltaToProcessName + newProcessName.size() + 1);
+      newSize += (iter.m_deltaToProcessName + newProcessName.size() + 1);
     }
     newTokenLabels.reserve(newSize);
 
     unsigned int newStartOfModuleLabel = 0;
-    for (auto iter = m_tokenInfo.begin<kLabels>(), itEnd = m_tokenInfo.end<kLabels>(); iter != itEnd; ++iter) {
-      unsigned int startOfModuleLabel = iter->m_startOfModuleLabel;
-      unsigned short deltaToProcessName = iter->m_deltaToProcessName;
+    for (auto& iter : m_tokenInfo) {
+      unsigned int startOfModuleLabel = iter.m_startOfModuleLabel;
+      unsigned short deltaToProcessName = iter.m_deltaToProcessName;
 
-      iter->m_startOfModuleLabel = newStartOfModuleLabel;
+      iter.m_startOfModuleLabel = newStartOfModuleLabel;
 
       newProcessName = &m_tokenLabels[startOfModuleLabel + deltaToProcessName];
       if (newProcessName == InputTag::kCurrentProcess) {

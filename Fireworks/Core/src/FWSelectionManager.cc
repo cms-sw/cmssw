@@ -62,9 +62,9 @@ FWSelectionManager::FWSelectionManager(FWModelChangeManager* iCM) : m_changeMana
 //
 void FWSelectionManager::clearSelection() {
   FWChangeSentry sentry(*m_changeManager);
-  for (std::set<FWModelId>::iterator it = m_selection.begin(), itEnd = m_selection.end(); it != itEnd; ++it) {
+  for (auto it : m_selection) {
     //NOTE: this will cause
-    it->unselect();
+    it.unselect();
   }
   clearItemSelection();
 }
@@ -74,17 +74,17 @@ void FWSelectionManager::clearItemSelection() {
   //FWChangeSentry sentry(*m_changeManager);
   std::set<FWEventItem*> items;
   items.swap(m_itemSelection);
-  for (std::set<FWEventItem*>::iterator it = items.begin(), itEnd = items.end(); it != itEnd; ++it) {
+  for (auto item : items) {
     //NOTE: this will cause
-    (*it)->unselectItem();
+    item->unselectItem();
   }
 }
 
 void FWSelectionManager::clearModelSelectionLeaveItem() {
   FWChangeSentry sentry(*m_changeManager);
-  for (std::set<FWModelId>::iterator it = m_selection.begin(), itEnd = m_selection.end(); it != itEnd; ++it) {
+  for (auto it : m_selection) {
     //NOTE: this will cause
-    it->unselect();
+    it.unselect();
   }
 }
 

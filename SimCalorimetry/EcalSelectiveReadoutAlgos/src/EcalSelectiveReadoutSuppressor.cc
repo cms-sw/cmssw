@@ -52,8 +52,8 @@ EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor(const edm::Parame
   }
 
   bool actionValid = actions_.size() == 8;
-  for (size_t i = 0; i < actions_.size(); ++i) {
-    if (actions_[i] < 0 || actions_[i] > 7)
+  for (int action : actions_) {
+    if (action < 0 || action > 7)
       actionValid = false;
   }
 
@@ -386,14 +386,13 @@ void EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
 }
 
 void EcalSelectiveReadoutSuppressor::setTtFlags(const EcalTrigPrimDigiCollection& trigPrims) {
-  for (size_t iEta0 = 0; iEta0 < nTriggerTowersInEta; ++iEta0) {
+  for (auto& ttFlag : ttFlags) {
     for (size_t iPhi0 = 0; iPhi0 < nTriggerTowersInPhi; ++iPhi0) {
-      ttFlags[iEta0][iPhi0] = defaultTtf_;
+      ttFlag[iPhi0] = defaultTtf_;
     }
   }
-  for (EcalTrigPrimDigiCollection::const_iterator trigPrim = trigPrims.begin(); trigPrim != trigPrims.end();
-       ++trigPrim) {
-    int iEta = trigPrim->id().ieta();
+  for (const auto& trigPrim : trigPrims) {
+    int iEta = trigPrim.id().ieta();
     unsigned int iEta0;
     if (iEta < 0) {  //z- half ECAL: transforming ranges -28;-1 => 0;27
       iEta0 = iEta + nTriggerTowersInEta / 2;
@@ -401,12 +400,12 @@ void EcalSelectiveReadoutSuppressor::setTtFlags(const EcalTrigPrimDigiCollection
       iEta0 = iEta + nTriggerTowersInEta / 2 - 1;
     }
 
-    unsigned int iPhi0 = trigPrim->id().iphi() - 1;
+    unsigned int iPhi0 = trigPrim.id().iphi() - 1;
 
     if (!ttThresOnCompressedEt_) {
-      ttFlags[iEta0][iPhi0] = (EcalSelectiveReadout::ttFlag_t)trigPrim->ttFlag();
+      ttFlags[iEta0][iPhi0] = (EcalSelectiveReadout::ttFlag_t)trigPrim.ttFlag();
     } else {
-      int compressedEt = trigPrim->compressedEt();
+      int compressedEt = trigPrim.compressedEt();
       if (compressedEt < trigPrimBypassLTH_) {
         ttFlags[iEta0][iPhi0] = EcalSelectiveReadout::TTF_LOW_INTEREST;
       } else if (compressedEt < trigPrimBypassHTH_) {
@@ -486,8 +485,7 @@ void EcalSelectiveReadoutSuppressor::setTtFlags(const edm::EventSetup& es,
 
   //dealing with pseudo-TT in two inner EE eta-ring:
   int innerTTEtas[] = {0, 1, 54, 55};
-  for (unsigned iRing = 0; iRing < sizeof(innerTTEtas) / sizeof(innerTTEtas[0]); ++iRing) {
-    int iTTEta0 = innerTTEtas[iRing];
+  for (int iTTEta0 : innerTTEtas) {
     //this detector eta-section is divided in only 36 phi bins
     //For this eta regions,
     //current tower eta numbering scheme is inconsistent. For geometry
@@ -594,9 +592,9 @@ void EcalSelectiveReadoutSuppressor::printTTFlags(ostream& os, int iEvent, bool 
     os << "#\n#Event " << iEvent << "\n";
   }
 
-  for (int iEta = 0; iEta < nEta; ++iEta) {
+  for (const auto& ttFlag : ttFlags) {
     for (int iPhi = 0; iPhi < nPhi; ++iPhi) {
-      os << tccFlagMarker[ttFlags[iEta][iPhi] + 1];
+      os << tccFlagMarker[ttFlag[iPhi] + 1];
     }
     os << "\n";
   }

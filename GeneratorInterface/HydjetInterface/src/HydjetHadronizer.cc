@@ -331,9 +331,9 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent* evt) {
       }
     }
     // cleanup vertices not assigned to evt
-    for (unsigned int i = 0; i < prods.size(); i++) {
-      if (prods[i])
-        delete prods[i];
+    for (auto& prod : prods) {
+      if (prod)
+        delete prod;
     }
   }
   return true;
@@ -452,8 +452,8 @@ bool HydjetHadronizer::initializeForInternalPartons() {
 
 bool HydjetHadronizer::declareStableParticles(const std::vector<int>& _pdg) {
   std::vector<int> pdg = _pdg;
-  for (size_t i = 0; i < pdg.size(); i++) {
-    int pyCode = pycomp_(pdg[i]);
+  for (int& i : pdg) {
+    int pyCode = pycomp_(i);
     std::ostringstream pyCard;
     pyCard << "MDCY(" << pyCode << ",1)=0";
     std::cout << pyCard.str() << std::endl;

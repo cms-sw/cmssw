@@ -168,9 +168,9 @@ namespace reco {
         sort(matchPairs.begin(), matchPairs.end(), comparator);
         vector<bool> cLock(master.size(), false);
         // loop over sorted container
-        for (MatchContainer::const_iterator i = matchPairs.begin(); i != matchPairs.end(); ++i) {
-          size_t c = (*i).first;
-          size_t m = (*i).second;
+        for (const auto& matchPair : matchPairs) {
+          size_t c = matchPair.first;
+          size_t m = matchPair.second;
           // 	  cout << "rel dp = " << ((*cands)[c].pt()-(*matched)[m].pt())/(*matched)[m].pt() << endl;
           // accept only pairs without any lock
           if (mLock[m] || cLock[c])

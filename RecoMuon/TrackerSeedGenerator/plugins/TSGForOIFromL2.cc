@@ -311,8 +311,8 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
                                  << " , layerCount = " << layerCount << std::endl;
     }
 
-    for (std::vector<TrajectorySeed>::iterator it = out.begin(); it != out.end(); ++it) {
-      result->push_back(*it);
+    for (auto& it : out) {
+      result->push_back(it);
     }
 
   }  // L2Collection
@@ -383,19 +383,18 @@ void TSGForOIFromL2::makeSeedsFromHits(const GeometricSearchDet& layer,
   LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::makeSeedsFromHits: Find measurements on each detWithState  "
                              << dets.size() << std::endl;
   std::vector<TrajectoryMeasurement> meas;
-  for (std::vector<GeometricSearchDet::DetWithState>::iterator it = dets.begin(); it != dets.end(); ++it) {
-    MeasurementDetWithData det = measurementTracker->idToDet(it->first->geographicalId());
+  for (auto& it : dets) {
+    MeasurementDetWithData det = measurementTracker->idToDet(it.first->geographicalId());
     if (det.isNull())
       continue;
-    if (!it->second.isValid())
+    if (!it.second.isValid())
       continue;  // Skip if TSOS is not valid
 
     std::vector<TrajectoryMeasurement> mymeas =
-        det.fastMeasurements(it->second, onLayer, propagatorAlong, *estimator);  // Second TSOS is not used
-    for (std::vector<TrajectoryMeasurement>::const_iterator it2 = mymeas.begin(), ed2 = mymeas.end(); it2 != ed2;
-         ++it2) {
-      if (it2->recHit()->isValid())
-        meas.push_back(*it2);  // Only save those which are valid
+        det.fastMeasurements(it.second, onLayer, propagatorAlong, *estimator);  // Second TSOS is not used
+    for (const auto& mymea : mymeas) {
+      if (mymea.recHit()->isValid())
+        meas.push_back(mymea);  // Only save those which are valid
     }
   }
 
@@ -406,16 +405,16 @@ void TSGForOIFromL2::makeSeedsFromHits(const GeometricSearchDet& layer,
   std::sort(meas.begin(), meas.end(), TrajMeasLessEstim());
 
   unsigned int found = 0;
-  for (std::vector<TrajectoryMeasurement>::const_iterator it = meas.begin(); it != meas.end(); ++it) {
-    TrajectoryStateOnSurface updatedTSOS = updator_->update(it->forwardPredictedState(), *it->recHit());
+  for (const auto& mea : meas) {
+    TrajectoryStateOnSurface updatedTSOS = updator_->update(mea.forwardPredictedState(), *mea.recHit());
     LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::makeSeedsFromHits: TSOS for TM " << found << std::endl;
     if (not updatedTSOS.isValid())
       continue;
 
     edm::OwnVector<TrackingRecHit> seedHits;
-    seedHits.push_back(*it->recHit()->hit());
+    seedHits.push_back(*mea.recHit()->hit());
     PTrajectoryStateOnDet const& pstate =
-        trajectoryStateTransform::persistentState(updatedTSOS, it->recHit()->geographicalId().rawId());
+        trajectoryStateTransform::persistentState(updatedTSOS, mea.recHit()->geographicalId().rawId());
     LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::makeSeedsFromHits: Number of seedHits: " << seedHits.size()
                                << std::endl;
     TrajectorySeed seed(pstate, std::move(seedHits), oppositeToMomentum);

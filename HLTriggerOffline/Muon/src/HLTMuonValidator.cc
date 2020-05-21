@@ -96,29 +96,29 @@ vector<string> HLTMuonValidator::moduleLabels(string path) {
 
 vector<string> HLTMuonValidator::stepLabels(const vector<string> &modules) {
   vector<string> steps(1, "All");
-  for (size_t i = 0; i < modules.size(); i++) {
-    if ((modules[i].find("IsoFiltered") != string::npos)) {
-      if (modules[i].find("L3") != string::npos)
+  for (const auto &module : modules) {
+    if ((module.find("IsoFiltered") != string::npos)) {
+      if (module.find("L3") != string::npos)
         steps.push_back("L3TkIso");
       else
         steps.push_back("L2Iso");
-    } else if ((modules[i].find("pfecalIsoRhoFiltered") != string::npos)) {
-      if (modules[i].find("L3") != string::npos)
+    } else if ((module.find("pfecalIsoRhoFiltered") != string::npos)) {
+      if (module.find("L3") != string::npos)
         steps.push_back("L3EcalIso");
-      else if (modules[i].find("TkFiltered") != string::npos)
+      else if (module.find("TkFiltered") != string::npos)
         steps.push_back("TkEcalIso");
-    } else if ((modules[i].find("pfhcalIsoRhoFiltered") != string::npos)) {
-      if (modules[i].find("L3") != string::npos)
+    } else if ((module.find("pfhcalIsoRhoFiltered") != string::npos)) {
+      if (module.find("L3") != string::npos)
         steps.push_back("L3HcalIso");
-      else if (modules[i].find("TkFiltered") != string::npos)
+      else if (module.find("TkFiltered") != string::npos)
         steps.push_back("TkHcalIso");
-    } else if (modules[i].find("TkFiltered") != string::npos) {
+    } else if (module.find("TkFiltered") != string::npos) {
       steps.push_back("Tk");
-    } else if (modules[i].find("L3") != string::npos)
+    } else if (module.find("L3") != string::npos)
       steps.push_back("L3");
-    else if (modules[i].find("L2") != string::npos)
+    else if (module.find("L2") != string::npos)
       steps.push_back("L2");
-    else if (modules[i].find("L1") != string::npos)
+    else if (module.find("L1") != string::npos)
       steps.push_back("L1");
     else
       return vector<string>();
@@ -139,11 +139,11 @@ void HLTMuonValidator::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &
 
   // Get the set of trigger paths we want to make plots for
   set<string> hltPaths;
-  for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
-    TPRegexp pattern(hltPathsToCheck_[i]);
-    for (size_t j = 0; j < hltConfig_.triggerNames().size(); j++)
-      if (TString(hltConfig_.triggerNames()[j]).Contains(pattern))
-        hltPaths.insert(hltConfig_.triggerNames()[j]);
+  for (const auto &i : hltPathsToCheck_) {
+    TPRegexp pattern(i);
+    for (const auto &j : hltConfig_.triggerNames())
+      if (TString(j).Contains(pattern))
+        hltPaths.insert(j);
   }
 
   // Initialize the analyzers

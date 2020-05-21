@@ -29,9 +29,8 @@ JetCollectionReducerT<T>::JetCollectionReducerT(const edm::ParameterSet& iConfig
     : jetColToken_(consumes<std::vector<T>>(iConfig.getParameter<edm::InputTag>("jetCollection"))),
       writeEmptyCollection_(iConfig.getParameter<bool>("writeEmptyCollection")) {
   std::vector<edm::InputTag> filtersDecTags = iConfig.getParameter<std::vector<edm::InputTag>>("triggeringCollections");
-  for (std::vector<edm::InputTag>::const_iterator inputTag = filtersDecTags.begin(); inputTag != filtersDecTags.end();
-       ++inputTag) {
-    collections_.push_back(consumes<edm::View<reco::Candidate>>(*inputTag));
+  for (const auto& filtersDecTag : filtersDecTags) {
+    collections_.push_back(consumes<edm::View<reco::Candidate>>(filtersDecTag));
   }
 
   produces<std::vector<T>>();

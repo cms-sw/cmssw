@@ -80,11 +80,11 @@ QcdUeDQM::QcdUeDQM(const ParameterSet &parameters)
       bsLabel_(consumes<reco::BeamSpot>(parameters.getParameter<edm::InputTag>("beamSpotTag"))) {
   // Constructor.
   std::vector<std::string> quality = parameters.getParameter<std::vector<std::string> >("quality");
-  for (unsigned int j = 0; j < quality.size(); j++)
-    quality_.push_back(reco::TrackBase::qualityByName(quality[j]));
+  for (const auto &j : quality)
+    quality_.push_back(reco::TrackBase::qualityByName(j));
   std::vector<std::string> algorithm = parameters.getParameter<std::vector<std::string> >("algorithm");
-  for (unsigned int j = 0; j < algorithm.size(); j++)
-    algorithm_.push_back(reco::TrackBase::algoByName(algorithm[j]));
+  for (const auto &j : algorithm)
+    algorithm_.push_back(reco::TrackBase::algoByName(j));
 
   if (parameters.exists("hltTrgNames"))
     hltTrgNames_ = parameters.getUntrackedParameter<vector<string> >("hltTrgNames");
@@ -139,8 +139,7 @@ void QcdUeDQM::dqmBeginRun(const Run &run, const EventSetup &iSetup) {
 
   // figure out relation of trigger name to trigger bit and store used trigger
   // names/bits
-  for (size_t i = 0; i < hltTrgNames_.size(); ++i) {
-    const string &n1(hltTrgNames_.at(i));
+  for (const auto &n1 : hltTrgNames_) {
     // unsigned int hlt_prescale = hltConfig.prescaleValue(iSetup, n1);
     // cout<<"trigger=="<<n1<<"presc=="<<hlt_prescale<<endl;
     bool found = false;
@@ -678,9 +677,9 @@ void QcdUeDQM::analyze(const Event &iEvent, const EventSetup &iSetup) {
   // select good tracks
   if (fillVtxPlots(beamSpot.product(), vertexColl)) {
     fill1D(hNevts_, 1);
-    for (reco::TrackCollection::const_iterator Trk = tracks_sort.begin(); Trk != tracks_sort.end(); ++Trk) {
-      if (trackSelection(*Trk, beamSpot.product(), vtx1, vertexColl->size()))
-        selected_.push_back(&*Trk);
+    for (const auto &Trk : tracks_sort) {
+      if (trackSelection(Trk, beamSpot.product(), vtx1, vertexColl->size()))
+        selected_.push_back(&Trk);
     }
 
     fillpTMaxRelated(selected_);
@@ -703,11 +702,11 @@ void QcdUeDQM::book1D(DQMStore::IBooker &iBooker,
                       bool sumw2,
                       bool sbox) {
   // Book 1D histos.
-  for (size_t i = 0; i < hltTrgUsedNames_.size(); ++i) {
-    std::string folderName = "Physics/QcdUe/" + hltTrgUsedNames_.at(i);
+  for (auto &hltTrgUsedName : hltTrgUsedNames_) {
+    std::string folderName = "Physics/QcdUe/" + hltTrgUsedName;
     iBooker.setCurrentFolder(folderName);
-    MonitorElement *e = iBooker.book1D(Form("%s_%s", name.c_str(), hltTrgUsedNames_.at(i).c_str()),
-                                       Form("%s: %s", hltTrgUsedNames_.at(i).c_str(), title.c_str()),
+    MonitorElement *e = iBooker.book1D(Form("%s_%s", name.c_str(), hltTrgUsedName.c_str()),
+                                       Form("%s: %s", hltTrgUsedName.c_str(), title.c_str()),
                                        nx,
                                        x1,
                                        x2);
@@ -736,11 +735,11 @@ void QcdUeDQM::bookProfile(DQMStore::IBooker &iBooker,
                            bool sbox) {
   // Book Profile histos.
 
-  for (size_t i = 0; i < hltTrgUsedNames_.size(); ++i) {
-    std::string folderName = "Physics/QcdUe/" + hltTrgUsedNames_.at(i);
+  for (auto &hltTrgUsedName : hltTrgUsedNames_) {
+    std::string folderName = "Physics/QcdUe/" + hltTrgUsedName;
     iBooker.setCurrentFolder(folderName);
-    MonitorElement *e = iBooker.bookProfile(Form("%s_%s", name.c_str(), hltTrgUsedNames_.at(i).c_str()),
-                                            Form("%s: %s", hltTrgUsedNames_.at(i).c_str(), title.c_str()),
+    MonitorElement *e = iBooker.bookProfile(Form("%s_%s", name.c_str(), hltTrgUsedName.c_str()),
+                                            Form("%s: %s", hltTrgUsedName.c_str(), title.c_str()),
                                             nx,
                                             x1,
                                             x2,
@@ -891,8 +890,8 @@ bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot *bs, 
   bool quality_ok = true;
   if (!quality_.empty()) {
     quality_ok = false;
-    for (unsigned int i = 0; i < quality_.size(); ++i) {
-      if (trk.quality(quality_[i])) {
+    for (auto &i : quality_) {
+      if (trk.quality(i)) {
         quality_ok = true;
         break;
       }
@@ -935,18 +934,17 @@ bool QcdUeDQM::fillVtxPlots(const reco::BeamSpot *bs, const edm::Handle<reco::Ve
   const reco::VertexCollection theVertices = *(vtxColl.product());
   bool goodVtx = false;
   fill1D(hNvertices_, theVertices.size());
-  for (reco::VertexCollection::const_iterator vertexIt = theVertices.begin(); vertexIt != theVertices.end();
-       ++vertexIt) {
-    fill1D(hVertex_z_, vertexIt->z());
-    fill1D(hVertex_y_, vertexIt->y());
-    fill1D(hVertex_x_, vertexIt->x());
-    fill1D(hVertex_ndof_, vertexIt->ndof());
-    fill1D(hVertex_rho_, vertexIt->position().rho());
-    fill1D(hVertex_z_bs_, (vertexIt->z() - bs->z0()));
+  for (const auto &theVertice : theVertices) {
+    fill1D(hVertex_z_, theVertice.z());
+    fill1D(hVertex_y_, theVertice.y());
+    fill1D(hVertex_x_, theVertice.x());
+    fill1D(hVertex_ndof_, theVertice.ndof());
+    fill1D(hVertex_rho_, theVertice.position().rho());
+    fill1D(hVertex_z_bs_, (theVertice.z() - bs->z0()));
 
-    if (fabs(vertexIt->z() - bs->z0()) < diffvtxbs_ && vertexIt->ndof() >= 4 && vertexIt->position().rho() <= 2.0) {
+    if (fabs(theVertice.z() - bs->z0()) < diffvtxbs_ && theVertice.ndof() >= 4 && theVertice.position().rho() <= 2.0) {
       goodVtx = true;
-      vtx1 = (*vertexIt);
+      vtx1 = theVertice;
 
       break;
     }
@@ -961,14 +959,14 @@ void QcdUeDQM::fillpTMaxRelated(const std::vector<const reco::Track *> &track) {
     fill1D(hLeadingTrack_phiSpectrum_, track[0]->phi());
     fill1D(hLeadingTrack_etaSpectrum_, track[0]->eta());
   }
-  for (size_t i = 0; i < track.size(); i++) {
-    fill1D(hGoodTrkPt500_, track[i]->pt());
-    fill1D(hGoodTrkEta500_, track[i]->eta());
-    fill1D(hGoodTrkPhi500_, track[i]->phi());
-    if (track[i]->pt() > 0.9) {
-      fill1D(hGoodTrkPt900_, track[i]->pt());
-      fill1D(hGoodTrkEta900_, track[i]->eta());
-      fill1D(hGoodTrkPhi900_, track[i]->phi());
+  for (auto i : track) {
+    fill1D(hGoodTrkPt500_, i->pt());
+    fill1D(hGoodTrkEta500_, i->eta());
+    fill1D(hGoodTrkPhi500_, i->phi());
+    if (i->pt() > 0.9) {
+      fill1D(hGoodTrkPt900_, i->pt());
+      fill1D(hGoodTrkEta900_, i->eta());
+      fill1D(hGoodTrkPhi900_, i->phi());
     }
   }
 }
@@ -1100,31 +1098,31 @@ void QcdUeDQM::fillUE_with_ChargedJets(const std::vector<const reco::Track *> &t
 
   if (!(trackJets->empty()) && (trackJets->begin())->pt() > 1.) {
     double jetPhi = (trackJets->begin())->phi();
-    for (size_t i = 0; i < track.size(); i++) {
-      double dphi = (180. / PI) * (deltaPhi(jetPhi, track[i]->phi()));
+    for (auto i : track) {
+      double dphi = (180. / PI) * (deltaPhi(jetPhi, i->phi()));
       fill1D(hdPhi_chargedJet_tracks_, dphi);
       if (fabs(dphi) > 60. && fabs(dphi) < 120.) {
-        pTSum500_TransReg = pTSum500_TransReg + track[i]->pt();
+        pTSum500_TransReg = pTSum500_TransReg + i->pt();
         nTrk500_TransReg++;
-        if (track[i]->pt() > 0.9) {
-          pTSum900_TransReg = pTSum900_TransReg + track[i]->pt();
+        if (i->pt() > 0.9) {
+          pTSum900_TransReg = pTSum900_TransReg + i->pt();
           nTrk900_TransReg++;
         }
       }
 
       if (fabs(dphi) > 120. && fabs(dphi) < 180.) {
-        pTSum500_AwayReg = pTSum500_AwayReg + track[i]->pt();
+        pTSum500_AwayReg = pTSum500_AwayReg + i->pt();
         nTrk500_AwayReg++;
-        if (track[i]->pt() > 0.9) {
-          pTSum900_AwayReg = pTSum900_AwayReg + track[i]->pt();
+        if (i->pt() > 0.9) {
+          pTSum900_AwayReg = pTSum900_AwayReg + i->pt();
           nTrk900_AwayReg++;
         }
       }
       if (fabs(dphi) < 60.) {
-        pTSum500_TowardReg = pTSum500_TowardReg + track[i]->pt();
+        pTSum500_TowardReg = pTSum500_TowardReg + i->pt();
         nTrk500_TowardReg++;
-        if (track[i]->pt() > 0.9) {
-          pTSum900_TowardReg = pTSum900_TowardReg + track[i]->pt();
+        if (i->pt() > 0.9) {
+          pTSum900_TowardReg = pTSum900_TowardReg + i->pt();
           nTrk900_TowardReg++;
         }
       }

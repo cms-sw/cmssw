@@ -140,8 +140,8 @@ void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
       }
 
       bool isGoodResult = true;
-      for (unsigned int index = 0; index < isGood.size(); ++index) {
-        isGoodResult *= isGood[index];
+      for (auto &&index : isGood) {
+        isGoodResult *= index;
       }
 
       if (isGoodResult) {
@@ -391,10 +391,8 @@ void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
                   if (segment->hasPhi()) {
                     const DTChamberRecSegment2D *phiSeg = segment->phiSegment();
                     std::vector<const TrackingRecHit *> phiHits = phiSeg->recHits();
-                    for (std::vector<const TrackingRecHit *>::const_iterator ihit = phiHits.begin();
-                         ihit != phiHits.end();
-                         ++ihit) {
-                      TrackingRecHit *seghit = (*ihit)->clone();
+                    for (auto phiHit : phiHits) {
+                      TrackingRecHit *seghit = phiHit->clone();
                       newTrk->appendHitPattern(*seghit, ttopo);
                       //		    edm::LogVerbatim("MuonTrackProducer")<<"hit
                       // pattern for position "<<index_hit<<" set to:";
@@ -408,10 +406,8 @@ void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
                   if (segment->hasZed()) {
                     const DTSLRecSegment2D *zSeg = (*segment).zSegment();
                     std::vector<const TrackingRecHit *> zedHits = zSeg->recHits();
-                    for (std::vector<const TrackingRecHit *>::const_iterator ihit = zedHits.begin();
-                         ihit != zedHits.end();
-                         ++ihit) {
-                      TrackingRecHit *seghit = (*ihit)->clone();
+                    for (auto zedHit : zedHits) {
+                      TrackingRecHit *seghit = zedHit->clone();
                       newTrk->appendHitPattern(*seghit, ttopo);
                       //		    edm::LogVerbatim("MuonTrackProducer")<<"hit
                       // pattern for position "<<index_hit<<" set to:";
@@ -442,9 +438,8 @@ void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
                       << "\t ===> MATCHING with CSC segment with index = " << segmentCSC.key();
 
                   std::vector<const TrackingRecHit *> hits = segment->recHits();
-                  for (std::vector<const TrackingRecHit *>::const_iterator ihit = hits.begin(); ihit != hits.end();
-                       ++ihit) {
-                    TrackingRecHit *seghit = (*ihit)->clone();
+                  for (auto hit : hits) {
+                    TrackingRecHit *seghit = hit->clone();
                     newTrk->appendHitPattern(*seghit, ttopo);
                     //		    edm::LogVerbatim("MuonTrackProducer")<<"hit
                     // pattern for position "<<index_hit<<" set to:";

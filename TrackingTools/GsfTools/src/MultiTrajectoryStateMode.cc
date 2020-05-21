@@ -36,13 +36,13 @@ namespace multiTrajectoryStateMode {
     std::vector<SingleGaussianState1D> pzStates;
     pzStates.reserve(numb);
     // iteration over components
-    for (std::vector<TrajectoryStateOnSurface>::const_iterator ic = components.begin(); ic != components.end(); ++ic) {
+    for (const auto& component : components) {
       // extraction of parameters and variances
-      GlobalVector mom(ic->globalMomentum());
-      AlgebraicSymMatrix66 cov(ic->cartesianError().matrix());
-      pxStates.push_back(SingleGaussianState1D(mom.x(), cov(3, 3), ic->weight()));
-      pyStates.push_back(SingleGaussianState1D(mom.y(), cov(4, 4), ic->weight()));
-      pzStates.push_back(SingleGaussianState1D(mom.z(), cov(5, 5), ic->weight()));
+      GlobalVector mom(component.globalMomentum());
+      AlgebraicSymMatrix66 cov(component.cartesianError().matrix());
+      pxStates.push_back(SingleGaussianState1D(mom.x(), cov(3, 3), component.weight()));
+      pyStates.push_back(SingleGaussianState1D(mom.y(), cov(4, 4), component.weight()));
+      pzStates.push_back(SingleGaussianState1D(mom.z(), cov(5, 5), component.weight()));
     }
     //
     // transformation in 1D multi-states and creation of utility classes
@@ -84,13 +84,13 @@ namespace multiTrajectoryStateMode {
     std::vector<SingleGaussianState1D> zStates;
     zStates.reserve(numb);
     // iteration over components
-    for (std::vector<TrajectoryStateOnSurface>::const_iterator ic = components.begin(); ic != components.end(); ++ic) {
+    for (const auto& component : components) {
       // extraction of parameters and variances
-      GlobalPoint pos(ic->globalPosition());
-      AlgebraicSymMatrix66 cov(ic->cartesianError().matrix());
-      xStates.push_back(SingleGaussianState1D(pos.x(), cov(0, 0), ic->weight()));
-      yStates.push_back(SingleGaussianState1D(pos.y(), cov(1, 1), ic->weight()));
-      zStates.push_back(SingleGaussianState1D(pos.z(), cov(2, 2), ic->weight()));
+      GlobalPoint pos(component.globalPosition());
+      AlgebraicSymMatrix66 cov(component.cartesianError().matrix());
+      xStates.push_back(SingleGaussianState1D(pos.x(), cov(0, 0), component.weight()));
+      yStates.push_back(SingleGaussianState1D(pos.y(), cov(1, 1), component.weight()));
+      zStates.push_back(SingleGaussianState1D(pos.z(), cov(2, 2), component.weight()));
     }
     //
     // transformation in 1D multi-states and creation of utility classes
@@ -193,14 +193,14 @@ namespace multiTrajectoryStateMode {
     MultiGaussianState1D qpMultiState = MultiGaussianStateTransform::multiState1D(tsos, 0);
     std::vector<SingleGaussianState1D> states(qpMultiState.components());
     // transform from q/p to p
-    for (unsigned int i = 0; i < states.size(); ++i) {
-      SingleGaussianState1D& qpState = states[i];
+    for (auto& state : states) {
+      SingleGaussianState1D& qpState = state;
       double wgt = qpState.weight();
       double qp = qpState.mean();
       double varQp = qpState.variance();
       double p = 1. / fabs(qp);
       double varP = p * p * p * p * varQp;
-      states[i] = SingleGaussianState1D(p, varP, wgt);
+      state = SingleGaussianState1D(p, varP, wgt);
     }
     MultiGaussianState1D pMultiState(states);
     GaussianSumUtilities1D utils(pMultiState);
@@ -276,9 +276,9 @@ namespace multiTrajectoryStateMode {
     AlgebraicSymMatrix33 covCart;
     AlgebraicSymMatrix33 covPPhiEta;
     // iteration over components
-    for (std::vector<TrajectoryStateOnSurface>::const_iterator ic = components.begin(); ic != components.end(); ++ic) {
+    for (const auto& component : components) {
       // parameters
-      GlobalVector mom(ic->globalMomentum());
+      GlobalVector mom(component.globalMomentum());
       auto px = mom.x();
       auto py = mom.y();
       auto pz = mom.z();
@@ -298,11 +298,11 @@ namespace multiTrajectoryStateMode {
       jacobian(2, 2) = -op;
       // extraction of the momentum part from the 6x6 cartesian error matrix
       // and conversion to p-phi-eta
-      covCart = ic->cartesianError().matrix().Sub<AlgebraicSymMatrix33>(3, 3);
+      covCart = component.cartesianError().matrix().Sub<AlgebraicSymMatrix33>(3, 3);
       covPPhiEta = ROOT::Math::Similarity(jacobian, covCart);
-      pStates.push_back(SingleGaussianState1D(1 / op, covPPhiEta(0, 0), ic->weight()));
-      phiStates.push_back(SingleGaussianState1D(phi, covPPhiEta(1, 1), ic->weight()));
-      etaStates.push_back(SingleGaussianState1D(eta, covPPhiEta(2, 2), ic->weight()));
+      pStates.push_back(SingleGaussianState1D(1 / op, covPPhiEta(0, 0), component.weight()));
+      phiStates.push_back(SingleGaussianState1D(phi, covPPhiEta(1, 1), component.weight()));
+      etaStates.push_back(SingleGaussianState1D(eta, covPPhiEta(2, 2), component.weight()));
     }
     //
     // transformation in 1D multi-states and creation of utility classes

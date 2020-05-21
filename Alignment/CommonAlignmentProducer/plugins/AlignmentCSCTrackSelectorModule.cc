@@ -27,8 +27,8 @@ struct CSCTrackConfigSelector {
 
   void select(const edm::Handle<reco::TrackCollection> &c, const edm::Event &evt, const edm::EventSetup & /*dummy*/) {
     container all;
-    for (reco::TrackCollection::const_iterator i = c.product()->begin(); i != c.product()->end(); ++i) {
-      all.push_back(&*i);
+    for (const auto &i : *c.product()) {
+      all.push_back(&i);
     }
     theSelectedTracks = theBaseSelector.select(all, evt);  // might add dummy
   }

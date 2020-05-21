@@ -23,8 +23,8 @@ ParticlePDG::ParticlePDG() {
   fMass = -1.0;
   fWidth = 0.0;
   fNDecayChannels = 0;
-  for (int i = 0; i < kMaxDecayChannels; i++)
-    fDecayChannels[i] = new DecayChannel();
+  for (auto &fDecayChannel : fDecayChannels)
+    fDecayChannel = new DecayChannel();
 }
 
 ParticlePDG::ParticlePDG(char *name, int pdg, double mass, double width) {
@@ -37,13 +37,13 @@ ParticlePDG::ParticlePDG(char *name, int pdg, double mass, double width) {
   fMass = mass;
   fWidth = width;
   fNDecayChannels = 0;
-  for (int i = 0; i < kMaxDecayChannels; i++)
-    fDecayChannels[i] = new DecayChannel();
+  for (auto &fDecayChannel : fDecayChannels)
+    fDecayChannel = new DecayChannel();
 }
 
 ParticlePDG::~ParticlePDG() {
-  for (int i = 0; i < kMaxDecayChannels; i++)
-    delete fDecayChannels[i];
+  for (auto &fDecayChannel : fDecayChannels)
+    delete fDecayChannel;
 }
 
 double ParticlePDG::GetFullBranching() {

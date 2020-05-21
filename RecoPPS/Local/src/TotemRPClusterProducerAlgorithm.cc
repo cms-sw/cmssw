@@ -40,8 +40,8 @@ int TotemRPClusterProducerAlgorithm::buildClusters(unsigned int detId,
   int prev_strip = -16;
   int cur_strip;
 
-  for (TotemRPDigiSet::const_iterator i = strip_digi_set_.begin(); i != strip_digi_set_.end(); ++i) {
-    cur_strip = i->stripNumber();
+  for (auto i : strip_digi_set_) {
+    cur_strip = i.stripNumber();
     bool non_continuity = (cur_strip != prev_strip + 1);
 
     if (iter_beg) {

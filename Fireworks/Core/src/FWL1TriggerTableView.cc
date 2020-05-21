@@ -75,11 +75,9 @@ void FWL1TriggerTableView::fillTable(fwlite::Event* event) {
           (int)prescaleFactorsAlgoTrig.size());
 
     const DecisionWord dWord = triggerRecord->decisionWord();
-    for (L1GtTriggerMenuLite::CItL1Trig itTrig = algorithmMap.begin(), itTrigEnd = algorithmMap.end();
-         itTrig != itTrigEnd;
-         ++itTrig) {
-      const unsigned int bitNumber = itTrig->first;
-      const std::string& aName = itTrig->second;
+    for (const auto& itTrig : algorithmMap) {
+      const unsigned int bitNumber = itTrig.first;
+      const std::string& aName = itTrig.second;
       int errorCode = 0;
       const bool result = triggerMenuLite->gtTriggerResult(aName, dWord, errorCode);
 

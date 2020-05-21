@@ -77,9 +77,9 @@ L1MuBMExtrapolationUnit::L1MuBMExtrapolationUnit(const L1MuBMSectorProcessor& sp
 //--------------
 
 L1MuBMExtrapolationUnit::~L1MuBMExtrapolationUnit() {
-  for (SEUmap::iterator iter = m_SEUs.begin(); iter != m_SEUs.end(); iter++) {
-    delete (*iter).second;
-    (*iter).second = nullptr;
+  for (auto& m_SEU : m_SEUs) {
+    delete m_SEU.second;
+    m_SEU.second = nullptr;
   }
   m_SEUs.clear();
 }

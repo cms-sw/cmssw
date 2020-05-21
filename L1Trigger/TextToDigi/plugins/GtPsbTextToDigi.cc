@@ -45,14 +45,14 @@ GtPsbTextToDigi::GtPsbTextToDigi(const edm::ParameterSet &iConfig)
   }
 
   // Initialize bc0 position holder
-  for (int i = 0; i < 4; i++)
-    m_bc0[i] = -1;
+  for (int &i : m_bc0)
+    i = -1;
 }
 
 GtPsbTextToDigi::~GtPsbTextToDigi() {
   // Close the input files
-  for (unsigned i = 0; i < 4; i++) {
-    m_file[i].close();
+  for (auto &i : m_file) {
+    i.close();
   }
 }
 
@@ -128,9 +128,9 @@ void GtPsbTextToDigi::produce(edm::Event &iEvent, const edm::EventSetup &iSetup)
 
   /// buffer
   uint16_t data[4][2] = {{0}};
-  for (int i = 0; i < 4; i++)
+  for (auto &i : data)
     for (int j = 0; j < 2; j++)
-      data[i][j] = 0;
+      i[j] = 0;
 
   // Loop over files
   for (int ifile = 0; ifile < 4; ifile++) {

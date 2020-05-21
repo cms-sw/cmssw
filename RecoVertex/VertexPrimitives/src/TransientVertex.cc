@@ -310,16 +310,17 @@ TransientVertex::operator reco::Vertex() const {
                 totalChiSquared(),
                 degreesOfFreedom(),
                 theOriginalTracks.size());
-  for (std::vector<TransientTrack>::const_iterator i = theOriginalTracks.begin(); i != theOriginalTracks.end(); ++i) {
+  for (const auto& theOriginalTrack : theOriginalTracks) {
     //     const TrackTransientTrack* ttt = dynamic_cast<const TrackTransientTrack*>((*i).basicTransientTrack());
     //     if ((ttt!=0) && (ttt->persistentTrackRef().isNonnull()))
     //     {
     //       TrackRef tr = ttt->persistentTrackRef();
     //       TrackBaseRef tbr(tr);
     if (withRefittedTracks) {
-      vertex.add((*i).trackBaseRef(), refittedTrack(*i).track(), trackWeight(*i));
+      vertex.add(
+          theOriginalTrack.trackBaseRef(), refittedTrack(theOriginalTrack).track(), trackWeight(theOriginalTrack));
     } else {
-      vertex.add((*i).trackBaseRef(), trackWeight(*i));
+      vertex.add(theOriginalTrack.trackBaseRef(), trackWeight(theOriginalTrack));
     }
     //}
   }
@@ -339,12 +340,12 @@ TransientVertex::operator reco::VertexCompositePtrCandidate() const {
   vtxCompPtrCand.setVertex(Candidate::Point(position().x(), position().y(), position().z()));
 
   Candidate::LorentzVector p4;
-  for (std::vector<reco::TransientTrack>::const_iterator tt = theOriginalTracks.begin(); tt != theOriginalTracks.end();
-       ++tt) {
-    if (trackWeight(*tt) < 0.5)
+  for (const auto& theOriginalTrack : theOriginalTracks) {
+    if (trackWeight(theOriginalTrack) < 0.5)
       continue;
 
-    const CandidatePtrTransientTrack* cptt = dynamic_cast<const CandidatePtrTransientTrack*>(tt->basicTransientTrack());
+    const CandidatePtrTransientTrack* cptt =
+        dynamic_cast<const CandidatePtrTransientTrack*>(theOriginalTrack.basicTransientTrack());
     if (cptt == nullptr)
       edm::LogError("DynamicCastingFailed") << "Casting of TransientTrack to CandidatePtrTransientTrack failed!";
     else {

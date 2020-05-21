@@ -516,17 +516,15 @@ namespace edm {
       // drop the labels from all end paths
       vstring endPathsToBeDropped;
       vstring labels;
-      for (vstring::const_iterator iEndPath = end_path_name_list.begin(), endEndPath = end_path_name_list.end();
-           iEndPath != endEndPath;
-           ++iEndPath) {
-        labels = proc_pset.getParameter<vstring>(*iEndPath);
+      for (const auto& iEndPath : end_path_name_list) {
+        labels = proc_pset.getParameter<vstring>(iEndPath);
         vstring::iterator iSave = labels.begin();
         vstring::iterator iBegin = labels.begin();
 
         for (vstring::iterator iLabel = labels.begin(), iEnd = labels.end(); iLabel != iEnd; ++iLabel) {
           if (binary_search_string(labelsToBeDropped, *iLabel)) {
             if (binary_search_string(outputModuleLabels, *iLabel)) {
-              outputModulePathPositions[*iLabel].emplace_back(*iEndPath, iSave - iBegin);
+              outputModulePathPositions[*iLabel].emplace_back(iEndPath, iSave - iBegin);
             }
           } else {
             if (iSave != iLabel) {
@@ -538,10 +536,10 @@ namespace edm {
         labels.erase(iSave, labels.end());
         if (labels.empty()) {
           // remove empty end paths and save their names
-          proc_pset.eraseSimpleParameter(*iEndPath);
-          endPathsToBeDropped.push_back(*iEndPath);
+          proc_pset.eraseSimpleParameter(iEndPath);
+          endPathsToBeDropped.push_back(iEndPath);
         } else {
-          proc_pset.addParameter<vstring>(*iEndPath, labels);
+          proc_pset.addParameter<vstring>(iEndPath, labels);
         }
       }
       sort_all(endPathsToBeDropped);

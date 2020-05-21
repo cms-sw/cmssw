@@ -381,8 +381,8 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double& tpValCu
 
       std::vector<DetId> vid = ttMap_->constituentsOf(ttDetId);
       int towerTestCnt = 0;
-      for (std::vector<DetId>::const_iterator dit = vid.begin(); dit != vid.end(); ++dit) {
-        std::map<DetId, vector<int> >::iterator bit2Itor = EcalAllDeadChannelsBitMap.find((*dit));
+      for (auto dit : vid) {
+        std::map<DetId, vector<int> >::iterator bit2Itor = EcalAllDeadChannelsBitMap.find(dit);
         if (bit2Itor == EcalAllDeadChannelsBitMap.end()) {
           towerTestCnt++;
           continue;
@@ -459,8 +459,8 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double& tpValCu
 
       std::vector<DetId> vid = ttMap_->constituentsOf(ttDetId);
       int towerTestCnt = 0;
-      for (std::vector<DetId>::const_iterator dit = vid.begin(); dit != vid.end(); ++dit) {
-        std::map<DetId, vector<int> >::iterator bit2Itor = EcalAllDeadChannelsBitMap.find((*dit));
+      for (auto dit : vid) {
+        std::map<DetId, vector<int> >::iterator bit2Itor = EcalAllDeadChannelsBitMap.find(dit);
         if (bit2Itor == EcalAllDeadChannelsBitMap.end()) {
           towerTestCnt++;
           continue;

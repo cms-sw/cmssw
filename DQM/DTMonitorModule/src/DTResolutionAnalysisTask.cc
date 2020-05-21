@@ -61,9 +61,8 @@ void DTResolutionAnalysisTask::bookHistograms(DQMStore::IBooker& ibooker,
                                               edm::EventSetup const& /* iSetup */) {
   // Book the histograms
   vector<const DTChamber*> chambers = dtGeom->chambers();
-  for (vector<const DTChamber*>::const_iterator chamber = chambers.begin(); chamber != chambers.end();
-       ++chamber) {  // Loop over all chambers
-    DTChamberId dtChId = (*chamber)->id();
+  for (auto chamber : chambers) {  // Loop over all chambers
+    DTChamberId dtChId = chamber->id();
     for (int sl = 1; sl <= 3; ++sl) {  // Loop over SLs
       if (dtChId.station() == 4 && sl == 2)
         continue;
@@ -153,21 +152,20 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
       }
 
       // Loop over 1D RecHit inside 4D segment
-      for (vector<DTRecHit1D>::const_iterator recHit1D = recHits1D_S3.begin(); recHit1D != recHits1D_S3.end();
-           recHit1D++) {
-        const DTWireId wireId = (*recHit1D).wireId();
+      for (const auto& recHit1D : recHits1D_S3) {
+        const DTWireId wireId = recHit1D.wireId();
 
         // Get the layer and the wire position
         const DTLayer* layer = chamber->superLayer(wireId.superlayerId())->layer(wireId.layerId());
         float wireX = layer->specificTopology().wirePosition(wireId.wire());
 
         // Distance of the 1D rechit from the wire
-        float distRecHitToWire = fabs(wireX - (*recHit1D).localPosition().x());
+        float distRecHitToWire = fabs(wireX - recHit1D.localPosition().x());
 
         // Extrapolate the segment to the z of the wire
 
         // Get wire position in chamber RF
-        LocalPoint wirePosInLay(wireX, (*recHit1D).localPosition().y(), (*recHit1D).localPosition().z());
+        LocalPoint wirePosInLay(wireX, recHit1D.localPosition().y(), recHit1D.localPosition().z());
         GlobalPoint wirePosGlob = layer->toGlobal(wirePosInLay);
         LocalPoint wirePosInChamber = chamber->toLocal(wirePosGlob);
 

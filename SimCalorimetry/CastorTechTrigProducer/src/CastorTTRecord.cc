@@ -256,8 +256,8 @@ void CastorTTRecord::getTriggerDecisionsPerOctant(std::vector<bool> tdpo[8], dou
 
       // muon Trigger
       int countColumns = 0;
-      for (int icol = 0; icol < 3; icol++)
-        if (fCsum_col[icol] > TrigThresholds_.at(4))
+      for (double icol : fCsum_col)
+        if (icol > TrigThresholds_.at(4))
           countColumns++;
       if (countColumns >= 2)
         tdpo[ioct].at(5) = true;

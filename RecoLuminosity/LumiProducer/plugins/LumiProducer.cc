@@ -384,9 +384,9 @@ std::string LumiProducer::getCurrentDataTag(const coral::ISchema& schema) {
   }
   delete tagQuery;
   unsigned long long maxid = 0;
-  for (std::map<unsigned long long, std::string>::iterator it = alltags.begin(); it != alltags.end(); ++it) {
-    if (it->first > maxid) {
-      maxid = it->first;
+  for (auto& alltag : alltags) {
+    if (alltag.first > maxid) {
+      maxid = alltag.first;
     }
   }
   result = alltags[maxid];
@@ -809,18 +809,18 @@ void LumiProducer::writeProductsForEntry(edm::LuminosityBlock& iLBlock, unsigned
   pIn1->setlsnumber(luminum);
   pIn1->setOrbitData(lsdata.startorbit, lsdata.numorbit);
   std::vector<LumiSummary::L1> l1temp;
-  for (std::vector<L1Data>::iterator it = lsdata.l1data.begin(); it != lsdata.l1data.end(); ++it) {
+  for (auto& it : lsdata.l1data) {
     LumiSummary::L1 trgtmp;
-    trgtmp.triggernameidx = m_runcache.TRGBitNameToIndex[it->bitname];
-    trgtmp.prescale = it->prescale;
+    trgtmp.triggernameidx = m_runcache.TRGBitNameToIndex[it.bitname];
+    trgtmp.prescale = it.prescale;
     l1temp.push_back(trgtmp);
   }
   std::vector<LumiSummary::HLT> hlttemp;
-  for (std::vector<HLTData>::iterator it = lsdata.hltdata.begin(); it != lsdata.hltdata.end(); ++it) {
+  for (auto& it : lsdata.hltdata) {
     LumiSummary::HLT hlttmp;
-    hlttmp.pathnameidx = m_runcache.HLTPathNameToIndex[it->pathname];
+    hlttmp.pathnameidx = m_runcache.HLTPathNameToIndex[it.pathname];
     ;
-    hlttmp.prescale = it->prescale;
+    hlttmp.prescale = it.prescale;
     hlttemp.push_back(hlttmp);
   }
   pIn1->swapL1Data(l1temp);

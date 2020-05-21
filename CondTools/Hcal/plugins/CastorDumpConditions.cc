@@ -110,8 +110,8 @@ void CastorDumpConditions::analyze(const edm::Event& iEvent, const edm::EventSet
     }
   }
 
-  for (std::vector<std::string>::const_iterator it = mDumpRequest.begin(); it != mDumpRequest.end(); it++)
-    LogAbsolute("CastorDumpConditions") << *it << "\n";
+  for (const auto& it : mDumpRequest)
+    LogAbsolute("CastorDumpConditions") << it << "\n";
 
   // dumpIt called for all possible ValueMaps. The function checks if the dump is actually requested.
   dumpIt<CastorElectronicsMap, CastorElectronicsMapRcd>(mDumpRequest, iEvent, iSetup, "ElectronicsMap");

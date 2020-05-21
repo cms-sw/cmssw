@@ -196,12 +196,12 @@ TDirectory* SiStripTFile::addPath(const std::string& path) {
 
   //update file
   TDirectory* child = gDirectory;
-  for (std::vector<std::string>::const_iterator dir = directories.begin(); dir != directories.end(); dir++) {
-    if (!dynamic_cast<TDirectory*>(child->Get(dir->c_str()))) {
-      child = child->mkdir(dir->c_str());
+  for (const auto& directorie : directories) {
+    if (!dynamic_cast<TDirectory*>(child->Get(directorie.c_str()))) {
+      child = child->mkdir(directorie.c_str());
       child->cd();
     } else {
-      child->Cd(dir->c_str());
+      child->Cd(directorie.c_str());
       child = gDirectory;
     }
   }

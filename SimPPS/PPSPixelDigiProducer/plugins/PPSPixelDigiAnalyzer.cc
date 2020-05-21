@@ -105,8 +105,8 @@ PPSPixelDigiAnalyzer::~PPSPixelDigiAnalyzer() {}
 
 void PPSPixelDigiAnalyzer::beginJob() {
   found_corresponding_digi_count_ = 0;
-  for (int a = 0; a < 3; a++)
-    cumulative_cluster_size_[a] = 0;
+  for (unsigned int &a : cumulative_cluster_size_)
+    a = 0;
 }
 void PPSPixelDigiAnalyzer::endJob() {
   edm::LogInfo("PPSPixelDigiAnalyzer") << "found_corresponding_digi_count_: " << found_corresponding_digi_count_;
@@ -150,9 +150,9 @@ void PPSPixelDigiAnalyzer::analyze(const Event &event, const EventSetup &eventSe
   double hit_inside_selected_pixel[2];
   bool found_hit_inside_selected_pixel = false;
 
-  for (vector<PSimHit>::const_iterator hit = simHits->begin(); hit != simHits->end(); hit++) {
-    LocalPoint entryP = hit->entryPoint();
-    LocalPoint exitP = hit->exitPoint();
+  for (const auto &hit : *simHits) {
+    LocalPoint entryP = hit.entryPoint();
+    LocalPoint exitP = hit.exitPoint();
     LocalPoint midP((entryP.x() + exitP.x()) / 2., (entryP.y() + exitP.y()) / 2.);
 
 #ifdef USE_MIDDLE_OF_PIXEL
@@ -167,7 +167,7 @@ void PPSPixelDigiAnalyzer::analyze(const Event &event, const EventSetup &eventSe
         entryP.y() > selected_pixel_lower_y && entryP.y() < selected_pixel_upper_y
 #endif
 #endif
-        && hit->detUnitId() == SELECTED_UNITID) {
+        && hit.detUnitId() == SELECTED_UNITID) {
       hit_inside_selected_pixel[0] = entryP.x();
       hit_inside_selected_pixel[1] = entryP.y();
       found_hit_inside_selected_pixel = true;
@@ -187,10 +187,10 @@ void PPSPixelDigiAnalyzer::analyze(const Event &event, const EventSetup &eventSe
     //--------------
 
     if (verbosity_ > 1)
-      if (hit->timeOfFlight() > 0) {
+      if (hit.timeOfFlight() > 0) {
         edm::LogInfo("PPSPixelDigiAnalyzer")
-            << "DetId: " << hit->detUnitId() << "PID: " << hit->particleType() << " TOF: " << hit->timeOfFlight()
-            << " Proc Type: " << hit->processType() << " p: " << hit->pabs() << " x = " << entryP.x()
+            << "DetId: " << hit.detUnitId() << "PID: " << hit.particleType() << " TOF: " << hit.timeOfFlight()
+            << " Proc Type: " << hit.processType() << " p: " << hit.pabs() << " x = " << entryP.x()
             << "   y = " << entryP.y() << "  z = " << entryP.z();
       }
   }

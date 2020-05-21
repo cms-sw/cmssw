@@ -121,8 +121,8 @@ void OMTFinput::shiftMyPhi(int phiShift) {
 std::ostream &operator<<(std::ostream &out, const OMTFinput &aInput) {
   for (unsigned int iLogicLayer = 0; iLogicLayer < aInput.measurementsPhi.size(); ++iLogicLayer) {
     out << "Logic layer: " << iLogicLayer << " Hits: ";
-    for (unsigned int iHit = 0; iHit < aInput.measurementsPhi[iLogicLayer].size(); ++iHit) {
-      out << aInput.measurementsPhi[iLogicLayer][iHit] << "\t";
+    for (int iHit : aInput.measurementsPhi[iLogicLayer]) {
+      out << iHit << "\t";
     }
     out << std::endl;
   }

@@ -107,49 +107,49 @@ void SiStripFedCablingManipulator::manipulate(const SiStripFedCabling* iobj, SiS
     std::vector<FedChannelConnection> conns;
 
     auto feds = iobj->fedIds();
-    for (auto ifeds = feds.begin(); ifeds != feds.end(); ifeds++) {
-      auto conns_per_fed = iobj->fedConnections(*ifeds);
-      for (auto iconn = conns_per_fed.begin(); iconn != conns_per_fed.end(); ++iconn) {
-        std::map<uint32_t, std::pair<uint32_t, uint32_t> >::const_iterator it = dcuDetIdMap.find(iconn->dcuId());
-        if (it != dcuDetIdMap.end() && it->second.first == iconn->detId()) {
+    for (unsigned short fed : feds) {
+      auto conns_per_fed = iobj->fedConnections(fed);
+      for (const auto& iconn : conns_per_fed) {
+        std::map<uint32_t, std::pair<uint32_t, uint32_t> >::const_iterator it = dcuDetIdMap.find(iconn.dcuId());
+        if (it != dcuDetIdMap.end() && it->second.first == iconn.detId()) {
           edm::LogInfo("SiStripFedCablingManipulator")
-              << "::manipulate - fedid " << *ifeds << " dcuid " << iconn->dcuId() << " oldDet " << iconn->detId()
+              << "::manipulate - fedid " << fed << " dcuid " << iconn.dcuId() << " oldDet " << iconn.detId()
               << " newDetID " << it->second.second;
-          conns.push_back(FedChannelConnection(iconn->fecCrate(),
-                                               iconn->fecSlot(),
-                                               iconn->fecRing(),
-                                               iconn->ccuAddr(),
-                                               iconn->ccuChan(),
-                                               iconn->i2cAddr(0),
-                                               iconn->i2cAddr(1),
-                                               iconn->dcuId(),
+          conns.push_back(FedChannelConnection(iconn.fecCrate(),
+                                               iconn.fecSlot(),
+                                               iconn.fecRing(),
+                                               iconn.ccuAddr(),
+                                               iconn.ccuChan(),
+                                               iconn.i2cAddr(0),
+                                               iconn.i2cAddr(1),
+                                               iconn.dcuId(),
                                                it->second.second,  //<------ New detid
-                                               iconn->nApvPairs(),
-                                               iconn->fedId(),
-                                               iconn->fedCh(),
-                                               iconn->fiberLength(),
-                                               iconn->dcu(),
-                                               iconn->pll(),
-                                               iconn->mux(),
-                                               iconn->lld()));
+                                               iconn.nApvPairs(),
+                                               iconn.fedId(),
+                                               iconn.fedCh(),
+                                               iconn.fiberLength(),
+                                               iconn.dcu(),
+                                               iconn.pll(),
+                                               iconn.mux(),
+                                               iconn.lld()));
         } else {
-          conns.push_back(FedChannelConnection(iconn->fecCrate(),
-                                               iconn->fecSlot(),
-                                               iconn->fecRing(),
-                                               iconn->ccuAddr(),
-                                               iconn->ccuChan(),
-                                               iconn->i2cAddr(0),
-                                               iconn->i2cAddr(1),
-                                               iconn->dcuId(),
-                                               iconn->detId(),
-                                               iconn->nApvPairs(),
-                                               iconn->fedId(),
-                                               iconn->fedCh(),
-                                               iconn->fiberLength(),
-                                               iconn->dcu(),
-                                               iconn->pll(),
-                                               iconn->mux(),
-                                               iconn->lld()));
+          conns.push_back(FedChannelConnection(iconn.fecCrate(),
+                                               iconn.fecSlot(),
+                                               iconn.fecRing(),
+                                               iconn.ccuAddr(),
+                                               iconn.ccuChan(),
+                                               iconn.i2cAddr(0),
+                                               iconn.i2cAddr(1),
+                                               iconn.dcuId(),
+                                               iconn.detId(),
+                                               iconn.nApvPairs(),
+                                               iconn.fedId(),
+                                               iconn.fedCh(),
+                                               iconn.fiberLength(),
+                                               iconn.dcu(),
+                                               iconn.pll(),
+                                               iconn.mux(),
+                                               iconn.lld()));
         }
       }
     }

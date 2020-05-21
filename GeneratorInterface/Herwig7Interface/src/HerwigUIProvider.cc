@@ -115,10 +115,10 @@ namespace Herwig {
         pset.getUntrackedParameter<std::vector<std::string> >("appendPath", std::vector<std::string>());
     std::vector<std::string> pPath =
         pset.getUntrackedParameter<std::vector<std::string> >("prependPath", std::vector<std::string>());
-    for (size_t i = 0; i < aPath.size(); ++i)
-      ThePEG::DynamicLoader::appendPath(aPath[i]);
-    for (size_t i = 0; i < pPath.size(); ++i)
-      ThePEG::DynamicLoader::prependPath(pPath[i]);
+    for (const auto &i : aPath)
+      ThePEG::DynamicLoader::appendPath(i);
+    for (const auto &i : pPath)
+      ThePEG::DynamicLoader::prependPath(i);
 
     // integration list
     if (!pset.getUntrackedParameter<std::string>("integrationList", "").empty()) {

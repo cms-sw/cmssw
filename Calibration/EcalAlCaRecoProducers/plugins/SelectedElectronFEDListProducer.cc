@@ -255,11 +255,11 @@ SelectedElectronFEDListProducer<TEle, TCand>::SelectedElectronFEDListProducer(co
       << dumpAllHCALFed_ << std::endl;
 
   // initialize pre-shower fed id --> look up table
-  for (int i = 0; i < 2; ++i)
+  for (auto& i : ES_fedId_)
     for (int j = 0; j < 2; ++j)
       for (int k = 0; k < 40; ++k)
         for (int m = 0; m < 40; m++)
-          ES_fedId_[i][j][k][m] = -1;
+          i[j][k][m] = -1;
 
   // read in look-up table
   int nLines, iz, ip, ix, iy, fed, kchip, pace, bundle, fiber, optorx;
@@ -605,8 +605,8 @@ void SelectedElectronFEDListProducer<TEle, TCand>::produce(edm::Event& iEvent, c
                         regSubdetLayers[ilayer];  // vector of the fed
                     SiStripRegionCabling::ElementCabling::const_iterator itFedMap = fedVectorMap.begin();
                     for (; itFedMap != fedVectorMap.end(); itFedMap++) {
-                      for (uint32_t op = 0; op < (itFedMap->second).size(); op++) {
-                        int hitFED = (itFedMap->second)[op].fedId();
+                      for (const auto& op : (itFedMap->second)) {
+                        int hitFED = op.fedId();
                         if (hitFED < FEDNumbering::MINSiStripFEDID || hitFED > FEDNumbering::MAXSiStripFEDID)
                           continue;
                         LogDebug("SelectedElectronFEDListProducer") << " SiStrip (FedID) " << hitFED << std::endl;

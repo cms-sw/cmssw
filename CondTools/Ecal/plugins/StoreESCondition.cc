@@ -24,10 +24,10 @@ StoreESCondition::StoreESCondition(const edm::ParameterSet& iConfig) {
 
   typedef std::vector<edm::ParameterSet> Parameters;
   Parameters toPut = iConfig.getParameter<Parameters>("toPut");
-  for (Parameters::iterator itToPut = toPut.begin(); itToPut != toPut.end(); ++itToPut) {
-    inpFileName_.push_back(itToPut->getUntrackedParameter<std::string>("inputFile"));
-    objectName_.push_back(itToPut->getUntrackedParameter<std::string>("conditionType"));
-    since_.push_back(itToPut->getUntrackedParameter<unsigned int>("since"));
+  for (auto& itToPut : toPut) {
+    inpFileName_.push_back(itToPut.getUntrackedParameter<std::string>("inputFile"));
+    objectName_.push_back(itToPut.getUntrackedParameter<std::string>("conditionType"));
+    since_.push_back(itToPut.getUntrackedParameter<unsigned int>("since"));
   }
 }
 

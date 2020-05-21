@@ -17,19 +17,19 @@ void RPVFATSimulator::ConvertChargeToHits(const simromanpot::strip_charge_map &s
                                           simromanpot::strip_charge_map_links_type &theSignalProvenance,
                                           std::vector<TotemRPDigi> &output_digi,
                                           simromanpot::DigiPrimaryMapType &output_digi_links) {
-  for (simromanpot::strip_charge_map::const_iterator i = signals.begin(); i != signals.end(); ++i) {
+  for (auto signal : signals) {
     //one threshold per hybrid
-    unsigned short strip_no = i->first;
-    if (i->second > threshold_ && (!dead_strips_simulation_on_ || dead_strips_.find(strip_no) == dead_strips_.end())) {
+    unsigned short strip_no = signal.first;
+    if (signal.second > threshold_ &&
+        (!dead_strips_simulation_on_ || dead_strips_.find(strip_no) == dead_strips_.end())) {
       output_digi.push_back(TotemRPDigi(strip_no));
       if (links_persistence_) {
         output_digi_links.push_back(theSignalProvenance[strip_no]);
         if (verbosity_) {
           edm::LogInfo("RPVFatSimulator") << " digi links size=" << theSignalProvenance[strip_no].size() << "\n";
-          for (unsigned int u = 0; u < theSignalProvenance[strip_no].size(); ++u) {
+          for (auto &u : theSignalProvenance[strip_no]) {
             edm::LogInfo("RPVFatSimulator")
-                << " digi: particle=" << theSignalProvenance[strip_no][u].first
-                << " energy [electrons]=" << theSignalProvenance[strip_no][u].second << "\n";
+                << " digi: particle=" << u.first << " energy [electrons]=" << u.second << "\n";
           }
         }
       }
@@ -37,8 +37,8 @@ void RPVFATSimulator::ConvertChargeToHits(const simromanpot::strip_charge_map &s
   }
 
   if (verbosity_) {
-    for (unsigned int i = 0; i < output_digi.size(); ++i) {
-      edm::LogInfo("RPVFATSimulator") << output_digi[i].stripNumber() << "\n";
+    for (auto &i : output_digi) {
+      edm::LogInfo("RPVFATSimulator") << i.stripNumber() << "\n";
     }
   }
 }

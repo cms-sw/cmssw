@@ -64,9 +64,9 @@ CommonHcalNoiseRBXData::CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx,
   numLowEHits_ = numHighEHits_ = 0;
   for (std::vector<reco::HcalNoiseHPD>::const_iterator it1 = rbx.HPDsBegin(); it1 != rbx.HPDsEnd(); ++it1) {
     edm::RefVector<HBHERecHitCollection> rechits = it1->recHits();
-    for (edm::RefVector<HBHERecHitCollection>::const_iterator it2 = rechits.begin(); it2 != rechits.end(); ++it2) {
-      float energy = (*it2)->energy();
-      float time = (*it2)->time();
+    for (auto&& rechit : rechits) {
+      float energy = (rechit)->energy();
+      float time = (rechit)->time();
       if (energy >= minLowHitE) {
         if (minLowEHitTime_ > time)
           minLowEHitTime_ = time;
@@ -367,15 +367,15 @@ void JoinCaloTowerRefVectorsWithoutDuplicates::operator()(edm::RefVector<CaloTow
 
   // sorts them first to get rid of duplicates, then puts them into another RefVector
   twrrefset_t twrrefset;
-  for (edm::RefVector<CaloTowerCollection>::const_iterator it = v1.begin(); it != v1.end(); ++it)
-    twrrefset.insert(*it);
-  for (edm::RefVector<CaloTowerCollection>::const_iterator it = v2.begin(); it != v2.end(); ++it)
-    twrrefset.insert(*it);
+  for (auto&& it : v1)
+    twrrefset.insert(it);
+  for (auto&& it : v2)
+    twrrefset.insert(it);
 
   // clear the original refvector and put them back in
   v1.clear();
-  for (twrrefset_t::const_iterator it = twrrefset.begin(); it != twrrefset.end(); ++it) {
-    v1.push_back(*it);
+  for (const auto& it : twrrefset) {
+    v1.push_back(it);
   }
   return;
 }

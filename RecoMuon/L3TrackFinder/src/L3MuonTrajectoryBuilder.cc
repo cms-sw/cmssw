@@ -135,12 +135,12 @@ MuonCandidate::CandidateContainer L3MuonTrajectoryBuilder::trajectories(const Tr
   LogDebug(category) << "turn tkMatchedTracks into MuonCandidates";
   CandidateContainer tkTrajs;
   tkTrajs.reserve(trackerTracks.size());
-  for (std::vector<TrackCand>::const_iterator tkt = trackerTracks.begin(); tkt != trackerTracks.end(); tkt++) {
-    if ((*tkt).first != nullptr && (*tkt).first->isValid()) {
+  for (const auto& trackerTrack : trackerTracks) {
+    if (trackerTrack.first != nullptr && trackerTrack.first->isValid()) {
       tkTrajs.emplace_back(std::make_unique<MuonCandidate>(
-          nullptr, staCand.second, (*tkt).second, std::make_unique<Trajectory>(*(*tkt).first)));
+          nullptr, staCand.second, trackerTrack.second, std::make_unique<Trajectory>(*trackerTrack.first)));
     } else {
-      tkTrajs.emplace_back(std::make_unique<MuonCandidate>(nullptr, staCand.second, (*tkt).second, nullptr));
+      tkTrajs.emplace_back(std::make_unique<MuonCandidate>(nullptr, staCand.second, trackerTrack.second, nullptr));
     }
   }
 
@@ -156,8 +156,8 @@ MuonCandidate::CandidateContainer L3MuonTrajectoryBuilder::trajectories(const Tr
   if (staCandIn.first == nullptr)
     delete staCand.first;
 
-  for (std::vector<TrackCand>::const_iterator is = regionalTkTracks.begin(); is != regionalTkTracks.end(); ++is) {
-    delete (*is).first;
+  for (const auto& regionalTkTrack : regionalTkTracks) {
+    delete regionalTkTrack.first;
   }
 
   return result;

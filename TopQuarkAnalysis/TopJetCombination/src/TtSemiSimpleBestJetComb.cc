@@ -10,8 +10,8 @@ TtSemiSimpleBestJetComb::~TtSemiSimpleBestJetComb() {}
 int TtSemiSimpleBestJetComb::operator()(std::vector<TtSemiEvtSolution>& sols) {
   // search the highest probChi^2 value in the among the different jet combination solutions
   double maxProbChi2 = 0;
-  for (unsigned int s = 0; s < sols.size(); s++)
-    maxProbChi2 = std::max(maxProbChi2, sols[s].getProbChi2());
+  for (auto& sol : sols)
+    maxProbChi2 = std::max(maxProbChi2, sol.getProbChi2());
 
   //search indices of original solutions with highest probChi2 value
   std::vector<unsigned int> indices;

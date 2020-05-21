@@ -83,8 +83,8 @@ int main(int argc, char** argv) {
   pad[1] = new TPad("pad_tr", "The top-right pad", 0.51, 0.48, 0.99, 0.92);
   pad[2] = new TPad("pad_bl", "The bottom-left pad", 0.01, 0.01, 0.49, 0.46);
   pad[3] = new TPad("pad_br", "The bottom-right pad", 0.51, 0.01, 0.99, 0.46);
-  for (unsigned int i = 0; i < 4; ++i)
-    pad[i]->Draw();
+  for (auto& i : pad)
+    i->Draw();
 
   TLegend* leg = new TLegend(0.5, 0.9, 0.7, 1.0);
 

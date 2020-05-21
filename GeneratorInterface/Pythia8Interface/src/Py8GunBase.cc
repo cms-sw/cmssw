@@ -46,8 +46,8 @@ namespace gen {
     if (useEvtGen) {
       edm::LogInfo("Pythia8Interface") << "Creating and initializing pythia8 EvtGen plugin";
       evtgenDecays.reset(new EvtGenDecays(fMasterGen.get(), evtgenDecFile, evtgenPdlFile));
-      for (unsigned int i = 0; i < evtgenUserFiles.size(); i++)
-        evtgenDecays->readDecayFile(evtgenUserFiles.at(i));
+      for (const auto& evtgenUserFile : evtgenUserFiles)
+        evtgenDecays->readDecayFile(evtgenUserFile);
     }
 
     return true;

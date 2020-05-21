@@ -62,8 +62,8 @@ std::vector<const TrackingRecHit*> MuonTrackLoader::unpackHit(const TrackingRecH
         // 4D --> 2D
         std::vector<const TrackingRecHit*> seg2D = hit.recHits();
         // load 1D hits (2D --> 1D)
-        for (std::vector<const TrackingRecHit*>::const_iterator it = seg2D.begin(); it != seg2D.end(); ++it) {
-          std::vector<const TrackingRecHit*> hits1D = (*it)->recHits();
+        for (auto it : seg2D) {
+          std::vector<const TrackingRecHit*> hits1D = it->recHits();
           copy(hits1D.begin(), hits1D.end(), back_inserter(hits));
         }
       }
@@ -346,9 +346,9 @@ OrphanHandle<reco::TrackCollection> MuonTrackLoader::loadTracks(TrajectoryContai
     auto trajTrackMap = std::make_unique<TrajTrackAssociationCollection>(rTrajs, nonUpdatedHandle);
 
     // Now Create traj<->tracks association map
-    for (std::map<unsigned int, unsigned int>::iterator i = tjTkMap.begin(); i != tjTkMap.end(); i++) {
-      trajTrackMap->insert(edm::Ref<std::vector<Trajectory>>(rTrajs, (*i).first),
-                           edm::Ref<reco::TrackCollection>(nonUpdatedHandle, (*i).second));
+    for (auto& i : tjTkMap) {
+      trajTrackMap->insert(edm::Ref<std::vector<Trajectory>>(rTrajs, i.first),
+                           edm::Ref<reco::TrackCollection>(nonUpdatedHandle, i.second));
     }
     event.put(std::move(trajTrackMap), instance);
   }
@@ -387,15 +387,15 @@ OrphanHandle<reco::MuonTrackLinksCollection> MuonTrackLoader::loadTracks(Candida
   // get combined Trajectories
   TrajectoryContainer combinedTrajs;
   TrajectoryContainer trackerTrajs;
-  for (CandidateContainer::iterator it = muonCands.begin(); it != muonCands.end(); ++it) {
-    LogDebug(metname) << "Loader glbSeedRef " << (*it)->trajectory()->seedRef().isNonnull();
-    if ((*it)->trackerTrajectory())
+  for (auto& muonCand : muonCands) {
+    LogDebug(metname) << "Loader glbSeedRef " << muonCand->trajectory()->seedRef().isNonnull();
+    if (muonCand->trackerTrajectory())
       LogDebug(metname) << " "
-                        << "tkSeedRef " << (*it)->trackerTrajectory()->seedRef().isNonnull();
+                        << "tkSeedRef " << muonCand->trackerTrajectory()->seedRef().isNonnull();
 
-    combinedTrajs.push_back((*it)->releaseTrajectory());
+    combinedTrajs.push_back(muonCand->releaseTrajectory());
     {
-      auto tt = (*it)->releaseTrackerTrajectory();
+      auto tt = muonCand->releaseTrackerTrajectory();
       if (thePutTkTrackFlag)
         trackerTrajs.push_back(std::move(tt));
     }
@@ -542,9 +542,8 @@ OrphanHandle<reco::TrackCollection> MuonTrackLoader::loadTracks(
     theSmoother->setHitCloner(&hitCloner);
   }
 
-  for (TrajectoryContainer::iterator itRawTrajectory = trajectories.begin(); itRawTrajectory != trajectories.end();
-       ++itRawTrajectory) {
-    auto rawTrajectory = std::move(*itRawTrajectory);
+  for (auto& trajectorie : trajectories) {
+    auto rawTrajectory = std::move(trajectorie);
     reco::TrackRef glbRef;
     std::vector<std::pair<Trajectory*, reco::TrackRef>>::const_iterator mmit;
     for (mmit = miniMap.begin(); mmit != miniMap.end(); ++mmit) {
@@ -659,9 +658,9 @@ OrphanHandle<reco::TrackCollection> MuonTrackLoader::loadTracks(
     auto trajTrackMap = std::make_unique<TrajTrackAssociationCollection>(rTrajs, nonUpdatedHandle);
 
     // Now Create traj<->tracks association map
-    for (std::map<unsigned int, unsigned int>::iterator i = tjTkMap.begin(); i != tjTkMap.end(); i++) {
-      trajTrackMap->insert(edm::Ref<std::vector<Trajectory>>(rTrajs, (*i).first),
-                           edm::Ref<reco::TrackCollection>(nonUpdatedHandle, (*i).second));
+    for (auto& i : tjTkMap) {
+      trajTrackMap->insert(edm::Ref<std::vector<Trajectory>>(rTrajs, i.first),
+                           edm::Ref<reco::TrackCollection>(nonUpdatedHandle, i.second));
     }
     event.put(std::move(trajTrackMap), instance);
   }

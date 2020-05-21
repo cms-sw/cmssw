@@ -56,14 +56,14 @@ void TTClusterAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, co
 
   int ncont1 = 0;
 
-  for (auto iTag = TTClustersTokens.begin(); iTag != TTClustersTokens.end(); iTag++) {
+  for (auto& TTClustersToken : TTClustersTokens) {
     /// Prepare output
     auto associationMapForOutput = std::make_unique<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>>();
 
     /// Get the Clusters already stored away
     edm::Handle<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>> TTClusterHandle;
 
-    iEvent.getByToken(*iTag, TTClusterHandle);
+    iEvent.getByToken(TTClustersToken, TTClusterHandle);
 
     /// Prepare the necessary maps
     std::map<edm::Ref<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>, TTCluster<Ref_Phase2TrackerDigi_>>,
@@ -77,8 +77,8 @@ void TTClusterAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, co
     trackingParticleToClusterVectorMap.clear();
 
     /// Loop over the input Clusters
-    for (auto gd = theTrackerGeom->dets().begin(); gd != theTrackerGeom->dets().end(); gd++) {
-      DetId detid = (*gd)->geographicalId();
+    for (auto gd : theTrackerGeom->dets()) {
+      DetId detid = gd->geographicalId();
       if (detid.subdetId() != StripSubdetector::TOB && detid.subdetId() != StripSubdetector::TID)
         continue;  // only run on OT
 
@@ -124,11 +124,11 @@ void TTClusterAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, co
 
         /// Get the Digis and loop over them
         std::vector<Ref_Phase2TrackerDigi_> theseHits = tempCluRef->getHits();
-        for (unsigned int i = 0; i < theseHits.size(); i++) {
+        for (auto& theseHit : theseHits) {
           /// Loop over PixelDigiSimLink
           for (iterSimLink = thisDigiSimLink.data.begin(); iterSimLink != thisDigiSimLink.data.end(); iterSimLink++) {
             /// Find the link and, if there's not, skip
-            if (static_cast<int>(iterSimLink->channel()) != static_cast<int>(theseHits.at(i)->channel()))
+            if (static_cast<int>(iterSimLink->channel()) != static_cast<int>(theseHit->channel()))
               continue;
 
             /// Get SimTrack Id and type

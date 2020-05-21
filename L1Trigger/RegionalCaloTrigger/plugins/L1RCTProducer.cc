@@ -46,14 +46,14 @@ L1RCTProducer::L1RCTProducer(const edm::ParameterSet &conf)
   produces<L1CaloEmCollection>();
   produces<L1CaloRegionCollection>();
 
-  for (unsigned int ihc = 0; ihc < hcalDigis.size(); ihc++) {
+  for (const auto &hcalDigi : hcalDigis) {
     consumes<edm::SortedCollection<HcalTriggerPrimitiveDigi, edm::StrictWeakOrdering<HcalTriggerPrimitiveDigi>>>(
-        hcalDigis[ihc]);
+        hcalDigi);
   }
 
-  for (unsigned int iec = 0; iec < ecalDigis.size(); iec++) {
+  for (const auto &ecalDigi : ecalDigis) {
     consumes<edm::SortedCollection<EcalTriggerPrimitiveDigi, edm::StrictWeakOrdering<EcalTriggerPrimitiveDigi>>>(
-        ecalDigis[iec]);
+        ecalDigi);
   }
 }
 
@@ -178,8 +178,7 @@ void L1RCTProducer::updateFedVector(const edm::EventSetup &eventSetup,
   std::vector<int> caloFeds;  // pare down the feds to the interesting ones
   // is this unneccesary?
   // Mike B : This will decrease the find speed so better do it
-  for (std::vector<int>::const_iterator cf = Feds.begin(); cf != Feds.end(); ++cf) {
-    int fedNum = *cf;
+  for (int fedNum : Feds) {
     if ((fedNum > 600 && fedNum < 724) || fedNum == 1118 || fedNum == 1120 || fedNum == 1122)
       caloFeds.push_back(fedNum);
 
@@ -392,26 +391,26 @@ void L1RCTProducer::printUpdatedFedMaskVerbose() {
     //       std::copy(fedUpdatedMask.begin(), fedUpdatedMask.end(),
     //       std::ostream_iterator<int>(std::cout, ", "));
     std::cout << "--> ECAL mask: " << std::endl;
-    for (int i = 0; i < 18; i++) {
+    for (auto &i : fedUpdatedMask->ecalMask) {
       for (int j = 0; j < 2; j++) {
         for (int k = 0; k < 28; k++) {
-          std::cout << fedUpdatedMask->ecalMask[i][j][k] << ", ";
+          std::cout << i[j][k] << ", ";
         }
       }
     }
     std::cout << "--> HCAL mask: " << std::endl;
-    for (int i = 0; i < 18; i++) {
+    for (auto &i : fedUpdatedMask->hcalMask) {
       for (int j = 0; j < 2; j++) {
         for (int k = 0; k < 28; k++) {
-          std::cout << fedUpdatedMask->hcalMask[i][j][k] << ", ";
+          std::cout << i[j][k] << ", ";
         }
       }
     }
     std::cout << "--> HF mask: " << std::endl;
-    for (int i = 0; i < 18; i++) {
+    for (auto &i : fedUpdatedMask->hfMask) {
       for (int j = 0; j < 2; j++) {
         for (int k = 0; k < 4; k++) {
-          std::cout << fedUpdatedMask->hfMask[i][j][k] << ", ";
+          std::cout << i[j][k] << ", ";
         }
       }
     }

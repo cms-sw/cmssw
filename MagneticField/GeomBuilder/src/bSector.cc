@@ -133,8 +133,8 @@ bSector::bSector(handles::const_iterator begin, handles::const_iterator end, boo
 MagBSector* bSector::buildMagBSector() const {
   if (msector == nullptr) {
     vector<MagBRod*> mRods;
-    for (vector<bRod>::const_iterator rod = rods.begin(); rod != rods.end(); ++rod) {
-      mRods.push_back((*rod).buildMagBRod());
+    for (const auto& rod : rods) {
+      mRods.push_back(rod.buildMagBRod());
     }
     msector = new MagBSector(mRods, volumes.front()->minPhi());  //FIXME
     // Never deleted. When is it safe to delete it?

@@ -209,8 +209,8 @@ HLTTrackClusterRemoverNew::~HLTTrackClusterRemoverNew() {}
 
 void HLTTrackClusterRemoverNew::mergeOld(ClusterRemovalInfo::Indices &refs,
                                          const ClusterRemovalInfo::Indices &oldRefs) {
-  for (size_t i = 0, n = refs.size(); i < n; ++i) {
-    refs[i] = oldRefs[refs[i]];
+  for (unsigned int &ref : refs) {
+    ref = oldRefs[ref];
   }
 }
 
@@ -401,8 +401,7 @@ void HLTTrackClusterRemoverNew::produce(Event &iEvent, const EventSetup &iSetup)
   //for (TrajTrackAssociationCollection::const_iterator it = trajectories->begin(), ed = trajectories->end(); it != ed; ++it)  {
   //    const Trajectory &tj = * it->key;
 
-  for (std::vector<Trajectory>::const_iterator it = trajectories->begin(), ed = trajectories->end(); it != ed; ++it) {
-    const Trajectory &tj = *it;
+  for (const auto &tj : *trajectories) {
     const std::vector<TrajectoryMeasurement> &tms = tj.measurements();
 
     std::vector<TrajectoryMeasurement>::const_iterator itm, endtm;

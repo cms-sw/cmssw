@@ -117,15 +117,15 @@ void JetToDigiDump::analyze(const Event& evt, const EventSetup& es) {
     cout << "   *********************************************************" << endl;
   jetInd = 0;
   if (Dump >= 1)
-    for (CaloJetCollection::const_iterator jet = caloJets->begin(); jet != caloJets->end(); ++jet) {
+    for (const auto& jet : *caloJets) {
       //2_1_?    std::vector <CaloTowerPtr> towers = jet->getCaloConstituents ();
       //2_0_7"
-      std::vector<CaloTowerPtr> towers = jet->getCaloConstituents();
+      std::vector<CaloTowerPtr> towers = jet.getCaloConstituents();
       int nConstituents = towers.size();
-      cout << "   Jet: " << jetInd << ", eta=" << jet->eta() << ", phi=" << jet->phi() << ", pt=" << jet->pt()
-           << ",E=" << jet->energy() << ", EB E=" << jet->emEnergyInEB() << " ,HB E=" << jet->hadEnergyInHB()
-           << ", HO E=" << jet->hadEnergyInHO() << " ,EE E=" << jet->emEnergyInEE() << ", HE E=" << jet->hadEnergyInHE()
-           << ", HF E=" << jet->hadEnergyInHF() + jet->emEnergyInHF() << ", Num Towers=" << nConstituents << endl;
+      cout << "   Jet: " << jetInd << ", eta=" << jet.eta() << ", phi=" << jet.phi() << ", pt=" << jet.pt()
+           << ",E=" << jet.energy() << ", EB E=" << jet.emEnergyInEB() << " ,HB E=" << jet.hadEnergyInHB()
+           << ", HO E=" << jet.hadEnergyInHO() << " ,EE E=" << jet.emEnergyInEE() << ", HE E=" << jet.hadEnergyInHE()
+           << ", HF E=" << jet.hadEnergyInHF() + jet.emEnergyInHF() << ", Num Towers=" << nConstituents << endl;
       if (Dump >= 2)
         cout << "      =====================================================" << endl;
       float sumTowerE = 0.0;
@@ -334,7 +334,7 @@ void JetToDigiDump::analyze(const Event& evt, const EventSetup& es) {
             cout << "         ------------------------------------------------" << endl;
         }
       if (Dump >= 2)
-        cout << "      Sum of tower energies=" << sumTowerE << ", CaloJet energy=" << jet->energy() << endl;
+        cout << "      Sum of tower energies=" << sumTowerE << ", CaloJet energy=" << jet.energy() << endl;
       jetInd++;
       if (Dump >= 2)
         cout << "      =====================================================" << endl;

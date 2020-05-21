@@ -148,29 +148,29 @@ bool CastorElectronicsMap::lookup(const CastorElectronicsId pid,
 
 std::vector<CastorElectronicsId> CastorElectronicsMap::allElectronicsId() const {
   std::vector<CastorElectronicsId> result;
-  for (std::vector<PrecisionItem>::const_iterator item = mPItems.begin(); item != mPItems.end(); item++)
-    if (item->mElId)
-      result.push_back(CastorElectronicsId(item->mElId));
-  for (std::vector<TriggerItem>::const_iterator item = mTItems.begin(); item != mTItems.end(); item++)
-    if (item->mElId)
-      result.push_back(CastorElectronicsId(item->mElId));
+  for (auto mPItem : mPItems)
+    if (mPItem.mElId)
+      result.push_back(CastorElectronicsId(mPItem.mElId));
+  for (auto mTItem : mTItems)
+    if (mTItem.mElId)
+      result.push_back(CastorElectronicsId(mTItem.mElId));
 
   return result;
 }
 
 std::vector<CastorElectronicsId> CastorElectronicsMap::allElectronicsIdPrecision() const {
   std::vector<CastorElectronicsId> result;
-  for (std::vector<PrecisionItem>::const_iterator item = mPItems.begin(); item != mPItems.end(); item++)
-    if (item->mElId)
-      result.push_back(CastorElectronicsId(item->mElId));
+  for (auto mPItem : mPItems)
+    if (mPItem.mElId)
+      result.push_back(CastorElectronicsId(mPItem.mElId));
   return result;
 }
 
 std::vector<CastorElectronicsId> CastorElectronicsMap::allElectronicsIdTrigger() const {
   std::vector<CastorElectronicsId> result;
-  for (std::vector<TriggerItem>::const_iterator item = mTItems.begin(); item != mTItems.end(); item++)
-    if (item->mElId)
-      result.push_back(CastorElectronicsId(item->mElId));
+  for (auto mTItem : mTItems)
+    if (mTItem.mElId)
+      result.push_back(CastorElectronicsId(mTItem.mElId));
 
   return result;
 }
@@ -178,11 +178,11 @@ std::vector<CastorElectronicsId> CastorElectronicsMap::allElectronicsIdTrigger()
 std::vector<HcalGenericDetId> CastorElectronicsMap::allPrecisionId() const {
   std::vector<HcalGenericDetId> result;
   std::set<unsigned long> allIds;
-  for (std::vector<PrecisionItem>::const_iterator item = mPItems.begin(); item != mPItems.end(); item++)
-    if (item->mId)
-      allIds.insert(item->mId);
-  for (std::set<unsigned long>::const_iterator channel = allIds.begin(); channel != allIds.end(); channel++) {
-    result.push_back(HcalGenericDetId(*channel));
+  for (auto mPItem : mPItems)
+    if (mPItem.mId)
+      allIds.insert(mPItem.mId);
+  for (unsigned long allId : allIds) {
+    result.push_back(HcalGenericDetId(allId));
   }
   return result;
 }
@@ -190,11 +190,11 @@ std::vector<HcalGenericDetId> CastorElectronicsMap::allPrecisionId() const {
 std::vector<HcalTrigTowerDetId> CastorElectronicsMap::allTriggerId() const {
   std::vector<HcalTrigTowerDetId> result;
   std::set<unsigned long> allIds;
-  for (std::vector<TriggerItem>::const_iterator item = mTItems.begin(); item != mTItems.end(); item++)
-    if (item->mTrigId)
-      allIds.insert(item->mTrigId);
-  for (std::set<unsigned long>::const_iterator channel = allIds.begin(); channel != allIds.end(); channel++)
-    result.push_back(HcalTrigTowerDetId(*channel));
+  for (auto mTItem : mTItems)
+    if (mTItem.mTrigId)
+      allIds.insert(mTItem.mTrigId);
+  for (unsigned long allId : allIds)
+    result.push_back(HcalTrigTowerDetId(allId));
   return result;
 }
 
@@ -232,9 +232,9 @@ bool CastorElectronicsMap::mapEId2chId(CastorElectronicsId fElectronicsId, DetId
 void CastorElectronicsMap::sortById() const {
   if (!mPItemsById) {
     auto ptr = new std::vector<const PrecisionItem*>;
-    for (auto i = mPItems.begin(); i != mPItems.end(); ++i) {
-      if (i->mElId)
-        (*ptr).push_back(&(*i));
+    for (auto mPItem : mPItems) {
+      if (mPItem.mElId)
+        (*ptr).push_back(&mPItem);
     }
     std::sort((*ptr).begin(), (*ptr).end(), castor_impl::LessById());
     //atomically try to swap this to become mPItemsById
@@ -249,9 +249,9 @@ void CastorElectronicsMap::sortById() const {
 void CastorElectronicsMap::sortByTriggerId() const {
   if (!mTItemsByTrigId) {
     auto ptr = new std::vector<const TriggerItem*>;
-    for (auto i = mTItems.begin(); i != mTItems.end(); ++i) {
-      if (i->mElId)
-        (*ptr).push_back(&(*i));
+    for (auto mTItem : mTItems) {
+      if (mTItem.mElId)
+        (*ptr).push_back(&mTItem);
     }
 
     std::sort((*ptr).begin(), (*ptr).end(), castor_impl::LessByTrigId());

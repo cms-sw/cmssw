@@ -40,11 +40,11 @@ namespace {
     if (!input.isValid())
       return;
 
-    for (auto it = input->begin(); it != input->end(); ++it) {
-      for (auto& siPixelRawDataError : *it) {
+    for (const auto& it : *input) {
+      for (auto& siPixelRawDataError : it) {
         int fed = siPixelRawDataError.getFedId();
         int type = siPixelRawDataError.getType();
-        DetId id = it->detId();
+        DetId id = it.detId();
 
         // encoding of the channel number within the FED error word
         const uint32_t LINK_bits = 6;

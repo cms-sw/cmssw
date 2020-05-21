@@ -105,15 +105,11 @@ void MuonAlignmentOutputXML::write(AlignableMuon *alignableMuon, const edm::Even
   std::map<align::ID, CLHEP::HepSymMatrix> errors;
   AlignmentErrorsExtended *dtErrors = alignableMuon->dtAlignmentErrorsExtended();
   AlignmentErrorsExtended *cscErrors = alignableMuon->cscAlignmentErrorsExtended();
-  for (std::vector<AlignTransformErrorExtended>::const_iterator dtError = dtErrors->m_alignError.begin();
-       dtError != dtErrors->m_alignError.end();
-       ++dtError) {
-    errors[dtError->rawId()] = dtError->matrix();
+  for (const auto &dtError : dtErrors->m_alignError) {
+    errors[dtError.rawId()] = dtError.matrix();
   }
-  for (std::vector<AlignTransformErrorExtended>::const_iterator cscError = cscErrors->m_alignError.begin();
-       cscError != cscErrors->m_alignError.end();
-       ++cscError) {
-    errors[cscError->rawId()] = cscError->matrix();
+  for (const auto &cscError : cscErrors->m_alignError) {
+    errors[cscError.rawId()] = cscError.matrix();
   }
 
   align::Alignables barrels = alignableMuon->DTBarrel();
@@ -158,12 +154,12 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
                                              bool DT,
                                              const AlignableObjectId &objectIdProvider) const {
   align::Alignables::const_iterator ideal = ideals.begin();
-  for (align::Alignables::const_iterator alignable = alignables.begin(); alignable != alignables.end(); ++alignable) {
-    if (m_survey && (*alignable)->survey() == nullptr) {
+  for (auto alignable : alignables) {
+    if (m_survey && alignable->survey() == nullptr) {
       throw cms::Exception("Alignment") << "SurveyDets must all be defined when writing to XML" << std::endl;
     }  // now I can assume it's okay everywhere
 
-    align::StructureType alignableObjectId = (*alignable)->alignableObjectId();
+    align::StructureType alignableObjectId = alignable->alignableObjectId();
 
     if ((alignableObjectId == align::AlignableDTBarrel && !m_suppressDTBarrel) ||
         (alignableObjectId == align::AlignableDTWheel && !m_suppressDTWheels) ||
@@ -176,7 +172,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
         (alignableObjectId == align::AlignableCSCRing && !m_suppressCSCRings) ||
         (alignableObjectId == align::AlignableCSCChamber && !m_suppressCSCChambers) ||
         (!DT && alignableObjectId == align::AlignableDetUnit && !m_suppressCSCLayers)) {
-      unsigned int rawId = (*alignable)->geomDetId().rawId();
+      unsigned int rawId = alignable->geomDetId().rawId();
       outputFile << "<operation>" << std::endl;
 
       if (DT) {
@@ -204,7 +200,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
           }
 
           else {
-            DTChamberId id((*alignable)->id());
+            DTChamberId id(alignable->id());
             if (alignableObjectId == align::AlignableDTStation) {
               outputFile << "  <DTStation wheel=\"" << id.wheel() << "\" station=\"" << id.station() << "\" />"
                          << std::endl;
@@ -236,7 +232,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
             outputFile << "  <CSCChamber endcap=\"" << id.endcap() << "\" station=\"" << id.station() << "\" ring=\""
                        << id.ring() << "\" chamber=\"" << id.chamber() << "\" />" << std::endl;
           } else {
-            CSCDetId id((*alignable)->id());
+            CSCDetId id(alignable->id());
             if (alignableObjectId == align::AlignableCSCRing) {
               outputFile << "  <CSCRing endcap=\"" << id.endcap() << "\" station=\"" << id.station() << "\" ring=\""
                          << id.ring() << "\" />" << std::endl;
@@ -252,12 +248,12 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
         }  // end if not rawId
       }    // end if CSC
 
-      align::PositionType pos = (*alignable)->globalPosition();
-      align::RotationType rot = (*alignable)->globalRotation();
+      align::PositionType pos = alignable->globalPosition();
+      align::RotationType rot = alignable->globalRotation();
 
       if (m_survey) {
-        pos = (*alignable)->survey()->position();
-        rot = (*alignable)->survey()->rotation();
+        pos = alignable->survey()->position();
+        rot = alignable->survey()->rotation();
       }
 
       std::string str_relativeto;
@@ -267,7 +263,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
 
       else if (m_relativeto == 1) {
         if (ideal == ideals.end() || (*ideal)->alignableObjectId() != alignableObjectId ||
-            (*ideal)->id() != (*alignable)->id()) {
+            (*ideal)->id() != alignable->id()) {
           throw cms::Exception("Alignment") << "AlignableMuon and ideal_AlignableMuon are out of sync!" << std::endl;
         }
 
@@ -284,7 +280,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
           CSCDetId id(rawId);
           if (id.endcap() == 1 && id.station() == 1 && id.ring() == 1 && id.chamber() == 33) {
             std::cout << " investigating " << id << std::endl
-                      << (*alignable)->globalRotation() << std::endl
+                      << alignable->globalRotation() << std::endl
                       << std::endl
                       << idealRotation.transposed() << std::endl
                       << std::endl
@@ -296,7 +292,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
 
             std::cout << "phix=\"" << phix << "\" phiy=\"" << phiy << "\" phiz=\"" << phiz << std::endl;
 
-            align::EulerAngles eulerAngles = align::toAngles((*alignable)->globalRotation());
+            align::EulerAngles eulerAngles = align::toAngles(alignable->globalRotation());
             std::cout << "alpha=\"" << eulerAngles(1) << "\" beta=\"" << eulerAngles(2) << "\" gamma=\""
                       << eulerAngles(3) << std::endl;
             eulerAngles = align::toAngles(idealRotation);
@@ -309,9 +305,9 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
         }
       }
 
-      else if (m_relativeto == 2 && (*alignable)->mother() != nullptr) {
-        align::PositionType globalPosition = (*alignable)->mother()->globalPosition();
-        align::RotationType globalRotation = (*alignable)->mother()->globalRotation();
+      else if (m_relativeto == 2 && alignable->mother() != nullptr) {
+        align::PositionType globalPosition = alignable->mother()->globalPosition();
+        align::RotationType globalRotation = alignable->mother()->globalRotation();
 
         pos = align::PositionType(globalRotation * (pos.basicVector() - globalPosition.basicVector()));
         rot = rot * globalRotation.transposed();
@@ -342,7 +338,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
       }
 
       if (m_survey) {
-        align::ErrorMatrix err = (*alignable)->survey()->errors();
+        align::ErrorMatrix err = alignable->survey()->errors();
 
         outputFile << "  <setsurveyerr"
                    << " xx=\"" << err(0, 0) << "\" xy=\"" << err(0, 1) << "\" xz=\"" << err(0, 2) << "\" xa=\""
@@ -355,7 +351,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
       }
 
       else if (rawId != 0) {
-        CLHEP::HepSymMatrix err = errors[(*alignable)->id()];
+        CLHEP::HepSymMatrix err = errors[alignable->id()];
 
         outputFile << "  <setape xx=\"" << err(1, 1) << "\" xy=\"" << err(1, 2) << "\" xz=\"" << err(1, 3) << "\" xa=\""
                    << err(1, 4) << "\" xb=\"" << err(1, 5) << "\" xc=\"" << err(1, 6) << "\" yy=\"" << err(2, 2)
@@ -372,12 +368,12 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
 
     // write superstructures before substructures: this is important because <setape> overwrites all substructures' APEs
     if (ideal != ideals.end()) {
-      align::Alignables components = (*alignable)->components();
+      align::Alignables components = alignable->components();
       align::Alignables ideal_components = (*ideal)->components();
       writeComponents(components, ideal_components, errors, outputFile, DT, objectIdProvider);
       ++ideal;  // important for synchronization in the "for" loop!
     } else {
-      align::Alignables components = (*alignable)->components();
+      align::Alignables components = alignable->components();
       align::Alignables dummy;
       writeComponents(components, dummy, errors, outputFile, DT, objectIdProvider);
     }

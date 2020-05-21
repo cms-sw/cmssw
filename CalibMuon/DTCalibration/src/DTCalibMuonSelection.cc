@@ -33,13 +33,13 @@ bool DTCalibMuonSelection::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   Handle<MuonCollection> MuHandle;
   iEvent.getByToken(muonList, MuHandle);
 
-  for (MuonCollection::const_iterator nmuon = MuHandle->begin(); nmuon != MuHandle->end(); ++nmuon) {
+  for (const auto& nmuon : *MuHandle) {
     double ptMuon(0.);
     double etaMuon(-999.);
 
-    if (nmuon->isGlobalMuon()) {
-      ptMuon = nmuon->globalTrack()->pt();
-      etaMuon = nmuon->globalTrack()->eta();
+    if (nmuon.isGlobalMuon()) {
+      ptMuon = nmuon.globalTrack()->pt();
+      etaMuon = nmuon.globalTrack()->eta();
     } else
       continue;
 

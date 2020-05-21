@@ -72,12 +72,12 @@ void DTNoiseAnalysisTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
       << "[DTNoiseAnalysisTest]: End of LS transition, performing the DQM client operation";
 
   // Reset the summary plots
-  for (map<int, MonitorElement*>::iterator plot = noiseHistos.begin(); plot != noiseHistos.end(); ++plot) {
-    (*plot).second->Reset();
+  for (auto& noiseHisto : noiseHistos) {
+    noiseHisto.second->Reset();
   }
 
-  for (map<int, MonitorElement*>::iterator plot = noisyCellHistos.begin(); plot != noisyCellHistos.end(); ++plot) {
-    (*plot).second->Reset();
+  for (auto& noisyCellHisto : noisyCellHistos) {
+    noisyCellHisto.second->Reset();
   }
 
   summaryNoiseHisto->Reset();

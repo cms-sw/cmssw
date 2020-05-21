@@ -222,8 +222,8 @@ void VertexFitterResult::reset() {
     simIndex[j] = -1;
   }
   for (int j = 0; j < numberOfSimTracks; ++j) {
-    for (int i = 0; i < 5; ++i) {
-      simPars[i][j] = 0;
+    for (auto& simPar : simPars) {
+      simPar[j] = 0;
     }
     recIndex[j] = -1;
   }

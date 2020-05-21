@@ -31,10 +31,10 @@ void L1TPFMetNoMuProducer::produce(edm::Event &event, const edm::EventSetup &eve
 
   double muPx(0.), muPy(0.);
 
-  for (auto muon = muons->begin(); muon != muons->end(); ++muon) {
-    if (muon->isPFMuon()) {
-      muPx += muon->px();
-      muPy += muon->py();
+  for (const auto &muon : *muons) {
+    if (muon.isPFMuon()) {
+      muPx += muon.px();
+      muPy += muon.py();
     }
   }
 

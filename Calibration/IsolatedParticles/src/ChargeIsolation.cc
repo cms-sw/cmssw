@@ -212,8 +212,8 @@ namespace spr {
 
   bool chargeIsolation(const DetId anyCell, std::vector<DetId>& vdets) {
     bool isIsolated = true;
-    for (unsigned int i = 0; i < vdets.size(); i++) {
-      if (anyCell == vdets[i]) {
+    for (auto vdet : vdets) {
+      if (anyCell == vdet) {
         isIsolated = false;
         break;
       }

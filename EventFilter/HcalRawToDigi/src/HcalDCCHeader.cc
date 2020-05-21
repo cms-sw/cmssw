@@ -46,8 +46,8 @@ void HcalDCCHeader::clear() {
   commondataformat3 = 0;
   dcch0 = 0x1;  // format version 1
   dcch1 = 0;
-  for (int i = 0; i < 18; i++)
-    spigotInfo[i] = 0;
+  for (unsigned int& i : spigotInfo)
+    i = 0;
 }
 
 void HcalDCCHeader::setHeader(int sourceid, int bcn, int l1aN, int orbN) {

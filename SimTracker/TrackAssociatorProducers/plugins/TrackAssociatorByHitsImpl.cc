@@ -255,8 +255,8 @@ SimToRecoCollection TrackAssociatorByHitsImpl::associateSimToReco(
             //                            << " layer = " << LayerFromDetid(dId)
             //                            << " id = " << dId.rawId();
             bool newhit = true;
-            for (std::vector<PSimHit>::const_iterator TPhitOK = tphits.begin(); TPhitOK != tphits.end(); TPhitOK++) {
-              DetId dIdOK = DetId(TPhitOK->detUnitId());
+            for (const auto& tphit : tphits) {
+              DetId dIdOK = DetId(tphit.detUnitId());
               //unsigned int dRawIdOK = dIdOK.rawId();
               //LogTrace("TrackAssociator") << "\t\tcompare with SUBDET = " << dIdOK.subdetId()
               //                            << " layer = " << LayerFromDetid(dIdOK)
@@ -474,11 +474,11 @@ void TrackAssociatorByHitsImpl::getMatchedIds(std::vector<SimHitIdpr>& matchedId
       associate->associateHitId(*hit, SimTrackIds);
       //save all the id of matched simtracks
       if (!SimTrackIds.empty()) {
-        for (size_t j = 0; j < SimTrackIds.size(); j++) {
+        for (auto& SimTrackId : SimTrackIds) {
           LogTrace("TrackAssociator") << " hit # " << ri << " valid=" << hit->isValid() << " det id = " << t_detID
-                                      << " SimId " << SimTrackIds[j].first << " evt=" << SimTrackIds[j].second.event()
-                                      << " bc=" << SimTrackIds[j].second.bunchCrossing();
-          matchedIds.push_back(SimTrackIds[j]);
+                                      << " SimId " << SimTrackId.first << " evt=" << SimTrackId.second.event()
+                                      << " bc=" << SimTrackId.second.bunchCrossing();
+          matchedIds.push_back(SimTrackId);
         }
       }
       ////debugging....****

@@ -875,13 +875,13 @@ void CSCOfflineMonitor::doOccupancies(edm::Handle<CSCStripDigiCollection> strips
   }
 
   //clcts
-  for (CSCCLCTDigiCollection::DigiRangeIterator j = clcts->begin(); j != clcts->end(); j++) {
-    CSCDetId id = (CSCDetId)(*j).first;
+  for (auto&& j : *clcts) {
+    CSCDetId id = (CSCDetId)j.first;
     int kEndcap = id.endcap();
     int kRing = id.ring();
     int kStation = id.station();
     int kChamber = id.chamber();
-    const CSCCLCTDigiCollection::Range& range = (*j).second;
+    const CSCCLCTDigiCollection::Range& range = j.second;
     for (CSCCLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; ++digiIt) {
       // Valid digi in the chamber (or in neighbouring chamber)
       if ((*digiIt).isValid()) {
@@ -894,14 +894,14 @@ void CSCOfflineMonitor::doOccupancies(edm::Handle<CSCStripDigiCollection> strips
   }
 
   //wires
-  for (CSCWireDigiCollection::DigiRangeIterator wi = wires->begin(); wi != wires->end(); wi++) {
-    CSCDetId id = (CSCDetId)(*wi).first;
+  for (auto&& wi : *wires) {
+    CSCDetId id = (CSCDetId)wi.first;
     int kEndcap = id.endcap();
     int kRing = id.ring();
     int kStation = id.station();
     int kChamber = id.chamber();
-    std::vector<CSCWireDigi>::const_iterator wireIt = (*wi).second.first;
-    std::vector<CSCWireDigi>::const_iterator lastWire = (*wi).second.second;
+    std::vector<CSCWireDigi>::const_iterator wireIt = wi.second.first;
+    std::vector<CSCWireDigi>::const_iterator lastWire = wi.second.second;
     for (; wireIt != lastWire; ++wireIt) {
       if (!wireo[kEndcap - 1][kStation - 1][kRing - 1][kChamber - 1]) {
         wireo[kEndcap - 1][kStation - 1][kRing - 1][kChamber - 1] = true;
@@ -920,22 +920,22 @@ void CSCOfflineMonitor::doOccupancies(edm::Handle<CSCStripDigiCollection> strips
   }
 
   //strips
-  for (CSCStripDigiCollection::DigiRangeIterator si = strips->begin(); si != strips->end(); si++) {
-    CSCDetId id = (CSCDetId)(*si).first;
+  for (auto&& si : *strips) {
+    CSCDetId id = (CSCDetId)si.first;
     int kEndcap = id.endcap();
     int kRing = id.ring();
     int kStation = id.station();
     int kChamber = id.chamber();
-    std::vector<CSCStripDigi>::const_iterator stripIt = (*si).second.first;
-    std::vector<CSCStripDigi>::const_iterator lastStrip = (*si).second.second;
+    std::vector<CSCStripDigi>::const_iterator stripIt = si.second.first;
+    std::vector<CSCStripDigi>::const_iterator lastStrip = si.second.second;
     for (; stripIt != lastStrip; ++stripIt) {
       std::vector<int> myADCVals = stripIt->getADCCounts();
       bool thisStripFired = false;
       float thisPedestal = 0.5 * (float)(myADCVals[0] + myADCVals[1]);
       float threshold = 13.3;
       float diff = 0.;
-      for (unsigned int iCount = 0; iCount < myADCVals.size(); iCount++) {
-        diff = (float)myADCVals[iCount] - thisPedestal;
+      for (int myADCVal : myADCVals) {
+        diff = (float)myADCVal - thisPedestal;
         if (diff > threshold) {
           thisStripFired = true;
         }
@@ -976,8 +976,8 @@ void CSCOfflineMonitor::doOccupancies(edm::Handle<CSCStripDigiCollection> strips
   }
 
   //segments
-  for (CSCSegmentCollection::const_iterator segIt = cscSegments->begin(); segIt != cscSegments->end(); segIt++) {
-    CSCDetId id = (CSCDetId)(*segIt).cscDetId();
+  for (const auto& segIt : *cscSegments) {
+    CSCDetId id = (CSCDetId)segIt.cscDetId();
     int kEndcap = id.endcap();
     int kRing = id.ring();
     int kStation = id.station();
@@ -1012,10 +1012,10 @@ void CSCOfflineMonitor::doOccupancies(edm::Handle<CSCStripDigiCollection> strips
 
 void CSCOfflineMonitor::doWireDigis(edm::Handle<CSCWireDigiCollection> wires) {
   int nWireGroupsTotal = 0;
-  for (CSCWireDigiCollection::DigiRangeIterator dWDiter = wires->begin(); dWDiter != wires->end(); dWDiter++) {
-    CSCDetId id = (CSCDetId)(*dWDiter).first;
-    std::vector<CSCWireDigi>::const_iterator wireIter = (*dWDiter).second.first;
-    std::vector<CSCWireDigi>::const_iterator lWire = (*dWDiter).second.second;
+  for (auto&& dWDiter : *wires) {
+    CSCDetId id = (CSCDetId)dWDiter.first;
+    std::vector<CSCWireDigi>::const_iterator wireIter = dWDiter.second.first;
+    std::vector<CSCWireDigi>::const_iterator lWire = dWDiter.second.second;
     for (; wireIter != lWire; ++wireIter) {
       int myWire = wireIter->getWireGroup();
       int myTBin = wireIter->getTimeBin();
@@ -1039,10 +1039,10 @@ void CSCOfflineMonitor::doWireDigis(edm::Handle<CSCWireDigiCollection> wires) {
 
 void CSCOfflineMonitor::doStripDigis(edm::Handle<CSCStripDigiCollection> strips) {
   int nStripsFired = 0;
-  for (CSCStripDigiCollection::DigiRangeIterator dSDiter = strips->begin(); dSDiter != strips->end(); dSDiter++) {
-    CSCDetId id = (CSCDetId)(*dSDiter).first;
-    std::vector<CSCStripDigi>::const_iterator stripIter = (*dSDiter).second.first;
-    std::vector<CSCStripDigi>::const_iterator lStrip = (*dSDiter).second.second;
+  for (auto&& dSDiter : *strips) {
+    CSCDetId id = (CSCDetId)dSDiter.first;
+    std::vector<CSCStripDigi>::const_iterator stripIter = dSDiter.second.first;
+    std::vector<CSCStripDigi>::const_iterator lStrip = dSDiter.second.second;
     for (; stripIter != lStrip; ++stripIter) {
       int myStrip = stripIter->getStrip();
       std::vector<int> myADCVals = stripIter->getADCCounts();
@@ -1050,8 +1050,8 @@ void CSCOfflineMonitor::doStripDigis(edm::Handle<CSCStripDigiCollection> strips)
       float thisPedestal = 0.5 * (float)(myADCVals[0] + myADCVals[1]);
       float threshold = 13.3;
       float diff = 0.;
-      for (unsigned int iCount = 0; iCount < myADCVals.size(); iCount++) {
-        diff = (float)myADCVals[iCount] - thisPedestal;
+      for (int myADCVal : myADCVals) {
+        diff = (float)myADCVal - thisPedestal;
         if (diff > threshold) {
           thisStripFired = true;
         }
@@ -1200,15 +1200,15 @@ void CSCOfflineMonitor::doSegments(edm::Handle<CSCSegmentCollection> cscSegments
   // get CSC segment collection
   int nSegments = cscSegments->size();
 
-  for (CSCSegmentCollection::const_iterator dSiter = cscSegments->begin(); dSiter != cscSegments->end(); dSiter++) {
-    CSCDetId id = (CSCDetId)(*dSiter).cscDetId();
-    float chisq = (*dSiter).chi2();
-    int nhits = (*dSiter).nRecHits();
+  for (const auto& dSiter : *cscSegments) {
+    CSCDetId id = (CSCDetId)dSiter.cscDetId();
+    float chisq = dSiter.chi2();
+    int nhits = dSiter.nRecHits();
     int nDOF = 2 * nhits - 4;
     float nChi2 = chisq / nDOF;
     double chisqProb = ChiSquaredProbability((double)chisq, nDOF);
-    LocalPoint localPos = (*dSiter).localPosition();
-    LocalVector segDir = (*dSiter).localDirection();
+    LocalPoint localPos = dSiter.localPosition();
+    LocalVector segDir = dSiter.localDirection();
 
     // prepare to calculate segment times
     float timeCathode = 0;   //average from cathode information alone
@@ -1217,12 +1217,12 @@ void CSCOfflineMonitor::doSegments(edm::Handle<CSCSegmentCollection> cscSegments
     std::vector<float> cathodeTimes;
     std::vector<float> anodeTimes;
     // Get the CSC recHits that contribute to this segment.
-    std::vector<CSCRecHit2D> theseRecHits = (*dSiter).specificRecHits();
-    for (vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
-      if (!((*iRH).isValid()))
+    std::vector<CSCRecHit2D> theseRecHits = dSiter.specificRecHits();
+    for (const auto& theseRecHit : theseRecHits) {
+      if (!(theseRecHit.isValid()))
         continue;  // only interested in valid hits
-      cathodeTimes.push_back((*iRH).tpeak());
-      anodeTimes.push_back((*iRH).wireTime());
+      cathodeTimes.push_back(theseRecHit.tpeak());
+      anodeTimes.push_back(theseRecHit.wireTime());
     }  //end rechit loop
 
     // Calculate cathode average
@@ -1321,18 +1321,18 @@ void CSCOfflineMonitor::doSegments(edm::Handle<CSCSegmentCollection> cscSegments
 // ==============================================
 void CSCOfflineMonitor::doResolution(edm::Handle<CSCSegmentCollection> cscSegments,
                                      edm::ESHandle<CSCGeometry> cscGeom) {
-  for (CSCSegmentCollection::const_iterator dSiter = cscSegments->begin(); dSiter != cscSegments->end(); dSiter++) {
-    CSCDetId id = (CSCDetId)(*dSiter).cscDetId();
+  for (const auto& dSiter : *cscSegments) {
+    CSCDetId id = (CSCDetId)dSiter.cscDetId();
     //
     // try to get the CSC recHits that contribute to this segment.
-    std::vector<CSCRecHit2D> theseRecHits = (*dSiter).specificRecHits();
-    int nRH = (*dSiter).nRecHits();
+    std::vector<CSCRecHit2D> theseRecHits = dSiter.specificRecHits();
+    int nRH = dSiter.nRecHits();
     int jRH = 0;
     CLHEP::HepMatrix sp(6, 1);
     CLHEP::HepMatrix se(6, 1);
-    for (vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
+    for (const auto& theseRecHit : theseRecHits) {
       jRH++;
-      CSCDetId idRH = (CSCDetId)(*iRH).cscDetId();
+      CSCDetId idRH = (CSCDetId)theseRecHit.cscDetId();
       //int kEndcap  = idRH.endcap();
       int kRing = idRH.ring();
       int kStation = idRH.station();
@@ -1340,13 +1340,13 @@ void CSCOfflineMonitor::doResolution(edm::Handle<CSCSegmentCollection> cscSegmen
       int kLayer = idRH.layer();
 
       /// Find the strip containing this hit
-      int centerid = iRH->nStrips() / 2 + 1;
-      int centerStrip = iRH->channels(centerid - 1);
+      int centerid = theseRecHit.nStrips() / 2 + 1;
+      int centerStrip = theseRecHit.channels(centerid - 1);
 
       // If this segment has 6 hits, find the position of each hit on the strip in units of stripwidth and store values
       if (nRH == 6) {
-        float stpos = (*iRH).positionWithinStrip();
-        se(kLayer, 1) = (*iRH).errorWithinStrip();
+        float stpos = theseRecHit.positionWithinStrip();
+        se(kLayer, 1) = theseRecHit.errorWithinStrip();
         // Take into account half-strip staggering of layers (ME1/1 has no staggering)
         if (kStation == 1 && (kRing == 1 || kRing == 4))
           sp(kLayer, 1) = stpos + centerStrip;
@@ -1502,10 +1502,10 @@ void CSCOfflineMonitor::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
   }
 
   // Wires
-  for (CSCWireDigiCollection::DigiRangeIterator dWDiter = wires->begin(); dWDiter != wires->end(); dWDiter++) {
-    CSCDetId idrec = (CSCDetId)(*dWDiter).first;
-    std::vector<CSCWireDigi>::const_iterator wireIter = (*dWDiter).second.first;
-    std::vector<CSCWireDigi>::const_iterator lWire = (*dWDiter).second.second;
+  for (auto&& dWDiter : *wires) {
+    CSCDetId idrec = (CSCDetId)dWDiter.first;
+    std::vector<CSCWireDigi>::const_iterator wireIter = dWDiter.second.first;
+    std::vector<CSCWireDigi>::const_iterator lWire = dWDiter.second.second;
     for (; wireIter != lWire; ++wireIter) {
       allWires[idrec.endcap() - 1][idrec.station() - 1][idrec.ring() - 1][idrec.chamber() - 1][idrec.layer() - 1] =
           true;
@@ -1514,18 +1514,18 @@ void CSCOfflineMonitor::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
   }
 
   //---- STRIPS
-  for (CSCStripDigiCollection::DigiRangeIterator dSDiter = strips->begin(); dSDiter != strips->end(); dSDiter++) {
-    CSCDetId idrec = (CSCDetId)(*dSDiter).first;
-    std::vector<CSCStripDigi>::const_iterator stripIter = (*dSDiter).second.first;
-    std::vector<CSCStripDigi>::const_iterator lStrip = (*dSDiter).second.second;
+  for (auto&& dSDiter : *strips) {
+    CSCDetId idrec = (CSCDetId)dSDiter.first;
+    std::vector<CSCStripDigi>::const_iterator stripIter = dSDiter.second.first;
+    std::vector<CSCStripDigi>::const_iterator lStrip = dSDiter.second.second;
     for (; stripIter != lStrip; ++stripIter) {
       std::vector<int> myADCVals = stripIter->getADCCounts();
       bool thisStripFired = false;
       float thisPedestal = 0.5 * (float)(myADCVals[0] + myADCVals[1]);
       float threshold = 13.3;
       float diff = 0.;
-      for (unsigned int iCount = 0; iCount < myADCVals.size(); iCount++) {
-        diff = (float)myADCVals[iCount] - thisPedestal;
+      for (int myADCVal : myADCVals) {
+        diff = (float)myADCVal - thisPedestal;
         if (diff > threshold) {
           thisStripFired = true;
           break;
@@ -1540,9 +1540,9 @@ void CSCOfflineMonitor::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
   }
 
   // Rechits
-  for (CSCRecHit2DCollection::const_iterator recEffIt = recHits->begin(); recEffIt != recHits->end(); recEffIt++) {
+  for (const auto& recEffIt : *recHits) {
     //CSCDetId idrec = (CSCDetId)(*recIt).cscDetId();
-    CSCDetId idrec = (CSCDetId)(*recEffIt).cscDetId();
+    CSCDetId idrec = (CSCDetId)recEffIt.cscDetId();
     AllRecHits[idrec.endcap() - 1][idrec.station() - 1][idrec.ring() - 1][idrec.chamber() - 1][idrec.layer() - 1] =
         true;
   }
@@ -1551,9 +1551,8 @@ void CSCOfflineMonitor::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
   std::vector<uint> seg_ME3(2, 0);
   std::vector<pair<CSCDetId, CSCSegment> > theSegments(4);
   // Segments
-  for (CSCSegmentCollection::const_iterator segEffIt = cscSegments->begin(); segEffIt != cscSegments->end();
-       segEffIt++) {
-    CSCDetId idseg = (CSCDetId)(*segEffIt).cscDetId();
+  for (const auto& segEffIt : *cscSegments) {
+    CSCDetId idseg = (CSCDetId)segEffIt.cscDetId();
     //if(AllSegments[idrec.endcap() -1][idrec.station() -1][idrec.ring() -1][idrec.chamber()]){
     //MultiSegments[idrec.endcap() -1][idrec.station() -1][idrec.ring() -1][idrec.chamber()] = true;
     //}
@@ -1571,8 +1570,8 @@ void CSCOfflineMonitor::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
         seg_tmp = seg_ME3[idseg.endcap() - 1];
       }
       // is the segment good
-      if (1 == seg_tmp && 6 == (*segEffIt).nRecHits() && (*segEffIt).chi2() / (*segEffIt).degreesOfFreedom() < 3.) {
-        pair<CSCDetId, CSCSegment> specSeg = make_pair((CSCDetId)(*segEffIt).cscDetId(), *segEffIt);
+      if (1 == seg_tmp && 6 == segEffIt.nRecHits() && segEffIt.chi2() / segEffIt.degreesOfFreedom() < 3.) {
+        pair<CSCDetId, CSCSegment> specSeg = make_pair((CSCDetId)segEffIt.cscDetId(), segEffIt);
         theSegments[2 * (idseg.endcap() - 1) + (idseg.station() - 2)] = specSeg;
       }
     }
@@ -1665,18 +1664,17 @@ void CSCOfflineMonitor::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
     std::map<int, GlobalPoint>::iterator it;
     const CSCGeometry::ChamberContainer& ChamberContainer = cscGeom->chambers();
     // Pick which chamber with which segment to test
-    for (unsigned int nCh = 0; nCh < ChamberContainer.size(); nCh++) {
-      const CSCChamber* cscchamber = ChamberContainer[nCh];
+    for (auto cscchamber : ChamberContainer) {
       pair<CSCDetId, CSCSegment>* thisSegment = nullptr;
-      for (uint iSeg = 0; iSeg < theSeg.size(); ++iSeg) {
-        if (cscchamber->id().endcap() == theSeg[iSeg]->first.endcap()) {
+      for (auto& iSeg : theSeg) {
+        if (cscchamber->id().endcap() == iSeg->first.endcap()) {
           if (1 == cscchamber->id().station() || 3 == cscchamber->id().station()) {
-            if (2 == theSeg[iSeg]->first.station()) {
-              thisSegment = theSeg[iSeg];
+            if (2 == iSeg->first.station()) {
+              thisSegment = iSeg;
             }
           } else if (2 == cscchamber->id().station() || 4 == cscchamber->id().station()) {
-            if (3 == theSeg[iSeg]->first.station()) {
-              thisSegment = theSeg[iSeg];
+            if (3 == iSeg->first.station()) {
+              thisSegment = iSeg;
             }
           }
         }
@@ -1785,9 +1783,9 @@ void CSCOfflineMonitor::doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts,
                                     const edm::EventSetup& eventSetup) {
   // Loop over ALCTDigis
 
-  for (CSCALCTDigiCollection::DigiRangeIterator j = alcts->begin(); j != alcts->end(); j++) {
-    const CSCDetId& idALCT = (*j).first;
-    const CSCALCTDigiCollection::Range& range = (*j).second;
+  for (auto&& j : *alcts) {
+    const CSCDetId& idALCT = j.first;
+    const CSCALCTDigiCollection::Range& range = j.second;
     for (CSCALCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; ++digiIt) {
       // Valid digi in the chamber (or in neighbouring chamber)
       if ((*digiIt).isValid()) {
@@ -1831,9 +1829,8 @@ void CSCOfflineMonitor::doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts,
     cscFEDids.push_back(id);
   }
 
-  for (unsigned int i = 0; i < cscFEDids.size(); i++)  // loop over all CSC FEDs (DCCs and DDUs)
+  for (unsigned int id : cscFEDids)  // loop over all CSC FEDs (DCCs and DDUs)
   {
-    unsigned int id = cscFEDids[i];
     bool isDDU_FED = ((id >= FEDNumbering::MINCSCDDUFEDID) && (id <= FEDNumbering::MAXCSCDDUFEDID)) ? true : false;
 
     /// uncomment this for regional unpacking
@@ -1900,11 +1897,11 @@ void CSCOfflineMonitor::doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts,
           ///get a reference to chamber data
           const std::vector<CSCEventData>& cscData = dduData[iDDU].cscData();
 
-          for (unsigned int iCSC = 0; iCSC < cscData.size(); ++iCSC) {  // loop over CSCs
+          for (const auto& iCSC : cscData) {  // loop over CSCs
 
             ///first process chamber-wide digis such as LCT
-            int vmecrate = cscData[iCSC].dmbHeader()->crateID();
-            int dmb = cscData[iCSC].dmbHeader()->dmbID();
+            int vmecrate = iCSC.dmbHeader()->crateID();
+            int dmb = iCSC.dmbHeader()->dmbID();
 
             int icfeb = 0;   /// default value for all digis not related to cfebs
             int ilayer = 0;  /// layer=0 flags entire chamber
@@ -1918,28 +1915,28 @@ void CSCOfflineMonitor::doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts,
             }
 
             /// check alct data integrity
-            int nalct = cscData[iCSC].dmbHeader()->nalct();
+            int nalct = iCSC.dmbHeader()->nalct();
             bool goodALCT = false;
             //if (nalct&&(cscData[iCSC].dataPresent>>6&0x1)==1) {
-            if (nalct && cscData[iCSC].alctHeader()) {
-              if (cscData[iCSC].alctHeader()->check()) {
+            if (nalct && iCSC.alctHeader()) {
+              if (iCSC.alctHeader()->check()) {
                 goodALCT = true;
               }
             }
 
             ///check tmb data integrity
-            int nclct = cscData[iCSC].dmbHeader()->nclct();
+            int nclct = iCSC.dmbHeader()->nclct();
             bool goodTMB = false;
-            if (nclct && cscData[iCSC].tmbData()) {
-              if (cscData[iCSC].tmbHeader()->check()) {
-                if (cscData[iCSC].clctData()->check())
+            if (nclct && iCSC.tmbData()) {
+              if (iCSC.tmbHeader()->check()) {
+                if (iCSC.clctData()->check())
                   goodTMB = true;
               }
             }
 
             if (goodTMB && goodALCT) {
-              const CSCTMBHeader* tmbHead = cscData[iCSC].tmbHeader();
-              std::vector<CSCCLCTDigi> clcts = cscData[iCSC].tmbHeader()->CLCTDigis(layer.rawId());
+              const CSCTMBHeader* tmbHead = iCSC.tmbHeader();
+              std::vector<CSCCLCTDigi> clcts = iCSC.tmbHeader()->CLCTDigis(layer.rawId());
               if (clcts.empty() || !(clcts[0].isValid()))
                 continue;
               // Check if the CLCT was in ME11a (ring 4)

@@ -87,9 +87,9 @@ void RivetAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
     for (headers_const_iterator iter = lheRunInfoHandle->headers_begin(); iter != lheRunInfoHandle->headers_end();
          iter++) {
       std::vector<std::string> lines = iter->lines();
-      for (unsigned int iLine = 0; iLine < lines.size(); iLine++) {
+      for (const auto& line : lines) {
         std::smatch match;
-        std::regex_search(lines.at(iLine), match, reg);
+        std::regex_search(line, match, reg);
         if (!match.empty()) {
           _lheWeightNames.push_back(match[1]);
         }
@@ -134,8 +134,8 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
     if (_useLHEweights) {
       std::vector<double> mergedWeights;
-      for (unsigned int i = 0; i < tmpGenEvtPtr->weights().size(); i++) {
-        mergedWeights.push_back(tmpGenEvtPtr->weights()[i]);
+      for (double i : tmpGenEvtPtr->weights()) {
+        mergedWeights.push_back(i);
       }
 
       edm::Handle<LHEEventProduct> lheEventHandle;

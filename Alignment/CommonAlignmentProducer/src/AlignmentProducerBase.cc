@@ -177,8 +177,8 @@ bool AlignmentProducerBase::processEvent(const edm::Event& event, const edm::Eve
   if (getTrajTrackAssociationCollection(event, handleTrajTracksCollection)) {
     // Form pairs of trajectories and tracks
     ConstTrajTrackPairs trajTracks;
-    for (auto iter = handleTrajTracksCollection->begin(); iter != handleTrajTracksCollection->end(); ++iter) {
-      trajTracks.push_back(ConstTrajTrackPair(&(*(*iter).key), &(*(*iter).val)));
+    for (const auto& iter : *handleTrajTracksCollection) {
+      trajTracks.push_back(ConstTrajTrackPair(&(*iter.key), &(*iter.val)));
     }
 
     // Run the alignment algorithm with its input

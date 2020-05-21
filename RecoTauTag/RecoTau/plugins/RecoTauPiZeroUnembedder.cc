@@ -56,9 +56,9 @@ void RecoTauPiZeroUnembedder::produce(edm::Event& evt, const edm::EventSetup& es
   // Get the reference to the product of where the final pizeros will end up
   reco::RecoTauPiZeroRefProd piZeroProd = evt.getRefBeforePut<reco::RecoTauPiZeroCollection>("pizeros");
 
-  for (size_t iTau = 0; iTau < taus.size(); ++iTau) {
+  for (const auto& tau : taus) {
     // Make a copy
-    reco::PFTau myTau = *taus[iTau];
+    reco::PFTau myTau = *tau;
     // The ref vectors that will be filled
     reco::RecoTauPiZeroRefVector signalPiZeroRefs;
     reco::RecoTauPiZeroRefVector isolationPiZeroRefs;
@@ -67,15 +67,15 @@ void RecoTauPiZeroUnembedder::produce(edm::Event& evt, const edm::EventSetup& es
     // have
     const reco::RecoTauPiZeroCollection& signalPiZeros = myTau.signalPiZeroCandidates();
 
-    for (size_t iPiZero = 0; iPiZero < signalPiZeros.size(); ++iPiZero) {
-      piZerosOut->push_back(signalPiZeros[iPiZero]);
+    for (const auto& signalPiZero : signalPiZeros) {
+      piZerosOut->push_back(signalPiZero);
       // Figure out what the ref for this pizero will be in the new coll.
       signalPiZeroRefs.push_back(reco::RecoTauPiZeroRef(piZeroProd, piZerosOut->size() - 1));
     }
 
     const reco::RecoTauPiZeroCollection& isolationPiZeroCandidates = myTau.isolationPiZeroCandidates();
-    for (size_t iPiZero = 0; iPiZero < isolationPiZeroCandidates.size(); ++iPiZero) {
-      piZerosOut->push_back(isolationPiZeroCandidates[iPiZero]);
+    for (const auto& isolationPiZeroCandidate : isolationPiZeroCandidates) {
+      piZerosOut->push_back(isolationPiZeroCandidate);
       // Figure out what the ref for this pizero will be in the new coll.
       isolationPiZeroRefs.push_back(reco::RecoTauPiZeroRef(piZeroProd, piZerosOut->size() - 1));
     }

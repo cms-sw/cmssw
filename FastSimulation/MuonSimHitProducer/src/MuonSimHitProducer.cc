@@ -248,13 +248,13 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 #endif
 
     TrajectoryStateOnSurface propagatedState = startingState;
-    for (unsigned int ilayer = 0; ilayer < navLayers.size(); ilayer++) {
+    for (auto& navLayer : navLayers) {
 #ifdef FAMOS_DEBUG
       std::cout << "Propagating to layer " << ilayer << " " << dumper.dumpLayer(navLayers[ilayer]) << std::endl;
 #endif
 
       std::vector<DetWithState> comps =
-          navLayers[ilayer]->compatibleDets(propagatedState, *propagatorWithMaterial, theEstimator);
+          navLayer->compatibleDets(propagatedState, *propagatorWithMaterial, theEstimator);
       if (comps.empty())
         continue;
 
@@ -268,10 +268,8 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       // Propagate with material effects (dE/dx average only)
       SteppingHelixStateInfo shsStart(*(propagatedState.freeTrajectoryState()));
       SteppingHelixStateInfo shsDest;
-      ((const SteppingHelixPropagator*)propagatorWithMaterial)
-          ->propagate(shsStart, navLayers[ilayer]->surface(), shsDest);
-      std::pair<TrajectoryStateOnSurface, double> next(shsDest.getStateOnSurface(navLayers[ilayer]->surface()),
-                                                       shsDest.path());
+      ((const SteppingHelixPropagator*)propagatorWithMaterial)->propagate(shsStart, navLayer->surface(), shsDest);
+      std::pair<TrajectoryStateOnSurface, double> next(shsDest.getStateOnSurface(navLayer->surface()), shsDest.path());
       // No need to continue if there is no valid propagation available.
       // This happens rarely (~0.1% of ttbar events)
       if (!next.first.isValid())
@@ -284,7 +282,7 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       // Now propagate without dE/dx (average)
       // [To add the dE/dx fluctuations to the actual dE/dx]
       std::pair<TrajectoryStateOnSurface, double> nextNoMaterial =
-          propagatorWithoutMaterial->propagateWithPath(propagatedState, navLayers[ilayer]->surface());
+          propagatorWithoutMaterial->propagateWithPath(propagatedState, navLayer->surface());
 
       // Update the propagated state
       propagatedState = next.first;
@@ -316,16 +314,16 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
       tof += dtof;
 
-      for (unsigned int icomp = 0; icomp < comps.size(); icomp++) {
-        const GeomDet* gd = comps[icomp].first;
+      for (auto& comp : comps) {
+        const GeomDet* gd = comp.first;
         if (gd->subDetector() == GeomDetEnumerators::DT) {
           DTChamberId id(gd->geographicalId());
           const DTChamber* chamber = dtGeom->chamber(id);
           std::vector<const DTSuperLayer*> superlayer = chamber->superLayers();
-          for (unsigned int isl = 0; isl < superlayer.size(); isl++) {
-            std::vector<const DTLayer*> layer = superlayer[isl]->layers();
-            for (unsigned int ilayer = 0; ilayer < layer.size(); ilayer++) {
-              DTLayerId lid = layer[ilayer]->id();
+          for (auto& isl : superlayer) {
+            std::vector<const DTLayer*> layer = isl->layers();
+            for (auto& ilayer : layer) {
+              DTLayerId lid = ilayer->id();
 #ifdef FAMOS_DEBUG
               std::cout << "    Extrapolated to DT (" << lid.wheel() << "," << lid.station() << "," << lid.sector()
                         << "," << lid.superlayer() << "," << lid.layer() << ")" << std::endl;
@@ -343,7 +341,7 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
               LocalPoint lpos = det->toLocal(GlobalPoint(crossing.position(path.second)));
               if (!det->surface().bounds().inside(lpos))
                 continue;
-              const DTTopology& dtTopo = layer[ilayer]->specificTopology();
+              const DTTopology& dtTopo = ilayer->specificTopology();
               int wire = dtTopo.channel(lpos);
               if (wire - dtTopo.firstChannel() < 0 || wire - dtTopo.lastChannel() > 0)
                 continue;
@@ -379,8 +377,8 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
           CSCDetId id(gd->geographicalId());
           const CSCChamber* chamber = cscGeom->chamber(id);
           std::vector<const CSCLayer*> layers = chamber->layers();
-          for (unsigned int ilayer = 0; ilayer < layers.size(); ilayer++) {
-            CSCDetId lid = layers[ilayer]->id();
+          for (auto& layer : layers) {
+            CSCDetId lid = layer->id();
 
 #ifdef FAMOS_DEBUG
             std::cout << "    Extrapolated to CSC (" << lid.endcap() << "," << lid.ring() << "," << lid.station() << ","
@@ -399,7 +397,7 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
             // For CSCs the Bounds are for chamber frames not gas regions
             //      if ( ! det->surface().bounds().inside(lpos) ) continue;
             // New function knows where the 'active' volume is:
-            const CSCLayerGeometry* laygeom = layers[ilayer]->geometry();
+            const CSCLayerGeometry* laygeom = layer->geometry();
             if (!laygeom->inside(lpos))
               continue;
             //double thickness = laygeom->thickness(); gives number which is about 20 times too big
@@ -434,8 +432,8 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
           RPCDetId id(gd->geographicalId());
           const RPCChamber* chamber = rpcGeom->chamber(id);
           std::vector<const RPCRoll*> roll = chamber->rolls();
-          for (unsigned int iroll = 0; iroll < roll.size(); iroll++) {
-            RPCDetId rid = roll[iroll]->id();
+          for (auto& iroll : roll) {
+            RPCDetId rid = iroll->id();
 
 #ifdef FAMOS_DEBUG
             std::cout << "    Extrapolated to RPC (" << rid.ring() << "," << rid.station() << "," << rid.sector() << ","
@@ -477,24 +475,24 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   std::unique_ptr<edm::PSimHitContainer> pcsc(new edm::PSimHitContainer);
   int n = 0;
-  for (std::vector<PSimHit>::const_iterator i = theCSCHits.begin(); i != theCSCHits.end(); i++) {
-    pcsc->push_back(*i);
+  for (const auto& theCSCHit : theCSCHits) {
+    pcsc->push_back(theCSCHit);
     n += 1;
   }
   iEvent.put(std::move(pcsc), "MuonCSCHits");
 
   std::unique_ptr<edm::PSimHitContainer> pdt(new edm::PSimHitContainer);
   n = 0;
-  for (std::vector<PSimHit>::const_iterator i = theDTHits.begin(); i != theDTHits.end(); i++) {
-    pdt->push_back(*i);
+  for (const auto& theDTHit : theDTHits) {
+    pdt->push_back(theDTHit);
     n += 1;
   }
   iEvent.put(std::move(pdt), "MuonDTHits");
 
   std::unique_ptr<edm::PSimHitContainer> prpc(new edm::PSimHitContainer);
   n = 0;
-  for (std::vector<PSimHit>::const_iterator i = theRPCHits.begin(); i != theRPCHits.end(); i++) {
-    prpc->push_back(*i);
+  for (const auto& theRPCHit : theRPCHits) {
+    prpc->push_back(theRPCHit);
     n += 1;
   }
   iEvent.put(std::move(prpc), "MuonRPCHits");

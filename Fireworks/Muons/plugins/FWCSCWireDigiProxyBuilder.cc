@@ -103,10 +103,10 @@ void FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList*
   }
   const FWGeometry* geom = iItem->getGeom();
 
-  for (CSCWireDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end(); dri != driEnd; ++dri) {
-    const CSCDetId& cscDetId = (*dri).first;
+  for (auto&& digi : *digis) {
+    const CSCDetId& cscDetId = digi.first;
     unsigned int rawid = cscDetId.rawId();
-    const CSCWireDigiCollection::Range& range = (*dri).second;
+    const CSCWireDigiCollection::Range& range = digi.second;
 
     if (!geom->contains(rawid)) {
       fwLog(fwlog::kWarning) << "Failed to get geometry of CSC chamber with detid: " << rawid << std::endl;

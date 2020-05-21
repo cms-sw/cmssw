@@ -66,9 +66,8 @@ EcalDigiDisplay::EcalDigiDisplay(const edm::ParameterSet& ps) {
       //EB id is given and convert to FED id
       requestedFeds_.clear();
       fedMap = new EcalFedMap();
-      for (std::vector<std::string>::const_iterator ebItr = requestedEbs_.begin(); ebItr != requestedEbs_.end();
-           ++ebItr) {
-        requestedFeds_.push_back(fedMap->getFedFromSlice(*ebItr));
+      for (const auto& requestedEb : requestedEbs_) {
+        requestedFeds_.push_back(fedMap->getFedFromSlice(requestedEb));
       }
       delete fedMap;
     } else {

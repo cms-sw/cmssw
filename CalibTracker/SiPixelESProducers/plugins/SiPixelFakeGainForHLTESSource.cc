@@ -50,10 +50,10 @@ std::unique_ptr<SiPixelGainCalibrationForHLT> SiPixelFakeGainForHLTESSource::pro
   const std::vector<uint32_t>& DetIds = reader.getAllDetIds();
 
   // Loop over detectors
-  for (std::vector<uint32_t>::const_iterator detit = DetIds.begin(); detit != DetIds.end(); detit++) {
+  for (unsigned int DetId : DetIds) {
     nmodules++;
     std::vector<char> theSiPixelGainCalibration;
-    const std::pair<int, int>& detUnitDimensions = reader.getDetUnitDimensions(*detit);
+    const std::pair<int, int>& detUnitDimensions = reader.getDetUnitDimensions(DetId);
 
     // Loop over columns and rows
 
@@ -82,7 +82,7 @@ std::unique_ptr<SiPixelGainCalibrationForHLT> SiPixelFakeGainForHLTESSource::pro
 
     SiPixelGainCalibrationForHLT::Range range(theSiPixelGainCalibration.begin(), theSiPixelGainCalibration.end());
     int nCols = detUnitDimensions.first;
-    if (!obj->put(*detit, range, nCols))
+    if (!obj->put(DetId, range, nCols))
       edm::LogError("SiPixelFakeGainForHLTESSource")
           << "[SiPixelFakeGainForHLTESSource::produce] detid already exists" << std::endl;
   }

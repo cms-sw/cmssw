@@ -55,9 +55,9 @@ FWSimpleProxyBuilder::~FWSimpleProxyBuilder() {}
 //
 
 void FWSimpleProxyBuilder::clean() {
-  for (Product_it i = m_products.begin(); i != m_products.end(); ++i) {
-    if ((*i)->m_elements) {
-      TEveElement* elms = (*i)->m_elements;
+  for (auto& m_product : m_products) {
+    if (m_product->m_elements) {
+      TEveElement* elms = m_product->m_elements;
       for (TEveElement::List_i it = elms->BeginChildren(); it != elms->EndChildren(); ++it)
         (*it)->DestroyElements();
     }

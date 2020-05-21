@@ -54,11 +54,10 @@ Double_t SideBandSubtract::getYield(const std::vector<SbsRegion>& Regions, RooAb
 
   Double_t yield = 0;
   RooAbsReal* intPDF;
-  for (unsigned int i = 0; i < Regions.size(); i++) {
+  for (const auto& Region : Regions) {
     if (verbose)
-      cout << "Integrating over Range: " << Regions[i].RegionName << " from " << Regions[i].min << " to "
-           << Regions[i].max << endl;
-    intPDF = PDF->createIntegral(*SeparationVariable, Range(Regions[i].RegionName.c_str()));
+      cout << "Integrating over Range: " << Region.RegionName << " from " << Region.min << " to " << Region.max << endl;
+    intPDF = PDF->createIntegral(*SeparationVariable, Range(Region.RegionName.c_str()));
     yield += intPDF->getVal();
     if (verbose)
       cout << "Current yield: " << yield << endl;
@@ -112,13 +111,13 @@ int SideBandSubtract::doSubtraction(RooRealVar* variable,
     Double_t value = variable->getVal();
     Double_t cutval = sep_var->getVal();
 
-    for (unsigned int j = 0; j < SideBandRegions.size(); j++)  //UGLY!  Find better solution!
+    for (auto& SideBandRegion : SideBandRegions)  //UGLY!  Find better solution!
     {
-      if (cutval > SideBandRegions[j].min && cutval < SideBandRegions[j].max)
+      if (cutval > SideBandRegion.min && cutval < SideBandRegion.max)
         SideBandHist->Fill(value);
     }
-    for (unsigned int j = 0; j < SignalRegions.size(); j++) {
-      if (cutval > SignalRegions[j].min && cutval < SignalRegions[j].max)
+    for (auto& SignalRegion : SignalRegions) {
+      if (cutval > SignalRegion.min && cutval < SignalRegion.max)
         SignalHist->Fill(value);
     }
   }
@@ -156,9 +155,9 @@ void SideBandSubtract::printResults(string prefix) {  //handles *all* printing
     return;
   }
   string filename;  //output file name
-  for (unsigned int i = 0; i < RawHistos.size(); ++i) {
-    filename = prefix + "Raw_" + (string)RawHistos[i].GetName();
-    print_histo(&RawHistos[i], filename);
+  for (auto& RawHisto : RawHistos) {
+    filename = prefix + "Raw_" + (string)RawHisto.GetName();
+    print_histo(&RawHisto, filename);
   }
   for (unsigned int i = 0; i < SBSHistos.size(); ++i) {
     filename = prefix + "SBS_" + (string)RawHistos[i].GetName();
@@ -245,17 +244,17 @@ void SideBandSubtract::saveResults(string outname) {
   //conflicts with other root files the user has open. If they want to
   //write to those files, they need to close their file, pass the name
   //here, and then let us work.
-  for (unsigned int i = 0; i < SideBandHistos.size(); ++i) {
-    SideBandHistos[i].SetDirectory(curDir);
-    SideBandHistos[i].Write();
+  for (auto& SideBandHisto : SideBandHistos) {
+    SideBandHisto.SetDirectory(curDir);
+    SideBandHisto.Write();
   }
-  for (unsigned int i = 0; i < RawHistos.size(); ++i) {
-    RawHistos[i].SetDirectory(curDir);
-    RawHistos[i].Write();
+  for (auto& RawHisto : RawHistos) {
+    RawHisto.SetDirectory(curDir);
+    RawHisto.Write();
   }
-  for (unsigned int i = 0; i < SBSHistos.size(); ++i) {
-    SBSHistos[i].SetDirectory(curDir);
-    SBSHistos[i].Write();
+  for (auto& SBSHisto : SBSHistos) {
+    SBSHisto.SetDirectory(curDir);
+    SBSHisto.Write();
   }
   if (Data != nullptr && ModelPDF != nullptr && BackgroundPDF != nullptr && SeparationVariable != nullptr) {
     RooPlot* sep_varFrame = SeparationVariable->frame();

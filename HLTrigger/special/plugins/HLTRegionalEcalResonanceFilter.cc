@@ -394,8 +394,7 @@ bool HLTRegionalEcalResonanceFilter::filter(edm::Event &iEvent, const edm::Event
         auto it_bc3 = clusterCollection_eb->begin() + ind;
         DetId seedId = it_bc3->seed();
         std::vector<DetId> clus_v5x5 = topology_eb->getWindow(seedId, 5, 5);
-        for (std::vector<DetId>::const_iterator idItr = clus_v5x5.begin(); idItr != clus_v5x5.end(); idItr++) {
-          DetId ed = *idItr;
+        for (auto ed : clus_v5x5) {
           auto rit = hitCollection_eb->find(ed);
           if (rit == hitCollection_eb->end())
             continue;
@@ -523,8 +522,7 @@ bool HLTRegionalEcalResonanceFilter::filter(edm::Event &iEvent, const edm::Event
         auto it_bc3 = clusterCollection_ee->begin() + ind;
         DetId seedId = it_bc3->seed();
         std::vector<DetId> clus_v5x5 = topology_ee->getWindow(seedId, 5, 5);
-        for (std::vector<DetId>::const_iterator idItr = clus_v5x5.begin(); idItr != clus_v5x5.end(); idItr++) {
-          DetId ed = *idItr;
+        for (auto ed : clus_v5x5) {
           auto rit = hitCollection_ee->find(ed);
           if (rit == hitCollection_ee->end())
             continue;
@@ -989,8 +987,7 @@ void HLTRegionalEcalResonanceFilter::calcShowerShape(const reco::BasicCluster &b
     std::vector<DetId> clus_v5x5;
     clus_v5x5 = topology_p->getWindow(seedId, 5, 5);
 
-    for (std::vector<DetId>::const_iterator idItr = clus_v5x5.begin(); idItr != clus_v5x5.end(); idItr++) {
-      DetId ed = *idItr;
+    for (auto ed : clus_v5x5) {
       if (InBarrel == true) {
         EBDetId ebd = EBDetId(ed);
         x = ebd.ieta();

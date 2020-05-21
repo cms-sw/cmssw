@@ -201,9 +201,7 @@ namespace ecaldqm {
 
       bool doMask(false);
 
-      for (std::vector<DetId>::iterator idItr(ids.begin()); idItr != ids.end(); ++idItr) {
-        DetId& id(*idItr);
-
+      for (auto& id : ids) {
         doMask |= meQuality.maskMatches(id, mask, statusManager_);
 
         MESet::const_iterator tmItr(sTimeMap, id);

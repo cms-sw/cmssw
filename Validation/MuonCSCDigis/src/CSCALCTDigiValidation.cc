@@ -33,10 +33,10 @@ void CSCALCTDigiValidation::analyze(const edm::Event &e, const edm::EventSetup &
   }
   unsigned nDigisPerEvent = 0;
 
-  for (CSCALCTDigiCollection::DigiRangeIterator j = alcts->begin(); j != alcts->end(); j++) {
-    std::vector<CSCALCTDigi>::const_iterator beginDigi = (*j).second.first;
-    std::vector<CSCALCTDigi>::const_iterator endDigi = (*j).second.second;
-    CSCDetId detId((*j).first.rawId());
+  for (auto &&j : *alcts) {
+    std::vector<CSCALCTDigi>::const_iterator beginDigi = j.second.first;
+    std::vector<CSCALCTDigi>::const_iterator endDigi = j.second.second;
+    CSCDetId detId(j.first.rawId());
     int chamberType = detId.iChamberType();
     int nDigis = endDigi - beginDigi;
     nDigisPerEvent += nDigis;

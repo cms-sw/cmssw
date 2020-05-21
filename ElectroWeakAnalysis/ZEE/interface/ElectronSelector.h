@@ -16,14 +16,13 @@ std::vector<reco::GsfElectronRef> electronSelector(const std::vector<reco::GsfEl
   //const edm::ValueMap<double>& eIsoMapEcal = *eIsoMap[1];
   //const edm::ValueMap<double>& eIsoMapHcal = *eIsoMap[2];
   edm::LogDebug_("electronSelector", "", 16) << "Number of electrons to select from = " << electrons.size();
-  for (std::vector<reco::GsfElectronRef>::const_iterator Relec = electrons.begin(); Relec != electrons.end(); ++Relec) {
-    reco::GsfElectronRef elec = *Relec;
+  for (auto elec : electrons) {
     edm::LogDebug_("electronSelector", "", 17) << "Analysing elec, id = " << elec.id() << "\tkey = " << elec.key();
     double scEta = elec->superCluster()->eta();
     if (fabs(scEta) < 1.4442 || fabs(scEta) > 1.56) {
       bool HLTMatch = false;
-      for (unsigned int k = 0; k < ring.size(); ++k) {
-        const trigger::TriggerObject& HltObj = HltObjColl[ring[k]];
+      for (unsigned short k : ring) {
+        const trigger::TriggerObject& HltObj = HltObjColl[k];
         if (reco::deltaR(*elec, HltObj) < 0.1)
           HLTMatch = true;
       }

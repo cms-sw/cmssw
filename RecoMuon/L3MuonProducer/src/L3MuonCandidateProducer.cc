@@ -99,40 +99,40 @@ void L3MuonCandidateProducer::produce(StreamID, Event& event, const EventSetup& 
     TrackRef tkRef = TrackRef();
 
     if (theUseLinks) {
-      for (reco::MuonTrackLinksCollection::const_iterator link = links->begin(); link != links->end(); ++link) {
+      for (const auto& link : *links) {
         LogDebug(category) << " i = " << i;
 
-        if (not link->trackerTrack().isNull())
-          LogTrace(category) << " link tk pt " << link->trackerTrack()->pt();
-        if (not link->standAloneTrack().isNull())
-          LogTrace(category) << " sta pt " << link->standAloneTrack()->pt();
-        if (not link->globalTrack().isNull())
-          LogTrace(category) << " global pt " << link->globalTrack()->pt();
+        if (not link.trackerTrack().isNull())
+          LogTrace(category) << " link tk pt " << link.trackerTrack()->pt();
+        if (not link.standAloneTrack().isNull())
+          LogTrace(category) << " sta pt " << link.standAloneTrack()->pt();
+        if (not link.globalTrack().isNull())
+          LogTrace(category) << " global pt " << link.globalTrack()->pt();
         if (not inRef.isNull())
           LogTrace(category) << " inRef pt " << inRef->pt();
 
-        if (link->globalTrack().isNull()) {
+        if (link.globalTrack().isNull()) {
           edm::LogError(category) << "null reference to the global track";
           // skip this candidate
           continue;
         }
 
-        float dR = deltaR(inRef->eta(), inRef->phi(), link->globalTrack()->eta(), link->globalTrack()->phi());
-        float dPt = abs(inRef->pt() - link->globalTrack()->pt()) / inRef->pt();
+        float dR = deltaR(inRef->eta(), inRef->phi(), link.globalTrack()->eta(), link.globalTrack()->phi());
+        float dPt = abs(inRef->pt() - link.globalTrack()->pt()) / inRef->pt();
         if (dR < 0.02 and dPt < 0.001) {
           LogTrace(category) << " *** pt matches *** ";
           switch (theType) {
             case InnerTrack:
-              tkRef = link->trackerTrack();
+              tkRef = link.trackerTrack();
               break;
             case OuterTrack:
-              tkRef = link->standAloneTrack();
+              tkRef = link.standAloneTrack();
               break;
             case CombinedTrack:
-              tkRef = link->globalTrack();
+              tkRef = link.globalTrack();
               break;
             default:
-              tkRef = link->globalTrack();
+              tkRef = link.globalTrack();
               break;
           }
         }

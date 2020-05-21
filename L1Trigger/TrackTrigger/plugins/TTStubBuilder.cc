@@ -152,10 +152,8 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
       /// either of size N with all the valid combinations ...
 
       /// Now loop over the accepted stubs (1 or N) for this inner cluster
-      for (unsigned int iTempStub = 0; iTempStub < tempOutput.size(); ++iTempStub) {
+      for (const auto& tempTTStub : tempOutput) {
         /// Get the stub
-        const TTStub<Ref_Phase2TrackerDigi_>& tempTTStub = tempOutput[iTempStub];
-
         // A temporary stub, for FE problems
         TTStub<Ref_Phase2TrackerDigi_> tempTTStub2(tempTTStub.getDetId());
 
@@ -338,8 +336,8 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
     if (!tempInner.empty()) {
       typename edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>::FastFiller lowerOutputFiller(
           *ttClusterDSVForOutput, lowerDetid);
-      for (unsigned int m = 0; m < tempInner.size(); m++) {
-        lowerOutputFiller.push_back(tempInner.at(m));
+      for (const auto& m : tempInner) {
+        lowerOutputFiller.push_back(m);
       }
       if (lowerOutputFiller.empty())
         lowerOutputFiller.abort();
@@ -348,8 +346,8 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
     if (!tempOuter.empty()) {
       typename edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>::FastFiller upperOutputFiller(
           *ttClusterDSVForOutput, upperDetid);
-      for (unsigned int m = 0; m < tempOuter.size(); m++) {
-        upperOutputFiller.push_back(tempOuter.at(m));
+      for (const auto& m : tempOuter) {
+        upperOutputFiller.push_back(m);
       }
       if (upperOutputFiller.empty())
         upperOutputFiller.abort();
@@ -358,8 +356,8 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
     if (!tempAccepted.empty()) {
       typename edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>::FastFiller tempAcceptedFiller(
           *ttStubDSVForOutputTemp, stackDetid);
-      for (unsigned int m = 0; m < tempAccepted.size(); m++) {
-        tempAcceptedFiller.push_back(tempAccepted.at(m));
+      for (const auto& m : tempAccepted) {
+        tempAcceptedFiller.push_back(m);
       }
       if (tempAcceptedFiller.empty())
         tempAcceptedFiller.abort();

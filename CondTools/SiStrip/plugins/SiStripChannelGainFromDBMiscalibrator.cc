@@ -165,15 +165,15 @@ void SiStripChannelGainFromDBMiscalibrator::analyze(const edm::Event& iEvent, co
 
     SiStripMiscalibrate::Smearings params = SiStripMiscalibrate::Smearings();
 
-    for (unsigned int j = 0; j < regions.size(); j++) {
-      bool checkRegion = (mapOfSmearings.count(regions[j]) != 0);
+    for (auto region : regions) {
+      bool checkRegion = (mapOfSmearings.count(region) != 0);
 
       if (!checkRegion) {
         // if the subdetector is not in the list and there's no indication for the whole tracker, just use the default
         // i.e. no change
         continue;
       } else {
-        params = mapOfSmearings[regions[j]];
+        params = mapOfSmearings[region];
         break;
       }
     }

@@ -29,8 +29,8 @@ public:
     produces<edm::ValueMap<reco::MuonCosmicCompatibility>>().setBranchAlias("cosmicCompatibility");
 
     muonToken_ = consumes<reco::MuonCollection>(inputMuonCollection_);
-    for (unsigned int i = 0; i < inputTrackCollections_.size(); ++i)
-      trackTokens_.push_back(consumes<reco::TrackCollection>(inputTrackCollections_.at(i)));
+    for (const auto& inputTrackCollection : inputTrackCollections_)
+      trackTokens_.push_back(consumes<reco::TrackCollection>(inputTrackCollection));
   }
   ~CosmicsMuonIdProducer() override {
     if (compatibilityFiller_)
@@ -57,13 +57,13 @@ void CosmicsMuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   std::vector<reco::MuonCosmicCompatibility> compValues;
   compValues.reserve(muons->size());
 
-  for (reco::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon) {
+  for (const auto& muon : *muons) {
     unsigned int foundPartner(0);
-    if (muon->innerTrack().isNonnull()) {
+    if (muon.innerTrack().isNonnull()) {
       for (unsigned int i = 0; i < inputTrackCollections_.size(); ++i) {
         edm::Handle<reco::TrackCollection> tracks;
         iEvent.getByToken(trackTokens_.at(i), tracks);
-        if (muonid::findOppositeTrack(tracks, *muon->innerTrack()).isNonnull()) {
+        if (muonid::findOppositeTrack(tracks, *muon.innerTrack()).isNonnull()) {
           foundPartner = i + 1;
           break;
         }
@@ -71,7 +71,7 @@ void CosmicsMuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     }
     values.push_back(foundPartner);
 
-    compValues.push_back(compatibilityFiller_->fillCompatibility(*muon, iEvent, iSetup));
+    compValues.push_back(compatibilityFiller_->fillCompatibility(muon, iEvent, iSetup));
   }
 
   // create and fill value map

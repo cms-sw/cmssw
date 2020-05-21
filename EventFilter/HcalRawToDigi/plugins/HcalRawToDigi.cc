@@ -49,8 +49,8 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf)
   unpacker_.setExpectedOrbitMessageTime(expectedOrbitMessageTime_);
   unpacker_.setMode(unpackerMode_);
   std::ostringstream ss;
-  for (unsigned int i = 0; i < fedUnpackList_.size(); i++)
-    ss << fedUnpackList_[i] << " ";
+  for (int i : fedUnpackList_)
+    ss << i << " ";
   edm::LogInfo("HCAL") << "HcalRawToDigi will unpack FEDs ( " << ss.str() << ")";
 
   // products produced...
@@ -234,30 +234,30 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
   }
 
   // Step C: unpack all requested FEDs
-  for (std::vector<int>::const_iterator i = fedUnpackList_.begin(); i != fedUnpackList_.end(); i++) {
-    const FEDRawData& fed = rawraw->FEDData(*i);
+  for (int i : fedUnpackList_) {
+    const FEDRawData& fed = rawraw->FEDData(i);
     if (fed.size() == 0) {
       if (complainEmptyData_) {
         if (!silent_)
-          edm::LogWarning("EmptyData") << "No data for FED " << *i;
-        report->addError(*i);
+          edm::LogWarning("EmptyData") << "No data for FED " << i;
+        report->addError(i);
       }
     } else if (fed.size() < 8 * 3) {
       if (!silent_)
-        edm::LogWarning("EmptyData") << "Tiny data " << fed.size() << " for FED " << *i;
-      report->addError(*i);
+        edm::LogWarning("EmptyData") << "Tiny data " << fed.size() << " for FED " << i;
+      report->addError(i);
     } else {
       try {
         unpacker_.unpack(fed, *readoutMap, colls, *report, silent_);
-        report->addUnpacked(*i);
+        report->addUnpacked(i);
       } catch (cms::Exception& e) {
         if (!silent_)
           edm::LogWarning("Unpacking error") << e.what();
-        report->addError(*i);
+        report->addError(i);
       } catch (...) {
         if (!silent_)
           edm::LogWarning("Unpacking exception");
-        report->addError(*i);
+        report->addError(i);
       }
     }
   }

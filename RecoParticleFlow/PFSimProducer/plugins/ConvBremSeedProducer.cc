@@ -174,8 +174,8 @@ void ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
         if (compat.empty())
           continue;
 
-        for (std::vector<DetWithState>::const_iterator i = compat.begin(); i != compat.end(); i++) {
-          long int detid = i->first->geographicalId().rawId();
+        for (const auto& i : compat) {
+          long int detid = i.first->geographicalId().rawId();
 
           if (!GeomDetEnumerators::isTrackerPixel(tkLayer->subDetector())) {
             StDetMatch DetMatch = (rphirecHits.product())->find((detid));
@@ -216,8 +216,8 @@ void ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
                 tmp.push_back(Idd[i + 2][i3]);
 
                 bool newTrip = true;
-                for (unsigned int iv = 0; iv < tripl.size(); iv++) {
-                  if ((tripl[iv][0] == tmp[0]) && (tripl[iv][1] == tmp[1]) && (tripl[iv][2] == tmp[2]))
+                for (auto& iv : tripl) {
+                  if ((iv[0] == tmp[0]) && (iv[1] == tmp[1]) && (iv[2] == tmp[2]))
                     newTrip = false;
                 }
                 if (newTrip) {
@@ -239,29 +239,29 @@ void ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
 
     TransientTrackingRecHit::ConstRecHitContainer glob_hits;
     OwnVector<TrackingRecHit> loc_hits;
-    for (unsigned int i = 0; i < tripl.size(); i++) {
-      StDetMatch DetMatch1 = (rphirecHits.product())->find(tripl[i][0]);
-      StDetMatch DetMatch2 = (rphirecHits.product())->find(tripl[i][1]);
-      StDetMatch DetMatch3 = (rphirecHits.product())->find(tripl[i][2]);
+    for (auto& i : tripl) {
+      StDetMatch DetMatch1 = (rphirecHits.product())->find(i[0]);
+      StDetMatch DetMatch2 = (rphirecHits.product())->find(i[1]);
+      StDetMatch DetMatch3 = (rphirecHits.product())->find(i[2]);
       if ((DetMatch1 == rphirecHits->end()) || (DetMatch2 == rphirecHits->end()) || (DetMatch3 == rphirecHits->end()))
         continue;
       StDetSet DetSet1 = *DetMatch1;
       StDetSet DetSet2 = *DetMatch2;
       StDetSet DetSet3 = *DetMatch3;
 
-      for (StDetSet::const_iterator it1 = DetSet1.begin(); it1 != DetSet1.end(); ++it1) {
-        GlobalPoint gp1 = tracker_->idToDet(tripl[i][0])->surface().toGlobal(it1->localPosition());
+      for (const auto& it1 : DetSet1) {
+        GlobalPoint gp1 = tracker_->idToDet(i[0])->surface().toGlobal(it1.localPosition());
 
-        bool tak1 = isGsfTrack(gsfRecHits, &(*it1));
+        bool tak1 = isGsfTrack(gsfRecHits, &it1);
 
-        for (StDetSet::const_iterator it2 = DetSet2.begin(); it2 != DetSet2.end(); ++it2) {
-          GlobalPoint gp2 = tracker_->idToDet(tripl[i][1])->surface().toGlobal(it2->localPosition());
-          bool tak2 = isGsfTrack(gsfRecHits, &(*it2));
+        for (const auto& it2 : DetSet2) {
+          GlobalPoint gp2 = tracker_->idToDet(i[1])->surface().toGlobal(it2.localPosition());
+          bool tak2 = isGsfTrack(gsfRecHits, &it2);
 
-          for (StDetSet::const_iterator it3 = DetSet3.begin(); it3 != DetSet3.end(); ++it3) {
+          for (const auto& it3 : DetSet3) {
             //  ips++;
-            GlobalPoint gp3 = tracker_->idToDet(tripl[i][2])->surface().toGlobal(it3->localPosition());
-            bool tak3 = isGsfTrack(gsfRecHits, &(*it3));
+            GlobalPoint gp3 = tracker_->idToDet(i[2])->surface().toGlobal(it3.localPosition());
+            bool tak3 = isGsfTrack(gsfRecHits, &it3);
 
             FastHelix helix(gp3, gp2, gp1, nomField, &*bfield);
             GlobalVector gv = helix.stateAtVertex().momentum();
@@ -285,10 +285,10 @@ void ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
             if (bgc == -1)
               continue;
             bool clTak = false;
-            for (unsigned int igcc = 0; igcc < gc.size(); igcc++) {
+            for (int igcc : gc) {
               if (clTak)
                 continue;
-              if (bgc == gc[igcc])
+              if (bgc == igcc)
                 clTak = true;
             }
             if (clTak)
@@ -297,9 +297,9 @@ void ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
             GlobalTrajectoryParameters Gtp(gp1, gv, int(ch), &(*magfield_));
             glob_hits.clear();
             loc_hits.clear();
-            glob_hits.push_back(hitBuilder_->build(it1->clone()));
-            glob_hits.push_back(hitBuilder_->build(it2->clone()));
-            glob_hits.push_back(hitBuilder_->build(it3->clone()));
+            glob_hits.push_back(hitBuilder_->build(it1.clone()));
+            glob_hits.push_back(hitBuilder_->build(it2.clone()));
+            glob_hits.push_back(hitBuilder_->build(it3.clone()));
 
             ///SEED CREATION
 
@@ -308,8 +308,8 @@ void ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
 
             for (int ih = 0; ih < 3; ih++) {
               TrajectoryStateOnSurface state =
-                  (ih == 0) ? propagator_->propagate(CSeed, tracker_->idToDet(tripl[i][ih])->surface())
-                            : propagator_->propagate(updatedState, tracker_->idToDet(tripl[i][ih])->surface());
+                  (ih == 0) ? propagator_->propagate(CSeed, tracker_->idToDet(i[ih])->surface())
+                            : propagator_->propagate(updatedState, tracker_->idToDet(i[ih])->surface());
 
               if (!state.isValid()) {
                 ih = 3;
@@ -319,8 +319,7 @@ void ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
               updatedState = kfUpdator_->update(state, *glob_hits[ih]);
               loc_hits.push_back(glob_hits[ih]->hit()->clone());
               if (ih == 2) {
-                PTrajectoryStateOnDet const& PTraj =
-                    trajectoryStateTransform::persistentState(updatedState, tripl[i][2]);
+                PTrajectoryStateOnDet const& PTraj = trajectoryStateTransform::persistentState(updatedState, i[2]);
                 //		output->push_back(Trajectoryseed(PTraj,loc_hits,alongMomentum));
                 unclean.push_back(make_pair(TrajectorySeed(PTraj, loc_hits, alongMomentum), make_pair(gv_corr, ch)));
               }
@@ -390,15 +389,16 @@ void ConvBremSeedProducer::initializeLayerMap() {
 
   const std::vector<const BarrelDetLayer*>& barrelLayers = geomSearchTracker_->barrelLayers();
   LogDebug("FastTracker") << "Barrel DetLayer dump: ";
-  for (auto bl = barrelLayers.begin(); bl != barrelLayers.end(); ++bl) {
-    LogDebug("FastTracker") << "radius " << (**bl).specificSurface().radius();
+  for (auto barrelLayer : barrelLayers) {
+    LogDebug("FastTracker") << "radius " << (*barrelLayer).specificSurface().radius();
   }
 
   const std::vector<const ForwardDetLayer*>& posForwardLayers = geomSearchTracker_->posForwardLayers();
   LogDebug("FastTracker") << "Positive Forward DetLayer dump: ";
-  for (auto fl = posForwardLayers.begin(); fl != posForwardLayers.end(); ++fl) {
-    LogDebug("FastTracker") << "Z pos " << (**fl).surface().position().z() << " radii "
-                            << (**fl).specificSurface().innerRadius() << ", " << (**fl).specificSurface().outerRadius();
+  for (auto posForwardLayer : posForwardLayers) {
+    LogDebug("FastTracker") << "Z pos " << (*posForwardLayer).surface().position().z() << " radii "
+                            << (*posForwardLayer).specificSurface().innerRadius() << ", "
+                            << (*posForwardLayer).specificSurface().outerRadius();
   }
 
   const float rTolerance = 1.5;
@@ -418,11 +418,12 @@ void ConvBremSeedProducer::initializeLayerMap() {
       LogDebug("FastTracker") << " cylinder radius " << cyl->radius();
       bool found = false;
 
-      for (auto bl = barrelLayers.begin(); bl != barrelLayers.end(); ++bl) {
-        if (fabs(cyl->radius() - (**bl).specificSurface().radius()) < rTolerance) {
-          layerMap_[i->layerNumber()] = *bl;
+      for (auto barrelLayer : barrelLayers) {
+        if (fabs(cyl->radius() - (*barrelLayer).specificSurface().radius()) < rTolerance) {
+          layerMap_[i->layerNumber()] = barrelLayer;
           found = true;
-          LogDebug("FastTracker") << "Corresponding DetLayer found with radius " << (**bl).specificSurface().radius();
+          LogDebug("FastTracker") << "Corresponding DetLayer found with radius "
+                                  << (*barrelLayer).specificSurface().radius();
 
           break;
         }
@@ -435,13 +436,14 @@ void ConvBremSeedProducer::initializeLayerMap() {
 
       bool found = false;
 
-      for (auto fl = posForwardLayers.begin(); fl != posForwardLayers.end(); ++fl) {
-        if (fabs(disk->position().z() - (**fl).surface().position().z()) < zTolerance) {
-          layerMap_[i->layerNumber()] = *fl;
+      for (auto posForwardLayer : posForwardLayers) {
+        if (fabs(disk->position().z() - (*posForwardLayer).surface().position().z()) < zTolerance) {
+          layerMap_[i->layerNumber()] = posForwardLayer;
           found = true;
-          LogDebug("FastTracker") << "Corresponding DetLayer found with Z pos " << (**fl).surface().position().z()
-                                  << " and radii " << (**fl).specificSurface().innerRadius() << ", "
-                                  << (**fl).specificSurface().outerRadius();
+          LogDebug("FastTracker") << "Corresponding DetLayer found with Z pos "
+                                  << (*posForwardLayer).surface().position().z() << " and radii "
+                                  << (*posForwardLayer).specificSurface().innerRadius() << ", "
+                                  << (*posForwardLayer).specificSurface().outerRadius();
           break;
         }
       }

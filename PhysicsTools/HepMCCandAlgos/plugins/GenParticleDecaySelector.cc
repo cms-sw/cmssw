@@ -58,9 +58,9 @@ void GenParticleDecaySelector::produce(edm::Event& evt, const edm::EventSetup& e
   evt.getByToken(srcToken_, genParticles);
   auto decay = std::make_unique<GenParticleCollection>();
   const GenParticleRefProd ref = evt.getRefBeforePut<GenParticleCollection>();
-  for (GenParticleCollection::const_iterator g = genParticles->begin(); g != genParticles->end(); ++g)
-    if (g->pdgId() == particle_.pdgId() && g->status() == status_)
-      add(*decay, *g, ref);
+  for (const auto& g : *genParticles)
+    if (g.pdgId() == particle_.pdgId() && g.status() == status_)
+      add(*decay, g, ref);
   evt.put(std::move(decay));
 }
 

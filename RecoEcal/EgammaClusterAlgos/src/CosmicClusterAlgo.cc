@@ -291,9 +291,9 @@ bool CosmicClusterAlgo::checkMaxima(CaloNavigator<DetId> &navigator) {
   swissCrossVec.push_back(navigator.south());
   navigator.home();
 
-  for (unsigned int i = 0; i < swissCrossVec.size(); ++i) {
-    thisHit = recHits_->find(swissCrossVec[i]);
-    if ((swissCrossVec[i] == DetId(0)) || thisHit == recHits_->end())
+  for (auto &i : swissCrossVec) {
+    thisHit = recHits_->find(i);
+    if ((i == DetId(0)) || thisHit == recHits_->end())
       thisEnergy = 0.0;
     else
       thisEnergy = thisHit->energy();

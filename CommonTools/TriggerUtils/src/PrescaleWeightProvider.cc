@@ -116,8 +116,7 @@ int PrescaleWeightProvider::prescaleWeight(const edm::Event& event, const edm::E
   const int SENTINEL(-1);
   int weight(SENTINEL);
 
-  for (unsigned ui = 0; ui < hltPaths_.size(); ui++) {
-    const std::string hltPath(hltPaths_.at(ui));
+  for (auto hltPath : hltPaths_) {
     unsigned hltIndex(hltConfig.triggerIndex(hltPath));
     if (hltIndex == hltConfig.size()) {
       if (verbosity_ > 0)
@@ -143,11 +142,11 @@ int PrescaleWeightProvider::prescaleWeight(const edm::Event& event, const edm::E
     }
 
     int l1Prescale(SENTINEL);
-    for (unsigned uj = 0; uj < l1SeedPaths_.size(); uj++) {
+    for (auto& l1SeedPath : l1SeedPaths_) {
       int l1TempPrescale(SENTINEL);
       int errorCode(0);
       if (level1Seeds.at(0).first) {  // technical triggers
-        unsigned techBit(atoi(l1SeedPaths_.at(uj).c_str()));
+        unsigned techBit(atoi(l1SeedPath.c_str()));
         const std::string techName(*(triggerMenuLite_->gtTechTrigName(techBit, errorCode)));
         if (errorCode != 0)
           continue;
@@ -159,11 +158,11 @@ int PrescaleWeightProvider::prescaleWeight(const edm::Event& event, const edm::E
         if (errorCode != 0)
           continue;
       } else {  // algorithmic triggers
-        if (!l1GtUtils.decision(event, l1SeedPaths_.at(uj), errorCode))
+        if (!l1GtUtils.decision(event, l1SeedPath, errorCode))
           continue;
         if (errorCode != 0)
           continue;
-        l1TempPrescale = l1GtUtils.prescaleFactor(event, l1SeedPaths_.at(uj), errorCode);
+        l1TempPrescale = l1GtUtils.prescaleFactor(event, l1SeedPath, errorCode);
         if (errorCode != 0)
           continue;
       }

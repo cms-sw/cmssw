@@ -143,13 +143,13 @@ void MuonMETAlgo::GetMuDepDeltas(const reco::Muon* inputMuon,
       //only include towers whose Et > 0.5 since
       //by default the MET only includes towers with Et > 0.5
       std::vector<const CaloTower*> towers = info.crossedTowers;
-      for (vector<const CaloTower*>::const_iterator it = towers.begin(); it != towers.end(); it++) {
-        if ((*it)->et() < towerEtThreshold)
+      for (auto tower : towers) {
+        if (tower->et() < towerEtThreshold)
           continue;
-        muMETInfo.ecalE += (*it)->emEnergy();
-        muMETInfo.hcalE += (*it)->hadEnergy();
+        muMETInfo.ecalE += tower->emEnergy();
+        muMETInfo.hcalE += tower->hadEnergy();
         if (useHO)
-          muMETInfo.hoE += (*it)->outerEnergy();
+          muMETInfo.hoE += tower->outerEnergy();
       }
     }  //use Towers
   }

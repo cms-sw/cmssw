@@ -795,24 +795,24 @@ namespace pat {
   reco::GenParticleRef PATObject<ObjectType>::genParticleById(int pdgId, int status, uint8_t autoCharge) const {
     // get a vector, avoiding an unneeded copy if there is no embedding
     const std::vector<reco::GenParticleRef> &vec = (genParticleEmbedded_.empty() ? genParticleRef_ : genParticleRefs());
-    for (std::vector<reco::GenParticleRef>::const_iterator ref = vec.begin(), end = vec.end(); ref != end; ++ref) {
-      if (ref->isNonnull()) {
-        const reco::GenParticle &g = **ref;
+    for (const auto &ref : vec) {
+      if (ref.isNonnull()) {
+        const reco::GenParticle &g = *ref;
         if ((status != 0) && (g.status() != status))
           continue;
         if (pdgId == 0) {
-          return *ref;
+          return ref;
         } else if (!autoCharge) {
           if (pdgId == g.pdgId())
-            return *ref;
+            return ref;
         } else if (abs(pdgId) == abs(g.pdgId())) {
           // I want pdgId > 0 to match "correct charge" (for charged particles)
           if (g.charge() == 0)
-            return *ref;
+            return ref;
           else if ((this->charge() == 0) && (pdgId == g.pdgId()))
-            return *ref;
+            return ref;
           else if (g.charge() * this->charge() * pdgId > 0)
-            return *ref;
+            return ref;
         }
       }
     }

@@ -111,8 +111,8 @@ TestPythiaDecays::TestPythiaDecays(const edm::ParameterSet& iConfig) {
   pids.push_back(521);  // B+
 
   // define histograms
-  for (size_t i = 0; i < pids.size(); ++i) {
-    int pid = abs(pids[i]);
+  for (int i : pids) {
+    int pid = abs(i);
 
     // get particle data
     if (!pdt.isParticle(pid)) {
@@ -191,8 +191,8 @@ TestPythiaDecays::TestPythiaDecays(const edm::ParameterSet& iConfig) {
       }
       std::sort(prod.begin(), prod.end());
       strstr.str("");
-      for (size_t p = 0; p < prod.size(); ++p) {
-        strstr << "_" << prod[p];
+      for (int p : prod) {
+        strstr << "_" << p;
       }
       std::string label = strstr.str();
       h_br[pid]->Fill(label.c_str(), 0.);
@@ -224,8 +224,7 @@ TestPythiaDecays::~TestPythiaDecays() {
   f->cd();
   f->mkdir("observed");
   f->mkdir("prediction");
-  for (size_t i = 0; i < pids.size(); ++i) {
-    int pid = pids[i];
+  for (int pid : pids) {
     f->cd("observed");
     h_mass[pid]->Write();
     h_plt[pid]->Write();
@@ -309,12 +308,12 @@ void TestPythiaDecays::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
   }
 
-  for (std::map<size_t, std::vector<size_t> >::iterator it = childMap.begin(); it != childMap.end(); ++it) {
+  for (auto& it : childMap) {
     // fill ctau hist
-    size_t parentIndex = it->first;
+    size_t parentIndex = it.first;
     const SimTrack& parent = simtracks->at(parentIndex);
     int pid = abs(parent.type());
-    std::vector<size_t>& childIndices = it->second;
+    std::vector<size_t>& childIndices = it.second;
     if (childIndices.empty())
       continue;
 
@@ -344,13 +343,13 @@ void TestPythiaDecays::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     // fill br hist
     std::vector<int> prod;
-    for (size_t d = 0; d < childIndices.size(); ++d) {
-      prod.push_back(abs(simtracks->at(childIndices[d]).type()));
+    for (unsigned long childIndice : childIndices) {
+      prod.push_back(abs(simtracks->at(childIndice).type()));
     }
     std::sort(prod.begin(), prod.end());
     std::stringstream strstr;
-    for (size_t p = 0; p < prod.size(); ++p) {
-      strstr << "_" << prod[p];
+    for (int p : prod) {
+      strstr << "_" << p;
     }
     std::string label = strstr.str();
     if (std::find(knownDecayModes[pid].begin(), knownDecayModes[pid].end(), label) == knownDecayModes[pid].end())

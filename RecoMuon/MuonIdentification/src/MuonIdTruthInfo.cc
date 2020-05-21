@@ -37,12 +37,12 @@ void MuonIdTruthInfo::truthMatchMuon(const edm::Event& iEvent, const edm::EventS
   unsigned int bestMatch = 0;
   const unsigned int offset = 0;  // kludge to fix a problem in trackId matching between tracks and hits.
 
-  for (edm::SimTrackContainer::const_iterator simTrk = simTracks->begin(); simTrk != simTracks->end(); simTrk++) {
-    float chi2 = matchChi2(*aMuon.track().get(), *simTrk);
+  for (const auto& simTrk : *simTracks) {
+    float chi2 = matchChi2(*aMuon.track().get(), simTrk);
     if (chi2 > bestMatchChi2)
       continue;
     bestMatchChi2 = chi2;
-    bestMatch = simTrk->trackId();
+    bestMatch = simTrk.trackId();
   }
 
   bestMatch -= offset;
@@ -51,45 +51,44 @@ void MuonIdTruthInfo::truthMatchMuon(const edm::Event& iEvent, const edm::EventS
   int numberOfTruthMatchedChambers = 0;
 
   // loop over chambers
-  for (std::vector<reco::MuonChamberMatch>::iterator chamberMatch = matches.begin(); chamberMatch != matches.end();
-       chamberMatch++) {
-    if (chamberMatch->id.det() != DetId::Muon) {
+  for (auto& matche : matches) {
+    if (matche.id.det() != DetId::Muon) {
       edm::LogWarning("MuonIdentification") << "Detector id of a muon chamber corresponds to not a muon detector";
       continue;
     }
     reco::MuonSegmentMatch bestSegmentMatch;
     double distance = 99999;
 
-    if (chamberMatch->id.subdetId() == MuonSubdetId::DT) {
-      DTChamberId detId(chamberMatch->id.rawId());
+    if (matche.id.subdetId() == MuonSubdetId::DT) {
+      DTChamberId detId(matche.id.rawId());
 
       edm::Handle<edm::PSimHitContainer> simHits;
       iEvent.getByLabel("g4SimHits", "MuonDTHits", simHits);
       if (simHits.isValid()) {
-        for (edm::PSimHitContainer::const_iterator hit = simHits->begin(); hit != simHits->end(); hit++)
-          if (hit->trackId() == bestMatch)
-            checkSimHitForBestMatch(bestSegmentMatch, distance, *hit, detId, geometry);
+        for (const auto& hit : *simHits)
+          if (hit.trackId() == bestMatch)
+            checkSimHitForBestMatch(bestSegmentMatch, distance, hit, detId, geometry);
       } else
         LogTrace("MuonIdentification") << "No DT simulated hits are found";
     }
 
-    if (chamberMatch->id.subdetId() == MuonSubdetId::CSC) {
-      CSCDetId detId(chamberMatch->id.rawId());
+    if (matche.id.subdetId() == MuonSubdetId::CSC) {
+      CSCDetId detId(matche.id.rawId());
 
       edm::Handle<edm::PSimHitContainer> simHits;
       iEvent.getByLabel("g4SimHits", "MuonCSCHits", simHits);
       if (simHits.isValid()) {
-        for (edm::PSimHitContainer::const_iterator hit = simHits->begin(); hit != simHits->end(); hit++)
-          if (hit->trackId() == bestMatch)
-            checkSimHitForBestMatch(bestSegmentMatch, distance, *hit, detId, geometry);
+        for (const auto& hit : *simHits)
+          if (hit.trackId() == bestMatch)
+            checkSimHitForBestMatch(bestSegmentMatch, distance, hit, detId, geometry);
       } else
         LogTrace("MuonIdentification") << "No CSC simulated hits are found";
     }
     if (distance < 9999) {
-      chamberMatch->truthMatches.push_back(bestSegmentMatch);
+      matche.truthMatches.push_back(bestSegmentMatch);
       numberOfTruthMatchedChambers++;
       LogTrace("MuonIdentification") << "Best truth matched hit:"
-                                     << "\tDetId: " << chamberMatch->id.rawId() << "\n"
+                                     << "\tDetId: " << matche.id.rawId() << "\n"
                                      << "\tprojection: ( " << bestSegmentMatch.x << ", " << bestSegmentMatch.y
                                      << " )\n";
     }

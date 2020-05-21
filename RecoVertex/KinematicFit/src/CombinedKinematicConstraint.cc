@@ -4,16 +4,14 @@ AlgebraicVector CombinedKinematicConstraint::value(const std::vector<KinematicSt
                                                    const GlobalPoint& point) const {
   AlgebraicVector tmpValue;
   int size = 0;
-  for (std::vector<MultiTrackKinematicConstraint*>::const_iterator it = constraints.begin(); it != constraints.end();
-       ++it) {
-    tmpValue = (*it)->value(states, point);
+  for (auto constraint : constraints) {
+    tmpValue = constraint->value(states, point);
     size += tmpValue.num_row();
   }
   AlgebraicVector values(size);
   int position = 1;
-  for (std::vector<MultiTrackKinematicConstraint*>::const_iterator it = constraints.begin(); it != constraints.end();
-       ++it) {
-    tmpValue = (*it)->value(states, point);
+  for (auto constraint : constraints) {
+    tmpValue = constraint->value(states, point);
     values.sub(position, tmpValue);
     position += tmpValue.num_row();
   }
@@ -25,16 +23,14 @@ AlgebraicMatrix CombinedKinematicConstraint::parametersDerivative(const std::vec
                                                                   const GlobalPoint& point) const {
   AlgebraicMatrix tmpMatrix;
   int row = 0;
-  for (std::vector<MultiTrackKinematicConstraint*>::const_iterator it = constraints.begin(); it != constraints.end();
-       ++it) {
-    tmpMatrix = (*it)->parametersDerivative(states, point);
+  for (auto constraint : constraints) {
+    tmpMatrix = constraint->parametersDerivative(states, point);
     row += tmpMatrix.num_row();
   }
   AlgebraicMatrix matrix(row, 7 * states.size(), 0);
   int posRow = 1;
-  for (std::vector<MultiTrackKinematicConstraint*>::const_iterator it = constraints.begin(); it != constraints.end();
-       ++it) {
-    tmpMatrix = (*it)->parametersDerivative(states, point);
+  for (auto constraint : constraints) {
+    tmpMatrix = constraint->parametersDerivative(states, point);
     matrix.sub(posRow, 1, tmpMatrix);
     posRow += tmpMatrix.num_row();
   }
@@ -46,16 +42,14 @@ AlgebraicMatrix CombinedKinematicConstraint::positionDerivative(const std::vecto
                                                                 const GlobalPoint& point) const {
   AlgebraicMatrix tmpMatrix;
   int row = 0;
-  for (std::vector<MultiTrackKinematicConstraint*>::const_iterator it = constraints.begin(); it != constraints.end();
-       ++it) {
-    tmpMatrix = (*it)->positionDerivative(states, point);
+  for (auto constraint : constraints) {
+    tmpMatrix = constraint->positionDerivative(states, point);
     row += tmpMatrix.num_row();
   }
   AlgebraicMatrix matrix(row, 3, 0);
   int posRow = 1;
-  for (std::vector<MultiTrackKinematicConstraint*>::const_iterator it = constraints.begin(); it != constraints.end();
-       ++it) {
-    tmpMatrix = (*it)->positionDerivative(states, point);
+  for (auto constraint : constraints) {
+    tmpMatrix = constraint->positionDerivative(states, point);
     matrix.sub(posRow, 1, tmpMatrix);
     posRow += tmpMatrix.num_row();
   }
@@ -65,9 +59,8 @@ AlgebraicMatrix CombinedKinematicConstraint::positionDerivative(const std::vecto
 
 int CombinedKinematicConstraint::numberOfEquations() const {
   int noEq = 0;
-  for (std::vector<MultiTrackKinematicConstraint*>::const_iterator it = constraints.begin(); it != constraints.end();
-       ++it)
-    noEq += (*it)->numberOfEquations();
+  for (auto constraint : constraints)
+    noEq += constraint->numberOfEquations();
 
   return noEq;
 }

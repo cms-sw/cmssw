@@ -173,10 +173,10 @@ void DTVDriftCalibration::analyze(const Event& event, const EventSetup& eventSet
         phiSeg2DPosInCham = phiSeg->localPosition();
         phiSeg2DDirInCham = phiSeg->localDirection();
         vector<DTRecHit1D> phiHits = phiSeg->specificRecHits();
-        for (vector<DTRecHit1D>::const_iterator hit = phiHits.begin(); hit != phiHits.end(); ++hit) {
-          DTWireId wireId = (*hit).wireId();
+        for (const auto& phiHit : phiHits) {
+          DTWireId wireId = phiHit.wireId();
           DTSuperLayerId slId = wireId.superlayerId();
-          hitsBySLMap[slId].push_back(*hit);
+          hitsBySLMap[slId].push_back(phiHit);
         }
       }
       // Get the Theta 2D segment and plot the angle in the chamber RF
@@ -402,20 +402,20 @@ void DTVDriftCalibration::cellInfo::add(const vector<const TMax*>& _tMaxes) {
   unsigned t0_134 = 0;
   unsigned t0_234 = 0;
   unsigned hSubGroup = 0;
-  for (vector<const TMax*>::const_iterator it = tMaxes.begin(); it != tMaxes.end(); ++it) {
-    if (*it == nullptr) {
+  for (auto tMaxe : tMaxes) {
+    if (tMaxe == nullptr) {
       continue;
     } else {
       //FIXME check cached,
-      if (addedCells.size() == 4 || find(addedCells.begin(), addedCells.end(), (*it)->cells) != addedCells.end()) {
+      if (addedCells.size() == 4 || find(addedCells.begin(), addedCells.end(), tMaxe->cells) != addedCells.end()) {
         continue;
       }
-      addedCells.push_back((*it)->cells);
-      SigmaFactor sigma = (*it)->sigma;
-      float t = (*it)->t;
-      TMaxCells cells = (*it)->cells;
-      unsigned t0Factor = (*it)->t0Factor;
-      hSubGroup = (*it)->hSubGroup;
+      addedCells.push_back(tMaxe->cells);
+      SigmaFactor sigma = tMaxe->sigma;
+      float t = tMaxe->t;
+      TMaxCells cells = tMaxe->cells;
+      unsigned t0Factor = tMaxe->t0Factor;
+      hSubGroup = tMaxe->hSubGroup;
       if (t < 0.)
         continue;
       switch (cells) {

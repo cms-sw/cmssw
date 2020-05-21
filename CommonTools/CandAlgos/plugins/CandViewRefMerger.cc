@@ -26,11 +26,9 @@ public:
 private:
   void produce(edm::Event& evt, const edm::EventSetup&) override {
     std::unique_ptr<std::vector<reco::CandidateBaseRef> > out(new std::vector<reco::CandidateBaseRef>);
-    for (std::vector<edm::EDGetTokenT<reco::CandidateView> >::const_iterator i = srcTokens_.begin();
-         i != srcTokens_.end();
-         ++i) {
+    for (auto srcToken : srcTokens_) {
       edm::Handle<reco::CandidateView> src;
-      evt.getByToken(*i, src);
+      evt.getByToken(srcToken, src);
       for (size_t j = 0; j < src->size(); ++j)
         out->push_back(src->refAt(j));
     }

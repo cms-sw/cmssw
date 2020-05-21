@@ -35,19 +35,19 @@ void RPCDigitizer::doAction(MixCollection<PSimHit>& simHits,
   }
 
   const std::vector<const RPCRoll*>& rpcRolls = theGeometry->rolls();
-  for (auto r = rpcRolls.begin(); r != rpcRolls.end(); r++) {
-    RPCDetId id = (*r)->id();
+  for (auto rpcRoll : rpcRolls) {
+    RPCDetId id = rpcRoll->id();
     const edm::PSimHitContainer& rollSimHits = hitMap[id];
 
-    if (!((*r)->isIRPC())) {
-      theRPCSim->simulate(*r, rollSimHits, engine);
+    if (!(rpcRoll->isIRPC())) {
+      theRPCSim->simulate(rpcRoll, rollSimHits, engine);
 
       if (theNoise) {
-        theRPCSim->simulateNoise(*r, engine);
+        theRPCSim->simulateNoise(rpcRoll, engine);
       }
     }
 
-    theRPCSim->fillDigis((*r)->id(), rpcDigis);
+    theRPCSim->fillDigis(rpcRoll->id(), rpcDigis);
     rpcDigiSimLink.insert(theRPCSim->rpcDigiSimLinks());
   }
 }

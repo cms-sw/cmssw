@@ -114,8 +114,8 @@ bool AlCaIsolatedBunchFilter::filter(edm::Event& iEvent, edm::EventSetup const& 
       for (unsigned int iHLT = 0; iHLT < triggerResults->size(); iHLT++) {
         int hlt = triggerResults->accept(iHLT);
         if (!jet) {
-          for (unsigned int i = 0; i < trigJetNames_.size(); ++i) {
-            if (triggerNames_[iHLT].find(trigJetNames_[i]) != std::string::npos) {
+          for (const auto& trigJetName : trigJetNames_) {
+            if (triggerNames_[iHLT].find(trigJetName) != std::string::npos) {
               if (hlt > 0)
                 jet = true;
               if (jet) {
@@ -129,8 +129,8 @@ bool AlCaIsolatedBunchFilter::filter(edm::Event& iEvent, edm::EventSetup const& 
           }
         }
         if (!isobunch) {
-          for (unsigned int i = 0; i < trigIsoBunchNames_.size(); ++i) {
-            if (triggerNames_[iHLT].find(trigIsoBunchNames_[i]) != std::string::npos) {
+          for (const auto& trigIsoBunchName : trigIsoBunchNames_) {
+            if (triggerNames_[iHLT].find(trigIsoBunchName) != std::string::npos) {
               if (hlt > 0)
                 isobunch = true;
               if (isobunch) {

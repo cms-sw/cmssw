@@ -290,8 +290,8 @@ void TriggerMatcherToHLTDebug::produce(Event &event, const EventSetup &eventSetu
           const edm::RefVector<L2MuonTrajectorySeedCollection> &seeds =
               (*seedMapHandle)[iL2Muon->track()->seedRef().castTo<edm::Ref<L2MuonTrajectorySeedCollection> >()];
           //	  bool isTriggered = false;
-          for (size_t jjj = 0; jjj < seeds.size(); jjj++) {
-            if (seeds[jjj]->l1Particle() != l1FromSeed)
+          for (const auto &seed : seeds) {
+            if (seed->l1Particle() != l1FromSeed)
               continue;
           }
 

@@ -1308,12 +1308,12 @@ bool MuonSeedBuilder::foundMatchingSegment(int type,
   if (type == 1)
     best_nhits = minCSCHitsPerSegment;
   // Loop over segments in other station (layer) and find candidate match
-  for (SegmentContainer::iterator it = segs.begin(); it != segs.end(); ++it) {
+  for (auto& seg : segs) {
     index++;
 
     // Not to get confused:  eta_last is from the previous layer.
     // This is only to find the best set of segments by comparing at the distance layer-by-layer
-    GlobalPoint gp2 = (*it)->globalPosition();
+    GlobalPoint gp2 = seg->globalPosition();
     double dh = fabs(gp2.eta() - eta_temp);
     double df = fabs(gp2.phi() - phi_temp);
     double dR = sqrt((dh * dh) + (df * df));
@@ -1321,36 +1321,36 @@ bool MuonSeedBuilder::foundMatchingSegment(int type,
     // dEta and dPhi should be within certain range
     bool case1 = (dh < maxdEta && df < maxdPhi) ? true : false;
     // for DT station 4 ; CSCSegment is always 4D
-    bool case2 = (((*it)->dimension() != 4) && (dh < 0.5) && (df < maxdPhi)) ? true : false;
+    bool case2 = ((seg->dimension() != 4) && (dh < 0.5) && (df < maxdPhi)) ? true : false;
     if (!case1 && !case2)
       continue;
 
-    int NRechits = muonSeedClean_->NRecHitsFromSegment(&*(*it));
+    int NRechits = muonSeedClean_->NRecHitsFromSegment(&*seg);
 
     if (NRechits < best_nhits)
       continue;
     best_nhits = NRechits;
 
     // reject 2D segments if 4D segments are available
-    if ((*it)->dimension() < best_dimension)
+    if (seg->dimension() < best_dimension)
       continue;
-    best_dimension = (*it)->dimension();
+    best_dimension = seg->dimension();
 
     // pick the segment with best chi2/dof within a fixed cone size
     if (dR > best_R)
       continue;
 
     // select smaller chi2/dof
-    double dof = static_cast<double>((*it)->degreesOfFreedom());
+    double dof = static_cast<double>(seg->degreesOfFreedom());
     /// reject possible edge segments
-    if ((*it)->chi2() / dof < 0.001 && NRechits < 6 && type == 1)
+    if (seg->chi2() / dof < 0.001 && NRechits < 6 && type == 1)
       continue;
-    if ((*it)->chi2() / dof > best_chi2)
+    if (seg->chi2() / dof > best_chi2)
       continue;
-    best_chi2 = (*it)->chi2() / dof;
+    best_chi2 = seg->chi2() / dof;
     best_match = index;
     // propagate the eta and phi to next layer
-    if ((*it)->dimension() != 4) {
+    if (seg->dimension() != 4) {
       // Self assignment, is this a bug??
       // should this have been (phi/eta)_last = (phi/eta)_temp to make it reset?
       //phi_last = phi_last;
@@ -1366,11 +1366,11 @@ bool MuonSeedBuilder::foundMatchingSegment(int type,
 
   // Add best matching segment to protoTrack:
   index = -1;
-  for (SegmentContainer::iterator it = segs.begin(); it != segs.end(); ++it) {
+  for (auto& seg : segs) {
     index++;
     if (index != best_match)
       continue;
-    protoTrack.push_back(*it);
+    protoTrack.push_back(seg);
     usedSeg[best_match] = true;
     ok = true;
   }
@@ -1392,18 +1392,18 @@ bool MuonSeedBuilder::IdentifyShowering(SegmentContainer& segs,
   std::vector<int> badtag;
   int index = -1;
   double aveEta = 0.0;
-  for (SegmentContainer::iterator it = segs.begin(); it != segs.end(); ++it) {
+  for (auto& seg : segs) {
     index++;
-    GlobalPoint gp = (*it)->globalPosition();
+    GlobalPoint gp = seg->globalPosition();
     double dh = gp.eta() - eta_last;
     double df = gp.phi() - phi_last;
     double dR = sqrt((dh * dh) + (df * df));
 
-    double dof = static_cast<double>((*it)->degreesOfFreedom());
-    double nX2 = (*it)->chi2() / dof;
+    double dof = static_cast<double>(seg->degreesOfFreedom());
+    double nX2 = seg->chi2() / dof;
 
     bool isDT = false;
-    DetId geoId = (*it)->geographicalId();
+    DetId geoId = seg->geographicalId();
     if (geoId.subdetId() == MuonSubdetId::DT)
       isDT = true;
 
@@ -1412,7 +1412,7 @@ bool MuonSeedBuilder::IdentifyShowering(SegmentContainer& segs,
       badtag.push_back(index);
       aveEta += fabs(gp.eta());
       // pick up the best segment from showering chamber
-      int rh = muonSeedClean_->NRecHitsFromSegment(&*(*it));
+      int rh = muonSeedClean_->NRecHitsFromSegment(&*seg);
       if (rh < 6 && !isDT)
         continue;
       if (rh < 12 && isDT)
@@ -1443,11 +1443,11 @@ bool MuonSeedBuilder::IdentifyShowering(SegmentContainer& segs,
   // if showering, flag all segments in order to skip this layer for pt estimation except 1st layer
   //std::cout<<" from Showering "<<std::endl;
   if (showering && !is1stLayer) {
-    for (std::vector<int>::iterator it = badtag.begin(); it != badtag.end(); ++it) {
-      usedSeg[*it] = true;
-      if ((*it) != theOrigin)
+    for (int& it : badtag) {
+      usedSeg[it] = true;
+      if (it != theOrigin)
         continue;
-      ShoweringSegments.push_back(segs[*it]);
+      ShoweringSegments.push_back(segs[it]);
       ShoweringLayers.push_back(layer);
     }
   }

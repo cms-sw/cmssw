@@ -43,9 +43,9 @@ void SiPixelQualityProbabilities::printAll() const {
   edm::LogVerbatim("SiPixelQualityProbabilities") << "SiPixelQualityProbabilities::printAll()";
   edm::LogVerbatim("SiPixelQualityProbabilities") << " ================================================================"
                                                      "===================================================";
-  for (auto it = m_probabilities.begin(); it != m_probabilities.end(); ++it) {
-    edm::LogVerbatim("SiPixelQualityProbabilities") << "PU :" << it->first << "  \n ";
-    for (const auto &entry : it->second) {
+  for (const auto &m_probabilitie : m_probabilities) {
+    edm::LogVerbatim("SiPixelQualityProbabilities") << "PU :" << m_probabilitie.first << "  \n ";
+    for (const auto &entry : m_probabilitie.second) {
       edm::LogVerbatim("SiPixelQualityProbabilities")
           << "SiPixelQuality snapshot: " << entry.first << " |probability: " << entry.second << std::endl;
     }
@@ -54,9 +54,9 @@ void SiPixelQualityProbabilities::printAll() const {
 
 //****************************************************************************//
 void SiPixelQualityProbabilities::print(std::ostream &os) const {
-  for (auto it = m_probabilities.begin(); it != m_probabilities.end(); ++it) {
-    os << "PU :" << it->first << "  \n ";
-    for (const auto &entry : it->second) {
+  for (const auto &m_probabilitie : m_probabilities) {
+    os << "PU :" << m_probabilitie.first << "  \n ";
+    for (const auto &entry : m_probabilitie.second) {
       os << "SiPixelQuality snapshot: " << entry.first << " |probability: " << entry.second << std::endl;
     }
   }
@@ -67,8 +67,8 @@ std::vector<unsigned int> SiPixelQualityProbabilities::getPileUpBins() const {
   std::vector<unsigned int> bins;
   bins.reserve(m_probabilities.size());
 
-  for (auto it = m_probabilities.begin(); it != m_probabilities.end(); ++it) {
-    bins.push_back(it->first);
+  for (const auto &m_probabilitie : m_probabilities) {
+    bins.push_back(m_probabilitie.first);
   }
   return bins;
 }

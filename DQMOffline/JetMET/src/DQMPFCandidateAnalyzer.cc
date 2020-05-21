@@ -150,59 +150,59 @@ void DQMPFCandidateAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run
       multiplicityPFCandRECO_.clear();
     if (!multiplicityPFCand_nameRECO_.empty())
       multiplicityPFCand_nameRECO_.clear();
-    for (std::vector<edm::ParameterSet>::const_iterator v = diagnosticsParameters_.begin();
-         v != diagnosticsParameters_.end();
-         v++) {
-      int etaNBinsPFCand = v->getParameter<int>("etaNBins");
-      double etaMinPFCand = v->getParameter<double>("etaMin");
-      double etaMaxPFCand = v->getParameter<double>("etaMax");
-      int phiNBinsPFCand = v->getParameter<int>("phiNBins");
-      double phiMinPFCand = v->getParameter<double>("phiMin");
-      double phiMaxPFCand = v->getParameter<double>("phiMax");
-      int nMinPFCand = v->getParameter<int>("nMin");
-      int nMaxPFCand = v->getParameter<int>("nMax");
-      int nbinsPFCand = v->getParameter<double>("nbins");
+    for (const auto& diagnosticsParameter : diagnosticsParameters_) {
+      int etaNBinsPFCand = diagnosticsParameter.getParameter<int>("etaNBins");
+      double etaMinPFCand = diagnosticsParameter.getParameter<double>("etaMin");
+      double etaMaxPFCand = diagnosticsParameter.getParameter<double>("etaMax");
+      int phiNBinsPFCand = diagnosticsParameter.getParameter<int>("phiNBins");
+      double phiMinPFCand = diagnosticsParameter.getParameter<double>("phiMin");
+      double phiMaxPFCand = diagnosticsParameter.getParameter<double>("phiMax");
+      int nMinPFCand = diagnosticsParameter.getParameter<int>("nMin");
+      int nMaxPFCand = diagnosticsParameter.getParameter<int>("nMax");
+      int nbinsPFCand = diagnosticsParameter.getParameter<double>("nbins");
       etaMinPFCandRECO_.push_back(etaMinPFCand);
       etaMaxPFCandRECO_.push_back(etaMaxPFCand);
-      typePFCandRECO_.push_back(v->getParameter<int>("type"));
+      typePFCandRECO_.push_back(diagnosticsParameter.getParameter<int>("type"));
       countsPFCandRECO_.push_back(0);
-      multiplicityPFCandRECO_.push_back(
-          ibooker.book1D(std::string(v->getParameter<std::string>("name")).append("_multiplicity_").c_str(),
-                         std::string(v->getParameter<std::string>("name")) + "multiplicity",
-                         nbinsPFCand,
-                         nMinPFCand,
-                         nMaxPFCand));
+      multiplicityPFCandRECO_.push_back(ibooker.book1D(
+          std::string(diagnosticsParameter.getParameter<std::string>("name")).append("_multiplicity_").c_str(),
+          std::string(diagnosticsParameter.getParameter<std::string>("name")) + "multiplicity",
+          nbinsPFCand,
+          nMinPFCand,
+          nMaxPFCand));
       multiplicityPFCand_nameRECO_.push_back(
-          std::string(v->getParameter<std::string>("name")).append("_multiplicity_"));
+          std::string(diagnosticsParameter.getParameter<std::string>("name")).append("_multiplicity_"));
       map_of_MEs.insert(std::pair<std::string, MonitorElement*>(
           DirName + "/" + multiplicityPFCand_nameRECO_[multiplicityPFCand_nameRECO_.size() - 1],
           multiplicityPFCandRECO_[multiplicityPFCandRECO_.size() - 1]));
 
       //push back names first, we need to create histograms with the name and fill it for endcap plots later
-      occupancyPFCand_nameRECO_.push_back(std::string(v->getParameter<std::string>("name")).append("_occupancy_"));
+      occupancyPFCand_nameRECO_.push_back(
+          std::string(diagnosticsParameter.getParameter<std::string>("name")).append("_occupancy_"));
 
-      ptPFCand_nameRECO_.push_back(std::string(v->getParameter<std::string>("name")).append("_pt_"));
+      ptPFCand_nameRECO_.push_back(std::string(diagnosticsParameter.getParameter<std::string>("name")).append("_pt_"));
       //special booking for endcap plots, merge plots for eminus and eplus into one plot, using variable binning
       //barrel plots have eta-boundaries on minus and plus side
       //parameters start on minus side
       if (etaMinPFCand * etaMaxPFCand < 0) {  //barrel plots, plot only in barrel region
-        occupancyPFCandRECO_.push_back(
-            ibooker.book2D(std::string(v->getParameter<std::string>("name")).append("_occupancy_").c_str(),
-                           std::string(v->getParameter<std::string>("name")) + "occupancy",
+        occupancyPFCandRECO_.push_back(ibooker.book2D(
+            std::string(diagnosticsParameter.getParameter<std::string>("name")).append("_occupancy_").c_str(),
+            std::string(diagnosticsParameter.getParameter<std::string>("name")) + "occupancy",
+            etaNBinsPFCand,
+            etaMinPFCand,
+            etaMaxPFCand,
+            phiNBinsPFCand,
+            phiMinPFCand,
+            phiMaxPFCand));
+        ptPFCandRECO_.push_back(
+            ibooker.book2D(std::string(diagnosticsParameter.getParameter<std::string>("name")).append("_pt_").c_str(),
+                           std::string(diagnosticsParameter.getParameter<std::string>("name")) + "pt",
                            etaNBinsPFCand,
                            etaMinPFCand,
                            etaMaxPFCand,
                            phiNBinsPFCand,
                            phiMinPFCand,
                            phiMaxPFCand));
-        ptPFCandRECO_.push_back(ibooker.book2D(std::string(v->getParameter<std::string>("name")).append("_pt_").c_str(),
-                                               std::string(v->getParameter<std::string>("name")) + "pt",
-                                               etaNBinsPFCand,
-                                               etaMinPFCand,
-                                               etaMaxPFCand,
-                                               phiNBinsPFCand,
-                                               phiMinPFCand,
-                                               phiMaxPFCand));
       } else {  //endcap or forward plots,
         const int nbins_eta_endcap = 2 * (etaNBinsPFCand + 1);
         double eta_limits_endcap[nbins_eta_endcap];
@@ -481,84 +481,86 @@ void DQMPFCandidateAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run
       multiplicityPFCand_.clear();
     if (!multiplicityPFCand_name_.empty())
       multiplicityPFCand_name_.clear();
-    for (std::vector<edm::ParameterSet>::const_iterator v = diagnosticsParameters_.begin();
-         v != diagnosticsParameters_.end();
-         v++) {
-      int etaNBinsPFCand = v->getParameter<int>("etaNBins");
-      double etaMinPFCand = v->getParameter<double>("etaMin");
-      double etaMaxPFCand = v->getParameter<double>("etaMax");
-      int phiNBinsPFCand = v->getParameter<int>("phiNBins");
-      double phiMinPFCand = v->getParameter<double>("phiMin");
-      double phiMaxPFCand = v->getParameter<double>("phiMax");
-      int nMinPFCand = v->getParameter<int>("nMin");
-      int nMaxPFCand = v->getParameter<int>("nMax");
-      int nbinsPFCand = v->getParameter<double>("nbins");
+    for (const auto& diagnosticsParameter : diagnosticsParameters_) {
+      int etaNBinsPFCand = diagnosticsParameter.getParameter<int>("etaNBins");
+      double etaMinPFCand = diagnosticsParameter.getParameter<double>("etaMin");
+      double etaMaxPFCand = diagnosticsParameter.getParameter<double>("etaMax");
+      int phiNBinsPFCand = diagnosticsParameter.getParameter<int>("phiNBins");
+      double phiMinPFCand = diagnosticsParameter.getParameter<double>("phiMin");
+      double phiMaxPFCand = diagnosticsParameter.getParameter<double>("phiMax");
+      int nMinPFCand = diagnosticsParameter.getParameter<int>("nMin");
+      int nMaxPFCand = diagnosticsParameter.getParameter<int>("nMax");
+      int nbinsPFCand = diagnosticsParameter.getParameter<double>("nbins");
 
       // etaNBins_.push_back(etaNBins);
       etaMinPFCand_.push_back(etaMinPFCand);
       etaMaxPFCand_.push_back(etaMaxPFCand);
-      typePFCand_.push_back(v->getParameter<int>("type"));
+      typePFCand_.push_back(diagnosticsParameter.getParameter<int>("type"));
       countsPFCand_.push_back(0);
 
-      multiplicityPFCand_.push_back(
-          ibooker.book1D(std::string(v->getParameter<std::string>("name")).append("_multiplicity_").c_str(),
-                         std::string(v->getParameter<std::string>("name")) + "multiplicity",
-                         nbinsPFCand,
-                         nMinPFCand,
-                         nMaxPFCand));
-      multiplicityPFCand_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_multiplicity_"));
+      multiplicityPFCand_.push_back(ibooker.book1D(
+          std::string(diagnosticsParameter.getParameter<std::string>("name")).append("_multiplicity_").c_str(),
+          std::string(diagnosticsParameter.getParameter<std::string>("name")) + "multiplicity",
+          nbinsPFCand,
+          nMinPFCand,
+          nMaxPFCand));
+      multiplicityPFCand_name_.push_back(
+          std::string(diagnosticsParameter.getParameter<std::string>("name")).append("_multiplicity_"));
       map_of_MEs.insert(std::pair<std::string, MonitorElement*>(
           DirName + "/" + multiplicityPFCand_name_[multiplicityPFCand_name_.size() - 1],
           multiplicityPFCand_[multiplicityPFCand_.size() - 1]));
       //push back names first, we need to create histograms with the name and fill it for endcap plots later
       occupancyPFCand_name_.push_back(
-          std::string(v->getParameter<std::string>("name")).append("_occupancy_puppiWeight_"));
-      ptPFCand_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_pt_puppiWeight_"));
+          std::string(diagnosticsParameter.getParameter<std::string>("name")).append("_occupancy_puppiWeight_"));
+      ptPFCand_name_.push_back(
+          std::string(diagnosticsParameter.getParameter<std::string>("name")).append("_pt_puppiWeight_"));
       //push back names first, we need to create histograms with the name and fill it for endcap plots later
       occupancyPFCand_name_puppiNolepWeight_.push_back(
-          std::string(v->getParameter<std::string>("name")).append("_occupancy_puppiNolepWeight_"));
+          std::string(diagnosticsParameter.getParameter<std::string>("name")).append("_occupancy_puppiNolepWeight_"));
       ptPFCand_name_puppiNolepWeight_.push_back(
-          std::string(v->getParameter<std::string>("name")).append("_pt_puppiNolepWeight_"));
+          std::string(diagnosticsParameter.getParameter<std::string>("name")).append("_pt_puppiNolepWeight_"));
       //special booking for endcap plots, merge plots for eminus and eplus into one plot, using variable binning
       //barrel plots have eta-boundaries on minus and plus side
       //parameters start on minus side
       if (etaMinPFCand * etaMaxPFCand < 0) {  //barrel plots, plot only in barrel region
-        occupancyPFCand_.push_back(
-            ibooker.book2D(std::string(v->getParameter<std::string>("name")).append("_occupancy_puppiWeight_").c_str(),
-                           std::string(v->getParameter<std::string>("name")) + "occupancy_puppiWeight_",
-                           etaNBinsPFCand,
-                           etaMinPFCand,
-                           etaMaxPFCand,
-                           phiNBinsPFCand,
-                           phiMinPFCand,
-                           phiMaxPFCand));
-        ptPFCand_.push_back(
-            ibooker.book2D(std::string(v->getParameter<std::string>("name")).append("_pt_puppiWeight_").c_str(),
-                           std::string(v->getParameter<std::string>("name")) + "pt_puppiWeight_",
-                           etaNBinsPFCand,
-                           etaMinPFCand,
-                           etaMaxPFCand,
-                           phiNBinsPFCand,
-                           phiMinPFCand,
-                           phiMaxPFCand));
-        occupancyPFCand_puppiNolepWeight_.push_back(ibooker.book2D(
-            std::string(v->getParameter<std::string>("name")).append("_occupancy_puppiNolepWeight_").c_str(),
-            std::string(v->getParameter<std::string>("name")) + "occupancy_puppiNolepWeight",
+        occupancyPFCand_.push_back(ibooker.book2D(
+            std::string(diagnosticsParameter.getParameter<std::string>("name")).append("_occupancy_puppiWeight_").c_str(),
+            std::string(diagnosticsParameter.getParameter<std::string>("name")) + "occupancy_puppiWeight_",
             etaNBinsPFCand,
             etaMinPFCand,
             etaMaxPFCand,
             phiNBinsPFCand,
             phiMinPFCand,
             phiMaxPFCand));
-        ptPFCand_puppiNolepWeight_.push_back(
-            ibooker.book2D(std::string(v->getParameter<std::string>("name")).append("_pt_puppiNolepWeight_").c_str(),
-                           std::string(v->getParameter<std::string>("name")) + "pt_puppiNolepWeight",
-                           etaNBinsPFCand,
-                           etaMinPFCand,
-                           etaMaxPFCand,
-                           phiNBinsPFCand,
-                           phiMinPFCand,
-                           phiMaxPFCand));
+        ptPFCand_.push_back(ibooker.book2D(
+            std::string(diagnosticsParameter.getParameter<std::string>("name")).append("_pt_puppiWeight_").c_str(),
+            std::string(diagnosticsParameter.getParameter<std::string>("name")) + "pt_puppiWeight_",
+            etaNBinsPFCand,
+            etaMinPFCand,
+            etaMaxPFCand,
+            phiNBinsPFCand,
+            phiMinPFCand,
+            phiMaxPFCand));
+        occupancyPFCand_puppiNolepWeight_.push_back(ibooker.book2D(
+            std::string(diagnosticsParameter.getParameter<std::string>("name"))
+                .append("_occupancy_puppiNolepWeight_")
+                .c_str(),
+            std::string(diagnosticsParameter.getParameter<std::string>("name")) + "occupancy_puppiNolepWeight",
+            etaNBinsPFCand,
+            etaMinPFCand,
+            etaMaxPFCand,
+            phiNBinsPFCand,
+            phiMinPFCand,
+            phiMaxPFCand));
+        ptPFCand_puppiNolepWeight_.push_back(ibooker.book2D(
+            std::string(diagnosticsParameter.getParameter<std::string>("name")).append("_pt_puppiNolepWeight_").c_str(),
+            std::string(diagnosticsParameter.getParameter<std::string>("name")) + "pt_puppiNolepWeight",
+            etaNBinsPFCand,
+            etaMinPFCand,
+            etaMaxPFCand,
+            phiNBinsPFCand,
+            phiMinPFCand,
+            phiMaxPFCand));
       } else {  //endcap or forward plots,
         const int nbins_eta_endcap = 2 * (etaNBinsPFCand + 1);
         double eta_limits_endcap[nbins_eta_endcap];
@@ -723,16 +725,15 @@ void DQMPFCandidateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
   //DCS Filter
   bool bDCSFilter = (bypassAllDCSChecks_ || DCSFilter_->filter(iEvent, iSetup));
 
-  for (unsigned int i = 0; i < countsPFCand_.size(); i++) {
-    countsPFCand_[i] = 0;
+  for (int& i : countsPFCand_) {
+    i = 0;
   }
   if (bDCSFilter && hbhenoifilterdecision && bPrimaryVertex) {
     if (isMiniAOD_) {
       edm::Handle<std::vector<pat::PackedCandidate> > packedParticleFlow;
       iEvent.getByToken(pflowPackedToken_, packedParticleFlow);
       //11, 13, 22 for el/mu/gamma, 211 chargedHadron, 130 neutralHadrons, 1 and 2 hadHF and EGammaHF
-      for (unsigned int i = 0; i < packedParticleFlow->size(); i++) {
-        const pat::PackedCandidate& c = packedParticleFlow->at(i);
+      for (const auto& c : *packedParticleFlow) {
         for (unsigned int j = 0; j < typePFCand_.size(); j++) {
           if (abs(c.pdgId()) == typePFCand_[j]) {
             //second check for endcap, if inside barrel Max and Min symmetric around 0
@@ -766,8 +767,7 @@ void DQMPFCandidateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
     } else {
       edm::Handle<std::vector<reco::PFCandidate> > particleFlow;
       iEvent.getByToken(pflowToken_, particleFlow);
-      for (unsigned int i = 0; i < particleFlow->size(); i++) {
-        const reco::PFCandidate& c = particleFlow->at(i);
+      for (const auto& c : *particleFlow) {
         for (unsigned int j = 0; j < typePFCandRECO_.size(); j++) {
           if (c.particleId() == typePFCandRECO_[j]) {
             //second check for endcap, if inside barrel Max and Min symmetric around 0
@@ -899,9 +899,9 @@ void DQMPFCandidateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
                     }
                   }
                   //ECAL element
-                  for (unsigned int ii = 0; ii < iECAL.size(); ii++) {
+                  for (unsigned int ii : iECAL) {
                     const reco::PFBlockElementCluster& eecal =
-                        dynamic_cast<const reco::PFBlockElementCluster&>(elements[iECAL[ii]]);
+                        dynamic_cast<const reco::PFBlockElementCluster&>(elements[ii]);
                     if (fabs(eecal.clusterRef()->eta()) < 1.479) {
                       mProfileIsoPFChHad_EcalOccupancyCentral =
                           map_of_MEs[DirName + "/" + "IsoPfChHad_ECAL_profile_central"];
@@ -927,9 +927,9 @@ void DQMPFCandidateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
                     }
                   }
                   //HCAL element
-                  for (unsigned int ii = 0; ii < iHCAL.size(); ii++) {
+                  for (unsigned int ii : iHCAL) {
                     const reco::PFBlockElementCluster& ehcal =
-                        dynamic_cast<const reco::PFBlockElementCluster&>(elements[iHCAL[ii]]);
+                        dynamic_cast<const reco::PFBlockElementCluster&>(elements[ii]);
                     if (fabs(ehcal.clusterRef()->eta()) < 1.740) {
                       mProfileIsoPFChHad_HcalOccupancyCentral =
                           map_of_MEs[DirName + "/" + "IsoPfChHad_HCAL_profile_central"];

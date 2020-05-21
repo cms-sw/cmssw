@@ -157,15 +157,15 @@ void L1MuDTMuonSorter::runCOL(vector<L1MuDTTrack*>& cands) const {
       continue;
     L1MuDTSecProcId sp1 = (*iter1)->spid();
     int qual1 = (*iter1)->quality();
-    for (TI iter2 = cands.begin(); iter2 != cands.end(); iter2++) {
-      if (*iter2 == nullptr)
+    for (auto& cand : cands) {
+      if (cand == nullptr)
         continue;
-      if (*iter1 == *iter2)
+      if (*iter1 == cand)
         continue;
-      if ((*iter2)->empty())
+      if (cand->empty())
         continue;
-      L1MuDTSecProcId sp2 = (*iter2)->spid();
-      int qual2 = (*iter2)->quality();
+      L1MuDTSecProcId sp2 = cand->spid();
+      int qual2 = cand->quality();
       if (sp1 == sp2)
         continue;
       int topology = neighbour(sp1, sp2);
@@ -174,7 +174,7 @@ void L1MuDTMuonSorter::runCOL(vector<L1MuDTTrack*>& cands) const {
       int countTS = 0;
       for (int stat = 2; stat <= 4; stat++) {
         int adr1 = (*iter1)->address(stat);
-        int adr2 = (*iter2)->address(stat);
+        int adr2 = cand->address(stat);
         if (adr1 == 15 || adr2 == 15)
           continue;
         switch (topology) {
@@ -237,9 +237,9 @@ void L1MuDTMuonSorter::runCOL(vector<L1MuDTTrack*>& cands) const {
         } else {
           if (L1MuDTTFConfig::Debug(5)) {
             cout << "Muon Sorter cancel : ";
-            (*iter2)->print();
+            cand->print();
           }
-          (*iter2)->disable();
+          cand->disable();
         }
       }
     }
@@ -256,18 +256,18 @@ void L1MuDTMuonSorter::runCOL(vector<L1MuDTTrack*>& cands) const {
     int phi1 = (*iter1)->phi();
     int pt1 = (*iter1)->pt();
     int qual1 = (*iter1)->quality();
-    for (TI iter2 = cands.begin(); iter2 != cands.end(); iter2++) {
-      if (*iter2 == nullptr)
+    for (auto& cand : cands) {
+      if (cand == nullptr)
         continue;
-      if (*iter1 == *iter2)
+      if (*iter1 == cand)
         continue;
-      if ((*iter2)->empty())
+      if (cand->empty())
         continue;
-      int phi2 = (*iter2)->phi();
-      int pt2 = (*iter2)->pt();
-      int qual2 = (*iter2)->quality();
+      int phi2 = cand->phi();
+      int pt2 = cand->pt();
+      int qual2 = cand->quality();
       int w1 = (*iter1)->getStartTSphi().wheel();
-      int w2 = (*iter2)->getStartTSphi().wheel();
+      int w2 = cand->getStartTSphi().wheel();
       int phidiff = (phi2 - phi1) % 144;
       if (phidiff >= 72)
         phidiff -= 144;
@@ -282,13 +282,13 @@ void L1MuDTMuonSorter::runCOL(vector<L1MuDTTrack*>& cands) const {
           (*iter1)->print();
           if (rank1 < rank2)
             cout << "cancelled" << endl;
-          (*iter2)->print();
+          cand->print();
           if (rank1 >= rank2)
             cout << "cancelled" << endl;
           cout << "========================================" << endl;
         }
         if (rank1 >= rank2)
-          (*iter2)->disable();
+          cand->disable();
         if (rank1 < rank2) {
           (*iter1)->disable();
           break;

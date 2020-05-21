@@ -47,11 +47,11 @@ void CSCComparatorDigiValidation::analyze(const edm::Event &e, const edm::EventS
 
   unsigned nDigisPerEvent = 0;
 
-  for (CSCComparatorDigiCollection::DigiRangeIterator j = comparators->begin(); j != comparators->end(); j++) {
-    std::vector<CSCComparatorDigi>::const_iterator digiItr = (*j).second.first;
-    std::vector<CSCComparatorDigi>::const_iterator last = (*j).second.second;
+  for (auto &&j : *comparators) {
+    std::vector<CSCComparatorDigi>::const_iterator digiItr = j.second.first;
+    std::vector<CSCComparatorDigi>::const_iterator last = j.second.second;
 
-    CSCDetId detId((*j).first);
+    CSCDetId detId(j.first);
     const CSCLayer *layer = findLayer(detId.rawId());
     int chamberType = layer->chamber()->specs()->chamberType();
 

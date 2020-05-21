@@ -66,12 +66,12 @@ DTNoiseCalibration::DTNoiseCalibration(const edm::ParameterSet& pset)
 
   if (pset.exists("cellsWithHisto")) {
     vector<string> cellsWithHisto = pset.getParameter<vector<string> >("cellsWithHisto");
-    for (vector<string>::const_iterator cell = cellsWithHisto.begin(); cell != cellsWithHisto.end(); ++cell) {
+    for (const auto& cell : cellsWithHisto) {
       //FIXME: Use regex to check whether format is right
-      if ((!cell->empty()) && (*cell) != "None") {
+      if ((!cell.empty()) && cell != "None") {
         stringstream linestr;
         int wheel, station, sector, sl, layer, wire;
-        linestr << (*cell);
+        linestr << cell;
         linestr >> wheel >> station >> sector >> sl >> layer >> wire;
         wireIdWithHisto_.push_back(DTWireId(wheel, station, sector, sl, layer, wire));
       }

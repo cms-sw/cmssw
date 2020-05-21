@@ -91,12 +91,12 @@ int main(int argc, char* argv[]) {
     // fill histograms
     noMuons->Fill(muons.size());
     noLepts->Fill(muons.size() + elecs.size());
-    for (unsigned idx = 0; idx < muons.size(); ++idx) {
+    for (auto& muon : muons) {
       // fill histograms
-      ptMuons->Fill(muons[idx].pt());
-      enMuons->Fill(muons[idx].energy());
-      etaMuons->Fill(muons[idx].eta());
-      phiMuons->Fill(muons[idx].phi());
+      ptMuons->Fill(muon.pt());
+      enMuons->Fill(muon.energy());
+      etaMuons->Fill(muon.eta());
+      phiMuons->Fill(muon.phi());
     }
   }
   // -------------------------------------------------

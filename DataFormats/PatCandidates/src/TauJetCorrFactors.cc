@@ -43,9 +43,8 @@ std::string TauJetCorrFactors::correctionLabelString() const {
 
 std::vector<std::string> TauJetCorrFactors::correctionLabels() const {
   std::vector<std::string> labels;
-  for (std::vector<CorrectionFactor>::const_iterator corrFactor = jec_.begin(); corrFactor != jec_.end();
-       ++corrFactor) {
-    labels.push_back(corrFactor->first);
+  for (const auto& corrFactor : jec_) {
+    labels.push_back(corrFactor.first);
   }
   return labels;
 }

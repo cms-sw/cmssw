@@ -105,10 +105,8 @@ TriggerMenu::TriggerMenu(const TriggerMenu& rhs) {
 // destructor
 TriggerMenu::~TriggerMenu() {
   // loop over condition maps (one map per condition chip)
-  for (std::vector<l1t::ConditionMap>::iterator itCondOnChip = m_conditionMap.begin();
-       itCondOnChip != m_conditionMap.end();
-       itCondOnChip++) {
-    itCondOnChip->clear();
+  for (auto& itCondOnChip : m_conditionMap) {
+    itCondOnChip.clear();
   }
 
   m_algorithmMap.clear();
@@ -155,10 +153,8 @@ void TriggerMenu::setGtConditionMap(const std::vector<l1t::ConditionMap>& condMa
 // build the condition maps
 void TriggerMenu::buildGtConditionMap() {
   // clear the conditions from the maps, if any
-  for (std::vector<l1t::ConditionMap>::iterator itCondOnChip = m_conditionMap.begin();
-       itCondOnChip != m_conditionMap.end();
-       itCondOnChip++) {
-    itCondOnChip->clear();
+  for (auto& itCondOnChip : m_conditionMap) {
+    itCondOnChip.clear();
   }
 
   // always check that the size of the condition map is greater than the size
@@ -174,12 +170,10 @@ void TriggerMenu::buildGtConditionMap() {
 
   int chipNr = -1;
 
-  for (std::vector<std::vector<MuonTemplate> >::iterator itCondOnChip = m_vecMuonTemplate.begin();
-       itCondOnChip != m_vecMuonTemplate.end();
-       itCondOnChip++) {
+  for (auto& itCondOnChip : m_vecMuonTemplate) {
     chipNr++;
 
-    for (std::vector<MuonTemplate>::iterator itCond = itCondOnChip->begin(); itCond != itCondOnChip->end(); itCond++) {
+    for (std::vector<MuonTemplate>::iterator itCond = itCondOnChip.begin(); itCond != itCondOnChip.end(); itCond++) {
       (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
     }
   }
@@ -192,12 +186,10 @@ void TriggerMenu::buildGtConditionMap() {
   }
 
   chipNr = -1;
-  for (std::vector<std::vector<CaloTemplate> >::iterator itCondOnChip = m_vecCaloTemplate.begin();
-       itCondOnChip != m_vecCaloTemplate.end();
-       itCondOnChip++) {
+  for (auto& itCondOnChip : m_vecCaloTemplate) {
     chipNr++;
 
-    for (std::vector<CaloTemplate>::iterator itCond = itCondOnChip->begin(); itCond != itCondOnChip->end(); itCond++) {
+    for (std::vector<CaloTemplate>::iterator itCond = itCondOnChip.begin(); itCond != itCondOnChip.end(); itCond++) {
       (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
     }
   }
@@ -210,12 +202,10 @@ void TriggerMenu::buildGtConditionMap() {
   }
 
   chipNr = -1;
-  for (std::vector<std::vector<EnergySumTemplate> >::iterator itCondOnChip = m_vecEnergySumTemplate.begin();
-       itCondOnChip != m_vecEnergySumTemplate.end();
-       itCondOnChip++) {
+  for (auto& itCondOnChip : m_vecEnergySumTemplate) {
     chipNr++;
 
-    for (std::vector<EnergySumTemplate>::iterator itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
+    for (std::vector<EnergySumTemplate>::iterator itCond = itCondOnChip.begin(); itCond != itCondOnChip.end();
          itCond++) {
       (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
     }
@@ -231,12 +221,10 @@ void TriggerMenu::buildGtConditionMap() {
   }
 
   chipNr = -1;
-  for (std::vector<std::vector<ExternalTemplate> >::iterator itCondOnChip = m_vecExternalTemplate.begin();
-       itCondOnChip != m_vecExternalTemplate.end();
-       itCondOnChip++) {
+  for (auto& itCondOnChip : m_vecExternalTemplate) {
     chipNr++;
 
-    for (std::vector<ExternalTemplate>::iterator itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
+    for (std::vector<ExternalTemplate>::iterator itCond = itCondOnChip.begin(); itCond != itCondOnChip.end();
          itCond++) {
       (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
     }
@@ -250,12 +238,10 @@ void TriggerMenu::buildGtConditionMap() {
   }
 
   chipNr = -1;
-  for (std::vector<std::vector<CorrelationTemplate> >::iterator itCondOnChip = m_vecCorrelationTemplate.begin();
-       itCondOnChip != m_vecCorrelationTemplate.end();
-       itCondOnChip++) {
+  for (auto& itCondOnChip : m_vecCorrelationTemplate) {
     chipNr++;
 
-    for (std::vector<CorrelationTemplate>::iterator itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
+    for (std::vector<CorrelationTemplate>::iterator itCond = itCondOnChip.begin(); itCond != itCondOnChip.end();
          itCond++) {
       (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
     }
@@ -269,14 +255,11 @@ void TriggerMenu::buildGtConditionMap() {
   }
 
   chipNr = -1;
-  for (std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >::iterator itCondOnChip =
-           m_vecCorrelationWithOverlapRemovalTemplate.begin();
-       itCondOnChip != m_vecCorrelationWithOverlapRemovalTemplate.end();
-       itCondOnChip++) {
+  for (auto& itCondOnChip : m_vecCorrelationWithOverlapRemovalTemplate) {
     chipNr++;
 
-    for (std::vector<CorrelationWithOverlapRemovalTemplate>::iterator itCond = itCondOnChip->begin();
-         itCond != itCondOnChip->end();
+    for (std::vector<CorrelationWithOverlapRemovalTemplate>::iterator itCond = itCondOnChip.begin();
+         itCond != itCondOnChip.end();
          itCond++) {
       (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
     }
@@ -361,9 +344,9 @@ void TriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
   std::map<int, const GlobalAlgorithm*> algoBitToAlgo;
   typedef std::map<int, const GlobalAlgorithm*>::const_iterator CItBit;
 
-  for (l1t::CItAlgo itAlgo = m_algorithmMap.begin(); itAlgo != m_algorithmMap.end(); itAlgo++) {
-    int bitNumber = (itAlgo->second).algoBitNumber();
-    algoBitToAlgo[bitNumber] = &(itAlgo->second);
+  for (const auto& itAlgo : m_algorithmMap) {
+    int bitNumber = (itAlgo.second).algoBitNumber();
+    algoBitToAlgo[bitNumber] = &(itAlgo.second);
   }
 
   size_t nrDefinedAlgo = algoBitToAlgo.size();
@@ -491,18 +474,16 @@ void TriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
       int chipNr = -1;
       int totalNrConditions = 0;
 
-      for (std::vector<l1t::ConditionMap>::const_iterator itCondOnChip = m_conditionMap.begin();
-           itCondOnChip != m_conditionMap.end();
-           itCondOnChip++) {
+      for (const auto& itCondOnChip : m_conditionMap) {
         chipNr++;
 
-        int condMapSize = itCondOnChip->size();
+        int condMapSize = itCondOnChip.size();
         totalNrConditions += condMapSize;
 
         myCout << "\nTotal number of conditions on condition chip " << chipNr << ": " << condMapSize << " conditions.\n"
                << std::endl;
 
-        for (l1t::CItCond itCond = itCondOnChip->begin(); itCond != itCondOnChip->end(); itCond++) {
+        for (l1t::CItCond itCond = itCondOnChip.begin(); itCond != itCondOnChip.end(); itCond++) {
           (itCond->second)->print(myCout);
         }
       }

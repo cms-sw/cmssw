@@ -255,9 +255,9 @@ void TemplatedInclusiveVertexFinder<InputContainer, VTX>::produce(edm::Event &ev
         }
       }
 
-      for (std::vector<TransientVertex>::const_iterator v = vertices.begin(); v != vertices.end(); ++v) {
-        Measurement1D dlen = vdist.distance(pv, *v);
-        Measurement1D dlen2 = vdist2d.distance(pv, *v);
+      for (const auto &vertice : vertices) {
+        Measurement1D dlen = vdist.distance(pv, vertice);
+        Measurement1D dlen2 = vdist2d.distance(pv, vertice);
 #ifdef VTXDEBUG
         VTX vv(*v);
         std::cout << "V chi2/n: " << v->normalisedChiSquared() << " ndof: " << v->degreesOfFreedom();
@@ -269,22 +269,22 @@ void TemplatedInclusiveVertexFinder<InputContainer, VTX>::produce(edm::Event &ev
         std::cout << " time: " << vv.time() << " error: " << vv.tError() << std::endl;
 #endif
         GlobalVector dir;
-        std::vector<reco::TransientTrack> ts = v->originalTracks();
-        for (std::vector<reco::TransientTrack>::const_iterator i = ts.begin(); i != ts.end(); ++i) {
-          float w = v->trackWeight(*i);
+        std::vector<reco::TransientTrack> ts = vertice.originalTracks();
+        for (const auto &t : ts) {
+          float w = vertice.trackWeight(t);
           if (w > 0.5)
-            dir += i->impactPointState().globalDirection();
+            dir += t.impactPointState().globalDirection();
 #ifdef VTXDEBUG
           std::cout << "\t[" << (*i).track().pt() << ": " << (*i).track().eta() << ", " << (*i).track().phi() << "], "
                     << w << std::endl;
 #endif
         }
-        GlobalPoint sv((*v).position().x(), (*v).position().y(), (*v).position().z());
+        GlobalPoint sv(vertice.position().x(), vertice.position().y(), vertice.position().z());
         float vscal = dir.unit().dot((sv - ppv).unit());
         if (dlen.significance() > vertexMinDLenSig &&
             ((vertexMinAngleCosine > 0) ? (vscal > vertexMinAngleCosine) : (vscal < vertexMinAngleCosine)) &&
-            v->normalisedChiSquared() < 10 && dlen2.significance() > vertexMinDLen2DSig) {
-          recoVertices->push_back(*v);
+            vertice.normalisedChiSquared() < 10 && dlen2.significance() > vertexMinDLen2DSig) {
+          recoVertices->push_back(vertice);
 
 #ifdef VTXDEBUG
           std::cout << "ADDED" << std::endl;

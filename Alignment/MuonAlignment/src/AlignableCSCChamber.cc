@@ -38,12 +38,12 @@ std::ostream& operator<<(std::ostream& os, const AlignableCSCChamber& r) {
   for (const auto& idet : theDets) {
     const auto& comp = idet->components();
 
-    for (unsigned int i = 0; i < comp.size(); ++i) {
-      os << "     Det position, phi, r: " << comp[i]->globalPosition() << " , " << comp[i]->globalPosition().phi()
-         << " , " << comp[i]->globalPosition().perp() << std::endl;
-      os << "     local  position, phi, r: " << r.surface().toLocal(comp[i]->globalPosition()) << " , "
-         << r.surface().toLocal(comp[i]->globalPosition()).phi() << " , "
-         << r.surface().toLocal(comp[i]->globalPosition()).perp() << std::endl;
+    for (auto i : comp) {
+      os << "     Det position, phi, r: " << i->globalPosition() << " , " << i->globalPosition().phi() << " , "
+         << i->globalPosition().perp() << std::endl;
+      os << "     local  position, phi, r: " << r.surface().toLocal(i->globalPosition()) << " , "
+         << r.surface().toLocal(i->globalPosition()).phi() << " , " << r.surface().toLocal(i->globalPosition()).perp()
+         << std::endl;
     }
   }
 

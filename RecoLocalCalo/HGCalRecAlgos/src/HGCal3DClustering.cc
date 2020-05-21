@@ -91,10 +91,10 @@ std::vector<reco::HGCalMultiCluster> HGCal3DClustering::makeClusters(
         // at layer j in box float(to[0])+/-radius - float(to[1])+/-radius
         hit_kdtree[j].search(search_box, found);
         // found found.size() clusters within box
-        for (unsigned int k = 0; k < found.size(); k++) {
-          if (vused[found[k].ind] == 0 && distReal2(thecls[es[found[k].ind]], to) < radius2) {
-            temp.push_back(thecls[es[found[k].ind]]);
-            vused[found[k].ind] = vused[i];
+        for (auto &k : found) {
+          if (vused[k.ind] == 0 && distReal2(thecls[es[k.ind]], to) < radius2) {
+            temp.push_back(thecls[es[k.ind]]);
+            vused[k.ind] = vused[i];
             ++used;
           }
         }

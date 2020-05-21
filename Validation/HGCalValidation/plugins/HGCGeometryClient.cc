@@ -42,19 +42,19 @@ void HGCalGeometryClient::dqmEndJob(DQMStore::IBooker& ib, DQMStore::IGetter& ig
   std::vector<MonitorElement*> hgcalMEs;
   std::vector<std::string> fullDirPath = ig.getSubdirs();
 
-  for (unsigned int i = 0; i < fullDirPath.size(); i++) {
+  for (const auto& i : fullDirPath) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalValid") << "HGCalGeometry::fullPath: " << fullDirPath.at(i);
 #endif
-    ig.setCurrentFolder(fullDirPath.at(i));
+    ig.setCurrentFolder(i);
     std::vector<std::string> fullSubDirPath = ig.getSubdirs();
 
-    for (unsigned int j = 0; j < fullSubDirPath.size(); j++) {
+    for (auto& j : fullSubDirPath) {
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalValid") << "HGCalGeometry:: fullSubPath: " << fullSubDirPath.at(j);
 #endif
-      if (strcmp(fullSubDirPath.at(j).c_str(), subDirectory_.c_str()) == 0) {
-        hgcalMEs = ig.getContents(fullSubDirPath.at(j));
+      if (strcmp(j.c_str(), subDirectory_.c_str()) == 0) {
+        hgcalMEs = ig.getContents(j);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalValid") << "HGCalGeometry:: hgcalMES size : " << hgcalMEs.size();
 #endif
@@ -82,13 +82,13 @@ int HGCalGeometryClient::geometryEndjob(const std::vector<MonitorElement*>& hgca
   std::vector<MonitorElement*> hist2_;
 
   //Normalize the histograms
-  for (unsigned int idet = 0; idet < 3; ++idet) {
+  for (auto& det : dets) {
     char name[100];
-    for (unsigned int kh = 0; kh < 4; ++kh) {
-      sprintf(name, "%s%s", dets[idet].c_str(), hist1[kh].c_str());
-      for (unsigned int ih = 0; ih < hgcalMEs.size(); ih++) {
-        if (strcmp(hgcalMEs[ih]->getName().c_str(), name) == 0) {
-          hist1_.push_back(hgcalMEs[ih]);
+    for (auto& kh : hist1) {
+      sprintf(name, "%s%s", det.c_str(), kh.c_str());
+      for (auto hgcalME : hgcalMEs) {
+        if (strcmp(hgcalME->getName().c_str(), name) == 0) {
+          hist1_.push_back(hgcalME);
           double nevent = hist1_.back()->getEntries();
           int nbinsx = hist1_.back()->getNbinsX();
           for (int i = 1; i <= nbinsx; ++i) {
@@ -98,11 +98,11 @@ int HGCalGeometryClient::geometryEndjob(const std::vector<MonitorElement*>& hgca
         }
       }
     }
-    for (unsigned int kh = 0; kh < 10; ++kh) {
-      sprintf(name, "%s%s", dets[idet].c_str(), hist2[kh].c_str());
-      for (unsigned int ih = 0; ih < hgcalMEs.size(); ih++) {
-        if (strcmp(hgcalMEs[ih]->getName().c_str(), name) == 0) {
-          hist2_.push_back(hgcalMEs[ih]);
+    for (auto& kh : hist2) {
+      sprintf(name, "%s%s", det.c_str(), kh.c_str());
+      for (auto hgcalME : hgcalMEs) {
+        if (strcmp(hgcalME->getName().c_str(), name) == 0) {
+          hist2_.push_back(hgcalME);
           double nevent = hist2_.back()->getEntries();
           int nbinsx = hist2_.back()->getNbinsX();
           int nbinsy = hist2_.back()->getNbinsY();

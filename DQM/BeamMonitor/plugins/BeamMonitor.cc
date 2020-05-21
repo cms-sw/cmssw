@@ -671,9 +671,9 @@ void BeamMonitor::analyze(const Event& iEvent, const EventSetup& iSetup) {
   Handle<reco::TrackCollection> TrackCollection;
   iEvent.getByToken(tracksLabel_, TrackCollection);
   const reco::TrackCollection* tracks = TrackCollection.product();
-  for (reco::TrackCollection::const_iterator track = tracks->begin(); track != tracks->end(); ++track) {
-    h_trkPt->Fill(track->pt());  //no need to change  here for average bs
-    h_trkVz->Fill(track->vz());
+  for (const auto& track : *tracks) {
+    h_trkPt->Fill(track.pt());  //no need to change  here for average bs
+    h_trkVz->Fill(track.vz());
   }
 
   //-------HLT Trigger --------------------------------
@@ -687,11 +687,10 @@ void BeamMonitor::analyze(const Event& iEvent, const EventSetup& iSetup) {
       if (JetTrigPass)
         continue;
 
-      for (size_t t = 0; t < jetTrigger_.size(); ++t) {
+      for (auto string_search : jetTrigger_) {
         if (JetTrigPass)
           continue;
 
-        string string_search(jetTrigger_[t]);
         size_t found = trigName.find(string_search);
 
         if (found != string::npos) {
@@ -710,33 +709,33 @@ void BeamMonitor::analyze(const Event& iEvent, const EventSetup& iSetup) {
     int nPVcount = 0;
     int nPVcount_ST = 0;  //For Single Trigger(hence ST)
 
-    for (reco::VertexCollection::const_iterator pv = PVCollection->begin(); pv != PVCollection->end(); ++pv) {
+    for (const auto& pv : *PVCollection) {
       //--- vertex selection
-      if (pv->isFake() || pv->tracksSize() == 0)
+      if (pv.isFake() || pv.tracksSize() == 0)
         continue;
       nPVcount++;  // count non fake pv:
 
       if (JetTrigPass)
         nPVcount_ST++;  //non-fake pv with a specific trigger
 
-      if (pv->ndof() < minVtxNdf_ || (pv->ndof() + 3.) / pv->tracksSize() < 2 * minVtxWgt_)
+      if (pv.ndof() < minVtxNdf_ || (pv.ndof() + 3.) / pv.tracksSize() < 2 * minVtxWgt_)
         continue;
 
       //Fill this map to store xyx for pv so that later we can remove the first one for run aver
-      mapPVx[countLumi_].push_back(pv->x());
-      mapPVy[countLumi_].push_back(pv->y());
-      mapPVz[countLumi_].push_back(pv->z());
+      mapPVx[countLumi_].push_back(pv.x());
+      mapPVy[countLumi_].push_back(pv.y());
+      mapPVz[countLumi_].push_back(pv.z());
 
       if (!StartAverage_) {  //for first N LS
-        h_PVx[0]->Fill(pv->x());
-        h_PVy[0]->Fill(pv->y());
-        h_PVz[0]->Fill(pv->z());
-        h_PVxz->Fill(pv->z(), pv->x());
-        h_PVyz->Fill(pv->z(), pv->y());
+        h_PVx[0]->Fill(pv.x());
+        h_PVy[0]->Fill(pv.y());
+        h_PVz[0]->Fill(pv.z());
+        h_PVxz->Fill(pv.z(), pv.x());
+        h_PVyz->Fill(pv.z(), pv.y());
       }  //for first N LiS
       else {
-        h_PVxz->Fill(pv->z(), pv->x());
-        h_PVyz->Fill(pv->z(), pv->y());
+        h_PVxz->Fill(pv.z(), pv.x());
+        h_PVyz->Fill(pv.z(), pv.y());
       }
 
     }  //loop over pvs
@@ -848,13 +847,13 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, int&
     }  //loop over second
 
     //Do the same here for nPV distr.
-    for (std::vector<int>::iterator mnpvs = (mnpv->second).begin(); mnpvs != (mnpv->second).end(); ++mnpvs) {
-      if ((*mnpvs > 0) && (resetHistoFlag_))
-        h_nVtx_st->Fill((*mnpvs) * (1.0));
+    for (int& mnpvs : (mnpv->second)) {
+      if ((mnpvs > 0) && (resetHistoFlag_))
+        h_nVtx_st->Fill(mnpvs * (1.0));
       countEvtLastNLS_++;
-      countTotPV_ += (*mnpvs);
-      if ((*mnpvs) > MaxPVs)
-        MaxPVs = (*mnpvs);
+      countTotPV_ += mnpvs;
+      if (mnpvs > MaxPVs)
+        MaxPVs = mnpvs;
     }  //loop over second of mapNPV
 
   }  //loop over last N lumis

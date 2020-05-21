@@ -86,8 +86,8 @@ void DTCombinatorialExtendedPatternReco::setClusters(const vector<DTSLRecCluster
 vector<std::shared_ptr<DTHitPairForFit>> DTCombinatorialExtendedPatternReco::initHits(
     const DTSuperLayer* sl, const std::vector<DTRecHit1DPair>& hits) {
   vector<std::shared_ptr<DTHitPairForFit>> result;
-  for (vector<DTRecHit1DPair>::const_iterator hit = hits.begin(); hit != hits.end(); ++hit) {
-    result.push_back(std::make_shared<DTHitPairForFit>(*hit, *sl, theDTGeometry));
+  for (const auto& hit : hits) {
+    result.push_back(std::make_shared<DTHitPairForFit>(hit, *sl, theDTGeometry));
   }
   return result;
 }
@@ -100,8 +100,8 @@ vector<DTSegmentCand*> DTCombinatorialExtendedPatternReco::buildSegments(
 
   if (debug) {
     cout << "DTCombinatorialExtendedPatternReco::buildSegments: " << sl->id() << " nHits " << hits.size() << endl;
-    for (vector<std::shared_ptr<DTHitPairForFit>>::const_iterator hit = hits.begin(); hit != hits.end(); ++hit)
-      cout << **hit << endl;
+    for (const auto& hit : hits)
+      cout << *hit << endl;
   }
 
   // 10-Mar-2004 SL
@@ -137,12 +137,12 @@ vector<DTSegmentCand*> DTCombinatorialExtendedPatternReco::buildSegments(
         DAlphaMax = theAlphaMaxPhi;
 
       DTEnums::DTCellSide codes[2] = {DTEnums::Right, DTEnums::Left};
-      for (int firstLR = 0; firstLR < 2; ++firstLR) {
-        for (int lastLR = 0; lastLR < 2; ++lastLR) {
+      for (auto& code : codes) {
+        for (auto& lastLR : codes) {
           // TODO move the global transformation in the DTHitPairForFit class
           // when it will be moved I will able to remove the sl from the input parameter
-          GlobalPoint gposFirst = sl->toGlobal((*firstHit)->localPosition(codes[firstLR]));
-          GlobalPoint gposLast = sl->toGlobal((*lastHit)->localPosition(codes[lastLR]));
+          GlobalPoint gposFirst = sl->toGlobal((*firstHit)->localPosition(code));
+          GlobalPoint gposLast = sl->toGlobal((*lastHit)->localPosition(lastLR));
 
           GlobalVector gvec = gposLast - gposFirst;
           GlobalVector gvecIP = gposLast - IP;
@@ -154,8 +154,8 @@ vector<DTSegmentCand*> DTCombinatorialExtendedPatternReco::buildSegments(
           if (DAlpha < DAlphaMax) {
             // create a segment hypotesis
             // I don't need a true segment, just direction and position
-            LocalPoint posIni = (*firstHit)->localPosition(codes[firstLR]);
-            LocalVector dirIni = ((*lastHit)->localPosition(codes[lastLR]) - posIni).unit();
+            LocalPoint posIni = (*firstHit)->localPosition(code);
+            LocalVector dirIni = ((*lastHit)->localPosition(lastLR) - posIni).unit();
 
             // search for other compatible hits, with or without the L/R solved
             vector<DTSegmentCand::AssPoint> assHits = findCompatibleHits(posIni, dirIni, hits);
@@ -194,8 +194,8 @@ vector<DTSegmentCand*> DTCombinatorialExtendedPatternReco::buildSegments(
     }
   }
   if (debug) {
-    for (vector<DTSegmentCand*>::const_iterator seg = result.begin(); seg != result.end(); ++seg)
-      cout << *(*seg) << endl;
+    for (auto seg : result)
+      cout << *seg << endl;
   }
 
   // now I have a couple of segment hypotesis, should check for ghost
@@ -203,8 +203,8 @@ vector<DTSegmentCand*> DTCombinatorialExtendedPatternReco::buildSegments(
   result = theCleaner->clean(result);
   if (debug) {
     cout << "result no ghost  " << result.size() << endl;
-    for (vector<DTSegmentCand*>::const_iterator seg = result.begin(); seg != result.end(); ++seg)
-      cout << *(*seg) << endl;
+    for (auto seg : result)
+      cout << *seg << endl;
   }
 
   // here, finally, I have to return the set of _original_ segments, not the
@@ -224,8 +224,8 @@ vector<DTSegmentCand::AssPoint> DTCombinatorialExtendedPatternReco::findCompatib
 
   typedef vector<std::shared_ptr<DTHitPairForFit>> hitCont;
   typedef hitCont::const_iterator hitIter;
-  for (hitIter hit = hits.begin(); hit != hits.end(); ++hit) {
-    pair<bool, bool> isCompatible = (*hit)->isCompatible(posIni, dirIni);
+  for (const auto& hit : hits) {
+    pair<bool, bool> isCompatible = hit->isCompatible(posIni, dirIni);
     if (debug)
       cout << "isCompatible " << isCompatible.first << " " << isCompatible.second << endl;
 
@@ -249,7 +249,7 @@ vector<DTSegmentCand::AssPoint> DTCombinatorialExtendedPatternReco::findCompatib
       tried.push_back(0);
       continue;  // neither is compatible
     }
-    result.push_back(DTSegmentCand::AssPoint(*hit, lrcode));
+    result.push_back(DTSegmentCand::AssPoint(hit, lrcode));
   }
 
   // check if too few associated hits or pattern already tried
@@ -285,11 +285,11 @@ DTSegmentExtendedCand* DTCombinatorialExtendedPatternReco::buildBestSegment(std:
   deque<std::shared_ptr<DTHitPairForFit>> pointsNoLR;
 
   // first add only the hits with LR assigned
-  for (vector<DTSegmentCand::AssPoint>::const_iterator hit = hits.begin(); hit != hits.end(); ++hit) {
-    if ((*hit).second != DTEnums::undefLR) {
-      points.push_back(*hit);
+  for (const auto& hit : hits) {
+    if (hit.second != DTEnums::undefLR) {
+      points.push_back(hit);
     } else {  // then also for the undef'd one
-      pointsNoLR.push_back((*hit).first);
+      pointsNoLR.push_back(hit.first);
     }
   }
 
@@ -394,8 +394,8 @@ void DTCombinatorialExtendedPatternReco::buildPointsCollection(vector<DTSegmentC
 }
 
 bool DTCombinatorialExtendedPatternReco::checkDoubleCandidates(vector<DTSegmentCand*>& cands, DTSegmentCand* seg) {
-  for (vector<DTSegmentCand*>::iterator cand = cands.begin(); cand != cands.end(); ++cand)
-    if (*(*cand) == *seg)
+  for (auto& cand : cands)
+    if (*cand == *seg)
       return false;
   return true;
 }
@@ -408,10 +408,10 @@ vector<DTSegmentExtendedCand*> DTCombinatorialExtendedPatternReco::extendCandida
 
   // in case of phi SL just return
   if (sl->id().superLayer() != 2) {
-    for (vector<DTSegmentCand*>::const_iterator cand = candidates.begin(); cand != candidates.end(); ++cand) {
-      DTSegmentExtendedCand* extendedCand = new DTSegmentExtendedCand(*cand);
+    for (auto candidate : candidates) {
+      DTSegmentExtendedCand* extendedCand = new DTSegmentExtendedCand(candidate);
       // and delete the original candidate
-      delete *cand;
+      delete candidate;
       result.push_back(extendedCand);
     }
     return result;
@@ -424,37 +424,35 @@ vector<DTSegmentExtendedCand*> DTCombinatorialExtendedPatternReco::extendCandida
     cout << "AllClustersWithPos " << theClusters.size() << endl;
   if (debug)
     cout << "SL:   " << sl->id() << endl;
-  for (vector<DTSLRecCluster>::const_iterator clus = theClusters.begin(); clus != theClusters.end(); ++clus) {
+  for (const auto& theCluster : theClusters) {
     if (debug)
-      cout << "CLUS: " << (*clus).superLayerId() << endl;
-    if ((*clus).superLayerId().superLayer() == 2 && closeSL(sl->id(), (*clus).superLayerId())) {
+      cout << "CLUS: " << theCluster.superLayerId() << endl;
+    if (theCluster.superLayerId().superLayer() == 2 && closeSL(sl->id(), theCluster.superLayerId())) {
       // and then get their pos in the actual SL frame
-      const DTSuperLayer* clusSl = theDTGeometry->superLayer((*clus).superLayerId());
-      LocalPoint pos = sl->toLocal(clusSl->toGlobal((*clus).localPosition()));
+      const DTSuperLayer* clusSl = theDTGeometry->superLayer(theCluster.superLayerId());
+      LocalPoint pos = sl->toLocal(clusSl->toGlobal(theCluster.localPosition()));
       //LocalError err=sl->toLocal(clusSl->toGlobal((*clus).localPositionError()));
-      LocalError err = (*clus).localPositionError();
-      clustersWithPos.push_back(DTSegmentExtendedCand::DTSLRecClusterForFit(*clus, pos, err));
+      LocalError err = theCluster.localPositionError();
+      clustersWithPos.push_back(DTSegmentExtendedCand::DTSLRecClusterForFit(theCluster, pos, err));
     }
   }
   if (debug)
     cout << "closeClustersWithPos " << clustersWithPos.size() << endl;
 
-  for (vector<DTSegmentCand*>::const_iterator cand = candidates.begin(); cand != candidates.end(); ++cand) {
+  for (auto candidate : candidates) {
     // create an extended candidate
-    DTSegmentExtendedCand* extendedCand = new DTSegmentExtendedCand(*cand);
+    DTSegmentExtendedCand* extendedCand = new DTSegmentExtendedCand(candidate);
     // and delete the original candidate
-    delete *cand;
+    delete candidate;
     // do this only for theta SL
     if (extendedCand->superLayer()->id().superLayer() == 2) {
       // first check compatibility between cand and clusForFit
-      for (vector<DTSegmentExtendedCand::DTSLRecClusterForFit>::const_iterator exClus = clustersWithPos.begin();
-           exClus != clustersWithPos.end();
-           ++exClus) {
-        if (extendedCand->isCompatible(*exClus)) {
+      for (const auto& clustersWithPo : clustersWithPos) {
+        if (extendedCand->isCompatible(clustersWithPo)) {
           if (debug)
             cout << "is compatible " << endl;
           // add compatible cluster
-          extendedCand->addClus(*exClus);
+          extendedCand->addClus(clustersWithPo);
         }
       }
       // fit the segment

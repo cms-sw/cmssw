@@ -165,9 +165,9 @@ FedRawDataInputSource::~FedRawDataInputSource() {
   quit_threads_ = true;
 
   //delete any remaining open files
-  for (auto it = filesToDelete_.begin(); it != filesToDelete_.end(); it++) {
-    std::string fileToDelete = it->second->fileName_;
-    it->second.release();
+  for (auto& it : filesToDelete_) {
+    std::string fileToDelete = it.second->fileName_;
+    it.second.release();
   }
   if (startedSupervisorThread_) {
     readSupervisorThread_->join();
@@ -1173,9 +1173,9 @@ void FedRawDataInputSource::readSupervisor() {
     cvReader_[tid]->notify_one();
     numFinishedThreads++;
   }
-  for (unsigned int i = 0; i < workerThreads_.size(); i++) {
-    workerThreads_[i]->join();
-    delete workerThreads_[i];
+  for (auto& workerThread : workerThreads_) {
+    workerThread->join();
+    delete workerThread;
   }
 }
 

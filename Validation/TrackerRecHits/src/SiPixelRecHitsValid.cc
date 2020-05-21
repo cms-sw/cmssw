@@ -294,8 +294,8 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   TrackerHitAssociator associate(e, trackerHitAssociatorConfig_);
 
   //iterate over detunits
-  for (TrackerGeometry::DetContainer::const_iterator it = geom->dets().begin(); it != geom->dets().end(); it++) {
-    DetId detId = ((*it)->geographicalId());
+  for (auto it : geom->dets()) {
+    DetId detId = (it->geographicalId());
     unsigned int subid = detId.subdetId();
 
     if (!((subid == 1) || (subid == 2)))

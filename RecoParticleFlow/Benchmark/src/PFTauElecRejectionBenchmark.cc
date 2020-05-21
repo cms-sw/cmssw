@@ -255,10 +255,10 @@ void PFTauElecRejectionBenchmark::process(edm::Handle<edm::HepMCProduct> mcevt,
               continue;  // do nothing
             } else {
               // Match with gen object
-              for (unsigned int i = 0; i < _GenObjects.size(); i++) {
-                if (_GenObjects[i].Et() >= minMCPt_ && std::abs(_GenObjects[i].Eta()) < maxMCAbsEta_) {
+              for (auto& _GenObject : _GenObjects) {
+                if (_GenObject.Et() >= minMCPt_ && std::abs(_GenObject.Eta()) < maxMCAbsEta_) {
                   TLorentzVector pftau((*thePFTau).px(), (*thePFTau).py(), (*thePFTau).pz(), (*thePFTau).energy());
-                  double GenDeltaR = pftau.DeltaR(_GenObjects[i]);
+                  double GenDeltaR = pftau.DeltaR(_GenObject);
                   if (GenDeltaR < maxDeltaR_) {
                     hleadTk_pt->Fill((float)myleadTk->pt());
                     hleadTk_eta->Fill((float)myleadTk->eta());
@@ -307,8 +307,8 @@ void PFTauElecRejectionBenchmark::process(edm::Handle<edm::HepMCProduct> mcevt,
 
                 // Loop over all PFCands for cluster plots
                 std::vector<CandidatePtr> myPFCands = (*thePFTau).pfTauTagInfoRef()->PFCands();
-                for (int i = 0; i < (int)myPFCands.size(); i++) {
-                  const reco::PFCandidate* pfCand = dynamic_cast<const reco::PFCandidate*>(myPFCands[i].get());
+                for (auto& myPFCand : myPFCands) {
+                  const reco::PFCandidate* pfCand = dynamic_cast<const reco::PFCandidate*>(myPFCand.get());
                   if (pfCand == nullptr)
                     continue;
 
@@ -321,7 +321,7 @@ void PFTauElecRejectionBenchmark::process(edm::Handle<edm::HepMCProduct> mcevt,
 
                   //double deltaR   = ROOT::Math::VectorUtil::DeltaR(myleadTkEcalPos,candPos);
                   double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(myleadTkEcalPos, candPos);
-                  double deltaEta = std::abs(myleadTkEcalPos.eta() - myPFCands[i]->eta());
+                  double deltaEta = std::abs(myleadTkEcalPos.eta() - myPFCand->eta());
                   double deltaPhiOverQ = deltaPhi / (double)myleadTk->charge();
 
                   hpfcand_deltaEta->Fill(deltaEta);

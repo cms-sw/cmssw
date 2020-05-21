@@ -65,9 +65,8 @@ CalibrationTrackSelectorFromDetIdList::CalibrationTrackSelectorFromDetIdList(con
     : detidsels_() {
   std::vector<edm::ParameterSet> selconfigs = iConfig.getParameter<std::vector<edm::ParameterSet>>("selections");
 
-  for (std::vector<edm::ParameterSet>::const_iterator selconfig = selconfigs.begin(); selconfig != selconfigs.end();
-       ++selconfig) {
-    DetIdSelector selection(*selconfig);
+  for (const auto &selconfig : selconfigs) {
+    DetIdSelector selection(selconfig);
     detidsels_.push_back(selection);
   }
 

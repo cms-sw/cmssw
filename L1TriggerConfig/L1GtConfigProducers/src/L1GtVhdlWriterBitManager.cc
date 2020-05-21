@@ -70,9 +70,9 @@ std::string L1GtVhdlWriterBitManager::readMapInverse(const std::map<std::string,
 
 std::string L1GtVhdlWriterBitManager::hex2bin(std::string hexString) {
   std::string temp;
-  for (unsigned int i = 0; i < hexString.length(); i++) {
+  for (char i : hexString) {
     std::string str;
-    str = hexString[i];
+    str = i;
 
     temp += hex2binMap_[str];
   }
@@ -103,8 +103,8 @@ std::string L1GtVhdlWriterBitManager::mirror(unsigned int offset, std::string he
   bool hexInput = false;
 
   // check weather input hex or binary
-  for (unsigned int i = 0; i < hexString.length(); i++) {
-    if (hexString[i] != '0' || hexString[i] != '1') {
+  for (char i : hexString) {
+    if (i != '0' || i != '1') {
       hexInput = true;
       break;
     }

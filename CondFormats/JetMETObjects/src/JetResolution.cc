@@ -43,10 +43,10 @@ JetResolution::JetResolution(const string& fileName, bool doGaussian) : resoluti
 //______________________________________________________________________________
 JetResolution::~JetResolution() {
   delete resolutionFnc_;
-  for (unsigned i = 0; i < parameterFncs_.size(); i++)
-    delete parameterFncs_[i];
-  for (unsigned i = 0; i < parameters_.size(); i++)
-    delete parameters_[i];
+  for (auto& parameterFnc : parameterFncs_)
+    delete parameterFnc;
+  for (auto& parameter : parameters_)
+    delete parameter;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

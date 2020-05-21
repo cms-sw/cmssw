@@ -126,8 +126,8 @@ namespace cms {
 
     edm::Handle<CrossingFrame<PSimHit>> cf_simhit;
     std::vector<const CrossingFrame<PSimHit> *> cf_simhitvec;
-    for (uint32_t i = 0; i < trackerContainers.size(); i++) {
-      iEvent.getByLabel("mix", trackerContainers[i], cf_simhit);
+    for (const auto &trackerContainer : trackerContainers) {
+      iEvent.getByLabel("mix", trackerContainer, cf_simhit);
       cf_simhitvec.push_back(cf_simhit.product());
     }
     std::unique_ptr<MixCollection<PSimHit>> allTrackerHits(new MixCollection<PSimHit>(cf_simhitvec));

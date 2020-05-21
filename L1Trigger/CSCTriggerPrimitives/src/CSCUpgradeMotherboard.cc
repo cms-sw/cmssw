@@ -71,8 +71,8 @@ void CSCUpgradeMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCCo
   encodeHighMultiplicityBits(alctBits);
 
   int used_clct_mask[20];
-  for (int c = 0; c < 20; ++c)
-    used_clct_mask[c] = 0;
+  for (int& c : used_clct_mask)
+    c = 0;
 
   // ALCT centric matching
   for (int bx_alct = 0; bx_alct < CSCConstants::MAX_ALCT_TBINS; bx_alct++) {

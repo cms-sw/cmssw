@@ -311,24 +311,24 @@ HLTObjectMonitor::HLTObjectMonitor(const edm::ParameterSet& iConfig)
   wallTime_pset = iConfig.getParameter<edm::ParameterSet>("wallTime");
   plotMap[&wallTime_] = &wallTime_pset;
 
-  for (auto item = plotMap.begin(); item != plotMap.end(); item++) {
-    (*item->first).pathName = (*item->second).getParameter<string>("pathName");
-    (*item->first).moduleName = (*item->second).getParameter<string>("moduleName");
-    (*item->first).nBins = (*item->second).getParameter<int>("NbinsX");
-    (*item->first).xMin = (*item->second).getParameter<double>("Xmin");
-    (*item->first).xMax = (*item->second).getParameter<double>("Xmax");
-    (*item->first).xAxisLabel = (*item->second).getParameter<string>("axisLabel");
-    (*item->first).plotLabel = (*item->second).getParameter<string>("plotLabel");
-    (*item->first).displayInPrimary = (*item->second).getParameter<bool>("mainWorkspace");
+  for (auto& item : plotMap) {
+    (*item.first).pathName = (*item.second).getParameter<string>("pathName");
+    (*item.first).moduleName = (*item.second).getParameter<string>("moduleName");
+    (*item.first).nBins = (*item.second).getParameter<int>("NbinsX");
+    (*item.first).xMin = (*item.second).getParameter<double>("Xmin");
+    (*item.first).xMax = (*item.second).getParameter<double>("Xmax");
+    (*item.first).xAxisLabel = (*item.second).getParameter<string>("axisLabel");
+    (*item.first).plotLabel = (*item.second).getParameter<string>("plotLabel");
+    (*item.first).displayInPrimary = (*item.second).getParameter<bool>("mainWorkspace");
 
-    if ((*item->second).exists("pathName_OR")) {
-      (*item->first).pathNameOR = (*item->second).getParameter<string>("pathName_OR");
+    if ((*item.second).exists("pathName_OR")) {
+      (*item.first).pathNameOR = (*item.second).getParameter<string>("pathName_OR");
     }
-    if ((*item->second).exists("moduleName_OR")) {
-      (*item->first).moduleNameOR = (*item->second).getParameter<string>("moduleName_OR");
+    if ((*item.second).exists("moduleName_OR")) {
+      (*item.first).moduleNameOR = (*item.second).getParameter<string>("moduleName_OR");
     }
 
-    plotList.push_back(item->first);
+    plotList.push_back(item.first);
   }
   plotMap.clear();
 
@@ -550,8 +550,8 @@ void HLTObjectMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         iEvent.getByToken(csvPfJetsToken_, csvPfJets);
 
         if (csvPfTags.isValid() && csvPfJets.isValid()) {
-          for (auto iter = csvPfTags->begin(); iter != csvPfTags->end(); iter++)
-            bJetCSVPF_.ME->Fill(iter->second);
+          for (const auto& iter : *csvPfTags)
+            bJetCSVPF_.ME->Fill(iter.second);
         }
       }
       if (pathName == bJetCSVCalo_.pathName) {
@@ -561,8 +561,8 @@ void HLTObjectMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         iEvent.getByToken(csvCaloJetsToken_, csvCaloJets);
 
         if (csvCaloTags.isValid() && csvCaloJets.isValid()) {
-          for (auto iter = csvCaloTags->begin(); iter != csvCaloTags->end(); iter++)
-            bJetCSVCalo_.ME->Fill(iter->second);
+          for (const auto& iter : *csvCaloTags)
+            bJetCSVCalo_.ME->Fill(iter.second);
         }
       }
 
@@ -826,12 +826,10 @@ double HLTObjectMonitor::dxyFinder(double eta,
                                    edm::Handle<reco::RecoChargedCandidateCollection> recoChargedCands,
                                    edm::Handle<reco::BeamSpot> recoBeamSpot) {
   double dxy = -99.;
-  for (reco::RecoChargedCandidateCollection::const_iterator l3Muon = recoChargedCands->begin();
-       l3Muon != recoChargedCands->end();
-       l3Muon++) {
-    if (deltaR(eta, phi, l3Muon->eta(), l3Muon->phi()) < 0.1) {
-      dxy = (-(l3Muon->vx() - recoBeamSpot->x0()) * l3Muon->py() + (l3Muon->vy() - recoBeamSpot->y0()) * l3Muon->px()) /
-            l3Muon->pt();
+  for (const auto& l3Muon : *recoChargedCands) {
+    if (deltaR(eta, phi, l3Muon.eta(), l3Muon.phi()) < 0.1) {
+      dxy = (-(l3Muon.vx() - recoBeamSpot->x0()) * l3Muon.py() + (l3Muon.vy() - recoBeamSpot->y0()) * l3Muon.px()) /
+            l3Muon.pt();
       break;
     }
   }

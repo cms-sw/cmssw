@@ -64,10 +64,8 @@ TauDiscriminationProducerBase<TauType, TauDiscriminator, TauDiscriminatorDataTyp
   // get the list of prediscriminants
   std::vector<std::string> prediscriminantsNames = prediscriminantConfig.getParameterNamesForType<edm::ParameterSet>();
 
-  for (std::vector<std::string>::const_iterator iDisc = prediscriminantsNames.begin();
-       iDisc != prediscriminantsNames.end();
-       ++iDisc) {
-    const edm::ParameterSet& iPredisc = prediscriminantConfig.getParameter<edm::ParameterSet>(*iDisc);
+  for (const auto& prediscriminantsName : prediscriminantsNames) {
+    const edm::ParameterSet& iPredisc = prediscriminantConfig.getParameter<edm::ParameterSet>(prediscriminantsName);
     const edm::InputTag& label = iPredisc.getParameter<edm::InputTag>("Producer");
     double cut = iPredisc.getParameter<double>("cut");
 

@@ -765,17 +765,16 @@ SingleTopTChannelLeptonDQM_miniAOD::SingleTopTChannelLeptonDQM_miniAOD(const edm
   // conifgure the selection
   sel_ = cfg.getParameter<std::vector<edm::ParameterSet>>("selection");
   setup_ = cfg.getParameter<edm::ParameterSet>("setup");
-  for (unsigned int i = 0; i < sel_.size(); ++i) {
-    selectionOrder_.push_back(sel_.at(i).getParameter<std::string>("label"));
+  for (auto& i : sel_) {
+    selectionOrder_.push_back(i.getParameter<std::string>("label"));
     selection_[selectionStep(selectionOrder_.back())] =
-        std::make_pair(sel_.at(i),
+        std::make_pair(i,
                        std::unique_ptr<SingleTopTChannelLepton_miniAOD::MonitorEnsemble>(
                            new SingleTopTChannelLepton_miniAOD::MonitorEnsemble(
                                selectionStep(selectionOrder_.back()).c_str(), setup_, consumesCollector())));
   }
-  for (std::vector<std::string>::const_iterator selIt = selectionOrder_.begin(); selIt != selectionOrder_.end();
-       ++selIt) {
-    std::string key = selectionStep(*selIt), type = objectType(*selIt);
+  for (const auto& selIt : selectionOrder_) {
+    std::string key = selectionStep(selIt), type = objectType(selIt);
     if (selection_.find(key) != selection_.end()) {
       if (type == "muons") {
         MuonStep.reset(new SelectionStep<pat::Muon>(selection_[key].first, consumesCollector()));
@@ -800,8 +799,8 @@ SingleTopTChannelLeptonDQM_miniAOD::SingleTopTChannelLeptonDQM_miniAOD(const edm
 void SingleTopTChannelLeptonDQM_miniAOD::bookHistograms(DQMStore::IBooker& ibooker,
                                                         edm::Run const&,
                                                         edm::EventSetup const&) {
-  for (auto selIt = selection_.begin(); selIt != selection_.end(); ++selIt) {
-    selIt->second.second->book(ibooker);
+  for (auto& selIt : selection_) {
+    selIt.second.second->book(ibooker);
   }
 }
 void SingleTopTChannelLeptonDQM_miniAOD::analyze(const edm::Event& event, const edm::EventSetup& setup) {
@@ -823,9 +822,8 @@ void SingleTopTChannelLeptonDQM_miniAOD::analyze(const edm::Event& event, const 
   unsigned int passed = 0;
   unsigned int nJetSteps = -1;
 
-  for (std::vector<std::string>::const_iterator selIt = selectionOrder_.begin(); selIt != selectionOrder_.end();
-       ++selIt) {
-    std::string key = selectionStep(*selIt), type = objectType(*selIt);
+  for (const auto& selIt : selectionOrder_) {
+    std::string key = selectionStep(selIt), type = objectType(selIt);
     if (selection_.find(key) != selection_.end()) {
       if (type == "empty") {
         selection_[key].second->fill(event, setup);

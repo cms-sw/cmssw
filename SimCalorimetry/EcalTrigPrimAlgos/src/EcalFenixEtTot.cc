@@ -14,8 +14,8 @@ void EcalFenixEtTot::process(std::vector<std::vector<int>> &bypasslinout,
                              int nStr,
                              int bitMask,
                              std::vector<int> &output) {
-  for (unsigned int i = 0; i < output.size(); i++) {
-    output[i] = 0;
+  for (int &i : output) {
+    i = 0;
   }
 
   int mask = (1 << bitMask) - 1;

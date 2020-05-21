@@ -535,14 +535,14 @@ void StandaloneTrackMonitor::processClusters(edm::Event const& iEvent,
       bool detid_found = (jt != clusterMap_.end()) ? true : false;
 
       // Loop on Clusters
-      for (edmNew::DetSet<SiStripCluster>::const_iterator clusit = dsvit->begin(); clusit != dsvit->end(); ++clusit) {
+      for (const auto& clusit : *dsvit) {
         if (detid_found) {
           std::set<const SiStripCluster*>& s = jt->second;
-          if (s.find(&*clusit) != s.end())
+          if (s.find(&clusit) != s.end())
             continue;
         }
 
-        siStripClusterInfo_.setCluster(*clusit, detId);
+        siStripClusterInfo_.setCluster(clusit, detId);
         float charge = siStripClusterInfo_.charge();
         float width = siStripClusterInfo_.width();
 

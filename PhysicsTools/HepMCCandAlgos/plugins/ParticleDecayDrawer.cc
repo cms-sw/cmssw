@@ -90,8 +90,8 @@ void ParticleDecayDrawer::analyze(const Event &event, const EventSetup &es) {
   cout << "-- decay: --" << endl;
   if (!moms.empty()) {
     if (moms.size() > 1)
-      for (size_t m = 0; m < moms.size(); ++m) {
-        string dec = decay(*moms[m], skip);
+      for (auto &mom : moms) {
+        string dec = decay(*mom, skip);
         if (!dec.empty())
           cout << "{ " << dec << " } ";
       }
@@ -101,9 +101,9 @@ void ParticleDecayDrawer::analyze(const Event &event, const EventSetup &es) {
   if (!nodes.empty()) {
     cout << "-> ";
     if (nodes.size() > 1) {
-      for (size_t n = 0; n < nodes.size(); ++n) {
-        skip.remove(nodes[n]);
-        string dec = decay(*nodes[n], skip);
+      for (auto &node : nodes) {
+        skip.remove(node);
+        string dec = decay(*node, skip);
         if (!dec.empty()) {
           if (dec.find("->", 0) != string::npos)
             cout << " ( " << dec << " )";

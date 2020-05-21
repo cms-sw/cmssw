@@ -404,20 +404,19 @@ int TSGForOI::makeSeedsFromHits(const TrackerTopology* tTopo,
   //	Find Measurements on each DetWithState:
   LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: find measurements on each detWithState  " << dets.size() << endl;
   std::vector<TrajectoryMeasurement> meas;
-  for (std::vector<GeometricSearchDet::DetWithState>::iterator it = dets.begin(); it != dets.end(); ++it) {
-    MeasurementDetWithData det = measurementTracker.idToDet(it->first->geographicalId());
+  for (auto& it : dets) {
+    MeasurementDetWithData det = measurementTracker.idToDet(it.first->geographicalId());
     if (det.isNull()) {
       continue;
     }
-    if (!it->second.isValid())
+    if (!it.second.isValid())
       continue;  //Skip if TSOS is not valid
 
     std::vector<TrajectoryMeasurement> mymeas =
-        det.fastMeasurements(it->second, onLayer, propagatorAlong, *estimatorH);  //Second TSOS is not used
-    for (std::vector<TrajectoryMeasurement>::const_iterator it2 = mymeas.begin(), ed2 = mymeas.end(); it2 != ed2;
-         ++it2) {
-      if (it2->recHit()->isValid())
-        meas.push_back(*it2);  //Only save those which are valid
+        det.fastMeasurements(it.second, onLayer, propagatorAlong, *estimatorH);  //Second TSOS is not used
+    for (const auto& mymea : mymeas) {
+      if (mymea.recHit()->isValid())
+        meas.push_back(mymea);  //Only save those which are valid
     }
   }
 
@@ -427,15 +426,15 @@ int TSGForOI::makeSeedsFromHits(const TrackerTopology* tTopo,
       << meas.size() << endl;
   unsigned int found = 0;
   std::sort(meas.begin(), meas.end(), TrajMeasLessEstim());
-  for (std::vector<TrajectoryMeasurement>::const_iterator it = meas.begin(); it != meas.end(); ++it) {
-    TrajectoryStateOnSurface updatedTSOS = updator_->update(it->forwardPredictedState(), *it->recHit());
+  for (const auto& mea : meas) {
+    TrajectoryStateOnSurface updatedTSOS = updator_->update(mea.forwardPredictedState(), *mea.recHit());
     LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: TSOS for TM " << found << endl;
     if (not updatedTSOS.isValid())
       continue;
 
     // CHECK if is StereoLayer:
     if (useStereoLayersInTEC_ && (fabs(l2Eta) > 0.8 && fabs(l2Eta) < 1.6)) {
-      DetId detid = ((*it).recHit()->hit())->geographicalId();
+      DetId detid = (mea.recHit()->hit())->geographicalId();
       if (detid.subdetId() == StripSubdetector::TEC) {
         if (!tTopo->tecIsStereo(detid.rawId()))
           break;  // try another layer
@@ -443,9 +442,9 @@ int TSGForOI::makeSeedsFromHits(const TrackerTopology* tTopo,
     }
 
     edm::OwnVector<TrackingRecHit> seedHits;
-    seedHits.push_back(*it->recHit()->hit());
+    seedHits.push_back(*mea.recHit()->hit());
     PTrajectoryStateOnDet const& pstate =
-        trajectoryStateTransform::persistentState(updatedTSOS, it->recHit()->geographicalId().rawId());
+        trajectoryStateTransform::persistentState(updatedTSOS, mea.recHit()->geographicalId().rawId());
     LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: number of seedHits: " << seedHits.size() << endl;
     TrajectorySeed seed(pstate, std::move(seedHits), oppositeToMomentum);
     out.push_back(seed);

@@ -191,8 +191,8 @@ void CandOneToOneDeltaRMatcher::produce(Event& evt, const EventSetup& es) {
 double CandOneToOneDeltaRMatcher::lenght(const vector<int>& best) {
   double myLenght = 0;
   int row = 0;
-  for (vector<int>::const_iterator it = best.begin(); it != best.end(); it++) {
-    myLenght += AllDist[row][*it];
+  for (int it : best) {
+    myLenght += AllDist[row][it];
     row++;
   }
   return myLenght;

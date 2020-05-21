@@ -112,8 +112,8 @@ bool L1GtVhdlWriterCore::findObjectType(const L1GtObject &object, ConditionMap &
 
   ConditionMap::iterator condIter = map.begin();
   while (condIter != map.end()) {
-    for (unsigned int i = 0; i < (condIter->second->objectType()).size(); i++) {
-      if (condIter->second->objectType()[i] == object) {
+    for (auto i : (condIter->second->objectType())) {
+      if (i == object) {
         status = true;
         break;
       }
@@ -138,13 +138,13 @@ void L1GtVhdlWriterCore::getMuonSetupContentFromTriggerMenu(const unsigned short
   muonConditionTypes.push_back(Type3s);
   muonConditionTypes.push_back(Type4s);
 
-  for (unsigned int i = 0; i < muonConditionTypes.size(); i++) {
+  for (auto &muonConditionType : muonConditionTypes) {
     //std::cout<<i<<std::endl;
 
     ConditionMap MuonConditions1s;
 
     countCondsAndAdd2NumberVec(
-        muonConditionTypes.at(i), CondMuon, Mu, (*conditionMap_).at(condChip - 1), MuonConditions1s, condChip);
+        muonConditionType, CondMuon, Mu, (*conditionMap_).at(condChip - 1), MuonConditions1s, condChip);
 
     /*
          // Get the absoloute amount of conditions
@@ -170,7 +170,7 @@ void L1GtVhdlWriterCore::getMuonSetupContentFromTriggerMenu(const unsigned short
       L1GtMuonTemplate *m_gtMuonTemplate = static_cast<L1GtMuonTemplate *>(iterCond->second);
       const std::vector<L1GtMuonTemplate::ObjectParameter> *op = m_gtMuonTemplate->objectParameter();
 
-      if (muonConditionTypes.at(i) == Type1s) {
+      if (muonConditionType == Type1s) {
         // build eta
         muonParameters["eta_1_s"] += (bm_.buildEtaMuon(op, 1, counter));
 
@@ -186,7 +186,7 @@ void L1GtVhdlWriterCore::getMuonSetupContentFromTriggerMenu(const unsigned short
 
       } else
 
-          if (muonConditionTypes.at(i) == Type2s) {
+          if (muonConditionType == Type2s) {
         // build eta
         muonParameters["eta_2_s"] += (bm_.buildEtaMuon(op, 2, counter));
 
@@ -203,7 +203,7 @@ void L1GtVhdlWriterCore::getMuonSetupContentFromTriggerMenu(const unsigned short
       } else
           //m_gtMuonTemplate->print(std::cout);
 
-          if (muonConditionTypes.at(i) == Type3s) {
+          if (muonConditionType == Type3s) {
         // build eta
         muonParameters["eta_3"] += (bm_.buildEtaMuon(op, 3, counter));
 
@@ -218,7 +218,7 @@ void L1GtVhdlWriterCore::getMuonSetupContentFromTriggerMenu(const unsigned short
         }
       }
 
-      if (muonConditionTypes.at(i) == Type4s) {
+      if (muonConditionType == Type4s) {
         // build eta
         muonParameters["eta_4"] += (bm_.buildEtaMuon(op, 4, counter));
 
@@ -233,7 +233,7 @@ void L1GtVhdlWriterCore::getMuonSetupContentFromTriggerMenu(const unsigned short
         }
       }
 
-      if (muonConditionTypes.at(i) == Type2wsc) {
+      if (muonConditionType == Type2wsc) {
         const L1GtMuonTemplate::CorrelationParameter *cp = m_gtMuonTemplate->correlationParameter();
 
         // build eta
@@ -274,14 +274,14 @@ bool L1GtVhdlWriterCore::getCaloSetupContentFromTriggerMenu(const unsigned short
   caloConditionTypes.push_back(Type2wsc);
   caloConditionTypes.push_back(Type4s);
 
-  for (unsigned int i = 0; i < caloConditionTypes.size(); i++) {
+  for (auto &caloConditionType : caloConditionTypes) {
     unsigned int counter = 0;
 
     ConditionMap caloConditions;
 
     // stores all conditions of type given in the first three parameters
     countCondsAndAdd2NumberVec(
-        caloConditionTypes.at(i), CondCalo, caloObject, (*conditionMap_).at(condChip - 1), caloConditions, condChip);
+        caloConditionType, CondCalo, caloObject, (*conditionMap_).at(condChip - 1), caloConditions, condChip);
 
     for (ConditionMap::const_iterator iterCond = caloConditions.begin(); iterCond != caloConditions.end(); iterCond++) {
       // add this condition to name -> integer conversion map
@@ -290,7 +290,7 @@ bool L1GtVhdlWriterCore::getCaloSetupContentFromTriggerMenu(const unsigned short
       L1GtCaloTemplate *m_gtCaloTemplate = static_cast<L1GtCaloTemplate *>(iterCond->second);
       const std::vector<L1GtCaloTemplate::ObjectParameter> *op = m_gtCaloTemplate->objectParameter();
 
-      if (caloConditionTypes.at(i) == Type1s) {
+      if (caloConditionType == Type1s) {
         //= static_cast<std::vector<L1GtCaloTemplate::ObjectPaenergySumParameter+=rameter*> >(op);
 
         // build eta
@@ -303,7 +303,7 @@ bool L1GtVhdlWriterCore::getCaloSetupContentFromTriggerMenu(const unsigned short
           caloParameters["phi_1_s"] += ("--" + iterCond->first + "\n");
         }
 
-      } else if (caloConditionTypes.at(i) == Type2s) {
+      } else if (caloConditionType == Type2s) {
         // build eta
         caloParameters["eta_2_s"] += (bm_.buildEtaCalo(op, 2, counter));
 
@@ -315,7 +315,7 @@ bool L1GtVhdlWriterCore::getCaloSetupContentFromTriggerMenu(const unsigned short
           caloParameters["phi_2_s"] += ("--" + iterCond->first + "\n");
         }
 
-      } else if (caloConditionTypes.at(i) == Type4s) {
+      } else if (caloConditionType == Type4s) {
         // build eta
         caloParameters["eta_4"] += (bm_.buildEtaCalo(op, 4, counter));
 
@@ -327,7 +327,7 @@ bool L1GtVhdlWriterCore::getCaloSetupContentFromTriggerMenu(const unsigned short
           caloParameters["phi_4"] += ("--" + iterCond->first + "\n");
         }
 
-      } else if (caloConditionTypes.at(i) == Type2wsc) {
+      } else if (caloConditionType == Type2wsc) {
         const L1GtCaloTemplate::CorrelationParameter *cp = m_gtCaloTemplate->correlationParameter();
 
         // build eta
@@ -479,14 +479,12 @@ bool L1GtVhdlWriterCore::getCondChipVhdContentFromTriggerMenu(const unsigned sho
   //--------------------------------------build the parameter maps----------------------------------------------
 
   // loop over condition map
-  for (ConditionMap::const_iterator iterCond = (*conditionMap_).at(condChip - 1).begin();
-       iterCond != (*conditionMap_).at(condChip - 1).end();
-       iterCond++) {
-    switch ((iterCond->second)->condCategory()) {
+  for (const auto &iterCond : (*conditionMap_).at(condChip - 1)) {
+    switch ((iterCond.second)->condCategory()) {
       case CondMuon: {
         int cond2int;
-        if (!getIntVal(conditionToIntegerMap_, (iterCond->first), cond2int)) {
-          msg("Panik! Condition " + (iterCond->first) + " does not have a integer equivalent!");
+        if (!getIntVal(conditionToIntegerMap_, (iterCond.first), cond2int)) {
+          msg("Panik! Condition " + (iterCond.first) + " does not have a integer equivalent!");
           break;
         }
 
@@ -494,21 +492,21 @@ bool L1GtVhdlWriterCore::getCondChipVhdContentFromTriggerMenu(const unsigned sho
 
         L1GtVhdlTemplateFile muoncopy = muon;
 
-        muoncopy.substitute("type", condType2Str_[(iterCond->second)->condType()]);
+        muoncopy.substitute("type", condType2Str_[(iterCond.second)->condType()]);
 
         muoncopy.substitute("ser_no", intVal);
 
-        muoncopy.substitute("name", iterCond->first);
+        muoncopy.substitute("name", iterCond.first);
 
-        if ((iterCond->second)->condType() == Type1s) {
+        if ((iterCond.second)->condType() == Type1s) {
           muoncopy.substitute(substParamCharge_, muon.getInternalParameter(stringConstantCharge1s_));
-        } else if ((iterCond->second)->condType() == Type2s) {
+        } else if ((iterCond.second)->condType() == Type2s) {
           muoncopy.substitute(substParamCharge_, muon.getInternalParameter(stringConstantCharge2s_));
-        } else if ((iterCond->second)->condType() == Type2wsc) {
+        } else if ((iterCond.second)->condType() == Type2wsc) {
           muoncopy.substitute(substParamCharge_, muon.getInternalParameter(stringConstantCharge2wsc_));
-        } else if ((iterCond->second)->condType() == Type3s) {
+        } else if ((iterCond.second)->condType() == Type3s) {
           muoncopy.substitute(substParamCharge_, muon.getInternalParameter(stringConstantCharge3s_));
-        } else if ((iterCond->second)->condType() == Type4s) {
+        } else if ((iterCond.second)->condType() == Type4s) {
           muoncopy.substitute(substParamCharge_, muon.getInternalParameter(stringConstantCharge4s_));
         }
 
@@ -516,7 +514,7 @@ bool L1GtVhdlWriterCore::getCondChipVhdContentFromTriggerMenu(const unsigned sho
 
         muoncopy.findAndReplaceString(tempStr, "$(particle)", "muon");
         muoncopy.findAndReplaceString(tempStr, "$(ser_no)", intVal);
-        muoncopy.findAndReplaceString(tempStr, "$(type)", condType2Str_[(iterCond->second)->condType()]);
+        muoncopy.findAndReplaceString(tempStr, "$(type)", condType2Str_[(iterCond.second)->condType()]);
 
         muoncopy.append(tempStr);
 
@@ -530,8 +528,8 @@ bool L1GtVhdlWriterCore::getCondChipVhdContentFromTriggerMenu(const unsigned sho
       case CondCalo: {
         int cond2int;
 
-        if (!getIntVal(conditionToIntegerMap_, (iterCond->first), cond2int)) {
-          msg("Panik! Condition " + (iterCond->first) + " does not have a integer equivalent!");
+        if (!getIntVal(conditionToIntegerMap_, (iterCond.first), cond2int)) {
+          msg("Panik! Condition " + (iterCond.first) + " does not have a integer equivalent!");
           break;
         }
 
@@ -539,15 +537,15 @@ bool L1GtVhdlWriterCore::getCondChipVhdContentFromTriggerMenu(const unsigned sho
 
         L1GtVhdlTemplateFile calocopy = calo;
 
-        calocopy.substitute("type", condType2Str_[(iterCond->second)->condType()]);
-        calocopy.substitute("particle", objType2Str_[((iterCond->second)->objectType()).at(0)]);
-        calocopy.substitute("name", iterCond->first);
+        calocopy.substitute("type", condType2Str_[(iterCond.second)->condType()]);
+        calocopy.substitute("particle", objType2Str_[((iterCond.second)->objectType()).at(0)]);
+        calocopy.substitute("name", iterCond.first);
         calocopy.substitute("ser_no", intVal);
-        calocopy.substitute("calo_nr", caloType2Int_[((iterCond->second)->objectType()).at(0)]);
+        calocopy.substitute("calo_nr", caloType2Int_[((iterCond.second)->objectType()).at(0)]);
 
         // builds something like tau_1_s(20));
-        calocopy.append(objType2Str_[((iterCond->second)->objectType()).at(0)] + "_" +
-                        condType2Str_[(iterCond->second)->condType()] + "(" + intVal + "));");
+        calocopy.append(objType2Str_[((iterCond.second)->objectType()).at(0)] + "_" +
+                        condType2Str_[(iterCond.second)->condType()] + "(" + intVal + "));");
 
         templates["calo"].append(calocopy);
 
@@ -556,8 +554,8 @@ bool L1GtVhdlWriterCore::getCondChipVhdContentFromTriggerMenu(const unsigned sho
       case CondEnergySum: {
         int cond2int;
 
-        if (!getIntVal(conditionToIntegerMap_, (iterCond->first), cond2int)) {
-          msg("Panik! Condition " + (iterCond->first) + " does not have a integer equivalent!");
+        if (!getIntVal(conditionToIntegerMap_, (iterCond.first), cond2int)) {
+          msg("Panik! Condition " + (iterCond.first) + " does not have a integer equivalent!");
           break;
         }
 
@@ -565,19 +563,19 @@ bool L1GtVhdlWriterCore::getCondChipVhdContentFromTriggerMenu(const unsigned sho
 
         L1GtVhdlTemplateFile esumscopy = esums;
 
-        esumscopy.substitute("type", condType2Str_[(iterCond->second)->condType()]);
-        esumscopy.substitute("particle", objType2Str_[((iterCond->second)->objectType()).at(0)]);
-        esumscopy.substitute("name", iterCond->first);
+        esumscopy.substitute("type", condType2Str_[(iterCond.second)->condType()]);
+        esumscopy.substitute("particle", objType2Str_[((iterCond.second)->objectType()).at(0)]);
+        esumscopy.substitute("name", iterCond.first);
         esumscopy.substitute("ser_no", intVal);
 
-        if (((iterCond->second)->objectType()).at(0) == ETM)
+        if (((iterCond.second)->objectType()).at(0) == ETM)
           esumscopy.substitute("if_etm_then_1_else_0", "1");
         else
           esumscopy.substitute("if_etm_then_1_else_0", "0");
 
         // builds something like htt_cond(4));
-        esumscopy.append(objType2Str_[((iterCond->second)->objectType()).at(0)] + "_" +
-                         condType2Str_[(iterCond->second)->condType()] + "(" + intVal + "));");
+        esumscopy.append(objType2Str_[((iterCond.second)->objectType()).at(0)] + "_" +
+                         condType2Str_[(iterCond.second)->condType()] + "(" + intVal + "));");
 
         templates["esums"].append(esumscopy);
       }
@@ -587,9 +585,9 @@ bool L1GtVhdlWriterCore::getCondChipVhdContentFromTriggerMenu(const unsigned sho
       case CondJetCounts: {
         // build the common parameter for the jet counts
 
-        L1GtJetCountsTemplate *jetsTemplate = static_cast<L1GtJetCountsTemplate *>(iterCond->second);
+        L1GtJetCountsTemplate *jetsTemplate = static_cast<L1GtJetCountsTemplate *>(iterCond.second);
 
-        int nObjects = iterCond->second->nrObjects();
+        int nObjects = iterCond.second->nrObjects();
 
         const std::vector<L1GtJetCountsTemplate::ObjectParameter> *op = jetsTemplate->objectParameter();
 
@@ -615,8 +613,8 @@ bool L1GtVhdlWriterCore::getCondChipVhdContentFromTriggerMenu(const unsigned sho
 
         int cond2int;
 
-        if (!getIntVal(conditionToIntegerMap_, (iterCond->first), cond2int)) {
-          msg("Panik! Condition " + (iterCond->first) + " does not have a integer equivalent!");
+        if (!getIntVal(conditionToIntegerMap_, (iterCond.first), cond2int)) {
+          msg("Panik! Condition " + (iterCond.first) + " does not have a integer equivalent!");
           break;
         }
 
@@ -624,9 +622,9 @@ bool L1GtVhdlWriterCore::getCondChipVhdContentFromTriggerMenu(const unsigned sho
 
         L1GtVhdlTemplateFile jetcopy = jet;
 
-        jetcopy.substitute("particle", condType2Str_[(iterCond->second)->condType()]);
+        jetcopy.substitute("particle", condType2Str_[(iterCond.second)->condType()]);
         jetcopy.substitute("type", int2str((*op)[0].countIndex));
-        jetcopy.substitute("name", iterCond->first);
+        jetcopy.substitute("name", iterCond.first);
 
         jetcopy.substitute("ser_no", intVal);
 
@@ -692,21 +690,21 @@ bool L1GtVhdlWriterCore::processAlgorithmMap(std::vector<std::map<int, std::stri
     std::string logicalExprCopy = logicalExpr;
 
     // loop over all condition names appearing in algorithm and replace them by type and integer value
-    for (unsigned int i = 0; i < conditions.size(); i++) {
+    for (const auto &condition : conditions) {
       std::ostringstream newExpr;
 
       // look for the condition on correct chip
       ConditionMap const &chip = conditionMap_->at(algoIter->second.algoChipNumber());
-      L1GtCondition const *cond = (chip.find(conditions.at(i)) == chip.end()) ? nullptr : chip.at(conditions.at(i));
+      L1GtCondition const *cond = (chip.find(condition) == chip.end()) ? nullptr : chip.at(condition);
 
       // check weather condition exists
       if (cond != nullptr) {
         newExpr << objType2Str_[(cond->objectType()).at(0)];
         newExpr << "_" << condType2Str_[cond->condType()] << "(";
-        newExpr << conditionToIntegerMap_[conditions.at(i)] << ")";
-        dummy.findAndReplaceString(logicalExpr, conditions.at(i), newExpr.str());
+        newExpr << conditionToIntegerMap_[condition] << ")";
+        dummy.findAndReplaceString(logicalExpr, condition, newExpr.str());
       } else
-        msg("Panik! Didn't find Condition " + conditions.at(i));
+        msg("Panik! Didn't find Condition " + condition);
     }
 
     // has to be checked!
@@ -941,49 +939,49 @@ void L1GtVhdlWriterCore::writeMuonSetupVhdl(std::map<std::string, std::string> &
   std::map<std::string, std::string>::iterator iter;
 
   // loop over all substitution parameters that have been extracted from the template file
-  for (unsigned int i = 0; i < substitutionParameters.size(); i++) {
+  for (auto &substitutionParameter : substitutionParameters) {
     // make a working copy of the template file
     internalTemplateCopy = internalTemplate;
 
     // choose which of the three constant template strings to take - only for calo!
     if (particle != "muon") {
-      if (substitutionParameters.at(i).substr(0, 3) == "eta")
+      if (substitutionParameter.substr(0, 3) == "eta")
         internalTemplateCopy.substitute("constant", parameterMap["eta"]);
-      else if (substitutionParameters.at(i).substr(0, 3) == "phi")
+      else if (substitutionParameter.substr(0, 3) == "phi")
         internalTemplateCopy.substitute("constant", parameterMap["phi"]);
-      else if (substitutionParameters.at(i).substr(0, 3) == "del" /*ta*/) {
+      else if (substitutionParameter.substr(0, 3) == "del" /*ta*/) {
         internalTemplateCopy.substitute("constant", parameterMap["delta"]);
-        while (internalTemplateCopy.substitute("delta", substitutionParameters[i]))
-          internalTemplateCopy.substitute("delta", substitutionParameters[i]);
+        while (internalTemplateCopy.substitute("delta", substitutionParameter))
+          internalTemplateCopy.substitute("delta", substitutionParameter);
       }
     }
 
     if (particle == "muon") {
       // final preparation of the internal template before it is inserted in the actual template file
-      internalTemplateCopy.substitute("type", substitutionParameters[i]);
+      internalTemplateCopy.substitute("type", substitutionParameter);
     } else
 
     {
-      internalTemplateCopy.substitute("type", substitutionParameters[i].substr(4));
+      internalTemplateCopy.substitute("type", substitutionParameter.substr(4));
     }
 
     // subsitute the second occurance of type without "_l" and "_h"
 
-    std::string paramCopy = substitutionParameters[i];
+    std::string paramCopy = substitutionParameter;
 
     internalTemplateCopy.findAndReplaceString(paramCopy, "_l", "");
     internalTemplateCopy.findAndReplaceString(paramCopy, "_h", "");
 
     internalTemplateCopy.substitute("type2", paramCopy);
 
-    internalTemplateCopy.substitute("others", parameterMap[substitutionParameters[i]]);
+    internalTemplateCopy.substitute("others", parameterMap[substitutionParameter]);
 
     // replace all the occurances of "particle"
     while (muonTemplate.substitute("particle", particle))
       muonTemplate.substitute("particle", particle);
 
     // remove the the parameter $(content) if its empty
-    iter = muonParameters.find(substitutionParameters[i]);
+    iter = muonParameters.find(substitutionParameter);
 
     // check weather this parameter exists
     if (iter != muonParameters.end()) {
@@ -994,7 +992,7 @@ void L1GtVhdlWriterCore::writeMuonSetupVhdl(std::map<std::string, std::string> &
       internalTemplateCopy.removeLineWithContent("$(content)");
 
     // insert the processed internal template in the muon template file
-    muonTemplate.insert("$(" + substitutionParameters[i] + ")", internalTemplateCopy);
+    muonTemplate.insert("$(" + substitutionParameter + ")", internalTemplateCopy);
   }
 
   // save the muon template file
@@ -1330,13 +1328,13 @@ void L1GtVhdlWriterCore::writeDefValPkg(const std::vector<ConditionMap> &conditi
   buildDefValuesBuffer(muonDefValuesBuffer, muonTypes, muonDefValTypes, Mu);
 
   // loop over all possible calo objects here
-  for (unsigned int i = 0; i < caloObjects_.size(); i++) {
-    buildDefValuesBuffer(caloDefValuesBuffer, caloTypes, caloDefValTypes, caloObjects_.at(i));
+  for (auto caloObject : caloObjects_) {
+    buildDefValuesBuffer(caloDefValuesBuffer, caloTypes, caloDefValTypes, caloObject);
   }
 
   // loop over all possible esums objects here
-  for (unsigned int i = 0; i < esumObjects_.size(); i++) {
-    buildDefValuesBuffer(esumsDefValBuffer, jetCountsTypes, esumsDefValTypes, esumObjects_.at(i));
+  for (auto esumObject : esumObjects_) {
+    buildDefValuesBuffer(esumsDefValBuffer, jetCountsTypes, esumsDefValTypes, esumObject);
   }
 
   // same procedure for jet counts
@@ -1385,7 +1383,7 @@ bool L1GtVhdlWriterCore::buildDefValuesBuffer(L1GtVhdlTemplateFile &buffer,
   std::map<L1GtConditionType, std::string>::const_iterator typeIter;
 
   for (typeIter = typeList.begin(); typeIter != typeList.end(); typeIter++) {
-    for (unsigned int i = 0; i < defValuesList.size(); i++) {
+    for (const auto &i : defValuesList) {
       // open a new internale template
       L1GtVhdlTemplateFile internalTemplate;
       internalTemplate.open(vhdlDir_ + "InternalTemplates/defvalpkg", true);
@@ -1403,7 +1401,7 @@ bool L1GtVhdlWriterCore::buildDefValuesBuffer(L1GtVhdlTemplateFile &buffer,
       L1GtVhdlTemplateFile::findAndReplaceString(idString, sp(substParamType_), typeIter->second);
 
       // replace the substiution parameter defvaltype with muon
-      L1GtVhdlTemplateFile::findAndReplaceString(idString, sp(substParamDefValType_), defValuesList.at(i));
+      L1GtVhdlTemplateFile::findAndReplaceString(idString, sp(substParamDefValType_), i);
 
       // usage of the subsitute routine:
       // first the substitution parameter, then the content
@@ -1490,18 +1488,18 @@ void L1GtVhdlWriterCore::countCondsAndAdd2NumberVec(const L1GtConditionType &typ
 void L1GtVhdlWriterCore::initializeDeltaConditions() {
   for (unsigned int k = 0; k <= 1; k++) {
     // combine muon with calo particles
-    for (unsigned int i = 0; i < caloObjects_.size(); i++) {
+    for (auto caloObject : caloObjects_) {
       numberOfConditions_.at(k).push_back(
-          retNumberOfConditionsString(objType2Str_[Mu] + "_" + objType2Str_[caloObjects_.at(i)], 0));
+          retNumberOfConditionsString(objType2Str_[Mu] + "_" + objType2Str_[caloObject], 0));
     }
 
     // combine etm with muon
     numberOfConditions_.at(k).push_back(retNumberOfConditionsString(objType2Str_[ETM] + "_" + objType2Str_[Mu], 0));
 
     // combine etm with calo particles
-    for (unsigned int i = 0; i < caloObjects_.size(); i++) {
+    for (auto caloObject : caloObjects_) {
       numberOfConditions_.at(k).push_back(
-          retNumberOfConditionsString(objType2Str_[ETM] + "_" + objType2Str_[caloObjects_.at(i)], 0));
+          retNumberOfConditionsString(objType2Str_[ETM] + "_" + objType2Str_[caloObject], 0));
     }
 
     std::vector<L1GtObject> caloObjectsCp = caloObjects_;
@@ -1542,8 +1540,8 @@ L1GtConditionCategory L1GtVhdlWriterCore::getCategoryFromObject(const L1GtObject
 
 void L1GtVhdlWriterCore::printConditionsOfCategory(const L1GtConditionCategory &category, const ConditionMap &map) {
   int counter = 0;
-  for (ConditionMap::const_iterator iterCond = map.begin(); iterCond != map.end(); iterCond++) {
-    msg(iterCond->first);
+  for (const auto &iterCond : map) {
+    msg(iterCond.first);
     counter++;
   }
 

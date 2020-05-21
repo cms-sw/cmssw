@@ -44,8 +44,8 @@ namespace {
 
     void init(HepPDT::ParticleDataTable const& pdt) {
       if (!initialized_) {
-        for (HepPDT::ParticleDataTable::const_iterator p = pdt.begin(); p != pdt.end(); ++p) {
-          HepPDT::ParticleID const& id = p->first;
+        for (auto& p : pdt) {
+          HepPDT::ParticleID const& id = p.first;
           int pdgId = id.pid(), apdgId = std::abs(pdgId);
           int q3 = id.threeCharge();
           if (apdgId < PDGCacheMax && pdgId > 0) {

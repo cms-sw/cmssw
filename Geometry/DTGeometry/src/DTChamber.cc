@@ -23,8 +23,8 @@ DTChamber::DTChamber(const DTChamberId& id, const ReferenceCountingPointer<Bound
 
 /* Destructor */
 DTChamber::~DTChamber() {
-  for (std::vector<const DTSuperLayer*>::const_iterator isl = theSLs.begin(); isl != theSLs.end(); ++isl)
-    delete (*isl);
+  for (auto theSL : theSLs)
+    delete theSL;
 }
 
 /* Operations */

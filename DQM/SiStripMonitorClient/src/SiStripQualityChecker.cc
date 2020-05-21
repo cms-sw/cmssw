@@ -396,8 +396,7 @@ void SiStripQualityChecker::getModuleStatus(DQMStore& dqm_store,
                                             int& errdet_hasDcsErr) {
   std::string lname;
   std::map<uint32_t, uint16_t> bad_modules;
-  for (std::vector<MonitorElement*>::const_iterator it = layer_mes.begin(); it != layer_mes.end(); it++) {
-    MonitorElement* me = (*it);
+  for (auto me : layer_mes) {
     if (!me)
       continue;
     std::vector<QReport*> qreports = me->getQReports();
@@ -413,9 +412,9 @@ void SiStripQualityChecker::getModuleStatus(DQMStore& dqm_store,
       lname = name.substr(name.find("TkHMap_") + 7);
       lname = lname.substr(lname.find("_T") + 1);
     }
-    for (std::vector<DQMChannel>::iterator it = bad_channels_me.begin(); it != bad_channels_me.end(); it++) {
-      int xval = (*it).getBinX();
-      int yval = (*it).getBinY();
+    for (auto& it : bad_channels_me) {
+      int xval = it.getBinX();
+      int yval = it.getBinY();
       uint32_t detId = tkDetMap_->getDetFromBin(lname, xval, yval);
       std::map<uint32_t, uint16_t>::iterator iPos = bad_modules.find(detId);
       uint16_t flag;

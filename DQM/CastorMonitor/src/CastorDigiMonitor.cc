@@ -214,8 +214,8 @@ void CastorDigiMonitor::processEvent(edm::Event const &event,
   }
 
   float Ecell[14][16]{};
-  for (CastorDigiCollection::const_iterator j = castorDigis.begin(); j != castorDigis.end(); j++) {
-    const CastorDataFrame digi = (const CastorDataFrame)(*j);
+  for (const auto &castorDigi : castorDigis) {
+    const CastorDataFrame digi = (const CastorDataFrame)castorDigi;
 
     int module = digi.id().module() - 1;
     int sector = digi.id().sector() - 1;
@@ -258,8 +258,8 @@ void CastorDigiMonitor::processEvent(edm::Event const &event,
 
   double Etotal = 0.;
   for (int sec = 0; sec < 16; sec++)
-    for (int mod = 0; mod < 14; mod++)
-      Etotal = Ecell[mod][sec];
+    for (auto &mod : Ecell)
+      Etotal = mod[sec];
   hBX->Fill(event.bunchCrossing(), Etotal);
   fillTrigRes(event, TrigResults, Etotal);
 
@@ -278,10 +278,10 @@ void CastorDigiMonitor::processEvent(edm::Event const &event,
     return;
 
   float ModuleSum[14], SectorSum[16];
-  for (int m = 0; m < 14; m++)
-    ModuleSum[m] = 0.;
-  for (int s = 0; s < 16; s++)
-    SectorSum[s] = 0.;
+  for (float &m : ModuleSum)
+    m = 0.;
+  for (float &s : SectorSum)
+    s = 0.;
   for (int mod = 0; mod < 14; mod++)
     for (int sec = 0; sec < 16; sec++) {
       for (int ts = 0; ts <= 1; ts++) {
@@ -386,8 +386,8 @@ void CastorDigiMonitor::fillTrigRes(edm::Event const &event, const edm::TriggerR
           LogPrint("CastorDigi") << "trigger[" << iTrig << "] name:" << trigName.triggerName(iTrig)
                                  << " index= " << index << endl;
         hpTrigRes->Fill(index, Etotal);
-        for (int n = 0; n < int(HltPaths_.size()); n++) {
-          if (trigName.triggerName(iTrig).find(HltPaths_[n]) != std::string::npos)
+        for (const auto &HltPath : HltPaths_) {
+          if (trigName.triggerName(iTrig).find(HltPath) != std::string::npos)
             event_triggered = true;
         }
       }  // end if(TrigResults.accept(iTrig)
@@ -405,20 +405,20 @@ void CastorDigiMonitor::getDbData(const edm::EventSetup &iSetup) {
   }
 
   int chInd = 0;
-  for (int mod = 0; mod < 14; mod++)
+  for (auto &ChannelStatu : ChannelStatus)
     for (int sec = 0; sec < 16; sec++)
-      ChannelStatus[mod][sec] = 0;
+      ChannelStatu[sec] = 0;
   std::vector<DetId> channels = dbChQuality->getAllChannels();
   N_GoodChannels = 224 - channels.size();
   if (fVerbosity > 0)
     LogPrint("CastorDigiMonitor") << "CastorDigiMonitor::getDBData: QualityRcdSize=" << channels.size();
-  for (std::vector<DetId>::iterator ch = channels.begin(); ch != channels.end(); ch++) {
-    const CastorChannelStatus *quality = dbChQuality->getValues(*ch);
+  for (auto &channel : channels) {
+    const CastorChannelStatus *quality = dbChQuality->getValues(channel);
     int value = quality->getValue();
     int rawId = quality->rawId();
     chInd++;
-    int mod = HcalCastorDetId(*ch).module() - 1;
-    int sec = HcalCastorDetId(*ch).sector() - 1;
+    int mod = HcalCastorDetId(channel).module() - 1;
+    int sec = HcalCastorDetId(channel).sector() - 1;
     if (mod > 0 && mod < 16 && sec > 0 && sec < 16)
       ChannelStatus[mod][sec] = value;
     if (fVerbosity > 0)

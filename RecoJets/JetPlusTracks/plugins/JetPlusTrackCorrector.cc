@@ -423,10 +423,10 @@ void JetPlusTrackCorrector::matchTracks(const JetTracks& jet_tracks,
 
       int itrack_belong = -1;
 
-      for (reco::VertexCollection::const_iterator iv = pvCollection->begin(); iv != pvCollection->end(); iv++) {
+      for (const auto& iv : *pvCollection) {
         numpv++;
-        std::vector<reco::TrackBaseRef>::const_iterator rr = find((*iv).tracks_begin(), (*iv).tracks_end(), ttr1);
-        if (rr != (*iv).tracks_end()) {
+        std::vector<reco::TrackBaseRef>::const_iterator rr = find(iv.tracks_begin(), iv.tracks_end(), ttr1);
+        if (rr != iv.tracks_end()) {
           itrack_belong++;
           //          std::cout<<" Numpv "<<numpv<<std::endl;
           break;
@@ -1162,9 +1162,9 @@ void JetPlusTrackCorrector::rebuildJta(const reco::Jet& fJet,
   double jetPhi = fJet.phi();
   double jetEtIn = 1.0 / fJet.et();
 
-  for (TrackRefs::iterator it = tracks.begin(); it != tracks.end(); it++) {
-    double trkEta = (**it).eta();
-    double trkPhi = (**it).phi();
+  for (auto&& track : tracks) {
+    double trkEta = (*track).eta();
+    double trkPhi = (*track).phi();
     double dR2this = deltaR2(jetEta, jetPhi, trkEta, trkPhi);
     //       double dfi = fabs(fJet.phi()-(**it).phi());
     //       if(dfi>4.*atan(1.))dfi = 8.*atan(1.)-dfi;
@@ -1178,16 +1178,16 @@ void JetPlusTrackCorrector::rebuildJta(const reco::Jet& fJet,
       scalethis = dR2this * jetEtIn;
     tr++;
     int flag = 1;
-    for (JetBaseRefIterator ii = theJets.begin(); ii != theJets.end(); ii++) {
-      if (&(**ii) == &fJet) {
+    for (auto& theJet : theJets) {
+      if (&(*theJet) == &fJet) {
         continue;
       }
-      double dR2 = deltaR2((*ii)->eta(), (*ii)->phi(), trkEta, trkPhi);
+      double dR2 = deltaR2(theJet->eta(), theJet->phi(), trkEta, trkPhi);
       double scale = dR2;
       if (jetSplitMerge_ == 0)
-        scale = 1. / (**ii).et();
+        scale = 1. / (*theJet).et();
       if (jetSplitMerge_ == 2)
-        scale = dR2 / (**ii).et();
+        scale = dR2 / (*theJet).et();
       if (scale < scalethis)
         flag = 0;
 
@@ -1200,9 +1200,9 @@ void JetPlusTrackCorrector::rebuildJta(const reco::Jet& fJet,
 
     //std::cout<<" Track "<<tr<<" "<<flag<<" "<<dR2this<<" "<<dR2check<<" Jet "<<fJet.eta()<<" "<< fJet.phi()<<" Track "<<(**it).eta()<<" "<<(**it).phi()<<std::endl;
     if (flag == 1) {
-      tracksthis.push_back(*it);
+      tracksthis.push_back(track);
     } else {
-      Excl.push_back(*it);
+      Excl.push_back(track);
     }
   }
 
@@ -1229,12 +1229,12 @@ void JetPlusTrackCorrector::excludeJta(const reco::Jet& fJet,
 
   //std::cout<<" Size of initial vector "<<tracks.size()<<" "<<fJet.et()<<" "<<fJet.eta()<<" "<<fJet.phi()<<std::endl;
 
-  for (TrackRefs::iterator it = tracks.begin(); it != tracks.end(); it++) {
+  for (auto&& track : tracks) {
     //std::cout<<" Track at calo surface "
     //<<" Track "<<(**it).eta()<<" "<<(**it).phi()<<std::endl;
-    TrackRefs::iterator itold = find(Excl.begin(), Excl.end(), (*it));
+    TrackRefs::iterator itold = find(Excl.begin(), Excl.end(), (track));
     if (itold == Excl.end()) {
-      tracksthis.push_back(*it);
+      tracksthis.push_back(track);
     }
     //else { std::cout<<"Exclude "<<(**it).eta()<<" "<<(**it).phi()<<std::endl; }
   }
@@ -1272,24 +1272,24 @@ double JetPlusTrackCorrector::correctAA(const reco::Jet& fJet,
   //     double MeanEnergyOfBackgroundCharged   = 0.;
 
   //================= EnergyOfBackgroundCharged ==================>
-  for (reco::TrackRefVector::iterator iBgtV = trBgOutOfVertex.begin(); iBgtV != trBgOutOfVertex.end(); iBgtV++) {
+  for (auto&& iBgtV : trBgOutOfVertex) {
     // Temporary solution>>>>>> Remove tracks with pt>50 GeV
     //   if( (**iBgtV).pt() >= 50. ) continue;
     //response_.value(ieta,ipt);
-    double eta = fabs((**iBgtV).eta());
-    double pt = fabs((**iBgtV).pt());
+    double eta = fabs((*iBgtV).eta());
+    double pt = fabs((*iBgtV).pt());
     uint32_t ieta = response_.etaBin(eta);
     uint32_t ipt = response_.ptBin(pt);
 
-    if (fabs(fJet.eta() - (**iBgtV).eta()) > mConeSize)
+    if (fabs(fJet.eta() - (*iBgtV).eta()) > mConeSize)
       continue;
 
     //      // Check bins (not for mips)
     //         if ( ieta >= response_.nEtaBins() ) { continue; }
     //	 if ( ipt >= response_.nPtBins() ) { ipt = response_.nPtBins() - 1; }
 
-    double echarBg = sqrt((**iBgtV).px() * (**iBgtV).px() + (**iBgtV).py() * (**iBgtV).py() +
-                          (**iBgtV).pz() * (**iBgtV).pz() + 0.14 * 0.14);
+    double echarBg = sqrt((*iBgtV).px() * (*iBgtV).px() + (*iBgtV).py() * (*iBgtV).py() +
+                          (*iBgtV).pz() * (*iBgtV).pz() + 0.14 * 0.14);
 
     //	 ResponseOfBackgroundCharged += echarBg*response_.value(ieta,ipt)/efficiency_.value(ieta,ipt);
 
@@ -1301,16 +1301,16 @@ double JetPlusTrackCorrector::correctAA(const reco::Jet& fJet,
 
   //============= ResponseOfBackgroundCharged =======================>
 
-  for (reco::TrackRefVector::iterator iBgtC = trBgOutOfCalo.begin(); iBgtC != trBgOutOfCalo.end(); iBgtC++) {
+  for (auto&& iBgtC : trBgOutOfCalo) {
     // Temporary solution>>>>>> Remove tracks with pt>50 GeV
     //   if( (**iBgtC).pt() >= 50. ) continue;
     //response_.value(ieta,ipt);
-    double eta = fabs((**iBgtC).eta());
-    double pt = fabs((**iBgtC).pt());
+    double eta = fabs((*iBgtC).eta());
+    double pt = fabs((*iBgtC).pt());
     uint32_t ieta = response_.etaBin(eta);
     uint32_t ipt = response_.ptBin(pt);
 
-    if (fabs(fJet.eta() - (**iBgtC).eta()) > mConeSize)
+    if (fabs(fJet.eta() - (*iBgtC).eta()) > mConeSize)
       continue;
 
     // Check bins (not for mips)
@@ -1321,8 +1321,8 @@ double JetPlusTrackCorrector::correctAA(const reco::Jet& fJet,
       ipt = response_.nPtBins() - 1;
     }
 
-    double echarBg = sqrt((**iBgtC).px() * (**iBgtC).px() + (**iBgtC).py() * (**iBgtC).py() +
-                          (**iBgtC).pz() * (**iBgtC).pz() + 0.14 * 0.14);
+    double echarBg = sqrt((*iBgtC).px() * (*iBgtC).px() + (*iBgtC).py() * (*iBgtC).py() +
+                          (*iBgtC).pz() * (*iBgtC).pz() + 0.14 * 0.14);
 
     ResponseOfBackgroundCharged += echarBg * response_.value(ieta, ipt) / efficiency_.value(ieta, ipt);
 
@@ -1340,14 +1340,14 @@ double JetPlusTrackCorrector::correctAA(const reco::Jet& fJet,
   double py = 0.;
   double pz = 0.;
 
-  for (reco::TrackRefVector::const_iterator it = pioninout.begin(); it != pioninout.end(); it++) {
+  for (auto&& it : pioninout) {
     //          std::cout<<" Track in out, size= "<<pioninout.size()<<" p= "<<(*it)->p()<<" pt= "<<(*it)->pt()
     //                   <<" eta=  "<<(*it)->eta()<<" phi= "<<(*it)->phi()<<std::endl;
 
-    px += (*it)->px();
-    py += (*it)->py();
-    pz += (*it)->pz();
-    en += sqrt((*it)->p() * (*it)->p() + 0.14 * 0.14);
+    px += (it)->px();
+    py += (it)->py();
+    pz += (it)->pz();
+    en += sqrt((it)->p() * (it)->p() + 0.14 * 0.14);
   }
 
   // Look for in-in tracks
@@ -1357,14 +1357,14 @@ double JetPlusTrackCorrector::correctAA(const reco::Jet& fJet,
   double py_in = 0.;
   double pz_in = 0.;
 
-  for (reco::TrackRefVector::const_iterator it = pioninin.begin(); it != pioninin.end(); it++) {
+  for (auto&& it : pioninin) {
     //          std::cout<<" Track in in, size= "<<pioninin.size()<<" p= "<<(*it)->p()<<" pt= "<<(*it)->pt()
     //                   <<" eta= "<<(*it)->eta()<<" phi= "<<(*it)->phi()<<std::endl;
 
-    px_in += (*it)->px();
-    py_in += (*it)->py();
-    pz_in += (*it)->pz();
-    en_in += sqrt((*it)->p() * (*it)->p() + 0.14 * 0.14);
+    px_in += (it)->px();
+    py_in += (it)->py();
+    pz_in += (it)->pz();
+    en_in += sqrt((it)->p() * (it)->p() + 0.14 * 0.14);
   }
 
   //===================================================================>

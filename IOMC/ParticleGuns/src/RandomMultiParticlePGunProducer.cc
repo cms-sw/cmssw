@@ -43,8 +43,8 @@ RandomMultiParticlePGunProducer::RandomMultiParticlePGunProducer(const Parameter
 #endif
   for (unsigned int k = 1; k < fProbParticle_.size(); ++k)
     fProbParticle_[k] += fProbParticle_[k - 1];
-  for (unsigned int k = 0; k < fProbParticle_.size(); ++k)
-    fProbParticle_[k] /= fProbParticle_[fProbParticle_.size() - 1];
+  for (double& k : fProbParticle_)
+    k /= fProbParticle_[fProbParticle_.size() - 1];
 #ifdef DebugLog
   edm::LogVerbatim("IOMC") << "Corrected probabilities for particle type:";
   for (unsigned int k = 0; k < fProbParticle_.size(); ++k)

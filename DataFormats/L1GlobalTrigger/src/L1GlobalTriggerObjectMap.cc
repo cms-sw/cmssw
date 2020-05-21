@@ -32,9 +32,9 @@
 
 // return all the combinations passing the requirements imposed in condition condNameVal
 const CombinationsInCond* L1GlobalTriggerObjectMap::getCombinationsInCond(const std::string& condNameVal) const {
-  for (size_t i = 0; i < m_operandTokenVector.size(); ++i) {
-    if ((m_operandTokenVector[i]).tokenName == condNameVal) {
-      return &(m_combinationVector.at((m_operandTokenVector[i]).tokenNumber));
+  for (const auto& i : m_operandTokenVector) {
+    if (i.tokenName == condNameVal) {
+      return &(m_combinationVector.at(i.tokenNumber));
     }
   }
 
@@ -49,9 +49,9 @@ const CombinationsInCond* L1GlobalTriggerObjectMap::getCombinationsInCond(const 
 
 /// return all the combinations passing the requirements imposed in condition condNumberVal
 const CombinationsInCond* L1GlobalTriggerObjectMap::getCombinationsInCond(const int condNumberVal) const {
-  for (size_t i = 0; i < m_operandTokenVector.size(); ++i) {
-    if ((m_operandTokenVector[i]).tokenNumber == condNumberVal) {
-      return &(m_combinationVector.at((m_operandTokenVector[i]).tokenNumber));
+  for (const auto& i : m_operandTokenVector) {
+    if (i.tokenNumber == condNumberVal) {
+      return &(m_combinationVector.at(i.tokenNumber));
     }
   }
 
@@ -66,9 +66,9 @@ const CombinationsInCond* L1GlobalTriggerObjectMap::getCombinationsInCond(const 
 }
 // return the result for the condition condNameVal
 const bool L1GlobalTriggerObjectMap::getConditionResult(const std::string& condNameVal) const {
-  for (size_t i = 0; i < m_operandTokenVector.size(); ++i) {
-    if ((m_operandTokenVector[i]).tokenName == condNameVal) {
-      return (m_operandTokenVector[i]).tokenResult;
+  for (const auto& i : m_operandTokenVector) {
+    if (i.tokenName == condNameVal) {
+      return i.tokenResult;
     }
   }
 

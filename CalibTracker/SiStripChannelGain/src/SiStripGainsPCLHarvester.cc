@@ -84,9 +84,7 @@ void SiStripGainsPCLHarvester::beginRun(edm::Run const& run, const edm::EventSet
   edm::ESHandle<SiStripQuality> SiStripQuality_;
   iSetup.get<SiStripQualityRcd>().get(SiStripQuality_);
 
-  for (unsigned int a = 0; a < APVsCollOrdered.size(); a++) {
-    std::shared_ptr<stAPVGain> APV = APVsCollOrdered[a];
-
+  for (auto APV : APVsCollOrdered) {
     if (APV->SubDet == PixelSubdetector::PixelBarrel || APV->SubDet == PixelSubdetector::PixelEndcap)
       continue;
 
@@ -165,11 +163,11 @@ void SiStripGainsPCLHarvester::gainQualityMonitor(DQMStore::IBooker& ibooker_,
   std::vector<APVGain::APVmon> new_charge_histos;
   std::vector<std::pair<std::string, std::string>> cnames =
       APVGain::monHnames(VChargeHisto, doChargeMonitorPerPlane, "newG2");
-  for (unsigned int i = 0; i < cnames.size(); i++) {
-    MonitorElement* monitor = ibooker_.book1DD((cnames[i]).first, (cnames[i]).second.c_str(), 100, 0., 1000.);
-    int id = APVGain::subdetectorId((cnames[i]).first);
-    int side = APVGain::subdetectorSide((cnames[i]).first);
-    int plane = APVGain::subdetectorPlane((cnames[i]).first);
+  for (auto& cname : cnames) {
+    MonitorElement* monitor = ibooker_.book1DD(cname.first, cname.second.c_str(), 100, 0., 1000.);
+    int id = APVGain::subdetectorId(cname.first);
+    int side = APVGain::subdetectorSide(cname.first);
+    int plane = APVGain::subdetectorPlane(cname.first);
     new_charge_histos.push_back(APVGain::APVmon(id, side, plane, monitor));
   }
 
@@ -245,8 +243,7 @@ void SiStripGainsPCLHarvester::gainQualityMonitor(DQMStore::IBooker& ibooker_,
   MonitorElement* GainVsPrevGainTEC =
       ibooker_.book2DD("GainVsPrevGainTEC", "Gain vs PrevGain TEC", 100, 0, 2, 100, 0, 2);
 
-  for (unsigned int a = 0; a < APVsCollOrdered.size(); a++) {
-    std::shared_ptr<stAPVGain> APV = APVsCollOrdered[a];
+  for (auto APV : APVsCollOrdered) {
     if (APV == nullptr)
       continue;
 
@@ -275,8 +272,8 @@ void SiStripGainsPCLHarvester::gainQualityMonitor(DQMStore::IBooker& ibooker_,
       for (int binId = 0; binId < Proj->GetXaxis()->GetNbins(); binId++) {
         double new_charge = Proj->GetXaxis()->GetBinCenter(binId) / Gain;
         if (Proj->GetBinContent(binId) != 0.) {
-          for (unsigned int h = 0; h < charge_histos.size(); h++) {
-            TH1D* chisto = (charge_histos[h])->getTH1D();
+          for (auto& charge_histo : charge_histos) {
+            TH1D* chisto = charge_histo->getTH1D();
             for (int e = 0; e < Proj->GetBinContent(binId); e++)
               chisto->Fill(new_charge);
           }
@@ -526,13 +523,13 @@ void SiStripGainsPCLHarvester::checkBookAPVColls(const edm::EventSetup& es) {
 
     unsigned int Index = 0;
 
-    for (unsigned int i = 0; i < Det.size(); i++) {
-      DetId Detid = Det[i]->geographicalId();
+    for (auto i : Det) {
+      DetId Detid = i->geographicalId();
       int SubDet = Detid.subdetId();
 
       if (SubDet == StripSubdetector::TIB || SubDet == StripSubdetector::TID || SubDet == StripSubdetector::TOB ||
           SubDet == StripSubdetector::TEC) {
-        auto DetUnit = dynamic_cast<const StripGeomDetUnit*>(Det[i]);
+        auto DetUnit = dynamic_cast<const StripGeomDetUnit*>(i);
         if (!DetUnit)
           continue;
 
@@ -573,12 +570,12 @@ void SiStripGainsPCLHarvester::checkBookAPVColls(const edm::EventSetup& es) {
       }    // if is Strips
     }      // loop on dets
 
-    for (unsigned int i = 0; i < Det.size();
-         i++) {  //Make two loop such that the Pixel information is added at the end --> make transition simpler
-      DetId Detid = Det[i]->geographicalId();
+    for (auto i :
+         Det) {  //Make two loop such that the Pixel information is added at the end --> make transition simpler
+      DetId Detid = i->geographicalId();
       int SubDet = Detid.subdetId();
       if (SubDet == PixelSubdetector::PixelBarrel || SubDet == PixelSubdetector::PixelEndcap) {
-        auto DetUnit = dynamic_cast<const PixelGeomDetUnit*>(Det[i]);
+        auto DetUnit = dynamic_cast<const PixelGeomDetUnit*>(i);
         if (!DetUnit)
           continue;
 
@@ -676,8 +673,7 @@ std::unique_ptr<SiStripApvGain> SiStripGainsPCLHarvester::getNewObject(const Mon
 
   std::vector<float> theSiStripVector;
   unsigned int PreviousDetId = 0;
-  for (unsigned int a = 0; a < APVsCollOrdered.size(); a++) {
-    std::shared_ptr<stAPVGain> APV = APVsCollOrdered[a];
+  for (auto APV : APVsCollOrdered) {
     if (APV == nullptr) {
       printf("Bug\n");
       continue;

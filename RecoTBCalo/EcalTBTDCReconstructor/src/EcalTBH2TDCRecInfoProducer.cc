@@ -20,11 +20,11 @@ EcalTBH2TDCRecInfoProducer::EcalTBH2TDCRecInfoProducer(edm::ParameterSet const& 
 
   typedef std::vector<edm::ParameterSet> Parameters;
   Parameters ranges = ps.getParameter<Parameters>("tdcZeros");
-  for (Parameters::iterator itRanges = ranges.begin(); itRanges != ranges.end(); ++itRanges) {
+  for (auto& range : ranges) {
     EcalTBH2TDCRecInfoAlgo::EcalTBH2TDCRanges aRange;
-    aRange.runRanges.first = itRanges->getParameter<int>("startRun");
-    aRange.runRanges.second = itRanges->getParameter<int>("endRun");
-    aRange.tdcZero = itRanges->getParameter<double>("tdcZero");
+    aRange.runRanges.first = range.getParameter<int>("startRun");
+    aRange.runRanges.second = range.getParameter<int>("endRun");
+    aRange.tdcZero = range.getParameter<double>("tdcZero");
     tdcRanges.push_back(aRange);
   }
 

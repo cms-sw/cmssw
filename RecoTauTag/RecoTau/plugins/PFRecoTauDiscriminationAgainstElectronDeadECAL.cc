@@ -59,12 +59,11 @@ public:
           << "tau: Pt = " << pfTau->pt() << ", eta = " << pfTau->eta() << ", phi = " << pfTau->phi();
     }
     double discriminator = 1.;
-    for (std::vector<towerInfo>::const_iterator badTower = badTowers_.begin(); badTower != badTowers_.end();
-         ++badTower) {
-      if (deltaR(badTower->eta_, badTower->phi_, pfTau->eta(), pfTau->phi()) < dR_) {
+    for (const auto& badTower : badTowers_) {
+      if (deltaR(badTower.eta_, badTower.phi_, pfTau->eta(), pfTau->phi()) < dR_) {
         if (verbosity_) {
           edm::LogPrint("PFTauAgainstEleDeadECAL")
-              << " matches badTower: eta = " << badTower->eta_ << ", phi = " << badTower->phi_;
+              << " matches badTower: eta = " << badTower.eta_ << ", phi = " << badTower.phi_;
         }
         discriminator = 0.;
       }

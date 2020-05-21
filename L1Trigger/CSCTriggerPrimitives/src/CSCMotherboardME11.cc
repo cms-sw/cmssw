@@ -280,10 +280,10 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::readoutLCTs(int me1ab) con
 std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::getLCTs1b() const {
   std::vector<CSCCorrelatedLCTDigi> tmpV;
 
-  for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++) {
+  for (const auto& bx : allLCTs.data) {
     for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++) {
       for (int i = 0; i < CSCConstants::MAX_LCTS_PER_CSC; i++) {
-        const CSCCorrelatedLCTDigi& lct = allLCTs.data[bx][mbx][i];
+        const CSCCorrelatedLCTDigi& lct = bx[mbx][i];
         if (lct.isValid() and lct.getStrip() < CSCConstants::MAX_HALF_STRIP_ME1B) {
           tmpV.push_back(lct);
         }
@@ -301,10 +301,10 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::getLCTs1a() const {
   if (mpc_block_me1a || disableME1a_)
     return tmpV;
 
-  for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++) {
+  for (const auto& bx : allLCTs.data) {
     for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++) {
       for (int i = 0; i < CSCConstants::MAX_LCTS_PER_CSC; i++) {
-        const CSCCorrelatedLCTDigi& lct = allLCTs.data[bx][mbx][i];
+        const CSCCorrelatedLCTDigi& lct = bx[mbx][i];
         if (lct.isValid() and lct.getStrip() >= CSCConstants::MAX_HALF_STRIP_ME1B) {
           tmpV.push_back(lct);
         }

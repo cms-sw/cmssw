@@ -221,12 +221,12 @@ void MaskedRctInputDigiProducer::produce(edm::Event &iEvent, const edm::EventSet
   int nEcalSamples = 0;
   int nHcalSamples = 0;
 
-  for (unsigned int i = 0; i < ecalColl.size(); i++) {
-    nEcalSamples = ecalColl[i].size();
-    short ieta = (short)ecalColl[i].id().ieta();
+  for (auto &i : ecalColl) {
+    nEcalSamples = i.size();
+    short ieta = (short)i.id().ieta();
     unsigned short absIeta = (unsigned short)abs(ieta);
     int sign = ieta / absIeta;
-    short iphi = (unsigned short)ecalColl[i].id().iphi();
+    short iphi = (unsigned short)i.id().iphi();
     // if (i < 20) {std::cout << "ieta is " << ieta << ", absIeta is " <<
     // absIeta
     //		      << ", iphi is " << iphi << std::endl;}
@@ -241,13 +241,13 @@ void MaskedRctInputDigiProducer::produce(edm::Event &iEvent, const edm::EventSet
       if (sign < 0) {
         // std::cout << "eta-: mask is " <<
         // ecalMask.at(0).at(iphi-1).at(absIeta-1) << std::endl;
-        energy = ecalMask.at(0).at(iphi - 1).at(absIeta - 1) * ecalColl[i].sample(nSample).compressedEt();
-        fineGrain = (ecalMask.at(0).at(iphi - 1).at(absIeta - 1) != 0) && ecalColl[i].sample(nSample).fineGrain();
+        energy = ecalMask.at(0).at(iphi - 1).at(absIeta - 1) * i.sample(nSample).compressedEt();
+        fineGrain = (ecalMask.at(0).at(iphi - 1).at(absIeta - 1) != 0) && i.sample(nSample).fineGrain();
       } else if (sign > 0) {
         // std::cout << "eta+: mask is " <<
         // ecalMask.at(1).at(iphi-1).at(absIeta-1) << std::endl;
-        energy = ecalMask.at(1).at(iphi - 1).at(absIeta - 1) * ecalColl[i].sample(nSample).compressedEt();
-        fineGrain = (ecalMask.at(1).at(iphi - 1).at(absIeta - 1) != 0) && ecalColl[i].sample(nSample).fineGrain();
+        energy = ecalMask.at(1).at(iphi - 1).at(absIeta - 1) * i.sample(nSample).compressedEt();
+        fineGrain = (ecalMask.at(1).at(iphi - 1).at(absIeta - 1) != 0) && i.sample(nSample).fineGrain();
       }
 
       ecalDigi.setSample(nSample, EcalTriggerPrimitiveSample(energy, fineGrain, 0));
@@ -257,13 +257,13 @@ void MaskedRctInputDigiProducer::produce(edm::Event &iEvent, const edm::EventSet
   // std::cout << "End of ecal digi masking" << std::endl;
 
   // std::cout << "nHcalDigis is " << hcalColl.size() << std::endl;
-  for (unsigned int i = 0; i < hcalColl.size(); i++) {
-    nHcalSamples = hcalColl[i].size();
+  for (auto &i : hcalColl) {
+    nHcalSamples = i.size();
     // if ((i % 100) == 0 ) {std::cout << "Loop " << i << std::endl;}
-    short ieta = (short)hcalColl[i].id().ieta();
+    short ieta = (short)i.id().ieta();
     unsigned short absIeta = (unsigned short)abs(ieta);
     int sign = ieta / absIeta;
-    short iphi = (unsigned short)hcalColl[i].id().iphi();
+    short iphi = (unsigned short)i.id().iphi();
     // if (i < 20) {std::cout << "ieta is " << ieta << ", absIeta is " <<
     // absIeta
     //      << ", iphi is " << iphi << std::endl;}
@@ -277,7 +277,7 @@ void MaskedRctInputDigiProducer::produce(edm::Event &iEvent, const edm::EventSet
     */
     HcalTriggerPrimitiveDigi hcalDigi(HcalTrigTowerDetId(ieta, iphi));
     hcalDigi.setSize(nHcalSamples);
-    hcalDigi.setPresamples(hcalColl[i].presamples());
+    hcalDigi.setPresamples(i.presamples());
 
     for (int nSample = 0; nSample < nHcalSamples; nSample++) {
       int energy = 0;
@@ -285,11 +285,11 @@ void MaskedRctInputDigiProducer::produce(edm::Event &iEvent, const edm::EventSet
 
       if (absIeta < 29) {
         if (sign < 0) {
-          energy = hcalMask.at(0).at(iphi - 1).at(absIeta - 1) * hcalColl[i].sample(nSample).compressedEt();
-          fineGrain = (hcalMask.at(0).at(iphi - 1).at(absIeta - 1) != 0) && hcalColl[i].sample(nSample).fineGrain();
+          energy = hcalMask.at(0).at(iphi - 1).at(absIeta - 1) * i.sample(nSample).compressedEt();
+          fineGrain = (hcalMask.at(0).at(iphi - 1).at(absIeta - 1) != 0) && i.sample(nSample).fineGrain();
         } else if (sign > 0) {
-          energy = hcalMask.at(1).at(iphi - 1).at(absIeta - 1) * hcalColl[i].sample(nSample).compressedEt();
-          fineGrain = (hcalMask.at(1).at(iphi - 1).at(absIeta - 1) != 0) && hcalColl[i].sample(nSample).fineGrain();
+          energy = hcalMask.at(1).at(iphi - 1).at(absIeta - 1) * i.sample(nSample).compressedEt();
+          fineGrain = (hcalMask.at(1).at(iphi - 1).at(absIeta - 1) != 0) && i.sample(nSample).fineGrain();
         }
       } else if ((absIeta >= 29) && (absIeta <= 32)) {
         // std::cout << "hf iphi: " << iphi << std::endl;
@@ -302,14 +302,14 @@ void MaskedRctInputDigiProducer::produce(edm::Event &iEvent, const edm::EventSet
           // hfMask.at(0).at(hf_phi_index).at(absIeta-29) << std::endl; // hf
           // ieta 0-3
           energy = hfMask.at(0).at(hf_phi_index).at(absIeta - 29) *
-                   hcalColl[i].sample(nSample).compressedEt();  // for hf, iphi starts at 0
-          fineGrain = (hfMask.at(0).at(hf_phi_index).at(absIeta - 29) != 0) && hcalColl[i].sample(nSample).fineGrain();
+                   i.sample(nSample).compressedEt();  // for hf, iphi starts at 0
+          fineGrain = (hfMask.at(0).at(hf_phi_index).at(absIeta - 29) != 0) && i.sample(nSample).fineGrain();
         } else if (sign > 0) {
           // std::cout << "ieta is " << ieta << ", absIeta is " << absIeta << ",
           // iphi is " << iphi << std::endl; std::cout << "eta+: mask is " <<
           // hfMask.at(1).at(hf_phi_index).at(absIeta-29) << std::endl;
-          energy = hfMask.at(1).at(hf_phi_index).at(absIeta - 29) * hcalColl[i].sample(nSample).compressedEt();
-          fineGrain = (hfMask.at(1).at(hf_phi_index).at(absIeta - 29) != 0) && hcalColl[i].sample(nSample).fineGrain();
+          energy = hfMask.at(1).at(hf_phi_index).at(absIeta - 29) * i.sample(nSample).compressedEt();
+          fineGrain = (hfMask.at(1).at(hf_phi_index).at(absIeta - 29) != 0) && i.sample(nSample).fineGrain();
         }
         // iphi = iphi*4 + 1; // change back to original
         // std::cout << "New hf iphi = " << iphi << std::endl;

@@ -39,8 +39,8 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
   volName.erase(0, volName.rfind('_') + 1);
   volumeno = boost::lexical_cast<unsigned short>(volName);
 
-  for (int i = 0; i < 6; ++i) {
-    isAssigned[i] = false;
+  for (bool &i : isAssigned) {
+    i = false;
   }
 
   if (debug) {

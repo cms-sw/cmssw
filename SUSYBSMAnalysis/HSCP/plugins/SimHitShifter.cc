@@ -169,13 +169,13 @@ void SimHitShifter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using std::dec;
   using std::oct;
 
-  for (int i = 0; i < int(theSimHitContainers.size()); i++) {
-    theSimHits.insert(theSimHits.end(), theSimHitContainers.at(i)->begin(), theSimHitContainers.at(i)->end());
+  for (auto& theSimHitContainer : theSimHitContainers) {
+    theSimHits.insert(theSimHits.end(), theSimHitContainer->begin(), theSimHitContainer->end());
   }
 
-  for (std::vector<PSimHit>::const_iterator iHit = theSimHits.begin(); iHit != theSimHits.end(); iHit++) {
-    DetId theDetUnitId((*iHit).detUnitId());
-    DetId simdetid = DetId((*iHit).detUnitId());
+  for (const auto& theSimHit : theSimHits) {
+    DetId theDetUnitId(theSimHit.detUnitId());
+    DetId simdetid = DetId(theSimHit.detUnitId());
 
     if (simdetid.det() != DetId::Muon)
       continue;
@@ -187,22 +187,22 @@ void SimHitShifter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       if (shiftinfo.find(simdetid.rawId()) == shiftinfo.end()) {
         std::cout << "RPC Warning the RawId = " << simdetid.det() << " | " << simdetid.rawId() << "is not in the map"
                   << std::endl;
-        newtof = (*iHit).timeOfFlight();
+        newtof = theSimHit.timeOfFlight();
       } else {
-        newtof = (*iHit).timeOfFlight() + shiftinfo[simdetid.rawId()];
+        newtof = theSimHit.timeOfFlight() + shiftinfo[simdetid.rawId()];
       }
 
-      PSimHit hit((*iHit).entryPoint(),
-                  (*iHit).exitPoint(),
-                  (*iHit).pabs(),
+      PSimHit hit(theSimHit.entryPoint(),
+                  theSimHit.exitPoint(),
+                  theSimHit.pabs(),
                   newtof,
-                  (*iHit).energyLoss(),
-                  (*iHit).particleType(),
+                  theSimHit.energyLoss(),
+                  theSimHit.particleType(),
                   simdetid,
-                  (*iHit).trackId(),
-                  (*iHit).thetaAtEntry(),
-                  (*iHit).phiAtEntry(),
-                  (*iHit).processType());
+                  theSimHit.trackId(),
+                  theSimHit.thetaAtEntry(),
+                  theSimHit.phiAtEntry(),
+                  theSimHit.processType());
       prpc->push_back(hit);
     } else if (simdetid.det() == DetId::Muon && simdetid.subdetId() == MuonSubdetId::DT) {  //Only DTs
       int RawId = simdetid.rawId();
@@ -221,26 +221,26 @@ void SimHitShifter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
       if (shiftinfo.find(extendedRawId) == shiftinfo.end()) {
         //std::cout<<"DT Warning the RawId = "<<extendedRawId<<"is not in the map"<<std::endl;
-        newtof = (*iHit).timeOfFlight();
+        newtof = theSimHit.timeOfFlight();
       } else {
-        newtof = (*iHit).timeOfFlight() + shiftinfo[extendedRawId];
-        std::cout << "RawId = " << extendedRawId << "is in the map " << (*iHit).timeOfFlight() << " " << newtof
+        newtof = theSimHit.timeOfFlight() + shiftinfo[extendedRawId];
+        std::cout << "RawId = " << extendedRawId << "is in the map " << theSimHit.timeOfFlight() << " " << newtof
                   << std::endl;
       }
 
-      std::cout << "\t\t We have an DT Sim Hit! in t=" << (*iHit).timeOfFlight() << " DetId=" << (*iHit).detUnitId()
+      std::cout << "\t\t We have an DT Sim Hit! in t=" << theSimHit.timeOfFlight() << " DetId=" << theSimHit.detUnitId()
                 << std::endl;
-      PSimHit hit((*iHit).entryPoint(),
-                  (*iHit).exitPoint(),
-                  (*iHit).pabs(),
+      PSimHit hit(theSimHit.entryPoint(),
+                  theSimHit.exitPoint(),
+                  theSimHit.pabs(),
                   newtof,
-                  (*iHit).energyLoss(),
-                  (*iHit).particleType(),
+                  theSimHit.energyLoss(),
+                  theSimHit.particleType(),
                   simdetid,
-                  (*iHit).trackId(),
-                  (*iHit).thetaAtEntry(),
-                  (*iHit).phiAtEntry(),
-                  (*iHit).processType());
+                  theSimHit.trackId(),
+                  theSimHit.thetaAtEntry(),
+                  theSimHit.phiAtEntry(),
+                  theSimHit.processType());
       pdt->push_back(hit);
     } else if (simdetid.det() == DetId::Muon && simdetid.subdetId() == MuonSubdetId::CSC) {  //Only CSCs
       //std::cout<<"\t\t We have an CSC Sim Hit! in t="<<(*iHit).timeOfFlight()<<" DetId="<<(*iHit).detUnitId()<<std::endl;
@@ -261,29 +261,29 @@ void SimHitShifter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
           if (shiftinfo.find(TheChamberDetIdNoring4.rawId()) == shiftinfo.end()) {
             std::cout << "CSC Warning the RawId = " << TheChamberDetIdNoring4 << " " << TheChamberDetIdNoring4.rawId()
                       << "is not in the map" << std::endl;
-            newtof = (*iHit).timeOfFlight();
+            newtof = theSimHit.timeOfFlight();
           } else {
-            newtof = (*iHit).timeOfFlight() + shiftinfo[TheChamberDetIdNoring4.rawId()];
+            newtof = theSimHit.timeOfFlight() + shiftinfo[TheChamberDetIdNoring4.rawId()];
           }
         }
       } else {
-        newtof = (*iHit).timeOfFlight() + shiftinfo[TheChamberDetId.rawId()];
+        newtof = theSimHit.timeOfFlight() + shiftinfo[TheChamberDetId.rawId()];
       }
 
-      PSimHit hit((*iHit).entryPoint(),
-                  (*iHit).exitPoint(),
-                  (*iHit).pabs(),
+      PSimHit hit(theSimHit.entryPoint(),
+                  theSimHit.exitPoint(),
+                  theSimHit.pabs(),
                   newtof,
-                  (*iHit).energyLoss(),
-                  (*iHit).particleType(),
+                  theSimHit.energyLoss(),
+                  theSimHit.particleType(),
                   simdetid,
-                  (*iHit).trackId(),
-                  (*iHit).thetaAtEntry(),
-                  (*iHit).phiAtEntry(),
-                  (*iHit).processType());
+                  theSimHit.trackId(),
+                  theSimHit.thetaAtEntry(),
+                  theSimHit.phiAtEntry(),
+                  theSimHit.processType());
 
-      std::cout << "CSC check newtof" << newtof << " " << (*iHit).timeOfFlight() << std::endl;
-      if (newtof == (*iHit).timeOfFlight())
+      std::cout << "CSC check newtof" << newtof << " " << theSimHit.timeOfFlight() << std::endl;
+      if (newtof == theSimHit.timeOfFlight())
         std::cout << "Warning!!!" << std::endl;
       pcsc->push_back(hit);
     }

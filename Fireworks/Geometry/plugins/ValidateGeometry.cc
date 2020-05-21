@@ -264,9 +264,7 @@ void ValidateGeometry::validateRPCGeometry(const int regionNumber, const char* r
 
   auto const& rolls = rpcGeometry_->rolls();
 
-  for (auto it = rolls.begin(), itEnd = rolls.end(); it != itEnd; ++it) {
-    const RPCRoll* roll = *it;
-
+  for (auto roll : rolls) {
     if (roll) {
       RPCDetId rpcDetId = roll->id();
 
@@ -334,9 +332,7 @@ void ValidateGeometry::validateDTChamberGeometry() {
 
   auto const& chambers = dtGeometry_->chambers();
 
-  for (auto it = chambers.begin(), itEnd = chambers.end(); it != itEnd; ++it) {
-    const DTChamber* chamber = *it;
-
+  for (auto chamber : chambers) {
     if (chamber) {
       DTChamberId chId = chamber->id();
       GlobalPoint gp = chamber->surface().toGlobal(LocalPoint(0.0, 0.0, 0.0));
@@ -371,9 +367,7 @@ void ValidateGeometry::validateDTLayerGeometry() {
 
   auto const& layers = dtGeometry_->layers();
 
-  for (auto it = layers.begin(), itEnd = layers.end(); it != itEnd; ++it) {
-    const DTLayer* layer = *it;
-
+  for (auto layer : layers) {
     if (layer) {
       DTLayerId layerId = layer->id();
       GlobalPoint gp = layer->surface().toGlobal(LocalPoint(0.0, 0.0, 0.0));
@@ -440,9 +434,7 @@ void ValidateGeometry::validateCSChamberGeometry(const int endcap, const char* d
 
   auto const& chambers = cscGeometry_->chambers();
 
-  for (auto it = chambers.begin(), itEnd = chambers.end(); it != itEnd; ++it) {
-    const CSCChamber* chamber = *it;
-
+  for (auto chamber : chambers) {
     if (chamber && chamber->id().endcap() == endcap) {
       DetId detId = chamber->geographicalId();
       GlobalPoint gp = chamber->surface().toGlobal(LocalPoint(0.0, 0.0, 0.0));
@@ -488,9 +480,7 @@ void ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* de
 
   auto const& layers = cscGeometry_->layers();
 
-  for (auto it = layers.begin(), itEnd = layers.end(); it != itEnd; ++it) {
-    const CSCLayer* layer = *it;
-
+  for (auto layer : layers) {
     if (layer && layer->id().endcap() == endcap) {
       DetId detId = layer->geographicalId();
       GlobalPoint gp = layer->surface().toGlobal(LocalPoint(0.0, 0.0, 0.0));
@@ -708,8 +698,8 @@ void ValidateGeometry::validateCaloGeometry(DetId::Detector detector, int subdet
 
   const std::vector<DetId>& ids = geometry->getValidDetIds(detector, subdetector);
 
-  for (auto it = ids.begin(), iEnd = ids.end(); it != iEnd; ++it) {
-    unsigned int rawId = (*it).rawId();
+  for (auto id : ids) {
+    unsigned int rawId = id.rawId();
 
     const float* points = fwGeometry_.getCorners(rawId);
 
@@ -718,7 +708,7 @@ void ValidateGeometry::validateCaloGeometry(DetId::Detector detector, int subdet
       continue;
     }
 
-    auto cellGeometry = geometry->getGeometry(*it);
+    auto cellGeometry = geometry->getGeometry(id);
     const CaloCellGeometry::CornersVec& corners = cellGeometry->getCorners();
 
     assert(corners.size() == 8);
@@ -739,10 +729,9 @@ void ValidateGeometry::validateCaloGeometry(DetId::Detector detector, int subdet
 void ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetContainer& dets, const char* detname) {
   clearData();
 
-  for (TrackerGeometry::DetContainer::const_iterator it = dets.begin(), itEnd = dets.end(); it != itEnd; ++it) {
-    GlobalPoint gp =
-        (trackerGeometry_->idToDet((*it)->geographicalId()))->surface().toGlobal(LocalPoint(0.0, 0.0, 0.0));
-    unsigned int rawId = (*it)->geographicalId().rawId();
+  for (auto det : dets) {
+    GlobalPoint gp = (trackerGeometry_->idToDet(det->geographicalId()))->surface().toGlobal(LocalPoint(0.0, 0.0, 0.0));
+    unsigned int rawId = det->geographicalId().rawId();
 
     const TGeoMatrix* matrix = fwGeometry_.getMatrix(rawId);
 
@@ -760,7 +749,7 @@ void ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetContain
       continue;
     }
 
-    compareShape(*it, shape);
+    compareShape(det, shape);
   }
 
   makeHistograms(detname);
@@ -770,8 +759,8 @@ void ValidateGeometry::validatePixelTopology(const TrackerGeometry::DetContainer
   std::vector<double> pixelLocalXs;
   std::vector<double> pixelLocalYs;
 
-  for (TrackerGeometry::DetContainer::const_iterator it = dets.begin(), itEnd = dets.end(); it != itEnd; ++it) {
-    unsigned int rawId = (*it)->geographicalId().rawId();
+  for (auto it : dets) {
+    unsigned int rawId = it->geographicalId().rawId();
 
     const float* parameters = fwGeometry_.getParameters(rawId);
 
@@ -781,7 +770,7 @@ void ValidateGeometry::validatePixelTopology(const TrackerGeometry::DetContainer
     }
 
     if (const PixelGeomDetUnit* det =
-            dynamic_cast<const PixelGeomDetUnit*>(trackerGeometry_->idToDetUnit((*it)->geographicalId()))) {
+            dynamic_cast<const PixelGeomDetUnit*>(trackerGeometry_->idToDetUnit(it->geographicalId()))) {
       if (const PixelTopology* rpt = &det->specificTopology()) {
         int nrows = rpt->nrows();
         int ncolumns = rpt->ncolumns();
@@ -813,8 +802,8 @@ void ValidateGeometry::validateStripTopology(const TrackerGeometry::DetContainer
   std::vector<double> radialStripLocalXs;
   std::vector<double> rectangularStripLocalXs;
 
-  for (TrackerGeometry::DetContainer::const_iterator it = dets.begin(), itEnd = dets.end(); it != itEnd; ++it) {
-    unsigned int rawId = (*it)->geographicalId().rawId();
+  for (auto it : dets) {
+    unsigned int rawId = it->geographicalId().rawId();
 
     const float* parameters = fwGeometry_.getParameters(rawId);
 
@@ -824,7 +813,7 @@ void ValidateGeometry::validateStripTopology(const TrackerGeometry::DetContainer
     }
 
     if (const StripGeomDetUnit* det =
-            dynamic_cast<const StripGeomDetUnit*>(trackerGeometry_->idToDet((*it)->geographicalId()))) {
+            dynamic_cast<const StripGeomDetUnit*>(trackerGeometry_->idToDet(it->geographicalId()))) {
       // NOTE: why the difference in dets vs. units between these and pixels? The dynamic cast above
       // fails for many of the detids...
 

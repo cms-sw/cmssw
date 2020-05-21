@@ -55,9 +55,9 @@ const btag::TrackIPData &GhostTrackComputer::threshTrack(const TrackIPTagInfo &t
   std::vector<std::size_t> indices = trackIPTagInfo.sortedIndexes(sort);
 
   TrackKinematics kin;
-  for (std::vector<std::size_t>::const_iterator iter = indices.begin(); iter != indices.end(); ++iter) {
-    const btag::TrackIPData &data = ipData[*iter];
-    const Track &track = *tracks[*iter];
+  for (unsigned long indice : indices) {
+    const btag::TrackIPData &data = ipData[indice];
+    const Track &track = *tracks[indice];
 
     if (!trackNoDeltaRSelector(track, data, jet, pv))
       continue;
@@ -86,9 +86,9 @@ const btag::TrackIPData &GhostTrackComputer::threshTrack(const CandIPTagInfo &tr
   std::vector<std::size_t> indices = trackIPTagInfo.sortedIndexes(sort);
 
   TrackKinematics kin;
-  for (std::vector<std::size_t>::const_iterator iter = indices.begin(); iter != indices.end(); ++iter) {
-    const btag::TrackIPData &data = ipData[*iter];
-    const CandidatePtr &track = tracks[*iter];
+  for (unsigned long indice : indices) {
+    const btag::TrackIPData &data = ipData[indice];
+    const CandidatePtr &track = tracks[indice];
 
     if (!trackNoDeltaRSelector(track, data, jet, pv))
       continue;
@@ -148,8 +148,8 @@ TaggingVariableList GhostTrackComputer::operator()(const TrackIPTagInfo &ipInfo,
     bool hasRefittedTracks = vertex.hasRefittedTracks();
     TrackRefVector tracks = svInfo.vertexTracks(i);
     unsigned int n = 0;
-    for (TrackRefVector::const_iterator track = tracks.begin(); track != tracks.end(); track++)
-      if (svInfo.trackWeight(i, *track) >= minTrackWeight)
+    for (auto &&track : tracks)
+      if (svInfo.trackWeight(i, track) >= minTrackWeight)
         n++;
 
     if (n < 1)
@@ -161,17 +161,17 @@ TaggingVariableList GhostTrackComputer::operator()(const TrackIPTagInfo &ipInfo,
     addMeas(*(isTrackVertex ? &tracksDist3D : &vertexDist3D), svInfo.flightDistance(i, false));
 
     TrackKinematics &kin = isTrackVertex ? trackKinematics : vertexKinematics;
-    for (TrackRefVector::const_iterator track = tracks.begin(); track != tracks.end(); track++) {
-      float w = svInfo.trackWeight(i, *track);
+    for (auto &&track : tracks) {
+      float w = svInfo.trackWeight(i, track);
       if (w < minTrackWeight)
         continue;
       if (hasRefittedTracks) {
-        Track actualTrack = vertex.refittedTrack(*track);
+        Track actualTrack = vertex.refittedTrack(track);
         kin.add(actualTrack, w);
         vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir, actualTrack.momentum()), true);
       } else {
-        kin.add(**track, w);
-        vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir, (*track)->momentum()), true);
+        kin.add(*track, w);
+        vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir, (track)->momentum()), true);
       }
       if (!isTrackVertex)
         nVertexTracks++;
@@ -351,9 +351,9 @@ TaggingVariableList GhostTrackComputer::operator()(const CandIPTagInfo &ipInfo,
 
     TrackKinematics &kin = isTrackVertex ? trackKinematics : vertexKinematics;
 
-    for (std::vector<CandidatePtr>::const_iterator track = tracks.begin(); track != tracks.end(); ++track) {
-      kin.add(*track);
-      vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir, (*track)->momentum()), true);
+    for (const auto &track : tracks) {
+      kin.add(track);
+      vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir, track->momentum()), true);
       if (!isTrackVertex)
         nVertexTracks++;
     }

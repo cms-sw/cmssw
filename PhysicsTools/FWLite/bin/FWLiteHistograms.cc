@@ -61,9 +61,9 @@ int main(int argc, char* argv[]) {
 
   // loop the events
   int ievt = 0;
-  for (unsigned int iFile = 0; iFile < inputFiles_.size(); ++iFile) {
+  for (auto& inputFile : inputFiles_) {
     // open input file (can be located on castor)
-    TFile* inFile = TFile::Open(inputFiles_[iFile].c_str());
+    TFile* inFile = TFile::Open(inputFile.c_str());
     if (inFile) {
       // ----------------------------------------------------------------------
       // Second Part:

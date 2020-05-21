@@ -40,12 +40,12 @@ namespace {
     int n = 0;
     chi = 0.;
 
-    for (vector<VertexHit>::const_iterator hit = hits.begin(); hit != hits.end(); hit++) {
+    for (auto hit : hits) {
       // Predicted cluster width in y direction
-      float p = 2 * fabs(hit->z - z0) / hit->r + 0.5;  // FIXME
+      float p = 2 * fabs(hit.z - z0) / hit.r + 0.5;  // FIXME
 
-      if (fabs(p - hit->w) <= 1.) {
-        chi += fabs(p - hit->w);
+      if (fabs(p - hit.w) <= 1.) {
+        chi += fabs(p - hit.w);
         n++;
       }
     }
@@ -86,21 +86,18 @@ void PixelVertexProducerClusters::produce(edm::StreamID, edm::Event& ev, const e
   if (!thePixelHits->empty()) {
     vector<VertexHit> hits;
 
-    for (SiPixelRecHitCollection::DataContainer::const_iterator recHit = thePixelHits->data().begin(),
-                                                                recHitEnd = thePixelHits->data().end();
-         recHit != recHitEnd;
-         ++recHit) {
-      if (recHit->isValid()) {
+    for (const auto& recHit : thePixelHits->data()) {
+      if (recHit.isValid()) {
         //      if(!(recHit->isOnEdge() || recHit->hasBadPixels()))
-        DetId id = recHit->geographicalId();
+        DetId id = recHit.geographicalId();
         const PixelGeomDetUnit* pgdu = dynamic_cast<const PixelGeomDetUnit*>(theTracker->idToDetUnit(id));
         const PixelTopology* theTopol = (&(pgdu->specificTopology()));
-        vector<SiPixelCluster::Pixel> pixels = recHit->cluster()->pixels();
+        vector<SiPixelCluster::Pixel> pixels = recHit.cluster()->pixels();
 
         bool pixelOnEdge = false;
-        for (vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin(); pixel != pixels.end(); pixel++) {
-          int pos_x = (int)pixel->x;
-          int pos_y = (int)pixel->y;
+        for (auto pixel : pixels) {
+          int pos_x = (int)pixel.x;
+          int pos_y = (int)pixel.y;
 
           if (theTopol->isItEdgePixelInX(pos_x) || theTopol->isItEdgePixelInY(pos_y)) {
             pixelOnEdge = true;
@@ -111,14 +108,14 @@ void PixelVertexProducerClusters::produce(edm::StreamID, edm::Event& ev, const e
         if (!pixelOnEdge)
           if (id.subdetId() == int(PixelSubdetector::PixelBarrel)) {
             LocalPoint lpos =
-                LocalPoint(recHit->localPosition().x(), recHit->localPosition().y(), recHit->localPosition().z());
+                LocalPoint(recHit.localPosition().x(), recHit.localPosition().y(), recHit.localPosition().z());
 
             GlobalPoint gpos = theTracker->idToDet(id)->toGlobal(lpos);
 
             VertexHit hit;
             hit.z = gpos.z();
             hit.r = gpos.perp();
-            hit.w = recHit->cluster()->sizeY();
+            hit.w = recHit.cluster()->sizeY();
 
             hits.push_back(hit);
           }

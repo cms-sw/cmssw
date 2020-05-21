@@ -88,10 +88,10 @@ void FWDTDigiProxyBuilder::buildViewType(const FWEventItem* iItem,
   }
   const FWGeometry* geom = iItem->getGeom();
 
-  for (DTDigiCollection::DigiRangeIterator dri = digis->begin(), dre = digis->end(); dri != dre; ++dri) {
-    const DTLayerId& layerId = (*dri).first;
+  for (auto&& digi : *digis) {
+    const DTLayerId& layerId = digi.first;
     unsigned int rawid = layerId.rawId();
-    const DTDigiCollection::Range& range = (*dri).second;
+    const DTDigiCollection::Range& range = digi.second;
 
     if (!geom->contains(rawid)) {
       fwLog(fwlog::kWarning) << "failed to get geometry of DT with detid: " << rawid << std::endl;

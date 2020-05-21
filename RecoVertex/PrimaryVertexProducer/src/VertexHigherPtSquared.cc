@@ -28,9 +28,9 @@ double VertexHigherPtSquared::sumPtSquared(const Vertex& v) const {
 
 double VertexHigherPtSquared::sumPtSquared(const std::vector<reco::TransientTrack>& tks) const {
   double sum = 0.;
-  for (std::vector<reco::TransientTrack>::const_iterator it = tks.begin(); it != tks.end(); it++) {
-    double pT = (it->track()).pt();
-    double epT = (it->track()).ptError();
+  for (const auto& tk : tks) {
+    double pT = (tk.track()).pt();
+    double epT = (tk.track()).ptError();
     pT = pT > epT ? pT - epT : 0;
 
     sum += pT * pT;

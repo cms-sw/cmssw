@@ -34,8 +34,8 @@ void printTiming(double cpu, double real) {
 }
 
 bool useEvent(int evt, std::vector<int> skip) {
-  for (unsigned int i = 0; i < skip.size(); i++)
-    if (evt == skip.at(i))
+  for (int i : skip)
+    if (evt == i)
       return false;
   return true;
 }
@@ -43,8 +43,8 @@ bool useEvent(int evt, std::vector<int> skip) {
 //TRUE - this event has at least one path passed (event accepted)
 //FALSE - this event fails all paths (event rejected)
 bool acceptedEvt(std::vector<double> pathStatus) {
-  for (unsigned int i = 0; i < pathStatus.size(); i++)
-    if (pathStatus.at(i) == -1)
+  for (double pathStatu : pathStatus)
+    if (pathStatu == -1)
       return true;
   return false;
 }
@@ -52,8 +52,8 @@ bool acceptedEvt(std::vector<double> pathStatus) {
 //TRUE - the target module is included in time calculation
 //FALSE - the target module is skipped by user
 bool useModuleByName(HLTPerformanceInfo::Module module, std::vector<std::string> skip) {
-  for (unsigned int i = 0; i < skip.size(); i++)
-    if (module.name() == skip.at(i))
+  for (const auto& i : skip)
+    if (module.name() == i)
       return false;
   return true;
 }
@@ -61,8 +61,8 @@ bool useModuleByName(HLTPerformanceInfo::Module module, std::vector<std::string>
 //TRUE - the target path is included in time calculation
 //FALSE - the target path is skipped by user
 bool usePathByName(HLTPerformanceInfo::Path path, std::vector<std::string> skip) {
-  for (unsigned int i = 0; i < skip.size(); i++)
-    if (path.name() == skip.at(i))
+  for (const auto& i : skip)
+    if (path.name() == i)
       return false;
   return true;
 }
@@ -179,8 +179,8 @@ void initialize(HLTPerformanceInfo hltPerf,
   }
 
   //mIdxInt is a list of index where each modInterested is located
-  for (unsigned i = 0; i < mInt.size(); i++) {
-    std::vector<std::string>::iterator modpointer = std::find(mNames->begin(), mNames->end(), mInt.at(i));
+  for (const auto& i : mInt) {
+    std::vector<std::string>::iterator modpointer = std::find(mNames->begin(), mNames->end(), i);
     if (modpointer != mNames->end()) {
       std::vector<std::string>::size_type indexValue = (modpointer - mNames->begin());
       mIdxInt->push_back(indexValue);
@@ -234,8 +234,8 @@ std::vector<TH1D*> createEventHistograms(std::string name,
 }
 
 bool isFilterModule(HLTPerformanceInfo::Module module, std::vector<std::string> modList) {
-  for (unsigned int i = 0; i < modList.size(); i++)
-    if (module.name() == modList.at(i))
+  for (const auto& i : modList)
+    if (module.name() == i)
       return true;
   return false;
 }
@@ -924,10 +924,10 @@ int main(int argc, char** argv) {
   }
 
   //--- Sanity check ---//
-  for (unsigned int i = 0; i < skipTimingMod.size(); i++) {
-    for (unsigned int j = 0; j < squareOne.size(); j++) {
-      if (skipTimingMod.at(i) == squareOne.at(j)) {
-        std::cout << "NOTE: You requested that " << squareOne.at(j)
+  for (const auto& i : skipTimingMod) {
+    for (const auto& j : squareOne) {
+      if (i == j) {
+        std::cout << "NOTE: You requested that " << j
                   << " be treated as a filter, but you also want it excluded from calculations" << std::endl;
         std::cout << "Please select either \"filter\" or \"exclude\" for this module." << std::endl;
         return 2;
@@ -1310,18 +1310,18 @@ int main(int argc, char** argv) {
 
   // Determine how many events are skipped
   std::vector<int> reducedSkipEvents;
-  for (unsigned int i = 0; i < skipEvents.size(); i++) {
-    if (skipEvents.at(i) < 0)
+  for (int skipEvent : skipEvents) {
+    if (skipEvent < 0)
       continue;
     bool newSkippedEvent = true;
-    for (unsigned int j = 0; j < reducedSkipEvents.size(); j++) {
-      if (reducedSkipEvents.at(j) == skipEvents.at(i))
+    for (int reducedSkipEvent : reducedSkipEvents) {
+      if (reducedSkipEvent == skipEvent)
         newSkippedEvent = false;
       if (!newSkippedEvent)
         break;
     }
     if (newSkippedEvent)
-      reducedSkipEvents.push_back(skipEvents.at(i));
+      reducedSkipEvents.push_back(skipEvent);
   }
 
   if (skipFirstEvent)
@@ -1836,21 +1836,21 @@ int main(int argc, char** argv) {
     }
     if (!skipTimingMod.empty()) {
       sumfile << "Not including any information from the following excluded modules: " << std::endl;
-      for (unsigned int i = 0; i < skipTimingMod.size(); i++)
-        sumfile << skipTimingMod.at(i) << std::endl;
+      for (const auto& i : skipTimingMod)
+        sumfile << i << std::endl;
       sumfile << std::endl;
     }
 
     if (!squareOne.empty()) {
       sumfile << "The following module(s) were defined as filters by the user: " << std::endl;
-      for (unsigned int i = 0; i < squareOne.size(); i++) {
-        sumfile << squareOne.at(i) << ", found in path(s) ";
+      for (const auto& i : squareOne) {
+        sumfile << i << ", found in path(s) ";
         int pCtr = 0;
         for (size_t piter = 0; piter < (*HLTPerformanceWrapper)->numberOfPaths(); ++piter) {
           const HLTPerformanceInfo::Path p = (*HLTPerformanceWrapper)->getPath(piter);
           for (size_t j = 0; j < (*HLTPerformanceWrapper)->numberOfModules(); ++j) {
             const HLTPerformanceInfo::Module& myModule = (*HLTPerformanceWrapper)->getModule(j);
-            if (myModule.name() == squareOne.at(i)) {
+            if (myModule.name() == i) {
               if (pCtr > 0)
                 sumfile << ", ";
               sumfile << p.name();
@@ -1873,9 +1873,8 @@ int main(int argc, char** argv) {
       sumfile << "(formatted for usage within the PoolSource module,i.e, Run:Event)" << std::endl;
       sumfile << std::endl;
       sumfile << "eventsToProcess = cms.untracked.VEventRange(" << std::endl;
-      for (unsigned int i = 0; i < slowEventSummaryVector.size(); i++) {
-        sumfile << "'" << slowEventSummaryVector.at(i).first << ":" << slowEventSummaryVector.at(i).second << "',"
-                << std::endl;
+      for (auto& i : slowEventSummaryVector) {
+        sumfile << "'" << i.first << ":" << i.second << "'," << std::endl;
       }
       sumfile << ")" << std::endl;
       sumfile << std::endl;
@@ -1892,9 +1891,8 @@ int main(int argc, char** argv) {
       sumfile << "(formatted for usage within the PoolSource module,i.e, Run:Event)" << std::endl;
       sumfile << std::endl;
       sumfile << "eventsToProcess = cms.untracked.VEventRange(" << std::endl;
-      for (unsigned int i = 0; i < slowPathSummaryVector.size(); i++) {
-        sumfile << "'" << slowPathSummaryVector.at(i).first << ":" << slowPathSummaryVector.at(i).second << "',"
-                << std::endl;
+      for (auto& i : slowPathSummaryVector) {
+        sumfile << "'" << i.first << ":" << i.second << "'," << std::endl;
       }
       sumfile << ")" << std::endl;
       sumfile << std::endl;
@@ -1910,9 +1908,8 @@ int main(int argc, char** argv) {
       sumfile << "(formatted for usage within the PoolSource module,i.e, Run:Event)" << std::endl;
       sumfile << std::endl;
       sumfile << "eventsToProcess = cms.untracked.VEventRange(" << std::endl;
-      for (unsigned int i = 0; i < slowModuleSummaryVector.size(); i++) {
-        sumfile << "'" << slowModuleSummaryVector.at(i).first << ":" << slowModuleSummaryVector.at(i).second << "',"
-                << std::endl;
+      for (auto& i : slowModuleSummaryVector) {
+        sumfile << "'" << i.first << ":" << i.second << "'," << std::endl;
       }
       sumfile << ")" << std::endl;
       sumfile << std::endl;

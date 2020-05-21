@@ -49,7 +49,7 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
                             CLHEP::HepRandomEngine* hre) const {
   MTDSimHitData chargeColl, toa1, toa2;
 
-  for (MTDSimHitDataAccumulator::const_iterator it = input.begin(); it != input.end(); it++) {
+  for (const auto& it : input) {
     // --- Digitize only the in-time bucket:
     const unsigned int iBX = mtd_digitizer::kInTimeBX;
 
@@ -58,12 +58,12 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
     toa2.fill(0.f);
     for (size_t iside = 0; iside < 2; iside++) {
       // --- Fluctuate the total number of photo-electrons
-      float Npe = CLHEP::RandPoissonQ::shoot(hre, (it->second).hit_info[2 * iside][iBX]);
+      float Npe = CLHEP::RandPoissonQ::shoot(hre, (it.second).hit_info[2 * iside][iBX]);
       if (Npe < EnergyThreshold_)
         continue;
 
       // --- Get the time of arrival and add a channel time offset
-      float finalToA1 = (it->second).hit_info[1 + 2 * iside][iBX] + ChannelTimeOffset_;
+      float finalToA1 = (it.second).hit_info[1 + 2 * iside][iBX] + ChannelTimeOffset_;
 
       if (smearChannelTimeOffset_ > 0.) {
         float timeSmearing = CLHEP::RandGaussQ::shoot(hre, 0., smearChannelTimeOffset_);
@@ -87,9 +87,9 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
         float rate_oot = 0.;
         // Loop on earlier OOT hits
         for (int ibx = 0; ibx < mtd_digitizer::kInTimeBX; ++ibx) {
-          if ((it->second).hit_info[2 * iside][ibx] > 0.) {
-            float hit_time = (it->second).hit_info[1 + 2 * iside][ibx] + bxTime_ * (ibx - mtd_digitizer::kInTimeBX);
-            float npe_oot = CLHEP::RandPoissonQ::shoot(hre, (it->second).hit_info[2 * iside][ibx]);
+          if ((it.second).hit_info[2 * iside][ibx] > 0.) {
+            float hit_time = (it.second).hit_info[1 + 2 * iside][ibx] + bxTime_ * (ibx - mtd_digitizer::kInTimeBX);
+            float npe_oot = CLHEP::RandPoissonQ::shoot(hre, (it.second).hit_info[2 * iside][ibx]);
             rate_oot += npe_oot * exp(hit_time * ScintillatorDecayTimeInv_) * ScintillatorDecayTimeInv_;
           }
         }  // ibx loop
@@ -148,8 +148,8 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
     }  // iside loop
 
     //run the shaper to create a new data frame
-    BTLDataFrame rawDataFrame(it->first.detid_);
-    runTrivialShaper(rawDataFrame, chargeColl, toa1, toa2, it->first.row_, it->first.column_);
+    BTLDataFrame rawDataFrame(it.first.detid_);
+    runTrivialShaper(rawDataFrame, chargeColl, toa1, toa2, it.first.row_, it.first.column_);
     updateOutput(output, rawDataFrame);
 
   }  // MTDSimHitDataAccumulator loop

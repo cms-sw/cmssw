@@ -57,22 +57,22 @@ void SiStripDetVOffFakeBuilder::analyze(const edm::Event& evt, const edm::EventS
 
   // std::vector<uint32_t> TheDetIdHVVector;
 
-  for (std::vector<uint32_t>::const_iterator it = detids.begin(); it != detids.end(); it++) {
+  for (unsigned int detid : detids) {
     //Generate HV and LV for each channel, if at least one of the two is off fill the value
     int hv = rand() % 20;
     int lv = rand() % 20;
     if (hv <= 2) {
-      edm::LogInfo("SiStripDetVOffFakeBuilder") << "detid: " << *it << " HV\t OFF" << std::endl;
-      SiStripDetVOff_->put(*it, 1, -1);
+      edm::LogInfo("SiStripDetVOffFakeBuilder") << "detid: " << detid << " HV\t OFF" << std::endl;
+      SiStripDetVOff_->put(detid, 1, -1);
       // TheDetIdHVVector.push_back(*it);
     }
     if (lv <= 2) {
-      edm::LogInfo("SiStripDetVOffFakeBuilder") << "detid: " << *it << " LV\t OFF" << std::endl;
-      SiStripDetVOff_->put(*it, -1, 1);
+      edm::LogInfo("SiStripDetVOffFakeBuilder") << "detid: " << detid << " LV\t OFF" << std::endl;
+      SiStripDetVOff_->put(detid, -1, 1);
       // TheDetIdHVVector.push_back(*it);
     }
     if (lv <= 2 || hv <= 2)
-      edm::LogInfo("SiStripDetVOffFakeBuilder") << "detid: " << *it << " V\t OFF" << std::endl;
+      edm::LogInfo("SiStripDetVOffFakeBuilder") << "detid: " << detid << " V\t OFF" << std::endl;
   }
 
   // SiStripDetVOff_->put(TheDetIdHVVector);

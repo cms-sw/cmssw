@@ -98,11 +98,11 @@ MuRingForwardDoubleLayer* MuonRPCDetLayerGeometryBuilder::buildLayer(
   vector<const ForwardDetRing*> frontRings, backRings;
 
   for (std::vector<int>::const_iterator ring = rings.begin(); ring < rings.end(); ++ring) {
-    for (vector<int>::iterator roll = rolls.begin(); roll != rolls.end(); ++roll) {
+    for (int& roll : rolls) {
       vector<const GeomDet*> frontDets, backDets;
       for (int sector = RPCDetId::minSectorForwardId; sector <= RPCDetId::maxSectorForwardId; ++sector) {
         for (int subsector = RPCDetId::minSubSectorForwardId; subsector <= RPCDetId::maxSectorForwardId; ++subsector) {
-          RPCDetId rpcId(endcap, *ring, station, sector, layer, subsector, (*roll));
+          RPCDetId rpcId(endcap, *ring, station, sector, layer, subsector, roll);
           bool isInFront = isFront(rpcId);
           const GeomDet* geomDet = geo.idToDet(rpcId);
           if (geomDet) {
@@ -177,8 +177,8 @@ vector<DetLayer*> MuonRPCDetLayerGeometryBuilder::buildBarrelLayers(const RPCGeo
     makeBarrelLayers(geomDets, result);
   }
 
-  for (vector<MuRodBarrelLayer*>::const_iterator it = result.begin(); it != result.end(); it++)
-    detlayers.push_back((DetLayer*)(*it));
+  for (auto it : result)
+    detlayers.push_back((DetLayer*)it);
 
   return detlayers;
 }

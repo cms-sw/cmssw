@@ -824,10 +824,10 @@ void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, doub
   std::map<uint32_t, std::vector<std::pair<double, double>>> map_hitTimeEn;
   //bool debug = true;
   bool debug = false;
-  for (unsigned int i = 0; i < hits.size(); i++) {
-    double energy = hits[i].energy();
-    double time = hits[i].time();
-    uint32_t id = hits[i].id();
+  for (auto& hit : hits) {
+    double energy = hit.energy();
+    double time = hit.time();
+    uint32_t id = hit.id();
     entot += energy;
     int subdet, zside, layer, sector, subsector(0), cell, depth(0), idx(0);
     if (type == 2) {

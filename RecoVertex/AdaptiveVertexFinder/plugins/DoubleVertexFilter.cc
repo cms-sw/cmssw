@@ -64,12 +64,11 @@ void DoubleVertexFilter::produce(edm::StreamID, edm::Event &event, const edm::Ev
   std::vector<reco::Vertex>::const_iterator pv = primaryVertices->begin();
 
   auto recoVertices = std::make_unique<VertexCollection>();
-  for (std::vector<reco::Vertex>::const_iterator sv = secondaryVertices->begin(); sv != secondaryVertices->end();
-       ++sv) {
-    if (computeSharedTracks(*pv, *sv) > maxFraction)
+  for (const auto &sv : *secondaryVertices) {
+    if (computeSharedTracks(*pv, sv) > maxFraction)
       continue;
 
-    recoVertices->push_back(*sv);
+    recoVertices->push_back(sv);
   }
 
   event.put(std::move(recoVertices));

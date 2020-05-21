@@ -54,8 +54,8 @@ void GEMPadDigiReader::analyze(const edm::Event& event, const edm::EventSetup& e
   if (pads->begin() == pads->end())
     return;  // no pads in event
 
-  for (auto pad_range_it = pads->begin(); pad_range_it != pads->end(); ++pad_range_it) {
-    const auto& id = (*pad_range_it).first;
+  for (auto&& pad_range_it : *pads) {
+    const auto& id = pad_range_it.first;
     const auto& roll = geometry->etaPartition(id);
 
     // GEMDetId print-out
@@ -77,7 +77,7 @@ void GEMPadDigiReader::analyze(const edm::Event& event, const edm::EventSetup& e
     cout << endl;
 
     // loop over pads of this DetUnit and print stuff
-    auto pads_range = (*pad_range_it).second;
+    auto pads_range = pad_range_it.second;
     for (auto p = pads_range.first; p != pads_range.second; ++p) {
       int first_strip = roll->firstStripInPad(p->pad());  // p->pad() is int, firstStripInPad returns int
       int last_strip = roll->lastStripInPad(p->pad());

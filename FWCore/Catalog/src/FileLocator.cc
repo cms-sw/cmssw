@@ -205,18 +205,18 @@ namespace edm {
     std::smatch nameMatches;
 
     /* Look up for a matching rule*/
-    for (Rules::const_iterator i = rules.begin(); i != rules.end(); ++i) {
-      if (!std::regex_match(destination, destinationMatches, i->destinationMatch)) {
+    for (const auto& rule : rules) {
+      if (!std::regex_match(destination, destinationMatches, rule.destinationMatch)) {
         continue;
       }
 
-      if (!std::regex_match(name, i->pathMatch)) {
+      if (!std::regex_match(name, rule.pathMatch)) {
         continue;
       }
 
       // std::cerr << "Rule " << i->pathMatch << "matched! " << std::endl;
 
-      std::string const chain = i->chain;
+      std::string const chain = rule.chain;
       if ((direct == true) && (!chain.empty())) {
         name = applyRules(protocolRules, chain, destination, direct, name);
         if (name.empty()) {
@@ -224,8 +224,8 @@ namespace edm {
         }
       }
 
-      std::regex_match(name, nameMatches, i->pathMatch);
-      name = replaceWithRegexp(nameMatches, i->result);
+      std::regex_match(name, nameMatches, rule.pathMatch);
+      name = replaceWithRegexp(nameMatches, rule.result);
 
       if ((direct == false) && (!chain.empty())) {
         name = applyRules(protocolRules, chain, destination, direct, name);

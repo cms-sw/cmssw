@@ -397,12 +397,10 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
   DDLogicalPart glog1;
   DDTranslation tran;
   DDRotation rot;
-  for (unsigned int ly = 0; ly < layerTypeTop_.size(); ++ly) {
-    int ii = layerTypeTop_[ly];
+  for (int ii : layerTypeTop_) {
     copyNumberTop_[ii] = copyM;
   }
-  for (unsigned int ly = 0; ly < layerTypeBot_.size(); ++ly) {
-    int ii = layerTypeBot_[ly];
+  for (int ii : layerTypeBot_) {
     copyNumberBot_[ii] = copyM;
   }
   double hthick = 0.5 * thick;
@@ -420,8 +418,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
                                 << " at " << tran << " with " << rot;
 #endif
   double thickTot(0), zpos(-hthick);
-  for (unsigned int ly = 0; ly < layerTypeTop_.size(); ++ly) {
-    int ii = layerTypeTop_[ly];
+  for (int ii : layerTypeTop_) {
     int copy = copyNumberTop_[ii];
     double hthickl = 0.5 * layerThickTop_[ii];
     thickTot += layerThickTop_[ii];

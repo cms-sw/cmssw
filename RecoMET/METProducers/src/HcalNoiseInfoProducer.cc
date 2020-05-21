@@ -898,8 +898,7 @@ void HcalNoiseInfoProducer::filldigis(edm::Event& iEvent,
   }
 
   // loop over all of the digi information
-  for (HBHEDigiCollection::const_iterator it = handle->begin(); it != handle->end(); ++it) {
-    const HBHEDataFrame& digi = (*it);
+  for (const auto& digi : *handle) {
     HcalDetId cell = digi.id();
     DetId detcell = (DetId)cell;
 
@@ -979,39 +978,39 @@ void HcalNoiseInfoProducer::filldigis(edm::Event& iEvent,
 
   // get total charge in calibration channels
   if (hCalib.isValid() == true) {
-    for (HcalCalibDigiCollection::const_iterator digi = hCalib->begin(); digi != hCalib->end(); digi++) {
-      if (digi->id().hcalSubdet() == 0)
+    for (const auto& digi : *hCalib) {
+      if (digi.id().hcalSubdet() == 0)
         continue;
 
-      for (unsigned i = 0; i < (unsigned)digi->size(); i++)
-        totalCalibCharge = totalCalibCharge + adc2fC[digi->sample(i).adc() & 0xff];
+      for (unsigned i = 0; i < (unsigned)digi.size(); i++)
+        totalCalibCharge = totalCalibCharge + adc2fC[digi.sample(i).adc() & 0xff];
 
-      HcalCalibDetId myid = (HcalCalibDetId)digi->id();
+      HcalCalibDetId myid = (HcalCalibDetId)digi.id();
       if (myid.calibFlavor() == HcalCalibDetId::HOCrosstalk)
         continue;  // ignore HOCrosstalk channels
-      if (digi->zsMarkAndPass())
+      if (digi.zsMarkAndPass())
         continue;  // skip "mark-and-pass" channels when computing charge in calib channels
 
-      if (digi->id().hcalSubdet() == HcalForward)  // check HF
+      if (digi.id().hcalSubdet() == HcalForward)  // check HF
       {
         double sumChargeHF = 0;
-        for (unsigned int i = 0; i < calibdigiHFtimeslices_.size(); ++i) {
+        for (int calibdigiHFtimeslice : calibdigiHFtimeslices_) {
           // skip unphysical time slices
-          if (calibdigiHFtimeslices_[i] < 0 || calibdigiHFtimeslices_[i] > digi->size())
+          if (calibdigiHFtimeslice < 0 || calibdigiHFtimeslice > digi.size())
             continue;
-          sumChargeHF += adc2fC[digi->sample(calibdigiHFtimeslices_[i]).adc() & 0xff];
+          sumChargeHF += adc2fC[digi.sample(calibdigiHFtimeslice).adc() & 0xff];
         }
         if (sumChargeHF > calibdigiHFthreshold_)
           ++NcalibHFgtX;
-      }                                                                                         // end of HF check
-      else if (digi->id().hcalSubdet() == HcalBarrel || digi->id().hcalSubdet() == HcalEndcap)  // now check HBHE
+      }                                                                                       // end of HF check
+      else if (digi.id().hcalSubdet() == HcalBarrel || digi.id().hcalSubdet() == HcalEndcap)  // now check HBHE
       {
         double sumChargeHBHE = 0;
-        for (unsigned int i = 0; i < calibdigiHBHEtimeslices_.size(); ++i) {
+        for (int calibdigiHBHEtimeslice : calibdigiHBHEtimeslices_) {
           // skip unphysical time slices
-          if (calibdigiHBHEtimeslices_[i] < 0 || calibdigiHBHEtimeslices_[i] > digi->size())
+          if (calibdigiHBHEtimeslice < 0 || calibdigiHBHEtimeslice > digi.size())
             continue;
-          sumChargeHBHE += adc2fC[digi->sample(calibdigiHBHEtimeslices_[i]).adc() & 0xff];
+          sumChargeHBHE += adc2fC[digi.sample(calibdigiHBHEtimeslice).adc() & 0xff];
         }
         ++NcalibTS45;
         chargecalibTS45 += sumChargeHBHE;
@@ -1168,8 +1167,8 @@ void HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent,
     uint32_t trianglebitset = (1 << HcalCaloFlagLabels::HBHETriangleNoise);
     uint32_t ts4ts5bitset = (1 << HcalCaloFlagLabels::HBHETS4TS5Noise);
     uint32_t negativebitset = (1 << HcalCaloFlagLabels::HBHENegativeNoise);
-    for (unsigned int i = 0; i < HcalRecHitFlagsToBeExcluded_.size(); i++) {
-      uint32_t bitset = (1 << HcalRecHitFlagsToBeExcluded_[i]);
+    for (int i : HcalRecHitFlagsToBeExcluded_) {
+      uint32_t bitset = (1 << i);
       recHitFlag = (recHitFlag & bitset) ? recHitFlag - bitset : recHitFlag;
     }
     const HcalChannelStatus* dbStatus = dbHcalChStatus->getValues(id);
@@ -1272,8 +1271,8 @@ void HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent,
   }  // end loop over rechits
 
   // loop over all HPDs and transfer the information from refrechitset_ to rechits_;
-  for (HcalNoiseRBXArray::iterator rbxit = array.begin(); rbxit != array.end(); ++rbxit) {
-    for (std::vector<HcalNoiseHPD>::iterator hpdit = rbxit->hpds_.begin(); hpdit != rbxit->hpds_.end(); ++hpdit) {
+  for (auto& rbxit : array) {
+    for (std::vector<HcalNoiseHPD>::iterator hpdit = rbxit.hpds_.begin(); hpdit != rbxit.hpds_.end(); ++hpdit) {
       // loop over all of the entries in the set and add them to rechits_
       for (std::set<edm::Ref<HBHERecHitCollection>, RefHBHERecHitEnergyComparison>::const_iterator it =
                hpdit->refrechitset_.begin();
@@ -1318,9 +1317,8 @@ void HcalNoiseInfoProducer::fillcalotwrs(edm::Event& iEvent,
     array.findHPD(twr, hpditervec);
 
     // loop over the hpd's and add the reference to the RefVectors
-    for (std::vector<std::vector<HcalNoiseHPD>::iterator>::iterator it = hpditervec.begin(); it != hpditervec.end();
-         ++it)
-      (*it)->calotowers_.push_back(myRef);
+    for (auto& it : hpditervec)
+      it->calotowers_.push_back(myRef);
 
     // skip over anything with |ieta|>maxCaloTowerIEta
     if (twr.ietaAbs() > maxCaloTowerIEta_) {
@@ -1345,16 +1343,16 @@ void HcalNoiseInfoProducer::filljetinfo(edm::Event& iEvent,
 
     if (pfjet_h.isValid()) {
       int jetindex = 0;
-      for (reco::PFJetCollection::const_iterator jet = pfjet_h->begin(); jet != pfjet_h->end(); ++jet) {
+      for (const auto& jet : *pfjet_h) {
         if (jetindex > maxjetindex_)
           break;  // only look at jets with
                   // indices up to maxjetindex_
 
         // Check whether jet is in low-BV region (0<eta<1.4, -1.8<phi<-1.4)
-        if (jet->eta() > 0.0 && jet->eta() < 1.4 && jet->phi() > -1.8 && jet->phi() < -1.4) {
+        if (jet.eta() > 0.0 && jet.eta() < 1.4 && jet.phi() > -1.8 && jet.phi() < -1.4) {
           // Look for a good jet in low BV region;
           // if found, we will keep event
-          if (maxNHF_ < 0.0 || jet->neutralHadronEnergyFraction() < maxNHF_) {
+          if (maxNHF_ < 0.0 || jet.neutralHadronEnergyFraction() < maxNHF_) {
             goodJetFoundInLowBVRegion = true;
             break;
           }
@@ -1383,8 +1381,7 @@ void HcalNoiseInfoProducer::filltracks(edm::Event& iEvent,
   }
 
   summary.trackenergy_ = 0.0;
-  for (reco::TrackCollection::const_iterator iTrack = handle->begin(); iTrack != handle->end(); ++iTrack) {
-    reco::Track trk = *iTrack;
+  for (auto trk : *handle) {
     if (trk.pt() < minTrackPt_ || fabs(trk.eta()) > maxTrackEta_)
       continue;
 

@@ -23,8 +23,8 @@ std::atomic<bool> DTHitQualityUtils::debug{false};
 map<DTWireId, PSimHitContainer> DTHitQualityUtils::mapSimHitsPerWire(const PSimHitContainer &simhits) {
   map<DTWireId, PSimHitContainer> hitWireMapResult;
 
-  for (PSimHitContainer::const_iterator simhit = simhits.begin(); simhit != simhits.end(); simhit++) {
-    hitWireMapResult[DTWireId((*simhit).detUnitId())].push_back(*simhit);
+  for (const auto &simhit : simhits) {
+    hitWireMapResult[DTWireId(simhit.detUnitId())].push_back(simhit);
   }
 
   return hitWireMapResult;
@@ -35,12 +35,10 @@ map<DTWireId, const PSimHit *> DTHitQualityUtils::mapMuSimHitsPerWire(
     const map<DTWireId, PSimHitContainer> &simHitWireMap) {
   map<DTWireId, const PSimHit *> ret;
 
-  for (map<DTWireId, PSimHitContainer>::const_iterator wireAndSimHit = simHitWireMap.begin();
-       wireAndSimHit != simHitWireMap.end();
-       wireAndSimHit++) {
-    const PSimHit *muHit = findMuSimHit((*wireAndSimHit).second);
+  for (const auto &wireAndSimHit : simHitWireMap) {
+    const PSimHit *muHit = findMuSimHit(wireAndSimHit.second);
     if (muHit != nullptr) {
-      ret[(*wireAndSimHit).first] = (muHit);
+      ret[wireAndSimHit.first] = (muHit);
     }
   }
   return ret;
@@ -53,9 +51,9 @@ const PSimHit *DTHitQualityUtils::findMuSimHit(const PSimHitContainer &hits) {
   vector<const PSimHit *> muHits;
 
   // Loop over simhits
-  for (PSimHitContainer::const_iterator hit = hits.begin(); hit != hits.end(); hit++) {
-    if (abs((*hit).particleType()) == 13)
-      muHits.push_back(&(*hit));
+  for (const auto &hit : hits) {
+    if (abs(hit.particleType()) == 13)
+      muHits.push_back(&hit);
   }
 
   if (muHits.empty())
@@ -78,11 +76,9 @@ pair<const PSimHit *, const PSimHit *> DTHitQualityUtils::findMuSimSegment(
   const PSimHit *inSimHit = nullptr;
   const PSimHit *outSimHit = nullptr;
 
-  for (map<DTWireId, const PSimHit *>::const_iterator wireAndMuSimHit = mapWireAndMuSimHit.begin();
-       wireAndMuSimHit != mapWireAndMuSimHit.end();
-       wireAndMuSimHit++) {
-    const DTWireId wireId = (*wireAndMuSimHit).first;
-    const PSimHit *theMuHit = (*wireAndMuSimHit).second;
+  for (const auto &wireAndMuSimHit : mapWireAndMuSimHit) {
+    const DTWireId wireId = wireAndMuSimHit.first;
+    const PSimHit *theMuHit = wireAndMuSimHit.second;
 
     int sl = ((wireId.layerId()).superlayerId()).superLayer();
     int layer = (wireId.layerId()).layer();

@@ -9,8 +9,8 @@ const CSCBadCFEBWord& CSCBadCFEBTimeSlice::word(int i) const {
 bool CSCBadCFEBTimeSlice::check() const {
   // demand all four words check out
   bool result = true;
-  for (int i = 0; i < 4; ++i) {
-    result &= theWords[i].check();
+  for (auto theWord : theWords) {
+    result &= theWord.check();
   }
   return result;
 }

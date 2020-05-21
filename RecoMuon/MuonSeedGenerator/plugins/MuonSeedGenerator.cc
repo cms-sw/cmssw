@@ -95,9 +95,8 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   std::vector<MuonRecHitContainer> patterns;
   thePatternRecognition->produce(event, eSetup, patterns);
 
-  for (std::vector<MuonRecHitContainer>::const_iterator seedSegments = patterns.begin(); seedSegments != patterns.end();
-       ++seedSegments) {
-    theSeedFinder->seeds(*seedSegments, *output);
+  for (const auto& pattern : patterns) {
+    theSeedFinder->seeds(pattern, *output);
   }
 
   theSeedCleaner->clean(*output);

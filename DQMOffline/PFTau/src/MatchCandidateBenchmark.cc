@@ -103,8 +103,8 @@ void MatchCandidateBenchmark::computePtBins(const edm::ParameterSet &ps, const e
   const std::vector<double> &ptBinsPS = ps.getParameter<std::vector<double> >("VariablePtBins");
   if (ptBinsPS.size() > 1) {
     ptBins_.reserve(ptBinsPS.size());
-    for (size_t i = 0; i < ptBinsPS.size(); i++)
-      ptBins_.push_back(ptBinsPS[i]);
+    for (double i : ptBinsPS)
+      ptBins_.push_back(i);
   } else {
     Int_t nFixedBins = ptPS.getParameter<int32_t>("nBin");
     ptBins_.reserve(nFixedBins + 1);

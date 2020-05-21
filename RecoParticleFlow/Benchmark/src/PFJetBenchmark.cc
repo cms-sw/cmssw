@@ -317,10 +317,10 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
       double rec_ChargedMultiplicity = pfj.chargedMultiplicity();
       std::vector<PFCandidatePtr> constituents = pfj.getPFConstituents();
       std::vector<unsigned int> chMult(9, static_cast<unsigned int>(0));
-      for (unsigned ic = 0; ic < constituents.size(); ++ic) {
-        if (constituents[ic]->particleId() > 3)
+      for (auto& constituent : constituents) {
+        if (constituent->particleId() > 3)
           continue;
-        reco::TrackRef trackRef = constituents[ic]->trackRef();
+        reco::TrackRef trackRef = constituent->trackRef();
         if (trackRef.isNull()) {
           //std::cout << "Warning in entry " << entry_
           //	    << " : a track with Id " << constituents[ic]->particleId()
@@ -420,8 +420,8 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
         math::XYZTLorentzVector overlappinGenJet(0., 0., 0., 0.);
         const reco::GenJet* genoj = nullptr;
         double dRgo = 1E9;
-        for (unsigned j = 0; j < genJets.size(); j++) {
-          const reco::GenJet* gjo = &(genJets[j]);
+        for (const auto& genJet : genJets) {
+          const reco::GenJet* gjo = &genJet;
           if (gjo != truth && algo_->deltaR(truth, gjo) < dRgo && gjo->pt() > 0.25 * truth->pt()) {
             dRgo = algo_->deltaR(truth, gjo);
             genoj = gjo;
@@ -724,8 +724,7 @@ void PFJetBenchmark::gettrue(const reco::GenJet* truth,
   true_ChargedHadEnergy = 0.;
   true_NeutralHadEnergy = 0.;
   // for each MC particle in turn
-  for (unsigned i = 0; i < mcparts.size(); i++) {
-    const GenParticle* mcpart = mcparts[i];
+  for (auto mcpart : mcparts) {
     int PDG = std::abs(mcpart->pdgId());
     double e = mcpart->energy();
     switch (PDG) {  // start PDG switch

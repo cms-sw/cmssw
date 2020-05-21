@@ -701,9 +701,8 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     }
   }
   // initialise # of clusters to zero
-  for (std::map<std::string, SubDetMEs>::iterator iSubdet = SubDetMEsMap.begin(); iSubdet != SubDetMEsMap.end();
-       iSubdet++) {
-    iSubdet->second.totNClusters = 0;
+  for (auto& iSubdet : SubDetMEsMap) {
+    iSubdet.second.totNClusters = 0;
   }
 
   SiStripFolderOrganizer folder_organizer;
@@ -732,13 +731,9 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     uint16_t iDet = 0;
     std::string subdet_label = "";
     // loop over all modules in the layer
-    for (std::vector<uint32_t>::const_iterator iterDets = iterLayer->second.begin();
-         iterDets != iterLayer->second.end();
-         iterDets++) {
+    for (unsigned int detid : iterLayer->second) {
       iDet++;
       // detid and type of ME
-      uint32_t detid = (*iterDets);
-
       // Get SubDet label once
       if (subdet_label.empty())
         subdet_label = folder_organizer.getSubDetFolderAndTag(detid, tTopo).second;
@@ -836,21 +831,19 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       SiStripApvGain::Range detGainRange = siStripGain.getRange(detid);
       SiStripQuality::Range qualityRange = siStripQuality.getRange(detid);
 
-      for (edmNew::DetSet<SiStripCluster>::const_iterator clusterIter = cluster_detset.begin();
-           clusterIter != cluster_detset.end();
-           clusterIter++) {
-        const auto& ampls = clusterIter->amplitudes();
+      for (const auto& clusterIter : cluster_detset) {
+        const auto& ampls = clusterIter.amplitudes();
         // cluster position
-        float cluster_position = clusterIter->barycenter();
+        float cluster_position = clusterIter.barycenter();
         // start defined as nr. of first strip beloning to the cluster
-        short cluster_start = clusterIter->firstStrip();
+        short cluster_start = clusterIter.firstStrip();
         // width defined as nr. of strips that belong to cluster
         short cluster_width = ampls.size();
         // add nr of strips of this cluster to total nr. of clusterized strips
         total_clusterized_strips = total_clusterized_strips + cluster_width;
 
         if (clusterchtkhistomapon and passDCSFilter_)
-          tkmapclusterch->fill(detid, static_cast<float>(clusterIter->charge()));
+          tkmapclusterch->fill(detid, static_cast<float>(clusterIter.charge()));
 
         // cluster signal and noise from the amplitudes
         float cluster_signal = 0.0;
@@ -861,9 +854,9 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
         for (uint iamp = 0; iamp < ampls.size(); iamp++) {
           if (ampls[iamp] > 0) {  // nonzero amplitude
             cluster_signal += ampls[iamp];
-            if (!siStripQuality.IsStripBad(qualityRange, clusterIter->firstStrip() + iamp)) {
-              noise = siStripNoises.getNoise(clusterIter->firstStrip() + iamp, detNoiseRange) /
-                      siStripGain.getStripGain(clusterIter->firstStrip() + iamp, detGainRange);
+            if (!siStripQuality.IsStripBad(qualityRange, clusterIter.firstStrip() + iamp)) {
+              noise = siStripNoises.getNoise(clusterIter.firstStrip() + iamp, detNoiseRange) /
+                      siStripGain.getStripGain(clusterIter.firstStrip() + iamp, detGainRange);
             }
             noise2 += noise * noise;
             nrnonzeroamplitudes++;
@@ -987,10 +980,10 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     }
     // plot n 2
 
-    for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
-      std::string sdet = it->first;
+    for (auto& it : SubDetMEsMap) {
+      std::string sdet = it.first;
       // std::string sdet = sdet_tag.substr(0,sdet_tag.find_first_of("_"));
-      SubDetMEs sdetmes = it->second;
+      SubDetMEs sdetmes = it.second;
 
       int the_phase = APVCyclePhaseCollection::invalid;
       long long tbx_corr = tbx;

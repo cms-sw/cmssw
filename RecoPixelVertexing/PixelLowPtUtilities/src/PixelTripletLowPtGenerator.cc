@@ -96,13 +96,13 @@ void PixelTripletLowPtGenerator::hitTriplets(const TrackingRegion& region,
   getTracker(es);
 
   // Look at all generated pairs
-  for (OrderedHitPairs::const_iterator ip = pairs.begin(); ip != pairs.end(); ip++) {
+  for (const auto& pair : pairs) {
     // Fill rechits and points
     vector<const TrackingRecHit*> recHits(3);
     vector<GlobalPoint> points(3);
 
-    recHits[0] = (*ip).inner()->hit();
-    recHits[1] = (*ip).outer()->hit();
+    recHits[0] = pair.inner()->hit();
+    recHits[1] = pair.outer()->hit();
 
 #ifdef Debug
     cerr << " RecHits " + HitInfo::getInfo(*recHits[0]) + HitInfo::getInfo(*recHits[1]) << endl;
@@ -179,7 +179,7 @@ void PixelTripletLowPtGenerator::hitTriplets(const TrackingRegion& region,
         }
 
         // All checks passed, put triplet back
-        result.push_back(OrderedHitTriplet((*ip).inner(), (*ip).outer(), *th));
+        result.push_back(OrderedHitTriplet(pair.inner(), pair.outer(), *th));
       }
     }
   }

@@ -115,39 +115,33 @@ namespace edm {
     DetSetRefVector(const Handle<C>& iHandle, const std::vector<det_id_type>& iDets) : sets_() {
       sets_.reserve(iDets.size());
       det_id_type sanityCheck = 0;
-      for (std::vector<det_id_type>::const_iterator itDetId = iDets.begin(), itDetIdEnd = iDets.end();
-           itDetId != itDetIdEnd;
-           ++itDetId) {
-        assert(sanityCheck <= *itDetId && "vector of det_id_type was not ordered");
-        sanityCheck = *itDetId;
+      for (unsigned int iDet : iDets) {
+        assert(sanityCheck <= iDet && "vector of det_id_type was not ordered");
+        sanityCheck = iDet;
         //the last 'false' says to not get the data right now
-        sets_.push_back(ref_type(iHandle, *itDetId, false));
+        sets_.push_back(ref_type(iHandle, iDet, false));
       }
     }
 
     DetSetRefVector(const OrphanHandle<C>& iHandle, const std::vector<det_id_type>& iDets) : sets_() {
       sets_.reserve(iDets.size());
       det_id_type sanityCheck = 0;
-      for (std::vector<det_id_type>::const_iterator itDetId = iDets.begin(), itDetIdEnd = iDets.end();
-           itDetId != itDetIdEnd;
-           ++itDetId) {
-        assert(sanityCheck <= *itDetId && "vector of det_id_type was not ordered");
-        sanityCheck = *itDetId;
+      for (unsigned int iDet : iDets) {
+        assert(sanityCheck <= iDet && "vector of det_id_type was not ordered");
+        sanityCheck = iDet;
         //the last 'false' says to not get the data right now
-        sets_.push_back(ref_type(iHandle, *itDetId, false));
+        sets_.push_back(ref_type(iHandle, iDet, false));
       }
     }
 
     DetSetRefVector(const TestHandle<C>& iHandle, const std::vector<det_id_type>& iDets) : sets_() {
       sets_.reserve(iDets.size());
       det_id_type sanityCheck = 0;
-      for (std::vector<det_id_type>::const_iterator itDetId = iDets.begin(), itDetIdEnd = iDets.end();
-           itDetId != itDetIdEnd;
-           ++itDetId) {
-        assert(sanityCheck <= *itDetId && "vector of det_id_type was not ordered");
-        sanityCheck = *itDetId;
+      for (unsigned int iDet : iDets) {
+        assert(sanityCheck <= iDet && "vector of det_id_type was not ordered");
+        sanityCheck = iDet;
         //the last 'false' says to not get the data right now
-        sets_.push_back(ref_type(iHandle, *itDetId, false));
+        sets_.push_back(ref_type(iHandle, iDet, false));
       }
     }
 

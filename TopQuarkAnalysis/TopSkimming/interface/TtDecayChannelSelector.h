@@ -68,8 +68,8 @@ inline unsigned int TtDecayChannelSelector::decayChannel() const {
 
 inline unsigned int TtDecayChannelSelector::checkSum(const Decay& vec) const {
   unsigned int sum = 0;
-  for (unsigned int d = 0; d < vec.size(); ++d) {
-    sum += vec[d];
+  for (int d : vec) {
+    sum += d;
   }
   return sum;
 }

@@ -42,9 +42,9 @@ void AlignmentCorrelationsIORoot::setBranchAddresses(void) {
 int AlignmentCorrelationsIORoot::write(const align::Correlations& cor, bool validCheck) {
   int icount = 0;
 
-  for (align::Correlations::const_iterator it = cor.begin(); it != cor.end(); ++it) {
-    AlgebraicMatrix mat = (*it).second;
-    std::pair<Alignable*, Alignable*> Pair = (*it).first;
+  for (const auto& it : cor) {
+    AlgebraicMatrix mat = it.second;
+    std::pair<Alignable*, Alignable*> Pair = it.first;
     Alignable* ali1 = Pair.first;
     Alignable* ali2 = Pair.second;
     if ((ali1->alignmentParameters()->isValid() && ali2->alignmentParameters()->isValid()) || !(validCheck)) {

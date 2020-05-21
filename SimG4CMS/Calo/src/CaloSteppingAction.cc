@@ -151,10 +151,10 @@ void CaloSteppingAction::update(const BeginOfRun* run) {
   if (lvs) {
     std::map<const std::string, const G4LogicalVolume*> nameMap;
     std::map<const std::string, const G4LogicalVolume*>::const_iterator itr;
-    for (auto lvi = lvs->begin(), lve = lvs->end(); lvi != lve; ++lvi) {
-      nameMap.emplace((*lvi)->GetName(), *lvi);
+    for (auto lv : *lvs) {
+      nameMap.emplace(lv->GetName(), lv);
       if (allSteps_ < 0)
-        mapLV_[*lvi] = (*lvi)->GetName();
+        mapLV_[lv] = lv->GetName();
     }
 
     for (auto const& name : nameEBSD_) {

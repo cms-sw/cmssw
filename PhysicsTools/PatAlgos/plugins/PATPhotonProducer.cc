@@ -103,8 +103,8 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet &iConfig)
       // read the different photon ID names
       edm::ParameterSet idps = iConfig.getParameter<edm::ParameterSet>("photonIDSources");
       std::vector<std::string> names = idps.getParameterNamesForType<edm::InputTag>();
-      for (std::vector<std::string>::const_iterator it = names.begin(), ed = names.end(); it != ed; ++it) {
-        photIDSrcs_.push_back(NameTag(*it, idps.getParameter<edm::InputTag>(*it)));
+      for (const auto &name : names) {
+        photIDSrcs_.push_back(NameTag(name, idps.getParameter<edm::InputTag>(name)));
       }
     }
     // but in any case at least once
@@ -297,8 +297,8 @@ void PATPhotonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
 
     // store the match to the generated final state muons
     if (addGenMatch_) {
-      for (size_t i = 0, n = genMatches.size(); i < n; ++i) {
-        reco::GenParticleRef genPhoton = (*genMatches[i])[photonRef];
+      for (auto &genMatche : genMatches) {
+        reco::GenParticleRef genPhoton = (*genMatche)[photonRef];
         aPhoton.addGenParticleRef(genPhoton);
       }
       if (embedGenMatch_)

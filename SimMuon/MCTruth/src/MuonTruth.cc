@@ -80,8 +80,8 @@ void MuonTruth::initEvent(const edm::Event &event, const edm::EventSetup &setup)
     event.getByLabel(CSCsimHitsTag, CSCsimhits);
     LogTrace("MuonTruth") << "... size = " << CSCsimhits->size();
 
-    for (edm::PSimHitContainer::const_iterator hitItr = CSCsimhits->begin(); hitItr != CSCsimhits->end(); ++hitItr) {
-      theSimHitMap[hitItr->detUnitId()].push_back(*hitItr);
+    for (const auto &hitItr : *CSCsimhits) {
+      theSimHitMap[hitItr.detUnitId()].push_back(hitItr);
     }
   }
 }

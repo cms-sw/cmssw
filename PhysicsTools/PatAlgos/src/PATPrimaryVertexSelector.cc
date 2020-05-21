@@ -22,12 +22,12 @@ void PATPrimaryVertexSelector::select(const edm::Handle<collection>& handle,
   const math::XYZPoint beamSpot(0., 0., 0.);
   unsigned int multiplicity;
   double ptSum;
-  for (collection::const_iterator iv = handle->begin(); iv != handle->end(); ++iv) {
-    math::XYZVector displacement(iv->position() - beamSpot);
-    if (iv->normalizedChi2() < chi2Cut_ && fabs(displacement.z()) < dzCut_ && displacement.perp2() < dr2Cut_) {
-      getVertexVariables(*iv, multiplicity, ptSum);
+  for (const auto& iv : *handle) {
+    math::XYZVector displacement(iv.position() - beamSpot);
+    if (iv.normalizedChi2() < chi2Cut_ && fabs(displacement.z()) < dzCut_ && displacement.perp2() < dr2Cut_) {
+      getVertexVariables(iv, multiplicity, ptSum);
       if (multiplicity >= multiplicityCut_ && ptSum > ptSumCut_)
-        selected_.push_back(&*iv);
+        selected_.push_back(&iv);
     }
   }
   sort(selected_.begin(), selected_.end(), *this);

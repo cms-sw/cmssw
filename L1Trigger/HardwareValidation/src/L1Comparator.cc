@@ -400,13 +400,13 @@ void L1Comparator::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSe
   dtf_trk_emul_v.clear();
   if (dtf_trk_data_.isValid()) {
     L1MuDTTrackCandCollection const* dttc = dtf_trk_data_->getContainer();
-    for (L1MuDTTrackCandCollection::const_iterator it = dttc->begin(); it != dttc->end(); it++)
-      dtf_trk_data_v.push_back(L1MuRegionalCand(*it));
+    for (const auto& it : *dttc)
+      dtf_trk_data_v.push_back(L1MuRegionalCand(it));
   }
   if (dtf_trk_emul_.isValid()) {
     L1MuDTTrackCandCollection const* dttc = dtf_trk_emul_->getContainer();
-    for (L1MuDTTrackCandCollection::const_iterator it = dttc->begin(); it != dttc->end(); it++)
-      dtf_trk_emul_v.push_back(L1MuRegionalCand(*it));
+    for (const auto& it : *dttc)
+      dtf_trk_emul_v.push_back(L1MuRegionalCand(it));
   }
   dtf_trk_data = &dtf_trk_data_v;
   dtf_trk_emul = &dtf_trk_emul_v;
@@ -457,58 +457,58 @@ void L1Comparator::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSe
     typedef std::vector<L1MuGMTReadoutRecord>::const_iterator GmtRrIt;
     //get record vector for data
     std::vector<L1MuGMTReadoutRecord> gmt_rdt_data_bx = gmt_rdt_data_->getRecords();
-    for (GmtRrIt igmtrr = gmt_rdt_data_bx.begin(); igmtrr != gmt_rdt_data_bx.end(); igmtrr++) {
+    for (const auto& igmtrr : gmt_rdt_data_bx) {
       //get gmt cands
       typedef std::vector<L1MuGMTExtendedCand>::const_iterator GmtECIt;
       std::vector<L1MuGMTExtendedCand> gmc;
-      gmc = igmtrr->getGMTCands();
-      for (GmtECIt iter1 = gmc.begin(); iter1 != gmc.end(); iter1++) {
-        L1MuGMTCand cand(iter1->getDataWord(), iter1->bx());
-        cand.setPhiValue(iter1->phiValue());
-        cand.setEtaValue(iter1->etaValue());
-        cand.setPtValue(iter1->ptValue());
+      gmc = igmtrr.getGMTCands();
+      for (const auto& iter1 : gmc) {
+        L1MuGMTCand cand(iter1.getDataWord(), iter1.bx());
+        cand.setPhiValue(iter1.phiValue());
+        cand.setEtaValue(iter1.etaValue());
+        cand.setPtValue(iter1.ptValue());
         gmt_can_data_vec.push_back(cand);
       }
       //get reg cands
       typedef L1MuRegionalCandCollection::const_iterator GmtRCIt;
       L1MuRegionalCandCollection rmc;
       rmc.clear();
-      rmc = igmtrr->getDTBXCands();
+      rmc = igmtrr.getDTBXCands();
       gmt_rdt_data_vec.insert(gmt_rdt_data_vec.end(), rmc.begin(), rmc.end());
       rmc.clear();
-      rmc = igmtrr->getCSCCands();
+      rmc = igmtrr.getCSCCands();
       gmt_rdt_data_vec.insert(gmt_rdt_data_vec.end(), rmc.begin(), rmc.end());
       rmc.clear();
-      rmc = igmtrr->getBrlRPCCands();
+      rmc = igmtrr.getBrlRPCCands();
       gmt_rdt_data_vec.insert(gmt_rdt_data_vec.end(), rmc.begin(), rmc.end());
       rmc.clear();
-      rmc = igmtrr->getFwdRPCCands();
+      rmc = igmtrr.getFwdRPCCands();
       gmt_rdt_data_vec.insert(gmt_rdt_data_vec.end(), rmc.begin(), rmc.end());
     }
     //get record vector for emul
     std::vector<L1MuGMTReadoutRecord> gmt_rdt_emul_bx = gmt_rdt_emul_->getRecords();
-    for (GmtRrIt igmtrr = gmt_rdt_emul_bx.begin(); igmtrr != gmt_rdt_emul_bx.end(); igmtrr++) {
+    for (const auto& igmtrr : gmt_rdt_emul_bx) {
       //get gmt cands
       typedef std::vector<L1MuGMTExtendedCand>::const_iterator GmtECIt;
       std::vector<L1MuGMTExtendedCand> gmc;
-      gmc = igmtrr->getGMTCands();
-      for (GmtECIt iter1 = gmc.begin(); iter1 != gmc.end(); iter1++) {
-        gmt_can_emul_vec.push_back(L1MuGMTCand(iter1->getDataWord(), iter1->bx()));
+      gmc = igmtrr.getGMTCands();
+      for (const auto& iter1 : gmc) {
+        gmt_can_emul_vec.push_back(L1MuGMTCand(iter1.getDataWord(), iter1.bx()));
       }
       //get reg cands
       typedef L1MuRegionalCandCollection::const_iterator GmtRCIt;
       L1MuRegionalCandCollection rmc;
       rmc.clear();
-      rmc = igmtrr->getDTBXCands();
+      rmc = igmtrr.getDTBXCands();
       gmt_rdt_emul_vec.insert(gmt_rdt_emul_vec.end(), rmc.begin(), rmc.end());
       rmc.clear();
-      rmc = igmtrr->getCSCCands();
+      rmc = igmtrr.getCSCCands();
       gmt_rdt_emul_vec.insert(gmt_rdt_emul_vec.end(), rmc.begin(), rmc.end());
       rmc.clear();
-      rmc = igmtrr->getBrlRPCCands();
+      rmc = igmtrr.getBrlRPCCands();
       gmt_rdt_emul_vec.insert(gmt_rdt_emul_vec.end(), rmc.begin(), rmc.end());
       rmc.clear();
-      rmc = igmtrr->getFwdRPCCands();
+      rmc = igmtrr.getFwdRPCCands();
       gmt_rdt_emul_vec.insert(gmt_rdt_emul_vec.end(), rmc.begin(), rmc.end());
     }
   }
@@ -521,9 +521,9 @@ void L1Comparator::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSe
 
   //check collections validity
   bool isValidDE[DEnsys][2];  // = {false};
-  for (int i = 0; i < DEnsys; i++)
+  for (auto& i : isValidDE)
     for (int j = 0; j < 2; j++)
-      isValidDE[i][j] = false;
+      i[j] = false;
 
   isValidDE[RCT][0] = rct_em_data.isValid();
   isValidDE[RCT][1] = rct_em_emul.isValid();
@@ -608,14 +608,14 @@ void L1Comparator::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSe
   if (verbose()) {
     std::cout << "L1Comparator sys isValid?  (evt:" << eventInfo.nevt_ << ") ";
     std::cout << "\n\t&: ";
-    for (int i = 0; i < DEnsys; i++)
-      std::cout << isValid[i] << " ";
+    for (bool i : isValid)
+      std::cout << i << " ";
     std::cout << "\n\td: ";
-    for (int i = 0; i < DEnsys; i++)
-      std::cout << isValidDE[i][0] << " ";
+    for (auto& i : isValidDE)
+      std::cout << i[0] << " ";
     std::cout << "\n\te: ";
-    for (int i = 0; i < DEnsys; i++)
-      std::cout << isValidDE[i][1] << " ";
+    for (auto& i : isValidDE)
+      std::cout << i[1] << " ";
     std::cout << std::endl;
   }
 
@@ -837,15 +837,15 @@ void L1Comparator::process(T const* data, T const* emul, const int sys, const in
   L1DEDigiCollection dg = cmp.getDEDigis();
 
   if (verbose())
-    for (L1DEDigiCollection::iterator it = dg.begin(); it != dg.end(); it++)
-      std::cout << *it << "\n";
+    for (auto& it : dg)
+      std::cout << it << "\n";
 
   ///over-write system-id: needed eg for GMT input, CSC tf reg cand, CTP&CTF
-  for (L1DEDigiCollection::iterator it = dg.begin(); it != dg.end(); it++)
-    it->setSid(sys);
+  for (auto& it : dg)
+    it.setSid(sys);
   ///over-write data type: needed eg for GCT jet types, regional muon sources
-  for (L1DEDigiCollection::iterator it = dg.begin(); it != dg.end(); it++)
-    it->setCid(cid);
+  for (auto& it : dg)
+    it.setCid(cid);
 
   ///append d|e digis to the record's collection
   eventInfo.m_dedigis.insert(eventInfo.m_dedigis.end(), dg.begin(), dg.end());

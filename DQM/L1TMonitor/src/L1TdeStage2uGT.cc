@@ -256,26 +256,24 @@ void L1TdeStage2uGT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& 
   }
 
   // Set some histogram attributes
-  for (std::map<std::string, MonitorElement*>::iterator it = m_HistNamesInitial.begin(); it != m_HistNamesInitial.end();
-       ++it) {
+  for (auto& it : m_HistNamesInitial) {
     // for (unsigned int i = 0; i < prescales.size(); i++) {
     //   auto const& name = prescales.at(i).first;
     //   if (name != "NULL")
     // 	(*it).second->setBinLabel(1+i, name.c_str());
     // }
-    (*it).second->setAxisTitle("Trigger Bit");
-    (*it).second->setAxisTitle("Events with Initial Decision Mismatch", /* axis */ 2);
+    it.second->setAxisTitle("Trigger Bit");
+    it.second->setAxisTitle("Events with Initial Decision Mismatch", /* axis */ 2);
   }
 
-  for (std::map<std::string, MonitorElement*>::iterator it = m_HistNamesFinal.begin(); it != m_HistNamesFinal.end();
-       ++it) {
+  for (auto& it : m_HistNamesFinal) {
     // for (unsigned int i = 0; i < prescales.size(); i++) {
     //   auto const& name = prescales.at(i).first;
     //   if (name != "NULL")
     // 	(*it).second->setBinLabel(1+i, name.c_str());
     // }
-    (*it).second->setAxisTitle("Trigger Bit (Unprescaled)");
-    (*it).second->setAxisTitle("Events with Final Decision Mismatch", /* axis */ 2);
+    it.second->setAxisTitle("Trigger Bit (Unprescaled)");
+    it.second->setAxisTitle("Events with Final Decision Mismatch", /* axis */ 2);
   }
 }
 

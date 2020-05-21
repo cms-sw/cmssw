@@ -123,13 +123,11 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
   // Pixel Phase-1 helper class
   coord_.init(trackerTopology, trackerGeometry_, siPixelFedCablingMap);
 
-  for (TrackerGeometry::DetContainer::const_iterator it = trackerGeometry_->dets().begin();
-       it != trackerGeometry_->dets().end();
-       it++) {
-    const PixelGeomDetUnit* pgdu = dynamic_cast<const PixelGeomDetUnit*>((*it));
+  for (auto it : trackerGeometry_->dets()) {
+    const PixelGeomDetUnit* pgdu = dynamic_cast<const PixelGeomDetUnit*>(it);
     if (pgdu == nullptr)
       continue;
-    DetId detId = (*it)->geographicalId();
+    DetId detId = it->geographicalId();
     int detid = detId.rawId();
 
     const PixelTopology* topo = static_cast<const PixelTopology*>(&pgdu->specificTopology());
@@ -146,9 +144,9 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
 
     std::vector<sipixelobjects::CablingPathToDetUnit> path = (cablingMap_->det2PathMap()).find(detId.rawId())->second;
     typedef std::vector<sipixelobjects::CablingPathToDetUnit>::const_iterator IT;
-    for (IT it = path.begin(); it != path.end(); ++it) {
+    for (auto it : path) {
       // Pixel ROC building from path in cabling map
-      const sipixelobjects::PixelROC* roc = cablingMap_->findItem(*it);
+      const sipixelobjects::PixelROC* roc = cablingMap_->findItem(it);
       int idInDetUnit = (int)roc->idInDetUnit();
 
       // local to global conversion
@@ -179,10 +177,10 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
     // start producing tag for permanent component removed
     SiPixelQuality* siPixelQualityPermBad = new SiPixelQuality();
     const std::vector<SiPixelQuality::disabledModuleType> badComponentList = badPixelInfo_->getBadComponentList();
-    for (unsigned int i = 0; i < badComponentList.size(); i++) {
-      siPixelQualityPermBad->addDisabledModule(badComponentList[i]);
+    for (auto i : badComponentList) {
+      siPixelQualityPermBad->addDisabledModule(i);
 
-      uint32_t detId = badComponentList[i].DetID;
+      uint32_t detId = i.DetID;
       int detid = int(detId);
       unsigned int nroc = sensorSize_[detid];
 
@@ -226,9 +224,8 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
       SiPixelQuality* siPixelQuality_FEDerror25 = new SiPixelQuality();
 
       std::map<int, std::vector<int>> tmpFEDerror25 = it->second;
-      for (std::map<int, std::vector<int>>::iterator ilist = tmpFEDerror25.begin(); ilist != tmpFEDerror25.end();
-           ilist++) {
-        int detid = ilist->first;
+      for (auto& ilist : tmpFEDerror25) {
+        int detid = ilist.first;
         uint32_t detId = uint32_t(detid);
 
         SiPixelQuality::disabledModuleType BadModule_stuckTBM, BadModule_FEDerror25;
@@ -241,10 +238,9 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
         BadModule_stuckTBM.BadRocs = 0;
         BadModule_FEDerror25.BadRocs = 0;
         std::vector<uint32_t> BadRocList_stuckTBM, BadRocList_FEDerror25;
-        std::vector<int> list = ilist->second;
+        std::vector<int> list = ilist.second;
 
-        for (unsigned int i = 0; i < list.size(); i++) {
-          int iroc = list[i];
+        for (int iroc : list) {
           std::map<int, std::pair<int, int>> rocToOfflinePixel = pixelO2O_[detid];
           int row = rocToOfflinePixel[iroc].first;
           int column = rocToOfflinePixel[iroc].second;
@@ -268,9 +264,8 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
           BadModule_stuckTBM.errorType = 0;
 
         short badrocs_stuckTBM = 0;
-        for (std::vector<uint32_t>::iterator iter = BadRocList_stuckTBM.begin(); iter != BadRocList_stuckTBM.end();
-             ++iter) {
-          badrocs_stuckTBM += 1 << *iter;  // 1 << *iter = 2^{*iter} using bitwise shift
+        for (unsigned int& iter : BadRocList_stuckTBM) {
+          badrocs_stuckTBM += 1 << iter;  // 1 << *iter = 2^{*iter} using bitwise shift
         }
         // fill the badmodule only if there is(are) bad ROC(s) in it
         if (badrocs_stuckTBM != 0) {
@@ -283,9 +278,8 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
           BadModule_FEDerror25.errorType = 0;
 
         short badrocs_FEDerror25 = 0;
-        for (std::vector<uint32_t>::iterator iter = BadRocList_FEDerror25.begin(); iter != BadRocList_FEDerror25.end();
-             ++iter) {
-          badrocs_FEDerror25 += 1 << *iter;  // 1 << *iter = 2^{*iter} using bitwise shift
+        for (unsigned int& iter : BadRocList_FEDerror25) {
+          badrocs_FEDerror25 += 1 << iter;  // 1 << *iter = 2^{*iter} using bitwise shift
         }
         // fill the badmodule only if there is(are) bad ROC(s) in it
         if (badrocs_FEDerror25 != 0) {
@@ -307,10 +301,9 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
     }
 
     // IOV for PCL output tags that "combines" permanent bad/stuckTBM/other
-    for (SiPixelStatusManager::siPixelStatusMap_iterator it = siPixelStatusMap.begin(); it != siPixelStatusMap.end();
-         it++) {
-      finalIOV[it->first] = it->first;
-      pclIOV[it->first] = it->first;
+    for (auto& it : siPixelStatusMap) {
+      finalIOV[it.first] = it.first;
+      pclIOV[it.first] = it.first;
     }
 
     // loop over final IOV
@@ -469,9 +462,8 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
 
         // PCL
         short badrocsPCL = 0;
-        for (std::vector<uint32_t>::iterator iterPCL = BadRocListPCL.begin(); iterPCL != BadRocListPCL.end();
-             ++iterPCL) {
-          badrocsPCL += 1 << *iterPCL;  // 1 << *iter = 2^{*iter} using bitwise shift
+        for (unsigned int& iterPCL : BadRocListPCL) {
+          badrocsPCL += 1 << iterPCL;  // 1 << *iter = 2^{*iter} using bitwise shift
         }
         if (badrocsPCL != 0) {
           BadModulePCL.BadRocs = badrocsPCL;
@@ -480,9 +472,8 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
 
         // Other
         short badrocsOther = 0;
-        for (std::vector<uint32_t>::iterator iterOther = BadRocListOther.begin(); iterOther != BadRocListOther.end();
-             ++iterOther) {
-          badrocsOther += 1 << *iterOther;  // 1 << *iter = 2^{*iter} using bitwise shift
+        for (unsigned int& iterOther : BadRocListOther) {
+          badrocsOther += 1 << iterOther;  // 1 << *iter = 2^{*iter} using bitwise shift
         }
         if (badrocsOther != 0) {
           BadModuleOther.BadRocs = badrocsOther;
@@ -515,10 +506,8 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
           BadModulePrompt.errorType = 0;
 
         short badrocsPrompt = 0;
-        for (std::vector<uint32_t>::iterator iterPrompt = BadRocListPrompt.begin();
-             iterPrompt != BadRocListPrompt.end();
-             ++iterPrompt) {
-          badrocsPrompt += 1 << *iterPrompt;  // 1 << *iter = 2^{*iter} using bitwise shift
+        for (unsigned int& iterPrompt : BadRocListPrompt) {
+          badrocsPrompt += 1 << iterPrompt;  // 1 << *iter = 2^{*iter} using bitwise shift
         }
         if (badrocsPrompt != 0) {
           BadModulePrompt.BadRocs = badrocsPrompt;

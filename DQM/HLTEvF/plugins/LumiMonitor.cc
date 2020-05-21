@@ -236,9 +236,9 @@ void LumiMonitor::dqmAnalyze(edm::Event const& event,
           }
         }
 
-        for (auto pixClu = pixCluDet->begin(); pixClu != pixCluDet->end(); ++pixClu) {
+        for (auto& pixClu : *pixCluDet) {
           ++tot;
-          if ((pixClu->size() >= minNumberOfPixelsPerCluster_) and (pixClu->charge() >= minPixelClusterCharge_)) {
+          if ((pixClu.size() >= minNumberOfPixelsPerCluster_) and (pixClu.charge() >= minPixelClusterCharge_)) {
             ++pixel_clusters;
           }
         }

@@ -251,8 +251,8 @@ namespace PhysicsTools {
     if (!tree)
       throw cms::Exception("NoTreeAvailable") << "No TTree set in TreeReader::automaticAdd." << std::endl;
 
-    for (std::map<AtomicId, Value>::iterator iter = valueMap.begin(); iter != valueMap.end(); iter++)
-      iter->second.update(this);
+    for (auto &iter : valueMap)
+      iter.second.update(this);
 
     upToDate = true;
   }
@@ -295,8 +295,8 @@ namespace PhysicsTools {
 
   std::vector<AtomicId> TreeReader::variables() const {
     std::vector<AtomicId> result;
-    for (std::map<AtomicId, Value>::const_iterator iter = valueMap.begin(); iter != valueMap.end(); iter++)
-      result.push_back(iter->first);
+    for (const auto &iter : valueMap)
+      result.push_back(iter.first);
 
     return result;
   }
@@ -352,32 +352,32 @@ namespace PhysicsTools {
           const std::vector<Double_t> *values = static_cast<const std::vector<Double_t> *>(ptr);
           if (!values)
             values = &reader->multiDouble[index].second;
-          for (std::vector<Double_t>::const_iterator iter = values->begin(); iter != values->end(); iter++)
-            reader->values.add(name, *iter);
+          for (double value : *values)
+            reader->values.add(name, value);
           break;
         }
         case 'F': {
           const std::vector<Float_t> *values = static_cast<const std::vector<Float_t> *>(ptr);
           if (!values)
             values = &reader->multiFloat[index].second;
-          for (std::vector<Float_t>::const_iterator iter = values->begin(); iter != values->end(); iter++)
-            reader->values.add(name, *iter);
+          for (float value : *values)
+            reader->values.add(name, value);
           break;
         }
         case 'I': {
           const std::vector<Int_t> *values = static_cast<const std::vector<Int_t> *>(ptr);
           if (!values)
             values = &reader->multiInt[index].second;
-          for (std::vector<Int_t>::const_iterator iter = values->begin(); iter != values->end(); iter++)
-            reader->values.add(name, *iter);
+          for (int value : *values)
+            reader->values.add(name, value);
           break;
         }
         case 'B': {
           const std::vector<Bool_t> *values = static_cast<const std::vector<Bool_t> *>(ptr);
           if (!values)
             values = &reader->multiBool[index].second;
-          for (std::vector<Bool_t>::const_iterator iter = values->begin(); iter != values->end(); iter++)
-            reader->values.add(name, *iter);
+          for (std::_Bit_const_iterator::const_reference value : *values)
+            reader->values.add(name, value);
           break;
         }
       }

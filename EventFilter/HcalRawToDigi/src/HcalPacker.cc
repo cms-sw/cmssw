@@ -233,8 +233,8 @@ void HcalPacker::pack(int fedid,
   }
   // calculate the total length, and resize the FEDRawData
   int theSize = 0;
-  for (int spigot = 0; spigot < 15; spigot++) {
-    theSize += spigots[spigot].getRawLength() * sizeof(unsigned short);
+  for (const auto& spigot : spigots) {
+    theSize += spigot.getRawLength() * sizeof(unsigned short);
   }
   theSize += sizeof(HcalDCCHeader) + 8;  // 8 for trailer
   theSize += (8 - (theSize % 8)) % 8;    // even number of 64-bit words.

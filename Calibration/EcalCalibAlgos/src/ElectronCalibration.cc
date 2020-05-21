@@ -246,8 +246,8 @@ void ElectronCalibration::beginJob() {
 
   // table is set to zero
   for (int phi = 0; phi < 360; phi++) {
-    for (int eta = 0; eta < 171; eta++) {
-      eventcrystal[eta][phi] = 0;
+    for (auto& eta : eventcrystal) {
+      eta[phi] = 0;
     }
   }
 
@@ -357,8 +357,8 @@ void ElectronCalibration::endJob() {
       }
     }
   }
-  for (int ii = 0; ii < (int)solutionNoCuts.size(); ii++) {
-    calibsNoCuts->Fill(solutionNoCuts[ii]);
+  for (float solutionNoCut : solutionNoCuts) {
+    calibsNoCuts->Fill(solutionNoCut);
   }
   int icryp = 0;
   CalibrationCluster::CalibMap::iterator itmapp;
@@ -435,11 +435,11 @@ EBDetId ElectronCalibration::findMaxHit2(const std::vector<DetId>& v1, const EBR
   double currEnergy = 0.;
   EBDetId maxHit;
 
-  for (std::vector<DetId>::const_iterator idsIt = v1.begin(); idsIt != v1.end(); ++idsIt) {
-    if (idsIt->subdetId() != 1)
+  for (auto idsIt : v1) {
+    if (idsIt.subdetId() != 1)
       continue;
     EBRecHitCollection::const_iterator itrechit;
-    itrechit = hits->find(*idsIt);
+    itrechit = hits->find(idsIt);
 
     if (itrechit == hits->end()) {
       std::cout << "ElectronCalibration::findMaxHit2: rechit not found! " << std::endl;
@@ -447,7 +447,7 @@ EBDetId ElectronCalibration::findMaxHit2(const std::vector<DetId>& v1, const EBR
     }
     if (itrechit->energy() > currEnergy) {
       currEnergy = itrechit->energy();
-      maxHit = *idsIt;
+      maxHit = idsIt;
     }
   }
 
@@ -527,10 +527,8 @@ void ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   std::vector<DetId> v1;
   //Loop to fill the vector of DetIds
-  for (std::vector<std::pair<DetId, float> >::const_iterator idsIt = sc.hitsAndFractions().begin();
-       idsIt != sc.hitsAndFractions().end();
-       ++idsIt) {
-    v1.push_back(idsIt->first);
+  for (const auto& idsIt : sc.hitsAndFractions()) {
+    v1.push_back(idsIt.first);
   }
 
   //getHitsByDetId(); //Change function name

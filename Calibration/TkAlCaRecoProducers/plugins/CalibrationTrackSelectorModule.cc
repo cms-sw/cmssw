@@ -29,8 +29,8 @@ struct SiStripCalTrackConfigSelector {
 
   void select(const edm::Handle<reco::TrackCollection> &c, const edm::Event &evt, const edm::EventSetup & /*dummy*/) {
     theSelectedTracks.clear();
-    for (reco::TrackCollection::const_iterator i = c.product()->begin(); i != c.product()->end(); ++i) {
-      theSelectedTracks.push_back(&*i);
+    for (const auto &i : *c.product()) {
+      theSelectedTracks.push_back(&i);
     }
     // might add EvetSetup to the select(...) method of the Selectors
     if (theBaseSwitch)

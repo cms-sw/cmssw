@@ -154,8 +154,8 @@ void RPCNoisyStripTest::fillGlobalME(RPCDetId& detId, MonitorElement* myMe) {
   // calculate mean on YAxis and check diff between bins and mean
   if (!myvector.empty()) {
     float ymean = entries / myvector.size();  //mean on Yaxis
-    for (unsigned int i = 0; i < myvector.size(); i++) {
-      float deviation = myvector[i] / ymean;
+    for (float i : myvector) {
+      float deviation = i / ymean;
       if (deviation > 3.5)
         noisyStrips++;
       if (deviation > 5)

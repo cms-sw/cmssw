@@ -28,8 +28,8 @@ using namespace geomsort;
 MuonDetLayerGeometry::MuonDetLayerGeometry() {}
 
 MuonDetLayerGeometry::~MuonDetLayerGeometry() {
-  for (vector<const DetLayer*>::const_iterator it = allDetLayers.begin(); it != allDetLayers.end(); ++it) {
-    delete *it;
+  for (auto allDetLayer : allDetLayers) {
+    delete allDetLayer;
   }
 }
 

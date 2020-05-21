@@ -81,8 +81,8 @@ void CmsAnnotation::Render(TGLRnrCtx& rnrCtx) {
 
     glPixelStorei(GL_UNPACK_SWAP_BYTES, 0);
 
-    for (int i = 0; i < 3; i++)
-      delete imgs[i];
+    for (auto& img : imgs)
+      delete img;
   }
 
   glPushAttrib(GL_ENABLE_BIT | GL_LINE_BIT | GL_POLYGON_BIT);

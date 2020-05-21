@@ -30,12 +30,12 @@ L1GtPsbWord::L1GtPsbWord() {
   m_bxNr = 0;
   m_eventNr = 0;
 
-  for (int iA = 0; iA < NumberAData; ++iA) {
-    m_aData[iA] = 0;
+  for (unsigned short& iA : m_aData) {
+    iA = 0;
   }
 
-  for (int iB = 0; iB < NumberBData; ++iB) {
-    m_bData[iB] = 0;
+  for (unsigned short& iB : m_bData) {
+    iB = 0;
   }
 
   m_localBxNr = 0;
@@ -333,12 +333,12 @@ void L1GtPsbWord::reset() {
   m_bxNr = 0;
   m_eventNr = 0;
 
-  for (int iA = 0; iA < NumberAData; ++iA) {
-    m_aData[iA] = 0;
+  for (unsigned short& iA : m_aData) {
+    iA = 0;
   }
 
-  for (int iB = 0; iB < NumberBData; ++iB) {
-    m_bData[iB] = 0;
+  for (unsigned short& iB : m_bData) {
+    iB = 0;
   }
 
   m_localBxNr = 0;

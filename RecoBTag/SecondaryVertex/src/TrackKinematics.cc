@@ -16,23 +16,23 @@ using namespace reco;
 TrackKinematics::TrackKinematics() : n(0), sumWeights(0) {}
 
 TrackKinematics::TrackKinematics(const std::vector<Track> &tracks) : n(0), sumWeights(0) {
-  for (std::vector<Track>::const_iterator iter = tracks.begin(); iter != tracks.end(); iter++)
-    add(*iter);
+  for (const auto &track : tracks)
+    add(track);
 }
 
 TrackKinematics::TrackKinematics(const TrackRefVector &tracks) : n(0), sumWeights(0) {
-  for (TrackRefVector::const_iterator iter = tracks.begin(); iter != tracks.end(); iter++)
-    add(**iter);
+  for (auto &&track : tracks)
+    add(*track);
 }
 
 TrackKinematics::TrackKinematics(const std::vector<CandidatePtr> &tracks) : n(0), sumWeights(0) {
-  for (std::vector<CandidatePtr>::const_iterator iter = tracks.begin(); iter != tracks.end(); iter++)
-    add(*iter);
+  for (const auto &track : tracks)
+    add(track);
 }
 
 TrackKinematics::TrackKinematics(const CandidatePtrVector &tracks) : n(0), sumWeights(0) {
-  for (CandidatePtrVector::const_iterator iter = tracks.begin(); iter != tracks.end(); iter++)
-    add(*iter);
+  for (auto &&track : tracks)
+    add(track);
 }
 
 TrackKinematics::TrackKinematics(const Vertex &vertex) : n(0), sumWeights(0) {

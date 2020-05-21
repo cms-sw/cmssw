@@ -14,8 +14,8 @@ int L1DataEmulDigi::reset() {
   m_null = -99;
   m_sid = m_null;
   m_cid = m_null;
-  for (int i = 0; i < 3; i++)
-    m_location[i] = m_null;
+  for (double& i : m_location)
+    i = m_null;
   m_type = m_null;
   std::fill(m_data, m_data + sizeof(m_data) / sizeof(m_data[0]), 0);
   std::fill(m_rank, m_rank + sizeof(m_rank) / sizeof(m_rank[0]), m_null);
@@ -122,16 +122,16 @@ std::ostream& operator<<(std::ostream& s, const GltDEDigi& glt) {
   if (glbit[0] != glbit[1])
     s << "(data), " << glbit[1] << "(emul)";
   s << "\n data dec-word: ";
-  for (GltDEDigi::GltBits::const_iterator i = dbits[0].begin(); i != dbits[0].end(); i++)
-    s << *i;
+  for (std::_Bit_const_iterator::const_reference i : dbits[0])
+    s << i;
   s << "\n emul dec-word: ";
-  for (GltDEDigi::GltBits::const_iterator i = dbits[1].begin(); i != dbits[1].end(); i++)
-    s << *i;
+  for (std::_Bit_const_iterator::const_reference i : dbits[1])
+    s << i;
   s << "\n data techical: ";
-  for (GltDEDigi::GltBits::const_iterator i = tbits[0].begin(); i != tbits[0].end(); i++)
-    s << *i;
+  for (std::_Bit_const_iterator::const_reference i : tbits[0])
+    s << i;
   s << "\n emul technical: ";
-  for (GltDEDigi::GltBits::const_iterator i = tbits[1].begin(); i != tbits[1].end(); i++)
-    s << *i;
+  for (std::_Bit_const_iterator::const_reference i : tbits[1])
+    s << i;
   return s;
 }

@@ -34,11 +34,11 @@ void HcalPatternSource::produce(edm::Event& e, const edm::EventSetup& es) {
   auto ho = std::make_unique<HODigiCollection>();
 
   int bc = bunches_[e.id().event() - 1];
-  for (std::vector<HcalFiberPattern>::iterator i = patterns_.begin(); i != patterns_.end(); i++) {
+  for (auto& pattern : patterns_) {
     std::vector<HcalQIESample> samples;
     for (int fc = 0; fc < 3; fc++) {
-      samples = i->getSamples(bc, presamples_, samples_, fc);
-      HcalElectronicsId eid = i->getId(fc);
+      samples = pattern.getSamples(bc, presamples_, samples_, fc);
+      HcalElectronicsId eid = pattern.getId(fc);
 
       HcalDetId did(elecmap->lookup(eid));
 

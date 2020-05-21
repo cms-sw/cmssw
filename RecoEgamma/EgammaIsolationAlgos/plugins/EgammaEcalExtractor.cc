@@ -43,10 +43,8 @@ reco::IsoDeposit EgammaEcalExtractor::deposit(const edm::Event &ev,
   deposit.setVeto(reco::IsoDeposit::Veto(candDir, 0));  // no veto is needed for this deposit
   deposit.addCandEnergy(sc->energy() * sin(2 * atan(exp(-sc->eta()))));
 
-  for (reco::SuperClusterCollection::const_iterator scItr = superClusterCollectionH->begin();
-       scItr != superClusterCollectionH->end();
-       ++scItr) {
-    const reco::SuperCluster *supercluster = &(*scItr);
+  for (const auto &scItr : *superClusterCollectionH) {
+    const reco::SuperCluster *supercluster = &scItr;
 
     if (supercluster->seed()->algo() == 0) {
       deltacur = ROOT::Math::VectorUtil::DeltaR(supercluster->position(), position);
@@ -61,10 +59,8 @@ reco::IsoDeposit EgammaEcalExtractor::deposit(const edm::Event &ev,
   const reco::BasicCluster *cluster = nullptr;
 
   //loop over basic clusters
-  for (reco::BasicClusterCollection::const_iterator cItr = basicClusterCollectionH->begin();
-       cItr != basicClusterCollectionH->end();
-       ++cItr) {
-    cluster = &(*cItr);
+  for (const auto &cItr : *basicClusterCollectionH) {
+    cluster = &cItr;
     //    double ebc_bcchi2 = cluster->chi2();
     int ebc_bcalgo = cluster->algo();
     double ebc_bce = cluster->energy();

@@ -189,15 +189,15 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event &iEvent,
     edm::Handle<edm::View<reco::Candidate>> svWhiteListHandle;
     iEvent.getByToken(itoken, svWhiteListHandle);
     const edm::View<reco::Candidate> &svWhiteList = *(svWhiteListHandle.product());
-    for (unsigned int i = 0; i < svWhiteList.size(); i++) {
+    for (const auto &i : svWhiteList) {
       // Whitelist via Ptrs
-      for (unsigned int j = 0; j < svWhiteList[i].numberOfSourceCandidatePtrs(); j++) {
-        const edm::Ptr<reco::Candidate> &c = svWhiteList[i].sourceCandidatePtr(j);
+      for (unsigned int j = 0; j < i.numberOfSourceCandidatePtrs(); j++) {
+        const edm::Ptr<reco::Candidate> &c = i.sourceCandidatePtr(j);
         if (c.id() == cands.id())
           whiteList.insert(c.key());
       }
       // Whitelist via RecoCharged
-      for (auto dau = svWhiteList[i].begin(); dau != svWhiteList[i].end(); dau++) {
+      for (auto dau = i.begin(); dau != i.end(); dau++) {
         const reco::RecoChargedCandidate *chCand = dynamic_cast<const reco::RecoChargedCandidate *>(&(*dau));
         if (chCand != nullptr) {
           whiteListTk.insert(chCand->track());
@@ -427,9 +427,9 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event &iEvent,
   }
 
   // Fix track association for sorted candidates
-  for (size_t i = 0, ntk = mappingTk.size(); i < ntk; i++) {
-    if (mappingTk[i] >= 0)
-      mappingTk[i] = reverseOrder[mappingTk[i]];
+  for (int &i : mappingTk) {
+    if (i >= 0)
+      i = reverseOrder[i];
   }
 
   edm::OrphanHandle<pat::PackedCandidateCollection> oh = iEvent.put(std::move(outPtrPSorted));

@@ -72,24 +72,22 @@ void ShiftedPFCandidateProducerForPFMVAMEt::produce(edm::Event& evt, const edm::
 
   auto shiftedPFCandidates = std::make_unique<reco::PFCandidateCollection>();
 
-  for (reco::PFCandidateCollection::const_iterator originalPFCandidate = originalPFCandidates->begin();
-       originalPFCandidate != originalPFCandidates->end();
-       ++originalPFCandidate) {
+  for (const auto& originalPFCandidate : *originalPFCandidates) {
     double shift = 0.;
     bool applyShift = false;
     double dR2bestMatch_PFCandidate = dRDefault;
     prevMatch = -1;
     cnt = 0;
 
-    for (std::vector<objectEntryType>::const_iterator object = objects_.begin(); object != objects_.end(); ++object) {
-      if (!object->isValidMatch_)
+    for (const auto& object : objects_) {
+      if (!object.isValidMatch_)
         continue;
       if (match[cnt])
         continue;
 
-      double dR2 = deltaR2(originalPFCandidate->p4(), object->unshiftedObjectP4_);
+      double dR2 = deltaR2(originalPFCandidate.p4(), object.unshiftedObjectP4_);
       if (dR2 < dR2match_PFCandidate_ && dR2 < dR2bestMatch_PFCandidate) {
-        shift = object->shift_;
+        shift = object.shift_;
         applyShift = true;
         dR2bestMatch_PFCandidate = dR2;
 
@@ -98,7 +96,7 @@ void ShiftedPFCandidateProducerForPFMVAMEt::produce(edm::Event& evt, const edm::
       cnt++;
     }
 
-    reco::Candidate::LorentzVector shiftedPFCandidateP4 = originalPFCandidate->p4();
+    reco::Candidate::LorentzVector shiftedPFCandidateP4 = originalPFCandidate.p4();
     if (applyShift) {
       //Ambiguity removal
       match[prevMatch] = true;
@@ -106,7 +104,7 @@ void ShiftedPFCandidateProducerForPFMVAMEt::produce(edm::Event& evt, const edm::
       shiftedPFCandidateP4 *= (1. + shift);
     }
 
-    reco::PFCandidate shiftedPFCandidate(*originalPFCandidate);
+    reco::PFCandidate shiftedPFCandidate(originalPFCandidate);
     shiftedPFCandidate.setP4(shiftedPFCandidateP4);
 
     shiftedPFCandidates->push_back(shiftedPFCandidate);

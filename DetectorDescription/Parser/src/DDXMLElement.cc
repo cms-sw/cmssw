@@ -164,8 +164,8 @@ std::ostream& operator<<(std::ostream& os, const DDXMLElement& element) {
 void DDXMLElement::stream(std::ostream& os) const {
   os << "Output of current element attributes:" << std::endl;
   for (const auto& attribute : attributes_) {
-    for (DDXMLAttribute::const_iterator it = attribute.begin(); it != attribute.end(); ++it)
-      os << it->first << " = " << it->second << "\t";
+    for (const auto& it : attribute)
+      os << it.first << " = " << it.second << "\t";
     os << std::endl;
   }
 }

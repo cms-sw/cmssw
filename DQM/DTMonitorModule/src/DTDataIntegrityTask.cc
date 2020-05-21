@@ -818,8 +818,8 @@ void DTDataIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c)
   DTuROSROSData urosData;
 
   if (fedCol.isValid()) {
-    for (unsigned int j = 0; j < fedCol->size(); ++j) {
-      fedData = fedCol->at(j);
+    for (const auto& j : *fedCol) {
+      fedData = j;
       int fed = fedData.getfed();  //argument should be void
       if (fed > FEDIDmax || fed < FEDIDmin) {
         LogError("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")

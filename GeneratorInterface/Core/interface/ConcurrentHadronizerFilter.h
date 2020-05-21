@@ -457,9 +457,7 @@ namespace edm {
 
     std::vector<lhef::LHERunInfo::Process> LHELumiProcess = lheRunInfo->getLumiProcesses();
     std::vector<GenLumiInfoProduct::ProcessInfo> GenLumiProcess;
-    for (unsigned int i = 0; i < LHELumiProcess.size(); i++) {
-      lhef::LHERunInfo::Process thisProcess = LHELumiProcess[i];
-
+    for (auto thisProcess : LHELumiProcess) {
       GenLumiInfoProduct::ProcessInfo temp;
       temp.setProcess(thisProcess.process());
       temp.setLheXSec(thisProcess.getLHEXSec().value(), thisProcess.getLHEXSec().error());

@@ -31,24 +31,24 @@ EmptySimHits::EmptySimHits(const edm::ParameterSet& iConfig) {
   pSimHitInstanceLabels = iConfig.getParameter<std::vector<std::string> >("pSimHitInstanceLabels");
   pCaloHitInstanceLabels = iConfig.getParameter<std::vector<std::string> >("pCaloHitInstanceLabels");
 
-  for (size_t i = 0; i < pSimHitInstanceLabels.size(); i++) {
-    produces<edm::PSimHitContainer>(pSimHitInstanceLabels[i]);
+  for (const auto& pSimHitInstanceLabel : pSimHitInstanceLabels) {
+    produces<edm::PSimHitContainer>(pSimHitInstanceLabel);
   }
 
-  for (size_t i = 0; i < pCaloHitInstanceLabels.size(); i++) {
-    produces<edm::PCaloHitContainer>(pCaloHitInstanceLabels[i]);
+  for (const auto& pCaloHitInstanceLabel : pCaloHitInstanceLabels) {
+    produces<edm::PCaloHitContainer>(pCaloHitInstanceLabel);
   }
 }
 
 void EmptySimHits::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  for (size_t i = 0; i < pSimHitInstanceLabels.size(); i++) {
+  for (const auto& pSimHitInstanceLabel : pSimHitInstanceLabels) {
     std::unique_ptr<edm::PSimHitContainer> pSimHitContainer(new edm::PSimHitContainer());
-    iEvent.put(std::move(pSimHitContainer), pSimHitInstanceLabels[i]);
+    iEvent.put(std::move(pSimHitContainer), pSimHitInstanceLabel);
   }
 
-  for (size_t i = 0; i < pCaloHitInstanceLabels.size(); i++) {
+  for (const auto& pCaloHitInstanceLabel : pCaloHitInstanceLabels) {
     std::unique_ptr<edm::PCaloHitContainer> pCaloHitContainer(new edm::PCaloHitContainer());
-    iEvent.put(std::move(pCaloHitContainer), pCaloHitInstanceLabels[i]);
+    iEvent.put(std::move(pCaloHitContainer), pCaloHitInstanceLabel);
   }
 }
 

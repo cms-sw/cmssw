@@ -66,28 +66,28 @@ std::ostream& operator<<(std::ostream& os, const L1GctJetFinalStage& fpga) {
     os << "WheelJetFpga* " << i << " = " << fpga.m_wheelFpgas.at(i) << endl;
   }
   os << "No. of input central Jets " << fpga.m_inputCentralJets.size() << std::endl;
-  for (unsigned i = 0; i < fpga.m_inputCentralJets.size(); i++) {
-    os << fpga.m_inputCentralJets.at(i);
+  for (const auto& m_inputCentralJet : fpga.m_inputCentralJets) {
+    os << m_inputCentralJet;
   }
   os << "No. of input forward Jets " << fpga.m_inputForwardJets.size() << std::endl;
-  for (unsigned i = 0; i < fpga.m_inputForwardJets.size(); i++) {
-    os << fpga.m_inputForwardJets.at(i);
+  for (const auto& m_inputForwardJet : fpga.m_inputForwardJets) {
+    os << m_inputForwardJet;
   }
   os << "No. of raw tau Jets " << fpga.m_inputTauJets.size() << std::endl;
-  for (unsigned i = 0; i < fpga.m_inputTauJets.size(); i++) {
-    os << fpga.m_inputTauJets.at(i);
+  for (const auto& m_inputTauJet : fpga.m_inputTauJets) {
+    os << m_inputTauJet;
   }
   os << "No. of output central Jets " << fpga.m_centralJets.contents.size() << std::endl;
-  for (unsigned i = 0; i < fpga.m_centralJets.contents.size(); i++) {
-    os << fpga.m_centralJets.contents.at(i);
+  for (const auto& content : fpga.m_centralJets.contents) {
+    os << content;
   }
   os << "No. of output forward Jets " << fpga.m_forwardJets.contents.size() << std::endl;
-  for (unsigned i = 0; i < fpga.m_forwardJets.contents.size(); i++) {
-    os << fpga.m_forwardJets.contents.at(i);
+  for (const auto& content : fpga.m_forwardJets.contents) {
+    os << content;
   }
   os << "No. of output tau Jets " << fpga.m_tauJets.contents.size() << std::endl;
-  for (unsigned i = 0; i < fpga.m_tauJets.contents.size(); i++) {
-    os << fpga.m_tauJets.contents.at(i);
+  for (const auto& content : fpga.m_tauJets.contents) {
+    os << content;
   }
   os << endl;
   return os;

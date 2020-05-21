@@ -138,8 +138,8 @@ bool PythiaDauVFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Even
       accepted = true;
       if (fVerbose > 0) {
         edm::LogInfo("PythiaDauVFilter") << "  accepted this decay: ";
-        for (unsigned int iv = 0; iv < vparticles.size(); ++iv)
-          edm::LogInfo("PythiaDauVFilter") << vparticles[iv] << " ";
+        for (int vparticle : vparticles)
+          edm::LogInfo("PythiaDauVFilter") << vparticle << " ";
         edm::LogInfo("PythiaDauVFilter") << " from mother = " << motherID << endl;
       }
       break;
@@ -216,8 +216,8 @@ bool PythiaDauVFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Even
         accepted = true;
         if (fVerbose > 0) {
           edm::LogInfo("PythiaDauVFilter") << "  accepted this anti-decay: ";
-          for (unsigned int iv = 0; iv < vparticles.size(); ++iv)
-            edm::LogInfo("PythiaDauVFilter") << vparticles[iv] << " ";
+          for (int vparticle : vparticles)
+            edm::LogInfo("PythiaDauVFilter") << vparticle << " ";
           edm::LogInfo("PythiaDauVFilter") << " from mother = " << motherID << endl;
         }
         break;

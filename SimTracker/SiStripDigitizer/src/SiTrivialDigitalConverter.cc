@@ -62,13 +62,13 @@ SiDigitalConverter::DigitalRawVecType SiTrivialDigitalConverter::convertRaw(cons
       _tempRaw.push_back(SiStripRawDigi(adc));
     }
   } else {
-    for (size_t i = 0; i < analogSignal.size(); i++) {
-      if (analogSignal[i] <= 0) {
+    for (float i : analogSignal) {
+      if (i <= 0) {
         _tempRaw.push_back(SiStripRawDigi(0));
         continue;
       }
       // convert analog amplitude to digital
-      int adc = convertRaw(analogSignal[i]);
+      int adc = convertRaw(i);
       _tempRaw.push_back(SiStripRawDigi(adc));
     }
   }

@@ -131,8 +131,8 @@ bool HLTMuonTrkL1TFilter::hltFilter(edm::Event& iEvent,
     filteredMuons.push_back(i);
   }
 
-  for (std::vector<unsigned int>::const_iterator itr = filteredMuons.begin(); itr != filteredMuons.end(); ++itr)
-    filterproduct.addObject(trigger::TriggerMuon, reco::RecoChargedCandidateRef(cands, *itr));
+  for (unsigned int filteredMuon : filteredMuons)
+    filterproduct.addObject(trigger::TriggerMuon, reco::RecoChargedCandidateRef(cands, filteredMuon));
 
   return filteredMuons.size() >= m_minN;
 }

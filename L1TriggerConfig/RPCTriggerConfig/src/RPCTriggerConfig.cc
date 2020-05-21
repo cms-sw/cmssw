@@ -121,17 +121,17 @@ RPCTriggerConfig::ReturnType RPCTriggerConfig::produce(const L1RPCConfigRcd& iRe
         parser.parse(fname.str());
 
         RPCPattern::RPCPatVec npats = parser.getPatternsVec(tower, logSector, logSegment);
-        for (unsigned int ip = 0; ip < npats.size(); ip++) {
-          npats[ip].setCoords(tower, logSector, logSegment);
-          pL1RPCConfig->m_pats.push_back(npats[ip]);
+        for (auto& npat : npats) {
+          npat.setCoords(tower, logSector, logSegment);
+          pL1RPCConfig->m_pats.push_back(npat);
         }
 
         RPCPattern::TQualityVec nquals = parser.getQualityVec();
-        for (unsigned int iq = 0; iq < nquals.size(); iq++) {
-          nquals[iq].m_tower = tower;
-          nquals[iq].m_logsector = logSector;
-          nquals[iq].m_logsegment = logSegment;
-          pL1RPCConfig->m_quals.push_back(nquals[iq]);
+        for (auto& nqual : nquals) {
+          nqual.m_tower = tower;
+          nqual.m_logsector = logSector;
+          nqual.m_logsegment = logSegment;
+          pL1RPCConfig->m_quals.push_back(nqual);
         }
 
         LogDebug("RPCTriggerConfig") << "  RPCPatterns: " << npats.size() << " qualities: " << nquals.size()

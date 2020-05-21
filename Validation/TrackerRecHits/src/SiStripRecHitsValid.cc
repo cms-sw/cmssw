@@ -322,11 +322,11 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   }  //End of loops over detectors
 
   //now fill the cumulative histograms of the hits
-  for (std::vector<std::string>::iterator iSubdet = SubDetList_.begin(); iSubdet != SubDetList_.end(); ++iSubdet) {
-    std::map<std::string, SubDetMEs>::iterator iSubDetME = SubDetMEsMap.find((*iSubdet));
-    fillME(iSubDetME->second.meNumrphi, totnumrechitrphi[(*iSubdet)]);
-    fillME(iSubDetME->second.meNumStereo, totnumrechitstereo[(*iSubdet)]);
-    fillME(iSubDetME->second.meNumMatched, totnumrechitmatched[(*iSubdet)]);
+  for (auto& iSubdet : SubDetList_) {
+    std::map<std::string, SubDetMEs>::iterator iSubDetME = SubDetMEsMap.find(iSubdet);
+    fillME(iSubDetME->second.meNumrphi, totnumrechitrphi[iSubdet]);
+    fillME(iSubDetME->second.meNumStereo, totnumrechitstereo[iSubdet]);
+    fillME(iSubDetME->second.meNumMatched, totnumrechitmatched[iSubdet]);
   }
 
   fillME(totalMEs.meNumTotrphi, totrechitrphi);

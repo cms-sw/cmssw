@@ -189,11 +189,9 @@ reco::RecoToSimCollection QuickTrackAssociatorByHitsImpl::associateRecoToSimImpl
                        pTrack->recHitsEnd());
 
     // int nt = 0;
-    for (auto iTrackingParticleQualityPair = trackingParticleQualityPairs.begin();
-         iTrackingParticleQualityPair != trackingParticleQualityPairs.end();
-         ++iTrackingParticleQualityPair) {
-      const edm::Ref<TrackingParticleCollection>& trackingParticleRef = iTrackingParticleQualityPair->first;
-      double numberOfSharedClusters = iTrackingParticleQualityPair->second;
+    for (auto& trackingParticleQualityPair : trackingParticleQualityPairs) {
+      const edm::Ref<TrackingParticleCollection>& trackingParticleRef = trackingParticleQualityPair.first;
+      double numberOfSharedClusters = trackingParticleQualityPair.second;
       double numberOfValidTrackClusters = weightedNumberOfTrackClusters(*pTrack, hitOrClusterAssociator);
 
       if (numberOfSharedClusters == 0.0)
@@ -251,11 +249,9 @@ reco::SimToRecoCollection QuickTrackAssociatorByHitsImpl::associateSimToRecoImpl
                        pTrack->recHitsEnd());
 
     // int nt = 0;
-    for (auto iTrackingParticleQualityPair = trackingParticleQualityPairs.begin();
-         iTrackingParticleQualityPair != trackingParticleQualityPairs.end();
-         ++iTrackingParticleQualityPair) {
-      const edm::Ref<TrackingParticleCollection>& trackingParticleRef = iTrackingParticleQualityPair->first;
-      double numberOfSharedClusters = iTrackingParticleQualityPair->second;
+    for (auto& trackingParticleQualityPair : trackingParticleQualityPairs) {
+      const edm::Ref<TrackingParticleCollection>& trackingParticleRef = trackingParticleQualityPair.first;
+      double numberOfSharedClusters = trackingParticleQualityPair.second;
       double numberOfValidTrackClusters = weightedNumberOfTrackClusters(*pTrack, hitOrClusterAssociator);
       size_t numberOfSimulatedHits = 0;  // Set a few lines below, but only if required.
 
@@ -380,9 +376,9 @@ std::vector<std::pair<edm::Ref<TrackingParticleCollection>, double> > QuickTrack
   std::vector<OmniClusterRef> oClusters = track_associator::hitsToClusterRefs(begin, end);
 
   std::map<TrackingParticleRef, double> lmap;
-  for (std::vector<OmniClusterRef>::const_iterator it = oClusters.begin(); it != oClusters.end(); ++it) {
-    auto range = clusterToTPMap.equal_range(*it);
-    const double weight = it->isPixel() ? pixelHitWeight_ : 1.0;
+  for (const auto& oCluster : oClusters) {
+    auto range = clusterToTPMap.equal_range(oCluster);
+    const double weight = oCluster.isPixel() ? pixelHitWeight_ : 1.0;
     if (range.first != range.second) {
       for (auto ip = range.first; ip != range.second; ++ip) {
         const TrackingParticleRef trackingParticle = (ip->second);
@@ -419,8 +415,8 @@ std::vector<std::pair<edm::Ref<TrackingParticleCollection>, double> > QuickTrack
     }
   }
   // now copy the map to returnValue
-  for (auto ip = lmap.begin(); ip != lmap.end(); ++ip) {
-    returnValue.push_back(std::make_pair(ip->first, ip->second));
+  for (auto& ip : lmap) {
+    returnValue.push_back(std::make_pair(ip.first, ip.second));
   }
   return returnValue;
 }
@@ -451,21 +447,18 @@ QuickTrackAssociatorByHitsImpl::getAllSimTrackIdentifiers(const TrackerHitAssoci
                                 : 1.0;
 
       // Loop over each identifier, and add it to the return value only if it's not already in there
-      for (std::vector<SimTrackIdentifiers>::const_iterator iIdentifier = simTrackIdentifiers.begin();
-           iIdentifier != simTrackIdentifiers.end();
-           ++iIdentifier) {
+      for (const auto& simTrackIdentifier : simTrackIdentifiers) {
         std::vector<std::pair<SimTrackIdentifiers, double> >::iterator iIdentifierCountPair;
-        for (auto iIdentifierCountPair = returnValue.begin(); iIdentifierCountPair != returnValue.end();
-             ++iIdentifierCountPair) {
-          if (iIdentifierCountPair->first.first == iIdentifier->first &&
-              iIdentifierCountPair->first.second == iIdentifier->second) {
+        for (auto& iIdentifierCountPair : returnValue) {
+          if (iIdentifierCountPair.first.first == simTrackIdentifier.first &&
+              iIdentifierCountPair.first.second == simTrackIdentifier.second) {
             // This sim track identifier is already in the list, so increment the count of how many hits it relates to.
-            iIdentifierCountPair->second += weight;
+            iIdentifierCountPair.second += weight;
             break;
           }
         }
         if (iIdentifierCountPair == returnValue.end())
-          returnValue.push_back(std::make_pair(*iIdentifier, 1.0));
+          returnValue.push_back(std::make_pair(simTrackIdentifier, 1.0));
         // This identifier wasn't found, so add it
       }
     }
@@ -562,10 +555,10 @@ double QuickTrackAssociatorByHitsImpl::getDoubleCount(const ClusterTPAssociation
   for (iter iHit = startIterator; iHit != endIterator; iHit++) {
     std::vector<OmniClusterRef> oClusters =
         track_associator::hitsToClusterRefs(iHit, iHit + 1);  //only for the cluster being checked
-    for (std::vector<OmniClusterRef>::const_iterator it = oClusters.begin(); it != oClusters.end(); ++it) {
+    for (const auto& oCluster : oClusters) {
       int idcount = 0;
 
-      auto range = clusterToTPList.equal_range(*it);
+      auto range = clusterToTPList.equal_range(oCluster);
       if (range.first != range.second) {
         for (auto ip = range.first; ip != range.second; ++ip) {
           const TrackingParticleRef trackingParticle = (ip->second);
@@ -614,11 +607,9 @@ reco::RecoToSimCollectionSeed QuickTrackAssociatorByHitsImpl::associateRecoToSim
                                            nullptr,
                                            pSeed->recHits().first,
                                            pSeed->recHits().second);
-    for (auto iTrackingParticleQualityPair = trackingParticleQualityPairs.begin();
-         iTrackingParticleQualityPair != trackingParticleQualityPairs.end();
-         ++iTrackingParticleQualityPair) {
-      const edm::Ref<TrackingParticleCollection>& trackingParticleRef = iTrackingParticleQualityPair->first;
-      double numberOfSharedClusters = iTrackingParticleQualityPair->second;
+    for (auto& trackingParticleQualityPair : trackingParticleQualityPairs) {
+      const edm::Ref<TrackingParticleCollection>& trackingParticleRef = trackingParticleQualityPair.first;
+      double numberOfSharedClusters = trackingParticleQualityPair.second;
       double numberOfValidTrackClusters = clusterToTPMap_ ? weightedNumberOfTrackClusters(*pSeed, *clusterToTPMap_)
                                                           : weightedNumberOfTrackClusters(*pSeed, *hitAssociator_);
 
@@ -690,11 +681,9 @@ reco::SimToRecoCollectionSeed QuickTrackAssociatorByHitsImpl::associateSimToReco
                                            nullptr,
                                            pSeed->recHits().first,
                                            pSeed->recHits().second);
-    for (auto iTrackingParticleQualityPair = trackingParticleQualityPairs.begin();
-         iTrackingParticleQualityPair != trackingParticleQualityPairs.end();
-         ++iTrackingParticleQualityPair) {
-      const edm::Ref<TrackingParticleCollection>& trackingParticleRef = iTrackingParticleQualityPair->first;
-      double numberOfSharedClusters = iTrackingParticleQualityPair->second;
+    for (auto& trackingParticleQualityPair : trackingParticleQualityPairs) {
+      const edm::Ref<TrackingParticleCollection>& trackingParticleRef = trackingParticleQualityPair.first;
+      double numberOfSharedClusters = trackingParticleQualityPair.second;
       double numberOfValidTrackClusters = clusterToTPMap_ ? weightedNumberOfTrackClusters(*pSeed, *clusterToTPMap_)
                                                           : weightedNumberOfTrackClusters(*pSeed, *hitAssociator_);
       size_t numberOfSimulatedHits = 0;  // Set a few lines below, but only if required.

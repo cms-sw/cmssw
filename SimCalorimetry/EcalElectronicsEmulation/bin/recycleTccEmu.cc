@@ -29,13 +29,13 @@ int main(int argc, char* argv[]){
   
   string ifilename = argv[1];
   string ofilename = argv[2];
-  
-  for(int iCh=0; iCh<nChs; ++iCh){
+
+  for (auto& iCh : mem) {
     for(int iEvts = 0; iEvts<nEvts; ++iEvts){
-      mem[iCh][iEvts] = 0xFFFF;
+      iCh[iEvts] = 0xFFFF;
     }
   }
-  
+
   ifstream in(ifilename.c_str());
   int chnb;
   int bcnb;

@@ -1,12 +1,12 @@
 #include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
 
 L1GctChannelMask::L1GctChannelMask() {
-  for (unsigned i = 0; i < 18; ++i) {
-    emCrateMask_[i] = false;
+  for (bool& i : emCrateMask_) {
+    i = false;
   }
-  for (unsigned ieta = 0; ieta < 22; ++ieta) {
+  for (auto& ieta : regionMask_) {
     for (unsigned iphi = 0; iphi < 18; ++iphi) {
-      regionMask_[ieta][iphi] = false;
+      ieta[iphi] = false;
     }
   }
   for (unsigned i = 0; i < 22; ++i) {

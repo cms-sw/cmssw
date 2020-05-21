@@ -24,12 +24,11 @@ void SiPixelSCurveCalibrationAnalysis::calibrationEnd() {
 void SiPixelSCurveCalibrationAnalysis::makeThresholdSummary(void) {
   std::ofstream myfile;
   myfile.open(thresholdfilename_.c_str());
-  for (detIDHistogramMap::iterator thisDetIdHistoGrams = histograms_.begin(); thisDetIdHistoGrams != histograms_.end();
-       ++thisDetIdHistoGrams) {
+  for (auto &histogram : histograms_) {
     // loop over det id (det id = number (unsigned int) of pixel module
-    const MonitorElement *sigmahist = (*thisDetIdHistoGrams).second[kSigmas];
-    const MonitorElement *thresholdhist = (*thisDetIdHistoGrams).second[kThresholds];
-    uint32_t detid = (*thisDetIdHistoGrams).first;
+    const MonitorElement *sigmahist = histogram.second[kSigmas];
+    const MonitorElement *thresholdhist = histogram.second[kThresholds];
+    uint32_t detid = histogram.first;
     std::string name = sigmahist->getTitle();
     std::string rocname = name.substr(0, name.size() - 7);
     rocname += "_ROC";
@@ -130,8 +129,8 @@ void SiPixelSCurveCalibrationAnalysis::doSetup(const edm::ParameterSet &iConfig)
   writeZeroes_ = iConfig.getUntrackedParameter<bool>("alsoWriteZeroThresholds", false);
 
   // convert the vector into a map for quicker lookups.
-  for (unsigned int i = 0; i < detIDsToSaveVector_.size(); i++)
-    detIDsToSave_.insert(std::make_pair(detIDsToSaveVector_[i], true));
+  for (unsigned int &i : detIDsToSaveVector_)
+    detIDsToSave_.insert(std::make_pair(i, true));
 }
 
 SiPixelSCurveCalibrationAnalysis::~SiPixelSCurveCalibrationAnalysis() {

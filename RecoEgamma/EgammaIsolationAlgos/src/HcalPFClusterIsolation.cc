@@ -43,9 +43,9 @@ double HcalPFClusterIsolation<T1>::getSum(const T1Ref candRef,
     etaStrip = etaStripEndcap_;
   }
 
-  for (unsigned int nHandle = 0; nHandle < clusterHandles.size(); nHandle++) {
-    for (unsigned i = 0; i < clusterHandles[nHandle]->size(); i++) {
-      const reco::PFClusterRef pfclu(clusterHandles[nHandle], i);
+  for (const auto& clusterHandle : clusterHandles) {
+    for (unsigned i = 0; i < clusterHandle->size(); i++) {
+      const reco::PFClusterRef pfclu(clusterHandle, i);
 
       if (fabs(candRef->eta()) < 1.479) {
         if (fabs(pfclu->pt()) < energyBarrel_)

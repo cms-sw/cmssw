@@ -43,8 +43,8 @@ bool BasicOverlapTest::fillOverlapsForItem(const reco::Candidate &item,
   // sort matches
   std::sort(matches.begin(), matches.end());
   // fill ptr vector
-  for (std::vector<std::pair<float, size_t> >::const_iterator it = matches.begin(); it != matches.end(); ++it) {
-    overlapsToFill.push_back(candidates_->ptrAt(it->second));
+  for (const auto &matche : matches) {
+    overlapsToFill.push_back(candidates_->ptrAt(matche.second));
   }
   return true;
 }

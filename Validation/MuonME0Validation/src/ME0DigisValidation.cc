@@ -176,8 +176,8 @@ void ME0DigisValidation::analyze(const edm::Event &e, const edm::EventSetup &iSe
   num_evts->Fill(1);
   bool toBeCounted1 = true;
 
-  for (ME0DigiPreRecoCollection::DigiRangeIterator cItr = ME0Digis->begin(); cItr != ME0Digis->end(); cItr++) {
-    ME0DetId id = (*cItr).first;
+  for (auto &&cItr : *ME0Digis) {
+    ME0DetId id = cItr.first;
 
     const GeomDet *gdet = ME0Geometry_->idToDet(id);
     if (gdet == nullptr) {
@@ -193,7 +193,7 @@ void ME0DigisValidation::analyze(const edm::Event &e, const edm::EventSetup &iSe
     int roll = (int)id.roll();
 
     ME0DigiPreRecoCollection::const_iterator digiItr;
-    for (digiItr = (*cItr).second.first; digiItr != (*cItr).second.second; ++digiItr) {
+    for (digiItr = cItr.second.first; digiItr != cItr.second.second; ++digiItr) {
       LocalPoint lp(digiItr->x(), digiItr->y(), 0);
 
       GlobalPoint gp = surface.toGlobal(lp);
@@ -226,16 +226,16 @@ void ME0DigisValidation::analyze(const edm::Event &e, const edm::EventSetup &iSe
         me0_strip_dg_zr_tot_Muon[region_num]->Fill(g_z, g_r);
         me0_strip_dg_xy_Muon[region_num][layer_num]->Fill(g_x, g_y);
 
-        for (auto hits = ME0Hits->begin(); hits != ME0Hits->end(); hits++) {
-          int particleType_sh = hits->particleType();
-          int evtId_sh = hits->eventId().event();
-          int bx_sh = hits->eventId().bunchCrossing();
-          int procType_sh = hits->processType();
+        for (const auto &hits : *ME0Hits) {
+          int particleType_sh = hits.particleType();
+          int evtId_sh = hits.eventId().event();
+          int bx_sh = hits.eventId().bunchCrossing();
+          int procType_sh = hits.processType();
 
           if (!(abs(particleType_sh) == 13 && evtId_sh == 0 && bx_sh == 0 && procType_sh == 0))
             continue;
 
-          const ME0DetId id(hits->detUnitId());
+          const ME0DetId id(hits.detUnitId());
           int region_sh = id.region();
           int layer_sh = id.layer();
           int chamber_sh = id.chamber();
@@ -248,7 +248,7 @@ void ME0DigisValidation::analyze(const edm::Event &e, const edm::EventSetup &iSe
             region_sh_num = 1;
           int layer_sh_num = layer_sh - 1;
 
-          LocalPoint lp_sh = hits->localPosition();
+          LocalPoint lp_sh = hits.localPosition();
           GlobalPoint gp_sh = ME0Geometry_->idToDet(id)->surface().toGlobal(lp_sh);
 
           if (toBeCounted1) {
@@ -267,7 +267,7 @@ void ME0DigisValidation::analyze(const edm::Event &e, const edm::EventSetup &iSe
           if (!(fabs(dphi_glob) < 3 * sigma_x_ && fabs(deta_glob) < 3 * sigma_y_))
             continue;
 
-          float timeOfFlight_sh = hits->tof();
+          float timeOfFlight_sh = hits.tof();
           const LocalPoint centralLP(0., 0., 0.);
           const GlobalPoint centralGP(ME0Geometry_->idToDet(id)->surface().toGlobal(centralLP));
           float centralTOF(centralGP.mag() / 29.98);  // speed of light

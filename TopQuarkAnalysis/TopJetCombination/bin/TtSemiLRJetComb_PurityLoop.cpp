@@ -63,8 +63,8 @@ int main() {
 
   // define all histograms & fit functions
   //to replace with something more elegant
-  for (int j = 0; j < nrJetCombObs; j++) {
-    obsNrs.push_back(JetCombObs[j]);
+  for (int JetCombOb : JetCombObs) {
+    obsNrs.push_back(JetCombOb);
   }
   myLRhelper = new LRHelpFunctions(nrJetCombLRtotBins, JetCombLRtotMin, JetCombLRtotMax, JetCombLRtotFitFunction);
 

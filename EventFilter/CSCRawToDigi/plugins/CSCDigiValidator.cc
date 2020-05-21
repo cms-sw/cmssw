@@ -287,11 +287,11 @@ bool CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       std::vector<CSCWireDigi> a = w->second.second;
       std::vector<CSCWireDigi> b = w->second.first;
       std::cout << "SIM OUTPUT:" << std::endl;
-      for (std::vector<CSCWireDigi>::const_iterator i = a.begin(); i != a.end(); ++i)
-        i->print();
+      for (auto i : a)
+        i.print();
       std::cout << "UNPACKER OUTPUT:" << std::endl;
-      for (std::vector<CSCWireDigi>::const_iterator i = b.begin(); i != b.end(); ++i)
-        i->print();
+      for (auto i : b)
+        i.print();
     }
     int max = std::min(w->second.first.size(), w->second.second.size());
     std::vector<CSCWireDigi> cv = w->second.first;
@@ -323,11 +323,11 @@ bool CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       std::vector<CSCStripDigi> a = s->second.second;
       std::vector<CSCStripDigi> b = s->second.first;
       std::cout << "SIM OUTPUT:" << std::endl;
-      for (std::vector<CSCStripDigi>::const_iterator i = a.begin(); i != a.end(); ++i)
-        i->print();
+      for (const auto& i : a)
+        i.print();
       std::cout << "UNPACKER OUTPUT:" << std::endl;
-      for (std::vector<CSCStripDigi>::const_iterator i = b.begin(); i != b.end(); ++i)
-        i->print();
+      for (const auto& i : b)
+        i.print();
     }
     int max = std::min(s->second.first.size(), s->second.second.size());
     std::vector<CSCStripDigi> cv = s->second.first;
@@ -426,11 +426,11 @@ bool CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       std::vector<CSCComparatorDigi> a = c->second.second;
       std::vector<CSCComparatorDigi> b = c->second.first;
       std::cout << "SIM OUTPUT:" << std::endl;
-      for (std::vector<CSCComparatorDigi>::const_iterator i = a.begin(); i != a.end(); ++i)
-        i->print();
+      for (auto i : a)
+        i.print();
       std::cout << "UNPACKER OUTPUT:" << std::endl;
-      for (std::vector<CSCComparatorDigi>::const_iterator i = b.begin(); i != b.end(); ++i)
-        i->print();
+      for (auto i : b)
+        i.print();
     }
     int max = std::min(c->second.first.size(), c->second.second.size());
     std::vector<CSCComparatorDigi> cv = c->second.first;
@@ -461,11 +461,11 @@ bool CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       std::vector<CSCCLCTDigi> a = cl->second.second;
       std::vector<CSCCLCTDigi> b = cl->second.first;
       std::cout << "SIM OUTPUT:" << std::endl;
-      for (std::vector<CSCCLCTDigi>::const_iterator i = a.begin(); i != a.end(); ++i)
-        i->print();
+      for (const auto& i : a)
+        i.print();
       std::cout << "UNPACKER OUTPUT:" << std::endl;
-      for (std::vector<CSCCLCTDigi>::const_iterator i = b.begin(); i != b.end(); ++i)
-        i->print();
+      for (const auto& i : b)
+        i.print();
     }
     int max = std::min(cl->second.first.size(), cl->second.second.size());
     std::vector<CSCCLCTDigi> cv = cl->second.first;
@@ -529,11 +529,11 @@ bool CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       std::vector<CSCALCTDigi> a = al->second.second;
       std::vector<CSCALCTDigi> b = al->second.first;
       std::cout << "SIM OUTPUT:" << std::endl;
-      for (std::vector<CSCALCTDigi>::const_iterator i = a.begin(); i != a.end(); ++i)
-        i->print();
+      for (const auto& i : a)
+        i.print();
       std::cout << "UNPACKER OUTPUT:" << std::endl;
-      for (std::vector<CSCALCTDigi>::const_iterator i = b.begin(); i != b.end(); ++i)
-        i->print();
+      for (const auto& i : b)
+        i.print();
     }
     int max = std::min(al->second.first.size(), al->second.second.size());
     std::vector<CSCALCTDigi> cv = al->second.first;
@@ -581,11 +581,11 @@ bool CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       std::vector<CSCCorrelatedLCTDigi> a = lc->second.second;
       std::vector<CSCCorrelatedLCTDigi> b = lc->second.first;
       std::cout << "SIM OUTPUT:" << std::endl;
-      for (std::vector<CSCCorrelatedLCTDigi>::const_iterator i = a.begin(); i != a.end(); ++i)
-        i->print();
+      for (const auto& i : a)
+        i.print();
       std::cout << "UNPACKER OUTPUT:" << std::endl;
-      for (std::vector<CSCCorrelatedLCTDigi>::const_iterator i = b.begin(); i != b.end(); ++i)
-        i->print();
+      for (const auto& i : b)
+        i.print();
     }
     int max = std::min(lc->second.first.size(), lc->second.second.size());
     std::vector<CSCCorrelatedLCTDigi> cv = lc->second.first;
@@ -665,11 +665,11 @@ bool CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::vector<csc::L1Track> a = simtracks.get();
     std::vector<csc::L1Track> b = tracks.get();
     std::cout << "SIM OUTPUT:" << std::endl;
-    for (std::vector<csc::L1Track>::const_iterator i = a.begin(); i != a.end(); ++i)
-      i->print();
+    for (const auto& i : a)
+      i.print();
     std::cout << "UNPACKER OUTPUT:" << std::endl;
-    for (std::vector<csc::L1Track>::const_iterator i = b.begin(); i != b.end(); ++i)
-      i->print();
+    for (const auto& i : b)
+      i.print();
   }
 
   return _err;
@@ -692,10 +692,10 @@ std::vector<CSCWireDigi> CSCDigiValidator::sanitizeWireDigis(std::vector<CSCWire
     int wire = i->first;
     unsigned tbin = 0x0;
 
-    for (std::vector<CSCWireDigi>::const_iterator d = i->second.begin(); d != i->second.end(); ++d) {
-      std::vector<int> binson = d->getTimeBinsOn();
-      for (std::vector<int>::const_iterator t = binson.begin(); t != binson.end(); ++t)
-        tbin |= 1 << (*t);
+    for (auto d : i->second) {
+      std::vector<int> binson = d.getTimeBinsOn();
+      for (int t : binson)
+        tbin |= 1 << t;
     }
 
     _r.push_back(CSCWireDigi(wire, tbin));
@@ -765,8 +765,8 @@ std::vector<CSCStripDigi> CSCDigiValidator::zeroSupStripDigis(std::vector<CSCStr
   for (std::vector<CSCStripDigi>::const_iterator i = b; i != e; ++i) {
     bool nonzero = false;
     counts = i->getADCCounts();
-    for (std::vector<int>::const_iterator a = counts.begin(); a != counts.end(); ++a)
-      if ((*a) != 0)
+    for (int count : counts)
+      if (count != 0)
         nonzero = true;
 
     if (nonzero)

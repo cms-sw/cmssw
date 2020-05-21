@@ -103,9 +103,8 @@ BigEventsDebugger<T>::BigEventsDebugger(const edm::ParameterSet& iConfig)
 
   std::vector<edm::ParameterSet> selconfigs = iConfig.getParameter<std::vector<edm::ParameterSet> >("selections");
 
-  for (std::vector<edm::ParameterSet>::const_iterator selconfig = selconfigs.begin(); selconfig != selconfigs.end();
-       ++selconfig) {
-    m_labels.push_back(selconfig->getParameter<std::string>("label"));
+  for (const auto& selconfig : selconfigs) {
+    m_labels.push_back(selconfig.getParameter<std::string>("label"));
   }
 
   edm::Service<TFileService> tfserv;

@@ -248,11 +248,9 @@ void L1Muon2RecoTreeProducer::analyze(const edm::Event &iEvent, const edm::Event
           //     cout<<iPath<<": "<<trigNames.triggerName(iPath)<<endl;
           //   }
 
-          for (UInt_t iPath = 0; iPath < isoTriggerNames_.size(); ++iPath) {
+          for (auto pathName : isoTriggerNames_) {
             if (passesSingleMuonFlag == 1)
               continue;
-            std::string pathName = isoTriggerNames_.at(iPath);
-
             bool passTrig = false;
             //cout<<"testing pathName                         = "<<pathName<<endl;
             //cout<<"trigNames.triggerIndex(pathName) = "<<trigNames.triggerIndex(pathName)<<endl;
@@ -321,8 +319,7 @@ double L1Muon2RecoTreeProducer::match_trigger(std::vector<int> &trigIndices,
                                               const reco::Muon &mu) {
   double matchDeltaR = 9999;
 
-  for (size_t iTrigIndex = 0; iTrigIndex < trigIndices.size(); ++iTrigIndex) {
-    int triggerIndex = trigIndices[iTrigIndex];
+  for (int triggerIndex : trigIndices) {
     const std::vector<std::string> moduleLabels(hltConfig_.moduleLabels(triggerIndex));
     // find index of the last module:
     const unsigned moduleIndex = hltConfig_.size(triggerIndex) - 2;
@@ -364,9 +361,9 @@ void L1Muon2RecoTreeProducer::beginRun(const edm::Run &run, const edm::EventSetu
     }
 
     bool enableWildcard = true;
-    for (size_t iTrig = 0; iTrig < triggerNames_.size(); ++iTrig) {
+    for (const auto &triggerName : triggerNames_) {
       // prepare for regular expression (with wildcards) functionality:
-      TString tNameTmp = TString(triggerNames_[iTrig]);
+      TString tNameTmp = TString(triggerName);
       TRegexp tNamePattern = TRegexp(tNameTmp, enableWildcard);
       int tIndex = -1;
       // find the trigger index:
@@ -379,13 +376,13 @@ void L1Muon2RecoTreeProducer::beginRun(const edm::Run &run, const edm::EventSetu
         }
       }
       if (tIndex < 0) {  // if can't find trigger path at all, give warning:
-        std::cout << "Warning: Could not find trigger" << triggerNames_[iTrig] << std::endl;
+        std::cout << "Warning: Could not find trigger" << triggerName << std::endl;
         //assert(false);
       }
     }  // end for triggerNames
-    for (size_t iTrig = 0; iTrig < isoTriggerNames_.size(); ++iTrig) {
+    for (const auto &isoTriggerName : isoTriggerNames_) {
       // prepare for regular expression functionality:
-      TString tNameTmp = TString(isoTriggerNames_[iTrig]);
+      TString tNameTmp = TString(isoTriggerName);
       TRegexp tNamePattern = TRegexp(tNameTmp, enableWildcard);
       int tIndex = -1;
       // find the trigger index:
@@ -398,7 +395,7 @@ void L1Muon2RecoTreeProducer::beginRun(const edm::Run &run, const edm::EventSetu
         }
       }
       if (tIndex < 0) {  // if can't find trigger path at all, give warning:
-        std::cout << "Warning: Could not find trigger" << isoTriggerNames_[iTrig] << std::endl;
+        std::cout << "Warning: Could not find trigger" << isoTriggerName << std::endl;
         //assert(false);
       }
     }  // end for isoTriggerNames

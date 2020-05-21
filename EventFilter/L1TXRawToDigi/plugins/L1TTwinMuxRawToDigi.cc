@@ -57,11 +57,11 @@ L1TTwinMuxRawToDigi::L1TTwinMuxRawToDigi(const edm::ParameterSet& pset)
     throw cms::Exception("TwinMux_unpacker")
         << "Configuration file error. Size of \'wheels\' and \'amcsecmap\' differs.\n";
 
-  for (size_t wh_i = 0; wh_i < amcsecmap_.size(); ++wh_i) {
+  for (long long wh_i : amcsecmap_) {
     std::array<short, 12> whmap;
     for (size_t amc_i = 1; amc_i < 13; ++amc_i) {
       short shift = (12 - amc_i) * 4;
-      whmap[amc_i - 1] = (amcsecmap_[wh_i] >> shift) & 0xF;
+      whmap[amc_i - 1] = (wh_i >> shift) & 0xF;
     }
     amcsec_.push_back(whmap);
   }

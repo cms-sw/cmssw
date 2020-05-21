@@ -219,9 +219,9 @@ void PATTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   // read in the jet correction factors ValueMap
   std::vector<edm::ValueMap<TauJetCorrFactors>> tauJetCorrs;
   if (addTauJetCorrFactors_) {
-    for (size_t i = 0; i < tauJetCorrFactorsTokens_.size(); ++i) {
+    for (auto tauJetCorrFactorsToken : tauJetCorrFactorsTokens_) {
       edm::Handle<edm::ValueMap<TauJetCorrFactors>> tauJetCorr;
-      iEvent.getByToken(tauJetCorrFactorsTokens_[i], tauJetCorr);
+      iEvent.getByToken(tauJetCorrFactorsToken, tauJetCorr);
       tauJetCorrs.push_back(*tauJetCorr);
     }
   }
@@ -320,8 +320,8 @@ void PATTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
     if (addTauJetCorrFactors_) {
       // add additional JetCorrs to the jet
-      for (unsigned int i = 0; i < tauJetCorrs.size(); ++i) {
-        const TauJetCorrFactors& tauJetCorr = tauJetCorrs[i][tausRef];
+      for (auto& i : tauJetCorrs) {
+        const TauJetCorrFactors& tauJetCorr = i[tausRef];
         // uncomment for debugging
         // tauJetCorr.print();
         aTau.addJECFactors(tauJetCorr);
@@ -345,8 +345,8 @@ void PATTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
     // store the match to the generated final state muons
     if (addGenMatch_) {
-      for (size_t i = 0, n = genMatches.size(); i < n; ++i) {
-        reco::GenParticleRef genTau = (*genMatches[i])[tausRef];
+      for (auto& genMatche : genMatches) {
+        reco::GenParticleRef genTau = (*genMatche)[tausRef];
         aTau.addGenParticleRef(genTau);
       }
       if (embedGenMatch_)

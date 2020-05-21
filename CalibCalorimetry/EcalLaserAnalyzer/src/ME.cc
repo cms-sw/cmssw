@@ -579,8 +579,7 @@ std::vector<int> ME::lmmodFromDcc(int idcc) {
       continue;
     bool isBarrel_ = isBarrel(ilmr);
     std::vector<int> vec_ = lmmodFromLmr(ilmr);
-    for (unsigned ii = 0; ii < vec_.size(); ii++) {
-      int ilmmod_ = vec_[ii];
+    for (int ilmmod_ : vec_) {
       if (!isBarrel_) {
         // special case for Julie
         if (ilmmod_ == 18 && iside == 1)

@@ -46,9 +46,8 @@ AlignableSurface AlignableCSCEndcap::computeSurface() {
 AlignableCSCEndcap::PositionType AlignableCSCEndcap::computePosition() {
   float zz = 0.;
 
-  for (std::vector<AlignableCSCStation*>::iterator ilayer = theCSCStations.begin(); ilayer != theCSCStations.end();
-       ilayer++)
-    zz += (*ilayer)->globalPosition().z();
+  for (auto& theCSCStation : theCSCStations)
+    zz += theCSCStation->globalPosition().z();
 
   zz /= static_cast<float>(theCSCStations.size());
 
@@ -70,10 +69,8 @@ std::ostream& operator<<(std::ostream& os, const AlignableCSCEndcap& b) {
 /// Recursive printout of whole Half Barrel structure
 void AlignableCSCEndcap::dump(void) const {
   edm::LogInfo("AlignableDump") << (*this);
-  for (std::vector<AlignableCSCStation*>::const_iterator iLayer = theCSCStations.begin();
-       iLayer != theCSCStations.end();
-       iLayer++)
-    (*iLayer)->dump();
+  for (auto theCSCStation : theCSCStations)
+    theCSCStation->dump();
 }
 
 //__________________________________________________________________________________________________

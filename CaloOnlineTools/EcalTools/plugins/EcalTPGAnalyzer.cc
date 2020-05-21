@@ -140,12 +140,12 @@ void EcalTPGAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& i
   int iDaq = 0;
   int iBit = -1;
   treeVariables_.nbOfActiveTriggers = 0;
-  for (std::vector<bool>::iterator itBit = dWord.begin(); itBit != dWord.end(); ++itBit) {
+  for (auto&& itBit : dWord) {
     iBit++;
     int maskBit = triggerMaskAlgoTrig[iBit] & (1 << iDaq);
     if (maskBit)
-      *itBit = false;
-    if (*itBit) {
+      itBit = false;
+    if (itBit) {
       treeVariables_.activeTriggers[treeVariables_.nbOfActiveTriggers] = iBit;
       treeVariables_.nbOfActiveTriggers++;
     }
@@ -160,8 +160,7 @@ void EcalTPGAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& i
   if (print_)
     std::cout << "TP collection size=" << tp.product()->size() << std::endl;
 
-  for (unsigned int i = 0; i < tp.product()->size(); i++) {
-    EcalTriggerPrimitiveDigi d = (*(tp.product()))[i];
+  for (auto d : *tp.product()) {
     const EcalTrigTowerDetId TPtowid = d.id();
     towerEner tE;
     tE.iphi_ = TPtowid.iphi();
@@ -179,8 +178,7 @@ void EcalTPGAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& i
   if (print_)
     std::cout << "TPEmulator collection size=" << tpEmul.product()->size() << std::endl;
 
-  for (unsigned int i = 0; i < tpEmul.product()->size(); i++) {
-    EcalTriggerPrimitiveDigi d = (*(tpEmul.product()))[i];
+  for (auto d : *tpEmul.product()) {
     const EcalTrigTowerDetId TPtowid = d.id();
     itTT = mapTower.find(TPtowid);
     if (itTT != mapTower.end())

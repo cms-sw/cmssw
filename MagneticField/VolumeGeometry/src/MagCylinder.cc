@@ -10,19 +10,19 @@ MagCylinder::MagCylinder(const PositionType& pos,
   using SurfaceOrientation::GlobalFace;
 
   unsigned int def = 0;
-  for (std::vector<VolumeSide>::const_iterator i = faces.begin(); i != faces.end(); ++i) {
-    if (i->globalFace() == SurfaceOrientation::zminus) {
-      theZmin = MagVolume::toLocal(i->surface().position()).z();
+  for (const auto& face : faces) {
+    if (face.globalFace() == SurfaceOrientation::zminus) {
+      theZmin = MagVolume::toLocal(face.surface().position()).z();
       ++def;
-    } else if (i->globalFace() == SurfaceOrientation::zplus) {
-      theZmax = MagVolume::toLocal(i->surface().position()).z();
+    } else if (face.globalFace() == SurfaceOrientation::zplus) {
+      theZmax = MagVolume::toLocal(face.surface().position()).z();
       ++def;
-    } else if (i->globalFace() == SurfaceOrientation::outer || i->globalFace() == SurfaceOrientation::inner) {
-      const Cylinder* cyl = dynamic_cast<const Cylinder*>(&(i->surface()));
+    } else if (face.globalFace() == SurfaceOrientation::outer || face.globalFace() == SurfaceOrientation::inner) {
+      const Cylinder* cyl = dynamic_cast<const Cylinder*>(&(face.surface()));
       if (cyl == nullptr) {
         throw MagGeometryError("MagCylinder inner/outer surface is not a cylinder");
       }
-      if (i->globalFace() == SurfaceOrientation::outer)
+      if (face.globalFace() == SurfaceOrientation::outer)
         theOuterR = cyl->radius();
       else
         theInnerR = cyl->radius();

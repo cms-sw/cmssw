@@ -227,8 +227,8 @@ std::vector<std::pair<std::string, std::string>> APVGain::monHnames(std::vector<
     }
   }
 
-  for (unsigned int i = 0; i < VH.size(); i++) {
-    h_tag = VH[i] + Tag;
+  for (const auto& i : VH) {
+    h_tag = i + Tag;
     h_tit = h_tag;
     std::replace(h_tit.begin(), h_tit.end(), '_', ' ');
     out.push_back(std::pair<std::string, std::string>(h_tag, h_tit));

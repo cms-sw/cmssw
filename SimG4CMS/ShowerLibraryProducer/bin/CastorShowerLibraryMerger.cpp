@@ -93,8 +93,8 @@ int main(int argc, char *argv[]) {
   int nevt_tot_em = 0;
   int nevt_perbin_e_had = 0;
   int nevt_tot_had = 0;
-  for (int i = 0; i < int(FilesToMerge.size()); i++) {
-    TFile in(FilesToMerge.at(i).c_str(), "r");
+  for (auto &i : FilesToMerge) {
+    TFile in(i.c_str(), "r");
     TTree *event = (TTree *)in.Get("CastorCherenkovPhotons");
     TBranchObject *emInfo_b = (TBranchObject *)event->GetBranch("emShowerLibInfo.");
     TBranchObject *hadInfo_b = (TBranchObject *)event->GetBranch("hadShowerLibInfo.");
@@ -186,8 +186,8 @@ int main(int argc, char *argv[]) {
   hadInfo_out->Energy.setNBins(ebin_had.size());
 
   // Loop over events from input files merging them into a new file, sequentially
-  for (int i = 0; i < int(FilesToMerge.size()); i++) {
-    TFile in(FilesToMerge.at(i).c_str());
+  for (auto &i : FilesToMerge) {
+    TFile in(i.c_str());
     TTree *event = (TTree *)in.Get("CastorCherenkovPhotons");
     TBranchObject *emShower_b = (TBranchObject *)event->GetBranch("emParticles.");
     TBranchObject *hadShower_b = (TBranchObject *)event->GetBranch("hadParticles.");

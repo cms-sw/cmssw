@@ -119,8 +119,8 @@ namespace ecaldqm {
 
     int subdet(_collections == kEBReducedRecHit ? EcalBarrel : EcalEndcap);
 
-    for (EcalRecHitCollection::const_iterator hitItr(_hits.begin()); hitItr != _hits.end(); ++hitItr)
-      meRecoFlag.fill(subdet, hitItr->recoFlag());
+    for (const auto& _hit : _hits)
+      meRecoFlag.fill(subdet, _hit.recoFlag());
   }
 
   void RecoSummaryTask::runOnBasicClusters(edm::View<reco::CaloCluster> const& _bcs, Collections _collection) {

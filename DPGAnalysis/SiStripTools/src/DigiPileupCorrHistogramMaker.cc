@@ -49,9 +49,9 @@ DigiPileupCorrHistogramMaker::DigiPileupCorrHistogramMaker(const edm::ParameterS
   std::vector<edm::ParameterSet> wantedsubds(iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >(
       "wantedSubDets", std::vector<edm::ParameterSet>()));
 
-  for (std::vector<edm::ParameterSet>::iterator ps = wantedsubds.begin(); ps != wantedsubds.end(); ++ps) {
-    m_labels[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<std::string>("detLabel");
-    m_binmax[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<int>("binMax");
+  for (auto& wantedsubd : wantedsubds) {
+    m_labels[wantedsubd.getParameter<unsigned int>("detSelection")] = wantedsubd.getParameter<std::string>("detLabel");
+    m_binmax[wantedsubd.getParameter<unsigned int>("detSelection")] = wantedsubd.getParameter<int>("binMax");
   }
 }
 
@@ -163,19 +163,19 @@ void DigiPileupCorrHistogramMaker::fill(const edm::Event& iEvent, const std::map
     if (m_useVisibleVertices)
       npileup = pileupinfoInTime->getPU_zpositions().size();
 
-    for (std::map<unsigned int, int>::const_iterator digi = ndigi.begin(); digi != ndigi.end(); digi++) {
-      if (m_labels.find(digi->first) != m_labels.end()) {
-        const unsigned int i = digi->first;
-        m_nmultvsmcnvtx[i]->Fill(npileup, digi->second);
-        m_nmultvsmcnvtxprof[i]->Fill(npileup, digi->second);
-        m_nmultvsmclumi[i]->Fill(pileupinfoInTime->getTrueNumInteractions(), digi->second);
-        m_nmultvsmclumiprof[i]->Fill(pileupinfoInTime->getTrueNumInteractions(), digi->second);
+    for (auto digi : ndigi) {
+      if (m_labels.find(digi.first) != m_labels.end()) {
+        const unsigned int i = digi.first;
+        m_nmultvsmcnvtx[i]->Fill(npileup, digi.second);
+        m_nmultvsmcnvtxprof[i]->Fill(npileup, digi.second);
+        m_nmultvsmclumi[i]->Fill(pileupinfoInTime->getTrueNumInteractions(), digi.second);
+        m_nmultvsmclumiprof[i]->Fill(pileupinfoInTime->getTrueNumInteractions(), digi.second);
         if (m_2dhisto) {
           if (pileupinfoMinusOne != pileupinfos->end()) {
             int npileupminusone = pileupinfoMinusOne->getPU_NumInteractions();
             if (m_useVisibleVertices)
               npileupminusone = pileupinfoMinusOne->getPU_zpositions().size();
-            m_nmultvsmcnvtxprof2d[i]->Fill(npileup, npileupminusone, digi->second);
+            m_nmultvsmcnvtxprof2d[i]->Fill(npileup, npileupminusone, digi.second);
           }
         }
       }

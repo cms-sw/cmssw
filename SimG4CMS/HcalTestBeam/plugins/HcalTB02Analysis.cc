@@ -214,19 +214,19 @@ void HcalTB02Analysis::update(const EndOfEvent* evt) {
       }
     }
 
-    for (int ilayer = 0; ilayer < 19; ilayer++)
-      LayerEne[ilayer] = 0.;
-    for (int iring = 0; iring < 100; iring++)
-      EnRing[iring] = 0.;
+    for (float& ilayer : LayerEne)
+      ilayer = 0.;
+    for (float& iring : EnRing)
+      iring = 0.;
 
-    for (std::map<int, float>::iterator is = energyInScints.begin(); is != energyInScints.end(); is++) {
-      ETot = (*is).second;
+    for (auto& energyInScint : energyInScints) {
+      ETot = energyInScint.second;
 
-      int layer = org->getlayerID((*is).first);
+      int layer = org->getlayerID(energyInScint.first);
 
       if ((layer != 17) && (layer != 18)) {
-        float eta = org->getetaID((*is).first);
-        float phi = org->getphiID((*is).first);
+        float eta = org->getetaID(energyInScint.first);
+        float phi = org->getphiID(energyInScint.first);
 
         SEnergy += ETot;
         TowerEne[(int)phi][(int)eta] += ETot;
@@ -335,15 +335,15 @@ void HcalTB02Analysis::update(const EndOfEvent* evt) {
       }
 
       float xCrysEne[7][7];
-      for (int irow = 0; irow < 7; irow++) {
+      for (auto& irow : xCrysEne) {
         for (int jcol = 0; jcol < 7; jcol++) {
-          xCrysEne[irow][jcol] = 0.;
+          irow[jcol] = 0.;
         }
       }
 
-      for (std::map<int, float>::iterator is = energyInCrystals.begin(); is != energyInCrystals.end(); is++) {
-        int xtalID = (*is).first;
-        xETot = (*is).second;
+      for (auto& energyInCrystal : energyInCrystals) {
+        int xtalID = energyInCrystal.first;
+        xETot = energyInCrystal.second;
 
         int irow = (int)(xtalID / 100.);
         int jcol = (int)(xtalID - 100. * irow);

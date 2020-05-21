@@ -511,8 +511,8 @@ MuScleFit::MuScleFit(const edm::ParameterSet& pset) : MuScleFitBase(pset), total
     double norm = 1 / sqrt(2 * TMath::Pi());
     G.SetParameter(0, norm);
     for (int i = 0; i < 10000; i++) {
-      for (int j = 0; j < 7; j++) {
-        MuScleFitUtils::x[j][i] = G.GetRandom();
+      for (auto& j : MuScleFitUtils::x) {
+        j[i] = G.GetRandom();
       }
     }
   }
@@ -802,15 +802,15 @@ edm::EDLooper::Status MuScleFit::duringLoop(const edm::Event& event, const edm::
       const std::string& hltName = triggerNames.triggerName(i);
 
       // match the path in the pset with the true name of the trigger
-      for (unsigned int ipath = 0; ipath < triggerPath_.size(); ipath++) {
-        if (hltName.find(triggerPath_[ipath]) != std::string::npos) {
+      for (const auto& ipath : triggerPath_) {
+        if (hltName.find(ipath) != std::string::npos) {
           unsigned int triggerIndex(hltConfig.triggerIndex(hltName));
 
           // triggerIndex must be less than the size of HLTR or you get a CMSException: _M_range_check
           if (triggerIndex < triggerResults->size()) {
             isFired = triggerResults->accept(triggerIndex);
             if (debug_ > 0)
-              std::cout << triggerPath_[ipath] << " " << hltName << " " << isFired << std::endl;
+              std::cout << ipath << " " << hltName << " " << isFired << std::endl;
           }
         }  // end if (matching the path in the pset with the true trigger name
       }
@@ -1219,19 +1219,19 @@ void MuScleFit::duringFastLoop() {
       double deltalike;
       if (loopCounter == 0) {
         std::vector<double> initpar;
-        for (int i = 0; i < (int)(MuScleFitUtils::parResol.size()); i++) {
-          initpar.push_back(MuScleFitUtils::parResol[i]);
+        for (double i : MuScleFitUtils::parResol) {
+          initpar.push_back(i);
         }
-        for (int i = 0; i < (int)(MuScleFitUtils::parScale.size()); i++) {
-          initpar.push_back(MuScleFitUtils::parScale[i]);
+        for (double i : MuScleFitUtils::parScale) {
+          initpar.push_back(i);
         }
         // 	for (int i=0; i<(int)(MuScleFitUtils::parCrossSection.size()); i++) {
         // 	  initpar.push_back(MuScleFitUtils::parCrossSection[i]);
         // 	}
         MuScleFitUtils::crossSectionHandler->addParameters(initpar);
 
-        for (int i = 0; i < (int)(MuScleFitUtils::parBgr.size()); i++) {
-          initpar.push_back(MuScleFitUtils::parBgr[i]);
+        for (double i : MuScleFitUtils::parBgr) {
+          initpar.push_back(i);
         }
         massResol = MuScleFitUtils::massResolution(recMu1, recMu2, initpar);
         // prob      = MuScleFitUtils::massProb( bestRecRes.mass(), bestRecRes.Eta(), bestRecRes.Rapidity(), massResol, initpar, true );

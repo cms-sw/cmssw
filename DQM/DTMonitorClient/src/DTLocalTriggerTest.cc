@@ -111,11 +111,11 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMStor
     Bookings(ibooker, igetter);
 
   // Loop over Trig & Hw sources
-  for (vector<string>::const_iterator iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr) {
-    trigSource = (*iTr);
+  for (const auto& trigSource : trigSources) {
+    trigSource = trigSource;
 
-    for (vector<string>::const_iterator iHw = hwSources.begin(); iHw != hwSources.end(); ++iHw) {
-      hwSource = (*iHw);
+    for (const auto& hwSource : hwSources) {
+      hwSource = hwSource;
       // Loop over the TriggerUnits
       for (int stat = 1; stat <= 4; ++stat) {
         for (int wh = -2; wh <= 2; ++wh) {
@@ -353,10 +353,10 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMStor
     }
   }
 
-  for (vector<string>::const_iterator iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr) {
-    trigSource = (*iTr);
-    for (vector<string>::const_iterator iHw = hwSources.begin(); iHw != hwSources.end(); ++iHw) {
-      hwSource = (*iHw);
+  for (const auto& trigSource : trigSources) {
+    trigSource = trigSource;
+    for (const auto& hwSource : hwSources) {
+      hwSource = hwSource;
       for (int wh = -2; wh <= 2; ++wh) {
         std::map<std::string, MonitorElement*>* innerME = &(whME[wh]);
         // In part

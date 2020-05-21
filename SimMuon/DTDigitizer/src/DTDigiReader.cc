@@ -79,12 +79,12 @@ public:
         //	if((*digiIt).time()<703 &&(*digiIt).time()>699) {
         cout << " Wire: " << (*digiIt).wire() << endl << " digi time (ns): " << (*digiIt).time() << endl;
 
-        for (vector<PSimHit>::const_iterator simHit = simHits->begin(); simHit != simHits->end(); simHit++) {
-          DTWireId wireId((*simHit).detUnitId());
-          if (wireId.layerId() == id && abs((*simHit).particleType()) == 13) {
-            cout << "entry: " << (*simHit).entryPoint() << endl
-                 << "exit: " << (*simHit).exitPoint() << endl
-                 << "TOF: " << (*simHit).timeOfFlight() << endl;
+        for (const auto &simHit : *simHits) {
+          DTWireId wireId(simHit.detUnitId());
+          if (wireId.layerId() == id && abs(simHit.particleType()) == 13) {
+            cout << "entry: " << simHit.entryPoint() << endl
+                 << "exit: " << simHit.exitPoint() << endl
+                 << "TOF: " << simHit.timeOfFlight() << endl;
           }
         }
 

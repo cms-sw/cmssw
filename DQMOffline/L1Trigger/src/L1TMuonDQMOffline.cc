@@ -525,10 +525,8 @@ void L1TMuonDQMOffline::getProbeMuons(Handle<edm::TriggerResults>& trigResults,
       isProbe |= tagHasTrig;
       if (tagHasTrig) {
         if (std::distance(m_TightMuons.begin(), m_TightMuons.end()) > 2) {
-          for (vector<const reco::Muon*>::const_iterator tagMuonsInHistIt = tagMuonsInHist.begin();
-               tagMuonsInHistIt != tagMuonsInHist.end();
-               ++tagMuonsInHistIt) {
-            if ((*tagCandIt) == (*tagMuonsInHistIt)) {
+          for (auto tagMuonsInHistIt : tagMuonsInHist) {
+            if ((*tagCandIt) == tagMuonsInHistIt) {
               tagMuonAlreadyInHist = true;
               break;
             }

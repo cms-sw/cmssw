@@ -106,8 +106,8 @@ bool HLTHPDFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // collect energies
   float hpdEnergy[4][73];
   for (auto& i : hpdEnergy)
-    for (size_t j = 0; j < 73; ++j)
-      i[j] = 0;
+    for (float& j : i)
+      j = 0;
 
   // select hist above threshold
   for (unsigned i = 0; i < hbhe->size(); ++i) {

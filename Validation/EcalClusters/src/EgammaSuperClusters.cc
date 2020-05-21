@@ -430,60 +430,58 @@ void EgammaSuperClusters::analyze(const edm::Event &evt, const edm::EventSetup &
   hist_EB_CorSC_Size_->Fill(barrelCorSuperClusters->size());
 
   // Do RAW BARREL SuperClusters
-  for (reco::SuperClusterCollection::const_iterator aClus = barrelRawSuperClusters->begin();
-       aClus != barrelRawSuperClusters->end();
-       aClus++) {
+  for (const auto &barrelRawSuperCluster : *barrelRawSuperClusters) {
     // kinematics
-    hist_EB_RawSC_NumBC_->Fill(aClus->clustersSize());
-    hist_EB_RawSC_ET_->Fill(aClus->energy() / std::cosh(aClus->position().eta()));
-    hist_EB_RawSC_Eta_->Fill(aClus->position().eta());
-    hist_EB_RawSC_Phi_->Fill(aClus->position().phi());
+    hist_EB_RawSC_NumBC_->Fill(barrelRawSuperCluster.clustersSize());
+    hist_EB_RawSC_ET_->Fill(barrelRawSuperCluster.energy() / std::cosh(barrelRawSuperCluster.position().eta()));
+    hist_EB_RawSC_Eta_->Fill(barrelRawSuperCluster.position().eta());
+    hist_EB_RawSC_Phi_->Fill(barrelRawSuperCluster.position().phi());
 
     // cluster shape
-    const reco::CaloClusterPtr seed = aClus->seed();
+    const reco::CaloClusterPtr seed = barrelRawSuperCluster.seed();
     hist_EB_RawSC_S1toS9_->Fill(lazyTool.eMax(*seed) / lazyTool.e3x3(*seed));
-    hist_EB_RawSC_S25toE_->Fill(lazyTool.e5x5(*seed) / aClus->energy());
+    hist_EB_RawSC_S25toE_->Fill(lazyTool.e5x5(*seed) / barrelRawSuperCluster.energy());
 
     // truth
     double dRClosest = 999.9;
     double energyClosest = 0;
-    closestMCParticle(genEvent, *aClus, dRClosest, energyClosest);
+    closestMCParticle(genEvent, barrelRawSuperCluster, dRClosest, energyClosest);
 
     if (dRClosest < 0.1) {
-      hist_EB_RawSC_EoverTruth_->Fill(aClus->energy() / energyClosest);
+      hist_EB_RawSC_EoverTruth_->Fill(barrelRawSuperCluster.energy() / energyClosest);
       hist_EB_RawSC_deltaR_->Fill(dRClosest);
     }
   }
 
   // Do CORRECTED BARREL SuperClusters
-  for (reco::SuperClusterCollection::const_iterator aClus = barrelCorSuperClusters->begin();
-       aClus != barrelCorSuperClusters->end();
-       aClus++) {
+  for (const auto &barrelCorSuperCluster : *barrelCorSuperClusters) {
     // kinematics
-    hist_EB_CorSC_NumBC_->Fill(aClus->clustersSize());
-    hist_EB_CorSC_ET_->Fill(aClus->energy() / std::cosh(aClus->position().eta()));
-    hist_EB_CorSC_Eta_->Fill(aClus->position().eta());
-    hist_EB_CorSC_Phi_->Fill(aClus->position().phi());
+    hist_EB_CorSC_NumBC_->Fill(barrelCorSuperCluster.clustersSize());
+    hist_EB_CorSC_ET_->Fill(barrelCorSuperCluster.energy() / std::cosh(barrelCorSuperCluster.position().eta()));
+    hist_EB_CorSC_Eta_->Fill(barrelCorSuperCluster.position().eta());
+    hist_EB_CorSC_Phi_->Fill(barrelCorSuperCluster.position().phi());
 
-    hist_EB_CorSC_ET_vs_Eta_->Fill(aClus->energy() / std::cosh(aClus->position().eta()), aClus->eta());
-    hist_EB_CorSC_ET_vs_Phi_->Fill(aClus->energy() / std::cosh(aClus->position().eta()), aClus->phi());
+    hist_EB_CorSC_ET_vs_Eta_->Fill(barrelCorSuperCluster.energy() / std::cosh(barrelCorSuperCluster.position().eta()),
+                                   barrelCorSuperCluster.eta());
+    hist_EB_CorSC_ET_vs_Phi_->Fill(barrelCorSuperCluster.energy() / std::cosh(barrelCorSuperCluster.position().eta()),
+                                   barrelCorSuperCluster.phi());
 
     // cluster shape
-    const reco::CaloClusterPtr seed = aClus->seed();
+    const reco::CaloClusterPtr seed = barrelCorSuperCluster.seed();
     hist_EB_CorSC_S1toS9_->Fill(lazyTool.eMax(*seed) / lazyTool.e3x3(*seed));
-    hist_EB_CorSC_S25toE_->Fill(lazyTool.e5x5(*seed) / aClus->energy());
+    hist_EB_CorSC_S25toE_->Fill(lazyTool.e5x5(*seed) / barrelCorSuperCluster.energy());
 
     // correction variables
-    hist_EB_CorSC_phiWidth_->Fill(aClus->phiWidth());
-    hist_EB_CorSC_etaWidth_->Fill(aClus->etaWidth());
+    hist_EB_CorSC_phiWidth_->Fill(barrelCorSuperCluster.phiWidth());
+    hist_EB_CorSC_etaWidth_->Fill(barrelCorSuperCluster.etaWidth());
 
     // truth
     double dRClosest = 999.9;
     double energyClosest = 0;
-    closestMCParticle(genEvent, *aClus, dRClosest, energyClosest);
+    closestMCParticle(genEvent, barrelCorSuperCluster, dRClosest, energyClosest);
 
     if (dRClosest < 0.1) {
-      hist_EB_CorSC_EoverTruth_->Fill(aClus->energy() / energyClosest);
+      hist_EB_CorSC_EoverTruth_->Fill(barrelCorSuperCluster.energy() / energyClosest);
       hist_EB_CorSC_deltaR_->Fill(dRClosest);
     }
   }
@@ -520,84 +518,81 @@ void EgammaSuperClusters::analyze(const edm::Event &evt, const edm::EventSetup &
   hist_EE_CorSC_Size_->Fill(endcapCorSuperClusters->size());
 
   // Do RAW ENDCAP SuperClusters
-  for (reco::SuperClusterCollection::const_iterator aClus = endcapRawSuperClusters->begin();
-       aClus != endcapRawSuperClusters->end();
-       aClus++) {
-    hist_EE_RawSC_NumBC_->Fill(aClus->clustersSize());
-    hist_EE_RawSC_ET_->Fill(aClus->energy() / std::cosh(aClus->position().eta()));
-    hist_EE_RawSC_Eta_->Fill(aClus->position().eta());
-    hist_EE_RawSC_Phi_->Fill(aClus->position().phi());
+  for (const auto &endcapRawSuperCluster : *endcapRawSuperClusters) {
+    hist_EE_RawSC_NumBC_->Fill(endcapRawSuperCluster.clustersSize());
+    hist_EE_RawSC_ET_->Fill(endcapRawSuperCluster.energy() / std::cosh(endcapRawSuperCluster.position().eta()));
+    hist_EE_RawSC_Eta_->Fill(endcapRawSuperCluster.position().eta());
+    hist_EE_RawSC_Phi_->Fill(endcapRawSuperCluster.position().phi());
 
-    const reco::CaloClusterPtr seed = aClus->seed();
+    const reco::CaloClusterPtr seed = endcapRawSuperCluster.seed();
     hist_EE_RawSC_S1toS9_->Fill(lazyTool.eMax(*seed) / lazyTool.e3x3(*seed));
-    hist_EE_RawSC_S25toE_->Fill(lazyTool.e5x5(*seed) / aClus->energy());
+    hist_EE_RawSC_S25toE_->Fill(lazyTool.e5x5(*seed) / endcapRawSuperCluster.energy());
 
     // truth
     double dRClosest = 999.9;
     double energyClosest = 0;
-    closestMCParticle(genEvent, *aClus, dRClosest, energyClosest);
+    closestMCParticle(genEvent, endcapRawSuperCluster, dRClosest, energyClosest);
 
     if (dRClosest < 0.1) {
-      hist_EE_RawSC_EoverTruth_->Fill(aClus->energy() / energyClosest);
+      hist_EE_RawSC_EoverTruth_->Fill(endcapRawSuperCluster.energy() / energyClosest);
       hist_EE_RawSC_deltaR_->Fill(dRClosest);
     }
   }
 
   // Do ENDCAP SuperClusters with PRESHOWER
-  for (reco::SuperClusterCollection::const_iterator aClus = endcapPreSuperClusters->begin();
-       aClus != endcapPreSuperClusters->end();
-       aClus++) {
-    hist_EE_PreSC_NumBC_->Fill(aClus->clustersSize());
-    hist_EE_PreSC_ET_->Fill(aClus->energy() / std::cosh(aClus->position().eta()));
-    hist_EE_PreSC_Eta_->Fill(aClus->position().eta());
-    hist_EE_PreSC_Phi_->Fill(aClus->position().phi());
-    hist_EE_PreSC_preshowerE_->Fill(aClus->preshowerEnergy());
+  for (const auto &endcapPreSuperCluster : *endcapPreSuperClusters) {
+    hist_EE_PreSC_NumBC_->Fill(endcapPreSuperCluster.clustersSize());
+    hist_EE_PreSC_ET_->Fill(endcapPreSuperCluster.energy() / std::cosh(endcapPreSuperCluster.position().eta()));
+    hist_EE_PreSC_Eta_->Fill(endcapPreSuperCluster.position().eta());
+    hist_EE_PreSC_Phi_->Fill(endcapPreSuperCluster.position().phi());
+    hist_EE_PreSC_preshowerE_->Fill(endcapPreSuperCluster.preshowerEnergy());
 
-    const reco::CaloClusterPtr seed = aClus->seed();
+    const reco::CaloClusterPtr seed = endcapPreSuperCluster.seed();
     hist_EE_PreSC_S1toS9_->Fill(lazyTool.eMax(*seed) / lazyTool.e3x3(*seed));
-    hist_EE_PreSC_S25toE_->Fill(lazyTool.e5x5(*seed) / aClus->energy());
+    hist_EE_PreSC_S25toE_->Fill(lazyTool.e5x5(*seed) / endcapPreSuperCluster.energy());
 
     // truth
     double dRClosest = 999.9;
     double energyClosest = 0;
-    closestMCParticle(genEvent, *aClus, dRClosest, energyClosest);
+    closestMCParticle(genEvent, endcapPreSuperCluster, dRClosest, energyClosest);
 
     if (dRClosest < 0.1) {
-      hist_EE_PreSC_EoverTruth_->Fill(aClus->energy() / energyClosest);
+      hist_EE_PreSC_EoverTruth_->Fill(endcapPreSuperCluster.energy() / energyClosest);
       hist_EE_PreSC_deltaR_->Fill(dRClosest);
     }
   }
 
   // Do CORRECTED ENDCAP SuperClusters
-  for (reco::SuperClusterCollection::const_iterator aClus = endcapCorSuperClusters->begin();
-       aClus != endcapCorSuperClusters->end();
-       aClus++) {
-    hist_EE_CorSC_NumBC_->Fill(aClus->clustersSize());
-    hist_EE_CorSC_ET_->Fill(aClus->energy() / std::cosh(aClus->position().eta()));
-    hist_EE_CorSC_Eta_->Fill(aClus->position().eta());
-    hist_EE_CorSC_Phi_->Fill(aClus->position().phi());
-    hist_EE_CorSC_preshowerE_->Fill(aClus->preshowerEnergy());
+  for (const auto &endcapCorSuperCluster : *endcapCorSuperClusters) {
+    hist_EE_CorSC_NumBC_->Fill(endcapCorSuperCluster.clustersSize());
+    hist_EE_CorSC_ET_->Fill(endcapCorSuperCluster.energy() / std::cosh(endcapCorSuperCluster.position().eta()));
+    hist_EE_CorSC_Eta_->Fill(endcapCorSuperCluster.position().eta());
+    hist_EE_CorSC_Phi_->Fill(endcapCorSuperCluster.position().phi());
+    hist_EE_CorSC_preshowerE_->Fill(endcapCorSuperCluster.preshowerEnergy());
 
-    hist_EE_CorSC_ET_vs_Eta_->Fill(aClus->energy() / std::cosh(aClus->position().eta()), aClus->eta());
-    hist_EE_CorSC_ET_vs_Phi_->Fill(aClus->energy() / std::cosh(aClus->position().eta()), aClus->phi());
-    hist_EE_CorSC_ET_vs_R_->Fill(aClus->energy() / std::cosh(aClus->position().eta()),
-                                 std::sqrt(std::pow(aClus->x(), 2) + std::pow(aClus->y(), 2)));
+    hist_EE_CorSC_ET_vs_Eta_->Fill(endcapCorSuperCluster.energy() / std::cosh(endcapCorSuperCluster.position().eta()),
+                                   endcapCorSuperCluster.eta());
+    hist_EE_CorSC_ET_vs_Phi_->Fill(endcapCorSuperCluster.energy() / std::cosh(endcapCorSuperCluster.position().eta()),
+                                   endcapCorSuperCluster.phi());
+    hist_EE_CorSC_ET_vs_R_->Fill(
+        endcapCorSuperCluster.energy() / std::cosh(endcapCorSuperCluster.position().eta()),
+        std::sqrt(std::pow(endcapCorSuperCluster.x(), 2) + std::pow(endcapCorSuperCluster.y(), 2)));
 
     // correction variables
-    hist_EE_CorSC_phiWidth_->Fill(aClus->phiWidth());
-    hist_EE_CorSC_etaWidth_->Fill(aClus->etaWidth());
+    hist_EE_CorSC_phiWidth_->Fill(endcapCorSuperCluster.phiWidth());
+    hist_EE_CorSC_etaWidth_->Fill(endcapCorSuperCluster.etaWidth());
 
-    const reco::CaloClusterPtr seed = aClus->seed();
+    const reco::CaloClusterPtr seed = endcapCorSuperCluster.seed();
     hist_EE_CorSC_S1toS9_->Fill(lazyTool.eMax(*seed) / lazyTool.e3x3(*seed));
-    hist_EE_CorSC_S25toE_->Fill(lazyTool.e5x5(*seed) / aClus->energy());
+    hist_EE_CorSC_S25toE_->Fill(lazyTool.e5x5(*seed) / endcapCorSuperCluster.energy());
 
     // truth
     double dRClosest = 999.9;
     double energyClosest = 0;
-    closestMCParticle(genEvent, *aClus, dRClosest, energyClosest);
+    closestMCParticle(genEvent, endcapCorSuperCluster, dRClosest, energyClosest);
 
     if (dRClosest < 0.1) {
-      hist_EE_CorSC_EoverTruth_->Fill(aClus->energy() / energyClosest);
+      hist_EE_CorSC_EoverTruth_->Fill(endcapCorSuperCluster.energy() / energyClosest);
       hist_EE_CorSC_deltaR_->Fill(dRClosest);
     }
   }

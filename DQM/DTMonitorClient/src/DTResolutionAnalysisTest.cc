@@ -123,15 +123,13 @@ void DTResolutionAnalysisTest::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::I
   // reset the ME with fixed scale
   resetMEs();
 
-  for (vector<const DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
-       ch_it != muonGeom->chambers().end();
-       ++ch_it) {  // loop over the chambers
+  for (auto ch_it : muonGeom->chambers()) {  // loop over the chambers
 
-    DTChamberId chID = (*ch_it)->id();
+    DTChamberId chID = ch_it->id();
 
     // Fill the test histos
-    for (vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin();
-         sl_it != (*ch_it)->superLayers().end();
+    for (vector<const DTSuperLayer*>::const_iterator sl_it = ch_it->superLayers().begin();
+         sl_it != ch_it->superLayers().end();
          ++sl_it) {  // loop over SLs
 
       DTSuperLayerId slID = (*sl_it)->id();

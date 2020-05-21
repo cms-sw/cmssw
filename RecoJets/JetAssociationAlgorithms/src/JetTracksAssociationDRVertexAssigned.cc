@@ -33,11 +33,11 @@ void JetTracksAssociationDRVertexAssigned::produce(reco::JetTracksAssociation::C
     const reco::TrackBaseRef ttr1(fTracks[i]);
 
     int trackhasvert = -1;
-    for (reco::VertexCollection::const_iterator iv = vertices.begin(); iv != vertices.end(); iv++) {
-      std::vector<reco::TrackBaseRef>::const_iterator rr = find((*iv).tracks_begin(), (*iv).tracks_end(), ttr1);
-      if (rr != (*iv).tracks_end()) {
+    for (const auto& vertice : vertices) {
+      std::vector<reco::TrackBaseRef>::const_iterator rr = find(vertice.tracks_begin(), vertice.tracks_end(), ttr1);
+      if (rr != vertice.tracks_end()) {
         trackhasvert = 1;
-        trackvert[i] = (*iv).position().z();
+        trackvert[i] = vertice.position().z();
         // std::cout<<" Z "<<i<<" "<<trackhasvert<<" "<<(*iv).position().z()<<std::endl;
         break;
       }
@@ -52,9 +52,9 @@ void JetTracksAssociationDRVertexAssigned::produce(reco::JetTracksAssociation::C
     // OK
   }  // tracks
 
-  for (unsigned j = 0; j < fJets.size(); ++j) {
+  for (const auto& fJet : fJets) {
     reco::TrackRefVector assoTracks;
-    const reco::Jet* jet = &*(fJets[j]);
+    const reco::Jet* jet = &*fJet;
     double jetEta = jet->eta();
     double jetPhi = jet->phi();
     double neweta = 0;
@@ -74,6 +74,6 @@ void JetTracksAssociationDRVertexAssigned::produce(reco::JetTracksAssociation::C
         assoTracks.push_back(fTracks[t]);
     }
 
-    reco::JetTracksAssociation::setValue(fAssociation, fJets[j], assoTracks);
+    reco::JetTracksAssociation::setValue(fAssociation, fJet, assoTracks);
   }
 }

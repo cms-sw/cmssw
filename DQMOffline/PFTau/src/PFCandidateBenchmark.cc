@@ -37,8 +37,8 @@ void PFCandidateBenchmark::setup(DQMStore::IBooker &b) {
 }
 
 void PFCandidateBenchmark::fill(const reco::PFCandidateCollection &pfCands) {
-  for (unsigned i = 0; i < pfCands.size(); ++i) {
-    fillOne(pfCands[i]);
+  for (const auto &pfCand : pfCands) {
+    fillOne(pfCand);
   }
 }
 

@@ -102,9 +102,9 @@ void MultiTrackValidatorGenPs::dqmAnalyze(const edm::Event& event,
   event.getByToken(label_pileupinfo, puinfoH);
   PileupSummaryInfo puinfo;
 
-  for (unsigned int puinfo_ite = 0; puinfo_ite < (*puinfoH).size(); ++puinfo_ite) {
-    if ((*puinfoH)[puinfo_ite].getBunchCrossing() == 0) {
-      puinfo = (*puinfoH)[puinfo_ite];
+  for (const auto& puinfo_ite : (*puinfoH)) {
+    if (puinfo_ite.getBunchCrossing() == 0) {
+      puinfo = puinfo_ite;
       break;
     }
   }
@@ -322,8 +322,8 @@ void MultiTrackValidatorGenPs::dqmAnalyze(const edm::Event& event,
             numAssocRecoTracks = genRecColl[tp[0].first].size();
           //std::cout << numAssocRecoTracks << std::endl;
           at++;
-          for (unsigned int tp_ite = 0; tp_ite < tp.size(); ++tp_ite) {
-            GenParticle trackpart = *(tp[tp_ite].first);
+          for (auto& tp_ite : tp) {
+            GenParticle trackpart = *(tp_ite.first);
             /*
 	      if ((trackpart.eventId().event() == 0) && (trackpart.eventId().bunchCrossing() == 0)){
               isSigGenMatched = true;

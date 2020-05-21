@@ -120,11 +120,11 @@ void HLTTauDQMTagAndProbePlotter::analyze(edm::Event const& iEvent,
     // Filter out events if Trigger Filtering is requested
     bool passTrigger = false;
     bool hltMatched = false;
-    for (size_t i = 0; i < denTriggers.size(); ++i) {
-      LV trgObject = findTrgObject(denTriggers[i], triggerEvent);
+    for (const auto& denTrigger : denTriggers) {
+      LV trgObject = findTrgObject(denTrigger, triggerEvent);
 
       for (unsigned int hltIndex = 0; hltIndex < trigNames.size(); ++hltIndex) {
-        passTrigger = (trigNames.triggerName(hltIndex).find(denTriggers[i]) != std::string::npos &&
+        passTrigger = (trigNames.triggerName(hltIndex).find(denTrigger) != std::string::npos &&
                        triggerResults.wasrun(hltIndex) && triggerResults.accept(hltIndex));
 
         if (passTrigger) {
@@ -151,9 +151,9 @@ void HLTTauDQMTagAndProbePlotter::analyze(edm::Event const& iEvent,
 
     // applying selection for numerator
     passTrigger = false;
-    for (size_t i = 0; i < numTriggers.size(); ++i) {
+    for (const auto& numTrigger : numTriggers) {
       for (unsigned int hltIndex = 0; hltIndex < trigNames.size(); ++hltIndex) {
-        passTrigger = (trigNames.triggerName(hltIndex).find(numTriggers[i]) != std::string::npos &&
+        passTrigger = (trigNames.triggerName(hltIndex).find(numTrigger) != std::string::npos &&
                        triggerResults.wasrun(hltIndex) && triggerResults.accept(hltIndex));
         if (passTrigger)
           break;

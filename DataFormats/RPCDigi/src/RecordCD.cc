@@ -18,8 +18,8 @@ RecordCD::RecordCD(int lbInLink, int partitionNumber, int eod, int halfP, const 
   theData |= (halfP << HALFP_SHIFT);
 
   int partitionData = 0;
-  for (vector<int>::const_iterator iv = packedStrips.begin(); iv != packedStrips.end(); iv++) {
-    int ibit = (partitionNumber) ? (*iv) % (partitionNumber * BITS_PER_PARTITION) : (*iv);
+  for (int packedStrip : packedStrips) {
+    int ibit = (partitionNumber) ? packedStrip % (partitionNumber * BITS_PER_PARTITION) : packedStrip;
     partitionData |= (1 << ibit);
   }
   theData |= (partitionData << PARTITION_DATA_SHIFT);

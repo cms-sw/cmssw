@@ -76,11 +76,8 @@ void RPCSeedLayerFinder::fill() {
 
 void RPCSeedLayerFinder::fillLayers() {
   if (isSpecialLayers == false && isMixBarrelwithEndcap == false) {
-    for (std::vector<unsigned int>::iterator NumberofLayersinBarrel = RangeofLayersinBarrel.begin();
-         NumberofLayersinBarrel != RangeofLayersinBarrel.end();
-         NumberofLayersinBarrel++) {
+    for (unsigned int NumberofLayers : RangeofLayersinBarrel) {
       // find N layers out of 6 Barrel Layers to fill to SeedinRPC
-      unsigned int NumberofLayers = *NumberofLayersinBarrel;
       if (NumberofLayers < 1 || NumberofLayers > BarrelLayerNumber)
         continue;
       int type = 0;  // type=0 for barrel
@@ -89,10 +86,7 @@ void RPCSeedLayerFinder::fillLayers() {
       LayersinRPC.clear();
     }
 
-    for (std::vector<unsigned int>::iterator NumberofLayersinEndcap = RangeofLayersinEndcap.begin();
-         NumberofLayersinEndcap != RangeofLayersinEndcap.end();
-         NumberofLayersinEndcap++) {
-      unsigned int NumberofLayers = *NumberofLayersinEndcap;
+    for (unsigned int NumberofLayers : RangeofLayersinEndcap) {
       if (NumberofLayers < 1 || NumberofLayers > EachEndcapLayerNumber)
         continue;
       int type = 1;  // type=1 for endcap
@@ -354,8 +348,8 @@ void RPCSeedLayerFinder::SpecialLayers(int last, unsigned int NumberofLayers, in
 bool RPCSeedLayerFinder::checkConstrain() {
   bool pass = true;
   std::vector<unsigned int> fitConstrain = constrainedLayersinBarrel;
-  for (unsigned int i = 0; i < LayersinRPC.size(); i++)
-    fitConstrain[LayersinRPC[i]] = 0;
+  for (unsigned int i : LayersinRPC)
+    fitConstrain[i] = 0;
   for (unsigned int i = 0; i < BarrelLayerNumber; i++)
     if (fitConstrain[i] != 0)
       pass = false;

@@ -89,8 +89,8 @@ int main(int ac, char* av[]) {
     if (vm.count("input-file")) {
       cout << "Input files are: " << vm["input-file"].as<vector<string> >() << "\n";
       vector<string> v_file = vm["input-file"].as<vector<string> >();
-      for (vector<string>::const_iterator it = v_file.begin(); it != v_file.end(); ++it) {
-        TFile* root_file = new TFile(it->c_str(), "read");
+      for (const auto& it : v_file) {
+        TFile* root_file = new TFile(it.c_str(), "read");
 
         TH1D* histoZMuMuNoIso = (TH1D*)root_file->Get("nonIsolatedZToMuMuPlots/zMass");
         histoZMuMuNoIso->Rebin(rebinMuMuNoIso);
@@ -117,7 +117,7 @@ int main(int ac, char* av[]) {
         fix(histoZMuSa);
 
         cout << ">>> histogram loaded\n";
-        string f_string = *it;
+        string f_string = it;
         replace(f_string.begin(), f_string.end(), '.', '_');
         replace(f_string.begin(), f_string.end(), '/', '_');
         string plot_string = f_string + "." + ext;

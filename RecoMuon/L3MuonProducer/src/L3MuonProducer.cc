@@ -113,17 +113,17 @@ void L3MuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   edm::Handle<reco::TrackToTrackMap> updatedL2AssoMap;
   event.getByToken(updatedL2AssoMapToken_, updatedL2AssoMap);
 
-  for (TrajTrackAssociationCollection::const_iterator it = L2AssoMap->begin(); it != L2AssoMap->end(); ++it) {
-    const Ref<vector<Trajectory>> traj = it->key;
-    const reco::TrackRef tkRegular = it->val;
+  for (const auto& it : *L2AssoMap) {
+    const Ref<vector<Trajectory>> traj = it.key;
+    const reco::TrackRef tkRegular = it.val;
     reco::TrackRef tkUpdated;
     reco::TrackToTrackMap::const_iterator iEnd;
     reco::TrackToTrackMap::const_iterator iii;
     if (theL2CollectionLabel.instance() == "UpdatedAtVtx") {
       iEnd = updatedL2AssoMap->end();
-      iii = updatedL2AssoMap->find(it->val);
+      iii = updatedL2AssoMap->find(it.val);
       if (iii != iEnd)
-        tkUpdated = (*updatedL2AssoMap)[it->val];
+        tkUpdated = (*updatedL2AssoMap)[it.val];
     }
 
     const reco::TrackRef tk = (tkUpdated.isNonnull()) ? tkUpdated : tkRegular;

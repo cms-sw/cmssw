@@ -297,10 +297,8 @@ void APVCyclePhaseProducerFromL1TS::produce(edm::Event& iEvent, const edm::Event
 }
 
 bool APVCyclePhaseProducerFromL1TS::isBadRun(const unsigned int run) const {
-  for (std::vector<std::pair<unsigned int, unsigned int> >::const_iterator runpair = m_badruns.begin();
-       runpair != m_badruns.end();
-       ++runpair) {
-    if (run >= runpair->first && run <= runpair->second)
+  for (const auto& m_badrun : m_badruns) {
+    if (run >= m_badrun.first && run <= m_badrun.second)
       return true;
   }
 
@@ -309,13 +307,13 @@ bool APVCyclePhaseProducerFromL1TS::isBadRun(const unsigned int run) const {
 
 void APVCyclePhaseProducerFromL1TS::printConfiguration(std::stringstream& ss) const {
   ss << _defpartnames.size() << " default partition names: ";
-  for (std::vector<std::string>::const_iterator part = _defpartnames.begin(); part != _defpartnames.end(); ++part) {
-    ss << *part << " ";
+  for (const auto& _defpartname : _defpartnames) {
+    ss << _defpartname << " ";
   }
   ss << std::endl;
   ss << _defphases.size() << " default phases: ";
-  for (std::vector<int>::const_iterator phase = _defphases.begin(); phase != _defphases.end(); ++phase) {
-    ss << *phase << " ";
+  for (int _defphase : _defphases) {
+    ss << _defphase << " ";
   }
   ss << std::endl;
   ss << " Magic offset: " << _magicOffset << std::endl;

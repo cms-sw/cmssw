@@ -226,8 +226,8 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
     if (match.size() != nPartons)
       invalidMatch = true;
     else {
-      for (unsigned int idx = 0; idx < match.size(); ++idx) {
-        if (match[idx] < 0 || match[idx] >= (int)jets->size()) {
+      for (int idx : match) {
+        if (idx < 0 || idx >= (int)jets->size()) {
           invalidMatch = true;
           break;
         }
@@ -463,8 +463,8 @@ template <typename LeptonCollection>
 std::vector<TtSemiLepKinFitter::Constraint> TtSemiLepKinFitProducer<LeptonCollection>::constraints(
     std::vector<unsigned>& val) {
   std::vector<TtSemiLepKinFitter::Constraint> result;
-  for (unsigned i = 0; i < val.size(); ++i) {
-    result.push_back(constraint(val[i]));
+  for (unsigned int& i : val) {
+    result.push_back(constraint(i));
   }
   return result;
 }

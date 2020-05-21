@@ -47,14 +47,13 @@ namespace edm {
     if (!resultCached()) {
       resultCached() = true;
       EntryNumber_t maxEntry = Element::invalidEntry;
-      for (std::vector<FileIndex::Element>::const_iterator it = entries_.begin(), itEnd = entries_.end(); it != itEnd;
-           ++it) {
-        if (it->getEntryType() == kEvent) {
-          if (it->entry_ < maxEntry) {
+      for (const auto& entrie : entries_) {
+        if (entrie.getEntryType() == kEvent) {
+          if (entrie.entry_ < maxEntry) {
             allInEntryOrder() = false;
             return false;
           }
-          maxEntry = it->entry_;
+          maxEntry = entrie.entry_;
         }
       }
       allInEntryOrder() = true;
@@ -216,17 +215,16 @@ namespace edm {
     os << std::setw(15) << "Run" << std::setw(15) << "Lumi" << std::setw(15) << "Event" << std::setw(15)
        << "TTree Entry"
        << "\n";
-    for (std::vector<FileIndex::Element>::const_iterator it = fileIndex.begin(), itEnd = fileIndex.end(); it != itEnd;
-         ++it) {
-      if (it->getEntryType() == FileIndex::kEvent) {
-        os << std::setw(15) << it->run_ << std::setw(15) << it->lumi_ << std::setw(15) << it->event_ << std::setw(15)
-           << it->entry_ << "\n";
-      } else if (it->getEntryType() == FileIndex::kLumi) {
-        os << std::setw(15) << it->run_ << std::setw(15) << it->lumi_ << std::setw(15) << " " << std::setw(15)
-           << it->entry_ << "  (LuminosityBlock)"
+    for (const auto& it : fileIndex) {
+      if (it.getEntryType() == FileIndex::kEvent) {
+        os << std::setw(15) << it.run_ << std::setw(15) << it.lumi_ << std::setw(15) << it.event_ << std::setw(15)
+           << it.entry_ << "\n";
+      } else if (it.getEntryType() == FileIndex::kLumi) {
+        os << std::setw(15) << it.run_ << std::setw(15) << it.lumi_ << std::setw(15) << " " << std::setw(15)
+           << it.entry_ << "  (LuminosityBlock)"
            << "\n";
-      } else if (it->getEntryType() == FileIndex::kRun) {
-        os << std::setw(15) << it->run_ << std::setw(15) << " " << std::setw(15) << " " << std::setw(15) << it->entry_
+      } else if (it.getEntryType() == FileIndex::kRun) {
+        os << std::setw(15) << it.run_ << std::setw(15) << " " << std::setw(15) << " " << std::setw(15) << it.entry_
            << "  (Run)"
            << "\n";
       }

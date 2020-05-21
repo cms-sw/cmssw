@@ -185,9 +185,9 @@ void CSCCathodeLCTProcessor::checkConfigParameters() {
 void CSCCathodeLCTProcessor::clear() {
   thePreTriggerDigis.clear();
   thePreTriggerBXs.clear();
-  for (int bx = 0; bx < CSCConstants::MAX_CLCT_TBINS; bx++) {
+  for (auto& bx : CLCTContainer_) {
     for (int iCLCT = 0; iCLCT < CSCConstants::MAX_CLCTS_PER_PROCESSOR; iCLCT++) {
-      CLCTContainer_[bx][iCLCT].clear();
+      bx[iCLCT].clear();
     }
   }
 }
@@ -293,9 +293,9 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiColl
     // is implemented one day, this condition will have to be changed
     // to the number of planes required to pre-trigger.)
     unsigned int layersHit = 0;
-    for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+    for (auto& i_layer : halfstrip) {
       for (int i_hstrip = 0; i_hstrip < CSCConstants::NUM_HALF_STRIPS_7CFEBS; i_hstrip++) {
-        if (!halfstrip[i_layer][i_hstrip].empty()) {
+        if (!i_layer[i_hstrip].empty()) {
           layersHit++;
           break;
         }
@@ -355,15 +355,14 @@ void CSCCathodeLCTProcessor::run(
     CLCTIndex_[bx]++;
   }
 
-  for (int bx = 0; bx < CSCConstants::MAX_CLCT_TBINS; bx++) {
+  for (auto& bx : CLCTContainer_) {
     for (int iCLCT = 0; iCLCT < CSCConstants::MAX_CLCTS_PER_PROCESSOR; iCLCT++) {
-      if (CLCTContainer_[bx][iCLCT].isValid()) {
-        CLCTContainer_[bx][iCLCT].setTrknmb(iCLCT + 1);
+      if (bx[iCLCT].isValid()) {
+        bx[iCLCT].setTrknmb(iCLCT + 1);
         if (infoV > 0) {
           LogDebug("CSCCathodeLCTProcessor")
-              << CLCTContainer_[bx][iCLCT] << " found in "
-              << CSCDetId::chamberName(theEndcap, theStation, theRing, theChamber) << " (sector " << theSector
-              << " subsector " << theSubsector << " trig id. " << theTrigChamber << ")"
+              << bx[iCLCT] << " found in " << CSCDetId::chamberName(theEndcap, theStation, theRing, theChamber)
+              << " (sector " << theSector << " subsector " << theSubsector << " trig id. " << theTrigChamber << ")"
               << "\n";
         }
       }
@@ -434,8 +433,8 @@ void CSCCathodeLCTProcessor::readComparatorDigis(
         strstrm << "Comparator digi: comparator = " << pld->getComparator() << " strip #" << pld->getStrip()
                 << " time bins on:";
         std::vector<int> bx_times = pld->getTimeBinsOn();
-        for (unsigned int tbin = 0; tbin < bx_times.size(); tbin++)
-          strstrm << " " << bx_times[tbin];
+        for (int bx_time : bx_times)
+          strstrm << " " << bx_time;
         LogTrace("CSCCathodeLCTProcessor") << strstrm.str();
       }
 
@@ -746,18 +745,18 @@ void CSCCathodeLCTProcessor::pulseExtension(
       // in the bx of the initial hit.  Fill this into pulse[][].
       if (!time[i_layer][i_strip].empty()) {
         std::vector<int> bx_times = time[i_layer][i_strip];
-        for (unsigned int i = 0; i < bx_times.size(); i++) {
+        for (int bx_time : bx_times) {
           // Check that min and max times are within the allowed range.
-          if (bx_times[i] < 0 || bx_times[i] + hit_persist >= bits_in_pulse) {
+          if (bx_time < 0 || bx_time + hit_persist >= bits_in_pulse) {
             if (infoV > 0)
               edm::LogWarning("L1CSCTPEmulatorOutOfTimeDigi")
                   << "+++ BX time of comparator digi (halfstrip = " << i_strip << " layer = " << i_layer
-                  << ") bx = " << bx_times[i] << " is not within the range (0-" << bits_in_pulse
+                  << ") bx = " << bx_time << " is not within the range (0-" << bits_in_pulse
                   << "] allowed for pulse extension.  Skip this digi! +++\n";
             continue;
           }
-          if (bx_times[i] >= start_bx_shift) {
-            for (unsigned int bx = bx_times[i]; bx < bx_times[i] + hit_persist; ++bx)
+          if (bx_time >= start_bx_shift) {
+            for (unsigned int bx = bx_time; bx < bx_time + hit_persist; ++bx)
               pulse[i_layer][i_strip] = pulse[i_layer][i_strip] | (1 << bx);
           }
         }
@@ -866,8 +865,8 @@ bool CSCCathodeLCTProcessor::patternFinding(
     for (unsigned int pid = clct_pattern_.size() - 1; pid >= pid_thresh_pretrig; pid--) {
       layers_hit = 0;
       // clear all layers
-      for (int ilayer = 0; ilayer < CSCConstants::NUM_LAYERS; ilayer++) {
-        hit_layer[ilayer] = false;
+      for (bool& ilayer : hit_layer) {
+        ilayer = false;
       }
 
       // clear a single pattern!
@@ -1200,10 +1199,10 @@ std::vector<CSCCLCTPreTriggerDigi> CSCCathodeLCTProcessor::preTriggerDigisME1b()
 // Returns vector of all found CLCTs, if any.  Used for ALCT-CLCT matching.
 std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::getCLCTs() const {
   std::vector<CSCCLCTDigi> tmpV;
-  for (int bx = 0; bx < CSCConstants::MAX_CLCT_TBINS; bx++) {
+  for (const auto& bx : CLCTContainer_) {
     for (int iCLCT = 0; iCLCT < CSCConstants::MAX_CLCTS_PER_PROCESSOR; iCLCT++) {
-      if (CLCTContainer_[bx][iCLCT].isValid()) {
-        tmpV.push_back(CLCTContainer_[bx][iCLCT]);
+      if (bx[iCLCT].isValid()) {
+        tmpV.push_back(bx[iCLCT]);
       }
     }
   }

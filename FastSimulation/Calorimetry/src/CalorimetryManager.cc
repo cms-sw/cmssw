@@ -322,9 +322,9 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack, RandomEngi
 
   // find the most energetic particle
   double maxEnergy = -1.;
-  for (unsigned ip = 0; ip < thePart.size(); ++ip)
-    if (thePart[ip]->e() > maxEnergy)
-      maxEnergy = thePart[ip]->e();
+  for (auto& ip : thePart)
+    if (ip->e() > maxEnergy)
+      maxEnergy = ip->e();
 
   // Initialize the Grid in ECAL
   int size = gridSize_;
@@ -1163,41 +1163,29 @@ void CalorimetryManager::updatePreshower(const std::map<CaloHitID, float>& hitMa
 
 void CalorimetryManager::loadFromEcalBarrel(edm::PCaloHitContainer& c) const {
   c.reserve(c.size() + EBMapping_.size());
-  for (unsigned i = 0; i < EBMapping_.size(); i++) {
-    c.push_back(PCaloHit(EBDetId::unhashIndex(EBMapping_[i].first.unitID()),
-                         EBMapping_[i].second,
-                         EBMapping_[i].first.timeSlice(),
-                         EBMapping_[i].first.trackID()));
+  for (const auto& i : EBMapping_) {
+    c.push_back(PCaloHit(EBDetId::unhashIndex(i.first.unitID()), i.second, i.first.timeSlice(), i.first.trackID()));
   }
 }
 
 void CalorimetryManager::loadFromEcalEndcap(edm::PCaloHitContainer& c) const {
   c.reserve(c.size() + EEMapping_.size());
-  for (unsigned i = 0; i < EEMapping_.size(); i++) {
-    c.push_back(PCaloHit(EEDetId::unhashIndex(EEMapping_[i].first.unitID()),
-                         EEMapping_[i].second,
-                         EEMapping_[i].first.timeSlice(),
-                         EEMapping_[i].first.trackID()));
+  for (const auto& i : EEMapping_) {
+    c.push_back(PCaloHit(EEDetId::unhashIndex(i.first.unitID()), i.second, i.first.timeSlice(), i.first.trackID()));
   }
 }
 
 void CalorimetryManager::loadFromHcal(edm::PCaloHitContainer& c) const {
   c.reserve(c.size() + HMapping_.size());
-  for (unsigned i = 0; i < HMapping_.size(); i++) {
-    c.push_back(PCaloHit(DetId(HMapping_[i].first.unitID()),
-                         HMapping_[i].second,
-                         HMapping_[i].first.timeSlice(),
-                         HMapping_[i].first.trackID()));
+  for (const auto& i : HMapping_) {
+    c.push_back(PCaloHit(DetId(i.first.unitID()), i.second, i.first.timeSlice(), i.first.trackID()));
   }
 }
 
 void CalorimetryManager::loadFromPreshower(edm::PCaloHitContainer& c) const {
   c.reserve(c.size() + ESMapping_.size());
-  for (unsigned i = 0; i < ESMapping_.size(); i++) {
-    c.push_back(PCaloHit(ESMapping_[i].first.unitID(),
-                         ESMapping_[i].second,
-                         ESMapping_[i].first.timeSlice(),
-                         ESMapping_[i].first.trackID()));
+  for (const auto& i : ESMapping_) {
+    c.push_back(PCaloHit(i.first.unitID(), i.second, i.first.timeSlice(), i.first.trackID()));
   }
 }
 

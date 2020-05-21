@@ -52,15 +52,15 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
 
   std::vector<DetId> allChannels = lutMetadata.getAllChannels();
 
-  for (std::vector<DetId>::iterator i = allChannels.begin(); i != allChannels.end(); ++i) {
-    if (not HcalGenericDetId(*i).isHcalTrigTowerDetId()) {
-      if ((not HcalGenericDetId(*i).isHcalDetId()) and (not HcalGenericDetId(*i).isHcalZDCDetId()) and
-          (not HcalGenericDetId(*i).isHcalCastorDetId()))
-        edm::LogWarning("CaloTPGTranscoderULUT") << "Encountered invalid HcalDetId " << HcalGenericDetId(*i);
+  for (auto& allChannel : allChannels) {
+    if (not HcalGenericDetId(allChannel).isHcalTrigTowerDetId()) {
+      if ((not HcalGenericDetId(allChannel).isHcalDetId()) and (not HcalGenericDetId(allChannel).isHcalZDCDetId()) and
+          (not HcalGenericDetId(allChannel).isHcalCastorDetId()))
+        edm::LogWarning("CaloTPGTranscoderULUT") << "Encountered invalid HcalDetId " << HcalGenericDetId(allChannel);
       continue;
     }
 
-    HcalTrigTowerDetId id(*i);
+    HcalTrigTowerDetId id(allChannel);
     if (!theTopology->validHT(id))
       continue;
 

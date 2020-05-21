@@ -77,8 +77,8 @@ void HcalTestNumberingTester::analyze(const edm::Event& iEvent, const edm::Event
         std::pair<int, int> etas = hcr->getEtaRange(type);
         for (int eta = etas.first; eta <= etas.second; ++eta) {
           std::vector<std::pair<int, double> > phis = hcr->getPhis(sub, eta);
-          for (unsigned int k = 0; k < phis.size(); ++k) {
-            int phi = phis[k].first;
+          for (auto& k : phis) {
+            int phi = k.first;
             int lmin = (type == 1 && eta == 16) ? 8 : 1;
             int lmax = (type == 1) ? 19 : ((eta == 16) ? 7 : 17);
             for (int lay = lmin; lay <= lmax; ++lay) {

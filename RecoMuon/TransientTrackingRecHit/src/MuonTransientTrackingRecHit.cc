@@ -157,9 +157,9 @@ TransientTrackingRecHit::ConstRecHitContainer MuonTransientTrackingRecHit::trans
     std::vector<const GeomDet*> subGeomDets;
 
     int sl = 1;
-    for (std::vector<const GeomDet*>::const_iterator geoDet = geomDets.begin(); geoDet != geomDets.end(); ++geoDet) {
+    for (auto geomDet : geomDets) {
       if (sl != 3) {  // FIXME!! this maybe is not always true
-        std::vector<const GeomDet*> tmp = (*geoDet)->components();
+        std::vector<const GeomDet*> tmp = geomDet->components();
         std::copy(tmp.begin(), tmp.end(), back_inserter(subGeomDets));
       }
       ++sl;
@@ -171,22 +171,21 @@ TransientTrackingRecHit::ConstRecHitContainer MuonTransientTrackingRecHit::trans
   // Fill the GeomDet map
   std::map<DetId, const GeomDet*> gemDetMap;
 
-  for (std::vector<const GeomDet*>::const_iterator subDet = geomDets.begin(); subDet != geomDets.end(); ++subDet)
-    gemDetMap[(*subDet)->geographicalId()] = *subDet;
+  for (auto geomDet : geomDets)
+    gemDetMap[geomDet->geographicalId()] = geomDet;
 
   std::map<DetId, const GeomDet*>::iterator gemDetMap_iter;
 
   // Loop in order to check the ids
-  for (std::vector<const TrackingRecHit*>::const_iterator rechit = ownRecHits.begin(); rechit != ownRecHits.end();
-       ++rechit) {
-    gemDetMap_iter = gemDetMap.find((*rechit)->geographicalId());
+  for (auto ownRecHit : ownRecHits) {
+    gemDetMap_iter = gemDetMap.find(ownRecHit->geographicalId());
 
     if (gemDetMap_iter != gemDetMap.end())
       theSubTransientRecHits.push_back(
-          TransientTrackingRecHit::RecHitPointer(new MuonTransientTrackingRecHit(gemDetMap_iter->second, *rechit)));
-    else if ((*rechit)->geographicalId() == det()->geographicalId())  // Phi in DT is on Chamber
+          TransientTrackingRecHit::RecHitPointer(new MuonTransientTrackingRecHit(gemDetMap_iter->second, ownRecHit)));
+    else if (ownRecHit->geographicalId() == det()->geographicalId())  // Phi in DT is on Chamber
       theSubTransientRecHits.push_back(
-          TransientTrackingRecHit::RecHitPointer(new MuonTransientTrackingRecHit(det(), *rechit)));
+          TransientTrackingRecHit::RecHitPointer(new MuonTransientTrackingRecHit(det(), ownRecHit)));
   }
   return theSubTransientRecHits;
 }
@@ -199,17 +198,17 @@ void MuonTransientTrackingRecHit::invalidateHit() {
     if (dimension() > 1) {                             // MB4s have 2D, but formatted in 4D segments
       std::vector<TrackingRecHit*> seg2D = recHits();  // 4D --> 2D
       // load 1D hits (2D --> 1D)
-      for (std::vector<TrackingRecHit*>::iterator it = seg2D.begin(); it != seg2D.end(); ++it) {
-        std::vector<TrackingRecHit*> hits1D = (*it)->recHits();
-        (*it)->setType(bad);
-        for (std::vector<TrackingRecHit*>::iterator it2 = hits1D.begin(); it2 != hits1D.end(); ++it2)
-          (*it2)->setType(bad);
+      for (auto& it : seg2D) {
+        std::vector<TrackingRecHit*> hits1D = it->recHits();
+        it->setType(bad);
+        for (auto& it2 : hits1D)
+          it2->setType(bad);
       }
     }
   } else if (isCSC())
     if (dimension() == 4) {
       std::vector<TrackingRecHit*> hits = recHits();  // load 2D hits (4D --> 1D)
-      for (std::vector<TrackingRecHit*>::iterator it = hits.begin(); it != hits.end(); ++it)
-        (*it)->setType(bad);
+      for (auto& hit : hits)
+        hit->setType(bad);
     }
 }

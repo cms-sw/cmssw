@@ -664,8 +664,8 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
   for (int istep = 0; istep < 100; ++istep) {
     int njet = 0;
     float ptStep = (istep * (5000. / 100.));
-    for (CaloJetCollection::const_iterator cal = caloJets1->begin(); cal != caloJets1->end(); ++cal) {
-      if (cal->pt() > ptStep)
+    for (const auto& cal : *caloJets1) {
+      if (cal.pt() > ptStep)
         njet++;
     }
 
@@ -676,8 +676,8 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
   for (int istep = 0; istep < 100; ++istep) {
     int njet = 0;
     float ptStep = (istep * (200. / 100.));
-    for (CaloJetCollection::const_iterator cal = caloJets1->begin(); cal != caloJets1->end(); ++cal) {
-      if (cal->pt() > ptStep)
+    for (const auto& cal : *caloJets1) {
+      if (cal.pt() > ptStep)
         njet++;
     }
 
@@ -688,8 +688,8 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
   for (int istep = 0; istep < 100; ++istep) {
     int njet = 0;
     float ptStep = (istep * (3000. / 100.));
-    for (CaloJetCollection::const_iterator cal = caloJets1->begin(); cal != caloJets1->end(); ++cal) {
-      if (cal->pt() > ptStep)
+    for (const auto& cal : *caloJets1) {
+      if (cal.pt() > ptStep)
         njet++;
     }
 
@@ -712,20 +712,20 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
   highestPt = 0.0;
   nextPt = 0.0;
 
-  for (CaloJetCollection::const_iterator cal = caloJets1->begin(); cal != caloJets1->end(); ++cal) {
+  for (const auto& cal : *caloJets1) {
     //    double scale = corrector->correction (*cal);
     double scale = 1.0;
-    double corPt = scale * cal->pt();
+    double corPt = scale * cal.pt();
     //    double corPt = cal->pt();
 
     if (corPt > highestPt) {
       nextPt = highestPt;
       p4cortmp[1] = p4cortmp[0];
       highestPt = corPt;
-      p4cortmp[0] = scale * cal->p4();
+      p4cortmp[0] = scale * cal.p4();
     } else if (corPt > nextPt) {
       nextPt = corPt;
-      p4cortmp[1] = scale * cal->p4();
+      p4cortmp[1] = scale * cal.p4();
     }
 
     /***
@@ -739,72 +739,72 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
 
     allJetInd++;
     if (allJetInd == 1) {
-      h_jet1Pt1.Fill(cal->pt());
-      p4tmp[0] = cal->p4();
-      if (fabs(cal->eta()) < 1.0)
+      h_jet1Pt1.Fill(cal.pt());
+      p4tmp[0] = cal.p4();
+      if (fabs(cal.eta()) < 1.0)
         EtaOk10++;
-      if (fabs(cal->eta()) < 1.3)
+      if (fabs(cal.eta()) < 1.3)
         EtaOk13++;
-      if (fabs(cal->eta()) < 4.0)
+      if (fabs(cal.eta()) < 4.0)
         EtaOk40++;
     }
     if (allJetInd == 2) {
-      h_jet2Pt1.Fill(cal->pt());
-      p4tmp[1] = cal->p4();
-      if (fabs(cal->eta()) < 1.0)
+      h_jet2Pt1.Fill(cal.pt());
+      p4tmp[1] = cal.p4();
+      if (fabs(cal.eta()) < 1.0)
         EtaOk10++;
-      if (fabs(cal->eta()) < 1.3)
+      if (fabs(cal.eta()) < 1.3)
         EtaOk13++;
-      if (fabs(cal->eta()) < 4.0)
+      if (fabs(cal.eta()) < 4.0)
         EtaOk40++;
     }
     if ((allJetInd == 1) || (allJetInd == 2)) {
-      h_ptCalL1.Fill(cal->pt());
-      h_ptCalL12.Fill(cal->pt());
-      h_ptCalL13.Fill(cal->pt());
+      h_ptCalL1.Fill(cal.pt());
+      h_ptCalL12.Fill(cal.pt());
+      h_ptCalL13.Fill(cal.pt());
 
-      h_etaCalL1.Fill(cal->eta());
-      h_phiCalL1.Fill(cal->phi());
+      h_etaCalL1.Fill(cal.eta());
+      h_phiCalL1.Fill(cal.phi());
     }
 
     if (allJetInd == 3)
-      h_jet3Pt1.Fill(cal->pt());
+      h_jet3Pt1.Fill(cal.pt());
     if (allJetInd == 4)
-      h_jet4Pt1.Fill(cal->pt());
+      h_jet4Pt1.Fill(cal.pt());
     if (allJetInd == 5)
-      h_jet5Pt1.Fill(cal->pt());
+      h_jet5Pt1.Fill(cal.pt());
     if (allJetInd == 6)
-      h_jet6Pt1.Fill(cal->pt());
+      h_jet6Pt1.Fill(cal.pt());
     if (allJetInd == 7)
-      h_jet7Pt1.Fill(cal->pt());
+      h_jet7Pt1.Fill(cal.pt());
 
-    if (fabs(cal->eta()) < 1.3) {
-      h_lowPtCal11.Fill(cal->pt());
-      if (cal->pt() > 10.) {
-        h_lowPtCal1c11.Fill(cal->pt());
+    if (fabs(cal.eta()) < 1.3) {
+      h_lowPtCal11.Fill(cal.pt());
+      if (cal.pt() > 10.) {
+        h_lowPtCal1c11.Fill(cal.pt());
       }
     }
-    if ((fabs(cal->eta()) > 1.3) && (fabs(cal->eta()) < 3.)) {
-      h_lowPtCal12.Fill(cal->pt());
-      if (cal->pt() > 10.) {
-        h_lowPtCal1c12.Fill(cal->pt());
+    if ((fabs(cal.eta()) > 1.3) && (fabs(cal.eta()) < 3.)) {
+      h_lowPtCal12.Fill(cal.pt());
+      if (cal.pt() > 10.) {
+        h_lowPtCal1c12.Fill(cal.pt());
       }
     }
-    if (fabs(cal->eta()) > 3.0) {
-      h_lowPtCal13.Fill(cal->pt());
-      if (cal->pt() > 10.) {
-        h_lowPtCal1c13.Fill(cal->pt());
+    if (fabs(cal.eta()) > 3.0) {
+      h_lowPtCal13.Fill(cal.pt());
+      if (cal.pt() > 10.) {
+        h_lowPtCal1c13.Fill(cal.pt());
       }
     }
 
-    if (cal->pt() > minJetPt) {
+    if (cal.pt() > minJetPt) {
       //    std::cout << "CALO JET1 #" << jetInd << std::endl << cal->print() << std::endl;
-      h_ptCal1.Fill(cal->pt());
-      h_ptCal12.Fill(cal->pt());
-      h_ptCal13.Fill(cal->pt());
+      h_ptCal1.Fill(cal.pt());
+      h_ptCal12.Fill(cal.pt());
+      h_ptCal13.Fill(cal.pt());
 
-      h_etaCal1.Fill(cal->eta());
-      h_phiCal1.Fill(cal->phi());
+      h_etaCal1.Fill(cal.eta());
+      h_phiCal1.Fill(cal.phi());
       jetInd++;
     }
   }
@@ -898,8 +898,8 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
     int njet = 0;
     float ptStep = (istep * (5000. / 100.));
 
-    for (CaloJetCollection::const_iterator cal = caloJets2->begin(); cal != caloJets2->end(); ++cal)
-      if (cal->pt() > ptStep)
+    for (const auto& cal : *caloJets2)
+      if (cal.pt() > ptStep)
         njet++;
 
     hf_nJet2.Fill(ptStep, njet);
@@ -909,8 +909,8 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
     int njet = 0;
     float ptStep = (istep * (200. / 100.));
 
-    for (CaloJetCollection::const_iterator cal = caloJets2->begin(); cal != caloJets2->end(); ++cal)
-      if (cal->pt() > ptStep)
+    for (const auto& cal : *caloJets2)
+      if (cal.pt() > ptStep)
         njet++;
 
     hf_nJet2s.Fill(ptStep, njet);
@@ -920,8 +920,8 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
     int njet = 0;
     float ptStep = (istep * (3000. / 100.));
 
-    for (CaloJetCollection::const_iterator cal = caloJets2->begin(); cal != caloJets2->end(); ++cal)
-      if (cal->pt() > ptStep)
+    for (const auto& cal : *caloJets2)
+      if (cal.pt() > ptStep)
         njet++;
 
     hf_nJet21.Fill(ptStep, njet);
@@ -930,61 +930,61 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
   //Loop over the two leading CaloJets and fill some histograms
   jetInd = 0;
   allJetInd = 0;
-  for (CaloJetCollection::const_iterator cal = caloJets2->begin(); cal != caloJets2->end(); ++cal) {
+  for (const auto& cal : *caloJets2) {
     allJetInd++;
     if (allJetInd == 1) {
-      h_jet1Pt2.Fill(cal->pt());
-      p4tmp[0] = cal->p4();
+      h_jet1Pt2.Fill(cal.pt());
+      p4tmp[0] = cal.p4();
     }
     if (allJetInd == 2) {
-      h_jet2Pt2.Fill(cal->pt());
-      p4tmp[1] = cal->p4();
+      h_jet2Pt2.Fill(cal.pt());
+      p4tmp[1] = cal.p4();
     }
     if ((allJetInd == 1) || (allJetInd == 2)) {
-      h_ptCalL2.Fill(cal->pt());
-      h_ptCalL22.Fill(cal->pt());
-      h_ptCalL23.Fill(cal->pt());
+      h_ptCalL2.Fill(cal.pt());
+      h_ptCalL22.Fill(cal.pt());
+      h_ptCalL23.Fill(cal.pt());
 
-      h_etaCalL2.Fill(cal->eta());
-      h_phiCalL2.Fill(cal->phi());
+      h_etaCalL2.Fill(cal.eta());
+      h_phiCalL2.Fill(cal.phi());
     }
     if (allJetInd == 3)
-      h_jet3Pt2.Fill(cal->pt());
+      h_jet3Pt2.Fill(cal.pt());
     if (allJetInd == 4)
-      h_jet4Pt2.Fill(cal->pt());
+      h_jet4Pt2.Fill(cal.pt());
     if (allJetInd == 5)
-      h_jet5Pt2.Fill(cal->pt());
+      h_jet5Pt2.Fill(cal.pt());
     if (allJetInd == 6)
-      h_jet6Pt2.Fill(cal->pt());
+      h_jet6Pt2.Fill(cal.pt());
     if (allJetInd == 7)
-      h_jet7Pt2.Fill(cal->pt());
+      h_jet7Pt2.Fill(cal.pt());
 
-    if (fabs(cal->eta()) < 1.3) {
-      h_lowPtCal21.Fill(cal->pt());
-      if (cal->pt() > 10.) {
-        h_lowPtCal2c11.Fill(cal->pt());
+    if (fabs(cal.eta()) < 1.3) {
+      h_lowPtCal21.Fill(cal.pt());
+      if (cal.pt() > 10.) {
+        h_lowPtCal2c11.Fill(cal.pt());
       }
     }
-    if ((fabs(cal->eta()) > 1.3) && (fabs(cal->eta()) < 3.)) {
-      h_lowPtCal22.Fill(cal->pt());
-      if (cal->pt() > 10.) {
-        h_lowPtCal2c12.Fill(cal->pt());
+    if ((fabs(cal.eta()) > 1.3) && (fabs(cal.eta()) < 3.)) {
+      h_lowPtCal22.Fill(cal.pt());
+      if (cal.pt() > 10.) {
+        h_lowPtCal2c12.Fill(cal.pt());
       }
     }
-    if (fabs(cal->eta()) > 3.0) {
-      h_lowPtCal23.Fill(cal->pt());
-      if (cal->pt() > 10.) {
-        h_lowPtCal2c13.Fill(cal->pt());
+    if (fabs(cal.eta()) > 3.0) {
+      h_lowPtCal23.Fill(cal.pt());
+      if (cal.pt() > 10.) {
+        h_lowPtCal2c13.Fill(cal.pt());
       }
     }
 
-    if (cal->pt() > minJetPt) {
-      h_ptCal2.Fill(cal->pt());
-      h_ptCal22.Fill(cal->pt());
-      h_ptCal23.Fill(cal->pt());
+    if (cal.pt() > minJetPt) {
+      h_ptCal2.Fill(cal.pt());
+      h_ptCal22.Fill(cal.pt());
+      h_ptCal23.Fill(cal.pt());
 
-      h_etaCal2.Fill(cal->eta());
-      h_phiCal2.Fill(cal->phi());
+      h_etaCal2.Fill(cal.eta());
+      h_phiCal2.Fill(cal.phi());
       jetInd++;
     }
   }
@@ -1036,8 +1036,8 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
     int njet = 0;
     float ptStep = (istep * (5000. / 100.));
 
-    for (CaloJetCollection::const_iterator cal = caloJets3->begin(); cal != caloJets3->end(); ++cal)
-      if (cal->pt() > ptStep)
+    for (const auto& cal : *caloJets3)
+      if (cal.pt() > ptStep)
         njet++;
 
     hf_nJet3.Fill(ptStep, njet);
@@ -1047,8 +1047,8 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
     int njet = 0;
     float ptStep = (istep * (200. / 100.));
 
-    for (CaloJetCollection::const_iterator cal = caloJets3->begin(); cal != caloJets3->end(); ++cal)
-      if (cal->pt() > ptStep)
+    for (const auto& cal : *caloJets3)
+      if (cal.pt() > ptStep)
         njet++;
 
     hf_nJet3s.Fill(ptStep, njet);
@@ -1058,69 +1058,69 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
     int njet = 0;
     float ptStep = (istep * (3000. / 100.));
 
-    for (CaloJetCollection::const_iterator cal = caloJets3->begin(); cal != caloJets3->end(); ++cal)
-      if (cal->pt() > ptStep)
+    for (const auto& cal : *caloJets3)
+      if (cal.pt() > ptStep)
         njet++;
 
     hf_nJet31.Fill(ptStep, njet);
   }
 
-  for (CaloJetCollection::const_iterator cal = caloJets3->begin(); cal != caloJets3->end(); ++cal) {
+  for (const auto& cal : *caloJets3) {
     allJetInd++;
     if (allJetInd == 1) {
-      h_jet1Pt3.Fill(cal->pt());
-      p4tmp[0] = cal->p4();
+      h_jet1Pt3.Fill(cal.pt());
+      p4tmp[0] = cal.p4();
     }
     if (allJetInd == 2) {
-      h_jet2Pt3.Fill(cal->pt());
-      p4tmp[1] = cal->p4();
+      h_jet2Pt3.Fill(cal.pt());
+      p4tmp[1] = cal.p4();
     }
     if ((allJetInd == 1) || (allJetInd == 2)) {
-      h_ptCalL3.Fill(cal->pt());
-      h_ptCalL32.Fill(cal->pt());
-      h_ptCalL33.Fill(cal->pt());
+      h_ptCalL3.Fill(cal.pt());
+      h_ptCalL32.Fill(cal.pt());
+      h_ptCalL33.Fill(cal.pt());
 
-      h_etaCalL3.Fill(cal->eta());
-      h_phiCalL3.Fill(cal->phi());
+      h_etaCalL3.Fill(cal.eta());
+      h_phiCalL3.Fill(cal.phi());
     }
     if (allJetInd == 3)
-      h_jet3Pt3.Fill(cal->pt());
+      h_jet3Pt3.Fill(cal.pt());
     if (allJetInd == 4)
-      h_jet4Pt3.Fill(cal->pt());
+      h_jet4Pt3.Fill(cal.pt());
     if (allJetInd == 5)
-      h_jet5Pt3.Fill(cal->pt());
+      h_jet5Pt3.Fill(cal.pt());
     if (allJetInd == 6)
-      h_jet6Pt3.Fill(cal->pt());
+      h_jet6Pt3.Fill(cal.pt());
     if (allJetInd == 7)
-      h_jet7Pt3.Fill(cal->pt());
+      h_jet7Pt3.Fill(cal.pt());
 
-    if (fabs(cal->eta()) < 1.3) {
-      h_lowPtCal31.Fill(cal->pt());
-      if (cal->pt() > 10.) {
-        h_lowPtCal3c11.Fill(cal->pt());
+    if (fabs(cal.eta()) < 1.3) {
+      h_lowPtCal31.Fill(cal.pt());
+      if (cal.pt() > 10.) {
+        h_lowPtCal3c11.Fill(cal.pt());
       }
     }
-    if ((fabs(cal->eta()) > 1.3) && (fabs(cal->eta()) < 3.)) {
-      h_lowPtCal32.Fill(cal->pt());
-      if (cal->pt() > 10.) {
-        h_lowPtCal3c12.Fill(cal->pt());
+    if ((fabs(cal.eta()) > 1.3) && (fabs(cal.eta()) < 3.)) {
+      h_lowPtCal32.Fill(cal.pt());
+      if (cal.pt() > 10.) {
+        h_lowPtCal3c12.Fill(cal.pt());
       }
     }
-    if (fabs(cal->eta()) > 3.0) {
-      h_lowPtCal33.Fill(cal->pt());
-      if (cal->pt() > 10.) {
-        h_lowPtCal3c13.Fill(cal->pt());
+    if (fabs(cal.eta()) > 3.0) {
+      h_lowPtCal33.Fill(cal.pt());
+      if (cal.pt() > 10.) {
+        h_lowPtCal3c13.Fill(cal.pt());
       }
     }
 
-    if (cal->pt() > minJetPt) {
+    if (cal.pt() > minJetPt) {
       //    std::cout << "CALO JET3 #" << jetInd << std::endl << cal->print() << std::endl;
-      h_ptCal3.Fill(cal->pt());
-      h_ptCal32.Fill(cal->pt());
-      h_ptCal33.Fill(cal->pt());
+      h_ptCal3.Fill(cal.pt());
+      h_ptCal32.Fill(cal.pt());
+      h_ptCal33.Fill(cal.pt());
 
-      h_etaCal3.Fill(cal->eta());
-      h_phiCal3.Fill(cal->phi());
+      h_etaCal3.Fill(cal.eta());
+      h_phiCal3.Fill(cal.phi());
       jetInd++;
     }
   }
@@ -1149,8 +1149,8 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
     int njet = 0;
     float ptStep = (istep * (5000. / 100.));
 
-    for (CaloJetCollection::const_iterator cal = caloJets4->begin(); cal != caloJets4->end(); ++cal)
-      if (cal->pt() > ptStep)
+    for (const auto& cal : *caloJets4)
+      if (cal.pt() > ptStep)
         njet++;
 
     hf_nJet4.Fill(ptStep, njet);
@@ -1160,8 +1160,8 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
     int njet = 0;
     float ptStep = (istep * (200. / 100.));
 
-    for (CaloJetCollection::const_iterator cal = caloJets4->begin(); cal != caloJets4->end(); ++cal)
-      if (cal->pt() > ptStep)
+    for (const auto& cal : *caloJets4)
+      if (cal.pt() > ptStep)
         njet++;
 
     hf_nJet4s.Fill(ptStep, njet);
@@ -1171,69 +1171,69 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
     int njet = 0;
     float ptStep = (istep * (3000. / 100.));
 
-    for (CaloJetCollection::const_iterator cal = caloJets4->begin(); cal != caloJets4->end(); ++cal)
-      if (cal->pt() > ptStep)
+    for (const auto& cal : *caloJets4)
+      if (cal.pt() > ptStep)
         njet++;
 
     hf_nJet41.Fill(ptStep, njet);
   }
 
-  for (CaloJetCollection::const_iterator cal = caloJets4->begin(); cal != caloJets4->end(); ++cal) {
+  for (const auto& cal : *caloJets4) {
     allJetInd++;
     if (allJetInd == 1) {
-      h_jet1Pt4.Fill(cal->pt());
-      p4tmp[0] = cal->p4();
+      h_jet1Pt4.Fill(cal.pt());
+      p4tmp[0] = cal.p4();
     }
     if (allJetInd == 2) {
-      h_jet2Pt4.Fill(cal->pt());
-      p4tmp[1] = cal->p4();
+      h_jet2Pt4.Fill(cal.pt());
+      p4tmp[1] = cal.p4();
     }
     if ((allJetInd == 1) || (allJetInd == 2)) {
-      h_ptCalL4.Fill(cal->pt());
-      h_ptCalL42.Fill(cal->pt());
-      h_ptCalL43.Fill(cal->pt());
+      h_ptCalL4.Fill(cal.pt());
+      h_ptCalL42.Fill(cal.pt());
+      h_ptCalL43.Fill(cal.pt());
 
-      h_etaCalL4.Fill(cal->eta());
-      h_phiCalL4.Fill(cal->phi());
+      h_etaCalL4.Fill(cal.eta());
+      h_phiCalL4.Fill(cal.phi());
     }
     if (allJetInd == 3)
-      h_jet3Pt4.Fill(cal->pt());
+      h_jet3Pt4.Fill(cal.pt());
     if (allJetInd == 4)
-      h_jet4Pt4.Fill(cal->pt());
+      h_jet4Pt4.Fill(cal.pt());
     if (allJetInd == 5)
-      h_jet5Pt4.Fill(cal->pt());
+      h_jet5Pt4.Fill(cal.pt());
     if (allJetInd == 6)
-      h_jet6Pt4.Fill(cal->pt());
+      h_jet6Pt4.Fill(cal.pt());
     if (allJetInd == 7)
-      h_jet7Pt4.Fill(cal->pt());
+      h_jet7Pt4.Fill(cal.pt());
 
-    if (fabs(cal->eta()) < 1.3) {
-      h_lowPtCal41.Fill(cal->pt());
-      if (cal->pt() > 10.) {
-        h_lowPtCal4c11.Fill(cal->pt());
+    if (fabs(cal.eta()) < 1.3) {
+      h_lowPtCal41.Fill(cal.pt());
+      if (cal.pt() > 10.) {
+        h_lowPtCal4c11.Fill(cal.pt());
       }
     }
-    if ((fabs(cal->eta()) > 1.3) && (fabs(cal->eta()) < 3.)) {
-      h_lowPtCal42.Fill(cal->pt());
-      if (cal->pt() > 10.) {
-        h_lowPtCal4c12.Fill(cal->pt());
+    if ((fabs(cal.eta()) > 1.3) && (fabs(cal.eta()) < 3.)) {
+      h_lowPtCal42.Fill(cal.pt());
+      if (cal.pt() > 10.) {
+        h_lowPtCal4c12.Fill(cal.pt());
       }
     }
-    if (fabs(cal->eta()) > 3.0) {
-      h_lowPtCal43.Fill(cal->pt());
-      if (cal->pt() > 10.) {
-        h_lowPtCal4c13.Fill(cal->pt());
+    if (fabs(cal.eta()) > 3.0) {
+      h_lowPtCal43.Fill(cal.pt());
+      if (cal.pt() > 10.) {
+        h_lowPtCal4c13.Fill(cal.pt());
       }
     }
 
-    if (cal->pt() > minJetPt) {
+    if (cal.pt() > minJetPt) {
       //    std::cout << "CALO JET4 #" << jetInd << std::endl << cal->print() << std::endl;
-      h_ptCal4.Fill(cal->pt());
-      h_ptCal42.Fill(cal->pt());
-      h_ptCal43.Fill(cal->pt());
+      h_ptCal4.Fill(cal.pt());
+      h_ptCal42.Fill(cal.pt());
+      h_ptCal43.Fill(cal.pt());
 
-      h_etaCal4.Fill(cal->eta());
-      h_phiCal4.Fill(cal->phi());
+      h_etaCal4.Fill(cal.eta());
+      h_phiCal4.Fill(cal.phi());
       jetInd++;
     }
   }
@@ -1256,32 +1256,32 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
   //Loop over the two leading GenJets and fill some histograms
   jetInd = 0;
   allJetInd = 0;
-  for (GenJetCollection::const_iterator gen = genJets1->begin(); gen != genJets1->end(); ++gen) {
+  for (const auto& gen : *genJets1) {
     allJetInd++;
     if (allJetInd == 1) {
-      p4tmp[0] = gen->p4();
+      p4tmp[0] = gen.p4();
     }
     if (allJetInd == 2) {
-      p4tmp[1] = gen->p4();
+      p4tmp[1] = gen.p4();
     }
 
     if ((allJetInd == 1) || (allJetInd == 2)) {
-      h_ptGenL1.Fill(gen->pt());
-      h_ptGenL12.Fill(gen->pt());
-      h_ptGenL13.Fill(gen->pt());
+      h_ptGenL1.Fill(gen.pt());
+      h_ptGenL12.Fill(gen.pt());
+      h_ptGenL13.Fill(gen.pt());
 
-      h_etaGenL1.Fill(gen->eta());
-      h_phiGenL1.Fill(gen->phi());
+      h_etaGenL1.Fill(gen.eta());
+      h_phiGenL1.Fill(gen.phi());
     }
 
-    if (gen->pt() > minJetPt) {
+    if (gen.pt() > minJetPt) {
       // std::cout << "GEN JET1 #" << jetInd << std::endl << gen->print() << std::endl;
-      h_ptGen1.Fill(gen->pt());
-      h_ptGen12.Fill(gen->pt());
-      h_ptGen13.Fill(gen->pt());
+      h_ptGen1.Fill(gen.pt());
+      h_ptGen12.Fill(gen.pt());
+      h_ptGen13.Fill(gen.pt());
 
-      h_etaGen1.Fill(gen->eta());
-      h_phiGen1.Fill(gen->phi());
+      h_etaGen1.Fill(gen.eta());
+      h_phiGen1.Fill(gen.phi());
       jetInd++;
     }
   }
@@ -1317,31 +1317,31 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
   //Loop over the two leading GenJets and fill some histograms
   jetInd = 0;
   allJetInd = 0;
-  for (GenJetCollection::const_iterator gen = genJets2->begin(); gen != genJets2->end(); ++gen) {
+  for (const auto& gen : *genJets2) {
     allJetInd++;
     if (allJetInd == 1) {
-      p4tmp[0] = gen->p4();
+      p4tmp[0] = gen.p4();
     }
     if (allJetInd == 2) {
-      p4tmp[1] = gen->p4();
+      p4tmp[1] = gen.p4();
     }
     if ((allJetInd == 1) || (allJetInd == 2)) {
-      h_ptGenL2.Fill(gen->pt());
-      h_ptGenL22.Fill(gen->pt());
-      h_ptGenL23.Fill(gen->pt());
+      h_ptGenL2.Fill(gen.pt());
+      h_ptGenL22.Fill(gen.pt());
+      h_ptGenL23.Fill(gen.pt());
 
-      h_etaGenL2.Fill(gen->eta());
-      h_phiGenL2.Fill(gen->phi());
+      h_etaGenL2.Fill(gen.eta());
+      h_phiGenL2.Fill(gen.phi());
     }
 
-    if (gen->pt() > minJetPt) {
+    if (gen.pt() > minJetPt) {
       // std::cout << "GEN JET2 #" << jetInd << std::endl << gen->print() << std::endl;
-      h_ptGen2.Fill(gen->pt());
-      h_ptGen22.Fill(gen->pt());
-      h_ptGen23.Fill(gen->pt());
+      h_ptGen2.Fill(gen.pt());
+      h_ptGen22.Fill(gen.pt());
+      h_ptGen23.Fill(gen.pt());
 
-      h_etaGen2.Fill(gen->eta());
-      h_phiGen2.Fill(gen->phi());
+      h_etaGen2.Fill(gen.eta());
+      h_phiGen2.Fill(gen.phi());
       jetInd++;
     }
   }
@@ -1359,31 +1359,31 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
   //Loop over the two leading GenJets and fill some histograms
   jetInd = 0;
   allJetInd = 0;
-  for (GenJetCollection::const_iterator gen = genJets3->begin(); gen != genJets3->end(); ++gen) {
+  for (const auto& gen : *genJets3) {
     allJetInd++;
     if (allJetInd == 1) {
-      p4tmp[0] = gen->p4();
+      p4tmp[0] = gen.p4();
     }
     if (allJetInd == 2) {
-      p4tmp[1] = gen->p4();
+      p4tmp[1] = gen.p4();
     }
     if ((allJetInd == 1) || (allJetInd == 2)) {
-      h_ptGenL3.Fill(gen->pt());
-      h_ptGenL32.Fill(gen->pt());
-      h_ptGenL33.Fill(gen->pt());
+      h_ptGenL3.Fill(gen.pt());
+      h_ptGenL32.Fill(gen.pt());
+      h_ptGenL33.Fill(gen.pt());
 
-      h_etaGenL3.Fill(gen->eta());
-      h_phiGenL3.Fill(gen->phi());
+      h_etaGenL3.Fill(gen.eta());
+      h_phiGenL3.Fill(gen.phi());
     }
 
-    if (gen->pt() > minJetPt) {
+    if (gen.pt() > minJetPt) {
       // std::cout << "GEN JET3 #" << jetInd << std::endl << gen->print() << std::endl;
-      h_ptGen3.Fill(gen->pt());
-      h_ptGen32.Fill(gen->pt());
-      h_ptGen33.Fill(gen->pt());
+      h_ptGen3.Fill(gen.pt());
+      h_ptGen32.Fill(gen.pt());
+      h_ptGen33.Fill(gen.pt());
 
-      h_etaGen3.Fill(gen->eta());
-      h_phiGen3.Fill(gen->phi());
+      h_etaGen3.Fill(gen.eta());
+      h_phiGen3.Fill(gen.phi());
       jetInd++;
     }
   }
@@ -1426,12 +1426,12 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
     nj = 0;
     usedInd = -1;
 
-    for (CaloJetCollection::const_iterator cal = caloJets->begin(); cal != caloJets->end(); ++cal) {
-      double delR = deltaR(cal->eta(), cal->phi(), gen->eta(), gen->phi());
+    for (const auto& cal : *caloJets) {
+      double delR = deltaR(cal.eta(), cal.phi(), gen->eta(), gen->phi());
 
       if ((delR < dRmin[jetInd]) && (delR < matchedDelR) && (used[nj] == 0)) {
         dRmin[jetInd] = delR;       // delta R of match
-        p4cal[jetInd] = cal->p4();  // Matched Cal 4-vector
+        p4cal[jetInd] = cal.p4();   // Matched Cal 4-vector
         usedInd = nj;
       }
 
@@ -1537,12 +1537,12 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
     nj = 0;
     usedInd = -1;
 
-    for (CaloJetCollection::const_iterator cal = caloJets->begin(); cal != caloJets->end(); ++cal) {
-      double delR = deltaR(cal->eta(), cal->phi(), gen->eta(), gen->phi());
+    for (const auto& cal : *caloJets) {
+      double delR = deltaR(cal.eta(), cal.phi(), gen->eta(), gen->phi());
 
       if ((delR < dRmin[jetInd]) && (delR < matchedDelR) && (used[nj] == 0)) {
         dRmin[jetInd] = delR;       // delta R of match
-        p4cal[jetInd] = cal->p4();  // Matched Cal 4-vector
+        p4cal[jetInd] = cal.p4();   // Matched Cal 4-vector
         usedInd = nj;
       }
       nj++;
@@ -1639,12 +1639,12 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
     nj = 0;
     usedInd = -1;
 
-    for (CaloJetCollection::const_iterator cal = caloJets->begin(); cal != caloJets->end(); ++cal) {
-      double delR = deltaR(cal->eta(), cal->phi(), gen->eta(), gen->phi());
+    for (const auto& cal : *caloJets) {
+      double delR = deltaR(cal.eta(), cal.phi(), gen->eta(), gen->phi());
 
       if ((delR < dRmin[jetInd]) && (delR < matchedDelR) && (used[nj] == 0)) {
         dRmin[jetInd] = delR;       // delta R of match
-        p4cal[jetInd] = cal->p4();  // Matched Cal 4-vector
+        p4cal[jetInd] = cal.p4();   // Matched Cal 4-vector
         usedInd = nj;
       }
       nj++;
@@ -1737,12 +1737,12 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
     nj = 0;
     usedInd = -1;
 
-    for (CaloJetCollection::const_iterator cal = caloJets->begin(); cal != caloJets->end(); ++cal) {
-      double delR = deltaR(cal->eta(), cal->phi(), gen->eta(), gen->phi());
+    for (const auto& cal : *caloJets) {
+      double delR = deltaR(cal.eta(), cal.phi(), gen->eta(), gen->phi());
 
       if ((delR < dRmin[jetInd]) && (delR < matchedDelR) && (used[nj] == 0)) {
         dRmin[jetInd] = delR;       // delta R of match
-        p4cal[jetInd] = cal->p4();  // Matched Cal 4-vector
+        p4cal[jetInd] = cal.p4();   // Matched Cal 4-vector
         usedInd = nj;
       }
       nj++;
@@ -1837,11 +1837,11 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
     dRmin[jetInd] = 1000.0;
 
     nj = 0;
-    for (CaloJetCollection::const_iterator cal2 = calo2Jets->begin(); cal2 != calo2Jets->end(); ++cal2) {
-      double delR = deltaR(cal1->eta(), cal1->phi(), cal2->eta(), cal2->phi());
+    for (const auto& cal2 : *calo2Jets) {
+      double delR = deltaR(cal1->eta(), cal1->phi(), cal2.eta(), cal2.phi());
       if ((delR < dRmin[jetInd]) && (used[nj] == 0)) {
         dRmin[jetInd] = delR;        // delta R of match
-        p4cal[jetInd] = cal2->p4();  // Matched Cal 4-vector
+        p4cal[jetInd] = cal2.p4();   // Matched Cal 4-vector
         usedInd = nj;
       }
       nj++;
@@ -2445,16 +2445,16 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
   // --- Loop over jets and make a list of all the used towers
   evt.getByLabel(CaloJetAlgorithm1, jets);
   int jjet = 0;
-  for (CaloJetCollection::const_iterator ijet = jets->begin(); ijet != jets->end(); ijet++) {
+  for (const auto& ijet : *jets) {
     jjet++;
 
-    float hadEne = ijet->hadEnergyInHB() + ijet->hadEnergyInHO() + ijet->hadEnergyInHE() + ijet->hadEnergyInHF();
-    float emEne = ijet->emEnergyInEB() + ijet->emEnergyInEE() + ijet->emEnergyInHF();
-    float had = ijet->energyFractionHadronic();
+    float hadEne = ijet.hadEnergyInHB() + ijet.hadEnergyInHO() + ijet.hadEnergyInHE() + ijet.hadEnergyInHF();
+    float emEne = ijet.emEnergyInEB() + ijet.emEnergyInEE() + ijet.emEnergyInHF();
+    float had = ijet.energyFractionHadronic();
 
-    float j_et = ijet->et();
+    float j_et = ijet.et();
 
-    if (fabs(ijet->eta()) < 1.3) {
+    if (fabs(ijet.eta()) < 1.3) {
       totEneLeadJetEta1_1.Fill(hadEne + emEne);
       hadEneLeadJetEta1_1.Fill(hadEne);
       emEneLeadJetEta1_1.Fill(emEne);
@@ -2463,10 +2463,10 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
       hadEneLeadJetEta1_2.Fill(hadEne);
       emEneLeadJetEta1_2.Fill(emEne);
 
-      if (ijet->pt() > minJetPt10)
+      if (ijet.pt() > minJetPt10)
         hadFracEta11.Fill(had);
     }
-    if ((fabs(ijet->eta()) > 1.3) && (fabs(ijet->eta()) < 3.)) {
+    if ((fabs(ijet.eta()) > 1.3) && (fabs(ijet.eta()) < 3.)) {
       totEneLeadJetEta2_1.Fill(hadEne + emEne);
       hadEneLeadJetEta2_1.Fill(hadEne);
       emEneLeadJetEta2_1.Fill(emEne);
@@ -2475,10 +2475,10 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
       hadEneLeadJetEta2_2.Fill(hadEne);
       emEneLeadJetEta2_2.Fill(emEne);
 
-      if (ijet->pt() > minJetPt10)
+      if (ijet.pt() > minJetPt10)
         hadFracEta21.Fill(had);
     }
-    if (fabs(ijet->eta()) > 3.) {
+    if (fabs(ijet.eta()) > 3.) {
       totEneLeadJetEta3_1.Fill(hadEne + emEne);
       hadEneLeadJetEta3_1.Fill(hadEne);
       emEneLeadJetEta3_1.Fill(emEne);
@@ -2487,7 +2487,7 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
       hadEneLeadJetEta3_2.Fill(hadEne);
       emEneLeadJetEta3_2.Fill(emEne);
 
-      if (ijet->pt() > minJetPt10)
+      if (ijet.pt() > minJetPt10)
         hadFracEta31.Fill(had);
     }
 
@@ -2501,7 +2501,7 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
       emEneLeadJet13.Fill(emEne);
     }
 
-    const std::vector<CaloTowerPtr> jetCaloRefs = ijet->getCaloConstituents();
+    const std::vector<CaloTowerPtr> jetCaloRefs = ijet.getCaloConstituents();
     int nConstituents = jetCaloRefs.size();
 
     if (jjet == 1) {
@@ -2527,12 +2527,12 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
       nTowersLeadJetPt4.Fill(nTow4);
     }
 
-    if ((jjet == 1) && (fabs(ijet->eta()) < 1.3)) {
+    if ((jjet == 1) && (fabs(ijet.eta()) < 1.3)) {
       nTowersLeadJet1.Fill(nConstituents);
 
       for (int i = 0; i < nConstituents; i++) {
         float t_et = jetCaloRefs[i]->et();
-        double delR = deltaR(ijet->eta(), ijet->phi(), jetCaloRefs[i]->eta(), jetCaloRefs[i]->phi());
+        double delR = deltaR(ijet.eta(), ijet.phi(), jetCaloRefs[i]->eta(), jetCaloRefs[i]->phi());
         hf_TowerDelR1.Fill(delR, t_et / j_et);
         hf_TowerDelR12.Fill(delR, t_et / j_et);
         TowerEtLeadJet1.Fill(t_et);
@@ -2541,7 +2541,7 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
       }
     }
 
-    if ((jjet == 2) && (fabs(ijet->eta()) < 1.3)) {
+    if ((jjet == 2) && (fabs(ijet.eta()) < 1.3)) {
       nTowersSecondJet1.Fill(nConstituents);
     }
   }
@@ -2583,8 +2583,8 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
   //  double sum_ez = 0.0;
 
   // --- Loop over towers and make a lists of used and unused towers
-  for (CaloTowerCollection::const_iterator tower = caloTowers->begin(); tower != caloTowers->end(); tower++) {
-    Double_t et = tower->et();
+  for (const auto& tower : *caloTowers) {
+    Double_t et = tower.et();
 
     if (et > 0.5)
       nTow1++;
@@ -2597,12 +2597,12 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
 
     if (et > 0.5) {
       // ********
-      double phix = tower->phi();
+      double phix = tower.phi();
       //      double theta = tower->theta();
       //      double e     = tower->energy();
       //      double et    = e*sin(theta);
       //      double et    = tower->emEt() + tower->hadEt();
-      double et = tower->et();
+      double et = tower.et();
 
       //      sum_ez += e*cos(theta);
       sum_et += et;
@@ -2610,8 +2610,8 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
       sum_ey += et * sin(phix);
       // ********
 
-      Double_t phi = tower->phi();
-      SumEtTowers += tower->et();
+      Double_t phi = tower.phi();
+      SumEtTowers += tower.et();
 
       sumTowerAllEx += et * cos(phi);
       sumTowerAllEy += et * sin(phi);
@@ -2651,9 +2651,9 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
 
   // --- Loop over jets and make a list of all the used towers
   evt.getByLabel(CaloJetAlgorithm1, jets);
-  for (CaloJetCollection::const_iterator ijet = jets->begin(); ijet != jets->end(); ijet++) {
-    Double_t jetPt = ijet->pt();
-    Double_t jetPhi = ijet->phi();
+  for (const auto& ijet : *jets) {
+    Double_t jetPt = ijet.pt();
+    Double_t jetPhi = ijet.phi();
 
     //    if (jetPt>5.0) {
 
@@ -2663,7 +2663,7 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
     sumJetPx += jetPx;
     sumJetPy += jetPy;
 
-    const std::vector<CaloTowerPtr> jetCaloRefs = ijet->getCaloConstituents();
+    const std::vector<CaloTowerPtr> jetCaloRefs = ijet.getCaloConstituents();
     int nConstituents = jetCaloRefs.size();
     for (int i = 0; i < nConstituents; i++) {
       UsedTowerList.push_back(jetCaloRefs[i]);
@@ -2676,13 +2676,13 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
   int NTowersUsed = UsedTowerList.size();
 
   // --- Loop over towers and make a lists of used and unused towers
-  for (CaloTowerCollection::const_iterator tower = caloTowers->begin(); tower != caloTowers->end(); tower++) {
-    CaloTower t = *tower;
-    Double_t et = tower->et();
+  for (const auto& tower : *caloTowers) {
+    CaloTower t = tower;
+    Double_t et = tower.et();
 
     if (et > 0) {
-      Double_t phi = tower->phi();
-      SumEtTowers += tower->et();
+      Double_t phi = tower.phi();
+      SumEtTowers += tower.et();
 
       sumTowerAllPx += et * cos(phi);
       sumTowerAllPy += et * sin(phi);
@@ -2690,7 +2690,7 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
       bool used = false;
 
       for (int i = 0; i < NTowersUsed; i++) {
-        if (tower->id() == UsedTowerList[i]->id()) {
+        if (tower.id() == UsedTowerList[i]->id()) {
           used = true;
           break;
         }
@@ -2732,9 +2732,9 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
 
   // --- Loop over jets and make a list of all the used towers
   evt.getByLabel(CaloJetAlgorithm2, jets);
-  for (CaloJetCollection::const_iterator ijet = jets->begin(); ijet != jets->end(); ijet++) {
-    Double_t jetPt = ijet->pt();
-    Double_t jetPhi = ijet->phi();
+  for (const auto& ijet : *jets) {
+    Double_t jetPt = ijet.pt();
+    Double_t jetPhi = ijet.phi();
 
     //    if (jetPt>5.0) {
 
@@ -2744,7 +2744,7 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
     sumJetPx += jetPx;
     sumJetPy += jetPy;
 
-    const std::vector<CaloTowerPtr> jetCaloRefs = ijet->getCaloConstituents();
+    const std::vector<CaloTowerPtr> jetCaloRefs = ijet.getCaloConstituents();
     int nConstituents = jetCaloRefs.size();
     for (int i = 0; i < nConstituents; i++) {
       UsedTowerList.push_back(jetCaloRefs[i]);
@@ -2760,14 +2760,14 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
   NTowersUsed = UsedTowerList.size();
 
   // --- Loop over towers and make a lists of used and unused towers
-  for (CaloTowerCollection::const_iterator tower = caloTowers->begin(); tower != caloTowers->end(); tower++) {
-    CaloTower t = *tower;
-    Double_t et = tower->et();
+  for (const auto& tower : *caloTowers) {
+    CaloTower t = tower;
+    Double_t et = tower.et();
 
     if (et > 0) {
-      Double_t phi = tower->phi();
+      Double_t phi = tower.phi();
 
-      SumEtTowers += tower->et();
+      SumEtTowers += tower.et();
 
       sumTowerAllPx += et * cos(phi);
       sumTowerAllPy += et * sin(phi);
@@ -2775,7 +2775,7 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
       bool used = false;
 
       for (int i = 0; i < NTowersUsed; i++) {
-        if (tower->id() == UsedTowerList[i]->id()) {
+        if (tower.id() == UsedTowerList[i]->id()) {
           used = true;
           break;
         }
@@ -2817,9 +2817,9 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
 
   // --- Loop over jets and make a list of all the used towers
   evt.getByLabel(CaloJetAlgorithm3, jets);
-  for (CaloJetCollection::const_iterator ijet = jets->begin(); ijet != jets->end(); ijet++) {
-    Double_t jetPt = ijet->pt();
-    Double_t jetPhi = ijet->phi();
+  for (const auto& ijet : *jets) {
+    Double_t jetPt = ijet.pt();
+    Double_t jetPhi = ijet.phi();
 
     //    if (jetPt>5.0) {
 
@@ -2829,7 +2829,7 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
     sumJetPx += jetPx;
     sumJetPy += jetPy;
 
-    const std::vector<CaloTowerPtr> jetCaloRefs = ijet->getCaloConstituents();
+    const std::vector<CaloTowerPtr> jetCaloRefs = ijet.getCaloConstituents();
     int nConstituents = jetCaloRefs.size();
     for (int i = 0; i < nConstituents; i++) {
       UsedTowerList.push_back(jetCaloRefs[i]);
@@ -2845,9 +2845,9 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
   NTowersUsed = UsedTowerList.size();
 
   // --- Loop over towers and make a lists of used and unused towers
-  for (CaloTowerCollection::const_iterator tower = caloTowers->begin(); tower != caloTowers->end(); tower++) {
-    CaloTower t = *tower;
-    Double_t et = tower->et();
+  for (const auto& tower : *caloTowers) {
+    CaloTower t = tower;
+    Double_t et = tower.et();
 
     if (et > 0) {
       //      Double_t phi = tower->phi();
@@ -2859,7 +2859,7 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
       bool used = false;
 
       for (int i = 0; i < NTowersUsed; i++) {
-        if (tower->id() == UsedTowerList[i]->id()) {
+        if (tower.id() == UsedTowerList[i]->id()) {
           used = true;
           break;
         }

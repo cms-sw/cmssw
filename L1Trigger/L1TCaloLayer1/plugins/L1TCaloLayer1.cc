@@ -132,14 +132,14 @@ L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig)
   layer1 = std::make_unique<UCTLayer1>(fwVersion);
 
   vector<UCTCrate*> crates = layer1->getCrates();
-  for (uint32_t crt = 0; crt < crates.size(); crt++) {
-    vector<UCTCard*> cards = crates[crt]->getCards();
-    for (uint32_t crd = 0; crd < cards.size(); crd++) {
-      vector<UCTRegion*> regions = cards[crd]->getRegions();
-      for (uint32_t rgn = 0; rgn < regions.size(); rgn++) {
-        vector<UCTTower*> towers = regions[rgn]->getTowers();
-        for (uint32_t twr = 0; twr < towers.size(); twr++) {
-          twrList.push_back(towers[twr]);
+  for (auto& crate : crates) {
+    vector<UCTCard*> cards = crate->getCards();
+    for (auto& card : cards) {
+      vector<UCTRegion*> regions = card->getRegions();
+      for (auto& region : regions) {
+        vector<UCTTower*> towers = region->getTowers();
+        for (auto tower : towers) {
+          twrList.push_back(tower);
         }
       }
     }
@@ -238,15 +238,15 @@ void L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   int theBX = 0;  // Currently we only read and process the "hit" BX only
 
-  for (uint32_t twr = 0; twr < twrList.size(); twr++) {
+  for (auto& twr : twrList) {
     CaloTower caloTower;
-    caloTower.setHwPt(twrList[twr]->et());          // Bits 0-8 of the 16-bit word per the interface protocol document
-    caloTower.setHwEtRatio(twrList[twr]->er());     // Bits 9-11 of the 16-bit word per the interface protocol document
-    caloTower.setHwQual(twrList[twr]->miscBits());  // Bits 12-15 of the 16-bit word per the interface protocol document
-    caloTower.setHwEta(twrList[twr]->caloEta());    // caloEta = 1-28 and 30-41
-    caloTower.setHwPhi(twrList[twr]->caloPhi());    // caloPhi = 1-72
-    caloTower.setHwEtEm(twrList[twr]->getEcalET());   // This is provided as a courtesy - not available to hardware
-    caloTower.setHwEtHad(twrList[twr]->getHcalET());  // This is provided as a courtesy - not available to hardware
+    caloTower.setHwPt(twr->et());            // Bits 0-8 of the 16-bit word per the interface protocol document
+    caloTower.setHwEtRatio(twr->er());       // Bits 9-11 of the 16-bit word per the interface protocol document
+    caloTower.setHwQual(twr->miscBits());    // Bits 12-15 of the 16-bit word per the interface protocol document
+    caloTower.setHwEta(twr->caloEta());      // caloEta = 1-28 and 30-41
+    caloTower.setHwPhi(twr->caloPhi());      // caloPhi = 1-72
+    caloTower.setHwEtEm(twr->getEcalET());   // This is provided as a courtesy - not available to hardware
+    caloTower.setHwEtHad(twr->getHcalET());  // This is provided as a courtesy - not available to hardware
     towersColl.push_back(theBX, caloTower);
   }
 
@@ -254,17 +254,17 @@ void L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   UCTGeometry g;
   vector<UCTCrate*> crates = layer1->getCrates();
-  for (uint32_t crt = 0; crt < crates.size(); crt++) {
-    vector<UCTCard*> cards = crates[crt]->getCards();
-    for (uint32_t crd = 0; crd < cards.size(); crd++) {
-      vector<UCTRegion*> regions = cards[crd]->getRegions();
-      for (uint32_t rgn = 0; rgn < regions.size(); rgn++) {
-        uint32_t rawData = regions[rgn]->rawData();
+  for (auto& crt : crates) {
+    vector<UCTCard*> cards = crt->getCards();
+    for (auto& crd : cards) {
+      vector<UCTRegion*> regions = crd->getRegions();
+      for (auto& rgn : regions) {
+        uint32_t rawData = rgn->rawData();
         uint32_t regionData = rawData & 0x0000FFFF;
-        uint32_t crate = regions[rgn]->getCrate();
-        uint32_t card = regions[rgn]->getCard();
-        uint32_t region = regions[rgn]->getRegion();
-        bool negativeEta = regions[rgn]->isNegativeEta();
+        uint32_t crate = rgn->getCrate();
+        uint32_t card = rgn->getCard();
+        uint32_t region = rgn->getRegion();
+        bool negativeEta = rgn->isNegativeEta();
         uint32_t rPhi = g.getUCTRegionPhiIndex(crate, card);
         if (region < NRegionsInCard) {  // We only store the Barrel and Endcap - HF has changed in the upgrade
           uint32_t rEta =
@@ -303,18 +303,18 @@ void L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
     hcalLUT.push_back(hCalLayer1EtaSideEtArray);
     hfLUT.push_back(hfLayer1EtaEtArray);
   }
-  for (uint32_t twr = 0; twr < twrList.size(); twr++) {
+  for (auto& twr : twrList) {
     // Map goes minus 1 .. 72 plus 1 .. 72 -> 0 .. 143
-    int iphi = twrList[twr]->caloPhi();
-    int ieta = twrList[twr]->caloEta();
+    int iphi = twr->caloPhi();
+    int ieta = twr->caloEta();
     if (ieta < 0) {
       iphi -= 1;
     } else {
       iphi += 71;
     }
-    twrList[twr]->setECALLUT(&ecalLUT[ePhiMap[iphi]]);
-    twrList[twr]->setHCALLUT(&hcalLUT[hPhiMap[iphi]]);
-    twrList[twr]->setHFLUT(&hfLUT[hfPhiMap[iphi]]);
+    twr->setECALLUT(&ecalLUT[ePhiMap[iphi]]);
+    twr->setHCALLUT(&hcalLUT[hPhiMap[iphi]]);
+    twr->setHFLUT(&hfLUT[hfPhiMap[iphi]]);
   }
 }
 

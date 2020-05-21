@@ -119,37 +119,37 @@ HIPTwoBodyDecayAnalyzer::BranchType HIPTwoBodyDecayAnalyzer::searchArray(std::st
   return BranchType_unknown_t;
 }
 void HIPTwoBodyDecayAnalyzer::cleanBranches() {
-  for (unsigned short el = 0; el < shortBranches.size(); el++) {
-    if (shortBranches.at(el).second != nullptr)
-      delete shortBranches.at(el).second;
-    shortBranches.at(el).second = nullptr;
+  for (auto& shortBranche : shortBranches) {
+    if (shortBranche.second != nullptr)
+      delete shortBranche.second;
+    shortBranche.second = nullptr;
   }
   shortBranches.clear();
-  for (unsigned int el = 0; el < intBranches.size(); el++) {
-    if (intBranches.at(el).second != nullptr)
-      delete intBranches.at(el).second;
-    intBranches.at(el).second = nullptr;
+  for (auto& intBranche : intBranches) {
+    if (intBranche.second != nullptr)
+      delete intBranche.second;
+    intBranche.second = nullptr;
   }
   intBranches.clear();
-  for (unsigned int el = 0; el < floatBranches.size(); el++) {
-    if (floatBranches.at(el).second != nullptr)
-      delete floatBranches.at(el).second;
-    floatBranches.at(el).second = nullptr;
+  for (auto& floatBranche : floatBranches) {
+    if (floatBranche.second != nullptr)
+      delete floatBranche.second;
+    floatBranche.second = nullptr;
   }
   floatBranches.clear();
 }
 void HIPTwoBodyDecayAnalyzer::initializeBranches() {
-  for (unsigned short el = 0; el < shortBranches.size(); el++) {
-    if (shortBranches.at(el).second != nullptr)
-      *(shortBranches.at(el).second) = 0;
+  for (auto& shortBranche : shortBranches) {
+    if (shortBranche.second != nullptr)
+      *(shortBranche.second) = 0;
   }
-  for (unsigned int el = 0; el < intBranches.size(); el++) {
-    if (intBranches.at(el).second != nullptr)
-      *(intBranches.at(el).second) = 0;
+  for (auto& intBranche : intBranches) {
+    if (intBranche.second != nullptr)
+      *(intBranche.second) = 0;
   }
-  for (unsigned int el = 0; el < floatBranches.size(); el++) {
-    if (floatBranches.at(el).second != nullptr)
-      *(floatBranches.at(el).second) = 0;
+  for (auto& floatBranche : floatBranches) {
+    if (floatBranche.second != nullptr)
+      *(floatBranche.second) = 0;
   }
 }
 
@@ -219,27 +219,25 @@ bool HIPTwoBodyDecayAnalyzer::actuateBranches() {
   std::cout << "Number of int branches: " << intBranches.size() << std::endl;
   std::cout << "Number of float branches: " << floatBranches.size() << std::endl;
   if (tree != nullptr) {
-    for (unsigned short el = 0; el < shortBranches.size(); el++) {
-      std::cout << "Actuating branch " << shortBranches.at(el).first << " at address " << shortBranches.at(el).second
+    for (auto& shortBranche : shortBranches) {
+      std::cout << "Actuating branch " << shortBranche.first << " at address " << shortBranche.second << std::endl;
+      if (!tree->GetBranchStatus(shortBranche.first.c_str()))
+        tree->Branch(shortBranche.first.c_str(), shortBranche.second);
+      else
+        std::cout << "Failed!" << std::endl;
+    }
+    for (auto& intBranche : intBranches) {
+      std::cout << "Actuating branch " << intBranche.first.c_str() << " at address " << intBranche.second << std::endl;
+      if (!tree->GetBranchStatus(intBranche.first.c_str()))
+        tree->Branch(intBranche.first.c_str(), intBranche.second);
+      else
+        std::cout << "Failed!" << std::endl;
+    }
+    for (auto& floatBranche : floatBranches) {
+      std::cout << "Actuating branch " << floatBranche.first.c_str() << " at address " << floatBranche.second
                 << std::endl;
-      if (!tree->GetBranchStatus(shortBranches.at(el).first.c_str()))
-        tree->Branch(shortBranches.at(el).first.c_str(), shortBranches.at(el).second);
-      else
-        std::cout << "Failed!" << std::endl;
-    }
-    for (unsigned int el = 0; el < intBranches.size(); el++) {
-      std::cout << "Actuating branch " << intBranches.at(el).first.c_str() << " at address "
-                << intBranches.at(el).second << std::endl;
-      if (!tree->GetBranchStatus(intBranches.at(el).first.c_str()))
-        tree->Branch(intBranches.at(el).first.c_str(), intBranches.at(el).second);
-      else
-        std::cout << "Failed!" << std::endl;
-    }
-    for (unsigned int el = 0; el < floatBranches.size(); el++) {
-      std::cout << "Actuating branch " << floatBranches.at(el).first.c_str() << " at address "
-                << floatBranches.at(el).second << std::endl;
-      if (!tree->GetBranchStatus(floatBranches.at(el).first.c_str()))
-        tree->Branch(floatBranches.at(el).first.c_str(), floatBranches.at(el).second);
+      if (!tree->GetBranchStatus(floatBranche.first.c_str()))
+        tree->Branch(floatBranche.first.c_str(), floatBranche.second);
       else
         std::cout << "Failed!" << std::endl;
     }
@@ -322,15 +320,15 @@ void HIPTwoBodyDecayAnalyzer::analyzeTrackCollection(std::string strTrackType,
     trackMom[jtrk].SetXYZT(0, 0, 0, 0);
     trackVtx[jtrk].SetXYZ(0, 0, 0);
   }
-  for (reco::TrackCollection::const_iterator track = hTrackColl->begin(); track != hTrackColl->end(); ++track) {
-    int charge = track->charge();
+  for (const auto& track : *hTrackColl) {
+    int charge = track.charge();
     totalcharge += charge;
     if (j == 0) {
       itrk = (charge > 0 ? 1 : 0);
     } else
       itrk = 1 - itrk;
-    trackMom[itrk].SetPtEtaPhiM(track->pt(), track->eta(), track->phi(), 0.105);
-    trackVtx[itrk].SetXYZ(track->vx(), track->vy(), track->vz());
+    trackMom[itrk].SetPtEtaPhiM(track.pt(), track.eta(), track.phi(), 0.105);
+    trackVtx[itrk].SetXYZ(track.vx(), track.vy(), track.vz());
     j++;
     if (j == 2)
       break;
@@ -356,13 +354,13 @@ void HIPTwoBodyDecayAnalyzer::analyzeTrackCollection(std::string strTrackType,
 
       // Recalculate track momenta with this vertex as reference
       j = 0;
-      for (reco::TrackCollection::const_iterator track = hTrackColl->begin(); track != hTrackColl->end(); ++track) {
-        TransientTrack t_track = theTTBuilder->build(&(*track));
+      for (const auto& track : *hTrackColl) {
+        TransientTrack t_track = theTTBuilder->build(&track);
         AnalyticalImpactPointExtrapolator extrapolator(t_track.field());
         TrajectoryStateOnSurface closestIn3DSpaceState =
             extrapolator.extrapolate(t_track.impactPointState(), RecoVertex::convertPos(ZVtx.position()));
         GlobalVector mom = closestIn3DSpaceState.globalMomentum();
-        int charge = track->charge();
+        int charge = track.charge();
         totalcharge += charge;
         if (j == 0) {
           itrk = (charge > 0 ? 1 : 0);
@@ -411,8 +409,8 @@ reco::Vertex HIPTwoBodyDecayAnalyzer::fitDimuonVertex(edm::ESHandle<TransientTra
   using namespace reco;
 
   std::vector<TransientTrack> t_tks;
-  for (TrackCollection::const_iterator track = hTrackColl->begin(); track != hTrackColl->end(); ++track) {
-    TransientTrack tt = theTTBuilder->build(&(*track));
+  for (const auto& track : *hTrackColl) {
+    TransientTrack tt = theTTBuilder->build(&track);
     t_tks.push_back(tt);
   }
 

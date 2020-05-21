@@ -25,27 +25,27 @@ L1RpcTBMuonsVec2 RPCPacTrigger::runEvent(const L1RpcLogConesVec& logConesVec, ed
     std::cout << "---TBMuons in new event" << std::endl;
 #endif  // _STAND_ALONE
   }
-  for (unsigned int iLC = 0; iLC < logConesVec.size(); iLC++) {
-    if (logConesVec[iLC].getFiredPlanesCnt() >= 3) {
-      m_TriggerCratesVec[m_TrigCnfg->getTCNum(logConesVec[iLC].getConeCrdnts())].runCone(logConesVec[iLC]);
+  for (const auto& iLC : logConesVec) {
+    if (iLC.getFiredPlanesCnt() >= 3) {
+      m_TriggerCratesVec[m_TrigCnfg->getTCNum(iLC.getConeCrdnts())].runCone(iLC);
     }
   }
 
   L1RpcTBMuonsVec2 tcsMuonsVec2;
-  for (unsigned int iTC = 0; iTC < m_TriggerCratesVec.size(); iTC++) {
-    tcsMuonsVec2.push_back(m_TriggerCratesVec[iTC].runTCGBSorter());
+  for (auto& iTC : m_TriggerCratesVec) {
+    tcsMuonsVec2.push_back(iTC.runTCGBSorter());
   }
 
   if (m_TrigCnfg->getDebugLevel() != 0) {
-    for (unsigned int iTC = 0; iTC < tcsMuonsVec2.size(); iTC++) {
-      for (unsigned int iTB = 0; iTB < tcsMuonsVec2[iTC].size(); iTB++) {
+    for (auto& iTC : tcsMuonsVec2) {
+      for (unsigned int iTB = 0; iTB < iTC.size(); iTB++) {
 #ifdef _STAND_ALONE
         std::cout << "GB 2 " << iTB << " " << tcsMuonsVec2[iTC][iTB].printDebugInfo(m_TrigCnfg->getDebugLevel())
                   << std::endl;
 #else
         // LogDebug("RPCHwDebug") << "GB 2 " << iTB << " "
         //                  <<tcsMuonsVec2[iTC][iTB].printDebugInfo(m_TrigCnfg->getDebugLevel());
-        MuonsGrabber::Instance().addMuon(tcsMuonsVec2[iTC][iTB], 2, -1, -1, iTB);
+        MuonsGrabber::Instance().addMuon(iTC[iTB], 2, -1, -1, iTB);
 
 #endif  // _STAND_ALONE
       }
@@ -99,13 +99,13 @@ L1RpcTBMuonsVec2 RPCPacTrigger::runEvent(const L1RpcLogConesVec& logConesVec, ed
 
 L1RpcTBMuonsVec RPCPacTrigger::getNotEmptyMuons() {
   L1RpcTBMuonsVec notEmptyMuonsVec;
-  for (unsigned int iMu = 0; iMu < m_GBFinalMuons[0].size(); iMu++)
-    if (m_GBFinalMuons[0][iMu].getCode() != 0)
-      notEmptyMuonsVec.push_back(m_GBFinalMuons[0][iMu]);
+  for (auto& iMu : m_GBFinalMuons[0])
+    if (iMu.getCode() != 0)
+      notEmptyMuonsVec.push_back(iMu);
 
-  for (unsigned int iMu = 0; iMu < m_GBFinalMuons[1].size(); iMu++)
-    if (m_GBFinalMuons[1][iMu].getCode() != 0)
-      notEmptyMuonsVec.push_back(m_GBFinalMuons[1][iMu]);
+  for (auto& iMu : m_GBFinalMuons[1])
+    if (iMu.getCode() != 0)
+      notEmptyMuonsVec.push_back(iMu);
 
   return notEmptyMuonsVec;
 }

@@ -160,8 +160,8 @@ OwnVector<DTRecSegment4D> DTMeantimerPatternReco4D::reconstruct() {
   if (debug)
     cout << "Building the concrete DTRecSegment4D" << endl;
   if (!resultPhi.empty()) {
-    for (vector<DTSegmentCand*>::const_iterator phi = resultPhi.begin(); phi != resultPhi.end(); ++phi) {
-      std::unique_ptr<DTChamberRecSegment2D> superPhi(**phi);
+    for (auto phi : resultPhi) {
+      std::unique_ptr<DTChamberRecSegment2D> superPhi(*phi);
 
       theUpdator->update(superPhi.get(), true);
       if (debug)
@@ -170,10 +170,9 @@ OwnVector<DTRecSegment4D> DTMeantimerPatternReco4D::reconstruct() {
       if (hasZed) {
         // Create all the 4D-segment combining the Z view with the Phi one
         // loop over the Z segments
-        for (vector<DTSLRecSegment2D>::const_iterator zed = theSegments2DTheta.begin(); zed != theSegments2DTheta.end();
-             ++zed) {
+        for (const auto& zed : theSegments2DTheta) {
           // Important!!
-          DTSuperLayerId ZedSegSLId(zed->geographicalId().rawId());
+          DTSuperLayerId ZedSegSLId(zed.geographicalId().rawId());
 
           // Put the theta segment poistion in its 3D place.
           // note: (superPhi is in the CHAMBER local frame)
@@ -181,13 +180,13 @@ OwnVector<DTRecSegment4D> DTMeantimerPatternReco4D::reconstruct() {
 
           // FIXME: should rather extrapolate for Y!
           LocalPoint zPos(
-              zed->localPosition().x(), (zSL->toLocal(theChamber->toGlobal(superPhi->localPosition()))).y(), 0.);
+              zed.localPosition().x(), (zSL->toLocal(theChamber->toGlobal(superPhi->localPosition()))).y(), 0.);
 
           const LocalPoint posZInCh = theChamber->toLocal(zSL->toGlobal(zPos));
           // FIXME: zed->localDirection() is in 2D. Should add the phi direction in the orthogonal plane as well!!
-          const LocalVector dirZInCh = theChamber->toLocal(zSL->toGlobal(zed->localDirection()));
+          const LocalVector dirZInCh = theChamber->toLocal(zSL->toGlobal(zed.localDirection()));
 
-          DTRecSegment4D* newSeg = new DTRecSegment4D(*superPhi, *zed, posZInCh, dirZInCh);
+          DTRecSegment4D* newSeg = new DTRecSegment4D(*superPhi, zed, posZInCh, dirZInCh);
 
           /// 4d segment: I have the pos along the wire => further update!
           theUpdator->update(newSeg, false, true);
@@ -221,17 +220,16 @@ OwnVector<DTRecSegment4D> DTMeantimerPatternReco4D::reconstruct() {
   } else {
     // DTRecSegment4D from zed projection only (unlikely, not so useful, but...)
     if (hasZed) {
-      for (vector<DTSLRecSegment2D>::const_iterator zed = theSegments2DTheta.begin(); zed != theSegments2DTheta.end();
-           ++zed) {
+      for (const auto& zed : theSegments2DTheta) {
         // Important!!
-        DTSuperLayerId ZedSegSLId(zed->geographicalId().rawId());
+        DTSuperLayerId ZedSegSLId(zed.geographicalId().rawId());
 
         const LocalPoint posZInCh =
-            theChamber->toLocal(theChamber->superLayer(ZedSegSLId)->toGlobal(zed->localPosition()));
+            theChamber->toLocal(theChamber->superLayer(ZedSegSLId)->toGlobal(zed.localPosition()));
         const LocalVector dirZInCh =
-            theChamber->toLocal(theChamber->superLayer(ZedSegSLId)->toGlobal(zed->localDirection()));
+            theChamber->toLocal(theChamber->superLayer(ZedSegSLId)->toGlobal(zed.localDirection()));
 
-        DTRecSegment4D* newSeg = new DTRecSegment4D(*zed, posZInCh, dirZInCh);
+        DTRecSegment4D* newSeg = new DTRecSegment4D(zed, posZInCh, dirZInCh);
         // <<
 
         if (debug)
@@ -247,8 +245,8 @@ OwnVector<DTRecSegment4D> DTMeantimerPatternReco4D::reconstruct() {
     }
   }
   // finally delete the candidates!
-  for (vector<DTSegmentCand*>::iterator phi = resultPhi.begin(); phi != resultPhi.end(); ++phi)
-    delete *phi;
+  for (auto& phi : resultPhi)
+    delete phi;
 
   return result;
 }

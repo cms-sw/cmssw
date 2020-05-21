@@ -57,8 +57,8 @@ MaterialAccountingGroup::MaterialAccountingGroup(const std::string& name, const 
   }
 
   // grow the bounding box
-  for (unsigned int i = 0; i < m_elements.size(); ++i) {
-    m_boundingbox.grow(m_elements[i].perp(), m_elements[i].z());
+  for (auto& m_element : m_elements) {
+    m_boundingbox.grow(m_element.perp(), m_element.z());
   }
   m_boundingbox.grow(s_tolerance);
   LogTrace("MaterialAccountingGroup") << "Final BBox r_range: " << m_boundingbox.range_r().first << ", "
@@ -117,12 +117,12 @@ bool MaterialAccountingGroup::inside(const MaterialAccountingDetector& detector)
                                         << m_boundingbox.range_r().second << "), Z within: ("
                                         << m_boundingbox.range_z().first << ", " << m_boundingbox.range_z().second
                                         << ")" << std::endl;
-    for (unsigned int i = 0; i < m_elements.size(); ++i) {
+    for (const auto& m_element : m_elements) {
       LogTrace("MaterialAccountingGroup")
-          << "Closest testing agains(x, y, z, r): (" << m_elements[i].x() << ", " << m_elements[i].y() << ", "
-          << m_elements[i].z() << ", " << m_elements[i].perp() << ") --> " << (position - m_elements[i]).mag()
-          << " vs tolerance: " << s_tolerance << std::endl;
-      if ((position - m_elements[i]).mag2() < (s_tolerance * s_tolerance))
+          << "Closest testing agains(x, y, z, r): (" << m_element.x() << ", " << m_element.y() << ", " << m_element.z()
+          << ", " << m_element.perp() << ") --> " << (position - m_element).mag() << " vs tolerance: " << s_tolerance
+          << std::endl;
+      if ((position - m_element).mag2() < (s_tolerance * s_tolerance))
         return true;
     }
     return false;

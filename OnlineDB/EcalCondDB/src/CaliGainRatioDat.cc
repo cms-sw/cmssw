@@ -133,8 +133,8 @@ void CaliGainRatioDat::writeArrayDB(const std::map<EcalLogicID, CaliGainRatioDat
   const CaliGainRatioDat* dataitem;
   int count = 0;
   typedef map<EcalLogicID, CaliGainRatioDat>::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
-    channel = &(p->first);
+  for (const auto& p : *data) {
+    channel = &(p.first);
     int logicID = channel->getLogicID();
     if (!logicID) {
       throw(std::runtime_error("CaliGainRatioDat::writeArrayDB:  Bad EcalLogicID"));
@@ -142,7 +142,7 @@ void CaliGainRatioDat::writeArrayDB(const std::map<EcalLogicID, CaliGainRatioDat
     ids[count] = logicID;
     iovid_vec[count] = iovID;
 
-    dataitem = &(p->second);
+    dataitem = &(p.second);
     // dataIface.writeDB( channel, dataitem, iov);
     float x = dataitem->getG1G12();
     float y = dataitem->getG6G12();

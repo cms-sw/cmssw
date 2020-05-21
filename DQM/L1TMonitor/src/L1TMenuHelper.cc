@@ -72,9 +72,9 @@ map<string, string> L1TMenuHelper::getLUSOTrigger(const map<string, bool>& iCate
 
   map<string, SingleObjectCondition> myConditions;
 
-  for (unsigned int a = 0; a < vMuonConditions->size(); a++) {
-    for (unsigned int b = 0; b < (*vMuonConditions)[a].size(); b++) {
-      const L1GtMuonTemplate* MuonCondition = &(*vMuonConditions)[a][b];
+  for (const auto& vMuonCondition : *vMuonConditions) {
+    for (unsigned int b = 0; b < vMuonCondition.size(); b++) {
+      const L1GtMuonTemplate* MuonCondition = &vMuonCondition[b];
 
       // Selecting conditions that require single objects
       if (MuonCondition->condType() == Type1s && MuonCondition->nrObjects() == 1) {
@@ -93,9 +93,9 @@ map<string, string> L1TMenuHelper::getLUSOTrigger(const map<string, bool>& iCate
     }
   }
 
-  for (unsigned int a = 0; a < vCaloConditions->size(); a++) {
-    for (unsigned int b = 0; b < (*vCaloConditions)[a].size(); b++) {
-      const L1GtCaloTemplate* CaloCondition = &(*vCaloConditions)[a][b];
+  for (const auto& vCaloCondition : *vCaloConditions) {
+    for (unsigned int b = 0; b < vCaloCondition.size(); b++) {
+      const L1GtCaloTemplate* CaloCondition = &vCaloCondition[b];
 
       if (CaloCondition->condType() == Type1s && CaloCondition->nrObjects() == 1) {
         SingleObjectCondition tCondition;
@@ -113,9 +113,9 @@ map<string, string> L1TMenuHelper::getLUSOTrigger(const map<string, bool>& iCate
     }
   }
 
-  for (unsigned int a = 0; a < vEnergySumConditions->size(); a++) {
-    for (unsigned int b = 0; b < (*vEnergySumConditions)[a].size(); b++) {
-      const L1GtEnergySumTemplate* EnergySumCondition = &(*vEnergySumConditions)[a][b];
+  for (const auto& vEnergySumCondition : *vEnergySumConditions) {
+    for (unsigned int b = 0; b < vEnergySumCondition.size(); b++) {
+      const L1GtEnergySumTemplate* EnergySumCondition = &vEnergySumCondition[b];
 
       if ((EnergySumCondition->condType() == TypeETT || EnergySumCondition->condType() == TypeETM ||
            EnergySumCondition->condType() == TypeHTT || EnergySumCondition->condType() == TypeHTM) &&
@@ -135,12 +135,12 @@ map<string, string> L1TMenuHelper::getLUSOTrigger(const map<string, bool>& iCate
     }
   }
 
-  for (CItAlgo iAlgo = theAlgoMap->begin(); iAlgo != theAlgoMap->end(); ++iAlgo) {
+  for (const auto& iAlgo : *theAlgoMap) {
     int error;
 
     bool algoIsValid = true;
     unsigned int maxThreshold = 0;
-    int tAlgoMask = myUtils.triggerMask(iAlgo->first, error);
+    int tAlgoMask = myUtils.triggerMask(iAlgo.first, error);
     L1GtObject tObject = Mu;    // Initial dummy value
     unsigned int tQuality = 0;  // Only aplicable to Muons
     unsigned int tEtaRange = 0;
@@ -161,16 +161,16 @@ map<string, string> L1TMenuHelper::getLUSOTrigger(const map<string, bool>& iCate
     if (tAlgoMask != 0) {
       algoIsValid = false;
     } else {
-      const L1GtAlgorithm* pAlgo = &(iAlgo->second);
+      const L1GtAlgorithm* pAlgo = &(iAlgo.second);
 
-      for (unsigned int i = 0; i < pAlgo->algoRpnVector().size(); i++) {
+      for (const auto& i : pAlgo->algoRpnVector()) {
         // Algorithm cannot be single algo if it requires 2 simultaneous conditions
         // FIXME: Should be improved to be sure one of the conditions is not technical (ex: BPTX)
-        if (pAlgo->algoRpnVector()[i].operation == L1GtLogicParser::OP_AND) {
+        if (i.operation == L1GtLogicParser::OP_AND) {
           algoIsValid = false;
           break;
-        } else if (pAlgo->algoRpnVector()[i].operation == L1GtLogicParser::OP_OPERAND) {
-          string AlgoCondition = pAlgo->algoRpnVector()[i].operand;
+        } else if (i.operation == L1GtLogicParser::OP_OPERAND) {
+          string AlgoCondition = i.operand;
           map<string, SingleObjectCondition>::const_iterator ciCond = myConditions.find(AlgoCondition);
 
           // If there is no matching condition (i.e. its not a single object or energy sum condition)
@@ -217,8 +217,8 @@ map<string, string> L1TMenuHelper::getLUSOTrigger(const map<string, bool>& iCate
 
     if (algoIsValid) {
       SingleObjectTrigger tTrigger;
-      tTrigger.alias = iAlgo->first;
-      tTrigger.bit = (iAlgo->second).algoBitNumber();
+      tTrigger.alias = iAlgo.first;
+      tTrigger.bit = (iAlgo.second).algoBitNumber();
       tTrigger.prescale = refPrescaleFactors[tTrigger.bit];
       tTrigger.threshold = maxThreshold;
       tTrigger.object = tObject;
@@ -605,69 +605,69 @@ int L1TMenuHelper::getPrescaleByAlias(const TString& iCategory, const TString& i
   int out = -1;
 
   if (iCategory == "Mu") {
-    for (unsigned int i = 0; i < m_vTrigMu.size(); i++) {
-      if (m_vTrigMu[i].alias == iAlias) {
-        return m_vTrigMu[i].prescale;
+    for (auto& i : m_vTrigMu) {
+      if (i.alias == iAlias) {
+        return i.prescale;
       }
     }
   } else if (iCategory == "EG") {
-    for (unsigned int i = 0; i < m_vTrigEG.size(); i++) {
-      if (m_vTrigEG[i].alias == iAlias) {
-        return m_vTrigEG[i].prescale;
+    for (auto& i : m_vTrigEG) {
+      if (i.alias == iAlias) {
+        return i.prescale;
       }
     }
   } else if (iCategory == "IsoEG") {
-    for (unsigned int i = 0; i < m_vTrigIsoEG.size(); i++) {
-      if (m_vTrigIsoEG[i].alias == iAlias) {
-        return m_vTrigIsoEG[i].prescale;
+    for (auto& i : m_vTrigIsoEG) {
+      if (i.alias == iAlias) {
+        return i.prescale;
       }
     }
   } else if (iCategory == "Jet") {
-    for (unsigned int i = 0; i < m_vTrigJet.size(); i++) {
-      if (m_vTrigJet[i].alias == iAlias) {
-        return m_vTrigJet[i].prescale;
+    for (auto& i : m_vTrigJet) {
+      if (i.alias == iAlias) {
+        return i.prescale;
       }
     }
   } else if (iCategory == "CenJet") {
-    for (unsigned int i = 0; i < m_vTrigCenJet.size(); i++) {
-      if (m_vTrigCenJet[i].alias == iAlias) {
-        return m_vTrigCenJet[i].prescale;
+    for (auto& i : m_vTrigCenJet) {
+      if (i.alias == iAlias) {
+        return i.prescale;
       }
     }
   } else if (iCategory == "ForJet") {
-    for (unsigned int i = 0; i < m_vTrigForJet.size(); i++) {
-      if (m_vTrigForJet[i].alias == iAlias) {
-        return m_vTrigForJet[i].prescale;
+    for (auto& i : m_vTrigForJet) {
+      if (i.alias == iAlias) {
+        return i.prescale;
       }
     }
   } else if (iCategory == "TauJet") {
-    for (unsigned int i = 0; i < m_vTrigTauJet.size(); i++) {
-      if (m_vTrigTauJet[i].alias == iAlias) {
-        return m_vTrigTauJet[i].prescale;
+    for (auto& i : m_vTrigTauJet) {
+      if (i.alias == iAlias) {
+        return i.prescale;
       }
     }
   } else if (iCategory == "ETT") {
-    for (unsigned int i = 0; i < m_vTrigETT.size(); i++) {
-      if (m_vTrigETT[i].alias == iAlias) {
-        return m_vTrigETT[i].prescale;
+    for (auto& i : m_vTrigETT) {
+      if (i.alias == iAlias) {
+        return i.prescale;
       }
     }
   } else if (iCategory == "ETM") {
-    for (unsigned int i = 0; i < m_vTrigETM.size(); i++) {
-      if (m_vTrigETM[i].alias == iAlias) {
-        return m_vTrigETM[i].prescale;
+    for (auto& i : m_vTrigETM) {
+      if (i.alias == iAlias) {
+        return i.prescale;
       }
     }
   } else if (iCategory == "HTT") {
-    for (unsigned int i = 0; i < m_vTrigHTT.size(); i++) {
-      if (m_vTrigHTT[i].alias == iAlias) {
-        return m_vTrigHTT[i].prescale;
+    for (auto& i : m_vTrigHTT) {
+      if (i.alias == iAlias) {
+        return i.prescale;
       }
     }
   } else if (iCategory == "HTM") {
-    for (unsigned int i = 0; i < m_vTrigHTM.size(); i++) {
-      if (m_vTrigHTM[i].alias == iAlias) {
-        return m_vTrigHTM[i].prescale;
+    for (auto& i : m_vTrigHTM) {
+      if (i.alias == iAlias) {
+        return i.prescale;
       }
     }
   }
@@ -680,69 +680,69 @@ unsigned int L1TMenuHelper::getEtaRangeByAlias(const TString& iCategory, const T
   unsigned int out = -1;
 
   if (iCategory == "Mu") {
-    for (unsigned int i = 0; i < m_vTrigMu.size(); i++) {
-      if (m_vTrigMu[i].alias == iAlias) {
-        return m_vTrigMu[i].etaRange;
+    for (auto& i : m_vTrigMu) {
+      if (i.alias == iAlias) {
+        return i.etaRange;
       }
     }
   } else if (iCategory == "EG") {
-    for (unsigned int i = 0; i < m_vTrigEG.size(); i++) {
-      if (m_vTrigEG[i].alias == iAlias) {
-        return m_vTrigEG[i].etaRange;
+    for (auto& i : m_vTrigEG) {
+      if (i.alias == iAlias) {
+        return i.etaRange;
       }
     }
   } else if (iCategory == "IsoEG") {
-    for (unsigned int i = 0; i < m_vTrigIsoEG.size(); i++) {
-      if (m_vTrigIsoEG[i].alias == iAlias) {
-        return m_vTrigIsoEG[i].etaRange;
+    for (auto& i : m_vTrigIsoEG) {
+      if (i.alias == iAlias) {
+        return i.etaRange;
       }
     }
   } else if (iCategory == "Jet") {
-    for (unsigned int i = 0; i < m_vTrigJet.size(); i++) {
-      if (m_vTrigJet[i].alias == iAlias) {
-        return m_vTrigJet[i].etaRange;
+    for (auto& i : m_vTrigJet) {
+      if (i.alias == iAlias) {
+        return i.etaRange;
       }
     }
   } else if (iCategory == "CenJet") {
-    for (unsigned int i = 0; i < m_vTrigCenJet.size(); i++) {
-      if (m_vTrigCenJet[i].alias == iAlias) {
-        return m_vTrigCenJet[i].etaRange;
+    for (auto& i : m_vTrigCenJet) {
+      if (i.alias == iAlias) {
+        return i.etaRange;
       }
     }
   } else if (iCategory == "ForJet") {
-    for (unsigned int i = 0; i < m_vTrigForJet.size(); i++) {
-      if (m_vTrigForJet[i].alias == iAlias) {
-        return m_vTrigForJet[i].etaRange;
+    for (auto& i : m_vTrigForJet) {
+      if (i.alias == iAlias) {
+        return i.etaRange;
       }
     }
   } else if (iCategory == "TauJet") {
-    for (unsigned int i = 0; i < m_vTrigTauJet.size(); i++) {
-      if (m_vTrigTauJet[i].alias == iAlias) {
-        return m_vTrigTauJet[i].etaRange;
+    for (auto& i : m_vTrigTauJet) {
+      if (i.alias == iAlias) {
+        return i.etaRange;
       }
     }
   } else if (iCategory == "ETT") {
-    for (unsigned int i = 0; i < m_vTrigETT.size(); i++) {
-      if (m_vTrigETT[i].alias == iAlias) {
-        return m_vTrigETT[i].etaRange;
+    for (auto& i : m_vTrigETT) {
+      if (i.alias == iAlias) {
+        return i.etaRange;
       }
     }
   } else if (iCategory == "ETM") {
-    for (unsigned int i = 0; i < m_vTrigETM.size(); i++) {
-      if (m_vTrigETM[i].alias == iAlias) {
-        return m_vTrigETM[i].etaRange;
+    for (auto& i : m_vTrigETM) {
+      if (i.alias == iAlias) {
+        return i.etaRange;
       }
     }
   } else if (iCategory == "HTT") {
-    for (unsigned int i = 0; i < m_vTrigHTT.size(); i++) {
-      if (m_vTrigHTT[i].alias == iAlias) {
-        return m_vTrigHTT[i].etaRange;
+    for (auto& i : m_vTrigHTT) {
+      if (i.alias == iAlias) {
+        return i.etaRange;
       }
     }
   } else if (iCategory == "HTM") {
-    for (unsigned int i = 0; i < m_vTrigHTM.size(); i++) {
-      if (m_vTrigHTM[i].alias == iAlias) {
-        return m_vTrigHTM[i].etaRange;
+    for (auto& i : m_vTrigHTM) {
+      if (i.alias == iAlias) {
+        return i.etaRange;
       }
     }
   }
@@ -755,69 +755,69 @@ unsigned int L1TMenuHelper::getQualityAlias(const TString& iCategory, const TStr
   unsigned int out = -1;
 
   if (iCategory == "Mu") {
-    for (unsigned int i = 0; i < m_vTrigMu.size(); i++) {
-      if (m_vTrigMu[i].alias == iAlias) {
-        return m_vTrigMu[i].quality;
+    for (auto& i : m_vTrigMu) {
+      if (i.alias == iAlias) {
+        return i.quality;
       }
     }
   } else if (iCategory == "EG") {
-    for (unsigned int i = 0; i < m_vTrigEG.size(); i++) {
-      if (m_vTrigEG[i].alias == iAlias) {
-        return m_vTrigEG[i].quality;
+    for (auto& i : m_vTrigEG) {
+      if (i.alias == iAlias) {
+        return i.quality;
       }
     }
   } else if (iCategory == "IsoEG") {
-    for (unsigned int i = 0; i < m_vTrigIsoEG.size(); i++) {
-      if (m_vTrigIsoEG[i].alias == iAlias) {
-        return m_vTrigIsoEG[i].quality;
+    for (auto& i : m_vTrigIsoEG) {
+      if (i.alias == iAlias) {
+        return i.quality;
       }
     }
   } else if (iCategory == "Jet") {
-    for (unsigned int i = 0; i < m_vTrigJet.size(); i++) {
-      if (m_vTrigJet[i].alias == iAlias) {
-        return m_vTrigJet[i].quality;
+    for (auto& i : m_vTrigJet) {
+      if (i.alias == iAlias) {
+        return i.quality;
       }
     }
   } else if (iCategory == "CenJet") {
-    for (unsigned int i = 0; i < m_vTrigCenJet.size(); i++) {
-      if (m_vTrigCenJet[i].alias == iAlias) {
-        return m_vTrigCenJet[i].quality;
+    for (auto& i : m_vTrigCenJet) {
+      if (i.alias == iAlias) {
+        return i.quality;
       }
     }
   } else if (iCategory == "ForJet") {
-    for (unsigned int i = 0; i < m_vTrigForJet.size(); i++) {
-      if (m_vTrigForJet[i].alias == iAlias) {
-        return m_vTrigForJet[i].quality;
+    for (auto& i : m_vTrigForJet) {
+      if (i.alias == iAlias) {
+        return i.quality;
       }
     }
   } else if (iCategory == "TauJet") {
-    for (unsigned int i = 0; i < m_vTrigTauJet.size(); i++) {
-      if (m_vTrigTauJet[i].alias == iAlias) {
-        return m_vTrigTauJet[i].quality;
+    for (auto& i : m_vTrigTauJet) {
+      if (i.alias == iAlias) {
+        return i.quality;
       }
     }
   } else if (iCategory == "ETT") {
-    for (unsigned int i = 0; i < m_vTrigETT.size(); i++) {
-      if (m_vTrigETT[i].alias == iAlias) {
-        return m_vTrigETT[i].quality;
+    for (auto& i : m_vTrigETT) {
+      if (i.alias == iAlias) {
+        return i.quality;
       }
     }
   } else if (iCategory == "ETM") {
-    for (unsigned int i = 0; i < m_vTrigETM.size(); i++) {
-      if (m_vTrigETM[i].alias == iAlias) {
-        return m_vTrigETM[i].quality;
+    for (auto& i : m_vTrigETM) {
+      if (i.alias == iAlias) {
+        return i.quality;
       }
     }
   } else if (iCategory == "HTT") {
-    for (unsigned int i = 0; i < m_vTrigHTT.size(); i++) {
-      if (m_vTrigHTT[i].alias == iAlias) {
-        return m_vTrigHTT[i].quality;
+    for (auto& i : m_vTrigHTT) {
+      if (i.alias == iAlias) {
+        return i.quality;
       }
     }
   } else if (iCategory == "HTM") {
-    for (unsigned int i = 0; i < m_vTrigHTM.size(); i++) {
-      if (m_vTrigHTM[i].alias == iAlias) {
-        return m_vTrigHTM[i].quality;
+    for (auto& i : m_vTrigHTM) {
+      if (i.alias == iAlias) {
+        return i.quality;
       }
     }
   }

@@ -35,11 +35,10 @@ bool HcalStripHaloFilter::filter(edm::StreamID iID, edm::Event& iEvent, const ed
 
   bool pass = true;
   auto const& problematicStrips = beamHaloSummary->getProblematicStrips();
-  for (unsigned int iStrip = 0; iStrip < problematicStrips.size(); iStrip++) {
+  for (const auto& problematicStrip : problematicStrips) {
     int numContiguousCells = 0;
-    auto const& problematicStrip = problematicStrips[iStrip];
-    for (unsigned int iTower = 0; iTower < problematicStrip.cellTowerIds.size(); iTower++) {
-      numContiguousCells += (int)problematicStrip.cellTowerIds[iTower].first;
+    for (const auto& cellTowerId : problematicStrip.cellTowerIds) {
+      numContiguousCells += (int)cellTowerId.first;
     }
     if (numContiguousCells > maxWeightedStripLength_ && problematicStrip.energyRatio < maxEnergyRatio_ &&
         problematicStrip.hadEt > minHadEt_) {

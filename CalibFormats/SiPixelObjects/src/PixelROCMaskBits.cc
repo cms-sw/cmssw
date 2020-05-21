@@ -118,8 +118,8 @@ void PixelROCMaskBits::writeBinary(std::ofstream& out) const {
   out << (char)rocid_.rocname().size();
   out.write(rocid_.rocname().c_str(), rocid_.rocname().size());
 
-  for (unsigned int i = 0; i < 520; i++) {
-    out << bits_[i];
+  for (unsigned char bit : bits_) {
+    out << bit;
   }
 }
 

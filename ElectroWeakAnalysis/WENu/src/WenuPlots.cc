@@ -560,13 +560,13 @@ void WenuPlots::analyze(const edm::Event &iEvent, const edm::EventSetup &es) {
       event_triggerDecision = myElec->userInt("triggerDecision");
     }
     // extra information related to the primary vtx collection
-    for (Int_t i = 0; i < (Int_t)Vtx.size(); ++i) {
-      VtxTracksSize.push_back(Vtx[i].tracksSize());
-      VtxNormalizedChi2.push_back(Vtx[i].normalizedChi2());
+    for (const auto &i : Vtx) {
+      VtxTracksSize.push_back(i.tracksSize());
+      VtxNormalizedChi2.push_back(i.normalizedChi2());
     }
-    for (Int_t i = 0; i < (Int_t)VtxBS.size(); ++i) {
-      VtxTracksSizeBS.push_back(VtxBS[i].tracksSize());
-      VtxNormalizedChi2BS.push_back(VtxBS[i].normalizedChi2());
+    for (const auto &i : VtxBS) {
+      VtxTracksSizeBS.push_back(i.tracksSize());
+      VtxNormalizedChi2BS.push_back(i.normalizedChi2());
     }
   }
   // if the electron passes the selection

@@ -49,11 +49,11 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
   // slidingWindowJetFinder(jetSeedThreshold, subRegions, unCorrJets);
   TwelveByTwelveFinder(jetSeedThreshold, &subRegions, unCorrJets);
 
-  for (CaloEmCandBxCollection::const_iterator egCand = EMCands.begin(); egCand != EMCands.end(); egCand++) {
-    int eg_et = egCand->hwPt();
-    int eg_eta = egCand->hwEta();
-    int eg_phi = egCand->hwPhi();
-    int index = (egCand->hwIso() * 4 + egCand->hwQual());
+  for (const auto& EMCand : EMCands) {
+    int eg_et = EMCand.hwPt();
+    int eg_eta = EMCand.hwEta();
+    int eg_phi = EMCand.hwPhi();
+    int index = (EMCand.hwIso() * 4 + EMCand.hwQual());
 
     if (eg_et <= egSeedThreshold)
       continue;
@@ -66,7 +66,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
 
     // 3x3 HoE, computed in 3x3
     if (eg_et >= egMinPtHOverEIsolation && eg_et < egMaxPtHOverEIsolation) {
-      if (egCand->hwIso())
+      if (EMCand.hwIso())
         isoFlagRct = 1;
     } else {
       isoFlagRct = 1;
@@ -115,9 +115,9 @@ double l1t::Stage1Layer2EGammaAlgorithmImpPP::Isolation(int ieta,
                                                         const std::vector<l1t::CaloRegion>& regions) const {
   double isolation = 0;
 
-  for (CaloRegionBxCollection::const_iterator region = regions.begin(); region != regions.end(); region++) {
-    int regionPhi = region->hwPhi();
-    int regionEta = region->hwEta();
+  for (const auto& region : regions) {
+    int regionPhi = region.hwPhi();
+    int regionEta = region.hwEta();
     ///    unsigned int deltaPhi = iphi - regionPhi;
     int deltaPhi = iphi - regionPhi;
     if (std::abs(deltaPhi) == L1CaloRegionDetId::N_PHI - 1)
@@ -126,7 +126,7 @@ double l1t::Stage1Layer2EGammaAlgorithmImpPP::Isolation(int ieta,
     unsigned int deltaEta = std::abs(ieta - regionEta);
 
     if ((deltaPhi + deltaEta) > 0 && deltaPhi < 2 && deltaEta < 2)
-      isolation += region->hwPt();
+      isolation += region.hwPt();
   }
 
   // set output
@@ -147,11 +147,11 @@ int l1t::Stage1Layer2EGammaAlgorithmImpPP::AssociatedJetPt(int ieta,
                                                            const std::vector<l1t::Jet>* jets) const {
   int pt = -1;
 
-  for (JetBxCollection::const_iterator itJet = jets->begin(); itJet != jets->end(); ++itJet) {
-    int jetEta = itJet->hwEta();
-    int jetPhi = itJet->hwPhi();
+  for (const auto& jet : *jets) {
+    int jetEta = jet.hwEta();
+    int jetPhi = jet.hwPhi();
     if ((jetEta == ieta) && (jetPhi == iphi)) {
-      pt = itJet->hwPt();
+      pt = jet.hwPt();
       break;
     }
   }
@@ -167,10 +167,10 @@ double l1t::Stage1Layer2EGammaAlgorithmImpPP::HoverE(int et,
                                                      const std::vector<l1t::CaloRegion>& regions) const {
   int hadronicET = 0;
 
-  for (CaloRegionBxCollection::const_iterator region = regions.begin(); region != regions.end(); region++) {
-    int regionET = region->hwPt();
-    int regionPhi = region->hwPhi();
-    int regionEta = region->hwEta();
+  for (const auto& region : regions) {
+    int regionET = region.hwPt();
+    int regionPhi = region.hwPhi();
+    int regionEta = region.hwEta();
 
     if (iphi == regionPhi && ieta == regionEta) {
       hadronicET = regionET;

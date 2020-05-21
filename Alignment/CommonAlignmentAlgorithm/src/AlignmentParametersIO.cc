@@ -24,10 +24,10 @@ int AlignmentParametersIO::writeOneOrigRigidBody(Alignable* ali) {
 // write many parameters
 int AlignmentParametersIO::write(const align::Alignables& alivec, bool validCheck) {
   int icount = 0;
-  for (align::Alignables::const_iterator it = alivec.begin(); it != alivec.end(); ++it) {
-    if ((*it)->alignmentParameters()->isValid() || !(validCheck)) {
+  for (auto it : alivec) {
+    if (it->alignmentParameters()->isValid() || !(validCheck)) {
       icount++;
-      int iret = writeOne(*it);
+      int iret = writeOne(it);
       if (iret != 0)
         return iret;
     }
@@ -41,10 +41,10 @@ int AlignmentParametersIO::write(const align::Alignables& alivec, bool validChec
 // write many original parameters
 int AlignmentParametersIO::writeOrigRigidBody(const align::Alignables& alivec, bool validCheck) {
   int icount = 0;
-  for (align::Alignables::const_iterator it = alivec.begin(); it != alivec.end(); ++it) {
-    if (!validCheck || (*it)->alignmentParameters()->isValid()) {
+  for (auto it : alivec) {
+    if (!validCheck || it->alignmentParameters()->isValid()) {
       ++icount;
-      int iret = this->writeOneOrigRigidBody(*it);
+      int iret = this->writeOneOrigRigidBody(it);
       if (iret != 0)
         return iret;
     }
@@ -61,8 +61,8 @@ align::Parameters AlignmentParametersIO::read(const align::Alignables& alivec, i
   align::Parameters retvec;
   int ierr2;
   int icount = 0;
-  for (align::Alignables::const_iterator it = alivec.begin(); it != alivec.end(); ++it) {
-    AlignmentParameters* ad = readOne(*it, ierr2);
+  for (auto it : alivec) {
+    AlignmentParameters* ad = readOne(it, ierr2);
     if (ad != nullptr && ierr2 == 0) {
       retvec.push_back(ad);
       icount++;

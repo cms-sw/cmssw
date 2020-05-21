@@ -297,8 +297,8 @@ void PyquenHadronizer::rotateEvtPlane(HepMC::GenEvent* evt, double angle) {
 
 bool PyquenHadronizer::declareStableParticles(const std::vector<int>& _pdg) {
   std::vector<int> pdg = _pdg;
-  for (size_t i = 0; i < pdg.size(); i++) {
-    int pyCode = pycomp_(pdg[i]);
+  for (int& i : pdg) {
+    int pyCode = pycomp_(i);
     std::ostringstream pyCard;
     pyCard << "MDCY(" << pyCode << ",1)=0";
     std::cout << pyCard.str() << std::endl;

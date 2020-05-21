@@ -108,9 +108,9 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
   edm::LogInfo("HcalIsoTrack") << "IsolatedPixelTrakCandidate: with" << toks_pix_.size()
                                << " candidates to start with\n";
 #endif
-  for (unsigned int iPix = 0; iPix < toks_pix_.size(); iPix++) {
+  for (auto iPix : toks_pix_) {
     edm::Handle<reco::TrackCollection> iPixCol;
-    theEvent.getByToken(toks_pix_[iPix], iPixCol);
+    theEvent.getByToken(iPix, iPixCol);
     for (reco::TrackCollection::const_iterator pit = iPixCol->begin(); pit != iPixCol->end(); pit++) {
       pixelTrackRefs.push_back(reco::TrackRef(iPixCol, pit - iPixCol->begin()));
     }

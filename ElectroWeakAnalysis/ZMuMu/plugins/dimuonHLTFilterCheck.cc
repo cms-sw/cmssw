@@ -82,9 +82,9 @@ dimuonHLTFilterCheck::dimuonHLTFilterCheck(const ParameterSet& pset)
   // general histograms
 
   // general counters
-  for (int i = 0; i < 5; i++) {
+  for (auto& i : counterMatrix) {
     for (int j = 0; j < 5; j++) {
-      counterMatrix[i][j] = 0;
+      i[j] = 0;
     }
   }
 }
@@ -117,8 +117,8 @@ void dimuonHLTFilterCheck::analyze(const Event& event, const EventSetup& setup) 
   jetHLT_triggers.insert(make_pair("candHLT1jetPE7", 3));
 
   bool trgMask[5];
-  for (int i = 0; i < 5; i++)
-    trgMask[i] = false;
+  for (bool& i : trgMask)
+    i = false;
 
   // table of possible dimuons
   string dimuonTableNames[10];

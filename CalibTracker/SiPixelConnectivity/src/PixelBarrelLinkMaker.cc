@@ -79,8 +79,8 @@ PixelBarrelLinkMaker::Links PixelBarrelLinkMaker::links(const Names& n, const De
   // DEBUG
   //
   ostringstream str;
-  for (CIU it = linkItems.begin(); it != linkItems.end(); it++) {
-    str << (*it).name->name() << " r=" << (*it).rocIds << endl;
+  for (const auto& linkItem : linkItems) {
+    str << linkItem.name->name() << " r=" << linkItem.rocIds << endl;
   }
   LogDebug(" sorted BARREL links: ") << str.str();
 
@@ -89,13 +89,13 @@ PixelBarrelLinkMaker::Links PixelBarrelLinkMaker::links(const Names& n, const De
   //
   int idLink = 0;
   result.reserve(linkItems.size());
-  for (CIU it = linkItems.begin(); it != linkItems.end(); it++) {
+  for (const auto& linkItem : linkItems) {
     PixelFEDLink::ROCs rocs;
     PixelFEDLink link(++idLink);
     int idRoc = 0;
-    for (int id = (*it).rocIds.min(); id <= (*it).rocIds.max(); id++) {
+    for (int id = linkItem.rocIds.min(); id <= linkItem.rocIds.max(); id++) {
       idRoc++;
-      rocs.push_back(PixelROC(it->unit, id, idRoc));
+      rocs.push_back(PixelROC(linkItem.unit, id, idRoc));
     }
     link.add(rocs);
     result.push_back(link);

@@ -320,8 +320,8 @@ void L1GtCondition::print(std::ostream& myCout) const {
 
   myCout << "  Object types:      ";
 
-  for (unsigned int i = 0; i < m_objectType.size(); ++i) {
-    switch (m_objectType[i]) {
+  for (auto i : m_objectType) {
+    switch (i) {
       case Mu: {
         myCout << " Mu ";
       }
@@ -398,7 +398,7 @@ void L1GtCondition::print(std::ostream& myCout) const {
 
       break;
       default: {
-        myCout << " Unknown type " << m_objectType[i];
+        myCout << " Unknown type " << i;
       } break;
     }
   }

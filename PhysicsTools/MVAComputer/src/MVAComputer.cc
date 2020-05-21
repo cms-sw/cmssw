@@ -60,10 +60,9 @@ namespace PhysicsTools {
     VarProcessor::ConfigCtx config(flags);
     std::vector<Calibration::VarProcessor *> processors = calib->getProcessors();
 
-    for (std::vector<Calibration::VarProcessor *>::const_iterator iter = processors.begin(); iter != processors.end();
-         ++iter) {
-      std::string name = (*iter)->getInstanceName();
-      VarProcessor *processor = VarProcessor::create(name.c_str(), *iter, this);
+    for (auto iter : processors) {
+      std::string name = iter->getInstanceName();
+      VarProcessor *processor = VarProcessor::create(name.c_str(), iter, this);
       if (!processor)
         throw cms::Exception("UnknownProcessor") << name << " could not be instantiated." << std::endl;
 

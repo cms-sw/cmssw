@@ -60,10 +60,10 @@ void CocoaToDDLMgr::writeHeader(ALIstring filename) { newPartPre(filename); }
 void CocoaToDDLMgr::writeMaterials() {
   newSectPre_ma("");
   auto& optolist = Model::OptOList();
-  for (auto ite = optolist.begin(); ite != optolist.end(); ite++) {
-    if ((*ite)->type() == "system")
+  for (auto& ite : optolist) {
+    if (ite->type() == "system")
       continue;
-    CocoaMaterialElementary* mat = (*ite)->getMaterial();
+    CocoaMaterialElementary* mat = ite->getMaterial();
     //-    std::cout << " mat of opto " << (*ite)->name() << " = " << mat->getName() << std::endl;
     if (mat) {
       if (!materialIsRepeated(mat))
@@ -119,10 +119,10 @@ void CocoaToDDLMgr::writePhysicalVolumes() {
   newSectPre_pv("");
 
   auto& optolist = Model::OptOList();
-  for (auto ite = optolist.begin(); ite != optolist.end(); ite++) {
-    if ((*ite)->type() == "system")
+  for (auto& ite : optolist) {
+    if (ite->type() == "system")
       continue;
-    pv(*ite);
+    pv(ite);
   }
 
   newSectPost_pv("");
@@ -146,10 +146,10 @@ void CocoaToDDLMgr::writeSpecPars() {
   newSectPre_specPar("");
 
   auto& optolist = Model::OptOList();
-  for (auto ite = optolist.begin(); ite != optolist.end(); ite++) {
-    if ((*ite)->type() == "system")
+  for (auto& ite : optolist) {
+    if (ite->type() == "system")
       continue;
-    specPar(*ite);
+    specPar(ite);
   }
 
   writeSpecParsCocoa();
@@ -583,8 +583,7 @@ void CocoaToDDLMgr::specPar(OpticalObject* opto) {
   }
 
   const std::vector<Entry*>& extraEnt = opto->ExtraEntryList();
-  for (ALIuint ii = 0; ii < extraEnt.size(); ii++) {
-    Entry* ent = extraEnt[ii];
+  for (auto ent : extraEnt) {
     file_ << "   <Parameter name=\"extra_entry\" value=\"" << ent->name() << "\"  eval=\"false\" /> " << std::endl;
     file_ << "   <Parameter name=\"dimType\" value=\"" << ent->type() << "\"  eval=\"false\" /> " << std::endl;
     file_ << "   <Parameter name=\"value\" value=\"";
@@ -672,10 +671,10 @@ void CocoaToDDLMgr::writeSpecParsCocoa() {
   file_ << "<!--    Define volumes as COCOA objects --> " << std::endl << "  <SpecPar name=\"COCOA\"> " << std::endl;
 
   auto& optolist = Model::OptOList();
-  for (auto ite = optolist.begin(); ite != optolist.end(); ite++) {
-    if ((*ite)->type() == "system")
+  for (auto& ite : optolist) {
+    if (ite->type() == "system")
       continue;
-    file_ << "    <PartSelector path=\"/" << (*ite)->name() << "\"/> " << std::endl;
+    file_ << "    <PartSelector path=\"/" << ite->name() << "\"/> " << std::endl;
   }
 
   file_ << "   <String name=\"COCOA\" value=\"COCOA\"/> " << std::endl << "  </SpecPar> " << std::endl;

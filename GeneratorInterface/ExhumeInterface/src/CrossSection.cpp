@@ -148,12 +148,12 @@ Exhume::CrossSection::CrossSection(const edm::ParameterSet &pset) {
 
   //Now write out all the parameters:
 
-  for (std::map<std::string, PConstVoidPair>::iterator ii = PMap.begin(); ii != PMap.end(); ii++) {
-    if (typeid(double *).name() == (ii->second).first) {
-      if (strlen((ii->first).c_str()) < 6) {
-        printf("  %s\t\t\t%17g\n", (ii->first).c_str(), *(double *)((ii->second).second));
+  for (auto &ii : PMap) {
+    if (typeid(double *).name() == (ii.second).first) {
+      if (strlen((ii.first).c_str()) < 6) {
+        printf("  %s\t\t\t%17g\n", (ii.first).c_str(), *(double *)((ii.second).second));
       } else {
-        printf("  %s\t\t%17g\n", (ii->first).c_str(), *(double *)((ii->second).second));
+        printf("  %s\t\t%17g\n", (ii.first).c_str(), *(double *)((ii.second).second));
       }
     }
   }

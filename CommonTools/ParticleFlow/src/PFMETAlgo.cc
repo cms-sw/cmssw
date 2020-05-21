@@ -27,9 +27,7 @@ reco::MET PFMETAlgo::produce(const reco::PFCandidateCollection& pfCandidates) {
   double sumEy = 0;
   double sumEt = 0;
 
-  for (unsigned i = 0; i < pfCandidates.size(); i++) {
-    const reco::PFCandidate& cand = pfCandidates[i];
-
+  for (const auto& cand : pfCandidates) {
     double E = cand.energy();
 
     /// HF calibration factor (in 31X applied by PFProducer)

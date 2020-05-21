@@ -274,8 +274,8 @@ bool CosmicTrajectoryBuilder::qualityFilter(const Trajectory &traj) {
   int ngoodhits = 0;
   if (geometry == "MTCC") {
     auto hits = traj.recHits();
-    for (auto hit = hits.begin(); hit != hits.end(); hit++) {
-      unsigned int iid = (*hit)->hit()->geographicalId().rawId();
+    for (auto &hit : hits) {
+      unsigned int iid = hit->hit()->geographicalId().rawId();
       //CHECK FOR 3 hits r-phi
       if (((iid >> 0) & 0x3) != 1)
         ngoodhits++;

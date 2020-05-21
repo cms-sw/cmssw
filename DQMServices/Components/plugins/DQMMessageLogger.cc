@@ -79,9 +79,9 @@ void DQMMessageLogger::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const
 
     modules_warnings = ibooker.book1D("modules_warnings", "Warnings per module", moduleMap.size(), 0, moduleMap.size());
 
-    for (auto it = moduleMap.begin(); it != moduleMap.end(); ++it) {
-      modules_errors->setBinLabel((*it).second, (*it).first);
-      modules_warnings->setBinLabel((*it).second, (*it).first);
+    for (auto& it : moduleMap) {
+      modules_errors->setBinLabel(it.second, it.first);
+      modules_warnings->setBinLabel(it.second, it.first);
     }
     modules_errors->getTH1()->GetXaxis()->LabelsOption("v");
     modules_warnings->getTH1()->GetXaxis()->LabelsOption("v");
@@ -95,9 +95,9 @@ void DQMMessageLogger::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const
     categories_warnings =
         ibooker.book1D("categories_warnings", "Warnings per category", categoryMap.size(), 0, categoryMap.size());
 
-    for (auto it = categoryMap.begin(); it != categoryMap.end(); ++it) {
-      categories_errors->setBinLabel((*it).second, (*it).first);
-      categories_warnings->setBinLabel((*it).second, (*it).first);
+    for (auto& it : categoryMap) {
+      categories_errors->setBinLabel(it.second, it.first);
+      categories_warnings->setBinLabel(it.second, it.first);
     }
     categories_warnings->getTH1()->GetXaxis()->LabelsOption("v");
     categories_errors->getTH1()->GetXaxis()->LabelsOption("v");

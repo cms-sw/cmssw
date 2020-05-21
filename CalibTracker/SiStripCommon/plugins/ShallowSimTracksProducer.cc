@@ -56,12 +56,11 @@ void ShallowSimTracksProducer::produce(edm::Event& event, const edm::EventSetup&
 
   reco::RecoToSimCollection associations = associator->associateRecoToSim(tracks, trackingParticles);
 
-  for (reco::RecoToSimCollection::const_iterator association = associations.begin(); association != associations.end();
-       association++) {
-    const reco::Track* track = association->key.get();
-    const int matches = association->val.size();
+  for (const auto& association : associations) {
+    const reco::Track* track = association.key.get();
+    const int matches = association.val.size();
     if (matches > 0) {
-      const TrackingParticle* tparticle = association->val[0].first.get();
+      const TrackingParticle* tparticle = association.val[0].first.get();
       unsigned i = shallow::findTrackIndex(tracks, track);
 
       multi->at(i) = matches;

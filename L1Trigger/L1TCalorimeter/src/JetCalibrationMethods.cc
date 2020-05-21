@@ -14,19 +14,18 @@ namespace l1t {
                       std::vector<l1t::Jet>* jets,
                       std::string jetCalibrationType,
                       double jetLSB) {
-    for (std::vector<l1t::Jet>::const_iterator uncalibjet = uncalibjets->begin(); uncalibjet != uncalibjets->end();
-         ++uncalibjet) {
+    for (const auto& uncalibjet : *uncalibjets) {
       if (jetCalibrationType == "None") {
-        l1t::Jet corrjets = *uncalibjet;
+        l1t::Jet corrjets = uncalibjet;
         jets->push_back(corrjets);
         continue;
       }
 
       if (jetCalibrationType == "Stage1JEC") {
-        int jetPt = (uncalibjet->hwPt()) * jetLSB;  // correction factors are parameterized as functions of physical pt
-        int jetPhi = uncalibjet->hwPhi();
-        int jetEta = uncalibjet->hwEta();
-        int jetQual = uncalibjet->hwQual();
+        int jetPt = (uncalibjet.hwPt()) * jetLSB;  // correction factors are parameterized as functions of physical pt
+        int jetPhi = uncalibjet.hwPhi();
+        int jetEta = uncalibjet.hwEta();
+        int jetQual = uncalibjet.hwQual();
         double jpt = 0.0;
 
         double alpha = jetCalibrationParams[2 * jetEta + 0];      //Scale factor (See jetSF_cfi.py)

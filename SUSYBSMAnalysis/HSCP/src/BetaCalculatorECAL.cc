@@ -60,9 +60,8 @@ void BetaCalculatorECAL::addInfoToCandidate(HSCParticle& candidate,
 
   // compute the track isolation
   result.trkIsoDr = 100;
-  for (reco::TrackCollection::const_iterator ndTrack = tracks->begin(); ndTrack != tracks->end(); ++ndTrack) {
-    double dr =
-        sqrt(pow((track.outerEta() - ndTrack->outerEta()), 2) + pow((track.outerPhi() - ndTrack->outerPhi()), 2));
+  for (const auto& ndTrack : *tracks) {
+    double dr = sqrt(pow((track.outerEta() - ndTrack.outerEta()), 2) + pow((track.outerPhi() - ndTrack.outerPhi()), 2));
     if (dr > 0.00001 && dr < result.trkIsoDr)
       result.trkIsoDr = dr;
   }
@@ -281,18 +280,12 @@ int BetaCalculatorECAL::getDetailedTrackLengthInXtals(std::map<int, GlobalPoint>
       surroundingMatrix =
           theTopology->getSubdetectorTopology(closestBarrelDetIdToProbe)->getWindow(closestBarrelDetIdToProbe, 3, 3);
 
-      for (unsigned int k = 0; k < surroundingMatrix.size(); ++k) {
-        if (theGeometry->getSubdetectorGeometry(surroundingMatrix.at(k))
-                ->getGeometry(surroundingMatrix.at(k))
-                ->inside(probe_gp)) {
+      for (auto k : surroundingMatrix) {
+        if (theGeometry->getSubdetectorGeometry(k)->getGeometry(k)->inside(probe_gp)) {
           double step = ((*itr).position() - (*(itr - 1)).position()).mag();
           GlobalPoint point = itr->position();
-          addStepToXtal(trackExitPositionMap,
-                        trackCrossedXtalMap,
-                        surroundingMatrix[k],
-                        step,
-                        point,
-                        theGeometry->getSubdetectorGeometry(surroundingMatrix.at(k)));
+          addStepToXtal(
+              trackExitPositionMap, trackCrossedXtalMap, k, step, point, theGeometry->getSubdetectorGeometry(k));
           totalLengthCurved += step;
 
           if (firstPoint == false) {

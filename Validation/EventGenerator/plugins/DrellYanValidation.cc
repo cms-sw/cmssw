@@ -171,13 +171,11 @@ void DrellYanValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   Zdaughters->Fill(products[1]->pdg_id(), weight);
 
   std::vector<TLorentzVector> gammasMomenta;
-  for (unsigned int ipho = 0; ipho < fsrphotons.size(); ++ipho) {
-    TLorentzVector phomom(fsrphotons[ipho]->momentum().x(),
-                          fsrphotons[ipho]->momentum().y(),
-                          fsrphotons[ipho]->momentum().z(),
-                          fsrphotons[ipho]->momentum().t());
+  for (auto& fsrphoton : fsrphotons) {
+    TLorentzVector phomom(
+        fsrphoton->momentum().x(), fsrphoton->momentum().y(), fsrphoton->momentum().z(), fsrphoton->momentum().t());
     dilepton_andphoton_mom += phomom;
-    Zdaughters->Fill(fsrphotons[ipho]->pdg_id(), weight);
+    Zdaughters->Fill(fsrphoton->pdg_id(), weight);
     gammasMomenta.push_back(phomom);
   }
   //Fill Z histograms
@@ -205,8 +203,8 @@ void DrellYanValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   boost *= -1.;
   lep1.Boost(boost);
   lep2.Boost(boost);
-  for (unsigned int ipho = 0; ipho < gammasMomenta.size(); ++ipho) {
-    gammasMomenta[ipho].Boost(boost);
+  for (auto& ipho : gammasMomenta) {
+    ipho.Boost(boost);
   }
   std::sort(gammasMomenta.begin(), gammasMomenta.end(), HepMCValidationHelper::GreaterByE<TLorentzVector>);
 

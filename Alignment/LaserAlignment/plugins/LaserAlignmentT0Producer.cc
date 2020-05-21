@@ -18,12 +18,10 @@ LaserAlignmentT0Producer::LaserAlignmentT0Producer(const edm::ParameterSet& iCon
   digiProducerList = iConfig.getParameter<std::vector<edm::ParameterSet>>("DigiProducerList");
 
   // loop all input products
-  for (std::vector<edm::ParameterSet>::iterator aDigiProducer = digiProducerList.begin();
-       aDigiProducer != digiProducerList.end();
-       ++aDigiProducer) {
-    std::string digiProducer = aDigiProducer->getParameter<std::string>("DigiProducer");
-    std::string digiLabel = aDigiProducer->getParameter<std::string>("DigiLabel");
-    std::string digiType = aDigiProducer->getParameter<std::string>("DigiType");
+  for (auto& aDigiProducer : digiProducerList) {
+    std::string digiProducer = aDigiProducer.getParameter<std::string>("DigiProducer");
+    std::string digiLabel = aDigiProducer.getParameter<std::string>("DigiLabel");
+    std::string digiType = aDigiProducer.getParameter<std::string>("DigiType");
 
     // check if raw/processed digis in this collection
     if (digiType == "Raw") {
@@ -53,12 +51,10 @@ void LaserAlignmentT0Producer::produce(edm::Event& iEvent, const edm::EventSetup
   using namespace edm;
 
   // loop all input products
-  for (std::vector<edm::ParameterSet>::iterator aDigiProducer = digiProducerList.begin();
-       aDigiProducer != digiProducerList.end();
-       ++aDigiProducer) {
-    std::string digiProducer = aDigiProducer->getParameter<std::string>("DigiProducer");
-    std::string digiLabel = aDigiProducer->getParameter<std::string>("DigiLabel");
-    std::string digiType = aDigiProducer->getParameter<std::string>("DigiType");
+  for (auto& aDigiProducer : digiProducerList) {
+    std::string digiProducer = aDigiProducer.getParameter<std::string>("DigiProducer");
+    std::string digiLabel = aDigiProducer.getParameter<std::string>("DigiLabel");
+    std::string digiType = aDigiProducer.getParameter<std::string>("DigiType");
 
     // now a distinction of cases: raw or processed digis?
 
@@ -72,18 +68,16 @@ void LaserAlignmentT0Producer::produce(edm::Event& iEvent, const edm::EventSetup
       std::vector<edm::DetSet<SiStripRawDigi>> theDigiVector;
 
       // loop the incoming DetSetVector
-      for (edm::DetSetVector<SiStripRawDigi>::const_iterator aDetSet = theStripDigis->begin();
-           aDetSet != theStripDigis->end();
-           ++aDetSet) {
+      for (const auto& aDetSet : *theStripDigis) {
         // is the current DetSet that of a LAS module?
-        if (find(theLasDetIds.begin(), theLasDetIds.end(), aDetSet->detId()) != theLasDetIds.end()) {
+        if (find(theLasDetIds.begin(), theLasDetIds.end(), aDetSet.detId()) != theLasDetIds.end()) {
           // yes it's a LAS module, so copy the Digis to the output
 
           // a DetSet for output
-          edm::DetSet<SiStripRawDigi> outputDetSet(aDetSet->detId());
+          edm::DetSet<SiStripRawDigi> outputDetSet(aDetSet.detId());
 
           // copy all the digis to the output DetSet. Unfortunately, there's no copy constructor..
-          for (edm::DetSet<SiStripRawDigi>::const_iterator aDigi = aDetSet->begin(); aDigi != aDetSet->end(); ++aDigi) {
+          for (edm::DetSet<SiStripRawDigi>::const_iterator aDigi = aDetSet.begin(); aDigi != aDetSet.end(); ++aDigi) {
             outputDetSet.push_back(*aDigi);
           }
 
@@ -106,12 +100,10 @@ void LaserAlignmentT0Producer::produce(edm::Event& iEvent, const edm::EventSetup
 
       std::vector<edm::DetSet<SiStripDigi>> theDigiVector;
 
-      for (edm::DetSetVector<SiStripDigi>::const_iterator aDetSet = theStripDigis->begin();
-           aDetSet != theStripDigis->end();
-           ++aDetSet) {
-        if (find(theLasDetIds.begin(), theLasDetIds.end(), aDetSet->detId()) != theLasDetIds.end()) {
-          edm::DetSet<SiStripDigi> outputDetSet(aDetSet->detId());
-          for (edm::DetSet<SiStripDigi>::const_iterator aDigi = aDetSet->begin(); aDigi != aDetSet->end(); ++aDigi) {
+      for (const auto& aDetSet : *theStripDigis) {
+        if (find(theLasDetIds.begin(), theLasDetIds.end(), aDetSet.detId()) != theLasDetIds.end()) {
+          edm::DetSet<SiStripDigi> outputDetSet(aDetSet.detId());
+          for (edm::DetSet<SiStripDigi>::const_iterator aDigi = aDetSet.begin(); aDigi != aDetSet.end(); ++aDigi) {
             outputDetSet.push_back(*aDigi);
           }
 

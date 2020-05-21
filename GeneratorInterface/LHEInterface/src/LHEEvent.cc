@@ -319,8 +319,8 @@ namespace lhef {
       edm::LogWarning("Generator|LHEInterface") << "Can't find any initial partons to be"
                                                    " connected to the beam particles.";
 
-    for (std::vector<HepMC::GenVertex *>::const_iterator iter = genVertices.begin(); iter != genVertices.end(); ++iter)
-      hepmc->add_vertex(*iter);
+    for (auto genVertice : genVertices)
+      hepmc->add_vertex(genVertice);
 
     // do some more consistency checks
     for (unsigned int i = 0; i < nup; i++) {

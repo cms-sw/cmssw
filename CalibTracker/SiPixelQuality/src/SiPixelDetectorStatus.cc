@@ -88,12 +88,10 @@ void SiPixelDetectorStatus::dumpToFile(std::string filename) {
   OD << "# SiPixelDetectorStatus for run " << fRun0 << " .. " << fRun1 << std::endl;
   OD << "# SiPixelDetectorStatus total hits = " << fDetHits << std::endl;
 
-  for (std::map<int, SiPixelModuleStatus>::iterator it = SiPixelDetectorStatus::begin();
-       it != SiPixelDetectorStatus::end();
-       ++it) {
-    for (int iroc = 0; iroc < it->second.nrocs(); ++iroc) {
+  for (auto& it : *this) {
+    for (int iroc = 0; iroc < it.second.nrocs(); ++iroc) {
       for (int idc = 0; idc < 26; ++idc) {
-        OD << Form("%10d %2d %3d", it->first, iroc, int(it->second.getRoc(iroc)->digiOccROC())) << std::endl;
+        OD << Form("%10d %2d %3d", it.first, iroc, int(it.second.getRoc(iroc)->digiOccROC())) << std::endl;
       }
     }
   }
@@ -127,13 +125,11 @@ void SiPixelDetectorStatus::fillFEDerror25(int detid, PixelFEDChannel ch) {
 std::map<int, std::vector<int>> SiPixelDetectorStatus::getFEDerror25Rocs() {
   std::map<int, std::vector<int>> badRocLists_;
 
-  for (std::map<int, SiPixelModuleStatus>::iterator itMod = SiPixelDetectorStatus::begin();
-       itMod != SiPixelDetectorStatus::end();
-       ++itMod) {
-    int detid = itMod->first;
+  for (auto& itMod : *this) {
+    int detid = itMod.first;
     // FEDerror25 effected ROCs in a given module
     std::vector<int> list;
-    SiPixelModuleStatus modStatus = itMod->second;
+    SiPixelModuleStatus modStatus = itMod.second;
     for (int iroc = 0; iroc < modStatus.nrocs(); ++iroc) {
       SiPixelRocStatus* roc = modStatus.getRoc(iroc);
       if (roc->isFEDerror25()) {
@@ -179,12 +175,10 @@ bool SiPixelDetectorStatus::findModule(int detid) {
 double SiPixelDetectorStatus::perRocDigiOcc() {
   unsigned long int ave(0);
   int nrocs(0);
-  for (std::map<int, SiPixelModuleStatus>::iterator it = SiPixelDetectorStatus::begin();
-       it != SiPixelDetectorStatus::end();
-       ++it) {
-    unsigned long int inc = it->second.digiOccMOD();
+  for (auto& it : *this) {
+    unsigned long int inc = it.second.digiOccMOD();
     ave += inc;
-    nrocs += it->second.nrocs();
+    nrocs += it.second.nrocs();
   }
   return (1.0 * ave) / nrocs;
 }
@@ -194,12 +188,10 @@ double SiPixelDetectorStatus::perRocDigiOccVar() {
 
   double sig = 0.0;
   int nrocs(0);
-  for (std::map<int, SiPixelModuleStatus>::iterator it = SiPixelDetectorStatus::begin();
-       it != SiPixelDetectorStatus::end();
-       ++it) {
-    unsigned long int inc = it->second.digiOccMOD();
+  for (auto& it : *this) {
+    unsigned long int inc = it.second.digiOccMOD();
     sig += (fDetAverage - inc) * (fDetAverage - inc);
-    nrocs += it->second.nrocs();
+    nrocs += it.second.nrocs();
   }
 
   double fDetSigma = sig / (nrocs - 1);

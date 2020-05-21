@@ -120,15 +120,15 @@ void TTUTrackingAlg::runSeedBuster(const TTUInput& inmap) {
   int idx(0);
   int idy(0);
 
-  for (int i = 0; i < 12; ++i) {
-    idx = (m_SEscanorder[i] - 1);
+  for (int i : m_SEscanorder) {
+    idx = (i - 1);
     std::bitset<6> station = inmap.input_sec[idx];
 
     if (!station.any())
       continue;
 
-    for (int k = 0; k < 6; ++k) {
-      idy = (m_STscanorder[k] - 1);
+    for (int k : m_STscanorder) {
+      idy = (k - 1);
       bool _hit = station[idy];
 
       if (_hit) {
@@ -208,8 +208,8 @@ void TTUTrackingAlg::filter(Track* _trk, std::vector<Seed*>& _nbrs) {
   //... filter: removes from neighbors list, seeds already present
   //...    in tracks
 
-  for (auto _itr = _trk->m_seeds.begin(); _itr != _trk->m_seeds.end(); ++_itr) {
-    auto _isalready = std::find(_nbrs.begin(), _nbrs.end(), (*_itr));
+  for (auto& m_seed : _trk->m_seeds) {
+    auto _isalready = std::find(_nbrs.begin(), _nbrs.end(), m_seed);
 
     if (_isalready != _nbrs.end()) {
       _nbrs.erase(_isalready);

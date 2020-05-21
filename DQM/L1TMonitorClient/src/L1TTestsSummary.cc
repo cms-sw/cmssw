@@ -237,8 +237,8 @@ void L1TTestsSummary::updateL1TRateMonitor(DQMStore::IBooker &ibooker, DQMStore:
   igetter.setCurrentFolder(mL1TRatePath);
   vector<string> histToMonitor = igetter.getMEs();
 
-  for (unsigned int i = 0; i < histToMonitor.size(); i++) {
-    MonitorElement *me = igetter.get(mL1TRatePath + histToMonitor[i]);
+  for (const auto &i : histToMonitor) {
+    MonitorElement *me = igetter.get(mL1TRatePath + i);
     if (mVerbose) {
       cout << "[L1TTestsSummary:] Found ME: " << me->getTH1()->GetName() << endl;
     }
@@ -262,10 +262,10 @@ void L1TTestsSummary::updateL1TRateMonitor(DQMStore::IBooker &ibooker, DQMStore:
         mL1TRateMonitor->setBinContent(binx, biny, 100);
       }
 
-      for (unsigned int a = 0; a < qtBadChannels.size(); a++) {
+      for (auto &qtBadChannel : qtBadChannels) {
         for (unsigned int b = 0; b < mProcessedLS.size() - 1; b++) {
           // Converting bin to value
-          double valueBinBad = me->getTH1()->GetBinCenter(qtBadChannels[a].getBin());
+          double valueBinBad = me->getTH1()->GetBinCenter(qtBadChannel.getBin());
 
           if (valueBinBad == (mProcessedLS[b])) {
             int binx = mL1TRateMonitor->getTH2F()->GetXaxis()->FindBin(valueBinBad);
@@ -305,8 +305,8 @@ void L1TTestsSummary::updateL1TSyncMonitor(DQMStore::IBooker &ibooker, DQMStore:
   igetter.setCurrentFolder(mL1TSyncPath);
   vector<string> histToMonitor = igetter.getMEs();
 
-  for (unsigned int i = 0; i < histToMonitor.size(); i++) {
-    MonitorElement *me = igetter.get(mL1TSyncPath + histToMonitor[i]);
+  for (const auto &i : histToMonitor) {
+    MonitorElement *me = igetter.get(mL1TSyncPath + i);
     if (mVerbose) {
       cout << "[L1TTestsSummary:] Found ME: " << me->getTH1()->GetName() << endl;
     }
@@ -324,18 +324,18 @@ void L1TTestsSummary::updateL1TSyncMonitor(DQMStore::IBooker &ibooker, DQMStore:
         cout << "[L1TTestsSummary:] Bad Channels size=" << qtBadChannels.size() << endl;
       }
 
-      for (unsigned int i = 0; i < mProcessedLS.size(); i++) {
-        int binx = mL1TSyncMonitor->getTH2F()->GetXaxis()->FindBin(mProcessedLS[i]);
+      for (int i : mProcessedLS) {
+        int binx = mL1TSyncMonitor->getTH2F()->GetXaxis()->FindBin(i);
         int biny = mL1TSyncMonitor->getTH2F()->GetYaxis()->FindBin(me->getTH1()->GetName());
         mL1TSyncMonitor->setBinContent(binx, biny, 100);
       }
 
-      for (unsigned int a = 0; a < qtBadChannels.size(); a++) {
-        for (unsigned int b = 0; b < mProcessedLS.size(); b++) {
+      for (auto &qtBadChannel : qtBadChannels) {
+        for (int b : mProcessedLS) {
           // Converting bin to value
-          double valueBinBad = me->getTH1()->GetBinCenter(qtBadChannels[a].getBin());
+          double valueBinBad = me->getTH1()->GetBinCenter(qtBadChannel.getBin());
 
-          if (valueBinBad == mProcessedLS[b]) {
+          if (valueBinBad == b) {
             int binx = mL1TSyncMonitor->getTH2F()->GetXaxis()->FindBin(valueBinBad);
             int biny = mL1TSyncMonitor->getTH2F()->GetYaxis()->FindBin(me->getTH1()->GetName());
             mL1TSyncMonitor->setBinContent(binx, biny, 300);
@@ -371,8 +371,8 @@ void L1TTestsSummary::updateL1TOccupancyMonitor(DQMStore::IBooker &ibooker, DQMS
   igetter.setCurrentFolder(mL1TOccupancyPath);
   vector<string> histToMonitor = igetter.getMEs();
 
-  for (unsigned int i = 0; i < histToMonitor.size(); i++) {
-    MonitorElement *me = igetter.get(mL1TOccupancyPath + histToMonitor[i]);
+  for (const auto &i : histToMonitor) {
+    MonitorElement *me = igetter.get(mL1TOccupancyPath + i);
     if (mVerbose) {
       cout << "[L1TTestsSummary:] Found ME: " << me->getTH1()->GetName() << endl;
     }
@@ -390,18 +390,18 @@ void L1TTestsSummary::updateL1TOccupancyMonitor(DQMStore::IBooker &ibooker, DQMS
         cout << "[L1TTestsSummary:] Bad Channels size=" << qtBadChannels.size() << endl;
       }
 
-      for (unsigned int i = 0; i < mProcessedLS.size(); i++) {
-        int binx = mL1TOccupancyMonitor->getTH2F()->GetXaxis()->FindBin(mProcessedLS[i]);
+      for (int i : mProcessedLS) {
+        int binx = mL1TOccupancyMonitor->getTH2F()->GetXaxis()->FindBin(i);
         int biny = mL1TOccupancyMonitor->getTH2F()->GetYaxis()->FindBin(me->getTH1()->GetName());
         mL1TOccupancyMonitor->setBinContent(binx, biny, 100);
       }
 
-      for (unsigned int a = 0; a < qtBadChannels.size(); a++) {
-        for (unsigned int b = 0; b < mProcessedLS.size(); b++) {
+      for (auto &qtBadChannel : qtBadChannels) {
+        for (int b : mProcessedLS) {
           // Converting bin to value
-          double valueBinBad = me->getTH1()->GetBinCenter(qtBadChannels[a].getBin());
+          double valueBinBad = me->getTH1()->GetBinCenter(qtBadChannel.getBin());
 
-          if (valueBinBad == mProcessedLS[b]) {
+          if (valueBinBad == b) {
             int binx = mL1TOccupancyMonitor->getTH2F()->GetXaxis()->FindBin(valueBinBad);
             int biny = mL1TOccupancyMonitor->getTH2F()->GetYaxis()->FindBin(me->getTH1()->GetName());
             mL1TOccupancyMonitor->setBinContent(binx, biny, 300);

@@ -67,23 +67,21 @@ void RPCDBPerformanceHandler::getNewObjects() {
 
   std::map<int, std::vector<double> >::iterator itc;
   for (itc = (theRPCSimSetUp->_clsMap).begin(); itc != (theRPCSimSetUp->_clsMap).end(); ++itc) {
-    for (unsigned int n = 0; n < (itc->second).size(); ++n) {
-      (obj->v_cls).push_back((itc->second)[n]);
+    for (double n : (itc->second)) {
+      (obj->v_cls).push_back(n);
     }
   }
 
   RPCStripNoises::NoiseItem tipoprova;
 
   int i = 0;
-  for (std::map<uint32_t, std::vector<float> >::iterator it = (theRPCSimSetUp->_mapDetIdNoise).begin();
-       it != (theRPCSimSetUp->_mapDetIdNoise).end();
-       it++) {
-    tipoprova.dpid = it->first;
-    tipoprova.time = theRPCSimSetUp->getTime(it->first);
+  for (auto& it : (theRPCSimSetUp->_mapDetIdNoise)) {
+    tipoprova.dpid = it.first;
+    tipoprova.time = theRPCSimSetUp->getTime(it.first);
 
     for (unsigned int k = 0; k < 96; ++k) {
-      tipoprova.noise = ((it->second))[k];
-      tipoprova.eff = (theRPCSimSetUp->getEff(it->first))[k];
+      tipoprova.noise = ((it.second))[k];
+      tipoprova.eff = (theRPCSimSetUp->getEff(it.first))[k];
       (obj->v_noises).push_back(tipoprova);
     }
 

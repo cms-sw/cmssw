@@ -72,9 +72,7 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   std::vector<int> indices;
   std::vector<int> prescales;
   uint64_t state[2] = {iEvent.id().event(), iEvent.id().luminosityBlock()};
-  for (unsigned int j = 0; j < trackCollection.size(); j++) {
-    const reco::Track& track = trackCollection[j];
-
+  for (const auto& track : trackCollection) {
     //track selection
     bool passPt = (track.pt() >= minTrackPt), passLowDeDx = false, passHighDeDx = false, pass = passPt;
     if (!pass && (track.pt() >= minTrackPtPrescale)) {

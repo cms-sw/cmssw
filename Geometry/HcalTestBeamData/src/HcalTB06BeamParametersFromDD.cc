@@ -114,8 +114,8 @@ std::vector<std::string> HcalTB06BeamParametersFromDD::getNames(DDFilteredView& 
   while (dodet) {
     const DDLogicalPart& log = fv.logicalPart();
     bool ok = true;
-    for (unsigned int i = 0; i < tmp.size(); i++) {
-      if (!strcmp(tmp[i].c_str(), log.name().name().c_str())) {
+    for (auto& i : tmp) {
+      if (!strcmp(i.c_str(), log.name().name().c_str())) {
         ok = false;
         break;
       }

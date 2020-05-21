@@ -417,18 +417,18 @@ void SiStripBadAPVAlgorithmFromClusterOccupancy::CalculateMeanAndRMS(const std::
       tot2[j] = 0;
     }
 
-    for (uint32_t it = 0; it < a.size(); it++) {
-      Moduleposition = (a[it].modulePosition) - 1;
+    for (const auto& it : a) {
+      Moduleposition = (it.modulePosition) - 1;
 
-      for (int apv = 0; apv < a[it].numberApvs; apv++) {
+      for (int apv = 0; apv < it.numberApvs; apv++) {
         if (i > 0) {
-          if (a[it].apvMedian[apv] < (Mean[Moduleposition] - 3 * Rms[Moduleposition]) ||
-              (a[it].apvMedian[apv] > (Mean[Moduleposition] + 5 * Rms[Moduleposition]))) {
+          if (it.apvMedian[apv] < (Mean[Moduleposition] - 3 * Rms[Moduleposition]) ||
+              (it.apvMedian[apv] > (Mean[Moduleposition] + 5 * Rms[Moduleposition]))) {
             continue;
           }
         }
-        tot[Moduleposition] += a[it].apvMedian[apv];
-        tot2[Moduleposition] += (a[it].apvMedian[apv]) * (a[it].apvMedian[apv]);
+        tot[Moduleposition] += it.apvMedian[apv];
+        tot2[Moduleposition] += (it.apvMedian[apv]) * (it.apvMedian[apv]);
         n[Moduleposition]++;
       }
     }
@@ -454,29 +454,29 @@ void SiStripBadAPVAlgorithmFromClusterOccupancy::AnalyzeOccupancy(SiStripQuality
   int Moduleposition;
   uint32_t Detid;
 
-  for (uint32_t it = 0; it < medianValues.size(); it++) {
-    Moduleposition = (medianValues[it].modulePosition) - 1;
-    Detid = medianValues[it].detrawId;
+  for (auto& medianValue : medianValues) {
+    Moduleposition = (medianValue.modulePosition) - 1;
+    Detid = medianValue.detrawId;
 
-    for (int apv = 0; apv < medianValues[it].numberApvs; apv++) {
+    for (int apv = 0; apv < medianValue.numberApvs; apv++) {
       if (UseInputDB_) {
         if (InSiStripQuality->IsApvBad(Detid, apv)) {
           continue;  //if the apv is already flagged as bad, continue.
         }
       }
-      if (medianValues[it].apvMedian[apv] > minNevents_) {
-        if ((medianValues[it].apvMedian[apv] >
+      if (medianValue.apvMedian[apv] > minNevents_) {
+        if ((medianValue.apvMedian[apv] >
              (MeanAndRms[Moduleposition].first + highoccupancy_ * MeanAndRms[Moduleposition].second)) &&
-            (medianValues[it].apvMedian[apv] > absolutelow_))
+            (medianValue.apvMedian[apv] > absolutelow_))
           BadStripList.push_back(pQuality->encode((apv * 128), 128, 0));
-      } else if (medianValues[it].apvMedian[apv] <
+      } else if (medianValue.apvMedian[apv] <
                      (MeanAndRms[Moduleposition].first - lowoccupancy_ * MeanAndRms[Moduleposition].second) &&
-                 (MeanAndRms[Moduleposition].first > 2 || medianValues[it].apvabsoluteOccupancy[apv] == 0)) {
+                 (MeanAndRms[Moduleposition].first > 2 || medianValue.apvabsoluteOccupancy[apv] == 0)) {
         BadStripList.push_back(pQuality->encode((apv * 128), 128, 0));
-        std::cout << "Dead APV! DetId: " << medianValues[it].detrawId << ", APV number: " << apv + 1
-                  << ", APVMedian: " << medianValues[it].apvMedian[apv]
-                  << ", Mean: " << MeanAndRms[Moduleposition].first << ", RMS: " << MeanAndRms[Moduleposition].second
-                  << ", LowThreshold: " << lowoccupancy_ << ", Mean-Low*RMS: "
+        std::cout << "Dead APV! DetId: " << medianValue.detrawId << ", APV number: " << apv + 1
+                  << ", APVMedian: " << medianValue.apvMedian[apv] << ", Mean: " << MeanAndRms[Moduleposition].first
+                  << ", RMS: " << MeanAndRms[Moduleposition].second << ", LowThreshold: " << lowoccupancy_
+                  << ", Mean-Low*RMS: "
                   << (MeanAndRms[Moduleposition].first - lowoccupancy_ * MeanAndRms[Moduleposition].second)
                   << std::endl;
       }

@@ -122,23 +122,19 @@ void AlignmentMuonHIPTrajectorySelector::produce(edm::Event& iEvent, const edm::
 
   TrajectoryStateCombiner tsoscomb;
 
-  for (TrajTrackAssociationCollection::const_iterator iPair = originalTrajTrackMap->begin();
-       iPair != originalTrajTrackMap->end();
-       ++iPair) {
+  for (const auto& iPair : *originalTrajTrackMap) {
     if (m_hists) {
-      m_pt->Fill((*(*iPair).val).pt());
+      m_pt->Fill((*iPair.val).pt());
     }
 
-    if ((*(*iPair).val).pt() > m_minPt) {
-      std::vector<TrajectoryMeasurement> measurements = (*(*iPair).key).measurements();
+    if ((*iPair.val).pt() > m_minPt) {
+      std::vector<TrajectoryMeasurement> measurements = (*iPair.key).measurements();
 
       bool has_bad_residual = false;
 
       double tracker_forwardchi2 = 0.;
       double tracker_dof = 0.;
-      for (std::vector<TrajectoryMeasurement>::const_iterator im = measurements.begin(); im != measurements.end();
-           ++im) {
-        const TrajectoryMeasurement meas = *im;
+      for (auto meas : measurements) {
         auto hit = &(*meas.recHit());
         const DetId id = hit->geographicalId();
 
@@ -184,9 +180,7 @@ void AlignmentMuonHIPTrajectorySelector::produce(edm::Event& iEvent, const edm::
         m_tracker_forwardredchi2->Fill(tracker_forwardredchi2);
         m_tracker_dof->Fill(tracker_dof);
 
-        for (std::vector<TrajectoryMeasurement>::const_iterator im = measurements.begin(); im != measurements.end();
-             ++im) {
-          const TrajectoryMeasurement meas = *im;
+        for (auto meas : measurements) {
           auto hit = &(*meas.recHit());
           const DetId id = hit->geographicalId();
 
@@ -203,7 +197,7 @@ void AlignmentMuonHIPTrajectorySelector::produce(edm::Event& iEvent, const edm::
       }      // end if filling histograms
 
       if (tracker_forwardredchi2 < m_maxTrackerForwardRedChi2 && tracker_dof >= m_minTrackerDOF && !has_bad_residual) {
-        newTrajTrackMap->insert((*iPair).key, (*iPair).val);
+        newTrajTrackMap->insert(iPair.key, iPair.val);
       }  // end if passes tracker cuts
     }    // end if passes pT cut
   }      // end loop over original trajTrackMap

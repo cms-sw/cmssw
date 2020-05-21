@@ -560,17 +560,15 @@ bool muon::isGoodMuon(const reco::Muon& muon,
       return true;
 
     int nMatch = 0;
-    for (std::vector<reco::MuonChamberMatch>::const_iterator chamberMatch = muon.matches().begin();
-         chamberMatch != muon.matches().end();
-         ++chamberMatch) {
-      if (chamberMatch->detector() != 3)
+    for (const auto& chamberMatch : muon.matches()) {
+      if (chamberMatch.detector() != 3)
         continue;
 
-      const double trkX = chamberMatch->x;
-      const double errX = chamberMatch->xErr;
+      const double trkX = chamberMatch.x;
+      const double errX = chamberMatch.xErr;
 
-      for (std::vector<reco::MuonRPCHitMatch>::const_iterator rpcMatch = chamberMatch->rpcMatches.begin();
-           rpcMatch != chamberMatch->rpcMatches.end();
+      for (std::vector<reco::MuonRPCHitMatch>::const_iterator rpcMatch = chamberMatch.rpcMatches.begin();
+           rpcMatch != chamberMatch.rpcMatches.end();
            ++rpcMatch) {
         const double rpcX = rpcMatch->x;
 
@@ -808,20 +806,16 @@ bool muon::overlap(
   unsigned int nMatches1 = muon1.numberOfMatches(reco::Muon::SegmentAndTrackArbitration);
   unsigned int nMatches2 = muon2.numberOfMatches(reco::Muon::SegmentAndTrackArbitration);
   unsigned int betterMuon = (muon1.pt() > muon2.pt() ? 1 : 2);
-  for (std::vector<reco::MuonChamberMatch>::const_iterator chamber1 = muon1.matches().begin();
-       chamber1 != muon1.matches().end();
-       ++chamber1)
-    for (std::vector<reco::MuonChamberMatch>::const_iterator chamber2 = muon2.matches().begin();
-         chamber2 != muon2.matches().end();
-         ++chamber2) {
+  for (const auto& chamber1 : muon1.matches())
+    for (const auto& chamber2 : muon2.matches()) {
       // if ( (chamber1->segmentMatches.empty() || chamber2->segmentMatches.empty()) ) continue;
 
       // handle case where both muons have information about the same chamber
       // here we know how close they are
-      if (chamber1->id == chamber2->id) {
+      if (chamber1.id == chamber2.id) {
         // found the same chamber
-        if (fabs(chamber1->x - chamber2->x) <
-            pullX * sqrt(chamber1->xErr * chamber1->xErr + chamber2->xErr * chamber2->xErr)) {
+        if (fabs(chamber1.x - chamber2.x) <
+            pullX * sqrt(chamber1.xErr * chamber1.xErr + chamber2.xErr * chamber2.xErr)) {
           if (betterMuon == 1)
             nMatches2--;
           else
@@ -830,8 +824,8 @@ bool muon::overlap(
             return true;
           continue;
         }
-        if (fabs(chamber1->y - chamber2->y) <
-            pullY * sqrt(chamber1->yErr * chamber1->yErr + chamber2->yErr * chamber2->yErr)) {
+        if (fabs(chamber1.y - chamber2.y) <
+            pullY * sqrt(chamber1.yErr * chamber1.yErr + chamber2.yErr * chamber2.yErr)) {
           if (betterMuon == 1)
             nMatches2--;
           else
@@ -843,10 +837,10 @@ bool muon::overlap(
         if (!checkAdjacentChambers)
           continue;
         // check if tracks are pointing into overlaping region of the CSC detector
-        if (chamber1->id.subdetId() != MuonSubdetId::CSC || chamber2->id.subdetId() != MuonSubdetId::CSC)
+        if (chamber1.id.subdetId() != MuonSubdetId::CSC || chamber2.id.subdetId() != MuonSubdetId::CSC)
           continue;
-        CSCDetId id1(chamber1->id);
-        CSCDetId id2(chamber2->id);
+        CSCDetId id1(chamber1.id);
+        CSCDetId id2(chamber2.id);
         if (id1.endcap() != id2.endcap())
           continue;
         if (id1.station() != id2.station())
@@ -861,11 +855,11 @@ bool muon::overlap(
 
         // Now we have to make sure that both tracks are close to an edge
         // FIXME: ignored Y coordinate for now
-        if (fabs(chamber1->edgeX) > chamber1->xErr * pullX)
+        if (fabs(chamber1.edgeX) > chamber1.xErr * pullX)
           continue;
-        if (fabs(chamber2->edgeX) > chamber2->xErr * pullX)
+        if (fabs(chamber2.edgeX) > chamber2.xErr * pullX)
           continue;
-        if (chamber1->x * chamber2->x < 0) {  // check if the same edge
+        if (chamber1.x * chamber2.x < 0) {  // check if the same edge
           if (betterMuon == 1)
             nMatches2--;
           else
@@ -991,25 +985,21 @@ int muon::sharedSegments(const reco::Muon& mu, const reco::Muon& mu2, unsigned i
   int ret = 0;
 
   // Will do with a stupid double loop, since creating and filling a map is probably _more_ inefficient for a single lookup.
-  for (std::vector<reco::MuonChamberMatch>::const_iterator chamberMatch = mu.matches().begin();
-       chamberMatch != mu.matches().end();
-       ++chamberMatch) {
-    if (chamberMatch->segmentMatches.empty())
+  for (const auto& chamberMatch : mu.matches()) {
+    if (chamberMatch.segmentMatches.empty())
       continue;
-    for (std::vector<reco::MuonChamberMatch>::const_iterator chamberMatch2 = mu2.matches().begin();
-         chamberMatch2 != mu2.matches().end();
-         ++chamberMatch2) {
-      if (chamberMatch2->segmentMatches.empty())
+    for (const auto& chamberMatch2 : mu2.matches()) {
+      if (chamberMatch2.segmentMatches.empty())
         continue;
-      if (chamberMatch2->id() != chamberMatch->id())
+      if (chamberMatch2.id() != chamberMatch.id())
         continue;
-      for (std::vector<reco::MuonSegmentMatch>::const_iterator segmentMatch = chamberMatch->segmentMatches.begin();
-           segmentMatch != chamberMatch->segmentMatches.end();
+      for (std::vector<reco::MuonSegmentMatch>::const_iterator segmentMatch = chamberMatch.segmentMatches.begin();
+           segmentMatch != chamberMatch.segmentMatches.end();
            ++segmentMatch) {
         if (!segmentMatch->isMask(segmentArbitrationMask))
           continue;
-        for (std::vector<reco::MuonSegmentMatch>::const_iterator segmentMatch2 = chamberMatch2->segmentMatches.begin();
-             segmentMatch2 != chamberMatch2->segmentMatches.end();
+        for (std::vector<reco::MuonSegmentMatch>::const_iterator segmentMatch2 = chamberMatch2.segmentMatches.begin();
+             segmentMatch2 != chamberMatch2.segmentMatches.end();
              ++segmentMatch2) {
           if (!segmentMatch2->isMask(segmentArbitrationMask))
             continue;

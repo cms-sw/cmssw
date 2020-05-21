@@ -72,18 +72,18 @@ void HBHETimeProfileStatusBitSetter::hbheSetTimeFlagsFromDigi(HBHERecHitCollecti
   //  int LeadingEta=0;
   int LeadingPhi = 0;
   bool FoundLeadingChannel = false;
-  for (std::vector<HBHEDataFrame>::const_iterator itDigi = digi.begin(); itDigi != digi.end(); itDigi++) {
+  for (const auto& itDigi : digi) {
     if (!FoundLeadingChannel) {
       //	  LeadingEta = itDigi->id().ieta();
-      LeadingPhi = itDigi->id().iphi();
-      DigiSize = (*itDigi).size();
+      LeadingPhi = itDigi.id().iphi();
+      DigiSize = itDigi.size();
       PulseShape.clear();
       PulseShape.resize(DigiSize, 0);
       FoundLeadingChannel = true;
     }
-    if (abs(LeadingPhi - itDigi->id().iphi()) < 2)
+    if (abs(LeadingPhi - itDigi.id().iphi()) < 2)
       for (int i = 0; i != DigiSize; i++)
-        PulseShape[i] += itDigi->sample(i).nominal_fC();
+        PulseShape[i] += itDigi.sample(i).nominal_fC();
   }
 
   if (!RecHitIndex.empty()) {

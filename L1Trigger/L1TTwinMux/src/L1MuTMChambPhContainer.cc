@@ -46,8 +46,8 @@ void L1MuTMChambPhContainer::setContainer(const Phi_Container& inputSegments) { 
 L1MuTMChambPhContainer::Phi_Container const* L1MuTMChambPhContainer::getContainer() const { return &phiSegments; }
 
 bool L1MuTMChambPhContainer::bxEmpty(int step) const {
-  for (Phi_iterator i = phiSegments.begin(); i != phiSegments.end(); i++) {
-    if (step == i->bxNum())
+  for (const auto& phiSegment : phiSegments) {
+    if (step == phiSegment.bxNum())
       return false;
   }
 
@@ -57,10 +57,12 @@ bool L1MuTMChambPhContainer::bxEmpty(int step) const {
 int L1MuTMChambPhContainer::bxSize(int step1, int step2) const {
   int size = 0;
 
-  for (Phi_iterator i = phiSegments.begin(); i != phiSegments.end(); i++) {
-    if (step1 <= i->bxNum() && step2 >= i->bxNum() && i->Ts2Tag() == 0 && i->code() != 7)
+  for (const auto& phiSegment : phiSegments) {
+    if (step1 <= phiSegment.bxNum() && step2 >= phiSegment.bxNum() && phiSegment.Ts2Tag() == 0 &&
+        phiSegment.code() != 7)
       size++;
-    if (step1 <= i->bxNum() - 1 && step2 >= i->bxNum() - 1 && i->Ts2Tag() == 1 && i->code() != 7)
+    if (step1 <= phiSegment.bxNum() - 1 && step2 >= phiSegment.bxNum() - 1 && phiSegment.Ts2Tag() == 1 &&
+        phiSegment.code() != 7)
       size++;
   }
 
@@ -70,9 +72,10 @@ int L1MuTMChambPhContainer::bxSize(int step1, int step2) const {
 L1MuDTChambPhDigi const* L1MuTMChambPhContainer::chPhiSegm1(int wheel, int stat, int sect, int step) const {
   L1MuDTChambPhDigi const* rT = nullptr;
 
-  for (Phi_iterator i = phiSegments.begin(); i != phiSegments.end(); i++) {
-    if (step == i->bxNum() && wheel == i->whNum() && sect == i->scNum() && stat == i->stNum() && i->Ts2Tag() == 0)
-      rT = &(*i);
+  for (const auto& phiSegment : phiSegments) {
+    if (step == phiSegment.bxNum() && wheel == phiSegment.whNum() && sect == phiSegment.scNum() &&
+        stat == phiSegment.stNum() && phiSegment.Ts2Tag() == 0)
+      rT = &phiSegment;
   }
 
   return (rT);
@@ -81,9 +84,10 @@ L1MuDTChambPhDigi const* L1MuTMChambPhContainer::chPhiSegm1(int wheel, int stat,
 L1MuDTChambPhDigi const* L1MuTMChambPhContainer::chPhiSegm2(int wheel, int stat, int sect, int step) const {
   L1MuDTChambPhDigi const* rT = nullptr;
 
-  for (Phi_iterator i = phiSegments.begin(); i != phiSegments.end(); i++) {
-    if (step == i->bxNum() - 1 && wheel == i->whNum() && sect == i->scNum() && stat == i->stNum() && i->Ts2Tag() == 1)
-      rT = &(*i);
+  for (const auto& phiSegment : phiSegments) {
+    if (step == phiSegment.bxNum() - 1 && wheel == phiSegment.whNum() && sect == phiSegment.scNum() &&
+        stat == phiSegment.stNum() && phiSegment.Ts2Tag() == 1)
+      rT = &phiSegment;
   }
 
   return (rT);
@@ -91,9 +95,10 @@ L1MuDTChambPhDigi const* L1MuTMChambPhContainer::chPhiSegm2(int wheel, int stat,
 
 L1MuDTChambPhDigi* L1MuTMChambPhContainer::chPhiSegm(int wheel, int stat, int sect, int step, int ts2tag) {
   L1MuDTChambPhDigi* rT = nullptr;
-  for (Phi_Container::iterator i = phiSegments.begin(); i != phiSegments.end(); i++) {
-    if (step == i->bxNum() && wheel == i->whNum() && sect == i->scNum() && stat == i->stNum() && i->Ts2Tag() == ts2tag)
-      rT = &(*i);
+  for (auto& phiSegment : phiSegments) {
+    if (step == phiSegment.bxNum() && wheel == phiSegment.whNum() && sect == phiSegment.scNum() &&
+        stat == phiSegment.stNum() && phiSegment.Ts2Tag() == ts2tag)
+      rT = &phiSegment;
   }
 
   return (rT);

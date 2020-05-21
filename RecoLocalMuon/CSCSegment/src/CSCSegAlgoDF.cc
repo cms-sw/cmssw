@@ -76,11 +76,9 @@ std::vector<CSCSegment> CSCSegAlgoDF::run(const CSCChamber* aChamber, const Cham
     std::vector<CSCSegment> testSegments;
     std::vector<ChamberHitContainer> clusteredHits = preCluster_->clusterHits(theChamber, rechits);
     // loop over the found clusters:
-    for (std::vector<ChamberHitContainer>::iterator subrechits = clusteredHits.begin();
-         subrechits != clusteredHits.end();
-         ++subrechits) {
+    for (auto& clusteredHit : clusteredHits) {
       // build the subset of segments:
-      std::vector<CSCSegment> segs = buildSegments((*subrechits));
+      std::vector<CSCSegment> segs = buildSegments(clusteredHit);
       // add the found subset of segments to the collection of all segments in this chamber:
       segments_temp.insert(segments_temp.end(), segs.begin(), segs.end());
     }
@@ -366,10 +364,10 @@ void CSCSegAlgoDF::tryAddingHitsToSegment(const ChamberHitContainer& rechits,
 
   // 2nd pass to remove biases
   // This time, also consider changing the endpoints
-  for (ChamberHitContainerCIt i = closeHits.begin(); i != closeHits.end(); ++i) {
+  for (auto closeHit : closeHits) {
     //    std::cout << "2nd pass" << std::endl;
-    const CSCRecHit2D* h = *i;
-    int layer = (*i)->cscDetId().layer();
+    const CSCRecHit2D* h = closeHit;
+    int layer = closeHit->cscDetId().layer();
     compareProtoSegment(h, layer);
   }
 }
@@ -431,8 +429,8 @@ bool CSCSegAlgoDF::addHit(const CSCRecHit2D* aHit, int layer) {
     return false;  //@@ can only have 6 hits at most
 
   // Test that we are not trying to add the same hit again
-  for (ChamberHitContainer::const_iterator it = protoSegment.begin(); it != protoSegment.end(); ++it)
-    if (aHit == (*it))
+  for (auto it : protoSegment)
+    if (aHit == it)
       return false;
 
   protoSegment.push_back(aHit);
@@ -467,8 +465,8 @@ bool CSCSegAlgoDF::hasHitOnLayer(int layer) const {
   //  std::cout << "[CSCSegAlgoDF::hasHitOnLayer] on layer " << layer << std::endl;
 
   // Is there already a hit on this layer?
-  for (ChamberHitContainerCIt it = protoSegment.begin(); it != protoSegment.end(); it++)
-    if ((*it)->cscDetId().layer() == layer)
+  for (auto it : protoSegment)
+    if (it->cscDetId().layer() == layer)
       return true;
 
   return false;

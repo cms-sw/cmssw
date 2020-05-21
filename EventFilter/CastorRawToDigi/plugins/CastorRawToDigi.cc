@@ -46,8 +46,8 @@ CastorRawToDigi::CastorRawToDigi(edm::ParameterSet const& conf)
 
   unpacker_.setExpectedOrbitMessageTime(expectedOrbitMessageTime_);
   std::ostringstream ss;
-  for (unsigned int i = 0; i < fedUnpackList_.size(); i++)
-    ss << fedUnpackList_[i] << " ";
+  for (int i : fedUnpackList_)
+    ss << i << " ";
   edm::LogInfo("CASTOR") << "CastorRawToDigi will unpack FEDs ( " << ss.str() << ")";
 
   // products produced...
@@ -94,23 +94,23 @@ void CastorRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
   const int fed722size = fed722.size();
   const FEDRawData& fed693 = rawraw->FEDData(693);
   const int fed693size = fed693.size();
-  for (std::vector<int>::const_iterator i = fedUnpackList_.begin(); i != fedUnpackList_.end(); i++) {
-    const FEDRawData& fed = rawraw->FEDData(*i);
+  for (int i : fedUnpackList_) {
+    const FEDRawData& fed = rawraw->FEDData(i);
     //std::cout<<"Fed number "<<*i<<"is being worked on"<<std::endl;
-    if (*i == 693 && fed693size == 0 && fed722size != 0)
+    if (i == 693 && fed693size == 0 && fed722size != 0)
       continue;
-    if (*i == 722 && fed722size == 0 && fed693size != 0)
+    if (i == 722 && fed722size == 0 && fed693size != 0)
       continue;
 
-    if (*i != 693 && *i != 722) {
+    if (i != 693 && i != 722) {
       if (fed.size() == 0) {
         if (complainEmptyData_) {
-          edm::LogWarning("EmptyData") << "No data for FED " << *i;
-          report->addError(*i);
+          edm::LogWarning("EmptyData") << "No data for FED " << i;
+          report->addError(i);
         }
       } else if (fed.size() < 8 * 3) {
-        edm::LogWarning("EmptyData") << "Tiny data " << fed.size() << " for FED " << *i;
-        report->addError(*i);
+        edm::LogWarning("EmptyData") << "Tiny data " << fed.size() << " for FED " << i;
+        report->addError(i);
       } else {
         try {
           if (usingctdc_) {
@@ -118,40 +118,40 @@ void CastorRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
           } else {
             unpacker_.unpack(fed, *readoutMap, colls, *report);
           }
-          report->addUnpacked(*i);
+          report->addUnpacked(i);
         } catch (cms::Exception& e) {
           edm::LogWarning("Unpacking error") << e.what();
-          report->addError(*i);
+          report->addError(i);
         } catch (...) {
           edm::LogWarning("Unpacking exception");
-          report->addError(*i);
+          report->addError(i);
         }
       }
     }
 
-    if (*i == 693 && unpackZDC_) {
+    if (i == 693 && unpackZDC_) {
       if (fed.size() == 0) {
         if (complainEmptyData_) {
-          edm::LogWarning("EmptyData") << "No data for FED " << *i;
-          report->addError(*i);
+          edm::LogWarning("EmptyData") << "No data for FED " << i;
+          report->addError(i);
         }
       }
       if (fed.size() != 0) {
         zdcunpacker_.unpack(fed, *readoutMap, colls, *report);
-        report->addUnpacked(*i);
+        report->addUnpacked(i);
       }
     }
 
-    if (*i == 722 && unpackZDC_) {
+    if (i == 722 && unpackZDC_) {
       if (fed.size() == 0) {
         if (complainEmptyData_) {
-          edm::LogWarning("EmptyData") << "No data for FED " << *i;
-          report->addError(*i);
+          edm::LogWarning("EmptyData") << "No data for FED " << i;
+          report->addError(i);
         }
       }
       if (fed.size() != 0) {
         zdcunpacker_.unpack(fed, *readoutMap, colls, *report);
-        report->addUnpacked(*i);
+        report->addUnpacked(i);
       }
     }
 

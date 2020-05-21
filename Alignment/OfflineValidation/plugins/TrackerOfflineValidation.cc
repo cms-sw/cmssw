@@ -487,8 +487,8 @@ TrackerOfflineValidation::TrackerOfflineValidation(const edm::ParameterSet& iCon
 TrackerOfflineValidation::~TrackerOfflineValidation() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
-  for (std::vector<TH1*>::const_iterator it = vDeleteObjects_.begin(), itEnd = vDeleteObjects_.end(); it != itEnd; ++it)
-    delete *it;
+  for (auto vDeleteObject : vDeleteObjects_)
+    delete vDeleteObject;
 }
 
 //
@@ -1120,112 +1120,110 @@ void TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::Even
   std::vector<TrackerValidationVariables::AVTrackStruct> vTrackstruct;
   avalidator_.fillTrackQuantities(iEvent, iSetup, vTrackstruct);
 
-  for (std::vector<TrackerValidationVariables::AVTrackStruct>::const_iterator itT = vTrackstruct.begin();
-       itT != vTrackstruct.end();
-       ++itT) {
-    if (itT->charge * chargeCut_ < 0)
+  for (const auto& itT : vTrackstruct) {
+    if (itT.charge * chargeCut_ < 0)
       continue;
 
     if (maxTracks_ > 0 && nTracks_++ >= maxTracks_)
       break;  //exit the loop after hitting the max number of tracks
     // Fill 1D track histos
     static const int etaindex = this->GetIndex(vTrackHistos_, "h_tracketa");
-    vTrackHistos_[etaindex]->Fill(itT->eta);
+    vTrackHistos_[etaindex]->Fill(itT.eta);
     static const int phiindex = this->GetIndex(vTrackHistos_, "h_trackphi");
-    vTrackHistos_[phiindex]->Fill(itT->phi);
+    vTrackHistos_[phiindex]->Fill(itT.phi);
     static const int numOfValidHitsindex = this->GetIndex(vTrackHistos_, "h_trackNumberOfValidHits");
-    vTrackHistos_[numOfValidHitsindex]->Fill(itT->numberOfValidHits);
+    vTrackHistos_[numOfValidHitsindex]->Fill(itT.numberOfValidHits);
     static const int numOfLostHitsindex = this->GetIndex(vTrackHistos_, "h_trackNumberOfLostHits");
-    vTrackHistos_[numOfLostHitsindex]->Fill(itT->numberOfLostHits);
+    vTrackHistos_[numOfLostHitsindex]->Fill(itT.numberOfLostHits);
     static const int kappaindex = this->GetIndex(vTrackHistos_, "h_curvature");
-    vTrackHistos_[kappaindex]->Fill(itT->kappa);
+    vTrackHistos_[kappaindex]->Fill(itT.kappa);
     static const int kappaposindex = this->GetIndex(vTrackHistos_, "h_curvature_pos");
-    if (itT->charge > 0)
-      vTrackHistos_[kappaposindex]->Fill(fabs(itT->kappa));
+    if (itT.charge > 0)
+      vTrackHistos_[kappaposindex]->Fill(fabs(itT.kappa));
     static const int kappanegindex = this->GetIndex(vTrackHistos_, "h_curvature_neg");
-    if (itT->charge < 0)
-      vTrackHistos_[kappanegindex]->Fill(fabs(itT->kappa));
+    if (itT.charge < 0)
+      vTrackHistos_[kappanegindex]->Fill(fabs(itT.kappa));
     static const int normchi2index = this->GetIndex(vTrackHistos_, "h_normchi2");
-    vTrackHistos_[normchi2index]->Fill(itT->normchi2);
+    vTrackHistos_[normchi2index]->Fill(itT.normchi2);
     static const int chi2index = this->GetIndex(vTrackHistos_, "h_chi2");
-    vTrackHistos_[chi2index]->Fill(itT->chi2);
+    vTrackHistos_[chi2index]->Fill(itT.chi2);
     static const int chi2Probindex = this->GetIndex(vTrackHistos_, "h_chi2Prob");
-    vTrackHistos_[chi2Probindex]->Fill(itT->chi2Prob);
+    vTrackHistos_[chi2Probindex]->Fill(itT.chi2Prob);
     static const int ptindex = this->GetIndex(vTrackHistos_, "h_pt");
-    vTrackHistos_[ptindex]->Fill(itT->pt);
-    if (itT->ptError != 0.) {
+    vTrackHistos_[ptindex]->Fill(itT.pt);
+    if (itT.ptError != 0.) {
       static const int ptResolutionindex = this->GetIndex(vTrackHistos_, "h_ptResolution");
-      vTrackHistos_[ptResolutionindex]->Fill(itT->ptError / itT->pt);
+      vTrackHistos_[ptResolutionindex]->Fill(itT.ptError / itT.pt);
     }
     // Fill track profiles
     static const int d0phiindex = this->GetIndex(vTrackProfiles_, "p_d0_vs_phi");
-    vTrackProfiles_[d0phiindex]->Fill(itT->phi, itT->d0);
+    vTrackProfiles_[d0phiindex]->Fill(itT.phi, itT.d0);
     static const int dzphiindex = this->GetIndex(vTrackProfiles_, "p_dz_vs_phi");
-    vTrackProfiles_[dzphiindex]->Fill(itT->phi, itT->dz);
+    vTrackProfiles_[dzphiindex]->Fill(itT.phi, itT.dz);
     static const int d0etaindex = this->GetIndex(vTrackProfiles_, "p_d0_vs_eta");
-    vTrackProfiles_[d0etaindex]->Fill(itT->eta, itT->d0);
+    vTrackProfiles_[d0etaindex]->Fill(itT.eta, itT.d0);
     static const int dzetaindex = this->GetIndex(vTrackProfiles_, "p_dz_vs_eta");
-    vTrackProfiles_[dzetaindex]->Fill(itT->eta, itT->dz);
+    vTrackProfiles_[dzetaindex]->Fill(itT.eta, itT.dz);
     static const int chiphiindex = this->GetIndex(vTrackProfiles_, "p_chi2_vs_phi");
-    vTrackProfiles_[chiphiindex]->Fill(itT->phi, itT->chi2);
+    vTrackProfiles_[chiphiindex]->Fill(itT.phi, itT.chi2);
     static const int chiProbphiindex = this->GetIndex(vTrackProfiles_, "p_chi2Prob_vs_phi");
-    vTrackProfiles_[chiProbphiindex]->Fill(itT->phi, itT->chi2Prob);
+    vTrackProfiles_[chiProbphiindex]->Fill(itT.phi, itT.chi2Prob);
     static const int chiProbabsd0index = this->GetIndex(vTrackProfiles_, "p_chi2Prob_vs_d0");
-    vTrackProfiles_[chiProbabsd0index]->Fill(fabs(itT->d0), itT->chi2Prob);
+    vTrackProfiles_[chiProbabsd0index]->Fill(fabs(itT.d0), itT.chi2Prob);
     static const int normchiphiindex = this->GetIndex(vTrackProfiles_, "p_normchi2_vs_phi");
-    vTrackProfiles_[normchiphiindex]->Fill(itT->phi, itT->normchi2);
+    vTrackProfiles_[normchiphiindex]->Fill(itT.phi, itT.normchi2);
     static const int chietaindex = this->GetIndex(vTrackProfiles_, "p_chi2_vs_eta");
-    vTrackProfiles_[chietaindex]->Fill(itT->eta, itT->chi2);
+    vTrackProfiles_[chietaindex]->Fill(itT.eta, itT.chi2);
     static const int normchiptindex = this->GetIndex(vTrackProfiles_, "p_normchi2_vs_pt");
-    vTrackProfiles_[normchiptindex]->Fill(itT->pt, itT->normchi2);
+    vTrackProfiles_[normchiptindex]->Fill(itT.pt, itT.normchi2);
     static const int normchipindex = this->GetIndex(vTrackProfiles_, "p_normchi2_vs_p");
-    vTrackProfiles_[normchipindex]->Fill(itT->p, itT->normchi2);
+    vTrackProfiles_[normchipindex]->Fill(itT.p, itT.normchi2);
     static const int chiProbetaindex = this->GetIndex(vTrackProfiles_, "p_chi2Prob_vs_eta");
-    vTrackProfiles_[chiProbetaindex]->Fill(itT->eta, itT->chi2Prob);
+    vTrackProfiles_[chiProbetaindex]->Fill(itT.eta, itT.chi2Prob);
     static const int normchietaindex = this->GetIndex(vTrackProfiles_, "p_normchi2_vs_eta");
-    vTrackProfiles_[normchietaindex]->Fill(itT->eta, itT->normchi2);
+    vTrackProfiles_[normchietaindex]->Fill(itT.eta, itT.normchi2);
     static const int kappaphiindex = this->GetIndex(vTrackProfiles_, "p_kappa_vs_phi");
-    vTrackProfiles_[kappaphiindex]->Fill(itT->phi, itT->kappa);
+    vTrackProfiles_[kappaphiindex]->Fill(itT.phi, itT.kappa);
     static const int kappaetaindex = this->GetIndex(vTrackProfiles_, "p_kappa_vs_eta");
-    vTrackProfiles_[kappaetaindex]->Fill(itT->eta, itT->kappa);
+    vTrackProfiles_[kappaetaindex]->Fill(itT.eta, itT.kappa);
     static const int ptResphiindex = this->GetIndex(vTrackProfiles_, "p_ptResolution_vs_phi");
-    vTrackProfiles_[ptResphiindex]->Fill(itT->phi, itT->ptError / itT->pt);
+    vTrackProfiles_[ptResphiindex]->Fill(itT.phi, itT.ptError / itT.pt);
     static const int ptResetaindex = this->GetIndex(vTrackProfiles_, "p_ptResolution_vs_eta");
-    vTrackProfiles_[ptResetaindex]->Fill(itT->eta, itT->ptError / itT->pt);
+    vTrackProfiles_[ptResetaindex]->Fill(itT.eta, itT.ptError / itT.pt);
 
     // Fill 2D track histos
     static const int d0phiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_d0_vs_phi");
-    vTrack2DHistos_[d0phiindex_2d]->Fill(itT->phi, itT->d0);
+    vTrack2DHistos_[d0phiindex_2d]->Fill(itT.phi, itT.d0);
     static const int dzphiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_dz_vs_phi");
-    vTrack2DHistos_[dzphiindex_2d]->Fill(itT->phi, itT->dz);
+    vTrack2DHistos_[dzphiindex_2d]->Fill(itT.phi, itT.dz);
     static const int d0etaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_d0_vs_eta");
-    vTrack2DHistos_[d0etaindex_2d]->Fill(itT->eta, itT->d0);
+    vTrack2DHistos_[d0etaindex_2d]->Fill(itT.eta, itT.d0);
     static const int dzetaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_dz_vs_eta");
-    vTrack2DHistos_[dzetaindex_2d]->Fill(itT->eta, itT->dz);
+    vTrack2DHistos_[dzetaindex_2d]->Fill(itT.eta, itT.dz);
     static const int chiphiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_chi2_vs_phi");
-    vTrack2DHistos_[chiphiindex_2d]->Fill(itT->phi, itT->chi2);
+    vTrack2DHistos_[chiphiindex_2d]->Fill(itT.phi, itT.chi2);
     static const int chiProbphiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_chi2Prob_vs_phi");
-    vTrack2DHistos_[chiProbphiindex_2d]->Fill(itT->phi, itT->chi2Prob);
+    vTrack2DHistos_[chiProbphiindex_2d]->Fill(itT.phi, itT.chi2Prob);
     static const int chiProbabsd0index_2d = this->GetIndex(vTrack2DHistos_, "h2_chi2Prob_vs_d0");
-    vTrack2DHistos_[chiProbabsd0index_2d]->Fill(fabs(itT->d0), itT->chi2Prob);
+    vTrack2DHistos_[chiProbabsd0index_2d]->Fill(fabs(itT.d0), itT.chi2Prob);
     static const int normchiphiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_normchi2_vs_phi");
-    vTrack2DHistos_[normchiphiindex_2d]->Fill(itT->phi, itT->normchi2);
+    vTrack2DHistos_[normchiphiindex_2d]->Fill(itT.phi, itT.normchi2);
     static const int chietaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_chi2_vs_eta");
-    vTrack2DHistos_[chietaindex_2d]->Fill(itT->eta, itT->chi2);
+    vTrack2DHistos_[chietaindex_2d]->Fill(itT.eta, itT.chi2);
     static const int chiProbetaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_chi2Prob_vs_eta");
-    vTrack2DHistos_[chiProbetaindex_2d]->Fill(itT->eta, itT->chi2Prob);
+    vTrack2DHistos_[chiProbetaindex_2d]->Fill(itT.eta, itT.chi2Prob);
     static const int normchietaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_normchi2_vs_eta");
-    vTrack2DHistos_[normchietaindex_2d]->Fill(itT->eta, itT->normchi2);
+    vTrack2DHistos_[normchietaindex_2d]->Fill(itT.eta, itT.normchi2);
     static const int kappaphiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_kappa_vs_phi");
-    vTrack2DHistos_[kappaphiindex_2d]->Fill(itT->phi, itT->kappa);
+    vTrack2DHistos_[kappaphiindex_2d]->Fill(itT.phi, itT.kappa);
     static const int kappaetaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_kappa_vs_eta");
-    vTrack2DHistos_[kappaetaindex_2d]->Fill(itT->eta, itT->kappa);
+    vTrack2DHistos_[kappaetaindex_2d]->Fill(itT.eta, itT.kappa);
     static const int normchi2kappa_2d = this->GetIndex(vTrack2DHistos_, "h2_normchi2_vs_kappa");
-    vTrack2DHistos_[normchi2kappa_2d]->Fill(itT->normchi2, itT->kappa);
+    vTrack2DHistos_[normchi2kappa_2d]->Fill(itT.normchi2, itT.kappa);
 
     // hit quantities: residuals, normalized residuals
-    for (std::vector<TrackerValidationVariables::AVHitStruct>::const_iterator itH = itT->hits.begin();
-         itH != itT->hits.end();
+    for (std::vector<TrackerValidationVariables::AVHitStruct>::const_iterator itH = itT.hits.begin();
+         itH != itT.hits.end();
          ++itH) {
       DetId detid(itH->rawDetId);
       ModuleHistos& histStruct = this->getHistStructFromMap(detid);
@@ -1246,27 +1244,27 @@ void TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::Even
         /******************************* Fill 2-D histo ResX vs momenta *****************************/
         if (detid.subdetId() == PixelSubdetector::PixelBarrel) {
           static const int resXvsPindex_2d = this->GetIndex(vTrack2DHistos_, "p_vs_resXprime_pixB");
-          vTrack2DHistos_[resXvsPindex_2d]->Fill(itT->p, itH->resXprime);
+          vTrack2DHistos_[resXvsPindex_2d]->Fill(itT.p, itH->resXprime);
         }
         if (detid.subdetId() == PixelSubdetector::PixelEndcap) {
           static const int resXvsPindex_2d = this->GetIndex(vTrack2DHistos_, "p_vs_resXprime_pixE");
-          vTrack2DHistos_[resXvsPindex_2d]->Fill(itT->p, itH->resXprime);
+          vTrack2DHistos_[resXvsPindex_2d]->Fill(itT.p, itH->resXprime);
         }
         if (detid.subdetId() == StripSubdetector::TIB) {
           static const int resXvsPindex_2d = this->GetIndex(vTrack2DHistos_, "p_vs_resXprime_TIB");
-          vTrack2DHistos_[resXvsPindex_2d]->Fill(itT->p, itH->resXprime);
+          vTrack2DHistos_[resXvsPindex_2d]->Fill(itT.p, itH->resXprime);
         }
         if (detid.subdetId() == StripSubdetector::TID) {
           static const int resXvsPindex_2d = this->GetIndex(vTrack2DHistos_, "p_vs_resXprime_TID");
-          vTrack2DHistos_[resXvsPindex_2d]->Fill(itT->p, itH->resXprime);
+          vTrack2DHistos_[resXvsPindex_2d]->Fill(itT.p, itH->resXprime);
         }
         if (detid.subdetId() == StripSubdetector::TOB) {
           static const int resXvsPindex_2d = this->GetIndex(vTrack2DHistos_, "p_vs_resXprime_TOB");
-          vTrack2DHistos_[resXvsPindex_2d]->Fill(itT->p, itH->resXprime);
+          vTrack2DHistos_[resXvsPindex_2d]->Fill(itT.p, itH->resXprime);
         }
         if (detid.subdetId() == StripSubdetector::TEC) {
           static const int resXvsPindex_2d = this->GetIndex(vTrack2DHistos_, "p_vs_resXprime_TEC");
-          vTrack2DHistos_[resXvsPindex_2d]->Fill(itT->p, itH->resXprime);
+          vTrack2DHistos_[resXvsPindex_2d]->Fill(itT.p, itH->resXprime);
         }
         /******************************************/
 
@@ -1305,11 +1303,11 @@ void TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::Even
           /******************************* Fill 2-D histo ResY vs momenta *****************************/
           if (detid.subdetId() == PixelSubdetector::PixelBarrel) {
             static const int resYvsPindex_2d = this->GetIndex(vTrack2DHistos_, "p_vs_resYprime_pixB");
-            vTrack2DHistos_[resYvsPindex_2d]->Fill(itT->p, itH->resYprime);
+            vTrack2DHistos_[resYvsPindex_2d]->Fill(itT.p, itH->resYprime);
           }
           if (detid.subdetId() == PixelSubdetector::PixelEndcap) {
             static const int resYvsPindex_2d = this->GetIndex(vTrack2DHistos_, "p_vs_resYprime_pixE");
-            vTrack2DHistos_[resYvsPindex_2d]->Fill(itT->p, itH->resYprime);
+            vTrack2DHistos_[resYvsPindex_2d]->Fill(itT.p, itH->resYprime);
           }
           /******************************************/
 
@@ -1453,17 +1451,14 @@ void TrackerOfflineValidation::prepareSummaryHists(
 }
 
 void TrackerOfflineValidation::collateSummaryHists() {
-  for (std::vector<std::pair<TH1*, TH1*> >::const_iterator it = sumHistStructure_.begin();
-       it != sumHistStructure_.end();
-       ++it)
-    it->first->Add(it->second);
+  for (const auto& it : sumHistStructure_)
+    it.first->Add(it.second);
 
-  for (std::vector<std::tuple<int, TH1*, TH1*> >::const_iterator it = summaryBins_.begin(); it != summaryBins_.end();
-       ++it)
-    setSummaryBin(std::get<0>(*it), std::get<1>(*it), std::get<2>(*it));
+  for (const auto& summaryBin : summaryBins_)
+    setSummaryBin(std::get<0>(summaryBin), std::get<1>(summaryBin), std::get<2>(summaryBin));
 
-  for (std::vector<TH1*>::const_iterator it = toFit_.begin(); it != toFit_.end(); ++it)
-    fitResiduals(*it);
+  for (auto it : toFit_)
+    fitResiduals(it);
 }
 
 TrackerOfflineValidation::SummaryContainer TrackerOfflineValidation::bookSummaryHists(DirectoryWrapper& tfd,
@@ -1693,14 +1688,11 @@ float TrackerOfflineValidation::Fwhm(const TH1* hist) const {
 void TrackerOfflineValidation::setUpTreeMembers(const std::map<int, TrackerOfflineValidation::ModuleHistos>& moduleHist_,
                                                 const TrackerGeometry& tkgeom,
                                                 const TrackerTopology* tTopo) {
-  for (std::map<int, TrackerOfflineValidation::ModuleHistos>::const_iterator it = moduleHist_.begin(),
-                                                                             itEnd = moduleHist_.end();
-       it != itEnd;
-       ++it) {
-    TkOffTreeVariables& treeMem = mTreeMembers_[it->first];
+  for (const auto& it : moduleHist_) {
+    TkOffTreeVariables& treeMem = mTreeMembers_[it.first];
 
     //variables concerning the tracker components/hierarchy levels
-    DetId detId_ = it->first;
+    DetId detId_ = it.first;
     treeMem.moduleId = detId_;
     treeMem.subDetId = detId_.subdetId();
     treeMem.isDoubleSide = false;
@@ -1830,70 +1822,67 @@ void TrackerOfflineValidation::setUpTreeMembers(const std::map<int, TrackerOffli
 void TrackerOfflineValidation::fillTree(TTree& tree,
                                         TkOffTreeVariables& treeMem,
                                         const std::map<int, TrackerOfflineValidation::ModuleHistos>& moduleHist_) {
-  for (std::map<int, TrackerOfflineValidation::ModuleHistos>::const_iterator it = moduleHist_.begin(),
-                                                                             itEnd = moduleHist_.end();
-       it != itEnd;
-       ++it) {
-    treeMem = mTreeMembers_[it->first];
+  for (const auto& it : moduleHist_) {
+    treeMem = mTreeMembers_[it.first];
 
     //mean and RMS values (extracted from histograms(Xprime on module level)
-    treeMem.entries = static_cast<UInt_t>(it->second.ResXprimeHisto->GetEntries());
-    treeMem.meanX = it->second.ResXprimeHisto->GetMean();
-    treeMem.rmsX = it->second.ResXprimeHisto->GetRMS();
+    treeMem.entries = static_cast<UInt_t>(it.second.ResXprimeHisto->GetEntries());
+    treeMem.meanX = it.second.ResXprimeHisto->GetMean();
+    treeMem.rmsX = it.second.ResXprimeHisto->GetRMS();
     //treeMem.sigmaX = Fwhm(it->second.ResXprimeHisto)/2.355;
 
     if (useFit_) {
       //call fit function which returns mean and sigma from the fit
       //for absolute residuals
-      std::pair<float, float> fitResult1 = this->fitResiduals(it->second.ResXprimeHisto);
+      std::pair<float, float> fitResult1 = this->fitResiduals(it.second.ResXprimeHisto);
       treeMem.fitMeanX = fitResult1.first;
       treeMem.fitSigmaX = fitResult1.second;
       //for normalized residuals
-      std::pair<float, float> fitResult2 = this->fitResiduals(it->second.NormResXprimeHisto);
+      std::pair<float, float> fitResult2 = this->fitResiduals(it.second.NormResXprimeHisto);
       treeMem.fitMeanNormX = fitResult2.first;
       treeMem.fitSigmaNormX = fitResult2.second;
     }
 
     //get median for absolute residuals
-    treeMem.medianX = this->getMedian(it->second.ResXprimeHisto);
+    treeMem.medianX = this->getMedian(it.second.ResXprimeHisto);
 
-    int numberOfBins = it->second.ResXprimeHisto->GetNbinsX();
-    treeMem.numberOfUnderflows = it->second.ResXprimeHisto->GetBinContent(0);
-    treeMem.numberOfOverflows = it->second.ResXprimeHisto->GetBinContent(numberOfBins + 1);
+    int numberOfBins = it.second.ResXprimeHisto->GetNbinsX();
+    treeMem.numberOfUnderflows = it.second.ResXprimeHisto->GetBinContent(0);
+    treeMem.numberOfOverflows = it.second.ResXprimeHisto->GetBinContent(numberOfBins + 1);
     treeMem.numberOfOutliers =
-        it->second.ResXprimeHisto->GetBinContent(0) + it->second.ResXprimeHisto->GetBinContent(numberOfBins + 1);
+        it.second.ResXprimeHisto->GetBinContent(0) + it.second.ResXprimeHisto->GetBinContent(numberOfBins + 1);
 
     //mean and RMS values (extracted from histograms(normalized Xprime on module level)
-    treeMem.meanNormX = it->second.NormResXprimeHisto->GetMean();
-    treeMem.rmsNormX = it->second.NormResXprimeHisto->GetRMS();
+    treeMem.meanNormX = it.second.NormResXprimeHisto->GetMean();
+    treeMem.rmsNormX = it.second.NormResXprimeHisto->GetRMS();
 
     double stats[20];
-    it->second.NormResXprimeHisto->GetStats(stats);
+    it.second.NormResXprimeHisto->GetStats(stats);
     // GF  treeMem.chi2PerDofX = stats[3]/(stats[0]-1);
     if (stats[0])
       treeMem.chi2PerDofX = stats[3] / stats[0];
 
-    treeMem.sigmaNormX = Fwhm(it->second.NormResXprimeHisto) / 2.355;
-    treeMem.histNameX = it->second.ResXprimeHisto->GetName();
-    treeMem.histNameNormX = it->second.NormResXprimeHisto->GetName();
+    treeMem.sigmaNormX = Fwhm(it.second.NormResXprimeHisto) / 2.355;
+    treeMem.histNameX = it.second.ResXprimeHisto->GetName();
+    treeMem.histNameNormX = it.second.NormResXprimeHisto->GetName();
 
     // fill tree variables in local coordinates if set in cfg
     if (lCoorHistOn_) {
-      treeMem.meanLocalX = it->second.ResHisto->GetMean();
-      treeMem.rmsLocalX = it->second.ResHisto->GetRMS();
-      treeMem.meanNormLocalX = it->second.NormResHisto->GetMean();
-      treeMem.rmsNormLocalX = it->second.NormResHisto->GetRMS();
+      treeMem.meanLocalX = it.second.ResHisto->GetMean();
+      treeMem.rmsLocalX = it.second.ResHisto->GetRMS();
+      treeMem.meanNormLocalX = it.second.NormResHisto->GetMean();
+      treeMem.rmsNormLocalX = it.second.NormResHisto->GetRMS();
 
-      treeMem.histNameLocalX = it->second.ResHisto->GetName();
-      treeMem.histNameNormLocalX = it->second.NormResHisto->GetName();
-      if (it->second.ResYHisto)
-        treeMem.histNameLocalY = it->second.ResYHisto->GetName();
+      treeMem.histNameLocalX = it.second.ResHisto->GetName();
+      treeMem.histNameNormLocalX = it.second.NormResHisto->GetName();
+      if (it.second.ResYHisto)
+        treeMem.histNameLocalY = it.second.ResYHisto->GetName();
     }
 
     // mean and RMS values in local y (extracted from histograms(normalized Yprime on module level)
     // might exist in pixel only
-    if (it->second.ResYprimeHisto) {  //(stripYResiduals_)
-      TH1* h = it->second.ResYprimeHisto;
+    if (it.second.ResYprimeHisto) {  //(stripYResiduals_)
+      TH1* h = it.second.ResYprimeHisto;
       treeMem.meanY = h->GetMean();
       treeMem.rmsY = h->GetRMS();
 
@@ -1908,8 +1897,8 @@ void TrackerOfflineValidation::fillTree(TTree& tree,
 
       treeMem.histNameY = h->GetName();
     }
-    if (it->second.NormResYprimeHisto) {
-      TH1* h = it->second.NormResYprimeHisto;
+    if (it.second.NormResYprimeHisto) {
+      TH1* h = it.second.NormResYprimeHisto;
       treeMem.meanNormY = h->GetMean();
       treeMem.rmsNormY = h->GetRMS();
       h->GetStats(stats);  // stats buffer defined above
@@ -1925,26 +1914,26 @@ void TrackerOfflineValidation::fillTree(TTree& tree,
     }
 
     if (moduleLevelProfiles_) {
-      if (it->second.ResXvsXProfile) {
-        TH1* h = it->second.ResXvsXProfile;
+      if (it.second.ResXvsXProfile) {
+        TH1* h = it.second.ResXvsXProfile;
         treeMem.meanResXvsX = h->GetMean();
         treeMem.rmsResXvsX = h->GetRMS();
         treeMem.profileNameResXvsX = h->GetName();
       }
-      if (it->second.ResXvsYProfile) {
-        TH1* h = it->second.ResXvsYProfile;
+      if (it.second.ResXvsYProfile) {
+        TH1* h = it.second.ResXvsYProfile;
         treeMem.meanResXvsY = h->GetMean();
         treeMem.rmsResXvsY = h->GetRMS();
         treeMem.profileNameResXvsY = h->GetName();
       }
-      if (it->second.ResYvsXProfile) {
-        TH1* h = it->second.ResYvsXProfile;
+      if (it.second.ResYvsXProfile) {
+        TH1* h = it.second.ResYvsXProfile;
         treeMem.meanResYvsX = h->GetMean();
         treeMem.rmsResYvsX = h->GetRMS();
         treeMem.profileNameResYvsX = h->GetName();
       }
-      if (it->second.ResYvsYProfile) {
-        TH1* h = it->second.ResYvsYProfile;
+      if (it.second.ResYvsYProfile) {
+        TH1* h = it.second.ResYvsYProfile;
         treeMem.meanResYvsY = h->GetMean();
         treeMem.rmsResYvsY = h->GetRMS();
         treeMem.profileNameResYvsY = h->GetName();

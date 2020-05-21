@@ -157,8 +157,8 @@ void FWGeometryTableManager::checkHierarchy() {
 
 void FWGeometryTableManager::checkChildMatches(TGeoVolume* vol, std::vector<TGeoVolume*>& pstack) {
   if (m_volumes[vol].m_matches) {
-    for (std::vector<TGeoVolume*>::iterator i = pstack.begin(); i != pstack.end(); ++i) {
-      Match& pm = m_volumes[*i];
+    for (auto& i : pstack) {
+      Match& pm = m_volumes[i];
       pm.m_childMatches = true;
     }
   }
@@ -194,21 +194,21 @@ void FWGeometryTableManager::updateFilter(int iType) {
   int numMatched = 0;
 
   TPMERegexp regexp(TString(filterExp.c_str()), "o");
-  for (Volumes_i i = m_volumes.begin(); i != m_volumes.end(); ++i) {
+  for (auto& m_volume : m_volumes) {
     int res = 0;
 
     if (iType == FWGeometryTableView::kFilterMaterialName) {
-      res = matchTPME(i->first->GetMaterial()->GetName(), regexp);
+      res = matchTPME(m_volume.first->GetMaterial()->GetName(), regexp);
     } else if (iType == FWGeometryTableView::kFilterMaterialTitle) {
-      res = matchTPME(i->first->GetMaterial()->GetTitle(), regexp);
+      res = matchTPME(m_volume.first->GetMaterial()->GetTitle(), regexp);
     } else if (iType == FWGeometryTableView::kFilterShapeName) {
-      res = matchTPME(i->first->GetShape()->GetName(), regexp);
+      res = matchTPME(m_volume.first->GetShape()->GetName(), regexp);
     } else if (iType == FWGeometryTableView::kFilterShapeClassName) {
-      res = matchTPME(i->first->GetShape()->ClassName(), regexp);
+      res = matchTPME(m_volume.first->GetShape()->ClassName(), regexp);
     }
 
-    i->second.m_matches = (res > 0);
-    i->second.m_childMatches = false;
+    m_volume.second.m_matches = (res > 0);
+    m_volume.second.m_childMatches = false;
     if (res)
       numMatched++;
   }
@@ -217,9 +217,9 @@ void FWGeometryTableManager::updateFilter(int iType) {
   std::vector<TGeoVolume*> pstack;
   checkChildMatches(m_entries[0].m_node->GetVolume(), pstack);
 
-  for (Entries_i ni = m_entries.begin(); ni != m_entries.end(); ++ni) {
-    ni->resetBit(kFilterCached);
-    assertNodeFilterCache(*ni);
+  for (auto& m_entrie : m_entries) {
+    m_entrie.resetBit(kFilterCached);
+    assertNodeFilterCache(m_entrie);
   }
 }
 
@@ -320,8 +320,8 @@ void FWGeometryTableManager::recalculateVisibilityVolumeRec(int pIdx) {
     NodeInfo& data = m_entries[idx];
 
     bool toAdd = true;
-    for (std::vector<int>::iterator u = vi.begin(); u != vi.end(); ++u) {
-      TGeoVolume* neighbourVolume = parentNode->GetDaughter(*u)->GetVolume();
+    for (int& u : vi) {
+      TGeoVolume* neighbourVolume = parentNode->GetDaughter(u)->GetVolume();
       if (neighbourVolume == data.m_node->GetVolume()) {
         toAdd = false;
         // printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
@@ -462,8 +462,8 @@ bool FWGeometryTableManager::nodeIsParent(const NodeInfo& data) const {
 void FWGeometryTableManager::checkRegionOfInterest(double* center, double radius, long algo) {
   double sqr_r = radius * radius;
 
-  for (Entries_i ni = m_entries.begin(); ni != m_entries.end(); ++ni)
-    ni->resetBit(kVisNodeChld);
+  for (auto& m_entrie : m_entries)
+    m_entrie.resetBit(kVisNodeChld);
 
   int cnt = 0;
   TEveGeoManagerHolder mangeur(FWGeometryTableViewManager::getGeoMangeur());
@@ -531,9 +531,9 @@ void FWGeometryTableManager::checkRegionOfInterest(double* center, double radius
 }
 
 void FWGeometryTableManager::resetRegionOfInterest() {
-  for (Entries_i ni = m_entries.begin(); ni != m_entries.end(); ++ni) {
-    ni->setBit(kVisNodeSelf);
-    ni->setBit(kVisNodeChld);
+  for (auto& m_entrie : m_entries) {
+    m_entrie.setBit(kVisNodeSelf);
+    m_entrie.setBit(kVisNodeChld);
   }
   // ni->setMatchRegion(true);
 }

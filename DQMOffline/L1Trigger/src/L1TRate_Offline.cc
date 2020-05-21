@@ -93,8 +93,8 @@ void L1TRate_Offline::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&
   //-> Getting template fits for the algLo cross sections
   getXSexFitsPython(m_parameters);
 
-  for (CItAlgo algo = menu->gtAlgorithmMap().begin(); algo != menu->gtAlgorithmMap().end(); ++algo) {
-    m_algoBit[(algo->second).algoAlias()] = (algo->second).algoBitNumber();
+  for (const auto& algo : menu->gtAlgorithmMap()) {
+    m_algoBit[(algo.second).algoAlias()] = (algo.second).algoBitNumber();
   }
 
   double minInstantLuminosity = m_parameters.getParameter<double>("minInstantLuminosity");
@@ -256,9 +256,9 @@ void L1TRate_Offline::endLuminosityBlock(LuminosityBlock const& lumiBlock, Event
   }
 
   //Trying to do the same with Counts....
-  for (map<int, map<TString, double> >::iterator j = m_lsRates.begin(); j != m_lsRates.end(); j++) {
-    unsigned int lsOffline = (*j).first;
-    counts = &(*j).second;
+  for (auto& m_lsRate : m_lsRates) {
+    unsigned int lsOffline = m_lsRate.first;
+    counts = &m_lsRate.second;
     isDefCount = true;
 
     unsigned int lsPreInd;
@@ -492,11 +492,11 @@ bool L1TRate_Offline::getXSexFitsPython(const edm::ParameterSet& ps) {
     if (tTrigger != "Undefined") {
       bool foundFit = false;
 
-      for (unsigned int b = 0; b < m_fitParameters.size(); b++) {
-        if (tTrigger == m_fitParameters[b].getParameter<string>("AlgoName")) {
-          TString tAlgoName = m_fitParameters[b].getParameter<string>("AlgoName");
-          TString tTemplateFunction = m_fitParameters[b].getParameter<string>("TemplateFunction");
-          vector<double> tParameters = m_fitParameters[b].getParameter<vector<double> >("Parameters");
+      for (auto& m_fitParameter : m_fitParameters) {
+        if (tTrigger == m_fitParameter.getParameter<string>("AlgoName")) {
+          TString tAlgoName = m_fitParameter.getParameter<string>("AlgoName");
+          TString tTemplateFunction = m_fitParameter.getParameter<string>("TemplateFunction");
+          vector<double> tParameters = m_fitParameter.getParameter<vector<double> >("Parameters");
 
           // Retriving and populating the m_templateFunctions array
           m_templateFunctions[tTrigger] =

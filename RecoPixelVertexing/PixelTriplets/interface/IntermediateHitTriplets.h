@@ -212,12 +212,10 @@ public:
       }
 
       int prevLayer = -1;
-      for (size_t i = 0, size = permutations.size(); i < size; ++i) {
+      for (unsigned long realIndex : permutations) {
         // We go through the 'triplets' in the order defined by
         // 'permutations', which is sorted such that we first go through
         // triplets from (3rd) layer 0, then layer 1 and so on.
-        const size_t realIndex = permutations[i];
-
         const int layer = thirdLayerIndex[realIndex];
         if (layer != prevLayer) {
           prevLayer = layer;

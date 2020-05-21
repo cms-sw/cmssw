@@ -373,10 +373,10 @@ bool PedeSteerer::isCorrectToRefSystem(const align::Alignables &coordDefiners) c
     if (!selVar)
       continue;  // is an error!?
 
-    for (unsigned int i = 0; i < selVar->fullSelection().size(); ++i) {
-      if (selVar->fullSelection()[i] == 'r')
+    for (char i : selVar->fullSelection()) {
+      if (i == 'r')
         doNotCorrect = true;
-      else if (selVar->fullSelection()[i] == 's')
+      else if (i == 's')
         doCorrect = true;
     }
   }
@@ -551,13 +551,12 @@ unsigned int PedeSteerer::presigmas(const std::vector<edm::ParameterSet> &cffPre
 
   AlignmentParameterSelector selector(aliTracker, aliMuon, aliExtras);
   AlignablePresigmasMap aliPresiMap;  // map to store alis with presigmas of their parameters
-  for (std::vector<edm::ParameterSet>::const_iterator iSet = cffPresi.begin(), iE = cffPresi.end(); iSet != iE;
-       ++iSet) {  // loop on individual PSets defining ali-params with their presigma
+  for (const auto &iSet : cffPresi) {  // loop on individual PSets defining ali-params with their presigma
     selector.clear();
-    selector.addSelections((*iSet).getParameter<edm::ParameterSet>("Selector"));
+    selector.addSelections(iSet.getParameter<edm::ParameterSet>("Selector"));
     const auto &alis = selector.selectedAlignables();
     const std::vector<std::vector<char> > &sels = selector.selectedParameters();
-    const float presigma = (*iSet).getParameter<double>("presigma");
+    const float presigma = iSet.getParameter<double>("presigma");
     if (presigma <= 0.) {  // given presigma > 0., 0. later used if not (yet) chosen for parameter
       throw cms::Exception("BadConfig") << "[PedeSteerer::presigmas]: Pre-sigma must be > 0., but is " << presigma
                                         << ".";
@@ -755,14 +754,14 @@ std::string PedeSteerer::buildMasterSteer(const std::vector<std::string> &binary
 
   // add steering files to master steering file
   std::ofstream &mainSteerRef = *mainSteerPtr;
-  for (unsigned int iFile = 0; iFile < mySteeringFiles.size(); ++iFile) {
-    mainSteerRef << mySteeringFiles[iFile] << "\n";
+  for (const auto &mySteeringFile : mySteeringFiles) {
+    mainSteerRef << mySteeringFile << "\n";
   }
 
   // add binary files to master steering file
   mainSteerRef << "\nCfiles\n";
-  for (unsigned int iFile = 0; iFile < binaryFiles.size(); ++iFile) {
-    mainSteerRef << binaryFiles[iFile] << "\n";
+  for (const auto &binaryFile : binaryFiles) {
+    mainSteerRef << binaryFile << "\n";
   }
 
   // add method
@@ -771,8 +770,8 @@ std::string PedeSteerer::buildMasterSteer(const std::vector<std::string> &binary
   // add further options
   const std::vector<std::string> opt(myConfig.getParameter<std::vector<std::string> >("options"));
   mainSteerRef << "\n* Outlier treatment and other options \n";
-  for (unsigned int i = 0; i < opt.size(); ++i) {
-    mainSteerRef << opt[i] << "\n";
+  for (const auto &i : opt) {
+    mainSteerRef << i << "\n";
   }
 
   delete mainSteerPtr;  // close (and flush) again

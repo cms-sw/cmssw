@@ -904,8 +904,8 @@ Signal& memory::operator[](Signal i)
 // module class -------------------------------------------------------------------------
 
 void module::create() {
-  for (unsigned int i = 0; i < sizeof(outreg) / sizeof(Signal*); ++i)
-    outreg[i] = nullptr;
+  for (auto& i : outreg)
+    i = nullptr;
   outregn = 0;
   runperiod = nullptr;
 }
@@ -913,9 +913,9 @@ void module::create() {
 module::module() { create(); }
 
 module::~module() {
-  for (unsigned int i = 0; i < sizeof(outreg) / sizeof(Signal*); ++i) {
-    if (outreg[i] != nullptr)
-      delete outreg[i];
+  for (auto& i : outreg) {
+    if (i != nullptr)
+      delete i;
   }
 }
 

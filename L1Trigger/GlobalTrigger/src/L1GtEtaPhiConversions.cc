@@ -430,11 +430,9 @@ L1GtEtaPhiConversions::L1GtEtaPhiConversions()
 
     unsigned int iPair = 0;
 
-    for (std::vector<std::pair<L1GtObject, L1GtObject>>::const_iterator cIter = m_gtObjectPairVec.begin();
-         cIter != m_gtObjectPairVec.end();
-         ++cIter) {
-      LogTrace("L1GlobalTrigger") << "m_gtObjectPairVec vector element [" << l1GtObjectEnumToString((*cIter).first)
-                                  << ", " << l1GtObjectEnumToString((*cIter).second) << "], \t\tpair index =  " << iPair
+    for (const auto &cIter : m_gtObjectPairVec) {
+      LogTrace("L1GlobalTrigger") << "m_gtObjectPairVec vector element [" << l1GtObjectEnumToString(cIter.first) << ", "
+                                  << l1GtObjectEnumToString(cIter.second) << "], \t\tpair index =  " << iPair
                                   << std::endl;
 
       iPair++;
@@ -458,10 +456,8 @@ const unsigned int L1GtEtaPhiConversions::gtObjectPairIndex(const L1GtObject &ob
   //        << (l1GtObjectEnumToString(obj1)) << "]\n" << std::endl;
 
   unsigned int iPair = 0;
-  for (std::vector<std::pair<L1GtObject, L1GtObject>>::const_iterator cIter = m_gtObjectPairVec.begin();
-       cIter != m_gtObjectPairVec.end();
-       ++cIter) {
-    if (*cIter == gtObjPair) {
+  for (const auto &cIter : m_gtObjectPairVec) {
+    if (cIter == gtObjPair) {
       LogTrace("L1GlobalTrigger") << "\n  Index for pair [" << l1GtObjectEnumToString(obj0) << ", "
                                   << l1GtObjectEnumToString(obj1) << "] = " << iPair << std::endl;
 
@@ -811,10 +807,8 @@ const unsigned int L1GtEtaPhiConversions::gtObjectNrBinsPhi(const L1GtObject &ob
   //        << (l1GtObjectEnumToString(obj1)) << "]\n" << std::endl;
 
   int iPair = 0;
-  for (std::vector<std::pair<L1GtObject, L1GtObject>>::const_iterator cIter = m_gtObjectPairVec.begin();
-       cIter != m_gtObjectPairVec.end();
-       ++cIter) {
-    if (*cIter == gtObjPair) {
+  for (const auto &cIter : m_gtObjectPairVec) {
+    if (cIter == gtObjPair) {
       LogTrace("L1GlobalTrigger") << "\n  gtObjectNrBinsPhi [" << l1GtObjectEnumToString(obj0) << ", "
                                   << l1GtObjectEnumToString(obj1) << "] = " << (*(m_pairNrPhiBinsVec.at(iPair)))
                                   << std::endl;

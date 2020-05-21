@@ -477,48 +477,36 @@ unsigned int l1t::GlobalScales::getPrec_Sin(const std::string& lutName) const {
 }
 
 void l1t::GlobalScales::dumpAllLUTs(std::ostream& myCout) const {
-  for (std::map<std::string, std::vector<long long>>::const_iterator itr = m_lut_CalMuEta.begin();
-       itr != m_lut_CalMuEta.end();
-       itr++) {
-    dumpLUT(myCout, 1, itr->first);
+  for (const auto& itr : m_lut_CalMuEta) {
+    dumpLUT(myCout, 1, itr.first);
   }
 
-  for (std::map<std::string, std::vector<long long>>::const_iterator itr = m_lut_CalMuPhi.begin();
-       itr != m_lut_CalMuPhi.end();
-       itr++) {
-    dumpLUT(myCout, 2, itr->first);
+  for (const auto& itr : m_lut_CalMuPhi) {
+    dumpLUT(myCout, 2, itr.first);
   }
 
-  for (std::map<std::string, std::vector<long long>>::const_iterator itr = m_lut_DeltaEta.begin();
-       itr != m_lut_DeltaEta.end();
-       itr++) {
-    dumpLUT(myCout, 3, itr->first);
+  for (const auto& itr : m_lut_DeltaEta) {
+    dumpLUT(myCout, 3, itr.first);
   }
 
-  for (std::map<std::string, std::vector<long long>>::const_iterator itr = m_lut_DeltaPhi.begin();
-       itr != m_lut_DeltaPhi.end();
-       itr++) {
-    dumpLUT(myCout, 4, itr->first);
+  for (const auto& itr : m_lut_DeltaPhi) {
+    dumpLUT(myCout, 4, itr.first);
   }
 
-  for (std::map<std::string, std::vector<long long>>::const_iterator itr = m_lut_Cosh.begin(); itr != m_lut_Cosh.end();
-       itr++) {
-    dumpLUT(myCout, 5, itr->first);
+  for (const auto& itr : m_lut_Cosh) {
+    dumpLUT(myCout, 5, itr.first);
   }
 
-  for (std::map<std::string, std::vector<long long>>::const_iterator itr = m_lut_Cos.begin(); itr != m_lut_Cos.end();
-       itr++) {
-    dumpLUT(myCout, 6, itr->first);
+  for (const auto& m_lut_Co : m_lut_Cos) {
+    dumpLUT(myCout, 6, m_lut_Co.first);
   }
 
-  for (std::map<std::string, std::vector<long long>>::const_iterator itr = m_lut_Sin.begin(); itr != m_lut_Sin.end();
-       itr++) {
-    dumpLUT(myCout, 7, itr->first);
+  for (const auto& itr : m_lut_Sin) {
+    dumpLUT(myCout, 7, itr.first);
   }
 
-  for (std::map<std::string, std::vector<long long>>::const_iterator itr = m_lut_Pt.begin(); itr != m_lut_Pt.end();
-       itr++) {
-    dumpLUT(myCout, 8, itr->first);
+  for (const auto& itr : m_lut_Pt) {
+    dumpLUT(myCout, 8, itr.first);
   }
 }
 
@@ -614,62 +602,50 @@ void l1t::GlobalScales::print(std::ostream& myCout) const {
   myCout << std::endl;
   myCout << "   LUTs Stored: " << std::endl;
   myCout << " CalMuEta:";
-  for (std::map<std::string, std::vector<long long>>::const_iterator itr = m_lut_CalMuEta.begin();
-       itr != m_lut_CalMuEta.end();
-       itr++) {
-    myCout << " " << itr->first;
+  for (const auto& itr : m_lut_CalMuEta) {
+    myCout << " " << itr.first;
   }
   myCout << std::endl;
 
   myCout << " CalMuPhi:";
-  for (std::map<std::string, std::vector<long long>>::const_iterator itr = m_lut_CalMuPhi.begin();
-       itr != m_lut_CalMuPhi.end();
-       itr++) {
-    myCout << " " << itr->first;
+  for (const auto& itr : m_lut_CalMuPhi) {
+    myCout << " " << itr.first;
   }
   myCout << std::endl;
 
   myCout << " DeltaEta:";
-  for (std::map<std::string, std::vector<long long>>::const_iterator itr = m_lut_DeltaEta.begin();
-       itr != m_lut_DeltaEta.end();
-       itr++) {
-    myCout << " " << itr->first;
+  for (const auto& itr : m_lut_DeltaEta) {
+    myCout << " " << itr.first;
   }
   myCout << std::endl;
 
   myCout << " DeltaPhi:";
-  for (std::map<std::string, std::vector<long long>>::const_iterator itr = m_lut_DeltaPhi.begin();
-       itr != m_lut_DeltaPhi.end();
-       itr++) {
-    myCout << " " << itr->first;
+  for (const auto& itr : m_lut_DeltaPhi) {
+    myCout << " " << itr.first;
   }
   myCout << std::endl;
 
   myCout << " Cos:     ";
-  for (std::map<std::string, std::vector<long long>>::const_iterator itr = m_lut_Cos.begin(); itr != m_lut_Cos.end();
-       itr++) {
-    myCout << " " << itr->first;
+  for (const auto& m_lut_Co : m_lut_Cos) {
+    myCout << " " << m_lut_Co.first;
   }
   myCout << std::endl;
 
   myCout << " Sin:     ";
-  for (std::map<std::string, std::vector<long long>>::const_iterator itr = m_lut_Sin.begin(); itr != m_lut_Sin.end();
-       itr++) {
-    myCout << " " << itr->first;
+  for (const auto& itr : m_lut_Sin) {
+    myCout << " " << itr.first;
   }
   myCout << std::endl;
 
   myCout << " Cosh:    ";
-  for (std::map<std::string, std::vector<long long>>::const_iterator itr = m_lut_Cosh.begin(); itr != m_lut_Cosh.end();
-       itr++) {
-    myCout << " " << itr->first;
+  for (const auto& itr : m_lut_Cosh) {
+    myCout << " " << itr.first;
   }
   myCout << std::endl;
 
   myCout << " Pt:      ";
-  for (std::map<std::string, std::vector<long long>>::const_iterator itr = m_lut_Pt.begin(); itr != m_lut_Pt.end();
-       itr++) {
-    myCout << " " << itr->first;
+  for (const auto& itr : m_lut_Pt) {
+    myCout << " " << itr.first;
   }
   myCout << std::endl;
 }

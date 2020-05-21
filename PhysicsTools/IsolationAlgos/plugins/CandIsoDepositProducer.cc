@@ -43,8 +43,8 @@ CandIsoDepositProducer::CandIsoDepositProducer(const ParameterSet &par)
     theDepositNames = extractorPSet.getParameter<std::vector<std::string> >("DepositInstanceLabels");
     if (theDepositNames.size() > 10)
       throw cms::Exception("Configuration Error") << "This module supports only up to 10 deposits";
-    for (unsigned int iDep = 0; iDep < theDepositNames.size(); ++iDep) {
-      produces<reco::IsoDepositMap>(theDepositNames[iDep]);
+    for (const auto &theDepositName : theDepositNames) {
+      produces<reco::IsoDepositMap>(theDepositName);
     }
   }
 

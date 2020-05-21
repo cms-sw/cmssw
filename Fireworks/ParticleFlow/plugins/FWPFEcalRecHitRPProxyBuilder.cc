@@ -16,8 +16,8 @@ void FWPFEcalRecHitRPProxyBuilder::scaleProduct(TEveElementList *parent,
 //______________________________________________________________________________
 void FWPFEcalRecHitRPProxyBuilder::cleanLocal() {
   typedef std::vector<FWPFRhoPhiRecHit *> rpRecHits;
-  for (rpRecHits::iterator i = m_towers.begin(); i != m_towers.end(); ++i)
-    (*i)->clean();
+  for (auto &m_tower : m_towers)
+    m_tower->clean();
 
   m_towers.clear();
 }
@@ -63,10 +63,10 @@ void FWPFEcalRecHitRPProxyBuilder::build(const FWEventItem *iItem, TEveElementLi
       E = iData.energy();
       et = FWPFMaths::calculateEt(centre, E);
 
-      for (unsigned int i = 0; i < m_towers.size(); i++) {  // Small range to catch rounding inaccuracies etc.
-        Double_t phi = m_towers[i]->getlPhi();
+      for (auto &m_tower : m_towers) {  // Small range to catch rounding inaccuracies etc.
+        Double_t phi = m_tower->getlPhi();
         if ((lPhi == phi) || ((lPhi < phi + 0.0005) && (lPhi > phi - 0.0005))) {
-          m_towers[i]->addChild(this, itemHolder, vc, E, et);
+          m_tower->addChild(this, itemHolder, vc, E, et);
           context().voteMaxEtAndEnergy(et, E);
           added = true;
           break;

@@ -2640,8 +2640,8 @@ void ApeEstimator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     const std::vector<TrajectoryMeasurement> v_meas = (*traj).measurements();
 
     //Loop over Hits
-    for (std::vector<TrajectoryMeasurement>::const_iterator i_meas = v_meas.begin(); i_meas != v_meas.end(); ++i_meas) {
-      TrackStruct::HitParameterStruct hitParams = this->fillHitVariables(*i_meas, iSetup);
+    for (const auto& v_mea : v_meas) {
+      TrackStruct::HitParameterStruct hitParams = this->fillHitVariables(v_mea, iSetup);
       if (this->hitSelected(hitParams))
         trackStruct.v_hitParams.push_back(hitParams);
     }

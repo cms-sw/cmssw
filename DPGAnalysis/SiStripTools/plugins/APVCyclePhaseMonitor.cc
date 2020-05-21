@@ -111,33 +111,33 @@ APVCyclePhaseMonitor::APVCyclePhaseMonitor(const edm::ParameterSet& iConfig)
   edm::LogInfo("UsedAPVCyclePhaseCollection")
       << " APVCyclePhaseCollection " << iConfig.getParameter<edm::InputTag>("apvCyclePhaseCollection") << " used";
 
-  for (std::vector<std::string>::const_iterator part = _selectedparts.begin(); part != _selectedparts.end(); ++part) {
+  for (const auto& _selectedpart : _selectedparts) {
     char hname[300];
 
-    sprintf(hname, "selected_phase_%s", part->c_str());
+    sprintf(hname, "selected_phase_%s", _selectedpart.c_str());
     edm::LogInfo("SelectedTH1FBeingBooked") << "TH1F " << hname << " being booked";
-    _hselectedphases[*part] = m_rhm.makeTH1F(hname, hname, 70, -0.5, 69.5);
+    _hselectedphases[_selectedpart] = m_rhm.makeTH1F(hname, hname, 70, -0.5, 69.5);
 
-    sprintf(hname, "selected_phasevsorbit_%s", part->c_str());
+    sprintf(hname, "selected_phasevsorbit_%s", _selectedpart.c_str());
     edm::LogInfo("SelectedTProfileBeingBooked") << "TProfile " << hname << " being booked";
-    _hselectedphasevsorbit[*part] = m_rhm.makeTProfile(hname, hname, m_LSfrac * m_maxLS, 0, m_maxLS * 262144);
+    _hselectedphasevsorbit[_selectedpart] = m_rhm.makeTProfile(hname, hname, m_LSfrac * m_maxLS, 0, m_maxLS * 262144);
   }
 
-  for (std::vector<std::string>::const_iterator part = _selectedvectorparts.begin(); part != _selectedvectorparts.end();
-       ++part) {
+  for (const auto& _selectedvectorpart : _selectedvectorparts) {
     char hname[300];
 
-    sprintf(hname, "selected_phase_vector_%s", part->c_str());
+    sprintf(hname, "selected_phase_vector_%s", _selectedvectorpart.c_str());
     edm::LogInfo("SelectedVectTH1FBeingBooked") << "TH1F " << hname << " being booked";
-    _hselectedphasesvector[*part] = m_rhm.makeTH1F(hname, hname, 70, -0.5, 69.5);
+    _hselectedphasesvector[_selectedvectorpart] = m_rhm.makeTH1F(hname, hname, 70, -0.5, 69.5);
 
-    sprintf(hname, "selected_phase_size_%s", part->c_str());
+    sprintf(hname, "selected_phase_size_%s", _selectedvectorpart.c_str());
     edm::LogInfo("SelectedVectSizeTH1FBeingBooked") << "TH1F " << hname << " being booked";
-    _hselectedphasessize[*part] = m_rhm.makeTH1F(hname, hname, 10, -0.5, 9.5);
+    _hselectedphasessize[_selectedvectorpart] = m_rhm.makeTH1F(hname, hname, 10, -0.5, 9.5);
 
-    sprintf(hname, "selected_phasevectorvsorbit_%s", part->c_str());
+    sprintf(hname, "selected_phasevectorvsorbit_%s", _selectedvectorpart.c_str());
     edm::LogInfo("SelectedVectTProfileBeingBooked") << "TProfile " << hname << " being booked";
-    _hselectedphasevectorvsorbit[*part] = m_rhm.makeTProfile(hname, hname, m_LSfrac * m_maxLS, 0, m_maxLS * 262144);
+    _hselectedphasevectorvsorbit[_selectedvectorpart] =
+        m_rhm.makeTProfile(hname, hname, m_LSfrac * m_maxLS, 0, m_maxLS * 262144);
   }
 }
 
@@ -163,61 +163,60 @@ void APVCyclePhaseMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
 
   edm::Service<TFileService> tfserv;
 
-  for (std::map<std::string, int>::const_iterator phase = apvphases->get().begin(); phase != apvphases->get().end();
-       ++phase) {
-    if (_hphases.find(phase->first) == _hphases.end()) {
+  for (const auto& phase : apvphases->get()) {
+    if (_hphases.find(phase.first) == _hphases.end()) {
       char dirname[300];
       sprintf(dirname, "run_%d", iEvent.run());
       TFileDirectory subrun = tfserv->mkdir(dirname);
 
       char hname[300];
 
-      sprintf(hname, "phase_%s", phase->first.c_str());
+      sprintf(hname, "phase_%s", phase.first.c_str());
       edm::LogInfo("TH1FBeingBooked") << "TH1F " << hname << " being booked";
-      _hphases[phase->first] = subrun.make<TH1F>(hname, hname, 70, -0.5, 69.5);
-      _hphases[phase->first]->GetXaxis()->SetTitle("BX mod 70");
-      _hphases[phase->first]->GetYaxis()->SetTitle("Events");
+      _hphases[phase.first] = subrun.make<TH1F>(hname, hname, 70, -0.5, 69.5);
+      _hphases[phase.first]->GetXaxis()->SetTitle("BX mod 70");
+      _hphases[phase.first]->GetYaxis()->SetTitle("Events");
 
-      sprintf(hname, "phasevsorbit_%s", phase->first.c_str());
+      sprintf(hname, "phasevsorbit_%s", phase.first.c_str());
       edm::LogInfo("TProfileBeingBooked") << "TProfile " << hname << " being booked";
-      _hphasevsorbit[phase->first] = subrun.make<TProfile>(hname, hname, m_LSfrac * m_maxLS, 0, m_maxLS * 262144);
-      _hphasevsorbit[phase->first]->SetCanExtend(TH1::kXaxis);
-      _hphasevsorbit[phase->first]->GetXaxis()->SetTitle("time [orbit#]");
-      _hphasevsorbit[phase->first]->GetYaxis()->SetTitle("Phase");
+      _hphasevsorbit[phase.first] = subrun.make<TProfile>(hname, hname, m_LSfrac * m_maxLS, 0, m_maxLS * 262144);
+      _hphasevsorbit[phase.first]->SetCanExtend(TH1::kXaxis);
+      _hphasevsorbit[phase.first]->GetXaxis()->SetTitle("time [orbit#]");
+      _hphasevsorbit[phase.first]->GetYaxis()->SetTitle("Phase");
     }
-    _hphases[phase->first]->Fill(phase->second);
-    _hphasevsorbit[phase->first]->Fill(iEvent.orbitNumber(), phase->second);
+    _hphases[phase.first]->Fill(phase.second);
+    _hphasevsorbit[phase.first]->Fill(iEvent.orbitNumber(), phase.second);
   }
 
   // selected partitions
 
-  for (std::vector<std::string>::const_iterator part = _selectedparts.begin(); part != _selectedparts.end(); ++part) {
-    if (_hselectedphases.find(*part) != _hselectedphases.end() && _hselectedphases[*part] && *_hselectedphases[*part]) {
-      (*_hselectedphases[*part])->Fill(apvphases->getPhase(*part));
+  for (const auto& _selectedpart : _selectedparts) {
+    if (_hselectedphases.find(_selectedpart) != _hselectedphases.end() && _hselectedphases[_selectedpart] &&
+        *_hselectedphases[_selectedpart]) {
+      (*_hselectedphases[_selectedpart])->Fill(apvphases->getPhase(_selectedpart));
     }
-    if (_hselectedphasevsorbit.find(*part) != _hselectedphasevsorbit.end() && _hselectedphasevsorbit[*part] &&
-        *_hselectedphasevsorbit[*part]) {
-      (*_hselectedphasevsorbit[*part])->Fill(iEvent.orbitNumber(), apvphases->getPhase(*part));
+    if (_hselectedphasevsorbit.find(_selectedpart) != _hselectedphasevsorbit.end() &&
+        _hselectedphasevsorbit[_selectedpart] && *_hselectedphasevsorbit[_selectedpart]) {
+      (*_hselectedphasevsorbit[_selectedpart])->Fill(iEvent.orbitNumber(), apvphases->getPhase(_selectedpart));
     }
   }
 
-  for (std::vector<std::string>::const_iterator part = _selectedvectorparts.begin(); part != _selectedvectorparts.end();
-       ++part) {
-    const std::vector<int> phases = apvphases->getPhases(*part);
+  for (const auto& _selectedvectorpart : _selectedvectorparts) {
+    const std::vector<int> phases = apvphases->getPhases(_selectedvectorpart);
 
-    if (_hselectedphasessize.find(*part) != _hselectedphasessize.end() && _hselectedphasessize[*part] &&
-        *_hselectedphasessize[*part]) {
-      (*_hselectedphasessize[*part])->Fill(phases.size());
+    if (_hselectedphasessize.find(_selectedvectorpart) != _hselectedphasessize.end() &&
+        _hselectedphasessize[_selectedvectorpart] && *_hselectedphasessize[_selectedvectorpart]) {
+      (*_hselectedphasessize[_selectedvectorpart])->Fill(phases.size());
     }
 
-    for (std::vector<int>::const_iterator phase = phases.begin(); phase != phases.end(); ++phase) {
-      if (_hselectedphasesvector.find(*part) != _hselectedphasesvector.end() && _hselectedphasesvector[*part] &&
-          *_hselectedphasesvector[*part]) {
-        (*_hselectedphasesvector[*part])->Fill(*phase);
+    for (int phase : phases) {
+      if (_hselectedphasesvector.find(_selectedvectorpart) != _hselectedphasesvector.end() &&
+          _hselectedphasesvector[_selectedvectorpart] && *_hselectedphasesvector[_selectedvectorpart]) {
+        (*_hselectedphasesvector[_selectedvectorpart])->Fill(phase);
       }
-      if (_hselectedphasevectorvsorbit.find(*part) != _hselectedphasevectorvsorbit.end() &&
-          _hselectedphasevectorvsorbit[*part] && *_hselectedphasevectorvsorbit[*part]) {
-        (*_hselectedphasevectorvsorbit[*part])->Fill(iEvent.orbitNumber(), *phase);
+      if (_hselectedphasevectorvsorbit.find(_selectedvectorpart) != _hselectedphasevectorvsorbit.end() &&
+          _hselectedphasevectorvsorbit[_selectedvectorpart] && *_hselectedphasevectorvsorbit[_selectedvectorpart]) {
+        (*_hselectedphasevectorvsorbit[_selectedvectorpart])->Fill(iEvent.orbitNumber(), phase);
       }
     }
   }

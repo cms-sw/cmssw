@@ -437,8 +437,9 @@ namespace edm {
     LogAbsolute("EventContent") << "\nSummary for key being the concatenation of friendlyClassName, moduleLabel, "
                                    "productInstanceName and processName"
                                 << std::endl;
-    for (nameMap::const_iterator it = cumulates_.begin(), itEnd = cumulates_.end(); it != itEnd; ++it) {
-      LogAbsolute("EventContent") << std::setw(6) << it->second << " occurrences of key " << it->first << std::endl;
+    for (const auto& cumulate : cumulates_) {
+      LogAbsolute("EventContent") << std::setw(6) << cumulate.second << " occurrences of key " << cumulate.first
+                                  << std::endl;
     }
 
     // Test boost::lexical_cast  We don't need this right now so comment it out.

@@ -36,8 +36,7 @@ namespace edm {
       }
 
       // Check and store Prescale Table
-      for (unsigned int iVPSet = 0; iVPSet < vpsetPrescales_.size(); ++iVPSet) {
-        const ParameterSet& psetPrescales = vpsetPrescales_[iVPSet];
+      for (const auto& psetPrescales : vpsetPrescales_) {
         const std::string pathName = psetPrescales.getParameter<std::string>("pathName");
         if (prescaleTable_.find(pathName) != prescaleTable_.end()) {
           throw cms::Exception("PrescaleServiceConfigError") << " Path '" << pathName << "' found more than once!";
@@ -78,8 +77,8 @@ namespace edm {
 
       // Find all HLTPrescaler instances
       const std::vector<std::string> allModules = prcPS.getParameter<std::vector<std::string> >("@all_modules");
-      for (unsigned int i = 0; i < allModules.size(); ++i) {
-        ParameterSet const& pset = prcPS.getParameterSet(allModules[i]);
+      for (const auto& allModule : allModules) {
+        ParameterSet const& pset = prcPS.getParameterSet(allModule);
         const std::string moduleLabel = pset.getParameter<std::string>("@module_label");
         const std::string moduleType = pset.getParameter<std::string>("@module_type");
         if (moduleType == "HLTPrescaler")
@@ -87,11 +86,9 @@ namespace edm {
       }
       // Check all modules on all paths
       const std::vector<std::string> allPaths = prcPS.getParameter<std::vector<std::string> >("@paths");
-      for (unsigned int iP = 0; iP < allPaths.size(); ++iP) {
-        const std::string& pathName = allPaths[iP];
+      for (const auto& pathName : allPaths) {
         std::vector<std::string> modules = prcPS.getParameter<std::vector<std::string> >(pathName);
-        for (unsigned int iM = 0; iM < modules.size(); ++iM) {
-          const std::string& moduleLabel = modules[iM];
+        for (const auto& moduleLabel : modules) {
           if (module2path.find(moduleLabel) != module2path.end()) {
             if (path2module.find(pathName) == path2module.end()) {
               path2module[pathName] = moduleLabel;

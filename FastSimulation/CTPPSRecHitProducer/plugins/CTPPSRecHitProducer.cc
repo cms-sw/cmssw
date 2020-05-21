@@ -245,9 +245,8 @@ void CTPPSRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   output_recHits->reserve(simHits->size());
 
   int n = 0;
-  for (std::vector<CTPPSFastRecHit>::const_iterator i = theCTPPSFastRecHit.begin(); i != theCTPPSFastRecHit.end();
-       i++) {
-    output_recHits->push_back(*i);
+  for (const auto& i : theCTPPSFastRecHit) {
+    output_recHits->push_back(i);
     n += 1;
   }
 

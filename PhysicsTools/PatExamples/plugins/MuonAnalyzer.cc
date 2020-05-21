@@ -70,94 +70,94 @@ void ExampleMuonAnalyzer::analyze(const Event& event, const EventSetup& eventSet
   pat::MuonCollection selectedMuons;
 
   // Let's look inside the muon collection.
-  for (pat::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon) {
+  for (const auto& muon : *muons) {
     // pT spectra of muons
-    hPtRec->Fill(muon->pt());
+    hPtRec->Fill(muon.pt());
 
     // what is the resolution in pt? Easy! We have the association with generated information
     //    cout<<muon->pt()<<" "<<muon->genParticle()->pt()<<endl;
-    if (muon->genLepton() != nullptr) {
-      double reso = (muon->pt() - muon->genLepton()->pt()) / muon->genLepton()->pt();
-      hPtReso->Fill(muon->genLepton()->pt(), reso);
+    if (muon.genLepton() != nullptr) {
+      double reso = (muon.pt() - muon.genLepton()->pt()) / muon.genLepton()->pt();
+      hPtReso->Fill(muon.genLepton()->pt(), reso);
     }
 
     // What is the energy deposit in HCal?
-    if (muon->isEnergyValid())
-      hEHcal->Fill(muon->calEnergy().had);
+    if (muon.isEnergyValid())
+      hEHcal->Fill(muon.calEnergy().had);
 
     // Which type of muons in the collection?
-    if (muon->isStandAloneMuon())
-      if (muon->isGlobalMuon())
-        if (muon->isTrackerMuon())
+    if (muon.isStandAloneMuon())
+      if (muon.isGlobalMuon())
+        if (muon.isTrackerMuon())
           hMuonType->Fill(1);  // STA + GLB + TM
         else
           hMuonType->Fill(2);  // STA + GLB
-      else if (muon->isTrackerMuon())
+      else if (muon.isTrackerMuon())
         hMuonType->Fill(3);  // STA + TM
       else
         hMuonType->Fill(5);  // STA
-    else if (muon->isTrackerMuon())
+    else if (muon.isTrackerMuon())
       hMuonType->Fill(4);  // TM
 
     // ...mmm I want to study the relative resolution of the STA track with respect to the Tracker track.
     // or I want to look at a track stab
-    if (muon->isGlobalMuon()) {
-      double diff = muon->innerTrack()->pt() - muon->standAloneMuon()->pt();
+    if (muon.isGlobalMuon()) {
+      double diff = muon.innerTrack()->pt() - muon.standAloneMuon()->pt();
       hPtSTATKDiff->Fill(diff);
     }
 
     // Muon ID quantities
 
     // Muon in CMS are usually MIP. What is the compatibility of a muon HP using only claorimeters?
-    if (muon->isCaloCompatibilityValid())
-      hMuCaloCompatibility->Fill(muon->caloCompatibility());
+    if (muon.isCaloCompatibilityValid())
+      hMuCaloCompatibility->Fill(muon.caloCompatibility());
 
     // The muon system can also be used just as only for ID. What is the compatibility of a muon HP using only calorimeters?
-    hMuSegCompatibility->Fill(muon::segmentCompatibility(*muon));
+    hMuSegCompatibility->Fill(muon::segmentCompatibility(muon));
 
     // How many chambers have been associated to a muon track?
-    hChamberMatched->Fill(muon->numberOfChambers());
+    hChamberMatched->Fill(muon.numberOfChambers());
     // If you look at MuonSegmentMatcher class you will see a lot of interesting quantities to look at!
     // you can get the list of matched info using matches()
 
     // Muon ID selection. As described in AN-2008/098
-    if (muon::isGoodMuon(*muon, muon::All))  // dummy options - always true
+    if (muon::isGoodMuon(muon, muon::All))  // dummy options - always true
       hMuIdAlgo->Fill(0);
-    if (muon::isGoodMuon(*muon, muon::AllStandAloneMuons))  // checks isStandAloneMuon flag
+    if (muon::isGoodMuon(muon, muon::AllStandAloneMuons))  // checks isStandAloneMuon flag
       hMuIdAlgo->Fill(1);
-    if (muon::isGoodMuon(*muon, muon::AllTrackerMuons))  // checks isTrackerMuon flag
+    if (muon::isGoodMuon(muon, muon::AllTrackerMuons))  // checks isTrackerMuon flag
       hMuIdAlgo->Fill(2);
-    if (muon::isGoodMuon(*muon, muon::TrackerMuonArbitrated))  // resolve ambiguity of sharing segments
+    if (muon::isGoodMuon(muon, muon::TrackerMuonArbitrated))  // resolve ambiguity of sharing segments
       hMuIdAlgo->Fill(3);
-    if (muon::isGoodMuon(*muon, muon::AllArbitrated))  // all muons with the tracker muon arbitrated
+    if (muon::isGoodMuon(muon, muon::AllArbitrated))  // all muons with the tracker muon arbitrated
       hMuIdAlgo->Fill(4);
-    if (muon::isGoodMuon(*muon, muon::GlobalMuonPromptTight))  // global muons with tighter fit requirements
+    if (muon::isGoodMuon(muon, muon::GlobalMuonPromptTight))  // global muons with tighter fit requirements
       hMuIdAlgo->Fill(5);
-    if (muon::isGoodMuon(*muon, muon::TMLastStationLoose))  // penetration depth loose selector
+    if (muon::isGoodMuon(muon, muon::TMLastStationLoose))  // penetration depth loose selector
       hMuIdAlgo->Fill(6);
-    if (muon::isGoodMuon(*muon, muon::TMLastStationTight))  // penetration depth tight selector
+    if (muon::isGoodMuon(muon, muon::TMLastStationTight))  // penetration depth tight selector
       hMuIdAlgo->Fill(7);
-    if (muon::isGoodMuon(*muon, muon::TM2DCompatibilityLoose))  // likelihood based loose selector
+    if (muon::isGoodMuon(muon, muon::TM2DCompatibilityLoose))  // likelihood based loose selector
       hMuIdAlgo->Fill(8);
-    if (muon::isGoodMuon(*muon, muon::TM2DCompatibilityTight))  // likelihood based tight selector
+    if (muon::isGoodMuon(muon, muon::TM2DCompatibilityTight))  // likelihood based tight selector
       hMuIdAlgo->Fill(9);
-    if (muon::isGoodMuon(*muon, muon::TMOneStationLoose))  // require one well matched segment
+    if (muon::isGoodMuon(muon, muon::TMOneStationLoose))  // require one well matched segment
       hMuIdAlgo->Fill(10);
-    if (muon::isGoodMuon(*muon, muon::TMOneStationTight))  // require one well matched segment
+    if (muon::isGoodMuon(muon, muon::TMOneStationTight))  // require one well matched segment
       hMuIdAlgo->Fill(11);
-    if (muon::isGoodMuon(*muon,
+    if (muon::isGoodMuon(muon,
                          muon::TMLastStationOptimizedLowPtLoose))  // combination of TMLastStation and TMOneStation
       hMuIdAlgo->Fill(12);
-    if (muon::isGoodMuon(*muon,
+    if (muon::isGoodMuon(muon,
                          muon::TMLastStationOptimizedLowPtTight))  // combination of TMLastStation and TMOneStation
       hMuIdAlgo->Fill(13);
 
     // Isolation variables. There are many type of isolation. You can even build your own combining the output of
     // muon->isolationR03(). E.g.: 1.2*muon->isolationR03().emEt + 0.8*muon->isolationR03().hadEt
     // *** WARNING *** it is just an EXAMPLE!
-    if (muon->isIsolationValid()) {
-      hMuIso03CaloComb->Fill(1.2 * muon->isolationR03().emEt + 0.8 * muon->isolationR03().hadEt);
-      hMuIso03SumPt->Fill(muon->isolationR03().sumPt);
+    if (muon.isIsolationValid()) {
+      hMuIso03CaloComb->Fill(1.2 * muon.isolationR03().emEt + 0.8 * muon.isolationR03().hadEt);
+      hMuIso03SumPt->Fill(muon.isolationR03().sumPt);
     }
 
     // OK, let see if we understood everything.
@@ -166,18 +166,18 @@ void ExampleMuonAnalyzer::analyze(const Event& event, const EventSetup& eventSet
     // high pt (but 1 out of 4 can be at quite low pt)
     // isolated
     // so, we can make some requirements
-    if (muon->isolationR03().sumPt < 0.2) {
-      if (muon->isGlobalMuon() || muon::isGoodMuon(*muon, muon::TM2DCompatibilityLoose) ||
-          muon::isGoodMuon(*muon, muon::TMLastStationLoose))
-        selectedMuons.push_back(*muon);
+    if (muon.isolationR03().sumPt < 0.2) {
+      if (muon.isGlobalMuon() || muon::isGoodMuon(muon, muon::TM2DCompatibilityLoose) ||
+          muon::isGoodMuon(muon, muon::TMLastStationLoose))
+        selectedMuons.push_back(muon);
     }
   }
 
   /// simple selection... Do not want to write here my super-secret Higgs analysis ;-)
   if (selectedMuons.size() == 4) {
     reco::Candidate::LorentzVector p4CM;
-    for (pat::MuonCollection::const_iterator muon = selectedMuons.begin(); muon != selectedMuons.end(); ++muon) {
-      p4CM = p4CM + muon->p4();
+    for (const auto& selectedMuon : selectedMuons) {
+      p4CM = p4CM + selectedMuon.p4();
     }
     h4MuInvMass->Fill(p4CM.mass());
   }

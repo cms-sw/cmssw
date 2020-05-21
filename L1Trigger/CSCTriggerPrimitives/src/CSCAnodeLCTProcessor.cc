@@ -272,9 +272,9 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* 
             : ((nplanes_hit_pattern <= nplanes_hit_accel_pattern) ? nplanes_hit_pattern : nplanes_hit_accel_pattern);
 
     unsigned int layersHit = 0;
-    for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+    for (auto& i_layer : wire) {
       for (int i_wire = 0; i_wire < numWireGroups; i_wire++) {
-        if (!wire[i_layer][i_wire].empty()) {
+        if (!i_layer[i_wire].empty()) {
           layersHit++;
           break;
         }
@@ -481,12 +481,12 @@ bool CSCAnodeLCTProcessor::pulseExtension(
     for (i_wire = 0; i_wire < numWireGroups; i_wire++) {
       if (!wire[i_layer][i_wire].empty()) {
         std::vector<int> bx_times = wire[i_layer][i_wire];
-        for (unsigned int i = 0; i < bx_times.size(); i++) {
+        for (int bx_time : bx_times) {
           // Check that min and max times are within the allowed range.
-          if (bx_times[i] < 0 || bx_times[i] + hit_persist >= bits_in_pulse) {
+          if (bx_time < 0 || bx_time + hit_persist >= bits_in_pulse) {
             if (infoV > 0)
               edm::LogWarning("CSCAnodeLCTProcessor|OutOfTimeDigi")
-                  << "+++ BX time of wire digi (wire = " << i_wire << " layer = " << i_layer << ") bx = " << bx_times[i]
+                  << "+++ BX time of wire digi (wire = " << i_wire << " layer = " << i_layer << ") bx = " << bx_time
                   << " is not within the range (0-" << bits_in_pulse
                   << "] allowed for pulse extension.  Skip this digi! +++\n";
             continue;
@@ -497,13 +497,13 @@ bool CSCAnodeLCTProcessor::pulseExtension(
             chamber_empty = false;
 
           // make the pulse
-          for (unsigned int bx = bx_times[i]; bx < (bx_times[i] + hit_persist); bx++)
+          for (unsigned int bx = bx_time; bx < (bx_time + hit_persist); bx++)
             pulse[i_layer][i_wire] = pulse[i_layer][i_wire] | (1 << bx);
 
           // Debug information.
           if (infoV > 1) {
             LogTrace("CSCAnodeLCTProcessor") << "Wire digi: layer " << i_layer << " digi #" << ++digi_num
-                                             << " wire group " << i_wire << " time " << bx_times[i];
+                                             << " wire group " << i_wire << " time " << bx_time;
             if (infoV > 2) {
               std::ostringstream strstrm;
               for (int i = 1; i <= 32; i++) {
@@ -544,8 +544,8 @@ bool CSCAnodeLCTProcessor::preTrigger(const int key_wire, const int start_bx) {
   unsigned int stop_bx = fifo_tbins - drift_delay;
   for (unsigned int bx_time = start_bx; bx_time < stop_bx; bx_time++) {
     for (int i_pattern = 0; i_pattern < CSCConstants::NUM_ALCT_PATTERNS; i_pattern++) {
-      for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++)
-        hit_layer[i_layer] = false;
+      for (bool& i_layer : hit_layer)
+        i_layer = false;
       layers_hit = 0;
 
       for (int i_wire = 0; i_wire < CSCConstants::MAX_WIRES_IN_PATTERN; i_wire++) {
@@ -602,8 +602,8 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
 
   for (int i_pattern = 0; i_pattern < CSCConstants::NUM_ALCT_PATTERNS; i_pattern++) {
     temp_quality = 0;
-    for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++)
-      hit_layer[i_layer] = false;
+    for (bool& i_layer : hit_layer)
+      i_layer = false;
 
     double num_pattern_hits = 0., times_sum = 0.;
     std::multiset<int> mset_for_median;
@@ -924,15 +924,14 @@ void CSCAnodeLCTProcessor::lctSearch() {
   }
 
   // set track number for the other ALCTs
-  for (int bx = 0; bx < CSCConstants::MAX_ALCT_TBINS; bx++) {
+  for (auto& bx : ALCTContainer_) {
     for (int iALCT = 0; iALCT < CSCConstants::MAX_ALCTS_PER_PROCESSOR; iALCT++) {
-      if (ALCTContainer_[bx][iALCT].isValid()) {
-        ALCTContainer_[bx][iALCT].setTrknmb(iALCT + 1);
+      if (bx[iALCT].isValid()) {
+        bx[iALCT].setTrknmb(iALCT + 1);
         if (infoV > 0) {
-          LogDebug("CSCAnodeLCTProcessor")
-              << ALCTContainer_[bx][iALCT] << " found in " << theCSCName_ << " (sector " << theSector << " subsector "
-              << theSubsector << " trig id. " << theTrigChamber << ")"
-              << "\n";
+          LogDebug("CSCAnodeLCTProcessor") << bx[iALCT] << " found in " << theCSCName_ << " (sector " << theSector
+                                           << " subsector " << theSubsector << " trig id. " << theTrigChamber << ")"
+                                           << "\n";
         }
       }
     }

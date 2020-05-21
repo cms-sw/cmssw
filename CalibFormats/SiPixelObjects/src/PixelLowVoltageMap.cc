@@ -60,16 +60,16 @@ PixelLowVoltageMap::PixelLowVoltageMap(std::vector<std::vector<std::string> > &t
 */
 
   for (unsigned int c = 0; c < tableMat[0].size(); c++) {
-    for (unsigned int n = 0; n < colNames.size(); n++) {
-      if (tableMat[0][c] == colNames[n]) {
-        colM[colNames[n]] = c;
+    for (const auto &colName : colNames) {
+      if (tableMat[0][c] == colName) {
+        colM[colName] = c;
         break;
       }
     }
   }  //end for
-  for (unsigned int n = 0; n < colNames.size(); n++) {
-    if (colM.find(colNames[n]) == colM.end()) {
-      std::cerr << mthn << "Couldn't find in the database the column with name " << colNames[n] << std::endl;
+  for (const auto &colName : colNames) {
+    if (colM.find(colName) == colM.end()) {
+      std::cerr << mthn << "Couldn't find in the database the column with name " << colName << std::endl;
       assert(0);
     }
   }

@@ -46,9 +46,9 @@ HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet& p)
   count_ = 0;
   group_ = layerGrouping(laygroup);
   nGroup_ = 0;
-  for (unsigned int i = 0; i < group_.size(); i++)
-    if (group_[i] > nGroup_)
-      nGroup_ = group_[i];
+  for (int i : group_)
+    if (i > nGroup_)
+      nGroup_ = i;
   tower_ = towersToAdd(centralTower_, addTower_);
   nTower_ = tower_.size() / 2;
 

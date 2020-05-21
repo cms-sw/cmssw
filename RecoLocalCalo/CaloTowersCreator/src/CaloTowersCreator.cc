@@ -224,12 +224,10 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   edm::Handle<EcalRecHitCollection> ebHandle;
   edm::Handle<EcalRecHitCollection> eeHandle;
 
-  for (std::vector<edm::EDGetTokenT<EcalRecHitCollection> >::const_iterator i = toks_ecal_.begin();
-       i != toks_ecal_.end();
-       i++) {
+  for (auto i : toks_ecal_) {
     edm::Handle<EcalRecHitCollection> ec_tmp;
 
-    if (!e.getByToken(*i, ec_tmp))
+    if (!e.getByToken(i, ec_tmp))
       continue;
     if (ec_tmp->empty())
       continue;

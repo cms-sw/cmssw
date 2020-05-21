@@ -96,8 +96,8 @@ SiPixelFedCablingTree* SiPixelFedCablingMapBuilder::produce(const edm::EventSetu
   typedef std::vector<pair<PixelModuleName*, uint32_t> > UNITS;
   UNITS units;
 
-  for (ITG it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
-    const PixelGeomDetUnit* pxUnit = dynamic_cast<const PixelGeomDetUnit*>(*it);
+  for (auto it : pDD->dets()) {
+    const PixelGeomDetUnit* pxUnit = dynamic_cast<const PixelGeomDetUnit*>(it);
     if (pxUnit == nullptr)
       continue;
     npxdets++;
@@ -160,15 +160,15 @@ SiPixelFedCablingTree* SiPixelFedCablingMapBuilder::produce(const edm::EventSetu
 
   PixelToFEDAssociate::DetectorRocId detectorRocId;
   edm::LogInfo(" HERE PixelToLNKAssociateFromAscii");
-  for (UNITS::iterator iu = units.begin(); iu != units.end(); iu++) {
-    PixelModuleName* name = (*iu).first;
+  for (auto& unit : units) {
+    PixelModuleName* name = unit.first;
     detectorRocId.module = name;
     //for (int rocDetId=0; rocDetId<=16; rocDetId++) {
     for (int rocDetId = 0; rocDetId < 16; rocDetId++) {
       detectorRocId.rocDetId = rocDetId;
       const PixelToFEDAssociate::CablingRocId* cablingRocId = name2fed(detectorRocId);
       if (cablingRocId) {
-        sipixelobjects::PixelROC roc(iu->second, rocDetId, cablingRocId->rocLinkId);
+        sipixelobjects::PixelROC roc(unit.second, rocDetId, cablingRocId->rocLinkId);
         result->addItem(cablingRocId->fedId, cablingRocId->linkId, roc);
         edm::LogInfo(" ok ") << name->name() << " " << rocDetId << " " << cablingRocId->fedId << " "
                              << cablingRocId->linkId;
@@ -181,8 +181,8 @@ SiPixelFedCablingTree* SiPixelFedCablingMapBuilder::produce(const edm::EventSetu
   //}
 
   //clear names:
-  for (UNITS::iterator iu = units.begin(); iu != units.end(); iu++)
-    delete iu->first;
+  for (auto& unit : units)
+    delete unit.first;
 
   return result;
 }

@@ -46,8 +46,8 @@ AlignableSurface AlignableDTBarrel::computeSurface() {
 AlignableDTBarrel::PositionType AlignableDTBarrel::computePosition() {
   float zz = 0.;
 
-  for (std::vector<AlignableDTWheel*>::iterator ilayer = theDTWheels.begin(); ilayer != theDTWheels.end(); ilayer++)
-    zz += (*ilayer)->globalPosition().z();
+  for (auto& theDTWheel : theDTWheels)
+    zz += theDTWheel->globalPosition().z();
 
   zz /= static_cast<float>(theDTWheels.size());
 
@@ -69,9 +69,8 @@ std::ostream& operator<<(std::ostream& os, const AlignableDTBarrel& b) {
 /// Recursive printout of whole Half Barrel structure
 void AlignableDTBarrel::dump(void) const {
   edm::LogInfo("AlignableDump") << (*this);
-  for (std::vector<AlignableDTWheel*>::const_iterator iWheel = theDTWheels.begin(); iWheel != theDTWheels.end();
-       iWheel++)
-    (*iWheel)->dump();
+  for (auto theDTWheel : theDTWheels)
+    theDTWheel->dump();
 }
 
 //__________________________________________________________________________________________________

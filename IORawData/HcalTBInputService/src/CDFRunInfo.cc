@@ -67,14 +67,14 @@ bool CDFRunInfo::load(TFile* f) {
 void CDFRunInfo::store(TFile* f) {
   f->cd();
   TMap* myMap = new TMap();
-  for (std::map<std::string, std::string>::iterator i = m_mapData.begin(); i != m_mapData.end(); i++) {
-    myMap->Add(new TObjString(i->first.c_str()), new TObjString(i->second.c_str()));
+  for (auto& i : m_mapData) {
+    myMap->Add(new TObjString(i.first.c_str()), new TObjString(i.second.c_str()));
   }
   myMap->SetName(RootVariableName);
   myMap->Write(RootVariableName, TObject::kSingleKey);
 }
 
 void CDFRunInfo::print() const {
-  for (std::map<std::string, std::string>::const_iterator i = m_mapData.begin(); i != m_mapData.end(); i++)
-    printf(" '%s' => '%s' \n", i->first.c_str(), i->second.c_str());
+  for (const auto& i : m_mapData)
+    printf(" '%s' => '%s' \n", i.first.c_str(), i.second.c_str());
 }

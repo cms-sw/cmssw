@@ -1250,10 +1250,10 @@ void HGCalDDDConstants::cellHex(double xloc, double yloc, int cellType, int& cel
                                   << ":" << Rc << " u0 " << u0 << ":" << cu0 << " v0 " << v0 << ":" << cv0;
   bool found(false);
   static const int shift[3] = {0, 1, -1};
-  for (int i1 = 0; i1 < 3; ++i1) {
-    cellU = cu0 + shift[i1];
-    for (int i2 = 0; i2 < 3; ++i2) {
-      cellV = cv0 + shift[i2];
+  for (int i1 : shift) {
+    cellU = cu0 + i1;
+    for (int i2 : shift) {
+      cellV = cv0 + i2;
       if (((cellV - cellU) < N) && ((cellU - cellV) <= N) && (cellU >= 0) && (cellV >= 0) && (cellU < 2 * N) &&
           (cellV < 2 * N)) {
         double xc = (1.5 * (cellV - N) + 1.0) * Rc;

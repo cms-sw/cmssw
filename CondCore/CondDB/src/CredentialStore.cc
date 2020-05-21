@@ -35,11 +35,8 @@ coral_bridge::AuthenticationCredentialSet::AuthenticationCredentialSet() : m_dat
 coral_bridge::AuthenticationCredentialSet::~AuthenticationCredentialSet() { reset(); }
 
 void coral_bridge::AuthenticationCredentialSet::reset() {
-  for (std::map<std::pair<std::string, std::string>, coral::AuthenticationCredentials*>::iterator iData =
-           m_data.begin();
-       iData != m_data.end();
-       ++iData)
-    delete iData->second;
+  for (auto& iData : m_data)
+    delete iData.second;
   m_data.clear();
 }
 
@@ -86,14 +83,11 @@ void coral_bridge::AuthenticationCredentialSet::registerCredentials(const std::s
 }
 
 void coral_bridge::AuthenticationCredentialSet::import(const AuthenticationCredentialSet& data) {
-  for (std::map<std::pair<std::string, std::string>, coral::AuthenticationCredentials*>::const_iterator iData =
-           data.m_data.begin();
-       iData != data.m_data.end();
-       ++iData) {
-    registerCredentials(iData->first.first,
-                        iData->first.second,
-                        iData->second->valueForItem(coral::IAuthenticationCredentials::userItem()),
-                        iData->second->valueForItem(coral::IAuthenticationCredentials::passwordItem()));
+  for (const auto& iData : data.m_data) {
+    registerCredentials(iData.first.first,
+                        iData.first.second,
+                        iData.second->valueForItem(coral::IAuthenticationCredentials::userItem()),
+                        iData.second->valueForItem(coral::IAuthenticationCredentials::passwordItem()));
   }
 }
 
@@ -1261,17 +1255,14 @@ bool cond::CredentialStore::importForPrincipal(const std::string& principal,
   std::string princKey = cipher.b64decrypt(princData.adminKey);
 
   const std::map<std::pair<std::string, std::string>, coral::AuthenticationCredentials*>& creds = dataSource.data();
-  for (std::map<std::pair<std::string, std::string>, coral::AuthenticationCredentials*>::const_iterator iConn =
-           creds.begin();
-       iConn != creds.end();
-       ++iConn) {
-    const std::string& connectionString = iConn->first.first;
+  for (const auto& cred : creds) {
+    const std::string& connectionString = cred.first.first;
     coral::URIParser parser;
     parser.setURI(connectionString);
     std::string serviceName = parser.hostName();
-    const std::string& role = iConn->first.second;
-    std::string userName = iConn->second->valueForItem(coral::IAuthenticationCredentials::userItem());
-    std::string password = iConn->second->valueForItem(coral::IAuthenticationCredentials::passwordItem());
+    const std::string& role = cred.first.second;
+    std::string userName = cred.second->valueForItem(coral::IAuthenticationCredentials::userItem());
+    std::string password = cred.second->valueForItem(coral::IAuthenticationCredentials::passwordItem());
     // first import the connections
     std::pair<int, std::string> conn = updateConnectionData(
         schema, m_principalKey, schemaLabel(serviceName, userName), userName, password, forceUpdateConnection);

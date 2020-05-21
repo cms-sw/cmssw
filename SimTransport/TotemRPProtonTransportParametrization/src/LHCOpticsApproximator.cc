@@ -134,8 +134,8 @@ bool LHCOpticsApproximator::Transport(const double *in,
   }
 
   if (check_apertures) {
-    for (unsigned int i = 0; i < apertures_.size(); i++) {
-      res = res && apertures_[i].CheckAperture(in);
+    for (const auto &aperture : apertures_) {
+      res = res && aperture.CheckAperture(in);
     }
   }
   return res;
@@ -172,8 +172,8 @@ bool LHCOpticsApproximator::Transport2D(const double *in,
   }
 
   if (check_apertures) {
-    for (unsigned int i = 0; i < apertures_.size(); i++) {
-      res = res && apertures_[i].CheckAperture(in);
+    for (const auto &aperture : apertures_) {
+      res = res && aperture.CheckAperture(in);
     }
   }
   return res;
@@ -1008,14 +1008,14 @@ void LHCOpticsApproximator::PrintCoordinateOpticalFunctions(TMultiDimFet &parame
   double d_par = 1e-5;
   double bias = 0;
 
-  for (int j = 0; j < 5; j++)
-    in[j] = 0.0;
+  for (double &j : in)
+    j = 0.0;
 
   bias = parametrization.Eval(in);
 
   for (int i = 0; i < 5; i++) {
-    for (int j = 0; j < 5; j++)
-      in[j] = 0.0;
+    for (double &j : in)
+      j = 0.0;
 
     in[i] = d_par;
     d_out_d_in[i] = parametrization.Eval(in);

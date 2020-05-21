@@ -96,8 +96,8 @@ namespace {
     }
 
     void fill_align(const std::vector<double>& vect, TH2F* align, const float column, double row) {
-      for (std::vector<double>::const_iterator i = vect.begin(); i != vect.end(); ++i) {
-        align->Fill(column, row, *i);
+      for (double i : vect) {
+        align->Fill(column, row, i);
         row = row - 1;
       }
     }
@@ -191,11 +191,11 @@ namespace {
         const std::vector<double>& vect, TH2F* align, float val[], const float column, double row, unsigned irun) {
       int irow = 0;
 
-      for (std::vector<double>::const_iterator i = vect.begin(); i != vect.end(); ++i) {
+      for (double i : vect) {
         if (irun == 0) {
-          val[irow] = (*i);
+          val[irow] = i;
         } else {
-          align->Fill(column, row, (*i) - val[irow]);
+          align->Fill(column, row, i - val[irow]);
           row--;
         }
         irow++;

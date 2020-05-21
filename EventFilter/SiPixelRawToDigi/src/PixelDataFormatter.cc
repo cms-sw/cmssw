@@ -305,9 +305,9 @@ void PixelDataFormatter::formatRawData(unsigned int lvl1_ID,
   std::map<int, vector<Word32> > words;
 
   // translate digis into 32-bit raw words and store in map indexed by Fed
-  for (Digis::const_iterator im = digis.begin(); im != digis.end(); im++) {
+  for (const auto& im : digis) {
     allDetDigis++;
-    cms_uint32_t rawId = im->first;
+    cms_uint32_t rawId = im.first;
     int layer = 0;
     bool barrel = PixelModuleName::isBarrel(rawId);
     if (barrel)
@@ -317,10 +317,9 @@ void PixelDataFormatter::formatRawData(unsigned int lvl1_ID,
     BadChannels::const_iterator detBadChannels = badChannels.find(rawId);
 
     hasDetDigis++;
-    const DetDigis& detDigis = im->second;
-    for (DetDigis::const_iterator it = detDigis.begin(); it != detDigis.end(); it++) {
+    const DetDigis& detDigis = im.second;
+    for (auto digi : detDigis) {
       theDigiCounter++;
-      const PixelDigi& digi = (*it);
       int fedId = 0;
 
       if (layer == 1 && phase1)

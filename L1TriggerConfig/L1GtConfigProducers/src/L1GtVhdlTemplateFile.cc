@@ -279,8 +279,8 @@ std::vector<std::string> L1GtVhdlTemplateFile::getSubstitutionParametersFromTemp
 void L1GtVhdlTemplateFile::append(const std::string &str) { lines_.push_back(str); }
 
 void L1GtVhdlTemplateFile::append(const L1GtVhdlTemplateFile &file) {
-  for (unsigned int i = 0; i < file.lines_.size(); i++) {
-    lines_.push_back(file.lines_.at(i));
+  for (const auto &line : file.lines_) {
+    lines_.push_back(line);
   }
 }
 
@@ -353,9 +353,9 @@ void L1GtVhdlTemplateFile::getConditionsFromAlgo(std::string condString, std::ve
   operators.push_back("(");
   operators.push_back(")");
 
-  for (unsigned int i = 0; i < operators.size(); i++) {
-    while (findAndReplaceString(condString, operators.at(i), ""))
-      findAndReplaceString(condString, operators.at(i), "");
+  for (const auto &i : operators) {
+    while (findAndReplaceString(condString, i, ""))
+      findAndReplaceString(condString, i, "");
   }
 
   split(condString, result);

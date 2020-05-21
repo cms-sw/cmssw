@@ -188,28 +188,28 @@ EMap::EMap(const HcalElectronicsMap* emap) {
     //_____ precision channels __________________________________________
     //
     std::vector<HcalElectronicsId> v_eId = emap->allElectronicsIdPrecision();
-    for (std::vector<HcalElectronicsId>::const_iterator eId = v_eId.begin(); eId != v_eId.end(); eId++) {
+    for (auto eId : v_eId) {
       EMapRow row;
       //row.rawId     = eId->rawId();
-      row.crate = eId->readoutVMECrateId();
-      row.slot = eId->htrSlot();
-      row.dcc = eId->dccid();
-      row.spigot = eId->spigot();
-      row.fiber = eId->fiberIndex();
-      row.fiberchan = eId->fiberChanId();
-      if (eId->htrTopBottom() == 1)
+      row.crate = eId.readoutVMECrateId();
+      row.slot = eId.htrSlot();
+      row.dcc = eId.dccid();
+      row.spigot = eId.spigot();
+      row.fiber = eId.fiberIndex();
+      row.fiberchan = eId.fiberChanId();
+      if (eId.htrTopBottom() == 1)
         row.topbottom = "t";
-      else if (eId->htrTopBottom() == 0)
+      else if (eId.htrTopBottom() == 0)
         row.topbottom = "b";
       else
         row.topbottom = "u";
       //
-      HcalGenericDetId _gid(emap->lookup(*eId));
+      HcalGenericDetId _gid(emap->lookup(eId));
       if (!(_gid.null()) && (_gid.genericSubdet() == HcalGenericDetId::HcalGenBarrel ||
                              _gid.genericSubdet() == HcalGenericDetId::HcalGenEndcap ||
                              _gid.genericSubdet() == HcalGenericDetId::HcalGenForward ||
                              _gid.genericSubdet() == HcalGenericDetId::HcalGenOuter)) {
-        HcalDetId _id(emap->lookup(*eId));
+        HcalDetId _id(emap->lookup(eId));
         row.rawId = _id.rawId();
         row.ieta = _id.ieta();
         row.iphi = _id.iphi();
@@ -220,7 +220,7 @@ EMap::EMap(const HcalElectronicsMap* emap) {
       }
       // ZDC channels
       else if (!(_gid.null()) && _gid.genericSubdet() == HcalGenericDetId::HcalGenZDC) {
-        HcalZDCDetId _id(emap->lookup(*eId));
+        HcalZDCDetId _id(emap->lookup(eId));
         row.zdc_channel = _id.channel();
         row.zdc_section = _ass.getZDCSectionString(_id.section());
         row.idepth = _id.depth();
@@ -233,23 +233,23 @@ EMap::EMap(const HcalElectronicsMap* emap) {
     //_____ trigger channels __________________________________________
     //
     v_eId = emap->allElectronicsIdTrigger();
-    for (std::vector<HcalElectronicsId>::const_iterator eId = v_eId.begin(); eId != v_eId.end(); eId++) {
+    for (auto eId : v_eId) {
       EMapRow row;
       //row.rawId     = eId->rawId();
-      row.crate = eId->readoutVMECrateId();
-      row.slot = eId->htrSlot();
-      row.dcc = eId->dccid();
-      row.spigot = eId->spigot();
-      row.fiber = eId->isVMEid() ? eId->slbSiteNumber() : eId->fiberIndex();
-      row.fiberchan = eId->isVMEid() ? eId->slbChannelIndex() : eId->fiberChanId();
-      if (eId->htrTopBottom() == 1)
+      row.crate = eId.readoutVMECrateId();
+      row.slot = eId.htrSlot();
+      row.dcc = eId.dccid();
+      row.spigot = eId.spigot();
+      row.fiber = eId.isVMEid() ? eId.slbSiteNumber() : eId.fiberIndex();
+      row.fiberchan = eId.isVMEid() ? eId.slbChannelIndex() : eId.fiberChanId();
+      if (eId.htrTopBottom() == 1)
         row.topbottom = "t";
-      else if (eId->htrTopBottom() == 0)
+      else if (eId.htrTopBottom() == 0)
         row.topbottom = "b";
       else
         row.topbottom = "u";
       //
-      HcalTrigTowerDetId _id(emap->lookupTrigger(*eId));
+      HcalTrigTowerDetId _id(emap->lookupTrigger(eId));
       if (!(_id.null())) {
         row.rawId = _id.rawId();
         row.ieta = _id.ieta();

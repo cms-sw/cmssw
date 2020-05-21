@@ -657,8 +657,7 @@ namespace Json {
 
   std::string Reader::getFormatedErrorMessages() const {
     std::string formattedMessage;
-    for (Errors::const_iterator itError = errors_.begin(); itError != errors_.end(); ++itError) {
-      const ErrorInfo &error = *itError;
+    for (const auto &error : errors_) {
       formattedMessage += "* " + getLocationLineAndColumn(error.token_.start_) + "\n";
       formattedMessage += "  " + error.message_ + "\n";
       if (error.extra_)

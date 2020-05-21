@@ -207,10 +207,8 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector<SiPixelTemplateStore2D
           return false;
         }
 
-        for (int k = 0; k < 2; ++k) {
-          in_file >> theCurrentTemp.entry[iy][jx].xypar[k][0] >> theCurrentTemp.entry[iy][jx].xypar[k][1] >>
-              theCurrentTemp.entry[iy][jx].xypar[k][2] >> theCurrentTemp.entry[iy][jx].xypar[k][3] >>
-              theCurrentTemp.entry[iy][jx].xypar[k][4];
+        for (auto& k : theCurrentTemp.entry[iy][jx].xypar) {
+          in_file >> k[0] >> k[1] >> k[2] >> k[3] >> k[4];
 
           if (in_file.fail()) {
             LOGERROR("SiPixelTemplate2D")
@@ -221,10 +219,8 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector<SiPixelTemplateStore2D
           }
         }
 
-        for (int k = 0; k < 2; ++k) {
-          in_file >> theCurrentTemp.entry[iy][jx].lanpar[k][0] >> theCurrentTemp.entry[iy][jx].lanpar[k][1] >>
-              theCurrentTemp.entry[iy][jx].lanpar[k][2] >> theCurrentTemp.entry[iy][jx].lanpar[k][3] >>
-              theCurrentTemp.entry[iy][jx].lanpar[k][4];
+        for (auto& k : theCurrentTemp.entry[iy][jx].lanpar) {
+          in_file >> k[0] >> k[1] >> k[2] >> k[3] >> k[4];
 
           if (in_file.fail()) {
             LOGERROR("SiPixelTemplate2D")
@@ -239,10 +235,10 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector<SiPixelTemplateStore2D
 
         float dummy[T2YSIZE];
         for (int l = 0; l < 7; ++l) {
-          for (int k = 0; k < 7; ++k) {
+          for (auto& k : theCurrentTemp.entry[iy][jx].xytemp) {
             for (int j = 0; j < T2XSIZE; ++j) {
-              for (int i = 0; i < T2YSIZE; ++i) {
-                in_file >> dummy[i];
+              for (float& i : dummy) {
+                in_file >> i;
               }
               if (in_file.fail()) {
                 LOGERROR("SiPixelTemplate2D")
@@ -252,7 +248,7 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector<SiPixelTemplateStore2D
                 return false;
               }
               for (int i = 0; i < T2YSIZE; ++i) {
-                theCurrentTemp.entry[iy][jx].xytemp[k][l][i][j] = (short int)dummy[i];
+                k[l][i][j] = (short int)dummy[i];
               }
             }
           }
@@ -460,10 +456,8 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject,
           return false;
         }
 
-        for (int k = 0; k < 2; ++k) {
-          db >> theCurrentTemp.entry[iy][jx].xypar[k][0] >> theCurrentTemp.entry[iy][jx].xypar[k][1] >>
-              theCurrentTemp.entry[iy][jx].xypar[k][2] >> theCurrentTemp.entry[iy][jx].xypar[k][3] >>
-              theCurrentTemp.entry[iy][jx].xypar[k][4];
+        for (auto& k : theCurrentTemp.entry[iy][jx].xypar) {
+          db >> k[0] >> k[1] >> k[2] >> k[3] >> k[4];
 
           if (db.fail()) {
             LOGERROR("SiPixelTemplate2D")
@@ -474,10 +468,8 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject,
           }
         }
 
-        for (int k = 0; k < 2; ++k) {
-          db >> theCurrentTemp.entry[iy][jx].lanpar[k][0] >> theCurrentTemp.entry[iy][jx].lanpar[k][1] >>
-              theCurrentTemp.entry[iy][jx].lanpar[k][2] >> theCurrentTemp.entry[iy][jx].lanpar[k][3] >>
-              theCurrentTemp.entry[iy][jx].lanpar[k][4];
+        for (auto& k : theCurrentTemp.entry[iy][jx].lanpar) {
+          db >> k[0] >> k[1] >> k[2] >> k[3] >> k[4];
 
           if (db.fail()) {
             LOGERROR("SiPixelTemplate2D")
@@ -492,10 +484,10 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject,
 
         float dummy[T2YSIZE];
         for (int l = 0; l < 7; ++l) {
-          for (int k = 0; k < 7; ++k) {
+          for (auto& k : theCurrentTemp.entry[iy][jx].xytemp) {
             for (int j = 0; j < T2XSIZE; ++j) {
-              for (int i = 0; i < T2YSIZE; ++i) {
-                db >> dummy[i];
+              for (float& i : dummy) {
+                db >> i;
               }
               if (db.fail()) {
                 LOGERROR("SiPixelTemplate2D")
@@ -505,7 +497,7 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject,
                 return false;
               }
               for (int i = 0; i < T2YSIZE; ++i) {
-                theCurrentTemp.entry[iy][jx].xytemp[k][l][i][j] = (short int)dummy[i];
+                k[l][i][j] = (short int)dummy[i];
               }
             }
           }
@@ -1110,9 +1102,9 @@ bool SiPixelTemplate2D::xytemp(float xhit,
 
   //  First zero the local 2-d template
 
-  for (int j = 0; j < BXM2; ++j) {
+  for (auto& j : xytemp_) {
     for (int i = 0; i < BYM2; ++i) {
-      xytemp_[j][i] = 0.f;
+      j[i] = 0.f;
     }
   }
 

@@ -69,8 +69,8 @@ DTTracoChip::DTTracoChip(DTTracoCard *card, int n, DTConfigTraco *conf) : _card(
 
   // Flags for LTS
   _bxlts.zero();
-  for (int is = 0; is < DTConfigTraco::NSTEPL - DTConfigTraco::NSTEPF + 1; is++) {
-    _flag[is].zero();
+  for (auto &is : _flag) {
+    is.zero();
   }
 
   // debugging

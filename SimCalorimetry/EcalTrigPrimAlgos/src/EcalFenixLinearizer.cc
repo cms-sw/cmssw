@@ -10,8 +10,8 @@ EcalFenixLinearizer::EcalFenixLinearizer(bool famos) : famos_(famos), init_(fals
 
 EcalFenixLinearizer::~EcalFenixLinearizer() {
   if (init_) {
-    for (int i = 0; i < (int)vectorbadXStatus_.size(); i++) {
-      delete vectorbadXStatus_[i];
+    for (auto &vectorbadXStatu : vectorbadXStatus_) {
+      delete vectorbadXStatu;
     }
   }
 }

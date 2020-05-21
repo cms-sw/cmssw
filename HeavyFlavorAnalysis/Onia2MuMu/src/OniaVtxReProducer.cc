@@ -18,8 +18,8 @@ OniaVtxReProducer::OniaVtxReProducer(const edm::Handle<reco::VertexCollection> &
   const edm::Provenance *parent_prov = prov;
   if (edm::moduleName(*prov, iEvent.processHistory()) != "PrimaryVertexProducer") {
     std::vector<edm::BranchID> parents = prov->productProvenance()->parentage().parents();
-    for (std::vector<edm::BranchID>::const_iterator it = parents.begin(), ed = parents.end(); it != ed; ++it) {
-      edm::Provenance parprov = iEvent.getProvenance(*it);
+    for (auto parent : parents) {
+      edm::Provenance parprov = iEvent.getProvenance(parent);
       if (parprov.friendlyClassName() == "recoVertexs") {  // for AOD actually this the parent we should look for
         parent_prov = &parprov;
         psetFromProvenance = edm::parameterSet(parprov, iEvent.processHistory());
@@ -40,8 +40,8 @@ OniaVtxReProducer::OniaVtxReProducer(const edm::Handle<reco::VertexCollection> &
   std::vector<edm::BranchID> parents = prov->productProvenance()->parentage().parents();
   bool foundTracks = false;
   bool foundBeamSpot = false;
-  for (std::vector<edm::BranchID>::const_iterator it = parents.begin(), ed = parents.end(); it != ed; ++it) {
-    edm::Provenance parprov = iEvent.getProvenance(*it);
+  for (auto parent : parents) {
+    edm::Provenance parprov = iEvent.getProvenance(parent);
     if (parprov.friendlyClassName() == "recoTracks") {
       tracksTag_ = edm::InputTag(parprov.moduleLabel(), parprov.productInstanceName(), parprov.processName());
       foundTracks = true;
@@ -77,8 +77,8 @@ std::vector<TransientVertex> OniaVtxReProducer::makeVertices(const reco::TrackCo
 
   std::vector<reco::TransientTrack> t_tks;
   t_tks.reserve(tracks.size());
-  for (reco::TrackCollection::const_iterator it = tracks.begin(), ed = tracks.end(); it != ed; ++it) {
-    t_tks.push_back((*theB).build(*it));
+  for (const auto &track : tracks) {
+    t_tks.push_back((*theB).build(track));
     t_tks.back().setBeamSpot(bs);
   }
 

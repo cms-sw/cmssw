@@ -35,18 +35,18 @@ DigiConverterFP420::DigiConverterFP420(float in, int verbosity) {
 DConverterFP420::DigitalMapType DigiConverterFP420::convert(const signal_map_type &analogSignal) {
   DConverterFP420::DigitalMapType _temp;
 
-  for (signal_map_type::const_iterator i = analogSignal.begin(); i != analogSignal.end(); i++) {
+  for (auto i : analogSignal) {
     // convert analog amplitude to digital, means integer number simulating ADC
     // digitization!
     // with truncation check
-    int adc = convert((*i).second);
+    int adc = convert(i.second);
 
     if (verbos > 0) {
       std::cout << " ***DigiConverterFP420: convert: after truncation " << std::endl;
-      std::cout << "adc =  " << adc << " (*i).first =  " << (*i).first << std::endl;
+      std::cout << "adc =  " << adc << " (*i).first =  " << i.first << std::endl;
     }
     if (adc > 0)
-      _temp.insert(_temp.end(), DigitalMapType::value_type((*i).first, adc));
+      _temp.insert(_temp.end(), DigitalMapType::value_type(i.first, adc));
   }
 
   return _temp;

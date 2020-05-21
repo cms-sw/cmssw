@@ -150,18 +150,18 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::cleanHigher(const L1MuKB
                                                                     const L1MuKBMTrackCollection& tracks2) {
   L1MuKBMTrackCollection out;
 
-  for (uint i = 0; i < tracks1.size(); ++i) {
+  for (const auto& i : tracks1) {
     bool keep = true;
 
-    for (uint j = 0; j < tracks2.size(); ++j) {
-      if (tracks1[i].overlapTrack(tracks2[j])) {
-        if (tracks1[i].rank() <= tracks2[j].rank()) {
+    for (const auto& j : tracks2) {
+      if (i.overlapTrack(j)) {
+        if (i.rank() <= j.rank()) {
           keep = false;
         }
       }
     }
     if (keep)
-      out.push_back(tracks1[i]);
+      out.push_back(i);
   }
 
   return out;
@@ -171,18 +171,18 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::cleanLower(const L1MuKBM
                                                                    const L1MuKBMTrackCollection& tracks2) {
   L1MuKBMTrackCollection out;
 
-  for (uint i = 0; i < tracks1.size(); ++i) {
+  for (const auto& i : tracks1) {
     bool keep = true;
 
-    for (uint j = 0; j < tracks2.size(); ++j) {
-      if (tracks1[i].overlapTrack(tracks2[j])) {
-        if (tracks1[i].rank() < tracks2[j].rank()) {
+    for (const auto& j : tracks2) {
+      if (i.overlapTrack(j)) {
+        if (i.rank() < j.rank()) {
           keep = false;
         }
       }
     }
     if (keep)
-      out.push_back(tracks1[i]);
+      out.push_back(i);
   }
 
   return out;

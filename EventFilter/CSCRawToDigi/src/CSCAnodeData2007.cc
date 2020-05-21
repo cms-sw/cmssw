@@ -87,7 +87,7 @@ void CSCAnodeData2007::add(const CSCWireDigi &digi, int layer) {
   unsigned wireInPart = (wireGroup - 1) % 12;
 
   std::vector<int> timeBinsOn = digi.getTimeBinsOn();
-  for (std::vector<int>::const_iterator timeBinOn = timeBinsOn.begin(); timeBinOn != timeBinsOn.end(); ++timeBinOn) {
+  for (int timeBinOn : timeBinsOn) {
     // crash if there's a bad wire number, but don't freak out
     // if a time bin is out of range
     //  assert(alctBoard < nAFEBs_);
@@ -96,14 +96,14 @@ void CSCAnodeData2007::add(const CSCWireDigi &digi, int layer) {
       return;
     }
 
-    if ((*timeBinOn) >= 0 && (*timeBinOn) < nTimeBins_) {
-      CSCAnodeDataFrame2007 frame = findFrame(*timeBinOn, layer, layerPart);
+    if (timeBinOn >= 0 && timeBinOn < nTimeBins_) {
+      CSCAnodeDataFrame2007 frame = findFrame(timeBinOn, layer, layerPart);
       frame.addHit(wireInPart);
       // FIXME doesn't carry over the (currently 0) leading bits
-      theDataFrames[index(*timeBinOn, layer, layerPart)] = frame.data();
+      theDataFrames[index(timeBinOn, layer, layerPart)] = frame.data();
     } else {
       LogTrace("CSCAnodeData|CSCRawToDigi")
-          << "warning: not saving anode data in bx " << *timeBinOn << ": out of range ";
+          << "warning: not saving anode data in bx " << timeBinOn << ": out of range ";
     }
   }
 }

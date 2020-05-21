@@ -148,10 +148,10 @@ void L1TJetsMatching<T>::produce(edm::StreamID iSId, edm::Event& iEvent, const e
   //std::cout<<"PFsize= "<<pfJets->size()<<endl<<" L1size= "<<jetCandRefVec.size()<<std::endl;
   for (unsigned int iJet = 0; iJet < pfJets->size(); iJet++) {
     const T& myJet = (*pfJets)[iJet];
-    for (unsigned int iL1Jet = 0; iL1Jet < jetCandRefVec.size(); iL1Jet++) {
+    for (auto& iL1Jet : jetCandRefVec) {
       // Find the relative L2pfJets, to see if it has been reconstructed
       //  if ((iJet<3) && (iL1Jet==0))  std::cout<<myJet.p4().Pt()<<" ";
-      if ((reco::deltaR2(myJet.p4(), jetCandRefVec[iL1Jet]->p4()) < matchingR2_) && (myJet.pt() > pt2Min_)) {
+      if ((reco::deltaR2(myJet.p4(), iL1Jet->p4()) < matchingR2_) && (myJet.pt() > pt2Min_)) {
         pfMatchedJets->push_back(myJet);
         break;
       }

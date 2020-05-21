@@ -139,17 +139,17 @@ void GlobalMuonMatchAnalyzer::analyze(const edm::Event &iEvent, const edm::Event
       h_shouldMatch->Fill(rTk->eta(), rTk->pt());
     }
 
-    for (reco::MuonTrackLinksCollection::const_iterator links = muHandle->begin(); links != muHandle->end(); ++links) {
-      if (rGlb == RefToBase<Track>(links->globalTrack())) {
-        if (RefToBase<Track>(links->trackerTrack()) == rTk && RefToBase<Track>(links->standAloneTrack()) == rSta) {
+    for (const auto &links : *muHandle) {
+      if (rGlb == RefToBase<Track>(links.globalTrack())) {
+        if (RefToBase<Track>(links.trackerTrack()) == rTk && RefToBase<Track>(links.standAloneTrack()) == rSta) {
           //goodMatch
           h_goodMatchSim->Fill(rGlb->eta(), rGlb->pt());
         }
-        if (RefToBase<Track>(links->trackerTrack()) == rTk && RefToBase<Track>(links->standAloneTrack()) != rSta) {
+        if (RefToBase<Track>(links.trackerTrack()) == rTk && RefToBase<Track>(links.standAloneTrack()) != rSta) {
           //tkOnlyMatch
           h_tkOnlySim->Fill(rGlb->eta(), rGlb->pt());
         }
-        if (RefToBase<Track>(links->standAloneTrack()) == rSta && RefToBase<Track>(links->trackerTrack()) != rTk) {
+        if (RefToBase<Track>(links.standAloneTrack()) == rSta && RefToBase<Track>(links.trackerTrack()) != rTk) {
           //staOnlyMatch
           h_staOnlySim->Fill(rGlb->eta(), rGlb->pt());
         }
@@ -159,10 +159,10 @@ void GlobalMuonMatchAnalyzer::analyze(const edm::Event &iEvent, const edm::Event
 
   ////////
 
-  for (reco::MuonTrackLinksCollection::const_iterator links = muHandle->begin(); links != muHandle->end(); ++links) {
-    RefToBase<Track> glbRef = RefToBase<Track>(links->globalTrack());
-    RefToBase<Track> staRef = RefToBase<Track>(links->standAloneTrack());
-    RefToBase<Track> tkRef = RefToBase<Track>(links->trackerTrack());
+  for (const auto &links : *muHandle) {
+    RefToBase<Track> glbRef = RefToBase<Track>(links.globalTrack());
+    RefToBase<Track> staRef = RefToBase<Track>(links.standAloneTrack());
+    RefToBase<Track> tkRef = RefToBase<Track>(links.trackerTrack());
 
     std::vector<std::pair<TrackingParticleRef, double> > tp1;
     TrackingParticleRef tp1r;

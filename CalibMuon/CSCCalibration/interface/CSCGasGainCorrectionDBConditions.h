@@ -90,19 +90,19 @@ inline CSCDBGasGainCorrection *CSCGasGainCorrectionDBConditions::prefillDBGasGai
     float gas_gain_correction;
   } gains[MAX_SIZE];
 
-  for (int j = 0; j < MAX_SIZE; j++) {
-    gains[j].gas_gain_index = -999;
-    gains[j].endcap = -999;
-    gains[j].station = -999;
-    gains[j].ring = -999;
-    gains[j].chamber = -999;
-    gains[j].layer = -999;
-    gains[j].hvsegment = -999;
-    gains[j].cfeb = -999;
-    gains[j].nentries = -999;
-    gains[j].mean = -999.;
-    gains[j].truncated_mean = -999.;
-    gains[j].gas_gain_correction = -999.;
+  for (auto &gain : gains) {
+    gain.gas_gain_index = -999;
+    gain.endcap = -999;
+    gain.station = -999;
+    gain.ring = -999;
+    gain.chamber = -999;
+    gain.layer = -999;
+    gain.hvsegment = -999;
+    gain.cfeb = -999;
+    gain.nentries = -999;
+    gain.mean = -999.;
+    gain.truncated_mean = -999.;
+    gain.gas_gain_correction = -999.;
   }
 
   FILE *fin = fopen(filename.data(), "r");

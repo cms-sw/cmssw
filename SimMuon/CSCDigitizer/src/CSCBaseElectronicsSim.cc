@@ -117,13 +117,13 @@ CSCAnalogSignal CSCBaseElectronicsSim::makeNoiseSignal(int element, CLHEP::HepRa
 }
 
 void CSCBaseElectronicsSim::addNoise(CLHEP::HepRandomEngine *engine) {
-  for (CSCSignalMap::iterator mapI = theSignalMap.begin(); mapI != theSignalMap.end(); ++mapI) {
+  for (auto &mapI : theSignalMap) {
     // superimpose electronics noise
-    (*mapI).second.superimpose(makeNoiseSignal((*mapI).first, engine));
+    mapI.second.superimpose(makeNoiseSignal(mapI.first, engine));
     // DON'T do amp gain variations.  Handled in strips by calibration code
     // and variations in the shaper peaking time.
-    double timeOffset = CLHEP::RandGaussQ::shoot(engine, (*mapI).second.getTimeOffset(), thePeakTimeSigma);
-    (*mapI).second.setTimeOffset(timeOffset);
+    double timeOffset = CLHEP::RandGaussQ::shoot(engine, mapI.second.getTimeOffset(), thePeakTimeSigma);
+    mapI.second.setTimeOffset(timeOffset);
   }
   theNoiseWasAdded = true;
 }
@@ -189,10 +189,9 @@ void CSCBaseElectronicsSim::addLinks(int channelIndex) {
     }
   }
 
-  for (std::map<int, float>::iterator chargeItr = simTrackChargeMap.begin(); chargeItr != simTrackChargeMap.end();
-       ++chargeItr) {
-    int simTrackId = chargeItr->first;
+  for (auto &chargeItr : simTrackChargeMap) {
+    int simTrackId = chargeItr.first;
     theDigiSimLinks.push_back(
-        StripDigiSimLink(channelIndex, simTrackId, eventIdMap[simTrackId], chargeItr->second / totalCharge));
+        StripDigiSimLink(channelIndex, simTrackId, eventIdMap[simTrackId], chargeItr.second / totalCharge));
   }
 }

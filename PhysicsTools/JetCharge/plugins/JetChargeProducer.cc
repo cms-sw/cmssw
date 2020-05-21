@@ -17,9 +17,9 @@ void JetChargeProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Ev
     return;
   }
   auto ret = std::make_unique<JetChargeCollection>(hJTAs->keyProduct());
-  for (IT it = hJTAs->begin(), ed = hJTAs->end(); it != ed; ++it) {
-    const JetRef &jet = it->first;
-    const reco::TrackRefVector &tracks = it->second;
+  for (const auto &it : *hJTAs) {
+    const JetRef &jet = it.first;
+    const reco::TrackRefVector &tracks = it.second;
     float val = static_cast<float>(algo_.charge(jet->p4(), tracks));
     reco::JetFloatAssociation::setValue(*ret, jet, val);
   }

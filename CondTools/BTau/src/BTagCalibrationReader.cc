@@ -101,8 +101,7 @@ double BTagCalibrationReader::BTagCalibrationReaderImpl::eval(BTagEntry::JetFlav
   // search linearly through eta, pt and discr ranges and eval
   // future: find some clever data structure based on intervals
   const auto &entries = tmpData_.at(jf);
-  for (unsigned i = 0; i < entries.size(); ++i) {
-    const auto &e = entries.at(i);
+  for (const auto &e : entries) {
     if (e.etaMin <= eta && eta <= e.etaMax  // find eta
         && e.ptMin < pt && pt <= e.ptMax    // check pt
     ) {

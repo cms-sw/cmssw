@@ -74,10 +74,9 @@ void ESDcsInfoTask::analyze(const Event& e, const EventSetup& c) {
   Handle<DcsStatusCollection> dcsStatus;
   e.getByToken(dcsStatustoken_, dcsStatus);
   if (dcsStatus.isValid()) {
-    for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin(); dcsStatusItr != dcsStatus->end();
-         ++dcsStatusItr) {
-      ESpDcsStatus = dcsStatusItr->ready(DcsStatus::ESp);
-      ESmDcsStatus = dcsStatusItr->ready(DcsStatus::ESm);
+    for (const auto& dcsStatusItr : *dcsStatus) {
+      ESpDcsStatus = dcsStatusItr.ready(DcsStatus::ESp);
+      ESmDcsStatus = dcsStatusItr.ready(DcsStatus::ESm);
     }
 
     ESpDcsStatus = (ESpDcsStatus + float(ievt_ - 1) * meESDcsActiveMap_->getBinContent(1)) / float(ievt_);

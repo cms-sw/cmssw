@@ -203,10 +203,9 @@ void SegmentTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   Handle<reco::TrackCollection> glbTracks;
   iEvent.getByToken(theMuTrackCollectionLabel_, glbTracks);
 
-  for (reco::TrackCollection::const_iterator recoTrack = glbTracks->begin(); recoTrack != glbTracks->end();
-       ++recoTrack) {
+  for (const auto& recoTrack : *glbTracks) {
     MuonTransientTrackingRecHit::MuonRecHitContainer segments =
-        theSegmentsAssociator->associate(iEvent, iSetup, *recoTrack);
+        theSegmentsAssociator->associate(iEvent, iSetup, recoTrack);
 
 #ifdef DEBUG
     cout << "[SegmentTrackAnalyzer] # of segments associated to the track: " << (segments).size() << endl;
@@ -224,15 +223,13 @@ void SegmentTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
     int segmFromDt = 0;
     int segmFromCsc = 0;
 
-    for (MuonTransientTrackingRecHit::MuonRecHitContainer::const_iterator segment = segments.begin();
-         segment != segments.end();
-         segment++) {
-      DetId id = (*segment)->geographicalId();
+    for (const auto& segment : segments) {
+      DetId id = segment->geographicalId();
 
       // hits from DT segments
       if (id.det() == DetId::Muon && id.subdetId() == MuonSubdetId::DT) {
         ++segmFromDt;
-        const DTRecSegment4D* seg4D = dynamic_cast<const DTRecSegment4D*>((*segment)->hit());
+        const DTRecSegment4D* seg4D = dynamic_cast<const DTRecSegment4D*>(segment->hit());
         if ((*seg4D).hasPhi())
           hitsFromSegmDt += (*seg4D).phiSegment()->specificRecHits().size();
         if ((*seg4D).hasZed())
@@ -241,13 +238,13 @@ void SegmentTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 
       // hits from CSC segments
       if (id.det() == DetId::Muon && id.subdetId() == MuonSubdetId::CSC) {
-        hitsFromSegmCsc += (*segment)->recHits().size();
+        hitsFromSegmCsc += segment->recHits().size();
         segmFromCsc++;
       }
     }
 
     // hits from track
-    for (trackingRecHit_iterator recHit = recoTrack->recHitsBegin(); recHit != recoTrack->recHitsEnd(); ++recHit) {
+    for (trackingRecHit_iterator recHit = recoTrack.recHitsBegin(); recHit != recoTrack.recHitsEnd(); ++recHit) {
       hitsFromTrack++;
       DetId id = (*recHit)->geographicalId();
       // hits from DT
@@ -305,24 +302,24 @@ void SegmentTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
       hitStaProvenance->Fill(7);
 
     if (hitsFromSegmDt + hitsFromSegmCsc != 0) {
-      trackHitPercentualVsEta->Fill(recoTrack->eta(),
+      trackHitPercentualVsEta->Fill(recoTrack.eta(),
                                     double(hitsFromDt + hitsFromCsc) / (hitsFromSegmDt + hitsFromSegmCsc));
-      trackHitPercentualVsPhi->Fill(recoTrack->phi(),
+      trackHitPercentualVsPhi->Fill(recoTrack.phi(),
                                     double(hitsFromDt + hitsFromCsc) / (hitsFromSegmDt + hitsFromSegmCsc));
-      trackHitPercentualVsPt->Fill(recoTrack->pt(),
+      trackHitPercentualVsPt->Fill(recoTrack.pt(),
                                    double(hitsFromDt + hitsFromCsc) / (hitsFromSegmDt + hitsFromSegmCsc));
     }
 
     if (hitsFromSegmDt != 0) {
-      dtTrackHitPercentualVsEta->Fill(recoTrack->eta(), double(hitsFromDt) / hitsFromSegmDt);
-      dtTrackHitPercentualVsPhi->Fill(recoTrack->phi(), double(hitsFromDt) / hitsFromSegmDt);
-      dtTrackHitPercentualVsPt->Fill(recoTrack->pt(), double(hitsFromDt) / hitsFromSegmDt);
+      dtTrackHitPercentualVsEta->Fill(recoTrack.eta(), double(hitsFromDt) / hitsFromSegmDt);
+      dtTrackHitPercentualVsPhi->Fill(recoTrack.phi(), double(hitsFromDt) / hitsFromSegmDt);
+      dtTrackHitPercentualVsPt->Fill(recoTrack.pt(), double(hitsFromDt) / hitsFromSegmDt);
     }
 
     if (hitsFromSegmCsc != 0) {
-      cscTrackHitPercentualVsEta->Fill(recoTrack->eta(), double(hitsFromCsc) / hitsFromSegmCsc);
-      cscTrackHitPercentualVsPhi->Fill(recoTrack->phi(), double(hitsFromCsc) / hitsFromSegmCsc);
-      cscTrackHitPercentualVsPt->Fill(recoTrack->pt(), double(hitsFromCsc) / hitsFromSegmCsc);
+      cscTrackHitPercentualVsEta->Fill(recoTrack.eta(), double(hitsFromCsc) / hitsFromSegmCsc);
+      cscTrackHitPercentualVsPhi->Fill(recoTrack.phi(), double(hitsFromCsc) / hitsFromSegmCsc);
+      cscTrackHitPercentualVsPt->Fill(recoTrack.pt(), double(hitsFromCsc) / hitsFromSegmCsc);
     }
   }
 }

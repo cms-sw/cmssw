@@ -485,24 +485,24 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   if (skipDataTPs)
     return;
 
-  for (HcalTrigPrimDigiCollection::const_iterator itr = dataTPs->begin(); itr != dataTPs->end(); ++itr) {
-    int ieta = itr->id().ieta();
-    int iphi = itr->id().iphi();
+  for (const auto& itr : *dataTPs) {
+    int ieta = itr.id().ieta();
+    int iphi = itr.id().iphi();
 
     HcalSubdetector subdet = (HcalSubdetector)0;
 
     if (abs(ieta) <= 16)
       subdet = HcalSubdetector::HcalBarrel;
-    else if (abs(ieta) < tp_geometry->firstHFTower(itr->id().version()))
+    else if (abs(ieta) < tp_geometry->firstHFTower(itr.id().version()))
       subdet = HcalSubdetector::HcalEndcap;
     else if (abs(ieta) <= 42)
       subdet = HcalSubdetector::HcalForward;
 
     //Right now, the only case where version matters is in HF
     //If the subdetector is not HF, set version to -1
-    int tpVersion = (subdet == HcalSubdetector::HcalForward ? itr->id().version() : -1);
+    int tpVersion = (subdet == HcalSubdetector::HcalForward ? itr.id().version() : -1);
 
-    float en = decoder->hcaletValue(itr->id(), itr->t0());
+    float en = decoder->hcaletValue(itr.id(), itr.t0());
 
     if (en < 0.00001)
       continue;
@@ -651,9 +651,8 @@ void HcalDigisValidation::reco(const edm::Event& iEvent,
 
     if (isubdet != 0 && noise_ == 0) {  // signal only SimHits
 
-      for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin(); simhits != simhitResult->end();
-           ++simhits) {
-        unsigned int id_ = simhits->id();
+      for (const auto& simhits : *simhitResult) {
+        unsigned int id_ = simhits.id();
         int sub, ieta, iphi;
         HcalDetId hid;
         if (testNumber_)
@@ -664,7 +663,7 @@ void HcalDigisValidation::reco(const edm::Event& iEvent,
         ieta = hid.ieta();
         iphi = hid.iphi();
 
-        double en = simhits->energy();
+        double en = simhits.energy();
 
         if (en > emax_Sim && sub == isubdet) {
           emax_Sim = en;
@@ -843,9 +842,8 @@ void HcalDigisValidation::reco(const edm::Event& iEvent,
       edm::Handle<edm::PCaloHitContainer> hcalHits;
       iEvent.getByToken(tok_mc_, hcalHits);
       const edm::PCaloHitContainer* simhitResult = hcalHits.product();
-      for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin(); simhits != simhitResult->end();
-           ++simhits) {
-        unsigned int id_ = simhits->id();
+      for (const auto& simhits : *simhitResult) {
+        unsigned int id_ = simhits.id();
         int sub, depth, ieta, iphi;
         HcalDetId hid;
         if (testNumber_)
@@ -867,7 +865,7 @@ void HcalDigisValidation::reco(const edm::Event& iEvent,
 
         // take cell already found to be max energy in a particular subdet
         if (sub == isubdet && ieta == ieta_Sim && iphi == iphi_Sim) {
-          double en = simhits->energy();
+          double en = simhits.energy();
 
           v_ehits[0] += en;
           v_ehits[depth] += en;
@@ -968,9 +966,8 @@ void HcalDigisValidation::reco(const edm::Event& iEvent,
 
     if (isubdet != 0 && noise_ == 0) {  // signal only SimHits
 
-      for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin(); simhits != simhitResult->end();
-           ++simhits) {
-        unsigned int id_ = simhits->id();
+      for (const auto& simhits : *simhitResult) {
+        unsigned int id_ = simhits.id();
         int sub, ieta, iphi;
         HcalDetId hid;
         if (testNumber_)
@@ -981,7 +978,7 @@ void HcalDigisValidation::reco(const edm::Event& iEvent,
         ieta = hid.ieta();
         iphi = hid.iphi();
 
-        double en = simhits->energy();
+        double en = simhits.energy();
 
         if (en > emax_Sim && sub == isubdet) {
           emax_Sim = en;
@@ -1203,9 +1200,8 @@ void HcalDigisValidation::reco(const edm::Event& iEvent,
       edm::Handle<edm::PCaloHitContainer> hcalHits;
       iEvent.getByToken(tok_mc_, hcalHits);
       const edm::PCaloHitContainer* simhitResult = hcalHits.product();
-      for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin(); simhits != simhitResult->end();
-           ++simhits) {
-        unsigned int id_ = simhits->id();
+      for (const auto& simhits : *simhitResult) {
+        unsigned int id_ = simhits.id();
         int sub, depth, ieta, iphi;
         HcalDetId hid;
         if (testNumber_)
@@ -1227,7 +1223,7 @@ void HcalDigisValidation::reco(const edm::Event& iEvent,
 
         // take cell already found to be max energy in a particular subdet
         if (sub == isubdet && ieta == ieta_Sim && iphi == iphi_Sim) {
-          double en = simhits->energy();
+          double en = simhits.energy();
 
           v_ehits[0] += en;
           v_ehits[depth] += en;

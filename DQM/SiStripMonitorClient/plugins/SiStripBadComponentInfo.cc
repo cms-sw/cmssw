@@ -53,46 +53,46 @@ void SiStripBadComponentInfo::checkBadComponents(edm::EventSetup const& eSetup) 
 void SiStripBadComponentInfo::fillBadComponentMaps(const SiStripQuality* siStripQuality) {
   auto const& BC = siStripQuality->getBadComponentList();
 
-  for (size_t i = 0; i < BC.size(); ++i) {
+  for (auto i : BC) {
     int subdet = -999;
     int component = -999;
 
     //&&&&&&&&&&&&&&&&&
     // Single SubSyste
     //&&&&&&&&&&&&&&&&&
-    int subDet = DetId(BC[i].detid).subdetId();
+    int subDet = DetId(i.detid).subdetId();
     if (subDet == StripSubdetector::TIB) {
       //&&&&&&&&&&&&&&&&&
       // TIB
       //&&&&&&&&&&&&&&&&&
       subdet = 3;
-      component = tTopo_->tibLayer(BC[i].detid);
+      component = tTopo_->tibLayer(i.detid);
     } else if (subDet == StripSubdetector::TID) {
       //&&&&&&&&&&&&&&&&&
       // TID
       //&&&&&&&&&&&&&&&&&
-      if (tTopo_->tidSide(BC[i].detid) == 2)
+      if (tTopo_->tidSide(i.detid) == 2)
         subdet = 4;
       else
         subdet = 5;
-      component = tTopo_->tidWheel(BC[i].detid);
+      component = tTopo_->tidWheel(i.detid);
     } else if (subDet == StripSubdetector::TOB) {
       //&&&&&&&&&&&&&&&&&
       // TOB
       //&&&&&&&&&&&&&&&&&
       subdet = 6;
-      component = tTopo_->tobLayer(BC[i].detid);
+      component = tTopo_->tobLayer(i.detid);
     } else if (subDet == StripSubdetector::TEC) {
       //&&&&&&&&&&&&&&&&&
       // TEC
       //&&&&&&&&&&&&&&&&&
-      if (tTopo_->tecSide(BC[i].detid) == 2)
+      if (tTopo_->tecSide(i.detid) == 2)
         subdet = 2;
       else
         subdet = 1;
-      component = tTopo_->tecWheel(BC[i].detid);
+      component = tTopo_->tecWheel(i.detid);
     }
-    fillBadComponentMaps(subdet, component, BC[i]);
+    fillBadComponentMaps(subdet, component, i);
   }
 
   //&&&&&&&&&&&&&&&&&&

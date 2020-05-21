@@ -429,11 +429,11 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::dosorting(std::vector<l1t::Tau>&
   std::vector<std::vector<l1t::Tau>> tauEtaPos(params_->isoTauEtaMax(), std::vector<l1t::Tau>(18, tempTau));
   std::vector<std::vector<l1t::Tau>> tauEtaNeg(params_->isoTauEtaMax(), std::vector<l1t::Tau>(18, tempTau));
 
-  for (unsigned int iTau = 0; iTau < taus.size(); iTau++) {
-    if (taus.at(iTau).hwEta() > 0)
-      tauEtaPos.at(taus.at(iTau).hwEta() - 1).at((72 - taus.at(iTau).hwPhi()) / 4) = taus.at(iTau);
+  for (auto& tau : taus) {
+    if (tau.hwEta() > 0)
+      tauEtaPos.at(tau.hwEta() - 1).at((72 - tau.hwPhi()) / 4) = tau;
     else
-      tauEtaNeg.at(-(taus.at(iTau).hwEta() + 1)).at((72 - taus.at(iTau).hwPhi()) / 4) = taus.at(iTau);
+      tauEtaNeg.at(-(tau.hwEta() + 1)).at((72 - tau.hwPhi()) / 4) = tau;
   }
 
   AccumulatingSort<l1t::Tau> etaPosSorter(6);
@@ -578,9 +578,8 @@ std::vector<std::unique_ptr<l1t::CaloCluster>> l1t::Stage2Layer2TauAlgorithmFirm
   int iPhimain = mainCluster.hwPhi();
 
   std::vector<unique_ptr<CaloCluster>> secClusters;
-  for (unsigned int isite = 0; isite < sites.size(); isite++) {
+  for (int siteNumber : sites) {
     // build full cluster at this site
-    const int siteNumber = sites.at(isite);
     int iSecEta = caloNav.offsetIEta(iEtamain, neigEta[siteNumber]);
     int iSecPhi = caloNav.offsetIPhi(iPhimain, neigPhi[siteNumber]);
 

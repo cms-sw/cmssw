@@ -81,10 +81,9 @@ void CaloTowerAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run cons
   ibooker.setCurrentFolder(FolderName_);
 
   //Store number of events which pass each HLT bit
-  for (unsigned int i = 0; i < HLTBitLabel_.size(); i++) {
-    if (!HLTBitLabel_[i].label().empty()) {
-      hCT_NEvents_HLT.push_back(
-          ibooker.book1D("METTask_CT_" + HLTBitLabel_[i].label(), HLTBitLabel_[i].label(), 2, -0.5, 1.5));
+  for (auto& i : HLTBitLabel_) {
+    if (!i.label().empty()) {
+      hCT_NEvents_HLT.push_back(ibooker.book1D("METTask_CT_" + i.label(), i.label(), 2, -0.5, 1.5));
     }
   }
 

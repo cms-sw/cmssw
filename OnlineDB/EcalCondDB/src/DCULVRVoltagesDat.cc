@@ -196,8 +196,8 @@ void DCULVRVoltagesDat::writeArrayDB(const std::map<EcalLogicID, DCULVRVoltagesD
   const DCULVRVoltagesDat* dataitem;
   int count = 0;
   typedef map<EcalLogicID, DCULVRVoltagesDat>::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
-    channel = &(p->first);
+  for (const auto& p : *data) {
+    channel = &(p.first);
     int logicID = channel->getLogicID();
     if (!logicID) {
       throw(std::runtime_error("DCULVRVoltagesDat::writeArrayDB:  Bad EcalLogicID"));
@@ -205,7 +205,7 @@ void DCULVRVoltagesDat::writeArrayDB(const std::map<EcalLogicID, DCULVRVoltagesD
     ids[count] = logicID;
     iovid_vec[count] = iovID;
 
-    dataitem = &(p->second);
+    dataitem = &(p.second);
     // dataIface.writeDB( channel, dataitem, iov);
     float x = dataitem->getVFE1_A();
     float y = dataitem->getVFE2_A();

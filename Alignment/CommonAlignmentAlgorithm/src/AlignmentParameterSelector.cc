@@ -69,13 +69,13 @@ unsigned int AlignmentParameterSelector::addSelections(const edm::ParameterSet &
 
   unsigned int addedSets = 0;
 
-  for (unsigned int iSel = 0; iSel < selections.size(); ++iSel) {
-    std::vector<std::string> decompSel(this->decompose(selections[iSel], ','));
+  for (const auto &selection : selections) {
+    std::vector<std::string> decompSel(this->decompose(selection, ','));
     if (decompSel.empty())
       continue;  // edm::LogError or even cms::Exception??
 
     if (decompSel.size() < 2) {
-      throw cms::Exception("BadConfig") << "@SUB=AlignmentParameterSelector::addSelections" << selections[iSel]
+      throw cms::Exception("BadConfig") << "@SUB=AlignmentParameterSelector::addSelections" << selection
                                         << " from alignableParamSelector: "
                                         << " should have at least 2 ','-separated parts";
     } else if (decompSel.size() > 2) {
@@ -99,51 +99,49 @@ void AlignmentParameterSelector::setGeometryCuts(const edm::ParameterSet &pSet) 
 
   this->clearGeometryCuts();
   const std::vector<std::string> parameterNames(pSet.getParameterNames());
-  for (std::vector<std::string>::const_iterator iParam = parameterNames.begin(), iEnd = parameterNames.end();
-       iParam != iEnd;
-       ++iParam) {
+  for (const auto &parameterName : parameterNames) {
     // Calling swap is more efficient than assignment:
-    if (*iParam == "etaRanges") {
-      pSet.getParameter<std::vector<double> >(*iParam).swap(theRangesEta);
-    } else if (*iParam == "phiRanges") {
-      pSet.getParameter<std::vector<double> >(*iParam).swap(theRangesPhi);
-    } else if (*iParam == "rRanges") {
-      pSet.getParameter<std::vector<double> >(*iParam).swap(theRangesR);
-    } else if (*iParam == "xRanges") {
-      pSet.getParameter<std::vector<double> >(*iParam).swap(theRangesX);
-    } else if (*iParam == "yRanges") {
-      pSet.getParameter<std::vector<double> >(*iParam).swap(theRangesY);
-    } else if (*iParam == "zRanges") {
-      pSet.getParameter<std::vector<double> >(*iParam).swap(theRangesZ);
-    } else if (*iParam == "detIds") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(theDetIds);
-    } else if (*iParam == "detIdRanges") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(theDetIdRanges);
-    } else if (*iParam == "excludedDetIds") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(theExcludedDetIds);
-    } else if (*iParam == "excludedDetIdRanges") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(theExcludedDetIdRanges);
-    } else if (*iParam == "pxbDetId") {
-      const edm::ParameterSet &pxbDetIdPSet = pSet.getParameterSet(*iParam);
+    if (parameterName == "etaRanges") {
+      pSet.getParameter<std::vector<double> >(parameterName).swap(theRangesEta);
+    } else if (parameterName == "phiRanges") {
+      pSet.getParameter<std::vector<double> >(parameterName).swap(theRangesPhi);
+    } else if (parameterName == "rRanges") {
+      pSet.getParameter<std::vector<double> >(parameterName).swap(theRangesR);
+    } else if (parameterName == "xRanges") {
+      pSet.getParameter<std::vector<double> >(parameterName).swap(theRangesX);
+    } else if (parameterName == "yRanges") {
+      pSet.getParameter<std::vector<double> >(parameterName).swap(theRangesY);
+    } else if (parameterName == "zRanges") {
+      pSet.getParameter<std::vector<double> >(parameterName).swap(theRangesZ);
+    } else if (parameterName == "detIds") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(theDetIds);
+    } else if (parameterName == "detIdRanges") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(theDetIdRanges);
+    } else if (parameterName == "excludedDetIds") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(theExcludedDetIds);
+    } else if (parameterName == "excludedDetIdRanges") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(theExcludedDetIdRanges);
+    } else if (parameterName == "pxbDetId") {
+      const edm::ParameterSet &pxbDetIdPSet = pSet.getParameterSet(parameterName);
       this->setPXBDetIdCuts(pxbDetIdPSet);
-    } else if (*iParam == "pxfDetId") {
-      const edm::ParameterSet &pxfDetIdPSet = pSet.getParameterSet(*iParam);
+    } else if (parameterName == "pxfDetId") {
+      const edm::ParameterSet &pxfDetIdPSet = pSet.getParameterSet(parameterName);
       this->setPXFDetIdCuts(pxfDetIdPSet);
-    } else if (*iParam == "tibDetId") {
-      const edm::ParameterSet &tibDetIdPSet = pSet.getParameterSet(*iParam);
+    } else if (parameterName == "tibDetId") {
+      const edm::ParameterSet &tibDetIdPSet = pSet.getParameterSet(parameterName);
       this->setTIBDetIdCuts(tibDetIdPSet);
-    } else if (*iParam == "tidDetId") {
-      const edm::ParameterSet &tidDetIdPSet = pSet.getParameterSet(*iParam);
+    } else if (parameterName == "tidDetId") {
+      const edm::ParameterSet &tidDetIdPSet = pSet.getParameterSet(parameterName);
       this->setTIDDetIdCuts(tidDetIdPSet);
-    } else if (*iParam == "tobDetId") {
-      const edm::ParameterSet &tobDetIdPSet = pSet.getParameterSet(*iParam);
+    } else if (parameterName == "tobDetId") {
+      const edm::ParameterSet &tobDetIdPSet = pSet.getParameterSet(parameterName);
       this->setTOBDetIdCuts(tobDetIdPSet);
-    } else if (*iParam == "tecDetId") {
-      const edm::ParameterSet &tecDetIdPSet = pSet.getParameterSet(*iParam);
+    } else if (parameterName == "tecDetId") {
+      const edm::ParameterSet &tecDetIdPSet = pSet.getParameterSet(parameterName);
       this->setTECDetIdCuts(tecDetIdPSet);
     } else {
       throw cms::Exception("BadConfig") << "[AlignmentParameterSelector::setGeometryCuts] "
-                                        << "Unknown parameter '" << *iParam << "'.\n";
+                                        << "Unknown parameter '" << parameterName << "'.\n";
     }
   }
 }
@@ -154,19 +152,17 @@ void AlignmentParameterSelector::setPXBDetIdCuts(const edm::ParameterSet &pSet) 
   // but take care that nothing unknown is configured (to fetch typos!).
 
   const std::vector<std::string> parameterNames(pSet.getParameterNames());
-  for (std::vector<std::string>::const_iterator iParam = parameterNames.begin(), iEnd = parameterNames.end();
-       iParam != iEnd;
-       ++iParam) {
+  for (const auto &parameterName : parameterNames) {
     // Calling swap is more efficient than assignment:
-    if (*iParam == "ladderRanges") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(thePXBDetIdRanges.theLadderRanges);
-    } else if (*iParam == "layerRanges") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(thePXBDetIdRanges.theLayerRanges);
-    } else if (*iParam == "moduleRanges") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(thePXBDetIdRanges.theModuleRanges);
+    if (parameterName == "ladderRanges") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(thePXBDetIdRanges.theLadderRanges);
+    } else if (parameterName == "layerRanges") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(thePXBDetIdRanges.theLayerRanges);
+    } else if (parameterName == "moduleRanges") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(thePXBDetIdRanges.theModuleRanges);
     } else {
       throw cms::Exception("BadConfig") << "[AlignmentParameterSelector::setPXBDetIdCuts] "
-                                        << "Unknown parameter '" << *iParam << "'.\n";
+                                        << "Unknown parameter '" << parameterName << "'.\n";
     }
   }
 }
@@ -177,23 +173,21 @@ void AlignmentParameterSelector::setPXFDetIdCuts(const edm::ParameterSet &pSet) 
   // but take care that nothing unknown is configured (to fetch typos!).
 
   const std::vector<std::string> parameterNames(pSet.getParameterNames());
-  for (std::vector<std::string>::const_iterator iParam = parameterNames.begin(), iEnd = parameterNames.end();
-       iParam != iEnd;
-       ++iParam) {
+  for (const auto &parameterName : parameterNames) {
     // Calling swap is more efficient than assignment:
-    if (*iParam == "bladeRanges") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(thePXFDetIdRanges.theBladeRanges);
-    } else if (*iParam == "diskRanges") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(thePXFDetIdRanges.theDiskRanges);
-    } else if (*iParam == "moduleRanges") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(thePXFDetIdRanges.theModuleRanges);
-    } else if (*iParam == "panelRanges") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(thePXFDetIdRanges.thePanelRanges);
-    } else if (*iParam == "sideRanges") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(thePXFDetIdRanges.theSideRanges);
+    if (parameterName == "bladeRanges") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(thePXFDetIdRanges.theBladeRanges);
+    } else if (parameterName == "diskRanges") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(thePXFDetIdRanges.theDiskRanges);
+    } else if (parameterName == "moduleRanges") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(thePXFDetIdRanges.theModuleRanges);
+    } else if (parameterName == "panelRanges") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(thePXFDetIdRanges.thePanelRanges);
+    } else if (parameterName == "sideRanges") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(thePXFDetIdRanges.theSideRanges);
     } else {
       throw cms::Exception("BadConfig") << "[AlignmentParameterSelector::setPXFDetIdCuts] "
-                                        << "Unknown parameter '" << *iParam << "'.\n";
+                                        << "Unknown parameter '" << parameterName << "'.\n";
     }
   }
 }
@@ -204,21 +198,19 @@ void AlignmentParameterSelector::setTIBDetIdCuts(const edm::ParameterSet &pSet) 
   // but take care that nothing unknown is configured (to fetch typos!).
 
   const std::vector<std::string> parameterNames(pSet.getParameterNames());
-  for (std::vector<std::string>::const_iterator iParam = parameterNames.begin(), iEnd = parameterNames.end();
-       iParam != iEnd;
-       ++iParam) {
+  for (const auto &parameterName : parameterNames) {
     // Calling swap is more efficient than assignment:
-    if (*iParam == "layerRanges") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(theTIBDetIdRanges.theLayerRanges);
-    } else if (*iParam == "moduleRanges") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(theTIBDetIdRanges.theModuleRanges);
-    } else if (*iParam == "stringRanges") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(theTIBDetIdRanges.theStringRanges);
-    } else if (*iParam == "sideRanges") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(theTIBDetIdRanges.theSideRanges);
+    if (parameterName == "layerRanges") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(theTIBDetIdRanges.theLayerRanges);
+    } else if (parameterName == "moduleRanges") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(theTIBDetIdRanges.theModuleRanges);
+    } else if (parameterName == "stringRanges") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(theTIBDetIdRanges.theStringRanges);
+    } else if (parameterName == "sideRanges") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(theTIBDetIdRanges.theSideRanges);
     } else {
       throw cms::Exception("BadConfig") << "[AlignmentParameterSelector::setTIBDetIdCuts] "
-                                        << "Unknown parameter '" << *iParam << "'.\n";
+                                        << "Unknown parameter '" << parameterName << "'.\n";
     }
   }
 }
@@ -229,21 +221,19 @@ void AlignmentParameterSelector::setTIDDetIdCuts(const edm::ParameterSet &pSet) 
   // but take care that nothing unknown is configured (to fetch typos!).
 
   const std::vector<std::string> parameterNames(pSet.getParameterNames());
-  for (std::vector<std::string>::const_iterator iParam = parameterNames.begin(), iEnd = parameterNames.end();
-       iParam != iEnd;
-       ++iParam) {
+  for (const auto &parameterName : parameterNames) {
     // Calling swap is more efficient than assignment:
-    if (*iParam == "diskRanges") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(theTIDDetIdRanges.theDiskRanges);
-    } else if (*iParam == "moduleRanges") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(theTIDDetIdRanges.theModuleRanges);
-    } else if (*iParam == "ringRanges") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(theTIDDetIdRanges.theRingRanges);
-    } else if (*iParam == "sideRanges") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(theTIDDetIdRanges.theSideRanges);
+    if (parameterName == "diskRanges") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(theTIDDetIdRanges.theDiskRanges);
+    } else if (parameterName == "moduleRanges") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(theTIDDetIdRanges.theModuleRanges);
+    } else if (parameterName == "ringRanges") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(theTIDDetIdRanges.theRingRanges);
+    } else if (parameterName == "sideRanges") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(theTIDDetIdRanges.theSideRanges);
     } else {
       throw cms::Exception("BadConfig") << "[AlignmentParameterSelector::setTIDDetIdCuts] "
-                                        << "Unknown parameter '" << *iParam << "'.\n";
+                                        << "Unknown parameter '" << parameterName << "'.\n";
     }
   }
 }
@@ -254,21 +244,19 @@ void AlignmentParameterSelector::setTOBDetIdCuts(const edm::ParameterSet &pSet) 
   // but take care that nothing unknown is configured (to fetch typos!).
 
   const std::vector<std::string> parameterNames(pSet.getParameterNames());
-  for (std::vector<std::string>::const_iterator iParam = parameterNames.begin(), iEnd = parameterNames.end();
-       iParam != iEnd;
-       ++iParam) {
+  for (const auto &parameterName : parameterNames) {
     // Calling swap is more efficient than assignment:
-    if (*iParam == "layerRanges") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(theTOBDetIdRanges.theLayerRanges);
-    } else if (*iParam == "moduleRanges") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(theTOBDetIdRanges.theModuleRanges);
-    } else if (*iParam == "sideRanges") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(theTOBDetIdRanges.theSideRanges);
-    } else if (*iParam == "rodRanges") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(theTOBDetIdRanges.theRodRanges);
+    if (parameterName == "layerRanges") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(theTOBDetIdRanges.theLayerRanges);
+    } else if (parameterName == "moduleRanges") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(theTOBDetIdRanges.theModuleRanges);
+    } else if (parameterName == "sideRanges") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(theTOBDetIdRanges.theSideRanges);
+    } else if (parameterName == "rodRanges") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(theTOBDetIdRanges.theRodRanges);
     } else {
       throw cms::Exception("BadConfig") << "[AlignmentParameterSelector::setTOBDetIdCuts] "
-                                        << "Unknown parameter '" << *iParam << "'.\n";
+                                        << "Unknown parameter '" << parameterName << "'.\n";
     }
   }
 }
@@ -279,23 +267,21 @@ void AlignmentParameterSelector::setTECDetIdCuts(const edm::ParameterSet &pSet) 
   // but take care that nothing unknown is configured (to fetch typos!).
 
   const std::vector<std::string> parameterNames(pSet.getParameterNames());
-  for (std::vector<std::string>::const_iterator iParam = parameterNames.begin(), iEnd = parameterNames.end();
-       iParam != iEnd;
-       ++iParam) {
+  for (const auto &parameterName : parameterNames) {
     // Calling swap is more efficient than assignment:
-    if (*iParam == "wheelRanges") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(theTECDetIdRanges.theWheelRanges);
-    } else if (*iParam == "petalRanges") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(theTECDetIdRanges.thePetalRanges);
-    } else if (*iParam == "moduleRanges") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(theTECDetIdRanges.theModuleRanges);
-    } else if (*iParam == "ringRanges") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(theTECDetIdRanges.theRingRanges);
-    } else if (*iParam == "sideRanges") {
-      pSet.getParameter<std::vector<int> >(*iParam).swap(theTECDetIdRanges.theSideRanges);
+    if (parameterName == "wheelRanges") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(theTECDetIdRanges.theWheelRanges);
+    } else if (parameterName == "petalRanges") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(theTECDetIdRanges.thePetalRanges);
+    } else if (parameterName == "moduleRanges") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(theTECDetIdRanges.theModuleRanges);
+    } else if (parameterName == "ringRanges") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(theTECDetIdRanges.theRingRanges);
+    } else if (parameterName == "sideRanges") {
+      pSet.getParameter<std::vector<int> >(parameterName).swap(theTECDetIdRanges.theSideRanges);
     } else {
       throw cms::Exception("BadConfig") << "[AlignmentParameterSelector::setTECDetIdCuts] "
-                                        << "Unknown parameter '" << *iParam << "'.\n";
+                                        << "Unknown parameter '" << parameterName << "'.\n";
     }
   }
 }
@@ -523,13 +509,13 @@ unsigned int AlignmentParameterSelector::add(const align::Alignables &alignables
   unsigned int numAli = 0;
 
   // loop on Alignable objects
-  for (align::Alignables::const_iterator iAli = alignables.begin(); iAli != alignables.end(); ++iAli) {
-    if (!this->layerDeselected(*iAli)              // check layers
-        && !this->detUnitDeselected(*iAli)         // check detunit selection
-        && !this->outsideGeometricalRanges(*iAli)  // check geometrical ranges
-        && !this->outsideDetIdRanges(*iAli)) {     // check DetId ranges
+  for (auto alignable : alignables) {
+    if (!this->layerDeselected(alignable)              // check layers
+        && !this->detUnitDeselected(alignable)         // check detunit selection
+        && !this->outsideGeometricalRanges(alignable)  // check geometrical ranges
+        && !this->outsideDetIdRanges(alignable)) {     // check DetId ranges
       // all fine, so add to output arrays
-      theSelectedAlignables.push_back(*iAli);
+      theSelectedAlignables.push_back(alignable);
       theSelectedParameters.push_back(paramSel);
       ++numAli;
     }

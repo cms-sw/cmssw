@@ -77,10 +77,10 @@ void MuonCkfTrajectoryBuilder::collectMeasurement(const DetLayer* layer,
                                                   std::vector<TM>& result,
                                                   int& invalidHits,
                                                   const Propagator* prop) const {
-  for (std::vector<const DetLayer*>::const_iterator il = nl.begin(); il != nl.end(); il++) {
+  for (auto il : nl) {
     TSOS stateToUse = currentState;
 
-    if (layer == (*il)) {
+    if (layer == il) {
       LogDebug("CkfPattern") << " self propagating in findCompatibleMeasurements.\n from: \n" << stateToUse;
       //self navigation case
       // go to a middle point first
@@ -94,11 +94,11 @@ void MuonCkfTrajectoryBuilder::collectMeasurement(const DetLayer* layer,
     }
 
     LayerMeasurements layerMeasurements(theMeasurementTracker->measurementTracker(), *theMeasurementTracker);
-    std::vector<TM> tmp = layerMeasurements.measurements((**il), stateToUse, *prop, *theEstimator);
+    std::vector<TM> tmp = layerMeasurements.measurements((*il), stateToUse, *prop, *theEstimator);
 
     if (tmp.size() == 1 && theEtaPhiEstimator) {
       LogDebug("CkfPattern") << "only an invalid hit is found. trying differently";
-      tmp = layerMeasurements.measurements((**il), stateToUse, *prop, *theEtaPhiEstimator);
+      tmp = layerMeasurements.measurements((*il), stateToUse, *prop, *theEtaPhiEstimator);
     }
     LogDebug("CkfPattern") << tmp.size() << " measurements returned by LayerMeasurements";
 

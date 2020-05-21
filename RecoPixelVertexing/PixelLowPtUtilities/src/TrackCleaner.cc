@@ -136,11 +136,10 @@ bool TrackCleaner::canBeMerged(const vector<const TrackingRecHit *> &recHitsA,
                                const vector<const TrackingRecHit *> &recHitsB) const {
   bool ok = true;
 
-  for (vector<const TrackingRecHit *>::const_iterator recHitA = recHitsA.begin(); recHitA != recHitsA.end(); recHitA++)
-    for (vector<const TrackingRecHit *>::const_iterator recHitB = recHitsB.begin(); recHitB != recHitsB.end();
-         recHitB++)
-      if (!areSame(*recHitA, *recHitB))
-        if (!isCompatible((*recHitA)->geographicalId(), (*recHitB)->geographicalId()))
+  for (auto recHitA : recHitsA)
+    for (auto recHitB : recHitsB)
+      if (!areSame(recHitA, recHitB))
+        if (!isCompatible(recHitA->geographicalId(), recHitB->geographicalId()))
           ok = false;
 
   return ok;
@@ -204,31 +203,29 @@ TracksWithRecHits TrackCleaner::cleanTracks(const TracksWithRecHits &tracks_) co
         // Get tracks sharing this rechit
         vector<unsigned int> sharing = recHitMap[*recHit];
 
-        for (vector<unsigned int>::iterator j = sharing.begin(); j != sharing.end(); j++)
-          if (i < *j)
-            trackMap[*j]++;
+        for (unsigned int &j : sharing)
+          if (i < j)
+            trackMap[j]++;
       }
 
       // Check for tracks with shared rechits
-      for (TrackMap::iterator sharing = trackMap.begin(); sharing != trackMap.end(); sharing++) {
-        unsigned int j = (*sharing).first;
+      for (auto &sharing : trackMap) {
+        unsigned int j = sharing.first;
         if (!keep[i] || !keep[j])
           continue;
 
         if (tracks[i].second.size() >= 3) {  // triplet tracks
-          if ((*sharing).second > min(int(tracks[i].second.size()),
-                                      int(tracks[j].second.size())) /
-                                      2) {                          // more than min(hits1,hits2)/2 rechits are shared
+          if (sharing.second > min(int(tracks[i].second.size()),
+                                   int(tracks[j].second.size())) /
+                                   2) {                             // more than min(hits1,hits2)/2 rechits are shared
             if (canBeMerged(tracks[i].second, tracks[j].second)) {  // no common layer
               // merge tracks, add separate hits of the second to the first one
               for (vector<const TrackingRecHit *>::const_iterator recHit = tracks[j].second.begin();
                    recHit != tracks[j].second.end();
                    recHit++) {
                 bool ok = true;
-                for (vector<const TrackingRecHit *>::const_iterator recHitA = tracks[i].second.begin();
-                     recHitA != tracks[i].second.end();
-                     recHitA++)
-                  if (areSame(*recHit, *recHitA))
+                for (auto recHitA : tracks[i].second)
+                  if (areSame(*recHit, recHitA))
                     ok = false;
 
                 if (ok) {
@@ -261,7 +258,7 @@ TracksWithRecHits TrackCleaner::cleanTracks(const TracksWithRecHits &tracks_) co
               changes++;
             }
           } else {  // note more than 50%, but at least two are shared
-            if ((*sharing).second > 1) {
+            if (sharing.second > 1) {
               if (tracks[i].second.size() != tracks[j].second.size()) {  // keep longer
                 if (tracks[i].second.size() > tracks[j].second.size())
                   keep[j] = false;
@@ -269,7 +266,7 @@ TracksWithRecHits TrackCleaner::cleanTracks(const TracksWithRecHits &tracks_) co
                   keep[i] = false;
                 changes++;
 
-                LogTrace("TrackCleaner") << "   Sharing " << (*sharing).second << " remove by size";
+                LogTrace("TrackCleaner") << "   Sharing " << sharing.second << " remove by size";
               } else {  // keep smaller impact
                 if (fabs(tracks[i].first->d0()) < fabs(tracks[j].first->d0()))
                   keep[j] = false;
@@ -277,12 +274,12 @@ TracksWithRecHits TrackCleaner::cleanTracks(const TracksWithRecHits &tracks_) co
                   keep[i] = false;
                 changes++;
 
-                LogTrace("TrackCleaner") << "   Sharing " << (*sharing).second << " remove by d0";
+                LogTrace("TrackCleaner") << "   Sharing " << sharing.second << " remove by d0";
               }
             }
           }
         } else {  // pair tracks
-          if ((*sharing).second > 0) {
+          if (sharing.second > 0) {
             // Remove second track
             keep[j] = false;
 

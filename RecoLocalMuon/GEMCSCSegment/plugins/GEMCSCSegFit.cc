@@ -431,8 +431,8 @@ GEMCSCSegFit::SMatrixSym16 GEMCSCSegFit::weightMatrix() {
 
   int row = 0;
 
-  for (std::vector<const TrackingRecHit*>::const_iterator it = hits_.begin(); it != hits_.end(); ++it) {
-    const TrackingRecHit& hit = (**it);
+  for (auto it : hits_) {
+    const TrackingRecHit& hit = (*it);
 
     // Note scaleXError allows rescaling the x error if necessary
 
@@ -458,8 +458,8 @@ GEMCSCSegFit::SMatrix16by4 GEMCSCSegFit::derivativeMatrix() {
   SMatrix16by4 matrix;  // 16x4, init to 0
   int row = 0;
 
-  for (std::vector<const TrackingRecHit*>::const_iterator it = hits_.begin(); it != hits_.end(); ++it) {
-    const TrackingRecHit& hit = (**it);
+  for (auto it : hits_) {
+    const TrackingRecHit& hit = (*it);
     GlobalPoint gp;
     DetId d = DetId(hit.rawId());
     if (d.subdetId() == MuonSubdetId::GEM) {

@@ -153,9 +153,9 @@ void JetFlavourIdentifier::produce(StreamID, Event& iEvent, const EventSetup& iE
   std::unique_ptr<reco::JetFlavourMatchingCollection> jetFlavMatching(jfmc);
 
   // Loop over the matched partons and see which match.
-  for (JetMatchedPartonsCollection::const_iterator j = theTagByRef->begin(); j != theTagByRef->end(); j++) {
+  for (const auto& j : *theTagByRef) {
     // Consider this match.
-    const MatchedPartons aMatch = (*j).second;
+    const MatchedPartons aMatch = j.second;
 
     // This will hold the 4-vector, vertex, flavour and the leptonian decays (0: no lepton, xyz: x leptons in layer 2, y in layer 1 and z in layer 0) of the requested object.
     math::XYZTLorentzVector thePartonLorentzVector(0, 0, 0, 0);
@@ -276,7 +276,7 @@ void JetFlavourIdentifier::produce(StreamID, Event& iEvent, const EventSetup& iE
      std::cout << "  tau      : " <<theLeptons.tau << std::endl;
 */
     // Add the jet->flavour match to the map.
-    (*jetFlavMatching)[(*j).first] = JetFlavour(thePartonLorentzVector, thePartonVertex, thePartonFlavour, theLeptons);
+    (*jetFlavMatching)[j.first] = JetFlavour(thePartonLorentzVector, thePartonVertex, thePartonFlavour, theLeptons);
   }  // end loop over jets
 
   // Put the object into the event.
@@ -344,9 +344,9 @@ void JetFlavourIdentifier::fillLeptons(const std::vector<const reco::Candidate*>
                                        int rank,
                                        int flavour,
                                        math::XYZTLorentzVector const& thePartonLV) const {
-  for (unsigned int j = 0; j < cands.size(); j++) {
-    for (unsigned int i = 0; i < cands[j]->numberOfDaughters(); i++) {
-      int pdgId = std::abs(cands[j]->daughter(i)->pdgId());
+  for (auto cand : cands) {
+    for (unsigned int i = 0; i < cand->numberOfDaughters(); i++) {
+      int pdgId = std::abs(cand->daughter(i)->pdgId());
 
       //      for(int z = 1; z <= rank; z *= 10) std::cout << " ------ ";
       //      std::cout << pdgId << std::endl;
@@ -362,9 +362,9 @@ void JetFlavourIdentifier::fillLeptons(const std::vector<const reco::Candidate*>
         int heaviest = heaviestFlavour(pdgId);
         int heaviest_ = heaviest < 10 ? heaviest : 0;
         if (!heaviest || (flavour < 4 ? (heaviest_ < 4) : (heaviest >= 4))) {
-          std::vector<const reco::Candidate*> newcands = findCandidates(cands[j]->daughter(i), heaviest, thePartonLV);
+          std::vector<const reco::Candidate*> newcands = findCandidates(cand->daughter(i), heaviest, thePartonLV);
           if (pdgId <= 110)
-            newcands.push_back(cands[j]->daughter(i));
+            newcands.push_back(cand->daughter(i));
           fillLeptons(newcands, leptons, rank * 10, std::max(heaviest_, flavour), thePartonLV);
         }
       }

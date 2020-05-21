@@ -2,8 +2,8 @@
 
 void TtEventPartons::expand(std::vector<int>& vec) {
   std::vector<int>::iterator vecIter = vec.begin();
-  for (unsigned i = 0; i < ignorePartons_.size(); i++) {
-    if (ignorePartons_[i]) {
+  for (auto&& ignoreParton : ignorePartons_) {
+    if (ignoreParton) {
       vecIter = vec.insert(vecIter, -3);
     }
     ++vecIter;

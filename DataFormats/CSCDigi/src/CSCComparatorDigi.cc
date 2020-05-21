@@ -96,8 +96,8 @@ void CSCComparatorDigi::print() const {
   ost << "CSCComparatorDigi | strip " << getStrip() << " | comparator " << getComparator() << " | first time bin "
       << getTimeBin() << " | time bins on ";
   std::vector<int> tbins = getTimeBinsOn();
-  for (unsigned int i = 0; i < tbins.size(); i++) {
-    ost << tbins[i] << " ";
+  for (int tbin : tbins) {
+    ost << tbin << " ";
   }
   edm::LogVerbatim("CSCDigi") << ost.str();
 }

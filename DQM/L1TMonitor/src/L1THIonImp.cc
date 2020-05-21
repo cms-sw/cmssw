@@ -359,10 +359,10 @@ void L1THIonImp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
     if (met->overFlow() == 0 && met->et() > 0)
       l1GctEtMissOccBx_->Fill(met->bx(), met->et());  // for all BX
-    for (L1GctEtMissCollection::const_iterator j = l1EtMissEmul->begin(); j != l1EtMissEmul->end(); j++) {
-      if (met->bx() == 0 && j->bx() == 0) {
-        DECorr_[0][6]->Fill(met->et(), j->et());
-        DECorr_[2][6]->Fill(met->phi(), j->phi());
+    for (const auto& j : *l1EtMissEmul) {
+      if (met->bx() == 0 && j.bx() == 0) {
+        DECorr_[0][6]->Fill(met->et(), j.et());
+        DECorr_[2][6]->Fill(met->phi(), j.phi());
       }
     }
   }
@@ -374,9 +374,9 @@ void L1THIonImp::analyze(const edm::Event& e, const edm::EventSetup& c) {
       l1GctEtHadOf_->Fill(ht->overFlow());
     }
     l1GctEtHadOccBx_->Fill(ht->bx(), ht->et());  // for all BX
-    for (L1GctEtHadCollection::const_iterator j = l1EtHadEmul->begin(); j != l1EtHadEmul->end(); j++) {
-      if (ht->bx() == 0 && j->bx() == 0) {
-        DECorr_[0][7]->Fill(ht->et(), j->et());
+    for (const auto& j : *l1EtHadEmul) {
+      if (ht->bx() == 0 && j.bx() == 0) {
+        DECorr_[0][7]->Fill(ht->et(), j.et());
         //DECorr_[2][7]->Fill(ht->ieta(),j->ieta());
         //DECorr_[3][7]->Fill(ht->iphi(),j->iphi());
       }
@@ -390,9 +390,9 @@ void L1THIonImp::analyze(const edm::Event& e, const edm::EventSetup& c) {
       l1GctEtTotalOf_->Fill(et->overFlow());
     }
     l1GctEtTotalOccBx_->Fill(et->bx(), et->et());  // for all BX
-    for (L1GctEtTotalCollection::const_iterator j = l1EtTotalEmul->begin(); j != l1EtTotalEmul->end(); j++) {
-      if (et->bx() == 0 && j->bx() == 0) {
-        DECorr_[0][5]->Fill(et->et(), j->et());
+    for (const auto& j : *l1EtTotalEmul) {
+      if (et->bx() == 0 && j.bx() == 0) {
+        DECorr_[0][5]->Fill(et->et(), j.et());
         //DECorr_[2][5]->Fill(et->eta(),j->eta());
         //DECorr_[3][5]->Fill(et->iphi(),j->iphi());
       }
@@ -443,21 +443,21 @@ void L1THIonImp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
   }
 
-  for (L1GctHFBitCountsCollection::const_iterator hfc = l1HFCounts->begin(); hfc != l1HFCounts->end(); hfc++) {
+  for (const auto& hfc : *l1HFCounts) {
     // only plot central BX
-    if (hfc->bx() == 0) {
+    if (hfc.bx() == 0) {
       // Individual ring counts
-      l1GctHFRing1TowerCountPosEta_->Fill(hfc->bitCount(0));
-      l1GctHFRing1TowerCountNegEta_->Fill(hfc->bitCount(1));
-      l1GctHFRing2TowerCountPosEta_->Fill(hfc->bitCount(2));
-      l1GctHFRing2TowerCountNegEta_->Fill(hfc->bitCount(3));
+      l1GctHFRing1TowerCountPosEta_->Fill(hfc.bitCount(0));
+      l1GctHFRing1TowerCountNegEta_->Fill(hfc.bitCount(1));
+      l1GctHFRing2TowerCountPosEta_->Fill(hfc.bitCount(2));
+      l1GctHFRing2TowerCountNegEta_->Fill(hfc.bitCount(3));
       // Correlate positive and negative eta
-      l1GctHFRing1TowerCountPosEtaNegEta_->Fill(hfc->bitCount(0), hfc->bitCount(1));
-      l1GctHFRing2TowerCountPosEtaNegEta_->Fill(hfc->bitCount(2), hfc->bitCount(3));
+      l1GctHFRing1TowerCountPosEtaNegEta_->Fill(hfc.bitCount(0), hfc.bitCount(1));
+      l1GctHFRing2TowerCountPosEtaNegEta_->Fill(hfc.bitCount(2), hfc.bitCount(3));
     }
     // Occupancy vs BX
     for (unsigned i = 0; i < 4; i++) {
-      l1GctHFRingTowerCountOccBx_->Fill(hfc->bx(), hfc->bitCount(i));
+      l1GctHFRingTowerCountOccBx_->Fill(hfc.bx(), hfc.bitCount(i));
     }
   }
 
@@ -489,15 +489,15 @@ void L1THIonImp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
   }
 
-  for (L1CaloRegionCollection::const_iterator it = rgn->begin(); it != rgn->end(); it++) {
-    if (it->bx() == 0) {
+  for (const auto& it : *rgn) {
+    if (it.bx() == 0) {
       int totm = 0;
       int totp = 0;
-      if (it->gctEta() < 4) {
-        totm += it->et();
+      if (it.gctEta() < 4) {
+        totm += it.et();
       }
-      if (it->gctEta() > 17) {
-        totp += it->et();
+      if (it.gctEta() > 17) {
+        totp += it.et();
       }
       HFNegEnergy_->Fill(totm);
       HFPosEnergy_->Fill(totp);

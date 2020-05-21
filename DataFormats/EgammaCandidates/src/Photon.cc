@@ -49,18 +49,18 @@ int Photon::conversionTrackProvenance(const edm::RefToBase<reco::Track>& convTra
   int origin = -1;
   bool isEg = false, isPf = false;
 
-  for (unsigned iConv = 0; iConv < conv2leg.size(); iConv++) {
-    std::vector<edm::RefToBase<reco::Track> > convtracks = conv2leg[iConv]->tracks();
-    for (unsigned itk = 0; itk < convtracks.size(); itk++) {
-      if (convTrack == convtracks[itk])
+  for (const auto& iConv : conv2leg) {
+    std::vector<edm::RefToBase<reco::Track> > convtracks = iConv->tracks();
+    for (const auto& convtrack : convtracks) {
+      if (convTrack == convtrack)
         isEg = true;
     }
   }
 
-  for (unsigned iConv = 0; iConv < conv1leg.size(); iConv++) {
-    std::vector<edm::RefToBase<reco::Track> > convtracks = conv1leg[iConv]->tracks();
-    for (unsigned itk = 0; itk < convtracks.size(); itk++) {
-      if (convTrack == convtracks[itk])
+  for (const auto& iConv : conv1leg) {
+    std::vector<edm::RefToBase<reco::Track> > convtracks = iConv->tracks();
+    for (const auto& convtrack : convtracks) {
+      if (convTrack == convtrack)
         isPf = true;
     }
   }

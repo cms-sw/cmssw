@@ -71,12 +71,12 @@ void AlignmentParameterBuilder::addAllSelections(const edm::ParameterSet &pSet) 
   AlignmentParameterSelector selector(nullptr);
   std::vector<std::string> selsTypes(pSet.getParameter<std::vector<std::string> >("parameterTypes"));
 
-  for (unsigned int i = 0; i < selsTypes.size(); ++i) {
-    std::vector<std::string> selSetType(selector.decompose(selsTypes[i], ','));
+  for (const auto &selsType : selsTypes) {
+    std::vector<std::string> selSetType(selector.decompose(selsType, ','));
     if (selSetType.size() != 2) {
       throw cms::Exception("BadConfig") << "AlignmentParameterBuilder"
                                         << "parameterTypes should contain 2 comma separated strings"
-                                        << ", but found '" << selsTypes[i] << "'.";
+                                        << ", but found '" << selsType << "'.";
     }
     this->addSelections(pSet.getParameter<edm::ParameterSet>(selSetType[0]),
                         AlignmentParametersFactory::parametersType(selSetType[1]));
@@ -136,8 +136,8 @@ unsigned int AlignmentParameterBuilder::add(const align::Alignables &alignables,
                                             const std::vector<bool> &sel) {
   unsigned int nHigherLevel = 0;
 
-  for (align::Alignables::const_iterator iAli = alignables.begin(); iAli != alignables.end(); ++iAli) {
-    if (this->add(*iAli, parType, sel))
+  for (auto alignable : alignables) {
+    if (this->add(alignable, parType, sel))
       ++nHigherLevel;
   }
 
@@ -154,14 +154,14 @@ void AlignmentParameterBuilder::fixAlignables(int n) {
   align::Alignables theNewAlignables;
   int i = 0;
   int imax = theAlignables.size();
-  for (align::Alignables::const_iterator ia = theAlignables.begin(); ia != theAlignables.end(); ++ia) {
+  for (auto theAlignable : theAlignables) {
     i++;
     if (n == 1 && i > 1)
-      theNewAlignables.push_back(*ia);
+      theNewAlignables.push_back(theAlignable);
     else if (n == 2 && i > 1 && i < imax)
-      theNewAlignables.push_back(*ia);
+      theNewAlignables.push_back(theAlignable);
     else if (n == 3 && i > 2 && i < imax)
-      theNewAlignables.push_back(*ia);
+      theNewAlignables.push_back(theAlignable);
   }
 
   theAlignables = theNewAlignables;
@@ -179,8 +179,8 @@ bool AlignmentParameterBuilder::decodeParamSel(std::vector<char> &paramSelChar, 
 
   bool anyNon01 = false;
 
-  for (unsigned int pos = 0; pos < paramSelChar.size(); ++pos) {
-    switch (paramSelChar[pos]) {
+  for (char pos : paramSelChar) {
+    switch (pos) {
       default:
         anyNon01 = true;
         [[fallthrough]];

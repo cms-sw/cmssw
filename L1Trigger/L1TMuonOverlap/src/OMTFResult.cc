@@ -70,22 +70,22 @@ bool OMTFResult::empty() const {
 std::ostream &operator<<(std::ostream &out, const OMTFResult &aResult) {
   for (unsigned int iLogicLayer = 0; iLogicLayer < aResult.results.size(); ++iLogicLayer) {
     out << "Logic layer: " << iLogicLayer << " results: ";
-    for (unsigned int iRefLayer = 0; iRefLayer < aResult.results[iLogicLayer].size(); ++iRefLayer) {
-      out << aResult.results[iLogicLayer][iRefLayer] << "\t";
+    for (unsigned int iRefLayer : aResult.results[iLogicLayer]) {
+      out << iRefLayer << "\t";
     }
     out << std::endl;
   }
 
   out << "      Sum over layers: ";
-  for (unsigned int iRefLayer = 0; iRefLayer < aResult.results1D.size(); ++iRefLayer) {
-    out << aResult.results1D[iRefLayer] << "\t";
+  for (unsigned int iRefLayer : aResult.results1D) {
+    out << iRefLayer << "\t";
   }
 
   out << std::endl;
 
   out << "       Number of hits: ";
-  for (unsigned int iRefLayer = 0; iRefLayer < aResult.hits1D.size(); ++iRefLayer) {
-    out << aResult.hits1D[iRefLayer] << "\t";
+  for (unsigned int iRefLayer : aResult.hits1D) {
+    out << iRefLayer << "\t";
   }
 
   return out;

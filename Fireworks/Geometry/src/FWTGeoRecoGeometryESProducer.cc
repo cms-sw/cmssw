@@ -561,8 +561,8 @@ void FWTGeoRecoGeometryESProducer::addDTGeometry() {
   {
     TGeoVolume* assembly = GetDaughter(assemblyTop, "DTChamber", kMuonDT);
     auto const& dtChamberGeom = m_trackingGeom->slaveGeometry(DTChamberId())->dets();
-    for (auto it = dtChamberGeom.begin(), end = dtChamberGeom.end(); it != end; ++it) {
-      if (auto chamber = dynamic_cast<const DTChamber*>(*it)) {
+    for (auto it : dtChamberGeom) {
+      if (auto chamber = dynamic_cast<const DTChamber*>(it)) {
         DTChamberId detid = chamber->geographicalId();
         std::stringstream s;
         s << detid;
@@ -582,8 +582,8 @@ void FWTGeoRecoGeometryESProducer::addDTGeometry() {
   {
     TGeoVolume* assembly = GetDaughter(assemblyTop, "DTSuperLayer", kMuonDT);
     auto const& dtSuperLayerGeom = m_trackingGeom->slaveGeometry(DTSuperLayerId())->dets();
-    for (auto it = dtSuperLayerGeom.begin(), end = dtSuperLayerGeom.end(); it != end; ++it) {
-      if (auto* superlayer = dynamic_cast<const DTSuperLayer*>(*it)) {
+    for (auto it : dtSuperLayerGeom) {
+      if (auto* superlayer = dynamic_cast<const DTSuperLayer*>(it)) {
         DTSuperLayerId detid(DetId(superlayer->geographicalId()));
         std::stringstream s;
         s << detid;
@@ -603,8 +603,8 @@ void FWTGeoRecoGeometryESProducer::addDTGeometry() {
   {
     TGeoVolume* assembly = GetDaughter(assemblyTop, "DTLayer", kMuonDT);
     auto const& dtLayerGeom = m_trackingGeom->slaveGeometry(DTLayerId())->dets();
-    for (auto it = dtLayerGeom.begin(), end = dtLayerGeom.end(); it != end; ++it) {
-      if (auto layer = dynamic_cast<const DTLayer*>(*it)) {
+    for (auto it : dtLayerGeom) {
+      if (auto layer = dynamic_cast<const DTLayer*>(it)) {
         DTLayerId detid(DetId(layer->geographicalId()));
 
         std::stringstream s;
@@ -633,8 +633,8 @@ void FWTGeoRecoGeometryESProducer::addCSCGeometry() {
   TGeoVolume* assembly = GetDaughter(tv, "CSC", kMuonCSC);
 
   auto const& cscGeom = m_trackingGeom->slaveGeometry(CSCDetId())->dets();
-  for (auto it = cscGeom.begin(), itEnd = cscGeom.end(); it != itEnd; ++it) {
-    unsigned int rawid = (*it)->geographicalId();
+  for (auto it : cscGeom) {
+    unsigned int rawid = it->geographicalId();
     CSCDetId detId(rawid);
     std::stringstream s;
     s << "CSC" << detId;
@@ -642,9 +642,9 @@ void FWTGeoRecoGeometryESProducer::addCSCGeometry() {
 
     TGeoVolume* child = nullptr;
 
-    if (auto chamber = dynamic_cast<const CSCChamber*>(*it))
+    if (auto chamber = dynamic_cast<const CSCChamber*>(it))
       child = createVolume(name, chamber, kMuonCSC);
-    else if (auto* layer = dynamic_cast<const CSCLayer*>(*it))
+    else if (auto* layer = dynamic_cast<const CSCLayer*>(it))
       child = createVolume(name, layer, kMuonCSC);
 
     if (child) {
@@ -654,7 +654,7 @@ void FWTGeoRecoGeometryESProducer::addCSCGeometry() {
       holder = GetDaughter(holder, "Chamber", kMuonCSC, detId.chamber());
 
       //   holder->AddNode(child, 1,  createPlacement( *it ));
-      AddLeafNode(holder, child, name.c_str(), createPlacement(*it));
+      AddLeafNode(holder, child, name.c_str(), createPlacement(it));
     }
   }
 }
@@ -671,8 +671,8 @@ void FWTGeoRecoGeometryESProducer::addGEMGeometry() {
 
     {
       TGeoVolume* assembly = GetDaughter(assemblyTop, "GEMSuperChambers", kMuonGEM);
-      for (auto it = gemGeom->superChambers().begin(), end = gemGeom->superChambers().end(); it != end; ++it) {
-        const GEMSuperChamber* sc = (*it);
+      for (auto it : gemGeom->superChambers()) {
+        const GEMSuperChamber* sc = it;
         if (sc) {
           GEMDetId detid = sc->geographicalId();
           std::stringstream s;
@@ -686,15 +686,15 @@ void FWTGeoRecoGeometryESProducer::addGEMGeometry() {
           holder = GetDaughter(holder, "Station", kMuonGEM, detid.station());
           holder = GetDaughter(holder, "Chamber", kMuonGEM, detid.chamber());
 
-          AddLeafNode(holder, child, name.c_str(), createPlacement(*it));
+          AddLeafNode(holder, child, name.c_str(), createPlacement(it));
         }
       }
     }
 
     {
       TGeoVolume* assembly = GetDaughter(assemblyTop, "GEMetaPartitions", kMuonGEM);
-      for (auto it = gemGeom->etaPartitions().begin(), end = gemGeom->etaPartitions().end(); it != end; ++it) {
-        const GEMEtaPartition* roll = (*it);
+      for (auto it : gemGeom->etaPartitions()) {
+        const GEMEtaPartition* roll = it;
         if (roll) {
           GEMDetId detid = roll->geographicalId();
           std::stringstream s;
@@ -709,7 +709,7 @@ void FWTGeoRecoGeometryESProducer::addGEMGeometry() {
           holder = GetDaughter(holder, "Layer", kMuonGEM, detid.layer());
           holder = GetDaughter(holder, "Chamber", kMuonGEM, detid.chamber());
 
-          AddLeafNode(holder, child, name.c_str(), createPlacement(*it));
+          AddLeafNode(holder, child, name.c_str(), createPlacement(it));
         }
       }
     }
@@ -726,8 +726,8 @@ void FWTGeoRecoGeometryESProducer::addRPCGeometry() {
 
   DetId detId(DetId::Muon, MuonSubdetId::RPC);
   const RPCGeometry* rpcGeom = static_cast<const RPCGeometry*>(m_trackingGeom->slaveGeometry(detId));
-  for (auto it = rpcGeom->rolls().begin(), end = rpcGeom->rolls().end(); it != end; ++it) {
-    RPCRoll const* roll = (*it);
+  for (auto it : rpcGeom->rolls()) {
+    RPCRoll const* roll = it;
     if (roll) {
       RPCDetId detid = roll->geographicalId();
       std::stringstream s;
@@ -743,7 +743,7 @@ void FWTGeoRecoGeometryESProducer::addRPCGeometry() {
       holder = GetDaughter(holder, "Layer", kMuonRPC, detid.layer());
       holder = GetDaughter(holder, "Subsector", kMuonRPC, detid.subsector());
 
-      AddLeafNode(holder, child, name.c_str(), createPlacement(*it));
+      AddLeafNode(holder, child, name.c_str(), createPlacement(it));
     }
   };
 }
@@ -790,10 +790,10 @@ void FWTGeoRecoGeometryESProducer::addHcalCaloGeometryBarrel(void) {
 
   CaloVolMap caloShapeMapP;
   CaloVolMap caloShapeMapN;
-  for (std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it) {
+  for (auto it : vid) {
     //HcalDetId detid = HcalDetId(it->rawId());
-    HcalDetId detid(*it);
-    const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
+    HcalDetId detid(it);
+    const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(it)).get();
     const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*>(cellb);
 
     if (!cell) {
@@ -867,9 +867,9 @@ void FWTGeoRecoGeometryESProducer::addHcalCaloGeometryEndcap(void) {
 
   std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Hcal, HcalSubdetector::HcalEndcap);
 
-  for (std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it) {
-    HcalDetId detid = HcalDetId(it->rawId());
-    const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
+  for (auto it : vid) {
+    HcalDetId detid = HcalDetId(it.rawId());
+    const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(it)).get();
     const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*>(cellb);
 
     if (!cell) {
@@ -941,9 +941,9 @@ void FWTGeoRecoGeometryESProducer::addHcalCaloGeometryOuter() {
 
   std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Hcal, HcalSubdetector::HcalOuter);
 
-  for (std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it) {
-    HcalDetId detid = HcalDetId(it->rawId());
-    const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
+  for (auto it : vid) {
+    HcalDetId detid = HcalDetId(it.rawId());
+    const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(it)).get();
     const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*>(cellb);
 
     if (!cell) {
@@ -1007,9 +1007,9 @@ void FWTGeoRecoGeometryESProducer::addHcalCaloGeometryForward() {
 
   std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Hcal, HcalSubdetector::HcalForward);
 
-  for (std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it) {
-    HcalDetId detid = HcalDetId(it->rawId());
-    const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
+  for (auto it : vid) {
+    HcalDetId detid = HcalDetId(it.rawId());
+    const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(it)).get();
     const IdealZPrism* cell = dynamic_cast<const IdealZPrism*>(cellb);
 
     if (!cell) {
@@ -1072,9 +1072,9 @@ void FWTGeoRecoGeometryESProducer::addCaloTowerGeometry() {
   TGeoVolume* assembly = GetDaughter(tv, "CaloTower", kCaloTower);
 
   std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Calo, CaloTowerDetId::SubdetId);
-  for (std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it) {
-    CaloTowerDetId detid = CaloTowerDetId(it->rawId());
-    const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
+  for (auto it : vid) {
+    CaloTowerDetId detid = CaloTowerDetId(it.rawId());
+    const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(it)).get();
     const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*>(cellb);
     if (!cell) {
       printf("EC not oblique \n");
@@ -1199,9 +1199,9 @@ void FWTGeoRecoGeometryESProducer::addEcalCaloGeometry(void) {
     TGeoVolume* assembly = GetDaughter(tv, "ECalBarrel", kECal);
 
     std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Ecal, EcalSubdetector::EcalBarrel);
-    for (std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it) {
-      EBDetId detid(*it);
-      const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
+    for (auto it : vid) {
+      EBDetId detid(it);
+      const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(it)).get();
       const TruncatedPyramid* cell = dynamic_cast<const TruncatedPyramid*>(cellb);
       if (!cell) {
         printf("ecalBarrel cell not a TruncatedPyramid !!\n");
@@ -1229,9 +1229,9 @@ void FWTGeoRecoGeometryESProducer::addEcalCaloGeometry(void) {
     TGeoVolume* assembly = GetDaughter(tv, "ECalEndcap", kECal);
 
     std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Ecal, EcalSubdetector::EcalEndcap);
-    for (std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it) {
-      EEDetId detid(*it);
-      const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
+    for (auto it : vid) {
+      EEDetId detid(it);
+      const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(it)).get();
       const TruncatedPyramid* cell = dynamic_cast<const TruncatedPyramid*>(cellb);
       if (!cell) {
         printf("ecalEndcap cell not a TruncatedPyramid !!\n");

@@ -355,8 +355,8 @@ namespace cms {
       return false;
 
     int cut = 0;
-    for (unsigned int i = 0; i < trkQuality_.size(); i++) {
-      cut |= (1 << trkQuality_.at(i));
+    for (int i : trkQuality_) {
+      cut |= (1 << i);
     }
 
     if (!((siTrack->qualityMask() & cut) == cut))
@@ -365,8 +365,8 @@ namespace cms {
     bool isGoodAlgo = false;
     if (trkAlgos_.empty())
       isGoodAlgo = true;
-    for (unsigned int i = 0; i < trkAlgos_.size(); i++) {
-      if (siTrack->algo() == trkAlgos_.at(i))
+    for (auto& trkAlgo : trkAlgos_) {
+      if (siTrack->algo() == trkAlgo)
         isGoodAlgo = true;
     }
 

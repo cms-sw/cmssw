@@ -189,8 +189,8 @@ void DAFTrackProducer::putInEvtTrajAnn(edm::Event& theEvent,
   const int size = trajannResults.size();
   outputTrajAnnColl->reserve(size);
 
-  for (unsigned int i = 0; i < trajannResults.size(); i++) {
-    outputTrajAnnColl->push_back(trajannResults[i]);
+  for (const auto& trajannResult : trajannResults) {
+    outputTrajAnnColl->push_back(trajannResult);
   }
 
   theEvent.put(std::move(outputTrajAnnColl));

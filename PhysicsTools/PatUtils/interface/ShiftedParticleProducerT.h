@@ -41,9 +41,8 @@ public:
     if (cfg.exists("binning")) {
       typedef std::vector<edm::ParameterSet> vParameterSet;
       vParameterSet cfgBinning = cfg.getParameter<vParameterSet>("binning");
-      for (vParameterSet::const_iterator cfgBinningEntry = cfgBinning.begin(); cfgBinningEntry != cfgBinning.end();
-           ++cfgBinningEntry) {
-        binning_.push_back(new binningEntryType(*cfgBinningEntry));
+      for (const auto& cfgBinningEntry : cfgBinning) {
+        binning_.push_back(new binningEntryType(cfgBinningEntry));
       }
     } else {
       double uncertainty = cfg.getParameter<double>("uncertainty");

@@ -610,15 +610,15 @@ void ZeePlots::analyze(const edm::Event &iEvent, const edm::EventSetup &es) {
 
         Int_t counter = 0;
 
-        for (reco::CaloJetCollection::const_iterator cjet = caloJets->begin(); cjet != caloJets->end(); ++cjet) {
+        for (const auto &caloJet : *caloJets) {
           // store them only if they are far enough from the electron
-          Double_t DR1 = reco::deltaR(cjet->eta(), cjet->phi(), myElec1->gsfTrack()->eta(), ele1_sc_phi);
-          Double_t DR2 = reco::deltaR(cjet->eta(), cjet->phi(), myElec2->gsfTrack()->eta(), ele2_sc_phi);
+          Double_t DR1 = reco::deltaR(caloJet.eta(), caloJet.phi(), myElec1->gsfTrack()->eta(), ele1_sc_phi);
+          Double_t DR2 = reco::deltaR(caloJet.eta(), caloJet.phi(), myElec2->gsfTrack()->eta(), ele2_sc_phi);
 
           if ((DR1 > DRJetFromElectron_) && (DR2 > DRJetFromElectron_)) {
-            nCaloET[counter] = cjet->et();
-            nCaloEta[counter] = cjet->eta();
-            nCaloPhi[counter] = cjet->phi();
+            nCaloET[counter] = caloJet.et();
+            nCaloEta[counter] = caloJet.eta();
+            nCaloPhi[counter] = caloJet.phi();
             ++counter;
           }
         }
@@ -658,16 +658,16 @@ void ZeePlots::analyze(const edm::Event &iEvent, const edm::EventSetup &es) {
 
         Int_t counter = 0;
 
-        for (reco::PFJetCollection::const_iterator pjet = pfJets->begin(); pjet != pfJets->end(); ++pjet) {
+        for (const auto &pfJet : *pfJets) {
           // store them only if they are far enough from the electron
 
-          Double_t DR1 = reco::deltaR(pjet->eta(), pjet->phi(), myElec1->gsfTrack()->eta(), ele1_sc_phi);
-          Double_t DR2 = reco::deltaR(pjet->eta(), pjet->phi(), myElec2->gsfTrack()->eta(), ele2_sc_phi);
+          Double_t DR1 = reco::deltaR(pfJet.eta(), pfJet.phi(), myElec1->gsfTrack()->eta(), ele1_sc_phi);
+          Double_t DR2 = reco::deltaR(pfJet.eta(), pfJet.phi(), myElec2->gsfTrack()->eta(), ele2_sc_phi);
 
           if ((DR1 > DRJetFromElectron_) && (DR2 > DRJetFromElectron_)) {
-            nPfET[counter] = pjet->et();
-            nPfEta[counter] = pjet->eta();
-            nPfPhi[counter] = pjet->phi();
+            nPfET[counter] = pfJet.et();
+            nPfEta[counter] = pfJet.eta();
+            nPfPhi[counter] = pfJet.phi();
             ++counter;
           }
         }

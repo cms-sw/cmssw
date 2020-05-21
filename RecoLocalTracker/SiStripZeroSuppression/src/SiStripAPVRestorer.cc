@@ -961,8 +961,8 @@ bool SiStripAPVRestorer::checkBaseline(const digivector_t& baseline) const {
 
     filtered_baseline_max = std::max(filtered_baseline_max, static_cast<double>(fabs(d)));
   }
-  for (size_t i = 0; i < (nTotStripsPerAPV - 1); i++) {
-    filtered_baseline_derivative_sum_square += filtered_baseline_derivative[i] * filtered_baseline_derivative[i];
+  for (float i : filtered_baseline_derivative) {
+    filtered_baseline_derivative_sum_square += i * i;
   }
 
 #if 0

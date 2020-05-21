@@ -28,10 +28,9 @@
 
 /// return the object map for the algorithm algoNameVal
 const GlobalObjectMap* GlobalObjectMapRecord::getObjectMap(const std::string& algoNameVal) const {
-  for (std::vector<GlobalObjectMap>::const_iterator itObj = m_gtObjectMap.begin(); itObj != m_gtObjectMap.end();
-       ++itObj) {
-    if (itObj->algoName() == algoNameVal) {
-      return &((*itObj));
+  for (const auto& itObj : m_gtObjectMap) {
+    if (itObj.algoName() == algoNameVal) {
+      return &(itObj);
     }
   }
 
@@ -46,10 +45,9 @@ const GlobalObjectMap* GlobalObjectMapRecord::getObjectMap(const std::string& al
 
 /// return the object map for the algorithm with bit number const int algoBitNumberVal
 const GlobalObjectMap* GlobalObjectMapRecord::getObjectMap(const int algoBitNumberVal) const {
-  for (std::vector<GlobalObjectMap>::const_iterator itObj = m_gtObjectMap.begin(); itObj != m_gtObjectMap.end();
-       ++itObj) {
-    if (itObj->algoBitNumber() == algoBitNumberVal) {
-      return &((*itObj));
+  for (const auto& itObj : m_gtObjectMap) {
+    if (itObj.algoBitNumber() == algoBitNumberVal) {
+      return &(itObj);
     }
   }
 
@@ -66,10 +64,9 @@ const GlobalObjectMap* GlobalObjectMapRecord::getObjectMap(const int algoBitNumb
 // from algorithm algoNameVal
 const CombinationsInCond* GlobalObjectMapRecord::getCombinationsInCond(const std::string& algoNameVal,
                                                                        const std::string& condNameVal) const {
-  for (std::vector<GlobalObjectMap>::const_iterator itObj = m_gtObjectMap.begin(); itObj != m_gtObjectMap.end();
-       ++itObj) {
-    if (itObj->algoName() == algoNameVal) {
-      return itObj->getCombinationsInCond(condNameVal);
+  for (const auto& itObj : m_gtObjectMap) {
+    if (itObj.algoName() == algoNameVal) {
+      return itObj.getCombinationsInCond(condNameVal);
     }
   }
 
@@ -87,10 +84,9 @@ const CombinationsInCond* GlobalObjectMapRecord::getCombinationsInCond(const std
 // from algorithm with bit number algoBitNumberVal
 const CombinationsInCond* GlobalObjectMapRecord::getCombinationsInCond(const int algoBitNumberVal,
                                                                        const std::string& condNameVal) const {
-  for (std::vector<GlobalObjectMap>::const_iterator itObj = m_gtObjectMap.begin(); itObj != m_gtObjectMap.end();
-       ++itObj) {
-    if (itObj->algoBitNumber() == algoBitNumberVal) {
-      return itObj->getCombinationsInCond(condNameVal);
+  for (const auto& itObj : m_gtObjectMap) {
+    if (itObj.algoBitNumber() == algoBitNumberVal) {
+      return itObj.getCombinationsInCond(condNameVal);
     }
   }
 
@@ -107,10 +103,9 @@ const CombinationsInCond* GlobalObjectMapRecord::getCombinationsInCond(const int
 // return the result for the condition condNameVal
 // from algorithm with name algoNameVal
 bool GlobalObjectMapRecord::getConditionResult(const std::string& algoNameVal, const std::string& condNameVal) const {
-  for (std::vector<GlobalObjectMap>::const_iterator itObj = m_gtObjectMap.begin(); itObj != m_gtObjectMap.end();
-       ++itObj) {
-    if (itObj->algoName() == algoNameVal) {
-      return itObj->getConditionResult(condNameVal);
+  for (const auto& itObj : m_gtObjectMap) {
+    if (itObj.algoName() == algoNameVal) {
+      return itObj.getConditionResult(condNameVal);
     }
   }
 
@@ -127,10 +122,9 @@ bool GlobalObjectMapRecord::getConditionResult(const std::string& algoNameVal, c
 // return the result for the condition condNameVal
 // from algorithm with bit number algoBitNumberVal
 bool GlobalObjectMapRecord::getConditionResult(const int algoBitNumberVal, const std::string& condNameVal) const {
-  for (std::vector<GlobalObjectMap>::const_iterator itObj = m_gtObjectMap.begin(); itObj != m_gtObjectMap.end();
-       ++itObj) {
-    if (itObj->algoBitNumber() == algoBitNumberVal) {
-      return itObj->getConditionResult(condNameVal);
+  for (const auto& itObj : m_gtObjectMap) {
+    if (itObj.algoBitNumber() == algoBitNumberVal) {
+      return itObj.getConditionResult(condNameVal);
     }
   }
 

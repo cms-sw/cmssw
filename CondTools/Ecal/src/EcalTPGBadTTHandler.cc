@@ -108,12 +108,12 @@ void popcon::EcalTPGBadTTHandler::getNewObjects() {
         "EE_trigger_tower", 1, 200, 1, 70, EcalLogicID::NULLID, EcalLogicID::NULLID, "EE_offline_towerid", 12);
     std::cout << " GOT the logic ID for the EE trigger towers " << std::endl;
 
-    for (size_t kr = 0; kr < run_vec.size(); kr++) {
-      irun = static_cast<unsigned int>(run_vec[kr].getRunNumber());
+    for (auto& kr : run_vec) {
+      irun = static_cast<unsigned int>(kr.getRunNumber());
 
       // retrieve the data :
       std::map<EcalLogicID, RunTPGConfigDat> dataset;
-      econn->fetchDataSet(&dataset, &run_vec[kr]);
+      econn->fetchDataSet(&dataset, &kr);
 
       std::string the_config_tag = "";
       int the_config_version = 0;
@@ -178,16 +178,16 @@ void popcon::EcalTPGBadTTHandler::getNewObjects() {
               }
             }
             //EE
-            for (size_t itower = 0; itower < my_TTEcalLogicId_EE.size(); itower++) {
-              int towid = my_TTEcalLogicId_EE[itower].getLogicID();
+            for (auto& itower : my_TTEcalLogicId_EE) {
+              int towid = itower.getLogicID();
               int tower_status = 0;
               towerStatus->setValue(towid, tower_status);
             }
 
             // now put at 1 those that are bad
             int icells = 0;
-            for (CIfeped p = dataset_TpgBadTT.begin(); p != dataset_TpgBadTT.end(); p++) {
-              rd_badTT = *p;
+            for (const auto& p : dataset_TpgBadTT) {
+              rd_badTT = p;
 
               int tcc_num = rd_badTT.getTCCId();
               int tt_num = rd_badTT.getTTId();
@@ -221,11 +221,10 @@ void popcon::EcalTPGBadTTHandler::getNewObjects() {
 
                 bool set_the_tower = false;
                 int towid;
-                for (size_t itower = 0; itower < my_TTEcalLogicId_EE.size(); itower++) {
+                for (auto& itower : my_TTEcalLogicId_EE) {
                   if (!set_the_tower) {
-                    if (my_TTEcalLogicId_EE[itower].getID1() == tccid &&
-                        my_TTEcalLogicId_EE[itower].getID2() == towerid) {
-                      towid = my_TTEcalLogicId_EE[itower].getLogicID();
+                    if (itower.getID1() == tccid && itower.getID2() == towerid) {
+                      towid = itower.getLogicID();
                       set_the_tower = true;
                       break;
                     }

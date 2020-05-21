@@ -170,8 +170,8 @@ bool EcalMIPRecHitFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
       //std::cout << " THIS AMPLITUDE WORKS " << ampli_ << std::endl;
       std::vector<DetId> neighbors = caloTopo->getWindow(ebDet, side_, side_);
       float secondMin = 0.;
-      for (std::vector<DetId>::const_iterator detitr = neighbors.begin(); detitr != neighbors.end(); ++detitr) {
-        auto thishit = recHits->find((*detitr));
+      for (auto neighbor : neighbors) {
+        auto thishit = recHits->find(neighbor);
         if (thishit == recHits->end()) {
           //LogWarning("EcalMIPRecHitFilter") << "No RecHit available, for "<< EBDetId(*detitr);
           continue;

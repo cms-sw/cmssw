@@ -83,9 +83,9 @@ edm::OrphanHandle<reco::TrackCollection> MuonTrackFinder::reconstruct(
   for (seed = seeds->begin(); seed != seeds->end(); ++seed, ++nSeed) {
     LogTrace(metname) << "+++ New Seed +++" << endl;
     TrajectoryContainer muonTrajs_temp = theTrajBuilder->trajectories(*seed);
-    for (TrajectoryContainer::iterator it = muonTrajs_temp.begin(); it != muonTrajs_temp.end(); ++it) {
-      (*it)->setSeedRef(seeds->refAt(nSeed));
-      muonTrajectories.push_back(std::move(*it));
+    for (auto& it : muonTrajs_temp) {
+      it->setSeedRef(seeds->refAt(nSeed));
+      muonTrajectories.push_back(std::move(it));
     }
   }
 
@@ -113,8 +113,8 @@ void MuonTrackFinder::reconstruct(const std::vector<TrackCand>& staCandColl, Eve
   CandidateContainer muonCandidates;
 
   // reconstruct the muon candidates
-  for (vector<TrackCand>::const_iterator staCand = staCandColl.begin(); staCand != staCandColl.end(); ++staCand) {
-    CandidateContainer muonCands_temp = theTrajBuilder->trajectories(*staCand);
+  for (const auto& staCand : staCandColl) {
+    CandidateContainer muonCands_temp = theTrajBuilder->trajectories(staCand);
     muonCandidates.insert(muonCandidates.end(),
                           std::make_move_iterator(muonCands_temp.begin()),
                           std::make_move_iterator(muonCands_temp.end()));

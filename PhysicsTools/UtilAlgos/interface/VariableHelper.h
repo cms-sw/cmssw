@@ -51,9 +51,8 @@ public:
       printValuesForEachEventCategory_ = iConfig.getParameter<std::string>("printValuesForEachEventCategory");
   }
   ~VariableHelperService() {
-    for (std::map<std::string, VariableHelper*>::iterator it = multipleInstance_.begin(); it != multipleInstance_.end();
-         ++it) {
-      delete it->second;
+    for (auto& it : multipleInstance_) {
+      delete it.second;
     }
   }
 

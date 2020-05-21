@@ -209,27 +209,27 @@ void GenericTriggerEventFlag::initRun(const edm::Run& run, const edm::EventSetup
       L1GtTriggerMenu const& l1GtTriggerMenu = setup.get<L1GtTriggerMenuRcd>().get(l1GtTriggerMenuToken_);
 
       const AlgorithmMap& l1GtPhys(l1GtTriggerMenu.gtAlgorithmMap());
-      for (CItAlgo iAlgo = l1GtPhys.begin(); iAlgo != l1GtPhys.end(); ++iAlgo) {
-        algoNames.push_back(iAlgo->second.algoName());
+      for (const auto& l1GtPhy : l1GtPhys) {
+        algoNames.push_back(l1GtPhy.second.algoName());
       }
       const AlgorithmMap& l1GtTech(l1GtTriggerMenu.gtTechnicalTriggerMap());
-      for (CItAlgo iAlgo = l1GtTech.begin(); iAlgo != l1GtTech.end(); ++iAlgo) {
-        algoNames.push_back(iAlgo->second.algoName());
+      for (const auto& iAlgo : l1GtTech) {
+        algoNames.push_back(iAlgo.second.algoName());
       }
     }
 
-    for (unsigned iExpr = 0; iExpr < l1LogicalExpressions_.size(); ++iExpr) {
-      std::string l1LogicalExpression(l1LogicalExpressions_.at(iExpr));
+    for (auto& iExpr : l1LogicalExpressions_) {
+      std::string l1LogicalExpression(iExpr);
       L1GtLogicParser l1AlgoLogicParser(l1LogicalExpression);
       // Loop over algorithms
-      for (size_t iAlgo = 0; iAlgo < l1AlgoLogicParser.operandTokenVector().size(); ++iAlgo) {
-        const std::string l1AlgoName(l1AlgoLogicParser.operandTokenVector().at(iAlgo).tokenName);
+      for (auto& iAlgo : l1AlgoLogicParser.operandTokenVector()) {
+        const std::string l1AlgoName(iAlgo.tokenName);
         if (l1AlgoName.find('*') != std::string::npos) {
           l1LogicalExpression.replace(
               l1LogicalExpression.find(l1AlgoName), l1AlgoName.size(), expandLogicalExpression(algoNames, l1AlgoName));
         }
       }
-      l1LogicalExpressions_[iExpr] = l1LogicalExpression;
+      iExpr = l1LogicalExpression;
     }
     std::vector<std::string> tmp = l1LogicalExpressions_;
     for (unsigned iExpr = 0; iExpr < tmp.size(); ++iExpr)
@@ -243,19 +243,19 @@ void GenericTriggerEventFlag::initRun(const edm::Run& run, const edm::EventSetup
   }
   // HLT
   if (hltConfigInit_) {
-    for (unsigned iExpr = 0; iExpr < hltLogicalExpressions_.size(); ++iExpr) {
-      std::string hltLogicalExpression(hltLogicalExpressions_.at(iExpr));
+    for (auto& iExpr : hltLogicalExpressions_) {
+      std::string hltLogicalExpression(iExpr);
       L1GtLogicParser hltAlgoLogicParser(hltLogicalExpression);
       // Loop over paths
-      for (size_t iPath = 0; iPath < hltAlgoLogicParser.operandTokenVector().size(); ++iPath) {
-        const std::string hltPathName(hltAlgoLogicParser.operandTokenVector().at(iPath).tokenName);
+      for (auto& iPath : hltAlgoLogicParser.operandTokenVector()) {
+        const std::string hltPathName(iPath.tokenName);
         if (hltPathName.find('*') != std::string::npos) {
           hltLogicalExpression.replace(hltLogicalExpression.find(hltPathName),
                                        hltPathName.size(),
                                        expandLogicalExpression(hltConfig_.triggerNames(), hltPathName));
         }
       }
-      hltLogicalExpressions_[iExpr] = hltLogicalExpression;
+      iExpr = hltLogicalExpression;
     }
   }
 }
@@ -296,18 +296,14 @@ bool GenericTriggerEventFlag::acceptDcs(const edm::Event& event) {
 
   // Determine decision of DCS partition combination and return
   if (andOrDcs_) {  // OR combination
-    for (std::vector<int>::const_iterator partitionNumber = dcsPartitions_.begin();
-         partitionNumber != dcsPartitions_.end();
-         ++partitionNumber) {
-      if (acceptDcsPartition(dcsStatus, *partitionNumber))
+    for (int dcsPartition : dcsPartitions_) {
+      if (acceptDcsPartition(dcsStatus, dcsPartition))
         return true;
     }
     return false;
   }
-  for (std::vector<int>::const_iterator partitionNumber = dcsPartitions_.begin();
-       partitionNumber != dcsPartitions_.end();
-       ++partitionNumber) {
-    if (!acceptDcsPartition(dcsStatus, *partitionNumber))
+  for (int dcsPartition : dcsPartitions_) {
+    if (!acceptDcsPartition(dcsStatus, dcsPartition))
       return false;
   }
   return true;
@@ -361,18 +357,14 @@ bool GenericTriggerEventFlag::acceptGt(const edm::Event& event) {
 
   // Determine decision of GT status bits logical expression combination and return
   if (andOrGt_) {  // OR combination
-    for (std::vector<std::string>::const_iterator gtLogicalExpression = gtLogicalExpressions_.begin();
-         gtLogicalExpression != gtLogicalExpressions_.end();
-         ++gtLogicalExpression) {
-      if (acceptGtLogicalExpression(event, *gtLogicalExpression))
+    for (const auto& gtLogicalExpression : gtLogicalExpressions_) {
+      if (acceptGtLogicalExpression(event, gtLogicalExpression))
         return true;
     }
     return false;
   }
-  for (std::vector<std::string>::const_iterator gtLogicalExpression = gtLogicalExpressions_.begin();
-       gtLogicalExpression != gtLogicalExpressions_.end();
-       ++gtLogicalExpression) {
-    if (!acceptGtLogicalExpression(event, *gtLogicalExpression))
+  for (const auto& gtLogicalExpression : gtLogicalExpressions_) {
+    if (!acceptGtLogicalExpression(event, gtLogicalExpression))
       return false;
   }
   return true;
@@ -399,8 +391,8 @@ bool GenericTriggerEventFlag::acceptGtLogicalExpression(const edm::Event& event,
   // Parse logical expression and determine GT status bit decision
   L1GtLogicParser gtAlgoLogicParser(gtLogicalExpression);
   // Loop over status bits
-  for (size_t iStatusBit = 0; iStatusBit < gtAlgoLogicParser.operandTokenVector().size(); ++iStatusBit) {
-    const std::string gtStatusBit(gtAlgoLogicParser.operandTokenVector().at(iStatusBit).tokenName);
+  for (auto& iStatusBit : gtAlgoLogicParser.operandTokenVector()) {
+    const std::string gtStatusBit(iStatusBit.tokenName);
     // Manipulate status bit decision as stored in the parser
     bool decision(errorReplyDcs_);
     // Hard-coded status bits!!!
@@ -412,7 +404,7 @@ bool GenericTriggerEventFlag::acceptGtLogicalExpression(const edm::Event& event,
           edm::LogWarning("GenericTriggerEventFlag")
               << "L1GlobalTriggerReadoutRecord product with InputTag \"" << gtInputTag_.encode()
               << "\" not in event ==> decision: " << errorReplyGt_;
-        gtAlgoLogicParser.operandTokenVector().at(iStatusBit).tokenResult = errorReplyDcs_;
+        iStatusBit.tokenResult = errorReplyDcs_;
         continue;
       }
       decision = (gtReadoutRecord->gtFdlWord().physicsDeclared() == 1);
@@ -426,7 +418,7 @@ bool GenericTriggerEventFlag::acceptGtLogicalExpression(const edm::Event& event,
           edm::LogWarning("GenericTriggerEventFlag")
               << "L1GlobalTriggerEvmReadoutRecord product with InputTag \"" << gtEvmInputTag_.encode()
               << "\" not in event ==> decision: " << errorReplyGt_;
-        gtAlgoLogicParser.operandTokenVector().at(iStatusBit).tokenResult = errorReplyDcs_;
+        iStatusBit.tokenResult = errorReplyDcs_;
         continue;
       }
       if (gtStatusBit == "Stable" || gtStatusBit == "StableBeam") {
@@ -453,7 +445,7 @@ bool GenericTriggerEventFlag::acceptGtLogicalExpression(const edm::Event& event,
         edm::LogWarning("GenericTriggerEventFlag")
             << "GT status bit \"" << gtStatusBit << "\" is not defined ==> decision: " << errorReplyGt_;
     }
-    gtAlgoLogicParser.operandTokenVector().at(iStatusBit).tokenResult = decision;
+    iStatusBit.tokenResult = decision;
   }
 
   // Determine decision
@@ -469,18 +461,14 @@ bool GenericTriggerEventFlag::acceptL1(const edm::Event& event, const edm::Event
 
   // Determine decision of L1 logical expression combination and return
   if (andOrL1_) {  // OR combination
-    for (std::vector<std::string>::const_iterator l1LogicalExpression = l1LogicalExpressions_.begin();
-         l1LogicalExpression != l1LogicalExpressions_.end();
-         ++l1LogicalExpression) {
-      if (acceptL1LogicalExpression(event, setup, *l1LogicalExpression))
+    for (const auto& l1LogicalExpression : l1LogicalExpressions_) {
+      if (acceptL1LogicalExpression(event, setup, l1LogicalExpression))
         return true;
     }
     return false;
   }
-  for (std::vector<std::string>::const_iterator l1LogicalExpression = l1LogicalExpressions_.begin();
-       l1LogicalExpression != l1LogicalExpressions_.end();
-       ++l1LogicalExpression) {
-    if (!acceptL1LogicalExpression(event, setup, *l1LogicalExpression))
+  for (const auto& l1LogicalExpression : l1LogicalExpressions_) {
+    if (!acceptL1LogicalExpression(event, setup, l1LogicalExpression))
       return false;
   }
   return true;
@@ -516,8 +504,8 @@ bool GenericTriggerEventFlag::acceptL1LogicalExpression(const edm::Event& event,
   // Parse logical expression and determine L1 decision
   L1GtLogicParser l1AlgoLogicParser(l1LogicalExpression);
   // Loop over algorithms
-  for (size_t iAlgorithm = 0; iAlgorithm < l1AlgoLogicParser.operandTokenVector().size(); ++iAlgorithm) {
-    const std::string l1AlgoName(l1AlgoLogicParser.operandTokenVector().at(iAlgorithm).tokenName);
+  for (auto& iAlgorithm : l1AlgoLogicParser.operandTokenVector()) {
+    const std::string l1AlgoName(iAlgorithm.tokenName);
 
     bool decision = false;
     bool error = false;
@@ -543,11 +531,11 @@ bool GenericTriggerEventFlag::acceptL1LogicalExpression(const edm::Event& event,
       if (verbose_ > 1)
         edm::LogWarning("GenericTriggerEventFlag")
             << "L1 algorithm \"" << l1AlgoName << "\" does not exist in the L1 menu ==> decision: " << errorReplyL1_;
-      l1AlgoLogicParser.operandTokenVector().at(iAlgorithm).tokenResult = errorReplyL1_;
+      iAlgorithm.tokenResult = errorReplyL1_;
       continue;
     }
     // Manipulate algo decision as stored in the parser
-    l1AlgoLogicParser.operandTokenVector().at(iAlgorithm).tokenResult = decision;
+    iAlgorithm.tokenResult = decision;
   }
 
   // Return decision
@@ -586,18 +574,14 @@ bool GenericTriggerEventFlag::acceptHlt(const edm::Event& event) {
 
   // Determine decision of HLT logical expression combination and return
   if (andOrHlt_) {  // OR combination
-    for (std::vector<std::string>::const_iterator hltLogicalExpression = hltLogicalExpressions_.begin();
-         hltLogicalExpression != hltLogicalExpressions_.end();
-         ++hltLogicalExpression) {
-      if (acceptHltLogicalExpression(hltTriggerResults, *hltLogicalExpression))
+    for (const auto& hltLogicalExpression : hltLogicalExpressions_) {
+      if (acceptHltLogicalExpression(hltTriggerResults, hltLogicalExpression))
         return true;
     }
     return false;
   }
-  for (std::vector<std::string>::const_iterator hltLogicalExpression = hltLogicalExpressions_.begin();
-       hltLogicalExpression != hltLogicalExpressions_.end();
-       ++hltLogicalExpression) {
-    if (!acceptHltLogicalExpression(hltTriggerResults, *hltLogicalExpression))
+  for (const auto& hltLogicalExpression : hltLogicalExpressions_) {
+    if (!acceptHltLogicalExpression(hltTriggerResults, hltLogicalExpression))
       return false;
   }
   return true;
@@ -625,27 +609,27 @@ bool GenericTriggerEventFlag::acceptHltLogicalExpression(const edm::Handle<edm::
   // Parse logical expression and determine HLT decision
   L1GtLogicParser hltAlgoLogicParser(hltLogicalExpression);
   // Loop over paths
-  for (size_t iPath = 0; iPath < hltAlgoLogicParser.operandTokenVector().size(); ++iPath) {
-    const std::string hltPathName(hltAlgoLogicParser.operandTokenVector().at(iPath).tokenName);
+  for (auto& iPath : hltAlgoLogicParser.operandTokenVector()) {
+    const std::string hltPathName(iPath.tokenName);
     const unsigned indexPath(hltConfig_.triggerIndex(hltPathName));
     // Further error checks
     if (indexPath == hltConfig_.size()) {
       if (verbose_ > 1)
         edm::LogWarning("GenericTriggerEventFlag") << "HLT path \"" << hltPathName << "\" is not found in process "
                                                    << hltInputTag_.process() << " ==> decision: " << errorReplyHlt_;
-      hltAlgoLogicParser.operandTokenVector().at(iPath).tokenResult = errorReplyHlt_;
+      iPath.tokenResult = errorReplyHlt_;
       continue;
     }
     if (hltTriggerResults->error(indexPath)) {
       if (verbose_ > 1)
         edm::LogWarning("GenericTriggerEventFlag")
             << "HLT path \"" << hltPathName << "\" in error ==> decision: " << errorReplyHlt_;
-      hltAlgoLogicParser.operandTokenVector().at(iPath).tokenResult = errorReplyHlt_;
+      iPath.tokenResult = errorReplyHlt_;
       continue;
     }
     // Manipulate algo decision as stored in the parser
     const bool decision(hltTriggerResults->accept(indexPath));
-    hltAlgoLogicParser.operandTokenVector().at(iPath).tokenResult = decision;
+    iPath.tokenResult = decision;
   }
 
   // Determine decision
@@ -741,17 +725,15 @@ bool GenericTriggerEventFlag::allHLTPathsAreValid() const {
     return false;
   }
 
-  for (unsigned iExpr = 0; iExpr < hltLogicalExpressions_.size(); ++iExpr) {
-    std::string hltLogicalExpression = hltLogicalExpressions_.at(iExpr);
-
+  for (auto hltLogicalExpression : hltLogicalExpressions_) {
     L1GtLogicParser hltAlgoLogicParser(hltLogicalExpression);
 
     if (hltAlgoLogicParser.operandTokenVector().empty()) {
       return false;
     }
 
-    for (size_t iPath = 0; iPath < hltAlgoLogicParser.operandTokenVector().size(); ++iPath) {
-      const std::string hltPathName(hltAlgoLogicParser.operandTokenVector().at(iPath).tokenName);
+    for (auto& iPath : hltAlgoLogicParser.operandTokenVector()) {
+      const std::string hltPathName(iPath.tokenName);
 
       const unsigned indexPath(hltConfig_.triggerIndex(hltPathName));
 

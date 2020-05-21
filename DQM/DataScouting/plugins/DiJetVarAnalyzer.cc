@@ -374,16 +374,16 @@ void DiJetVarAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &
   // Loop over all the selected jets ( defined at
   // DQM/DataScouting/python/dijetScouting_cff.py )
   double thisHT = 0.;
-  for (reco::CaloJetCollection::const_iterator it = calojets_handle->begin(); it != calojets_handle->end(); ++it) {
+  for (const auto &it : *calojets_handle) {
     // cout << "== jet: " << it->pt() << " " << it->eta() << " " << it->phi() <<
     // endl;
-    m_selJets_pt->Fill(it->pt());
-    m_selJets_eta->Fill(it->eta());
-    m_selJets_phi->Fill(it->phi());
-    m_selJets_hadEnergyFraction->Fill(it->energyFractionHadronic());
-    m_selJets_emEnergyFraction->Fill(it->emEnergyFraction());
-    m_selJets_towersArea->Fill(it->towersArea());
-    thisHT += it->pt();
+    m_selJets_pt->Fill(it.pt());
+    m_selJets_eta->Fill(it.eta());
+    m_selJets_phi->Fill(it.phi());
+    m_selJets_hadEnergyFraction->Fill(it.energyFractionHadronic());
+    m_selJets_emEnergyFraction->Fill(it.emEnergyFraction());
+    m_selJets_towersArea->Fill(it.towersArea());
+    thisHT += it.pt();
   }
 
   // HT

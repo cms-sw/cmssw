@@ -471,8 +471,7 @@ namespace external {
                                         vector<fastjet::PseudoJet>& small_fatjets,
                                         const ClusterSequence& cseq,
                                         const double small_radius) {
-    for (unsigned i = 0; i < big_fatjets.size(); i++) {
-      PseudoJet this_jet = big_fatjets[i];
+    for (auto this_jet : big_fatjets) {
       PseudoJet parent1(0, 0, 0, 0), parent2(0, 0, 0, 0);
       bool test = cseq.has_parents(this_jet, parent1, parent2);
       double dR = 100;
@@ -713,8 +712,8 @@ namespace external {
         // We are sorting by pt - so start with a negative dummy
         double dummy = -99999;
 
-        for (unsigned i = 0; i < small_fatjets.size(); i++) {
-          HEPTopTaggerV2_fixed_R htt(small_fatjets[i]);
+        for (const auto& small_fatjet : small_fatjets) {
+          HEPTopTaggerV2_fixed_R htt(small_fatjet);
           htt.set_mass_drop_threshold(_mass_drop_threshold);
           htt.set_max_subjet_mass(_max_subjet_mass);
           htt.set_filtering_n(_nfilt);

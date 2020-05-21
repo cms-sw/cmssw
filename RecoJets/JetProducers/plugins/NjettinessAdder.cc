@@ -17,9 +17,9 @@ NjettinessAdder::NjettinessAdder(const edm::ParameterSet& iConfig)
   if (!srcWeights.label().empty())
     input_weights_token_ = consumes<edm::ValueMap<float>>(srcWeights);
 
-  for (std::vector<unsigned>::const_iterator n = Njets_.begin(); n != Njets_.end(); ++n) {
+  for (unsigned int Njet : Njets_) {
     std::ostringstream tauN_str;
-    tauN_str << "tau" << *n;
+    tauN_str << "tau" << Njet;
 
     produces<edm::ValueMap<float>>(tauN_str.str());
   }
@@ -116,9 +116,9 @@ void NjettinessAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (!input_weights_token_.isUninitialized())
     weightsHandle_ = &iEvent.get(input_weights_token_);
 
-  for (std::vector<unsigned>::const_iterator n = Njets_.begin(); n != Njets_.end(); ++n) {
+  for (unsigned int Njet : Njets_) {
     std::ostringstream tauN_str;
-    tauN_str << "tau" << *n;
+    tauN_str << "tau" << Njet;
 
     // prepare room for output
     std::vector<float> tauN;
@@ -127,7 +127,7 @@ void NjettinessAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for (typename edm::View<reco::Jet>::const_iterator jetIt = jets->begin(); jetIt != jets->end(); ++jetIt) {
       edm::Ptr<reco::Jet> jetPtr = jets->ptrAt(jetIt - jets->begin());
 
-      float t = getTau(*n, jetPtr);
+      float t = getTau(Njet, jetPtr);
 
       tauN.push_back(t);
     }

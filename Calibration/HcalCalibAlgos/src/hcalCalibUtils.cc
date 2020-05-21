@@ -31,52 +31,52 @@ void sumDepths(vector<TCell>& selectCells) {
   //
   // In some documents it is described as having depth 1, the mapping in CMSSW uses depth 3.
 
-  for (vector<TCell>::iterator i_it = selectCells.begin(); i_it != selectCells.end(); ++i_it) {
-    if (HcalDetId(i_it->id()).depth() == 1) {
-      selectCellsDepth1.push_back(*i_it);
+  for (auto& selectCell : selectCells) {
+    if (HcalDetId(selectCell.id()).depth() == 1) {
+      selectCellsDepth1.push_back(selectCell);
     } else {
-      selectCellsHighDepth.push_back(*i_it);
+      selectCellsHighDepth.push_back(selectCell);
     }
   }
 
   // case where depth 1 has zero energy, but higher depths with same (iEta, iPhi) have energy.
   // For iEta<15 there is one depth -> selectCellsHighDepth is empty and we do not get in the loop.
-  for (vector<TCell>::iterator i_it2 = selectCellsHighDepth.begin(); i_it2 != selectCellsHighDepth.end(); ++i_it2) {
+  for (auto& i_it2 : selectCellsHighDepth) {
     // protect against corrupt data
-    if (HcalDetId(i_it2->id()).ietaAbs() < 15 && HcalDetId(i_it2->id()).depth() > 1) {
+    if (HcalDetId(i_it2.id()).ietaAbs() < 15 && HcalDetId(i_it2.id()).depth() > 1) {
       cout << "ERROR!!! there are no HB cells with depth>1 for iEta<15!\n"
            << "Check the input data..." << endl;
-      cout << "HCalDetId: " << HcalDetId(i_it2->id()) << endl;
+      cout << "HCalDetId: " << HcalDetId(i_it2.id()) << endl;
       return;
     }
 
     bool foundDepthOne = false;
-    for (vector<TCell>::iterator i_it = selectCellsDepth1.begin(); i_it != selectCellsDepth1.end(); ++i_it) {
-      if (HcalDetId(i_it->id()).ieta() == HcalDetId(i_it2->id()).ieta() &&
-          HcalDetId(i_it->id()).iphi() == HcalDetId(i_it2->id()).iphi())
+    for (auto& i_it : selectCellsDepth1) {
+      if (HcalDetId(i_it.id()).ieta() == HcalDetId(i_it2.id()).ieta() &&
+          HcalDetId(i_it.id()).iphi() == HcalDetId(i_it2.id()).iphi())
         foundDepthOne = true;
       continue;
     }
     if (!foundDepthOne) {  // create entry for depth 1 with 0 energy
 
       UInt_t newId;
-      if (abs(HcalDetId(i_it2->id()).ieta()) == 16)
-        newId = HcalDetId(HcalBarrel, HcalDetId(i_it2->id()).ieta(), HcalDetId(i_it2->id()).iphi(), 1);
+      if (abs(HcalDetId(i_it2.id()).ieta()) == 16)
+        newId = HcalDetId(HcalBarrel, HcalDetId(i_it2.id()).ieta(), HcalDetId(i_it2.id()).iphi(), 1);
       else
         newId =
-            HcalDetId(HcalDetId(i_it2->id()).subdet(), HcalDetId(i_it2->id()).ieta(), HcalDetId(i_it2->id()).iphi(), 1);
+            HcalDetId(HcalDetId(i_it2.id()).subdet(), HcalDetId(i_it2.id()).ieta(), HcalDetId(i_it2.id()).iphi(), 1);
 
       selectCellsDepth1.push_back(TCell(newId, 0.0));
       //////////            cout << "\nCreated a dummy cell in depth one to recover energy!!!\n" << endl;
     }
   }
 
-  for (vector<TCell>::iterator i_it = selectCellsDepth1.begin(); i_it != selectCellsDepth1.end(); ++i_it) {
-    for (vector<TCell>::iterator i_it2 = selectCellsHighDepth.begin(); i_it2 != selectCellsHighDepth.end(); ++i_it2) {
-      if (HcalDetId(i_it->id()).ieta() == HcalDetId(i_it2->id()).ieta() &&
-          HcalDetId(i_it->id()).iphi() == HcalDetId(i_it2->id()).iphi()) {
-        i_it->SetE(i_it->e() + i_it2->e());
-        i_it2->SetE(0.0);  // paranoid, aren't we...
+  for (auto& i_it : selectCellsDepth1) {
+    for (auto& i_it2 : selectCellsHighDepth) {
+      if (HcalDetId(i_it.id()).ieta() == HcalDetId(i_it2.id()).ieta() &&
+          HcalDetId(i_it.id()).iphi() == HcalDetId(i_it2.id()).iphi()) {
+        i_it.SetE(i_it.e() + i_it2.e());
+        i_it2.SetE(0.0);  // paranoid, aren't we...
       }
     }
   }
@@ -175,23 +175,23 @@ void filterCells3x3(vector<TCell>& selectCells, Int_t iEtaMaxE, UInt_t iPhiMaxE)
 
   Int_t dEta, dPhi;
 
-  for (vector<TCell>::iterator it = selectCells.begin(); it != selectCells.end(); ++it) {
+  for (auto& selectCell : selectCells) {
     Bool_t passDEta = false;
     Bool_t passDPhi = false;
 
-    dEta = HcalDetId(it->id()).ieta() - iEtaMaxE;
-    dPhi = HcalDetId(it->id()).iphi() - iPhiMaxE;
+    dEta = HcalDetId(selectCell.id()).ieta() - iEtaMaxE;
+    dPhi = HcalDetId(selectCell.id()).iphi() - iPhiMaxE;
 
     if (dPhi > 36)
       dPhi -= 72;
     if (dPhi < -36)
       dPhi += 72;
 
-    if (abs(dEta) <= 1 || (iEtaMaxE * HcalDetId(it->id()).ieta() == -1))
+    if (abs(dEta) <= 1 || (iEtaMaxE * HcalDetId(selectCell.id()).ieta() == -1))
       passDEta = true;
 
     if (abs(iEtaMaxE) <= 20) {
-      if (abs(HcalDetId(it->id()).ieta()) <= 20) {
+      if (abs(HcalDetId(selectCell.id()).ieta()) <= 20) {
         if (abs(dPhi) <= 1)
           passDPhi = true;
       } else {
@@ -208,7 +208,7 @@ void filterCells3x3(vector<TCell>& selectCells, Int_t iEtaMaxE, UInt_t iPhiMaxE)
     }  // if hottest cell with iEta<=20
 
     else {
-      if (abs(HcalDetId(it->id()).ieta()) <= 20) {
+      if (abs(HcalDetId(selectCell.id()).ieta()) <= 20) {
         if (abs(dPhi) <= 1 || dPhi == 2)
           passDPhi = true;
       } else {
@@ -218,7 +218,7 @@ void filterCells3x3(vector<TCell>& selectCells, Int_t iEtaMaxE, UInt_t iPhiMaxE)
     }  // if hottest cell with iEta>20
 
     if (passDEta && passDPhi)
-      filteredCells.push_back(*it);
+      filteredCells.push_back(selectCell);
   }
 
   selectCells = filteredCells;
@@ -239,9 +239,9 @@ void filterCells5x5(vector<TCell>& selectCells, Int_t iEtaMaxE, UInt_t iPhiMaxE)
 
   Int_t dEta, dPhi;
 
-  for (vector<TCell>::iterator it = selectCells.begin(); it != selectCells.end(); ++it) {
-    dEta = HcalDetId(it->id()).ieta() - iEtaMaxE;
-    dPhi = HcalDetId(it->id()).iphi() - iPhiMaxE;
+  for (auto& selectCell : selectCells) {
+    dEta = HcalDetId(selectCell.id()).ieta() - iEtaMaxE;
+    dPhi = HcalDetId(selectCell.id()).iphi() - iPhiMaxE;
 
     if (dPhi > 36)
       dPhi -= 72;
@@ -250,11 +250,11 @@ void filterCells5x5(vector<TCell>& selectCells, Int_t iEtaMaxE, UInt_t iPhiMaxE)
 
     bool passDPhi = (abs(dPhi) < 3);
 
-    bool passDEta = (abs(dEta) < 3 || (iEtaMaxE * HcalDetId(it->id()).ieta() == -2));
+    bool passDEta = (abs(dEta) < 3 || (iEtaMaxE * HcalDetId(selectCell.id()).ieta() == -2));
     // includes  +/- eta boundary
 
     if (passDPhi && passDEta)
-      filteredCells.push_back(*it);
+      filteredCells.push_back(selectCell);
   }
 
   selectCells = filteredCells;
@@ -272,12 +272,12 @@ void sumSmallDepths(vector<TCell>& selectCells) {
   vector<TCell> newCells;          // holds unaffected cells to which the modified ones are added
   vector<TCell> manipulatedCells;  // the ones that are combined
 
-  for (vector<TCell>::iterator i_it = selectCells.begin(); i_it != selectCells.end(); ++i_it) {
-    if ((HcalDetId(i_it->id()).ietaAbs() == 15 && HcalDetId(i_it->id()).depth() <= 2) ||
-        (HcalDetId(i_it->id()).ietaAbs() == 16 && HcalDetId(i_it->id()).depth() <= 2)) {
-      manipulatedCells.push_back(*i_it);
+  for (auto& selectCell : selectCells) {
+    if ((HcalDetId(selectCell.id()).ietaAbs() == 15 && HcalDetId(selectCell.id()).depth() <= 2) ||
+        (HcalDetId(selectCell.id()).ietaAbs() == 16 && HcalDetId(selectCell.id()).depth() <= 2)) {
+      manipulatedCells.push_back(selectCell);
     } else {
-      newCells.push_back(*i_it);
+      newCells.push_back(selectCell);
     }
   }
 
@@ -295,26 +295,29 @@ void sumSmallDepths(vector<TCell>& selectCells) {
   vector<UInt_t> dummyIds;     // to keep track of kreated cells
   vector<TCell> createdCells;  // cells that need to be added or they exists;
 
-  for (vector<TCell>::iterator i_it = manipulatedCells.begin(); i_it != manipulatedCells.end(); ++i_it) {
-    UInt_t dummyId =
-        HcalDetId(HcalDetId(i_it->id()).subdet(), HcalDetId(i_it->id()).ieta(), HcalDetId(i_it->id()).iphi(), 1);
+  for (auto& manipulatedCell : manipulatedCells) {
+    UInt_t dummyId = HcalDetId(HcalDetId(manipulatedCell.id()).subdet(),
+                               HcalDetId(manipulatedCell.id()).ieta(),
+                               HcalDetId(manipulatedCell.id()).iphi(),
+                               1);
     if (find(dummyIds.begin(), dummyIds.end(), dummyId) == dummyIds.end()) {
       dummyIds.push_back(dummyId);
       createdCells.push_back(TCell(dummyId, 0.0));
     }
   }
 
-  for (vector<TCell>::iterator i_it = createdCells.begin(); i_it != createdCells.end(); ++i_it) {
-    for (vector<TCell>::iterator i_it2 = manipulatedCells.begin(); i_it2 != manipulatedCells.end(); ++i_it2) {
-      if (HcalDetId(i_it->id()).ieta() == HcalDetId(i_it2->id()).ieta() &&
-          HcalDetId(i_it->id()).iphi() == HcalDetId(i_it2->id()).iphi() && HcalDetId(i_it2->id()).depth() <= 2) {
-        i_it->SetE(i_it->e() + i_it2->e());
+  for (auto& createdCell : createdCells) {
+    for (auto& manipulatedCell : manipulatedCells) {
+      if (HcalDetId(createdCell.id()).ieta() == HcalDetId(manipulatedCell.id()).ieta() &&
+          HcalDetId(createdCell.id()).iphi() == HcalDetId(manipulatedCell.id()).iphi() &&
+          HcalDetId(manipulatedCell.id()).depth() <= 2) {
+        createdCell.SetE(createdCell.e() + manipulatedCell.e());
       }
     }
   }
 
-  for (vector<TCell>::iterator i_it = createdCells.begin(); i_it != createdCells.end(); ++i_it) {
-    newCells.push_back(*i_it);
+  for (auto& createdCell : createdCells) {
+    newCells.push_back(createdCell);
   }
 
   // replace the original vectors with the new ones
@@ -329,9 +332,9 @@ void filterCellsInCone(std::vector<TCell>& selectCells,
                        const CaloGeometry* theCaloGeometry) {
   vector<TCell> filteredCells;
 
-  for (vector<TCell>::iterator it = selectCells.begin(); it != selectCells.end(); ++it) {
+  for (auto& selectCell : selectCells) {
     GlobalPoint recHitPoint;
-    DetId id = it->id();
+    DetId id = selectCell.id();
     if (id.det() == DetId::Hcal) {
       recHitPoint = (static_cast<const HcalGeometry*>(theCaloGeometry->getSubdetectorGeometry(id)))->getPosition(id);
     } else {
@@ -339,7 +342,7 @@ void filterCellsInCone(std::vector<TCell>& selectCells,
     }
 
     if (getDistInPlaneSimple(hitPositionHcal, recHitPoint) <= maxConeDist)
-      filteredCells.push_back(*it);
+      filteredCells.push_back(selectCell);
   }
 
   selectCells = filteredCells;

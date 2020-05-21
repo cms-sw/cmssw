@@ -105,26 +105,26 @@ void CosmicNavigationSchool::build(const GeometricSearchTracker* theInputTracker
 
   // Get barrel layers
   vector<BarrelDetLayer const*> const& blc = theTracker->barrelLayers();
-  for (auto i = blc.begin(); i != blc.end(); i++) {
-    if (conf.noPXB && GeomDetEnumerators::isTrackerPixel((*i)->subDetector()))
+  for (auto i : blc) {
+    if (conf.noPXB && GeomDetEnumerators::isTrackerPixel(i->subDetector()))
       continue;
-    if (conf.noTOB && (*i)->subDetector() == GeomDetEnumerators::TOB)
+    if (conf.noTOB && i->subDetector() == GeomDetEnumerators::TOB)
       continue;
-    if (conf.noTIB && (*i)->subDetector() == GeomDetEnumerators::TIB)
+    if (conf.noTIB && i->subDetector() == GeomDetEnumerators::TIB)
       continue;
-    theBarrelLayers.push_back((*i));
+    theBarrelLayers.push_back(i);
   }
 
   // get forward layers
   vector<ForwardDetLayer const*> const& flc = theTracker->forwardLayers();
-  for (auto i = flc.begin(); i != flc.end(); i++) {
-    if (conf.noPXF && GeomDetEnumerators::isTrackerPixel((*i)->subDetector()))
+  for (auto i : flc) {
+    if (conf.noPXF && GeomDetEnumerators::isTrackerPixel(i->subDetector()))
       continue;
-    if (conf.noTEC && (*i)->subDetector() == GeomDetEnumerators::TEC)
+    if (conf.noTEC && i->subDetector() == GeomDetEnumerators::TEC)
       continue;
-    if (conf.noTID && (*i)->subDetector() == GeomDetEnumerators::TID)
+    if (conf.noTID && i->subDetector() == GeomDetEnumerators::TID)
       continue;
-    theForwardLayers.push_back((*i));
+    theForwardLayers.push_back(i);
   }
 
   FDLI middle =
@@ -148,8 +148,8 @@ void CosmicNavigationSchool::build(const GeometricSearchTracker* theInputTracker
     if (!tobL.empty()) {
       if (conf.allSelf) {
         LogDebug("CosmicNavigationSchool") << " adding all TOB self search.";
-        for (auto lIt = tobL.begin(); lIt != tobL.end(); ++lIt)
-          dynamic_cast<SimpleNavigableLayer*>(theAllNavigableLayer[(*lIt)->seqNum()])->theSelfSearch = true;
+        for (auto lIt : tobL)
+          dynamic_cast<SimpleNavigableLayer*>(theAllNavigableLayer[lIt->seqNum()])->theSelfSearch = true;
       } else {
         SimpleNavigableLayer* navigableLayer =
             dynamic_cast<SimpleNavigableLayer*>(theAllNavigableLayer[tobL.front()->seqNum()]);
@@ -161,8 +161,8 @@ void CosmicNavigationSchool::build(const GeometricSearchTracker* theInputTracker
     if (!tibL.empty()) {
       if (conf.allSelf) {
         LogDebug("CosmicNavigationSchool") << " adding all TIB self search.";
-        for (auto lIt = tibL.begin(); lIt != tibL.end(); ++lIt)
-          dynamic_cast<SimpleNavigableLayer*>(theAllNavigableLayer[(*lIt)->seqNum()])->theSelfSearch = true;
+        for (auto lIt : tibL)
+          dynamic_cast<SimpleNavigableLayer*>(theAllNavigableLayer[lIt->seqNum()])->theSelfSearch = true;
       } else {
         SimpleNavigableLayer* navigableLayer =
             dynamic_cast<SimpleNavigableLayer*>(theAllNavigableLayer[tibL.front()->seqNum()]);
@@ -174,8 +174,8 @@ void CosmicNavigationSchool::build(const GeometricSearchTracker* theInputTracker
     if (!pxbL.empty()) {
       if (conf.allSelf) {
         LogDebug("CosmicNavigationSchool") << " adding all PXB self search.";
-        for (auto lIt = pxbL.begin(); lIt != pxbL.end(); ++lIt)
-          dynamic_cast<SimpleNavigableLayer*>(theAllNavigableLayer[(*lIt)->seqNum()])->theSelfSearch = true;
+        for (auto lIt : pxbL)
+          dynamic_cast<SimpleNavigableLayer*>(theAllNavigableLayer[lIt->seqNum()])->theSelfSearch = true;
       } else {
         SimpleNavigableLayer* navigableLayer =
             dynamic_cast<SimpleNavigableLayer*>(theAllNavigableLayer[pxbL.front()->seqNum()]);

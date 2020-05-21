@@ -29,8 +29,8 @@ std::vector<double> L1GctHfEtSumsLut::getThresholdsGeV() const { return m_lutFun
 std::vector<unsigned> L1GctHfEtSumsLut::getThresholdsGct() const {
   std::vector<unsigned> result;
   std::vector<double> thresholdsGeV = m_lutFunction->getThresholds();
-  for (std::vector<double>::const_iterator thr = thresholdsGeV.begin(); thr != thresholdsGeV.end(); thr++) {
-    result.push_back(static_cast<unsigned>((*thr) / (m_lutFunction->linearLsb())));
+  for (double thr : thresholdsGeV) {
+    result.push_back(static_cast<unsigned>(thr / (m_lutFunction->linearLsb())));
   }
   return result;
 }

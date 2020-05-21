@@ -201,9 +201,7 @@ void SiPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
                                  << regions_->nForwardModules() << " " << regions_->nModules();
   }
 
-  for (auto aFed = fedIds.begin(); aFed != fedIds.end(); ++aFed) {
-    int fedId = *aFed;
-
+  for (int fedId : fedIds) {
     if (!usePilotBlade && (fedId == 40))
       continue;  // skip pilot blade data
 

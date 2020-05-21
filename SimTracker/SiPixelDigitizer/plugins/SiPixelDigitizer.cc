@@ -206,13 +206,13 @@ namespace cms {
 
   void SiPixelDigitizer::accumulate(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
     // Step A: Get Inputs
-    for (vstring::const_iterator i = trackerContainers.begin(), iEnd = trackerContainers.end(); i != iEnd; ++i) {
+    for (const auto& trackerContainer : trackerContainers) {
       edm::Handle<std::vector<PSimHit> > simHits;
-      edm::InputTag tag(hitsProducer, *i);
+      edm::InputTag tag(hitsProducer, trackerContainer);
 
       iEvent.getByLabel(tag, simHits);
       unsigned int tofBin = PixelDigiSimLink::LowTof;
-      if ((*i).find(std::string("HighTof")) != std::string::npos)
+      if (trackerContainer.find(std::string("HighTof")) != std::string::npos)
         tofBin = PixelDigiSimLink::HighTof;
       accumulatePixelHits(simHits, crossingSimHitIndexOffset_[tag.encode()], tofBin, iSetup);
       // Now that the hits have been processed, I'll add the amount of hits in this crossing on to
@@ -229,13 +229,13 @@ namespace cms {
                                     edm::EventSetup const& iSetup,
                                     edm::StreamID const& streamID) {
     // Step A: Get Inputs
-    for (vstring::const_iterator i = trackerContainers.begin(), iEnd = trackerContainers.end(); i != iEnd; ++i) {
+    for (const auto& trackerContainer : trackerContainers) {
       edm::Handle<std::vector<PSimHit> > simHits;
-      edm::InputTag tag(hitsProducer, *i);
+      edm::InputTag tag(hitsProducer, trackerContainer);
 
       iEvent.getByLabel(tag, simHits);
       unsigned int tofBin = PixelDigiSimLink::LowTof;
-      if ((*i).find(std::string("HighTof")) != std::string::npos)
+      if (trackerContainer.find(std::string("HighTof")) != std::string::npos)
         tofBin = PixelDigiSimLink::HighTof;
       accumulatePixelHits(simHits, crossingSimHitIndexOffset_[tag.encode()], tofBin, iSetup);
       // Now that the hits have been processed, I'll add the amount of hits in this crossing on to

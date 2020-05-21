@@ -311,8 +311,8 @@ unsigned int MomentumDependentPedeLabeler::buildMomentumDependencyMap(AlignableT
     MomentumRangeVector MomentumRanges;
     float lower;
     float upper;
-    for (unsigned int iMomentum = 0; iMomentum < tempMomentumRanges.size(); ++iMomentum) {
-      std::vector<std::string> tokens = edm::tokenize(tempMomentumRanges[iMomentum], ":");
+    for (const auto &tempMomentumRange : tempMomentumRanges) {
+      std::vector<std::string> tokens = edm::tokenize(tempMomentumRange, ":");
 
       lower = strtod(tokens[0].c_str(), nullptr);
       upper = strtod(tokens[1].c_str(), nullptr);
@@ -400,9 +400,9 @@ unsigned int MomentumDependentPedeLabeler::buildMap(const align::Alignables &ali
                             200, 210, 220, 230, 240, 250, 260, 270};  // AT
 
   const size_t nBeams = sizeof(beamIds) / sizeof(beamIds[0]);
-  for (size_t iBeam = 0; iBeam < nBeams; ++iBeam) {
+  for (unsigned int beamId : beamIds) {
     //edm::LogInfo("Alignment") << "Las beam " << beamIds[iBeam] << " gets label " << id << ".";
-    theLasBeamToLabelMap[beamIds[iBeam]] = id;
+    theLasBeamToLabelMap[beamId] = id;
     id += theMaxNumParam;
   }
 

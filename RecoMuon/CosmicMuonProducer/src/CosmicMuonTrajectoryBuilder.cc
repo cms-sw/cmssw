@@ -167,9 +167,9 @@ MuonTrajectoryBuilder::TrajectoryContainer CosmicMuonTrajectoryBuilder::trajecto
 
   vector<DetWithState> detsWithStates;
   LogTrace(category_) << "Compatible layers: ";
-  for (vector<const DetLayer*>::const_iterator layer = navLayers.begin(); layer != navLayers.end(); layer++) {
-    LogTrace(category_) << debug.dumpMuonId((*layer)->basicComponents().front()->geographicalId())
-                        << debug.dumpLayer(*layer);
+  for (auto navLayer : navLayers) {
+    LogTrace(category_) << debug.dumpMuonId(navLayer->basicComponents().front()->geographicalId())
+                        << debug.dumpLayer(navLayer);
   }
 
   detsWithStates = navLayers.front()->compatibleDets(lastTsos, *propagator(), *(updator()->estimator()));
@@ -217,39 +217,38 @@ MuonTrajectoryBuilder::TrajectoryContainer CosmicMuonTrajectoryBuilder::trajecto
 
   LogTrace(category_) << "Begin forward fit " << navLayers.size();
 
-  for (vector<const DetLayer*>::const_iterator rnxtlayer = navLayers.begin(); rnxtlayer != navLayers.end();
-       ++rnxtlayer) {
+  for (auto navLayer : navLayers) {
     LogTrace(category_) << "new layer ";
     measL.clear();
-    LogTrace(category_) << debug.dumpMuonId((*rnxtlayer)->basicComponents().front()->geographicalId())
-                        << debug.dumpLayer(*rnxtlayer);
+    LogTrace(category_) << debug.dumpMuonId(navLayer->basicComponents().front()->geographicalId())
+                        << debug.dumpLayer(navLayer);
     LogTrace(category_) << "from lastTsos " << lastTsos.globalMomentum() << " at " << lastTsos.globalPosition();
 
-    measL = findBestMeasurements(*rnxtlayer, lastTsos, propagator(), (updator()->estimator()));
+    measL = findBestMeasurements(navLayer, lastTsos, propagator(), (updator()->estimator()));
 
     if (measL.empty() && (fabs(theService->magneticField()->inTesla(GlobalPoint(0, 0, 0)).z()) < 0.01) &&
         (theService->propagator("StraightLinePropagator").isValid())) {
       LogTrace(category_) << "try straight line propagator ";
       measL = findBestMeasurements(
-          *rnxtlayer, lastTsos, &*theService->propagator("StraightLinePropagator"), (updator()->estimator()));
+          navLayer, lastTsos, &*theService->propagator("StraightLinePropagator"), (updator()->estimator()));
     }
     if (measL.empty())
       continue;
 
-    for (vector<TrajectoryMeasurement>::const_iterator theMeas = measL.begin(); theMeas != measL.end(); ++theMeas) {
-      pair<bool, TrajectoryStateOnSurface> result = updator()->update((&*theMeas), theTraj, propagator());
+    for (const auto& theMeas : measL) {
+      pair<bool, TrajectoryStateOnSurface> result = updator()->update((&theMeas), theTraj, propagator());
 
       if (result.first) {
         LogTrace(category_) << "update ok ";
         incrementChamberCounters(
-            (*rnxtlayer), DTChamberUsedBack, CSCChamberUsedBack, RPCChamberUsedBack, TotalChamberUsedBack);
+            navLayer, DTChamberUsedBack, CSCChamberUsedBack, RPCChamberUsedBack, TotalChamberUsedBack);
         secondLast = lastTsos;
         if ((!theTraj.empty()) && result.second.isValid()) {
           lastTsos = result.second;
           LogTrace(category_) << "get new lastTsos here " << lastTsos.globalMomentum() << " at "
                               << lastTsos.globalPosition();
-        } else if ((theMeas)->predictedState().isValid())
-          lastTsos = (theMeas)->predictedState();
+        } else if (theMeas.->predictedState().isValid())
+          lastTsos = theMeas.->predictedState();
       }
     }
   }
@@ -303,13 +302,13 @@ MuonTrajectoryBuilder::TrajectoryContainer CosmicMuonTrajectoryBuilder::trajecto
 
     if (measL.empty()) {
       MuonTransientTrackingRecHit::MuonRecHitContainer tmpHits = theLayerMeasurements->recHits(*rnxtlayer);
-      for (MuonRecHitContainer::const_iterator ihit = tmpHits.begin(); ihit != tmpHits.end(); ++ihit) {
-        allUnusedHits.push_back(*ihit);
+      for (const auto& tmpHit : tmpHits) {
+        allUnusedHits.push_back(tmpHit);
       }
       continue;
     }
 
-    for (vector<TrajectoryMeasurement>::const_iterator theMeas = measL.begin(); theMeas != measL.end(); ++theMeas) {
+    for (const auto& theMeas : measL) {
       // if the part change, we need to reconsider the fit direction
       if (rnxtlayer != navLayers.begin()) {
         vector<const DetLayer*>::const_iterator lastlayer = rnxtlayer;
@@ -317,7 +316,7 @@ MuonTrajectoryBuilder::TrajectoryContainer CosmicMuonTrajectoryBuilder::trajecto
 
         if ((*rnxtlayer)->location() != (*lastlayer)->location()) {
           lastPos = lastTsos.globalPosition();
-          GlobalPoint thisPos = (theMeas)->predictedState().globalPosition();
+          GlobalPoint thisPos = theMeas.->predictedState().globalPosition();
           GlobalVector momDir = thisPos - lastPos;
           //         LogTrace("CosmicMuonTrajectoryBuilder")<<"momDir "<<momDir;
 
@@ -330,7 +329,7 @@ MuonTrajectoryBuilder::TrajectoryContainer CosmicMuonTrajectoryBuilder::trajecto
         }
         if (((*lastlayer)->location() == GeomDetEnumerators::endcap) &&
             ((*rnxtlayer)->location() == GeomDetEnumerators::endcap) &&
-            (lastTsos.globalPosition().z() * (theMeas)->predictedState().globalPosition().z() < 0)) {
+            (lastTsos.globalPosition().z() * theMeas.->predictedState().globalPosition().z() < 0)) {
           theBKUpdator->setFitDirection(insideOut);
         }
       }
@@ -338,20 +337,20 @@ MuonTrajectoryBuilder::TrajectoryContainer CosmicMuonTrajectoryBuilder::trajecto
       //       if (theBKUpdator->fitDirection() == insideOut)
       //          LogTrace("CosmicMuonTrajectoryBuilder")<<"Fit direction insideOut";
       //       else LogTrace("CosmicMuonTrajectoryBuilder")<<"Fit direction outsideIn";
-      pair<bool, TrajectoryStateOnSurface> bkresult = backwardUpdator()->update((&*theMeas), myTraj, propagator());
+      pair<bool, TrajectoryStateOnSurface> bkresult = backwardUpdator()->update((&theMeas), myTraj, propagator());
 
       if (bkresult.first) {
         incrementChamberCounters(
             (*rnxtlayer), DTChamberUsedBack, CSCChamberUsedBack, RPCChamberUsedBack, TotalChamberUsedBack);
 
         if (theTraversingMuonFlag) {
-          MuonRecHitContainer tmpUnusedHits = unusedHits(*rnxtlayer, *theMeas);
+          MuonRecHitContainer tmpUnusedHits = unusedHits(*rnxtlayer, theMeas);
           allUnusedHits.insert(allUnusedHits.end(), tmpUnusedHits.begin(), tmpUnusedHits.end());
         }
         if ((!myTraj.empty()) && bkresult.second.isValid())
           lastTsos = bkresult.second;
-        else if ((theMeas)->predictedState().isValid())
-          lastTsos = (theMeas)->predictedState();
+        else if (theMeas.->predictedState().isValid())
+          lastTsos = theMeas.->predictedState();
       }
     }
   }
@@ -465,10 +464,10 @@ MuonTransientTrackingRecHit::MuonRecHitContainer CosmicMuonTrajectoryBuilder::un
     const DetLayer* layer, const TrajectoryMeasurement& meas) const {
   MuonTransientTrackingRecHit::MuonRecHitContainer tmpHits = theLayerMeasurements->recHits(layer);
   MuonRecHitContainer result;
-  for (MuonRecHitContainer::const_iterator ihit = tmpHits.begin(); ihit != tmpHits.end(); ++ihit) {
-    if ((*ihit)->geographicalId() != meas.recHit()->geographicalId()) {
-      result.push_back(*ihit);
-      LogTrace(category_) << "Unused hit: " << (*ihit)->globalPosition() << endl;
+  for (const auto& tmpHit : tmpHits) {
+    if (tmpHit->geographicalId() != meas.recHit()->geographicalId()) {
+      result.push_back(tmpHit);
+      LogTrace(category_) << "Unused hit: " << tmpHit->globalPosition() << endl;
     }
   }
 
@@ -535,26 +534,25 @@ void CosmicMuonTrajectoryBuilder::build(const TrajectoryStateOnSurface& ts,
   LogTrace(category_) << "tsos  " << lastTsos.globalPosition();
   lastTsos.rescaleError(10.);
   vector<TrajectoryMeasurement> measL;
-  for (vector<const DetLayer*>::const_iterator rnxtlayer = navLayers.begin(); rnxtlayer != navLayers.end();
-       ++rnxtlayer) {
+  for (auto navLayer : navLayers) {
     measL.clear();
-    measL = findBestMeasurements(*rnxtlayer, lastTsos, propagator(), (backwardUpdator()->estimator()));
+    measL = findBestMeasurements(navLayer, lastTsos, propagator(), (backwardUpdator()->estimator()));
 
     if (measL.empty())
       continue;
 
-    for (vector<TrajectoryMeasurement>::const_iterator theMeas = measL.begin(); theMeas != measL.end(); ++theMeas) {
-      pair<bool, TrajectoryStateOnSurface> bkresult = backwardUpdator()->update((&*theMeas), traj, propagator());
+    for (const auto& theMeas : measL) {
+      pair<bool, TrajectoryStateOnSurface> bkresult = backwardUpdator()->update((&theMeas), traj, propagator());
       if (bkresult.first) {
-        LogTrace(category_) << "update ok : " << (theMeas)->recHit()->globalPosition();
+        LogTrace(category_) << "update ok : " << theMeas.->recHit()->globalPosition();
 
         incrementChamberCounters(
-            (*rnxtlayer), DTChamberUsedBack, CSCChamberUsedBack, RPCChamberUsedBack, TotalChamberUsedBack);
+            navLayer, DTChamberUsedBack, CSCChamberUsedBack, RPCChamberUsedBack, TotalChamberUsedBack);
 
         if ((!traj.empty()) && bkresult.second.isValid())
           lastTsos = bkresult.second;
-        else if ((theMeas)->predictedState().isValid())
-          lastTsos = (theMeas)->predictedState();
+        else if (theMeas.->predictedState().isValid())
+          lastTsos = theMeas.->predictedState();
       }
     }
   }
@@ -656,9 +654,9 @@ void CosmicMuonTrajectoryBuilder::selectHits(MuonTransientTrackingRecHit::MuonRe
   }
 
   i = 0;
-  for (MuonRecHitContainer::const_iterator ihit = hits.begin(); ihit != hits.end(); ++ihit) {
+  for (const auto& hit : hits) {
     if (keep[i])
-      tmp.push_back(*ihit);
+      tmp.push_back(hit);
     i++;
   }
 
@@ -756,8 +754,8 @@ void CosmicMuonTrajectoryBuilder::reverseTrajectoryPropagationDirection(Trajecto
   Trajectory newTraj(traj.seed(), newDir);
   const std::vector<TrajectoryMeasurement>& meas = traj.measurements();
 
-  for (std::vector<TrajectoryMeasurement>::const_iterator itm = meas.begin(); itm != meas.end(); ++itm) {
-    newTraj.push(*itm);
+  for (const auto& mea : meas) {
+    newTraj.push(mea);
   }
 
   while (!traj.empty()) {
@@ -812,29 +810,29 @@ void CosmicMuonTrajectoryBuilder::estimateDirection(Trajectory& traj) const {
 void CosmicMuonTrajectoryBuilder::getDirectionByTime(Trajectory& traj) const {
   TransientTrackingRecHit::ConstRecHitContainer hits = traj.recHits();
   LogTrace(category_) << "getDirectionByTime" << endl;
-  for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++) {
-    if (!(*ir)->isValid()) {
+  for (const auto& hit : hits) {
+    if (!hit->isValid()) {
       LogTrace(category_) << "invalid RecHit" << endl;
       continue;
     }
 
-    const GlobalPoint& pos = (*ir)->globalPosition();
-    LogTrace(category_) << "pos" << pos << "radius " << pos.perp() << "  dim " << (*ir)->dimension() << "  det "
-                        << (*ir)->det()->geographicalId().det() << "  sub det " << (*ir)->det()->subDetector() << endl;
+    const GlobalPoint& pos = hit->globalPosition();
+    LogTrace(category_) << "pos" << pos << "radius " << pos.perp() << "  dim " << hit->dimension() << "  det "
+                        << hit->det()->geographicalId().det() << "  sub det " << hit->det()->subDetector() << endl;
 
-    if ((*ir)->det()->geographicalId().det() == 2 && (*ir)->det()->subDetector() == 6) {
+    if (hit->det()->geographicalId().det() == 2 && hit->det()->subDetector() == 6) {
       //      const CSCRecHit2D* iCSC = dynamic_cast<const CSCRecHit2D*>(&**ir);
       //      if (iCSC) LogTrace(category_)<<"csc from cast tpeak "<<iCSC->tpeak();
-      CSCRecHit2DCollection::range thisrange = cschits_->get(CSCDetId((*ir)->geographicalId()));
+      CSCRecHit2DCollection::range thisrange = cschits_->get(CSCDetId(hit->geographicalId()));
       for (CSCRecHit2DCollection::const_iterator rechit = thisrange.first; rechit != thisrange.second; ++rechit) {
         if ((*rechit).isValid())
           LogTrace(category_) << "csc from collection tpeak " << (*rechit).tpeak();
       }
     }
-    if ((*ir)->det()->geographicalId().det() == 2 && (*ir)->det()->subDetector() == 7) {
+    if (hit->det()->geographicalId().det() == 2 && hit->det()->subDetector() == 7) {
       //      const DTRecHit1D* iDT = dynamic_cast<const DTRecHit1D*>(&**ir);
       //      if (iDT) LogTrace(category_)<<"dt digitime "<<iDT->digiTime();
-      DTRecHitCollection::range thisrange = dthits_->get(DTLayerId((*ir)->geographicalId()));
+      DTRecHitCollection::range thisrange = dthits_->get(DTLayerId(hit->geographicalId()));
       for (DTRecHitCollection::const_iterator rechit = thisrange.first; rechit != thisrange.second; ++rechit) {
         if ((*rechit).isValid())
           LogTrace(category_) << "dt from collection digitime " << (*rechit).digiTime();
@@ -860,10 +858,8 @@ std::vector<TrajectoryMeasurement> CosmicMuonTrajectoryBuilder::findBestMeasurem
     std::vector<TrajectoryMeasurementGroup> measurementGroups =
         theLayerMeasurements->groupedMeasurements(layer, tsos, *propagator, *estimator);
 
-    for (std::vector<TrajectoryMeasurementGroup>::const_iterator tmGroupItr = measurementGroups.begin();
-         tmGroupItr != measurementGroups.end();
-         ++tmGroupItr) {
-      measurements = tmGroupItr->measurements();
+    for (const auto& measurementGroup : measurementGroups) {
+      measurements = measurementGroup.measurements();
       const TrajectoryMeasurement* bestMeasurement =
           theBestMeasurementFinder->findBestMeasurement(measurements, propagator);
 

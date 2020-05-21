@@ -214,18 +214,18 @@ std::unique_ptr<L1RCTChannelMask> L1RCTChannelMaskOnlineProd::newObject(const st
                                                                      m_omdsReader.singleAttribute(objectKey));
 
   int crateNum = 0;
-  for (std::vector<std::string>::iterator crate = crateIDStrings.begin(); crate != crateIDStrings.end(); ++crate) {
+  for (auto& crateIDString : crateIDStrings) {
     //       std::cout << "crate conf " << *crate <<std::endl;
     l1t::OMDSReader::QueryResults cardConfResults = m_omdsReader.basicQuery(
         cardMaskStrings,
         rctSchema,
         "CRATE_CONF_DUMMY",
         "CRATE_CONF_DUMMY.CRATE_CONF",
-        m_omdsReader.basicQuery(*crate, rctSchema, "RCT_CRATE_CONF", "RCT_CRATE_CONF.RCT_KEY", crate_conf));
+        m_omdsReader.basicQuery(crateIDString, rctSchema, "RCT_CRATE_CONF", "RCT_CRATE_CONF.RCT_KEY", crate_conf));
     bool extantCard[8];
     int cardNum = 0;
-    for (std::vector<std::string>::iterator card = cardMaskStrings.begin(); card != cardMaskStrings.end(); ++card) {
-      cardConfResults.fillVariable(*card, extantCard[cardNum]);
+    for (auto& cardMaskString : cardMaskStrings) {
+      cardConfResults.fillVariable(cardMaskString, extantCard[cardNum]);
 
       if (!extantCard[cardNum]) {
         switch (cardNum) {

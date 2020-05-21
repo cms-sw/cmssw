@@ -681,11 +681,11 @@ void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::Jet> *jets) {
   std::vector<std::vector<l1t::Jet> > jetEtaPos(41, std::vector<l1t::Jet>(18, tempJet));
   std::vector<std::vector<l1t::Jet> > jetEtaNeg(41, std::vector<l1t::Jet>(18, tempJet));
 
-  for (unsigned int iJet = 0; iJet < jets->size(); iJet++) {
-    if (jets->at(iJet).hwEta() > 0)
-      jetEtaPos.at(jets->at(iJet).hwEta() - 1).at((jets->at(iJet).hwPhi() - 1) / 4) = jets->at(iJet);
+  for (auto &jet : *jets) {
+    if (jet.hwEta() > 0)
+      jetEtaPos.at(jet.hwEta() - 1).at((jet.hwPhi() - 1) / 4) = jet;
     else
-      jetEtaNeg.at(-(jets->at(iJet).hwEta() + 1)).at((jets->at(iJet).hwPhi() - 1) / 4) = jets->at(iJet);
+      jetEtaNeg.at(-(jet.hwEta() + 1)).at((jet.hwPhi() - 1) / 4) = jet;
   }
 
   AccumulatingSort<l1t::Jet> etaPosSorter(7);
@@ -741,11 +741,11 @@ void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::EGamma> *egs) {
   std::vector<std::vector<l1t::EGamma> > jetEtaPos(41, std::vector<l1t::EGamma>(18, tempEGamma));
   std::vector<std::vector<l1t::EGamma> > jetEtaNeg(41, std::vector<l1t::EGamma>(18, tempEGamma));
 
-  for (unsigned int iEGamma = 0; iEGamma < egs->size(); iEGamma++) {
-    if (egs->at(iEGamma).hwEta() > 0)
-      jetEtaPos.at(egs->at(iEGamma).hwEta() - 1).at((egs->at(iEGamma).hwPhi() - 1) / 4) = egs->at(iEGamma);
+  for (auto &eg : *egs) {
+    if (eg.hwEta() > 0)
+      jetEtaPos.at(eg.hwEta() - 1).at((eg.hwPhi() - 1) / 4) = eg;
     else
-      jetEtaNeg.at(-(egs->at(iEGamma).hwEta() + 1)).at((egs->at(iEGamma).hwPhi() - 1) / 4) = egs->at(iEGamma);
+      jetEtaNeg.at(-(eg.hwEta() + 1)).at((eg.hwPhi() - 1) / 4) = eg;
   }
 
   AccumulatingSort<l1t::EGamma> etaPosSorter(7);
@@ -801,11 +801,11 @@ void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::Tau> *taus) {
   std::vector<std::vector<l1t::Tau> > jetEtaPos(41, std::vector<l1t::Tau>(18, tempTau));
   std::vector<std::vector<l1t::Tau> > jetEtaNeg(41, std::vector<l1t::Tau>(18, tempTau));
 
-  for (unsigned int iTau = 0; iTau < taus->size(); iTau++) {
-    if (taus->at(iTau).hwEta() > 0)
-      jetEtaPos.at(taus->at(iTau).hwEta() - 1).at((taus->at(iTau).hwPhi() - 1) / 4) = taus->at(iTau);
+  for (auto &tau : *taus) {
+    if (tau.hwEta() > 0)
+      jetEtaPos.at(tau.hwEta() - 1).at((tau.hwPhi() - 1) / 4) = tau;
     else
-      jetEtaNeg.at(-(taus->at(iTau).hwEta() + 1)).at((taus->at(iTau).hwPhi() - 1) / 4) = taus->at(iTau);
+      jetEtaNeg.at(-(tau.hwEta() + 1)).at((tau.hwPhi() - 1) / 4) = tau;
   }
 
   AccumulatingSort<l1t::Tau> etaPosSorter(7);

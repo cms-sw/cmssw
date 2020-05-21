@@ -26,8 +26,8 @@ void SuperClusterShapeAlgo::Calculate_Covariances(const reco::SuperCluster& pass
 
   const std::vector<std::pair<DetId, float> >& detId = passedCluster.hitsAndFractions();
   // Loop over recHits associated with the given SuperCluster
-  for (std::vector<std::pair<DetId, float> >::const_iterator hit = detId.begin(); hit != detId.end(); ++hit) {
-    EcalRecHitCollection::const_iterator rHit = recHits_->find((*hit).first);
+  for (const auto& hit : detId) {
+    EcalRecHitCollection::const_iterator rHit = recHits_->find(hit.first);
     //FIXME: THIS IS JUST A WORKAROUND A FIX SHOULD BE APPLIED
     if (rHit == recHits_->end()) {
       continue;
@@ -39,7 +39,7 @@ void SuperClusterShapeAlgo::Calculate_Covariances(const reco::SuperCluster& pass
     }
     GlobalPoint position = this_cell->getPosition();
     //take into account energy fractions
-    double energyHit = rHit->energy() * hit->second;
+    double energyHit = rHit->energy() * hit.second;
 
     //form differences
     double dPhi = position.phi() - scPhi;

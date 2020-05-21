@@ -104,10 +104,10 @@ void DTTriggerLutTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMStore:
   }
 
   // Loop over Trig & Hw sources
-  for (vector<string>::const_iterator iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr) {
-    trigSource = (*iTr);
-    for (vector<string>::const_iterator iHw = hwSources.begin(); iHw != hwSources.end(); ++iHw) {
-      hwSource = (*iHw);
+  for (const auto& trigSource : trigSources) {
+    trigSource = trigSource;
+    for (const auto& hwSource : hwSources) {
+      hwSource = hwSource;
       vector<const DTChamber*>::const_iterator chIt = muonGeom->chambers().begin();
       vector<const DTChamber*>::const_iterator chEnd = muonGeom->chambers().end();
       for (; chIt != chEnd; ++chIt) {
@@ -231,10 +231,10 @@ void DTTriggerLutTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMStore:
   }
 
   // Barrel Summary Plots
-  for (vector<string>::const_iterator iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr) {
-    trigSource = (*iTr);
-    for (vector<string>::const_iterator iHw = hwSources.begin(); iHw != hwSources.end(); ++iHw) {
-      hwSource = (*iHw);
+  for (const auto& trigSource : trigSources) {
+    trigSource = trigSource;
+    for (const auto& hwSource : hwSources) {
+      hwSource = hwSource;
       for (int wh = -2; wh <= 2; ++wh) {
         std::map<std::string, MonitorElement*>* innerME = &(whME[wh]);
 

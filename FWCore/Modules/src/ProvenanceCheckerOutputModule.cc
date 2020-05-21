@@ -146,18 +146,15 @@ namespace edm {
 
     if (!missingFromMapper.empty()) {
       LogError("ProvenanceChecker") << "Missing the following BranchIDs from ProductProvenanceRetriever\n";
-      for (std::set<BranchID>::iterator it = missingFromMapper.begin(), itEnd = missingFromMapper.end(); it != itEnd;
-           ++it) {
-        LogProblem("ProvenanceChecker") << *it << " " << *(idToBranchDescriptions[*it]);
+      for (auto it : missingFromMapper) {
+        LogProblem("ProvenanceChecker") << it << " " << *(idToBranchDescriptions[it]);
       }
     }
 
     if (!missingProductProvenance.empty()) {
       LogError("ProvenanceChecker") << "The ProductResolvers for the following BranchIDs have no ProductProvenance\n";
-      for (std::set<BranchID>::iterator it = missingProductProvenance.begin(), itEnd = missingProductProvenance.end();
-           it != itEnd;
-           ++it) {
-        LogProblem("ProvenanceChecker") << *it << " " << *(idToBranchDescriptions[*it]);
+      for (auto it : missingProductProvenance) {
+        LogProblem("ProvenanceChecker") << it << " " << *(idToBranchDescriptions[it]);
       }
     }
 

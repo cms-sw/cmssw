@@ -24,11 +24,11 @@ TH1D* AverageRunBadChannels(TFile& ff, const char* module, const char* histo, co
   std::sort(runs.begin(), runs.end());
 
   {
-    for (unsigned int i = 0; i < runs.size(); ++i) {
+    for (unsigned int run : runs) {
       char runlabel[100];
-      sprintf(runlabel, "%d", runs[i]);
+      sprintf(runlabel, "%d", run);
       char runpath[100];
-      sprintf(runpath, "run_%d", runs[i]);
+      sprintf(runpath, "run_%d", run);
       camult.setPath(runpath);
 
       TProfile* multvstime = nullptr;

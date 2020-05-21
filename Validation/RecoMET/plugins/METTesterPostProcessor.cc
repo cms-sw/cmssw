@@ -30,11 +30,11 @@ void METTesterPostProcessor::dqmEndJob(DQMStore::IBooker &ibook_, DQMStore::IGet
   int nBins = 11;
   float bins[] = {0., 20., 40., 60., 80., 100., 150., 200., 300., 400., 500., 1000};
   // loop over met subdirectories
-  for (int i = 0; i < int(met_dirs.size()); i++) {
-    ibook_.setCurrentFolder(met_dirs[i]);
+  for (const auto &met_dir : met_dirs) {
+    ibook_.setCurrentFolder(met_dir);
     mMETDifference_GenMETTrue_METResolution =
         ibook_.book1D("METResolution_GenMETTrue_InMETBins", "METResolution_GenMETTrue_InMETBins", nBins, bins);
-    FillMETRes(met_dirs[i], iget_);
+    FillMETRes(met_dir, iget_);
   }
 }
 

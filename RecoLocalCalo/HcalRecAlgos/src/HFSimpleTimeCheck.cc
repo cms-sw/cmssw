@@ -74,9 +74,9 @@ unsigned HFSimpleTimeCheck::mapStatusIntoIndex(const unsigned states[2]) const {
   eStates[0] = states[0];
   eStates[1] = states[1];
   if (!rejectAllFailures_)
-    for (unsigned i = 0; i < 2; ++i)
-      if (eStates[i] == HFAnodeStatus::FAILED_TIMING || eStates[i] == HFAnodeStatus::FAILED_OTHER)
-        eStates[i] = HFAnodeStatus::OK;
+    for (unsigned int& eState : eStates)
+      if (eState == HFAnodeStatus::FAILED_TIMING || eState == HFAnodeStatus::FAILED_OTHER)
+        eState = HFAnodeStatus::OK;
   if (eStates[0] == HFAnodeStatus::OK)
     return eStates[1];
   else if (eStates[1] == HFAnodeStatus::OK)

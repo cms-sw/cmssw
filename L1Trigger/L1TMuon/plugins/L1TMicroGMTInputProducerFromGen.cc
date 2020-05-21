@@ -124,8 +124,7 @@ void L1TMicroGMTInputProducerFromGen::produce(edm::Event& iEvent, const edm::Eve
   // Make sure that you can get genParticles
   if (iEvent.getByToken(genParticlesToken, genParticles)) {
     int cntr = 0;
-    for (auto it = genParticles->cbegin(); it != genParticles->cend(); ++it) {
-      const reco::Candidate& mcParticle = *it;
+    for (const auto& mcParticle : *genParticles) {
       if (abs(mcParticle.pdgId()) == 13 && mcParticle.status() == 1)
         muIndices.push_back(cntr);
       cntr++;
@@ -145,12 +144,11 @@ void L1TMicroGMTInputProducerFromGen::produce(edm::Event& iEvent, const edm::Eve
 
   double twoPi = TMath::Pi() * 2.;
 
-  for (auto it = muIndices.begin(); it != muIndices.end(); ++it) {
+  for (int gen_idx : muIndices) {
     // don't really care which muons are taken...
     // guess there ain't 108 generated anyways
     if (muCntr == m_maxMuons)
       break;
-    int gen_idx = *it;
     const reco::Candidate& mcMuon = genParticles->at(gen_idx);
     double eta = mcMuon.eta();
     if (fabs(eta) > 2.45)

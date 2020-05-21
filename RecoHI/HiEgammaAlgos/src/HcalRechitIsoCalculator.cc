@@ -51,8 +51,7 @@ double HcalRechitIsoCalculator::getHcalRechitIso(const reco::SuperClusterRef clu
 
   double TotalEt = 0;
 
-  for (size_t index = 0; index < fHBHERecHits_->size(); index++) {
-    const HBHERecHit &rechit = (*fHBHERecHits_)[index];
+  for (const auto &rechit : *fHBHERecHits_) {
     const DetId &detid = rechit.id();
     const GlobalPoint &hitpoint = geometry_->getPosition(detid);
     double eta = hitpoint.eta();
@@ -84,8 +83,7 @@ double HcalRechitIsoCalculator::getBkgSubHcalRechitIso(const reco::SuperClusterR
   double SClusterEta = cluster->eta();
   double TotalEt = 0;
 
-  for (size_t index = 0; index < fHBHERecHits_->size(); index++) {
-    const HBHERecHit &rechit = (*fHBHERecHits_)[index];
+  for (const auto &rechit : *fHBHERecHits_) {
     const DetId &detid = rechit.id();
     const GlobalPoint &hitpoint = geometry_->getPosition(detid);
     double eta = hitpoint.eta();

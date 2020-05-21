@@ -59,17 +59,17 @@ void L2TauPixelTrackMatch::produce(edm::Event& ev, const edm::EventSetup& es) {
   // *** Selects interesting tracks ***
 
   vector<TinyTrack> good_tracks;
-  for (TrackCollection::const_iterator itrk = tracksHandle->begin(); itrk != tracksHandle->end(); ++itrk) {
-    if (itrk->pt() < m_trackMinPt)
+  for (const auto& itrk : *tracksHandle) {
+    if (itrk.pt() < m_trackMinPt)
       continue;
-    if (std::abs(itrk->eta()) > m_jetMaxEta + m_deltaR)
+    if (std::abs(itrk.eta()) > m_jetMaxEta + m_deltaR)
       continue;
 
     TinyTrack trk;
-    trk.pt = itrk->pt();
-    trk.phi = itrk->phi();
-    trk.eta = itrk->eta();
-    double dz = itrk->dz(beam_spot);
+    trk.pt = itrk.pt();
+    trk.phi = itrk.phi();
+    trk.eta = itrk.eta();
+    double dz = itrk.dz(beam_spot);
     trk.vtx = math::XYZPoint(bs.x(dz), bs.y(dz), dz);
     good_tracks.push_back(trk);
   }
@@ -90,13 +90,13 @@ void L2TauPixelTrackMatch::produce(edm::Event& ev, const edm::EventSetup& es) {
 
       size_t n0 = new_tau_jets->size();
 
-      for (vector<TinyTrack>::const_iterator itrk = good_tracks.begin(); itrk != good_tracks.end(); ++itrk) {
+      for (const auto& good_track : good_tracks) {
         DBG_PRINT(cout << "  trk pt,eta,phi,z: " << itrk->pt << " " << itrk->eta << " " << itrk->phi << " "
                        << itrk->vtx.z() << " \t\t ");
 
-        math::XYZTLorentzVector new_jet_dir = Jet::physicsP4(itrk->vtx, *jet, itrk->vtx);
-        float dphi = reco::deltaPhi(new_jet_dir.phi(), itrk->phi);
-        float deta = new_jet_dir.eta() - itrk->eta;
+        math::XYZTLorentzVector new_jet_dir = Jet::physicsP4(good_track.vtx, *jet, good_track.vtx);
+        float dphi = reco::deltaPhi(new_jet_dir.phi(), good_track.phi);
+        float deta = new_jet_dir.eta() - good_track.eta;
 
         DBG_PRINT(cout << " jet pt,deta,dphi,dr: " << jet->pt() << " " << deta << " " << dphi << " "
                        << sqrt(dphi * dphi + deta * deta) << endl);
@@ -108,7 +108,7 @@ void L2TauPixelTrackMatch::produce(edm::Event& ev, const edm::EventSetup& es) {
 
         // create a jet copy and assign a new vertex to it
         CaloJet new_jet = *jet;
-        new_jet.setVertex(itrk->vtx);
+        new_jet.setVertex(good_track.vtx);
 
         new_tau_jets->push_back(new_jet);
       }

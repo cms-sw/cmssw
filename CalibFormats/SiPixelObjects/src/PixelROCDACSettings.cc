@@ -979,8 +979,8 @@ unsigned int PixelROCDACSettings::getDac(string dacName) const {
 
 string PixelROCDACSettings::ToLower(string generic) {
   string result;
-  for (unsigned int i = 0; i < generic.length(); i++) {
-    result.append(1, (char)tolower(generic[i]));
+  for (char i : generic) {
+    result.append(1, (char)tolower(i));
   }
   return result;
 }

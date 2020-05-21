@@ -288,8 +288,8 @@ void IsoTrackCalibration::analyze(const edm::Event &iEvent, const edm::EventSetu
         for (unsigned int iHLT = 0; iHLT < triggerResults->size(); iHLT++) {
           int hlt = triggerResults->accept(iHLT);
           if (hlt > 0) {
-            for (unsigned int i = 0; i < trigNames_.size(); ++i) {
-              if (triggerNames_[iHLT].find(trigNames_[i]) != std::string::npos) {
+            for (const auto &trigName : trigNames_) {
+              if (triggerNames_[iHLT].find(trigName) != std::string::npos) {
                 triggerOK = true;
 #ifdef DebugLog
                 if (verbosity_ % 10 > 0)
@@ -391,8 +391,8 @@ void IsoTrackCalibration::analyze(const edm::Event &iEvent, const edm::EventSetu
                                     ids,
                                     *t_HitEnergies);
           t_DetIds->reserve(ids.size());
-          for (unsigned int k = 0; k < ids.size(); ++k) {
-            t_DetIds->push_back(ids[k].rawId());
+          for (auto &id : ids) {
+            t_DetIds->push_back(id.rawId());
           }
           //----- hcal energy in the extended cone 1 (a_coneR+10) --------------
           t_eHcal10 = spr::eCone_hcal(geo,
@@ -405,8 +405,8 @@ void IsoTrackCalibration::analyze(const edm::Event &iEvent, const edm::EventSetu
                                       ids1,
                                       *t_HitEnergies1);
           t_DetIds1->reserve(ids1.size());
-          for (unsigned int k = 0; k < ids1.size(); ++k) {
-            t_DetIds1->push_back(ids1[k].rawId());
+          for (auto &k : ids1) {
+            t_DetIds1->push_back(k.rawId());
           }
           //----- hcal energy in the extended cone 3 (a_coneR+30) --------------
           t_eHcal30 = spr::eCone_hcal(geo,
@@ -419,8 +419,8 @@ void IsoTrackCalibration::analyze(const edm::Event &iEvent, const edm::EventSetu
                                       ids3,
                                       *t_HitEnergies3);
           t_DetIds3->reserve(ids3.size());
-          for (unsigned int k = 0; k < ids3.size(); ++k) {
-            t_DetIds3->push_back(ids3[k].rawId());
+          for (auto &k : ids3) {
+            t_DetIds3->push_back(k.rawId());
           }
 
           t_p = pTrack->p();
@@ -499,13 +499,13 @@ void IsoTrackCalibration::beginRun(edm::Run const &iRun, edm::EventSetup const &
     changed_ = false;
     edm::LogInfo("HcalIsoTrack") << "New trigger menu found !!!";
     const unsigned int n(hltConfig_.size());
-    for (unsigned itrig = 0; itrig < trigNames_.size(); itrig++) {
-      unsigned int triggerindx = hltConfig_.triggerIndex(trigNames_[itrig]);
+    for (const auto &trigName : trigNames_) {
+      unsigned int triggerindx = hltConfig_.triggerIndex(trigName);
       if (triggerindx >= n) {
-        edm::LogWarning("HcalIsoTrack") << trigNames_[itrig] << " " << triggerindx << " does not exist in "
+        edm::LogWarning("HcalIsoTrack") << trigName << " " << triggerindx << " does not exist in "
                                         << "the current menu";
       } else {
-        edm::LogInfo("HcalIsoTrack") << trigNames_[itrig] << " " << triggerindx << " exists";
+        edm::LogInfo("HcalIsoTrack") << trigName << " " << triggerindx << " exists";
       }
     }
   }

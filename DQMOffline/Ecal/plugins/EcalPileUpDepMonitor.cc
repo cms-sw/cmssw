@@ -312,10 +312,8 @@ void EcalPileUpDepMonitor::analyze(const edm::Event &e, const edm::EventSetup &)
   //--------- Fill Isolation -----------------
 
   if (electronCollection_h.isValid()) {
-    for (reco::GsfElectronCollection::const_iterator recoElectron = electronCollection_h->begin();
-         recoElectron != electronCollection_h->end();
-         recoElectron++) {
-      double IsoEcal = recoElectron->dr03EcalRecHitSumEt();  /// recoElectron->et()
+    for (const auto &recoElectron : *electronCollection_h) {
+      double IsoEcal = recoElectron.dr03EcalRecHitSumEt();  /// recoElectron->et()
       emIso_PV->Fill(PVCollection_h->size(), IsoEcal);
       emIso->Fill(IsoEcal);
     }
@@ -324,10 +322,8 @@ void EcalPileUpDepMonitor::analyze(const edm::Event &e, const edm::EventSetup &)
   // fill super clusters EE
   scEE_PV->Fill(PVCollection_h->size(), superClusters_EE_h->size());
 
-  for (reco::SuperClusterCollection::const_iterator itSC = superClusters_EE_h->begin();
-       itSC != superClusters_EE_h->end();
-       ++itSC) {
-    double scEE_Et = itSC->energy() * sin(2. * atan(exp(-itSC->position().eta())));
+  for (const auto &itSC : *superClusters_EE_h) {
+    double scEE_Et = itSC.energy() * sin(2. * atan(exp(-itSC.position().eta())));
     //    double scEE_E=itSC->energy();
 
     // fill super cluster endcap eta/phi
@@ -339,13 +335,13 @@ void EcalPileUpDepMonitor::analyze(const edm::Event &e, const edm::EventSetup &)
     CaloTopology const *p_topology = caloTop.product();  // get calo topology
     const EcalRecHitCollection *eeRecHits = RecHitsEE.product();
 
-    reco::BasicCluster const &seedCluster(*itSC->seed());
+    reco::BasicCluster const &seedCluster(*itSC.seed());
     std::vector<float> cov = EcalClusterTools::localCovariances(seedCluster, eeRecHits, p_topology);
     float sigmaIetaIeta = std::sqrt(cov[0]);
     float sigmaIetaIphi = cov[1];
 
     float e3x3 = EcalClusterTools::e3x3(seedCluster, eeRecHits, p_topology);
-    float r9 = e3x3 / itSC->rawEnergy();
+    float r9 = e3x3 / itSC.rawEnergy();
 
     r9_EE->Fill(r9);
     scSigmaIetaIeta_EE->Fill(sigmaIetaIeta);
@@ -367,10 +363,8 @@ void EcalPileUpDepMonitor::analyze(const edm::Event &e, const edm::EventSetup &)
   }
   scEB_PV->Fill(PVCollection_h->size(), superClusters_EB_h->size());
 
-  for (reco::SuperClusterCollection::const_iterator itSC = superClusters_EB_h->begin();
-       itSC != superClusters_EB_h->end();
-       ++itSC) {
-    double scEB_Et = itSC->energy() * sin(2. * atan(exp(-itSC->position().eta())));  // super cluster transverse energy
+  for (const auto &itSC : *superClusters_EB_h) {
+    double scEB_Et = itSC.energy() * sin(2. * atan(exp(-itSC.position().eta())));  // super cluster transverse energy
     //    double scEB_E= itSC->energy(); // super cluster energy
 
     // fill super cluster Barrel eta/phi
@@ -382,13 +376,13 @@ void EcalPileUpDepMonitor::analyze(const edm::Event &e, const edm::EventSetup &)
     CaloTopology const *p_topology = caloTop.product();  // get calo topology
     const EcalRecHitCollection *ebRecHits = RecHitsEB.product();
 
-    reco::BasicCluster const &seedCluster(*itSC->seed());
+    reco::BasicCluster const &seedCluster(*itSC.seed());
     std::vector<float> cov = EcalClusterTools::localCovariances(seedCluster, ebRecHits, p_topology);
     float sigmaIetaIeta = std::sqrt(cov[0]);
     float sigmaIetaIphi = cov[1];
 
     float e3x3 = EcalClusterTools::e3x3(seedCluster, ebRecHits, p_topology);
-    float r9 = e3x3 / itSC->rawEnergy();
+    float r9 = e3x3 / itSC.rawEnergy();
 
     r9_EB->Fill(r9);
     scSigmaIetaIeta_EB->Fill(sigmaIetaIeta);
@@ -402,11 +396,11 @@ void EcalPileUpDepMonitor::analyze(const edm::Event &e, const edm::EventSetup &)
   //-------------------Compute scalar sum of reconstructed hit Et
   double RecHitEt_EB = 0;
 
-  for (EcalRecHitCollection::const_iterator itr = RecHitsEB->begin(); itr != RecHitsEB->end(); ++itr) {
+  for (const auto &itr : *RecHitsEB) {
     // RecHitEt_EB +=itr->energy();
 
-    GlobalPoint const &position = geom->getGeometry(itr->detid())->getPosition();
-    RecHitEt_EB += itr->energy() * sin(position.theta());
+    GlobalPoint const &position = geom->getGeometry(itr.detid())->getPosition();
+    RecHitEt_EB += itr.energy() * sin(position.theta());
   }  // EB Rec Hit
 
   recHitEtEB->Fill(RecHitEt_EB);
@@ -415,9 +409,9 @@ void EcalPileUpDepMonitor::analyze(const edm::Event &e, const edm::EventSetup &)
   //-------------------Compute scalar sum of reconstructed hit Et
   double RecHitEt_EE = 0;
 
-  for (EcalRecHitCollection::const_iterator itr = RecHitsEE->begin(); itr != RecHitsEE->end(); ++itr) {
-    GlobalPoint const &position = geom->getGeometry(itr->detid())->getPosition();
-    RecHitEt_EE += itr->energy() * sin(position.theta());
+  for (const auto &itr : *RecHitsEE) {
+    GlobalPoint const &position = geom->getGeometry(itr.detid())->getPosition();
+    RecHitEt_EE += itr.energy() * sin(position.theta());
   }  // EB Rec Hit
 
   recHitEtEE->Fill(RecHitEt_EE);

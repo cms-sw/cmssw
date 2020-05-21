@@ -56,13 +56,13 @@ int PixelSLinkDataInputSource::getEventNumberFromFillWords(const std::vector<uin
     dum[jk] = 0;
 
   int fifcnt = 1;
-  for (size_t kk = 0; kk < buffer.size(); ++kk) {
-    word[0] = (uint32_t)buffer[kk];
-    word[1] = (uint32_t)(buffer[kk] >> 32);
+  for (unsigned long kk : buffer) {
+    word[0] = (uint32_t)kk;
+    word[1] = (uint32_t)(kk >> 32);
 
-    for (size_t iw = 0; iw < 2; iw++) {
-      chan = ((word[iw] & chnlmsk) >> 26);
-      roc = ((word[iw] & rocmsk) >> 21);
+    for (unsigned int iw : word) {
+      chan = ((iw & chnlmsk) >> 26);
+      roc = ((iw & rocmsk) >> 21);
 
       // count non-error words
       if (roc < 25) {
@@ -97,13 +97,13 @@ int PixelSLinkDataInputSource::getEventNumberFromFillWords(const std::vector<uin
         fif2cnt++;
       }
       if (roc == 26) {
-        gap[fifcnt] = (0x1000 + (word[iw] & 0xff));
+        gap[fifcnt] = (0x1000 + (iw & 0xff));
         gapcnt++;
       }
 
       if ((roc == 27) && ((fif2cnt + dumcnt) < 6)) {
         dumcnt++;
-        dum[fifcnt] = (0x1000 + (word[iw] & 0xff));
+        dum[fifcnt] = (0x1000 + (iw & 0xff));
       } else if ((roc == 27) && ((fif2cnt + dumcnt) > 6)) {
         dumcnt = 1;
         fif2cnt = 0;

@@ -16,8 +16,8 @@ AlignableDTChamber::AlignableDTChamber(const GeomDet* geomDet) : AlignableDet(ge
   // The unique thing about DT chambers is that they are Dets that contain Dets (superlayers)
   // The superlayer Dets contain DetUnits (layers), as usual
   const std::vector<const GeomDet*>& geomDets = geomDet->components();
-  for (std::vector<const GeomDet*>::const_iterator idet = geomDets.begin(); idet != geomDets.end(); ++idet) {
-    addComponent(new AlignableDTSuperLayer(*idet));
+  for (auto geomDet : geomDets) {
+    addComponent(new AlignableDTSuperLayer(geomDet));
   }
 
   // DO NOT let the chamber position become an average of the layers
@@ -40,12 +40,12 @@ std::ostream& operator<<(std::ostream& os, const AlignableDTChamber& r) {
   for (const auto& idet : theDets) {
     const auto& comp = idet->components();
 
-    for (unsigned int i = 0; i < comp.size(); ++i) {
-      os << "     Det position, phi, r: " << comp[i]->globalPosition() << " , " << comp[i]->globalPosition().phi()
-         << " , " << comp[i]->globalPosition().perp() << std::endl;
-      os << "     local  position, phi, r: " << r.surface().toLocal(comp[i]->globalPosition()) << " , "
-         << r.surface().toLocal(comp[i]->globalPosition()).phi() << " , "
-         << r.surface().toLocal(comp[i]->globalPosition()).perp() << std::endl;
+    for (auto i : comp) {
+      os << "     Det position, phi, r: " << i->globalPosition() << " , " << i->globalPosition().phi() << " , "
+         << i->globalPosition().perp() << std::endl;
+      os << "     local  position, phi, r: " << r.surface().toLocal(i->globalPosition()) << " , "
+         << r.surface().toLocal(i->globalPosition()).phi() << " , " << r.surface().toLocal(i->globalPosition()).perp()
+         << std::endl;
     }
   }
 

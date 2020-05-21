@@ -10,14 +10,14 @@ CompositeTSG::CompositeTSG(const edm::ParameterSet& par, edm::ConsumesCollector&
   //configure the individual components of the TSG
   std::vector<std::string> PSetNames = par.getParameter<std::vector<std::string> >("PSetNames");
 
-  for (std::vector<std::string>::iterator nIt = PSetNames.begin(); nIt != PSetNames.end(); nIt++) {
-    edm::ParameterSet TSGpset = par.getParameter<edm::ParameterSet>(*nIt);
+  for (auto& PSetName : PSetNames) {
+    edm::ParameterSet TSGpset = par.getParameter<edm::ParameterSet>(PSetName);
     if (TSGpset.empty()) {
-      theNames.push_back((*nIt) + ":" + "NULL");
+      theNames.push_back(PSetName + ":" + "NULL");
       theTSGs.emplace_back(nullptr);
     } else {
       std::string SeedGenName = TSGpset.getParameter<std::string>("ComponentName");
-      theNames.push_back((*nIt) + ":" + SeedGenName);
+      theNames.push_back(PSetName + ":" + SeedGenName);
       theTSGs.emplace_back(TrackerSeedGeneratorFactory::get()->create(SeedGenName, TSGpset, IC));
     }
   }

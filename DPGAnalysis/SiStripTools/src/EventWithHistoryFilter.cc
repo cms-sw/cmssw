@@ -117,9 +117,8 @@ const bool EventWithHistoryFilter::is_selected(const EventWithHistory& he,
   if (!isAPVModeNotNeeded()) {
     const int apvmode = getAPVMode(iSetup);
     bool modeok = false;
-    for (std::vector<int>::const_iterator wantedmode = m_apvmodes.begin(); wantedmode != m_apvmodes.end();
-         ++wantedmode) {
-      modeok = modeok || (apvmode == *wantedmode);
+    for (int m_apvmode : m_apvmodes) {
+      modeok = modeok || (apvmode == m_apvmode);
     }
     if (!modeok)
       return false;
@@ -140,31 +139,31 @@ const bool EventWithHistoryFilter::is_selected(const EventWithHistory& he,
   bool phaseselected;
 
   phaseselected = isCutInactive(m_bxcyclerange);
-  for (std::vector<int>::const_iterator phase = apvphases.begin(); phase != apvphases.end(); ++phase) {
-    phaseselected = phaseselected || isInRange(he.absoluteBXinCycle(*phase) % 70, m_bxcyclerange, *phase >= 0);
+  for (int apvphase : apvphases) {
+    phaseselected = phaseselected || isInRange(he.absoluteBXinCycle(apvphase) % 70, m_bxcyclerange, apvphase >= 0);
   }
   selected = selected && phaseselected;
 
   phaseselected = isCutInactive(m_bxcyclerangelat);
-  for (std::vector<int>::const_iterator phase = apvphases.begin(); phase != apvphases.end(); ++phase) {
+  for (int apvphase : apvphases) {
     phaseselected =
         phaseselected ||
-        isInRange((he.absoluteBXinCycle(*phase) - latency) % 70, m_bxcyclerangelat, *phase >= 0 && latency >= 0);
+        isInRange((he.absoluteBXinCycle(apvphase) - latency) % 70, m_bxcyclerangelat, apvphase >= 0 && latency >= 0);
   }
   selected = selected && phaseselected;
 
   phaseselected = isCutInactive(m_dbxcyclerange);
-  for (std::vector<int>::const_iterator phase = apvphases.begin(); phase != apvphases.end(); ++phase) {
+  for (int apvphase : apvphases) {
     phaseselected =
-        phaseselected || isInRange(he.deltaBXinCycle(*phase), m_dbxcyclerange, he.depth() != 0 && *phase >= 0);
+        phaseselected || isInRange(he.deltaBXinCycle(apvphase), m_dbxcyclerange, he.depth() != 0 && apvphase >= 0);
   }
   selected = selected && phaseselected;
 
   phaseselected = isCutInactive(m_dbxcyclerangelat);
-  for (std::vector<int>::const_iterator phase = apvphases.begin(); phase != apvphases.end(); ++phase) {
-    phaseselected = phaseselected || isInRange(he.deltaBXinCycle(*phase) - latency,
+  for (int apvphase : apvphases) {
+    phaseselected = phaseselected || isInRange(he.deltaBXinCycle(apvphase) - latency,
                                                m_dbxcyclerangelat,
-                                               he.depth() != 0 && *phase >= 0 && latency >= 0);
+                                               he.depth() != 0 && apvphase >= 0 && latency >= 0);
   }
   selected = selected && phaseselected;
 

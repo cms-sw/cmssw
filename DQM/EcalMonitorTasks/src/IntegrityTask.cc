@@ -89,8 +89,8 @@ namespace ecaldqm {
       // Fill Integrity Errors Map with tower errors for this lumi
       // Since binned by crystal for compatibility with channel errors,
       // fill with constituent channels of tower
-      for (std::vector<DetId>::iterator chItr(chIds.begin()); chItr != chIds.end(); ++chItr)
-        meMapByLumi.fill(*chItr);
+      for (auto& chId : chIds)
+        meMapByLumi.fill(chId);
 
       meTrendNErrors.fill(double(timestamp_.iLumi), nCrystals);
     });

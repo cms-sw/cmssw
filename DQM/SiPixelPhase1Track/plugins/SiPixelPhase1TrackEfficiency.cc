@@ -430,8 +430,7 @@ namespace {
       passcuts_hit = true;
 
       //Fiducial Cut, only calculate the efficiency of the central pixels
-      for (uint p = 0; p < expTrajMeasurements.size(); p++) {
-        TrajectoryMeasurement pxb1TM(expTrajMeasurements[p]);
+      for (auto pxb1TM : expTrajMeasurements) {
         const auto& pxb1Hit = pxb1TM.recHit();
         int detidHit = pxb1Hit->geographicalId();
         if (detidHit == 0)
@@ -518,13 +517,13 @@ namespace {
           bool found_det = false;
 
           if (passcuts && passcuts_hit) {
-            for (unsigned int i_eff = 0; i_eff < eff_pxb1_vector.size(); i_eff++) {
+            for (auto& i_eff : eff_pxb1_vector) {
               //in case found hit in the same det, take only the valid hit
-              if (eff_pxb1_vector[i_eff].first == detid) {
+              if (i_eff.first == detid) {
                 found_det = true;
-                if (eff_pxb1_vector[i_eff].second[0] == false && valid == true) {
-                  eff_pxb1_vector[i_eff].second[0] = valid;
-                  eff_pxb1_vector[i_eff].second[1] = missing;
+                if (i_eff.second[0] == false && valid == true) {
+                  i_eff.second[0] = valid;
+                  i_eff.second[1] = missing;
                 }
               }
             }
@@ -540,20 +539,19 @@ namespace {
 
       //propagation B: filling inactive hits
 
-      for (uint p = 0; p < expTrajMeasurements.size(); p++) {
-        TrajectoryMeasurement pxb1TM(expTrajMeasurements[p]);
+      for (auto pxb1TM : expTrajMeasurements) {
         const auto& pxb1Hit = pxb1TM.recHit();
         bool inactive = (pxb1Hit->getType() == TrackingRecHit::inactive);
         int detid = pxb1Hit->geographicalId();
         bool found_det = false;
 
         if (passcuts && passcuts_hit) {
-          for (unsigned int i_eff = 0; i_eff < eff_pxb1_vector.size(); i_eff++) {
+          for (auto& i_eff : eff_pxb1_vector) {
             //in case found hit in the same det, take only the valid hit
-            if (eff_pxb1_vector[i_eff].first == detid) {
+            if (i_eff.first == detid) {
               found_det = true;
-              if (eff_pxb1_vector[i_eff].second[0] == false && valid == true) {
-                eff_pxb1_vector[i_eff].second[2] = inactive;
+              if (i_eff.second[0] == false && valid == true) {
+                i_eff.second[2] = inactive;
               }
             }
           }

@@ -175,15 +175,11 @@ bool CSCGeometryParsFromDD::build(const DDCompactView* cview,
       uparvals.emplace_back(wg.wideWidthOfWirePlane);
       uparvals.emplace_back(wg.lengthOfWirePlane);
       uparvals.emplace_back(wg.wiresInEachGroup.size());
-      for (CSCWireGroupPackage::Container::const_iterator it = wg.wiresInEachGroup.begin();
-           it != wg.wiresInEachGroup.end();
-           ++it) {
-        uparvals.emplace_back(*it);
+      for (int it : wg.wiresInEachGroup) {
+        uparvals.emplace_back(it);
       }
-      for (CSCWireGroupPackage::Container::const_iterator it = wg.consecutiveGroups.begin();
-           it != wg.consecutiveGroups.end();
-           ++it) {
-        uparvals.emplace_back(*it);
+      for (int consecutiveGroup : wg.consecutiveGroups) {
+        uparvals.emplace_back(consecutiveGroup);
       }
 
       /** end stuff **/
@@ -465,15 +461,11 @@ bool CSCGeometryParsFromDD::build(const cms::DDCompactView* cview,
       uparvals.emplace_back(wg.lengthOfWirePlane);
       uparvals.emplace_back(wg.wiresInEachGroup.size());
 
-      for (CSCWireGroupPackage::Container::const_iterator it = wg.wiresInEachGroup.begin();
-           it != wg.wiresInEachGroup.end();
-           ++it) {
-        uparvals.emplace_back(*it);
+      for (int it : wg.wiresInEachGroup) {
+        uparvals.emplace_back(it);
       }
-      for (CSCWireGroupPackage::Container::const_iterator it = wg.consecutiveGroups.begin();
-           it != wg.consecutiveGroups.end();
-           ++it) {
-        uparvals.emplace_back(*it);
+      for (int consecutiveGroup : wg.consecutiveGroups) {
+        uparvals.emplace_back(consecutiveGroup);
       }
 
       /** end stuff **/

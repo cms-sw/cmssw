@@ -160,12 +160,12 @@ void PixelClusterShapeExtractor::endJob() {
   file->cd();
 
   // simulated
-  for (auto h = hspc.begin(); h != hspc.end(); h++)
-    (*h)->Write();
+  for (auto& h : hspc)
+    h->Write();
 
   // reconstructed
-  for (auto h = hrpc.begin(); h != hrpc.end(); h++)
-    (*h)->Write();
+  for (auto& h : hrpc)
+    h->Write();
 
   file->Close();
 }

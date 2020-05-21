@@ -354,12 +354,11 @@ bool PFEGammaFilters::isPhotonSafeForJetMET(const reco::Photon& photon, const re
 
       //const std::vector<reco::TrackRef>&  mySingleLeg =
       bool singleLegConv = false;
-      for (unsigned int iconv = 0; iconv < pfcandextra->singleLegConvTrackRefMva().size(); iconv++) {
+      for (const auto& iconv : pfcandextra->singleLegConvTrackRefMva()) {
         if (debugSafeForJetMET)
-          cout << "PFEGammaFilters::SingleLeg track:pt " << (pfcandextra->singleLegConvTrackRefMva()[iconv].first)->pt()
-               << endl;
+          cout << "PFEGammaFilters::SingleLeg track:pt " << (iconv.first)->pt() << endl;
 
-        if (pfcandextra->singleLegConvTrackRefMva()[iconv].first == trackref) {
+        if (iconv.first == trackref) {
           singleLegConv = true;
           if (debugSafeForJetMET)
             cout << "PFEGammaFilters::isPhotonSafeForJetMET: SingleLeg conv track " << endl;

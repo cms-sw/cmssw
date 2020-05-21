@@ -88,11 +88,8 @@ void L1GtUtilsHelper::operator()(edm::BranchDescription const& branchDescription
       }
     } else {
       // no preferred input tag found yet, check now with the actual tag
-      for (std::vector<edm::InputTag>::const_iterator itPrefTag = preferredL1GtRecordInputTag.begin(),
-                                                      itPrefTagEnd = preferredL1GtRecordInputTag.end();
-           itPrefTag != itPrefTagEnd;
-           ++itPrefTag) {
-        if (branchDescription.moduleLabel() == itPrefTag->label()) {
+      for (const auto& itPrefTag : preferredL1GtRecordInputTag) {
+        if (branchDescription.moduleLabel() == itPrefTag.label()) {
           m_l1GtRecordInputTag = tag;
           m_l1GtRecordToken = m_consumesCollector.consumes<L1GlobalTriggerRecord>(tag);
           m_foundPreferredRecord = true;
@@ -159,11 +156,8 @@ void L1GtUtilsHelper::operator()(edm::BranchDescription const& branchDescription
     } else {
       // no preferred input tag found yet, check now with the actual tag
 
-      for (std::vector<edm::InputTag>::const_iterator itPrefTag = preferredL1GtReadoutRecordInputTag.begin(),
-                                                      itPrefTagEnd = preferredL1GtReadoutRecordInputTag.end();
-           itPrefTag != itPrefTagEnd;
-           ++itPrefTag) {
-        if (branchDescription.moduleLabel() == itPrefTag->label()) {
+      for (const auto& itPrefTag : preferredL1GtReadoutRecordInputTag) {
+        if (branchDescription.moduleLabel() == itPrefTag.label()) {
           m_l1GtReadoutRecordInputTag = tag;
           m_l1GtReadoutRecordToken = m_consumesCollector.consumes<L1GlobalTriggerReadoutRecord>(tag);
           m_foundPreferredReadoutRecord = true;
@@ -230,11 +224,8 @@ void L1GtUtilsHelper::operator()(edm::BranchDescription const& branchDescription
     } else {
       // no preferred input tag found yet, check now with the actual tag
 
-      for (std::vector<edm::InputTag>::const_iterator itPrefTag = preferredL1GtTriggerMenuLiteInputTag.begin(),
-                                                      itPrefTagEnd = preferredL1GtTriggerMenuLiteInputTag.end();
-           itPrefTag != itPrefTagEnd;
-           ++itPrefTag) {
-        if (branchDescription.moduleLabel() == itPrefTag->label()) {
+      for (const auto& itPrefTag : preferredL1GtTriggerMenuLiteInputTag) {
+        if (branchDescription.moduleLabel() == itPrefTag.label()) {
           m_l1GtTriggerMenuLiteInputTag = tag;
           m_l1GtTriggerMenuLiteToken = m_consumesCollector.consumes<L1GtTriggerMenuLite>(tag);
           m_foundPreferredMenuLite = true;

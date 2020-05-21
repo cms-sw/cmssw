@@ -135,21 +135,21 @@ void EventSetupCacheIdentifierChecker::check(edm::EventSetup const& iSetup) {
   }
   using namespace edm::eventsetup;
 
-  for (auto it = m_recordKeysToExpectedCacheIdentifiers.begin(), itEnd = m_recordKeysToExpectedCacheIdentifiers.end();
-       it != itEnd;
-       ++it) {
-    auto pRecord = iSetup.find(it->first);
+  for (auto& m_recordKeysToExpectedCacheIdentifier : m_recordKeysToExpectedCacheIdentifiers) {
+    auto pRecord = iSetup.find(m_recordKeysToExpectedCacheIdentifier.first);
     if (not pRecord) {
-      edm::LogWarning("RecordNotInIOV") << "The EventSetup Record '" << it->first.name()
+      edm::LogWarning("RecordNotInIOV") << "The EventSetup Record '"
+                                        << m_recordKeysToExpectedCacheIdentifier.first.name()
                                         << "' is not available for this IOV.";
     }
-    if (it->second.size() <= m_index) {
-      throw cms::Exception("TooFewCacheIDs")
-          << "The vector of cacheIdentifiers for the record " << it->first.name() << " is too short";
+    if (m_recordKeysToExpectedCacheIdentifier.second.size() <= m_index) {
+      throw cms::Exception("TooFewCacheIDs") << "The vector of cacheIdentifiers for the record "
+                                             << m_recordKeysToExpectedCacheIdentifier.first.name() << " is too short";
     }
-    if (pRecord && pRecord->cacheIdentifier() != it->second[m_index]) {
+    if (pRecord && pRecord->cacheIdentifier() != m_recordKeysToExpectedCacheIdentifier.second[m_index]) {
       throw cms::Exception("IncorrectCacheID")
-          << "The Record " << it->first.name() << " was supposed to have cacheIdentifier: " << it->second[m_index]
+          << "The Record " << m_recordKeysToExpectedCacheIdentifier.first.name()
+          << " was supposed to have cacheIdentifier: " << m_recordKeysToExpectedCacheIdentifier.second[m_index]
           << " but instead has " << pRecord->cacheIdentifier();
     }
   }

@@ -23,10 +23,10 @@ void CSCDigiDump::analyze(edm::Event const &e, edm::EventSetup const &c) {
 
   e.getByToken(wd_token, wires);
 
-  for (CSCWireDigiCollection::DigiRangeIterator j = wires->begin(); j != wires->end(); j++) {
-    edm::LogVerbatim("CSCDigi") << "Wire digis from " << CSCDetId((*j).first);
-    std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
-    std::vector<CSCWireDigi>::const_iterator last = (*j).second.second;
+  for (auto &&j : *wires) {
+    edm::LogVerbatim("CSCDigi") << "Wire digis from " << CSCDetId(j.first);
+    std::vector<CSCWireDigi>::const_iterator digiItr = j.second.first;
+    std::vector<CSCWireDigi>::const_iterator last = j.second.second;
     for (; digiItr != last; ++digiItr) {
       digiItr->print();
     }
@@ -34,10 +34,10 @@ void CSCDigiDump::analyze(edm::Event const &e, edm::EventSetup const &c) {
 
   e.getByToken(sd_token, strips);
 
-  for (CSCStripDigiCollection::DigiRangeIterator j = strips->begin(); j != strips->end(); j++) {
-    edm::LogVerbatim("CSCDigi") << "Strip digis from " << CSCDetId((*j).first);
-    std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
-    std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
+  for (auto &&j : *strips) {
+    edm::LogVerbatim("CSCDigi") << "Strip digis from " << CSCDetId(j.first);
+    std::vector<CSCStripDigi>::const_iterator digiItr = j.second.first;
+    std::vector<CSCStripDigi>::const_iterator last = j.second.second;
     for (; digiItr != last; ++digiItr) {
       digiItr->print();
     }
@@ -45,10 +45,10 @@ void CSCDigiDump::analyze(edm::Event const &e, edm::EventSetup const &c) {
 
   e.getByToken(cd_token, comparators);
 
-  for (CSCComparatorDigiCollection::DigiRangeIterator j = comparators->begin(); j != comparators->end(); j++) {
-    edm::LogVerbatim("CSCDigi") << "Comparator digis from " << CSCDetId((*j).first);
-    std::vector<CSCComparatorDigi>::const_iterator digiItr = (*j).second.first;
-    std::vector<CSCComparatorDigi>::const_iterator last = (*j).second.second;
+  for (auto &&j : *comparators) {
+    edm::LogVerbatim("CSCDigi") << "Comparator digis from " << CSCDetId(j.first);
+    std::vector<CSCComparatorDigi>::const_iterator digiItr = j.second.first;
+    std::vector<CSCComparatorDigi>::const_iterator last = j.second.second;
     for (; digiItr != last; ++digiItr) {
       digiItr->print();
     }

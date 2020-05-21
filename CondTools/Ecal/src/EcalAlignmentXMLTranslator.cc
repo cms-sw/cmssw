@@ -43,8 +43,8 @@ string EcalAlignmentXMLTranslator::dumpXML(const EcalCondHeader& header, const A
 
   xuti::writeHeader(root, header);
 
-  for (vector<AlignTransform>::const_iterator it = record.m_align.begin(); it != record.m_align.end(); it++) {
-    int Id = (*it).rawId();
+  for (const auto& it : record.m_align) {
+    int Id = it.rawId();
     int sub = (Id >> 24) & 0xF;
     stringstream subdet;
     if (sub == 2) {
@@ -103,20 +103,20 @@ string EcalAlignmentXMLTranslator::dumpXML(const EcalCondHeader& header, const A
         subdet << "N";
     } else
       cout << " problem sub = " << sub << endl;
-    cout << (*it).rawId() << " " << (*it).rotation().getPhi() << " " << (*it).rotation().getTheta() << " "
-         << (*it).rotation().getPsi() << " " << (*it).translation().x() << " " << (*it).translation().y() << " "
-         << (*it).translation().z() << endl;
-    uint32_t rawid = (*it).rawId();
+    cout << it.rawId() << " " << it.rotation().getPhi() << " " << it.rotation().getTheta() << " "
+         << it.rotation().getPsi() << " " << it.translation().x() << " " << it.translation().y() << " "
+         << it.translation().z() << endl;
+    uint32_t rawid = it.rawId();
     DOMElement* cellnode = root->getOwnerDocument()->createElement(cms::xerces::uStr(Cell_tag.c_str()).ptr());
     root->appendChild(cellnode);
     cellnode->setAttribute(cms::xerces::uStr(subdet_tag.c_str()).ptr(), cms::xerces::uStr(subdet.str().c_str()).ptr());
     xuti::WriteNodeWithValue(cellnode, id_tag, rawid);
-    xuti::WriteNodeWithValue(cellnode, x_tag, (*it).translation().x());
-    xuti::WriteNodeWithValue(cellnode, y_tag, (*it).translation().y());
-    xuti::WriteNodeWithValue(cellnode, z_tag, (*it).translation().z());
-    xuti::WriteNodeWithValue(cellnode, Phi_tag, (*it).rotation().getPhi());
-    xuti::WriteNodeWithValue(cellnode, Theta_tag, (*it).rotation().getTheta());
-    xuti::WriteNodeWithValue(cellnode, Psi_tag, (*it).rotation().getPsi());
+    xuti::WriteNodeWithValue(cellnode, x_tag, it.translation().x());
+    xuti::WriteNodeWithValue(cellnode, y_tag, it.translation().y());
+    xuti::WriteNodeWithValue(cellnode, z_tag, it.translation().z());
+    xuti::WriteNodeWithValue(cellnode, Phi_tag, it.rotation().getPhi());
+    xuti::WriteNodeWithValue(cellnode, Theta_tag, it.rotation().getTheta());
+    xuti::WriteNodeWithValue(cellnode, Psi_tag, it.rotation().getPsi());
   }
 
   std::string dump = cms::xerces::toString(writer->writeToString(root));

@@ -1110,8 +1110,8 @@ double MuScleFitUtils::massProb(const double &mass,
     }
   }
 
-  for (int i = 0; i < 6; ++i) {
-    P += PStot[i];
+  for (double i : PStot) {
+    P += i;
   }
 
   if (MuScleFitUtils::signalProb_ != nullptr && MuScleFitUtils::backgroundProb_ != nullptr) {
@@ -1122,9 +1122,9 @@ double MuScleFitUtils::massProb(const double &mass,
     if (PStotTemp != PStotTemp) {
       std::cout << "ERROR: PStotTemp = nan!!!!!!!!!" << std::endl;
       int parnumber = (int)(parResol.size() + parScale.size() + crossSectionHandler->parNum() + parBgr.size());
-      for (int i = 0; i < 6; ++i) {
-        std::cout << "PS[i] = " << PS[i] << std::endl;
-        if (PS[i] != PS[i]) {
+      for (double i : PS) {
+        std::cout << "PS[i] = " << i << std::endl;
+        if (i != i) {
           std::cout << "mass = " << mass << std::endl;
           std::cout << "massResol = " << massResol << std::endl;
           for (int j = 0; j < parnumber; ++j) {
@@ -1534,9 +1534,9 @@ void MuScleFitUtils::minimizeLikelihood() {
       double protectionFactor = 0.9;
 
       MuScleFitUtils::ReducedSavedPair.clear();
-      for (unsigned int nev = 0; nev < MuScleFitUtils::SavedPair.size(); ++nev) {
-        const lorentzVector *recMu1 = &(MuScleFitUtils::SavedPair[nev].first);
-        const lorentzVector *recMu2 = &(MuScleFitUtils::SavedPair[nev].second);
+      for (auto &nev : MuScleFitUtils::SavedPair) {
+        const lorentzVector *recMu1 = &(nev.first);
+        const lorentzVector *recMu2 = &(nev.second);
         double mass = MuScleFitUtils::invDimuonMass(*recMu1, *recMu2);
         // Test all resonances to see if the mass is inside at least one of the windows
         bool check = false;
@@ -1811,11 +1811,11 @@ extern "C" void likelihood(int &npar, double *grad, double &fval, double *xval, 
     std::cout << "ReducedSavedPair.size() = " << MuScleFitUtils::ReducedSavedPair.size() << std::endl;
   }
   // for( unsigned int nev=0; nev<MuScleFitUtils::SavedPair.size(); ++nev ) {
-  for (unsigned int nev = 0; nev < MuScleFitUtils::ReducedSavedPair.size(); ++nev) {
+  for (auto &nev : MuScleFitUtils::ReducedSavedPair) {
     //     recMu1 = &(MuScleFitUtils::SavedPair[nev].first);
     //     recMu2 = &(MuScleFitUtils::SavedPair[nev].second);
-    recMu1 = &(MuScleFitUtils::ReducedSavedPair[nev].first);
-    recMu2 = &(MuScleFitUtils::ReducedSavedPair[nev].second);
+    recMu1 = &(nev.first);
+    recMu2 = &(nev.second);
 
     // Compute original mass
     // ---------------------
@@ -2266,12 +2266,12 @@ std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findSimMuFromRes(
     const edm::Handle<edm::HepMCProduct> &evtMC, const edm::Handle<edm::SimTrackContainer> &simTracks) {
   //Loop on simulated tracks
   std::pair<lorentzVector, lorentzVector> simMuFromRes;
-  for (edm::SimTrackContainer::const_iterator simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack) {
+  for (const auto &simTrack : *simTracks) {
     //Chose muons
-    if (std::abs((*simTrack).type()) == 13) {
+    if (std::abs(simTrack.type()) == 13) {
       //If tracks from IP than find mother
-      if ((*simTrack).genpartIndex() > 0) {
-        HepMC::GenParticle *gp = evtMC->GetEvent()->barcode_to_particle((*simTrack).genpartIndex());
+      if (simTrack.genpartIndex() > 0) {
+        HepMC::GenParticle *gp = evtMC->GetEvent()->barcode_to_particle(simTrack.genpartIndex());
         if (gp != nullptr) {
           for (HepMC::GenVertex::particle_iterator mother = gp->production_vertex()->particles_begin(HepMC::ancestors);
                mother != gp->production_vertex()->particles_end(HepMC::ancestors);
@@ -2284,15 +2284,15 @@ std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findSimMuFromRes(
             }
             if (fromRes) {
               if (gp->pdg_id() == 13)
-                simMuFromRes.first = lorentzVector(simTrack->momentum().px(),
-                                                   simTrack->momentum().py(),
-                                                   simTrack->momentum().pz(),
-                                                   simTrack->momentum().e());
+                simMuFromRes.first = lorentzVector(simTrack.momentum().px(),
+                                                   simTrack.momentum().py(),
+                                                   simTrack.momentum().pz(),
+                                                   simTrack.momentum().e());
               else
-                simMuFromRes.second = lorentzVector(simTrack->momentum().px(),
-                                                    simTrack->momentum().py(),
-                                                    simTrack->momentum().pz(),
-                                                    simTrack->momentum().e());
+                simMuFromRes.second = lorentzVector(simTrack.momentum().px(),
+                                                    simTrack.momentum().py(),
+                                                    simTrack.momentum().pz(),
+                                                    simTrack.momentum().e());
             }
           }
         }
@@ -2348,10 +2348,10 @@ std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes(
   //Loop on generated particles
   if (debug > 0)
     std::cout << "Starting loop on " << genParticles->size() << " genParticles" << std::endl;
-  for (reco::GenParticleCollection::const_iterator part = genParticles->begin(); part != genParticles->end(); ++part) {
-    if (std::abs(part->pdgId()) == 13 && part->status() == 1) {
+  for (const auto &genParticle : *genParticles) {
+    if (std::abs(genParticle.pdgId()) == 13 && genParticle.status() == 1) {
       bool fromRes = false;
-      unsigned int motherPdgId = part->mother()->pdgId();
+      unsigned int motherPdgId = genParticle.mother()->pdgId();
       if (debug > 0) {
         std::cout << "Found a muon with mother: " << motherPdgId << std::endl;
       }
@@ -2360,14 +2360,14 @@ std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes(
           fromRes = true;
       }
       if (fromRes) {
-        if (part->pdgId() == 13) {
-          muFromRes.first = part->p4();
+        if (genParticle.pdgId() == 13) {
+          muFromRes.first = genParticle.p4();
           if (debug > 0)
             std::cout << "Found a genMuon + : " << muFromRes.first << std::endl;
           // 	  muFromRes.first = (lorentzVector(part->p4().px(),part->p4().py(),
           // 					   part->p4().pz(),part->p4().e()));
         } else {
-          muFromRes.second = part->p4();
+          muFromRes.second = genParticle.p4();
           if (debug > 0)
             std::cout << "Found a genMuon - : " << muFromRes.second << std::endl;
           // 	  muFromRes.second = (lorentzVector(part->p4().px(),part->p4().py(),

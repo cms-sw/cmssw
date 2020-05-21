@@ -120,11 +120,10 @@ namespace {
       if (m_cacheID != m_record->cacheIdentifier()) {
         m_cacheID = m_record->cacheIdentifier();
 
-        for (std::vector<DataInfo>::const_iterator it = m_dataInfos.begin(), itEnd = m_dataInfos.end(); it != itEnd;
-             ++it) {
-          fwliteeswriter::Handle h(&(*it));
-          m_record->get(it->m_label, h);
-          m_writer.update(h.m_data, (it->m_tag.value()), it->m_label.c_str());
+        for (const auto& m_dataInfo : m_dataInfos) {
+          fwliteeswriter::Handle h(&m_dataInfo);
+          m_record->get(m_dataInfo.m_label, h);
+          m_writer.update(h.m_data, (m_dataInfo.m_tag.value()), m_dataInfo.m_label.c_str());
         }
         edm::ValidityInterval const& iov = m_record->validityInterval();
         m_writer.fill(edm::ESRecordAuxiliary(iov.first().eventID(), iov.first().time()));
@@ -177,13 +176,12 @@ FWLiteESRecordWriterAnalyzer::FWLiteESRecordWriterAnalyzer(const edm::ParameterS
   if (names.empty()) {
     throw edm::Exception(edm::errors::Configuration) << "No VPSets were given in configuration";
   }
-  for (std::vector<std::string>::const_iterator it = names.begin(), itEnd = names.end(); it != itEnd; ++it) {
-    const std::vector<edm::ParameterSet>& ps = iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >(*it);
-    std::vector<std::pair<std::string, std::string> >& data = m_recordToDataNames[*it];
-    for (std::vector<edm::ParameterSet>::const_iterator itPS = ps.begin(), itPSEnd = ps.end(); itPS != itPSEnd;
-         ++itPS) {
-      std::string type = itPS->getUntrackedParameter<std::string>("type");
-      std::string label = itPS->getUntrackedParameter<std::string>("label", std::string());
+  for (const auto& name : names) {
+    const std::vector<edm::ParameterSet>& ps = iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >(name);
+    std::vector<std::pair<std::string, std::string> >& data = m_recordToDataNames[name];
+    for (const auto& p : ps) {
+      std::string type = p.getUntrackedParameter<std::string>("type");
+      std::string label = p.getUntrackedParameter<std::string>("label", std::string());
       data.push_back(std::make_pair(type, label));
     }
   }
@@ -205,15 +203,11 @@ void FWLiteESRecordWriterAnalyzer::update(const edm::EventSetup& iSetup) {
   using edm::eventsetup::heterocontainer::HCTypeTag;
   if (m_handlers.empty()) {
     //now we have access to the EventSetup so we can setup our data structure
-    for (std::map<std::string, std::vector<std::pair<std::string, std::string> > >::iterator
-             it = m_recordToDataNames.begin(),
-             itEnd = m_recordToDataNames.end();
-         it != itEnd;
-         ++it) {
-      HCTypeTag tt = HCTypeTag::findType(it->first);
+    for (auto& m_recordToDataName : m_recordToDataNames) {
+      HCTypeTag tt = HCTypeTag::findType(m_recordToDataName.first);
       if (tt == HCTypeTag()) {
         throw cms::Exception("UnknownESRecordType")
-            << "The name '" << it->first
+            << "The name '" << m_recordToDataName.first
             << "' is not associated with a known EventSetupRecord.\n"
                "Please check spelling or load a module known to link with the package which declares that Record.";
       }
@@ -222,51 +216,46 @@ void FWLiteESRecordWriterAnalyzer::update(const edm::EventSetup& iSetup) {
       auto rec = iSetup.find(tt);
       if (not rec) {
         throw cms::Exception("UnknownESRecordType")
-            << "The name '" << it->first
+            << "The name '" << m_recordToDataName.first
             << "' is not associated with a type which is not an EventSetupRecord.\n"
                "Please check your spelling.";
       }
 
       //now figure out what data
-      std::vector<std::pair<std::string, std::string> >& data = it->second;
+      std::vector<std::pair<std::string, std::string> >& data = m_recordToDataName.second;
       if (data.empty()) {
         //get everything from the record
         std::vector<edm::eventsetup::DataKey> keys;
         rec->fillRegisteredDataKeys(keys);
-        for (std::vector<edm::eventsetup::DataKey>::iterator itKey = keys.begin(), itKeyEnd = keys.end();
-             itKey != itKeyEnd;
-             ++itKey) {
-          data.push_back(std::make_pair(std::string(itKey->type().name()), std::string(itKey->name().value())));
+        for (auto& key : keys) {
+          data.push_back(std::make_pair(std::string(key.type().name()), std::string(key.name().value())));
         }
       }
 
       std::vector<DataInfo> dataInfos;
-      for (std::vector<std::pair<std::string, std::string> >::iterator itData = data.begin(), itDataEnd = data.end();
-           itData != itDataEnd;
-           ++itData) {
-        HCTypeTag tt = HCTypeTag::findType(itData->first);
+      for (auto& itData : data) {
+        HCTypeTag tt = HCTypeTag::findType(itData.first);
         if (tt == HCTypeTag()) {
           throw cms::Exception("UnknownESDataType")
-              << "The name '" << itData->first << "' is not associated with a known type held in the " << it->first
+              << "The name '" << itData.first << "' is not associated with a known type held in the "
+              << m_recordToDataName.first
               << " Record.\n"
                  "Please check spelling or load a module known to link with the package which declares that type.";
         }
         if (!bool(edm::TypeWithDict(tt.value()))) {
           throw cms::Exception("NoDictionary")
-              << "The type '" << itData->first << "' can not be retrieved from the Record " << it->first
+              << "The type '" << itData.first << "' can not be retrieved from the Record " << m_recordToDataName.first
               << " and stored \n"
                  "because no dictionary exists for the type.";
         }
-        dataInfos.push_back(DataInfo(tt, itData->second));
+        dataInfos.push_back(DataInfo(tt, itData.second));
       }
       m_handlers.push_back(std::make_shared<RecordHandler>(rKey, m_file, dataInfos));
     }
   }
 
-  for (std::vector<std::shared_ptr<RecordHandler> >::iterator it = m_handlers.begin(), itEnd = m_handlers.end();
-       it != itEnd;
-       ++it) {
-    (*it)->update(iSetup);
+  for (auto& m_handler : m_handlers) {
+    m_handler->update(iSetup);
   }
 }
 

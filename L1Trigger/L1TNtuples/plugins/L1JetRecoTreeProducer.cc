@@ -448,10 +448,10 @@ void L1JetRecoTreeProducer::doPFMetNoMu(edm::Handle<reco::PFMETCollection> pfMet
 
   double muPx(0.), muPy(0.);
 
-  for (auto it = muons->begin(); it != muons->end(); ++it) {
-    if (it->isPFMuon()) {
-      muPx += it->px();
-      muPy += it->py();
+  for (const auto& it : *muons) {
+    if (it.isPFMuon()) {
+      muPx += it.px();
+      muPy += it.py();
     }
   }
 

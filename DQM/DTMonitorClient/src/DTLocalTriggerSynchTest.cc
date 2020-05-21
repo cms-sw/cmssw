@@ -100,10 +100,10 @@ void DTLocalTriggerSynchTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
 
 void DTLocalTriggerSynchTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
   // Loop over Trig & Hw sources
-  for (vector<string>::const_iterator iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr) {
-    trigSource = (*iTr);
-    for (vector<string>::const_iterator iHw = hwSources.begin(); iHw != hwSources.end(); ++iHw) {
-      hwSource = (*iHw);
+  for (const auto& trigSource : trigSources) {
+    trigSource = trigSource;
+    for (const auto& hwSource : hwSources) {
+      hwSource = hwSource;
       std::vector<const DTChamber*>::const_iterator chambIt = muonGeom->chambers().begin();
       std::vector<const DTChamber*>::const_iterator chambEnd = muonGeom->chambers().end();
       for (; chambIt != chambEnd; ++chambIt) {

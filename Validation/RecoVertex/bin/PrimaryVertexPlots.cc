@@ -366,11 +366,11 @@ void PrimaryVertexPlots(const char* fullname,
   {
     std::cout << "Found " << runs.size() << " runs" << std::endl;
 
-    for (unsigned int i = 0; i < runs.size(); ++i) {
+    for (unsigned int run : runs) {
       char runlabel[100];
-      sprintf(runlabel, "%d", runs[i]);
+      sprintf(runlabel, "%d", run);
       char runpath[100];
-      sprintf(runpath, "run_%d", runs[i]);
+      sprintf(runpath, "run_%d", run);
       castat.setPath(runpath);
       cabs.setPath(runpath);
       cabsonl.setPath(runpath);

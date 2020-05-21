@@ -184,14 +184,14 @@ void HGCalShowerSeparation::analyze(const edm::Event& iEvent, const edm::EventSe
   const auto& rechitsBH = *recHitHandleBH;
 
   std::map<DetId, const HGCRecHit*> hitmap;
-  for (unsigned int i = 0; i < rechitsEE.size(); ++i) {
-    hitmap[rechitsEE[i].detid()] = &rechitsEE[i];
+  for (const auto& i : rechitsEE) {
+    hitmap[i.detid()] = &i;
   }
-  for (unsigned int i = 0; i < rechitsFH.size(); ++i) {
-    hitmap[rechitsFH[i].detid()] = &rechitsFH[i];
+  for (const auto& i : rechitsFH) {
+    hitmap[i.detid()] = &i;
   }
-  for (unsigned int i = 0; i < rechitsBH.size(); ++i) {
-    hitmap[rechitsBH[i].detid()] = &rechitsBH[i];
+  for (const auto& i : rechitsBH) {
+    hitmap[i.detid()] = &i;
   }
 
   // loop over caloParticles

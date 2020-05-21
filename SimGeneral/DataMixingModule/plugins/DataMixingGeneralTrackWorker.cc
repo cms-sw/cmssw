@@ -56,8 +56,8 @@ namespace edm {
     e.getByToken(GTrackSigToken_, tracks);
 
     if (tracks.isValid()) {
-      for (reco::TrackCollection::const_iterator track = tracks->begin(); track != tracks->end(); ++track) {
-        NewTrackList_->push_back(*track);
+      for (const auto &track : *tracks) {
+        NewTrackList_->push_back(track);
       }
     }
 
@@ -78,8 +78,8 @@ namespace edm {
 
       // grab tracks, store copy
 
-      for (reco::TrackCollection::const_iterator track = tracks->begin(); track != tracks->end(); ++track) {
-        NewTrackList_->push_back(*track);
+      for (const auto &track : *tracks) {
+        NewTrackList_->push_back(track);
       }
     }
   }

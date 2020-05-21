@@ -129,8 +129,8 @@ OscarProducer::OscarProducer(edm::ParameterSet const& p) {
   //register any products
   m_producers = m_runManager->producers();
 
-  for (Producers::iterator itProd = m_producers.begin(); itProd != m_producers.end(); ++itProd) {
-    (*itProd)->registerProducts(producesCollector());
+  for (auto& m_producer : m_producers) {
+    m_producer->registerProducts(producesCollector());
   }
 
   //UIsession manager for message handling

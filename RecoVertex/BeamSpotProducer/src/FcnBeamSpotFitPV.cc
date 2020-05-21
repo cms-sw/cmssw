@@ -34,14 +34,14 @@ unsigned int FcnBeamSpotFitPV::nrOfVerticesUsed() const {
   double v1(0);
   double v2(0);
   double v3(0);
-  for (vector<BeamSpotFitPVData>::const_iterator ipv = data_.begin(); ipv != data_.end(); ++ipv) {
-    v1 = (*ipv).position[0];
+  for (const auto& ipv : data_) {
+    v1 = ipv.position[0];
     if (v1 < lowerLimits_[0] || v1 > upperLimits_[0])
       continue;
-    v2 = (*ipv).position[1];
+    v2 = ipv.position[1];
     if (v2 < lowerLimits_[1] || v2 > upperLimits_[1])
       continue;
-    v3 = (*ipv).position[2];
+    v3 = ipv.position[2];
     if (v3 < lowerLimits_[2] || v3 > upperLimits_[2])
       continue;
 
@@ -104,28 +104,28 @@ double FcnBeamSpotFitPV::operator()(const std::vector<double>& pars) const {
   //
   // iteration over vertices
   //
-  for (vector<BeamSpotFitPVData>::const_iterator ipv = data_.begin(); ipv != data_.end(); ++ipv) {
+  for (const auto& ipv : data_) {
     //
     // additional selection
     //
-    v1 = (*ipv).position[0];
+    v1 = ipv.position[0];
     if (v1 < lowerLimits_[0] || v1 > upperLimits_[0])
       continue;
-    v2 = (*ipv).position[1];
+    v2 = ipv.position[1];
     if (v2 < lowerLimits_[1] || v2 > upperLimits_[1])
       continue;
-    v3 = (*ipv).position[2];
+    v3 = ipv.position[2];
     if (v3 < lowerLimits_[2] || v3 > upperLimits_[2])
       continue;
     //
     // vertex errors (after scaling) and correlations
     //
-    ev1 = (*ipv).posError[0];
-    corr12 = (*ipv).posCorr[0];
-    ev2 = (*ipv).posError[1];
-    corr13 = (*ipv).posCorr[1];
-    corr23 = (*ipv).posCorr[2];
-    ev3 = (*ipv).posError[2];
+    ev1 = ipv.posError[0];
+    corr12 = ipv.posCorr[0];
+    ev2 = ipv.posError[1];
+    corr13 = ipv.posCorr[1];
+    corr23 = ipv.posCorr[2];
+    ev3 = ipv.posError[2];
     ev1 *= escale;
     ev2 *= escale;
     ev3 *= escale;

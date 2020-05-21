@@ -40,9 +40,9 @@ void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vecto
         // find the jet at this (eta,phi)
         l1t::Jet thisJet;
         bool foundJet = false;
-        for (unsigned jetIt = 0; jetIt < alljets.size(); jetIt++) {
-          if (CaloTools::mpEta(alljets.at(jetIt).hwEta()) == ieta && alljets.at(jetIt).hwPhi() == iphi) {
-            thisJet = alljets.at(jetIt);
+        for (const auto& alljet : alljets) {
+          if (CaloTools::mpEta(alljet.hwEta()) == ieta && alljet.hwPhi() == iphi) {
+            thisJet = alljet;
             foundJet = true;
           }
         }

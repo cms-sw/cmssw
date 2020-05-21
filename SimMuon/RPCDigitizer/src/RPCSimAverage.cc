@@ -96,11 +96,11 @@ int RPCSimAverage::getClSize(float posX, CLHEP::HepRandomEngine* engine) {
     sum_clsize = clsMap[5];
   }
 
-  for (vector<double>::iterator iter = sum_clsize.begin(); iter != sum_clsize.end(); ++iter) {
+  for (double& iter : sum_clsize) {
     cnt++;
-    if (func > (*iter)) {
+    if (func > iter) {
       min = cnt;
-    } else if (func < (*iter)) {
+    } else if (func < iter) {
       break;
     }
   }
@@ -117,14 +117,14 @@ void RPCSimAverage::simulate(const RPCRoll* roll,
 
   const Topology& topology = roll->specs()->topology();
 
-  for (edm::PSimHitContainer::const_iterator _hit = rpcHits.begin(); _hit != rpcHits.end(); ++_hit) {
+  for (const auto& rpcHit : rpcHits) {
     // Here I hould check if the RPC are up side down;
-    const LocalPoint& entr = _hit->entryPoint();
+    const LocalPoint& entr = rpcHit.entryPoint();
 
     //    const LocalPoint& exit=_hit->exitPoint();
 
-    float posX = roll->strip(_hit->localPosition()) - static_cast<int>(roll->strip(_hit->localPosition()));
-    int time_hit = _rpcSync->getSimHitBx(&(*_hit), engine);
+    float posX = roll->strip(rpcHit.localPosition()) - static_cast<int>(roll->strip(rpcHit.localPosition()));
+    int time_hit = _rpcSync->getSimHitBx(&rpcHit, engine);
 
     // Effinciecy
 
@@ -168,10 +168,10 @@ void RPCSimAverage::simulate(const RPCRoll* roll,
         }
       }
 
-      for (std::vector<int>::iterator i = cls.begin(); i != cls.end(); i++) {
+      for (int& cl : cls) {
         // Check the timing of the adjacent strip
-        std::pair<int, int> digi(*i, time_hit);
-        theDetectorHitMap.insert(DetectorHitMap::value_type(digi, &(*_hit)));
+        std::pair<int, int> digi(cl, time_hit);
+        theDetectorHitMap.insert(DetectorHitMap::value_type(digi, &rpcHit));
         strips.insert(digi);
       }
     }

@@ -67,23 +67,22 @@ void PATConversionProducer::produce(edm::StreamID, edm::Event &iEvent, const edm
 
   std::vector<Conversion> *patConversions = new std::vector<Conversion>();
 
-  for (reco::ConversionCollection::const_iterator conv = hConversions->begin(); conv != hConversions->end(); ++conv) {
-    reco::Vertex vtx = conv->conversionVertex();
+  for (const auto &conv : *hConversions) {
+    reco::Vertex vtx = conv.conversionVertex();
 
     int index = 0;
     for (edm::View<reco::GsfElectron>::const_iterator itElectron = electrons->begin(); itElectron != electrons->end();
          ++itElectron) {
       //find matched conversions with electron and save those conversions with matched electron index
-      if (ConversionTools::matchesConversion(*itElectron, *conv)) {
+      if (ConversionTools::matchesConversion(*itElectron, conv)) {
         double vtxProb = TMath::Prob(vtx.chi2(), vtx.ndof());
-        math::XYZVector mom(conv->refittedPairMomentum());
+        math::XYZVector mom(conv.refittedPairMomentum());
         double dbsx = vtx.x() - beamspot.position().x();
         double dbsy = vtx.y() - beamspot.position().y();
         double lxy = (mom.x() * dbsx + mom.y() * dbsy) / mom.rho();
         int nHitsMax = 0;
 
-        for (std::vector<uint8_t>::const_iterator it = conv->nHitsBeforeVtx().begin();
-             it != conv->nHitsBeforeVtx().end();
+        for (std::vector<uint8_t>::const_iterator it = conv.nHitsBeforeVtx().begin(); it != conv.nHitsBeforeVtx().end();
              ++it) {
           if ((*it) > nHitsMax)
             nHitsMax = (*it);

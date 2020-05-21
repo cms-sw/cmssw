@@ -186,9 +186,9 @@ void GenPlusSimParticleProducer::produce(Event &event, const EventSetup &iSetup)
   if (firstEvent_) {
     if (!pdts_.empty()) {
       pdgIds_.clear();
-      for (vector<PdtEntry>::iterator itp = pdts_.begin(), edp = pdts_.end(); itp != edp; ++itp) {
-        itp->setup(iSetup);  // decode string->pdgId and vice-versa
-        pdgIds_.insert(std::abs(itp->pdgId()));
+      for (auto &pdt : pdts_) {
+        pdt.setup(iSetup);  // decode string->pdgId and vice-versa
+        pdgIds_.insert(std::abs(pdt.pdgId()));
       }
       pdts_.clear();
     }
@@ -240,8 +240,7 @@ void GenPlusSimParticleProducer::produce(Event &event, const EventSetup &iSetup)
   }
   barcodesAreSorted = __gnu_cxx::is_sorted(newGenBarcodes->begin(), newGenBarcodes->end());
 
-  for (size_t i = 0; i < cands.size(); ++i) {
-    reco::GenParticle &cand = cands[i];
+  for (auto &cand : cands) {
     size_t nDaus = cand.numberOfDaughters();
     GenParticleRefVector daus = cand.daughterRefVector();
     cand.resetDaughters(ref.id());
@@ -257,22 +256,22 @@ void GenPlusSimParticleProducer::produce(Event &event, const EventSetup &iSetup)
     }
   }
 
-  for (SimTrackContainer::const_iterator isimtrk = simtracks->begin(); isimtrk != simtracks->end(); ++isimtrk) {
+  for (const auto &isimtrk : *simtracks) {
     // Skip PYTHIA tracks.
-    if (isimtrk->genpartIndex() != -1)
+    if (isimtrk.genpartIndex() != -1)
       continue;
 
     // Maybe apply the PdgId filter
     if (!pdgIds_.empty()) {  // if we have a filter on pdg ids
-      if (pdgIds_.find(std::abs(isimtrk->type())) == pdgIds_.end())
+      if (pdgIds_.find(std::abs(isimtrk.type())) == pdgIds_.end())
         continue;
     }
 
     // find simtrack that has a genParticle match to its parent
     // Look at the production vertex. If there is no vertex, I can do nothing...
-    if (!isimtrk->noVertex()) {
+    if (!isimtrk.noVertex()) {
       // Pick the vertex (isimtrk.vertIndex() is really an index)
-      const SimVertex &vtx = (*simvertices)[isimtrk->vertIndex()];
+      const SimVertex &vtx = (*simvertices)[isimtrk.vertIndex()];
 
       // Check if the vertex has a parent track (otherwise, we're lost)
       if (!vtx.noParent()) {
@@ -296,7 +295,7 @@ void GenPlusSimParticleProducer::produce(Event &event, const EventSetup &iSetup)
               // pass the mother and daughter sim tracks and the mother genParticle to method to create the daughter genParticle and recur
               unsigned int momidx = itIndex - genBarcodes->begin();
               addGenParticle(*it,
-                             *isimtrk,
+                             isimtrk,
                              momidx,
                              *simtracksSorted,
                              *simvertices,

@@ -275,16 +275,16 @@ void L1TStage2CaloLayer2Offline::fillEnergySums(edm::Event const& e, const unsig
 
   TVector2 mht(0., 0.);
 
-  for (auto jet = pfJets->begin(); jet != pfJets->end(); ++jet) {
-    double et = jet->et();
+  for (const auto& jet : *pfJets) {
+    double et = jet.et();
     if (et < 30) {
       continue;
     }
-    TVector2 jetVec(et * cos(jet->phi()), et * sin(jet->phi()));
-    if (std::abs(jet->eta()) < recoHTTMaxEta_) {
+    TVector2 jetVec(et * cos(jet.phi()), et * sin(jet.phi()));
+    if (std::abs(jet.eta()) < recoHTTMaxEta_) {
       recoHTT += et;
     }
-    if (std::abs(jet->eta()) < recoMHTMaxEta_) {
+    if (std::abs(jet.eta()) < recoMHTMaxEta_) {
       mht -= jetVec;
     }
   }

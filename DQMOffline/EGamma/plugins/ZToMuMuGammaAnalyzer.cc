@@ -916,10 +916,9 @@ void ZToMuMuGammaAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& e
        ++filterIndex) {  //loop over all trigger filters in event (i.e. filters passed)
     string label = triggerEvent.filterTag(filterIndex).label();
     if (label.find("Photon") != string::npos) {  //get photon-related filters
-      for (uint filterKeyIndex = 0; filterKeyIndex < triggerEvent.filterKeys(filterIndex).size();
-           ++filterKeyIndex) {  //loop over keys to objects passing this filter
-        Keys.push_back(
-            triggerEvent.filterKeys(filterIndex)[filterKeyIndex]);  //add keys to a vector for later reference
+      for (unsigned short filterKeyIndex :
+           triggerEvent.filterKeys(filterIndex)) {  //loop over keys to objects passing this filter
+        Keys.push_back(filterKeyIndex);             //add keys to a vector for later reference
       }
     }
   }
@@ -1132,11 +1131,9 @@ void ZToMuMuGammaAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& e
               }
               ////////// acces the value map to access the PFCandidates in overlap with the photon which need to be excluded from the isolation
               bool skip = false;
-              for (std::vector<reco::PFCandidateRef>::const_iterator i = phoToParticleBasedIsoMap[aPho].begin();
-                   i != phoToParticleBasedIsoMap[aPho].end();
-                   ++i) {
+              for (const auto& i : phoToParticleBasedIsoMap[aPho]) {
                 //	      std::cout << " PhotonValidator PfCand pt " << pfCandRef->pt() << " id " <<pfCandRef->particleId() <<  " and in the map " << (*i)->pt() << " type " << (*i)->particleId() << std::endl;
-                if ((*i) == pfCandRef) {
+                if (i == pfCandRef) {
                   skip = true;
                 }
               }  // loop over the PFCandidates flagged as overlapping with the photon

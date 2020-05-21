@@ -163,8 +163,7 @@ namespace gen {
   static std::map<std::string, std::string> parseHeader(const std::vector<std::string> &header) {
     std::map<std::string, std::string> params;
 
-    for (std::vector<std::string>::const_iterator iter = header.begin(); iter != header.end(); ++iter) {
-      std::string line = *iter;
+    for (auto line : header) {
       if (line.empty() || line[0] == '#')
         continue;
 
@@ -264,12 +263,12 @@ namespace gen {
       std::vector<std::string> comments = event->getComments();
       if (comments.size() == 1) {
         std::istringstream ss(comments[0].substr(1));
-        for (int i = 0; i < 1000; i++) {
+        for (double &i : pypart_.ptpart) {
           double pt;
           ss >> pt;
           if (!ss.good())
             break;
-          pypart_.ptpart[i] = pt;
+          i = pt;
         }
       } else {
         edm::LogWarning("Generator|LHEInterface") << "Expected exactly one comment line per "

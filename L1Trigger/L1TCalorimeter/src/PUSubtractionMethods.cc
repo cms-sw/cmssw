@@ -20,37 +20,37 @@ namespace l1t {
                              CaloParamsHelper const *params) {
     int puLevelHI[L1CaloRegionDetId::N_ETA];
 
-    for (unsigned i = 0; i < L1CaloRegionDetId::N_ETA; ++i) {
-      puLevelHI[i] = 0;
+    for (int &i : puLevelHI) {
+      i = 0;
     }
 
-    for (std::vector<CaloRegion>::const_iterator region = regions.begin(); region != regions.end(); region++) {
-      puLevelHI[region->hwEta()] += region->hwPt();
+    for (const auto &region : regions) {
+      puLevelHI[region.hwEta()] += region.hwPt();
     }
 
-    for (unsigned i = 0; i < L1CaloRegionDetId::N_ETA; ++i) {
+    for (int &i : puLevelHI) {
       //puLevelHI[i] = floor(((double)puLevelHI[i] / (double)L1CaloRegionDetId::N_PHI)+0.5);
-      puLevelHI[i] = (puLevelHI[i] + 9) * 455 / (1 << 13);  // approx equals X/18 +0.5
+      i = (i + 9) * 455 / (1 << 13);  // approx equals X/18 +0.5
     }
 
-    for (std::vector<CaloRegion>::const_iterator region = regions.begin(); region != regions.end(); region++) {
-      int subPt = std::max(0, region->hwPt() - puLevelHI[region->hwEta()]);
-      int subEta = region->hwEta();
-      int subPhi = region->hwPhi();
+    for (const auto &region : regions) {
+      int subPt = std::max(0, region.hwPt() - puLevelHI[region.hwEta()]);
+      int subEta = region.hwEta();
+      int subPhi = region.hwPhi();
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0, 0, 0, 0);
 
       CaloRegion newSubRegion(
-          *&ldummy, 0, 0, subPt, subEta, subPhi, region->hwQual(), region->hwEtEm(), region->hwEtHad());
+          *&ldummy, 0, 0, subPt, subEta, subPhi, region.hwQual(), region.hwEtEm(), region.hwEtHad());
       subRegions->push_back(newSubRegion);
     }
   }
 
   void simpleHWSubtraction(const std::vector<l1t::CaloRegion> &regions, std::vector<l1t::CaloRegion> *subRegions) {
-    for (std::vector<CaloRegion>::const_iterator region = regions.begin(); region != regions.end(); region++) {
-      int subEta = region->hwEta();
-      int subPhi = region->hwPhi();
-      int subPt = region->hwPt();
+    for (const auto &region : regions) {
+      int subEta = region.hwEta();
+      int subPhi = region.hwPhi();
+      int subPt = region.hwPt();
 
       if (subPt != (2 << 10) - 1)
         subPt = subPt - (10 + subEta);  // arbitrary value chosen in meeting
@@ -59,7 +59,7 @@ namespace l1t {
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0, 0, 0, 0);
 
       CaloRegion newSubRegion(
-          *&ldummy, 0, 0, subPt, subEta, subPhi, region->hwQual(), region->hwEtEm(), region->hwEtHad());
+          *&ldummy, 0, 0, subPt, subEta, subPhi, region.hwQual(), region.hwEtEm(), region.hwEtHad());
       subRegions->push_back(newSubRegion);
     }
   }
@@ -72,10 +72,7 @@ namespace l1t {
     std::string regionPUSType = params->regionPUSType();
 
     if (regionPUSType == "None") {
-      for (std::vector<CaloRegion>::const_iterator notCorrectedRegion = regions.begin();
-           notCorrectedRegion != regions.end();
-           notCorrectedRegion++) {
-        CaloRegion newSubRegion = *notCorrectedRegion;
+      for (auto newSubRegion : regions) {
         subRegions->push_back(newSubRegion);
       }
     }
@@ -88,10 +85,8 @@ namespace l1t {
       int puMult = 0;
 
       // ------------ This calulates PUM0 ------------------
-      for (std::vector<CaloRegion>::const_iterator notCorrectedRegion = regions.begin();
-           notCorrectedRegion != regions.end();
-           notCorrectedRegion++) {
-        int regionET = notCorrectedRegion->hwPt();
+      for (const auto &region : regions) {
+        int regionET = region.hwPt();
         if (regionET > 0) {
           puMult++;
         }
@@ -100,12 +95,10 @@ namespace l1t {
       if (pumbin == 18)
         pumbin = 17;  // if puMult = 396 exactly there is an overflow
 
-      for (std::vector<CaloRegion>::const_iterator notCorrectedRegion = regions.begin();
-           notCorrectedRegion != regions.end();
-           notCorrectedRegion++) {
-        int regionET = notCorrectedRegion->hwPt();
-        int regionEta = notCorrectedRegion->hwEta();
-        int regionPhi = notCorrectedRegion->hwPhi();
+      for (const auto &region : regions) {
+        int regionET = region.hwPt();
+        int regionEta = region.hwEta();
+        int regionPhi = region.hwPhi();
 
         //int puSub = ceil(regionPUSParams[18*regionEta+pumbin]*2);
         int puSub = params->regionPUSValue(pumbin, regionEta);
@@ -121,15 +114,8 @@ namespace l1t {
           regionEtCorr = 255;
 
         ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > lorentz(0, 0, 0, 0);
-        CaloRegion newSubRegion(*&lorentz,
-                                0,
-                                0,
-                                regionEtCorr,
-                                regionEta,
-                                regionPhi,
-                                notCorrectedRegion->hwQual(),
-                                notCorrectedRegion->hwEtEm(),
-                                notCorrectedRegion->hwEtHad());
+        CaloRegion newSubRegion(
+            *&lorentz, 0, 0, regionEtCorr, regionEta, regionPhi, region.hwQual(), region.hwEtEm(), region.hwEtHad());
         subRegions->push_back(newSubRegion);
       }
     }

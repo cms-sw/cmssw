@@ -90,8 +90,8 @@ void DaqTestHistograms::dqmAnalyze(edm::Event const &event,
   unsigned int lumisection = event.luminosityBlock();
 
   histograms.events_processed->Fill(lumisection);
-  for (size_t i = 0; i < histograms.element_array.size(); i++) {
-    histograms.element_array[i]->Fill(lumisection);
+  for (auto i : histograms.element_array) {
+    i->Fill(lumisection);
   }
 }
 

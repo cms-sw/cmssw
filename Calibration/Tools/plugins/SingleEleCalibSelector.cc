@@ -63,9 +63,9 @@ SingleEleCalibSelector::select (edm::Handle<collection> inputHandle,
   iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
 
   //Loop over electrons
-  for (collection::const_iterator ele = (*inputHandle).begin(); ele != (*inputHandle).end(); ++ele) {
+  for (const auto& ele : (*inputHandle)) {
     //Find DetID max hit
-    DetId maxHitId = findMaxHit((*ele).superCluster()->hitsAndFractions(), EBHitsColl, EEHitsColl);
+    DetId maxHitId = findMaxHit(ele.superCluster()->hitsAndFractions(), EBHitsColl, EEHitsColl);
 
     if (maxHitId.null()) {
       std::cout << " Null Id" << std::endl;
@@ -84,19 +84,19 @@ SingleEleCalibSelector::select (edm::Handle<collection> inputHandle,
     std::vector<DetId> m3x3aroundMax = topology->getWindow(maxHitId, WindowSize, WindowSize);
     E3x3 = EnergyNxN(m3x3aroundMax, EBHitsColl, EEHitsColl);
 
-    double pin = ele->trackMomentumAtVtx().R();
-    double piMpoOpi = (pin - ele->trackMomentumOut().R()) / pin;
-    double E5x5OPout = E5x5 / ele->trackMomentumOut().R();
+    double pin = ele.trackMomentumAtVtx().R();
+    double piMpoOpi = (pin - ele.trackMomentumOut().R()) / pin;
+    double E5x5OPout = E5x5 / ele.trackMomentumOut().R();
     double E3x3OPin = E3x3 / pin;
     double E3x3OE5x5 = E3x3 / E5x5;
-    double EseedOPout = ele->eSeedClusterOverPout();
-    double EoPin = ele->eSuperClusterOverP();
+    double EseedOPout = ele.eSeedClusterOverPout();
+    double EoPin = ele.eSuperClusterOverP();
 
     if (piMpoOpi > PinMPoutOPinMin_ && piMpoOpi < PinMPoutOPinMax_ && EseedOPout > ESeedOPoutMin_ &&
         EseedOPout < ESeedOPoutMax_ && EoPin > ESCOPinMin_ && EoPin < ESCOPinMax_ && E5x5OPout > E5x5OPoutMin_ &&
         E5x5OPout < E5x5OPoutMax_ && E3x3OPin > E3x3OPinMin_ && E3x3OPin < E3x3OPinMax_ && E3x3OE5x5 > E3x3OE5x5Min_ &&
         E3x3OE5x5 < E3x3OE5x5Max_) {
-      selected_.push_back(&(*ele));
+      selected_.push_back(&ele);
     }
   }
 
@@ -115,10 +115,10 @@ DetId SingleEleCalibSelector::findMaxHit(const std::vector<std::pair<DetId, floa
                                          const EERecHitCollection* EEhits) {
   double currEnergy = 0.;
   DetId maxHit;
-  for (std::vector<std::pair<DetId, float> >::const_iterator idsIt = v1.begin(); idsIt != v1.end(); ++idsIt) {
-    if (idsIt->first.subdetId() == EcalBarrel) {
+  for (const auto& idsIt : v1) {
+    if (idsIt.first.subdetId() == EcalBarrel) {
       EBRecHitCollection::const_iterator itrechit;
-      itrechit = EBhits->find((*idsIt).first);
+      itrechit = EBhits->find(idsIt.first);
       if (itrechit == EBhits->end()) {
         edm::LogInfo("reading") << "[findMaxHit] rechit not found! ";
         continue;
@@ -126,11 +126,11 @@ DetId SingleEleCalibSelector::findMaxHit(const std::vector<std::pair<DetId, floa
       //FIXME: use fraction ??
       if (itrechit->energy() > currEnergy) {
         currEnergy = itrechit->energy();
-        maxHit = (*idsIt).first;
+        maxHit = idsIt.first;
       }
     } else {
       EERecHitCollection::const_iterator itrechit;
-      itrechit = EEhits->find((*idsIt).first);
+      itrechit = EEhits->find(idsIt.first);
       if (itrechit == EEhits->end()) {
         edm::LogInfo("reading") << "[findMaxHit] rechit not found! ";
         continue;
@@ -138,7 +138,7 @@ DetId SingleEleCalibSelector::findMaxHit(const std::vector<std::pair<DetId, floa
 
       if (itrechit->energy() > currEnergy) {
         currEnergy = itrechit->energy();
-        maxHit = (*idsIt).first;
+        maxHit = idsIt.first;
       }
     }
   }

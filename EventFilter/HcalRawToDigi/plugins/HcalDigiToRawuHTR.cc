@@ -257,11 +257,11 @@ void HcalDigiToRawuHTR::produce(edm::StreamID id, edm::Event& iEvent, const edm:
            putting together the FEDRawDataCollection
      ------------------------------------------------------
      ------------------------------------------------------ */
-  for (map<int, unique_ptr<HCalFED> >::iterator fed = fedMap.begin(); fed != fedMap.end(); ++fed) {
-    int fedId = fed->first;
+  for (auto& fed : fedMap) {
+    int fedId = fed.first;
 
     auto& rawData = fed_buffers->FEDData(fedId);
-    fed->second->formatFEDdata(rawData);
+    fed.second->formatFEDdata(rawData);
 
     FEDHeader hcalFEDHeader(rawData.data());
     hcalFEDHeader.set(rawData.data(), 1, iEvent.id().event(), iEvent.bunchCrossing(), fedId);

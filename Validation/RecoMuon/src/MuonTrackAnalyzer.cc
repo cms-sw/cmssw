@@ -195,8 +195,8 @@ void MuonTrackAnalyzer::seedsAnalysis(const Event &event,
 
   LogTrace("MuonTrackAnalyzer") << "Number of reconstructed seeds: " << seeds->size() << endl;
 
-  for (TrajectorySeedCollection::const_iterator seed = seeds->begin(); seed != seeds->end(); ++seed) {
-    TrajectoryStateOnSurface seedTSOS = getSeedTSOS(*seed);
+  for (const auto &seed : *seeds) {
+    TrajectoryStateOnSurface seedTSOS = getSeedTSOS(seed);
     pair<SimTrack, double> sim = getSimTrack(seedTSOS, simTracks);
     fillPlots(seedTSOS, sim.first, hRecoSeedInner, debug);
 
@@ -404,32 +404,31 @@ bool MuonTrackAnalyzer::checkMuonSimHitPresence(const Event &event, edm::Handle<
 
   map<unsigned int, vector<const PSimHit *> > mapOfMuonSimHits;
 
-  for (PSimHitContainer::const_iterator simhit = dtSimHits->begin(); simhit != dtSimHits->end(); ++simhit) {
-    if (abs(simhit->particleType()) != 13)
+  for (const auto &simhit : *dtSimHits) {
+    if (abs(simhit.particleType()) != 13)
       continue;
-    mapOfMuonSimHits[simhit->trackId()].push_back(&*simhit);
+    mapOfMuonSimHits[simhit.trackId()].push_back(&simhit);
   }
 
-  for (PSimHitContainer::const_iterator simhit = cscSimHits->begin(); simhit != cscSimHits->end(); ++simhit) {
-    if (abs(simhit->particleType()) != 13)
+  for (const auto &simhit : *cscSimHits) {
+    if (abs(simhit.particleType()) != 13)
       continue;
-    mapOfMuonSimHits[simhit->trackId()].push_back(&*simhit);
+    mapOfMuonSimHits[simhit.trackId()].push_back(&simhit);
   }
 
-  for (PSimHitContainer::const_iterator simhit = rpcSimHits->begin(); simhit != rpcSimHits->end(); ++simhit) {
-    if (abs(simhit->particleType()) != 13)
+  for (const auto &simhit : *rpcSimHits) {
+    if (abs(simhit.particleType()) != 13)
       continue;
-    mapOfMuonSimHits[simhit->trackId()].push_back(&*simhit);
+    mapOfMuonSimHits[simhit.trackId()].push_back(&simhit);
   }
 
   bool presence = false;
 
-  for (SimTrackContainer::const_iterator simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack) {
-    if (abs(simTrack->type()) != 13)
+  for (const auto &simTrack : *simTracks) {
+    if (abs(simTrack.type()) != 13)
       continue;
 
-    map<unsigned int, vector<const PSimHit *> >::const_iterator mapIterator =
-        mapOfMuonSimHits.find(simTrack->trackId());
+    map<unsigned int, vector<const PSimHit *> >::const_iterator mapIterator = mapOfMuonSimHits.find(simTrack.trackId());
 
     if (mapIterator != mapOfMuonSimHits.end())
       presence = true;

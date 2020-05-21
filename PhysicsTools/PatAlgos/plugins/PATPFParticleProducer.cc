@@ -94,8 +94,8 @@ void PATPFParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     PFParticle aPFParticle(pfCandidatesRef);
 
     if (addGenMatch_) {
-      for (size_t i = 0, n = genMatches.size(); i < n; ++i) {
-        reco::GenParticleRef genPFParticle = (*genMatches[i])[pfCandidatesRef];
+      for (auto& genMatche : genMatches) {
+        reco::GenParticleRef genPFParticle = (*genMatche)[pfCandidatesRef];
         aPFParticle.addGenParticleRef(genPFParticle);
       }
       if (embedGenMatch_)

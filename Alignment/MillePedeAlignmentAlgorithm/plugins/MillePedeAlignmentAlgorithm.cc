@@ -807,16 +807,16 @@ int MillePedeAlignmentAlgorithm::addGlobalData(const edm::EventSetup &setup,
   //calibration parameters
   int globalLabel;
   std::vector<IntegratedCalibrationBase::ValuesIndexPair> derivs;
-  for (auto iCalib = theCalibrations.begin(); iCalib != theCalibrations.end(); ++iCalib) {
+  for (auto &theCalibration : theCalibrations) {
     // get all derivatives of this calibration // const unsigned int num =
-    (*iCalib)->derivatives(derivs, *recHitPtr, tsos, setup, eventInfo);
-    for (auto iValuesInd = derivs.begin(); iValuesInd != derivs.end(); ++iValuesInd) {
+    theCalibration->derivatives(derivs, *recHitPtr, tsos, setup, eventInfo);
+    for (auto &deriv : derivs) {
       // transfer label and x/y derivatives
-      globalLabel = thePedeLabels->calibrationLabel(*iCalib, iValuesInd->second);
+      globalLabel = thePedeLabels->calibrationLabel(theCalibration, deriv.second);
       if (globalLabel > 0 && globalLabel <= 2147483647) {
         theIntBuffer.push_back(globalLabel);
-        theDoubleBufferX.push_back(iValuesInd->first.first);
-        theDoubleBufferY.push_back(iValuesInd->first.second);
+        theDoubleBufferX.push_back(deriv.first.first);
+        theDoubleBufferY.push_back(deriv.first.second);
       } else {
         edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::addGlobalData"
                                    << "Invalid label " << globalLabel << " <= 0 or > 2147483647";
@@ -962,14 +962,14 @@ void MillePedeAlignmentAlgorithm::globalDerivativesCalibration(const TransientTr
                                                                std::vector<float> &globalDerivativesY,
                                                                std::vector<int> &globalLabels) const {
   std::vector<IntegratedCalibrationBase::ValuesIndexPair> derivs;
-  for (auto iCalib = theCalibrations.begin(); iCalib != theCalibrations.end(); ++iCalib) {
+  for (auto theCalibration : theCalibrations) {
     // get all derivatives of this calibration // const unsigned int num =
-    (*iCalib)->derivatives(derivs, *recHit, tsos, setup, eventInfo);
-    for (auto iValuesInd = derivs.begin(); iValuesInd != derivs.end(); ++iValuesInd) {
+    theCalibration->derivatives(derivs, *recHit, tsos, setup, eventInfo);
+    for (auto &deriv : derivs) {
       // transfer label and x/y derivatives
-      globalLabels.push_back(thePedeLabels->calibrationLabel(*iCalib, iValuesInd->second));
-      globalDerivativesX.push_back(iValuesInd->first.first);
-      globalDerivativesY.push_back(iValuesInd->first.second);
+      globalLabels.push_back(thePedeLabels->calibrationLabel(theCalibration, deriv.second));
+      globalDerivativesX.push_back(deriv.first.first);
+      globalDerivativesY.push_back(deriv.first.second);
     }
   }
 }
@@ -1199,8 +1199,8 @@ bool MillePedeAlignmentAlgorithm::addHitStatistics(int fromIov,
   bool allOk = true;
   int ierr = 0;
   MillePedeVariablesIORoot millePedeIO;
-  for (std::vector<std::string>::const_iterator iFile = inFiles.begin(); iFile != inFiles.end(); ++iFile) {
-    const std::string inFile(theDir + *iFile);
+  for (const auto &iFile : inFiles) {
+    const std::string inFile(theDir + iFile);
     const std::vector<AlignmentUserVariables *> mpVars =
         millePedeIO.readMillePedeVariables(theAlignables, inFile.c_str(), fromIov, ierr);
     if (ierr || !this->addHits(theAlignables, mpVars)) {
@@ -1209,8 +1209,8 @@ bool MillePedeAlignmentAlgorithm::addHitStatistics(int fromIov,
                                  << ", or problems in addHits";
       allOk = false;
     }
-    for (std::vector<AlignmentUserVariables *>::const_iterator i = mpVars.begin(); i != mpVars.end(); ++i) {
-      delete *i;  // clean created objects
+    for (auto mpVar : mpVars) {
+      delete mpVar;  // clean created objects
     }
   }
 

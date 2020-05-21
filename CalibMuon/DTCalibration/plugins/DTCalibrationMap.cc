@@ -168,10 +168,10 @@ void DTCalibrationMap::addCell(Key theKey, const CalibConsts& calibConst) {
 // Write the calibration consts to a file
 void DTCalibrationMap::writeConsts(const string& outputFileName) const {
   ofstream out(outputFileName.c_str());
-  for (map<Key, CalibConsts>::const_iterator iter = theMap.begin(); iter != theMap.end(); ++iter) {
-    out << (*iter).first.wheel() << ' ' << (*iter).first.station() << ' ' << (*iter).first.sector() << ' '
-        << (*iter).first.superlayer() << ' ' << (*iter).first.layer() << ' ' << (*iter).first.wire() << ' ';
-    copy((*iter).second.begin(), (*iter).second.end(), ostream_iterator<float>(out, " "));
+  for (const auto& iter : theMap) {
+    out << iter.first.wheel() << ' ' << iter.first.station() << ' ' << iter.first.sector() << ' '
+        << iter.first.superlayer() << ' ' << iter.first.layer() << ' ' << iter.first.wire() << ' ';
+    copy(iter.second.begin(), iter.second.end(), ostream_iterator<float>(out, " "));
     out << endl;
   }
 }

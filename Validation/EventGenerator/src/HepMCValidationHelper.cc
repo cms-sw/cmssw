@@ -23,22 +23,22 @@ namespace HepMCValidationHelper {
                       std::vector<const HepMC::GenParticle*>& fsrphotons) {
     //find all status 1 photons
     std::vector<const HepMC::GenParticle*> allphotons;
-    for (unsigned int i = 0; i < all.size(); ++i) {
-      if (all[i]->status() == 1 && all[i]->pdg_id() == 22)
-        allphotons.push_back(all[i]);
+    for (auto i : all) {
+      if (i->status() == 1 && i->pdg_id() == 22)
+        allphotons.push_back(i);
     }
 
     //loop over the photons and check the distance wrt the leptons
-    for (unsigned int ipho = 0; ipho < allphotons.size(); ++ipho) {
+    for (auto& allphoton : allphotons) {
       bool close = false;
-      for (unsigned int ilep = 0; ilep < leptons.size(); ++ilep) {
-        if (deltaR(allphotons[ipho]->momentum(), leptons[ilep]->momentum()) < deltaRcut) {
+      for (auto lepton : leptons) {
+        if (deltaR(allphoton->momentum(), lepton->momentum()) < deltaRcut) {
           close = true;
           break;
         }
       }
       if (close)
-        fsrphotons.push_back(allphotons[ipho]);
+        fsrphotons.push_back(allphoton);
     }
   }
 
@@ -172,40 +172,36 @@ namespace HepMCValidationHelper {
     allStatus2(all, status2);
     std::vector<const HepMC::GenParticle*> taus;
     //getTaus(all, taus);
-    for (unsigned int i = 0; i < status2.size(); ++i) {
-      if (isTau(status2[i])) {
+    for (auto& i : status2) {
+      if (isTau(i)) {
         //check the list we have already for duplicates
         //there use to be duplicates in some generators (sherpa)
         bool duplicate = false;
-        TLorentzVector taumomentum(status2[i]->momentum().x(),
-                                   status2[i]->momentum().y(),
-                                   status2[i]->momentum().z(),
-                                   status2[i]->momentum().t());
-        for (unsigned int j = 0; j < taus.size(); ++j) {
+        TLorentzVector taumomentum(i->momentum().x(), i->momentum().y(), i->momentum().z(), i->momentum().t());
+        for (auto& tau : taus) {
           //compare momenta
           TLorentzVector othermomentum(
-              taus[j]->momentum().x(), taus[j]->momentum().y(), taus[j]->momentum().z(), taus[j]->momentum().t());
+              tau->momentum().x(), tau->momentum().y(), tau->momentum().z(), tau->momentum().t());
           othermomentum -= taumomentum;
-          if (status2[i]->pdg_id() == taus[j]->pdg_id() &&
-              othermomentum.E() < 0.1 &&  //std::numeric_limits<float>::epsilon() &&
-              othermomentum.P() < 0.1) {  //std::numeric_limits<float>::epsilon()){
+          if (i->pdg_id() == tau->pdg_id() && othermomentum.E() < 0.1 &&  //std::numeric_limits<float>::epsilon() &&
+              othermomentum.P() < 0.1) {                                  //std::numeric_limits<float>::epsilon()){
             duplicate = true;
             break;
           }
         }
         if (!duplicate)
-          taus.push_back(status2[i]);
+          taus.push_back(i);
       }
     }
     //loop over the taus, find the descendents, remove all these from the list of particles to compute isolation
-    for (unsigned int i = 0; i < taus.size(); ++i) {
+    for (auto& tau : taus) {
       std::vector<const HepMC::GenParticle*> taudaughters;
-      findDescendents(taus[i], taudaughters);
+      findDescendents(tau, taudaughters);
       if (taudaughters.empty()) {
         edm::LogError("HepMCValidationHelper") << "Tau with no daughters. This is a bug. Fix it";
         abort();
       }
-      const HepMC::FourVector& taumom = taus[i]->momentum();
+      const HepMC::FourVector& taumom = tau->momentum();
       //remove the daughters from the list of particles to compute isolation
       std::vector<const HepMC::GenParticle*> forIsolation;
       std::vector<const HepMC::GenParticle*>::iterator iiso;
@@ -242,17 +238,17 @@ namespace HepMCValidationHelper {
 
     //now actually remove
     pruned.clear();
-    for (unsigned int i = 0; i < status1.size(); ++i) {
+    for (auto& i : status1) {
       bool marked = false;
       std::vector<const HepMC::GenParticle*>::const_iterator iremove;
       for (iremove = toRemove.begin(); iremove != toRemove.end(); ++iremove) {
-        if (status1[i]->barcode() == (*iremove)->barcode()) {
+        if (i->barcode() == (*iremove)->barcode()) {
           marked = true;
           break;
         }
       }
       if (!marked)
-        pruned.push_back(status1[i]);
+        pruned.push_back(i);
     }
 
 #ifdef DEBUG_HepMCValidationHelper
@@ -268,9 +264,9 @@ namespace HepMCValidationHelper {
     std::vector<const HepMC::GenParticle*> status1;
     visible.clear();
     allStatus1(all, status1);
-    for (unsigned int i = 0; i < status1.size(); ++i) {
-      if (!isNeutrino(status1[i]))
-        visible.push_back(status1[i]);
+    for (auto& i : status1) {
+      if (!isNeutrino(i))
+        visible.push_back(i);
     }
   }
 
@@ -279,12 +275,9 @@ namespace HepMCValidationHelper {
     std::vector<const HepMC::GenParticle*> visible;
     allVisibleParticles(all, visible);
     TLorentzVector momsum(0., 0., 0., 0.);
-    for (unsigned int i = 0; i < visible.size(); ++i) {
-      if (visible[i]->momentum().eta() > etamin && visible[i]->momentum().eta() < etamax) {
-        TLorentzVector mom(visible[i]->momentum().x(),
-                           visible[i]->momentum().y(),
-                           visible[i]->momentum().z(),
-                           visible[i]->momentum().t());
+    for (auto& i : visible) {
+      if (i->momentum().eta() > etamin && i->momentum().eta() < etamax) {
+        TLorentzVector mom(i->momentum().x(), i->momentum().y(), i->momentum().z(), i->momentum().t());
         momsum += mom;
       }
     }

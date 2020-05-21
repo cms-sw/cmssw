@@ -564,59 +564,59 @@ double PhotonFix::asinh(double s) {
 void PhotonFix::dumpGaps(std::ostream &o) {
   o << std::setprecision(15);
 
-  for (unsigned i(0); i < 169; i++) {
+  for (auto &i : _barrelCGap) {
     for (unsigned j(0); j < 360; j++) {
       for (unsigned k(0); k < 2; k++) {
-        o << _barrelCGap[i][j][k] << std::endl;
+        o << i[j][k] << std::endl;
       }
     }
   }
 
-  for (unsigned i(0); i < 33; i++) {
+  for (auto &i : _barrelSGap) {
     for (unsigned j(0); j < 180; j++) {
       for (unsigned k(0); k < 2; k++) {
-        o << _barrelSGap[i][j][k] << std::endl;
+        o << i[j][k] << std::endl;
       }
     }
   }
 
-  for (unsigned i(0); i < 7; i++) {
+  for (auto &i : _barrelMGap) {
     for (unsigned j(0); j < 18; j++) {
       for (unsigned k(0); k < 2; k++) {
-        o << _barrelMGap[i][j][k] << std::endl;
+        o << i[j][k] << std::endl;
       }
     }
   }
 
-  for (unsigned i(0); i < 100; i++) {
+  for (auto &i : _endcapCrystal) {
     for (unsigned j(0); j < 100; j++) {
-      if (_endcapCrystal[i][j])
+      if (i[j])
         o << 0 << std::endl;
       else
         o << 1 << std::endl;
     }
   }
 
-  for (unsigned i(0); i < 2; i++) {
+  for (auto &i : _endcapCGap) {
     for (unsigned j(0); j < 7080; j++) {
       for (unsigned k(0); k < 2; k++) {
-        o << _endcapCGap[i][j][k] << std::endl;
+        o << i[j][k] << std::endl;
       }
     }
   }
 
-  for (unsigned i(0); i < 2; i++) {
+  for (auto &i : _endcapSGap) {
     for (unsigned j(0); j < 264; j++) {
       for (unsigned k(0); k < 2; k++) {
-        o << _endcapSGap[i][j][k] << std::endl;
+        o << i[j][k] << std::endl;
       }
     }
   }
 
-  for (unsigned i(0); i < 2; i++) {
+  for (auto &i : _endcapMGap) {
     for (unsigned j(0); j < 1; j++) {
       for (unsigned k(0); k < 2; k++) {
-        o << _endcapMGap[i][j][k] << std::endl;
+        o << i[j][k] << std::endl;
       }
     }
   }
@@ -2061,57 +2061,57 @@ bool PhotonFix::initialiseGeometry(const std::string &s) {
   assert(fin);
 
   std::cout << "Reading in here" << std::endl;
-  for (unsigned i(0); i < 169; i++) {
+  for (auto &i : _barrelCGap) {
     for (unsigned j(0); j < 360; j++) {
       for (unsigned k(0); k < 2; k++) {
-        fin >> _barrelCGap[i][j][k];
+        fin >> i[j][k];
       }
     }
   }
 
-  for (unsigned i(0); i < 33; i++) {
+  for (auto &i : _barrelSGap) {
     for (unsigned j(0); j < 180; j++) {
       for (unsigned k(0); k < 2; k++) {
-        fin >> _barrelSGap[i][j][k];
+        fin >> i[j][k];
       }
     }
   }
 
-  for (unsigned i(0); i < 7; i++) {
+  for (auto &i : _barrelMGap) {
     for (unsigned j(0); j < 18; j++) {
       for (unsigned k(0); k < 2; k++) {
-        fin >> _barrelMGap[i][j][k];
+        fin >> i[j][k];
       }
     }
   }
-  for (unsigned i(0); i < 100; i++) {
+  for (auto &i : _endcapCrystal) {
     for (unsigned j(0); j < 100; j++) {
       unsigned k;
       fin >> k;
-      _endcapCrystal[i][j] = (k == 0);
+      i[j] = (k == 0);
     }
   }
 
-  for (unsigned i(0); i < 2; i++) {
+  for (auto &i : _endcapCGap) {
     for (unsigned j(0); j < 7080; j++) {
       for (unsigned k(0); k < 2; k++) {
-        fin >> _endcapCGap[i][j][k];
+        fin >> i[j][k];
       }
     }
   }
 
-  for (unsigned i(0); i < 2; i++) {
+  for (auto &i : _endcapSGap) {
     for (unsigned j(0); j < 264; j++) {
       for (unsigned k(0); k < 2; k++) {
-        fin >> _endcapSGap[i][j][k];
+        fin >> i[j][k];
       }
     }
   }
 
-  for (unsigned i(0); i < 2; i++) {
+  for (auto &i : _endcapMGap) {
     for (unsigned j(0); j < 1; j++) {
       for (unsigned k(0); k < 2; k++) {
-        fin >> _endcapMGap[i][j][k];
+        fin >> i[j][k];
       }
     }
   }

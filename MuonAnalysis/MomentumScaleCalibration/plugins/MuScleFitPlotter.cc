@@ -53,14 +53,13 @@ void MuScleFitPlotter::fillGen(const reco::GenParticleCollection& genParticles, 
 
   int mothersFound[] = {0, 0, 0, 0, 0, 0};
 
-  for (reco::GenParticleCollection::const_iterator mcIter = genParticles.begin(); mcIter != genParticles.end();
-       ++mcIter) {
-    int status = mcIter->status();
-    int pdgId = std::abs(mcIter->pdgId());
+  for (const auto& genParticle : genParticles) {
+    int status = genParticle.status();
+    int pdgId = std::abs(genParticle.pdgId());
     //Check if it's a resonance
     if (status == 2 &&
         (pdgId == 23 || pdgId == 443 || pdgId == 100443 || pdgId == 553 || pdgId == 100553 || pdgId == 200553)) {
-      genRes = mcIter->p4();
+      genRes = genParticle.p4();
       // std::cout << "mother's mother = " << mcIter->mother()->pdgId() << std::endl;
       if (pdgId == 23)
         mapHisto["hGenResZ"]->Fill(genRes);
@@ -71,7 +70,7 @@ void MuScleFitPlotter::fillGen(const reco::GenParticleCollection& genParticles, 
     }
     //Check if it's a muon from a resonance
     if (status == 1 && pdgId == 13 && !PATmuons) {
-      int momPdgId = std::abs(mcIter->mother()->pdgId());
+      int momPdgId = std::abs(genParticle.mother()->pdgId());
       if (momPdgId == 23 || momPdgId == 443 || momPdgId == 100443 || momPdgId == 553 || momPdgId == 100553 ||
           momPdgId == 200553) {
         if (momPdgId == 23)
@@ -80,24 +79,24 @@ void MuScleFitPlotter::fillGen(const reco::GenParticleCollection& genParticles, 
           mothersFound[5] = 1;
         if (momPdgId == 553 || momPdgId == 100553 || momPdgId == 200553)
           mothersFound[3] = 1;
-        mapHisto["hGenMu"]->Fill(mcIter->p4());
-        std::cout << "genmu " << mcIter->p4() << std::endl;
-        if (mcIter->charge() > 0) {
-          muFromRes.first = mcIter->p4();
+        mapHisto["hGenMu"]->Fill(genParticle.p4());
+        std::cout << "genmu " << genParticle.p4() << std::endl;
+        if (genParticle.charge() > 0) {
+          muFromRes.first = genParticle.p4();
           // prova = true;
         } else
-          muFromRes.second = mcIter->p4();
+          muFromRes.second = genParticle.p4();
       }
     }  //if PATmuons you don't have the info of the mother !!! Here I assume is a JPsi
     if (status == 1 && pdgId == 13 && PATmuons) {
       mothersFound[5] = 1;
-      mapHisto["hGenMu"]->Fill(mcIter->p4());
-      std::cout << "genmu " << mcIter->p4() << std::endl;
-      if (mcIter->charge() > 0) {
-        muFromRes.first = mcIter->p4();
+      mapHisto["hGenMu"]->Fill(genParticle.p4());
+      std::cout << "genmu " << genParticle.p4() << std::endl;
+      if (genParticle.charge() > 0) {
+        muFromRes.first = genParticle.p4();
         // prova = true;
       } else
-        muFromRes.second = mcIter->p4();
+        muFromRes.second = genParticle.p4();
     }
   }
   //   if(!prova)
@@ -246,11 +245,11 @@ void MuScleFitPlotter::fillSim(edm::Handle<edm::SimTrackContainer> simTracks) {
   std::vector<SimTrack> simMuons;
 
   //Loop on simulated tracks
-  for (edm::SimTrackContainer::const_iterator simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack) {
+  for (const auto& simTrack : *simTracks) {
     // Select the muons from all the simulated tracks
-    if (std::abs((*simTrack).type()) == 13) {
-      simMuons.push_back(*simTrack);
-      mapHisto["hSimMu"]->Fill((*simTrack).momentum());
+    if (std::abs(simTrack.type()) == 13) {
+      simMuons.push_back(simTrack);
+      mapHisto["hSimMu"]->Fill(simTrack.momentum());
     }
   }
   mapHisto["hSimMu"]->Fill(simMuons.size());
@@ -320,10 +319,10 @@ void MuScleFitPlotter::fillRec(std::vector<MuScleFitMuon>& muons) {
   for (std::vector<MuScleFitMuon>::const_iterator mu1 = muons.begin(); mu1 != muons.end(); mu1++) {
     mapHisto["hRecMu"]->Fill(mu1->p4());
     mapHisto["hRecMuVSEta"]->Fill(mu1->p4());
-    for (std::vector<MuScleFitMuon>::const_iterator mu2 = muons.begin(); mu2 != muons.end(); mu2++) {
-      if (mu1->charge() < 0 || mu2->charge() > 0)
+    for (const auto& muon : muons) {
+      if (mu1->charge() < 0 || muon.charge() > 0)
         continue;
-      reco::Particle::LorentzVector Res(mu1->p4() + mu2->p4());
+      reco::Particle::LorentzVector Res(mu1->p4() + muon.p4());
       mapHisto["hRecMuPMuM"]->Fill(Res);
     }
   }

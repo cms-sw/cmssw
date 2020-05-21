@@ -92,8 +92,8 @@ int main_t(const vector<string>& v_file) {
   funct::Constant rebinMuMuNoIsoConst(rebinMuMuNoIso), rebinMuMuConst(rebinMuMu), rebinMuMu1HLTConst(rebinMuMu1HLT),
       rebinMuMu2HLTConst(rebinMuMu2HLT), rebinMuTkConst(rebinMuTk), rebinMuSaConst(rebinMuSa);
 
-  for (vector<string>::const_iterator it = v_file.begin(); it != v_file.end(); ++it) {
-    TFile* root_file = new TFile(it->c_str(), "read");
+  for (const auto& it : v_file) {
+    TFile* root_file = new TFile(it.c_str(), "read");
 
     // default when region==all
     //    TH1 * histoZMuMuNoIso = getHisto(root_file, "nonIsolatedZToMuMuPlots/zMass",rebinMuMuNoIso);
@@ -147,7 +147,7 @@ int main_t(const vector<string>& v_file) {
     }
 
     cout << ">>> histogram loaded\n";
-    string f_string = *it + "_" + PlotPrefix<T>::str() + "_";
+    string f_string = it + "_" + PlotPrefix<T>::str() + "_";
     replace(f_string.begin(), f_string.end(), '.', '_');
     replace(f_string.begin(), f_string.end(), '/', '_');
     string plot_string = f_string + "." + ext;

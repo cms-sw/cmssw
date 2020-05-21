@@ -124,8 +124,8 @@ void align::createPoints(align::GlobalVectors* Vs,
           ali->setSurvey(new SurveyDet(ali->surface(), error * 1e-6));
         }
         const align::GlobalPoints& points = ali->surface().toGlobal(ali->survey()->localPoints());
-        for (unsigned int j = 0; j < points.size(); ++j) {
-          align::GlobalVector dummy(points[j].x(), points[j].y(), points[j].z());
+        for (const auto& point : points) {
+          align::GlobalVector dummy(point.x(), point.y(), point.z());
           Vs->push_back(dummy);
         }
       }
@@ -141,8 +141,8 @@ void align::createPoints(align::GlobalVectors* Vs,
         ali->setSurvey(new SurveyDet(ali->surface(), error * 1e-6));
       }
       const align::GlobalPoints& points = ali->surface().toGlobal(ali->survey()->localPoints());
-      for (unsigned int j = 0; j < points.size(); ++j) {
-        align::GlobalVector dummy(points[j].x(), points[j].y(), points[j].z());
+      for (const auto& point : points) {
+        align::GlobalVector dummy(point.x(), point.y(), point.z());
         Vs->push_back(dummy);
       }
     }

@@ -33,8 +33,7 @@ void HGCalCLUEAlgoT<T>::populate(const HGCRecHitCollection& hits) {
     computeThreshold();
   }
 
-  for (unsigned int i = 0; i < hits.size(); ++i) {
-    const HGCRecHit& hgrh = hits[i];
+  for (const auto& hgrh : hits) {
     DetId detid = hgrh.detid();
     unsigned int layerOnSide = (rhtools_.getLayerWithOffset(detid) - 1);
 

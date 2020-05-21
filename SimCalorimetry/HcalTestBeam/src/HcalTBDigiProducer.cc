@@ -195,12 +195,12 @@ void HcalTBDigiProducer::finalizeEvent(edm::Event &e, const edm::EventSetup &eve
 }
 
 void HcalTBDigiProducer::sortHits(const edm::PCaloHitContainer &hits) {
-  for (edm::PCaloHitContainer::const_iterator hitItr = hits.begin(); hitItr != hits.end(); ++hitItr) {
-    HcalSubdetector subdet = HcalDetId(hitItr->id()).subdet();
+  for (const auto &hit : hits) {
+    HcalSubdetector subdet = HcalDetId(hit.id()).subdet();
     if (subdet == HcalBarrel || subdet == HcalEndcap) {
-      theHBHEHits.push_back(*hitItr);
+      theHBHEHits.push_back(hit);
     } else if (subdet == HcalOuter) {
-      theHOHits.push_back(*hitItr);
+      theHOHits.push_back(hit);
     } else {
       edm::LogError("HcalSim") << "Bad HcalHit subdetector " << subdet;
     }

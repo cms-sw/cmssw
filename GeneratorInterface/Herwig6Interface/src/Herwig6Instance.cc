@@ -263,8 +263,8 @@ bool Herwig6Instance::give(const std::string &line) {
       if (ss.bad() || ss.peek() != traits::eof())
         return false;
 
-      for (std::string::iterator iter = value_.begin(); iter != value_.end(); ++iter)
-        *iter = std::tolower(*iter);
+      for (char &iter : value_)
+        iter = std::tolower(iter);
       bool value;
       if (value_ == "yes" || value_ == "true" || value_ == "1")
         value = true;

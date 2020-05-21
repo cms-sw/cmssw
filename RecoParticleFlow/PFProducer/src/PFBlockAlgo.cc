@@ -85,9 +85,9 @@ PFBlockAlgo::PFBlockAlgo()
 
 void PFBlockAlgo::setLinkers(const std::vector<edm::ParameterSet>& confs) {
   constexpr unsigned rowsize = reco::PFBlockElement::kNBETypes;
-  for (unsigned i = 0; i < rowsize; ++i) {
+  for (auto& i : linkTestSquare_) {
     for (unsigned j = 0; j < rowsize; ++j) {
-      linkTestSquare_[i][j] = 0;
+      i[j] = 0;
     }
   }
   linkTests_.resize(rowsize * rowsize);
@@ -311,13 +311,13 @@ void PFBlockAlgo::buildElements(const edm::Event& evt) {
   // Here we provide to all KDTree linkers the collections to link.
   // Glowinski & Gouzevitch
 
-  for (ElementList::iterator it = elements_.begin(); it != elements_.end(); ++it) {
+  for (auto& element : elements_) {
     for (const auto& kdtree : kdtrees_) {
-      if ((*it)->type() == kdtree->targetType()) {
-        kdtree->insertTargetElt(it->get());
+      if (element->type() == kdtree->targetType()) {
+        kdtree->insertTargetElt(element.get());
       }
-      if ((*it)->type() == kdtree->fieldType()) {
-        kdtree->insertFieldClusterElt(it->get());
+      if (element->type() == kdtree->fieldType()) {
+        kdtree->insertFieldClusterElt(element.get());
       }
     }
   }

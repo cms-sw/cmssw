@@ -58,8 +58,8 @@ ErsatzMEt::ErsatzMEt(const edm::ParameterSet& ps) {
   CutVector_[EE_EcalIso_] = CEE_EcalIso;
   CutVector_[EE_HcalIso_] = CEE_HcalIso;
 
-  for (std::vector<double>::const_iterator it = CutVector_.begin(); it != CutVector_.end(); ++it) {
-    edm::LogDebug_("", "", 101) << "CutVector_ = " << *it;
+  for (double it : CutVector_) {
+    edm::LogDebug_("", "", 101) << "CutVector_ = " << it;
   }
 }
 
@@ -383,16 +383,16 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es) {
     edm::LogDebug_("", "", 289) << "Analysing MC properties.";
     const reco::GenParticleCollection* McCand = pGenPart.product();
     math::XYZTLorentzVector Zboson, RescZboson, McElec1, McElec2;
-    for (reco::GenParticleCollection::const_iterator McP = McCand->begin(); McP != McCand->end(); ++McP) {
-      const reco::Candidate* mum = McP->mother();
-      if (std::abs(McP->pdgId()) == 11 && abs(mum->pdgId()) == 23) {
-        McElecs.push_back(McP->p4());
+    for (const auto& McP : *McCand) {
+      const reco::Candidate* mum = McP.mother();
+      if (std::abs(McP.pdgId()) == 11 && abs(mum->pdgId()) == 23) {
+        McElecs.push_back(McP.p4());
         if (std::abs(mum->pdgId()) == 23)
           Zboson = mum->p4();
 
-        std::cout << "Found electron, ID = " << McP->pdgId() << "\t status = " << McP->status() << std::endl;
-        if (McP->status() != 1) {
-          const reco::Candidate* McPD = McP->daughter(0);
+        std::cout << "Found electron, ID = " << McP.pdgId() << "\t status = " << McP.status() << std::endl;
+        if (McP.status() != 1) {
+          const reco::Candidate* McPD = McP.daughter(0);
           McPD = McPD->mother();
           while (McPD->status() != 1) {
             int n = McPD->numberOfDaughters();
@@ -410,7 +410,7 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es) {
           std::cout << McPD->pdgId() << " : status = " << McPD->status() << "\tAdding to vector!" << std::endl;
           McElecsFinalState.push_back(McPD->p4());
         } else
-          McElecsFinalState.push_back(McP->p4());
+          McElecsFinalState.push_back(McP.p4());
       }
     }
     McZ_m_ = Zboson.M();
@@ -483,12 +483,10 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es) {
     if (Zevent_) {
       //Match MC electrons to the selected electrons and store some of their properties in the tree.
       //The properties of the other MC electron (i.e. that not selected) are also stored.
-      for (std::vector<reco::GsfElectronRef>::const_iterator elec = SelectedElectrons.begin();
-           elec != SelectedElectrons.end();
-           ++elec) {
+      for (const auto& SelectedElectron : SelectedElectrons) {
         for (int m = 0; m < 2; ++m) {
           double dRLimit = 99.;
-          double dR = reco::deltaR(McElecs[m], *(*elec));
+          double dR = reco::deltaR(McElecs[m], *SelectedElectron);
           if (dR < dRLimit) {
             dRLimit = dR;
             McElec_pt_[iComb_] = McElecs[m].pt();
@@ -686,8 +684,7 @@ std::map<reco::GsfElectronRef, reco::GsfElectronRef> ErsatzMEt::probeFinder(
     const std::vector<reco::GsfElectronRef>& tags, const edm::Handle<reco::GsfElectronCollection> pElectrons) {
   const reco::GsfElectronCollection* probeCands = pElectrons.product();
   std::map<reco::GsfElectronRef, reco::GsfElectronRef> TagProbes;
-  for (std::vector<reco::GsfElectronRef>::const_iterator tagelec = tags.begin(); tagelec != tags.end(); ++tagelec) {
-    reco::GsfElectronRef tag = *tagelec;
+  for (auto tag : tags) {
     std::pair<reco::GsfElectronRef, reco::GsfElectronRef> TagProbePair;
     int nProbesPerTag = 0;
     int index = 0;

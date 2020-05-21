@@ -53,19 +53,19 @@ void ODTCCConfig::setParameters(const std::map<string, string>& my_keys_map) {
   // parses the result of the XML parser that is a map of
   // string string with variable name variable value
 
-  for (std::map<std::string, std::string>::const_iterator ci = my_keys_map.begin(); ci != my_keys_map.end(); ci++) {
-    if (ci->first == "TCC_CONFIGURATION_ID")
-      setConfigTag(ci->second);
-    if (ci->first == "N_TESTPATTERNS_TO_LOAD")
-      setNTestPatternsToLoad(atoi(ci->second.c_str()));
-    if (ci->first == "LUT_CONFIGURATION_FILE")
-      setLUTConfigurationFile(ci->second);
-    if (ci->first == "CONFIGURATION_FILE")
-      setTCCConfigurationFile(ci->second);
-    if (ci->first == "SLB_CONFIGURATION_FILE")
-      setSLBConfigurationFile(ci->second);
-    if (ci->first == "TESTPATTERNFILE_URL")
-      setTestPatternFileUrl(ci->second);
+  for (const auto& ci : my_keys_map) {
+    if (ci.first == "TCC_CONFIGURATION_ID")
+      setConfigTag(ci.second);
+    if (ci.first == "N_TESTPATTERNS_TO_LOAD")
+      setNTestPatternsToLoad(atoi(ci.second.c_str()));
+    if (ci.first == "LUT_CONFIGURATION_FILE")
+      setLUTConfigurationFile(ci.second);
+    if (ci.first == "CONFIGURATION_FILE")
+      setTCCConfigurationFile(ci.second);
+    if (ci.first == "SLB_CONFIGURATION_FILE")
+      setSLBConfigurationFile(ci.second);
+    if (ci.first == "TESTPATTERNFILE_URL")
+      setTestPatternFileUrl(ci.second);
   }
 }
 

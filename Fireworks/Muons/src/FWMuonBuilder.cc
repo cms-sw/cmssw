@@ -37,15 +37,13 @@ namespace {
     float globalTrajectoryPoint[3];
 
     const std::vector<reco::MuonChamberMatch>& matches = muon->matches();
-    for (std::vector<reco::MuonChamberMatch>::const_iterator chamber = matches.begin(), chamberEnd = matches.end();
-         chamber != chamberEnd;
-         ++chamber) {
+    for (const auto& matche : matches) {
       // expected track position
-      localTrajectoryPoint[0] = chamber->x;
-      localTrajectoryPoint[1] = chamber->y;
+      localTrajectoryPoint[0] = matche.x;
+      localTrajectoryPoint[1] = matche.y;
       localTrajectoryPoint[2] = 0;
 
-      unsigned int rawid = chamber->id.rawId();
+      unsigned int rawid = matche.id.rawId();
       if (geom->contains(rawid)) {
         geom->localToGlobal(rawid, localTrajectoryPoint, globalTrajectoryPoint);
         points.push_back(TEveVector(globalTrajectoryPoint[0], globalTrajectoryPoint[1], globalTrajectoryPoint[2]));
@@ -67,10 +65,8 @@ namespace {
     // FIXME: This should be set elsewhere.
     segmentSet->SetLineWidth(4);
 
-    for (std::vector<reco::MuonChamberMatch>::const_iterator chamber = matches.begin(), chambersEnd = matches.end();
-         chamber != chambersEnd;
-         ++chamber) {
-      unsigned int rawid = chamber->id.rawId();
+    for (const auto& matche : matches) {
+      unsigned int rawid = matche.id.rawId();
       float segmentLength = 0.0;
       float segmentLimit = 0.0;
 
@@ -96,12 +92,12 @@ namespace {
         }
 
         if (ids.insert(rawid).second &&  // ensure that we add same chamber only once
-            (chamber->detector() != MuonSubdetId::CSC || showEndcap)) {
+            (matche.detector() != MuonSubdetId::CSC || showEndcap)) {
           pb->setupAddElement(shape, parentList);
         }
 
-        for (std::vector<reco::MuonSegmentMatch>::const_iterator segment = chamber->segmentMatches.begin(),
-                                                                 segmentEnd = chamber->segmentMatches.end();
+        for (std::vector<reco::MuonSegmentMatch>::const_iterator segment = matche.segmentMatches.begin(),
+                                                                 segmentEnd = matche.segmentMatches.end();
              segment != segmentEnd;
              ++segment) {
           float segmentPosition[3] = {segment->x, segment->y, 0.0};
@@ -110,7 +106,7 @@ namespace {
           float localSegmentInnerPoint[3];
           float localSegmentOuterPoint[3];
 
-          fireworks::createSegment(chamber->detector(),
+          fireworks::createSegment(matche.detector(),
                                    true,
                                    segmentLength,
                                    segmentLimit,
@@ -149,15 +145,13 @@ namespace {
     float globalTrajectoryPoint[3];
 
     const std::vector<reco::MuonChamberMatch>& matches = muon->matches();
-    for (std::vector<reco::MuonChamberMatch>::const_iterator chamber = matches.begin(), chamberEnd = matches.end();
-         chamber != chamberEnd;
-         ++chamber) {
+    for (const auto& matche : matches) {
       // expected track position
-      localTrajectoryPoint[0] = chamber->x;
-      localTrajectoryPoint[1] = chamber->y;
+      localTrajectoryPoint[0] = matche.x;
+      localTrajectoryPoint[1] = matche.y;
       localTrajectoryPoint[2] = 0;
 
-      unsigned int rawid = chamber->id.rawId();
+      unsigned int rawid = matche.id.rawId();
       if (geom->contains(rawid)) {
         geom->localToGlobal(rawid, localTrajectoryPoint, globalTrajectoryPoint);
         double phi = atan2(globalTrajectoryPoint[1], globalTrajectoryPoint[0]);

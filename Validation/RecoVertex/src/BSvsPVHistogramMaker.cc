@@ -218,22 +218,22 @@ void BSvsPVHistogramMaker::fill(const unsigned int orbit,
                                 const int bx,
                                 const reco::VertexCollection& vertices,
                                 const reco::BeamSpot& bs) {
-  for (reco::VertexCollection::const_iterator vtx = vertices.begin(); vtx != vertices.end(); ++vtx) {
-    if (!(_trueOnly && vtx->isFake())) {
+  for (const auto& vertice : vertices) {
+    if (!(_trueOnly && vertice.isFake())) {
       /*
       double deltax = vtx->x()-bs.x0();
       double deltay = vtx->y()-bs.y0();
       double deltaz = vtx->z()-bs.z0();
       */
-      double deltax = vtx->x() - x(bs, vtx->z());
-      double deltay = vtx->y() - y(bs, vtx->z());
-      double deltaz = vtx->z() - bs.z0();
+      double deltax = vertice.x() - x(bs, vertice.z());
+      double deltay = vertice.y() - y(bs, vertice.z());
+      double deltaz = vertice.z() - bs.z0();
 
       _hdeltax->Fill(deltax);
       _hdeltay->Fill(deltay);
       _hdeltaz->Fill(deltaz);
-      _hdeltaxvsz->Fill(vtx->z(), deltax);
-      _hdeltayvsz->Fill(vtx->z(), deltay);
+      _hdeltaxvsz->Fill(vertice.z(), deltax);
+      _hdeltayvsz->Fill(vertice.z(), deltay);
 
       if (_runHisto) {
         if (_hdeltaxrun && *_hdeltaxrun)
@@ -243,9 +243,9 @@ void BSvsPVHistogramMaker::fill(const unsigned int orbit,
         if (_hdeltazrun && *_hdeltazrun)
           (*_hdeltazrun)->Fill(deltaz);
         if (_hdeltaxvszrun && *_hdeltaxvszrun)
-          (*_hdeltaxvszrun)->Fill(vtx->z(), deltax);
+          (*_hdeltaxvszrun)->Fill(vertice.z(), deltax);
         if (_hdeltayvszrun && *_hdeltayvszrun)
-          (*_hdeltayvszrun)->Fill(vtx->z(), deltay);
+          (*_hdeltayvszrun)->Fill(vertice.z(), deltay);
         if (_runHistoProfile) {
           if (_hdeltaxvsorbrun && *_hdeltaxvsorbrun)
             (*_hdeltaxvsorbrun)->Fill(orbit, deltax);

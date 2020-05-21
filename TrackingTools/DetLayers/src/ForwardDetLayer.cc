@@ -30,10 +30,10 @@ BoundDisk* ForwardDetLayer::computeSurface() {
   float theZmax = theZmin;
   for (vector<const GeomDet*>::const_iterator deti = ifirst; deti != ilast; deti++) {
     vector<GlobalPoint> corners = BoundingBox().corners(dynamic_cast<const Plane&>((**deti).surface()));
-    for (vector<GlobalPoint>::const_iterator ic = corners.begin(); ic != corners.end(); ic++) {
-      float r = ic->perp();
+    for (const auto& corner : corners) {
+      float r = corner.perp();
       LogDebug("DetLayers") << "corner.perp(): " << r;
-      float z = ic->z();
+      float z = corner.z();
       theRmin = min(theRmin, r);
       theRmax = max(theRmax, r);
       theZmin = min(theZmin, z);

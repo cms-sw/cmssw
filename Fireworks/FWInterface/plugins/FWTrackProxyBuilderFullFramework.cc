@@ -104,8 +104,7 @@ void FWTrackProxyBuilderFullFramework::build(const FWEventItem* iItem,
         buildTrack(it, comp);
     }
   } else {
-    for (reco::TrackCollection::const_iterator i = tracks->begin(); i != tracks->end(); ++i) {
-      const reco::Track& track = *i;
+    for (const auto& track : *tracks) {
       TEveRecTrack ts;
       ts.fBeta = 1.;
       ts.fSign = track.charge();

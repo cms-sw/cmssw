@@ -141,28 +141,26 @@ void DQMHcalIsoTrackAlCaReco::analyze(const edm::Event &iEvent, const edm::Event
 
   // general distributions
   if (recoIsoTracks.isValid()) {
-    for (reco::HcalIsolatedTrackCandidateCollection::const_iterator itr = recoIsoTracks->begin();
-         itr != recoIsoTracks->end();
-         itr++) {
-      hMaxP_->Fill(itr->maxP());
-      hEnEcal_->Fill(itr->energyEcal());
-      std::pair<int, int> etaphi = itr->towerIndex();
+    for (const auto &itr : *recoIsoTracks) {
+      hMaxP_->Fill(itr.maxP());
+      hEnEcal_->Fill(itr.energyEcal());
+      std::pair<int, int> etaphi = itr.towerIndex();
       hIeta_->Fill(etaphi.first);
       hIphi_->Fill(etaphi.second);
-      LogDebug("HcalIsoTrack") << "Reco track p " << itr->p() << " eta|phi " << etaphi.first << "|" << etaphi.second
-                               << " maxP " << itr->maxP() << " EcalE " << itr->energyEcal() << " pointers " << hHltP_[3]
+      LogDebug("HcalIsoTrack") << "Reco track p " << itr.p() << " eta|phi " << etaphi.first << "|" << etaphi.second
+                               << " maxP " << itr.maxP() << " EcalE " << itr.energyEcal() << " pointers " << hHltP_[3]
                                << ":" << hHltEta_[3] << ":" << hHltPhi_[3] << "\n";
-      if (itr->p() >= pThr_) {
-        hHltP_[3]->Fill(itr->p());
-        hHltEta_[3]->Fill(itr->eta());
-        hHltPhi_[3]->Fill(itr->phi());
+      if (itr.p() >= pThr_) {
+        hHltP_[3]->Fill(itr.p());
+        hHltEta_[3]->Fill(itr.eta());
+        hHltPhi_[3]->Fill(itr.phi());
       }
-      double etaAbs = std::abs(itr->eta());
-      hOffP_[0]->Fill(itr->p());
+      double etaAbs = std::abs(itr.eta());
+      hOffP_[0]->Fill(itr.p());
       for (unsigned int l = 1; l < etaRange_.size(); l++) {
         if (etaAbs >= etaRange_[l - 1] && etaAbs < etaRange_[l]) {
-          LogDebug("HcalIsoTrack") << "Range " << l << " p " << itr->p() << " pointer " << hOffP_[l];
-          hOffP_[l]->Fill(itr->p());
+          LogDebug("HcalIsoTrack") << "Range " << l << " p " << itr.p() << " pointer " << hOffP_[l];
+          hOffP_[l]->Fill(itr.p());
           break;
         }
       }

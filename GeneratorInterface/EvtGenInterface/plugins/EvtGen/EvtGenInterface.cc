@@ -280,10 +280,10 @@ void EvtGenInterface::SetDefault_m_PDGs() {
 
   m_PDGs.push_back(130);
 
-  for (unsigned int i = 0; i < m_PDGs.size(); i++) {
-    int pdt = HepPID::translatePythiatoPDT(m_PDGs.at(i));
-    if (pdt != m_PDGs.at(i))
-      m_PDGs.at(i) = pdt;
+  for (int& m_PDG : m_PDGs) {
+    int pdt = HepPID::translatePythiatoPDT(m_PDG);
+    if (pdt != m_PDG)
+      m_PDG = pdt;
   }
 }
 
@@ -358,8 +358,8 @@ void EvtGenInterface::init() {
   // Add additional user information
   if (fPSet->exists("user_decay_file")) {
     std::vector<std::string> user_decays = fPSet->getParameter<std::vector<std::string> >("user_decay_file");
-    for (unsigned int i = 0; i < user_decays.size(); i++) {
-      edm::FileInPath user_decay(user_decays.at(i));
+    for (const auto& i : user_decays) {
+      edm::FileInPath user_decay(i);
       m_EvtGen->readUDecay(user_decay.fullPath().c_str());
     }
   }
@@ -377,9 +377,9 @@ void EvtGenInterface::init() {
              "program ";
       exit(0);
     }
-    for (unsigned int i = 0; i < user_decay_lines.size(); i++) {
-      user_decay_lines.at(i) += "\n";
-      std::fputs(user_decay_lines.at(i).c_str(), tmpf);
+    for (auto& user_decay_line : user_decay_lines) {
+      user_decay_line += "\n";
+      std::fputs(user_decay_line.c_str(), tmpf);
     }
     std::fclose(tmpf);
     m_EvtGen->readUDecay(user_decay_tmp.c_str());
@@ -405,9 +405,8 @@ void EvtGenInterface::init() {
   } else
     SetDefault_m_PDGs();
 
-  for (unsigned int i = 0; i < m_PDGs.size(); i++) {
-    edm::LogInfo("EvtGenInterface::~EvtGenInterface")
-        << "EvtGenInterface::init() Particles to Operate on: " << m_PDGs[i];
+  for (int m_PDG : m_PDGs) {
+    edm::LogInfo("EvtGenInterface::~EvtGenInterface") << "EvtGenInterface::init() Particles to Operate on: " << m_PDG;
   }
 
   // Obtain information to set polarization of particles
@@ -429,12 +428,12 @@ void EvtGenInterface::init() {
   // Forced decays are particles that are aliased and forced to be decayed by EvtGen
   if (fPSet->exists("list_forced_decays")) {
     std::vector<std::string> forced_names = fPSet->getParameter<std::vector<std::string> >("list_forced_decays");
-    for (unsigned int i = 0; i < forced_names.size(); i++) {
-      EvtId found = EvtPDL::getId(forced_names[i]);
+    for (const auto& forced_name : forced_names) {
+      EvtId found = EvtPDL::getId(forced_name);
       if (found.getId() == -1)
-        throw cms::Exception("Configuration") << "name in part list for ignored decays not found: " << forced_names[i];
+        throw cms::Exception("Configuration") << "name in part list for ignored decays not found: " << forced_name;
       if (found.getId() == found.getAlias())
-        throw cms::Exception("Configuration") << "name of ignored decays is not an alias: " << forced_names[i];
+        throw cms::Exception("Configuration") << "name of ignored decays is not an alias: " << forced_name;
       forced_id.push_back(found);
       forced_pdgids.push_back(EvtPDL::getStdHep(found));  // force_pdgids is the list of stdhep codes
     }
@@ -474,8 +473,8 @@ HepMC::GenEvent* EvtGenInterface::decay(HepMC::GenEvent* evt) {
     if ((*p)->status() == 1) {  // all particles to be decays are set to status 1 by generator.hadronizer
       int idHep = (*p)->pdg_id();
       bool isignore = false;
-      for (unsigned int i = 0; i < ignore_pdgids.size(); i++) {
-        if (idHep == ignore_pdgids[i])
+      for (int ignore_pdgid : ignore_pdgids) {
+        if (idHep == ignore_pdgid)
           isignore = true;
       }
       if (!isignore) {
@@ -489,8 +488,8 @@ HepMC::GenEvent* EvtGenInterface::decay(HepMC::GenEvent* evt) {
           }
         }
         bool isDefaultEvtGen = false;
-        for (unsigned int i = 0; i < m_PDGs.size(); i++) {
-          if (abs(idHep) == abs(m_PDGs[i])) {
+        for (int m_PDG : m_PDGs) {
+          if (abs(idHep) == abs(m_PDG)) {
             isDefaultEvtGen = true;
             break;
           }
@@ -664,8 +663,8 @@ void EvtGenInterface::go_through_daughters(EvtParticle* part) {
       Daughter = part->getDaug(i);
       int idHep = Daughter->getPDGId();
       int found = 0;
-      for (unsigned int j = 0; j < forced_pdgids.size(); j++) {
-        if (idHep == forced_pdgids[j]) {
+      for (int forced_pdgid : forced_pdgids) {
+        if (idHep == forced_pdgid) {
           found = 1;
           Daughter->deleteDaughters();
           break;

@@ -61,12 +61,12 @@ std::unique_ptr<L1GtPsbSetup> L1GtPsbSetupConfigOnlineProd::newObject(const std:
   }
 
   // fill the psbConfigurations vector
-  for (std::vector<std::string>::const_iterator it = psbColumns.begin(); it != psbColumns.end(); ++it) {
+  for (const auto& psbColumn : psbColumns) {
     std::string psbKey;
-    psbKeys.fillVariable(*it, psbKey);
+    psbKeys.fillVariable(psbColumn, psbKey);
 
     if (psbKey.empty()) {
-      addDefaultPsb(*it, psbConfigurations);
+      addDefaultPsb(psbColumn, psbConfigurations);
     } else {
       addPsbFromDb(psbKey, psbConfigurations);
     }

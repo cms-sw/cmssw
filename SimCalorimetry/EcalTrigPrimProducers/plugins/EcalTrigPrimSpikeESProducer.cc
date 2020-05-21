@@ -28,8 +28,8 @@ EcalTrigPrimSpikeESProducer::~EcalTrigPrimSpikeESProducer() {}
 // ------------ method called to produce the data  ------------
 std::unique_ptr<EcalTPGSpike> EcalTrigPrimSpikeESProducer::produceSpike(const EcalTPGSpikeRcd &iRecord) {
   auto prod = std::make_unique<EcalTPGSpike>();
-  for (std::vector<uint32_t>::const_iterator it = towerIDs_.begin(); it != towerIDs_.end(); ++it) {
-    prod->setValue(*it, zeroThresh_);
+  for (unsigned int towerID : towerIDs_) {
+    prod->setValue(towerID, zeroThresh_);
   }
   return prod;
 }

@@ -386,9 +386,9 @@ void FWGUIEventDataAdder::addNewItem() {
     if (*(m_manager->begin()))
       largest = (*(m_manager->begin()))->layer();
   }
-  for (FWEventItemsManager::const_iterator it = m_manager->begin(), itEnd = m_manager->end(); it != itEnd; ++it) {
-    if ((*it) && largest < (*it)->layer()) {
-      largest = (*it)->layer();
+  for (auto it : *m_manager) {
+    if (it && largest < it->layer()) {
+      largest = it->layer();
     }
   }
   ++largest;

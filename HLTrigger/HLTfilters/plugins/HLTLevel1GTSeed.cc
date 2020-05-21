@@ -579,8 +579,8 @@ void HLTLevel1GTSeed::debugPrint(bool newMenu) const {
   for (auto i : m_l1AlgoSeedsRpn) {
     LogTrace("HLTLevel1GTSeed") << "  Rpn vector size: " << i->size() << std::endl;
 
-    for (size_t j = 0; j < i->size(); ++j) {
-      LogTrace("HLTLevel1GTSeed") << "      ( " << (*i)[j].operation << ", " << (*i)[j].operand << " )" << std::endl;
+    for (const auto& j : *i) {
+      LogTrace("HLTLevel1GTSeed") << "      ( " << j.operation << ", " << j.operand << " )" << std::endl;
     }
   }
 
@@ -593,11 +593,11 @@ void HLTLevel1GTSeed::debugPrint(bool newMenu) const {
   for (auto const& i : m_l1AlgoSeedsObjType) {
     LogTrace("HLTLevel1GTSeed") << "  Conditions for an algorithm: vector size: " << i.size() << std::endl;
 
-    for (size_t j = 0; j < i.size(); ++j) {
-      LogTrace("HLTLevel1GTSeed") << "    Condition object type vector: size: " << (i[j])->size() << std::endl;
+    for (auto j : i) {
+      LogTrace("HLTLevel1GTSeed") << "    Condition object type vector: size: " << j->size() << std::endl;
 
-      for (size_t k = 0; k < (i[j])->size(); ++k) {
-        L1GtObject obj = (*(i[j]))[k];
+      for (size_t k = 0; k < j->size(); ++k) {
+        L1GtObject obj = (*j)[k];
         LogTrace("HLTLevel1GTSeed") << "      " << obj << " ";
       }
 
@@ -677,15 +677,13 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
   // loop over the list of required algorithms for seeding
   int iAlgo = -1;
 
-  for (std::vector<L1GtLogicParser::OperandToken>::const_iterator itSeed = m_l1AlgoSeeds.begin();
-       itSeed != m_l1AlgoSeeds.end();
-       ++itSeed) {
+  for (const auto& m_l1AlgoSeed : m_l1AlgoSeeds) {
     //
     iAlgo++;
     //
-    int algBit = (*itSeed).tokenNumber;
-    std::string algName = (*itSeed).tokenName;
-    bool algResult = (*itSeed).tokenResult;
+    int algBit = m_l1AlgoSeed.tokenNumber;
+    std::string algName = m_l1AlgoSeed.tokenName;
+    bool algResult = m_l1AlgoSeed.tokenResult;
 
     LogTrace("HLTLevel1GTSeed") << "\nHLTLevel1GTSeed::hltFilter "
                                 << "\n  Algorithm " << algName << " with bit number " << algBit
@@ -732,12 +730,10 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
       LogTrace("HLTLevel1GTSeed") << std::endl;
     }
 
-    for (std::vector<L1GtLogicParser::OperandToken>::const_iterator itCond = condSeeds.begin();
-         itCond != condSeeds.end();
-         itCond++) {
-      std::string cndName = (*itCond).tokenName;
-      int cndNumber = (*itCond).tokenNumber;
-      bool cndResult = (*itCond).tokenResult;
+    for (const auto& condSeed : condSeeds) {
+      std::string cndName = condSeed.tokenName;
+      int cndNumber = condSeed.tokenNumber;
+      bool cndResult = condSeed.tokenResult;
 
       const std::vector<L1GtObject>* cndObjTypeVec = algoSeedsObjTypeVec.at(cndNumber);
 
@@ -759,7 +755,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
       for (auto const& itComb : (*cndComb)) {
         // loop over objects in a combination for a given condition
         int iObj = 0;
-        for (auto itObject = itComb.begin(); itObject != itComb.end(); itObject++) {
+        for (int itObject : itComb) {
           // get object type and push indices on the list
           const L1GtObject objTypeVal = (*cndObjTypeVec).at(iObj);
 
@@ -771,32 +767,32 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
           switch (objTypeVal) {
             case Mu: {
-              listMuon.push_back(*itObject);
+              listMuon.push_back(itObject);
             }
 
             break;
             case NoIsoEG: {
-              listNoIsoEG.push_back(*itObject);
+              listNoIsoEG.push_back(itObject);
             }
 
             break;
             case IsoEG: {
-              listIsoEG.push_back(*itObject);
+              listIsoEG.push_back(itObject);
             }
 
             break;
             case CenJet: {
-              listCenJet.push_back(*itObject);
+              listCenJet.push_back(itObject);
             }
 
             break;
             case ForJet: {
-              listForJet.push_back(*itObject);
+              listForJet.push_back(itObject);
             }
 
             break;
             case TauJet: {
-              listTauJet.push_back(*itObject);
+              listTauJet.push_back(itObject);
             }
 
             break;
@@ -805,7 +801,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
               // Same ranking (Et) is assumed for both HFRingEtSums indexes and items in l1extra IsoTau collection
               // Each HFRingEtSums_IndN corresponds with one object (with (*itObject)=0);
               // its index (hfInd) encodded by parsing algorithm name
-              int hfInd = (*itObject);
+              int hfInd = itObject;
               if (cndName.find("Ind0") != std::string::npos)
                 hfInd = 0;
               else if (cndName.find("Ind1") != std::string::npos)
@@ -819,31 +815,31 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
             break;
             case ETM: {
-              listETM.push_back(*itObject);
+              listETM.push_back(itObject);
 
             }
 
             break;
             case ETT: {
-              listETT.push_back(*itObject);
+              listETT.push_back(itObject);
 
             }
 
             break;
             case HTT: {
-              listHTT.push_back(*itObject);
+              listHTT.push_back(itObject);
 
             }
 
             break;
             case HTM: {
-              listHTM.push_back(*itObject);
+              listHTM.push_back(itObject);
 
             }
 
             break;
             case JetCounts: {
-              listJetCounts.push_back(*itObject);
+              listJetCounts.push_back(itObject);
             }
 
             break;
@@ -852,7 +848,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
               LogDebug("HLTLevel1GTSeed") << "\n    HLTLevel1GTSeed::hltFilter "
                                           << "\n      Unknown object of type " << objTypeVal << " and index "
-                                          << (*itObject) << " in the seed list." << std::endl;
+                                          << itObject << " in the seed list." << std::endl;
             } break;
           }
 

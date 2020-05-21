@@ -24,8 +24,8 @@ namespace edm {
   std::vector<T> toVector(pybind11::list& l) {
     std::vector<T> result;
     result.reserve(l.size());
-    for (unsigned i = 0; i < l.size(); ++i) {
-      result.push_back(l[i].cast<T>());
+    for (auto&& i : l) {
+      result.push_back(i.cast<T>());
     }
     return result;
   }

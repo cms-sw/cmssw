@@ -111,9 +111,7 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
       // There may be several SPs in event
       std::vector<const CSCSPEvent*> SPs = tfEvent.SPs_fast();
       // Cycle over all of them
-      for (std::vector<const CSCSPEvent*>::const_iterator spItr = SPs.begin(); spItr != SPs.end(); spItr++) {
-        const CSCSPEvent* sp = *spItr;
-
+      for (auto sp : SPs) {
         L1CSCSPStatusDigi status;  ///
         status.sp_slot = sp->header().slot();
         status.l1a_bxn = sp->header().BXN();
@@ -189,7 +187,7 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
             }
 
           std::vector<CSCSP_MBblock> mbStubs = sp->record(tbin).mbStubs();
-          for (std::vector<CSCSP_MBblock>::const_iterator iter = mbStubs.begin(); iter != mbStubs.end(); iter++) {
+          for (const auto& mbStub : mbStubs) {
             int endcap, sector;
             if (slot2sector[sp->header().slot()]) {
               endcap = slot2sector[sp->header().slot()] / 7 + 1;
@@ -201,20 +199,20 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
               sector = sp->header().sector();
             }
             const unsigned int csc2dt[6][2] = {{2, 3}, {4, 5}, {6, 7}, {8, 9}, {10, 11}, {12, 1}};
-            DTChamberId id((endcap == 1 ? 2 : -2), 1, csc2dt[sector - 1][iter->id() - 1]);
+            DTChamberId id((endcap == 1 ? 2 : -2), 1, csc2dt[sector - 1][mbStub.id() - 1]);
             CSCCorrelatedLCTDigi base(0,
-                                      iter->vq(),
-                                      iter->quality(),
-                                      iter->cal(),
-                                      iter->flag(),
-                                      iter->bc0(),
-                                      iter->phi_bend(),
+                                      mbStub.vq(),
+                                      mbStub.quality(),
+                                      mbStub.cal(),
+                                      mbStub.flag(),
+                                      mbStub.bc0(),
+                                      mbStub.phi_bend(),
                                       tbin + (central_lct_bx - central_sp_bx),
-                                      iter->id(),
-                                      iter->bxn(),
-                                      iter->timingError(),
-                                      iter->BXN());
-            csctf::TrackStub dtStub(base, id, iter->phi(), 0);
+                                      mbStub.id(),
+                                      mbStub.bxn(),
+                                      mbStub.timingError(),
+                                      mbStub.BXN());
+            csctf::TrackStub dtStub(base, id, mbStub.phi(), 0);
             dtProduct->push_back(dtStub);
           }
 
@@ -295,21 +293,21 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
             }
 
             std::vector<CSCSP_MBblock> mbStubs = iter->dtStub();
-            for (std::vector<CSCSP_MBblock>::const_iterator iter = mbStubs.begin(); iter != mbStubs.end(); iter++) {
-              CSCDetId id = mapping->detId(track.first.m_endcap, 1, track.first.m_sector, iter->id(), 1, 0);
+            for (const auto& mbStub : mbStubs) {
+              CSCDetId id = mapping->detId(track.first.m_endcap, 1, track.first.m_sector, mbStub.id(), 1, 0);
               track.second.insertDigi(id,
-                                      CSCCorrelatedLCTDigi(iter->phi(),
-                                                           iter->vq(),
-                                                           iter->quality() + 100,
-                                                           iter->cal(),
-                                                           iter->flag(),
-                                                           iter->bc0(),
-                                                           iter->phi_bend(),
+                                      CSCCorrelatedLCTDigi(mbStub.phi(),
+                                                           mbStub.vq(),
+                                                           mbStub.quality() + 100,
+                                                           mbStub.cal(),
+                                                           mbStub.flag(),
+                                                           mbStub.bc0(),
+                                                           mbStub.phi_bend(),
                                                            tbin + (central_lct_bx - central_sp_bx),
-                                                           iter->id(),
-                                                           iter->bxn(),
-                                                           iter->timingError(),
-                                                           iter->BXN()));
+                                                           mbStub.id(),
+                                                           mbStub.bxn(),
+                                                           mbStub.timingError(),
+                                                           mbStub.BXN()));
             }
 
             trackProduct->push_back(track);

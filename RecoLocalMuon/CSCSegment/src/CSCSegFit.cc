@@ -286,8 +286,8 @@ CSCSegFit::SMatrixSym12 CSCSegFit::weightMatrix() {
 
   int row = 0;
 
-  for (CSCSetOfHits::const_iterator it = hits_.begin(); it != hits_.end(); ++it) {
-    const CSCRecHit2D& hit = (**it);
+  for (auto it : hits_) {
+    const CSCRecHit2D& hit = (*it);
 
     // Note scaleXError allows rescaling the x error if necessary
 
@@ -311,8 +311,8 @@ CSCSegFit::SMatrix12by4 CSCSegFit::derivativeMatrix() {
   SMatrix12by4 matrix;  // 12x4, init to 0
   int row = 0;
 
-  for (CSCSetOfHits::const_iterator it = hits_.begin(); it != hits_.end(); ++it) {
-    const CSCRecHit2D& hit = (**it);
+  for (auto it : hits_) {
+    const CSCRecHit2D& hit = (*it);
     const CSCLayer* layer = chamber()->layer(hit.cscDetId().layer());
     GlobalPoint gp = layer->toGlobal(hit.localPosition());
     LocalPoint lp = chamber()->toLocal(gp);

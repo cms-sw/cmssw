@@ -15,10 +15,10 @@ AlgebraicVector VertexKinematicConstraint::value(const std::vector<KinematicStat
   //it is 2 equations per track
   AlgebraicVector vl(2 * num, 0);
   int num_r = 0;
-  for (std::vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++) {
-    TrackCharge ch = i->particleCharge();
-    GlobalVector mom = i->globalMomentum();
-    GlobalPoint pos = i->globalPosition();
+  for (const auto& state : states) {
+    TrackCharge ch = state.particleCharge();
+    GlobalVector mom = state.globalMomentum();
+    GlobalPoint pos = state.globalPosition();
     double d_x = point.x() - pos.x();
     double d_y = point.y() - pos.y();
     double d_z = point.z() - pos.z();
@@ -26,7 +26,7 @@ AlgebraicVector VertexKinematicConstraint::value(const std::vector<KinematicStat
 
     if (ch != 0) {
       //charged particle
-      double a_i = -ch * i->magneticField()->inInverseGeV(pos).z();
+      double a_i = -ch * state.magneticField()->inInverseGeV(pos).z();
 
       double pvx = mom.x() - a_i * d_y;
       double pvy = mom.y() + a_i * d_x;
@@ -54,18 +54,18 @@ AlgebraicMatrix VertexKinematicConstraint::parametersDerivative(const std::vecto
     throw VertexException("VertexKinematicConstraint::<2 states passed");
   AlgebraicMatrix jac_d(2 * num, 7 * num);
   int num_r = 0;
-  for (std::vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++) {
+  for (const auto& state : states) {
     AlgebraicMatrix el_part_d(2, 7, 0);
-    TrackCharge ch = i->particleCharge();
-    GlobalVector mom = i->globalMomentum();
-    GlobalPoint pos = i->globalPosition();
+    TrackCharge ch = state.particleCharge();
+    GlobalVector mom = state.globalMomentum();
+    GlobalPoint pos = state.globalPosition();
     double d_x = point.x() - pos.x();
     double d_y = point.y() - pos.y();
     double pt = mom.transverse();
 
     if (ch != 0) {
       //charged particle
-      double a_i = -ch * i->magneticField()->inInverseGeV(pos).z();
+      double a_i = -ch * state.magneticField()->inInverseGeV(pos).z();
 
       double pvx = mom.x() - a_i * d_y;
       double pvy = mom.y() + a_i * d_x;
@@ -116,18 +116,18 @@ AlgebraicMatrix VertexKinematicConstraint::positionDerivative(const std::vector<
     throw VertexException("VertexKinematicConstraint::<2 states passed");
   AlgebraicMatrix jac_e(2 * num, 3);
   int num_r = 0;
-  for (std::vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++) {
+  for (const auto& state : states) {
     AlgebraicMatrix el_part_e(2, 3, 0);
-    TrackCharge ch = i->particleCharge();
-    GlobalVector mom = i->globalMomentum();
-    GlobalPoint pos = i->globalPosition();
+    TrackCharge ch = state.particleCharge();
+    GlobalVector mom = state.globalMomentum();
+    GlobalPoint pos = state.globalPosition();
     double d_x = point.x() - pos.x();
     double d_y = point.y() - pos.y();
     double pt = mom.transverse();
 
     if (ch != 0) {
       //charged particle
-      double a_i = -ch * i->magneticField()->inInverseGeV(pos).z();
+      double a_i = -ch * state.magneticField()->inInverseGeV(pos).z();
 
       double pvx = mom.x() - a_i * d_y;
       double pvy = mom.y() + a_i * d_x;

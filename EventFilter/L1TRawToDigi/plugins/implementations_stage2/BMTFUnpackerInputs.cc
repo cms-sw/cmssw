@@ -37,8 +37,8 @@ namespace l1t {
       bool ownFlag(false);
 
       //Checks if the given block coresponds to 1 of the OWN links
-      for (int i = 0; i < 10; i++) {
-        if (block.header().getID() / 2 == ownLinks[i])
+      for (unsigned int ownLink : ownLinks) {
+        if (block.header().getID() / 2 == ownLink)
           ownFlag = true;
       }
       if (!ownFlag)  //if not returns that the "job here done"

@@ -176,10 +176,10 @@ void EgammaRecHitExtractor::collect(reco::IsoDeposit& deposit,
 
   std::vector<std::pair<DetId, float> >::const_iterator rhIt;
 
-  for (CaloSubdetectorGeometry::DetIdSet::const_iterator i = chosen.begin(), end = chosen.end(); i != end; ++i) {
-    j = hits.find(*i);
+  for (auto i : chosen) {
+    j = hits.find(i);
     if (j != hits.end()) {
-      const GlobalPoint& position = caloGeom->getPosition(*i);
+      const GlobalPoint& position = caloGeom->getPosition(i);
       double eta = position.eta();
       double phi = position.phi();
       double energy = j->energy();
@@ -192,7 +192,7 @@ void EgammaRecHitExtractor::collect(reco::IsoDeposit& deposit,
         bool isClustered = false;
         for (reco::CaloCluster_iterator bcIt = sc->clustersBegin(); bcIt != sc->clustersEnd(); ++bcIt) {
           for (rhIt = (*bcIt)->hitsAndFractions().begin(); rhIt != (*bcIt)->hitsAndFractions().end(); ++rhIt) {
-            if (rhIt->first == *i)
+            if (rhIt->first == i)
               isClustered = true;
             if (isClustered)
               break;

@@ -352,29 +352,29 @@ public:
 
       if (varEntry.empty()) {
         //loop only the indexes
-        for (std::map<std::string, edm::Entry>::iterator iIt = indexEntry.begin(); iIt != indexEntry.end(); ++iIt) {
+        for (auto& iIt : indexEntry) {
           edm::ParameterSet toUse = arg.iConfig;
-          toUse.insert(true, "index", iIt->second);
-          std::string newVname = radical + iIt->first;
+          toUse.insert(true, "index", iIt.second);
+          std::string newVname = radical + iIt.first;
           //	  std::cout<<"in the loop, creating variable with name: "<<newVname<<std::endl;
           // the constructor auto log the new variable in the map
           new ExpressionVariable(CachingVariable::CachingVariableFactoryArg(newVname, arg.m, toUse), iC);
         }
       } else {
-        for (std::map<std::string, edm::Entry>::iterator vIt = varEntry.begin(); vIt != varEntry.end(); ++vIt) {
+        for (auto& vIt : varEntry) {
           if (indexEntry.empty()) {
             edm::ParameterSet toUse = arg.iConfig;
-            toUse.insert(true, "expr", vIt->second);
-            std::string newVname = radical + vIt->first;
+            toUse.insert(true, "expr", vIt.second);
+            std::string newVname = radical + vIt.first;
             //	    std::cout<<"in the loop, creating variable with name: "<<newVname<<std::endl;
             // the constructor auto log the new variable in the map
             new ExpressionVariable(CachingVariable::CachingVariableFactoryArg(newVname, arg.m, toUse), iC);
           } else {
-            for (std::map<std::string, edm::Entry>::iterator iIt = indexEntry.begin(); iIt != indexEntry.end(); ++iIt) {
+            for (auto& iIt : indexEntry) {
               edm::ParameterSet toUse = arg.iConfig;
-              toUse.insert(true, "expr", vIt->second);
-              toUse.insert(true, "index", iIt->second);
-              std::string newVname = radical + iIt->first + vIt->first;
+              toUse.insert(true, "expr", vIt.second);
+              toUse.insert(true, "index", iIt.second);
+              std::string newVname = radical + iIt.first + vIt.first;
               //	      std::cout<<"in the loop, creating variable with name: "<<newVname<<std::endl;
               // the constructor auto log the new variable in the map
               new ExpressionVariable(CachingVariable::CachingVariableFactoryArg(newVname, arg.m, toUse), iC);

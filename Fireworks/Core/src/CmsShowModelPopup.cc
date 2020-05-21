@@ -233,8 +233,8 @@ void CmsShowModelPopup::fillModelPopup(const FWSelectionManager &iSelMgr) {
 /** Based on the actual models properties, update the GUI. 
   */
 void CmsShowModelPopup::updateDisplay() {
-  for (std::set<FWModelId>::iterator i = m_models.begin(), e = m_models.end(); i != e; ++i) {
-    const FWEventItem::ModelInfo &info = i->item()->modelInfo(i->index());
+  for (auto m_model : m_models) {
+    const FWEventItem::ModelInfo &info = m_model.item()->modelInfo(m_model.index());
     const FWDisplayProperties &p = info.displayProperties();
     m_colorSelectWidget->SetColorByIndex(p.color(), kFALSE);
 
@@ -249,8 +249,8 @@ void CmsShowModelPopup::updateDisplay() {
 
 /* Called by FWGUIManager when change background/colorset. */
 void CmsShowModelPopup::colorSetChanged() {
-  for (std::set<FWModelId>::iterator i = m_models.begin(), e = m_models.end(); i != e; ++i) {
-    const FWEventItem::ModelInfo &info = i->item()->modelInfo(i->index());
+  for (auto m_model : m_models) {
+    const FWEventItem::ModelInfo &info = m_model.item()->modelInfo(m_model.index());
     const FWDisplayProperties &p = info.displayProperties();
     m_colorSelectWidget->SetColorByIndex(p.color(), kFALSE);
   }
@@ -291,11 +291,11 @@ void CmsShowModelPopup::changeModelColor(Color_t color) {
     return;
 
   FWChangeSentry sentry(*(m_models.begin()->item()->changeManager()));
-  for (std::set<FWModelId>::iterator i = m_models.begin(), e = m_models.end(); i != e; ++i) {
-    const FWEventItem::ModelInfo &info = i->item()->modelInfo(i->index());
+  for (auto m_model : m_models) {
+    const FWEventItem::ModelInfo &info = m_model.item()->modelInfo(m_model.index());
     FWDisplayProperties changeProperties = info.displayProperties();
     changeProperties.setColor(color);
-    i->item()->setDisplayProperties(i->index(), changeProperties);
+    m_model.item()->setDisplayProperties(m_model.index(), changeProperties);
   }
 }
 
@@ -307,11 +307,11 @@ void CmsShowModelPopup::changeModelOpacity(Int_t opacity) {
     return;
 
   FWChangeSentry sentry(*(m_models.begin()->item()->changeManager()));
-  for (std::set<FWModelId>::iterator i = m_models.begin(), e = m_models.end(); i != e; ++i) {
-    const FWEventItem::ModelInfo &info = i->item()->modelInfo(i->index());
+  for (auto m_model : m_models) {
+    const FWEventItem::ModelInfo &info = m_model.item()->modelInfo(m_model.index());
     FWDisplayProperties changeProperties = info.displayProperties();
     changeProperties.setTransparency(100 - opacity);
-    i->item()->setDisplayProperties(i->index(), changeProperties);
+    m_model.item()->setDisplayProperties(m_model.index(), changeProperties);
   }
 }
 
@@ -323,11 +323,11 @@ void CmsShowModelPopup::toggleModelVisible(Bool_t on) {
     return;
 
   FWChangeSentry sentry(*(m_models.begin()->item()->changeManager()));
-  for (std::set<FWModelId>::iterator i = m_models.begin(); i != m_models.end(); ++i) {
-    const FWEventItem::ModelInfo &info = i->item()->modelInfo(i->index());
+  for (auto m_model : m_models) {
+    const FWEventItem::ModelInfo &info = m_model.item()->modelInfo(m_model.index());
     FWDisplayProperties changeProperties = info.displayProperties();
     changeProperties.setIsVisible(on);
-    i->item()->setDisplayProperties(i->index(), changeProperties);
+    m_model.item()->setDisplayProperties(m_model.index(), changeProperties);
   }
 }
 

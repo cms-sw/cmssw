@@ -52,8 +52,8 @@ void GeneralTracksImporterWithVeto::importToBlock(const edm::Event& e,
   auto vetosH = e.getHandle(veto_);
   const auto& vetos = *vetosH;
   std::unordered_set<unsigned> vetoed;
-  for (unsigned i = 0; i < vetos.size(); ++i) {
-    vetoed.insert(vetos[i].trackRef().key());
+  for (const auto& veto : vetos) {
+    vetoed.insert(veto.trackRef().key());
   }
   auto muons = e.getHandle(muons_);
   elems.reserve(elems.size() + tracks->size());

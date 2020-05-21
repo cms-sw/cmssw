@@ -32,9 +32,9 @@ static long algorithm(dd4hep::Detector& /* description */,
   const auto& names = args.value<std::vector<std::string> >("VolumeNames");  // Names
   const auto& thick = args.value<std::vector<double> >("Thickness");         // Thickness of the material
   std::vector<int> copyNumber;                                               // Initial copy numbers
-  for (unsigned int i = 0; i < materials.size(); ++i) {
-    if (materials[i] == "materials:M_NEMAFR4plate")
-      materials[i] = "materials:M_NEMA FR4 plate";
+  for (auto& material : materials) {
+    if (material == "materials:M_NEMAFR4plate")
+      material = "materials:M_NEMA FR4 plate";
     copyNumber.emplace_back(1);
   }
 #ifdef EDM_ML_DEBUG

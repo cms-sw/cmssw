@@ -329,55 +329,55 @@ void VertexHistogramMaker::fill(const unsigned int orbit,
   m_hnvtx->Fill(vertices.size(), weight);
 
   int ntruevtx = 0;
-  for (reco::VertexCollection::const_iterator vtx = vertices.begin(); vtx != vertices.end(); ++vtx) {
-    if (!vtx->isFake())
+  for (const auto& vertice : vertices) {
+    if (!vertice.isFake())
       ntruevtx++;
 
-    if (!(m_trueOnly && vtx->isFake())) {
-      double aveweight =
-          m_bsConstrained ? vtx->ndof() / (2. * vtx->tracksSize()) : (vtx->ndof() + 3) / (2. * vtx->tracksSize());
+    if (!(m_trueOnly && vertice.isFake())) {
+      double aveweight = m_bsConstrained ? vertice.ndof() / (2. * vertice.tracksSize())
+                                         : (vertice.ndof() + 3) / (2. * vertice.tracksSize());
 
-      m_hntracks->Fill(vtx->tracksSize(), weight);
-      m_hndof->Fill(vtx->ndof(), weight);
+      m_hntracks->Fill(vertice.tracksSize(), weight);
+      m_hndof->Fill(vertice.ndof(), weight);
       m_haveweight->Fill(aveweight, weight);
-      m_hndofvstracks->Fill(vtx->tracksSize(), vtx->ndof(), weight);
-      m_hndofvsvtxz->Fill(vtx->z(), vtx->ndof(), weight);
-      m_hntracksvsvtxz->Fill(vtx->z(), vtx->tracksSize(), weight);
-      m_haveweightvsvtxz->Fill(vtx->z(), aveweight, weight);
+      m_hndofvstracks->Fill(vertice.tracksSize(), vertice.ndof(), weight);
+      m_hndofvsvtxz->Fill(vertice.z(), vertice.ndof(), weight);
+      m_hntracksvsvtxz->Fill(vertice.z(), vertice.tracksSize(), weight);
+      m_haveweightvsvtxz->Fill(vertice.z(), aveweight, weight);
 
-      m_hvtxx->Fill(vtx->x(), weight);
-      m_hvtxy->Fill(vtx->y(), weight);
-      m_hvtxz->Fill(vtx->z(), weight);
+      m_hvtxx->Fill(vertice.x(), weight);
+      m_hvtxy->Fill(vertice.y(), weight);
+      m_hvtxz->Fill(vertice.z(), weight);
 
       if (m_runHisto) {
         if (m_hvtxxrun && *m_hvtxxrun)
-          (*m_hvtxxrun)->Fill(vtx->x(), weight);
+          (*m_hvtxxrun)->Fill(vertice.x(), weight);
         if (m_hvtxyrun && *m_hvtxyrun)
-          (*m_hvtxyrun)->Fill(vtx->y(), weight);
+          (*m_hvtxyrun)->Fill(vertice.y(), weight);
         if (m_hvtxzrun && *m_hvtxzrun)
-          (*m_hvtxzrun)->Fill(vtx->z(), weight);
+          (*m_hvtxzrun)->Fill(vertice.z(), weight);
         if (m_runHistoProfile) {
           if (m_hvtxxvsorbrun && *m_hvtxxvsorbrun)
-            (*m_hvtxxvsorbrun)->Fill(orbit, vtx->x(), weight);
+            (*m_hvtxxvsorbrun)->Fill(orbit, vertice.x(), weight);
           if (m_hvtxyvsorbrun && *m_hvtxyvsorbrun)
-            (*m_hvtxyvsorbrun)->Fill(orbit, vtx->y(), weight);
+            (*m_hvtxyvsorbrun)->Fill(orbit, vertice.y(), weight);
           if (m_hvtxzvsorbrun && *m_hvtxzvsorbrun)
-            (*m_hvtxzvsorbrun)->Fill(orbit, vtx->z(), weight);
+            (*m_hvtxzvsorbrun)->Fill(orbit, vertice.z(), weight);
         }
         if (m_runHistoBXProfile) {
           if (m_hvtxxvsbxrun && *m_hvtxxvsbxrun)
-            (*m_hvtxxvsbxrun)->Fill(bx % 3564, vtx->x(), weight);
+            (*m_hvtxxvsbxrun)->Fill(bx % 3564, vertice.x(), weight);
           if (m_hvtxyvsbxrun && *m_hvtxyvsbxrun)
-            (*m_hvtxyvsbxrun)->Fill(bx % 3564, vtx->y(), weight);
+            (*m_hvtxyvsbxrun)->Fill(bx % 3564, vertice.y(), weight);
           if (m_hvtxzvsbxrun && *m_hvtxzvsbxrun)
-            (*m_hvtxzvsbxrun)->Fill(bx % 3564, vtx->z(), weight);
+            (*m_hvtxzvsbxrun)->Fill(bx % 3564, vertice.z(), weight);
           if (m_runHisto2D) {
             if (m_hvtxxvsbx2drun && *m_hvtxxvsbx2drun)
-              (*m_hvtxxvsbx2drun)->Fill(bx % 3564, vtx->x(), weight);
+              (*m_hvtxxvsbx2drun)->Fill(bx % 3564, vertice.x(), weight);
             if (m_hvtxyvsbx2drun && *m_hvtxyvsbx2drun)
-              (*m_hvtxyvsbx2drun)->Fill(bx % 3564, vtx->y(), weight);
+              (*m_hvtxyvsbx2drun)->Fill(bx % 3564, vertice.y(), weight);
             if (m_hvtxzvsbx2drun && *m_hvtxzvsbx2drun)
-              (*m_hvtxzvsbx2drun)->Fill(bx % 3564, vtx->z(), weight);
+              (*m_hvtxzvsbx2drun)->Fill(bx % 3564, vertice.z(), weight);
           }
         }
       }
@@ -386,16 +386,16 @@ void VertexHistogramMaker::fill(const unsigned int orbit,
       double sumpt2 = 0.;
       double sumpt2heavy = 0.;
 
-      for (reco::Vertex::trackRef_iterator trk = vtx->tracks_begin(); trk != vtx->tracks_end(); ++trk) {
+      for (reco::Vertex::trackRef_iterator trk = vertice.tracks_begin(); trk != vertice.tracks_end(); ++trk) {
         sumpt2 += (*trk)->pt() * (*trk)->pt();
 
-        if (vtx->trackWeight(*trk) > m_weightThreshold) {
+        if (vertice.trackWeight(*trk) > m_weightThreshold) {
           nheavytracks++;
           sumpt2heavy += (*trk)->pt() * (*trk)->pt();
         }
 
-        m_hweights->Fill(vtx->trackWeight(*trk), weight);
-        m_haveweightvsvtxzchk->Fill(vtx->z(), vtx->trackWeight(*trk), weight);
+        m_hweights->Fill(vertice.trackWeight(*trk), weight);
+        m_haveweightvsvtxzchk->Fill(vertice.z(), vertice.trackWeight(*trk), weight);
       }
 
       m_hnheavytracks->Fill(nheavytracks, weight);

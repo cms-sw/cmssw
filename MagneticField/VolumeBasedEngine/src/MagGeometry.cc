@@ -54,10 +54,10 @@ MagGeometry::MagGeometry(int geomVersion,
       geometryVersion(geomVersion) {
   vector<double> rBorders;
 
-  for (vector<MagBLayer const*>::const_iterator ilay = theBLayers.begin(); ilay != theBLayers.end(); ++ilay) {
-    LogTrace("MagGeoBuilder") << "  Barrel layer at " << (*ilay)->minR() << endl;
+  for (auto theBLayer : theBLayers) {
+    LogTrace("MagGeoBuilder") << "  Barrel layer at " << theBLayer->minR() << endl;
     //FIXME assume layers are already sorted in minR
-    rBorders.push_back((*ilay)->minR() * (*ilay)->minR());
+    rBorders.push_back(theBLayer->minR() * theBLayer->minR());
   }
 
   theBarrelBinFinder = new MagBinFinders::GeneralBinFinderInR<double>(rBorders);
@@ -110,12 +110,12 @@ MagGeometry::~MagGeometry() {
   if (theEndcapBinFinder != nullptr)
     delete theEndcapBinFinder;
 
-  for (vector<MagBLayer const*>::const_iterator ilay = theBLayers.begin(); ilay != theBLayers.end(); ++ilay) {
-    delete (*ilay);
+  for (auto theBLayer : theBLayers) {
+    delete theBLayer;
   }
 
-  for (vector<MagESector const*>::const_iterator ilay = theESectors.begin(); ilay != theESectors.end(); ++ilay) {
-    delete (*ilay);
+  for (auto theESector : theESectors) {
+    delete theESector;
   }
 }
 
@@ -145,8 +145,8 @@ MagVolume const* MagGeometry::findVolume1(const GlobalPoint& gp, double toleranc
 
   int errCnt = 0;
   if (inBarrel(gp)) {  // Barrel
-    for (vector<MagVolume6Faces const*>::const_iterator v = theBVolumes.begin(); v != theBVolumes.end(); ++v) {
-      if ((*v) == nullptr) {  //FIXME: remove this check
+    for (auto theBVolume : theBVolumes) {
+      if (theBVolume == nullptr) {  //FIXME: remove this check
         LogError("MagGeometry") << endl << "***ERROR: MagGeometry::findVolume: MagVolume for barrel not set" << endl;
         ++errCnt;
         if (errCnt < 3)
@@ -154,15 +154,15 @@ MagVolume const* MagGeometry::findVolume1(const GlobalPoint& gp, double toleranc
         else
           break;
       }
-      if ((*v)->inside(gp, tolerance)) {
-        found = (*v);
+      if (theBVolume->inside(gp, tolerance)) {
+        found = theBVolume;
         break;
       }
     }
 
   } else {  // Endcaps
-    for (vector<MagVolume6Faces const*>::const_iterator v = theEVolumes.begin(); v != theEVolumes.end(); ++v) {
-      if ((*v) == nullptr) {  //FIXME: remove this check
+    for (auto theEVolume : theEVolumes) {
+      if (theEVolume == nullptr) {  //FIXME: remove this check
         LogError("MagGeometry") << endl << "***ERROR: MagGeometry::findVolume: MagVolume for endcap not set" << endl;
         ++errCnt;
         if (errCnt < 3)
@@ -170,8 +170,8 @@ MagVolume const* MagGeometry::findVolume1(const GlobalPoint& gp, double toleranc
         else
           break;
       }
-      if ((*v)->inside(gp, tolerance)) {
-        found = (*v);
+      if (theEVolume->inside(gp, tolerance)) {
+        found = theEVolume;
         break;
       }
     }

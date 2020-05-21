@@ -313,21 +313,21 @@ namespace l1t {
     std::vector<std::vector<l1t::L1Candidate> > hfm_input_energy(hfm_nrows, std::vector<l1t::L1Candidate>(hfm_ncols));
     std::vector<std::vector<l1t::L1Candidate> > hfp_input_energy(hfp_nrows, std::vector<l1t::L1Candidate>(hfp_ncols));
 
-    for (std::vector<l1t::Jet>::const_iterator injet = input->begin(); injet != input->end(); ++injet) {
-      if (injet->hwEta() >= 4 && injet->hwEta() <= 17) {
-        unsigned int myrow = gt_to_fw_phi_map[injet->hwPhi()];
-        unsigned int mycol = injet->hwEta() - 4;  //hardcoding is bad
-        cen_input_energy[myrow][mycol] = *injet;
-      } else if (injet->hwEta() < 4) {
-        unsigned int myrow = gt_to_fw_phi_map[injet->hwPhi()];
-        unsigned int mycol = injet->hwEta();  //hardcoding is bad
-        hfm_input_energy[myrow][mycol] = *injet;
-      } else if (injet->hwEta() > 17) {
-        unsigned int myrow = gt_to_fw_phi_map[injet->hwPhi()];
-        unsigned int mycol = injet->hwEta() - 18;  //hardcoding is bad
-        hfp_input_energy[myrow][mycol] = *injet;
+    for (const auto& injet : *input) {
+      if (injet.hwEta() >= 4 && injet.hwEta() <= 17) {
+        unsigned int myrow = gt_to_fw_phi_map[injet.hwPhi()];
+        unsigned int mycol = injet.hwEta() - 4;  //hardcoding is bad
+        cen_input_energy[myrow][mycol] = injet;
+      } else if (injet.hwEta() < 4) {
+        unsigned int myrow = gt_to_fw_phi_map[injet.hwPhi()];
+        unsigned int mycol = injet.hwEta();  //hardcoding is bad
+        hfm_input_energy[myrow][mycol] = injet;
+      } else if (injet.hwEta() > 17) {
+        unsigned int myrow = gt_to_fw_phi_map[injet.hwPhi()];
+        unsigned int mycol = injet.hwEta() - 18;  //hardcoding is bad
+        hfp_input_energy[myrow][mycol] = injet;
       } else
-        edm::LogError("HardwareJetSort") << "Region out of bounds: " << injet->hwEta();
+        edm::LogError("HardwareJetSort") << "Region out of bounds: " << injet.hwEta();
     }
 
     for (int i = 0; i < cen_nrows; ++i)
@@ -458,23 +458,23 @@ namespace l1t {
       }
     }
 
-    for (std::vector<l1t::EGamma>::const_iterator ineg = input->begin(); ineg != input->end(); ++ineg) {
-      int fiberNum = (int)floor(gt_to_fw_phi_map[ineg->hwPhi()] / 2);
-      int index = ineg->hwQual();
-      bool iso = ineg->hwIso();
-      bool minus = (ineg->hwEta() < 11);
+    for (const auto& ineg : *input) {
+      int fiberNum = (int)floor(gt_to_fw_phi_map[ineg.hwPhi()] / 2);
+      int index = ineg.hwQual();
+      bool iso = ineg.hwIso();
+      bool minus = (ineg.hwEta() < 11);
 
       // while waiting for firmware LUT, set all iso to true
       //iso = true;
 
       if (iso && minus)
-        iso_egamma_array_m[8 * fiberNum + index] = *ineg;
+        iso_egamma_array_m[8 * fiberNum + index] = ineg;
       else if (iso && !minus)
-        iso_egamma_array_p[8 * fiberNum + index] = *ineg;
+        iso_egamma_array_p[8 * fiberNum + index] = ineg;
       else if (!iso && minus)
-        noniso_egamma_array_m[8 * fiberNum + index] = *ineg;
+        noniso_egamma_array_m[8 * fiberNum + index] = ineg;
       else if (!iso && !minus)
-        noniso_egamma_array_p[8 * fiberNum + index] = *ineg;
+        noniso_egamma_array_p[8 * fiberNum + index] = ineg;
     }
 
     // std::cout << "iso_egamma_array_m" << std::endl;
@@ -578,13 +578,13 @@ namespace l1t {
 
     std::vector<std::vector<l1t::L1Candidate> > cen_input_energy(cen_nrows, std::vector<l1t::L1Candidate>(cen_ncols));
 
-    for (std::vector<l1t::Tau>::const_iterator injet = input->begin(); injet != input->end(); ++injet) {
-      if (injet->hwEta() >= 4 && injet->hwEta() <= 17) {
-        unsigned int myrow = gt_to_fw_phi_map[injet->hwPhi()];
-        unsigned int mycol = injet->hwEta() - 4;  //hardcoding is bad
-        cen_input_energy[myrow][mycol] = *injet;
+    for (const auto& injet : *input) {
+      if (injet.hwEta() >= 4 && injet.hwEta() <= 17) {
+        unsigned int myrow = gt_to_fw_phi_map[injet.hwPhi()];
+        unsigned int mycol = injet.hwEta() - 4;  //hardcoding is bad
+        cen_input_energy[myrow][mycol] = injet;
       } else
-        edm::LogError("HardwareTauSort") << "Region out of bounds: " << injet->hwEta();
+        edm::LogError("HardwareTauSort") << "Region out of bounds: " << injet.hwEta();
     }
 
     for (int i = 0; i < cen_nrows; ++i)

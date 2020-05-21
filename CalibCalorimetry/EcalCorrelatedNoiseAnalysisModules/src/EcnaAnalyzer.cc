@@ -714,18 +714,17 @@ void EcnaAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
     std::cerr << "Error! can't get the product " << eventHeaderCollection_.c_str() << std::endl;
   }
   //........... Decode myEventHeader infos
-  for (EcalRawDataCollection::const_iterator headerItr = myEventHeader->begin(); headerItr != myEventHeader->end();
-       ++headerItr) {
+  for (const auto &headerItr : *myEventHeader) {
     //===> fRunNumber, fRunTypeNumber, fMgpaGainNumber, fFedId, fEvtNumber
     //     will be used in AnalysisOutcome(...) below
-    fRunNumber = (Int_t)headerItr->getRunNumber();
+    fRunNumber = (Int_t)headerItr.getRunNumber();
     if (fRunNumber <= 0) {
       fRunNumber = (Int_t)iEvent.id().run();
     }
-    fRunTypeNumber = (Int_t)headerItr->getRunType();
-    fMgpaGainNumber = (Int_t)headerItr->getMgpaGain();
-    fFedId = (Int_t)headerItr->fedId() - 601;  // 1st Fed = 601, FedId = Fed number - 1
-    fEvtNumber = (Int_t)headerItr->getLV1();
+    fRunTypeNumber = (Int_t)headerItr.getRunType();
+    fMgpaGainNumber = (Int_t)headerItr.getMgpaGain();
+    fFedId = (Int_t)headerItr.fedId() - 601;  // 1st Fed = 601, FedId = Fed number - 1
+    fEvtNumber = (Int_t)headerItr.getLV1();
     if (fEvtNumber <= 0) {
       fEvtNumber = (Int_t)iEvent.id().event();
     }
@@ -782,7 +781,7 @@ void EcnaAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
 
     if (fAnalysisName == "AdcPeg12" || fAnalysisName == "AdcSPeg12" || fAnalysisName == "AdcPhys" ||
         fAnalysisName == "AdcAny") {
-      fFedTcc = (Int_t)headerItr->getDccInTCCCommand();
+      fFedTcc = (Int_t)headerItr.getDccInTCCCommand();
 
       if (fFedTcc >= 1 && fFedTcc <= MaxSMAndDS) {
         if (fStexName == "SM") {

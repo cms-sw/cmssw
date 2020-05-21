@@ -185,8 +185,8 @@ void MODCCSHFDat::writeArrayDB(const std::map<EcalLogicID, MODCCSHFDat>* data, M
   //const MODCCSHFDat* dataitem;
   int count = 0;
   typedef map<EcalLogicID, MODCCSHFDat>::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
-    channel = &(p->first);
+  for (const auto& p : *data) {
+    channel = &(p.first);
     int logicID = channel->getLogicID();
     if (!logicID) {
       throw(std::runtime_error("MODCCSHFDat::writeArrayDB:  Bad EcalLogicID"));

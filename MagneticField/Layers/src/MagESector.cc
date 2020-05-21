@@ -18,8 +18,8 @@ using namespace std;
 MagESector::MagESector(vector<MagELayer*>& layers, Geom::Phi<float> phiMin) : theLayers(layers), thePhiMin(phiMin) {}
 
 MagESector::~MagESector() {
-  for (vector<MagELayer*>::const_iterator ilay = theLayers.begin(); ilay != theLayers.end(); ++ilay) {
-    delete (*ilay);
+  for (auto theLayer : theLayers) {
+    delete theLayer;
   }
 }
 

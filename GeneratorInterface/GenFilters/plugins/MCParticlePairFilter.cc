@@ -114,8 +114,8 @@ bool MCParticlePairFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::
        ++p) {
     // check for type A conditions
     bool gottypeAID = false;
-    for (unsigned int j = 0; j < particleID1.size(); ++j) {
-      if (abs((*p)->pdg_id()) == abs(particleID1[j]) || particleID1[j] == 0) {
+    for (int j : particleID1) {
+      if (abs((*p)->pdg_id()) == abs(j) || j == 0) {
         gottypeAID = true;
         break;
       }
@@ -185,8 +185,8 @@ bool MCParticlePairFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::
     // check for type B conditions
 
     bool gottypeBID = false;
-    for (unsigned int j = 0; j < particleID2.size(); ++j) {
-      if (abs((*p)->pdg_id()) == abs(particleID2[j]) || particleID2[j] == 0) {
+    for (int j : particleID2) {
+      if (abs((*p)->pdg_id()) == abs(j) || j == 0) {
         gottypeBID = true;
         break;
       }

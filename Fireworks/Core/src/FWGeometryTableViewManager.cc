@@ -70,8 +70,8 @@ void FWGeometryTableViewManager::beingDestroyed(const FWViewBase* iView) {
 }
 
 void FWGeometryTableViewManager::colorsChanged() {
-  for (std::vector<std::shared_ptr<FWGeometryTableViewBase> >::iterator it = m_views.begin(); it != m_views.end(); ++it)
-    (*it)->setBackgroundColor();
+  for (auto& m_view : m_views)
+    m_view->setBackgroundColor();
 }
 
 //______________________________________________________________________________

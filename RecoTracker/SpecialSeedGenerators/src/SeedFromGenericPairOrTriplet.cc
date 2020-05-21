@@ -36,8 +36,8 @@ std::vector<TrajectorySeed*> SeedFromGenericPairOrTriplet::seed(const SeedingHit
       if (seed)
         seeds.push_back(seed);
     } else {
-      for (std::vector<int>::const_iterator iCh = theCharges.begin(); iCh != theCharges.end(); iCh++) {
-        TrajectorySeed* seed = seedFromTriplet(hits, dir, seedDir, iSetup, *iCh);
+      for (int theCharge : theCharges) {
+        TrajectorySeed* seed = seedFromTriplet(hits, dir, seedDir, iSetup, theCharge);
         if (seed)
           seeds.push_back(seed);
       }
@@ -49,8 +49,8 @@ std::vector<TrajectorySeed*> SeedFromGenericPairOrTriplet::seed(const SeedingHit
       if (seed)
         seeds.push_back(seed);
     } else {
-      for (std::vector<int>::const_iterator iCh = theCharges.begin(); iCh != theCharges.end(); iCh++) {
-        TrajectorySeed* seed = seedFromPair(hits, dir, seedDir, *iCh);
+      for (int theCharge : theCharges) {
+        TrajectorySeed* seed = seedFromPair(hits, dir, seedDir, theCharge);
         if (seed)
           seeds.push_back(seed);
       }
@@ -257,8 +257,8 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::buildSeed(const GlobalVector& mome
       trajectoryStateTransform::persistentState(seedTSOS, trHits[1]->geographicalId().rawId());
   edm::OwnVector<TrackingRecHit> seed_hits;
   //build the transientTrackingRecHit for the starting hit, then call the method clone to rematch if needed
-  for (auto ihits = trHits.begin(); ihits != trHits.end(); ihits++) {
-    seed_hits.push_back((*ihits)->clone());
+  for (auto& trHit : trHits) {
+    seed_hits.push_back(trHit->clone());
   }
   TrajectorySeed* seed = new TrajectorySeed(PTraj, seed_hits, dir);
   return seed;

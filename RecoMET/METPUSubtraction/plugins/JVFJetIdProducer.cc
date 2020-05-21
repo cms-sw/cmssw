@@ -64,37 +64,33 @@ namespace {
     double trackSum_isNotVtxAssociated = 0.;
 
     std::vector<reco::PFCandidatePtr> pfConsts = jet.getPFConstituents();
-    for (std::vector<reco::PFCandidatePtr>::const_iterator jetConstituent = pfConsts.begin();
-         jetConstituent != pfConsts.end();
-         ++jetConstituent) {
-      if ((*jetConstituent)->charge() == 0)
+    for (const auto& pfConst : pfConsts) {
+      if (pfConst->charge() == 0)
         continue;
 
       double trackPt = 0.;
-      if ((*jetConstituent)->gsfTrackRef().isNonnull() && (*jetConstituent)->gsfTrackRef().isAvailable())
-        trackPt = (*jetConstituent)->gsfTrackRef()->pt();
-      else if ((*jetConstituent)->trackRef().isNonnull() && (*jetConstituent)->trackRef().isAvailable())
-        trackPt = (*jetConstituent)->trackRef()->pt();
+      if (pfConst->gsfTrackRef().isNonnull() && pfConst->gsfTrackRef().isAvailable())
+        trackPt = pfConst->gsfTrackRef()->pt();
+      else if (pfConst->trackRef().isNonnull() && pfConst->trackRef().isAvailable())
+        trackPt = pfConst->trackRef()->pt();
       else
-        trackPt = (*jetConstituent)->pt();
+        trackPt = pfConst->pt();
 
       if (trackPt > minTrackPt) {
         int jetConstituent_vtxAssociationType =
-            noPuUtils::isVertexAssociated((*jetConstituent), pfCandToVertexAssociations, vertices, dZ);
+            noPuUtils::isVertexAssociated(pfConst, pfCandToVertexAssociations, vertices, dZ);
         //isVertexAssociated_fast(pfCandidateRef, pfCandToVertexAssociations_reversed, *hardScatterVertex, dZcut_, numWarnings_, maxWarnings_);
         bool jetConstituent_isVtxAssociated = (jetConstituent_vtxAssociationType == noPuUtils::kChHSAssoc);
-        double jetConstituentPt = (*jetConstituent)->pt();
+        double jetConstituentPt = pfConst->pt();
         if (jetConstituent_isVtxAssociated) {
-          LogDebug("computeJVF") << "associated track: Pt = " << (*jetConstituent)->pt()
-                                 << ", eta = " << (*jetConstituent)->eta() << ", phi = " << (*jetConstituent)->phi()
-                                 << std::endl
+          LogDebug("computeJVF") << "associated track: Pt = " << pfConst->pt() << ", eta = " << pfConst->eta()
+                                 << ", phi = " << pfConst->phi() << std::endl
                                  << " (vtxAssociationType = " << jetConstituent_vtxAssociationType << ")" << std::endl;
 
           trackSum_isVtxAssociated += jetConstituentPt;
         } else {
-          LogDebug("computeJVF") << "unassociated track: Pt = " << (*jetConstituent)->pt()
-                                 << ", eta = " << (*jetConstituent)->eta() << ", phi = " << (*jetConstituent)->phi()
-                                 << std::endl
+          LogDebug("computeJVF") << "unassociated track: Pt = " << pfConst->pt() << ", eta = " << pfConst->eta()
+                                 << ", phi = " << pfConst->phi() << std::endl
                                  << " (vtxAssociationType = " << jetConstituent_vtxAssociationType << ")" << std::endl;
 
           trackSum_isNotVtxAssociated += jetConstituentPt;

@@ -57,13 +57,13 @@ void RPCHitCleaner::run(const edm::EventSetup& c) {
   int cluster_id = -1;
   int itr = 0;
 
-  for (auto chamber = m_inrpcDigis.begin(); chamber != m_inrpcDigis.end(); ++chamber) {
-    RPCDetId detid = (*chamber).first;
+  for (auto&& m_inrpcDigi : m_inrpcDigis) {
+    RPCDetId detid = m_inrpcDigi.first;
     int strip_n1 = -10000;
     int bx_n1 = -10000;
     if (detid.region() != 0)
       continue;  //Region = 0 Barrel
-    for (auto digi = (*chamber).second.first; digi != (*chamber).second.second; ++digi) {
+    for (auto digi = m_inrpcDigi.second.first; digi != m_inrpcDigi.second.second; ++digi) {
       if (fabs(digi->bx()) > 3)
         continue;
       ///Create cluster ids and store their size
@@ -86,15 +86,15 @@ void RPCHitCleaner::run(const edm::EventSetup& c) {
   }    ///for chamber
   vcluster_size.push_back(cluster_size);
 
-  for (auto chamber = m_inrpcDigis.begin(); chamber != m_inrpcDigis.end(); ++chamber) {
-    RPCDetId detid = (*chamber).first;
+  for (auto&& m_inrpcDigi : m_inrpcDigis) {
+    RPCDetId detid = m_inrpcDigi.first;
     if (detid.region() != 0)
       continue;  //Region = 0 Barrel
     BxToStrips strips;
     int cluster_n1 = -10;
     bx_hits[detid] = 10;
     //Keep cluster with min bx in a roll
-    for (auto digi = (*chamber).second.first; digi != (*chamber).second.second; ++digi) {
+    for (auto digi = m_inrpcDigi.second.first; digi != m_inrpcDigi.second.second; ++digi) {
       if (BxToStrips::outOfRange(digi->bx()))
         continue;
       //int cluster_id =  hits[(detid.ring()+2)][(detid.station()-1)][(detid.sector()-1)][(detid.layer()-1)][(digi->bx()+2)][detid.roll()-1][digi->strip()];
@@ -107,7 +107,7 @@ void RPCHitCleaner::run(const edm::EventSetup& c) {
         bx_hits[detid] = digi->bx();
     }
 
-    for (auto digi = (*chamber).second.first; digi != (*chamber).second.second; ++digi) {
+    for (auto digi = m_inrpcDigi.second.first; digi != m_inrpcDigi.second.second; ++digi) {
       if (fabs(digi->bx()) > 3)
         continue;
       detId_Ext tmp{detid, digi->bx(), digi->strip()};

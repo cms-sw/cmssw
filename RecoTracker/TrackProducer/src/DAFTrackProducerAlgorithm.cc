@@ -46,10 +46,10 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry* theG,
   int cont = 0;
   int nTracksChanged = 0;
 
-  for (TrajTrackAssociationCollection::const_iterator itTTmap = TTmap.begin(); itTTmap != TTmap.end(); itTTmap++) {
-    const edm::Ref<std::vector<Trajectory> > BeforeDAFTraj = itTTmap->key;
+  for (const auto& itTTmap : TTmap) {
+    const edm::Ref<std::vector<Trajectory> > BeforeDAFTraj = itTTmap.key;
     std::vector<TrajectoryMeasurement> BeforeDAFTrajMeas = BeforeDAFTraj->measurements();
-    const reco::TrackRef BeforeDAFTrack = itTTmap->val;
+    const reco::TrackRef BeforeDAFTrack = itTTmap.val;
 
     float ndof = 0;
     Trajectory CurrentTraj;
@@ -150,10 +150,9 @@ std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface> DA
   if (collectedmeas.empty())
     return std::make_pair(TransientTrackingRecHit::RecHitContainer(), TrajectoryStateOnSurface());
 
-  for (std::vector<TrajectoryMeasurement>::const_iterator iter = collectedmeas.begin(); iter != collectedmeas.end();
-       iter++) {
+  for (const auto& collectedmea : collectedmeas) {
     nHits++;
-    hits.push_back(iter->recHit());
+    hits.push_back(collectedmea.recHit());
   }
 
   //TrajectoryStateWithArbitraryError() == Creates a TrajectoryState with the same parameters
@@ -286,10 +285,10 @@ int DAFTrackProducerAlgorithm::countingGoodHits(const Trajectory traj) const {
   int ngoodhits = 0;
   std::vector<TrajectoryMeasurement> vtm = traj.measurements();
 
-  for (std::vector<TrajectoryMeasurement>::const_iterator tm = vtm.begin(); tm != vtm.end(); tm++) {
+  for (const auto& tm : vtm) {
     //if the rechit is valid
-    if (tm->recHit()->isValid()) {
-      SiTrackerMultiRecHit const& mHit = dynamic_cast<SiTrackerMultiRecHit const&>(*tm->recHit());
+    if (tm.recHit()->isValid()) {
+      SiTrackerMultiRecHit const& mHit = dynamic_cast<SiTrackerMultiRecHit const&>(*tm.recHit());
       std::vector<const TrackingRecHit*> components = mHit.recHits();
 
       int iComp = 0;
@@ -382,9 +381,9 @@ float DAFTrackProducerAlgorithm::calculateNdof(const Trajectory vtraj) const {
     return 0;
   float ndof = 0;
   const std::vector<TrajectoryMeasurement>& meas = vtraj.measurements();
-  for (std::vector<TrajectoryMeasurement>::const_iterator iter = meas.begin(); iter != meas.end(); iter++) {
-    if (iter->recHit()->isValid()) {
-      SiTrackerMultiRecHit const& mHit = dynamic_cast<SiTrackerMultiRecHit const&>(*iter->recHit());
+  for (const auto& mea : meas) {
+    if (mea.recHit()->isValid()) {
+      SiTrackerMultiRecHit const& mHit = dynamic_cast<SiTrackerMultiRecHit const&>(*mea.recHit());
       std::vector<const TrackingRecHit*> components = mHit.recHits();
       int iComp = 0;
       for (std::vector<const TrackingRecHit*>::const_iterator iter2 = components.begin(); iter2 != components.end();

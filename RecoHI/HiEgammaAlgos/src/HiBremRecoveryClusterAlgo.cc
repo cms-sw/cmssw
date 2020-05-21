@@ -13,8 +13,8 @@ reco::SuperClusterCollection HiBremRecoveryClusterAlgo::makeSuperClusters(
   reco::CaloClusterPtrVector islandClustersEndCap_v;
 
   // ...and populate them:
-  for (reco::CaloCluster_iterator it = clustersCollection.begin(); it != clustersCollection.end(); it++) {
-    reco::CaloClusterPtr cluster_p = *it;
+  for (auto &&it : clustersCollection) {
+    reco::CaloClusterPtr cluster_p = it;
     if (cluster_p->algo() == reco::CaloCluster::island) {
       if (verbosity <= pINFO) {
         std::cout << "Basic Cluster: (eta,phi,energy) = " << cluster_p->position().eta() << " "

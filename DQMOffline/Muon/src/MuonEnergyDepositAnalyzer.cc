@@ -165,46 +165,46 @@ void MuonEnergyDepositAnalyzer::analyze(const edm::Event& iEvent, const edm::Eve
   if (!muons.isValid())
     return;
 
-  for (reco::MuonCollection::const_iterator recoMu = muons->begin(); recoMu != muons->end(); ++recoMu) {
+  for (const auto& recoMu : *muons) {
     // get all the mu energy deposits
-    reco::MuonEnergy muEnergy = recoMu->calEnergy();
+    reco::MuonEnergy muEnergy = recoMu.calEnergy();
 
     // energy deposited in ECAL
     LogTrace(metname) << "Energy deposited in ECAL: " << muEnergy.em;
-    if (fabs(recoMu->eta()) > 1.479)
+    if (fabs(recoMu.eta()) > 1.479)
       ecalDepEnergyEndcap->Fill(muEnergy.em);
     else
       ecalDepEnergyBarrel->Fill(muEnergy.em);
 
     // energy deposited in HCAL
     LogTrace(metname) << "Energy deposited in HCAL: " << muEnergy.had;
-    if (fabs(recoMu->eta()) > 1.4)
+    if (fabs(recoMu.eta()) > 1.4)
       hcalDepEnergyEndcap->Fill(muEnergy.had);
     else
       hcalDepEnergyBarrel->Fill(muEnergy.had);
 
     // energy deposited in HO
     LogTrace(metname) << "Energy deposited in HO: " << muEnergy.ho;
-    if (fabs(recoMu->eta()) < 1.26)
+    if (fabs(recoMu.eta()) < 1.26)
       hoDepEnergy->Fill(muEnergy.ho);
 
     // energy deposited in ECAL in 3*3 towers
     LogTrace(metname) << "Energy deposited in ECAL: " << muEnergy.emS9;
-    if (fabs(recoMu->eta()) > 1.479)
+    if (fabs(recoMu.eta()) > 1.479)
       ecalS9DepEnergyEndcap->Fill(muEnergy.emS9);
     else
       ecalS9DepEnergyBarrel->Fill(muEnergy.emS9);
 
     // energy deposited in HCAL in 3*3 crystals
     LogTrace(metname) << "Energy deposited in HCAL: " << muEnergy.hadS9;
-    if (fabs(recoMu->eta()) > 1.4)
+    if (fabs(recoMu.eta()) > 1.4)
       hcalS9DepEnergyEndcap->Fill(muEnergy.hadS9);
     else
       hcalS9DepEnergyBarrel->Fill(muEnergy.hadS9);
 
     // energy deposited in HO in 3*3 crystals
     LogTrace(metname) << "Energy deposited in HO: " << muEnergy.hoS9;
-    if (fabs(recoMu->eta()) < 1.26)
+    if (fabs(recoMu.eta()) < 1.26)
       hoS9DepEnergy->Fill(muEnergy.hoS9);
 
     // plot for energy tests
@@ -212,12 +212,12 @@ void MuonEnergyDepositAnalyzer::analyze(const edm::Event& iEvent, const edm::Eve
     iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", theB);
     reco::TransientTrack TransTrack;
 
-    if (recoMu->isGlobalMuon())
-      TransTrack = theB->build(recoMu->globalTrack());
-    else if ((recoMu->isTrackerMuon() || recoMu->isRPCMuon()))
-      TransTrack = theB->build(recoMu->innerTrack());
-    else if (recoMu->isStandAloneMuon())
-      TransTrack = theB->build(recoMu->outerTrack());
+    if (recoMu.isGlobalMuon())
+      TransTrack = theB->build(recoMu.globalTrack());
+    else if ((recoMu.isTrackerMuon() || recoMu.isRPCMuon()))
+      TransTrack = theB->build(recoMu.innerTrack());
+    else if (recoMu.isStandAloneMuon())
+      TransTrack = theB->build(recoMu.outerTrack());
     else
       continue;
 
@@ -226,19 +226,19 @@ void MuonEnergyDepositAnalyzer::analyze(const edm::Event& iEvent, const edm::Eve
     // section for vertex pointing muon
     if ((abs(TSOS.globalPosition().z()) < 30) && (abs(TSOS.globalPosition().perp()) < 20)) {
       // GLB muon
-      if (recoMu->isGlobalMuon()) {
+      if (recoMu.isGlobalMuon()) {
         ecalS9PointingMuDepEnergy_Glb->Fill(muEnergy.emS9);
         hcalS9PointingMuDepEnergy_Glb->Fill(muEnergy.hadS9);
         hoS9PointingMuDepEnergy_Glb->Fill(muEnergy.hoS9);
       }
       // TK muon
-      else if (recoMu->isTrackerMuon()) {
+      else if (recoMu.isTrackerMuon()) {
         ecalS9PointingMuDepEnergy_Tk->Fill(muEnergy.emS9);
         hcalS9PointingMuDepEnergy_Tk->Fill(muEnergy.hadS9);
         hoS9PointingMuDepEnergy_Tk->Fill(muEnergy.hoS9);
       }
       // STA muon
-      else if (recoMu->isStandAloneMuon()) {
+      else if (recoMu.isStandAloneMuon()) {
         ecalS9PointingMuDepEnergy_Sta->Fill(muEnergy.emS9);
         hcalS9PointingMuDepEnergy_Sta->Fill(muEnergy.hadS9);
         hoS9PointingMuDepEnergy_Sta->Fill(muEnergy.hoS9);

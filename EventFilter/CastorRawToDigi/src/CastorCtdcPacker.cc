@@ -114,8 +114,8 @@ void CastorCtdcPacker::pack(int fedid,
   }
   // calculate the total length, and resize the FEDRawData
   int theSize = 0;
-  for (int spigot = 0; spigot < 2; spigot++) {
-    theSize += spigots[spigot].getRawLength() * sizeof(unsigned short);
+  for (const auto& spigot : spigots) {
+    theSize += spigot.getRawLength() * sizeof(unsigned short);
   }
   // the merger payload - not yet defined
   CastorMergerData mergerdata;

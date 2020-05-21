@@ -137,9 +137,8 @@ void ExpressLumiProducer::beginLuminosityBlockProduce(edm::LuminosityBlock& iLBl
   unsigned int lstowriteout = 0;
   if (m_lscache.find(currentls) == m_lscache.end()) {  //if the currentls is not in the cache
     std::vector<unsigned int> v;
-    for (std::map<unsigned int, ExpressLumiProducer::PerLSData>::iterator it = m_lscache.begin(); it != m_lscache.end();
-         ++it) {
-      v.push_back(it->first);
+    for (auto& it : m_lscache) {
+      v.push_back(it.first);
     }
     lstowriteout = v.back();  //last available
   } else {                    //if the current ls is cached

@@ -176,8 +176,8 @@ vector<TransientTrack> TransientTrackBuilder::build(const edm::Handle<edm::View<
 vector<TransientTrack> TransientTrackBuilder::build(const edm::Handle<reco::TrackCollection>& trkColl,
                                                     const reco::BeamSpot& beamSpot) const {
   vector<TransientTrack> ttVect = build(trkColl);
-  for (unsigned int i = 0; i < ttVect.size(); i++) {
-    ttVect[i].setBeamSpot(beamSpot);
+  for (auto& i : ttVect) {
+    i.setBeamSpot(beamSpot);
   }
   return ttVect;
 }
@@ -185,8 +185,8 @@ vector<TransientTrack> TransientTrackBuilder::build(const edm::Handle<reco::Trac
 vector<TransientTrack> TransientTrackBuilder::build(const edm::Handle<reco::GsfTrackCollection>& trkColl,
                                                     const reco::BeamSpot& beamSpot) const {
   vector<TransientTrack> ttVect = build(trkColl);
-  for (unsigned int i = 0; i < ttVect.size(); i++) {
-    ttVect[i].setBeamSpot(beamSpot);
+  for (auto& i : ttVect) {
+    i.setBeamSpot(beamSpot);
   }
   return ttVect;
 }
@@ -194,8 +194,8 @@ vector<TransientTrack> TransientTrackBuilder::build(const edm::Handle<reco::GsfT
 vector<TransientTrack> TransientTrackBuilder::build(const edm::Handle<edm::View<Track> >& trkColl,
                                                     const reco::BeamSpot& beamSpot) const {
   vector<TransientTrack> ttVect = build(trkColl);
-  for (unsigned int i = 0; i < ttVect.size(); i++) {
-    ttVect[i].setBeamSpot(beamSpot);
+  for (auto& i : ttVect) {
+    i.setBeamSpot(beamSpot);
   }
   return ttVect;
 }
@@ -205,8 +205,8 @@ vector<TransientTrack> TransientTrackBuilder::build(const edm::Handle<reco::Trac
                                                     const edm::ValueMap<float>& trackTimes,
                                                     const edm::ValueMap<float>& trackTimeResos) const {
   vector<TransientTrack> ttVect = build(trkColl, trackTimes, trackTimeResos);
-  for (unsigned int i = 0; i < ttVect.size(); i++) {
-    ttVect[i].setBeamSpot(beamSpot);
+  for (auto& i : ttVect) {
+    i.setBeamSpot(beamSpot);
   }
   return ttVect;
 }
@@ -216,8 +216,8 @@ vector<TransientTrack> TransientTrackBuilder::build(const edm::Handle<reco::GsfT
                                                     const edm::ValueMap<float>& trackTimes,
                                                     const edm::ValueMap<float>& trackTimeResos) const {
   vector<TransientTrack> ttVect = build(trkColl, trackTimes, trackTimeResos);
-  for (unsigned int i = 0; i < ttVect.size(); i++) {
-    ttVect[i].setBeamSpot(beamSpot);
+  for (auto& i : ttVect) {
+    i.setBeamSpot(beamSpot);
   }
   return ttVect;
 }
@@ -227,8 +227,8 @@ vector<TransientTrack> TransientTrackBuilder::build(const edm::Handle<edm::View<
                                                     const edm::ValueMap<float>& trackTimes,
                                                     const edm::ValueMap<float>& trackTimeResos) const {
   vector<TransientTrack> ttVect = build(trkColl, trackTimes, trackTimeResos);
-  for (unsigned int i = 0; i < ttVect.size(); i++) {
-    ttVect[i].setBeamSpot(beamSpot);
+  for (auto& i : ttVect) {
+    i.setBeamSpot(beamSpot);
   }
   return ttVect;
 }

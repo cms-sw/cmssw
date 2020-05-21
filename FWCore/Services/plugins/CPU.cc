@@ -87,20 +87,20 @@ namespace edm {
       std::string eraseExtraSpaces(std::string s) {
         bool founded = false;
         std::string aux;
-        for (std::string::const_iterator iter = s.begin(); iter != s.end(); iter++) {
+        for (char iter : s) {
           if (founded) {
-            if (*iter == ' ')
+            if (iter == ' ')
               founded = true;
             else {
               aux += " ";
-              aux += *iter;
+              aux += iter;
               founded = false;
             }
           } else {
-            if (*iter == ' ')
+            if (iter == ' ')
               founded = true;
             else
-              aux += *iter;
+              aux += iter;
           }
         }
         return aux;

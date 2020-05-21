@@ -29,9 +29,8 @@ CalibrationHistosUsingDb::CalibrationHistosUsingDb(const edm::ParameterSet& pset
 
   // Load and dump the current ISHA/VFS values. This is used by the standalone analysis script
   const SiStripConfigDb::DeviceDescriptionsRange& apvDescriptions = db->getDeviceDescriptions(APV25);
-  for (SiStripConfigDb::DeviceDescriptionsV::const_iterator apv = apvDescriptions.begin(); apv != apvDescriptions.end();
-       ++apv) {
-    apvDescription* desc = dynamic_cast<apvDescription*>(*apv);
+  for (auto apv : apvDescriptions) {
+    apvDescription* desc = dynamic_cast<apvDescription*>(apv);
     if (!desc) {
       continue;
     }

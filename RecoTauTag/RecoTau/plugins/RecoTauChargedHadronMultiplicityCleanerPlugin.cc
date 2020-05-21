@@ -29,14 +29,12 @@ namespace reco {
       // N.B. lower value means more "tau like"!
       double result = 0.;
       const std::vector<PFRecoTauChargedHadron>& chargedHadrons = tau->signalTauChargedHadronCandidates();
-      for (std::vector<PFRecoTauChargedHadron>::const_iterator chargedHadron = chargedHadrons.begin();
-           chargedHadron != chargedHadrons.end();
-           ++chargedHadron) {
-        if (chargedHadron->algo() == PFRecoTauChargedHadron::kChargedPFCandidate)
+      for (const auto& chargedHadron : chargedHadrons) {
+        if (chargedHadron.algo() == PFRecoTauChargedHadron::kChargedPFCandidate)
           result -= 8.;
-        else if (chargedHadron->algo() == PFRecoTauChargedHadron::kTrack)
+        else if (chargedHadron.algo() == PFRecoTauChargedHadron::kTrack)
           result -= 4.;
-        else if (chargedHadron->algo() == PFRecoTauChargedHadron::kPFNeutralHadron)
+        else if (chargedHadron.algo() == PFRecoTauChargedHadron::kPFNeutralHadron)
           result -= 2.;
         else
           result -= 1.;

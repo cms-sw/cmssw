@@ -159,8 +159,8 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(const L1RpcTBMuo
                                                                 std::vector<RPCDigiL1Link>& retRPCDigiLink) {
   std::vector<L1MuRegionalCand> RPCCand;
 
-  for (unsigned int iMu = 0; iMu < finalMuons.size(); iMu++) {
-    if (finalMuons[iMu].getPtCode() == 0) {
+  for (const auto& finalMuon : finalMuons) {
+    if (finalMuon.getPtCode() == 0) {
       continue;
     }
 
@@ -168,7 +168,7 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(const L1RpcTBMuo
 
     //std::cout << "######################################## " << std::endl;
     //std::cout << finalMuons[iMu].getPhiAddr() << " " << finalMuons[iMu].getEtaAddr() << std::endl;
-    RPCMuon::TDigiLinkVec digiIVec = finalMuons[iMu].getDigiIdxVec();
+    RPCMuon::TDigiLinkVec digiIVec = finalMuon.getDigiIdxVec();
     // Here the iteration has to be the same as in
     short int digiIndex = 0;
     RPCDigiCollection::DigiRangeIterator detUnitIt;
@@ -196,12 +196,12 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(const L1RpcTBMuo
 
     l1Cand.setBx(bx);
 
-    l1Cand.setQualityPacked(finalMuons[iMu].getQuality());
-    l1Cand.setPtPacked(finalMuons[iMu].getPtCode());
+    l1Cand.setQualityPacked(finalMuon.getQuality());
+    l1Cand.setPtPacked(finalMuon.getPtCode());
 
     l1Cand.setType(type);
 
-    int charge = finalMuons[iMu].getSign();
+    int charge = finalMuon.getSign();
 
     if (charge == 0)  // negative
       l1Cand.setChargePacked(1);
@@ -225,14 +225,14 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(const L1RpcTBMuo
     // we want phi values from 0 to 2.5 deg to be phiPacked=0
     // max phiPacked value is 143 (see CMS IN 2004-022)
     //int phiPacked = (finalMuons[iMu].getPhiAddr()+2)%144;
-    int phiPacked = finalMuons[iMu].getPhiAddr();
+    int phiPacked = finalMuon.getPhiAddr();
     l1Cand.setPhiPacked(phiPacked);
     /*
     float eta = RPCConst::etaFromTowerNum(cone.m_Tower);
     l1Cand.setEtaValue(eta);
 */
     //Note: etaAddr is packed in special way: see CMS IN 2004-022
-    signed short etaAddr = finalMuons[iMu].getEtaAddr();  //
+    signed short etaAddr = finalMuon.getEtaAddr();  //
     //    signed short etaAddr = finalMuons[iMu].getEtaAddr()-16; // -16..16
     //    bool etaNegative = false;
     //    if (etaAddr < 0){
@@ -254,13 +254,13 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(const L1RpcTBMuo
 
     RPCCand.push_back(l1Cand);
 
-    LogDebug("RPCTrigger") << "Found muonf of pt " << finalMuons[iMu].getPtCode() << " bx " << l1Cand.bx()
-                           << " L1Charge " << l1Cand.charge_packed() << " ql " << l1Cand.quality() << " fp "
-                           << finalMuons[iMu].getFiredPlanes() << " b/f " << l1Cand.type_idx() << " phi "
+    LogDebug("RPCTrigger") << "Found muonf of pt " << finalMuon.getPtCode() << " bx " << l1Cand.bx() << " L1Charge "
+                           << l1Cand.charge_packed() << " ql " << l1Cand.quality() << " fp "
+                           << finalMuon.getFiredPlanes() << " b/f " << l1Cand.type_idx() << " phi "
                            << l1Cand.phi_packed() << " eta "
                            << l1Cand.eta_packed()
                            //<< " eta l1 " << l1Cand.etaValue() // will drop out soon
-                           << " killed " << finalMuons[iMu].wasKilled();
+                           << " killed " << finalMuon.wasKilled();
   }
 
   return RPCCand;

@@ -97,19 +97,19 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset) {
   typedef std::vector<edm::ParameterSet> VPSet;
   // Get each of our tau builders
   const VPSet& builders = pset.getParameter<VPSet>("builders");
-  for (VPSet::const_iterator builderPSet = builders.begin(); builderPSet != builders.end(); ++builderPSet) {
+  for (const auto& builder : builders) {
     // Get plugin name
-    const std::string& pluginType = builderPSet->getParameter<std::string>("plugin");
+    const std::string& pluginType = builder.getParameter<std::string>("plugin");
     // Build the plugin
-    builders_.emplace_back(RecoTauBuilderPluginFactory::get()->create(pluginType, *builderPSet, consumesCollector()));
+    builders_.emplace_back(RecoTauBuilderPluginFactory::get()->create(pluginType, builder, consumesCollector()));
   }
 
   const VPSet& modfiers = pset.getParameter<VPSet>("modifiers");
-  for (VPSet::const_iterator modfierPSet = modfiers.begin(); modfierPSet != modfiers.end(); ++modfierPSet) {
+  for (const auto& modfier : modfiers) {
     // Get plugin name
-    const std::string& pluginType = modfierPSet->getParameter<std::string>("plugin");
+    const std::string& pluginType = modfier.getParameter<std::string>("plugin");
     // Build the plugin
-    modifiers_.emplace_back(RecoTauModifierPluginFactory::get()->create(pluginType, *modfierPSet, consumesCollector()));
+    modifiers_.emplace_back(RecoTauModifierPluginFactory::get()->create(pluginType, modfier, consumesCollector()));
   }
 
   // Check if we want to apply a final output selection
@@ -224,9 +224,9 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   }
 
   // Loop over the taus we have created and apply our modifiers to the taus
-  for (reco::PFTauCollection::iterator tau = output->begin(); tau != output->end(); ++tau) {
+  for (auto& tau : *output) {
     for (const auto& modifier : modifiers_) {
-      (*modifier)(*tau);
+      (*modifier)(tau);
     }
   }
 

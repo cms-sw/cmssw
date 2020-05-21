@@ -98,14 +98,14 @@ void PixelVertexCollectionTrimmer::produce(edm::Event& iEvent, const edm::EventS
 
   double sumpt2first = pvComparer_->pTSquaredSum(*(vtxs->begin()));
 
-  for (reco::VertexCollection::const_iterator vtx = vtxs->begin(), evtx = vtxs->end(); vtx != evtx; ++vtx) {
+  for (const auto& vtx : *vtxs) {
     if (vtxs_trim->size() >= maxVtx_)
       break;
-    sumpt2 = pvComparer_->pTSquaredSum(*vtx);
+    sumpt2 = pvComparer_->pTSquaredSum(vtx);
     //    std::cout << "sumpt2: " << sumpt2 << "[" << sumpt2first << "]" << std::endl;
     //    if (sumpt2 >= sumpt2first*fractionSumPt2_ && sumpt2 > minSumPt2_ ) vtxs_trim->push_back(*vtx) ;
     if (sumpt2 >= sumpt2first * fractionSumPt2_ && sumpt2 > minSumPt2_)
-      vtxs_trim->push_back(*vtx);
+      vtxs_trim->push_back(vtx);
   }
   //  std::cout << " ==> # vertices: " << vtxs_trim->size() << std::endl;
   iEvent.put(std::move(vtxs_trim));

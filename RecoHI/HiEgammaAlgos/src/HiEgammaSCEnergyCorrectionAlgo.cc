@@ -288,9 +288,9 @@ int HiEgammaSCEnergyCorrectionAlgo::nCrystalsGT2Sigma(reco::BasicCluster const& 
   }
 
   int nCry = 0;
-  for (std::vector<std::pair<DetId, float> >::const_iterator hit = hits.begin(); hit != hits.end(); ++hit) {
+  for (const auto& hit : hits) {
     // need to get hit by DetID in order to get energy
-    EcalRecHitCollection::const_iterator aHit = rhc.find((*hit).first);
+    EcalRecHitCollection::const_iterator aHit = rhc.find(hit.first);
     // better the hit to exists....
     if (aHit->energy() > 2.f * sigmaElectronicNoise_)
       ++nCry;

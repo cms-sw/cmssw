@@ -48,8 +48,8 @@ string HitInfo::getInfo(const TrackingRecHit &recHit, const TrackerTopology *tTo
 string HitInfo::getInfo(const vector<const TrackingRecHit *> &recHits, const TrackerTopology *tTopo) {
   string info;
 
-  for (vector<const TrackingRecHit *>::const_iterator recHit = recHits.begin(); recHit != recHits.end(); recHit++)
-    info += getInfo(**recHit, tTopo);
+  for (auto recHit : recHits)
+    info += getInfo(*recHit, tTopo);
 
   return info;
 }

@@ -55,8 +55,8 @@ void multibsvspvplots(const char* module, const char* label, const char* postfix
   fdoubleg->SetLineColor(kRed);
   fdoubleg->SetLineWidth(1);
 
-  for (unsigned int ifile = 0; ifile < 5; ++ifile) {
-    CommonAnalyzer castat(file[ifile], "", modfull);
+  for (auto& ifile : file) {
+    CommonAnalyzer castat(ifile, "", modfull);
 
     std::vector<unsigned int> runs = castat.getRunList();
     std::sort(runs.begin(), runs.end());
@@ -64,11 +64,11 @@ void multibsvspvplots(const char* module, const char* label, const char* postfix
     {
       std::cout << "Found " << runs.size() << " runs" << std::endl;
 
-      for (unsigned int i = 0; i < runs.size(); ++i) {
+      for (unsigned int run : runs) {
         char runlabel[100];
-        sprintf(runlabel, "%d", runs[i]);
+        sprintf(runlabel, "%d", run);
         char runpath[100];
-        sprintf(runpath, "run_%d", runs[i]);
+        sprintf(runpath, "run_%d", run);
         castat.setPath(runpath);
         std::cout << runpath << std::endl;
 

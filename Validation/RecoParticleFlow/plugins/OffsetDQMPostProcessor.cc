@@ -72,11 +72,11 @@ void OffsetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGet
   //
   // Offset plots vs eta
   //
-  for (std::vector<std::string>::const_iterator i = offsetVariableTypes.begin(); i != offsetVariableTypes.end(); ++i) {
+  for (const auto& offsetVariableType : offsetVariableTypes) {
     //
     // getting the average value for Npv and mu
     //
-    stitle = offsetDir + (*i);
+    stitle = offsetDir + offsetVariableType;
     std::vector<std::string>::const_iterator it = std::find(MEStrings.begin(), MEStrings.end(), stitle);
     if (it == MEStrings.end())
       continue;
@@ -89,15 +89,15 @@ void OffsetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGet
 
     if (iavg < 0)
       iavg = 0;  // checking lower bound (avoid division by zero)
-    if (*i == "npv" && iavg >= npvHigh)
+    if (offsetVariableType == "npv" && iavg >= npvHigh)
       iavg = npvHigh - 1;  // checking upper bound
-    else if (*i == "mu" && iavg >= muHigh)
+    else if (offsetVariableType == "mu" && iavg >= muHigh)
       iavg = muHigh - 1;  //
 
     //
     // storing the value
     //
-    stitle = (*i) + "_mean";
+    stitle = offsetVariableType + "_mean";
     MonitorElement* MEmean = ibook_.bookFloat(stitle);
     MEmean->Fill(avg);
     vME.push_back(MEmean);
@@ -105,13 +105,13 @@ void OffsetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGet
     //
     // for each pf types
     //
-    for (std::vector<std::string>::const_iterator j = pftypes.begin(); j != pftypes.end(); ++j) {
+    for (const auto& pftype : pftypes) {
       // accessing profiles
-      std::string str_base = *i + std::to_string(iavg);
-      if ((*i) == "npv")
-        stitle = offsetDir + "npvPlots/" + str_base + "/" + offsetPlotBaseName + "_" + str_base + "_" + (*j);
-      else if ((*i) == "mu")
-        stitle = offsetDir + "muPlots/" + str_base + "/" + offsetPlotBaseName + "_" + str_base + "_" + (*j);
+      std::string str_base = offsetVariableType + std::to_string(iavg);
+      if (offsetVariableType == "npv")
+        stitle = offsetDir + "npvPlots/" + str_base + "/" + offsetPlotBaseName + "_" + str_base + "_" + pftype;
+      else if (offsetVariableType == "mu")
+        stitle = offsetDir + "muPlots/" + str_base + "/" + offsetPlotBaseName + "_" + str_base + "_" + pftype;
       else
         return;
 
@@ -120,7 +120,7 @@ void OffsetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGet
       hproftmp = (TProfile*)mtmp->getTProfile();
       htmp = (TH1F*)hproftmp->ProjectionX();
       TAxis* xaxis = (TAxis*)htmp->GetXaxis();
-      stitle = offsetPlotBaseName + "_" + str_base + "_" + *j;
+      stitle = offsetPlotBaseName + "_" + str_base + "_" + pftype;
       hscaled = new TH1F(stitle.c_str(), stitle.c_str(), xaxis->GetNbins(), xaxis->GetXbins()->GetArray());
 
       htmp->Scale(pow(offsetR, 2) / 2. / float(avg));             // pi*R^2 / (deltaEta*2pi) / <mu or NPV>
@@ -130,7 +130,7 @@ void OffsetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGet
       }
 
       // storing new ME
-      stitle = offsetPlotBaseName + "_" + *i + "_" + *j;
+      stitle = offsetPlotBaseName + "_" + offsetVariableType + "_" + pftype;
       mtmp = ibook_.book1D(stitle.c_str(), hscaled);
       vME.push_back(mtmp);
     }
@@ -140,8 +140,8 @@ void OffsetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGet
   // Checks
   //
   if (debug) {
-    for (std::vector<MonitorElement*>::const_iterator i = vME.begin(); i != vME.end(); ++i)
-      (*i)->getTH1F()->Print();
+    for (auto i : vME)
+      i->getTH1F()->Print();
   }
 }
 

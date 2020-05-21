@@ -122,25 +122,23 @@ MuonGeometrySanityCheck::MuonGeometrySanityCheck(const edm::ParameterSet &iConfi
   prefix = iConfig.getParameter<std::string>("prefix");
 
   std::vector<edm::ParameterSet> frames = iConfig.getParameter<std::vector<edm::ParameterSet> >("frames");
-  for (std::vector<edm::ParameterSet>::const_iterator frame = frames.begin(); frame != frames.end(); ++frame) {
-    std::string name = frame->getParameter<std::string>("name");
+  for (const auto &frame : frames) {
+    std::string name = frame.getParameter<std::string>("name");
     if (m_frames.find(name) != m_frames.end()) {
       throw cms::Exception("BadConfig") << "Custom frame \"" << name << "\" has been defined twice." << std::endl;
     }
-    m_frames[name] = new MuonGeometrySanityCheckCustomFrame(*frame, name);
+    m_frames[name] = new MuonGeometrySanityCheckCustomFrame(frame, name);
   }
 
   std::vector<edm::ParameterSet> points = iConfig.getParameter<std::vector<edm::ParameterSet> >("points");
-  for (std::vector<edm::ParameterSet>::const_iterator point = points.begin(); point != points.end(); ++point) {
-    m_points.push_back(MuonGeometrySanityCheckPoint(*point, m_frames));
+  for (const auto &point : points) {
+    m_points.push_back(MuonGeometrySanityCheckPoint(point, m_frames));
   }
 }
 
 MuonGeometrySanityCheck::~MuonGeometrySanityCheck() {
-  for (std::map<std::string, const MuonGeometrySanityCheckCustomFrame *>::iterator iter = m_frames.begin();
-       iter != m_frames.end();
-       ++iter) {
-    delete iter->second;
+  for (auto &m_frame : m_frames) {
+    delete m_frame.second;
   }
 }
 
@@ -589,62 +587,63 @@ void MuonGeometrySanityCheck::analyze(const edm::Event &iEvent, const edm::Event
   int num_transformed = 0;
   int num_tested = 0;
   int num_bad = 0;
-  for (std::vector<MuonGeometrySanityCheckPoint>::const_iterator point = m_points.begin(); point != m_points.end();
-       ++point) {
+  for (const auto &m_point : m_points) {
     num_transformed++;
 
-    bool dt = (point->detector.subdetId() == MuonSubdetId::DT);
+    bool dt = (m_point.detector.subdetId() == MuonSubdetId::DT);
 
     // convert the displacement vector into the chosen coordinate system and add it to the chamber's position
     GlobalPoint chamberPos;
     if (dt)
-      chamberPos = dtGeometry->idToDet(point->detector)->surface().toGlobal(LocalPoint(0., 0., 0.));
+      chamberPos = dtGeometry->idToDet(m_point.detector)->surface().toGlobal(LocalPoint(0., 0., 0.));
     else
-      chamberPos = cscGeometry->idToDet(point->detector)->surface().toGlobal(LocalPoint(0., 0., 0.));
+      chamberPos = cscGeometry->idToDet(m_point.detector)->surface().toGlobal(LocalPoint(0., 0., 0.));
 
     GlobalPoint result;
-    if (point->frame == MuonGeometrySanityCheckPoint::kGlobal) {
-      result = GlobalPoint(chamberPos.x() + point->displacement.x(),
-                           chamberPos.y() + point->displacement.y(),
-                           chamberPos.z() + point->displacement.z());
+    if (m_point.frame == MuonGeometrySanityCheckPoint::kGlobal) {
+      result = GlobalPoint(chamberPos.x() + m_point.displacement.x(),
+                           chamberPos.y() + m_point.displacement.y(),
+                           chamberPos.z() + m_point.displacement.z());
     }
 
-    else if (point->frame == MuonGeometrySanityCheckPoint::kLocal) {
+    else if (m_point.frame == MuonGeometrySanityCheckPoint::kLocal) {
       if (dt)
-        result = dtGeometry->idToDet(point->detector)
-                     ->surface()
-                     .toGlobal(LocalPoint(point->displacement.x(), point->displacement.y(), point->displacement.z()));
+        result =
+            dtGeometry->idToDet(m_point.detector)
+                ->surface()
+                .toGlobal(LocalPoint(m_point.displacement.x(), m_point.displacement.y(), m_point.displacement.z()));
       else
-        result = cscGeometry->idToDet(point->detector)
-                     ->surface()
-                     .toGlobal(LocalPoint(point->displacement.x(), point->displacement.y(), point->displacement.z()));
+        result =
+            cscGeometry->idToDet(m_point.detector)
+                ->surface()
+                .toGlobal(LocalPoint(m_point.displacement.x(), m_point.displacement.y(), m_point.displacement.z()));
     }
 
-    else if (point->frame == MuonGeometrySanityCheckPoint::kChamber) {
-      if (point->detector.subdetId() == MuonSubdetId::DT) {
-        DTChamberId id(point->detector);
+    else if (m_point.frame == MuonGeometrySanityCheckPoint::kChamber) {
+      if (m_point.detector.subdetId() == MuonSubdetId::DT) {
+        DTChamberId id(m_point.detector);
         if (dt)
           result = dtGeometry->idToDet(id)->surface().toGlobal(
-              LocalPoint(point->displacement.x(), point->displacement.y(), point->displacement.z()));
+              LocalPoint(m_point.displacement.x(), m_point.displacement.y(), m_point.displacement.z()));
         else
           result = cscGeometry->idToDet(id)->surface().toGlobal(
-              LocalPoint(point->displacement.x(), point->displacement.y(), point->displacement.z()));
-      } else if (point->detector.subdetId() == MuonSubdetId::CSC) {
-        CSCDetId cscid(point->detector);
+              LocalPoint(m_point.displacement.x(), m_point.displacement.y(), m_point.displacement.z()));
+      } else if (m_point.detector.subdetId() == MuonSubdetId::CSC) {
+        CSCDetId cscid(m_point.detector);
         CSCDetId id(cscid.endcap(), cscid.station(), cscid.ring(), cscid.chamber());
         if (dt)
           result = dtGeometry->idToDet(id)->surface().toGlobal(
-              LocalPoint(point->displacement.x(), point->displacement.y(), point->displacement.z()));
+              LocalPoint(m_point.displacement.x(), m_point.displacement.y(), m_point.displacement.z()));
         else
           result = cscGeometry->idToDet(id)->surface().toGlobal(
-              LocalPoint(point->displacement.x(), point->displacement.y(), point->displacement.z()));
+              LocalPoint(m_point.displacement.x(), m_point.displacement.y(), m_point.displacement.z()));
       } else {
         assert(false);
       }
     }
 
-    else if (point->frame == MuonGeometrySanityCheckPoint::kCustom) {
-      GlobalPoint transformed = point->customFrame->transform(point->displacement);
+    else if (m_point.frame == MuonGeometrySanityCheckPoint::kCustom) {
+      GlobalPoint transformed = m_point.customFrame->transform(m_point.displacement);
       result = GlobalPoint(
           chamberPos.x() + transformed.x(), chamberPos.y() + transformed.y(), chamberPos.z() + transformed.z());
     }
@@ -654,29 +653,29 @@ void MuonGeometrySanityCheck::analyze(const edm::Event &iEvent, const edm::Event
     }
 
     // convert the result into the chosen output coordinate system
-    if (point->outputFrame == MuonGeometrySanityCheckPoint::kGlobal) {
+    if (m_point.outputFrame == MuonGeometrySanityCheckPoint::kGlobal) {
     }
 
-    else if (point->outputFrame == MuonGeometrySanityCheckPoint::kLocal) {
+    else if (m_point.outputFrame == MuonGeometrySanityCheckPoint::kLocal) {
       LocalPoint transformed;
       if (dt)
-        transformed = dtGeometry->idToDet(point->detector)->surface().toLocal(result);
+        transformed = dtGeometry->idToDet(m_point.detector)->surface().toLocal(result);
       else
-        transformed = cscGeometry->idToDet(point->detector)->surface().toLocal(result);
+        transformed = cscGeometry->idToDet(m_point.detector)->surface().toLocal(result);
       result = GlobalPoint(transformed.x(), transformed.y(), transformed.z());
     }
 
-    else if (point->outputFrame == MuonGeometrySanityCheckPoint::kChamber) {
-      if (point->detector.subdetId() == MuonSubdetId::DT) {
-        DTChamberId id(point->detector);
+    else if (m_point.outputFrame == MuonGeometrySanityCheckPoint::kChamber) {
+      if (m_point.detector.subdetId() == MuonSubdetId::DT) {
+        DTChamberId id(m_point.detector);
         LocalPoint transformed;
         if (dt)
           transformed = dtGeometry->idToDet(id)->surface().toLocal(result);
         else
           transformed = cscGeometry->idToDet(id)->surface().toLocal(result);
         result = GlobalPoint(transformed.x(), transformed.y(), transformed.z());
-      } else if (point->detector.subdetId() == MuonSubdetId::CSC) {
-        CSCDetId cscid(point->detector);
+      } else if (m_point.detector.subdetId() == MuonSubdetId::CSC) {
+        CSCDetId cscid(m_point.detector);
         CSCDetId id(cscid.endcap(), cscid.station(), cscid.ring(), cscid.chamber());
         LocalPoint transformed;
         if (dt)
@@ -689,20 +688,20 @@ void MuonGeometrySanityCheck::analyze(const edm::Event &iEvent, const edm::Event
       }
     }
 
-    else if (point->outputFrame == MuonGeometrySanityCheckPoint::kCustom) {
-      result = point->outputCustomFrame->transformInverse(result);
+    else if (m_point.outputFrame == MuonGeometrySanityCheckPoint::kCustom) {
+      result = m_point.outputCustomFrame->transformInverse(result);
     }
 
     std::stringstream output;
-    output << prefix << " " << point->name << " " << point->detName() << " " << result.x() << " " << result.y() << " "
+    output << prefix << " " << m_point.name << " " << m_point.detName() << " " << result.x() << " " << result.y() << " "
            << result.z();
 
     bool bad = false;
-    if (point->has_expectation) {
+    if (m_point.has_expectation) {
       num_tested++;
-      double residx = result.x() - point->expectation.x();
-      double residy = result.y() - point->expectation.y();
-      double residz = result.z() - point->expectation.z();
+      double residx = result.x() - m_point.expectation.x();
+      double residy = result.y() - m_point.expectation.y();
+      double residz = result.z() - m_point.expectation.z();
 
       if (fabs(residx) > tolerance || fabs(residy) > tolerance || fabs(residz) > tolerance) {
         num_bad++;

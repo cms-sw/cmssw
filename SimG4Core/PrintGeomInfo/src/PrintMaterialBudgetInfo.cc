@@ -243,8 +243,8 @@ void PrintMaterialBudgetInfo::dumpElementMassFraction(std::ostream& elementOut) 
   // calculate mass fraction
   double totalWeight = 0.0;
   double totalFraction = 0.0;
-  for (unsigned int iElement = 0; iElement < (unsigned int)elementTotalWeight.size(); iElement++) {
-    totalWeight += elementTotalWeight[iElement];
+  for (double iElement : elementTotalWeight) {
+    totalWeight += iElement;
   }
   // calculate element mass fractions
   for (unsigned int iElement = 0; iElement < (unsigned int)elementTotalWeight.size(); iElement++) {

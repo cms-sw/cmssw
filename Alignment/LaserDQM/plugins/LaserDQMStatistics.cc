@@ -38,28 +38,24 @@ void LaserDQM::trackerStatistics(edm::Event const &theEvent, edm::EventSetup con
   // get the StripDigiCollection
   edm::Handle<edm::DetSetVector<SiStripDigi>> theStripDigis;
 
-  for (Parameters::iterator itDigiProducersList = theDigiProducersList.begin();
-       itDigiProducersList != theDigiProducersList.end();
-       ++itDigiProducersList) {
-    std::string digiProducer = itDigiProducersList->getParameter<std::string>("DigiProducer");
-    std::string digiLabel = itDigiProducersList->getParameter<std::string>("DigiLabel");
+  for (auto &itDigiProducersList : theDigiProducersList) {
+    std::string digiProducer = itDigiProducersList.getParameter<std::string>("DigiProducer");
+    std::string digiLabel = itDigiProducersList.getParameter<std::string>("DigiLabel");
 
     theEvent.getByLabel(digiProducer, digiLabel, theStripDigis);
 
     // loop over the entries of theStripDigis, get the DetId to identify the
     // Detunit and find the one which will be hit by the laser beams
-    for (edm::DetSetVector<SiStripDigi>::const_iterator DSViter = theStripDigis->begin();
-         DSViter != theStripDigis->end();
-         DSViter++) {
-      DetId theDetUnitID(DSViter->id);
+    for (const auto &DSViter : *theStripDigis) {
+      DetId theDetUnitID(DSViter.id);
 
       // get the DetUnit via the DetUnitId and cast it to a StripGeomDetUnit
       const StripGeomDetUnit *const theStripDet =
           dynamic_cast<const StripGeomDetUnit *>(theTracker.idToDet(theDetUnitID));
 
       // get the Digis in this DetUnit
-      edm::DetSet<SiStripDigi>::const_iterator theDigiRangeIterator = (*DSViter).data.begin();
-      edm::DetSet<SiStripDigi>::const_iterator theDigiRangeIteratorEnd = (*DSViter).data.end();
+      edm::DetSet<SiStripDigi>::const_iterator theDigiRangeIterator = DSViter.data.begin();
+      edm::DetSet<SiStripDigi>::const_iterator theDigiRangeIteratorEnd = DSViter.data.end();
 
       // some variables we need later on in the program
       int theBeam = 0;

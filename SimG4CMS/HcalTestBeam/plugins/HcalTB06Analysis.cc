@@ -230,17 +230,17 @@ void HcalTB06Analysis::analyze(const edm::Event& evt, const edm::EventSetup&) {
   m_histo->fillEdep(etots, eecals, ehcals);
 
   if (BeamHits) {
-    for (unsigned int i = 0; i < BeamHits->size(); ++i) {
-      unsigned int id = ((*BeamHits)[i].id());
+    for (const auto& BeamHit : *BeamHits) {
+      unsigned int id = (BeamHit.id());
       int det, lay, ix, iy;
       HcalTestBeamNumbering::unpackIndex(id, det, lay, ix, iy);
-      if ((det == 1) && ((*BeamHits)[i].time() < m_timeLimit)) {
+      if ((det == 1) && (BeamHit.time() < m_timeLimit)) {
         if (lay > 0 && lay <= 4) {
-          eTrig[lay - 1] += (*BeamHits)[i].energy();
+          eTrig[lay - 1] += BeamHit.energy();
         } else if (lay == 7 || lay == 8) {
-          eTrig[lay - 2] += (*BeamHits)[i].energy();
+          eTrig[lay - 2] += BeamHit.energy();
         } else if (lay >= 11 && lay <= 14) {
-          eTrig[4] += (*BeamHits)[i].energy();
+          eTrig[4] += BeamHit.energy();
         }
       }
     }

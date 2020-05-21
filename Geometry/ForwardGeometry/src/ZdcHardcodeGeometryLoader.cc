@@ -61,8 +61,8 @@ void ZdcHardcodeGeometryLoader::fill(HcalZDCDetId::Section section, ReturnType g
 
   // for each new HcalZdcDetId, make a CaloCellGeometry
 
-  for (std::vector<HcalZDCDetId>::const_iterator zdcIdItr = zdcIds.begin(); zdcIdItr != zdcIds.end(); ++zdcIdItr) {
-    makeCell(*zdcIdItr, geom);
+  for (auto zdcId : zdcIds) {
+    makeCell(zdcId, geom);
   }
 }
 

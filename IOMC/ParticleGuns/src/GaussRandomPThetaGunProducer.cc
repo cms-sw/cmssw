@@ -66,11 +66,10 @@ void GaussRandomPThetaGunProducer::produce(edm::Event& e, const edm::EventSetup&
   // loop over particles
   //
   int barcode = 1;
-  for (unsigned int ip = 0; ip < fPartIDs.size(); ip++) {
+  for (int PartID : fPartIDs) {
     double mom = CLHEP::RandGaussQ::shoot(engine, fMeanP, fSigmaP);
     double theta = CLHEP::RandGaussQ::shoot(engine, fMeanTheta, fSigmaTheta);
     double phi = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi);
-    int PartID = fPartIDs[ip];
     const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID)));
     double mass = PData->mass().value();
     double energy = sqrt(mom * mom + mass * mass);

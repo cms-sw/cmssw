@@ -95,8 +95,7 @@ bool LeptonRecoSkim::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   if (useElectronSelection) {
     int nElecPassingCut = 0;
-    for (unsigned int i = 0; i < theElectronCollection->size(); i++) {
-      GsfElectron electron = (*theElectronCollection)[i];
+    for (auto electron : *theElectronCollection) {
       //      if (electron.ecalDrivenSeed()) {
       float elpt = electron.pt();
       //        if (electron.sigmaIetaIeta() < 0.002) continue;
@@ -116,8 +115,7 @@ bool LeptonRecoSkim::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   if (usePfElectronSelection) {
     int nPfElecPassingCut = 0;
-    for (unsigned int i = 0; i < thePfCandidateCollection->size(); i++) {
-      const reco::PFCandidate& thePfCandidate = (*thePfCandidateCollection)[i];
+    for (const auto& thePfCandidate : *thePfCandidateCollection) {
       if (thePfCandidate.particleId() != reco::PFCandidate::e)
         continue;
       if (thePfCandidate.gsfTrackRef().isNull())
@@ -135,8 +133,7 @@ bool LeptonRecoSkim::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   if (useMuonSelection) {
     int nMuonPassingCut = 0;
-    for (unsigned int i = 0; i < theMuonCollection->size(); i++) {
-      Muon muon = (*theMuonCollection)[i];
+    for (auto muon : *theMuonCollection) {
       if (!(muon.isGlobalMuon() || muon.isTrackerMuon()))
         continue;
       const TrackRef siTrack = muon.innerTrack();
@@ -168,10 +165,10 @@ bool LeptonRecoSkim::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   if (useHtSelection) {
     double Ht = 0;
-    for (unsigned int i = 0; i < theCaloJetCollection->size(); i++) {
+    for (const auto& i : *theCaloJetCollection) {
       //      if((*theCaloJetCollection)[i].eta()<2.6 && (*theCaloJetCollection)[i].emEnergyFraction() <= 0.01) continue;
-      if ((*theCaloJetCollection)[i].pt() > htJetThreshold)
-        Ht += (*theCaloJetCollection)[i].pt();
+      if (i.pt() > htJetThreshold)
+        Ht += i.pt();
     }
     if (Ht > htMin)
       HtCutPassed = true;
@@ -180,9 +177,9 @@ bool LeptonRecoSkim::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   if (usePFHtSelection) {
     double PFHt = 0;
-    for (unsigned int i = 0; i < thePFJetCollection->size(); i++) {
-      if ((*thePFJetCollection)[i].pt() > pfHtJetThreshold)
-        PFHt += (*thePFJetCollection)[i].pt();
+    for (const auto& i : *thePFJetCollection) {
+      if (i.pt() > pfHtJetThreshold)
+        PFHt += i.pt();
     }
     if (PFHt > pfHtMin)
       PFHtCutPassed = true;

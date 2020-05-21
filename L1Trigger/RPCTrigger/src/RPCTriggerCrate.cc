@@ -20,19 +20,19 @@ L1RpcTBMuonsVec RPCTriggerCrate::runTCGBSorter() {
     return L1RpcTBMuonsVec();
 
   L1RpcTBMuonsVec2 tbMuonsVec2;
-  for (unsigned int iTB = 0; iTB < m_TBsVec.size(); iTB++) {
-    tbMuonsVec2.push_back(m_TBsVec[iTB].runTBGB());
+  for (auto& iTB : m_TBsVec) {
+    tbMuonsVec2.push_back(iTB.runTBGB());
   }
 
   m_WasMuon = false;
 
   if (m_TriggerConfig->getDebugLevel() != 0) {
-    for (unsigned int iTC = 0; iTC < tbMuonsVec2.size(); iTC++) {
-      for (unsigned int iTB = 0; iTB < tbMuonsVec2[iTC].size(); iTB++) {
+    for (auto& iTC : tbMuonsVec2) {
+      for (unsigned int iTB = 0; iTB < iTC.size(); iTB++) {
 #ifndef _STAND_ALONE
         //           LogDebug("RPCHwDebug") << "GB 1 " << iTB << " "
         //             <<tbMuonsVec2[iTC][iTB].printDebugInfo(m_TriggerConfig->getDebugLevel());
-        MuonsGrabber::Instance().addMuon(tbMuonsVec2[iTC][iTB], 1, -1, -1, iTB);
+        MuonsGrabber::Instance().addMuon(iTC[iTB], 1, -1, -1, iTB);
 #else
         std::cout << "GB 1 "
                   << "GB 1 " << iTB << " " << tbMuonsVec2[iTC][iTB].printDebugInfo(m_TriggerConfig->getDebugLevel())

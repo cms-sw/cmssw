@@ -1496,10 +1496,9 @@ void PhotonAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& esup) {
        ++filterIndex) {  //loop over all trigger filters in event (i.e. filters passed)
     string label = triggerEvent.filterTag(filterIndex).label();
     if (label.find("Photon") != string::npos) {  //get photon-related filters
-      for (uint filterKeyIndex = 0; filterKeyIndex < triggerEvent.filterKeys(filterIndex).size();
-           ++filterKeyIndex) {  //loop over keys to objects passing this filter
-        Keys.push_back(
-            triggerEvent.filterKeys(filterIndex)[filterKeyIndex]);  //add keys to a vector for later reference
+      for (unsigned short filterKeyIndex :
+           triggerEvent.filterKeys(filterIndex)) {  //loop over keys to objects passing this filter
+        Keys.push_back(filterKeyIndex);             //add keys to a vector for later reference
       }
     }
   }
@@ -1535,11 +1534,10 @@ void PhotonAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& esup) {
     double deltaRMin = 1000.;
     double deltaRMax = 0.05;  //sets deltaR threshold for matching photons to trigger objects
 
-    for (vector<int>::const_iterator objectKey = Keys.begin(); objectKey != Keys.end();
-         objectKey++) {  //loop over keys to objects that fired photon triggers
+    for (int Key : Keys) {  //loop over keys to objects that fired photon triggers
 
-      deltaR = reco::deltaR(triggerEvent.getObjects()[(*objectKey)].eta(),
-                            triggerEvent.getObjects()[(*objectKey)].phi(),
+      deltaR = reco::deltaR(triggerEvent.getObjects()[Key].eta(),
+                            triggerEvent.getObjects()[Key].phi(),
                             aPho->superCluster()->eta(),
                             aPho->superCluster()->phi());
       if (deltaR < deltaRMin)
@@ -1816,15 +1814,11 @@ void PhotonAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& esup) {
         for (reco::CaloCluster_iterator bcIt = aPho->superCluster()->clustersBegin();
              bcIt != aPho->superCluster()->clustersEnd();
              ++bcIt) {  //loop over basic clusters in SC
-          for (vector<pair<DetId, float> >::const_iterator rhIt = (*bcIt)->hitsAndFractions().begin();
-               rhIt != (*bcIt)->hitsAndFractions().end();
-               ++rhIt) {  //loop over rec hits in basic cluster
+          for (const auto& rhIt : (*bcIt)->hitsAndFractions()) {  //loop over rec hits in basic cluster
 
-            for (EcalRecHitCollection::const_iterator it = ecalRecHitCollection.begin();
-                 it != ecalRecHitCollection.end();
-                 ++it) {                        //loop over all rec hits to find the right ones
-              if (rhIt->first == (*it).id()) {  //found the matching rechit
-                if ((*it).recoFlag() == 9) {    //has a bad channel
+            for (const auto& it : ecalRecHitCollection) {  //loop over all rec hits to find the right ones
+              if (rhIt.first == it.id()) {                 //found the matching rechit
+                if (it.recoFlag() == 9) {                  //has a bad channel
                   atLeastOneDeadChannel = true;
                   break;
                 }
@@ -1849,8 +1843,8 @@ void PhotonAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& esup) {
         //loop over conversions (don't forget, we're still inside the photon loop,
         // i.e. these are all the conversions for this ONE photon, not for all the photons in the event)
         reco::ConversionRefVector conversions = aPho->conversions();
-        for (unsigned int iConv = 0; iConv < conversions.size(); iConv++) {
-          reco::ConversionRef aConv = conversions[iConv];
+        for (const auto& conversion : conversions) {
+          reco::ConversionRef aConv = conversion;
 
           if (aConv->nTracks() < 2)
             continue;
@@ -1916,11 +1910,11 @@ void PhotonAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& esup) {
 
           const std::vector<edm::RefToBase<reco::Track> > tracks = aConv->tracks();
 
-          for (unsigned int i = 0; i < tracks.size(); i++) {
-            fill2DHistoVector(h_tkChi2_, tracks[i]->normalizedChi2(), cut, type);
-            fill2DHistoVector(p_tkChi2VsEta_, aPho->eta(), tracks[i]->normalizedChi2(), cut, type);
+          for (const auto& track : tracks) {
+            fill2DHistoVector(h_tkChi2_, track->normalizedChi2(), cut, type);
+            fill2DHistoVector(p_tkChi2VsEta_, aPho->eta(), track->normalizedChi2(), cut, type);
             fill2DHistoVector(p_dCotTracksVsEta_, aPho->eta(), aConv->pairCotThetaSeparation(), cut, type);
-            fill2DHistoVector(p_nHitsVsEta_, aPho->eta(), float(tracks[i]->numberOfValidHits()), cut, type);
+            fill2DHistoVector(p_nHitsVsEta_, aPho->eta(), float(track->numberOfValidHits()), cut, type);
           }
 
           //calculating delta eta and delta phi of the two tracks

@@ -88,8 +88,8 @@ const GBRForest* PFMETAlgorithmMVA::loadMVAfromFile(const edm::FileInPath& input
   }
 
   std::vector<std::string> variableNames;
-  for (unsigned int i = 0; i < lVec->size(); ++i) {
-    variableNames.push_back(updateVariableNames(lVec->at(i)));
+  for (const auto& i : *lVec) {
+    variableNames.push_back(updateVariableNames(i));
   }
 
   if (mvaName.find(mvaNameU_) != std::string::npos)

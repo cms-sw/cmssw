@@ -130,8 +130,8 @@ void DTTTrigCalibration::analyze(const edm::Event& event, const edm::EventSetup&
       cout << "----------- Layer " << layerId << " -------------" << endl;
 
     //Check if the layer is inside a noisy chamber
-    for (vector<DTChamberId>::const_iterator chamber = badChambers.begin(); chamber != badChambers.end(); ++chamber) {
-      if ((*chamber) == chId) {
+    for (const auto& chamber : badChambers) {
+      if (chamber == chId) {
         badChamber = true;
         break;
       }
@@ -273,11 +273,10 @@ string DTTTrigCalibration::getOccupancyName(const DTLayerId& slId) const {
 
 void DTTTrigCalibration::dumpTTrigMap(const DTTtrig* tTrig) const {
   static const double convToNs = 25. / 32.;
-  for (DTTtrig::const_iterator ttrig = tTrig->begin(); ttrig != tTrig->end(); ++ttrig) {
-    cout << "Wh: " << (*ttrig).first.wheelId << " St: " << (*ttrig).first.stationId
-         << " Sc: " << (*ttrig).first.sectorId << " Sl: " << (*ttrig).first.slId
-         << " TTrig mean (ns): " << (*ttrig).second.tTrig * convToNs
-         << " TTrig sigma (ns): " << (*ttrig).second.tTrms * convToNs << endl;
+  for (const auto& ttrig : *tTrig) {
+    cout << "Wh: " << ttrig.first.wheelId << " St: " << ttrig.first.stationId << " Sc: " << ttrig.first.sectorId
+         << " Sl: " << ttrig.first.slId << " TTrig mean (ns): " << ttrig.second.tTrig * convToNs
+         << " TTrig sigma (ns): " << ttrig.second.tTrms * convToNs << endl;
   }
 }
 
@@ -287,29 +286,29 @@ void DTTTrigCalibration::plotTTrig(const DTTtrig* tTrig) const {
   TH1F* tTrig_YB2_Se11 = new TH1F("tTrig_YB2_Se11", "tTrig YB2_Se11", 12, 1, 13);
 
   static const double convToNs = 25. / 32.;
-  for (DTTtrig::const_iterator ttrig = tTrig->begin(); ttrig != tTrig->end(); ++ttrig) {
+  for (const auto& ttrig : *tTrig) {
     // avoid to have wired numbers in the plot
     float tTrigValue = 0;
     float tTrmsValue = 0;
-    if ((*ttrig).second.tTrig * convToNs > 0 && (*ttrig).second.tTrig * convToNs < 32000) {
-      tTrigValue = (*ttrig).second.tTrig * convToNs;
-      tTrmsValue = (*ttrig).second.tTrms * convToNs;
+    if (ttrig.second.tTrig * convToNs > 0 && ttrig.second.tTrig * convToNs < 32000) {
+      tTrigValue = ttrig.second.tTrig * convToNs;
+      tTrmsValue = ttrig.second.tTrms * convToNs;
     }
 
     int binx;
     string binLabel;
     stringstream binLabelStream;
-    if ((*ttrig).first.sectorId != 14) {
-      binx = ((*ttrig).first.stationId - 1) * 3 + (*ttrig).first.slId;
-      binLabelStream << "MB" << (*ttrig).first.stationId << "_SL" << (*ttrig).first.slId;
+    if (ttrig.first.sectorId != 14) {
+      binx = (ttrig.first.stationId - 1) * 3 + ttrig.first.slId;
+      binLabelStream << "MB" << ttrig.first.stationId << "_SL" << ttrig.first.slId;
     } else {
-      binx = 12 + (*ttrig).first.slId;
-      binLabelStream << "MB14_SL" << (*ttrig).first.slId;
+      binx = 12 + ttrig.first.slId;
+      binLabelStream << "MB14_SL" << ttrig.first.slId;
     }
     binLabelStream >> binLabel;
 
-    if ((*ttrig).first.wheelId == 2) {
-      if ((*ttrig).first.sectorId == 10 || (*ttrig).first.sectorId == 14) {
+    if (ttrig.first.wheelId == 2) {
+      if (ttrig.first.sectorId == 10 || ttrig.first.sectorId == 14) {
         tTrig_YB2_Se10->Fill(binx, tTrigValue);
         tTrig_YB2_Se10->SetBinError(binx, tTrmsValue);
         tTrig_YB2_Se10->GetXaxis()->SetBinLabel(binx, binLabel.c_str());

@@ -13,8 +13,8 @@ CSCObjectMap::CSCObjectMap(RPCGeometry const& rpcGeo) {
     if (dynamic_cast<const RPCChamber*>(*it) != nullptr) {
       auto ch = dynamic_cast<const RPCChamber*>(*it);
       std::vector<const RPCRoll*> roles = (ch->rolls());
-      for (std::vector<const RPCRoll*>::const_iterator r = roles.begin(); r != roles.end(); ++r) {
-        RPCDetId rpcId = (*r)->id();
+      for (auto role : roles) {
+        RPCDetId rpcId = role->id();
         int region = rpcId.region();
         if (region != 0) {
           int station = rpcId.station();

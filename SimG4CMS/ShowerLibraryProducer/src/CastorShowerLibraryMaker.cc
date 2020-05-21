@@ -62,8 +62,8 @@ CastorShowerLibraryMaker::CastorShowerLibraryMaker(const edm::ParameterSet& p)
   MaxEta = p_SLM.getParameter<double>("SLMaxEta");
   //
   NPGParticle = PGParticleIDs.size();
-  for (unsigned int i = 0; i < PGParticleIDs.size(); i++) {
-    switch (std::abs(PGParticleIDs.at(i))) {
+  for (int PGParticleID : PGParticleIDs) {
+    switch (std::abs(PGParticleID)) {
       case 11:
       case 22:
         DoEmSL = true;
@@ -241,8 +241,7 @@ void CastorShowerLibraryMaker::update(const BeginOfEvent* evt) {
   }
 
   thePrims = GetPrimary((*evt)());
-  for (unsigned int i = 0; i < thePrims.size(); i++) {
-    G4PrimaryParticle* thePrim = thePrims.at(i);
+  for (auto thePrim : thePrims) {
     int particleType = thePrim->GetPDGcode();
 
     std::string SLType("");
@@ -446,8 +445,7 @@ void CastorShowerLibraryMaker::update(const EndOfEvent* evt) {
   // Loop over primaries
   int NEvtAccepted = 0;
   int NHitInEvent = 0;
-  for (unsigned int i = 0; i < thePrims.size(); i++) {
-    G4PrimaryParticle* thePrim = thePrims.at(i);
+  for (auto thePrim : thePrims) {
     if (!thePrim) {
       edm::LogInfo("CastorShowerLibraryMaker") << "nullptr Pointer to the primary" << std::endl;
       continue;
@@ -1016,11 +1014,11 @@ bool CastorShowerLibraryMaker::SLisPhiBinFilled(int ebin, int etabin, int phibin
 }
 void CastorShowerLibraryMaker::KillSecondaries(const G4Step* aStep) {
   const G4TrackVector* p_sec = aStep->GetSecondary();
-  for (int i = 0; i < int(p_sec->size()); i++) {
-    /*if (verbosity)*/ std::cout << "Killing track ID " << p_sec->at(i)->GetTrackID() << " and its secondaries"
-                                 << " Produced by Process " << p_sec->at(i)->GetCreatorProcess()->GetProcessName()
+  for (auto i : *p_sec) {
+    /*if (verbosity)*/ std::cout << "Killing track ID " << i->GetTrackID() << " and its secondaries"
+                                 << " Produced by Process " << i->GetCreatorProcess()->GetProcessName()
                                  << " in the volume " << aStep->GetTrack()->GetVolume()->GetName() << std::endl;
-    p_sec->at(i)->SetTrackStatus(fKillTrackAndSecondaries);
+    i->SetTrackStatus(fKillTrackAndSecondaries);
   }
 }
 
@@ -1033,8 +1031,8 @@ void CastorShowerLibraryMaker::GetMissingEnergy(CaloG4HitCollection* theCAFI, do
     int id = (*theCAFI)[ihit]->getTrackID();
     tot_energy += (*theCAFI)[ihit]->getEnergyDeposit();
     int hit_prim = 0;
-    for (unsigned int i = 0; i < thePrims.size(); i++) {
-      int particleType = thePrims.at(i)->GetPDGcode();
+    for (auto& thePrim : thePrims) {
+      int particleType = thePrim->GetPDGcode();
       if (MapOfSecondaries[particleType].find(id) != MapOfSecondaries[particleType].end())
         hit_prim = particleType;
     }

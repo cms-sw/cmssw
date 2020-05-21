@@ -130,14 +130,14 @@ bool TotemRPLocalTrackFitterAlgorithm::fitTrack(const edm::DetSetVector<TotemRPR
   fitted_track.setCovarianceMatrix(V_a_mult);
 
   double Chi_2 = 0;
-  for (unsigned int i = 0; i < applicable_hits.size(); ++i) {
-    RPDetCoordinateAlgebraObjs *alg_obj = applicable_hits[i].alg;
+  for (auto &applicable_hit : applicable_hits) {
+    RPDetCoordinateAlgebraObjs *alg_obj = applicable_hit.alg;
     TVector2 readout_dir = alg_obj->readout_direction_;
     double det_z = alg_obj->centre_of_det_global_position_.Z();
-    double sigma_str = applicable_hits[i].hit->sigma();
+    double sigma_str = applicable_hit.hit->sigma();
     double sigma_str_2 = sigma_str * sigma_str;
     TVector2 fited_det_xy_point = fitted_track.trackPoint(det_z);
-    double U_readout = applicable_hits[i].hit->position() - alg_obj->rec_u_0_;
+    double U_readout = applicable_hit.hit->position() - alg_obj->rec_u_0_;
     double U_fited = (readout_dir *= fited_det_xy_point);
     double residual = U_fited - U_readout;
     TMatrixD V_T_Cov_X_Y(1, 2);
@@ -151,8 +151,8 @@ bool TotemRPLocalTrackFitterAlgorithm::fitTrack(const edm::DetSetVector<TotemRPR
     Chi_2 += residual * residual / sigma_str_2;
 
     TotemRPLocalTrack::FittedRecHit hit_point(
-        *(applicable_hits[i].hit), TVector3(fited_det_xy_point.X(), fited_det_xy_point.Y(), det_z), residual, pull);
-    fitted_track.addHit(applicable_hits[i].detId, hit_point);
+        *(applicable_hit.hit), TVector3(fited_det_xy_point.X(), fited_det_xy_point.Y(), det_z), residual, pull);
+    fitted_track.addHit(applicable_hit.detId, hit_point);
   }
 
   fitted_track.setChiSquared(Chi_2);

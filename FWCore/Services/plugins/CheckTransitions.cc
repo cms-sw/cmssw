@@ -262,14 +262,14 @@ void CheckTransitions::postEndJob() {
    } */
 
   auto itOS = orderedSeen.begin();
-  for (auto itOE = orderedExpected.begin(); itOE != orderedExpected.end(); ++itOE) {
+  for (auto& itOE : orderedExpected) {
     if (itOS == orderedSeen.end()) {
       break;
     }
-    if (*itOE != *itOS) {
-      auto syncOE = std::get<1>(*itOE);
+    if (itOE != *itOS) {
+      auto syncOE = std::get<1>(itOE);
       auto syncOS = std::get<1>(*itOS);
-      std::cout << "Different ordering " << syncOE << " " << std::get<2>(*itOE) << "\n"
+      std::cout << "Different ordering " << syncOE << " " << std::get<2>(itOE) << "\n"
                 << "                   " << syncOS << " " << std::get<2>(*itOS) << "\n";
       m_failed = true;
     }

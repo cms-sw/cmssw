@@ -743,8 +743,8 @@ vector<pair<int, double>> lumiperIOV(vector<int> IOVlist, TString Year) {
   for (size_t j = 0; j < Nscale; j++)
     lumiInput += yscale[j];
   //cout << "Total lumi: " << lumiInput <<endl;
-  for (size_t j = 0; j < lumiperIOV.size(); j++)
-    lumiOutput += lumiperIOV.at(j).second;
+  for (auto &j : lumiperIOV)
+    lumiOutput += j.second;
   //cout << "Total lumi saved for IOVs: " << lumiOutput <<endl;
   if (abs(lumiInput - lumiOutput) > 0.5) {
     cout << "ERROR: luminosity retrieved for IOVs does not match the one for the runs" << endl

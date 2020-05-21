@@ -69,9 +69,9 @@ pat::PATCleaner<PATObjType>::PATCleaner(const edm::ParameterSet& iConfig)
   // get all the names of the tests (all nested PSets in this PSet)
   std::vector<std::string> overlapNames = overlapPSet.getParameterNamesForType<edm::ParameterSet>();
   // loop on them
-  for (std::vector<std::string>::const_iterator itn = overlapNames.begin(); itn != overlapNames.end(); ++itn) {
+  for (const auto& overlapName : overlapNames) {
     // retrieve configuration
-    edm::ParameterSet cfg = overlapPSet.getParameter<edm::ParameterSet>(*itn);
+    edm::ParameterSet cfg = overlapPSet.getParameter<edm::ParameterSet>(overlapName);
     // skip empty parameter sets
     if (cfg.empty())
       continue;
@@ -79,9 +79,9 @@ pat::PATCleaner<PATObjType>::PATCleaner(const edm::ParameterSet& iConfig)
     std::string algorithm = cfg.getParameter<std::string>("algorithm");
     // create the appropriate OverlapTest
     if (algorithm == "byDeltaR") {
-      overlapTests_.emplace_back(new pat::helper::BasicOverlapTest(*itn, cfg, consumesCollector()));
+      overlapTests_.emplace_back(new pat::helper::BasicOverlapTest(overlapName, cfg, consumesCollector()));
     } else if (algorithm == "bySuperClusterSeed") {
-      overlapTests_.emplace_back(new pat::helper::OverlapBySuperClusterSeed(*itn, cfg, consumesCollector()));
+      overlapTests_.emplace_back(new pat::helper::OverlapBySuperClusterSeed(overlapName, cfg, consumesCollector()));
     } else {
       throw cms::Exception("Configuration")
           << "PATCleaner for " << src_ << ": unsupported algorithm '" << algorithm << "'\n";

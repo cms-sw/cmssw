@@ -15,8 +15,8 @@ void GhostTrack::initStates(const std::vector<TransientTrack> &tracks,
                             const std::vector<float> &weights,
                             double offset) {
   std::vector<float>::const_iterator weight = weights.begin();
-  for (std::vector<TransientTrack>::const_iterator iter = tracks.begin(); iter != tracks.end(); ++iter) {
-    GhostTrackState state(*iter);
+  for (const auto &track : tracks) {
+    GhostTrackState state(track);
     state.linearize(prediction_, true, offset);
     if (weight != weights.end())
       state.setWeight(*weight++);

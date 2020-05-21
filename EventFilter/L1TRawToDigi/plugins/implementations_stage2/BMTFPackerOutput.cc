@@ -18,10 +18,10 @@ namespace l1t {
       edm::Handle<RegionalMuonCandBxCollection> muons;
       event.getByToken(muonToken, muons);
 
-      for (auto imu = muons->begin(); imu != muons->end(); imu++) {
-        if (imu->processor() + 1 == board_id) {
+      for (const auto& imu : *muons) {
+        if (imu.processor() + 1 == board_id) {
           uint32_t firstWord(0), lastWord(0);
-          RegionalMuonRawDigiTranslator::generatePackedDataWords(*imu, firstWord, lastWord);
+          RegionalMuonRawDigiTranslator::generatePackedDataWords(imu, firstWord, lastWord);
           payloadMap_[bmtfBlockID].push_back(firstWord);  //imu->link()*2+1
           payloadMap_[bmtfBlockID].push_back(lastWord);   //imu->link()*2+1
         }

@@ -27,13 +27,13 @@ namespace l1t {
 
   // turn each central region into a jet
   void passThroughJets(const std::vector<l1t::CaloRegion>* regions, std::vector<l1t::Jet>* uncalibjets) {
-    for (std::vector<CaloRegion>::const_iterator region = regions->begin(); region != regions->end(); region++) {
+    for (const auto& region : *regions) {
       int jetQual = 0;
-      if (region->hwEta() < 4 || region->hwEta() > 17)
+      if (region.hwEta() < 4 || region.hwEta() > 17)
         jetQual = 2;
-      int jetET = region->hwPt();
-      int jetEta = region->hwEta();
-      int jetPhi = region->hwPhi();
+      int jetET = region.hwPt();
+      int jetEta = region.hwEta();
+      int jetPhi = region.hwPhi();
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > jetLorentz(0, 0, 0, 0);
       l1t::Jet theJet(*&jetLorentz, jetET, jetEta, jetPhi, jetQual);
@@ -57,38 +57,37 @@ namespace l1t {
       int neighborNW_et = 0;
       int neighborSE_et = 0;
       unsigned int nNeighbors = 0;
-      for (std::vector<CaloRegion>::const_iterator neighbor = regions->begin(); neighbor != regions->end();
-           neighbor++) {
-        int neighborET = neighbor->hwPt();  //regionPhysicalEt(*neighbor);
-        if (deltaGctPhi(*region, *neighbor) == 1 && (region->hwEta()) == neighbor->hwEta()) {
+      for (const auto& neighbor : *regions) {
+        int neighborET = neighbor.hwPt();  //regionPhysicalEt(*neighbor);
+        if (deltaGctPhi(*region, neighbor) == 1 && (region->hwEta()) == neighbor.hwEta()) {
           neighborN_et = neighborET;
           nNeighbors++;
           continue;
-        } else if (deltaGctPhi(*region, *neighbor) == -1 && (region->hwEta()) == neighbor->hwEta()) {
+        } else if (deltaGctPhi(*region, neighbor) == -1 && (region->hwEta()) == neighbor.hwEta()) {
           neighborS_et = neighborET;
           nNeighbors++;
           continue;
-        } else if (deltaGctPhi(*region, *neighbor) == 0 && (region->hwEta() + 1) == neighbor->hwEta()) {
+        } else if (deltaGctPhi(*region, neighbor) == 0 && (region->hwEta() + 1) == neighbor.hwEta()) {
           neighborE_et = neighborET;
           nNeighbors++;
           continue;
-        } else if (deltaGctPhi(*region, *neighbor) == 0 && (region->hwEta() - 1) == neighbor->hwEta()) {
+        } else if (deltaGctPhi(*region, neighbor) == 0 && (region->hwEta() - 1) == neighbor.hwEta()) {
           neighborW_et = neighborET;
           nNeighbors++;
           continue;
-        } else if (deltaGctPhi(*region, *neighbor) == 1 && (region->hwEta() + 1) == neighbor->hwEta()) {
+        } else if (deltaGctPhi(*region, neighbor) == 1 && (region->hwEta() + 1) == neighbor.hwEta()) {
           neighborNE_et = neighborET;
           nNeighbors++;
           continue;
-        } else if (deltaGctPhi(*region, *neighbor) == -1 && (region->hwEta() - 1) == neighbor->hwEta()) {
+        } else if (deltaGctPhi(*region, neighbor) == -1 && (region->hwEta() - 1) == neighbor.hwEta()) {
           neighborSW_et = neighborET;
           nNeighbors++;
           continue;
-        } else if (deltaGctPhi(*region, *neighbor) == 1 && (region->hwEta() - 1) == neighbor->hwEta()) {
+        } else if (deltaGctPhi(*region, neighbor) == 1 && (region->hwEta() - 1) == neighbor.hwEta()) {
           neighborNW_et = neighborET;
           nNeighbors++;
           continue;
-        } else if (deltaGctPhi(*region, *neighbor) == -1 && (region->hwEta() + 1) == neighbor->hwEta()) {
+        } else if (deltaGctPhi(*region, neighbor) == -1 && (region->hwEta() + 1) == neighbor.hwEta()) {
           neighborSE_et = neighborET;
           nNeighbors++;
           continue;
@@ -158,38 +157,37 @@ namespace l1t {
       int neighborNW_et = 0;
       int neighborSE_et = 0;
       unsigned int nNeighbors = 0;
-      for (std::vector<CaloRegion>::const_iterator neighbor = regions->begin(); neighbor != regions->end();
-           neighbor++) {
-        int neighborET = neighbor->hwPt();  //regionPhysicalEt(*neighbor);
-        if (deltaGctPhi(*region, *neighbor) == 1 && (region->hwEta()) == neighbor->hwEta()) {
+      for (const auto& neighbor : *regions) {
+        int neighborET = neighbor.hwPt();  //regionPhysicalEt(*neighbor);
+        if (deltaGctPhi(*region, neighbor) == 1 && (region->hwEta()) == neighbor.hwEta()) {
           neighborN_et = neighborET;
           nNeighbors++;
           continue;
-        } else if (deltaGctPhi(*region, *neighbor) == -1 && (region->hwEta()) == neighbor->hwEta()) {
+        } else if (deltaGctPhi(*region, neighbor) == -1 && (region->hwEta()) == neighbor.hwEta()) {
           neighborS_et = neighborET;
           nNeighbors++;
           continue;
-        } else if (deltaGctPhi(*region, *neighbor) == 0 && (region->hwEta() + 1) == neighbor->hwEta()) {
+        } else if (deltaGctPhi(*region, neighbor) == 0 && (region->hwEta() + 1) == neighbor.hwEta()) {
           neighborE_et = neighborET;
           nNeighbors++;
           continue;
-        } else if (deltaGctPhi(*region, *neighbor) == 0 && (region->hwEta() - 1) == neighbor->hwEta()) {
+        } else if (deltaGctPhi(*region, neighbor) == 0 && (region->hwEta() - 1) == neighbor.hwEta()) {
           neighborW_et = neighborET;
           nNeighbors++;
           continue;
-        } else if (deltaGctPhi(*region, *neighbor) == 1 && (region->hwEta() + 1) == neighbor->hwEta()) {
+        } else if (deltaGctPhi(*region, neighbor) == 1 && (region->hwEta() + 1) == neighbor.hwEta()) {
           neighborNE_et = neighborET;
           nNeighbors++;
           continue;
-        } else if (deltaGctPhi(*region, *neighbor) == -1 && (region->hwEta() - 1) == neighbor->hwEta()) {
+        } else if (deltaGctPhi(*region, neighbor) == -1 && (region->hwEta() - 1) == neighbor.hwEta()) {
           neighborSW_et = neighborET;
           nNeighbors++;
           continue;
-        } else if (deltaGctPhi(*region, *neighbor) == 1 && (region->hwEta() - 1) == neighbor->hwEta()) {
+        } else if (deltaGctPhi(*region, neighbor) == 1 && (region->hwEta() - 1) == neighbor.hwEta()) {
           neighborNW_et = neighborET;
           nNeighbors++;
           continue;
-        } else if (deltaGctPhi(*region, *neighbor) == -1 && (region->hwEta() + 1) == neighbor->hwEta()) {
+        } else if (deltaGctPhi(*region, neighbor) == -1 && (region->hwEta() + 1) == neighbor.hwEta()) {
           neighborSE_et = neighborET;
           nNeighbors++;
           continue;
@@ -246,42 +244,41 @@ namespace l1t {
       int neighborNW_et = 0;
       int neighborSE_et = 0;
       unsigned int nNeighbors = 0;
-      for (std::vector<CaloRegion>::const_iterator neighbor = regions->begin(); neighbor != regions->end();
-           neighbor++) {
-        int neighborET = neighbor->hwPt();
-        int subEta2 = neighbor->hwEta();
+      for (const auto& neighbor : *regions) {
+        int neighborET = neighbor.hwPt();
+        int subEta2 = neighbor.hwEta();
         if ((etaMask & (1 << subEta2)) >> subEta2)
           neighborET = 0;
 
-        if (deltaGctPhi(*region, *neighbor) == 1 && (region->hwEta()) == neighbor->hwEta()) {
+        if (deltaGctPhi(*region, neighbor) == 1 && (region->hwEta()) == neighbor.hwEta()) {
           neighborN_et = neighborET;
           nNeighbors++;
           continue;
-        } else if (deltaGctPhi(*region, *neighbor) == -1 && (region->hwEta()) == neighbor->hwEta()) {
+        } else if (deltaGctPhi(*region, neighbor) == -1 && (region->hwEta()) == neighbor.hwEta()) {
           neighborS_et = neighborET;
           nNeighbors++;
           continue;
-        } else if (deltaGctPhi(*region, *neighbor) == 0 && (region->hwEta() + 1) == neighbor->hwEta()) {
+        } else if (deltaGctPhi(*region, neighbor) == 0 && (region->hwEta() + 1) == neighbor.hwEta()) {
           neighborE_et = neighborET;
           nNeighbors++;
           continue;
-        } else if (deltaGctPhi(*region, *neighbor) == 0 && (region->hwEta() - 1) == neighbor->hwEta()) {
+        } else if (deltaGctPhi(*region, neighbor) == 0 && (region->hwEta() - 1) == neighbor.hwEta()) {
           neighborW_et = neighborET;
           nNeighbors++;
           continue;
-        } else if (deltaGctPhi(*region, *neighbor) == 1 && (region->hwEta() + 1) == neighbor->hwEta()) {
+        } else if (deltaGctPhi(*region, neighbor) == 1 && (region->hwEta() + 1) == neighbor.hwEta()) {
           neighborNE_et = neighborET;
           nNeighbors++;
           continue;
-        } else if (deltaGctPhi(*region, *neighbor) == -1 && (region->hwEta() - 1) == neighbor->hwEta()) {
+        } else if (deltaGctPhi(*region, neighbor) == -1 && (region->hwEta() - 1) == neighbor.hwEta()) {
           neighborSW_et = neighborET;
           nNeighbors++;
           continue;
-        } else if (deltaGctPhi(*region, *neighbor) == 1 && (region->hwEta() - 1) == neighbor->hwEta()) {
+        } else if (deltaGctPhi(*region, neighbor) == 1 && (region->hwEta() - 1) == neighbor.hwEta()) {
           neighborNW_et = neighborET;
           nNeighbors++;
           continue;
-        } else if (deltaGctPhi(*region, *neighbor) == -1 && (region->hwEta() + 1) == neighbor->hwEta()) {
+        } else if (deltaGctPhi(*region, neighbor) == -1 && (region->hwEta() + 1) == neighbor.hwEta()) {
           neighborSE_et = neighborET;
           nNeighbors++;
           continue;

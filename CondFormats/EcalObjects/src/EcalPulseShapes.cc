@@ -1,6 +1,6 @@
 #include "CondFormats/EcalObjects/interface/EcalPulseShapes.h"
 
 EcalPulseShape::EcalPulseShape() {
-  for (int s = 0; s < TEMPLATESAMPLES; ++s)
-    pdfval[s] = 0.;
+  for (float& s : pdfval)
+    s = 0.;
 }

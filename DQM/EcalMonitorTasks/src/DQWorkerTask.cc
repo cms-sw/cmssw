@@ -31,12 +31,12 @@ namespace ecaldqm {
     else
       throw cms::Exception("InvalidConfiguration") << "Circular dependency of collections";
 
-    for (std::set<Collections>::const_iterator rItr(_d.requisite.begin()); rItr != _d.requisite.end(); ++rItr) {
-      for (std::vector<Dependency>::const_iterator dItr(set_.begin()); dItr != set_.end(); ++dItr) {
-        if (dItr->dependant != *rItr)
+    for (auto rItr : _d.requisite) {
+      for (const auto& dItr : set_) {
+        if (dItr.dependant != rItr)
           continue;
         pos = std::find(_sequence.begin(), _sequence.end(), col);
-        formSequenceFragment_(*dItr, _sequence, pos);
+        formSequenceFragment_(dItr, _sequence, pos);
         break;
       }
     }

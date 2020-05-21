@@ -53,29 +53,29 @@ void MuonTrackResidualsTest::dqmEndRun(DQMStore::IBooker& ibooker,
   type.push_back("theta");
   type.push_back("phi");
 
-  for (unsigned int c = 0; c < type.size(); c++) {
-    MeanHistoName = "MeanTest_" + type[c];
-    SigmaHistoName = "SigmaTest_" + type[c];
+  for (const auto& c : type) {
+    MeanHistoName = "MeanTest_" + c;
+    SigmaHistoName = "SigmaTest_" + c;
 
-    MeanHistoTitle = "Mean of the #" + type[c] + " residuals distribution";
-    SigmaHistoTitle = "Sigma of the #" + type[c] + " residuals distribution";
+    MeanHistoTitle = "Mean of the #" + c + " residuals distribution";
+    SigmaHistoTitle = "Sigma of the #" + c + " residuals distribution";
 
-    histName = "Res_GlbSta_" + type[c];
-    histoNames[type[c]].push_back(histName);
-    histName = "Res_TkGlb_" + type[c];
-    histoNames[type[c]].push_back(histName);
-    histName = "Res_TkSta_" + type[c];
-    histoNames[type[c]].push_back(histName);
+    histName = "Res_GlbSta_" + c;
+    histoNames[c].push_back(histName);
+    histName = "Res_TkGlb_" + c;
+    histoNames[c].push_back(histName);
+    histName = "Res_TkSta_" + c;
+    histoNames[c].push_back(histName);
 
-    MeanHistos[type[c]] = ibooker.book1D(MeanHistoName.c_str(), MeanHistoTitle.c_str(), 3, 0.5, 3.5);
-    (MeanHistos[type[c]])->setBinLabel(1, "Res_StaGlb", 1);
-    (MeanHistos[type[c]])->setBinLabel(2, "Res_TkGlb", 1);
-    (MeanHistos[type[c]])->setBinLabel(3, "Res_TkSta", 1);
+    MeanHistos[c] = ibooker.book1D(MeanHistoName.c_str(), MeanHistoTitle.c_str(), 3, 0.5, 3.5);
+    (MeanHistos[c])->setBinLabel(1, "Res_StaGlb", 1);
+    (MeanHistos[c])->setBinLabel(2, "Res_TkGlb", 1);
+    (MeanHistos[c])->setBinLabel(3, "Res_TkSta", 1);
 
-    SigmaHistos[type[c]] = ibooker.book1D(SigmaHistoName.c_str(), SigmaHistoTitle.c_str(), 3, 0.5, 3.5);
-    (SigmaHistos[type[c]])->setBinLabel(1, "Res_StaGlb", 1);
-    (SigmaHistos[type[c]])->setBinLabel(2, "Res_TkGlb", 1);
-    (SigmaHistos[type[c]])->setBinLabel(3, "Res_TkSta", 1);
+    SigmaHistos[c] = ibooker.book1D(SigmaHistoName.c_str(), SigmaHistoTitle.c_str(), 3, 0.5, 3.5);
+    (SigmaHistos[c])->setBinLabel(1, "Res_StaGlb", 1);
+    (SigmaHistos[c])->setBinLabel(2, "Res_TkGlb", 1);
+    (SigmaHistos[c])->setBinLabel(3, "Res_TkSta", 1);
   }
 
   ////////////////////////////////////////////////////

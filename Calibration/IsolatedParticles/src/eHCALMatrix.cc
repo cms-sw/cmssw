@@ -44,21 +44,21 @@ namespace spr {
     }
 #endif
     int khit(0);
-    for (unsigned int i = 0; i < vdets.size(); i++) {
-      std::vector<std::vector<PCaloHit>::const_iterator> hit = spr::findHit(hits, vdets[i]);
+    for (auto& vdet : vdets) {
+      std::vector<std::vector<PCaloHit>::const_iterator> hit = spr::findHit(hits, vdet);
       double energy = 0;
-      int subdet = ((HcalDetId)(vdets[i].rawId())).subdet();
+      int subdet = ((HcalDetId)(vdet.rawId())).subdet();
       double eThr = spr::eHCALThreshold(subdet, hbThr, heThr, hfThr, hoThr);
-      for (unsigned int ihit = 0; ihit < hit.size(); ihit++) {
-        if (hit[ihit] != hits.end()) {
+      for (auto& ihit : hit) {
+        if (ihit != hits.end()) {
           khit++;
 #ifdef EDM_ML_DEBUG
           if (debug)
             std::cout << "energyHCAL:: Hit " << khit << " " << (HcalDetId)vdets[i] << " E " << hit[ihit]->energy()
                       << " t " << hit[ihit]->time() << std::endl;
 #endif
-          if (hit[ihit]->time() > tMin && hit[ihit]->time() < tMax) {
-            energy += hit[ihit]->energy();
+          if (ihit->time() > tMin && ihit->time() < tMax) {
+            energy += ihit->energy();
           }
         }
       }
@@ -90,21 +90,21 @@ namespace spr {
     hotCell = hcid0;
 
     std::vector<std::vector<PCaloHit>::const_iterator> hitlist;
-    for (unsigned int i = 0; i < vdets.size(); i++) {
-      std::vector<std::vector<PCaloHit>::const_iterator> hit = spr::findHit(hits, vdets[i]);
+    for (auto vdet : vdets) {
+      std::vector<std::vector<PCaloHit>::const_iterator> hit = spr::findHit(hits, vdet);
       hitlist.insert(hitlist.end(), hit.begin(), hit.end());
     }
 
     double energySum(0);
-    for (unsigned int ihit = 0; ihit < hitlist.size(); ihit++)
-      energySum += hitlist[ihit]->energy();
+    for (auto& ihit : hitlist)
+      energySum += ihit->energy();
 
     // Get hotCell ID
     dets.clear();
     std::vector<double> energies;
-    for (unsigned int ihit = 0; ihit < hitlist.size(); ihit++) {
-      double energy = hitlist[ihit]->energy();
-      HcalDetId id0 = HcalDetId(hitlist[ihit]->id());
+    for (auto& ihit : hitlist) {
+      double energy = ihit->energy();
+      HcalDetId id0 = HcalDetId(ihit->id());
       if ((id0.subdet() != HcalOuter) || includeHO) {
         HcalDetId id1(id0.subdet(), id0.ieta(), id0.iphi(), 1);
         bool found(false);
@@ -163,9 +163,9 @@ namespace spr {
       DetId det(hcid.rawId());
       std::vector<std::vector<PCaloHit>::const_iterator> hit = spr::findHit(hits, det);
       double energy(0);
-      for (unsigned int ihit = 0; ihit < hit.size(); ++ihit) {
-        if (hit[ihit]->time() > tMin && hit[ihit]->time() < tMax)
-          energy += hit[ihit]->energy();
+      for (auto& ihit : hit) {
+        if (ihit->time() > tMin && ihit->time() < tMax)
+          energy += ihit->energy();
 #ifdef EDM_ML_DEBUG
         if (debug)
           std::cout << "energyHCALCell:: Hit[" << ihit << "] " << hcid << " E " << hit[ihit]->energy() << " t "
@@ -195,9 +195,9 @@ namespace spr {
   HcalDetId getHotCell(std::vector<HBHERecHitCollection::const_iterator>& hit, bool includeHO, int useRaw, bool) {
     std::vector<HcalDetId> dets;
     std::vector<double> energies;
-    for (unsigned int ihit = 0; ihit < hit.size(); ihit++) {
-      double energy = getRawEnergy(hit.at(ihit), useRaw);
-      HcalDetId id0 = hit.at(ihit)->id();
+    for (auto& ihit : hit) {
+      double energy = getRawEnergy(ihit, useRaw);
+      HcalDetId id0 = ihit->id();
       if ((id0.subdet() != HcalOuter) || includeHO) {
         HcalDetId id1(id0.subdet(), id0.ieta(), id0.iphi(), 1);
         bool found(false);
@@ -228,9 +228,9 @@ namespace spr {
   HcalDetId getHotCell(std::vector<std::vector<PCaloHit>::const_iterator>& hit, bool includeHO, int useRaw, bool) {
     std::vector<HcalDetId> dets;
     std::vector<double> energies;
-    for (unsigned int ihit = 0; ihit < hit.size(); ihit++) {
-      double energy = hit.at(ihit)->energy();
-      HcalDetId id0 = getRawEnergy(hit.at(ihit), useRaw);
+    for (auto& ihit : hit) {
+      double energy = ihit->energy();
+      HcalDetId id0 = getRawEnergy(ihit, useRaw);
       if ((id0.subdet() != HcalOuter) || includeHO) {
         HcalDetId id1(id0.subdet(), id0.ieta(), id0.iphi(), 1);
         bool found(false);

@@ -48,8 +48,8 @@ ObjectResolutionCalc::ObjectResolutionCalc(const TString& resopath, bool useNN =
     etaBinVals_.push_back(tmpEta->GetXaxis()->GetBinLowEdge(b));
   etaBinVals_.push_back(tmpEta->GetXaxis()->GetBinUpEdge(tmpEta->GetNbinsX()));
   edm::LogVerbatim("ObjectResolutionCalc") << "Found " << etaBinVals_.size() - 1 << " eta-bins with edges: ( ";
-  for (size_t u = 0; u < etaBinVals_.size(); u++)
-    edm::LogVerbatim("ObjectResolutionCalc") << etaBinVals_[u] << ", ";
+  for (float etaBinVal : etaBinVals_)
+    edm::LogVerbatim("ObjectResolutionCalc") << etaBinVal << ", ";
   edm::LogVerbatim("ObjectResolutionCalc") << "\b\b )" << std::endl;
 
   edm::LogVerbatim("ObjectResolutionCalc") << "=== done." << std::endl;

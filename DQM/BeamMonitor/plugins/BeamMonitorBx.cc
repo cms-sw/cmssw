@@ -480,21 +480,21 @@ void BeamMonitorBx::FillTrendHistos(
   std::ostringstream ss;
   ss << setfill('0') << setw(5) << nthBx;
   int ntbin_ = tmpTime - startTime;
-  for (map<TString, MonitorElement*>::iterator itHst = hst.begin(); itHst != hst.end(); ++itHst) {
-    if (!(itHst->first.Contains(ss.str())))
+  for (auto& itHst : hst) {
+    if (!(itHst.first.Contains(ss.str())))
       continue;
-    if (itHst->first.Contains("nPVs"))
+    if (itHst.first.Contains("nPVs"))
       continue;
-    edm::LogInfo("BX|BeamMonitorBx") << "Filling histogram: " << itHst->first << endl;
-    if (itHst->first.Contains("time")) {
-      int idx = itHst->first.Index("_time", 5);
-      itHst->second->setBinContent(ntbin_, val_[itHst->first(0, idx)].first);
-      itHst->second->setBinError(ntbin_, val_[itHst->first(0, idx)].second);
+    edm::LogInfo("BX|BeamMonitorBx") << "Filling histogram: " << itHst.first << endl;
+    if (itHst.first.Contains("time")) {
+      int idx = itHst.first.Index("_time", 5);
+      itHst.second->setBinContent(ntbin_, val_[itHst.first(0, idx)].first);
+      itHst.second->setBinError(ntbin_, val_[itHst.first(0, idx)].second);
     }
-    if (itHst->first.Contains("lumi")) {
-      int idx = itHst->first.Index("_lumi", 5);
-      itHst->second->setBinContent(endLumiOfBSFit_, val_[itHst->first(0, idx)].first);
-      itHst->second->setBinError(endLumiOfBSFit_, val_[itHst->first(0, idx)].second);
+    if (itHst.first.Contains("lumi")) {
+      int idx = itHst.first.Index("_lumi", 5);
+      itHst.second->setBinContent(endLumiOfBSFit_, val_[itHst.first(0, idx)].first);
+      itHst.second->setBinError(endLumiOfBSFit_, val_[itHst.first(0, idx)].second);
     }
   }
   TString histName = "Trending_nPVs_lumi_bx_" + ss.str();
@@ -504,13 +504,13 @@ void BeamMonitorBx::FillTrendHistos(
 
 //--------------------------------------------------------------------------------------------------
 void BeamMonitorBx::weight(BeamSpotMapBx& weightedMap_, const BeamSpotMapBx& newMap_) {
-  for (BeamSpotMapBx::const_iterator it = newMap_.begin(); it != newMap_.end(); ++it) {
-    if (weightedMap_.find(it->first) == weightedMap_.end() || (it->second.type() != 2)) {
-      weightedMap_[it->first] = it->second;
+  for (const auto& it : newMap_) {
+    if (weightedMap_.find(it.first) == weightedMap_.end() || (it.second.type() != 2)) {
+      weightedMap_[it.first] = it.second;
       continue;
     }
 
-    BeamSpot obs = weightedMap_[it->first];
+    BeamSpot obs = weightedMap_[it.first];
     double val_[8] = {
         obs.x0(), obs.y0(), obs.z0(), obs.sigmaZ(), obs.dxdz(), obs.dydz(), obs.BeamWidthX(), obs.BeamWidthY()};
     double valErr_[8] = {obs.x0Error(),
@@ -523,15 +523,15 @@ void BeamMonitorBx::weight(BeamSpotMapBx& weightedMap_, const BeamSpotMapBx& new
                          obs.BeamWidthYError()};
 
     reco::BeamSpot::BeamType type = reco::BeamSpot::Unknown;
-    weight(val_[0], valErr_[0], it->second.x0(), it->second.x0Error());
-    weight(val_[1], valErr_[1], it->second.y0(), it->second.y0Error());
-    weight(val_[2], valErr_[2], it->second.z0(), it->second.z0Error());
-    weight(val_[3], valErr_[3], it->second.sigmaZ(), it->second.sigmaZ0Error());
-    weight(val_[4], valErr_[4], it->second.dxdz(), it->second.dxdzError());
-    weight(val_[5], valErr_[5], it->second.dydz(), it->second.dydzError());
-    weight(val_[6], valErr_[6], it->second.BeamWidthX(), it->second.BeamWidthXError());
-    weight(val_[7], valErr_[7], it->second.BeamWidthY(), it->second.BeamWidthYError());
-    if (it->second.type() == reco::BeamSpot::Tracker) {
+    weight(val_[0], valErr_[0], it.second.x0(), it.second.x0Error());
+    weight(val_[1], valErr_[1], it.second.y0(), it.second.y0Error());
+    weight(val_[2], valErr_[2], it.second.z0(), it.second.z0Error());
+    weight(val_[3], valErr_[3], it.second.sigmaZ(), it.second.sigmaZ0Error());
+    weight(val_[4], valErr_[4], it.second.dxdz(), it.second.dxdzError());
+    weight(val_[5], valErr_[5], it.second.dydz(), it.second.dydzError());
+    weight(val_[6], valErr_[6], it.second.BeamWidthX(), it.second.BeamWidthXError());
+    weight(val_[7], valErr_[7], it.second.BeamWidthY(), it.second.BeamWidthYError());
+    if (it.second.type() == reco::BeamSpot::Tracker) {
       type = reco::BeamSpot::Tracker;
     }
 
@@ -543,8 +543,8 @@ void BeamMonitorBx::weight(BeamSpotMapBx& weightedMap_, const BeamSpotMapBx& new
     reco::BeamSpot weightedBeamSpot(bsPosition, val_[3], val_[4], val_[5], val_[6], error, type);
     weightedBeamSpot.setBeamWidthY(val_[7]);
     LogInfo("BX|BeamMonitorBx") << weightedBeamSpot << endl;
-    weightedMap_.erase(it->first);
-    weightedMap_[it->first] = weightedBeamSpot;
+    weightedMap_.erase(it.first);
+    weightedMap_[it.first] = weightedBeamSpot;
   }
 }
 

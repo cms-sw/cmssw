@@ -56,9 +56,9 @@ int main(int argc, char* argv[]) {
 
   // loop the events
   int ievt = 0;
-  for (unsigned int iFile = 0; iFile < inputFiles_.size(); ++iFile) {
+  for (auto& inputFile : inputFiles_) {
     // open input file (can be located on castor)
-    TFile* inFile = TFile::Open(inputFiles_[iFile].c_str());
+    TFile* inFile = TFile::Open(inputFile.c_str());
     if (inFile) {
       // ----------------------------------------------------------------------
       // Second Part:
@@ -82,20 +82,20 @@ int main(int argc, char* argv[]) {
         edm::Handle<std::vector<float> > muonPt;
         event.getByLabel(std::string("patMuonAnalyzer:pt"), muonPt);
         // loop muon collection and fill histograms
-        for (std::vector<float>::const_iterator mu1 = muonPt->begin(); mu1 != muonPt->end(); ++mu1) {
-          muonPt_->Fill(*mu1);
+        for (float mu1 : *muonPt) {
+          muonPt_->Fill(mu1);
         }
         // Handle to the muon eta
         edm::Handle<std::vector<float> > muonEta;
         event.getByLabel(std::string("patMuonAnalyzer:eta"), muonEta);
-        for (std::vector<float>::const_iterator mu1 = muonEta->begin(); mu1 != muonEta->end(); ++mu1) {
-          muonEta_->Fill(*mu1);
+        for (float mu1 : *muonEta) {
+          muonEta_->Fill(mu1);
         }
         // Handle to the muon phi
         edm::Handle<std::vector<float> > muonPhi;
         event.getByLabel(std::string("patMuonAnalyzer:phi"), muonPhi);
-        for (std::vector<float>::const_iterator mu1 = muonPhi->begin(); mu1 != muonPhi->end(); ++mu1) {
-          muonPhi_->Fill(*mu1);
+        for (float mu1 : *muonPhi) {
+          muonPhi_->Fill(mu1);
         }
       }
       // close input file

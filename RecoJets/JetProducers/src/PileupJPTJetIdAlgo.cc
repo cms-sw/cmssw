@@ -129,11 +129,11 @@ namespace cms {
       std::cout << "=======    CaloTowerPtr DONE   ==  " << std::endl;
     }
 
-    for (std::vector<CaloTowerPtr>::const_iterator icalot = calotwrs.begin(); icalot != calotwrs.end(); icalot++) {
+    for (const auto& calotwr : calotwrs) {
       ncalotowers++;
 
-      double deta = (*jet).eta() - (*icalot)->eta();
-      double dphi = (*jet).phi() - (*icalot)->phi();
+      double deta = (*jet).eta() - calotwr->eta();
+      double dphi = (*jet).phi() - calotwr->phi();
 
       if (dphi > M_PI)
         dphi = dphi - 2. * M_PI;
@@ -141,25 +141,25 @@ namespace cms {
         dphi = dphi + 2. * M_PI;
 
       if (verbosity > 0)
-        std::cout << " CaloTower jet eta " << (*jet).eta() << " tower eta " << (*icalot)->eta() << " jet phi "
-                  << (*jet).phi() << " tower phi " << (*icalot)->phi() << " dphi " << dphi << " " << (*icalot)->pt()
-                  << " ieta " << (*icalot)->ieta() << " " << abs((*icalot)->ieta()) << std::endl;
+        std::cout << " CaloTower jet eta " << (*jet).eta() << " tower eta " << calotwr->eta() << " jet phi "
+                  << (*jet).phi() << " tower phi " << calotwr->phi() << " dphi " << dphi << " " << calotwr->pt()
+                  << " ieta " << calotwr->ieta() << " " << abs(calotwr->ieta()) << std::endl;
 
-      if (abs((*icalot)->ieta()) < 30)
-        EE = EE + (*icalot)->emEnergy();
-      if (abs((*icalot)->ieta()) < 30)
-        HE = HE + (*icalot)->hadEnergy();
-      if (abs((*icalot)->ieta()) > 29)
-        EELong = EELong + (*icalot)->emEnergy();
-      if (abs((*icalot)->ieta()) > 29)
-        EEShort = EEShort + (*icalot)->hadEnergy();
+      if (abs(calotwr->ieta()) < 30)
+        EE = EE + calotwr->emEnergy();
+      if (abs(calotwr->ieta()) < 30)
+        HE = HE + calotwr->hadEnergy();
+      if (abs(calotwr->ieta()) > 29)
+        EELong = EELong + calotwr->emEnergy();
+      if (abs(calotwr->ieta()) > 29)
+        EEShort = EEShort + calotwr->hadEnergy();
 
-      sumpt = sumpt + (*icalot)->pt();
-      dphi2 = dphi2 + dphi * dphi * (*icalot)->pt();
-      deta2 = deta2 + deta * deta * (*icalot)->pt();
-      dphi1 = dphi1 + dphi * (*icalot)->pt();
-      deta1 = deta1 + deta * (*icalot)->pt();
-      dphideta = dphideta + dphi * deta * (*icalot)->pt();
+      sumpt = sumpt + calotwr->pt();
+      dphi2 = dphi2 + dphi * dphi * calotwr->pt();
+      deta2 = deta2 + deta * deta * calotwr->pt();
+      dphi1 = dphi1 + dphi * calotwr->pt();
+      deta1 = deta1 + deta * calotwr->pt();
+      dphideta = dphideta + dphi * deta * calotwr->pt();
 
     }  // calojet constituents
 
@@ -198,50 +198,50 @@ namespace cms {
 
     const reco::TrackRefVector pioninin = (*jet).getPionsInVertexInCalo();
 
-    for (reco::TrackRefVector::const_iterator it = pioninin.begin(); it != pioninin.end(); it++) {
-      if ((*it)->pt() > 0.5 && ((*it)->ptError() / (*it)->pt()) < 0.05) {
+    for (auto&& it : pioninin) {
+      if ((it)->pt() > 0.5 && ((it)->ptError() / (it)->pt()) < 0.05) {
         ntracks++;
-        sumpttr = sumpttr + (*it)->pt();
-        double deta = (*jet).eta() - (*it)->eta();
-        double dphi = (*jet).phi() - (*it)->phi();
+        sumpttr = sumpttr + (it)->pt();
+        double deta = (*jet).eta() - (it)->eta();
+        double dphi = (*jet).phi() - (it)->phi();
 
         if (dphi > M_PI)
           dphi = dphi - 2. * M_PI;
         if (dphi < -1. * M_PI)
           dphi = dphi + 2. * M_PI;
 
-        dphitr2 = dphitr2 + dphi * dphi * (*it)->pt();
-        detatr2 = detatr2 + deta * deta * (*it)->pt();
-        dphitr1 = dphitr1 + dphi * (*it)->pt();
-        detatr1 = detatr1 + deta * (*it)->pt();
-        dphidetatr = dphidetatr + dphi * deta * (*it)->pt();
+        dphitr2 = dphitr2 + dphi * dphi * (it)->pt();
+        detatr2 = detatr2 + deta * deta * (it)->pt();
+        dphitr1 = dphitr1 + dphi * (it)->pt();
+        detatr1 = detatr1 + deta * (it)->pt();
+        dphidetatr = dphidetatr + dphi * deta * (it)->pt();
         if (verbosity > 0)
-          std::cout << " Tracks-in-in " << (*it)->pt() << " " << (*it)->eta() << " " << (*it)->phi() << " in jet "
+          std::cout << " Tracks-in-in " << (it)->pt() << " " << (it)->eta() << " " << (it)->phi() << " in jet "
                     << (*jet).eta() << " " << (*jet).phi() << " jet pt " << (*jet).pt() << std::endl;
       }
     }  // pioninin
 
     const reco::TrackRefVector pioninout = (*jet).getPionsInVertexOutCalo();
 
-    for (reco::TrackRefVector::const_iterator it = pioninout.begin(); it != pioninout.end(); it++) {
-      if ((*it)->pt() > 0.5 && ((*it)->ptError() / (*it)->pt()) < 0.05) {
+    for (auto&& it : pioninout) {
+      if ((it)->pt() > 0.5 && ((it)->ptError() / (it)->pt()) < 0.05) {
         ntracks++;
-        sumpttr = sumpttr + (*it)->pt();
-        double deta = (*jet).eta() - (*it)->eta();
-        double dphi = (*jet).phi() - (*it)->phi();
+        sumpttr = sumpttr + (it)->pt();
+        double deta = (*jet).eta() - (it)->eta();
+        double dphi = (*jet).phi() - (it)->phi();
 
         if (dphi > M_PI)
           dphi = dphi - 2. * M_PI;
         if (dphi < -1. * M_PI)
           dphi = dphi + 2. * M_PI;
 
-        dphitr2 = dphitr2 + dphi * dphi * (*it)->pt();
-        detatr2 = detatr2 + deta * deta * (*it)->pt();
-        dphitr1 = dphitr1 + dphi * (*it)->pt();
-        detatr1 = detatr1 + deta * (*it)->pt();
-        dphidetatr = dphidetatr + dphi * deta * (*it)->pt();
+        dphitr2 = dphitr2 + dphi * dphi * (it)->pt();
+        detatr2 = detatr2 + deta * deta * (it)->pt();
+        dphitr1 = dphitr1 + dphi * (it)->pt();
+        detatr1 = detatr1 + deta * (it)->pt();
+        dphidetatr = dphidetatr + dphi * deta * (it)->pt();
         if (verbosity > 0)
-          std::cout << " Tracks-in-in " << (*it)->pt() << " " << (*it)->eta() << " " << (*it)->phi() << " in jet "
+          std::cout << " Tracks-in-in " << (it)->pt() << " " << (it)->eta() << " " << (it)->phi() << " in jet "
                     << (*jet).eta() << " " << (*jet).phi() << " jet pt " << (*jet).pt() << std::endl;
       }
     }  // pioninout

@@ -72,15 +72,14 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* 
 
   const RPCRoll* SimRoll = nullptr;
 
-  for (TrackingGeometry::DetContainer::const_iterator it = geometry->dets().begin(); it != geometry->dets().end();
-       it++) {
-    if (dynamic_cast<const RPCChamber*>(*it) != nullptr) {
-      auto ch = dynamic_cast<const RPCChamber*>(*it);
+  for (auto it : geometry->dets()) {
+    if (dynamic_cast<const RPCChamber*>(it) != nullptr) {
+      auto ch = dynamic_cast<const RPCChamber*>(it);
 
       std::vector<const RPCRoll*> rollsRaf = (ch->rolls());
-      for (std::vector<const RPCRoll*>::iterator r = rollsRaf.begin(); r != rollsRaf.end(); ++r) {
-        if ((*r)->id() == SimDetId) {
-          SimRoll = &(*(*r));
+      for (auto& r : rollsRaf) {
+        if (r->id() == SimDetId) {
+          SimRoll = &(*r);
           break;
         }
       }
@@ -155,15 +154,14 @@ int RPCSynchronizer::getSimHitBxAndTimingForIRPC(const PSimHit* simhit, CLHEP::H
 
   const RPCRoll* SimRoll = nullptr;
 
-  for (TrackingGeometry::DetContainer::const_iterator it = geometry->dets().begin(); it != geometry->dets().end();
-       it++) {
-    if (dynamic_cast<const RPCChamber*>(*it) != nullptr) {
-      auto ch = dynamic_cast<const RPCChamber*>(*it);
+  for (auto it : geometry->dets()) {
+    if (dynamic_cast<const RPCChamber*>(it) != nullptr) {
+      auto ch = dynamic_cast<const RPCChamber*>(it);
 
       std::vector<const RPCRoll*> rollsRaf = (ch->rolls());
-      for (std::vector<const RPCRoll*>::iterator r = rollsRaf.begin(); r != rollsRaf.end(); ++r) {
-        if ((*r)->id() == SimDetId) {
-          SimRoll = &(*(*r));
+      for (auto& r : rollsRaf) {
+        if (r->id() == SimDetId) {
+          SimRoll = &(*r);
           break;
         }
       }

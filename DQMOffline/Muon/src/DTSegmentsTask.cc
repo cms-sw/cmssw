@@ -136,8 +136,8 @@ void DTSegmentsTask::analyze(const edm::Event& event, const edm::EventSetup& set
         const DTChamberRecSegment2D* phiSeg = (*segment4D).phiSegment();
         vector<DTRecHit1D> phiHits = phiSeg->specificRecHits();
         map<DTSuperLayerId, vector<DTRecHit1D> > hitsBySLMap;
-        for (vector<DTRecHit1D>::const_iterator hit = phiHits.begin(); hit != phiHits.end(); ++hit) {
-          DTWireId wireId = (*hit).wireId();
+        for (const auto& phiHit : phiHits) {
+          DTWireId wireId = phiHit.wireId();
 
           // Check for noisy channels to skip them
           if (checkNoisyChannels) {
@@ -161,8 +161,8 @@ void DTSegmentsTask::analyze(const edm::Event& event, const edm::EventSetup& set
         const DTSLRecSegment2D* zSeg = (*segment4D).zSegment();  // zSeg lives in the SL RF
         // Check for noisy channels to skip them
         vector<DTRecHit1D> zHits = zSeg->specificRecHits();
-        for (vector<DTRecHit1D>::const_iterator hit = zHits.begin(); hit != zHits.end(); ++hit) {
-          DTWireId wireId = (*hit).wireId();
+        for (const auto& zHit : zHits) {
+          DTWireId wireId = zHit.wireId();
           if (checkNoisyChannels) {
             bool isNoisy = false;
             bool isFEMasked = false;

@@ -115,20 +115,20 @@ int UMNioTask::getOrbitGapIndex(uint8_t eventType, uint32_t laserType) {
   if (!e.getByToken(_tokHF, chf))
     _logger.dqmthrow("Collection HFDigiCollection isn't available " + _tagHF.label() + " " + _tagHF.instance());
 
-  for (HBHEDigiCollection::const_iterator it = chbhe->begin(); it != chbhe->end(); ++it) {
-    double sumQ = hcaldqm::utilities::sumQ<HBHEDataFrame>(*it, 2.5, 0, it->size() - 1);
-    _cTotalCharge.fill(it->id(), _currentLS, sumQ);
-    _cTotalChargeProfile.fill(it->id(), _currentLS, sumQ);
+  for (const auto& it : *chbhe) {
+    double sumQ = hcaldqm::utilities::sumQ<HBHEDataFrame>(it, 2.5, 0, it.size() - 1);
+    _cTotalCharge.fill(it.id(), _currentLS, sumQ);
+    _cTotalChargeProfile.fill(it.id(), _currentLS, sumQ);
   }
-  for (HODigiCollection::const_iterator it = cho->begin(); it != cho->end(); ++it) {
-    double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(*it, 8.5, 0, it->size() - 1);
-    _cTotalCharge.fill(it->id(), _currentLS, sumQ);
-    _cTotalChargeProfile.fill(it->id(), _currentLS, sumQ);
+  for (const auto& it : *cho) {
+    double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(it, 8.5, 0, it.size() - 1);
+    _cTotalCharge.fill(it.id(), _currentLS, sumQ);
+    _cTotalChargeProfile.fill(it.id(), _currentLS, sumQ);
   }
-  for (HFDigiCollection::const_iterator it = chf->begin(); it != chf->end(); ++it) {
-    double sumQ = hcaldqm::utilities::sumQ<HFDataFrame>(*it, 2.5, 0, it->size() - 1);
-    _cTotalCharge.fill(it->id(), _currentLS, sumQ);
-    _cTotalChargeProfile.fill(it->id(), _currentLS, sumQ);
+  for (const auto& it : *chf) {
+    double sumQ = hcaldqm::utilities::sumQ<HFDataFrame>(it, 2.5, 0, it.size() - 1);
+    _cTotalCharge.fill(it.id(), _currentLS, sumQ);
+    _cTotalChargeProfile.fill(it.id(), _currentLS, sumQ);
   }
 }
 /* virtual */ void UMNioTask::globalEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {

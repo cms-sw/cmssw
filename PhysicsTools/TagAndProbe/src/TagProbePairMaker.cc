@@ -73,29 +73,29 @@ void tnp::TagProbePairMaker::phiCutByEventNumber(TagProbePairs &pairs, int event
   unsigned int currentNum = 0;
 
   size_t nclean = pairs.size();
-  for (TagProbePairs::iterator it = pairs.begin(), ed = pairs.end(); it != ed; ++it) {
-    if (it->tag.isNull())
+  for (auto &pair : pairs) {
+    if (pair.tag.isNull())
       continue;  // skip already invalidated pairs
     if (eventNumber % 2) {
       std::cout << "Odd event number " << eventNumber << ", require 0 < phi(tag) < pi... ";
-      if (!(it->tag->phi() > 0. && it->tag->phi() < 3.141592654)) {
-        std::cout << "Rejecting pair number " << currentNum++ << " with tag phi " << it->tag->phi();
+      if (!(pair.tag->phi() > 0. && pair.tag->phi() < 3.141592654)) {
+        std::cout << "Rejecting pair number " << currentNum++ << " with tag phi " << pair.tag->phi();
         nclean--;
-        it->tag = reco::CandidateBaseRef();
+        pair.tag = reco::CandidateBaseRef();
         --nclean;
       } else {
-        std::cout << "Keeping pair number " << currentNum++ << " with tag phi " << it->tag->phi();
+        std::cout << "Keeping pair number " << currentNum++ << " with tag phi " << pair.tag->phi();
       }
     } else {
       std::cout << "Even event number " << eventNumber << ", require -pi < phi(tag) < 0... ";
       //      if (!(it->tag->phi() > 3.141592654 && it->tag->phi() < 2*3.141592654)) {
-      if (!(it->tag->phi() > -3.141592654 && it->tag->phi() < 0)) {
-        std::cout << "Rejecting pair number " << currentNum++ << " with tag phi " << it->tag->phi();
+      if (!(pair.tag->phi() > -3.141592654 && pair.tag->phi() < 0)) {
+        std::cout << "Rejecting pair number " << currentNum++ << " with tag phi " << pair.tag->phi();
         nclean--;
-        it->tag = reco::CandidateBaseRef();
+        pair.tag = reco::CandidateBaseRef();
         --nclean;
       } else {
-        std::cout << "Keeping pair number " << currentNum++ << " with tag phi " << it->tag->phi();
+        std::cout << "Keeping pair number " << currentNum++ << " with tag phi " << pair.tag->phi();
       }
     }
     std::cout << std::endl;
@@ -106,9 +106,9 @@ void tnp::TagProbePairMaker::phiCutByEventNumber(TagProbePairs &pairs, int event
   } else if (nclean < pairs.size()) {
     TagProbePairs cleaned;
     cleaned.reserve(nclean);
-    for (TagProbePairs::iterator it = pairs.begin(), ed = pairs.end(); it != ed; ++it) {
-      if (it->tag.isNonnull())
-        cleaned.push_back(*it);
+    for (auto &pair : pairs) {
+      if (pair.tag.isNonnull())
+        cleaned.push_back(pair);
     }
     pairs.swap(cleaned);
   }
@@ -211,9 +211,9 @@ void tnp::TagProbePairMaker::arbitrate(TagProbePairs &pairs) const {
   } else if (nclean < pairs.size()) {
     TagProbePairs cleaned;
     cleaned.reserve(nclean);
-    for (TagProbePairs::iterator it = pairs.begin(), ed = pairs.end(); it != ed; ++it) {
-      if (it->tag.isNonnull())
-        cleaned.push_back(*it);
+    for (auto &pair : pairs) {
+      if (pair.tag.isNonnull())
+        cleaned.push_back(pair);
     }
     pairs.swap(cleaned);
   }

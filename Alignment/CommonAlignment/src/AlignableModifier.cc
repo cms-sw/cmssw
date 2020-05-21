@@ -102,81 +102,81 @@ bool AlignableModifier::modify(Alignable* alignable, const edm::ParameterSet& pS
   // Retrieve parameters
   std::ostringstream error;
   std::vector<std::string> parameterNames = pSet.getParameterNames();
-  for (std::vector<std::string>::iterator iParam = parameterNames.begin(); iParam != parameterNames.end(); ++iParam) {
-    if ((*iParam) == "distribution")
-      distribution_ = pSet.getParameter<std::string>(*iParam);
-    else if ((*iParam) == "setError")
-      setError_ = pSet.getParameter<bool>(*iParam);
-    else if ((*iParam) == "setRotations")
-      setRotations_ = pSet.getParameter<bool>(*iParam);
-    else if ((*iParam) == "setTranslations")
-      setTranslations_ = pSet.getParameter<bool>(*iParam);
-    else if ((*iParam) == "scale")
-      scale_ = pSet.getParameter<double>(*iParam);
-    else if ((*iParam) == "scaleError")
-      scaleError_ = pSet.getParameter<double>(*iParam);
-    else if ((*iParam) == "phiX")
-      phiX_ = pSet.getParameter<double>(*iParam);
-    else if ((*iParam) == "phiY")
-      phiY_ = pSet.getParameter<double>(*iParam);
-    else if ((*iParam) == "phiZ")
-      phiZ_ = pSet.getParameter<double>(*iParam);
-    else if ((*iParam) == "dX")
-      dX_ = pSet.getParameter<double>(*iParam);
-    else if ((*iParam) == "dY")
-      dY_ = pSet.getParameter<double>(*iParam);
-    else if ((*iParam) == "dZ")
-      dZ_ = pSet.getParameter<double>(*iParam);
-    else if ((*iParam) == "dXlocal")
-      dXlocal_ = pSet.getParameter<double>(*iParam);
-    else if ((*iParam) == "dYlocal")
-      dYlocal_ = pSet.getParameter<double>(*iParam);
-    else if ((*iParam) == "dZlocal")
-      dZlocal_ = pSet.getParameter<double>(*iParam);
-    else if ((*iParam) == "twist")
-      twist_ = pSet.getParameter<double>(*iParam);
-    else if ((*iParam) == "shear")
-      shear_ = pSet.getParameter<double>(*iParam);
-    else if ((*iParam) == "localX") {
-      phiXlocal_ = pSet.getParameter<double>(*iParam);
+  for (auto& parameterName : parameterNames) {
+    if (parameterName == "distribution")
+      distribution_ = pSet.getParameter<std::string>(parameterName);
+    else if (parameterName == "setError")
+      setError_ = pSet.getParameter<bool>(parameterName);
+    else if (parameterName == "setRotations")
+      setRotations_ = pSet.getParameter<bool>(parameterName);
+    else if (parameterName == "setTranslations")
+      setTranslations_ = pSet.getParameter<bool>(parameterName);
+    else if (parameterName == "scale")
+      scale_ = pSet.getParameter<double>(parameterName);
+    else if (parameterName == "scaleError")
+      scaleError_ = pSet.getParameter<double>(parameterName);
+    else if (parameterName == "phiX")
+      phiX_ = pSet.getParameter<double>(parameterName);
+    else if (parameterName == "phiY")
+      phiY_ = pSet.getParameter<double>(parameterName);
+    else if (parameterName == "phiZ")
+      phiZ_ = pSet.getParameter<double>(parameterName);
+    else if (parameterName == "dX")
+      dX_ = pSet.getParameter<double>(parameterName);
+    else if (parameterName == "dY")
+      dY_ = pSet.getParameter<double>(parameterName);
+    else if (parameterName == "dZ")
+      dZ_ = pSet.getParameter<double>(parameterName);
+    else if (parameterName == "dXlocal")
+      dXlocal_ = pSet.getParameter<double>(parameterName);
+    else if (parameterName == "dYlocal")
+      dYlocal_ = pSet.getParameter<double>(parameterName);
+    else if (parameterName == "dZlocal")
+      dZlocal_ = pSet.getParameter<double>(parameterName);
+    else if (parameterName == "twist")
+      twist_ = pSet.getParameter<double>(parameterName);
+    else if (parameterName == "shear")
+      shear_ = pSet.getParameter<double>(parameterName);
+    else if (parameterName == "localX") {
+      phiXlocal_ = pSet.getParameter<double>(parameterName);
       rotX_++;
-    } else if ((*iParam) == "localY") {
-      phiYlocal_ = pSet.getParameter<double>(*iParam);
+    } else if (parameterName == "localY") {
+      phiYlocal_ = pSet.getParameter<double>(parameterName);
       rotY_++;
-    } else if ((*iParam) == "localZ") {
-      phiZlocal_ = pSet.getParameter<double>(*iParam);
+    } else if (parameterName == "localZ") {
+      phiZlocal_ = pSet.getParameter<double>(parameterName);
       rotZ_++;
-    } else if ((*iParam) == "phiXlocal") {
-      phiXlocal_ = pSet.getParameter<double>(*iParam);
+    } else if (parameterName == "phiXlocal") {
+      phiXlocal_ = pSet.getParameter<double>(parameterName);
       rotX_++;
-    } else if ((*iParam) == "phiYlocal") {
-      phiYlocal_ = pSet.getParameter<double>(*iParam);
+    } else if (parameterName == "phiYlocal") {
+      phiYlocal_ = pSet.getParameter<double>(parameterName);
       rotY_++;
-    } else if ((*iParam) == "phiZlocal") {
-      phiZlocal_ = pSet.getParameter<double>(*iParam);
+    } else if (parameterName == "phiZlocal") {
+      phiZlocal_ = pSet.getParameter<double>(parameterName);
       rotZ_++;
-    } else if ((*iParam) == "deformation") {
-      const edm::ParameterSet deform(pSet.getParameter<edm::ParameterSet>(*iParam));
+    } else if (parameterName == "deformation") {
+      const edm::ParameterSet deform(pSet.getParameter<edm::ParameterSet>(parameterName));
       deformation_.first = deform.getParameter<std::string>("type");
       deformation_.second = deform.getParameter<std::vector<double> >("parameters");
-    } else if (pSet.existsAs<edm::ParameterSet>(*iParam)) {
+    } else if (pSet.existsAs<edm::ParameterSet>(parameterName)) {
       // Other PSets than 'deformation' must refer to hierarchy structures, i.e. their name
       // is a level name followed by 's' or ending with a digit (see
       // MisalignmentScenarioBuilder::getParameterSet_). Pitfall is to forget the trailing 's'!
       // 'Muon' is an especially allowed case used in MuonScenarioBuilder::moveMuon(..),
       //  also check that we do not have any mistyping like 'deformations' or 'deformation2'
-      const auto lastCharacter = (iParam->empty() ? '_' : (*iParam)[iParam->size() - 1]);
-      if ((lastCharacter != 's' && !isdigit(lastCharacter) && (*iParam) != "Muon") ||
-          iParam->find("deformation") != std::string::npos) {
+      const auto lastCharacter = (parameterName.empty() ? '_' : parameterName[parameterName.size() - 1]);
+      if ((lastCharacter != 's' && !isdigit(lastCharacter) && parameterName != "Muon") ||
+          parameterName.find("deformation") != std::string::npos) {
         throw cms::Exception("BadConfig") << "@SUB=AlignableModifier::modify(..):\n"
-                                          << "I see parameter '" << *iParam << "' of type PSet, "
+                                          << "I see parameter '" << parameterName << "' of type PSet, "
                                           << "but expect either 'deformation' or a level name "
                                           << "with 's' or a digit at the end.\n";
       }  // other PSets should now be hierarchy levels and thus be OK to ignore here
     } else {
       if (!error.str().length())
         error << "Unknown parameter name(s): ";
-      error << " " << *iParam;
+      error << " " << parameterName;
     }
   }
 
@@ -364,8 +364,8 @@ void AlignableModifier ::addDeformation(Alignable* alignable,
   // (need a little hack since ySplit must not be treated)!
   const bool rndNotLast = (deformType == SurfaceDeformationFactory::kTwoBowedSurfaces);
   std::vector<double> rndDeformation(deformation.second.begin(), deformation.second.end() - (rndNotLast ? 1 : 0));
-  for (unsigned int i = 0; i < rndDeformation.size(); ++i) {
-    rndDeformation[i] *= scale;
+  for (double& i : rndDeformation) {
+    i *= scale;
   }
   if (random) {
     this->randomise(rndDeformation, gaussian);

@@ -466,8 +466,7 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
   }
   unsigned int ngam = 0;
 
-  for (unsigned int i = 0; i < photonCollection->size(); i++) {
-    const Photon& ph = photonCollection->at(i);
+  for (const auto& ph : *photonCollection) {
     double photonPt = ph.pt();
     if (photonPt > ptThrForPhoton_) {
       ngam++;
@@ -503,8 +502,8 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
   double number_of_goodMuons = 0;
 
   for (unsigned int i = 0; i < muonCollectionSize; i++) {
-    for (int j = 0; j < NFLAGS; ++j) {
-      muon_sel[j] = false;
+    for (bool& j : muon_sel) {
+      j = false;
     }
 
     number_of_muons++;
@@ -634,8 +633,8 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
 
     // Collect necessary flags "per muon"
     int flags_passed = 0;
-    for (int j = 0; j < NFLAGS; ++j) {
-      if (muon_sel[j])
+    for (bool j : muon_sel) {
+      if (j)
         flags_passed += 1;
     }
 
@@ -687,8 +686,8 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
     if (muon4Z && !muon_sel[8]) {
       // Plots for 2 muons
       for (unsigned int j = i + 1; j < muonCollectionSize; j++) {
-        for (int ij = 0; ij < NFLAGSZ; ++ij) {
-          zmuon_sel[ij] = false;
+        for (bool& ij : zmuon_sel) {
+          ij = false;
         }
 
         for (int ji = 0; ji < 5; ++ji) {
@@ -752,8 +751,8 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
         // start filling histos: N-1 plots
         int flags_passed_z = 0;
 
-        for (int jj = 0; jj < NFLAGSZ; ++jj) {
-          if (zmuon_sel[jj])
+        for (bool jj : zmuon_sel) {
+          if (jj)
             ++flags_passed_z;
         }
 

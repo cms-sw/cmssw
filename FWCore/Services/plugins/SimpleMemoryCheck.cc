@@ -528,11 +528,11 @@ namespace edm {
         mmr << "    maximum increase in vsize; event on which maximum occurred \n";
         mmr << "  (during early ignored events) \n";
         mmr << "    total and maximum vsize increases \n \n";
-        for (SignificantModulesMap::iterator im = modules_.begin(); im != modules_.end(); ++im) {
-          SignificantModule const& m = im->second;
+        for (auto& module : modules_) {
+          SignificantModule const& m = module.second;
           if (m.totalDeltaVsize == 0 && m.totalEarlyVsize == 0)
             continue;
-          mmr << im->first << ": ";
+          mmr << module.first << ": ";
           mmr << "n = " << m.postEarlyCount;
           if (m.postEarlyCount > 0) {
             mmr << " avg = " << m.totalDeltaVsize / m.postEarlyCount;
@@ -603,11 +603,11 @@ namespace edm {
       reportData.insert(std::make_pair("PeakValueRss", d2str(eventRssT1_.rss)));
 
       if (moduleSummaryRequested_) {  // changelog 2
-        for (SignificantModulesMap::iterator im = modules_.begin(); im != modules_.end(); ++im) {
-          SignificantModule const& m = im->second;
+        for (auto& module : modules_) {
+          SignificantModule const& m = module.second;
           if (m.totalDeltaVsize == 0 && m.totalEarlyVsize == 0)
             continue;
-          std::string label = im->first + ":";
+          std::string label = module.first + ":";
           reportData.insert(std::make_pair(label + "PostEarlyCount", i2str(m.postEarlyCount)));
           if (m.postEarlyCount > 0) {
             reportData.insert(std::make_pair(label + "AverageDeltaVsize", d2str(m.totalDeltaVsize / m.postEarlyCount)));

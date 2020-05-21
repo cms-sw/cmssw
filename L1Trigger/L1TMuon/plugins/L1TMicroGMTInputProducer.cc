@@ -129,8 +129,7 @@ void L1TMicroGMTInputProducer::skipHeader() {
 
 int L1TMicroGMTInputProducer::convertToInt(std::string& bitstr) const {
   int num = 0;
-  for (size_t cntr = 0; cntr < bitstr.size(); ++cntr) {
-    char c = bitstr[cntr];
+  for (char c : bitstr) {
     num = (num << 1) |  // Shift the current set of bits to the left one bit
           (c - '0');    // Add in the current bit via a bitwise-or
   }

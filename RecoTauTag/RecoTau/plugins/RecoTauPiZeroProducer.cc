@@ -87,19 +87,18 @@ RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) {
   // Get each of our PiZero builders
   const VPSet& builders = pset.getParameter<VPSet>("builders");
 
-  for (VPSet::const_iterator builderPSet = builders.begin(); builderPSet != builders.end(); ++builderPSet) {
+  for (const auto& builder : builders) {
     // Get plugin name
-    const std::string& pluginType = builderPSet->getParameter<std::string>("plugin");
+    const std::string& pluginType = builder.getParameter<std::string>("plugin");
     // Build the plugin
-    builders_.push_back(
-        RecoTauPiZeroBuilderPluginFactory::get()->create(pluginType, *builderPSet, consumesCollector()));
+    builders_.push_back(RecoTauPiZeroBuilderPluginFactory::get()->create(pluginType, builder, consumesCollector()));
   }
 
   // Get each of our quality rankers
   const VPSet& rankers = pset.getParameter<VPSet>("ranking");
-  for (VPSet::const_iterator rankerPSet = rankers.begin(); rankerPSet != rankers.end(); ++rankerPSet) {
-    const std::string& pluginType = rankerPSet->getParameter<std::string>("plugin");
-    rankers_.push_back(RecoTauPiZeroQualityPluginFactory::get()->create(pluginType, *rankerPSet));
+  for (const auto& ranker : rankers) {
+    const std::string& pluginType = ranker.getParameter<std::string>("plugin");
+    rankers_.push_back(RecoTauPiZeroQualityPluginFactory::get()->create(pluginType, ranker));
   }
 
   // Build the sorting predicate
@@ -221,9 +220,9 @@ void RecoTauPiZeroProducer::print(const std::vector<reco::RecoTauPiZero>& piZero
   for (auto const& piZero : piZeros) {
     out << piZero;
     out << "* Rankers:" << std::endl;
-    for (rankerList::const_iterator ranker = rankers_.begin(); ranker != rankers_.end(); ++ranker) {
-      out << "* " << std::setiosflags(std::ios::left) << std::setw(width) << ranker->name() << " "
-          << std::resetiosflags(std::ios::left) << std::setprecision(3) << (*ranker)(piZero);
+    for (const auto& ranker : rankers_) {
+      out << "* " << std::setiosflags(std::ios::left) << std::setw(width) << ranker.name() << " "
+          << std::resetiosflags(std::ios::left) << std::setprecision(3) << ranker(piZero);
       out << std::endl;
     }
   }

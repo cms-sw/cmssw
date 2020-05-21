@@ -30,12 +30,12 @@ void LCTContainer::getMatched(std::vector<CSCCorrelatedLCTDigi>& lcts) const {
 
 void LCTContainer::clear() {
   // Loop over all time windows
-  for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++) {
+  for (auto& bx : data) {
     // Loop over all matched trigger windows
     for (unsigned int mbx = 0; mbx < match_trig_window_size_; mbx++) {
       // Loop over all stubs
       for (int i = 0; i < CSCConstants::MAX_LCTS_PER_CSC; i++) {
-        data[bx][mbx][i].clear();
+        bx[mbx][i].clear();
       }
     }
   }

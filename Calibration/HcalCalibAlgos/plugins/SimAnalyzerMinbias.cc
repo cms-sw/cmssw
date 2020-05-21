@@ -157,11 +157,11 @@ void SimAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   const edm::PCaloHitContainer* HitHcal = hcalHits.product();
   std::map<HcalDetId, double> hitMap;
-  for (std::vector<PCaloHit>::const_iterator hcalItr = HitHcal->begin(); hcalItr != HitHcal->end(); ++hcalItr) {
-    double time = hcalItr->time();
+  for (const auto& hcalItr : *HitHcal) {
+    double time = hcalItr.time();
     if (time < timeCut_) {
-      double energyhit = hcalItr->energy();
-      HcalDetId hid = HcalDetId(hcalItr->id());
+      double energyhit = hcalItr.energy();
+      HcalDetId hid = HcalDetId(hcalItr.id());
       std::map<HcalDetId, double>::iterator itr1 = hitMap.find(hid);
       if (itr1 == hitMap.end()) {
         hitMap[hid] = 0;

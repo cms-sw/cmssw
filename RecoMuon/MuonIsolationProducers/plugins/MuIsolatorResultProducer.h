@@ -335,11 +335,11 @@ void MuIsolatorResultProducer<BT>::produce(edm::Event& event, const edm::EventSe
   LogDebug(metname) << "Ready to write out results of size " << results.size();
   writeOut(event, candMapT, results);
 
-  for (unsigned int iDep = 0; iDep < vetoDeps.size(); ++iDep) {
+  for (auto& vetoDep : vetoDeps) {
     //! do cleanup
-    if (vetoDeps[iDep]) {
-      delete vetoDeps[iDep];
-      vetoDeps[iDep] = nullptr;
+    if (vetoDep) {
+      delete vetoDep;
+      vetoDep = nullptr;
     }
   }
 }

@@ -304,8 +304,7 @@ void OutInConversionSeedFinder::startSeed(const FreeTrajectoryState& fts) {
       LogDebug("OutInConversionSeedFinder") << "OutInSeedFinder::startSeed Layer " << ilayer
                                             << " theFirstMeasurements_.size " << theFirstMeasurements_.size() << "\n";
 
-      for (unsigned int i = 0; i < theFirstMeasurements_.size(); ++i) {
-        TrajectoryMeasurement m1 = theFirstMeasurements_[i];
+      for (auto m1 : theFirstMeasurements_) {
         if (m1.recHit()->isValid()) {
           // update the fts to start from this point.  much better than starting from
           // extrapolated point along the line
@@ -409,9 +408,9 @@ void OutInConversionSeedFinder::completeSeed(const TrajectoryMeasurement& m1,
   //std::cout << "OutInConversionSeedFinder::completeSeed Found " << measurements.size() << " second hits " << "\n";
   delete newEstimator;
 
-  for (unsigned int i = 0; i < measurements.size(); ++i) {
-    if (measurements[i].recHit()->isValid()) {
-      createSeed(m1, measurements[i]);
+  for (auto& measurement : measurements) {
+    if (measurement.recHit()->isValid()) {
+      createSeed(m1, measurement);
     }
   }
 

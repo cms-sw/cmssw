@@ -120,17 +120,17 @@ bool OverlapProblemTSOSPositionFilter::filter(edm::Event& iEvent, const edm::Eve
   edm::ESHandle<TrackerTopology> tTopo;
   iSetup.get<TrackerTopologyRcd>().get(tTopo);
 
-  for (TrajTrackAssociationCollection::const_iterator pair = ttac->begin(); pair != ttac->end(); ++pair) {
-    const edm::Ref<std::vector<Trajectory> >& traj = pair->key;
+  for (const auto& pair : *ttac) {
+    const edm::Ref<std::vector<Trajectory> >& traj = pair.key;
     //    const reco::TrackRef & trk = pair->val;
     const std::vector<TrajectoryMeasurement>& tmcoll = traj->measurements();
 
-    for (std::vector<TrajectoryMeasurement>::const_iterator meas = tmcoll.begin(); meas != tmcoll.end(); ++meas) {
-      if (!meas->updatedState().isValid())
+    for (const auto& meas : tmcoll) {
+      if (!meas.updatedState().isValid())
         continue;
 
-      TrajectoryStateOnSurface tsos = tsoscomb(meas->forwardPredictedState(), meas->backwardPredictedState());
-      TransientTrackingRecHit::ConstRecHitPointer hit = meas->recHit();
+      TrajectoryStateOnSurface tsos = tsoscomb(meas.forwardPredictedState(), meas.backwardPredictedState());
+      TransientTrackingRecHit::ConstRecHitPointer hit = meas.recHit();
 
       if (!hit->isValid() && m_validOnly)
         continue;

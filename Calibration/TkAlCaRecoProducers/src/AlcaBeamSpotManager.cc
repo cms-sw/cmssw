@@ -66,8 +66,8 @@ void AlcaBeamSpotManager::createWeightedPayloads(void) {
       listToErase.push_back(it);
     }
   }
-  for (vector<bsMap_iterator>::iterator it = listToErase.begin(); it != listToErase.end(); it++) {
-    beamSpotMap_.erase(*it);
+  for (auto &it : listToErase) {
+    beamSpotMap_.erase(it);
   }
   if (beamSpotMap_.size() <= 1) {
     return;

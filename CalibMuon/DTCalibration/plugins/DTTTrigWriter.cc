@@ -79,9 +79,9 @@ void DTTTrigWriter::analyze(const Event& event, const EventSetup& eventSetup) {
   const vector<const DTSuperLayer*> superLayers = dtGeom->superLayers();
 
   // Loop over all SLs
-  for (auto sl = superLayers.begin(); sl != superLayers.end(); sl++) {
+  for (auto superLayer : superLayers) {
     // Get the histo from file
-    DTSuperLayerId slId = (*sl)->id();
+    DTSuperLayerId slId = superLayer->id();
     TH1F* histo = (TH1F*)theFile->Get((getTBoxName(slId)).c_str());
     if (histo) {  // Check that the histo exists
       // Compute mean and sigma of the rising edge

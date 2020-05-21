@@ -31,8 +31,8 @@ bool LHAupLesHouches::setInit() {
   std::vector<std::string> slha = runInfo->findHeader("slha");
   if (!slha.empty()) {
     std::string slhaheader;
-    for (std::vector<std::string>::const_iterator iter = slha.begin(); iter != slha.end(); ++iter) {
-      slhaheader.append(*iter);
+    for (const auto &iter : slha) {
+      slhaheader.append(iter);
     }
     infoPtr->setHeader("slha", slhaheader);
   }
@@ -122,9 +122,9 @@ bool LHAupLesHouches::setEvent(int inProcId) {
 
   //add #rwgt info from comments
   const std::vector<std::string> &comments = event->getComments();
-  for (unsigned i = 0; i < comments.size(); i++) {
-    if (comments[i].rfind("#rwgt", 0) == 0)
-      (*infoPtr->eventAttributes)["#rwgt"] = comments[i];
+  for (const auto &comment : comments) {
+    if (comment.rfind("#rwgt", 0) == 0)
+      (*infoPtr->eventAttributes)["#rwgt"] = comment;
   }
 
   const lhef::LHEEvent::PDF *pdf = event->getPDF();

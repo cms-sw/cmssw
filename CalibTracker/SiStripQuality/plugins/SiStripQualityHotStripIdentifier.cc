@@ -167,16 +167,15 @@ void SiStripQualityHotStripIdentifier::algoAnalyze(const edm::Event& e, const ed
   if (tracksCollection_in_EventTree) {
     const reco::TrackCollection tC = *(trackCollection.product());
     int i = 0;
-    for (reco::TrackCollection::const_iterator track = tC.begin(); track != tC.end(); track++) {
+    for (const auto& track : tC) {
       LogTrace("SiStripQualityHotStripIdentifier")
-          << "Track number " << i + 1 << "\n\tmomentum: " << track->momentum() << "\n\tPT: " << track->pt()
-          << "\n\tvertex: " << track->vertex() << "\n\timpact parameter: " << track->d0()
-          << "\n\tcharge: " << track->charge() << "\n\tnormalizedChi2: " << track->normalizedChi2()
-          << "\n\tFrom EXTRA : "
-          << "\n\t\touter PT " << track->outerPt() << std::endl;
+          << "Track number " << i + 1 << "\n\tmomentum: " << track.momentum() << "\n\tPT: " << track.pt()
+          << "\n\tvertex: " << track.vertex() << "\n\timpact parameter: " << track.d0()
+          << "\n\tcharge: " << track.charge() << "\n\tnormalizedChi2: " << track.normalizedChi2() << "\n\tFrom EXTRA : "
+          << "\n\t\touter PT " << track.outerPt() << std::endl;
 
       //Loop on rechits
-      for (auto const& recHit : track->recHits()) {
+      for (auto const& recHit : track.recHits()) {
         if (!recHit->isValid()) {
           LogTrace("SiStripQualityHotStripIdentifier") << "\t\t Invalid Hit " << std::endl;
           continue;

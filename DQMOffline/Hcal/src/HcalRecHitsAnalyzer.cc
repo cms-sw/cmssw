@@ -587,26 +587,26 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const &ev, edm::EventSetup const &i
 
   // HB
   if (subdet_ == 5 || subdet_ == 1) {
-    for (unsigned int iv = 0; iv < hcalHBSevLvlVec.size(); iv++) {
-      sevLvl_HB->Fill(hcalHBSevLvlVec[iv]);
+    for (int iv : hcalHBSevLvlVec) {
+      sevLvl_HB->Fill(iv);
     }
   }
   // HE
   if (subdet_ == 5 || subdet_ == 2) {
-    for (unsigned int iv = 0; iv < hcalHESevLvlVec.size(); iv++) {
-      sevLvl_HE->Fill(hcalHESevLvlVec[iv]);
+    for (int iv : hcalHESevLvlVec) {
+      sevLvl_HE->Fill(iv);
     }
   }
   // HO
   if (subdet_ == 5 || subdet_ == 3) {
-    for (unsigned int iv = 0; iv < hcalHOSevLvlVec.size(); iv++) {
-      sevLvl_HO->Fill(hcalHOSevLvlVec[iv]);
+    for (int iv : hcalHOSevLvlVec) {
+      sevLvl_HO->Fill(iv);
     }
   }
   // HF
   if (subdet_ == 5 || subdet_ == 4) {
-    for (unsigned int iv = 0; iv < hcalHFSevLvlVec.size(); iv++) {
-      sevLvl_HF->Fill(hcalHFSevLvlVec[iv]);
+    for (int iv : hcalHFSevLvlVec) {
+      sevLvl_HF->Fill(iv);
     }
   }
 
@@ -1010,8 +1010,8 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const &ev) {
     // HBHE
     edm::Handle<HBHERecHitCollection> hbhecoll;
     if (ev.getByToken(tok_hbhe_, hbhecoll)) {
-      for (HBHERecHitCollection::const_iterator j = hbhecoll->begin(); j != hbhecoll->end(); j++) {
-        HcalDetId cell(j->id());
+      for (const auto &j : *hbhecoll) {
+        HcalDetId cell(j.id());
         const HcalGeometry *cellGeometry = dynamic_cast<const HcalGeometry *>(geometry->getSubdetectorGeometry(cell));
         double eta = cellGeometry->getPosition(cell).eta();
         double phi = cellGeometry->getPosition(cell).phi();
@@ -1020,15 +1020,15 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const &ev) {
         int depth = cell.depth();
         int inteta = cell.ieta();
         int intphi = cell.iphi();
-        double en = j->energy();
-        double enM0 = j->eraw();
-        double enM3 = j->eaux();
-        double chi2 = j->chi2();
-        double t = j->time();
-        int stwd = j->flags();
-        int auxstwd = j->aux();
+        double en = j.energy();
+        double enM0 = j.eraw();
+        double enM3 = j.eaux();
+        double chi2 = j.chi2();
+        double t = j.time();
+        int stwd = j.flags();
+        int auxstwd = j.aux();
 
-        int severityLevel = hcalSevLvl((CaloRecHit *)&*j);
+        int severityLevel = hcalSevLvl((CaloRecHit *)&j);
         if (cell.subdet() == HcalBarrel) {
           hcalHBSevLvlVec.push_back(severityLevel);
         } else if (cell.subdet() == HcalEndcap) {
@@ -1060,8 +1060,8 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const &ev) {
     // HF
     edm::Handle<HFRecHitCollection> hfcoll;
     if (ev.getByToken(tok_hf_, hfcoll)) {
-      for (HFRecHitCollection::const_iterator j = hfcoll->begin(); j != hfcoll->end(); j++) {
-        HcalDetId cell(j->id());
+      for (const auto &j : *hfcoll) {
+        HcalDetId cell(j.id());
         auto cellGeometry = (geometry->getSubdetectorGeometry(cell))->getGeometry(cell);
         double eta = cellGeometry->getPosition().eta();
         double phi = cellGeometry->getPosition().phi();
@@ -1070,15 +1070,15 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const &ev) {
         int depth = cell.depth();
         int inteta = cell.ieta();
         int intphi = cell.iphi();
-        double en = j->energy();
+        double en = j.energy();
         double enM0 = 0.;
         double enM3 = 0.;
         double chi2 = 0.;
-        double t = j->time();
-        int stwd = j->flags();
-        int auxstwd = j->aux();
+        double t = j.time();
+        int stwd = j.flags();
+        int auxstwd = j.aux();
 
-        int severityLevel = hcalSevLvl((CaloRecHit *)&*j);
+        int severityLevel = hcalSevLvl((CaloRecHit *)&j);
         if (cell.subdet() == HcalForward) {
           hcalHFSevLvlVec.push_back(severityLevel);
         }
@@ -1108,8 +1108,8 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const &ev) {
   if (subdet_ == 3 || subdet_ == 5 || subdet_ == 6 || subdet_ == 0) {
     edm::Handle<HORecHitCollection> hocoll;
     if (ev.getByToken(tok_ho_, hocoll)) {
-      for (HORecHitCollection::const_iterator j = hocoll->begin(); j != hocoll->end(); j++) {
-        HcalDetId cell(j->id());
+      for (const auto &j : *hocoll) {
+        HcalDetId cell(j.id());
         auto cellGeometry = (geometry->getSubdetectorGeometry(cell))->getGeometry(cell);
         double eta = cellGeometry->getPosition().eta();
         double phi = cellGeometry->getPosition().phi();
@@ -1118,15 +1118,15 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const &ev) {
         int depth = cell.depth();
         int inteta = cell.ieta();
         int intphi = cell.iphi();
-        double t = j->time();
-        double en = j->energy();
+        double t = j.time();
+        double en = j.energy();
         double enM0 = 0.;
         double enM3 = 0.;
         double chi2 = 0.;
-        int stwd = j->flags();
-        int auxstwd = j->aux();
+        int stwd = j.flags();
+        int auxstwd = j.aux();
 
-        int severityLevel = hcalSevLvl((CaloRecHit *)&*j);
+        int severityLevel = hcalSevLvl((CaloRecHit *)&j);
         if (cell.subdet() == HcalOuter) {
           hcalHOSevLvlVec.push_back(severityLevel);
         }

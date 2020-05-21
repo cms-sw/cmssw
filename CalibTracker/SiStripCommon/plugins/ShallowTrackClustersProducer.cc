@@ -169,11 +169,9 @@ void ShallowTrackClustersProducer::produce(edm::Event& iEvent, const edm::EventS
   size_t ontrk_cluster_idx = 0;
   std::map<size_t, std::vector<size_t>> mapping;  //cluster idx --> on trk cluster idx (multiple)
 
-  for (TrajTrackAssociationCollection::const_iterator association = associations->begin();
-       association != associations->end();
-       association++) {
-    const Trajectory* traj = association->key.get();
-    const reco::Track* track = association->val.get();
+  for (const auto& association : *associations) {
+    const Trajectory* traj = association.key.get();
+    const reco::Track* track = association.val.get();
     int trk_idx = shallow::findTrackIndex(tracks, track);
     size_t trk_strt_idx = ontrk_cluster_idx;
 

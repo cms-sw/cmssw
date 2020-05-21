@@ -77,8 +77,8 @@ public:
 
             if (status > 0) {
               bool present = false;
-              for (std::vector<int>::const_iterator s = stati.begin(); s != stati.end(); ++s) {
-                if (*s == status) {
+              for (int s : stati) {
+                if (s == status) {
                   present = true;
                   break;
                 }
@@ -111,8 +111,8 @@ public:
 
             if (status > 0) {
               bool present = false;
-              for (std::vector<int>::const_iterator s = stati.begin(); s != stati.end(); ++s) {
-                if (*s == status) {
+              for (int s : stati) {
+                if (s == status) {
                   present = true;
                   break;
                 }
@@ -405,8 +405,8 @@ BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::boundaryRecHits(
       if (status > 0) {
         // New dead cell found: update status std::vector of dead channels
         bool present = false;
-        for (std::vector<int>::const_iterator s = stati.begin(); s != stati.end(); ++s) {
-          if (*s == status) {
+        for (int s : stati) {
+          if (s == status) {
             present = true;
             break;
           }
@@ -491,8 +491,8 @@ BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::boundaryRecHits(
     edm::LogInfo("EcalBoundaryInfoCalculator") << "boundary ET: " << boundaryET;
     edm::LogInfo("EcalBoundaryInfoCalculator") << "no of cells contributing to boundary energy: " << beCellCounter;
     edm::LogInfo("EcalBoundaryInfoCalculator") << "Channel stati: ";
-    for (std::vector<int>::iterator it = stati.begin(); it != stati.end(); ++it) {
-      edm::LogInfo("EcalBoundaryInfoCalculator") << *it << " ";
+    for (int& it : stati) {
+      edm::LogInfo("EcalBoundaryInfoCalculator") << it << " ";
     }
     edm::LogInfo("EcalBoundaryInfoCalculator");
   }

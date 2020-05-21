@@ -195,8 +195,7 @@ void HLTFiltersDQMonitor::bookHistograms(DQMStore::IBooker& iBooker,
           auto const& moduleLabels(hltConfigProvider_.moduleLabels(iPathName));
           std::vector<std::string> mePath_binLabels;
           mePath_binLabels.reserve(moduleLabels.size());
-          for (size_t iMod = 0; iMod < moduleLabels.size(); ++iMod) {
-            auto const& moduleLabel(moduleLabels.at(iMod));
+          for (const auto& moduleLabel : moduleLabels) {
             if (this->skipModuleByEDMType(hltConfigProvider_.moduleEDMType(moduleLabel)) or
                 this->skipModuleByType(hltConfigProvider_.moduleType(moduleLabel))) {
               LogTrace("") << "[HLTFiltersDQMonitor::bookHistograms]       [-] Module = \"" << moduleLabel << "\"";

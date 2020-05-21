@@ -37,10 +37,9 @@ CachingVertex<5> GsfVertexUpdator::add(const CachingVertex<5>& oldVertex, const 
   //   cout <<(**trackCompIter).state().globalPosition()<<endl;
   //     }
 
-  for (VSC::iterator vertexCompIter = prevVtxComponents.begin(); vertexCompIter != prevVtxComponents.end();
-       vertexCompIter++) {
-    for (LTC::iterator trackCompIter = ltComponents.begin(); trackCompIter != ltComponents.end(); trackCompIter++) {
-      newVertexComponents.push_back(createNewComponent(*vertexCompIter, *trackCompIter, trackWeight, +1));
+  for (auto& prevVtxComponent : prevVtxComponents) {
+    for (auto& ltComponent : ltComponents) {
+      newVertexComponents.push_back(createNewComponent(prevVtxComponent, ltComponent, trackWeight, +1));
       // return invalid vertex in case one of the updated vertex-components is invalid
       if (!newVertexComponents.back().first.isValid())
         return CachingVertex<5>();
@@ -128,10 +127,8 @@ GsfVertexUpdator::VertexChi2Pair GsfVertexUpdator::assembleVertexComponents(
   double totalWeight = 0.;
   double totalChi2 = 0.;
 
-  for (std::vector<VertexComponent>::const_iterator iter = newVertexComponents.begin();
-       iter != newVertexComponents.end();
-       iter++) {
-    totalWeight += iter->second.first;
+  for (const auto& newVertexComponent : newVertexComponents) {
+    totalWeight += newVertexComponent.second.first;
   }
   // cout << "totalWeight "<<totalWeight<<endl;
   if (totalWeight < DBL_MIN) {
@@ -140,13 +137,12 @@ GsfVertexUpdator::VertexChi2Pair GsfVertexUpdator::assembleVertexComponents(
     return VertexChi2Pair(VertexState(), 0.);
   }
 
-  for (std::vector<VertexComponent>::const_iterator iter = newVertexComponents.begin();
-       iter != newVertexComponents.end();
-       iter++) {
-    double weight = iter->second.first / totalWeight;
-    if (iter->second.first > DBL_MIN) {
-      vertexComponents.push_back(VertexState(iter->first.weightTimesPosition(), iter->first.weight(), weight));
-      totalChi2 += iter->second.second * weight;
+  for (const auto& newVertexComponent : newVertexComponents) {
+    double weight = newVertexComponent.second.first / totalWeight;
+    if (newVertexComponent.second.first > DBL_MIN) {
+      vertexComponents.push_back(
+          VertexState(newVertexComponent.first.weightTimesPosition(), newVertexComponent.first.weight(), weight));
+      totalChi2 += newVertexComponent.second.second * weight;
     }
   }
   // cout << "totalChi2 "<<totalChi2<<endl;

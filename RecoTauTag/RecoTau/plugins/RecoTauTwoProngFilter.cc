@@ -20,9 +20,9 @@ namespace reco {
       // Delete an element from a ptr vector
       std::vector<CandidatePtr> deleteFrom(const CandidatePtr& ptr, const std::vector<CandidatePtr>& collection) {
         std::vector<CandidatePtr> output;
-        for (std::vector<CandidatePtr>::const_iterator cand = collection.begin(); cand != collection.end(); ++cand) {
-          if ((*cand) != ptr)
-            output.push_back(*cand);
+        for (const auto& cand : collection) {
+          if (cand != ptr)
+            output.push_back(cand);
         }
         return output;
       }

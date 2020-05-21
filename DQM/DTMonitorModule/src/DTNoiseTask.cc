@@ -159,11 +159,10 @@ void DTNoiseTask::bookHistos(DQMStore::IBooker& ibooker, DTChamberId chId) {
   const vector<const DTSuperLayer*>& superlayers = dtchamber->superLayers();
 
   // Loop over layers and find the max # of wires
-  for (vector<const DTSuperLayer*>::const_iterator sl = superlayers.begin(); sl != superlayers.end();
-       ++sl) {  // loop over SLs
-    vector<const DTLayer*> layers = (*sl)->layers();
-    for (vector<const DTLayer*>::const_iterator lay = layers.begin(); lay != layers.end(); ++lay) {  // loop over layers
-      int nWires = (*lay)->specificTopology().channels();
+  for (auto superlayer : superlayers) {  // loop over SLs
+    vector<const DTLayer*> layers = superlayer->layers();
+    for (auto layer : layers) {  // loop over layers
+      int nWires = layer->specificTopology().channels();
       if (nWires > nWires_max)
         nWires_max = nWires;
     }

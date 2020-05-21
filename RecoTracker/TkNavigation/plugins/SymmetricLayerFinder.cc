@@ -17,19 +17,19 @@ SymmetricLayerFinder::SymmetricLayerFinder(const FDLC& flc) {
   FDLC rightLayers = FDLC(middle, flc.end());
   vector<PairType> foundPairs;
 
-  for (FDLI i = leftLayers.begin(); i != leftLayers.end(); i++) {
-    const ForwardDetLayer* partner = mirrorPartner(*i, rightLayers);
+  for (auto& leftLayer : leftLayers) {
+    const ForwardDetLayer* partner = mirrorPartner(leftLayer, rightLayers);
     //if ( partner == 0) throw DetLogicError("Assymmetric forward layers in Tracker");
     if (partner == nullptr)
       throw cms::Exception("SymmetricLayerFinder", "Assymmetric forward layers in Tracker");
 
-    foundPairs.push_back(make_pair(*i, partner));
+    foundPairs.push_back(make_pair(leftLayer, partner));
   }
 
   // fill the map
-  for (vector<PairType>::iterator ipair = foundPairs.begin(); ipair != foundPairs.end(); ipair++) {
-    theForwardMap[ipair->first] = ipair->second;
-    theForwardMap[ipair->second] = ipair->first;
+  for (auto& foundPair : foundPairs) {
+    theForwardMap[foundPair.first] = foundPair.second;
+    theForwardMap[foundPair.second] = foundPair.first;
   }
 }
 
@@ -51,8 +51,8 @@ const ForwardDetLayer* SymmetricLayerFinder::mirrorPartner(const ForwardDetLayer
 
 SymmetricLayerFinder::FDLC SymmetricLayerFinder::mirror(const FDLC& input) {
   FDLC result;
-  for (ConstFDLI i = input.begin(); i != input.end(); i++) {
-    result.push_back(mirror(*i));
+  for (auto i : input) {
+    result.push_back(mirror(i));
   }
   return result;
 }

@@ -21,16 +21,16 @@ ZSPJPTJetCorrector::ZSPJPTJetCorrector(const edm::ParameterSet& fConfig) {
 
   if (iPU >= 0 || fixedPU > 0) {
     theFilesL1Offset = fConfig.getParameter<vector<string> >("tagNameOffset");
-    for (vector<string>::iterator it = theFilesL1Offset.begin(); it != theFilesL1Offset.end(); it++) {
-      std::string file = "CondFormats/JetMETObjects/data/" + (*it) + ".txt";
+    for (auto& it : theFilesL1Offset) {
+      std::string file = "CondFormats/JetMETObjects/data/" + it + ".txt";
       edm::FileInPath f2(file);
       mSimpleCorrectorOffset.push_back(new SimpleZSPJPTJetCorrector(f2.fullPath()));
     }
   }
 
   theFilesZSP = fConfig.getParameter<vector<string> >("tagName");
-  for (vector<string>::iterator it = theFilesZSP.begin(); it != theFilesZSP.end(); it++) {
-    std::string file = "CondFormats/JetMETObjects/data/" + (*it) + ".txt";
+  for (auto& it : theFilesZSP) {
+    std::string file = "CondFormats/JetMETObjects/data/" + it + ".txt";
     edm::FileInPath f1(file);
     mSimpleCorrector.push_back(new SimpleZSPJPTJetCorrector(f1.fullPath()));
   }

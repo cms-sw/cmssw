@@ -88,7 +88,7 @@ bool TriggerObjectStandAlone::hasAnyName(const std::string &name, const std::vec
   std::vector<std::string> namePartsVec;
   boost::split(namePartsVec, name, boost::is_any_of(std::string(1, wildcard_)), boost::token_compress_on);
   // Iterate over vector of names to search
-  for (std::vector<std::string>::const_iterator iVec = nameVec.begin(); iVec != nameVec.end(); ++iVec) {
+  for (const auto &iVec : nameVec) {
     // Not failed yet
     bool failed(false);
     // Start searching at the first character
@@ -102,7 +102,7 @@ bool TriggerObjectStandAlone::hasAnyName(const std::string &name, const std::vec
         continue;
       // Search from current index and
       // set index to found occurence
-      index = iVec->find(*iName, index);
+      index = iVec.find(*iName, index);
       // Failed and exit loop, if
       // - part not found
       // - part at beginning not found there
@@ -114,7 +114,7 @@ bool TriggerObjectStandAlone::hasAnyName(const std::string &name, const std::vec
       index += iName->length();
     }
     // Failed, if end of name not reached
-    if (index < iVec->length() && namePartsVec.back().length() != 0)
+    if (index < iVec.length() && namePartsVec.back().length() != 0)
       failed = true;
     // Match found!
     if (!failed)
@@ -415,8 +415,7 @@ std::vector<std::string> const *TriggerObjectStandAlone::allLabels(edm::Paramete
     for (unsigned int i = 0; i != n; ++i) {
       if (pset->existsAs<vector<string> >(triggerNames.triggerName(i), true)) {
         auto modules = pset->getParameter<vector<string> >(triggerNames.triggerName(i));
-        for (size_t m = 0; m < modules.size(); m++) {
-          auto module = modules[m];
+        for (auto module : modules) {
           auto moduleStrip = module.front() != '-' ? module : module.substr(1);
 
           if (pset->exists(moduleStrip)) {

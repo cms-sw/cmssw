@@ -406,10 +406,9 @@ void HcalUnpacker::unpackVME(const FEDRawData& raw,
           }
         }
       }
-      for (int i = 0; i < 24; i++) {
-        if (unrolled[i].valid)
-          colls.tphoCont->push_back(HOTriggerPrimitiveDigi(
-              unrolled[i].ieta, unrolled[i].iphi, unrolled[i].samples, unrolled[i].soi, unrolled[i].databits));
+      for (auto& i : unrolled) {
+        if (i.valid)
+          colls.tphoCont->push_back(HOTriggerPrimitiveDigi(i.ieta, i.iphi, i.samples, i.soi, i.databits));
       }
     } else {  // regular TPs (not HO)
       for (tp_work = tp_begin; tp_work != tp_end; tp_work++) {

@@ -383,23 +383,23 @@ void GlobalDigisHistogrammer::analyze(const edm::Event &iEvent, const edm::Event
     if (printProvenanceInfo && (verbosity >= 0)) {
       TString eventout("\nProvenance info:\n");
 
-      for (unsigned int i = 0; i < AllProv.size(); ++i) {
+      for (auto &i : AllProv) {
         eventout += "\n       ******************************";
         eventout += "\n       Module       : ";
         // eventout += (AllProv[i]->product).moduleLabel();
-        eventout += AllProv[i]->moduleLabel();
+        eventout += i->moduleLabel();
         eventout += "\n       ProductID    : ";
         // eventout += (AllProv[i]->product).productID_.id_;
-        eventout += AllProv[i]->productID().id();
+        eventout += i->productID().id();
         eventout += "\n       ClassName    : ";
         // eventout += (AllProv[i]->product).fullClassName_;
-        eventout += AllProv[i]->className();
+        eventout += i->className();
         eventout += "\n       InstanceName : ";
         // eventout += (AllProv[i]->product).productInstanceName_;
-        eventout += AllProv[i]->productInstanceName();
+        eventout += i->productInstanceName();
         eventout += "\n       BranchName   : ";
         // eventout += (AllProv[i]->product).branchName_;
-        eventout += AllProv[i]->branchName();
+        eventout += i->branchName();
       }
       eventout += "\n       ******************************\n";
       edm::LogInfo(MsgLoggerCat) << eventout << "\n";
@@ -462,320 +462,320 @@ void GlobalDigisHistogrammer::analyze(const edm::Event &iEvent, const edm::Event
     // get Ecal info
     std::vector<PGlobalDigi::ECalDigi> EECalDigis = srcGlobalDigis->getEECalDigis();
     mehEcaln[0]->Fill((float)nEECalDigis);
-    for (unsigned int i = 0; i < EECalDigis.size(); ++i) {
-      mehEcalAEE[0]->Fill(EECalDigis[i].AEE);
-      mehEcalMaxPos[0]->Fill(EECalDigis[i].maxPos);
-      mehEcalMultvAEE[0]->Fill(EECalDigis[i].AEE, (float)nEECalDigis, 1);
-      if (EECalDigis[i].SHE != 0.) {
-        mehEcalSHE[0]->Fill(EECalDigis[i].SHE);
-        mehEcalSHEvAEESHE[0]->Fill(EECalDigis[i].AEE / EECalDigis[i].SHE, EECalDigis[i].SHE, 1);
+    for (auto &EECalDigi : EECalDigis) {
+      mehEcalAEE[0]->Fill(EECalDigi.AEE);
+      mehEcalMaxPos[0]->Fill(EECalDigi.maxPos);
+      mehEcalMultvAEE[0]->Fill(EECalDigi.AEE, (float)nEECalDigis, 1);
+      if (EECalDigi.SHE != 0.) {
+        mehEcalSHE[0]->Fill(EECalDigi.SHE);
+        mehEcalSHEvAEESHE[0]->Fill(EECalDigi.AEE / EECalDigi.SHE, EECalDigi.SHE, 1);
       }
     }
 
     std::vector<PGlobalDigi::ECalDigi> EBCalDigis = srcGlobalDigis->getEBCalDigis();
     mehEcaln[1]->Fill((float)nEBCalDigis);
-    for (unsigned int i = 0; i < EBCalDigis.size(); ++i) {
-      mehEcalAEE[1]->Fill(EBCalDigis[i].AEE);
-      mehEcalMaxPos[1]->Fill(EBCalDigis[i].maxPos);
-      mehEcalMultvAEE[1]->Fill(EBCalDigis[i].AEE, (float)nEBCalDigis, 1);
-      if (EBCalDigis[i].SHE != 0.) {
-        mehEcalSHE[1]->Fill(EBCalDigis[i].SHE);
-        mehEcalSHEvAEESHE[1]->Fill(EBCalDigis[i].AEE / EBCalDigis[i].SHE, EBCalDigis[i].SHE, 1);
+    for (auto &EBCalDigi : EBCalDigis) {
+      mehEcalAEE[1]->Fill(EBCalDigi.AEE);
+      mehEcalMaxPos[1]->Fill(EBCalDigi.maxPos);
+      mehEcalMultvAEE[1]->Fill(EBCalDigi.AEE, (float)nEBCalDigis, 1);
+      if (EBCalDigi.SHE != 0.) {
+        mehEcalSHE[1]->Fill(EBCalDigi.SHE);
+        mehEcalSHEvAEESHE[1]->Fill(EBCalDigi.AEE / EBCalDigi.SHE, EBCalDigi.SHE, 1);
       }
     }
 
     std::vector<PGlobalDigi::ESCalDigi> ESCalDigis = srcGlobalDigis->getESCalDigis();
     mehEcaln[2]->Fill((float)nESCalDigis);
-    for (unsigned int i = 0; i < ESCalDigis.size(); ++i) {
-      mehEScalADC[0]->Fill(ESCalDigis[i].ADC0);
-      mehEScalADC[1]->Fill(ESCalDigis[i].ADC1);
-      mehEScalADC[2]->Fill(ESCalDigis[i].ADC2);
+    for (auto &ESCalDigi : ESCalDigis) {
+      mehEScalADC[0]->Fill(ESCalDigi.ADC0);
+      mehEScalADC[1]->Fill(ESCalDigi.ADC1);
+      mehEScalADC[2]->Fill(ESCalDigi.ADC2);
     }
 
     // Get HCal info
     std::vector<PGlobalDigi::HCalDigi> HBCalDigis = srcGlobalDigis->getHBCalDigis();
     mehHcaln[0]->Fill((float)nHBCalDigis);
-    for (unsigned int i = 0; i < HBCalDigis.size(); ++i) {
-      mehHcalAEE[0]->Fill(HBCalDigis[i].AEE);
-      if (HBCalDigis[i].SHE != 0.) {
-        mehHcalSHE[0]->Fill(HBCalDigis[i].SHE);
-        mehHcalAEESHE[0]->Fill(HBCalDigis[i].AEE / HBCalDigis[i].SHE);
-        mehHcalSHEvAEE[0]->Fill(HBCalDigis[i].AEE, HBCalDigis[i].SHE, 1);
+    for (auto &HBCalDigi : HBCalDigis) {
+      mehHcalAEE[0]->Fill(HBCalDigi.AEE);
+      if (HBCalDigi.SHE != 0.) {
+        mehHcalSHE[0]->Fill(HBCalDigi.SHE);
+        mehHcalAEESHE[0]->Fill(HBCalDigi.AEE / HBCalDigi.SHE);
+        mehHcalSHEvAEE[0]->Fill(HBCalDigi.AEE, HBCalDigi.SHE, 1);
       }
     }
     std::vector<PGlobalDigi::HCalDigi> HECalDigis = srcGlobalDigis->getHECalDigis();
     mehHcaln[1]->Fill((float)nHECalDigis);
-    for (unsigned int i = 0; i < HECalDigis.size(); ++i) {
-      mehHcalAEE[1]->Fill(HECalDigis[i].AEE);
-      if (HECalDigis[i].SHE != 0.) {
-        mehHcalSHE[1]->Fill(HECalDigis[i].SHE);
-        mehHcalAEESHE[1]->Fill(HECalDigis[i].AEE / HECalDigis[i].SHE);
-        mehHcalSHEvAEE[1]->Fill(HECalDigis[i].AEE, HECalDigis[i].SHE, 1);
+    for (auto &HECalDigi : HECalDigis) {
+      mehHcalAEE[1]->Fill(HECalDigi.AEE);
+      if (HECalDigi.SHE != 0.) {
+        mehHcalSHE[1]->Fill(HECalDigi.SHE);
+        mehHcalAEESHE[1]->Fill(HECalDigi.AEE / HECalDigi.SHE);
+        mehHcalSHEvAEE[1]->Fill(HECalDigi.AEE, HECalDigi.SHE, 1);
       }
     }
 
     std::vector<PGlobalDigi::HCalDigi> HOCalDigis = srcGlobalDigis->getHOCalDigis();
     mehHcaln[2]->Fill((float)nHOCalDigis);
-    for (unsigned int i = 0; i < HOCalDigis.size(); ++i) {
-      mehHcalAEE[2]->Fill(HOCalDigis[i].AEE);
-      if (HOCalDigis[i].SHE != 0.) {
-        mehHcalSHE[2]->Fill(HOCalDigis[i].SHE);
-        mehHcalAEESHE[2]->Fill(HOCalDigis[i].AEE / HOCalDigis[i].SHE);
-        mehHcalSHEvAEE[2]->Fill(HOCalDigis[i].AEE, HOCalDigis[i].SHE, 1);
+    for (auto &HOCalDigi : HOCalDigis) {
+      mehHcalAEE[2]->Fill(HOCalDigi.AEE);
+      if (HOCalDigi.SHE != 0.) {
+        mehHcalSHE[2]->Fill(HOCalDigi.SHE);
+        mehHcalAEESHE[2]->Fill(HOCalDigi.AEE / HOCalDigi.SHE);
+        mehHcalSHEvAEE[2]->Fill(HOCalDigi.AEE, HOCalDigi.SHE, 1);
       }
     }
 
     std::vector<PGlobalDigi::HCalDigi> HFCalDigis = srcGlobalDigis->getHFCalDigis();
     mehHcaln[3]->Fill((float)nHFCalDigis);
-    for (unsigned int i = 0; i < HFCalDigis.size(); ++i) {
-      mehHcalAEE[3]->Fill(HFCalDigis[i].AEE);
-      if (HFCalDigis[i].SHE != 0.) {
-        mehHcalSHE[3]->Fill(HFCalDigis[i].SHE);
-        mehHcalAEESHE[3]->Fill(HFCalDigis[i].AEE / HFCalDigis[i].SHE);
-        mehHcalSHEvAEE[3]->Fill(HFCalDigis[i].AEE, HFCalDigis[i].SHE, 1);
+    for (auto &HFCalDigi : HFCalDigis) {
+      mehHcalAEE[3]->Fill(HFCalDigi.AEE);
+      if (HFCalDigi.SHE != 0.) {
+        mehHcalSHE[3]->Fill(HFCalDigi.SHE);
+        mehHcalAEESHE[3]->Fill(HFCalDigi.AEE / HFCalDigi.SHE);
+        mehHcalSHEvAEE[3]->Fill(HFCalDigi.AEE, HFCalDigi.SHE, 1);
       }
     }
 
     // get SiStrip info
     std::vector<PGlobalDigi::SiStripDigi> TIBL1Digis = srcGlobalDigis->getTIBL1Digis();
     mehSiStripn[0]->Fill((float)nTIBL1Digis);
-    for (unsigned int i = 0; i < TIBL1Digis.size(); ++i) {
-      mehSiStripADC[0]->Fill(TIBL1Digis[i].ADC);
-      mehSiStripStrip[0]->Fill(TIBL1Digis[i].STRIP);
+    for (auto &TIBL1Digi : TIBL1Digis) {
+      mehSiStripADC[0]->Fill(TIBL1Digi.ADC);
+      mehSiStripStrip[0]->Fill(TIBL1Digi.STRIP);
     }
 
     std::vector<PGlobalDigi::SiStripDigi> TIBL2Digis = srcGlobalDigis->getTIBL2Digis();
     mehSiStripn[1]->Fill((float)nTIBL2Digis);
-    for (unsigned int i = 0; i < TIBL2Digis.size(); ++i) {
-      mehSiStripADC[1]->Fill(TIBL2Digis[i].ADC);
-      mehSiStripStrip[1]->Fill(TIBL2Digis[i].STRIP);
+    for (auto &TIBL2Digi : TIBL2Digis) {
+      mehSiStripADC[1]->Fill(TIBL2Digi.ADC);
+      mehSiStripStrip[1]->Fill(TIBL2Digi.STRIP);
     }
 
     std::vector<PGlobalDigi::SiStripDigi> TIBL3Digis = srcGlobalDigis->getTIBL3Digis();
     mehSiStripn[2]->Fill((float)nTIBL3Digis);
-    for (unsigned int i = 0; i < TIBL3Digis.size(); ++i) {
-      mehSiStripADC[2]->Fill(TIBL3Digis[i].ADC);
-      mehSiStripStrip[2]->Fill(TIBL3Digis[i].STRIP);
+    for (auto &TIBL3Digi : TIBL3Digis) {
+      mehSiStripADC[2]->Fill(TIBL3Digi.ADC);
+      mehSiStripStrip[2]->Fill(TIBL3Digi.STRIP);
     }
 
     std::vector<PGlobalDigi::SiStripDigi> TIBL4Digis = srcGlobalDigis->getTIBL4Digis();
     mehSiStripn[3]->Fill((float)nTIBL4Digis);
-    for (unsigned int i = 0; i < TIBL4Digis.size(); ++i) {
-      mehSiStripADC[3]->Fill(TIBL4Digis[i].ADC);
-      mehSiStripStrip[3]->Fill(TIBL4Digis[i].STRIP);
+    for (auto &TIBL4Digi : TIBL4Digis) {
+      mehSiStripADC[3]->Fill(TIBL4Digi.ADC);
+      mehSiStripStrip[3]->Fill(TIBL4Digi.STRIP);
     }
 
     std::vector<PGlobalDigi::SiStripDigi> TOBL1Digis = srcGlobalDigis->getTOBL1Digis();
     mehSiStripn[4]->Fill((float)nTOBL1Digis);
-    for (unsigned int i = 0; i < TOBL1Digis.size(); ++i) {
-      mehSiStripADC[4]->Fill(TOBL1Digis[i].ADC);
-      mehSiStripStrip[4]->Fill(TOBL1Digis[i].STRIP);
+    for (auto &TOBL1Digi : TOBL1Digis) {
+      mehSiStripADC[4]->Fill(TOBL1Digi.ADC);
+      mehSiStripStrip[4]->Fill(TOBL1Digi.STRIP);
     }
 
     std::vector<PGlobalDigi::SiStripDigi> TOBL2Digis = srcGlobalDigis->getTOBL2Digis();
     mehSiStripn[5]->Fill((float)nTOBL2Digis);
-    for (unsigned int i = 0; i < TOBL2Digis.size(); ++i) {
-      mehSiStripADC[5]->Fill(TOBL2Digis[i].ADC);
-      mehSiStripStrip[5]->Fill(TOBL2Digis[i].STRIP);
+    for (auto &TOBL2Digi : TOBL2Digis) {
+      mehSiStripADC[5]->Fill(TOBL2Digi.ADC);
+      mehSiStripStrip[5]->Fill(TOBL2Digi.STRIP);
     }
 
     std::vector<PGlobalDigi::SiStripDigi> TOBL3Digis = srcGlobalDigis->getTOBL3Digis();
     mehSiStripn[6]->Fill((float)nTOBL3Digis);
-    for (unsigned int i = 0; i < TOBL3Digis.size(); ++i) {
-      mehSiStripADC[6]->Fill(TOBL3Digis[i].ADC);
-      mehSiStripStrip[6]->Fill(TOBL3Digis[i].STRIP);
+    for (auto &TOBL3Digi : TOBL3Digis) {
+      mehSiStripADC[6]->Fill(TOBL3Digi.ADC);
+      mehSiStripStrip[6]->Fill(TOBL3Digi.STRIP);
     }
 
     std::vector<PGlobalDigi::SiStripDigi> TOBL4Digis = srcGlobalDigis->getTOBL4Digis();
     mehSiStripn[7]->Fill((float)nTOBL4Digis);
-    for (unsigned int i = 0; i < TOBL4Digis.size(); ++i) {
-      mehSiStripADC[7]->Fill(TOBL4Digis[i].ADC);
-      mehSiStripStrip[7]->Fill(TOBL4Digis[i].STRIP);
+    for (auto &TOBL4Digi : TOBL4Digis) {
+      mehSiStripADC[7]->Fill(TOBL4Digi.ADC);
+      mehSiStripStrip[7]->Fill(TOBL4Digi.STRIP);
     }
 
     std::vector<PGlobalDigi::SiStripDigi> TIDW1Digis = srcGlobalDigis->getTIDW1Digis();
     mehSiStripn[8]->Fill((float)nTIDW1Digis);
-    for (unsigned int i = 0; i < TIDW1Digis.size(); ++i) {
-      mehSiStripADC[8]->Fill(TIDW1Digis[i].ADC);
-      mehSiStripStrip[8]->Fill(TIDW1Digis[i].STRIP);
+    for (auto &TIDW1Digi : TIDW1Digis) {
+      mehSiStripADC[8]->Fill(TIDW1Digi.ADC);
+      mehSiStripStrip[8]->Fill(TIDW1Digi.STRIP);
     }
 
     std::vector<PGlobalDigi::SiStripDigi> TIDW2Digis = srcGlobalDigis->getTIDW2Digis();
     mehSiStripn[9]->Fill((float)nTIDW2Digis);
-    for (unsigned int i = 0; i < TIDW2Digis.size(); ++i) {
-      mehSiStripADC[9]->Fill(TIDW2Digis[i].ADC);
-      mehSiStripStrip[9]->Fill(TIDW2Digis[i].STRIP);
+    for (auto &TIDW2Digi : TIDW2Digis) {
+      mehSiStripADC[9]->Fill(TIDW2Digi.ADC);
+      mehSiStripStrip[9]->Fill(TIDW2Digi.STRIP);
     }
 
     std::vector<PGlobalDigi::SiStripDigi> TIDW3Digis = srcGlobalDigis->getTIDW3Digis();
     mehSiStripn[10]->Fill((float)nTIDW3Digis);
-    for (unsigned int i = 0; i < TIDW3Digis.size(); ++i) {
-      mehSiStripADC[10]->Fill(TIDW3Digis[i].ADC);
-      mehSiStripStrip[10]->Fill(TIDW3Digis[i].STRIP);
+    for (auto &TIDW3Digi : TIDW3Digis) {
+      mehSiStripADC[10]->Fill(TIDW3Digi.ADC);
+      mehSiStripStrip[10]->Fill(TIDW3Digi.STRIP);
     }
 
     std::vector<PGlobalDigi::SiStripDigi> TECW1Digis = srcGlobalDigis->getTECW1Digis();
     mehSiStripn[11]->Fill((float)nTECW1Digis);
-    for (unsigned int i = 0; i < TECW1Digis.size(); ++i) {
-      mehSiStripADC[11]->Fill(TECW1Digis[i].ADC);
-      mehSiStripStrip[11]->Fill(TECW1Digis[i].STRIP);
+    for (auto &TECW1Digi : TECW1Digis) {
+      mehSiStripADC[11]->Fill(TECW1Digi.ADC);
+      mehSiStripStrip[11]->Fill(TECW1Digi.STRIP);
     }
 
     std::vector<PGlobalDigi::SiStripDigi> TECW2Digis = srcGlobalDigis->getTECW2Digis();
     mehSiStripn[12]->Fill((float)nTECW2Digis);
-    for (unsigned int i = 0; i < TECW2Digis.size(); ++i) {
-      mehSiStripADC[12]->Fill(TECW2Digis[i].ADC);
-      mehSiStripStrip[12]->Fill(TECW2Digis[i].STRIP);
+    for (auto &TECW2Digi : TECW2Digis) {
+      mehSiStripADC[12]->Fill(TECW2Digi.ADC);
+      mehSiStripStrip[12]->Fill(TECW2Digi.STRIP);
     }
 
     std::vector<PGlobalDigi::SiStripDigi> TECW3Digis = srcGlobalDigis->getTECW3Digis();
     mehSiStripn[13]->Fill((float)nTECW3Digis);
-    for (unsigned int i = 0; i < TECW3Digis.size(); ++i) {
-      mehSiStripADC[13]->Fill(TECW3Digis[i].ADC);
-      mehSiStripStrip[13]->Fill(TECW3Digis[i].STRIP);
+    for (auto &TECW3Digi : TECW3Digis) {
+      mehSiStripADC[13]->Fill(TECW3Digi.ADC);
+      mehSiStripStrip[13]->Fill(TECW3Digi.STRIP);
     }
 
     std::vector<PGlobalDigi::SiStripDigi> TECW4Digis = srcGlobalDigis->getTECW4Digis();
     mehSiStripn[14]->Fill((float)nTECW4Digis);
-    for (unsigned int i = 0; i < TECW4Digis.size(); ++i) {
-      mehSiStripADC[14]->Fill(TECW4Digis[i].ADC);
-      mehSiStripStrip[14]->Fill(TECW4Digis[i].STRIP);
+    for (auto &TECW4Digi : TECW4Digis) {
+      mehSiStripADC[14]->Fill(TECW4Digi.ADC);
+      mehSiStripStrip[14]->Fill(TECW4Digi.STRIP);
     }
 
     std::vector<PGlobalDigi::SiStripDigi> TECW5Digis = srcGlobalDigis->getTECW5Digis();
     mehSiStripn[15]->Fill((float)nTECW5Digis);
-    for (unsigned int i = 0; i < TECW5Digis.size(); ++i) {
-      mehSiStripADC[15]->Fill(TECW5Digis[i].ADC);
-      mehSiStripStrip[15]->Fill(TECW5Digis[i].STRIP);
+    for (auto &TECW5Digi : TECW5Digis) {
+      mehSiStripADC[15]->Fill(TECW5Digi.ADC);
+      mehSiStripStrip[15]->Fill(TECW5Digi.STRIP);
     }
 
     std::vector<PGlobalDigi::SiStripDigi> TECW6Digis = srcGlobalDigis->getTECW6Digis();
     mehSiStripn[16]->Fill((float)nTECW6Digis);
-    for (unsigned int i = 0; i < TECW6Digis.size(); ++i) {
-      mehSiStripADC[16]->Fill(TECW6Digis[i].ADC);
-      mehSiStripStrip[16]->Fill(TECW6Digis[i].STRIP);
+    for (auto &TECW6Digi : TECW6Digis) {
+      mehSiStripADC[16]->Fill(TECW6Digi.ADC);
+      mehSiStripStrip[16]->Fill(TECW6Digi.STRIP);
     }
 
     std::vector<PGlobalDigi::SiStripDigi> TECW7Digis = srcGlobalDigis->getTECW7Digis();
     mehSiStripn[17]->Fill((float)nTECW7Digis);
-    for (unsigned int i = 0; i < TECW7Digis.size(); ++i) {
-      mehSiStripADC[17]->Fill(TECW7Digis[i].ADC);
-      mehSiStripStrip[17]->Fill(TECW7Digis[i].STRIP);
+    for (auto &TECW7Digi : TECW7Digis) {
+      mehSiStripADC[17]->Fill(TECW7Digi.ADC);
+      mehSiStripStrip[17]->Fill(TECW7Digi.STRIP);
     }
 
     std::vector<PGlobalDigi::SiStripDigi> TECW8Digis = srcGlobalDigis->getTECW8Digis();
     mehSiStripn[18]->Fill((float)nTECW8Digis);
-    for (unsigned int i = 0; i < TECW8Digis.size(); ++i) {
-      mehSiStripADC[18]->Fill(TECW8Digis[i].ADC);
-      mehSiStripStrip[18]->Fill(TECW8Digis[i].STRIP);
+    for (auto &TECW8Digi : TECW8Digis) {
+      mehSiStripADC[18]->Fill(TECW8Digi.ADC);
+      mehSiStripStrip[18]->Fill(TECW8Digi.STRIP);
     }
 
     // get SiPixel info
     std::vector<PGlobalDigi::SiPixelDigi> BRL1Digis = srcGlobalDigis->getBRL1Digis();
     mehSiPixeln[0]->Fill((float)nBRL1Digis);
-    for (unsigned int i = 0; i < BRL1Digis.size(); ++i) {
-      mehSiPixelADC[0]->Fill(BRL1Digis[i].ADC);
-      mehSiPixelRow[0]->Fill(BRL1Digis[i].ROW);
-      mehSiPixelCol[0]->Fill(BRL1Digis[i].COLUMN);
+    for (auto &BRL1Digi : BRL1Digis) {
+      mehSiPixelADC[0]->Fill(BRL1Digi.ADC);
+      mehSiPixelRow[0]->Fill(BRL1Digi.ROW);
+      mehSiPixelCol[0]->Fill(BRL1Digi.COLUMN);
     }
 
     std::vector<PGlobalDigi::SiPixelDigi> BRL2Digis = srcGlobalDigis->getBRL2Digis();
     mehSiPixeln[1]->Fill((float)nBRL2Digis);
-    for (unsigned int i = 0; i < BRL2Digis.size(); ++i) {
-      mehSiPixelADC[1]->Fill(BRL2Digis[i].ADC);
-      mehSiPixelRow[1]->Fill(BRL2Digis[i].ROW);
-      mehSiPixelCol[1]->Fill(BRL2Digis[i].COLUMN);
+    for (auto &BRL2Digi : BRL2Digis) {
+      mehSiPixelADC[1]->Fill(BRL2Digi.ADC);
+      mehSiPixelRow[1]->Fill(BRL2Digi.ROW);
+      mehSiPixelCol[1]->Fill(BRL2Digi.COLUMN);
     }
 
     std::vector<PGlobalDigi::SiPixelDigi> BRL3Digis = srcGlobalDigis->getBRL3Digis();
     mehSiPixeln[2]->Fill((float)nBRL3Digis);
-    for (unsigned int i = 0; i < BRL3Digis.size(); ++i) {
-      mehSiPixelADC[2]->Fill(BRL3Digis[i].ADC);
-      mehSiPixelRow[2]->Fill(BRL3Digis[i].ROW);
-      mehSiPixelCol[2]->Fill(BRL3Digis[i].COLUMN);
+    for (auto &BRL3Digi : BRL3Digis) {
+      mehSiPixelADC[2]->Fill(BRL3Digi.ADC);
+      mehSiPixelRow[2]->Fill(BRL3Digi.ROW);
+      mehSiPixelCol[2]->Fill(BRL3Digi.COLUMN);
     }
 
     std::vector<PGlobalDigi::SiPixelDigi> FWD1pDigis = srcGlobalDigis->getFWD1pDigis();
     mehSiPixeln[3]->Fill((float)nFWD1pDigis);
-    for (unsigned int i = 0; i < FWD1pDigis.size(); ++i) {
-      mehSiPixelADC[3]->Fill(FWD1pDigis[i].ADC);
-      mehSiPixelRow[3]->Fill(FWD1pDigis[i].ROW);
-      mehSiPixelCol[3]->Fill(FWD1pDigis[i].COLUMN);
+    for (auto &FWD1pDigi : FWD1pDigis) {
+      mehSiPixelADC[3]->Fill(FWD1pDigi.ADC);
+      mehSiPixelRow[3]->Fill(FWD1pDigi.ROW);
+      mehSiPixelCol[3]->Fill(FWD1pDigi.COLUMN);
     }
 
     std::vector<PGlobalDigi::SiPixelDigi> FWD1nDigis = srcGlobalDigis->getFWD1nDigis();
     mehSiPixeln[4]->Fill((float)nFWD1nDigis);
-    for (unsigned int i = 0; i < FWD1nDigis.size(); ++i) {
-      mehSiPixelADC[4]->Fill(FWD1nDigis[i].ADC);
-      mehSiPixelRow[4]->Fill(FWD1nDigis[i].ROW);
-      mehSiPixelCol[4]->Fill(FWD1nDigis[i].COLUMN);
+    for (auto &FWD1nDigi : FWD1nDigis) {
+      mehSiPixelADC[4]->Fill(FWD1nDigi.ADC);
+      mehSiPixelRow[4]->Fill(FWD1nDigi.ROW);
+      mehSiPixelCol[4]->Fill(FWD1nDigi.COLUMN);
     }
 
     std::vector<PGlobalDigi::SiPixelDigi> FWD2pDigis = srcGlobalDigis->getFWD2pDigis();
     mehSiPixeln[5]->Fill((float)nFWD2pDigis);
-    for (unsigned int i = 0; i < FWD2pDigis.size(); ++i) {
-      mehSiPixelADC[5]->Fill(FWD2pDigis[i].ADC);
-      mehSiPixelRow[5]->Fill(FWD2pDigis[i].ROW);
-      mehSiPixelCol[5]->Fill(FWD2pDigis[i].COLUMN);
+    for (auto &FWD2pDigi : FWD2pDigis) {
+      mehSiPixelADC[5]->Fill(FWD2pDigi.ADC);
+      mehSiPixelRow[5]->Fill(FWD2pDigi.ROW);
+      mehSiPixelCol[5]->Fill(FWD2pDigi.COLUMN);
     }
 
     std::vector<PGlobalDigi::SiPixelDigi> FWD2nDigis = srcGlobalDigis->getFWD2nDigis();
     mehSiPixeln[6]->Fill((float)nFWD2nDigis);
-    for (unsigned int i = 0; i < FWD2nDigis.size(); ++i) {
-      mehSiPixelADC[6]->Fill(FWD2nDigis[i].ADC);
-      mehSiPixelRow[6]->Fill(FWD2nDigis[i].ROW);
-      mehSiPixelCol[6]->Fill(FWD2nDigis[i].COLUMN);
+    for (auto &FWD2nDigi : FWD2nDigis) {
+      mehSiPixelADC[6]->Fill(FWD2nDigi.ADC);
+      mehSiPixelRow[6]->Fill(FWD2nDigi.ROW);
+      mehSiPixelCol[6]->Fill(FWD2nDigi.COLUMN);
     }
 
     // get DtMuon info
     std::vector<PGlobalDigi::DTDigi> MB1Digis = srcGlobalDigis->getMB1Digis();
     mehDtMuonn[0]->Fill((float)nMB1Digis);
-    for (unsigned int i = 0; i < MB1Digis.size(); ++i) {
-      float layer = 4.0 * (MB1Digis[i].SLAYER - 1.0) + MB1Digis[i].LAYER;
+    for (auto &MB1Digi : MB1Digis) {
+      float layer = 4.0 * (MB1Digi.SLAYER - 1.0) + MB1Digi.LAYER;
       mehDtMuonLayer[0]->Fill(layer);
-      mehDtMuonTime[0]->Fill(MB1Digis[i].TIME);
-      mehDtMuonTimevLayer[0]->Fill(layer, MB1Digis[i].TIME, 1);
+      mehDtMuonTime[0]->Fill(MB1Digi.TIME);
+      mehDtMuonTimevLayer[0]->Fill(layer, MB1Digi.TIME, 1);
     }
 
     std::vector<PGlobalDigi::DTDigi> MB2Digis = srcGlobalDigis->getMB2Digis();
     mehDtMuonn[1]->Fill((float)nMB2Digis);
-    for (unsigned int i = 0; i < MB2Digis.size(); ++i) {
-      float layer = 4.0 * (MB2Digis[i].SLAYER - 1.0) + MB2Digis[i].LAYER;
+    for (auto &MB2Digi : MB2Digis) {
+      float layer = 4.0 * (MB2Digi.SLAYER - 1.0) + MB2Digi.LAYER;
       mehDtMuonLayer[1]->Fill(layer);
-      mehDtMuonTime[1]->Fill(MB2Digis[i].TIME);
-      mehDtMuonTimevLayer[1]->Fill(layer, MB2Digis[i].TIME, 1);
+      mehDtMuonTime[1]->Fill(MB2Digi.TIME);
+      mehDtMuonTimevLayer[1]->Fill(layer, MB2Digi.TIME, 1);
     }
 
     std::vector<PGlobalDigi::DTDigi> MB3Digis = srcGlobalDigis->getMB3Digis();
     mehDtMuonn[2]->Fill((float)nMB3Digis);
-    for (unsigned int i = 0; i < MB3Digis.size(); ++i) {
-      float layer = 4.0 * (MB3Digis[i].SLAYER - 1.0) + MB3Digis[i].LAYER;
+    for (auto &MB3Digi : MB3Digis) {
+      float layer = 4.0 * (MB3Digi.SLAYER - 1.0) + MB3Digi.LAYER;
       mehDtMuonLayer[2]->Fill(layer);
-      mehDtMuonTime[2]->Fill(MB3Digis[i].TIME);
-      mehDtMuonTimevLayer[2]->Fill(layer, MB3Digis[i].TIME, 1);
+      mehDtMuonTime[2]->Fill(MB3Digi.TIME);
+      mehDtMuonTimevLayer[2]->Fill(layer, MB3Digi.TIME, 1);
     }
 
     std::vector<PGlobalDigi::DTDigi> MB4Digis = srcGlobalDigis->getMB4Digis();
     mehDtMuonn[3]->Fill((float)nMB4Digis);
-    for (unsigned int i = 0; i < MB4Digis.size(); ++i) {
-      float layer = 4.0 * (MB4Digis[i].SLAYER - 1.0) + MB4Digis[i].LAYER;
+    for (auto &MB4Digi : MB4Digis) {
+      float layer = 4.0 * (MB4Digi.SLAYER - 1.0) + MB4Digi.LAYER;
       mehDtMuonLayer[3]->Fill(layer);
-      mehDtMuonTime[3]->Fill(MB4Digis[i].TIME);
-      mehDtMuonTimevLayer[3]->Fill(layer, MB4Digis[i].TIME, 1);
+      mehDtMuonTime[3]->Fill(MB4Digi.TIME);
+      mehDtMuonTimevLayer[3]->Fill(layer, MB4Digi.TIME, 1);
     }
 
     // get CSC Strip info
     std::vector<PGlobalDigi::CSCstripDigi> CSCstripDigis = srcGlobalDigis->getCSCstripDigis();
     mehCSCStripn->Fill((float)nCSCstripDigis);
-    for (unsigned int i = 0; i < CSCstripDigis.size(); ++i) {
-      mehCSCStripADC->Fill(CSCstripDigis[i].ADC);
+    for (auto &CSCstripDigi : CSCstripDigis) {
+      mehCSCStripADC->Fill(CSCstripDigi.ADC);
     }
 
     // get CSC Wire info
     std::vector<PGlobalDigi::CSCwireDigi> CSCwireDigis = srcGlobalDigis->getCSCwireDigis();
     mehCSCWiren->Fill((float)nCSCwireDigis);
-    for (unsigned int i = 0; i < CSCwireDigis.size(); ++i) {
-      mehCSCWireTime->Fill(CSCwireDigis[i].TIME);
+    for (auto &CSCwireDigi : CSCwireDigis) {
+      mehCSCWireTime->Fill(CSCwireDigi.TIME);
     }
     if (verbosity > 0)
       edm::LogInfo(MsgLoggerCat) << "Done gathering data from event.";

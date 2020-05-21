@@ -22,9 +22,8 @@ namespace cms {
     ModulesToBeExcluded = ps.getParameter<std::vector<unsigned> >("ModulesToBeExcluded");
     edm::LogInfo("TECClusterFilter") << "Clusters from " << ModulesToBeExcluded.size()
                                      << " modules will be ignored in the filter:";
-    for (std::vector<uint32_t>::const_iterator imod = ModulesToBeExcluded.begin(); imod != ModulesToBeExcluded.end();
-         imod++) {
-      edm::LogInfo("TECClusterFilter") << *imod;
+    for (unsigned int imod : ModulesToBeExcluded) {
+      edm::LogInfo("TECClusterFilter") << imod;
     }
     //
     ChargeThresholdTEC = ps.getParameter<int>("ChargeThresholdTEC");
@@ -43,14 +42,12 @@ namespace cms {
     e.getByLabel(clusterProducer, h);
     bool decision = false;  // default value, only accept if set true in this loop
     unsigned int nr_clusters_above_threshold = 0;
-    for (edm::DetSetVector<SiStripCluster>::const_iterator it = h->begin(); it != h->end(); it++) {
-      DetId thedetId = DetId(it->detId());
+    for (const auto& it : *h) {
+      DetId thedetId = DetId(it.detId());
       bool exclude_this_detid = false;
-      for (vector<SiStripCluster>::const_iterator vit = (it->data).begin(); vit != (it->data).end(); vit++) {
-        for (std::vector<uint32_t>::const_iterator imod = ModulesToBeExcluded.begin();
-             imod != ModulesToBeExcluded.end();
-             imod++) {
-          if (*imod == thedetId.rawId())
+      for (vector<SiStripCluster>::const_iterator vit = (it.data).begin(); vit != (it.data).end(); vit++) {
+        for (unsigned int imod : ModulesToBeExcluded) {
+          if (imod == thedetId.rawId())
             exclude_this_detid = true;
         }  // found in exclusion list
         if ((!exclude_this_detid) &&
@@ -58,9 +55,9 @@ namespace cms {
         {                                                    // calculate sum of amplitudes
           unsigned int amplclus = 0;
           // int amplclus=0;
-          for (auto ia = vit->amplitudes().begin(); ia != vit->amplitudes().end(); ia++) {
-            if ((*ia) > 0)
-              amplclus += (*ia);
+          for (unsigned char ia : vit->amplitudes()) {
+            if (ia > 0)
+              amplclus += ia;
           }  // why should this be negative?
           if (amplclus > ChargeThresholdTEC)
             nr_clusters_above_threshold++;

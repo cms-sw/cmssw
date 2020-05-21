@@ -159,9 +159,9 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
     dumpDigis(halfstrip, maxHalfStrips);
 
   // keeps dead-time zones around key halfstrips of triggered CLCTs
-  for (int i = 0; i < CSCConstants::NUM_HALF_STRIPS_7CFEBS; i++) {
+  for (auto& i : busyMap) {
     for (int j = 0; j < CSCConstants::MAX_CLCT_TBINS; j++) {
-      busyMap[i][j] = false;
+      i[j] = false;
     }
   }
 
@@ -231,8 +231,8 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
       if (hits_in_time) {
         // first, mark half-strip zones around pretriggers
         // that happened at the current first_bx
-        for (int hstrip = 0; hstrip < CSCConstants::NUM_HALF_STRIPS_7CFEBS; hstrip++)
-          pretrig_zone[hstrip] = false;
+        for (bool& hstrip : pretrig_zone)
+          hstrip = false;
         for (int hstrip = 0; hstrip < CSCConstants::NUM_HALF_STRIPS_7CFEBS; hstrip++) {
           if (ispretrig[hstrip]) {
             int min_hs = hstrip - pretrig_trig_zone;

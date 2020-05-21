@@ -122,28 +122,26 @@ void L1TUtmTriggerMenuDumper::beginRun(Run const& run, EventSetup const& iSetup)
     scale1 = &scaleMap.find("MU-ET")->second;
     std::vector<long long> lut_mu_et;
     getLut(lut_mu_et, scale1, precisions["PRECISION-EG-MU-MassPt"]);
-    for (size_t ii = 0; ii < lut_mu_et.size(); ii++) {
-      std::cout << lut_mu_et.at(ii) << "\n";
+    for (long long ii : lut_mu_et) {
+      std::cout << ii << "\n";
     }
   }
 
-  for (std::map<std::string, esAlgorithm>::const_iterator cit = algoMap.begin(); cit != algoMap.end(); cit++) {
-    const esAlgorithm& algo = cit->second;
+  for (const auto& cit : algoMap) {
+    const esAlgorithm& algo = cit.second;
     std::cout << "algo name = " << algo.getName() << "\n";
     std::cout << "algo exp. = " << algo.getExpression() << "\n";
     std::cout << "algo exp. in cond. = " << algo.getExpressionInCondition() << "\n";
 
     const std::vector<std::string>& rpn_vec = algo.getRpnVector();
-    for (size_t ii = 0; ii < rpn_vec.size(); ii++) {
-      const std::string& token = rpn_vec.at(ii);
+    for (const auto& token : rpn_vec) {
       if (Algorithm::isGate(token))
         continue;
       const esCondition& condition = condMap.find(token)->second;
       std::cout << "  cond type = " << condition.getType() << "\n";
 
       const std::vector<esCut>& cuts = condition.getCuts();
-      for (size_t jj = 0; jj < cuts.size(); jj++) {
-        const esCut& cut = cuts.at(jj);
+      for (const auto& cut : cuts) {
         std::cout << "    cut name = " << cut.getName() << "\n";
         std::cout << "    cut target = " << cut.getObjectType() << "\n";
         std::cout << "    cut type = " << cut.getCutType() << "\n";
@@ -153,8 +151,7 @@ void L1TUtmTriggerMenuDumper::beginRun(Run const& run, EventSetup const& iSetup)
       }
 
       const std::vector<esObject>& objects = condition.getObjects();
-      for (size_t jj = 0; jj < objects.size(); jj++) {
-        const esObject& object = objects.at(jj);
+      for (const auto& object : objects) {
         std::cout << "      obj name = " << object.getName() << "\n";
         std::cout << "      obj type = " << object.getType() << "\n";
         std::cout << "      obj op = " << object.getComparisonOperator() << "\n";
@@ -165,8 +162,7 @@ void L1TUtmTriggerMenuDumper::beginRun(Run const& run, EventSetup const& iSetup)
         }
 
         const std::vector<esCut>& cuts = object.getCuts();
-        for (size_t kk = 0; kk < cuts.size(); kk++) {
-          const esCut& cut = cuts.at(kk);
+        for (const auto& cut : cuts) {
           std::cout << "        cut name = " << cut.getName() << "\n";
           std::cout << "        cut target = " << cut.getObjectType() << "\n";
           std::cout << "        cut type = " << cut.getCutType() << "\n";

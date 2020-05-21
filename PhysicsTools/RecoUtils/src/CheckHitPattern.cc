@@ -38,17 +38,17 @@ void CheckHitPattern::init(const edm::EventSetup& iSetup) {
   const TrackingGeometry::DetContainer& dets = trackerGeometry->dets();
 
   // Loop over all modules in the Tracker.
-  for (unsigned int i = 0; i < dets.size(); i++) {
+  for (auto det : dets) {
     // Get subdet and layer of this module
-    DetInfo detInfo = this->interpretDetId(dets[i]->geographicalId(), tTopo);
+    DetInfo detInfo = this->interpretDetId(det->geographicalId(), tTopo);
     uint32_t subDet = detInfo.first;
 
     // Note r (or z) of module if barrel (or endcap).
     double r_or_z;
     if (this->barrel(subDet)) {
-      r_or_z = dets[i]->position().perp();
+      r_or_z = det->position().perp();
     } else {
-      r_or_z = fabs(dets[i]->position().z());
+      r_or_z = fabs(det->position().z());
     }
 
     // Recover min/max r/z value of this layer/disk found so far.

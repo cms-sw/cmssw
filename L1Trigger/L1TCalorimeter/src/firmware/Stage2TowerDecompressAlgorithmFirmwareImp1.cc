@@ -19,16 +19,16 @@ l1t::Stage2TowerDecompressAlgorithmFirmwareImp1::~Stage2TowerDecompressAlgorithm
 
 void l1t::Stage2TowerDecompressAlgorithmFirmwareImp1::processEvent(const std::vector<l1t::CaloTower>& inTowers,
                                                                    std::vector<l1t::CaloTower>& outTowers) {
-  for (auto tow = inTowers.begin(); tow != inTowers.end(); ++tow) {
+  for (const auto& inTower : inTowers) {
     if (!params_->doTowerEncoding()) {
-      outTowers.push_back(*tow);
+      outTowers.push_back(inTower);
 
     }
 
     else {
-      int sum = tow->hwPt();
-      int ratio = tow->hwEtRatio();
-      int qual = tow->hwQual();
+      int sum = inTower.hwPt();
+      int ratio = inTower.hwEtRatio();
+      int qual = inTower.hwQual();
 
       int denomCoeff = int((128. / (1. + pow(2, ratio))) + 0.5);
       int numCoeff = 128 - denomCoeff;
@@ -100,8 +100,8 @@ void l1t::Stage2TowerDecompressAlgorithmFirmwareImp1::processEvent(const std::ve
       had &= params_->towerMaskH();
 
       l1t::CaloTower newTow;
-      newTow.setHwEta(tow->hwEta());
-      newTow.setHwPhi(tow->hwPhi());
+      newTow.setHwEta(inTower.hwEta());
+      newTow.setHwPhi(inTower.hwPhi());
       newTow.setHwEtEm(em);
       newTow.setHwEtHad(had);
 

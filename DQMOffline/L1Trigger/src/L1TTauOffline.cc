@@ -141,8 +141,8 @@ void L1TTauOffline::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, 
   // book at beginRun
   bookTauHistos(ibooker);
 
-  for (auto trigNamesIt = triggerPath_.begin(); trigNamesIt != triggerPath_.end(); trigNamesIt++) {
-    std::string tNameTmp = (*trigNamesIt);
+  for (auto& trigNamesIt : triggerPath_) {
+    std::string tNameTmp = trigNamesIt;
     std::string tNamePattern = "";
     std::size_t found0 = tNameTmp.find("*");
     if (found0 != std::string::npos)
@@ -250,13 +250,13 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup) 
     l1tContainer.push_back(*tau);
   }
 
-  for (auto tauL1tPairsIt = m_TauL1tPairs.begin(); tauL1tPairsIt != m_TauL1tPairs.end(); ++tauL1tPairsIt) {
-    float eta = tauL1tPairsIt->eta();
-    float phi = tauL1tPairsIt->phi();
-    float pt = tauL1tPairsIt->pt();
+  for (auto& m_TauL1tPair : m_TauL1tPairs) {
+    float eta = m_TauL1tPair.eta();
+    float phi = m_TauL1tPair.phi();
+    float pt = m_TauL1tPair.pt();
 
     // unmatched gmt cands have l1tPt = -1.
-    float l1tPt = tauL1tPairsIt->l1tPt();
+    float l1tPt = m_TauL1tPair.l1tPt();
 
     int counter = 0;
 
@@ -274,21 +274,21 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup) 
         if (counter == 0) {
           if (fabs(eta) < 1.5) {
             h_L1TauETvsTauET_EB_->Fill(pt, l1tPt);
-            h_L1TauPhivsTauPhi_EB_->Fill(phi, tauL1tPairsIt->l1tPhi());
+            h_L1TauPhivsTauPhi_EB_->Fill(phi, m_TauL1tPair.l1tPhi());
             h_resolutionTauET_EB_->Fill((l1tPt - pt) / pt);
-            h_resolutionTauPhi_EB_->Fill(tauL1tPairsIt->l1tPhi() - phi);
+            h_resolutionTauPhi_EB_->Fill(m_TauL1tPair.l1tPhi() - phi);
           } else {
             h_L1TauETvsTauET_EE_->Fill(pt, l1tPt);
-            h_L1TauPhivsTauPhi_EE_->Fill(phi, tauL1tPairsIt->l1tPhi());
+            h_L1TauPhivsTauPhi_EE_->Fill(phi, m_TauL1tPair.l1tPhi());
             h_resolutionTauET_EE_->Fill((l1tPt - pt) / pt);
-            h_resolutionTauPhi_EE_->Fill(tauL1tPairsIt->l1tPhi() - phi);
+            h_resolutionTauPhi_EE_->Fill(m_TauL1tPair.l1tPhi() - phi);
           }
           h_L1TauETvsTauET_EB_EE_->Fill(pt, l1tPt);
-          h_L1TauPhivsTauPhi_EB_EE_->Fill(phi, tauL1tPairsIt->l1tPhi());
-          h_L1TauEtavsTauEta_->Fill(eta, tauL1tPairsIt->l1tEta());
+          h_L1TauPhivsTauPhi_EB_EE_->Fill(phi, m_TauL1tPair.l1tPhi());
+          h_L1TauEtavsTauEta_->Fill(eta, m_TauL1tPair.l1tEta());
           h_resolutionTauET_EB_EE_->Fill((l1tPt - pt) / pt);
-          h_resolutionTauPhi_EB_EE_->Fill(tauL1tPairsIt->l1tPhi() - phi);
-          h_resolutionTauEta_->Fill(tauL1tPairsIt->l1tEta() - eta);
+          h_resolutionTauPhi_EB_EE_->Fill(m_TauL1tPair.l1tPhi() - phi);
+          h_resolutionTauEta_->Fill(m_TauL1tPair.l1tEta() - eta);
 
           ++counter;
         }
@@ -310,7 +310,7 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup) 
             h_efficiencyNonIsoTauET_EE_pass_[threshold]->Fill(pt);
           h_efficiencyNonIsoTauET_EB_EE_pass_[threshold]->Fill(pt);
 
-          if (tauL1tPairsIt->l1tIso() > 0.5) {
+          if (m_TauL1tPair.l1tIso() > 0.5) {
             if (fabs(eta) < 1.5)
               h_efficiencyIsoTauET_EB_pass_[threshold]->Fill(pt);
             else
@@ -504,10 +504,10 @@ const reco::Vertex L1TTauOffline::getPrimaryVertex(edm::Handle<reco::VertexColle
   bool hasPrimaryVertex = false;
 
   if (vertex.isValid()) {
-    for (auto vertexIt = vertex->begin(); vertexIt != vertex->end(); ++vertexIt) {
-      if (vertexIt->isValid() && !vertexIt->isFake()) {
-        posVtx = vertexIt->position();
-        errVtx = vertexIt->error();
+    for (const auto& vertexIt : *vertex) {
+      if (vertexIt.isValid() && !vertexIt.isFake()) {
+        posVtx = vertexIt.position();
+        errVtx = vertexIt.error();
         hasPrimaryVertex = true;
         break;
       }
@@ -531,9 +531,9 @@ bool L1TTauOffline::matchHlt(edm::Handle<trigger::TriggerEvent> const& triggerEv
 
   trigger::TriggerObjectCollection trigObjs = triggerEvent->getObjects();
 
-  for (auto trigIndexIt = m_trigIndices.begin(); trigIndexIt != m_trigIndices.end(); ++trigIndexIt) {
-    const vector<string> moduleLabels(m_hltConfig.moduleLabels(*trigIndexIt));
-    const unsigned moduleIndex = m_hltConfig.size((*trigIndexIt)) - 2;
+  for (int& m_trigIndice : m_trigIndices) {
+    const vector<string> moduleLabels(m_hltConfig.moduleLabels(m_trigIndice));
+    const unsigned moduleIndex = m_hltConfig.size(m_trigIndice) - 2;
 
     const unsigned hltFilterIndex = triggerEvent->filterIndex(InputTag(moduleLabels[moduleIndex], "", trigProcess_));
 
@@ -565,11 +565,11 @@ void L1TTauOffline::getTauL1tPairs(edm::Handle<l1t::TauBxCollection> const& l1tC
     l1tContainer.push_back(*tau);
   }
 
-  for (auto probeTauIt = m_ProbeTaus.begin(); probeTauIt != m_ProbeTaus.end(); ++probeTauIt) {
-    TauL1TPair pairBestCand((*probeTauIt), nullptr);
+  for (auto& m_ProbeTau : m_ProbeTaus) {
+    TauL1TPair pairBestCand(m_ProbeTau, nullptr);
 
-    for (auto l1tIt = l1tContainer.begin(); l1tIt != l1tContainer.end(); ++l1tIt) {
-      TauL1TPair pairTmpCand((*probeTauIt), &(*l1tIt));
+    for (auto& l1tIt : l1tContainer) {
+      TauL1TPair pairTmpCand(m_ProbeTau, &l1tIt);
 
       if (pairTmpCand.dR() < m_MaxL1tTauDR && pairTmpCand.l1tPt() > pairBestCand.l1tPt())
         pairBestCand = pairTmpCand;
@@ -590,33 +590,33 @@ void L1TTauOffline::getTightMuons(edm::Handle<reco::MuonCollection> const& muons
 
   int nb_mu = 0;
 
-  for (auto muonIt2 = muons->begin(); muonIt2 != muons->end(); ++muonIt2) {
-    if (fabs(muonIt2->eta()) < 2.4 && muonIt2->pt() > 10 && muon::isLooseMuon((*muonIt2)) &&
-        (muonIt2->pfIsolationR04().sumChargedHadronPt +
-         max(muonIt2->pfIsolationR04().sumNeutralHadronEt + muonIt2->pfIsolationR04().sumPhotonEt -
-                 0.5 * muonIt2->pfIsolationR04().sumPUPt,
+  for (const auto& muonIt2 : *muons) {
+    if (fabs(muonIt2.eta()) < 2.4 && muonIt2.pt() > 10 && muon::isLooseMuon(muonIt2) &&
+        (muonIt2.pfIsolationR04().sumChargedHadronPt +
+         max(muonIt2.pfIsolationR04().sumNeutralHadronEt + muonIt2.pfIsolationR04().sumPhotonEt -
+                 0.5 * muonIt2.pfIsolationR04().sumPUPt,
              0.0)) /
-                muonIt2->pt() <
+                muonIt2.pt() <
             0.3) {
       ++nb_mu;
     }
   }
   bool foundTightMu = false;
-  for (auto muonIt = muons->begin(); muonIt != muons->end(); ++muonIt) {
-    if (!matchHlt(trigEvent, &(*muonIt)))
+  for (const auto& muonIt : *muons) {
+    if (!matchHlt(trigEvent, &muonIt))
       continue;
-    float muiso = (muonIt->pfIsolationR04().sumChargedHadronPt +
-                   max(muonIt->pfIsolationR04().sumNeutralHadronEt + muonIt->pfIsolationR04().sumPhotonEt -
-                           0.5 * muonIt->pfIsolationR04().sumPUPt,
+    float muiso = (muonIt.pfIsolationR04().sumChargedHadronPt +
+                   max(muonIt.pfIsolationR04().sumNeutralHadronEt + muonIt.pfIsolationR04().sumPhotonEt -
+                           0.5 * muonIt.pfIsolationR04().sumPUPt,
                        0.0)) /
-                  muonIt->pt();
+                  muonIt.pt();
 
-    if (muiso < 0.1 && nb_mu < 2 && !foundTightMu && fabs(muonIt->eta()) < 2.1 && muonIt->pt() > 24 &&
-        muon::isLooseMuon((*muonIt))) {
-      float mt = sqrt(pow(muonIt->pt() + pfmet->pt(), 2) - pow(muonIt->px() + pfmet->px(), 2) -
-                      pow(muonIt->py() + pfmet->py(), 2));
+    if (muiso < 0.1 && nb_mu < 2 && !foundTightMu && fabs(muonIt.eta()) < 2.1 && muonIt.pt() > 24 &&
+        muon::isLooseMuon(muonIt)) {
+      float mt = sqrt(pow(muonIt.pt() + pfmet->pt(), 2) - pow(muonIt.px() + pfmet->px(), 2) -
+                      pow(muonIt.py() + pfmet->py(), 2));
       if (mt < 30) {
-        m_TightMuons.push_back(&(*muonIt));
+        m_TightMuons.push_back(&muonIt);
         foundTightMu = true;
       }
     }

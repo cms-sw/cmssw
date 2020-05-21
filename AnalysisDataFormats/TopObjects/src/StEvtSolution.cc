@@ -157,6 +157,6 @@ void StEvtSolution::setGenEvt(const edm::Handle<StGenEvent>& aGenEvt) {
 // set other info on the event
 //-------------------------------------------
 void StEvtSolution::setScanValues(const std::vector<double>& val) {
-  for (unsigned int i = 0; i < val.size(); i++)
-    scanValues_.push_back(val[i]);
+  for (double i : val)
+    scanValues_.push_back(i);
 }

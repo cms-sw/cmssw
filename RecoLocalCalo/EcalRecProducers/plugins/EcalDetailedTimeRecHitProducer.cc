@@ -158,15 +158,15 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
 
   if (EBRecHits && ebTimeDigis) {
     // loop over uncalibrated rechits to make calibrated ones
-    for (EBRecHitCollection::const_iterator it = EBRecHits->begin(); it != EBRecHits->end(); ++it) {
-      EcalRecHit aHit((*it));
-      EcalTimeDigiCollection::const_iterator timeDigi = ebTimeDigis->find((*it).id());
+    for (const auto& EBRecHit : *EBRecHits) {
+      EcalRecHit aHit(EBRecHit);
+      EcalTimeDigiCollection::const_iterator timeDigi = ebTimeDigis->find(EBRecHit.id());
       if (timeDigi != ebTimeDigis->end()) {
         if (timeDigi->sampleOfInterest() >= 0) {
           float myTime = (*timeDigi)[timeDigi->sampleOfInterest()];
           //Vertex corrected ToF
           if (vertex) {
-            aHit.setTime(myTime + deltaTimeOfFlight(*vertex, (*it).id(), ebTimeLayer_));
+            aHit.setTime(myTime + deltaTimeOfFlight(*vertex, EBRecHit.id(), ebTimeLayer_));
           } else
             //Uncorrected ToF
             aHit.setTime(myTime);
@@ -179,15 +179,15 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
 
   if (EERecHits && eeTimeDigis) {
     // loop over uncalibrated rechits to make calibrated ones
-    for (EERecHitCollection::const_iterator it = EERecHits->begin(); it != EERecHits->end(); ++it) {
-      EcalRecHit aHit(*it);
-      EcalTimeDigiCollection::const_iterator timeDigi = eeTimeDigis->find((*it).id());
+    for (const auto& EERecHit : *EERecHits) {
+      EcalRecHit aHit(EERecHit);
+      EcalTimeDigiCollection::const_iterator timeDigi = eeTimeDigis->find(EERecHit.id());
       if (timeDigi != eeTimeDigis->end()) {
         if (timeDigi->sampleOfInterest() >= 0) {
           float myTime = (*timeDigi)[timeDigi->sampleOfInterest()];
           //Vertex corrected ToF
           if (vertex) {
-            aHit.setTime(myTime + deltaTimeOfFlight(*vertex, (*it).id(), eeTimeLayer_));
+            aHit.setTime(myTime + deltaTimeOfFlight(*vertex, EERecHit.id(), eeTimeLayer_));
           } else
             //Uncorrected ToF
             aHit.setTime(myTime);

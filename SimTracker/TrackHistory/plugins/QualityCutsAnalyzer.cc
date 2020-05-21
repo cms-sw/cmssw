@@ -283,8 +283,8 @@ void QualityCutsAnalyzer::endJob() {
 
     histogram_t histogram(particle);
 
-    for (std::size_t j = 0; j < histogram_data_[i].size(); j++)
-      histogram.Fill(histogram_data_[i][j]);
+    for (const auto &j : histogram_data_[i])
+      histogram.Fill(j);
 
     histogram.Write();
   }
@@ -329,27 +329,27 @@ void QualityCutsAnalyzer::LoopOverJetTracksAssociation(
 
     // get the tracks associated to the jet
     reco::TrackRefVector tracks = jetTracks->second;
-    for (std::size_t index = 0; index < tracks.size(); index++) {
-      edm::RefToBase<reco::Track> track(tracks[index]);
+    for (const auto &index : tracks) {
+      edm::RefToBase<reco::Track> track(index);
 
-      double pt = tracks[index]->pt();
-      double chi2 = tracks[index]->normalizedChi2();
-      int hits = tracks[index]->hitPattern().numberOfValidHits();
-      int pixelHits = tracks[index]->hitPattern().numberOfValidPixelHits();
+      double pt = index->pt();
+      double chi2 = index->normalizedChi2();
+      int hits = index->hitPattern().numberOfValidHits();
+      int pixelHits = index->hitPattern().numberOfValidPixelHits();
 
       if (hits < minimumNumberOfHits_ || pixelHits < minimumNumberOfPixelHits_ || pt < minimumTransverseMomentum_ ||
-          chi2 > maximumChiSquared_ || (!useAllQualities_ && !tracks[index]->quality(trackQuality_)))
+          chi2 > maximumChiSquared_ || (!useAllQualities_ && !index->quality(trackQuality_)))
         continue;
 
-      const reco::TransientTrack transientTrack = bproduct->build(&(*tracks[index]));
+      const reco::TransientTrack transientTrack = bproduct->build(&(*index));
       double dta = -IPTools::jetTrackDistance(transientTrack, direction, pv).second.value();
       double sdl = IPTools::signedDecayLength3D(transientTrack, direction, pv).second.value();
       double ips = IPTools::signedImpactParameter3D(transientTrack, direction, pv).second.value();
       double d0 = IPTools::signedTransverseImpactParameter(transientTrack, direction, pv).second.value();
-      double dz = tracks[index]->dz() - pvZ;
+      double dz = index->dz() - pvZ;
 
       // Classify the reco track;
-      classifier_.evaluate(edm::RefToBase<reco::Track>(tracks[index]));
+      classifier_.evaluate(edm::RefToBase<reco::Track>(index));
 
       // Check for the different categories
       if (classifier_.is(TrackClassifier::Fake))

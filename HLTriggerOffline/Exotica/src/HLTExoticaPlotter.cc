@@ -47,16 +47,14 @@ void HLTExoticaPlotter::plotterBookHistos(DQMStore::IBooker &iBooker,
                                           const edm::Run &iRun,
                                           const edm::EventSetup &iSetup) {
   LogDebug("ExoticaValidation") << "In HLTExoticaPlotter::plotterBookHistos()";
-  for (std::set<unsigned int>::iterator it = _objectsType.begin(); it != _objectsType.end(); ++it) {
+  for (unsigned int it : _objectsType) {
     std::vector<std::string> sources(2);
     sources[0] = "gen";
     sources[1] = "rec";
 
-    const std::string objTypeStr = EVTColContainer::getTypeString(*it);
+    const std::string objTypeStr = EVTColContainer::getTypeString(it);
 
-    for (size_t i = 0; i < sources.size(); i++) {
-      std::string source = sources[i];
-
+    for (auto source : sources) {
       if (source == "gen") {
         if (TString(objTypeStr).Contains("MET") || TString(objTypeStr).Contains("MHT") ||
             TString(objTypeStr).Contains("Jet")) {
@@ -72,7 +70,7 @@ void HLTExoticaPlotter::plotterBookHistos(DQMStore::IBooker &iBooker,
 
           // If the target is electron or muon,
           // we will add Dxy plots.
-          if (*it == EVTColContainer::ELEC || *it == EVTColContainer::MUON || *it == EVTColContainer::MUTRK) {
+          if (it == EVTColContainer::ELEC || it == EVTColContainer::MUON || it == EVTColContainer::MUTRK) {
             bookHist(iBooker, source, objTypeStr, "Dxy");
           }
         }
@@ -91,7 +89,7 @@ void HLTExoticaPlotter::plotterBookHistos(DQMStore::IBooker &iBooker,
 
           // If the target is electron or muon,
           // we will add Dxy plots.
-          if (*it == EVTColContainer::ELEC || *it == EVTColContainer::MUON || *it == EVTColContainer::MUTRK) {
+          if (it == EVTColContainer::ELEC || it == EVTColContainer::MUON || it == EVTColContainer::MUTRK) {
             bookHist(iBooker, source, objTypeStr, "Dxy");
           }
         }
@@ -112,8 +110,8 @@ void HLTExoticaPlotter::analyze(const bool &isPassTrigger,
 
   std::map<unsigned int, int> countobjects;
   // Initializing the count of the used object
-  for (std::set<unsigned int>::iterator co = _objectsType.begin(); co != _objectsType.end(); ++co) {
-    countobjects[*co] = 0;
+  for (unsigned int co : _objectsType) {
+    countobjects[co] = 0;
   }
 
   int counttotal = 0;

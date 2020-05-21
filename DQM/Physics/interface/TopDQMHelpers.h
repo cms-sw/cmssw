@@ -45,8 +45,8 @@ inline bool accept(const edm::Event& event,
                    const edm::TriggerResults& triggerTable,
                    const std::vector<std::string>& triggerPaths) {
   bool passed = false;
-  for (unsigned int j = 0; j < triggerPaths.size(); ++j) {
-    if (accept(event, triggerTable, triggerPaths[j])) {
+  for (const auto& triggerPath : triggerPaths) {
+    if (accept(event, triggerTable, triggerPath)) {
       passed = true;
       break;
     }

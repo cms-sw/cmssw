@@ -321,10 +321,10 @@ namespace edm {
 
       if (ZDCDigis) {
         // loop over digis, storing them in a map so we can add pileup later
-        for (ZDCDigiCollection::const_iterator it = ZDCDigis->begin(); it != ZDCDigis->end(); ++it) {
+        for (const auto &ZDCDigi : *ZDCDigis) {
           // calibration, for future reference:  (same block for all Hcal types)
           // ZDC is different
-          HcalZDCDetId cell = it->id();
+          HcalZDCDetId cell = ZDCDigi.id();
           //         const HcalCalibrations&
           //         calibrations=conditions->getHcalCalibrations(cell);
           const HcalQIECoder *channelCoder = conditions->getHcalCoder(cell);
@@ -332,9 +332,9 @@ namespace edm {
           HcalCoderDb coder(*channelCoder, *shape);
 
           CaloSamples tool;
-          coder.adc2fC((*it), tool);
+          coder.adc2fC(ZDCDigi, tool);
 
-          ZDCDigiStorage_.insert(ZDCDigiMap::value_type((it->id()), tool));
+          ZDCDigiStorage_.insert(ZDCDigiMap::value_type((ZDCDigi.id()), tool));
 
 #ifdef DEBUG
           // Commented out because this does not compile anymore
@@ -380,18 +380,18 @@ namespace edm {
         LogDebug("DataMixingHcalDigiWorker") << "total # ZDC digis: " << ZDCDigis->size();
 
         // loop over digis, adding these to the existing maps
-        for (ZDCDigiCollection::const_iterator it = ZDCDigis->begin(); it != ZDCDigis->end(); ++it) {
+        for (const auto &ZDCDigi : *ZDCDigis) {
           // calibration, for future reference:  (same block for all Hcal types)
           // ZDC is different
-          HcalZDCDetId cell = it->id();
+          HcalZDCDetId cell = ZDCDigi.id();
           const HcalQIECoder *channelCoder = conditions->getHcalCoder(cell);
           const HcalQIEShape *shape = conditions->getHcalShape(channelCoder);  // this one is generic
           HcalCoderDb coder(*channelCoder, *shape);
 
           CaloSamples tool;
-          coder.adc2fC((*it), tool);
+          coder.adc2fC(ZDCDigi, tool);
 
-          ZDCDigiStorage_.insert(ZDCDigiMap::value_type((it->id()), tool));
+          ZDCDigiStorage_.insert(ZDCDigiMap::value_type((ZDCDigi.id()), tool));
 
 #ifdef DEBUG
           // Commented out because this does not compile anymore

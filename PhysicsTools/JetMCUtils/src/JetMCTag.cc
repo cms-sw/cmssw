@@ -36,8 +36,8 @@ double JetMCTagUtils::EnergyRatioFromCHadrons(const Candidate &c) {
 bool JetMCTagUtils::decayFromBHadron(const Candidate &c) {
   bool isFromB = false;
   vector<const Candidate *> allParents = getAncestors(c);
-  for (vector<const Candidate *>::const_iterator aParent = allParents.begin(); aParent != allParents.end(); aParent++) {
-    if (hasBottom(**aParent))
+  for (auto allParent : allParents) {
+    if (hasBottom(*allParent))
       isFromB = true;
     /*
          cout << "     particle Parent is " << (*aParent)->status()
@@ -53,8 +53,8 @@ bool JetMCTagUtils::decayFromBHadron(const Candidate &c) {
 bool JetMCTagUtils::decayFromCHadron(const Candidate &c) {
   bool isFromC = false;
   vector<const Candidate *> allParents = getAncestors(c);
-  for (vector<const Candidate *>::const_iterator aParent = allParents.begin(); aParent != allParents.end(); aParent++) {
-    if (hasCharm(**aParent))
+  for (auto allParent : allParents) {
+    if (hasCharm(*allParent))
       isFromC = true;
     /*
          cout << "     particle Parent is " << (*aParent)->status()
@@ -75,9 +75,8 @@ std::string JetMCTagUtils::genTauDecayMode(const CompositePtrCandidate &c) {
   int numPhotons = 0;
 
   const CompositePtrCandidate::daughters &daughters = c.daughterPtrVector();
-  for (CompositePtrCandidate::daughters::const_iterator daughter = daughters.begin(); daughter != daughters.end();
-       ++daughter) {
-    int pdg_id = abs((*daughter)->pdgId());
+  for (const auto &daughter : daughters) {
+    int pdg_id = abs(daughter->pdgId());
 
     switch (pdg_id) {
       case 22:
@@ -90,7 +89,7 @@ std::string JetMCTagUtils::genTauDecayMode(const CompositePtrCandidate &c) {
         numMuons++;
         break;
       default: {
-        if ((*daughter)->charge() != 0)
+        if (daughter->charge() != 0)
           numChargedHadrons++;
         else
           numNeutralHadrons++;

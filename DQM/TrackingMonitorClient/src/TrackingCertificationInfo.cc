@@ -171,13 +171,13 @@ void TrackingCertificationInfo::bookTrackingCertificationMEs(DQMStore::IBooker& 
     else
       ibooker_.setCurrentFolder(TopFolderName_ + "/EventInfo/CertificationContents");
 
-    for (std::map<std::string, TrackingMEs>::iterator it = TrackingMEsMap.begin(); it != TrackingMEsMap.end(); it++) {
-      std::string meQTname = it->first;
+    for (auto& it : TrackingMEsMap) {
+      std::string meQTname = it.first;
       if (verbose_)
         std::cout << "[TrackingCertificationInfo::bookStatus] meQTname: " << meQTname << std::endl;
-      it->second.TrackingFlag = ibooker_.bookFloat("Track" + meQTname);
+      it.second.TrackingFlag = ibooker_.bookFloat("Track" + meQTname);
       if (verbose_)
-        std::cout << "[TrackingCertificationInfo::bookStatus] " << it->first << " exists ? " << it->second.TrackingFlag
+        std::cout << "[TrackingCertificationInfo::bookStatus] " << it.first << " exists ? " << it.second.TrackingFlag
                   << std::endl;
     }
 
@@ -216,14 +216,13 @@ void TrackingCertificationInfo::bookTrackingCertificationMEsAtLumi(DQMStore::IBo
     else
       ibooker_.setCurrentFolder(TopFolderName_ + "/EventInfo/CertificationContents");
 
-    for (std::map<std::string, TrackingLSMEs>::iterator it = TrackingLSMEsMap.begin(); it != TrackingLSMEsMap.end();
-         it++) {
-      std::string meQTname = it->first;
+    for (auto& it : TrackingLSMEsMap) {
+      std::string meQTname = it.first;
       if (verbose_)
         std::cout << "[TrackingCertificationInfo::bookStatus] meQTname: " << meQTname << std::endl;
-      it->second.TrackingFlag = ibooker_.bookFloat("Track" + meQTname);
+      it.second.TrackingFlag = ibooker_.bookFloat("Track" + meQTname);
       if (verbose_)
-        std::cout << "[TrackingCertificationInfo::bookStatus] " << it->first << " exists ? " << it->second.TrackingFlag
+        std::cout << "[TrackingCertificationInfo::bookStatus] " << it.first << " exists ? " << it.second.TrackingFlag
                   << std::endl;
     }
 
@@ -316,8 +315,7 @@ void TrackingCertificationInfo::fillTrackingCertificationMEs(DQMStore::IBooker& 
   }
 
   int xbin = (checkPixelFEDs_ ? 1 : 0);
-  for (std::vector<MonitorElement*>::const_iterator ime = all_mes.begin(); ime != all_mes.end(); ime++) {
-    MonitorElement* me = (*ime);
+  for (auto me : all_mes) {
     if (!me)
       continue;
     if (verbose_)
@@ -451,8 +449,7 @@ void TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi(DQMStore::IBo
   if (verbose_)
     std::cout << "all_mes: " << all_mes.size() << std::endl;
 
-  for (std::vector<MonitorElement*>::const_iterator ime = all_mes.begin(); ime != all_mes.end(); ime++) {
-    MonitorElement* me = (*ime);
+  for (auto me : all_mes) {
     if (!me)
       continue;
     if (verbose_)

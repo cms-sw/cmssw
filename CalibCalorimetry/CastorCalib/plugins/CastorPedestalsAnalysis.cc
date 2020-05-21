@@ -294,8 +294,8 @@ void CastorPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup
     iSetup.get<CastorElectronicsMapRcd>().get(refEMap);
     const CastorElectronicsMap* myRefEMap = refEMap.product();
     std::vector<HcalGenericDetId> listEMap = myRefEMap->allPrecisionId();
-    for (std::vector<HcalGenericDetId>::const_iterator it = listEMap.begin(); it != listEMap.end(); ++it) {
-      HcalGenericDetId mygenid(it->rawId());
+    for (auto it : listEMap) {
+      HcalGenericDetId mygenid(it.rawId());
       if (mygenid.isHcalCastorDetId()) {
         NewPedBunch a;
         HcalCastorDetId chanid(mygenid.rawId());
@@ -322,8 +322,8 @@ void CastorPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup
 
   std::vector<NewPedBunch>::iterator bunch_it;
 
-  for (CastorDigiCollection::const_iterator j = castor->begin(); j != castor->end(); ++j) {
-    const CastorDataFrame digi = (const CastorDataFrame)(*j);
+  for (const auto& j : *castor) {
+    const CastorDataFrame digi = (const CastorDataFrame)j;
     for (bunch_it = Bunches.begin(); bunch_it != Bunches.end(); ++bunch_it)
       if (bunch_it->detid.rawId() == digi.id().rawId())
         break;

@@ -148,41 +148,39 @@ float EcalClusterLazyToolsBase::BasicClusterTime(const reco::BasicCluster &clust
   float weightedTsum = 0;
   float sumOfWeights = 0;
 
-  for (std::vector<std::pair<DetId, float> >::const_iterator detitr = clusterComponents.begin();
-       detitr != clusterComponents.end();
-       detitr++) {
+  for (const auto &clusterComponent : clusterComponents) {
     //      EcalRecHitCollection::const_iterator theSeedHit = recHits->find (id); // trash this
-    EcalRecHitCollection::const_iterator oneHit = recHits->find((detitr->first));
+    EcalRecHitCollection::const_iterator oneHit = recHits->find((clusterComponent.first));
 
     // in order to get back the ADC counts from the recHit energy, three ingredients are necessary:
     // 1) get laser correction coefficient
     float lasercalib = 1.;
-    lasercalib = laser->getLaserCorrection(detitr->first, ev.time());
+    lasercalib = laser->getLaserCorrection(clusterComponent.first, ev.time());
     // 2) get intercalibration
-    EcalIntercalibConstantMap::const_iterator icalit = icalMap->find(detitr->first);
+    EcalIntercalibConstantMap::const_iterator icalit = icalMap->find(clusterComponent.first);
     EcalIntercalibConstant icalconst = 1.;
     if (icalit != icalMap->end()) {
       icalconst = (*icalit);
       // std::cout << "icalconst set to: " << icalconst << std::endl;
     } else {
       edm::LogError("EcalClusterLazyTools")
-          << "No intercalib const found for xtal " << (detitr->first).rawId() << "bailing out";
+          << "No intercalib const found for xtal " << (clusterComponent.first).rawId() << "bailing out";
       assert(false);
     }
     // 3) get adc2GeV
     float adcToGeV = 1.;
-    if ((detitr->first).subdetId() == EcalBarrel)
+    if ((clusterComponent.first).subdetId() == EcalBarrel)
       adcToGeV = float(agc->getEBValue());
-    else if ((detitr->first).subdetId() == EcalEndcap)
+    else if ((clusterComponent.first).subdetId() == EcalEndcap)
       adcToGeV = float(agc->getEEValue());
     float adc = 2.;
     if (icalconst > 0 && lasercalib > 0 && adcToGeV > 0)
       adc = (*oneHit).energy() / (icalconst * lasercalib * adcToGeV);
 
     // don't consider recHits with too little amplitude; take sigma_noise_total into account
-    if ((detitr->first).subdetId() == EcalBarrel && adc < (1.1 * 20))
+    if ((clusterComponent.first).subdetId() == EcalBarrel && adc < (1.1 * 20))
       continue;
-    if ((detitr->first).subdetId() == EcalEndcap && adc < (2.2 * 20))
+    if ((clusterComponent.first).subdetId() == EcalEndcap && adc < (2.2 * 20))
       continue;
 
     // count only on rechits whose error is trusted by the method (ratio)
@@ -407,8 +405,8 @@ std::vector<float> EcalClusterLazyToolsBase::getESHits(double X,
 float EcalClusterLazyToolsBase::getESShape(const std::vector<float> &ESHits0) {
   const int nBIN = 21;
   float esRH[nBIN];
-  for (int idx = 0; idx < nBIN; idx++) {
-    esRH[idx] = 0.;
+  for (float &idx : esRH) {
+    idx = 0.;
   }
 
   for (int ibin = 0; ibin < ((nBIN + 1) / 2); ibin++) {

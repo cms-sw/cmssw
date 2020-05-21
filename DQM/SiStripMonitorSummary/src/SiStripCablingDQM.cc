@@ -42,20 +42,20 @@ void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup &eSetup) {
 
   // Initialize arrays for counting:
   int counterTIB[4];
-  for (int i = 0; i < 4; i++)
-    counterTIB[i] = 0;
+  for (int &i : counterTIB)
+    i = 0;
   int counterTID[2][3];
-  for (int i = 0; i < 2; i++) {
+  for (auto &i : counterTID) {
     for (int j = 0; j < 3; j++)
-      counterTID[i][j] = 0;
+      i[j] = 0;
   }
   int counterTOB[6];
-  for (int i = 0; i < 6; i++)
-    counterTOB[i] = 0;
+  for (int &i : counterTOB)
+    i = 0;
   int counterTEC[2][9];
-  for (int i = 0; i < 2; i++) {
+  for (auto &i : counterTEC) {
     for (int j = 0; j < 9; j++)
-      counterTEC[i][j] = 0;
+      i[j] = 0;
   }
 
   std::vector<uint32_t>::const_iterator idet = activeDetIds.begin();
@@ -70,9 +70,8 @@ void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup &eSetup) {
     }
     if (fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")) {
       int32_t n_conn = 0;
-      for (uint32_t connDet_i = 0; connDet_i < cablingHandle_->getConnections(detId).size(); connDet_i++) {
-        if (cablingHandle_->getConnections(detId)[connDet_i] != nullptr &&
-            cablingHandle_->getConnections(detId)[connDet_i]->isConnected() != 0)
+      for (auto connDet_i : cablingHandle_->getConnections(detId)) {
+        if (connDet_i != nullptr && connDet_i->isConnected() != 0)
           n_conn++;
       }
       fillTkMap(detId, n_conn * 2.);

@@ -113,17 +113,17 @@ void JetTracksAssociationDRCalo::produce(reco::JetTracksAssociation::Container* 
     }
   }
 
-  for (unsigned j = 0; j < fJets.size(); ++j) {
+  for (const auto& fJet : fJets) {
     reco::TrackRefVector assoTracks;
-    const reco::Jet* jet = &*(fJets[j]);
+    const reco::Jet* jet = &*fJet;
     double jetEta = jet->eta();
     double jetPhi = jet->phi();
-    for (unsigned t = 0; t < impacts.size(); ++t) {
-      double dR2 = deltaR2(jetEta, jetPhi, impacts[t].eta, impacts[t].phi);
+    for (auto& impact : impacts) {
+      double dR2 = deltaR2(jetEta, jetPhi, impact.eta, impact.phi);
       if (dR2 < mDeltaR2Threshold)
-        assoTracks.push_back(fTracks[impacts[t].index]);
+        assoTracks.push_back(fTracks[impact.index]);
     }
-    reco::JetTracksAssociation::setValue(fAssociation, fJets[j], assoTracks);
+    reco::JetTracksAssociation::setValue(fAssociation, fJet, assoTracks);
   }
 }
 

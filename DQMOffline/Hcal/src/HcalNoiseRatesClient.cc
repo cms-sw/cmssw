@@ -33,18 +33,18 @@ void HcalNoiseRatesClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGett
   // folders i.e., CaloTowersD/CaloTowersTask, HcalRecHitsD/HcalRecHitTask,
   // HcalNoiseRatesD/NoiseRatesTask.
   std::vector<std::string> fullPathHLTFolders = igetter.getSubdirs();
-  for (unsigned int i = 0; i < fullPathHLTFolders.size(); i++) {
+  for (const auto &fullPathHLTFolder : fullPathHLTFolders) {
     if (verbose_)
-      std::cout << "\nfullPath: " << fullPathHLTFolders[i] << std::endl;
-    igetter.setCurrentFolder(fullPathHLTFolders[i]);
+      std::cout << "\nfullPath: " << fullPathHLTFolder << std::endl;
+    igetter.setCurrentFolder(fullPathHLTFolder);
 
     std::vector<std::string> fullSubPathHLTFolders = igetter.getSubdirs();
-    for (unsigned int j = 0; j < fullSubPathHLTFolders.size(); j++) {
+    for (auto &fullSubPathHLTFolder : fullSubPathHLTFolders) {
       if (verbose_)
-        std::cout << "fullSub: " << fullSubPathHLTFolders[j] << std::endl;
+        std::cout << "fullSub: " << fullSubPathHLTFolder << std::endl;
 
-      if (strcmp(fullSubPathHLTFolders[j].c_str(), "HcalNoiseRatesD/NoiseRatesTask") == 0) {
-        hcalMEs = igetter.getContents(fullSubPathHLTFolders[j]);
+      if (strcmp(fullSubPathHLTFolder.c_str(), "HcalNoiseRatesD/NoiseRatesTask") == 0) {
+        hcalMEs = igetter.getContents(fullSubPathHLTFolder);
         if (verbose_)
           std::cout << "hltMES size : " << hcalMEs.size() << std::endl;
         if (!NoiseRatesEndjob(hcalMEs))
@@ -59,9 +59,9 @@ void HcalNoiseRatesClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGett
 int HcalNoiseRatesClient::NoiseRatesEndjob(const std::vector<MonitorElement *> &hcalMEs) {
   int useAllHistos = 0;
   MonitorElement *hLumiBlockCount = nullptr;
-  for (unsigned int ih = 0; ih < hcalMEs.size(); ih++) {
-    if (strcmp(hcalMEs[ih]->getName().c_str(), "hLumiBlockCount") == 0) {
-      hLumiBlockCount = hcalMEs[ih];
+  for (auto hcalME : hcalMEs) {
+    if (strcmp(hcalME->getName().c_str(), "hLumiBlockCount") == 0) {
+      hLumiBlockCount = hcalME;
       useAllHistos = 1;
     }
   }

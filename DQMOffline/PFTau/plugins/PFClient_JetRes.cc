@@ -35,13 +35,11 @@ void PFClient_JetRes::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &i
 // -- Create Summaries
 //
 void PFClient_JetRes::doSummaries(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
-  for (std::vector<std::string>::const_iterator ifolder = folderNames_.begin(); ifolder != folderNames_.end();
-       ifolder++) {
-    std::string path = "ParticleFlow/" + (*ifolder);
+  for (const auto &folderName : folderNames_) {
+    std::string path = "ParticleFlow/" + folderName;
 
-    for (std::vector<std::string>::const_iterator ihist = histogramNames_.begin(); ihist != histogramNames_.end();
-         ihist++) {
-      std::string hname = (*ihist);
+    for (const auto &histogramName : histogramNames_) {
+      std::string hname = histogramName;
       createResolutionPlots(ibooker, igetter, path, hname);
     }
   }
@@ -51,13 +49,11 @@ void PFClient_JetRes::doSummaries(DQMStore::IBooker &ibooker, DQMStore::IGetter 
 // -- Create Efficiency
 //
 void PFClient_JetRes::doEfficiency(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
-  for (std::vector<std::string>::const_iterator ifolder = folderNames_.begin(); ifolder != folderNames_.end();
-       ifolder++) {
-    std::string path = "ParticleFlow/" + (*ifolder);
+  for (const auto &folderName : folderNames_) {
+    std::string path = "ParticleFlow/" + folderName;
 
-    for (std::vector<std::string>::const_iterator ihist = effHistogramNames_.begin(); ihist != effHistogramNames_.end();
-         ihist++) {
-      std::string hname = (*ihist);
+    for (const auto &effHistogramName : effHistogramNames_) {
+      std::string hname = effHistogramName;
       createEfficiencyPlots(ibooker, igetter, path, hname);
     }
   }

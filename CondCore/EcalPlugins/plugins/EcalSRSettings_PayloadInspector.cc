@@ -70,10 +70,8 @@ namespace {
           align->Fill(2.5, gridRows - i - 0.5, i + 1);
         }
 
-        for (std::vector<float>::const_iterator it = ecalSR.srpLowInterestChannelZS_.begin();
-             it != ecalSR.srpLowInterestChannelZS_.end();
-             it++) {
-          align->Fill(column, row, *it);
+        for (float it : ecalSR.srpLowInterestChannelZS_) {
+          align->Fill(column, row, it);
 
           cnt++;
           column = floor(1.0 * cnt / maxInCol) + 3.5;
@@ -84,10 +82,8 @@ namespace {
         column = 3.5;
         cnt = 0;
 
-        for (std::vector<float>::const_iterator it = ecalSR.srpHighInterestChannelZS_.begin();
-             it != ecalSR.srpHighInterestChannelZS_.end();
-             it++) {
-          align->Fill(column + offset, row, *it);
+        for (float it : ecalSR.srpHighInterestChannelZS_) {
+          align->Fill(column + offset, row, it);
 
           cnt++;
           column = floor(1.0 * cnt / maxInCol) + 3.5;

@@ -83,10 +83,10 @@ void FactorizedJetCorrectorDemo::analyze(const edm::Event& iEvent, const edm::Ev
   iSetup.get<JetCorrectionsRecord>().get(mPayloadName, parameters);
 
   std::vector<JetCorrectorParameters> params;
-  for (std::vector<std::string>::const_iterator level = mLevels.begin(); level != mLevels.end(); ++level) {
-    const JetCorrectorParameters& ip = (*parameters)[*level];  //ip.printScreen();
+  for (const auto& mLevel : mLevels) {
+    const JetCorrectorParameters& ip = (*parameters)[mLevel];  //ip.printScreen();
     if (mDebug)
-      std::cout << "Adding level " << *level << std::endl;
+      std::cout << "Adding level " << mLevel << std::endl;
     params.push_back(ip);
   }
 

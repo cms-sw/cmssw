@@ -167,8 +167,8 @@ namespace ZdcSimpleRecAlgoImpl {
     int CurrentTS = 0;
     double noise = 0;
     // regular energy (both use same noise)
-    for (unsigned int iv = 0; iv < myNoiseTS.size(); ++iv) {
-      CurrentTS = myNoiseTS[iv];
+    for (unsigned int iv : myNoiseTS) {
+      CurrentTS = iv;
       if (CurrentTS >= digi.size())
         continue;
       Allnoise += tool[CurrentTS];
@@ -179,8 +179,8 @@ namespace ZdcSimpleRecAlgoImpl {
     } else {
       noise = 0;
     }
-    for (unsigned int ivs = 0; ivs < mySignalTS.size(); ++ivs) {
-      CurrentTS = mySignalTS[ivs];
+    for (unsigned int ivs : mySignalTS) {
+      CurrentTS = ivs;
       if (CurrentTS >= digi.size())
         continue;
       int capid = digi[CurrentTS].capid();
@@ -199,8 +199,8 @@ namespace ZdcSimpleRecAlgoImpl {
       }
     }
     // calculate low Gain Energy (in 2010 PbPb, signal TS 4,5,6, lowGain TS: 6,7,8)
-    for (unsigned int iLGvs = 0; iLGvs < mySignalTS.size(); ++iLGvs) {
-      CurrentTS = mySignalTS[iLGvs] + lowGainOffset;
+    for (unsigned int iLGvs : mySignalTS) {
+      CurrentTS = iLGvs + lowGainOffset;
       if (CurrentTS >= digi.size())
         continue;
       int capid = digi[CurrentTS].capid();

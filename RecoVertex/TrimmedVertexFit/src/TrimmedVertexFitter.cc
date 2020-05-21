@@ -24,8 +24,8 @@ CachingVertex<5> TrimmedVertexFitter::vertex(const std::vector<reco::TransientTr
     VertexState state(rv.position(), rv.positionError());
     std::vector<RefCountedVertexTrack> vtrks;
     std::vector<reco::TransientTrack> mytrks = rv.originalTracks();
-    for (std::vector<reco::TransientTrack>::const_iterator rt = mytrks.begin(); rt != mytrks.end(); ++rt) {
-      RefCountedLinearizedTrackState lstate = lfac.linearizedTrackState(rv.position(), *rt);
+    for (const auto& mytrk : mytrks) {
+      RefCountedLinearizedTrackState lstate = lfac.linearizedTrackState(rv.position(), mytrk);
 
       RefCountedVertexTrack vtrk = vfac.vertexTrack(lstate, state, 1.0);
       vtrks.push_back(vtrk);

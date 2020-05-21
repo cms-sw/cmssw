@@ -252,11 +252,11 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
 
   // Parse efficiency commands
   vstring effCmds = pset.getParameter<vstring>("efficiency");
-  for (vstring::const_iterator effCmd = effCmds.begin(); effCmd != effCmds.end(); ++effCmd) {
-    if (effCmd->empty())
+  for (const auto& effCmd : effCmds) {
+    if (effCmd.empty())
       continue;
 
-    boost::tokenizer<elsc> tokens(*effCmd, commonEscapes);
+    boost::tokenizer<elsc> tokens(effCmd, commonEscapes);
 
     vector<string> args;
     for (boost::tokenizer<elsc>::const_iterator iToken = tokens.begin(); iToken != tokens.end(); ++iToken) {
@@ -291,15 +291,15 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
   }
 
   VPSet efficSets = pset.getUntrackedParameter<VPSet>("efficiencySets", VPSet());
-  for (VPSet::const_iterator efficSet = efficSets.begin(); efficSet != efficSets.end(); ++efficSet) {
+  for (const auto& efficSet : efficSets) {
     EfficOption opt;
-    opt.name = efficSet->getUntrackedParameter<string>("name");
-    opt.title = efficSet->getUntrackedParameter<string>("title");
-    opt.numerator = efficSet->getUntrackedParameter<string>("numerator");
-    opt.denominator = efficSet->getUntrackedParameter<string>("denominator");
+    opt.name = efficSet.getUntrackedParameter<string>("name");
+    opt.title = efficSet.getUntrackedParameter<string>("title");
+    opt.numerator = efficSet.getUntrackedParameter<string>("numerator");
+    opt.denominator = efficSet.getUntrackedParameter<string>("denominator");
     opt.isProfile = false;
 
-    const string typeName = efficSet->getUntrackedParameter<string>("typeName", "eff");
+    const string typeName = efficSet.getUntrackedParameter<string>("typeName", "eff");
     if (typeName == "eff")
       opt.type = EfficType::efficiency;
     else if (typeName == "fake")
@@ -314,12 +314,11 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
 
   // Parse efficiency profiles
   vstring effProfileCmds = pset.getUntrackedParameter<vstring>("efficiencyProfile", vstring());
-  for (vstring::const_iterator effProfileCmd = effProfileCmds.begin(); effProfileCmd != effProfileCmds.end();
-       ++effProfileCmd) {
-    if (effProfileCmd->empty())
+  for (const auto& effProfileCmd : effProfileCmds) {
+    if (effProfileCmd.empty())
       continue;
 
-    boost::tokenizer<elsc> tokens(*effProfileCmd, commonEscapes);
+    boost::tokenizer<elsc> tokens(effProfileCmd, commonEscapes);
 
     vector<string> args;
     for (boost::tokenizer<elsc>::const_iterator iToken = tokens.begin(); iToken != tokens.end(); ++iToken) {
@@ -354,16 +353,15 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
   }
 
   VPSet effProfileSets = pset.getUntrackedParameter<VPSet>("efficiencyProfileSets", VPSet());
-  for (VPSet::const_iterator effProfileSet = effProfileSets.begin(); effProfileSet != effProfileSets.end();
-       ++effProfileSet) {
+  for (const auto& effProfileSet : effProfileSets) {
     EfficOption opt;
-    opt.name = effProfileSet->getUntrackedParameter<string>("name");
-    opt.title = effProfileSet->getUntrackedParameter<string>("title");
-    opt.numerator = effProfileSet->getUntrackedParameter<string>("numerator");
-    opt.denominator = effProfileSet->getUntrackedParameter<string>("denominator");
+    opt.name = effProfileSet.getUntrackedParameter<string>("name");
+    opt.title = effProfileSet.getUntrackedParameter<string>("title");
+    opt.numerator = effProfileSet.getUntrackedParameter<string>("numerator");
+    opt.denominator = effProfileSet.getUntrackedParameter<string>("denominator");
     opt.isProfile = true;
 
-    const string typeName = effProfileSet->getUntrackedParameter<string>("typeName", "eff");
+    const string typeName = effProfileSet.getUntrackedParameter<string>("typeName", "eff");
     if (typeName == "eff")
       opt.type = EfficType::efficiency;
     else if (typeName == "fake")
@@ -378,10 +376,10 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
 
   // Parse resolution commands
   vstring resCmds = pset.getParameter<vstring>("resolution");
-  for (vstring::const_iterator resCmd = resCmds.begin(); resCmd != resCmds.end(); ++resCmd) {
-    if (resCmd->empty())
+  for (const auto& resCmd : resCmds) {
+    if (resCmd.empty())
       continue;
-    boost::tokenizer<elsc> tokens(*resCmd, commonEscapes);
+    boost::tokenizer<elsc> tokens(resCmd, commonEscapes);
 
     vector<string> args;
     for (boost::tokenizer<elsc>::const_iterator iToken = tokens.begin(); iToken != tokens.end(); ++iToken) {
@@ -404,11 +402,11 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
   }
 
   VPSet resolSets = pset.getUntrackedParameter<VPSet>("resolutionSets", VPSet());
-  for (VPSet::const_iterator resolSet = resolSets.begin(); resolSet != resolSets.end(); ++resolSet) {
+  for (const auto& resolSet : resolSets) {
     ResolOption opt;
-    opt.namePrefix = resolSet->getUntrackedParameter<string>("namePrefix");
-    opt.titlePrefix = resolSet->getUntrackedParameter<string>("titlePrefix");
-    opt.srcName = resolSet->getUntrackedParameter<string>("srcName");
+    opt.namePrefix = resolSet.getUntrackedParameter<string>("namePrefix");
+    opt.titlePrefix = resolSet.getUntrackedParameter<string>("titlePrefix");
+    opt.srcName = resolSet.getUntrackedParameter<string>("srcName");
 
     resolOptions_.push_back(opt);
   }
@@ -450,10 +448,10 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
 
   // Parse Normalization commands
   vstring normCmds = pset.getUntrackedParameter<vstring>("normalization", vstring());
-  for (vstring::const_iterator normCmd = normCmds.begin(); normCmd != normCmds.end(); ++normCmd) {
-    if (normCmd->empty())
+  for (const auto& normCmd : normCmds) {
+    if (normCmd.empty())
       continue;
-    boost::tokenizer<elsc> tokens(*normCmd, commonEscapes);
+    boost::tokenizer<elsc> tokens(normCmd, commonEscapes);
 
     vector<string> args;
     for (boost::tokenizer<elsc>::const_iterator iToken = tokens.begin(); iToken != tokens.end(); ++iToken) {
@@ -475,20 +473,20 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
   }
 
   VPSet normSets = pset.getUntrackedParameter<VPSet>("normalizationSets", VPSet());
-  for (VPSet::const_iterator normSet = normSets.begin(); normSet != normSets.end(); ++normSet) {
+  for (const auto& normSet : normSets) {
     NormOption opt;
-    opt.name = normSet->getUntrackedParameter<string>("name");
-    opt.normHistName = normSet->getUntrackedParameter<string>("normalizedTo", opt.name);
+    opt.name = normSet.getUntrackedParameter<string>("name");
+    opt.normHistName = normSet.getUntrackedParameter<string>("normalizedTo", opt.name);
 
     normOptions_.push_back(opt);
   }
 
   // Cumulative distributions
   vstring cdCmds = pset.getUntrackedParameter<vstring>("cumulativeDists", vstring());
-  for (vstring::const_iterator cdCmd = cdCmds.begin(); cdCmd != cdCmds.end(); ++cdCmd) {
-    if (cdCmd->empty())
+  for (const auto& cdCmd : cdCmds) {
+    if (cdCmd.empty())
       continue;
-    boost::tokenizer<elsc> tokens(*cdCmd, commonEscapes);
+    boost::tokenizer<elsc> tokens(cdCmd, commonEscapes);
 
     vector<string> args;
     for (boost::tokenizer<elsc>::const_iterator iToken = tokens.begin(); iToken != tokens.end(); ++iToken) {
@@ -510,20 +508,20 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
   }
 
   VPSet cdSets = pset.getUntrackedParameter<VPSet>("cumulativeDistSets", VPSet());
-  for (VPSet::const_iterator cdSet = cdSets.begin(); cdSet != cdSets.end(); ++cdSet) {
+  for (const auto& cdSet : cdSets) {
     CDOption opt;
-    opt.name = cdSet->getUntrackedParameter<string>("name");
-    opt.ascending = cdSet->getUntrackedParameter<bool>("ascending", true);
+    opt.name = cdSet.getUntrackedParameter<string>("name");
+    opt.ascending = cdSet.getUntrackedParameter<bool>("ascending", true);
 
     cdOptions_.push_back(opt);
   }
 
   // move under/overflows to first/last bins
   vstring noFlowCmds = pset.getUntrackedParameter<vstring>("noFlowDists", vstring());
-  for (vstring::const_iterator noFlowCmd = noFlowCmds.begin(); noFlowCmd != noFlowCmds.end(); ++noFlowCmd) {
-    if (noFlowCmd->empty())
+  for (const auto& noFlowCmd : noFlowCmds) {
+    if (noFlowCmd.empty())
       continue;
-    boost::tokenizer<elsc> tokens(*noFlowCmd, commonEscapes);
+    boost::tokenizer<elsc> tokens(noFlowCmd, commonEscapes);
 
     vector<string> args;
     for (boost::tokenizer<elsc>::const_iterator iToken = tokens.begin(); iToken != tokens.end(); ++iToken) {
@@ -544,9 +542,9 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
   }
 
   VPSet noFlowSets = pset.getUntrackedParameter<VPSet>("noFlowDistSets", VPSet());
-  for (VPSet::const_iterator noFlowSet = noFlowSets.begin(); noFlowSet != noFlowSets.end(); ++noFlowSet) {
+  for (const auto& noFlowSet : noFlowSets) {
     NoFlowOption opt;
-    opt.name = noFlowSet->getUntrackedParameter<string>("name");
+    opt.name = noFlowSet.getUntrackedParameter<string>("name");
 
     noFlowOptions_.push_back(opt);
   }
@@ -601,9 +599,7 @@ void DQMGenericClient::makeAllPlots(DQMStore::IBooker& ibooker, DQMStore::IGette
   // Process wildcard in the sub-directory
   set<string> subDirSet;
 
-  for (vstring::const_iterator iSubDir = subDirs_.begin(); iSubDir != subDirs_.end(); ++iSubDir) {
-    string subDir = *iSubDir;
-
+  for (auto subDir : subDirs_) {
     if (subDir[subDir.size() - 1] == '/')
       subDir.erase(subDir.size() - 1);
 
@@ -622,44 +618,37 @@ void DQMGenericClient::makeAllPlots(DQMStore::IBooker& ibooker, DQMStore::IGette
     }
   }
 
-  for (set<string>::const_iterator iSubDir = subDirSet.begin(); iSubDir != subDirSet.end(); ++iSubDir) {
-    const string& dirName = *iSubDir;
-
+  for (const auto& dirName : subDirSet) {
     // First normalize, then move under/overflows, then make
     // cumulative, and only then efficiency This allows to use the
     // cumulative distributions for efficiency calculation
-    for (vector<NormOption>::const_iterator normOption = normOptions_.begin(); normOption != normOptions_.end();
-         ++normOption) {
-      normalizeToEntries(ibooker, igetter, dirName, normOption->name, normOption->normHistName);
+    for (const auto& normOption : normOptions_) {
+      normalizeToEntries(ibooker, igetter, dirName, normOption.name, normOption.normHistName);
     }
 
-    for (vector<NoFlowOption>::const_iterator noFlowOption = noFlowOptions_.begin();
-         noFlowOption != noFlowOptions_.end();
-         ++noFlowOption) {
-      makeNoFlowDist(ibooker, igetter, dirName, noFlowOption->name);
+    for (const auto& noFlowOption : noFlowOptions_) {
+      makeNoFlowDist(ibooker, igetter, dirName, noFlowOption.name);
     }
 
-    for (vector<CDOption>::const_iterator cdOption = cdOptions_.begin(); cdOption != cdOptions_.end(); ++cdOption) {
-      makeCumulativeDist(ibooker, igetter, dirName, cdOption->name, cdOption->ascending);
+    for (const auto& cdOption : cdOptions_) {
+      makeCumulativeDist(ibooker, igetter, dirName, cdOption.name, cdOption.ascending);
     }
 
-    for (vector<EfficOption>::const_iterator efficOption = efficOptions_.begin(); efficOption != efficOptions_.end();
-         ++efficOption) {
+    for (const auto& efficOption : efficOptions_) {
       computeEfficiency(ibooker,
                         igetter,
                         dirName,
-                        efficOption->name,
-                        efficOption->title,
-                        efficOption->numerator,
-                        efficOption->denominator,
-                        efficOption->type,
-                        efficOption->isProfile);
+                        efficOption.name,
+                        efficOption.title,
+                        efficOption.numerator,
+                        efficOption.denominator,
+                        efficOption.type,
+                        efficOption.isProfile);
     }
 
-    for (vector<ResolOption>::const_iterator resolOption = resolOptions_.begin(); resolOption != resolOptions_.end();
-         ++resolOption) {
+    for (const auto& resolOption : resolOptions_) {
       computeResolution(
-          ibooker, igetter, dirName, resolOption->namePrefix, resolOption->titlePrefix, resolOption->srcName);
+          ibooker, igetter, dirName, resolOption.namePrefix, resolOption.titlePrefix, resolOption.srcName);
     }
 
     for (const auto& profileOption : profileOptions_) {
@@ -1203,10 +1192,10 @@ void DQMGenericClient::findAllSubdirectories(DQMStore::IBooker& ibooker,
     TPRegexp regexp(pattern);
     ibooker.cd(dir);
     vector<string> foundDirs = igetter.getSubdirs();
-    for (vector<string>::const_iterator iDir = foundDirs.begin(); iDir != foundDirs.end(); ++iDir) {
-      TString dirName = iDir->substr(iDir->rfind('/') + 1, iDir->length());
+    for (const auto& foundDir : foundDirs) {
+      TString dirName = foundDir.substr(foundDir.rfind('/') + 1, foundDir.length());
       if (dirName.Contains(regexp))
-        findAllSubdirectories(ibooker, igetter, *iDir, myList);
+        findAllSubdirectories(ibooker, igetter, foundDir, myList);
     }
   }
   //std::cout << "Looking for directory " << dir ;

@@ -87,21 +87,21 @@ DetId EcalClusterSeverityLevelAlgo::closestProblematic(const reco::CaloCluster& 
   //Get a window of DetId around the seed crystal
   std::vector<DetId> neighbours = topology->getWindow(seed, 51, 11);
 
-  for (std::vector<DetId>::const_iterator it = neighbours.begin(); it != neighbours.end(); ++it) {
-    EcalRecHitCollection::const_iterator jrh = recHits.find(*it);
+  for (auto neighbour : neighbours) {
+    EcalRecHitCollection::const_iterator jrh = recHits.find(neighbour);
     if (jrh == recHits.end())
       continue;
     //Now checking rh flag
-    uint32_t sev = sevlv.severityLevel(*it, recHits);
+    uint32_t sev = sevlv.severityLevel(neighbour, recHits);
     if (sev == EcalSeverityLevel::kGood)
       continue;
     //      std::cout << "[closestProblematic] Found a problematic channel " << EBDetId(*it) << " " << flag << std::endl;
     //Find the closest DetId in eta,phi space (distance defined by deta^2 + dphi^2)
-    int deta = EBDetId::distanceEta(EBDetId(seed), EBDetId(*it));
-    int dphi = EBDetId::distancePhi(EBDetId(seed), EBDetId(*it));
+    int deta = EBDetId::distanceEta(EBDetId(seed), EBDetId(neighbour));
+    int dphi = EBDetId::distancePhi(EBDetId(seed), EBDetId(neighbour));
     double r = sqrt(deta * deta + dphi * dphi);
     if (r < minDist) {
-      closestProb = *it;
+      closestProb = neighbour;
       minDist = r;
     }
   }

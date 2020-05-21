@@ -42,8 +42,8 @@ void TMom::init(double cutlow, double cuthigh) {
   _dimCut = 1;
   _cutLow.push_back(cutlow);
   _cutHigh.push_back(cuthigh);
-  for (int i = 0; i < 101; i++) {
-    bing[i] = 0;
+  for (int& i : bing) {
+    i = 0;
   }
 }
 void TMom::init(const std::vector<double>& cutlow, const std::vector<double>& cuthigh) {
@@ -65,8 +65,8 @@ void TMom::init(const std::vector<double>& cutlow, const std::vector<double>& cu
   _dimCut = cutlow.size();
   _cutLow = cutlow;
   _cutHigh = cuthigh;
-  for (int i = 0; i < 101; i++) {
-    bing[i] = 0;
+  for (int& i : bing) {
+    i = 0;
   }
 }
 void TMom::setCut(double cutlow, double cuthigh) {
@@ -174,11 +174,11 @@ std::vector<double> TMom::getPeak() {
   double wbin = (max - min) / 100.;
   int bung;
 
-  for (unsigned int i = 0; i < _ampl.size(); i++) {
+  for (double i : _ampl) {
     if (wbin <= 0.0)
       bung = 1;
     else
-      bung = (int)((_ampl.at(i) - min) / wbin) + 1;
+      bung = (int)((i - min) / wbin) + 1;
     if (1 <= bung && bung <= 100)
       bing[bung]++;
   }

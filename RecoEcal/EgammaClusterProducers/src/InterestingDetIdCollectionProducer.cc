@@ -106,31 +106,31 @@ void InterestingDetIdCollectionProducer::produce(edm::Event& iEvent, const edm::
   }
 
   if (severityLevel_ >= 0 || keepNextToDead_ || keepNextToBoundary_) {
-    for (EcalRecHitCollection::const_iterator it = recHitsHandle->begin(); it != recHitsHandle->end(); ++it) {
+    for (const auto& it : *recHitsHandle) {
       // also add recHits of dead TT if the corresponding TP is saturated
-      if (it->checkFlag(EcalRecHit::kTPSaturated)) {
-        indexToStore.push_back(it->id());
+      if (it.checkFlag(EcalRecHit::kTPSaturated)) {
+        indexToStore.push_back(it.id());
       }
       // add hits for severities above a threshold
-      if (severityLevel_ >= 0 && severity_->severityLevel(*it) >= severityLevel_) {
-        indexToStore.push_back(it->id());
+      if (severityLevel_ >= 0 && severity_->severityLevel(it) >= severityLevel_) {
+        indexToStore.push_back(it.id());
       }
       if (keepNextToDead_) {
         // also keep channels next to dead ones
-        if (EcalTools::isNextToDead(it->id(), iSetup)) {
-          indexToStore.push_back(it->id());
+        if (EcalTools::isNextToDead(it.id(), iSetup)) {
+          indexToStore.push_back(it.id());
         }
       }
 
       if (keepNextToBoundary_) {
         // keep channels around EB/EE boundary
-        if (it->id().subdetId() == EcalBarrel) {
-          EBDetId ebid(it->id());
+        if (it.id().subdetId() == EcalBarrel) {
+          EBDetId ebid(it.id());
           if (abs(ebid.ieta()) == 85)
-            indexToStore.push_back(it->id());
+            indexToStore.push_back(it.id());
         } else {
-          if (EEDetId::isNextToRingBoundary(it->id()))
-            indexToStore.push_back(it->id());
+          if (EEDetId::isNextToRingBoundary(it.id()))
+            indexToStore.push_back(it.id());
         }
       }
     }

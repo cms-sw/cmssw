@@ -59,16 +59,16 @@ void SusyPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& 
   //Need our own copy for thread safety
   TF1 mygaus("mygaus", "gaus");
 
-  for (int i = 0; i < int(Dirs.size()); i++) {
+  for (auto& Dir : Dirs) {
     std::string prefix = "dummy";
 
-    if (size_t(Dirs[i].find("met")) != string::npos)
+    if (size_t(Dir.find("met")) != string::npos)
       prefix = "met";
-    if (size_t(Dirs[i].find("pfMet")) != string::npos)
+    if (size_t(Dir.find("pfMet")) != string::npos)
       prefix = "pfMET";
 
-    for (std::vector<std::string>::const_iterator ic = metFolders.begin(); ic != metFolders.end(); ic++) {
-      std::string dirName = Dirs[i] + "/" + *ic;
+    for (const auto& metFolder : metFolders) {
+      std::string dirName = Dir + "/" + metFolder;
 
       MEx = iget_.get(dirName + "/" + "MEx");
       MEy = iget_.get(dirName + "/" + "MEy");
@@ -89,17 +89,17 @@ void SusyPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& 
   //----------------------------------------------------------------------------
   iget_.setCurrentFolder(SUSYFolder);
   Dirs = iget_.getSubdirs();
-  for (int i = 0; i < int(Dirs.size()); i++) {
-    size_t found = Dirs[i].find("Alpha");
+  for (auto& Dir : Dirs) {
+    size_t found = Dir.find("Alpha");
     if (found != string::npos)
       continue;
-    if (!iget_.dirExists(Dirs[i])) {
-      edm::LogError(messageLoggerCatregory) << "Directory " << Dirs[i] << " doesn't exist!!";
+    if (!iget_.dirExists(Dir)) {
+      edm::LogError(messageLoggerCatregory) << "Directory " << Dir << " doesn't exist!!";
       continue;
     }
-    vector<MonitorElement*> histoVector = iget_.getContents(Dirs[i]);
-    for (int i = 0; i < int(histoVector.size()); i++) {
-      QuantilePlots(histoVector[i], _quantile, ibook_);
+    vector<MonitorElement*> histoVector = iget_.getContents(Dir);
+    for (auto& i : histoVector) {
+      QuantilePlots(i, _quantile, ibook_);
     }
   }
 }

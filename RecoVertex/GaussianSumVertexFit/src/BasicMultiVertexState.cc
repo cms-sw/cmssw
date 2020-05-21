@@ -67,8 +67,8 @@ double BasicMultiVertexState::weightInMixture() const {
   }
 
   double weight = 0.;
-  for (vector<VertexState>::const_iterator it = theComponents.begin(); it != theComponents.end(); it++) {
-    weight += it->weightInMixture();
+  for (const auto& theComponent : theComponents) {
+    weight += theComponent.weightInMixture();
   }
   return weight;
 }

@@ -22,10 +22,8 @@ void EcalCompactTrigPrimProducer::produce(edm::Event& event, const edm::EventSet
 
   const EcalTrigPrimDigiCollection* trigPrims = hTPDigis.product();
 
-  for (EcalTrigPrimDigiCollection::const_iterator trigPrim = trigPrims->begin(); trigPrim != trigPrims->end();
-       ++trigPrim) {
-    outColl->setValue(
-        trigPrim->id().ieta(), trigPrim->id().iphi(), trigPrim->sample(trigPrim->sampleOfInterest()).raw());
+  for (const auto& trigPrim : *trigPrims) {
+    outColl->setValue(trigPrim.id().ieta(), trigPrim.id().iphi(), trigPrim.sample(trigPrim.sampleOfInterest()).raw());
   }
   event.put(std::move(outColl), outCollection_);
 }

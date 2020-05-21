@@ -79,9 +79,7 @@ void HLTMuonRefMethod::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
   ibooker.cd();
   set<string> subDirSet;
 
-  for (auto iSubDir = subDirs_.begin(); iSubDir != subDirs_.end(); ++iSubDir) {
-    string subDir = *iSubDir;
-
+  for (auto subDir : subDirs_) {
     if (subDir[subDir.size() - 1] == '/')
       subDir.erase(subDir.size() - 1);
 
@@ -109,8 +107,7 @@ void HLTMuonRefMethod::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
         continue;
 
       // looping over all reference triggers
-      for (auto iTrigger = hltTriggers_.begin(); iTrigger != hltTriggers_.end(); ++iTrigger) {
-        string trig = *iTrigger;
+      for (auto trig : hltTriggers_) {
         MonitorElement* trigEff = igetter.get(subDir + "/" + trig + "/" + eff);
         if (!trigEff)
           continue;
@@ -170,10 +167,10 @@ void HLTMuonRefMethod::findAllSubdirectories(DQMStore::IBooker& ibooker,
     TPRegexp regexp(pattern);
     ibooker.cd(dir);
     vector<string> foundDirs = igetter.getSubdirs();
-    for (auto iDir = foundDirs.begin(); iDir != foundDirs.end(); ++iDir) {
-      TString dirName = iDir->substr(iDir->rfind('/') + 1, iDir->length());
+    for (auto& foundDir : foundDirs) {
+      TString dirName = foundDir.substr(foundDir.rfind('/') + 1, foundDir.length());
       if (dirName.Contains(regexp))
-        findAllSubdirectories(ibooker, igetter, *iDir, myList);
+        findAllSubdirectories(ibooker, igetter, foundDir, myList);
     }
   }
   //std::cout << "Looking for directory " << dir ;

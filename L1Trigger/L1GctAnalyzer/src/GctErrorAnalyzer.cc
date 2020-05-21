@@ -357,10 +357,10 @@ GctErrorAnalyzer::GctErrorAnalyzer(const edm::ParameterSet &iConfig)
   //make the ErrorDebug directory
   TFileDirectory errorHistDetails = fs->mkdir("ErrorHistograms_Details");
 
-  for (unsigned int i = 0; i < quantities.size(); i++) {
+  for (const auto &quantitie : quantities) {
     //fill the data and emulator folders with the directories
-    emuHistCat.push_back(emuHist.mkdir(quantities.at(i)));
-    dataHistCat.push_back(dataHist.mkdir(quantities.at(i)));
+    emuHistCat.push_back(emuHist.mkdir(quantitie));
+    dataHistCat.push_back(dataHist.mkdir(quantitie));
   }
 
   //add a folder for RCT Regions - which only exist in data
@@ -944,47 +944,35 @@ void GctErrorAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &
       if (doExtraMissingHTDebug_) {
         iEvent.getByLabel(dataTag_.label(), "", intHtMissD);
         if (checkCollections(intHtMissD, GCT_INT_HTMISS_QUANTA, "Internal Missing Ht Data")) {
-          for (unsigned int i = 0; i < intHtMissD->size(); i++) {
-            if (doGCTMBx_ || intHtMissD->at(i).bx() == GCTTrigBx_) {
-              if (!intHtMissD->at(i).overflow()) {
+          for (const auto &i : *intHtMissD) {
+            if (doGCTMBx_ || i.bx() == GCTTrigBx_) {
+              if (!i.overflow()) {
                 //the capBlock 0x301 is the input pipeline at the wheel for positive eta, whereas 0x701 is for negative eta
-                if (intHtMissD->at(i).capBlock() == 0x301 && intHtMissD->at(i).capIndex() == 0 &&
-                    intHtMissD->at(i).isThereHtx())
-                  missingHtD_HtXPosLeaf1->Fill(intHtMissD->at(i).htx());
-                if (intHtMissD->at(i).capBlock() == 0x301 && intHtMissD->at(i).capIndex() == 1 &&
-                    intHtMissD->at(i).isThereHtx())
-                  missingHtD_HtXPosLeaf2->Fill(intHtMissD->at(i).htx());
-                if (intHtMissD->at(i).capBlock() == 0x301 && intHtMissD->at(i).capIndex() == 2 &&
-                    intHtMissD->at(i).isThereHtx())
-                  missingHtD_HtXPosLeaf3->Fill(intHtMissD->at(i).htx());
-                if (intHtMissD->at(i).capBlock() == 0x701 && intHtMissD->at(i).capIndex() == 0 &&
-                    intHtMissD->at(i).isThereHtx())
-                  missingHtD_HtXNegLeaf1->Fill(intHtMissD->at(i).htx());
-                if (intHtMissD->at(i).capBlock() == 0x701 && intHtMissD->at(i).capIndex() == 1 &&
-                    intHtMissD->at(i).isThereHtx())
-                  missingHtD_HtXNegLeaf2->Fill(intHtMissD->at(i).htx());
-                if (intHtMissD->at(i).capBlock() == 0x701 && intHtMissD->at(i).capIndex() == 2 &&
-                    intHtMissD->at(i).isThereHtx())
-                  missingHtD_HtXNegLeaf3->Fill(intHtMissD->at(i).htx());
+                if (i.capBlock() == 0x301 && i.capIndex() == 0 && i.isThereHtx())
+                  missingHtD_HtXPosLeaf1->Fill(i.htx());
+                if (i.capBlock() == 0x301 && i.capIndex() == 1 && i.isThereHtx())
+                  missingHtD_HtXPosLeaf2->Fill(i.htx());
+                if (i.capBlock() == 0x301 && i.capIndex() == 2 && i.isThereHtx())
+                  missingHtD_HtXPosLeaf3->Fill(i.htx());
+                if (i.capBlock() == 0x701 && i.capIndex() == 0 && i.isThereHtx())
+                  missingHtD_HtXNegLeaf1->Fill(i.htx());
+                if (i.capBlock() == 0x701 && i.capIndex() == 1 && i.isThereHtx())
+                  missingHtD_HtXNegLeaf2->Fill(i.htx());
+                if (i.capBlock() == 0x701 && i.capIndex() == 2 && i.isThereHtx())
+                  missingHtD_HtXNegLeaf3->Fill(i.htx());
 
-                if (intHtMissD->at(i).capBlock() == 0x301 && intHtMissD->at(i).capIndex() == 0 &&
-                    intHtMissD->at(i).isThereHty())
-                  missingHtD_HtYPosLeaf1->Fill(intHtMissD->at(i).hty());
-                if (intHtMissD->at(i).capBlock() == 0x301 && intHtMissD->at(i).capIndex() == 1 &&
-                    intHtMissD->at(i).isThereHty())
-                  missingHtD_HtYPosLeaf2->Fill(intHtMissD->at(i).hty());
-                if (intHtMissD->at(i).capBlock() == 0x301 && intHtMissD->at(i).capIndex() == 2 &&
-                    intHtMissD->at(i).isThereHty())
-                  missingHtD_HtYPosLeaf3->Fill(intHtMissD->at(i).hty());
-                if (intHtMissD->at(i).capBlock() == 0x701 && intHtMissD->at(i).capIndex() == 0 &&
-                    intHtMissD->at(i).isThereHty())
-                  missingHtD_HtYNegLeaf1->Fill(intHtMissD->at(i).hty());
-                if (intHtMissD->at(i).capBlock() == 0x701 && intHtMissD->at(i).capIndex() == 1 &&
-                    intHtMissD->at(i).isThereHty())
-                  missingHtD_HtYNegLeaf2->Fill(intHtMissD->at(i).hty());
-                if (intHtMissD->at(i).capBlock() == 0x701 && intHtMissD->at(i).capIndex() == 2 &&
-                    intHtMissD->at(i).isThereHty())
-                  missingHtD_HtYNegLeaf3->Fill(intHtMissD->at(i).hty());
+                if (i.capBlock() == 0x301 && i.capIndex() == 0 && i.isThereHty())
+                  missingHtD_HtYPosLeaf1->Fill(i.hty());
+                if (i.capBlock() == 0x301 && i.capIndex() == 1 && i.isThereHty())
+                  missingHtD_HtYPosLeaf2->Fill(i.hty());
+                if (i.capBlock() == 0x301 && i.capIndex() == 2 && i.isThereHty())
+                  missingHtD_HtYPosLeaf3->Fill(i.hty());
+                if (i.capBlock() == 0x701 && i.capIndex() == 0 && i.isThereHty())
+                  missingHtD_HtYNegLeaf1->Fill(i.hty());
+                if (i.capBlock() == 0x701 && i.capIndex() == 1 && i.isThereHty())
+                  missingHtD_HtYNegLeaf2->Fill(i.hty());
+                if (i.capBlock() == 0x701 && i.capIndex() == 2 && i.isThereHty())
+                  missingHtD_HtYNegLeaf3->Fill(i.hty());
               }
             }
           }
@@ -1006,18 +994,18 @@ void GctErrorAnalyzer::endJob() {}
 
 void GctErrorAnalyzer::plotRCTRegions(const edm::Handle<L1CaloRegionCollection> &caloRegions) {
   //if more than one Bx is readout per event, then caloRegions->size() will be some multiple of 396
-  for (unsigned int i = 0; i < caloRegions->size(); i++) {
+  for (const auto &i : *caloRegions) {
     //if the RCTMBx flag is set to true, write out all the info into the same histogram
     //otherwise only the RCTTrigBx will be written out - could skip (RCT_REGION_QUANTA-1) events here to speed things up...
-    if (doRCTMBx_ || caloRegions->at(i).bx() == RCTTrigBx_) {
-      if (caloRegions->at(i).et() > 0)
-        RCT_EtEtaPhi_->Fill(caloRegions->at(i).gctEta(), caloRegions->at(i).gctPhi(), caloRegions->at(i).et());
-      if (caloRegions->at(i).tauVeto())
-        RCT_TvEtaPhi_->Fill(caloRegions->at(i).gctEta(), caloRegions->at(i).gctPhi());
-      if (caloRegions->at(i).fineGrain())
-        RCT_FgEtaPhi_->Fill(caloRegions->at(i).gctEta(), caloRegions->at(i).gctPhi());
-      if (caloRegions->at(i).overFlow())
-        RCT_OfEtaPhi_->Fill(caloRegions->at(i).gctEta(), caloRegions->at(i).gctPhi());
+    if (doRCTMBx_ || i.bx() == RCTTrigBx_) {
+      if (i.et() > 0)
+        RCT_EtEtaPhi_->Fill(i.gctEta(), i.gctPhi(), i.et());
+      if (i.tauVeto())
+        RCT_TvEtaPhi_->Fill(i.gctEta(), i.gctPhi());
+      if (i.fineGrain())
+        RCT_FgEtaPhi_->Fill(i.gctEta(), i.gctPhi());
+      if (i.overFlow())
+        RCT_OfEtaPhi_->Fill(i.gctEta(), i.gctPhi());
     }
   }
 }
@@ -1025,23 +1013,23 @@ void GctErrorAnalyzer::plotRCTRegions(const edm::Handle<L1CaloRegionCollection> 
 void GctErrorAnalyzer::plotIsoEm(const edm::Handle<L1GctEmCandCollection> &isoEgD,
                                  const edm::Handle<L1GctEmCandCollection> &isoEgE) {
   //loop over all the data candidates - if multiple bx, then this should be a multiple of GCT_OBJECT_QUANTA
-  for (unsigned int i = 0; i < isoEgD->size(); i++) {
+  for (const auto &i : *isoEgD) {
     //if the GCTMBx flag is set, plot all Bx for this quantity, otherwise only plot Bx = GCTTrigBx_
-    if (doGCTMBx_ || isoEgD->at(i).bx() == GCTTrigBx_) {
-      isoEgD_Rank_->Fill(isoEgD->at(i).rank());
-      if (isoEgD->at(i).rank() > 0) {
-        isoEgD_EtEtaPhi_->Fill(isoEgD->at(i).regionId().ieta(), isoEgD->at(i).regionId().iphi(), isoEgD->at(i).rank());
-        isoEgD_OccEtaPhi_->Fill(isoEgD->at(i).regionId().ieta(), isoEgD->at(i).regionId().iphi());
+    if (doGCTMBx_ || i.bx() == GCTTrigBx_) {
+      isoEgD_Rank_->Fill(i.rank());
+      if (i.rank() > 0) {
+        isoEgD_EtEtaPhi_->Fill(i.regionId().ieta(), i.regionId().iphi(), i.rank());
+        isoEgD_OccEtaPhi_->Fill(i.regionId().ieta(), i.regionId().iphi());
       }
     }
   }
   //now repeat for the emulator candidates
-  for (unsigned int i = 0; i < isoEgE->size(); i++) {
-    if (doEmuMBx_ || isoEgE->at(i).bx() == EmuTrigBx_) {
-      isoEgE_Rank_->Fill(isoEgE->at(i).rank());
-      if (isoEgE->at(i).rank() > 0) {
-        isoEgE_EtEtaPhi_->Fill(isoEgE->at(i).regionId().ieta(), isoEgE->at(i).regionId().iphi(), isoEgE->at(i).rank());
-        isoEgE_OccEtaPhi_->Fill(isoEgE->at(i).regionId().ieta(), isoEgE->at(i).regionId().iphi());
+  for (const auto &i : *isoEgE) {
+    if (doEmuMBx_ || i.bx() == EmuTrigBx_) {
+      isoEgE_Rank_->Fill(i.rank());
+      if (i.rank() > 0) {
+        isoEgE_EtEtaPhi_->Fill(i.regionId().ieta(), i.regionId().iphi(), i.rank());
+        isoEgE_OccEtaPhi_->Fill(i.regionId().ieta(), i.regionId().iphi());
       }
     }
   }
@@ -1050,25 +1038,23 @@ void GctErrorAnalyzer::plotIsoEm(const edm::Handle<L1GctEmCandCollection> &isoEg
 void GctErrorAnalyzer::plotNonIsoEm(const edm::Handle<L1GctEmCandCollection> &nonIsoEgD,
                                     const edm::Handle<L1GctEmCandCollection> &nonIsoEgE) {
   //loop over all the data candidates - if multiple bx, then this should be a multiple of GCT_OBJECT_QUANTA
-  for (unsigned int i = 0; i < nonIsoEgD->size(); i++) {
+  for (const auto &i : *nonIsoEgD) {
     //if the GCTMBx flag is set, plot all Bx for this quantity, otherwise only plot Bx = GCTTrigBx_
-    if (doGCTMBx_ || nonIsoEgD->at(i).bx() == GCTTrigBx_) {
-      nonIsoEgD_Rank_->Fill(nonIsoEgD->at(i).rank());
-      if (nonIsoEgD->at(i).rank() > 0) {
-        nonIsoEgD_EtEtaPhi_->Fill(
-            nonIsoEgD->at(i).regionId().ieta(), nonIsoEgD->at(i).regionId().iphi(), nonIsoEgD->at(i).rank());
-        nonIsoEgD_OccEtaPhi_->Fill(nonIsoEgD->at(i).regionId().ieta(), nonIsoEgD->at(i).regionId().iphi());
+    if (doGCTMBx_ || i.bx() == GCTTrigBx_) {
+      nonIsoEgD_Rank_->Fill(i.rank());
+      if (i.rank() > 0) {
+        nonIsoEgD_EtEtaPhi_->Fill(i.regionId().ieta(), i.regionId().iphi(), i.rank());
+        nonIsoEgD_OccEtaPhi_->Fill(i.regionId().ieta(), i.regionId().iphi());
       }
     }
   }
   //now repeat for the emulator candidates
-  for (unsigned int i = 0; i < nonIsoEgE->size(); i++) {
-    if (doEmuMBx_ || nonIsoEgE->at(i).bx() == EmuTrigBx_) {
-      nonIsoEgE_Rank_->Fill(nonIsoEgE->at(i).rank());
-      if (nonIsoEgE->at(i).rank() > 0) {
-        nonIsoEgE_EtEtaPhi_->Fill(
-            nonIsoEgE->at(i).regionId().ieta(), nonIsoEgE->at(i).regionId().iphi(), nonIsoEgE->at(i).rank());
-        nonIsoEgE_OccEtaPhi_->Fill(nonIsoEgE->at(i).regionId().ieta(), nonIsoEgE->at(i).regionId().iphi());
+  for (const auto &i : *nonIsoEgE) {
+    if (doEmuMBx_ || i.bx() == EmuTrigBx_) {
+      nonIsoEgE_Rank_->Fill(i.rank());
+      if (i.rank() > 0) {
+        nonIsoEgE_EtEtaPhi_->Fill(i.regionId().ieta(), i.regionId().iphi(), i.rank());
+        nonIsoEgE_OccEtaPhi_->Fill(i.regionId().ieta(), i.regionId().iphi());
       }
     }
   }
@@ -1118,74 +1104,66 @@ void GctErrorAnalyzer::plotEGErrors(const edm::Handle<L1GctEmCandCollection> &is
   //fill the EM input collection
   //should only fill the correct bx for emRegions - and since this is showing an error in the comparison, we should plot the input to this comparison i.e. Bx=RCTTrigBx
   //this assumes that comparison is done on the central Bx i.e. RctBx=0 corresponds to GctBx=0, and EmuBx=0 takes RctBx=0
-  for (unsigned int i = 0; i < emRegions->size(); i++) {
-    if (emRegions->at(i).bx() == RCTTrigBx_) {
-      if (emRegions->at(i).isolated()) {
-        if (emRegions->at(i).rank() > 0)
-          errorEmRegionIsoEtEtaPhi_->Fill(
-              emRegions->at(i).regionId().ieta(), emRegions->at(i).regionId().iphi(), emRegions->at(i).rank());
+  for (const auto &i : *emRegions) {
+    if (i.bx() == RCTTrigBx_) {
+      if (i.isolated()) {
+        if (i.rank() > 0)
+          errorEmRegionIsoEtEtaPhi_->Fill(i.regionId().ieta(), i.regionId().iphi(), i.rank());
       } else {
-        if (emRegions->at(i).rank() > 0)
-          errorEmRegionNonIsoEtEtaPhi_->Fill(
-              emRegions->at(i).regionId().ieta(), emRegions->at(i).regionId().iphi(), emRegions->at(i).rank());
+        if (i.rank() > 0)
+          errorEmRegionNonIsoEtEtaPhi_->Fill(i.regionId().ieta(), i.regionId().iphi(), i.rank());
       }
     }
   }
 
   //no need to have the rank plot, because you can't have two electrons in the same place (eta,phi), in the same event...
   //in this case, since we're actually comparing the GCTTrigBx_ with the EmuTrigBx_, we plot these individually
-  for (unsigned int i = 0; i < isoEgD->size(); i++) {
-    if (isoEgD->at(i).bx() == GCTTrigBx_) {
-      if (isoEgD->at(i).rank() > 0)
-        errorIsoEtEtaPhiD_->Fill(
-            isoEgD->at(i).regionId().ieta(), isoEgD->at(i).regionId().iphi(), isoEgD->at(i).rank());
+  for (const auto &i : *isoEgD) {
+    if (i.bx() == GCTTrigBx_) {
+      if (i.rank() > 0)
+        errorIsoEtEtaPhiD_->Fill(i.regionId().ieta(), i.regionId().iphi(), i.rank());
     }
   }
-  for (unsigned int i = 0; i < nonIsoEgD->size(); i++) {
-    if (nonIsoEgD->at(i).bx() == GCTTrigBx_) {
-      if (nonIsoEgD->at(i).rank() > 0)
-        errorNonIsoEtEtaPhiD_->Fill(
-            nonIsoEgD->at(i).regionId().ieta(), nonIsoEgD->at(i).regionId().iphi(), nonIsoEgD->at(i).rank());
+  for (const auto &i : *nonIsoEgD) {
+    if (i.bx() == GCTTrigBx_) {
+      if (i.rank() > 0)
+        errorNonIsoEtEtaPhiD_->Fill(i.regionId().ieta(), i.regionId().iphi(), i.rank());
     }
   }
 
   //now for the emulator candidates
-  for (unsigned int i = 0; i < isoEgE->size(); i++) {
-    if (isoEgE->at(i).bx() == EmuTrigBx_) {
-      if (isoEgE->at(i).rank() > 0)
-        errorIsoEtEtaPhiE_->Fill(
-            isoEgE->at(i).regionId().ieta(), isoEgE->at(i).regionId().iphi(), isoEgE->at(i).rank());
+  for (const auto &i : *isoEgE) {
+    if (i.bx() == EmuTrigBx_) {
+      if (i.rank() > 0)
+        errorIsoEtEtaPhiE_->Fill(i.regionId().ieta(), i.regionId().iphi(), i.rank());
     }
   }
-  for (unsigned int i = 0; i < nonIsoEgE->size(); i++) {
-    if (nonIsoEgE->at(i).bx() == EmuTrigBx_) {
-      if (nonIsoEgE->at(i).rank() > 0)
-        errorNonIsoEtEtaPhiE_->Fill(
-            nonIsoEgE->at(i).regionId().ieta(), nonIsoEgE->at(i).regionId().iphi(), nonIsoEgE->at(i).rank());
+  for (const auto &i : *nonIsoEgE) {
+    if (i.bx() == EmuTrigBx_) {
+      if (i.rank() > 0)
+        errorNonIsoEtEtaPhiE_->Fill(i.regionId().ieta(), i.regionId().iphi(), i.rank());
     }
   }
 }
 
 void GctErrorAnalyzer::plotCenJets(const edm::Handle<L1GctJetCandCollection> &cenJetsD,
                                    const edm::Handle<L1GctJetCandCollection> &cenJetsE) {
-  for (unsigned int i = 0; i < cenJetsD->size(); i++) {
-    if (doGCTMBx_ || cenJetsD->at(i).bx() == GCTTrigBx_) {
-      cenJetD_Rank_->Fill(cenJetsD->at(i).rank());
-      if (cenJetsD->at(i).rank() > 0) {
-        cenJetD_EtEtaPhi_->Fill(
-            cenJetsD->at(i).regionId().ieta(), cenJetsD->at(i).regionId().iphi(), cenJetsD->at(i).rank());
-        cenJetD_OccEtaPhi_->Fill(cenJetsD->at(i).regionId().ieta(), cenJetsD->at(i).regionId().iphi());
+  for (const auto &i : *cenJetsD) {
+    if (doGCTMBx_ || i.bx() == GCTTrigBx_) {
+      cenJetD_Rank_->Fill(i.rank());
+      if (i.rank() > 0) {
+        cenJetD_EtEtaPhi_->Fill(i.regionId().ieta(), i.regionId().iphi(), i.rank());
+        cenJetD_OccEtaPhi_->Fill(i.regionId().ieta(), i.regionId().iphi());
       }
     }
   }
 
-  for (unsigned int i = 0; i < cenJetsE->size(); i++) {
-    if (doEmuMBx_ || cenJetsE->at(i).bx() == EmuTrigBx_) {
-      cenJetE_Rank_->Fill(cenJetsE->at(i).rank());
-      if (cenJetsE->at(i).rank() > 0) {
-        cenJetE_EtEtaPhi_->Fill(
-            cenJetsE->at(i).regionId().ieta(), cenJetsE->at(i).regionId().iphi(), cenJetsE->at(i).rank());
-        cenJetE_OccEtaPhi_->Fill(cenJetsE->at(i).regionId().ieta(), cenJetsE->at(i).regionId().iphi());
+  for (const auto &i : *cenJetsE) {
+    if (doEmuMBx_ || i.bx() == EmuTrigBx_) {
+      cenJetE_Rank_->Fill(i.rank());
+      if (i.rank() > 0) {
+        cenJetE_EtEtaPhi_->Fill(i.regionId().ieta(), i.regionId().iphi(), i.rank());
+        cenJetE_OccEtaPhi_->Fill(i.regionId().ieta(), i.regionId().iphi());
       }
     }
   }
@@ -1193,24 +1171,22 @@ void GctErrorAnalyzer::plotCenJets(const edm::Handle<L1GctJetCandCollection> &ce
 
 void GctErrorAnalyzer::plotTauJets(const edm::Handle<L1GctJetCandCollection> &tauJetsD,
                                    const edm::Handle<L1GctJetCandCollection> &tauJetsE) {
-  for (unsigned int i = 0; i < tauJetsD->size(); i++) {
-    if (doGCTMBx_ || tauJetsD->at(i).bx() == GCTTrigBx_) {
-      tauJetD_Rank_->Fill(tauJetsD->at(i).rank());
-      if (tauJetsD->at(i).rank() > 0) {
-        tauJetD_EtEtaPhi_->Fill(
-            tauJetsD->at(i).regionId().ieta(), tauJetsD->at(i).regionId().iphi(), tauJetsD->at(i).rank());
-        tauJetD_OccEtaPhi_->Fill(tauJetsD->at(i).regionId().ieta(), tauJetsD->at(i).regionId().iphi());
+  for (const auto &i : *tauJetsD) {
+    if (doGCTMBx_ || i.bx() == GCTTrigBx_) {
+      tauJetD_Rank_->Fill(i.rank());
+      if (i.rank() > 0) {
+        tauJetD_EtEtaPhi_->Fill(i.regionId().ieta(), i.regionId().iphi(), i.rank());
+        tauJetD_OccEtaPhi_->Fill(i.regionId().ieta(), i.regionId().iphi());
       }
     }
   }
 
-  for (unsigned int i = 0; i < tauJetsE->size(); i++) {
-    if (doEmuMBx_ || tauJetsE->at(i).bx() == EmuTrigBx_) {
-      tauJetE_Rank_->Fill(tauJetsE->at(i).rank());
-      if (tauJetsE->at(i).rank() > 0) {
-        tauJetE_EtEtaPhi_->Fill(
-            tauJetsE->at(i).regionId().ieta(), tauJetsE->at(i).regionId().iphi(), tauJetsE->at(i).rank());
-        tauJetE_OccEtaPhi_->Fill(tauJetsE->at(i).regionId().ieta(), tauJetsE->at(i).regionId().iphi());
+  for (const auto &i : *tauJetsE) {
+    if (doEmuMBx_ || i.bx() == EmuTrigBx_) {
+      tauJetE_Rank_->Fill(i.rank());
+      if (i.rank() > 0) {
+        tauJetE_EtEtaPhi_->Fill(i.regionId().ieta(), i.regionId().iphi(), i.rank());
+        tauJetE_OccEtaPhi_->Fill(i.regionId().ieta(), i.regionId().iphi());
       }
     }
   }
@@ -1218,24 +1194,22 @@ void GctErrorAnalyzer::plotTauJets(const edm::Handle<L1GctJetCandCollection> &ta
 
 void GctErrorAnalyzer::plotForJets(const edm::Handle<L1GctJetCandCollection> &forJetsD,
                                    const edm::Handle<L1GctJetCandCollection> &forJetsE) {
-  for (unsigned int i = 0; i < forJetsD->size(); i++) {
-    if (doGCTMBx_ || forJetsD->at(i).bx() == GCTTrigBx_) {
-      forJetD_Rank_->Fill(forJetsD->at(i).rank());
-      if (forJetsD->at(i).rank() > 0) {
-        forJetD_EtEtaPhi_->Fill(
-            forJetsD->at(i).regionId().ieta(), forJetsD->at(i).regionId().iphi(), forJetsD->at(i).rank());
-        forJetD_OccEtaPhi_->Fill(forJetsD->at(i).regionId().ieta(), forJetsD->at(i).regionId().iphi());
+  for (const auto &i : *forJetsD) {
+    if (doGCTMBx_ || i.bx() == GCTTrigBx_) {
+      forJetD_Rank_->Fill(i.rank());
+      if (i.rank() > 0) {
+        forJetD_EtEtaPhi_->Fill(i.regionId().ieta(), i.regionId().iphi(), i.rank());
+        forJetD_OccEtaPhi_->Fill(i.regionId().ieta(), i.regionId().iphi());
       }
     }
   }
 
-  for (unsigned int i = 0; i < forJetsE->size(); i++) {
-    if (doEmuMBx_ || forJetsE->at(i).bx() == EmuTrigBx_) {
-      forJetE_Rank_->Fill(forJetsE->at(i).rank());
-      if (forJetsE->at(i).rank() > 0) {
-        forJetE_EtEtaPhi_->Fill(
-            forJetsE->at(i).regionId().ieta(), forJetsE->at(i).regionId().iphi(), forJetsE->at(i).rank());
-        forJetE_OccEtaPhi_->Fill(forJetsE->at(i).regionId().ieta(), forJetsE->at(i).regionId().iphi());
+  for (const auto &i : *forJetsE) {
+    if (doEmuMBx_ || i.bx() == EmuTrigBx_) {
+      forJetE_Rank_->Fill(i.rank());
+      if (i.rank() > 0) {
+        forJetE_EtEtaPhi_->Fill(i.regionId().ieta(), i.regionId().iphi(), i.rank());
+        forJetE_OccEtaPhi_->Fill(i.regionId().ieta(), i.regionId().iphi());
       }
     }
   }
@@ -1355,14 +1329,14 @@ void GctErrorAnalyzer::plotJetErrors(const edm::Handle<L1GctJetCandCollection> &
       "errorRegionOfEtaPhi", "errorRegionOfEtaPhi;#eta (GCT Units);#phi (GCT Units)", 22, -0.5, 21.5, 18, -0.5, 17.5);
 
   //make sure to only plot the caloRegion bx which corresponds to the data vs emulator comparison
-  for (unsigned int i = 0; i < caloRegions->size(); i++) {
-    if (caloRegions->at(i).bx() == RCTTrigBx_) {
-      if (caloRegions->at(i).et() > 0)
-        errorRegionEtEtaPhi_->Fill(caloRegions->at(i).gctEta(), caloRegions->at(i).gctPhi(), caloRegions->at(i).et());
-      if (caloRegions->at(i).tauVeto())
-        errorRegionTvEtaPhi_->Fill(caloRegions->at(i).gctEta(), caloRegions->at(i).gctPhi());
-      if (caloRegions->at(i).overFlow())
-        errorRegionOfEtaPhi_->Fill(caloRegions->at(i).gctEta(), caloRegions->at(i).gctPhi());
+  for (const auto &i : *caloRegions) {
+    if (i.bx() == RCTTrigBx_) {
+      if (i.et() > 0)
+        errorRegionEtEtaPhi_->Fill(i.gctEta(), i.gctPhi(), i.et());
+      if (i.tauVeto())
+        errorRegionTvEtaPhi_->Fill(i.gctEta(), i.gctPhi());
+      if (i.overFlow())
+        errorRegionOfEtaPhi_->Fill(i.gctEta(), i.gctPhi());
     }
   }
 
@@ -1416,91 +1390,85 @@ void GctErrorAnalyzer::plotJetErrors(const edm::Handle<L1GctJetCandCollection> &
                                                        17.5);
 
   //first plot the data candiates for the Trigger Bx that this error corresponds to
-  for (unsigned int i = 0; i < cenJetsD->size(); i++) {
-    if (cenJetsD->at(i).bx() == GCTTrigBx_) {
-      if (cenJetsD->at(i).rank() > 0)
-        cenJet_errorEtEtaPhiData_->Fill(
-            cenJetsD->at(i).regionId().ieta(), cenJetsD->at(i).regionId().iphi(), cenJetsD->at(i).rank());
+  for (const auto &i : *cenJetsD) {
+    if (i.bx() == GCTTrigBx_) {
+      if (i.rank() > 0)
+        cenJet_errorEtEtaPhiData_->Fill(i.regionId().ieta(), i.regionId().iphi(), i.rank());
     }
   }
-  for (unsigned int i = 0; i < tauJetsD->size(); i++) {
-    if (tauJetsD->at(i).bx() == GCTTrigBx_) {
-      if (tauJetsD->at(i).rank() > 0)
-        tauJet_errorEtEtaPhiData_->Fill(
-            tauJetsD->at(i).regionId().ieta(), tauJetsD->at(i).regionId().iphi(), tauJetsD->at(i).rank());
+  for (const auto &i : *tauJetsD) {
+    if (i.bx() == GCTTrigBx_) {
+      if (i.rank() > 0)
+        tauJet_errorEtEtaPhiData_->Fill(i.regionId().ieta(), i.regionId().iphi(), i.rank());
     }
   }
-  for (unsigned int i = 0; i < forJetsD->size(); i++) {
-    if (forJetsD->at(i).bx() == GCTTrigBx_) {
-      if (forJetsD->at(i).rank() > 0)
-        forJet_errorEtEtaPhiData_->Fill(
-            forJetsD->at(i).regionId().ieta(), forJetsD->at(i).regionId().iphi(), forJetsD->at(i).rank());
+  for (const auto &i : *forJetsD) {
+    if (i.bx() == GCTTrigBx_) {
+      if (i.rank() > 0)
+        forJet_errorEtEtaPhiData_->Fill(i.regionId().ieta(), i.regionId().iphi(), i.rank());
     }
   }
 
   //now the emulator candidates
-  for (unsigned int i = 0; i < cenJetsE->size(); i++) {
-    if (cenJetsE->at(i).bx() == EmuTrigBx_) {
-      if (cenJetsE->at(i).rank() > 0)
-        cenJet_errorEtEtaPhiEmu_->Fill(
-            cenJetsE->at(i).regionId().ieta(), cenJetsE->at(i).regionId().iphi(), cenJetsE->at(i).rank());
+  for (const auto &i : *cenJetsE) {
+    if (i.bx() == EmuTrigBx_) {
+      if (i.rank() > 0)
+        cenJet_errorEtEtaPhiEmu_->Fill(i.regionId().ieta(), i.regionId().iphi(), i.rank());
     }
   }
-  for (unsigned int i = 0; i < tauJetsE->size(); i++) {
-    if (tauJetsE->at(i).bx() == EmuTrigBx_) {
-      if (tauJetsE->at(i).rank() > 0)
-        tauJet_errorEtEtaPhiEmu_->Fill(
-            tauJetsE->at(i).regionId().ieta(), tauJetsE->at(i).regionId().iphi(), tauJetsE->at(i).rank());
+  for (const auto &i : *tauJetsE) {
+    if (i.bx() == EmuTrigBx_) {
+      if (i.rank() > 0)
+        tauJet_errorEtEtaPhiEmu_->Fill(i.regionId().ieta(), i.regionId().iphi(), i.rank());
     }
   }
-  for (unsigned int i = 0; i < forJetsE->size(); i++) {
-    if (forJetsE->at(i).bx() == EmuTrigBx_) {
-      if (forJetsE->at(i).rank() > 0)
-        forJet_errorEtEtaPhiEmu_->Fill(
-            forJetsE->at(i).regionId().ieta(), forJetsE->at(i).regionId().iphi(), forJetsE->at(i).rank());
+  for (const auto &i : *forJetsE) {
+    if (i.bx() == EmuTrigBx_) {
+      if (i.rank() > 0)
+        forJet_errorEtEtaPhiEmu_->Fill(i.regionId().ieta(), i.regionId().iphi(), i.rank());
     }
   }
 }
 
 void GctErrorAnalyzer::plotHFRingSums(const edm::Handle<L1GctHFRingEtSumsCollection> &hfRingSumsD,
                                       const edm::Handle<L1GctHFRingEtSumsCollection> &hfRingSumsE) {
-  for (unsigned int i = 0; i < hfRingSumsD->size(); i++) {
-    if (doGCTMBx_ || hfRingSumsD->at(i).bx() == GCTTrigBx_) {
+  for (const auto &i : *hfRingSumsD) {
+    if (doGCTMBx_ || i.bx() == GCTTrigBx_) {
       //there are 4 rings - just fill the histograms
-      hfRingSumD_1pos_->Fill(hfRingSumsD->at(i).etSum(0));
-      hfRingSumD_1neg_->Fill(hfRingSumsD->at(i).etSum(1));
-      hfRingSumD_2pos_->Fill(hfRingSumsD->at(i).etSum(2));
-      hfRingSumD_2neg_->Fill(hfRingSumsD->at(i).etSum(3));
+      hfRingSumD_1pos_->Fill(i.etSum(0));
+      hfRingSumD_1neg_->Fill(i.etSum(1));
+      hfRingSumD_2pos_->Fill(i.etSum(2));
+      hfRingSumD_2neg_->Fill(i.etSum(3));
     }
   }
 
-  for (unsigned int i = 0; i < hfRingSumsE->size(); i++) {
-    if (doEmuMBx_ || hfRingSumsE->at(i).bx() == EmuTrigBx_) {
-      hfRingSumE_1pos_->Fill(hfRingSumsE->at(i).etSum(0));
-      hfRingSumE_1neg_->Fill(hfRingSumsE->at(i).etSum(1));
-      hfRingSumE_2pos_->Fill(hfRingSumsE->at(i).etSum(2));
-      hfRingSumE_2neg_->Fill(hfRingSumsE->at(i).etSum(3));
+  for (const auto &i : *hfRingSumsE) {
+    if (doEmuMBx_ || i.bx() == EmuTrigBx_) {
+      hfRingSumE_1pos_->Fill(i.etSum(0));
+      hfRingSumE_1neg_->Fill(i.etSum(1));
+      hfRingSumE_2pos_->Fill(i.etSum(2));
+      hfRingSumE_2neg_->Fill(i.etSum(3));
     }
   }
 }
 
 void GctErrorAnalyzer::plotHFBitCounts(const edm::Handle<L1GctHFBitCountsCollection> &hfBitCountsD,
                                        const edm::Handle<L1GctHFBitCountsCollection> &hfBitCountsE) {
-  for (unsigned int i = 0; i < hfBitCountsD->size(); i++) {
-    if (doGCTMBx_ || hfBitCountsD->at(i).bx() == GCTTrigBx_) {
+  for (const auto &i : *hfBitCountsD) {
+    if (doGCTMBx_ || i.bx() == GCTTrigBx_) {
       //there are 4 rings - just fill the histograms
-      hfBitCountD_1pos_->Fill(hfBitCountsD->at(i).bitCount(0));
-      hfBitCountD_1neg_->Fill(hfBitCountsD->at(i).bitCount(1));
-      hfBitCountD_2pos_->Fill(hfBitCountsD->at(i).bitCount(2));
-      hfBitCountD_2neg_->Fill(hfBitCountsD->at(i).bitCount(3));
+      hfBitCountD_1pos_->Fill(i.bitCount(0));
+      hfBitCountD_1neg_->Fill(i.bitCount(1));
+      hfBitCountD_2pos_->Fill(i.bitCount(2));
+      hfBitCountD_2neg_->Fill(i.bitCount(3));
     }
   }
-  for (unsigned int i = 0; i < hfBitCountsE->size(); i++) {
-    if (doEmuMBx_ || hfBitCountsE->at(i).bx() == EmuTrigBx_) {
-      hfBitCountE_1pos_->Fill(hfBitCountsE->at(i).bitCount(0));
-      hfBitCountE_1neg_->Fill(hfBitCountsE->at(i).bitCount(1));
-      hfBitCountE_2pos_->Fill(hfBitCountsE->at(i).bitCount(2));
-      hfBitCountE_2neg_->Fill(hfBitCountsE->at(i).bitCount(3));
+  for (const auto &i : *hfBitCountsE) {
+    if (doEmuMBx_ || i.bx() == EmuTrigBx_) {
+      hfBitCountE_1pos_->Fill(i.bitCount(0));
+      hfBitCountE_1neg_->Fill(i.bitCount(1));
+      hfBitCountE_2pos_->Fill(i.bitCount(2));
+      hfBitCountE_2neg_->Fill(i.bitCount(3));
     }
   }
 }
@@ -1561,84 +1529,84 @@ void GctErrorAnalyzer::plotHFErrors(const edm::Handle<L1GctHFRingEtSumsCollectio
   TH1I *errorHFBitCountE_2neg_ =
       errorDir.make<TH1I>("errorHFBitCountE_2-", "errorHFBitCountE_2-;Rank;Number of Events", 8, -0.5, 7.5);
 
-  for (unsigned int i = 0; i < caloRegions->size(); i++) {
-    if (caloRegions->at(i).bx() == RCTTrigBx_) {
-      if (caloRegions->at(i).et() > 0)
-        errorRegionEtEtaPhi_->Fill(caloRegions->at(i).gctEta(), caloRegions->at(i).gctPhi(), caloRegions->at(i).et());
-      if (caloRegions->at(i).fineGrain())
-        errorRegionFgEtaPhi_->Fill(caloRegions->at(i).gctEta(), caloRegions->at(i).gctPhi());
-      if (caloRegions->at(i).overFlow())
-        errorRegionOfEtaPhi_->Fill(caloRegions->at(i).gctEta(), caloRegions->at(i).gctPhi());
+  for (const auto &i : *caloRegions) {
+    if (i.bx() == RCTTrigBx_) {
+      if (i.et() > 0)
+        errorRegionEtEtaPhi_->Fill(i.gctEta(), i.gctPhi(), i.et());
+      if (i.fineGrain())
+        errorRegionFgEtaPhi_->Fill(i.gctEta(), i.gctPhi());
+      if (i.overFlow())
+        errorRegionOfEtaPhi_->Fill(i.gctEta(), i.gctPhi());
     }
   }
 
-  for (unsigned int i = 0; i < hfRingSumsD->size(); i++) {
-    if (hfRingSumsD->at(i).bx() == GCTTrigBx_) {
-      errorHFRingSumD_1pos_->Fill(hfRingSumsD->at(i).etSum(0));
-      errorHFRingSumD_1neg_->Fill(hfRingSumsD->at(i).etSum(1));
-      errorHFRingSumD_2pos_->Fill(hfRingSumsD->at(i).etSum(2));
-      errorHFRingSumD_2neg_->Fill(hfRingSumsD->at(i).etSum(3));
+  for (const auto &i : *hfRingSumsD) {
+    if (i.bx() == GCTTrigBx_) {
+      errorHFRingSumD_1pos_->Fill(i.etSum(0));
+      errorHFRingSumD_1neg_->Fill(i.etSum(1));
+      errorHFRingSumD_2pos_->Fill(i.etSum(2));
+      errorHFRingSumD_2neg_->Fill(i.etSum(3));
     }
   }
-  for (unsigned int i = 0; i < hfRingSumsE->size(); i++) {
-    if (hfRingSumsE->at(i).bx() == EmuTrigBx_) {
-      errorHFRingSumE_1pos_->Fill(hfRingSumsE->at(i).etSum(0));
-      errorHFRingSumE_1neg_->Fill(hfRingSumsE->at(i).etSum(1));
-      errorHFRingSumE_2pos_->Fill(hfRingSumsE->at(i).etSum(2));
-      errorHFRingSumE_2neg_->Fill(hfRingSumsE->at(i).etSum(3));
+  for (const auto &i : *hfRingSumsE) {
+    if (i.bx() == EmuTrigBx_) {
+      errorHFRingSumE_1pos_->Fill(i.etSum(0));
+      errorHFRingSumE_1neg_->Fill(i.etSum(1));
+      errorHFRingSumE_2pos_->Fill(i.etSum(2));
+      errorHFRingSumE_2neg_->Fill(i.etSum(3));
     }
   }
 
-  for (unsigned int i = 0; i < hfBitCountsD->size(); i++) {
-    if (hfBitCountsD->at(i).bx() == GCTTrigBx_) {
-      errorHFBitCountD_1pos_->Fill(hfBitCountsD->at(i).bitCount(0));
-      errorHFBitCountD_1neg_->Fill(hfBitCountsD->at(i).bitCount(1));
-      errorHFBitCountD_2pos_->Fill(hfBitCountsD->at(i).bitCount(2));
-      errorHFBitCountD_2neg_->Fill(hfBitCountsD->at(i).bitCount(3));
+  for (const auto &i : *hfBitCountsD) {
+    if (i.bx() == GCTTrigBx_) {
+      errorHFBitCountD_1pos_->Fill(i.bitCount(0));
+      errorHFBitCountD_1neg_->Fill(i.bitCount(1));
+      errorHFBitCountD_2pos_->Fill(i.bitCount(2));
+      errorHFBitCountD_2neg_->Fill(i.bitCount(3));
     }
   }
-  for (unsigned int i = 0; i < hfBitCountsE->size(); i++) {
-    if (hfBitCountsE->at(i).bx() == EmuTrigBx_) {
-      errorHFBitCountE_1pos_->Fill(hfBitCountsE->at(i).bitCount(0));
-      errorHFBitCountE_1neg_->Fill(hfBitCountsE->at(i).bitCount(1));
-      errorHFBitCountE_2pos_->Fill(hfBitCountsE->at(i).bitCount(2));
-      errorHFBitCountE_2neg_->Fill(hfBitCountsE->at(i).bitCount(3));
+  for (const auto &i : *hfBitCountsE) {
+    if (i.bx() == EmuTrigBx_) {
+      errorHFBitCountE_1pos_->Fill(i.bitCount(0));
+      errorHFBitCountE_1neg_->Fill(i.bitCount(1));
+      errorHFBitCountE_2pos_->Fill(i.bitCount(2));
+      errorHFBitCountE_2neg_->Fill(i.bitCount(3));
     }
   }
 }
 
 void GctErrorAnalyzer::plotTotalE(const edm::Handle<L1GctEtTotalCollection> &totalEtD,
                                   const edm::Handle<L1GctEtTotalCollection> &totalEtE) {
-  for (unsigned int i = 0; i < totalEtD->size(); i++) {
-    if (doGCTMBx_ || totalEtD->at(i).bx() == GCTTrigBx_) {
-      totalEtD_Of_->Fill(totalEtD->at(i).overFlow());
-      if (!totalEtD->at(i).overFlow())
-        totalEtD_->Fill(totalEtD->at(i).et());
+  for (const auto &i : *totalEtD) {
+    if (doGCTMBx_ || i.bx() == GCTTrigBx_) {
+      totalEtD_Of_->Fill(i.overFlow());
+      if (!i.overFlow())
+        totalEtD_->Fill(i.et());
     }
   }
-  for (unsigned int i = 0; i < totalEtE->size(); i++) {
-    if (doEmuMBx_ || totalEtE->at(i).bx() == EmuTrigBx_) {
-      totalEtE_Of_->Fill(totalEtE->at(i).overFlow());
-      if (!totalEtE->at(i).overFlow())
-        totalEtE_->Fill(totalEtE->at(i).et());
+  for (const auto &i : *totalEtE) {
+    if (doEmuMBx_ || i.bx() == EmuTrigBx_) {
+      totalEtE_Of_->Fill(i.overFlow());
+      if (!i.overFlow())
+        totalEtE_->Fill(i.et());
     }
   }
 }
 
 void GctErrorAnalyzer::plotTotalH(const edm::Handle<L1GctEtHadCollection> &totalHtD,
                                   const edm::Handle<L1GctEtHadCollection> &totalHtE) {
-  for (unsigned int i = 0; i < totalHtD->size(); i++) {
-    if (doGCTMBx_ || totalHtD->at(i).bx() == GCTTrigBx_) {
-      totalHtD_Of_->Fill(totalHtD->at(i).overFlow());
-      if (!totalHtD->at(i).overFlow())
-        totalHtD_->Fill(totalHtD->at(i).et());
+  for (const auto &i : *totalHtD) {
+    if (doGCTMBx_ || i.bx() == GCTTrigBx_) {
+      totalHtD_Of_->Fill(i.overFlow());
+      if (!i.overFlow())
+        totalHtD_->Fill(i.et());
     }
   }
-  for (unsigned int i = 0; i < totalHtE->size(); i++) {
-    if (doEmuMBx_ || totalHtE->at(i).bx() == EmuTrigBx_) {
-      totalHtE_Of_->Fill(totalHtE->at(i).overFlow());
-      if (!totalHtE->at(i).overFlow())
-        totalHtE_->Fill(totalHtE->at(i).et());
+  for (const auto &i : *totalHtE) {
+    if (doEmuMBx_ || i.bx() == EmuTrigBx_) {
+      totalHtE_Of_->Fill(i.overFlow());
+      if (!i.overFlow())
+        totalHtE_->Fill(i.et());
     }
   }
 }
@@ -1680,64 +1648,64 @@ void GctErrorAnalyzer::plotTotalEErrors(const edm::Handle<L1GctEtTotalCollection
       errorDir.make<TH1I>("errorTotalHtE_Of", "errorTotalHtE_Of;Overflow Bit Status;Number of Events", 2, -0.5, 1.5);
 
   //plot the region ET and OF bits
-  for (unsigned int i = 0; i < caloRegions->size(); i++) {
-    if (caloRegions->at(i).bx() == RCTTrigBx_) {
-      if (caloRegions->at(i).et() > 0)
-        errorRegionEtEtaPhi_->Fill(caloRegions->at(i).gctEta(), caloRegions->at(i).gctPhi(), caloRegions->at(i).et());
-      if (caloRegions->at(i).overFlow())
-        errorRegionOfEtaPhi_->Fill(caloRegions->at(i).gctEta(), caloRegions->at(i).gctPhi());
+  for (const auto &i : *caloRegions) {
+    if (i.bx() == RCTTrigBx_) {
+      if (i.et() > 0)
+        errorRegionEtEtaPhi_->Fill(i.gctEta(), i.gctPhi(), i.et());
+      if (i.overFlow())
+        errorRegionOfEtaPhi_->Fill(i.gctEta(), i.gctPhi());
     }
   }
   //now plot the error ET
-  for (unsigned int i = 0; i < totalEtD->size(); i++) {
-    if (totalEtD->at(i).bx() == GCTTrigBx_) {
-      errorTotalEtD_Of_->Fill(totalEtD->at(i).overFlow());
-      if (!totalEtD->at(i).overFlow())
-        errorTotalEtD_->Fill(totalEtD->at(i).et());
+  for (const auto &i : *totalEtD) {
+    if (i.bx() == GCTTrigBx_) {
+      errorTotalEtD_Of_->Fill(i.overFlow());
+      if (!i.overFlow())
+        errorTotalEtD_->Fill(i.et());
     }
   }
-  for (unsigned int i = 0; i < totalEtE->size(); i++) {
-    if (totalEtE->at(i).bx() == EmuTrigBx_) {
-      errorTotalEtE_Of_->Fill(totalEtE->at(i).overFlow());
-      if (!totalEtE->at(i).overFlow())
-        errorTotalEtE_->Fill(totalEtE->at(i).et());
+  for (const auto &i : *totalEtE) {
+    if (i.bx() == EmuTrigBx_) {
+      errorTotalEtE_Of_->Fill(i.overFlow());
+      if (!i.overFlow())
+        errorTotalEtE_->Fill(i.et());
     }
   }
   //and now the error HT
-  for (unsigned int i = 0; i < totalHtD->size(); i++) {
-    if (totalHtD->at(i).bx() == GCTTrigBx_) {
-      errorTotalHtD_Of_->Fill(totalHtD->at(i).overFlow());
-      if (!totalHtD->at(i).overFlow())
-        errorTotalHtD_->Fill(totalHtD->at(i).et());
+  for (const auto &i : *totalHtD) {
+    if (i.bx() == GCTTrigBx_) {
+      errorTotalHtD_Of_->Fill(i.overFlow());
+      if (!i.overFlow())
+        errorTotalHtD_->Fill(i.et());
     }
   }
-  for (unsigned int i = 0; i < totalHtE->size(); i++) {
-    if (totalHtE->at(i).bx() == EmuTrigBx_) {
-      errorTotalHtE_Of_->Fill(totalHtE->at(i).overFlow());
-      if (!totalHtE->at(i).overFlow())
-        errorTotalHtE_->Fill(totalHtE->at(i).et());
+  for (const auto &i : *totalHtE) {
+    if (i.bx() == EmuTrigBx_) {
+      errorTotalHtE_Of_->Fill(i.overFlow());
+      if (!i.overFlow())
+        errorTotalHtE_->Fill(i.et());
     }
   }
 }
 
 void GctErrorAnalyzer::plotMissingEt(const edm::Handle<L1GctEtMissCollection> &missingEtD,
                                      const edm::Handle<L1GctEtMissCollection> &missingEtE) {
-  for (unsigned int i = 0; i < missingEtD->size(); i++) {
-    if (doGCTMBx_ || missingEtD->at(i).bx() == GCTTrigBx_) {
-      missingEtD_Of_->Fill(missingEtD->at(i).overFlow());
-      if (!missingEtD->at(i).overFlow() && missingEtD->at(i).et() > 0) {
-        missingEtD_->Fill(missingEtD->at(i).et());
-        missingEtD_Phi_->Fill(missingEtD->at(i).phi());
+  for (const auto &i : *missingEtD) {
+    if (doGCTMBx_ || i.bx() == GCTTrigBx_) {
+      missingEtD_Of_->Fill(i.overFlow());
+      if (!i.overFlow() && i.et() > 0) {
+        missingEtD_->Fill(i.et());
+        missingEtD_Phi_->Fill(i.phi());
       }
     }
   }
 
-  for (unsigned int i = 0; i < missingEtE->size(); i++) {
-    if (doEmuMBx_ || missingEtE->at(i).bx() == EmuTrigBx_) {
-      missingEtE_Of_->Fill(missingEtE->at(i).overFlow());
-      if (!missingEtE->at(i).overFlow() && missingEtE->at(i).et()) {
-        missingEtE_->Fill(missingEtE->at(i).et());
-        missingEtE_Phi_->Fill(missingEtE->at(i).phi());
+  for (const auto &i : *missingEtE) {
+    if (doEmuMBx_ || i.bx() == EmuTrigBx_) {
+      missingEtE_Of_->Fill(i.overFlow());
+      if (!i.overFlow() && i.et()) {
+        missingEtE_->Fill(i.et());
+        missingEtE_Phi_->Fill(i.phi());
       }
     }
   }
@@ -1745,22 +1713,22 @@ void GctErrorAnalyzer::plotMissingEt(const edm::Handle<L1GctEtMissCollection> &m
 
 void GctErrorAnalyzer::plotMissingHt(const edm::Handle<L1GctHtMissCollection> &missingHtD,
                                      const edm::Handle<L1GctHtMissCollection> &missingHtE) {
-  for (unsigned int i = 0; i < missingHtD->size(); i++) {
-    if (doGCTMBx_ || missingHtD->at(i).bx() == GCTTrigBx_) {
-      missingHtD_Of_->Fill(missingHtD->at(i).overFlow());
-      if (!missingHtD->at(i).overFlow() && missingHtD->at(i).et() > 0) {
-        missingHtD_->Fill(missingHtD->at(i).et());
-        missingHtD_Phi_->Fill(missingHtD->at(i).phi());
+  for (const auto &i : *missingHtD) {
+    if (doGCTMBx_ || i.bx() == GCTTrigBx_) {
+      missingHtD_Of_->Fill(i.overFlow());
+      if (!i.overFlow() && i.et() > 0) {
+        missingHtD_->Fill(i.et());
+        missingHtD_Phi_->Fill(i.phi());
       }
     }
   }
 
-  for (unsigned int i = 0; i < missingHtE->size(); i++) {
-    if (doEmuMBx_ || missingHtE->at(i).bx() == EmuTrigBx_) {
-      missingHtE_Of_->Fill(missingHtE->at(i).overFlow());
-      if (!missingHtE->at(i).overFlow() && missingHtE->at(i).et() > 0) {
-        missingHtE_->Fill(missingHtE->at(i).et());
-        missingHtE_Phi_->Fill(missingHtE->at(i).phi());
+  for (const auto &i : *missingHtE) {
+    if (doEmuMBx_ || i.bx() == EmuTrigBx_) {
+      missingHtE_Of_->Fill(i.overFlow());
+      if (!i.overFlow() && i.et() > 0) {
+        missingHtE_->Fill(i.et());
+        missingHtE_Phi_->Fill(i.phi());
       }
     }
   }
@@ -1856,46 +1824,34 @@ void GctErrorAnalyzer::plotMissingEErrors(const edm::Handle<L1GctEtMissCollectio
       TH1I *errorMissingHtD_HtYNegLeaf3 = errorDir.make<TH1I>(
           "errorMissingHtD_HtYNegLeaf3", "missingHtD;Missing H_{T} Y NegLeaf3;Number of Events", 4096, -2048.5, 2047.5);
 
-      for (unsigned int i = 0; i < intMissingHtD->size(); i++) {
-        if (intMissingHtD->at(i).bx() == GCTTrigBx_) {
-          if (!intMissingHtD->at(i).overflow()) {
-            if (intMissingHtD->at(i).capBlock() == 0x301 && intMissingHtD->at(i).capIndex() == 0 &&
-                intMissingHtD->at(i).isThereHtx())
-              errorMissingHtD_HtXPosLeaf1->Fill(intMissingHtD->at(i).htx());
-            if (intMissingHtD->at(i).capBlock() == 0x301 && intMissingHtD->at(i).capIndex() == 1 &&
-                intMissingHtD->at(i).isThereHtx())
-              errorMissingHtD_HtXPosLeaf2->Fill(intMissingHtD->at(i).htx());
-            if (intMissingHtD->at(i).capBlock() == 0x301 && intMissingHtD->at(i).capIndex() == 2 &&
-                intMissingHtD->at(i).isThereHtx())
-              errorMissingHtD_HtXPosLeaf3->Fill(intMissingHtD->at(i).htx());
-            if (intMissingHtD->at(i).capBlock() == 0x701 && intMissingHtD->at(i).capIndex() == 0 &&
-                intMissingHtD->at(i).isThereHtx())
-              errorMissingHtD_HtXNegLeaf1->Fill(intMissingHtD->at(i).htx());
-            if (intMissingHtD->at(i).capBlock() == 0x701 && intMissingHtD->at(i).capIndex() == 1 &&
-                intMissingHtD->at(i).isThereHtx())
-              errorMissingHtD_HtXNegLeaf2->Fill(intMissingHtD->at(i).htx());
-            if (intMissingHtD->at(i).capBlock() == 0x701 && intMissingHtD->at(i).capIndex() == 2 &&
-                intMissingHtD->at(i).isThereHtx())
-              errorMissingHtD_HtXNegLeaf3->Fill(intMissingHtD->at(i).htx());
+      for (const auto &i : *intMissingHtD) {
+        if (i.bx() == GCTTrigBx_) {
+          if (!i.overflow()) {
+            if (i.capBlock() == 0x301 && i.capIndex() == 0 && i.isThereHtx())
+              errorMissingHtD_HtXPosLeaf1->Fill(i.htx());
+            if (i.capBlock() == 0x301 && i.capIndex() == 1 && i.isThereHtx())
+              errorMissingHtD_HtXPosLeaf2->Fill(i.htx());
+            if (i.capBlock() == 0x301 && i.capIndex() == 2 && i.isThereHtx())
+              errorMissingHtD_HtXPosLeaf3->Fill(i.htx());
+            if (i.capBlock() == 0x701 && i.capIndex() == 0 && i.isThereHtx())
+              errorMissingHtD_HtXNegLeaf1->Fill(i.htx());
+            if (i.capBlock() == 0x701 && i.capIndex() == 1 && i.isThereHtx())
+              errorMissingHtD_HtXNegLeaf2->Fill(i.htx());
+            if (i.capBlock() == 0x701 && i.capIndex() == 2 && i.isThereHtx())
+              errorMissingHtD_HtXNegLeaf3->Fill(i.htx());
 
-            if (intMissingHtD->at(i).capBlock() == 0x301 && intMissingHtD->at(i).capIndex() == 0 &&
-                intMissingHtD->at(i).isThereHty())
-              errorMissingHtD_HtYPosLeaf1->Fill(intMissingHtD->at(i).hty());
-            if (intMissingHtD->at(i).capBlock() == 0x301 && intMissingHtD->at(i).capIndex() == 1 &&
-                intMissingHtD->at(i).isThereHty())
-              errorMissingHtD_HtYPosLeaf2->Fill(intMissingHtD->at(i).hty());
-            if (intMissingHtD->at(i).capBlock() == 0x301 && intMissingHtD->at(i).capIndex() == 2 &&
-                intMissingHtD->at(i).isThereHty())
-              errorMissingHtD_HtYPosLeaf3->Fill(intMissingHtD->at(i).hty());
-            if (intMissingHtD->at(i).capBlock() == 0x701 && intMissingHtD->at(i).capIndex() == 0 &&
-                intMissingHtD->at(i).isThereHty())
-              errorMissingHtD_HtYNegLeaf1->Fill(intMissingHtD->at(i).hty());
-            if (intMissingHtD->at(i).capBlock() == 0x701 && intMissingHtD->at(i).capIndex() == 1 &&
-                intMissingHtD->at(i).isThereHty())
-              errorMissingHtD_HtYNegLeaf2->Fill(intMissingHtD->at(i).hty());
-            if (intMissingHtD->at(i).capBlock() == 0x701 && intMissingHtD->at(i).capIndex() == 2 &&
-                intMissingHtD->at(i).isThereHty())
-              errorMissingHtD_HtYNegLeaf3->Fill(intMissingHtD->at(i).hty());
+            if (i.capBlock() == 0x301 && i.capIndex() == 0 && i.isThereHty())
+              errorMissingHtD_HtYPosLeaf1->Fill(i.hty());
+            if (i.capBlock() == 0x301 && i.capIndex() == 1 && i.isThereHty())
+              errorMissingHtD_HtYPosLeaf2->Fill(i.hty());
+            if (i.capBlock() == 0x301 && i.capIndex() == 2 && i.isThereHty())
+              errorMissingHtD_HtYPosLeaf3->Fill(i.hty());
+            if (i.capBlock() == 0x701 && i.capIndex() == 0 && i.isThereHty())
+              errorMissingHtD_HtYNegLeaf1->Fill(i.hty());
+            if (i.capBlock() == 0x701 && i.capIndex() == 1 && i.isThereHty())
+              errorMissingHtD_HtYNegLeaf2->Fill(i.hty());
+            if (i.capBlock() == 0x701 && i.capIndex() == 2 && i.isThereHty())
+              errorMissingHtD_HtYNegLeaf3->Fill(i.hty());
           }
         }
       }
@@ -1912,60 +1868,58 @@ void GctErrorAnalyzer::plotMissingEErrors(const edm::Handle<L1GctEtMissCollectio
                                                        -0.5,
                                                        17.5);
 
-    for (unsigned int i = 0; i < intJetsE->size(); i++) {
-      if (intJetsE->at(i).bx() == EmuTrigBx_) {
-        if (!intJetsE->at(i).oflow() && intJetsE->at(i).et())
-          errorIntJetsE_EtEtaPhi->Fill(
-              intJetsE->at(i).regionId().ieta(), intJetsE->at(i).regionId().iphi(), intJetsE->at(i).et());
+    for (const auto &i : *intJetsE) {
+      if (i.bx() == EmuTrigBx_) {
+        if (!i.oflow() && i.et())
+          errorIntJetsE_EtEtaPhi->Fill(i.regionId().ieta(), i.regionId().iphi(), i.et());
       }
     }
   }
 
-  for (unsigned int i = 0; i < caloRegions->size(); i++) {
-    if (caloRegions->at(i).bx() == RCTTrigBx_) {
-      if (caloRegions->at(i).et() > 0)
-        errorRegionEtEtaPhi_->Fill(caloRegions->at(i).gctEta(), caloRegions->at(i).gctPhi(), caloRegions->at(i).et());
-      if (caloRegions->at(i).overFlow())
-        errorRegionOfEtaPhi_->Fill(caloRegions->at(i).gctEta(), caloRegions->at(i).gctPhi());
+  for (const auto &i : *caloRegions) {
+    if (i.bx() == RCTTrigBx_) {
+      if (i.et() > 0)
+        errorRegionEtEtaPhi_->Fill(i.gctEta(), i.gctPhi(), i.et());
+      if (i.overFlow())
+        errorRegionOfEtaPhi_->Fill(i.gctEta(), i.gctPhi());
     }
   }
 
   //plot the data candidates relating to this mismatch
-  for (unsigned int i = 0; i < missingEtD->size(); i++) {
-    if (missingEtD->at(i).bx() == GCTTrigBx_) {
-      errorMissingEtD_Of_->Fill(missingEtD->at(i).overFlow());
-      if (!missingEtD->at(i).overFlow()) {
-        errorMissingEtD_->Fill(missingEtD->at(i).et());
-        errorMissingEtD_Phi_->Fill(missingEtD->at(i).phi());
+  for (const auto &i : *missingEtD) {
+    if (i.bx() == GCTTrigBx_) {
+      errorMissingEtD_Of_->Fill(i.overFlow());
+      if (!i.overFlow()) {
+        errorMissingEtD_->Fill(i.et());
+        errorMissingEtD_Phi_->Fill(i.phi());
       }
     }
   }
-  for (unsigned int i = 0; i < missingHtD->size(); i++) {
-    if (missingHtD->at(i).bx() == GCTTrigBx_) {
-      errorMissingHtD_Of_->Fill(missingHtD->at(i).overFlow());
-      if (!missingHtD->at(i).overFlow()) {
-        errorMissingHtD_->Fill(missingHtD->at(i).et());
-        errorMissingHtD_Phi_->Fill(missingHtD->at(i).phi());
+  for (const auto &i : *missingHtD) {
+    if (i.bx() == GCTTrigBx_) {
+      errorMissingHtD_Of_->Fill(i.overFlow());
+      if (!i.overFlow()) {
+        errorMissingHtD_->Fill(i.et());
+        errorMissingHtD_Phi_->Fill(i.phi());
       }
     }
   }
   //and now for the emulator candidates
-  for (unsigned int i = 0; i < missingEtE->size(); i++) {
-    if (missingEtE->at(i).bx() == EmuTrigBx_) {
-      errorMissingEtE_Of_->Fill(missingEtE->at(i).overFlow());
-      if (!missingEtE->at(i).overFlow()) {
-        errorMissingEtE_->Fill(missingEtE->at(i).et());
-        errorMissingEtE_Phi_->Fill(missingEtE->at(i).phi());
+  for (const auto &i : *missingEtE) {
+    if (i.bx() == EmuTrigBx_) {
+      errorMissingEtE_Of_->Fill(i.overFlow());
+      if (!i.overFlow()) {
+        errorMissingEtE_->Fill(i.et());
+        errorMissingEtE_Phi_->Fill(i.phi());
       }
     }
   }
-  for (unsigned int i = 0; i < missingHtE->size(); i++) {
-    if (missingHtE->at(i).bx() == EmuTrigBx_) {
-      errorMissingHtE_Of_->Fill(missingHtE->at(i).overFlow());
-      if (!missingHtE->at(i)
-               .overFlow()) {  //to see what values the emulator outputs despite the o/f bit being set comment out this statement
-        errorMissingHtE_->Fill(missingHtE->at(i).et());
-        errorMissingHtE_Phi_->Fill(missingHtE->at(i).phi());
+  for (const auto &i : *missingHtE) {
+    if (i.bx() == EmuTrigBx_) {
+      errorMissingHtE_Of_->Fill(i.overFlow());
+      if (!i.overFlow()) {  //to see what values the emulator outputs despite the o/f bit being set comment out this statement
+        errorMissingHtE_->Fill(i.et());
+        errorMissingHtE_Phi_->Fill(i.phi());
       }
     }
   }

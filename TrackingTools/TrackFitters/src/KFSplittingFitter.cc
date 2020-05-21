@@ -5,16 +5,16 @@
 
 void KFSplittingFitter::sorter(const RecHitContainer& hits, PropagationDirection dir, RecHitContainer& result) const {
   result.reserve(hits.size());
-  for (RecHitContainer::const_iterator ihit = hits.begin(); ihit != hits.end(); ihit++) {
-    if (!(**ihit).isValid())
-      result.push_back(*ihit);
-    else if ((**ihit).transientHits().size() == 1)
-      result.push_back(*ihit);
+  for (const auto& hit : hits) {
+    if (!(*hit).isValid())
+      result.push_back(hit);
+    else if ((*hit).transientHits().size() == 1)
+      result.push_back(hit);
     else {
-      RecHitContainer splitted = RecHitSplitter().split((**ihit).transientHits());
+      RecHitContainer splitted = RecHitSplitter().split((*hit).transientHits());
       RecHitContainer sorted = RecHitSorter().sortHits(splitted, dir);
-      for (RecHitContainer::iterator srt = sorted.begin(); srt != sorted.end(); srt++) {
-        result.push_back(*srt);
+      for (auto& srt : sorted) {
+        result.push_back(srt);
         //      result.insert(result.end(), sorted.begin(), sorted.end());
       }
     }

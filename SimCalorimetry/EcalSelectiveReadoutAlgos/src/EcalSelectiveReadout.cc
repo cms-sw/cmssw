@@ -22,10 +22,10 @@ EcalSelectiveReadout::EcalSelectiveReadout(int dEta_, int dPhi_)
 
 void EcalSelectiveReadout::resetEeRuInterest() {
   //init superCrystalInterest (sets all elts to 'UNKNOWN'):
-  for (size_t iCap = 0; iCap < nEndcaps; ++iCap) {
+  for (auto& iCap : eeRuInterest_) {
     for (int iDccPhi = 0; iDccPhi < nDccPerEe; ++iDccPhi) {
       for (int iDccCh = 0; iDccCh < maxDccChs; ++iDccCh) {
-        eeRuInterest_[iCap][iDccPhi][iDccCh] = UNKNOWN;
+        iCap[iDccPhi][iDccCh] = UNKNOWN;
       }
     }
   }
@@ -186,9 +186,9 @@ EcalSelectiveReadout::towerInterest_t EcalSelectiveReadout::getTowerInterest(con
 
 void EcalSelectiveReadout::classifyTriggerTowers(const ttFlag_t ttFlags[nTriggerTowersInEta][nTriggerTowersInPhi]) {
   //starts with a all low interest map:
-  for (int iEta = 0; iEta < (int)nTriggerTowersInEta; ++iEta) {
+  for (auto& iEta : towerInterest) {
     for (int iPhi = 0; iPhi < (int)nTriggerTowersInPhi; ++iPhi) {
-      towerInterest[iEta][iPhi] = LOWINTEREST;
+      iEta[iPhi] = LOWINTEREST;
     }
   }
 
@@ -224,8 +224,7 @@ void EcalSelectiveReadout::classifyTriggerTowers(const ttFlag_t ttFlags[nTrigger
   //a TT. Note that for S and C, the 2 pseudo-TT must already have the
   //same mask.
   const size_t innerEtas[] = {0, 1, nTriggerTowersInEta - 2, nTriggerTowersInEta - 1};
-  for (size_t i = 0; i < 4; ++i) {
-    size_t iEta = innerEtas[i];
+  for (unsigned long iEta : innerEtas) {
     for (size_t iPhi = 0; iPhi < nTriggerTowersInPhi; iPhi += 2) {
       const towerInterest_t srf = std::max(towerInterest[iEta][iPhi], towerInterest[iEta][iPhi + 1]);
       towerInterest[iEta][iPhi] = srf;

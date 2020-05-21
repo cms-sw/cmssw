@@ -153,8 +153,8 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
   // CLCT-centric matching
   if (clct_to_alct) {
     int used_alct_mask[20];
-    for (int a = 0; a < 20; ++a)
-      used_alct_mask[a] = 0;
+    for (int& a : used_alct_mask)
+      a = 0;
 
     int bx_alct_matched = 0;  // bx of last matched ALCT
     for (int bx_clct = 0; bx_clct < CSCConstants::MAX_CLCT_TBINS; bx_clct++) {
@@ -233,8 +233,8 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
   // ALCT-centric matching
   else {
     int used_clct_mask[20];
-    for (int a = 0; a < 20; ++a)
-      used_clct_mask[a] = 0;
+    for (int& a : used_clct_mask)
+      a = 0;
 
     int bx_clct_matched = 0;  // bx of last matched CLCT
     for (int bx_alct = 0; bx_alct < CSCConstants::MAX_ALCT_TBINS; bx_alct++) {
@@ -362,16 +362,16 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::readoutLCTs() const {
   // those within the LCT*L1A coincidence window.
   int bx_readout = -1;
   const std::vector<CSCCorrelatedLCTDigi>& all_lcts = getLCTs();
-  for (auto plct = all_lcts.begin(); plct != all_lcts.end(); plct++) {
-    if (!plct->isValid())
+  for (const auto& all_lct : all_lcts) {
+    if (!all_lct.isValid())
       continue;
 
-    int bx = (*plct).getBX();
+    int bx = all_lct.getBX();
     // Skip LCTs found too early relative to L1Accept.
     if (bx <= early_tbins) {
       if (infoV > 1)
-        LogDebug("CSCMotherboard") << " Do not report correlated LCT on key halfstrip " << plct->getStrip()
-                                   << " and key wire " << plct->getKeyWG() << ": found at bx " << bx
+        LogDebug("CSCMotherboard") << " Do not report correlated LCT on key halfstrip " << all_lct.getStrip()
+                                   << " and key wire " << all_lct.getKeyWG() << ": found at bx " << bx
                                    << ", whereas the earliest allowed bx is " << early_tbins + 1;
       continue;
     }
@@ -379,8 +379,8 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::readoutLCTs() const {
     // Skip LCTs found too late relative to L1Accept.
     if (bx > late_tbins) {
       if (infoV > 1)
-        LogDebug("CSCMotherboard") << " Do not report correlated LCT on key halfstrip " << plct->getStrip()
-                                   << " and key wire " << plct->getKeyWG() << ": found at bx " << bx
+        LogDebug("CSCMotherboard") << " Do not report correlated LCT on key halfstrip " << all_lct.getStrip()
+                                   << " and key wire " << all_lct.getKeyWG() << ": found at bx " << bx
                                    << ", whereas the latest allowed bx is " << late_tbins;
       continue;
     }
@@ -390,14 +390,14 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::readoutLCTs() const {
     // currently there is room just for two.
     if (readout_earliest_2) {
       if (bx_readout == -1 || bx == bx_readout) {
-        tmpV.push_back(*plct);
+        tmpV.push_back(all_lct);
         if (bx_readout == -1)
           bx_readout = bx;
       }
     }
     // if readout_earliest_2 == false, save all LCTs
     else
-      tmpV.push_back(*plct);
+      tmpV.push_back(all_lct);
   }
   return tmpV;
 }

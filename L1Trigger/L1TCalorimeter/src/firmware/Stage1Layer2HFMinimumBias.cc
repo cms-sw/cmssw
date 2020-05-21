@@ -17,19 +17,19 @@ void l1t::Stage1Layer2HFMinimumBias::processEvent(const std::vector<l1t::CaloReg
                                                   l1t::CaloSpare* spare) {
   int sumBits[4] = {0, 0, 0, 0};
 
-  for (std::vector<CaloRegion>::const_iterator region = regions.begin(); region != regions.end(); region++) {
-    switch (region->hwEta()) {
+  for (const auto& region : regions) {
+    switch (region.hwEta()) {
       case 0:  //1-
-        sumBits[1] += region->hwQual();
+        sumBits[1] += region.hwQual();
         break;
       case 1:  //2-
-        sumBits[3] += region->hwQual();
+        sumBits[3] += region.hwQual();
         break;
       case 20:  //2+
-        sumBits[2] += region->hwQual();
+        sumBits[2] += region.hwQual();
         break;
       case 21:  //1+
-        sumBits[0] += region->hwQual();
+        sumBits[0] += region.hwQual();
         break;
       default:
         break;

@@ -47,8 +47,8 @@ bool fastsim::ParticleFilter::accepts(const fastsim::Particle& particle) const {
   }
 
   // possible to extend list of invisible particles
-  for (unsigned InvIdx = 0; InvIdx < skipParticles_.size(); InvIdx++) {
-    if (absPdgId == abs(skipParticles_.at(InvIdx))) {
+  for (int skipParticle : skipParticles_) {
+    if (absPdgId == abs(skipParticle)) {
       return false;
     }
   }

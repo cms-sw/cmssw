@@ -14,9 +14,9 @@ ME0Motherboard::ME0Motherboard() : theEndcap(1), theChamber(1) { infoV = 2; }
 ME0Motherboard::~ME0Motherboard() {}
 
 void ME0Motherboard::clear() {
-  for (int bx = 0; bx < MAX_TRIGGER_BINS; bx++) {
+  for (auto& Trigger : Triggers) {
     for (int i = 0; i < MAX_TRIGGERS; i++) {
-      Triggers[bx][i].clear();
+      Trigger[i].clear();
     }
   }
 }
@@ -41,9 +41,9 @@ std::vector<ME0TriggerDigi> ME0Motherboard::readoutTriggers() {
 std::vector<ME0TriggerDigi> ME0Motherboard::getTriggers() {
   std::vector<ME0TriggerDigi> tmpV;
 
-  for (int bx = 0; bx < MAX_TRIGGER_BINS; bx++) {
+  for (auto& Trigger : Triggers) {
     for (int i = 0; i < MAX_TRIGGERS; i++) {
-      tmpV.push_back(Triggers[bx][i]);
+      tmpV.push_back(Trigger[i]);
     }
   }
   return tmpV;

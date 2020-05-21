@@ -101,8 +101,8 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event& event,
     std::vector<const pat::CompositeCandidate*> collSelGT;
     std::vector<const pat::CompositeCandidate*> collSelTT;
     if (collAll.isValid()) {
-      for (std::vector<pat::CompositeCandidate>::const_iterator it = collAll->begin(); it != collAll->end(); ++it) {
-        const pat::CompositeCandidate* cand = &(*it);
+      for (const auto& it : *collAll) {
+        const pat::CompositeCandidate* cand = &it;
         // cout << "Now checking candidate of type " << theJpsiCat << " with pt = " << cand->pt() << endl;
         const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(cand->daughter("muon1"));
         const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(cand->daughter("muon2"));
@@ -208,8 +208,8 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event& event,
     edm::Handle<reco::CaloMuonCollection> caloMuons;
     event.getByLabel(muonLabel_, caloMuons);
     std::vector<reco::Track> tracks;
-    for (std::vector<reco::CaloMuon>::const_iterator muon = caloMuons->begin(); muon != caloMuons->end(); ++muon) {
-      tracks.push_back(*(muon->track()));
+    for (const auto& muon : *caloMuons) {
+      tracks.push_back(*(muon.track()));
     }
     muons = fillMuonCollection(tracks);
   }
@@ -241,8 +241,8 @@ void MuScleFitMuonSelector::selectGeneratedMuons(const edm::Handle<pat::Composit
   reco::GenParticleCollection genPatParticles{};
 
   //explicitly for JPsi but can be adapted!!!!!
-  for (std::vector<pat::CompositeCandidate>::const_iterator it = collAll->begin(); it != collAll->end(); ++it) {
-    reco::GenParticleRef genJpsi = it->genParticleRef();
+  for (const auto& it : *collAll) {
+    reco::GenParticleRef genJpsi = it.genParticleRef();
     bool isMatched = (genJpsi.isAvailable() && genJpsi->pdgId() == 443);
     if (isMatched) {
       genPatParticles.push_back(*genJpsi.get());
@@ -401,13 +401,13 @@ GenMuonPair MuScleFitMuonSelector::findGenMuFromRes(const reco::GenParticleColle
   //Loop on generated particles
   if (debug_ > 0)
     std::cout << "Starting loop on " << genParticles->size() << " genParticles" << std::endl;
-  for (reco::GenParticleCollection::const_iterator part = genParticles->begin(); part != genParticles->end(); ++part) {
+  for (const auto& genParticle : *genParticles) {
     if (debug_ > 0)
-      std::cout << "genParticle has pdgId = " << std::abs(part->pdgId()) << " and status = " << part->status()
-                << std::endl;
-    if (std::abs(part->pdgId()) == 13) {  // && part->status()==3) {
+      std::cout << "genParticle has pdgId = " << std::abs(genParticle.pdgId())
+                << " and status = " << genParticle.status() << std::endl;
+    if (std::abs(genParticle.pdgId()) == 13) {  // && part->status()==3) {
       bool fromRes = false;
-      unsigned int motherPdgId = part->mother()->pdgId();
+      unsigned int motherPdgId = genParticle.mother()->pdgId();
       if (debug_ > 0) {
         std::cout << "Found a muon with mother: " << motherPdgId << std::endl;
       }
@@ -425,9 +425,9 @@ GenMuonPair MuScleFitMuonSelector::findGenMuFromRes(const reco::GenParticleColle
       if (fromRes) {
         if (debug_ > 0)
           std::cout << "fromRes = true, motherPdgId = " << motherPdgId << std::endl;
-        const reco::Candidate* status3Muon = &(*part);
+        const reco::Candidate* status3Muon = &genParticle;
         const reco::Candidate* status1Muon = getStatus1Muon(status3Muon);
-        if (part->pdgId() == 13) {
+        if (genParticle.pdgId() == 13) {
           if (status1Muon->p4().pt() != 0)
             muFromRes.mu1 = MuScleFitMuon(status1Muon->p4(), -1);
           else
@@ -457,12 +457,12 @@ std::pair<lorentzVector, lorentzVector> MuScleFitMuonSelector::findSimMuFromRes(
     const edm::Handle<edm::HepMCProduct>& evtMC, const edm::Handle<edm::SimTrackContainer>& simTracks) {
   //Loop on simulated tracks
   std::pair<lorentzVector, lorentzVector> simMuFromRes;
-  for (edm::SimTrackContainer::const_iterator simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack) {
+  for (const auto& simTrack : *simTracks) {
     //Chose muons
-    if (std::abs((*simTrack).type()) == 13) {
+    if (std::abs(simTrack.type()) == 13) {
       //If tracks from IP than find mother
-      if ((*simTrack).genpartIndex() > 0) {
-        HepMC::GenParticle* gp = evtMC->GetEvent()->barcode_to_particle((*simTrack).genpartIndex());
+      if (simTrack.genpartIndex() > 0) {
+        HepMC::GenParticle* gp = evtMC->GetEvent()->barcode_to_particle(simTrack.genpartIndex());
         if (gp != nullptr) {
           for (HepMC::GenVertex::particle_iterator mother = gp->production_vertex()->particles_begin(HepMC::ancestors);
                mother != gp->production_vertex()->particles_end(HepMC::ancestors);
@@ -475,15 +475,15 @@ std::pair<lorentzVector, lorentzVector> MuScleFitMuonSelector::findSimMuFromRes(
             }
             if (fromRes) {
               if (gp->pdg_id() == 13)
-                simMuFromRes.first = lorentzVector(simTrack->momentum().px(),
-                                                   simTrack->momentum().py(),
-                                                   simTrack->momentum().pz(),
-                                                   simTrack->momentum().e());
+                simMuFromRes.first = lorentzVector(simTrack.momentum().px(),
+                                                   simTrack.momentum().py(),
+                                                   simTrack.momentum().pz(),
+                                                   simTrack.momentum().e());
               else
-                simMuFromRes.second = lorentzVector(simTrack->momentum().px(),
-                                                    simTrack->momentum().py(),
-                                                    simTrack->momentum().pz(),
-                                                    simTrack->momentum().e());
+                simMuFromRes.second = lorentzVector(simTrack.momentum().px(),
+                                                    simTrack.momentum().py(),
+                                                    simTrack.momentum().pz(),
+                                                    simTrack.momentum().e());
             }
           }
         }

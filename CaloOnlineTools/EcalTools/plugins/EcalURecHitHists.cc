@@ -64,8 +64,8 @@ EcalURecHitHists::EcalURecHitHists(const edm::ParameterSet& iConfig)
     //if "actual" EB id given, then convert to FEDid and put in listFEDs_
     if (maskedEBs_[0] != "none") {
       maskedFEDs_.clear();
-      for (vector<string>::const_iterator ebItr = maskedEBs_.begin(); ebItr != maskedEBs_.end(); ++ebItr) {
-        maskedFEDs_.push_back(fedMap_->getFedFromSlice(*ebItr));
+      for (const auto& maskedEB : maskedEBs_) {
+        maskedFEDs_.push_back(fedMap_->getFedFromSlice(maskedEB));
       }
     }
   }
@@ -89,8 +89,8 @@ void EcalURecHitHists::analyze(edm::Event const& iEvent, edm::EventSetup const& 
   iEvent.getByLabel(EEUncalibratedRecHitCollection_, EEhits);
   LogDebug("EcalURecHitHists") << "event " << ievt << " hits collection size " << EEhits->size();
 
-  for (EcalUncalibratedRecHitCollection::const_iterator hitItr = EBhits->begin(); hitItr != EBhits->end(); ++hitItr) {
-    EcalUncalibratedRecHit hit = (*hitItr);
+  for (const auto& hitItr : *EBhits) {
+    EcalUncalibratedRecHit hit = hitItr;
     EBDetId ebDet = hit.id();
     int ic = ebDet.ic();
     int hashedIndex = ebDet.hashedIndex();
@@ -127,8 +127,8 @@ void EcalURecHitHists::analyze(edm::Event const& iEvent, edm::EventSetup const& 
   }
 
   // Again for the endcap
-  for (EcalUncalibratedRecHitCollection::const_iterator hitItr = EEhits->begin(); hitItr != EEhits->end(); ++hitItr) {
-    EcalUncalibratedRecHit hit = (*hitItr);
+  for (const auto& hitItr : *EEhits) {
+    EcalUncalibratedRecHit hit = hitItr;
     EEDetId eeDet = hit.id();
     int ic = eeDet.ic();
     int hashedIndex = eeDet.hashedIndex();
@@ -231,8 +231,8 @@ void EcalURecHitHists::endJob() {
   root_file_.Close();
 
   std::string channels;
-  for (std::vector<int>::const_iterator itr = maskedChannels_.begin(); itr != maskedChannels_.end(); ++itr) {
-    channels += intToString(*itr);
+  for (int maskedChannel : maskedChannels_) {
+    channels += intToString(maskedChannel);
     channels += ",";
   }
 

@@ -916,8 +916,8 @@ string getABDCCOutputStream(const char barrelSrFlags[nBarrelTTInEta][nTTInPhi],
     // same as TCC with same ch number but with TCC flags replaced by SRP flags:
     string stream = getABTCCInputStream(barrelSrFlags - nEndcapTTInEta, iABEta, iABPhi, iDCCCh);
     // converts srp flags to readout flags:
-    for (size_t i = 0; i < stream.size(); ++i) {
-      stream[i] = srp2roFlags[(int)stream[i]];
+    for (char &i : stream) {
+      i = srp2roFlags[(int)i];
     }
     return stream;
   } else {             // endcap

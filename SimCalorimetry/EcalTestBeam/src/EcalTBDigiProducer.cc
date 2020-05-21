@@ -31,12 +31,12 @@ EcalTBDigiProducer::EcalTBDigiProducer(const edm::ParameterSet &params,
 
   typedef std::vector<edm::ParameterSet> Parameters;
   Parameters ranges = params.getParameter<Parameters>("tdcRanges");
-  for (Parameters::iterator itRanges = ranges.begin(); itRanges != ranges.end(); ++itRanges) {
+  for (auto &range : ranges) {
     EcalTBTDCRecInfoAlgo::EcalTBTDCRanges aRange;
-    aRange.runRanges.first = itRanges->getParameter<int>("startRun");
-    aRange.runRanges.second = itRanges->getParameter<int>("endRun");
-    aRange.tdcMin = itRanges->getParameter<std::vector<double>>("tdcMin");
-    aRange.tdcMax = itRanges->getParameter<std::vector<double>>("tdcMax");
+    aRange.runRanges.first = range.getParameter<int>("startRun");
+    aRange.runRanges.second = range.getParameter<int>("endRun");
+    aRange.tdcMin = range.getParameter<std::vector<double>>("tdcMin");
+    aRange.tdcMax = range.getParameter<std::vector<double>>("tdcMax");
     m_tdcRanges.push_back(std::move(aRange));
   }
 

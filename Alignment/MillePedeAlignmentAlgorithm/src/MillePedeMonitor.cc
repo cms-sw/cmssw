@@ -443,11 +443,8 @@ bool MillePedeMonitor::init(TDirectory *directory) {
 
   TDirectory *dirResidX = (dirResid ? dirResid : directory)->mkdir("X", "hit residuals etc. for x measurements");
   this->addToDirectory(myResidHitHists1DX, dirResidX);
-  for (std::vector<std::vector<TH1 *> >::iterator vecIter = myResidHistsVec1DX.begin(),
-                                                  vecIterEnd = myResidHistsVec1DX.end();
-       vecIter != vecIterEnd;
-       ++vecIter) {
-    this->addToDirectory(*vecIter, dirResidX);
+  for (auto &vecIter : myResidHistsVec1DX) {
+    this->addToDirectory(vecIter, dirResidX);
   }
 
   // Now clone the same as above for y-ccordinate:
@@ -463,11 +460,8 @@ bool MillePedeMonitor::init(TDirectory *directory) {
 
   TDirectory *dirResidY = (dirResid ? dirResid : directory)->mkdir("Y", "hit residuals etc. for y measurements");
   this->addToDirectory(myResidHitHists1DY, dirResidY);
-  for (std::vector<std::vector<TH1 *> >::iterator vecIter = myResidHistsVec1DY.begin(),
-                                                  vecIterEnd = myResidHistsVec1DY.end();
-       vecIter != vecIterEnd;
-       ++vecIter) {
-    this->addToDirectory(*vecIter, dirResidY);
+  for (auto &vecIter : myResidHistsVec1DY) {
+    this->addToDirectory(vecIter, dirResidY);
   }
 
   // farme-to-frame derivatives

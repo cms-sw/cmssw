@@ -20,8 +20,8 @@ void TtSemiLRSignalSelObservables::operator()(TtSemiEvtSolution &TS, const std::
   std::vector<pat::Jet> TopJets;
   TopJets.clear();
 
-  for (unsigned int i = 0; i < SelectedTopJets.size(); i++) {
-    TopJets.push_back(SelectedTopJets[i]);
+  for (const auto &SelectedTopJet : SelectedTopJets) {
+    TopJets.push_back(SelectedTopJet);
   }
 
   //sort the TopJets in Et
@@ -350,9 +350,9 @@ void TtSemiLRSignalSelObservables::operator()(TtSemiEvtSolution &TS, const std::
 
   double HT_alljets = 0;
   double H_alljets = 0;
-  for (unsigned int i = 0; i < TopJets.size(); i++) {
-    HT_alljets += TopJets[i].et();
-    H_alljets += TopJets[i].energy();
+  for (auto &TopJet : TopJets) {
+    HT_alljets += TopJet.et();
+    H_alljets += TopJet.energy();
   }
   double Obs20 = HT_alljets;
   evtselectVarVal.push_back(std::pair<unsigned int, double>(20, Obs20));
@@ -447,8 +447,8 @@ void TtSemiLRSignalSelObservables::operator()(TtSemiEvtSolution &TS, const std::
   double Thrust_Major = -1, Thrust_Major_tmp = 0;
   double Thrust_Minor = -1;
 
-  for (unsigned int i = 0; i < TopJets.size(); i++) {
-    Thrust_D += TopJets[i].p();
+  for (auto &TopJet : TopJets) {
+    Thrust_D += TopJet.p();
   }
 
   Thrust_D += Lept->P();
@@ -461,9 +461,8 @@ void TtSemiLRSignalSelObservables::operator()(TtSemiEvtSolution &TS, const std::
         n_tmp.SetY(sin((2 * PI / 720) * i) * sin((PI / 360) * j));
         n_tmp.SetZ(cos((PI / 360) * j));
 
-        for (unsigned int k = 0; k < TopJets.size(); k++) {
-          Thrust_N +=
-              fabs(TopJets[k].px() * (n_tmp.x()) + TopJets[k].py() * (n_tmp.y()) + TopJets[k].pz() * (n_tmp.z()));
+        for (auto &TopJet : TopJets) {
+          Thrust_N += fabs(TopJet.px() * (n_tmp.x()) + TopJet.py() * (n_tmp.y()) + TopJet.pz() * (n_tmp.z()));
         }
         Thrust_N += fabs(Lept->Px() * (n_tmp.x()) + Lept->Py() * (n_tmp.y()) + Lept->Pz() * (n_tmp.z()));
 
@@ -482,8 +481,8 @@ void TtSemiLRSignalSelObservables::operator()(TtSemiEvtSolution &TS, const std::
     nT = nT.Unit();
     for (unsigned int i = 0; i < 720; i++) {
       nT.Rotate((2 * PI / 720) * i, n);
-      for (unsigned int j = 0; j < TopJets.size(); j++) {
-        Thrust_N += fabs(TopJets[j].px() * (nT.x()) + TopJets[j].py() * (nT.y()) + TopJets[j].pz() * (nT.z()));
+      for (auto &TopJet : TopJets) {
+        Thrust_N += fabs(TopJet.px() * (nT.x()) + TopJet.py() * (nT.y()) + TopJet.pz() * (nT.z()));
       }
       Thrust_N += fabs(Lept->Px() * nT.x() + Lept->Py() * (nT.y()) + Lept->Pz() * (nT.z()));
 
@@ -500,9 +499,8 @@ void TtSemiLRSignalSelObservables::operator()(TtSemiEvtSolution &TS, const std::
     TVector3 nMinor = nT.Cross(n);
     nMinor = nMinor.Unit();
 
-    for (unsigned int i = 0; i < TopJets.size(); i++) {
-      Thrust_N +=
-          fabs(TopJets[i].px() * (nMinor.x()) + TopJets[i].py() * (nMinor.y()) + TopJets[i].pz() * (nMinor.z()));
+    for (auto &TopJet : TopJets) {
+      Thrust_N += fabs(TopJet.px() * (nMinor.x()) + TopJet.py() * (nMinor.y()) + TopJet.pz() * (nMinor.z()));
     }
     Thrust_N += fabs(Lept->Px() * nMinor.x() + Lept->Py() * (nMinor.y()) + Lept->Pz() * (nMinor.z()));
 

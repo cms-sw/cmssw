@@ -179,8 +179,8 @@ int EcalTPGDBApp::readFromCondDB_Pedestals(map<EcalLogicID, MonPedestalsDat>& da
   //int sm_num = 0;
 
   if (mon_runs > 0) {
-    for (int ii = 0; ii < (int)mon_run_vec.size(); ii++)
-      cout << "here is the run number: " << mon_run_vec[ii].getRunIOV().getRunNumber() << endl;
+    for (auto& ii : mon_run_vec)
+      cout << "here is the run number: " << ii.getRunIOV().getRunNumber() << endl;
 
     // for the first run of the list we retrieve the pedestals
     int run = 0;

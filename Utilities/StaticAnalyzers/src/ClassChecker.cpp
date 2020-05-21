@@ -132,10 +132,8 @@ namespace clangcms {
       LangOpts.CPlusPlus = true;
       clang::PrintingPolicy Policy(LangOpts);
       if (!WList.empty()) {
-        for (llvm::SmallVectorImpl<const clang::CXXMemberCallExpr *>::iterator I = WList.begin(), E = WList.end();
-             I != E;
-             I++) {
-          (*I)->printPretty(os, nullptr, Policy);
+        for (auto &I : WList) {
+          I->printPretty(os, nullptr, Policy);
           os << " ";
         }
       }

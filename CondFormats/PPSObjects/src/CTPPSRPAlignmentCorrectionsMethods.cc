@@ -355,8 +355,8 @@ void CTPPSRPAlignmentCorrectionsMethods::writeXMLBlock(const CTPPSRPAlignmentCor
   const auto& sensors = data.getSensorMap();
   const auto& rps = data.getRPMap();
 
-  for (auto it = sensors.begin(); it != sensors.end(); ++it) {
-    CTPPSDetId sensorId(it->first);
+  for (const auto& sensor : sensors) {
+    CTPPSDetId sensorId(sensor.first);
     unsigned int rpId = sensorId.rpId();
     unsigned int decRPId = sensorId.arm() * 100 + sensorId.station() * 10 + sensorId.rp();
 
@@ -381,24 +381,24 @@ void CTPPSRPAlignmentCorrectionsMethods::writeXMLBlock(const CTPPSRPAlignmentCor
     // write plane id
     unsigned int planeIdx = 1000;
     if (sensorId.subdetId() == CTPPSDetId::sdTrackingStrip)
-      planeIdx = TotemRPDetId(it->first).plane();
+      planeIdx = TotemRPDetId(sensor.first).plane();
     if (sensorId.subdetId() == CTPPSDetId::sdTrackingPixel)
-      planeIdx = CTPPSPixelDetId(it->first).plane();
+      planeIdx = CTPPSPixelDetId(sensor.first).plane();
     if (sensorId.subdetId() == CTPPSDetId::sdTimingDiamond)
-      planeIdx = CTPPSDiamondDetId(it->first).plane();
+      planeIdx = CTPPSDiamondDetId(sensor.first).plane();
     fprintf(rf, "\t<!-- plane %u --> ", planeIdx);
 
     // write the correction
-    fprintf(rf, "<det id=\"%u\"", it->first);
-    writeXML(it->second, rf, precise, wrErrors, wrSh_xy, wrSh_z, wrRot_xy, wrRot_z);
+    fprintf(rf, "<det id=\"%u\"", sensor.first);
+    writeXML(sensor.second, rf, precise, wrErrors, wrSh_xy, wrSh_z, wrRot_xy, wrRot_z);
     fprintf(rf, "/>\n");
   }
 
   // write remaining RPs
-  for (auto it = rps.begin(); it != rps.end(); ++it) {
-    std::set<unsigned int>::iterator wit = writtenRPs.find(it->first);
+  for (const auto& rp : rps) {
+    std::set<unsigned int>::iterator wit = writtenRPs.find(rp.first);
     if (wit == writtenRPs.end()) {
-      CTPPSDetId rpId(it->first);
+      CTPPSDetId rpId(rp.first);
       unsigned int decRPId = rpId.arm() * 100 + rpId.station() * 10 + rpId.rp();
 
       if (!firstRP)
@@ -407,8 +407,8 @@ void CTPPSRPAlignmentCorrectionsMethods::writeXMLBlock(const CTPPSRPAlignmentCor
 
       fprintf(rf, "\t<!-- RP %3u -->\n", decRPId);
 
-      fprintf(rf, "\t<rp id=\"%u\"                  ", it->first);
-      writeXML(it->second, rf, precise, wrErrors, wrSh_xy, wrSh_z, wrRot_xy, wrRot_z);
+      fprintf(rf, "\t<rp id=\"%u\"                  ", rp.first);
+      writeXML(rp.second, rf, precise, wrErrors, wrSh_xy, wrSh_z, wrRot_xy, wrRot_z);
       fprintf(rf, "/>\n");
     }
   }

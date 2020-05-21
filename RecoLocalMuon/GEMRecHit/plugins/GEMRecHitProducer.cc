@@ -137,9 +137,9 @@ void GEMRecHitProducer::produce(Event& event, const EventSetup& setup) {
   auto recHitCollection = std::make_unique<GEMRecHitCollection>();
 
   // Iterate through all digi collections ordered by LayerId
-  for (auto gemdgIt = digis->begin(); gemdgIt != digis->end(); ++gemdgIt) {
+  for (auto&& gemdgIt : *digis) {
     // The layerId
-    const GEMDetId& gemId = (*gemdgIt).first;
+    const GEMDetId& gemId = gemdgIt.first;
 
     // Get the GeomDet from the setup
     const GEMEtaPartition* roll = gemGeom_->etaPartition(gemId);
@@ -149,7 +149,7 @@ void GEMRecHitProducer::produce(Event& event, const EventSetup& setup) {
     }
 
     // Get the iterators over the digis associated with this LayerId
-    const GEMDigiCollection::Range& range = (*gemdgIt).second;
+    const GEMDigiCollection::Range& range = gemdgIt.second;
 
     // get mask from map
     EtaPartitionMask mask;

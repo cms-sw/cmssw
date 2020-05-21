@@ -286,9 +286,9 @@ void SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::Event
   }
 
   // Loop over detIDs as obtained from the SpyChannelMonitor config file.
-  for (std::vector<uint32_t>::iterator d = detIDs_.begin(); d != detIDs_.end(); ++d) {
+  for (unsigned int& detID : detIDs_) {
     // TODO: Need some error checking here, probably...
-    const std::vector<const FedChannelConnection*>& conns = lCabling->getConnections(*d);
+    const std::vector<const FedChannelConnection*>& conns = lCabling->getConnections(detID);
     //cout << "________________________________________________" << endl;
     //cout << "FED channels found in detId " << *d << " is " << conns.size() << endl;
     if (!(conns.size())) {
@@ -299,7 +299,7 @@ void SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::Event
 
     // Create a histogram directory for each specified and available detID
     stringstream sss;  //!< detID folder filename
-    sss << "detID_" << *d;
+    sss << "detID_" << detID;
     TFileDirectory detID_dir = evdir.mkdir(sss.str());
 
     // Loop over the channels found with the detID and add directories.
@@ -370,7 +370,7 @@ void SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::Event
       //            iEvent.getByLabel( inputReorderedModuleRawDigiLabel_, rr_rawdigis );
       iEvent.getByToken(inputReorderedModuleRawDigiToken_, rr_rawdigis);
       //cout << "Making Reordered module histogram for detID " << *d << endl;
-      if (!(MakeRawDigiHist_(rr_rawdigis, *d, detID_dir, REORDERED_MODULE_RAW))) {
+      if (!(MakeRawDigiHist_(rr_rawdigis, detID, detID_dir, REORDERED_MODULE_RAW))) {
         ;
       }
     }  // end of ReorderedModuleRaw check
@@ -383,7 +383,7 @@ void SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::Event
       //            iEvent.getByLabel( inputPedestalsLabel_, pd_rawdigis );
       iEvent.getByToken(inputPedestalsToken_, pd_rawdigis);
       //cout << "Making pedestal values module histogram for detID " << *d << endl;
-      if (!(MakeRawDigiHist_(pd_rawdigis, *d, detID_dir, PEDESTAL_VALUES))) {
+      if (!(MakeRawDigiHist_(pd_rawdigis, detID, detID_dir, PEDESTAL_VALUES))) {
         ;
       }
     }
@@ -395,7 +395,7 @@ void SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::Event
       //            iEvent.getByLabel( inputNoisesLabel_, pd_rawdigis );
       iEvent.getByToken(inputNoisesToken_, pd_rawdigis);
       //cout << "Making noise values module histogram for detID " << *d << endl;
-      if (!(MakeProcessedRawDigiHist_(pd_rawdigis, *d, detID_dir, NOISE_VALUES))) {
+      if (!(MakeProcessedRawDigiHist_(pd_rawdigis, detID, detID_dir, NOISE_VALUES))) {
         ;
       }
     }
@@ -407,7 +407,7 @@ void SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::Event
       //            iEvent.getByLabel( inputPostPedestalRawDigiLabel_, pp_rawdigis );
       iEvent.getByToken(inputPostPedestalRawDigiToken_, pp_rawdigis);
       //cout << "Making post-pedestal module histogram for detID " << *d << endl;
-      if (!(MakeRawDigiHist_(pp_rawdigis, *d, detID_dir, POST_PEDESTAL))) {
+      if (!(MakeRawDigiHist_(pp_rawdigis, detID, detID_dir, POST_PEDESTAL))) {
         ;
       }
     }
@@ -419,7 +419,7 @@ void SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::Event
       //            iEvent.getByLabel( inputPostCMRawDigiLabel_, pc_rawdigis );
       iEvent.getByToken(inputPostCMRawDigiToken_, pc_rawdigis);
       //cout << "Making post-CM module histogram for detID " << *d << endl;
-      if (!(MakeRawDigiHist_(pc_rawdigis, *d, detID_dir, POST_COMMON_MODE))) {
+      if (!(MakeRawDigiHist_(pc_rawdigis, detID, detID_dir, POST_COMMON_MODE))) {
         ;
       }
     }
@@ -434,7 +434,7 @@ void SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::Event
       //            iEvent.getByLabel( inputZeroSuppressedDigiLabel_, zs_digis );
       iEvent.getByToken(inputZeroSuppressedDigiToken_, zs_digis);
       //founddigispy =
-      MakeDigiHist_(zs_digis, *d, detID_dir, ZERO_SUPPRESSED);
+      MakeDigiHist_(zs_digis, detID, detID_dir, ZERO_SUPPRESSED);
     }
     //comparison to mainline data
     if (!((inputCompVirginRawDigiLabel_.label().empty()) && (inputCompVirginRawDigiLabel_.instance().empty()))) {
@@ -443,7 +443,7 @@ void SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::Event
       //            iEvent.getByLabel( inputCompVirginRawDigiLabel_, cvr_digis );
       iEvent.getByToken(inputCompVirginRawDigiToken_, cvr_digis);
       //founddigimain =
-      MakeRawDigiHist_(cvr_digis, *d, detID_dir, VR_COMP);
+      MakeRawDigiHist_(cvr_digis, detID, detID_dir, VR_COMP);
     }
     if (!((inputCompZeroSuppressedDigiLabel_.label().empty()) &&
           (inputCompZeroSuppressedDigiLabel_.instance().empty()))) {
@@ -452,7 +452,7 @@ void SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::Event
       //            iEvent.getByLabel( inputCompZeroSuppressedDigiLabel_, czs_digis );
       iEvent.getByToken(inputCompZeroSuppressedDigiToken_, czs_digis);
       //founddigimain =
-      MakeDigiHist_(czs_digis, *d, detID_dir, ZERO_SUPPRESSED_COMP);
+      MakeDigiHist_(czs_digis, detID, detID_dir, ZERO_SUPPRESSED_COMP);
     }
     //if (founddigimain && founddigispy) cout << "Found digis for both in detid=" << *d << endl;
 

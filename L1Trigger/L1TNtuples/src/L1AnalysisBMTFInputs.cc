@@ -16,19 +16,17 @@ void L1Analysis::L1AnalysisBMTFInputs::SetBMPH(const edm::Handle<L1MuDTChambPhCo
 
   bmtf_.phSize = PhContainer->size();
   int iphtr = 0;
-  for (L1MuDTChambPhContainer::Phi_Container::const_iterator DTPhDigiItr = PhContainer->begin();
-       DTPhDigiItr != PhContainer->end();
-       ++DTPhDigiItr) {
+  for (const auto &DTPhDigiItr : *PhContainer) {
     if ((unsigned int)iphtr > maxDTPH - 1)
       continue;
-    bmtf_.phBx.push_back(DTPhDigiItr->bxNum());
-    bmtf_.phTs2Tag.push_back(DTPhDigiItr->Ts2Tag());
-    bmtf_.phWh.push_back(DTPhDigiItr->whNum());
-    bmtf_.phSe.push_back(DTPhDigiItr->scNum());
-    bmtf_.phSt.push_back(DTPhDigiItr->stNum());
-    bmtf_.phAng.push_back(DTPhDigiItr->phi());
-    bmtf_.phBandAng.push_back(DTPhDigiItr->phiB());
-    bmtf_.phCode.push_back(DTPhDigiItr->code());
+    bmtf_.phBx.push_back(DTPhDigiItr.bxNum());
+    bmtf_.phTs2Tag.push_back(DTPhDigiItr.Ts2Tag());
+    bmtf_.phWh.push_back(DTPhDigiItr.whNum());
+    bmtf_.phSe.push_back(DTPhDigiItr.scNum());
+    bmtf_.phSt.push_back(DTPhDigiItr.stNum());
+    bmtf_.phAng.push_back(DTPhDigiItr.phi());
+    bmtf_.phBandAng.push_back(DTPhDigiItr.phiB());
+    bmtf_.phCode.push_back(DTPhDigiItr.code());
 
     iphtr++;
   }
@@ -41,15 +39,13 @@ void L1Analysis::L1AnalysisBMTFInputs::SetBMTH(const edm::Handle<L1MuDTChambThCo
   int ithtr = 0;
   bmtf_.thSize = ThContainer->size();
 
-  for (L1MuDTChambThContainer::The_Container::const_iterator DTThDigiItr = ThContainer->begin();
-       DTThDigiItr != ThContainer->end();
-       ++DTThDigiItr) {
+  for (const auto &DTThDigiItr : *ThContainer) {
     if ((unsigned int)ithtr > maxDTTH - 1)
       continue;
-    bmtf_.thBx.push_back(DTThDigiItr->bxNum());
-    bmtf_.thWh.push_back(DTThDigiItr->whNum());
-    bmtf_.thSe.push_back(DTThDigiItr->scNum());
-    bmtf_.thSt.push_back(DTThDigiItr->stNum());
+    bmtf_.thBx.push_back(DTThDigiItr.bxNum());
+    bmtf_.thWh.push_back(DTThDigiItr.whNum());
+    bmtf_.thSe.push_back(DTThDigiItr.scNum());
+    bmtf_.thSt.push_back(DTThDigiItr.stNum());
 
     ostringstream ss1, ss2;
     ss1.clear();
@@ -58,8 +54,8 @@ void L1Analysis::L1AnalysisBMTFInputs::SetBMTH(const edm::Handle<L1MuDTChambThCo
     ss2 << "9";
 
     for (int j = 0; j < 7; j++) {
-      ss1 << DTThDigiItr->position(j);
-      ss2 << DTThDigiItr->code(j);
+      ss1 << DTThDigiItr.position(j);
+      ss2 << DTThDigiItr.code(j);
     }
     bmtf_.thTheta.push_back(stoi(ss1.str()));
     bmtf_.thCode.push_back(stoi(ss2.str()));

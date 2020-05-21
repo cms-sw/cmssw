@@ -134,8 +134,8 @@ void L1MuBMEtaProcessor::print() const {
   }
 
   bool empty2 = true;
-  for (int i = 0; i < 12; i++) {
-    empty2 &= (m_address[i] == 0);
+  for (int m_addres : m_address) {
+    empty2 &= (m_addres == 0);
   }
 
   if (!empty1 || !empty2) {
@@ -165,8 +165,8 @@ void L1MuBMEtaProcessor::print() const {
              << "eta = " << setw(3) << p.eta() << "  "
              << "quality = " << setw(2) << qualitycode << " (" << quality(qualitycode, 1) << " "
              << quality(qualitycode, 2) << " " << quality(qualitycode, 3) << ")";
-        for (int i = 0; i < 12; i++) {
-          if (m_pattern[i] == p.id())
+        for (int i : m_pattern) {
+          if (i == p.id())
             cout << " <--";
         }
         cout << endl;
@@ -174,8 +174,8 @@ void L1MuBMEtaProcessor::print() const {
     }
 
     cout << "Received addresses : " << endl;
-    for (int i = 0; i < 12; i++)
-      cout << setw(3) << m_address[i] << " ";
+    for (int m_addres : m_address)
+      cout << setw(3) << m_addres << " ";
     cout << endl;
 
     if (!empty1) {
@@ -196,11 +196,11 @@ void L1MuBMEtaProcessor::print() const {
     }
 
     cout << "Eta values and fine bits : " << endl;
-    for (int i = 0; i < 12; i++)
-      cout << setw(3) << m_eta[i] << " ";
+    for (int i : m_eta)
+      cout << setw(3) << i << " ";
     cout << endl;
-    for (int i = 0; i < 12; i++)
-      cout << setw(3) << m_fine[i] << " ";
+    for (bool i : m_fine)
+      cout << setw(3) << i << " ";
     cout << endl;
   }
 }

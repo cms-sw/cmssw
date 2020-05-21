@@ -99,11 +99,11 @@ void DTBtiCard::setConfig(const DTConfigManager* conf) {
 
 void DTBtiCard::localClear() {
   // Clear the maps
-  for (int i = 0; i < 3; i++) {
-    for (BTI_iter p = _btimap[i].begin(); p != _btimap[i].end(); p++) {
+  for (auto& i : _btimap) {
+    for (BTI_iter p = i.begin(); p != i.end(); p++) {
       delete (*p).second;
     }
-    _btimap[i].clear();
+    i.clear();
   }
 
   //clear digis

@@ -129,9 +129,9 @@ void PFCand_NoPU_WithAM::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     const PFCandQualityPairVector pfccoll = p2vAM->begin()->val;
 
     //get the candidates associated to the first vertex and store them in a pf-candidate collection
-    for (unsigned int pfccoll_ite = 0; pfccoll_ite < pfccoll.size(); pfccoll_ite++) {
-      PFCandidateRef pfcand = pfccoll[pfccoll_ite].first;
-      int quality = pfccoll[pfccoll_ite].second;
+    for (const auto& pfccoll_ite : pfccoll) {
+      PFCandidateRef pfcand = pfccoll_ite.first;
+      int quality = pfccoll_ite.second;
 
       if ((quality >= input_MinQuality_) || ((quality < 0) && (quality >= negativeQuality))) {
         p2v_firstvertex->push_back(*pfcand);
@@ -153,9 +153,9 @@ void PFCand_NoPU_WithAM::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     for (v2p_ite = v2pAM->begin(); v2p_ite != v2pAM->end(); v2p_ite++) {
       PFCandidateRef pfcand = v2p_ite->key;
 
-      for (unsigned v_ite = 0; v_ite < (v2p_ite->val).size(); v_ite++) {
-        VertexRef vtxref = (v2p_ite->val)[v_ite].first;
-        int quality = (v2p_ite->val)[v_ite].second;
+      for (const auto& v_ite : (v2p_ite->val)) {
+        VertexRef vtxref = v_ite.first;
+        int quality = v_ite.second;
 
         if ((vtxref == firstVertexRef) &&
             ((quality >= input_MinQuality_) || ((quality < 0) && (quality >= negativeQuality)))) {

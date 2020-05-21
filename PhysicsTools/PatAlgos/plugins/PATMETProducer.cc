@@ -53,8 +53,8 @@ PATMETProducer::PATMETProducer(const edm::ParameterSet& iConfig) : useUserData_(
     jetToken_ = consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("srcJets"));
     pfCandToken_ = consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("srcPFCands"));
     std::vector<edm::InputTag> srcLeptonsTags = iConfig.getParameter<std::vector<edm::InputTag>>("srcLeptons");
-    for (std::vector<edm::InputTag>::const_iterator it = srcLeptonsTags.begin(); it != srcLeptonsTags.end(); it++) {
-      lepTokens_.push_back(consumes<edm::View<reco::Candidate>>(*it));
+    for (const auto& srcLeptonsTag : srcLeptonsTags) {
+      lepTokens_.push_back(consumes<edm::View<reco::Candidate>>(srcLeptonsTag));
     }
   }
 
@@ -165,11 +165,9 @@ const reco::METCovMatrix PATMETProducer::getMETCovMatrix(const edm::Event& event
                                                          const reco::MET& met,
                                                          double& sumPtUnclustered) const {
   std::vector<edm::Handle<reco::CandidateView>> leptons;
-  for (std::vector<edm::EDGetTokenT<edm::View<reco::Candidate>>>::const_iterator srcLeptons_i = lepTokens_.begin();
-       srcLeptons_i != lepTokens_.end();
-       ++srcLeptons_i) {
+  for (auto lepToken : lepTokens_) {
     edm::Handle<reco::CandidateView> leptons_i;
-    event.getByToken(*srcLeptons_i, leptons_i);
+    event.getByToken(lepToken, leptons_i);
     leptons.push_back(leptons_i);
   }
   // jets

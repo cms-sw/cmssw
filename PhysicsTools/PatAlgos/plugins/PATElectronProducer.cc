@@ -154,8 +154,8 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet& iConfig)
       // read the different electron ID names
       edm::ParameterSet idps = iConfig.getParameter<edm::ParameterSet>("electronIDSources");
       std::vector<std::string> names = idps.getParameterNamesForType<edm::InputTag>();
-      for (std::vector<std::string>::const_iterator it = names.begin(), ed = names.end(); it != ed; ++it) {
-        elecIDSrcs_.push_back(NameTag(*it, idps.getParameter<edm::InputTag>(*it)));
+      for (const auto& name : names) {
+        elecIDSrcs_.push_back(NameTag(name, idps.getParameter<edm::InputTag>(name)));
       }
     }
     // but in any case at least once
@@ -860,12 +860,12 @@ void PATElectronProducer::fillElectron(Electron& anElectron,
 
   // store the match to the generated final state muons
   if (addGenMatch_) {
-    for (size_t i = 0, n = genMatches.size(); i < n; ++i) {
+    for (const auto& genMatche : genMatches) {
       if (useParticleFlow_) {
-        reco::GenParticleRef genElectron = (*genMatches[i])[anElectron.pfCandidateRef()];
+        reco::GenParticleRef genElectron = (*genMatche)[anElectron.pfCandidateRef()];
         anElectron.addGenParticleRef(genElectron);
       } else {
-        reco::GenParticleRef genElectron = (*genMatches[i])[elecRef];
+        reco::GenParticleRef genElectron = (*genMatche)[elecRef];
         anElectron.addGenParticleRef(genElectron);
       }
     }
@@ -946,8 +946,8 @@ void PATElectronProducer::fillElectron2(Electron& anElectron,
   // store the match to the generated final state muons
 
   if (addGenMatch_) {
-    for (size_t i = 0, n = genMatches.size(); i < n; ++i) {
-      reco::GenParticleRef genElectron = (*genMatches[i])[candPtrForGenMatch];
+    for (const auto& genMatche : genMatches) {
+      reco::GenParticleRef genElectron = (*genMatche)[candPtrForGenMatch];
       anElectron.addGenParticleRef(genElectron);
     }
     if (embedGenMatch_)

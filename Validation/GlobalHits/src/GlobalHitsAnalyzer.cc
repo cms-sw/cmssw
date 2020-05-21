@@ -266,9 +266,9 @@ void GlobalHitsAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run con
   meMCRGP[0] = iBooker.book1D(hname, htitle, 100, 0., 5000.);
   sprintf(hname, "hMCRGP2");
   meMCRGP[1] = iBooker.book1D(hname, htitle, 100, 0., 500.);
-  for (Int_t i = 0; i < 2; ++i) {
-    meMCRGP[i]->setAxisTitle("Number of Raw Generated Particles", 1);
-    meMCRGP[i]->setAxisTitle("Count", 2);
+  for (auto &i : meMCRGP) {
+    i->setAxisTitle("Number of Raw Generated Particles", 1);
+    i->setAxisTitle("Count", 2);
   }
 
   sprintf(hname, "hMCG4Vtx1");
@@ -276,9 +276,9 @@ void GlobalHitsAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run con
   meMCG4Vtx[0] = iBooker.book1D(hname, htitle, 150, 0., 15000.);
   sprintf(hname, "hMCG4Vtx2");
   meMCG4Vtx[1] = iBooker.book1D(hname, htitle, 100, -0.5, 99.5);
-  for (Int_t i = 0; i < 2; ++i) {
-    meMCG4Vtx[i]->setAxisTitle("Number of Vertices", 1);
-    meMCG4Vtx[i]->setAxisTitle("Count", 2);
+  for (auto &i : meMCG4Vtx) {
+    i->setAxisTitle("Number of Vertices", 1);
+    i->setAxisTitle("Count", 2);
   }
 
   sprintf(hname, "hMCG4Trk1");
@@ -286,9 +286,9 @@ void GlobalHitsAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run con
   meMCG4Trk[0] = iBooker.book1D(hname, htitle, 150, 0., 15000.);
   sprintf(hname, "hMCG4Trk2");
   meMCG4Trk[1] = iBooker.book1D(hname, htitle, 150, -0.5, 99.5);
-  for (Int_t i = 0; i < 2; ++i) {
-    meMCG4Trk[i]->setAxisTitle("Number of Tracks", 1);
-    meMCG4Trk[i]->setAxisTitle("Count", 2);
+  for (auto &i : meMCG4Trk) {
+    i->setAxisTitle("Number of Tracks", 1);
+    i->setAxisTitle("Count", 2);
   }
 
   sprintf(hname, "hGeantVtxX1");
@@ -296,9 +296,9 @@ void GlobalHitsAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run con
   meGeantVtxX[0] = iBooker.book1D(hname, htitle, 100, -8000000., 8000000.);
   sprintf(hname, "hGeantVtxX2");
   meGeantVtxX[1] = iBooker.book1D(hname, htitle, 100, -50., 50.);
-  for (Int_t i = 0; i < 2; ++i) {
-    meGeantVtxX[i]->setAxisTitle("x of Vertex (um)", 1);
-    meGeantVtxX[i]->setAxisTitle("Count", 2);
+  for (auto &i : meGeantVtxX) {
+    i->setAxisTitle("x of Vertex (um)", 1);
+    i->setAxisTitle("Count", 2);
   }
 
   sprintf(hname, "hGeantVtxY1");
@@ -306,9 +306,9 @@ void GlobalHitsAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run con
   meGeantVtxY[0] = iBooker.book1D(hname, htitle, 100, -8000000, 8000000.);
   sprintf(hname, "hGeantVtxY2");
   meGeantVtxY[1] = iBooker.book1D(hname, htitle, 100, -50., 50.);
-  for (Int_t i = 0; i < 2; ++i) {
-    meGeantVtxY[i]->setAxisTitle("y of Vertex (um)", 1);
-    meGeantVtxY[i]->setAxisTitle("Count", 2);
+  for (auto &i : meGeantVtxY) {
+    i->setAxisTitle("y of Vertex (um)", 1);
+    i->setAxisTitle("Count", 2);
   }
 
   sprintf(hname, "hGeantVtxZ1");
@@ -317,9 +317,9 @@ void GlobalHitsAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run con
   sprintf(hname, "hGeantVtxZ2");
   meGeantVtxZ[1] = iBooker.book1D(hname, htitle, 200, -500., 500.);
   // meGeantVtxZ[1] = iBooker.book1D(hname,htitle,100,-250.,250.);
-  for (Int_t i = 0; i < 2; ++i) {
-    meGeantVtxZ[i]->setAxisTitle("z of Vertex (mm)", 1);
-    meGeantVtxZ[i]->setAxisTitle("Count", 2);
+  for (auto &i : meGeantVtxZ) {
+    i->setAxisTitle("z of Vertex (mm)", 1);
+    i->setAxisTitle("Count", 2);
   }
 
   sprintf(hname, "hGeantTrkPt");
@@ -351,9 +351,9 @@ void GlobalHitsAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run con
   meGeantVtxRad[0] = iBooker.book1D(hname, htitle, 130, 0., 130.);
   sprintf(hname, "hGeantVtxRad2");
   meGeantVtxRad[1] = iBooker.book1D(hname, htitle, 100, 0., 1000.);
-  for (Int_t i = 0; i < 2; ++i) {
-    meGeantVtxRad[i]->setAxisTitle("radius of SimVertex (cm)", 1);
-    meGeantVtxRad[i]->setAxisTitle("Count", 2);
+  for (auto &i : meGeantVtxRad) {
+    i->setAxisTitle("radius of SimVertex (cm)", 1);
+    i->setAxisTitle("Count", 2);
   }
 
   sprintf(hname, "hGeantVtxMulti");
@@ -489,9 +489,9 @@ void GlobalHitsAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run con
   meTrackerPx[0] = iBooker.book1D(hname, htitle, 100, 0., 10000.);
   sprintf(hname, "hTrackerPx2");
   meTrackerPx[1] = iBooker.book1D(hname, htitle, 100, -0.5, 99.5);
-  for (Int_t i = 0; i < 2; ++i) {
-    meTrackerPx[i]->setAxisTitle("Number of Pixel Hits", 1);
-    meTrackerPx[i]->setAxisTitle("Count", 2);
+  for (auto &i : meTrackerPx) {
+    i->setAxisTitle("Number of Pixel Hits", 1);
+    i->setAxisTitle("Count", 2);
   }
 
   sprintf(hname, "hTrackerPxPhi");
@@ -537,9 +537,9 @@ void GlobalHitsAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run con
   meTrackerSi[0] = iBooker.book1D(hname, htitle, 100, 0., 10000.);
   sprintf(hname, "hTrackerSi2");
   meTrackerSi[1] = iBooker.book1D(hname, htitle, 100, -0.5, 99.5);
-  for (Int_t i = 0; i < 2; ++i) {
-    meTrackerSi[i]->setAxisTitle("Number of Silicon Hits", 1);
-    meTrackerSi[i]->setAxisTitle("Count", 2);
+  for (auto &i : meTrackerSi) {
+    i->setAxisTitle("Number of Silicon Hits", 1);
+    i->setAxisTitle("Count", 2);
   }
 
   sprintf(hname, "hTrackerSiPhi");
@@ -585,9 +585,9 @@ void GlobalHitsAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run con
   meMuon[0] = iBooker.book1D(hname, htitle, 100, 0., 10000.);
   sprintf(hname, "hMuon2");
   meMuon[1] = iBooker.book1D(hname, htitle, 100, -0.5, 99.5);
-  for (Int_t i = 0; i < 2; ++i) {
-    meMuon[i]->setAxisTitle("Number of Muon Hits", 1);
-    meMuon[i]->setAxisTitle("Count", 2);
+  for (auto &i : meMuon) {
+    i->setAxisTitle("Number of Muon Hits", 1);
+    i->setAxisTitle("Count", 2);
   }
 
   sprintf(hname, "hMuonPhi");
@@ -607,9 +607,9 @@ void GlobalHitsAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run con
   meMuonCscToF[0] = iBooker.book1D(hname, htitle, 100, 0., 250.);
   sprintf(hname, "hMuonCscToF2");
   meMuonCscToF[1] = iBooker.book1D(hname, htitle, 100, 0., 50.);
-  for (Int_t i = 0; i < 2; ++i) {
-    meMuonCscToF[i]->setAxisTitle("Time of Flight of Hits (ns)", 1);
-    meMuonCscToF[i]->setAxisTitle("Count", 2);
+  for (auto &i : meMuonCscToF) {
+    i->setAxisTitle("Time of Flight of Hits (ns)", 1);
+    i->setAxisTitle("Count", 2);
   }
 
   sprintf(hname, "hMuonCscZ");
@@ -623,9 +623,9 @@ void GlobalHitsAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run con
   meMuonDtToF[0] = iBooker.book1D(hname, htitle, 100, 0., 250.);
   sprintf(hname, "hMuonDtToF2");
   meMuonDtToF[1] = iBooker.book1D(hname, htitle, 100, 0., 50.);
-  for (Int_t i = 0; i < 2; ++i) {
-    meMuonDtToF[i]->setAxisTitle("Time of Flight of Hits (ns)", 1);
-    meMuonDtToF[i]->setAxisTitle("Count", 2);
+  for (auto &i : meMuonDtToF) {
+    i->setAxisTitle("Time of Flight of Hits (ns)", 1);
+    i->setAxisTitle("Count", 2);
   }
 
   sprintf(hname, "hMuonDtR");
@@ -639,9 +639,9 @@ void GlobalHitsAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run con
   meMuonRpcFToF[0] = iBooker.book1D(hname, htitle, 100, 0., 250.);
   sprintf(hname, "hMuonRpcFToF2");
   meMuonRpcFToF[1] = iBooker.book1D(hname, htitle, 100, 0., 50.);
-  for (Int_t i = 0; i < 2; ++i) {
-    meMuonRpcFToF[i]->setAxisTitle("Time of Flight of Hits (ns)", 1);
-    meMuonRpcFToF[i]->setAxisTitle("Count", 2);
+  for (auto &i : meMuonRpcFToF) {
+    i->setAxisTitle("Time of Flight of Hits (ns)", 1);
+    i->setAxisTitle("Count", 2);
   }
   sprintf(hname, "hMuonRpcFZ");
   sprintf(htitle, "Muon RPC forward hits, Z/cm");
@@ -654,9 +654,9 @@ void GlobalHitsAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run con
   meMuonRpcBToF[0] = iBooker.book1D(hname, htitle, 100, 0., 250.);
   sprintf(hname, "hMuonRpcBToF2");
   meMuonRpcBToF[1] = iBooker.book1D(hname, htitle, 100, 0., 50.);
-  for (Int_t i = 0; i < 2; ++i) {
-    meMuonRpcBToF[i]->setAxisTitle("Time of Flight of Hits (ns)", 1);
-    meMuonRpcBToF[i]->setAxisTitle("Count", 2);
+  for (auto &i : meMuonRpcBToF) {
+    i->setAxisTitle("Time of Flight of Hits (ns)", 1);
+    i->setAxisTitle("Count", 2);
   }
 
   sprintf(hname, "hMuonRpcBR");
@@ -696,18 +696,18 @@ void GlobalHitsAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup
     if (printProvenanceInfo && (verbosity >= 0)) {
       TString eventout("\nProvenance info:\n");
 
-      for (unsigned int i = 0; i < AllProv.size(); ++i) {
+      for (auto &i : AllProv) {
         eventout += "\n       ******************************";
         eventout += "\n       Module       : ";
-        eventout += AllProv[i]->moduleLabel();
+        eventout += i->moduleLabel();
         eventout += "\n       ProductID    : ";
-        eventout += AllProv[i]->productID().id();
+        eventout += i->productID().id();
         eventout += "\n       ClassName    : ";
-        eventout += AllProv[i]->className();
+        eventout += i->className();
         eventout += "\n       InstanceName : ";
-        eventout += AllProv[i]->productInstanceName();
+        eventout += i->productInstanceName();
         eventout += "\n       BranchName   : ";
-        eventout += AllProv[i]->branchName();
+        eventout += i->branchName();
       }
       eventout += "\n       ******************************\n";
       edm::LogInfo(MsgLoggerCat) << eventout << "\n";
@@ -751,8 +751,8 @@ void GlobalHitsAnalyzer::fillG4MC(const edm::Event &iEvent) {
 
   // loop through products and extract VtxSmearing if available. Any of them
   // should have the information needed
-  for (unsigned int i = 0; i < AllHepMCEvt.size(); ++i) {
-    HepMCEvt = AllHepMCEvt[i];
+  for (const auto &i : AllHepMCEvt) {
+    HepMCEvt = i;
     if ((HepMCEvt.provenance()->branchDescription()).moduleLabel() == "generatorSmeared")
       break;
   }

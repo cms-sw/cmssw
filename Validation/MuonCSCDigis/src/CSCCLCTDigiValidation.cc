@@ -34,10 +34,10 @@ void CSCCLCTDigiValidation::analyze(const edm::Event &e, const edm::EventSetup &
 
   unsigned nDigisPerEvent = 0;
 
-  for (CSCCLCTDigiCollection::DigiRangeIterator j = clcts->begin(); j != clcts->end(); j++) {
-    std::vector<CSCCLCTDigi>::const_iterator beginDigi = (*j).second.first;
-    std::vector<CSCCLCTDigi>::const_iterator endDigi = (*j).second.second;
-    CSCDetId detId((*j).first.rawId());
+  for (auto &&j : *clcts) {
+    std::vector<CSCCLCTDigi>::const_iterator beginDigi = j.second.first;
+    std::vector<CSCCLCTDigi>::const_iterator endDigi = j.second.second;
+    CSCDetId detId(j.first.rawId());
     int chamberType = detId.iChamberType();
 
     int nDigis = endDigi - beginDigi;

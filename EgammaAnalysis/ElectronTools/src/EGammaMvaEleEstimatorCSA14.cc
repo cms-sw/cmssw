@@ -15,9 +15,9 @@ EGammaMvaEleEstimatorCSA14::EGammaMvaEleEstimatorCSA14()
 
 //--------------------------------------------------------------------------------------------------
 EGammaMvaEleEstimatorCSA14::~EGammaMvaEleEstimatorCSA14() {
-  for (unsigned int i = 0; i < fTMVAReader.size(); ++i) {
-    if (fTMVAReader[i])
-      delete fTMVAReader[i];
+  for (auto &i : fTMVAReader) {
+    if (i)
+      delete i;
   }
 }
 
@@ -36,9 +36,9 @@ void EGammaMvaEleEstimatorCSA14::initialize(std::string methodName,
                                             Bool_t useBinnedVersion,
                                             std::vector<std::string> weightsfiles) {
   //clean up first
-  for (unsigned int i = 0; i < fTMVAReader.size(); ++i) {
-    if (fTMVAReader[i])
-      delete fTMVAReader[i];
+  for (auto &i : fTMVAReader) {
+    if (i)
+      delete i;
   }
   fTMVAReader.clear();
   fTMVAMethod.clear();

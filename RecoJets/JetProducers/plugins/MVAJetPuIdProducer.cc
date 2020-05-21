@@ -70,9 +70,9 @@ MVAJetPuIdProducer::MVAJetPuIdProducer(const edm::ParameterSet &iConfig) {
   if (produceJetIds_) {
     produces<edm::ValueMap<StoredPileupJetIdentifier>>("");
   }
-  for (std::vector<edm::ParameterSet>::iterator it = algos.begin(); it != algos.end(); ++it) {
-    std::string label = it->getParameter<std::string>("label");
-    algos_.push_back(std::make_pair(label, new MVAJetPuId(*it)));
+  for (auto &algo : algos) {
+    std::string label = algo.getParameter<std::string>("label");
+    algos_.push_back(std::make_pair(label, new MVAJetPuId(algo)));
     if (runMvas_) {
       produces<edm::ValueMap<float>>(label + "Discriminant");
       produces<edm::ValueMap<int>>(label + "Id");
@@ -176,20 +176,20 @@ void MVAJetPuIdProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSet
   }
 
   if (runMvas_) {
-    for (vector<pair<string, MVAJetPuId *>>::iterator ialgo = algos_.begin(); ialgo != algos_.end(); ++ialgo) {
-      vector<float> &mva = mvas[ialgo->first];
+    for (auto &algo : algos_) {
+      vector<float> &mva = mvas[algo.first];
       auto mvaout = std::make_unique<ValueMap<float>>();
       ValueMap<float>::Filler mvafiller(*mvaout);
       mvafiller.insert(jetHandle, mva.begin(), mva.end());
       mvafiller.fill();
-      iEvent.put(std::move(mvaout), ialgo->first + "Discriminant");
+      iEvent.put(std::move(mvaout), algo.first + "Discriminant");
 
-      vector<int> &idflag = idflags[ialgo->first];
+      vector<int> &idflag = idflags[algo.first];
       auto idflagout = std::make_unique<ValueMap<int>>();
       ValueMap<int>::Filler idflagfiller(*idflagout);
       idflagfiller.insert(jetHandle, idflag.begin(), idflag.end());
       idflagfiller.fill();
-      iEvent.put(std::move(idflagout), ialgo->first + "Id");
+      iEvent.put(std::move(idflagout), algo.first + "Id");
     }
   }
   if (produceJetIds_) {

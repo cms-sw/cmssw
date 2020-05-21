@@ -402,8 +402,8 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
       // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
       sort(seeds.begin(), seeds.end(), ecalRecHitGreater);
 
-      for (std::vector<EcalRecHit>::iterator itseed = seeds.begin(); itseed != seeds.end(); itseed++) {
-        EBDetId seed_id = itseed->id();
+      for (auto &seed : seeds) {
+        EBDetId seed_id = seed.id();
         std::vector<EBDetId>::const_iterator usedIds;
 
         bool seedAlreadyUsed = false;
@@ -427,13 +427,13 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
         double simple_energy = 0;
 
-        for (std::vector<DetId>::iterator det = clus_v.begin(); det != clus_v.end(); det++) {
-          EBDetId EBdet = *det;
+        for (auto &det : clus_v) {
+          EBDetId EBdet = det;
           //      cout<<" det "<< EBdet<<" ieta "<<EBdet.ieta()<<" iphi
           //      "<<EBdet.iphi()<<endl;
           bool HitAlreadyUsed = false;
           for (usedIds = usedXtals.begin(); usedIds != usedXtals.end(); usedIds++) {
-            if (*usedIds == *det) {
+            if (*usedIds == det) {
               HitAlreadyUsed = true;
               break;
             }
@@ -446,9 +446,9 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
             continue;
 
           int nn = int(itdet - detIdEBRecHits.begin());
-          usedXtals.push_back(*det);
+          usedXtals.push_back(det);
           RecHitsInWindow.push_back(EBRecHits[nn]);
-          clus_used.push_back(std::make_pair(*det, 1));
+          clus_used.push_back(std::make_pair(det, 1));
           simple_energy = simple_energy + EBRecHits[nn].energy();
         }
 
@@ -478,8 +478,8 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
         // We are not sure to have 9 RecHits so need to check eta and phi:
         /// check s4s9
         float s4s9_tmp[4];
-        for (int i = 0; i < 4; i++)
-          s4s9_tmp[i] = 0;
+        for (float &i : s4s9_tmp)
+          i = 0;
 
         int seed_ieta = seed_id.ieta();
         int seed_iphi = seed_id.iphi();
@@ -489,15 +489,15 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
         float e3x3 = 0;
         float e5x5 = 0;
 
-        for (unsigned int j = 0; j < RecHitsInWindow.size(); j++) {
-          EBDetId det = (EBDetId)RecHitsInWindow[j].id();
+        for (auto &j : RecHitsInWindow) {
+          EBDetId det = (EBDetId)j.id();
 
           int ieta = det.ieta();
           int iphi = det.iphi();
 
           convxtalid(iphi, ieta);
 
-          float en = RecHitsInWindow[j].energy();
+          float en = j.energy();
 
           int dx = diff_neta_s(seed_ieta, ieta);
           int dy = diff_nphi_s(seed_iphi, iphi);
@@ -524,8 +524,8 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
         /// calculate e5x5
         std::vector<DetId> clus_v5x5 = topology_p->getWindow(seed_id, 5, 5);
-        for (std::vector<DetId>::const_iterator idItr = clus_v5x5.begin(); idItr != clus_v5x5.end(); idItr++) {
-          EBDetId det = *idItr;
+        for (auto idItr : clus_v5x5) {
+          EBDetId det = idItr;
 
           std::vector<EBDetId>::iterator itdet0 = find(usedXtals.begin(), usedXtals.end(), det);
 
@@ -711,8 +711,8 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
       // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
       sort(seeds.begin(), seeds.end(), ecalRecHitGreater);
 
-      for (std::vector<EcalRecHit>::iterator itseed = seeds.begin(); itseed != seeds.end(); itseed++) {
-        EBDetId seed_id = itseed->id();
+      for (auto &seed : seeds) {
+        EBDetId seed_id = seed.id();
         std::vector<EBDetId>::const_iterator usedIds;
 
         bool seedAlreadyUsed = false;
@@ -736,13 +736,13 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
         double simple_energy = 0;
 
-        for (std::vector<DetId>::iterator det = clus_v.begin(); det != clus_v.end(); det++) {
-          EBDetId EBdet = *det;
+        for (auto &det : clus_v) {
+          EBDetId EBdet = det;
           //      cout<<" det "<< EBdet<<" ieta "<<EBdet.ieta()<<" iphi
           //      "<<EBdet.iphi()<<endl;
           bool HitAlreadyUsed = false;
           for (usedIds = usedXtals.begin(); usedIds != usedXtals.end(); usedIds++) {
-            if (*usedIds == *det) {
+            if (*usedIds == det) {
               HitAlreadyUsed = true;
               break;
             }
@@ -755,9 +755,9 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
             continue;
 
           int nn = int(itdet - detIdEBRecHits.begin());
-          usedXtals.push_back(*det);
+          usedXtals.push_back(det);
           RecHitsInWindow.push_back(EBRecHits[nn]);
-          clus_used.push_back(std::make_pair(*det, 1));
+          clus_used.push_back(std::make_pair(det, 1));
           simple_energy = simple_energy + EBRecHits[nn].energy();
         }
 
@@ -787,8 +787,8 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
         // We are not sure to have 9 RecHits so need to check eta and phi:
         /// check s4s9
         float s4s9_tmp[4];
-        for (int i = 0; i < 4; i++)
-          s4s9_tmp[i] = 0;
+        for (float &i : s4s9_tmp)
+          i = 0;
 
         int seed_ieta = seed_id.ieta();
         int seed_iphi = seed_id.iphi();
@@ -798,15 +798,15 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
         float e3x3 = 0;
         float e5x5 = 0;
 
-        for (unsigned int j = 0; j < RecHitsInWindow.size(); j++) {
-          EBDetId det = (EBDetId)RecHitsInWindow[j].id();
+        for (auto &j : RecHitsInWindow) {
+          EBDetId det = (EBDetId)j.id();
 
           int ieta = det.ieta();
           int iphi = det.iphi();
 
           convxtalid(iphi, ieta);
 
-          float en = RecHitsInWindow[j].energy();
+          float en = j.energy();
 
           int dx = diff_neta_s(seed_ieta, ieta);
           int dy = diff_nphi_s(seed_iphi, iphi);
@@ -833,8 +833,8 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
         /// calculate e5x5
         std::vector<DetId> clus_v5x5 = topology_p->getWindow(seed_id, 5, 5);
-        for (std::vector<DetId>::const_iterator idItr = clus_v5x5.begin(); idItr != clus_v5x5.end(); idItr++) {
-          EBDetId det = *idItr;
+        for (auto idItr : clus_v5x5) {
+          EBDetId det = idItr;
 
           std::vector<EBDetId>::iterator itdet0 = find(usedXtals.begin(), usedXtals.end(), det);
 
@@ -1029,8 +1029,8 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
       // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
       sort(seedsEndCap.begin(), seedsEndCap.end(), ecalRecHitGreater);
 
-      for (std::vector<EcalRecHit>::iterator itseed = seedsEndCap.begin(); itseed != seedsEndCap.end(); itseed++) {
-        EEDetId seed_id = itseed->id();
+      for (auto &itseed : seedsEndCap) {
+        EEDetId seed_id = itseed.id();
         std::vector<EEDetId>::const_iterator usedIds;
 
         bool seedAlreadyUsed = false;
@@ -1051,12 +1051,12 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
         float simple_energy = 0;
 
-        for (std::vector<DetId>::iterator det = clus_v.begin(); det != clus_v.end(); det++) {
-          EEDetId EEdet = *det;
+        for (auto &det : clus_v) {
+          EEDetId EEdet = det;
 
           bool HitAlreadyUsed = false;
           for (usedIds = usedXtalsEndCap.begin(); usedIds != usedXtalsEndCap.end(); usedIds++) {
-            if (*usedIds == *det) {
+            if (*usedIds == det) {
               HitAlreadyUsed = true;
               break;
             }
@@ -1070,9 +1070,9 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
             continue;
 
           int nn = int(itdet - detIdEERecHits.begin());
-          usedXtalsEndCap.push_back(*det);
+          usedXtalsEndCap.push_back(det);
           RecHitsInWindow.push_back(EERecHits[nn]);
-          clus_used.push_back(std::make_pair(*det, 1));
+          clus_used.push_back(std::make_pair(det, 1));
           simple_energy = simple_energy + EERecHits[nn].energy();
         }
 
@@ -1091,20 +1091,20 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
         // Compute S4/S9 variable
         // We are not sure to have 9 RecHits so need to check eta and phi:
         float s4s9_tmp[4];
-        for (int i = 0; i < 4; i++)
-          s4s9_tmp[i] = 0;
+        for (float &i : s4s9_tmp)
+          i = 0;
 
         int ixSeed = seed_id.ix();
         int iySeed = seed_id.iy();
         float e3x3 = 0;
         float e5x5 = 0;
 
-        for (unsigned int j = 0; j < RecHitsInWindow.size(); j++) {
-          EEDetId det_this = (EEDetId)RecHitsInWindow[j].id();
+        for (auto &j : RecHitsInWindow) {
+          EEDetId det_this = (EEDetId)j.id();
           int dx = ixSeed - det_this.ix();
           int dy = iySeed - det_this.iy();
 
-          float en = RecHitsInWindow[j].energy();
+          float en = j.energy();
 
           if (dx <= 0 && dy <= 0)
             s4s9_tmp[0] += en;
@@ -1281,8 +1281,8 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
       // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
       sort(seedsEndCap.begin(), seedsEndCap.end(), ecalRecHitGreater);
 
-      for (std::vector<EcalRecHit>::iterator itseed = seedsEndCap.begin(); itseed != seedsEndCap.end(); itseed++) {
-        EEDetId seed_id = itseed->id();
+      for (auto &itseed : seedsEndCap) {
+        EEDetId seed_id = itseed.id();
         std::vector<EEDetId>::const_iterator usedIds;
 
         bool seedAlreadyUsed = false;
@@ -1303,12 +1303,12 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
         float simple_energy = 0;
 
-        for (std::vector<DetId>::iterator det = clus_v.begin(); det != clus_v.end(); det++) {
-          EEDetId EEdet = *det;
+        for (auto &det : clus_v) {
+          EEDetId EEdet = det;
 
           bool HitAlreadyUsed = false;
           for (usedIds = usedXtalsEndCap.begin(); usedIds != usedXtalsEndCap.end(); usedIds++) {
-            if (*usedIds == *det) {
+            if (*usedIds == det) {
               HitAlreadyUsed = true;
               break;
             }
@@ -1322,9 +1322,9 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
             continue;
 
           int nn = int(itdet - detIdEERecHits.begin());
-          usedXtalsEndCap.push_back(*det);
+          usedXtalsEndCap.push_back(det);
           RecHitsInWindow.push_back(EERecHits[nn]);
-          clus_used.push_back(std::make_pair(*det, 1));
+          clus_used.push_back(std::make_pair(det, 1));
           simple_energy = simple_energy + EERecHits[nn].energy();
         }
 
@@ -1343,20 +1343,20 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
         // Compute S4/S9 variable
         // We are not sure to have 9 RecHits so need to check eta and phi:
         float s4s9_tmp[4];
-        for (int i = 0; i < 4; i++)
-          s4s9_tmp[i] = 0;
+        for (float &i : s4s9_tmp)
+          i = 0;
 
         int ixSeed = seed_id.ix();
         int iySeed = seed_id.iy();
         float e3x3 = 0;
         float e5x5 = 0;
 
-        for (unsigned int j = 0; j < RecHitsInWindow.size(); j++) {
-          EEDetId det_this = (EEDetId)RecHitsInWindow[j].id();
+        for (auto &j : RecHitsInWindow) {
+          EEDetId det_this = (EEDetId)j.id();
           int dx = ixSeed - det_this.ix();
           int dy = iySeed - det_this.iy();
 
-          float en = RecHitsInWindow[j].energy();
+          float en = j.energy();
 
           if (dx <= 0 && dy <= 0)
             s4s9_tmp[0] += en;

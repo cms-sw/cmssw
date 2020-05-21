@@ -96,28 +96,26 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData,
   boxset->Reset(TEveBoxSet::kBT_FreeBox, true, 64);
   boxset->SetAntiFlick(true);
 
-  for (std::vector<std::pair<DetId, float>>::iterator it = clusterDetIds.begin(), itEnd = clusterDetIds.end();
-       it != itEnd;
-       ++it) {
-    const uint8_t type = ((it->first >> 28) & 0xF);
+  for (auto &clusterDetId : clusterDetIds) {
+    const uint8_t type = ((clusterDetId.first >> 28) & 0xF);
 
-    const float *corners = item()->getGeom()->getCorners(it->first);
+    const float *corners = item()->getGeom()->getCorners(clusterDetId.first);
     if (corners == nullptr)
       continue;
 
     // HGCal
     if (iData.algo() == 8 || (type >= 8 && type <= 10)) {
-      if (heatmap && hitmap.find(it->first) == hitmap.end())
+      if (heatmap && hitmap.find(clusterDetId.first) == hitmap.end())
         continue;
 
-      const bool z = (it->first >> 25) & 0x1;
+      const bool z = (clusterDetId.first >> 25) & 0x1;
 
       // discard everything thats not at the side that we are intersted in
       if (((z_plus & z_minus) != 1) && (((z_plus | z_minus) == 0) || !(z == z_minus || z == !z_plus)))
         continue;
 
-      const float *parameters = item()->getGeom()->getParameters(it->first);
-      const float *shapes = item()->getGeom()->getShapePars(it->first);
+      const float *parameters = item()->getGeom()->getParameters(clusterDetId.first);
+      const float *shapes = item()->getGeom()->getShapePars(clusterDetId.first);
 
       if (parameters == nullptr || shapes == nullptr)
         continue;
@@ -138,12 +136,12 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData,
           }
         }
 
-        if (ll != ((it->first >> (isScintillator ? 17 : 20)) & 0x1F))
+        if (ll != ((clusterDetId.first >> (isScintillator ? 17 : 20)) & 0x1F))
           continue;
       }
 
       // seed
-      if (iData.seed().rawId() == it->first.rawId()) {
+      if (iData.seed().rawId() == clusterDetId.first.rawId()) {
         TEveStraightLineSet *marker = new TEveStraightLineSet;
         marker->SetLineWidth(1);
 
@@ -161,10 +159,11 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData,
         oItemHolder.AddElement(marker);
       }
 
-      const float energy = fmin(
-          (item()->getConfig()->value<bool>("Cluster(0)/RecHit(1)") ? hitmap[it->first]->energy() : iData.energy()) /
-              saturation_energy,
-          1.0f);
+      const float energy =
+          fmin((item()->getConfig()->value<bool>("Cluster(0)/RecHit(1)") ? hitmap[clusterDetId.first]->energy()
+                                                                         : iData.energy()) /
+                   saturation_energy,
+               1.0f);
       const uint8_t colorFactor = gradient_steps * energy;
 
       // Scintillator
@@ -210,7 +209,7 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData,
       h_box = true;
 
       std::vector<float> pnts(24);
-      fireworks::energyTower3DCorners(corners, (*it).second, pnts);
+      fireworks::energyTower3DCorners(corners, clusterDetId.second, pnts);
       boxset->AddBox(&pnts[0]);
     }
   }

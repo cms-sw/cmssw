@@ -403,8 +403,7 @@ namespace cscdqm {
     void load(const edm::ParameterSet& ps) {
       BOOST_PP_SEQ_FOR_EACH_I(CONFIG_PARAMETER_LOADPS_MACRO, _, CONFIG_PARAMETERS_SEQ)
       std::vector<std::string> moFilter = ps.getUntrackedParameter<std::vector<std::string> >("MO_FILTER");
-      for (std::vector<std::string>::iterator it = moFilter.begin(); it != moFilter.end(); it++) {
-        std::string f = *it;
+      for (auto f : moFilter) {
         if (!Utility::regexMatch("^[-+]/.*/$", f)) {
           LOG_WARN << "MO_FILTER item " << f << " does not recognized to be a valid one. Skipping...";
           continue;
@@ -566,8 +565,8 @@ namespace cscdqm {
        */
     const bool needBookMO(const std::string name) const {
       bool result = true;
-      for (unsigned int i = 0; i < MOFilterItems.size(); i++) {
-        const MOFilterItem* filter = &MOFilterItems.at(i);
+      for (const auto& i : MOFilterItems) {
+        const MOFilterItem* filter = &i;
         if (Utility::regexMatch(filter->pattern, name))
           result = filter->include;
       }

@@ -110,21 +110,21 @@ void FWDigitSetProxyBuilder::modelChanges(const FWModelIds& iIds, Product* produ
   TEveSecondarySelectable::SelectionSet_t& selected =
       (TEveSecondarySelectable::SelectionSet_t&)(digits->RefSelectedSet());
 
-  for (std::set<FWModelId>::const_iterator it = iIds.begin(); it != iIds.end(); ++it) {
-    const FWEventItem::ModelInfo& info = item()->modelInfo(it->index());
+  for (auto iId : iIds) {
+    const FWEventItem::ModelInfo& info = item()->modelInfo(iId.index());
 
     // id display properties
     const FWDisplayProperties& p = info.displayProperties();
-    digits->SetCurrentDigit(it->index());
+    digits->SetCurrentDigit(iId.index());
     digits->DigitValue(p.isVisible());
     if (p.isVisible())
       digits->DigitColor(p.color(), p.transparency());
 
     // id selection
-    TEveSecondarySelectable::SelectionSet_ci si = selected.find(it->index());
+    TEveSecondarySelectable::SelectionSet_ci si = selected.find(iId.index());
     if (info.isSelected()) {
       if (si == selected.end())
-        selected.insert(it->index());
+        selected.insert(iId.index());
     } else {
       if (si != selected.end())
         selected.erase(si);

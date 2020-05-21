@@ -229,8 +229,8 @@ bool SiPixelOfflineCalibAnalysisBase::doFits(uint32_t detid, std::vector<SiPixel
   //
   //DEBUG
   std::cout << "Row: " << row << "   Col: " << col << std::endl;
-  for (unsigned int i = 0; i < sum.size(); i++) {
-    std::cout << sum[i] << "  ";
+  for (unsigned int i : sum) {
+    std::cout << i << "  ";
   }
   std::cout << std::endl;
   return false;
@@ -280,11 +280,11 @@ bool SiPixelOfflineCalibAnalysisBase::checkPixel(uint32_t detid, short row, shor
   std::vector<short> calibcols = calib_->getColumnPattern();
   std::vector<short> calibrows = calib_->getRowPattern();
   // first check rows:
-  for (size_t irow = 0; irow < calibrows.size(); ++irow) {
-    if (calibrows[irow] == localrow) {
+  for (short calibrow : calibrows) {
+    if (calibrow == localrow) {
       // check the columns
-      for (size_t icol = 0; icol < calibcols.size(); ++icol) {
-        if (calibcols[icol] == localcol)
+      for (short calibcol : calibcols) {
+        if (calibcol == localcol)
           return true;
       }
     }

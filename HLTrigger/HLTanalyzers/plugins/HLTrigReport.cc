@@ -176,8 +176,8 @@ HLTrigReport::HLTrigReport(const edm::ParameterSet& iConfig)
   isCustomDatasets_ = (customDatasets != edm::ParameterSet());
   if (isCustomDatasets_) {
     datasetNames_ = customDatasets.getParameterNamesForType<std::vector<std::string> >();
-    for (std::vector<std::string>::const_iterator name = datasetNames_.begin(); name != datasetNames_.end(); name++) {
-      datasetContents_.push_back(customDatasets.getParameter<std::vector<std::string> >(*name));
+    for (const auto& datasetName : datasetNames_) {
+      datasetContents_.push_back(customDatasets.getParameter<std::vector<std::string> >(datasetName));
     }
   }
 
@@ -186,8 +186,8 @@ HLTrigReport::HLTrigReport(const edm::ParameterSet& iConfig)
   isCustomStreams_ = (customStreams != edm::ParameterSet());
   if (isCustomStreams_) {
     streamNames_ = customStreams.getParameterNamesForType<std::vector<std::string> >();
-    for (std::vector<std::string>::const_iterator name = streamNames_.begin(); name != streamNames_.end(); name++) {
-      streamContents_.push_back(customStreams.getParameter<std::vector<std::string> >(*name));
+    for (const auto& streamName : streamNames_) {
+      streamContents_.push_back(customStreams.getParameter<std::vector<std::string> >(streamName));
     }
   }
 

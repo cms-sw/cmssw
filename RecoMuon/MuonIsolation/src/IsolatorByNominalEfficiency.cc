@@ -45,9 +45,9 @@ IsolatorByNominalEfficiency::~IsolatorByNominalEfficiency() { delete thresholds;
 
 IsolatorByNominalEfficiency::mapNomEff_Cone IsolatorByNominalEfficiency::cones(const vector<string>& usrVec) {
   mapNomEff_Cone result;
-  for (vector<string>::const_iterator is = usrVec.begin(); is != usrVec.end(); is++) {
+  for (const auto& is : usrVec) {
     char* evp = nullptr;
-    int cone = strtol((*is).c_str(), &evp, 10);
+    int cone = strtol(is.c_str(), &evp, 10);
     float effic = strtod(evp + 1, &evp);
     result.insert(make_pair(effic, cone));
   }
@@ -127,11 +127,11 @@ double IsolatorByNominalEfficiency::weightedSum(const DepositContainer& deposits
 
   vector<double>::const_iterator w = theWeights.begin();
   vector<double>::const_iterator dThresh = theDepThresholds.begin();
-  for (DepositContainer::const_iterator dep = deposits.begin(); dep != deposits.end(); dep++) {
-    if (dep->vetos != nullptr) {
-      sumDep += dep->dep->depositAndCountWithin(dRcone, *dep->vetos, *dThresh).first * (*w);
+  for (auto deposit : deposits) {
+    if (deposit.vetos != nullptr) {
+      sumDep += deposit.dep->depositAndCountWithin(dRcone, *deposit.vetos, *dThresh).first * (*w);
     } else {
-      sumDep += dep->dep->depositAndCountWithin(dRcone, Vetos(), *dThresh).first * (*w);
+      sumDep += deposit.dep->depositAndCountWithin(dRcone, Vetos(), *dThresh).first * (*w);
     }
     if (sumDep < 0.)
       sumDep = 0.;

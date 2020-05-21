@@ -4,7 +4,7 @@
 GlobalPoint LinearizationPointFinder::getLinearizationPoint(const std::vector<FreeTrajectoryState>& ftses) const {
   std::vector<reco::TransientTrack> rectracks;
   TransientTrackFromFTSFactory factory;
-  for (std::vector<FreeTrajectoryState>::const_iterator fts = ftses.begin(); fts != ftses.end(); ++fts)
-    rectracks.push_back(factory.build(*fts));
+  for (const auto& ftse : ftses)
+    rectracks.push_back(factory.build(ftse));
   return getLinearizationPoint(rectracks);
 }

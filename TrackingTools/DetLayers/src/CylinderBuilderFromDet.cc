@@ -26,9 +26,9 @@ BoundCylinder* CylinderBuilderFromDet::operator()(vector<const Det*>::const_iter
   float zmax = meanPos.z();
   for (vector<const Det*>::const_iterator i = first; i != last; i++) {
     vector<GlobalPoint> corners = BoundingBox::corners(dynamic_cast<const Plane&>((**i).surface()));
-    for (vector<GlobalPoint>::const_iterator ic = corners.begin(); ic != corners.end(); ic++) {
-      float r = ic->perp();
-      float z = ic->z();
+    for (const auto& corner : corners) {
+      float r = corner.perp();
+      float z = corner.z();
       rmin = min(rmin, r);
       rmax = max(rmax, r);
       zmin = min(zmin, z);

@@ -65,10 +65,10 @@ EcalPedOffset::EcalPedOffset(const ParameterSet &paramSet)
 
 //! dtor
 EcalPedOffset::~EcalPedOffset() {
-  for (std::map<int, TPedValues *>::iterator mapIt = m_pedValues.begin(); mapIt != m_pedValues.end(); ++mapIt)
-    delete mapIt->second;
-  for (std::map<int, TPedResult *>::iterator mapIt = m_pedResult.begin(); mapIt != m_pedResult.end(); ++mapIt)
-    delete mapIt->second;
+  for (auto &m_pedValue : m_pedValues)
+    delete m_pedValue.second;
+  for (auto &mapIt : m_pedResult)
+    delete mapIt.second;
 }
 
 // -----------------------------------------------------------------------------
@@ -99,10 +99,9 @@ void EcalPedOffset::analyze(Event const &event, EventSetup const &eventSetup) {
     m_run = event.id().run();
 
   // loop over the headers
-  for (EcalRawDataCollection::const_iterator headerItr = DCCHeaders->begin(); headerItr != DCCHeaders->end();
-       ++headerItr) {
-    EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr->getEventSettings();
-    int FEDid = 600 + headerItr->id();
+  for (const auto &headerItr : *DCCHeaders) {
+    EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr.getEventSettings();
+    int FEDid = 600 + headerItr.id();
     DACvalues[FEDid] = settings.ped_offset;
     LogDebug("EcalPedOffset") << "Found FED: " << FEDid << " in DCC header";
   }

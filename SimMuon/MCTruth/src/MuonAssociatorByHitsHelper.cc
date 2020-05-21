@@ -397,8 +397,8 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
   if (tC.empty())
     edm::LogVerbatim("MuonAssociatorByHitsHelper") << "0 reconstructed tracks (-->> 0 associated !)";
 
-  for (IndexAssociation::iterator it = outputCollection.begin(), ed = outputCollection.end(); it != ed; ++it) {
-    std::sort(it->second.begin(), it->second.end());
+  for (auto &it : outputCollection) {
+    std::sort(it.second.begin(), it.second.end());
   }
   return outputCollection;
 }
@@ -904,8 +904,8 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
         << "\n";
   }
 
-  for (IndexAssociation::iterator it = outputCollection.begin(), ed = outputCollection.end(); it != ed; ++it) {
-    std::sort(it->second.begin(), it->second.end());
+  for (auto &it : outputCollection) {
+    std::sort(it.second.begin(), it.second.end());
   }
   return outputCollection;
 }
@@ -1111,12 +1111,10 @@ void MuonAssociatorByHitsHelper::getMatchedIds(MapOfMatchedIds &tracker_matchedI
             SimTrackIds.clear();
             std::vector<SimHitIdpr> i_SimTrackIds;
             int i_compHit = 0;
-            for (std::vector<const TrackingRecHit *>::const_iterator ithit = componentHits.begin();
-                 ithit != componentHits.end();
-                 ++ithit) {
+            for (auto componentHit : componentHits) {
               i_compHit++;
 
-              const DTRecHit1D *dtrechit1D = dynamic_cast<const DTRecHit1D *>(*ithit);
+              const DTRecHit1D *dtrechit1D = dynamic_cast<const DTRecHit1D *>(componentHit);
 
               i_SimTrackIds.clear();
               if (dtrechit1D) {
@@ -1147,7 +1145,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds(MapOfMatchedIds &tracker_matchedI
                                                                   "MuonAssociatorByHitsHelper::getMatchedIds, null "
                                                                   "dynamic_cast of a DT TrackingRecHit !";
 
-              unsigned int i_detid = (*ithit)->geographicalId().rawId();
+              unsigned int i_detid = componentHit->geographicalId().rawId();
               DTWireId i_dtdetid = DTWireId(i_detid);
 
               stringstream i_dt_detector_id;
@@ -1222,12 +1220,10 @@ void MuonAssociatorByHitsHelper::getMatchedIds(MapOfMatchedIds &tracker_matchedI
             SimTrackIds.clear();
             std::vector<SimHitIdpr> i_SimTrackIds;
             int i_compHit = 0;
-            for (std::vector<const TrackingRecHit *>::const_iterator ithit = componentHits.begin();
-                 ithit != componentHits.end();
-                 ++ithit) {
+            for (auto componentHit : componentHits) {
               i_compHit++;
 
-              const CSCRecHit2D *cscrechit2D = dynamic_cast<const CSCRecHit2D *>(*ithit);
+              const CSCRecHit2D *cscrechit2D = dynamic_cast<const CSCRecHit2D *>(componentHit);
 
               i_SimTrackIds.clear();
               if (cscrechit2D) {
@@ -1258,7 +1254,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds(MapOfMatchedIds &tracker_matchedI
                                                                   "MuonAssociatorByHitsHelper::getMatchedIds, null "
                                                                   "dynamic_cast of a CSC TrackingRecHit !";
 
-              unsigned int i_detid = (*ithit)->geographicalId().rawId();
+              unsigned int i_detid = componentHit->geographicalId().rawId();
               CSCDetId i_cscdetid = CSCDetId(i_detid);
 
               stringstream i_csc_detector_id;
@@ -1421,8 +1417,8 @@ void MuonAssociatorByHitsHelper::getMatchedIds(MapOfMatchedIds &tracker_matchedI
       edm::LogVerbatim("MuonAssociatorByHitsHelper") << hitlog;
     if (printRtS && dumpDT && det == DetId::Muon && subdet == MuonSubdetId::DT) {
       edm::LogVerbatim("MuonAssociatorByHitsHelper") << wireidlog;
-      for (unsigned int j = 0; j < DTSimHits.size(); j++) {
-        edm::LogVerbatim("MuonAssociatorByHitsHelper") << DTSimHits[j];
+      for (const auto &DTSimHit : DTSimHits) {
+        edm::LogVerbatim("MuonAssociatorByHitsHelper") << DTSimHit;
       }
     }
 
@@ -1436,9 +1432,9 @@ int MuonAssociatorByHitsHelper::getShared(MapOfMatchedIds &matchedIds,
 
   // map is indexed over the rechits of the reco::Track (no double-countings
   // allowed)
-  for (MapOfMatchedIds::const_iterator iRecH = matchedIds.begin(); iRecH != matchedIds.end(); ++iRecH) {
+  for (const auto &matchedId : matchedIds) {
     // vector of associated simhits associated to the current rechit
-    std::vector<SimHitIdpr> const &SimTrackIds = (*iRecH).second;
+    std::vector<SimHitIdpr> const &SimTrackIds = matchedId.second;
 
     bool found = false;
 
@@ -1471,14 +1467,10 @@ std::string MuonAssociatorByHitsHelper::write_matched_simtracks(const std::vecto
 
   string hitlog(" matched to SimTrack");
 
-  for (size_t j = 0; j < SimTrackIds.size(); j++) {
+  for (const auto &SimTrackId : SimTrackIds) {
     char buf[64];
-    snprintf(buf,
-             64,
-             " Id:%i/Evt:(%i,%i) ",
-             SimTrackIds[j].first,
-             SimTrackIds[j].second.event(),
-             SimTrackIds[j].second.bunchCrossing());
+    snprintf(
+        buf, 64, " Id:%i/Evt:(%i,%i) ", SimTrackId.first, SimTrackId.second.event(), SimTrackId.second.bunchCrossing());
     hitlog += buf;
   }
   return hitlog;

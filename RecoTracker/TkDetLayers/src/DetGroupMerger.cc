@@ -75,14 +75,14 @@ void DetGroupMerger::addSameLevel(vector<DetGroup>&& gvec, vector<DetGroup>& res
 
 void DetGroupMerger::doubleIndexSize(vector<DetGroup>& vec) {
   int indSize = vec.front().indexSize();
-  for (vector<DetGroup>::iterator i = vec.begin(); i != vec.end(); i++) {
-    i->setIndexSize(2 * indSize);
+  for (auto& i : vec) {
+    i.setIndexSize(2 * indSize);
   }
 }
 
 void DetGroupMerger::incrementAndDoubleSize(vector<DetGroup>& vec) {
   int indSize = vec.front().indexSize();
-  for (vector<DetGroup>::iterator i = vec.begin(); i != vec.end(); i++) {
-    i->incrementIndex(indSize);
+  for (auto& i : vec) {
+    i.incrementIndex(indSize);
   }
 }

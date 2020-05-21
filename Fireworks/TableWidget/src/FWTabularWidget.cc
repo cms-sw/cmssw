@@ -48,11 +48,8 @@ FWTabularWidget::FWTabularWidget(FWTableManagerBase* iTable, const TGWindow* p, 
   m_widthOfTextInColumns = m_table->maxWidthForColumns();
 
   m_tableWidth = (kTextBuffer + kTextBuffer + kSeperatorWidth) * (m_widthOfTextInColumns.size()) + kSeperatorWidth;
-  for (std::vector<unsigned int>::const_iterator it = m_widthOfTextInColumns.begin(),
-                                                 itEnd = m_widthOfTextInColumns.end();
-       it != itEnd;
-       ++it) {
-    m_tableWidth += *it;
+  for (unsigned int m_widthOfTextInColumn : m_widthOfTextInColumns) {
+    m_tableWidth += m_widthOfTextInColumn;
   }
   Resize();
 
@@ -107,11 +104,8 @@ void FWTabularWidget::setWidthOfTextInColumns(const std::vector<unsigned int>& i
   }
 
   m_tableWidth = 0;
-  for (std::vector<unsigned int>::const_iterator it = m_widthOfTextInColumns.begin(),
-                                                 itEnd = m_widthOfTextInColumns.end();
-       it != itEnd;
-       ++it) {
-    m_tableWidth += *it + kTextBuffer + kTextBuffer + kSeperatorWidth;
+  for (unsigned int m_widthOfTextInColumn : m_widthOfTextInColumns) {
+    m_tableWidth += m_widthOfTextInColumn + kTextBuffer + kTextBuffer + kSeperatorWidth;
   }
   m_tableWidth += kSeperatorWidth;
 }
@@ -282,10 +276,8 @@ void FWTabularWidget::DoRedraw() {
   int x = xOrigin;
   gVirtualX->DrawLine(fId, m_normGC, x, 0, x, y);
   x += kSeperatorWidth;
-  for (std::vector<unsigned int>::iterator itTextWidth = m_widthOfTextInColumns.begin();
-       itTextWidth != m_widthOfTextInColumns.end();
-       ++itTextWidth) {
-    x += 2 * kTextBuffer + *itTextWidth;
+  for (unsigned int& m_widthOfTextInColumn : m_widthOfTextInColumns) {
+    x += 2 * kTextBuffer + m_widthOfTextInColumn;
     gVirtualX->DrawLine(fId, m_normGC, x, 0, x, y);
     x += kSeperatorWidth;
   }

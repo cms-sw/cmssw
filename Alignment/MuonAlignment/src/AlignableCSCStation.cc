@@ -42,8 +42,8 @@ AlignableSurface AlignableCSCStation::computeSurface() {
 AlignableCSCStation::PositionType AlignableCSCStation::computePosition() {
   float zz = 0.;
 
-  for (std::vector<AlignableCSCRing*>::iterator ilayer = theCSCRings.begin(); ilayer != theCSCRings.end(); ilayer++)
-    zz += (*ilayer)->globalPosition().z();
+  for (auto& theCSCRing : theCSCRings)
+    zz += theCSCRing->globalPosition().z();
 
   zz /= static_cast<float>(theCSCRings.size());
 
@@ -74,6 +74,6 @@ std::ostream& operator<<(std::ostream& os, const AlignableCSCStation& b) {
 /// Recursive printout of whole CSC Station structure
 void AlignableCSCStation::dump(void) const {
   edm::LogInfo("AlignableDump") << (*this);
-  for (std::vector<AlignableCSCRing*>::const_iterator iRing = theCSCRings.begin(); iRing != theCSCRings.end(); iRing++)
-    edm::LogInfo("AlignableDump") << (**iRing);
+  for (auto theCSCRing : theCSCRings)
+    edm::LogInfo("AlignableDump") << (*theCSCRing);
 }

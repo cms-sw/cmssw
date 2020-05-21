@@ -57,8 +57,8 @@ void TtFullHadronicEvent::print(const int verbosity) const {
 
   // get details from the hypotheses
   typedef std::map<HypoClassKey, std::vector<HypoCombPair> >::const_iterator EventHypo;
-  for (EventHypo hyp = evtHyp_.begin(); hyp != evtHyp_.end(); ++hyp) {
-    HypoClassKey hypKey = (*hyp).first;
+  for (const auto& hyp : evtHyp_) {
+    HypoClassKey hypKey = hyp.first;
     // header for each hypothesis
     log << "---------------------------------------------------------------------------- \n";
     switch (hypKey) {
@@ -112,8 +112,8 @@ void TtFullHadronicEvent::print(const int verbosity) const {
         // jetLepComb
         log << " * JetCombi    :";
         std::vector<int> jets = this->jetLeptonCombination(hypKey, cmb);
-        for (unsigned int iJet = 0; iJet < jets.size(); iJet++) {
-          log << "      " << jets[iJet] << "   ";
+        for (int jet : jets) {
+          log << "      " << jet << "   ";
         }
         log << "\n";
         // specialties for some hypotheses

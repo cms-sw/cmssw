@@ -53,9 +53,9 @@ void IOPrinter::run(edm::Handle<L1MuDTChambPhContainer> inphiDigis,
   cout << "RPC Inputs" << endl;
   cout << "bx\tring\tsector\tstation\troll\tlayer\tstrip\tphi\tlocalX" << endl;
   //cout<<"RPCHitCleaner"<<endl;
-  for (auto chamber = rpcDigis->begin(); chamber != rpcDigis->end(); ++chamber) {
-    RPCDetId detid = (*chamber).first;
-    for (auto digi = (*chamber).second.first; digi != (*chamber).second.second; ++digi) {
+  for (auto&& chamber : *rpcDigis) {
+    RPCDetId detid = chamber.first;
+    for (auto digi = chamber.second.first; digi != chamber.second.second; ++digi) {
       RPCDigi digi_out(digi->strip(), digi->bx());
       //if(digi->bx()!=0) continue;
       int phi = RPCtoDTTranslator::radialAngle(detid, c, digi->strip()) << 2;
@@ -132,9 +132,9 @@ void IOPrinter::run(L1MuDTChambPhContainer const* inphiDigis,
   cout << "RPC Inputs" << endl;
   cout << "bx\tring\tsector\tstation\troll\tlayer\tstrip\tphi\tlocalX" << endl;
   //cout<<"RPCHitCleaner"<<endl;
-  for (auto chamber = rpcDigis->begin(); chamber != rpcDigis->end(); ++chamber) {
-    RPCDetId detid = (*chamber).first;
-    for (auto digi = (*chamber).second.first; digi != (*chamber).second.second; ++digi) {
+  for (auto&& rpcDigi : *rpcDigis) {
+    RPCDetId detid = rpcDigi.first;
+    for (auto digi = rpcDigi.second.first; digi != rpcDigi.second.second; ++digi) {
       RPCDigi digi_out(digi->strip(), digi->bx());
       //if(digi->bx()!=0) continue;
       int phi = RPCtoDTTranslator::radialAngle(detid, c, digi->strip()) << 2;

@@ -15,8 +15,8 @@ void reset(double vett[256]) {
 
 TPedValues::TPedValues(double RMSmax, int bestPedestal) : m_bestPedestal(bestPedestal), m_RMSmax(RMSmax) {
   LogDebug("EcalPedOffset") << "entering TPedValues ctor ...";
-  for (int i = 0; i < 1700; ++i)
-    endcapCrystalNumbers[i] = 0;
+  for (int &endcapCrystalNumber : endcapCrystalNumbers)
+    endcapCrystalNumber = 0;
 }
 
 TPedValues::TPedValues(const TPedValues &orig) {

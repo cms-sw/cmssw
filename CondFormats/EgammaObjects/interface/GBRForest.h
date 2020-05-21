@@ -48,8 +48,8 @@ protected:
 //_______________________________________________________________________
 inline double GBRForest::GetResponse(const float* vector) const {
   double response = fInitialResponse;
-  for (std::vector<GBRTree>::const_iterator it = fTrees.begin(); it != fTrees.end(); ++it) {
-    response += it->GetResponse(vector);
+  for (const auto& fTree : fTrees) {
+    response += fTree.GetResponse(vector);
   }
   return response;
 }

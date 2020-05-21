@@ -25,8 +25,7 @@ PhotosppInterface::PhotosppInterface(const edm::ParameterSet& pset)
   bool UseHadronizerQEDBrem = false;
   fPSet = new ParameterSet(pset);
   std::vector<std::string> par = fPSet->getParameter<std::vector<std::string> >("parameterSets");
-  for (unsigned int ip = 0; ip < par.size(); ++ip) {
-    std::string curSet = par[ip];
+  for (auto curSet : par) {
     // Physics settings
     if (curSet == "UseHadronizerQEDBrem")
       UseHadronizerQEDBrem = true;
@@ -51,9 +50,7 @@ void PhotosppInterface::init() {
   Photospp::Photos::initialize();
   Photospp::Photos::createHistoryEntries(true, 746);  // P-H-O
   std::vector<std::string> par = fPSet->getParameter<std::vector<std::string> >("parameterSets");
-  for (unsigned int ip = 0; ip < par.size(); ++ip) {
-    std::string curSet = par[ip];
-
+  for (auto curSet : par) {
     // Physics settings
     if (curSet == "maxWtInterference")
       Photospp::Photos::maxWtInterference(fPSet->getParameter<double>(curSet));
@@ -105,8 +102,7 @@ void PhotosppInterface::init() {
     if (curSet == "suppressBremForBranch") {
       edm::ParameterSet cfg = fPSet->getParameter<edm::ParameterSet>(curSet);
       std::vector<std::string> v = cfg.getParameter<std::vector<std::string> >("parameterSets");
-      for (unsigned int i = 0; i < v.size(); i++) {
-        std::string vs = v[i];
+      for (auto vs : v) {
         std::vector<int> vpar = cfg.getParameter<std::vector<int> >(vs);
         if (vpar.size() == 1)
           Photospp::Photos::suppressBremForBranch(0, vpar[0]);
@@ -136,8 +132,7 @@ void PhotosppInterface::init() {
     if (curSet == "suppressBremForDecay") {
       edm::ParameterSet cfg = fPSet->getParameter<edm::ParameterSet>(curSet);
       std::vector<std::string> v = cfg.getParameter<std::vector<std::string> >("parameterSets");
-      for (unsigned int i = 0; i < v.size(); i++) {
-        std::string vs = v[i];
+      for (auto vs : v) {
         std::vector<int> vpar = cfg.getParameter<std::vector<int> >(vs);
         if (vpar.size() == 1)
           Photospp::Photos::suppressBremForDecay(0, vpar[0]);
@@ -168,8 +163,7 @@ void PhotosppInterface::init() {
     if (curSet == "forceBremForBranch") {
       edm::ParameterSet cfg = fPSet->getParameter<edm::ParameterSet>(curSet);
       std::vector<std::string> v = cfg.getParameter<std::vector<std::string> >("parameterSets");
-      for (unsigned int i = 0; i < v.size(); i++) {
-        std::string vs = v[i];
+      for (auto vs : v) {
         std::vector<int> vpar = cfg.getParameter<std::vector<int> >(vs);
         if (vpar.size() == 1)
           Photospp::Photos::forceBremForBranch(0, vpar[0]);
@@ -198,8 +192,7 @@ void PhotosppInterface::init() {
     if (curSet == "forceBremForDecay") {
       edm::ParameterSet cfg = fPSet->getParameter<edm::ParameterSet>(curSet);
       std::vector<std::string> v = cfg.getParameter<std::vector<std::string> >("parameterSets");
-      for (unsigned int i = 0; i < v.size(); i++) {
-        std::string vs = v[i];
+      for (auto vs : v) {
         std::vector<int> vpar = cfg.getParameter<std::vector<int> >(vs);
         if (vpar.size() == 1)
           Photospp::Photos::forceBremForDecay(0, vpar[0]);
@@ -229,8 +222,7 @@ void PhotosppInterface::init() {
     if (curSet == "forceMass") {
       edm::ParameterSet cfg = fPSet->getParameter<edm::ParameterSet>(curSet);
       std::vector<std::string> v = cfg.getParameter<std::vector<std::string> >("parameterSets");
-      for (unsigned int i = 0; i < v.size(); i++) {
-        std::string vs = v[i];
+      for (auto vs : v) {
         std::vector<double> vpar = cfg.getParameter<std::vector<double> >(vs);
         if (vpar.size() == 2)
           Photospp::Photos::forceMass((int)vpar[0], vpar[1]);
@@ -275,8 +267,8 @@ HepMC::GenEvent* PhotosppInterface::apply(HepMC::GenEvent* evt) {
       }
     }
     if (!BCodes.empty()) {
-      for (size_t ibc = 0; ibc < BCodes.size(); ibc++) {
-        HepMC::GenParticle* p1 = evt->barcode_to_particle(BCodes[ibc]);
+      for (int BCode : BCodes) {
+        HepMC::GenParticle* p1 = evt->barcode_to_particle(BCode);
         int nbc = p1->barcode() - 10000 + NPartBefore;
         p1->suggest_barcode(nbc);
       }

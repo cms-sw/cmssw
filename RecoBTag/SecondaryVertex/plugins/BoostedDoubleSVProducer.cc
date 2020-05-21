@@ -550,11 +550,11 @@ void BoostedDoubleSVProducer::produce(edm::Event& iEvent, const edm::EventSetup&
     reco::Candidate::LorentzVector SV_p4_0, SV_p4_1;
     double vtxMass = 0.;
 
-    for (std::map<double, size_t>::iterator iVtx = VTXmap.begin(); iVtx != VTXmap.end(); ++iVtx) {
+    for (auto& iVtx : VTXmap) {
       ++cont;
-      const reco::VertexCompositePtrCandidate& vertex = svTagInfo.secondaryVertex(iVtx->second);
+      const reco::VertexCompositePtrCandidate& vertex = svTagInfo.secondaryVertex(iVtx.second);
       if (cont == 1) {
-        flightDir_0 = svTagInfo.flightDirection(iVtx->second);
+        flightDir_0 = svTagInfo.flightDirection(iVtx.second);
         SV_p4_0 = vertex.p4();
         vtxMass = SV_p4_0.mass();
 
@@ -562,7 +562,7 @@ void BoostedDoubleSVProducer::produce(edm::Event& iEvent, const edm::EventSetup&
           z_ratio = reco::deltaR(currentAxes[1], currentAxes[0]) * SV_p4_0.pt() / vtxMass;
       }
       if (cont == 2) {
-        flightDir_1 = svTagInfo.flightDirection(iVtx->second);
+        flightDir_1 = svTagInfo.flightDirection(iVtx.second);
         SV_p4_1 = vertex.p4();
         vtxMass = (SV_p4_1 + SV_p4_0).mass();
 
@@ -765,8 +765,8 @@ void BoostedDoubleSVProducer::etaRelToTauAxis(const reco::VertexCompositePtrCand
   math::XYZVector direction(tauAxis.px(), tauAxis.py(), tauAxis.pz());
   const std::vector<reco::CandidatePtr>& tracks = vertex.daughterPtrVector();
 
-  for (std::vector<reco::CandidatePtr>::const_iterator track = tracks.begin(); track != tracks.end(); ++track)
-    tau_trackEtaRel.push_back(std::abs(reco::btau::etaRel(direction.Unit(), (*track)->momentum())));
+  for (const auto& track : tracks)
+    tau_trackEtaRel.push_back(std::abs(reco::btau::etaRel(direction.Unit(), track->momentum())));
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------

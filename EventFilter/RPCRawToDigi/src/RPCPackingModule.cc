@@ -83,8 +83,8 @@ FEDRawData* RPCPackingModule::rawData(int fedId,
   vector<Word64> dataWords;
   EmptyWord empty;
   typedef vector<EventRecords>::const_iterator IR;
-  for (IR ir = merged.begin(), irEnd = merged.end(); ir != irEnd; ++ir) {
-    Word64 w = (((Word64(ir->recordBX().data()) << 16) | ir->recordSLD().data()) << 16 | ir->recordCD().data()) << 16 |
+  for (const auto& ir : merged) {
+    Word64 w = (((Word64(ir.recordBX().data()) << 16) | ir.recordSLD().data()) << 16 | ir.recordCD().data()) << 16 |
                empty.data();
     dataWords.push_back(w);
   }

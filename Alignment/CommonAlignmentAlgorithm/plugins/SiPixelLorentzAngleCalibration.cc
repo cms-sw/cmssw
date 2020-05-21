@@ -415,12 +415,10 @@ void SiPixelLorentzAngleCalibration::writeTree(const SiPixelLorentzAngle *lorent
   tree->Branch("value", &value, "value/F");
   tree->Branch("treeStruct", &treeStruct, TreeStruct::LeafList());
 
-  for (auto iterIdValue = lorentzAngle->getLorentzAngles().begin();
-       iterIdValue != lorentzAngle->getLorentzAngles().end();
-       ++iterIdValue) {
+  for (auto iterIdValue : lorentzAngle->getLorentzAngles()) {
     // type of (*iterIdValue) is pair<unsigned int, float>
-    id = iterIdValue->first;  // key of map is DetId
-    value = iterIdValue->second;
+    id = iterIdValue.first;  // key of map is DetId
+    value = iterIdValue.second;
     // type of (*treeStructIter) is pair<unsigned int, TreeStruct>
     auto treeStructIter = treeInfo.find(id);  // find info for this id
     if (treeStructIter != treeInfo.end()) {

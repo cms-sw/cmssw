@@ -66,20 +66,20 @@ MuRingForwardDoubleLayer* MuonCSCDetLayerGeometryBuilder::buildLayer(int endcap,
 
   vector<const ForwardDetRing*> frontRings, backRings;
 
-  for (vector<int>::iterator ring = rings.begin(); ring != rings.end(); ring++) {
+  for (int& ring : rings) {
     vector<const GeomDet*> frontGeomDets, backGeomDets;
     for (int chamber = CSCDetId::minChamberId(); chamber <= CSCDetId::maxChamberId(); chamber++) {
-      CSCDetId detId(endcap, station, (*ring), chamber, 0);
+      CSCDetId detId(endcap, station, ring, chamber, 0);
       const GeomDet* geomDet = geo.idToDet(detId);
       // we sometimes loop over more chambers than there are in ring
-      bool isInFront = isFront(station, *ring, chamber);
+      bool isInFront = isFront(station, ring, chamber);
       if (geomDet != nullptr) {
         if (isInFront) {
           frontGeomDets.push_back(geomDet);
         } else {
           backGeomDets.push_back(geomDet);
         }
-        LogTrace(metname) << "get CSC chamber " << CSCDetId(endcap, station, (*ring), chamber, 0)
+        LogTrace(metname) << "get CSC chamber " << CSCDetId(endcap, station, ring, chamber, 0)
                           << " at R=" << geomDet->position().perp() << ", phi=" << geomDet->position().phi()
                           << ", z= " << geomDet->position().z() << " isFront? " << isInFront;
       }

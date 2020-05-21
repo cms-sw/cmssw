@@ -185,20 +185,18 @@ void V0Validator::doFakeRates(const reco::VertexCompositeCandidateCollection& co
   int CandidateStatus = 0;
   const unsigned int NUM_DAUGHTERS = 2;
   if (!collection.empty()) {
-    for (reco::VertexCompositeCandidateCollection::const_iterator iCandidate = collection.begin();
-         iCandidate != collection.end();
-         iCandidate++) {
+    for (const auto& iCandidate : collection) {
       // Fill values to be histogrammed
-      mass = iCandidate->mass();
-      CandidatepT = (sqrt(iCandidate->momentum().perp2()));
-      CandidateEta = iCandidate->momentum().eta();
-      CandidateR = (sqrt(iCandidate->vertex().perp2()));
+      mass = iCandidate.mass();
+      CandidatepT = (sqrt(iCandidate.momentum().perp2()));
+      CandidateEta = iCandidate.momentum().eta();
+      CandidateR = (sqrt(iCandidate.vertex().perp2()));
       candidateMassAll[v0_type]->Fill(mass);
       CandidateStatus = 0;
 
       std::array<reco::TrackRef, NUM_DAUGHTERS> theDaughterTracks = {
-          {(*(dynamic_cast<const reco::RecoChargedCandidate*>(iCandidate->daughter(0)))).track(),
-           (*(dynamic_cast<const reco::RecoChargedCandidate*>(iCandidate->daughter(1)))).track()}};
+          {(*(dynamic_cast<const reco::RecoChargedCandidate*>(iCandidate.daughter(0)))).track(),
+           (*(dynamic_cast<const reco::RecoChargedCandidate*>(iCandidate.daughter(1)))).track()}};
 
       TrackingParticleRef tpref;
       TrackingParticleRef firstDauTP;
@@ -308,12 +306,10 @@ void V0Validator::doEfficiencies(const TrackingVertexCollection& gen_vertices,
 
   std::set<V0Couple> reconstructed_V0_couples;
   if (!collection.empty()) {
-    for (reco::VertexCompositeCandidateCollection::const_iterator iCandidate = collection.begin();
-         iCandidate != collection.end();
-         iCandidate++) {
+    for (const auto& iCandidate : collection) {
       reconstructed_V0_couples.insert(
-          V0Couple((dynamic_cast<const reco::RecoChargedCandidate*>(iCandidate->daughter(0)))->track(),
-                   (dynamic_cast<const reco::RecoChargedCandidate*>(iCandidate->daughter(1)))->track()));
+          V0Couple((dynamic_cast<const reco::RecoChargedCandidate*>(iCandidate.daughter(0)))->track(),
+                   (dynamic_cast<const reco::RecoChargedCandidate*>(iCandidate.daughter(1)))->track()));
     }
   }
 

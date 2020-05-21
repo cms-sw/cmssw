@@ -157,25 +157,24 @@ void MCElectronAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
   std::vector<ElectronMCTruth> MCElectronctrons = theElectronMCTruthFinder_->find(theSimTracks, theSimVertices);
   std::cout << " MCElectronAnalyzer MCElectronctrons size " << MCElectronctrons.size() << std::endl;
 
-  for (std::vector<ElectronMCTruth>::const_iterator iEl = MCElectronctrons.begin(); iEl != MCElectronctrons.end();
-       ++iEl) {
-    h_MCEleE_->Fill((*iEl).fourMomentum().e());
-    h_MCEleEta_->Fill((*iEl).fourMomentum().pseudoRapidity());
-    h_MCElePhi_->Fill((*iEl).fourMomentum().phi());
+  for (const auto& MCElectronctron : MCElectronctrons) {
+    h_MCEleE_->Fill(MCElectronctron.fourMomentum().e());
+    h_MCEleEta_->Fill(MCElectronctron.fourMomentum().pseudoRapidity());
+    h_MCElePhi_->Fill(MCElectronctron.fourMomentum().phi());
 
     float totBrem = 0;
     unsigned int iBrem;
-    for (iBrem = 0; iBrem < (*iEl).bremVertices().size(); ++iBrem) {
-      float rBrem = (*iEl).bremVertices()[iBrem].perp();
-      float etaBrem = (*iEl).bremVertices()[iBrem].eta();
+    for (iBrem = 0; iBrem < MCElectronctron.bremVertices().size(); ++iBrem) {
+      float rBrem = MCElectronctron.bremVertices()[iBrem].perp();
+      float etaBrem = MCElectronctron.bremVertices()[iBrem].eta();
       if (rBrem < 120) {
-        totBrem += (*iEl).bremMomentum()[iBrem].e();
-        p_BremVsR_->Fill(rBrem, (*iEl).bremMomentum()[iBrem].e());
-        p_BremVsEta_->Fill(etaBrem, (*iEl).bremMomentum()[iBrem].e());
+        totBrem += MCElectronctron.bremMomentum()[iBrem].e();
+        p_BremVsR_->Fill(rBrem, MCElectronctron.bremMomentum()[iBrem].e());
+        p_BremVsEta_->Fill(etaBrem, MCElectronctron.bremMomentum()[iBrem].e());
       }
     }
 
-    h_BremFrac_->Fill(totBrem / (*iEl).fourMomentum().e());
+    h_BremFrac_->Fill(totBrem / MCElectronctron.fourMomentum().e());
     h_BremEnergy_->Fill(totBrem);
   }
 }

@@ -276,8 +276,8 @@ void SoftLepton::produce(edm::Event &event, const edm::EventSetup &setup) {
     Handle<edm::ValueMap<float> > h_leptonId;
     event.getByToken(token_leptonId, h_leptonId);
 
-    for (Leptons::iterator lepton = leptons.begin(); lepton != leptons.end(); ++lepton)
-      lepton->second[leptonId] = (*h_leptonId)[lepton->first];
+    for (auto &lepton : leptons)
+      lepton.second[leptonId] = (*h_leptonId)[lepton.first];
   }
 
   // output collections
@@ -297,12 +297,12 @@ reco::SoftLeptonTagInfo SoftLepton::tag(const edm::RefToBase<reco::Jet> &jet,
   reco::SoftLeptonTagInfo info;
   info.setJetRef(jet);
 
-  for (Leptons::const_iterator lepton = leptons.begin(); lepton != leptons.end(); ++lepton) {
-    const math::XYZVector &lepton_momentum = lepton->first->momentum();
-    if (m_chi2Cut > 0.0 && lepton->first->normalizedChi2() > m_chi2Cut)
+  for (const auto &lepton : leptons) {
+    const math::XYZVector &lepton_momentum = lepton.first->momentum();
+    if (m_chi2Cut > 0.0 && lepton.first->normalizedChi2() > m_chi2Cut)
       continue;
 
-    const GlobalVector jetAxis = refineJetAxis(jet, tracks, lepton->first);
+    const GlobalVector jetAxis = refineJetAxis(jet, tracks, lepton.first);
     const math::XYZVector axis(jetAxis.x(), jetAxis.y(), jetAxis.z());
     float deltaR = Geom::deltaR(lepton_momentum, axis);
     if (deltaR > m_deltaRCut)
@@ -310,7 +310,7 @@ reco::SoftLeptonTagInfo SoftLepton::tag(const edm::RefToBase<reco::Jet> &jet,
 
     reco::SoftLeptonProperties properties;
 
-    reco::TransientTrack transientTrack = m_transientTrackBuilder->build(*lepton->first);
+    reco::TransientTrack transientTrack = m_transientTrackBuilder->build(*lepton.first);
     Measurement1D ip2d = IPTools::signedTransverseImpactParameter(transientTrack, jetAxis, primaryVertex).second;
     Measurement1D ip3d = IPTools::signedImpactParameter3D(transientTrack, jetAxis, primaryVertex).second;
     properties.sip2dsig = ip2d.significance();
@@ -324,10 +324,10 @@ reco::SoftLeptonTagInfo SoftLepton::tag(const edm::RefToBase<reco::Jet> &jet,
     properties.ratio = lepton_momentum.R() / axis.R();
     properties.ratioRel = lepton_momentum.Dot(axis) / axis.Mag2();
 
-    for (LeptonIds::const_iterator iter = lepton->second.begin(); iter != lepton->second.end(); ++iter)
+    for (LeptonIds::const_iterator iter = lepton.second.begin(); iter != lepton.second.end(); ++iter)
       properties.setQuality(static_cast<SoftLeptonProperties::Quality::Generic>(iter->first), iter->second);
 
-    info.insert(lepton->first, properties);
+    info.insert(lepton.first, properties);
   }
 
   return info;
@@ -350,8 +350,8 @@ GlobalVector SoftLepton::refineJetAxis(const edm::RefToBase<reco::Jet> &jet,
     double eta_rel;
 
     // refine jet eta and phi with charged tracks measurements, if available
-    for (reco::TrackRefVector::const_iterator track_it = tracks.begin(); track_it != tracks.end(); ++track_it) {
-      const reco::Track &track = **track_it;
+    for (auto &&track_it : tracks) {
+      const reco::Track &track = *track_it;
 
       perp = track.pt();
       eta_rel = (double)track.eta() - axis.eta();
@@ -391,8 +391,8 @@ GlobalVector SoftLepton::refineJetAxis(const edm::RefToBase<reco::Jet> &jet,
     math::XYZVector sum;
 
     // recalculate the jet direction as the sum of charget tracks momenta
-    for (reco::TrackRefVector::const_iterator track_it = tracks.begin(); track_it != tracks.end(); ++track_it) {
-      const reco::Track &track = **track_it;
+    for (auto &&track_it : tracks) {
+      const reco::Track &track = *track_it;
       sum += track.momentum();
     }
 

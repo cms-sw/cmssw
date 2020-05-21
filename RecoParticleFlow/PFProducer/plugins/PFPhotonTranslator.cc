@@ -267,8 +267,8 @@ void PFPhotonTranslator::produce(edm::Event &iEvent, const edm::EventSetup &iSet
         pfConv_.push_back(reco::ConversionRefVector());
 
         const reco::ConversionRefVector &doubleLegConvColl = cand.photonExtraRef()->conversionRef();
-        for (unsigned int iconv = 0; iconv < doubleLegConvColl.size(); iconv++) {
-          pfConv_[iconv2leg].push_back(doubleLegConvColl[iconv]);
+        for (const auto &iconv : doubleLegConvColl) {
+          pfConv_[iconv2leg].push_back(iconv);
         }
 
         conv2legPFCandidateIndex_.push_back(iconv2leg);
@@ -713,9 +713,9 @@ void PFPhotonTranslator::createSuperClusters(const reco::PFCandidateCollection &
       //	  std::cout <<"Adding Ref to SC " << basicClusterPtr_[iphot][ibc].index() << std::endl;
       const std::vector<std::pair<DetId, float> > &v1 = basicClusters_[iphot][ibc].hitsAndFractions();
       //	  std::cout << " Number of cells " << v1.size() << std::endl;
-      for (std::vector<std::pair<DetId, float> >::const_iterator diIt = v1.begin(); diIt != v1.end(); ++diIt) {
+      for (const auto &diIt : v1) {
         //	    std::cout << " Adding DetId " << (diIt->first).rawId() << " " << diIt->second << std::endl;
-        mySuperCluster.addHitAndFraction(diIt->first, diIt->second);
+        mySuperCluster.addHitAndFraction(diIt.first, diIt.second);
       }  // loop over rechits
     }
 
@@ -847,8 +847,8 @@ void PFPhotonTranslator::createPhotonCores(const edm::OrphanHandle<reco::SuperCl
     myPhotonCore.setSuperCluster(egSCRef_[iphot]);
 
     reco::ElectronSeedRefVector pixelSeeds = egPhotonRef_[iphot]->electronPixelSeeds();
-    for (unsigned iseed = 0; iseed < pixelSeeds.size(); iseed++) {
-      myPhotonCore.addElectronPixelSeed(pixelSeeds[iseed]);
+    for (const auto &pixelSeed : pixelSeeds) {
+      myPhotonCore.addElectronPixelSeed(pixelSeed);
     }
 
     //cout << "PhotonCores : SC OK" << endl;
@@ -883,8 +883,8 @@ void PFPhotonTranslator::createPhotonCores(const edm::OrphanHandle<reco::SuperCl
     }
 
     if (conv2legPFCandidateIndex_[iphot] > -1) {
-      for (unsigned int iConv = 0; iConv < pfConv_[conv2legPFCandidateIndex_[iphot]].size(); iConv++) {
-        const reco::ConversionRef &TwoLegRef(pfConv_[conv2legPFCandidateIndex_[iphot]][iConv]);
+      for (const auto &iConv : pfConv_[conv2legPFCandidateIndex_[iphot]]) {
+        const reco::ConversionRef &TwoLegRef(iConv);
         myPhotonCore.addConversion(TwoLegRef);
       }
       //cout << "PhotonCores : 2-leg OK" << endl;

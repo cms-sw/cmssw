@@ -104,10 +104,10 @@ void SimpleCosmicBONSeeder::produce(edm::Event &ev, const edm::EventSetup &es) {
         }
 
         if (writeTriplets_) {
-          for (OrderedHitTriplets::const_iterator it = hitTriplets.begin(); it != hitTriplets.end(); ++it) {
-            const TrackingRecHit *hit1 = it->inner()->hit();
-            const TrackingRecHit *hit2 = it->middle()->hit();
-            const TrackingRecHit *hit3 = it->outer()->hit();
+          for (const auto &hitTriplet : hitTriplets) {
+            const TrackingRecHit *hit1 = hitTriplet.inner()->hit();
+            const TrackingRecHit *hit2 = hitTriplet.middle()->hit();
+            const TrackingRecHit *hit3 = hitTriplet.outer()->hit();
             outtriplets->push_back(hit1->clone());
             outtriplets->push_back(hit2->clone());
             outtriplets->push_back(hit3->clone());

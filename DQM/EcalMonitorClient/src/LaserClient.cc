@@ -66,9 +66,9 @@ namespace ecaldqm {
     std::vector<double> inExpectedPNAmplitude(
         _params.getUntrackedParameter<std::vector<double> >("expectedPNAmplitude"));
 
-    for (std::map<int, unsigned>::iterator wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr) {
-      unsigned iME(wlItr->second);
-      int iWL(wlItr->first - 1);
+    for (auto& wlItr : wlToME_) {
+      unsigned iME(wlItr.second);
+      int iWL(wlItr.first - 1);
       expectedAmplitude_[iME] = inExpectedAmplitude[iWL];
       expectedTiming_[iME] = inExpectedTiming[iWL];
       expectedPNAmplitude_[iME] = inExpectedPNAmplitude[iWL];
@@ -97,26 +97,26 @@ namespace ecaldqm {
     MESetMulti const& sPNAmplitude(static_cast<MESetMulti const&>(sources_.at("PNAmplitude")));
     MESet const& sCalibStatus(static_cast<MESet const&>(sources_.at("CalibStatus")));
 
-    for (std::map<int, unsigned>::iterator wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr) {
-      meQuality.use(wlItr->second);
-      meQualitySummary.use(wlItr->second);
-      meAmplitudeMean.use(wlItr->second);
-      meAmplitudeRMS.use(wlItr->second);
-      meTimingMean.use(wlItr->second);
-      meTimingRMSMap.use(wlItr->second);
-      meTimingRMS.use(wlItr->second);
-      mePNQualitySummary.use(wlItr->second);
+    for (auto& wlItr : wlToME_) {
+      meQuality.use(wlItr.second);
+      meQualitySummary.use(wlItr.second);
+      meAmplitudeMean.use(wlItr.second);
+      meAmplitudeRMS.use(wlItr.second);
+      meTimingMean.use(wlItr.second);
+      meTimingRMSMap.use(wlItr.second);
+      meTimingRMS.use(wlItr.second);
+      mePNQualitySummary.use(wlItr.second);
 
-      sAmplitude.use(wlItr->second);
-      sTiming.use(wlItr->second);
-      sPNAmplitude.use(wlItr->second);
+      sAmplitude.use(wlItr.second);
+      sTiming.use(wlItr.second);
+      sPNAmplitude.use(wlItr.second);
 
       MESet::iterator qEnd(meQuality.end());
 
       MESet::const_iterator tItr(sTiming);
       MESet::const_iterator aItr(sAmplitude);
 
-      int wl(wlItr->first - 1);
+      int wl(wlItr.first - 1);
       bool enabled(wl < 0 ? false : sCalibStatus.getBinContent(wl) > 0 ? true : false);
       for (MESet::iterator qItr(meQuality.beginChannel()); qItr != qEnd; qItr.toNextChannel()) {
         DetId id(qItr->getId());
@@ -152,13 +152,13 @@ namespace ecaldqm {
         meTimingRMS.fill(id, tRms);
         meTimingRMSMap.setBinContent(id, tRms);
 
-        float intensity(aMean / expectedAmplitude_[wlItr->second]);
+        float intensity(aMean / expectedAmplitude_[wlItr.second]);
         if (isForward(id))
           intensity /= forwardFactor_;
 
         if (intensity < toleranceAmplitudeLo_ || intensity > toleranceAmplitudeHi_ ||
             aRms > aMean * toleranceAmpRMSRatio_ ||
-            std::abs(tMean - expectedTiming_[wlItr->second]) > toleranceTiming_ /*|| tRms > toleranceTimRMS_*/)
+            std::abs(tMean - expectedTiming_[wlItr.second]) > toleranceTiming_ /*|| tRms > toleranceTimRMS_*/)
           qItr->setBinContent(doMask ? kMBad : kBad);
         else
           qItr->setBinContent(doMask ? kMGood : kGood);
@@ -189,7 +189,7 @@ namespace ecaldqm {
 
           float pMean(sPNAmplitude.getBinContent(id));
           float pRms(sPNAmplitude.getBinError(id) * sqrt(pEntries));
-          float intensity(pMean / expectedPNAmplitude_[wlItr->second]);
+          float intensity(pMean / expectedPNAmplitude_[wlItr.second]);
 
           if (intensity < tolerancePNAmp_ || pRms > pMean * tolerancePNRMSRatio_)
             mePNQualitySummary.setBinContent(id, doMask ? kMBad : kBad);

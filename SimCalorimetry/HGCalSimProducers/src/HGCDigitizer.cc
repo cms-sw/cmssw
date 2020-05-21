@@ -790,9 +790,9 @@ void HGCDigitizer::endRun() { std::unordered_set<DetId>().swap(validIds_); }
 
 //
 void HGCDigitizer::resetSimHitDataAccumulator() {
-  for (HGCSimHitDataAccumulator::iterator it = simHitAccumulator_->begin(); it != simHitAccumulator_->end(); it++) {
-    it->second.hit_info[0].fill(0.);
-    it->second.hit_info[1].fill(0.);
+  for (auto& it : *simHitAccumulator_) {
+    it.second.hit_info[0].fill(0.);
+    it.second.hit_info[1].fill(0.);
   }
 }
 

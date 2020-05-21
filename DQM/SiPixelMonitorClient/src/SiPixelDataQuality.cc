@@ -318,8 +318,8 @@ void SiPixelDataQuality::computeGlobalQualityFlag(
     if (currDir.find("Endcap") != string::npos)
       endcapMods_++;
     vector<string> meVec = iGetter.getMEs();
-    for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
-      string full_path = currDir + "/" + (*it);
+    for (const auto &it : meVec) {
+      string full_path = currDir + "/" + it;
       if (full_path.find("ndigis_") != string::npos) {
         MonitorElement *me = iGetter.get(full_path);
         if (!me)
@@ -354,9 +354,9 @@ void SiPixelDataQuality::computeGlobalQualityFlag(
     }
   }
   vector<string> subDirVec = iGetter.getSubdirs();
-  for (vector<string>::const_iterator ic = subDirVec.begin(); ic != subDirVec.end(); ic++) {
-    iGetter.cd(*ic);
-    iBooker.cd(*ic);
+  for (const auto &ic : subDirVec) {
+    iGetter.cd(ic);
+    iBooker.cd(ic);
     init = false;
     computeGlobalQualityFlag(iBooker, iGetter, init, nFEDs, Tier0Flag);
     iBooker.goUp();
@@ -870,8 +870,8 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore::IBooker &iBooker,
         }
         // Filling done. Now modification.
         float SFLay[3], TotLay[3];
-        for (int ll = 0; ll < 3; ++ll)
-          TotLay[ll] = 0.0;
+        for (float &ll : TotLay)
+          ll = 0.0;
         for (int bin = 1; bin < (meFinal->getNbinsX() + 1); ++bin) {
           int layer = int((bin % 48) / 16);
           TotLay[layer] += meFinal->getBinContent(bin);
@@ -901,11 +901,10 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore::IBooker &iBooker,
       vector<string> meVec = iGetter.getMEs();
       int detId = -1;
       int fedId = -1;
-      for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end();
-           it++) {  // loop over all modules and fill ndigis into allmodsMap
+      for (const auto &it : meVec) {  // loop over all modules and fill ndigis into allmodsMap
         // checking for any digis or FED errors to decide if this module is in
         // DAQ:
-        string full_path = currDir + "/" + (*it);
+        string full_path = currDir + "/" + it;
         if (detId == -1 && full_path.find("SUMOFF") == string::npos &&
             (full_path.find("ndigis") != string::npos && full_path.find("SUMDIG") == string::npos) &&
             (getDetId(iGetter.get(full_path)) > 100)) {
@@ -933,9 +932,9 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore::IBooker &iBooker,
       }  // end loop over MEs
     }    // end of module dir's
     vector<string> subDirVec = iGetter.getSubdirs();
-    for (vector<string>::const_iterator ic = subDirVec.begin(); ic != subDirVec.end(); ic++) {
-      iBooker.cd(*ic);
-      iGetter.cd(*ic);
+    for (const auto &ic : subDirVec) {
+      iBooker.cd(ic);
+      iGetter.cd(ic);
       init = false;
       fillGlobalQualityPlot(iBooker, iGetter, init, theCablingMap, nFEDs, Tier0Flag, lumisec);
       iBooker.goUp();

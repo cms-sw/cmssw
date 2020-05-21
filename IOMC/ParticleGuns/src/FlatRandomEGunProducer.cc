@@ -66,11 +66,10 @@ void FlatRandomEGunProducer::produce(Event& e, const EventSetup& es) {
   // loop over particles
   //
   int barcode = 1;
-  for (unsigned int ip = 0; ip < fPartIDs.size(); ip++) {
+  for (int PartID : fPartIDs) {
     double energy = CLHEP::RandFlat::shoot(engine, fMinE, fMaxE);
     double eta = CLHEP::RandFlat::shoot(engine, fMinEta, fMaxEta);
     double phi = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi);
-    int PartID = fPartIDs[ip];
     const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID)));
     double mass = PData->mass().value();
     double mom2 = energy * energy - mass * mass;

@@ -79,11 +79,11 @@ int RPCSimAsymmetricCls::getClSize(uint32_t id, float posX, CLHEP::HepRandomEngi
 
   double rr_cl = CLHEP::RandFlat::shoot(engine);
   LogDebug("RPCSimAsymmetricCls") << "[RPCSimAsymmetricCls::getClSize] Fired RandFlat :: " << rr_cl;
-  for (unsigned int i = 0; i < clsForDetId.size(); i++) {
+  for (double i : clsForDetId) {
     cnt++;
-    if (rr_cl > clsForDetId[i]) {
+    if (rr_cl > i) {
       min = cnt;
-    } else if (rr_cl < clsForDetId[i]) {
+    } else if (rr_cl < i) {
       break;
     }
   }
@@ -122,11 +122,11 @@ int RPCSimAsymmetricCls::getClSize(float posX, CLHEP::HepRandomEngine* engine) {
     sum_clsize = clsMap[5];
   }
 
-  for (vector<double>::iterator iter = sum_clsize.begin(); iter != sum_clsize.end(); ++iter) {
+  for (double& iter : sum_clsize) {
     cnt++;
-    if (func > (*iter)) {
+    if (func > iter) {
       min = cnt;
-    } else if (func < (*iter)) {
+    } else if (func < iter) {
       break;
     }
   }
@@ -146,21 +146,21 @@ void RPCSimAsymmetricCls::simulate(const RPCRoll* roll,
   std::string nameRoll = RPCname.name();
 
   const Topology& topology = roll->specs()->topology();
-  for (edm::PSimHitContainer::const_iterator _hit = rpcHits.begin(); _hit != rpcHits.end(); ++_hit) {
-    if (!eledig && _hit->particleType() == 11)
+  for (const auto& rpcHit : rpcHits) {
+    if (!eledig && rpcHit.particleType() == 11)
       continue;
     // Here I hould check if the RPC are up side down;
-    const LocalPoint& entr = _hit->entryPoint();
+    const LocalPoint& entr = rpcHit.entryPoint();
 
-    int time_hit = _rpcSync->getSimHitBx(&(*_hit), engine);
-    float posX = roll->strip(_hit->localPosition()) - static_cast<int>(roll->strip(_hit->localPosition()));
+    int time_hit = _rpcSync->getSimHitBx(&rpcHit, engine);
+    float posX = roll->strip(rpcHit.localPosition()) - static_cast<int>(roll->strip(rpcHit.localPosition()));
 
     std::vector<float> veff = (getRPCSimSetUp())->getEff(rpcId.rawId());
 
     std::stringstream veffstream;
     veffstream << "[";
-    for (std::vector<float>::iterator veffIt = veff.begin(); veffIt != veff.end(); ++veffIt) {
-      veffstream << (*veffIt) << ",";
+    for (float& veffIt : veff) {
+      veffstream << veffIt << ",";
     }
     veffstream << "]";
     std::string veffstr = veffstream.str();
@@ -266,12 +266,12 @@ void RPCSimAsymmetricCls::simulate(const RPCRoll* roll,
       int max_strip = 0;
 
       //correction for the edges
-      for (std::vector<int>::iterator i = cls.begin(); i != cls.end(); i++) {
-        if (*i + strip_shift < min_strip) {
-          min_strip = *i + strip_shift;
+      for (int& cl : cls) {
+        if (cl + strip_shift < min_strip) {
+          min_strip = cl + strip_shift;
         }
-        if (*i + strip_shift > max_strip) {
-          max_strip = *i + strip_shift;
+        if (cl + strip_shift > max_strip) {
+          max_strip = cl + strip_shift;
         }
       }
 
@@ -280,27 +280,27 @@ void RPCSimAsymmetricCls::simulate(const RPCRoll* roll,
       }
 
       //Now shift the cluster
-      for (std::vector<int>::iterator i = cls.begin(); i != cls.end(); i++) {
-        shifted_cls.push_back(*i + strip_shift);
+      for (int& cl : cls) {
+        shifted_cls.push_back(cl + strip_shift);
       }
-      for (std::vector<int>::iterator i = shifted_cls.begin(); i != shifted_cls.end(); i++) {
+      for (int& shifted_cl : shifted_cls) {
         // Check the timing of the adjacent strip
-        if (*i != centralStrip) {
+        if (shifted_cl != centralStrip) {
           double fire2 = CLHEP::RandFlat::shoot(engine);
           LogDebug("RPCSimAsymmetricCls") << "[RPCSimAsymmetricCls::simulate] Fired RandFlat :: " << fire2
                                           << " (check whether adjacent strips are efficient)";
-          if (fire2 < veff[*i - 1]) {
-            std::pair<int, int> digi(*i, time_hit);
+          if (fire2 < veff[shifted_cl - 1]) {
+            std::pair<int, int> digi(shifted_cl, time_hit);
             strips.insert(digi);
             LogDebug("RPCSimAsymmetricCls")
                 << "RPC Digi inserted :: Signl :: DetId :: " << rpcId << " = " << rpcId.rawId() << " ==> digi <"
                 << digi.first << "," << digi.second << ">";
 
-            theDetectorHitMap.insert(DetectorHitMap::value_type(digi, &(*_hit)));
+            theDetectorHitMap.insert(DetectorHitMap::value_type(digi, &rpcHit));
           }
         } else {
-          std::pair<int, int> digi(*i, time_hit);
-          theDetectorHitMap.insert(DetectorHitMap::value_type(digi, &(*_hit)));
+          std::pair<int, int> digi(shifted_cl, time_hit);
+          theDetectorHitMap.insert(DetectorHitMap::value_type(digi, &rpcHit));
 
           strips.insert(digi);
           LogDebug("RPCSimAsymmetricCls") << "RPC Digi inserted :: Signl :: DetId :: " << rpcId << " = "
@@ -325,8 +325,8 @@ void RPCSimAsymmetricCls::simulateNoise(const RPCRoll* roll, CLHEP::HepRandomEng
 
   std::stringstream vnoisestream;
   vnoisestream << "[";
-  for (std::vector<float>::iterator vnoiseIt = vnoise.begin(); vnoiseIt != vnoise.end(); ++vnoiseIt) {
-    vnoisestream << (*vnoiseIt) << ",";
+  for (float& vnoiseIt : vnoise) {
+    vnoisestream << vnoiseIt << ",";
   }
   vnoisestream << "]";
   std::string vnoisestr = vnoisestream.str();

@@ -528,33 +528,33 @@ void CaloSimHitStudy::analyzeHits(std::vector<PCaloHit>& ebHits,
                                   std::vector<PCaloHit>& eeHits,
                                   std::vector<PCaloHit>& hcHits) {
   double edepEB = 0, edepEBT = 0;
-  for (unsigned int i = 0; i < ebHits.size(); i++) {
-    double edep = ebHits[i].energy();
-    double time = ebHits[i].time();
-    if (((ebHits[i].depth()) & PCaloHit::kEcalDepthIdMask) == 0) {
+  for (auto& ebHit : ebHits) {
+    double edep = ebHit.energy();
+    double time = ebHit.time();
+    if (((ebHit.depth()) & PCaloHit::kEcalDepthIdMask) == 0) {
       edepEB += edep;
       if (time < tmax_)
         edepEBT += edep;
     }
   }
   double edepEE = 0, edepEET = 0;
-  for (unsigned int i = 0; i < eeHits.size(); i++) {
-    double edep = eeHits[i].energy();
-    double time = eeHits[i].time();
+  for (auto& eeHit : eeHits) {
+    double edep = eeHit.energy();
+    double time = eeHit.time();
     edepEE += edep;
     if (time < tmax_)
       edepEET += edep;
   }
   double edepH = 0, edepHT = 0, edepHO = 0, edepHOT = 0;
-  for (unsigned int i = 0; i < hcHits.size(); i++) {
-    double edep = hcHits[i].energy();
-    double time = hcHits[i].time();
+  for (auto& hcHit : hcHits) {
+    double edep = hcHit.energy();
+    double time = hcHit.time();
     int subdet(0);
     if (testNumber_) {
       int ieta(0), phi(0), z(0), lay(0), depth(0);
-      HcalTestNumbering::unpackHcalIndex(hcHits[i].id(), subdet, z, depth, ieta, phi, lay);
+      HcalTestNumbering::unpackHcalIndex(hcHit.id(), subdet, z, depth, ieta, phi, lay);
     } else {
-      HcalDetId id = HcalDetId(hcHits[i].id());
+      HcalDetId id = HcalDetId(hcHit.id());
       subdet = id.subdet();
     }
     if (subdet == static_cast<int>(HcalBarrel) || subdet == static_cast<int>(HcalEndcap)) {

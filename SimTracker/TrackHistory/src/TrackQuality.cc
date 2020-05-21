@@ -185,11 +185,11 @@ void TrackQuality::evaluate(SimParticleTrail const &spt, reco::TrackBaseRef cons
     }
 
     // register all simulated tracks contributing
-    for (std::vector<SimHitIdpr>::const_iterator i = simIds.begin(); i != simIds.end(); ++i) {
+    for (const auto &simId : simIds) {
       MatchedHit matchedHit;
       matchedHit.detId = detId;
-      matchedHit.simTrackId = i->first;
-      matchedHit.collision = i->second;
+      matchedHit.simTrackId = simId.first;
+      matchedHit.collision = simId.second;
       // RecHit <-> SimHit matcher currently doesn't support muon system
       if (detId.det() == DetId::Muon)
         matchedHit.state = Layer::Unknown;

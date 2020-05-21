@@ -69,10 +69,10 @@ namespace reco {
         using namespace std;
         string decay(cfg.getParameter<string>("decay"));
         if (decayParser(decay, labels_))
-          for (vector<ConjInfo>::iterator label = labels_.begin(); label != labels_.end(); ++label)
-            if (label->mode_ == ConjInfo::kPlus)
+          for (auto& label : labels_)
+            if (label.mode_ == ConjInfo::kPlus)
               dauCharge_.push_back(1);
-            else if (label->mode_ == ConjInfo::kMinus)
+            else if (label.mode_ == ConjInfo::kMinus)
               dauCharge_.push_back(-1);
             else
               dauCharge_.push_back(0);

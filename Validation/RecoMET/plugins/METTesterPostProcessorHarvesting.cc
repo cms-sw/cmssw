@@ -31,11 +31,11 @@ void METTesterPostProcessorHarvesting::dqmEndJob(DQMStore::IBooker &ibook_, DQMS
   bool found_reco_dir = false;
   bool found_miniaod_dir = false;
   // loop over met subdirectories
-  for (int i = 0; i < int(met_dirs.size()); i++) {
-    if (met_dirs[i] == (RunDir + inputMETLabelRECO_.label())) {
+  for (const auto &met_dir : met_dirs) {
+    if (met_dir == (RunDir + inputMETLabelRECO_.label())) {
       found_reco_dir = true;
     }
-    if (met_dirs[i] == (RunDir + inputMETLabelMiniAOD_.label())) {
+    if (met_dir == (RunDir + inputMETLabelMiniAOD_.label())) {
       found_miniaod_dir = true;
     }
   }

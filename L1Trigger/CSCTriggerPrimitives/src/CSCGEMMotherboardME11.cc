@@ -112,8 +112,8 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
   }
 
   int used_clct_mask[20];
-  for (int b = 0; b < 20; b++)
-    used_clct_mask[b] = 0;
+  for (int& b : used_clct_mask)
+    b = 0;
 
   retrieveGEMPads(gemPads, gemId);
   retrieveGEMCoPads();

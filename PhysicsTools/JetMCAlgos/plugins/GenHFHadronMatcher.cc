@@ -322,15 +322,14 @@ std::vector<int> GenHFHadronMatcher::findHadronJets(const reco::GenParticleColle
     // Looping over each hadron associated with the jet and finding its origin
     const reco::GenParticleRefVector &hadronsInJet =
         flavour_ == 5 ? jetInfo.getbHadrons() : flavour_ == 4 ? jetInfo.getcHadrons() : reco::GenParticleRefVector();
-    for (reco::GenParticleRefVector::const_iterator hadron = hadronsInJet.begin(); hadron != hadronsInJet.end();
-         ++hadron) {
+    for (auto &&hadron : hadronsInJet) {
       // Check that the hadron satisfies criteria configured in the module
-      if (!isHadron(flavour_, (&**hadron)))
+      if (!isHadron(flavour_, (&*hadron)))
         continue;
-      if (hasHadronDaughter(flavour_, (reco::Candidate *)(&**hadron)))
+      if (hasHadronDaughter(flavour_, (reco::Candidate *)(&*hadron)))
         continue;
       // Scanning the chain starting from the hadron
-      int hadronIndex = analyzeMothers((reco::Candidate *)(&**hadron),
+      int hadronIndex = analyzeMothers((reco::Candidate *)(&*hadron),
                                        topDaughterQId,
                                        topBarDaughterQId,
                                        hadMothersCand,
@@ -345,10 +344,8 @@ std::vector<int> GenHFHadronMatcher::findHadronJets(const reco::GenParticleColle
 
   // Access all hadrons which are not associated with jets, if requested
   if (!onlyJetClusteredHadrons_) {
-    for (reco::GenParticleCollection::const_iterator i_particle = genParticles->begin();
-         i_particle != genParticles->end();
-         ++i_particle) {
-      const reco::GenParticle *thisParticle = &*i_particle;
+    for (const auto &genParticle : *genParticles) {
+      const reco::GenParticle *thisParticle = &genParticle;
       if (!isHadron(flavour_, thisParticle))
         continue;
       // Skipping the hadron if it was already found directly from jets
@@ -365,16 +362,13 @@ std::vector<int> GenHFHadronMatcher::findHadronJets(const reco::GenParticleColle
   }
 
   // Transfering Candidates to the list of processed particles for further analysis
-  for (int i = 0; i < (int)hadMothersCand.size(); i++) {
-    const reco::GenParticle *particle = dynamic_cast<const reco::GenParticle *>(hadMothersCand.at(i));
+  for (auto &i : hadMothersCand) {
+    const reco::GenParticle *particle = dynamic_cast<const reco::GenParticle *>(i);
     hadMothers.push_back(*particle);
   }
 
   // Adding leptons from hadron decays
-  for (reco::GenParticleCollection::const_iterator i_particle = genParticles->begin();
-       i_particle != genParticles->end();
-       ++i_particle) {
-    const reco::GenParticle lepton = *i_particle;
+  for (auto lepton : *genParticles) {
     const int pdg_abs = lepton.pdgId();
     // Skipping if not a lepton: e/mu
     if (pdg_abs != 11 && pdg_abs != 13)
@@ -438,20 +432,12 @@ std::vector<int> GenHFHadronMatcher::findHadronJets(const reco::GenParticleColle
     }
 
     // Finding last quark for each first quark
-    for (unsigned int qId = 0; qId < FirstQuarkId.size(); qId++) {
+    for (int qId : FirstQuarkId) {
       // Identifying the flavour of the first quark to find the last quark of the same flavour
-      const int quarkFlavourSign = flavourSign(hadMothers.at(FirstQuarkId.at(qId)).pdgId());
+      const int quarkFlavourSign = flavourSign(hadMothers.at(qId).pdgId());
       // Finding last quark of the hadron starting from the first quark
-      findInMothers(FirstQuarkId.at(qId),
-                    LastQuarkId,
-                    hadMothersIndices,
-                    hadMothers,
-                    0,
-                    quarkFlavourSign * flavour_,
-                    false,
-                    -1,
-                    2,
-                    false);
+      findInMothers(
+          qId, LastQuarkId, hadMothersIndices, hadMothers, 0, quarkFlavourSign * flavour_, false, -1, 2, false);
     }  // End of loop over all first quarks of the hadron
 
     // Setting initial flavour of the hadron
@@ -461,8 +447,7 @@ std::vector<int> GenHFHadronMatcher::findHadronJets(const reco::GenParticleColle
     std::vector<std::pair<double, int>> lastQuark_dR_id_pairs;
 
     // Finding the closest quark in dR
-    for (unsigned int qId = 0; qId < LastQuarkId.size(); qId++) {
-      int qIdx = LastQuarkId.at(qId);
+    for (int qIdx : LastQuarkId) {
       // Calculating the dR between hadron and quark
       float dR = deltaR(hadMothers.at(hadIdx).eta(),
                         hadMothers.at(hadIdx).phi(),
@@ -843,8 +828,8 @@ bool GenHFHadronMatcher::putMotherIndex(std::vector<std::vector<int>> &hadMother
     hadMotherIndices->clear();
   } else {
     // Checking if current mother is already in the list of theParticle's mothers
-    for (int k = 0; k < (int)hadMotherIndices->size(); k++) {
-      if (hadMotherIndices->at(k) != mothIndex && hadMotherIndices->at(k) != -1) {
+    for (int hadMotherIndice : *hadMotherIndices) {
+      if (hadMotherIndice != mothIndex && hadMotherIndice != -1) {
         continue;
       }
       inList = true;

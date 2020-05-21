@@ -202,18 +202,18 @@ void L1TStage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup) {
                        localHfCounts);
 
     // copy the output into the BXVector -> there must be a better way
-    for (std::vector<EGamma>::const_iterator eg = localEGammas->begin(); eg != localEGammas->end(); ++eg)
-      egammas->push_back(i, *eg);
-    for (std::vector<Tau>::const_iterator tau = localTaus->begin(); tau != localTaus->end(); ++tau)
-      taus->push_back(i, *tau);
-    for (std::vector<Tau>::const_iterator isotau = localIsoTaus->begin(); isotau != localIsoTaus->end(); ++isotau)
-      isoTaus->push_back(i, *isotau);
-    for (std::vector<Jet>::const_iterator jet = localJets->begin(); jet != localJets->end(); ++jet)
-      jets->push_back(i, *jet);
-    for (std::vector<Jet>::const_iterator jet = localPreGtJets->begin(); jet != localPreGtJets->end(); ++jet)
-      preGtJets->push_back(i, *jet);
-    for (std::vector<EtSum>::const_iterator etsum = localEtSums->begin(); etsum != localEtSums->end(); ++etsum)
-      etsums->push_back(i, *etsum);
+    for (const auto& localEGamma : *localEGammas)
+      egammas->push_back(i, localEGamma);
+    for (const auto& localTau : *localTaus)
+      taus->push_back(i, localTau);
+    for (const auto& localIsoTau : *localIsoTaus)
+      isoTaus->push_back(i, localIsoTau);
+    for (const auto& localJet : *localJets)
+      jets->push_back(i, localJet);
+    for (const auto& localPreGtJet : *localPreGtJets)
+      preGtJets->push_back(i, localPreGtJet);
+    for (const auto& localEtSum : *localEtSums)
+      etsums->push_back(i, localEtSum);
     hfSums->push_back(i, *localHfSums);
     hfCounts->push_back(i, *localHfCounts);
 

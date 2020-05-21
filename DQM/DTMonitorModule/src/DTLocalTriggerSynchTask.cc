@@ -203,9 +203,9 @@ void DTLocalTriggerSynchTask::bookHistos(DQMStore::IBooker& ibooker, const DTCha
 
   string floatTag[2] = {"tTrig_SL1", "tTrig_SL3"};
 
-  for (int iFloat = 0; iFloat < 2; ++iFloat) {
-    string floatName = floatTag[iFloat] + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
-    triggerHistos[chRawId][floatTag[iFloat]] = ibooker.bookFloat(floatName);
+  for (const auto& iFloat : floatTag) {
+    string floatName = iFloat + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
+    triggerHistos[chRawId][iFloat] = ibooker.bookFloat(floatName);
   }
 }
 

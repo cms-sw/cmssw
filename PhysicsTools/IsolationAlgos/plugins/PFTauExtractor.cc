@@ -37,11 +37,11 @@ reco::IsoDeposit PFTauExtractor::depositFromObject(const edm::Event& evt,
 
   double dR_min = -1.;
   const reco::PFTau* pfTau_matched = nullptr;
-  for (reco::PFTauCollection::const_iterator pfTau = pfTaus->begin(); pfTau != pfTaus->end(); ++pfTau) {
-    double dR = deltaR(pfTau->eta(), pfTau->phi(), tauCandidate.eta(), tauCandidate.phi());
+  for (const auto& pfTau : *pfTaus) {
+    double dR = deltaR(pfTau.eta(), pfTau.phi(), tauCandidate.eta(), tauCandidate.phi());
     if (pfTau_matched == nullptr || dR < dR_min) {
       dR_min = dR;
-      pfTau_matched = &(*pfTau);
+      pfTau_matched = &pfTau;
     }
   }
 
@@ -63,11 +63,8 @@ reco::IsoDeposit PFTauExtractor::depositFromObject(const edm::Event& evt,
         //--- check that the candidate is not associated to one of the tau decay products
         //    within the signal cone of the PFTau
         bool isSignalCone = false;
-        for (std::vector<reco::CandidatePtr>::const_iterator tauSignalConeConstituent =
-                 pfTau_matched->signalCands().begin();
-             tauSignalConeConstituent != pfTau_matched->signalCands().end();
-             ++tauSignalConeConstituent) {
-          double dR = deltaR(candidate->momentum(), (*tauSignalConeConstituent)->momentum());
+        for (const auto& tauSignalConeConstituent : pfTau_matched->signalCands()) {
+          double dR = deltaR(candidate->momentum(), tauSignalConeConstituent->momentum());
           if (dR <= dRvetoPFTauSignalConeConstituents_)
             isSignalCone = true;
         }

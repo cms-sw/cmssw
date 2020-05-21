@@ -199,9 +199,9 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
 
   result.push_back(std::make_unique<MuonCandidate>(std::move(myTraj), muTrack, tkTrack));
   LogTrace(category_) << "final global cosmic muon: ";
-  for (std::vector<TrajectoryMeasurement>::const_iterator itm = mytms.begin(); itm != mytms.end(); ++itm) {
-    LogTrace(category_) << "updated pos " << itm->updatedState().globalPosition() << "mom "
-                        << itm->updatedState().globalMomentum();
+  for (const auto& mytm : mytms) {
+    LogTrace(category_) << "updated pos " << mytm.updatedState().globalPosition() << "mom "
+                        << mytm.updatedState().globalMomentum();
   }
   return result;
 }
@@ -449,13 +449,12 @@ std::vector<GlobalCosmicMuonTrajectoryBuilder::TrackCand> GlobalCosmicMuonTrajec
 
     double quality = 1e6;
     double max_quality = 1e6;
-    for (vector<TrackCand>::const_iterator iter = matched_trackerTracks.begin(); iter != matched_trackerTracks.end();
-         iter++) {
-      quality = theTrackMatcher->match(mu, *iter, 1, 0);
+    for (const auto& matched_trackerTrack : matched_trackerTracks) {
+      quality = theTrackMatcher->match(mu, matched_trackerTrack, 1, 0);
       LogTrace(category_) << " quality of tracker track is " << quality;
       if (quality < max_quality) {
         max_quality = quality;
-        bestMatch = (*iter);
+        bestMatch = matched_trackerTrack;
       }
     }
     LogTrace(category_) << " Picked tracker track with quality " << max_quality;

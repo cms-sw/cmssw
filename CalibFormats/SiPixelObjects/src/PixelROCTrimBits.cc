@@ -120,8 +120,8 @@ void PixelROCTrimBits::writeBinary(std::ofstream& out) const {
   //std::cout << "PixelROCTrimBits::writeBinary:"<<rocid_.rocname().size()
   // << " " <<rocid_.rocname()<<std::endl;
 
-  for (unsigned int i = 0; i < 2080; i++) {
-    out << bits_[i];
+  for (unsigned char bit : bits_) {
+    out << bit;
   }
 }
 

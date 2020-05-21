@@ -136,16 +136,16 @@ void FastPrimaryVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const
 
   float lengthBmodule = 6.66;  //cm
   std::vector<float> zProjections;
-  for (CaloJetCollection::const_iterator jit = selectedJets.begin(); jit != selectedJets.end(); jit++) {
-    float px = jit->px();
-    float py = jit->py();
-    float pz = jit->pz();
-    float pt = jit->pt();
+  for (const auto& selectedJet : selectedJets) {
+    float px = selectedJet.px();
+    float py = selectedJet.py();
+    float pz = selectedJet.pz();
+    float pt = selectedJet.pt();
 
-    float jetZOverRho = jit->momentum().Z() / jit->momentum().Rho();
+    float jetZOverRho = selectedJet.momentum().Z() / selectedJet.momentum().Rho();
     int minSizeY = fabs(2. * jetZOverRho) - 1;
     int maxSizeY = fabs(2. * jetZOverRho) + 2;
-    if (fabs(jit->eta()) > 1.6) {
+    if (fabs(selectedJet.eta()) > 1.6) {
       minSizeY = 1;
     }
 
@@ -157,16 +157,16 @@ void FastPrimaryVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const
       Point3DBase<float, GlobalTag> modulepos = trackerGeometry->idToDet(id)->position();
       float zmodule = modulepos.z() -
                       ((modulepos.x() - beamSpot->x0()) * px + (modulepos.y() - beamSpot->y0()) * py) / pt * pz / pt;
-      if ((fabs(deltaPhi(jit->momentum().Phi(), modulepos.phi())) < m_maxDeltaPhi * 2) &&
+      if ((fabs(deltaPhi(selectedJet.momentum().Phi(), modulepos.phi())) < m_maxDeltaPhi * 2) &&
           (fabs(zmodule) < (m_maxZ + lengthBmodule / 2))) {
-        for (size_t j = 0; j < detset.size(); j++)  // Loop on pixel clusters on this module
+        for (const auto& j : detset)  // Loop on pixel clusters on this module
         {
-          const SiPixelCluster& aCluster = detset[j];
+          const SiPixelCluster& aCluster = j;
           if (aCluster.sizeX() < m_maxSizeX && aCluster.sizeY() >= minSizeY && aCluster.sizeY() <= maxSizeY) {
             Point3DBase<float, GlobalTag> v = trackerGeometry->idToDet(id)->surface().toGlobal(
                 pp->localParametersV(aCluster, (*trackerGeometry->idToDetUnit(id)))[0].first);
             GlobalPoint v_bs(v.x() - beamSpot->x0(), v.y() - beamSpot->y0(), v.z());
-            if (fabs(deltaPhi(jit->momentum().Phi(), v_bs.phi())) < m_maxDeltaPhi) {
+            if (fabs(deltaPhi(selectedJet.momentum().Phi(), v_bs.phi())) < m_maxDeltaPhi) {
               float z = v.z() - ((v.x() - beamSpot->x0()) * px + (v.y() - beamSpot->y0()) * py) / pt * pz / pt;
               if (fabs(z) < m_maxZ) {
                 zProjections.push_back(z);

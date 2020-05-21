@@ -13,7 +13,7 @@ float GammaLn(float z) {
   temp -= (z + 0.5) * log(temp);
   double y = z;
   double series = 1.000000000190015;
-  for (int term = 0; term < 6; term++)
-    series += coefficients[term] / ++y;
+  for (double coefficient : coefficients)
+    series += coefficient / ++y;
   return -temp + log(2.5066282746310005 * series / z);
 }

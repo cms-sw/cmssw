@@ -28,8 +28,8 @@ PythiaProbeFilter::PythiaProbeFilter(const edm::ParameterSet& iConfig)
   exclsisIDs = iConfig.getUntrackedParameter<vector<int> >("SisterIDs", defID);
   exclauntIDs = iConfig.getUntrackedParameter<vector<int> >("AuntIDs", defID);
   identicalParticle = false;
-  for (unsigned int ilist = 0; ilist < exclsisIDs.size(); ++ilist) {
-    if (fabs(exclsisIDs[ilist]) == fabs(particleID))
+  for (int exclsisID : exclsisIDs) {
+    if (fabs(exclsisID) == fabs(particleID))
       identicalParticle = true;
   }
   // create pythia8 instance to access particle data

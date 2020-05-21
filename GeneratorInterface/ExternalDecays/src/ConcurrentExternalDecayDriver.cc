@@ -23,8 +23,7 @@ using namespace edm;
 ConcurrentExternalDecayDriver::ConcurrentExternalDecayDriver(const ParameterSet& pset) : fIsInitialized(false) {
   std::vector<std::string> extGenNames = pset.getParameter<std::vector<std::string> >("parameterSets");
 
-  for (unsigned int ip = 0; ip < extGenNames.size(); ++ip) {
-    std::string curSet = extGenNames[ip];
+  for (auto curSet : extGenNames) {
     throw cms::Exception("ThreadUnsafeDecayer") << "The decayer " << curSet << " is not thread-friendly.";
     /*
     if (curSet == "EvtGen") {

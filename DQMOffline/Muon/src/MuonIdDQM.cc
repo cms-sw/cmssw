@@ -132,89 +132,81 @@ void MuonIdDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(inputCSCSegmentCollection_, cscSegmentCollectionH_);
   iSetup.get<GlobalTrackingGeometryRecord>().get(geometry_);
 
-  for (MuonCollection::const_iterator muon = muonCollectionH_->begin(); muon != muonCollectionH_->end(); ++muon) {
+  for (const auto& muon : *muonCollectionH_) {
     // trackerMuon == 0; globalMuon == 1; trackerMuon && !globalMuon == 2; globalMuon && !trackerMuon == 3
     for (unsigned int i = 0; i < 4; i++) {
-      if (i == 0 && (!useTrackerMuons_ || !muon->isTrackerMuon()))
+      if (i == 0 && (!useTrackerMuons_ || !muon.isTrackerMuon()))
         continue;
-      if (i == 1 && (!useGlobalMuons_ || !muon->isGlobalMuon()))
+      if (i == 1 && (!useGlobalMuons_ || !muon.isGlobalMuon()))
         continue;
-      if (i == 2 && (!useTrackerMuonsNotGlobalMuons_ || (!(muon->isTrackerMuon() && !muon->isGlobalMuon()))))
+      if (i == 2 && (!useTrackerMuonsNotGlobalMuons_ || (!(muon.isTrackerMuon() && !muon.isGlobalMuon()))))
         continue;
-      if (i == 3 && (!useGlobalMuonsNotTrackerMuons_ || (!(muon->isGlobalMuon() && !muon->isTrackerMuon()))))
+      if (i == 3 && (!useGlobalMuonsNotTrackerMuons_ || (!(muon.isGlobalMuon() && !muon.isTrackerMuon()))))
         continue;
 
-      hNumChambers[i]->Fill(muon->numberOfChambers());
-      hNumMatches[i]->Fill(muon->numberOfMatches(Muon::SegmentAndTrackArbitration));
-      hNumChambersNoRPC[i]->Fill(muon->numberOfChambersCSCorDT());
+      hNumChambers[i]->Fill(muon.numberOfChambers());
+      hNumMatches[i]->Fill(muon.numberOfMatches(Muon::SegmentAndTrackArbitration));
+      hNumChambersNoRPC[i]->Fill(muon.numberOfChambersCSCorDT());
 
       // by station
       for (int station = 0; station < 4; ++station) {
         // only fill num segments if we crossed (or nearly crossed) a chamber
-        if (muon->trackX(station + 1, MuonSubdetId::DT, Muon::NoArbitration) < 900000)
-          hDTNumSegments[i][station]->Fill(muon->numberOfSegments(station + 1, MuonSubdetId::DT, Muon::NoArbitration));
-        Fill(hDTDx[i][station], muon->dX(station + 1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration));
-        Fill(hDTPullx[i][station], muon->pullX(station + 1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration, true));
-        Fill(hDTDdXdZ[i][station], muon->dDxDz(station + 1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration));
+        if (muon.trackX(station + 1, MuonSubdetId::DT, Muon::NoArbitration) < 900000)
+          hDTNumSegments[i][station]->Fill(muon.numberOfSegments(station + 1, MuonSubdetId::DT, Muon::NoArbitration));
+        Fill(hDTDx[i][station], muon.dX(station + 1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration));
+        Fill(hDTPullx[i][station], muon.pullX(station + 1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration, true));
+        Fill(hDTDdXdZ[i][station], muon.dDxDz(station + 1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration));
         Fill(hDTPulldXdZ[i][station],
-             muon->pullDxDz(station + 1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration, true));
+             muon.pullDxDz(station + 1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration, true));
 
         if (station < 3) {
-          Fill(hDTDy[i][station], muon->dY(station + 1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration));
-          Fill(hDTPully[i][station],
-               muon->pullY(station + 1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration, true));
-          Fill(hDTDdYdZ[i][station], muon->dDyDz(station + 1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration));
+          Fill(hDTDy[i][station], muon.dY(station + 1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration));
+          Fill(hDTPully[i][station], muon.pullY(station + 1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration, true));
+          Fill(hDTDdYdZ[i][station], muon.dDyDz(station + 1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration));
           Fill(hDTPulldYdZ[i][station],
-               muon->pullDyDz(station + 1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration, true));
+               muon.pullDyDz(station + 1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration, true));
         }
 
         // only fill num segments if we crossed (or nearly crossed) a chamber
-        if (muon->trackX(station + 1, MuonSubdetId::CSC, Muon::NoArbitration) < 900000)
-          hCSCNumSegments[i][station]->Fill(
-              muon->numberOfSegments(station + 1, MuonSubdetId::CSC, Muon::NoArbitration));
-        Fill(hCSCDx[i][station], muon->dX(station + 1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration));
-        Fill(hCSCPullx[i][station],
-             muon->pullX(station + 1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration, true));
-        Fill(hCSCDdXdZ[i][station], muon->dDxDz(station + 1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration));
+        if (muon.trackX(station + 1, MuonSubdetId::CSC, Muon::NoArbitration) < 900000)
+          hCSCNumSegments[i][station]->Fill(muon.numberOfSegments(station + 1, MuonSubdetId::CSC, Muon::NoArbitration));
+        Fill(hCSCDx[i][station], muon.dX(station + 1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration));
+        Fill(hCSCPullx[i][station], muon.pullX(station + 1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration, true));
+        Fill(hCSCDdXdZ[i][station], muon.dDxDz(station + 1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration));
         Fill(hCSCPulldXdZ[i][station],
-             muon->pullDxDz(station + 1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration, true));
-        Fill(hCSCDy[i][station], muon->dY(station + 1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration));
-        Fill(hCSCPully[i][station],
-             muon->pullY(station + 1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration, true));
-        Fill(hCSCDdYdZ[i][station], muon->dDyDz(station + 1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration));
+             muon.pullDxDz(station + 1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration, true));
+        Fill(hCSCDy[i][station], muon.dY(station + 1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration));
+        Fill(hCSCPully[i][station], muon.pullY(station + 1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration, true));
+        Fill(hCSCDdYdZ[i][station], muon.dDyDz(station + 1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration));
         Fill(hCSCPulldYdZ[i][station],
-             muon->pullDyDz(station + 1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration, true));
+             muon.pullDyDz(station + 1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration, true));
       }
     }
   }  // muon
 
-  for (DTRecSegment4DCollection::const_iterator segment = dtSegmentCollectionH_->begin();
-       segment != dtSegmentCollectionH_->end();
-       ++segment) {
-    LocalPoint segmentLocalPosition = segment->localPosition();
-    LocalVector segmentLocalDirection = segment->localDirection();
-    LocalError segmentLocalPositionError = segment->localPositionError();
-    LocalError segmentLocalDirectionError = segment->localDirectionError();
+  for (const auto& segment : *dtSegmentCollectionH_) {
+    LocalPoint segmentLocalPosition = segment.localPosition();
+    LocalVector segmentLocalDirection = segment.localDirection();
+    LocalError segmentLocalPositionError = segment.localPositionError();
+    LocalError segmentLocalDirectionError = segment.localDirectionError();
     bool segmentFound = false;
 
-    for (MuonCollection::const_iterator muon = muonCollectionH_->begin(); muon != muonCollectionH_->end(); ++muon) {
-      if (!muon->isMatchesValid())
+    for (const auto& muon : *muonCollectionH_) {
+      if (!muon.isMatchesValid())
         continue;
 
-      for (std::vector<MuonChamberMatch>::const_iterator chamberMatch = muon->matches().begin();
-           chamberMatch != muon->matches().end();
+      for (std::vector<MuonChamberMatch>::const_iterator chamberMatch = muon.matches().begin();
+           chamberMatch != muon.matches().end();
            ++chamberMatch) {
-        for (std::vector<MuonSegmentMatch>::const_iterator segmentMatch = chamberMatch->segmentMatches.begin();
-             segmentMatch != chamberMatch->segmentMatches.end();
-             ++segmentMatch) {
-          if (fabs(segmentMatch->x - segmentLocalPosition.x()) < 1E-6 &&
-              fabs(segmentMatch->y - segmentLocalPosition.y()) < 1E-6 &&
-              fabs(segmentMatch->dXdZ - segmentLocalDirection.x() / segmentLocalDirection.z()) < 1E-6 &&
-              fabs(segmentMatch->dYdZ - segmentLocalDirection.y() / segmentLocalDirection.z()) < 1E-6 &&
-              fabs(segmentMatch->xErr - sqrt(segmentLocalPositionError.xx())) < 1E-6 &&
-              fabs(segmentMatch->yErr - sqrt(segmentLocalPositionError.yy())) < 1E-6 &&
-              fabs(segmentMatch->dXdZErr - sqrt(segmentLocalDirectionError.xx())) < 1E-6 &&
-              fabs(segmentMatch->dYdZErr - sqrt(segmentLocalDirectionError.yy())) < 1E-6) {
+        for (const auto& segmentMatche : chamberMatch->segmentMatches) {
+          if (fabs(segmentMatche.x - segmentLocalPosition.x()) < 1E-6 &&
+              fabs(segmentMatche.y - segmentLocalPosition.y()) < 1E-6 &&
+              fabs(segmentMatche.dXdZ - segmentLocalDirection.x() / segmentLocalDirection.z()) < 1E-6 &&
+              fabs(segmentMatche.dYdZ - segmentLocalDirection.y() / segmentLocalDirection.z()) < 1E-6 &&
+              fabs(segmentMatche.xErr - sqrt(segmentLocalPositionError.xx())) < 1E-6 &&
+              fabs(segmentMatche.yErr - sqrt(segmentLocalPositionError.yy())) < 1E-6 &&
+              fabs(segmentMatche.dXdZErr - sqrt(segmentLocalDirectionError.xx())) < 1E-6 &&
+              fabs(segmentMatche.dYdZErr - sqrt(segmentLocalDirectionError.yy())) < 1E-6) {
             segmentFound = true;
             break;
           }
@@ -232,33 +224,29 @@ void MuonIdDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       hSegmentIsAssociatedBool->Fill(0.);
   }  // dt segment
 
-  for (CSCSegmentCollection::const_iterator segment = cscSegmentCollectionH_->begin();
-       segment != cscSegmentCollectionH_->end();
-       ++segment) {
-    LocalPoint segmentLocalPosition = segment->localPosition();
-    LocalVector segmentLocalDirection = segment->localDirection();
-    LocalError segmentLocalPositionError = segment->localPositionError();
-    LocalError segmentLocalDirectionError = segment->localDirectionError();
+  for (const auto& segment : *cscSegmentCollectionH_) {
+    LocalPoint segmentLocalPosition = segment.localPosition();
+    LocalVector segmentLocalDirection = segment.localDirection();
+    LocalError segmentLocalPositionError = segment.localPositionError();
+    LocalError segmentLocalDirectionError = segment.localDirectionError();
     bool segmentFound = false;
 
-    for (MuonCollection::const_iterator muon = muonCollectionH_->begin(); muon != muonCollectionH_->end(); ++muon) {
-      if (!muon->isMatchesValid())
+    for (const auto& muon : *muonCollectionH_) {
+      if (!muon.isMatchesValid())
         continue;
 
-      for (std::vector<MuonChamberMatch>::const_iterator chamberMatch = muon->matches().begin();
-           chamberMatch != muon->matches().end();
+      for (std::vector<MuonChamberMatch>::const_iterator chamberMatch = muon.matches().begin();
+           chamberMatch != muon.matches().end();
            ++chamberMatch) {
-        for (std::vector<MuonSegmentMatch>::const_iterator segmentMatch = chamberMatch->segmentMatches.begin();
-             segmentMatch != chamberMatch->segmentMatches.end();
-             ++segmentMatch) {
-          if (fabs(segmentMatch->x - segmentLocalPosition.x()) < 1E-6 &&
-              fabs(segmentMatch->y - segmentLocalPosition.y()) < 1E-6 &&
-              fabs(segmentMatch->dXdZ - segmentLocalDirection.x() / segmentLocalDirection.z()) < 1E-6 &&
-              fabs(segmentMatch->dYdZ - segmentLocalDirection.y() / segmentLocalDirection.z()) < 1E-6 &&
-              fabs(segmentMatch->xErr - sqrt(segmentLocalPositionError.xx())) < 1E-6 &&
-              fabs(segmentMatch->yErr - sqrt(segmentLocalPositionError.yy())) < 1E-6 &&
-              fabs(segmentMatch->dXdZErr - sqrt(segmentLocalDirectionError.xx())) < 1E-6 &&
-              fabs(segmentMatch->dYdZErr - sqrt(segmentLocalDirectionError.yy())) < 1E-6) {
+        for (const auto& segmentMatche : chamberMatch->segmentMatches) {
+          if (fabs(segmentMatche.x - segmentLocalPosition.x()) < 1E-6 &&
+              fabs(segmentMatche.y - segmentLocalPosition.y()) < 1E-6 &&
+              fabs(segmentMatche.dXdZ - segmentLocalDirection.x() / segmentLocalDirection.z()) < 1E-6 &&
+              fabs(segmentMatche.dYdZ - segmentLocalDirection.y() / segmentLocalDirection.z()) < 1E-6 &&
+              fabs(segmentMatche.xErr - sqrt(segmentLocalPositionError.xx())) < 1E-6 &&
+              fabs(segmentMatche.yErr - sqrt(segmentLocalPositionError.yy())) < 1E-6 &&
+              fabs(segmentMatche.dXdZErr - sqrt(segmentLocalDirectionError.xx())) < 1E-6 &&
+              fabs(segmentMatche.dYdZErr - sqrt(segmentLocalDirectionError.yy())) < 1E-6) {
             segmentFound = true;
             break;
           }

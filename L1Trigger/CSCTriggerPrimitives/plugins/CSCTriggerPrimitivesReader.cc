@@ -1131,12 +1131,12 @@ void CSCTriggerPrimitivesReader::fillALCTHistos(const CSCALCTDigiCollection* alc
     bookALCTHistos();
 
   int nValidALCTs = 0;
-  for (auto detUnitIt = alcts->begin(); detUnitIt != alcts->end(); detUnitIt++) {
+  for (auto&& alct : *alcts) {
     int nValidALCTsPerCSC = 0;
-    const CSCDetId& id = (*detUnitIt).first;
+    const CSCDetId& id = alct.first;
     if (checkBadChambers_ && badChambers_->isInBadChamber(id))
       continue;
-    const auto& range = (*detUnitIt).second;
+    const auto& range = alct.second;
     for (auto digiIt = range.first; digiIt != range.second; digiIt++) {
       bool alct_valid = (*digiIt).isValid();
       hAlctValid->Fill(alct_valid);
@@ -1178,12 +1178,12 @@ void CSCTriggerPrimitivesReader::fillCLCTHistos(const CSCCLCTDigiCollection* clc
     bookCLCTHistos();
 
   int nValidCLCTs = 0;
-  for (auto detUnitIt = clcts->begin(); detUnitIt != clcts->end(); detUnitIt++) {
+  for (auto&& clct : *clcts) {
     int nValidCLCTsPerCSC = 0;
-    const CSCDetId& id = (*detUnitIt).first;
+    const CSCDetId& id = clct.first;
     if (checkBadChambers_ && badChambers_->isInBadChamber(id))
       continue;
-    const auto& range = (*detUnitIt).second;
+    const auto& range = clct.second;
     for (auto digiIt = range.first; digiIt != range.second; digiIt++) {
       bool clct_valid = (*digiIt).isValid();
       hClctValid->Fill(clct_valid);
@@ -1240,12 +1240,12 @@ void CSCTriggerPrimitivesReader::fillLCTTMBHistos(const CSCCorrelatedLCTDigiColl
   int nValidLCTs = 0;
   bool alct_valid, clct_valid;
 
-  for (auto detUnitIt = lcts->begin(); detUnitIt != lcts->end(); detUnitIt++) {
+  for (auto&& lct : *lcts) {
     int nValidLCTsPerCSC = 0;
-    const CSCDetId& id = (*detUnitIt).first;
+    const CSCDetId& id = lct.first;
     if (checkBadChambers_ && badChambers_->isInBadChamber(id))
       continue;
-    const auto& range = (*detUnitIt).second;
+    const auto& range = lct.second;
     for (auto digiIt = range.first; digiIt != range.second; digiIt++) {
       bool lct_valid = (*digiIt).isValid();
       hLctTMBValid->Fill(lct_valid);
@@ -1312,11 +1312,11 @@ void CSCTriggerPrimitivesReader::fillLCTMPCHistos(const CSCCorrelatedLCTDigiColl
   int nValidLCTs = 0;
   bool alct_valid, clct_valid;
 
-  for (auto detUnitIt = lcts->begin(); detUnitIt != lcts->end(); detUnitIt++) {
-    const CSCDetId& id = (*detUnitIt).first;
+  for (auto&& lct : *lcts) {
+    const CSCDetId& id = lct.first;
     if (checkBadChambers_ && badChambers_->isInBadChamber(id))
       continue;
-    const auto& range = (*detUnitIt).second;
+    const auto& range = lct.second;
     for (auto digiIt = range.first; digiIt != range.second; digiIt++) {
       bool lct_valid = (*digiIt).isValid();
       hLctMPCValid->Fill(lct_valid);
@@ -2603,12 +2603,12 @@ void CSCTriggerPrimitivesReader::HotWires(const edm::Event& iEvent) {
   iEvent.getByToken(wireDigi_token_, wires);
 
   int serial_old = -1;
-  for (auto dWDiter = wires->begin(); dWDiter != wires->end(); dWDiter++) {
-    CSCDetId id = (CSCDetId)(*dWDiter).first;
+  for (auto&& dWDiter : *wires) {
+    CSCDetId id = (CSCDetId)dWDiter.first;
     int serial = chamberSerial(id) - 1;
     //     printf("serial %i\n",serial);
-    std::vector<CSCWireDigi>::const_iterator wireIter = (*dWDiter).second.first;
-    std::vector<CSCWireDigi>::const_iterator lWire = (*dWDiter).second.second;
+    std::vector<CSCWireDigi>::const_iterator wireIter = dWDiter.second.first;
+    std::vector<CSCWireDigi>::const_iterator lWire = dWDiter.second.second;
     bool has_layer = false;
     for (; wireIter != lWire; ++wireIter) {
       has_layer = true;
@@ -2725,11 +2725,11 @@ void CSCTriggerPrimitivesReader::calcResolution(const CSCALCTDigiCollection* alc
   CSCAnodeLCTAnalyzer alct_analyzer;
   alct_analyzer.setGeometry(geom_);
 
-  for (auto adetUnitIt = alcts->begin(); adetUnitIt != alcts->end(); adetUnitIt++) {
-    const CSCDetId& id = (*adetUnitIt).first;
+  for (auto&& alct : *alcts) {
+    const CSCDetId& id = alct.first;
     if (checkBadChambers_ && badChambers_->isInBadChamber(id))
       continue;
-    const auto& range = (*adetUnitIt).second;
+    const auto& range = alct.second;
     for (auto digiIt = range.first; digiIt != range.second; digiIt++) {
       bool alct_valid = (*digiIt).isValid();
       if (alct_valid) {
@@ -2778,11 +2778,11 @@ void CSCTriggerPrimitivesReader::calcResolution(const CSCALCTDigiCollection* alc
   CSCCathodeLCTAnalyzer clct_analyzer;
   clct_analyzer.setGeometry(geom_);
 
-  for (auto cdetUnitIt = clcts->begin(); cdetUnitIt != clcts->end(); cdetUnitIt++) {
-    const CSCDetId& id = (*cdetUnitIt).first;
+  for (auto&& clct : *clcts) {
+    const CSCDetId& id = clct.first;
     if (checkBadChambers_ && badChambers_->isInBadChamber(id))
       continue;
-    const auto& range = (*cdetUnitIt).second;
+    const auto& range = clct.second;
     for (auto digiIt = range.first; digiIt != range.second; digiIt++) {
       bool clct_valid = (*digiIt).isValid();
       if (clct_valid) {
@@ -2993,10 +2993,10 @@ void CSCTriggerPrimitivesReader::calcEfficiency(const CSCALCTDigiCollection* alc
       hEfficHitsEtaCsc[csctype]->Fill(fabs(hitEta));
 
       bool isALCT = false;
-      for (auto adetUnitIt = alcts->begin(); adetUnitIt != alcts->end(); adetUnitIt++) {
-        const CSCDetId& id = (*adetUnitIt).first;
+      for (auto&& alct : *alcts) {
+        const CSCDetId& id = alct.first;
         if (id == (*chamberIdIt)) {
-          const auto& range = (*adetUnitIt).second;
+          const auto& range = alct.second;
           for (auto digiIt = range.first; digiIt != range.second; digiIt++) {
             if (digiIt->isValid()) {
               // Check the distance??
@@ -3017,10 +3017,10 @@ void CSCTriggerPrimitivesReader::calcEfficiency(const CSCALCTDigiCollection* alc
       }
 
       bool isCLCT = false;
-      for (auto cdetUnitIt = clcts->begin(); cdetUnitIt != clcts->end(); cdetUnitIt++) {
-        const CSCDetId& id = (*cdetUnitIt).first;
+      for (auto&& clct : *clcts) {
+        const CSCDetId& id = clct.first;
         if (id == (*chamberIdIt)) {
-          const auto& range = (*cdetUnitIt).second;
+          const auto& range = clct.second;
           for (auto digiIt = range.first; digiIt != range.second; digiIt++) {
             if (digiIt->isValid()) {
               // Check the distance??
@@ -3049,8 +3049,8 @@ void CSCTriggerPrimitivesReader::drawALCTHistos() {
   TPostScript* ps = new TPostScript(fname.c_str(), 111);
 
   TPad* pad[MAXPAGES];
-  for (int i_page = 0; i_page < MAXPAGES; i_page++) {
-    pad[i_page] = new TPad("", "", .05, .05, .93, .93);
+  for (auto& i_page : pad) {
+    i_page = new TPad("", "", .05, .05, .93, .93);
   }
 
   int page = 1;
@@ -3146,8 +3146,8 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
   TPostScript* ps = new TPostScript(fname.c_str(), 111);
 
   TPad* pad[MAXPAGES];
-  for (int i_page = 0; i_page < MAXPAGES; i_page++) {
-    pad[i_page] = new TPad("", "", .05, .05, .93, .93);
+  for (auto& i_page : pad) {
+    i_page = new TPad("", "", .05, .05, .93, .93);
   }
 
   int page = 1;
@@ -3276,8 +3276,8 @@ void CSCTriggerPrimitivesReader::drawLCTTMBHistos() {
   TPostScript* ps = new TPostScript(fname.c_str(), 111);
 
   TPad* pad[MAXPAGES];
-  for (int i_page = 0; i_page < MAXPAGES; i_page++) {
-    pad[i_page] = new TPad("", "", .05, .05, .93, .93);
+  for (auto& i_page : pad) {
+    i_page = new TPad("", "", .05, .05, .93, .93);
   }
 
   int page = 1;
@@ -3408,8 +3408,8 @@ void CSCTriggerPrimitivesReader::drawLCTMPCHistos() {
   TPostScript* ps = new TPostScript(fname.c_str(), 111);
 
   TPad* pad[MAXPAGES];
-  for (int i_page = 0; i_page < MAXPAGES; i_page++) {
-    pad[i_page] = new TPad("", "", .05, .05, .93, .93);
+  for (auto& i_page : pad) {
+    i_page = new TPad("", "", .05, .05, .93, .93);
   }
 
   int page = 1;
@@ -3509,8 +3509,8 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
   TPostScript* ps = new TPostScript(fname.c_str(), 111);
 
   TPad* pad[MAXPAGES];
-  for (int i_page = 0; i_page < MAXPAGES; i_page++) {
-    pad[i_page] = new TPad("", "", .05, .05, .93, .93);
+  for (auto& i_page : pad) {
+    i_page = new TPad("", "", .05, .05, .93, .93);
   }
 
   int page = 1;
@@ -3868,8 +3868,8 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   TPostScript* ps = new TPostScript(fname.c_str(), 111);
 
   TPad* pad[MAXPAGES];
-  for (int i_page = 0; i_page < MAXPAGES; i_page++) {
-    pad[i_page] = new TPad("", "", .05, .05, .93, .93);
+  for (auto& i_page : pad) {
+    i_page = new TPad("", "", .05, .05, .93, .93);
   }
 
   int page = 1;
@@ -4256,8 +4256,8 @@ void CSCTriggerPrimitivesReader::drawEfficHistos() {
   TPostScript* ps = new TPostScript(fname.c_str(), 111);
 
   TPad* pad[MAXPAGES];
-  for (int i_page = 0; i_page < MAXPAGES; i_page++) {
-    pad[i_page] = new TPad("", "", .05, .05, .93, .93);
+  for (auto& i_page : pad) {
+    i_page = new TPad("", "", .05, .05, .93, .93);
   }
 
   int page = 1;
@@ -4417,8 +4417,8 @@ void CSCTriggerPrimitivesReader::drawHistosForTalks() {
   TCanvas* c2 = new TCanvas("c2", "", 0, 0, 540, 540);
 
   TPad* pad[MAXPAGES];
-  for (int i_page = 0; i_page < MAXPAGES; i_page++) {
-    pad[i_page] = new TPad("", "", .07, .07, .93, .93);
+  for (auto& i_page : pad) {
+    i_page = new TPad("", "", .07, .07, .93, .93);
   }
 
   int page = 1;

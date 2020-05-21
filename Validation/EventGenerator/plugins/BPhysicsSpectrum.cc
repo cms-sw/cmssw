@@ -32,11 +32,11 @@ void BPhysicsSpectrum::bookHistograms(DQMStore::IBooker& i, edm::Run const&, edm
 void BPhysicsSpectrum::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<reco::GenParticleCollection> genParticles;
   iEvent.getByToken(genparticleCollectionToken_, genParticles);
-  for (reco::GenParticleCollection::const_iterator iter = genParticles->begin(); iter != genParticles->end(); ++iter) {
-    for (unsigned int i = 0; i < Particles.size(); i++) {
-      if (abs(iter->pdgId()) == abs(Particles[i])) {
+  for (const auto& iter : *genParticles) {
+    for (int Particle : Particles) {
+      if (abs(iter.pdgId()) == abs(Particle)) {
         Nobj->Fill(0.5, 1.0);
-        mass->Fill(iter->mass(), 1.0);
+        mass->Fill(iter.mass(), 1.0);
       }
     }
   }

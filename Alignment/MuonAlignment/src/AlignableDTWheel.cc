@@ -42,9 +42,8 @@ AlignableSurface AlignableDTWheel::computeSurface() {
 AlignableDTWheel::PositionType AlignableDTWheel::computePosition() {
   float zz = 0.;
 
-  for (std::vector<AlignableDTStation*>::iterator ilayer = theDTStations.begin(); ilayer != theDTStations.end();
-       ilayer++)
-    zz += (*ilayer)->globalPosition().z();
+  for (auto& theDTStation : theDTStations)
+    zz += theDTStation->globalPosition().z();
 
   zz /= static_cast<float>(theDTStations.size());
 
@@ -66,8 +65,6 @@ std::ostream& operator<<(std::ostream& os, const AlignableDTWheel& b) {
 /// Recursive printout of whole DT Wheel structure
 void AlignableDTWheel::dump(void) const {
   edm::LogInfo("AlignableDump") << (*this);
-  for (std::vector<AlignableDTStation*>::const_iterator iStation = theDTStations.begin();
-       iStation != theDTStations.end();
-       iStation++)
-    (*iStation)->dump();
+  for (auto theDTStation : theDTStations)
+    theDTStation->dump();
 }

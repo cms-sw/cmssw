@@ -190,44 +190,44 @@ HcalLutSet HcalLutManager::getLutSetFromFile(std::string _filename, int _type) {
     std::vector<std::string> buf_vec;
     getline(infile, buf);
     buf_vec = HcalQIEManager::splitString(buf);
-    for (std::vector<std::string>::const_iterator iter = buf_vec.begin(); iter != buf_vec.end(); iter++) {
-      _lutset.eta_min.push_back(HcalLutManager::getInt(*iter));
+    for (const auto& iter : buf_vec) {
+      _lutset.eta_min.push_back(HcalLutManager::getInt(iter));
     }
 
     //get max etas
     getline(infile, buf);
     buf_vec = HcalQIEManager::splitString(buf);
-    for (std::vector<std::string>::const_iterator iter = buf_vec.begin(); iter != buf_vec.end(); iter++) {
-      _lutset.eta_max.push_back(HcalLutManager::getInt(*iter));
+    for (const auto& iter : buf_vec) {
+      _lutset.eta_max.push_back(HcalLutManager::getInt(iter));
     }
 
     //get min phis
     getline(infile, buf);
     buf_vec = HcalQIEManager::splitString(buf);
-    for (std::vector<std::string>::const_iterator iter = buf_vec.begin(); iter != buf_vec.end(); iter++) {
-      _lutset.phi_min.push_back(HcalLutManager::getInt(*iter));
+    for (const auto& iter : buf_vec) {
+      _lutset.phi_min.push_back(HcalLutManager::getInt(iter));
     }
 
     //get max phis
     getline(infile, buf);
     buf_vec = HcalQIEManager::splitString(buf);
-    for (std::vector<std::string>::const_iterator iter = buf_vec.begin(); iter != buf_vec.end(); iter++) {
-      _lutset.phi_max.push_back(HcalLutManager::getInt(*iter));
+    for (const auto& iter : buf_vec) {
+      _lutset.phi_max.push_back(HcalLutManager::getInt(iter));
     }
 
     if (_type == 1) {  // for linearization LUTs get depth range (default)
       //get min depths
       getline(infile, buf);
       buf_vec = HcalQIEManager::splitString(buf);
-      for (std::vector<std::string>::const_iterator iter = buf_vec.begin(); iter != buf_vec.end(); iter++) {
-        _lutset.depth_min.push_back(HcalLutManager::getInt(*iter));
+      for (const auto& iter : buf_vec) {
+        _lutset.depth_min.push_back(HcalLutManager::getInt(iter));
       }
 
       //get max depths
       getline(infile, buf);
       buf_vec = HcalQIEManager::splitString(buf);
-      for (std::vector<std::string>::const_iterator iter = buf_vec.begin(); iter != buf_vec.end(); iter++) {
-        _lutset.depth_max.push_back(HcalLutManager::getInt(*iter));
+      for (const auto& iter : buf_vec) {
+        _lutset.depth_max.push_back(HcalLutManager::getInt(iter));
       }
     }
 
@@ -359,44 +359,44 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getLinearizationLutXmlFro
 
   RooGKCounter _counter;
   //loop over all EMap channels
-  for (std::vector<EMap::EMapRow>::const_iterator row = _map.begin(); row != _map.end(); row++) {
-    if ((row->subdet.find("HB") != string::npos || row->subdet.find("HE") != string::npos ||
-         row->subdet.find("HO") != string::npos || row->subdet.find("HF") != string::npos) &&
-        row->subdet.size() == 2) {
+  for (const auto& row : _map) {
+    if ((row.subdet.find("HB") != string::npos || row.subdet.find("HE") != string::npos ||
+         row.subdet.find("HO") != string::npos || row.subdet.find("HF") != string::npos) &&
+        row.subdet.size() == 2) {
       LutXml::Config _cfg;
 
       // search for the correct LUT for a given channel,
       // higher LUT numbers have priority in case of overlapping
       int lut_index = -1;
       for (int i = 0; i < lut_set_size; i++) {
-        if ((row->crate == _crate || _crate == -1) &&  // -1 stands for all crates
-            _set.eta_min[i] <= row->ieta && _set.eta_max[i] >= row->ieta && _set.phi_min[i] <= row->iphi &&
-            _set.phi_max[i] >= row->iphi && _set.depth_min[i] <= row->idepth && _set.depth_max[i] >= row->idepth &&
-            _set.subdet[i].find(row->subdet) != string::npos) {
+        if ((row.crate == _crate || _crate == -1) &&  // -1 stands for all crates
+            _set.eta_min[i] <= row.ieta && _set.eta_max[i] >= row.ieta && _set.phi_min[i] <= row.iphi &&
+            _set.phi_max[i] >= row.iphi && _set.depth_min[i] <= row.idepth && _set.depth_max[i] >= row.idepth &&
+            _set.subdet[i].find(row.subdet) != string::npos) {
           lut_index = i;
         }
       }
       if (lut_index >= 0) {
-        if (_xml.count(row->crate) == 0 && split_by_crate) {
-          _xml.insert(std::pair<int, std::shared_ptr<LutXml>>(row->crate, std::make_shared<LutXml>()));
+        if (_xml.count(row.crate) == 0 && split_by_crate) {
+          _xml.insert(std::pair<int, std::shared_ptr<LutXml>>(row.crate, std::make_shared<LutXml>()));
         } else if (_xml.count(0) == 0 && !split_by_crate) {
           _xml.insert(std::pair<int, std::shared_ptr<LutXml>>(0, std::make_shared<LutXml>()));
         }
-        _cfg.ieta = row->ieta;
-        _cfg.iphi = row->iphi;
-        _cfg.depth = row->idepth;
-        _cfg.crate = row->crate;
-        _cfg.slot = row->slot;
-        if (row->topbottom.find("t") != std::string::npos)
+        _cfg.ieta = row.ieta;
+        _cfg.iphi = row.iphi;
+        _cfg.depth = row.idepth;
+        _cfg.crate = row.crate;
+        _cfg.slot = row.slot;
+        if (row.topbottom.find("t") != std::string::npos)
           _cfg.topbottom = 1;
-        else if (row->topbottom.find("b") != std::string::npos)
+        else if (row.topbottom.find("b") != std::string::npos)
           _cfg.topbottom = 0;
-        else if (row->topbottom.find("u") != std::string::npos)
+        else if (row.topbottom.find("u") != std::string::npos)
           _cfg.topbottom = 2;
         else
           edm::LogWarning("HcalLutManager") << "fpga out of range...";
-        _cfg.fiber = row->fiber;
-        _cfg.fiberchan = row->fiberchan;
+        _cfg.fiber = row.fiber;
+        _cfg.fiberchan = row.fiberchan;
         _cfg.lut_type = 1;
         _cfg.creationtag = _tag;
         _cfg.creationstamp = get_time_stamp(time(nullptr));
@@ -405,12 +405,11 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getLinearizationLutXmlFro
         // "original" definition of GENERALIZEDINDEX from Mike Weinberger
         //    int generalizedIndex=id.ietaAbs()+1000*id.depth()+10000*id.iphi()+
         //        ((id.ieta()<0)?(0):(100))+((id.subdet()==HcalForward && id.ietaAbs()==29)?(4*10000):(0));
-        _cfg.generalizedindex =
-            _cfg.iphi * 10000 + _cfg.depth * 1000 + (row->ieta > 0) * 100 + abs(row->ieta) +
-            (((row->subdet.find("HF") != string::npos) && abs(row->ieta) == 29) ? (4 * 10000) : (0));
+        _cfg.generalizedindex = _cfg.iphi * 10000 + _cfg.depth * 1000 + (row.ieta > 0) * 100 + abs(row.ieta) +
+                                (((row.subdet.find("HF") != string::npos) && abs(row.ieta) == 29) ? (4 * 10000) : (0));
         //
         // consider channel status here
-        DetId _detId(row->rawId);
+        DetId _detId(row.rawId);
         uint32_t status_word = cq->getValues(_detId)->getValue();
         if ((status_word & status_word_to_mask) > 0) {
           _cfg.lut = zeroLut;
@@ -418,7 +417,7 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getLinearizationLutXmlFro
           _cfg.lut = _set.lut[lut_index];
         }
         if (split_by_crate) {
-          _xml[row->crate]->addLut(_cfg, lut_checksums_xml);
+          _xml[row.crate]->addLut(_cfg, lut_checksums_xml);
           _counter.count();
         } else {
           _xml[0]->addLut(_cfg, lut_checksums_xml);
@@ -536,41 +535,41 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getCompressionLutXmlFromA
 
   //loop over all EMap channels
   RooGKCounter _counter;
-  for (std::vector<EMap::EMapRow>::const_iterator row = _map.begin(); row != _map.end(); row++) {
+  for (const auto& row : _map) {
     LutXml::Config _cfg;
 
     // search for the correct LUT for a given channel,
     // higher LUT numbers have priority in case of overlapping
     int lut_index = -1;
     for (int i = 0; i < lut_set_size; i++) {
-      if (row->subdet.find("HT") != std::string::npos &&
-          (row->crate == _crate || _crate == -1) &&  // -1 stands for all crates
-          _set.eta_min[i] <= row->ieta && _set.eta_max[i] >= row->ieta && _set.phi_min[i] <= row->iphi &&
-          _set.phi_max[i] >= row->iphi && _coder.HTvalid(row->ieta, row->iphi, row->idepth / 10)) {
+      if (row.subdet.find("HT") != std::string::npos &&
+          (row.crate == _crate || _crate == -1) &&  // -1 stands for all crates
+          _set.eta_min[i] <= row.ieta && _set.eta_max[i] >= row.ieta && _set.phi_min[i] <= row.iphi &&
+          _set.phi_max[i] >= row.iphi && _coder.HTvalid(row.ieta, row.iphi, row.idepth / 10)) {
         lut_index = i;
       }
     }
     if (lut_index >= 0) {
-      if (_xml.count(row->crate) == 0 && split_by_crate) {
-        _xml.insert(std::pair<int, std::shared_ptr<LutXml>>(row->crate, std::make_shared<LutXml>()));
+      if (_xml.count(row.crate) == 0 && split_by_crate) {
+        _xml.insert(std::pair<int, std::shared_ptr<LutXml>>(row.crate, std::make_shared<LutXml>()));
       } else if (_xml.count(0) == 0 && !split_by_crate) {
         _xml.insert(std::pair<int, std::shared_ptr<LutXml>>(0, std::make_shared<LutXml>()));
       }
-      _cfg.ieta = row->ieta;
-      _cfg.iphi = row->iphi;
-      _cfg.depth = row->idepth;
-      _cfg.crate = row->crate;
-      _cfg.slot = row->slot;
-      if (row->topbottom.find("t") != std::string::npos)
+      _cfg.ieta = row.ieta;
+      _cfg.iphi = row.iphi;
+      _cfg.depth = row.idepth;
+      _cfg.crate = row.crate;
+      _cfg.slot = row.slot;
+      if (row.topbottom.find("t") != std::string::npos)
         _cfg.topbottom = 1;
-      else if (row->topbottom.find("b") != std::string::npos)
+      else if (row.topbottom.find("b") != std::string::npos)
         _cfg.topbottom = 0;
-      else if (row->topbottom.find("u") != std::string::npos)
+      else if (row.topbottom.find("u") != std::string::npos)
         _cfg.topbottom = 2;
       else
         edm::LogWarning("HcalLutManager") << "fpga out of range...";
-      _cfg.fiber = row->fiber;
-      _cfg.fiberchan = row->fiberchan;
+      _cfg.fiber = row.fiber;
+      _cfg.fiberchan = row.fiberchan;
       if (_set.lut[lut_index].size() == 128)
         _cfg.lut_type = 1;
       else
@@ -582,10 +581,10 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getCompressionLutXmlFromA
       // "original" definition of GENERALIZEDINDEX from Mike Weinberger
       //   int generalizedIndex=id.ietaAbs()+10000*id.iphi()+
       //       ((id.ieta()<0)?(0):(100));
-      _cfg.generalizedindex = _cfg.iphi * 10000 + (row->ieta > 0) * 100 + abs(row->ieta);
+      _cfg.generalizedindex = _cfg.iphi * 10000 + (row.ieta > 0) * 100 + abs(row.ieta);
       _cfg.lut = _set.lut[lut_index];
       if (split_by_crate) {
-        _xml[row->crate]->addLut(_cfg, lut_checksums_xml);
+        _xml[row.crate]->addLut(_cfg, lut_checksums_xml);
         _counter.count();
       } else {
         _xml[0]->addLut(_cfg, lut_checksums_xml);
@@ -661,8 +660,8 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getLinearizationLutXmlFro
 
     //std::cout << "### DEBUG: subdetector = " << row->second.det << std::endl;
     std::vector<unsigned short> coder_lut = _coder.getLinearizationLUT(_detid);
-    for (std::vector<unsigned short>::const_iterator _i = coder_lut.begin(); _i != coder_lut.end(); _i++) {
-      unsigned int _temp = (unsigned int)(*_i);
+    for (unsigned short _i : coder_lut) {
+      unsigned int _temp = (unsigned int)_i;
       //if (_temp!=0) std::cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << std::endl;
       //unsigned int _temp = 0;
       _cfg.lut.push_back(_temp);
@@ -766,32 +765,32 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getLinearizationLutXmlFro
 
   RooGKCounter _counter;
   //loop over all EMap channels
-  for (std::vector<EMap::EMapRow>::const_iterator row = _map.begin(); row != _map.end(); row++) {
-    if ((row->subdet.find("HB") != string::npos || row->subdet.find("HE") != string::npos ||
-         row->subdet.find("HF") != string::npos) &&
-        row->subdet.size() == 2) {
+  for (const auto& row : _map) {
+    if ((row.subdet.find("HB") != string::npos || row.subdet.find("HE") != string::npos ||
+         row.subdet.find("HF") != string::npos) &&
+        row.subdet.size() == 2) {
       LutXml::Config _cfg;
 
-      if (_xml.count(row->crate) == 0 && split_by_crate) {
-        _xml.insert(std::pair<int, std::shared_ptr<LutXml>>(row->crate, std::make_shared<LutXml>()));
+      if (_xml.count(row.crate) == 0 && split_by_crate) {
+        _xml.insert(std::pair<int, std::shared_ptr<LutXml>>(row.crate, std::make_shared<LutXml>()));
       } else if (_xml.count(0) == 0 && !split_by_crate) {
         _xml.insert(std::pair<int, std::shared_ptr<LutXml>>(0, std::make_shared<LutXml>()));
       }
-      _cfg.ieta = row->ieta;
-      _cfg.iphi = row->iphi;
-      _cfg.depth = row->idepth;
-      _cfg.crate = row->crate;
-      _cfg.slot = row->slot;
-      if (row->topbottom.find("t") != std::string::npos)
+      _cfg.ieta = row.ieta;
+      _cfg.iphi = row.iphi;
+      _cfg.depth = row.idepth;
+      _cfg.crate = row.crate;
+      _cfg.slot = row.slot;
+      if (row.topbottom.find("t") != std::string::npos)
         _cfg.topbottom = 1;
-      else if (row->topbottom.find("b") != std::string::npos)
+      else if (row.topbottom.find("b") != std::string::npos)
         _cfg.topbottom = 0;
-      else if (row->topbottom.find("u") != std::string::npos)
+      else if (row.topbottom.find("u") != std::string::npos)
         _cfg.topbottom = 2;
       else
         edm::LogWarning("HcalLutManager") << "fpga out of range...";
-      _cfg.fiber = row->fiber;
-      _cfg.fiberchan = row->fiberchan;
+      _cfg.fiber = row.fiber;
+      _cfg.fiberchan = row.fiberchan;
       _cfg.lut_type = 1;
       _cfg.creationtag = _tag;
       _cfg.creationstamp = get_time_stamp(time(nullptr));
@@ -800,26 +799,26 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getLinearizationLutXmlFro
       // "original" definition of GENERALIZEDINDEX from Mike Weinberger
       //    int generalizedIndex=id.ietaAbs()+1000*id.depth()+10000*id.iphi()+
       //        ((id.ieta()<0)?(0):(100))+((id.subdet()==HcalForward && id.ietaAbs()==29)?(4*10000):(0));
-      _cfg.generalizedindex = _cfg.iphi * 10000 + _cfg.depth * 1000 + (row->ieta > 0) * 100 + abs(row->ieta) +
-                              (((row->subdet.find("HF") != string::npos) && abs(row->ieta) == 29) ? (4 * 10000) : (0));
+      _cfg.generalizedindex = _cfg.iphi * 10000 + _cfg.depth * 1000 + (row.ieta > 0) * 100 + abs(row.ieta) +
+                              (((row.subdet.find("HF") != string::npos) && abs(row.ieta) == 29) ? (4 * 10000) : (0));
       HcalSubdetector _subdet;
-      if (row->subdet.find("HB") != string::npos)
+      if (row.subdet.find("HB") != string::npos)
         _subdet = HcalBarrel;
-      else if (row->subdet.find("HE") != string::npos)
+      else if (row.subdet.find("HE") != string::npos)
         _subdet = HcalEndcap;
-      else if (row->subdet.find("HO") != string::npos)
+      else if (row.subdet.find("HO") != string::npos)
         _subdet = HcalOuter;
-      else if (row->subdet.find("HF") != string::npos)
+      else if (row.subdet.find("HF") != string::npos)
         _subdet = HcalForward;
       else
         _subdet = HcalOther;
-      HcalDetId _detid(_subdet, row->ieta, row->iphi, row->idepth);
+      HcalDetId _detid(_subdet, row.ieta, row.iphi, row.idepth);
 
       for (const auto i : _coder.getLinearizationLUT(_detid))
         _cfg.lut.push_back(i);
 
       if (split_by_crate) {
-        _xml[row->crate]->addLut(_cfg, lut_checksums_xml);
+        _xml[row.crate]->addLut(_cfg, lut_checksums_xml);
         _counter.count();
       } else {
         _xml[0]->addLut(_cfg, lut_checksums_xml);
@@ -842,46 +841,46 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getHEFineGrainLUTs(std::s
 
   RooGKCounter _counter;
   //loop over all EMap channels
-  for (std::vector<EMap::EMapRow>::const_iterator row = _map.begin(); row != _map.end(); row++) {
-    if (row->subdet.find("HT") != string::npos && row->subdet.size() == 2) {
-      int abseta = abs(row->ieta);
+  for (const auto& row : _map) {
+    if (row.subdet.find("HT") != string::npos && row.subdet.size() == 2) {
+      int abseta = abs(row.ieta);
       const HcalTopology* topo = cq->topo();
       if (abseta <= topo->lastHBRing() or abseta > topo->lastHERing())
         continue;
-      if (abseta >= topo->firstHEDoublePhiRing() and row->fiberchan % 2 == 1)
+      if (abseta >= topo->firstHEDoublePhiRing() and row.fiberchan % 2 == 1)
         continue;  //do only actual physical towers
       LutXml::Config _cfg;
 
-      if (_xml.count(row->crate) == 0 && split_by_crate) {
-        _xml.insert(std::pair<int, std::shared_ptr<LutXml>>(row->crate, std::make_shared<LutXml>()));
+      if (_xml.count(row.crate) == 0 && split_by_crate) {
+        _xml.insert(std::pair<int, std::shared_ptr<LutXml>>(row.crate, std::make_shared<LutXml>()));
       } else if (_xml.count(0) == 0 && !split_by_crate) {
         _xml.insert(std::pair<int, std::shared_ptr<LutXml>>(0, std::make_shared<LutXml>()));
       }
-      _cfg.ieta = row->ieta;
-      _cfg.iphi = row->iphi;
-      _cfg.depth = row->idepth;
-      _cfg.crate = row->crate;
-      _cfg.slot = row->slot;
-      if (row->topbottom.find("t") != std::string::npos)
+      _cfg.ieta = row.ieta;
+      _cfg.iphi = row.iphi;
+      _cfg.depth = row.idepth;
+      _cfg.crate = row.crate;
+      _cfg.slot = row.slot;
+      if (row.topbottom.find("t") != std::string::npos)
         _cfg.topbottom = 1;
-      else if (row->topbottom.find("b") != std::string::npos)
+      else if (row.topbottom.find("b") != std::string::npos)
         _cfg.topbottom = 0;
-      else if (row->topbottom.find("u") != std::string::npos)
+      else if (row.topbottom.find("u") != std::string::npos)
         _cfg.topbottom = 2;
       else
         edm::LogWarning("HcalLutManager") << "fpga out of range...";
-      _cfg.fiber = row->fiber;
-      _cfg.fiberchan = row->fiberchan;
+      _cfg.fiber = row.fiber;
+      _cfg.fiberchan = row.fiberchan;
       _cfg.lut_type = 4;
       _cfg.creationtag = _tag;
       _cfg.creationstamp = get_time_stamp(time(nullptr));
       _cfg.targetfirmware = "1.0.0";
       _cfg.formatrevision = "1";  //???
-      _cfg.generalizedindex = _cfg.iphi * 10000 + _cfg.depth * 1000 + (row->ieta > 0) * 100 + abs(row->ieta) +
-                              (((row->subdet.find("HF") != string::npos) && abs(row->ieta) == 29) ? (4 * 10000) : (0));
+      _cfg.generalizedindex = _cfg.iphi * 10000 + _cfg.depth * 1000 + (row.ieta > 0) * 100 + abs(row.ieta) +
+                              (((row.subdet.find("HF") != string::npos) && abs(row.ieta) == 29) ? (4 * 10000) : (0));
       // fine grain LUTs only relevant for HE
       HcalSubdetector _subdet = HcalEndcap;
-      HcalDetId _detid(_subdet, row->ieta, row->iphi, row->idepth);
+      HcalDetId _detid(_subdet, row.ieta, row.iphi, row.idepth);
 
       HcalFinegrainBit fg_algo(conditions->getHcalTPParameters()->getFGVersionHBHE());
 
@@ -898,7 +897,7 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getHEFineGrainLUTs(std::s
       }
 
       if (split_by_crate) {
-        _xml[row->crate]->addLut(_cfg, lut_checksums_xml);
+        _xml[row.crate]->addLut(_cfg, lut_checksums_xml);
         _counter.count();
       } else {
         _xml[0]->addLut(_cfg, lut_checksums_xml);
@@ -938,48 +937,48 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getCompressionLutXmlFromC
   }
 
   RooGKCounter _counter;
-  for (std::vector<EMap::EMapRow>::const_iterator row = _map.begin(); row != _map.end(); row++) {
+  for (const auto& row : _map) {
     LutXml::Config _cfg;
 
-    if (row->subdet.find("HT") == std::string::npos)
+    if (row.subdet.find("HT") == std::string::npos)
       continue;
 
-    HcalTrigTowerDetId _detid(row->rawId);
+    HcalTrigTowerDetId _detid(row.rawId);
 
     if (!cq->topo()->validHT(_detid))
       continue;
 
-    if (_xml.count(row->crate) == 0 && split_by_crate) {
-      _xml.insert(std::pair<int, std::shared_ptr<LutXml>>(row->crate, std::make_shared<LutXml>()));
+    if (_xml.count(row.crate) == 0 && split_by_crate) {
+      _xml.insert(std::pair<int, std::shared_ptr<LutXml>>(row.crate, std::make_shared<LutXml>()));
     } else if (_xml.count(0) == 0 && !split_by_crate) {
       _xml.insert(std::pair<int, std::shared_ptr<LutXml>>(0, std::make_shared<LutXml>()));
     }
 
-    _cfg.ieta = row->ieta;
-    _cfg.iphi = row->iphi;
-    _cfg.depth = row->idepth;
-    _cfg.crate = row->crate;
-    _cfg.slot = row->slot;
-    if (row->topbottom.find("t") != std::string::npos)
+    _cfg.ieta = row.ieta;
+    _cfg.iphi = row.iphi;
+    _cfg.depth = row.idepth;
+    _cfg.crate = row.crate;
+    _cfg.slot = row.slot;
+    if (row.topbottom.find("t") != std::string::npos)
       _cfg.topbottom = 1;
-    else if (row->topbottom.find("b") != std::string::npos)
+    else if (row.topbottom.find("b") != std::string::npos)
       _cfg.topbottom = 0;
-    else if (row->topbottom.find("u") != std::string::npos)
+    else if (row.topbottom.find("u") != std::string::npos)
       _cfg.topbottom = 2;
     else
       edm::LogWarning("HcalLutManager") << "fpga out of range...";
-    _cfg.fiber = row->fiber;
-    _cfg.fiberchan = row->fiberchan;
+    _cfg.fiber = row.fiber;
+    _cfg.fiberchan = row.fiberchan;
     _cfg.lut_type = 2;
     _cfg.creationtag = _tag;
     _cfg.creationstamp = get_time_stamp(time(nullptr));
     _cfg.targetfirmware = "1.0.0";
     _cfg.formatrevision = "1";                                                           //???
-    _cfg.generalizedindex = _cfg.iphi * 10000 + (row->ieta > 0) * 100 + abs(row->ieta);  //is this used for anything?
+    _cfg.generalizedindex = _cfg.iphi * 10000 + (row.ieta > 0) * 100 + abs(row.ieta);    //is this used for anything?
 
     _cfg.lut = _coder.getCompressionLUT(_detid);
 
-    int crot = 100 * row->crate + row->slot;
+    int crot = 100 * row.crate + row.slot;
     unsigned int size = _cfg.lut.size();
     if (size < maxsize[crot]) {
       edm::LogWarning("HcalLutManager") << " resizing LUT for " << _detid << ", channel=[" << _cfg.crate << ":"
@@ -990,7 +989,7 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getCompressionLutXmlFromC
     }
 
     if (split_by_crate) {
-      _xml[row->crate]->addLut(_cfg, lut_checksums_xml);
+      _xml[row.crate]->addLut(_cfg, lut_checksums_xml);
       _counter.count();
     } else {
       _xml[0]->addLut(_cfg, lut_checksums_xml);
@@ -1025,33 +1024,33 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getCompressionLutXmlFromC
 
   //loop over all EMap channels
   RooGKCounter _counter;
-  for (std::vector<EMap::EMapRow>::const_iterator row = _map.begin(); row != _map.end(); row++) {
+  for (const auto& row : _map) {
     LutXml::Config _cfg;
 
     // only trigger tower channels
     // and valid (ieta,iphi)
-    const int tp_version = row->idepth / 10;
-    if (row->subdet.find("HT") != std::string::npos && _coder.HTvalid(row->ieta, row->iphi, tp_version)) {
-      if (_xml.count(row->crate) == 0 && split_by_crate) {
-        _xml.insert(std::pair<int, std::shared_ptr<LutXml>>(row->crate, std::make_shared<LutXml>()));
+    const int tp_version = row.idepth / 10;
+    if (row.subdet.find("HT") != std::string::npos && _coder.HTvalid(row.ieta, row.iphi, tp_version)) {
+      if (_xml.count(row.crate) == 0 && split_by_crate) {
+        _xml.insert(std::pair<int, std::shared_ptr<LutXml>>(row.crate, std::make_shared<LutXml>()));
       } else if (_xml.count(0) == 0 && !split_by_crate) {
         _xml.insert(std::pair<int, std::shared_ptr<LutXml>>(0, std::make_shared<LutXml>()));
       }
-      _cfg.ieta = row->ieta;
-      _cfg.iphi = row->iphi;
-      _cfg.depth = row->idepth;
-      _cfg.crate = row->crate;
-      _cfg.slot = row->slot;
-      if (row->topbottom.find("t") != std::string::npos)
+      _cfg.ieta = row.ieta;
+      _cfg.iphi = row.iphi;
+      _cfg.depth = row.idepth;
+      _cfg.crate = row.crate;
+      _cfg.slot = row.slot;
+      if (row.topbottom.find("t") != std::string::npos)
         _cfg.topbottom = 1;
-      else if (row->topbottom.find("b") != std::string::npos)
+      else if (row.topbottom.find("b") != std::string::npos)
         _cfg.topbottom = 0;
-      else if (row->topbottom.find("u") != std::string::npos)
+      else if (row.topbottom.find("u") != std::string::npos)
         _cfg.topbottom = 2;
       else
         edm::LogWarning("HcalLutManager") << "fpga out of range...";
-      _cfg.fiber = row->fiber;
-      _cfg.fiberchan = row->fiberchan;
+      _cfg.fiber = row.fiber;
+      _cfg.fiberchan = row.fiberchan;
       _cfg.lut_type = 2;
       _cfg.creationtag = _tag;
       _cfg.creationstamp = get_time_stamp(time(nullptr));
@@ -1060,16 +1059,16 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getCompressionLutXmlFromC
       // "original" definition of GENERALIZEDINDEX from Mike Weinberger
       //   int generalizedIndex=id.ietaAbs()+10000*id.iphi()+
       //       ((id.ieta()<0)?(0):(100));
-      _cfg.generalizedindex = _cfg.iphi * 10000 + (row->ieta > 0) * 100 + abs(row->ieta);
+      _cfg.generalizedindex = _cfg.iphi * 10000 + (row.ieta > 0) * 100 + abs(row.ieta);
 
       // FIXME: work around bug in emap v6: rawId wasn't filled
       //HcalTrigTowerDetId _detid(row->rawId);
-      HcalTrigTowerDetId _detid(row->ieta, row->iphi);
+      HcalTrigTowerDetId _detid(row.ieta, row.iphi);
 
       _cfg.lut = _coder.getCompressionLUT(_detid);
 
       if (split_by_crate) {
-        _xml[row->crate]->addLut(_cfg, lut_checksums_xml);
+        _xml[row.crate]->addLut(_cfg, lut_checksums_xml);
         _counter.count();
       } else {
         _xml[0]->addLut(_cfg, lut_checksums_xml);
@@ -1269,12 +1268,12 @@ int HcalLutManager::createAllLutXmlFilesLinAsciiCompCoder(std::string _tag,
 
 void HcalLutManager::addLutMap(std::map<int, std::shared_ptr<LutXml>>& result,
                                const std::map<int, std::shared_ptr<LutXml>>& other) {
-  for (std::map<int, std::shared_ptr<LutXml>>::const_iterator lut = other.begin(); lut != other.end(); lut++) {
-    edm::LogInfo("HcalLutManager") << "Added LUTs for crate " << lut->first;
-    if (result.count(lut->first) == 0) {
-      result.insert(*lut);
+  for (const auto& lut : other) {
+    edm::LogInfo("HcalLutManager") << "Added LUTs for crate " << lut.first;
+    if (result.count(lut.first) == 0) {
+      result.insert(lut);
     } else {
-      *(result[lut->first]) += *(lut->second);
+      *(result[lut.first]) += *(lut.second);
     }
   }
 }
@@ -1571,10 +1570,10 @@ int HcalLutManager::create_lut_loader(std::string file_list,
 
   std::vector<int> crate_number;
   std::vector<std::string> file_name = HcalQIEManager::splitString(file_list);
-  for (std::vector<std::string>::const_iterator _f = file_name.begin(); _f != file_name.end(); _f++) {
-    int crate_begin = _f->rfind("_");
-    int crate_end = _f->rfind(".xml.dat");
-    crate_number.push_back(getInt(_f->substr(crate_begin + 1, crate_end - crate_begin - 1)));
+  for (const auto& _f : file_name) {
+    int crate_begin = _f.rfind("_");
+    int crate_end = _f.rfind(".xml.dat");
+    crate_number.push_back(getInt(_f.substr(crate_begin + 1, crate_end - crate_begin - 1)));
   }
   //
   //_____ fix due to the new convention: version/subversion combo must be unique for every payload
@@ -1623,14 +1622,14 @@ void HcalLutManager::test_emap(void) {
 
   //loop over all EMap channels
   //RooGKCounter _c;
-  for (std::vector<EMap::EMapRow>::const_iterator row = _map.begin(); row != _map.end(); row++) {
+  for (const auto& row : _map) {
     // only trigger tower channels
-    if (row->subdet.find("HT") != std::string::npos) {
-      s << " -----> Subdet = " << row->subdet << std::endl;
+    if (row.subdet.find("HT") != std::string::npos) {
+      s << " -----> Subdet = " << row.subdet << std::endl;
 
-      if (abs(row->ieta) > 28) {
+      if (abs(row.ieta) > 28) {
         //if (row->iphi == 71){
-        s << " ==> (ieta,iphi) = " << row->ieta << ",	" << row->iphi << std::endl;
+        s << " ==> (ieta,iphi) = " << row.ieta << ",	" << row.iphi << std::endl;
       }
     }
   }
@@ -1724,31 +1723,31 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getZdcLutXml(std::string 
 
   //loop over all EMap channels
   RooGKCounter _counter;
-  for (std::vector<EMap::EMapRow>::const_iterator row = _map.begin(); row != _map.end(); row++) {
+  for (const auto& row : _map) {
     LutXml::Config _cfg;
 
     // only ZDC channels
-    if (row->zdc_section.find("ZDC") != std::string::npos) {
-      if (_xml.count(row->crate) == 0 && split_by_crate) {
-        _xml.insert(std::pair<int, std::shared_ptr<LutXml>>(row->crate, std::make_shared<LutXml>()));
+    if (row.zdc_section.find("ZDC") != std::string::npos) {
+      if (_xml.count(row.crate) == 0 && split_by_crate) {
+        _xml.insert(std::pair<int, std::shared_ptr<LutXml>>(row.crate, std::make_shared<LutXml>()));
       } else if (_xml.count(0) == 0 && !split_by_crate) {
         _xml.insert(std::pair<int, std::shared_ptr<LutXml>>(0, std::make_shared<LutXml>()));
       }
       //  FIXME: introduce proper tag names in ZDC bricks for logical channel info
-      _cfg.ieta = row->zdc_channel;  // int
+      _cfg.ieta = row.zdc_channel;  // int
       //_cfg.ieta = row->zdc_zside; // int
       //_cfg.iphi = row->zdc_section; // string
-      _cfg.depth = row->idepth;  // int
-      _cfg.crate = row->crate;
-      _cfg.slot = row->slot;
-      if (row->topbottom.find("t") != std::string::npos)
+      _cfg.depth = row.idepth;  // int
+      _cfg.crate = row.crate;
+      _cfg.slot = row.slot;
+      if (row.topbottom.find("t") != std::string::npos)
         _cfg.topbottom = 1;
-      else if (row->topbottom.find("b") != std::string::npos)
+      else if (row.topbottom.find("b") != std::string::npos)
         _cfg.topbottom = 0;
       else
         edm::LogWarning("HcalLutManager") << "fpga out of range...";
-      _cfg.fiber = row->fiber;
-      _cfg.fiberchan = row->fiberchan;
+      _cfg.fiber = row.fiber;
+      _cfg.fiberchan = row.fiberchan;
       _cfg.lut_type = 1;
       _cfg.creationtag = _tag;
       _cfg.creationstamp = get_time_stamp(time(nullptr));
@@ -1758,11 +1757,11 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getZdcLutXml(std::string 
 
       //HcalZDCDetId _detid(row->zdc_section, (row->zdc_zside>0), row->zdc_channel);
 
-      std::vector<int> coder_lut = zdc.get_lut(row->zdc_section, row->zdc_zside, row->zdc_channel);
+      std::vector<int> coder_lut = zdc.get_lut(row.zdc_section, row.zdc_zside, row.zdc_channel);
       edm::LogInfo("HcalLutManager") << "***DEBUG: ZDC lut size: " << coder_lut.size();
       if (!coder_lut.empty()) {
-        for (std::vector<int>::const_iterator _i = coder_lut.begin(); _i != coder_lut.end(); _i++) {
-          unsigned int _temp = (unsigned int)(*_i);
+        for (int _i : coder_lut) {
+          unsigned int _temp = (unsigned int)_i;
           //if (_temp!=0) std::cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << std::endl;
           //unsigned int _temp = 0;
           _cfg.lut.push_back(_temp);
@@ -1770,7 +1769,7 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getZdcLutXml(std::string 
         //_cfg.lut = _set.lut[lut_index];
 
         if (split_by_crate) {
-          _xml[row->crate]->addLut(_cfg, lut_checksums_xml);
+          _xml[row.crate]->addLut(_cfg, lut_checksums_xml);
           _counter.count();
         } else {
           _xml[0]->addLut(_cfg, lut_checksums_xml);

@@ -34,15 +34,15 @@ void RPCSimSimple::simulate(const RPCRoll* roll, const edm::PSimHitContainer& rp
   theRpcDigiSimLinks = RPCDigiSimLinks(roll->id().rawId());
 
   const Topology& topology = roll->specs()->topology();
-  for (edm::PSimHitContainer::const_iterator _hit = rpcHits.begin(); _hit != rpcHits.end(); ++_hit) {
+  for (const auto& rpcHit : rpcHits) {
     // Here I hould check if the RPC are up side down;
-    const LocalPoint& entr = _hit->entryPoint();
-    int time_hit = _rpcSync->getSimHitBx(&(*_hit), engine);
+    const LocalPoint& entr = rpcHit.entryPoint();
+    int time_hit = _rpcSync->getSimHitBx(&rpcHit, engine);
     //    const LocalPoint& exit=_hit->exitPoint();
 
     std::pair<int, int> digi(topology.channel(entr) + 1, time_hit);
 
-    theDetectorHitMap.insert(DetectorHitMap::value_type(digi, &(*_hit)));
+    theDetectorHitMap.insert(DetectorHitMap::value_type(digi, &rpcHit));
     strips.insert(digi);
   }
 }

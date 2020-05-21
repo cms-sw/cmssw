@@ -133,14 +133,14 @@ void CaloParticleValidation::dqmAnalyze(edm::Event const& iEvent,
   const auto& rechitsFH = *recHitHandleFH;
   const auto& rechitsBH = *recHitHandleBH;
   std::map<DetId, const HGCRecHit*> hitmap;
-  for (unsigned int i = 0; i < rechitsEE.size(); ++i) {
-    hitmap[rechitsEE[i].detid()] = &rechitsEE[i];
+  for (const auto& i : rechitsEE) {
+    hitmap[i.detid()] = &i;
   }
-  for (unsigned int i = 0; i < rechitsFH.size(); ++i) {
-    hitmap[rechitsFH[i].detid()] = &rechitsFH[i];
+  for (const auto& i : rechitsFH) {
+    hitmap[i.detid()] = &i;
   }
-  for (unsigned int i = 0; i < rechitsBH.size(); ++i) {
-    hitmap[rechitsBH[i].detid()] = &rechitsBH[i];
+  for (const auto& i : rechitsBH) {
+    hitmap[i.detid()] = &i;
   }
 
   Handle<std::vector<SimVertex>> simVerticesHandle;

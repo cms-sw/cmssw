@@ -103,9 +103,8 @@ void TauSpinnerCMS::produce(edm::Event &e, const edm::EventSetup &iSetup) {
       if (abs(X.pdgid()) == 24 || abs(X.pdgid()) == 37) {
         TLorentzVector tau_1r(0, 0, 0, 0);
         TLorentzVector tau_1(tau.px(), tau.py(), tau.pz(), tau.e());
-        for (unsigned int i = 0; i < tau_daughters.size(); i++) {
-          tau_1r += TLorentzVector(
-              tau_daughters.at(i).px(), tau_daughters.at(i).py(), tau_daughters.at(i).pz(), tau_daughters.at(i).e());
+        for (auto &tau_daughter : tau_daughters) {
+          tau_1r += TLorentzVector(tau_daughter.px(), tau_daughter.py(), tau_daughter.pz(), tau_daughter.e());
         }
         if (fabs(tau_1r.M() - tau_1.M()) < roundOff_) {
           WT = TauSpinner::calculateWeightFromParticlesWorHpn(
@@ -116,15 +115,11 @@ void TauSpinnerCMS::produce(edm::Event &e, const edm::EventSetup &iSetup) {
       } else if (X.pdgid() == 25 || X.pdgid() == 36 || X.pdgid() == 22 || X.pdgid() == 23) {
         TLorentzVector tau_1r(0, 0, 0, 0), tau_2r(0, 0, 0, 0);
         TLorentzVector tau_1(tau.px(), tau.py(), tau.pz(), tau.e()), tau_2(tau2.px(), tau2.py(), tau2.pz(), tau2.e());
-        for (unsigned int i = 0; i < tau_daughters.size(); i++) {
-          tau_1r += TLorentzVector(
-              tau_daughters.at(i).px(), tau_daughters.at(i).py(), tau_daughters.at(i).pz(), tau_daughters.at(i).e());
+        for (auto &tau_daughter : tau_daughters) {
+          tau_1r += TLorentzVector(tau_daughter.px(), tau_daughter.py(), tau_daughter.pz(), tau_daughter.e());
         }
-        for (unsigned int i = 0; i < tau_daughters2.size(); i++) {
-          tau_2r += TLorentzVector(tau_daughters2.at(i).px(),
-                                   tau_daughters2.at(i).py(),
-                                   tau_daughters2.at(i).pz(),
-                                   tau_daughters2.at(i).e());
+        for (auto &i : tau_daughters2) {
+          tau_2r += TLorentzVector(i.px(), i.py(), i.pz(), i.e());
         }
 
         if (fabs(tau_1r.M() - tau_1.M()) < roundOff_ && fabs(tau_2r.M() - tau_2.M()) < roundOff_) {
@@ -192,18 +187,18 @@ int TauSpinnerCMS::readParticlesfromReco(edm::Event &e,
                                          std::vector<SimpleParticle> &tau2_daughters) {
   edm::Handle<reco::GenParticleCollection> genParticles;
   e.getByToken(GenParticleCollectionToken_, genParticles);
-  for (reco::GenParticleCollection::const_iterator itr = genParticles->begin(); itr != genParticles->end(); ++itr) {
-    int pdgid = abs(itr->pdgId());
+  for (const auto &itr : *genParticles) {
+    int pdgid = abs(itr.pdgId());
     if (pdgid == 24 || pdgid == 37 || pdgid == 25 || pdgid == 36 || pdgid == 22 || pdgid == 23) {
-      const reco::GenParticle *hx = &(*itr);
+      const reco::GenParticle *hx = &itr;
       if (!isFirst(hx))
         continue;
       GetLastSelf(hx);
       const reco::GenParticle *recotau1 = nullptr;
       const reco::GenParticle *recotau2 = nullptr;
       unsigned int ntau(0), ntauornu(0);
-      for (unsigned int i = 0; i < itr->numberOfDaughters(); i++) {
-        const reco::Candidate *dau = itr->daughter(i);
+      for (unsigned int i = 0; i < itr.numberOfDaughters(); i++) {
+        const reco::Candidate *dau = itr.daughter(i);
         if (abs(dau->pdgId()) != pdgid) {
           if (abs(dau->pdgId()) == 15 || abs(dau->pdgId()) == 16) {
             if (ntau == 0 && abs(dau->pdgId()) == 15) {
@@ -222,11 +217,11 @@ int TauSpinnerCMS::readParticlesfromReco(edm::Event &e,
         }
       }
       if ((ntau == 2 && ntauornu == 2) || (ntau == 1 && ntauornu == 2)) {
-        X.setPx(itr->p4().Px());
-        X.setPy(itr->p4().Py());
-        X.setPz(itr->p4().Pz());
-        X.setE(itr->p4().E());
-        X.setPdgid(itr->pdgId());
+        X.setPx(itr.p4().Px());
+        X.setPy(itr.p4().Py());
+        X.setPz(itr.p4().Pz());
+        X.setE(itr.p4().E());
+        X.setPdgid(itr.pdgId());
         tau.setPx(recotau1->p4().Px());
         tau.setPy(recotau1->p4().Py());
         tau.setPz(recotau1->p4().Pz());

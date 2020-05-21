@@ -26,8 +26,8 @@ void CATopJetAlgorithm::run(const vector<fastjet::PseudoJet>& cell_particles,
 
   //make a list of input objects ordered by ET and calculate sum et
   // list of fastjet pseudojet constituents
-  for (unsigned i = 0; i < cell_particles.size(); ++i) {
-    sumEt += cell_particles[i].perp();
+  for (const auto& cell_particle : cell_particles) {
+    sumEt += cell_particle.perp();
   }
 
   // Determine which bin we are in for et clustering
@@ -92,9 +92,9 @@ void CATopJetAlgorithm::run(const vector<fastjet::PseudoJet>& cell_particles,
     cout << "Getting central jets" << endl;
   // Find the transient central jets
   vector<fastjet::PseudoJet> centralJets;
-  for (unsigned int i = 0; i < inclusiveJets.size(); i++) {
-    if (inclusiveJets[i].perp() > ptMin_ && fabs(inclusiveJets[i].rapidity()) < centralEtaCut_) {
-      centralJets.push_back(inclusiveJets[i]);
+  for (auto& inclusiveJet : inclusiveJets) {
+    if (inclusiveJet.perp() > ptMin_ && fabs(inclusiveJet.rapidity()) < centralEtaCut_) {
+      centralJets.push_back(inclusiveJet);
     }
   }
   // Sort the transient central jets in Et

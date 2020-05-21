@@ -244,14 +244,14 @@ TrajectorySeed MuonSeedCleaner::MoreRecHits(std::vector<TrajectorySeed>& seeds) 
 SeedContainer MuonSeedCleaner::LengthFilter(std::vector<TrajectorySeed>& seeds) {
   SeedContainer longSeeds;
   int NSegs = 0;
-  for (size_t i = 0; i < seeds.size(); i++) {
-    int theLength = static_cast<int>(seeds[i].nHits());
+  for (auto& seed : seeds) {
+    int theLength = static_cast<int>(seed.nHits());
     if (theLength > NSegs) {
       NSegs = theLength;
       longSeeds.clear();
-      longSeeds.push_back(seeds[i]);
+      longSeeds.push_back(seed);
     } else if (theLength == NSegs) {
-      longSeeds.push_back(seeds[i]);
+      longSeeds.push_back(seed);
     } else {
       continue;
     }
@@ -265,14 +265,14 @@ bool MuonSeedCleaner::MomentumFilter(std::vector<TrajectorySeed>& seeds) {
   bool findgoodMomentum = false;
   SeedContainer goodMomentumSeeds = seeds;
   seeds.clear();
-  for (size_t i = 0; i < goodMomentumSeeds.size(); i++) {
-    GlobalVector mom = SeedMomentum(goodMomentumSeeds[i]);
+  for (const auto& goodMomentumSeed : goodMomentumSeeds) {
+    GlobalVector mom = SeedMomentum(goodMomentumSeed);
     double pt = sqrt((mom.x() * mom.x()) + (mom.y() * mom.y()));
     if (pt < 6. || pt > 2000.)
       continue;
     //if ( pt < 6. ) continue;
     //std::cout<<" passed momentum :"<< pt <<std::endl;
-    seeds.push_back(goodMomentumSeeds[i]);
+    seeds.push_back(goodMomentumSeed);
     findgoodMomentum = true;
   }
   if (seeds.empty())
@@ -289,14 +289,13 @@ SeedContainer MuonSeedCleaner::SeedCandidates(std::vector<TrajectorySeed>& seeds
   bool withFirstLayer = false;
 
   //std::cout<<"***** Seed Classification *****"<< seeds.size() <<std::endl;
-  for (size_t i = 0; i < seeds.size(); i++) {
-    if (seeds[i].nHits() > 1)
+  for (auto& seed : seeds) {
+    if (seed.nHits() > 1)
       longSeed = true;
     //std::cout<<"  Seed: "<<i<<" w/"<<seeds[i].nHits()<<" segs "<<std::endl;
     // looking for 1st layer segment
     int idx = 0;
-    for (edm::OwnVector<TrackingRecHit>::const_iterator r1 = seeds[i].recHits().first; r1 != seeds[i].recHits().second;
-         r1++) {
+    for (edm::OwnVector<TrackingRecHit>::const_iterator r1 = seed.recHits().first; r1 != seed.recHits().second; r1++) {
       idx++;
       const GeomDet* gdet = theService->trackingGeometry()->idToDet((*r1).geographicalId());
       DetId geoId = gdet->geographicalId();
@@ -320,7 +319,7 @@ SeedContainer MuonSeedCleaner::SeedCandidates(std::vector<TrajectorySeed>& seeds
     bool goodseed = (longSeed && withFirstLayer) ? true : false;
 
     if (goodseed == good)
-      theCandidate.push_back(seeds[i]);
+      theCandidate.push_back(seed);
   }
   return theCandidate;
 }
@@ -460,8 +459,8 @@ int MuonSeedCleaner::NRecHitsFromSegment(const TrackingRecHit& rhit) {
     DTChamberId DT_Id(rhit.geographicalId());
     std::vector<TrackingRecHit*> DThits = theSeg->recHits();
     int dt1DHits = 0;
-    for (size_t j = 0; j < DThits.size(); j++) {
-      dt1DHits += (DThits[j]->recHits()).size();
+    for (auto& DThit : DThits) {
+      dt1DHits += (DThit->recHits()).size();
     }
     NRechits = dt1DHits;
   }
@@ -479,8 +478,8 @@ int MuonSeedCleaner::NRecHitsFromSegment(MuonTransientTrackingRecHit* rhit) {
     DTChamberId DT_Id(geoId);
     std::vector<TrackingRecHit*> DThits = rhit->recHits();
     int dt1DHits = 0;
-    for (size_t j = 0; j < DThits.size(); j++) {
-      dt1DHits += (DThits[j]->recHits()).size();
+    for (auto& DThit : DThits) {
+      dt1DHits += (DThit->recHits()).size();
     }
     NRechits = dt1DHits;
     //std::cout<<" D_rh("<< dt1DHits  <<") " ;

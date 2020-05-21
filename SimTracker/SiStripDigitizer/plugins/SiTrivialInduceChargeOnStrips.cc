@@ -297,10 +297,10 @@ void SiTrivialInduceChargeOnStrips::induceOriginal(const SiChargeCollectionDrift
   if (!collection_points.empty())
     count.dep(collection_points.size());
 
-  for (auto signalpoint = collection_points.begin(); signalpoint != collection_points.end(); signalpoint++) {
+  for (const auto& collection_point : collection_points) {
     //In strip coordinates:
-    double chargePosition = topology.strip(signalpoint->position());
-    double chargeSpread = signalpoint->sigma() / topology.localPitch(signalpoint->position());
+    double chargePosition = topology.strip(collection_point.position());
+    double chargeSpread = collection_point.sigma() / topology.localPitch(collection_point.position());
 
     size_t fromStrip = size_t(std::max(0, int(std::floor(chargePosition - Nsigma * chargeSpread))));
     size_t untilStrip = size_t(std::min(Nstrips, size_t(std::ceil(chargePosition + Nsigma * chargeSpread))));
@@ -308,7 +308,7 @@ void SiTrivialInduceChargeOnStrips::induceOriginal(const SiChargeCollectionDrift
     count.str(std::max(0, int(untilStrip) - int(fromStrip)));
     for (size_t strip = fromStrip; strip < untilStrip; strip++) {
       double chargeDepositedOnStrip =
-          chargeDeposited(strip, Nstrips, signalpoint->amplitude() / geVperElectron, chargeSpread, chargePosition);
+          chargeDeposited(strip, Nstrips, collection_point.amplitude() / geVperElectron, chargeSpread, chargePosition);
 
       size_t affectedFromStrip = size_t(std::max(0, int(strip - coupling.size() + 1)));
       size_t affectedUntilStrip = size_t(std::min(Nstrips, strip + coupling.size()));

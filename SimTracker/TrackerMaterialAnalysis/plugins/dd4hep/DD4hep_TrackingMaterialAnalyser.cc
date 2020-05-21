@@ -72,8 +72,8 @@ DD4hep_TrackingMaterialAnalyser::~DD4hep_TrackingMaterialAnalyser(void) {
 void DD4hep_TrackingMaterialAnalyser::saveParameters(const char* name) {
   std::ofstream parameters(name);
   std::cout << std::endl;
-  for (unsigned int i = 0; i < m_groups.size(); ++i) {
-    DD4hep_MaterialAccountingGroup& layer = *(m_groups[i]);
+  for (auto& m_group : m_groups) {
+    DD4hep_MaterialAccountingGroup& layer = *m_group;
     std::cout << layer.name() << std::endl;
     std::cout << boost::format("\tnumber of hits:               %9d") % layer.tracks() << std::endl;
     std::cout << boost::format("\tnormalized segment length:    %9.1f ± %9.1f cm") % layer.averageLength() %
@@ -101,8 +101,8 @@ void DD4hep_TrackingMaterialAnalyser::saveXml(const char* name) {
   std::ofstream xml(name);
   xml << "<?xml version=\"1.0\" encoding=\"utf-8\"?>" << std::endl;
   xml << "<Groups>" << std::endl;
-  for (unsigned int i = 0; i < m_groups.size(); ++i) {
-    DD4hep_MaterialAccountingGroup& layer = *(m_groups[i]);
+  for (auto& m_group : m_groups) {
+    DD4hep_MaterialAccountingGroup& layer = *m_group;
     xml << "  <Group name=\"" << layer.name() << "\">\n"
         << "    <Parameter name=\"TrackerRadLength\" value=\"" << layer.averageRadiationLengths() << "\"/>\n"
         << "    <Parameter name=\"TrackerXi\" value=\"" << layer.averageEnergyLoss() << "\"/>\n"
@@ -114,8 +114,8 @@ void DD4hep_TrackingMaterialAnalyser::saveXml(const char* name) {
 
 //-------------------------------------------------------------------------
 void DD4hep_TrackingMaterialAnalyser::saveLayerPlots() {
-  for (unsigned int i = 0; i < m_groups.size(); ++i) {
-    DD4hep_MaterialAccountingGroup& layer = *(m_groups[i]);
+  for (auto& m_group : m_groups) {
+    DD4hep_MaterialAccountingGroup& layer = *m_group;
     layer.savePlots();
   }
 }
@@ -150,8 +150,8 @@ void DD4hep_TrackingMaterialAnalyser::analyze(const edm::Event& event, const edm
   // sure it will never be repopulated with the same entries over and
   // over again in the eventloop, at each call of the analyze method.
   if (m_groups.empty()) {
-    for (unsigned int i = 0; i < m_groupNames.size(); ++i)
-      m_groups.push_back(new DD4hep_MaterialAccountingGroup(m_groupNames[i], *hDDD));
+    for (const auto& m_groupName : m_groupNames)
+      m_groups.push_back(new DD4hep_MaterialAccountingGroup(m_groupName, *hDDD));
 
     edm::LogVerbatim("TrackingMaterialAnalyser") << "TrackingMaterialAnalyser: List of the tracker groups: " << std::endl;
     for (unsigned int i = 0; i < m_groups.size(); ++i)
@@ -160,9 +160,7 @@ void DD4hep_TrackingMaterialAnalyser::analyze(const edm::Event& event, const edm
   Handle<std::vector<MaterialAccountingTrack> > h_tracks;
   event.getByToken(m_materialToken, h_tracks);
 
-  for (std::vector<MaterialAccountingTrack>::const_iterator t = h_tracks->begin(), end = h_tracks->end(); t != end;
-       ++t) {
-    MaterialAccountingTrack track(*t);
+  for (auto track : *h_tracks) {
     split(track);
   }
 }
@@ -326,8 +324,8 @@ void DD4hep_TrackingMaterialAnalyser::split(MaterialAccountingTrack& track) {
       m_groups[group[i] - 1]->addDetector(track.detectors()[i]);
 
   // end of track: commit internal buffers and reset the m_groups internal state for a new track
-  for (unsigned int i = 0; i < m_groups.size(); ++i)
-    m_groups[i]->endOfTrack();
+  for (auto& m_group : m_groups)
+    m_group->endOfTrack();
 }
 
 //-------------------------------------------------------------------------

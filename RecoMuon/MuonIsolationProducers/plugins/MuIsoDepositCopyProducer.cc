@@ -29,14 +29,14 @@ MuIsoDepositCopyProducer::MuIsoDepositCopyProducer(const ParameterSet& par)
     throw cms::Exception("MuIsoDepositCopyProducer constructor") << "the sizes of input/output vectors don't match";
   }
 
-  for (unsigned int i = 0; i < theDepositNames.size(); ++i) {
+  for (auto& theDepositName : theDepositNames) {
     std::string alias = theConfig.getParameter<std::string>("@module_label");
-    if (!theDepositNames[i].empty())
-      alias += "_" + theDepositNames[i];
-    produces<reco::IsoDepositMap>(theDepositNames[i]).setBranchAlias(alias);
+    if (!theDepositName.empty())
+      alias += "_" + theDepositName;
+    produces<reco::IsoDepositMap>(theDepositName).setBranchAlias(alias);
   }
-  for (unsigned int iDep = 0; iDep < theInputTags.size(); ++iDep)
-    theInputTokens.push_back(consumes<reco::IsoDepositMap>(theInputTags.at(iDep)));
+  for (const auto& theInputTag : theInputTags)
+    theInputTokens.push_back(consumes<reco::IsoDepositMap>(theInputTag));
 }
 
 //! destructor

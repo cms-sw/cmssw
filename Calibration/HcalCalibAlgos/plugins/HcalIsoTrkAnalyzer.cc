@@ -276,10 +276,10 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig)
   std::string prdnam = iConfig.getUntrackedParameter<std::string>("producerName", "");
   edm::InputTag algTag = iConfig.getParameter<edm::InputTag>("algInputTag");
   edm::InputTag extTag = iConfig.getParameter<edm::InputTag>("extInputTag");
-  for (unsigned int k = 0; k < oldID_.size(); ++k) {
-    oldDet_.emplace_back((oldID_[k] / 10000) % 10);
-    oldEta_.emplace_back((oldID_[k] / 100) % 100);
-    oldDepth_.emplace_back(oldID_[k] % 100);
+  for (int k : oldID_) {
+    oldDet_.emplace_back((k / 10000) % 10);
+    oldEta_.emplace_back((k / 100) % 100);
+    oldDepth_.emplace_back(k % 100);
   }
 
   l1GtUtils_ = new l1t::L1TGlobalUtil(iConfig, consumesCollector(), *this, algTag, extTag, l1t::UseEventSetupIn::Event);
@@ -593,8 +593,8 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
               std::vector<int> Keys;
               std::string label = triggerEvent.filterTag(ifilter).label();
               //loop over keys to objects passing this filter
-              for (unsigned int imodule = 0; imodule < moduleLabels.size(); imodule++) {
-                if (label.find(moduleLabels[imodule]) != std::string::npos) {
+              for (const auto& moduleLabel : moduleLabels) {
+                if (label.find(moduleLabel) != std::string::npos) {
 #ifdef EDM_ML_DEBUG
                   edm::LogVerbatim("HcalIsoTrack") << "FilterName " << label;
 #endif
@@ -625,14 +625,14 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
             //// deta, dphi and dR for leading L1 object with L2 objects
             math::XYZTLorentzVector mindRvec1;
             double mindR1(999);
-            for (unsigned int i = 0; i < vecL2.size(); i++) {
-              double dr = dR(vecL1[0], vecL2[i]);
+            for (auto& i : vecL2) {
+              double dr = dR(vecL1[0], i);
 #ifdef EDM_ML_DEBUG
               edm::LogVerbatim("HcalIsoTrack") << "lvl2[" << i << "] dR " << dr;
 #endif
               if (dr < mindR1) {
                 mindR1 = dr;
-                mindRvec1 = vecL2[i];
+                mindRvec1 = i;
               }
             }
 #ifdef EDM_ML_DEBUG
@@ -786,10 +786,10 @@ void HcalIsoTrkAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& i
     edm::LogVerbatim("HcalIsoTrack") << "New trigger menu found !!!";
 #endif
     const unsigned int n(hltConfig_.size());
-    for (unsigned itrig = 0; itrig < trigNames_.size(); itrig++) {
-      unsigned int triggerindx = hltConfig_.triggerIndex(trigNames_[itrig]);
+    for (const auto& trigName : trigNames_) {
+      unsigned int triggerindx = hltConfig_.triggerIndex(trigName);
       if (triggerindx >= n) {
-        edm::LogWarning("HcalIsoTrack") << trigNames_[itrig] << " " << triggerindx << " does not exist in "
+        edm::LogWarning("HcalIsoTrack") << trigName << " " << triggerindx << " does not exist in "
                                         << "the current menu";
 #ifdef EDM_ML_DEBUG
       } else {
@@ -925,8 +925,8 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
                                      << pTrack->eta() << "|" << pTrack->phi() << "|" << pTrack->p();
 #endif
     t_mindR2 = 999;
-    for (unsigned int k = 0; k < vecL3.size(); ++k) {
-      double dr = dR(vecL3[k], v4);
+    for (auto& k : vecL3) {
+      double dr = dR(k, v4);
       if (dr < t_mindR2) {
         t_mindR2 = dr;
       }
@@ -1150,8 +1150,8 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
                                   edet0,
                                   useRaw_);
         if (!oldID_.empty()) {
-          for (unsigned k = 0; k < ids.size(); ++k)
-            ids[k] = newId(ids[k]);
+          for (auto& id : ids)
+            id = newId(id);
         }
         storeEnergy(0, respCorrs, ids, edet0, t_eHcal, t_DetIds, t_HitEnergies);
 
@@ -1167,8 +1167,8 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
                                     edet1,
                                     useRaw_);
         if (!oldID_.empty()) {
-          for (unsigned k = 0; k < ids1.size(); ++k)
-            ids1[k] = newId(ids1[k]);
+          for (auto& k : ids1)
+            k = newId(k);
         }
         storeEnergy(1, respCorrs, ids1, edet1, t_eHcal10, t_DetIds1, t_HitEnergies1);
 
@@ -1184,8 +1184,8 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
                                     edet3,
                                     useRaw_);
         if (!oldID_.empty()) {
-          for (unsigned k = 0; k < ids3.size(); ++k)
-            ids3[k] = newId(ids3[k]);
+          for (auto& k : ids3)
+            k = newId(k);
         }
         storeEnergy(3, respCorrs, ids3, edet3, t_eHcal30, t_DetIds3, t_HitEnergies3);
 

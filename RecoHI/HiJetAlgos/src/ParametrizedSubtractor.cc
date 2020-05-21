@@ -15,8 +15,8 @@
 using namespace std;
 
 void ParametrizedSubtractor::rescaleRMS(double s) {
-  for (std::map<int, double>::iterator iter = esigma_.begin(); iter != esigma_.end(); ++iter) {
-    iter->second = s * (iter->second);
+  for (auto& iter : esigma_) {
+    iter.second = s * (iter.second);
   }
 }
 
@@ -71,11 +71,11 @@ void ParametrizedSubtractor::setupGeometryMap(edm::Event& iEvent, const edm::Eve
     int ietaold = -10000;
     ietamax_ = -10000;
     ietamin_ = 10000;
-    for (std::vector<DetId>::const_iterator did = alldid.begin(); did != alldid.end(); did++) {
-      if ((*did).det() == DetId::Hcal) {
-        HcalDetId hid = HcalDetId(*did);
+    for (auto did : alldid) {
+      if (did.det() == DetId::Hcal) {
+        HcalDetId hid = HcalDetId(did);
         if ((hid).depth() == 1) {
-          allgeomid_.push_back(*did);
+          allgeomid_.push_back(did);
 
           if ((hid).ieta() != ietaold) {
             ietaold = (hid).ieta();
@@ -110,10 +110,8 @@ void ParametrizedSubtractor::subtractPedestal(vector<fastjet::PseudoJet>& coll) 
     int it = -100;
     vector<fastjet::PseudoJet> newcoll;
 
-    for (vector<fastjet::PseudoJet>::iterator input_object = coll.begin(), fjInputsEnd = coll.end();
-         input_object != fjInputsEnd;
-         ++input_object) {
-      reco::CandidatePtr const& itow = (*inputs_)[input_object->user_index()];
+    for (auto& input_object : coll) {
+      reco::CandidatePtr const& itow = (*inputs_)[input_object.user_index()];
 
       it = ieta(itow);
       iphi(itow);
@@ -124,20 +122,20 @@ void ParametrizedSubtractor::subtractPedestal(vector<fastjet::PseudoJet>& coll) 
       }
 
       double etnew = Original_Et - getPU(it, true, true);
-      float mScale = etnew / input_object->Et();
+      float mScale = etnew / input_object.Et();
       if (etnew < 0.)
         mScale = 0.;
 
-      math::XYZTLorentzVectorD towP4(input_object->px() * mScale,
-                                     input_object->py() * mScale,
-                                     input_object->pz() * mScale,
-                                     input_object->e() * mScale);
+      math::XYZTLorentzVectorD towP4(input_object.px() * mScale,
+                                     input_object.py() * mScale,
+                                     input_object.pz() * mScale,
+                                     input_object.e() * mScale);
 
-      int index = input_object->user_index();
-      input_object->reset(towP4.px(), towP4.py(), towP4.pz(), towP4.energy());
-      input_object->set_user_index(index);
+      int index = input_object.user_index();
+      input_object.reset(towP4.px(), towP4.py(), towP4.pz(), towP4.energy());
+      input_object.set_user_index(index);
       if (etnew > 0. && dropZeroTowers_)
-        newcoll.push_back(*input_object);
+        newcoll.push_back(input_object);
     }
     if (dropZeroTowers_)
       coll = newcoll;
@@ -179,8 +177,8 @@ void ParametrizedSubtractor::offsetCorrectJets() {
     std::vector<fastjet::PseudoJet> towers = sorted_by_pt(fjClusterSeq_->constituents(*pseudojetTMP));
 
     double newjetet = 0.;
-    for (vector<fastjet::PseudoJet>::const_iterator ito = towers.begin(), towEnd = towers.end(); ito != towEnd; ++ito) {
-      const reco::CandidatePtr& originalTower = (*inputs_)[ito->user_index()];
+    for (const auto& tower : towers) {
+      const reco::CandidatePtr& originalTower = (*inputs_)[tower.user_index()];
       int it = ieta(originalTower);
       double Original_Et = originalTower->et();
 

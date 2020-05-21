@@ -193,8 +193,7 @@ int L1TOccupancyClientHistogramService::maskBins(string iHistName, TH2F* oHist, 
 
   // iAxis==1 : Means symmetry axis is vertical
   if (iAxis == 1) {
-    for (unsigned int i = 0; i < m.size(); i++) {
-      pair<int, int>& p = m[i];
+    for (auto& p : m) {
       if (p.first == iStrip) {
         oHist->SetBinContent(p.first, p.second, 0.0);
         count++;
@@ -203,8 +202,7 @@ int L1TOccupancyClientHistogramService::maskBins(string iHistName, TH2F* oHist, 
   }
   // iAxis==2 : Means symmetry axis is horizontal
   else if (iAxis == 2) {
-    for (unsigned int i = 0; i < m.size(); i++) {
-      pair<int, int>& p = m[i];
+    for (auto& p : m) {
       if (p.second == iStrip) {
         oHist->SetBinContent(p.first, p.second, 0.0);
         count++;
@@ -234,8 +232,8 @@ bool L1TOccupancyClientHistogramService::isMasked(string iHistName, int iBinX, i
 
   bool binIsMasked = false;
 
-  for (unsigned int i = 0; i < thisHistMaskedBins->size(); i++) {
-    if ((*thisHistMaskedBins)[i].first == iBinX && (*thisHistMaskedBins)[i].second == iBinY) {
+  for (auto& thisHistMaskedBin : *thisHistMaskedBins) {
+    if (thisHistMaskedBin.first == iBinX && thisHistMaskedBin.second == iBinY) {
       binIsMasked = true;
       break;
     }
@@ -261,8 +259,8 @@ bool L1TOccupancyClientHistogramService::isStripMasked(string iHistName, int iBi
   // If the histogram to be tested had strips defined along Y
   if (iAxis == 1) {
     int count = 0;
-    for (unsigned int i = 0; i < thisHistMaskedBins->size(); i++) {
-      if ((*thisHistMaskedBins)[i].first == iBinStrip) {
+    for (auto& thisHistMaskedBin : *thisHistMaskedBins) {
+      if (thisHistMaskedBin.first == iBinStrip) {
         count++;
       }
     }
@@ -271,8 +269,8 @@ bool L1TOccupancyClientHistogramService::isStripMasked(string iHistName, int iBi
   // If the histogram to be tested had strips defined along X
   else {
     int count = 0;
-    for (unsigned int i = 0; i < thisHistMaskedBins->size(); i++) {
-      if ((*thisHistMaskedBins)[i].second == iBinStrip) {
+    for (auto& thisHistMaskedBin : *thisHistMaskedBins) {
+      if (thisHistMaskedBin.second == iBinStrip) {
         count++;
       }
     }
@@ -343,9 +341,9 @@ TH2F* L1TOccupancyClientHistogramService::getRebinnedHistogram(DQMStore::IGetter
     int rebinFactorY = 1;
 
     vector<ParameterSet> testParameters = mParameters.getParameter<vector<ParameterSet> >("testParams");
-    for (unsigned int i = 0; i < testParameters.size(); i++) {
-      if (testParameters[i].getParameter<string>("testName") == iHistName) {
-        ParameterSet algoParameters = testParameters[i].getParameter<ParameterSet>("algoParams");
+    for (auto& testParameter : testParameters) {
+      if (testParameter.getParameter<string>("testName") == iHistName) {
+        ParameterSet algoParameters = testParameter.getParameter<ParameterSet>("algoParams");
         rebinFactorX = algoParameters.getUntrackedParameter<int>("rebinFactorX", 1);
         rebinFactorY = algoParameters.getUntrackedParameter<int>("rebinFactorY", 1);
         break;

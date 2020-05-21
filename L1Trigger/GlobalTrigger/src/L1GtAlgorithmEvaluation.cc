@@ -72,20 +72,20 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
 
   int opNumber = 0;
 
-  for (RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
+  for (const auto &it : m_rpnVector) {
     // LogTrace("L1GlobalTrigger")
     //<< "\nit->operation = " << it->operation
     //<< "\nit->operand =   '" << it->operand << "'\n"
     //<< std::endl;
 
-    switch (it->operation) {
+    switch (it.operation) {
       case L1GtLogicParser::OP_OPERAND: {
-        CItEvalMap itCond = (conditionResultMaps.at(chipNumber)).find(it->operand);
+        CItEvalMap itCond = (conditionResultMaps.at(chipNumber)).find(it.operand);
         if (itCond != (conditionResultMaps[chipNumber]).end()) {
           if (nullptr == itCond->second) {
             // it should never be happen, only valid conditions are in the maps
             throw cms::Exception("FailModule")
-                << "\nCondition " << (it->operand) << " NULL pointer found in condition map" << std::endl;
+                << "\nCondition " << (it.operand) << " NULL pointer found in condition map" << std::endl;
           }
 
           //
@@ -96,7 +96,7 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
           // only conditions are added to /counted in m_operandTokenVector
           // opNumber is the index of the condition in the logical expression
           OperandToken opToken;
-          opToken.tokenName = it->operand;
+          opToken.tokenName = it.operand;
           opToken.tokenNumber = opNumber;
           opToken.tokenResult = condResult;
 
@@ -110,7 +110,7 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
         } else {
           // it should never be happen, all conditions are in the maps
           throw cms::Exception("FailModule")
-              << "\nCondition " << (it->operand) << " not found in condition map" << std::endl;
+              << "\nCondition " << (it.operand) << " not found in condition map" << std::endl;
         }
 
       }

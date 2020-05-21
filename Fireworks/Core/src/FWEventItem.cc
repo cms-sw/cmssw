@@ -278,12 +278,9 @@ void FWEventItem::setDisplayProperties(int iIndex, const FWDisplayProperties& iP
 void FWEventItem::moveToFront() {
   assert(nullptr != m_context->eventItemsManager());
   int largest = layer();
-  for (FWEventItemsManager::const_iterator it = m_context->eventItemsManager()->begin(),
-                                           itEnd = m_context->eventItemsManager()->end();
-       it != itEnd;
-       ++it) {
-    if ((*it) && (*it != this) && (*it)->layer() > largest) {
-      largest = (*it)->layer();
+  for (auto it : *m_context->eventItemsManager()) {
+    if (it && (it != this) && it->layer() > largest) {
+      largest = it->layer();
     }
   }
 
@@ -299,12 +296,9 @@ void FWEventItem::moveToFront() {
 void FWEventItem::moveToBack() {
   assert(nullptr != m_context->eventItemsManager());
   int smallest = layer();
-  for (FWEventItemsManager::const_iterator it = m_context->eventItemsManager()->begin(),
-                                           itEnd = m_context->eventItemsManager()->end();
-       it != itEnd;
-       ++it) {
-    if ((*it) && (*it != this) && (*it)->layer() < smallest) {
-      smallest = (*it)->layer();
+  for (auto it : *m_context->eventItemsManager()) {
+    if (it && (it != this) && it->layer() < smallest) {
+      smallest = it->layer();
     }
   }
 
@@ -406,11 +400,8 @@ int FWEventItem::layer() const { return m_layer; }
 
 bool FWEventItem::isInFront() const {
   assert(nullptr != m_context->eventItemsManager());
-  for (FWEventItemsManager::const_iterator it = m_context->eventItemsManager()->begin(),
-                                           itEnd = m_context->eventItemsManager()->end();
-       it != itEnd;
-       ++it) {
-    if ((*it) && (*it != this) && (*it)->layer() >= layer()) {
+  for (auto it : *m_context->eventItemsManager()) {
+    if (it && (it != this) && it->layer() >= layer()) {
       return false;
     }
   }
@@ -419,11 +410,8 @@ bool FWEventItem::isInFront() const {
 
 bool FWEventItem::isInBack() const {
   assert(nullptr != m_context->eventItemsManager());
-  for (FWEventItemsManager::const_iterator it = m_context->eventItemsManager()->begin(),
-                                           itEnd = m_context->eventItemsManager()->end();
-       it != itEnd;
-       ++it) {
-    if ((*it) && (*it != this) && (*it)->layer() <= layer()) {
+  for (auto it : *m_context->eventItemsManager()) {
+    if (it && (it != this) && it->layer() <= layer()) {
       return false;
     }
   }

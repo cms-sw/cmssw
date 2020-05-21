@@ -10,8 +10,8 @@ JetPartonMatching::JetPartonMatching(const std::vector<const reco::Candidate*>& 
                                      const double maxDist = 0.3)
     : partons(p), algorithm_(algorithm), useMaxDist_(useMaxDist), useDeltaR_(useDeltaR), maxDist_(maxDist) {
   std::vector<const reco::Candidate*> js;
-  for (unsigned int i = 0; i < j.size(); ++i)
-    js.push_back(&(j[i]));
+  for (const auto& i : j)
+    js.push_back(&i);
   jets = js;
   calculate();
 }
@@ -24,8 +24,8 @@ JetPartonMatching::JetPartonMatching(const std::vector<const reco::Candidate*>& 
                                      const double maxDist = 0.3)
     : partons(p), algorithm_(algorithm), useMaxDist_(useMaxDist), useDeltaR_(useDeltaR), maxDist_(maxDist) {
   std::vector<const reco::Candidate*> js;
-  for (unsigned int i = 0; i < j.size(); ++i)
-    js.push_back(&(j[i]));
+  for (const auto& i : j)
+    js.push_back(&i);
   jets = js;
   calculate();
 }
@@ -38,8 +38,8 @@ JetPartonMatching::JetPartonMatching(const std::vector<const reco::Candidate*>& 
                                      const double maxDist = 0.3)
     : partons(p), algorithm_(algorithm), useMaxDist_(useMaxDist), useDeltaR_(useDeltaR), maxDist_(maxDist) {
   std::vector<const reco::Candidate*> js;
-  for (unsigned int i = 0; i < j.size(); ++i)
-    js.push_back(&(j[i]));
+  for (const auto& i : j)
+    js.push_back(&i);
   jets = js;
   calculate();
 }
@@ -65,8 +65,8 @@ void JetPartonMatching::calculate() {
   // event is not ttbar or the decay is
   // not as expected
   bool emptyParton = false;
-  for (unsigned int ip = 0; ip < partons.size(); ++ip) {
-    if (partons[ip]->pdgId() == 0) {
+  for (auto& parton : partons) {
+    if (parton->pdgId() == 0) {
       emptyParton = true;
       break;
     }
@@ -124,10 +124,10 @@ void JetPartonMatching::calculate() {
       sumDE = 0;
       sumDPt = 0;
       sumDR = 0;
-      for (unsigned int i = 0; i < match.size(); ++i) {
-        sumDE += fabs(partons[match[i].first]->energy() - jets[match[i].second]->energy());
-        sumDPt += fabs(partons[match[i].first]->pt() - jets[match[i].second]->pt());
-        sumDR += distance(partons[match[i].first]->p4(), jets[match[i].second]->p4());
+      for (auto& i : match) {
+        sumDE += fabs(partons[i.first]->energy() - jets[i.second]->energy());
+        sumDPt += fabs(partons[i.first]->pt() - jets[i.second]->pt());
+        sumDR += distance(partons[i.first]->p4(), jets[i.second]->p4());
       }
     }
 
@@ -253,8 +253,8 @@ void JetPartonMatching::matchingMinSumDist() {
       dummyMatch.push_back(std::make_pair(ip, -1));
     matching.push_back(dummyMatch);
   } else
-    for (unsigned int i = 0; i < distMatchVec.size(); ++i)
-      matching.push_back(distMatchVec[i].second);
+    for (auto& i : distMatchVec)
+      matching.push_back(i.second);
 
   return;
 }
@@ -277,12 +277,12 @@ void JetPartonMatching::matchingPtOrderedMinDist() {
 
   MatchingCollection match;
 
-  for (unsigned int ip = 0; ip < ptOrderedPartons.size(); ++ip) {
+  for (auto& ptOrderedParton : ptOrderedPartons) {
     double minDist = 999.;
     int ijMin = -1;
 
     for (unsigned int ij = 0; ij < jetIndices.size(); ++ij) {
-      double dist = distance(partons[ptOrderedPartons[ip].second]->p4(), jets[jetIndices[ij]]->p4());
+      double dist = distance(partons[ptOrderedParton.second]->p4(), jets[jetIndices[ij]]->p4());
       if (dist < minDist) {
         if (!useMaxDist_ || dist <= maxDist_) {
           minDist = dist;
@@ -292,10 +292,10 @@ void JetPartonMatching::matchingPtOrderedMinDist() {
     }
 
     if (ijMin >= 0) {
-      match.push_back(std::make_pair(ptOrderedPartons[ip].second, jetIndices[ijMin]));
+      match.push_back(std::make_pair(ptOrderedParton.second, jetIndices[ijMin]));
       jetIndices.erase(jetIndices.begin() + ijMin, jetIndices.begin() + ijMin + 1);
     } else
-      match.push_back(std::make_pair(ptOrderedPartons[ip].second, -1));
+      match.push_back(std::make_pair(ptOrderedParton.second, -1));
   }
 
   matching.clear();

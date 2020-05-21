@@ -383,8 +383,8 @@ namespace edm {
     void MessageLoggerScribe::log(ErrorObj* errorobj_p) {
       std::vector<std::string> categories;
       parseCategories(errorobj_p->xid().id, categories);
-      for (unsigned int icat = 0; icat < categories.size(); ++icat) {
-        errorobj_p->setID(categories[icat]);
+      for (const auto& categorie : categories) {
+        errorobj_p->setID(categorie);
         admin_p->log(*errorobj_p);  // route the message text
       }
     }
@@ -530,8 +530,7 @@ namespace edm {
       }
 
       // establish this destination's limit/interval/timespan for each category:
-      for (vString::const_iterator id_it = categories.begin(); id_it != categories.end(); ++id_it) {
-        String msgID = *id_it;
+      for (auto msgID : categories) {
         PSet default_category_pset = getAparameter<PSet>(default_pset, msgID, empty_PSet);  // change log 5
         PSet category_pset = getAparameter<PSet>(dest_pset, msgID, default_category_pset);
 
@@ -579,8 +578,7 @@ namespace edm {
       }  // for
 
       // establish this destination's limit for each severity:
-      for (vString::const_iterator sev_it = severities.begin(); sev_it != severities.end(); ++sev_it) {
-        String sevID = *sev_it;
+      for (auto sevID : severities) {
         ELseverityLevel severity(sevID);
         PSet default_sev_pset = getAparameter<PSet>(default_pset, sevID, empty_PSet);
         PSet sev_pset = getAparameter<PSet>(dest_pset, sevID, default_sev_pset);
@@ -662,8 +660,7 @@ namespace edm {
         early_dest->setThreshold(ELhighestSeverity);
 
       // establish each destination:
-      for (vString::const_iterator it = destinations.begin(); it != destinations.end(); ++it) {
-        String filename = *it;
+      for (auto filename : destinations) {
         String psetname = filename;
 
         // check that this destination is not just a placeholder // change log 11
@@ -781,8 +778,7 @@ namespace edm {
       }
 
       // establish each statistics destination:
-      for (vString::const_iterator it = statistics.begin(); it != statistics.end(); ++it) {
-        String statname = *it;
+      for (auto statname : statistics) {
         const String& psetname = statname;
 
         // check that this destination is not just a placeholder // change log 20

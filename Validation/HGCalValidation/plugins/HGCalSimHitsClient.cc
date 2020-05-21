@@ -74,19 +74,19 @@ void HGCalSimHitsClient::runClient_(DQMStore::IBooker &ib, DQMStore::IGetter &ig
   std::vector<MonitorElement *> hgcalMEs;
   std::vector<std::string> fullDirPath = ig.getSubdirs();
 
-  for (unsigned int i = 0; i < fullDirPath.size(); i++) {
+  for (const auto &i : fullDirPath) {
     if (verbosity_ > 0)
-      edm::LogVerbatim("HGCalValidation") << "fullPath: " << fullDirPath.at(i);
-    ig.setCurrentFolder(fullDirPath.at(i));
+      edm::LogVerbatim("HGCalValidation") << "fullPath: " << i;
+    ig.setCurrentFolder(i);
     std::vector<std::string> fullSubDirPath = ig.getSubdirs();
 
-    for (unsigned int j = 0; j < fullSubDirPath.size(); j++) {
+    for (auto &j : fullSubDirPath) {
       if (verbosity_ > 0)
-        edm::LogVerbatim("HGCalValidation") << "fullSubPath: " << fullSubDirPath.at(j);
+        edm::LogVerbatim("HGCalValidation") << "fullSubPath: " << j;
       std::string nameDirectory = "HGCAL/HGCalSimHitsV/" + nameDetector_;
 
-      if (strcmp(fullSubDirPath.at(j).c_str(), nameDirectory.c_str()) == 0) {
-        hgcalMEs = ig.getContents(fullSubDirPath.at(j));
+      if (strcmp(j.c_str(), nameDirectory.c_str()) == 0) {
+        hgcalMEs = ig.getContents(j);
         if (verbosity_ > 0)
           edm::LogVerbatim("HGCalValidation") << "hgcalMES size : " << hgcalMEs.size();
         if (!simHitsEndjob(hgcalMEs))
@@ -110,9 +110,9 @@ int HGCalSimHitsClient::simHitsEndjob(const std::vector<MonitorElement *> &hgcal
       //Energy
       name.str("");
       name << "energy_time_" << itimeslice << "_layer_" << ilayer;
-      for (unsigned int ih = 0; ih < hgcalMEs.size(); ih++) {
-        if (strcmp(hgcalMEs[ih]->getName().c_str(), name.str().c_str()) == 0) {
-          energy_[itimeslice].push_back(hgcalMEs[ih]);
+      for (auto hgcalME : hgcalMEs) {
+        if (strcmp(hgcalME->getName().c_str(), name.str().c_str()) == 0) {
+          energy_[itimeslice].push_back(hgcalME);
         }
       }
       //normalization
@@ -128,18 +128,18 @@ int HGCalSimHitsClient::simHitsEndjob(const std::vector<MonitorElement *> &hgcal
     name.str("");
     name << "EtaPhi_Plus_"
          << "layer_" << ilayer;
-    for (unsigned int ih = 0; ih < hgcalMEs.size(); ih++) {
-      if (strcmp(hgcalMEs[ih]->getName().c_str(), name.str().c_str()) == 0) {
-        EtaPhi_Plus_.push_back(hgcalMEs[ih]);
+    for (auto hgcalME : hgcalMEs) {
+      if (strcmp(hgcalME->getName().c_str(), name.str().c_str()) == 0) {
+        EtaPhi_Plus_.push_back(hgcalME);
       }
     }
 
     name.str("");
     name << "EtaPhi_Minus_"
          << "layer_" << ilayer;
-    for (unsigned int ih = 0; ih < hgcalMEs.size(); ih++) {
-      if (strcmp(hgcalMEs[ih]->getName().c_str(), name.str().c_str()) == 0) {
-        EtaPhi_Minus_.push_back(hgcalMEs[ih]);
+    for (auto hgcalME : hgcalMEs) {
+      if (strcmp(hgcalME->getName().c_str(), name.str().c_str()) == 0) {
+        EtaPhi_Minus_.push_back(hgcalME);
       }
     }
     //normalization EtaPhi
@@ -166,16 +166,16 @@ int HGCalSimHitsClient::simHitsEndjob(const std::vector<MonitorElement *> &hgcal
     //HitOccupancy
     name.str("");
     name << "HitOccupancy_Plus_layer_" << ilayer;
-    for (unsigned int ih = 0; ih < hgcalMEs.size(); ih++) {
-      if (strcmp(hgcalMEs[ih]->getName().c_str(), name.str().c_str()) == 0) {
-        HitOccupancy_Plus_.push_back(hgcalMEs[ih]);
+    for (auto hgcalME : hgcalMEs) {
+      if (strcmp(hgcalME->getName().c_str(), name.str().c_str()) == 0) {
+        HitOccupancy_Plus_.push_back(hgcalME);
       }
     }
     name.str("");
     name << "HitOccupancy_Minus_layer_" << ilayer;
-    for (unsigned int ih = 0; ih < hgcalMEs.size(); ih++) {
-      if (strcmp(hgcalMEs[ih]->getName().c_str(), name.str().c_str()) == 0) {
-        HitOccupancy_Minus_.push_back(hgcalMEs[ih]);
+    for (auto hgcalME : hgcalMEs) {
+      if (strcmp(hgcalME->getName().c_str(), name.str().c_str()) == 0) {
+        HitOccupancy_Minus_.push_back(hgcalME);
       }
     }
 
@@ -197,9 +197,9 @@ int HGCalSimHitsClient::simHitsEndjob(const std::vector<MonitorElement *> &hgcal
 
   name.str("");
   name << "MeanHitOccupancy_Plus";
-  for (unsigned int ih = 0; ih < hgcalMEs.size(); ih++) {
-    if (strcmp(hgcalMEs[ih]->getName().c_str(), name.str().c_str()) == 0) {
-      MeanHitOccupancy_Plus_ = hgcalMEs[ih];
+  for (auto hgcalME : hgcalMEs) {
+    if (strcmp(hgcalME->getName().c_str(), name.str().c_str()) == 0) {
+      MeanHitOccupancy_Plus_ = hgcalME;
       for (int ilayer = 0; ilayer < static_cast<int>(layers_); ++ilayer) {
         double meanVal = HitOccupancy_Plus_.at(ilayer)->getMean();
         MeanHitOccupancy_Plus_->setBinContent(ilayer + 1, meanVal);
@@ -210,9 +210,9 @@ int HGCalSimHitsClient::simHitsEndjob(const std::vector<MonitorElement *> &hgcal
 
   name.str("");
   name << "MeanHitOccupancy_Minus";
-  for (unsigned int ih = 0; ih < hgcalMEs.size(); ih++) {
-    if (strcmp(hgcalMEs[ih]->getName().c_str(), name.str().c_str()) == 0) {
-      MeanHitOccupancy_Minus_ = hgcalMEs[ih];
+  for (auto hgcalME : hgcalMEs) {
+    if (strcmp(hgcalME->getName().c_str(), name.str().c_str()) == 0) {
+      MeanHitOccupancy_Minus_ = hgcalME;
       for (int ilayer = 0; ilayer < static_cast<int>(layers_); ++ilayer) {
         double meanVal = HitOccupancy_Minus_.at(ilayer)->getMean();
         MeanHitOccupancy_Minus_->setBinContent(ilayer + 1, meanVal);

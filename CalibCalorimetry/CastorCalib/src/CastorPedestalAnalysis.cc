@@ -23,8 +23,8 @@ CastorPedestalAnalysis::CastorPedestalAnalysis(const edm::ParameterSet& ps)
   sample = 0;
   m_file = nullptr;
   m_AllPedsOK = 0;
-  for (int i = 0; i < 4; i++)
-    m_stat[i] = 0;
+  for (float& i : m_stat)
+    i = 0;
   for (int k = 0; k < 4; k++)
     state.push_back(true);
 
@@ -109,8 +109,8 @@ void CastorPedestalAnalysis::processEvent(const CastorDigiCollection& castor, co
   try {
     if (castor.empty())
       throw(int) castor.size();
-    for (CastorDigiCollection::const_iterator j = castor.begin(); j != castor.end(); ++j) {
-      const CastorDataFrame digi = (const CastorDataFrame)(*j);
+    for (const auto& j : castor) {
+      const CastorDataFrame digi = (const CastorDataFrame)j;
       m_coder = cond.getCastorCoder(digi.id());
       for (int i = m_startTS; i < digi.size() && i <= m_endTS; i++) {
         for (int flag = 0; flag < 4; flag++) {
@@ -737,16 +737,16 @@ int CastorPedestalAnalysis::CastorPedVal(int nstat[4],
   if (nstat[0] + nstat[1] + nstat[2] + nstat[3] < 2500)
     PedValLog << "CastorPedVal: warning - low statistics" << std::endl;
   // find complete list of channels in current data and reference
-  for (int i = 0; i < (int)RawChanns.size(); i++) {
-    isinRef[HcalDetId(RawChanns[i])] = false;
+  for (auto RawChann : RawChanns) {
+    isinRef[HcalDetId(RawChann)] = false;
   }
-  for (int i = 0; i < (int)RefChanns.size(); i++) {
-    detid = HcalDetId(RefChanns[i]);
+  for (auto RefChann : RefChanns) {
+    detid = HcalDetId(RefChann);
     isinRaw[detid] = false;
     isinRef[detid] = true;
   }
-  for (int i = 0; i < (int)RawChanns.size(); i++) {
-    detid = HcalDetId(RawChanns[i]);
+  for (auto RawChann : RawChanns) {
+    detid = HcalDetId(RawChann);
     isinRaw[detid] = true;
     if (isinRef[detid] == false) {
       PedValLog << "CastorPedVal: channel " << detid << " not found in reference set" << std::endl;
@@ -756,8 +756,8 @@ int CastorPedestalAnalysis::CastorPedVal(int nstat[4],
 
   // main loop over channels
   int erflag = 0;
-  for (int i = 0; i < (int)RefChanns.size(); i++) {
-    detid = HcalDetId(RefChanns[i]);
+  for (auto RefChann : RefChanns) {
+    detid = HcalDetId(RefChann);
     for (int icap = 0; icap < 4; icap++) {
       RefPedVals[icap] = fRefPedestals->getValues(detid)->getValue(icap);
       for (int icap2 = icap; icap2 < 4; icap2++) {
@@ -847,8 +847,8 @@ int CastorPedestalAnalysis::CastorPedVal(int nstat[4],
   // now construct the remaining part of the validated objects
   // if nothing changed outside tolerance, validated set = reference set
   if (erflag % 100000 == 0) {
-    for (int i = 0; i < (int)RefChanns.size(); i++) {
-      detid = HcalDetId(RefChanns[i]);
+    for (auto RefChann : RefChanns) {
+      detid = HcalDetId(RefChann);
       if (isinRaw[detid]) {
         CastorPedestalWidth widthsp(detid);
         for (int icap = 0; icap < 4; icap++) {
@@ -869,8 +869,8 @@ int CastorPedestalAnalysis::CastorPedVal(int nstat[4],
 
   // if anything changed, validated set = raw set + reference for missing/bad channels
   else {
-    for (int i = 0; i < (int)RawChanns.size(); i++) {
-      detid = HcalDetId(RawChanns[i]);
+    for (auto RawChann : RawChanns) {
+      detid = HcalDetId(RawChann);
       if (isinRaw[detid]) {
         CastorPedestalWidth widthsp(detid);
         for (int icap = 0; icap < 4; icap++) {

@@ -32,8 +32,8 @@ EcalPedHists::EcalPedHists(const edm::ParameterSet& ps)
     //if "actual" EB id given, then convert to FEDid and put in listFEDs_
     if (!listEBs_.empty()) {
       listFEDs_.clear();
-      for (vector<string>::const_iterator itr = listEBs_.begin(); itr != listEBs_.end(); ++itr) {
-        listFEDs_.push_back(fedMap_->getFedFromSlice(*itr));
+      for (const auto& listEB : listEBs_) {
+        listFEDs_.push_back(fedMap_->getFedFromSlice(listEB));
       }
     }
   } else if (listFEDs_[0] == -1) {
@@ -51,14 +51,14 @@ EcalPedHists::EcalPedHists(const edm::ParameterSet& ps)
 
   if (!allFEDsSelected_) {
     // Verify FED numbers are valid
-    for (vector<int>::const_iterator intIter = listFEDs_.begin(); intIter != listFEDs_.end(); intIter++) {
-      if (((*intIter) < 601) || (654 < (*intIter))) {
-        cout << "[EcalPedHists] FED value: " << (*intIter) << " found in listFEDs. "
+    for (int listFED : listFEDs_) {
+      if ((listFED < 601) || (654 < listFED)) {
+        cout << "[EcalPedHists] FED value: " << listFED << " found in listFEDs. "
              << " Valid range is 601-654. Returning." << endl;
         inputIsOk_ = false;
         return;
       } else
-        theRealFedSet_.insert(*intIter);
+        theRealFedSet_.insert(listFED);
     }
   }
 
@@ -118,23 +118,23 @@ void EcalPedHists::endJob(void) {
 
     TFile root_file_(fileName_.c_str(), "RECREATE");
     //Loop over FEDs first
-    for (set<int>::const_iterator FEDitr = theRealFedSet_.begin(); FEDitr != theRealFedSet_.end(); ++FEDitr) {
+    for (int FEDitr : theRealFedSet_) {
       if (!histsFilled_)
         break;
-      string dir = fedMap_->getSliceFromFed(*FEDitr);
+      string dir = fedMap_->getSliceFromFed(FEDitr);
       TDirectory* FEDdir = gDirectory->mkdir(dir.c_str());
       FEDdir->cd();
       //root_file_.mkdir(dir.c_str());
       //root_file_.cd(dir.c_str());
-      map<string, TH1F*> mapHistos = FEDsAndHistMaps_[*FEDitr];
+      map<string, TH1F*> mapHistos = FEDsAndHistMaps_[FEDitr];
 
       //Loop over channels; write histos and directory structure
-      for (vector<int>::const_iterator itr = listChannels_.begin(); itr != listChannels_.end(); itr++) {
+      for (int listChannel : listChannels_) {
         //debug
         //cout << "loop over channels" << endl;
 
         TH1F* hist = nullptr;
-        string chnl = intToString(*itr);
+        string chnl = intToString(listChannel);
         string name1 = "Cry";
         name1.append(chnl + "Gain1");
         string name2 = "Cry";
@@ -184,17 +184,16 @@ void EcalPedHists::analyze(const edm::Event& e, const edm::EventSetup& c) {
       return;
     }
 
-    for (EcalRawDataCollection::const_iterator headerItr = DCCHeaders->begin(); headerItr != DCCHeaders->end();
-         ++headerItr) {
-      int FEDid = 600 + headerItr->id();
+    for (const auto& headerItr : *DCCHeaders) {
+      int FEDid = 600 + headerItr.id();
       theRealFedSet_.insert(FEDid);
     }
   }
 
   // loop over fed list and make sure that there are histo maps
-  for (set<int>::const_iterator fedItr = theRealFedSet_.begin(); fedItr != theRealFedSet_.end(); ++fedItr) {
-    if (FEDsAndHistMaps_.find(*fedItr) == FEDsAndHistMaps_.end())
-      initHists(*fedItr);
+  for (int fedItr : theRealFedSet_) {
+    if (FEDsAndHistMaps_.find(fedItr) == FEDsAndHistMaps_.end())
+      initHists(fedItr);
   }
 
   //debug
@@ -242,10 +241,10 @@ void EcalPedHists::initHists(int FED) {
   std::map<string, TH1F*> histMap;
   //debug
   //cout << "Initializing map for FED:" << *FEDitr << endl;
-  for (vector<int>::const_iterator intIter = listChannels_.begin(); intIter != listChannels_.end(); ++intIter) {
+  for (int listChannel : listChannels_) {
     //Put 3 histos (1 per gain) for the channel into the map
     string FEDid = intToString(FED);
-    string chnl = intToString(*intIter);
+    string chnl = intToString(listChannel);
     string title1 = "Gain1 ADC Counts for channel ";
     title1.append(chnl);
     string name1 = "Cry";
@@ -297,7 +296,7 @@ void EcalPedHists::readEBdigis(edm::Handle<EBDigiCollection> digis) {
 
     // Get the adc counts from the selected samples and fill the corresponding histogram
     // Must subtract 1 from user-given sample list (e.g., user's sample 1 -> sample 0)
-    for (vector<int>::iterator itr = listSamples_.begin(); itr != listSamples_.end(); itr++) {
+    for (int& listSample : listSamples_) {
       histsFilled_ = true;
       map<string, TH1F*> mapHistos = FEDsAndHistMaps_[FEDid];
       string chnl = intToString(crystalId);
@@ -308,14 +307,14 @@ void EcalPedHists::readEBdigis(edm::Handle<EBDigiCollection> digis) {
       string name3 = "Cry";
       name3.append(chnl + "Gain12");
       TH1F* hist = nullptr;
-      if (((EBDataFrame)(*digiItr)).sample(*itr - 1).gainId() == 3)
+      if (((EBDataFrame)(*digiItr)).sample(listSample - 1).gainId() == 3)
         hist = mapHistos[name1];
-      if (((EBDataFrame)(*digiItr)).sample(*itr - 1).gainId() == 2)
+      if (((EBDataFrame)(*digiItr)).sample(listSample - 1).gainId() == 2)
         hist = mapHistos[name2];
-      if (((EBDataFrame)(*digiItr)).sample(*itr - 1).gainId() == 1)
+      if (((EBDataFrame)(*digiItr)).sample(listSample - 1).gainId() == 1)
         hist = mapHistos[name3];
       if (hist != nullptr)
-        hist->Fill(((EBDataFrame)(*digiItr)).sample(*itr - 1).adc());
+        hist->Fill(((EBDataFrame)(*digiItr)).sample(listSample - 1).adc());
       else
         cerr << "EcalPedHistDumper: Error: This shouldn't happen!" << endl;
     }
@@ -348,7 +347,7 @@ void EcalPedHists::readEEdigis(edm::Handle<EEDigiCollection> digis) {
 
     // Get the adc counts from the selected samples and fill the corresponding histogram
     // Must subtract 1 from user-given sample list (e.g., user's sample 1 -> sample 0)
-    for (vector<int>::iterator itr = listSamples_.begin(); itr != listSamples_.end(); itr++) {
+    for (int& listSample : listSamples_) {
       histsFilled_ = true;
       map<string, TH1F*> mapHistos = FEDsAndHistMaps_[FEDid];
       string chnl = intToString(crystalId);
@@ -359,14 +358,14 @@ void EcalPedHists::readEEdigis(edm::Handle<EEDigiCollection> digis) {
       string name3 = "Cry";
       name3.append(chnl + "Gain12");
       TH1F* hist = nullptr;
-      if (((EBDataFrame)(*digiItr)).sample(*itr - 1).gainId() == 3)
+      if (((EBDataFrame)(*digiItr)).sample(listSample - 1).gainId() == 3)
         hist = mapHistos[name1];
-      if (((EBDataFrame)(*digiItr)).sample(*itr - 1).gainId() == 2)
+      if (((EBDataFrame)(*digiItr)).sample(listSample - 1).gainId() == 2)
         hist = mapHistos[name2];
-      if (((EBDataFrame)(*digiItr)).sample(*itr - 1).gainId() == 1)
+      if (((EBDataFrame)(*digiItr)).sample(listSample - 1).gainId() == 1)
         hist = mapHistos[name3];
       if (hist != nullptr)
-        hist->Fill(((EBDataFrame)(*digiItr)).sample(*itr - 1).adc());
+        hist->Fill(((EBDataFrame)(*digiItr)).sample(listSample - 1).adc());
       else
         cerr << "EcalPedHistDumper: Error: This shouldn't happen!" << endl;
     }

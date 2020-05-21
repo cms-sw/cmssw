@@ -324,16 +324,16 @@ void TrackMergeremb<reco::PFCandidateCollection>::merg_and_put(
   for (auto akt_collection : to_merge) {
     edm::Handle<reco::PFCandidateCollection> track_col_in;
     iEvent.getByToken(akt_collection, track_col_in);
-    for (reco::PFCandidateCollection::const_iterator it = track_col_in->begin(); it != track_col_in->end(); ++it) {
-      outTracks->push_back(reco::PFCandidate(*it));
+    for (const auto& it : *track_col_in) {
+      outTracks->push_back(reco::PFCandidate(it));
       //if (fabs(it->pdgId()) == 13){
-      if (it->trackRef().isNonnull() && outTracks->back().charge()) {
+      if (it.trackRef().isNonnull() && outTracks->back().charge()) {
         //std::cout<<"pfmerge tr: "<<it->trackRef().id()<< " "<< it->trackRef().key()<< " " << simple_track_to_track_map[it->trackRef()].id() <<  " " << simple_track_to_track_map[it->trackRef()].key() <<std::endl;
-        outTracks->back().setTrackRef(simple_track_to_track_map[it->trackRef()]);
+        outTracks->back().setTrackRef(simple_track_to_track_map[it.trackRef()]);
       }
-      if (it->muonRef().isNonnull()) {
+      if (it.muonRef().isNonnull()) {
         //std::cout<<"pfmerge mu: "<<it->muonRef().id()<< " "<< it->muonRef().key()<< " " << simple_mu_to_mu_map[it->muonRef()].id() <<  " " << simple_mu_to_mu_map[it->muonRef()].key() <<std::endl;
-        outTracks->back().setMuonRef(simple_mu_to_mu_map[it->muonRef()]);
+        outTracks->back().setMuonRef(simple_mu_to_mu_map[it.muonRef()]);
       }
     }
   }  // end merge

@@ -80,18 +80,14 @@ namespace edm {
       //find overlaps between services in iToken and iConfiguration
       typedef std::set<TypeIDBase> TypeSet;
       TypeSet configTypes;
-      for (Type2Maker::iterator itType = type2Maker_->begin(), itTypeEnd = type2Maker_->end(); itType != itTypeEnd;
-           ++itType) {
-        configTypes.insert(itType->first);
+      for (auto& itType : *type2Maker_) {
+        configTypes.insert(itType.first);
       }
 
       TypeSet tokenTypes;
       if (nullptr != iToken.manager_.get()) {
-        for (Type2Service::iterator itType = iToken.manager_->type2Service_.begin(),
-                                    itTypeEnd = iToken.manager_->type2Service_.end();
-             itType != itTypeEnd;
-             ++itType) {
-          tokenTypes.insert(itType->first);
+        for (auto& itType : iToken.manager_->type2Service_) {
+          tokenTypes.insert(itType.first);
         }
 
         typedef std::set<TypeIDBase> IntersectionType;
@@ -121,10 +117,8 @@ namespace edm {
             type2Service_ = iToken.manager_->type2Service_;
 
             //remove from type2Maker the overlapping services so we never try to make them
-            for (IntersectionType::iterator itType = intersection.begin(), itTypeEnd = intersection.end();
-                 itType != itTypeEnd;
-                 ++itType) {
-              Type2Maker::iterator itFound = type2Maker_->find(*itType);
+            for (auto itType : intersection) {
+              Type2Maker::iterator itFound = type2Maker_->find(itType);
               //HLT needs it such that even if a service isn't created we store its PSet if needed
               if (itFound->second.maker_->saveConfiguration()) {
                 itFound->second.pset_->addUntrackedParameter("@save_config", true);
@@ -137,17 +131,15 @@ namespace edm {
             type2Service_ = iToken.manager_->type2Service_;
 
             //now remove the ones we do not want
-            for (IntersectionType::iterator itType = intersection.begin(), itTypeEnd = intersection.end();
-                 itType != itTypeEnd;
-                 ++itType) {
-              Type2Maker::iterator itFound = type2Maker_->find(*itType);
+            for (auto itType : intersection) {
+              Type2Maker::iterator itFound = type2Maker_->find(itType);
               if (itFound->second.maker_->processWideService()) {
                 // This is a process wide service, so the token overrides the configuration.
                 //HLT needs it such that even if a service isn't created we store its PSet if needed
                 if (itFound->second.maker_->saveConfiguration()) {
                   itFound->second.pset_->addUntrackedParameter("@save_config", true);
                 }
-                std::string type(typeDemangle(itType->name()));
+                std::string type(typeDemangle(itType.name()));
                 LogInfo("Configuration") << "Warning: You have reconfigured service\n"
                                          << "'" << type << "' in a subprocess.\n"
                                          << "This service has already been configured.\n"
@@ -156,7 +148,7 @@ namespace edm {
                 type2Maker_->erase(itFound);
               } else {
                 // This is not a process wide service, so the configuration overrides the token.
-                type2Service_.erase(type2Service_.find(*itType));
+                type2Service_.erase(type2Service_.find(itType));
               }
             }
             break;
@@ -218,26 +210,24 @@ namespace edm {
     void ServicesManager::copySlotsTo(ActivityRegistry& iOther) { iOther.copySlotsFrom(registry_); }
 
     void ServicesManager::fillListOfMakers(std::vector<ParameterSet>& iConfiguration) {
-      for (std::vector<ParameterSet>::iterator itParam = iConfiguration.begin(), itParamEnd = iConfiguration.end();
-           itParam != itParamEnd;
-           ++itParam) {
+      for (auto& itParam : iConfiguration) {
         std::shared_ptr<ServiceMakerBase> base(
-            ServicePluginFactory::get()->create(itParam->getParameter<std::string>("@service_type")));
+            ServicePluginFactory::get()->create(itParam.getParameter<std::string>("@service_type")));
 
         if (nullptr == base.get()) {
           throw Exception(errors::Configuration, "Service")
-              << "could not find a service named " << itParam->getParameter<std::string>("@service_type")
+              << "could not find a service named " << itParam.getParameter<std::string>("@service_type")
               << ". Please check spelling.";
         }
         Type2Maker::iterator itFound = type2Maker_->find(TypeIDBase(base->serviceType()));
         if (itFound != type2Maker_->end()) {
           throw Exception(errors::Configuration, "Service")
-              << " the service " << itParam->getParameter<std::string>("@service_type")
+              << " the service " << itParam.getParameter<std::string>("@service_type")
               << " provides the same service as " << itFound->second.pset_->getParameter<std::string>("@service_type")
               << "\n Please reconfigure job to only use one of these services.";
         }
         type2Maker_->insert(
-            Type2Maker::value_type(TypeIDBase(base->serviceType()), MakerHolder(base, *itParam, registry_)));
+            Type2Maker::value_type(TypeIDBase(base->serviceType()), MakerHolder(base, itParam, registry_)));
         requestedCreationOrder_.push_back(TypeIDBase(base->serviceType()));
       }
     }
@@ -289,11 +279,8 @@ namespace edm {
       //Now, make each Service.  If a service depends on a service that has yet to be
       // created, that other service will automatically be made
 
-      for (std::vector<TypeIDBase>::const_iterator idIter = requestedCreationOrder_.begin(),
-                                                   idEnd = requestedCreationOrder_.end();
-           idIter != idEnd;
-           ++idIter) {
-        Type2Maker::iterator itMaker = type2Maker_->find(*idIter);
+      for (auto idIter : requestedCreationOrder_) {
+        Type2Maker::iterator itMaker = type2Maker_->find(idIter);
 
         // Check to make sure this maker is still there.  They are deleted
         // sometimes and that is OK.

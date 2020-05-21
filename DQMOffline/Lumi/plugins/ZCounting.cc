@@ -372,11 +372,11 @@ void ZCounting::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 
   TriggerBits triggerBits;
-  for (unsigned int irec = 0; irec < fTrigger->fRecords.size(); irec++) {
-    if (fTrigger->fRecords[irec].hltPathIndex == (unsigned int)-1)
+  for (auto& fRecord : fTrigger->fRecords) {
+    if (fRecord.hltPathIndex == (unsigned int)-1)
       continue;
-    if (hTrgRes->accept(fTrigger->fRecords[irec].hltPathIndex)) {
-      triggerBits[fTrigger->fRecords[irec].baconTrigBit] = true;
+    if (hTrgRes->accept(fRecord.hltPathIndex)) {
+      triggerBits[fRecord.baconTrigBit] = true;
     }
   }
   //if(fSkipOnHLTFail && triggerBits == 0) return;
@@ -632,11 +632,11 @@ void ZCounting::analyzeElectrons(const edm::Event& iEvent, const edm::EventSetup
   }
 
   TriggerBits triggerBits;
-  for (unsigned int irec = 0; irec < fTrigger->fRecords.size(); irec++) {
-    if (fTrigger->fRecords[irec].hltPathIndex == (unsigned int)-1)
+  for (auto& fRecord : fTrigger->fRecords) {
+    if (fRecord.hltPathIndex == (unsigned int)-1)
       continue;
-    if (hTrgRes->accept(fTrigger->fRecords[irec].hltPathIndex)) {
-      triggerBits[fTrigger->fRecords[irec].baconTrigBit] = true;
+    if (hTrgRes->accept(fRecord.hltPathIndex)) {
+      triggerBits[fRecord.baconTrigBit] = true;
     }
   }
 
@@ -818,10 +818,10 @@ bool ZCounting::ele_tag_selection(double pt, double abseta) {
 //
 
 void ZCounting::initHLT(const edm::TriggerResults& result, const edm::TriggerNames& triggerNames) {
-  for (unsigned int irec = 0; irec < fTrigger->fRecords.size(); irec++) {
-    fTrigger->fRecords[irec].hltPathName = "";
-    fTrigger->fRecords[irec].hltPathIndex = (unsigned int)-1;
-    const std::string pattern = fTrigger->fRecords[irec].hltPattern;
+  for (auto& fRecord : fTrigger->fRecords) {
+    fRecord.hltPathName = "";
+    fRecord.hltPathIndex = (unsigned int)-1;
+    const std::string pattern = fRecord.hltPattern;
     if (edm::is_glob(pattern)) {  // handle pattern with wildcards (*,?)
       std::vector<std::vector<std::string>::const_iterator> matches =
           edm::regexMatch(triggerNames.triggerNames(), pattern);
@@ -830,24 +830,24 @@ void ZCounting::initHLT(const edm::TriggerResults& result, const edm::TriggerNam
                                      << std::endl;
       } else {
         for (auto const& match : matches) {
-          fTrigger->fRecords[irec].hltPathName = *match;
+          fRecord.hltPathName = *match;
         }
       }
     } else {  // take full HLT path name given
-      fTrigger->fRecords[irec].hltPathName = pattern;
+      fRecord.hltPathName = pattern;
     }
     // Retrieve index in trigger menu corresponding to HLT path
-    unsigned int index = triggerNames.triggerIndex(fTrigger->fRecords[irec].hltPathName);
+    unsigned int index = triggerNames.triggerIndex(fRecord.hltPathName);
     if (index < result.size()) {  // check for valid index
-      fTrigger->fRecords[irec].hltPathIndex = index;
+      fRecord.hltPathIndex = index;
     }
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 bool ZCounting::isMuonTrigger(const ZCountingTrigger::TTrigger& triggerMenu, const TriggerBits& hltBits) {
-  for (unsigned int i = 0; i < fMuonHLTNames.size(); ++i) {
-    if (triggerMenu.pass(fMuonHLTNames.at(i), hltBits))
+  for (const auto& fMuonHLTName : fMuonHLTNames) {
+    if (triggerMenu.pass(fMuonHLTName, hltBits))
       return true;
   }
   return false;

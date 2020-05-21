@@ -37,10 +37,10 @@ void CSCWireDigiValidation::analyze(const edm::Event &e, const edm::EventSetup &
 
   unsigned nDigisPerEvent = 0;
 
-  for (CSCWireDigiCollection::DigiRangeIterator j = wires->begin(); j != wires->end(); j++) {
-    std::vector<CSCWireDigi>::const_iterator beginDigi = (*j).second.first;
-    std::vector<CSCWireDigi>::const_iterator endDigi = (*j).second.second;
-    int detId = (*j).first.rawId();
+  for (auto &&j : *wires) {
+    std::vector<CSCWireDigi>::const_iterator beginDigi = j.second.first;
+    std::vector<CSCWireDigi>::const_iterator endDigi = j.second.second;
+    int detId = j.first.rawId();
 
     const CSCLayer *layer = findLayer(detId);
     int chamberType = layer->chamber()->specs()->chamberType();

@@ -85,9 +85,9 @@ void SiPixelFEDChannelContainer::printAll() const {
   edm::LogVerbatim("SiPixelFEDChannelContainer") << "SiPixelFEDChannelContainer::printAll()";
   edm::LogVerbatim("SiPixelFEDChannelContainer") << " ================================================================="
                                                     "==================================================";
-  for (auto it = m_scenarioMap.begin(); it != m_scenarioMap.end(); ++it) {
-    edm::LogVerbatim("SiPixelFEDChannelContainer") << "run :" << it->first << "  \n ";
-    for (const auto &thePixelFEDChannel : it->second) {
+  for (const auto &it : m_scenarioMap) {
+    edm::LogVerbatim("SiPixelFEDChannelContainer") << "run :" << it.first << "  \n ";
+    for (const auto &thePixelFEDChannel : it.second) {
       DetId detId = thePixelFEDChannel.first;
 
       edm::LogVerbatim("SiPixelFEDChannelContainer") << "DetId :" << detId << "  \n ";
@@ -104,9 +104,9 @@ void SiPixelFEDChannelContainer::printAll() const {
 
 //****************************************************************************//
 void SiPixelFEDChannelContainer::print(std::ostream &os) const {
-  for (auto it = m_scenarioMap.begin(); it != m_scenarioMap.end(); ++it) {
-    os << "run :" << it->first << "  \n ";
-    for (const auto &thePixelFEDChannel : it->second) {
+  for (const auto &it : m_scenarioMap) {
+    os << "run :" << it.first << "  \n ";
+    for (const auto &thePixelFEDChannel : it.second) {
       DetId detId = thePixelFEDChannel.first;
       os << "DetId :" << detId << "  \n ";
       for (const auto &entry : thePixelFEDChannel.second) {
@@ -122,8 +122,8 @@ std::vector<std::string> SiPixelFEDChannelContainer::getScenarioList() const {
   std::vector<std::string> scenarios;
   scenarios.reserve(m_scenarioMap.size());
 
-  for (auto it = m_scenarioMap.begin(); it != m_scenarioMap.end(); ++it) {
-    scenarios.push_back(it->first);
+  for (const auto &it : m_scenarioMap) {
+    scenarios.push_back(it.first);
   }
   return scenarios;
 }

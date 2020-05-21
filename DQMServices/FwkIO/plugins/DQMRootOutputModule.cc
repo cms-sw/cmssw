@@ -392,11 +392,11 @@ void DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOutput con
   if (!shouldWrite)
     return;
   std::vector<MonitorElement*> items(dstore->getAllContents("", m_run, m_lumi));
-  for (std::vector<MonitorElement*>::iterator it = items.begin(), itEnd = items.end(); it != itEnd; ++it) {
-    assert((*it)->getScope() == MonitorElementData::Scope::LUMI);
-    std::map<unsigned int, unsigned int>::iterator itFound = m_dqmKindToTypeIndex.find((int)(*it)->kind());
+  for (auto& item : items) {
+    assert(item->getScope() == MonitorElementData::Scope::LUMI);
+    std::map<unsigned int, unsigned int>::iterator itFound = m_dqmKindToTypeIndex.find((int)item->kind());
     assert(itFound != m_dqmKindToTypeIndex.end());
-    m_treeHelpers[itFound->second]->fill(*it);
+    m_treeHelpers[itFound->second]->fill(item);
   }
 
   const edm::ProcessHistoryID& id = iLumi.processHistoryID();
@@ -448,11 +448,11 @@ void DQMRootOutputModule::writeRun(edm::RunForOutput const& iRun) {
     return;
 
   std::vector<MonitorElement*> items(dstore->getAllContents("", m_run, 0));
-  for (std::vector<MonitorElement*>::iterator it = items.begin(), itEnd = items.end(); it != itEnd; ++it) {
-    assert((*it)->getScope() == MonitorElementData::Scope::RUN);
-    std::map<unsigned int, unsigned int>::iterator itFound = m_dqmKindToTypeIndex.find((int)(*it)->kind());
+  for (auto& item : items) {
+    assert(item->getScope() == MonitorElementData::Scope::RUN);
+    std::map<unsigned int, unsigned int>::iterator itFound = m_dqmKindToTypeIndex.find((int)item->kind());
     assert(itFound != m_dqmKindToTypeIndex.end());
-    m_treeHelpers[itFound->second]->fill(*it);
+    m_treeHelpers[itFound->second]->fill(item);
   }
 
   const edm::ProcessHistoryID& id = iRun.processHistoryID();
@@ -507,10 +507,8 @@ void DQMRootOutputModule::startEndFile() {
   std::string passID;
   processHistoryTree->Branch(kProcessConfigurationPassID, &passID);
 
-  for (std::vector<edm::ProcessHistoryID>::iterator it = m_seenHistories.begin(), itEnd = m_seenHistories.end();
-       it != itEnd;
-       ++it) {
-    const edm::ProcessHistory* history = m_processHistoryRegistry.getMapped(*it);
+  for (auto& m_seenHistorie : m_seenHistories) {
+    const edm::ProcessHistory* history = m_processHistoryRegistry.getMapped(m_seenHistorie);
     assert(nullptr != history);
     index = 0;
     for (edm::ProcessHistory::collection_type::const_iterator itPC = history->begin(), itPCEnd = history->end();
@@ -532,9 +530,9 @@ void DQMRootOutputModule::startEndFile() {
 
   edm::pset::Registry* psr = edm::pset::Registry::instance();
   assert(nullptr != psr);
-  for (edm::pset::Registry::const_iterator it = psr->begin(), itEnd = psr->end(); it != itEnd; ++it) {
+  for (auto& it : *psr) {
     blob.clear();
-    it->second.toString(blob);
+    it.second.toString(blob);
     parameterSetsTree->Fill();
   }
 }

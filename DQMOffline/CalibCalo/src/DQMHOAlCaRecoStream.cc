@@ -98,34 +98,34 @@ void DQMHOAlCaRecoStream::analyze(const edm::Event &iEvent, const edm::EventSetu
   if (isCosMu) {
     hMuonMultipl->Fill((*HOCalib).size(), 1.);
     if (!(*HOCalib).empty()) {
-      for (HOCalibVariableCollection::const_iterator hoC = (*HOCalib).begin(); hoC != (*HOCalib).end(); hoC++) {
+      for (const auto &hoC : (*HOCalib)) {
         // OK!!!!
         float okt = 2.;
-        double okx = std::pow((*hoC).trkvx, okt) + std::pow((*hoC).trkvy, okt);
+        double okx = std::pow(hoC.trkvx, okt) + std::pow(hoC.trkvy, okt);
         ///////
         double dr = std::pow(okx, 0.5);
         if (dr < m_lowRadPosInMuch || dr > m_highRadPosInMuch)
           continue;
 
-        if ((*hoC).isect < 0)
+        if (hoC.isect < 0)
           continue;
-        if (fabs((*hoC).trkth - acos(-1.) / 2) < 0.000001)
+        if (fabs(hoC.trkth - acos(-1.) / 2) < 0.000001)
           continue;
-        int ieta = int((std::abs((*hoC).isect) % 10000) / 100.) - 30;
+        int ieta = int((std::abs(hoC.isect) % 10000) / 100.) - 30;
 
         if (std::abs(ieta) >= 16)
           continue;
 
         Nmuons++;
 
-        hMuonMom->Fill((*hoC).trkmm, 1.0);
-        hMuonEta->Fill(-log(tan((*hoC).trkth / 2.0)), 1.0);
-        hMuonPhi->Fill((*hoC).trkph, 1.0);
-        hDirCosine->Fill((*hoC).hoang, 1.0);
-        hHOTime->Fill((*hoC).htime, 1.0);
+        hMuonMom->Fill(hoC.trkmm, 1.0);
+        hMuonEta->Fill(-log(tan(hoC.trkth / 2.0)), 1.0);
+        hMuonPhi->Fill(hoC.trkph, 1.0);
+        hDirCosine->Fill(hoC.hoang, 1.0);
+        hHOTime->Fill(hoC.htime, 1.0);
 
-        double energy = (*hoC).hosig[4];
-        double pedval = (*hoC).hocro;
+        double energy = hoC.hosig[4];
+        double pedval = hoC.hocro;
         int iring = 0;
         if (ieta >= -15 && ieta <= -11) {
           iring = -2;
@@ -141,7 +141,7 @@ void DQMHOAlCaRecoStream::analyze(const edm::Event &iEvent, const edm::EventSetu
         hPedRing[iring + 2]->Fill(pedval, 1.0);
 
         for (int k = 0; k < 9; k++) {
-          hSignal3x3[k]->Fill((*hoC).hosig[k]);
+          hSignal3x3[k]->Fill(hoC.hosig[k]);
         }
       }  // for (HOCalibVariableCollection::const_iterator hoC=(*HOCalib).begin()
     }    // if ((*HOCalib).size() >0 ) {

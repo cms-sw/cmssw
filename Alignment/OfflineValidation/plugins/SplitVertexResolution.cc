@@ -358,8 +358,7 @@ void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSe
   int noFakecounter = 0;
   int goodcounter = 0;
 
-  for (auto pvIt = pvtx.cbegin(); pvIt != pvtx.cend(); ++pvIt) {
-    reco::Vertex iPV = *pvIt;
+  for (auto iPV : pvtx) {
     counter++;
     if (iPV.isFake())
       continue;
@@ -419,11 +418,11 @@ void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSe
     // refit the two sets of tracks
     std::vector<reco::TransientTrack> groupOne_ttks;
     groupOne_ttks.clear();
-    for (auto itrk = groupOne.cbegin(); itrk != groupOne.cend(); itrk++) {
-      reco::TransientTrack tmpTransientTrack = theB.build(*itrk);
+    for (const auto& itrk : groupOne) {
+      reco::TransientTrack tmpTransientTrack = theB.build(itrk);
       groupOne_ttks.push_back(tmpTransientTrack);
-      sumPt1 += itrk->pt();
-      sumPt += itrk->pt();
+      sumPt1 += itrk.pt();
+      sumPt += itrk.pt();
     }
 
     AdaptiveVertexFitter pvFitter;
@@ -435,11 +434,11 @@ void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSe
 
     std::vector<reco::TransientTrack> groupTwo_ttks;
     groupTwo_ttks.clear();
-    for (auto itrk = groupTwo.cbegin(); itrk != groupTwo.cend(); itrk++) {
-      reco::TransientTrack tmpTransientTrack = theB.build(*itrk);
+    for (const auto& itrk : groupTwo) {
+      reco::TransientTrack tmpTransientTrack = theB.build(itrk);
       groupTwo_ttks.push_back(tmpTransientTrack);
-      sumPt2 += itrk->pt();
-      sumPt += itrk->pt();
+      sumPt2 += itrk.pt();
+      sumPt += itrk.pt();
     }
 
     // average sumPt
@@ -932,23 +931,23 @@ void SplitVertexResolution::endJob() {
       "evtsByTrigger", "events by HLT path;;% of # events", nFiringTriggers, -0.5, nFiringTriggers - 0.5);
 
   int i = 0;
-  for (std::map<std::string, std::pair<int, int> >::iterator it = triggerMap_.begin(); it != triggerMap_.end(); ++it) {
+  for (auto& it : triggerMap_) {
     i++;
 
-    double trkpercent = ((it->second).second) * 100. / double(itrks);
-    double evtpercent = ((it->second).first) * 100. / double(ievt);
+    double trkpercent = ((it.second).second) * 100. / double(itrks);
+    double evtpercent = ((it.second).first) * 100. / double(ievt);
 
     edm::LogVerbatim("SplitVertexResolution")
-        << "HLT path: " << std::setw(60) << std::left << it->first << " | events firing: " << std::right << std::setw(8)
-        << (it->second).first << " (" << std::setw(8) << std::fixed << std::setprecision(4) << evtpercent << "%)"
-        << " | tracks collected: " << std::setw(8) << (it->second).second << " (" << std::setw(8) << std::fixed
+        << "HLT path: " << std::setw(60) << std::left << it.first << " | events firing: " << std::right << std::setw(8)
+        << (it.second).first << " (" << std::setw(8) << std::fixed << std::setprecision(4) << evtpercent << "%)"
+        << " | tracks collected: " << std::setw(8) << (it.second).second << " (" << std::setw(8) << std::fixed
         << std::setprecision(4) << trkpercent << "%)";
 
     tksByTrigger_->SetBinContent(i, trkpercent);
-    tksByTrigger_->GetXaxis()->SetBinLabel(i, (it->first).c_str());
+    tksByTrigger_->GetXaxis()->SetBinLabel(i, (it.first).c_str());
 
     evtsByTrigger_->SetBinContent(i, evtpercent);
-    evtsByTrigger_->GetXaxis()->SetBinLabel(i, (it->first).c_str());
+    evtsByTrigger_->GetXaxis()->SetBinLabel(i, (it.first).c_str());
   }
 
   TFileDirectory RunFeatures = outfile_->mkdir("RunFeatures");

@@ -177,12 +177,12 @@ void MCPizeroAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
   std::vector<PizeroMCTruth> MCPizeroeros = thePizeroMCTruthFinder_->find(theSimTracks, theSimVertices);
   std::cout << " MCPizeroAnalyzer MCPizeroeros size " << MCPizeroeros.size() << std::endl;
 
-  for (std::vector<PizeroMCTruth>::const_iterator iPiz = MCPizeroeros.begin(); iPiz != MCPizeroeros.end(); ++iPiz) {
-    h_MCPizE_->Fill((*iPiz).fourMomentum().e());
-    h_MCPizEta_->Fill((*iPiz).fourMomentum().pseudoRapidity());
-    h_MCPizPhi_->Fill((*iPiz).fourMomentum().phi());
+  for (const auto& MCPizeroero : MCPizeroeros) {
+    h_MCPizE_->Fill(MCPizeroero.fourMomentum().e());
+    h_MCPizEta_->Fill(MCPizeroero.fourMomentum().pseudoRapidity());
+    h_MCPizPhi_->Fill(MCPizeroero.fourMomentum().phi());
 
-    std::vector<PhotonMCTruth> mcPhotons = (*iPiz).photons();
+    std::vector<PhotonMCTruth> mcPhotons = MCPizeroero.photons();
     std::cout << " MCPizeroAnalyzer mcPhotons size " << mcPhotons.size() << std::endl;
 
     float px = mcPhotons[0].fourMomentum().x() + mcPhotons[1].fourMomentum().x();
@@ -193,46 +193,46 @@ void MCPizeroAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
     h_MCPizMass1_->Fill(invM);
 
     int converted = 0;
-    for (std::vector<PhotonMCTruth>::const_iterator iPho = mcPhotons.begin(); iPho != mcPhotons.end(); ++iPho) {
-      h_MCPhoE_->Fill((*iPho).fourMomentum().e());
-      h_MCPhoEta_->Fill((*iPho).fourMomentum().pseudoRapidity());
-      h_MCPhoPhi_->Fill((*iPho).fourMomentum().phi());
-      if ((*iPho).isAConversion()) {
+    for (const auto& mcPhoton : mcPhotons) {
+      h_MCPhoE_->Fill(mcPhoton.fourMomentum().e());
+      h_MCPhoEta_->Fill(mcPhoton.fourMomentum().pseudoRapidity());
+      h_MCPhoPhi_->Fill(mcPhoton.fourMomentum().phi());
+      if (mcPhoton.isAConversion()) {
         converted++;
 
-        h_MCConvPhoE_->Fill((*iPho).fourMomentum().e());
-        h_MCConvPhoEta_->Fill((*iPho).fourMomentum().pseudoRapidity());
-        h_MCConvPhoPhi_->Fill((*iPho).fourMomentum().phi());
-        h_MCConvPhoR_->Fill((*iPho).vertex().perp());
+        h_MCConvPhoE_->Fill(mcPhoton.fourMomentum().e());
+        h_MCConvPhoEta_->Fill(mcPhoton.fourMomentum().pseudoRapidity());
+        h_MCConvPhoPhi_->Fill(mcPhoton.fourMomentum().phi());
+        h_MCConvPhoR_->Fill(mcPhoton.vertex().perp());
 
-        std::vector<ElectronMCTruth> mcElectrons = (*iPho).electrons();
+        std::vector<ElectronMCTruth> mcElectrons = mcPhoton.electrons();
         std::cout << " MCPizeroAnalyzer mcElectrons size " << mcElectrons.size() << std::endl;
 
-        for (std::vector<ElectronMCTruth>::const_iterator iEl = mcElectrons.begin(); iEl != mcElectrons.end(); ++iEl) {
-          if ((*iEl).fourMomentum().e() < 30)
+        for (const auto& mcElectron : mcElectrons) {
+          if (mcElectron.fourMomentum().e() < 30)
             continue;
-          h_MCEleE_->Fill((*iEl).fourMomentum().e());
-          h_MCEleEta_->Fill((*iEl).fourMomentum().pseudoRapidity());
-          h_MCElePhi_->Fill((*iEl).fourMomentum().phi());
+          h_MCEleE_->Fill(mcElectron.fourMomentum().e());
+          h_MCEleEta_->Fill(mcElectron.fourMomentum().pseudoRapidity());
+          h_MCElePhi_->Fill(mcElectron.fourMomentum().phi());
 
-          h_EleEvsPhoE_->Fill((*iPho).fourMomentum().e(), (*iEl).fourMomentum().e());
+          h_EleEvsPhoE_->Fill(mcPhoton.fourMomentum().e(), mcElectron.fourMomentum().e());
 
           float totBrem = 0;
-          for (unsigned int iBrem = 0; iBrem < (*iEl).bremVertices().size(); ++iBrem)
-            totBrem += (*iEl).bremMomentum()[iBrem].e();
+          for (unsigned int iBrem = 0; iBrem < mcElectron.bremVertices().size(); ++iBrem)
+            totBrem += mcElectron.bremMomentum()[iBrem].e();
 
-          h_BremFrac_->Fill(totBrem / (*iEl).fourMomentum().e());
+          h_BremFrac_->Fill(totBrem / mcElectron.fourMomentum().e());
           h_BremEnergy_->Fill(totBrem);
         }
       }
     }
 
     if (converted > 0) {
-      h_MCPiz1ConEta_->Fill((*iPiz).fourMomentum().pseudoRapidity());
+      h_MCPiz1ConEta_->Fill(MCPizeroero.fourMomentum().pseudoRapidity());
       if (converted == 2)
-        h_MCPiz2ConEta_->Fill((*iPiz).fourMomentum().pseudoRapidity());
+        h_MCPiz2ConEta_->Fill(MCPizeroero.fourMomentum().pseudoRapidity());
     } else {
-      h_MCPizUnEta_->Fill((*iPiz).fourMomentum().pseudoRapidity());
+      h_MCPizUnEta_->Fill(MCPizeroero.fourMomentum().pseudoRapidity());
     }
   }
 }

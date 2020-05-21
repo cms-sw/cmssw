@@ -170,18 +170,18 @@ void L1GtPatternGenerator::extractGlobalTriggerData(const edm::Event& iEvent, L1
 
   // for each FDL word...
   const std::vector<L1GtFdlWord>& fdlWords = handle->gtFdlVector();
-  for (std::vector<L1GtFdlWord>::const_iterator it = fdlWords.begin(); it != fdlWords.end(); ++it) {
+  for (const auto& fdlWord : fdlWords) {
     // extract relevant data
-    int bx = it->bxInEvent();
+    int bx = fdlWord.bxInEvent();
 
     // find matching pattern file line
     L1GtPatternLine& line = patterns.getLine(eventNr, bx);
 
-    extractGlobalTriggerWord(it->gtDecisionWord(), line, "gtDecision");
-    extractGlobalTriggerWord(it->gtDecisionWordExtended(), line, "gtDecisionExt");
-    extractGlobalTriggerWord(it->gtTechnicalTriggerWord(), line, "gtTechTrigger");
+    extractGlobalTriggerWord(fdlWord.gtDecisionWord(), line, "gtDecision");
+    extractGlobalTriggerWord(fdlWord.gtDecisionWordExtended(), line, "gtDecisionExt");
+    extractGlobalTriggerWord(fdlWord.gtTechnicalTriggerWord(), line, "gtTechTrigger");
 
-    line.push("gtFinalOr", it->finalOR());
+    line.push("gtFinalOr", fdlWord.finalOR());
   }
 }
 
@@ -190,10 +190,10 @@ void L1GtPatternGenerator::extractGlobalTriggerData(const edm::Event& iEvent, L1
  */
 void L1GtPatternGenerator::packHfRecords(const std::string& resultName, L1GtPatternMap& allPatterns) {
   // iterate over each pattern line
-  for (L1GtPatternMap::LineMap::iterator it = allPatterns.begin(); it != allPatterns.end(); ++it) {
+  for (auto& allPattern : allPatterns) {
     // Get the HF bit counts and ring sums
-    uint32_t counts = it->second.get("hfBitCounts1");
-    uint32_t sums = it->second.get("hfRingEtSums1");
+    uint32_t counts = allPattern.second.get("hfBitCounts1");
+    uint32_t sums = allPattern.second.get("hfRingEtSums1");
 
     // Bits 0..11 -> 4 bit counts
     uint32_t hfPsbValue = (counts & 0xFFF) |
@@ -204,7 +204,7 @@ void L1GtPatternGenerator::packHfRecords(const std::string& resultName, L1GtPatt
     // TODO: Spec states non-data values for Bits 15, 31, 47 and 63.
 
     // Export computed value to pattern writer. */
-    it->second.push(resultName, hfPsbValue);
+    allPattern.second.push(resultName, hfPsbValue);
   }
 }
 

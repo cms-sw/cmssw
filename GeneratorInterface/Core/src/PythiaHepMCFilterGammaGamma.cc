@@ -122,12 +122,12 @@ bool PythiaHepMCFilterGammaGamma::filter(const HepMC::GenEvent* myGenEvent) {
     TLorentzVector energy, narrowCone, temp1, temp2, tempseed;
 
     tempseed.SetXYZM((*itSeed)->momentum().px(), (*itSeed)->momentum().py(), (*itSeed)->momentum().pz(), 0);
-    for (auto itEn = egamma.begin(); itEn != egamma.end(); ++itEn) {
-      temp1.SetXYZM((*itEn)->momentum().px(), (*itEn)->momentum().py(), (*itEn)->momentum().pz(), 0);
+    for (auto& itEn : egamma) {
+      temp1.SetXYZM(itEn->momentum().px(), itEn->momentum().py(), itEn->momentum().pz(), 0);
 
       double DR = temp1.DeltaR(tempseed);
       double DPhi = temp1.DeltaPhi(tempseed);
-      double DEta = (*itEn)->momentum().eta() - (*itSeed)->momentum().eta();
+      double DEta = itEn->momentum().eta() - (*itSeed)->momentum().eta();
       if (DPhi < 0)
         DPhi = -DPhi;
       if (DEta < 0)
@@ -151,8 +151,8 @@ bool PythiaHepMCFilterGammaGamma::filter(const HepMC::GenEvent* myGenEvent) {
         temp2.SetXYZM(energy.Px(), energy.Py(), energy.Pz(), 0);
 
         // count number of stable particles within cone around candidate
-        for (auto itStable = stable.begin(); itStable != stable.end(); ++itStable) {
-          temp1.SetXYZM((*itStable)->momentum().px(), (*itStable)->momentum().py(), (*itStable)->momentum().pz(), 0);
+        for (auto& itStable : stable) {
+          temp1.SetXYZM(itStable->momentum().px(), itStable->momentum().py(), itStable->momentum().pz(), 0);
           double DR = temp1.DeltaR(temp2);
           if (DR < dRTkMax)
             counter++;

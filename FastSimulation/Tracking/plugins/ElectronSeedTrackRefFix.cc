@@ -68,8 +68,8 @@ void ElectronSeedTrackRefFix::produce(edm::Event& iEvent, const edm::EventSetup&
   auto iSeeds = getHandle(iEvent, seedsToken_);
 
   auto oSeeds = std::make_unique<reco::ElectronSeedCollection>();
-  for (unsigned int s = 0; s < iSeeds->size(); ++s) {
-    oSeeds->push_back(iSeeds->at(s));
+  for (const auto& s : *iSeeds) {
+    oSeeds->push_back(s);
     reco::TrackRef newTrackRef(newTracks, oSeeds->back().ctfTrack().index());
     oSeeds->back().setCtfTrack(newTrackRef);
   }
@@ -78,8 +78,8 @@ void ElectronSeedTrackRefFix::produce(edm::Event& iEvent, const edm::EventSetup&
   for (size_t idNr = 0; idNr < idsTag_.size(); idNr++) {
     auto iIds = getHandle(iEvent, idsToken_[idNr]);
     auto oIds = std::make_unique<reco::PreIdCollection>();
-    for (unsigned int i = 0; i < iIds->size(); ++i) {
-      oIds->push_back(iIds->at(i));
+    for (const auto& i : *iIds) {
+      oIds->push_back(i);
       reco::TrackRef newTrackRef(newTracks, oIds->back().trackRef().index());
       oIds->back().setTrack(newTrackRef);
     }

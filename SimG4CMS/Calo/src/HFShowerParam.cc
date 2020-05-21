@@ -161,20 +161,20 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step* aStep, doub
       if ((showerLibrary_.get() || gflash_.get()) && isKilled && pin > edMin_ && (!other)) {
         if (showerLibrary_.get()) {
           std::vector<HFShowerLibrary::Hit> hitSL = showerLibrary_->getHits(aStep, isKilled, weight, onlyLong_);
-          for (unsigned int i = 0; i < hitSL.size(); i++) {
+          for (auto& i : hitSL) {
             bool ok = true;
 #ifdef EDM_ML_DEBUG
             edm::LogVerbatim("HFShower") << "HFShowerParam: getHits applyFidCut = " << applyFidCut_;
 #endif
             if (applyFidCut_) {  // @@ For showerlibrary no z-cut for Short (no z)
-              int npmt = HFFibreFiducial::PMTNumber(hitSL[i].position);
+              int npmt = HFFibreFiducial::PMTNumber(i.position);
               if (npmt <= 0)
                 ok = false;
             }
             if (ok) {
-              hit.position = hitSL[i].position;
-              hit.depth = hitSL[i].depth;
-              hit.time = hitSL[i].time;
+              hit.position = i.position;
+              hit.depth = i.depth;
+              hit.time = i.time;
               hit.edep = 1;
               hits.push_back(hit);
 #ifdef plotDebug
@@ -203,9 +203,9 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step* aStep, doub
           }
         } else {  // GFlash clusters with known z
           std::vector<HFGflash::Hit> hitSL = gflash_->gfParameterization(aStep, onlyLong_);
-          for (unsigned int i = 0; i < hitSL.size(); ++i) {
+          for (auto& i : hitSL) {
             bool ok = true;
-            G4ThreeVector pe_effect(hitSL[i].position.x(), hitSL[i].position.y(), hitSL[i].position.z());
+            G4ThreeVector pe_effect(i.position.x(), i.position.y(), i.position.z());
             double zv = std::abs(pe_effect.z()) - gpar_[4];
             //depth
             int depth = 1;
@@ -265,9 +265,9 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step* aStep, doub
               if (r2 < weight) {
                 double time = fibre_->tShift(localPoint, depth, 0);
 
-                hit.position = hitSL[i].position;
+                hit.position = i.position;
                 hit.depth = depth;
-                hit.time = time + hitSL[i].time;
+                hit.time = time + i.time;
                 hit.edep = 1;
                 hits.push_back(hit);
 #ifdef plotDebug

@@ -154,11 +154,11 @@ void MuonSeedsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   if (!seeds.isValid())
     return;
 
-  for (TrajectorySeedCollection::const_iterator seed = seeds->begin(); seed != seeds->end(); ++seed) {
+  for (const auto& seed : *seeds) {
     //    const TrajectorySeed sd = *seed;
 
     // Get the Trajectory State on Det (persistent version of a TSOS) from the seed
-    PTrajectoryStateOnDet pTSOD = seed->startingState();
+    PTrajectoryStateOnDet pTSOD = seed.startingState();
 
     // Transform it in a TrajectoryStateOnSurface
     DetId seedDetId(pTSOD.detId());
@@ -172,8 +172,8 @@ void MuonSeedsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     LogTrace(metname) << "[MuonSeedAnalyzer] Filling the histos";
 
     // nhits
-    LogTrace(metname) << "Number od recHits per seed: " << seed->nHits();
-    NumberOfRecHitsPerSeed->Fill(seed->nHits());
+    LogTrace(metname) << "Number od recHits per seed: " << seed.nHits();
+    NumberOfRecHitsPerSeed->Fill(seed.nHits());
 
     // pt
     LogTrace(metname) << "seed momentum: " << seedTSOS.globalMomentum().perp();

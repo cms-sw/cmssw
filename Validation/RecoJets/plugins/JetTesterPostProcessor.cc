@@ -31,12 +31,12 @@ void JetTesterPostProcessor::dqmEndJob(DQMStore::IBooker &ibook_, DQMStore::IGet
   bool found_reco_dir = false;
   bool found_miniaod_dir = false;
   // loop over jet subdirectories
-  for (int i = 0; i < int(jet_dirs.size()); i++) {
-    ibook_.setCurrentFolder(jet_dirs[i]);
-    if (jet_dirs[i] == (RunDir + inputJetLabelRECO_.label())) {
+  for (const auto &jet_dir : jet_dirs) {
+    ibook_.setCurrentFolder(jet_dir);
+    if (jet_dir == (RunDir + inputJetLabelRECO_.label())) {
       found_reco_dir = true;
     }
-    if (jet_dirs[i] == (RunDir + inputJetLabelMiniAOD_.label())) {
+    if (jet_dir == (RunDir + inputJetLabelMiniAOD_.label())) {
       found_miniaod_dir = true;
     }
   }

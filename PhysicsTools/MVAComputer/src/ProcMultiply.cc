@@ -71,9 +71,9 @@ namespace {  // anonymous
       *pos = *iter;
     }
 
-    for (std::vector<Config>::const_iterator config = out.begin(); config != out.end(); ++config) {
+    for (const auto &config : out) {
       double product = 1.0;
-      for (std::vector<unsigned int>::const_iterator var = config->begin(); var != config->end(); var++)
+      for (std::vector<unsigned int>::const_iterator var = config.begin(); var != config.end(); var++)
         product *= values[*var];
 
       iter(product);

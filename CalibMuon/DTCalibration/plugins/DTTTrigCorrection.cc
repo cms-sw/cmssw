@@ -61,30 +61,28 @@ void DTTTrigCorrection::endJob() {
   // Create the object to be written to DB
   DTTtrig* tTrigNewMap = new DTTtrig();
 
-  for (vector<const DTSuperLayer*>::const_iterator sl = muonGeom_->superLayers().begin();
-       sl != muonGeom_->superLayers().end();
-       ++sl) {
+  for (auto sl : muonGeom_->superLayers()) {
     // Get old value from DB
     float tTrigMean, tTrigSigma, kFactor;
-    int status = tTrigMap_->get((*sl)->id(), tTrigMean, tTrigSigma, kFactor, DTTimeUnits::ns);
+    int status = tTrigMap_->get(sl->id(), tTrigMean, tTrigSigma, kFactor, DTTimeUnits::ns);
 
     //Compute new ttrig
     try {
-      dtCalibration::DTTTrigData tTrigCorr = correctionAlgo_->correction((*sl)->id());
+      dtCalibration::DTTTrigData tTrigCorr = correctionAlgo_->correction(sl->id());
       float tTrigMeanNew = tTrigCorr.mean;
       float tTrigSigmaNew = tTrigCorr.sigma;
       float kFactorNew = tTrigCorr.kFactor;
-      tTrigNewMap->set((*sl)->id(), tTrigMeanNew, tTrigSigmaNew, kFactorNew, DTTimeUnits::ns);
+      tTrigNewMap->set(sl->id(), tTrigMeanNew, tTrigSigmaNew, kFactorNew, DTTimeUnits::ns);
 
-      LogVerbatim("Calibration") << "New tTrig for: " << (*sl)->id() << " mean from " << tTrigMean << " to "
+      LogVerbatim("Calibration") << "New tTrig for: " << sl->id() << " mean from " << tTrigMean << " to "
                                  << tTrigMeanNew << " sigma from " << tTrigSigma << " to " << tTrigSigmaNew
                                  << " kFactor from " << kFactor << " to " << kFactorNew << endl;
     } catch (cms::Exception& e) {
       LogError("Calibration") << e.explainSelf();
       // Set db to the old value, if it was there in the first place
       if (!status) {
-        tTrigNewMap->set((*sl)->id(), tTrigMean, tTrigSigma, kFactor, DTTimeUnits::ns);
-        LogVerbatim("Calibration") << "Keep old tTrig for: " << (*sl)->id() << " mean " << tTrigMean << " sigma "
+        tTrigNewMap->set(sl->id(), tTrigMean, tTrigSigma, kFactor, DTTimeUnits::ns);
+        LogVerbatim("Calibration") << "Keep old tTrig for: " << sl->id() << " mean " << tTrigMean << " sigma "
                                    << tTrigSigma << " kFactor " << kFactor << endl;
       }
       continue;

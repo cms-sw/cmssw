@@ -276,19 +276,19 @@ public:
     split64bitTo8bit(fedData, AMC13Header);
 
     // fill fedData with AMC headers
-    for (unsigned int iAMC = 0; iAMC < AMCHeaders.size(); ++iAMC) {
+    for (unsigned long AMCHeader : AMCHeaders) {
       // adjust the AMCsize bits to match uhtr header
       //AMCHeaders[iAMC] |= uint64_t(uhtrs[iAMC][1]&0xF)<<51 ;
       //AMCHeaders[iAMC] |= uint64_t(uhtrs[iAMC][0]&0xFFFF)<<47 ;
-      split64bitTo8bit(fedData, AMCHeaders[iAMC]);
+      split64bitTo8bit(fedData, AMCHeader);
     }
 
     // fill fedData with AMC data
-    for (unsigned int iAMC = 0; iAMC < uhtrs.size(); ++iAMC) {
-      unsigned int nWords16 = uhtrs[iAMC].size();
+    for (auto& uhtr : uhtrs) {
+      unsigned int nWords16 = uhtr.size();
       for (unsigned int amcWord = 0; amcWord < nWords16; ++amcWord) {
-        fedData.push_back((uhtrs[iAMC][amcWord] >> 0) & 0xFF);  // split 16-bit words into 8-bit
-        fedData.push_back((uhtrs[iAMC][amcWord] >> 8) & 0xFF);
+        fedData.push_back((uhtr[amcWord] >> 0) & 0xFF);  // split 16-bit words into 8-bit
+        fedData.push_back((uhtr[amcWord] >> 8) & 0xFF);
       }  // end loop over uhtr words
     }    // end loop over uhtrs
 
@@ -300,8 +300,8 @@ public:
     rawData.resize(fedData.size());
     unsigned char* words = reinterpret_cast<unsigned char*>(rawData.data());
 
-    for (unsigned int i = 0; i < fedData.size(); ++i) {
-      *words = fedData[i];
+    for (unsigned char i : fedData) {
+      *words = i;
       words++;
     }
   };

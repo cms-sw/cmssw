@@ -122,8 +122,8 @@ reco::Candidate::LorentzVector MvaMEtUtilities::jetP4(const std::vector<reco::PU
 }
 unsigned MvaMEtUtilities::numJetsAboveThreshold(const std::vector<reco::PUSubMETCandInfo>& jets, double ptThreshold) {
   unsigned retVal = 0;
-  for (std::vector<reco::PUSubMETCandInfo>::const_iterator jet = jets.begin(); jet != jets.end(); ++jet) {
-    if (jet->p4().pt() > ptThreshold)
+  for (const auto& jet : jets) {
+    if (jet.p4().pt() > ptThreshold)
       ++retVal;
   }
   return retVal;
@@ -134,15 +134,14 @@ std::vector<reco::PUSubMETCandInfo> MvaMEtUtilities::cleanJets(const std::vector
                                                                double dRmatch) {
   double dR2match = dRmatch * dRmatch;
   std::vector<reco::PUSubMETCandInfo> retVal;
-  for (std::vector<reco::PUSubMETCandInfo>::const_iterator jet = jets.begin(); jet != jets.end(); ++jet) {
+  for (const auto& jet : jets) {
     bool isOverlap = false;
-    for (std::vector<reco::PUSubMETCandInfo>::const_iterator lepton = leptons.begin(); lepton != leptons.end();
-         ++lepton) {
-      if (deltaR2(jet->p4(), lepton->p4()) < dR2match)
+    for (const auto& lepton : leptons) {
+      if (deltaR2(jet.p4(), lepton.p4()) < dR2match)
         isOverlap = true;
     }
-    if (jet->p4().pt() > ptThreshold && !isOverlap)
-      retVal.push_back(*jet);
+    if (jet.p4().pt() > ptThreshold && !isOverlap)
+      retVal.push_back(jet);
   }
   return retVal;
 }
@@ -154,17 +153,14 @@ std::vector<reco::PUSubMETCandInfo> MvaMEtUtilities::cleanPFCands(
     bool invert) {
   double dR2match = dRmatch * dRmatch;
   std::vector<reco::PUSubMETCandInfo> retVal;
-  for (std::vector<reco::PUSubMETCandInfo>::const_iterator pfCandidate = pfCandidates.begin();
-       pfCandidate != pfCandidates.end();
-       ++pfCandidate) {
+  for (const auto& pfCandidate : pfCandidates) {
     bool isOverlap = false;
-    for (std::vector<reco::PUSubMETCandInfo>::const_iterator lepton = leptons.begin(); lepton != leptons.end();
-         ++lepton) {
-      if (deltaR2(pfCandidate->p4(), lepton->p4()) < dR2match)
+    for (const auto& lepton : leptons) {
+      if (deltaR2(pfCandidate.p4(), lepton.p4()) < dR2match)
         isOverlap = true;
     }
     if ((!isOverlap && !invert) || (isOverlap && invert))
-      retVal.push_back(*pfCandidate);
+      retVal.push_back(pfCandidate);
   }
   return retVal;
 }
@@ -185,8 +181,7 @@ CommonMETData MvaMEtUtilities::computeCandSum(int compKey,
   retVal.mey = 0.;
   retVal.sumet = 0.;
 
-  for (std::vector<reco::PUSubMETCandInfo>::const_iterator object = objects.begin(); object != objects.end();
-       ++object) {
+  for (const auto& object : objects) {
     double pFrac = 1;
 
     //pf candidates
@@ -198,35 +193,35 @@ CommonMETData MvaMEtUtilities::computeCandSum(int compKey,
     //   1 : select charged PFCandidates originating from pile-up vertices
     //   2 : select all PFCandidates
     if (compKey == MvaMEtUtilities::kPFCands) {
-      if (object->dZ() < 0. && dZflag != 2)
+      if (object.dZ() < 0. && dZflag != 2)
         continue;
-      if (object->dZ() > dZmax && dZflag == 0)
+      if (object.dZ() > dZmax && dZflag == 0)
         continue;
-      if (object->dZ() < dZmax && dZflag == 1)
+      if (object.dZ() < dZmax && dZflag == 1)
         continue;
     }
 
     //leptons
     if (compKey == MvaMEtUtilities::kLeptons) {
       if (iCharged)
-        pFrac = object->chargedEnFrac();
+        pFrac = object.chargedEnFrac();
     }
 
     //jets
     if (compKey == MvaMEtUtilities::kJets) {
-      bool passesMVAjetId = passesMVA(object->p4(), object->mva());
+      bool passesMVAjetId = passesMVA(object.p4(), object.mva());
 
       if (passesMVAjetId && !mvaPassFlag)
         continue;
       if (!passesMVAjetId && mvaPassFlag)
         continue;
 
-      pFrac = 1 - object->chargedEnFrac();  //neutral energy fraction
+      pFrac = 1 - object.chargedEnFrac();  //neutral energy fraction
     }
 
-    retVal.mex += object->p4().px() * pFrac;
-    retVal.mey += object->p4().py() * pFrac;
-    retVal.sumet += object->p4().pt() * pFrac;
+    retVal.mex += object.p4().px() * pFrac;
+    retVal.mey += object.p4().py() * pFrac;
+    retVal.sumet += object.p4().pt() * pFrac;
   }
 
   finalize(retVal);

@@ -70,15 +70,14 @@ void AlignmentMonitorGeneric::event(const edm::Event& iEvent,
                                     const ConstTrajTrackPairCollection& tracks) {
   TrajectoryStateCombiner tsoscomb;
 
-  for (unsigned int t = 0; t < tracks.size(); ++t) {
-    const reco::Track* track = tracks[t].second;
+  for (const auto& t : tracks) {
+    const reco::Track* track = t.second;
 
-    float charge = tracks[t].second->charge();
+    float charge = t.second->charge();
 
-    const std::vector<TrajectoryMeasurement>& meass = tracks[t].first->measurements();
+    const std::vector<TrajectoryMeasurement>& meass = t.first->measurements();
 
-    for (unsigned int m = 0; m < meass.size(); ++m) {
-      const TrajectoryMeasurement& meas = meass[m];
+    for (const auto& meas : meass) {
       const TransientTrackingRecHit& hit = *meas.recHit();
 
       if (hit.isValid()) {

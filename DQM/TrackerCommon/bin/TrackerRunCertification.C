@@ -527,9 +527,9 @@ Bool_t readRR( const TString & pathFile )
                     while ( nodeCmpChild && TString( xmlRR->GetNodeName( nodeCmpChild ) ) != "NAME" )
                       nodeCmpChild = xmlRR->GetNext( nodeCmpChild );
                     if ( nodeCmpChild ) {
-                      for ( UInt_t iNameNode = 0; iNameNode < nameCmpNode.size(); ++iNameNode ) {
-                        if ( xmlRR->GetNodeContent( nodeCmpChild ) == nameCmpNode.at( iNameNode ) ) {
-                          TString nameNode( "RR_" + nameCmpNode.at( iNameNode ) );
+                      for (const auto& iNameNode : nameCmpNode) {
+                        if (xmlRR->GetNodeContent(nodeCmpChild) == iNameNode) {
+                          TString nameNode("RR_" + iNameNode);
                           XMLNodePointer_t nodeCmpChildNew = xmlRR->GetChild( nodeCmp );
                           while ( nodeCmpChildNew && TString( xmlRR->GetNodeName( nodeCmpChildNew ) ) != "VALUE" )
                             nodeCmpChildNew = xmlRR->GetNext( nodeCmpChildNew );
@@ -585,10 +585,10 @@ Bool_t readRR( const TString & pathFile )
   }
 
   if ( sOptions[ "-v" ] ) for ( map< TString, TString >::const_iterator flag = sFlagsRR.begin(); flag != sFlagsRR.end(); ++flag ) cout << "    " << flag->first << ": " << flag->second << endl;
-  for ( UInt_t iNameNode = 0; iNameNode < nameCmpNode.size(); ++iNameNode ) {
-    TString nameNode( "RR_" + nameCmpNode.at( iNameNode ) );
+  for (auto& iNameNode : nameCmpNode) {
+    TString nameNode("RR_" + iNameNode);
     if ( sFlagsRR.find( nameNode ) == sFlagsRR.end() ) {
-      cout << "    WARNING: component " << nameCmpNode.at( iNameNode ).Data() << " not found in RR" << endl;
+      cout << "    WARNING: component " << iNameNode.Data() << " not found in RR" << endl;
       cout << "    Automatically set to MISSING" << endl;
       sFlagsRR[ nameNode ] = "MISSING";
     }
@@ -772,9 +772,9 @@ Bool_t readRRTracker( const TString & pathFile )
                   while ( nodeCmpChild && TString( xmlRR->GetNodeName( nodeCmpChild ) ) != "NAME" )
                     nodeCmpChild = xmlRR->GetNext( nodeCmpChild );
                   if ( nodeCmpChild ) {
-                    for ( UInt_t iNameNode = 0; iNameNode < nameCmpNode.size(); ++iNameNode ) {
-                      if ( xmlRR->GetNodeContent( nodeCmpChild ) == nameCmpNode.at( iNameNode ) ) {
-                        TString nameNode( "RRTracker_" + nameCmpNode.at( iNameNode ) );
+                    for (const auto& iNameNode : nameCmpNode) {
+                      if (xmlRR->GetNodeContent(nodeCmpChild) == iNameNode) {
+                        TString nameNode("RRTracker_" + iNameNode);
                         XMLNodePointer_t nodeCmpChildNew( xmlRR->GetChild( nodeCmp ) );
                         while ( nodeCmpChildNew && TString( xmlRR->GetNodeName( nodeCmpChildNew ) ) != "VALUE" )
                           nodeCmpChildNew = xmlRR->GetNext( nodeCmpChildNew );
@@ -867,8 +867,8 @@ Bool_t readDQM( const TString & pathFile )
       }
     }
   }
-  for ( UInt_t iDir = 0; iDir < nameCertDir.size(); ++iDir ) {
-    const TString nameCurDir( nameCertDir.at( iDir ).Contains( pathRunFragment_ ) ? nameCertDir.at( iDir ).Insert( nameCertDir.at( iDir ).Index( "Run " ) + 4, sRunNumber_ ) : nameCertDir.at( iDir ) );
+  for (auto& iDir : nameCertDir) {
+    const TString nameCurDir(iDir.Contains(pathRunFragment_) ? iDir.Insert(iDir.Index("Run ") + 4, sRunNumber_) : iDir);
     TDirectory * dirSub( ( TDirectory * )fileDQM->Get( nameCurDir.Data() ) );
     if ( ! dirSub ) {
       cout << "    WARNING: " << nameCurDir.Data() << " does not exist" << endl;
@@ -1051,18 +1051,18 @@ void certifyRun()
     cout << FlagConvert( iSys->second ) << endl;
     if ( sOptions[ "-v" ] ) {
       if ( iSys->first == sSubSys_[ SiStrip ] ) {
-        for ( UInt_t iCom = 0; iCom < sRunCommentsSiStrip_[ sRunNumber_ ].size(); ++iCom ) {
-          cout << "      " << sRunCommentsSiStrip_[ sRunNumber_ ].at( iCom ).Data() << endl;
+        for (auto& iCom : sRunCommentsSiStrip_[sRunNumber_]) {
+          cout << "      " << iCom.Data() << endl;
         }
       }
       if ( iSys->first == sSubSys_[ Pixel ] ) {
-        for ( UInt_t iCom = 0; iCom < sRunCommentsPixel_[ sRunNumber_ ].size(); ++iCom ) {
-          cout << "      " << sRunCommentsPixel_[ sRunNumber_ ].at( iCom ).Data() << endl;
+        for (auto& iCom : sRunCommentsPixel_[sRunNumber_]) {
+          cout << "      " << iCom.Data() << endl;
         }
       }
       if ( iSys->first == sSubSys_[ Tracking ] ) {
-        for ( UInt_t iCom = 0; iCom < sRunCommentsTracking_[ sRunNumber_ ].size(); ++iCom ) {
-          cout << "      " << sRunCommentsTracking_[ sRunNumber_ ].at( iCom ).Data() << endl;
+        for (auto& iCom : sRunCommentsTracking_[sRunNumber_]) {
+          cout << "      " << iCom.Data() << endl;
         }
       }
     }
@@ -1114,14 +1114,14 @@ void writeOutput()
   fileLog << endl
           << sSubSys_[ 0 ] << ":" << endl
           << endl;
-  for ( UInt_t iRun = 0; iRun < sRunNumbers_.size(); ++iRun ) {
-    if ( sRRSiStrip_[ sRunNumbers_.at( iRun ) ] != sSiStrip_[ sRunNumbers_.at( iRun ) ] ) {
-      fileLog << "  " << sRunNumbers_.at( iRun ) << ": " << sRRSiStrip_[ sRunNumbers_.at( iRun ) ] << " --> " << sSiStrip_[ sRunNumbers_.at( iRun ) ] << endl;
-      if ( sRRSiStrip_[ sRunNumbers_.at( iRun ) ] == TString( "BAD" ) ) {
-        fileLog << "    RR was: " << sRRCommentsSiStrip_[ sRunNumbers_.at( iRun ) ] << endl;
+  for (const auto& sRunNumber : sRunNumbers_) {
+    if (sRRSiStrip_[sRunNumber] != sSiStrip_[sRunNumber]) {
+      fileLog << "  " << sRunNumber << ": " << sRRSiStrip_[sRunNumber] << " --> " << sSiStrip_[sRunNumber] << endl;
+      if (sRRSiStrip_[sRunNumber] == TString("BAD")) {
+        fileLog << "    RR was: " << sRRCommentsSiStrip_[sRunNumber] << endl;
       }
-      for ( UInt_t iCom = 0; iCom < sRunCommentsSiStrip_[ sRunNumbers_.at( iRun ) ].size(); ++iCom ) {
-        fileLog << "    " << sRunCommentsSiStrip_[ sRunNumbers_.at( iRun ) ].at( iCom ).Data() << endl;
+      for (UInt_t iCom = 0; iCom < sRunCommentsSiStrip_[sRunNumber].size(); ++iCom) {
+        fileLog << "    " << sRunCommentsSiStrip_[sRunNumber].at(iCom).Data() << endl;
       }
     }
   }
@@ -1130,14 +1130,14 @@ void writeOutput()
   fileLog << endl
           << sSubSys_[ 1 ] << ":" << endl
           << endl;
-  for ( UInt_t iRun = 0; iRun < sRunNumbers_.size(); ++iRun ) {
-    if ( sRRPixel_[ sRunNumbers_.at( iRun ) ] != sPixel_[ sRunNumbers_.at( iRun ) ] ) {
-      fileLog << "  " << sRunNumbers_.at( iRun ) << ": " << sRRPixel_[ sRunNumbers_.at( iRun ) ] << " --> " << sPixel_[ sRunNumbers_.at( iRun ) ] << endl;
-      if ( sRRPixel_[ sRunNumbers_.at( iRun ) ] == TString( "BAD" ) ) {
-        fileLog << "    RR was: " << sRRCommentsPixel_[ sRunNumbers_.at( iRun ) ] << endl;
+  for (const auto& sRunNumber : sRunNumbers_) {
+    if (sRRPixel_[sRunNumber] != sPixel_[sRunNumber]) {
+      fileLog << "  " << sRunNumber << ": " << sRRPixel_[sRunNumber] << " --> " << sPixel_[sRunNumber] << endl;
+      if (sRRPixel_[sRunNumber] == TString("BAD")) {
+        fileLog << "    RR was: " << sRRCommentsPixel_[sRunNumber] << endl;
       }
-      for ( UInt_t iCom = 0; iCom < sRunCommentsPixel_[ sRunNumbers_.at( iRun ) ].size(); ++iCom ) {
-        fileLog << "    " << sRunCommentsPixel_[ sRunNumbers_.at( iRun ) ].at( iCom ).Data() << endl;
+      for (UInt_t iCom = 0; iCom < sRunCommentsPixel_[sRunNumber].size(); ++iCom) {
+        fileLog << "    " << sRunCommentsPixel_[sRunNumber].at(iCom).Data() << endl;
       }
     }
   }
@@ -1146,14 +1146,14 @@ void writeOutput()
   fileLog << endl
           << sSubSys_[ 2 ] << ":" << endl
           << endl;
-  for ( UInt_t iRun = 0; iRun < sRunNumbers_.size(); ++iRun ) {
-    if ( sRRTracking_[ sRunNumbers_.at( iRun ) ] != sTracking_[ sRunNumbers_.at( iRun ) ] ) {
-      fileLog << "  " << sRunNumbers_.at( iRun ) << ": " << sRRTracking_[ sRunNumbers_.at( iRun ) ] << " --> " << sTracking_[ sRunNumbers_.at( iRun ) ] << endl;
-      if ( sRRTracking_[ sRunNumbers_.at( iRun ) ] == TString( "BAD" ) ) {
-        fileLog << "    RR was: " << sRRCommentsTracking_[ sRunNumbers_.at( iRun ) ] << endl;
+  for (const auto& sRunNumber : sRunNumbers_) {
+    if (sRRTracking_[sRunNumber] != sTracking_[sRunNumber]) {
+      fileLog << "  " << sRunNumber << ": " << sRRTracking_[sRunNumber] << " --> " << sTracking_[sRunNumber] << endl;
+      if (sRRTracking_[sRunNumber] == TString("BAD")) {
+        fileLog << "    RR was: " << sRRCommentsTracking_[sRunNumber] << endl;
       }
-      for ( UInt_t iCom = 0; iCom < sRunCommentsTracking_[ sRunNumbers_.at( iRun ) ].size(); ++iCom ) {
-        fileLog << "    " << sRunCommentsTracking_[ sRunNumbers_.at( iRun ) ].at( iCom ).Data() << endl;
+      for (UInt_t iCom = 0; iCom < sRunCommentsTracking_[sRunNumber].size(); ++iCom) {
+        fileLog << "    " << sRunCommentsTracking_[sRunNumber].at(iCom).Data() << endl;
       }
     }
   }
@@ -1163,19 +1163,19 @@ void writeOutput()
   cout << endl
        << "SUMMARY:" << endl
        << endl;
-  for ( UInt_t iRun = 0; iRun < sRunNumbers_.size(); ++iRun ) {
-    cout << "  " << sRunNumbers_.at( iRun ) << ":" << endl;
-    cout << "    " << sSubSys_[ 0 ] << ": " << sSiStrip_[ sRunNumbers_.at( iRun ) ] << endl;
-    for ( UInt_t iCom = 0; iCom < sRunCommentsSiStrip_[ sRunNumbers_.at( iRun ) ].size(); ++iCom ) {
-      cout << "      " << sRunCommentsSiStrip_[ sRunNumbers_.at( iRun ) ].at( iCom ).Data() << endl;
+  for (const auto& sRunNumber : sRunNumbers_) {
+    cout << "  " << sRunNumber << ":" << endl;
+    cout << "    " << sSubSys_[0] << ": " << sSiStrip_[sRunNumber] << endl;
+    for (UInt_t iCom = 0; iCom < sRunCommentsSiStrip_[sRunNumber].size(); ++iCom) {
+      cout << "      " << sRunCommentsSiStrip_[sRunNumber].at(iCom).Data() << endl;
     }
-    cout << "    " << sSubSys_[ 1 ] << ": " << sPixel_[ sRunNumbers_.at( iRun ) ] << endl;
-    for ( UInt_t iCom = 0; iCom < sRunCommentsPixel_[ sRunNumbers_.at( iRun ) ].size(); ++iCom ) {
-      cout << "      " << sRunCommentsPixel_[ sRunNumbers_.at( iRun ) ].at( iCom ).Data() << endl;
+    cout << "    " << sSubSys_[1] << ": " << sPixel_[sRunNumber] << endl;
+    for (UInt_t iCom = 0; iCom < sRunCommentsPixel_[sRunNumber].size(); ++iCom) {
+      cout << "      " << sRunCommentsPixel_[sRunNumber].at(iCom).Data() << endl;
     }
-    cout << "    " << sSubSys_[ 2 ] << ": " << sTracking_[ sRunNumbers_.at( iRun ) ] << endl;
-    for ( UInt_t iCom = 0; iCom < sRunCommentsTracking_[ sRunNumbers_.at( iRun ) ].size(); ++iCom ) {
-      cout << "      " << sRunCommentsTracking_[ sRunNumbers_.at( iRun ) ].at( iCom ).Data() << endl;
+    cout << "    " << sSubSys_[2] << ": " << sTracking_[sRunNumber] << endl;
+    for (UInt_t iCom = 0; iCom < sRunCommentsTracking_[sRunNumber].size(); ++iCom) {
+      cout << "      " << sRunCommentsTracking_[sRunNumber].at(iCom).Data() << endl;
     }
   }
 

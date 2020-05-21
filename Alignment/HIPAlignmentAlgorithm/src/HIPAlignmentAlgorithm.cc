@@ -145,8 +145,8 @@ void HIPAlignmentAlgorithm::initialize(const edm::EventSetup& setup,
   if (themultiIOV) {
     if (theIOVrangeSet.size() != 1) {
       bool findMatchIOV = false;
-      for (unsigned int iovl = 0; iovl < theIOVrangeSet.size(); iovl++) {
-        if (firstrun == theIOVrangeSet.at(iovl)) {
+      for (unsigned int iovl : theIOVrangeSet) {
+        if (firstrun == iovl) {
           std::string iovapp = std::to_string(firstrun);
           iovapp.append(".root");
           iovapp.insert(0, "_");
@@ -197,13 +197,11 @@ void HIPAlignmentAlgorithm::initialize(const edm::EventSetup& setup,
     // APE parameters, clear if necessary
     theAPEParameters.clear();
     if (theApplyAPE) {
-      for (std::vector<edm::ParameterSet>::const_iterator setiter = theAPEParameterSet.begin();
-           setiter != theAPEParameterSet.end();
-           ++setiter) {
+      for (const auto& setiter : theAPEParameterSet) {
         align::Alignables alignables;
 
         selector.clear();
-        edm::ParameterSet selectorPSet = setiter->getParameter<edm::ParameterSet>("Selector");
+        edm::ParameterSet selectorPSet = setiter.getParameter<edm::ParameterSet>("Selector");
         std::vector<std::string> alignParams = selectorPSet.getParameter<std::vector<std::string>>("alignParams");
         if (alignParams.size() == 1 && alignParams[0] == std::string("selected"))
           alignables = theAlignables;
@@ -212,15 +210,15 @@ void HIPAlignmentAlgorithm::initialize(const edm::EventSetup& setup,
           alignables = selector.selectedAlignables();
         }
 
-        std::vector<double> apeSPar = setiter->getParameter<std::vector<double>>("apeSPar");
-        std::vector<double> apeRPar = setiter->getParameter<std::vector<double>>("apeRPar");
-        std::string function = setiter->getParameter<std::string>("function");
+        std::vector<double> apeSPar = setiter.getParameter<std::vector<double>>("apeSPar");
+        std::vector<double> apeRPar = setiter.getParameter<std::vector<double>>("apeRPar");
+        std::string function = setiter.getParameter<std::string>("function");
 
         if (apeSPar.size() != 3 || apeRPar.size() != 3)
           throw cms::Exception("BadConfig") << "apeSPar and apeRPar must have 3 values each" << std::endl;
 
-        for (std::vector<double>::const_iterator i = apeRPar.begin(); i != apeRPar.end(); ++i)
-          apeSPar.push_back(*i);
+        for (double i : apeRPar)
+          apeSPar.push_back(i);
 
         if (function == std::string("linear"))
           apeSPar.push_back(0);  // c.f. note in calcAPE
@@ -239,13 +237,11 @@ void HIPAlignmentAlgorithm::initialize(const edm::EventSetup& setup,
     // Relative error per component instead of overall relative error
     theAlignableSpecifics.clear();
     if (theApplyCutsPerComponent) {
-      for (std::vector<edm::ParameterSet>::const_iterator setiter = theCutsPerComponent.begin();
-           setiter != theCutsPerComponent.end();
-           ++setiter) {
+      for (const auto& setiter : theCutsPerComponent) {
         align::Alignables alignables;
 
         selector.clear();
-        edm::ParameterSet selectorPSet = setiter->getParameter<edm::ParameterSet>("Selector");
+        edm::ParameterSet selectorPSet = setiter.getParameter<edm::ParameterSet>("Selector");
         std::vector<std::string> alignParams = selectorPSet.getParameter<std::vector<std::string>>("alignParams");
         if (alignParams.size() == 1 && alignParams[0] == std::string("selected"))
           alignables = theAlignables;
@@ -254,16 +250,16 @@ void HIPAlignmentAlgorithm::initialize(const edm::EventSetup& setup,
           alignables = selector.selectedAlignables();
         }
 
-        double minRelParError = setiter->getParameter<double>("minRelParError");
-        double maxRelParError = setiter->getParameter<double>("maxRelParError");
-        int minNHits = setiter->getParameter<int>("minNHits");
-        double maxHitPull = setiter->getParameter<double>("maxHitPull");
-        bool applyPixelProbCut = setiter->getParameter<bool>("applyPixelProbCut");
-        bool usePixelProbXYOrProbQ = setiter->getParameter<bool>("usePixelProbXYOrProbQ");
-        double minPixelProbXY = setiter->getParameter<double>("minPixelProbXY");
-        double maxPixelProbXY = setiter->getParameter<double>("maxPixelProbXY");
-        double minPixelProbQ = setiter->getParameter<double>("minPixelProbQ");
-        double maxPixelProbQ = setiter->getParameter<double>("maxPixelProbQ");
+        double minRelParError = setiter.getParameter<double>("minRelParError");
+        double maxRelParError = setiter.getParameter<double>("maxRelParError");
+        int minNHits = setiter.getParameter<int>("minNHits");
+        double maxHitPull = setiter.getParameter<double>("maxHitPull");
+        bool applyPixelProbCut = setiter.getParameter<bool>("applyPixelProbCut");
+        bool usePixelProbXYOrProbQ = setiter.getParameter<bool>("usePixelProbXYOrProbQ");
+        double minPixelProbXY = setiter.getParameter<double>("minPixelProbXY");
+        double maxPixelProbXY = setiter.getParameter<double>("maxPixelProbXY");
+        double minPixelProbQ = setiter.getParameter<double>("minPixelProbQ");
+        double maxPixelProbQ = setiter.getParameter<double>("maxPixelProbQ");
         for (auto& ali : alignables) {
           HIPAlignableSpecificParameters alispecs(ali);
           alispecs.minRelParError = minRelParError;
@@ -388,8 +384,8 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup) {
       float tmpz = pos.z();
       if (nhit < 1500 ||
           (tmp_Type == 5 && tmp_Layer == 4 && fabs(tmpz) > 90)) {  // FIXME: Needs revision for hardcoded consts
-        for (unsigned int l = 0; l < theLevels.size(); ++l) {
-          SurveyResidual res(*ali, theLevels[l], true);
+        for (auto& theLevel : theLevels) {
+          SurveyResidual res(*ali, theLevel, true);
 
           if (res.valid()) {
             AlgebraicSymMatrix invCov = res.inverseCovariance();
@@ -397,7 +393,7 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup) {
             // variable for tree
             AlgebraicVector sensResid = res.sensorResidual();
             m3_Id = ali->id();
-            m3_ObjId = theLevels[l];
+            m3_ObjId = theLevel;
             m3_par[0] = sensResid[0];
             m3_par[1] = sensResid[1];
             m3_par[2] = sensResid[2];
@@ -744,9 +740,9 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo& e
 
   // loop over tracks
   const ConstTrajTrackPairCollection& tracks = eventInfo.trajTrackPairs();
-  for (ConstTrajTrackPairCollection::const_iterator it = tracks.begin(); it != tracks.end(); ++it) {
-    const Trajectory* traj = (*it).first;
-    const reco::Track* track = (*it).second;
+  for (const auto& it : tracks) {
+    const Trajectory* traj = it.first;
+    const reco::Track* track = it.second;
 
     float pt = track->pt();
     float eta = track->eta();
@@ -807,9 +803,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo& e
 
     // loop over measurements
     std::vector<TrajectoryMeasurement> measurements = traj->measurements();
-    for (std::vector<TrajectoryMeasurement>::iterator im = measurements.begin(); im != measurements.end(); ++im) {
-      TrajectoryMeasurement meas = *im;
-
+    for (auto meas : measurements) {
       // const TransientTrackingRecHit* ttrhit = &(*meas.recHit());
       // const TrackingRecHit *hit = ttrhit->hit();
       const TransientTrackingRecHit* hit = &(*meas.recHit());
@@ -1433,9 +1427,9 @@ void HIPAlignmentAlgorithm::collector(void) {
             peraliwgt = ali_datatypecountpair_map[ali][alijobdtype];
             unsigned int nNonZeroTypes = 0;
             pawt_t sumwgts = 0;
-            for (auto it = ali_datatypecountpair_map[ali].cbegin(); it != ali_datatypecountpair_map[ali].cend(); ++it) {
-              sumwgts += it->second;
-              if (it->second != pawt_t(0))
+            for (auto it : ali_datatypecountpair_map[ali]) {
+              sumwgts += it.second;
+              if (it.second != pawt_t(0))
                 nNonZeroTypes++;
             }
             edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::collector"
@@ -1548,11 +1542,9 @@ void HIPAlignmentAlgorithm::collectMonitorTrees(const std::vector<std::string>& 
 //-----------------------------------------------------------------------------------
 HIPAlignableSpecificParameters* HIPAlignmentAlgorithm::findAlignableSpecs(const Alignable* ali) {
   if (ali != nullptr) {
-    for (std::vector<HIPAlignableSpecificParameters>::iterator it = theAlignableSpecifics.begin();
-         it != theAlignableSpecifics.end();
-         it++) {
-      if (it->matchAlignable(ali))
-        return &(*it);
+    for (auto& theAlignableSpecific : theAlignableSpecifics) {
+      if (theAlignableSpecific.matchAlignable(ali))
+        return &theAlignableSpecific;
     }
     edm::LogInfo("Alignment") << "[HIPAlignmentAlgorithm::findAlignableSpecs] Alignment object with id " << ali->id()
                               << " / " << ali->alignableObjectId() << " could not be found. Returning default.";

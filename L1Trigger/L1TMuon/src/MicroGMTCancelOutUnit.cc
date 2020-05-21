@@ -152,14 +152,14 @@ namespace l1t {
 
     MicroGMTMatchQualLUT* matchLUT = m_lutDict.at(coll1TfType + coll2TfType * 10).get();
 
-    for (auto mu_w1 = coll1.begin(); mu_w1 != coll1.end(); ++mu_w1) {
-      int etaFine1 = (*mu_w1)->hwHF();
+    for (auto& mu_w1 : coll1) {
+      int etaFine1 = mu_w1->hwHF();
       // for EMTF muons set eta fine bit to true since hwHF is the halo bit
       if (coll1TfType == tftype::emtf_pos || coll1TfType == tftype::emtf_neg) {
         etaFine1 = 1;
       }
-      for (auto mu_w2 = coll2.begin(); mu_w2 != coll2.end(); ++mu_w2) {
-        int etaFine2 = (*mu_w2)->hwHF();
+      for (auto& mu_w2 : coll2) {
+        int etaFine2 = mu_w2->hwHF();
         // for EMTF muons set eta fine bit to true since hwHF is the halo bit
         if (coll2TfType == tftype::emtf_pos || coll2TfType == tftype::emtf_neg) {
           etaFine2 = 1;
@@ -171,22 +171,22 @@ namespace l1t {
         int dPhiMask = (1 << matchLUT->getDeltaPhiWidth()) - 1;
         int dEtaMask = (1 << matchLUT->getDeltaEtaWidth()) - 1;
 
-        int dPhi = (*mu_w1)->hwGlobalPhi() - (*mu_w2)->hwGlobalPhi();
+        int dPhi = mu_w1->hwGlobalPhi() - mu_w2->hwGlobalPhi();
         dPhi = std::abs(dPhi);
         if (dPhi > 338)
           dPhi -= 576;  // shifts dPhi to [-pi, pi) in integer scale
         dPhi = std::abs(dPhi);
-        int dEta = std::abs((*mu_w1)->hwEta() - (*mu_w2)->hwEta());
+        int dEta = std::abs(mu_w1->hwEta() - mu_w2->hwEta());
         // check first if the delta is within the LSBs that the LUT takes, otherwise the distance
         // is greater than what we want to cancel -> e.g. 31(int) is max => 31*0.01 = 0.31 (rad)
         // LUT takes 5 LSB for dEta and 3 LSB for dPhi
         if (dEta <= dEtaMask && dPhi <= dPhiMask) {
           int match = matchLUT->lookup(etaFine, dEta & dEtaMask, dPhi & dPhiMask);
           if (match == 1) {
-            if ((*mu_w1)->hwQual() > (*mu_w2)->hwQual()) {
-              (*mu_w2)->setHwCancelBit(1);
+            if (mu_w1->hwQual() > mu_w2->hwQual()) {
+              mu_w2->setHwCancelBit(1);
             } else {
-              (*mu_w1)->setHwCancelBit(1);
+              mu_w1->setHwCancelBit(1);
             }
           }
         }
@@ -201,8 +201,8 @@ namespace l1t {
     }
     // Address based cancel out for BMTF
     if ((*coll1.begin())->trackFinderType() == tftype::bmtf && (*coll2.begin())->trackFinderType() == tftype::bmtf) {
-      for (auto mu_w1 = coll1.begin(); mu_w1 != coll1.end(); ++mu_w1) {
-        std::map<int, int> trkAddr_w1 = (*mu_w1)->origin().trackAddress();
+      for (auto& mu_w1 : coll1) {
+        std::map<int, int> trkAddr_w1 = mu_w1->origin().trackAddress();
         int wheelNum_w1 = trkAddr_w1[l1t::RegionalMuonCand::bmtfAddress::kWheelNum];
         int wheelSide_w1 = trkAddr_w1[l1t::RegionalMuonCand::bmtfAddress::kWheelSide];
         std::vector<int> stations_w1;
@@ -212,8 +212,8 @@ namespace l1t {
         stations_w1.push_back(trkAddr_w1[l1t::RegionalMuonCand::bmtfAddress::kStat4]);
         //std::cout << "Track address 1: wheelSide (1 == negative side): " << wheelSide_w1 << ", wheelNum: " << wheelNum_w1 << ", stations1234: 0x" << hex << stations_w1[0] << stations_w1[1] << stations_w1[2] << stations_w1[3] << dec << std::endl;
 
-        for (auto mu_w2 = coll2.begin(); mu_w2 != coll2.end(); ++mu_w2) {
-          std::map<int, int> trkAddr_w2 = (*mu_w2)->origin().trackAddress();
+        for (auto& mu_w2 : coll2) {
+          std::map<int, int> trkAddr_w2 = mu_w2->origin().trackAddress();
           int wheelNum_w2 = trkAddr_w2[l1t::RegionalMuonCand::bmtfAddress::kWheelNum];
           int wheelSide_w2 = trkAddr_w2[l1t::RegionalMuonCand::bmtfAddress::kWheelSide];
           std::vector<int> stations_w2;
@@ -267,10 +267,10 @@ namespace l1t {
           }
           //std::cout << "Shared hits found: " << nMatchedStations << std::endl;
           if (nMatchedStations > 0) {
-            if ((*mu_w1)->origin().hwQual() >= (*mu_w2)->origin().hwQual()) {
-              (*mu_w2)->setHwCancelBit(1);
+            if (mu_w1->origin().hwQual() >= mu_w2->origin().hwQual()) {
+              mu_w2->setHwCancelBit(1);
             } else {
-              (*mu_w1)->setHwCancelBit(1);
+              mu_w1->setHwCancelBit(1);
             }
           }
         }
@@ -280,8 +280,8 @@ namespace l1t {
                 (*coll2.begin())->trackFinderType() == tftype::emtf_pos) ||
                ((*coll1.begin())->trackFinderType() == tftype::emtf_neg &&
                 (*coll2.begin())->trackFinderType() == tftype::emtf_neg)) {
-      for (auto mu_s1 = coll1.begin(); mu_s1 != coll1.end(); ++mu_s1) {
-        std::map<int, int> trkAddr_s1 = (*mu_s1)->origin().trackAddress();
+      for (auto& mu_s1 : coll1) {
+        std::map<int, int> trkAddr_s1 = mu_s1->origin().trackAddress();
         int me1_ch_s1 = trkAddr_s1[l1t::RegionalMuonCand::emtfAddress::kME1Ch];
         int me2_ch_s1 = trkAddr_s1[l1t::RegionalMuonCand::emtfAddress::kME2Ch];
         int me3_ch_s1 = trkAddr_s1[l1t::RegionalMuonCand::emtfAddress::kME3Ch];
@@ -293,8 +293,8 @@ namespace l1t {
         int me2_seg_s1 = trkAddr_s1[l1t::RegionalMuonCand::emtfAddress::kME2Seg];
         int me3_seg_s1 = trkAddr_s1[l1t::RegionalMuonCand::emtfAddress::kME3Seg];
         int me4_seg_s1 = trkAddr_s1[l1t::RegionalMuonCand::emtfAddress::kME4Seg];
-        for (auto mu_s2 = coll2.begin(); mu_s2 != coll2.end(); ++mu_s2) {
-          std::map<int, int> trkAddr_s2 = (*mu_s2)->origin().trackAddress();
+        for (auto& mu_s2 : coll2) {
+          std::map<int, int> trkAddr_s2 = mu_s2->origin().trackAddress();
           int me1_ch_s2 = trkAddr_s2[l1t::RegionalMuonCand::emtfAddress::kME1Ch];
           int me2_ch_s2 = trkAddr_s2[l1t::RegionalMuonCand::emtfAddress::kME2Ch];
           int me3_ch_s2 = trkAddr_s2[l1t::RegionalMuonCand::emtfAddress::kME3Ch];
@@ -323,10 +323,10 @@ namespace l1t {
 
           //std::cout << "Shared hits found: " << nMatchedStations << std::endl;
           if (nMatchedStations > 0) {
-            if ((*mu_s1)->origin().hwQual() >= (*mu_s2)->origin().hwQual()) {
-              (*mu_s2)->setHwCancelBit(1);
+            if (mu_s1->origin().hwQual() >= mu_s2->origin().hwQual()) {
+              mu_s2->setHwCancelBit(1);
             } else {
-              (*mu_s1)->setHwCancelBit(1);
+              mu_s1->setHwCancelBit(1);
             }
           }
         }

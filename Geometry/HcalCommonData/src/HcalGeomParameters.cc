@@ -475,8 +475,8 @@ void HcalGeomParameters::clear(HcalParameters& php) {
   // Initialize all variables
   nzHB_ = nmodHB_ = 0;
   nzHE_ = nmodHE_ = 0;
-  for (int i = 0; i < 4; ++i)
-    etaHO_[i] = 0;
+  for (double& i : etaHO_)
+    i = 0;
   zVcal_ = dzVcal_ = dlShort_ = 0;
   rminHO_ = dzVcal_ = -1.;
   for (int i = 0; i < maxLayer_; ++i) {

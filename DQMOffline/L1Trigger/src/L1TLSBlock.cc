@@ -153,12 +153,12 @@ void L1TLSBlock::blockByStatistics() {
   double currentError(0);
   bool resetFlag(true);
 
-  for (LumiTestDoubleList::iterator i = inputDoubleList_.begin(); i != inputDoubleList_.end(); i++) {
+  for (auto& i : inputDoubleList_) {
     if (resetFlag) {
-      currentRange = std::make_pair(i->first, i->first);
+      currentRange = std::make_pair(i.first, i.first);
       resetFlag = false;
     } else
-      currentRange = std::make_pair(currentRange.first, i->first);
+      currentRange = std::make_pair(currentRange.first, i.first);
     currentError = computeErrorFromRange(currentRange);
     if (currentError < thresholdD_) {
       outputList_.push_back(currentRange);
@@ -171,13 +171,13 @@ double L1TLSBlock::computeErrorFromRange(LumiRange& lumiRange) {
   std::vector<double> errorList;
   errorList.clear();
 
-  for (size_t i = 0; i < inputDoubleList_.size(); i++) {
-    if (inputDoubleList_[i].first > lumiRange.first && inputDoubleList_[i].first < lumiRange.second)
-      errorList.push_back(inputDoubleList_[i].second);
+  for (auto& i : inputDoubleList_) {
+    if (i.first > lumiRange.first && i.first < lumiRange.second)
+      errorList.push_back(i.second);
   }
 
   double error(-1);
-  for (size_t i = 0; i < errorList.size(); i++)
-    error += 1 / (errorList[i] * errorList[i]);
+  for (double i : errorList)
+    error += 1 / (i * i);
   return error;
 }

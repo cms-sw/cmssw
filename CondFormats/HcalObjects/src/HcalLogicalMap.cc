@@ -160,20 +160,20 @@ void HcalLogicalMap::printMap(unsigned int mapIOV) {
 std::unique_ptr<HcalElectronicsMap> HcalLogicalMap::generateHcalElectronicsMap() {
   HcalElectronicsMapAddons::Helper theemapHelper;
 
-  for (std::vector<HBHEHFLogicalMapEntry>::iterator it = HBHEHFEntries_.begin(); it != HBHEHFEntries_.end(); ++it) {
-    theemapHelper.mapEId2chId(it->getHcalElectronicsId(), it->getDetId());
+  for (auto& HBHEHFEntrie : HBHEHFEntries_) {
+    theemapHelper.mapEId2chId(HBHEHFEntrie.getHcalElectronicsId(), HBHEHFEntrie.getDetId());
   }
-  for (std::vector<HOHXLogicalMapEntry>::iterator it = HOHXEntries_.begin(); it != HOHXEntries_.end(); ++it) {
-    theemapHelper.mapEId2chId(it->getHcalElectronicsId(), it->getDetId());
+  for (auto& HOHXEntrie : HOHXEntries_) {
+    theemapHelper.mapEId2chId(HOHXEntrie.getHcalElectronicsId(), HOHXEntrie.getDetId());
   }
-  for (std::vector<CALIBLogicalMapEntry>::iterator it = CALIBEntries_.begin(); it != CALIBEntries_.end(); ++it) {
-    theemapHelper.mapEId2chId(it->getHcalElectronicsId(), it->getDetId());
+  for (auto& CALIBEntrie : CALIBEntries_) {
+    theemapHelper.mapEId2chId(CALIBEntrie.getHcalElectronicsId(), CALIBEntrie.getDetId());
   }
-  for (std::vector<ZDCLogicalMapEntry>::iterator it = ZDCEntries_.begin(); it != ZDCEntries_.end(); ++it) {
-    theemapHelper.mapEId2chId(it->getHcalElectronicsId(), it->getDetId());
+  for (auto& ZDCEntrie : ZDCEntries_) {
+    theemapHelper.mapEId2chId(ZDCEntrie.getHcalElectronicsId(), ZDCEntrie.getDetId());
   }
-  for (std::vector<HTLogicalMapEntry>::iterator it = HTEntries_.begin(); it != HTEntries_.end(); ++it) {
-    theemapHelper.mapEId2tId(it->getHcalTrigElectronicsId(), it->getDetId());
+  for (auto& HTEntrie : HTEntries_) {
+    theemapHelper.mapEId2tId(HTEntrie.getHcalTrigElectronicsId(), HTEntrie.getDetId());
   }
   return std::make_unique<HcalElectronicsMap>(theemapHelper);
 }
@@ -182,7 +182,7 @@ std::unique_ptr<HcalElectronicsMap> HcalLogicalMap::generateHcalElectronicsMap()
 void HcalLogicalMap::printHBEFMap(FILE* hbefmapfile) {
   int titlecounter = 0;
 
-  for (std::vector<HBHEHFLogicalMapEntry>::iterator it = HBHEHFEntries_.begin(); it != HBHEHFEntries_.end(); ++it) {
+  for (auto& HBHEHFEntrie : HBHEHFEntries_) {
     titlecounter = titlecounter % 21;
     if (titlecounter == 0) {
       fprintf(hbefmapfile, "#   side    eta    phi   dphi  depth    det     rbx  wedge     rm  pixel   qie    adc");
@@ -190,56 +190,56 @@ void HcalLogicalMap::printHBEFMap(FILE* hbefmapfile) {
       fprintf(hbefmapfile, "           slnam    rctcra rctcar rctcon               rctnam     fedid\n");
     }
     titlecounter++;
-    fprintf(hbefmapfile, "%s", it->printLMapLine());
+    fprintf(hbefmapfile, "%s", HBHEHFEntrie.printLMapLine());
   }
 }
 
 void HcalLogicalMap::printHOXMap(FILE* hoxmapfile) {
   int titlecounter = 0;
 
-  for (std::vector<HOHXLogicalMapEntry>::iterator it = HOHXEntries_.begin(); it != HOHXEntries_.end(); ++it) {
+  for (auto& HOHXEntrie : HOHXEntries_) {
     titlecounter = titlecounter % 21;
     if (titlecounter == 0) {
       fprintf(hoxmapfile, "#   side    eta    phi   dphi  depth    det     rbx  sector    rm  pixel   qie    adc");
       fprintf(hoxmapfile, "  rm_fi  fi_ch let_code  crate    htr   fpga  htr_fi  dcc_sl  spigo    dcc  fedid\n");
     }
     titlecounter++;
-    fprintf(hoxmapfile, "%s", it->printLMapLine());
+    fprintf(hoxmapfile, "%s", HOHXEntrie.printLMapLine());
   }
 }
 
 void HcalLogicalMap::printCalibMap(FILE* calibmapfile) {
   int titlecounter = 0;
 
-  for (std::vector<CALIBLogicalMapEntry>::iterator it = CALIBEntries_.begin(); it != CALIBEntries_.end(); ++it) {
+  for (auto& CALIBEntrie : CALIBEntries_) {
     titlecounter = titlecounter % 21;
     if (titlecounter == 0) {
       fprintf(calibmapfile, "#   side    eta    phi   dphi    det     rbx  sector  rm  rm_fi ");
       fprintf(calibmapfile, " fi_ch  crate  htr  fpga  htr_fi  dcc_sl  spigo  dcc  fedid  ch_type      name\n");
     }
     titlecounter++;
-    fprintf(calibmapfile, "%s", it->printLMapLine());
+    fprintf(calibmapfile, "%s", CALIBEntrie.printLMapLine());
   }
 }
 
 void HcalLogicalMap::printZDCMap(FILE* zdcmapfile) {
   int titlecounter = 0;
 
-  for (std::vector<ZDCLogicalMapEntry>::iterator it = ZDCEntries_.begin(); it != ZDCEntries_.end(); ++it) {
+  for (auto& ZDCEntrie : ZDCEntries_) {
     titlecounter = titlecounter % 21;
     if (titlecounter == 0) {
       fprintf(zdcmapfile, "#  side  x  y  dx  depth     det  det_ch  cable  rm  qie ");
       fprintf(zdcmapfile, " adc  rm_fi  fi_ch  crate  htr  fpga  htr_fi  dcc_sl  spigo  dcc  fedid\n");
     }
     titlecounter++;
-    fprintf(zdcmapfile, "%s", it->printLMapLine());
+    fprintf(zdcmapfile, "%s", ZDCEntrie.printLMapLine());
   }
 }
 
 void HcalLogicalMap::printHTMap(FILE* htmapfile) {
   int titlecounter = 0;
 
-  for (std::vector<HTLogicalMapEntry>::iterator it = HTEntries_.begin(); it != HTEntries_.end(); ++it) {
+  for (auto& HTEntrie : HTEntries_) {
     titlecounter = titlecounter % 21;
     if (titlecounter == 0) {
       fprintf(htmapfile, "#  side  eta  phi  dphi  depth  det   wedge  crate");
@@ -247,7 +247,7 @@ void HcalLogicalMap::printHTMap(FILE* htmapfile) {
       fprintf(htmapfile, "     slnam  rctcra  rctcar  rctcon            rctnam  fedid\n");
     }
     titlecounter++;
-    fprintf(htmapfile, "%s", it->printLMapLine());
+    fprintf(htmapfile, "%s", HTEntrie.printLMapLine());
   }
 }
 
@@ -320,57 +320,57 @@ void HcalLogicalMap::checkIdFunctions() {
 
   cout << "\nRunning the id function checker..." << endl;
 
-  for (std::vector<HBHEHFLogicalMapEntry>::iterator it = HBHEHFEntries_.begin(); it != HBHEHFEntries_.end(); ++it) {
-    const HcalElectronicsId heid = it->getHcalElectronicsId();
-    const DetId did0 = it->getDetId();
+  for (auto& HBHEHFEntrie : HBHEHFEntries_) {
+    const HcalElectronicsId heid = HBHEHFEntrie.getHcalElectronicsId();
+    const DetId did0 = HBHEHFEntrie.getDetId();
     const DetId did1 = getDetId(heid);
     if (did0 == did1)
       HBHEHF_EID_pass++;
     else
       HBHEHF_EID_fail++;
 
-    const HcalFrontEndId hfeid0 = it->getHcalFrontEndId();
+    const HcalFrontEndId hfeid0 = HBHEHFEntrie.getHcalFrontEndId();
     const HcalFrontEndId hfeid1 = getHcalFrontEndId(did0);
     if (hfeid0 == hfeid1)
       HBHEHF_FEID_pass++;
     else
       HBHEHF_FEID_fail++;
   }
-  for (std::vector<HOHXLogicalMapEntry>::iterator it = HOHXEntries_.begin(); it != HOHXEntries_.end(); ++it) {
-    const HcalElectronicsId heid = it->getHcalElectronicsId();
-    const DetId did0 = it->getDetId();
+  for (auto& HOHXEntrie : HOHXEntries_) {
+    const HcalElectronicsId heid = HOHXEntrie.getHcalElectronicsId();
+    const DetId did0 = HOHXEntrie.getDetId();
     const DetId did1 = getDetId(heid);
     if (did0 == did1)
       HOHX_EID_pass++;
     else
       HOHX_EID_fail++;
 
-    const HcalFrontEndId hfeid0 = it->getHcalFrontEndId();
+    const HcalFrontEndId hfeid0 = HOHXEntrie.getHcalFrontEndId();
     const HcalFrontEndId hfeid1 = getHcalFrontEndId(did0);
     if (hfeid0 == hfeid1)
       HOHX_FEID_pass++;
     else
       HOHX_FEID_fail++;
   }
-  for (std::vector<CALIBLogicalMapEntry>::iterator it = CALIBEntries_.begin(); it != CALIBEntries_.end(); ++it) {
-    const HcalElectronicsId heid = it->getHcalElectronicsId();
-    const DetId did0 = it->getDetId();
+  for (auto& CALIBEntrie : CALIBEntries_) {
+    const HcalElectronicsId heid = CALIBEntrie.getHcalElectronicsId();
+    const DetId did0 = CALIBEntrie.getDetId();
     const DetId did1 = getDetId(heid);
     if (did0 == did1)
       CALIB_EID_pass++;
     else
       CALIB_EID_fail++;
 
-    const HcalFrontEndId hfeid0 = it->getHcalFrontEndId();
+    const HcalFrontEndId hfeid0 = CALIBEntrie.getHcalFrontEndId();
     const HcalFrontEndId hfeid1 = getHcalFrontEndId(did0);
     if (hfeid0 == hfeid1)
       CALIB_FEID_pass++;
     else
       CALIB_FEID_fail++;
   }
-  for (std::vector<ZDCLogicalMapEntry>::iterator it = ZDCEntries_.begin(); it != ZDCEntries_.end(); ++it) {
-    const HcalElectronicsId heid = it->getHcalElectronicsId();
-    const DetId did0 = it->getDetId();
+  for (auto& ZDCEntrie : ZDCEntries_) {
+    const HcalElectronicsId heid = ZDCEntrie.getHcalElectronicsId();
+    const DetId did0 = ZDCEntrie.getDetId();
     const DetId did1 = getDetId(heid);
     if (did0 == did1)
       ZDC_EID_pass++;
@@ -404,30 +404,30 @@ void HcalLogicalMap::checkHashIds() {
   int numnotdense[7] = {0, 0, 0, 0, 0, 0, 0};
 
   cout << "\nRunning the hash checker for detIds..." << endl;
-  for (std::vector<HBHEHFLogicalMapEntry>::iterator it = HBHEHFEntries_.begin(); it != HBHEHFEntries_.end(); ++it) {
-    if (it->getDetId().subdetId() == HcalBarrel) {
-      HB_Hashes_.push_back(topo_->detId2denseIdHB(it->getDetId()));
-    } else if (it->getDetId().subdetId() == HcalEndcap) {
-      HE_Hashes_.push_back(topo_->detId2denseIdHE(it->getDetId()));
-    } else if (it->getDetId().subdetId() == HcalForward) {
-      HF_Hashes_.push_back(topo_->detId2denseIdHF(it->getDetId()));
+  for (auto& HBHEHFEntrie : HBHEHFEntries_) {
+    if (HBHEHFEntrie.getDetId().subdetId() == HcalBarrel) {
+      HB_Hashes_.push_back(topo_->detId2denseIdHB(HBHEHFEntrie.getDetId()));
+    } else if (HBHEHFEntrie.getDetId().subdetId() == HcalEndcap) {
+      HE_Hashes_.push_back(topo_->detId2denseIdHE(HBHEHFEntrie.getDetId()));
+    } else if (HBHEHFEntrie.getDetId().subdetId() == HcalForward) {
+      HF_Hashes_.push_back(topo_->detId2denseIdHF(HBHEHFEntrie.getDetId()));
     }
   }
-  for (std::vector<HOHXLogicalMapEntry>::iterator it = HOHXEntries_.begin(); it != HOHXEntries_.end(); ++it) {
-    if (HcalGenericDetId(it->getDetId().rawId()).isHcalCalibDetId()) {
-      CALIBHX_Hashes_.push_back(topo_->detId2denseIdCALIB(it->getDetId()));
+  for (auto& HOHXEntrie : HOHXEntries_) {
+    if (HcalGenericDetId(HOHXEntrie.getDetId().rawId()).isHcalCalibDetId()) {
+      CALIBHX_Hashes_.push_back(topo_->detId2denseIdCALIB(HOHXEntrie.getDetId()));
     } else {
-      HO_Hashes_.push_back(topo_->detId2denseIdHO(it->getDetId()));
+      HO_Hashes_.push_back(topo_->detId2denseIdHO(HOHXEntrie.getDetId()));
     }
   }
-  for (std::vector<CALIBLogicalMapEntry>::iterator it = CALIBEntries_.begin(); it != CALIBEntries_.end(); ++it) {
-    CALIBHX_Hashes_.push_back(topo_->detId2denseIdCALIB(it->getDetId()));
+  for (auto& CALIBEntrie : CALIBEntries_) {
+    CALIBHX_Hashes_.push_back(topo_->detId2denseIdCALIB(CALIBEntrie.getDetId()));
   }
-  for (std::vector<ZDCLogicalMapEntry>::iterator it = ZDCEntries_.begin(); it != ZDCEntries_.end(); ++it) {
-    ZDC_Hashes_.push_back(HcalZDCDetId(it->getDetId()).denseIndex());
+  for (auto& ZDCEntrie : ZDCEntries_) {
+    ZDC_Hashes_.push_back(HcalZDCDetId(ZDCEntrie.getDetId()).denseIndex());
   }
-  for (std::vector<HTLogicalMapEntry>::iterator it = HTEntries_.begin(); it != HTEntries_.end(); ++it) {
-    HT_Hashes_.push_back(topo_->detId2denseIdHT(it->getDetId()));
+  for (auto& HTEntrie : HTEntries_) {
+    HT_Hashes_.push_back(topo_->detId2denseIdHT(HTEntrie.getDetId()));
   }
 
   sort(HB_Hashes_.begin(), HB_Hashes_.end());
@@ -525,20 +525,20 @@ void HcalLogicalMap::checkElectronicsHashIds() {
   int numnotdense = 0;
 
   cout << "\nRunning the hash checker for electronics Ids..." << endl;
-  for (std::vector<HBHEHFLogicalMapEntry>::iterator it = HBHEHFEntries_.begin(); it != HBHEHFEntries_.end(); ++it) {
-    Electronics_Hashes_.push_back((it->getHcalElectronicsId()).linearIndex());
+  for (auto& HBHEHFEntrie : HBHEHFEntries_) {
+    Electronics_Hashes_.push_back((HBHEHFEntrie.getHcalElectronicsId()).linearIndex());
   }
-  for (std::vector<ZDCLogicalMapEntry>::iterator it = ZDCEntries_.begin(); it != ZDCEntries_.end(); ++it) {
-    Electronics_Hashes_.push_back((it->getHcalElectronicsId()).linearIndex());
+  for (auto& ZDCEntrie : ZDCEntries_) {
+    Electronics_Hashes_.push_back((ZDCEntrie.getHcalElectronicsId()).linearIndex());
   }
-  for (std::vector<CALIBLogicalMapEntry>::iterator it = CALIBEntries_.begin(); it != CALIBEntries_.end(); ++it) {
-    Electronics_Hashes_.push_back((it->getHcalElectronicsId()).linearIndex());
+  for (auto& CALIBEntrie : CALIBEntries_) {
+    Electronics_Hashes_.push_back((CALIBEntrie.getHcalElectronicsId()).linearIndex());
   }
-  for (std::vector<HOHXLogicalMapEntry>::iterator it = HOHXEntries_.begin(); it != HOHXEntries_.end(); ++it) {
-    Electronics_Hashes_.push_back((it->getHcalElectronicsId()).linearIndex());
+  for (auto& HOHXEntrie : HOHXEntries_) {
+    Electronics_Hashes_.push_back((HOHXEntrie.getHcalElectronicsId()).linearIndex());
   }
-  for (std::vector<HTLogicalMapEntry>::iterator it = HTEntries_.begin(); it != HTEntries_.end(); ++it) {
-    Electronics_Hashes_.push_back((it->getHcalTrigElectronicsId()).linearIndex());
+  for (auto& HTEntrie : HTEntries_) {
+    Electronics_Hashes_.push_back((HTEntrie.getHcalTrigElectronicsId()).linearIndex());
   }
 
   sort(Electronics_Hashes_.begin(), Electronics_Hashes_.end());

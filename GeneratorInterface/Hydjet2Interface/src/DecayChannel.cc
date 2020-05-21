@@ -21,8 +21,8 @@ DecayChannel::DecayChannel() {
   fMotherPDG = kNonsensePDG;
   fBranchingRatio = 0.0;
   fNDaughters = 0;
-  for (int i = 0; i < kMaxDaughters; i++)
-    fDaughtersPDG[i] = kNonsensePDG;
+  for (int &i : fDaughtersPDG)
+    i = kNonsensePDG;
 }
 
 DecayChannel::DecayChannel(const DecayChannel &copy) {

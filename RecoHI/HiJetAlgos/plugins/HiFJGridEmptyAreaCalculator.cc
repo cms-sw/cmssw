@@ -174,8 +174,7 @@ void HiFJGridEmptyAreaCalculator::calculateGridRho(const edm::Event& iEvent, con
   edm::Handle<reco::PFCandidateCollection> pfCands;
   iEvent.getByToken(pfCandsToken_, pfCands);
   const reco::PFCandidateCollection* pfCandidateColl = pfCands.product();
-  for (unsigned icand = 0; icand < pfCandidateColl->size(); icand++) {
-    const reco::PFCandidate pfCandidate = pfCandidateColl->at(icand);
+  for (auto pfCandidate : *pfCandidateColl) {
     //use ony the particles within the eta range
     if (pfCandidate.eta() < ymin_ || pfCandidate.eta() > ymax_)
       continue;

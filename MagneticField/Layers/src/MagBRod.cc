@@ -22,10 +22,10 @@ MagBRod::MagBRod(vector<MagBSlab *> &slabs, Geom::Phi<float> phiMin)
 
   if (theSlabs.size() > 1) {  // Set the binfinder
     vector<double> zBorders;
-    for (vector<MagBSlab *>::const_iterator islab = theSlabs.begin(); islab != theSlabs.end(); ++islab) {
-      LogTrace("MagGeoBuilder") << " MagBSlab minZ=" << (*islab)->minZ() << endl;
+    for (auto theSlab : theSlabs) {
+      LogTrace("MagGeoBuilder") << " MagBSlab minZ=" << theSlab->minZ() << endl;
       //FIXME assume layers are already sorted in Z
-      zBorders.push_back((*islab)->minZ());
+      zBorders.push_back(theSlab->minZ());
     }
     theBinFinder = new MagBinFinders::GeneralBinFinderInZ<double>(zBorders);
   }
@@ -34,8 +34,8 @@ MagBRod::MagBRod(vector<MagBSlab *> &slabs, Geom::Phi<float> phiMin)
 MagBRod::~MagBRod() {
   delete theBinFinder;
 
-  for (vector<MagBSlab *>::const_iterator islab = theSlabs.begin(); islab != theSlabs.end(); ++islab) {
-    delete (*islab);
+  for (auto theSlab : theSlabs) {
+    delete theSlab;
   }
 }
 

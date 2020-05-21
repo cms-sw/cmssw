@@ -399,12 +399,12 @@ void HLTObjectsMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
               if (!caloJetBTags.isValid())
                 plot.csvME.first->Fill(-10.);
               else {
-                for (auto it = caloJetBTags->begin(); it != caloJetBTags->end(); ++it) {
-                  double dR = deltaR(eta, phi, it->first->eta(), it->first->phi());
+                for (const auto& it : *caloJetBTags) {
+                  double dR = deltaR(eta, phi, it.first->eta(), it.first->phi());
                   if (debug_)
                     std::cout << "[HLTObjectsMonitor::analyze] deltaR: " << dR << " matched ? "
                               << (dR <= 0.4 ? "YEAP" : "NOPE") << std::endl;
-                  plot.csvME.first->Fill(it->second);
+                  plot.csvME.first->Fill(it.second);
                 }
               }
 
@@ -412,12 +412,12 @@ void HLTObjectsMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
               if (!pfJetBTags.isValid())
                 plot.csvME.first->Fill(-10.);
               else {
-                for (auto it = pfJetBTags->begin(); it != pfJetBTags->end(); ++it) {
-                  double dR = deltaR(eta, phi, it->first->eta(), it->first->phi());
+                for (const auto& it : *pfJetBTags) {
+                  double dR = deltaR(eta, phi, it.first->eta(), it.first->phi());
                   if (debug_)
                     std::cout << "[HLTObjectsMonitor::analyze] deltaR: " << dR << " matched ? "
                               << (dR <= 0.4 ? "YEAP" : "NOPE") << std::endl;
-                  plot.csvME.first->Fill(it->second);
+                  plot.csvME.first->Fill(it.second);
                 }
               }
             }
@@ -888,14 +888,11 @@ double HLTObjectsMonitor::dxyFinder(double eta,
   }
 
   bool matched = false;
-  for (reco::RecoChargedCandidateCollection::const_iterator candidate = candidates->begin();
-       candidate != candidates->end();
-       ++candidate) {
-    if (deltaR(eta, phi, candidate->eta(), candidate->phi()) < dRcut) {
+  for (const auto& candidate : *candidates) {
+    if (deltaR(eta, phi, candidate.eta(), candidate.phi()) < dRcut) {
       matched = true;
-      dxy = (-(candidate->vx() - beamspot->x0()) * candidate->py() +
-             (candidate->vy() - beamspot->y0()) * candidate->px()) /
-            candidate->pt();
+      dxy = (-(candidate.vx() - beamspot->x0()) * candidate.py() + (candidate.vy() - beamspot->y0()) * candidate.px()) /
+            candidate.pt();
       break;
     }
   }
@@ -925,12 +922,10 @@ double HLTObjectsMonitor::dzFinder(double eta1,
   const reco::RecoChargedCandidate* cand2;
   bool matched1 = false;
   bool matched2 = false;
-  for (reco::RecoChargedCandidateCollection::const_iterator candidate = candidates->begin();
-       candidate != candidates->end();
-       ++candidate) {
-    if (deltaR(eta1, phi1, candidate->eta(), candidate->phi()) < dRcut) {
+  for (const auto& candidate : *candidates) {
+    if (deltaR(eta1, phi1, candidate.eta(), candidate.phi()) < dRcut) {
       matched1 = true;
-      cand1 = &*candidate;
+      cand1 = &candidate;
       if (debug_)
         std::cout << "cand1: " << cand1->pt() << " " << cand1->eta() << " " << cand1->phi() << std::endl;
       break;
@@ -943,20 +938,18 @@ double HLTObjectsMonitor::dzFinder(double eta1,
     return dz;
   }
 
-  for (reco::RecoChargedCandidateCollection::const_iterator candidate = candidates->begin();
-       candidate != candidates->end();
-       ++candidate) {
+  for (const auto& candidate : *candidates) {
     if (debug_) {
-      std::cout << "candidate: " << candidate->pt() << " cand1: " << cand1->pt() << std::endl;
-      std::cout << "candidate: " << candidate->eta() << " cand1: " << cand1->eta() << std::endl;
-      std::cout << "candidate: " << candidate->phi() << " cand1: " << cand1->phi() << std::endl;
+      std::cout << "candidate: " << candidate.pt() << " cand1: " << cand1->pt() << std::endl;
+      std::cout << "candidate: " << candidate.eta() << " cand1: " << cand1->eta() << std::endl;
+      std::cout << "candidate: " << candidate.phi() << " cand1: " << cand1->phi() << std::endl;
     }
-    if (&*candidate == cand1)
+    if (&candidate == cand1)
       continue;
 
-    if (deltaR(eta2, phi2, candidate->eta(), candidate->phi()) < dRcut) {
+    if (deltaR(eta2, phi2, candidate.eta(), candidate.phi()) < dRcut) {
       matched2 = true;
-      cand2 = &*candidate;
+      cand2 = &candidate;
       if (debug_)
         std::cout << "cand2: " << cand2->pt() << " " << cand2->eta() << " " << cand2->phi() << std::endl;
       break;

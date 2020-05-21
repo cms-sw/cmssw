@@ -14,10 +14,10 @@ GlobalPoint lms_3d(std::vector<GlobalPoint> values) {
   x_vals.reserve(sze - 1);
   y_vals.reserve(sze - 1);
   z_vals.reserve(sze - 1);
-  for (std::vector<GlobalPoint>::iterator i = values.begin(); i != values.end(); i++) {
-    x_vals.push_back(i->x());
-    y_vals.push_back(i->y());
-    z_vals.push_back(i->z());
+  for (auto& value : values) {
+    x_vals.push_back(value.x());
+    y_vals.push_back(value.y());
+    z_vals.push_back(value.z());
   };
   return GlobalPoint(lms_1d(x_vals), lms_1d(y_vals), lms_1d(z_vals));
 }

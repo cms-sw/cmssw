@@ -93,9 +93,7 @@ void ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   edm::Handle<reco::PFCandidateCollection> inputsHandle;
   iEvent.getByToken(src_, inputsHandle);
 
-  for (reco::PFCandidateCollection::const_iterator ci = inputsHandle->begin(); ci != inputsHandle->end(); ++ci) {
-    const reco::PFCandidate& particle = *ci;
-
+  for (const auto& particle : *inputsHandle) {
     // put a cutoff if you want
     //if(particle.et() < 0.3) continue;
 
@@ -259,9 +257,9 @@ void ParticleTowerProducer::endJob() {}
 void ParticleTowerProducer::resetTowers(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::vector<DetId> alldid = geo_->getValidDetIds();
 
-  for (std::vector<DetId>::const_iterator did = alldid.begin(); did != alldid.end(); did++) {
-    if ((*did).det() == DetId::Hcal) {
-      HcalDetId hid = HcalDetId(*did);
+  for (auto did : alldid) {
+    if (did.det() == DetId::Hcal) {
+      HcalDetId hid = HcalDetId(did);
       if (hid.depth() == 1) {
         if (!useHF_) {
           GlobalPoint pos = geo_->getGeometry(hid)->getPosition();
@@ -269,7 +267,7 @@ void ParticleTowerProducer::resetTowers(edm::Event& iEvent, const edm::EventSetu
           if (fabs(pos.eta()) > 3.)
             continue;
         }
-        towers_[(*did)] = 0.;
+        towers_[did] = 0.;
       }
     }
   }
@@ -300,9 +298,9 @@ DetId ParticleTowerProducer::getNearestTower(const reco::PFCandidate& in) const 
 
   //int nclosetowers=0;
 
-  for (std::vector<DetId>::const_iterator did = alldid.begin(); did != alldid.end(); did++) {
-    if ((*did).det() == DetId::Hcal) {
-      HcalDetId hid(*did);
+  for (auto did : alldid) {
+    if (did.det() == DetId::Hcal) {
+      HcalDetId hid(did);
 
       // which layer is irrelevant for an eta-phi map, no?
 
@@ -352,7 +350,7 @@ DetId ParticleTowerProducer::getNearestTower(const reco::PFCandidate& in) const 
       //if(deltaR<1/3.) nclosetowers++;
 
       if (deltaR < minDeltaR) {
-        returnId = DetId(*did);
+        returnId = DetId(did);
         minDeltaR = deltaR;
       }
 
@@ -375,9 +373,9 @@ DetId ParticleTowerProducer::getNearestTower(double eta, double phi) const {
 
   //int nclosetowers=0;
 
-  for (std::vector<DetId>::const_iterator did = alldid.begin(); did != alldid.end(); did++) {
-    if ((*did).det() == DetId::Hcal) {
-      HcalDetId hid(*did);
+  for (auto did : alldid) {
+    if (did.det() == DetId::Hcal) {
+      HcalDetId hid(did);
 
       // which layer is irrelevant for an eta-phi map, no?
 
@@ -427,7 +425,7 @@ DetId ParticleTowerProducer::getNearestTower(double eta, double phi) const {
       //if(deltaR<1/3.) nclosetowers++;
 
       if (deltaR < minDeltaR) {
-        returnId = DetId(*did);
+        returnId = DetId(did);
         minDeltaR = deltaR;
       }
 

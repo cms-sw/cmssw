@@ -235,8 +235,8 @@ bool CommandLine::check() {
     result = false;
     std::cout << "\nCommandLine WARNING: " << _unknowns.size()
               << " the followingparameters *must* be provided:" << std::endl;
-    for (StrVec_t::const_iterator it = _unknowns.begin(); it != _unknowns.end(); ++it)
-      std::cout << (*it) << std::endl;
+    for (const auto& _unknown : _unknowns)
+      std::cout << _unknown << std::endl;
     std::cout << std::endl;
   }
   return result;
@@ -246,8 +246,8 @@ void CommandLine::print() {
   std::cout << "------------------------------------------------------------" << std::endl;
   std::cout << _exe << " options:" << std::endl;
   std::cout << "------------------------------------------------------------" << std::endl;
-  for (StrVec_t::const_iterator itvec = _ordered_options.begin(); itvec != _ordered_options.end(); ++itvec) {
-    OptionMap_t::const_iterator it = _options.find(*itvec);
+  for (const auto& _ordered_option : _ordered_options) {
+    OptionMap_t::const_iterator it = _options.find(_ordered_option);
     assert(it != _options.end());
     if (it->second.first.find(",") < std::string::npos) {
       std::string tmp = it->second.first;

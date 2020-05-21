@@ -87,8 +87,8 @@ bool EcalMonitorPrescaler::filter(edm::Event &_event, edm::EventSetup const &) {
   }
 
   uint32_t eventBits(0);
-  for (EcalRawDataCollection::const_iterator dcchItr(dcchs->begin()); dcchItr != dcchs->end(); ++dcchItr)
-    eventBits |= (1 << dcchItr->getRunType());
+  for (const auto &dcchItr : *dcchs)
+    eventBits |= (1 << dcchItr.getRunType());
 
   for (unsigned iP(0); iP != nPrescalers; ++iP) {
     if ((eventBits & filterBits_[iP]) != 0 && ++prescalers_[iP].first % prescalers_[iP].second == 0)

@@ -204,22 +204,20 @@ namespace edm {
       // Use these lists to prepare a map to use in tracking suppression
 
       // Do suppressDebug first and suppressError last to get proper order
-      for (vString::const_iterator it = suppressDebug.begin(); it != suppressDebug.end(); ++it) {
-        suppression_levels_[*it] = ELseverityLevel::ELsev_success;
+      for (const auto& it : suppressDebug) {
+        suppression_levels_[it] = ELseverityLevel::ELsev_success;
       }
 
-      for (vString::const_iterator it = suppressInfo.begin(); it != suppressInfo.end(); ++it) {
-        suppression_levels_[*it] = ELseverityLevel::ELsev_info;
+      for (const auto& it : suppressInfo) {
+        suppression_levels_[it] = ELseverityLevel::ELsev_info;
       }
 
-      for (vString::const_iterator it = suppressWarning.begin(); it != suppressWarning.end(); ++it) {
-        suppression_levels_[*it] = ELseverityLevel::ELsev_warning;
+      for (const auto& it : suppressWarning) {
+        suppression_levels_[it] = ELseverityLevel::ELsev_warning;
       }
 
-      for (vString::const_iterator it = suppressError.begin();  // change log 20
-           it != suppressError.end();
-           ++it) {
-        suppression_levels_[*it] = ELseverityLevel::ELsev_error;
+      for (const auto& it : suppressError) {
+        suppression_levels_[it] = ELseverityLevel::ELsev_error;
       }
 
       // set up for tracking whether current module is debug-enabled
@@ -234,11 +232,11 @@ namespace edm {
       }
 
       // if ( debugModules.empty()) anyDebugEnabled_ = true; // wrong; change log 11
-      for (vString::const_iterator it = debugModules.begin(); it != debugModules.end(); ++it) {
-        if (*it == "*") {
+      for (const auto& debugModule : debugModules) {
+        if (debugModule == "*") {
           everyDebugEnabled_ = true;
         } else {
-          debugEnabledModules_.insert(*it);
+          debugEnabledModules_.insert(debugModule);
         }
       }
 

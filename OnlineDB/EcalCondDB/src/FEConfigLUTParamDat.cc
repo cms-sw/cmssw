@@ -138,8 +138,8 @@ void FEConfigLUTParamDat::writeArrayDB(const std::map<EcalLogicID, FEConfigLUTPa
   const FEConfigLUTParamDat* dataitem;
   int count = 0;
   typedef map<EcalLogicID, FEConfigLUTParamDat>::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
-    channel = &(p->first);
+  for (const auto& p : *data) {
+    channel = &(p.first);
     int logicID = channel->getLogicID();
     if (!logicID) {
       throw(std::runtime_error("FEConfigLUTParamDat::writeArrayDB:  Bad EcalLogicID"));
@@ -147,7 +147,7 @@ void FEConfigLUTParamDat::writeArrayDB(const std::map<EcalLogicID, FEConfigLUTPa
     ids[count] = logicID;
     iov_vec[count] = iconfID;
 
-    dataitem = &(p->second);
+    dataitem = &(p.second);
     // dataIface.writeDB( channel, dataitem, conf);
     float x = dataitem->getETSat();
     float y = dataitem->getTTThreshlow();

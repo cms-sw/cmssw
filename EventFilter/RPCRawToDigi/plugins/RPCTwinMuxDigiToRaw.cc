@@ -142,10 +142,8 @@ void RPCTwinMuxDigiToRaw::produce(edm::Event& event, edm::EventSetup const& setu
       size += 2;
 
       if (bx_tmrecord != amc_bx_tmrecord.end()) {
-        for (std::vector<std::pair<int, rpctwinmux::RPCRecord> >::const_iterator tmrecord = bx_tmrecord->second.begin();
-             tmrecord != bx_tmrecord->second.end();
-             ++tmrecord) {
-          std::memcpy(data.data() + size * 8, tmrecord->second.getRecord(), 16);
+        for (const auto& tmrecord : bx_tmrecord->second) {
+          std::memcpy(data.data() + size * 8, tmrecord.second.getRecord(), 16);
           size += 2;
         }
       }

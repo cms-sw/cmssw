@@ -25,9 +25,8 @@ TkModuleGroupSelector::TkModuleGroupSelector(AlignableTracker *aliTracker,
     : nparameters_(0), subdetids_(sdets) {
   //verify that all provided options are known
   std::vector<std::string> parameterNames = cfg.getParameterNames();
-  for (std::vector<std::string>::const_iterator iParam = parameterNames.begin(); iParam != parameterNames.end();
-       ++iParam) {
-    const std::string name = (*iParam);
+  for (const auto &parameterName : parameterNames) {
+    const std::string name = parameterName;
     if (name != "RunRange" && name != "ReferenceRun" && name != "Granularity") {
       throw cms::Exception("BadConfig") << "@SUB=TkModuleGroupSelector::TkModuleGroupSelector:"
                                         << " Unknown parameter name '" << name << "' in PSet. Maybe a typo?";
@@ -80,8 +79,8 @@ bool TkModuleGroupSelector::createGroup(unsigned int &Id,
   referenceRun_.push_back(refrun);
   firstId_.push_back(Id);
   runRange_.push_back(range);
-  for (std::list<Alignable *>::const_iterator it = selected_alis.begin(); it != selected_alis.end(); ++it) {
-    this->fillDetIdMap((*it)->id(), firstId_.size() - 1);
+  for (auto selected_ali : selected_alis) {
+    this->fillDetIdMap(selected_ali->id(), firstId_.size() - 1);
     modules_selected = true;
   }
   if (refrun > 0 && !range.empty()) {  //FIXME: last condition not really needed?
@@ -105,9 +104,8 @@ bool TkModuleGroupSelector::createGroup(unsigned int &Id,
 //============================================================================
 void TkModuleGroupSelector::verifyParameterNames(const edm::ParameterSet &pset, unsigned int psetnr) const {
   std::vector<std::string> parameterNames = pset.getParameterNames();
-  for (std::vector<std::string>::const_iterator iParam = parameterNames.begin(); iParam != parameterNames.end();
-       ++iParam) {
-    const std::string name = (*iParam);
+  for (const auto &parameterName : parameterNames) {
+    const std::string name = parameterName;
     if (name != "levels" && name != "RunRange" && name != "split" && name != "ReferenceRun") {
       throw cms::Exception("BadConfig") << "@SUB=TkModuleGroupSelector::verifyParameterNames:"
                                         << " Unknown parameter name '" << name << "' in PSet number " << psetnr
@@ -126,30 +124,30 @@ void TkModuleGroupSelector::createModuleGroups(AlignableTracker *aliTracker,
   unsigned int Id = 0;
   unsigned int psetnr = 0;
   //loop over all LA groups
-  for (edm::VParameterSet::const_iterator pset = granularityConfig.begin(); pset != granularityConfig.end(); ++pset) {
+  for (const auto &pset : granularityConfig) {
     //test for unknown parameters
-    this->verifyParameterNames((*pset), psetnr);
+    this->verifyParameterNames(pset, psetnr);
     psetnr++;
 
     bool modules_selected = false;  //track whether at all a module has been selected in this group
     const std::vector<edm::RunNumber_t> range =
-        ((*pset).exists("RunRange") ? pset->getParameter<std::vector<edm::RunNumber_t> >("RunRange") : defaultRunRange);
+        (pset.exists("RunRange") ? pset.getParameter<std::vector<edm::RunNumber_t> >("RunRange") : defaultRunRange);
     if (range.empty()) {
       throw cms::Exception("BadConfig") << "@SUB=TkModuleGroupSelector::createModuleGroups:\n"
                                         << "Run range array empty!";
     }
-    const bool split = this->testSplitOption((*pset));
+    const bool split = this->testSplitOption(pset);
 
     edm::RunNumber_t refrun = 0;
-    if ((*pset).exists("ReferenceRun")) {
-      refrun = (*pset).getParameter<edm::RunNumber_t>("ReferenceRun");
+    if (pset.exists("ReferenceRun")) {
+      refrun = pset.getParameter<edm::RunNumber_t>("ReferenceRun");
     } else {
       refrun = defaultReferenceRun;
     }
 
     AlignmentParameterSelector selector(aliTracker);
     selector.clear();
-    selector.addSelections((*pset).getParameter<edm::ParameterSet>("levels"));
+    selector.addSelections(pset.getParameter<edm::ParameterSet>("levels"));
 
     const auto &alis = selector.selectedAlignables();
     std::list<Alignable *> selected_alis;
@@ -171,10 +169,10 @@ void TkModuleGroupSelector::createModuleGroups(AlignableTracker *aliTracker,
     }
 
     edm::RunNumber_t firstRun = 0;
-    for (std::vector<edm::RunNumber_t>::const_iterator iRun = range.begin(); iRun != range.end(); ++iRun) {
-      localRunRange.insert((*iRun));
-      if ((*iRun) > firstRun) {
-        firstRun = (*iRun);
+    for (unsigned int iRun : range) {
+      localRunRange.insert(iRun);
+      if (iRun > firstRun) {
+        firstRun = iRun;
       } else {
         throw cms::Exception("BadConfig") << "@SUB=TkModuleGroupSelector::createModuleGroups:"
                                           << " Run range not sorted.";
@@ -189,9 +187,8 @@ void TkModuleGroupSelector::createModuleGroups(AlignableTracker *aliTracker,
   }
 
   //copy local set into the global vector of run boundaries
-  for (std::set<edm::RunNumber_t>::const_iterator itRun = localRunRange.begin(); itRun != localRunRange.end();
-       ++itRun) {
-    globalRunRange_.push_back((*itRun));
+  for (unsigned int itRun : localRunRange) {
+    globalRunRange_.push_back(itRun);
   }
 }
 
@@ -216,8 +213,8 @@ int TkModuleGroupSelector::getParameterIndexFromDetId(unsigned int detId, edm::R
   int index = -1;
 
   bool sel = false;
-  for (std::vector<int>::const_iterator itSubDets = subdetids_.begin(); itSubDets != subdetids_.end(); ++itSubDets) {
-    if (temp_id.det() == DetId::Tracker && temp_id.subdetId() == (*itSubDets)) {
+  for (int subdetid : subdetids_) {
+    if (temp_id.det() == DetId::Tracker && temp_id.subdetId() == subdetid) {
       sel = true;
       break;
     }

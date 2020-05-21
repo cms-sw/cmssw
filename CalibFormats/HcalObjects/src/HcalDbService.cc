@@ -98,12 +98,12 @@ void HcalDbService::buildCalibrations() const {
     HcalCalibrations tool;
 
     //  std::cout << " length of id-vector: " << ids.size() << std::endl;
-    for (std::vector<DetId>::const_iterator id = ids.begin(); id != ids.end(); ++id) {
+    for (auto id : ids) {
       // make
-      bool ok = makeHcalCalibration(*id, &tool, pedsInADC, effPedsInADC);
+      bool ok = makeHcalCalibration(id, &tool, pedsInADC, effPedsInADC);
       // store
       if (ok)
-        ptr->setCalibrations(*id, tool);
+        ptr->setCalibrations(id, tool);
       //    std::cout << "Hcal calibrations built... detid no. " << HcalGenericDetId(*id) << std::endl;
     }
     HcalCalibrationsSet const* cptr = ptr;
@@ -130,12 +130,12 @@ void HcalDbService::buildCalibWidths() const {
     HcalCalibrationWidths tool;
 
     //  std::cout << " length of id-vector: " << ids.size() << std::endl;
-    for (std::vector<DetId>::const_iterator id = ids.begin(); id != ids.end(); ++id) {
+    for (auto id : ids) {
       // make
-      bool ok = makeHcalCalibrationWidth(*id, &tool, pedsInADC, effPedsInADC);
+      bool ok = makeHcalCalibrationWidth(id, &tool, pedsInADC, effPedsInADC);
       // store
       if (ok)
-        ptr->setCalibrationWidths(*id, tool);
+        ptr->setCalibrationWidths(id, tool);
       //    std::cout << "Hcal calibrations built... detid no. " << HcalGenericDetId(*id) << std::endl;
     }
     HcalCalibrationWidthsSet const* cptr = ptr;

@@ -55,10 +55,8 @@ SiStripGainCosmicCalculator::SiStripGainCosmicCalculator(const edm::ParameterSet
   edm::LogInfo("SiStripApvGainCalculator")
       << "Clusters from " << detModulesToBeExcluded.size() << " modules will be ignored in the calibration:";
   edm::LogInfo("SiStripApvGainCalculator") << "The calibration for these DetIds will be set to a default value";
-  for (std::vector<uint32_t>::const_iterator imod = detModulesToBeExcluded.begin();
-       imod != detModulesToBeExcluded.end();
-       imod++) {
-    edm::LogInfo("SiStripApvGainCalculator") << "exclude detid = " << *imod;
+  for (unsigned int imod : detModulesToBeExcluded) {
+    edm::LogInfo("SiStripApvGainCalculator") << "exclude detid = " << imod;
   }
 
   printdebug_ = iConfig.getUntrackedParameter<bool>("printDebug", false);
@@ -122,39 +120,34 @@ void SiStripGainCosmicCalculator::algoBeginJob(const edm::EventSetup& iSetup) {
   // get tracker geometry and find nr. of apv pairs for each active detector
   edm::ESHandle<TrackerGeometry> tkGeom;
   iSetup.get<TrackerDigiGeometryRecord>().get(tkGeom);
-  for (TrackerGeometry::DetContainer::const_iterator it = tkGeom->dets().begin(); it != tkGeom->dets().end();
-       it++) {  // loop over detector modules
-    if (dynamic_cast<const StripGeomDetUnit*>((*it)) != nullptr) {
-      uint32_t detid = ((*it)->geographicalId()).rawId();
+  for (auto it : tkGeom->dets()) {  // loop over detector modules
+    if (dynamic_cast<const StripGeomDetUnit*>(it) != nullptr) {
+      uint32_t detid = (it->geographicalId()).rawId();
       // get thickness for all detector modules, not just for active, this is strange
       double module_thickness =
-          (*it)
-              ->surface()
+          it->surface()
               .bounds()
               .thickness();  // get thickness of detector from GeomDet (DetContainer == vector<GeomDet*>)
       thickness_map.insert(std::make_pair(detid, module_thickness));
       //
       bool is_active_detector = false;
-      for (std::vector<uint32_t>::iterator iactive = SelectedDetIds.begin(); iactive != SelectedDetIds.end();
-           iactive++) {
-        if (*iactive == detid) {
+      for (unsigned int& SelectedDetId : SelectedDetIds) {
+        if (SelectedDetId == detid) {
           is_active_detector = true;
           break;  // leave for loop if found matching detid
         }
       }
       //
       bool exclude_this_detid = false;
-      for (std::vector<uint32_t>::const_iterator imod = detModulesToBeExcluded.begin();
-           imod != detModulesToBeExcluded.end();
-           imod++) {
-        if (*imod == detid)
+      for (unsigned int imod : detModulesToBeExcluded) {
+        if (imod == detid)
           exclude_this_detid = true;  // found in exclusion list
         break;
       }
       //
       if (is_active_detector &&
           (!exclude_this_detid)) {  // check whether is active detector and that should not be excluded
-        const StripTopology& p = dynamic_cast<const StripGeomDetUnit*>((*it))->specificTopology();
+        const StripTopology& p = dynamic_cast<const StripGeomDetUnit*>(it)->specificTopology();
         unsigned short NAPVPairs = p.nstrips() / 256;
         if (NAPVPairs < 2 || NAPVPairs > 3) {
           edm::LogError("SiStripGainCosmicCalculator")
@@ -200,11 +193,9 @@ void SiStripGainCosmicCalculator::algoAnalyze(const edm::Event& iEvent, const ed
     std::vector<std::pair<const TrackingRecHit*, float> >
         hitangle;  // =anglefinder_->findtrackangle((*(*seedcoll).begin()),*itr);
 
-    for (std::vector<std::pair<const TrackingRecHit*, float> >::const_iterator hitangle_iter = hitangle.begin();
-         hitangle_iter != hitangle.end();
-         hitangle_iter++) {
-      const TrackingRecHit* trechit = hitangle_iter->first;
-      float local_angle = hitangle_iter->second;
+    for (const auto& hitangle_iter : hitangle) {
+      const TrackingRecHit* trechit = hitangle_iter.first;
+      float local_angle = hitangle_iter.second;
       LocalPoint local_position = trechit->localPosition();
       const SiStripRecHit2D* sistripsimplehit = dynamic_cast<const SiStripRecHit2D*>(trechit);
       const SiStripMatchedRecHit2D* sistripmatchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(trechit);
@@ -225,8 +216,8 @@ void SiStripGainCosmicCalculator::algoAnalyze(const edm::Event& iEvent, const ed
         TH1F* histopointer = (TH1F*)HlistAPVPairs->FindObject(Form("ChargeAPVPair_%i_%i", thedetid, theapvpairid));
         if (histopointer) {
           short cCharge = 0;
-          for (unsigned int iampl = 0; iampl < ampls.size(); iampl++) {
-            cCharge += ampls[iampl];
+          for (unsigned char ampl : ampls) {
+            cCharge += ampl;
           }
           double cluster_charge_over_path = ((double)cCharge) * fabs(cos(local_angle)) / (10. * module_thickness);
           histopointer->Fill(cluster_charge_over_path);

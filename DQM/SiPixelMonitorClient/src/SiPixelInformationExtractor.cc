@@ -110,9 +110,9 @@ void SiPixelInformationExtractor::getItemList(const multimap<string, string> &re
                                               string item_name,
                                               vector<string> &items) {
   items.clear();
-  for (multimap<string, string>::const_iterator it = req_map.begin(); it != req_map.end(); it++) {
-    if (it->first == item_name) {
-      items.push_back(it->second);
+  for (const auto &it : req_map) {
+    if (it.first == item_name) {
+      items.push_back(it.second);
     }
   }
 }
@@ -174,8 +174,8 @@ void SiPixelInformationExtractor::selectColor(string &col, int status) {
 void SiPixelInformationExtractor::selectColor(string &col, vector<QReport *> &reports) {
   int istat = 999;
   int status = 0;
-  for (vector<QReport *>::const_iterator it = reports.begin(); it != reports.end(); it++) {
-    status = (*it)->getStatus();
+  for (auto report : reports) {
+    status = report->getStatus();
     if (status > istat)
       istat = status;
   }
@@ -202,8 +202,8 @@ void SiPixelInformationExtractor::selectImage(string &name, int status) {
 void SiPixelInformationExtractor::selectImage(string &name, vector<QReport *> &reports) {
   int istat = 999;
   int status = 0;
-  for (vector<QReport *>::const_iterator it = reports.begin(); it != reports.end(); it++) {
-    status = (*it)->getStatus();
+  for (auto report : reports) {
+    status = report->getStatus();
     if (status > istat)
       istat = status;
   }
@@ -369,8 +369,8 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore::IBooker &iBooker,
 
   if (dname.find("Module_") != string::npos) {
     vector<string> meVec = iGetter.getMEs();
-    for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
-      string full_path = currDir + "/" + (*it);
+    for (const auto &it : meVec) {
+      string full_path = currDir + "/" + it;
       if (full_path.find("hitmap_siPixelDigis") != string::npos) {
         MonitorElement *me = iGetter.get(full_path);
         if (!me)
@@ -409,11 +409,11 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore::IBooker &iBooker,
     }
   }
   vector<string> subDirVec = iGetter.getSubdirs();
-  for (vector<string>::const_iterator ic = subDirVec.begin(); ic != subDirVec.end(); ic++) {
-    if ((*ic).find("AdditionalPixelErrors") != string::npos)
+  for (const auto &ic : subDirVec) {
+    if (ic.find("AdditionalPixelErrors") != string::npos)
       continue;
-    iGetter.cd(*ic);
-    iBooker.cd(*ic);
+    iGetter.cd(ic);
+    iBooker.cd(ic);
     init = false;
     findNoisyPixels(iBooker, iGetter, init, noiseRate_, noiseRateDenominator_, theCablingMap);
     iBooker.goUp();
@@ -476,11 +476,9 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore::IBooker &iBooker,
           myfedmap[detid] = realfedID;
           mynamemap[detid] = outputname;
 
-          for (std::vector<std::pair<std::pair<int, int>, float>>::const_iterator pxl = noisyPixels.begin();
-               pxl != noisyPixels.end();
-               pxl++) {
-            std::pair<int, int> offlineaddress = (*pxl).first;
-            float Noise_frac = (*pxl).second;
+          for (const auto &noisyPixel : noisyPixels) {
+            std::pair<int, int> offlineaddress = noisyPixel.first;
+            float Noise_frac = noisyPixel.second;
             int offlineColumn = offlineaddress.first;
             int offlineRow = offlineaddress.second;
             counter++;

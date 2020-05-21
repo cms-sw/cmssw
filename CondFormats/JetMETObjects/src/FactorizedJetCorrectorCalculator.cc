@@ -68,8 +68,8 @@ FactorizedJetCorrectorCalculator::FactorizedJetCorrectorCalculator(
 //--- FactorizedJetCorrectorCalculator destructor ----------------------------------
 //------------------------------------------------------------------------
 FactorizedJetCorrectorCalculator::~FactorizedJetCorrectorCalculator() {
-  for (unsigned i = 0; i < mCorrectors.size(); i++)
-    delete mCorrectors[i];
+  for (auto& mCorrector : mCorrectors)
+    delete mCorrector;
 }
 //------------------------------------------------------------------------
 //--- initialises the correctors -----------------------------------------
@@ -79,30 +79,30 @@ void FactorizedJetCorrectorCalculator::initCorrectors(const std::string& fLevels
                                                       const std::string& fOptions) {
   //---- Read the CorrectionLevels string and parse the requested sub-correction levels.
   std::vector<std::string> tmp = parseLevels(removeSpaces(fLevels));
-  for (unsigned i = 0; i < tmp.size(); i++) {
-    if (tmp[i] == "L1Offset")
+  for (const auto& i : tmp) {
+    if (i == "L1Offset")
       mLevels.push_back(kL1);
-    else if (tmp[i] == "L1JPTOffset")
+    else if (i == "L1JPTOffset")
       mLevels.push_back(kL1JPT);
-    else if (tmp[i] == "L2Relative")
+    else if (i == "L2Relative")
       mLevels.push_back(kL2);
-    else if (tmp[i] == "L3Absolute")
+    else if (i == "L3Absolute")
       mLevels.push_back(kL3);
-    else if (tmp[i] == "L2L3Residual")
+    else if (i == "L2L3Residual")
       mLevels.push_back(kL2L3Res);
-    else if (tmp[i] == "L4EMF")
+    else if (i == "L4EMF")
       mLevels.push_back(kL4);
-    else if (tmp[i] == "L5Flavor")
+    else if (i == "L5Flavor")
       mLevels.push_back(kL5);
-    else if (tmp[i] == "L6SLB")
+    else if (i == "L6SLB")
       mLevels.push_back(kL6);
-    else if (tmp[i] == "L7Parton")
+    else if (i == "L7Parton")
       mLevels.push_back(kL7);
-    else if (tmp[i] == "L1FastJet")
+    else if (i == "L1FastJet")
       mLevels.push_back(kL1fj);
     else {
       std::stringstream sserr;
-      sserr << "unknown correction level " << tmp[i];
+      sserr << "unknown correction level " << i;
       handleError("FactorizedJetCorrectorCalculator", sserr.str());
     }
   }
@@ -143,8 +143,7 @@ void FactorizedJetCorrectorCalculator::initCorrectors(const std::string& fLevels
 std::vector<FactorizedJetCorrectorCalculator::VarTypes> FactorizedJetCorrectorCalculator::mapping(
     const std::vector<std::string>& fNames) const {
   std::vector<VarTypes> result;
-  for (unsigned i = 0; i < fNames.size(); i++) {
-    std::string ss = fNames[i];
+  for (auto ss : fNames) {
     if (ss == "JetPt")
       result.push_back(kJetPt);
     else if (ss == "JetEta")
@@ -313,71 +312,71 @@ std::vector<float> FactorizedJetCorrectorCalculator::fillVector(
     const std::vector<VarTypes>& fVarTypes, const FactorizedJetCorrectorCalculator::VariableValues& iValues) const {
   //  std::vector<VarTypes> fVarTypes = _fVarTypes;
   std::vector<float> result;
-  for (unsigned i = 0; i < fVarTypes.size(); i++) {
-    if (fVarTypes[i] == kJetEta) {
+  for (auto fVarType : fVarTypes) {
+    if (fVarType == kJetEta) {
       if (!iValues.mIsJetEtaset)
         handleError("FactorizedJetCorrectorCalculator", "jet eta is not set");
       result.push_back(iValues.mJetEta);
-    } else if (fVarTypes[i] == kNPV) {
+    } else if (fVarType == kNPV) {
       if (!iValues.mIsNPVset)
         handleError("FactorizedJetCorrectorCalculator", "number of primary vertices is not set");
       result.push_back(iValues.mNPV);
-    } else if (fVarTypes[i] == kJetPt) {
+    } else if (fVarType == kJetPt) {
       if (!iValues.mIsJetPtset)
         handleError("FactorizedJetCorrectorCalculator", "jet pt is not set");
       result.push_back(iValues.mJetPt);
-    } else if (fVarTypes[i] == kJetPhi) {
+    } else if (fVarType == kJetPhi) {
       if (!iValues.mIsJetPhiset)
         handleError("FactorizedJetCorrectorCalculator", "jet phi is not set");
       result.push_back(iValues.mJetPhi);
-    } else if (fVarTypes[i] == kJetE) {
+    } else if (fVarType == kJetE) {
       if (!iValues.mIsJetEset)
         handleError("FactorizedJetCorrectorCalculator", "jet E is not set");
       result.push_back(iValues.mJetE);
-    } else if (fVarTypes[i] == kJetEMF) {
+    } else if (fVarType == kJetEMF) {
       if (!iValues.mIsJetEMFset)
         handleError("FactorizedJetCorrectorCalculator", "jet EMF is not set");
       result.push_back(iValues.mJetEMF);
-    } else if (fVarTypes[i] == kJetA) {
+    } else if (fVarType == kJetA) {
       if (!iValues.mIsJetAset)
         handleError("FactorizedJetCorrectorCalculator", "jet area is not set");
       result.push_back(iValues.mJetA);
-    } else if (fVarTypes[i] == kRho) {
+    } else if (fVarType == kRho) {
       if (!iValues.mIsRhoset)
         handleError("FactorizedJetCorrectorCalculator", "fastjet density Rho is not set");
       result.push_back(iValues.mRho);
-    } else if (fVarTypes[i] == kJPTrawE) {
+    } else if (fVarType == kJPTrawE) {
       if (!iValues.mIsJPTrawP4set)
         handleError("FactorizedJetCorrectorCalculator", "raw CaloJet P4 for JPT is not set");
       result.push_back(iValues.mJPTrawE);
-    } else if (fVarTypes[i] == kJPTrawEt) {
+    } else if (fVarType == kJPTrawEt) {
       if (!iValues.mIsJPTrawP4set)
         handleError("FactorizedJetCorrectorCalculator", "raw CaloJet P4 for JPT is not set");
       result.push_back(iValues.mJPTrawEt);
-    } else if (fVarTypes[i] == kJPTrawPt) {
+    } else if (fVarType == kJPTrawPt) {
       if (!iValues.mIsJPTrawP4set)
         handleError("FactorizedJetCorrectorCalculator", "raw CaloJet P4 for JPT is not set");
       result.push_back(iValues.mJPTrawPt);
-    } else if (fVarTypes[i] == kJPTrawEta) {
+    } else if (fVarType == kJPTrawEta) {
       if (!iValues.mIsJPTrawP4set)
         handleError("FactorizedJetCorrectorCalculator", "raw CaloJet P4 for JPT is not set");
       result.push_back(iValues.mJPTrawEta);
-    } else if (fVarTypes[i] == kJPTrawOff) {
+    } else if (fVarType == kJPTrawOff) {
       if (!iValues.mIsJPTrawOFFset)
         handleError("FactorizedJetCorrectorCalculator", "Offset correction for JPT is not set");
       result.push_back(iValues.mJPTrawOff);
-    } else if (fVarTypes[i] == kRelLepPt) {
+    } else if (fVarType == kRelLepPt) {
       if (!iValues.mIsJetPtset || !iValues.mIsAddLepToJetset || !iValues.mIsLepPxset || !iValues.mIsLepPyset)
         handleError("FactorizedJetCorrectorCalculator", "can't calculate rel lepton pt");
       result.push_back(getRelLepPt(iValues));
-    } else if (fVarTypes[i] == kPtRel) {
+    } else if (fVarType == kPtRel) {
       if (!iValues.mIsJetPtset || !iValues.mIsJetEtaset || !iValues.mIsJetPhiset || !iValues.mIsJetEset ||
           !iValues.mIsAddLepToJetset || !iValues.mIsLepPxset || !iValues.mIsLepPyset || !iValues.mIsLepPzset)
         handleError("FactorizedJetCorrectorCalculator", "can't calculate ptrel");
       result.push_back(getPtRel(iValues));
     } else {
       std::stringstream sserr;
-      sserr << "unknown parameter " << fVarTypes[i];
+      sserr << "unknown parameter " << fVarType;
       handleError("FactorizedJetCorrectorCalculator", sserr.str());
     }
   }

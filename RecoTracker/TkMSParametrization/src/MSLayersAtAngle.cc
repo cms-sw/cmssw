@@ -169,6 +169,6 @@ MSLayersAtAngle::LayerItr MSLayersAtAngle::findLayer(const PixelRecoPointRZ& poi
 
 //------------------------------------------------------------------------------
 void MSLayersAtAngle::print() const {
-  for (LayerItr it = theLayers.begin(); it != theLayers.end(); it++)
-    cout << *it << endl;
+  for (const auto& theLayer : theLayers)
+    cout << theLayer << endl;
 }

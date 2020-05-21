@@ -80,7 +80,7 @@ void FedCablingTask::fill(const SiStripEventSummary& summary,
 // -----------------------------------------------------------------------------
 //
 void FedCablingTask::update() {
-  for (uint32_t iter = 0; iter < histos_.size(); iter++) {
-    updateHistoSet(histos_[iter]);
+  for (auto& histo : histos_) {
+    updateHistoSet(histo);
   }
 }

@@ -44,8 +44,8 @@ DTConfigLUTs::DTConfigLUTs(bool debugLUTS, unsigned short int* buffer) {
   // decode
   short int memory_lut[7];
   int c = 3;
-  for (int i = 0; i < 7; i++) {
-    memory_lut[i] = (buffer[c] << 8) | buffer[c + 1];
+  for (short& i : memory_lut) {
+    i = (buffer[c] << 8) | buffer[c + 1];
     c += 2;
     //std::cout << hex << memory_bti[i] << "  ";
   }

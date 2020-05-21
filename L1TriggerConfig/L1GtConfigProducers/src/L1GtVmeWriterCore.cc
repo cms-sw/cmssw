@@ -187,8 +187,8 @@ void L1GtVmeWriterCore::writeVME(const std::vector<ConditionMap> &_conditionMap,
 
   std::vector<std::string> lines = header.returnLines();
 
-  for (unsigned int i = 0; i < lines.size(); i++) {
-    outputFile << spaces(2) << lines.at(i);
+  for (const auto &line : lines) {
+    outputFile << spaces(2) << line;
     //if (i!=lines.size()-1)
     outputFile << std::endl;
   }
@@ -200,46 +200,42 @@ void L1GtVmeWriterCore::writeVME(const std::vector<ConditionMap> &_conditionMap,
     outputFile << spaces(1) << "<" << m_xmlTagChip << index << ">" << std::endl;
 
     // loop over condition map
-    for (ConditionMap::iterator iterCond = conditionMap.at(index - 1).begin();
-         iterCond != conditionMap.at(index - 1).end();
-         iterCond++) {
+    for (auto &iterCond : conditionMap.at(index - 1)) {
       // open a condition
-      outputFile << spaces(2) << "<" << iterCond->first << " " << m_xmlConditionAttrObject << "=\""
-                 << maps.obj2str((iterCond->second->objectType())[0]) << "\" " << m_xmlConditionAttrType << "=\""
-                 << maps.type2str(iterCond->second->condType()) << "\">" << std::endl;
+      outputFile << spaces(2) << "<" << iterCond.first << " " << m_xmlConditionAttrObject << "=\""
+                 << maps.obj2str((iterCond.second->objectType())[0]) << "\" " << m_xmlConditionAttrType << "=\""
+                 << maps.type2str(iterCond.second->condType()) << "\">" << std::endl;
 
-      switch ((iterCond->second)->condCategory()) {
+      switch ((iterCond.second)->condCategory()) {
         case CondMuon: {
-          L1GtMuonTemplate *muonTemplate = static_cast<L1GtMuonTemplate *>(iterCond->second);
+          L1GtMuonTemplate *muonTemplate = static_cast<L1GtMuonTemplate *>(iterCond.second);
           const std::vector<L1GtMuonTemplate::ObjectParameter> *op = muonTemplate->objectParameter();
 
           // get the number of objects
-          unsigned int nObjects = iterCond->second->nrObjects();
+          unsigned int nObjects = iterCond.second->nrObjects();
 
           for (unsigned int i = 0; i < nObjects; i++) {
             std::string opi = L1GtVhdlWriterCore::int2str(i);
 
             // ptHighTreshold
-            std::string address = calculateAddress(Mu,
-                                                   (iterCond->second)->condType(),
-                                                   (m_xmlTagPtHighThreshold + "_" + opi),
-                                                   cond2intMap[iterCond->first]);
+            std::string address = calculateAddress(
+                Mu, (iterCond.second)->condType(), (m_xmlTagPtHighThreshold + "_" + opi), cond2intMap[iterCond.first]);
 
             outputFile << spaces(3) << openTag(m_xmlTagPtHighThreshold)
-                       << vmeAddrValueBlock(address, (*op).at(i).ptHighThreshold, 4, iterCond->second->condGEq())
+                       << vmeAddrValueBlock(address, (*op).at(i).ptHighThreshold, 4, iterCond.second->condGEq())
                        << spaces(3) << closeTag(m_xmlTagPtHighThreshold);
 
             // ptLow Threshold
             address = calculateAddress(
-                Mu, (iterCond->second)->condType(), (m_xmlTagPtLowThreshold + "_" + opi), cond2intMap[iterCond->first]);
+                Mu, (iterCond.second)->condType(), (m_xmlTagPtLowThreshold + "_" + opi), cond2intMap[iterCond.first]);
 
             outputFile << spaces(3) << openTag(m_xmlTagPtLowThreshold)
-                       << vmeAddrValueBlock(address, (*op).at(i).ptLowThreshold, 4, iterCond->second->condGEq())
+                       << vmeAddrValueBlock(address, (*op).at(i).ptLowThreshold, 4, iterCond.second->condGEq())
                        << spaces(3) << closeTag(m_xmlTagPtLowThreshold);
 
             // Quality
             address = calculateAddress(
-                Mu, (iterCond->second)->condType(), (m_xmlTagQuality + "_" + opi), cond2intMap[iterCond->first]);
+                Mu, (iterCond.second)->condType(), (m_xmlTagQuality + "_" + opi), cond2intMap[iterCond.first]);
 
             outputFile << spaces(3) << openTag(m_xmlTagQuality)
                        << vmeAddrValueBlock(address, (*op).at(i).qualityRange, 4) << spaces(3)
@@ -252,7 +248,7 @@ void L1GtVmeWriterCore::writeVME(const std::vector<ConditionMap> &_conditionMap,
           outputFile << spaces(3) << openTag(m_xmlTagChargeCorrelation);
 
           std::string address = calculateAddress(
-              Mu, (iterCond->second)->condType(), (m_xmlTagChargeCorrelation), cond2intMap[iterCond->first]);
+              Mu, (iterCond.second)->condType(), (m_xmlTagChargeCorrelation), cond2intMap[iterCond.first]);
 
           outputFile << vmeAddrValueBlock(address, (*cp).chargeCorrelation, 4) << spaces(3)
                      << closeTag(m_xmlTagChargeCorrelation);
@@ -260,43 +256,43 @@ void L1GtVmeWriterCore::writeVME(const std::vector<ConditionMap> &_conditionMap,
         } break;
 
         case CondCalo: {
-          L1GtCaloTemplate *m_gtCaloTemplate = static_cast<L1GtCaloTemplate *>(iterCond->second);
+          L1GtCaloTemplate *m_gtCaloTemplate = static_cast<L1GtCaloTemplate *>(iterCond.second);
           const std::vector<L1GtCaloTemplate::ObjectParameter> *op = m_gtCaloTemplate->objectParameter();
 
           // get the number of objects
-          unsigned int nObjects = iterCond->second->nrObjects();
+          unsigned int nObjects = iterCond.second->nrObjects();
 
           for (unsigned int i = 0; i < nObjects; i++) {
             std::string opi = L1GtVhdlWriterCore::int2str(i);
-            std::string address = calculateAddress((iterCond->second->objectType()).at(0),
-                                                   (iterCond->second)->condType(),
+            std::string address = calculateAddress((iterCond.second->objectType()).at(0),
+                                                   (iterCond.second)->condType(),
                                                    (m_xmlTagPtHighThreshold + "_" + opi),
-                                                   cond2intMap[iterCond->first]);
+                                                   cond2intMap[iterCond.first]);
 
             // insert Address/Value Tag
-            outputFile << vmeAddrValueBlock(address, (*op).at(i).etThreshold, 3, iterCond->second->condGEq());
+            outputFile << vmeAddrValueBlock(address, (*op).at(i).etThreshold, 3, iterCond.second->condGEq());
           }
 
         } break;
 
         case CondEnergySum: {
-          L1GtEnergySumTemplate *energySumTempl = static_cast<L1GtEnergySumTemplate *>(iterCond->second);
+          L1GtEnergySumTemplate *energySumTempl = static_cast<L1GtEnergySumTemplate *>(iterCond.second);
 
           const std::vector<L1GtEnergySumTemplate::ObjectParameter> *op = energySumTempl->objectParameter();
 
           // get the number of objects
-          unsigned int nObjects = iterCond->second->nrObjects();
+          unsigned int nObjects = iterCond.second->nrObjects();
 
           for (unsigned int i = 0; i < nObjects; i++) {
             std::string opi = L1GtVhdlWriterCore::int2str(i);
 
-            std::string address = calculateAddress((iterCond->second->objectType()).at(0),
-                                                   (iterCond->second)->condType(),
+            std::string address = calculateAddress((iterCond.second->objectType()).at(0),
+                                                   (iterCond.second)->condType(),
                                                    (m_xmlTagPtHighThreshold + "_" + opi),
-                                                   cond2intMap[iterCond->first]);
+                                                   cond2intMap[iterCond.first]);
 
             // insert Address/Value Tag
-            outputFile << vmeAddrValueBlock(address, (*op).at(i).etThreshold, 3, iterCond->second->condGEq());
+            outputFile << vmeAddrValueBlock(address, (*op).at(i).etThreshold, 3, iterCond.second->condGEq());
           }
 
         }
@@ -304,7 +300,7 @@ void L1GtVmeWriterCore::writeVME(const std::vector<ConditionMap> &_conditionMap,
         break;
 
         case CondJetCounts: {
-          L1GtJetCountsTemplate *jetsTemplate = static_cast<L1GtJetCountsTemplate *>(iterCond->second);
+          L1GtJetCountsTemplate *jetsTemplate = static_cast<L1GtJetCountsTemplate *>(iterCond.second);
           const std::vector<L1GtJetCountsTemplate::ObjectParameter> *op = jetsTemplate->objectParameter();
 
           // get the number of objects
@@ -321,9 +317,9 @@ void L1GtVmeWriterCore::writeVME(const std::vector<ConditionMap> &_conditionMap,
           else
             obj = 1;
 
-          std::string address = calculateJetsAddress(ci, obj, cond2intMap[iterCond->first]);
+          std::string address = calculateJetsAddress(ci, obj, cond2intMap[iterCond.first]);
 
-          outputFile << vmeAddrValueBlock(address, (*op).at(0).countThreshold, 3, iterCond->second->condGEq());
+          outputFile << vmeAddrValueBlock(address, (*op).at(0).countThreshold, 3, iterCond.second->condGEq());
 
         } break;
         case CondCorrelation: {
@@ -340,7 +336,7 @@ void L1GtVmeWriterCore::writeVME(const std::vector<ConditionMap> &_conditionMap,
       }
 
       // close the condition
-      outputFile << spaces(2) << closeTag(iterCond->first);
+      outputFile << spaces(2) << closeTag(iterCond.first);
     }
 
     outputFile << spaces(1) << "</" << m_xmlTagChip << index << ">" << std::endl;

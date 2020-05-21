@@ -13,8 +13,8 @@ PFNuclearProducer::PFNuclearProducer(const ParameterSet& iConfig) : pfTransforme
 
   std::vector<edm::InputTag> tags = iConfig.getParameter<vector<InputTag> >("nuclearColList");
 
-  for (unsigned int i = 0; i < tags.size(); ++i)
-    nuclearContainers_.push_back(consumes<reco::NuclearInteractionCollection>(tags[i]));
+  for (const auto& tag : tags)
+    nuclearContainers_.push_back(consumes<reco::NuclearInteractionCollection>(tag));
 
   likelihoodCut_ = iConfig.getParameter<double>("likelihoodCut");
 }
@@ -32,9 +32,9 @@ void PFNuclearProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   int hid = 0;
 
   // loop on the nuclear interaction collections
-  for (unsigned int istr = 0; istr < nuclearContainers_.size(); istr++) {
+  for (auto nuclearContainer : nuclearContainers_) {
     Handle<reco::NuclearInteractionCollection> nuclCollH;
-    iEvent.getByToken(nuclearContainers_[istr], nuclCollH);
+    iEvent.getByToken(nuclearContainer, nuclCollH);
     const reco::NuclearInteractionCollection& nuclColl = *(nuclCollH.product());
 
     // loop on all NuclearInteraction

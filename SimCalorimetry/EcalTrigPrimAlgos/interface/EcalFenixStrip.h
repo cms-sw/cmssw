@@ -214,8 +214,8 @@ public:
       for (int ix = 0; ix < nrXtals; ix++) {
         std::cout << "cryst: " << ix << "  value : " << std::dec << std::endl;
         std::cout << " lin_out[ix].size()= " << std::dec << lin_out_[ix].size() << std::endl;
-        for (unsigned int i = 0; i < lin_out_[ix].size(); i++) {
-          std::cout << " " << std::dec << (lin_out_[ix])[i];
+        for (int i : lin_out_[ix]) {
+          std::cout << " " << std::dec << i;
         }
         std::cout << std::endl;
       }
@@ -229,8 +229,8 @@ public:
 
     if (debug_) {
       std::cout << "output of strip fgvb is a vector of size: " << std::dec << fgvb_out_temp_.size() << std::endl;
-      for (unsigned int i = 0; i < fgvb_out_temp_.size(); i++) {
-        std::cout << " " << std::dec << (fgvb_out_temp_[i]);
+      for (int &i : fgvb_out_temp_) {
+        std::cout << " " << std::dec << i;
       }
       std::cout << std::endl;
     }

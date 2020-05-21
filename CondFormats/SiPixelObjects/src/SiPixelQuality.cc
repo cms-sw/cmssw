@@ -141,8 +141,8 @@ const std::vector<LocalPoint> SiPixelQuality::getBadRocPositions(const uint32_t&
     if (IsRocBad(detid, i) == true) {
       std::vector<CablingPathToDetUnit> path = map->pathToDetUnit(detid);
       typedef std::vector<CablingPathToDetUnit>::const_iterator IT;
-      for (IT it = path.begin(); it != path.end(); ++it) {
-        const PixelROC* myroc = map->findItem(*it);
+      for (auto it : path) {
+        const PixelROC* myroc = map->findItem(it);
         if (myroc->idInDetUnit() == i) {
           LocalPixel::RocRowCol local = {39, 25};  //corresponding to center of ROC row, col
           GlobalPixel global = myroc->toGlobal(LocalPixel(local));

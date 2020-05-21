@@ -77,14 +77,14 @@ void MultiIsolator::addIsolator(
 }
 
 void MultiIsolator::beginEvent(const edm::Event &event, const edm::EventSetup &eventSetup) {
-  for (boost::ptr_vector<BaseIsolator>::iterator it = isolators_.begin(), ed = isolators_.end(); it != ed; ++it) {
-    it->beginEvent(event, eventSetup);
+  for (auto &isolator : isolators_) {
+    isolator.beginEvent(event, eventSetup);
   }
 }
 
 void MultiIsolator::endEvent() {
-  for (boost::ptr_vector<BaseIsolator>::iterator it = isolators_.begin(), ed = isolators_.end(); it != ed; ++it) {
-    it->endEvent();
+  for (auto &isolator : isolators_) {
+    isolator.endEvent();
   }
 }
 

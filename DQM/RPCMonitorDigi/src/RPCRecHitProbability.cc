@@ -201,9 +201,8 @@ void RPCRecHitProbability::makeDcsInfo(const edm::Event& e) {
     return;
   }
 
-  for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin(); dcsStatusItr != dcsStatus->end();
-       ++dcsStatusItr) {
-    if (!dcsStatusItr->ready(DcsStatus::RPC))
+  for (const auto& dcsStatusItr : *dcsStatus) {
+    if (!dcsStatusItr.ready(DcsStatus::RPC))
       dcs_ = false;
   }
 

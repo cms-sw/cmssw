@@ -160,8 +160,8 @@ void PiZeroAnalyzer::makePizero(const edm::EventSetup& es,
   }  // Eb rechits
 
   sort(seeds.begin(), seeds.end(), [](auto& x, auto& y) { return (x.energy() > y.energy()); });
-  for (std::vector<EcalRecHit>::iterator itseed = seeds.begin(); itseed != seeds.end(); itseed++) {
-    EBDetId seed_id = itseed->id();
+  for (auto& seed : seeds) {
+    EBDetId seed_id = seed.id();
     std::vector<EBDetId>::const_iterator usedIds;
 
     bool seedAlreadyUsed = false;
@@ -183,25 +183,25 @@ void PiZeroAnalyzer::makePizero(const edm::EventSetup& es,
 
     double simple_energy = 0;
 
-    for (std::vector<DetId>::iterator det = clus_v.begin(); det != clus_v.end(); det++) {
+    for (auto& det : clus_v) {
       // EBDetId EBdet = *det;
       //      cout<<" det "<< EBdet<<" ieta "<<EBdet.ieta()<<" iphi "<<EBdet.iphi()<<endl;
       bool HitAlreadyUsed = false;
       for (usedIds = usedXtals.begin(); usedIds != usedXtals.end(); usedIds++) {
-        if (*usedIds == *det) {
+        if (*usedIds == det) {
           HitAlreadyUsed = true;
           break;
         }
       }
       if (HitAlreadyUsed)
         continue;
-      if (recHitsEB_map.find(*det) != recHitsEB_map.end()) {
+      if (recHitsEB_map.find(det) != recHitsEB_map.end()) {
         //      cout<<" Used det "<< EBdet<<endl;
         std::map<DetId, EcalRecHit>::iterator aHit;
-        aHit = recHitsEB_map.find(*det);
-        usedXtals.push_back(*det);
+        aHit = recHitsEB_map.find(det);
+        usedXtals.push_back(det);
         RecHitsInWindow.push_back(aHit->second);
-        clus_used.push_back(std::pair<DetId, float>(*det, 1.));
+        clus_used.push_back(std::pair<DetId, float>(det, 1.));
         simple_energy = simple_energy + aHit->second.energy();
       }
     }
@@ -224,59 +224,57 @@ void PiZeroAnalyzer::makePizero(const edm::EventSetup& es,
     //Compute S4/S9 variable
     //We are not sure to have 9 RecHits so need to check eta and phi:
     float s4s9_[4];
-    for (int i = 0; i < 4; i++)
-      s4s9_[i] = itseed->energy();
-    for (unsigned int j = 0; j < RecHitsInWindow.size(); j++) {
+    for (float& i : s4s9_)
+      i = seed.energy();
+    for (auto& j : RecHitsInWindow) {
       //cout << " Simple cluster rh, ieta, iphi : "<<((EBDetId)RecHitsInWindow[j].id()).ieta()<<" "<<((EBDetId)RecHitsInWindow[j].id()).iphi()<<endl;
-      if ((((EBDetId)RecHitsInWindow[j].id()).ieta() == seed_id.ieta() - 1 && seed_id.ieta() != 1) ||
-          (seed_id.ieta() == 1 && (((EBDetId)RecHitsInWindow[j].id()).ieta() == seed_id.ieta() - 2))) {
-        if (((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi() - 1 ||
-            ((EBDetId)RecHitsInWindow[j].id()).iphi() - 360 == seed_id.iphi() - 1) {
-          s4s9_[0] += RecHitsInWindow[j].energy();
+      if ((((EBDetId)j.id()).ieta() == seed_id.ieta() - 1 && seed_id.ieta() != 1) ||
+          (seed_id.ieta() == 1 && (((EBDetId)j.id()).ieta() == seed_id.ieta() - 2))) {
+        if (((EBDetId)j.id()).iphi() == seed_id.iphi() - 1 || ((EBDetId)j.id()).iphi() - 360 == seed_id.iphi() - 1) {
+          s4s9_[0] += j.energy();
         } else {
-          if (((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi()) {
-            s4s9_[0] += RecHitsInWindow[j].energy();
-            s4s9_[1] += RecHitsInWindow[j].energy();
+          if (((EBDetId)j.id()).iphi() == seed_id.iphi()) {
+            s4s9_[0] += j.energy();
+            s4s9_[1] += j.energy();
           } else {
-            if (((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi() + 1 ||
-                ((EBDetId)RecHitsInWindow[j].id()).iphi() - 360 == seed_id.iphi() + 1) {
-              s4s9_[1] += RecHitsInWindow[j].energy();
+            if (((EBDetId)j.id()).iphi() == seed_id.iphi() + 1 ||
+                ((EBDetId)j.id()).iphi() - 360 == seed_id.iphi() + 1) {
+              s4s9_[1] += j.energy();
             }
           }
         }
       } else {
-        if (((EBDetId)RecHitsInWindow[j].id()).ieta() == seed_id.ieta()) {
-          if (((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi() - 1 ||
-              ((EBDetId)RecHitsInWindow[j].id()).iphi() - 360 == seed_id.iphi() - 1) {
-            s4s9_[0] += RecHitsInWindow[j].energy();
-            s4s9_[3] += RecHitsInWindow[j].energy();
+        if (((EBDetId)j.id()).ieta() == seed_id.ieta()) {
+          if (((EBDetId)j.id()).iphi() == seed_id.iphi() - 1 || ((EBDetId)j.id()).iphi() - 360 == seed_id.iphi() - 1) {
+            s4s9_[0] += j.energy();
+            s4s9_[3] += j.energy();
           } else {
-            if (((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi() + 1 ||
-                ((EBDetId)RecHitsInWindow[j].id()).iphi() - 360 == seed_id.iphi() + 1) {
-              s4s9_[1] += RecHitsInWindow[j].energy();
-              s4s9_[2] += RecHitsInWindow[j].energy();
+            if (((EBDetId)j.id()).iphi() == seed_id.iphi() + 1 ||
+                ((EBDetId)j.id()).iphi() - 360 == seed_id.iphi() + 1) {
+              s4s9_[1] += j.energy();
+              s4s9_[2] += j.energy();
             }
           }
         } else {
-          if ((((EBDetId)RecHitsInWindow[j].id()).ieta() == seed_id.ieta() + 1 && seed_id.ieta() != -1) ||
-              (seed_id.ieta() == -1 && (((EBDetId)RecHitsInWindow[j].id()).ieta() == seed_id.ieta() + 2))) {
-            if (((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi() - 1 ||
-                ((EBDetId)RecHitsInWindow[j].id()).iphi() - 360 == seed_id.iphi() - 1) {
-              s4s9_[3] += RecHitsInWindow[j].energy();
+          if ((((EBDetId)j.id()).ieta() == seed_id.ieta() + 1 && seed_id.ieta() != -1) ||
+              (seed_id.ieta() == -1 && (((EBDetId)j.id()).ieta() == seed_id.ieta() + 2))) {
+            if (((EBDetId)j.id()).iphi() == seed_id.iphi() - 1 ||
+                ((EBDetId)j.id()).iphi() - 360 == seed_id.iphi() - 1) {
+              s4s9_[3] += j.energy();
             } else {
-              if (((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi()) {
-                s4s9_[2] += RecHitsInWindow[j].energy();
-                s4s9_[3] += RecHitsInWindow[j].energy();
+              if (((EBDetId)j.id()).iphi() == seed_id.iphi()) {
+                s4s9_[2] += j.energy();
+                s4s9_[3] += j.energy();
               } else {
-                if (((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi() + 1 ||
-                    ((EBDetId)RecHitsInWindow[j].id()).iphi() - 360 == seed_id.iphi() + 1) {
-                  s4s9_[2] += RecHitsInWindow[j].energy();
+                if (((EBDetId)j.id()).iphi() == seed_id.iphi() + 1 ||
+                    ((EBDetId)j.id()).iphi() - 360 == seed_id.iphi() + 1) {
+                  s4s9_[2] += j.energy();
                 }
               }
             }
           } else {
-            cout << " (EBDetId)RecHitsInWindow[j].id()).ieta() " << ((EBDetId)RecHitsInWindow[j].id()).ieta()
-                 << " seed_id.ieta() " << seed_id.ieta() << endl;
+            cout << " (EBDetId)RecHitsInWindow[j].id()).ieta() " << ((EBDetId)j.id()).ieta() << " seed_id.ieta() "
+                 << seed_id.ieta() << endl;
             cout << " Problem with S4 calculation " << endl;
             return;
           }

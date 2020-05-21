@@ -148,8 +148,8 @@ void JetPartonMatcher::produce(edm::StreamID, Event& iEvent, const EventSetup& i
 
   edm::LogVerbatim("JetPartonMatcher") << "=== Partons size:" << wv.particles->size();
 
-  for (size_t m = 0; m < wv.particles->size(); ++m) {
-    const GenParticle& aParton = *(wv.particles->at(m).get());
+  for (const auto& m : *wv.particles) {
+    const GenParticle& aParton = *(m.get());
     edm::LogVerbatim("JetPartonMatcher") << aParton.status() << " " << aParton.pdgId() << " " << aParton.pt() << " "
                                          << aParton.eta() << " " << aParton.phi() << endl;
   }

@@ -90,18 +90,18 @@ ConfigurableAPVCyclePhaseProducer::ConfigurableAPVCyclePhaseProducer(const edm::
 
   std::vector<edm::ParameterSet> vps(iConfig.getParameter<std::vector<edm::ParameterSet> >("runPhases"));
 
-  for (std::vector<edm::ParameterSet>::const_iterator ps = vps.begin(); ps != vps.end(); ps++) {
-    _runphases[ps->getParameter<int>("runNumber")] = ps->getUntrackedParameter<std::vector<int> >("phases", _defphases);
-    _runpartnames[ps->getParameter<int>("runNumber")] =
-        ps->getUntrackedParameter<std::vector<std::string> >("partitions", _defpartnames);
+  for (const auto& vp : vps) {
+    _runphases[vp.getParameter<int>("runNumber")] = vp.getUntrackedParameter<std::vector<int> >("phases", _defphases);
+    _runpartnames[vp.getParameter<int>("runNumber")] =
+        vp.getUntrackedParameter<std::vector<std::string> >("partitions", _defpartnames);
 
-    if (_runphases[ps->getParameter<int>("runNumber")].size() <
-        _runpartnames[ps->getParameter<int>("runNumber")].size()) {
+    if (_runphases[vp.getParameter<int>("runNumber")].size() <
+        _runpartnames[vp.getParameter<int>("runNumber")].size()) {
       // throw exception
       throw cms::Exception("InvalidAPVCyclePhases")
-          << " Inconsistent run " << ps->getParameter<int>("runNumber")
-          << " phases/partitions vector sizes: " << _runphases[ps->getParameter<int>("runNumber")].size() << " "
-          << _runpartnames[ps->getParameter<int>("runNumber")].size();
+          << " Inconsistent run " << vp.getParameter<int>("runNumber")
+          << " phases/partitions vector sizes: " << _runphases[vp.getParameter<int>("runNumber")].size() << " "
+          << _runpartnames[vp.getParameter<int>("runNumber")].size();
     }
   }
 }

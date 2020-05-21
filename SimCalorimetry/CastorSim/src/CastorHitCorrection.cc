@@ -23,19 +23,19 @@ void CastorHitCorrection::fillChargeSums(MixCollection<PCaloHit> &hits) {
 
 void CastorHitCorrection::fillChargeSums(const std::vector<PCaloHit> &hits) {
   //  clear();
-  for (std::vector<PCaloHit>::const_iterator hitItr = hits.begin(); hitItr != hits.end(); ++hitItr) {
-    LogDebug("CastorHitCorrection") << "CastorHitCorrection::Hit 0x" << std::hex << hitItr->id() << std::dec;
-    int tbin = timeBin(*hitItr);
+  for (const auto &hit : hits) {
+    LogDebug("CastorHitCorrection") << "CastorHitCorrection::Hit 0x" << std::hex << hit.id() << std::dec;
+    int tbin = timeBin(hit);
     LogDebug("CastorHitCorrection") << "CastorHitCorrection::Hit tbin" << tbin;
     if (tbin >= 0 && tbin < 10) {
-      theChargeSumsForTimeBin[tbin][DetId(hitItr->id())] += charge(*hitItr);
+      theChargeSumsForTimeBin[tbin][DetId(hit.id())] += charge(hit);
     }
   }
 }
 
 void CastorHitCorrection::clear() {
-  for (int i = 0; i < 10; ++i) {
-    theChargeSumsForTimeBin[i].clear();
+  for (auto &i : theChargeSumsForTimeBin) {
+    i.clear();
   }
 }
 

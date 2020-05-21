@@ -169,9 +169,9 @@ unsigned int PedeLabeler::buildMap(const align::Alignables& alis) {
                             200, 210, 220, 230, 240, 250, 260, 270};  // AT
 
   const size_t nBeams = sizeof(beamIds) / sizeof(beamIds[0]);
-  for (size_t iBeam = 0; iBeam < nBeams; ++iBeam) {
+  for (unsigned int beamId : beamIds) {
     //edm::LogInfo("Alignment") << "Las beam " << beamIds[iBeam] << " gets label " << id << ".";
-    theLasBeamToLabelMap[beamIds[iBeam]] = id;
+    theLasBeamToLabelMap[beamId] = id;
     id += theMaxNumParam;
   }
 

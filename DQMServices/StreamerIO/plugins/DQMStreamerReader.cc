@@ -342,8 +342,7 @@ namespace dqmservices {
  */
   bool DQMStreamerReader::triggerSel() {
     acceptAllEvt_ = false;
-    for (Strings::const_iterator i(hltSel_.begin()), end(hltSel_.end()); i != end; ++i) {
-      std::string hltPath(*i);
+    for (auto hltPath : hltSel_) {
       boost::erase_all(hltPath, " \t");
       if (hltPath == "*")
         acceptAllEvt_ = true;
@@ -356,8 +355,7 @@ namespace dqmservices {
  */
   bool DQMStreamerReader::matchTriggerSel(Strings const& tnames) {
     matchTriggerSel_ = false;
-    for (Strings::const_iterator i(hltSel_.begin()), end(hltSel_.end()); i != end; ++i) {
-      std::string hltPath(*i);
+    for (auto hltPath : hltSel_) {
       boost::erase_all(hltPath, " \t");
       std::vector<Strings::const_iterator> matches = edm::regexMatch(tnames, hltPath);
       if (!matches.empty()) {

@@ -56,13 +56,13 @@ bool ClusterShapeTrajectoryFilter::toBeContinued(Trajectory& trajectory) const {
   assert(theCache);
   vector<TrajectoryMeasurement> tms = trajectory.measurements();
 
-  for (vector<TrajectoryMeasurement>::const_iterator tm = tms.begin(); tm != tms.end(); tm++) {
-    const TrackingRecHit* ttRecHit = &(*((*tm).recHit()));
+  for (const auto& tm : tms) {
+    const TrackingRecHit* ttRecHit = &(*(tm.recHit()));
 
     if (ttRecHit->isValid()) {
       const TrackingRecHit* tRecHit = ttRecHit->hit();
 
-      TrajectoryStateOnSurface ts = (*tm).updatedState();
+      TrajectoryStateOnSurface ts = tm.updatedState();
       const GlobalVector gdir = ts.globalDirection();
 
       if (ttRecHit->det()->subDetector() == GeomDetEnumerators::SubDetector::PixelBarrel ||

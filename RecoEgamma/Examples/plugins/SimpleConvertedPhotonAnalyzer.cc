@@ -175,46 +175,46 @@ void SimpleConvertedPhotonAnalyzer::analyze(const edm::Event& e, const edm::Even
   //UNUSED int iRadius=-1;
   //UNUSED int indPho=0;
 
-  for (std::vector<PhotonMCTruth>::const_iterator mcPho = mcPhotons.begin(); mcPho != mcPhotons.end(); mcPho++) {
-    float mcPhi = (*mcPho).fourMomentum().phi();
-    float mcEta = (*mcPho).fourMomentum().pseudoRapidity();
-    mcEta = etaTransformation(mcEta, (*mcPho).primaryVertex().z());
+  for (const auto& mcPhoton : mcPhotons) {
+    float mcPhi = mcPhoton.fourMomentum().phi();
+    float mcEta = mcPhoton.fourMomentum().pseudoRapidity();
+    mcEta = etaTransformation(mcEta, mcPhoton.primaryVertex().z());
 
     if (!(fabs(mcEta) <= BARL || (fabs(mcEta) >= END_LO && fabs(mcEta) <= END_HI))) {
       continue;
     }  // all ecal fiducial region
 
     std::cout << " ConvertedPhotonAnalyzer MC Photons before matching  " << std::endl;
-    std::cout << " ConvertedPhotonAnalyzer Photons isAconversion " << (*mcPho).isAConversion()
-              << " mcMatchingPhoton energy " << (*mcPho).fourMomentum().e() << " conversion vertex R "
-              << (*mcPho).vertex().perp() << " Z " << (*mcPho).vertex().z() << " x " << (*mcPho).vertex().x() << " y "
-              << (*mcPho).vertex().y() << " z " << (*mcPho).vertex().z() << std::endl;
+    std::cout << " ConvertedPhotonAnalyzer Photons isAconversion " << mcPhoton.isAConversion()
+              << " mcMatchingPhoton energy " << mcPhoton.fourMomentum().e() << " conversion vertex R "
+              << mcPhoton.vertex().perp() << " Z " << mcPhoton.vertex().z() << " x " << mcPhoton.vertex().x() << " y "
+              << mcPhoton.vertex().y() << " z " << mcPhoton.vertex().z() << std::endl;
     std::cout << " ConvertedPhotonAnalyzer mcEta " << mcEta << " mcPhi " << mcPhi << std::endl;
 
-    h_MCphoE_->Fill((*mcPho).fourMomentum().e());
-    h_MCphoEta_->Fill((*mcPho).fourMomentum().eta());
-    h_MCphoPhi_->Fill((*mcPho).fourMomentum().phi());
+    h_MCphoE_->Fill(mcPhoton.fourMomentum().e());
+    h_MCphoEta_->Fill(mcPhoton.fourMomentum().eta());
+    h_MCphoPhi_->Fill(mcPhoton.fourMomentum().phi());
 
     // keep only visible conversions
-    if ((*mcPho).isAConversion() == 0)
+    if (mcPhoton.isAConversion() == 0)
       continue;
 
     nMCPho_++;
 
-    h_MCConvEta_->Fill(fabs((*mcPho).fourMomentum().pseudoRapidity()) - 0.001);
+    h_MCConvEta_->Fill(fabs(mcPhoton.fourMomentum().pseudoRapidity()) - 0.001);
 
     bool REJECTED;
 
     /// Loop over recontructed photons
     std::cout << " ConvertedPhotonAnalyzer  Starting loop over photon candidates "
               << "\n";
-    for (reco::ConversionCollection::const_iterator iPho = phoCollection.begin(); iPho != phoCollection.end(); iPho++) {
+    for (const auto& iPho : phoCollection) {
       REJECTED = false;
 
-      std::cout << " ConvertedPhotonAnalyzer Reco SC energy " << (*iPho).caloCluster()[0]->energy() << "\n";
+      std::cout << " ConvertedPhotonAnalyzer Reco SC energy " << iPho.caloCluster()[0]->energy() << "\n";
 
-      float phiClu = (*iPho).caloCluster()[0]->phi();
-      float etaClu = (*iPho).caloCluster()[0]->eta();
+      float phiClu = iPho.caloCluster()[0]->phi();
+      float etaClu = iPho.caloCluster()[0]->eta();
       float deltaPhi = phiClu - mcPhi;
       float deltaEta = etaClu - mcEta;
 
@@ -237,26 +237,26 @@ void SimpleConvertedPhotonAnalyzer::analyze(const edm::Event& e, const edm::Even
 
       std::cout << " ConvertedPhotonAnalyzer Matching candidate " << std::endl;
 
-      std::cout << " ConvertedPhotonAnalyzer Photons isAconversion " << (*mcPho).isAConversion()
-                << " mcMatchingPhoton energy " << (*mcPho).fourMomentum().e()
-                << " ConvertedPhotonAnalyzer conversion vertex R " << (*mcPho).vertex().perp() << " Z "
-                << (*mcPho).vertex().z() << std::endl;
+      std::cout << " ConvertedPhotonAnalyzer Photons isAconversion " << mcPhoton.isAConversion()
+                << " mcMatchingPhoton energy " << mcPhoton.fourMomentum().e()
+                << " ConvertedPhotonAnalyzer conversion vertex R " << mcPhoton.vertex().perp() << " Z "
+                << mcPhoton.vertex().z() << std::endl;
 
-      h_ErecoEMC_->Fill((*iPho).caloCluster()[0]->energy() / (*mcPho).fourMomentum().e());
-      h_deltaPhi_->Fill((*iPho).caloCluster()[0]->position().phi() - mcPhi);
-      h_deltaEta_->Fill((*iPho).caloCluster()[0]->position().eta() - mcEta);
+      h_ErecoEMC_->Fill(iPho.caloCluster()[0]->energy() / mcPhoton.fourMomentum().e());
+      h_deltaPhi_->Fill(iPho.caloCluster()[0]->position().phi() - mcPhi);
+      h_deltaEta_->Fill(iPho.caloCluster()[0]->position().eta() - mcEta);
 
-      h_scE_->Fill((*iPho).caloCluster()[0]->energy());
-      h_scEta_->Fill((*iPho).caloCluster()[0]->position().eta());
-      h_scPhi_->Fill((*iPho).caloCluster()[0]->position().phi());
+      h_scE_->Fill(iPho.caloCluster()[0]->energy());
+      h_scEta_->Fill(iPho.caloCluster()[0]->position().eta());
+      h_scPhi_->Fill(iPho.caloCluster()[0]->position().phi());
 
-      for (unsigned int i = 0; i < (*iPho).tracks().size(); i++) {
-        std::cout << " ConvertedPhotonAnalyzer Reco Track charge " << (*iPho).tracks()[i]->charge()
-                  << "  Num of RecHits " << (*iPho).tracks()[i]->recHitsSize() << " inner momentum "
-                  << sqrt((*iPho).tracks()[i]->innerMomentum().Mag2()) << "\n";
+      for (unsigned int i = 0; i < iPho.tracks().size(); i++) {
+        std::cout << " ConvertedPhotonAnalyzer Reco Track charge " << iPho.tracks()[i]->charge() << "  Num of RecHits "
+                  << iPho.tracks()[i]->recHitsSize() << " inner momentum "
+                  << sqrt(iPho.tracks()[i]->innerMomentum().Mag2()) << "\n";
 
-        h2_tk_nHitsVsR_->Fill((*mcPho).vertex().perp(), (*iPho).tracks()[i]->recHitsSize());
-        h2_tk_inPtVsR_->Fill((*mcPho).vertex().perp(), sqrt((*iPho).tracks()[i]->innerMomentum().Mag2()));
+        h2_tk_nHitsVsR_->Fill(mcPhoton.vertex().perp(), iPho.tracks()[i]->recHitsSize());
+        h2_tk_inPtVsR_->Fill(mcPhoton.vertex().perp(), sqrt(iPho.tracks()[i]->innerMomentum().Mag2()));
       }
 
     }  /// End loop over Reco  particles

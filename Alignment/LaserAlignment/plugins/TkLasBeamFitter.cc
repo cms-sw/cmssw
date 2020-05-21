@@ -362,9 +362,8 @@ void TkLasBeamFitter::endRunProduce(edm::Run &run, const edm::EventSetup &setup)
     cout << "BS fixed, not fitted!" << endl;
 
   // loop over LAS beams
-  for (TkLasBeamCollection::const_iterator iBeam = laserBeams->begin(), iEnd = laserBeams->end(); iBeam != iEnd;
-       ++iBeam) {
-    TkFittedLasBeam beam(*iBeam);
+  for (const auto &iBeam : *laserBeams) {
+    TkFittedLasBeam beam(iBeam);
     vector<TrajectoryStateOnSurface> tsosLas;
 
     // set BS param for fit
@@ -467,15 +466,15 @@ void TkLasBeamFitter::getLasBeams(TkFittedLasBeam &beam, vector<TrajectoryStateO
   // fill vectors for fitted quantities
   vector<double> hitPhi, hitPhiError, hitZprimeError;
 
-  for (unsigned int hit = 0; hit < globHit.size(); ++hit) {
-    hitPhi.push_back(static_cast<double>(globHit[hit].phi()));
+  for (auto &hit : globHit) {
+    hitPhi.push_back(static_cast<double>(hit.phi()));
     // localPositionError[hit] or assume 0.003, 0.006
-    hitPhiError.push_back(0.003 / globHit[hit].perp());
+    hitPhiError.push_back(0.003 / hit.perp());
     // no errors on z, fill with zeros
     hitZprimeError.push_back(0.0);
     // barrel-specific values
-    if (beam.isAlignmentTube() && abs(globHit[hit].z()) < 112.3) {
-      gBarrelModuleRadius.push_back(globHit[hit].perp());
+    if (beam.isAlignmentTube() && abs(hit.z()) < 112.3) {
+      gBarrelModuleRadius.push_back(hit.perp());
       gBarrelModuleOffset.push_back(gBarrelModuleRadius.back() - gBeamR);
       // TIB/TOB flag
       if (gBarrelModuleOffset.back() < 0.0) {
@@ -483,11 +482,11 @@ void TkLasBeamFitter::getLasBeams(TkFittedLasBeam &beam, vector<TrajectoryStateO
       } else {
         gIsInnerBarrel = false;
       }
-      gHitZprime.push_back(globHit[hit].z() - gBeamZ0 - abs(gBarrelModuleOffset.back()));
+      gHitZprime.push_back(hit.z() - gBeamZ0 - abs(gBarrelModuleOffset.back()));
     }
     // non-barrel z'
     else {
-      gHitZprime.push_back(globHit[hit].z() - gBeamZ0);
+      gHitZprime.push_back(hit.z() - gBeamZ0);
     }
   }
 

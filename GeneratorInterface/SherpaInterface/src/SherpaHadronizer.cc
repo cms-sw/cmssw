@@ -166,16 +166,15 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params)
   //They are given as a vstring.
   std::vector<std::string> setNames = SherpaParameterSet.getParameter<std::vector<std::string> >("parameterSets");
   //Loop all set names...
-  for (unsigned i = 0; i < setNames.size(); ++i) {
+  for (const auto &setName : setNames) {
     // ...and read the parameters for each set given in vstrings
-    std::vector<std::string> pars = SherpaParameterSet.getParameter<std::vector<std::string> >(setNames[i]);
-    edm::LogVerbatim("SherpaHadronizer") << "Write Sherpa parameter set " << setNames[i] << " to " << setNames[i]
-                                         << ".dat ";
-    std::string datfile = SherpaPath + "/" + setNames[i] + ".dat";
+    std::vector<std::string> pars = SherpaParameterSet.getParameter<std::vector<std::string> >(setName);
+    edm::LogVerbatim("SherpaHadronizer") << "Write Sherpa parameter set " << setName << " to " << setName << ".dat ";
+    std::string datfile = SherpaPath + "/" + setName + ".dat";
     std::ofstream os(datfile.c_str());
     // Loop over all strings and write the according *.dat
-    for (std::vector<std::string>::const_iterator itPar = pars.begin(); itPar != pars.end(); ++itPar) {
-      os << (*itPar) << std::endl;
+    for (const auto &par : pars) {
+      os << par << std::endl;
     }
   }
 

@@ -39,15 +39,15 @@ float FixedGridEnergyDensity::fixedGridRho(std::vector<float>& etabins, std::vec
   float phihalfdist = (phibins[1] - phibins[0]) / 2.;
   vector<float> sumPFNallSMDQ;
   sumPFNallSMDQ.reserve(etabins.size() * phibins.size());
-  for (unsigned int ieta = 0; ieta < etabins.size(); ++ieta) {
-    for (unsigned int iphi = 0; iphi < phibins.size(); ++iphi) {
+  for (float etabin : etabins) {
+    for (float phibin : phibins) {
       float pfniso_ieta_iphi = 0;
-      for (PFCandidateCollection::const_iterator pf_it = pfCandidates->begin(); pf_it != pfCandidates->end(); pf_it++) {
-        if (fabs(etabins[ieta] - pf_it->eta()) > etahalfdist)
+      for (const auto& pfCandidate : *pfCandidates) {
+        if (fabs(etabin - pfCandidate.eta()) > etahalfdist)
           continue;
-        if (fabs(reco::deltaPhi(phibins[iphi], pf_it->phi())) > phihalfdist)
+        if (fabs(reco::deltaPhi(phibin, pfCandidate.phi())) > phihalfdist)
           continue;
-        pfniso_ieta_iphi += pf_it->pt();
+        pfniso_ieta_iphi += pfCandidate.pt();
       }
       sumPFNallSMDQ.push_back(pfniso_ieta_iphi);
     }

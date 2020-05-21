@@ -149,9 +149,9 @@ void CTPPSPixelDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   formatter.formatRawData(iEvent.id().event(), rawdata, digis, v_iDdet2fed_);
 
   // pack raw data into collection
-  for (auto it = fedIds_.begin(); it != fedIds_.end(); it++) {
-    FEDRawData& fedRawData = buffers->FEDData(*it);
-    CTPPSPixelDataFormatter::RawData::iterator fedbuffer = rawdata.find(*it);
+  for (unsigned int fedId : fedIds_) {
+    FEDRawData& fedRawData = buffers->FEDData(fedId);
+    CTPPSPixelDataFormatter::RawData::iterator fedbuffer = rawdata.find(fedId);
     if (fedbuffer != rawdata.end())
       fedRawData = fedbuffer->second;
   }

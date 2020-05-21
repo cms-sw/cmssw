@@ -189,8 +189,8 @@ void IslandClusterProducer::clusterizeECALPart(edm::Event& evt,
 
   //Create associated ClusterShape objects.
   std::vector<reco::ClusterShape> ClusVec;
-  for (int erg = 0; erg < int(clusters.size()); ++erg) {
-    reco::ClusterShape TestShape = shapeAlgo_.Calculate(clusters[erg], hitCollection_p, geometry_p, topology_p.get());
+  for (const auto& cluster : clusters) {
+    reco::ClusterShape TestShape = shapeAlgo_.Calculate(cluster, hitCollection_p, geometry_p, topology_p.get());
     ClusVec.push_back(TestShape);
   }
 

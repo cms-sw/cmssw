@@ -473,21 +473,21 @@ void TSGForRoadSearch::pushTrajectorySeed(const reco::Track &muon,
 
   if (theManySeeds) {
     //finf out every compatible measurements
-    for (std::vector<DetLayer::DetWithState>::iterator DWSit = compatible.begin(); DWSit != compatible.end(); ++DWSit) {
+    for (auto &DWSit : compatible) {
       bool aBareTS = false;
-      const GeomDet *gd = DWSit->first;
+      const GeomDet *gd = DWSit.first;
       if (!gd) {
         edm::LogError(theCategory) << "GeomDet is not valid.";
         continue;
       }
       MeasurementDetWithData md = theMeasurementTrackerEvent->idToDet(gd->geographicalId());
       std::vector<TrajectoryMeasurement> tmp = md.fastMeasurements(
-          DWSit->second, DWSit->second, *theProxyService->propagator(thePropagatorCompatibleName), *theChi2Estimator);
+          DWSit.second, DWSit.second, *theProxyService->propagator(thePropagatorCompatibleName), *theChi2Estimator);
       //make a trajectory seed for each of them
 
-      for (std::vector<TrajectoryMeasurement>::iterator Mit = tmp.begin(); Mit != tmp.end(); ++Mit) {
-        TrajectoryStateOnSurface predState(Mit->predictedState());
-        TrajectoryMeasurement::ConstRecHitPointer hit = Mit->recHit();
+      for (auto &Mit : tmp) {
+        TrajectoryStateOnSurface predState(Mit.predictedState());
+        TrajectoryMeasurement::ConstRecHitPointer hit = Mit.recHit();
         TrajectorySeed::recHitContainer rhContainer;
         if (theCopyMuonRecHit) {
           LogDebug(theCategory) << "copying (" << muon.recHitsSize() << ") muon recHits";

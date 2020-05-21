@@ -71,9 +71,9 @@ void NuclearSeedsEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
   const edm::OrphanHandle<TrajectorySeedCollection> refprodTrajSeedColl = iEvent.put(std::move(output));
 
-  for (std::vector<std::pair<int, int> >::const_iterator iVecP = assocPair.begin(); iVecP != assocPair.end(); iVecP++) {
-    outAssoc->insert(edm::Ref<TrajectoryCollection>(m_TrajectoryCollection, iVecP->first),
-                     edm::Ref<TrajectorySeedCollection>(refprodTrajSeedColl, iVecP->second));
+  for (const auto& iVecP : assocPair) {
+    outAssoc->insert(edm::Ref<TrajectoryCollection>(m_TrajectoryCollection, iVecP.first),
+                     edm::Ref<TrajectorySeedCollection>(refprodTrajSeedColl, iVecP.second));
   }
   iEvent.put(std::move(outAssoc));
 }

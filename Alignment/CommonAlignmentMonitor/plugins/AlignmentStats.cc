@@ -123,21 +123,20 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
   // int npxbhits=0;
 
   //loop on tracks
-  for (std::vector<reco::Track>::const_iterator ittrk = Tracks->begin(), edtrk = Tracks->end(); ittrk != edtrk;
-       ++ittrk) {
-    Eta[trk_cnt] = ittrk->eta();
-    Phi[trk_cnt] = ittrk->phi();
-    Chi2n[trk_cnt] = ittrk->normalizedChi2();
-    P[trk_cnt] = ittrk->p();
-    Pt[trk_cnt] = ittrk->pt();
-    Nhits[trk_cnt][0] = ittrk->numberOfValidHits();
+  for (const auto &ittrk : *Tracks) {
+    Eta[trk_cnt] = ittrk.eta();
+    Phi[trk_cnt] = ittrk.phi();
+    Chi2n[trk_cnt] = ittrk.normalizedChi2();
+    P[trk_cnt] = ittrk.p();
+    Pt[trk_cnt] = ittrk.pt();
+    Nhits[trk_cnt][0] = ittrk.numberOfValidHits();
 
     //   if(ntracks>1)std::cout<<"Track #"<<trk_cnt+1<<" params:    Eta="<< Eta[trk_cnt]<<"  Phi="<< Phi[trk_cnt]<<"  P="<<P[trk_cnt]<<"   Nhits="<<Nhits[trk_cnt][0]<<std::endl;
 
     int nhit = 0;
     //loop on tracking rechits
     //std::cout << "   loop on hits of track #" << (itt - tracks->begin()) << std::endl;
-    for (auto const &hit : ittrk->recHits()) {
+    for (auto const &hit : ittrk.recHits()) {
       if (!hit->isValid())
         continue;
       DetId detid = hit->geographicalId();

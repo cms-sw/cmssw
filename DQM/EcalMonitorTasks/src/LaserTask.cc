@@ -64,27 +64,27 @@ namespace ecaldqm {
 
   void LaserTask::runOnRawData(EcalRawDataCollection const& _rawData) {
     MESet& meCalibStatus(MEs_.at("CalibStatus"));
-    for (EcalRawDataCollection::const_iterator rItr(_rawData.begin()); rItr != _rawData.end(); ++rItr) {
-      unsigned iDCC(rItr->id() - 1);
+    for (const auto& rItr : _rawData) {
+      unsigned iDCC(rItr.id() - 1);
 
       if (!enable_[iDCC]) {
         wavelength_[iDCC] = -1;
         rtHalf_[iDCC] = -1;
         continue;
       }
-      wavelength_[iDCC] = rItr->getEventSettings().wavelength + 1;
+      wavelength_[iDCC] = rItr.getEventSettings().wavelength + 1;
 
       if (wlToME_.find(wavelength_[iDCC]) == wlToME_.end())
         enable_[iDCC] = false;
 
-      rtHalf_[iDCC] = rItr->getRtHalf();
+      rtHalf_[iDCC] = rItr.getRtHalf();
     }
     bool LaserStatus[nWavelength];
-    for (unsigned iW(0); iW < nWavelength; iW++) {
-      LaserStatus[iW] = false;
+    for (bool& LaserStatu : LaserStatus) {
+      LaserStatu = false;
     }
-    for (unsigned iDCC(0); iDCC < nDCC; iDCC++) {
-      switch (wavelength_[iDCC]) {
+    for (unsigned int iDCC : wavelength_) {
+      switch (iDCC) {
         case 1:
           break;
         case 2:
@@ -239,18 +239,18 @@ namespace ecaldqm {
     MESet& mePNAmplitude(MEs_.at("PNAmplitude"));
 
     bool enable(false);
-    for (unsigned iDCC(0); iDCC < nDCC; ++iDCC)
-      enable |= enable_[iDCC];
+    for (bool iDCC : enable_)
+      enable |= iDCC;
     if (!enable)
       return;
 
     unsigned iME(-1);
 
-    for (EcalPnDiodeDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr) {
-      if (digiItr->sample(0).gainId() != 0 && digiItr->sample(0).gainId() != 1)
+    for (const auto& _digi : _digis) {
+      if (_digi.sample(0).gainId() != 0 && _digi.sample(0).gainId() != 1)
         continue;
 
-      const EcalPnDiodeDetId& id(digiItr->id());
+      const EcalPnDiodeDetId& id(_digi.id());
 
       std::map<uint32_t, float>::iterator ampItr(pnAmp_.find(id.rawId()));
       if (ampItr == pnAmp_.end())
@@ -260,12 +260,12 @@ namespace ecaldqm {
 
       double pedestal(0.);
       for (int iSample(0); iSample < 4; iSample++)
-        pedestal += digiItr->sample(iSample).adc();
+        pedestal += _digi.sample(iSample).adc();
       pedestal /= 4.;
 
       double max(0.);
       for (int iSample(0); iSample < 50; iSample++) {
-        float amp(digiItr->sample(iSample).adc() - pedestal);
+        float amp(_digi.sample(iSample).adc() - pedestal);
         if (amp > max)
           max = amp;
       }
@@ -290,15 +290,15 @@ namespace ecaldqm {
     using namespace std;
 
     bool enable(false);
-    for (unsigned iDCC(0); iDCC < nDCC; ++iDCC)
-      enable |= enable_[iDCC];
+    for (bool iDCC : enable_)
+      enable |= iDCC;
     if (!enable)
       return;
 
     unsigned iME(-1);
 
-    for (EcalUncalibratedRecHitCollection::const_iterator uhitItr(_uhits.begin()); uhitItr != _uhits.end(); ++uhitItr) {
-      const DetId& id(uhitItr->id());
+    for (const auto& _uhit : _uhits) {
+      const DetId& id(_uhit.id());
 
       unsigned iDCC(dccId(id) - 1);
 
@@ -315,8 +315,8 @@ namespace ecaldqm {
         static_cast<MESetMulti&>(meAOverP).use(iME);
       }
 
-      float amp(max((double)uhitItr->amplitude(), 0.));
-      float jitter(max((double)uhitItr->jitter() + 5.0, 0.));
+      float amp(max((double)_uhit.amplitude(), 0.));
+      float jitter(max((double)_uhit.jitter() + 5.0, 0.));
 
       meAmplitude.fill(id, amp);
       meAmplitudeSummary.fill(id, amp);

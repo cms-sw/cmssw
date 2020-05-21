@@ -70,23 +70,22 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf) : th
     std::vector<edm::ParameterSet> vertexCollections =
         conf.getParameter<std::vector<edm::ParameterSet> >("vertexCollections");
 
-    for (std::vector<edm::ParameterSet>::const_iterator algoconf = vertexCollections.begin();
-         algoconf != vertexCollections.end();
-         algoconf++) {
+    for (const auto& vertexCollection : vertexCollections) {
       algo algorithm;
-      std::string fitterAlgorithm = algoconf->getParameter<std::string>("algorithm");
+      std::string fitterAlgorithm = vertexCollection.getParameter<std::string>("algorithm");
       if (fitterAlgorithm == "KalmanVertexFitter") {
         algorithm.fitter = new KalmanVertexFitter();
       } else if (fitterAlgorithm == "AdaptiveVertexFitter") {
-        algorithm.fitter = new AdaptiveVertexFitter(GeometricAnnealing(algoconf->getParameter<double>("chi2cutoff")));
+        algorithm.fitter =
+            new AdaptiveVertexFitter(GeometricAnnealing(vertexCollection.getParameter<double>("chi2cutoff")));
       } else {
         throw VertexException("PrimaryVertexProducerAlgorithm: unknown algorithm: " + fitterAlgorithm);
       }
-      algorithm.label = algoconf->getParameter<std::string>("label");
-      algorithm.minNdof = algoconf->getParameter<double>("minNdof");
-      algorithm.useBeamConstraint = algoconf->getParameter<bool>("useBeamConstraint");
+      algorithm.label = vertexCollection.getParameter<std::string>("label");
+      algorithm.minNdof = vertexCollection.getParameter<double>("minNdof");
+      algorithm.useBeamConstraint = vertexCollection.getParameter<bool>("useBeamConstraint");
       algorithm.vertexSelector =
-          new VertexCompatibleWithBeam(VertexDistanceXY(), algoconf->getParameter<double>("maxDistanceToBeam"));
+          new VertexCompatibleWithBeam(VertexDistanceXY(), vertexCollection.getParameter<double>("maxDistanceToBeam"));
       algorithms.push_back(algorithm);
 
       produces<reco::VertexCollection>(algorithm.label);
@@ -122,11 +121,11 @@ PrimaryVertexProducer::~PrimaryVertexProducer() {
     delete theTrackFilter;
   if (theTrackClusterizer)
     delete theTrackClusterizer;
-  for (std::vector<algo>::const_iterator algorithm = algorithms.begin(); algorithm != algorithms.end(); algorithm++) {
-    if (algorithm->fitter)
-      delete algorithm->fitter;
-    if (algorithm->vertexSelector)
-      delete algorithm->vertexSelector;
+  for (const auto& algorithm : algorithms) {
+    if (algorithm.fitter)
+      delete algorithm.fitter;
+    if (algorithm.vertexSelector)
+      delete algorithm.vertexSelector;
   }
 }
 
@@ -186,21 +185,19 @@ void PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   }
 
   // vertex fits
-  for (std::vector<algo>::const_iterator algorithm = algorithms.begin(); algorithm != algorithms.end(); algorithm++) {
+  for (const auto& algorithm : algorithms) {
     auto result = std::make_unique<reco::VertexCollection>();
     reco::VertexCollection& vColl = (*result);
 
     std::vector<TransientVertex> pvs;
-    for (std::vector<std::vector<reco::TransientTrack> >::const_iterator iclus = clusters.begin();
-         iclus != clusters.end();
-         iclus++) {
+    for (const auto& cluster : clusters) {
       double sumwt = 0.;
       double sumwt2 = 0.;
       double sumw = 0.;
       double meantime = 0.;
       double vartime = 0.;
       if (f4D) {
-        for (const auto& tk : *iclus) {
+        for (const auto& tk : cluster) {
           const double time = tk.timeExt();
           const double err = tk.dtErrorExt();
           const double inverr = err > 0. ? 1.0 / err : 0.;
@@ -211,13 +208,13 @@ void PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
         }
         meantime = sumwt / sumw;
         double sumsq = sumwt2 - sumwt * sumwt / sumw;
-        double chisq = iclus->size() > 1 ? sumsq / double(iclus->size() - 1) : sumsq / double(iclus->size());
+        double chisq = cluster.size() > 1 ? sumsq / double(cluster.size() - 1) : sumsq / double(cluster.size());
         vartime = chisq / sumw;
       }
 
       TransientVertex v;
-      if (algorithm->useBeamConstraint && validBS && ((*iclus).size() > 1)) {
-        v = algorithm->fitter->vertex(*iclus, beamSpot);
+      if (algorithm.useBeamConstraint && validBS && (cluster.size() > 1)) {
+        v = algorithm.fitter->vertex(cluster, beamSpot);
 
         if (f4D) {
           if (v.isValid()) {
@@ -227,8 +224,8 @@ void PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
           }
         }
 
-      } else if (!(algorithm->useBeamConstraint) && ((*iclus).size() > 1)) {
-        v = algorithm->fitter->vertex(*iclus);
+      } else if (!(algorithm.useBeamConstraint) && (cluster.size() > 1)) {
+        v = algorithm.fitter->vertex(cluster);
 
         if (f4D) {
           if (v.isValid()) {
@@ -248,14 +245,14 @@ void PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
           std::cout << "=" << v.position().x() << " " << v.position().y() << " " << v.position().z();
           if (f4D)
             std::cout << " " << v.time();
-          std::cout << " cluster size = " << (*iclus).size() << std::endl;
+          std::cout << " cluster size = " << cluster.size() << std::endl;
         } else {
-          std::cout << "Invalid fitted vertex,  cluster size=" << (*iclus).size() << std::endl;
+          std::cout << "Invalid fitted vertex,  cluster size=" << cluster.size() << std::endl;
         }
       }
 
-      if (v.isValid() && (v.degreesOfFreedom() >= algorithm->minNdof) &&
-          (!validBS || (*(algorithm->vertexSelector))(v, beamVertexState)))
+      if (v.isValid() && (v.degreesOfFreedom() >= algorithm.minNdof) &&
+          (!validBS || (*(algorithm.vertexSelector))(v, beamVertexState)))
         pvs.push_back(v);
     }  // end of cluster loop
 
@@ -277,8 +274,8 @@ void PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     }
 
     // convert transient vertices returned by the theAlgo to (reco) vertices
-    for (std::vector<TransientVertex>::const_iterator iv = pvs.begin(); iv != pvs.end(); iv++) {
-      reco::Vertex v = *iv;
+    for (const auto& pv : pvs) {
+      reco::Vertex v = pv;
       vColl.push_back(v);
     }
 
@@ -306,20 +303,20 @@ void PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
     if (fVerbose) {
       int ivtx = 0;
-      for (reco::VertexCollection::const_iterator v = vColl.begin(); v != vColl.end(); ++v) {
-        std::cout << "recvtx " << ivtx++ << "#trk " << std::setw(3) << v->tracksSize() << " chi2 " << std::setw(4)
-                  << v->chi2() << " ndof " << std::setw(3) << v->ndof() << " x " << std::setw(6) << v->position().x()
-                  << " dx " << std::setw(6) << v->xError() << " y " << std::setw(6) << v->position().y() << " dy "
-                  << std::setw(6) << v->yError() << " z " << std::setw(6) << v->position().z() << " dz " << std::setw(6)
-                  << v->zError();
+      for (const auto& v : vColl) {
+        std::cout << "recvtx " << ivtx++ << "#trk " << std::setw(3) << v.tracksSize() << " chi2 " << std::setw(4)
+                  << v.chi2() << " ndof " << std::setw(3) << v.ndof() << " x " << std::setw(6) << v.position().x()
+                  << " dx " << std::setw(6) << v.xError() << " y " << std::setw(6) << v.position().y() << " dy "
+                  << std::setw(6) << v.yError() << " z " << std::setw(6) << v.position().z() << " dz " << std::setw(6)
+                  << v.zError();
         if (f4D) {
-          std::cout << " t " << std::setw(6) << v->t() << " dt " << std::setw(6) << v->tError();
+          std::cout << " t " << std::setw(6) << v.t() << " dt " << std::setw(6) << v.tError();
         }
         std::cout << std::endl;
       }
     }
 
-    iEvent.put(std::move(result), algorithm->label);
+    iEvent.put(std::move(result), algorithm.label);
   }
 }
 

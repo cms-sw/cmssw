@@ -21,13 +21,13 @@ void SiStripBadStripReader::analyze(const edm::Event& e, const edm::EventSetup& 
   SiStripBadStrip_->getDetIds(detid);
 
   if (printdebug_)
-    for (size_t id = 0; id < detid.size(); id++) {
-      SiStripBadStrip::Range range = SiStripBadStrip_->getRange(detid[id]);
+    for (unsigned int id : detid) {
+      SiStripBadStrip::Range range = SiStripBadStrip_->getRange(id);
 
       for (int it = 0; it < range.second - range.first; it++) {
         unsigned int value = (*(range.first + it));
         edm::LogInfo("SiStripBadStripReader")
-            << "detid " << detid[id] << " \t"
+            << "detid " << id << " \t"
             << " firstBadStrip " << SiStripBadStrip_->decode(value).firstStrip << "\t "
             << " NconsecutiveBadStrips " << SiStripBadStrip_->decode(value).range << "\t "
             << " flag " << SiStripBadStrip_->decode(value).flag << "\t "

@@ -343,14 +343,13 @@ void L1Analysis::L1AnalysisCSCTF::SetLCTs(const edm::Handle<CSCCorrelatedLCTDigi
 
 void L1Analysis::L1AnalysisCSCTF::SetStatus(const edm::Handle<L1CSCStatusDigiCollection> status) {
   int nStat = 0;
-  for (std::vector<L1CSCSPStatusDigi>::const_iterator stat = status->second.begin(); stat != status->second.end();
-       stat++) {
+  for (const auto& stat : status->second) {
     // fill the Ntuple
-    if (stat->VPs() != 0) {
-      csctf_.stSPslot.push_back(stat->slot());
-      csctf_.stL1A_BXN.push_back(stat->BXN());
-      csctf_.stTrkCounter.push_back((const_cast<L1CSCSPStatusDigi*>(&(*stat)))->track_counter());
-      csctf_.stOrbCounter.push_back((const_cast<L1CSCSPStatusDigi*>(&(*stat)))->orbit_counter());
+    if (stat.VPs() != 0) {
+      csctf_.stSPslot.push_back(stat.slot());
+      csctf_.stL1A_BXN.push_back(stat.BXN());
+      csctf_.stTrkCounter.push_back((const_cast<L1CSCSPStatusDigi*>(&stat))->track_counter());
+      csctf_.stOrbCounter.push_back((const_cast<L1CSCSPStatusDigi*>(&stat))->orbit_counter());
 
       nStat++;
     }
@@ -365,18 +364,18 @@ void L1Analysis::L1AnalysisCSCTF::SetDTStubs(const edm::Handle<CSCTriggerContain
   //get the vector of DT Stubs
   std::vector<csctf::TrackStub> vstubs = dtStubs->get();
   //iterate through DT Stubs
-  for (std::vector<csctf::TrackStub>::const_iterator stub = vstubs.begin(); stub != vstubs.end(); stub++) {
-    csctf_.dtBXN.push_back(stub->BX());
-    csctf_.dtFLAG.push_back(stub->getStrip());  //getStrip() is actually the "FLAG" bit
-    csctf_.dtCAL.push_back(stub->getKeyWG());   //getKeyWG() is actually the "CAL" bit
+  for (const auto& vstub : vstubs) {
+    csctf_.dtBXN.push_back(vstub.BX());
+    csctf_.dtFLAG.push_back(vstub.getStrip());  //getStrip() is actually the "FLAG" bit
+    csctf_.dtCAL.push_back(vstub.getKeyWG());   //getKeyWG() is actually the "CAL" bit
 
-    csctf_.dtSector.push_back(6 * (stub->endcap() - 1) + stub->sector());
-    csctf_.dtSubSector.push_back(stub->subsector());
+    csctf_.dtSector.push_back(6 * (vstub.endcap() - 1) + vstub.sector());
+    csctf_.dtSubSector.push_back(vstub.subsector());
 
-    csctf_.dtBX0.push_back(stub->getBX0());  //it is unclear what this variable is...
-    csctf_.dtPhiBend.push_back(stub->getBend());
-    csctf_.dtPhiPacked.push_back(stub->phiPacked());
-    csctf_.dtQuality.push_back(stub->getQuality());
+    csctf_.dtBX0.push_back(vstub.getBX0());  //it is unclear what this variable is...
+    csctf_.dtPhiBend.push_back(vstub.getBend());
+    csctf_.dtPhiPacked.push_back(vstub.phiPacked());
+    csctf_.dtQuality.push_back(vstub.getQuality());
   }
 
   csctf_.dtSize = vstubs.size();

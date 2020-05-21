@@ -40,8 +40,8 @@ namespace edm {
     //register your products
     ParameterSet ps = iConfig.getParameter<ParameterSet>("mixObjects");
     std::vector<std::string> names = ps.getParameterNames();
-    for (std::vector<std::string>::iterator it = names.begin(); it != names.end(); ++it) {
-      ParameterSet pset = ps.getParameter<ParameterSet>((*it));
+    for (auto& name : names) {
+      ParameterSet pset = ps.getParameter<ParameterSet>(name);
       if (!pset.exists("type"))
         continue;  //to allow replacement by empty pset
 
@@ -183,34 +183,34 @@ namespace edm {
 
     // PCaloHit
     if (flagPCaloHit_) {
-      for (unsigned int ii = 0; ii < labCaloHit.size(); ii++) {
+      for (const auto& ii : labCaloHit) {
         bool gotPCaloHit;
         edm::Handle<CrossingFrame<PCaloHit>> cf_calohit;
-        gotPCaloHit = iEvent.getByLabel("mix", labCaloHit[ii], cf_calohit);
+        gotPCaloHit = iEvent.getByLabel("mix", ii, cf_calohit);
 
         if (gotPCaloHit) {
           PCrossingFrame<PCaloHit>* PCFPhCaloHit = new PCrossingFrame<PCaloHit>(*cf_calohit.product());
           std::unique_ptr<PCrossingFrame<PCaloHit>> pOutHCalo(PCFPhCaloHit);
-          iEvent.put(std::move(pOutHCalo), labCaloHit[ii]);
+          iEvent.put(std::move(pOutHCalo), ii);
         } else {
-          LogInfo("MixingModule") << " Please, check if the object <PCaloHit> " << labCaloHit[ii]
+          LogInfo("MixingModule") << " Please, check if the object <PCaloHit> " << ii
                                   << " has been mixed by the MixingModule!";
         }
       }
     }
 
     if (flagPSimHit_) {
-      for (unsigned int ii = 0; ii < labSimHit.size(); ii++) {
+      for (const auto& ii : labSimHit) {
         bool gotPSimHit;
         edm::Handle<CrossingFrame<PSimHit>> cf_simhit;
-        gotPSimHit = iEvent.getByLabel("mix", labSimHit[ii], cf_simhit);
+        gotPSimHit = iEvent.getByLabel("mix", ii, cf_simhit);
 
         if (gotPSimHit) {
           PCrossingFrame<PSimHit>* PCFSimHit = new PCrossingFrame<PSimHit>(*cf_simhit.product());
           std::unique_ptr<PCrossingFrame<PSimHit>> pOutSimHit(PCFSimHit);
-          iEvent.put(std::move(pOutSimHit), labSimHit[ii]);
+          iEvent.put(std::move(pOutSimHit), ii);
         } else {
-          LogInfo("MixingModule") << " Please, check if the object <PSimHit> " << labSimHit[ii]
+          LogInfo("MixingModule") << " Please, check if the object <PSimHit> " << ii
                                   << " has been mixed by the MixingModule!";
         }
       }

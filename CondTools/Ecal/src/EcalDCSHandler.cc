@@ -30,13 +30,13 @@ void popcon::EcalDCSHandler::printHVDataSet(const std::map<EcalLogicID, RunDCSHV
 
   int count = 0;
   typedef std::map<EcalLogicID, RunDCSHVDat>::const_iterator CI;
-  for (CI p = dataset->begin(); p != dataset->end(); ++p) {
+  for (const auto& p : *dataset) {
     count++;
     if (limit && count > limit) {
       return;
     }
-    ecid = p->first;
-    hv = p->second;
+    ecid = p.first;
+    hv = p.second;
 
     std::cout << "SM:                     " << ecid.getID1() << std::endl;
     std::cout << "Channel:                " << ecid.getID2() << std::endl;
@@ -58,13 +58,13 @@ void popcon::EcalDCSHandler::printLVDataSet(const std::map<EcalLogicID, RunDCSLV
 
   int count = 0;
   typedef std::map<EcalLogicID, RunDCSLVDat>::const_iterator CI;
-  for (CI p = dataset->begin(); p != dataset->end(); ++p) {
+  for (const auto& p : *dataset) {
     count++;
     if (limit && count > limit) {
       return;
     }
-    ecid = p->first;
-    lv = p->second;
+    ecid = p.first;
+    lv = p.second;
 
     std::cout << "SM:                     " << ecid.getID1() << std::endl;
     std::cout << "Channel:                " << ecid.getID2() << std::endl;
@@ -167,9 +167,9 @@ bool popcon::EcalDCSHandler::insertHVDataSetToOffline(const std::map<EcalLogicID
 
   typedef std::map<EcalLogicID, RunDCSHVDat>::const_iterator CI;
 
-  for (CI p = dataset->begin(); p != dataset->end(); ++p) {
-    ecid = p->first;
-    hv = p->second;
+  for (const auto& p : *dataset) {
+    ecid = p.first;
+    hv = p.second;
 
     if (ecid.getName() == "EB_HV_channel") {
       int sm = ecid.getID1();
@@ -554,9 +554,9 @@ bool popcon::EcalDCSHandler::insertLVDataSetToOffline(const std::map<EcalLogicID
   RunDCSLVDat lv;
 
   typedef std::map<EcalLogicID, RunDCSLVDat>::const_iterator CI;
-  for (CI p = dataset->begin(); p != dataset->end(); ++p) {
-    ecid = p->first;
-    lv = p->second;
+  for (const auto& p : *dataset) {
+    ecid = p.first;
+    lv = p.second;
 
     if (ecid.getName() == "EB_LV_channel") {
       int sm = ecid.getID1();

@@ -942,12 +942,10 @@ void LaserAlignment::fillDataProfiles(edm::Event const& theEvent, edm::EventSetu
   int det = 0, ring = 0, beam = 0, disk = 0, pos = 0;
 
   // query config set and loop over all PSets in the VPSet
-  for (std::vector<edm::ParameterSet>::iterator itDigiProducersList = theDigiProducersList.begin();
-       itDigiProducersList != theDigiProducersList.end();
-       ++itDigiProducersList) {
-    std::string digiProducer = itDigiProducersList->getParameter<std::string>("DigiProducer");
-    std::string digiLabel = itDigiProducersList->getParameter<std::string>("DigiLabel");
-    std::string digiType = itDigiProducersList->getParameter<std::string>("DigiType");
+  for (auto& itDigiProducersList : theDigiProducersList) {
+    std::string digiProducer = itDigiProducersList.getParameter<std::string>("DigiProducer");
+    std::string digiLabel = itDigiProducersList.getParameter<std::string>("DigiLabel");
+    std::string digiType = itDigiProducersList.getParameter<std::string>("DigiType");
 
     // now branch according to digi type (raw or processed);
     // first we go for raw digis => SiStripRawDigi
@@ -1579,8 +1577,7 @@ void LaserAlignment::ApplyEndcapMaskingCorrections(LASGlobalData<LASCoordinateSe
                                                    LASGlobalData<LASCoordinateSet>& nominalCoordinates,
                                                    LASEndcapAlignmentParameterSet& endcapParameters) {
   // loop the list of modules to be masked
-  for (std::vector<unsigned int>::iterator moduleIt = theMaskTecModules.begin(); moduleIt != theMaskTecModules.end();
-       ++moduleIt) {
+  for (unsigned int& theMaskTecModule : theMaskTecModules) {
     // loop variables
     LASGlobalLoop moduleLoop;
     int det, ring, beam, disk;
@@ -1595,7 +1592,7 @@ void LaserAlignment::ApplyEndcapMaskingCorrections(LASGlobalData<LASCoordinateSe
     disk = 0;
     do {
       // here we got it
-      if (detectorId.GetTECEntry(det, ring, beam, disk) == *moduleIt) {
+      if (detectorId.GetTECEntry(det, ring, beam, disk) == theMaskTecModule) {
         // the nominal phi value for this module
         const double nominalPhi = nominalCoordinates.GetTECEntry(det, ring, beam, disk).GetPhi();
 
@@ -1619,8 +1616,7 @@ void LaserAlignment::ApplyATMaskingCorrections(LASGlobalData<LASCoordinateSet>& 
                                                LASGlobalData<LASCoordinateSet>& nominalCoordinates,
                                                LASBarrelAlignmentParameterSet& atParameters) {
   // loop the list of modules to be masked
-  for (std::vector<unsigned int>::iterator moduleIt = theMaskAtModules.begin(); moduleIt != theMaskAtModules.end();
-       ++moduleIt) {
+  for (unsigned int& theMaskAtModule : theMaskAtModules) {
     // loop variables
     LASGlobalLoop moduleLoop;
     int det, beam, disk, pos;
@@ -1636,7 +1632,7 @@ void LaserAlignment::ApplyATMaskingCorrections(LASGlobalData<LASCoordinateSet>& 
     pos = 0;
     do {
       // here we got it
-      if (detectorId.GetTIBTOBEntry(det, beam, pos) == *moduleIt) {
+      if (detectorId.GetTIBTOBEntry(det, beam, pos) == theMaskAtModule) {
         // the nominal phi value for this module
         const double nominalPhi = nominalCoordinates.GetTIBTOBEntry(det, beam, pos).GetPhi();
 
@@ -1656,7 +1652,7 @@ void LaserAlignment::ApplyATMaskingCorrections(LASGlobalData<LASCoordinateSet>& 
     disk = 0;
     do {
       // here we got it
-      if (detectorId.GetTEC2TECEntry(det, beam, disk) == *moduleIt) {
+      if (detectorId.GetTEC2TECEntry(det, beam, disk) == theMaskAtModule) {
         // the nominal phi value for this module
         const double nominalPhi = nominalCoordinates.GetTEC2TECEntry(det, beam, disk).GetPhi();
 

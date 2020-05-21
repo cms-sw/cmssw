@@ -17,13 +17,13 @@ AlgebraicVector MultiTrackVertexLinkKinematicConstraint::value(const std::vector
 
   double pxSum = 0, pySum = 0, pzSum = 0;
   double aSum = 0;
-  for (std::vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++) {
-    double a = -i->particleCharge() * i->magneticField()->inInverseGeV(i->globalPosition()).z();
+  for (const auto& state : states) {
+    double a = -state.particleCharge() * state.magneticField()->inInverseGeV(state.globalPosition()).z();
     aSum += a;
 
-    pxSum += i->kinematicParameters()(3) - a * (point.y() - i->kinematicParameters()(1));
-    pySum += i->kinematicParameters()(4) + a * (point.x() - i->kinematicParameters()(0));
-    pzSum += i->kinematicParameters()(5);
+    pxSum += state.kinematicParameters()(3) - a * (point.y() - state.kinematicParameters()(1));
+    pySum += state.kinematicParameters()(4) + a * (point.x() - state.kinematicParameters()(0));
+    pzSum += state.kinematicParameters()(5);
   }
 
   double pT = sqrt(pow(pxSum, 2) + pow(pySum, 2));
@@ -50,21 +50,21 @@ AlgebraicMatrix MultiTrackVertexLinkKinematicConstraint::parametersDerivative(co
 
   double pxSum = 0, pySum = 0, pzSum = 0;
   double aSum = 0;
-  for (std::vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++) {
-    double a = -i->particleCharge() * i->magneticField()->inInverseGeV(i->globalPosition()).z();
+  for (const auto& state : states) {
+    double a = -state.particleCharge() * state.magneticField()->inInverseGeV(state.globalPosition()).z();
     aSum += a;
 
-    pxSum += i->kinematicParameters()(3) - a * (point.y() - i->kinematicParameters()(1));
-    pySum += i->kinematicParameters()(4) + a * (point.x() - i->kinematicParameters()(0));
-    pzSum += i->kinematicParameters()(5);
+    pxSum += state.kinematicParameters()(3) - a * (point.y() - state.kinematicParameters()(1));
+    pySum += state.kinematicParameters()(4) + a * (point.x() - state.kinematicParameters()(0));
+    pzSum += state.kinematicParameters()(5);
   }
 
   double pT = sqrt(pow(pxSum, 2) + pow(pySum, 2));
   double pSum = sqrt(pow(pxSum, 2) + pow(pySum, 2) + pow(pzSum, 2));
 
   int col = 0;
-  for (std::vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++) {
-    double a = -i->particleCharge() * i->magneticField()->inInverseGeV(i->globalPosition()).z();
+  for (const auto& state : states) {
+    double a = -state.particleCharge() * state.magneticField()->inInverseGeV(state.globalPosition()).z();
 
     matrix(1, 1 + col * 7) = a * (-(pT / pow(pySum, 2)) + pxSum / pow(pySum, 2) -
                                   (4 * pySum) / (aSum * dT * sqrt(-(pow(aSum, 2) * pow(dT, 2)) + 4 * pow(pT, 2))) +
@@ -112,13 +112,13 @@ AlgebraicMatrix MultiTrackVertexLinkKinematicConstraint::positionDerivative(cons
   double ds = sqrt(pow(dx, 2) + pow(dy, 2) + pow(dz, 2));
 
   double pxSum = 0, pySum = 0, pzSum = 0, aSum = 0;
-  for (std::vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++) {
-    double a = -i->particleCharge() * i->magneticField()->inInverseGeV(i->globalPosition()).z();
+  for (const auto& state : states) {
+    double a = -state.particleCharge() * state.magneticField()->inInverseGeV(state.globalPosition()).z();
     aSum += a;
 
-    pxSum += i->kinematicParameters()(3) - a * (point.y() - i->kinematicParameters()(1));
-    pySum += i->kinematicParameters()(4) + a * (point.x() - i->kinematicParameters()(0));
-    pzSum += i->kinematicParameters()(5);
+    pxSum += state.kinematicParameters()(3) - a * (point.y() - state.kinematicParameters()(1));
+    pySum += state.kinematicParameters()(4) + a * (point.x() - state.kinematicParameters()(0));
+    pzSum += state.kinematicParameters()(5);
   }
   double pT = sqrt(pow(pxSum, 2) + pow(pySum, 2));
   double pSum = sqrt(pow(pxSum, 2) + pow(pySum, 2) + pow(pzSum, 2));

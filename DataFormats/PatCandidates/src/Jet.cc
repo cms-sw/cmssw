@@ -274,9 +274,8 @@ int Jet::jecSet(const std::string& set) const {
 /// all available label-names of all sets of jet energy corrections
 const std::vector<std::string> Jet::availableJECSets() const {
   std::vector<std::string> sets;
-  for (std::vector<pat::JetCorrFactors>::const_iterator corrFactor = jec_.begin(); corrFactor != jec_.end();
-       ++corrFactor)
-    sets.push_back(corrFactor->jecSet());
+  for (const auto& corrFactor : jec_)
+    sets.push_back(corrFactor.jecSet());
   return sets;
 }
 

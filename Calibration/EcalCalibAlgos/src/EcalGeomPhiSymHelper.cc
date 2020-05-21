@@ -16,10 +16,10 @@
 #include <fstream>
 
 void EcalGeomPhiSymHelper::setup(const CaloGeometry* geometry, const EcalChannelStatus* chStatus, int statusThresold) {
-  for (int ieta = 0; ieta < kBarlRings; ieta++)
-    nBads_barl[ieta] = 0;
-  for (int ring = 0; ring < kEndcEtaRings; ring++)
-    nBads_endc[ring] = 0;
+  for (int& ieta : nBads_barl)
+    ieta = 0;
+  for (int& ring : nBads_endc)
+    ring = 0;
 
   for (int ix = 0; ix < kEndcWedgesX; ix++) {
     for (int iy = 0; iy < kEndcWedgesY; iy++) {
@@ -136,8 +136,8 @@ void EcalGeomPhiSymHelper::setup(const CaloGeometry* geometry, const EcalChannel
 
   // fill phi_endc[ip][ring] vector
   for (int ring = 0; ring < kEndcEtaRings; ring++) {
-    for (int i = 0; i < kMaxEndciPhi; i++)
-      phi_endc_[i][ring] = 0.;
+    for (auto& i : phi_endc_)
+      i[ring] = 0.;
 
     float philast = -999.;
     for (int ip = 0; ip < nRing_[ring]; ip++) {

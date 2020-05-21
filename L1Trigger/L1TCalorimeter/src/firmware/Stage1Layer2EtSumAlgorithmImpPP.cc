@@ -73,33 +73,33 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
   SortJets(&unSortedJets, &SortedJets);
   int dijet_phi = DiJetPhi(&SortedJets);
 
-  for (std::vector<CaloRegion>::const_iterator region = subRegions.begin(); region != subRegions.end(); region++) {
-    if (region->hwEta() < etSumEtaMinEt || region->hwEta() > etSumEtaMaxEt) {
+  for (const auto& subRegion : subRegions) {
+    if (subRegion.hwEta() < etSumEtaMinEt || subRegion.hwEta() > etSumEtaMaxEt) {
       continue;
     }
 
     //double regionET= regionPhysicalEt(*region);
-    int regionET = region->hwPt();
+    int regionET = subRegion.hwPt();
 
     if (regionET >= etSumEtThresholdEt) {
       sumET += regionET;
-      sumEx += (((double)regionET) * cosPhi[region->hwPhi()]);
-      sumEy += (((double)regionET) * sinPhi[region->hwPhi()]);
+      sumEx += (((double)regionET) * cosPhi[subRegion.hwPhi()]);
+      sumEy += (((double)regionET) * sinPhi[subRegion.hwPhi()]);
     }
   }
 
-  for (std::vector<CaloRegion>::const_iterator region = subRegions.begin(); region != subRegions.end(); region++) {
-    if (region->hwEta() < etSumEtaMinHt || region->hwEta() > etSumEtaMaxHt) {
+  for (const auto& subRegion : subRegions) {
+    if (subRegion.hwEta() < etSumEtaMinHt || subRegion.hwEta() > etSumEtaMaxHt) {
       continue;
     }
 
     //double regionET= regionPhysicalEt(*region);
-    int regionET = region->hwPt();
+    int regionET = subRegion.hwPt();
 
     if (regionET >= etSumEtThresholdHt) {
       sumHT += regionET;
-      sumHx += (((double)regionET) * cosPhi[region->hwPhi()]);
-      sumHy += (((double)regionET) * sinPhi[region->hwPhi()]);
+      sumHx += (((double)regionET) * cosPhi[subRegion.hwPhi()]);
+      sumHy += (((double)regionET) * sinPhi[subRegion.hwPhi()]);
     }
   }
 

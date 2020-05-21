@@ -141,72 +141,70 @@ void ECALMultifitAnalyzer_HI::analyze(const edm::Event &iEvent, const edm::Event
   Handle<EcalRecHitCollection> eeHandle;
   iEvent.getByToken(RecHitCollection_EE_, eeHandle);
 
-  for (EcalRecHitCollection::const_iterator hit = ebHandle->begin(); hit != ebHandle->end(); ++hit) {
-    eb_chi2->Fill(hit->chi2());
-    eb_errors->Fill(hit->energyError());
-    double eta = geom->getGeometry(hit->detid())->getPosition().eta();
-    double phi = geom->getGeometry(hit->detid())->getPosition().phi();
-    eb_chi2_eta->Fill(eta, hit->chi2());
-    eb_errors_eta->Fill(eta, hit->energyError());
-    if (hit->energy() > mRechitEnergyThreshold) {
-      eb_chi2_e5->Fill(hit->chi2());
-      eb_errors_e5->Fill(hit->energyError());
-      eb_chi2_e5_eta->Fill(eta, hit->chi2());
-      eb_errors_e5_eta->Fill(eta, hit->energyError());
+  for (const auto &hit : *ebHandle) {
+    eb_chi2->Fill(hit.chi2());
+    eb_errors->Fill(hit.energyError());
+    double eta = geom->getGeometry(hit.detid())->getPosition().eta();
+    double phi = geom->getGeometry(hit.detid())->getPosition().phi();
+    eb_chi2_eta->Fill(eta, hit.chi2());
+    eb_errors_eta->Fill(eta, hit.energyError());
+    if (hit.energy() > mRechitEnergyThreshold) {
+      eb_chi2_e5->Fill(hit.chi2());
+      eb_errors_e5->Fill(hit.energyError());
+      eb_chi2_e5_eta->Fill(eta, hit.chi2());
+      eb_errors_e5_eta->Fill(eta, hit.energyError());
     }
 
-    for (std::vector<reco::Photon>::const_iterator pho = recoPhotonsHandle->begin(); pho != recoPhotonsHandle->end();
-         ++pho) {
-      if (pho->et() < mRecoPhotonPtThreshold)
+    for (const auto &pho : *recoPhotonsHandle) {
+      if (pho.et() < mRecoPhotonPtThreshold)
         continue;
-      double dr = reco::deltaR(eta, phi, pho->eta(), pho->phi());
+      double dr = reco::deltaR(eta, phi, pho.eta(), pho.phi());
       if (dr < mDeltaRPhotonThreshold) {
-        eb_chi2_photon15->Fill(hit->chi2());
-        eb_errors_photon15->Fill(hit->energyError());
+        eb_chi2_photon15->Fill(hit.chi2());
+        eb_errors_photon15->Fill(hit.energyError());
       }
     }
-    for (std::vector<reco::CaloJet>::const_iterator jet = recoJetHandle->begin(); jet != recoJetHandle->end(); ++jet) {
-      if (jet->pt() < mRecoJetPtThreshold)
+    for (const auto &jet : *recoJetHandle) {
+      if (jet.pt() < mRecoJetPtThreshold)
         continue;
-      double dr = reco::deltaR(eta, phi, jet->eta(), jet->phi());
+      double dr = reco::deltaR(eta, phi, jet.eta(), jet.phi());
       if (dr < mDeltaRJetThreshold) {
-        eb_chi2_jet30->Fill(hit->chi2());
-        eb_errors_jet30->Fill(hit->energyError());
+        eb_chi2_jet30->Fill(hit.chi2());
+        eb_errors_jet30->Fill(hit.energyError());
       }
     }
   }
 
-  for (EcalRecHitCollection::const_iterator hit = eeHandle->begin(); hit != eeHandle->end(); ++hit) {
-    ee_chi2->Fill(hit->chi2());
-    ee_errors->Fill(hit->energyError());
-    double eta = geom->getGeometry(hit->detid())->getPosition().eta();
-    double phi = geom->getGeometry(hit->detid())->getPosition().phi();
-    ee_chi2_eta->Fill(eta, hit->chi2());
-    ee_errors_eta->Fill(eta, hit->energyError());
-    if (hit->energy() > mRechitEnergyThreshold) {
-      ee_chi2_e5->Fill(hit->chi2());
-      ee_errors_e5->Fill(hit->energyError());
-      ee_chi2_e5_eta->Fill(eta, hit->chi2());
-      ee_errors_e5_eta->Fill(eta, hit->energyError());
+  for (const auto &hit : *eeHandle) {
+    ee_chi2->Fill(hit.chi2());
+    ee_errors->Fill(hit.energyError());
+    double eta = geom->getGeometry(hit.detid())->getPosition().eta();
+    double phi = geom->getGeometry(hit.detid())->getPosition().phi();
+    ee_chi2_eta->Fill(eta, hit.chi2());
+    ee_errors_eta->Fill(eta, hit.energyError());
+    if (hit.energy() > mRechitEnergyThreshold) {
+      ee_chi2_e5->Fill(hit.chi2());
+      ee_errors_e5->Fill(hit.energyError());
+      ee_chi2_e5_eta->Fill(eta, hit.chi2());
+      ee_errors_e5_eta->Fill(eta, hit.energyError());
     }
 
-    for (std::vector<reco::Photon>::const_iterator pho = recoPhotonsHandle->begin(); pho != recoPhotonsHandle->end();
-         ++pho) {
-      if (pho->et() < mRecoPhotonPtThreshold)
+    for (const auto &pho : *recoPhotonsHandle) {
+      if (pho.et() < mRecoPhotonPtThreshold)
         continue;
-      double dr = reco::deltaR(eta, phi, pho->eta(), pho->phi());
+      double dr = reco::deltaR(eta, phi, pho.eta(), pho.phi());
       if (dr < mDeltaRPhotonThreshold) {
-        ee_chi2_photon15->Fill(hit->chi2());
-        ee_errors_photon15->Fill(hit->energyError());
+        ee_chi2_photon15->Fill(hit.chi2());
+        ee_errors_photon15->Fill(hit.energyError());
       }
     }
-    for (std::vector<reco::CaloJet>::const_iterator jet = recoJetHandle->begin(); jet != recoJetHandle->end(); ++jet) {
-      if (jet->pt() < mRecoJetPtThreshold)
+    for (const auto &jet : *recoJetHandle) {
+      if (jet.pt() < mRecoJetPtThreshold)
         continue;
-      double dr = reco::deltaR(eta, phi, jet->eta(), jet->phi());
+      double dr = reco::deltaR(eta, phi, jet.eta(), jet.phi());
       if (dr < mDeltaRJetThreshold) {
-        ee_chi2_jet30->Fill(hit->chi2());
-        ee_errors_jet30->Fill(hit->energyError());
+        ee_chi2_jet30->Fill(hit.chi2());
+        ee_errors_jet30->Fill(hit.energyError());
       }
     }
   }

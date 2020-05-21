@@ -347,14 +347,14 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
       std::sort(lChVec.begin(), lChVec.end());
       debugStream << "[FEDErrors] Cabled channels which had errors: ";
 
-      for (unsigned int iBadCh(0); iBadCh < lChVec.size(); iBadCh++) {
-        print(lChVec[iBadCh], debugStream);
+      for (auto iBadCh : lChVec) {
+        print(iBadCh, debugStream);
       }
       debugStream << std::endl;
       debugStream << "[FEDErrors] Active (have been locked in at least one event) cabled channels which had errors: ";
-      for (unsigned int iBadCh(0); iBadCh < lChVec.size(); iBadCh++) {
-        if ((lChVec[iBadCh]).IsActive)
-          print(lChVec[iBadCh], debugStream);
+      for (auto& iBadCh : lChVec) {
+        if (iBadCh.IsActive)
+          print(iBadCh, debugStream);
       }
     }
     debugStream << debugBuffer << std::endl;
@@ -705,10 +705,10 @@ void FEDErrors::fillBadChannelList(const bool doTkHistoMap,
     bool isBadFE = false;
     bool isMissingFE = false;
     //feErrors vector of FE 0 - 7, each FE has channels 0 -11, 12 .. - ,... - 96
-    for (unsigned int badfe(0); badfe < feErrors_.size(); badfe++) {
-      if ((feErrors_[badfe]).FeID == feNumber) {
+    for (auto& feError : feErrors_) {
+      if (feError.FeID == feNumber) {
         isBadFE = true;
-        if ((feErrors_[badfe]).Missing)
+        if (feError.Missing)
           isMissingFE = true;
         break;
       }
@@ -728,15 +728,15 @@ void FEDErrors::fillBadChannelList(const bool doTkHistoMap,
     //apvErrors_
     bool isBadApv1 = false;
     bool isBadApv2 = false;
-    for (unsigned int badApv(0); badApv < apvErrors_.size(); badApv++) {
-      if ((apvErrors_[badApv]).ChannelID == iCh) {
+    for (auto& apvError : apvErrors_) {
+      if (apvError.ChannelID == iCh) {
         isBadChan = true;
-        if (apvErrors_[badApv].IsActive)
+        if (apvError.IsActive)
           isActiveChan = true;
       }
-      if (apvErrors_[badApv].APVID == 2 * iCh)
+      if (apvError.APVID == 2 * iCh)
         isBadApv1 = true;
-      if (apvErrors_[badApv].APVID == 2 * iCh + 1) {
+      if (apvError.APVID == 2 * iCh + 1) {
         isBadApv2 = true;
         break;
       }

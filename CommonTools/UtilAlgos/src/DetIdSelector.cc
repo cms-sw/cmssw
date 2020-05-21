@@ -33,9 +33,8 @@ void DetIdSelector::addSelection(const std::string& selstring) {
 }
 
 void DetIdSelector::addSelection(const std::vector<std::string>& selstrings) {
-  for (std::vector<std::string>::const_iterator selstring = selstrings.begin(); selstring != selstrings.end();
-       ++selstring) {
-    addSelection(*selstring);
+  for (const auto& selstring : selstrings) {
+    addSelection(selstring);
   }
 }
 

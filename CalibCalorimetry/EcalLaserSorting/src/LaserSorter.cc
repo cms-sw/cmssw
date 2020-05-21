@@ -253,8 +253,8 @@ void LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es) {
       } else {  //ids.size()>1
         if (verbosity_) {
           cout << " Several fully read-out Dccs:";
-          for (unsigned i = 0; i < ids.size(); ++i)
-            cout << " " << ids[i];
+          for (int id : ids)
+            cout << " " << id;
           cout << "\n";
         }
       }
@@ -480,10 +480,10 @@ LaserSorter::OutStreamRecord* LaserSorter::getStream(int fedId, edm::LuminosityB
          << "Looking for an opened output file for FED " << fedId << " LB " << lumiBlock << "\n";
 
   //first look if stream is already open:
-  for (OutStreamList::iterator it = outStreamList_.begin(); it != outStreamList_.end(); ++it) {
-    if (it->fedId() == fedId && (abs((int)it->startingLumiBlock() - (int)lumiBlock) <= lumiBlockSpan_)) {
+  for (auto& it : outStreamList_) {
+    if (it.fedId() == fedId && (abs((int)it.startingLumiBlock() - (int)lumiBlock) <= lumiBlockSpan_)) {
       //stream found!
-      return &(*it);
+      return &it;
     }
   }
   //stream was not found. Let's create one
@@ -987,10 +987,10 @@ bool LaserSorter::writeIndexTable(std::ofstream& out, std::vector<IndexRecord>& 
 
   sort(indices.begin(), indices.end());
 
-  for (unsigned i = 0; i < indices.size(); ++i) {
+  for (auto& indice : indices) {
     uint32_t data[2];
-    data[0] = indices[i].orbit;
-    data[1] = indices[i].filePos;
+    data[0] = indice.orbit;
+    data[1] = indice.filePos;
     out.write((char*)data, sizeof(data));
   }
 

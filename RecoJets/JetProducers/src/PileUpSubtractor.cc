@@ -66,11 +66,11 @@ void PileUpSubtractor::setupGeometryMap(edm::Event& iEvent, const edm::EventSetu
     int ietaold = -10000;
     ietamax_ = -10000;
     ietamin_ = 10000;
-    for (std::vector<DetId>::const_iterator did = alldid.begin(); did != alldid.end(); did++) {
-      if ((*did).det() == DetId::Hcal) {
-        HcalDetId hid = HcalDetId(*did);
+    for (auto did : alldid) {
+      if (did.det() == DetId::Hcal) {
+        HcalDetId hid = HcalDetId(did);
         if ((hid).depth() == 1) {
-          allgeomid_.push_back(*did);
+          allgeomid_.push_back(did);
 
           if ((hid).ieta() != ietaold) {
             ietaold = (hid).ieta();
@@ -112,10 +112,8 @@ void PileUpSubtractor::calculatePedestal(vector<fastjet::PseudoJet> const& coll)
     ntowers[i] = 0;
   }
 
-  for (vector<fastjet::PseudoJet>::const_iterator input_object = coll.begin(), fjInputsEnd = coll.end();
-       input_object != fjInputsEnd;
-       ++input_object) {
-    const reco::CandidatePtr& originalTower = (*inputs_)[input_object->user_index()];
+  for (const auto& input_object : coll) {
+    const reco::CandidatePtr& originalTower = (*inputs_)[input_object.user_index()];
     ieta0 = ieta(originalTower);
     double Original_Et = originalTower->et();
     if (ieta0 - ietaold != 0) {
@@ -160,26 +158,22 @@ void PileUpSubtractor::subtractPedestal(vector<fastjet::PseudoJet>& coll) {
   LogDebug("PileUpSubtractor") << "The subtractor subtracting pedestals...\n";
 
   int it = -100;
-  for (vector<fastjet::PseudoJet>::iterator input_object = coll.begin(), fjInputsEnd = coll.end();
-       input_object != fjInputsEnd;
-       ++input_object) {
-    reco::CandidatePtr const& itow = (*inputs_)[input_object->user_index()];
+  for (auto& input_object : coll) {
+    reco::CandidatePtr const& itow = (*inputs_)[input_object.user_index()];
 
     it = ieta(itow);
 
     double etnew = itow->et() - (*(emean_.find(it))).second - (*(esigma_.find(it))).second;
-    float mScale = etnew / input_object->Et();
+    float mScale = etnew / input_object.Et();
     if (etnew < 0.)
       mScale = 0.;
 
-    math::XYZTLorentzVectorD towP4(input_object->px() * mScale,
-                                   input_object->py() * mScale,
-                                   input_object->pz() * mScale,
-                                   input_object->e() * mScale);
+    math::XYZTLorentzVectorD towP4(
+        input_object.px() * mScale, input_object.py() * mScale, input_object.pz() * mScale, input_object.e() * mScale);
 
-    int index = input_object->user_index();
-    input_object->reset_momentum(towP4.px(), towP4.py(), towP4.pz(), towP4.energy());
-    input_object->set_user_index(index);
+    int index = input_object.user_index();
+    input_object.reset_momentum(towP4.px(), towP4.py(), towP4.pz(), towP4.energy());
+    input_object.set_user_index(index);
   }
 }
 
@@ -197,13 +191,13 @@ void PileUpSubtractor::calculateOrphanInput(vector<fastjet::PseudoJet>& orphanIn
       continue;
 
     // find towers within radiusPU_ of this jet
-    for (vector<HcalDetId>::const_iterator im = allgeomid_.begin(); im != allgeomid_.end(); im++) {
-      double dr = reco::deltaR(geo_->getPosition((DetId)(*im)), (*pseudojetTMP));
+    for (auto im : allgeomid_) {
+      double dr = reco::deltaR(geo_->getPosition((DetId)im), (*pseudojetTMP));
       vector<pair<int, int> >::const_iterator exclude =
-          find(excludedTowers.begin(), excludedTowers.end(), pair<int, int>(im->ieta(), im->iphi()));
+          find(excludedTowers.begin(), excludedTowers.end(), pair<int, int>(im.ieta(), im.iphi()));
       if (dr < radiusPU_ && exclude == excludedTowers.end()) {
-        ntowersWithJets_[(*im).ieta()]++;
-        excludedTowers.push_back(pair<int, int>(im->ieta(), im->iphi()));
+        ntowersWithJets_[im.ieta()]++;
+        excludedTowers.push_back(pair<int, int>(im.ieta(), im.iphi()));
       }
     }
     vector<fastjet::PseudoJet>::const_iterator it = fjInputs_->begin(), fjInputsEnd = fjInputs_->end();
@@ -223,10 +217,8 @@ void PileUpSubtractor::calculateOrphanInput(vector<fastjet::PseudoJet>& orphanIn
   //
   // Create a new collections from the towers not included in jets
   //
-  for (vector<fastjet::PseudoJet>::const_iterator it = fjInputs_->begin(), fjInputsEnd = fjInputs_->end();
-       it != fjInputsEnd;
-       ++it) {
-    int index = it->user_index();
+  for (const auto& fjInput : *fjInputs_) {
+    int index = fjInput.user_index();
     vector<int>::const_iterator itjet = find(jettowers.begin(), jettowers.end(), index);
     if (itjet == jettowers.end()) {
       const reco::CandidatePtr& originalTower = (*inputs_)[index];
@@ -254,8 +246,8 @@ void PileUpSubtractor::offsetCorrectJets() {
 
     std::vector<fastjet::PseudoJet> towers = fastjet::sorted_by_pt(pseudojetTMP->constituents());
     double newjetet = 0.;
-    for (vector<fastjet::PseudoJet>::const_iterator ito = towers.begin(), towEnd = towers.end(); ito != towEnd; ++ito) {
-      const reco::CandidatePtr& originalTower = (*inputs_)[ito->user_index()];
+    for (const auto& tower : towers) {
+      const reco::CandidatePtr& originalTower = (*inputs_)[tower.user_index()];
       int it = ieta(originalTower);
       double Original_Et = originalTower->et();
       double etnew = Original_Et - (*emean_.find(it)).second - (*esigma_.find(it)).second;
@@ -283,13 +275,13 @@ void PileUpSubtractor::offsetCorrectJets() {
 double PileUpSubtractor::getCone(double cone, double eta, double phi, double& et, double& pu) {
   pu = 0;
 
-  for (vector<HcalDetId>::const_iterator im = allgeomid_.begin(); im != allgeomid_.end(); im++) {
-    if (im->depth() != 1)
+  for (auto im : allgeomid_) {
+    if (im.depth() != 1)
       continue;
-    const GlobalPoint& point = geo_->getPosition((DetId)(*im));
+    const GlobalPoint& point = geo_->getPosition((DetId)im);
     double dr = reco::deltaR(point.eta(), point.phi(), eta, phi);
     if (dr < cone) {
-      pu += (*emean_.find(im->ieta())).second + (*esigma_.find(im->ieta())).second;
+      pu += (*emean_.find(im.ieta())).second + (*esigma_.find(im.ieta())).second;
     }
   }
 

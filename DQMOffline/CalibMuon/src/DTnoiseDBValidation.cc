@@ -137,39 +137,39 @@ void DTnoiseDBValidation::beginRun(const edm::Run &run, const EventSetup &setup)
   layerMap.clear();
 
   // Loop over reference DB entries
-  for (DTStatusFlag::const_iterator noise = noiseRefMap_->begin(); noise != noiseRefMap_->end(); noise++) {
-    DTWireId wireId((*noise).first.wheelId,
-                    (*noise).first.stationId,
-                    (*noise).first.sectorId,
-                    (*noise).first.slId,
-                    (*noise).first.layerId,
-                    (*noise).first.cellId);
+  for (const auto &noise : *noiseRefMap_) {
+    DTWireId wireId(noise.first.wheelId,
+                    noise.first.stationId,
+                    noise.first.sectorId,
+                    noise.first.slId,
+                    noise.first.layerId,
+                    noise.first.cellId);
     LogVerbatim("NoiseDBValidation") << "Ref. noisy wire: " << wireId;
     ++noisyCellsRef_;
   }
 
   // Loop over validation DB entries
-  for (DTStatusFlag::const_iterator noise = noiseMap_->begin(); noise != noiseMap_->end(); noise++) {
-    DTWireId wireId((*noise).first.wheelId,
-                    (*noise).first.stationId,
-                    (*noise).first.sectorId,
-                    (*noise).first.slId,
-                    (*noise).first.layerId,
-                    (*noise).first.cellId);
+  for (const auto &noise : *noiseMap_) {
+    DTWireId wireId(noise.first.wheelId,
+                    noise.first.stationId,
+                    noise.first.sectorId,
+                    noise.first.slId,
+                    noise.first.layerId,
+                    noise.first.cellId);
     LogVerbatim("NoiseDBValidation") << "Valid. noisy wire: " << wireId;
     ++noisyCellsValid_;
 
-    whMap[(*noise).first.wheelId]++;
-    stMap[(*noise).first.stationId]++;
-    sectMap[(*noise).first.sectorId]++;
+    whMap[noise.first.wheelId]++;
+    stMap[noise.first.stationId]++;
+    sectMap[noise.first.sectorId]++;
 
     const DTTopology &dtTopo = dtGeom_->layer(wireId.layerId())->specificTopology();
     const int lastWire = dtTopo.lastChannel();
-    if ((*noise).first.cellId <= 10)
+    if (noise.first.cellId <= 10)
       layerMap[1]++;
-    if ((*noise).first.cellId > 10 && (*noise).first.cellId < (lastWire - 10))
+    if (noise.first.cellId > 10 && noise.first.cellId < (lastWire - 10))
       layerMap[2]++;
-    if ((*noise).first.cellId >= (lastWire - 10))
+    if (noise.first.cellId >= (lastWire - 10))
       layerMap[3]++;
 
     const DTChamberId chId = wireId.layerId().superlayerId().chamberId();
@@ -206,10 +206,9 @@ void DTnoiseDBValidation::endRun(edm::Run const &run, edm::EventSetup const &set
   const QReport *theDiffQReport = diffHisto_->getQReport(diffTestName_);
   if (theDiffQReport) {
     vector<dqm::me_util::Channel> badChannels = theDiffQReport->getBadChannels();
-    for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); channel != badChannels.end();
-         channel++) {
+    for (auto &badChannel : badChannels) {
       LogWarning("NoiseDBValidation") << " Bad partial difference of noisy channels! Contents : "
-                                      << (*channel).getContents();
+                                      << badChannel.getContents();
     }
   }
   // testCriterionName =
@@ -217,11 +216,10 @@ void DTnoiseDBValidation::endRun(edm::Run const &run, edm::EventSetup const &set
   const QReport *theDiffQReport2 = wheelHisto_->getQReport(wheelTestName_);
   if (theDiffQReport2) {
     vector<dqm::me_util::Channel> badChannels = theDiffQReport2->getBadChannels();
-    for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); channel != badChannels.end();
-         channel++) {
-      int wheel = (*channel).getBin() - 3;
+    for (auto &badChannel : badChannels) {
+      int wheel = badChannel.getBin() - 3;
       LogWarning("NoiseDBValidation") << " Bad percentual occupancy for wheel : " << wheel
-                                      << "  Contents : " << (*channel).getContents();
+                                      << "  Contents : " << badChannel.getContents();
     }
   }
   // testCriterionName =
@@ -229,10 +227,9 @@ void DTnoiseDBValidation::endRun(edm::Run const &run, edm::EventSetup const &set
   const QReport *theDiffQReport3 = stationHisto_->getQReport(stationTestName_);
   if (theDiffQReport3) {
     vector<dqm::me_util::Channel> badChannels = theDiffQReport3->getBadChannels();
-    for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); channel != badChannels.end();
-         channel++) {
-      LogWarning("NoiseDBValidation") << " Bad percentual occupancy for station : " << (*channel).getBin()
-                                      << "  Contents : " << (*channel).getContents();
+    for (auto &badChannel : badChannels) {
+      LogWarning("NoiseDBValidation") << " Bad percentual occupancy for station : " << badChannel.getBin()
+                                      << "  Contents : " << badChannel.getContents();
     }
   }
   // testCriterionName =
@@ -240,10 +237,9 @@ void DTnoiseDBValidation::endRun(edm::Run const &run, edm::EventSetup const &set
   const QReport *theDiffQReport4 = sectorHisto_->getQReport(sectorTestName_);
   if (theDiffQReport4) {
     vector<dqm::me_util::Channel> badChannels = theDiffQReport4->getBadChannels();
-    for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); channel != badChannels.end();
-         channel++) {
-      LogWarning("NoiseDBValidation") << " Bad percentual occupancy for sector : " << (*channel).getBin()
-                                      << "  Contents : " << (*channel).getContents();
+    for (auto &badChannel : badChannels) {
+      LogWarning("NoiseDBValidation") << " Bad percentual occupancy for sector : " << badChannel.getBin()
+                                      << "  Contents : " << badChannel.getContents();
     }
   }
   // testCriterionName =
@@ -251,17 +247,16 @@ void DTnoiseDBValidation::endRun(edm::Run const &run, edm::EventSetup const &set
   const QReport *theDiffQReport5 = layerHisto_->getQReport(layerTestName_);
   if (theDiffQReport5) {
     vector<dqm::me_util::Channel> badChannels = theDiffQReport5->getBadChannels();
-    for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); channel != badChannels.end();
-         channel++) {
-      if ((*channel).getBin() == 1)
+    for (auto &badChannel : badChannels) {
+      if (badChannel.getBin() == 1)
         LogWarning("NoiseDBValidation") << " Bad percentual occupancy for the first 10 wires! Contents : "
-                                        << (*channel).getContents();
-      if ((*channel).getBin() == 2)
+                                        << badChannel.getContents();
+      if (badChannel.getBin() == 2)
         LogWarning("NoiseDBValidation") << " Bad percentual occupancy for the middle wires! Contents : "
-                                        << (*channel).getContents();
-      if ((*channel).getBin() == 3)
+                                        << badChannel.getContents();
+      if (badChannel.getBin() == 3)
         LogWarning("NoiseDBValidation") << " Bad percentual occupancy for the last 10 wires! Contents : "
-                                        << (*channel).getContents();
+                                        << badChannel.getContents();
     }
   }
 }
@@ -284,12 +279,10 @@ void DTnoiseDBValidation::bookHisto(const DTChamberId &chId) {
     const vector<const DTSuperLayer *> &superlayers = dtchamber->superLayers();
 
     // Loop over layers and find the max # of wires
-    for (vector<const DTSuperLayer *>::const_iterator sl = superlayers.begin(); sl != superlayers.end();
-         ++sl) {  // loop over SLs
-      vector<const DTLayer *> layers = (*sl)->layers();
-      for (vector<const DTLayer *>::const_iterator lay = layers.begin(); lay != layers.end();
-           ++lay) {  // loop over layers
-        int nWires = (*lay)->specificTopology().channels();
+    for (auto superlayer : superlayers) {  // loop over SLs
+      vector<const DTLayer *> layers = superlayer->layers();
+      for (auto layer : layers) {  // loop over layers
+        int nWires = layer->specificTopology().channels();
         if (nWires > nWiresMax)
           nWiresMax = nWires;
       }

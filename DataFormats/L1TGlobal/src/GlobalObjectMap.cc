@@ -31,9 +31,9 @@
 
 // return all the combinations passing the requirements imposed in condition condNameVal
 const CombinationsInCond* GlobalObjectMap::getCombinationsInCond(const std::string& condNameVal) const {
-  for (size_t i = 0; i < m_operandTokenVector.size(); ++i) {
-    if ((m_operandTokenVector[i]).tokenName == condNameVal) {
-      return &(m_combinationVector.at((m_operandTokenVector[i]).tokenNumber));
+  for (const auto& i : m_operandTokenVector) {
+    if (i.tokenName == condNameVal) {
+      return &(m_combinationVector.at(i.tokenNumber));
     }
   }
 
@@ -48,9 +48,9 @@ const CombinationsInCond* GlobalObjectMap::getCombinationsInCond(const std::stri
 
 /// return all the combinations passing the requirements imposed in condition condNumberVal
 const CombinationsInCond* GlobalObjectMap::getCombinationsInCond(const int condNumberVal) const {
-  for (size_t i = 0; i < m_operandTokenVector.size(); ++i) {
-    if ((m_operandTokenVector[i]).tokenNumber == condNumberVal) {
-      return &(m_combinationVector.at((m_operandTokenVector[i]).tokenNumber));
+  for (const auto& i : m_operandTokenVector) {
+    if (i.tokenNumber == condNumberVal) {
+      return &(m_combinationVector.at(i.tokenNumber));
     }
   }
 
@@ -64,9 +64,9 @@ const CombinationsInCond* GlobalObjectMap::getCombinationsInCond(const int condN
 }
 // return the result for the condition condNameVal
 const bool GlobalObjectMap::getConditionResult(const std::string& condNameVal) const {
-  for (size_t i = 0; i < m_operandTokenVector.size(); ++i) {
-    if ((m_operandTokenVector[i]).tokenName == condNameVal) {
-      return (m_operandTokenVector[i]).tokenResult;
+  for (const auto& i : m_operandTokenVector) {
+    if (i.tokenName == condNameVal) {
+      return i.tokenResult;
     }
   }
 

@@ -69,8 +69,7 @@ TrackingRecHitProducer::TrackingRecHitProducer(const edm::ParameterSet& config) 
   edm::ConsumesCollector consumeCollector = consumesCollector();
   const std::vector<edm::ParameterSet>& pluginConfigs = config.getParameter<std::vector<edm::ParameterSet>>("plugins");
 
-  for (unsigned int iplugin = 0; iplugin < pluginConfigs.size(); ++iplugin) {
-    const edm::ParameterSet& pluginConfig = pluginConfigs[iplugin];
+  for (const auto& pluginConfig : pluginConfigs) {
     const std::string pluginType = pluginConfig.getParameter<std::string>("type");
     const std::string pluginName = pluginConfig.getParameter<std::string>("name");
 
@@ -195,12 +194,11 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
     simHitsIdPairPerDetId[simHit->detUnitId()].push_back(std::make_pair(ihit, simHit));
   }
 
-  for (auto simHitsIdPairIt = simHitsIdPairPerDetId.begin(); simHitsIdPairIt != simHitsIdPairPerDetId.end();
-       ++simHitsIdPairIt) {
-    const DetId& detId = simHitsIdPairIt->first;
+  for (auto& simHitsIdPairIt : simHitsIdPairPerDetId) {
+    const DetId& detId = simHitsIdPairIt.first;
     std::map<unsigned int, TrackingRecHitPipe>::const_iterator pipeIt = _detIdPipes.find(detId);
     if (pipeIt != _detIdPipes.cend()) {
-      auto& simHitIdPairList = simHitsIdPairIt->second;
+      auto& simHitIdPairList = simHitsIdPairIt.second;
       const TrackingRecHitPipe& pipe = pipeIt->second;
 
       TrackingRecHitProductPtr product = std::make_shared<TrackingRecHitProduct>(detId, simHitIdPairList);
@@ -210,14 +208,13 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
       const std::vector<TrackingRecHitProduct::RecHitToSimHitIdPairs>& recHitToSimHitIdPairsList =
           product->getRecHitToSimHitIdPairs();
 
-      for (unsigned int irecHit = 0; irecHit < recHitToSimHitIdPairsList.size(); ++irecHit) {
-        output_recHits->push_back(recHitToSimHitIdPairsList[irecHit].first);
-        const std::vector<TrackingRecHitProduct::SimHitIdPair>& simHitIdPairList =
-            recHitToSimHitIdPairsList[irecHit].second;
+      for (const auto& irecHit : recHitToSimHitIdPairsList) {
+        output_recHits->push_back(irecHit.first);
+        const std::vector<TrackingRecHitProduct::SimHitIdPair>& simHitIdPairList = irecHit.second;
         double energyLoss_tot = 0;  //
-        for (unsigned int isimHit = 0; isimHit < simHitIdPairList.size(); ++isimHit) {
-          unsigned int simHitId = simHitIdPairList[isimHit].first;
-          const PSimHit* simHit = simHitIdPairList[isimHit].second;
+        for (const auto& isimHit : simHitIdPairList) {
+          unsigned int simHitId = isimHit.first;
+          const PSimHit* simHit = isimHit.second;
           energyLoss_tot +=
               simHit
                   ->energyLoss();  //energy loss of sim hit in GeV std::cout << "energyLoss_tot" << energyLoss_tot << std::endl;

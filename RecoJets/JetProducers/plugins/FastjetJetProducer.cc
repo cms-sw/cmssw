@@ -295,20 +295,19 @@ void FastjetJetProducer::produceTrackJets(edm::Event& iEvent, const edm::EventSe
     LogDebug("FastjetTrackJetProducer") << "Ran algorithm\n";
 
     // convert our jets and add to the overall jet vector
-    for (unsigned int ijet = 0; ijet < fjJets_.size(); ++ijet) {
+    for (auto& fjJet : fjJets_) {
       // get the constituents from fastjet
-      std::vector<fastjet::PseudoJet> fjConstituents = sorted_by_pt(fjClusterSeq_->constituents(fjJets_[ijet]));
+      std::vector<fastjet::PseudoJet> fjConstituents = sorted_by_pt(fjClusterSeq_->constituents(fjJet));
       // convert them to CandidatePtr vector
       std::vector<reco::CandidatePtr> constituents = getConstituents(fjConstituents);
       // fill the trackjet
       reco::TrackJet jet;
       // write the specifics to the jet (simultaneously sets 4-vector, vertex).
-      writeSpecific(
-          jet,
-          reco::Particle::LorentzVector(fjJets_[ijet].px(), fjJets_[ijet].py(), fjJets_[ijet].pz(), fjJets_[ijet].E()),
-          vertex_,
-          constituents,
-          iSetup);
+      writeSpecific(jet,
+                    reco::Particle::LorentzVector(fjJet.px(), fjJet.py(), fjJet.pz(), fjJet.E()),
+                    vertex_,
+                    constituents,
+                    iSetup);
       jet.setJetArea(0);
       jet.setPileup(0);
       jet.setPrimaryVertex(edm::Ref<reco::VertexCollection>(pvCollection, (int)(itVtx - pvCollection->begin())));
@@ -437,16 +436,11 @@ void FastjetJetProducer::runAlgorithm(edm::Event& iEvent, edm::EventSetup const&
       //subtractor->use_common_bge_for_rho_and_rhom(true);
     }
 
-    for (std::vector<fastjet::PseudoJet>::const_iterator ijet = tempJets.begin(), ijetEnd = tempJets.end();
-         ijet != ijetEnd;
-         ++ijet) {
-      fastjet::PseudoJet transformedJet = *ijet;
+    for (auto transformedJet : tempJets) {
       bool passed = true;
-      for (transformer_coll::const_iterator itransf = transformers.begin(), itransfEnd = transformers.end();
-           itransf != itransfEnd;
-           ++itransf) {
+      for (const auto& transformer : transformers) {
         if (transformedJet != 0) {
-          transformedJet = (**itransf)(transformedJet);
+          transformedJet = (*transformer)(transformedJet);
         } else {
           passed = false;
         }

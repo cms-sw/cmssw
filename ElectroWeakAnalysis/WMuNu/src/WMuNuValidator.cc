@@ -444,8 +444,8 @@ bool WMuNuValidator::filter(Event& ev, const EventSetup&) {
   const int NFLAGS = 13;
   bool muon_sel[NFLAGS];
   for (unsigned int i = 0; i < muonCollectionSize; i++) {
-    for (int j = 0; j < NFLAGS; ++j) {
-      muon_sel[j] = false;
+    for (bool& j : muon_sel) {
+      j = false;
     }
 
     const Muon& mu = muonCollection->at(i);

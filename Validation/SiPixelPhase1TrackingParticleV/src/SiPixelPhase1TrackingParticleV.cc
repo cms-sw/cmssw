@@ -69,13 +69,13 @@ void SiPixelPhase1TrackingParticleV::analyze(const edm::Event &iEvent, const edm
   std::stable_sort(trackIdToHitPtr.begin(), trackIdToHitPtr.end(), trackIdHitPairLessSort);
 
   // Loop over TrackingParticle's
-  for (TrackingParticleCollection::const_iterator t = tPC->begin(); t != tPC->end(); ++t) {
+  for (const auto &t : *tPC) {
     // histo manager requires a det ID, use first tracker hit
 
     bool isBpixtrack = false, isFpixtrack = false;
     DetId id;
 
-    for (const SimTrack &simTrack : t->g4Tracks()) {
+    for (const SimTrack &simTrack : t.g4Tracks()) {
       // Logic is from TrackingTruthAccumulator
       auto range = std::equal_range(trackIdToHitPtr.begin(),
                                     trackIdToHitPtr.end(),
@@ -87,7 +87,7 @@ void SiPixelPhase1TrackingParticleV::analyze(const edm::Event &iEvent, const edm
       auto iHitPtr = range.first;
       for (; iHitPtr != range.second; ++iHitPtr) {
         const PSimHit &simHit = *(iHitPtr->second);
-        if (simHit.eventId() != t->eventId())
+        if (simHit.eventId() != t.eventId())
           continue;
         id = DetId(simHit.detUnitId());
 
@@ -103,19 +103,19 @@ void SiPixelPhase1TrackingParticleV::analyze(const edm::Event &iEvent, const edm
     }
 
     if (isBpixtrack || isFpixtrack) {
-      histo[MASS].fill(t->mass(), id, &iEvent);
-      histo[CHARGE].fill(t->charge(), id, &iEvent);
-      histo[ID].fill(t->pdgId(), id, &iEvent);
-      histo[NHITS].fill(t->numberOfTrackerHits(), id, &iEvent);
-      histo[MATCHED].fill(t->numberOfTrackerLayers(), id, &iEvent);
-      histo[PT].fill(sqrt(t->momentum().perp2()), id, &iEvent);
-      histo[PHI].fill(t->momentum().Phi(), id, &iEvent);
-      histo[ETA].fill(t->momentum().eta(), id, &iEvent);
-      histo[VTX].fill(t->vx(), id, &iEvent);
-      histo[VTY].fill(t->vy(), id, &iEvent);
-      histo[VYZ].fill(t->vz(), id, &iEvent);
-      histo[TIP].fill(sqrt(t->vertex().perp2()), id, &iEvent);
-      histo[LIP].fill(t->vz(), id, &iEvent);
+      histo[MASS].fill(t.mass(), id, &iEvent);
+      histo[CHARGE].fill(t.charge(), id, &iEvent);
+      histo[ID].fill(t.pdgId(), id, &iEvent);
+      histo[NHITS].fill(t.numberOfTrackerHits(), id, &iEvent);
+      histo[MATCHED].fill(t.numberOfTrackerLayers(), id, &iEvent);
+      histo[PT].fill(sqrt(t.momentum().perp2()), id, &iEvent);
+      histo[PHI].fill(t.momentum().Phi(), id, &iEvent);
+      histo[ETA].fill(t.momentum().eta(), id, &iEvent);
+      histo[VTX].fill(t.vx(), id, &iEvent);
+      histo[VTY].fill(t.vy(), id, &iEvent);
+      histo[VYZ].fill(t.vz(), id, &iEvent);
+      histo[TIP].fill(sqrt(t.vertex().perp2()), id, &iEvent);
+      histo[LIP].fill(t.vz(), id, &iEvent);
     }
   }
 }

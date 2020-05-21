@@ -133,46 +133,41 @@ EmDQMReco::EmDQMReco(const edm::ParameterSet &pset) {
   std::vector<edm::ParameterSet> filters = pset.getParameter<std::vector<edm::ParameterSet>>("filters");
 
   int i = 0;
-  for (std::vector<edm::ParameterSet>::iterator filterconf = filters.begin(); filterconf != filters.end();
-       filterconf++) {
-    theHLTCollectionLabels.push_back(filterconf->getParameter<edm::InputTag>("HLTCollectionLabels"));
-    theHLTOutputTypes.push_back(filterconf->getParameter<int>("theHLTOutputTypes"));
+  for (auto &filter : filters) {
+    theHLTCollectionLabels.push_back(filter.getParameter<edm::InputTag>("HLTCollectionLabels"));
+    theHLTOutputTypes.push_back(filter.getParameter<int>("theHLTOutputTypes"));
     // Grab the human-readable name, if it is not specified, use the Collection
     // Label
     theHLTCollectionHumanNames.push_back(
-        filterconf->getUntrackedParameter<std::string>("HLTCollectionHumanName", theHLTCollectionLabels[i].label()));
+        filter.getUntrackedParameter<std::string>("HLTCollectionHumanName", theHLTCollectionLabels[i].label()));
 
-    std::vector<double> bounds = filterconf->getParameter<std::vector<double>>("PlotBounds");
+    std::vector<double> bounds = filter.getParameter<std::vector<double>>("PlotBounds");
     // If the size of plot "bounds" vector != 2, abort
     assert(bounds.size() == 2);
     plotBounds.push_back(std::pair<double, double>(bounds[0], bounds[1]));
-    isoNames.push_back(filterconf->getParameter<std::vector<edm::InputTag>>("IsoCollections"));
+    isoNames.push_back(filter.getParameter<std::vector<edm::InputTag>>("IsoCollections"));
 
-    for (unsigned int i = 0; i < isoNames.back().size(); i++) {
+    for (const auto &i : isoNames.back()) {
       switch (theHLTOutputTypes.back()) {
         case trigger::TriggerL1NoIsoEG:
           histoFillerL1NonIso->isoNameTokens_.push_back(
-              consumes<edm::AssociationMap<edm::OneToValue<l1extra::L1EmParticleCollection, float>>>(
-                  isoNames.back()[i]));
+              consumes<edm::AssociationMap<edm::OneToValue<l1extra::L1EmParticleCollection, float>>>(i));
           break;
         case trigger::TriggerL1IsoEG:  // Isolated Level 1
           histoFillerL1Iso->isoNameTokens_.push_back(
-              consumes<edm::AssociationMap<edm::OneToValue<l1extra::L1EmParticleCollection, float>>>(
-                  isoNames.back()[i]));
+              consumes<edm::AssociationMap<edm::OneToValue<l1extra::L1EmParticleCollection, float>>>(i));
           break;
         case trigger::TriggerPhoton:  // Photon
           histoFillerPho->isoNameTokens_.push_back(
-              consumes<edm::AssociationMap<edm::OneToValue<reco::RecoEcalCandidateCollection, float>>>(
-                  isoNames.back()[i]));
+              consumes<edm::AssociationMap<edm::OneToValue<reco::RecoEcalCandidateCollection, float>>>(i));
           break;
         case trigger::TriggerElectron:  // Electron
           histoFillerEle->isoNameTokens_.push_back(
-              consumes<edm::AssociationMap<edm::OneToValue<reco::ElectronCollection, float>>>(isoNames.back()[i]));
+              consumes<edm::AssociationMap<edm::OneToValue<reco::ElectronCollection, float>>>(i));
           break;
         case trigger::TriggerCluster:  // TriggerCluster
           histoFillerClu->isoNameTokens_.push_back(
-              consumes<edm::AssociationMap<edm::OneToValue<reco::RecoEcalCandidateCollection, float>>>(
-                  isoNames.back()[i]));
+              consumes<edm::AssociationMap<edm::OneToValue<reco::RecoEcalCandidateCollection, float>>>(i));
           break;
         default:
           throw(cms::Exception("Release Validation Error") << "HLT output type not implemented: theHLTOutputTypes[n]");
@@ -687,26 +682,22 @@ void EmDQMReco::analyze(const edm::Event &event, const edm::EventSetup &setup) {
         sortedReco.push_back(tmpcand);
       }
     } else if (pdgGen == 22) {
-      for (std::vector<reco::SuperCluster>::const_iterator recopart2 = recoObjectsEB->begin();
-           recopart2 != recoObjectsEB->end();
-           recopart2++) {
-        float en = recopart2->energy();
-        float er = sqrt(pow(recopart2->x(), 2) + pow(recopart2->y(), 2) + pow(recopart2->z(), 2));
-        float px = recopart2->energy() * recopart2->x() / er;
-        float py = recopart2->energy() * recopart2->y() / er;
-        float pz = recopart2->energy() * recopart2->z() / er;
+      for (const auto &recopart2 : *recoObjectsEB) {
+        float en = recopart2.energy();
+        float er = sqrt(pow(recopart2.x(), 2) + pow(recopart2.y(), 2) + pow(recopart2.z(), 2));
+        float px = recopart2.energy() * recopart2.x() / er;
+        float py = recopart2.energy() * recopart2.y() / er;
+        float pz = recopart2.energy() * recopart2.z() / er;
         reco::Candidate::LorentzVector thisLV(px, py, pz, en);
         reco::Particle tmpcand(0, thisLV, math::XYZPoint(0., 0., 0.), 22, 1);
         sortedReco.push_back(tmpcand);
       }
-      for (std::vector<reco::SuperCluster>::const_iterator recopart2 = recoObjectsEE->begin();
-           recopart2 != recoObjectsEE->end();
-           recopart2++) {
-        float en = recopart2->energy();
-        float er = sqrt(pow(recopart2->x(), 2) + pow(recopart2->y(), 2) + pow(recopart2->z(), 2));
-        float px = recopart2->energy() * recopart2->x() / er;
-        float py = recopart2->energy() * recopart2->y() / er;
-        float pz = recopart2->energy() * recopart2->z() / er;
+      for (const auto &recopart2 : *recoObjectsEE) {
+        float en = recopart2.energy();
+        float er = sqrt(pow(recopart2.x(), 2) + pow(recopart2.y(), 2) + pow(recopart2.z(), 2));
+        float px = recopart2.energy() * recopart2.x() / er;
+        float py = recopart2.energy() * recopart2.y() / er;
+        float pz = recopart2.energy() * recopart2.z() / er;
         reco::Candidate::LorentzVector thisLV(px, py, pz, en);
         reco::Particle tmpcand(0, thisLV, math::XYZPoint(0., 0., 0.), 22, 1);
         sortedReco.push_back(tmpcand);

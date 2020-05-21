@@ -158,14 +158,14 @@ void EnergyScaleAnalyzer::analyze(const edm::Event &evt, const edm::EventSetup &
   std::vector<Handle<HepMCProduct>> evtHandles;
   evt.getManyByType(evtHandles);
 
-  for (unsigned int i = 0; i < evtHandles.size(); ++i) {
-    if (evtHandles[i].isValid()) {
-      const HepMC::GenEvent *evt = evtHandles[i]->GetEvent();
+  for (auto &evtHandle : evtHandles) {
+    if (evtHandle.isValid()) {
+      const HepMC::GenEvent *evt = evtHandle->GetEvent();
 
       // take only 1st vertex for now - it's been tested only of PGuns...
       //
       HepMC::GenEvent::vertex_const_iterator vtx = evt->vertices_begin();
-      if (evtHandles[i].provenance()->moduleLabel() == std::string(l.module)) {
+      if (evtHandle.provenance()->moduleLabel() == std::string(l.module)) {
         // Corrdinates of Vertex w.r.o. the point (0,0,0)
         xVtx_ = 0.1 * (*vtx)->position().x();
         yVtx_ = 0.1 * (*vtx)->position().y();

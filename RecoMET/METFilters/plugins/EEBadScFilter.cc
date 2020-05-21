@@ -156,12 +156,12 @@ bool EEBadScFilter::filter(edm::StreamID, edm::Event &iEvent, const edm::EventSe
 
   // loop over the list of bad SCs (defined in the python file)
 
-  for (std::vector<int>::const_iterator scit = badsc_.begin(); scit != badsc_.end(); ++scit) {
+  for (int scit : badsc_) {
     // unpack the SC coordinates from the python file into ix,iy,iz
 
-    iz = int(*scit / 1000000);
-    iy = *scit % 100 * iz;
-    ix = int((*scit - iy - 1000000 * iz) / 1000) * iz;
+    iz = int(scit / 1000000);
+    iy = scit % 100 * iz;
+    ix = int((scit - iy - 1000000 * iz) / 1000) * iz;
 
     // make the DetId from these coordinates
     scdet = EEDetId(ix, iy, iz);
@@ -174,7 +174,7 @@ bool EEBadScFilter::filter(edm::StreamID, edm::Event &iEvent, const edm::EventSe
     // print some debug info
 
     if (debug_) {
-      edm::LogInfo("EEBadScFilter") << "SCID=" << *scit;
+      edm::LogInfo("EEBadScFilter") << "SCID=" << scit;
       edm::LogInfo("EEBadScFilter") << "ix=" << ix << " iy=" << iy << " iz=" << iz;
       edm::LogInfo("EEBadScFilter") << "Et(5x5)=" << totEt << " nbadhits=" << nhits;
     }

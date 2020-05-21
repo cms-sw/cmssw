@@ -86,13 +86,12 @@ bool ErrorSummaryFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
   edm::Handle<std::vector<edm::ErrorSummaryEntry> > errorSummaryEntry;
   iEvent.getByToken(srcToken_, errorSummaryEntry);
 
-  for (ErrorSummaryEntries::const_iterator i = errorSummaryEntry->begin(), end = errorSummaryEntry->end(); i != end;
-       ++i) {
-    if (std::find(modules_.begin(), modules_.end(), i->module) != modules_.end()) {
-      if (std::find(avoidCategories_.begin(), avoidCategories_.end(), i->category) != avoidCategories_.end()) {
+  for (const auto& i : *errorSummaryEntry) {
+    if (std::find(modules_.begin(), modules_.end(), i.module) != modules_.end()) {
+      if (std::find(avoidCategories_.begin(), avoidCategories_.end(), i.category) != avoidCategories_.end()) {
         continue;
       } else {
-        edm::ELseverityLevel const& severity = i->severity;
+        edm::ELseverityLevel const& severity = i.severity;
         if (severityName_ == "error") {
           if (severity.getLevel() == edm::ELseverityLevel::ELsev_error ||
               severity.getLevel() == edm::ELseverityLevel::ELsev_warning) {

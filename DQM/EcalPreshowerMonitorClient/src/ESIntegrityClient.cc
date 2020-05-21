@@ -94,8 +94,8 @@ void ESIntegrityClient::book(DQMStore::IBooker &_ibooker) {
 
 void ESIntegrityClient::endLumiAnalyze(DQMStore::IGetter &_igetter) {
   double nDI_FedErr[56];
-  for (int i = 0; i < 56; ++i)
-    nDI_FedErr[i] = 0;
+  for (double &i : nDI_FedErr)
+    i = 0;
 
   MonitorElement *me = nullptr;
 

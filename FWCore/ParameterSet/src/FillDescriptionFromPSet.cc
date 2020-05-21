@@ -101,48 +101,43 @@ namespace edm {
 
   void fillDescriptionFromPSet(ParameterSet const& pset, ParameterSetDescription& desc) {
     ParameterSet::table const& entries = pset.tbl();
-    for (ParameterSet::table::const_iterator entry = entries.begin(), endEntries = entries.end(); entry != endEntries;
-         ++entry) {
+    for (const auto& entrie : entries) {
       std::map<edm::ParameterTypes, FillDescriptionFromParameter>::iterator iter =
-          findTheRightFunction().find(static_cast<edm::ParameterTypes>(entry->second.typeCode()));
+          findTheRightFunction().find(static_cast<edm::ParameterTypes>(entrie.second.typeCode()));
       if (iter != findTheRightFunction().end()) {
-        iter->second(pset, entry->first, entry->second.isTracked(), desc);
+        iter->second(pset, entrie.first, entrie.second.isTracked(), desc);
       }
     }
 
     ParameterSet::psettable const& pset_entries = pset.psetTable();
-    for (ParameterSet::psettable::const_iterator pset_entry = pset_entries.begin(), endEntries = pset_entries.end();
-         pset_entry != endEntries;
-         ++pset_entry) {
+    for (const auto& pset_entrie : pset_entries) {
       edm::ParameterSet nestedPset;
-      if (pset_entry->second.isTracked()) {
-        nestedPset = pset.getParameterSet(pset_entry->first);
+      if (pset_entrie.second.isTracked()) {
+        nestedPset = pset.getParameterSet(pset_entrie.first);
       } else {
-        nestedPset = pset.getUntrackedParameterSet(pset_entry->first);
+        nestedPset = pset.getUntrackedParameterSet(pset_entrie.first);
       }
       ParameterSetDescription nestedDescription;
       fillDescriptionFromPSet(nestedPset, nestedDescription);
-      if (pset_entry->second.isTracked()) {
-        desc.add<edm::ParameterSetDescription>(pset_entry->first, nestedDescription);
+      if (pset_entrie.second.isTracked()) {
+        desc.add<edm::ParameterSetDescription>(pset_entrie.first, nestedDescription);
       } else {
-        desc.addUntracked<edm::ParameterSetDescription>(pset_entry->first, nestedDescription);
+        desc.addUntracked<edm::ParameterSetDescription>(pset_entrie.first, nestedDescription);
       }
     }
 
     ParameterSet::vpsettable const& vpset_entries = pset.vpsetTable();
-    for (ParameterSet::vpsettable::const_iterator vpset_entry = vpset_entries.begin(), endEntries = vpset_entries.end();
-         vpset_entry != endEntries;
-         ++vpset_entry) {
+    for (const auto& vpset_entrie : vpset_entries) {
       std::vector<edm::ParameterSet> nestedVPset;
-      if (vpset_entry->second.isTracked()) {
-        nestedVPset = pset.getParameterSetVector(vpset_entry->first);
+      if (vpset_entrie.second.isTracked()) {
+        nestedVPset = pset.getParameterSetVector(vpset_entrie.first);
       } else {
-        nestedVPset = pset.getUntrackedParameterSetVector(vpset_entry->first);
+        nestedVPset = pset.getUntrackedParameterSetVector(vpset_entrie.first);
       }
       ParameterSetDescription emptyDescription;
 
       auto pd = std::make_unique<ParameterDescription<std::vector<ParameterSet>>>(
-          vpset_entry->first, emptyDescription, vpset_entry->second.isTracked(), nestedVPset);
+          vpset_entrie.first, emptyDescription, vpset_entrie.second.isTracked(), nestedVPset);
 
       pd->setPartOfDefaultOfVPSet(true);
       std::unique_ptr<ParameterDescriptionNode> node(std::move(pd));

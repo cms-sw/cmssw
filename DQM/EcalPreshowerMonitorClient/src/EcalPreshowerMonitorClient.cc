@@ -22,8 +22,8 @@ EcalPreshowerMonitorClient::EcalPreshowerMonitorClient(const edm::ParameterSet &
 
   if (verbose_) {
     std::cout << " Enabled Clients:";
-    for (unsigned int i = 0; i < enabledClients.size(); i++) {
-      std::cout << " " << enabledClients[i];
+    for (const auto &enabledClient : enabledClients) {
+      std::cout << " " << enabledClient;
     }
     std::cout << std::endl;
   }
@@ -46,8 +46,8 @@ EcalPreshowerMonitorClient::~EcalPreshowerMonitorClient() {
   if (verbose_)
     std::cout << "Finish EcalPreshowerMonitorClient" << std::endl;
 
-  for (unsigned int i = 0; i < clients_.size(); i++) {
-    delete clients_[i];
+  for (auto &client : clients_) {
+    delete client;
   }
 }
 
@@ -75,9 +75,9 @@ void EcalPreshowerMonitorClient::dqmEndJob(DQMStore::IBooker &_ibooker, DQMStore
     std::cout << "EcalPreshowerMonitorClient: endJob" << std::endl;
   }
 
-  for (unsigned int i = 0; i < clients_.size(); i++) {
-    clients_[i]->setup(_ibooker);
-    clients_[i]->endJobAnalyze(_igetter);
+  for (auto &client : clients_) {
+    client->setup(_ibooker);
+    client->endJobAnalyze(_igetter);
   }
 }
 
@@ -85,9 +85,9 @@ void EcalPreshowerMonitorClient::dqmEndLuminosityBlock(DQMStore::IBooker &_ibook
                                                        DQMStore::IGetter &_igetter,
                                                        const edm::LuminosityBlock &,
                                                        const edm::EventSetup &) {
-  for (unsigned int i = 0; i < clients_.size(); i++) {
-    clients_[i]->setup(_ibooker);
-    clients_[i]->endLumiAnalyze(_igetter);
+  for (auto &client : clients_) {
+    client->setup(_ibooker);
+    client->endLumiAnalyze(_igetter);
   }
 }
 

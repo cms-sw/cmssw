@@ -421,16 +421,16 @@ void DTTFFEDReader::process(edm::Event &e) {
 }
 
 void DTTFFEDReader::match() {
-  for (L1MuDTTrackContainer::TrackIterator i = dtTracks.begin(); i != dtTracks.end(); i++) {
-    int bxTh = i->bx() + 1;
-    int sectorTh = i->scNum();
-    int wheelTh = i->whNum() + 3;
+  for (auto &dtTrack : dtTracks) {
+    int bxTh = dtTrack.bx() + 1;
+    int sectorTh = dtTrack.scNum();
+    int wheelTh = dtTrack.whNum() + 3;
     if (wheelTh > 3)
       wheelTh -= 1;
-    int muonTh = i->TrkTag();
+    int muonTh = dtTrack.TrkTag();
 
-    i->setEtaPacked(etTrack[bxTh][sectorTh][wheelTh][muonTh]);
-    i->setFineHaloPacked(efTrack[bxTh][sectorTh][wheelTh][muonTh]);
+    dtTrack.setEtaPacked(etTrack[bxTh][sectorTh][wheelTh][muonTh]);
+    dtTrack.setFineHaloPacked(efTrack[bxTh][sectorTh][wheelTh][muonTh]);
   }
 
   return;

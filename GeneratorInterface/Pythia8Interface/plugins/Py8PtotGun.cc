@@ -37,8 +37,8 @@ namespace gen {
   bool Py8PtotGun::generatePartonsAndHadronize() {
     fMasterGen->event.reset();
 
-    for (size_t i = 0; i < fPartIDs.size(); i++) {
-      int particleID = fPartIDs[i];  // this is PDG - need to convert to Py8 ???
+    for (int particleID : fPartIDs) {
+      // this is PDG - need to convert to Py8 ???
 
       double phi = (fMaxPhi - fMinPhi) * randomEngine().flat() + fMinPhi;
       double eta = (fMaxEta - fMinEta) * randomEngine().flat() + fMinEta;

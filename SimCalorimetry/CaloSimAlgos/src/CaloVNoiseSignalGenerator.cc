@@ -26,9 +26,8 @@ bool CaloVNoiseSignalGenerator::contains(const DetId &detId) const {
 
 void CaloVNoiseSignalGenerator::fillDetIds() {
   theDetIds.reserve(theNoiseSignals.size());
-  for (std::vector<CaloSamples>::const_iterator sampleItr = theNoiseSignals.begin(); sampleItr != theNoiseSignals.end();
-       ++sampleItr) {
-    theDetIds.push_back(sampleItr->id().rawId());
+  for (const auto &theNoiseSignal : theNoiseSignals) {
+    theDetIds.push_back(theNoiseSignal.id().rawId());
   }
   edm::sort_all(theDetIds);
 }

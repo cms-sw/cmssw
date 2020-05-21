@@ -245,8 +245,7 @@ void SiStripMonitorDigi::dqmBeginRun(const edm::Run& run, const edm::EventSetup&
 
       if (sumFED.isValid()) {
         std::vector<int> FedsInIds = sumFED->m_fed_in;
-        for (unsigned int it = 0; it < FedsInIds.size(); ++it) {
-          int fedID = FedsInIds[it];
+        for (int fedID : FedsInIds) {
           //	  if(fedID>=siStripFedIdMin &&  fedID<=siStripFedIdMax)  ++nFEDConnected;
           /* mia: but is there not a smarter way !?!?!? */
           if (fedID >= 50 && fedID <= 133)
@@ -602,10 +601,9 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
   }
 
   // initialise # of clusters to zero
-  for (std::map<std::string, SubDetMEs>::iterator iSubdet = SubDetMEsMap.begin(); iSubdet != SubDetMEsMap.end();
-       iSubdet++) {
-    iSubdet->second.totNDigis = 0;
-    iSubdet->second.SubDetApvShots.clear();
+  for (auto& iSubdet : SubDetMEsMap) {
+    iSubdet.second.totNDigis = 0;
+    iSubdet.second.SubDetApvShots.clear();
   }
 
   std::map<int, int> FEDID_v_digisum;
@@ -636,13 +634,10 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
     std::string subdet_label = "";
 
     // loop over all modules in the layer
-    for (std::vector<uint32_t>::const_iterator iterDets = layer_dets.begin(); iterDets != layer_dets.end();
-         iterDets++) {
+    for (unsigned int detid : layer_dets) {
       iDet++;
 
       // detid and type of ME
-      uint32_t detid = (*iterDets);
-
       // Get SubDet label once
       if (subdet_label.empty())
         subdet_label = folder_organizer.getSubDetFolderAndTag(detid, tTopo).second;
@@ -726,10 +721,8 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
       // Check if these parameters are really needed
       float det_occupancy = 0.0;
 
-      for (edm::DetSet<SiStripDigi>::const_iterator digiIter = digi_detset.data.begin();
-           digiIter != digi_detset.data.end();
-           digiIter++) {
-        int this_adc = digiIter->adc();
+      for (auto digiIter : digi_detset.data) {
+        int this_adc = digiIter.adc();
 
         if (this_adc > 0.0)
           det_occupancy++;
@@ -741,7 +734,7 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
 
         if (Mod_On_ && moduleswitchnumdigispstripon && (local_modmes.NumberOfDigisPerStrip != nullptr) &&
             (this_adc > 0.0))
-          (local_modmes.NumberOfDigisPerStrip)->Fill(digiIter->strip());
+          (local_modmes.NumberOfDigisPerStrip)->Fill(digiIter.strip());
 
         if (Mod_On_ && moduleswitchdigiadcson && (local_modmes.DigiADCs != nullptr))
           (local_modmes.DigiADCs)->Fill(static_cast<float>(this_adc));
@@ -827,41 +820,41 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
       isStableBeams = true;
   }
 
-  for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
+  for (auto& it : SubDetMEsMap) {
     if (subdetswitchtotdigifailureon) {
-      if (strcmp(it->first.c_str(), "TEC__MINUS") == 0) {
-        digiFailureMEs.SubDetTotDigiProfLS->Fill(1, it->second.totNDigis);
-      } else if (strcmp(it->first.c_str(), "TEC__PLUS") == 0) {
-        digiFailureMEs.SubDetTotDigiProfLS->Fill(2, it->second.totNDigis);
-      } else if (strcmp(it->first.c_str(), "TIB") == 0) {
-        digiFailureMEs.SubDetTotDigiProfLS->Fill(3, it->second.totNDigis);
-      } else if (strcmp(it->first.c_str(), "TID__MINUS") == 0) {
-        digiFailureMEs.SubDetTotDigiProfLS->Fill(4, it->second.totNDigis);
-      } else if (strcmp(it->first.c_str(), "TID__PLUS") == 0) {
-        digiFailureMEs.SubDetTotDigiProfLS->Fill(5, it->second.totNDigis);
-      } else if (strcmp(it->first.c_str(), "TOB") == 0) {
-        digiFailureMEs.SubDetTotDigiProfLS->Fill(6, it->second.totNDigis);
+      if (strcmp(it.first.c_str(), "TEC__MINUS") == 0) {
+        digiFailureMEs.SubDetTotDigiProfLS->Fill(1, it.second.totNDigis);
+      } else if (strcmp(it.first.c_str(), "TEC__PLUS") == 0) {
+        digiFailureMEs.SubDetTotDigiProfLS->Fill(2, it.second.totNDigis);
+      } else if (strcmp(it.first.c_str(), "TIB") == 0) {
+        digiFailureMEs.SubDetTotDigiProfLS->Fill(3, it.second.totNDigis);
+      } else if (strcmp(it.first.c_str(), "TID__MINUS") == 0) {
+        digiFailureMEs.SubDetTotDigiProfLS->Fill(4, it.second.totNDigis);
+      } else if (strcmp(it.first.c_str(), "TID__PLUS") == 0) {
+        digiFailureMEs.SubDetTotDigiProfLS->Fill(5, it.second.totNDigis);
+      } else if (strcmp(it.first.c_str(), "TOB") == 0) {
+        digiFailureMEs.SubDetTotDigiProfLS->Fill(6, it.second.totNDigis);
       }
     }
 
     if (globalsummaryapvshotson) {
-      if (strcmp(it->first.c_str(), "TEC__MINUS") == 0) {
-        NApvShotsGlobalProf->Fill(1, it->second.SubDetApvShots.size());
-      } else if (strcmp(it->first.c_str(), "TEC__PLUS") == 0) {
-        NApvShotsGlobalProf->Fill(2, it->second.SubDetApvShots.size());
-      } else if (strcmp(it->first.c_str(), "TIB") == 0) {
-        NApvShotsGlobalProf->Fill(3, it->second.SubDetApvShots.size());
-      } else if (strcmp(it->first.c_str(), "TID__MINUS") == 0) {
-        NApvShotsGlobalProf->Fill(4, it->second.SubDetApvShots.size());
-      } else if (strcmp(it->first.c_str(), "TID__PLUS") == 0) {
-        NApvShotsGlobalProf->Fill(5, it->second.SubDetApvShots.size());
-      } else if (strcmp(it->first.c_str(), "TOB") == 0) {
-        NApvShotsGlobalProf->Fill(6, it->second.SubDetApvShots.size());
+      if (strcmp(it.first.c_str(), "TEC__MINUS") == 0) {
+        NApvShotsGlobalProf->Fill(1, it.second.SubDetApvShots.size());
+      } else if (strcmp(it.first.c_str(), "TEC__PLUS") == 0) {
+        NApvShotsGlobalProf->Fill(2, it.second.SubDetApvShots.size());
+      } else if (strcmp(it.first.c_str(), "TIB") == 0) {
+        NApvShotsGlobalProf->Fill(3, it.second.SubDetApvShots.size());
+      } else if (strcmp(it.first.c_str(), "TID__MINUS") == 0) {
+        NApvShotsGlobalProf->Fill(4, it.second.SubDetApvShots.size());
+      } else if (strcmp(it.first.c_str(), "TID__PLUS") == 0) {
+        NApvShotsGlobalProf->Fill(5, it.second.SubDetApvShots.size());
+      } else if (strcmp(it.first.c_str(), "TOB") == 0) {
+        NApvShotsGlobalProf->Fill(6, it.second.SubDetApvShots.size());
       }
     }
 
-    SubDetMEs subdetmes = it->second;
-    std::string subdet = it->first;
+    SubDetMEs subdetmes = it.second;
+    std::string subdet = it.first;
 
     // Fill APV shots histograms for SubDet
 
@@ -922,10 +915,10 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
       !apv_phase_collection.failedToGet()) {
     long long tbx = event_history->absoluteBX();
 
-    for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
+    for (auto& it : SubDetMEsMap) {
       SubDetMEs subdetmes;
-      std::string subdet = it->first;
-      subdetmes = it->second;
+      std::string subdet = it.first;
+      subdetmes = it.second;
 
       int the_phase = APVCyclePhaseCollection::invalid;
       long long tbx_corr = tbx;
@@ -1327,17 +1320,17 @@ int SiStripMonitorDigi::getDigiSourceIndex(uint32_t id) {
 
 void SiStripMonitorDigi::AddApvShotsToSubDet(const std::vector<APVShot>& moduleShots,
                                              std::vector<APVShot>& subdetShots) {
-  for (uint i = 0; i < moduleShots.size(); i++) {
-    subdetShots.push_back(moduleShots[i]);
+  for (const auto& moduleShot : moduleShots) {
+    subdetShots.push_back(moduleShot);
   }
 }
 
 void SiStripMonitorDigi::FillApvShotsMap(TkHistoMap* the_map, const std::vector<APVShot>& shots, uint32_t id, int mode) {
-  for (uint i = 0; i < shots.size(); i++) {
+  for (const auto& shot : shots) {
     if (mode == 1)
-      the_map->fill(id, shots[i].nStrips());  //mode == 1 fill with strip multiplicity
+      the_map->fill(id, shot.nStrips());  //mode == 1 fill with strip multiplicity
     if (mode == 2)
-      the_map->fill(id, shots[i].median());  // mode == 2 fill with charge median
+      the_map->fill(id, shot.median());  // mode == 2 fill with charge median
   }
 }
 

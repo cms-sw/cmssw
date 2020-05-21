@@ -122,9 +122,9 @@ std::string EcalTPGTowerStatusXMLTranslator::dumpXML(const EcalCondHeader& heade
 void EcalTPGTowerStatusXMLTranslator::plot(std::string fn, const EcalTPGTowerStatus& record) {
   std::ofstream fout(fn.c_str());
   int valEB[34][72];
-  for (int line = 0; line < 34; line++)
+  for (auto& line : valEB)
     for (int iphi = 0; iphi < 72; iphi++)
-      valEB[line][iphi] = 0;
+      line[iphi] = 0;
 
   const EcalTPGTowerStatusMap& towerMap = record.getMap();
   std::cout << " tower map size " << towerMap.size() << std::endl;

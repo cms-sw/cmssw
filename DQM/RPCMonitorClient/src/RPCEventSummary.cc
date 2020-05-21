@@ -151,9 +151,9 @@ void RPCEventSummary::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
       segmentNames.push_back(segName.str());
     }
 
-    for (unsigned int i = 0; i < segmentNames.size(); i++) {
+    for (const auto& segmentName : segmentNames) {
       me = nullptr;
-      me = ibooker.bookFloat(segmentNames[i]);
+      me = ibooker.bookFloat(segmentName);
       me->Fill(defaultValue);
     }
 

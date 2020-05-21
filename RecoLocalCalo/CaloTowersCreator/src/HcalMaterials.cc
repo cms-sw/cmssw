@@ -9,9 +9,9 @@ HcalMaterials::~HcalMaterials() {}
 float HcalMaterials::getValue(DetId fId, float energy) {
   // a real function should be added
   float value = 0.;
-  for (unsigned int iItem = 0; iItem < mItems.size(); iItem++) {
-    if (fId.rawId() == mItems[iItem].mmId()) {
-      value = mItems[iItem].getValue(energy);
+  for (auto& mItem : mItems) {
+    if (fId.rawId() == mItem.mmId()) {
+      value = mItem.getValue(energy);
       continue;
     }
   }

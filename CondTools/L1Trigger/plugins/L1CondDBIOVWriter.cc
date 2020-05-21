@@ -55,9 +55,9 @@ L1CondDBIOVWriter::L1CondDBIOVWriter(const edm::ParameterSet& iConfig)
   //now do what ever initialization is needed
   typedef std::vector<edm::ParameterSet> ToSave;
   ToSave toSave = iConfig.getParameter<ToSave>("toPut");
-  for (ToSave::const_iterator it = toSave.begin(); it != toSave.end(); it++) {
-    std::string record = it->getParameter<std::string>("record");
-    std::string type = it->getParameter<std::string>("type");
+  for (const auto& it : toSave) {
+    std::string record = it.getParameter<std::string>("record");
+    std::string type = it.getParameter<std::string>("type");
     m_recordTypes.push_back(record + "@" + type);
   }
 }

@@ -301,12 +301,12 @@ vector<int> RecoBTag::findBinClosestYValueAtFixedZ(const TH2F* histoY,
   const float& minInHisto = histoY->GetMinimum();
   //
   // if yVal is smaller than max -> take any value well above the maximum
-  for (unsigned int i = 0; i < yClosestInit.size(); i++) {
+  for (float& i : yClosestInit) {
     if (yVal <= maxInHisto) {
-      yClosestInit[i] = maxInHisto + 1;
+      i = maxInHisto + 1;
     } else {
       // if yVal is greater than max value -> take a value < minimum
-      yClosestInit[i] = minInHisto - 1.0;
+      i = minInHisto - 1.0;
     }
   }
 

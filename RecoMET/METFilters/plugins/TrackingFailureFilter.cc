@@ -52,11 +52,11 @@ bool TrackingFailureFilter::filter(edm::StreamID, edm::Event& iEvent, const edm:
   double sumpt = 0;
   if (!vtxs->empty()) {
     //    const reco::Vertex * vtx = &((*vtxs)[0]);
-    for (std::vector<reco::Track>::const_iterator tr = tracks->begin(); tr != tracks->end(); ++tr) {
+    for (const auto& tr : *tracks) {
       bool associateToPV = false;
       for (int iv = 0; iv < (int)vtxs->size(); iv++) {
         const reco::Vertex* pervtx = &((*vtxs)[iv]);
-        if (fabs(tr->dz(pervtx->position())) <= dzTrVtxMax_ && fabs(tr->dxy(pervtx->position())) <= dxyTrVtxMax_) {
+        if (fabs(tr.dz(pervtx->position())) <= dzTrVtxMax_ && fabs(tr.dxy(pervtx->position())) <= dxyTrVtxMax_) {
           associateToPV = true;
         }
       }
@@ -64,7 +64,7 @@ bool TrackingFailureFilter::filter(edm::StreamID, edm::Event& iEvent, const edm:
       //      if (fabs(tr->dxy(vtx->position())) > dxyTrVtxMax_) continue;
       if (!associateToPV)
         continue;
-      sumpt += tr->pt();
+      sumpt += tr.pt();
     }
   }
   const bool pass = (sumpt / ht) > minSumPtOverHT_;

@@ -156,10 +156,10 @@ void MTDThresholdClusterizer::clusterize(const FTLRecHitCollection& input,
 
     FTLClusterCollection::FastFiller clustersOnDet(output, id);
 
-    for (unsigned int i = 0; i < theSeeds.size(); i++) {
-      if (theBuffer.energy(theSeeds[i]) > theSeedThreshold) {  // Is this seed still valid?
+    for (auto theSeed : theSeeds) {
+      if (theBuffer.energy(theSeed) > theSeedThreshold) {  // Is this seed still valid?
         //  Make a cluster around this seed
-        const FTLCluster& cluster = make_cluster(theSeeds[i]);
+        const FTLCluster& cluster = make_cluster(theSeed);
 
         //  Check if the cluster is above threshold
         if (cluster.energy() > theClusterThreshold) {

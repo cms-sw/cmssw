@@ -63,12 +63,12 @@ void TtFullHadHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
   // go through given vector of jet combinations
   unsigned int idMatch = 0;
   typedef std::vector<std::vector<int> >::iterator MatchVecIterator;
-  for (MatchVecIterator match = matchVec.begin(); match != matchVec.end(); ++match) {
+  for (auto& match : matchVec) {
     // reset pointers
     resetCandidates();
     // build hypothesis
-    buildHypo(evt, jets, *match, idMatch++);
-    pOut->push_back(std::make_pair(hypo(), *match));
+    buildHypo(evt, jets, match, idMatch++);
+    pOut->push_back(std::make_pair(hypo(), match));
   }
   // feed out hyps and matches
   evt.put(std::move(pOut));

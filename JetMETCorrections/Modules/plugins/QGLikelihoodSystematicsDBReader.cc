@@ -39,18 +39,18 @@ void QGLikelihoodSystematicsDBReader::analyze(const edm::Event& iEvent, const ed
   std::vector<QGLikelihoodSystematicsObject::Entry> const& data = QGLSysPar->data;
   edm::LogInfo("UserOutput") << "There are " << data.size()
                              << " entries (categories with parameters for smearing):" << std::endl;
-  for (auto idata = data.begin(); idata != data.end(); ++idata) {
-    int qgBin = idata->systCategory.QGIndex;
-    double etaMin = idata->systCategory.EtaMin;
-    double etaMax = idata->systCategory.EtaMax;
-    double rhoMin = idata->systCategory.RhoMin;
-    double rhoMax = idata->systCategory.RhoMax;
-    double ptMin = idata->systCategory.PtMin;
-    double ptMax = idata->systCategory.PtMax;
-    double a = idata->a;
-    double b = idata->b;
-    double lmin = idata->lmin;
-    double lmax = idata->lmax;
+  for (const auto& idata : data) {
+    int qgBin = idata.systCategory.QGIndex;
+    double etaMin = idata.systCategory.EtaMin;
+    double etaMax = idata.systCategory.EtaMax;
+    double rhoMin = idata.systCategory.RhoMin;
+    double rhoMax = idata.systCategory.RhoMax;
+    double ptMin = idata.systCategory.PtMin;
+    double ptMax = idata.systCategory.PtMax;
+    double a = idata.a;
+    double b = idata.b;
+    double lmin = idata.lmin;
+    double lmax = idata.lmax;
 
     char buff[1000];
     sprintf(buff,

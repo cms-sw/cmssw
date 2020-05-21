@@ -109,16 +109,15 @@ void ShallowClustersProducer::produce(edm::Event& iEvent, const edm::EventSetup&
   for (; itClusters != clusters->end(); ++itClusters) {
     uint32_t id = itClusters->id();
     const moduleVars moduleV(id, tTopo);
-    for (edmNew::DetSet<SiStripCluster>::const_iterator cluster = itClusters->begin(); cluster != itClusters->end();
-         ++cluster) {
-      siStripClusterInfo_.setCluster(*cluster, id);
+    for (const auto& cluster : *itClusters) {
+      siStripClusterInfo_.setCluster(cluster, id);
       const SiStripClusterInfo& info = siStripClusterInfo_;
       const NearDigis digis = rawProcessedDigis.isValid() ? NearDigis(info, *rawProcessedDigis) : NearDigis(info);
 
       (number->at(0))++;
       (number->at(moduleV.subdetid))++;
-      width->push_back(cluster->amplitudes().size());
-      barystrip->push_back(cluster->barycenter());
+      width->push_back(cluster.amplitudes().size());
+      barystrip->push_back(cluster.barycenter());
       variance->push_back(info.variance());
       middlestrip->push_back(info.firstStrip() + info.width() / 2.0);
       charge->push_back(info.charge());

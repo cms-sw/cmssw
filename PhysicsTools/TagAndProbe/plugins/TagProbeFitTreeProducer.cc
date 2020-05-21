@@ -173,12 +173,12 @@ void TagProbeFitTreeProducer::analyze(const edm::Event& iEvent, const edm::Event
   // get the list of (tag+probe) pairs, performing arbitration
   tnp::TagProbePairs pairs = tagProbePairMaker_.run(iEvent);
   // loop on them to fill the tree
-  for (tnp::TagProbePairs::const_iterator it = pairs.begin(), ed = pairs.end(); it != ed; ++it) {
+  for (const auto& pair : pairs) {
     // on mc, fill mc info (on non-mc, let it to 'true', the treeFiller will ignore it anyway
     bool mcTrue = false;
     float mcMass = 0.f;
     if (isMC_) {
-      reco::GenParticleRef mtag = (*tagMatches)[it->tag], mprobe = (*probeMatches)[it->probe];
+      reco::GenParticleRef mtag = (*tagMatches)[pair.tag], mprobe = (*probeMatches)[pair.probe];
       mcTrue = checkMother(mtag) && checkMother(mprobe);
       if (mcTrue) {
         mcMass = (mtag->p4() + mprobe->p4()).mass();
@@ -188,12 +188,12 @@ void TagProbeFitTreeProducer::analyze(const edm::Event& iEvent, const edm::Event
     }
     // fill in the variables for this t+p pair
     if (tagFiller_.get())
-      tagFiller_->fill(it->tag);
+      tagFiller_->fill(pair.tag);
     if (oldTagFiller_.get())
-      oldTagFiller_->fill(it->tag);
+      oldTagFiller_->fill(pair.tag);
     if (pairFiller_.get())
-      pairFiller_->fill(it->pair);
-    treeFiller_->fill(it->probe, it->mass, mcTrue, mcMass);
+      pairFiller_->fill(pair.pair);
+    treeFiller_->fill(pair.probe, pair.mass, mcTrue, mcMass);
   }
 
   if (isMC_ && makeMCUnbiasTree_) {
@@ -222,8 +222,8 @@ bool TagProbeFitTreeProducer::checkMother(const reco::GenParticleRef& ref) const
   if (motherPdgId_.find(abs(ref->pdgId())) != motherPdgId_.end())
     return true;
   reco::GenParticle::mothers m = ref->motherRefVector();
-  for (reco::GenParticle::mothers::const_iterator it = m.begin(), e = m.end(); it != e; ++it) {
-    if (checkMother(*it))
+  for (auto&& it : m) {
+    if (checkMother(it))
       return true;
   }
   return false;

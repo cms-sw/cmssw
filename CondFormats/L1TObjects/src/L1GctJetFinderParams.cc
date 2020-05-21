@@ -363,8 +363,8 @@ std::ostream& operator<<(std::ostream& os, const L1GctJetFinderParams& fn) {
         os << ", no coefficients";
       } else {
         os << " Coefficients = ";
-        for (unsigned j = 0; j < jetCoeffs.at(i).size(); j++) {
-          os << jetCoeffs.at(i).at(j) << ", ";
+        for (double j : jetCoeffs.at(i)) {
+          os << j << ", ";
         }
       }
       os << std::endl;
@@ -376,8 +376,8 @@ std::ostream& operator<<(std::ostream& os, const L1GctJetFinderParams& fn) {
         os << ", no coefficients";
       } else {
         os << " Coefficients = ";
-        for (unsigned j = 0; j < tauCoeffs.at(i).size(); j++) {
-          os << tauCoeffs.at(i).at(j) << ", ";
+        for (double j : tauCoeffs.at(i)) {
+          os << j << ", ";
         }
       }
       os << std::endl;

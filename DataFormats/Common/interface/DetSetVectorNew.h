@@ -649,12 +649,10 @@ namespace edmNew {
 
     m_ids.reserve(iDets.size());
     det_id_type sanityCheck = 0;
-    for (std::vector<det_id_type>::const_iterator itDetId = iDets.begin(), itDetIdEnd = iDets.end();
-         itDetId != itDetIdEnd;
-         ++itDetId) {
-      assert(sanityCheck < *itDetId && "vector of det_id_type was not ordered");
-      sanityCheck = *itDetId;
-      m_ids.push_back(*itDetId);
+    for (unsigned int iDet : iDets) {
+      assert(sanityCheck < iDet && "vector of det_id_type was not ordered");
+      sanityCheck = iDet;
+      m_ids.push_back(iDet);
     }
   }
 

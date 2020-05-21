@@ -66,9 +66,9 @@ void GenJetTauTaggerProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 
   std::vector<bool> tags;
 
-  for (auto jet = jets->begin(); jet != jets->end(); ++jet) {
+  for (const auto& jet : *jets) {
     bool found = false;
-    for (auto cand : jet->getJetConstituentsQuick()) {
+    for (auto cand : jet.getJetConstituentsQuick()) {
       if (abs(cand->pdgId()) == 15)
         found = true;
     }

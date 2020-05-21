@@ -337,8 +337,8 @@ namespace reco {
       // read and parse commands
       std::vector<std::string> str_rules = iConfig.getParameter<std::vector<std::string> >("commands");
       rules_.reserve(str_rules.size());
-      for (std::vector<std::string>::const_iterator it = str_rules.begin(), ed = str_rules.end(); it != ed; ++it) {
-        rules_.push_back(Rule(*it));
+      for (const auto &str_rule : str_rules) {
+        rules_.push_back(Rule(str_rule));
       }
 
       if (rejectBadStoNHits_) {  //commands for S/N cut
@@ -354,9 +354,8 @@ namespace reco {
         }
 
         std::vector<std::string> str_StoNrules = iConfig.getParameter<std::vector<std::string> >("StoNcommands");
-        for (std::vector<std::string>::const_iterator str_StoN = str_StoNrules.begin(); str_StoN != str_StoNrules.end();
-             ++str_StoN) {
-          parseStoN(*str_StoN);
+        for (const auto &str_StoNrule : str_StoNrules) {
+          parseStoN(str_StoNrule);
         }
         ////edm::LogDebug("TrackerTrackHitFilter")
         edm::LogInfo("TrackerTrackHitFilter") << "Finished parsing S/N. Applying following cuts to subdets:";
@@ -412,10 +411,9 @@ namespace reco {
       std::vector<TrackingRecHit *> hits;
 
       if (useTrajectories_) {
-        for (TrajTrackAssociationCollection::const_iterator itass = assoMap->begin(); itass != assoMap->end();
-             ++itass) {
-          const edm::Ref<std::vector<Trajectory> > traj = itass->key;  //trajectory in the collection
-          const reco::TrackRef tkref = itass->val;                     //associated track track in the collection
+        for (const auto &itass : *assoMap) {
+          const edm::Ref<std::vector<Trajectory> > traj = itass.key;  //trajectory in the collection
+          const reco::TrackRef tkref = itass.val;                     //associated track track in the collection
           //std::cout<<"The hit collection has size "<<hits.size()<<" (should be 0) while the track contains initially "<< tkref->recHitsEnd() - tkref->recHitsBegin()<<std::endl;
 
           const Track *trk = &(*tkref);
@@ -469,11 +467,10 @@ namespace reco {
       } else {  //use plain tracks
 
         // loop on tracks
-        for (std::vector<reco::Track>::const_iterator ittrk = tracks->begin(), edtrk = tracks->end(); ittrk != edtrk;
-             ++ittrk) {
+        for (const auto &ittrk : *tracks) {
           //    std::cout<<"The hit collection has size "<<hits.size()<<" (should be 0) while the track contains initially "<< ittrk->recHitsEnd() - ittrk->recHitsBegin()<<std::endl;
 
-          const Track *trk = &(*ittrk);
+          const Track *trk = &ittrk;
 
           produceFromTrack(iSetup, trk, hits);
           //-----------------------
@@ -521,12 +518,12 @@ namespace reco {
                 nvalidhits++;
             }
             if (nvalidhits >= int(minimumHits_)) {
-              output->push_back(makeCandidate(*ittrk, begin, end));
+              output->push_back(makeCandidate(ittrk, begin, end));
             }
 
           } else {  //all invalid hits have been already kicked out
             if ((end - begin) >= int(minimumHits_)) {
-              output->push_back(makeCandidate(*ittrk, begin, end));
+              output->push_back(makeCandidate(ittrk, begin, end));
             }
           }
 
@@ -743,8 +740,8 @@ namespace reco {
         if (detid.det() == DetId::Tracker) {  // check for tracker hits
           bool verdict = true;
           // first check at structure level
-          for (std::vector<Rule>::const_iterator itr = rules_.begin(), edr = rules_.end(); itr != edr; ++itr) {
-            itr->apply(detid, tTopo, verdict);
+          for (auto rule : rules_) {
+            rule.apply(detid, tTopo, verdict);
           }
 
           // if the hit is good, check again at module level

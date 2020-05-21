@@ -222,8 +222,7 @@ namespace DeDxTools {
     int charge = 0;
 
     if (calibGains.empty()) {
-      for (unsigned int i = 0; i < Ampls.size(); i++) {
-        int calibratedCharge = Ampls[i];
+      for (int calibratedCharge : Ampls) {
         charge += calibratedCharge;
         if (calibratedCharge >= 254)
           nSatStrip++;

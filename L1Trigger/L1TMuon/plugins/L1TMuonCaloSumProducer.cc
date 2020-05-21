@@ -166,9 +166,9 @@ void L1TMuonCaloSumProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
       }
 
       // fill towerSums output collection for this BX
-      for (auto it = sums.begin(); it != sums.end(); ++it) {
-        if (it->second.etBits() > 0) {
-          MuonCaloSum sum = MuonCaloSum(it->second);
+      for (auto& it : sums) {
+        if (it.second.etBits() > 0) {
+          MuonCaloSum sum = MuonCaloSum(it.second);
           // convert Et to correct scale:
           if (sum.etBits() > 31) {
             sum.setEtBits(31);
@@ -177,9 +177,9 @@ void L1TMuonCaloSumProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
         }
       }
       // fill tower2x2s output collection for this BX
-      for (auto it = regs.begin(); it != regs.end(); ++it) {
-        if (it->second.etBits() > 0) {
-          tower2x2s->push_back(bx, it->second);
+      for (auto& reg : regs) {
+        if (reg.second.etBits() > 0) {
+          tower2x2s->push_back(bx, reg.second);
         }
       }
     }

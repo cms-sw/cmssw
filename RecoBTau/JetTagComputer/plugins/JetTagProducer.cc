@@ -90,8 +90,8 @@ void JetTagProducer::produce(Event &iEvent, const EventSetup &iSetup) {
       std::string message(
           "VInputTag size mismatch - the following taginfo "
           "labels are needed:\n");
-      for (vector<string>::const_iterator iter = inputLabels.begin(); iter != inputLabels.end(); ++iter)
-        message += "\"" + *iter + "\"\n";
+      for (const auto &inputLabel : inputLabels)
+        message += "\"" + inputLabel + "\"\n";
       throw edm::Exception(errors::Configuration) << message;
     }
   }

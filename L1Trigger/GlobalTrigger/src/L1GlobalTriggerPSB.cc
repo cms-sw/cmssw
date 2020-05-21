@@ -77,10 +77,8 @@ L1GlobalTriggerPSB::L1GlobalTriggerPSB(const edm::InputTag &m_caloGctInputTag,
   iC.consumes<L1GctHFBitCountsCollection>(m_caloGctInputTag);
   iC.consumes<L1GctHFRingEtSumsCollection>(m_caloGctInputTag);
 
-  for (std::vector<edm::InputTag>::const_iterator it = m_technicalTriggersInputTags.begin();
-       it != m_technicalTriggersInputTags.end();
-       it++) {
-    iC.consumes<L1GtTechnicalTriggerRecord>((*it));
+  for (const auto &m_technicalTriggersInputTag : m_technicalTriggersInputTags) {
+    iC.consumes<L1GtTechnicalTriggerRecord>(m_technicalTriggersInputTag);
   }
   // empty
 }
@@ -159,9 +157,9 @@ void L1GlobalTriggerPSB::receiveGctObjectData(edm::Event &iEvent,
                        << std::endl;
       }
     } else {
-      for (L1GctEmCandCollection::const_iterator it = emCands->begin(); it != emCands->end(); it++) {
-        if ((*it).bx() == iBxInEvent) {
-          (*m_candL1NoIsoEG).push_back(&(*it));
+      for (const auto &it : *emCands) {
+        if (it.bx() == iBxInEvent) {
+          (*m_candL1NoIsoEG).push_back(&it);
           // LogTrace("L1GlobalTrigger") << "NoIsoEG:  " << (*it) << std::endl;
         }
       }
@@ -181,9 +179,9 @@ void L1GlobalTriggerPSB::receiveGctObjectData(edm::Event &iEvent,
                        << std::endl;
       }
     } else {
-      for (L1GctEmCandCollection::const_iterator it = isoEmCands->begin(); it != isoEmCands->end(); it++) {
-        if ((*it).bx() == iBxInEvent) {
-          (*m_candL1IsoEG).push_back(&(*it));
+      for (const auto &it : *isoEmCands) {
+        if (it.bx() == iBxInEvent) {
+          (*m_candL1IsoEG).push_back(&it);
           // LogTrace("L1GlobalTrigger") << "IsoEG:    " <<  (*it) << std::endl;
         }
       }
@@ -203,9 +201,9 @@ void L1GlobalTriggerPSB::receiveGctObjectData(edm::Event &iEvent,
                        << std::endl;
       }
     } else {
-      for (L1GctJetCandCollection::const_iterator it = cenJets->begin(); it != cenJets->end(); it++) {
-        if ((*it).bx() == iBxInEvent) {
-          (*m_candL1CenJet).push_back(&(*it));
+      for (const auto &it : *cenJets) {
+        if (it.bx() == iBxInEvent) {
+          (*m_candL1CenJet).push_back(&it);
           // LogTrace("L1GlobalTrigger") << "CenJet    " <<  (*it) << std::endl;
         }
       }
@@ -225,9 +223,9 @@ void L1GlobalTriggerPSB::receiveGctObjectData(edm::Event &iEvent,
                        << std::endl;
       }
     } else {
-      for (L1GctJetCandCollection::const_iterator it = forJets->begin(); it != forJets->end(); it++) {
-        if ((*it).bx() == iBxInEvent) {
-          (*m_candL1ForJet).push_back(&(*it));
+      for (const auto &it : *forJets) {
+        if (it.bx() == iBxInEvent) {
+          (*m_candL1ForJet).push_back(&it);
           // LogTrace("L1GlobalTrigger") << "ForJet    " <<  (*it) << std::endl;
         }
       }
@@ -247,9 +245,9 @@ void L1GlobalTriggerPSB::receiveGctObjectData(edm::Event &iEvent,
                        << std::endl;
       }
     } else {
-      for (L1GctJetCandCollection::const_iterator it = tauJets->begin(); it != tauJets->end(); it++) {
-        if ((*it).bx() == iBxInEvent) {
-          (*m_candL1TauJet).push_back(&(*it));
+      for (const auto &it : *tauJets) {
+        if (it.bx() == iBxInEvent) {
+          (*m_candL1TauJet).push_back(&it);
           // LogTrace("L1GlobalTrigger") << "TauJet    " <<  (*it) << std::endl;
         }
       }
@@ -268,9 +266,9 @@ void L1GlobalTriggerPSB::receiveGctObjectData(edm::Event &iEvent,
                        << std::endl;
       }
     } else {
-      for (L1GctEtMissCollection::const_iterator it = missEtColl->begin(); it != missEtColl->end(); it++) {
-        if ((*it).bx() == iBxInEvent) {
-          m_candETM = &(*it);
+      for (const auto &it : *missEtColl) {
+        if (it.bx() == iBxInEvent) {
+          m_candETM = &it;
           // LogTrace("L1GlobalTrigger") << "ETM      " << (*it) << std::endl;
         }
       }
@@ -289,9 +287,9 @@ void L1GlobalTriggerPSB::receiveGctObjectData(edm::Event &iEvent,
                        << std::endl;
       }
     } else {
-      for (L1GctEtTotalCollection::const_iterator it = sumEtColl->begin(); it != sumEtColl->end(); it++) {
-        if ((*it).bx() == iBxInEvent) {
-          m_candETT = &(*it);
+      for (const auto &it : *sumEtColl) {
+        if (it.bx() == iBxInEvent) {
+          m_candETT = &it;
           // LogTrace("L1GlobalTrigger") << "ETT      " << (*it) << std::endl;
         }
       }
@@ -310,9 +308,9 @@ void L1GlobalTriggerPSB::receiveGctObjectData(edm::Event &iEvent,
                        << std::endl;
       }
     } else {
-      for (L1GctEtHadCollection::const_iterator it = sumHtColl->begin(); it != sumHtColl->end(); it++) {
-        if ((*it).bx() == iBxInEvent) {
-          m_candHTT = &(*it);
+      for (const auto &it : *sumHtColl) {
+        if (it.bx() == iBxInEvent) {
+          m_candHTT = &it;
           // LogTrace("L1GlobalTrigger") << "HTT      "  << (*it) << std::endl;
         }
       }
@@ -331,9 +329,9 @@ void L1GlobalTriggerPSB::receiveGctObjectData(edm::Event &iEvent,
                        << std::endl;
       }
     } else {
-      for (L1GctHtMissCollection::const_iterator it = missHtColl->begin(); it != missHtColl->end(); it++) {
-        if ((*it).bx() == iBxInEvent) {
-          m_candHTM = &(*it);
+      for (const auto &it : *missHtColl) {
+        if (it.bx() == iBxInEvent) {
+          m_candHTM = &it;
           // LogTrace("L1GlobalTrigger") << "HTM      " << (*it) << std::endl;
         }
       }
@@ -352,9 +350,9 @@ void L1GlobalTriggerPSB::receiveGctObjectData(edm::Event &iEvent,
                        << std::endl;
       }
     } else {
-      for (L1GctJetCountsCollection::const_iterator it = jetCountColl->begin(); it != jetCountColl->end(); it++) {
-        if ((*it).bx() == iBxInEvent) {
-          m_candJetCounts = &(*it);
+      for (const auto &it : *jetCountColl) {
+        if (it.bx() == iBxInEvent) {
+          m_candJetCounts = &it;
           // LogTrace("L1GlobalTrigger") << (*it) << std::endl;
         }
       }
@@ -373,10 +371,9 @@ void L1GlobalTriggerPSB::receiveGctObjectData(edm::Event &iEvent,
                        << std::endl;
       }
     } else {
-      for (L1GctHFBitCountsCollection::const_iterator it = hfBitCountsColl->begin(); it != hfBitCountsColl->end();
-           it++) {
-        if ((*it).bx() == iBxInEvent) {
-          m_candHfBitCounts = &(*it);
+      for (const auto &it : *hfBitCountsColl) {
+        if (it.bx() == iBxInEvent) {
+          m_candHfBitCounts = &it;
           // LogTrace("L1GlobalTrigger") << "L1GctHFBitCountsCollection: "
           //<< (*it) << std::endl;
         }
@@ -396,9 +393,9 @@ void L1GlobalTriggerPSB::receiveGctObjectData(edm::Event &iEvent,
                        << std::endl;
       }
     } else {
-      for (L1GctHFRingEtSumsCollection::const_iterator it = hfRingEtSums->begin(); it != hfRingEtSums->end(); it++) {
-        if ((*it).bx() == iBxInEvent) {
-          m_candHfRingEtSums = &(*it);
+      for (const auto &it : *hfRingEtSums) {
+        if (it.bx() == iBxInEvent) {
+          m_candHfRingEtSums = &it;
           // LogTrace("L1GlobalTrigger") << "L1GctHFRingEtSumsCollection: "
           //<< (*it) << std::endl;
         }
@@ -502,15 +499,13 @@ void L1GlobalTriggerPSB::receiveTechnicalTriggers(edm::Event &iEvent,
     // the decision word for technical triggers
 
     // loop over all producers of technical trigger records
-    for (std::vector<edm::InputTag>::const_iterator it = technicalTriggersInputTags.begin();
-         it != technicalTriggersInputTags.end();
-         it++) {
+    for (const auto &technicalTriggersInputTag : technicalTriggersInputTags) {
       edm::Handle<L1GtTechnicalTriggerRecord> techTrigRecord;
-      iEvent.getByLabel((*it), techTrigRecord);
+      iEvent.getByLabel(technicalTriggersInputTag, techTrigRecord);
 
       if (!techTrigRecord.isValid()) {
         if (warningEnabled) {
-          warningsStream << "\nWarning: L1GtTechnicalTriggerRecord with input tag " << (*it)
+          warningsStream << "\nWarning: L1GtTechnicalTriggerRecord with input tag " << technicalTriggersInputTag
                          << "\nrequested in configuration, but not found in the event.\n"
                          << std::endl;
         }
@@ -529,9 +524,10 @@ void L1GlobalTriggerPSB::receiveTechnicalTriggers(edm::Event &iEvent,
             m_gtTechnicalTriggers.at(ttBitNumber) = ttResult;
 
             if (m_verbosity) {
-              LogTrace("L1GlobalTrigger") << "Add for BxInEvent " << iBxInEvent << " the technical trigger produced by "
-                                          << (*it) << " : name " << (ttBxRecord.gtTechnicalTriggerName())
-                                          << " , bit number " << ttBitNumber << " and result " << ttResult << std::endl;
+              LogTrace("L1GlobalTrigger")
+                  << "Add for BxInEvent " << iBxInEvent << " the technical trigger produced by "
+                  << technicalTriggersInputTag << " : name " << (ttBxRecord.gtTechnicalTriggerName())
+                  << " , bit number " << ttBitNumber << " and result " << ttResult << std::endl;
             }
           }
         }
@@ -598,10 +594,10 @@ void L1GlobalTriggerPSB::fillPsbBlock(edm::Event &iEvent,
   // loop over PSB blocks in the GT DAQ record and fill them
   // with the content of the object list
 
-  for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
-    int iPosition = itBoard->gtPositionDaqRecord();
+  for (const auto &boardMap : boardMaps) {
+    int iPosition = boardMap.gtPositionDaqRecord();
     if (iPosition > 0) {
-      int iActiveBit = itBoard->gtBitDaqActiveBoards();
+      int iActiveBit = boardMap.gtBitDaqActiveBoards();
       bool activeBoard = false;
       bool writeBoard = false;
 
@@ -641,11 +637,11 @@ void L1GlobalTriggerPSB::fillPsbBlock(edm::Event &iEvent,
       //    << " writeBoard " << writeBoard
       //    << std::endl;
 
-      if (activeBoard && writeBoard && (itBoard->gtBoardType() == PSB)) {
+      if (activeBoard && writeBoard && (boardMap.gtBoardType() == PSB)) {
         L1GtPsbWord psbWordValue;
 
         // set board ID
-        psbWordValue.setBoardId(itBoard->gtBoardId());
+        psbWordValue.setBoardId(boardMap.gtBoardId());
 
         // set bunch cross in the GT event record
         psbWordValue.setBxInEvent(iBxInEvent);
@@ -667,19 +663,19 @@ void L1GlobalTriggerPSB::fillPsbBlock(edm::Event &iEvent,
         // two objects writen one after another from the same quadruplet
         int nrObjRow = 2;
 
-        std::vector<L1GtPsbQuad> quadInPsb = itBoard->gtQuadInPsb();
+        std::vector<L1GtPsbQuad> quadInPsb = boardMap.gtQuadInPsb();
         int nrCables = quadInPsb.size();
 
         uint16_t aDataVal = 0;
         uint16_t bDataVal = 0;
 
         int iCable = -1;
-        for (std::vector<L1GtPsbQuad>::const_iterator itQuad = quadInPsb.begin(); itQuad != quadInPsb.end(); ++itQuad) {
+        for (auto itQuad : quadInPsb) {
           iCable++;
 
           int iAB = (nrCables - iCable - 1) * nrObjRow;
 
-          switch (*itQuad) {
+          switch (itQuad) {
             case TechTr: {
               // LogTrace("L1GlobalTrigger")
               //<< "\nL1GlobalTriggerPSB: write TechTr for BxInEvent = "

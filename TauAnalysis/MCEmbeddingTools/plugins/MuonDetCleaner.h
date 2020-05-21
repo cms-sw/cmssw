@@ -134,10 +134,8 @@ void MuonDetCleaner<T1, T2>::fillVetoHits(const TrackingRecHit& rh, std::vector<
   if (rh_components.empty()) {
     HitsList->push_back(rh.rawId());
   } else {
-    for (std::vector<const TrackingRecHit*>::const_iterator rh_component = rh_components.begin();
-         rh_component != rh_components.end();
-         ++rh_component) {
-      fillVetoHits(**rh_component, HitsList);
+    for (auto rh_component : rh_components) {
+      fillVetoHits(*rh_component, HitsList);
     }
   }
 }

@@ -44,8 +44,8 @@ std::ostream &operator<<(std::ostream &s, CaloParticle const &tp) {
     }
   }
   s << "SimClusters in this CaloParticle: " << std::endl;
-  for (auto itr = tp.simClusters_.begin(); itr != tp.simClusters_.end(); ++itr) {
-    s << **itr;
+  for (auto &&simCluster : tp.simClusters_) {
+    s << *simCluster;
   }
   s << std::endl;
   return s;
