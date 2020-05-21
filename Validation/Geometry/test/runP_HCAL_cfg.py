@@ -1,18 +1,18 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("PROD")
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process('PROD',Run3)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+process.load('FWCore.MessageService.MessageLogger_cfi')
 
 #Geometry
 #
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+process.load("Configuration.Geometry.GeometryExtended2021_cff")
 
 #Magnetic Field
 #
 process.load("Configuration.StandardSequences.MagneticField_cff")
-
 process.load("Configuration.EventContent.EventContent_cff")
 
 # Detector simulation (Geant4-based)
@@ -22,20 +22,9 @@ process.load("SimG4Core.Application.g4SimHits_cfi")
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('MaterialBudget'),
-#    debugModules = cms.untracked.vstring('*'),
-    cout = cms.untracked.PSet(
-#        threshold = cms.untracked.string('DEBUG'),
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        MaterialBudget = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
-    )
-)
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.categories.append('HCalGeom')
+#    process.MessageLogger.categories.append('MaterialBudget')
 
 process.source = cms.Source("PoolSource",
     noEventSort = cms.untracked.bool(True),
@@ -48,12 +37,13 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('matbdg_HCAL.root')
+    fileName = cms.string('matbdgHCAL_run3.root')
 )
 
 process.p1 = cms.Path(process.g4SimHits)
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
+process.g4SimHits.StackingAction.TrackNeutrino = True
 process.g4SimHits.Physics.DummyEMPhysics = True
 process.g4SimHits.Physics.CutsPerRegion = False
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
