@@ -28,11 +28,10 @@ private:
 
 DEFINE_FWK_MODULE(HGCalRecHitMapProducer);
 
-HGCalRecHitMapProducer::HGCalRecHitMapProducer(const edm::ParameterSet& ps) :
-  hits_ee_token_(consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("EEInput"))),
-  hits_fh_token_(consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("FHInput"))),
-  hits_bh_token_(consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("BHInput")))
-{
+HGCalRecHitMapProducer::HGCalRecHitMapProducer(const edm::ParameterSet& ps)
+    : hits_ee_token_(consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("EEInput"))),
+      hits_fh_token_(consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("FHInput"))),
+      hits_bh_token_(consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("BHInput"))) {
   produces<std::map<DetId, const HGCRecHit*>>();
 }
 
@@ -45,7 +44,6 @@ void HGCalRecHitMapProducer::fillDescriptions(edm::ConfigurationDescriptions& de
 }
 
 void HGCalRecHitMapProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const {
-
   auto hitMap = std::make_unique<std::map<DetId, const HGCRecHit*>>();
   const auto& ee_hits = evt.get(hits_ee_token_);
   const auto& fh_hits = evt.get(hits_fh_token_);
