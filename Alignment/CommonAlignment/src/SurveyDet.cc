@@ -8,13 +8,13 @@ SurveyDet::SurveyDet(const AlignableSurface& surface, const align::ErrorMatrix& 
   thePoints.reserve(4);  // 4 survey points
 
   //   thePoints.push_back( align::LocalPoint( 0.,  0., 0.) );
-  thePoints.push_back(align::LocalPoint(W3, 0., 0.));
+  thePoints.emplace_back(W3, 0., 0.);
   //   thePoints.push_back( align::LocalPoint( W3,  L3, 0.) );
-  thePoints.push_back(align::LocalPoint(0., L3, 0.));
+  thePoints.emplace_back(0., L3, 0.);
   //   thePoints.push_back( align::LocalPoint(-W3,  L3, 0.) );
-  thePoints.push_back(align::LocalPoint(-W3, 0., 0.));
+  thePoints.emplace_back(-W3, 0., 0.);
   //   thePoints.push_back( align::LocalPoint(-W3, -L3, 0.) );
-  thePoints.push_back(align::LocalPoint(0., -L3, 0.));
+  thePoints.emplace_back(0., -L3, 0.);
   //   thePoints.push_back( align::LocalPoint( W3, -L3, 0.) );
 }
 

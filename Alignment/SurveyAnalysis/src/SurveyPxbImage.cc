@@ -18,15 +18,15 @@ void SurveyPxbImage::fill(std::istringstream &iss) {
     idPair_.first = id1;
     idPair_.second = id2;
     if (!rotflag) {
-      measurementVec_.push_back(coord_t(x0, -y0));
-      measurementVec_.push_back(coord_t(x1, -y1));
-      measurementVec_.push_back(coord_t(x2, -y2));
-      measurementVec_.push_back(coord_t(x3, -y3));
+      measurementVec_.emplace_back(x0, -y0);
+      measurementVec_.emplace_back(x1, -y1);
+      measurementVec_.emplace_back(x2, -y2);
+      measurementVec_.emplace_back(x3, -y3);
     } else {
-      measurementVec_.push_back(coord_t(-x0, y0));
-      measurementVec_.push_back(coord_t(-x1, y1));
-      measurementVec_.push_back(coord_t(-x2, y2));
-      measurementVec_.push_back(coord_t(-x3, y3));
+      measurementVec_.emplace_back(-x0, y0);
+      measurementVec_.emplace_back(-x1, y1);
+      measurementVec_.emplace_back(-x2, y2);
+      measurementVec_.emplace_back(-x3, y3);
     }
     sigma_x_ = sx;
     sigma_y_ = sy;

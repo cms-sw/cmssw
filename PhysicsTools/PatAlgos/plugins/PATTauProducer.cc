@@ -88,7 +88,7 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet& iConfig)
       std::string prov_ID_label = idp.getParameter<std::string>("idLabel");
       edm::InputTag tag = idp.getParameter<edm::InputTag>("inputTag");
       if (prov_cfg_label.empty()) {
-        tauIDSrcs_.push_back(NameTag(name, tag));
+        tauIDSrcs_.emplace_back(name, tag);
       } else {
         if (prov_cfg_label != "rawValues" && prov_cfg_label != "workingPoints" && prov_cfg_label != "IDdefinitions" &&
             prov_cfg_label != "IDWPdefinitions" && prov_cfg_label != "direct_rawValues" &&
@@ -98,7 +98,7 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet& iConfig)
                  "'IDdefinitions', 'IDWPdefinitions', 'direct_rawValues', 'direct_workingPoints'\n";
         std::map<std::string, IDContainerData>::iterator it;
         it = idContainerMap.insert({tag.label() + tag.instance(), {tag, std::vector<NameWPIdx>()}}).first;
-        it->second.second.push_back(NameWPIdx(name, WPIdx(WPCfg(prov_cfg_label, prov_ID_label), -99)));
+        it->second.second.emplace_back(name, WPIdx(WPCfg(prov_cfg_label, prov_ID_label), -99));
       }
     }
     // but in any case at least once
@@ -120,29 +120,26 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet& iConfig)
   if (iConfig.exists("isoDeposits")) {
     edm::ParameterSet depconf = iConfig.getParameter<edm::ParameterSet>("isoDeposits");
     if (depconf.exists("tracker"))
-      isoDepositLabels_.push_back(std::make_pair(pat::TrackIso, depconf.getParameter<edm::InputTag>("tracker")));
+      isoDepositLabels_.emplace_back(pat::TrackIso, depconf.getParameter<edm::InputTag>("tracker"));
     if (depconf.exists("ecal"))
-      isoDepositLabels_.push_back(std::make_pair(pat::EcalIso, depconf.getParameter<edm::InputTag>("ecal")));
+      isoDepositLabels_.emplace_back(pat::EcalIso, depconf.getParameter<edm::InputTag>("ecal"));
     if (depconf.exists("hcal"))
-      isoDepositLabels_.push_back(std::make_pair(pat::HcalIso, depconf.getParameter<edm::InputTag>("hcal")));
+      isoDepositLabels_.emplace_back(pat::HcalIso, depconf.getParameter<edm::InputTag>("hcal"));
     if (depconf.exists("pfAllParticles"))
-      isoDepositLabels_.push_back(
-          std::make_pair(pat::PfAllParticleIso, depconf.getParameter<edm::InputTag>("pfAllParticles")));
+      isoDepositLabels_.emplace_back(pat::PfAllParticleIso, depconf.getParameter<edm::InputTag>("pfAllParticles"));
     if (depconf.exists("pfChargedHadron"))
-      isoDepositLabels_.push_back(
-          std::make_pair(pat::PfChargedHadronIso, depconf.getParameter<edm::InputTag>("pfChargedHadron")));
+      isoDepositLabels_.emplace_back(pat::PfChargedHadronIso, depconf.getParameter<edm::InputTag>("pfChargedHadron"));
     if (depconf.exists("pfNeutralHadron"))
-      isoDepositLabels_.push_back(
-          std::make_pair(pat::PfNeutralHadronIso, depconf.getParameter<edm::InputTag>("pfNeutralHadron")));
+      isoDepositLabels_.emplace_back(pat::PfNeutralHadronIso, depconf.getParameter<edm::InputTag>("pfNeutralHadron"));
     if (depconf.exists("pfGamma"))
-      isoDepositLabels_.push_back(std::make_pair(pat::PfGammaIso, depconf.getParameter<edm::InputTag>("pfGamma")));
+      isoDepositLabels_.emplace_back(pat::PfGammaIso, depconf.getParameter<edm::InputTag>("pfGamma"));
 
     if (depconf.exists("user")) {
       std::vector<edm::InputTag> userdeps = depconf.getParameter<std::vector<edm::InputTag>>("user");
       std::vector<edm::InputTag>::const_iterator it = userdeps.begin(), ed = userdeps.end();
       int key = UserBaseIso;
       for (; it != ed; ++it, ++key) {
-        isoDepositLabels_.push_back(std::make_pair(IsolationKeys(key), *it));
+        isoDepositLabels_.emplace_back(IsolationKeys(key), *it);
       }
     }
   }

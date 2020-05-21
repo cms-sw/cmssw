@@ -17,7 +17,7 @@ void SiStripCcu::addDevices(const FedChannelConnection &conn) {
     imod++;
   }
   if (imod == modules_.end()) {
-    modules_.push_back(SiStripModule(conn));
+    modules_.emplace_back(conn);
   } else {
     imod->addDevices(conn);
   }

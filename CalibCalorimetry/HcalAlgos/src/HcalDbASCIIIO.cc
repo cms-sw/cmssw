@@ -1530,10 +1530,10 @@ namespace HcalDbASCIIIO {
         }
         if (items[8] == "NA" || items[8] == "NT") {
           while (items.size() < 12)
-            items.push_back("");  // don't worry here
+            items.emplace_back("");  // don't worry here
         } else if (items[8] == "HT") {
           if (items.size() == 11)
-            items.push_back("");
+            items.emplace_back("");
           else {
             edm::LogError("MapFormat") << "HcalElectronicsMap-> Bad line: " << buffer
                                        << "\n HT line must contain at least 11 items: i  cr sl tb dcc spigot fiber "

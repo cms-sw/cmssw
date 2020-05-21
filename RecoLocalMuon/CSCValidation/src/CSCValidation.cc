@@ -1300,7 +1300,7 @@ void CSCValidation::doStandalone(Handle<reco::TrackCollection> saMuons) {
           nDTHits++;
         } else if (detId.subdetId() == MuonSubdetId::CSC) {
           CSCDetId cscId(detId.rawId());
-          staChambers.push_back(detId.rawId());
+          staChambers.emplace_back(detId.rawId());
           nCSCHits++;
           if (cscId.endcap() == 1) {
             nCSCHitsp++;

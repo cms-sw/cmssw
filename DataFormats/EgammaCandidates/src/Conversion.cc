@@ -86,14 +86,14 @@ Conversion::Conversion(const reco::CaloClusterPtrVector& sc,
 
   theMinDistOfApproach_ = 9999.;
   theMVAout_ = 9999.;
-  thePositionAtEcal_.push_back(math::XYZPointF(0., 0., 0.));
-  thePositionAtEcal_.push_back(math::XYZPointF(0., 0., 0.));
-  theTrackInnerPosition_.push_back(math::XYZPointF(0., 0., 0.));
-  theTrackInnerPosition_.push_back(math::XYZPointF(0., 0., 0.));
-  theTrackPin_.push_back(math::XYZVectorF(0., 0., 0.));
-  theTrackPin_.push_back(math::XYZVectorF(0., 0., 0.));
-  theTrackPout_.push_back(math::XYZVectorF(0., 0., 0.));
-  theTrackPout_.push_back(math::XYZVectorF(0., 0., 0.));
+  thePositionAtEcal_.emplace_back(0., 0., 0.);
+  thePositionAtEcal_.emplace_back(0., 0., 0.);
+  theTrackInnerPosition_.emplace_back(0., 0., 0.);
+  theTrackInnerPosition_.emplace_back(0., 0., 0.);
+  theTrackPin_.emplace_back(0., 0., 0.);
+  theTrackPin_.emplace_back(0., 0., 0.);
+  theTrackPout_.emplace_back(0., 0., 0.);
+  theTrackPout_.emplace_back(0., 0., 0.);
 }
 
 Conversion::Conversion(const reco::CaloClusterPtrVector& sc,
@@ -108,14 +108,14 @@ Conversion::Conversion(const reco::CaloClusterPtrVector& sc,
       algorithm_(algo) {
   theMinDistOfApproach_ = 9999.;
   theMVAout_ = 9999.;
-  thePositionAtEcal_.push_back(math::XYZPointF(0., 0., 0.));
-  thePositionAtEcal_.push_back(math::XYZPointF(0., 0., 0.));
-  theTrackInnerPosition_.push_back(math::XYZPointF(0., 0., 0.));
-  theTrackInnerPosition_.push_back(math::XYZPointF(0., 0., 0.));
-  theTrackPin_.push_back(math::XYZVectorF(0., 0., 0.));
-  theTrackPin_.push_back(math::XYZVectorF(0., 0., 0.));
-  theTrackPout_.push_back(math::XYZVectorF(0., 0., 0.));
-  theTrackPout_.push_back(math::XYZVectorF(0., 0., 0.));
+  thePositionAtEcal_.emplace_back(0., 0., 0.);
+  thePositionAtEcal_.emplace_back(0., 0., 0.);
+  theTrackInnerPosition_.emplace_back(0., 0., 0.);
+  theTrackInnerPosition_.emplace_back(0., 0., 0.);
+  theTrackPin_.emplace_back(0., 0., 0.);
+  theTrackPin_.emplace_back(0., 0., 0.);
+  theTrackPout_.emplace_back(0., 0., 0.);
+  theTrackPout_.emplace_back(0., 0., 0.);
 }
 
 Conversion::Conversion() {
@@ -124,14 +124,14 @@ Conversion::Conversion() {
   theMinDistOfApproach_ = 9999.;
   nSharedHits_ = 0;
   theMVAout_ = 9999.;
-  thePositionAtEcal_.push_back(math::XYZPointF(0., 0., 0.));
-  thePositionAtEcal_.push_back(math::XYZPointF(0., 0., 0.));
-  theTrackInnerPosition_.push_back(math::XYZPointF(0., 0., 0.));
-  theTrackInnerPosition_.push_back(math::XYZPointF(0., 0., 0.));
-  theTrackPin_.push_back(math::XYZVectorF(0., 0., 0.));
-  theTrackPin_.push_back(math::XYZVectorF(0., 0., 0.));
-  theTrackPout_.push_back(math::XYZVectorF(0., 0., 0.));
-  theTrackPout_.push_back(math::XYZVectorF(0., 0., 0.));
+  thePositionAtEcal_.emplace_back(0., 0., 0.);
+  thePositionAtEcal_.emplace_back(0., 0., 0.);
+  theTrackInnerPosition_.emplace_back(0., 0., 0.);
+  theTrackInnerPosition_.emplace_back(0., 0., 0.);
+  theTrackPin_.emplace_back(0., 0., 0.);
+  theTrackPin_.emplace_back(0., 0., 0.);
+  theTrackPout_.emplace_back(0., 0., 0.);
+  theTrackPout_.emplace_back(0., 0., 0.);
 }
 
 std::string const Conversion::algoNames[] = {"undefined", "ecalSeeded", "trackerOnly", "mixed", "pflow"};

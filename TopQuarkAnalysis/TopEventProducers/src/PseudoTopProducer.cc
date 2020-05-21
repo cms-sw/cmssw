@@ -114,7 +114,7 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
     if (std::isnan(p.pt()) or p.pt() <= 0)
       continue;
 
-    fjLepInputs.push_back(fastjet::PseudoJet(p.px(), p.py(), p.pz(), p.energy()));
+    fjLepInputs.emplace_back(p.px(), p.py(), p.pz(), p.energy());
     fjLepInputs.back().set_user_index(index);
   }
 
@@ -184,7 +184,7 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
     if (lepDauIdxs.find(i) != lepDauIdxs.end())
       continue;
 
-    fjJetInputs.push_back(fastjet::PseudoJet(p.px(), p.py(), p.pz(), p.energy()));
+    fjJetInputs.emplace_back(p.px(), p.py(), p.pz(), p.energy());
     fjJetInputs.back().set_user_index(i);
   }
   //// Also don't forget to put B hadrons
@@ -194,7 +194,7 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
       continue;
 
     const double scale = 1e-20 / p.p();
-    fjJetInputs.push_back(fastjet::PseudoJet(p.px() * scale, p.py() * scale, p.pz() * scale, p.energy() * scale));
+    fjJetInputs.emplace_back(p.px() * scale, p.py() * scale, p.pz() * scale, p.energy() * scale);
     fjJetInputs.back().set_user_index(index);
   }
 

@@ -82,7 +82,7 @@ bool ProbeTreeProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   for (size_t i = 0; i < probes->size(); ++i) {
     const reco::CandidateBaseRef& probe = probes->refAt(i);
     if (cut_(*probe)) {
-      selectedProbes.push_back(Pair(probe, sortFunction_(*probe)));
+      selectedProbes.emplace_back(probe, sortFunction_(*probe));
     }
   }
   // sort only if a function was provided

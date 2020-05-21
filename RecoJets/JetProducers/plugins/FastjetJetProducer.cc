@@ -201,7 +201,7 @@ void FastjetJetProducer::produceTrackJets(edm::Event& iEvent, const edm::EventSe
   std::vector<edm::Ptr<reco::Candidate>> origInputs;
   for (size_t i = 0; i < inputsHandle->size(); ++i) {
     allInputs.push_back(inputsHandle->ptrAt(i));
-    origInputs.push_back(inputsHandle->ptrAt(i));
+    origInputs.emplace_back(inputsHandle->ptrAt(i));
   }
 
   // read in the PV collection
@@ -236,7 +236,7 @@ void FastjetJetProducer::produceTrackJets(edm::Event& iEvent, const edm::EventSe
           if ((*itIn)->track() == trref) {
             found = true;
             // add this track candidate to the input for clustering
-            inputs_.push_back(*itIn);
+            inputs_.emplace_back(*itIn);
             // erase the track candidate from the total list of input, so we don't reuse it later
             allInputs.erase(itIn);
             // found the candidate track corresponding to the vertex track, so stop the loop
@@ -277,7 +277,7 @@ void FastjetJetProducer::produceTrackJets(edm::Event& iEvent, const edm::EventSe
         if (closervtx)
           continue;
         // add this track candidate to the input for clustering
-        inputs_.push_back(*itIn);
+        inputs_.emplace_back(*itIn);
         // erase the track candidate from the total list of input, so we don't reuse it later
         allInputs.erase(itIn);
         // take a step back in the loop since we just erased

@@ -91,9 +91,9 @@ void ElectronSeedTrackRefFix::produce(edm::Event& iEvent, const edm::EventSetup&
       //low pt electron seeds do not make the idMaps so this is now optional to fill in a useful way
       if (trkNr < oldTracks->size() && iIdMap.isValid()) {
         reco::TrackRef oldTrackRef(oldTracks, trkNr);
-        values.push_back(reco::PreIdRef(preIdProd, (*(iIdMap.product()))[oldTrackRef].index()));
+        values.emplace_back(preIdProd, (*(iIdMap.product()))[oldTrackRef].index());
       } else
-        values.push_back(reco::PreIdRef());
+        values.emplace_back();
     }
     addVMToEvent(iEvent, newTracks, std::move(values), preidLabel_[idNr]);
   }  //end loop over ids

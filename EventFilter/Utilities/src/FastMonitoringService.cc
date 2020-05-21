@@ -309,7 +309,7 @@ namespace evf {
       //path (mini) state
       encPath_.emplace_back(0);
       encPath_[i].update(static_cast<const void*>(&nopath_));
-      eventCountForPathInit_.push_back(0);
+      eventCountForPathInit_.emplace_back(0);
       firstEventId_.push_back(0);
       collectedPathList_.push_back(new std::atomic<bool>(false));
     }

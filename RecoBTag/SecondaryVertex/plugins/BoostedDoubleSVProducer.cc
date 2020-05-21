@@ -676,10 +676,9 @@ void BoostedDoubleSVProducer::calcNsubjettiness(const reco::JetBaseRef& jet,
                     << "BoostedDoubleSVProducer: No weights (e.g. PUPPI) given for weighted jet collection"
                     << std::endl;
               }
-              fjParticles.push_back(
-                  fastjet::PseudoJet(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w));
+              fjParticles.emplace_back(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w);
             } else
-              fjParticles.push_back(fastjet::PseudoJet(constit->px(), constit->py(), constit->pz(), constit->energy()));
+              fjParticles.emplace_back(constit->px(), constit->py(), constit->pz(), constit->energy());
           } else
             edm::LogWarning("MissingJetConstituent")
                 << "Jet constituent required for N-subjettiness computation is missing!";
@@ -700,10 +699,9 @@ void BoostedDoubleSVProducer::calcNsubjettiness(const reco::JetBaseRef& jet,
             throw cms::Exception("MissingConstituentWeight")
                 << "BoostedDoubleSVProducer: No weights (e.g. PUPPI) given for weighted jet collection" << std::endl;
           }
-          fjParticles.push_back(
-              fastjet::PseudoJet(daughter->px() * w, daughter->py() * w, daughter->pz() * w, daughter->energy() * w));
+          fjParticles.emplace_back(daughter->px() * w, daughter->py() * w, daughter->pz() * w, daughter->energy() * w);
         } else
-          fjParticles.push_back(fastjet::PseudoJet(daughter->px(), daughter->py(), daughter->pz(), daughter->energy()));
+          fjParticles.emplace_back(daughter->px(), daughter->py(), daughter->pz(), daughter->energy());
       }
     } else
       edm::LogWarning("MissingJetConstituent") << "Jet constituent required for N-subjettiness computation is missing!";

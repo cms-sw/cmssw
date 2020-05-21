@@ -333,15 +333,15 @@ GctErrorAnalyzer::GctErrorAnalyzer(const edm::ParameterSet &iConfig)
   //to try to make this look more elegant
   //make a string for each folder we'd like for the Data and Emulator Histograms
   std::vector<std::string> quantities;
-  quantities.push_back("IsoEm");
-  quantities.push_back("NonIsoEM");
-  quantities.push_back("CenJets");
-  quantities.push_back("TauJets");
-  quantities.push_back("ForJets");
-  quantities.push_back("HFRingSums");
-  quantities.push_back("HFBitCounts");
-  quantities.push_back("TotalESums");
-  quantities.push_back("MissingESums");
+  quantities.emplace_back("IsoEm");
+  quantities.emplace_back("NonIsoEM");
+  quantities.emplace_back("CenJets");
+  quantities.emplace_back("TauJets");
+  quantities.emplace_back("ForJets");
+  quantities.emplace_back("HFRingSums");
+  quantities.emplace_back("HFBitCounts");
+  quantities.emplace_back("TotalESums");
+  quantities.emplace_back("MissingESums");
 
   //make the Emulator Histogram directory
   TFileDirectory emuHist = fs->mkdir("EmulatorHistograms");
@@ -628,9 +628,9 @@ GctErrorAnalyzer::GctErrorAnalyzer(const edm::ParameterSet &iConfig)
   //Annotate the labels of the error flags
   //For the electrons and jets
   std::vector<std::string> errorFlagLabels;
-  errorFlagLabels.push_back("Matched");
-  errorFlagLabels.push_back("Unmatched Data Cand");
-  errorFlagLabels.push_back("Unmatched Emul Cand");
+  errorFlagLabels.emplace_back("Matched");
+  errorFlagLabels.emplace_back("Unmatched Data Cand");
+  errorFlagLabels.emplace_back("Unmatched Emul Cand");
 
   for (unsigned int i = 0; i < errorFlagLabels.size(); i++) {
     isoEg_errorFlag_->GetXaxis()->SetBinLabel(i + 1, errorFlagLabels.at(i).c_str());
@@ -642,8 +642,8 @@ GctErrorAnalyzer::GctErrorAnalyzer(const edm::ParameterSet &iConfig)
   errorFlagLabels.clear();
 
   //For the Total Energy Sums and HF
-  errorFlagLabels.push_back("Matched");
-  errorFlagLabels.push_back("Unmatched");
+  errorFlagLabels.emplace_back("Matched");
+  errorFlagLabels.emplace_back("Unmatched");
 
   for (unsigned int i = 0; i < errorFlagLabels.size(); i++) {
     hfRingSum_errorFlag_->GetXaxis()->SetBinLabel(i + 1, errorFlagLabels.at(i).c_str());
@@ -654,10 +654,10 @@ GctErrorAnalyzer::GctErrorAnalyzer(const edm::ParameterSet &iConfig)
   errorFlagLabels.clear();
 
   //For the Missing Energy Sums
-  errorFlagLabels.push_back("Matched");
-  errorFlagLabels.push_back("Matched Mag");
-  errorFlagLabels.push_back("Matched Phi");
-  errorFlagLabels.push_back("Unmatched");
+  errorFlagLabels.emplace_back("Matched");
+  errorFlagLabels.emplace_back("Matched Mag");
+  errorFlagLabels.emplace_back("Matched Phi");
+  errorFlagLabels.emplace_back("Unmatched");
 
   for (unsigned int i = 0; i < errorFlagLabels.size(); i++) {
     missingEt_errorFlag_->GetXaxis()->SetBinLabel(i + 1, errorFlagLabels.at(i).c_str());

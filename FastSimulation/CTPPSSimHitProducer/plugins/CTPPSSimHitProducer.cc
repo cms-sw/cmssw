@@ -124,7 +124,7 @@ void CTPPSSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       HepMC::GenVertex* pv = (*i)->production_vertex();
       const HepMC::FourVector& vertex = pv->position();
       const HepMC::FourVector p((*i)->momentum());
-      protonCTPPS.push_back(math::XYZTLorentzVector(p.x(), p.y(), p.z(), p.t()));
+      protonCTPPS.emplace_back(p.x(), p.y(), p.z(), p.t());
 
       LocalPoint initialPosition_tr1, initialPosition_tr2, initialPosition_tof;
 

@@ -417,7 +417,7 @@ namespace spr {
         else if (subdet == (int)(HcalOuter))
           eThr = hoThr;
         if (energy > eThr)
-          energyDetId.push_back(std::pair<DetId, double>(vdets[i], energy));
+          energyDetId.emplace_back(vdets[i], energy);
       }
     }
 

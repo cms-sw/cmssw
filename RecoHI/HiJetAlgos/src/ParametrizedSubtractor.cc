@@ -75,7 +75,7 @@ void ParametrizedSubtractor::setupGeometryMap(edm::Event& iEvent, const edm::Eve
       if ((*did).det() == DetId::Hcal) {
         HcalDetId hid = HcalDetId(*did);
         if ((hid).depth() == 1) {
-          allgeomid_.push_back(*did);
+          allgeomid_.emplace_back(*did);
 
           if ((hid).ieta() != ietaold) {
             ietaold = (hid).ieta();

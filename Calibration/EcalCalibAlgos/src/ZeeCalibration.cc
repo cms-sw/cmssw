@@ -927,7 +927,7 @@ edm::EDLooper::Status ZeeCalibration::duringLoop(const edm::Event& iEvent, const
 
   //#####################################Electron-SC association map: end#####################################################
   for (unsigned int e_it = 0; e_it != electronCollection->size(); e_it++) {
-    calibElectrons.push_back(calib::CalibElectron(&((*electronCollection)[e_it]), hits, ehits));
+    calibElectrons.emplace_back(&((*electronCollection)[e_it]), hits, ehits);
 #ifdef DEBUG
     std::cout << calibElectrons.back().getRecoElectron()->superCluster()->energy() << " "
               << calibElectrons.back().getRecoElectron()->energy() << std::endl;
@@ -970,8 +970,7 @@ edm::EDLooper::Status ZeeCalibration::duringLoop(const edm::Event& iEvent, const
       std::cout << "#######################mass " << mass << std::endl;
 #endif
 
-      zeeCandidates.push_back(
-          std::pair<calib::CalibElectron*, calib::CalibElectron*>(&(calibElectrons[e_it]), &(calibElectrons[p_it])));
+      zeeCandidates.emplace_back(&(calibElectrons[e_it]), &(calibElectrons[p_it]));
       double DeltaMinv = fabs(mass - MZ);
 
       if (DeltaMinv < DeltaMinvMin) {

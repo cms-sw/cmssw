@@ -49,7 +49,7 @@ float PrimaryVertexSorting::score(const reco::Vertex &pv,
       sumEt += c->pt() * scale;
     } else {
       if (scale != 0) {  // otherwise, what is the point to cluster zeroes
-        fjInputs_.push_back(fastjet::PseudoJet(c->px() * scale, c->py() * scale, c->pz() * scale, c->p4().E() * scale));
+        fjInputs_.emplace_back(c->px() * scale, c->py() * scale, c->pz() * scale, c->p4().E() * scale);
         //      fjInputs_.back().set_user_index(i);
       }
     }

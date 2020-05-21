@@ -47,7 +47,7 @@ void SiStripPsuDetIdMap::BuildMap(const std::string& mapFile, std::vector<std::p
       uint32_t detId;
       ss >> detId;
       ss >> PSUChannel;
-      rawmap.push_back(std::make_pair(detId, PSUChannel));
+      rawmap.emplace_back(detId, PSUChannel);
     }
   }
 }
@@ -573,7 +573,7 @@ std::vector<std::pair<std::vector<uint16_t>, std::vector<uint32_t> > > SiStripPs
           SiStripConfigDb::DeviceDescriptionsV nextVec(range.begin(), range.end());
           for (unsigned int i = 0; i < nextVec.size(); i++) {
             dcuDescription* desc = dynamic_cast<dcuDescription*>(nextVec[i]);
-            resultVec.push_back(std::make_pair(desc->getDcuHardId(), db_->deviceAddress(*(nextVec[i]))));
+            resultVec.emplace_back(desc->getDcuHardId(), db_->deviceAddress(*(nextVec[i])));
           }
         }
       }
@@ -615,7 +615,7 @@ std::vector<std::pair<std::vector<uint16_t>, std::vector<uint32_t> > > SiStripPs
       std::sort(dcuids.begin(), dcuids.end());
       std::vector<uint32_t>::iterator it = std::unique(dcuids.begin(), dcuids.end());
       dcuids.resize(it - dcuids.begin());
-      testVec.push_back(std::make_pair(fecInfo, dcuids));
+      testVec.emplace_back(fecInfo, dcuids);
     }
   }
   //  return resultVec;

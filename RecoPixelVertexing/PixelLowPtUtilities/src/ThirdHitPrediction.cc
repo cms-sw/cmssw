@@ -402,17 +402,17 @@ bool ThirdHitPrediction::isCompatibleWithMultipleScattering(GlobalPoint g3,
 
     {
       Global2DVector v = (p1 - c) * curvature * dir;
-      globalDirs.push_back(GlobalVector(-v.y() * sinTheta, v.x() * sinTheta, cosTheta));
+      globalDirs.emplace_back(-v.y() * sinTheta, v.x() * sinTheta, cosTheta);
     }
 
     {
       Global2DVector v = (p2 - c) * curvature * dir;
-      globalDirs.push_back(GlobalVector(-v.y() * sinTheta, v.x() * sinTheta, cosTheta));
+      globalDirs.emplace_back(-v.y() * sinTheta, v.x() * sinTheta, cosTheta);
     }
 
     {
       Global2DVector v = (p3 - c) * curvature * dir;
-      globalDirs.push_back(GlobalVector(-v.y() * sinTheta, v.x() * sinTheta, cosTheta));
+      globalDirs.emplace_back(-v.y() * sinTheta, v.x() * sinTheta, cosTheta);
     }
 
     // Multiple scattering

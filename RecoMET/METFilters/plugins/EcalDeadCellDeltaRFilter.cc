@@ -304,7 +304,7 @@ bool EcalDeadCellDeltaRFilter::filter(edm::Event &iEvent, const edm::EventSetup 
 
   for (edm::View<reco::Jet>::const_iterator ij = jets->begin(); ij != jets->end(); ij++) {
     if (ij->pt() > jetSelCuts_[0] && std::abs(ij->eta()) < jetSelCuts_[1]) {
-      seledJets.push_back(reco::Jet(*ij));
+      seledJets.emplace_back(*ij);
     }
   }
 

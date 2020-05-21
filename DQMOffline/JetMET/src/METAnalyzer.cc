@@ -204,15 +204,15 @@ void METAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
     folderNames_.clear();
   }
   if (runcosmics_) {
-    folderNames_.push_back("Uncleaned");
+    folderNames_.emplace_back("Uncleaned");
   } else {
     if (!onlyCleaned_) {
-      folderNames_.push_back("Uncleaned");
+      folderNames_.emplace_back("Uncleaned");
     }
-    folderNames_.push_back("Cleaned");
-    folderNames_.push_back("DiJet");
+    folderNames_.emplace_back("Cleaned");
+    folderNames_.emplace_back("DiJet");
     if (!isMiniAODMet_) {
-      folderNames_.push_back("ZJets");
+      folderNames_.emplace_back("ZJets");
     }
   }
   for (std::vector<std::string>::const_iterator ic = folderNames_.begin(); ic != folderNames_.end(); ic++) {

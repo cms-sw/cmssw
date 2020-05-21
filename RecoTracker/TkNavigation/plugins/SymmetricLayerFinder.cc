@@ -23,7 +23,7 @@ SymmetricLayerFinder::SymmetricLayerFinder(const FDLC& flc) {
     if (partner == nullptr)
       throw cms::Exception("SymmetricLayerFinder", "Assymmetric forward layers in Tracker");
 
-    foundPairs.push_back(make_pair(*i, partner));
+    foundPairs.emplace_back(*i, partner);
   }
 
   // fill the map

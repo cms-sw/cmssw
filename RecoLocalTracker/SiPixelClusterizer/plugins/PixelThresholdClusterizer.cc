@@ -278,7 +278,7 @@ void PixelThresholdClusterizer::copy_to_buffer(DigiIterator begin, DigiIterator 
     if (adc >= thePixelThreshold) {
       theBuffer.set_adc(row, col, adc);
       if (adc >= theSeedThreshold)
-        theSeeds.push_back(SiPixelCluster::PixelPos(row, col));
+        theSeeds.emplace_back(row, col);
     }
   }
   assert(i == (end - begin));
@@ -297,7 +297,7 @@ void PixelThresholdClusterizer::copy_to_buffer(ClusterIterator begin, ClusterIte
       if (adc >= thePixelThreshold) {
         theBuffer.add_adc(row, col, adc);
         if (adc >= theSeedThreshold)
-          theSeeds.push_back(SiPixelCluster::PixelPos(row, col));
+          theSeeds.emplace_back(row, col);
       }
     }
   }

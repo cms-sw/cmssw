@@ -116,7 +116,7 @@ void PFCandidateRecalibrator::beginRun(const edm::Run& iRun, const edm::EventSet
       float ratio = currentRespCorr / buggedRespCorr;
       if (std::abs(ratio - 1.f) > 0.001) {
         GlobalPoint pos = hgeom->getPosition(id);
-        badChHE_.push_back(HEChannel(pos.eta(), pos.phi(), ratio));
+        badChHE_.emplace_back(pos.eta(), pos.phi(), ratio);
       }
     }
 
@@ -131,7 +131,7 @@ void PFCandidateRecalibrator::beginRun(const edm::Run& iRun, const edm::EventSet
       float ratio = currentRespCorr / buggedRespCorr;
       if (std::abs(ratio - 1.f) > 0.001) {
         HcalDetId dummyId(id);
-        badChHF_.push_back(HFChannel(dummyId.ieta(), dummyId.iphi(), dummyId.depth(), ratio));
+        badChHF_.emplace_back(dummyId.ieta(), dummyId.iphi(), dummyId.depth(), ratio);
       }
     }
   }
@@ -281,22 +281,22 @@ void PFCandidateRecalibrator::produce(edm::Event& iEvent, const edm::EventSetup&
   // old to new
   for (auto iOldToNew : oldToNew) {
     if (iOldToNew > 0) {
-      refs.push_back(reco::PFCandidateRef(newpf, iOldToNew - 1));
+      refs.emplace_back(newpf, iOldToNew - 1);
     } else {
-      refs.push_back(reco::PFCandidateRef(badpf, -iOldToNew - 1));
+      refs.emplace_back(badpf, -iOldToNew - 1);
     }
   }
   filler.insert(pfcandidates, refs.begin(), refs.end());
   // new good to old
   refs.clear();
   for (int i : newToOld) {
-    refs.push_back(reco::PFCandidateRef(pfcandidates, i));
+    refs.emplace_back(pfcandidates, i);
   }
   filler.insert(newpf, refs.begin(), refs.end());
   // new bad to old
   refs.clear();
   for (int i : badToOld) {
-    refs.push_back(reco::PFCandidateRef(pfcandidates, i));
+    refs.emplace_back(pfcandidates, i);
   }
   filler.insert(badpf, refs.begin(), refs.end());
   // done

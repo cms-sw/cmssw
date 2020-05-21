@@ -31,7 +31,7 @@ public:
   virtual std::vector<SimHitIdPair>& getSimHitIdPairs() { return _simHitsIdPairList; }
 
   virtual void addRecHit(const FastSingleTrackerRecHit& recHit, std::vector<SimHitIdPair> simHitIdPairs = {}) {
-    _recHits.push_back(std::make_pair(recHit, simHitIdPairs));
+    _recHits.emplace_back(recHit, simHitIdPairs);
     for (unsigned int isimhit = 0; isimhit < simHitIdPairs.size(); ++isimhit) {
       _recHits.back().first.addSimTrackId(simHitIdPairs[isimhit].second->trackId());
     }

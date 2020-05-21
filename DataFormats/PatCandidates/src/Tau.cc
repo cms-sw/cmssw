@@ -113,9 +113,9 @@ void Tau::initFromBaseTau(const reco::BaseTau& aTau) {
       for (const auto& ptr : pfTau->isolationGammaCands())
         isolationGammaCandPtrs_.push_back(ptr);
     } else {
-      pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
+      pfSpecific_.emplace_back(*pfTau);
     }
-    pfEssential_.push_back(pat::tau::TauPFEssential(*pfTau));
+    pfEssential_.emplace_back(*pfTau);
   }
 }
 
@@ -356,7 +356,7 @@ void Tau::embedSignalPFCands() {
   }
   std::vector<reco::PFCandidatePtr> candPtrs = pfSpecific_[0].selectedSignalPFCands_;
   for (unsigned int i = 0; i < candPtrs.size(); i++) {
-    signalPFCands_.push_back(candPtrs.at(i));
+    signalPFCands_.emplace_back(candPtrs.at(i));
   }
   embeddedSignalPFCands_ = true;
 }
@@ -366,7 +366,7 @@ void Tau::embedSignalPFChargedHadrCands() {
   }
   std::vector<reco::PFCandidatePtr> candPtrs = pfSpecific_[0].selectedSignalPFChargedHadrCands_;
   for (unsigned int i = 0; i < candPtrs.size(); i++) {
-    signalPFChargedHadrCands_.push_back(candPtrs.at(i));
+    signalPFChargedHadrCands_.emplace_back(candPtrs.at(i));
   }
   embeddedSignalPFChargedHadrCands_ = true;
 }
@@ -376,7 +376,7 @@ void Tau::embedSignalPFNeutralHadrCands() {
   }
   std::vector<reco::PFCandidatePtr> candPtrs = pfSpecific_[0].selectedSignalPFNeutrHadrCands_;
   for (unsigned int i = 0; i < candPtrs.size(); i++) {
-    signalPFNeutralHadrCands_.push_back(candPtrs.at(i));
+    signalPFNeutralHadrCands_.emplace_back(candPtrs.at(i));
   }
   embeddedSignalPFNeutralHadrCands_ = true;
 }
@@ -386,7 +386,7 @@ void Tau::embedSignalPFGammaCands() {
   }
   std::vector<reco::PFCandidatePtr> candPtrs = pfSpecific_[0].selectedSignalPFGammaCands_;
   for (unsigned int i = 0; i < candPtrs.size(); i++) {
-    signalPFGammaCands_.push_back(candPtrs.at(i));
+    signalPFGammaCands_.emplace_back(candPtrs.at(i));
   }
   embeddedSignalPFGammaCands_ = true;
 }
@@ -397,7 +397,7 @@ void Tau::embedIsolationPFCands() {
   }
   std::vector<reco::PFCandidatePtr> candPtrs = pfSpecific_[0].selectedIsolationPFCands_;
   for (unsigned int i = 0; i < candPtrs.size(); i++) {
-    isolationPFCands_.push_back(candPtrs.at(i));
+    isolationPFCands_.emplace_back(candPtrs.at(i));
   }
   embeddedIsolationPFCands_ = true;
 }
@@ -408,7 +408,7 @@ void Tau::embedIsolationPFChargedHadrCands() {
   }
   std::vector<reco::PFCandidatePtr> candPtrs = pfSpecific_[0].selectedIsolationPFChargedHadrCands_;
   for (unsigned int i = 0; i < candPtrs.size(); i++) {
-    isolationPFChargedHadrCands_.push_back(candPtrs.at(i));
+    isolationPFChargedHadrCands_.emplace_back(candPtrs.at(i));
   }
   embeddedIsolationPFChargedHadrCands_ = true;
 }
@@ -418,7 +418,7 @@ void Tau::embedIsolationPFNeutralHadrCands() {
   }
   std::vector<reco::PFCandidatePtr> candPtrs = pfSpecific_[0].selectedIsolationPFNeutrHadrCands_;
   for (unsigned int i = 0; i < candPtrs.size(); i++) {
-    isolationPFNeutralHadrCands_.push_back(candPtrs.at(i));
+    isolationPFNeutralHadrCands_.emplace_back(candPtrs.at(i));
   }
   embeddedIsolationPFNeutralHadrCands_ = true;
 }
@@ -428,7 +428,7 @@ void Tau::embedIsolationPFGammaCands() {
   }
   std::vector<reco::PFCandidatePtr> candPtrs = pfSpecific_[0].selectedIsolationPFGammaCands_;
   for (unsigned int i = 0; i < candPtrs.size(); i++) {
-    isolationPFGammaCands_.push_back(candPtrs.at(i));
+    isolationPFGammaCands_.emplace_back(candPtrs.at(i));
   }
   embeddedIsolationPFGammaCands_ = true;
 }
@@ -868,17 +868,17 @@ reco::CandidatePtrVector Tau::signalCands() const {
 
     for (const auto& p : signalChargedHadrCandPtrs_) {
       ret2.push_back(p);
-      pt_index.push_back(std::make_pair(p->pt(), index));
+      pt_index.emplace_back(p->pt(), index);
       index++;
     }
     for (const auto& p : signalNeutralHadrCandPtrs_) {
       ret2.push_back(p);
-      pt_index.push_back(std::make_pair(p->pt(), index));
+      pt_index.emplace_back(p->pt(), index);
       index++;
     }
     for (const auto& p : signalGammaCandPtrs_) {
       ret2.push_back(p);
-      pt_index.push_back(std::make_pair(p->pt(), index));
+      pt_index.emplace_back(p->pt(), index);
       index++;
     }
     std::sort(pt_index.begin(), pt_index.end(), std::greater<>());
@@ -952,17 +952,17 @@ reco::CandidatePtrVector Tau::isolationCands() const {
     size_t index = 0;
     for (const auto& p : isolationChargedHadrCandPtrs_) {
       ret2.push_back(p);
-      pt_index.push_back(std::make_pair(p->pt(), index));
+      pt_index.emplace_back(p->pt(), index);
       index++;
     }
     for (const auto& p : isolationNeutralHadrCandPtrs_) {
       ret2.push_back(p);
-      pt_index.push_back(std::make_pair(p->pt(), index));
+      pt_index.emplace_back(p->pt(), index);
       index++;
     }
     for (const auto& p : isolationGammaCandPtrs_) {
       ret2.push_back(p);
-      pt_index.push_back(std::make_pair(p->pt(), index));
+      pt_index.emplace_back(p->pt(), index);
       index++;
     }
     std::sort(pt_index.begin(), pt_index.end(), std::greater<>());

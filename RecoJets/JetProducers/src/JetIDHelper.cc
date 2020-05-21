@@ -567,15 +567,15 @@ void reco::helper::JetIDHelper::classifyJetTowers(const edm::Event &event,
 
     double E_em = tower->emEnergy();
     if (E_em != 0)
-      Ecal_subtowers.push_back(subtower(E_em, nEM));
+      Ecal_subtowers.emplace_back(E_em, nEM);
 
     double E_HO = tower->outerEnergy();
     if (E_HO != 0)
-      HO_subtowers.push_back(subtower(E_HO, nHO));
+      HO_subtowers.emplace_back(E_HO, nHO);
 
     double E_had = tower->hadEnergy();
     if (E_had != 0) {
-      Hcal_subtowers.push_back(subtower(E_had, nHad));
+      Hcal_subtowers.emplace_back(E_had, nHad);
       // totHcalE += E_had;
 
       int iEta = tower->ieta();

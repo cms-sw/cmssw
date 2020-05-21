@@ -68,7 +68,7 @@ namespace fftjetcms {
 
       if (adjustForVertex) {
         const CaloTower& tower(dynamic_cast<const CaloTower&>(item));
-        eventData.push_back(VectorLike(tower.p4(vertex_)));
+        eventData.emplace_back(tower.p4(vertex_));
       } else
         eventData.push_back(item.p4());
       candidateIndex.push_back(index);

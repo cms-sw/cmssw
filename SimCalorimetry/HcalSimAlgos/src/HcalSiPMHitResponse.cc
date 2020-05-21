@@ -235,7 +235,7 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
       LogDebug("HcalSiPMHitResponse") << " elapsedTime: " << elapsedTime << " sampleBin: " << sampleBin
                                       << " preciseBin: " << preciseBin << " pe: " << pe << " hitPixels: " << hitPixels;
       if (pars.doSiPMSmearing()) {
-        pulses.push_back(std::pair<double, double>(elapsedTime, hitPixels));
+        pulses.emplace_back(elapsedTime, hitPixels);
       } else {
         signal[sampleBin] += hitPixels;
         signal.preciseAtMod(preciseBin) += 0.6 * hitPixels;

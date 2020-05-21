@@ -234,7 +234,7 @@ bool CtfSpecialSeedGenerator::preliminaryCheck(const SeedingHitSet& shs, const e
 	  */
     }
     //vSeedLayerNames.push_back(iHits->seedinglayer().name());
-    vSubdetLayer.push_back(std::make_pair(subid, layer));
+    vSubdetLayer.emplace_back(subid, layer);
   }
   return true;
 }

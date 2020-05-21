@@ -38,7 +38,7 @@ void LMFLaserPulseDat::init() {
   m_keys["VMIN"] = 8;
   m_keys["VMAX"] = 9;
   for (int i = 0; i < 10; i++) {
-    m_type.push_back("NUMBER");
+    m_type.emplace_back("NUMBER");
   }
   setSystem("LASER");
   m_color = 0;

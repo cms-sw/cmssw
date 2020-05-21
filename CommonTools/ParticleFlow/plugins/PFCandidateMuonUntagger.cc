@@ -100,22 +100,22 @@ void PFCandidateMuonUntagger::produce(edm::StreamID iID, edm::Event &iEvent, con
   // old to new
   for (i = 0; i < n; ++i) {
     if (oldToNew[i] > 0) {
-      refs.push_back(reco::PFCandidateRef(newpf, oldToNew[i] - 1));
+      refs.emplace_back(newpf, oldToNew[i] - 1);
     } else {
-      refs.push_back(reco::PFCandidateRef(badpf, -oldToNew[i] - 1));
+      refs.emplace_back(badpf, -oldToNew[i] - 1);
     }
   }
   filler.insert(pfcandidates, refs.begin(), refs.end());
   // new good to old
   refs.clear();
   for (int i : newToOld) {
-    refs.push_back(reco::PFCandidateRef(pfcandidates, i));
+    refs.emplace_back(pfcandidates, i);
   }
   filler.insert(newpf, refs.begin(), refs.end());
   // new bad to old
   refs.clear();
   for (int i : badToOld) {
-    refs.push_back(reco::PFCandidateRef(pfcandidates, i));
+    refs.emplace_back(pfcandidates, i);
   }
   filler.insert(badpf, refs.begin(), refs.end());
   // done

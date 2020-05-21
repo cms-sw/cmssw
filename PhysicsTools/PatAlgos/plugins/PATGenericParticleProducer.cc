@@ -51,17 +51,17 @@ PATGenericParticleProducer::PATGenericParticleProducer(const edm::ParameterSet& 
   if (iConfig.exists("isoDeposits")) {
     edm::ParameterSet depconf = iConfig.getParameter<edm::ParameterSet>("isoDeposits");
     if (depconf.exists("tracker"))
-      isoDepositLabels_.push_back(std::make_pair(pat::TrackIso, depconf.getParameter<edm::InputTag>("tracker")));
+      isoDepositLabels_.emplace_back(pat::TrackIso, depconf.getParameter<edm::InputTag>("tracker"));
     if (depconf.exists("ecal"))
-      isoDepositLabels_.push_back(std::make_pair(pat::EcalIso, depconf.getParameter<edm::InputTag>("ecal")));
+      isoDepositLabels_.emplace_back(pat::EcalIso, depconf.getParameter<edm::InputTag>("ecal"));
     if (depconf.exists("hcal"))
-      isoDepositLabels_.push_back(std::make_pair(pat::HcalIso, depconf.getParameter<edm::InputTag>("hcal")));
+      isoDepositLabels_.emplace_back(pat::HcalIso, depconf.getParameter<edm::InputTag>("hcal"));
     if (depconf.exists("user")) {
       std::vector<edm::InputTag> userdeps = depconf.getParameter<std::vector<edm::InputTag> >("user");
       std::vector<edm::InputTag>::const_iterator it = userdeps.begin(), ed = userdeps.end();
       int key = UserBaseIso;
       for (; it != ed; ++it, ++key) {
-        isoDepositLabels_.push_back(std::make_pair(IsolationKeys(key), *it));
+        isoDepositLabels_.emplace_back(IsolationKeys(key), *it);
       }
     }
   }

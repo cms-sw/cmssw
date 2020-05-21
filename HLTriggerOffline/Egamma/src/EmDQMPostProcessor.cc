@@ -70,13 +70,13 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter
   ////////////////////////////////////////////////////////
 
   std::vector<std::string> postfixes;
-  postfixes.push_back("");               // unmatched histograms
-  postfixes.push_back("_RECO_matched");  // for data
+  postfixes.emplace_back("");               // unmatched histograms
+  postfixes.emplace_back("_RECO_matched");  // for data
   // we put this on the list even when we're running on
   // data (where there is no generator information).
   // The first test in the loop will then fail and
   // the iteration is skipped.
-  postfixes.push_back("_MC_matched");
+  postfixes.emplace_back("_MC_matched");
 
   std::vector<TProfile *> allElePaths;
   int nEle = 0;
@@ -257,13 +257,13 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter
       ///////////////////////////////////////////
       // MonitorElement *eff, *num, *denom, *genPlot, *effVsGen, *effL1VsGen;
       std::vector<std::string> varNames;
-      varNames.push_back("et");
-      varNames.push_back("eta");
+      varNames.emplace_back("et");
+      varNames.emplace_back("eta");
 
       if (!noPhiPlots) {
-        varNames.push_back("phi");
+        varNames.emplace_back("phi");
       }
-      varNames.push_back("etaphi");
+      varNames.emplace_back("etaphi");
 
       std::string filterName;
       std::string filterName2;

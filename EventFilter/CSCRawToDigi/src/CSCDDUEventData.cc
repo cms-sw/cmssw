@@ -201,7 +201,7 @@ void CSCDDUEventData::unpack_data(const uint16_t* buf, CSCDCCExaminer* examiner)
             continue;
           }
 
-          theData.push_back(CSCEventData(pos, theFormatVersion));
+          theData.emplace_back(pos, theFormatVersion);
         }
       }
 
@@ -243,7 +243,7 @@ void CSCDDUEventData::unpack_data(const uint16_t* buf, CSCDCCExaminer* examiner)
       // ++i;
       if (debug)
         LogTrace("CSCDDUEventData|CSCRawToDigi") << "unpack csc data loop started";
-      theData.push_back(CSCEventData(buf));
+      theData.emplace_back(buf);
       buf += (theData.back()).size();
       if (debug) {
         LogTrace("CSCDDUEventData|CSCRawToDigi") << "size of vector of cscData = " << theData.size();

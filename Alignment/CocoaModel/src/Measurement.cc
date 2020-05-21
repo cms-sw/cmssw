@@ -94,7 +94,7 @@ void Measurement::constructFromOA(OpticalAlignMeasurementInfo& measInfo) {
   //--- Fill the list of names of OptOs that take part in this measurement ( names only )
   for (site = objNames.begin(); site != objNames.end(); ++site) {
     if (site != objNames.begin())
-      wordlist.push_back("&");
+      wordlist.emplace_back("&");
     wordlist.push_back(*site);
   }
   buildOptONamesList(wordlist);
@@ -118,7 +118,7 @@ void Measurement::constructFromOA(OpticalAlignMeasurementInfo& measInfo) {
         std::cout << "Measurement::constructFromOA:  meas value " << ii << " " << dim() << " = simulated_value"
                   << std::endl;
       }
-      wordlist.push_back("simulated_value");
+      wordlist.emplace_back("simulated_value");
     } else {
       if (ALIUtils::debug >= 5) {
         std::cout << "Measurement::constructFromOA:  meas value " << ii << " " << dim() << " = "
@@ -128,13 +128,13 @@ void Measurement::constructFromOA(OpticalAlignMeasurementInfo& measInfo) {
           (measInfo.values_)[ii].value_ /
           valueDimensionFactor();  //in XML  values are without dimensions, so neutralize multiplying by valueDimensionFactor() in fillData
       gcvt(val, 10, ctmp);
-      wordlist.push_back(ctmp);
+      wordlist.emplace_back(ctmp);
     }
     ALIdouble err =
         (measInfo.values_)[ii].error_ /
         sigmaDimensionFactor();  //in XML  values are without dimensions, so neutralize multiplying by valueDimensionFactor() in fillData
     gcvt(err, 10, ctmp);
-    wordlist.push_back(ctmp);
+    wordlist.emplace_back(ctmp);
     std::cout << " sigma " << err << " = " << ctmp << " " << (measInfo.values_)[ii].error_ << std::endl;
     //-    wordlist.push_back( "simulated_value" );
     //-   wordlist.push_back( "1." );
@@ -646,7 +646,7 @@ void Measurement::copyMeas(Measurement* meas, const std::string& subsstr1, const
     wordlist.push_back(ALIUtils::changeName(optolist[ii]->longName(), subsstr1, subsstr2));
     std::cout << " copymeas " << ALIUtils::changeName(optolist[ii]->longName(), subsstr1, subsstr2) << std::endl;
     if (ii != nOptos - 1)
-      wordlist.push_back("&");
+      wordlist.emplace_back("&");
   }
 
   buildOptONamesList(wordlist);

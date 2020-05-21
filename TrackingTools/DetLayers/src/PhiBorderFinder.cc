@@ -45,7 +45,7 @@ PhiBorderFinder::PhiBorderFinder(const std::vector<const Det*>& utheDets)
       //the shortest side
       std::swap(phimin, phimax);
     }
-    phiEdge.push_back(std::pair<double, double>(phimin, phimax));
+    phiEdge.emplace_back(phimin, phimax);
   }
 
   for (unsigned int i = 0; i < theNbins; i++) {

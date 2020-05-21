@@ -348,7 +348,7 @@ bool CSCEfficiency::filter(edm::Event &event, const edm::EventSetup &eventSetup)
         } else if (4 == iS && iR > 1) {
           continue;
         }
-        refME.push_back(CSCDetId(endcap, iS, iR, chamber));
+        refME.emplace_back(endcap, iS, iR, chamber);
       }
     }
     //---- loop over the "refference" CSCDetIds
@@ -921,8 +921,8 @@ void CSCEfficiency::fillRechitsSegments_info(edm::Handle<CSCRecHit2DCollection> 
       std::cout << "\t chi2/ndf = " << (*it).chi2() / (*it).degreesOfFreedom() << " nhits = " << (*it).nRecHits()
                 << std::endl;
     }
-    allSegments[id.endcap() - 1][id.station() - 1][id.ring() - 1][id.chamber() - FirstCh].push_back(
-        make_pair((*it).localPosition(), (*it).localDirection()));
+    allSegments[id.endcap() - 1][id.station() - 1][id.ring() - 1][id.chamber() - FirstCh].emplace_back(
+        (*it).localPosition(), (*it).localDirection());
 
     //---- try to get the CSC recHits that contribute to this segment.
     //if (printalot) printf("\tGet the recHits for this segment.\t");

@@ -338,7 +338,7 @@ namespace reco {
       std::vector<std::string> str_rules = iConfig.getParameter<std::vector<std::string> >("commands");
       rules_.reserve(str_rules.size());
       for (std::vector<std::string>::const_iterator it = str_rules.begin(), ed = str_rules.end(); it != ed; ++it) {
-        rules_.push_back(Rule(*it));
+        rules_.emplace_back(*it);
       }
 
       if (rejectBadStoNHits_) {  //commands for S/N cut

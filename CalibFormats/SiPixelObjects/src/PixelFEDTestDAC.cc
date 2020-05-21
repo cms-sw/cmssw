@@ -37,14 +37,14 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::vector<std::vector<std::string> > &tableMa
   CALIB_OBJ_DATA_CLOB			    NOT NULL CLOB
   */
 
-  colNames.push_back("CONFIG_KEY");
-  colNames.push_back("KEY_TYPE");
-  colNames.push_back("KEY_ALIAS");
-  colNames.push_back("VERSION");
-  colNames.push_back("KIND_OF_COND");
-  colNames.push_back("CALIB_TYPE");
-  colNames.push_back("CALIB_OBJ_DATA_FILE");
-  colNames.push_back("CALIB_OBJ_DATA_CLOB");
+  colNames.emplace_back("CONFIG_KEY");
+  colNames.emplace_back("KEY_TYPE");
+  colNames.emplace_back("KEY_ALIAS");
+  colNames.emplace_back("VERSION");
+  colNames.emplace_back("KIND_OF_COND");
+  colNames.emplace_back("CALIB_TYPE");
+  colNames.emplace_back("CALIB_OBJ_DATA_FILE");
+  colNames.emplace_back("CALIB_OBJ_DATA_CLOB");
 
   for (unsigned int c = 0; c < tableMat[0].size(); c++) {
     for (unsigned int n = 0; n < colNames.size(); n++) {

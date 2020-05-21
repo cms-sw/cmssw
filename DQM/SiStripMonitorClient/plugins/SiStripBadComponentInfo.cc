@@ -205,12 +205,12 @@ void SiStripBadComponentInfo::bookBadComponentHistos(DQMStore::IBooker& ibooker,
     badStripME_->setAxisTitle("Layer/Disc Number", 2);
 
     std::vector<std::string> names;
-    names.push_back("TECB");
-    names.push_back("TECF");
-    names.push_back("TIB");
-    names.push_back("TIDB");
-    names.push_back("TIDF");
-    names.push_back("TOB");
+    names.emplace_back("TECB");
+    names.emplace_back("TECF");
+    names.emplace_back("TIB");
+    names.emplace_back("TIDB");
+    names.emplace_back("TIDF");
+    names.emplace_back("TOB");
 
     for (unsigned int i = 0; i < names.size(); i++) {
       badAPVME_->setBinLabel(i + 1, names[i]);

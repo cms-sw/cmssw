@@ -93,9 +93,7 @@ bool HLTEgammaL1MatchFilterPairs::hltFilter(edm::Event& iEvent,
       edm::Ref<reco::RecoEcalCandidateCollection> ref2 = edm::Ref<reco::RecoEcalCandidateCollection>(
           recoIsolecalcands, distance(recoIsolecalcands->begin(), recoecalcand2));
       if (&(*ref1) != &(*ref2)) {
-        thePairs.push_back(
-            std::pair<edm::Ref<reco::RecoEcalCandidateCollection>, edm::Ref<reco::RecoEcalCandidateCollection> >(ref1,
-                                                                                                                 ref2));
+        thePairs.emplace_back(ref1, ref2);
       }
     }
     if (AlsoNonIsolatedSecond_) {
@@ -104,9 +102,7 @@ bool HLTEgammaL1MatchFilterPairs::hltFilter(edm::Event& iEvent,
         edm::Ref<reco::RecoEcalCandidateCollection> ref2 = edm::Ref<reco::RecoEcalCandidateCollection>(
             recoNonIsolecalcands, distance(recoNonIsolecalcands->begin(), recoecalcand2));
         if (&(*ref1) != &(*ref2)) {
-          thePairs.push_back(
-              std::pair<edm::Ref<reco::RecoEcalCandidateCollection>, edm::Ref<reco::RecoEcalCandidateCollection> >(
-                  ref1, ref2));
+          thePairs.emplace_back(ref1, ref2);
         }
       }
     }
@@ -123,9 +119,7 @@ bool HLTEgammaL1MatchFilterPairs::hltFilter(edm::Event& iEvent,
         edm::Ref<reco::RecoEcalCandidateCollection> ref2 = edm::Ref<reco::RecoEcalCandidateCollection>(
             recoIsolecalcands, distance(recoIsolecalcands->begin(), recoecalcand2));
         if (&(*ref1) != &(*ref2)) {
-          thePairs.push_back(
-              std::pair<edm::Ref<reco::RecoEcalCandidateCollection>, edm::Ref<reco::RecoEcalCandidateCollection> >(
-                  ref1, ref2));
+          thePairs.emplace_back(ref1, ref2);
         }
       }
       if (AlsoNonIsolatedSecond_) {
@@ -134,9 +128,7 @@ bool HLTEgammaL1MatchFilterPairs::hltFilter(edm::Event& iEvent,
           edm::Ref<reco::RecoEcalCandidateCollection> ref2 = edm::Ref<reco::RecoEcalCandidateCollection>(
               recoNonIsolecalcands, distance(recoNonIsolecalcands->begin(), recoecalcand2));
           if (&(*ref1) != &(*ref2)) {
-            thePairs.push_back(
-                std::pair<edm::Ref<reco::RecoEcalCandidateCollection>, edm::Ref<reco::RecoEcalCandidateCollection> >(
-                    ref1, ref2));
+            thePairs.emplace_back(ref1, ref2);
           }
         }
       }

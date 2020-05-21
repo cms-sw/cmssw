@@ -153,7 +153,7 @@ void EgHLTOfflineSummaryClient::splitStringsToPairs_(const std::vector<std::stri
     std::vector<std::string> tempSplitStrings;
     boost::split(tempSplitStrings, stringNr, boost::is_any_of(std::string(":")));
     if (tempSplitStrings.size() == 2) {
-      splitStrings.push_back(std::make_pair(tempSplitStrings[0], tempSplitStrings[1]));
+      splitStrings.emplace_back(tempSplitStrings[0], tempSplitStrings[1]);
     } else {
       edm::LogWarning("EgHLTOfflineSummaryClient")
           << " Error : entry " << stringNr

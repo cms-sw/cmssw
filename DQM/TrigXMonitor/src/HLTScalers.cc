@@ -120,11 +120,11 @@ void HLTScalers::dqmBeginRun(const edm::Run& run, const edm::EventSetup& c) {
 
       for (unsigned int i = 0; i < PD.size(); i++) {
         const std::vector<std::string>& datasetPaths = hltConfig_.datasetContent(PD[i]);
-        pairPDPaths_.push_back(make_pair(PD[i], datasetPaths));
+        pairPDPaths_.emplace_back(PD[i], datasetPaths);
       }
 
       // push stream A and its PDs
-      pairPDPaths_.push_back(make_pair("A", PD));
+      pairPDPaths_.emplace_back("A", PD);
 
     } else {
       LogDebug("HLTScalers") << "HLTScalers::beginRun, steamm A not in the HLT menu ";

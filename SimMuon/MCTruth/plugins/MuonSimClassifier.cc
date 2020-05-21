@@ -238,7 +238,7 @@ void MuonSimClassifier::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
 
   // loop on reco muons
   for (size_t i = 0; i < nmu; ++i) {
-    simInfo.push_back(reco::MuonSimInfo());
+    simInfo.emplace_back();
     LogTrace("MuonSimClassifier") << "\n reco::Muon # " << i;
 
     TrackingParticleRef tp;

@@ -593,7 +593,7 @@ bool DAClusterizerInZ_vect::merge(vertex_t& y, track_t& tks, double& beta) const
   std::vector<std::pair<double, unsigned int> > critical;
   for (unsigned int k = 0; (k + 1) < nv; k++) {
     if (std::fabs(y.z_ptr[k + 1] - y.z_ptr[k]) < zmerge_) {
-      critical.push_back(make_pair(std::fabs(y.z_ptr[k + 1] - y.z_ptr[k]), k));
+      critical.emplace_back(std::fabs(y.z_ptr[k + 1] - y.z_ptr[k]), k);
     }
   }
   if (critical.empty())
@@ -751,7 +751,7 @@ bool DAClusterizerInZ_vect::split(const double beta, track_t& tks, vertex_t& y, 
   for (unsigned int k = 0; k < nv; k++) {
     double Tc = 2 * y.swE_ptr[k] / y.sw_ptr[k];
     if (beta * Tc > threshold) {
-      critical.push_back(make_pair(Tc, k));
+      critical.emplace_back(Tc, k);
     }
   }
   if (critical.empty())

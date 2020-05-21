@@ -951,7 +951,7 @@ namespace dqm::impl {
       q.qtname = qtname;
       q.message = "NO_MESSAGE_ASSIGNED";
       q.algorithm = "UNKNOWN_ALGORITHM";
-      access.value.qreports_.push_back(MonitorElementData::QReport(q));
+      access.value.qreports_.emplace_back(q);
       syncCoreObject(access);
     }
 

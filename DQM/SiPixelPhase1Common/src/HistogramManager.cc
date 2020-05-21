@@ -47,9 +47,9 @@ HistogramManager::HistogramManager(const edm::ParameterSet& iconfig, GeometryInt
 
 void HistogramManager::addSpec(SummationSpecification spec) {
   specs.push_back(spec);
-  tables.push_back(Table());
-  counters.push_back(Table());
-  significantvalues.push_back(GeometryInterface::Values());
+  tables.emplace_back();
+  counters.emplace_back();
+  significantvalues.emplace_back();
   fastpath.push_back(nullptr);
 }
 

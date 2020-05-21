@@ -60,29 +60,29 @@ std::unique_ptr<L1GtParameters> L1GtParametersConfigOnlineProd::newObject(const 
   //   WHERE GT_GTFE_SETUP.ID = objectKey
 
   std::vector<std::string> columns;
-  columns.push_back("EVM_INCLUDE_TCS");
-  columns.push_back("EVM_INCLUDE_FDL");
-  columns.push_back("DAQ_INCLUDE_FDL");
-  columns.push_back("DAQ_INCLUDE_PSB0");
-  columns.push_back("DAQ_INCLUDE_PSB1");
-  columns.push_back("DAQ_INCLUDE_PSB2");
-  columns.push_back("DAQ_INCLUDE_PSB3");
-  columns.push_back("DAQ_INCLUDE_PSB4");
-  columns.push_back("DAQ_INCLUDE_PSB5");
-  columns.push_back("DAQ_INCLUDE_PSB6");
-  columns.push_back("DAQ_INCLUDE_GMT");
-  columns.push_back("DAQ_INCLUDE_TIM");
-  columns.push_back("DAQ_NB_BC_PER_EVENT_FDL");
-  columns.push_back("DAQ_NB_BC_PER_EVENT_PSB0");
-  columns.push_back("DAQ_NB_BC_PER_EVENT_PSB1");
-  columns.push_back("DAQ_NB_BC_PER_EVENT_PSB2");
-  columns.push_back("DAQ_NB_BC_PER_EVENT_PSB3");
-  columns.push_back("DAQ_NB_BC_PER_EVENT_PSB4");
-  columns.push_back("DAQ_NB_BC_PER_EVENT_PSB5");
-  columns.push_back("DAQ_NB_BC_PER_EVENT_PSB6");
-  columns.push_back("DAQ_NB_BC_PER_EVENT_GMT");
-  columns.push_back("DAQ_NB_BC_PER_EVENT_TIM");
-  columns.push_back("BST_DATA_NB_BYTES");
+  columns.emplace_back("EVM_INCLUDE_TCS");
+  columns.emplace_back("EVM_INCLUDE_FDL");
+  columns.emplace_back("DAQ_INCLUDE_FDL");
+  columns.emplace_back("DAQ_INCLUDE_PSB0");
+  columns.emplace_back("DAQ_INCLUDE_PSB1");
+  columns.emplace_back("DAQ_INCLUDE_PSB2");
+  columns.emplace_back("DAQ_INCLUDE_PSB3");
+  columns.emplace_back("DAQ_INCLUDE_PSB4");
+  columns.emplace_back("DAQ_INCLUDE_PSB5");
+  columns.emplace_back("DAQ_INCLUDE_PSB6");
+  columns.emplace_back("DAQ_INCLUDE_GMT");
+  columns.emplace_back("DAQ_INCLUDE_TIM");
+  columns.emplace_back("DAQ_NB_BC_PER_EVENT_FDL");
+  columns.emplace_back("DAQ_NB_BC_PER_EVENT_PSB0");
+  columns.emplace_back("DAQ_NB_BC_PER_EVENT_PSB1");
+  columns.emplace_back("DAQ_NB_BC_PER_EVENT_PSB2");
+  columns.emplace_back("DAQ_NB_BC_PER_EVENT_PSB3");
+  columns.emplace_back("DAQ_NB_BC_PER_EVENT_PSB4");
+  columns.emplace_back("DAQ_NB_BC_PER_EVENT_PSB5");
+  columns.emplace_back("DAQ_NB_BC_PER_EVENT_PSB6");
+  columns.emplace_back("DAQ_NB_BC_PER_EVENT_GMT");
+  columns.emplace_back("DAQ_NB_BC_PER_EVENT_TIM");
+  columns.emplace_back("BST_DATA_NB_BYTES");
 
   l1t::OMDSReader::QueryResults results = m_omdsReader.basicQuery(
       columns, gtSchema, "GT_GTFE_SETUP", "GT_GTFE_SETUP.ID", m_omdsReader.singleAttribute(objectKey));

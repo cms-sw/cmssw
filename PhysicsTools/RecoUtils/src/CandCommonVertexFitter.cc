@@ -81,7 +81,7 @@ void CandCommonVertexFitterBase::fill(vector<TransientTrack> &tracks,
       const Track *trk = d->get<const Track *>();
       RecoCandidate::TrackType type = d->get<RecoCandidate::TrackType>();
       if (trk != nullptr) {
-        tracks.push_back(TransientTrack(*trk, bField_));
+        tracks.emplace_back(*trk, bField_);
         daughters.push_back(d);
         trackTypes.push_back(type);
       } else {

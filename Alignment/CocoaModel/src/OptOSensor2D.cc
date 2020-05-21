@@ -375,11 +375,11 @@ void OptOSensor2D::fillExtraEntry(std::vector<ALIstring>& wordlist) {
     std::vector<ALIstring> wlo;
     char chartmp[20];
     wlo.push_back(wordlist[0]);
-    wlo.push_back("deviX");
-    wlo.push_back("0");  // value is set to 0 as it is on the file and the point of intersection is not computed yet
+    wlo.emplace_back("deviX");
+    wlo.emplace_back("0");  // value is set to 0 as it is on the file and the point of intersection is not computed yet
     gcvt(prec_deviX, 10, chartmp);
-    wlo.push_back(ALIstring(chartmp));
-    wlo.push_back("cal");
+    wlo.emplace_back(chartmp);
+    wlo.emplace_back("cal");
     std::vector<ALIstring> wl2(wlo);
     OpticalObject::fillExtraEntry(wlo);
 

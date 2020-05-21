@@ -65,7 +65,7 @@ void CompoundJetProducer::writeCompoundJets(edm::Event& iEvent, edm::EventSetup 
     int jetIndex = it - iBegin;
     fastjet::PseudoJet localJet = it->hardJet();
     // Get the 4-vector for the hard jet
-    p4_hardJets.push_back(math::XYZTLorentzVector(localJet.px(), localJet.py(), localJet.pz(), localJet.e()));
+    p4_hardJets.emplace_back(localJet.px(), localJet.py(), localJet.pz(), localJet.e());
     area_hardJets.push_back(it->hardJetArea());
 
     // create the subjet list

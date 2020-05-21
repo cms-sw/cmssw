@@ -4,8 +4,7 @@ L1TMuonBarrelKalmanSectorProcessor::L1TMuonBarrelKalmanSectorProcessor(const edm
     : verbose_(iConfig.getParameter<int>("verbose")), sector_(sector) {
   std::vector<int> wheels = iConfig.getParameter<std::vector<int> >("wheelsToProcess");
   for (const auto wheel : wheels)
-    regions_.push_back(
-        L1TMuonBarrelKalmanRegionModule(iConfig.getParameter<edm::ParameterSet>("regionSettings"), wheel, sector));
+    regions_.emplace_back(iConfig.getParameter<edm::ParameterSet>("regionSettings"), wheel, sector);
 }
 
 L1TMuonBarrelKalmanSectorProcessor::~L1TMuonBarrelKalmanSectorProcessor() {}

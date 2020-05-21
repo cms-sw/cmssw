@@ -538,10 +538,10 @@ void MEEEGeom::getBoundary(std::list<std::pair<float, float> >& l, int type, int
     lastelement = map_.upper_bound(iy);
     for (; it != lastelement; ++it) {
       std::pair<float, float> p_ = it->second;
-      l.push_back(std::pair<float, float>(p_.first - 0.5, iy - 0.5));
-      l.push_back(std::pair<float, float>(p_.first - 0.5, iy + 0.5));
-      rightl.push_back(std::pair<float, float>(p_.second + 0.5, iy - 0.5));
-      rightl.push_back(std::pair<float, float>(p_.second + 0.5, iy + 0.5));
+      l.emplace_back(p_.first - 0.5, iy - 0.5);
+      l.emplace_back(p_.first - 0.5, iy + 0.5);
+      rightl.emplace_back(p_.second + 0.5, iy - 0.5);
+      rightl.emplace_back(p_.second + 0.5, iy + 0.5);
     }
   }
   l.unique();
@@ -550,7 +550,7 @@ void MEEEGeom::getBoundary(std::list<std::pair<float, float> >& l, int type, int
 
   std::list<std::pair<float, float> >::const_iterator rightl_it;
   for (rightl_it = rightl.begin(); rightl_it != rightl.end(); ++rightl_it) {
-    l.push_back(std::pair<float, float>(rightl_it->first, rightl_it->second));
+    l.emplace_back(rightl_it->first, rightl_it->second);
   }
   l.push_back(*l.begin());
 }

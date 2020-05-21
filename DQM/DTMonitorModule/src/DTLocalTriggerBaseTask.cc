@@ -68,7 +68,7 @@ DTLocalTriggerBaseTask::DTLocalTriggerBaseTask(const edm::ParameterSet& ps)
   tm_theta_Token_ = consumes<L1MuDTChambThContainer>(ps.getUntrackedParameter<InputTag>("inputTagTMth"));
 
   if (processTM)
-    theTypes.push_back("TM");
+    theTypes.emplace_back("TM");
 
   if (tpMode) {
     topFolder("TM") = "DT/11-LocalTriggerTP-TM/";

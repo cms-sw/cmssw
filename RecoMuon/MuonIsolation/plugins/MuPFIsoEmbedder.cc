@@ -61,12 +61,12 @@ MuPFIsoEmbedder::MuPFIsoEmbedder(const edm::ParameterSet& iConfig)
 
   //First declare what isolation you are going to read
   std::vector<std::string> isolationLabels;
-  isolationLabels.push_back("pfIsolationR03");
-  isolationLabels.push_back("pfIsoMeanDRProfileR03");
-  isolationLabels.push_back("pfIsoSumDRProfileR03");
-  isolationLabels.push_back("pfIsolationR04");
-  isolationLabels.push_back("pfIsoMeanDRProfileR04");
-  isolationLabels.push_back("pfIsoSumDRProfileR04");
+  isolationLabels.emplace_back("pfIsolationR03");
+  isolationLabels.emplace_back("pfIsoMeanDRProfileR03");
+  isolationLabels.emplace_back("pfIsoSumDRProfileR03");
+  isolationLabels.emplace_back("pfIsolationR04");
+  isolationLabels.emplace_back("pfIsoMeanDRProfileR04");
+  isolationLabels.emplace_back("pfIsoSumDRProfileR04");
 
   //Fill the label,pet map and initialize MuPFIsoHelper
   for (std::vector<std::string>::const_iterator label = isolationLabels.begin(); label != isolationLabels.end();

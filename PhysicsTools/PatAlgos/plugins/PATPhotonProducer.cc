@@ -91,7 +91,7 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet &iConfig)
   if (addPhotonID_) {
     // it might be a single photon ID
     if (iConfig.existsAs<edm::InputTag>("photonIDSource")) {
-      photIDSrcs_.push_back(NameTag("", iConfig.getParameter<edm::InputTag>("photonIDSource")));
+      photIDSrcs_.emplace_back("", iConfig.getParameter<edm::InputTag>("photonIDSource"));
     }
     // or there might be many of them
     if (iConfig.existsAs<edm::ParameterSet>("photonIDSources")) {
@@ -104,7 +104,7 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet &iConfig)
       edm::ParameterSet idps = iConfig.getParameter<edm::ParameterSet>("photonIDSources");
       std::vector<std::string> names = idps.getParameterNamesForType<edm::InputTag>();
       for (std::vector<std::string>::const_iterator it = names.begin(), ed = names.end(); it != ed; ++it) {
-        photIDSrcs_.push_back(NameTag(*it, idps.getParameter<edm::InputTag>(*it)));
+        photIDSrcs_.emplace_back(*it, idps.getParameter<edm::InputTag>(*it));
       }
     }
     // but in any case at least once

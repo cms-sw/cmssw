@@ -26,7 +26,7 @@ void L1TMuonOverlapObjectKeysOnlineProd::fillObjectKeys(L1TriggerKeyExt* pL1Trig
   std::string tscKey = OMTFKey.substr(0, OMTFKey.find(":"));
 
   std::vector<std::string> queryStrings;
-  queryStrings.push_back("ALGO");
+  queryStrings.emplace_back("ALGO");
 
   std::string algo_key;
 

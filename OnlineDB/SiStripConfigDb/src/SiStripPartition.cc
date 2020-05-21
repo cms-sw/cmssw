@@ -217,9 +217,9 @@ void SiStripPartition::reset() {
   inputModuleXml_ = "";
   inputDcuInfoXml_ = "";
   inputFecXml_.clear();
-  inputFecXml_.push_back("");
+  inputFecXml_.emplace_back("");
   inputFedXml_.clear();
-  inputFedXml_.push_back("");
+  inputFedXml_.emplace_back("");
 }
 
 // -----------------------------------------------------------------------------

@@ -203,7 +203,7 @@ void MTDThresholdClusterizer::copy_to_buffer(RecHitIterator itr) {
   if (energy > theHitThreshold) {
     theBuffer.set(row, col, energy, time, timeError);
     if (energy > theSeedThreshold)
-      theSeeds.push_back(FTLCluster::FTLHitPos(row, col));
+      theSeeds.emplace_back(row, col);
     //sort seeds?
   }
 }

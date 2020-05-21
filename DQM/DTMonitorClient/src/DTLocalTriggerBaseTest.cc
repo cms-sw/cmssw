@@ -85,7 +85,7 @@ void DTLocalTriggerBaseTest::setConfig(const edm::ParameterSet& ps, string name)
   hwSources = ps.getUntrackedParameter<vector<string> >("hwSources");
 
   if (ps.getUntrackedParameter<bool>("localrun", true)) {
-    trigSources.push_back("");
+    trigSources.emplace_back("");
   } else {
     trigSources = ps.getUntrackedParameter<vector<string> >("trigSources");
   }

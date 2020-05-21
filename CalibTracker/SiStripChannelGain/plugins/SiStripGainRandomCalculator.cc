@@ -66,7 +66,7 @@ void SiStripGainRandomCalculator::algoAnalyze(const edm::Event& event, const edm
               << " Problem with Number of strips in detector.. " << p.nstrips() << " Exiting program" << endl;
           exit(1);
         }
-        detid_apvs_.push_back(pair<uint32_t, unsigned short>(detid, NAPVs));
+        detid_apvs_.emplace_back(detid, NAPVs);
         if (printdebug_)
           edm::LogInfo("SiStripGainCalculator") << "detid " << detid << " apvs " << NAPVs;
       }

@@ -145,7 +145,7 @@ void PFRecoTauDiscriminationAgainstElectron2::beginEvent(const edm::Event& evt, 
       double range_begin = ((TObjString*)subStrings->At(1))->GetString().Atof();
       //std::cout << "substrings(2) = " << ((TObjString*)subStrings->At(2))->GetString() << std::endl;
       double range_end = ((TObjString*)subStrings->At(2))->GetString().Atof();
-      etaCracks_.push_back(pdouble(range_begin, range_end));
+      etaCracks_.emplace_back(range_begin, range_end);
     }
   }
 

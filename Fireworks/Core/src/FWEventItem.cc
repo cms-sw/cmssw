@@ -389,7 +389,7 @@ void FWEventItem::setData(const edm::ObjectWithDict& iData) const {
     m_itemInfos.reserve(m_accessor->size());
     m_itemInfos.resize(m_accessor->size(), ModelInfo(m_displayProperties, false));
   } else {
-    m_itemInfos.push_back(ModelInfo(m_displayProperties, false));
+    m_itemInfos.emplace_back(m_displayProperties, false);
   }
 }
 

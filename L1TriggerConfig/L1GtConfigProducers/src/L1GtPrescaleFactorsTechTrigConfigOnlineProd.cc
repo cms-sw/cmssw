@@ -59,8 +59,8 @@ std::unique_ptr<L1GtPrescaleFactors> L1GtPrescaleFactorsTechTrigConfigOnlineProd
   //     where GT_RUN_SETTINGS_PRESC_VIEW.ID = objectKey
 
   std::vector<std::string> columnsView;
-  columnsView.push_back("PRESCALE_INDEX");
-  columnsView.push_back("PRESCALE_FACTORS_TT_FK");
+  columnsView.emplace_back("PRESCALE_INDEX");
+  columnsView.emplace_back("PRESCALE_FACTORS_TT_FK");
 
   l1t::OMDSReader::QueryResults resultsView = m_omdsReader.basicQueryView(columnsView,
                                                                           gtSchema,

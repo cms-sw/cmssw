@@ -351,7 +351,7 @@ void FWPFCandidateDetailView::addHits(const std::vector<reco::PFRecHit>* hits) {
 
       std::vector<TEveVector> hc;
       for (int k = 0; k < 4; ++k) {
-        hc.push_back(TEveVector(corners[k].eta(), corners[k].phi(), 0));
+        hc.emplace_back(corners[k].eta(), corners[k].phi(), 0);
         // ps->SetNextPoint(corners[k].eta(),corners[k].phi(),0 ); //debug
       }
 

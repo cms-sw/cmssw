@@ -99,13 +99,13 @@ public:
     unsigned int part_size = part.size();
     std::string h = "";
     // int cnt = 0;
-    oOptions.push_back(std::make_pair(std::make_shared<std::string>(*m_list.begin()), h));
+    oOptions.emplace_back(std::make_shared<std::string>(*m_list.begin()), h);
     std::vector<const char*>::iterator startIt = m_list.begin();
     startIt++;
     for (std::vector<const char*>::iterator i = startIt; i != m_list.end(); ++i) {
       //      std::cout << *i << " " << cnt++ << std::endl;
       if ((strlen(*i) >= part_size) && strncmp(*i, part.c_str(), part_size) == 0) {
-        oOptions.push_back(std::make_pair(std::make_shared<std::string>((*i)), &((*i)[part_size])));
+        oOptions.emplace_back(std::make_shared<std::string>((*i)), &((*i)[part_size]));
       }
     }
   }

@@ -222,8 +222,8 @@ namespace gen {
     std::vector<Param> params;
     std::vector<Param> values;
     for (std::map<std::string, std::string>::const_iterator iter = mgParams.begin(); iter != mgParams.end(); ++iter) {
-      params.push_back(" " + iter->first);
-      values.push_back(iter->second);
+      params.emplace_back(" " + iter->first);
+      values.emplace_back(iter->second);
     }
 
     // set MG matching parameters

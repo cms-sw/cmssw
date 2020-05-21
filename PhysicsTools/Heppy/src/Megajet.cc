@@ -23,7 +23,7 @@ namespace heppy {
     if (Object_Px.size() < 2)
       cout << "Error in Megajet: you should provide at least two jets to form Megajets" << endl;
     for (int j = 0; j < (int)jIN.size(); ++j) {
-      jIN.push_back(TLorentzVector(Object_Px[j], Object_Py[j], Object_Pz[j], Object_E[j]));
+      jIN.emplace_back(Object_Px[j], Object_Py[j], Object_Pz[j], Object_E[j]);
     }
   }
 
@@ -34,7 +34,7 @@ namespace heppy {
     if (Object_Px.size() < 2)
       cout << "Error in Megajet: you should provide at least two jets to form Megajets" << endl;
     for (int j = 0; j < (int)jIN.size(); ++j) {
-      jIN.push_back(TLorentzVector(Object_Px[j], Object_Py[j], Object_Pz[j], Object_E[j]));
+      jIN.emplace_back(Object_Px[j], Object_Py[j], Object_Pz[j], Object_E[j]);
     }
   }
 

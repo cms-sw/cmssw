@@ -115,7 +115,7 @@ public:
         edm::LogError("FilterOR") << "cannot do an OR of: " << filter << " OR expression is: " << filterORlist;
         break;
       }
-      filters_.push_back(std::make_pair(it->first, it->second));
+      filters_.emplace_back(it->first, it->second);
       ss << it->first << " ";
     }
     description_.push_back(ss.str());
@@ -150,7 +150,7 @@ public:
         makeSummaryTable_(iConfig.getParameter<bool>("makeSummaryTable")),
         makeDetailledPrintout_(iConfig.exists("detailledPrintoutCategory")) {
     Filter::name_ = name_;
-    Filter::description_.push_back(std::string("See definition of the corresponding selection"));
+    Filter::description_.emplace_back("See definition of the corresponding selection");
     if (iConfig.exists("nMonitor"))
       nMonitor_ = iConfig.getParameter<unsigned int>("nMonitor");
     else
@@ -347,7 +347,7 @@ public:
     for (unsigned int iS = 0; iS != nS; iS++) {
       edm::ParameterSet pset = selectionPSet_.getParameter<edm::ParameterSet>(selectionNames[iS]);
       // JR-2014 : the filters are not expanded here
-      selections_.push_back(FilterSelection(selectionNames[iS], pset));
+      selections_.emplace_back(selectionNames[iS], pset);
       //      selections_.insert(std::make_pair(selectionNames[iS],Selection(selectionNames[iS],pset)));
       //keep track of list of filters for this selection for further dependency resolution
       selectionFilters[selectionNames[iS]] = pset.getParameter<std::vector<std::string> >("filterOrder");
@@ -417,7 +417,7 @@ public:
           //find an existing selection that match that name
           for (std::vector<FilterSelection>::iterator sit = selections_.begin(); sit != selections_.end(); ++sit) {
             if (fOsName == sit->name_) {
-              selection.filters_.push_back(SFilter(&(*sit), inverted));
+              selection.filters_.emplace_back(&(*sit), inverted);
               replaceBySelection = true;
             }
           }
@@ -427,7 +427,7 @@ public:
           }
         } else {
           //actually increment the filter
-          selection.filters_.push_back(SFilter(filterInstance->second, inverted));
+          selection.filters_.emplace_back(filterInstance->second, inverted);
         }
       }
     }

@@ -165,7 +165,7 @@ void PFClusterMatchedToPhotonsSelector::produce(edm::Event& iEvent, const edm::E
           association_out->push_back(std::make_pair(iN, associationHandle_.product()->at(i).second));
         }
       }
-      genmatching.push_back(edm::Ref<reco::GenParticleCollection>(genParticleHandle_, matchedKey));
+      genmatching.emplace_back(genParticleHandle_, matchedKey);
     }
   }
 

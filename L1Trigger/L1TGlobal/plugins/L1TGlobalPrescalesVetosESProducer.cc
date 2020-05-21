@@ -136,7 +136,7 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
 
     const int inputDefaultPrescale = 1;
     // by default, fill a single prescale column
-    prescales.push_back(std::vector<int>(m_numberPhysTriggers, inputDefaultPrescale));
+    prescales.emplace_back(m_numberPhysTriggers, inputDefaultPrescale);
   } else {
     while (!input_prescale.eof()) {
       string tmp;
@@ -167,7 +167,7 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
     if (NumPrescaleSets > 0) {
       // Fill default prescale set
       for (int iSet = 0; iSet < NumPrescaleSets; iSet++) {
-        prescales.push_back(std::vector<int>());
+        prescales.emplace_back();
         for (int iBit = 0; iBit < NumAlgos_prescale; ++iBit) {
           int inputDefaultPrescale = 0;  // only prescales that are set in the block below are used
           prescales[iSet].push_back(inputDefaultPrescale);

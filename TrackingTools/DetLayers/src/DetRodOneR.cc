@@ -38,7 +38,7 @@ bool DetRodOneR::add(int idet,
       theCompatibilityChecker.isCompatible(theDets[idet], startingState, prop, est);
 
   if (compat.first) {
-    result.push_back(DetWithState(theDets[idet], compat.second));
+    result.emplace_back(theDets[idet], compat.second);
   }
 
   return compat.first;

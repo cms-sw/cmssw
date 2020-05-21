@@ -204,7 +204,7 @@ void PixelToLNKAssociateFromAscii::addConnections(int fedId, int linkId, std::st
         cablingRocId.rocLinkId = rocLnkId;      // 1...8    19/11/08 d.k.
         detectorRocId.rocDetId = rocDetId - 8;  // 0...7
       }
-      theConnection.push_back(make_pair(detectorRocId, cablingRocId));
+      theConnection.emplace_back(detectorRocId, cablingRocId);
     }
     if (!loopExecuted)
       delete name;
@@ -329,7 +329,7 @@ void PixelToLNKAssociateFromAscii::addConnections(int fedId, int linkId, std::st
           cablingRocId.linkId = linkId;
           cablingRocId.rocLinkId = rocLnkId;
 
-          theConnection.push_back(make_pair(detectorRocId, cablingRocId));
+          theConnection.emplace_back(detectorRocId, cablingRocId);
           //         cout <<"PLAQ:"<<plaq<<" rocDetId: "<<rocDetId<<" rocLnkId:"<<rocLnkId<<endl;
         }
       }
@@ -376,7 +376,7 @@ void PixelToLNKAssociateFromAscii::addConnections(int fedId, int linkId, std::st
           cablingRocId.linkId = linkId;
           cablingRocId.rocLinkId = rocLnkId;
 
-          theConnection.push_back(make_pair(detectorRocId, cablingRocId));
+          theConnection.emplace_back(detectorRocId, cablingRocId);
           //         cout <<"PLAQ:"<<plaq<<" rocDetId: "<<rocDetId<<" rocLnkId:"<<rocLnkId<<endl;
         }
       }
@@ -416,7 +416,7 @@ void PixelToLNKAssociateFromAscii::addConnections(int fedId, int linkId, std::st
           cablingRocId.linkId = linkId;
           cablingRocId.rocLinkId = rocLnkId;
 
-          theConnection.push_back(make_pair(detectorRocId, cablingRocId));
+          theConnection.emplace_back(detectorRocId, cablingRocId);
           //         cout <<"PLAQ:"<<plaq<<" rocDetId: "<<rocDetId<<" rocLnkId:"<<rocLnkId<<endl;
         }
       }
@@ -458,7 +458,7 @@ void PixelToLNKAssociateFromAscii::addConnections(int fedId, int linkId, std::st
           cablingRocId.linkId = linkId;
           cablingRocId.rocLinkId = rocLnkId;
 
-          theConnection.push_back(make_pair(detectorRocId, cablingRocId));
+          theConnection.emplace_back(detectorRocId, cablingRocId);
           //         cout <<"PLAQ:"<<plaq<<" rocDetId: "<<rocDetId<<" rocLnkId:"<<rocLnkId<<endl;
         }  // for
       }    // for
@@ -480,7 +480,7 @@ void PixelToLNKAssociateFromAscii::addConnections(int fedId, int linkId, std::st
         cablingRocId.fedId = fedId;
         cablingRocId.linkId = linkId;
         cablingRocId.rocLinkId = rocLnkId;
-        theConnection.push_back(make_pair(detectorRocId, cablingRocId));
+        theConnection.emplace_back(detectorRocId, cablingRocId);
         edm::LogInfo("PixelToLNKAssociateFromAscii FPix ")
             << " rocDetId: " << rocDetId << " rocLnkId:" << rocLnkId << " fedId = " << fedId << " linkId = " << linkId
             << " name = " << name->name();

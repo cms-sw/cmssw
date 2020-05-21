@@ -181,7 +181,7 @@ void GenParticlePruner::produce(Event &evt, const EventSetup &es) {
         };
       } else {
         cut = rep.replace(cut);
-        select_.push_back(make_pair(StringCutObjectSelector<GenParticle>(cut), code));
+        select_.emplace_back(StringCutObjectSelector<GenParticle>(cut), code);
       }
     }
     firstEvent_ = false;

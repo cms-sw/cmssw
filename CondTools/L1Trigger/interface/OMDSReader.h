@@ -258,7 +258,7 @@ namespace l1t {
   template <class T>
   const OMDSReader::QueryResults OMDSReader::singleAttribute(const T& data) const {
     std::vector<std::string> names;
-    names.push_back("dummy");
+    names.emplace_back("dummy");
 
     coral::AttributeList attList;
     attList.extend("dummy", typeid(T));

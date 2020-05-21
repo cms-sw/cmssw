@@ -66,7 +66,7 @@ EcalDisplaysByEvent::EcalDisplaysByEvent(const edm::ParameterSet& iConfig)
   seedCrys_ = iConfig.getUntrackedParameter<vector<int> >("seedCrys", listDefaults);
 
   vector<string> defaultMaskedEBs;
-  defaultMaskedEBs.push_back("none");
+  defaultMaskedEBs.emplace_back("none");
   maskedEBs_ = iConfig.getUntrackedParameter<vector<string> >("maskedEBs", defaultMaskedEBs);
 
   fedMap_ = new EcalFedMap();

@@ -46,22 +46,22 @@ PixelNameTranslation::PixelNameTranslation(std::vector<std::vector<std::string> 
   TBM_MODE					     VARCHAR2(200)
 */
 
-  colNames.push_back("CONFIG_KEY");    //0
-  colNames.push_back("KEY_TYPE");      //1
-  colNames.push_back("KEY_ALIAS");     //2
-  colNames.push_back("VERSION");       //3
-  colNames.push_back("KIND_OF_COND");  //4
-  colNames.push_back("ROC_NAME");      //5
-  colNames.push_back("PXLFEC_NAME");   //6
-  colNames.push_back("MFEC_POSN");     //7
-  colNames.push_back("MFEC_CHAN");     //8
-  colNames.push_back("HUB_ADDRS");     //9
-  colNames.push_back("PORT_NUM");      //10
-  colNames.push_back("ROC_I2C_ADDR");  //11
-  colNames.push_back("PXLFED_NAME");   //12
-  colNames.push_back("FED_CHAN");      //13
-  colNames.push_back("FED_ROC_NUM");   //14
-  colNames.push_back("TBM_MODE");      //15
+  colNames.emplace_back("CONFIG_KEY");    //0
+  colNames.emplace_back("KEY_TYPE");      //1
+  colNames.emplace_back("KEY_ALIAS");     //2
+  colNames.emplace_back("VERSION");       //3
+  colNames.emplace_back("KIND_OF_COND");  //4
+  colNames.emplace_back("ROC_NAME");      //5
+  colNames.emplace_back("PXLFEC_NAME");   //6
+  colNames.emplace_back("MFEC_POSN");     //7
+  colNames.emplace_back("MFEC_CHAN");     //8
+  colNames.emplace_back("HUB_ADDRS");     //9
+  colNames.emplace_back("PORT_NUM");      //10
+  colNames.emplace_back("ROC_I2C_ADDR");  //11
+  colNames.emplace_back("PXLFED_NAME");   //12
+  colNames.emplace_back("FED_CHAN");      //13
+  colNames.emplace_back("FED_ROC_NUM");   //14
+  colNames.emplace_back("TBM_MODE");      //15
 
   for (unsigned int c = 0; c < tableMat[0].size(); c++) {
     for (unsigned int n = 0; n < colNames.size(); n++) {

@@ -194,7 +194,7 @@ select string_value from runsession_parameter where string_value like '%[51384]'
       std::cout << " entering the queryII == " << std::endl;
       long long vid_val = row["VALUE_ID"].data<long long>();
       int vid_id = (int)row["VALUE_INDEX"].data<long long>();
-      v_vid.push_back(std::make_pair(vid_id, vid_val));
+      v_vid.emplace_back(vid_id, vid_val);
       std::cout << " value_id index extracted == " << v_vid.back().first << std::endl;
       std::cout << " value_id value extracted == " << v_vid.back().second << std::endl;
       // depending from the index, fill the object....

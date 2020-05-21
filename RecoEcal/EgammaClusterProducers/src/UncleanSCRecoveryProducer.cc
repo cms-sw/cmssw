@@ -94,7 +94,7 @@ void UncleanSCRecoveryProducer::produce(edm::StreamID, edm::Event& evt, const ed
       // the basic clusters
       basicClusters.push_back(**bciter);
       // index of the unclean SC
-      basicClusterOwner.push_back(std::make_pair(isc, 0));
+      basicClusterOwner.emplace_back(isc, 0);
     }
   }
   // loop over the clean: only the ones which are in common with the unclean
@@ -109,7 +109,7 @@ void UncleanSCRecoveryProducer::produce(edm::StreamID, edm::Event& evt, const ed
       // the basic clusters
       basicClusters.push_back(**bciter);
       // index of the clean SC
-      basicClusterOwner.push_back(std::make_pair(isc, 1));
+      basicClusterOwner.emplace_back(isc, 1);
     }
     if (cscRef->isInUnclean())
       isToBeKept.push_back(1);

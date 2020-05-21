@@ -142,7 +142,7 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet& iConfig)
   if (addElecID_) {
     // it might be a single electron ID
     if (iConfig.existsAs<edm::InputTag>("electronIDSource")) {
-      elecIDSrcs_.push_back(NameTag("", iConfig.getParameter<edm::InputTag>("electronIDSource")));
+      elecIDSrcs_.emplace_back("", iConfig.getParameter<edm::InputTag>("electronIDSource"));
     }
     // or there might be many of them
     if (iConfig.existsAs<edm::ParameterSet>("electronIDSources")) {
@@ -155,7 +155,7 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet& iConfig)
       edm::ParameterSet idps = iConfig.getParameter<edm::ParameterSet>("electronIDSources");
       std::vector<std::string> names = idps.getParameterNamesForType<edm::InputTag>();
       for (std::vector<std::string>::const_iterator it = names.begin(), ed = names.end(); it != ed; ++it) {
-        elecIDSrcs_.push_back(NameTag(*it, idps.getParameter<edm::InputTag>(*it)));
+        elecIDSrcs_.emplace_back(*it, idps.getParameter<edm::InputTag>(*it));
       }
     }
     // but in any case at least once
@@ -442,8 +442,8 @@ void PATElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
               ids[i].second = (*idhandles[i])[elecsRef];
             }
             //SPECIFIC PF ID
-            ids.push_back(std::make_pair("pf_evspi", pfRef->mva_e_pi()));
-            ids.push_back(std::make_pair("pf_evsmu", pfRef->mva_e_mu()));
+            ids.emplace_back("pf_evspi", pfRef->mva_e_pi());
+            ids.emplace_back("pf_evsmu", pfRef->mva_e_mu());
             anElectron.setElectronIDs(ids);
           }
 

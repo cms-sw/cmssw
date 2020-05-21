@@ -192,7 +192,7 @@ VertexState GsfVertexSmoother::meanVertex(const VertexState& vertexA, const Vert
       AlgebraicSymMatrix33 newWeight = iA->weight().matrix() + iB->weight().matrix();
       AlgebraicVector3 newWtP = iA->weightTimesPosition() + iB->weightTimesPosition();
       double newWeightInMixture = iA->weightInMixture() * iB->weightInMixture();
-      finalVS.push_back(VertexState(newWtP, newWeight, newWeightInMixture));
+      finalVS.emplace_back(newWtP, newWeight, newWeightInMixture);
     }
   }
 #ifndef CMS_NO_COMPLEX_RETURNS

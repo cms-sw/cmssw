@@ -76,7 +76,7 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
         continue;
 
       // initialize egamma from cluster
-      egammas_raw.push_back(cluster);
+      egammas_raw.emplace_back(cluster);
       l1t::EGamma& egamma = egammas_raw.back();
 
       // Trim cluster (only for egamma energy computation, the original cluster is unchanged)

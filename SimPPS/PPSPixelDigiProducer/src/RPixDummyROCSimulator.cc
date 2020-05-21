@@ -55,7 +55,7 @@ void RPixDummyROCSimulator::ConvertChargeToHits(
         adc = maxADC_;
       if (adc < 0)
         adc = 0;
-      output_digi.push_back(CTPPSPixelDigi(row, col, adc));
+      output_digi.emplace_back(row, col, adc);
       if (links_persistence_) {
         output_digi_links.push_back(theSignalProvenance[pixel_no]);
         if (verbosity_) {

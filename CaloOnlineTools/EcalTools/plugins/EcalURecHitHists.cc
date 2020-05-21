@@ -47,7 +47,7 @@ EcalURecHitHists::EcalURecHitHists(const edm::ParameterSet& iConfig)
   maskedFEDs_ = iConfig.getUntrackedParameter<vector<int> >("maskedFEDs", listDefaults);
 
   vector<string> defaultMaskedEBs;
-  defaultMaskedEBs.push_back("none");
+  defaultMaskedEBs.emplace_back("none");
   maskedEBs_ = iConfig.getUntrackedParameter<vector<string> >("maskedEBs", defaultMaskedEBs);
 
   fedMap_ = new EcalFedMap();

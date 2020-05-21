@@ -92,8 +92,8 @@ JetMETHLTOfflineSource::JetMETHLTOfflineSource(const edm::ParameterSet& iConfig)
   pathRejectKeyword_ = iConfig.getUntrackedParameter<vector<std::string> >("pathRejectKeyword");
   std::vector<edm::ParameterSet> paths = iConfig.getParameter<std::vector<edm::ParameterSet> >("pathPairs");
   for (auto& path : paths) {
-    custompathnamepairs_.push_back(
-        make_pair(path.getParameter<std::string>("pathname"), path.getParameter<std::string>("denompathname")));
+    custompathnamepairs_.emplace_back(path.getParameter<std::string>("pathname"),
+                                      path.getParameter<std::string>("denompathname"));
   }
 }
 

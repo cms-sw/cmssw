@@ -157,7 +157,7 @@ void JetPartonMatching::matchingTotalMinDist() {
   for (unsigned int ip = 0; ip < partons.size(); ++ip) {
     for (unsigned int ij = 0; ij < jets.size(); ++ij) {
       double dist = distance(jets[ij]->p4(), partons[ip]->p4());
-      distances.push_back(std::pair<double, unsigned int>(dist, ip * jets.size() + ij));
+      distances.emplace_back(dist, ip * jets.size() + ij);
     }
   }
   std::sort(distances.begin(), distances.end());
@@ -223,7 +223,7 @@ void JetPartonMatching::minSumDist_recursion(const unsigned int ip,
     match.push_back(std::make_pair(ip, jetIndices[ip]));
   }
 
-  distMatchVec.push_back(std::make_pair(sumDist, match));
+  distMatchVec.emplace_back(sumDist, match);
   return;
 }
 
@@ -266,7 +266,7 @@ void JetPartonMatching::matchingPtOrderedMinDist() {
   std::vector<std::pair<double, unsigned int> > ptOrderedPartons;
 
   for (unsigned int ip = 0; ip < partons.size(); ++ip)
-    ptOrderedPartons.push_back(std::make_pair(partons[ip]->pt(), ip));
+    ptOrderedPartons.emplace_back(partons[ip]->pt(), ip);
 
   std::sort(ptOrderedPartons.begin(), ptOrderedPartons.end());
   std::reverse(ptOrderedPartons.begin(), ptOrderedPartons.end());

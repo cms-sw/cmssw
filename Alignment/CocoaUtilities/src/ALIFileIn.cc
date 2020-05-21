@@ -44,7 +44,7 @@ void ALIFileIn::openNewFile(const char* filename) {
   //-  ALIint lineno = 0;
   theLineNo.push_back(0);
 
-  theNames.push_back(filename);
+  theNames.emplace_back(filename);
 
 #ifndef OS_SUN_4_2
   if (!fin->is_open()) {

@@ -56,7 +56,7 @@ namespace triggerExpression {
       auto entry = triggerMap.find(m_pattern);
       if (entry != triggerMap.end()) {
         // single L1 bit
-        m_triggers.push_back(std::make_pair(m_pattern, entry->second.getIndex()));
+        m_triggers.emplace_back(m_pattern, entry->second.getIndex());
       } else
           // trigger not found in the current menu
           if (data.shouldThrow())
@@ -72,7 +72,7 @@ namespace triggerExpression {
       for (auto const& entry : triggerMap)
         if (std::regex_match(entry.first, re)) {
           match = true;
-          m_triggers.push_back(std::make_pair(entry.first, entry.second.getIndex()));
+          m_triggers.emplace_back(entry.first, entry.second.getIndex());
         }
 
       if (not match) {

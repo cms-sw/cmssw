@@ -59,7 +59,7 @@ DTTriggerEfficiencyTask::DTTriggerEfficiencyTask(const edm::ParameterSet& ps) : 
   phiAccRange = parameters.getUntrackedParameter<double>("phiAccRange");
 
   if (processTM)
-    processTags.push_back("TM");
+    processTags.emplace_back("TM");
   if (!processTM)
     LogError("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask")
         << "[DTTriggerEfficiencyTask]: Error, no trigger source (Twinmux) has been selected!!" << endl;

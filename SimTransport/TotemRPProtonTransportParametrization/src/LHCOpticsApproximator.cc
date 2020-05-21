@@ -21,11 +21,11 @@ void LHCOpticsApproximator::Init() {
   out_polynomials.push_back(&theta_y_parametrisation);
 
   coord_names.clear();
-  coord_names.push_back("x");
-  coord_names.push_back("theta_x");
-  coord_names.push_back("y");
-  coord_names.push_back("theta_y");
-  coord_names.push_back("ksi");
+  coord_names.emplace_back("x");
+  coord_names.emplace_back("theta_x");
+  coord_names.emplace_back("y");
+  coord_names.emplace_back("theta_y");
+  coord_names.emplace_back("ksi");
 
   s_begin_ = 0.0;
   s_end_ = 0.0;
@@ -719,10 +719,10 @@ void LHCOpticsApproximator::Test(TTree *inp_tree, TFile *f_out, std::string data
 
 void LHCOpticsApproximator::AllocateErrorHists(TH1D *err_hists[4]) {
   std::vector<std::string> error_labels;
-  error_labels.push_back("x error");
-  error_labels.push_back("theta_x error");
-  error_labels.push_back("y error");
-  error_labels.push_back("theta_y error");
+  error_labels.emplace_back("x error");
+  error_labels.emplace_back("theta_x error");
+  error_labels.emplace_back("y error");
+  error_labels.emplace_back("theta_y error");
 
   for (int i = 0; i < 4; ++i) {
     err_hists[i] = new TH1D(error_labels[i].c_str(), error_labels[i].c_str(), 100, -0.0000000001, 0.0000000001);
@@ -780,16 +780,16 @@ void LHCOpticsApproximator::AllocateErrorInputCorHists(TH2D *err_inp_cor_hists[4
   std::vector<std::string> error_labels;
   std::vector<std::string> data_labels;
 
-  error_labels.push_back("x error");
-  error_labels.push_back("theta_x error");
-  error_labels.push_back("y error");
-  error_labels.push_back("theta_y error");
+  error_labels.emplace_back("x error");
+  error_labels.emplace_back("theta_x error");
+  error_labels.emplace_back("y error");
+  error_labels.emplace_back("theta_y error");
 
-  data_labels.push_back("x input");
-  data_labels.push_back("theta_x input");
-  data_labels.push_back("y input");
-  data_labels.push_back("theta_y input");
-  data_labels.push_back("ksi input");
+  data_labels.emplace_back("x input");
+  data_labels.emplace_back("theta_x input");
+  data_labels.emplace_back("y input");
+  data_labels.emplace_back("theta_y input");
+  data_labels.emplace_back("ksi input");
 
   for (int eri = 0; eri < 4; ++eri) {
     for (int dati = 0; dati < 5; ++dati) {
@@ -809,16 +809,16 @@ void LHCOpticsApproximator::AllocateErrorOutputCorHists(TH2D *err_out_cor_hists[
   std::vector<std::string> error_labels;
   std::vector<std::string> data_labels;
 
-  error_labels.push_back("x error");
-  error_labels.push_back("theta_x error");
-  error_labels.push_back("y error");
-  error_labels.push_back("theta_y error");
+  error_labels.emplace_back("x error");
+  error_labels.emplace_back("theta_x error");
+  error_labels.emplace_back("y error");
+  error_labels.emplace_back("theta_y error");
 
-  data_labels.push_back("x output");
-  data_labels.push_back("theta_x output");
-  data_labels.push_back("y output");
-  data_labels.push_back("theta_y output");
-  data_labels.push_back("ksi output");
+  data_labels.emplace_back("x output");
+  data_labels.emplace_back("theta_x output");
+  data_labels.emplace_back("y output");
+  data_labels.emplace_back("theta_y output");
+  data_labels.emplace_back("ksi output");
 
   for (int eri = 0; eri < 4; ++eri) {
     for (int dati = 0; dati < 5; ++dati) {
@@ -958,8 +958,7 @@ bool LHCOpticsApproximator::CheckInputRange(const double *in,
 
 void LHCOpticsApproximator::AddRectEllipseAperture(
     const LHCOpticsApproximator &in, double rect_x, double rect_y, double r_el_x, double r_el_y) {
-  apertures_.push_back(
-      LHCApertureApproximator(in, rect_x, rect_y, r_el_x, r_el_y, LHCApertureApproximator::ApertureType::RECTELLIPSE));
+  apertures_.emplace_back(in, rect_x, rect_y, r_el_x, r_el_y, LHCApertureApproximator::ApertureType::RECTELLIPSE);
 }
 
 LHCApertureApproximator::LHCApertureApproximator() {

@@ -487,7 +487,7 @@ void ConversionProducer::buildCollection(edm::Event& iEvent,
         if (trackImpactPositionLeft != trackImpactPosition.end()) {
           trkPositionAtEcal.push_back(trackImpactPositionLeft->second);  //left track
         } else {
-          trkPositionAtEcal.push_back(math::XYZPointF());  //left track
+          trkPositionAtEcal.emplace_back();  //left track
         }
         if (trackImpactPositionRight != trackImpactPosition.end()) {  //second track ECAL position may be invalid
           trkPositionAtEcal.push_back(trackImpactPositionRight->second);
@@ -498,7 +498,7 @@ void ConversionProducer::buildCollection(edm::Event& iEvent,
           matchingBC.push_back(trackMatchedBCLeft->second);  //left track
           total_e_bc += trackMatchedBCLeft->second->energy();
         } else {
-          matchingBC.push_back(reco::CaloClusterPtr());  //left track
+          matchingBC.emplace_back();  //left track
         }
         if (trackMatchedBCRight != trackMatchedBC.end()) {  //second track ECAL position may be invalid
           matchingBC.push_back(trackMatchedBCRight->second);

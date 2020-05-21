@@ -38,27 +38,27 @@ HcalAssistant::HcalAssistant() {
 HcalAssistant::~HcalAssistant() {}
 
 int HcalAssistant::addQuotes() {
-  quotes.push_back("Fear is the path to the Dark Side...");
-  quotes.push_back("You don't know the power of the Dark Side...");
-  quotes.push_back("You must learn the ways of the Force!");
-  quotes.push_back("Where's the money, Lebowski?!");
-  quotes.push_back("You see what happens when you find a stranger in the Alps!!!?");
-  quotes.push_back(
+  quotes.emplace_back("Fear is the path to the Dark Side...");
+  quotes.emplace_back("You don't know the power of the Dark Side...");
+  quotes.emplace_back("You must learn the ways of the Force!");
+  quotes.emplace_back("Where's the money, Lebowski?!");
+  quotes.emplace_back("You see what happens when you find a stranger in the Alps!!!?");
+  quotes.emplace_back(
       "You hear this? This is the sound of inevitability. This is the sound of your death. Goodbye, mr. Anderson");
-  quotes.push_back("Welcome to the desert of the Real");
-  quotes.push_back("In Tyler we trust");
-  quotes.push_back("How about a little snack?..Let's have a snack now, we can get friendly later");
-  quotes.push_back("Is he human? Hey, no need for name calling!");
-  quotes.push_back("Frankly, my dear, I don't give a damn");
-  quotes.push_back("I've a feeling we're not in Kansas anymore");
-  quotes.push_back("What we've got here is failure to communicate");
-  quotes.push_back("I love the smell of napalm in the morning!");
-  quotes.push_back("I see stupid people");
-  quotes.push_back("Stella! Hey, Stella!");
-  quotes.push_back("Houston, we have a problem");
-  quotes.push_back("Mrs. Robinson, you're trying to seduce me. Aren't you?");
-  quotes.push_back("I feel the need - the need for speed!");
-  quotes.push_back("He's got emotional problems. What, beyond pacifism?");
+  quotes.emplace_back("Welcome to the desert of the Real");
+  quotes.emplace_back("In Tyler we trust");
+  quotes.emplace_back("How about a little snack?..Let's have a snack now, we can get friendly later");
+  quotes.emplace_back("Is he human? Hey, no need for name calling!");
+  quotes.emplace_back("Frankly, my dear, I don't give a damn");
+  quotes.emplace_back("I've a feeling we're not in Kansas anymore");
+  quotes.emplace_back("What we've got here is failure to communicate");
+  quotes.emplace_back("I love the smell of napalm in the morning!");
+  quotes.emplace_back("I see stupid people");
+  quotes.emplace_back("Stella! Hey, Stella!");
+  quotes.emplace_back("Houston, we have a problem");
+  quotes.emplace_back("Mrs. Robinson, you're trying to seduce me. Aren't you?");
+  quotes.emplace_back("I feel the need - the need for speed!");
+  quotes.emplace_back("He's got emotional problems. What, beyond pacifism?");
   return quotes.size();
 }
 

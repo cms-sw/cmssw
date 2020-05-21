@@ -71,7 +71,7 @@ HcalPiecewiseLinearFunctor HcalPiecewiseLinearFunctor::inverse() const {
   std::vector<std::pair<double, double> > points;
   points.reserve(sz);
   for (std::size_t i = 0; i < sz; ++i)
-    points.push_back(std::make_pair(values_[i], abscissae_[i]));
+    points.emplace_back(values_[i], abscissae_[i]);
   bool l = leftExtrapolationLinear_;
   bool r = rightExtrapolationLinear_;
   if (values_[0] > values_[sz - 1])

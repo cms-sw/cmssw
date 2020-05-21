@@ -53,8 +53,8 @@ void SusyPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& 
 
   std::vector<std::string> metFolders;
 
-  metFolders.push_back("Uncleaned/");
-  metFolders.push_back("Cleaned/");
+  metFolders.emplace_back("Uncleaned/");
+  metFolders.emplace_back("Cleaned/");
 
   //Need our own copy for thread safety
   TF1 mygaus("mygaus", "gaus");

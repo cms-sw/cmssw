@@ -117,7 +117,7 @@ int DTLVStatus::set(int wheelId, int stationId, int sectorId, int flagCFE, int f
     data.flagCMC = flagCMC;
     data.flagDMC = flagDMC;
     ientry = dataList.size();
-    dataList.push_back(std::pair<DTLVStatusId, DTLVStatusData>(key, data));
+    dataList.emplace_back(key, data);
     dBuf->insert(chanKey.begin(), chanKey.end(), ientry);
     return 0;
   }

@@ -32,7 +32,7 @@ bSector::bSector(handles::const_iterator begin, handles::const_iterator end, boo
       cout << "   Rod at: 0 elements: " << end - begin << " unique volumes: ";
       printUniqueNames(begin, end);
     }
-    rods.push_back(bRod(begin, end, debug));
+    rods.emplace_back(begin, end, debug);
   } else {
     // Clusterize in phi. Use bin edge so that complete clusters can be
     // easily found (not trivial using bin centers!)
@@ -117,7 +117,7 @@ bSector::bSector(handles::const_iterator begin, handles::const_iterator end, boo
           printUniqueNames(rodStart, separ);
         }
 
-        rods.push_back(bRod(rodStart, separ, debug));
+        rods.emplace_back(rodStart, separ, debug);
         rodStart = separ;
         DZ1 = 0.;
       }

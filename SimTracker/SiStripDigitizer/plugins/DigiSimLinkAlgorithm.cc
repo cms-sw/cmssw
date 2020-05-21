@@ -350,11 +350,11 @@ void DigiSimLinkAlgorithm::push_link(const DigitalVecType& digis,
           if ((*iter).first == (*simcount).first)
             sim_counter = (*simcount).second;
         }
-        link_coll.push_back(StripDigiSimLink((*mi).first,                 //channel
-                                             ((*iter).first)->trackId(),  //simhit trackId
-                                             sim_counter,                 //simhit counter
-                                             ((*iter).first)->eventId(),  //simhit eventId
-                                             fraction));                  //fraction
+        link_coll.emplace_back((*mi).first,                 //channel
+                               ((*iter).first)->trackId(),  //simhit trackId
+                               sim_counter,                 //simhit counter
+                               ((*iter).first)->eventId(),  //simhit eventId
+                               fraction);                   //fraction
       }
     }
   }
@@ -403,11 +403,11 @@ void DigiSimLinkAlgorithm::push_link_raw(const DigitalRawVecType& digis,
           if ((*iter).first == (*simcount).first)
             sim_counter_raw = (*simcount).second;
         }
-        link_coll.push_back(StripDigiSimLink((*mi).first,                 //channel
-                                             ((*iter).first)->trackId(),  //simhit trackId
-                                             sim_counter_raw,             //simhit counter
-                                             ((*iter).first)->eventId(),  //simhit eventId
-                                             fraction));                  //fraction
+        link_coll.emplace_back((*mi).first,                 //channel
+                               ((*iter).first)->trackId(),  //simhit trackId
+                               sim_counter_raw,             //simhit counter
+                               ((*iter).first)->eventId(),  //simhit eventId
+                               fraction);                   //fraction
       }
     }
   }

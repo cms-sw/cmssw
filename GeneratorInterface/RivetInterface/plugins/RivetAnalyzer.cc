@@ -108,7 +108,7 @@ void RivetAnalyzer::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, cons
   if (!_weightNames.empty()) {
     _weightNames[0] = "";
   } else {  // Summer16 samples have 1 weight stored in HepMC but no weightNames
-    _weightNames.push_back("");
+    _weightNames.emplace_back("");
   }
 }
 

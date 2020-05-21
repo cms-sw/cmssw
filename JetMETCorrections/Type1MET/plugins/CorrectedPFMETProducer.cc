@@ -44,7 +44,7 @@ public:
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("src", edm::InputTag("pfMet", ""));
     std::vector<edm::InputTag> tmpv;
-    tmpv.push_back(edm::InputTag("corrPfMetType1", "type1"));
+    tmpv.emplace_back("corrPfMetType1", "type1");
     desc.add<std::vector<edm::InputTag> >("srcCorrections", tmpv);
     descriptions.add(defaultModuleLabel<CorrectedPFMETProducer>(), desc);
   }

@@ -286,7 +286,7 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
 
       if (e_long > m_minTowerEnergy && il != hf.end()) {
         // record usage
-        usedHits.push_back(idl.rawId());
+        usedHits.emplace_back(idl.rawId());
         // always in the 5x5
         l_5 += e_long;
         // maybe in the 3x3
@@ -333,7 +333,7 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
 
       if (e_short > m_minTowerEnergy && is != hf.end()) {
         // record usage
-        usedHits.push_back(ids.rawId());
+        usedHits.emplace_back(ids.rawId());
         // always in the 5x5
         s_5 += e_short;
         // maybe in the 3x3

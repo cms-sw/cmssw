@@ -110,7 +110,7 @@ public:
         //calibs.push_back(calib);            //dummy, so that index of vectors still match
         readers.push_back(reader);  //dummy, so that index of vectors still match
         std::vector<std::string> branches;
-        branches.push_back("");
+        branches.emplace_back("");
         inBranchNames.push_back(branches);
 
         // report

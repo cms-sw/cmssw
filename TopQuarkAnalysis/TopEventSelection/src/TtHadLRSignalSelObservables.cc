@@ -36,7 +36,7 @@ void TtHadLRSignalSelObservables::operator()(TtHadEvtSolution &TS) {
   //Et-Sum of the lightest jets
   double EtSum = topJets[5].et() + topJets[5].et();
   double Obs1 = (EtSum > 0 ? EtSum : -1);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(1, Obs1));
+  evtselectVarVal.emplace_back(1, Obs1);
 
   //Log of the difference in Bdisc between the 2nd and the 3rd jets (ordered in Bdisc) - does that still
   //make sense for the fully hadronic channel as well?FIXME!!!
@@ -46,7 +46,7 @@ void TtHadLRSignalSelObservables::operator()(TtHadEvtSolution &TS) {
 
   double BGap = topJets[1].bDiscriminator("trackCountingJetTags") - topJets[2].bDiscriminator("trackCountingJetTags");
   double Obs2 = (BGap > 0 ? log(BGap) : -1);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(2, Obs2));
+  evtselectVarVal.emplace_back(2, Obs2);
 
   //Circularity of the event
   double N = 0, D = 0, C_tmp = 0, C = 1000;
@@ -75,7 +75,7 @@ void TtHadLRSignalSelObservables::operator()(TtHadEvtSolution &TS) {
   }
 
   double Obs3 = (C != 1000 ? C : -1);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(3, Obs3));
+  evtselectVarVal.emplace_back(3, Obs3);
 
   //HT variable (Et-sum of the six jets)
   double HT = 0;
@@ -84,7 +84,7 @@ void TtHadLRSignalSelObservables::operator()(TtHadEvtSolution &TS) {
   }
 
   double Obs4 = (HT != 0 ? HT : -1);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(4, Obs4));
+  evtselectVarVal.emplace_back(4, Obs4);
 
   //Transverse Mass of the system
   math::XYZTLorentzVector pjets;
@@ -94,7 +94,7 @@ void TtHadLRSignalSelObservables::operator()(TtHadEvtSolution &TS) {
   }
   double MT = sqrt(std::pow(pjets.mass(), 2));
   double Obs5 = (MT > 0 ? MT : -1);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(5, Obs5));
+  evtselectVarVal.emplace_back(5, Obs5);
 
   //CosTheta(Hadp,Hadq) and CosTheta(Hadj,Hadq)
   //sort the lightJets in Et
@@ -135,9 +135,9 @@ void TtHadLRSignalSelObservables::operator()(TtHadEvtSolution &TS) {
   double CosTheta2 = cos(LightJet4->Angle(LightJet3->Vect()));
 
   double Obs6 = (-1 < CosTheta1 ? CosTheta1 : -2);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(6, Obs6));
+  evtselectVarVal.emplace_back(6, Obs6);
   double Obs7 = (-1 < CosTheta2 ? CosTheta2 : -2);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(7, Obs7));
+  evtselectVarVal.emplace_back(7, Obs7);
 
   delete LightJet1;
   delete LightJet2;
@@ -158,15 +158,15 @@ void TtHadLRSignalSelObservables::operator()(TtHadEvtSolution &TS) {
   //std::cout<<"LjetsBdiscSum = "<<LjetsBdiscSum<<std::endl;
 
   double Obs8 = (Ljets1BdiscSum != 0 ? log(BjetsBdiscSum / Ljets1BdiscSum) : -1);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(8, Obs8));
+  evtselectVarVal.emplace_back(8, Obs8);
   double Obs9 = (Ljets2BdiscSum != 0 ? log(BjetsBdiscSum / Ljets2BdiscSum) : -1);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(9, Obs9));
+  evtselectVarVal.emplace_back(9, Obs9);
   double Obs10 = (BGap > 0 ? log(BjetsBdiscSum * BGap) : -1);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(10, Obs10));
+  evtselectVarVal.emplace_back(10, Obs10);
 
   // Et-Ratio between the two highest in Et jets and four highest jets
   double Obs11 = (HT != 0 ? (HT - EtSum) / HT : -1);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(11, Obs11));
+  evtselectVarVal.emplace_back(11, Obs11);
 
   //Sphericity and Aplanarity without boosting back the system to CM frame
 
@@ -210,10 +210,10 @@ void TtHadLRSignalSelObservables::operator()(TtHadEvtSolution &TS) {
   double Aplanarity = 1.5 * EigValues[2];
 
   double Obs12 = (edm::isNotFinite(Sphericity) ? -1 : Sphericity);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(12, Obs12));
+  evtselectVarVal.emplace_back(12, Obs12);
 
   double Obs13 = (edm::isNotFinite(Aplanarity) ? -1 : Aplanarity);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(13, Obs13));
+  evtselectVarVal.emplace_back(13, Obs13);
 
   //Sphericity and Aplanarity with boosting back the system to CM frame
   TLorentzVector *TtbarSystem = new TLorentzVector();
@@ -272,10 +272,10 @@ void TtHadLRSignalSelObservables::operator()(TtHadEvtSolution &TS) {
   double BOOST_Aplanarity = 1.5 * BOOST_EigValues[2];
 
   double Obs14 = (edm::isNotFinite(BOOST_Sphericity) ? -1 : BOOST_Sphericity);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(14, Obs14));
+  evtselectVarVal.emplace_back(14, Obs14);
 
   double Obs15 = (edm::isNotFinite(BOOST_Aplanarity) ? -1 : BOOST_Aplanarity);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(15, Obs15));
+  evtselectVarVal.emplace_back(15, Obs15);
 
   // Centrality of the six jets
   double H = 0;
@@ -283,17 +283,17 @@ void TtHadLRSignalSelObservables::operator()(TtHadEvtSolution &TS) {
     H += topJets[i].energy();
   }
   double Obs16 = (H != 0 ? HT / H : -1);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(16, Obs16));
+  evtselectVarVal.emplace_back(16, Obs16);
 
   // distance from the origin in the (BjetsBdiscSum, Ljets1BdiscSum) and  (BjetsBdiscSum, Ljets2BdiscSum)
   double Obs17 = (BjetsBdiscSum != 0 && Ljets1BdiscSum != 0 ? 0.707 * (BjetsBdiscSum - Ljets1BdiscSum) : -1);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(17, Obs17));
+  evtselectVarVal.emplace_back(17, Obs17);
   double Obs18 = (BjetsBdiscSum != 0 && Ljets2BdiscSum != 0 ? 0.707 * (BjetsBdiscSum - Ljets2BdiscSum) : -1);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(18, Obs18));
+  evtselectVarVal.emplace_back(18, Obs18);
 
   // Ratio of the Et Sum of the two lightest jets over HT=Sum of the Et of the six highest jets in Et
   double Obs19 = (HT != 0 ? EtSum / HT : -1);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(19, Obs19));
+  evtselectVarVal.emplace_back(19, Obs19);
 
   // Put the vector in the TtHadEvtSolution
   TS.setLRSignalEvtObservables(evtselectVarVal);

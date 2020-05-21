@@ -105,7 +105,7 @@ void OffHelper::setupTriggers(const HLTConfigProvider& hltConfig,
   hltFiltersUsedWithNrCandsCut_.clear();
   std::vector<int> getMRObjs = egHLT::trigTools::getMinNrObjsRequiredByFilter(hltFiltersUsed_);
   for (size_t filterNr = 0; filterNr < hltFiltersUsed_.size(); filterNr++) {
-    hltFiltersUsedWithNrCandsCut_.push_back(std::make_pair(hltFiltersUsed_[filterNr], getMRObjs[filterNr]));
+    hltFiltersUsedWithNrCandsCut_.emplace_back(hltFiltersUsed_[filterNr], getMRObjs[filterNr]);
   }
 
   //now loading the cuts for every trigger into our vector which stores them
@@ -115,7 +115,7 @@ void OffHelper::setupTriggers(const HLTConfigProvider& hltConfig,
     std::string trigName = trigCutParam.getParameter<std::string>("trigName");
     if (std::find(hltFiltersUsed_.begin(), hltFiltersUsed_.end(), trigName) !=
         hltFiltersUsed_.end()) {  //perhaps I should sort hltFiltersUsed_....
-      trigCuts_.push_back(std::make_pair(trigCodes.getCode(trigName), OffEgSel(trigCutParam)));
+      trigCuts_.emplace_back(trigCodes.getCode(trigName), OffEgSel(trigCutParam));
       //   std::cout<<trigName<<std::endl<<"between"<<std::endl<<trigCutParams_[trigNr]<<std::endl<<"after"<<std::endl;
     }
   }
@@ -143,7 +143,7 @@ void OffHelper::setupTriggers(const HLTConfigProvider& hltConfig,
       //---Morse====
       //std::cout<<l1PreScaledFilters_[pathNr]<<"  "<<l1PreScaledPaths_[pathNr]<<"  "<<l1SeedFilter<<std::endl;
       //------------
-      l1PreAndSeedFilters_.push_back(std::make_pair(l1PreScaledFilters_[pathNr], l1SeedFilter));
+      l1PreAndSeedFilters_.emplace_back(l1PreScaledFilters_[pathNr], l1SeedFilter);
     }
   }
 }
@@ -251,7 +251,7 @@ int OffHelper::fillOffEleVec(std::vector<OffEle>& egHLTOffEles) {
 
     std::vector<std::pair<TrigCodes::TrigBitSet, int> > trigCutsCutCodes;
     for (auto& trigCut : trigCuts_)
-      trigCutsCutCodes.push_back(std::make_pair(trigCut.first, trigCut.second.getCutCode(ele)));
+      trigCutsCutCodes.emplace_back(trigCut.first, trigCut.second.getCutCode(ele));
     ele.setTrigCutsCutCodes(trigCutsCutCodes);
   }  //end loop over gsf electron collection
   return 0;
@@ -422,7 +422,7 @@ int OffHelper::fillOffPhoVec(std::vector<OffPho>& egHLTOffPhos) {
 
     std::vector<std::pair<TrigCodes::TrigBitSet, int> > trigCutsCutCodes;
     for (auto& trigCut : trigCuts_)
-      trigCutsCutCodes.push_back(std::make_pair(trigCut.first, trigCut.second.getCutCode(pho)));
+      trigCutsCutCodes.emplace_back(trigCut.first, trigCut.second.getCutCode(pho));
     pho.setTrigCutsCutCodes(trigCutsCutCodes);
 
   }  //end loop over photon collection

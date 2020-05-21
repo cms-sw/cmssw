@@ -167,7 +167,7 @@ void PFTauPrimaryVertexProducerBase::produce(edm::Event& iEvent, const edm::Even
           if (muons.isValid()) {
             for (const auto& muon : *muons) {
               if (muon.track().isNonnull())
-                signalTracks.push_back(edm::refToPtr(muon.track()));
+                signalTracks.emplace_back(edm::refToPtr(muon.track()));
             }
           }
         }
@@ -176,9 +176,9 @@ void PFTauPrimaryVertexProducerBase::produce(edm::Event& iEvent, const edm::Even
           if (electrons.isValid()) {
             for (const auto& electron : *electrons) {
               if (electron.track().isNonnull())
-                signalTracks.push_back(edm::refToPtr(electron.track()));
+                signalTracks.emplace_back(edm::refToPtr(electron.track()));
               if (electron.gsfTrack().isNonnull())
-                signalTracks.push_back(edm::refToPtr(electron.gsfTrack()));
+                signalTracks.emplace_back(edm::refToPtr(electron.gsfTrack()));
             }
           }
         }

@@ -82,8 +82,7 @@ bool LHEPtFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetu
     }
     int pdgId = EvtHandle->hepeup().IDUP[i];
     if (pdgIds_.count(pdgId)) {
-      cands.push_back(
-          ROOT::Math::PxPyPzEVector(lheParticles[i][0], lheParticles[i][1], lheParticles[i][2], lheParticles[i][3]));
+      cands.emplace_back(lheParticles[i][0], lheParticles[i][1], lheParticles[i][2], lheParticles[i][3]);
     }
   }
   double vpt_ = -1;

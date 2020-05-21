@@ -77,11 +77,11 @@ HLTHcalTowerNoiseCleaner::HLTHcalTowerNoiseCleaner(const edm::ParameterSet& iCon
   std::vector<double> TS4TS5LowerCutTemp = iConfig.getParameter<std::vector<double> >("TS4TS5LowerCut");
 
   for (int i = 0; i < (int)TS4TS5UpperThresholdTemp.size() && i < (int)TS4TS5UpperCutTemp.size(); i++)
-    TS4TS5UpperCut_.push_back(std::pair<double, double>(TS4TS5UpperThresholdTemp[i], TS4TS5UpperCutTemp[i]));
+    TS4TS5UpperCut_.emplace_back(TS4TS5UpperThresholdTemp[i], TS4TS5UpperCutTemp[i]);
   sort(TS4TS5UpperCut_.begin(), TS4TS5UpperCut_.end());
 
   for (int i = 0; i < (int)TS4TS5LowerThresholdTemp.size() && i < (int)TS4TS5LowerCutTemp.size(); i++)
-    TS4TS5LowerCut_.push_back(std::pair<double, double>(TS4TS5LowerThresholdTemp[i], TS4TS5LowerCutTemp[i]));
+    TS4TS5LowerCut_.emplace_back(TS4TS5LowerThresholdTemp[i], TS4TS5LowerCutTemp[i]);
   sort(TS4TS5LowerCut_.begin(), TS4TS5LowerCut_.end());
 
   m_theHcalNoiseToken = consumes<reco::HcalNoiseRBXCollection>(HcalNoiseRBXCollectionTag_);

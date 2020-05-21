@@ -7,15 +7,15 @@ ME0BaseValidation::ME0BaseValidation(const edm::ParameterSet &ps) {
   RangeZR_ = ps.getUntrackedParameter<std::vector<double>>("RangeGlobalZR");
   nBinXY_ = ps.getUntrackedParameter<int>("nBinGlobalXY", 160);
 
-  regionLabel.push_back("-1");
-  regionLabel.push_back("1");
+  regionLabel.emplace_back("-1");
+  regionLabel.emplace_back("1");
 
-  layerLabel.push_back("1");
-  layerLabel.push_back("2");
-  layerLabel.push_back("3");
-  layerLabel.push_back("4");
-  layerLabel.push_back("5");
-  layerLabel.push_back("6");
+  layerLabel.emplace_back("1");
+  layerLabel.emplace_back("2");
+  layerLabel.emplace_back("3");
+  layerLabel.emplace_back("4");
+  layerLabel.emplace_back("5");
+  layerLabel.emplace_back("6");
 }
 
 ME0BaseValidation::~ME0BaseValidation() {}

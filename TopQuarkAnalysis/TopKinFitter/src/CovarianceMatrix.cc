@@ -14,7 +14,7 @@ CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet>& udscRes
     if (iSet->exists("bin"))
       binsUdsc_.push_back(iSet->getParameter<std::string>("bin"));
     else if (udscResolutions.size() == 1)
-      binsUdsc_.push_back("");
+      binsUdsc_.emplace_back("");
     else
       throw cms::Exception("Configuration") << "Parameter 'bin' is needed if more than one PSet is specified!\n";
 
@@ -26,7 +26,7 @@ CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet>& udscRes
     if (iSet->exists("bin"))
       binsB_.push_back(iSet->getParameter<std::string>("bin"));
     else if (bResolutions.size() == 1)
-      binsB_.push_back("");
+      binsB_.emplace_back("");
     else
       throw cms::Exception("Configuration") << "Parameter 'bin' is needed if more than one PSet is specified!\n";
 
@@ -55,7 +55,7 @@ CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet>& udscRes
     if (iSet->exists("bin"))
       binsUdsc_.push_back(iSet->getParameter<std::string>("bin"));
     else if (udscResolutions.size() == 1)
-      binsUdsc_.push_back("");
+      binsUdsc_.emplace_back("");
     else
       throw cms::Exception("Configuration") << "Parameter 'bin' is needed if more than one PSet is specified!\n";
 
@@ -67,7 +67,7 @@ CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet>& udscRes
     if (iSet->exists("bin"))
       binsB_.push_back(iSet->getParameter<std::string>("bin"));
     else if (bResolutions.size() == 1)
-      binsB_.push_back("");
+      binsB_.emplace_back("");
     else
       throw cms::Exception("Configuration") << "Parameter 'bin' is needed if more than one PSet is specified!\n";
 
@@ -80,7 +80,7 @@ CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet>& udscRes
     if (iSet->exists("bin"))
       binsLep_.push_back(iSet->getParameter<std::string>("bin"));
     else if (lepResolutions.size() == 1)
-      binsLep_.push_back("");
+      binsLep_.emplace_back("");
     else
       throw cms::Exception("Configuration") << "Parameter 'bin' is needed if more than one PSet is specified!\n";
 
@@ -93,7 +93,7 @@ CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet>& udscRes
     if (iSet->exists("bin"))
       binsMet_.push_back(iSet->getParameter<std::string>("bin"));
     else if (metResolutions.size() == 1)
-      binsMet_.push_back("");
+      binsMet_.emplace_back("");
     else
       throw cms::Exception("Configuration") << "Parameter 'bin' is needed if more than one PSet is specified!\n";
 

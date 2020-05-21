@@ -21,7 +21,7 @@ void RPVFATSimulator::ConvertChargeToHits(const simromanpot::strip_charge_map &s
     //one threshold per hybrid
     unsigned short strip_no = i->first;
     if (i->second > threshold_ && (!dead_strips_simulation_on_ || dead_strips_.find(strip_no) == dead_strips_.end())) {
-      output_digi.push_back(TotemRPDigi(strip_no));
+      output_digi.emplace_back(strip_no);
       if (links_persistence_) {
         output_digi_links.push_back(theSignalProvenance[strip_no]);
         if (verbosity_) {

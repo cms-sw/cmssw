@@ -12,7 +12,7 @@ RPCTriggerCrate::RPCTriggerCrate(RPCTriggerConfiguration* triggerConfig, int tcN
   m_TCNumber = tcNum;
 
   for (int iTB = 0; iTB < triggerConfig->getTBsInTC(); iTB++)
-    m_TBsVec.push_back(RPCTriggerBoard(triggerConfig, iTB, tcNum));
+    m_TBsVec.emplace_back(triggerConfig, iTB, tcNum);
 }
 //----------------------------------------
 L1RpcTBMuonsVec RPCTriggerCrate::runTCGBSorter() {

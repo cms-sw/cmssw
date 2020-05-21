@@ -135,7 +135,7 @@ METCorrectorParameters::METCorrectorParameters(const std::string& fFile, const s
   if (currentDefinitions.empty())
     handleError("METCorrectorParameters", "No definitions found!!!");
   if (mRecords.empty() && currentSection.empty())
-    mRecords.push_back(Record());
+    mRecords.emplace_back();
   if (mRecords.empty() && !currentSection.empty()) {
     std::stringstream sserr;
     sserr << "the requested section " << fSection << " doesn't exist!";

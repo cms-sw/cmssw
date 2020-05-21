@@ -307,7 +307,7 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
       while (split >> value) {
         if (first) {
           // Each new value read on line 1 should create a new inner vector
-          vec.push_back(std::vector<int>());
+          vec.emplace_back();
         }
 
         vec[col].push_back(value);
@@ -338,7 +338,7 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
     if (NumPrescaleSets > 0) {
       // Fill default prescale set
       for (int iSet = 0; iSet < NumPrescaleSets; iSet++) {
-        prescale_vec.push_back(std::vector<int>());
+        prescale_vec.emplace_back();
         for (unsigned int iBit = 0; iBit < m_numberPhysTriggers; ++iBit) {
           int inputDefaultPrescale = 1;
           prescale_vec[iSet].push_back(inputDefaultPrescale);
@@ -379,7 +379,7 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
     m_PreScaleColumn = 0;
 
     for (int col = 0; col < 1; col++) {
-      prescale_vec.push_back(std::vector<int>());
+      prescale_vec.emplace_back();
       for (unsigned int iBit = 0; iBit < m_numberPhysTriggers; ++iBit) {
         int inputDefaultPrescale = 0;
         prescale_vec[col].push_back(inputDefaultPrescale);

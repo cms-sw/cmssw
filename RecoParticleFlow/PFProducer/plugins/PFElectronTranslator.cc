@@ -248,12 +248,12 @@ void PFElectronTranslator::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
     reco::PFCandidatePtr ptrToPFElectron(pfCandidates, i);
     //CandidatePtr_.push_back(ptrToPFElectron->sourceCandidatePtr(0));
-    CandidatePtr_.push_back(ptrToPFElectron);
+    CandidatePtr_.emplace_back(ptrToPFElectron);
 
-    basicClusters_.push_back(reco::BasicClusterCollection());
-    pfClusters_.push_back(std::vector<const reco::PFCluster*>());
-    preshowerClusters_.push_back(reco::PreshowerClusterCollection());
-    ambiguousGsfTracks_.push_back(std::vector<reco::GsfTrackRef>());
+    basicClusters_.emplace_back();
+    pfClusters_.emplace_back();
+    preshowerClusters_.emplace_back();
+    ambiguousGsfTracks_.emplace_back();
 
     for (unsigned iele = 0; iele < cand.elementsInBlocks().size(); ++iele) {
       // first get the block
@@ -501,7 +501,7 @@ void PFElectronTranslator::fillSCRefValueMap(edm::Event& iEvent,
     std::map<reco::GsfTrackRef, reco::SuperClusterRef>::const_iterator itcheck = scMap_.find(theTrackRef);
     if (itcheck == scMap_.end()) {
       //	  edm::LogWarning("PFElectronTranslator") << "SCRef Map, missing GSF track ref" << std::endl;
-      values.push_back(reco::SuperClusterRef());
+      values.emplace_back();
     } else {
       values.push_back(itcheck->second);
     }

@@ -248,12 +248,12 @@ std::array<int, 3> Phase2EndcapLayer::ringIndicesByCrossingProximity(const Traje
     const BoundDisk& theRing = static_cast<const BoundDisk&>(theComps[i]->surface());
     pair<bool, double> pathlen = myXing.pathLength(theRing);
     if (pathlen.first) {
-      ringCrossings.push_back(GlobalPoint(myXing.position(pathlen.second)));
+      ringCrossings.emplace_back(myXing.position(pathlen.second));
       // ringXDirections.push_back( GlobalVector( myXing.direction(pathlen.second )));
     } else {
       // TO FIX.... perhaps there is something smarter to do
       //throw DetLayerException("trajectory doesn't cross TID rings");
-      ringCrossings.push_back(GlobalPoint(0., 0., 0.));
+      ringCrossings.emplace_back(0., 0., 0.);
       //  ringXDirections.push_back( GlobalVector( 0.,0.,0.));
     }
   }

@@ -5,22 +5,22 @@ std::unique_ptr<L1MuCSCTFAlignment> CSCTFAlignmentOnlineProd::newObject(const st
 
   //  SELECT Multiple columns  FROM TABLE with correct key:
   std::vector<std::string> columns;
-  columns.push_back("ALIPAR1");
-  columns.push_back("ALIPAR2");
-  columns.push_back("ALIPAR3");
-  columns.push_back("ALIPAR4");
-  columns.push_back("ALIPAR5");
-  columns.push_back("ALIPAR6");
-  columns.push_back("ALIPAR7");
-  columns.push_back("ALIPAR8");
-  columns.push_back("ALIPAR9");
-  columns.push_back("ALIPAR10");
-  columns.push_back("ALIPAR11");
-  columns.push_back("ALIPAR12");
-  columns.push_back("ALIPAR13");
-  columns.push_back("ALIPAR14");
-  columns.push_back("ALIPAR15");
-  columns.push_back("ALIPAR16");
+  columns.emplace_back("ALIPAR1");
+  columns.emplace_back("ALIPAR2");
+  columns.emplace_back("ALIPAR3");
+  columns.emplace_back("ALIPAR4");
+  columns.emplace_back("ALIPAR5");
+  columns.emplace_back("ALIPAR6");
+  columns.emplace_back("ALIPAR7");
+  columns.emplace_back("ALIPAR8");
+  columns.emplace_back("ALIPAR9");
+  columns.emplace_back("ALIPAR10");
+  columns.emplace_back("ALIPAR11");
+  columns.emplace_back("ALIPAR12");
+  columns.emplace_back("ALIPAR13");
+  columns.emplace_back("ALIPAR14");
+  columns.emplace_back("ALIPAR15");
+  columns.emplace_back("ALIPAR16");
 
   l1t::OMDSReader::QueryResults results = m_omdsReader.basicQuery(columns,
                                                                   "CMS_CSC_TF",

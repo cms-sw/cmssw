@@ -114,7 +114,7 @@ namespace mxnet {
         if (iter_arg != arg_map_.end()) {
           arg_arrays.push_back(iter_arg->second);
         } else {
-          arg_arrays.push_back(NDArray(shape, context_, false));
+          arg_arrays.emplace_back(shape, context_, false);
         }
       }
       std::vector<NDArray> grad_arrays(arg_arrays.size());
@@ -130,7 +130,7 @@ namespace mxnet {
         if (iter_aux != aux_map_.end()) {
           aux_arrays.push_back(iter_aux->second);
         } else {
-          aux_arrays.push_back(NDArray(shape, context_, false));
+          aux_arrays.emplace_back(shape, context_, false);
         }
       }
 

@@ -132,12 +132,12 @@ bool TagProbeFitter::addExpression(string expressionName,
                                    string title,
                                    string expression,
                                    const std::vector<string>& arguments) {
-  expressionVars.push_back(make_pair(make_pair(expressionName, title), make_pair(expression, arguments)));
+  expressionVars.emplace_back(make_pair(expressionName, title), make_pair(expression, arguments));
   return true;
 }
 
 bool TagProbeFitter::addThresholdCategory(string categoryName, string title, string varName, double cutValue) {
-  thresholdCategories.push_back(make_pair(make_pair(categoryName, title), make_pair(varName, cutValue)));
+  thresholdCategories.emplace_back(make_pair(categoryName, title), make_pair(varName, cutValue));
   return true;
 }
 

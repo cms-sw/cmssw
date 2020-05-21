@@ -343,7 +343,7 @@ void MagGeoBuilder::build(const cms::DDDetector* det) {
       }
     }
 
-    sectors.push_back(eSector(eVolumes_.begin() + ((i)*offset), eVolumes_.begin() + ((i + 1) * offset), debug_));
+    sectors.emplace_back(eVolumes_.begin() + ((i)*offset), eVolumes_.begin() + ((i + 1) * offset), debug_);
   }
 
   LogTrace("MagGeoBuilder") << "Endcap: Found " << sectors.size() << " sectors ";

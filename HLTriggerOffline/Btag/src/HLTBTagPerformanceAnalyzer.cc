@@ -101,7 +101,7 @@ HLTBTagPerformanceAnalyzer::HLTBTagPerformanceAnalyzer(const edm::ParameterSet &
 
   for (unsigned int i = 0; i < JetTagCollection_.size(); i++) {
     EDConsumerBase::labelsForToken(JetTagCollection_[i], label);
-    JetTagCollection_Label.push_back(label.module);
+    JetTagCollection_Label.emplace_back(label.module);
   }
 
   EDConsumerBase::labelsForToken(hlTriggerResults_, label);
@@ -308,14 +308,14 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
     float btagU = 1.;
     int btagBins = 100;
     dqmFolder = Form("%s/Discriminator/%s", mainFolder_.c_str(), hltPathNames_[ind].c_str());
-    H1_.push_back(std::map<std::string, MonitorElement *>());
-    H2_.push_back(std::map<std::string, MonitorElement *>());
-    H1mod_.push_back(std::map<std::string, std::map<HCALSpecials, MonitorElement *>>());
-    H2mod_.push_back(std::map<std::string, std::map<HCALSpecials, MonitorElement *>>());
-    H2Eta_.push_back(std::map<std::string, MonitorElement *>());
-    H2Phi_.push_back(std::map<std::string, MonitorElement *>());
-    H2EtaPhi_.push_back(std::map<std::string, MonitorElement *>());
-    H2EtaPhi_threshold_.push_back(std::map<std::string, MonitorElement *>());
+    H1_.emplace_back();
+    H2_.emplace_back();
+    H1mod_.emplace_back();
+    H2mod_.emplace_back();
+    H2Eta_.emplace_back();
+    H2Phi_.emplace_back();
+    H2EtaPhi_.emplace_back();
+    H2EtaPhi_threshold_.emplace_back();
     ibooker.setCurrentFolder(dqmFolder);
 
     // book 1D btag plot for 'all'

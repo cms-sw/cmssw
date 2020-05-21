@@ -262,10 +262,10 @@ void MuScleFitMuonSelector::selectGeneratedMuons(const edm::Handle<pat::Composit
         motherId = genMu1->mother()->pdgId();
       }
       if (genMu1->pdgId() == 13)
-        genPair.push_back(GenMuonPair(genMu1.get()->p4(), genMu2.get()->p4(), motherId));
+        genPair.emplace_back(genMu1.get()->p4(), genMu2.get()->p4(), motherId);
       else
         // genPair.push_back(std::make_pair(genMu2.get()->p4(),genMu1.get()->p4()) );
-        genPair.push_back(GenMuonPair(genMu2.get()->p4(), genMu1.get()->p4(), motherId));
+        genPair.emplace_back(genMu2.get()->p4(), genMu1.get()->p4(), motherId);
 
       plotter->fillGen(genPatParticles, true);
 
@@ -275,13 +275,13 @@ void MuScleFitMuonSelector::selectGeneratedMuons(const edm::Handle<pat::Composit
       std::cout << "No recomuon selected so no access to generated info" << std::endl;
       // Fill it in any case, otherwise it will not be in sync with the event number
       // genPair.push_back( std::make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
-      genPair.push_back(GenMuonPair(lorentzVector(0., 0., 0., 0.), lorentzVector(0., 0., 0., 0.), 0));
+      genPair.emplace_back(lorentzVector(0., 0., 0., 0.), lorentzVector(0., 0., 0., 0.), 0);
     }
   } else {
     std::cout << "No recomuon selected so no access to generated info" << std::endl;
     // Fill it in any case, otherwise it will not be in sync with the event number
     // genPair.push_back( std::make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
-    genPair.push_back(GenMuonPair(lorentzVector(0., 0., 0., 0.), lorentzVector(0., 0., 0., 0.), 0));
+    genPair.emplace_back(lorentzVector(0., 0., 0., 0.), lorentzVector(0., 0., 0., 0.), 0);
   }
   if (debug_ > 0) {
     std::cout << "genParticles:" << std::endl;
@@ -320,7 +320,7 @@ void MuScleFitMuonSelector::selectGenSimMuons(const edm::Event& event,
               << "non generation info and speedup true!!!!!!!!!!!!" << std::endl;
     // Fill it in any case, otherwise it will not be in sync with the event number
     // genPair.push_back( std::make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
-    genPair.push_back(GenMuonPair(lorentzVector(0., 0., 0., 0.), lorentzVector(0., 0., 0., 0.), 0));
+    genPair.emplace_back(lorentzVector(0., 0., 0., 0.), lorentzVector(0., 0., 0., 0.), 0);
   }
   if (debug_ > 0) {
     std::cout << "genParticles:" << std::endl;
@@ -348,7 +348,7 @@ void MuScleFitMuonSelector::selectSimulatedMuons(const edm::Event& event,
     std::cout << "SimTracks not existent" << std::endl;
   }
   if (!simTracksFound) {
-    simPair.push_back(std::make_pair(lorentzVector(0., 0., 0., 0.), lorentzVector(0., 0., 0., 0.)));
+    simPair.emplace_back(lorentzVector(0., 0., 0., 0.), lorentzVector(0., 0., 0., 0.));
   }
 }
 

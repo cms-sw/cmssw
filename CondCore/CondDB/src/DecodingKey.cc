@@ -151,7 +151,7 @@ size_t cond::auth::DecodingKey::init(const std::string& keyFileName, const std::
             std::stringstream serviceStr(line.substr(2));
             std::vector<std::string> sdata;
             while (serviceStr.good()) {
-              sdata.push_back(std::string(""));
+              sdata.emplace_back("");
               getline(serviceStr, sdata.back(), ItemSeparator);
             }
             std::map<std::string, ServiceCredentials>::iterator iS =

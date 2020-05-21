@@ -281,7 +281,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
           nextChargedHadron->getNeutralPFCandidates()
               .size()) {  // all neutral PFCandidates are unique, add ChargedHadron candidate to clean collection
         if (track)
-          tracksInCleanCollection.push_back(std::make_pair(track->eta(), track->phi()));
+          tracksInCleanCollection.emplace_back(track->eta(), track->phi());
         neutralPFCandsInCleanCollection.insert(nextChargedHadron->getNeutralPFCandidates().begin(),
                                                nextChargedHadron->getNeutralPFCandidates().end());
         if (verbosity_) {

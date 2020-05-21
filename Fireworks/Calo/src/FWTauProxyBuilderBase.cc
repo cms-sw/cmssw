@@ -100,7 +100,7 @@ void FWTauProxyBuilderBase::buildBaseTau(const reco::BaseTau& iTau,
     FWViewEnergyScale* caloScale = vc->getEnergyScale();
     marker->SetScale(caloScale->getScaleFactor3D() * (caloScale->getPlotEt() ? iTau.et() : iTau.energy()));
     setupAddElement(marker, comp);
-    m_lines.push_back(fireworks::scaleMarker(marker, iTau.et(), iTau.energy(), vc));
+    m_lines.emplace_back(marker, iTau.et(), iTau.energy(), vc);
 
     context().voteMaxEtAndEnergy(iTau.et(), iTau.energy());
   } else if (iJet) {

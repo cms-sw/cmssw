@@ -1556,7 +1556,7 @@ void MuScleFitUtils::minimizeLikelihood() {
           }
         }
         if (check) {
-          MuScleFitUtils::ReducedSavedPair.push_back(std::make_pair(*recMu1, *recMu2));
+          MuScleFitUtils::ReducedSavedPair.emplace_back(*recMu1, *recMu2);
         }
       }
       std::cout << "Fitting with " << MuScleFitUtils::ReducedSavedPair.size() << " events" << std::endl;

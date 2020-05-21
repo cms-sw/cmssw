@@ -135,7 +135,7 @@ namespace edm {
     }
 
     void EventSetupRecordIOVQueue::addRecProvider(EventSetupRecordProvider* recProvider) {
-      recordProviders_.push_back(recProvider);
+      recordProviders_.emplace_back(recProvider);
     }
 
   }  // namespace eventsetup

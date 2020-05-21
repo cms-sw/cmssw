@@ -145,10 +145,10 @@ void HLTCaloObjInRegionsProducer<CaloObjType, CaloObjCollType>::fillDescriptions
     edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   std::vector<std::string> outputProductNames;
-  outputProductNames.push_back("EcalRegionalRecHitsEB");
+  outputProductNames.emplace_back("EcalRegionalRecHitsEB");
   desc.add<std::vector<std::string>>("outputProductNames", outputProductNames);
   std::vector<edm::InputTag> inputColls;
-  inputColls.push_back(edm::InputTag("hltHcalDigis"));
+  inputColls.emplace_back("hltHcalDigis");
   desc.add<std::vector<edm::InputTag>>("inputCollTags", inputColls);
   std::vector<edm::ParameterSet> etaPhiRegions;
 

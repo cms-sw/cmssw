@@ -904,7 +904,7 @@ bool DAClusterizerInZT_vect::split(const double beta, track_t& tks, vertex_t& y,
   for (unsigned int k = 0; k < nv; k++) {
     double Tc = get_Tc(y, k);
     if (beta * Tc > threshold) {
-      critical.push_back(make_pair(Tc, k));
+      critical.emplace_back(Tc, k);
     }
   }
   if (critical.empty())

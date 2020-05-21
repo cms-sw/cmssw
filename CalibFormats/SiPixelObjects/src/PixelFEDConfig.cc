@@ -34,14 +34,14 @@ PixelFEDConfig::PixelFEDConfig(std::vector<std::vector<std::string> > &tableMat)
    VME_ADDR				     NOT NULL VARCHAR2(200)
 */
 
-  colNames.push_back("CONFIG_KEY");
-  colNames.push_back("KEY_TYPE");
-  colNames.push_back("KEY_ALIAS");
-  colNames.push_back("VERSION");
-  colNames.push_back("KIND_OF_COND");
-  colNames.push_back("PIXEL_FED");
-  colNames.push_back("CRATE_NUMBER");
-  colNames.push_back("VME_ADDR");
+  colNames.emplace_back("CONFIG_KEY");
+  colNames.emplace_back("KEY_TYPE");
+  colNames.emplace_back("KEY_ALIAS");
+  colNames.emplace_back("VERSION");
+  colNames.emplace_back("KIND_OF_COND");
+  colNames.emplace_back("PIXEL_FED");
+  colNames.emplace_back("CRATE_NUMBER");
+  colNames.emplace_back("VME_ADDR");
   /*
    colNames.push_back("PIXEL_FED"    ); //0
    colNames.push_back("CRATE_NUMBER" ); //1

@@ -410,7 +410,7 @@ namespace lhef {
         len += 2;
       else if (data[len])
         len++;
-      lines.push_back(std::string(data, len));
+      lines.emplace_back(data, len);
       data += len;
     }
   }

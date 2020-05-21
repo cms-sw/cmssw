@@ -64,7 +64,7 @@ void ShiftedPFCandidateProducerForPFMVAMEt::produce(edm::Event& evt, const edm::
     if (isMatched_Object) {
       //Ambiguity removal
       match[prevMatch] = true;
-      objects_.push_back(objectEntryType(shiftedObjectP4_matched, unshiftedObject->p4(), sqrt(dR2bestMatch_Object)));
+      objects_.emplace_back(shiftedObjectP4_matched, unshiftedObject->p4(), sqrt(dR2bestMatch_Object));
     }
   }
 

@@ -40,8 +40,8 @@ EcalTPInputAnalyzer::EcalTPInputAnalyzer(const edm::ParameterSet &iConfig)
   histfile_ = new TFile("histos.root", "UPDATE");
   histEndc = new TH1I("AdcE", "Adc-s for Endcap", 100, 0., 5000.);
   histBar = new TH1I("AdcB", "Adc-s for Barrel", 100, 0., 5000.);
-  ecal_parts_.push_back("Barrel");
-  ecal_parts_.push_back("Endcap");
+  ecal_parts_.emplace_back("Barrel");
+  ecal_parts_.emplace_back("Endcap");
 
   //   for (unsigned int i=0;i<2;++i) {
   //     ecal_et_[i]=new TH1I(ecal_parts_[i].c_str(),"Et",255,0,255);

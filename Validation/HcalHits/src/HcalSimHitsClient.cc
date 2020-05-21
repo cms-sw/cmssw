@@ -184,34 +184,34 @@ std::vector<std::string> HcalSimHitsClient::getHistogramTypes() {
   // first overall Hcal
   for (int depth = 0; depth < maxDepth; ++depth) {
     sprintf(name1, "HC%d", depth);
-    divisions.push_back(std::string(name1));
+    divisions.emplace_back(name1);
   }
   // HB
   for (int depth = 0; depth < maxDepthHB_; ++depth) {
     sprintf(name1, "HB%d", depth);
-    divisions.push_back(std::string(name1));
+    divisions.emplace_back(name1);
   }
   // HE
   for (int depth = 0; depth < maxDepthHE_; ++depth) {
     sprintf(name1, "HE%d+z", depth);
-    divisions.push_back(std::string(name1));
+    divisions.emplace_back(name1);
     sprintf(name1, "HE%d-z", depth);
-    divisions.push_back(std::string(name1));
+    divisions.emplace_back(name1);
   }
   // HO
   {
     int depth = maxDepthHO_;
     sprintf(name1, "HO%d", depth);
-    divisions.push_back(std::string(name1));
+    divisions.emplace_back(name1);
   }
   // HF (first absorber, then different types of abnormal hits)
   std::string hfty1[4] = {"A", "W", "B", "J"};
   for (int k = 0; k < 4; ++k) {
     for (int depth = 0; depth < maxDepthHF_; ++depth) {
       sprintf(name1, "HF%s%d+z", hfty1[k].c_str(), depth);
-      divisions.push_back(std::string(name1));
+      divisions.emplace_back(name1);
       sprintf(name1, "HF%s%d-z", hfty1[k].c_str(), depth);
-      divisions.push_back(std::string(name1));
+      divisions.emplace_back(name1);
     }
   }
   return divisions;

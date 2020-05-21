@@ -37,18 +37,18 @@ PixelTKFECConfig::PixelTKFECConfig(std::vector<std::vector<std::string> > &table
 
   */
 
-  colNames.push_back("CONFIG_KEY");
-  colNames.push_back("KEY_TYPE");
-  colNames.push_back("KEY_ALIAS");
-  colNames.push_back("VERSION");
-  colNames.push_back("KIND_OF_COND");
-  colNames.push_back("TRKFEC_NAME");
-  colNames.push_back("CRATE_LABEL");
-  colNames.push_back("CRATE_NUMBER");
-  colNames.push_back("TYPE");
-  colNames.push_back("SLOT_NUMBER");
-  colNames.push_back("VME_ADDR");
-  colNames.push_back("I2CSPEED");
+  colNames.emplace_back("CONFIG_KEY");
+  colNames.emplace_back("KEY_TYPE");
+  colNames.emplace_back("KEY_ALIAS");
+  colNames.emplace_back("VERSION");
+  colNames.emplace_back("KIND_OF_COND");
+  colNames.emplace_back("TRKFEC_NAME");
+  colNames.emplace_back("CRATE_LABEL");
+  colNames.emplace_back("CRATE_NUMBER");
+  colNames.emplace_back("TYPE");
+  colNames.emplace_back("SLOT_NUMBER");
+  colNames.emplace_back("VME_ADDR");
+  colNames.emplace_back("I2CSPEED");
 
   for (unsigned int c = 0; c < tableMat[0].size(); c++) {
     for (unsigned int n = 0; n < colNames.size(); n++) {

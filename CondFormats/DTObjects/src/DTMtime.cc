@@ -216,7 +216,7 @@ int DTMtime::set(int wheelId,
     data.mTime = mTime;
     data.mTrms = mTrms;
     ientry = dataList.size();
-    dataList.push_back(std::pair<DTMtimeId, DTMtimeData>(key, data));
+    dataList.emplace_back(key, data);
     dBuf->insert(chanKey.begin(), chanKey.end(), ientry);
     return 0;
   }

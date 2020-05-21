@@ -122,28 +122,28 @@ bool MuonResiduals1DOFFitter::fit(Alignable *ali) {
 
   if (fixed(kAlign)) {
     num.push_back(kAlign);
-    name.push_back(std::string("Align"));
+    name.emplace_back("Align");
     start.push_back(0.);
     step.push_back(0.01 * resid_stdev);
     low.push_back(0.);
     high.push_back(0.);
   } else {
     num.push_back(kAlign);
-    name.push_back(std::string("Align"));
+    name.emplace_back("Align");
     start.push_back(resid_mean);
     step.push_back(0.01 * resid_stdev);
     low.push_back(0.);
     high.push_back(0.);
   }
   num.push_back(kSigma);
-  name.push_back(std::string("Sigma"));
+  name.emplace_back("Sigma");
   start.push_back(resid_stdev);
   step.push_back(0.01 * resid_stdev);
   low.push_back(0.);
   high.push_back(0.);
   if (residualsModel() != kPureGaussian && residualsModel() != kGaussPowerTails) {
     num.push_back(kGamma);
-    name.push_back(std::string("Gamma"));
+    name.emplace_back("Gamma");
     start.push_back(0.1 * resid_stdev);
     step.push_back(0.01 * resid_stdev);
     low.push_back(0.);

@@ -258,10 +258,10 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(const std::vector<SimTrack>
                       remainingEnergy = (*iSimTk).momentum().e();
                       motherMomentum = (*iSimTk).momentum();
 
-                      pBrem.push_back(CLHEP::HepLorentzVector(trLast.momentum().px(),
-                                                              trLast.momentum().py(),
-                                                              trLast.momentum().pz(),
-                                                              trLast.momentum().e()));
+                      pBrem.emplace_back(trLast.momentum().px(),
+                                         trLast.momentum().py(),
+                                         trLast.momentum().pz(),
+                                         trLast.momentum().e());
                       bremPos.push_back(CLHEP::HepLorentzVector(vertex1.position().x(),
                                                                 vertex1.position().y(),
                                                                 vertex1.position().z(),
@@ -281,8 +281,8 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(const std::vector<SimTrack>
 
               CLHEP::HepLorentzVector tmpEleMom(primEleMom.px(), primEleMom.py(), primEleMom.pz(), primEleMom.e());
               CLHEP::HepLorentzVector tmpVtxPos(primVtxPos.x(), primVtxPos.y(), primVtxPos.z(), primVtxPos.t());
-              electronsFromConversions.push_back(ElectronMCTruth(
-                  tmpEleMom, eleVtxIndex, bremPos, pBrem, xBrem, tmpVtxPos, const_cast<SimTrack&>(*iEleTk)));
+              electronsFromConversions.emplace_back(
+                  tmpEleMom, eleVtxIndex, bremPos, pBrem, xBrem, tmpVtxPos, const_cast<SimTrack&>(*iEleTk));
             }  //// Electron from conversion found
 
           } else {
@@ -335,16 +335,16 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(const std::vector<SimTrack>
           CLHEP::HepLorentzVector tmpVertex(vtxPosition.x(), vtxPosition.y(), vtxPosition.z(), vtxPosition.t());
           CLHEP::HepLorentzVector tmpPrimVtx(primVtxPos.x(), primVtxPos.y(), primVtxPos.z(), primVtxPos.t());
 
-          result.push_back(PhotonMCTruth(isAconversion,
-                                         tmpPhoMom,
-                                         photonVertexIndex,
-                                         phoTrkId,
-                                         phoMotherType,
-                                         phoMotherMom,
-                                         phoMotherVtx,
-                                         tmpVertex,
-                                         tmpPrimVtx,
-                                         electronsFromConversions));
+          result.emplace_back(isAconversion,
+                              tmpPhoMom,
+                              photonVertexIndex,
+                              phoTrkId,
+                              phoMotherType,
+                              phoMotherMom,
+                              phoMotherVtx,
+                              tmpVertex,
+                              tmpPrimVtx,
+                              electronsFromConversions);
 
         } else {
           isAconversion = 0;
@@ -356,16 +356,16 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(const std::vector<SimTrack>
                                             (*iPhoTk).momentum().e());
           CLHEP::HepLorentzVector tmpPrimVtx(primVtxPos.x(), primVtxPos.y(), primVtxPos.z(), primVtxPos.t());
           //	 result.push_back( PhotonMCTruth(isAconversion, (*iPhoTk).momentum(),  photonVertexIndex, phoTrkId, vtxPosition,   primVtx.position(), trkFromConversion ));
-          result.push_back(PhotonMCTruth(isAconversion,
-                                         tmpPhoMom,
-                                         photonVertexIndex,
-                                         phoTrkId,
-                                         phoMotherType,
-                                         phoMotherMom,
-                                         phoMotherVtx,
-                                         vtxPosition,
-                                         tmpPrimVtx,
-                                         electronsFromConversions));
+          result.emplace_back(isAconversion,
+                              tmpPhoMom,
+                              photonVertexIndex,
+                              phoTrkId,
+                              phoMotherType,
+                              phoMotherMom,
+                              phoMotherVtx,
+                              vtxPosition,
+                              tmpPrimVtx,
+                              electronsFromConversions);
         }
 
       }  // End loop over the primary photons

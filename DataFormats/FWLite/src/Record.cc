@@ -226,7 +226,7 @@ std::vector<std::pair<std::string, std::string> > Record::typeAndLabelOfAvailabl
       }
       std::string type(name, cIndex - name - 1);
       type = fwlite::unformat_mangled_to_type(type);
-      returnValue.push_back(std::make_pair(type, label));
+      returnValue.emplace_back(type, label);
     }
   }
   return returnValue;

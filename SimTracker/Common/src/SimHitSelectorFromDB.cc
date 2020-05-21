@@ -16,12 +16,12 @@ std::vector<std::pair<const PSimHit *, int>> SimHitSelectorFromDB::getSimHit(
       if (detId.find(tkid) != detId.end()) {
         //	theNewSimHitList.push_back((*it));
         //	std::cout << "Hit in the MAP " << counter << std::endl;
-        theNewSimHitList.push_back(std::make_pair(&(*it), counter));
+        theNewSimHitList.emplace_back(&(*it), counter);
       }
     } else {
       //      theNewSimHitList.push_back((*it));
       //      std::cout << "Hit NOT in the MAP " << counter << std::endl;
-      theNewSimHitList.push_back(std::make_pair(&(*it), counter));
+      theNewSimHitList.emplace_back(&(*it), counter);
     }
   }
   return theNewSimHitList;

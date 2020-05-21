@@ -21,7 +21,7 @@ StringResolutionProvider::StringResolutionProvider(const edm::ParameterSet& cfg)
     if (iSet->exists("bin"))
       bins_.push_back(iSet->getParameter<std::string>("bin"));
     else if (functionSets_.size() == 1)
-      bins_.push_back("");
+      bins_.emplace_back("");
     else
       throw cms::Exception("WrongConfig") << "Parameter 'bin' is needed if more than one PSet is specified\n";
 

@@ -168,7 +168,7 @@ namespace reco {
     if (bool(f)) {
       int casts = checkMethod(f, type, args, fixuppedArgs);
       if (casts > -1) {
-        oks.push_back(std::make_pair(casts, f));
+        oks.emplace_back(casts, f);
       } else {
         oError = -1 * casts;
         //is this a show stopper error?
@@ -185,7 +185,7 @@ namespace reco {
         edm::FunctionWithDict f(F);
         int casts = checkMethod(f, type, args, fixuppedArgs);
         if (casts > -1) {
-          oks.push_back(std::make_pair(casts, f));
+          oks.emplace_back(casts, f);
         } else {
           oError = -1 * casts;
           //is this a show stopper error?

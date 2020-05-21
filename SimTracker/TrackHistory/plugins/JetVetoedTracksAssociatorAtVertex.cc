@@ -64,7 +64,7 @@ void JetVetoedTracksAssociatorAtVertex::produce(edm::Event &fEvent, const edm::E
   std::vector<reco::TrackRef> allTracks;
   allTracks.reserve(tracks_h->size());
   for (unsigned i = 0; i < tracks_h->size(); ++i)
-    allTracks.push_back(reco::TrackRef(tracks_h, i));
+    allTracks.emplace_back(tracks_h, i);
   // run algo
   mAssociator.produce(&*jetTracks, allJets, allTracks, classifier);
   // store output

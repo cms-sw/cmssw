@@ -511,7 +511,7 @@ void TSGForRoadSearch::pushTrajectorySeed(const reco::Track &muon,
           }
           rhContainer.push_back(hit->hit()->clone());
 
-          result.push_back(TrajectorySeed(PTSOD, rhContainer, direction));
+          result.emplace_back(PTSOD, rhContainer, direction);
         } else {
           //rec hit is not valid. put a bare TrajectorySeed, only once !
           if (!aBareTS) {
@@ -522,7 +522,7 @@ void TSGForRoadSearch::pushTrajectorySeed(const reco::Track &muon,
             LogDebug(theCategory) << "state used to build a bare trajectory seed: \n"
                                   << predState << "on detector: " << gd->geographicalId().rawId();
 
-            result.push_back(TrajectorySeed(PTSOD, rhContainer, direction));
+            result.emplace_back(PTSOD, rhContainer, direction);
           }
         }
       }
@@ -546,7 +546,7 @@ void TSGForRoadSearch::pushTrajectorySeed(const reco::Track &muon,
     }
 
     //add this seed to the list and return it
-    result.push_back(TrajectorySeed(PTSOD, rhContainer, direction));
+    result.emplace_back(PTSOD, rhContainer, direction);
   }
   return;
 }

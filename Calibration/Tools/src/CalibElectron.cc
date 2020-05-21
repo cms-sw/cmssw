@@ -38,7 +38,7 @@ std::vector<std::pair<int, float> > CalibElectron::getCalibModulesWeights(TStrin
 
     for (int i = 0; i < EcalRingCalibrationTools::N_RING_TOTAL; ++i)
       if (w_ring[i] != 0.)
-        theWeights.push_back(std::pair<int, float>(i, w_ring[i]));
+        theWeights.emplace_back(i, w_ring[i]);
     // std::cout << " ring " << i << " - energy sum " << w_ring[i] << std::endl;
   }
 
@@ -64,7 +64,7 @@ std::vector<std::pair<int, float> > CalibElectron::getCalibModulesWeights(TStrin
 
     for (int i = 0; i < EcalRingCalibrationTools::N_MODULES_BARREL; ++i)
       if (w_ring[i] != 0.)
-        theWeights.push_back(std::pair<int, float>(i, w_ring[i]));
+        theWeights.emplace_back(i, w_ring[i]);
     // std::cout << " ring " << i << " - energy sum " << w_ring[i] << std::endl;
 
   }
@@ -90,7 +90,7 @@ std::vector<std::pair<int, float> > CalibElectron::getCalibModulesWeights(TStrin
     }
 
     if (w_ring != 0.)
-      theWeights.push_back(std::pair<int, float>(0, w_ring));
+      theWeights.emplace_back(0, w_ring);
     std::cout << " ABS SCALE  - energy sum " << w_ring << std::endl;
 
   }
@@ -128,7 +128,7 @@ std::vector<std::pair<int, float> > CalibElectron::getCalibModulesWeights(TStrin
 
     for (int i = 0; i < EcalIndexingTools::getInstance()->getNumberOfChannels(); ++i) {
       if (w_ring[i] != 0.) {
-        theWeights.push_back(std::pair<int, float>(i, w_ring[i]));
+        theWeights.emplace_back(i, w_ring[i]);
         std::cout << " ring " << i << " - energy sum " << w_ring[i] << std::endl;
       }
     }

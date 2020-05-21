@@ -85,7 +85,7 @@ std::vector<DetId> HcalFrontEndMap::allDetIds() const {
   std::vector<DetId> result;
   for (std::vector<PrecisionItem>::const_iterator item = mPItems.begin(); item != mPItems.end(); item++)
     if (item->mId)
-      result.push_back(DetId(item->mId));
+      result.emplace_back(item->mId);
   return result;
 }
 

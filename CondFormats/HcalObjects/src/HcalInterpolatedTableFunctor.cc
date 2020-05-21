@@ -73,7 +73,7 @@ HcalPiecewiseLinearFunctor HcalInterpolatedTableFunctor::inverse() const {
   points.reserve(sz);
   for (std::size_t i = 0; i < sz; ++i) {
     const double x = (i == szm1 ? xmax_ : xmin_ + step * i);
-    points.push_back(std::make_pair(values_[i], x));
+    points.emplace_back(values_[i], x);
   }
   bool l = leftExtrapolationLinear_;
   bool r = rightExtrapolationLinear_;

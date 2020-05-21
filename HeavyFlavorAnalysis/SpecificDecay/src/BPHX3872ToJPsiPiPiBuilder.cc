@@ -118,8 +118,7 @@ vector<BPHRecoConstCandPtr> BPHX3872ToJPsiPiPiBuilder::build() {
     double py = p4.py();
     double pz = p4.pz();
     double p2 = (px * px) + (py * py) + (pz * pz);
-    pList.push_back(
-        Particle(&cand, tk, px, py, pz, sqrt(p2 + (BPHParticleMasses::pionMass * BPHParticleMasses::pionMass))));
+    pList.emplace_back(&cand, tk, px, py, pz, sqrt(p2 + (BPHParticleMasses::pionMass * BPHParticleMasses::pionMass)));
   }
 
   for (iNeg = 0; iNeg < nNeg; ++iNeg) {
@@ -138,8 +137,7 @@ vector<BPHRecoConstCandPtr> BPHX3872ToJPsiPiPiBuilder::build() {
     double py = p4.py();
     double pz = p4.pz();
     double p2 = (px * px) + (py * py) + (pz * pz);
-    nList.push_back(
-        Particle(&cand, tk, px, py, pz, sqrt(p2 + (BPHParticleMasses::pionMass * BPHParticleMasses::pionMass))));
+    nList.emplace_back(&cand, tk, px, py, pz, sqrt(p2 + (BPHParticleMasses::pionMass * BPHParticleMasses::pionMass)));
   }
 
   // filter basic candidates

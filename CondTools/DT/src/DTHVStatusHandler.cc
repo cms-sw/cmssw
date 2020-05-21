@@ -815,7 +815,7 @@ int DTHVStatusHandler::checkForPeriod(cond::Time_t condSince,
         if (nextFound > timeLimit) {
           DTHVStatus* hvStatus = offlineList();
           std::cout << "new payload " << hvStatus->end() - hvStatus->begin() << std::endl;
-          tmpContainer.push_back(std::make_pair(hvStatus, lastFound));
+          tmpContainer.emplace_back(hvStatus, lastFound);
           changedStatus = false;
           if (!(--maxPayload)) {
             procUntil = lastFound;

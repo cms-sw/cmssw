@@ -197,7 +197,7 @@ bool LatencyHistosUsingDb::update(SiStripConfigDb::DeviceDescriptionsRange devic
     delayCoarse -= minCoarseDelay;
     //  maximum coarse setting
     if (delayCoarse > 15) {
-      invalid.push_back(fec_key);
+      invalid.emplace_back(fec_key);
       delayCoarse = sistrip::invalid_;
     }
     // Update PLL settings

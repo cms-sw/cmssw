@@ -732,9 +732,9 @@ vector<pair<int, double>> lumiperIOV(vector<int> IOVlist, TString Year) {
         lumi += yscale[j];
     }
     if (i == 0)
-      lumiperIOV.push_back(make_pair(0, lumi));
+      lumiperIOV.emplace_back(0, lumi);
     else
-      lumiperIOV.push_back(make_pair(IOVlist.at(i - 1), lumi));
+      lumiperIOV.emplace_back(IOVlist.at(i - 1), lumi);
     ++i;
   }
   //for debugging:
@@ -1117,7 +1117,7 @@ int main(int argc, char *argv[]) {
   TObjArray *geometrieandcolourspairs = geometrieandcolours.Tokenize(",");
   for (int i = 0; i < geometrieandcolourspairs->GetEntries(); i++) {
     TObjArray *geomandcolourvec = TString(geometrieandcolourspairs->At(i)->GetName()).Tokenize(":");
-    geometries.push_back(geomandcolourvec->At(0)->GetName());
+    geometries.emplace_back(geomandcolourvec->At(0)->GetName());
     colours.push_back(ColorParser(geomandcolourvec->At(1)->GetName()));
   }
   DMRtrends(IOVlist,

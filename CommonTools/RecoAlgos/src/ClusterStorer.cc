@@ -25,28 +25,27 @@ namespace helper {
     const std::type_info &hit_type = typeid(newHit);
     if (hit_type == typeid(SiPixelRecHit)) {
       //std::cout << "|  It is a Pixel hit !!" << std::endl;
-      pixelClusterRecords_.push_back(PixelClusterHitRecord(static_cast<SiPixelRecHit &>(newHit), hits, index));
+      pixelClusterRecords_.emplace_back(static_cast<SiPixelRecHit &>(newHit), hits, index);
     } else if (hit_type == typeid(SiStripRecHit1D)) {
       //std::cout << "|   It is a SiStripRecHit1D hit !!" << std::endl;
-      stripClusterRecords_.push_back(StripClusterHitRecord(static_cast<SiStripRecHit1D &>(newHit), hits, index));
+      stripClusterRecords_.emplace_back(static_cast<SiStripRecHit1D &>(newHit), hits, index);
     } else if (hit_type == typeid(SiStripRecHit2D)) {
       //std::cout << "|   It is a SiStripRecHit2D hit !!" << std::endl;
-      stripClusterRecords_.push_back(StripClusterHitRecord(static_cast<SiStripRecHit2D &>(newHit), hits, index));
+      stripClusterRecords_.emplace_back(static_cast<SiStripRecHit2D &>(newHit), hits, index);
     } else if (hit_type == typeid(SiStripMatchedRecHit2D)) {
       //std::cout << "|   It is a SiStripMatchedRecHit2D hit !!" << std::endl;
       SiStripMatchedRecHit2D &mhit = static_cast<SiStripMatchedRecHit2D &>(newHit);
-      stripClusterRecords_.push_back(StripClusterHitRecord(mhit.monoHit(), hits, index));
-      stripClusterRecords_.push_back(StripClusterHitRecord(mhit.stereoHit(), hits, index));
+      stripClusterRecords_.emplace_back(mhit.monoHit(), hits, index);
+      stripClusterRecords_.emplace_back(mhit.stereoHit(), hits, index);
     } else if (hit_type == typeid(ProjectedSiStripRecHit2D)) {
       //std::cout << "|   It is a ProjectedSiStripRecHit2D hit !!" << std::endl;
       ProjectedSiStripRecHit2D &phit = static_cast<ProjectedSiStripRecHit2D &>(newHit);
-      stripClusterRecords_.push_back(StripClusterHitRecord(phit.originalHit(), hits, index));
+      stripClusterRecords_.emplace_back(phit.originalHit(), hits, index);
     } else if (hit_type == typeid(Phase2TrackerRecHit1D)) {
       //FIXME:: this is just temporary solution for phase2,
       //it is not really running in the phase2 tracking wf - yet...
       //std::cout << "|   It is a Phase2TrackerRecHit1D hit !!" << std::endl;
-      phase2OTClusterRecords_.push_back(
-          Phase2OTClusterHitRecord(static_cast<Phase2TrackerRecHit1D &>(newHit), hits, index));
+      phase2OTClusterRecords_.emplace_back(static_cast<Phase2TrackerRecHit1D &>(newHit), hits, index);
     } else {
       if (hit_type == typeid(FastTrackerRecHit) || hit_type == typeid(FastProjectedTrackerRecHit) ||
           hit_type == typeid(FastMatchedTrackerRecHit)) {

@@ -19,7 +19,7 @@ void SimplePlan1RechitCombiner::clear() { rechitMap_.clear(); }
 
 void SimplePlan1RechitCombiner::add(const HBHERecHit& rh) {
   if (!CaloRecHitAuxSetter::getBit(rh.auxPhase1(), HBHERecHitAuxSetter::OFF_DROPPED))
-    rechitMap_.push_back(MapItem(mapRechit(rh.id()), &rh));
+    rechitMap_.emplace_back(mapRechit(rh.id()), &rh);
 }
 
 void SimplePlan1RechitCombiner::combine(HBHERecHitCollection* toFill) {

@@ -47,13 +47,13 @@ L1TBPTX::L1TBPTX(const ParameterSet& pset) {
     if (m_monitorBits[i].getParameter<bool>("bitType")) {
       int bit = m_monitorBits[i].getParameter<int>("bitNumber");
       int offset = m_monitorBits[i].getParameter<int>("bitOffset");
-      m_selAlgoBit.push_back(pair<int, int>(bit, offset));
+      m_selAlgoBit.emplace_back(bit, offset);
     }
     // Tech
     else {
       int bit = m_monitorBits[i].getParameter<int>("bitNumber");
       int offset = m_monitorBits[i].getParameter<int>("bitOffset");
-      m_selTechBit.push_back(pair<int, int>(bit, offset));
+      m_selTechBit.emplace_back(bit, offset);
     }
   }
 

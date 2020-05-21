@@ -130,7 +130,7 @@ void HcalPatternSource::loadPatternFile(const std::string& filename) {
     params.clear();
     data.clear();
     parser.parse(element, params, data);
-    patterns_.push_back(HcalFiberPattern(params, data));
+    patterns_.emplace_back(params, data);
     i = j + 5;
   }
 }

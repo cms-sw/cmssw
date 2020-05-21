@@ -817,10 +817,10 @@ namespace HcalObjRepresent {
 
   inline std::vector<std::string> HcalEtaPhiHistNames() {
     std::vector<std::string> name;
-    name.push_back("HB HE HF Depth 1 ");
-    name.push_back("HB HE HF Depth 2 ");
-    name.push_back("HE Depth 3 ");
-    name.push_back("HO Depth 4 ");
+    name.emplace_back("HB HE HF Depth 1 ");
+    name.emplace_back("HB HE HF Depth 2 ");
+    name.emplace_back("HE Depth 3 ");
+    name.emplace_back("HO Depth 4 ");
     return name;
   }
 
@@ -1078,14 +1078,14 @@ namespace HcalObjRepresent {
     // Push back depth plots
     ////////Create 4 plots:
     //1. create first plot
-    depth.push_back(TH2F(("HB HE HF Depth 1 " + name + unitname).c_str(),
-                         (name + " Depth 1 -- HB HE HF (" + unittitle + ")").c_str(),
-                         85,
-                         -42.5,
-                         42.5,
-                         72,
-                         0.5,
-                         72.5));
+    depth.emplace_back(("HB HE HF Depth 1 " + name + unitname).c_str(),
+                       (name + " Depth 1 -- HB HE HF (" + unittitle + ")").c_str(),
+                       85,
+                       -42.5,
+                       42.5,
+                       72,
+                       0.5,
+                       72.5);
 
     //2.1 prepare second plot
     float ybins[73];
@@ -1098,33 +1098,33 @@ namespace HcalObjRepresent {
                        33.5,  34.5,  35.5,  36.5,  37.5,  38.5,  39.5,  40.5,  41.5,  42.5};
 
     //2.2 create second plot
-    depth.push_back(TH2F(("HB HE HF Depth 2 " + name + unitname).c_str(),
-                         (name + " Depth 2 -- HB HE HF (" + unittitle + ")").c_str(),
-                         57,
-                         xbinsd2,
-                         72,
-                         ybins));
+    depth.emplace_back(("HB HE HF Depth 2 " + name + unitname).c_str(),
+                       (name + " Depth 2 -- HB HE HF (" + unittitle + ")").c_str(),
+                       57,
+                       xbinsd2,
+                       72,
+                       ybins);
 
     //3.1 Set up variable-sized bins for HE depth 3 (MonitorElement also requires phi bins to be entered in array format)
     float xbins[] = {-28.5, -27.5, -26.5, -16.5, -15.5, 15.5, 16.5, 26.5, 27.5, 28.5};
     //3.2
-    depth.push_back(TH2F(("HE Depth 3 " + name + unitname).c_str(),
-                         (name + " Depth 3 -- HE (" + unittitle + ")").c_str(),
-                         // Use variable-sized eta bins
-                         9,
-                         xbins,
-                         72,
-                         ybins));
+    depth.emplace_back(("HE Depth 3 " + name + unitname).c_str(),
+                       (name + " Depth 3 -- HE (" + unittitle + ")").c_str(),
+                       // Use variable-sized eta bins
+                       9,
+                       xbins,
+                       72,
+                       ybins);
 
     //4.1 HO bins are fixed width, but cover a smaller eta range (-15 -> 15)
-    depth.push_back(TH2F(("HO Depth 4 " + name + unitname).c_str(),
-                         (name + " Depth 4 -- HO (" + unittitle + ")").c_str(),
-                         31,
-                         -15.5,
-                         15.5,
-                         72,
-                         0.5,
-                         72.5));
+    depth.emplace_back(("HO Depth 4 " + name + unitname).c_str(),
+                       (name + " Depth 4 -- HO (" + unittitle + ")").c_str(),
+                       31,
+                       -15.5,
+                       15.5,
+                       72,
+                       0.5,
+                       72.5);
 
     for (unsigned int i = 0; i < depth.size(); ++i)
       depth[i].Draw("colz");
@@ -1307,14 +1307,14 @@ namespace HcalObjRepresent {
       // Push back depth plots
       ////////Create 4 plots:
       //1. create first plot
-      depth.push_back(TH2F(("HB HE HF Depth 1 " + name + unitname).c_str(),
-                           (name + " Depth 1 -- HB HE HF (" + unittitle + ")").c_str(),
-                           85,
-                           -42.5,
-                           42.5,
-                           72,
-                           0.5,
-                           72.5));
+      depth.emplace_back(("HB HE HF Depth 1 " + name + unitname).c_str(),
+                         (name + " Depth 1 -- HB HE HF (" + unittitle + ")").c_str(),
+                         85,
+                         -42.5,
+                         42.5,
+                         72,
+                         0.5,
+                         72.5);
 
       //2.1 prepare second plot
       float ybins[73];
@@ -1327,33 +1327,33 @@ namespace HcalObjRepresent {
                          33.5,  34.5,  35.5,  36.5,  37.5,  38.5,  39.5,  40.5,  41.5,  42.5};
 
       //2.2 create second plot
-      depth.push_back(TH2F(("HB HE HF Depth 2 " + name + unitname).c_str(),
-                           (name + " Depth 2 -- HB HE HF (" + unittitle + ")").c_str(),
-                           57,
-                           xbinsd2,
-                           72,
-                           ybins));
+      depth.emplace_back(("HB HE HF Depth 2 " + name + unitname).c_str(),
+                         (name + " Depth 2 -- HB HE HF (" + unittitle + ")").c_str(),
+                         57,
+                         xbinsd2,
+                         72,
+                         ybins);
 
       //3.1 Set up variable-sized bins for HE depth 3 (MonitorElement also requires phi bins to be entered in array format)
       float xbins[] = {-28.5, -27.5, -26.5, -16.5, -15.5, 15.5, 16.5, 26.5, 27.5, 28.5};
       //3.2
-      depth.push_back(TH2F(("HE Depth 3 " + name + unitname).c_str(),
-                           (name + " Depth 3 -- HE (" + unittitle + ")").c_str(),
-                           // Use variable-sized eta bins
-                           9,
-                           xbins,
-                           72,
-                           ybins));
+      depth.emplace_back(("HE Depth 3 " + name + unitname).c_str(),
+                         (name + " Depth 3 -- HE (" + unittitle + ")").c_str(),
+                         // Use variable-sized eta bins
+                         9,
+                         xbins,
+                         72,
+                         ybins);
 
       //4.1 HO bins are fixed width, but cover a smaller eta range (-15 -> 15)
-      depth.push_back(TH2F(("HO Depth 4 " + name + unitname).c_str(),
-                           (name + " Depth 4 -- HO (" + unittitle + ")").c_str(),
-                           31,
-                           -15.5,
-                           15.5,
-                           72,
-                           0.5,
-                           72.5));
+      depth.emplace_back(("HO Depth 4 " + name + unitname).c_str(),
+                         (name + " Depth 4 -- HO (" + unittitle + ")").c_str(),
+                         31,
+                         -15.5,
+                         15.5,
+                         72,
+                         0.5,
+                         72.5);
 
       for (unsigned int i = 0; i < depth.size(); ++i)
         depth[i].Draw("colz");

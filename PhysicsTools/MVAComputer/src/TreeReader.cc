@@ -153,7 +153,7 @@ namespace PhysicsTools {
           break;
         case 'B':
           index = (int)singleBool.size();
-          singleBool.push_back(Bool());
+          singleBool.emplace_back();
           break;
       }
     }

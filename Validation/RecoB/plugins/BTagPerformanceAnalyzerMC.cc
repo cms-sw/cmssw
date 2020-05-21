@@ -86,20 +86,18 @@ BTagPerformanceAnalyzerMC::BTagPerformanceAnalyzerMC(const edm::ParameterSet &pS
     if (dataFormatType == "JetTag") {
       const InputTag &moduleLabel = iModule->getParameter<InputTag>("label");
       jetTagInputTags.push_back(moduleLabel);
-      binJetTagPlotters.push_back(vector<std::unique_ptr<JetTagPlotter>>());
+      binJetTagPlotters.emplace_back();
       jetTagToken.push_back(consumes<JetTagCollection>(moduleLabel));
     } else if (dataFormatType == "TagCorrelation") {
       const InputTag &label1 = iModule->getParameter<InputTag>("label1");
       const InputTag &label2 = iModule->getParameter<InputTag>("label2");
-      tagCorrelationInputTags.push_back(std::pair<edm::InputTag, edm::InputTag>(label1, label2));
-      binTagCorrelationPlotters.push_back(vector<std::unique_ptr<TagCorrelationPlotter>>());
-      tagCorrelationToken.push_back(
-          std::pair<edm::EDGetTokenT<reco::JetTagCollection>, edm::EDGetTokenT<reco::JetTagCollection>>(
-              consumes<JetTagCollection>(label1), consumes<JetTagCollection>(label2)));
+      tagCorrelationInputTags.emplace_back(label1, label2);
+      binTagCorrelationPlotters.emplace_back();
+      tagCorrelationToken.emplace_back(consumes<JetTagCollection>(label1), consumes<JetTagCollection>(label2));
     } else {
       vector<edm::InputTag> vIP;
       tiDataFormatType.push_back(dataFormatType);
-      binTagInfoPlotters.push_back(vector<std::unique_ptr<BaseTagInfoPlotter>>());
+      binTagInfoPlotters.emplace_back();
       std::vector<edm::EDGetTokenT<edm::View<reco::BaseTagInfo>>> tokens;
       if (dataFormatType == "GenericMVA") {
         const std::vector<InputTag> listInfo = iModule->getParameter<vector<InputTag>>("listTagInfos");
@@ -423,7 +421,7 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event &iEvent, const edm::Eve
     // check number of tag infos = expected number of tag infos
     vector<string> labels = binTagInfoPlotters[iJetLabel][0]->tagInfoRequirements();
     if (labels.empty())
-      labels.push_back("label");
+      labels.emplace_back("label");
     if (labels.size() != tokens.size())
       throw cms::Exception("Configuration")
           << "Different number of Tag Infos than expected" << labels.size() << tokens.size() << endl;

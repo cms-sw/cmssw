@@ -38,7 +38,7 @@ namespace GaussianStateConversions {
       GlobalPoint position(par(0), par(1), par(2));
       const AlgebraicSymMatrix33& cov = (**ic).covariance();
       GlobalError error(cov(0, 0), cov(1, 0), cov(2, 0), cov(1, 1), cov(2, 1), cov(2, 2));
-      components.push_back(VertexState(position, error, (**ic).weight()));
+      components.emplace_back(position, error, (**ic).weight());
     }
     return VertexState(new BasicMultiVertexState(components));
   }

@@ -104,7 +104,7 @@ void Exhume::Event::Generate() {
       NumberOfEvents++;
       TotalAttempts++;
 
-      Var.push_back(std::pair<double, double>(TotalAttempts * TotalIntegral, Sigmai));
+      Var.emplace_back(TotalAttempts * TotalIntegral, Sigmai);
 
     } else {
       TotalAttempts++;

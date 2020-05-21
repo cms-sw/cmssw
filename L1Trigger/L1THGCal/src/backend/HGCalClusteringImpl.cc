@@ -360,7 +360,7 @@ void HGCalClusteringImpl::removeUnconnectedTCinCluster(l1t::HGCalCluster& cluste
   for (const auto& id_tc : constituents) {
     Basic3DVector<float> tcCentre(id_tc.second->position());
     float distance = (seedCentre - tcCentre).mag();
-    distances.push_back(pair<edm::Ptr<l1t::HGCalTriggerCell>, float>(id_tc.second, distance));
+    distances.emplace_back(id_tc.second, distance);
   }
 
   /* sorting (needed in order to be sure that we are skipping any tc) */

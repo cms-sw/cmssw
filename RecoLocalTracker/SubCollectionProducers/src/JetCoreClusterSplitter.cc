@@ -281,7 +281,7 @@ std::vector<SiPixelCluster> JetCoreClusterSplitter::fittingSplit(const SiPixelCl
     for (int k = 0; k < sub; k++) {
       if (k == sub - 1)
         perDiv = originalpixels[j].adc - perDiv * k;
-      pixels.push_back(std::make_pair(j, SiPixelCluster::Pixel(originalpixels[j].x, originalpixels[j].y, perDiv)));
+      pixels.emplace_back(j, SiPixelCluster::Pixel(originalpixels[j].x, originalpixels[j].y, perDiv));
     }
   }
   std::vector<int> clusterForPixel(pixels.size());

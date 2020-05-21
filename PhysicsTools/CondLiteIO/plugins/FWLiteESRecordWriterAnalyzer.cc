@@ -184,7 +184,7 @@ FWLiteESRecordWriterAnalyzer::FWLiteESRecordWriterAnalyzer(const edm::ParameterS
          ++itPS) {
       std::string type = itPS->getUntrackedParameter<std::string>("type");
       std::string label = itPS->getUntrackedParameter<std::string>("label", std::string());
-      data.push_back(std::make_pair(type, label));
+      data.emplace_back(type, label);
     }
   }
 
@@ -236,7 +236,7 @@ void FWLiteESRecordWriterAnalyzer::update(const edm::EventSetup& iSetup) {
         for (std::vector<edm::eventsetup::DataKey>::iterator itKey = keys.begin(), itKeyEnd = keys.end();
              itKey != itKeyEnd;
              ++itKey) {
-          data.push_back(std::make_pair(std::string(itKey->type().name()), std::string(itKey->name().value())));
+          data.emplace_back(std::string(itKey->type().name()), std::string(itKey->name().value()));
         }
       }
 
@@ -257,7 +257,7 @@ void FWLiteESRecordWriterAnalyzer::update(const edm::EventSetup& iSetup) {
               << " and stored \n"
                  "because no dictionary exists for the type.";
         }
-        dataInfos.push_back(DataInfo(tt, itData->second));
+        dataInfos.emplace_back(tt, itData->second);
       }
       m_handlers.push_back(std::make_shared<RecordHandler>(rKey, m_file, dataInfos));
     }

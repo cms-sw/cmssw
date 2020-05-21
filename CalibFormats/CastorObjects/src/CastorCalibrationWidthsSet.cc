@@ -24,7 +24,7 @@ void CastorCalibrationWidthsSet::setCalibrationWidths(DetId fId, const CastorCal
   sorted_ = false;
   std::vector<Item>::iterator cell = std::find(mItems.begin(), mItems.end(), Item(fId));  //slow, but guaranteed
   if (cell == mItems.end()) {
-    mItems.push_back(Item(fId));
+    mItems.emplace_back(fId);
     mItems.at(mItems.size() - 1).calib = ca;
     return;
   }

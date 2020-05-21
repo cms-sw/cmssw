@@ -65,7 +65,7 @@ ReferenceCountingPointer<RefittedTrackState<6> > KinematicRefittedTrackState::st
 std::vector<ReferenceCountingPointer<RefittedTrackState<6> > > KinematicRefittedTrackState::components() const {
   std::vector<RefCountedRefittedTrackState> result;
   result.reserve(1);
-  result.push_back(RefCountedRefittedTrackState(const_cast<KinematicRefittedTrackState*>(this)));
+  result.emplace_back(const_cast<KinematicRefittedTrackState*>(this));
   return result;
 }
 

@@ -110,11 +110,11 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       hits.reserve(hitDeDxInfo.size());
       for (unsigned int i = 0, n = hitDeDxInfo.size(); i < n; ++i) {
         if (hitDeDxInfo.detId(i).subdetId() <= 2) {
-          hits.push_back(DeDxHit(hitDeDxInfo.charge(i) / hitDeDxInfo.pathlength(i) * MeVperADCPixel, 0, 0, 0));
+          hits.emplace_back(hitDeDxInfo.charge(i) / hitDeDxInfo.pathlength(i) * MeVperADCPixel, 0, 0, 0);
         } else {
           if (shapetest && !DeDxTools::shapeSelection(*hitDeDxInfo.stripCluster(i)))
             continue;
-          hits.push_back(DeDxHit(hitDeDxInfo.charge(i) / hitDeDxInfo.pathlength(i) * MeVperADCStrip, 0, 0, 0));
+          hits.emplace_back(hitDeDxInfo.charge(i) / hitDeDxInfo.pathlength(i) * MeVperADCStrip, 0, 0, 0);
         }
       }
       std::sort(hits.begin(), hits.end(), std::less<DeDxHit>());

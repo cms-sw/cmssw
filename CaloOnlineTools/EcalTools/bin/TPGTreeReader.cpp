@@ -93,7 +93,7 @@ std::vector<std::string> split(std::string msg, std::string separator) {
   boost::tokenizer<boost::char_separator<char> > tok(msg, sep);
   std::vector<std::string> token;
   for (boost::tokenizer<boost::char_separator<char> >::const_iterator i = tok.begin(); i != tok.end(); ++i) {
-    token.push_back(std::string(*i));
+    token.emplace_back(*i);
   }
   return token;
 }

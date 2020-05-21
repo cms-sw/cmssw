@@ -629,7 +629,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       const auto& tps = recotosim[trackref];
       for (const auto& tp : tps) {
         edm::Ref<std::vector<TrackingParticle>> tpr = tp.first;
-        trackingparticle_to_element.push_back(make_pair(tpr.key(), idx_in_all_elements));
+        trackingparticle_to_element.emplace_back(tpr.key(), idx_in_all_elements);
         //cout << "trackingparticle_to_element " << tpr.key() << " " << idx_in_all_elements << endl;
         //cout << "track.eta=" << trackref->eta() << " track.phi=" << trackref->phi() << endl;
         //cout << "elem.eta=" << all_elements[idx_in_all_elements].orig.trackRef()->eta();
@@ -874,7 +874,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         }
       }
       assert(ielem != -1);
-      element_to_candidate.push_back(make_pair(ielem, icandidate));
+      element_to_candidate.emplace_back(ielem, icandidate);
     }  //elements
 
     icandidate += 1;
@@ -961,7 +961,7 @@ pair<vector<ElementWithIndex>, vector<tuple<int, int, float>>> PFAnalysis::proce
            << endl;
       auto globalindex_i = ij.first + ret.size();
       auto globalindex_j = ij.second + ret.size();
-      distances.push_back(make_tuple(globalindex_i, globalindex_j, dist));
+      distances.emplace_back(globalindex_i, globalindex_j, dist);
     }
 
     for (const auto& elem : block.elements()) {
@@ -1087,7 +1087,7 @@ void PFAnalysis::associateClusterToSimCluster(const vector<ElementWithIndex>& al
         //get the energy of the simcluster hits that matches detids of the rechits
         double cmp = detid_compare(detids, simcluster_detids, rechits_energy_all, false);
         if (cmp > 0) {
-          simcluster_to_element.push_back(make_pair(isimcluster, ielement));
+          simcluster_to_element.emplace_back(isimcluster, ielement);
           simcluster_to_element_cmp.push_back((float)cmp);
         }
         isimcluster += 1;

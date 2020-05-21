@@ -73,7 +73,7 @@ DTNoiseCalibration::DTNoiseCalibration(const edm::ParameterSet& pset)
         int wheel, station, sector, sl, layer, wire;
         linestr << (*cell);
         linestr >> wheel >> station >> sector >> sl >> layer >> wire;
-        wireIdWithHisto_.push_back(DTWireId(wheel, station, sector, sl, layer, wire));
+        wireIdWithHisto_.emplace_back(wheel, station, sector, sl, layer, wire);
       }
     }
   }

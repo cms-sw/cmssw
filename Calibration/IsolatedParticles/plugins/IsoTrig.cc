@@ -611,8 +611,8 @@ void IsoTrig::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
     if (iPixCol.isValid()) {
       for (reco::TrackCollection::const_iterator pit = iPixCol->begin(); pit != iPixCol->end(); pit++) {
         if (iPix == 0)
-          pixelTrackRefsHB_.push_back(reco::TrackRef(iPixCol, pit - iPixCol->begin()));
-        pixelTrackRefsHE_.push_back(reco::TrackRef(iPixCol, pit - iPixCol->begin()));
+          pixelTrackRefsHB_.emplace_back(iPixCol, pit - iPixCol->begin());
+        pixelTrackRefsHE_.emplace_back(iPixCol, pit - iPixCol->begin());
       }
     }
   }
@@ -1884,7 +1884,7 @@ void IsoTrig::chgIsolation(double &etaTriggered,
                                         pixelTrackRefsHE_[iS]->pt(),
                                         pixelTrackRefsHE_[iS]->charge(),
                                         0);
-        VecSeedsatEC.push_back(std::make_pair(iS, seedCooAtEC));
+        VecSeedsatEC.emplace_back(iS, seedCooAtEC);
       }
     }
   }

@@ -11,7 +11,7 @@ HGCMouseBite::HGCMouseBite(const HGCalDDDConstants& hgc, const std::vector<doubl
   modeUV_ =
       ((hgcons_.geomMode() == HGCalGeometryMode::Hexagon8) || (hgcons_.geomMode() == HGCalGeometryMode::Hexagon8Full));
   for (auto ang : angle) {
-    projXY_.push_back(std::pair<double, double>(cos(ang * CLHEP::deg), sin(ang * CLHEP::deg)));
+    projXY_.emplace_back(cos(ang * CLHEP::deg), sin(ang * CLHEP::deg));
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "Creating HGCMosueBite with cut at " << cut_ << " with mode " << modeUV_ << " along "

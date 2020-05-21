@@ -53,7 +53,7 @@ TauDQMHistEffProducer::TauDQMHistEffProducer(const edm::ParameterSet& cfg) {
     typedef std::vector<std::string> vstring;
     vstring plotParameter = plotConfig.getParameter<vstring>("parameter");
     if (plotParameter.empty()) {
-      cfgEntryPlot_.push_back(cfgEntryPlot(plotConfig));
+      cfgEntryPlot_.emplace_back(plotConfig);
     } else {
       std::string numerator = plotConfig.getParameter<std::string>("numerator");
       std::string denominator = plotConfig.getParameter<std::string>("denominator");
@@ -65,7 +65,7 @@ TauDQMHistEffProducer::TauDQMHistEffProducer(const edm::ParameterSet& cfg) {
         std::string modEfficiency = replace_string(efficiency, parKeyword, *parameter, 1, 1, errorFlag);
 
         if (!errorFlag) {
-          cfgEntryPlot_.push_back(cfgEntryPlot(modNumerator, modDenominator, modEfficiency));
+          cfgEntryPlot_.emplace_back(modNumerator, modDenominator, modEfficiency);
         } else {
           edm::LogError("TauDQMHistEffProducer")
               << " Failed to decode histogram names for plotName = " << (*plotName) << " --> skipping !!";

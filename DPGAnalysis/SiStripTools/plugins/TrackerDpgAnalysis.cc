@@ -1298,7 +1298,7 @@ std::vector<std::pair<double, double> > TrackerDpgAnalysis::onTrackAngles(
           beta = cl->second.second.second;
         }
       }
-      result.push_back(std::make_pair(alpha, beta));
+      result.emplace_back(alpha, beta);
     }
   }
   return result;

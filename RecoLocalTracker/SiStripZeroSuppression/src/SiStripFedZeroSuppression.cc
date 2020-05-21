@@ -129,7 +129,7 @@ void SiStripFedZeroSuppression::suppress(const std::vector<SiStripDigi>& in,
     }
 
     if (isAValidDigi()) {
-      selectedSignal.push_back(SiStripDigi(strip, adc));
+      selectedSignal.emplace_back(strip, adc);
     }
   }
 }

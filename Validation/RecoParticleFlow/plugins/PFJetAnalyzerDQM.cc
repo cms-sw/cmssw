@@ -154,11 +154,11 @@ void PFJetAnalyzerDQM::prepareJetResponsePlots(const std::vector<edm::ParameterS
     auto rawTitle = title;
     rawTitle = rawTitle.replace(rawTitle.begin(), rawTitle.begin(), "Raw ");
 
-    jetResponsePlots.push_back(Plot1DInBin(
-        name, title, response_nbins, response_low, response_high, ptbin_low, ptbin_high, etabin_low, etabin_high));
+    jetResponsePlots.emplace_back(
+        name, title, response_nbins, response_low, response_high, ptbin_low, ptbin_high, etabin_low, etabin_high);
 
-    jetResponsePlots_noJEC.push_back(Plot1DInBin(
-        name, rawTitle, response_nbins, response_low, response_high, ptbin_low, ptbin_high, etabin_low, etabin_high));
+    jetResponsePlots_noJEC.emplace_back(
+        name, rawTitle, response_nbins, response_low, response_high, ptbin_low, ptbin_high, etabin_low, etabin_high);
   }
   if (jetResponsePlots.size() > 200) {
     throw std::runtime_error("Requested too many jet response plots, aborting as this seems unusual.");
@@ -177,14 +177,14 @@ void PFJetAnalyzerDQM::prepareGenJetPlots(const std::vector<edm::ParameterSet>& 
     const auto etabin_low = pset.getParameter<double>("etaBinLow");
     const auto etabin_high = pset.getParameter<double>("etaBinHigh");
 
-    genJetPlots.push_back(Plot1DInBinVariable(
+    genJetPlots.emplace_back(
         name,
         title,
         std::make_unique<TH1F>(name.c_str(), title.c_str(), static_cast<int>(ptbins.size()) - 1, ptbins.data()),
         0.0,
         0.0,
         etabin_low,
-        etabin_high));
+        etabin_high);
   }
 }
 

@@ -52,7 +52,7 @@ TSOSHistogramMaker::TSOSHistogramMaker(const edm::ParameterSet& iConfig)
     } else {
       m_seltitles.push_back(ps->getParameter<std::string>("detLabel"));
     }
-    m_detsels.push_back(DetIdSelector(ps->getUntrackedParameter<std::vector<std::string> >("selection")));
+    m_detsels.emplace_back(ps->getUntrackedParameter<std::vector<std::string> >("selection"));
   }
 
   for (unsigned int isel = 0; isel < m_detsels.size(); ++isel) {

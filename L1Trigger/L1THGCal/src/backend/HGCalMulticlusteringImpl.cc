@@ -118,7 +118,7 @@ void HGCalMulticlusteringImpl::clusterizeDBSCAN(const std::vector<edm::Ptr<l1t::
   for (std::vector<edm::Ptr<l1t::HGCalCluster>>::const_iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end();
        ++clu, ++iclu) {
     dist = (*clu)->centreProj().mag() * triggerTools_.zside((*clu)->detId());
-    rankedList.push_back(std::make_pair(iclu, dist));
+    rankedList.emplace_back(iclu, dist);
   }
   iclu = 0;
   std::sort(rankedList.begin(), rankedList.end(), [](auto& left, auto& right) { return left.second < right.second; });

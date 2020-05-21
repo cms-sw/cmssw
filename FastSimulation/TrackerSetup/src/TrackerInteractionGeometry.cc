@@ -69,8 +69,8 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
         BoundDisk* theDisk = new BoundDisk(positionType, theRotation2, diskBounds);
         theDisk->setMediumProperties(*_mediumProperties[_mediumProperties.size() - 1]);
         if (theDisk->mediumProperties().radLen() > 0.)
-          _theCylinders.push_back(TrackerLayer(
-              theDisk, true, layerNr, std::vector<double>(), std::vector<double>(), std::vector<double>()));
+          _theCylinders.emplace_back(
+              theDisk, true, layerNr, std::vector<double>(), std::vector<double>(), std::vector<double>());
         else
           delete theDisk;
 
@@ -88,8 +88,8 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
         BoundCylinder* theCylinder = new BoundCylinder(thePosition, theRotation, cylBounds);
         theCylinder->setMediumProperties(*_mediumProperties[_mediumProperties.size() - 1]);
         if (theCylinder->mediumProperties().radLen() > 0.)
-          _theCylinders.push_back(TrackerLayer(
-              theCylinder, false, layerNr, std::vector<double>(), std::vector<double>(), std::vector<double>()));
+          _theCylinders.emplace_back(
+              theCylinder, false, layerNr, std::vector<double>(), std::vector<double>(), std::vector<double>());
 
         else
           delete theCylinder;
@@ -534,8 +534,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theCylinder = new BoundCylinder(thePosition, theRotation, PIPE);
     theCylinder->setMediumProperties(*_theMPBeamPipe);
     if (theCylinder->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theCylinder;
 
@@ -545,8 +544,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theCylinder = new BoundCylinder(thePosition, theRotation, PIXB1);
     theCylinder->setMediumProperties(*_theMPPixelBarrel);
     if (theCylinder->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theCylinder;
 
@@ -554,8 +552,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theDisk = new BoundDisk(PPIXBOut1, theRotation2, PIXBOut1);
     theDisk->setMediumProperties(*_theMPPixelOutside1);
     if (theDisk->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theDisk;
 
@@ -563,8 +560,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theCylinder = new BoundCylinder(thePosition, theRotation, PIXB2);
     theCylinder->setMediumProperties(*_theMPPixelBarrel);
     if (theCylinder->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theCylinder;
 
@@ -572,8 +568,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theDisk = new BoundDisk(PPIXBOut2, theRotation2, PIXBOut2);
     theDisk->setMediumProperties(*_theMPPixelOutside2);
     if (theDisk->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theDisk;
 
@@ -581,8 +576,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theDisk = new BoundDisk(PPIXBOut3, theRotation2, PIXBOut3);
     theDisk->setMediumProperties(*_theMPPixelOutside3);
     if (theDisk->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theDisk;
 
@@ -590,8 +584,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theCylinder = new BoundCylinder(thePosition, theRotation, PIXB3);
     theCylinder->setMediumProperties(*_theMPPixelBarrel);
     if (theCylinder->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theCylinder;
 
@@ -599,8 +592,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theDisk = new BoundDisk(PPIXBOut4, theRotation2, PIXBOut4);
     theDisk->setMediumProperties(*_theMPPixelOutside4);
     if (theDisk->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theDisk;
 
@@ -608,8 +600,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theDisk = new BoundDisk(PPIXBOut, theRotation2, PIXBOut);
     theDisk->setMediumProperties(*_theMPPixelOutside);
     if (theDisk->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theDisk;
 
@@ -617,8 +608,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theDisk = new BoundDisk(PPIXD1, theRotation2, PIXD1);
     theDisk->setMediumProperties(*_theMPPixelEndcap);
     if (theDisk->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theDisk;
 
@@ -626,8 +616,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theDisk = new BoundDisk(PPIXD2, theRotation2, PIXD2);
     theDisk->setMediumProperties(*_theMPPixelEndcap);
     if (theDisk->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theDisk;
 
@@ -635,8 +624,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theCylinder = new BoundCylinder(thePosition, theRotation, PIXBOut5);
     theCylinder->setMediumProperties(*_theMPPixelOutside5);
     if (theCylinder->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theCylinder;
 
@@ -644,8 +632,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theDisk = new BoundDisk(PPIXBOut6, theRotation2, PIXBOut6);
     theDisk->setMediumProperties(*_theMPPixelOutside6);
     if (theDisk->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theDisk;
 
@@ -655,8 +642,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theCylinder = new BoundCylinder(thePosition, theRotation, TIB1);
     theCylinder->setMediumProperties(*_theMPTIB1);
     if (theCylinder->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theCylinder;
 
@@ -664,8 +650,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theCylinder = new BoundCylinder(thePosition, theRotation, TIB2);
     theCylinder->setMediumProperties(*_theMPTIB2);
     if (theCylinder->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theCylinder;
 
@@ -673,8 +658,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theCylinder = new BoundCylinder(thePosition, theRotation, TIB3);
     theCylinder->setMediumProperties(*_theMPTIB3);
     if (theCylinder->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theCylinder;
 
@@ -682,8 +666,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theCylinder = new BoundCylinder(thePosition, theRotation, TIB4);
     theCylinder->setMediumProperties(*_theMPTIB4);
     if (theCylinder->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theCylinder;
 
@@ -691,8 +674,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theDisk = new BoundDisk(PTIBEOut, theRotation2, TIBEOut);
     theDisk->setMediumProperties(*_theMPTIBEOutside1);
     if (theDisk->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theDisk;
 
@@ -700,8 +682,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theDisk = new BoundDisk(PTIBEOut2, theRotation2, TIBEOut2);
     theDisk->setMediumProperties(*_theMPTIBEOutside2);
     if (theDisk->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theDisk;
 
@@ -711,7 +692,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theDisk = new BoundDisk(PTID1, theRotation2, TID1);
     theDisk->setMediumProperties(*_theMPInner1);
     if (theDisk->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(TrackerLayer(theDisk, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theDisk, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theDisk;
 
@@ -719,7 +700,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theDisk = new BoundDisk(PTID2, theRotation2, TID2);
     theDisk->setMediumProperties(*_theMPInner2);
     if (theDisk->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(TrackerLayer(theDisk, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theDisk, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
 
     else
       delete theDisk;
@@ -728,8 +709,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theDisk = new BoundDisk(PTID3, theRotation2, TID3);
     theDisk->setMediumProperties(*_theMPInner3);
     if (theDisk->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theDisk;
 
@@ -737,8 +717,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theDisk = new BoundDisk(PTIDEOut, theRotation2, TIDEOut);
     theDisk->setMediumProperties(*_theMPTIDEOutside);
     if (theDisk->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theDisk;
 
@@ -748,8 +727,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theCylinder = new BoundCylinder(thePosition, theRotation, TOBCIn);
     theCylinder->setMediumProperties(*_theMPTOBBInside);
     if (theCylinder->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theCylinder;
 
@@ -757,8 +735,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theCylinder = new BoundCylinder(thePosition, theRotation, TOB1);
     theCylinder->setMediumProperties(*_theMPTOB1);
     if (theCylinder->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theCylinder;
 
@@ -766,8 +743,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theCylinder = new BoundCylinder(thePosition, theRotation, TOB2);
     theCylinder->setMediumProperties(*_theMPTOB2);
     if (theCylinder->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theCylinder;
 
@@ -775,8 +751,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theCylinder = new BoundCylinder(thePosition, theRotation, TOB3);
     theCylinder->setMediumProperties(*_theMPTOB3);
     if (theCylinder->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theCylinder;
 
@@ -784,8 +759,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theCylinder = new BoundCylinder(thePosition, theRotation, TOB4);
     theCylinder->setMediumProperties(*_theMPTOB4);
     if (theCylinder->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theCylinder;
 
@@ -793,8 +767,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theCylinder = new BoundCylinder(thePosition, theRotation, TOB5);
     theCylinder->setMediumProperties(*_theMPTOB5);
     if (theCylinder->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theCylinder;
 
@@ -802,8 +775,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theCylinder = new BoundCylinder(thePosition, theRotation, TOB6);
     theCylinder->setMediumProperties(*_theMPTOB6);
     if (theCylinder->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theCylinder;
 
@@ -811,8 +783,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theDisk = new BoundDisk(PTOBEOut, theRotation2, TOBEOut);
     theDisk->setMediumProperties(*_theMPTOBEOutside);
     if (theDisk->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theDisk;
 
@@ -822,7 +793,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theDisk = new BoundDisk(PTEC1, theRotation2, TEC1);
     theDisk->setMediumProperties(*_theMPEndcap);
     if (theDisk->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(TrackerLayer(theDisk, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theDisk, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theDisk;
 
@@ -830,7 +801,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theDisk = new BoundDisk(PTEC2, theRotation2, TEC2);
     theDisk->setMediumProperties(*_theMPEndcap);
     if (theDisk->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(TrackerLayer(theDisk, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theDisk, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theDisk;
 
@@ -838,7 +809,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theDisk = new BoundDisk(PTEC3, theRotation2, TEC3);
     theDisk->setMediumProperties(*_theMPEndcap);
     if (theDisk->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(TrackerLayer(theDisk, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theDisk, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theDisk;
 
@@ -846,7 +817,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theDisk = new BoundDisk(PTEC4, theRotation2, TEC4);
     theDisk->setMediumProperties(*_theMPEndcap);
     if (theDisk->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(TrackerLayer(theDisk, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theDisk, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theDisk;
 
@@ -854,7 +825,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theDisk = new BoundDisk(PTEC5, theRotation2, TEC5);
     theDisk->setMediumProperties(*_theMPEndcap);
     if (theDisk->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(TrackerLayer(theDisk, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theDisk, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theDisk;
 
@@ -862,7 +833,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theDisk = new BoundDisk(PTEC6, theRotation2, TEC6);
     theDisk->setMediumProperties(*_theMPEndcap);
     if (theDisk->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(TrackerLayer(theDisk, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theDisk, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theDisk;
 
@@ -870,7 +841,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theDisk = new BoundDisk(PTEC7, theRotation2, TEC7);
     theDisk->setMediumProperties(*_theMPEndcap);
     if (theDisk->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(TrackerLayer(theDisk, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theDisk, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theDisk;
 
@@ -878,7 +849,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theDisk = new BoundDisk(PTEC8, theRotation2, TEC8);
     theDisk->setMediumProperties(*_theMPEndcap);
     if (theDisk->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(TrackerLayer(theDisk, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theDisk, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theDisk;
 
@@ -886,7 +857,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theDisk = new BoundDisk(PTEC9, theRotation2, TEC9);
     theDisk->setMediumProperties(*_theMPEndcap);
     if (theDisk->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(TrackerLayer(theDisk, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theDisk, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theDisk;
 
@@ -896,8 +867,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theCylinder = new BoundCylinder(thePosition, theRotation, TBOut);
     theCylinder->setMediumProperties(*_theMPBarrelOutside);
     if (theCylinder->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theCylinder, false, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theCylinder;
 
@@ -905,8 +875,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theDisk = new BoundDisk(PTEOut, theRotation2, TEOut);
     theDisk->setMediumProperties(*_theMPEndcapOutside);
     if (theDisk->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theDisk;
 
@@ -914,8 +883,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theDisk = new BoundDisk(PTEOut2, theRotation2, TEOut2);
     theDisk->setMediumProperties(*_theMPEndcapOutside2);
     if (theDisk->mediumProperties().radLen() > 0.)
-      _theCylinders.push_back(
-          TrackerLayer(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr)));
+      _theCylinders.emplace_back(theDisk, true, layerNr, minDim(layerNr), maxDim(layerNr), fudgeFactors(layerNr));
     else
       delete theDisk;
   }

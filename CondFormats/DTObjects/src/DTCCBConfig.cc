@@ -142,7 +142,7 @@ int DTCCBConfig::setConfigKey(int wheelId, int stationId, int sectorId, const st
     std::vector<int>::const_iterator cfgIter = confKey.begin();
     std::vector<int>::const_iterator cfgIend = confKey.end();
     while (cfgIter != cfgIend)
-      dataList.push_back(std::pair<DTCCBId, int>(ccbId, *cfgIter++));
+      dataList.emplace_back(ccbId, *cfgIter++);
     *confPtr = confKey;
     return -1;
   } else {
@@ -154,7 +154,7 @@ int DTCCBConfig::setConfigKey(int wheelId, int stationId, int sectorId, const st
     std::vector<int>::const_iterator cfgIter = confKey.begin();
     std::vector<int>::const_iterator cfgIend = confKey.end();
     while (cfgIter != cfgIend)
-      dataList.push_back(std::pair<DTCCBId, int>(ccbId, *cfgIter++));
+      dataList.emplace_back(ccbId, *cfgIter++);
     return 0;
   }
 }
@@ -185,7 +185,7 @@ int DTCCBConfig::appendConfigKey(int wheelId, int stationId, int sectorId, const
 
   while (iter != iend) {
     key = *iter++;
-    dataList.push_back(std::pair<DTCCBId, int>(ccbId, key));
+    dataList.emplace_back(ccbId, key);
     confPtr->push_back(key);
   }
 

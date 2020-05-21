@@ -146,7 +146,7 @@ void EnergyScaleCorrection::addScale(const std::string& category,
   }
 
   ScaleCorrection corr(energyScale, energyScaleErrStat, energyScaleErrSyst, energyScaleErrGain);
-  scales_.push_back({cat, corr});
+  scales_.emplace_back(cat, corr);
   std::sort(scales_.begin(), scales_.end(), Sorter<CorrectionCategory, ScaleCorrection>());
 }
 
@@ -171,7 +171,7 @@ void EnergyScaleCorrection::addScale(int runMin,
   }
 
   ScaleCorrection corr(energyScale, energyScaleErrStat, energyScaleErrSyst, energyScaleErrGain);
-  scales_.push_back({cat, corr});
+  scales_.emplace_back(cat, corr);
   std::sort(scales_.begin(), scales_.end(), Sorter<CorrectionCategory, ScaleCorrection>());
 }
 
@@ -193,7 +193,7 @@ void EnergyScaleCorrection::addSmearing(const std::string& category,
   }
 
   SmearCorrection corr(rho, errRho, phi, errPhi, eMean, errEMean);
-  smearings_.push_back({cat, corr});
+  smearings_.emplace_back(cat, corr);
   std::sort(smearings_.begin(), smearings_.end(), Sorter<CorrectionCategory, SmearCorrection>());
 }
 

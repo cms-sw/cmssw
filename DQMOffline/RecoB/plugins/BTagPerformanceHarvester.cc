@@ -42,19 +42,19 @@ BTagPerformanceHarvester::BTagPerformanceHarvester(const edm::ParameterSet& pSet
     if (dataFormatType == "JetTag") {
       const InputTag& moduleLabel = iModule->getParameter<InputTag>("label");
       jetTagInputTags.push_back(moduleLabel);
-      binJetTagPlotters.push_back(vector<std::shared_ptr<JetTagPlotter>>());
+      binJetTagPlotters.emplace_back();
       if (mcPlots_ && makeDiffPlots_) {
-        differentialPlots.push_back(vector<std::unique_ptr<BTagDifferentialPlot>>());
+        differentialPlots.emplace_back();
       }
     } else if (dataFormatType == "TagCorrelation") {
       const InputTag& label1 = iModule->getParameter<InputTag>("label1");
       const InputTag& label2 = iModule->getParameter<InputTag>("label2");
-      tagCorrelationInputTags.push_back(std::pair<edm::InputTag, edm::InputTag>(label1, label2));
-      binTagCorrelationPlotters.push_back(vector<std::unique_ptr<TagCorrelationPlotter>>());
+      tagCorrelationInputTags.emplace_back(label1, label2);
+      binTagCorrelationPlotters.emplace_back();
     } else {
-      tagInfoInputTags.push_back(vector<edm::InputTag>());
+      tagInfoInputTags.emplace_back();
       tiDataFormatType.push_back(dataFormatType);
-      binTagInfoPlotters.push_back(vector<std::unique_ptr<BaseTagInfoPlotter>>());
+      binTagInfoPlotters.emplace_back();
     }
   }
 }

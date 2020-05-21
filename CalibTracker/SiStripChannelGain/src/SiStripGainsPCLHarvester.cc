@@ -56,13 +56,13 @@ SiStripGainsPCLHarvester::SiStripGainsPCLHarvester(const edm::ParameterSet& ps)
   //Set the monitoring element tag and store
   dqm_tag_.reserve(7);
   dqm_tag_.clear();
-  dqm_tag_.push_back("StdBunch");    // statistic collection from Standard Collision Bunch @ 3.8 T
-  dqm_tag_.push_back("StdBunch0T");  // statistic collection from Standard Collision Bunch @ 0 T
-  dqm_tag_.push_back("AagBunch");    // statistic collection from First Collision After Abort Gap @ 3.8 T
-  dqm_tag_.push_back("AagBunch0T");  // statistic collection from First Collision After Abort Gap @ 0 T
-  dqm_tag_.push_back("IsoMuon");     // statistic collection from Isolated Muon @ 3.8 T
-  dqm_tag_.push_back("IsoMuon0T");   // statistic collection from Isolated Muon @ 0 T
-  dqm_tag_.push_back("Harvest");     // statistic collection: Harvest
+  dqm_tag_.emplace_back("StdBunch");    // statistic collection from Standard Collision Bunch @ 3.8 T
+  dqm_tag_.emplace_back("StdBunch0T");  // statistic collection from Standard Collision Bunch @ 0 T
+  dqm_tag_.emplace_back("AagBunch");    // statistic collection from First Collision After Abort Gap @ 3.8 T
+  dqm_tag_.emplace_back("AagBunch0T");  // statistic collection from First Collision After Abort Gap @ 0 T
+  dqm_tag_.emplace_back("IsoMuon");     // statistic collection from Isolated Muon @ 3.8 T
+  dqm_tag_.emplace_back("IsoMuon0T");   // statistic collection from Isolated Muon @ 0 T
+  dqm_tag_.emplace_back("Harvest");     // statistic collection: Harvest
 }
 
 //********************************************************************************//
@@ -170,7 +170,7 @@ void SiStripGainsPCLHarvester::gainQualityMonitor(DQMStore::IBooker& ibooker_,
     int id = APVGain::subdetectorId((cnames[i]).first);
     int side = APVGain::subdetectorSide((cnames[i]).first);
     int plane = APVGain::subdetectorPlane((cnames[i]).first);
-    new_charge_histos.push_back(APVGain::APVmon(id, side, plane, monitor));
+    new_charge_histos.emplace_back(id, side, plane, monitor);
   }
 
   int MPVbin = 300;

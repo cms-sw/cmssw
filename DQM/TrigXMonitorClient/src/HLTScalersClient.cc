@@ -186,8 +186,8 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock &lumiSeg, c
       snprintf(name, 256, "counts_p%03d", i);
       countHistories_.push_back(dbe_->book1D(name, name, MAX_LUMI_SEG_HLT, -0.5, MAX_LUMI_SEG_HLT - 0.5));
       // prefill the data structures
-      recentPathCountsPerLS_.push_back(CountLSFifo_t(kRateIntegWindow_));
-      recentNormedPathCountsPerLS_.push_back(CountLSFifo_t(2));
+      recentPathCountsPerLS_.emplace_back(kRateIntegWindow_);
+      recentNormedPathCountsPerLS_.emplace_back(2);
     }
     dbe_->setCurrentFolder(folderName_);
 

@@ -7,9 +7,7 @@ char *pat::EventHypothesis::getDemangledSymbol(const char *mangledSymbol) const 
   return (status == 0) ? demangledSymbol : nullptr;
 }
 
-void pat::EventHypothesis::add(const CandRefType &ref, const std::string &role) {
-  particles_.push_back(value_type(role, ref));
-}
+void pat::EventHypothesis::add(const CandRefType &ref, const std::string &role) { particles_.emplace_back(role, ref); }
 
 const pat::EventHypothesis::CandRefType &pat::EventHypothesis::get(const std::string &role, int index) const {
   if (index >= 0) {

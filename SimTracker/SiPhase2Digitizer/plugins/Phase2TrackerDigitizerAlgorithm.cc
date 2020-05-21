@@ -955,7 +955,7 @@ void Phase2TrackerDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* p
         for (auto const& l : sig_data.simInfoList()) {
           float charge_frac = l.first / signalInElectrons;
           if (l.first > -5.0)
-            info.simInfoList.push_back({charge_frac, l.second.get()});
+            info.simInfoList.emplace_back(charge_frac, l.second.get());
         }
       }
       digi_map.insert({s.first, info});

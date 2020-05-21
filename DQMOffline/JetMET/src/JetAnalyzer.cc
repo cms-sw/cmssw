@@ -1665,9 +1665,9 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
 
   if (jetCleaningFlag_) {
     //so far we have only one additional selection -> implement to make it expandable
-    folderNames_.push_back("DiJet");
+    folderNames_.emplace_back("DiJet");
     if (isPFJet_) {  //check for now only for PFJets
-      folderNames_.push_back("ZJets");
+      folderNames_.emplace_back("ZJets");
     }
     //book for each of these selection default histograms
     for (std::vector<std::string>::const_iterator ic = folderNames_.begin(); ic != folderNames_.end(); ic++) {

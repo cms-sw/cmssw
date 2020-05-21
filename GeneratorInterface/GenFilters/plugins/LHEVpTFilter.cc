@@ -66,8 +66,7 @@ bool LHEVpTFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSet
     }
     unsigned absPdgId = std::abs(EvtHandle->hepeup().IDUP[i]);
     if (absPdgId >= 11 && absPdgId <= 16) {
-      lepCands.push_back(
-          ROOT::Math::PxPyPzEVector(lheParticles[i][0], lheParticles[i][1], lheParticles[i][2], lheParticles[i][3]));
+      lepCands.emplace_back(lheParticles[i][0], lheParticles[i][1], lheParticles[i][2], lheParticles[i][3]);
     }
   }
   double vpt_ = -1;

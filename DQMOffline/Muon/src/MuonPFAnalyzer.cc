@@ -51,9 +51,9 @@ MuonPFAnalyzer::MuonPFAnalyzer(const ParameterSet &pSet) {
 
   theFolder = pSet.getParameter<string>("folder");
 
-  theMuonKinds.push_back("");          // all TUNEP/PF muons
-  theMuonKinds.push_back("Tight");     // tight TUNEP/PF muons
-  theMuonKinds.push_back("TightIso");  // tight/iso TUNEP/PF muons
+  theMuonKinds.emplace_back("");          // all TUNEP/PF muons
+  theMuonKinds.emplace_back("Tight");     // tight TUNEP/PF muons
+  theMuonKinds.emplace_back("TightIso");  // tight/iso TUNEP/PF muons
 }
 
 MuonPFAnalyzer::~MuonPFAnalyzer() { LogTrace("MuonPFAnalyzer") << "[MuonPFAnalyzer] Destructor called.\n"; }

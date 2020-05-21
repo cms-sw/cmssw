@@ -34,15 +34,15 @@ PixelPortcardMap::PixelPortcardMap(std::vector<std::vector<std::string> > &table
   TBM_MODE					     VARCHAR2(200)
   AOH_CHAN				    NOT NULL NUMBER(38)
 */
-  colNames.push_back("CONFIG_KEY");
-  colNames.push_back("KEY_TYPE");
-  colNames.push_back("KEY_ALIAS");
-  colNames.push_back("VERSION");
-  colNames.push_back("KIND_OF_COND");
-  colNames.push_back("PORT_CARD");
-  colNames.push_back("PANEL_NAME");
-  colNames.push_back("TBM_MODE");
-  colNames.push_back("AOH_CHAN");
+  colNames.emplace_back("CONFIG_KEY");
+  colNames.emplace_back("KEY_TYPE");
+  colNames.emplace_back("KEY_ALIAS");
+  colNames.emplace_back("VERSION");
+  colNames.emplace_back("KIND_OF_COND");
+  colNames.emplace_back("PORT_CARD");
+  colNames.emplace_back("PANEL_NAME");
+  colNames.emplace_back("TBM_MODE");
+  colNames.emplace_back("AOH_CHAN");
   /*
   colNames.push_back("CONFIG_KEY_ID" );
   colNames.push_back("CONFG_KEY"     );

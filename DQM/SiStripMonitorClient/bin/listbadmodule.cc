@@ -60,12 +60,12 @@ void listbadmodule(std::string filename, std::string pclfilename) {
   }
 
   std::vector<std::string> subdet;
-  subdet.push_back("TIB");
-  subdet.push_back("TID/MINUS");
-  subdet.push_back("TID/PLUS");
-  subdet.push_back("TOB");
-  subdet.push_back("TEC/MINUS");
-  subdet.push_back("TEC/PLUS");
+  subdet.emplace_back("TIB");
+  subdet.emplace_back("TID/MINUS");
+  subdet.emplace_back("TID/PLUS");
+  subdet.emplace_back("TOB");
+  subdet.emplace_back("TEC/MINUS");
+  subdet.emplace_back("TEC/PLUS");
 
   std::string nrun = filename.substr(filename.find("_R000") + 5, 6);
   int fileNum = atoi(nrun.c_str());

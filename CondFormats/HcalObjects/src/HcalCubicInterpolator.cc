@@ -87,7 +87,7 @@ HcalCubicInterpolator HcalCubicInterpolator::approximateInverse() const {
       throw cms::Exception(
           "In HcalCubicInterpolator::inverse:"
           " can't invert functor with derivatives of 0");
-    points.push_back(Triple(values_[i], abscissae_[i], 1.0 / dydx));
+    points.emplace_back(values_[i], abscissae_[i], 1.0 / dydx);
   }
   return HcalCubicInterpolator(points);
 }

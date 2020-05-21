@@ -243,7 +243,7 @@ bool RPCTwinMuxRawToDigi::processBlock(int fed,
     }
     ++word;
 
-    amc_size_map.push_back(std::make_pair(amc_content.getAMCNumber(), amc_content.getSize()));
+    amc_size_map.emplace_back(amc_content.getAMCNumber(), amc_content.getSize());
     if (!amc_content.isValid()) {
       if (fill_counters_) {
         counters.add(RPCAMCLinkEvents::amc_amc13_evc_bc_invalid_, RPCAMCLink(fed, amc_content.getAMCNumber()));

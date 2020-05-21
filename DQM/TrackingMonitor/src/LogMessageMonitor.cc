@@ -198,7 +198,7 @@ void LogMessageMonitor::bookHistograms(DQMStore::IBooker& ibooker,
 
   ibooker.setCurrentFolder(MEFolderName);
 
-  categories_vector_.push_back("others");
+  categories_vector_.emplace_back("others");
   size_t nModules = modules_vector_.size();
   size_t nCategories = categories_vector_.size();
 

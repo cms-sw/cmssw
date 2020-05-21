@@ -53,7 +53,7 @@ void LMFClsDat::init() {
   m_keys["VMIN"] = 8;
   m_keys["VMAX"] = 9;
   for (unsigned int i = 0; i < m_keys.size(); i++) {
-    m_type.push_back("NUMBER");
+    m_type.emplace_back("NUMBER");
   }
   m_system = 0;
   m_color = 0;

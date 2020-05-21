@@ -38,7 +38,7 @@ void SimpleTECWedge::groupedCompatibleDetsV(const TrajectoryStateOnSurface& tsos
   pair<bool, TrajectoryStateOnSurface> compat = this->compatible(tsos, prop, est);
 
   if (compat.first) {
-    result.push_back(DetGroup(0, 1));
+    result.emplace_back(0, 1);
     DetGroupElement ge(theDet, compat.second);
     result.front().push_back(ge);
   }

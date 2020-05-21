@@ -125,7 +125,7 @@ RPCLinkSynchroStat::RPCLinkSynchroStat(bool useFirstFitOnly) : theUseFirstHitOnl
       }
     }
   }
-  theLinkStatMap.push_back(std::make_pair(LinkBoard("Dummy"), SynchroCounts()));
+  theLinkStatMap.emplace_back(LinkBoard("Dummy"), SynchroCounts());
 }
 
 void RPCLinkSynchroStat::init(const RPCReadOutMapping* theCabling, bool addChamberInfo) {

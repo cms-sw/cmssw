@@ -444,8 +444,8 @@ void CorrPCCProducer::dqmEndRunProduce(edm::Run const& runSeg, const edm::EventS
 
   //Constructing nBlocks IOVs
   for (unsigned iKey = 0; iKey < nBlocks; iKey++) {
-    lsKeys.push_back(std::make_pair(lumiSections[(unsigned int)(iKey * nLSPerBlock)],
-                                    lumiSections[(unsigned int)((iKey + 1) * nLSPerBlock) - 1]));
+    lsKeys.emplace_back(lumiSections[(unsigned int)(iKey * nLSPerBlock)],
+                        lumiSections[(unsigned int)((iKey + 1) * nLSPerBlock) - 1]);
   }
 
   lsKeys[0].first = 1;

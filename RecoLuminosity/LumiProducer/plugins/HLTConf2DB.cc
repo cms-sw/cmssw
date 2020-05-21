@@ -154,7 +154,7 @@ namespace lumi {
         const coral::AttributeList& row = cursor1.currentRow();
         std::string hltpath = row["hltpath"].data<std::string>();
         std::string l1expression = row["l1expression"].data<std::string>();
-        hlt2l1map.push_back(std::make_pair(hltpath, l1expression));
+        hlt2l1map.emplace_back(hltpath, l1expression);
       }
       cursor1.close();
       delete q1;

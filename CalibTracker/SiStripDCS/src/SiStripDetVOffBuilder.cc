@@ -275,7 +275,7 @@ void SiStripDetVOffBuilder::BuildDetVOffObj() {
         testV = modulesOff.back().first;
       }
       if (modulesOff.empty() || !(*modV == *testV)) {
-        modulesOff.push_back(std::make_pair(modV, iovtime));
+        modulesOff.emplace_back(modV, iovtime);
         // save the time of the object
         saveIovTime = iovtime;
         // save stats

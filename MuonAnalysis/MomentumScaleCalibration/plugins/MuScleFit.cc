@@ -896,11 +896,11 @@ void MuScleFit::selectMuons(const edm::Event& event) {
       std::cout << "after recMuScleMu1 = " << recMuScleMu1 << std::endl;
       std::cout << "after recMuScleMu2 = " << recMuScleMu2 << std::endl;
     }
-    MuScleFitUtils::SavedPair.push_back(std::make_pair(recMu1, recMu2));
-    MuScleFitUtils::SavedPairMuScleFitMuons.push_back(std::make_pair(recMuScleMu1, recMuScleMu2));
+    MuScleFitUtils::SavedPair.emplace_back(recMu1, recMu2);
+    MuScleFitUtils::SavedPairMuScleFitMuons.emplace_back(recMuScleMu1, recMuScleMu2);
   } else {
-    MuScleFitUtils::SavedPair.push_back(std::make_pair(lorentzVector(0., 0., 0., 0.), lorentzVector(0., 0., 0., 0.)));
-    MuScleFitUtils::SavedPairMuScleFitMuons.push_back(std::make_pair(MuScleFitMuon(), MuScleFitMuon()));
+    MuScleFitUtils::SavedPair.emplace_back(lorentzVector(0., 0., 0., 0.), lorentzVector(0., 0., 0., 0.));
+    MuScleFitUtils::SavedPairMuScleFitMuons.emplace_back(MuScleFitMuon(), MuScleFitMuon());
   }
   // Save the events also in the external tree so that it can be saved late
 
@@ -949,14 +949,14 @@ void MuScleFit::selectMuons(const edm::Event& event) {
     the_genEvtweight = genEvtInfo->weight();
   }
 
-  muonPairs_.push_back(MuonPair(
+  muonPairs_.emplace_back(
       MuScleFitUtils::SavedPairMuScleFitMuons.back().first,
       MuScleFitUtils::SavedPairMuScleFitMuons.back().second,
       MuScleFitEvent(
-          event.run(), event.id().event(), the_genEvtweight, the_numPUvtx, the_TrueNumInteractions, the_NVtx)));
+          event.run(), event.id().event(), the_genEvtweight, the_numPUvtx, the_TrueNumInteractions, the_NVtx));
   // Fill the internal genPair tree from the external one
   if (MuScleFitUtils::speedup == false) {
-    MuScleFitUtils::genPair.push_back(std::make_pair(genMuonPairs_.back().mu1.p4(), genMuonPairs_.back().mu2.p4()));
+    MuScleFitUtils::genPair.emplace_back(genMuonPairs_.back().mu1.p4(), genMuonPairs_.back().mu2.p4());
   }
 }
 
@@ -1053,21 +1053,21 @@ void MuScleFit::selectMuons(const int maxEvents, const TString& treeFileName) {
         applyBias(vec2, 1);
       }
 
-      MuScleFitUtils::SavedPair.push_back(std::make_pair(vec1, vec2));
+      MuScleFitUtils::SavedPair.emplace_back(vec1, vec2);
     }
 
     //FIXME: we loose the additional information besides the 4-momenta
-    muonPairs_.push_back(MuonPair(
+    muonPairs_.emplace_back(
         MuScleFitMuon(vec1, -1),
         MuScleFitMuon(vec2, +1),
         MuScleFitEvent(
-            (*evtRunIt).first, (*evtRunIt).second, 0, 0, 0, 0))  // FIXME: order of event and run number mixed up!
+            (*evtRunIt).first, (*evtRunIt).second, 0, 0, 0, 0)  // FIXME: order of event and run number mixed up!
     );
 
     // Fill the internal genPair tree from the external one
     if (!MuScleFitUtils::speedup) {
-      MuScleFitUtils::genPair.push_back(std::make_pair(genIt->first.p4(), genIt->second.p4()));
-      genMuonPairs_.push_back(GenMuonPair(genIt->first.p4(), genIt->second.p4(), 0));
+      MuScleFitUtils::genPair.emplace_back(genIt->first.p4(), genIt->second.p4());
+      genMuonPairs_.emplace_back(genIt->first.p4(), genIt->second.p4(), 0);
       ++genIt;
     }
   }

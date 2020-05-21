@@ -156,9 +156,9 @@ void FWModelChangeManager::newItemSlot(FWEventItem* iItem) {
   assert(nullptr != iItem);
   assert(iItem->id() == m_changes.size());
   assert(iItem->id() == m_changeSignals.size());
-  m_changes.push_back(FWModelIds());
-  m_changeSignals.push_back(FWModelChangeSignal());
-  m_itemChangeSignals.push_back(FWItemChangeSignal());
+  m_changes.emplace_back();
+  m_changeSignals.emplace_back();
+  m_itemChangeSignals.emplace_back();
   //propagate our signal to the item
   m_changeSignals.back().connect(iItem->changed_);
   m_itemChangeSignals.back().connect(iItem->itemChanged_);

@@ -310,8 +310,8 @@ namespace sistrip {
             if ((pCode == PACKET_CODE_ZERO_SUPPRESSED) || (pCode == PACKET_CODE_ZERO_SUPPRESSED10) ||
                 (pCode == PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT) || (pCode == PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT)) {
               Registry regItem2(key, 2 * ipair, cm_work_digis_.size(), 2);
-              cm_work_digis_.push_back(SiStripRawDigi(fedChannel.cmMedian(0)));
-              cm_work_digis_.push_back(SiStripRawDigi(fedChannel.cmMedian(1)));
+              cm_work_digis_.emplace_back(fedChannel.cmMedian(0));
+              cm_work_digis_.emplace_back(fedChannel.cmMedian(1));
               cm_work_registry_.push_back(regItem2);
             } else {
               detids.push_back(iconn->detId());  //@@ Possible multiple entries (ok for Giovanni)
@@ -412,7 +412,7 @@ namespace sistrip {
       bool errorInData = false;
       std::vector<Registry>::iterator it = zs_work_registry_.begin(), it2 = it + 1, end = zs_work_registry_.end();
       while (it < end) {
-        sorted_and_merged.push_back(edm::DetSet<SiStripDigi>(it->detid));
+        sorted_and_merged.emplace_back(it->detid);
         std::vector<SiStripDigi>& digis = sorted_and_merged.back().data;
         // first count how many digis we have
         size_t len = it->length;
@@ -465,7 +465,7 @@ namespace sistrip {
       bool errorInData = false;
       std::vector<Registry>::iterator it = virgin_work_registry_.begin(), it2, end = virgin_work_registry_.end();
       while (it < end) {
-        sorted_and_merged.push_back(edm::DetSet<SiStripRawDigi>(it->detid));
+        sorted_and_merged.emplace_back(it->detid);
         std::vector<SiStripRawDigi>& digis = sorted_and_merged.back().data;
 
         bool isDetOk = true;
@@ -532,7 +532,7 @@ namespace sistrip {
       bool errorInData = false;
       std::vector<Registry>::iterator it = proc_work_registry_.begin(), it2, end = proc_work_registry_.end();
       while (it < end) {
-        sorted_and_merged.push_back(edm::DetSet<SiStripRawDigi>(it->detid));
+        sorted_and_merged.emplace_back(it->detid);
         std::vector<SiStripRawDigi>& digis = sorted_and_merged.back().data;
 
         bool isDetOk = true;
@@ -601,7 +601,7 @@ namespace sistrip {
       bool errorInData = false;
       std::vector<Registry>::iterator it, end;
       for (it = scope_work_registry_.begin(), end = scope_work_registry_.end(); it != end; ++it) {
-        sorted_and_merged.push_back(edm::DetSet<SiStripRawDigi>(it->detid));
+        sorted_and_merged.emplace_back(it->detid);
         std::vector<SiStripRawDigi>& digis = sorted_and_merged.back().data;
         digis.insert(digis.end(), &scope_work_digis_[it->index], &scope_work_digis_[it->index + it->length]);
 
@@ -643,7 +643,7 @@ namespace sistrip {
         bool errorInData = false;
         std::vector<Registry>::iterator it = cm_work_registry_.begin(), it2, end = cm_work_registry_.end();
         while (it < end) {
-          sorted_and_merged.push_back(edm::DetSet<SiStripRawDigi>(it->detid));
+          sorted_and_merged.emplace_back(it->detid);
           std::vector<SiStripRawDigi>& digis = sorted_and_merged.back().data;
 
           bool isDetOk = true;

@@ -49,8 +49,8 @@ void FWHLTValidator::fillOptions(const char* iBegin,
   for (std::vector<std::string>::const_iterator trigger = m_triggerNames.begin(); trigger != m_triggerNames.end();
        ++trigger)
     if (part == trigger->substr(0, part_size)) {
-      oOptions.push_back(std::make_pair(std::make_shared<std::string>(*trigger),
-                                        trigger->substr(part_size, trigger->size() - part_size)));
+      oOptions.emplace_back(std::make_shared<std::string>(*trigger),
+                            trigger->substr(part_size, trigger->size() - part_size));
     }
 }
 

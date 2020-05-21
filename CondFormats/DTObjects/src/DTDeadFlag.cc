@@ -188,7 +188,7 @@ int DTDeadFlag::set(int wheelId,
     data.dead_RO = dead_RO;
     data.discCat = discCat;
     ientry = dataList.size();
-    dataList.push_back(std::pair<const DTDeadFlagId, DTDeadFlagData>(key, data));
+    dataList.emplace_back(std::pair<const DTDeadFlagId, DTDeadFlagData>(key, data));
     dBuf->insert(chanKey.begin(), chanKey.end(), ientry);
     return 0;
   }

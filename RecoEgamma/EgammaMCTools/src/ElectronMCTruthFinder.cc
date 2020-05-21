@@ -167,8 +167,8 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(const std::vector<SimTr
             remainingEnergy = (*iSimTk).momentum().e();
             motherMomentum = (*iSimTk).momentum();
 
-            pBrem.push_back(CLHEP::HepLorentzVector(
-                trLast.momentum().px(), trLast.momentum().py(), trLast.momentum().pz(), trLast.momentum().e()));
+            pBrem.emplace_back(
+                trLast.momentum().px(), trLast.momentum().py(), trLast.momentum().pz(), trLast.momentum().e());
             bremPos.push_back(CLHEP::HepLorentzVector(
                 vertex1.position().x(), vertex1.position().y(), vertex1.position().z(), vertex1.position().t()));
             xBrem.push_back(eLoss);
@@ -185,7 +185,7 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(const std::vector<SimTr
     /// here fill the electron
     CLHEP::HepLorentzVector tmpEleMom(primEleMom.px(), primEleMom.py(), primEleMom.pz(), primEleMom.e());
     CLHEP::HepLorentzVector tmpVtxPos(primVtxPos.x(), primVtxPos.y(), primVtxPos.z(), primVtxPos.t());
-    result.push_back(ElectronMCTruth(tmpEleMom, eleVtxIndex, bremPos, pBrem, xBrem, tmpVtxPos, (*iEleTk)));
+    result.emplace_back(tmpEleMom, eleVtxIndex, bremPos, pBrem, xBrem, tmpVtxPos, (*iEleTk));
 
   }  // End loop over primary electrons
 

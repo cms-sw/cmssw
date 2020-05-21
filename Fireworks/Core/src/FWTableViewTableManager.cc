@@ -238,10 +238,10 @@ void FWTableViewTableManager::updateEvaluators() {
        i != end;
        ++i) {
     try {
-      ev.push_back(FWExpressionEvaluator(i->expression, item->modelType()->GetName()));
+      ev.emplace_back(i->expression, item->modelType()->GetName());
     } catch (...) {
       fwLog(fwlog::kError) << "expression " << i->expression << " is not valid, skipping\n";
-      ev.push_back(FWExpressionEvaluator("0", item->modelType()->GetName()));
+      ev.emplace_back("0", item->modelType()->GetName());
     }
   }
   //printf("Got evaluators\n");

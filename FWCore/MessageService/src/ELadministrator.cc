@@ -116,7 +116,7 @@ namespace edm {
     // ----------------------------------------------------------------------
 
     std::shared_ptr<ELdestination> ELadministrator::attach(std::shared_ptr<ELdestination> sink) {
-      sinks_.push_back(sink);
+      sinks_.emplace_back(sink);
       return sink;
 
     }  // attach()

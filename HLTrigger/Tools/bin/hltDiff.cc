@@ -140,7 +140,7 @@ public:
     for (unsigned int f = 0; f < first.size(); ++f)
       for (unsigned int s = 0; s < second.size(); ++s)
         if (first.triggerName(f) == second.triggerName(s)) {
-          triggerIndices_.push_back(std::make_pair(f, s));
+          triggerIndices_.emplace_back(f, s);
           break;
         }
   }
@@ -687,7 +687,7 @@ public:
         if (lastTrigger.tr == _tr)
           return lastTrigger;
       }
-      triggerStates.push_back(JsonTriggerEventState(_tr));
+      triggerStates.emplace_back(_tr);
       return triggerStates.back();
     }
   };
@@ -712,7 +712,7 @@ public:
       if (lastEvent.run == _run && lastEvent.lumi == _lumi && lastEvent.event == _event)
         return lastEvent;
     }
-    v_events.push_back(JsonEvent(_run, _lumi, _event));
+    v_events.emplace_back(_run, _lumi, _event);
     return v_events.back();
   }
 
@@ -1347,11 +1347,11 @@ public:
         // adding the list of selected triggers to JSON output
         std::vector<std::string> states_str;
         for (int i = State::Ready; i != State::Invalid; i++)
-          states_str.push_back(std::string(path_state(static_cast<State>(i))));
+          states_str.emplace_back(path_state(static_cast<State>(i)));
         json.vars.state = states_str;
         for (size_t triggerId = 0; triggerId < old_config->size(); ++triggerId) {
           json.vars.trigger.push_back(old_config->triggerName(triggerId));
-          json.vars.trigger_passed_count.push_back(std::pair<int, int>(0, 0));
+          json.vars.trigger_passed_count.emplace_back(0, 0);
         }
         // getting names of triggers existing only in the old configuration
         for (auto const& it : old_config_data->triggerNames()) {

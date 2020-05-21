@@ -810,8 +810,8 @@ bool CSCCathodeLCTProcessor::preTrigger(const PulseArray pulse, const int start_
               clct_pattern_[best_pid[hstrip]][CSCConstants::NUM_LAYERS - 1][CSCConstants::CLCT_PATTERN_WIDTH];
           const int halfstrip = hstrip % CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
           const int cfeb = hstrip / CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
-          thePreTriggerDigis.push_back(CSCCLCTPreTriggerDigi(
-              1, nhits[hstrip], best_pid[hstrip], 1, bend, halfstrip, cfeb, bx_time, nPreTriggers, 0));
+          thePreTriggerDigis.emplace_back(
+              1, nhits[hstrip], best_pid[hstrip], 1, bend, halfstrip, cfeb, bx_time, nPreTriggers, 0);
         }
       }
 

@@ -111,12 +111,12 @@ std::vector<std::string> FWGeometryTableManagerBase::getTitles() const {
   std::vector<std::string> returnValue;
   returnValue.reserve(numberOfColumns());
 
-  returnValue.push_back("Name");
-  returnValue.push_back("Color");
-  returnValue.push_back("Opcty");
-  returnValue.push_back("RnrSelf");
-  returnValue.push_back("RnrChildren");
-  returnValue.push_back("Material");
+  returnValue.emplace_back("Name");
+  returnValue.emplace_back("Color");
+  returnValue.emplace_back("Opcty");
+  returnValue.emplace_back("RnrSelf");
+  returnValue.emplace_back("RnrChildren");
+  returnValue.emplace_back("Material");
   return returnValue;
 }
 
@@ -192,7 +192,7 @@ void FWGeometryTableManagerBase::redrawTable(bool setExpand) {
 void FWGeometryTableManagerBase::getNodePath(int idx, std::string& path) const {
   std::vector<std::string> relPath;
   while (idx >= 0) {
-    relPath.push_back(m_entries[idx].name());
+    relPath.emplace_back(m_entries[idx].name());
     // printf("push %s \n",m_entries[idx].name() );
     idx = m_entries[idx].m_parent;
   }

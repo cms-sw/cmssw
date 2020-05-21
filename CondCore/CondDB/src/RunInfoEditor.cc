@@ -49,14 +49,14 @@ namespace cond {
                                const boost::posix_time::ptime& start,
                                const boost::posix_time::ptime& end) {
       if (m_data.get())
-        m_data->runBuffer.push_back(std::tie(runNumber, start, end));
+        m_data->runBuffer.emplace_back(std::tie(runNumber, start, end));
     }
 
     void RunInfoEditor::insertNew(cond::Time_t runNumber,
                                   const boost::posix_time::ptime& start,
                                   const boost::posix_time::ptime& end) {
       if (m_data.get())
-        m_data->updateBuffer.push_back(std::tie(runNumber, start, end));
+        m_data->updateBuffer.emplace_back(std::tie(runNumber, start, end));
     }
 
     size_t RunInfoEditor::flush() {

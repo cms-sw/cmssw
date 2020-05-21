@@ -44,12 +44,12 @@ namespace edm {
 
     void MessageLoggerDefaults::hardwireGridJobMode() {
       //	std::cerr << " ======= hardwireGridJobMode() \n";
-      destinations.push_back("cerr");
-      categories.push_back("FwkJob");
-      categories.push_back("FwkReport");
-      categories.push_back("FwkSummary");
-      categories.push_back("Root_NoDictionary");
-      statistics.push_back("cerr_stats");
+      destinations.emplace_back("cerr");
+      categories.emplace_back("FwkJob");
+      categories.emplace_back("FwkReport");
+      categories.emplace_back("FwkSummary");
+      categories.emplace_back("Root_NoDictionary");
+      statistics.emplace_back("cerr_stats");
       // cerr destination -
       //      note that using the name cerr is OK since it is not std::cerr
       //      but when we want to use default as a name, we have to be circumspect
@@ -99,12 +99,12 @@ namespace edm {
 
     void MessageLoggerDefaults::hardwireReleaseValidationJobMode() {
       //	std::cerr << " ======= hardwireReleaseValidationJobMode() \n";
-      destinations.push_back("cerr");
-      categories.push_back("FwkJob");
-      categories.push_back("FwkReport");
-      categories.push_back("FwkSummary");
-      categories.push_back("Root_NoDictionary");
-      statistics.push_back("cerr_stats");
+      destinations.emplace_back("cerr");
+      categories.emplace_back("FwkJob");
+      categories.emplace_back("FwkReport");
+      categories.emplace_back("FwkSummary");
+      categories.emplace_back("Root_NoDictionary");
+      statistics.emplace_back("cerr_stats");
       // cerr destination -
       //      note that using the name cerr is OK since it is not std::cerr
       //      but when we want to use default as a name, we have to be circumspect
@@ -154,12 +154,12 @@ namespace edm {
 
     void MessageLoggerDefaults::hardwireAnalysisJobMode() {
       //	std::cerr << " ======= hardwireAnalysisJobMode() \n";
-      destinations.push_back("warnings");
-      categories.push_back("FwkJob");
-      categories.push_back("FwkReport");
-      categories.push_back("FwkSummary");
-      categories.push_back("Root_NoDictionary");
-      statistics.push_back("cerr");
+      destinations.emplace_back("warnings");
+      categories.emplace_back("FwkJob");
+      categories.emplace_back("FwkReport");
+      categories.emplace_back("FwkSummary");
+      categories.emplace_back("Root_NoDictionary");
+      statistics.emplace_back("cerr");
       // cerr destination -
       //      note that using the name cerr is OK since it is not std::cerr
       //      but when we want to use default as a name, we have to be circumspect

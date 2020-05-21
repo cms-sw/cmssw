@@ -39,24 +39,24 @@ std::unique_ptr<L1GctChannelMask> L1GctChannelMaskOnlineProd::newObject(const st
   rgnMaskKeyResults.fillVariable(rgnKey);
 
   std::vector<std::string> rgnMaskCols;
-  rgnMaskCols.push_back("RCT_CRATE_0_RGN_MASK");
-  rgnMaskCols.push_back("RCT_CRATE_1_RGN_MASK");
-  rgnMaskCols.push_back("RCT_CRATE_2_RGN_MASK");
-  rgnMaskCols.push_back("RCT_CRATE_3_RGN_MASK");
-  rgnMaskCols.push_back("RCT_CRATE_4_RGN_MASK");
-  rgnMaskCols.push_back("RCT_CRATE_5_RGN_MASK");
-  rgnMaskCols.push_back("RCT_CRATE_6_RGN_MASK");
-  rgnMaskCols.push_back("RCT_CRATE_7_RGN_MASK");
-  rgnMaskCols.push_back("RCT_CRATE_8_RGN_MASK");
-  rgnMaskCols.push_back("RCT_CRATE_9_RGN_MASK");
-  rgnMaskCols.push_back("RCT_CRATE_10_RGN_MASK");
-  rgnMaskCols.push_back("RCT_CRATE_11_RGN_MASK");
-  rgnMaskCols.push_back("RCT_CRATE_12_RGN_MASK");
-  rgnMaskCols.push_back("RCT_CRATE_13_RGN_MASK");
-  rgnMaskCols.push_back("RCT_CRATE_14_RGN_MASK");
-  rgnMaskCols.push_back("RCT_CRATE_15_RGN_MASK");
-  rgnMaskCols.push_back("RCT_CRATE_16_RGN_MASK");
-  rgnMaskCols.push_back("RCT_CRATE_17_RGN_MASK");
+  rgnMaskCols.emplace_back("RCT_CRATE_0_RGN_MASK");
+  rgnMaskCols.emplace_back("RCT_CRATE_1_RGN_MASK");
+  rgnMaskCols.emplace_back("RCT_CRATE_2_RGN_MASK");
+  rgnMaskCols.emplace_back("RCT_CRATE_3_RGN_MASK");
+  rgnMaskCols.emplace_back("RCT_CRATE_4_RGN_MASK");
+  rgnMaskCols.emplace_back("RCT_CRATE_5_RGN_MASK");
+  rgnMaskCols.emplace_back("RCT_CRATE_6_RGN_MASK");
+  rgnMaskCols.emplace_back("RCT_CRATE_7_RGN_MASK");
+  rgnMaskCols.emplace_back("RCT_CRATE_8_RGN_MASK");
+  rgnMaskCols.emplace_back("RCT_CRATE_9_RGN_MASK");
+  rgnMaskCols.emplace_back("RCT_CRATE_10_RGN_MASK");
+  rgnMaskCols.emplace_back("RCT_CRATE_11_RGN_MASK");
+  rgnMaskCols.emplace_back("RCT_CRATE_12_RGN_MASK");
+  rgnMaskCols.emplace_back("RCT_CRATE_13_RGN_MASK");
+  rgnMaskCols.emplace_back("RCT_CRATE_14_RGN_MASK");
+  rgnMaskCols.emplace_back("RCT_CRATE_15_RGN_MASK");
+  rgnMaskCols.emplace_back("RCT_CRATE_16_RGN_MASK");
+  rgnMaskCols.emplace_back("RCT_CRATE_17_RGN_MASK");
 
   l1t::OMDSReader::QueryResults rgnMaskResults = m_omdsReader.basicQuery(
       rgnMaskCols, "CMS_GCT", "GCT_RGN_MASKS", "GCT_RGN_MASKS.CONFIG_KEY", m_omdsReader.singleAttribute(rgnKey));
@@ -74,10 +74,10 @@ std::unique_ptr<L1GctChannelMask> L1GctChannelMaskOnlineProd::newObject(const st
   esumMaskKeyResults.fillVariable(esumKey);
 
   std::vector<std::string> esumMaskCols;
-  esumMaskCols.push_back("GCT_TET_MASK");
-  esumMaskCols.push_back("GCT_MET_MASK");
-  esumMaskCols.push_back("GCT_HT_MASK");
-  esumMaskCols.push_back("GCT_MHT_MASK");
+  esumMaskCols.emplace_back("GCT_TET_MASK");
+  esumMaskCols.emplace_back("GCT_MET_MASK");
+  esumMaskCols.emplace_back("GCT_HT_MASK");
+  esumMaskCols.emplace_back("GCT_MHT_MASK");
 
   l1t::OMDSReader::QueryResults esumMaskResults = m_omdsReader.basicQuery(
       esumMaskCols, "CMS_GCT", "GCT_ESUM_MASKS", "GCT_ESUM_MASKS.CONFIG_KEY", m_omdsReader.singleAttribute(esumKey));

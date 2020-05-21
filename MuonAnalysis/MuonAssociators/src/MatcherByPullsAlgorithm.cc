@@ -116,7 +116,7 @@ void MatcherByPullsAlgorithm::matchMany(const reco::Track &tk,
       continue;
     std::pair<bool, double> m = match(tk, cands[i], invCov);
     if (m.first)
-      matchesToFill.push_back(std::make_pair(m.second, i));
+      matchesToFill.emplace_back(m.second, i);
   }
   std::sort(matchesToFill.begin(), matchesToFill.end());
 }

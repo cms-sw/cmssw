@@ -834,7 +834,7 @@ namespace LHCInfoImpl {
       }
       if (add) {
         niovs++;
-        vecToTransfer.push_back(std::make_pair(&payload, since));
+        vecToTransfer.emplace_back(&payload, since);
         payloadBuffer.push_back(iov.second);
         prevPayload = iov.second;
       }

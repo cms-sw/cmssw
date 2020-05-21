@@ -79,7 +79,7 @@ void PFRecoTauTagInfoProducer::produce(edm::StreamID, edm::Event& iEvent, const 
   iEvent.getByToken(PFCandidate_token, thePFCandidateCollection);
   vector<CandidatePtr> thePFCandsInTheEvent;
   for (unsigned int i_PFCand = 0; i_PFCand != thePFCandidateCollection->size(); i_PFCand++) {
-    thePFCandsInTheEvent.push_back(CandidatePtr(thePFCandidateCollection, i_PFCand));
+    thePFCandsInTheEvent.emplace_back(thePFCandidateCollection, i_PFCand);
   }
   // ***
   // query a rec/sim PV

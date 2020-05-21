@@ -214,10 +214,10 @@ namespace edm {
       }
 
       // Just for debugging print out.
-      sourceNames_.push_back("input");
-      sourceNames_.push_back("cosmics");
-      sourceNames_.push_back("beamhalo_plus");
-      sourceNames_.push_back("beamhalo_minus");
+      sourceNames_.emplace_back("input");
+      sourceNames_.emplace_back("cosmics");
+      sourceNames_.emplace_back("beamhalo_plus");
+      sourceNames_.emplace_back("beamhalo_minus");
 
       for (size_t makeIdx = 0; makeIdx < maxNbSources; makeIdx++) {
         inputConfigs_.push_back(maybeConfigPileUp(pset, sourceNames_[makeIdx], minBunch_, maxBunch_, playback_));

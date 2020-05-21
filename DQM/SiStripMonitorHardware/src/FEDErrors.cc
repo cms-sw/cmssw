@@ -882,7 +882,7 @@ void FEDErrors::addBadAPV(const FEDErrors::APVLevelErrors& aAPV, bool& aFirst) {
   if (aAPV.APVStatusBit && aFirst) {
     fedErrors_.BadChannelStatusBit = true;
     lFedCounter_.nBadChannels++;
-    chErrors_.push_back(std::pair<unsigned int, bool>(aAPV.ChannelID, aAPV.IsActive));
+    chErrors_.emplace_back(aAPV.ChannelID, aAPV.IsActive);
     if (aAPV.IsActive) {
       //print(aAPV);
       fedErrors_.BadActiveChannelStatusBit = true;

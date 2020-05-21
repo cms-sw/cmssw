@@ -148,7 +148,7 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(const std::vector<SimTrack>
         (*iPizTk).momentum().px(), (*iPizTk).momentum().py(), (*iPizTk).momentum().pz(), (*iPizTk).momentum().e());
     CLHEP::HepLorentzVector tmpPos(
         primVtx.position().x(), primVtx.position().y(), primVtx.position().z(), primVtx.position().t());
-    result.push_back(PizeroMCTruth(tmpMom, photonsFromPizero, tmpPos));
+    result.emplace_back(tmpMom, photonsFromPizero, tmpPos);
 
   }  // end loop over primary pizeros
 

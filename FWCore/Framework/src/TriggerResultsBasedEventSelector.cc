@@ -43,11 +43,11 @@ namespace {
 
   void test_parse_path_spec() {
     std::vector<std::string> paths;
-    paths.push_back("a:p1");
-    paths.push_back("b:p2");
-    paths.push_back("  c");
-    paths.push_back("ddd\t:p3");
-    paths.push_back("eee:  p4  ");
+    paths.emplace_back("a:p1");
+    paths.emplace_back("b:p2");
+    paths.emplace_back("  c");
+    paths.emplace_back("ddd\t:p3");
+    paths.emplace_back("eee:  p4  ");
 
     std::vector<parsed_path_spec_t> parsed(paths.size());
     for (size_t i = 0; i < paths.size(); ++i) {

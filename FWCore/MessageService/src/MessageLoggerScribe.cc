@@ -745,7 +745,7 @@ namespace edm {
           stream_ps["cerr"] = &std::cerr;
         } else {
           auto os_sp = std::make_shared<std::ofstream>(actual_filename.c_str());
-          file_ps.push_back(os_sp);
+          file_ps.emplace_back(os_sp);
           dest_ctrl = std::make_shared<ELoutput>(*os_sp);
           admin_p->attach(dest_ctrl);
           stream_ps[actual_filename] = os_sp.get();
@@ -857,7 +857,7 @@ namespace edm {
             os_p = &std::cerr;
           } else {
             auto os_sp = std::make_shared<std::ofstream>(actual_filename.c_str());
-            file_ps.push_back(os_sp);
+            file_ps.emplace_back(os_sp);
             os_p = os_sp.get();
           }
           stream_ps[actual_filename] = os_p;

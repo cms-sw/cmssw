@@ -132,7 +132,7 @@ void L1GlobalTriggerObjectMaps::reserveForAlgorithms(unsigned n) { m_algorithmRe
 void L1GlobalTriggerObjectMaps::pushBackAlgorithm(unsigned startIndexOfConditions,
                                                   int algorithmBitNumber,
                                                   bool algorithmResult) {
-  m_algorithmResults.push_back(AlgorithmResult(startIndexOfConditions, algorithmBitNumber, algorithmResult));
+  m_algorithmResults.emplace_back(startIndexOfConditions, algorithmBitNumber, algorithmResult);
 }
 
 void L1GlobalTriggerObjectMaps::consistencyCheck() const {
@@ -195,7 +195,7 @@ void L1GlobalTriggerObjectMaps::reserveForConditions(unsigned n) { m_conditionRe
 void L1GlobalTriggerObjectMaps::pushBackCondition(unsigned startIndexOfCombinations,
                                                   unsigned short nObjectsPerCombination,
                                                   bool conditionResult) {
-  m_conditionResults.push_back(ConditionResult(startIndexOfCombinations, nObjectsPerCombination, conditionResult));
+  m_conditionResults.emplace_back(startIndexOfCombinations, nObjectsPerCombination, conditionResult);
 }
 
 void L1GlobalTriggerObjectMaps::reserveForObjectIndexes(unsigned n) { m_combinations.reserve(n); }

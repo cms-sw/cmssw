@@ -64,13 +64,13 @@ void SubJetAlgorithm::run(const vector<fastjet::PseudoJet>& cell_particles, vect
           (doAreaFastjet_) ? dynamic_cast<fastjet::ClusterSequenceActiveArea&>(*fjClusterSeq).area(*itSubJet) : 0.0;
 
       // Make a CompoundPseudoSubJet object to hold this subjet and the indices of its constituents
-      subjetsOutput.push_back(CompoundPseudoSubJet(*itSubJet, subJetArea, constituents));
+      subjetsOutput.emplace_back(*itSubJet, subJetArea, constituents);
     }
 
     double fatJetArea =
         (doAreaFastjet_) ? dynamic_cast<fastjet::ClusterSequenceActiveArea&>(*fjClusterSeq).area(*jetIt) : 0.0;
 
     // Make a CompoundPseudoJet object to hold this hard jet, and the subjets that make it up
-    hardjetsOutput.push_back(CompoundPseudoJet(*jetIt, fatJetArea, subjetsOutput));
+    hardjetsOutput.emplace_back(*jetIt, fatJetArea, subjetsOutput);
   }
 }

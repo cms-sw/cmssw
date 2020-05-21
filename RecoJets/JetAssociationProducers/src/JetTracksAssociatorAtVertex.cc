@@ -49,7 +49,7 @@ void JetTracksAssociatorAtVertex::produce(edm::Event& fEvent, const edm::EventSe
   allTracks.reserve(tracks_h->size());
   // run algo
   for (unsigned i = 0; i < tracks_h->size(); ++i) {
-    allTracks.push_back(reco::TrackRef(tracks_h, i));
+    allTracks.emplace_back(tracks_h, i);
   }
   if (!useAssigned) {
     mAssociator.produce(&*jetTracks, allJets, allTracks);

@@ -374,7 +374,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView& cpva) {
       }
     }
 
-    sectors.push_back(eSector(eVolumes.begin() + ((i)*offset), eVolumes.begin() + ((i + 1) * offset), debug));
+    sectors.emplace_back(eVolumes.begin() + ((i)*offset), eVolumes.begin() + ((i + 1) * offset), debug);
   }
 
   if (debug)

@@ -318,15 +318,15 @@ void EcalRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   {
     std::vector<std::string> temp1;
     temp1.reserve(9);
-    temp1.push_back("kNoisy");
-    temp1.push_back("kNNoisy");
-    temp1.push_back("kFixedG6");
-    temp1.push_back("kFixedG1");
-    temp1.push_back("kFixedG0");
-    temp1.push_back("kNonRespondingIsolated");
-    temp1.push_back("kDeadVFE");
-    temp1.push_back("kDeadFE");
-    temp1.push_back("kNoDataNoTP");
+    temp1.emplace_back("kNoisy");
+    temp1.emplace_back("kNNoisy");
+    temp1.emplace_back("kFixedG6");
+    temp1.emplace_back("kFixedG1");
+    temp1.emplace_back("kFixedG0");
+    temp1.emplace_back("kNonRespondingIsolated");
+    temp1.emplace_back("kDeadVFE");
+    temp1.emplace_back("kDeadFE");
+    temp1.emplace_back("kNoDataNoTP");
     desc.add<std::vector<std::string>>("ChannelStatusToBeExcluded", temp1);
   }
   desc.add<std::string>("EBrechitCollection", "EcalRecHitsEB");
@@ -339,38 +339,38 @@ void EcalRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
     {
       std::vector<std::string> temp2;
       temp2.reserve(4);
-      temp2.push_back("kOk");
-      temp2.push_back("kDAC");
-      temp2.push_back("kNoLaser");
-      temp2.push_back("kNoisy");
+      temp2.emplace_back("kOk");
+      temp2.emplace_back("kDAC");
+      temp2.emplace_back("kNoLaser");
+      temp2.emplace_back("kNoisy");
       psd0.add<std::vector<std::string>>("kGood", temp2);
     }
     {
       std::vector<std::string> temp2;
       temp2.reserve(3);
-      temp2.push_back("kFixedG0");
-      temp2.push_back("kNonRespondingIsolated");
-      temp2.push_back("kDeadVFE");
+      temp2.emplace_back("kFixedG0");
+      temp2.emplace_back("kNonRespondingIsolated");
+      temp2.emplace_back("kDeadVFE");
       psd0.add<std::vector<std::string>>("kNeighboursRecovered", temp2);
     }
     {
       std::vector<std::string> temp2;
       temp2.reserve(1);
-      temp2.push_back("kNoDataNoTP");
+      temp2.emplace_back("kNoDataNoTP");
       psd0.add<std::vector<std::string>>("kDead", temp2);
     }
     {
       std::vector<std::string> temp2;
       temp2.reserve(3);
-      temp2.push_back("kNNoisy");
-      temp2.push_back("kFixedG6");
-      temp2.push_back("kFixedG1");
+      temp2.emplace_back("kNNoisy");
+      temp2.emplace_back("kFixedG6");
+      temp2.emplace_back("kFixedG1");
       psd0.add<std::vector<std::string>>("kNoisy", temp2);
     }
     {
       std::vector<std::string> temp2;
       temp2.reserve(1);
-      temp2.push_back("kDeadFE");
+      temp2.emplace_back("kDeadFE");
       psd0.add<std::vector<std::string>>("kTowerRecovered", temp2);
     }
     desc.add<edm::ParameterSetDescription>("flagsMapDBReco", psd0);

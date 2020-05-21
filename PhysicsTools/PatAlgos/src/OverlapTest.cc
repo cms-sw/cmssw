@@ -33,7 +33,7 @@ bool BasicOverlapTest::fillOverlapsForItem(const reco::Candidate &item,
       }
       if (!pairCut_(pat::DiObjectProxy(item, *it)))
         continue;
-      matches.push_back(std::make_pair(dr, idx));
+      matches.emplace_back(dr, idx);
     }
   }
   // see if we matched anything

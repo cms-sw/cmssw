@@ -54,12 +54,11 @@ namespace {
         else
           throw edm::Exception(edm::errors::UnimplementedFeature)
               << " Invalid Configuration parameter 'discriminatorOption' = " << discriminatorOption_string << " !!\n";
-        wpDefs_.push_back(
-            PFRecoTauDiscriminationAgainstMuonConfigSet(discOption,
-                                                        wpDefsEntry.getParameter<double>("HoPMin"),
-                                                        wpDefsEntry.getParameter<int>("maxNumberOfMatches"),
-                                                        wpDefsEntry.getParameter<bool>("doCaloMuonVeto"),
-                                                        wpDefsEntry.getParameter<int>("maxNumberOfHitsLast2Stations")));
+        wpDefs_.emplace_back(discOption,
+                             wpDefsEntry.getParameter<double>("HoPMin"),
+                             wpDefsEntry.getParameter<int>("maxNumberOfMatches"),
+                             wpDefsEntry.getParameter<bool>("doCaloMuonVeto"),
+                             wpDefsEntry.getParameter<int>("maxNumberOfHitsLast2Stations"));
       }
       srcMuons_ = cfg.getParameter<edm::InputTag>("srcMuons");
       muons_token = consumes<reco::MuonCollection>(srcMuons_);

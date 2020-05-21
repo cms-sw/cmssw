@@ -161,7 +161,7 @@ std::vector<reco::TransientTrack> TrackProducer::getTransient(edm::Event& theEve
   }
   ttks.reserve(algoResults.size());
   for (auto& prod : algoResults) {
-    ttks.push_back(reco::TransientTrack(*(prod.track), thePropagator.product()->magneticField()));
+    ttks.emplace_back(*(prod.track), thePropagator.product()->magneticField());
   }
 
   LogDebug("TrackProducer") << "end"

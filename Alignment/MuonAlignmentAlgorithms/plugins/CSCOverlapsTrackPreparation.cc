@@ -152,8 +152,7 @@ void CSCOverlapsTrackPreparation::produce(edm::Event& iEvent, const edm::EventSe
         // these must be in lock-step
         clonedHits.push_back(hit->clone());
         transHits.push_back(hitPtr);
-        TSOSes.push_back(
-            TrajectoryStateOnSurface(localTrajectoryParameters, localTrajectoryError, layerSurface, &*magneticField));
+        TSOSes.emplace_back(localTrajectoryParameters, localTrajectoryError, layerSurface, &*magneticField);
       }  // end if CSC
     }    // end loop over hits
 

@@ -123,7 +123,7 @@ vector<GeometricSearchDet::DetWithState> MTDRingForwardDoubleLayer::compatibleDe
   vector<DetGroup> vectorGroups = groupedCompatibleDets(tsos, prop, est);
   for (vector<DetGroup>::const_iterator itDG = vectorGroups.begin(); itDG != vectorGroups.end(); itDG++) {
     for (vector<DetGroupElement>::const_iterator itDGE = itDG->begin(); itDGE != itDG->end(); itDGE++) {
-      result.push_back(DetWithState(itDGE->det(), itDGE->trajectoryState()));
+      result.emplace_back(itDGE->det(), itDGE->trajectoryState());
     }
   }
   return result;
@@ -144,9 +144,9 @@ vector<DetGroup> MTDRingForwardDoubleLayer::groupedCompatibleDets(const Trajecto
 
   vector<DetGroup> result;
   if (!detWithStates1.empty())
-    result.push_back(DetGroup(detWithStates1));
+    result.emplace_back(detWithStates1);
   if (!detWithStates2.empty())
-    result.push_back(DetGroup(detWithStates2));
+    result.emplace_back(detWithStates2);
   LogTrace(metname) << "DoubleLayer Compatible dets: " << result.size();
   return result;
 }

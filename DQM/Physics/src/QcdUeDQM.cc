@@ -93,7 +93,7 @@ QcdUeDQM::QcdUeDQM(const ParameterSet &parameters)
     hltProcNames_ = parameters.getUntrackedParameter<vector<string> >("hltProcNames");
   else {
     //     hltProcNames_.push_back("FU");
-    hltProcNames_.push_back("HLT");
+    hltProcNames_.emplace_back("HLT");
   }
 
   isHltConfigSuccessful_ = false;  // init
@@ -135,7 +135,7 @@ void QcdUeDQM::dqmBeginRun(const Run &run, const EventSetup &iSetup) {
   hltTrgDeci_.clear();
   hltTrgDeci_.push_back(true);
   hltTrgUsedNames_.clear();
-  hltTrgUsedNames_.push_back("Any");
+  hltTrgUsedNames_.emplace_back("Any");
 
   // figure out relation of trigger name to trigger bit and store used trigger
   // names/bits

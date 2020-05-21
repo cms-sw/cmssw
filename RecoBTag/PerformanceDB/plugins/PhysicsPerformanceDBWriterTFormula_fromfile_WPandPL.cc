@@ -154,7 +154,7 @@ void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob() {
       in >> temp2;
       std::cout << " Inserting " << temp1 << "," << temp2 << " as limits in position " << number << std::endl;
       number++;
-      limits.push_back(std::pair<float, float>(temp1, temp2));
+      limits.emplace_back(temp1, temp2);
     }
     /*
       if (nvar != number ){

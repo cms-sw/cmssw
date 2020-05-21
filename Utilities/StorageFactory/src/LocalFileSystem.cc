@@ -106,7 +106,7 @@ int LocalFileSystem::readFSTypes(void) {
 
     assert(nread >= 1);
     fstype[nread - 1] = 0;
-    fstypes_.push_back(fstype);
+    fstypes_.emplace_back(fstype);
     free(fstype);
     free(type);
   }
@@ -362,7 +362,7 @@ LocalFileSystem::FSInfo *LocalFileSystem::findMount(const char *path,
       return best;
     }
 
-    prev_paths.push_back(path);
+    prev_paths.emplace_back(path);
     LocalFileSystem::FSInfo *new_best = findMount(fullpath, &sfs2, &s2, prev_paths);
     return new_best ? new_best : best;
   }

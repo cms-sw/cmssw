@@ -211,7 +211,7 @@ void HcalForwardAnalysis::setPhotons(const EndOfEvent* evt) {
     photonProdZ = aPhoton.x() * sin(theta) * cos(phi) + aPhoton.y() * sin(theta) * sin(phi) + aPhoton.z() * cos(theta) -
                   primPosOnSurf.z();
     photonProdTime = aPhoton.t() - primTimeOnSurf;
-    thePhotons.push_back(Photon(1, photonProdX, photonProdY, photonProdZ, photonProdTime, aPhoton.lambda()));
+    thePhotons.emplace_back(1, photonProdX, photonProdY, photonProdZ, photonProdTime, aPhoton.lambda());
   }
   for (unsigned int k = 0; k < ShortFiberPhotons.size(); ++k) {
     HFShowerPhoton aPhoton = ShortFiberPhotons[k];
@@ -221,7 +221,7 @@ void HcalForwardAnalysis::setPhotons(const EndOfEvent* evt) {
     photonProdZ = aPhoton.x() * sin(theta) * cos(phi) + aPhoton.y() * sin(theta) * sin(phi) + aPhoton.z() * cos(theta) -
                   primPosOnSurf.z();
     photonProdTime = aPhoton.t() - primTimeOnSurf;
-    thePhotons.push_back(Photon(2, photonProdX, photonProdY, photonProdZ, photonProdTime, aPhoton.lambda()));
+    thePhotons.emplace_back(2, photonProdX, photonProdY, photonProdZ, photonProdTime, aPhoton.lambda());
   }
 }
 void HcalForwardAnalysis::fillEvent() {

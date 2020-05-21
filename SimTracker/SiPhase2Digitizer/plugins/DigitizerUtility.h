@@ -37,9 +37,9 @@ namespace DigitizerUtility {
         : _amp(amp) {
       if (frac > 0) {
         if (hitp != nullptr)
-          _simInfoList.push_back({frac, std::make_unique<SimHitInfo>(hitp, tcor, hitIndex, tofBin)});
+          _simInfoList.emplace_back(frac, std::make_unique<SimHitInfo>(hitp, tcor, hitIndex, tofBin));
         else
-          _simInfoList.push_back({frac, nullptr});
+          _simInfoList.emplace_back(frac, nullptr);
       }
     }
 
@@ -53,7 +53,7 @@ namespace DigitizerUtility {
       // in case of digi from the noise, the MC information need not be there
       for (auto const& ic : other.simInfoList()) {
         if (ic.first > -0.5)
-          _simInfoList.push_back({ic.first, std::make_unique<SimHitInfo>(*ic.second)});
+          _simInfoList.emplace_back(ic.first, std::make_unique<SimHitInfo>(*ic.second));
       }
     }
     void operator+=(const float& amp) { _amp += amp; }

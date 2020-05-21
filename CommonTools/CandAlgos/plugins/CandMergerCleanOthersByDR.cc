@@ -88,7 +88,7 @@ void CandMergerCleanOthersByDR::produce(edm::StreamID streamID,
   std::vector<std::pair<float, float>> coll1EtaPhis;
   for (size_t objNr = 0; objNr < coll1Handle->size(); objNr++) {
     edm::Ptr<reco::Candidate> objPtr(coll1Handle, objNr);
-    coll1EtaPhis.push_back({objPtr->eta(), objPtr->phi()});  //just to speed up the DR match
+    coll1EtaPhis.emplace_back(objPtr->eta(), objPtr->phi());  //just to speed up the DR match
     outColl->push_back(objPtr);
   }
   for (size_t objNr = 0; objNr < coll2Handle->size(); objNr++) {

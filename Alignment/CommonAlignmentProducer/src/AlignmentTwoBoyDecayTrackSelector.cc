@@ -134,7 +134,7 @@ AlignmentTwoBodyDecayTrackSelector::Tracks AlignmentTwoBodyDecayTrackSelector::c
         acoplanarTracks = this->checkAcoplanarity(trk1, trk2);
 
       if (mother.M() > theMinMass && mother.M() < theMaxMass && correctCharge && acoplanarTracks) {
-        candCollection.push_back(candCollectionItem(mother.Pt(), constTrackPair(trk1, trk2)));
+        candCollection.emplace_back(mother.Pt(), constTrackPair(trk1, trk2));
       }
     }
   }
@@ -213,7 +213,7 @@ AlignmentTwoBodyDecayTrackSelector::Tracks AlignmentTwoBodyDecayTrackSelector::c
         acoplanarTracks = this->checkMETAcoplanarity(trk, met);
 
       if (mother.M() > theMinMass && mother.M() < theMaxMass && correctCharge && acoplanarTracks) {
-        candCollection.push_back(candCollectionItem(mother.Pt(), trk));
+        candCollection.emplace_back(mother.Pt(), trk);
       }
     }
   }

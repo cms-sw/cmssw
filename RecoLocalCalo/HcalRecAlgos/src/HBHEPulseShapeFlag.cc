@@ -60,31 +60,31 @@ HBHEPulseShapeFlagSetter::HBHEPulseShapeFlagSetter(double MinimumChargeThreshold
   mSetLegacyFlags = setLegacyFlags;
 
   for (std::vector<double>::size_type i = 0; i < LinearThreshold.size() && i < LinearCut.size(); i++)
-    mLambdaLinearCut.push_back(std::pair<double, double>(LinearThreshold[i], LinearCut[i]));
+    mLambdaLinearCut.emplace_back(LinearThreshold[i], LinearCut[i]);
   sort(mLambdaLinearCut.begin(), mLambdaLinearCut.end());
 
   for (std::vector<double>::size_type i = 0; i < RMS8MaxThreshold.size() && i < RMS8MaxCut.size(); i++)
-    mLambdaRMS8MaxCut.push_back(std::pair<double, double>(RMS8MaxThreshold[i], RMS8MaxCut[i]));
+    mLambdaRMS8MaxCut.emplace_back(RMS8MaxThreshold[i], RMS8MaxCut[i]);
   sort(mLambdaRMS8MaxCut.begin(), mLambdaRMS8MaxCut.end());
 
   for (std::vector<double>::size_type i = 0; i < LeftSlopeThreshold.size() && i < LeftSlopeCut.size(); i++)
-    mLeftSlopeCut.push_back(std::pair<double, double>(LeftSlopeThreshold[i], LeftSlopeCut[i]));
+    mLeftSlopeCut.emplace_back(LeftSlopeThreshold[i], LeftSlopeCut[i]);
   sort(mLeftSlopeCut.begin(), mLeftSlopeCut.end());
 
   for (std::vector<double>::size_type i = 0; i < RightSlopeThreshold.size() && i < RightSlopeCut.size(); i++)
-    mRightSlopeCut.push_back(std::pair<double, double>(RightSlopeThreshold[i], RightSlopeCut[i]));
+    mRightSlopeCut.emplace_back(RightSlopeThreshold[i], RightSlopeCut[i]);
   sort(mRightSlopeCut.begin(), mRightSlopeCut.end());
 
   for (std::vector<double>::size_type i = 0; i < RightSlopeSmallThreshold.size() && i < RightSlopeSmallCut.size(); i++)
-    mRightSlopeSmallCut.push_back(std::pair<double, double>(RightSlopeSmallThreshold[i], RightSlopeSmallCut[i]));
+    mRightSlopeSmallCut.emplace_back(RightSlopeSmallThreshold[i], RightSlopeSmallCut[i]);
   sort(mRightSlopeSmallCut.begin(), mRightSlopeSmallCut.end());
 
   for (std::vector<double>::size_type i = 0; i < TS4TS5UpperThreshold.size() && i < TS4TS5UpperCut.size(); i++)
-    mTS4TS5UpperCut.push_back(std::pair<double, double>(TS4TS5UpperThreshold[i], TS4TS5UpperCut[i]));
+    mTS4TS5UpperCut.emplace_back(TS4TS5UpperThreshold[i], TS4TS5UpperCut[i]);
   sort(mTS4TS5UpperCut.begin(), mTS4TS5UpperCut.end());
 
   for (std::vector<double>::size_type i = 0; i < TS4TS5LowerThreshold.size() && i < TS4TS5LowerCut.size(); i++)
-    mTS4TS5LowerCut.push_back(std::pair<double, double>(TS4TS5LowerThreshold[i], TS4TS5LowerCut[i]));
+    mTS4TS5LowerCut.emplace_back(TS4TS5LowerThreshold[i], TS4TS5LowerCut[i]);
   sort(mTS4TS5LowerCut.begin(), mTS4TS5LowerCut.end());
 
   mUseDualFit = UseDualFit;

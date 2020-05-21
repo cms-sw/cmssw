@@ -41,7 +41,7 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet) {
   edm::LogInfo("MaterialBudget") << "MaterialBudgetAction: List of the selected volumes:";
   for (const auto& it : volList) {
     if (it != "None") {
-      theVolumeList.push_back(it);
+      theVolumeList.emplace_back(it);
       edm::LogInfo("MaterialBudget") << it;
     }
   }

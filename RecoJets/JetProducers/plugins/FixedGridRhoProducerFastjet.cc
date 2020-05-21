@@ -22,7 +22,7 @@ void FixedGridRhoProducerFastjet::produce(edm::Event& iEvent, const edm::EventSe
   std::vector<fastjet::PseudoJet> inputs;
   for (edm::View<reco::Candidate>::const_iterator ibegin = pfColl->begin(), iend = pfColl->end(), i = ibegin; i != iend;
        ++i) {
-    inputs.push_back(fastjet::PseudoJet(i->px(), i->py(), i->pz(), i->energy()));
+    inputs.emplace_back(i->px(), i->py(), i->pz(), i->energy());
   }
   bge_.set_particles(inputs);
   iEvent.put(std::make_unique<double>(bge_.rho()));

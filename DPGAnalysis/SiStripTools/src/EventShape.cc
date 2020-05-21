@@ -13,7 +13,7 @@ using reco::TrackCollection;
 
 EventShape::EventShape(reco::TrackCollection& tracks) : eigenvalues(3) {
   for (reco::TrackCollection::const_iterator itTrack = tracks.begin(); itTrack < tracks.end(); ++itTrack) {
-    p.push_back(TVector3(itTrack->px(), itTrack->py(), itTrack->pz()));
+    p.emplace_back(itTrack->px(), itTrack->py(), itTrack->pz());
   }
 
   // first fill the momentum tensor
@@ -126,7 +126,7 @@ math::XYZTLorentzVectorF EventShape::thrust(const reco::TrackCollection& tracks)
   uint32_t Np = tracks.size();
   math::XYZTLorentzVectorF output = math::XYZTLorentzVectorF(0, 0, 0, 0);
   for (reco::TrackCollection::const_iterator itTrack = tracks.begin(); itTrack < tracks.end(); ++itTrack) {
-    pp.push_back(TVector3(itTrack->px(), itTrack->py(), itTrack->pz()));
+    pp.emplace_back(itTrack->px(), itTrack->py(), itTrack->pz());
   }
   TVector3 qtbo;
   TVector3 zero(0., 0., 0.);

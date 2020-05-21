@@ -205,9 +205,9 @@ void HTrackAssociator::fillEcal(const edm::Event& iEvent,
 
   // ECAL points (EB+EE)
   std::vector<GlobalPoint> ecalPoints;
-  ecalPoints.push_back(GlobalPoint(135., 0, 310.));
-  ecalPoints.push_back(GlobalPoint(150., 0, 340.));
-  ecalPoints.push_back(GlobalPoint(170., 0, 370.));
+  ecalPoints.emplace_back(135., 0, 310.);
+  ecalPoints.emplace_back(150., 0, 340.);
+  ecalPoints.emplace_back(170., 0, 370.);
 
   std::vector<GlobalPoint> ecalTrajectory = ecalDetIdAssociator_.getTrajectory(trajectoryPoint, ecalPoints);
   //   if(ecalTrajectory.empty()) throw cms::Exception("FatalError") << "Failed to propagate a track to ECAL\n";
@@ -283,12 +283,12 @@ void HTrackAssociator::fillCaloTowers(const edm::Event& iEvent,
 
   // HCAL points (HB+HE)
   std::vector<GlobalPoint> hcalPoints;
-  hcalPoints.push_back(GlobalPoint(135., 0, 310.));
-  hcalPoints.push_back(GlobalPoint(150., 0, 340.));
-  hcalPoints.push_back(GlobalPoint(170., 0, 370.));
-  hcalPoints.push_back(GlobalPoint(190., 0, 400.));
-  hcalPoints.push_back(GlobalPoint(240., 0, 500.));
-  hcalPoints.push_back(GlobalPoint(280., 0, 550.));
+  hcalPoints.emplace_back(135., 0, 310.);
+  hcalPoints.emplace_back(150., 0, 340.);
+  hcalPoints.emplace_back(170., 0, 370.);
+  hcalPoints.emplace_back(190., 0, 400.);
+  hcalPoints.emplace_back(240., 0, 500.);
+  hcalPoints.emplace_back(280., 0, 550.);
 
   std::vector<GlobalPoint> hcalTrajectory = caloDetIdAssociator_.getTrajectory(trajectoryPoint, hcalPoints);
   //   if(hcalTrajectory.empty()) throw cms::Exception("FatalError") << "Failed to propagate the track to HCAL\n";
@@ -403,9 +403,9 @@ void HTrackAssociator::fillHcal(const edm::Event& iEvent,
 
   // HCAL points (HB+HE)
   std::vector<GlobalPoint> hcalPoints;
-  hcalPoints.push_back(GlobalPoint(190., 0, 400.));
-  hcalPoints.push_back(GlobalPoint(240., 0, 500.));
-  hcalPoints.push_back(GlobalPoint(280., 0, 550.));
+  hcalPoints.emplace_back(190., 0, 400.);
+  hcalPoints.emplace_back(240., 0, 500.);
+  hcalPoints.emplace_back(280., 0, 550.);
 
   std::vector<GlobalPoint> hcalTrajectory = hcalDetIdAssociator_.getTrajectory(trajectoryPoint, hcalPoints);
   //   if(hcalTrajectory.empty()) throw cms::Exception("FatalError") << "Failed to propagate the track to HCAL\n";
@@ -485,9 +485,9 @@ void HTrackAssociator::fillHcalTowers(const edm::Event& iEvent,
 
   // HCAL points (HB+HE)
   std::vector<GlobalPoint> hcalPoints;
-  hcalPoints.push_back(GlobalPoint(190., 0, 400.));
-  hcalPoints.push_back(GlobalPoint(240., 0, 500.));
-  hcalPoints.push_back(GlobalPoint(280., 0, 550.));
+  hcalPoints.emplace_back(190., 0, 400.);
+  hcalPoints.emplace_back(240., 0, 500.);
+  hcalPoints.emplace_back(280., 0, 550.);
 
   std::vector<GlobalPoint> hcalTrajectory = caloDetIdAssociator_.getTrajectory(trajectoryPoint, hcalPoints);
   //   if(hcalTrajectory.empty()) throw cms::Exception("FatalError") << "Failed to propagate the track to HCAL\n";

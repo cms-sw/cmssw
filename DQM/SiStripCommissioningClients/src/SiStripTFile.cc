@@ -186,12 +186,12 @@ TDirectory* SiStripTFile::addPath(const std::string& path) {
     if (*it == std::string(sistrip::dir_)) {
       previous_dir = latest_dir;
       latest_dir = it;
-      directories.push_back(std::string(previous_dir + 1, latest_dir));
+      directories.emplace_back(previous_dir + 1, latest_dir);
     }
   }
 
   if (latest_dir != (path.end() - 1)) {
-    directories.push_back(std::string(latest_dir + 1, path.end()));
+    directories.emplace_back(latest_dir + 1, path.end());
   }
 
   //update file

@@ -305,10 +305,10 @@ namespace edm {
           if (eventData) {
             auto catalog = eventData->FirstChildElement("catalog");
             if (catalog) {
-              m_dataCatalogs.push_back(safe(catalog->Attribute("url")));
+              m_dataCatalogs.emplace_back(safe(catalog->Attribute("url")));
               catalog = catalog->NextSiblingElement("catalog");
               while (catalog) {
-                m_dataCatalogs.push_back(safe(catalog->Attribute("url")));
+                m_dataCatalogs.emplace_back(safe(catalog->Attribute("url")));
                 catalog = catalog->NextSiblingElement("catalog");
               }
             }
@@ -410,7 +410,7 @@ namespace edm {
             if (nativeProtocol) {
               for (auto child = nativeProtocol->FirstChildElement(); child != nullptr;
                    child = child->NextSiblingElement()) {
-                m_nativeProtocols.push_back(safe(child->Attribute("prefix")));
+                m_nativeProtocols.emplace_back(safe(child->Attribute("prefix")));
               }
               m_nativeProtocolsPtr = &m_nativeProtocols;
             }

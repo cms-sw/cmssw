@@ -22,7 +22,7 @@ EventWithHistory::EventWithHistory(const std::vector<edm::EventAuxiliary>& veaux
     : TinyEvent((!veaux.empty()) ? veaux[veaux.size() - 1] : TinyEvent()), _prevse() {
   for (std::vector<edm::EventAuxiliary>::const_reverse_iterator eaux = veaux.rbegin(); eaux != veaux.rend(); eaux++) {
     if (eaux != veaux.rbegin()) {
-      _prevse.push_back(*eaux);
+      _prevse.emplace_back(*eaux);
     }
   }
 }

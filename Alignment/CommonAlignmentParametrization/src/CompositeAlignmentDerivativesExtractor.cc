@@ -17,7 +17,7 @@ CompositeAlignmentDerivativesExtractor::CompositeAlignmentDerivativesExtractor(
 
   std::vector<AlignableDet *>::const_iterator it, itEnd;
   for (it = alignableDets.begin(), itEnd = alignableDets.end(); it != itEnd; ++it)
-    detOrUnits.push_back(AlignableDetOrUnitPtr(*it));
+    detOrUnits.emplace_back(*it);
 
   extractCurrentAlignment(alignables, detOrUnits, tsos);
 }

@@ -158,7 +158,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt, const edm::EventSetup
           // the basic clusters
           basicClusters.push_back(**bciter);
           // index of the unclean SC
-          basicClusterOwner.push_back(std::make_pair(isc, 0));
+          basicClusterOwner.emplace_back(isc, 0);
         }
         break;  // break the loop over unclean sc
       }
@@ -171,7 +171,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt, const edm::EventSetup
       for (reco::CaloCluster_iterator bciter = unscRef->clustersBegin(); bciter != unscRef->clustersEnd(); ++bciter) {
         // the basic clusters
         basicClustersUncleanOnly.push_back(**bciter);
-        basicClusterOwnerUncleanOnly.push_back(std::make_pair(isc, 0));
+        basicClusterOwnerUncleanOnly.emplace_back(isc, 0);
       }
     }
   }  // loop over the unclean SC _______________________________________________
@@ -191,7 +191,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt, const edm::EventSetup
     }
     if (takenAlready) {
       inCleanOnlyInd.push_back(0);
-      scCleanSeedDetId.push_back(DetId(0));
+      scCleanSeedDetId.emplace_back(0);
       continue;
     }
     inCleanOnlyInd.push_back(1);
@@ -200,7 +200,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt, const edm::EventSetup
     for (reco::CaloCluster_iterator bciter = cscRef->clustersBegin(); bciter != cscRef->clustersEnd(); ++bciter) {
       // the basic clusters
       basicClusters.push_back(**bciter);
-      basicClusterOwner.push_back(std::make_pair(jsc, 1));
+      basicClusterOwner.emplace_back(jsc, 1);
     }
   }  // end loop over clean SC _________________________________________________
      //

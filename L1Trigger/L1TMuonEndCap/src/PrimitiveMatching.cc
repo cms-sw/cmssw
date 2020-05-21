@@ -329,7 +329,7 @@ void PrimitiveMatching::process_single_zone_station(int zone,
         ph_diff = invalid_ph_diff;  // difference is too high, cannot be the same pattern
 
       if (ph_diff != invalid_ph_diff)
-        tmp_phi_differences.push_back(std::make_pair(ph_diff, conv_hits_it));  // make a key-value pair
+        tmp_phi_differences.emplace_back(ph_diff, conv_hits_it);  // make a key-value pair
     }
 
     // _________________________________________________________________________
@@ -424,7 +424,7 @@ void PrimitiveMatching::process_single_zone_station(int zone,
 
     } else {
       // No segment found
-      phi_differences.push_back(std::make_pair(invalid_ph_diff, conv_hits_end));  // make a key-value pair
+      phi_differences.emplace_back(invalid_ph_diff, conv_hits_end);  // make a key-value pair
     }
 
   }  // end loop over roads

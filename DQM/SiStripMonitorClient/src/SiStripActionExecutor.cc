@@ -247,12 +247,12 @@ void SiStripActionExecutor::printFaultyModuleList(DQMStore& dqm_store, std::ostr
   std::string mechanicalview_dir = dqm_store.pwd();
 
   std::vector<std::string> subdet_folder;
-  subdet_folder.push_back("TIB");
-  subdet_folder.push_back("TOB");
-  subdet_folder.push_back("TEC/MINUS");
-  subdet_folder.push_back("TEC/PLUS");
-  subdet_folder.push_back("TID/MINUS");
-  subdet_folder.push_back("TID/PLUS");
+  subdet_folder.emplace_back("TIB");
+  subdet_folder.emplace_back("TOB");
+  subdet_folder.emplace_back("TEC/MINUS");
+  subdet_folder.emplace_back("TEC/PLUS");
+  subdet_folder.emplace_back("TID/MINUS");
+  subdet_folder.emplace_back("TID/PLUS");
 
   int nDetsTotal = 0;
   int nDetsWithErrorTotal = 0;

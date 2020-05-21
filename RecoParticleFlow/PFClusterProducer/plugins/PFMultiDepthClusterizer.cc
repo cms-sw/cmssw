@@ -124,7 +124,7 @@ std::vector<PFMultiDepthClusterizer::ClusterLink> PFMultiDepthClusterizer::link(
       //      printf("Testing Link %d -> %d (%f %f %f %f ) \n",i,j,deta,dphi,cluster1.position().Eta()-cluster2.position().Eta(),deltaPhi(cluster1.position().Phi(),cluster2.position().Phi()));
 
       if ((deta < nSigmaEta_) & (dphi < nSigmaPhi_))
-        links.push_back(ClusterLink(i, j, deta + dphi, std::abs(dz), cluster1.energy() + cluster2.energy()));
+        links.emplace_back(i, j, deta + dphi, std::abs(dz), cluster1.energy() + cluster2.energy());
     }
 
   return links;

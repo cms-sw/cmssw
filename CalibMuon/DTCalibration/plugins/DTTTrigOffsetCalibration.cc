@@ -150,10 +150,10 @@ void DTTTrigOffsetCalibration::endJob() {
       DTChamberId chId = itChHistos->first;
       // Get SuperLayerId's for each ChamberId
       vector<DTSuperLayerId> slIds;
-      slIds.push_back(DTSuperLayerId(chId, 1));
-      slIds.push_back(DTSuperLayerId(chId, 3));
+      slIds.emplace_back(chId, 1);
+      slIds.emplace_back(chId, 3);
       if (chId.station() != 4)
-        slIds.push_back(DTSuperLayerId(chId, 2));
+        slIds.emplace_back(chId, 2);
 
       for (vector<DTSuperLayerId>::const_iterator itSl = slIds.begin(); itSl != slIds.end(); ++itSl) {
         // Get old values from DB

@@ -37,13 +37,13 @@ PixelGlobalDelay25::PixelGlobalDelay25(vector<vector<string> > &tableMat) : Pixe
     GLOBALDELAY25                                       VARCHAR
 
   */
-  colNames.push_back("CONFIG_KEY");
-  colNames.push_back("KEY_TYPE");
-  colNames.push_back("KEY_ALIAS_ID");
-  colNames.push_back("KEY_ALIAS");
-  colNames.push_back("VERSION");
-  colNames.push_back("KIND_OF_COND");
-  colNames.push_back("GLOBALDELAY25");
+  colNames.emplace_back("CONFIG_KEY");
+  colNames.emplace_back("KEY_TYPE");
+  colNames.emplace_back("KEY_ALIAS_ID");
+  colNames.emplace_back("KEY_ALIAS");
+  colNames.emplace_back("VERSION");
+  colNames.emplace_back("KIND_OF_COND");
+  colNames.emplace_back("GLOBALDELAY25");
   for (unsigned int c = 0; c < ins.size(); c++) {
     for (unsigned int n = 0; n < colNames.size(); n++) {
       if (tableMat[0][c] == colNames[n]) {

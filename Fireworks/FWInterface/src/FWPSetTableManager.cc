@@ -557,8 +557,8 @@ const std::string FWPSetTableManager::title() const { return "Modules & their pa
 std::vector<std::string> FWPSetTableManager::getTitles() const {
   std::vector<std::string> returnValue;
   returnValue.reserve(numberOfColumns());
-  returnValue.push_back("Label");
-  returnValue.push_back("Value");
+  returnValue.emplace_back("Label");
+  returnValue.emplace_back("Value");
   return returnValue;
 }
 

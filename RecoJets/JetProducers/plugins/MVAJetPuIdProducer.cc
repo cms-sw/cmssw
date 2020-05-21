@@ -72,7 +72,7 @@ MVAJetPuIdProducer::MVAJetPuIdProducer(const edm::ParameterSet &iConfig) {
   }
   for (std::vector<edm::ParameterSet>::iterator it = algos.begin(); it != algos.end(); ++it) {
     std::string label = it->getParameter<std::string>("label");
-    algos_.push_back(std::make_pair(label, new MVAJetPuId(*it)));
+    algos_.emplace_back(label, new MVAJetPuId(*it));
     if (runMvas_) {
       produces<edm::ValueMap<float>>(label + "Discriminant");
       produces<edm::ValueMap<int>>(label + "Id");

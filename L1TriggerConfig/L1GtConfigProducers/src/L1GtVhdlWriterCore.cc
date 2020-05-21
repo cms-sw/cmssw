@@ -1289,7 +1289,7 @@ void L1GtVhdlWriterCore::writeDefValPkg(const std::vector<ConditionMap> &conditi
 
   // only one default value for calo objects therefore only a empty string
   std::vector<std::string> caloDefValTypes;
-  caloDefValTypes.push_back("");
+  caloDefValTypes.emplace_back("");
 
   // get types of esums defvalues (as firmware strings) from the internal templates
   std::vector<std::string> esumsDefValTypes;

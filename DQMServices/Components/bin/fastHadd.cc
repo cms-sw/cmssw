@@ -446,7 +446,7 @@ void addFilesWithFork(int parent_fd,
       ::_exit(0);
     } else {
       ::close(fd[1]);  // close write end
-      children.push_back(std::make_pair(fd[0], child_pid));
+      children.emplace_back(fd[0], child_pid);
     }
   }
 

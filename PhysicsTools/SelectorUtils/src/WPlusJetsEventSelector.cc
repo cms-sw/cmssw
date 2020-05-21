@@ -165,14 +165,12 @@ bool WPlusJetsEventSelector::operator()(edm::EventBase const& event, pat::strbit
         // Tight cuts
         if (ielectron->et() > eleEtMin_ && fabs(ielectron->eta()) < eleEtaMax_ && electronIdTight_(*ielectron) &&
             ielectron->electronID("eidRobustTight") > 0) {
-          selectedElectrons_.push_back(
-              reco::ShallowClonePtrCandidate(edm::Ptr<pat::Electron>(electronHandle, ielectron - electronBegin)));
+          selectedElectrons_.emplace_back(edm::Ptr<pat::Electron>(electronHandle, ielectron - electronBegin));
         } else {
           // Loose cuts
           if (ielectron->et() > eleEtMinLoose_ && fabs(ielectron->eta()) < eleEtaMaxLoose_ &&
               electronIdLoose_(*ielectron)) {
-            looseElectrons_.push_back(
-                reco::ShallowClonePtrCandidate(edm::Ptr<pat::Electron>(electronHandle, ielectron - electronBegin)));
+            looseElectrons_.emplace_back(edm::Ptr<pat::Electron>(electronHandle, ielectron - electronBegin));
           }
         }
       }
@@ -188,11 +186,11 @@ bool WPlusJetsEventSelector::operator()(edm::EventBase const& event, pat::strbit
         // Tight cuts
         bool passTight = muonIdTight_(*imuon, event) && imuon->isTrackerMuon();
         if (imuon->pt() > muPtMin_ && fabs(imuon->eta()) < muEtaMax_ && passTight) {
-          selectedMuons_.push_back(reco::ShallowClonePtrCandidate(edm::Ptr<pat::Muon>(muonHandle, imuon - muonBegin)));
+          selectedMuons_.emplace_back(edm::Ptr<pat::Muon>(muonHandle, imuon - muonBegin));
         } else {
           // Loose cuts
           if (imuon->pt() > muPtMinLoose_ && fabs(imuon->eta()) < muEtaMaxLoose_ && muonIdLoose_(*imuon, event)) {
-            looseMuons_.push_back(reco::ShallowClonePtrCandidate(edm::Ptr<pat::Muon>(muonHandle, imuon - muonBegin)));
+            looseMuons_.emplace_back(edm::Ptr<pat::Muon>(muonHandle, imuon - muonBegin));
           }
         }
       }

@@ -52,7 +52,7 @@ namespace {
               if (killHE && HcalEndcap == cell.subdetId())
                 continue;
               if (hcaltopology.valid(cell)) {
-                result.push_back(cell);
+                result.emplace_back(cell);
 #ifdef DebugLog
                 std::cout << " HcalHardcodedCalibrations: det|eta|phi|depth = " << det << "|" << eta << "|" << phi
                           << "|" << depth << std::endl;
@@ -68,37 +68,37 @@ namespace {
       for (int depth = 1; depth < 6; depth++) {
         zcell = HcalZDCDetId(section, true, depth);
         if (zdctopology.valid(zcell))
-          result.push_back(zcell);
+          result.emplace_back(zcell);
         zcell = HcalZDCDetId(section, false, depth);
         if (zdctopology.valid(zcell))
-          result.push_back(zcell);
+          result.emplace_back(zcell);
       }
       section = HcalZDCDetId::HAD;
       for (int depth = 1; depth < 5; depth++) {
         zcell = HcalZDCDetId(section, true, depth);
         if (zdctopology.valid(zcell))
-          result.push_back(zcell);
+          result.emplace_back(zcell);
         zcell = HcalZDCDetId(section, false, depth);
         if (zdctopology.valid(zcell))
-          result.push_back(zcell);
+          result.emplace_back(zcell);
       }
       section = HcalZDCDetId::LUM;
       for (int depth = 1; depth < 3; depth++) {
         zcell = HcalZDCDetId(section, true, depth);
         if (zdctopology.valid(zcell))
-          result.push_back(zcell);
+          result.emplace_back(zcell);
         zcell = HcalZDCDetId(section, false, depth);
         if (zdctopology.valid(zcell))
-          result.push_back(zcell);
+          result.emplace_back(zcell);
       }
       section = HcalZDCDetId::RPD;
       for (int depth = 1; depth < 17; depth++) {
         zcell = HcalZDCDetId(section, true, depth);
         if (zdctopology.valid(zcell))
-          result.push_back(zcell);
+          result.emplace_back(zcell);
         zcell = HcalZDCDetId(section, false, depth);
         if (zdctopology.valid(zcell))
-          result.push_back(zcell);
+          result.emplace_back(zcell);
       }
 
       // HcalGenTriggerTower (HcalGenericSubdetector = 5)
@@ -112,7 +112,7 @@ namespace {
             for (int phi = 1; phi <= HcalTrigTowerDetId::kHcalPhiMask; phi++) {
               HcalTrigTowerDetId cell(eta, phi, depth, vers);
               if (hcaltopology.validHT(cell)) {
-                result.push_back(cell);
+                result.emplace_back(cell);
 #ifdef DebugLog
                 std::cout << " HcalHardcodedCalibrations: eta|phi|depth|vers = " << eta << "|" << phi << "|" << depth
                           << "|" << vers << std::endl;

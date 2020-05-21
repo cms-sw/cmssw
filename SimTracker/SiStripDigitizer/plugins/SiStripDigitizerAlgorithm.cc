@@ -426,7 +426,7 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
 
     if (bs.any()) {
       // store this information so it can be saved to the event later
-      theAffectedAPVvector.push_back(std::make_pair(detID, bs));
+      theAffectedAPVvector.emplace_back(detID, bs);
 
       if (!PreMixing_) {
         // Here below is the scaling function which describes the evolution of the baseline (i.e. how the charge is suppressed).

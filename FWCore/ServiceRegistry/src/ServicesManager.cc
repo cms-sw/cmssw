@@ -238,7 +238,7 @@ namespace edm {
         }
         type2Maker_->insert(
             Type2Maker::value_type(TypeIDBase(base->serviceType()), MakerHolder(base, *itParam, registry_)));
-        requestedCreationOrder_.push_back(TypeIDBase(base->serviceType()));
+        requestedCreationOrder_.emplace_back(base->serviceType());
       }
     }
 

@@ -14,8 +14,8 @@ L1RCTElectronIsolationCard::L1RCTElectronIsolationCard(int crateNumber,
       isoElectrons(2),
       nonIsoElectrons(2),
       regions(2) {
-  regions.push_back(L1RCTRegion());
-  regions.push_back(L1RCTRegion());
+  regions.emplace_back();
+  regions.emplace_back();
 }
 
 L1RCTElectronIsolationCard::~L1RCTElectronIsolationCard() { regions.clear(); }

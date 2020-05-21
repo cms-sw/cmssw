@@ -314,7 +314,7 @@ bool DAClusterizerInZ::split(double beta, vector<track_t>& tks, vector<vertex_t>
   std::vector<std::pair<double, unsigned int> > critical;
   for (unsigned int ik = 0; ik < y.size(); ik++) {
     if (beta * y[ik].Tc > 1.) {
-      critical.push_back(make_pair(y[ik].Tc, ik));
+      critical.emplace_back(y[ik].Tc, ik);
     }
   }
   stable_sort(critical.begin(), critical.end(), std::greater<std::pair<double, unsigned int> >());

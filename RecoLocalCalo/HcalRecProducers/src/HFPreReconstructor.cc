@@ -114,7 +114,7 @@ unsigned HFPreReconstructor::sortDataByPmt() {
     const HFQIE10Info* info = &qie10Infos_[0];
     for (unsigned i = 0; i < sz; ++i) {
       const HcalDetId id(info[i].id());
-      sortedQIE10Infos_.push_back(QIE10InfoWithId(PmtAnodeId(id.baseDetId(), id.depth()), info + i));
+      sortedQIE10Infos_.emplace_back(PmtAnodeId(id.baseDetId(), id.depth()), info + i);
     }
     std::sort(sortedQIE10Infos_.begin(), sortedQIE10Infos_.end());
 

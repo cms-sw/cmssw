@@ -842,21 +842,21 @@ void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::initializeDQMHistogr
   dqmStore->setCurrentFolder("ChannelStatusPlots");
 
   // Initialize histograms
-  subDetName.push_back("");
-  subDetName.push_back("TIB");
-  subDetName.push_back("TID");
-  subDetName.push_back("TOB");
-  subDetName.push_back("TEC");
+  subDetName.emplace_back("");
+  subDetName.emplace_back("TIB");
+  subDetName.emplace_back("TID");
+  subDetName.emplace_back("TOB");
+  subDetName.emplace_back("TEC");
   nLayers.push_back(0);
   nLayers.push_back(4);
   nLayers.push_back(3);
   nLayers.push_back(6);
   nLayers.push_back(9);
-  layerName.push_back("");
-  layerName.push_back("Layer");
-  layerName.push_back("Disk");
-  layerName.push_back("Layer");
-  layerName.push_back("Disk");
+  layerName.emplace_back("");
+  layerName.emplace_back("Layer");
+  layerName.emplace_back("Disk");
+  layerName.emplace_back("Layer");
+  layerName.emplace_back("Disk");
 
   std::string histoName;
   std::string histoTitle;

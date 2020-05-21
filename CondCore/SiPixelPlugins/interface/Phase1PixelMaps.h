@@ -16,12 +16,12 @@ public:
             edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {
     // store the file in path for the corners (BPIX)
     for (unsigned int i = 1; i <= 4; i++) {
-      m_cornersBPIX.push_back(edm::FileInPath(Form("DQM/SiStripMonitorClient/data/Geometry/vertices_barrel_%i", i)));
+      m_cornersBPIX.emplace_back(Form("DQM/SiStripMonitorClient/data/Geometry/vertices_barrel_%i", i));
     }
 
     // store the file in path for the corners (BPIX)
     for (int j : {-3, -2, -1, 1, 2, 3}) {
-      m_cornersFPIX.push_back(edm::FileInPath(Form("DQM/SiStripMonitorClient/data/Geometry/vertices_forward_%i", j)));
+      m_cornersFPIX.emplace_back(Form("DQM/SiStripMonitorClient/data/Geometry/vertices_forward_%i", j));
     }
   }
 

@@ -17,7 +17,7 @@ HLTVertexPerformanceAnalyzer::HLTVertexPerformanceAnalyzer(const edm::ParameterS
 
   for (unsigned int i = 0; i < VertexCollection_.size(); i++) {
     EDConsumerBase::labelsForToken(VertexCollection_[i], label);
-    VertexCollection_Label.push_back(label.module);
+    VertexCollection_Label.emplace_back(label.module);
   }
 }
 
@@ -130,7 +130,7 @@ void HLTVertexPerformanceAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
   std::string dqmFolder;
   for (unsigned int ind = 0; ind < hltPathNames_.size(); ind++) {
     dqmFolder = Form("%s/Vertex/%s", mainFolder_.c_str(), hltPathNames_[ind].c_str());
-    H1_.push_back(std::map<std::string, MonitorElement *>());
+    H1_.emplace_back();
     ibooker.setCurrentFolder(dqmFolder);
     for (unsigned int coll = 0; coll < VertexCollection_.size(); coll++) {
       float maxValue = 0.02;

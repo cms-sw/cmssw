@@ -78,6 +78,6 @@ void HGCalVFELinearizationImpl::linearize(const std::vector<HGCDataFrame<DetId, 
     if (amplitude_int > linMax_)
       amplitude_int = linMax_;
 
-    linearized_dataframes.push_back(std::make_pair(frame.id(), amplitude_int));
+    linearized_dataframes.emplace_back(frame.id(), amplitude_int);
   }
 }

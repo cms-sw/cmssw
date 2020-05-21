@@ -213,16 +213,16 @@ void L1MuDTTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
       for (int number = 0; number < 2; number++) {
         const L1MuDTTrack* cand = (*it_sp).second->tracK(number);
         if (cand && !cand->empty())
-          _cache0.push_back(L1MuDTTrackCand(cand->getDataWord(),
-                                            cand->bx(),
-                                            cand->spid().wheel(),
-                                            cand->spid().sector(),
-                                            number,
-                                            cand->address(1),
-                                            cand->address(2),
-                                            cand->address(3),
-                                            cand->address(4),
-                                            cand->tc()));
+          _cache0.emplace_back(cand->getDataWord(),
+                               cand->bx(),
+                               cand->spid().wheel(),
+                               cand->spid().sector(),
+                               number,
+                               cand->address(1),
+                               cand->address(2),
+                               cand->address(3),
+                               cand->address(4),
+                               cand->tc());
       }
       it_sp++;
     }
@@ -253,7 +253,7 @@ void L1MuDTTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
       vector<const L1MuDTTrack*>::const_iterator iter;
       for (iter = mttf_cont.begin(); iter != mttf_cont.end(); iter++) {
         if (*iter)
-          _cache.push_back(L1MuRegionalCand((*iter)->getDataWord(), (*iter)->bx()));
+          _cache.emplace_back((*iter)->getDataWord(), (*iter)->bx());
       }
     }
   }

@@ -69,7 +69,7 @@ void BlobComplexObjects::fill(unsigned int &serial) {
   a = ++serial;
   b = ++serial;
   for (unsigned int i = 0; i < 3; i++) {
-    content.push_back(BlobComplexContent());
+    content.emplace_back();
     content.back().fill(serial);
   }
 }
@@ -100,7 +100,7 @@ bool BlobComplexObjects::operator==(const BlobComplexObjects &rhs) const {
 
 void BlobComplex::fill(unsigned int &serial) {
   for (unsigned int i = 0; i < 3; i++) {
-    objects.push_back(BlobComplexObjects());
+    objects.emplace_back();
     objects.back().fill(serial);
   }
 }

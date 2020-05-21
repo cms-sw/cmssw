@@ -1369,7 +1369,7 @@ namespace edm {
     for (auto const& worker : allWorkers()) {
       ModuleDescription const* p = worker->descPtr();
       allModuleDescriptions.push_back(p);
-      moduleIDToIndex.push_back(std::pair<unsigned int, unsigned int>(p->id(), i));
+      moduleIDToIndex.emplace_back(p->id(), i);
       labelToDesc[p->moduleLabel()] = p;
       ++i;
     }

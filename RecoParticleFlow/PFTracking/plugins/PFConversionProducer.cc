@@ -150,7 +150,7 @@ void PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup) {
                      .second.significance();
         }
         pfRecTrack.setSTIP(stip);
-        pfRecTkcoll.push_back(reco::PFRecTrackRef(pfTrackRefProd, idx++));
+        pfRecTkcoll.emplace_back(pfTrackRefProd, idx++);
         pfRecTrackColl->push_back(pfRecTrack);
       }
     }  //end loop over tracks

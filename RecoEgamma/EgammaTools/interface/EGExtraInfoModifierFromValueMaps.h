@@ -291,7 +291,7 @@ void EGXtraModFromVMObjFiller<egmodifier::EGID>::addValuesToObject(
   for (auto itr = vmaps_token.begin(); itr != vmaps_token.end(); ++itr) {
     float idVal(0);
     assignValue(ptr, itr->second, vmaps, idVal);
-    ids.push_back({itr->first, idVal});
+    ids.emplace_back(itr->first, idVal);
   }
   std::sort(ids.begin(), ids.end(), [](auto& lhs, auto& rhs) { return lhs.first < rhs.first; });
   obj.setElectronIDs(ids);
@@ -310,7 +310,7 @@ void EGXtraModFromVMObjFiller<egmodifier::EGID>::addValuesToObject(
   for (auto itr = vmaps_token.begin(); itr != vmaps_token.end(); ++itr) {
     float idVal(0);
     assignValue(ptr, itr->second, vmaps, idVal);
-    ids.push_back({itr->first, idVal});
+    ids.emplace_back(itr->first, idVal);
   }
   std::sort(ids.begin(), ids.end(), [](auto& lhs, auto& rhs) { return lhs.first < rhs.first; });
   obj.setPhotonIDs(ids);

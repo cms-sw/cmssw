@@ -191,14 +191,14 @@ int OniaPhotonConversionProducer::PackFlags(const reco::Conversion& conv,
   flags += (conv.algo() * 32);
   int q_mask = 0;
   std::vector<std::string> s_quals;
-  s_quals.push_back("generalTracksOnly");
-  s_quals.push_back("arbitratedEcalSeeded");
-  s_quals.push_back("arbitratedMerged");
-  s_quals.push_back("arbitratedMergedEcalGeneral");
-  s_quals.push_back("highPurity");
-  s_quals.push_back("highEfficiency");
-  s_quals.push_back("ecalMatched1Track");
-  s_quals.push_back("ecalMatched2Track");
+  s_quals.emplace_back("generalTracksOnly");
+  s_quals.emplace_back("arbitratedEcalSeeded");
+  s_quals.emplace_back("arbitratedMerged");
+  s_quals.emplace_back("arbitratedMergedEcalGeneral");
+  s_quals.emplace_back("highPurity");
+  s_quals.emplace_back("highEfficiency");
+  s_quals.emplace_back("ecalMatched1Track");
+  s_quals.emplace_back("ecalMatched2Track");
   std::vector<int> i_quals = StringToEnumValue<reco::Conversion::ConversionQuality>(s_quals);
   for (std::vector<int>::const_iterator qq = i_quals.begin(); qq != i_quals.end(); ++qq) {
     reco::Conversion::ConversionQuality q = (reco::Conversion::ConversionQuality)(*qq);
@@ -246,7 +246,7 @@ bool OniaPhotonConversionProducer::checkTkVtxCompatibility(const reco::Conversio
       dzError_ = sqrt(dzError_ * dzError_ + vtx.covariance(2, 2));
       if (fabs(dz_) / dzError_ > sigmaTkVtxComp_)
         continue;
-      idx[ik].push_back(std::pair<double, short>(fabs(dz_), count));
+      idx[ik].emplace_back(fabs(dz_), count);
     }
     if (idx[ik].empty())
       return false;

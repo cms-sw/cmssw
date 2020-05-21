@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
       std::cout << "                          " << argv[i] << std::endl;
       exit(1);
     }
-    FilesToMerge.push_back(std::string(argv[i]));
+    FilesToMerge.emplace_back(argv[i]);
   }
   if (access(argv[argc - 1], R_OK) != -1) {
     std::cout << "CastorShowerLibraryMerger: Output File already exists. Exiting." << std::endl;

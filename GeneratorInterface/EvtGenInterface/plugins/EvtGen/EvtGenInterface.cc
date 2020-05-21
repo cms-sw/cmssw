@@ -291,7 +291,7 @@ EvtGenInterface::~EvtGenInterface() {}
 
 void EvtGenInterface::init() {
   // flags for pythia8
-  fSpecialSettings.push_back("Pythia8:ParticleDecays:mixB = off");
+  fSpecialSettings.emplace_back("Pythia8:ParticleDecays:mixB = off");
   //
 
   edm::FileInPath decay_table(fPSet->getParameter<std::string>("decay_table"));
@@ -467,7 +467,7 @@ HepMC::GenEvent* EvtGenInterface::decay(HepMC::GenEvent* evt) {
   unsigned int nisforced = 0;
   std::vector<std::vector<HepMC::GenParticle*> > forcedparticles;
   for (unsigned int i = 0; i < forced_pdgids.size(); i++)
-    forcedparticles.push_back(std::vector<HepMC::GenParticle*>());
+    forcedparticles.emplace_back();
 
   // notice this is a dynamic loop
   for (HepMC::GenEvent::particle_const_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p) {

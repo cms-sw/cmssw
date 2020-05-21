@@ -607,7 +607,7 @@ bool edm::decode(std::vector<InputTag>& to, std::string const& from) {
   for (std::vector<std::string>::const_iterator stringItr = strings.begin(), stringItrEnd = strings.end();
        stringItr != stringItrEnd;
        ++stringItr) {
-    to.push_back(InputTag(*stringItr));
+    to.emplace_back(*stringItr);
   }
   return true;
 }  // decode to VInputTag
@@ -654,7 +654,7 @@ bool edm::decode(std::vector<ESInputTag>& to, std::string const& from) {
   for (std::vector<std::string>::const_iterator stringItr = strings.begin(), stringItrEnd = strings.end();
        stringItr != stringItrEnd;
        ++stringItr) {
-    to.push_back(ESInputTag(*stringItr));
+    to.emplace_back(*stringItr);
   }
   return true;
 }  // decode to VInputTag

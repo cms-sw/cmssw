@@ -288,110 +288,110 @@ void PhysicsTowerOrganizer::findNeighbors(const CaloTowerDetId& tempid,
   // get the neighbor with higher iphi
   if (id.ietaAbs() <= 20) {
     if (id.iphi() == 72)
-      ids.push_back(CaloTowerDetId(id.ieta(), 1));
+      ids.emplace_back(id.ieta(), 1);
     else
-      ids.push_back(CaloTowerDetId(id.ieta(), id.iphi() + 1));
+      ids.emplace_back(id.ieta(), id.iphi() + 1);
   } else {
     if (id.iphi() == 71)
-      ids.push_back(CaloTowerDetId(id.ieta(), 1));
+      ids.emplace_back(id.ieta(), 1);
     else
-      ids.push_back(CaloTowerDetId(id.ieta(), id.iphi() + 2));
+      ids.emplace_back(id.ieta(), id.iphi() + 2);
   }
 
   // get the neighbor with the lower iphi
   if (id.ietaAbs() <= 20) {
     if (id.iphi() == 1)
-      ids.push_back(CaloTowerDetId(id.ieta(), 72));
+      ids.emplace_back(id.ieta(), 72);
     else
-      ids.push_back(CaloTowerDetId(id.ieta(), id.iphi() - 1));
+      ids.emplace_back(id.ieta(), id.iphi() - 1);
   } else {
     if (id.iphi() == 1)
-      ids.push_back(CaloTowerDetId(id.ieta(), 71));
+      ids.emplace_back(id.ieta(), 71);
     else
-      ids.push_back(CaloTowerDetId(id.ieta(), id.iphi() - 2));
+      ids.emplace_back(id.ieta(), id.iphi() - 2);
   }
 
   // get the neighbor with the higher ietaAbs
   if (id.ietaAbs() == 20 && (id.iphi() % 2) == 0)
-    ids.push_back(CaloTowerDetId((id.ietaAbs() + 1) * id.zside(), id.iphi() - 1));
+    ids.emplace_back((id.ietaAbs() + 1) * id.zside(), id.iphi() - 1);
   else
-    ids.push_back(CaloTowerDetId((id.ietaAbs() + 1) * id.zside(), id.iphi()));
+    ids.emplace_back((id.ietaAbs() + 1) * id.zside(), id.iphi());
 
   // get the neighbor(s) with the lower ietaAbs
   if (id.ietaAbs() == 21) {
-    ids.push_back(CaloTowerDetId((id.ietaAbs() - 1) * id.zside(), id.iphi()));
-    ids.push_back(CaloTowerDetId((id.ietaAbs() - 1) * id.zside(), id.iphi() + 1));
+    ids.emplace_back((id.ietaAbs() - 1) * id.zside(), id.iphi());
+    ids.emplace_back((id.ietaAbs() - 1) * id.zside(), id.iphi() + 1);
   } else if (id.ietaAbs() == 1) {
-    ids.push_back(CaloTowerDetId(-id.ieta(), id.iphi()));
+    ids.emplace_back(-id.ieta(), id.iphi());
   } else {
-    ids.push_back(CaloTowerDetId((id.ietaAbs() - 1) * id.zside(), id.iphi()));
+    ids.emplace_back((id.ietaAbs() - 1) * id.zside(), id.iphi());
   }
 
   // get the neighbor with higher ieta and higher iphi
   if (id.ietaAbs() <= 19 || (id.ietaAbs() == 20 && (id.iphi() % 2) == 0)) {
     if (id.iphi() == 72)
-      ids.push_back(CaloTowerDetId((id.ietaAbs() + 1) * id.zside(), 1));
+      ids.emplace_back((id.ietaAbs() + 1) * id.zside(), 1);
     else
-      ids.push_back(CaloTowerDetId((id.ietaAbs() + 1) * id.zside(), id.iphi() + 1));
+      ids.emplace_back((id.ietaAbs() + 1) * id.zside(), id.iphi() + 1);
   } else if (id.ietaAbs() >= 21) {
     if (id.iphi() == 71)
-      ids.push_back(CaloTowerDetId((id.ietaAbs() + 1) * id.zside(), 1));
+      ids.emplace_back((id.ietaAbs() + 1) * id.zside(), 1);
     else
-      ids.push_back(CaloTowerDetId((id.ietaAbs() + 1) * id.zside(), id.iphi() + 2));
+      ids.emplace_back((id.ietaAbs() + 1) * id.zside(), id.iphi() + 2);
   }
 
   // get the neighbor with higher ieta and lower iphi
   if (id.ietaAbs() <= 19) {
     if (id.iphi() == 1)
-      ids.push_back(CaloTowerDetId((id.ietaAbs() + 1) * id.zside(), 72));
+      ids.emplace_back((id.ietaAbs() + 1) * id.zside(), 72);
     else
-      ids.push_back(CaloTowerDetId((id.ietaAbs() + 1) * id.zside(), id.iphi() - 1));
+      ids.emplace_back((id.ietaAbs() + 1) * id.zside(), id.iphi() - 1);
   } else if (id.ietaAbs() >= 21 || (id.ietaAbs() == 20 && (id.iphi() % 2) == 1)) {
     if (id.iphi() == 1)
-      ids.push_back(CaloTowerDetId((id.ietaAbs() + 1) * id.zside(), 71));
+      ids.emplace_back((id.ietaAbs() + 1) * id.zside(), 71);
     else
-      ids.push_back(CaloTowerDetId((id.ietaAbs() + 1) * id.zside(), id.iphi() - 2));
+      ids.emplace_back((id.ietaAbs() + 1) * id.zside(), id.iphi() - 2);
   }
 
   // get the neighbor with lower ieta and higher iphi
   if (id.ietaAbs() == 1) {
     if (id.iphi() == 72)
-      ids.push_back(CaloTowerDetId(-id.ieta(), 1));
+      ids.emplace_back(-id.ieta(), 1);
     else
-      ids.push_back(CaloTowerDetId(-id.ieta(), id.iphi() + 1));
+      ids.emplace_back(-id.ieta(), id.iphi() + 1);
   } else if (id.ietaAbs() <= 20) {
     if (id.iphi() == 72)
-      ids.push_back(CaloTowerDetId((id.ietaAbs() - 1) * id.zside(), 1));
+      ids.emplace_back((id.ietaAbs() - 1) * id.zside(), 1);
     else
-      ids.push_back(CaloTowerDetId((id.ietaAbs() - 1) * id.zside(), id.iphi() + 1));
+      ids.emplace_back((id.ietaAbs() - 1) * id.zside(), id.iphi() + 1);
   } else if (id.ietaAbs() >= 21) {
     if (id.iphi() == 71)
-      ids.push_back(CaloTowerDetId((id.ietaAbs() - 1) * id.zside(), 1));
+      ids.emplace_back((id.ietaAbs() - 1) * id.zside(), 1);
     else
-      ids.push_back(CaloTowerDetId((id.ietaAbs() - 1) * id.zside(), id.iphi() + 2));
+      ids.emplace_back((id.ietaAbs() - 1) * id.zside(), id.iphi() + 2);
   }
 
   // get the neighbor with lower ieta and lower iphi
   if (id.ietaAbs() == 1) {
     if (id.iphi() == 1)
-      ids.push_back(CaloTowerDetId(-id.ieta(), 72));
+      ids.emplace_back(-id.ieta(), 72);
     else
-      ids.push_back(CaloTowerDetId(-id.ieta(), id.iphi() - 1));
+      ids.emplace_back(-id.ieta(), id.iphi() - 1);
   } else if (id.ietaAbs() <= 20) {
     if (id.iphi() == 1)
-      ids.push_back(CaloTowerDetId((id.ietaAbs() - 1) * id.zside(), 72));
+      ids.emplace_back((id.ietaAbs() - 1) * id.zside(), 72);
     else
-      ids.push_back(CaloTowerDetId((id.ietaAbs() - 1) * id.zside(), id.iphi() - 1));
+      ids.emplace_back((id.ietaAbs() - 1) * id.zside(), id.iphi() - 1);
   } else if (id.ietaAbs() >= 22) {
     if (id.iphi() == 1)
-      ids.push_back(CaloTowerDetId((id.ietaAbs() - 1) * id.zside(), 71));
+      ids.emplace_back((id.ietaAbs() - 1) * id.zside(), 71);
     else
-      ids.push_back(CaloTowerDetId((id.ietaAbs() - 1) * id.zside(), id.iphi() - 2));
+      ids.emplace_back((id.ietaAbs() - 1) * id.zside(), id.iphi() - 2);
   } else if (id.ietaAbs() == 21) {
     if (id.iphi() == 1)
-      ids.push_back(CaloTowerDetId((id.ietaAbs() - 1) * id.zside(), 72));
+      ids.emplace_back((id.ietaAbs() - 1) * id.zside(), 72);
     else
-      ids.push_back(CaloTowerDetId((id.ietaAbs() - 1) * id.zside(), id.iphi() - 1));
+      ids.emplace_back((id.ietaAbs() - 1) * id.zside(), id.iphi() - 1);
   }
 
   // clear neighbors

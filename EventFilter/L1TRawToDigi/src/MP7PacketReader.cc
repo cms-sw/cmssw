@@ -92,7 +92,7 @@ std::vector<PacketRange> MP7PacketReader::findPackets(std::vector<uint64_t> data
       if (not((x >> 32) & 1)) {
         v = false;
         end = i - 1;
-        ranges.push_back(std::make_pair(begin, end));
+        ranges.emplace_back(begin, end);
       }
       continue;
     }
@@ -100,7 +100,7 @@ std::vector<PacketRange> MP7PacketReader::findPackets(std::vector<uint64_t> data
 
   if (v && (begin != -1)) {
     end = data.size() - 1;
-    ranges.push_back(std::make_pair(begin, end));
+    ranges.emplace_back(begin, end);
   }
 
   return ranges;

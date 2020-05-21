@@ -91,7 +91,7 @@ public:
             << "At least one point should be defined for point or candidate+point seeding modes";
 
       for (size_t i = 0; i < etaPoints.size(); ++i) {
-        m_etaPhiPoints.push_back(std::make_pair(etaPoints[i], phiPoints[i]));
+        m_etaPhiPoints.emplace_back(etaPoints[i], phiPoints[i]);
 
         double x = std::cos(phiPoints[i]);
         double y = std::sin(phiPoints[i]);

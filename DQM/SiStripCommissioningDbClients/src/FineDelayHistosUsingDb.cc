@@ -198,7 +198,7 @@ bool FineDelayHistosUsingDb::update(SiStripConfigDb::DeviceDescriptionsRange dev
     }
     //  maximum coarse setting
     if (delayCoarse > 15) {
-      invalid.push_back(fec_key);
+      invalid.emplace_back(fec_key);
       delayCoarse = sistrip::invalid_;
     }
 

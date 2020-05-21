@@ -47,8 +47,8 @@ CosmicMuonLinksProducer::CosmicMuonLinksProducer(const ParameterSet& iConfig) {
 
     edm::EDGetTokenT<reco::TrackCollection> subTrackTag = consumes<reco::TrackCollection>(sTag);
     edm::EDGetTokenT<reco::TrackCollection> parentTrackTag = consumes<reco::TrackCollection>(pTag);
-    theTrackLinks.push_back(make_pair(subTrackTag, parentTrackTag));
-    theTrackLinkNames.push_back(make_pair(sTag.label(), pTag.label()));
+    theTrackLinks.emplace_back(subTrackTag, parentTrackTag);
+    theTrackLinkNames.emplace_back(sTag.label(), pTag.label());
 
     LogDebug(category_) << "preparing map between " << sTag << " & " << pTag;
     std::string mapname = sTag.label() + "To" + pTag.label();

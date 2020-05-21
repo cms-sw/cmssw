@@ -95,7 +95,7 @@ void TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup
         // get discriminator from the MVAComputer
         double discrim = mvaComputer->eval(values);
 
-        discCombList.push_back(std::make_pair(discrim, combi));
+        discCombList.emplace_back(discrim, combi);
       }
       next_permutation(combi.begin(), combi.end());
     }

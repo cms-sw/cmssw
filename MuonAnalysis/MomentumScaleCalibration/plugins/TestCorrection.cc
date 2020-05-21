@@ -234,9 +234,9 @@ void TestCorrection::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   // ------------------------------------------------------------
   std::pair<MuScleFitMuon, MuScleFitMuon> recMuFromBestRes = MuScleFitUtils::findBestRecoRes(muons);
   if (MuScleFitUtils::ResFound) {
-    MuScleFitUtils::SavedPair.push_back(std::make_pair(recMuFromBestRes.first.p4(), recMuFromBestRes.second.p4()));
+    MuScleFitUtils::SavedPair.emplace_back(recMuFromBestRes.first.p4(), recMuFromBestRes.second.p4());
   } else {
-    MuScleFitUtils::SavedPair.push_back(std::make_pair(lorentzVector(0., 0., 0., 0.), lorentzVector(0., 0., 0., 0.)));
+    MuScleFitUtils::SavedPair.emplace_back(lorentzVector(0., 0., 0., 0.), lorentzVector(0., 0., 0., 0.));
   }
 
   // If resonance found, do the hard work

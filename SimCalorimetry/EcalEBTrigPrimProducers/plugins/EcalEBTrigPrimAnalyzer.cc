@@ -35,7 +35,7 @@ class CaloSubdetectorGeometry;
 EcalEBTrigPrimAnalyzer::EcalEBTrigPrimAnalyzer(const edm::ParameterSet& iConfig)
 
 {
-  ecal_parts_.push_back("Barrel");
+  ecal_parts_.emplace_back("Barrel");
 
   histfile_ = new TFile("histos.root", "RECREATE");
   tree_ = new TTree("TPGtree", "TPGtree");

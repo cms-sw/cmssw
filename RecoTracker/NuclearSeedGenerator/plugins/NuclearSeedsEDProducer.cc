@@ -65,7 +65,7 @@ void NuclearSeedsEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
     // fill the id of the Trajectory and the if of the seed in assocPair
     for (unsigned int j = 0; j < newSeeds->size(); j++) {
-      assocPair.push_back(std::make_pair(i, output->size() - newSeeds->size() + j));
+      assocPair.emplace_back(i, output->size() - newSeeds->size() + j);
     }
   }
 

@@ -56,7 +56,7 @@ namespace edm {
   void ThinnedAssociationsHelper::addAssociation(BranchID const& parent,
                                                  BranchID const& association,
                                                  BranchID const& thinned) {
-    vThinnedAssociationBranches_.push_back(ThinnedAssociationBranches(parent, association, thinned));
+    vThinnedAssociationBranches_.emplace_back(parent, association, thinned);
   }
 
   void ThinnedAssociationsHelper::addAssociation(ThinnedAssociationBranches const& branches) {
@@ -67,7 +67,7 @@ namespace edm {
   ThinnedAssociationsHelper::associationToBranches() const {
     std::vector<std::pair<BranchID, ThinnedAssociationBranches const*> > temp;
     for (auto const& item : vThinnedAssociationBranches_) {
-      temp.push_back(std::make_pair(item.association(), &item));
+      temp.emplace_back(item.association(), &item);
     }
     std::sort(temp.begin(),
               temp.end(),

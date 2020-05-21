@@ -139,7 +139,7 @@ TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::update(
     LogTrace("SiTrackerMultiRecHitUpdator") << "\t\t a_i:" << a_i;
     //double c_i = ComputeWeight(tsos, *(*ihit), true, annealing);  //exp(-0.5*theChi2Cut/annealing)/(2.*M_PI*sqrt(det));
     //LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t c_i:" << c_i ;
-    mymap.push_back(std::pair<const TrackingRecHit*, float>((*ihit)->hit(), a_i));
+    mymap.emplace_back((*ihit)->hit(), a_i);
 
     a_sum += a_i;
     //with the new definition, the cut weight is computed only once
@@ -167,7 +167,7 @@ TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::update(
 
     if (p > 10e-6) {
       invalid = false;
-      normmap.push_back(std::pair<const TrackingRecHit*, float>(mymap[counter].first, p));
+      normmap.emplace_back(mymap[counter].first, p);
     }
 
     counter++;

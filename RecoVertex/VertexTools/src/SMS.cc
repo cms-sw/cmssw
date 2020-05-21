@@ -128,7 +128,7 @@ GlobalPoint SMS::location(const std::vector<GlPtWt>& wdata) const {
     std::vector<FloatPair> D;
     // Compute squared distances to all points
     for (j = wdata.begin(); j != wdata.end(); ++j)
-      D.push_back(FloatPair((j->first - i->first).mag2(), j->second));
+      D.emplace_back((j->first - i->first).mag2(), j->second);
     // Find weighted q-quantile in the distance vector
     sort(D.begin(), D.end());
     float sumw = 0;

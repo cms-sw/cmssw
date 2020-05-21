@@ -60,7 +60,7 @@ std::vector<PerigeeLinearizedTrackState::RefCountedLinearizedTrackState> Perigee
     const {
   std::vector<RefCountedLinearizedTrackState> result;
   result.reserve(1);
-  result.push_back(RefCountedLinearizedTrackState(const_cast<PerigeeLinearizedTrackState*>(this)));
+  result.emplace_back(const_cast<PerigeeLinearizedTrackState*>(this));
   return result;
 }
 

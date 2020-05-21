@@ -214,12 +214,12 @@ void Multi5x5ClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
     const ProtoBasicCluster& protoCluster = protoClusters_[clusNr];
     Point position;
     position = posCalculator_.Calculate_Location(protoCluster.hits(), hits, geometry_p, geometryES_p);
-    clusters_v.push_back(reco::BasicCluster(protoCluster.energy(),
-                                            position,
-                                            reco::CaloID(detector_),
-                                            protoCluster.hits(),
-                                            reco::CaloCluster::multi5x5,
-                                            protoCluster.seed().id()));
+    clusters_v.emplace_back(protoCluster.energy(),
+                            position,
+                            reco::CaloID(detector_),
+                            protoCluster.hits(),
+                            reco::CaloCluster::multi5x5,
+                            protoCluster.seed().id());
   }
 
   protoClusters_.clear();
@@ -264,9 +264,9 @@ void Multi5x5ClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
   if ((seedOutside && energy >= 0) || (!seedOutside && energy >= seedEnergy)) {
     if (reassignSeedCrysToClusterItSeeds_) {  //if we're not doing this, we dont need this info so lets not bother filling it
       for (size_t hitNr = 0; hitNr < current_v.size(); hitNr++)
-        whichClusCrysBelongsTo_.push_back(std::pair<DetId, int>(current_v[hitNr].first, protoClusters_.size()));
+        whichClusCrysBelongsTo_.emplace_back(current_v[hitNr].first, protoClusters_.size());
     }
-    protoClusters_.push_back(ProtoBasicCluster(energy, *seedIt, current_v));
+    protoClusters_.emplace_back(energy, *seedIt, current_v);
 
     // clusters_v.push_back(reco::BasicCluster(energy, position, reco::CaloID(detector_), current_v, reco::CaloCluster::multi5x5, seedIt->id()));
 
@@ -378,7 +378,7 @@ void Multi5x5ClusterAlgo::addCrystal(const DetId& det) {
   if ((thisIt != recHits_->end()) && (thisIt->id() != DetId(0))) {
     if ((used_s.find(thisIt->id()) == used_s.end())) {
       //std::cout << "   ... this is a good crystal and will be added" << std::endl;
-      current_v.push_back(std::pair<DetId, float>(det, 1.));  // by default hit energy fractions are set at 1.
+      current_v.emplace_back(det, 1.);  // by default hit energy fractions are set at 1.
       used_s.insert(det);
     }
   }

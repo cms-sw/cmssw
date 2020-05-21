@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
     return (0);
   TIter next(inf->GetListOfKeys());
   while ((key = (TKey *)next()))
-    HistoNamesList.push_back(key->GetName());
+    HistoNamesList.emplace_back(key->GetName());
   outf = new TFile(FitterFilename.c_str(), "RECREATE");
   TDirectory *dir_Response =
       (TDirectory *)outf->mkdir("FittedHistograms");  //Directory in output file to store the fitted histograms.

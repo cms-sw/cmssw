@@ -32,26 +32,26 @@ std::vector<std::string> RunSummary::getSubdtIn() const {
   std::vector<std::string> v;
   for (size_t i = 0; i < m_subdt_in.size(); i++) {
     if (m_subdt_in[i] == 0) {
-      v.push_back("PIXEL");
+      v.emplace_back("PIXEL");
     }
     if (m_subdt_in[i] == 1) {
-      v.push_back("TRACKER");
+      v.emplace_back("TRACKER");
     }
     if (m_subdt_in[i] == 2) {
-      v.push_back("ECAL");
+      v.emplace_back("ECAL");
     }
     if (m_subdt_in[i] == 3) {
-      v.push_back("HCAL");
+      v.emplace_back("HCAL");
     }
 
     if (m_subdt_in[i] == 4) {
-      v.push_back("DT");
+      v.emplace_back("DT");
     }
     if (m_subdt_in[i] == 5) {
-      v.push_back("CSC");
+      v.emplace_back("CSC");
     }
     if (m_subdt_in[i] == 6) {
-      v.push_back("RPC");
+      v.emplace_back("RPC");
     }
   }
   return v;

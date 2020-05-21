@@ -32,7 +32,7 @@ PhotosppInterface::PhotosppInterface(const edm::ParameterSet& pset)
       UseHadronizerQEDBrem = true;
   }
   if (!UseHadronizerQEDBrem)
-    fSpecialSettings.push_back("QED-brem-off:all");
+    fSpecialSettings.emplace_back("QED-brem-off:all");
 }
 
 void PhotosppInterface::setRandomEngine(CLHEP::HepRandomEngine* decayRandomEngine) {

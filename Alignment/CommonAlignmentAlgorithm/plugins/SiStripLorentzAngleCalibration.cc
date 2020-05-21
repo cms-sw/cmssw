@@ -240,7 +240,7 @@ unsigned int SiStripLorentzAngleCalibration::derivatives(std::vector<ValuesIndex
         const double yDerivative = bFieldLocal.x() * dZ * 0.5;   // parameter is mobility!
         if (xDerivative || yDerivative) {                        // If field is zero, this is zero: do not return it
           const Values derivs{xDerivative, yDerivative};
-          outDerivInds.push_back(ValuesIndexPair(derivs, index));
+          outDerivInds.emplace_back(derivs, index);
         }
       }
     } else {

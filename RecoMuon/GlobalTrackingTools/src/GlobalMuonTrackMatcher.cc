@@ -181,7 +181,7 @@ vector<GlobalMuonTrackMatcher::TrackCand> GlobalMuonTrackMatcher::match(const Tr
                        << tsosPair.first.isValid() << " tk isValid " << tsosPair.second.isValid() << endl;
     if (tsosPair.first.isValid())
       muonTSOS = tsosPair.first;
-    cands.push_back(TrackCandWithTSOS(*is, tsosPair.second));
+    cands.emplace_back(*is, tsosPair.second);
   }
 
   // initialize variables

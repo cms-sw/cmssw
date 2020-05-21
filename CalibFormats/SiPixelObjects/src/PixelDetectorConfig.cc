@@ -35,13 +35,13 @@ PixelDetectorConfig::PixelDetectorConfig(std::vector<std::vector<std::string> > 
     ROC_NAME				      NOT NULL VARCHAR2(200)
     ROC_STATUS  			      NOT NULL VARCHAR2(200)
   */
-  colNames.push_back("CONFIG_KEY");
-  colNames.push_back("KEY_TYPE");
-  colNames.push_back("KEY_ALIAS");
-  colNames.push_back("VERSION");
-  colNames.push_back("KIND_OF_COND");
-  colNames.push_back("ROC_NAME");
-  colNames.push_back("ROC_STATUS");
+  colNames.emplace_back("CONFIG_KEY");
+  colNames.emplace_back("KEY_TYPE");
+  colNames.emplace_back("KEY_ALIAS");
+  colNames.emplace_back("VERSION");
+  colNames.emplace_back("KIND_OF_COND");
+  colNames.emplace_back("ROC_NAME");
+  colNames.emplace_back("ROC_STATUS");
 
   for (unsigned int c = 0; c < ins.size(); c++) {
     for (unsigned int n = 0; n < colNames.size(); n++) {

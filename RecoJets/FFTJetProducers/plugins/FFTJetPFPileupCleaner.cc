@@ -339,7 +339,7 @@ reco::VertexRef FFTJetPFPileupCleaner::findSomeVertexWFakes(const edm::Handle<re
       unsigned index = 0;
       for (IV iv = vertices->begin(); iv != vertend; ++iv, ++index)
         if (isAcceptableVtx(iv))
-          zAssoc.push_back(std::pair<double, unsigned>(iv->z(), index));
+          zAssoc.emplace_back(iv->z(), index);
       const unsigned numRealVertices = index;
 
       // Mix the fake vertex collection into zAssoc.
@@ -348,7 +348,7 @@ reco::VertexRef FFTJetPFPileupCleaner::findSomeVertexWFakes(const edm::Handle<re
         const IV fakeEnd(fakeVertices->end());
         for (IV iv = fakeVertices->begin(); iv != fakeEnd; ++iv, ++index)
           if (isAcceptableVtx(iv))
-            zAssoc.push_back(std::pair<double, unsigned>(iv->z(), index));
+            zAssoc.emplace_back(iv->z(), index);
       }
 
       // Check where the track z position fits into this sequence

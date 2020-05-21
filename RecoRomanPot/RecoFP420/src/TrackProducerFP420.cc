@@ -1172,7 +1172,7 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
           }
         }
         //   rhits.push_back( TrackFP420(c0X,c1X,chisqX,nhitplanesY,c0Y,c1Y,chisqY,nhitplanesY) );
-        rhits.push_back(TrackFP420(Ax[tx], Bx[tx], Cx[tx], Mx[tx], Ay[ty], By[ty], Cy[ty], My[ty]));
+        rhits.emplace_back(Ax[tx], Bx[tx], Cx[tx], Mx[tx], Ay[ty], By[ty], Cy[ty], My[ty]);
       }  //for tr
          //============================================================================================================
     }    //in  numberXtracks >0
@@ -1193,7 +1193,7 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
         std::cout << " CyW= " << CyW[ty] << std::endl;
         std::cout << " MyW= " << MyW[ty] << std::endl;
       }
-      rhits.push_back(TrackFP420(AyW[ty], ByW[ty], CyW[ty], MyW[ty], Ay[ty], By[ty], Cy[ty], My[ty]));
+      rhits.emplace_back(AyW[ty], ByW[ty], CyW[ty], MyW[ty], Ay[ty], By[ty], Cy[ty], My[ty]);
     }  //for ty
     //============
   }
@@ -1211,7 +1211,7 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
         std::cout << " CxW= " << CxW[tx] << std::endl;
         std::cout << " MxW= " << MxW[tx] << std::endl;
       }
-      rhits.push_back(TrackFP420(Ax[tx], Bx[tx], Cx[tx], Mx[tx], AxW[tx], BxW[tx], CxW[tx], MxW[tx]));
+      rhits.emplace_back(Ax[tx], Bx[tx], Cx[tx], Mx[tx], AxW[tx], BxW[tx], CxW[tx], MxW[tx]);
     }  //for tx
     //============
   }  //xytype

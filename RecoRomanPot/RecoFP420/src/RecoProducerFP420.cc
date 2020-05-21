@@ -115,7 +115,7 @@ std::vector<RecoFP420> RecoProducerFP420::reconstruct(
     std::cout << "   m_q2:    " << m_q2 << std::endl;
     std::cout << "   direction:    " << direction << std::endl;
   }
-  rhits.push_back(RecoFP420(m_e, m_x0, m_y0, m_tx0, m_ty0, m_q2, direction));
+  rhits.emplace_back(m_e, m_x0, m_y0, m_tx0, m_ty0, m_q2, direction);
   // ==============================
   ///////////////////////////////////////
   return rhits;

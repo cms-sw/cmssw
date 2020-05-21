@@ -25,8 +25,8 @@
 FWHLTTriggerTableView::FWHLTTriggerTableView(TEveWindowSlot* iParent)
     : FWTriggerTableView(iParent, FWViewType::kTableHLT), m_event(nullptr) {
   m_columns[0].title = "Filter Name";
-  m_columns.push_back(Column("Accept"));
-  m_columns.push_back(Column("Average Accept"));
+  m_columns.emplace_back("Accept");
+  m_columns.emplace_back("Average Accept");
   dataChanged();
 }
 
@@ -50,8 +50,8 @@ void FWHLTTriggerTableView::fillTable(fwlite::Event* event) {
     if (!boost::regex_search(triggerNames->triggerName(i), filter))
       continue;
     m_columns.at(0).values.push_back(triggerNames->triggerName(i));
-    m_columns.at(1).values.push_back(Form("%d", hTriggerResults->accept(i)));
-    m_columns.at(2).values.push_back(Form("%6.1f%%", m_averageAccept[triggerNames->triggerName(i)] * 100));
+    m_columns.at(1).values.emplace_back(Form("%d", hTriggerResults->accept(i)));
+    m_columns.at(2).values.emplace_back(Form("%6.1f%%", m_averageAccept[triggerNames->triggerName(i)] * 100));
   }
 }
 

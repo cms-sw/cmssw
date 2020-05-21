@@ -61,7 +61,7 @@ void FlavorHistoryEvent::cache() {
       if (verbose)
         cout << "Adding classification: pdgId = " << pdgId << ", flavorSource = " << flavorSource << ", dR = " << dR
              << endl;
-      classification.push_back(helpers::FlavorHistoryEventHelper(pdgId, flavorSource, dR));
+      classification.emplace_back(pdgId, flavorSource, dR);
     } else {
       if (verbose)
         cout << "No matched jet found, not adding to classification list" << endl;

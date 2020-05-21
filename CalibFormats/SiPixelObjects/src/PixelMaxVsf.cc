@@ -35,13 +35,13 @@ PixelMaxVsf::PixelMaxVsf(std::vector<std::vector<std::string> > &tableMat) : Pix
   MAXVSF				    NOT NULL NUMBER(38)
   */
 
-  colNames.push_back("CONFIG_KEY");
-  colNames.push_back("KEY_TYPE");
-  colNames.push_back("KEY_ALIAS");
-  colNames.push_back("VERSION");
-  colNames.push_back("KIND_OF_COND");
-  colNames.push_back("ROC_NAME");
-  colNames.push_back("MAXVSF");
+  colNames.emplace_back("CONFIG_KEY");
+  colNames.emplace_back("KEY_TYPE");
+  colNames.emplace_back("KEY_ALIAS");
+  colNames.emplace_back("VERSION");
+  colNames.emplace_back("KIND_OF_COND");
+  colNames.emplace_back("ROC_NAME");
+  colNames.emplace_back("MAXVSF");
 
   for (unsigned int c = 0; c < tableMat[0].size(); c++) {
     for (unsigned int n = 0; n < colNames.size(); n++) {

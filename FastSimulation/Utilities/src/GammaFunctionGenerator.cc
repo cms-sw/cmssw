@@ -10,7 +10,7 @@ GammaFunctionGenerator::GammaFunctionGenerator() {
     approxLimit.push_back(2 * ((double)i));
     myIncompleteGamma.a().setValue((double)i);
     integralToApproxLimit.push_back(myIncompleteGamma(approxLimit[i - 1]));
-    theGammas.push_back(GammaNumericalGenerator((double)i, 1., 0, approxLimit[i - 1] + 1.));
+    theGammas.emplace_back((double)i, 1., 0, approxLimit[i - 1] + 1.);
   }
   coreCoeff.push_back(0.);  // alpha=1 not used
   coreCoeff.push_back(1. / 8.24659e-01);

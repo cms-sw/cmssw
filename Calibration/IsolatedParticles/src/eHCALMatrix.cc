@@ -116,7 +116,7 @@ namespace spr {
           }
         }
         if (!found) {
-          dets.push_back(DetId(id1));
+          dets.emplace_back(id1);
           energies.push_back(energy);
         }
       }
@@ -178,7 +178,7 @@ namespace spr {
                   << eThr << std::endl;
 #endif
       if (energy > eThr && !hit.empty()) {
-        energyCell.push_back(std::pair<double, int>(energy, i + 1));
+        energyCell.emplace_back(energy, i + 1);
       }
     }
 #ifdef EDM_ML_DEBUG

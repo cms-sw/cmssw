@@ -157,10 +157,10 @@ void HIPTwoBodyDecayAnalyzer::bookAllBranches() {
   const int nTrackTypes = 4;
   std::vector<std::string> strTrackTypes;
   strTrackTypes.reserve(nTrackTypes);
-  strTrackTypes.push_back("alcareco");
-  strTrackTypes.push_back("refit1");
-  strTrackTypes.push_back("refit2");
-  strTrackTypes.push_back("final");
+  strTrackTypes.emplace_back("alcareco");
+  strTrackTypes.emplace_back("refit1");
+  strTrackTypes.emplace_back("refit2");
+  strTrackTypes.emplace_back("final");
   for (unsigned int it = 0; it < nTrackTypes; it++) {
     std::string& strTrackType = strTrackTypes[it];
     bookBranch(strTrackType + "_present", BranchType_short_t);

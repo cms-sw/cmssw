@@ -46,21 +46,21 @@ PixelTBMSettings::PixelTBMSettings(std::vector<std::vector<std::string> > &table
      N.B.: Here we should (MUST) get a single row referring to a particula module for a particula version.
   */
 
-  colNames.push_back("CONFIG_KEY");
-  colNames.push_back("KEY_TYPE");
-  colNames.push_back("KEY_ALIAS");
-  colNames.push_back("VERSION");
-  colNames.push_back("KIND_OF_COND");
-  colNames.push_back("TBM_NAME");
-  colNames.push_back("MODULE_NAME");
-  colNames.push_back("HUB_ADDRS");
-  colNames.push_back("TBM_MODE");
-  colNames.push_back("ANLG_INBIAS_ADDR");
-  colNames.push_back("ANLG_INBIAS_VAL");
-  colNames.push_back("ANLG_OUTBIAS_ADDR");
-  colNames.push_back("ANLG_OUTBIAS_VAL");
-  colNames.push_back("ANLG_OUTGAIN_ADDR");
-  colNames.push_back("ANLG_OUTGAIN_VAL");
+  colNames.emplace_back("CONFIG_KEY");
+  colNames.emplace_back("KEY_TYPE");
+  colNames.emplace_back("KEY_ALIAS");
+  colNames.emplace_back("VERSION");
+  colNames.emplace_back("KIND_OF_COND");
+  colNames.emplace_back("TBM_NAME");
+  colNames.emplace_back("MODULE_NAME");
+  colNames.emplace_back("HUB_ADDRS");
+  colNames.emplace_back("TBM_MODE");
+  colNames.emplace_back("ANLG_INBIAS_ADDR");
+  colNames.emplace_back("ANLG_INBIAS_VAL");
+  colNames.emplace_back("ANLG_OUTBIAS_ADDR");
+  colNames.emplace_back("ANLG_OUTBIAS_VAL");
+  colNames.emplace_back("ANLG_OUTGAIN_ADDR");
+  colNames.emplace_back("ANLG_OUTGAIN_VAL");
 
   for (unsigned int c = 0; c < ins.size(); c++) {
     for (unsigned int n = 0; n < colNames.size(); n++) {

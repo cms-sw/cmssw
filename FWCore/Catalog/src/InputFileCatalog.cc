@@ -49,11 +49,11 @@ namespace edm {
       fileLocators_.clear();
 
     //require the first file locator to success so obvious mistakes in data catalogs, typos for example, can be catched early. Note that tmp_dataCatalogs is not empty at this point. The protection is done inside the dataCatalogs() above
-    fileLocators_.push_back(std::make_unique<FileLocator>(tmp_dataCatalogs.front()));
+    fileLocators_.emplace_back(std::make_unique<FileLocator>(tmp_dataCatalogs.front()));
 
     for (auto it = tmp_dataCatalogs.begin() + 1; it != tmp_dataCatalogs.end(); ++it) {
       try {
-        fileLocators_.push_back(std::make_unique<FileLocator>(*it));
+        fileLocators_.emplace_back(std::make_unique<FileLocator>(*it));
       } catch (cms::Exception const& e) {
         continue;
       }
@@ -79,7 +79,7 @@ namespace edm {
         boost::trim(*lt);
         findFile(*lt, pfns, useLFNasPFNifLFNnotFound);
       }
-      fileCatalogItems_.push_back(FileCatalogItem(pfns, *lt));
+      fileCatalogItems_.emplace_back(pfns, *lt);
     }
   }
 

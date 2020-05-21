@@ -58,7 +58,7 @@ namespace {
     FsmwModeFinder3d f;
     vector<ModeFinder3d::PointAndDistance> input;
     for (vector<reco::TransientTrack>::const_iterator i = trks.begin(); i != trks.end(); ++i) {
-      input.push_back(ModeFinder3d::PointAndDistance(i->impactPointState().globalPosition(), 1.));
+      input.emplace_back(i->impactPointState().globalPosition(), 1.);
     }
     return f(input);
   }
@@ -67,7 +67,7 @@ namespace {
     FsmwModeFinder3d f;
     vector<ModeFinder3d::PointAndDistance> input;
     for (vector<reco::TransientTrack>::const_iterator i = trks.begin(); i != trks.end(); ++i) {
-      input.push_back(ModeFinder3d::PointAndDistance(toPoint(i->impactPointState().globalMomentum()), 1.));
+      input.emplace_back(toPoint(i->impactPointState().globalMomentum()), 1.);
     }
     GlobalPoint pt(f(input));
     pt /= pt.mag();
@@ -109,7 +109,7 @@ namespace {
         Measurement1D ms(s, 1.0);
         vector<const reco::TransientTrack*> trk;
         trk.push_back(&(*i));
-        pts.push_back(Cluster1D<reco::TransientTrack>(ms, trk, w));
+        pts.emplace_back(ms, trk, w);
       }
     }
     /*

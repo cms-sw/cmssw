@@ -168,7 +168,7 @@ vector<pair<float, DTRecHit1DPair> > DTClusterer::initHits(const DTSuperLayer* s
     LocalPoint posInLayer(lay->specificTopology().wirePosition(wid.wire()), 0., 0.);
     LocalPoint posInSL = sl->toLocal(lay->toGlobal(posInLayer));
     // put the pair into result
-    result.push_back(make_pair(posInSL.x(), *pair));
+    result.emplace_back(posInSL.x(), *pair);
   }
   // sorted by x
   sort(result.begin(), result.end(), sortClusterByX());

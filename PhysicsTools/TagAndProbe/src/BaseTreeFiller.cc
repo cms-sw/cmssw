@@ -143,26 +143,26 @@ void tnp::BaseTreeFiller::addBranches_(TTree *tree,
   //.. the ones that are strings
   std::vector<std::string> stringVars = variables.getParameterNamesForType<std::string>();
   for (std::vector<std::string>::const_iterator it = stringVars.begin(), ed = stringVars.end(); it != ed; ++it) {
-    vars_.push_back(tnp::ProbeVariable(branchNamePrefix + *it, variables.getParameter<std::string>(*it)));
+    vars_.emplace_back(branchNamePrefix + *it, variables.getParameter<std::string>(*it));
   }
   //.. the ones that are InputTags
   std::vector<std::string> inputTagVars = variables.getParameterNamesForType<edm::InputTag>();
   for (std::vector<std::string>::const_iterator it = inputTagVars.begin(), ed = inputTagVars.end(); it != ed; ++it) {
-    vars_.push_back(tnp::ProbeVariable(branchNamePrefix + *it,
-                                       iC.consumes<edm::ValueMap<float> >(variables.getParameter<edm::InputTag>(*it))));
+    vars_.emplace_back(branchNamePrefix + *it,
+                       iC.consumes<edm::ValueMap<float> >(variables.getParameter<edm::InputTag>(*it)));
   }
   // set up flags
   edm::ParameterSet flags = iConfig.getParameter<edm::ParameterSet>("flags");
   //.. the ones that are strings
   std::vector<std::string> stringFlags = flags.getParameterNamesForType<std::string>();
   for (std::vector<std::string>::const_iterator it = stringFlags.begin(), ed = stringFlags.end(); it != ed; ++it) {
-    flags_.push_back(tnp::ProbeFlag(branchNamePrefix + *it, flags.getParameter<std::string>(*it)));
+    flags_.emplace_back(branchNamePrefix + *it, flags.getParameter<std::string>(*it));
   }
   //.. the ones that are InputTags
   std::vector<std::string> inputTagFlags = flags.getParameterNamesForType<edm::InputTag>();
   for (std::vector<std::string>::const_iterator it = inputTagFlags.begin(), ed = inputTagFlags.end(); it != ed; ++it) {
-    flags_.push_back(tnp::ProbeFlag(branchNamePrefix + *it,
-                                    iC.consumes<edm::View<reco::Candidate> >(flags.getParameter<edm::InputTag>(*it))));
+    flags_.emplace_back(branchNamePrefix + *it,
+                        iC.consumes<edm::View<reco::Candidate> >(flags.getParameter<edm::InputTag>(*it)));
   }
 
   // then make all the variables in the trees

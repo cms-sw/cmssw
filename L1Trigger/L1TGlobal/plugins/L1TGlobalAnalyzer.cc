@@ -243,16 +243,16 @@ namespace l1t {
     types_.push_back(Jet);
     types_.push_back(Sum);
 
-    typeStr_.push_back("gmtmu");
-    typeStr_.push_back("dmxeg");
-    typeStr_.push_back("dmxtau");
-    typeStr_.push_back("dmxjet");
-    typeStr_.push_back("dmxsum");
-    typeStr_.push_back("mu");
-    typeStr_.push_back("eg");
-    typeStr_.push_back("tau");
-    typeStr_.push_back("jet");
-    typeStr_.push_back("sum");
+    typeStr_.emplace_back("gmtmu");
+    typeStr_.emplace_back("dmxeg");
+    typeStr_.emplace_back("dmxtau");
+    typeStr_.emplace_back("dmxjet");
+    typeStr_.emplace_back("dmxsum");
+    typeStr_.emplace_back("mu");
+    typeStr_.emplace_back("eg");
+    typeStr_.emplace_back("tau");
+    typeStr_.emplace_back("jet");
+    typeStr_.emplace_back("sum");
   }
 
   L1TGlobalAnalyzer::~L1TGlobalAnalyzer() {

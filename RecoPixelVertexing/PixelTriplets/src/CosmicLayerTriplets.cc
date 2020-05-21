@@ -20,12 +20,12 @@ vector<CosmicLayerTriplets::LayerPairAndLayers> CosmicLayerTriplets::layers() {
   if (_geometry == "STANDARD") {
     vector<const LayerWithHits*> third;
     third.push_back(lh3);
-    result.push_back(LayerPairAndLayers(SeedLayerPairs::LayerPair(lh1, lh2), third));
+    result.emplace_back(SeedLayerPairs::LayerPair(lh1, lh2), third);
   }
   if (_geometry == "TECPAIRS_TOBTRIPLETS") {
     vector<const LayerWithHits*> third;
     third.push_back(lh3);
-    result.push_back(LayerPairAndLayers(SeedLayerPairs::LayerPair(lh1, lh2), third));
+    result.emplace_back(SeedLayerPairs::LayerPair(lh1, lh2), third);
   }
   if (_geometry == "MTCC") {
     vector<const LayerWithHits*> third1;
@@ -37,13 +37,13 @@ vector<CosmicLayerTriplets::LayerPairAndLayers> CosmicLayerTriplets::layers() {
     third3.clear();
     third4.clear();
     third1.push_back(lh1);
-    result.push_back(LayerPairAndLayers(SeedLayerPairs::LayerPair(lh3, lh2), third1));
+    result.emplace_back(SeedLayerPairs::LayerPair(lh3, lh2), third1);
     third2.push_back(lh1);
-    result.push_back(LayerPairAndLayers(SeedLayerPairs::LayerPair(lh2, lh1), third2));
+    result.emplace_back(SeedLayerPairs::LayerPair(lh2, lh1), third2);
     third3.push_back(lh2);
-    result.push_back(LayerPairAndLayers(SeedLayerPairs::LayerPair(lh3, lh2), third3));
+    result.emplace_back(SeedLayerPairs::LayerPair(lh3, lh2), third3);
     third4.push_back(lh4);
-    result.push_back(LayerPairAndLayers(SeedLayerPairs::LayerPair(lh2, lh3), third4));
+    result.emplace_back(SeedLayerPairs::LayerPair(lh2, lh3), third4);
   }
   return result;
 }

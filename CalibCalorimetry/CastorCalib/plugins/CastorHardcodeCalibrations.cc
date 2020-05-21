@@ -46,10 +46,10 @@ namespace {
         for (int module = 1; module < 3; module++) {
           cell = HcalCastorDetId(section, true, sector, module);
           if (castortopology.valid(cell))
-            result.push_back(cell);
+            result.emplace_back(cell);
           cell = HcalCastorDetId(section, false, sector, module);
           if (castortopology.valid(cell))
-            result.push_back(cell);
+            result.emplace_back(cell);
         }
       }
 
@@ -58,10 +58,10 @@ namespace {
         for (int module = 3; module < 15; module++) {
           cell = HcalCastorDetId(section, true, sector, module);
           if (castortopology.valid(cell))
-            result.push_back(cell);
+            result.emplace_back(cell);
           cell = HcalCastorDetId(section, false, sector, module);
           if (castortopology.valid(cell))
-            result.push_back(cell);
+            result.emplace_back(cell);
         }
       }
     }

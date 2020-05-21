@@ -198,7 +198,7 @@ namespace edm {
             signal = gentags[input];
           else
             signal = simtags[input];
-          inputs.push_back(InputTag(signal, tag.instance()));
+          inputs.emplace_back(signal, tag.instance());
         }
 
         std::string label = tag.label() + tag.instance();

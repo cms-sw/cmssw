@@ -14,8 +14,8 @@ void LASEndcapAlignmentParameterSet::Init(void) {
   // but better split it in 2 parts
 
   for (unsigned int disk = 0; disk < 9; ++disk) {  // nine times; once for each disk
-    tecPlusDiskParameters.push_back(std::vector<std::pair<double, double> >(3));
-    tecMinusDiskParameters.push_back(std::vector<std::pair<double, double> >(3));
+    tecPlusDiskParameters.emplace_back(3);
+    tecMinusDiskParameters.emplace_back(3);
 
     // compiler won't let me init the pairs within push_back call..
     for (unsigned int par = 0; par < 3; ++par) {
@@ -26,8 +26,8 @@ void LASEndcapAlignmentParameterSet::Init(void) {
 
   // once for each parameter
   for (unsigned int par = 0; par < 6; ++par) {
-    tecPlusGlobalParameters.push_back(std::pair<double, double>(0., 0.));
-    tecMinusGlobalParameters.push_back(std::pair<double, double>(0., 0.));
+    tecPlusGlobalParameters.emplace_back(0., 0.);
+    tecMinusGlobalParameters.emplace_back(0., 0.);
   }
 
   // beam parameters

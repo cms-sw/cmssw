@@ -85,7 +85,7 @@ void RPCLBPacker::getRPCLBRecords(RPCInverseLBLinkMap const& lb_map,
           last_bcn = (3564 + bcn + min_bx + idx) % 3564;
           last_lbrecord.setBCN(last_bcn);
           last_lbrecord.setBC0(last_bcn == 0);
-          bx_lbrecord.push_back(std::pair<int, RPCLBRecord>(min_bx + idx, last_lbrecord));
+          bx_lbrecord.emplace_back(min_bx + idx, last_lbrecord);
           ++idx;
         } else {
           bx_lbrecord.back().second.setEOD(true);

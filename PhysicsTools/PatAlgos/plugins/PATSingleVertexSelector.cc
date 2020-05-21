@@ -81,7 +81,7 @@ bool PATSingleVertexSelector::filter(edm::Event &iEvent, const edm::EventSetup &
     for (vector<reco::Vertex>::const_iterator itv = vertices->begin(), edv = vertices->end(); itv != edv; ++itv) {
       if (!(vtxPreselection_(*itv)))
         continue;
-      selVtxs_.push_back(reco::VertexRef(vertices, std::distance(vertices->begin(), itv)));
+      selVtxs_.emplace_back(vertices, std::distance(vertices->begin(), itv));
     }
   }
   // -- candidate data --
@@ -97,8 +97,7 @@ bool PATSingleVertexSelector::filter(edm::Event &iEvent, const edm::EventSetup &
            ++itc) {
         if (!(candPreselection_(*itc)))
           continue;
-        cands.push_back(pair<double, reco::CandidatePtr>(
-            -itc->pt(), reco::CandidatePtr(theseCands, std::distance(theseCands->begin(), itc))));
+        cands.emplace_back(-itc->pt(), reco::CandidatePtr(theseCands, std::distance(theseCands->begin(), itc)));
       }
     }
     if (!cands.empty())

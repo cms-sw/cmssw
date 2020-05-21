@@ -178,7 +178,7 @@ std::vector<VolumeSide> volumeHandle::sides() const {
       continue;
 
     ReferenceCountingPointer<Surface> s = const_cast<Surface *>(surfaces[i].get());
-    result.push_back(VolumeSide(s, GlobalFace(i), surfaces[i]->side(center_, 0.3)));
+    result.emplace_back(s, GlobalFace(i), surfaces[i]->side(center_, 0.3));
   }
   return result;
 }

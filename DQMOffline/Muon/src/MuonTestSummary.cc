@@ -728,8 +728,8 @@ void MuonTestSummary::doResidualsTests(DQMStore::IGetter &igetter, string type, 
 
 void MuonTestSummary::doMuonIDTests(DQMStore::IGetter &igetter) {
   vector<string> muType;
-  muType.push_back("GlobalMuons");
-  muType.push_back("TrackerMuons");
+  muType.emplace_back("GlobalMuons");
+  muType.emplace_back("TrackerMuons");
 
   for (int i = 0; i <= 1; i++) {
     // num matches test
@@ -826,24 +826,24 @@ void MuonTestSummary::doMuonIDTests(DQMStore::IGetter &igetter) {
 
     // residuals test
     vector<string> DTXresHistos, DTYresHistos, CSCXresHistos, CSCYresHistos;
-    DTXresHistos.push_back("hDT1Pullx");
-    DTXresHistos.push_back("hDT2Pullx");
-    DTXresHistos.push_back("hDT3Pullx");
-    DTXresHistos.push_back("hDT4Pullx");
+    DTXresHistos.emplace_back("hDT1Pullx");
+    DTXresHistos.emplace_back("hDT2Pullx");
+    DTXresHistos.emplace_back("hDT3Pullx");
+    DTXresHistos.emplace_back("hDT4Pullx");
 
-    DTYresHistos.push_back("hDT1Pully");
-    DTYresHistos.push_back("hDT2Pully");
-    DTYresHistos.push_back("hDT3Pully");
+    DTYresHistos.emplace_back("hDT1Pully");
+    DTYresHistos.emplace_back("hDT2Pully");
+    DTYresHistos.emplace_back("hDT3Pully");
 
-    CSCXresHistos.push_back("hCSC1Pullx");
-    CSCXresHistos.push_back("hCSC2Pullx");
-    CSCXresHistos.push_back("hCSC3Pullx");
-    CSCXresHistos.push_back("hCSC4Pullx");
+    CSCXresHistos.emplace_back("hCSC1Pullx");
+    CSCXresHistos.emplace_back("hCSC2Pullx");
+    CSCXresHistos.emplace_back("hCSC3Pullx");
+    CSCXresHistos.emplace_back("hCSC4Pullx");
 
-    CSCYresHistos.push_back("hCSC1Pully");
-    CSCYresHistos.push_back("hCSC2Pully");
-    CSCYresHistos.push_back("hCSC3Pully");
-    CSCYresHistos.push_back("hCSC4Pully");
+    CSCYresHistos.emplace_back("hCSC1Pully");
+    CSCYresHistos.emplace_back("hCSC2Pully");
+    CSCYresHistos.emplace_back("hCSC3Pully");
+    CSCYresHistos.emplace_back("hCSC4Pully");
 
     int numPlot_dtX, numPlot_dtY, numPlot_cscX, numPlot_cscY;
     double dtSigmaX, dtSigmaY, cscSigmaX, cscSigmaY;

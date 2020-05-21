@@ -199,9 +199,9 @@ void PiZeroAnalyzer::makePizero(const edm::EventSetup& es,
         //      cout<<" Used det "<< EBdet<<endl;
         std::map<DetId, EcalRecHit>::iterator aHit;
         aHit = recHitsEB_map.find(*det);
-        usedXtals.push_back(*det);
+        usedXtals.emplace_back(*det);
         RecHitsInWindow.push_back(aHit->second);
-        clus_used.push_back(std::pair<DetId, float>(*det, 1.));
+        clus_used.emplace_back(*det, 1.);
         simple_energy = simple_energy + aHit->second.energy();
       }
     }

@@ -334,9 +334,9 @@ void VirtualJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       }
       for (size_t i = 0; i < pfinputsHandleAsFwdPtr->size(); ++i) {
         if ((*pfinputsHandleAsFwdPtr)[i].ptr().isAvailable()) {
-          inputs_.push_back((*pfinputsHandleAsFwdPtr)[i].ptr());
+          inputs_.emplace_back((*pfinputsHandleAsFwdPtr)[i].ptr());
         } else if ((*pfinputsHandleAsFwdPtr)[i].backPtr().isAvailable()) {
-          inputs_.push_back((*pfinputsHandleAsFwdPtr)[i].backPtr());
+          inputs_.emplace_back((*pfinputsHandleAsFwdPtr)[i].backPtr());
         }
       }
     } else if (isPFFwdPtr) {
@@ -346,9 +346,9 @@ void VirtualJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       }
       for (size_t i = 0; i < packedinputsHandleAsFwdPtr->size(); ++i) {
         if ((*packedinputsHandleAsFwdPtr)[i].ptr().isAvailable()) {
-          inputs_.push_back((*packedinputsHandleAsFwdPtr)[i].ptr());
+          inputs_.emplace_back((*packedinputsHandleAsFwdPtr)[i].ptr());
         } else if ((*packedinputsHandleAsFwdPtr)[i].backPtr().isAvailable()) {
-          inputs_.push_back((*packedinputsHandleAsFwdPtr)[i].backPtr());
+          inputs_.emplace_back((*packedinputsHandleAsFwdPtr)[i].backPtr());
         }
       }
     } else if (isGen) {
@@ -358,9 +358,9 @@ void VirtualJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       }
       for (size_t i = 0; i < geninputsHandleAsFwdPtr->size(); ++i) {
         if ((*geninputsHandleAsFwdPtr)[i].ptr().isAvailable()) {
-          inputs_.push_back((*geninputsHandleAsFwdPtr)[i].ptr());
+          inputs_.emplace_back((*geninputsHandleAsFwdPtr)[i].ptr());
         } else if ((*geninputsHandleAsFwdPtr)[i].backPtr().isAvailable()) {
-          inputs_.push_back((*geninputsHandleAsFwdPtr)[i].backPtr());
+          inputs_.emplace_back((*geninputsHandleAsFwdPtr)[i].backPtr());
         }
       }
     } else if (isGenFwdPtr) {
@@ -370,9 +370,9 @@ void VirtualJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       }
       for (size_t i = 0; i < packedgeninputsHandleAsFwdPtr->size(); ++i) {
         if ((*packedgeninputsHandleAsFwdPtr)[i].ptr().isAvailable()) {
-          inputs_.push_back((*packedgeninputsHandleAsFwdPtr)[i].ptr());
+          inputs_.emplace_back((*packedgeninputsHandleAsFwdPtr)[i].ptr());
         } else if ((*packedgeninputsHandleAsFwdPtr)[i].backPtr().isAvailable()) {
-          inputs_.push_back((*packedgeninputsHandleAsFwdPtr)[i].backPtr());
+          inputs_.emplace_back((*packedgeninputsHandleAsFwdPtr)[i].backPtr());
         }
       }
     } else {
@@ -790,7 +790,7 @@ void VirtualJetProducer::writeCompoundJets(edm::Event& iEvent, edm::EventSetup c
     fastjet::PseudoJet const& localJet = *it;
     unsigned int jetIndex = it - iBegin;
     // Get the 4-vector for the hard jet
-    p4_hardJets.push_back(math::XYZTLorentzVector(localJet.px(), localJet.py(), localJet.pz(), localJet.e()));
+    p4_hardJets.emplace_back(localJet.px(), localJet.py(), localJet.pz(), localJet.e());
     double localJetArea = 0.0;
     if (doAreaFastjet_ && localJet.has_area()) {
       localJetArea = localJet.area();
@@ -936,7 +936,7 @@ void VirtualJetProducer::writeJetsWithConstituents(edm::Event& iEvent, edm::Even
     fastjet::PseudoJet const& localJet = *it;
     unsigned int jetIndex = it - iBegin;
     // Get the 4-vector for the hard jet
-    p4_Jets.push_back(math::XYZTLorentzVector(localJet.px(), localJet.py(), localJet.pz(), localJet.e()));
+    p4_Jets.emplace_back(localJet.px(), localJet.py(), localJet.pz(), localJet.e());
     double localJetArea = 0.0;
     if (doAreaFastjet_ && localJet.has_area()) {
       localJetArea = localJet.area();

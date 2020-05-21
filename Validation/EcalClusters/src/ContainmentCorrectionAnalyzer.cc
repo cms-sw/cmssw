@@ -451,23 +451,23 @@ std::vector<EcalSimPhotonMCTruth> ContainmentCorrectionAnalyzer::findMcTruth(std
         }
         iConv++;
 
-        result.push_back(EcalSimPhotonMCTruth(isAconversion,
-                                              (*iPhoTk)->momentum(),
-                                              vtxPosition.pt(),
-                                              vtxPosition.z(),
-                                              vtxPosition,
-                                              primVtx.position(),
-                                              trkFromConversion));
+        result.emplace_back(isAconversion,
+                            (*iPhoTk)->momentum(),
+                            vtxPosition.pt(),
+                            vtxPosition.z(),
+                            vtxPosition,
+                            primVtx.position(),
+                            trkFromConversion);
       } else {
         isAconversion = 0;
         math::XYZTLorentzVectorD vtxPosition(0., 0., 0., 0.);
-        result.push_back(EcalSimPhotonMCTruth(isAconversion,
-                                              (*iPhoTk)->momentum(),
-                                              vtxPosition.pt(),
-                                              vtxPosition.z(),
-                                              vtxPosition,
-                                              primVtx.position(),
-                                              trkFromConversion));
+        result.emplace_back(isAconversion,
+                            (*iPhoTk)->momentum(),
+                            vtxPosition.pt(),
+                            vtxPosition.z(),
+                            vtxPosition,
+                            primVtx.position(),
+                            trkFromConversion);
       }
       iPho++;
     }  // loop over the primary photons

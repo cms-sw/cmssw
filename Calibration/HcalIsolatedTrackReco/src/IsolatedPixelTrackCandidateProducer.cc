@@ -112,7 +112,7 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
     edm::Handle<reco::TrackCollection> iPixCol;
     theEvent.getByToken(toks_pix_[iPix], iPixCol);
     for (reco::TrackCollection::const_iterator pit = iPixCol->begin(); pit != iPixCol->end(); pit++) {
-      pixelTrackRefs.push_back(reco::TrackRef(iPixCol, pit - iPixCol->begin()));
+      pixelTrackRefs.emplace_back(iPixCol, pit - iPixCol->begin());
     }
   }
 

@@ -108,7 +108,7 @@ void HLTEgammaDoubleLegCombFilter::matchCands(const std::vector<math::XYZPoint>&
       if (reco::deltaR2(firstLegP3s[firstLegNr], secondLegP3s[secondLegNr]) < maxMatchDR_ * maxMatchDR_)
         matchedNr = secondLegNr;
     }
-    matchedCands.push_back(std::make_pair(firstLegNr, matchedNr));
+    matchedCands.emplace_back(firstLegNr, matchedNr);
     if (matchedNr >= 0)
       matched2ndLegs.push_back(static_cast<size_t>(matchedNr));
   }

@@ -405,7 +405,7 @@ void QualityTester::configureTests(std::string const& file) {
   for (auto& kv : qtestmap) {
     QCriterion* bareptr = kv.second.qtest.get();
     for (auto& p : kv.second.pathpatterns) {
-      this->qtestpatterns.push_back(std::make_pair(p, bareptr));
+      this->qtestpatterns.emplace_back(p, bareptr);
     }
     this->qtestobjects.push_back(std::move(kv.second.qtest));
   }

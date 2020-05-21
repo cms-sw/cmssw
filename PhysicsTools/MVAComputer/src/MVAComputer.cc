@@ -76,7 +76,7 @@ namespace PhysicsTools {
                                                     "configuration"
                                                  << std::endl;
 
-      varProcessors.push_back(Processor(processor, nOutput));
+      varProcessors.emplace_back(processor, nOutput);
     }
 
     for (VarProcessor::ConfigCtx::iterator iter = config.begin() + nVars; iter != config.end(); iter++) {

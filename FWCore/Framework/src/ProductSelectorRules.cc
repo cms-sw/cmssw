@@ -223,7 +223,7 @@ namespace edm {
     }
     rules_.reserve(commands.size());
     for (std::vector<std::string>::const_iterator it = commands.begin(), end = commands.end(); it != end; ++it) {
-      rules_.push_back(Rule(*it, parameterName, parameterOwnerName));
+      rules_.emplace_back(*it, parameterName, parameterOwnerName);
     }
     keepAll_ = commands.size() == 1 && commands[0] == defaultCommands[0];
   }

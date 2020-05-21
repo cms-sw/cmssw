@@ -49,7 +49,7 @@ namespace edm {
 
       numberOfConcurrentIOVs_.readConfigurationParameters(eventSetupPset);
 
-      providers_.push_back(returnValue);
+      providers_.emplace_back(returnValue);
       return returnValue;
     }
 
@@ -432,7 +432,7 @@ namespace edm {
       }
 
       for (auto const& key : keys) {
-        eventSetupRecordIOVQueues_.push_back(
+        eventSetupRecordIOVQueues_.emplace_back(
             std::make_unique<EventSetupRecordIOVQueue>(numberOfConcurrentIOVs_.numberOfConcurrentIOVs(key)));
         EventSetupRecordIOVQueue& iovQueue = *eventSetupRecordIOVQueues_.back();
         for (auto& provider : providers_) {

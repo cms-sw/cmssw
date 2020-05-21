@@ -91,13 +91,13 @@ L1SubsystemKeysOnlineProd::ReturnType L1SubsystemKeysOnlineProd::produce(const L
 
     // SELECT CSCTF_KEY, DTTF_KEY, RPC_KEY, GMT_KEY, RCT_KEY, GCT_KEY, GT_KEY FROM TRIGGERSUP_CONF WHERE TRIGGERSUP_CONF.TS_KEY = m_tscKey
     std::vector<std::string> queryStrings;
-    queryStrings.push_back("CSCTF_KEY");
-    queryStrings.push_back("DTTF_KEY");
-    queryStrings.push_back("RPC_KEY");
-    queryStrings.push_back("GMT_KEY");
-    queryStrings.push_back("RCT_KEY");
-    queryStrings.push_back("GCT_KEY");
-    queryStrings.push_back("GT_KEY");
+    queryStrings.emplace_back("CSCTF_KEY");
+    queryStrings.emplace_back("DTTF_KEY");
+    queryStrings.emplace_back("RPC_KEY");
+    queryStrings.emplace_back("GMT_KEY");
+    queryStrings.emplace_back("RCT_KEY");
+    queryStrings.emplace_back("GCT_KEY");
+    queryStrings.emplace_back("GT_KEY");
     //	  queryStrings.push_back( "TSP0_KEY" ) ;
 
     l1t::OMDSReader::QueryResults subkeyResults = m_omdsReader.basicQuery(queryStrings,

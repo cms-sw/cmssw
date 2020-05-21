@@ -13,17 +13,17 @@ void LASBarrelAlignmentParameterSet::Init(void) {
   // could use a single vector<vector<vector<pair<> > > >
   // but better split it in 6 parts
   for (int i = 0; i < 2; ++i) {  // twice; once for each endface
-    tecPlusParameters.push_back(std::vector<std::pair<double, double> >(3));
-    tecMinusParameters.push_back(std::vector<std::pair<double, double> >(3));
-    tibPlusParameters.push_back(std::vector<std::pair<double, double> >(3));
-    tibMinusParameters.push_back(std::vector<std::pair<double, double> >(3));
-    tobPlusParameters.push_back(std::vector<std::pair<double, double> >(3));
-    tobMinusParameters.push_back(std::vector<std::pair<double, double> >(3));
+    tecPlusParameters.emplace_back(3);
+    tecMinusParameters.emplace_back(3);
+    tibPlusParameters.emplace_back(3);
+    tibMinusParameters.emplace_back(3);
+    tobPlusParameters.emplace_back(3);
+    tobMinusParameters.emplace_back(3);
   }
 
   // the beam parameters (8 beams * 2 pars) are stored in one single container
   for (int i = 0; i < 8; ++i) {
-    beamParameters.push_back(std::vector<std::pair<double, double> >(2));
+    beamParameters.emplace_back(2);
   }
 }
 

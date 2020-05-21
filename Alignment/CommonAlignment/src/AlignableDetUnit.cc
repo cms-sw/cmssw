@@ -197,7 +197,7 @@ AlignmentErrorsExtended* AlignableDetUnit::alignmentErrors() const {
 //__________________________________________________________________________________________________
 int AlignableDetUnit::surfaceDeformationIdPairs(std::vector<std::pair<int, SurfaceDeformation*> >& result) const {
   if (theSurfaceDeformation) {
-    result.push_back(std::pair<int, SurfaceDeformation*>(this->geomDetId().rawId(), theSurfaceDeformation));
+    result.emplace_back(this->geomDetId().rawId(), theSurfaceDeformation);
     return 1;
   }
 

@@ -67,23 +67,23 @@ namespace fireworks {
 
     std::vector<State> refStates;
     TEveVector trackMomentum(track.px(), track.py(), track.pz());
-    refStates.push_back(State(TEveVector(track.vx(), track.vy(), track.vz()), trackMomentum));
+    refStates.emplace_back(TEveVector(track.vx(), track.vy(), track.vz()), trackMomentum);
     if (track.extra().isAvailable()) {
       if (track.innerOk()) {
         const reco::TrackBase::Point& v = track.innerPosition();
         const reco::TrackBase::Vector& p = track.innerMomentum();
-        refStates.push_back(State(TEveVector(v.x(), v.y(), v.z()), TEveVector(p.x(), p.y(), p.z())));
+        refStates.emplace_back(TEveVector(v.x(), v.y(), v.z()), TEveVector(p.x(), p.y(), p.z()));
       }
       if (track.outerOk()) {
         const reco::TrackBase::Point& v = track.outerPosition();
         const reco::TrackBase::Vector& p = track.outerMomentum();
-        refStates.push_back(State(TEveVector(v.x(), v.y(), v.z()), TEveVector(p.x(), p.y(), p.z())));
+        refStates.emplace_back(TEveVector(v.x(), v.y(), v.z()), TEveVector(p.x(), p.y(), p.z()));
       }
     }
     for (std::vector<TEveVector>::const_iterator point = extraRefPoints.begin(), pointEnd = extraRefPoints.end();
          point != pointEnd;
          ++point)
-      refStates.push_back(State(*point));
+      refStates.emplace_back(*point);
     if (track.pt() > 1)
       std::sort(refStates.begin(), refStates.end(), StateOrdering(trackMomentum));
 

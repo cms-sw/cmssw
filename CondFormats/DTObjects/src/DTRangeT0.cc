@@ -111,7 +111,7 @@ int DTRangeT0::set(int wheelId, int stationId, int sectorId, int slId, int t0min
     data.t0min = t0min;
     data.t0max = t0max;
     ientry = dataList.size();
-    dataList.push_back(std::pair<DTRangeT0Id, DTRangeT0Data>(key, data));
+    dataList.emplace_back(key, data);
     dBuf->insert(chanKey.begin(), chanKey.end(), ientry);
     return 0;
   }

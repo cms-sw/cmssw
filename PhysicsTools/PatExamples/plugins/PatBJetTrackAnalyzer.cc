@@ -281,7 +281,7 @@ void PatBJetTrackAnalyzer::analyze(const edm::Event &event, const edm::EventSetu
       if (sign < 0)
         ipValue = -ipValue;
 
-      ipValErr.push_back(Measurement1D(ipValue, ipError));
+      ipValErr.emplace_back(ipValue, ipError);
     }
 
     // now order all tracks by significance (highest first)

@@ -29,12 +29,12 @@ AlcaBeamMonitorClient::AlcaBeamMonitorClient(const ParameterSet& ps)
   if (!monitorName_.empty())
     monitorName_ = monitorName_ + "/";
 
-  varNamesV_.push_back("x");
-  varNamesV_.push_back("y");
-  varNamesV_.push_back("z");
-  varNamesV_.push_back("sigmaX");
-  varNamesV_.push_back("sigmaY");
-  varNamesV_.push_back("sigmaZ");
+  varNamesV_.emplace_back("x");
+  varNamesV_.emplace_back("y");
+  varNamesV_.emplace_back("z");
+  varNamesV_.emplace_back("sigmaX");
+  varNamesV_.emplace_back("sigmaY");
+  varNamesV_.emplace_back("sigmaZ");
 
   histoByCategoryNames_.insert(pair<string, string>("lumi", "Lumibased BeamSpotFit"));
   histoByCategoryNames_.insert(pair<string, string>("lumi", "Lumibased PrimaryVertex"));

@@ -38,12 +38,11 @@ BackgroundHandler::BackgroundHandler(const std::vector<int>& identifiers,
     double mass = ResMass[i];
     double lowerLimit = mass - massWindowHalfWidth[i];
     double upperLimit = mass + massWindowHalfWidth[i];
-    resonanceWindow_.push_back(
-        MassWindow(mass,
-                   lowerLimit,
-                   upperLimit,
-                   std::vector<unsigned int>(1, i),
-                   backgroundFunctionService(identifiers[resToReg_[i]], lowerLimit, upperLimit)));
+    resonanceWindow_.emplace_back(mass,
+                                  lowerLimit,
+                                  upperLimit,
+                                  std::vector<unsigned int>(1, i),
+                                  backgroundFunctionService(identifiers[resToReg_[i]], lowerLimit, upperLimit));
   }
 
   // Build the background windows
@@ -56,12 +55,12 @@ BackgroundHandler::BackgroundHandler(const std::vector<int>& identifiers,
 
   // Define which resonance is in which background window
   std::vector<std::vector<unsigned int> > indexes;
-  indexes.push_back(std::vector<unsigned int>(1, 0));
-  indexes.push_back(std::vector<unsigned int>());
+  indexes.emplace_back(1, 0);
+  indexes.emplace_back();
   for (int i = 1; i <= 3; ++i) {
     indexes[1].push_back(i);
   }
-  indexes.push_back(std::vector<unsigned int>());
+  indexes.emplace_back();
   for (int i = 4; i <= 5; ++i) {
     indexes[2].push_back(i);
   }
@@ -73,12 +72,12 @@ BackgroundHandler::BackgroundHandler(const std::vector<int>& identifiers,
     //     double upperLimit = resMassForRegion[i] + massWindowHalfWidth[regToResHW_[i]]*rightWindowFactors[i];
     //     backgroundWindow_.push_back( MassWindow( resMassForRegion[i], lowerLimit, upperLimit, index,
     //                                              backgroundFunctionService(identifiers[i], lowerLimit, upperLimit ) ) );
-    backgroundWindow_.push_back(
-        MassWindow(resMassForRegion[i],
-                   leftWindowBorders[i],
-                   rightWindowBorders[i],
-                   index,
-                   backgroundFunctionService(identifiers[i], leftWindowBorders[i], rightWindowBorders[i])));
+    backgroundWindow_.emplace_back(
+        resMassForRegion[i],
+        leftWindowBorders[i],
+        rightWindowBorders[i],
+        index,
+        backgroundFunctionService(identifiers[i], leftWindowBorders[i], rightWindowBorders[i]));
     ++i;
   }
   // Initialize the parNums to be used in the shifts of parval

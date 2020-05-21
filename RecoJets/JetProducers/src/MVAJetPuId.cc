@@ -67,22 +67,22 @@ void MVAJetPuId::setup() {
   initVariables();
 
   tmvaVariables_.clear();
-  tmvaVariables_.push_back("rho");
-  tmvaVariables_.push_back("nParticles");
-  tmvaVariables_.push_back("nCharged");
-  tmvaVariables_.push_back("majW");
-  tmvaVariables_.push_back("minW");
-  tmvaVariables_.push_back("frac01");
-  tmvaVariables_.push_back("frac02");
-  tmvaVariables_.push_back("frac03");
-  tmvaVariables_.push_back("frac04");
-  tmvaVariables_.push_back("ptD");
-  tmvaVariables_.push_back("beta");
-  tmvaVariables_.push_back("betaStar");
-  tmvaVariables_.push_back("dR2Mean");
-  tmvaVariables_.push_back("pull");
-  tmvaVariables_.push_back("jetR");
-  tmvaVariables_.push_back("jetRchg");
+  tmvaVariables_.emplace_back("rho");
+  tmvaVariables_.emplace_back("nParticles");
+  tmvaVariables_.emplace_back("nCharged");
+  tmvaVariables_.emplace_back("majW");
+  tmvaVariables_.emplace_back("minW");
+  tmvaVariables_.emplace_back("frac01");
+  tmvaVariables_.emplace_back("frac02");
+  tmvaVariables_.emplace_back("frac03");
+  tmvaVariables_.emplace_back("frac04");
+  tmvaVariables_.emplace_back("ptD");
+  tmvaVariables_.emplace_back("beta");
+  tmvaVariables_.emplace_back("betaStar");
+  tmvaVariables_.emplace_back("dR2Mean");
+  tmvaVariables_.emplace_back("pull");
+  tmvaVariables_.emplace_back("jetR");
+  tmvaVariables_.emplace_back("jetRchg");
 
   tmvaNames_["rho"] = "rho";
   tmvaNames_["nParticles"] = "nParticles";

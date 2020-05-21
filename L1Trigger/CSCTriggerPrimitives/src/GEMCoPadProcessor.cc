@@ -67,7 +67,7 @@ std::vector<GEMCoPadDigi> GEMCoPadProcessor::run(const GEMPadDigiCollection* in_
             continue;
 
           // make a new coincidence pad digi
-          gemCoPadV.push_back(GEMCoPadDigi(id.roll(), *p, *co_p));
+          gemCoPadV.emplace_back(id.roll(), *p, *co_p);
         }
       }
     }

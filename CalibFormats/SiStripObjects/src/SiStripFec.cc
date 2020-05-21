@@ -17,7 +17,7 @@ void SiStripFec::addDevices(const FedChannelConnection &conn) {
     iring++;
   }
   if (iring == rings_.end()) {
-    rings_.push_back(SiStripRing(conn));
+    rings_.emplace_back(conn);
   } else {
     iring->addDevices(conn);
   }

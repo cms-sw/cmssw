@@ -58,12 +58,12 @@ void SiStripDaqInfo::bookStatus(DQMStore& dqm_store) {
     dqm_store.setCurrentFolder("SiStrip/EventInfo/DAQContents");
 
   std::vector<std::string> det_types;
-  det_types.push_back("TIB");
-  det_types.push_back("TOB");
-  det_types.push_back("TIDF");
-  det_types.push_back("TIDB");
-  det_types.push_back("TECF");
-  det_types.push_back("TECB");
+  det_types.emplace_back("TIB");
+  det_types.emplace_back("TOB");
+  det_types.emplace_back("TIDF");
+  det_types.emplace_back("TIDB");
+  det_types.emplace_back("TECF");
+  det_types.emplace_back("TECB");
 
   for (auto const& det : det_types) {
     std::string const me_name{"SiStrip_" + det};

@@ -347,11 +347,11 @@ bool L1GtVhdlTemplateFile::split(const std::string &param, std::vector<std::stri
 void L1GtVhdlTemplateFile::getConditionsFromAlgo(std::string condString, std::vector<std::string> &result) const {
   std::vector<std::string> operators;
 
-  operators.push_back("AND");
-  operators.push_back("OR");
-  operators.push_back("NOT");
-  operators.push_back("(");
-  operators.push_back(")");
+  operators.emplace_back("AND");
+  operators.emplace_back("OR");
+  operators.emplace_back("NOT");
+  operators.emplace_back("(");
+  operators.emplace_back(")");
 
   for (unsigned int i = 0; i < operators.size(); i++) {
     while (findAndReplaceString(condString, operators.at(i), ""))

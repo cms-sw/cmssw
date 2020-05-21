@@ -76,7 +76,7 @@ void TauJetCorrFactorsProducer::produce(edm::Event& evt, const edm::EventSetup& 
     // the string corresponds to the label of the correction level, the float to the tau-jet energy correction factor.
     // The first correction level is predefined with label 'Uncorrected'. The correction factor is 1.
     std::vector<TauJetCorrFactors::CorrectionFactor> jec;
-    jec.push_back(std::make_pair(std::string("Uncorrected"), 1.0));
+    jec.emplace_back(std::string("Uncorrected"), 1.0);
 
     if (levels_.empty())
       throw cms::Exception("No JECFactors")
@@ -122,7 +122,7 @@ void TauJetCorrFactorsProducer::produce(edm::Event& evt, const edm::EventSetup& 
       //   'Uncorrected' : 1 ;
       //   'L2Relative'  : x ;
       //   'L3Absolute'  : x ;
-      jec.push_back(std::make_pair(corrLevel.substr(0, corrLevel.find("_")), jecFactor));
+      jec.emplace_back(corrLevel.substr(0, corrLevel.find("_")), jecFactor);
     }
 
     // create the actual object with the scale factors we want the valuemap to refer to

@@ -228,7 +228,7 @@ unsigned int SiStripBackplaneCalibration::derivatives(std::vector<ValuesIndexPai
         //                     << std::endl;
         //         }
         const Values derivs(xDerivative, 0.);  // yDerivative = 0.
-        outDerivInds.push_back(ValuesIndexPair(derivs, index));
+        outDerivInds.emplace_back(derivs, index);
       }
     } else {
       edm::LogWarning("Alignment") << "@SUB=SiStripBackplaneCalibration::derivatives1"

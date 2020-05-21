@@ -100,7 +100,7 @@ namespace PhysicsTools {
 
       inline void clear() { data_.clear(); }
 
-      inline void add(AtomicId id, double value) { data_.push_back(Value(id, value)); }
+      inline void add(AtomicId id, double value) { data_.emplace_back(id, value); }
 
       inline void add(const Value &value) { data_.push_back(value); }
 

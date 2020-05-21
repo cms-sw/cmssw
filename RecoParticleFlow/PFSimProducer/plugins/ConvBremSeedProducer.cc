@@ -322,7 +322,7 @@ void ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
                 PTrajectoryStateOnDet const& PTraj =
                     trajectoryStateTransform::persistentState(updatedState, tripl[i][2]);
                 //		output->push_back(Trajectoryseed(PTraj,loc_hits,alongMomentum));
-                unclean.push_back(make_pair(TrajectorySeed(PTraj, loc_hits, alongMomentum), make_pair(gv_corr, ch)));
+                unclean.emplace_back(TrajectorySeed(PTraj, loc_hits, alongMomentum), make_pair(gv_corr, ch));
               }
               //    }
             }

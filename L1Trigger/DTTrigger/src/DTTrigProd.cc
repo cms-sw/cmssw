@@ -132,15 +132,15 @@ void DTTrigProd::produce(Event& iEvent, const EventSetup& iEventSetup) {
       int sc_sector = (*it).SCId().sector();
       if (my_DTTFnum == true)
         sc_sector--;  // Modified for DTTF numbering [0-11]
-      outPhi.push_back(L1MuDTChambPhDigi(step,
-                                         (*it).ChamberId().wheel(),
-                                         sc_sector,
-                                         (*it).ChamberId().station(),
-                                         (*it).phi(),
-                                         (*it).phiB(),
-                                         (*it).code(),
-                                         !(*it).isFirst(),
-                                         0));
+      outPhi.emplace_back(step,
+                          (*it).ChamberId().wheel(),
+                          sc_sector,
+                          (*it).ChamberId().station(),
+                          (*it).phi(),
+                          (*it).phiB(),
+                          (*it).code(),
+                          !(*it).isFirst(),
+                          0);
     }
 
     // Convert Theta Segments
@@ -158,8 +158,7 @@ void DTTrigProd::produce(Event& iEvent, const EventSetup& iEventSetup) {
       int sc_sector = (*it).SCId().sector();
       if (my_DTTFnum == true)
         sc_sector--;  // Modified for DTTF numbering [0-11]
-      outTheta.push_back(
-          L1MuDTChambThDigi(step, (*it).ChamberId().wheel(), sc_sector, (*it).ChamberId().station(), pos, qual));
+      outTheta.emplace_back(step, (*it).ChamberId().wheel(), sc_sector, (*it).ChamberId().station(), pos, qual);
     }
   }
 

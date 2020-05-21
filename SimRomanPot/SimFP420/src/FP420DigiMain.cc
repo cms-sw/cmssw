@@ -224,7 +224,7 @@ void FP420DigiMain::push_digis(const DigitalMapType &dm,
     // Load digis
     // push to digis the content of first and second words of HDigiFP420 vector
     // for every strip pointer (*i)
-    digis.push_back(HDigiFP420((*i).first, (*i).second));
+    digis.emplace_back((*i).first, (*i).second);
     ndigis++;
     // very useful check:
     if (verbosity > 0) {

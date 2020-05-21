@@ -63,11 +63,11 @@ void MuonTiming::bookHistograms(DQMStore::IBooker& ibooker,
   ibooker.cd();
   ibooker.setCurrentFolder(theFolder_);
 
-  EtaName_.push_back("_Overlap");
-  EtaName_.push_back("_Barrel");
-  EtaName_.push_back("_Endcap");
-  ObjectName_.push_back("Sta_");
-  ObjectName_.push_back("Glb_");
+  EtaName_.emplace_back("_Overlap");
+  EtaName_.emplace_back("_Barrel");
+  EtaName_.emplace_back("_Endcap");
+  ObjectName_.emplace_back("Sta_");
+  ObjectName_.emplace_back("Glb_");
 
   for (unsigned int iEtaRegion = 0; iEtaRegion < 3; iEtaRegion++) {
     /*std::array<MonitorElement*, 1> timeNDofv_;

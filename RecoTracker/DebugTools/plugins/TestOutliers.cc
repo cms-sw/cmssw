@@ -500,7 +500,7 @@ void TestOutliers::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
                 gained = false;
             }
             if (gained) {
-              gainedlostoutliers.push_back(pair<int, trackingRecHit_iterator>(1, itOut));
+              gainedlostoutliers.emplace_back(1, itOut);
               LogTrace("TestOutliers") << "broken trajectory during old fit... gained hit "
                                        << (*itOut)->geographicalId().rawId();
               gainedhits->Fill(1);
@@ -526,11 +526,11 @@ void TestOutliers::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
             }
           }
           if (lost)
-            gainedlostoutliers.push_back(pair<int, trackingRecHit_iterator>(2, itOld));
+            gainedlostoutliers.emplace_back(2, itOld);
           if (lost)
             LogTrace("TestOutliers") << "lost";
           else if (outlier)
-            gainedlostoutliers.push_back(pair<int, trackingRecHit_iterator>(3, itOld));
+            gainedlostoutliers.emplace_back(3, itOld);
         }
 
         for (std::vector<pair<int, trackingRecHit_iterator> >::iterator it = gainedlostoutliers.begin();

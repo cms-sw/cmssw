@@ -26,9 +26,9 @@
 FWL1TriggerTableView::FWL1TriggerTableView(TEveWindowSlot* iParent)
     : FWTriggerTableView(iParent, FWViewType::kTableL1) {
   m_columns[0].title = "Algorithm Name";
-  m_columns.push_back(Column("Result"));
-  m_columns.push_back(Column("Bit Number"));
-  m_columns.push_back(Column("Prescale"));
+  m_columns.emplace_back("Result");
+  m_columns.emplace_back("Bit Number");
+  m_columns.emplace_back("Prescale");
 
   dataChanged();
 }
@@ -87,14 +87,14 @@ void FWL1TriggerTableView::fillTable(fwlite::Event* event) {
         continue;
 
       m_columns.at(0).values.push_back(aName);
-      m_columns.at(1).values.push_back(Form("%d", result));
-      m_columns.at(2).values.push_back(Form("%d", bitNumber));
+      m_columns.at(1).values.emplace_back(Form("%d", result));
+      m_columns.at(2).values.emplace_back(Form("%d", bitNumber));
 
       if ((pfIndexAlgoTrig < pfIndexAlgoTrigValidSize) &&
           static_cast<unsigned int>(prescaleFactorsAlgoTrig.at(pfIndexAlgoTrig).size()) > bitNumber) {
-        m_columns.at(3).values.push_back(Form("%d", prescaleFactorsAlgoTrig.at(pfIndexAlgoTrig).at(bitNumber)));
+        m_columns.at(3).values.emplace_back(Form("%d", prescaleFactorsAlgoTrig.at(pfIndexAlgoTrig).at(bitNumber)));
       } else
-        m_columns.at(3).values.push_back("invalid");
+        m_columns.at(3).values.emplace_back("invalid");
     }
 
     const static std::string kTechTriggerName = "TechTrigger";
@@ -111,21 +111,21 @@ void FWL1TriggerTableView::fillTable(fwlite::Event* event) {
           tBitResult = 0;
 
         m_columns.at(0).values.push_back(kTechTriggerName);
-        m_columns.at(1).values.push_back(Form("%d", tBitResult));
-        m_columns.at(2).values.push_back(Form("%d", tBitNumber));
+        m_columns.at(1).values.emplace_back(Form("%d", tBitResult));
+        m_columns.at(2).values.emplace_back(Form("%d", tBitNumber));
 
         if ((pfIndexTechTrig < pfIndexTechTrigValidSize) &&
             static_cast<int>(prescaleFactorsTechTrig.at(pfIndexTechTrig).size()) > tBitNumber) {
-          m_columns.at(3).values.push_back(Form("%d", prescaleFactorsTechTrig.at(pfIndexTechTrig).at(tBitNumber)));
+          m_columns.at(3).values.emplace_back(Form("%d", prescaleFactorsTechTrig.at(pfIndexTechTrig).at(tBitNumber)));
         } else
-          m_columns.at(3).values.push_back(Form("invalid"));
+          m_columns.at(3).values.emplace_back(Form("invalid"));
       }
     }
   }  // trigger valid
   else {
-    m_columns.at(0).values.push_back("No L1Trigger menu available.");
-    m_columns.at(1).values.push_back(" ");
-    m_columns.at(2).values.push_back(" ");
-    m_columns.at(3).values.push_back(" ");
+    m_columns.at(0).values.emplace_back("No L1Trigger menu available.");
+    m_columns.at(1).values.emplace_back(" ");
+    m_columns.at(2).values.emplace_back(" ");
+    m_columns.at(3).values.emplace_back(" ");
   }
 }

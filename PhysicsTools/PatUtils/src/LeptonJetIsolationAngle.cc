@@ -48,7 +48,7 @@ float LeptonJetIsolationAngle::calculate(const CLHEP::HepLorentzVector& aLepton,
   for (size_t ie = 0; ie < electrons.size(); ie++) {
     Electron anElectron(electrons[ie]);
     if (anElectron.pt() > 10 && trkIsolator_.calculate(anElectron, *trackHandle) < 3.0) {
-      isoElectrons.push_back(electrons[ie]);
+      isoElectrons.emplace_back(electrons[ie]);
     }
   }
   // determine the collections of jets, cleaned from electrons
@@ -63,7 +63,7 @@ float LeptonJetIsolationAngle::calculate(const CLHEP::HepLorentzVector& aLepton,
     float mindr = std::sqrt(mindr2);
     // yes, all cuts hardcoded buts, but it's a second-order effect
     if (itJet->et() > 15 && mindr > 0.3)
-      theJets.push_back(reco::CaloJet(*itJet));
+      theJets.emplace_back(*itJet);
   }
   // calculate finally the isolation angle
   float isoAngle = 1000;  // default to some craze impossible number to inhibit compiler warnings

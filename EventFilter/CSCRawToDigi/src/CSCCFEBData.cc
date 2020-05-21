@@ -21,7 +21,7 @@ CSCCFEBData::CSCCFEBData(unsigned number, const uint16_t *buf, uint16_t format_v
     const CSCBadCFEBTimeSlice *badSlice = reinterpret_cast<const CSCBadCFEBTimeSlice *>(buf + pos);
     if (badSlice->check()) {
       //show that a bad slice starts here
-      theSliceStarts.push_back(std::pair<int, bool>(pos, false));
+      theSliceStarts.emplace_back(pos, false);
       pos += badSlice->sizeInWords();
       //store bad word for status digis
       bWords.push_back(badSlice->word(1).data());  //all 4 words are assumed identical so saving #1 only
@@ -30,7 +30,7 @@ CSCCFEBData::CSCCFEBData(unsigned number, const uint16_t *buf, uint16_t format_v
       const CSCCFEBTimeSlice *goodSlice = reinterpret_cast<const CSCCFEBTimeSlice *>(buf + pos);
       if (goodSlice->check()) {
         // show that a good slice starts here
-        theSliceStarts.push_back(std::pair<int, bool>(pos, true));
+        theSliceStarts.emplace_back(pos, true);
         // it will just be an array of CSCCFEBTimeSlices, so we'll
         // grab the number of time slices from the first good one
         // !!! VB - Limit maximum number of CFEB samples to 8.
@@ -46,7 +46,7 @@ CSCCFEBData::CSCCFEBData(unsigned number, const uint16_t *buf, uint16_t format_v
             << "CORRUPT CFEB DATA slice " << theNumberOfSamples << std::hex << " " << *(buf + pos + 3) << " "
             << *(buf + pos + 2) << " " << *(buf + pos + 1) << " " << *(buf + pos);
         //ok slice is bad but try another one at 100 words after it
-        theSliceStarts.push_back(std::pair<int, bool>(pos, false));
+        theSliceStarts.emplace_back(pos, false);
         pos += 100;
       }
     }
@@ -74,7 +74,7 @@ CSCCFEBData::CSCCFEBData(unsigned number, bool sixteenSamples, uint16_t format_v
   for (unsigned i = 0; i < theNumberOfSamples; ++i) {
     unsigned short *pos = theData + i * 100;
     memcpy(pos, &slice, 200);
-    theSliceStarts.push_back(std::pair<int, bool>(i * 100, true));
+    theSliceStarts.emplace_back(i * 100, true);
   }
   theSize = theNumberOfSamples * 100;
 }
@@ -286,7 +286,7 @@ void CSCCFEBData::digis(uint32_t idlayer, std::vector<CSCStripDigi> &result) con
         strip = 65 - strip;
       }  // 1-64 -> 64-1 ...
     }
-    result.push_back(CSCStripDigi(strip, sca, overflow, overlap, errorfl));
+    result.emplace_back(strip, sca, overflow, overlap, errorfl);
   }
 }
 

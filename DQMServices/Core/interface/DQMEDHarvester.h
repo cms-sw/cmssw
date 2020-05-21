@@ -77,8 +77,8 @@ public:
         iConfig.getUntrackedParameter<std::vector<edm::InputTag>>("inputMEs", std::vector<edm::InputTag>());
     if (inputtags.empty()) {
       // ... use all RECO MEs.
-      inputtags.push_back(edm::InputTag("", inputgeneration + "Run"));
-      inputtags.push_back(edm::InputTag("", inputgeneration + "Lumi"));
+      inputtags.emplace_back("", inputgeneration + "Run");
+      inputtags.emplace_back("", inputgeneration + "Lumi");
     }
     runmegetter_ = edm::GetterOfProducts<DQMToken>(edm::VInputTagMatch(inputtags), this, edm::InRun);
     lumimegetter_ = edm::GetterOfProducts<DQMToken>(edm::VInputTagMatch(inputtags), this, edm::InLumi);

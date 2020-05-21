@@ -88,7 +88,7 @@ MultiTrackSelector::MultiTrackSelector(const edm::ParameterSet& cfg)
     qualityToSet_.push_back(TrackBase::undefQuality);
     // parameters for vertex selection
     vtxNumber_.push_back(useVertices_ ? trkSelectors[i].getParameter<int32_t>("vtxNumber") : 0);
-    vertexCut_.push_back(useVertices_ ? trkSelectors[i].getParameter<std::string>("vertexCut") : nullptr);
+    vertexCut_.emplace_back(useVertices_ ? trkSelectors[i].getParameter<std::string>("vertexCut") : nullptr);
     //  parameters for adapted optimal cuts on chi2 and primary vertex compatibility
     res_par_.push_back(trkSelectors[i].getParameter<std::vector<double>>("res_par"));
     chi2n_par_.push_back(trkSelectors[i].getParameter<double>("chi2n_par"));
@@ -184,15 +184,15 @@ MultiTrackSelector::MultiTrackSelector(const edm::ParameterSet& cfg)
       } else {
         min_MVA_.push_back(-9999.0);
         useMVAonly_.push_back(false);
-        mvaType_.push_back("Detached");
-        forestLabel_.push_back("MVASelectorIter0");
+        mvaType_.emplace_back("Detached");
+        forestLabel_.emplace_back("MVASelectorIter0");
       }
     } else {
       useMVA_.push_back(false);
       useMVAonly_.push_back(false);
       min_MVA_.push_back(-9999.0);
-      mvaType_.push_back("Detached");
-      forestLabel_.push_back("MVASelectorIter0");
+      mvaType_.emplace_back("Detached");
+      forestLabel_.emplace_back("MVASelectorIter0");
     }
   }
 }

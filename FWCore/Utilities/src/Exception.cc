@@ -164,11 +164,11 @@ namespace cms {
 
   void Exception::addContext(std::string const& context) { context_.push_back(context); }
 
-  void Exception::addContext(char const* context) { context_.push_back(std::string(context)); }
+  void Exception::addContext(char const* context) { context_.emplace_back(context); }
 
   void Exception::addAdditionalInfo(std::string const& info) { additionalInfo_.push_back(info); }
 
-  void Exception::addAdditionalInfo(char const* info) { additionalInfo_.push_back(std::string(info)); }
+  void Exception::addAdditionalInfo(char const* info) { additionalInfo_.emplace_back(info); }
 
   void Exception::setContext(std::list<std::string> const& context) { context_ = context; }
 

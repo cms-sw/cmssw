@@ -70,7 +70,7 @@ inline void IteratedMedianCMNSubtractor::subtract_(uint32_t detId, uint16_t firs
       offset = pairMedian(subset);
     }
 
-    _vmedians.push_back(std::pair<short, float>(APV, offset));
+    _vmedians.emplace_back(APV, offset);
 
     // remove offset
     fs = digis.begin() + (APV - firstAPV) * 128;

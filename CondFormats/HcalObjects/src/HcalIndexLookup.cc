@@ -29,7 +29,7 @@ bool HcalIndexLookup::hasDuplicateIds() {
 void HcalIndexLookup::add(const unsigned detId, const unsigned index) {
   if (index == InvalidIndex)
     throw cms::Exception("In HcalIndexLookup::add: invalid index");
-  data_.push_back(std::pair<uint32_t, uint32_t>(detId, index));
+  data_.emplace_back(detId, index);
   sorted_ = false;
 }
 

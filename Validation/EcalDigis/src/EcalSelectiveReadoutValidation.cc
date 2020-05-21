@@ -570,7 +570,7 @@ void EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event, const ed
       ebEnergies[iEta0][iPhi0].simE = 0;  //must be zero.
       ebEnergies[iEta0][iPhi0].simHit = 0;
       ebEnergies[iEta0][iPhi0].gain12 = false;
-      xtalEtaPhi.push_back(pair<int, int>(iEta0, iPhi0));
+      xtalEtaPhi.emplace_back(iEta0, iPhi0);
     }
   }
 

@@ -140,10 +140,10 @@ void EopTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   bool ecalInReco = iEvent.getByLabel(edm::InputTag("ecalRecHit", "EcalRecHitsEB"), tmpEc) &&
                     iEvent.getByLabel(edm::InputTag("ecalRecHit", "EcalRecHitsEE"), tmpEc);
   if (ecalInAlca)
-    ecalLabels_.push_back(edm::InputTag("IsoProd", "IsoTrackEcalRecHitCollection"));
+    ecalLabels_.emplace_back("IsoProd", "IsoTrackEcalRecHitCollection");
   else if (ecalInReco) {
-    ecalLabels_.push_back(edm::InputTag("ecalRecHit", "EcalRecHitsEB"));
-    ecalLabels_.push_back(edm::InputTag("ecalRecHit", "EcalRecHitsEE"));
+    ecalLabels_.emplace_back("ecalRecHit", "EcalRecHitsEB");
+    ecalLabels_.emplace_back("ecalRecHit", "EcalRecHitsEE");
   } else
     throw cms::Exception("MissingProduct", "can not find EcalRecHits");
 

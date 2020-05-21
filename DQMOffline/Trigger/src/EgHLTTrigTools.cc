@@ -305,9 +305,9 @@ void trigTools::translateFiltersToPathNames(const HLTConfigProvider& hltConfig,
       if (!pathFilters.empty()) {
         if (pathFilters.back() == "hltBoolEnd" && pathFilters.size() >= 2) {
           //2nd to last element is the last filter, useally the case as last is hltBool except for ES bits
-          filtersAndPaths.push_back(std::make_pair(pathFilters[pathFilters.size() - 2], pathName));
+          filtersAndPaths.emplace_back(pathFilters[pathFilters.size() - 2], pathName);
         } else
-          filtersAndPaths.push_back(std::make_pair(pathFilters.back(), pathName));
+          filtersAndPaths.emplace_back(pathFilters.back(), pathName);
       }
     }  //end hlt path check
   }    //end path loop over

@@ -90,14 +90,14 @@ void RHStopTracer::update(const EndOfTrack* fTrack) {
                                        << "   4vec " << track->GetMomentum();
     if (track->GetMomentum().mag() < 0.001) {
       LogDebug("SimG4CoreCustomPhysics") << "RHStopTracer:: track has stopped, so making StopPoint";
-      mStopPoints.push_back(StopPoint(track->GetDefinition()->GetParticleName(),
-                                      track->GetPosition().x(),
-                                      track->GetPosition().y(),
-                                      track->GetPosition().z(),
-                                      track->GetGlobalTime(),
-                                      track->GetDefinition()->GetPDGEncoding(),
-                                      track->GetDefinition()->GetPDGMass() / GeV,
-                                      track->GetDefinition()->GetPDGCharge()));
+      mStopPoints.emplace_back(track->GetDefinition()->GetParticleName(),
+                               track->GetPosition().x(),
+                               track->GetPosition().y(),
+                               track->GetPosition().z(),
+                               track->GetGlobalTime(),
+                               track->GetDefinition()->GetPDGEncoding(),
+                               track->GetDefinition()->GetPDGMass() / GeV,
+                               track->GetDefinition()->GetPDGCharge());
     }
   }
 }

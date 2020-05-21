@@ -105,7 +105,7 @@ namespace edm {
   }
 
   void DaqProvenanceHelper::fixMetaData(std::vector<ProcessConfiguration>& pcv, std::vector<ProcessHistory>& phv) {
-    phv.push_back(ProcessHistory());  // For new processHistory, containing only processConfiguration_
+    phv.emplace_back();  // For new processHistory, containing only processConfiguration_
     std::vector<ProcessConfiguration> newPCs;
     for (auto const& pc : pcv) {
       if (pc.processName() == oldProcessName_) {

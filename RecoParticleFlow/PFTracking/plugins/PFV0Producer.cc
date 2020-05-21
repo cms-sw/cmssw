@@ -51,7 +51,7 @@ void PFV0Producer::produce(Event& iEvent, const EventSetup& iSetup) {
         Trajectory FakeTraj;
         bool valid = pfTransformer_->addPoints(pfRecTrack, *trackRef, FakeTraj);
         if (valid) {
-          PFTracks.push_back(reco::PFRecTrackRef(pfTrackRefProd, idx++));
+          PFTracks.emplace_back(pfTrackRefProd, idx++);
           pfV0RecTrackColl->push_back(pfRecTrack);
         }
       }

@@ -111,10 +111,10 @@ std::vector<HcalElectronicsId> HcalElectronicsMap::allElectronicsId() const {
   std::vector<HcalElectronicsId> result;
   for (std::vector<PrecisionItem>::const_iterator item = mPItems.begin(); item != mPItems.end(); item++)
     if (item->mElId)
-      result.push_back(HcalElectronicsId(item->mElId));
+      result.emplace_back(item->mElId);
   for (std::vector<TriggerItem>::const_iterator item = mTItems.begin(); item != mTItems.end(); item++)
     if (item->mElId)
-      result.push_back(HcalElectronicsId(item->mElId));
+      result.emplace_back(item->mElId);
 
   return result;
 }
@@ -123,7 +123,7 @@ std::vector<HcalElectronicsId> HcalElectronicsMap::allElectronicsIdPrecision() c
   std::vector<HcalElectronicsId> result;
   for (std::vector<PrecisionItem>::const_iterator item = mPItems.begin(); item != mPItems.end(); item++)
     if (item->mElId)
-      result.push_back(HcalElectronicsId(item->mElId));
+      result.emplace_back(item->mElId);
   return result;
 }
 
@@ -131,7 +131,7 @@ std::vector<HcalElectronicsId> HcalElectronicsMap::allElectronicsIdTrigger() con
   std::vector<HcalElectronicsId> result;
   for (std::vector<TriggerItem>::const_iterator item = mTItems.begin(); item != mTItems.end(); item++)
     if (item->mElId)
-      result.push_back(HcalElectronicsId(item->mElId));
+      result.emplace_back(item->mElId);
 
   return result;
 }
@@ -143,7 +143,7 @@ std::vector<HcalGenericDetId> HcalElectronicsMap::allPrecisionId() const {
     if (item->mId)
       allIds.insert(item->mId);
   for (std::set<unsigned long>::const_iterator channel = allIds.begin(); channel != allIds.end(); channel++) {
-    result.push_back(HcalGenericDetId(*channel));
+    result.emplace_back(*channel);
   }
   return result;
 }
@@ -155,7 +155,7 @@ std::vector<HcalTrigTowerDetId> HcalElectronicsMap::allTriggerId() const {
     if (item->mTrigId)
       allIds.insert(item->mTrigId);
   for (std::set<unsigned long>::const_iterator channel = allIds.begin(); channel != allIds.end(); channel++)
-    result.push_back(HcalTrigTowerDetId(*channel));
+    result.emplace_back(*channel);
   return result;
 }
 

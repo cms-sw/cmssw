@@ -83,7 +83,7 @@ void GaussianTailNoiseGenerator::generate(int NumberOfchannels,
     // Find random noise value
     double noise = generate_gaussian_tail(lowLimit, noiseRMS, engine);
     // Fill in the vector
-    theVector.push_back(std::pair<int, float>(channels[i], noise));
+    theVector.emplace_back(channels[i], noise);
   }
 }
 

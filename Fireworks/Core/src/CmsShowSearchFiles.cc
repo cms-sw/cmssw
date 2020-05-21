@@ -180,7 +180,7 @@ void CmsShowSearchFiles::showPrefixes() {
           (gPluginMgr->FindHandler("TSystem", prefix.c_str()) &&
            gPluginMgr->FindHandler("TSystem", prefix.c_str())->CheckPlugin() != -1)) {
         m_prefixMenu->AddEntry((std::string((*it)[0]) + " (" + ((*it)[1]) + ")").c_str(), index);
-        m_prefixes.push_back((*it)[0]);
+        m_prefixes.emplace_back((*it)[0]);
         m_prefixComplete.push_back(nullptr != (*it)[2]);
       }
     }

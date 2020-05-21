@@ -52,7 +52,7 @@ void PixelRod::compatibleDetsV(const TrajectoryStateOnSurface& startingState,
       theCompatibilityChecker.isCompatible(theDets[closest], startingState, prop, est);
 
   if (closestCompat.first) {
-    result.push_back(DetWithState(theDets[closest], closestCompat.second));
+    result.emplace_back(theDets[closest], closestCompat.second);
   } else {
     if (!closestCompat.second.isValid())
       return;  // to investigate why this happens

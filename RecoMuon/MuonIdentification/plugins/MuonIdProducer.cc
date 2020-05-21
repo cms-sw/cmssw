@@ -1065,11 +1065,11 @@ void MuonIdProducer::fillArbitrationInfo(reco::MuonCollection* pOutputMuons, uns
       chamberPairs.clear();
 
       for (auto& segment1 : *segmentMatches1) {
-        chamberPairs.push_back(std::make_pair(&chamber1, &segment1));
+        chamberPairs.emplace_back(&chamber1, &segment1);
         if (!segment1.isMask())  // has not yet been arbitrated
         {
           arbitrationPairs.clear();
-          arbitrationPairs.push_back(std::make_pair(&chamber1, &segment1));
+          arbitrationPairs.emplace_back(&chamber1, &segment1);
 
           // find identical segments with which to arbitrate
           // tracker muons only
@@ -1092,7 +1092,7 @@ void MuonIdProducer::fillArbitrationInfo(reco::MuonCollection* pOutputMuons, uns
                       approxEqual(segment2.xErr, segment1.xErr) && approxEqual(segment2.yErr, segment1.yErr) &&
                       approxEqual(segment2.dXdZErr, segment1.dXdZErr) &&
                       approxEqual(segment2.dYdZErr, segment1.dYdZErr)) {
-                    arbitrationPairs.push_back(std::make_pair(&chamber2, &segment2));
+                    arbitrationPairs.emplace_back(&chamber2, &segment2);
                   }
                 }  // segmentIter2
               }    // chamberIter2
@@ -1191,7 +1191,7 @@ void MuonIdProducer::fillArbitrationInfo(reco::MuonCollection* pOutputMuons, uns
             continue;
 
           for (auto& segment : *segmentMatches) {
-            stationPairs.push_back(std::make_pair(&chamber, &segment));
+            stationPairs.emplace_back(&chamber, &segment);
           }
         }  // chamberIter
 

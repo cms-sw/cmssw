@@ -169,10 +169,10 @@ namespace sistrip {
     for (; inputChannel != lInputDigis->end(); ++inputChannel) {  //loop on input channels
       uint32_t lDetId = inputChannel->detId();                    //either fedIndex or detId
 
-      pedsData.push_back(edm::DetSetVector<SiStripRawDigi>::detset(lDetId));
-      noiseData.push_back(edm::DetSetVector<SiStripProcessedRawDigi>::detset(lDetId));
-      pedSubtrData.push_back(edm::DetSetVector<SiStripRawDigi>::detset(lDetId));
-      cmSubtrData.push_back(edm::DetSetVector<SiStripRawDigi>::detset(lDetId));
+      pedsData.emplace_back(lDetId);
+      noiseData.emplace_back(lDetId);
+      pedSubtrData.emplace_back(lDetId);
+      cmSubtrData.emplace_back(lDetId);
 
       unsigned int lNStrips = inputChannel->size();
 

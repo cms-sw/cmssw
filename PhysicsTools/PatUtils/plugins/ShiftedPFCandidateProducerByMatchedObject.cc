@@ -51,8 +51,7 @@ void ShiftedPFCandidateProducerByMatchedObject::produce(edm::Event& evt, const e
       }
     }
     if (isMatched_Object) {
-      objects_.push_back(
-          objectEntryType(shiftedObjectP4_matched->p4(), unshiftedObject->p4(), sqrt(dR2bestMatch_Object)));
+      objects_.emplace_back(shiftedObjectP4_matched->p4(), unshiftedObject->p4(), sqrt(dR2bestMatch_Object));
     }
   }
 

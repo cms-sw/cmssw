@@ -240,7 +240,7 @@ int DTHVStatus::set(int wheelId,
     data.flagC = flagC;
     data.flagS = flagS;
     ientry = dataList.size();
-    dataList.push_back(std::pair<DTHVStatusId, DTHVStatusData>(key, data));
+    dataList.emplace_back(key, data);
     dBuf->insert(chanKey.begin(), chanKey.end(), ientry);
     return 0;
   }

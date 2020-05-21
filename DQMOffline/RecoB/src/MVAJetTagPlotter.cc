@@ -90,6 +90,6 @@ void MVAJetTagPlotter::epsPlot(const std::string &name) {
 vector<string> MVAJetTagPlotter::tagInfoRequirements() const {
   vector<string> labels = computer->getInputLabels();
   if (labels.empty())
-    labels.push_back("tagInfos");
+    labels.emplace_back("tagInfos");
   return labels;
 }

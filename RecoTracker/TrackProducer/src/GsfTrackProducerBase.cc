@@ -178,7 +178,7 @@ void GsfTrackProducerBase::putInEvt(edm::Event& evt,
         }
         bool valid = computeModeAtTM(*i, position, momentum, deltaP);
         if (valid) {
-          tangents.push_back(reco::GsfTangent(position, momentum, deltaP));
+          tangents.emplace_back(position, momentum, deltaP);
         }
       }
     }

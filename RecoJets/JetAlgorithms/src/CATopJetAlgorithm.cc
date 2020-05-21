@@ -119,7 +119,7 @@ void CATopJetAlgorithm::run(const vector<fastjet::PseudoJet>& cell_particles,
     fastjet::PseudoJet localJet = *jetIt;
 
     // Get the 4-vector for this jet
-    p4_hardJets.push_back(math::XYZTLorentzVector(localJet.px(), localJet.py(), localJet.pz(), localJet.e()));
+    p4_hardJets.emplace_back(localJet.px(), localJet.py(), localJet.pz(), localJet.e());
 
     // jet decomposition.  try to find 3 or 4 hard, well-localized subjets, characteristic of a boosted top.
     if (verbose_)

@@ -533,13 +533,13 @@ boost::dynamic_bitset<> CSCEventData::pack() {
   if (theALCTHeader != nullptr) {
     boost::dynamic_bitset<> alctHeader = theALCTHeader->pack();
     result = bitset_utilities::append(result, alctHeader);
-    crcvec.push_back(std::make_pair(theALCTHeader->sizeInWords(), theALCTHeader->data()));
+    crcvec.emplace_back(theALCTHeader->sizeInWords(), theALCTHeader->data());
   }
   if (theAnodeData != nullptr) {
     boost::dynamic_bitset<> anodeData =
         bitset_utilities::ushortToBitset(theAnodeData->sizeInWords() * 16, theAnodeData->data());
     result = bitset_utilities::append(result, anodeData);
-    crcvec.push_back(std::make_pair(theAnodeData->sizeInWords(), theAnodeData->data()));
+    crcvec.emplace_back(theAnodeData->sizeInWords(), theAnodeData->data());
   }
   if (theALCTTrailer != nullptr) {
     unsigned int crc = calcALCTcrc(crcvec);
@@ -596,14 +596,14 @@ void CSCEventData::selfTest() {
   std::vector<CSCCLCTDigi> clctDigis;
   // Both CLCTs are read-out at the same (pre-trigger) bx, so the last-but-one
   // arguments in both digis must be the same.
-  clctDigis.push_back(CSCCLCTDigi(1, 1, 4, 1, 0, 30, 3, 2, 1));  // valid for 2007
-  clctDigis.push_back(CSCCLCTDigi(1, 1, 2, 1, 1, 31, 1, 2, 2));
+  clctDigis.emplace_back(1, 1, 4, 1, 0, 30, 3, 2, 1);  // valid for 2007
+  clctDigis.emplace_back(1, 1, 2, 1, 1, 31, 1, 2, 2);
 
   // BX of LCT (8th argument) is 1-bit word (the least-significant bit
   // of ALCT's bx).
   std::vector<CSCCorrelatedLCTDigi> corrDigis;
-  corrDigis.push_back(CSCCorrelatedLCTDigi(1, 1, 2, 10, 98, 5, 0, 1, 0, 0, 0, 0));
-  corrDigis.push_back(CSCCorrelatedLCTDigi(2, 1, 2, 20, 15, 9, 1, 0, 0, 0, 0, 0));
+  corrDigis.emplace_back(1, 1, 2, 10, 98, 5, 0, 1, 0, 0, 0, 0);
+  corrDigis.emplace_back(2, 1, 2, 20, 15, 9, 1, 0, 0, 0, 0, 0);
 
   chamberData.add(clctDigis);
   chamberData.add(corrDigis);

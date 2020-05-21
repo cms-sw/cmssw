@@ -62,14 +62,14 @@ void TtSemiLRSignalSelObservables::operator()(TtSemiEvtSolution &TS, const std::
   // Pt of the lepton
 
   double Obs1 = Lept->Pt();
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(1, Obs1));
+  evtselectVarVal.emplace_back(1, Obs1);
   if (DEBUG)
     std::cout << "------ LR observable 1 " << Obs1 << " calculated ------" << std::endl;
 
   // Missing transverse energy
 
   double Obs2 = TS.getNeutrino().et();
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(2, Obs2));
+  evtselectVarVal.emplace_back(2, Obs2);
   if (DEBUG)
     std::cout << "------ LR observable 2 " << Obs2 << " calculated ------" << std::endl;
 
@@ -81,7 +81,7 @@ void TtSemiLRSignalSelObservables::operator()(TtSemiEvtSolution &TS, const std::
   }
 
   double Obs3 = HT;
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(3, Obs3));
+  evtselectVarVal.emplace_back(3, Obs3);
   if (DEBUG)
     std::cout << "------ LR observable 3 " << Obs3 << " calculated ------" << std::endl;
 
@@ -89,21 +89,21 @@ void TtSemiLRSignalSelObservables::operator()(TtSemiEvtSolution &TS, const std::
 
   double EtSum = TopJets[2].et() + TopJets[3].et();
   double Obs4 = EtSum;
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(4, Obs4));
+  evtselectVarVal.emplace_back(4, Obs4);
   if (DEBUG)
     std::cout << "------ LR observable 4 " << Obs4 << " calculated ------" << std::endl;
 
   // Et-Ratio between the two lowest jets in Et and four highest jets
 
   double Obs5 = EtSum / HT;
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(5, Obs5));
+  evtselectVarVal.emplace_back(5, Obs5);
   if (DEBUG)
     std::cout << "------ LR observable 5 " << Obs5 << " calculated ------" << std::endl;
 
   // Et-Ratio between the two highest jets in Et and four highest jets
 
   double Obs6 = (HT - EtSum) / HT;
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(6, Obs6));
+  evtselectVarVal.emplace_back(6, Obs6);
   if (DEBUG)
     std::cout << "------ LR observable 6 " << Obs6 << " calculated ------" << std::endl;
 
@@ -112,7 +112,7 @@ void TtSemiLRSignalSelObservables::operator()(TtSemiEvtSolution &TS, const std::
   TLorentzVector TtbarSystem = (*Hadp) + (*Hadq) + (*Hadb) + (*Lepb) + (*Lept) + (*Lepn);
   double MT = TtbarSystem.Mt();
   double Obs7 = MT;
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(7, Obs7));
+  evtselectVarVal.emplace_back(7, Obs7);
   if (DEBUG)
     std::cout << "------ LR observable 7 " << Obs7 << " calculated ------" << std::endl;
 
@@ -147,10 +147,10 @@ void TtSemiLRSignalSelObservables::operator()(TtSemiEvtSolution &TS, const std::
   if (DEBUG)
     std::cout << "------ LR observable 11 " << Obs11 << " calculated ------" << std::endl;
 
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(8, Obs8));
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(9, Obs9));
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(10, Obs10));
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(11, Obs11));
+  evtselectVarVal.emplace_back(8, Obs8);
+  evtselectVarVal.emplace_back(9, Obs9);
+  evtselectVarVal.emplace_back(10, Obs10);
+  evtselectVarVal.emplace_back(11, Obs11);
 
   //sort the TopJets in Et
   std::sort(TopJets.begin(), TopJets.end(), EtComparator);
@@ -202,14 +202,14 @@ void TtSemiLRSignalSelObservables::operator()(TtSemiEvtSolution &TS, const std::
   }
 
   double Obs12 = (C != 10000 ? C : 0);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(12, Obs12));
+  evtselectVarVal.emplace_back(12, Obs12);
   if (DEBUG)
     std::cout << "------ LR observable 12 " << Obs12 << " calculated ------" << std::endl;
 
   // Circularity of the event without neutrino
 
   double Obs13 = (C_NoNu != 10000 ? C_NoNu : 0);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(13, Obs13));
+  evtselectVarVal.emplace_back(13, Obs13);
   if (DEBUG)
     std::cout << "------ LR observable 13 " << Obs13 << " calculated ------" << std::endl;
 
@@ -221,7 +221,7 @@ void TtSemiLRSignalSelObservables::operator()(TtSemiEvtSolution &TS, const std::
   }
 
   double Obs14 = HT / H;
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(14, Obs14));
+  evtselectVarVal.emplace_back(14, Obs14);
   if (DEBUG)
     std::cout << "------ LR observable 14 " << Obs14 << " calculated ------" << std::endl;
 
@@ -269,12 +269,12 @@ void TtSemiLRSignalSelObservables::operator()(TtSemiEvtSolution &TS, const std::
   double Aplanarity = 1.5 * EigValues[2];
 
   double Obs15 = (edm::isNotFinite(Sphericity) ? 0 : Sphericity);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(15, Obs15));
+  evtselectVarVal.emplace_back(15, Obs15);
   if (DEBUG)
     std::cout << "------ LR observable 15 " << Obs15 << " calculated ------" << std::endl;
 
   double Obs16 = (edm::isNotFinite(Aplanarity) ? 0 : Aplanarity);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(16, Obs16));
+  evtselectVarVal.emplace_back(16, Obs16);
   if (DEBUG)
     std::cout << "------ LR observable 16 " << Obs16 << " calculated ------" << std::endl;
 
@@ -330,19 +330,19 @@ void TtSemiLRSignalSelObservables::operator()(TtSemiEvtSolution &TS, const std::
   double BOOST_Aplanarity = 1.5 * BOOST_EigValues[2];
 
   double Obs17 = (edm::isNotFinite(BOOST_Sphericity) ? 0 : BOOST_Sphericity);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(17, Obs17));
+  evtselectVarVal.emplace_back(17, Obs17);
   if (DEBUG)
     std::cout << "------ LR observable 17 " << Obs17 << " calculated ------" << std::endl;
 
   double Obs18 = (edm::isNotFinite(BOOST_Aplanarity) ? 0 : BOOST_Aplanarity);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(18, Obs18));
+  evtselectVarVal.emplace_back(18, Obs18);
   if (DEBUG)
     std::cout << "------ LR observable 18 " << Obs18 << " calculated ------" << std::endl;
 
   //ratio between ET of the fifth jet and HT
 
   double Obs19 = (TopJets.size() > 4) ? TopJets[4].et() / HT : 1.0;
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(19, Obs19));
+  evtselectVarVal.emplace_back(19, Obs19);
   if (DEBUG)
     std::cout << "------ LR observable 19 " << Obs19 << " calculated ------" << std::endl;
 
@@ -355,7 +355,7 @@ void TtSemiLRSignalSelObservables::operator()(TtSemiEvtSolution &TS, const std::
     H_alljets += TopJets[i].energy();
   }
   double Obs20 = HT_alljets;
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(20, Obs20));
+  evtselectVarVal.emplace_back(20, Obs20);
   if (DEBUG)
     std::cout << "------ LR observable 20 " << Obs20 << " calculated ------" << std::endl;
 
@@ -366,7 +366,7 @@ void TtSemiLRSignalSelObservables::operator()(TtSemiEvtSolution &TS, const std::
     HT3_alljets += TopJets[i].et();
   }
   double Obs21 = HT3_alljets;
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(21, Obs21));
+  evtselectVarVal.emplace_back(21, Obs21);
   if (DEBUG)
     std::cout << "------ LR observable 21 " << Obs21 << " calculated ------" << std::endl;
 
@@ -374,14 +374,14 @@ void TtSemiLRSignalSelObservables::operator()(TtSemiEvtSolution &TS, const std::
 
   double ET0 = TopJets[0].et() / HT_alljets;
   double Obs22 = ET0;
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(22, Obs22));
+  evtselectVarVal.emplace_back(22, Obs22);
   if (DEBUG)
     std::cout << "------ LR observable 22 " << Obs22 << " calculated ------" << std::endl;
 
   // Centrality of the event computed with all jets
 
   double Obs23 = ((H_alljets > 0) ? HT_alljets / H_alljets : 0);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(23, Obs23));
+  evtselectVarVal.emplace_back(23, Obs23);
   if (DEBUG)
     std::cout << "------ LR observable 23 " << Obs23 << " calculated ------" << std::endl;
 
@@ -410,31 +410,31 @@ void TtSemiLRSignalSelObservables::operator()(TtSemiEvtSolution &TS, const std::
   }
 
   double Obs24 = FW_momentum_0;
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(24, Obs24));
+  evtselectVarVal.emplace_back(24, Obs24);
   if (DEBUG)
     std::cout << "------ LR observable 24 " << Obs24 << " calculated ------" << std::endl;
   double Obs25 = FW_momentum_1;
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(25, Obs25));
+  evtselectVarVal.emplace_back(25, Obs25);
   if (DEBUG)
     std::cout << "------ LR observable 25 " << Obs25 << " calculated ------" << std::endl;
   double Obs26 = FW_momentum_2;
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(26, Obs26));
+  evtselectVarVal.emplace_back(26, Obs26);
   if (DEBUG)
     std::cout << "------ LR observable 26 " << Obs26 << " calculated ------" << std::endl;
   double Obs27 = FW_momentum_3;
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(27, Obs27));
+  evtselectVarVal.emplace_back(27, Obs27);
   if (DEBUG)
     std::cout << "------ LR observable 27 " << Obs27 << " calculated ------" << std::endl;
   double Obs28 = FW_momentum_4;
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(28, Obs28));
+  evtselectVarVal.emplace_back(28, Obs28);
   if (DEBUG)
     std::cout << "------ LR observable 28 " << Obs28 << " calculated ------" << std::endl;
   double Obs29 = FW_momentum_5;
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(29, Obs29));
+  evtselectVarVal.emplace_back(29, Obs29);
   if (DEBUG)
     std::cout << "------ LR observable 29 " << Obs29 << " calculated ------" << std::endl;
   double Obs30 = FW_momentum_6;
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(30, Obs30));
+  evtselectVarVal.emplace_back(30, Obs30);
   if (DEBUG)
     std::cout << "------ LR observable 30 " << Obs30 << " calculated ------" << std::endl;
 
@@ -510,22 +510,22 @@ void TtSemiLRSignalSelObservables::operator()(TtSemiEvtSolution &TS, const std::
   }
 
   double Obs31 = Thrust;
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(31, Obs31));
+  evtselectVarVal.emplace_back(31, Obs31);
   if (DEBUG)
     std::cout << "------ LR observable 31 " << Obs31 << " calculated ------" << std::endl;
   double Obs32 = Thrust_Major;
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(32, Obs32));
+  evtselectVarVal.emplace_back(32, Obs32);
   if (DEBUG)
     std::cout << "------ LR observable 32 " << Obs32 << " calculated ------" << std::endl;
   double Obs33 = Thrust_Minor;
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(33, Obs33));
+  evtselectVarVal.emplace_back(33, Obs33);
   if (DEBUG)
     std::cout << "------ LR observable 33 " << Obs33 << " calculated ------" << std::endl;
 
   // Oblateness
 
   double Obs34 = Thrust_Major - Thrust_Minor;
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(34, Obs34));
+  evtselectVarVal.emplace_back(34, Obs34);
   if (DEBUG)
     std::cout << "------ LR observable 34 " << Obs34 << " calculated ------" << std::endl;
 
@@ -573,12 +573,12 @@ void TtSemiLRSignalSelObservables::operator()(TtSemiEvtSolution &TS, const std::
   double Aplanarity_NoNu = 1.5 * EigValues_NoNu[2];
 
   double Obs35 = (edm::isNotFinite(Sphericity_NoNu) ? 0 : Sphericity_NoNu);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(35, Obs35));
+  evtselectVarVal.emplace_back(35, Obs35);
   if (DEBUG)
     std::cout << "------ LR observable 35 " << Obs35 << " calculated ------" << std::endl;
 
   double Obs36 = (edm::isNotFinite(Aplanarity_NoNu) ? 0 : Aplanarity_NoNu);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(36, Obs36));
+  evtselectVarVal.emplace_back(36, Obs36);
   if (DEBUG)
     std::cout << "------ LR observable 36 " << Obs36 << " calculated ------" << std::endl;
 
@@ -626,12 +626,12 @@ void TtSemiLRSignalSelObservables::operator()(TtSemiEvtSolution &TS, const std::
   double Aplanarity_NoNuNoLep = 1.5 * EigValues_NoNuNoLep[2];
 
   double Obs37 = (edm::isNotFinite(Sphericity_NoNuNoLep) ? 0 : Sphericity_NoNuNoLep);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(37, Obs37));
+  evtselectVarVal.emplace_back(37, Obs37);
   if (DEBUG)
     std::cout << "------ LR observable 37 " << Obs37 << " calculated ------" << std::endl;
 
   double Obs38 = (edm::isNotFinite(Aplanarity_NoNuNoLep) ? 0 : Aplanarity_NoNuNoLep);
-  evtselectVarVal.push_back(std::pair<unsigned int, double>(38, Obs38));
+  evtselectVarVal.emplace_back(38, Obs38);
   if (DEBUG)
     std::cout << "------ LR observable 38 " << Obs38 << " calculated ------" << std::endl;
 

@@ -56,9 +56,9 @@ void EcalPreshowerMonitorClient::fillDescriptions(edm::ConfigurationDescriptions
   edm::ParameterSetDescription desc;
 
   std::vector<std::string> clientsDefault;
-  clientsDefault.push_back("Integrity");
-  clientsDefault.push_back("Pedestal");
-  clientsDefault.push_back("Summary");
+  clientsDefault.emplace_back("Integrity");
+  clientsDefault.emplace_back("Pedestal");
+  clientsDefault.emplace_back("Summary");
   desc.addUntracked<std::vector<std::string>>("enabledClients", clientsDefault);
   desc.addUntracked<edm::FileInPath>("LookupTable");
   desc.addUntracked<std::string>("prefixME", "EcalPreshower");

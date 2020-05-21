@@ -97,7 +97,7 @@ namespace sistrip {
           break;
         }
 
-      channels_.push_back(FEDChannel(payloadPointer_, offsetBeginningOfChannel));
+      channels_.emplace_back(payloadPointer_, offsetBeginningOfChannel);
       //get length and check that whole channel fits into buffer
       uint16_t channelLength = channels_.back().length();
 

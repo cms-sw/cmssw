@@ -267,9 +267,9 @@ void FWExpressionValidator::fillOptions(
   unsigned int part_size = part.size();
   for (Options::const_iterator it = nodes->begin(), itEnd = nodes->end(); it != itEnd; ++it) {
     if (part == (*it)->description().substr(0, part_size)) {
-      oOptions.push_back(
-          std::make_pair(std::shared_ptr<std::string>(const_cast<std::string*>(&((*it)->description())), dummyDelete),
-                         (*it)->description().substr(part_size, (*it)->substitutionEnd() - part_size)));
+      oOptions.emplace_back(
+          std::shared_ptr<std::string>(const_cast<std::string*>(&((*it)->description())), dummyDelete),
+          (*it)->description().substr(part_size, (*it)->substitutionEnd() - part_size));
     }
   }
 }

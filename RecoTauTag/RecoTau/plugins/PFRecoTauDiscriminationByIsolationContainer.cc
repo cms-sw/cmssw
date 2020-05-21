@@ -121,7 +121,7 @@ public:
             << "WP configuration: Length of 'relativeValueOffsets' does not match length of 'referenceRawIDNames'!";
       else if (offsetRelValue_.back().empty())
         offsetRelValue_.back().assign(refRawIDNames.size(), 0.0);
-      rawValue_reference_.push_back(std::vector<int>(refRawIDNames.size()));
+      rawValue_reference_.emplace_back(refRawIDNames.size());
       for (size_t i = 0; i < refRawIDNames.size(); i++) {
         bool found = false;
         for (size_t j = 0; j < idnames.size(); j++) {

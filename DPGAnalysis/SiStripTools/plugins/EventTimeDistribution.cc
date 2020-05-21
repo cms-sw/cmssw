@@ -127,8 +127,8 @@ EventTimeDistribution::EventTimeDistribution(const edm::ParameterSet& iConfig)
 
   for (std::vector<edm::ParameterSet>::const_iterator params = dbxhistoparams.begin(); params != dbxhistoparams.end();
        ++params) {
-    m_dbxindices.push_back(std::pair<unsigned int, unsigned int>(params->getParameter<unsigned int>("firstEvent"),
-                                                                 params->getParameter<unsigned int>("secondEvent")));
+    m_dbxindices.emplace_back(params->getParameter<unsigned int>("firstEvent"),
+                              params->getParameter<unsigned int>("secondEvent"));
     char hname[300];
     sprintf(hname,
             "dbx_%d_%d",

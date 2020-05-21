@@ -715,7 +715,7 @@ namespace SiPixelPI {
     for (int bin_x = 1; bin_x <= 72; bin_x++) {
       for (int bin_y = 1; bin_y <= (nlad * 4 + 2); bin_y++) {
         if (bin_x >= start_x && bin_x <= end_x && bin_y >= start_y && bin_y <= end_y) {
-          rocsToMask.push_back(std::make_pair(bin_x, bin_y));
+          rocsToMask.emplace_back(bin_x, bin_y);
         }
       }
     }
@@ -791,7 +791,7 @@ namespace SiPixelPI {
         COUT << "ladder: " << ladder << " roc_y:" << roc_y << std::endl;
         COUT << "==================================================================" << std::endl;
 
-        rocsToMask.push_back(std::make_tuple(roc_x, roc_y, idx));
+        rocsToMask.emplace_back(roc_x, roc_y, idx);
       }
       ++idx;
     }
@@ -825,7 +825,7 @@ namespace SiPixelPI {
     for (int bin_x = 1; bin_x <= 56; bin_x++) {
       for (int bin_y = 1; bin_y <= nybins; bin_y++) {
         if (bin_x >= start_x && bin_x <= end_x && bin_y >= start_y && bin_y <= end_y) {
-          rocsToMask.push_back(std::make_pair(bin_x, bin_y));
+          rocsToMask.emplace_back(bin_x, bin_y);
         }
       }
     }
@@ -905,7 +905,7 @@ namespace SiPixelPI {
         COUT << " blade: " << blade << " roc_y:" << roc_y << std::endl;
         COUT << "===============================" << std::endl;
 
-        rocsToMask.push_back(std::make_tuple(roc_x, roc_y, idx));
+        rocsToMask.emplace_back(roc_x, roc_y, idx);
       }
       ++idx;
     }

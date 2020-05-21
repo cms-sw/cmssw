@@ -83,7 +83,7 @@ std::vector<std::pair<LinkBoardElectronicIndex, LinkBoardPackedStrip> > RPCReadO
             for (int istrip = 0; istrip < febConnector.nstrips(); istrip++) {
               int stripPinInFeb = febConnector.cablePinNum(istrip);
               if (febConnector.chamberStripNum(istrip) == stripInDU) {
-                result.push_back(std::make_pair(eleIndex, LinkBoardPackedStrip(febInLB, stripPinInFeb)));
+                result.emplace_back(eleIndex, LinkBoardPackedStrip(febInLB, stripPinInFeb));
               }
             }
           }

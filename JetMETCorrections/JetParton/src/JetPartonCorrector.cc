@@ -130,7 +130,7 @@ namespace JetPartonNamespace {
       linestream >> par >> type;
       etavector.push_back(par);
       typevector.push_back(type);
-      pars.push_back(vector<double>());
+      pars.emplace_back();
       while (linestream >> par)
         pars.back().push_back(par);
     }

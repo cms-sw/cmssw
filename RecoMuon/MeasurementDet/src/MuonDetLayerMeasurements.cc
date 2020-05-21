@@ -400,7 +400,7 @@ std::vector<TrajectoryMeasurementGroup> MuonDetLayerMeasurements::groupedMeasure
     if (!groupMeasurements.empty())
       std::sort(groupMeasurements.begin(), groupMeasurements.end(), TrajMeasLessEstim());
 
-    result.push_back(TrajectoryMeasurementGroup(groupMeasurements, *grp));
+    result.emplace_back(groupMeasurements, *grp);
   }
 
   return result;

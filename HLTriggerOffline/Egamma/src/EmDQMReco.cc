@@ -145,7 +145,7 @@ EmDQMReco::EmDQMReco(const edm::ParameterSet &pset) {
     std::vector<double> bounds = filterconf->getParameter<std::vector<double>>("PlotBounds");
     // If the size of plot "bounds" vector != 2, abort
     assert(bounds.size() == 2);
-    plotBounds.push_back(std::pair<double, double>(bounds[0], bounds[1]));
+    plotBounds.emplace_back(bounds[0], bounds[1]);
     isoNames.push_back(filterconf->getParameter<std::vector<edm::InputTag>>("IsoCollections"));
 
     for (unsigned int i = 0; i < isoNames.back().size(); i++) {

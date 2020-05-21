@@ -132,7 +132,7 @@ MuonGeometrySanityCheck::MuonGeometrySanityCheck(const edm::ParameterSet &iConfi
 
   std::vector<edm::ParameterSet> points = iConfig.getParameter<std::vector<edm::ParameterSet> >("points");
   for (std::vector<edm::ParameterSet>::const_iterator point = points.begin(); point != points.end(); ++point) {
-    m_points.push_back(MuonGeometrySanityCheckPoint(*point, m_frames));
+    m_points.emplace_back(*point, m_frames);
   }
 }
 

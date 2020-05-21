@@ -40,9 +40,9 @@ namespace multiTrajectoryStateMode {
       // extraction of parameters and variances
       GlobalVector mom(ic->globalMomentum());
       AlgebraicSymMatrix66 cov(ic->cartesianError().matrix());
-      pxStates.push_back(SingleGaussianState1D(mom.x(), cov(3, 3), ic->weight()));
-      pyStates.push_back(SingleGaussianState1D(mom.y(), cov(4, 4), ic->weight()));
-      pzStates.push_back(SingleGaussianState1D(mom.z(), cov(5, 5), ic->weight()));
+      pxStates.emplace_back(mom.x(), cov(3, 3), ic->weight());
+      pyStates.emplace_back(mom.y(), cov(4, 4), ic->weight());
+      pzStates.emplace_back(mom.z(), cov(5, 5), ic->weight());
     }
     //
     // transformation in 1D multi-states and creation of utility classes
@@ -88,9 +88,9 @@ namespace multiTrajectoryStateMode {
       // extraction of parameters and variances
       GlobalPoint pos(ic->globalPosition());
       AlgebraicSymMatrix66 cov(ic->cartesianError().matrix());
-      xStates.push_back(SingleGaussianState1D(pos.x(), cov(0, 0), ic->weight()));
-      yStates.push_back(SingleGaussianState1D(pos.y(), cov(1, 1), ic->weight()));
-      zStates.push_back(SingleGaussianState1D(pos.z(), cov(2, 2), ic->weight()));
+      xStates.emplace_back(pos.x(), cov(0, 0), ic->weight());
+      yStates.emplace_back(pos.y(), cov(1, 1), ic->weight());
+      zStates.emplace_back(pos.z(), cov(2, 2), ic->weight());
     }
     //
     // transformation in 1D multi-states and creation of utility classes
@@ -300,9 +300,9 @@ namespace multiTrajectoryStateMode {
       // and conversion to p-phi-eta
       covCart = ic->cartesianError().matrix().Sub<AlgebraicSymMatrix33>(3, 3);
       covPPhiEta = ROOT::Math::Similarity(jacobian, covCart);
-      pStates.push_back(SingleGaussianState1D(1 / op, covPPhiEta(0, 0), ic->weight()));
-      phiStates.push_back(SingleGaussianState1D(phi, covPPhiEta(1, 1), ic->weight()));
-      etaStates.push_back(SingleGaussianState1D(eta, covPPhiEta(2, 2), ic->weight()));
+      pStates.emplace_back(1 / op, covPPhiEta(0, 0), ic->weight());
+      phiStates.emplace_back(phi, covPPhiEta(1, 1), ic->weight());
+      etaStates.emplace_back(eta, covPPhiEta(2, 2), ic->weight());
     }
     //
     // transformation in 1D multi-states and creation of utility classes

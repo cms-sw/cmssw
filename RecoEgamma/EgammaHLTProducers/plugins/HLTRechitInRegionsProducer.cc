@@ -137,13 +137,13 @@ template <typename T1>
 void HLTRechitInRegionsProducer<T1>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   std::vector<std::string> productTags;
-  productTags.push_back("EcalRegionalRecHitsEB");
-  productTags.push_back("EcalRegionalRecHitsEE");
+  productTags.emplace_back("EcalRegionalRecHitsEB");
+  productTags.emplace_back("EcalRegionalRecHitsEE");
   desc.add<std::vector<std::string>>("productLabels", productTags);
   std::vector<edm::InputTag> inputTags;
-  inputTags.push_back(edm::InputTag("hltEcalRegionalEgammaRecHit:EcalRecHitsEB"));
-  inputTags.push_back(edm::InputTag("hltEcalRegionalEgammaRecHit:EcalRecHitsEE"));
-  inputTags.push_back(edm::InputTag("hltESRegionalEgammaRecHit:EcalRecHitsES"));
+  inputTags.emplace_back("hltEcalRegionalEgammaRecHit:EcalRecHitsEB");
+  inputTags.emplace_back("hltEcalRegionalEgammaRecHit:EcalRecHitsEE");
+  inputTags.emplace_back("hltESRegionalEgammaRecHit:EcalRecHitsES");
   desc.add<std::vector<edm::InputTag>>("ecalhitLabels", inputTags);
   desc.add<edm::InputTag>("l1TagIsolated", edm::InputTag("l1extraParticles", "Isolated"));
   desc.add<edm::InputTag>("l1TagNonIsolated", edm::InputTag("l1extraParticles", "NonIsolated"));

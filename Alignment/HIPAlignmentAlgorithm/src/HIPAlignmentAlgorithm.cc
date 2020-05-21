@@ -232,7 +232,7 @@ void HIPAlignmentAlgorithm::initialize(const edm::EventSetup& setup,
           throw cms::Exception("BadConfig")
               << "APE function must be \"linear\", \"exponential\", or \"step\"." << std::endl;
 
-        theAPEParameters.push_back(std::make_pair(alignables, apeSPar));
+        theAPEParameters.emplace_back(alignables, apeSPar);
       }
     }
 

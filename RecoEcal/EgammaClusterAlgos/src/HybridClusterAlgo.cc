@@ -391,7 +391,7 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
         if (OwnerShip[j] == i) {
           std::vector<EcalRecHit> temp = dominoCells[j];
           for (int k = 0; k < int(temp.size()); ++k) {
-            dets.push_back(std::pair<DetId, float>(temp[k].id(), 1.));  // by default energy fractions are 1
+            dets.emplace_back(temp[k].id(), 1.);  // by default energy fractions are 1
             if (temp[k].id() == itID)
               HasSeedCrystal = true;
             recHits.push_back(temp[k]);
@@ -421,18 +421,18 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
 
       if (HasSeedCrystal) {
         // note that this "basiccluster" has the seed crystal of the hyrbid, so record it
-        seedClus_.push_back(reco::BasicCluster(
-            LumpEnergy[i], pos, reco::CaloID(reco::CaloID::DET_ECAL_BARREL), usedHits, reco::CaloCluster::hybrid, itID));
+        seedClus_.emplace_back(
+            LumpEnergy[i], pos, reco::CaloID(reco::CaloID::DET_ECAL_BARREL), usedHits, reco::CaloCluster::hybrid, itID);
         // and also add to the vector of clusters that will be used in constructing
         // the supercluster
-        thisseedClusters.push_back(reco::BasicCluster(
-            LumpEnergy[i], pos, reco::CaloID(reco::CaloID::DET_ECAL_BARREL), usedHits, reco::CaloCluster::hybrid, itID));
+        thisseedClusters.emplace_back(
+            LumpEnergy[i], pos, reco::CaloID(reco::CaloID::DET_ECAL_BARREL), usedHits, reco::CaloCluster::hybrid, itID);
       } else {
         // note that if this "basiccluster" is not the one that seeded the hybrid,
         // the seed crystal is unset in this entry in the vector of clusters that will
         // be used in constructing the super cluster
-        thisseedClusters.push_back(reco::BasicCluster(
-            LumpEnergy[i], pos, reco::CaloID(reco::CaloID::DET_ECAL_BARREL), usedHits, reco::CaloCluster::hybrid));
+        thisseedClusters.emplace_back(
+            LumpEnergy[i], pos, reco::CaloID(reco::CaloID::DET_ECAL_BARREL), usedHits, reco::CaloCluster::hybrid);
       }
     }
 
@@ -622,7 +622,7 @@ double HybridClusterAlgo::et25(EcalBarrelNavigatorHT& navigator,
       if (thisDet != DetId(0)) {
         hit = recHits_->find(thisDet);
         if (hit != recHits_->end()) {
-          dets.push_back(std::pair<DetId, float>(thisDet, 1.));  // by default hit energy fraction is set to 1
+          dets.emplace_back(thisDet, 1.);  // by default hit energy fraction is set to 1
           energySum += hit->energy();
         }
       }
@@ -652,7 +652,7 @@ double HybridClusterAlgo::e2Et(EcalBarrelNavigatorHT& navigator,
       if (thisDet != DetId(0)) {
         hit = recHits_->find(thisDet);
         if (hit != recHits_->end()) {
-          dets.push_back(std::pair<DetId, float>(thisDet, 1.));  // by default hit energy fraction is set to 1
+          dets.emplace_back(thisDet, 1.);  // by default hit energy fraction is set to 1
         }
       }
     }

@@ -84,11 +84,11 @@ void DTLocalTriggerTask::bookHistograms(DQMStore::IBooker& ibooker,
 
     vector<string> trigSources;
     if (parameters.getUntrackedParameter<bool>("localrun", true)) {
-      trigSources.push_back("");
+      trigSources.emplace_back("");
     } else {
-      trigSources.push_back("_DTonly");
-      trigSources.push_back("_NoDT");
-      trigSources.push_back("_DTalso");
+      trigSources.emplace_back("_DTonly");
+      trigSources.emplace_back("_NoDT");
+      trigSources.emplace_back("_DTalso");
     }
     vector<string>::const_iterator trigSrcIt = trigSources.begin();
     vector<string>::const_iterator trigSrcEnd = trigSources.end();

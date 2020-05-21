@@ -60,7 +60,7 @@ FWTriggerTableView::FWTriggerTableView(TEveWindowSlot* iParent, FWViewType::ETyp
   frame->AddFrame(m_vert, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
   // have to have at least one column when call  FWTableWidget constructor
-  m_columns.push_back(Column("Name"));
+  m_columns.emplace_back("Name");
 
   m_tableWidget = new FWTableWidget(m_tableManager, frame);
   m_tableWidget->SetHeaderBackgroundColor(gVirtualX->GetPixel(kWhite));

@@ -398,13 +398,13 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
   //Set the monitoring element tag and store
   dqm_tag_.reserve(7);
   dqm_tag_.clear();
-  dqm_tag_.push_back("StdBunch");    // statistic collection from Standard Collision Bunch @ 3.8 T
-  dqm_tag_.push_back("StdBunch0T");  // statistic collection from Standard Collision Bunch @ 0 T
-  dqm_tag_.push_back("AagBunch");    // statistic collection from First Collision After Abort Gap @ 3.8 T
-  dqm_tag_.push_back("AagBunch0T");  // statistic collection from First Collision After Abort Gap @ 0 T
-  dqm_tag_.push_back("IsoMuon");     // statistic collection from Isolated Muon @ 3.8 T
-  dqm_tag_.push_back("IsoMuon0T");   // statistic collection from Isolated Muon @ 0 T
-  dqm_tag_.push_back("Harvest");     // statistic collection: Harvest
+  dqm_tag_.emplace_back("StdBunch");    // statistic collection from Standard Collision Bunch @ 3.8 T
+  dqm_tag_.emplace_back("StdBunch0T");  // statistic collection from Standard Collision Bunch @ 0 T
+  dqm_tag_.emplace_back("AagBunch");    // statistic collection from First Collision After Abort Gap @ 3.8 T
+  dqm_tag_.emplace_back("AagBunch0T");  // statistic collection from First Collision After Abort Gap @ 0 T
+  dqm_tag_.emplace_back("IsoMuon");     // statistic collection from Isolated Muon @ 3.8 T
+  dqm_tag_.emplace_back("IsoMuon0T");   // statistic collection from Isolated Muon @ 0 T
+  dqm_tag_.emplace_back("Harvest");     // statistic collection: Harvest
 
   Charge_Vs_Index.insert(Charge_Vs_Index.begin(), dqm_tag_.size(), nullptr);
   //Charge_Vs_Index_Absolute.insert( Charge_Vs_Index_Absolute.begin(), dqm_tag_.size(), 0);
@@ -640,7 +640,7 @@ void SiStripGainFromCalibTree::bookDQMHistos(const char* dqm_dir, const char* ta
       int id = APVGain::subdetectorId((hnames[i]).first);
       int side = APVGain::subdetectorSide((hnames[i]).first);
       int plane = APVGain::subdetectorPlane((hnames[i]).first);
-      newCharge.push_back(APVGain::APVmon(id, side, plane, monitor));
+      newCharge.emplace_back(id, side, plane, monitor);
     }
   }
 }

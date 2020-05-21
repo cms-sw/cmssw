@@ -420,7 +420,7 @@ std::vector<std::pair<edm::Ref<TrackingParticleCollection>, double> > QuickTrack
   }
   // now copy the map to returnValue
   for (auto ip = lmap.begin(); ip != lmap.end(); ++ip) {
-    returnValue.push_back(std::make_pair(ip->first, ip->second));
+    returnValue.emplace_back(ip->first, ip->second);
   }
   return returnValue;
 }
@@ -465,7 +465,7 @@ QuickTrackAssociatorByHitsImpl::getAllSimTrackIdentifiers(const TrackerHitAssoci
           }
         }
         if (iIdentifierCountPair == returnValue.end())
-          returnValue.push_back(std::make_pair(*iIdentifier, 1.0));
+          returnValue.emplace_back(*iIdentifier, 1.0);
         // This identifier wasn't found, so add it
       }
     }

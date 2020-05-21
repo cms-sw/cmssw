@@ -280,7 +280,7 @@ void EgammaHLTNxNClusterProducer::makeNxNClusters(edm::Event &evt,
         continue;
 
       usedXtals.push_back(detid);
-      clus_used.push_back(std::pair<DetId, float>(detid, 1.));
+      clus_used.emplace_back(detid, 1.);
       clus_energy += hit->energy();
 
     }  //// end of making one nxn simple cluster
@@ -295,8 +295,7 @@ void EgammaHLTNxNClusterProducer::makeNxNClusters(edm::Event &evt,
                    << " energy: " << clus_energy << " eta: " << clus_pos.Eta() << " phi: " << clus_pos.Phi()
                    << " nRecHits: " << clus_used.size() << std::endl;
 
-    clusters.push_back(reco::BasicCluster(
-        clus_energy, clus_pos, reco::CaloID(detector), clus_used, reco::CaloCluster::island, seed_id));
+    clusters.emplace_back(clus_energy, clus_pos, reco::CaloID(detector), clus_used, reco::CaloCluster::island, seed_id);
     if (int(clusters.size()) > maxNumberofClusters_) {  ///if too much clusters made, then return 0 also
       clusters.clear();
       break;

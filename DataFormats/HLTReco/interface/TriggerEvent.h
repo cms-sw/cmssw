@@ -91,7 +91,7 @@ namespace trigger {
     }
 
     void addFilter(const edm::InputTag& filterTag, const Vids& filterIds, const Keys& filterKeys) {
-      triggerFilters_.push_back(TriggerFilterObject(filterTag, filterIds, filterKeys));
+      triggerFilters_.emplace_back(filterTag, filterIds, filterKeys);
     }
 
     /// getters

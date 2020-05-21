@@ -59,7 +59,7 @@ DTT0CalibrationRMS::DTT0CalibrationRMS(const edm::ParameterSet& pset) {
   }
 
   vector<string> defaultCell;
-  defaultCell.push_back("None");
+  defaultCell.emplace_back("None");
   cellsWithHistos = pset.getUntrackedParameter<vector<string> >("cellsWithHisto", defaultCell);
   for (vector<string>::const_iterator cell = cellsWithHistos.begin(); cell != cellsWithHistos.end(); ++cell) {
     if ((*cell) != "None") {
@@ -67,7 +67,7 @@ DTT0CalibrationRMS::DTT0CalibrationRMS(const edm::ParameterSet& pset) {
       int wheel, sector, station, sl, layer, wire;
       linestr << (*cell);
       linestr >> wheel >> sector >> station >> sl >> layer >> wire;
-      wireIdWithHistos.push_back(DTWireId(wheel, station, sector, sl, layer, wire));
+      wireIdWithHistos.emplace_back(wheel, station, sector, sl, layer, wire);
     }
   }
 

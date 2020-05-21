@@ -264,7 +264,7 @@ void PFPhotonTranslator::produce(edm::Event &iEvent, const edm::EventSetup &iSet
       //std::cout << "nDoubleLegConv="<<cand.photonExtraRef()->conversionRef().size()<<std::endl;
 
       if (!cand.photonExtraRef()->conversionRef().empty()) {
-        pfConv_.push_back(reco::ConversionRefVector());
+        pfConv_.emplace_back();
 
         const reco::ConversionRefVector &doubleLegConvColl = cand.photonExtraRef()->conversionRef();
         for (unsigned int iconv = 0; iconv < doubleLegConvColl.size(); iconv++) {
@@ -282,8 +282,8 @@ void PFPhotonTranslator::produce(edm::Event &iEvent, const edm::EventSetup &iSet
       //std::cout << "nSingleLegConv=" <<singleLegConvColl.size() << std::endl;
 
       if (!singleLegConvColl.empty()) {
-        pfSingleLegConv_.push_back(std::vector<reco::TrackRef>());
-        pfSingleLegConvMva_.push_back(std::vector<float>());
+        pfSingleLegConv_.emplace_back();
+        pfSingleLegConvMva_.emplace_back();
 
         //cout << "nTracks="<< singleLegConvColl.size()<<endl;
         for (unsigned int itk = 0; itk < singleLegConvColl.size(); itk++) {
@@ -304,13 +304,13 @@ void PFPhotonTranslator::produce(edm::Event &iEvent, const edm::EventSetup &iSet
     pfPhotonMva_.push_back(cand.mva_nothing_gamma());
     energyRegression_.push_back(cand.photonExtraRef()->MVAGlobalCorrE());
     energyRegressionError_.push_back(cand.photonExtraRef()->MVAGlobalCorrEError());
-    basicClusters_.push_back(reco::BasicClusterCollection());
-    pfClusters_.push_back(std::vector<const reco::PFCluster *>());
-    preshowerClusters_.push_back(reco::PreshowerClusterCollection());
-    superClusters_.push_back(reco::SuperClusterCollection());
+    basicClusters_.emplace_back();
+    pfClusters_.emplace_back();
+    preshowerClusters_.emplace_back();
+    superClusters_.emplace_back();
 
     reco::PFCandidatePtr ptrToPFPhoton(pfCandidates, i);
-    CandidatePtr_.push_back(ptrToPFPhoton);
+    CandidatePtr_.emplace_back(ptrToPFPhoton);
     egSCRef_.push_back(cand.superClusterRef());
     //std::cout << "PFPhoton cand " << iphot << std::endl;
 

@@ -147,13 +147,13 @@ namespace cond {
                            bool) {
       if (m_data.get()) {
         // here the type check could be added
-        m_data->iovBuffer.push_back(std::tie(since, payloadHash, insertionTime));
+        m_data->iovBuffer.emplace_back(std::tie(since, payloadHash, insertionTime));
       }
     }
 
     void IOVEditor::erase(cond::Time_t since, const cond::Hash& payloadHash) {
       if (m_data.get()) {
-        m_data->deleteBuffer.push_back(std::tie(since, payloadHash));
+        m_data->deleteBuffer.emplace_back(std::tie(since, payloadHash));
       }
     }
 

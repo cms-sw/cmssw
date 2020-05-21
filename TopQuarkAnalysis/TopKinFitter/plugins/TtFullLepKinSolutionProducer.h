@@ -397,7 +397,7 @@ void TtFullLepKinSolutionProducer::produce(edm::Event& evt, const edm::EventSetu
           nuBarsV.push_back(nuSol.neutrinoBar);
 
           // add the solution weight
-          weightsV.push_back(std::make_pair(nuSol.weight, nSol));
+          weightsV.emplace_back(nuSol.weight, nSol);
 
           nSol++;
         }
@@ -412,7 +412,7 @@ void TtFullLepKinSolutionProducer::produce(edm::Event& evt, const edm::EventSetu
       idcs.push_back(-1);
 
     idcsV.push_back(idcs);
-    weightsV.push_back(std::make_pair(-1, 0));
+    weightsV.emplace_back(-1, 0);
     reco::LeafCandidate nu;
     nusV.push_back(nu);
     reco::LeafCandidate nuBar;

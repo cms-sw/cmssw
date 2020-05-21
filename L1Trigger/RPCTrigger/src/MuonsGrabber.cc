@@ -117,7 +117,7 @@ void MuonsGrabber::startNewEvent(int event, int bx) {
 
 void MuonsGrabber::addMuon(RPCTBMuon& mu, int lvl, int region, int hs, int index) {
   if (mu.getPtCode() > 0)
-    m_muons.push_back(RPCMuonExtraStruct(lvl, region, hs, index, mu));
+    m_muons.emplace_back(lvl, region, hs, index, mu);
 }
 
 void MuonsGrabber::writeDataForRelativeBX(int bx) {

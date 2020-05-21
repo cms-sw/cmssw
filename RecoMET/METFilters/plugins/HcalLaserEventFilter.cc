@@ -131,7 +131,7 @@ HcalLaserEventFilter::HcalLaserEventFilter(const edm::ParameterSet& iConfig)
   for (unsigned int i = 0; i + 1 < temprunevt.size(); i += 2) {
     edm::RunNumber_t run = temprunevt[i];
     edm::EventNumber_t evt = temprunevt[i + 1];
-    RunEventData_.push_back(std::make_pair(run, evt));
+    RunEventData_.emplace_back(run, evt);
   }
   produces<bool>();
 

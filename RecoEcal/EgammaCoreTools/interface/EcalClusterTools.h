@@ -1459,7 +1459,7 @@ Cluster2ndMoments EcalClusterToolsT<noZS>::cluster2ndMoments(const reco::BasicCl
     //get pointer to recHit object
     EcalRecHitCollection::const_iterator myRH = recHits.find(myHitsPair[i].first);
     if (myRH != recHits.end()) {
-      RH_ptrs_fracs.push_back(std::make_pair(&(*myRH), myHitsPair[i].second));
+      RH_ptrs_fracs.emplace_back(&(*myRH), myHitsPair[i].second);
     }
   }
 
@@ -1624,7 +1624,7 @@ std::vector<float> EcalClusterToolsT<noZS>::roundnessBarrelSuperClusters(
     EcalRecHitCollection::const_iterator myRH = recHits.find(myHitsPair[i].first);
     if (myRH != recHits.end() && myRH->energy() * (noZS ? 1.0 : myHitsPair[i].second) > energyThreshold) {
       //require rec hit to have positive energy
-      RH_ptrs_fracs.push_back(std::make_pair(&(*myRH), myHitsPair[i].second));
+      RH_ptrs_fracs.emplace_back(&(*myRH), myHitsPair[i].second);
     }
   }
   std::vector<float> temp =
@@ -1650,7 +1650,7 @@ std::vector<float> EcalClusterToolsT<noZS>::roundnessBarrelSuperClustersUserExte
     //get pointer to recHit object
     EcalRecHitCollection::const_iterator myRH = recHits.find(myHitsPair[i].first);
     if (myRH != recHits.end() && myRH->energy() * (noZS ? 1.0 : myHitsPair[i].second) > energyRHThresh)
-      RH_ptrs_fracs.push_back(std::make_pair(&(*myRH), myHitsPair[i].second));
+      RH_ptrs_fracs.emplace_back(&(*myRH), myHitsPair[i].second);
   }
 
   std::vector<int> seedPosition = EcalClusterToolsT<noZS>::getSeedPosition(RH_ptrs_fracs);
@@ -1677,7 +1677,7 @@ std::vector<float> EcalClusterToolsT<noZS>::roundnessBarrelSuperClustersUserExte
     }  //for loop over SC's recHits
 
     if (is_SCrh_inside_recHits && !alreadyCounted && passEThresh && inEtaWindow && inPhiWindow) {
-      RH_ptrs_fracs.push_back(std::make_pair(&(*rh), the_fraction));
+      RH_ptrs_fracs.emplace_back(&(*rh), the_fraction);
     }
 
   }  //for loop over rh

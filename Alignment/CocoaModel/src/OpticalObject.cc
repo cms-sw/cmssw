@@ -422,11 +422,11 @@ void OpticalObject::buildWordList(const Entry* entry, std::vector<ALIstring>& wo
   //---------- 1st add value
   char chartmp[20];
   gcvt(entry->value() / entry->ValueDimensionFactor(), 10, chartmp);
-  wordlist.push_back(chartmp);
+  wordlist.emplace_back(chartmp);
 
   //---------- 1st add sigma
   gcvt(entry->sigma() / entry->SigmaDimensionFactor(), 10, chartmp);
-  wordlist.push_back(chartmp);
+  wordlist.emplace_back(chartmp);
 
   //---------- 1st add quality
   ALIstring strtmp;
@@ -2066,15 +2066,15 @@ std::vector<ALIstring> OpticalObject::getCoordinateFromOptAlignParam(const Optic
   std::vector<ALIstring> wordlist;
   wordlist.push_back(oaParam.name());
   gcvt(oaParam.value(), 10, chartmp);
-  wordlist.push_back(chartmp);
+  wordlist.emplace_back(chartmp);
   gcvt(oaParam.sigma(), 10, chartmp);
-  wordlist.push_back(chartmp);
+  wordlist.emplace_back(chartmp);
   if (oaParam.quality() == 0) {
-    wordlist.push_back("fix");
+    wordlist.emplace_back("fix");
   } else if (oaParam.quality() == 1) {
-    wordlist.push_back("cal");
+    wordlist.emplace_back("cal");
   } else if (oaParam.quality() == 2) {
-    wordlist.push_back("unk");
+    wordlist.emplace_back("unk");
   }
 
   if (ALIUtils::debug >= 5) {

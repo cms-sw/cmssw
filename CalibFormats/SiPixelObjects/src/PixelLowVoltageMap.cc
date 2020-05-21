@@ -37,15 +37,15 @@ PixelLowVoltageMap::PixelLowVoltageMap(std::vector<std::vector<std::string> > &t
   
 */
 
-  colNames.push_back("CONFIG_KEY");
-  colNames.push_back("KEY_TYPE");
-  colNames.push_back("KEY_ALIAS");
-  colNames.push_back("VERSION");
-  colNames.push_back("KIND_OF_COND");
-  colNames.push_back("PANEL_NAME");
-  colNames.push_back("DATAPOINT");
-  colNames.push_back("LV_DIGITAL");
-  colNames.push_back("LV_ANALOG");
+  colNames.emplace_back("CONFIG_KEY");
+  colNames.emplace_back("KEY_TYPE");
+  colNames.emplace_back("KEY_ALIAS");
+  colNames.emplace_back("VERSION");
+  colNames.emplace_back("KIND_OF_COND");
+  colNames.emplace_back("PANEL_NAME");
+  colNames.emplace_back("DATAPOINT");
+  colNames.emplace_back("LV_DIGITAL");
+  colNames.emplace_back("LV_ANALOG");
   /*
   colNames.push_back("CONFIG_KEY_ID"	);
   colNames.push_back("CONFG_KEY"	);

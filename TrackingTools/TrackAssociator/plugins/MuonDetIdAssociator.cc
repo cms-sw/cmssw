@@ -85,7 +85,7 @@ void MuonDetIdAssociator::getValidDetIds(unsigned int subDectorIndex, std::vecto
     if (auto rpc = dynamic_cast<const RPCChamber*>(*it)) {
       std::vector<const RPCRoll*> rolls = (rpc->rolls());
       for (std::vector<const RPCRoll*>::iterator r = rolls.begin(); r != rolls.end(); ++r)
-        validIds.push_back((*r)->id().rawId());
+        validIds.emplace_back((*r)->id().rawId());
     }
 
   // GEM

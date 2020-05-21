@@ -189,7 +189,7 @@ std::vector<std::pair<std::string, std::string>> APVGain::monHnames(std::vector<
       h_tag = "TIB_layer_" + std::to_string(i) + Tag;
       h_tit = h_tag;
       std::replace(h_tit.begin(), h_tit.end(), '_', ' ');
-      out.push_back(std::pair<std::string, std::string>(h_tag, h_tit));
+      out.emplace_back(h_tag, h_tit);
     }
     // Names of monitoring histogram for TOB layers
     constexpr int TOBlayers = 6;  //number of TOB layers
@@ -197,7 +197,7 @@ std::vector<std::pair<std::string, std::string>> APVGain::monHnames(std::vector<
       h_tag = "TOB_layer_" + std::to_string(i) + Tag;
       h_tit = h_tag;
       std::replace(h_tit.begin(), h_tit.end(), '_', ' ');
-      out.push_back(std::pair<std::string, std::string>(h_tag, h_tit));
+      out.emplace_back(h_tag, h_tit);
     }
     // Names of monitoring histogram for TID wheels
     constexpr int TIDwheels = 3;  //number of TID wheels
@@ -210,7 +210,7 @@ std::vector<std::pair<std::string, std::string>> APVGain::monHnames(std::vector<
         h_tag = "TIDplus_wheel_" + std::to_string(i) + Tag;
       h_tit = h_tag;
       std::replace(h_tit.begin(), h_tit.end(), '_', ' ');
-      out.push_back(std::pair<std::string, std::string>(h_tag, h_tit));
+      out.emplace_back(h_tag, h_tit);
     }
     // Names of monitoring histogram for TEC wheels
     constexpr int TECwheels = 9;  //number of TEC wheels
@@ -223,7 +223,7 @@ std::vector<std::pair<std::string, std::string>> APVGain::monHnames(std::vector<
         h_tag = "TECplus_wheel_" + std::to_string(i) + Tag;
       h_tit = h_tag;
       std::replace(h_tit.begin(), h_tit.end(), '_', ' ');
-      out.push_back(std::pair<std::string, std::string>(h_tag, h_tit));
+      out.emplace_back(h_tag, h_tit);
     }
   }
 
@@ -231,7 +231,7 @@ std::vector<std::pair<std::string, std::string>> APVGain::monHnames(std::vector<
     h_tag = VH[i] + Tag;
     h_tit = h_tag;
     std::replace(h_tit.begin(), h_tit.end(), '_', ' ');
-    out.push_back(std::pair<std::string, std::string>(h_tag, h_tit));
+    out.emplace_back(h_tag, h_tit);
   }
 
   return out;

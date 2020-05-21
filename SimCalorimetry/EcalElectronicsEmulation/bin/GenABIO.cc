@@ -305,7 +305,7 @@ int main(int argc, char *argv[]) {
       for (int iX = 0; iX < nSupercrystalYBins; ++iX) {
         int iDCCPhi = dccPhiIndexOfRU(iEE == 0 ? 0 : 2, iX, iY);
         if (iDCCPhi >= 0) {  // SC exists
-          ecalDccSC[iEE][iDCCPhi].push_back(pair<int, int>(iX, iY));
+          ecalDccSC[iEE][iDCCPhi].emplace_back(iX, iY);
         }
       }
     }

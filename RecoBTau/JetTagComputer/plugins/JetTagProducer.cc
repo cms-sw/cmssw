@@ -86,7 +86,7 @@ void JetTagProducer::produce(Event &iEvent, const EventSetup &iSetup) {
       vector<string> inputLabels(computer->getInputLabels());
       // backward compatible case, use default tagInfo
       if (inputLabels.empty())
-        inputLabels.push_back("tagInfo");
+        inputLabels.emplace_back("tagInfo");
       std::string message(
           "VInputTag size mismatch - the following taginfo "
           "labels are needed:\n");
@@ -148,10 +148,10 @@ void JetTagProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptio
   desc.add<std::string>("jetTagComputer", "combinedMVAComputer");
   {
     std::vector<edm::InputTag> tagInfos;
-    tagInfos.push_back(edm::InputTag("impactParameterTagInfos"));
-    tagInfos.push_back(edm::InputTag("inclusiveSecondaryVertexFinderTagInfos"));
-    tagInfos.push_back(edm::InputTag("softPFMuonsTagInfos"));
-    tagInfos.push_back(edm::InputTag("softPFElectronsTagInfos"));
+    tagInfos.emplace_back("impactParameterTagInfos");
+    tagInfos.emplace_back("inclusiveSecondaryVertexFinderTagInfos");
+    tagInfos.emplace_back("softPFMuonsTagInfos");
+    tagInfos.emplace_back("softPFElectronsTagInfos");
     desc.add<std::vector<edm::InputTag> >("tagInfos", tagInfos);
   }
   descriptions.addDefault(desc);

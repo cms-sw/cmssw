@@ -223,7 +223,7 @@ TtFullHadSignalSel::TtFullHadSignalSel(const std::vector<pat::Jet>& jets) {
     for (std::vector<pat::Jet>::const_iterator jet2 = jet + 1; jet2 != jets.end(); ++jet2) {
       unsigned short comb2A[2] = {(unsigned short)(jet - jets.begin()), (unsigned short)(jet2 - jets.begin())};
       std::vector<unsigned short> comb2(comb2A, comb2A + sizeof(comb2A) / sizeof(unsigned short));
-      dRs.push_back(std::make_pair(deltaR(jet->phi(), jet->eta(), jet2->phi(), jet2->eta()), comb2));
+      dRs.emplace_back(deltaR(jet->phi(), jet->eta(), jet2->phi(), jet2->eta()), comb2);
 
       for (std::vector<pat::Jet>::const_iterator jet3 = jet2 + 1; jet3 != jets.end(); ++jet3) {
         unsigned short comb3A[3] = {(unsigned short)(jet - jets.begin()),
@@ -233,8 +233,8 @@ TtFullHadSignalSel::TtFullHadSignalSel(const std::vector<pat::Jet>& jets) {
         double dR1 = deltaR(jet->eta(), jet->phi(), jet2->eta(), jet2->phi());
         double dR2 = deltaR(jet->eta(), jet->phi(), jet3->eta(), jet3->phi());
         double dR3 = deltaR(jet2->eta(), jet2->phi(), jet3->eta(), jet3->phi());
-        dRs3Jets.push_back(std::make_pair(dR1 + dR2 + dR3, comb3));
-        M3s.push_back(std::make_pair((jet->p4() + jet2->p4() + jet3->p4()).pt(), comb3));
+        dRs3Jets.emplace_back(dR1 + dR2 + dR3, comb3);
+        M3s.emplace_back((jet->p4() + jet2->p4() + jet3->p4()).pt(), comb3);
       }
     }
 
@@ -245,8 +245,7 @@ TtFullHadSignalSel::TtFullHadSignalSel(const std::vector<pat::Jet>& jets) {
   std::vector<reco::LeafCandidate> boostedJets;
 
   for (std::vector<pat::Jet>::const_iterator jet = jets.begin(); jet != jets.end(); ++jet) {
-    boostedJets.push_back(
-        reco::LeafCandidate(jet->charge(), CoMBoostTotal(jet->p4()), jet->vertex(), jet->pdgId(), jet->status(), true));
+    boostedJets.emplace_back(jet->charge(), CoMBoostTotal(jet->p4()), jet->vertex(), jet->pdgId(), jet->status(), true);
   }
 
   EtSin2Theta3jet_ /= ((double)(jets.size() - 3));
@@ -306,7 +305,7 @@ TtFullHadSignalSel::TtFullHadSignalSel(const std::vector<pat::Jet>& jets) {
   std::vector<std::pair<double, unsigned short> > massDiff2W;
 
   for (std::vector<double>::const_iterator mass = dRMass_.begin(); mass != dRMass_.end(); ++mass) {
-    massDiff2W.push_back(std::make_pair(std::abs((*mass) - 80.4), mass - dRMass_.begin()));
+    massDiff2W.emplace_back(std::abs((*mass) - 80.4), mass - dRMass_.begin());
   }
 
   std::sort(massDiff2W.begin(), massDiff2W.end());

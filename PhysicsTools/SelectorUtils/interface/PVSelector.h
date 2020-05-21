@@ -48,7 +48,7 @@ public:
       bool ipass = pvSel_(pv);
       if (ipass) {
         ++npv;
-        mvSelPvs.push_back(edm::Ptr<reco::Vertex>(h_primVtx, _ntotal));
+        mvSelPvs.emplace_back(h_primVtx, _ntotal);
       }
       ++_ntotal;
     }

@@ -208,21 +208,21 @@ TEveElement* FWRPZViewGeometry::makeMuonGeometryRhoZ(void) {
     std::vector<CSCDetId> ids;
     for (int endcap = CSCDetId::minEndcapId(); endcap <= CSCDetId::maxEndcapId(); ++endcap) {
       for (int station = 1; station <= 4; ++station) {
-        ids.push_back(CSCDetId(endcap, station, 2, 10, 0));  //outer ring up
-        ids.push_back(CSCDetId(endcap, station, 2, 11, 0));  //outer ring up
+        ids.emplace_back(endcap, station, 2, 10, 0);  //outer ring up
+        ids.emplace_back(endcap, station, 2, 11, 0);  //outer ring up
 
-        ids.push_back(CSCDetId(endcap, station, 2, 28, 0));  //outer ring down
-        ids.push_back(CSCDetId(endcap, station, 2, 29, 0));  //outer ring down
+        ids.emplace_back(endcap, station, 2, 28, 0);  //outer ring down
+        ids.emplace_back(endcap, station, 2, 29, 0);  //outer ring down
 
-        ids.push_back(CSCDetId(endcap, station, 1, 5, 0));  //inner ring up
-        ids.push_back(CSCDetId(endcap, station, 1, 6, 0));  //inner ring up
+        ids.emplace_back(endcap, station, 1, 5, 0);  //inner ring up
+        ids.emplace_back(endcap, station, 1, 6, 0);  //inner ring up
 
         int off = (station == 1) ? 10 : 0;
-        ids.push_back(CSCDetId(endcap, station, 1, 15 + off, 0));  //inner ring down
-        ids.push_back(CSCDetId(endcap, station, 1, 16 + off, 0));  //inner ring down
+        ids.emplace_back(endcap, station, 1, 15 + off, 0);  //inner ring down
+        ids.emplace_back(endcap, station, 1, 16 + off, 0);  //inner ring down
       }
-      ids.push_back(CSCDetId(endcap, 1, 3, 10, 0));  // ring 3 down
-      ids.push_back(CSCDetId(endcap, 1, 3, 28, 0));  // ring 3 down
+      ids.emplace_back(endcap, 1, 3, 10, 0);  // ring 3 down
+      ids.emplace_back(endcap, 1, 3, 28, 0);  // ring 3 down
     }
     for (std::vector<CSCDetId>::iterator i = ids.begin(); i != ids.end(); ++i) {
       unsigned int rawid = i->rawId();
@@ -487,23 +487,23 @@ void FWRPZViewGeometry::showRpcEndcap(bool show) {
       for (int ring = 2; ring <= 3; ++ring) {
         for (int station = 1; station <= mxSt; ++station) {
           int sector = 1;
-          ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 1));
-          ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 2));
-          ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 3));
+          ids.emplace_back(region, ring, station, sector, 1, 1, 1);
+          ids.emplace_back(region, ring, station, sector, 1, 1, 2);
+          ids.emplace_back(region, ring, station, sector, 1, 1, 3);
           if (ring == 2 && station == 1) {  // 2 layers in ring 2 station 1 up
-            ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 1));
-            ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 2));
-            ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 3));
+            ids.emplace_back(region, ring, station, sector, 1, 2, 1);
+            ids.emplace_back(region, ring, station, sector, 1, 2, 2);
+            ids.emplace_back(region, ring, station, sector, 1, 2, 3);
           }
           sector = 5;
-          ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 1));
-          ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 2));
-          ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 3));
+          ids.emplace_back(region, ring, station, sector, 1, 1, 1);
+          ids.emplace_back(region, ring, station, sector, 1, 1, 2);
+          ids.emplace_back(region, ring, station, sector, 1, 1, 3);
 
           if (ring == 2 && station == 1) {  // 2 layers in ring 2 station 1 down
-            ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 1));
-            ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 2));
-            ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 3));
+            ids.emplace_back(region, ring, station, sector, 1, 2, 1);
+            ids.emplace_back(region, ring, station, sector, 1, 2, 2);
+            ids.emplace_back(region, ring, station, sector, 1, 2, 3);
           }
         }
       }

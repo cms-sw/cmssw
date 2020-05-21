@@ -38,7 +38,7 @@ void FWPFClusterRPZProxyBuilder::sharedBuild(
 
   ls = m_clusterUtils->buildRhoPhiClusterLineSet(iData, vc, energy, et, r);
   ls->SetLineColor(dp.color());
-  m_clusters.push_back(ScalableLines(ls, et, energy, vc));
+  m_clusters.emplace_back(ls, et, energy, vc);
   setupAddElement(ls, &oItemHolder);
 }
 
@@ -62,7 +62,7 @@ void FWPFClusterRPZProxyBuilder::build(const reco::PFCluster &iData,
   ls = m_clusterUtils->buildRhoZClusterLineSet(iData, vc, context().caloTransAngle(), energy, et, ecalR, ecalZ);
   ls->SetLineColor(dp.color());
 
-  m_clusters.push_back(ScalableLines(ls, et, energy, vc));
+  m_clusters.emplace_back(ls, et, energy, vc);
   setupAddElement(ls, &oItemHolder);
 }
 

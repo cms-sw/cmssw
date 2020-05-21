@@ -55,7 +55,7 @@ EcalDigiDisplay::EcalDigiDisplay(const edm::ParameterSet& ps) {
   bool fedIsGiven = false;
 
   std::vector<std::string> ebDefaults;
-  ebDefaults.push_back("none");
+  ebDefaults.emplace_back("none");
   requestedEbs_ = ps.getUntrackedParameter<std::vector<std::string> >("requestedEbs", ebDefaults);
   // FEDs and EBs
   if (requestedFeds_[0] != -1) {

@@ -190,7 +190,7 @@ int DTPerformance::set(int wheelId,
     data.meanResolution = meanResolution;
     data.meanEfficiency = meanEfficiency;
     ientry = dataList.size();
-    dataList.push_back(std::pair<DTPerformanceId, DTPerformanceData>(key, data));
+    dataList.emplace_back(key, data);
     dBuf->insert(chanKey.begin(), chanKey.end(), ientry);
     return 0;
   }

@@ -132,7 +132,7 @@ namespace lumi {
         if (pslsnum < lsmin) {
           lsmin = pslsnum;
         }
-        psindexmap.push_back(std::make_pair(pslsnum, psindx));
+        psindexmap.emplace_back(pslsnum, psindx);
       }
     }
     delete qPsindex;

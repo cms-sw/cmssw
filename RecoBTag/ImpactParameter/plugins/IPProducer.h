@@ -71,7 +71,7 @@ namespace IPProducerHelpers {
            it != jetTracksAssociation->end();
            it++, i++) {
         edm::Ref<reco::JetTracksAssociationCollection> jtaRef(jetTracksAssociation, i);
-        bases.push_back(reco::JTATagInfo(jtaRef));
+        bases.emplace_back(jtaRef);
       }
       return bases;
     }
@@ -100,7 +100,7 @@ namespace IPProducerHelpers {
       size_t i = 0;
       for (edm::View<reco::Jet>::const_iterator it = jets->begin(); it != jets->end(); it++, i++) {
         edm::RefToBase<reco::Jet> jRef(jets, i);
-        bases.push_back(reco::JetTagInfo(jRef));
+        bases.emplace_back(jRef);
         if (explicitJTA) {
           for (size_t j = 0; j < it->numberOfDaughters(); ++j) {
             if (it->daughterPtr(j)->bestTrack() != nullptr && it->daughterPtr(j)->charge() != 0) {

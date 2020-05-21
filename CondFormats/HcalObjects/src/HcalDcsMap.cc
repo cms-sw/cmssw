@@ -121,7 +121,7 @@ std::vector<HcalDcsDetId> HcalDcsMap::allHcalDcsDetId() const {
   std::vector<HcalDcsDetId> result;
   for (std::vector<Item>::const_iterator item = mItems.begin(); item != mItems.end(); item++)
     if (item->mDcsId)
-      result.push_back(HcalDcsDetId(item->mDcsId));
+      result.emplace_back(item->mDcsId);
   return result;
 }
 
@@ -133,7 +133,7 @@ std::vector<HcalGenericDetId> HcalDcsMap::allHcalDetId() const {
     if (item->mId)
       allIds.insert(item->mId);
   for (std::set<unsigned long>::const_iterator channel = allIds.begin(); channel != allIds.end(); channel++) {
-    result.push_back(HcalGenericDetId(*channel));
+    result.emplace_back(*channel);
   }
   return result;
 }

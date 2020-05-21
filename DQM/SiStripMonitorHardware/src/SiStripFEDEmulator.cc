@@ -105,10 +105,10 @@ namespace sistrip {
 
     for (uint32_t st = minStrip_; st < maxStrip_; st++) {
       uint16_t ped = static_cast<uint16_t>(pedestals_[st]);
-      pedsDetSetData.push_back(SiStripRawDigi(ped));
+      pedsDetSetData.emplace_back(ped);
 
       float noise = noises_[st];
-      noiseDetSetData.push_back(SiStripProcessedRawDigi(noise));
+      noiseDetSetData.emplace_back(noise);
 
       if (digi_it == inputChannel->end()) {
         LogError(messageLabel_) << " Error, end of inputchannel reached for detid " << detId_ << "! Processed "
@@ -123,7 +123,7 @@ namespace sistrip {
                                   << st << ", digi = " << digi_it->adc() << ", ped = " << ped << std::endl;
         lVal = 0;
       }
-      pedSubtrDetSetData.push_back(SiStripRawDigi(static_cast<uint16_t>(lVal)));
+      pedSubtrDetSetData.emplace_back(static_cast<uint16_t>(lVal));
 
       if (fillApvsForCM) {
         apvVec.push_back(static_cast<uint16_t>(lVal));
@@ -180,7 +180,7 @@ namespace sistrip {
         //FED doesn't handle negative values
         value = 0;
       }
-      cmSubtrDetSetData.push_back(SiStripRawDigi(static_cast<uint16_t>(value)));
+      cmSubtrDetSetData.emplace_back(static_cast<uint16_t>(value));
 
       ++lDigi;
       lCount++;

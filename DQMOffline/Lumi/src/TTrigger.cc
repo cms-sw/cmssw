@@ -25,13 +25,13 @@ using namespace ZCountingTrigger;
 TTrigger::TTrigger(const std::vector<std::string> &muonTriggerNames,
                    const std::vector<std::string> &muonTriggerObjectNames) {
   for (unsigned int i = 0; i < muonTriggerNames.size(); ++i) {
-    fRecords.push_back(ZCountingTrigger::TriggerRecord(muonTriggerNames.at(i), 0));
-    fRecords.back().objectMap.push_back(std::pair<std::string, int>(muonTriggerObjectNames.at(i), 0));
+    fRecords.emplace_back(muonTriggerNames.at(i), 0);
+    fRecords.back().objectMap.emplace_back(std::pair<std::string, int>(muonTriggerObjectNames.at(i), 0));
   }
-  fRecords.push_back(ZCountingTrigger::TriggerRecord("HLT_Ele35_WPTight_Gsf_v*", 1));
-  fRecords.back().objectMap.push_back(std::pair<std::string, int>("hltEle35noerWPTightGsfTrackIsoFilter", 0));
-  fRecords.push_back(ZCountingTrigger::TriggerRecord("HLT_Ele27_WPTight_Gsf_v*", 2));
-  fRecords.back().objectMap.push_back(std::pair<std::string, int>("hltEle27WPTightGsfTrackIsoFilter", 0));
+  fRecords.emplace_back("HLT_Ele35_WPTight_Gsf_v*", 1);
+  fRecords.back().objectMap.emplace_back(std::pair<std::string, int>("hltEle35noerWPTightGsfTrackIsoFilter", 0));
+  fRecords.emplace_back("HLT_Ele27_WPTight_Gsf_v*", 2);
+  fRecords.back().objectMap.emplace_back(std::pair<std::string, int>("hltEle27WPTightGsfTrackIsoFilter", 0));
 }
 
 //--------------------------------------------------------------------------------------------------

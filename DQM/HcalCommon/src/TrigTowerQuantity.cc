@@ -56,7 +56,7 @@ namespace hcaldqm {
       std::vector<std::string> labels;
       for (int i = 0; i < 82; i++) {
         sprintf(name, "%d", getTid_TTieta(i).ieta());
-        labels.push_back(name);
+        labels.emplace_back(name);
       }
       return labels;
     }
@@ -66,7 +66,7 @@ namespace hcaldqm {
       std::vector<std::string> labels;
       for (int i = 0; i < 8; i++) {
         sprintf(name, "%d", getTid_TTieta2x3(i).ieta());
-        labels.push_back(name);
+        labels.emplace_back(name);
       }
       return labels;
     }

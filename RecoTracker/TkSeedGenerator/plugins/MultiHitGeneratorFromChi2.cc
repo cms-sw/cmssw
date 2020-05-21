@@ -287,14 +287,12 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
         if (myerr > maxErr) {
           maxErr = myerr;
         }
-        layerTree.push_back(KDTreeNodeInfo<RecHitsSortedInPhi::HitIter, 2>(hi, angle, myz));  // save it
+        layerTree.emplace_back(hi, angle, myz);  // save it
         // populate side-bands
         if (angle > safePhi)
-          layerTree.push_back(
-              KDTreeNodeInfo<RecHitsSortedInPhi::HitIter, 2>(hi, float(angle - Geom::twoPi()), float(myz)));
+          layerTree.emplace_back(hi, float(angle - Geom::twoPi()), float(myz));
         else if (angle < -safePhi)
-          layerTree.push_back(
-              KDTreeNodeInfo<RecHitsSortedInPhi::HitIter, 2>(hi, float(angle + Geom::twoPi()), float(myz)));
+          layerTree.emplace_back(hi, float(angle + Geom::twoPi()), float(myz));
       }
     }
     KDTreeBox phiZ(minphi, maxphi, minz - 0.01f, maxz + 0.01f);  // declare our bounds

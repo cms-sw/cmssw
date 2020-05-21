@@ -116,7 +116,7 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
       for (L1MuonSeedsMerger::TracksAndHits::const_iterator it = tracks.begin(); it != tracks.end(); ++it) {
         SeedFromProtoTrack seed(*(it->first), it->second, es);
         if (seed.isValid())
-          (*result).push_back(L3MuonTrajectorySeed(seed.trajectorySeed(), l1Ref));
+          (*result).emplace_back(seed.trajectorySeed(), l1Ref);
 
         //      GlobalError vtxerr( sqr(region->originRBound()), 0, sqr(region->originRBound()),
         //                                               0, 0, sqr(region->originZBound()));

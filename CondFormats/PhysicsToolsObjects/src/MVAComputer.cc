@@ -155,7 +155,7 @@ namespace PhysicsTools {
     MVAComputer &MVAComputerContainer::add(const std::string &label) {
       cacheId = getNextMVAComputerContainerCacheId();
 
-      entries.push_back(std::make_pair(label, MVAComputer()));
+      entries.emplace_back(label, MVAComputer());
       return entries.back().second;
     }
 

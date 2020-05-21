@@ -53,7 +53,7 @@ bRod::bRod(handles::const_iterator begin, handles::const_iterator end, bool debu
       printUniqueNames(slabStart, separ);
     }
 
-    slabs.push_back(bSlab(slabStart, separ, debug));
+    slabs.emplace_back(slabStart, separ, debug);
     slabStart = separ;
   }
   {
@@ -61,7 +61,7 @@ bRod::bRod(handles::const_iterator begin, handles::const_iterator end, bool debu
       std::cout << "     Slab at: " << zClust.back() << " elements: " << last - separ << " unique volumes: ";
       printUniqueNames(separ, last);
     }
-    slabs.push_back(bSlab(separ, last, debug));
+    slabs.emplace_back(separ, last, debug);
   }
 
   // Check that all slabs have the same dphi.

@@ -129,13 +129,12 @@ namespace Phase2Tracker {
               while (unpacker.hasData()) {
                 if (unpacker.stripOn()) {
                   if (unpacker.stripIndex() % 2) {
-                    stripsTop.push_back(Phase2TrackerDigi((int)(STRIPS_PER_CBC * icbc + unpacker.stripIndex()) / 2, 0));
+                    stripsTop.emplace_back((int)(STRIPS_PER_CBC * icbc + unpacker.stripIndex()) / 2, 0);
 #ifdef EDM_ML_DEBUG
                     ss << "t";
 #endif
                   } else {
-                    stripsBottom.push_back(
-                        Phase2TrackerDigi((int)(STRIPS_PER_CBC * icbc + unpacker.stripIndex()) / 2, 0));
+                    stripsBottom.emplace_back((int)(STRIPS_PER_CBC * icbc + unpacker.stripIndex()) / 2, 0);
 #ifdef EDM_ML_DEBUG
                     ss << "b";
 #endif
@@ -175,7 +174,7 @@ namespace Phase2Tracker {
 
         std::vector<Registry>::iterator it = proc_work_registry_.begin(), it2 = it + 1, end = proc_work_registry_.end();
         while (it < end) {
-          sorted_and_merged.push_back(edm::DetSet<Phase2TrackerDigi>(it->detid));
+          sorted_and_merged.emplace_back(it->detid);
           std::vector<Phase2TrackerDigi>& digis = sorted_and_merged.back().data;
           // first count how many digis we have
           size_t len = it->length;

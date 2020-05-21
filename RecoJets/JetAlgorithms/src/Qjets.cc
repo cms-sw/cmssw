@@ -30,7 +30,7 @@ JetDistance Qjets::GetNextDistance() {
         dmin_set = true;
       }
       double weight = exp(-_rigidity * (dist.dij - dmin) / dmin);
-      popped_distances.push_back(make_pair(dist, weight));
+      popped_distances.emplace_back(dist, weight);
       norm += weight;
       if (weight / norm < _truncation_fctr)
         break;

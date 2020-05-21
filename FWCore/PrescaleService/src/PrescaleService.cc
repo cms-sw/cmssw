@@ -162,7 +162,7 @@ namespace edm {
       edm::ParameterSetDescription desc;
 
       std::vector<std::string> defaultVector;
-      defaultVector.push_back(std::string("default"));
+      defaultVector.emplace_back("default");
       desc.add<std::vector<std::string> >("lvl1Labels", defaultVector);
 
       // This default vector<ParameterSet> will be used when

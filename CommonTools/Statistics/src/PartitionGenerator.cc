@@ -7,7 +7,7 @@ vector<PartitionGenerator::Partition> PartitionGenerator::partitions(int collect
   std::vector<Partition> partitions;
 
   // at the very least, we have a single bag of size 'collectionSize'
-  partitions.push_back(Partition(1, collectionSize));
+  partitions.emplace_back(1, collectionSize);
 
   int first = collectionSize - minCollectionSize, second = minCollectionSize;
   while (first >= second) {

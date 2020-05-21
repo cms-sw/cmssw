@@ -100,32 +100,32 @@ bool MuonResidualsAngleFitter::fit(Alignable *ali) {
   std::vector<double> high;
 
   parNum.push_back(kAngle);
-  parName.push_back(std::string("angle"));
+  parName.emplace_back("angle");
   start.push_back(mean);
   step.push_back(0.1);
   low.push_back(0.);
   high.push_back(0.);
   parNum.push_back(kXControl);
-  parName.push_back(std::string("xcontrol"));
+  parName.emplace_back("xcontrol");
   start.push_back(0.);
   step.push_back(0.1);
   low.push_back(0.);
   high.push_back(0.);
   parNum.push_back(kYControl);
-  parName.push_back(std::string("ycontrol"));
+  parName.emplace_back("ycontrol");
   start.push_back(0.);
   step.push_back(0.1);
   low.push_back(0.);
   high.push_back(0.);
   parNum.push_back(kSigma);
-  parName.push_back(std::string("sigma"));
+  parName.emplace_back("sigma");
   start.push_back(stdev);
   step.push_back(0.1 * stdev);
   low.push_back(0.);
   high.push_back(0.);
   if (residualsModel() != kPureGaussian && residualsModel() != kGaussPowerTails) {
     parNum.push_back(kGamma);
-    parName.push_back(std::string("gamma"));
+    parName.emplace_back("gamma");
     start.push_back(stdev);
     step.push_back(0.1 * stdev);
     low.push_back(0.);

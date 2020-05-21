@@ -46,7 +46,7 @@ namespace triggerExpression {
       // no wildcard expression
       unsigned int index = hltMenu.triggerIndex(m_pattern);
       if (index < hltMenu.size())
-        m_triggers.push_back(std::make_pair(m_pattern, index));
+        m_triggers.emplace_back(m_pattern, index);
       else {
         std::stringstream msg;
         msg << "requested HLT path \"" << m_pattern << "\" does not exist - known paths are:";
@@ -82,7 +82,7 @@ namespace triggerExpression {
         for (auto const& match : matches) {
           unsigned int index = hltMenu.triggerIndex(*match);
           assert(index < hltMenu.size());
-          m_triggers.push_back(std::make_pair(*match, index));
+          m_triggers.emplace_back(*match, index);
         }
       }
     }

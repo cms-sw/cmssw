@@ -104,7 +104,7 @@ void PedeLabelerBase::addCalibrations(const std::vector<IntegratedCalibrationBas
   // Now foresee labels for new calibrations:
   for (auto iCal = iCals.begin(); iCal != iCals.end(); ++iCal) {
     if (*iCal) {
-      theCalibrationLabels.push_back(std::make_pair(*iCal, nextId));
+      theCalibrationLabels.emplace_back(*iCal, nextId);
       nextId += (*iCal)->numParameters();
     } else {
       edm::LogError("LogicError") << "@SUB=PedeLabelerBase::addCalibrations"

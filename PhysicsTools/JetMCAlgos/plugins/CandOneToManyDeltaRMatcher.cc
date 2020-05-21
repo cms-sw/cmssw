@@ -96,7 +96,7 @@ void CandOneToManyDeltaRMatcher::produce(edm::StreamID, Event& evt, const EventS
     for (size_t m = 0; m != matched->size(); ++m) {
       const Candidate& match = (*matched)[m];
       double dist = DeltaR(src.p4(), match.p4());
-      v.push_back(make_pair(m, dist));
+      v.emplace_back(m, dist);
     }
     if (!v.empty()) {
       sort(v.begin(), v.end(), reco::helper::SortBySecond());

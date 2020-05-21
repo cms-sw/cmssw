@@ -31,8 +31,7 @@ void QjetsAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     //for (unsigned k=0; k < newCand.getPFConstituents().size(); k++){
     for (unsigned k = 0; k < newCand.getJetConstituents().size(); k++) {
       const edm::Ptr<reco::Candidate> thisParticle = newCand.getJetConstituents().at(k);
-      allconstits.push_back(
-          fastjet::PseudoJet(thisParticle->px(), thisParticle->py(), thisParticle->pz(), thisParticle->energy()));
+      allconstits.emplace_back(thisParticle->px(), thisParticle->py(), thisParticle->pz(), thisParticle->energy());
     }
 
     fastjet::JetDefinition jetDef(fastjet::cambridge_algorithm, jetRad_);

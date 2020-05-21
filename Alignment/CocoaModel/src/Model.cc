@@ -106,12 +106,12 @@ void Model::readSystemDescription() {
 
   //----------- Set section titles
   std::vector<ALIstring> SectionTitle;
-  SectionTitle.push_back(ALIstring("GLOBAL_OPTIONS"));
-  SectionTitle.push_back(ALIstring("PARAMETERS"));
-  SectionTitle.push_back(ALIstring("SYSTEM_TREE_DESCRIPTION"));
-  SectionTitle.push_back(ALIstring("SYSTEM_TREE_DATA"));
-  SectionTitle.push_back(ALIstring("MEASUREMENTS"));
-  SectionTitle.push_back(ALIstring("REPORT.OUT"));
+  SectionTitle.emplace_back("GLOBAL_OPTIONS");
+  SectionTitle.emplace_back("PARAMETERS");
+  SectionTitle.emplace_back("SYSTEM_TREE_DESCRIPTION");
+  SectionTitle.emplace_back("SYSTEM_TREE_DATA");
+  SectionTitle.emplace_back("MEASUREMENTS");
+  SectionTitle.emplace_back("REPORT.OUT");
   std::vector<ALIstring>::iterator SectionTitleIterator;
 
   //---------------------------------------- Loops lines in SDF file

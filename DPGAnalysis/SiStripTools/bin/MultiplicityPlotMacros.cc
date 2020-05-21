@@ -17,20 +17,20 @@ void PlotPixelMultVtxPos(TFile* ff, const char* module) {
   //  camult.setPath("VtxPosCorr");
 
   std::vector<std::string> labels;
-  labels.push_back("FPIX_m");
-  labels.push_back("BPIX_L1_mod_1");
-  labels.push_back("BPIX_L1_mod_2");
-  labels.push_back("BPIX_L1_mod_3");
-  labels.push_back("BPIX_L1_mod_4");
-  labels.push_back("BPIX_L1_mod_5");
-  labels.push_back("BPIX_L1_mod_6");
-  labels.push_back("BPIX_L1_mod_7");
-  labels.push_back("BPIX_L1_mod_8");
-  labels.push_back("FPIX_p");
-  labels.push_back("BPIX_L1");
-  labels.push_back("BPIX_L2");
-  labels.push_back("BPIX_L3");
-  labels.push_back("Lumi");
+  labels.emplace_back("FPIX_m");
+  labels.emplace_back("BPIX_L1_mod_1");
+  labels.emplace_back("BPIX_L1_mod_2");
+  labels.emplace_back("BPIX_L1_mod_3");
+  labels.emplace_back("BPIX_L1_mod_4");
+  labels.emplace_back("BPIX_L1_mod_5");
+  labels.emplace_back("BPIX_L1_mod_6");
+  labels.emplace_back("BPIX_L1_mod_7");
+  labels.emplace_back("BPIX_L1_mod_8");
+  labels.emplace_back("FPIX_p");
+  labels.emplace_back("BPIX_L1");
+  labels.emplace_back("BPIX_L2");
+  labels.emplace_back("BPIX_L3");
+  labels.emplace_back("Lumi");
 
   std::vector<TProfile*> profs;
 

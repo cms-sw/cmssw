@@ -52,14 +52,14 @@ PhotonAnalyzer::PhotonAnalyzer(const edm::ParameterSet& pset) {
   nEvt_ = 0;
 
   // Determining parts...
-  parts_.push_back("AllEcal");
-  parts_.push_back("Barrel");
-  parts_.push_back("Endcaps");
+  parts_.emplace_back("AllEcal");
+  parts_.emplace_back("Barrel");
+  parts_.emplace_back("Endcaps");
   // ...and types
-  types_.push_back("All");
-  types_.push_back("GoodCandidate");
+  types_.emplace_back("All");
+  types_.emplace_back("GoodCandidate");
   if (!excludeBkgHistos_) {
-    types_.push_back("Background");
+    types_.emplace_back("Background");
   }
 
   // Histogram parameters

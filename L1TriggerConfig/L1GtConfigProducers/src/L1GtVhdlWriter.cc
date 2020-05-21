@@ -90,16 +90,16 @@ void L1GtVhdlWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
   headerParameters["designer_comments"] = "produced in CMSSW";
   headerParameters["gtl_setup_name"] = "L1Menu2007NovGR";
 
-  channelVector.push_back("-- ca1: ieg");
-  channelVector.push_back("-- ca2: eg");
-  channelVector.push_back("-- ca3: jet");
-  channelVector.push_back("-- ca4: fwdjet");
-  channelVector.push_back("-- ca5: tau");
-  channelVector.push_back("-- ca6: esums");
-  channelVector.push_back("-- ca7: jet_cnts");
-  channelVector.push_back("-- ca8: free");
-  channelVector.push_back("-- ca9: free");
-  channelVector.push_back("-- ca10: free");
+  channelVector.emplace_back("-- ca1: ieg");
+  channelVector.emplace_back("-- ca2: eg");
+  channelVector.emplace_back("-- ca3: jet");
+  channelVector.emplace_back("-- ca4: fwdjet");
+  channelVector.emplace_back("-- ca5: tau");
+  channelVector.emplace_back("-- ca6: esums");
+  channelVector.emplace_back("-- ca7: jet_cnts");
+  channelVector.emplace_back("-- ca8: free");
+  channelVector.emplace_back("-- ca9: free");
+  channelVector.emplace_back("-- ca10: free");
 
   // check, weather output directory exists and create it on the fly if not
   if (boost::filesystem::is_directory(outputDir_)) {

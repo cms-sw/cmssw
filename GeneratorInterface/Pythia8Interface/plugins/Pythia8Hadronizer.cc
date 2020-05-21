@@ -944,7 +944,7 @@ std::unique_ptr<GenLumiInfoHeader> Pythia8Hadronizer::getGenLumiInfoHeader() con
     weights_number += fMasterGen->info.initrwgt->weightsKeys.size();
   if (weights_number > 1) {
     genLumiInfoHeader->weightNames().reserve(weights_number + 1);
-    genLumiInfoHeader->weightNames().push_back("nominal");
+    genLumiInfoHeader->weightNames().emplace_back("nominal");
   }
 
   //fill weight names
@@ -987,7 +987,7 @@ std::unique_ptr<GenLumiInfoHeader> Pythia8Hadronizer::getGenLumiInfoHeader() con
 
   if (fDire.get()) {
     //Make sure the base weight comes first
-    genLumiInfoHeader->weightNames().push_back("base");
+    genLumiInfoHeader->weightNames().emplace_back("base");
 
     unordered_map<string, double>::iterator it;
     for (it = fDire->weightsPtr->getShowerWeights()->begin(); it != fDire->weightsPtr->getShowerWeights()->end();

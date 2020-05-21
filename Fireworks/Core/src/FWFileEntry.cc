@@ -503,7 +503,7 @@ bool FWFileEntry::filterEventsWithCustomParser(Filter* filterEntry) {
       // Trigger name not found.
       return false;
     }
-    filters.push_back(std::make_pair(index, flag));
+    filters.emplace_back(index, flag);
   }
   if (filters.empty())
     return false;

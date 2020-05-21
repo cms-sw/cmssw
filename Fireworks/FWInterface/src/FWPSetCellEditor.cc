@@ -107,7 +107,7 @@ bool editVInputTag(edm::ParameterSet &ps, bool tracked, const std::string &label
       if (nwords > 2)
         it_process = tokens[2];
 
-      inputTags.push_back(edm::InputTag(it_label, it_instance, it_process));
+      inputTags.emplace_back(it_label, it_instance, it_process);
     }
   }
 

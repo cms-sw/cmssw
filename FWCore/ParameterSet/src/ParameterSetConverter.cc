@@ -96,13 +96,13 @@ namespace edm {
   void ParameterSetConverter::noConvertParameterSets() {
     for (StringWithIDList::iterator i = parameterSets_.begin(), iEnd = parameterSets_.end(); i != iEnd; ++i) {
       if (i->first.find("@all_sources") != std::string::npos) {
-        mainParameterSets_.push_back(MainParameterSet(i->second, i->first));
+        mainParameterSets_.emplace_back(i->second, i->first);
       } else {
         ParameterSet pset(i->first);
         pset.setID(i->second);
         pset::Registry::instance()->insertMapped(pset);
         if (i->first.find("@trigger_paths") != std::string::npos) {
-          triggerPaths_.push_back(pset);
+          triggerPaths_.emplace_back(pset);
         }
       }
     }
@@ -129,7 +129,7 @@ namespace edm {
     for (StringWithIDList::iterator i = parameterSets_.begin(), iEnd = parameterSets_.end(); i != iEnd; ++i) {
       if (i->first.find("+P") == std::string::npos && i->first.find("+p") == std::string::npos) {
         if (i->first.find("@all_sources") != std::string::npos) {
-          mainParameterSets_.push_back(MainParameterSet(i->second, i->first));
+          mainParameterSets_.emplace_back(i->second, i->first);
         } else {
           ParameterSet pset(i->first);
           pset.registerIt();
@@ -146,7 +146,7 @@ namespace edm {
             parameterSetIdConverter_.insert(std::make_pair(i->second, newID));
           }
           if (i->first.find("@trigger_paths") != std::string::npos) {
-            triggerPaths_.push_back(pset);
+            triggerPaths_.emplace_back(pset);
           }
         }
         StringWithIDList::iterator icopy = i;

@@ -4,8 +4,7 @@ L1TMuonBarrelKalmanTrackFinder::L1TMuonBarrelKalmanTrackFinder(const edm::Parame
     : verbose_(iConfig.getParameter<int>("verbose")) {
   std::vector<int> sectors = iConfig.getParameter<std::vector<int> >("sectorsToProcess");
   for (const auto sector : sectors)
-    sectors_.push_back(
-        L1TMuonBarrelKalmanSectorProcessor(iConfig.getParameter<edm::ParameterSet>("sectorSettings"), sector));
+    sectors_.emplace_back(iConfig.getParameter<edm::ParameterSet>("sectorSettings"), sector);
 }
 
 L1TMuonBarrelKalmanTrackFinder::~L1TMuonBarrelKalmanTrackFinder() {}

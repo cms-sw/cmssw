@@ -249,7 +249,7 @@ vector<DTSegmentCand::AssPoint> DTCombinatorialExtendedPatternReco::findCompatib
       tried.push_back(0);
       continue;  // neither is compatible
     }
-    result.push_back(DTSegmentCand::AssPoint(*hit, lrcode));
+    result.emplace_back(*hit, lrcode);
   }
 
   // check if too few associated hits or pattern already tried
@@ -351,7 +351,7 @@ void DTCombinatorialExtendedPatternReco::buildPointsCollection(vector<DTSegmentC
     // try with the right
     if (debug)
       cout << "Right hit" << endl;
-    points.push_back(DTSegmentCand::AssPoint(unassHit, DTEnums::Right));
+    points.emplace_back(unassHit, DTEnums::Right);
     pointsNoLR.pop_front();
     buildPointsCollection(points, pointsNoLR, candidates, sl);
     pointsNoLR.push_front((unassHit));
@@ -360,7 +360,7 @@ void DTCombinatorialExtendedPatternReco::buildPointsCollection(vector<DTSegmentC
     // try with the left
     if (debug)
       cout << "Left hit" << endl;
-    points.push_back(DTSegmentCand::AssPoint(unassHit, DTEnums::Left));
+    points.emplace_back(unassHit, DTEnums::Left);
     pointsNoLR.pop_front();
     buildPointsCollection(points, pointsNoLR, candidates, sl);
     pointsNoLR.push_front((unassHit));
@@ -433,7 +433,7 @@ vector<DTSegmentExtendedCand*> DTCombinatorialExtendedPatternReco::extendCandida
       LocalPoint pos = sl->toLocal(clusSl->toGlobal((*clus).localPosition()));
       //LocalError err=sl->toLocal(clusSl->toGlobal((*clus).localPositionError()));
       LocalError err = (*clus).localPositionError();
-      clustersWithPos.push_back(DTSegmentExtendedCand::DTSLRecClusterForFit(*clus, pos, err));
+      clustersWithPos.emplace_back(*clus, pos, err);
     }
   }
   if (debug)

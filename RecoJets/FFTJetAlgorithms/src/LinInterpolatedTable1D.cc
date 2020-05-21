@@ -43,15 +43,15 @@ namespace fftjetcms {
     points.reserve(npoints_);
 
     if (data_[npoints_ - 1U] > data_[0]) {
-      points.push_back(std::pair<double, double>(data_[0], xmin_));
+      points.emplace_back(data_[0], xmin_);
       for (unsigned i = 1; i < npoints_ - 1U; ++i)
-        points.push_back(std::pair<double, double>(data_[i], xmin_ + i * binwidth_));
-      points.push_back(std::pair<double, double>(data_[npoints_ - 1U], xmax_));
+        points.emplace_back(data_[i], xmin_ + i * binwidth_);
+      points.emplace_back(data_[npoints_ - 1U], xmax_);
     } else {
-      points.push_back(std::pair<double, double>(data_[npoints_ - 1U], xmax_));
+      points.emplace_back(data_[npoints_ - 1U], xmax_);
       for (unsigned i = npoints_ - 2U; i > 0; --i)
-        points.push_back(std::pair<double, double>(data_[i], xmin_ + i * binwidth_));
-      points.push_back(std::pair<double, double>(data_[0], xmin_));
+        points.emplace_back(data_[i], xmin_ + i * binwidth_);
+      points.emplace_back(data_[0], xmin_);
     }
 
     return std::unique_ptr<LinInterpolatedTable1D>(

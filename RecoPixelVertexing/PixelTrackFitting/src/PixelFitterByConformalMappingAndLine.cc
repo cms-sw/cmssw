@@ -74,7 +74,7 @@ std::unique_ptr<reco::Track> PixelFitterByConformalMappingAndLine::run(const std
   vector<float> errRPhi2;
   for (int i = 0; i < nhits; ++i) {
     const GlobalPoint &point = points[i];
-    xy.push_back(PointXY(point.x() - region.origin().x(), point.y() - region.origin().y()));
+    xy.emplace_back(point.x() - region.origin().x(), point.y() - region.origin().y());
     float phiErr2 = errors[i].phierr(point);
     errRPhi2.push_back(point.perp2() * phiErr2);
   }

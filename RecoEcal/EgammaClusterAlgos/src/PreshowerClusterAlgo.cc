@@ -225,7 +225,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
   std::vector<std::pair<DetId, float> > usedHits;
   for (it = clusterRecHits.begin(); it != clusterRecHits.end(); it++) {
     Eclust += it->energy();
-    usedHits.push_back(std::pair<DetId, float>(it->id(), 1.));
+    usedHits.emplace_back(it->id(), 1.);
   }
 
   // ES cluster is created from vector clusterRecHits

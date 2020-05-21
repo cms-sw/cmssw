@@ -122,7 +122,7 @@ void FWPFBlockProxyBuilder::setupClusterElement(const reco::PFBlockElement &bloc
     FWPFClusterRPZUtils *clusterUtils = new FWPFClusterRPZUtils();
     TEveScalableStraightLineSet *rpCluster = clusterUtils->buildRhoPhiClusterLineSet(cluster, vc, energy, et, r);
     rpCluster->SetLineColor(dp.color());
-    m_clusters.push_back(ScalableLines(rpCluster, et, energy, vc));
+    m_clusters.emplace_back(rpCluster, et, energy, vc);
     setupAddElement(rpCluster, &oItemHolder);
     delete clusterUtils;
   } else if (viewType == FWViewType::kRhoZ) {
@@ -131,7 +131,7 @@ void FWPFBlockProxyBuilder::setupClusterElement(const reco::PFBlockElement &bloc
     TEveScalableStraightLineSet *rzCluster = clusterUtils->buildRhoZClusterLineSet(
         cluster, vc, context().caloTransAngle(), energy, et, r, context().caloZ1());
     rzCluster->SetLineColor(dp.color());
-    m_clusters.push_back(ScalableLines(rzCluster, et, energy, vc));
+    m_clusters.emplace_back(rzCluster, et, energy, vc);
     setupAddElement(rzCluster, &oItemHolder);
     delete clusterUtils;
   }

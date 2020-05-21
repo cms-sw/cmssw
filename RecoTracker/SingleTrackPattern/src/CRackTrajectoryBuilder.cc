@@ -492,10 +492,10 @@ void CRackTrajectoryBuilder::AddHit(Trajectory& traj,
     if ((*prevDet)->geographicalId() == (*iHit)->geographicalId())
       continue;
 
-    hitRangeByDet.push_back(make_pair(prevDet, iHit));
+    hitRangeByDet.emplace_back(prevDet, iHit);
     prevDet = iHit;
   }
-  hitRangeByDet.push_back(make_pair(prevDet, Hits.end()));
+  hitRangeByDet.emplace_back(prevDet, Hits.end());
 
   /// do the old version ....
 
@@ -593,7 +593,7 @@ void CRackTrajectoryBuilder::AddHit(Trajectory& traj,
           //	      if ( ( !prSt.isValid() ) ||  (theEstimator->estimate(prSt,tracker->idToDet(currDet)->surface() ) == false) )
           continue;
 
-        trackHitCandidates.push_back(make_pair(iHit, prSt));
+        trackHitCandidates.emplace_back(iHit, prSt);
       }
 
       if (trackHitCandidates.empty())

@@ -103,7 +103,7 @@ PixelCPEClusterRepair::PixelCPEClusterRepair(edm::ParameterSet const& conf,
   std::vector<std::string> str_recommend2D = conf.getParameter<std::vector<std::string>>("Recommend2D");
   recommend2D_.reserve(str_recommend2D.size());
   for (auto& str : str_recommend2D) {
-    recommend2D_.push_back(str);
+    recommend2D_.emplace_back(str);
   }
 
   // do not recommend 2D if theMagField!=3.8T

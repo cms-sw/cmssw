@@ -178,7 +178,7 @@ bool PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::selectPriVtxCompat
     if (fabs(_dz) / _dzError > _maxDZSigmas)
       continue;
 
-    idx.push_back(std::pair<double, short>(fabs(_dz), count));
+    idx.emplace_back(fabs(_dz), count);
   }
   if (idx.empty()) {
 #ifdef debugTSPFSLA

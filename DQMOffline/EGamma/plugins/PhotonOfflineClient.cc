@@ -51,14 +51,14 @@ PhotonOfflineClient::PhotonOfflineClient(const edm::ParameterSet& pset) {
   histo_index_efficiency_ = 0;
   histo_index_invMass_ = 0;
 
-  types_.push_back("All");
-  types_.push_back("GoodCandidate");
+  types_.emplace_back("All");
+  types_.emplace_back("GoodCandidate");
   if (!excludeBkgHistos_)
-    types_.push_back("Background");
+    types_.emplace_back("Background");
 
-  parts_.push_back("AllEcal");
-  parts_.push_back("Barrel");
-  parts_.push_back("Endcaps");
+  parts_.emplace_back("AllEcal");
+  parts_.emplace_back("Barrel");
+  parts_.emplace_back("Endcaps");
 }
 
 PhotonOfflineClient::~PhotonOfflineClient() {}

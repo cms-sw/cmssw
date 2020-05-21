@@ -77,7 +77,7 @@ DTT0Calibration::DTT0Calibration(const edm::ParameterSet& pset)
     int wheel, sector, station, sl, layer, wire;
     linestr << cell;
     linestr >> wheel >> sector >> station >> sl >> layer >> wire;
-    wireIdWithHistos.push_back(DTWireId(wheel, station, sector, sl, layer, wire));
+    wireIdWithHistos.emplace_back(wheel, station, sector, sl, layer, wire);
   }
 }
 

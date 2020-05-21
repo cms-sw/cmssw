@@ -14,10 +14,10 @@ AlignmentMonitorGeneric::AlignmentMonitorGeneric(const edm::ParameterSet& cfg)
 void AlignmentMonitorGeneric::book() {
   std::vector<std::string> residNames;  // names of residual histograms
 
-  residNames.push_back("x hit residuals pos track");
-  residNames.push_back("x hit residuals neg track");
-  residNames.push_back("y hit residuals pos track");
-  residNames.push_back("y hit residuals neg track");
+  residNames.emplace_back("x hit residuals pos track");
+  residNames.emplace_back("x hit residuals neg track");
+  residNames.emplace_back("y hit residuals pos track");
+  residNames.emplace_back("y hit residuals neg track");
 
   auto alignableObjectId = AlignableObjectId::commonObjectIdProvider(pTracker(), pMuon());
 

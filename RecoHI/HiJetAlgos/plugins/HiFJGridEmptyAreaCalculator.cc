@@ -246,11 +246,11 @@ void HiFJGridEmptyAreaCalculator::calculateAreaFractionOfJets(const edm::Event& 
 
       int jeta = tileIndexEtaJet(&*pfCandidate);
       int jphi = tileIndexPhi(&*pfCandidate);
-      pfIndicesJet.push_back(std::make_pair(jphi, jeta));
+      pfIndicesJet.emplace_back(jphi, jeta);
       nConstitJet++;
       if (pfCandidate->eta() < etaminJet_ && pfCandidate->eta() > etamaxJet_)
         continue;
-      pfIndicesJetInbound.push_back(std::make_pair(jphi, jeta));
+      pfIndicesJetInbound.emplace_back(jphi, jeta);
       nConstitJetInbound++;
     }
 

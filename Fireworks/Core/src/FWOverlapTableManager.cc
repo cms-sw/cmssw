@@ -45,13 +45,13 @@ std::vector<std::string> FWOverlapTableManager::getTitles() const {
   std::vector<std::string> returnValue;
   returnValue.reserve(numberOfColumns());
 
-  returnValue.push_back("Name");
-  returnValue.push_back("Color");
-  returnValue.push_back("Opcty");
-  returnValue.push_back("RnrSelf");
-  returnValue.push_back("RnrChildren");
-  returnValue.push_back("Overlap");
-  returnValue.push_back("RnrMarker");
+  returnValue.emplace_back("Name");
+  returnValue.emplace_back("Color");
+  returnValue.emplace_back("Opcty");
+  returnValue.emplace_back("RnrSelf");
+  returnValue.emplace_back("RnrChildren");
+  returnValue.emplace_back("Overlap");
+  returnValue.emplace_back("RnrMarker");
   return returnValue;
 }
 

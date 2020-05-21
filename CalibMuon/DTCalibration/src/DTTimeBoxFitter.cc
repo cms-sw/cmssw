@@ -179,7 +179,7 @@ void DTTimeBoxFitter::getFitSeeds(
         cout << "      bin: " << j << " is a rising edge" << endl;
       }
     } else if (diff == -1) {  // This is a falling edge
-      startAndLenght.push_back(make_pair(start, lenght));
+      startAndLenght.emplace_back(start, lenght);
       if (theVerbosityLevel >= 2) {
         cout << "      bin: " << j << " is a falling edge, lenght is: " << lenght << endl;
         cout << "     <<<----" << endl;

@@ -226,7 +226,7 @@ public:
     useOverFlow_ = arg.iConfig.getParameter<bool>("useOverFlow");
     slots_ = arg.iConfig.getParameter<std::vector<double> >("slots");
     if (useUnderFlow_) {
-      labels_.push_back("underflow");
+      labels_.emplace_back("underflow");
       short_labels_.push_back("_" + arg.n + "_underflow");
     }
     std::vector<std::string> confLabels;
@@ -246,7 +246,7 @@ public:
       short_labels_.push_back(ss.str());
     }
     if (useOverFlow_) {
-      labels_.push_back("overFlow");
+      labels_.emplace_back("overFlow");
       short_labels_.push_back("_" + arg.n + "_overFlow");
     }
 

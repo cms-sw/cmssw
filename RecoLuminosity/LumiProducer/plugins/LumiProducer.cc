@@ -629,9 +629,9 @@ void LumiProducer::fillLSCache(unsigned int luminum) {
         std::vector<float> bxlumivalVec_occ1(bxlumival_occ1,
                                              bxlumival_occ1 + bxlumivalBlob_occ1.size() / sizeof(float));
         ::free(bxlumival_occ1);
-        lsdata.bunchlumivalue.push_back(std::make_pair(std::string("OCC1"), bxlumivalVec_occ1));
-        lsdata.bunchlumierror.push_back(std::make_pair(std::string("OCC1"), std::vector<float>(3564)));
-        lsdata.bunchlumiquality.push_back(std::make_pair(std::string("OCC1"), std::vector<short>(3564)));
+        lsdata.bunchlumivalue.emplace_back(std::string("OCC1"), bxlumivalVec_occ1);
+        lsdata.bunchlumierror.emplace_back(std::string("OCC1"), std::vector<float>(3564));
+        lsdata.bunchlumiquality.emplace_back(std::string("OCC1"), std::vector<short>(3564));
         const coral::Blob& bxlumivalBlob_occ2 = row["BXLUMIVALUE_OCC2"].data<coral::Blob>();
         const void* bxlumival_occ2_StartAddress = bxlumivalBlob_occ2.startingAddress();
         float* bxlumival_occ2 = (float*)::malloc(bxlumivalBlob_occ2.size());
@@ -639,9 +639,9 @@ void LumiProducer::fillLSCache(unsigned int luminum) {
         std::vector<float> bxlumivalVec_occ2(bxlumival_occ2,
                                              bxlumival_occ2 + bxlumivalBlob_occ1.size() / sizeof(float));
         ::free(bxlumival_occ2);
-        lsdata.bunchlumivalue.push_back(std::make_pair(std::string("OCC2"), bxlumivalVec_occ2));
-        lsdata.bunchlumierror.push_back(std::make_pair(std::string("OCC2"), std::vector<float>(3564)));
-        lsdata.bunchlumiquality.push_back(std::make_pair(std::string("OCC2"), std::vector<short>(3564)));
+        lsdata.bunchlumivalue.emplace_back(std::string("OCC2"), bxlumivalVec_occ2);
+        lsdata.bunchlumierror.emplace_back(std::string("OCC2"), std::vector<float>(3564));
+        lsdata.bunchlumiquality.emplace_back(std::string("OCC2"), std::vector<short>(3564));
 
         const coral::Blob& bxlumivalBlob_et = row["BXLUMIVALUE_ET"].data<coral::Blob>();
         const void* bxlumival_et_StartAddress = bxlumivalBlob_et.startingAddress();
@@ -649,9 +649,9 @@ void LumiProducer::fillLSCache(unsigned int luminum) {
         std::memmove(bxlumival_et, bxlumival_et_StartAddress, bxlumivalBlob_et.size());
         std::vector<float> bxlumivalVec_et(bxlumival_et, bxlumival_et + bxlumivalBlob_et.size() / sizeof(float));
         ::free(bxlumival_et);
-        lsdata.bunchlumivalue.push_back(std::make_pair(std::string("ET"), bxlumivalVec_et));
-        lsdata.bunchlumierror.push_back(std::make_pair(std::string("ET"), std::vector<float>(3564)));
-        lsdata.bunchlumiquality.push_back(std::make_pair(std::string("ET"), std::vector<short>(3564)));
+        lsdata.bunchlumivalue.emplace_back(std::string("ET"), bxlumivalVec_et);
+        lsdata.bunchlumierror.emplace_back(std::string("ET"), std::vector<float>(3564));
+        lsdata.bunchlumiquality.emplace_back(std::string("ET"), std::vector<short>(3564));
       }
       ++rowcounter;
     }

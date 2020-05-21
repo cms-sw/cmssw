@@ -8,7 +8,7 @@
 #include <boost/bind.hpp>
 
 bool SiStripBaseDelay::put(const uint32_t detId, const uint16_t coarseDelay, const uint16_t fineDelay) {
-  delays_.push_back(Delay(detId, coarseDelay, fineDelay));
+  delays_.emplace_back(detId, coarseDelay, fineDelay);
   return true;
 }
 

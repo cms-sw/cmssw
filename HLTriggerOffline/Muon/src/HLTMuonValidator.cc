@@ -99,27 +99,27 @@ vector<string> HLTMuonValidator::stepLabels(const vector<string> &modules) {
   for (size_t i = 0; i < modules.size(); i++) {
     if ((modules[i].find("IsoFiltered") != string::npos)) {
       if (modules[i].find("L3") != string::npos)
-        steps.push_back("L3TkIso");
+        steps.emplace_back("L3TkIso");
       else
-        steps.push_back("L2Iso");
+        steps.emplace_back("L2Iso");
     } else if ((modules[i].find("pfecalIsoRhoFiltered") != string::npos)) {
       if (modules[i].find("L3") != string::npos)
-        steps.push_back("L3EcalIso");
+        steps.emplace_back("L3EcalIso");
       else if (modules[i].find("TkFiltered") != string::npos)
-        steps.push_back("TkEcalIso");
+        steps.emplace_back("TkEcalIso");
     } else if ((modules[i].find("pfhcalIsoRhoFiltered") != string::npos)) {
       if (modules[i].find("L3") != string::npos)
-        steps.push_back("L3HcalIso");
+        steps.emplace_back("L3HcalIso");
       else if (modules[i].find("TkFiltered") != string::npos)
-        steps.push_back("TkHcalIso");
+        steps.emplace_back("TkHcalIso");
     } else if (modules[i].find("TkFiltered") != string::npos) {
-      steps.push_back("Tk");
+      steps.emplace_back("Tk");
     } else if (modules[i].find("L3") != string::npos)
-      steps.push_back("L3");
+      steps.emplace_back("L3");
     else if (modules[i].find("L2") != string::npos)
-      steps.push_back("L2");
+      steps.emplace_back("L2");
     else if (modules[i].find("L1") != string::npos)
-      steps.push_back("L1");
+      steps.emplace_back("L1");
     else
       return vector<string>();
   }

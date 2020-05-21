@@ -69,7 +69,7 @@ CompositeAlignmentParameters AlignmentParameterStore::selectParameters(
 
   std::vector<AlignableDet*>::const_iterator it, iEnd;
   for (it = alignabledets.begin(), iEnd = alignabledets.end(); it != iEnd; ++it)
-    detOrUnits.push_back(AlignableDetOrUnitPtr(*it));
+    detOrUnits.emplace_back(*it);
 
   return this->selectParameters(detOrUnits);
 }
@@ -708,8 +708,8 @@ bool AlignmentParameterStore ::hierarchyConstraints(const Alignable* ali,
       if (!all && !aliSel[iParMast])
         continue;       // no higher level parameter & constraint deselected
       if (firstComp) {  // fill output with empty arrays
-        paramIdsVecOut.push_back(std::vector<ParameterId>());
-        factorsVecOut.push_back(std::vector<double>());
+        paramIdsVecOut.emplace_back();
+        factorsVecOut.emplace_back();
       }
       for (unsigned int iParComp = 0; iParComp < aliCompSel.size(); ++iParComp) {
         if (aliCompSel[iParComp]) {

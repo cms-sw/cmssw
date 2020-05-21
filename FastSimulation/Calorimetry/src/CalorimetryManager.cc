@@ -1079,7 +1079,7 @@ void CalorimetryManager::updateECAL(const std::map<CaloHitID, float>& hitMap, in
       //make finalized CaloHitID
       CaloHitID current_id(mapitr->first.unitID(), mapitr->first.timeSlice(), trackID);
 
-      EBMapping_.push_back(std::pair<CaloHitID, float>(current_id, energy));
+      EBMapping_.emplace_back(current_id, energy);
     }
   } else if (onEcal == 2) {
     EEMapping_.reserve(EEMapping_.size() + hitMap.size());
@@ -1092,7 +1092,7 @@ void CalorimetryManager::updateECAL(const std::map<CaloHitID, float>& hitMap, in
       //make finalized CaloHitID
       CaloHitID current_id(mapitr->first.unitID(), mapitr->first.timeSlice(), trackID);
 
-      EEMapping_.push_back(std::pair<CaloHitID, float>(current_id, energy));
+      EEMapping_.emplace_back(current_id, energy);
     }
   }
 }
@@ -1141,7 +1141,7 @@ void CalorimetryManager::updateHCAL(const std::map<CaloHitID, float>& hitMap, in
 
     //make finalized CaloHitID
     CaloHitID current_id(mapitr->first.unitID(), time, trackID);
-    HMapping_.push_back(std::pair<CaloHitID, float>(current_id, energy));
+    HMapping_.emplace_back(current_id, energy);
   }
 }
 
@@ -1157,7 +1157,7 @@ void CalorimetryManager::updatePreshower(const std::map<CaloHitID, float>& hitMa
     //make finalized CaloHitID
     CaloHitID current_id(mapitr->first.unitID(), mapitr->first.timeSlice(), trackID);
 
-    ESMapping_.push_back(std::pair<CaloHitID, float>(current_id, energy));
+    ESMapping_.emplace_back(current_id, energy);
   }
 }
 

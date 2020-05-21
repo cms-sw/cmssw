@@ -146,7 +146,7 @@ void MuonToSimAssociatorByHits::associateMuons(MuonToSimCollection &recToSim,
     edm::RefToBase<reco::Muon> rec = muons[it->first];
     std::vector<std::pair<TrackingParticleRef, double>> &tpAss = recToSim[rec];
     for (auto const &a : it->second) {
-      tpAss.push_back(std::make_pair(tPC[a.idx], a.quality));
+      tpAss.emplace_back(tPC[a.idx], a.quality);
     }
   }
   auto simRecColl = helper_.associateSimToRecoIndices(muonHitRefs, tPC, resources);
@@ -154,7 +154,7 @@ void MuonToSimAssociatorByHits::associateMuons(MuonToSimCollection &recToSim,
     TrackingParticleRef sim = tPC[it->first];
     std::vector<std::pair<edm::RefToBase<reco::Muon>, double>> &recAss = simToRec[sim];
     for (auto const &a : it->second) {
-      recAss.push_back(std::make_pair(muons[a.idx], a.quality));
+      recAss.emplace_back(muons[a.idx], a.quality);
     }
   }
 }

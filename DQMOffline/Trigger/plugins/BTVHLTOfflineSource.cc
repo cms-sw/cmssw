@@ -197,8 +197,8 @@ BTVHLTOfflineSource::BTVHLTOfflineSource(const edm::ParameterSet& iConfig)
       pfTagsToken_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("onlineDiscrLabelPF"))) {
   std::vector<edm::ParameterSet> paths = iConfig.getParameter<std::vector<edm::ParameterSet> >("pathPairs");
   for (const auto& path : paths) {
-    custompathnamepairs_.push_back(
-        make_pair(path.getParameter<std::string>("pathname"), path.getParameter<std::string>("pathtype")));
+    custompathnamepairs_.emplace_back(path.getParameter<std::string>("pathname"),
+                                      path.getParameter<std::string>("pathtype"));
   }
 }
 

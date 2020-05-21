@@ -637,7 +637,7 @@ void LowPtGsfElectronSeedProducer::fillPreIdRefValueMap(edm::Handle<CollType> tr
     edm::Ref<CollType> trackRef(tracksHandle, itrack);
     auto preIdRefIt = trksToPreIdIndx.find(trackRef.index());
     if (preIdRefIt == trksToPreIdIndx.end()) {
-      values.push_back(reco::PreIdRef());
+      values.emplace_back();
     } else {
       edm::Ref<reco::PreIdCollection> preIdRef(preIdHandle, preIdRefIt->second);
       values.push_back(preIdRef);

@@ -235,7 +235,7 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
       std::vector<float> newpos(pos_moving);
       // Lest create the new charges around 3 sigmas away
       newpos[displ_ind] += std::copysign(_N_SIGMA * sigma, newpos[displ_ind]);
-      migrated_charge.push_back(DigitizerUtility::EnergyDepositUnit(migrated_e, newpos[0], newpos[1], newpos[2]));
+      migrated_charge.emplace_back(migrated_e, newpos[0], newpos[1], newpos[2]);
     }
     // Next step
     ++i;
@@ -380,8 +380,8 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
         << " [electrons], Electrons after loss/diff= " << energyOnCollector << " [electrons] ";
     // Load the Charge distribution parameters
     // XXX -- probably makes no sense the SignalPoint anymore...
-    collection_points.push_back(DigitizerUtility::SignalPoint(
-        current_pixel_int.first, current_pixel_int.second, 0.0, 0.0, hit.tof(), energyOnCollector));
+    collection_points.emplace_back(
+        current_pixel_int.first, current_pixel_int.second, 0.0, 0.0, hit.tof(), energyOnCollector);
   }
 
   return collection_points;

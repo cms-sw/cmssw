@@ -110,14 +110,14 @@ std::unique_ptr<L1CaloHcalScale> L1CaloHcalScaleConfigOnlineProd::newObject(cons
   }
 
   std::vector<std::string> mainStrings;
-  mainStrings.push_back("HCAL_LUT_METADATA");
-  mainStrings.push_back("HCAL_LUT_CHAN_DATA");
+  mainStrings.emplace_back("HCAL_LUT_METADATA");
+  mainStrings.emplace_back("HCAL_LUT_CHAN_DATA");
 
   // ~~~~~~~~~ Cut values ~~~~~~~~~
 
   std::vector<std::string> metaStrings;
-  metaStrings.push_back("RCTLSB");
-  metaStrings.push_back("NOMINAL_GAIN");
+  metaStrings.emplace_back("RCTLSB");
+  metaStrings.emplace_back("NOMINAL_GAIN");
 
   l1t::OMDSReader::QueryResults paramResults =
       m_omdsReader.basicQueryView(metaStrings,
@@ -157,12 +157,12 @@ std::unique_ptr<L1CaloHcalScale> L1CaloHcalScaleConfigOnlineProd::newObject(cons
   ;
 
   std::vector<std::string> channelStrings;
-  channelStrings.push_back("IPHI");
-  channelStrings.push_back("IETA");
-  channelStrings.push_back("DEPTH");
-  channelStrings.push_back("LUT_GRANULARITY");
-  channelStrings.push_back("OUTPUT_LUT_THRESHOLD");
-  channelStrings.push_back("OBJECTNAME");
+  channelStrings.emplace_back("IPHI");
+  channelStrings.emplace_back("IETA");
+  channelStrings.emplace_back("DEPTH");
+  channelStrings.emplace_back("LUT_GRANULARITY");
+  channelStrings.emplace_back("OUTPUT_LUT_THRESHOLD");
+  channelStrings.emplace_back("OBJECTNAME");
 
   std::vector<std::string>::const_iterator it = channelStrings.begin();
   std::vector<std::string>::const_iterator end = channelStrings.end();

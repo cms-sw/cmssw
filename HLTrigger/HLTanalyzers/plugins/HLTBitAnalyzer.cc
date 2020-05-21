@@ -20,7 +20,7 @@ static inline bool getCollection(const edm::Event& event,
   event.getByToken(token, handle);
   bool valid = handle.isValid();
   if (not valid) {
-    missing.push_back(std::make_pair(description, &name));
+    missing.emplace_back(description, &name);
     handle.clear();
     //	std::cout << "not valid "<< description << " " << name << std::endl;
   }

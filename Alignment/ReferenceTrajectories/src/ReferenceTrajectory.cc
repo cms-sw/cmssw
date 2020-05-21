@@ -1023,7 +1023,7 @@ bool ReferenceTrajectory::addMaterialEffectsLocalGbl(const std::vector<Algebraic
     GblPointList.push_back(aGblPoint);
   }
   // add list of points and transformation local to fit (=local) system at first hit
-  theGblInput.push_back(std::make_pair(GblPointList, identity));
+  theGblInput.emplace_back(GblPointList, identity);
 
   return true;
 }
@@ -1122,7 +1122,7 @@ bool ReferenceTrajectory::addMaterialEffectsCurvlinGbl(const std::vector<Algebra
   }
   // add list of points and transformation local to fit (=curvilinear) system at first hit
   clhep2eigen(allLocalToCurv[0], firstLocalToCurv);
-  theGblInput.push_back(std::make_pair(GblPointList, firstLocalToCurv));
+  theGblInput.emplace_back(GblPointList, firstLocalToCurv);
 
   return true;
 }

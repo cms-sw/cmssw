@@ -35,7 +35,7 @@ CSCOverlapsAlignmentAlgorithm::CSCOverlapsAlignmentAlgorithm(const edm::Paramete
 
   std::vector<edm::ParameterSet> fitters = iConfig.getParameter<std::vector<edm::ParameterSet> >("fitters");
   for (std::vector<edm::ParameterSet>::const_iterator fitter = fitters.begin(); fitter != fitters.end(); ++fitter) {
-    m_fitters.push_back(CSCChamberFitter(*fitter, m_residualsConstraints));
+    m_fitters.emplace_back(*fitter, m_residualsConstraints);
   }
 
   for (std::vector<CSCPairResidualsConstraint*>::const_iterator residualsConstraint = m_residualsConstraints.begin();

@@ -128,8 +128,8 @@ APVCyclePhaseProducerFromL1TS::APVCyclePhaseProducerFromL1TS(const edm::Paramete
 
   produces<APVCyclePhaseCollection, edm::InEvent>();
 
-  m_badruns.push_back(std::pair<unsigned int, unsigned int>(0, 131767));
-  m_badruns.push_back(std::pair<unsigned int, unsigned int>(193150, 193733));
+  m_badruns.emplace_back(0, 131767);
+  m_badruns.emplace_back(193150, 193733);
 
   //now do what ever other initialization is needed
 }

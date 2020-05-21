@@ -69,7 +69,7 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
 
   std::string l1_menu_key;
   std::vector<std::string> queryStrings;
-  queryStrings.push_back("L1_MENU");
+  queryStrings.emplace_back("L1_MENU");
 
   // select L1_MENU from CMS_TRG_L1_CONF.UGT_KEYS where ID = objectKey ;
   l1t::OMDSReader::QueryResults queryResult = m_omdsReader.basicQuery(
@@ -101,7 +101,7 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
   }
 
   std::vector<std::string> queryColumns;
-  queryColumns.push_back("CONF");
+  queryColumns.emplace_back("CONF");
 
   queryResult = m_omdsReader.basicQuery(
       queryColumns, stage2Schema, "UGT_L1_MENU", "UGT_L1_MENU.ID", m_omdsReader.singleAttribute(l1_menu_key));
@@ -130,10 +130,10 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
 
   ///std::vector< std::string > queryColumns;
   queryColumns.clear();
-  queryColumns.push_back("ALGOBX_MASK");
-  queryColumns.push_back("ALGO_FINOR_MASK");
-  queryColumns.push_back("ALGO_FINOR_VETO");
-  queryColumns.push_back("ALGO_PRESCALE");
+  queryColumns.emplace_back("ALGOBX_MASK");
+  queryColumns.emplace_back("ALGO_FINOR_MASK");
+  queryColumns.emplace_back("ALGO_FINOR_VETO");
+  queryColumns.emplace_back("ALGO_PRESCALE");
 
   std::string prescale_key, bxmask_key, mask_key, vetomask_key;
   std::string xmlPayload_prescale, xmlPayload_mask_algobx, xmlPayload_mask_finor, xmlPayload_mask_veto;
@@ -203,7 +203,7 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
     if (nPrescaleSets > 0) {
       // Fill default prescale set
       for (int iSet = 0; iSet < nPrescaleSets; iSet++) {
-        prescales.push_back(std::vector<int>());
+        prescales.emplace_back();
         for (unsigned int iBit = 0; iBit < m_numberPhysTriggers; ++iBit) {
           int inputDefaultPrescale = 0;  // only prescales that are set in the block below are used
           prescales[iSet].push_back(inputDefaultPrescale);
@@ -447,25 +447,25 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
     if (first <= last) {
       if (!broadcastAlgo) {
         algos.push_back(bx_algo_name[row]);
-        orderedRanges.push_back(std::make_pair(first, last));
+        orderedRanges.emplace_back(first, last);
       } else {
         for (const auto &i : non_default_bx_ranges) {
           algos.push_back(i.first);
-          orderedRanges.push_back(std::make_pair(first, last));
+          orderedRanges.emplace_back(first, last);
         }
       }
     } else {
       if (!broadcastAlgo) {
         algos.push_back(bx_algo_name[row]);
         algos.push_back(bx_algo_name[row]);
-        orderedRanges.push_back(std::make_pair(0, last));
-        orderedRanges.push_back(std::make_pair(first, 3563));
+        orderedRanges.emplace_back(0, last);
+        orderedRanges.emplace_back(first, 3563);
       } else {
         for (const auto &i : non_default_bx_ranges) {
           algos.push_back(i.first);
           algos.push_back(i.first);
-          orderedRanges.push_back(std::make_pair(0, last));
-          orderedRanges.push_back(std::make_pair(first, 3563));
+          orderedRanges.emplace_back(0, last);
+          orderedRanges.emplace_back(first, 3563);
         }
       }
     }

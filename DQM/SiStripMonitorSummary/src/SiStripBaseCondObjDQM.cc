@@ -180,7 +180,7 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> &detIds_, const 
         fPSet_.getParameter<std::vector<std::string>>("ModulesToBeIncluded_DetIdSelector");
     for (std::vector<std::string>::const_iterator wsdps = included_subdets.begin(); wsdps != included_subdets.end();
          ++wsdps) {
-      included_subdetsels.push_back(DetIdSelector(*wsdps));
+      included_subdetsels.emplace_back(*wsdps);
     }
 
     std::vector<uint32_t> modulesToBeIncluded;
@@ -204,7 +204,7 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> &detIds_, const 
         fPSet_.getParameter<std::vector<std::string>>("ModulesToBeExcluded_DetIdSelector");
     for (std::vector<std::string>::const_iterator wsdps = excluded_subdets.begin(); wsdps != excluded_subdets.end();
          ++wsdps) {
-      excluded_subdetsels.push_back(DetIdSelector(*wsdps));
+      excluded_subdetsels.emplace_back(*wsdps);
     }
 
     std::vector<uint32_t> modulesToBeExcluded;

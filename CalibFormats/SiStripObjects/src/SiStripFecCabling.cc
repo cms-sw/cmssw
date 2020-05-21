@@ -64,7 +64,7 @@ void SiStripFecCabling::addDevices(const FedChannelConnection &conn) {
     icrate++;
   }
   if (icrate == crates_.end()) {
-    crates_.push_back(SiStripFecCrate(conn));
+    crates_.emplace_back(conn);
   } else {
     icrate->addDevices(conn);
   }
@@ -86,23 +86,23 @@ void SiStripFecCabling::connections(std::vector<FedChannelConnection> &conns) co
           for (std::vector<SiStripModule>::const_iterator imod = iccu->modules().begin(); imod != iccu->modules().end();
                ++imod) {
             for (uint16_t ipair = 0; ipair < imod->nApvPairs(); ipair++) {
-              conns.push_back(FedChannelConnection(icrate->fecCrate(),
-                                                   ifec->fecSlot(),
-                                                   iring->fecRing(),
-                                                   iccu->ccuAddr(),
-                                                   imod->ccuChan(),
-                                                   imod->activeApvPair(imod->lldChannel(ipair)).first,
-                                                   imod->activeApvPair(imod->lldChannel(ipair)).second,
-                                                   imod->dcuId(),
-                                                   imod->detId(),
-                                                   imod->nApvPairs(),
-                                                   imod->fedCh(ipair).fedId_,
-                                                   imod->fedCh(ipair).fedCh_,
-                                                   imod->length(),
-                                                   imod->dcu(),
-                                                   imod->pll(),
-                                                   imod->mux(),
-                                                   imod->lld()));
+              conns.emplace_back(icrate->fecCrate(),
+                                 ifec->fecSlot(),
+                                 iring->fecRing(),
+                                 iccu->ccuAddr(),
+                                 imod->ccuChan(),
+                                 imod->activeApvPair(imod->lldChannel(ipair)).first,
+                                 imod->activeApvPair(imod->lldChannel(ipair)).second,
+                                 imod->dcuId(),
+                                 imod->detId(),
+                                 imod->nApvPairs(),
+                                 imod->fedCh(ipair).fedId_,
+                                 imod->fedCh(ipair).fedCh_,
+                                 imod->length(),
+                                 imod->dcu(),
+                                 imod->pll(),
+                                 imod->mux(),
+                                 imod->lld());
               uint16_t fed_crate = imod->fedCh(ipair).fedCrate_;
               uint16_t fed_slot = imod->fedCh(ipair).fedSlot_;
               conns.back().fedCrate(fed_crate);

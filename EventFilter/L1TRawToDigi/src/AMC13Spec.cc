@@ -54,7 +54,7 @@ namespace amc13 {
     edm::LogInfo("AMC") << "Adding board " << board << " with payload size " << load.size() << " as payload #"
                         << amc_no;
     // Start by indexing with 1
-    payload_.push_back(amc::Packet(amc_no, board, lv1id, orbit, bx, load, user));
+    payload_.emplace_back(amc_no, board, lv1id, orbit, bx, load, user);
   }
 
   bool Packet::parse(const uint64_t* start,
@@ -88,7 +88,7 @@ namespace amc13 {
     // Initial filling of AMC payloads.  First, get the headers.  The
     // first payload follows afterwards.
     for (unsigned int i = 0; i < header_.getNumberOfAMCs(); ++i) {
-      payload_.push_back(amc::Packet(data++));
+      payload_.emplace_back(data++);
       amc_index[payload_.back().blockHeader().getAMCNumber()] = i;
     }
 
@@ -142,7 +142,7 @@ namespace amc13 {
       std::vector<amc::BlockHeader> headers;
 
       for (unsigned int i = 0; i < block_h.getNumberOfAMCs(); ++i)
-        headers.push_back(amc::BlockHeader(data++));
+        headers.emplace_back(data++);
 
       check_crc = false;
       for (const auto& amc : headers) {

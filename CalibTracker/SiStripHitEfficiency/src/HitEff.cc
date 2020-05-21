@@ -426,17 +426,17 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
         if (isDoubleSided(iidd, tTopo) && ((iidd & 0x3) == 0)) {
           // do hit eff check twice--once for each sensor
           //add a TM for each surface
-          TMs.push_back(TrajectoryAtInvalidHit(*itm, tTopo, tkgeom, propagator, 1));
-          TMs.push_back(TrajectoryAtInvalidHit(*itm, tTopo, tkgeom, propagator, 2));
+          TMs.emplace_back(*itm, tTopo, tkgeom, propagator, 1);
+          TMs.emplace_back(*itm, tTopo, tkgeom, propagator, 2);
         } else if (isDoubleSided(iidd, tTopo) && (!check2DPartner(iidd, TMeas))) {
           // if only one hit was found the trajectory measurement is on that sensor surface, and the other surface from
           // the matched layer should be added to the study as well
-          TMs.push_back(TrajectoryAtInvalidHit(*itm, tTopo, tkgeom, propagator, 1));
-          TMs.push_back(TrajectoryAtInvalidHit(*itm, tTopo, tkgeom, propagator, 2));
+          TMs.emplace_back(*itm, tTopo, tkgeom, propagator, 1);
+          TMs.emplace_back(*itm, tTopo, tkgeom, propagator, 2);
           LogDebug("SiStripHitEfficiency:HitEff") << " found a hit with a missing partner" << endl;
         } else {
           //only add one TM for the single surface and the other will be added in the next iteration
-          TMs.push_back(TrajectoryAtInvalidHit(*itm, tTopo, tkgeom, propagator));
+          TMs.emplace_back(*itm, tTopo, tkgeom, propagator);
         }
 
         //////////////////////////////////////////////
@@ -480,7 +480,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
             if (tob6Hit->geographicalId().rawId() != 0) {
               LogDebug("SiStripHitEfficiency:HitEff") << "tob6 hit actually being added to TM vector" << endl;
-              TMs.push_back(TrajectoryAtInvalidHit(tob6TM, tTopo, tkgeom, propagator));
+              TMs.emplace_back(tob6TM, tTopo, tkgeom, propagator);
             }
           }
         }
@@ -539,10 +539,10 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
               // in tec the hit can be single or doubled sided. whenever the invalid hit at the end of vector of TMs is
               // double sided it is always on the matched surface, so we need to split it into the true sensor surfaces
               if (isDoubleSided(tec9id, tTopo)) {
-                TMs.push_back(TrajectoryAtInvalidHit(tec9TM, tTopo, tkgeom, propagator, 1));
-                TMs.push_back(TrajectoryAtInvalidHit(tec9TM, tTopo, tkgeom, propagator, 2));
+                TMs.emplace_back(tec9TM, tTopo, tkgeom, propagator, 1);
+                TMs.emplace_back(tec9TM, tTopo, tkgeom, propagator, 2);
               } else
-                TMs.push_back(TrajectoryAtInvalidHit(tec9TM, tTopo, tkgeom, propagator));
+                TMs.emplace_back(tec9TM, tTopo, tkgeom, propagator);
             }
           }  //else cout << "tec9 tmp empty" << endl;
         }

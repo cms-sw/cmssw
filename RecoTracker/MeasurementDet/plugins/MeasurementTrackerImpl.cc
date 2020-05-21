@@ -255,7 +255,7 @@ bool MeasurementTrackerImpl::checkDets() {
 
 void MeasurementTrackerImpl::addStripDet(const GeomDet* gd) {
   try {
-    theStripDets.push_back(TkStripMeasurementDet(gd, theStDetConditions));
+    theStripDets.emplace_back(gd, theStDetConditions);
   } catch (MeasurementDetException& err) {
     edm::LogError("MeasurementDet") << "Oops, got a MeasurementDetException: " << err.what();
   }
@@ -263,7 +263,7 @@ void MeasurementTrackerImpl::addStripDet(const GeomDet* gd) {
 
 void MeasurementTrackerImpl::addPixelDet(const GeomDet* gd) {
   try {
-    thePixelDets.push_back(TkPixelMeasurementDet(gd, thePxDetConditions));
+    thePixelDets.emplace_back(gd, thePxDetConditions);
   } catch (MeasurementDetException& err) {
     edm::LogError("MeasurementDet") << "Oops, got a MeasurementDetException: " << err.what();
   }
@@ -271,20 +271,20 @@ void MeasurementTrackerImpl::addPixelDet(const GeomDet* gd) {
 
 void MeasurementTrackerImpl::addPhase2Det(const GeomDet* gd) {
   try {
-    thePhase2Dets.push_back(TkPhase2OTMeasurementDet(gd, thePhase2DetConditions));
+    thePhase2Dets.emplace_back(gd, thePhase2DetConditions);
   } catch (MeasurementDetException& err) {
     edm::LogError("MeasurementDet") << "Oops, got a MeasurementDetException: " << err.what();
   }
 }
 
 void MeasurementTrackerImpl::addGluedDet(const GluedGeomDet* gd) {
-  theGluedDets.push_back(TkGluedMeasurementDet(gd, theStDetConditions.matcher(), theStDetConditions.stripCPE()));
+  theGluedDets.emplace_back(gd, theStDetConditions.matcher(), theStDetConditions.stripCPE());
 }
 
 void MeasurementTrackerImpl::addStackDet(const StackGeomDet* gd) {
   //since the Stack will be composed by PS or 2S,
   //both cluster parameter estimators are needed? - right now just the thePixelCPE is used.
-  theStackDets.push_back(TkStackMeasurementDet(gd, thePxDetConditions.pixelCPE()));
+  theStackDets.emplace_back(gd, thePxDetConditions.pixelCPE());
 }
 
 void MeasurementTrackerImpl::initGluedDet(TkGluedMeasurementDet& det, const TrackerTopology* trackerTopology) {
@@ -367,7 +367,7 @@ void MeasurementTrackerImpl::initializeStripStatus(const BadStripCutsDet& badStr
       if (qualityFlags & BadStrips) {
         SiStripBadStrip::Range range = quality->getRange(detid);
         for (SiStripBadStrip::ContainerIterator bit = range.first; bit != range.second; ++bit) {
-          badStrips.push_back(quality->decode(*bit));
+          badStrips.emplace_back(quality->decode(*bit));
         }
       }
     }

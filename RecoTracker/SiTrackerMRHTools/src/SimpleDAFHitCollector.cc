@@ -101,8 +101,8 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
         if (result.empty())
           continue;
 
-        result.push_back(TrajectoryMeasurement(
-            predtsos_fwd, std::make_shared<InvalidTrackingRecHit>(measDet.mdet().geomDet(), TrackingRecHit::missing)));
+        result.emplace_back(predtsos_fwd,
+                            std::make_shared<InvalidTrackingRecHit>(measDet.mdet().geomDet(), TrackingRecHit::missing));
       } else {
         //measurements in groups are sorted with increating chi2
         //sort( *hits.begin(), *hits.end(), TrajMeasLessEstim());
@@ -113,7 +113,7 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
           LogTrace("MultiRecHitCollector") << "  -> " << hits.size() << " valid hits for this sensor.";
 
         //building a MultiRecHit out of each sensor group
-        result.push_back(TrajectoryMeasurement(predtsos_fwd, theUpdator->buildMultiRecHit(hits, combtsos, measDet)));
+        result.emplace_back(predtsos_fwd, theUpdator->buildMultiRecHit(hits, combtsos, measDet));
       }
     } else {
       LogTrace("MultiRecHitCollector") << "  No measurements found in current group.";
@@ -123,8 +123,8 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
       if (result.empty())
         continue;
 
-      result.push_back(TrajectoryMeasurement(
-          predtsos_fwd, std::make_shared<InvalidTrackingRecHit>(measDet.mdet().geomDet(), TrackingRecHit::missing)));
+      result.emplace_back(predtsos_fwd,
+                          std::make_shared<InvalidTrackingRecHit>(measDet.mdet().geomDet(), TrackingRecHit::missing));
     }
   }
   LogTrace("MultiRecHitCollector") << " Ending SimpleDAFHitCollector::recHits >> " << result.size();

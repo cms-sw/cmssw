@@ -881,24 +881,24 @@ void TkLasBeamFitter::globalTrackPoint(TkFittedLasBeam &beam,
                                        vector<double> &hitPhiError) {
   // TECs
   if (beam.isTecInternal(0)) {
-    globPtrack.push_back(GlobalPoint(GlobalPoint::Cylindrical(gBeamR, trackPhi, globHit[hit].z())));
+    globPtrack.emplace_back(GlobalPoint::Cylindrical(gBeamR, trackPhi, globHit[hit].z()));
     globPref = GlobalPoint(GlobalPoint::Cylindrical(gBeamR, trackPhiRef, globHit[hit].z() + 1.0));
   }
   // ATs
   else {
     // TECminus
     if (hit < gHitsAtTecMinus) {  // gHitZprime[hit] < -gBeamSplitterZprime - 2.0*gBeamZ0
-      globPtrack.push_back(GlobalPoint(GlobalPoint::Cylindrical(gBeamR, trackPhi, globHit[hit].z())));
+      globPtrack.emplace_back(GlobalPoint::Cylindrical(gBeamR, trackPhi, globHit[hit].z()));
       globPref = GlobalPoint(GlobalPoint::Cylindrical(gBeamR, trackPhiRef, globHit[hit].z() + 1.0));
     }
     // TECplus
     else if (hit > gHitZprime.size() - hitsAtTecPlus - 1) {  // gHitZprime[hit] > gBeamSplitterZprime
-      globPtrack.push_back(GlobalPoint(GlobalPoint::Cylindrical(gBeamR, trackPhi, globHit[hit].z())));
+      globPtrack.emplace_back(GlobalPoint::Cylindrical(gBeamR, trackPhi, globHit[hit].z()));
       globPref = GlobalPoint(GlobalPoint::Cylindrical(gBeamR, trackPhiRef, globHit[hit].z() + 1.0));
     }
     // Barrel
     else {
-      globPtrack.push_back(GlobalPoint(GlobalPoint::Cylindrical(globHit[hit].perp(), trackPhi, globHit[hit].z())));
+      globPtrack.emplace_back(GlobalPoint::Cylindrical(globHit[hit].perp(), trackPhi, globHit[hit].z()));
       globPref = GlobalPoint(GlobalPoint::Cylindrical(gBeamR, trackPhiRef, globHit[hit].z()));
     }
   }
@@ -939,7 +939,7 @@ void TkLasBeamFitter::buildTrajectory(TkFittedLasBeam &beam,
   }
   //   cout << "trajectory: " << trajectoryState << endl;
   const FreeTrajectoryState ftsLas = FreeTrajectoryState(globPtrack[hit], trajectoryState, 0, magneticField);
-  tsosLas.push_back(TrajectoryStateOnSurface(ftsLas, gd[hit]->surface(), SurfaceSideDefinition::beforeSurface));
+  tsosLas.emplace_back(ftsLas, gd[hit]->surface(), SurfaceSideDefinition::beforeSurface);
 }
 
 //---------------------- set beam parameters for fittedBeams ---------------------------------

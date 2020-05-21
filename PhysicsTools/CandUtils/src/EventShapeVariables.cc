@@ -6,7 +6,7 @@
 EventShapeVariables::EventShapeVariables(const edm::View<reco::Candidate>& inputVectors) : eigenVectors_(3, 3) {
   inputVectors_.reserve(inputVectors.size());
   for (const auto& vec : inputVectors) {
-    inputVectors_.push_back(math::XYZVector(vec.px(), vec.py(), vec.pz()));
+    inputVectors_.emplace_back(vec.px(), vec.py(), vec.pz());
   }
   //default values
   set_r(2.);
@@ -25,7 +25,7 @@ EventShapeVariables::EventShapeVariables(const std::vector<math::XYZVector>& inp
 EventShapeVariables::EventShapeVariables(const std::vector<math::RhoEtaPhiVector>& inputVectors) : eigenVectors_(3, 3) {
   inputVectors_.reserve(inputVectors.size());
   for (const auto& vec : inputVectors) {
-    inputVectors_.push_back(math::XYZVector(vec.x(), vec.y(), vec.z()));
+    inputVectors_.emplace_back(vec.x(), vec.y(), vec.z());
   }
   //default values
   set_r(2.);
@@ -36,7 +36,7 @@ EventShapeVariables::EventShapeVariables(const std::vector<math::RhoEtaPhiVector
 EventShapeVariables::EventShapeVariables(const std::vector<math::RThetaPhiVector>& inputVectors) : eigenVectors_(3, 3) {
   inputVectors_.reserve(inputVectors.size());
   for (const auto& vec : inputVectors) {
-    inputVectors_.push_back(math::XYZVector(vec.x(), vec.y(), vec.z()));
+    inputVectors_.emplace_back(vec.x(), vec.y(), vec.z());
   }
   //default values
   set_r(2.);

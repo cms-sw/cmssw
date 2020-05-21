@@ -65,12 +65,12 @@ std::unique_ptr<L1MuDTTFParameters> DTTFParametersOnlineProd::newObject(const st
 
   // Order of strings is used below -- don't change!
   std::vector<std::string> crateKeyColumns;
-  crateKeyColumns.push_back("WEDGE_CRATE_1");
-  crateKeyColumns.push_back("WEDGE_CRATE_2");
-  crateKeyColumns.push_back("WEDGE_CRATE_3");
-  crateKeyColumns.push_back("WEDGE_CRATE_4");
-  crateKeyColumns.push_back("WEDGE_CRATE_5");
-  crateKeyColumns.push_back("WEDGE_CRATE_6");
+  crateKeyColumns.emplace_back("WEDGE_CRATE_1");
+  crateKeyColumns.emplace_back("WEDGE_CRATE_2");
+  crateKeyColumns.emplace_back("WEDGE_CRATE_3");
+  crateKeyColumns.emplace_back("WEDGE_CRATE_4");
+  crateKeyColumns.emplace_back("WEDGE_CRATE_5");
+  crateKeyColumns.emplace_back("WEDGE_CRATE_6");
 
   l1t::OMDSReader::QueryResults crateKeyResults = m_omdsReader.basicQuery(
       crateKeyColumns, dttfSchema, "DTTF_CONF", "DTTF_CONF.ID", m_omdsReader.singleAttribute(objectKey));
@@ -102,23 +102,23 @@ std::unique_ptr<L1MuDTTFParameters> DTTFParametersOnlineProd::newObject(const st
 
   // Needed over and over later
   std::vector<std::string> phtfMaskColumns;
-  phtfMaskColumns.push_back("INREC_QUAL_ST1");
-  phtfMaskColumns.push_back("INREC_QUAL_ST2");
-  phtfMaskColumns.push_back("INREC_QUAL_ST3");
-  phtfMaskColumns.push_back("INREC_QUAL_ST4");
-  phtfMaskColumns.push_back("SOC_QUAL_CSC");
-  phtfMaskColumns.push_back("SOC_STDIS_N");
-  phtfMaskColumns.push_back("SOC_STDIS_WL");
-  phtfMaskColumns.push_back("SOC_STDIS_WR");
-  phtfMaskColumns.push_back("SOC_STDIS_ZL");
-  phtfMaskColumns.push_back("SOC_STDIS_ZR");
-  phtfMaskColumns.push_back("SOC_QCUT_ST1");
-  phtfMaskColumns.push_back("SOC_QCUT_ST2");
-  phtfMaskColumns.push_back("SOC_QCUT_ST4");
-  phtfMaskColumns.push_back("SOC_RUN_21");
-  phtfMaskColumns.push_back("SOC_NBX_DEL");
-  phtfMaskColumns.push_back("SOC_CSC_ETACANC");
-  phtfMaskColumns.push_back("SOC_OPENLUT_EXTR");
+  phtfMaskColumns.emplace_back("INREC_QUAL_ST1");
+  phtfMaskColumns.emplace_back("INREC_QUAL_ST2");
+  phtfMaskColumns.emplace_back("INREC_QUAL_ST3");
+  phtfMaskColumns.emplace_back("INREC_QUAL_ST4");
+  phtfMaskColumns.emplace_back("SOC_QUAL_CSC");
+  phtfMaskColumns.emplace_back("SOC_STDIS_N");
+  phtfMaskColumns.emplace_back("SOC_STDIS_WL");
+  phtfMaskColumns.emplace_back("SOC_STDIS_WR");
+  phtfMaskColumns.emplace_back("SOC_STDIS_ZL");
+  phtfMaskColumns.emplace_back("SOC_STDIS_ZR");
+  phtfMaskColumns.emplace_back("SOC_QCUT_ST1");
+  phtfMaskColumns.emplace_back("SOC_QCUT_ST2");
+  phtfMaskColumns.emplace_back("SOC_QCUT_ST4");
+  phtfMaskColumns.emplace_back("SOC_RUN_21");
+  phtfMaskColumns.emplace_back("SOC_NBX_DEL");
+  phtfMaskColumns.emplace_back("SOC_CSC_ETACANC");
+  phtfMaskColumns.emplace_back("SOC_OPENLUT_EXTR");
 
   // Loop over sectors 0-11
   for (int isc = 0; isc < 12; ++isc) {

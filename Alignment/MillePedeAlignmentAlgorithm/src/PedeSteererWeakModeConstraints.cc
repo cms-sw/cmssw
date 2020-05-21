@@ -214,7 +214,7 @@ unsigned int PedeSteererWeakModeConstraints::createAlignablesDataStructure() {
       }
 
       if (!usedinconstraint.empty()) {
-        iC.HLSsubdets_.push_back(std::make_pair(iHLS.first, usedinconstraint));
+        iC.HLSsubdets_.emplace_back(iHLS.first, usedinconstraint);
       } else {
         edm::LogInfo("Alignment") << "@SUB=PedeSteererWeakModeConstraints"
                                   << "No sub-components for "
@@ -597,7 +597,7 @@ unsigned int PedeSteererWeakModeConstraints::constructConstraints(const align::A
                   << " '" << it.constraintName_
                   << "'. The id is: alignable->geomDetId().rawId() = " << ali->geomDetId().rawId() << ".";
             }
-            output.push_back(std::make_pair(paramLabel, coeff));
+            output.emplace_back(paramLabel, coeff);
           }
         }
       }
@@ -668,7 +668,7 @@ const std::vector<std::pair<Alignable*, std::string> > PedeSteererWeakModeConstr
       << "_" << alignableObjectId_.idToString(ali->alignableObjectId()) << "_" << ali->id() << "_"
       << ali->alignableObjectId() << ".txt";
 
-    levelsFilenames.push_back(std::make_pair(ali, n.str()));
+    levelsFilenames.emplace_back(ali, n.str());
   }
   return levelsFilenames;
 }

@@ -19,16 +19,16 @@ std::unique_ptr<L1GctJetFinderParams> L1GctJetFinderParamsOnlineProd::newObject(
 
   // get parameters
   std::vector<std::string> columns;
-  columns.push_back("GCT_RGN_ET_LSB");
-  columns.push_back("GCT_HT_LSB");
-  columns.push_back("GCT_CJET_SEED_ET_THRESHOLD");
-  columns.push_back("GCT_TJET_SEED_ET_THRESHOLD");
-  columns.push_back("GCT_FJET_SEED_ET_THRESHOLD");
-  columns.push_back("GCT_HT_JET_ET_THRESHOLD");
-  columns.push_back("GCT_MHT_JET_ET_THRESHOLD");
-  columns.push_back("GCT_TAU_ISO_ET_THRESHOLD");
-  columns.push_back("GCT_CEN_JET_ETA_MAX");
-  columns.push_back("GCT_JET_CORR_KEY");
+  columns.emplace_back("GCT_RGN_ET_LSB");
+  columns.emplace_back("GCT_HT_LSB");
+  columns.emplace_back("GCT_CJET_SEED_ET_THRESHOLD");
+  columns.emplace_back("GCT_TJET_SEED_ET_THRESHOLD");
+  columns.emplace_back("GCT_FJET_SEED_ET_THRESHOLD");
+  columns.emplace_back("GCT_HT_JET_ET_THRESHOLD");
+  columns.emplace_back("GCT_MHT_JET_ET_THRESHOLD");
+  columns.emplace_back("GCT_TAU_ISO_ET_THRESHOLD");
+  columns.emplace_back("GCT_CEN_JET_ETA_MAX");
+  columns.emplace_back("GCT_JET_CORR_KEY");
 
   l1t::OMDSReader::QueryResults results = m_omdsReader.basicQuery(
       columns, "CMS_GCT", "GCT_PHYS_PARAMS", "GCT_PHYS_PARAMS.CONFIG_KEY", m_omdsReader.singleAttribute(objectKey));
@@ -71,29 +71,29 @@ std::unique_ptr<L1GctJetFinderParams> L1GctJetFinderParamsOnlineProd::newObject(
 
   // get jet corr coefficients
   std::vector<std::string> jetCorrColumns;
-  jetCorrColumns.push_back("GCT_JETCORR_TYPE");
-  jetCorrColumns.push_back("GCT_JETCORR_NETA_10");
-  jetCorrColumns.push_back("GCT_JETCORR_NETA_9");
-  jetCorrColumns.push_back("GCT_JETCORR_NETA_8");
-  jetCorrColumns.push_back("GCT_JETCORR_NETA_7");
-  jetCorrColumns.push_back("GCT_JETCORR_NETA_6");
-  jetCorrColumns.push_back("GCT_JETCORR_NETA_5");
-  jetCorrColumns.push_back("GCT_JETCORR_NETA_4");
-  jetCorrColumns.push_back("GCT_JETCORR_NETA_3");
-  jetCorrColumns.push_back("GCT_JETCORR_NETA_2");
-  jetCorrColumns.push_back("GCT_JETCORR_NETA_1");
-  jetCorrColumns.push_back("GCT_JETCORR_NETA_0");
-  jetCorrColumns.push_back("GCT_JETCORR_PETA_0");
-  jetCorrColumns.push_back("GCT_JETCORR_PETA_1");
-  jetCorrColumns.push_back("GCT_JETCORR_PETA_2");
-  jetCorrColumns.push_back("GCT_JETCORR_PETA_3");
-  jetCorrColumns.push_back("GCT_JETCORR_PETA_4");
-  jetCorrColumns.push_back("GCT_JETCORR_PETA_5");
-  jetCorrColumns.push_back("GCT_JETCORR_PETA_6");
-  jetCorrColumns.push_back("GCT_JETCORR_PETA_7");
-  jetCorrColumns.push_back("GCT_JETCORR_PETA_8");
-  jetCorrColumns.push_back("GCT_JETCORR_PETA_9");
-  jetCorrColumns.push_back("GCT_JETCORR_PETA_10");
+  jetCorrColumns.emplace_back("GCT_JETCORR_TYPE");
+  jetCorrColumns.emplace_back("GCT_JETCORR_NETA_10");
+  jetCorrColumns.emplace_back("GCT_JETCORR_NETA_9");
+  jetCorrColumns.emplace_back("GCT_JETCORR_NETA_8");
+  jetCorrColumns.emplace_back("GCT_JETCORR_NETA_7");
+  jetCorrColumns.emplace_back("GCT_JETCORR_NETA_6");
+  jetCorrColumns.emplace_back("GCT_JETCORR_NETA_5");
+  jetCorrColumns.emplace_back("GCT_JETCORR_NETA_4");
+  jetCorrColumns.emplace_back("GCT_JETCORR_NETA_3");
+  jetCorrColumns.emplace_back("GCT_JETCORR_NETA_2");
+  jetCorrColumns.emplace_back("GCT_JETCORR_NETA_1");
+  jetCorrColumns.emplace_back("GCT_JETCORR_NETA_0");
+  jetCorrColumns.emplace_back("GCT_JETCORR_PETA_0");
+  jetCorrColumns.emplace_back("GCT_JETCORR_PETA_1");
+  jetCorrColumns.emplace_back("GCT_JETCORR_PETA_2");
+  jetCorrColumns.emplace_back("GCT_JETCORR_PETA_3");
+  jetCorrColumns.emplace_back("GCT_JETCORR_PETA_4");
+  jetCorrColumns.emplace_back("GCT_JETCORR_PETA_5");
+  jetCorrColumns.emplace_back("GCT_JETCORR_PETA_6");
+  jetCorrColumns.emplace_back("GCT_JETCORR_PETA_7");
+  jetCorrColumns.emplace_back("GCT_JETCORR_PETA_8");
+  jetCorrColumns.emplace_back("GCT_JETCORR_PETA_9");
+  jetCorrColumns.emplace_back("GCT_JETCORR_PETA_10");
 
   l1t::OMDSReader::QueryResults jetCorrResults = m_omdsReader.basicQuery(jetCorrColumns,
                                                                          "CMS_GCT",
@@ -121,26 +121,26 @@ std::unique_ptr<L1GctJetFinderParams> L1GctJetFinderParamsOnlineProd::newObject(
     jetCorrResults.fillVariable(etaCol.str(), etaKey);
 
     std::vector<std::string> coeffColumns;
-    coeffColumns.push_back("GCT_JETCORR_C0");
-    coeffColumns.push_back("GCT_JETCORR_C1");
-    coeffColumns.push_back("GCT_JETCORR_C2");
-    coeffColumns.push_back("GCT_JETCORR_C3");
-    coeffColumns.push_back("GCT_JETCORR_C4");
-    coeffColumns.push_back("GCT_JETCORR_C5");
-    coeffColumns.push_back("GCT_JETCORR_C6");
-    coeffColumns.push_back("GCT_JETCORR_C7");
-    coeffColumns.push_back("GCT_JETCORR_C8");
-    coeffColumns.push_back("GCT_JETCORR_C9");
-    coeffColumns.push_back("GCT_JETCORR_C10");
-    coeffColumns.push_back("GCT_JETCORR_C11");
-    coeffColumns.push_back("GCT_JETCORR_C12");
-    coeffColumns.push_back("GCT_JETCORR_C13");
-    coeffColumns.push_back("GCT_JETCORR_C14");
-    coeffColumns.push_back("GCT_JETCORR_C15");
-    coeffColumns.push_back("GCT_JETCORR_C16");
-    coeffColumns.push_back("GCT_JETCORR_C17");
-    coeffColumns.push_back("GCT_JETCORR_C18");
-    coeffColumns.push_back("GCT_JETCORR_C19");
+    coeffColumns.emplace_back("GCT_JETCORR_C0");
+    coeffColumns.emplace_back("GCT_JETCORR_C1");
+    coeffColumns.emplace_back("GCT_JETCORR_C2");
+    coeffColumns.emplace_back("GCT_JETCORR_C3");
+    coeffColumns.emplace_back("GCT_JETCORR_C4");
+    coeffColumns.emplace_back("GCT_JETCORR_C5");
+    coeffColumns.emplace_back("GCT_JETCORR_C6");
+    coeffColumns.emplace_back("GCT_JETCORR_C7");
+    coeffColumns.emplace_back("GCT_JETCORR_C8");
+    coeffColumns.emplace_back("GCT_JETCORR_C9");
+    coeffColumns.emplace_back("GCT_JETCORR_C10");
+    coeffColumns.emplace_back("GCT_JETCORR_C11");
+    coeffColumns.emplace_back("GCT_JETCORR_C12");
+    coeffColumns.emplace_back("GCT_JETCORR_C13");
+    coeffColumns.emplace_back("GCT_JETCORR_C14");
+    coeffColumns.emplace_back("GCT_JETCORR_C15");
+    coeffColumns.emplace_back("GCT_JETCORR_C16");
+    coeffColumns.emplace_back("GCT_JETCORR_C17");
+    coeffColumns.emplace_back("GCT_JETCORR_C18");
+    coeffColumns.emplace_back("GCT_JETCORR_C19");
 
     l1t::OMDSReader::QueryResults jetCorrResults = m_omdsReader.basicQuery(
         coeffColumns, "CMS_GCT", "GCT_JET_COEFFS", "GCT_JET_COEFFS.CONFIG_KEY", m_omdsReader.singleAttribute(etaKey));

@@ -10,7 +10,7 @@ AlgebraicVector3 PerigeeRefittedTrackState::momentumVector() const { return mome
 std::vector<PerigeeRefittedTrackState::RefCountedRefittedTrackState> PerigeeRefittedTrackState::components() const {
   std::vector<RefCountedRefittedTrackState> result;
   result.reserve(1);
-  result.push_back(RefCountedRefittedTrackState(const_cast<PerigeeRefittedTrackState*>(this)));
+  result.emplace_back(const_cast<PerigeeRefittedTrackState*>(this));
   return result;
 }
 

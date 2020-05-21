@@ -201,9 +201,9 @@ void LowPtGsfElectronSCProducer::produce(edm::Event& event, const edm::EventSetu
       superClusters->push_back(sc);
 
       // Populate ValueMap container
-      superClustersValueMap.push_back(reco::SuperClusterRef(superClustersRefProd, superClusters->size() - 1));
+      superClustersValueMap.emplace_back(superClustersRefProd, superClusters->size() - 1);
     } else {
-      superClustersValueMap.push_back(reco::SuperClusterRef(superClustersRefProd.id()));
+      superClustersValueMap.emplace_back(superClustersRefProd.id());
     }
 
   }  // GSF tracks

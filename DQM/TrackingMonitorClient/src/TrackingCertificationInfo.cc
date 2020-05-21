@@ -80,8 +80,8 @@ TrackingCertificationInfo::TrackingCertificationInfo(edm::ParameterSet const& pS
   }
 
   // define sub-detectors which affect the quality
-  SubDetFolder.push_back("SiStrip");
-  SubDetFolder.push_back("Pixel");
+  SubDetFolder.emplace_back("SiStrip");
+  SubDetFolder.emplace_back("Pixel");
 }
 
 TrackingCertificationInfo::~TrackingCertificationInfo() {

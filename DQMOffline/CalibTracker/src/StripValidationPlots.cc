@@ -185,11 +185,11 @@ void StripValidationPlots::beginJob() {
   }
 
   // Initialize histograms
-  subDetName.push_back("");
-  subDetName.push_back("TIB");
-  subDetName.push_back("TID");
-  subDetName.push_back("TOB");
-  subDetName.push_back("TEC");
+  subDetName.emplace_back("");
+  subDetName.emplace_back("TIB");
+  subDetName.emplace_back("TID");
+  subDetName.emplace_back("TOB");
+  subDetName.emplace_back("TEC");
   std::string histoName;
   std::string histoTitle;
   for (unsigned int i = 0; i < subDetName.size(); i++) {

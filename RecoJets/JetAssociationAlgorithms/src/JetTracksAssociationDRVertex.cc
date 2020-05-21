@@ -19,7 +19,7 @@ void JetTracksAssociationDRVertex::produce(reco::JetTracksAssociation::Container
   trackP3s.reserve(fTracks.size());
   for (unsigned i = 0; i < fTracks.size(); ++i) {
     const reco::Track* track = &*(fTracks[i]);
-    trackP3s.push_back(math::RhoEtaPhiVector(track->p(), track->eta(), track->phi()));
+    trackP3s.emplace_back(track->p(), track->eta(), track->phi());
   }
   //loop on jets and associate
   for (unsigned j = 0; j < fJets.size(); ++j) {

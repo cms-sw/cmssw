@@ -153,9 +153,9 @@ float NjettinessAdder::getTau(unsigned num, const edm::Ptr<reco::Jet>& object) c
             throw cms::Exception("MissingConstituentWeight")
                 << "ECFAdder: No weights (e.g. PUPPI) given for weighted jet collection" << std::endl;
           float w = (*weightsHandle_)[dp];
-          fjParticles.push_back(fastjet::PseudoJet(dp->px() * w, dp->py() * w, dp->pz() * w, dp->energy() * w));
+          fjParticles.emplace_back(dp->px() * w, dp->py() * w, dp->pz() * w, dp->energy() * w);
         } else
-          fjParticles.push_back(fastjet::PseudoJet(dp->px(), dp->py(), dp->pz(), dp->energy()));
+          fjParticles.emplace_back(dp->px(), dp->py(), dp->pz(), dp->energy());
       } else {  // Otherwise, this is a BasicJet, so you need to descend further.
         auto subjet = dynamic_cast<reco::Jet const*>(dp.get());
         for (unsigned l = 0; l < subjet->numberOfDaughters(); ++l) {
@@ -166,9 +166,9 @@ float NjettinessAdder::getTau(unsigned num, const edm::Ptr<reco::Jet>& object) c
                 throw cms::Exception("MissingConstituentWeight")
                     << "ECFAdder: No weights (e.g. PUPPI) given for weighted jet collection" << std::endl;
               float w = (*weightsHandle_)[ddp];
-              fjParticles.push_back(fastjet::PseudoJet(ddp->px() * w, ddp->py() * w, ddp->pz() * w, ddp->energy() * w));
+              fjParticles.emplace_back(ddp->px() * w, ddp->py() * w, ddp->pz() * w, ddp->energy() * w);
             } else
-              fjParticles.push_back(fastjet::PseudoJet(ddp->px(), ddp->py(), ddp->pz(), ddp->energy()));
+              fjParticles.emplace_back(ddp->px(), ddp->py(), ddp->pz(), ddp->energy());
           } else {
             edm::LogWarning("MissingJetConstituent")
                 << "BasicJet constituent required for N-jettiness computation is missing!";

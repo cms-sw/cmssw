@@ -49,7 +49,7 @@ int TotemRPClusterProducerAlgorithm::buildClusters(unsigned int detId,
       iter_beg = false;
     } else if (non_continuity) {
       cluster_end = prev_strip;
-      clusters.push_back(TotemRPCluster((uint16_t)cluster_beg, (uint16_t)cluster_end));
+      clusters.emplace_back((uint16_t)cluster_beg, (uint16_t)cluster_end);
 
       cluster_beg = cur_strip;
     }
@@ -59,7 +59,7 @@ int TotemRPClusterProducerAlgorithm::buildClusters(unsigned int detId,
 
   if (!iter_beg) {
     cluster_end = prev_strip;
-    clusters.push_back(TotemRPCluster((uint16_t)cluster_beg, (uint16_t)cluster_end));
+    clusters.emplace_back((uint16_t)cluster_beg, (uint16_t)cluster_end);
   }
 
   return clusters.size();

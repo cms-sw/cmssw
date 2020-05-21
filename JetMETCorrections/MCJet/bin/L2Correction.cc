@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
     return (0);
   TIter next(inf->GetListOfKeys());
   while ((key = (TKey *)next()))
-    HistoNamesList.push_back(key->GetName());
+    HistoNamesList.emplace_back(key->GetName());
   //////////////////// Reading the L3 Response ////////////////////////////////
   L3ResponseFile.open(L3ResponseTxtFilename.c_str());
   L3ResponseFile >> L3_resp[0] >> L3_resp[1] >> L3_resp[2] >> L3_resp[3] >> L3_resp[4];

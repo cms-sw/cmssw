@@ -49,9 +49,9 @@ void MuonTrackResidualsTest::dqmEndRun(DQMStore::IBooker& ibooker,
 
   string histName, MeanHistoName, SigmaHistoName, MeanHistoTitle, SigmaHistoTitle;
   vector<string> type;
-  type.push_back("eta");
-  type.push_back("theta");
-  type.push_back("phi");
+  type.emplace_back("eta");
+  type.emplace_back("theta");
+  type.emplace_back("phi");
 
   for (unsigned int c = 0; c < type.size(); c++) {
     MeanHistoName = "MeanTest_" + type[c];

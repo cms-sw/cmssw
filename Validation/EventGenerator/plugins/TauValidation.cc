@@ -326,7 +326,7 @@ void TauValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::
 
   MODEID = dqm.book1dHisto("JAKID", "JAK ID", NMODEID + 1, -0.5, NMODEID + 0.5);
   for (unsigned int j = 0; j < NMODEID + 1; j++) {
-    MODEInvMass.push_back(std::vector<MonitorElement *>());
+    MODEInvMass.emplace_back();
     std::string tmp = "JAKID";
     tmp += std::to_string(j);
     MODEInvMass.at(j).push_back(dqm.book1dHisto("M" + tmp,

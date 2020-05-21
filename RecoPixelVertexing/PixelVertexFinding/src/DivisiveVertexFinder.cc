@@ -75,7 +75,7 @@ bool DivisiveVertexFinder::findVertexesAlt(const reco::TrackRefVector &trks,  //
     temp.clear();
     temp.push_back(&(*trks[i]));
 
-    in.push_back(PVCluster(Measurement1D(trks[i]->dz(bs), trks[i]->dzError()), temp));
+    in.emplace_back(Measurement1D(trks[i]->dz(bs), trks[i]->dzError()), temp);
     mapa[temp[0]] = trks[i];
   }
 

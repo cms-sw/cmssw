@@ -276,27 +276,27 @@ void BTagDifferentialPlot::fillHisto() {
     // all flavours(b is a good cross check! must be constant and = fixed b-efficiency)
     // get histo; find the bin of the fixed b-efficiency in the histo and get misid; fill
 
-    effPurDifferentialPairs.push_back(
-        make_pair(currentEffPurFromHistos.getEffFlavVsBEff_b(), theDifferentialHistoB_b->getTH1F()));
-    effPurDifferentialPairs.push_back(
-        make_pair(currentEffPurFromHistos.getEffFlavVsBEff_c(), theDifferentialHistoB_c->getTH1F()));
-    effPurDifferentialPairs.push_back(
-        make_pair(currentEffPurFromHistos.getEffFlavVsBEff_dusg(), theDifferentialHistoB_dusg->getTH1F()));
-    effPurDifferentialPairs.push_back(
-        make_pair(currentEffPurFromHistos.getEffFlavVsBEff_ni(), theDifferentialHistoB_ni->getTH1F()));
-    effPurDifferentialPairs.push_back(
-        make_pair(currentEffPurFromHistos.getEffFlavVsBEff_pu(), theDifferentialHistoB_pu->getTH1F()));
+    effPurDifferentialPairs.emplace_back(currentEffPurFromHistos.getEffFlavVsBEff_b(),
+                                         theDifferentialHistoB_b->getTH1F());
+    effPurDifferentialPairs.emplace_back(currentEffPurFromHistos.getEffFlavVsBEff_c(),
+                                         theDifferentialHistoB_c->getTH1F());
+    effPurDifferentialPairs.emplace_back(currentEffPurFromHistos.getEffFlavVsBEff_dusg(),
+                                         theDifferentialHistoB_dusg->getTH1F());
+    effPurDifferentialPairs.emplace_back(currentEffPurFromHistos.getEffFlavVsBEff_ni(),
+                                         theDifferentialHistoB_ni->getTH1F());
+    effPurDifferentialPairs.emplace_back(currentEffPurFromHistos.getEffFlavVsBEff_pu(),
+                                         theDifferentialHistoB_pu->getTH1F());
     if (mcPlots_ > 2) {
-      effPurDifferentialPairs.push_back(
-          make_pair(currentEffPurFromHistos.getEffFlavVsBEff_d(), theDifferentialHistoB_d->getTH1F()));
-      effPurDifferentialPairs.push_back(
-          make_pair(currentEffPurFromHistos.getEffFlavVsBEff_u(), theDifferentialHistoB_u->getTH1F()));
-      effPurDifferentialPairs.push_back(
-          make_pair(currentEffPurFromHistos.getEffFlavVsBEff_s(), theDifferentialHistoB_s->getTH1F()));
-      effPurDifferentialPairs.push_back(
-          make_pair(currentEffPurFromHistos.getEffFlavVsBEff_g(), theDifferentialHistoB_g->getTH1F()));
-      effPurDifferentialPairs.push_back(
-          make_pair(currentEffPurFromHistos.getEffFlavVsBEff_dus(), theDifferentialHistoB_dus->getTH1F()));
+      effPurDifferentialPairs.emplace_back(currentEffPurFromHistos.getEffFlavVsBEff_d(),
+                                           theDifferentialHistoB_d->getTH1F());
+      effPurDifferentialPairs.emplace_back(currentEffPurFromHistos.getEffFlavVsBEff_u(),
+                                           theDifferentialHistoB_u->getTH1F());
+      effPurDifferentialPairs.emplace_back(currentEffPurFromHistos.getEffFlavVsBEff_s(),
+                                           theDifferentialHistoB_s->getTH1F());
+      effPurDifferentialPairs.emplace_back(currentEffPurFromHistos.getEffFlavVsBEff_g(),
+                                           theDifferentialHistoB_g->getTH1F());
+      effPurDifferentialPairs.emplace_back(currentEffPurFromHistos.getEffFlavVsBEff_dus(),
+                                           theDifferentialHistoB_dus->getTH1F());
     }
 
     for (vector<pair<TH1F*, TH1F*>>::const_iterator itP = effPurDifferentialPairs.begin();
