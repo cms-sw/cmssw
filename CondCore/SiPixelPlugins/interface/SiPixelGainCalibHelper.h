@@ -404,7 +404,7 @@ namespace gainCalibHelper {
       if (setLog) {
         myPlots.setLogScale();
       }
-      myPlots.beautify(kBlue,-1);
+      myPlots.beautify(kBlue, -1);
       myPlots.draw(canvas, isBarrel, "HIST");
 
       TLegend legend = TLegend(0.45, 0.88, 0.91, 0.92);
@@ -453,7 +453,11 @@ namespace gainCalibHelper {
   /*******************************************************************
     1d histograms comparison per region of SiPixelGainCalibration for Gains of 2 IOV
   ********************************************************************/
-  template <bool isBarrel, gainCalibPI::type myType, cond::payloadInspector::IOVMultiplicity nIOVs, int ntags, class PayloadType>
+  template <bool isBarrel,
+            gainCalibPI::type myType,
+            cond::payloadInspector::IOVMultiplicity nIOVs,
+            int ntags,
+            class PayloadType>
   class SiPixelGainCalibrationValuesComparisonPerRegion
       : public cond::payloadInspector::PlotImage<PayloadType, nIOVs, ntags> {
   public:
@@ -548,9 +552,8 @@ namespace gainCalibHelper {
       bool is_l_phase0 = (l_detids.size() == SiPixelPI::phase0size);
       bool is_f_phase0 = (f_detids.size() == SiPixelPI::phase0size);
 
-      const char* path_toTopologyXML = is_l_phase0
-                                           ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                           : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      const char* path_toTopologyXML = is_l_phase0 ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
+                                                   : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
       auto l_tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
@@ -563,9 +566,8 @@ namespace gainCalibHelper {
           minimum,
           maximum);
 
-      path_toTopologyXML = is_f_phase0
-                               ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                               : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      path_toTopologyXML = is_f_phase0 ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
+                                       : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
       auto f_tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
@@ -594,8 +596,8 @@ namespace gainCalibHelper {
       l_myPlots.beautify(kRed, -1);
       f_myPlots.beautify(kAzure, -1);
 
-      l_myPlots.draw(canvas, isBarrel, "HIST", (!is_f_phase0 || !is_l_phase0) );
-      f_myPlots.draw(canvas, isBarrel, "HISTsames", (!is_f_phase0 || ! is_l_phase0) );
+      l_myPlots.draw(canvas, isBarrel, "HIST", (!is_f_phase0 || !is_l_phase0));
+      f_myPlots.draw(canvas, isBarrel, "HISTsames", (!is_f_phase0 || !is_l_phase0));
 
       // rescale the y-axis ranges in order to fit the canvas
       l_myPlots.rescaleMax(f_myPlots);
@@ -860,7 +862,6 @@ namespace gainCalibHelper {
       hBPix->SetFillColor(kBlue);
       hBPix->SetMarkerStyle(20);
       hBPix->SetMarkerSize(1);
-      //hBPix->Draw("bar2");
       hBPix->Draw("hist");
 
       SiPixelPI::makeNicePlotStyle(hBPix.get());
@@ -872,7 +873,6 @@ namespace gainCalibHelper {
       hFPix->SetFillColor(kBlue);
       hFPix->SetMarkerStyle(20);
       hFPix->SetMarkerSize(1);
-      //hFPix->Draw("bar2");
       hFPix->Draw("hist");
 
       SiPixelPI::makeNicePlotStyle(hFPix.get());
@@ -1014,16 +1014,13 @@ namespace gainCalibHelper {
       hfirst->GetYaxis()->SetRangeUser(1., extrema.second * 10);
 
       hfirst->SetTitle("");
-      //hfirst->SetFillColor(kRed);
       hfirst->SetLineColor(kRed);
       hfirst->SetBarWidth(0.95);
-      //hfirst->Draw("histbar");
       hfirst->Draw("hist");
 
       hlast->SetTitle("");
       hlast->SetFillColorAlpha(kBlue, 0.20);
       hlast->SetBarWidth(0.95);
-      //hlast->Draw("histbarsame");
       hlast->Draw("histsames");
 
       SiPixelPI::makeNicePlotStyle(hfirst.get());
