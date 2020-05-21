@@ -698,6 +698,8 @@ namespace dqm::implementation {
   std::vector<std::string> IGetter::getMEs() const {
     auto mes = this->getContents(this->cwd_);
     std::vector<std::string> out;
+    out.reserve(mes.size());
+
     for (auto me : mes) {
       out.push_back(me->getName());
     }

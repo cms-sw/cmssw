@@ -32,6 +32,8 @@ namespace dqmoffline {
       std::vector<std::string> names = ps.getParameterNames();
       std::vector<unsigned int> map_values;
 
+      map_values.reserve(mapping.size());
+
       for (auto const &imap : mapping) {
         map_values.push_back(imap.second);
       }

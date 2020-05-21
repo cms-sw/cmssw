@@ -51,7 +51,7 @@ FWLayoutBuilder &FWLayoutBuilder::indent(int left /*= 2*/, int right /* = -1*/) 
 
 /** Return the last vertical frame, for more control on the layout. */
 TGVerticalFrame *FWLayoutBuilder::verticalFrame(void) {
-  assert(m_framesStack.size());
+  assert(!m_framesStack.empty());
   return m_framesStack.back();
 }
 

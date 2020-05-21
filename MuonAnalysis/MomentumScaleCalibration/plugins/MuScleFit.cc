@@ -1219,6 +1219,8 @@ void MuScleFit::duringFastLoop() {
       double deltalike;
       if (loopCounter == 0) {
         std::vector<double> initpar;
+        initpar.reserve((int)(MuScleFitUtils::parResol.size()));
+
         for (int i = 0; i < (int)(MuScleFitUtils::parResol.size()); i++) {
           initpar.push_back(MuScleFitUtils::parResol[i]);
         }

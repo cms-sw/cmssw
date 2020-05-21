@@ -1097,18 +1097,26 @@ int main(int argc, char *argv[]) {
   bool showpixelupdate = argv[9], showlumi = argv[10], FORCE = argv[11];
   TObjArray *vararray = all_variables.Tokenize(",");
   vector<string> Variables;
+  Variables.reserve(vararray->GetEntries());
+
   for (int i = 0; i < vararray->GetEntries(); i++)
     Variables.push_back((string)(vararray->At(i)->GetName()));
   TObjArray *labelarray = all_labels.Tokenize(",");
   vector<string> labels;
+  labels.reserve(labelarray->GetEntries());
+
   for (int i = 0; i < labelarray->GetEntries(); i++)
     labels.push_back((string)(labelarray->At(i)->GetName()));
   TObjArray *IOVarray = runlist.Tokenize(",");
   vector<int> IOVlist;
+  IOVlist.reserve(IOVarray->GetEntries());
+
   for (int i = 0; i < IOVarray->GetEntries(); i++)
     IOVlist.push_back(stoi(IOVarray->At(i)->GetName()));
   vector<int> pixelupdateruns;
   TObjArray *PIXarray = pixelupdatelist.Tokenize(",");
+  pixelupdateruns.reserve(PIXarray->GetEntries());
+
   for (int i = 0; i < PIXarray->GetEntries(); i++)
     pixelupdateruns.push_back(stoi(PIXarray->At(i)->GetName()));
   vector<string> geometries;

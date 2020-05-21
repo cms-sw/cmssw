@@ -390,6 +390,8 @@ namespace FSQ {
         //          - rank current combination
         if (!duplicatesPresent) {  // no duplicates, we can consider this combined object
           std::vector<TOutputCandidateType> currentCombinationFromCands;
+          currentCombinationFromCands.reserve(m_combinedObjectDimension);
+
           for (int i = 0; i < m_combinedObjectDimension; ++i) {
             currentCombinationFromCands.push_back(cands.at(currentCombination.at(i)));
           }

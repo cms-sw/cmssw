@@ -35,6 +35,8 @@ const std::vector<std::string_view> SensitiveDetectorCatalog::logicalNames(const
 std::vector<std::string_view> SensitiveDetectorCatalog::logicalNamesFromClassName(const std::string &className) const {
   std::vector<std::string_view> temp;
   const std::vector<std::string_view> rous(theClassNameMap.at(className).begin(), theClassNameMap.at(className).end());
+  temp.reserve(rous.size());
+
   for (auto const &it : rous)
     temp.emplace_back(it);
   return temp;

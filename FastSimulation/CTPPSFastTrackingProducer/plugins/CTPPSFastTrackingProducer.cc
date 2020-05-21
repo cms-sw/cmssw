@@ -97,6 +97,8 @@ CTPPSFastTrackingProducer::CTPPSFastTrackingProducer(const edm::ParameterSet& iC
 
   //Timing Detector Description
   std::vector<double> vToFCellWidth;
+  vToFCellWidth.reserve(8);
+
   for (int i = 0; i < 8; i++) {
     vToFCellWidth.push_back(fToFCellWidth[i]);
   }
@@ -351,6 +353,8 @@ void CTPPSFastTrackingProducer::FastReco(int Direction, H_RecRPObject* station) 
   double pos_tof = fToFInsertion * fBeamXRMS_ToF + fToFXOffset;
   int cellId = 0;
   std::vector<double> vToFCellWidth;
+  vToFCellWidth.reserve(8);
+
   for (int i = 0; i < 8; i++) {
     vToFCellWidth.push_back(fToFCellWidth[i]);
   }
