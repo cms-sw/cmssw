@@ -11,7 +11,7 @@
     <Vector name="MaterialNames" type="string" nEntries="12">
       materials:Polyethylene, materials:StainlessSteel, materials:Lead, 
       materials:Copper,  hgcalMaterial:HGC_G10-FR4, materials:Silicon,
-      materials:StainlessSteel, hgcalMaterial:WCu, materials:Air,
+      materials:StainlessSteel, hgcalMaterial:HGC_G10-FR4, materials:Air,
       hgcalMaterial:HGC_G10-FR4, materials:Epoxy, materials:Kapton</Vector>
     <Vector name="VolumeNames" type="string" nEntries="12">
       HFNoseModerator, HFNoseAbsorberCover, HFNoseAbsorber1, HFNoseHeatShield,
@@ -19,7 +19,8 @@
       HFNoseAirGap, HFNoseG10, HFNoseEpoxy, HFNoseKapton</Vector>
     <Vector name="Thickness" type="numeric" nEntries="12">
       [hfnose:HFNoseDz1], 1.0*mm, 21.0*mm,  6.0*mm,  1.76*mm,  0.3*mm, 
-      [hfnose:HFNoseDz3], 1.45*mm, 3.35*mm, 1.85*mm, 0.145*mm, 0.345*mm</Vector>
+      [hfnose:HFNoseDz3], 1.45*mm, 3.35*mm, 1.85*mm, 0.145*mm,
+      0.345*mm</Vector>
     <Vector name="Layers" type="numeric" nEntries="8"> 
       13, 12, 12, 12, 12, 12, 10, 10</Vector>
     <Vector name="LayerThick" type="numeric" nEntries="8"> 
