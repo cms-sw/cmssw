@@ -20,7 +20,7 @@ ShallowSimhitClustersProducer::ShallowSimhitClustersProducer(const edm::Paramete
       Prefix(iConfig.getParameter<std::string>("Prefix")),
       runningmode_(iConfig.getParameter<std::string>("runningMode")) {
   std::vector<edm::InputTag> simhits_tags = iConfig.getParameter<std::vector<edm::InputTag>>("InputTags");
-  for (auto itag : simhits_tags) {
+  for (const auto& itag : simhits_tags) {
     simhits_tokens_.push_back(consumes<std::vector<PSimHit>>(itag));
   }
 

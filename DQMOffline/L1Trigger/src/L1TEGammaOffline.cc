@@ -340,8 +340,8 @@ bool L1TEGammaOffline::findTagAndProbePair(edm::Handle<reco::GsfElectronCollecti
   if (nElectrons < 2)
     return false;
 
-  for (auto tagElectron : *electrons) {
-    for (auto probeElectron : *electrons) {
+  for (const auto& tagElectron : *electrons) {
+    for (const auto& probeElectron : *electrons) {
       if (tagElectron.p4() == probeElectron.p4())
         continue;
 

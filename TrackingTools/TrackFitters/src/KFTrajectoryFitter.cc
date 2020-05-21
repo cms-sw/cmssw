@@ -64,7 +64,7 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
   TSOS currTsos;
 
   int hitcounter = 0;
-  for (auto ihit : hits) {
+  for (const auto& ihit : hits) {
     ++hitcounter;
 
     const TransientTrackingRecHit& hit = (*ihit);

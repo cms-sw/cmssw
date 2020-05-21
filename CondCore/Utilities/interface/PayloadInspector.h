@@ -98,7 +98,7 @@ namespace cond {
       ss << "\"version\": \"" << JSON_FORMAT_VERSION << "\",";
       ss << "\"annotations\": {";
       bool first = true;
-      for (auto a : annotations.m) {
+      for (const auto& a : annotations.m) {
         if (!first)
           ss << ",";
         ss << "\"" << a.first << "\":\"" << a.second << "\"";

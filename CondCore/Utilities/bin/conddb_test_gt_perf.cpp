@@ -480,7 +480,7 @@ int cond::TestGTPerf::execute() {
   std::vector<UntypedPayloadProxy*> proxies;
   std::map<std::string, size_t> requests;
   size_t nt = 0;
-  for (auto t : gt) {
+  for (const auto& t : gt) {
     nt++;
     UntypedPayloadProxy* p = new UntypedPayloadProxy;
     p->init(session);
@@ -637,7 +637,7 @@ int cond::TestGTPerf::execute() {
       std::cout << "*** Tag: " << p->tag() << " Requests processed:" << r->second << " Queries:" << p->numberOfQueries()
                 << std::endl;
       const std::vector<std::string>& hist = p->history();
-      for (auto e : p->history())
+      for (const auto& e : p->history())
         std::cout << "    " << e << std::endl;
     }
   }

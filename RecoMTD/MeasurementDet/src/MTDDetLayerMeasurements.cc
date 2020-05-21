@@ -127,7 +127,7 @@ MeasurementContainer MTDDetLayerMeasurements::fastMeasurements(const DetLayer* l
                                                                const edm::Event& iEvent) {
   MeasurementContainer result;
   MTDRecHitContainer rhs = recHits(layer, iEvent);
-  for (MTDRecHitContainer::value_type irh : rhs) {
+  for (const MTDRecHitContainer::value_type& irh : rhs) {
     MeasurementEstimator::HitReturnType estimate = est.estimate(theStateOnDet, (*irh));
     if (estimate.first) {
       result.push_back(TrajectoryMeasurement(theStateOnDet, irh, estimate.second, layer));

@@ -132,7 +132,7 @@ void SiPixelPhase1Summary::bookSummaries(DQMStore::IBooker& iBooker) {
 
   iBooker.setCurrentFolder("PixelPhase1/Summary");
   //Book the summary plots for the variables as described in the config file
-  for (auto mapInfo : summaryPlotName_) {
+  for (const auto& mapInfo : summaryPlotName_) {
     auto name = mapInfo.first;
     summaryMap_[name] = iBooker.book2D("pixel" + name + "Summary", "Pixel " + name + " Summary", 12, 0, 12, 4, 0, 4);
   }
@@ -265,7 +265,7 @@ void SiPixelPhase1Summary::bookSummaries(DQMStore::IBooker& iBooker) {
   reportSummary = iBooker.bookFloat("reportSummary");
 
   //Now set up axis and bin labels
-  for (auto summaryMapEntry : summaryMap_) {
+  for (const auto& summaryMapEntry : summaryMap_) {
     if (summaryMapEntry.first == "Grand")
       continue;
     auto summaryMap = summaryMapEntry.second;
@@ -327,7 +327,7 @@ void SiPixelPhase1Summary::bookTrendPlots(DQMStore::IBooker& iBooker) {
 //------------------------------------------------------------------
 void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter) {
   //Firstly, we will fill the regular summary maps.
-  for (auto mapInfo : summaryPlotName_) {
+  for (const auto& mapInfo : summaryPlotName_) {
     auto name = mapInfo.first;
     std::ostringstream histNameStream;
     std::string histName;

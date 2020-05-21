@@ -1703,7 +1703,7 @@ void CSCTriggerPrimitivesReader::compareCLCTs(const CSCCLCTDigiCollection* clcts
           std::vector<bool> bookedclctV_emul;
           for (auto digiIt = erange.first; digiIt != erange.second; digiIt++) {
             if ((*digiIt).isValid()) {
-              for (auto pclct : clctV_emul) {
+              for (const auto& pclct : clctV_emul) {
                 if (digiIt->getBX() != pclct.getBX() and abs(digiIt->getBX() - pclct.getBX()) < 5)
                   LogTrace("CSCTriggerPrimitivesReader")
                       << "Two CLCTs very close in timing!!! Special event: first clct " << pclct << " second clct "

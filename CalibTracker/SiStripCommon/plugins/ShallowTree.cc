@@ -150,7 +150,7 @@ ShallowTree::ShallowTree(const edm::ParameterSet& iConfig) {
         default: {
           std::string leafstring = "";
           typedef std::pair<std::string, LEAFTYPE> pair_t;
-          for (const pair_t leaf : leafmap) {
+          for (const pair_t& leaf : leafmap) {
             leafstring += "\t" + leaf.first + "\n";
           }
 

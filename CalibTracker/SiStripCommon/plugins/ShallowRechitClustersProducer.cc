@@ -15,7 +15,7 @@ ShallowRechitClustersProducer::ShallowRechitClustersProducer(const edm::Paramete
       Prefix(iConfig.getParameter<std::string>("Prefix")),
       clusters_token_(consumes<edmNew::DetSetVector<SiStripCluster>>(iConfig.getParameter<edm::InputTag>("Clusters"))) {
   std::vector<edm::InputTag> rec_hits_tags = iConfig.getParameter<std::vector<edm::InputTag>>("InputTags");
-  for (auto itag : rec_hits_tags) {
+  for (const auto& itag : rec_hits_tags) {
     rec_hits_tokens_.push_back(consumes<SiStripRecHit2DCollection>(itag));
   }
 

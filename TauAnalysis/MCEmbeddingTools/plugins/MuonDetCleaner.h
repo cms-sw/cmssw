@@ -55,7 +55,7 @@ template <typename T1, typename T2>
 MuonDetCleaner<T1, T2>::MuonDetCleaner(const edm::ParameterSet& iConfig)
     : mu_input_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("MuonCollection"))) {
   std::vector<edm::InputTag> inCollections = iConfig.getParameter<std::vector<edm::InputTag> >("oldCollection");
-  for (auto inCollection : inCollections) {
+  for (const auto& inCollection : inCollections) {
     inputs_[inCollection.instance()] = consumes<RecHitCollection>(inCollection);
     produces<RecHitCollection>(inCollection.instance());
   }
@@ -102,7 +102,7 @@ void MuonDetCleaner<T1, T2>::produce(edm::Event& iEvent, const edm::EventSetup& 
   }
 
   // Now this can also handle different instance
-  for (auto input_ : inputs_) {
+  for (const auto& input_ : inputs_) {
     // Second read in the RecHit Colltection which is to be replaced, without the vetoRecHits
     typedef edm::Handle<RecHitCollection> RecHitCollectionHandle;
     RecHitCollectionHandle RecHitinput;

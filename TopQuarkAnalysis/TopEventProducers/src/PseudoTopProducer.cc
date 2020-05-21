@@ -363,7 +363,7 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
 
       // Calculate MET
       double metX = 0, metY = 0;
-      for (auto neutrino : *neutrinos) {
+      for (const auto& neutrino : *neutrinos) {
         metX += neutrino.px();
         metY += neutrino.py();
       }

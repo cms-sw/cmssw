@@ -72,7 +72,7 @@ namespace edm {
         //Since only the first module will actually do the registration
         // we will change its callback to call all the callbacks
         firstMod->callWhenNewProductsRegistered([callbacks](BranchDescription const& iBD) {
-          for (auto c : callbacks) {
+          for (const auto& c : callbacks) {
             c(iBD);
           }
         });

@@ -170,7 +170,7 @@ void SiStripCommissioningOfflineClient::beginRun(const edm::Run& run, const edm:
       }
     }
     contents.clear();
-    for (auto s : temp) {
+    for (const auto& s : temp) {
       // the old code expects a ":", but does not really need the ME names
       contents.push_back(s + ":");
     }

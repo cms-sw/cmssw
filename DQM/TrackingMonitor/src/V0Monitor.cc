@@ -271,7 +271,7 @@ void V0Monitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
         || pv->ndof() < pvNDOF_ || pv->z() > 24.)
       pv = nullptr;
 
-    for (auto v : *pvHandle) {
+    for (const auto& v : *pvHandle) {
       if (v.isFake())
         continue;
       if (v.ndof() < pvNDOF_)
@@ -299,7 +299,7 @@ void V0Monitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
     return;
 
   reco::VertexCompositeCandidateCollection v0s = *v0Handle.product();
-  for (auto v0 : v0s) {
+  for (const auto& v0 : v0s) {
     float mass = v0.mass();
     float pt = v0.pt();
     float p = v0.p();

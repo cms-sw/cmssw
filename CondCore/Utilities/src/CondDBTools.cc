@@ -143,7 +143,7 @@ namespace cond {
         persistency::IOVProxy dp = destSession.readIov(destTag);
         auto diovs = dp.selectRange(begin, end);
         std::set<cond::Time_t> extraSinces;
-        for (auto iov : diovs) {
+        for (const auto& iov : diovs) {
           auto siov = p.getInterval(iov.since);
           if (siov.since != iov.since) {
             if (extraSinces.find(iov.since) == extraSinces.end()) {

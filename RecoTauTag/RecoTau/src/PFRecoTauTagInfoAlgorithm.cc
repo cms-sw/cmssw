@@ -40,7 +40,7 @@ PFTauTagInfo PFRecoTauTagInfoAlgorithm::buildPFTauTagInfo(const JetBaseRef& theP
   const float jetPhi = (*thePFJet).phi();
   const float jetEta = (*thePFJet).eta();
   auto dr2 = [jetPhi, jetEta](float phi, float eta) { return reco::deltaR2(jetEta, jetPhi, eta, phi); };
-  for (auto iPFCand : thePFCandsInEvent) {
+  for (const auto& iPFCand : thePFCandsInEvent) {
     float delta = dr2((*iPFCand).phi(), (*iPFCand).eta());
     if (delta < ChargedHadronsAssociationCone_ * ChargedHadronsAssociationCone_)
       thePFCands.push_back(iPFCand);

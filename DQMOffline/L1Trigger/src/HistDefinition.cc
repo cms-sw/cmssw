@@ -39,7 +39,7 @@ namespace dqmoffline {
       max_size = std::max(max_size, (unsigned int)mapping.size());
       definitions.resize(max_size);
 
-      for (auto name : names) {
+      for (const auto &name : names) {
         if (mapping.find(name) != mapping.end()) {
           const edm::ParameterSet &hd(ps.getParameter<edm::ParameterSet>(name));
           definitions[mapping.at(name)] = HistDefinition(hd);

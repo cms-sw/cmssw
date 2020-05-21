@@ -180,7 +180,7 @@ void CaloParticleValidation::dqmAnalyze(edm::Event const& iEvent,
                                    caloParticle.eta());
       int simHits = 0;
       float energy = 0.;
-      for (auto const sc : caloParticle.simClusters()) {
+      for (auto const& sc : caloParticle.simClusters()) {
         simHits += sc->hits_and_fractions().size();
         for (auto const& h_and_f : sc->hits_and_fractions()) {
           if (hitmap.count(h_and_f.first))

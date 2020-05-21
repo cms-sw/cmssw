@@ -618,7 +618,7 @@ bool HCalSD::isItHF(const G4Step* aStep) {
 }
 
 bool HCalSD::isItHF(const G4String& name) {
-  for (auto nam : hfNames)
+  for (const auto& nam : hfNames)
     if (name == static_cast<G4String>(nam)) {
       return true;
     }
@@ -634,7 +634,7 @@ bool HCalSD::isItFibre(const G4LogicalVolume* lv) {
 }
 
 bool HCalSD::isItFibre(const G4String& name) {
-  for (auto nam : fibreNames)
+  for (const auto& nam : fibreNames)
     if (name == static_cast<G4String>(nam)) {
       return true;
     }

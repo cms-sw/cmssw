@@ -40,15 +40,15 @@ void L1MenuViewer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSe
   cout << " modules: " << ptr1->getNmodules() << endl;
 
   cout << " Algorithms[" << ptr1->getAlgorithmMap().size() << "]: " << endl;
-  for (auto a : ptr1->getAlgorithmMap())
+  for (const auto& a : ptr1->getAlgorithmMap())
     cout << "  " << a.first << endl;
 
   cout << " Conditions[" << ptr1->getConditionMap().size() << "]: " << endl;
-  for (auto a : ptr1->getConditionMap())
+  for (const auto& a : ptr1->getConditionMap())
     cout << "  " << a.first << endl;
 
   cout << " Conditions[" << ptr1->getScaleMap().size() << "]: " << endl;
-  for (auto a : ptr1->getScaleMap())
+  for (const auto& a : ptr1->getScaleMap())
     cout << "  " << a.first << endl;
 }
 

@@ -892,7 +892,7 @@ public:
       auto weightNames = genLumiInfoHead->weightNames();
       std::unordered_map<std::string, uint32_t> knownPDFSetsFromGenInfo_;
       unsigned int weightIter = 0;
-      for (auto line : weightNames) {
+      for (const auto& line : weightNames) {
         if (std::regex_search(line, groups, scalew)) {  // scale variation
           auto id = groups.str(1);
           auto group = groups.str(2);
@@ -940,7 +940,7 @@ public:
       for (const auto& pw : pdfSetWeightIDs) {
         if (pw.wids.size() == 1)
           continue;  // only consider error sets
-        for (auto wantedpdf : lhaNameToID_) {
+        for (const auto& wantedpdf : lhaNameToID_) {
           auto pdfname = wantedpdf.first;
           if (knownPDFSetsFromGenInfo_.find(pdfname) == knownPDFSetsFromGenInfo_.end())
             continue;
@@ -948,7 +948,7 @@ public:
           if (pw.lhaIDs.first != lhaid)
             continue;
           pdfDoc << pdfname;
-          for (auto x : pw.wids)
+          for (const auto& x : pw.wids)
             weightChoice->pdfWeightIDs.push_back(std::atoi(x.c_str()));
           if (maxPdfWeights_ < pw.wids.size()) {
             weightChoice->pdfWeightIDs.resize(maxPdfWeights_);  // drop some replicas
@@ -980,7 +980,7 @@ public:
   void globalEndRunProduce(edm::Run& iRun, edm::EventSetup const&, CounterMap const* runCounterMap) const override {
     auto out = std::make_unique<nanoaod::MergeableCounterTable>();
 
-    for (auto x : runCounterMap->countermap) {
+    for (const auto& x : runCounterMap->countermap) {
       auto runCounter = &(x.second);
       std::string label = (!x.first.empty()) ? (std::string("_") + x.first) : "";
       std::string doclabel = (!x.first.empty()) ? (std::string(", for model label ") + x.first) : "";

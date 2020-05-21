@@ -211,7 +211,7 @@ namespace cond {
           if (m_session->iovSchema().tagLogTable().exists()) {
             std::string action("Tag header updated. Changes involve: ");
             size_t i = 0;
-            for (auto c : m_data->changes) {
+            for (const auto& c : m_data->changes) {
               action += c;
               if (i == (m_data->changes.size() - 1))
                 action += ".";

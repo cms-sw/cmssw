@@ -317,11 +317,11 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::accuSort(std::vector<l1t::Jet>& 
 
   // put all 12 candidates in the original jet vector, removing zero energy ones
   jets.clear();
-  for (l1t::Jet accjet : accumEtaPos) {
+  for (const l1t::Jet& accjet : accumEtaPos) {
     if (accjet.hwPt() > 0)
       jets.push_back(accjet);
   }
-  for (l1t::Jet accjet : accumEtaNeg) {
+  for (const l1t::Jet& accjet : accumEtaNeg) {
     if (accjet.hwPt() > 0)
       jets.push_back(accjet);
   }

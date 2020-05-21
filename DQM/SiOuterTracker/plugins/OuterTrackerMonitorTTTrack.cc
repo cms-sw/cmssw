@@ -67,7 +67,7 @@ void OuterTrackerMonitorTTTrack::analyze(const edm::Event &iEvent, const edm::Ev
 
   /// Loop over TTTracks
   unsigned int tkCnt = 0;
-  for (auto iterTTTrack : *TTTrackHandle) {
+  for (const auto &iterTTTrack : *TTTrackHandle) {
     edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>> tempTrackPtr(TTTrackHandle, tkCnt++);  /// Make the pointer
 
     unsigned int nStubs = tempTrackPtr->getStubRefs().size();
@@ -83,7 +83,7 @@ void OuterTrackerMonitorTTTrack::analyze(const edm::Event &iEvent, const edm::Ev
 
     std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>>
         theStubs = iterTTTrack.getStubRefs();
-    for (auto istub : theStubs) {
+    for (const auto &istub : theStubs) {
       bool inTIB = false;
       bool inTOB = false;
       bool inTEC = false;

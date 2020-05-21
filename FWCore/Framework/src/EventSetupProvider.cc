@@ -752,7 +752,7 @@ namespace edm {
       ESRecordsToProxyIndices ret(recordKeys_);
 
       unsigned int index = 0;
-      for (auto provider : recordProviders_) {
+      for (const auto& provider : recordProviders_) {
         index = ret.dataKeysInRecord(
             index, provider->key(), provider->registeredDataKeys(), provider->componentsForRegisteredDataKeys());
       }

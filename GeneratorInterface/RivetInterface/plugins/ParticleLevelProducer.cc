@@ -159,10 +159,10 @@ void ParticleLevelProducer::produce(edm::Event& event, const edm::EventSetup& ev
   std::sort(leptons->begin(), leptons->end(), GreaterByPt<reco::GenJet>());
 
   // Jets with constituents and tag particles
-  for (auto jet : rivetAnalysis_->jets()) {
+  for (const auto& jet : rivetAnalysis_->jets()) {
     addGenJet(jet, jets, consts, constsRefHandle, iConstituent, tags, tagsRefHandle, iTag);
   }
-  for (auto jet : rivetAnalysis_->fatjets()) {
+  for (const auto& jet : rivetAnalysis_->fatjets()) {
     addGenJet(jet, fatjets, consts, constsRefHandle, iConstituent, tags, tagsRefHandle, iTag);
   }
 

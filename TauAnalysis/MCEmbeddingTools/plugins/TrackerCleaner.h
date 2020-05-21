@@ -57,7 +57,7 @@ TrackerCleaner<T>::TrackerCleaner(const edm::ParameterSet& iConfig)
 
 {
   std::vector<edm::InputTag> inCollections = iConfig.getParameter<std::vector<edm::InputTag> >("oldCollection");
-  for (auto inCollection : inCollections) {
+  for (const auto& inCollection : inCollections) {
     inputs_[inCollection.instance()] = consumes<TrackClusterCollection>(inCollection);
     produces<TrackClusterCollection>(inCollection.instance());
   }
@@ -76,7 +76,7 @@ void TrackerCleaner<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByToken(mu_input_, muonHandle);
   edm::View<pat::Muon> muons = *muonHandle;
 
-  for (auto input_ : inputs_) {
+  for (const auto& input_ : inputs_) {
     edm::Handle<TrackClusterCollection> inputClusters;
     iEvent.getByToken(input_.second, inputClusters);
 

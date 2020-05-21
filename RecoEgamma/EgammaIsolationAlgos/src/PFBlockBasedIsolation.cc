@@ -113,7 +113,7 @@ bool PFBlockBasedIsolation::passesCleaningPhoton(const reco::PFCandidateRef& pfC
                 ->seed()) {  //being sure to match, some concerned about different collections, shouldnt be but to be safe
       passesCleaning = true;
     } else {
-      for (auto cluster : pfEGCand->superClusterRef()->clusters()) {
+      for (const auto& cluster : pfEGCand->superClusterRef()->clusters()) {
         //the PF clusters there are in two different collections so cant reference match
         //but we can match on the seed id, no clusters can share a seed so if the seeds are
         //equal, it must be the same cluster

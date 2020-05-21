@@ -28,7 +28,7 @@ HGCPassive::HGCPassive(const edm::ParameterSet& p) : topPV_(nullptr), topLV_(nul
   edm::LogVerbatim("HGCSim") << "Name of the mother volume " << motherName_;
   unsigned k(0);
 #endif
-  for (auto name : LVNames_) {
+  for (const auto& name : LVNames_) {
     produces<edm::PassiveHitContainer>(Form("%sPassiveHits", name.c_str()));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "Collection name[" << k << "] " << name;

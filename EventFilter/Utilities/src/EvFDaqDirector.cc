@@ -1915,7 +1915,7 @@ namespace evf {
     edm::ParameterSet const& topPset = edm::getParameterSet(pc.parameterSetID());
     if (topPset.existsAs<edm::ParameterSet>(mergeTypePset_, true)) {
       const edm::ParameterSet& tsPset(topPset.getParameterSet(mergeTypePset_));
-      for (std::string pname : tsPset.getParameterNames()) {
+      for (const std::string& pname : tsPset.getParameterNames()) {
         std::string streamType = tsPset.getParameter<std::string>(pname);
         tbb::concurrent_hash_map<std::string, std::string>::accessor ac;
         mergeTypeMap_.insert(ac, pname);

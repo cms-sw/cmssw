@@ -191,7 +191,7 @@ double MuonFSRProducer::computeRelativeIsolation(const pat::PackedCandidate& pho
                                                  const double& isoConeMin) const {
   double ptsum = 0;
 
-  for (auto pfcand : pfcands) {
+  for (const auto& pfcand : pfcands) {
     // Isolation cone requirement
     double dRIsoCone = deltaR(photon.eta(), photon.phi(), pfcand.eta(), pfcand.phi());
     if (dRIsoCone > isoConeMax)

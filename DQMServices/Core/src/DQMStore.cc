@@ -687,7 +687,7 @@ namespace dqm::implementation {
       subdirs.insert(dirname);
     }
     std::vector<std::string> out;
-    for (auto dir : subdirs) {
+    for (const auto& dir : subdirs) {
       if (dir.length() == 0)
         continue;
       out.push_back(this->cwd_ + dir);
