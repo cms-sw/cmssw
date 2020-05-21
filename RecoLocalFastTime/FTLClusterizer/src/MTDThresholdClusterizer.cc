@@ -282,7 +282,6 @@ FTLCluster MTDThresholdClusterizer::make_cluster(const FTLCluster::FTLHitPos& hi
           if ((seed_subdet == GeomDetEnumerators::barrel) && (theBuffer.subDet(r, c) == GeomDetEnumerators::barrel)) {
             double hit_error_xx = theBuffer.local_error(r, c).xx();
             double hit_error_yy = theBuffer.local_error(r, c).yy();
-            std::cout << "thePositionThreshold: " << thePositionThreshold << std::endl;
             if (thePositionThreshold > 0) {
               if (((theBuffer.global_point(r, c) - seedPoint).mag2()) >
                   thePositionThreshold * thePositionThreshold *
