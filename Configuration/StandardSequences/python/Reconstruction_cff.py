@@ -154,7 +154,7 @@ phase2_hgcal.toReplaceWith(globalrecoTask, _phase2HGALRecoTask)
 
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 _phase2HFNoseRecoTask = globalrecoTask.copy()
-_phase2HFNoseRecoTask.add(hfniterTICLTask)
+_phase2HFNoseRecoTask.add(iterHFNoseTICLTask)
 phase2_hfnose.toReplaceWith(globalrecoTask, _phase2HFNoseRecoTask)
 
 
