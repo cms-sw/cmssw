@@ -896,7 +896,7 @@ caloDict = {
             'Geometry/ForwardCommonData/data/hfnoseCell/v1/hfnoseCell.xml',
             'Geometry/ForwardCommonData/data/hfnoseWafer/v1/hfnoseWafer.xml',
             'Geometry/ForwardCommonData/data/hfnoseLayer/v2/hfnoseLayer.xml',
-            'Geometry/ForwardCommonData/data/hfnoseCons/v1/hfnoseCons.xml',
+            'Geometry/ForwardCommonData/data/hfnoseCons/v1m/hfnoseCons.xml',
         ],
         3 : [
             'Geometry/EcalSimData/data/PhaseII/ecalsens.xml',
