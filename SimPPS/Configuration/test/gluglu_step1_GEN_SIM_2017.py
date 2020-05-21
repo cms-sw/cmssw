@@ -23,15 +23,7 @@ process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-#process.load('Configuration.Geometry.GeometryExtended2017_CTPPS_cff')   # This line must be added to simulate PPS while its sim geometry is not in the DB
-process.load('Configuration.StandardSequences.GeometryDB_cff')
-process.GlobalTag.toGet = cms.VPSet(
-    cms.PSet(record = cms.string("GeometryFileRcd"),
-             tag = cms.string("XMLFILE_Geometry_110YV3_Extended2017CTPPS_mc"),
-             connect = cms.string("sqlite_file:PPS_geometry_DB.db")
-    )
-)
-process.XMLFromDBSource.label=''
+process.load('Configuration.Geometry.GeometryExtended2017_CTPPS_cff')   # This line must be added to simulate PPS while its sim geometry is not in the DB
 
 process.RandomNumberGeneratorService.generator.initialSeed = cms.untracked.uint32(random.randint(0,900000000))
 

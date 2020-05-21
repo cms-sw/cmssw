@@ -62,35 +62,7 @@ for a in process.aliases: delattr(process, a)
 process.RandomNumberGeneratorService.restoreStateLabel=cms.untracked.string("randomEngineStateProducer")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
-process.GlobalTag.toGet = cms.VPSet(
-    cms.PSet(
-        record = cms.string('CTPPSPixelGainCalibrationsRcd'),
-        tag = cms.string("CTPPSPixelGainCalibrations_mc"),
-        connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
-        ),
-    cms.PSet(
-        record = cms.string('CTPPSPixelAnalysisMaskRcd'),
-        tag = cms.string("CTPPSPixelAnalysisMask_mc"),
-        label = cms.untracked.string(""),
-        connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
-        ),
-    cms.PSet(
-        record = cms.string('CTPPSPixelDAQMappingRcd'),
-        tag = cms.string("CTPPSPixelDAQMapping_mc"),
-        connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
-        )
-)
 
-# modify Totem 2017 mapping
-process.load('CalibPPS.ESProducers.totemDAQMappingESSourceXML_cfi')
-process.totemDAQMappingESSourceXML.configuration = cms.VPSet(
-    cms.PSet(
-      validityRange = cms.EventRange("1:min - 999999999:max"),
-      mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/mapping_tracking_strip_2017.xml"),
-      maskFileNames = cms.vstring()
-    )
-)
-        
 # do not make testID for simulation - keeping the frame
 from EventFilter.CTPPSRawToDigi.totemRPRawToDigi_cfi import totemRPRawToDigi
 totemRPRawToDigi.RawToDigi.testID = cms.uint32(1)

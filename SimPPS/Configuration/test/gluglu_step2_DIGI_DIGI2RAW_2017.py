@@ -22,7 +22,6 @@ process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.DigiToRaw_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('CalibPPS.ESProducers.CTPPSPixelDAQMappingESSourceXML_cfi')
 
 process.load("CondCore.CondDB.CondDB_cfi")
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
@@ -68,34 +67,6 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
     
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
-process.GlobalTag.toGet = cms.VPSet(
-    cms.PSet(
-        record = cms.string('CTPPSPixelGainCalibrationsRcd'),
-        tag = cms.string("CTPPSPixelGainCalibrations_mc"),
-        connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
-        ),
-    cms.PSet(
-        record = cms.string('CTPPSPixelAnalysisMaskRcd'),
-        tag = cms.string("CTPPSPixelAnalysisMask_mc"),
-        label = cms.untracked.string(""),
-        connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
-        ),
-    cms.PSet(
-        record = cms.string('CTPPSPixelDAQMappingRcd'),
-        tag = cms.string("CTPPSPixelDAQMapping_mc"),
-        connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
-        )
-)
-
-process.load("CalibPPS.ESProducers.totemDAQMappingESSourceXML_cfi")
-process.totemDAQMappingESSourceXML.configuration = cms.VPSet(
-    cms.PSet(
-      validityRange = cms.EventRange("1:min - 999999999:max"),
-      mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/mapping_tracking_strip_2017.xml"),
-      maskFileNames = cms.vstring()
-    )
-)
-
 
 # Path and EndPath definitions
 process.digitisation_step = cms.Path(process.pdigi)

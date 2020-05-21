@@ -1,13 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from SimG4Core.Application.g4SimHits_cfi import *
-g4SimHits.Generator.MinEtaCut = cms.double(-13.0)
-g4SimHits.Generator.MaxEtaCut = cms.double( 13.0)
-g4SimHits.Generator.HepMCProductLabel   = 'LHCTransport'
-g4SimHits.SteppingAction.MaxTrackTime = cms.double(2000.0)
-g4SimHits.StackingAction.MaxTrackTime = cms.double(2000.0)
-
-from IOMC.RandomEngine.IOMC_cff import *
-RandomNumberGeneratorService.LHCTransport.engineName   = cms.untracked.string('TRandom3')
 
 #
 # to avoid higher level moodules to import uneeded objects, import module as _module

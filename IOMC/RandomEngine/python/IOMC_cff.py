@@ -19,7 +19,7 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     ),
     LHCTransport = cms.PSet(
         initialSeed = cms.untracked.uint32(87654321),
-        engineName = FastSimEngine
+        engineName = cms.untracked.string('TRandom3')
     ),
     hiSignalLHCTransport = cms.PSet(
         initialSeed = cms.untracked.uint32(88776655),
