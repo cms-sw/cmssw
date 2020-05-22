@@ -84,7 +84,7 @@ void Cabling::addphi(const string& dtc, double phi, int layer, int module) {
   if (layer > 1000)
     layerdisk = module + N_DISK;
 
-  assert(layerdisk < N_LAYERDISK);
+  assert(layerdisk < N_LAYER + N_DISK);
 
   int isec = dtc[0] - '0';
 
@@ -105,7 +105,7 @@ void Cabling::writephirange() const {
   ofstream out("dtcphirange.txt");
 
   for (auto&& it : dtcranges_) {
-    for (unsigned int i = 0; i < N_LAYERDISK; i++) {
+    for (unsigned int i = 0; i < N_LAYER + N_DISK; i++) {
       double min = it.second.min(i);
       double max = it.second.max(i);
       if (min < max) {

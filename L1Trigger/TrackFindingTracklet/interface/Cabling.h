@@ -7,6 +7,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/DTCLink.h"
 
 #include <vector>
+#include <map>
 
 namespace trklet {
 

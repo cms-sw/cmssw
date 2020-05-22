@@ -9,7 +9,7 @@ using namespace trklet;
 
 DTC::DTC(string name) {
   name_ = name;
-  for (unsigned int i = 0; i < N_LAYERDISK; i++) {
+  for (unsigned int i = 0; i < N_LAYER + N_DISK; i++) {
     phimin_[i] = 10.0;
     phimax_[i] = -10.0;
   }
@@ -20,7 +20,7 @@ void DTC::setName(string name) { name_ = name; }
 void DTC::addSec(int sector) { sectors_.push_back(sector); }
 
 void DTC::addphi(double phi, unsigned int layerdisk) {
-  assert(layerdisk < N_LAYERDISK);
+  assert(layerdisk < N_LAYER + N_DISK);
   if (phi < phimin_[layerdisk])
     phimin_[layerdisk] = phi;
   if (phi > phimax_[layerdisk])

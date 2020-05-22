@@ -107,7 +107,7 @@ TrackletProcessor::TrackletProcessor(string name, Settings const& settings, Glob
   assert(iSeed_ != 99);
 
   TCIndex_ = (iSeed_ << 4) + iTC_;
-  assert(TCIndex_ >= 0 && TCIndex_ < 128);
+  assert(TCIndex_ >= 0 && TCIndex_ <= (int)settings_.ntrackletmax());
 
   assert((layer_ != 0) || (disk_ != 0));
 
@@ -155,7 +155,7 @@ void TrackletProcessor::addOutput(MemoryBase* memory, string output) {
     }
 
     if (output[7] == 'D') {
-      assert(layerdisk < 5);
+      assert(layerdisk < N_DISK);
       assert(phiregion < trackletprojdisks_[layerdisk].size());
       //check that phiregion not already initialized
       assert(trackletprojdisks_[layerdisk][phiregion] == nullptr);
