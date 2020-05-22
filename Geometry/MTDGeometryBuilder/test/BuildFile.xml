@@ -12,8 +12,4 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<bin file="dummyMain.cpp" name="GeometryMTDGeometryBuilderTestDriver">
-  <use name="FWCore/Utilities"/>
-  <flags TEST_RUNNER_ARGS="/bin/bash Geometry/MTDGeometryBuilder/test runTest.sh"/>
-</bin>
-
+<test name="GeometryMTDGeometryBuilderTestDriver" command="runTest.sh"/>

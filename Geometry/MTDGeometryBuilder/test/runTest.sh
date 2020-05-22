@@ -11,9 +11,9 @@ function checkDiff {
     fi
 }
 
-F1=${LOCAL_TEST_DIR}/mtd_cfg.py
-F2=${LOCAL_TEST_DIR}/dd4hep_mtd_cfg.py
-REF=${LOCAL_TOP_DIR}/src/Geometry/TestReference/data/mtdGeometryRef.log.gz
+F1=${CMSSW_BASE}/src/Geometry/MTDGeometryBuilder/test/mtd_cfg.py
+F2=${CMSSW_BASE}/src/Geometry/MTDGeometryBuilder/test/dd4hep_mtd_cfg.py
+REF=${CMSSW_BASE}/src/Geometry/TestReference/data/mtdGeometryRef.log.gz
 FILE1=mtdGeometryDDD.log
 FILE2=mtdGeometryDD4hep.log
 LOG=mtdgblog
