@@ -45,6 +45,17 @@ akPu4PFJets = akPu5PFJets.clone(rParam       = cms.double(0.4), puPtMin = 20)
 akPu6PFJets = akPu5PFJets.clone(rParam       = cms.double(0.6), puPtMin = 30)
 akPu7PFJets = akPu5PFJets.clone(rParam       = cms.double(0.7), puPtMin = 35)
 
+ak4PFJetsForFlow = akPu5PFJets.clone(
+    Ghost_EtaMax = cms.double(5.0),
+    Rho_EtaMax = cms.double(4.4),
+    doRhoFastjet = cms.bool(False),
+    jetPtMin = cms.double(15.0),
+    nSigmaPU = cms.double(1.0),
+    rParam = cms.double(0.4),
+    radiusPU = cms.double(0.5),
+    src = cms.InputTag("pfcandCleaner", "particleFlowCleaned"),
+)
+
 kt4PFJetsForRho = cms.EDProducer(
     "FastjetJetProducer",
     HiPFJetParameters,
@@ -58,8 +69,6 @@ kt4PFJetsForRho.doAreaFastjet = cms.bool(True)
 kt4PFJetsForRho.jetPtMin      = cms.double(0.0)
 kt4PFJetsForRho.GhostArea     = cms.double(0.005)
 
-from RecoHI.HiJetAlgos.hiFJRhoProducer import hiFJRhoProducer
-
 akCs4PFJets = cms.EDProducer(
     "CSJetProducer",
     HiPFJetParameters,
@@ -71,6 +80,7 @@ akCs4PFJets = cms.EDProducer(
     rhom      = cms.InputTag('hiFJRhoProducer','mapToRhoM'),
     csRParam  = cms.double(-1.),
     csAlpha   = cms.double(2.),
+    useModulatedRho = cms.bool(False),
     writeJetsWithConst = cms.bool(True),
     jetCollInstanceName = cms.string("pfParticlesCs")
 )
@@ -82,10 +92,11 @@ akCs4PFJets.GhostArea     = cms.double(0.005)
 
 akCs3PFJets = akCs4PFJets.clone(rParam       = cms.double(0.3))
 
-hiRecoPFJetsTask = cms.Task(
-    PFTowers
-    ,akPu3PFJets,akPu4PFJets,akPu5PFJets
-    ,kt4PFJetsForRho,hiFJRhoProducer
-    ,akCs3PFJets,akCs4PFJets
-    )
-hiRecoPFJets = cms.Sequence(hiRecoPFJetsTask)
+akFlowPuCs4PFJets = akCs4PFJets.clone(
+    etaMap = cms.InputTag('hiPuRhoProducer', 'mapEtaEdges'),
+    rho = cms.InputTag('hiPuRhoProducer', 'mapToRho'),
+    rhom = cms.InputTag('hiPuRhoProducer', 'mapToRhoM'),
+    useModulatedRho = cms.bool(True),
+    rhoFlowFitParams = cms.InputTag('hiFJRhoFlowModulationProducer', 'rhoFlowFitParams'),
+    jetCollInstanceName = cms.string("pfParticlesCs"),
+)
