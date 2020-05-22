@@ -60,9 +60,6 @@ HLTMuonPlotter::HLTMuonPlotter(const ParameterSet &pset,
 void HLTMuonPlotter::beginJob() {}
 
 void HLTMuonPlotter::beginRun(DQMStore::IBooker &iBooker, const Run &iRun, const EventSetup &iSetup) {
-  static int runNumber = 0;
-  runNumber++;
-
   l1Matcher_.init(iSetup);
 
   cutMaxEta_ = 2.4;
@@ -108,10 +105,8 @@ void HLTMuonPlotter::beginRun(DQMStore::IBooker &iBooker, const Run &iRun, const
 }
 
 void HLTMuonPlotter::analyze(const Event &iEvent, const EventSetup &iSetup) {
-  static int eventNumber = 0;
-  eventNumber++;
   LogTrace("HLTMuonVal") << "In HLTMuonPlotter::analyze,  "
-                         << "Event: " << eventNumber;
+                         << "Event: " << iEvent.id();
 
   // cout << hltPath_ << endl;
   // for (size_t i = 0; i < moduleLabels_.size(); i++)
