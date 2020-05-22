@@ -8,6 +8,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/StubPairsMemory.h"
 
 #include <vector>
+#include <map>
 
 namespace trklet {
 

@@ -5,18 +5,23 @@
 #include <string>
 #include <array>
 #include <set>
-#include <map>
 #include <cassert>
 #include <cmath>
+#include <unordered_map>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 namespace trklet {
 
-  // constants used within Settings
-  constexpr unsigned int N_SECTOR = 9;   // number of phi sectors for the processing
-  constexpr unsigned int N_DSS_MOD = 5;  // number of rings with 2S modules per disk
+  constexpr unsigned int N_SECTOR = 9;  // # of phi sectors for L1TK processing
+
+  constexpr int N_LAYER = 6;             // # of barrel layers assumed
+  constexpr int N_DISK = 5;              // # of endcap disks assumed
+  constexpr unsigned int N_PSLAYER = 3;  // # of barrel PS layers assumed
+  constexpr unsigned int N_SEED = 12;    // # of tracklet+triplet seeds
+
+  constexpr unsigned int N_DSS_MOD = 5;  // # of rings with 2S modules per disk
 
   class Settings {
   public:
@@ -334,12 +339,12 @@ namespace trklet {
 
     double maxt_{32.0};  //range in t that we must cover
 
-    std::array<unsigned int, 6> irmean_{{851, 1269, 1784, 2347, 2936, 3697}};
-    std::array<unsigned int, 5> izmean_{{2239, 2645, 3163, 3782, 4523}};
+    std::array<unsigned int, N_LAYER> irmean_{{851, 1269, 1784, 2347, 2936, 3697}};
+    std::array<unsigned int, N_DISK> izmean_{{2239, 2645, 3163, 3782, 4523}};
 
-    std::array<unsigned int, 11> nzbitsstub_{{12, 12, 12, 8, 8, 8, 7, 7, 7, 7, 7}};
-    std::array<unsigned int, 11> nphibitsstub_{{14, 14, 14, 17, 17, 17, 14, 14, 14, 14, 14}};
-    std::array<unsigned int, 11> nrbitsstub_{{7, 7, 7, 7, 7, 7, 12, 12, 12, 12, 12}};
+    std::array<unsigned int, N_LAYER + N_DISK> nzbitsstub_{{12, 12, 12, 8, 8, 8, 7, 7, 7, 7, 7}};
+    std::array<unsigned int, N_LAYER + N_DISK> nphibitsstub_{{14, 14, 14, 17, 17, 17, 14, 14, 14, 14, 14}};
+    std::array<unsigned int, N_LAYER + N_DISK> nrbitsstub_{{7, 7, 7, 7, 7, 7, 12, 12, 12, 12, 12}};
 
     unsigned int nrbitsprojderdisk_{9};
     unsigned int nbitsphiprojderL123_{10};
@@ -349,16 +354,18 @@ namespace trklet {
 
     std::set<unsigned int> useseeding_{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
 
-    std::array<unsigned int, 11> nbitsallstubs_{{3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2}};
-    std::array<unsigned int, 11> nbitsvmme_{{2, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2}};
-    std::array<std::array<unsigned int, 12>, 3> nbitsvmte_{{{{2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 3, 2}},
-                                                            {{3, 2, 3, 3, 2, 2, 2, 2, 3, 3, 2, 2}},
-                                                            {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1}}}};
+    std::array<unsigned int, N_LAYER + N_DISK> nbitsallstubs_{{3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2}};
+    std::array<unsigned int, N_LAYER + N_DISK> nbitsvmme_{{2, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2}};
+    std::array<std::array<unsigned int, N_SEED>, 3> nbitsvmte_{
+        {{{2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 3, 2}},  // (3 = #stubs/triplet, only row 1+2 used for tracklet)
+         {{3, 2, 3, 3, 2, 2, 2, 2, 3, 3, 2, 2}},
+         {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1}}}};
 
-    std::array<std::array<double, 8>, 2> bendcutte_{{{{1.25, 1.25, 1.25, 1.25, 1.25, 1.25, 1.25, 1.25}},    //inner
-                                                     {{1.25, 1.25, 1.25, 1.25, 1.25, 1.25, 1.25, 1.25}}}};  //outer
+    std::array<std::array<double, 8>, 2> bendcutte_{
+        {{{1.25, 1.25, 1.25, 1.25, 1.25, 1.25, 1.25, 1.25}},    //inner (2 = #stubs/tracklet)
+         {{1.25, 1.25, 1.25, 1.25, 1.25, 1.25, 1.25, 1.25}}}};  //outer
 
-    std::array<double, 11> bendcutme_{{2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 1.5, 1.5, 1.5, 1.5, 1.5}};
+    std::array<double, N_LAYER + N_DISK> bendcutme_{{2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 1.5, 1.5, 1.5, 1.5, 1.5}};
 
     double rmindiskvm_{22.5};
     double rmaxdiskvm_{67.0};
@@ -437,56 +444,61 @@ namespace trklet {
     int chisqphifactbits_{14};
     int chisqzfactbits_{14};
 
-    std::array<unsigned int, 11> vmrlutzbits_{{7, 7, 7, 7, 7, 7, 3, 3, 3, 3, 3}};  // zbits used by LUT in VMR
-    std::array<unsigned int, 11> vmrlutrbits_{{4, 4, 4, 4, 4, 4, 8, 8, 8, 8, 8}};  // rbits used by LUT in VMR
+    std::array<unsigned int, N_LAYER + N_DISK> vmrlutzbits_{
+        {7, 7, 7, 7, 7, 7, 3, 3, 3, 3, 3}};  // zbits used by LUT in VMR
+    std::array<unsigned int, N_LAYER + N_DISK> vmrlutrbits_{
+        {4, 4, 4, 4, 4, 4, 8, 8, 8, 8, 8}};  // rbits used by LUT in VMR
 
-    std::array<std::array<unsigned int, 12>, 3> nfinephi_{{{{2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2}},    //inner
-                                                           {{3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3}},    //outer
-                                                           {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3}}}};  //outermost
+    std::array<std::array<unsigned int, N_SEED>, 3> nfinephi_{
+        {{{2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2}},    //inner  (3 = #stubs/triplet, only row 1+2 used for tracklet)
+         {{3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3}},    //outer
+         {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3}}}};  //outermost (triplets only)
 
     //These are the number of bits used for the VM regions in the TE by seedindex
-    std::array<std::array<unsigned int, 12>, 3> nphireg_{{{{5, 4, 4, 4, 4, 4, 4, 3, 4, 4, 5, 4}},    //inner
-                                                          {{5, 4, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4}},    //outer
-                                                          {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4}}}};  //outermost
+    std::array<std::array<unsigned int, N_SEED>, 3> nphireg_{
+        {{{5, 4, 4, 4, 4, 4, 4, 3, 4, 4, 5, 4}},    //inner
+         {{5, 4, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4}},    //outer
+         {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4}}}};  //outermost (triplets only)
 
-    std::array<std::array<unsigned int, 12>, 3> lutwidthtab_{{{{10, 11, 11, 11, 11, 11, 11, 11, 0, 0, 11, 0}},
-                                                              {{6, 6, 6, 6, 10, 10, 10, 10, 0, 0, 6, 0}},
-                                                              {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 6}}}};
+    std::array<std::array<unsigned int, N_SEED>, 3> lutwidthtab_{{{{10, 11, 11, 11, 11, 11, 11, 11, 0, 0, 11, 0}},
+                                                                  {{6, 6, 6, 6, 10, 10, 10, 10, 0, 0, 6, 0}},
+                                                                  {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 6}}}};
 
-    std::array<std::array<unsigned int, 12>, 3> lutwidthtabextended_{{{{11, 11, 21, 21, 21, 21, 11, 11, 0, 0, 21, 0}},
-                                                                      {{6, 6, 6, 6, 10, 10, 10, 10, 0, 0, 6, 0}},
-                                                                      {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6}}}};
+    std::array<std::array<unsigned int, N_SEED>, 3> lutwidthtabextended_{
+        {{{11, 11, 21, 21, 21, 21, 11, 11, 0, 0, 21, 0}},
+         {{6, 6, 6, 6, 10, 10, 10, 10, 0, 0, 6, 0}},
+         {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6}}}};
 
     //projection layers by seed index. For each seeding index (row) the list of layers that we consider projections to
-    std::array<std::array<unsigned int, 4>, 12> projlayers_{{{{3, 4, 5, 6}},  //0 L1L2
-                                                             {{1, 4, 5, 6}},  //1 L2L3
-                                                             {{1, 2, 5, 6}},  //2 L3L4
-                                                             {{1, 2, 3, 4}},  //3 L5L6
-                                                             {{1, 2}},        //4 D1D2
-                                                             {{1}},           //5 D3D4
-                                                             {{}},            //6 L1D1
-                                                             {{1}},           //7 L2D1
-                                                             {{1, 5, 6}},     //8 L2L3L4
-                                                             {{1, 2, 3}},     //9 L4L5L6
-                                                             {{1}},           //10 L2L3D1
-                                                             {{1}}}};         //11 D1D2L2
+    std::array<std::array<unsigned int, N_LAYER - 2>, N_SEED> projlayers_{{{{3, 4, 5, 6}},  //0 L1L2
+                                                                           {{1, 4, 5, 6}},  //1 L2L3
+                                                                           {{1, 2, 5, 6}},  //2 L3L4
+                                                                           {{1, 2, 3, 4}},  //3 L5L6
+                                                                           {{1, 2}},        //4 D1D2
+                                                                           {{1}},           //5 D3D4
+                                                                           {{}},            //6 L1D1
+                                                                           {{1}},           //7 L2D1
+                                                                           {{1, 5, 6}},     //8 L2L3L4
+                                                                           {{1, 2, 3}},     //9 L4L5L6
+                                                                           {{1}},           //10 L2L3D1
+                                                                           {{1}}}};         //11 D1D2L2
 
     //projection disks by seed index. For each seeding index (row) the list of diks that we consider projections to
-    std::array<std::array<unsigned int, 5>, 12> projdisks_{{{{1, 2, 3, 4}},  //0 L1L2
-                                                            {{1, 2, 3, 4}},  //1 L2L3
-                                                            {{1, 2}},        //2 L3L4
-                                                            {{}},            //3 L5L6
-                                                            {{3, 4, 5}},     //4 D1D2
-                                                            {{1, 2, 5}},     //5 D3D4
-                                                            {{2, 3, 4, 5}},  //6 L1D1
-                                                            {{2, 3, 4}},     //7 L2D1
-                                                            {{1, 2}},        //8 L2L3L4
-                                                            {{}},            //9 L4L5L6
-                                                            {{2, 3, 4}},     //10 L2L3D1
-                                                            {{3, 4}}}};      //11 D1D2L2
+    std::array<std::array<unsigned int, N_DISK>, N_SEED> projdisks_{{{{1, 2, 3, 4}},  //0 L1L2
+                                                                     {{1, 2, 3, 4}},  //1 L2L3
+                                                                     {{1, 2}},        //2 L3L4
+                                                                     {{}},            //3 L5L6
+                                                                     {{3, 4, 5}},     //4 D1D2
+                                                                     {{1, 2, 5}},     //5 D3D4
+                                                                     {{2, 3, 4, 5}},  //6 L1D1
+                                                                     {{2, 3, 4}},     //7 L2D1
+                                                                     {{1, 2}},        //8 L2L3L4
+                                                                     {{}},            //9 L4L5L6
+                                                                     {{2, 3, 4}},     //10 L2L3D1
+                                                                     {{3, 4}}}};      //11 D1D2L2
 
     //rphi cuts for layers - the column is the seedindex
-    std::array<std::array<double, 12>, 6> rphimatchcut_{
+    std::array<std::array<double, N_SEED>, N_LAYER> rphimatchcut_{
         {{{0.0, 0.1, 0.07, 0.08, 0.07, 0.05, 0.0, 0.05, 0.08, 0.15, 0.125, 0.15}},  //Layer 1
          {{0.0, 0.0, 0.06, 0.08, 0.05, 0.0, 0.0, 0.0, 0.0, 0.1, 0.0, 0.0}},         //Layer 2
          {{0.1, 0.0, 0.0, 0.08, 0.0, 0.0, 0.0, 0.0, 0.0, 0.08, 0.0, 0.0}},          //Layer 3
@@ -495,7 +507,7 @@ namespace trklet {
          {{0.5, 0.0, 0.19, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2, 0.0, 0.0, 0.0}}}};         //Layer 6
 
     //z cuts for layers - the column is the seedindex
-    std::array<std::array<double, 12>, 6> zmatchcut_{
+    std::array<std::array<double, N_SEED>, N_LAYER> zmatchcut_{
         {{{0.0, 0.7, 5.5, 15.0, 1.5, 2.0, 0.0, 1.5, 1.0, 8.0, 1.0, 1.5}},   //Layer 1
          {{0.0, 0.0, 3.5, 15.0, 1.25, 0.0, 0.0, 0.0, 0.0, 7.0, 0.0, 0.0}},  //Layer 2
          {{0.7, 0.0, 0.0, 9.0, 0.0, 0.0, 0.0, 0.0, 0.0, 5.0, 0.0, 0.0}},    //Layer 3
@@ -504,7 +516,7 @@ namespace trklet {
          {{4.0, 0.0, 9.5, 0.0, 0.0, 0.0, 0.0, 0.0, 4.5, 0.0, 0.0, 0.0}}}};  //Layer 6
 
     //rphi cuts for PS modules in disks - the column is the seedindex
-    std::array<std::array<double, 12>, 5> rphicutPS_{
+    std::array<std::array<double, N_SEED>, N_DISK> rphicutPS_{
         {{{0.2, 0.2, 0.0, 0.0, 0.0, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}},     //disk 1
          {{0.2, 0.2, 0.0, 0.0, 0.0, 0.1, 0.1, 0.1, 0.0, 0.0, 0.15, 0.0}},    //disk 2
          {{0.25, 0.2, 0.0, 0.0, 0.15, 0.0, 0.2, 0.15, 0.0, 0.0, 0.0, 0.2}},  //disk 3
@@ -512,7 +524,7 @@ namespace trklet {
          {{0.0, 0.0, 0.0, 0.0, 0.25, 0.1, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0}}}};  //disk 5
 
     //r cuts for PS modules in disks - the column is the seedindex
-    std::array<std::array<double, 12>, 5> rcutPS_{
+    std::array<std::array<double, N_SEED>, N_DISK> rcutPS_{
         {{{0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}},    //disk 1
          {{0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.5, 0.5, 0.0, 0.0, 0.5, 0.0}},    //disk 2
          {{0.5, 0.5, 0.0, 0.0, 0.5, 0.0, 0.6, 0.8, 0.0, 0.0, 0.0, 0.4}},    //disk 3
@@ -520,7 +532,7 @@ namespace trklet {
          {{0.0, 0.0, 0.0, 0.0, 1.0, 0.5, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0}}}};  //disk 5
 
     //rphi cuts for 2S modules in disks = the column is the seedindex
-    std::array<std::array<double, 12>, 5> rphicut2S_{
+    std::array<std::array<double, N_SEED>, N_DISK> rphicut2S_{
         {{{0.5, 0.5, 0.8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2, 0.0, 0.0, 0.0}},    //disk 1
          {{0.5, 0.5, 0.8, 0.0, 0.0, 0.0, 0.5, 0.15, 0.3, 0.0, 0.68, 0.0}},  //disk 2
          {{0.5, 0.5, 0.0, 0.0, 0.15, 0.0, 0.2, 0.25, 0.0, 0.0, 0.8, 0.1}},  //disk 3
@@ -528,7 +540,7 @@ namespace trklet {
          {{0.0, 0.0, 0.0, 0.0, 0.4, 0.2, 0.4, 0.0, 0.0, 0.0, 0.0, 0.8}}}};  //disk 5
 
     //r cuts for 2S modules in disks -the column is the seedindex
-    std::array<std::array<double, 12>, 5> rcut2S_{
+    std::array<std::array<double, N_SEED>, N_DISK> rcut2S_{
         {{{3.8, 3.8, 3.8, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 0.0, 0.0, 0.0}},    //disk 1
          {{3.8, 3.8, 3.8, 0.0, 0.0, 0.0, 3.8, 3.4, 3.0, 0.0, 3.0, 0.0}},    //disk 2
          {{3.6, 3.8, 0.0, 0.0, 3.6, 0.0, 3.6, 3.8, 0.0, 0.0, 3.8, 3.0}},    //disk 3
@@ -537,48 +549,47 @@ namespace trklet {
 
     unsigned int maxstepoffset_{10000};
 
-    std::map<std::string, unsigned int> maxstep_{{"Link", 108},
-                                                 {"MC", 108},
-                                                 {"ME", 108},
-                                                 {"MP", 108},
-                                                 {"PR", 108},
-                                                 {"TC", 108},
-                                                 {"TE", 108},
-                                                 {"TP", 108},
-                                                 {"TRE", 108},
-                                                 {"VMR", 108}};
+    std::unordered_map<std::string, unsigned int> maxstep_{{"Link", 108},
+                                                           {"MC", 108},
+                                                           {"ME", 108},
+                                                           {"MP", 108},
+                                                           {"PR", 108},
+                                                           {"TC", 108},
+                                                           {"TE", 108},
+                                                           {"TP", 108},
+                                                           {"TRE", 108},
+                                                           {"VMR", 108}};
 
-    std::map<std::string, bool> writeMonitorData_{{"IL", false},
-                                                  {"TE", false},
-                                                  {"CT", false},
-                                                  {"HitPattern", false},
-                                                  {"ChiSq", false},
-                                                  {"Seeds", false},
-                                                  {"FT", false},
-                                                  {"Residuals", false},
-                                                  {"MC", false},
-                                                  {"ME", false},
-                                                  {"AP", false},
-                                                  {"VMP", false},
-                                                  {"NMatches", false},
-                                                  {"TrackProjOcc", false},
-                                                  {"TC", false},
-                                                  {"Pars", false},
-                                                  {"TPars", false},
-                                                  {"TPD", false},
-                                                  {"TrackletPars", false},
-                                                  {"TED", false},
-                                                  {"TP", false},
-                                                  {"TRE", false},
-                                                  {"VMR", false},
-                                                  {"Variance", false},
-                                                  {"StubsLayer", false},
-                                                  {"StubsLayerSector", false},
-                                                  {"HitEff", false},
-                                                  {"MatchEff", false},
-                                                  {"Cabling", false},
-                                                  {"IFit", false},
-                                                  {"AS", false}};
+    std::unordered_map<std::string, bool> writeMonitorData_{{"IL", false},
+                                                            {"TE", false},
+                                                            {"CT", false},
+                                                            {"HitPattern", false},
+                                                            {"ChiSq", false},
+                                                            {"Seeds", false},
+                                                            {"FT", false},
+                                                            {"Residuals", false},
+                                                            {"MC", false},
+                                                            {"ME", false},
+                                                            {"AP", false},
+                                                            {"VMP", false},
+                                                            {"NMatches", false},
+                                                            {"TrackProjOcc", false},
+                                                            {"TC", false},
+                                                            {"Pars", false},
+                                                            {"TPars", false},
+                                                            {"TPD", false},
+                                                            {"TrackletPars", false},
+                                                            {"TED", false},
+                                                            {"TP", false},
+                                                            {"TRE", false},
+                                                            {"VMR", false},
+                                                            {"StubsLayer", false},
+                                                            {"StubsLayerSector", false},
+                                                            {"HitEff", false},
+                                                            {"MatchEff", false},
+                                                            {"Cabling", false},
+                                                            {"IFit", false},
+                                                            {"AS", false}};
 
     std::array<double, N_DSS_MOD> rDSSinner_mod_{{68.9391, 78.7750, 85.4550, 96.3150, 102.3160}};
 
@@ -676,23 +687,15 @@ namespace trklet {
     double stripLength_2S_{5.0250};
   };
 
-  // constants
-  constexpr int N_LAYER = 6;
-  constexpr int N_DISK = 5;
-  constexpr unsigned int N_PSLAYER = 3;
-  constexpr unsigned int N_LAYERDISK = 11;
+  constexpr unsigned int N_TILTED_RINGS = 12;  // # of tilted rings per half-layer in TBPS layers
+  constexpr std::array<unsigned int, N_PSLAYER> N_MOD_PLANK = {{7, 11, 15}};  // # of modules/plank in TBPS
 
-  constexpr unsigned int N_TILTED_RINGS = 12;  // number of tilted rings per half-layer in TBPS layers
-  constexpr std::array<unsigned int, N_PSLAYER> N_MOD_PLANK = {
-      {7, 11, 15}};  // number of modules per plank in TBPS layers
-
-  constexpr unsigned int N_SEED = 12;     // number of tracklet+triplet seeds
-  constexpr unsigned int N_TRKLSEED = 7;  // number of tracklet seeds
-  constexpr unsigned int N_PROJ = 4;      // number of projections (beyond stubs from tracklet seed)
+  constexpr unsigned int N_TRKLSEED = 7;  // # of tracklet seeds
+  constexpr unsigned int N_PROJ = 4;      // # of projections (beyond stubs from tracklet seed)
 
   // chi2 fitting
-  constexpr unsigned int N_FITPARAM = 4;  // number of fit parameters for chi2 fit
-  constexpr unsigned int N_FITSTUB = 6;   // maximum number of stubs used
+  constexpr unsigned int N_FITPARAM = 4;  // # of fit parameters for chi2 fit
+  constexpr unsigned int N_FITSTUB = 6;   // max # of number of stubs used
 
   constexpr unsigned int N_TRACKDER_PTBIN = 4;
   constexpr unsigned int N_TRACKDER_INDEX = 1000;

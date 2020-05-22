@@ -1014,7 +1014,7 @@ double TrackDerTable::tpar(Settings const& settings, int diskmask, int layermask
   double tmax = 1000.0;
   double tmin = 0.0;
 
-  for (int d = 1; d <= 5; d++) {
+  for (int d = 1; d <= (int)N_DISK; d++) {
     if (diskmask & (1 << (2 * (5 - d) + 1))) {  //PS hit
       double dmax = settings.zmean(d - 1) / 22.0;
       if (dmax > sinh(2.4))
@@ -1036,7 +1036,7 @@ double TrackDerTable::tpar(Settings const& settings, int diskmask, int layermask
     }
   }
 
-  for (int l = 1; l <= 6; l++) {
+  for (int l = 1; l <= (int)N_LAYER; l++) {
     if (layermask & (1 << (6 - l))) {
       double lmax = settings.zlength() / settings.rmean(l - 1);
       if (lmax < tmax)

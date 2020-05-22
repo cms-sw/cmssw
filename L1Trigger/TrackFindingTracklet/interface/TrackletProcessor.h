@@ -10,6 +10,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/AllStubsMemory.h"
 
 #include <vector>
+#include <map>
 
 namespace trklet {
 

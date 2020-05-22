@@ -39,8 +39,8 @@ namespace trklet {
     std::vector<DTCLink> links_;
     std::vector<int> sectors_;
 
-    double phimin_[N_LAYERDISK];
-    double phimax_[N_LAYERDISK];
+    double phimin_[N_LAYER + N_DISK];
+    double phimax_[N_LAYER + N_DISK];
   };
 };  // namespace trklet
 #endif

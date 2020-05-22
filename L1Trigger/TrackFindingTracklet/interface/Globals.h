@@ -8,6 +8,7 @@
 #include <vector>
 #include <array>
 #include <fstream>
+#include <unordered_map>
 
 namespace tmtt {
   class Settings;
@@ -70,7 +71,7 @@ namespace trklet {
     std::ofstream& ofstream(std::string fname);
 
   private:
-    std::map<std::string, std::ofstream*> ofstreams_;
+    std::unordered_map<std::string, std::ofstream*> ofstreams_;
 
     std::unique_ptr<imathGlobals> imathGlobals_;
 
