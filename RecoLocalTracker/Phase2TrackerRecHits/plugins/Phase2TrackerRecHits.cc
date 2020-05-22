@@ -21,7 +21,7 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-#include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
+#include "RecoLocalTracker/Records/interface/TkPhase2OTCPERecord.h"
 #include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
 
 #include <vector>
@@ -51,7 +51,7 @@ void Phase2TrackerRecHits::produce(edm::StreamID sid, edm::Event& event, const e
 
   // load the cpe via the eventsetup
   edm::ESHandle<ClusterParameterEstimator<Phase2TrackerCluster1D> > cpe;
-  eventSetup.get<TkStripCPERecord>().get(cpeTag_, cpe);
+  eventSetup.get<TkPhase2OTCPERecord>().get(cpeTag_, cpe);
 
   // Get the geometry
   edm::ESHandle<TrackerGeometry> geomHandle;
