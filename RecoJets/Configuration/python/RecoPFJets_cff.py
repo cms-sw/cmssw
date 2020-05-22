@@ -84,7 +84,8 @@ recoPFJetsWithSubstructureTask=cms.Task(
     )
 recoPFJetsWithSubstructure=cms.Sequence(recoPFJetsWithSubstructureTask)
 
-from RecoHI.HiJetAlgos.HiRecoPFJets_cff import PFTowers, akPu3PFJets, akPu4PFJets, kt4PFJetsForRho, hiFJRhoProducer, akCs4PFJets, pfNoPileUpJMEHI
+from RecoHI.HiJetAlgos.HiRecoPFJets_cff import PFTowers, akPu3PFJets, akPu4PFJets, kt4PFJetsForRho, akCs4PFJets, pfNoPileUpJMEHI
+from RecoHI.HiJetAlgos.hiFJRhoProducer import hiFJRhoProducer
  
 recoPFJetsHITask =cms.Task(fixedGridRhoAll,
                            fixedGridRhoFastjetAll,
