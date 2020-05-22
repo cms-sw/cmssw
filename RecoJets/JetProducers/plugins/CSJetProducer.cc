@@ -15,7 +15,8 @@ using namespace reco;
 using namespace edm;
 using namespace cms;
 
-CSJetProducer::CSJetProducer(edm::ParameterSet const& conf) : VirtualJetProducer(conf), csRParam_(-1.0), csAlpha_(0.), useModulatedRho_(false) {
+CSJetProducer::CSJetProducer(edm::ParameterSet const& conf)
+    : VirtualJetProducer(conf), csRParam_(-1.0), csAlpha_(0.), useModulatedRho_(false) {
   //get eta range, rho and rhom map
   etaToken_ = consumes<std::vector<double>>(conf.getParameter<edm::InputTag>("etaMap"));
   rhoToken_ = consumes<std::vector<double>>(conf.getParameter<edm::InputTag>("rho"));
@@ -25,7 +26,8 @@ CSJetProducer::CSJetProducer(edm::ParameterSet const& conf) : VirtualJetProducer
   useModulatedRho_ = conf.getParameter<bool>("useModulatedRho");
   minFlowChi2Prob_ = conf.getParameter<double>("minFlowChi2Prob");
   maxFlowChi2Prob_ = conf.getParameter<double>("maxFlowChi2Prob");
-  if (useModulatedRho_) rhoFlowFitParamsToken_ = consumes<std::vector<double>>(conf.getParameter<edm::InputTag>("rhoFlowFitParams"));
+  if (useModulatedRho_)
+    rhoFlowFitParamsToken_ = consumes<std::vector<double>>(conf.getParameter<edm::InputTag>("rhoFlowFitParams"));
 }
 
 void CSJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -62,7 +64,8 @@ void CSJetProducer::runAlgorithm(edm::Event& iEvent, edm::EventSetup const& iSet
   iEvent.getByToken(etaToken_, etaRanges);
   iEvent.getByToken(rhoToken_, rhoRanges);
   iEvent.getByToken(rhomToken_, rhomRanges);
-  if(useModulatedRho_) iEvent.getByToken(rhoFlowFitParamsToken_, rhoFlowFitParams);
+  if (useModulatedRho_)
+    iEvent.getByToken(rhoFlowFitParamsToken_, rhoFlowFitParams);
 
   //Check if size of eta and background density vectors is the same
   unsigned int bkgVecSize = etaRanges->size();
@@ -82,16 +85,17 @@ void CSJetProducer::runAlgorithm(edm::Event& iEvent, edm::EventSetup const& iSet
     // sift ghosts and particles in the input jet
     std::vector<fastjet::PseudoJet> particles, ghosts;
     fastjet::SelectorIsPureGhost().sift(ijet.constituents(), ghosts, particles);
-    unsigned long nParticles=particles.size();
-    if(nParticles==0) continue; //don't subtract ghost jets
-    
+    unsigned long nParticles = particles.size();
+    if (nParticles == 0)
+      continue;  //don't subtract ghost jets
+
     //assign rho and rhom to ghosts according to local eta-dependent map + modulation as function of phi
     for (fastjet::PseudoJet& ighost : ghosts) {
       double rhoModulationFactor = 1.;
       double ghostPhi = ighost.phi_std();
 
       if (useModulatedRho_) {
-        if (rhoFlowFitParams->size() > 0) {
+        if (!rhoFlowFitParams->empty()) {
           double val = ROOT::Math::chisquared_cdf_c(rhoFlowFitParams->at(5), rhoFlowFitParams->at(6));
           bool minProb = val > minFlowChi2Prob_;
           bool maxProb = val < maxFlowChi2Prob_;
@@ -101,27 +105,27 @@ void CSJetProducer::runAlgorithm(edm::Event& iEvent, edm::EventSetup const& iSet
                                                         rhoFlowFitParams->at(2),
                                                         rhoFlowFitParams->at(4),
                                                         rhoFlowFitParams->at(1),
-                                                        rhoFlowFitParams->at(3)
-                                                        );
+                                                        rhoFlowFitParams->at(3));
           }
         }
       }
 
       int32_t ghostPos = -1;
-      if(ighost.eta()<=etaRanges->at(0) || bkgVecSize==1) {
+      if (ighost.eta() <= etaRanges->at(0) || bkgVecSize == 1) {
         ghostPos = 0;
-      } else if(ighost.eta()>=etaRanges->at(bkgVecSize-1)) {
+      } else if (ighost.eta() >= etaRanges->at(bkgVecSize - 1)) {
         ghostPos = rhoRanges->size() - 1;
       } else {
-        for(unsigned int ie = 0; ie<(bkgVecSize-1); ie++) {
-          if(ighost.eta()>=etaRanges->at(ie) && ighost.eta()<etaRanges->at(ie+1)) {
+        for (unsigned int ie = 0; ie < (bkgVecSize - 1); ie++) {
+          if (ighost.eta() >= etaRanges->at(ie) && ighost.eta() < etaRanges->at(ie + 1)) {
             ghostPos = ie;
             break;
           }
         }
       }
       double pt = rhoRanges->at(ghostPos) * ighost.area() * rhoModulationFactor;
-      double mass_squared = std::pow(rhoModulationFactor * rhomRanges->at(ghostPos) * ighost.area() + pt, 2) - std::pow(pt, 2);
+      double mass_squared =
+          std::pow(rhoModulationFactor * rhomRanges->at(ghostPos) * ighost.area() + pt, 2) - std::pow(pt, 2);
       double mass = (mass_squared > 0) ? sqrt(mass_squared) : 0;
       ighost.reset_momentum_PtYPhiM(pt, ighost.rap(), ighost.phi(), mass);
     }
@@ -167,13 +171,14 @@ void CSJetProducer::fillDescriptionsFromCSJetProducer(edm::ParameterSetDescripti
   desc.add<bool>("useModulatedRho", false);
   desc.add<double>("minFlowChi2Prob", false);
   desc.add<double>("maxFlowChi2Prob", false);
-  desc.add<edm::InputTag>("etaMap",edm::InputTag("hiFJRhoProducer","mapEtaEdges") );
-  desc.add<edm::InputTag>("rho",edm::InputTag("hiFJRhoProducer","mapToRho") );
-  desc.add<edm::InputTag>("rhom",edm::InputTag("hiFJRhoProducer","mapToRhoM") );
-  desc.add<edm::InputTag>("rhoFlowFitParams", edm::InputTag("hiFJRhoFlowModulationProducer", "rhoFlowFitParams") );
+  desc.add<edm::InputTag>("etaMap", edm::InputTag("hiFJRhoProducer", "mapEtaEdges"));
+  desc.add<edm::InputTag>("rho", edm::InputTag("hiFJRhoProducer", "mapToRho"));
+  desc.add<edm::InputTag>("rhom", edm::InputTag("hiFJRhoProducer", "mapToRhoM"));
+  desc.add<edm::InputTag>("rhoFlowFitParams", edm::InputTag("hiFJRhoFlowModulationProducer", "rhoFlowFitParams"));
 }
 
-double CSJetProducer::getModulatedRhoFactor(const double phi, const double eventPlane2, const double eventPlane3, const double par1, const double par2) {
+double CSJetProducer::getModulatedRhoFactor(
+    const double phi, const double eventPlane2, const double eventPlane3, const double par1, const double par2) {
   // get the rho modulation as function of phi
   // flow modulation fit is done in RecoHI/HiJetAlgos/plugins/HiFJRhoFlowModulationProducer
   return 1. + 2. * par1 * cos(2. * (phi - eventPlane2)) + par2 * cos(3. * (phi - eventPlane3));

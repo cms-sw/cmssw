@@ -93,16 +93,16 @@ private:
   bool dropZeroTowers_;
   int medianWindowWidth_;
   double minimumTowersFraction_;
-  double nSigmaPU_;                                   // number of sigma for pileup
+  double nSigmaPU_;  // number of sigma for pileup
   double puPtMin_;
-  double radiusPU_;                                   // pileup radius
-  double rParam_;                                     // the R parameter to use
-  edm::InputTag src_;                                 // input constituent source
+  double radiusPU_;    // pileup radius
+  double rParam_;      // the R parameter to use
+  edm::InputTag src_;  // input constituent source
   double towSigmaCut_;
 
-  std::vector<edm::Ptr<reco::Candidate>> inputs_;     // input candidates
-  ClusterSequencePtr fjClusterSeq_;                   // fastjet cluster sequence
-  JetDefPtr fjJetDefinition_;                         // fastjet jet definition
+  std::vector<edm::Ptr<reco::Candidate>> inputs_;  // input candidates
+  ClusterSequencePtr fjClusterSeq_;                // fastjet cluster sequence
+  JetDefPtr fjJetDefinition_;                      // fastjet jet definition
 
   std::vector<fastjet::PseudoJet> fjInputs_;          // fastjet inputs
   std::vector<fastjet::PseudoJet> fjJets_;            // fastjet jets
@@ -111,13 +111,13 @@ private:
   CaloGeometry const* geo_ = nullptr;  // geometry
   std::vector<HcalDetId> allgeomid_;   // all det ids in the geometry
 
-  int ietamax_;                                // maximum eta in geometry
-  int ietamin_;                                // minimum eta in geometry
-  std::map<int, int> ntowersWithJets_;         // number of towers with jets
-  std::map<int, int> geomtowers_;              // map of geometry towers to det id
-  std::map<int, double> esigma_;               // energy sigma
-  std::map<int, double> emean_;                // energy mean
-  std::map<int, std::vector<double>> eTop4_;   // energy mean
+  int ietamax_;                               // maximum eta in geometry
+  int ietamin_;                               // minimum eta in geometry
+  std::map<int, int> ntowersWithJets_;        // number of towers with jets
+  std::map<int, int> geomtowers_;             // map of geometry towers to det id
+  std::map<int, double> esigma_;              // energy sigma
+  std::map<int, double> emean_;               // energy mean
+  std::map<int, std::vector<double>> eTop4_;  // energy mean
 
   edm::EDGetTokenT<reco::CandidateView> input_candidateview_token_;
 };
