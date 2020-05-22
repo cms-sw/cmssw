@@ -19,3 +19,8 @@ DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer",
 DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
                                          appendToDataLabel = cms.string('')
 )
+
+from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff import *
+from Geometry.EcalCommonData.ecalSimulationParameters_cff import *
+from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *
+from Geometry.MuonNumbering.muonGeometryConstants_cff import *
