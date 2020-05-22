@@ -16,9 +16,6 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 
-#include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
-#include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
-
 #include "Geometry/Records/interface/ME0RecoGeometryRcd.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"

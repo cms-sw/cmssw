@@ -17,7 +17,7 @@
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 #include "Geometry/MuonNumbering/interface/CSCNumberingScheme.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 
 #include "Geometry/CSCGeometry/src/CSCWireGroupPackage.h"
@@ -82,7 +82,7 @@ bool CSCGeometryParsFromDD::build(const DDCompactView* cview,
 
     LogTrace(myName) << myName << ": create numbering scheme...";
 
-    MuonDDDNumbering mdn(muonConstants);
+    MuonGeometryNumbering mdn(muonConstants);
     MuonBaseNumber mbn = mdn.geoHistoryToBaseNumber(fv.geoHistory());
     CSCNumberingScheme mens(muonConstants);
 

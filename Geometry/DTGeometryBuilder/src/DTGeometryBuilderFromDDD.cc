@@ -12,7 +12,7 @@
 #include <DetectorDescription/Core/interface/DDFilteredView.h>
 #include <DetectorDescription/Core/interface/DDSolid.h>
 #include "DataFormats/Math/interface/GeantUnits.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/DTNumberingScheme.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
@@ -105,7 +105,7 @@ void DTGeometryBuilderFromDDD::buildGeometry(DTGeometry& theGeometry,
 DTChamber* DTGeometryBuilderFromDDD::buildChamber(DDFilteredView& fv,
                                                   const string& type,
                                                   const MuonGeometryConstants& muonConstants) const {
-  MuonDDDNumbering mdddnum(muonConstants);
+  MuonGeometryNumbering mdddnum(muonConstants);
   DTNumberingScheme dtnum(muonConstants);
   int rawid = dtnum.getDetId(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
   DTChamberId detId(rawid);
@@ -130,7 +130,7 @@ DTSuperLayer* DTGeometryBuilderFromDDD::buildSuperLayer(DDFilteredView& fv,
                                                         DTChamber* chamber,
                                                         const std::string& type,
                                                         const MuonGeometryConstants& muonConstants) const {
-  MuonDDDNumbering mdddnum(muonConstants);
+  MuonGeometryNumbering mdddnum(muonConstants);
   DTNumberingScheme dtnum(muonConstants);
   int rawid = dtnum.getDetId(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
   DTSuperLayerId slId(rawid);
@@ -159,7 +159,7 @@ DTLayer* DTGeometryBuilderFromDDD::buildLayer(DDFilteredView& fv,
                                               DTSuperLayer* sl,
                                               const std::string& type,
                                               const MuonGeometryConstants& muonConstants) const {
-  MuonDDDNumbering mdddnum(muonConstants);
+  MuonGeometryNumbering mdddnum(muonConstants);
   DTNumberingScheme dtnum(muonConstants);
   int rawid = dtnum.getDetId(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
   DTLayerId layId(rawid);
