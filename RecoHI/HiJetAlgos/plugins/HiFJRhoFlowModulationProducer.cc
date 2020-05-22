@@ -31,13 +31,13 @@
 #include <vector>
 
 HiFJRhoFlowModulationProducer::HiFJRhoFlowModulationProducer(const edm::ParameterSet& iConfig)
-  : doEvtPlane_(iConfig.getParameter<bool>("doEvtPlane")),
-    doFreePlaneFit_(iConfig.getParameter<bool>("doFreePlaneFit")),
-    doJettyExclusion_(iConfig.getParameter<bool>("doJettyExclusion")),
-    evtPlaneLevel_(iConfig.getParameter<int>("evtPlaneLevel")),
-    jetTag_(consumes<reco::JetView>(iConfig.getParameter<edm::InputTag>("jetTag"))),
-    pfCandsToken_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCandSource"))),
-    evtPlaneToken_(consumes<reco::EvtPlaneCollection>(iConfig.getParameter<edm::InputTag>("EvtPlane"))) {
+    : doEvtPlane_(iConfig.getParameter<bool>("doEvtPlane")),
+      doFreePlaneFit_(iConfig.getParameter<bool>("doFreePlaneFit")),
+      doJettyExclusion_(iConfig.getParameter<bool>("doJettyExclusion")),
+      evtPlaneLevel_(iConfig.getParameter<int>("evtPlaneLevel")),
+      jetTag_(consumes<reco::JetView>(iConfig.getParameter<edm::InputTag>("jetTag"))),
+      pfCandsToken_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCandSource"))),
+      evtPlaneToken_(consumes<reco::EvtPlaneCollection>(iConfig.getParameter<edm::InputTag>("EvtPlane"))) {
   produces<std::vector<double>>("rhoFlowFitParams");
 }
 

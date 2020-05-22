@@ -278,7 +278,8 @@ void HiPuRhoProducer::calculatePedestal(std::vector<fastjet::PseudoJet> const& c
       vntow[vi] = nt;
     }
 
-    LogDebug("PileUpSubtractor") << " ieta: " << it << " number of towers: " << nt << " e1: " << e1 << " e2: " << e2 << "\n";
+    LogDebug("PileUpSubtractor") << " ieta: " << it << " number of towers: " << nt << " e1: " << e1 << " e2: " << e2
+                                 << "\n";
 
     if (nt > 0) {
       if (postOrphan_) {
@@ -365,10 +366,8 @@ void HiPuRhoProducer::subtractPedestal(std::vector<fastjet::PseudoJet>& coll) {
     if (etnew < 0.)
       mScale = 0.;
 
-    math::XYZTLorentzVectorD towP4(input_object.px() * mScale,
-                                   input_object.py() * mScale,
-                                   input_object.pz() * mScale,
-                                   input_object.e() * mScale);
+    math::XYZTLorentzVectorD towP4(
+        input_object.px() * mScale, input_object.py() * mScale, input_object.pz() * mScale, input_object.e() * mScale);
 
     input_object.reset_momentum(towP4.px(), towP4.py(), towP4.pz(), towP4.energy());
     input_object.set_user_index(index);
@@ -386,7 +385,7 @@ void HiPuRhoProducer::calculateOrphanInput(std::vector<fastjet::PseudoJet>& orph
 
   fjInputs_ = fjOriginalInputs_;
 
-  std::vector<int> jettowers;                        // vector of towers indexed by "user_index"
+  std::vector<int> jettowers;                       // vector of towers indexed by "user_index"
   std::vector<std::pair<int, int>> excludedTowers;  // vector of excluded ieta, iphi values
 
   int32_t nref = 0;
@@ -466,8 +465,8 @@ void HiPuRhoProducer::putRho(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     order.emplace_back(std::make_pair(i, etaEdgeLow_[i]));
   }
 
-  std::sort(order.begin(), order.end(), [](auto const& pair0, auto const& pair1) {
-    return pair0.second < pair1.second; });
+  std::sort(
+      order.begin(), order.end(), [](auto const& pair0, auto const& pair1) { return pair0.second < pair1.second; });
 
   std::vector<double> sortedEtaEdgeLow(size);
   std::vector<double> sortedEtaEdgeHigh(size);
