@@ -18,7 +18,7 @@
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
 
-#include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/ME0NumberingScheme.h"
 
@@ -58,6 +58,8 @@ ME0Geometry* ME0GeometryBuilder::build(const cms::DDCompactView* cview, const Mu
 
 ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonGeometryConstants& muonConstants) {
   ME0Geometry* geometry = new ME0Geometry();
+  MuonGeometryNumbering mdddnum(muonConstants);
+  ME0NumberingScheme me0Num(muonConstants);
 
   LogTrace("ME0GeometryBuilder") << "Building the geometry service";
   LogTrace("ME0GeometryBuilder") << "About to run through the ME0 structure\n"
@@ -74,8 +76,6 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonGeo
     // to etapartitions
     LogTrace("ME0GeometryBuilder") << "to layer " << fv.firstChild();
     LogTrace("ME0GeometryBuilder") << "to etapt " << fv.firstChild();
-    MuonDDDNumbering mdddnum(muonConstants);
-    ME0NumberingScheme me0Num(muonConstants);
     int rawId = me0Num.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
     ME0DetId detId = ME0DetId(rawId);
     ME0DetId detIdCh = detId.chamberId();
@@ -101,8 +101,6 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonGeo
     while (doLayers) {
       // to etapartitions
       LogTrace("ME0GeometryBuilder") << "to etapt " << fv.firstChild();
-      MuonDDDNumbering mdddnum(muonConstants);
-      ME0NumberingScheme me0Num(muonConstants);
       int rawId = me0Num.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
       ME0DetId detId = ME0DetId(rawId);
       ME0DetId detIdLa = detId.layerId();
@@ -162,8 +160,6 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonGeo
     fv.firstChild();
     fv.firstChild();
 
-    MuonDDDNumbering mdddnum(muonConstants);
-    ME0NumberingScheme me0Num(muonConstants);
     int rawId = me0Num.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
     ME0DetId detId = ME0DetId(rawId);
     ME0DetId detIdCh = detId.chamberId();
@@ -181,8 +177,6 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonGeo
     while (doLayers) {
       // to etapartitions and back again to pick up DetId
       fv.firstChild();
-      MuonDDDNumbering mdddnum(muonConstants);
-      ME0NumberingScheme me0Num(muonConstants);
       int rawId = me0Num.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
       ME0DetId detId = ME0DetId(rawId);
       ME0DetId detIdLa = detId.layerId();
@@ -197,8 +191,6 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonGeo
 
       while (doEtaParts) {
         // pick up DetId
-        MuonDDDNumbering mdddnum(muonConstants);
-        ME0NumberingScheme me0Num(muonConstants);
         int rawId = me0Num.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
         ME0DetId detId = ME0DetId(rawId);
 
@@ -364,7 +356,7 @@ ME0GeometryBuilder::ME0BoundPlane ME0GeometryBuilder::boundPlane(const DDFiltere
 
 ME0Geometry* ME0GeometryBuilder::buildGeometry(cms::DDFilteredView& fv, const MuonGeometryConstants& muonConstants) {
   ME0Geometry* geometry = new ME0Geometry();
-  MuonDDDNumbering mdddnum(muonConstants);
+  MuonGeometryNumbering mdddnum(muonConstants);
   ME0NumberingScheme me0Num(muonConstants);
 
   bool doChambers = fv.firstChild();

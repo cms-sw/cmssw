@@ -1,11 +1,11 @@
-#include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#define LOCAL_DEBUG
 
-MuonDDDNumbering::MuonDDDNumbering(const MuonGeometryConstants &muonConstants) {
+MuonGeometryNumbering::MuonGeometryNumbering(const MuonGeometryConstants &muonConstants) {
   //  Get constant values from muonConstants
   theLevelPart = muonConstants.getValue("level");
   theSuperPart = muonConstants.getValue("super");
@@ -15,30 +15,30 @@ MuonDDDNumbering::MuonDDDNumbering(const MuonGeometryConstants &muonConstants) {
   // some consistency checks
 
   if (theBasePart != 1) {
-    edm::LogWarning("Geometry") << "MuonDDDNumbering finds unusual base constant:" << theBasePart;
+    edm::LogWarning("Geometry") << "MuonGeometryNumbering finds unusual base constant:" << theBasePart;
   }
   if (theSuperPart < 100) {
-    edm::LogWarning("Geometry") << "MuonDDDNumbering finds unusual super constant:" << theSuperPart;
+    edm::LogWarning("Geometry") << "MuonGeometryNumbering finds unusual super constant:" << theSuperPart;
   }
   if (theLevelPart < 10 * theSuperPart) {
-    edm::LogWarning("Geometry") << "MuonDDDNumbering finds unusual level constant:" << theLevelPart;
+    edm::LogWarning("Geometry") << "MuonGeometryNumbering finds unusual level constant:" << theLevelPart;
   }
   if ((theStartCopyNo != 0) && (theStartCopyNo != 1)) {
-    edm::LogWarning("Geometry") << "MuonDDDNumbering finds unusual start value for copy numbers:" << theStartCopyNo;
+    edm::LogWarning("Geometry") << "MuonGeometryNumbering finds unusual start value for copy numbers:" << theStartCopyNo;
   }
 
 #ifdef LOCAL_DEBUG
-  edm::LogVerbatim("Geometry") << "MuonDDDNumbering configured with"
+  edm::LogVerbatim("Geometry") << "MuonGeometryNumbering configured with"
                                << " Level = " << theLevelPart << " Super = " << theSuperPart
                                << " Base = " << theBasePart << " StartCopyNo = " << theStartCopyNo;
 #endif
 }
 
-MuonBaseNumber MuonDDDNumbering::geoHistoryToBaseNumber(const DDGeoHistory &history) const {
+MuonBaseNumber MuonGeometryNumbering::geoHistoryToBaseNumber(const DDGeoHistory &history) const {
   MuonBaseNumber num;
 
 #ifdef LOCAL_DEBUG
-  edm::LogVerbatim("Geometry") << "MuonDDDNumbering create MuonBaseNumber for " << history;
+  edm::LogVerbatim("Geometry") << "MuonGeometryNumbering create MuonBaseNumber for " << history;
 #endif
 
   //loop over all parents and check
@@ -57,7 +57,7 @@ MuonBaseNumber MuonDDDNumbering::geoHistoryToBaseNumber(const DDGeoHistory &hist
   }
 
 #ifdef LOCAL_DEBUG
-  edm::LogVerbatim("Geometry") << "MuonDDDNumbering::" << num.getLevels();
+  edm::LogVerbatim("Geometry") << "MuonGeometryNumbering::" << num.getLevels();
   for (int i = 1; i <= num.getLevels(); i++) {
     edm::LogVerbatim("Geometry") << "[" << i << "] " << num.getSuperNo(i) << " " << num.getBaseNo(i);
   }
@@ -66,7 +66,7 @@ MuonBaseNumber MuonDDDNumbering::geoHistoryToBaseNumber(const DDGeoHistory &hist
   return num;
 }
 
-MuonBaseNumber MuonDDDNumbering::geoHistoryToBaseNumber(const cms::ExpandedNodes &nodes) const {
+MuonBaseNumber MuonGeometryNumbering::geoHistoryToBaseNumber(const cms::ExpandedNodes &nodes) const {
   MuonBaseNumber num;
 
   int ctr(0);
@@ -83,7 +83,7 @@ MuonBaseNumber MuonDDDNumbering::geoHistoryToBaseNumber(const cms::ExpandedNodes
   return num;
 }
 
-int MuonDDDNumbering::getInt(const std::string &s, const DDLogicalPart &part) const {
+int MuonGeometryNumbering::getInt(const std::string &s, const DDLogicalPart &part) const {
   DDValue val(s);
   std::vector<const DDsvalues_type *> result = part.specifics();
   std::vector<const DDsvalues_type *>::iterator it = result.begin();
@@ -96,7 +96,7 @@ int MuonDDDNumbering::getInt(const std::string &s, const DDLogicalPart &part) co
   if (foundIt) {
     std::vector<double> temp = val.doubles();
     if (temp.size() != 1) {
-      edm::LogError("Geometry") << "MuonDDDNumbering:: ERROR: I need only 1 " << s << " in DDLogicalPart "
+      edm::LogError("Geometry") << "MuonGeometryNumbering:: ERROR: I need only 1 " << s << " in DDLogicalPart "
                                 << part.name();
       abort();
     }

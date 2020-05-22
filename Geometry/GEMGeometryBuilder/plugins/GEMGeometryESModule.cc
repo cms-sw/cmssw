@@ -13,6 +13,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 
 #include "Geometry/Records/interface/GEMRecoGeometryRcd.h"
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
@@ -36,11 +37,6 @@
 #include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 
 #include <memory>
-
-//dd4hep
-#include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
-#include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
-#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 
 using namespace edm;
 

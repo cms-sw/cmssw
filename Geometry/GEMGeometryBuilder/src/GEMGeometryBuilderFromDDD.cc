@@ -17,7 +17,7 @@
 #include <DetectorDescription/DDCMS/interface/DDFilteredView.h>
 #include <DetectorDescription/DDCMS/interface/DDCompactView.h>
 
-#include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/GEMNumberingScheme.h"
 
@@ -62,14 +62,14 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
   // loop over superchambers
   std::vector<GEMSuperChamber*> superChambers;
 
+  MuonGeometryNumbering mdddnum(muonConstants);
+  GEMNumberingScheme gemNum(muonConstants);
   while (doSuper) {
     // getting chamber id from eta partitions
     fv.firstChild();
     fv.firstChild();
 
-    MuonDDDNumbering mdddnumCh(muonConstants);
-    GEMNumberingScheme gemNumCh(muonConstants);
-    int rawidCh = gemNumCh.baseNumberToUnitNumber(mdddnumCh.geoHistoryToBaseNumber(fv.geoHistory()));
+    int rawidCh = gemNum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
     GEMDetId detIdCh = GEMDetId(rawidCh);
 
     // back to chambers
@@ -96,9 +96,7 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
 
       if (detIdCh.station() == GEMDetId::minStationId0) {
         fv.firstChild();
-        MuonDDDNumbering mdddnum(muonConstants);
-        GEMNumberingScheme ge0Num(muonConstants);
-        int rawId = ge0Num.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
+        int rawId = gemNum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
         GEMDetId detId = GEMDetId(rawId);
         fv.parent();
 
@@ -109,8 +107,6 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
       bool doEtaPart = fv.firstChild();
 
       while (doEtaPart) {
-        MuonDDDNumbering mdddnum(muonConstants);
-        GEMNumberingScheme gemNum(muonConstants);
         int rawid = gemNum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
         GEMDetId detId = GEMDetId(rawid);
         GEMEtaPartition* etaPart = buildEtaPartition(fv, detId);
@@ -350,10 +346,10 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
 
   // loop over superchambers
   std::vector<GEMSuperChamber*> superChambers;
+  MuonGeometryNumbering mdddnum(muonConstants);
+  GEMNumberingScheme gemNum(muonConstants);
 
   while (doChambers) {
-    MuonDDDNumbering mdddnum(muonConstants);
-    GEMNumberingScheme gemNum(muonConstants);
     int rawidCh = gemNum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.history()));
     GEMDetId detIdCh = GEMDetId(rawidCh);
 
