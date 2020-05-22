@@ -38,7 +38,7 @@ process.DDCompactViewESProducer = cms.ESProducer(
 
 process.test = cms.EDAnalyzer(
     "DD4hep_ListIds",
-    materials = cms.untracked.vstring("materials:Silicon" , "tracker:SenSi"),
+    materials = cms.untracked.vstring("materials:Silicon" , "tracker:SenSi", "materials:Air"),
     printMaterial = cms.untracked.bool(False)
 )
 

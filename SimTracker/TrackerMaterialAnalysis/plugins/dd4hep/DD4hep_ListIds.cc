@@ -54,7 +54,6 @@ void DD4hep_ListIds::analyze(const edm::Event &evt, const edm::EventSetup &setup
   setup.get<IdealGeometryRecord>().get("CMS",cpv);
 
   std::string attribute = "TkDDDStructure";
-  CmsTrackerStringToEnum theCmsTrackerStringToEnum;
   cms::DDFilter filter(attribute, "");
   cms::DDFilteredView fv(*cpv, filter);
   fv.firstChild();
@@ -66,15 +65,19 @@ void DD4hep_ListIds::analyze(const edm::Event &evt, const edm::EventSetup &setup
 
   for (const auto &i : tkdss) {
 
-    edm::LogVerbatim("ListIds") << "Filtering " << i;
+    edm::LogVerbatim("ListIds") << "\nFiltering " << i;
     cms::DDFilter filter1(attribute, {i.data(), i.size()});
     cms::DDFilteredView fv1(*cpv, filter1);
-    bool firstChild = fv1.firstChild();
-    
-    if (!firstChild) continue;
-    for (const auto j : fv1.specpars()) {
-      for (const auto &k : j->paths) {
-	edm::LogVerbatim("ListIds") << "\tpath "<< k << std::endl;	
+    fv1.firstChild();
+
+    std::vector<const cms::Node*> nodes ;
+    while(fv1.firstChild()){
+      nodes = fv1.geoHistory();
+      if(std::find(materials_.begin(),materials_.end(),nodes[nodes.size()-1]->GetVolume()->GetMaterial()->GetName())!=materials_.end()){
+	for(const auto& n : nodes) {
+	  edm::LogVerbatim("ListIds") << n->GetVolume()->GetName() << "[" << n->GetNumber() << "]/";
+	}
+	edm::LogVerbatim("ListIds") << "Material:|" << nodes[nodes.size()-1]->GetVolume()->GetMaterial()->GetName() << "|\n";
       }
     }
   }
