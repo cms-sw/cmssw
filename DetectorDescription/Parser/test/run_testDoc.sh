@@ -7,6 +7,7 @@ pushd ${LOCAL_TMP_DIR}
   cd ${LOCAL_TEST_DIR}
 #  cp ${LOCAL_TOP_DIR}/test/${SCRAM_ARCH}/testDoc .
   echo ${test}testDoc ------------------------------------------------------------
+  env
   testDoc testConfiguration.xml || die "testDoc" $?
   export PATH=${mecpath}
   popd
