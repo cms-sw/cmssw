@@ -55,7 +55,7 @@ MuonAlignmentOutputXML::MuonAlignmentOutputXML(const edm::ParameterSet &iConfig)
       m_suppressCSCStations(iConfig.getUntrackedParameter<bool>("suppressCSCStations", false)),
       m_suppressCSCRings(iConfig.getUntrackedParameter<bool>("suppressCSCRings", false)),
       m_suppressCSCChambers(iConfig.getUntrackedParameter<bool>("suppressCSCChambers", false)),
-      m_suppressCSCLayers(iConfig.getUntrackedParameter<bool>("suppressCSCLayers", false)), 
+      m_suppressCSCLayers(iConfig.getUntrackedParameter<bool>("suppressCSCLayers", false)),
       idealGeometryLabel("idealForOutputXML") {
   std::string str_relativeto = iConfig.getParameter<std::string>("relativeto");
 

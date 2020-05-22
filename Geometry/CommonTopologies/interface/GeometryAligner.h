@@ -117,7 +117,8 @@ void GeometryAligner::applyAlignments(const C* geometry,
 }
 
 template <class C>
-void GeometryAligner::attachSurfaceDeformations(const C* geometry, const AlignmentSurfaceDeformations* surfaceDeformations) {
+void GeometryAligner::attachSurfaceDeformations(const C* geometry,
+                                                const AlignmentSurfaceDeformations* surfaceDeformations) {
   edm::LogInfo("Alignment") << "@SUB=GeometryAligner::attachSurfaceDeformations"
                             << "Starting to attach surface deformations.";
 

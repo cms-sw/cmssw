@@ -35,9 +35,13 @@
 //
 // constructors and destructor
 //
-MuonAlignmentInputDB::MuonAlignmentInputDB() : m_dtLabel(""), m_cscLabel(""), idealGeometryLabel("idealForInputDB"), m_getAPEs(false) {}
+MuonAlignmentInputDB::MuonAlignmentInputDB()
+    : m_dtLabel(""), m_cscLabel(""), idealGeometryLabel("idealForInputDB"), m_getAPEs(false) {}
 
-MuonAlignmentInputDB::MuonAlignmentInputDB(std::string dtLabel, std::string cscLabel, std::string idealLabel, bool getAPEs)
+MuonAlignmentInputDB::MuonAlignmentInputDB(std::string dtLabel,
+                                           std::string cscLabel,
+                                           std::string idealLabel,
+                                           bool getAPEs)
     : m_dtLabel(dtLabel), m_cscLabel(cscLabel), idealGeometryLabel(idealLabel), m_getAPEs(getAPEs) {}
 
 // MuonAlignmentInputDB::MuonAlignmentInputDB(const MuonAlignmentInputDB& rhs)

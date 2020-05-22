@@ -52,7 +52,7 @@ private:
 
   std::string theDTAlignRecordName, theDTErrorRecordName;
   std::string theCSCAlignRecordName, theCSCErrorRecordName;
-  std::string theIdealGeometryLabel;  
+  std::string theIdealGeometryLabel;
 
   Alignments* dt_Alignments;
   AlignmentErrorsExtended* dt_AlignmentErrorsExtended;
@@ -68,8 +68,7 @@ MuonMisalignedProducer::MuonMisalignedProducer(const edm::ParameterSet& p)
       theDTErrorRecordName("DTAlignmentErrorExtendedRcd"),
       theCSCAlignRecordName("CSCAlignmentRcd"),
       theCSCErrorRecordName("CSCAlignmentErrorExtendedRcd"),
-      theIdealGeometryLabel("idealForMuonMisalignedProducer") {
-}
+      theIdealGeometryLabel("idealForMuonMisalignedProducer") {}
 
 //__________________________________________________________________________________________________
 MuonMisalignedProducer::~MuonMisalignedProducer() {}

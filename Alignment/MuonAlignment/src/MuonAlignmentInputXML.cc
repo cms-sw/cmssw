@@ -45,7 +45,8 @@ XERCES_CPP_NAMESPACE_USE
 //
 // constructors and destructor
 //
-MuonAlignmentInputXML::MuonAlignmentInputXML(const std::string &fileName, std::string idealLabel) : m_fileName(fileName), idealGeometryLabel(idealLabel) {
+MuonAlignmentInputXML::MuonAlignmentInputXML(const std::string &fileName, std::string idealLabel)
+    : m_fileName(fileName), idealGeometryLabel(idealLabel) {
   cms::concurrency::xercesInitialize();
   str_operation = XMLString::transcode("operation");
   str_collection = XMLString::transcode("collection");

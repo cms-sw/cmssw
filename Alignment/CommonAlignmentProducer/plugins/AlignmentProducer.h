@@ -23,7 +23,6 @@ public:
   /// Produce the tracker geometry
   virtual std::shared_ptr<TrackerGeometry> produceTracker(const TrackerDigiGeometryRecord&);
 
-
   /// Called at beginning of job
   void beginOfJob(const edm::EventSetup&) override;
 

@@ -49,7 +49,7 @@ private:
   MuonAlignmentInputMethod(const MuonAlignmentInputMethod &) = delete;  // stop default
 
   const MuonAlignmentInputMethod &operator=(const MuonAlignmentInputMethod &) = delete;  // stop default
-  
+
   // ---------- member data --------------------------------
   std::string idealGeometryLabel;
 };
