@@ -40,7 +40,7 @@ private:
   std::optional<edm::ESGetToken<PixelClusterParameterEstimator, TkPixelCPERecord>> ppToken_;
   std::optional<edm::ESGetToken<SiStripRecHitMatcher, TkStripCPERecord>> mpToken_;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
-  std::optional<edm::ESGetToken<ClusterParameterEstimator<Phase2TrackerCluster1D>, TkStripCPERecord>> p2OTToken_;
+  std::optional<edm::ESGetToken<ClusterParameterEstimator<Phase2TrackerCluster1D>, TkPhase2OTCPERecord>> p2OTToken_;
   bool const computeCoarseLocalPositionFromDisk_;
 };
 

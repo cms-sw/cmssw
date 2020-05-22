@@ -9,7 +9,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "CondFormats/DataRecord/interface/SiPhase2OuterTrackerLorentzAngleRcd.h"
 
-#include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
+#include "RecoLocalTracker/Records/interface/TkPhase2OTCPERecord.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/ClusterParameterEstimator.h"
 #include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
 #include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPEGeometric.h"
@@ -22,7 +22,7 @@
 class Phase2StripCPEESProducer : public edm::ESProducer {
 public:
   Phase2StripCPEESProducer(const edm::ParameterSet&);
-  std::unique_ptr<ClusterParameterEstimator<Phase2TrackerCluster1D> > produce(const TkStripCPERecord& iRecord);
+  std::unique_ptr<ClusterParameterEstimator<Phase2TrackerCluster1D> > produce(const TkPhase2OTCPERecord& iRecord);
 
 private:
   enum CPE_t { DEFAULT, GEOMETRIC };
@@ -54,7 +54,7 @@ Phase2StripCPEESProducer::Phase2StripCPEESProducer(const edm::ParameterSet& p) {
 }
 
 std::unique_ptr<ClusterParameterEstimator<Phase2TrackerCluster1D> > Phase2StripCPEESProducer::produce(
-    const TkStripCPERecord& iRecord) {
+    const TkPhase2OTCPERecord& iRecord) {
   std::unique_ptr<ClusterParameterEstimator<Phase2TrackerCluster1D> > cpe_;
   switch (cpeNum_) {
     case DEFAULT:
