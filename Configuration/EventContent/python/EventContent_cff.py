@@ -197,6 +197,15 @@ RECOEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
 
 from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from RecoLocalFastTime.Configuration.RecoLocalFastTime_EventContent_cff import *
+from RecoMTD.Configuration.RecoMTD_EventContent_cff import *
+
 ctpps_2016.toModify(RECOEventContent, 
     outputCommands = RECOEventContent.outputCommands + RecoCTPPSRECO.outputCommands)
 phase2_hgcal.toModify(RECOEventContent,
@@ -370,8 +379,6 @@ RECOSIMEventContent.outputCommands.extend(SimFastTimingRECO.outputCommands)
 RECOSIMEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
 RECOSIMEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
 
-from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
-from RecoLocalFastTime.Configuration.RecoLocalFastTime_EventContent_cff import RecoLocalFastTimeFEVT, RecoLocalFastTimeRECO, RecoLocalFastTimeAOD
 phase2_timing_layer.toModify(RECOSIMEventContent, 
     outputCommands = RECOSIMEventContent.outputCommands + RecoLocalFastTimeRECO.outputCommands)
 phase2_timing_layer.toModify(RECOSIMEventContent, 
@@ -461,15 +468,6 @@ FEVTEventContent.outputCommands.extend(OnlineMetaDataContent.outputCommands)
 FEVTEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 FEVTEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 FEVTEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
-
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
-from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
-from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
-from RecoLocalFastTime.Configuration.RecoLocalFastTime_EventContent_cff import RecoLocalFastTimeFEVT, RecoLocalFastTimeRECO, RecoLocalFastTimeAOD
-from RecoMTD.Configuration.RecoMTD_EventContent_cff import RecoMTDFEVT, RecoMTDRECO, RecoMTDAOD
 
 ctpps_2016.toModify(FEVTEventContent, 
     outputCommands = FEVTEventContent.outputCommands + RecoCTPPSFEVT.outputCommands)
