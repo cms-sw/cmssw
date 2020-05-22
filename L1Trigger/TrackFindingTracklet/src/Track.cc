@@ -1,5 +1,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Track.h"
 
+#include "DataFormats/Math/interface/deltaPhi.h"
+
 #include <algorithm>
 
 using namespace std;
@@ -23,7 +25,7 @@ Track::Track(TrackPars<int> ipars,
 
   hitpattern_ = hitpattern;
 
-  nstubs_ = std::max((int)l1stub.size(), 6);
+  nstubs_ = std::max((int)l1stub.size(), (int)N_FITSTUB);
 
   stubID_ = stubID;
   l1stub_ = l1stub;
@@ -33,18 +35,18 @@ Track::Track(TrackPars<int> ipars,
   sector_ = -1;
 }
 
-double Track::phi0(const Settings* settings) const {
+double Track::phi0(Settings const& settings) const {
   double dphi = 2 * M_PI / N_SECTOR;
-  double dphiHG = 0.5 * settings->dphisectorHG() - M_PI / N_SECTOR;
+  double dphiHG = 0.5 * settings.dphisectorHG() - M_PI / N_SECTOR;
   double phimin = sector_ * dphi - dphiHG;
   double phimax = phimin + dphi + 2 * dphiHG;
   phimin -= M_PI / N_SECTOR;
   phimax -= M_PI / N_SECTOR;
-  phimin = trklet::phiRange(phimin);
-  phimax = trklet::phiRange(phimax);
+  phimin = reco::reduceRange(phimin);
+  phimax = reco::reduceRange(phimax);
   if (phimin > phimax)
     phimin -= 2 * M_PI;
   double phioffset = phimin;
 
-  return ipars_.phi0() * settings->kphi0pars() + phioffset;
+  return ipars_.phi0() * settings.kphi0pars() + phioffset;
 }

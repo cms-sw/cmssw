@@ -2,6 +2,8 @@
 #include "L1Trigger/TrackFindingTracklet/interface/L1TStub.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Stub.h"
 
+#include "DataFormats/Math/interface/deltaPhi.h"
+
 using namespace std;
 using namespace trklet;
 
@@ -31,7 +33,7 @@ void DTC::addLink(double phimin, double phimax) {
 }
 
 int DTC::addStub(std::pair<Stub*, L1TStub*> stub) {
-  double phi = trklet::phiRange(stub.second->phi());
+  double phi = reco::reduceRange(stub.second->phi());
   bool overlaplayer = ((stub.second->layer() + 1) % 2 == 0);
   int added = 0;
   for (auto& link : links_) {

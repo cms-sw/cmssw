@@ -15,7 +15,7 @@ namespace trklet {
 
     ~DiskProjection() = default;
 
-    void init(const Settings* settings,
+    void init(Settings const& settings,
               int projdisk,
               double zproj,
               int iphiproj,

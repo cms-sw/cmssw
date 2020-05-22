@@ -16,7 +16,7 @@ namespace trklet {
 
   class CandidateMatchMemory : public MemoryBase {
   public:
-    CandidateMatchMemory(std::string name, const Settings* const settings, unsigned int iSector);
+    CandidateMatchMemory(std::string name, Settings const& settings, unsigned int iSector);
 
     ~CandidateMatchMemory() override = default;
 

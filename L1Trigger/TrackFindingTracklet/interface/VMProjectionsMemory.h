@@ -13,7 +13,7 @@ namespace trklet {
 
   class VMProjectionsMemory : public MemoryBase {
   public:
-    VMProjectionsMemory(std::string name, const Settings* const settings, unsigned int iSector);
+    VMProjectionsMemory(std::string name, Settings const& settings, unsigned int iSector);
 
     ~VMProjectionsMemory() override = default;
 

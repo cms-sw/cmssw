@@ -20,9 +20,21 @@ namespace trklet {
   class VMStubsMEMemory;
   class VMStubsTEMemory;
 
+  struct VMStubsTEPHI {
+    VMStubsTEPHI(unsigned int seednumber_,
+                 unsigned int stubposition_,
+                 std::vector<std::vector<VMStubsTEMemory*> > vmstubmem_)
+        : seednumber(seednumber_), stubposition(stubposition_), vmstubmem(vmstubmem_){};
+
+    unsigned int seednumber;    //seed number [0,11]
+    unsigned int stubposition;  //stub position in the seed
+    std::vector<std::vector<VMStubsTEMemory*> >
+        vmstubmem;  // m_vmstubmem[iVM][n] is the VMStubsTEMemory for iVM and the nth copy
+  };
+
   class VMRouter : public ProcessBase {
   public:
-    VMRouter(std::string name, const Settings* settings, Globals* global, unsigned int iSector);
+    VMRouter(std::string name, Settings const& settings, Globals* global, unsigned int iSector);
 
     ~VMRouter() override = default;
 
@@ -54,13 +66,8 @@ namespace trklet {
     //The VM stubs memories used by the MEs
     std::vector<VMStubsMEMemory*> vmstubsMEPHI_;
 
-    //The VM stubs memories used by the TEs
-    // vmstubsTEPHI_[i].first.first is the seed number [0,11] for
-    // vmstubsTEPHI_[i].first.second is the stub position in the seed 0 is inner 1 is outer 2 is
-    //                               third stub in extended tracking
-    // vmstubsTEPHI_[i].second[iVM][n] is the VMStubsTEMemory for iVM and the nth copy
-    std::vector<std::pair<std::pair<unsigned int, unsigned int>, std::vector<std::vector<VMStubsTEMemory*> > > >
-        vmstubsTEPHI_;
+    //The VM stubs memories used by the TEs (using structure defined above)
+    std::vector<VMStubsTEPHI> vmstubsTEPHI_;
   };
 };  // namespace trklet
 #endif

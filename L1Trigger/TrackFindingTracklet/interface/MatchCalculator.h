@@ -20,7 +20,7 @@ namespace trklet {
 
   class MatchCalculator : public ProcessBase {
   public:
-    MatchCalculator(std::string name, const Settings* settings, Globals* global, unsigned int iSector);
+    MatchCalculator(std::string name, Settings const& settings, Globals* global, unsigned int iSector);
 
     ~MatchCalculator() override = default;
 
@@ -42,15 +42,15 @@ namespace trklet {
     int phi0shift_;
     double phioffset_;
 
-    unsigned int phimatchcut_[N_SEEDINDEX];
-    unsigned int zmatchcut_[N_SEEDINDEX];
-    unsigned int rphicutPS_[N_SEEDINDEX];
-    unsigned int rphicut2S_[N_SEEDINDEX];
-    unsigned int rcutPS_[N_SEEDINDEX];
-    unsigned int rcut2S_[N_SEEDINDEX];
+    unsigned int phimatchcut_[N_SEED];
+    unsigned int zmatchcut_[N_SEED];
+    unsigned int rphicutPS_[N_SEED];
+    unsigned int rphicut2S_[N_SEED];
+    unsigned int rcutPS_[N_SEED];
+    unsigned int rcut2S_[N_SEED];
 
-    int ialphafactinner_[10];
-    int ialphafactouter_[10];
+    int ialphafactinner_[N_DSS_MOD * 2];
+    int ialphafactouter_[N_DSS_MOD * 2];
 
     AllStubsMemory* allstubs_;
     AllProjectionsMemory* allprojs_;

@@ -15,8 +15,8 @@ namespace trklet {
 
   class VMRouterTable {
   public:
-    VMRouterTable(const Settings* settings);
-    VMRouterTable(const Settings* settings, unsigned int layerdisk);
+    VMRouterTable(Settings const& settings);
+    VMRouterTable(Settings const& settings, unsigned int layerdisk);
 
     ~VMRouterTable() = default;
 
@@ -32,7 +32,7 @@ namespace trklet {
     int lookupinnerThird(int zbin, int rbin);
 
   private:
-    const Settings* settings_;
+    Settings const& settings_;
 
     double rmin_;
     double rmax_;

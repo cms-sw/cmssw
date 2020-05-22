@@ -5,7 +5,7 @@
 using namespace std;
 using namespace trklet;
 
-StubPairsMemory::StubPairsMemory(string name, const Settings* const settings, unsigned int iSector)
+StubPairsMemory::StubPairsMemory(string name, Settings const& settings, unsigned int iSector)
     : MemoryBase(name, settings, iSector) {}
 
 void StubPairsMemory::writeSP(bool first) {

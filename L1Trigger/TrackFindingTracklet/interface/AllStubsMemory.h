@@ -15,7 +15,7 @@ namespace trklet {
 
   class AllStubsMemory : public MemoryBase {
   public:
-    AllStubsMemory(std::string name, const Settings* const settings, unsigned int iSector);
+    AllStubsMemory(std::string name, Settings const& settings, unsigned int iSector);
 
     ~AllStubsMemory() override = default;
 

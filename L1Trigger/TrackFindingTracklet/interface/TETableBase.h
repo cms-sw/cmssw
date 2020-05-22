@@ -15,7 +15,7 @@ namespace trklet {
 
   class TETableBase {
   public:
-    TETableBase(const Settings* settings);
+    TETableBase(Settings const& settings);
 
     virtual ~TETableBase() = default;
 
@@ -24,7 +24,7 @@ namespace trklet {
     void writeVMTable(std::string name, bool positive = true);
 
   protected:
-    const Settings* settings_;
+    Settings const& settings_;
     std::vector<int> table_;
     int nbits_;
   };

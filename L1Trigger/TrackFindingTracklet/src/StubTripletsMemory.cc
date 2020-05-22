@@ -6,7 +6,7 @@
 using namespace std;
 using namespace trklet;
 
-StubTripletsMemory::StubTripletsMemory(string name, const Settings* const settings, unsigned int iSector)
+StubTripletsMemory::StubTripletsMemory(string name, Settings const& settings, unsigned int iSector)
     : MemoryBase(name, settings, iSector) {}
 
 void StubTripletsMemory::writeST(bool first) {

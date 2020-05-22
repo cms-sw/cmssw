@@ -13,7 +13,7 @@
 using namespace std;
 using namespace trklet;
 
-MatchEngine::MatchEngine(string name, const Settings* settings, Globals* global, unsigned int iSector)
+MatchEngine::MatchEngine(string name, Settings const& settings, Globals* global, unsigned int iSector)
     : ProcessBase(name, settings, global, iSector) {
   layer_ = 0;
   disk_ = 0;
@@ -32,19 +32,19 @@ MatchEngine::MatchEngine(string name, const Settings* settings, Globals* global,
       nbits = 4;
 
     for (unsigned int irinv = 0; irinv < 32; irinv++) {
-      double rinv = (irinv - 15.5) * (1 << (settings_->nbitsrinv() - 5)) * settings_->krinvpars();
+      double rinv = (irinv - 15.5) * (1 << (settings_.nbitsrinv() - 5)) * settings_.krinvpars();
 
-      double stripPitch = (settings_->rmean(layer_ - 1) < settings_->rcrit()) ? settings_->stripPitch(true)
-                                                                              : settings_->stripPitch(false);
-      double projbend = bend(settings_->rmean(layer_ - 1), rinv, stripPitch);
+      double stripPitch =
+          (settings_.rmean(layer_ - 1) < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
+      double projbend = bend(settings_.rmean(layer_ - 1), rinv, stripPitch);
       for (unsigned int ibend = 0; ibend < (unsigned int)(1 << nbits); ibend++) {
         double stubbend = benddecode(ibend, layer_ <= 3);
-        bool pass = std::abs(stubbend - projbend) < settings_->bendcutme(layer_ - 1);
+        bool pass = std::abs(stubbend - projbend) < settings_.bendcutme(layer_ - 1);
         table_.push_back(pass);
       }
     }
 
-    if (settings_->writeTable()) {
+    if (settings_.writeTable()) {
       ofstream out;
       char layer = '0' + layer_;
       string fname = "METable_L";
@@ -68,12 +68,12 @@ MatchEngine::MatchEngine(string name, const Settings* settings, Globals* global,
       double projbend = 0.5 * (iprojbend - 15.0);
       for (unsigned int ibend = 0; ibend < 8; ibend++) {
         double stubbend = benddecode(ibend, true);
-        bool pass = std::abs(stubbend - projbend) < settings_->bendcutme(disk_ + 5);
+        bool pass = std::abs(stubbend - projbend) < settings_.bendcutme(disk_ + 5);
         tablePS_.push_back(pass);
       }
       for (unsigned int ibend = 0; ibend < 16; ibend++) {
         double stubbend = benddecode(ibend, false);
-        bool pass = std::abs(stubbend - projbend) < settings_->bendcutme(disk_ + 5);
+        bool pass = std::abs(stubbend - projbend) < settings_.bendcutme(disk_ + 5);
         table2S_.push_back(pass);
       }
     }
@@ -81,7 +81,7 @@ MatchEngine::MatchEngine(string name, const Settings* settings, Globals* global,
 }
 
 void MatchEngine::addOutput(MemoryBase* memory, string output) {
-  if (settings_->writetrace()) {
+  if (settings_.writetrace()) {
     edm::LogVerbatim("Tracklet") << "In " << name_ << " adding output to " << memory->getName() << " to output "
                                  << output;
   }
@@ -95,7 +95,7 @@ void MatchEngine::addOutput(MemoryBase* memory, string output) {
 }
 
 void MatchEngine::addInput(MemoryBase* memory, string input) {
-  if (settings_->writetrace()) {
+  if (settings_.writetrace()) {
     edm::LogVerbatim("Tracklet") << "In " << name_ << " adding input from " << memory->getName() << " to input "
                                  << input;
   }
@@ -145,7 +145,7 @@ void MatchEngine::execute() {
   int istub = 0;
 
   //Main processing loops starts here
-  for (unsigned int istep = 0; istep < settings_->maxStep("ME"); istep++) {
+  for (unsigned int istep = 0; istep < settings_.maxStep("ME"); istep++) {
     countall++;
 
     int writeindexplus = (writeindex + 1) % (1 << kNBitsBuffer);
@@ -234,8 +234,8 @@ void MatchEngine::execute() {
                 ? (16 + (((-2) * proj->fpgaphiprojder(layer_).value()) >> (proj->fpgaphiprojder(layer_).nbits() - 4)))
                 : proj->getBendIndex(disk_).value();
         assert(projrinv >= 0);
-        if (settings_->extended() && projrinv == 32) {
-          if (settings_->debugTracklet()) {
+        if (settings_.extended() && projrinv == 32) {
+          if (settings_.debugTracklet()) {
             edm::LogVerbatim("Tracklet") << "Extended tracking, projrinv:" << projrinv;
           }
           projrinv = 31;
@@ -302,7 +302,7 @@ void MatchEngine::execute() {
         if (barrel ? table_[index] : (isPSmodule ? tablePS_[index] : table2S_[index])) {
           Tracklet* proj = vmprojs_->getTracklet(projindex);
           std::pair<Tracklet*, int> tmp(proj, vmprojs_->getAllProjIndex(projindex));
-          if (settings_->writeMonitorData("Seeds")) {
+          if (settings_.writeMonitorData("Seeds")) {
             ofstream fout("seeds.txt", ofstream::app);
             fout << __FILE__ << ":" << __LINE__ << " " << name_ << "_" << iSector_ << " " << proj->getISeed() << endl;
             fout.close();
@@ -314,7 +314,7 @@ void MatchEngine::execute() {
     }
   }
 
-  if (settings_->writeMonitorData("ME")) {
+  if (settings_.writeMonitorData("ME")) {
     globals_->ofstream("matchengine.txt") << getName() << " " << countall << " " << countpass << endl;
   }
 }

@@ -10,7 +10,7 @@
 using namespace std;
 using namespace trklet;
 
-TripletEngine::TripletEngine(string name, const Settings *settings, Globals *global, unsigned int iSector)
+TripletEngine::TripletEngine(string name, Settings const &settings, Globals *global, unsigned int iSector)
     : ProcessBase(name, settings, global, iSector) {
   stubpairs_.clear();
   thirdvmstubs_.clear();
@@ -58,23 +58,23 @@ TripletEngine::TripletEngine(string name, const Settings *settings, Globals *glo
     throw cms::Exception("LogicError") << __FILE__ << " " << __LINE__ << " Invalid seeding!";
 
   if ((layer2_ == 4 && layer3_ == 2) || (layer2_ == 6 && layer3_ == 4)) {
-    secondphibits_ = settings_->nfinephi(1, iSeed_);
-    thirdphibits_ = settings_->nfinephi(2, iSeed_);
+    secondphibits_ = settings_.nfinephi(1, iSeed_);
+    thirdphibits_ = settings_.nfinephi(2, iSeed_);
   }
   if ((layer2_ == 3 && disk3_ == 1) || (disk2_ == 2 && layer3_ == 2)) {
-    secondphibits_ = settings_->nfinephi(1, iSeed_);
-    thirdphibits_ = settings_->nfinephi(2, iSeed_);
+    secondphibits_ = settings_.nfinephi(1, iSeed_);
+    thirdphibits_ = settings_.nfinephi(2, iSeed_);
   }
   readTables();
 }
 
 TripletEngine::~TripletEngine() {
-  if (settings_->writeTripletTables())
+  if (settings_.writeTripletTables())
     writeTables();
 }
 
 void TripletEngine::addOutput(MemoryBase *memory, string output) {
-  if (settings_->writetrace()) {
+  if (settings_.writetrace()) {
     edm::LogVerbatim("Tracklet") << "In " << name_ << " adding output to " << memory->getName() << " to output "
                                  << output;
   }
@@ -88,7 +88,7 @@ void TripletEngine::addOutput(MemoryBase *memory, string output) {
 }
 
 void TripletEngine::addInput(MemoryBase *memory, string input) {
-  if (settings_->writetrace()) {
+  if (settings_.writetrace()) {
     edm::LogVerbatim("Tracklet") << "In " << name_ << " adding input from " << memory->getName() << " to input "
                                  << input;
   }
@@ -170,11 +170,11 @@ void TripletEngine::execute() {
             if (stubpairs_.at(i)->getLastPartOfName() != vmsteSuffix)
               continue;
             for (unsigned int l = 0; l < thirdvmstubs_.at(k)->nVMStubsBinned(ibin); l++) {
-              if (settings_->debugTracklet()) {
+              if (settings_.debugTracklet()) {
                 edm::LogVerbatim("Tracklet") << "In " << getName() << " have third stub";
               }
 
-              if (countall >= settings_->maxStep("TRE"))
+              if (countall >= settings_.maxStep("TRE"))
                 break;
               countall++;
 
@@ -183,12 +183,12 @@ void TripletEngine::execute() {
               assert(secondphibits_ != -1);
               assert(thirdphibits_ != -1);
 
-              unsigned int nvmsecond = settings_->nallstubs(layer2_ - 1) * settings_->nvmte(1, iSeed_);
+              unsigned int nvmsecond = settings_.nallstubs(layer2_ - 1) * settings_.nvmte(1, iSeed_);
               unsigned int nvmbitssecond = nbits(nvmsecond);
 
               FPGAWord iphisecondbin = secondvmstub.stub()->iphivmFineBins(nvmbitssecond, secondphibits_);
 
-              //TODO: not using same number of bits as in the TED?
+              //currently not using same number of bits as in the TED
               //assert(iphisecondbin==(int)secondvmstub.finephi());
               FPGAWord iphithirdbin = thirdvmstub.finephi();
 
@@ -204,16 +204,16 @@ void TripletEngine::execute() {
                 table_.resize(index + 1, false);
 
               if (!table_[index]) {
-                if (settings_->debugTracklet()) {
+                if (settings_.debugTracklet()) {
                   edm::LogVerbatim("Tracklet")
                       << "Stub pair rejected because of stub pt cut bends : "
                       << benddecode(secondvmstub.bend().value(), secondvmstub.isPSmodule()) << " "
                       << benddecode(thirdvmstub.bend().value(), thirdvmstub.isPSmodule());
                 }
-                if (!settings_->writeTripletTables())
+                if (!settings_.writeTripletTables())
                   continue;
               }
-              if (settings_->writeTripletTables())
+              if (settings_.writeTripletTables())
                 table_[index] = true;
 
               const unsigned spIndex = stubpairs_.at(i)->getIndex(j);
@@ -224,9 +224,9 @@ void TripletEngine::execute() {
                 tmpSPTable_.at(tedName).resize(spIndex + 1);
               tmpSPTable_.at(tedName).at(spIndex).push_back(stubpairs_.at(i)->getName());
 
-              if (settings_->debugTracklet())
+              if (settings_.debugTracklet())
                 edm::LogVerbatim("Tracklet") << "Adding layer-layer pair in " << getName();
-              if (settings_->writeMonitorData("Seeds")) {
+              if (settings_.writeMonitorData("Seeds")) {
                 ofstream fout("seeds.txt", ofstream::app);
                 fout << __FILE__ << ":" << __LINE__ << " " << name_ << "_" << iSector_ << " " << iSeed_ << endl;
                 fout.close();
@@ -251,8 +251,8 @@ void TripletEngine::execute() {
         int last = start + (bin & 1);
 
         if (firstvmstub.stub()->disk().value() < 0) {  //TODO - negative disk should come from memory
-          start = settings_->NLONGVMBINS() - last - 1;
-          last = settings_->NLONGVMBINS() - start - 1;
+          start = settings_.NLONGVMBINS() - last - 1;
+          last = settings_.NLONGVMBINS() - start - 1;
         }
 
         for (int ibin = start; ibin <= last; ibin++) {
@@ -262,7 +262,7 @@ void TripletEngine::execute() {
             if (stubpairs_.at(i)->getLastPartOfName() != vmsteSuffix)
               continue;
             for (unsigned int l = 0; l < thirdvmstubs_.at(k)->nVMStubsBinned(ibin); l++) {
-              if (countall >= settings_->maxStep("TRE"))
+              if (countall >= settings_.maxStep("TRE"))
                 break;
               countall++;
 
@@ -286,16 +286,16 @@ void TripletEngine::execute() {
                 table_.resize(index + 1, false);
 
               if (!table_[index]) {
-                if (settings_->debugTracklet()) {
+                if (settings_.debugTracklet()) {
                   edm::LogVerbatim("Tracklet")
                       << "Stub pair rejected because of stub pt cut bends : "
                       << benddecode(secondvmstub.bend().value(), secondvmstub.isPSmodule()) << " "
                       << benddecode(thirdvmstub.bend().value(), thirdvmstub.isPSmodule());
                 }
-                if (!settings_->writeTripletTables())
+                if (!settings_.writeTripletTables())
                   continue;
               }
-              if (settings_->writeTripletTables())
+              if (settings_.writeTripletTables())
                 table_[index] = true;
 
               const unsigned spIndex = stubpairs_.at(i)->getIndex(j);
@@ -306,9 +306,9 @@ void TripletEngine::execute() {
                 tmpSPTable_.at(tedName).resize(spIndex + 1);
               tmpSPTable_.at(tedName).at(spIndex).push_back(stubpairs_.at(i)->getName());
 
-              if (settings_->debugTracklet())
+              if (settings_.debugTracklet())
                 edm::LogVerbatim("Tracklet") << "Adding layer-disk pair in " << getName();
-              if (settings_->writeMonitorData("Seeds")) {
+              if (settings_.writeMonitorData("Seeds")) {
                 ofstream fout("seeds.txt", ofstream::app);
                 fout << __FILE__ << ":" << __LINE__ << " " << name_ << "_" << iSector_ << " " << iSeed_ << endl;
                 fout.close();
@@ -339,7 +339,7 @@ void TripletEngine::execute() {
               continue;
             assert(thirdvmstubs_.at(k)->nVMStubsBinned(ibin) == thirdvmstubs_.at(k)->nVMStubsBinned(ibin));
             for (unsigned int l = 0; l < thirdvmstubs_.at(k)->nVMStubsBinned(ibin); l++) {
-              if (countall >= settings_->maxStep("TRE"))
+              if (countall >= settings_.maxStep("TRE"))
                 break;
               countall++;
 
@@ -350,12 +350,12 @@ void TripletEngine::execute() {
 
               unsigned int nvmsecond;
 
-              nvmsecond = settings_->nallstubs(layer2_ - 1) * settings_->nvmte(1, iSeed_);
+              nvmsecond = settings_.nallstubs(layer2_ - 1) * settings_.nvmte(1, iSeed_);
               unsigned int nvmbitssecond = nbits(nvmsecond);
 
               FPGAWord iphisecondbin = secondvmstub.stub()->iphivmFineBins(nvmbitssecond, secondphibits_);
 
-              //TODO: not using same number of bits as in the TED?
+              //currentlty not using same number of bits as in the TED
               //assert(iphisecondbin==(int)secondvmstub.finephi());
               FPGAWord iphithirdbin = thirdvmstub.finephi();
 
@@ -371,16 +371,16 @@ void TripletEngine::execute() {
                 table_.resize(index + 1, false);
 
               if (!table_[index]) {
-                if (settings_->debugTracklet()) {
+                if (settings_.debugTracklet()) {
                   edm::LogVerbatim("Tracklet")
                       << "Stub pair rejected because of stub pt cut bends : "
                       << benddecode(secondvmstub.bend().value(), secondvmstub.isPSmodule()) << " "
                       << benddecode(thirdvmstub.bend().value(), thirdvmstub.isPSmodule());
                 }
-                if (!settings_->writeTripletTables())
+                if (!settings_.writeTripletTables())
                   continue;
               }
-              if (settings_->writeTripletTables())
+              if (settings_.writeTripletTables())
                 table_[index] = true;
 
               const unsigned spIndex = stubpairs_.at(i)->getIndex(j);
@@ -391,9 +391,9 @@ void TripletEngine::execute() {
                 tmpSPTable_.at(tedName).resize(spIndex + 1);
               tmpSPTable_.at(tedName).at(spIndex).push_back(stubpairs_.at(i)->getName());
 
-              if (settings_->debugTracklet())
+              if (settings_.debugTracklet())
                 edm::LogVerbatim("Tracklet") << "Adding layer-disk pair in " << getName();
-              if (settings_->writeMonitorData("Seeds")) {
+              if (settings_.writeMonitorData("Seeds")) {
                 ofstream fout("seeds.txt", ofstream::app);
                 fout << __FILE__ << ":" << __LINE__ << " " << name_ << "_" << iSector_ << " " << iSeed_ << endl;
                 fout.close();
@@ -428,7 +428,7 @@ void TripletEngine::execute() {
     }
   }
 
-  if (settings_->writeMonitorData("TRE")) {
+  if (settings_.writeMonitorData("TRE")) {
     globals_->ofstream("tripletengine.txt") << getName() << " " << countall << " " << countpass << endl;
   }
 }

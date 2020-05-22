@@ -10,18 +10,18 @@
 using namespace std;
 using namespace trklet;
 
-ProjectionRouter::ProjectionRouter(string name, const Settings* settings, Globals* global, unsigned int iSector)
+ProjectionRouter::ProjectionRouter(string name, Settings const& settings, Globals* global, unsigned int iSector)
     : ProcessBase(name, settings, global, iSector) {
   layerdisk_ = initLayerDisk(3);
 
-  vmprojs_.resize(settings_->nvmme(layerdisk_), nullptr);
+  vmprojs_.resize(settings_.nvmme(layerdisk_), nullptr);
 
   nrbits_ = 5;
   nphiderbits_ = 6;
 }
 
 void ProjectionRouter::addOutput(MemoryBase* memory, string output) {
-  if (settings_->writetrace()) {
+  if (settings_.writetrace()) {
     edm::LogVerbatim("Tracklet") << "In " << name_ << " adding output to " << memory->getName() << " to output "
                                  << output;
   }
@@ -32,8 +32,8 @@ void ProjectionRouter::addOutput(MemoryBase* memory, string output) {
     return;
   }
 
-  unsigned int nproj = settings_->nallstubs(layerdisk_);
-  unsigned int nprojvm = settings_->nvmme(layerdisk_);
+  unsigned int nproj = settings_.nallstubs(layerdisk_);
+  unsigned int nprojvm = settings_.nvmme(layerdisk_);
 
   for (unsigned int iproj = 0; iproj < nproj; iproj++) {
     for (unsigned int iprojvm = 0; iprojvm < nprojvm; iprojvm++) {
@@ -53,7 +53,7 @@ void ProjectionRouter::addOutput(MemoryBase* memory, string output) {
 }
 
 void ProjectionRouter::addInput(MemoryBase* memory, string input) {
-  if (settings_->writetrace()) {
+  if (settings_.writetrace()) {
     edm::LogVerbatim("Tracklet") << "In " << name_ << " adding input from " << memory->getName() << " to input "
                                  << input;
   }
@@ -81,7 +81,7 @@ void ProjectionRouter::execute() {
 
   for (auto& iproj : inputproj_) {
     for (unsigned int i = 0; i < iproj->nTracklets(); i++) {
-      if (allprojcount > settings_->maxStep("PR"))
+      if (allprojcount > settings_.maxStep("PR"))
         continue;
 
       Tracklet* tracklet = iproj->getTracklet(i);
@@ -115,8 +115,8 @@ void ProjectionRouter::execute() {
       }
 
       unsigned int iphivm =
-          fpgaphi.bits(fpgaphi.nbits() - settings_->nbitsallstubs(layerdisk_) - settings_->nbitsvmme(layerdisk_),
-                       settings_->nbitsvmme(layerdisk_));
+          fpgaphi.bits(fpgaphi.nbits() - settings_.nbitsallstubs(layerdisk_) - settings_.nbitsvmme(layerdisk_),
+                       settings_.nbitsvmme(layerdisk_));
 
       //This block of code just checks that the configuration is consistent
       if (lastTCID >= tracklet->TCID()) {
@@ -133,11 +133,11 @@ void ProjectionRouter::execute() {
     }
   }
 
-  if (settings_->writeMonitorData("AP")) {
+  if (settings_.writeMonitorData("AP")) {
     globals_->ofstream("allprojections.txt") << getName() << " " << allproj_->nTracklets() << endl;
   }
 
-  if (settings_->writeMonitorData("VMP")) {
+  if (settings_.writeMonitorData("VMP")) {
     ofstream& out = globals_->ofstream("chisq.txt");
     for (unsigned int i = 0; i < 8; i++) {
       if (vmprojs_[i] != nullptr) {

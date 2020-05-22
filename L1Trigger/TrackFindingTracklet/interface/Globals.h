@@ -3,13 +3,11 @@
 #define L1Trigger_TrackFindingTracklet_interface_Globals_h
 
 #include <memory>
-
-#include "HistBase.h"
-
-#include "L1Trigger/TrackFindingTracklet/interface/IMATH_TrackletCalculator.h"
-#include "L1Trigger/TrackFindingTracklet/interface/IMATH_TrackletCalculatorDisk.h"
-#include "L1Trigger/TrackFindingTracklet/interface/IMATH_TrackletCalculatorOverlap.h"
-#include "L1Trigger/TrackFindingTracklet/interface/VMRouterPhiCorrTable.h"
+#include <map>
+#include <string>
+#include <vector>
+#include <array>
+#include <fstream>
 
 namespace tmtt {
   class Settings;
@@ -22,37 +20,19 @@ namespace trklet {
   class TrackDerTable;
   class ProjectionRouterBendTable;
   class SLHCEvent;
+  class HistBase;
+  class Settings;
+  class VMRouterPhiCorrTable;
+  struct imathGlobals;
+  class IMATH_TrackletCalculator;
+  class IMATH_TrackletCalculatorDisk;
+  class IMATH_TrackletCalculatorOverlap;
 
   class Globals {
   public:
-    Globals(const Settings* settings) {
-      imathGlobals* imathGlobs = new imathGlobals();
+    Globals(Settings const& settings);
 
-      //takes owernship of globals pointer
-      imathGlobals_.reset(imathGlobs);
-
-      // tracklet calculators
-      ITC_L1L2_.reset(new IMATH_TrackletCalculator(settings, imathGlobs, 1, 2));
-      ITC_L2L3_.reset(new IMATH_TrackletCalculator(settings, imathGlobs, 2, 3));
-      ITC_L3L4_.reset(new IMATH_TrackletCalculator(settings, imathGlobs, 3, 4));
-      ITC_L5L6_.reset(new IMATH_TrackletCalculator(settings, imathGlobs, 5, 6));
-
-      ITC_F1F2_.reset(new IMATH_TrackletCalculatorDisk(settings, imathGlobs, 1, 2));
-      ITC_F3F4_.reset(new IMATH_TrackletCalculatorDisk(settings, imathGlobs, 3, 4));
-      ITC_B1B2_.reset(new IMATH_TrackletCalculatorDisk(settings, imathGlobs, -1, -2));
-      ITC_B3B4_.reset(new IMATH_TrackletCalculatorDisk(settings, imathGlobs, -3, -4));
-
-      ITC_L1F1_.reset(new IMATH_TrackletCalculatorOverlap(settings, imathGlobs, 1, 1));
-      ITC_L2F1_.reset(new IMATH_TrackletCalculatorOverlap(settings, imathGlobs, 2, 1));
-      ITC_L1B1_.reset(new IMATH_TrackletCalculatorOverlap(settings, imathGlobs, 1, -1));
-      ITC_L2B1_.reset(new IMATH_TrackletCalculatorOverlap(settings, imathGlobs, 2, -1));
-    }
-
-    ~Globals() {
-      for (auto i : thePhiCorr_) {
-        delete i;
-      }
-    };
+    ~Globals();
 
     SLHCEvent*& event() { return theEvent_; }
 
@@ -87,14 +67,7 @@ namespace trklet {
     IMATH_TrackletCalculatorOverlap* ITC_L2F1() { return ITC_L2F1_.get(); }
     IMATH_TrackletCalculatorOverlap* ITC_L2B1() { return ITC_L2B1_.get(); }
 
-    std::ofstream& ofstream(std::string fname) {
-      if (ofstreams_.find(fname) != ofstreams_.end()) {
-        return *(ofstreams_[fname]);
-      }
-      std::ofstream* outptr = new std::ofstream(fname.c_str());
-      ofstreams_[fname] = outptr;
-      return *outptr;
-    }
+    std::ofstream& ofstream(std::string fname);
 
   private:
     std::map<std::string, std::ofstream*> ofstreams_;

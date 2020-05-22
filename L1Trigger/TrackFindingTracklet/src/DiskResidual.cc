@@ -4,7 +4,7 @@
 using namespace std;
 using namespace trklet;
 
-void DiskResidual::init(const Settings* settings,
+void DiskResidual::init(Settings const& settings,
                         int disk,
                         int iphiresid,
                         int irresid,
@@ -17,8 +17,8 @@ void DiskResidual::init(const Settings* settings,
                         double alpha,
                         FPGAWord ialpha,
                         const Stub* stubptr) {
-  assert(abs(disk) >= 1);
-  assert(abs(disk) <= 5);
+  assert(abs(disk) > 0);
+  assert(abs(disk) <= N_DISK);
 
   if (valid_ && (std::abs(iphiresid) > std::abs(fpgaphiresid_.value())))
     return;
@@ -27,8 +27,8 @@ void DiskResidual::init(const Settings* settings,
 
   disk_ = disk;
 
-  fpgaphiresid_.set(iphiresid, settings->phiresidbits(), false, __LINE__, __FILE__);
-  fpgarresid_.set(irresid, settings->rresidbits(), false, __LINE__, __FILE__);
+  fpgaphiresid_.set(iphiresid, settings.phiresidbits(), false, __LINE__, __FILE__);
+  fpgarresid_.set(irresid, settings.rresidbits(), false, __LINE__, __FILE__);
   assert(istubid >= 0);
   unsigned int nbitsstubid = 10;
   fpgastubid_.set(istubid, nbitsstubid, true, __LINE__, __FILE__);

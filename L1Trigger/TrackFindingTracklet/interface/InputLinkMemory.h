@@ -17,11 +17,11 @@ namespace trklet {
 
   class InputLinkMemory : public MemoryBase {
   public:
-    InputLinkMemory(std::string name, const Settings* const settings, unsigned int iSector, double, double);
+    InputLinkMemory(std::string name, Settings const& settings, unsigned int iSector, double, double);
 
     ~InputLinkMemory() override = default;
 
-    bool addStub(const Settings* settings, Globals* globals, L1TStub& al1stub, Stub& stub, std::string dtc);
+    bool addStub(Settings const& settings, Globals* globals, L1TStub& al1stub, Stub& stub, std::string dtc);
 
     unsigned int nStubs() const { return stubs_.size(); }
 

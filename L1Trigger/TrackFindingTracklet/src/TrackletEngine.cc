@@ -11,7 +11,7 @@
 using namespace trklet;
 using namespace std;
 
-TrackletEngine::TrackletEngine(string name, const Settings* const settings, Globals* global, unsigned int iSector)
+TrackletEngine::TrackletEngine(string name, Settings const& settings, Globals* global, unsigned int iSector)
     : ProcessBase(name, settings, global, iSector) {
   stubpairs_ = nullptr;
   innervmstubs_ = nullptr;
@@ -19,12 +19,12 @@ TrackletEngine::TrackletEngine(string name, const Settings* const settings, Glob
 
   initLayerDisksandISeed(layerdisk1_, layerdisk2_, iSeed_);
 
-  innerphibits_ = settings->nfinephi(0, iSeed_);
-  outerphibits_ = settings->nfinephi(1, iSeed_);
+  innerphibits_ = settings.nfinephi(0, iSeed_);
+  outerphibits_ = settings.nfinephi(1, iSeed_);
 }
 
 void TrackletEngine::addOutput(MemoryBase* memory, string output) {
-  if (settings_->writetrace()) {
+  if (settings_.writetrace()) {
     edm::LogVerbatim("Tracklet") << "In " << name_ << " adding output to " << memory->getName() << " to output "
                                  << output;
   }
@@ -38,7 +38,7 @@ void TrackletEngine::addOutput(MemoryBase* memory, string output) {
 }
 
 void TrackletEngine::addInput(MemoryBase* memory, string input) {
-  if (settings_->writetrace()) {
+  if (settings_.writetrace()) {
     edm::LogVerbatim("Tracklet") << "In " << name_ << " adding input from " << memory->getName() << " to input "
                                  << input;
   }
@@ -60,7 +60,7 @@ void TrackletEngine::addInput(MemoryBase* memory, string input) {
 }
 
 void TrackletEngine::execute() {
-  if (!settings_->useSeed(iSeed_))
+  if (!settings_.useSeed(iSeed_))
     return;
 
   unsigned int countall = 0;
@@ -88,7 +88,7 @@ void TrackletEngine::execute() {
 
     for (int ibin = start; ibin <= last; ibin++) {
       for (unsigned int j = 0; j < outervmstubs_->nVMStubsBinned(ibin); j++) {
-        if (countall >= settings_->maxStep("TE"))
+        if (countall >= settings_.maxStep("TE"))
           break;
         countall++;
         const VMStubTE& outervmstub = outervmstubs_->getVMStubTEBinned(ibin, j);
@@ -118,7 +118,7 @@ void TrackletEngine::execute() {
         int ptouterindex = (index << outerbend.nbits()) + outerbend.value();
 
         if (!(pttableinner_[ptinnerindex] && pttableouter_[ptouterindex])) {
-          if (settings_->debugTracklet()) {
+          if (settings_.debugTracklet()) {
             edm::LogVerbatim("Tracklet") << "Stub pair rejected because of stub pt cut bends : "
                                          << benddecode(innervmstub.bend().value(), innervmstub.isPSmodule()) << " "
                                          << benddecode(outervmstub.bend().value(), outervmstub.isPSmodule());
@@ -126,7 +126,7 @@ void TrackletEngine::execute() {
           continue;
         }
 
-        if (settings_->debugTracklet())
+        if (settings_.debugTracklet())
           edm::LogVerbatim("Tracklet") << "Adding stub pair in " << getName();
 
         stubpairs_->addStubPair(innervmstub, outervmstub);
@@ -135,7 +135,7 @@ void TrackletEngine::execute() {
     }
   }
 
-  if (settings_->writeMonitorData("TE")) {
+  if (settings_.writeMonitorData("TE")) {
     globals_->ofstream("trackletengine.txt") << getName() << " " << countall << " " << countpass << endl;
   }
 }
@@ -188,12 +188,12 @@ void TrackletEngine::setVMPhiBin() {
       for (int irouterbin = 0; irouterbin < outerrbins; irouterbin++) {
         if (iSeed_ >= 4) {
           router[0] =
-              settings_->rmindiskvm() + irouterbin * (settings_->rmaxdiskvm() - settings_->rmindiskvm()) / outerrbins;
-          router[1] = settings_->rmindiskvm() +
-                      (irouterbin + 1) * (settings_->rmaxdiskvm() - settings_->rmindiskvm()) / outerrbins;
+              settings_.rmindiskvm() + irouterbin * (settings_.rmaxdiskvm() - settings_.rmindiskvm()) / outerrbins;
+          router[1] = settings_.rmindiskvm() +
+                      (irouterbin + 1) * (settings_.rmaxdiskvm() - settings_.rmindiskvm()) / outerrbins;
         } else {
-          router[0] = settings_->rmean(layerdisk2_);
-          router[1] = settings_->rmean(layerdisk2_);
+          router[0] = settings_.rmean(layerdisk2_);
+          router[1] = settings_.rmean(layerdisk2_);
         }
 
         double bendinnermin = 20.0;
@@ -206,15 +206,15 @@ void TrackletEngine::setVMPhiBin() {
             for (int i3 = 0; i3 < 2; i3++) {
               double rinner = 0.0;
               if (iSeed_ == 4 || iSeed_ == 5) {
-                rinner = router[i3] * settings_->zmean(layerdisk1_ - 6) / settings_->zmean(layerdisk2_ - 6);
+                rinner = router[i3] * settings_.zmean(layerdisk1_ - N_LAYER) / settings_.zmean(layerdisk2_ - N_LAYER);
               } else {
-                rinner = settings_->rmean(layerdisk1_);
+                rinner = settings_.rmean(layerdisk1_);
               }
               double rinv1 = rinv(phiinner[i1], phiouter[i2], rinner, router[i3]);
               double pitchinner =
-                  (rinner < settings_->rcrit()) ? settings_->stripPitch(true) : settings_->stripPitch(false);
+                  (rinner < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
               double pitchouter =
-                  (router[i3] < settings_->rcrit()) ? settings_->stripPitch(true) : settings_->stripPitch(false);
+                  (router[i3] < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
               double abendinner = -bend(rinner, rinv1, pitchinner);
               double abendouter = -bend(router[i3], rinv1, pitchouter);
               if (abendinner < bendinnermin)
@@ -232,13 +232,13 @@ void TrackletEngine::setVMPhiBin() {
           }
         }
 
-        bool passptcut = rinvmin < settings_->rinvcutte();
+        bool passptcut = rinvmin < settings_.rinvcutte();
 
         for (int ibend = 0; ibend < (1 << nbendbitsinner); ibend++) {
           double bend = benddecode(ibend, nbendbitsinner == 3);
 
-          bool passinner = bend - bendinnermin > -settings_->bendcutte(0, iSeed_) &&
-                           bend - bendinnermax < settings_->bendcutte(0, iSeed_);
+          bool passinner = bend - bendinnermin > -settings_.bendcutte(0, iSeed_) &&
+                           bend - bendinnermax < settings_.bendcutte(0, iSeed_);
           if (passinner)
             vmbendinner[ibend] = true;
           pttableinner_.push_back(passinner && passptcut);
@@ -247,8 +247,8 @@ void TrackletEngine::setVMPhiBin() {
         for (int ibend = 0; ibend < (1 << nbendbitsouter); ibend++) {
           double bend = benddecode(ibend, nbendbitsouter == 3);
 
-          bool passouter = bend - bendoutermin > -settings_->bendcutte(1, iSeed_) &&
-                           bend - bendoutermax < settings_->bendcutte(1, iSeed_);
+          bool passouter = bend - bendoutermin > -settings_.bendcutte(1, iSeed_) &&
+                           bend - bendoutermax < settings_.bendcutte(1, iSeed_);
           if (passouter)
             vmbendouter[ibend] = true;
           pttableouter_.push_back(passouter && passptcut);
@@ -257,10 +257,10 @@ void TrackletEngine::setVMPhiBin() {
     }
   }
 
-  innervmstubs_->setbendtable(settings_, vmbendinner);
-  outervmstubs_->setbendtable(settings_, vmbendouter);
+  innervmstubs_->setbendtable(vmbendinner);
+  outervmstubs_->setbendtable(vmbendouter);
 
-  if (iSector_ == 0 && settings_->writeTable())
+  if (iSector_ == 0 && settings_.writeTable())
     writeTETable();
 }
 

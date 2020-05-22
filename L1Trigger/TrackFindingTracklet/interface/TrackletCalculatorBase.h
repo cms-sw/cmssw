@@ -17,7 +17,7 @@ namespace trklet {
 
   class TrackletCalculatorBase : public ProcessBase {
   public:
-    TrackletCalculatorBase(std::string name, const Settings* const settings, Globals* global, unsigned int iSector);
+    TrackletCalculatorBase(std::string name, Settings const& settings, Globals* global, unsigned int iSector);
 
     ~TrackletCalculatorBase() override = default;
 
@@ -32,14 +32,14 @@ namespace trklet {
                        double& phi0,
                        double& t,
                        double& z0,
-                       double phiproj[4],
-                       double zproj[4],
-                       double phider[4],
-                       double zder[4],
-                       double phiprojdisk[5],
-                       double rprojdisk[5],
-                       double phiderdisk[5],
-                       double rderdisk[5]);
+                       double phiproj[N_LAYER - 2],  //=4
+                       double zproj[N_LAYER - 2],
+                       double phider[N_LAYER - 2],
+                       double zder[N_LAYER - 2],
+                       double phiprojdisk[N_DISK],  //=5
+                       double rprojdisk[N_DISK],
+                       double phiderdisk[N_DISK],
+                       double rderdisk[N_DISK]);
 
     void exacttrackletdisk(double r1,
                            double z1,
@@ -52,14 +52,14 @@ namespace trklet {
                            double& phi0,
                            double& t,
                            double& z0,
-                           double phiprojLayer[3],
-                           double zprojLayer[3],
-                           double phiderLayer[3],
-                           double zderLayer[3],
-                           double phiproj[3],
-                           double rproj[3],
-                           double phider[3],
-                           double rder[3]);
+                           double phiprojLayer[N_PSLAYER],  //=3
+                           double zprojLayer[N_PSLAYER],
+                           double phiderLayer[N_PSLAYER],
+                           double zderLayer[N_PSLAYER],
+                           double phiproj[N_DISK - 2],  //=3
+                           double rproj[N_DISK - 2],
+                           double phider[N_DISK - 2],
+                           double rder[N_DISK - 2]);
 
     void exacttrackletOverlap(double r1,
                               double z1,
@@ -72,14 +72,14 @@ namespace trklet {
                               double& phi0,
                               double& t,
                               double& z0,
-                              double phiprojLayer[3],
-                              double zprojLayer[3],
-                              double phiderLayer[3],
-                              double zderLayer[3],
-                              double phiproj[3],
-                              double rproj[3],
-                              double phider[3],
-                              double rder[3]);
+                              double phiprojLayer[N_PSLAYER],  //=3
+                              double zprojLayer[N_PSLAYER],
+                              double phiderLayer[N_PSLAYER],
+                              double zderLayer[N_PSLAYER],
+                              double phiproj[N_DISK - 2],  //=3
+                              double rproj[N_DISK - 2],
+                              double phider[N_DISK - 2],
+                              double rder[N_DISK - 2]);
 
     void exactproj(double rproj,
                    double rinv,
@@ -135,13 +135,6 @@ namespace trklet {
 
     int layer_;
     int disk_;
-
-    //TODO - remove from TP
-    int lproj_[4];
-    int dproj_[3];
-    double rproj_[4];
-    double zproj_[3];
-    double zprojoverlap_[4];
 
     TrackletParametersMemory* trackletpars_;
 

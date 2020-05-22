@@ -8,8 +8,7 @@
 using namespace trklet;
 using namespace std;
 
-MemoryBase::MemoryBase(string name, const Settings* const settings, unsigned int iSector)
-    : name_(name), settings_(settings) {
+MemoryBase::MemoryBase(string name, Settings const& settings, unsigned int iSector) : name_(name), settings_(settings) {
   iSector_ = iSector;
   bx_ = 0;
   event_ = 0;
@@ -34,7 +33,7 @@ unsigned int MemoryBase::initLayerDisk(unsigned int pos) {
   initLayerDisk(pos, layer, disk);
 
   if (disk > 0)
-    return 5 + disk;
+    return N_DISK + disk;
   return layer - 1;
 }
 

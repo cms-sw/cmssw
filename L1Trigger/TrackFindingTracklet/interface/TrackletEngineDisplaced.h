@@ -19,7 +19,7 @@ namespace trklet {
 
   class TrackletEngineDisplaced : public ProcessBase {
   public:
-    TrackletEngineDisplaced(std::string name, const Settings* settings, Globals* global, unsigned int iSector);
+    TrackletEngineDisplaced(std::string name, Settings const& settings, Globals* global, unsigned int iSector);
 
     ~TrackletEngineDisplaced() override;
 

@@ -6,7 +6,7 @@
 using namespace std;
 using namespace trklet;
 
-VMProjectionsMemory::VMProjectionsMemory(string name, const Settings* const settings, unsigned int iSector)
+VMProjectionsMemory::VMProjectionsMemory(string name, Settings const& settings, unsigned int iSector)
     : MemoryBase(name, settings, iSector) {
   initLayerDisk(7, layer_, disk_);
 }

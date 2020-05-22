@@ -15,7 +15,7 @@ namespace trklet {
 
   class ProjectionRouter : public ProcessBase {
   public:
-    ProjectionRouter(std::string name, const Settings* settings, Globals* global, unsigned int iSector);
+    ProjectionRouter(std::string name, Settings const& settings, Globals* global, unsigned int iSector);
 
     ~ProjectionRouter() override = default;
 

@@ -9,7 +9,7 @@
 using namespace std;
 using namespace trklet;
 
-CandidateMatchMemory::CandidateMatchMemory(string name, const Settings* const settings, unsigned int iSector)
+CandidateMatchMemory::CandidateMatchMemory(string name, Settings const& settings, unsigned int iSector)
     : MemoryBase(name, settings, iSector) {}
 
 void CandidateMatchMemory::addMatch(std::pair<Tracklet*, int> tracklet, const Stub* stub) {

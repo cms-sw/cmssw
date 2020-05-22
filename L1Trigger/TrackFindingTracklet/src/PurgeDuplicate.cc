@@ -22,11 +22,11 @@
 using namespace std;
 using namespace trklet;
 
-PurgeDuplicate::PurgeDuplicate(std::string name, const Settings* settings, Globals* global, unsigned int iSector)
+PurgeDuplicate::PurgeDuplicate(std::string name, Settings const& settings, Globals* global, unsigned int iSector)
     : ProcessBase(name, settings, global, iSector) {}
 
 void PurgeDuplicate::addOutput(MemoryBase* memory, std::string output) {
-  if (settings_->writetrace()) {
+  if (settings_.writetrace()) {
     edm::LogVerbatim("Tracklet") << "In " << name_ << " adding output to " << memory->getName() << " to output "
                                  << output;
   }
@@ -52,7 +52,7 @@ void PurgeDuplicate::addOutput(MemoryBase* memory, std::string output) {
 }
 
 void PurgeDuplicate::addInput(MemoryBase* memory, std::string input) {
-  if (settings_->writetrace()) {
+  if (settings_.writetrace()) {
     edm::LogVerbatim("Tracklet") << "In " << name_ << " adding input from " << memory->getName() << " to input "
                                  << input;
   }
@@ -85,7 +85,7 @@ void PurgeDuplicate::execute(std::vector<Track*>& outputtracks_) {
   inputstublists_.clear();
   mergedstubidslists_.clear();
 
-  if (settings_->removalType() != "merge") {
+  if (settings_.removalType() != "merge") {
     for (auto& inputtrackfit : inputtrackfits_) {
       if (inputtrackfit->nTracks() == 0)
         continue;
@@ -106,7 +106,7 @@ void PurgeDuplicate::execute(std::vector<Track*>& outputtracks_) {
   ////////////////////
 #ifdef USEHYBRID
 
-  if (settings_->removalType() == "merge") {
+  if (settings_.removalType() == "merge") {
     std::vector<std::pair<int, bool>> trackInfo;  // Track seed & duplicate flag
     // Vector to store the relative rank of the track candidate for merging, based on seed type
     std::vector<int> seedRank;
@@ -154,7 +154,7 @@ void PurgeDuplicate::execute(std::vector<Track*>& outputtracks_) {
           seedRank.push_back(7);
         } else if (curSeed == 6) {
           seedRank.push_back(8);
-        } else if (settings_->extended()) {
+        } else if (settings_.extended()) {
           seedRank.push_back(9);
         } else {
           throw cms::Exception("LogError") << __FILE__ << " " << __LINE__ << " Seed " << curSeed
@@ -194,7 +194,7 @@ void PurgeDuplicate::execute(std::vector<Track*>& outputtracks_) {
         unsigned int nShareUR = 0;
         unsigned int nURStubTrk1 = 0;
         unsigned int nURStubTrk2 = 0;
-        if (settings_->mergeComparison() == "CompareAll") {
+        if (settings_.mergeComparison() == "CompareAll") {
           bool URArray[16];
           for (auto& i : URArray) {
             i = false;
@@ -212,7 +212,7 @@ void PurgeDuplicate::execute(std::vector<Track*>& outputtracks_) {
               }
             }
           }
-        } else if (settings_->mergeComparison() == "CompareBest") {
+        } else if (settings_.mergeComparison() == "CompareBest") {
           std::vector<const Stub*> fullStubslistsTrk1 = inputstublists_[itrk];
           std::vector<const Stub*> fullStubslistsTrk2 = inputstublists_[jtrk];
 
@@ -266,7 +266,7 @@ void PurgeDuplicate::execute(std::vector<Track*>& outputtracks_) {
         }
 
         // Fill duplicate map
-        if (nShareUR >= 3) {  // For number of shared stub merge condition
+        if (nShareUR >= settings_.minIndStubs()) {  // For number of shared stub merge condition
           dupMap[itrk][jtrk] = true;
           dupMap[jtrk][itrk] = true;
         }
@@ -350,7 +350,7 @@ void PurgeDuplicate::execute(std::vector<Track*>& outputtracks_) {
   //////////////////
   // Grid removal //
   //////////////////
-  if (settings_->removalType() == "grid") {
+  if (settings_.removalType() == "grid") {
     // Sort tracks by ichisq/DoF so that removal will keep the lower ichisq/DoF track
     std::sort(inputtracks_.begin(), inputtracks_.end(), [](const Track* lhs, const Track* rhs) {
       return lhs->ichisq() / lhs->stubID().size() < rhs->ichisq() / rhs->stubID().size();
@@ -384,7 +384,7 @@ void PurgeDuplicate::execute(std::vector<Track*>& outputtracks_) {
   //////////////////////////
   // ichi + nstub removal //
   //////////////////////////
-  if (settings_->removalType() == "ichi" || settings_->removalType() == "nstub") {
+  if (settings_.removalType() == "ichi" || settings_.removalType() == "nstub") {
     for (unsigned int itrk = 0; itrk < numTrk - 1; itrk++) {  // numTrk-1 since last track has no other to compare to
 
       // If primary track is a duplicate, it cannot veto any...move on
@@ -423,9 +423,9 @@ void PurgeDuplicate::execute(std::vector<Track*>& outputtracks_) {
           continue;
 
         // Chi2 duplicate removal
-        if (settings_->removalType() == "ichi") {
-          if ((nStubP - nShare[jtrk] < settings_->minIndStubs()) ||
-              (nStubS[jtrk] - nShare[jtrk] < settings_->minIndStubs())) {
+        if (settings_.removalType() == "ichi") {
+          if ((nStubP - nShare[jtrk] < settings_.minIndStubs()) ||
+              (nStubS[jtrk] - nShare[jtrk] < settings_.minIndStubs())) {
             if ((int)inputtracks_[itrk]->ichisq() / (2 * inputtracks_[itrk]->stubID().size() - 4) >
                 (int)inputtracks_[jtrk]->ichisq() / (2 * inputtracks_[itrk]->stubID().size() - 4)) {
               inputtracks_[itrk]->setDuplicate(true);
@@ -439,10 +439,10 @@ void PurgeDuplicate::execute(std::vector<Track*>& outputtracks_) {
         }  // end ichi removal
 
         // nStub duplicate removal
-        if (settings_->removalType() == "nstub") {
-          if ((nStubP - nShare[jtrk] < settings_->minIndStubs()) && (nStubP < nStubS[jtrk])) {
+        if (settings_.removalType() == "nstub") {
+          if ((nStubP - nShare[jtrk] < settings_.minIndStubs()) && (nStubP < nStubS[jtrk])) {
             inputtracks_[itrk]->setDuplicate(true);
-          } else if ((nStubS[jtrk] - nShare[jtrk] < settings_->minIndStubs()) && (nStubS[jtrk] <= nStubP)) {
+          } else if ((nStubS[jtrk] - nShare[jtrk] < settings_.minIndStubs()) && (nStubS[jtrk] <= nStubP)) {
             inputtracks_[jtrk]->setDuplicate(true);
           } else {
             edm::LogVerbatim("Tracklet") << "Error: Didn't tag either track in duplicate pair.";
@@ -456,11 +456,11 @@ void PurgeDuplicate::execute(std::vector<Track*>& outputtracks_) {
   }  // end ichi + nstub removal
 
   //Add tracks to output
-  if (settings_->removalType() != "merge") {
+  if (settings_.removalType() != "merge") {
     for (unsigned int i = 0; i < inputtrackfits_.size(); i++) {
       for (unsigned int j = 0; j < inputtrackfits_[i]->nTracks(); j++) {
         if (inputtrackfits_[i]->getTrack(j)->getTrack()->duplicate() == 0) {
-          if (settings_->writeMonitorData("Seeds")) {
+          if (settings_.writeMonitorData("Seeds")) {
             ofstream fout("seeds.txt", ofstream::app);
             fout << __FILE__ << ":" << __LINE__ << " " << name_ << "_" << iSector_ << " "
                  << inputtrackfits_[i]->getTrack(j)->getISeed() << endl;

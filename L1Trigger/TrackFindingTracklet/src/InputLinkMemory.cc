@@ -14,7 +14,7 @@
 using namespace trklet;
 using namespace std;
 
-InputLinkMemory::InputLinkMemory(string name, const Settings* const settings, unsigned int iSector, double, double)
+InputLinkMemory::InputLinkMemory(string name, Settings const& settings, unsigned int iSector, double, double)
     : MemoryBase(name, settings, iSector) {
   string subname = name.substr(5, 7);
   phiregion_ = subname[3] - 'A';
@@ -24,13 +24,13 @@ InputLinkMemory::InputLinkMemory(string name, const Settings* const settings, un
 }
 
 bool InputLinkMemory::addStub(
-    const Settings* settings, Globals* globals, L1TStub& al1stub, Stub& stub, string dtc = "") {
+    Settings const& settings, Globals* globals, L1TStub& al1stub, Stub& stub, string dtc = "") {
   if (layerdisk_ < N_LAYER && globals->phiCorr(layerdisk_) == nullptr) {
-    globals->phiCorr(layerdisk_) = new VMRouterPhiCorrTable();
+    globals->phiCorr(layerdisk_) = new VMRouterPhiCorrTable(settings);
     int nbits = 3;
     if (layerdisk_ >= N_PSLAYER)
       nbits = 4;
-    globals->phiCorr(layerdisk_)->init(settings, layerdisk_ + 1, nbits, 3);
+    globals->phiCorr(layerdisk_)->init(layerdisk_ + 1, nbits, 3);
   }
 
   unsigned int stublayerdisk = stub.layerdisk();
@@ -49,7 +49,7 @@ bool InputLinkMemory::addStub(
   }
 
   FPGAWord iphi = stub.phicorr();
-  unsigned int nallbits = settings_->nbitsallstubs(layerdisk_);
+  unsigned int nallbits = settings_.nbitsallstubs(layerdisk_);
   int phibin = iphi.bits(iphi.nbits() - nallbits, nallbits);
   int iphivmRaw = iphi.bits(iphi.nbits() - 5, 5);
 
@@ -71,12 +71,12 @@ bool InputLinkMemory::addStub(
   if (half[0] == 'A' && iphivmRaw > 15)
     return false;
 
-  if (settings_->debugTracklet()) {
+  if (settings_.debugTracklet()) {
     edm::LogVerbatim("Tracklet") << "Will add stub in " << getName() << " "
                                  << "iphiwmRaw = " << iphivmRaw << " phi=" << al1stub.phi() << " z=" << al1stub.z()
                                  << " r=" << al1stub.r();
   }
-  if (stubs_.size() < settings_->maxStep("Link")) {
+  if (stubs_.size() < settings_.maxStep("Link")) {
     Stub* stubptr = new Stub(stub);
     stubptr->setl1tstub(new L1TStub(al1stub));
 

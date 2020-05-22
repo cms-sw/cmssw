@@ -8,7 +8,7 @@
 using namespace std;
 using namespace trklet;
 
-void DiskProjection::init(const Settings* settings,
+void DiskProjection::init(Settings const& settings,
                           int projdisk,
                           double zproj,
                           int iphiproj,
@@ -23,8 +23,8 @@ void DiskProjection::init(const Settings* settings,
                           double rprojapprox,
                           double phiprojderapprox,
                           double rprojderapprox) {
-  assert(abs(projdisk) >= 1);
-  assert(abs(projdisk) <= 5);
+  assert(abs(projdisk) >= 0);
+  assert(abs(projdisk) <= N_DISK);
 
   valid_ = true;
 
@@ -34,27 +34,27 @@ void DiskProjection::init(const Settings* settings,
 
   assert(iphiproj >= 0);
 
-  fpgaphiproj_.set(iphiproj, settings->nphibitsstub(0), true, __LINE__, __FILE__);
-  int iphivm = (iphiproj >> (settings->nphibitsstub(0) - 5)) & 0x7;
+  fpgaphiproj_.set(iphiproj, settings.nphibitsstub(0), true, __LINE__, __FILE__);
+  int iphivm = (iphiproj >> (settings.nphibitsstub(0) - 5)) & 0x7;
   if ((abs(projdisk_) % 2) == 1) {
     iphivm ^= 4;
   }
   fpgaphiprojvm_.set(iphivm, 3, true, __LINE__, __FILE__);
-  fpgarproj_.set(irproj, settings->nrbitsstub(6), false, __LINE__, __FILE__);
+  fpgarproj_.set(irproj, settings.nrbitsstub(6), false, __LINE__, __FILE__);
   int irvm = irproj >> (13 - 7) & 0xf;
   fpgarprojvm_.set(irvm, 4, true, __LINE__, __FILE__);
-  fpgaphiprojder_.set(iphider, settings->nbitsphiprojderL123(), false, __LINE__, __FILE__);
-  fpgarprojder_.set(irder, settings->nrbitsprojderdisk(), false, __LINE__, __FILE__);
+  fpgaphiprojder_.set(iphider, settings.nbitsphiprojderL123(), false, __LINE__, __FILE__);
+  fpgarprojder_.set(irder, settings.nrbitsprojderdisk(), false, __LINE__, __FILE__);
 
   //TODO the -3 and +3 should be evaluated and efficiency for matching hits checked.
   //This code should be migrated in the ProjectionRouter
-  int rbin1 = 8.0 * (irproj * settings->krprojshiftdisk() - 3 - settings->rmindiskvm()) /
-              (settings->rmaxdisk() - settings->rmindiskvm());
-  int rbin2 = 8.0 * (irproj * settings->krprojshiftdisk() + 3 - settings->rmindiskvm()) /
-              (settings->rmaxdisk() - settings->rmindiskvm());
+  int rbin1 = 8.0 * (irproj * settings.krprojshiftdisk() - 3 - settings.rmindiskvm()) /
+              (settings.rmaxdisk() - settings.rmindiskvm());
+  int rbin2 = 8.0 * (irproj * settings.krprojshiftdisk() + 3 - settings.rmindiskvm()) /
+              (settings.rmaxdisk() - settings.rmindiskvm());
 
-  if (irproj * settings->krprojshiftdisk() < 20.0) {
-    edm::LogPrint("Tracklet") << " WARNING : irproj = " << irproj << " " << irproj * settings->krprojshiftdisk() << " "
+  if (irproj * settings.krprojshiftdisk() < 20.0) {
+    edm::LogPrint("Tracklet") << " WARNING : irproj = " << irproj << " " << irproj * settings.krprojshiftdisk() << " "
                               << projdisk_;
   }
 
@@ -68,9 +68,9 @@ void DiskProjection::init(const Settings* settings,
   assert(rbin2 - rbin1 <= 1);
 
   int finer = 64 *
-              ((irproj * settings->krprojshiftdisk() - settings->rmindiskvm()) -
-               rbin1 * (settings->rmaxdisk() - settings->rmindiskvm()) / 8.0) /
-              (settings->rmaxdisk() - settings->rmindiskvm());
+              ((irproj * settings.krprojshiftdisk() - settings.rmindiskvm()) -
+               rbin1 * (settings.rmaxdisk() - settings.rmindiskvm()) / 8.0) /
+              (settings.rmaxdisk() - settings.rmindiskvm());
 
   if (finer < 0)
     finer = 0;

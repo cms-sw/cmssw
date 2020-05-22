@@ -81,7 +81,7 @@ namespace trklet {
     void settpar(double t) { t_ = t; }
     double tpar() const { return t_; }
 
-    void fill(int t, double MinvDt[4][12], int iMinvDt[4][12]) const;
+    void fill(int t, double MinvDt[N_FITPARAM][N_FITSTUB * 2], int iMinvDt[N_FITPARAM][N_FITSTUB * 2]) const;
 
   private:
     int irinvdphi_[N_FITSTUB];

@@ -6,8 +6,7 @@
 using namespace std;
 using namespace trklet;
 
-TrackFitMemory::TrackFitMemory(
-    string name, const Settings* const settings, unsigned int iSector, double phimin, double phimax)
+TrackFitMemory::TrackFitMemory(string name, Settings const& settings, unsigned int iSector, double phimin, double phimax)
     : MemoryBase(name, settings, iSector) {
   phimin_ = phimin;
   phimax_ = phimax;

@@ -1,17 +1,17 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Stub.h"
-#include "L1Trigger/TrackFindingTracklet/interface/Settings.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+
 #include <cmath>
 
 using namespace std;
 using namespace trklet;
 
-Stub::Stub(const trklet::Settings* const settings) : settings_(settings) {}
+Stub::Stub(Settings const& settings) : settings_(settings) {}
 
-Stub::Stub(L1TStub& stub, const trklet::Settings* const settings, double phiminsec, double phimaxsec)
-    : settings_(settings) {
+Stub::Stub(L1TStub& stub, Settings const& settings, double phiminsec, double phimaxsec) : settings_(settings) {
   double r = stub.r();
   double z = stub.z();
   double sbend = stub.bend();
@@ -34,27 +34,27 @@ Stub::Stub(L1TStub& stub, const trklet::Settings* const settings, double phimins
   if (layer < 999) {
     disk_.set(0, 4, false, __LINE__, __FILE__);
 
-    assert(layer >= 1 && layer <= 6);
-    double rmin = settings_->rmean(layer - 1) - settings_->drmax();
-    double rmax = settings_->rmean(layer - 1) + settings_->drmax();
+    assert(layer > 0 && layer <= N_LAYER);
+    double rmin = settings_.rmean(layer - 1) - settings_.drmax();
+    double rmax = settings_.rmean(layer - 1) + settings_.drmax();
 
     if (r < rmin || r > rmax) {
       edm::LogProblem("Tracklet") << "Error r, rmin, rmeas,  rmax :" << r << " " << rmin << " " << 0.5 * (rmin + rmax)
                                   << " " << rmax;
     }
 
-    int irbits = settings_->nrbitsstub(layer - 1);
+    int irbits = settings_.nrbitsstub(layer - 1);
 
-    int ir = lround((1 << irbits) * ((r - settings_->rmean(layer - 1)) / (rmax - rmin)));
+    int ir = lround((1 << irbits) * ((r - settings_.rmean(layer - 1)) / (rmax - rmin)));
 
-    double zmin = -settings_->zlength();
-    double zmax = settings_->zlength();
+    double zmin = -settings_.zlength();
+    double zmax = settings_.zlength();
 
     if (z < zmin || z > zmax) {
       edm::LogProblem("Tracklet") << "Error z, zmin, zmax :" << z << " " << zmin << " " << zmax;
     }
 
-    int izbits = settings_->nzbitsstub(layer - 1);
+    int izbits = settings_.nzbitsstub(layer - 1);
 
     int iz = lround((1 << izbits) * z / (zmax - zmin));
 
@@ -69,9 +69,9 @@ Stub::Stub(L1TStub& stub, const trklet::Settings* const settings, double phimins
     }
     assert((phimaxsec - phiminsec) > 0.0);
 
-    int iphibits = settings_->nphibitsstub(layer - 1);
+    int iphibits = settings_.nphibitsstub(layer - 1);
 
-    double deltaphi = trklet::phiRange(stubphi - phiminsec);
+    double deltaphi = reco::reduceRange(stubphi - phiminsec);
 
     int iphi = (1 << iphibits) * deltaphi / (phimaxsec - phiminsec);
 
@@ -86,19 +86,20 @@ Stub::Stub(L1TStub& stub, const trklet::Settings* const settings, double phimins
     // Here we handle the hits on disks.
 
     int disk = stub.module();
-    assert(disk >= 1 && disk <= 5);
+    assert(disk > 0 && disk <= N_DISK);
     int sign = 1;
     if (z < 0.0)
       sign = -1;
 
-    double zmin = sign * (settings_->zmean(disk - 1) - sign * settings_->dzmax());
-    double zmax = sign * (settings_->zmean(disk - 1) + sign * settings_->dzmax());
+    double zmin = sign * (settings_.zmean(disk - 1) - sign * settings_.dzmax());
+    double zmax = sign * (settings_.zmean(disk - 1) + sign * settings_.dzmax());
 
     if ((z > zmax) || (z < zmin)) {
       edm::LogProblem("Tracklet") << "Error disk z, zmax, zmin: " << z << " " << zmax << " " << zmin;
     }
 
-    int iz = (1 << settings->nzbitsstub(disk + 5)) * ((z - sign * settings_->zmean(disk - 1)) / std::abs(zmax - zmin));
+    int iz =
+        (1 << settings.nzbitsstub(disk + N_DISK)) * ((z - sign * settings_.zmean(disk - 1)) / std::abs(zmax - zmin));
 
     assert(phimaxsec - phiminsec > 0.0);
     if (stubphi < phiminsec - (phimaxsec - phiminsec) / 6.0) {
@@ -110,31 +111,31 @@ Stub::Stub(L1TStub& stub, const trklet::Settings* const settings, double phimins
       stubphi += 2 * M_PI;
     }
 
-    int iphibits = settings_->nphibitsstub(disk + 5);
+    int iphibits = settings_.nphibitsstub(disk + 5);
 
-    double deltaphi = trklet::phiRange(stubphi - phiminsec);
+    double deltaphi = reco::reduceRange(stubphi - phiminsec);
 
     int iphi = (1 << iphibits) * deltaphi / (phimaxsec - phiminsec);
 
     double rmin = 0;
-    double rmax = settings_->rmaxdisk();
+    double rmax = settings_.rmaxdisk();
 
     if (r < rmin || r > rmax) {
       edm::LogProblem("Tracklet") << "Error disk r, rmin, rmax :" << r << " " << rmin << " " << rmax;
     }
 
-    int ir = (1 << settings_->nrbitsstub(disk + 5)) * (r - rmin) / (rmax - rmin);
+    int ir = (1 << settings_.nrbitsstub(disk + 5)) * (r - rmin) / (rmax - rmin);
 
     int irSS = -1;
     if (!stub.isPSmodule()) {
-      for (int i = 0; i < 10; ++i) {
+      for (unsigned int i = 0; i < N_DSS_MOD * 2; ++i) {
         if (disk <= 2) {
-          if (std::abs(r - settings_->rDSSinner(i)) < 0.2) {
+          if (std::abs(r - settings_.rDSSinner(i)) < 0.2) {
             irSS = i;
             break;
           }
         } else {
-          if (std::abs(r - settings_->rDSSouter(i)) < 0.2) {
+          if (std::abs(r - settings_.rDSSouter(i)) < 0.2) {
             irSS = i;
             break;
           }
@@ -147,13 +148,13 @@ Stub::Stub(L1TStub& stub, const trklet::Settings* const settings, double phimins
     }
     if (irSS < 0) {
       //PS modules
-      r_.set(ir, settings_->nrbitsstub(disk + 5), true, __LINE__, __FILE__);
+      r_.set(ir, settings_.nrbitsstub(disk + N_DISK), true, __LINE__, __FILE__);
     } else {
       //SS modules
       r_.set(irSS, 4, true, __LINE__, __FILE__);  // in case of SS modules, store index, not r itself
     }
 
-    z_.set(iz, settings->nzbitsstub(disk + 5), false, __LINE__, __FILE__);
+    z_.set(iz, settings.nzbitsstub(disk + 5), false, __LINE__, __FILE__);
     phi_.set(iphi, iphibits, true, __LINE__, __FILE__);
     phicorr_.set(iphi, iphibits, true, __LINE__, __FILE__);
 
@@ -161,10 +162,10 @@ Stub::Stub(L1TStub& stub, const trklet::Settings* const settings, double phimins
 
     double alphanorm = stub.alphanorm();
     assert(std::abs(alphanorm) < 1.0);
-    int ialphanew = alphanorm * (1 << (settings->nbitsalpha() - 1));
-    assert(ialphanew < (1 << (settings->nbitsalpha() - 1)));
-    assert(ialphanew >= -(1 << (settings->nbitsalpha() - 1)));
-    alphanew_.set(ialphanew, settings->nbitsalpha(), false, __LINE__, __FILE__);
+    int ialphanew = alphanorm * (1 << (settings.nbitsalpha() - 1));
+    assert(ialphanew < (1 << (settings.nbitsalpha() - 1)));
+    assert(ialphanew >= -(1 << (settings.nbitsalpha() - 1)));
+    alphanew_.set(ialphanew, settings.nbitsalpha(), false, __LINE__, __FILE__);
   }
 }
 
@@ -174,19 +175,19 @@ FPGAWord Stub::iphivmFineBins(int VMbits, int finebits) const {
 }
 
 unsigned int Stub::phiregionaddress() const {
-  int iphi = (phicorr_.value() >> (phicorr_.nbits() - settings_->nbitsallstubs(layerdisk())));
+  int iphi = (phicorr_.value() >> (phicorr_.nbits() - settings_.nbitsallstubs(layerdisk())));
   return (iphi << 7) + stubindex_.value();
 }
 
 std::string Stub::phiregionaddressstr() const {
-  int iphi = (phicorr_.value() >> (phicorr_.nbits() - settings_->nbitsallstubs(layerdisk())));
+  int iphi = (phicorr_.value() >> (phicorr_.nbits() - settings_.nbitsallstubs(layerdisk())));
   FPGAWord phiregion(iphi, 3, true, __LINE__, __FILE__);
   return phiregion.str() + stubindex_.str();
 }
 
 void Stub::setAllStubIndex(int nstub) {
   if (nstub >= (1 << 7)) {
-    if (settings_->debugTracklet())
+    if (settings_.debugTracklet())
       edm::LogPrint("Tracklet") << "Warning too large stubindex!";
     nstub = (1 << 7) - 1;
   }
@@ -207,10 +208,10 @@ void Stub::setPhiCorr(int phiCorr) {
 
 double Stub::rapprox() const {
   if (disk_.value() == 0) {
-    int lr = 1 << (8 - settings_->nrbitsstub(layer_.value()));
-    return r_.value() * settings_->kr() * lr + settings_->rmean(layer_.value());
+    int lr = 1 << (8 - settings_.nrbitsstub(layer_.value()));
+    return r_.value() * settings_.kr() * lr + settings_.rmean(layer_.value());
   }
-  return r_.value() * settings_->kr();
+  return r_.value() * settings_.kr();
 }
 
 double Stub::zapprox() const {
@@ -219,18 +220,16 @@ double Stub::zapprox() const {
     if (layer_.value() >= 3) {
       lz = 16;
     }
-    return z_.value() * settings_->kz() * lz;
+    return z_.value() * settings_.kz() * lz;
   }
   int sign = 1;
   if (disk_.value() < 0)
     sign = -1;
   if (sign < 0) {
-    return (z_.value() + 1) * settings_->kz() +
-           sign *
-               settings_->zmean(abs(disk_.value()) -
-                                1);  //Should understand why this is needed to get agreement with integer calculations
+    //Should understand why this is needed to get agreement with integer calculations
+    return (z_.value() + 1) * settings_.kz() + sign * settings_.zmean(abs(disk_.value()) - 1);
   } else {
-    return z_.value() * settings_->kz() + sign * settings_->zmean(abs(disk_.value()) - 1);
+    return z_.value() * settings_.kz() + sign * settings_.zmean(abs(disk_.value()) - 1);
   }
 }
 
@@ -239,7 +238,7 @@ double Stub::phiapprox(double phimin, double) const {
   if (layer_.value() >= 3) {
     lphi = 8;
   }
-  return trklet::phiRange(phimin + phi_.value() * settings_->kphi() / lphi);
+  return reco::reduceRange(phimin + phi_.value() * settings_.kphi() / lphi);
 }
 
 unsigned int Stub::layerdisk() const {

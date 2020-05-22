@@ -6,9 +6,9 @@
 using namespace std;
 using namespace trklet;
 
-TrackletProjectionsMemory::TrackletProjectionsMemory(string name, const Settings* const settings, unsigned int iSector)
+TrackletProjectionsMemory::TrackletProjectionsMemory(string name, Settings const& settings, unsigned int iSector)
     : MemoryBase(name, settings, iSector) {
-  if (settings_->extended()) {
+  if (settings_.extended()) {
     initLayerDisk(14, layer_, disk_);
   } else {
     initLayerDisk(12, layer_, disk_);

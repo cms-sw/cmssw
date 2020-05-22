@@ -1,6 +1,7 @@
-#include "../interface/imath.h"
-
+#include "L1Trigger/TrackFindingTracklet/interface/imath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+using namespace trklet;
 
 bool VarBase::calculate(int debug_level) {
   bool ok1 = true;

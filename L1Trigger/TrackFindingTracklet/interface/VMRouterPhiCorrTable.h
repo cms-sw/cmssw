@@ -15,11 +15,11 @@ namespace trklet {
 
   class VMRouterPhiCorrTable : public TETableBase {
   public:
-    VMRouterPhiCorrTable();
+    VMRouterPhiCorrTable(Settings const& settings);
 
     ~VMRouterPhiCorrTable() override = default;
 
-    void init(const Settings* settings, int layer, int bendbits, int rbits);
+    void init(int layer, int bendbits, int rbits);
 
     int getphiCorrValue(int ibend, int irbin) const;
 

@@ -11,7 +11,7 @@
 using namespace std;
 using namespace trklet;
 
-Tracklet::Tracklet(const trklet::Settings* settings,
+Tracklet::Tracklet(Settings const& settings,
                    const L1TStub* innerStub,
                    const L1TStub* middleStub,
                    const L1TStub* outerStub,
@@ -33,12 +33,11 @@ Tracklet::Tracklet(const trklet::Settings* settings,
                    int id0,
                    int iz0,
                    int it,
-                   LayerProjection layerprojs[4],
-                   DiskProjection diskprojs[4],
+                   LayerProjection layerprojs[N_PROJ],
+                   DiskProjection diskprojs[N_PROJ],
                    bool disk,
-                   bool overlap) {
-  settings_ = settings;
-
+                   bool overlap)
+    : settings_(settings) {
   overlap_ = overlap;
   disk_ = disk;
   assert(!(disk && overlap));
@@ -64,11 +63,11 @@ Tracklet::Tracklet(const trklet::Settings* settings,
 
   trackparsapprox_.init(rinvapprox, phi0approx, d0approx, tapprox, z0approx);
 
-  fpgapars_.rinv().set(irinv, settings_->nbitsrinv(), false, __LINE__, __FILE__);
-  fpgapars_.phi0().set(iphi0, settings_->nbitsphi0(), false, __LINE__, __FILE__);
-  fpgapars_.d0().set(id0, settings_->nbitsd0(), false, __LINE__, __FILE__);
-  fpgapars_.z0().set(iz0, settings_->nbitsz0(), false, __LINE__, __FILE__);
-  fpgapars_.t().set(it, settings_->nbitst(), false, __LINE__, __FILE__);
+  fpgapars_.rinv().set(irinv, settings_.nbitsrinv(), false, __LINE__, __FILE__);
+  fpgapars_.phi0().set(iphi0, settings_.nbitsphi0(), false, __LINE__, __FILE__);
+  fpgapars_.d0().set(id0, settings_.nbitsd0(), false, __LINE__, __FILE__);
+  fpgapars_.z0().set(iz0, settings_.nbitsz0(), false, __LINE__, __FILE__);
+  fpgapars_.t().set(it, settings_.nbitst(), false, __LINE__, __FILE__);
 
   fpgatrack_ = nullptr;
 
@@ -84,17 +83,17 @@ Tracklet::Tracklet(const trklet::Settings* settings,
   triplet_ = (seedIndex_ >= 8);
 
   //fill projection layers
-  for (unsigned int i = 0; i < N_PROJLAYER; i++) {
-    projlayer_[i] = settings->projlayers(seedIndex_, i);
+  for (unsigned int i = 0; i < N_LAYER - 2; i++) {
+    projlayer_[i] = settings.projlayers(seedIndex_, i);
   }
 
   //fill projection disks
-  for (unsigned int i = 0; i < N_PROJDISK; i++) {
-    projdisk_[i] = settings->projdisks(seedIndex_, i);
+  for (unsigned int i = 0; i < N_DISK; i++) {
+    projdisk_[i] = settings.projdisks(seedIndex_, i);
   }
 
   //Handle projections to the layers
-  for (unsigned int i = 0; i < N_PROJLAYER; i++) {
+  for (unsigned int i = 0; i < N_LAYER - 2; i++) {
     if (projlayer_[i] == 0)
       continue;
     if (!layerprojs[i].valid())
@@ -103,7 +102,7 @@ Tracklet::Tracklet(const trklet::Settings* settings,
     layerproj_[projlayer_[i] - 1] = layerprojs[i];
   }
   //Now handle projections to the disks
-  for (unsigned int i = 0; i < N_PROJDISK; i++) {
+  for (unsigned int i = 0; i < N_DISK; i++) {
     if (projdisk_[i] == 0)
       continue;
     if (!diskprojs[i].valid())
@@ -198,12 +197,12 @@ std::string Tracklet::addressstr() {
 }
 
 std::string Tracklet::trackletparstr() {
-  if (settings_->writeoutReal()) {
-    std::string oss = std::to_string(fpgapars_.rinv().value() * settings_->krinvpars()) + " " +
-                      std::to_string(fpgapars_.phi0().value() * settings_->kphi0pars()) + " " +
-                      std::to_string(fpgapars_.d0().value() * settings_->kd0pars()) + " " +
-                      std::to_string(fpgapars_.z0().value() * settings_->kz()) + " " +
-                      std::to_string(fpgapars_.t().value() * settings_->ktpars());
+  if (settings_.writeoutReal()) {
+    std::string oss = std::to_string(fpgapars_.rinv().value() * settings_.krinvpars()) + " " +
+                      std::to_string(fpgapars_.phi0().value() * settings_.kphi0pars()) + " " +
+                      std::to_string(fpgapars_.d0().value() * settings_.kd0pars()) + " " +
+                      std::to_string(fpgapars_.z0().value() * settings_.kz()) + " " +
+                      std::to_string(fpgapars_.t().value() * settings_.ktpars());
     return oss;
   } else {
     std::string str = innerFPGAStub_->stubindex().str() + "|";
@@ -236,7 +235,7 @@ std::string Tracklet::vmstrlayer(int layer, unsigned int allstubindex) {
   // top 5 bits of rinv and shifted to be positive
   int irinvvm = 16 + (tmp_irinv >> (nbits_irinv - 5));
 
-  if (settings_->extended() && (irinvvm > 31)) {  //TODO - displaced tracking should protect against this
+  if (settings_.extended() && (irinvvm > 31)) {  //TODO - displaced tracking should protect against this
     edm::LogPrint("Tracklet") << "Warning irinvvm too large:" << irinvvm;
     irinvvm = 31;
   }
@@ -266,14 +265,14 @@ std::string Tracklet::vmstrdisk(int disk, unsigned int allstubindex) {
 }
 
 std::string Tracklet::trackletprojstr(int layer) const {
-  assert(layer >= 1 && layer <= 6);
+  assert(layer > 0 && layer <= N_LAYER);
   FPGAWord tmp;
-  if (trackletIndex_ < 0 || trackletIndex_ > 127) {
+  if (trackletIndex_ < 0 || trackletIndex_ > (int)settings_.ntrackletmax()) {
     throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " trackletIndex_ = " << trackletIndex_;
   }
   tmp.set(trackletIndex_, 7, true, __LINE__, __FILE__);
   FPGAWord tcid;
-  if (settings_->extended()) {
+  if (settings_.extended()) {
     tcid.set(TCIndex_, 8, true, __LINE__, __FILE__);
   } else {
     tcid.set(TCIndex_, 7, true, __LINE__, __FILE__);
@@ -288,12 +287,12 @@ std::string Tracklet::trackletprojstr(int layer) const {
 std::string Tracklet::trackletprojstrD(int disk) const {
   assert(abs(disk) <= N_DISK);
   FPGAWord tmp;
-  if (trackletIndex_ < 0 || trackletIndex_ > 127) {
+  if (trackletIndex_ < 0 || trackletIndex_ > (int)settings_.ntrackletmax()) {
     throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " trackletIndex_ = " << trackletIndex_;
   }
   tmp.set(trackletIndex_, 7, true, __LINE__, __FILE__);
   FPGAWord tcid;
-  if (settings_->extended()) {
+  if (settings_.extended()) {
     tcid.set(TCIndex_, 8, true, __LINE__, __FILE__);
   } else {
     tcid.set(TCIndex_, 7, true, __LINE__, __FILE__);
@@ -314,7 +313,7 @@ void Tracklet::addMatch(int layer,
                         int stubid,
                         double rstub,
                         const trklet::Stub* stubptr) {
-  assert(layer >= 1 && layer <= 6);
+  assert(layer > 0 && layer <= N_LAYER);
   layerresid_[layer - 1].init(
       settings_, layer, ideltaphi, ideltaz, stubid, dphi, dz, dphiapprox, dzapprox, rstub, stubptr);
 }
@@ -373,12 +372,12 @@ std::string Tracklet::fullmatchstr(int layer) {
   assert(layer > 0 && layer <= N_LAYER);
 
   FPGAWord tmp;
-  if (trackletIndex_ < 0 || trackletIndex_ > 127) {
+  if (trackletIndex_ < 0 || trackletIndex_ > (int)settings_.ntrackletmax()) {
     throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " trackletIndex_ = " << trackletIndex_;
   }
   tmp.set(trackletIndex_, 7, true, __LINE__, __FILE__);
   FPGAWord tcid;
-  if (settings_->extended()) {
+  if (settings_.extended()) {
     tcid.set(TCIndex_, 8, true, __LINE__, __FILE__);
   } else {
     tcid.set(TCIndex_, 7, true, __LINE__, __FILE__);
@@ -392,12 +391,12 @@ std::string Tracklet::fullmatchdiskstr(int disk) {
   assert(disk > 0 && disk <= N_DISK);
 
   FPGAWord tmp;
-  if (trackletIndex_ < 0 || trackletIndex_ > 127) {
+  if (trackletIndex_ < 0 || trackletIndex_ > (int)settings_.ntrackletmax()) {
     throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " trackletIndex_ = " << trackletIndex_;
   }
   tmp.set(trackletIndex_, 7, true, __LINE__, __FILE__);
   FPGAWord tcid;
-  if (settings_->extended()) {
+  if (settings_.extended()) {
     tcid.set(TCIndex_, 8, true, __LINE__, __FILE__);
   } else {
     tcid.set(TCIndex_, 7, true, __LINE__, __FILE__);
@@ -624,15 +623,15 @@ void Tracklet::setFitPars(double rinvfit,
   fpgafitpars_.d0().set(id0fit, 19, false, __LINE__, __FILE__);
   fpgafitpars_.t().set(itfit, 14, false, __LINE__, __FILE__);
 
-  if (iz0fit >= (1 << (settings_->nbitsz0() - 1))) {
-    iz0fit = (1 << (settings_->nbitsz0() - 1)) - 1;
+  if (iz0fit >= (1 << (settings_.nbitsz0() - 1))) {
+    iz0fit = (1 << (settings_.nbitsz0() - 1)) - 1;
   }
 
-  if (iz0fit <= -(1 << (settings_->nbitsz0() - 1))) {
-    iz0fit = 1 - (1 << (settings_->nbitsz0() - 1));
+  if (iz0fit <= -(1 << (settings_.nbitsz0() - 1))) {
+    iz0fit = 1 - (1 << (settings_.nbitsz0() - 1));
   }
 
-  fpgafitpars_.z0().set(iz0fit, settings_->nbitsz0(), false, __LINE__, __FILE__);
+  fpgafitpars_.z0().set(iz0fit, settings_.nbitsz0(), false, __LINE__, __FILE__);
   ichisqrphifit_.set(ichisqrphifit, 8, true, __LINE__, __FILE__);
   ichisqrzfit_.set(ichisqrzfit, 8, true, __LINE__, __FILE__);
 
@@ -767,16 +766,16 @@ std::string Tracklet::trackfitstr() {
 
   std::string oss;
   // real Q print out for fitted tracks
-  if (settings_->writeoutReal()) {
-    oss = std::to_string((fpgafitpars_.rinv().value()) * settings_->krinvpars()) + " " +
-          std::to_string((fpgafitpars_.phi0().value()) * settings_->kphi0pars()) + " " +
-          std::to_string((fpgafitpars_.d0().value()) * settings_->kd0pars()) + " " +
-          std::to_string((fpgafitpars_.t().value()) * settings_->ktpars()) + " " +
-          std::to_string((fpgafitpars_.z0().value()) * settings_->kz()) + " " + innerFPGAStub_->phiregionaddressstr() +
+  if (settings_.writeoutReal()) {
+    oss = std::to_string((fpgafitpars_.rinv().value()) * settings_.krinvpars()) + " " +
+          std::to_string((fpgafitpars_.phi0().value()) * settings_.kphi0pars()) + " " +
+          std::to_string((fpgafitpars_.d0().value()) * settings_.kd0pars()) + " " +
+          std::to_string((fpgafitpars_.t().value()) * settings_.ktpars()) + " " +
+          std::to_string((fpgafitpars_.z0().value()) * settings_.kz()) + " " + innerFPGAStub_->phiregionaddressstr() +
           " ";
   }
   //Binary print out
-  if (!settings_->writeoutReal()) {
+  if (!settings_.writeoutReal()) {
     oss = fpgafitpars_.rinv().str() + "|" + fpgafitpars_.phi0().str() + "|" + fpgafitpars_.d0().str() + "|" +
           fpgafitpars_.t().str() + "|" + fpgafitpars_.z0().str() + "|" + innerFPGAStub_->phiregionaddressstr() + "|";
   }
@@ -845,7 +844,7 @@ void Tracklet::setTrackletIndex(int index) {
 
 int Tracklet::getISeed() const {
   int iSeed = TCIndex_ >> 4;
-  assert(iSeed >= 0 && iSeed <= 11);
+  assert(iSeed >= 0 && iSeed <= (int)N_SEED);
   return iSeed;
 }
 

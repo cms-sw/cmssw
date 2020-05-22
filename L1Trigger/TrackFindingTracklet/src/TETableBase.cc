@@ -3,7 +3,7 @@
 using namespace std;
 using namespace trklet;
 
-TETableBase::TETableBase(const Settings* settings) : settings_(settings) {}
+TETableBase::TETableBase(Settings const& settings) : settings_(settings) {}
 
 void TETableBase::writeVMTable(std::string name, bool positive) {
   ofstream out;

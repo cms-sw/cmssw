@@ -4,7 +4,7 @@
 using namespace std;
 using namespace trklet;
 
-void LayerResidual::init(const Settings* settings,
+void LayerResidual::init(Settings const& settings,
                          int layer,
                          int iphiresid,
                          int izresid,
@@ -15,8 +15,8 @@ void LayerResidual::init(const Settings* settings,
                          double zresidapprox,
                          double rstub,
                          const Stub* stubptr) {
-  assert(layer >= 1);
-  assert(layer <= 6);
+  assert(layer > 0);
+  assert(layer <= N_LAYER);
 
   if (valid_ && (std::abs(iphiresid) > std::abs(fpgaphiresid_.value())))
     return;
@@ -25,8 +25,8 @@ void LayerResidual::init(const Settings* settings,
 
   layer_ = layer;
 
-  fpgaphiresid_.set(iphiresid, settings->phiresidbits(), false, __LINE__, __FILE__);
-  fpgazresid_.set(izresid, settings->zresidbits(), false, __LINE__, __FILE__);
+  fpgaphiresid_.set(iphiresid, settings.phiresidbits(), false, __LINE__, __FILE__);
+  fpgazresid_.set(izresid, settings.zresidbits(), false, __LINE__, __FILE__);
   int nbitsid = 10;
   fpgastubid_.set(istubid, nbitsid, true, __LINE__, __FILE__);
   assert(!fpgaphiresid_.atExtreme());

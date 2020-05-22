@@ -5,18 +5,18 @@
 
 #ifdef USEHYBRID
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 using namespace std;
 using namespace trklet;
 
-HybridFit::HybridFit(unsigned int iSector, const Settings* settings, Globals* globals) {
+HybridFit::HybridFit(unsigned int iSector, Settings const& settings, Globals* globals) : settings_(settings) {
   iSector_ = iSector;
-  settings_ = settings;
   globals_ = globals;
 }
 
 void HybridFit::Fit(Tracklet* tracklet, std::vector<const Stub*>& trackstublist) {
-  if (settings_->fakefit()) {
+  if (settings_.fakefit()) {
     tracklet->setFitPars(tracklet->rinvapprox(),
                          tracklet->phi0approx(),
                          tracklet->d0approx(),
@@ -48,7 +48,7 @@ void HybridFit::Fit(Tracklet* tracklet, std::vector<const Stub*>& trackstublist)
 
   if (globals_->tmttSettings() == 0) {
     globals_->tmttSettings() = new tmtt::Settings();
-    globals_->tmttSettings()->setMagneticField(settings_->bfield());
+    globals_->tmttSettings()->setMagneticField(settings_.bfield());
   }
 
   const tmtt::Settings& TMTTsettings = *globals_->tmttSettings();
@@ -64,7 +64,7 @@ void HybridFit::Fit(Tracklet* tracklet, std::vector<const Stub*>& trackstublist)
     double kfbend = L1stubptr->bend();
     bool psmodule = L1stubptr->isPSmodule();
     unsigned int iphi = L1stubptr->iphi();
-    double alpha = L1stubptr->alpha(settings_->stripPitch(psmodule));
+    double alpha = L1stubptr->alpha(settings_.stripPitch(psmodule));
     bool isTilted = L1stubptr->isTilted();
 
     bool isBarrel = trackstublist[k]->isBarrel();
@@ -72,7 +72,7 @@ void HybridFit::Fit(Tracklet* tracklet, std::vector<const Stub*>& trackstublist)
 
     if (isBarrel) {  // Barrel-specific
       kflayer = L1stubptr->layer() + 1;
-      if (settings_->printDebugKF())
+      if (settings_.printDebugKF())
         edm::LogVerbatim("L1track") << "Will create layer stub with : ";
     } else {  // Disk-specific
       kflayer = abs(L1stubptr->disk());
@@ -81,15 +81,15 @@ void HybridFit::Fit(Tracklet* tracklet, std::vector<const Stub*>& trackstublist)
       } else {
         kflayer += 20;
       }
-      if (settings_->printDebugKF())
+      if (settings_.printDebugKF())
         edm::LogVerbatim("L1track") << "Will create disk stub with : ";
     }
 
-    float stripPitch = settings_->stripPitch(psmodule);
-    float stripLength = settings_->stripLength(psmodule);
-    unsigned int nStrips = settings_->nStrips(psmodule);
+    float stripPitch = settings_.stripPitch(psmodule);
+    float stripLength = settings_.stripLength(psmodule);
+    unsigned int nStrips = settings_.nStrips(psmodule);
 
-    if (settings_->printDebugKF()) {
+    if (settings_.printDebugKF()) {
       edm::LogVerbatim("L1track") << kfphi << " " << kfr << " " << kfz << " " << kfbend << " " << kflayer << " "
                                   << isBarrel << " " << psmodule << " " << isTilted << " \n"
                                   << stripPitch << " " << stripLength << " " << nStrips;
@@ -117,7 +117,7 @@ void HybridFit::Fit(Tracklet* tracklet, std::vector<const Stub*>& trackstublist)
     L1stubID++;
   }
 
-  if (settings_->printDebugKF()) {
+  if (settings_.printDebugKF()) {
     edm::LogVerbatim("L1track") << "Made TMTTstubs: trackstublist.size() = " << trackstublist.size();
   }
 
@@ -127,16 +127,16 @@ void HybridFit::Fit(Tracklet* tracklet, std::vector<const Stub*>& trackstublist)
   double kft = tracklet->tapprox();
   double kfd0 = tracklet->d0approx();
 
-  if (settings_->printDebugKF()) {
+  if (settings_.printDebugKF()) {
     edm::LogVerbatim("L1track") << "tracklet phi0 = " << kfphi0 << "\n"
                                 << "iSector = " << iSector_ << "\n"
-                                << "dphisectorHG = " << settings_->dphisectorHG();
+                                << "dphisectorHG = " << settings_.dphisectorHG();
   }
 
   // KF wants global phi0, not phi0 measured with respect to lower edge of sector (Tracklet convention).
-  kfphi0 = phiRange(kfphi0 + iSector_ * settings_->dphisector() - 0.5 * settings_->dphisectorHG());
+  kfphi0 = reco::reduceRange(kfphi0 + iSector_ * settings_.dphisector() - 0.5 * settings_.dphisectorHG());
 
-  std::pair<float, float> helixrphi(kfrinv / (0.01 * settings_->c() * settings_->bfield()), kfphi0);
+  std::pair<float, float> helixrphi(kfrinv / (0.01 * settings_.c() * settings_.bfield()), kfphi0);
   std::pair<float, float> helixrz(kfz0, kft);
 
   // KF HLS uses HT mbin (which is binned q/Pt) to allow for scattering. So estimate it from tracklet.
@@ -168,8 +168,8 @@ void HybridFit::Fit(Tracklet* tracklet, std::vector<const Stub*>& trackstublist)
   l1track3d.setSeedPS(numPS);
 
   if (globals_->tmttKFParamsComb() == 0) {
-    edm::LogVerbatim("L1track") << "Will make KFParamsComb for " << settings_->nHelixPar() << " param fit";
-    globals_->tmttKFParamsComb() = new tmtt::KFParamsComb(&TMTTsettings, settings_->nHelixPar(), "KFfitter");
+    edm::LogVerbatim("L1track") << "Will make KFParamsComb for " << settings_.nHelixPar() << " param fit";
+    globals_->tmttKFParamsComb() = new tmtt::KFParamsComb(&TMTTsettings, settings_.nHelixPar(), "KFfitter");
   }
 
   tmtt::KFParamsComb& fitterKF = *globals_->tmttKFParamsComb();
@@ -180,27 +180,22 @@ void HybridFit::Fit(Tracklet* tracklet, std::vector<const Stub*>& trackstublist)
   if (fittedTrk.accepted()) {
     tmtt::KFTrackletTrack trk = fittedTrk.returnKFTrackletTrack();
 
-    if (settings_->printDebugKF())
+    if (settings_.printDebugKF())
       edm::LogVerbatim("L1track") << "Done with Kalman fit. Pars: pt = " << trk.pt()
-                                  << ", 1/2R = " << settings_->bfield() * 3 * trk.qOverPt() / 2000
+                                  << ", 1/2R = " << settings_.bfield() * 3 * trk.qOverPt() / 2000
                                   << ", phi0 = " << trk.phi0() << ", eta = " << trk.eta() << ", z0 = " << trk.z0()
                                   << ", chi2 = " << trk.chi2() << ", accepted = " << trk.accepted();
 
     // Tracklet wants phi0 with respect to lower edge of sector, not global phi0.
-    double phi0fit = trk.phi0() - iSector_ * 2 * M_PI / N_SECTOR + 0.5 * settings_->dphisectorHG();
+    double phi0fit = reco::reduceRange(trk.phi0() - iSector_ * 2 * M_PI / N_SECTOR + 0.5 * settings_.dphisectorHG());
 
-    if (phi0fit > M_PI)
-      phi0fit -= 2 * M_PI;
-    if (phi0fit < -M_PI)
-      phi0fit += 2 * M_PI;
+    double rinvfit = 0.01 * settings_.c() * settings_.bfield() * trk.qOverPt();
 
-    double rinvfit = 0.01 * settings_->c() * settings_->bfield() * trk.qOverPt();
-
-    int irinvfit = rinvfit / settings_->krinvpars();
-    int iphi0fit = phi0fit / settings_->kphi0pars();
-    int itanlfit = trk.tanLambda() / settings_->ktpars();
-    int iz0fit = trk.z0() / settings_->kz0pars();
-    int id0fit = trk.d0() / settings_->kd0pars();
+    int irinvfit = rinvfit / settings_.krinvpars();
+    int iphi0fit = phi0fit / settings_.kphi0pars();
+    int itanlfit = trk.tanLambda() / settings_.ktpars();
+    int iz0fit = trk.z0() / settings_.kz0pars();
+    int id0fit = trk.d0() / settings_.kd0pars();
     int ichi2rphifit = trk.chi2rphi() / 16;
     int ichi2rzfit = trk.chi2rz() / 16;
 
@@ -212,7 +207,7 @@ void HybridFit::Fit(Tracklet* tracklet, std::vector<const Stub*>& trackstublist)
       l1stubsFromFit.push_back(l1s);
     }
 
-    if (settings_->printDebugKF()) {
+    if (settings_.printDebugKF()) {
       edm::LogVerbatim("L1track") << "#stubs before/after KF fit = " << TMTTstubs.size() << "/"
                                   << l1stubsFromFit.size();
     }
@@ -241,7 +236,7 @@ void HybridFit::Fit(Tracklet* tracklet, std::vector<const Stub*>& trackstublist)
                          trk.hitPattern(),
                          l1stubsFromFit);
   } else {
-    if (settings_->printDebugKF()) {
+    if (settings_.printDebugKF()) {
       edm::LogVerbatim("L1track") << "FitTrack:KF rejected track";
     }
   }

@@ -15,7 +15,7 @@ namespace trklet {
 
   class VMStubsTEMemory : public MemoryBase {
   public:
-    VMStubsTEMemory(std::string name, const Settings* const settings, unsigned int iSector);
+    VMStubsTEMemory(std::string name, Settings const& settings, unsigned int iSector);
 
     ~VMStubsTEMemory() override = default;
 
@@ -43,7 +43,7 @@ namespace trklet {
 
     VMStubsTEMemory* other() { return other_; }
 
-    void setbendtable(const Settings* settings, std::vector<bool> vmbendtable);
+    void setbendtable(std::vector<bool> vmbendtable);
 
     bool passbend(unsigned int ibend) const {
       assert(ibend < vmbendtable_.size());
