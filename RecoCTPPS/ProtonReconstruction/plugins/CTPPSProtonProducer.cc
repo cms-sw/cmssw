@@ -367,11 +367,11 @@ void CTPPSProtonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
               if (ac.x_cut_apply && std::abs(tr_i.getX() - tr_j.getX() - ac.x_cut_mean) > ac.x_cut_value)
                 matching = false;
-              if (ac.y_cut_apply && std::abs(tr_i.getY() - tr_j.getY() - ac.y_cut_mean) > ac.y_cut_value)
+              else if (ac.y_cut_apply && std::abs(tr_i.getY() - tr_j.getY() - ac.y_cut_mean) > ac.y_cut_value)
                 matching = false;
-              if (ac.xi_cut_apply && std::abs(pr_i.xi() - pr_j.xi() - ac.xi_cut_mean) > ac.xi_cut_value)
+              else if (ac.xi_cut_apply && std::abs(pr_i.xi() - pr_j.xi() - ac.xi_cut_mean) > ac.xi_cut_value)
                 matching = false;
-              if (ac.th_y_cut_apply && std::abs(pr_i.thetaY() - pr_j.thetaY() - ac.th_y_cut_mean) > ac.th_y_cut_value)
+              else if (ac.th_y_cut_apply && std::abs(pr_i.thetaY() - pr_j.thetaY() - ac.th_y_cut_mean) > ac.th_y_cut_value)
                 matching = false;
 
               if (!matching)
