@@ -61,7 +61,8 @@ private:
 
   edm::ParameterSet m_misalignmentScenario;
   edm::ParameterSet m_outputXML;
-  std::string idealGeometryLabelForInputMethod, idealGeometryLabelForInputDB, idealGeometryLabelForInputXML, idealGeometryLabelForInputSurveyDB;
+  std::string idealGeometryLabelForInputMethod, idealGeometryLabelForInputDB, idealGeometryLabelForInputXML,
+      idealGeometryLabelForInputSurveyDB;
 };
 
 //
@@ -166,7 +167,7 @@ void MuonGeometryDBConverter::analyze(const edm::Event &iEvent, const edm::Event
     }
 
     else if (m_input == std::string("surveydb")) {
-      MuonAlignmentInputSurveyDB inputMethod(m_dtLabel, m_cscLabel,idealGeometryLabelForInputSurveyDB);
+      MuonAlignmentInputSurveyDB inputMethod(m_dtLabel, m_cscLabel, idealGeometryLabelForInputSurveyDB);
       muonAlignment = new MuonAlignment(iSetup, inputMethod);
       muonAlignment->copySurveyToAlignment();
     }

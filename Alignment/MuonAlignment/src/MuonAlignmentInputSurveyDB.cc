@@ -34,9 +34,12 @@
 //
 // constructors and destructor
 //
-MuonAlignmentInputSurveyDB::MuonAlignmentInputSurveyDB() : m_dtLabel(""), m_cscLabel(""), idealGeometryLabel("idealForInputSurveyDB") {}
+MuonAlignmentInputSurveyDB::MuonAlignmentInputSurveyDB()
+    : m_dtLabel(""), m_cscLabel(""), idealGeometryLabel("idealForInputSurveyDB") {}
 
-MuonAlignmentInputSurveyDB::MuonAlignmentInputSurveyDB(std::string dtLabel, std::string cscLabel, std::string idealLabel)
+MuonAlignmentInputSurveyDB::MuonAlignmentInputSurveyDB(std::string dtLabel,
+                                                       std::string cscLabel,
+                                                       std::string idealLabel)
     : m_dtLabel(dtLabel), m_cscLabel(cscLabel), idealGeometryLabel(idealLabel) {}
 
 // MuonAlignmentInputSurveyDB::MuonAlignmentInputSurveyDB(const MuonAlignmentInputSurveyDB& rhs)

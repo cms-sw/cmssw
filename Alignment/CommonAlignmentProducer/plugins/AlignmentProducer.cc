@@ -26,7 +26,6 @@ std::shared_ptr<TrackerGeometry> AlignmentProducer::produceTracker(const Tracker
   return trackerGeometry_;
 }
 
-
 //------------------------------------------------------------------------------
 void AlignmentProducer::beginOfJob(const edm::EventSetup &iSetup) {
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob";

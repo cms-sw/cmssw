@@ -33,7 +33,6 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterBuilder.h"
@@ -60,14 +59,25 @@ private:
   TFile* theFile;
   float x, y, z, phi, theta, length, thick, width;
   TRotMatrix* rot;
-  std::string idealGeometryLabel; 
+  std::string idealGeometryLabel;
 };
 
 //
 // constructors and destructor
 //
 TestMuonReader::TestMuonReader(const edm::ParameterSet& iConfig)
-    : theTree(0), theFile(0), x(0.), y(0.), z(0.), phi(0.), theta(0.), length(0.), thick(0.), width(0.), rot(0), idealGeometryLabel("idealForTestReader") {}
+    : theTree(0),
+      theFile(0),
+      x(0.),
+      y(0.),
+      z(0.),
+      phi(0.),
+      theta(0.),
+      length(0.),
+      thick(0.),
+      width(0.),
+      rot(0),
+      idealGeometryLabel("idealForTestReader") {}
 
 TestMuonReader::~TestMuonReader() {}
 
@@ -99,7 +109,7 @@ void TestMuonReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   edm::ESHandle<CSCGeometry> cscGeometry;
   iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, dtGeometry);
   iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, cscGeometry);
-  
+
   AlignableMuon ideal_alignableMuon(&(*dtGeometry), &(*cscGeometry));
 
   const auto& ideal_barrels = ideal_alignableMuon.DTBarrel();
