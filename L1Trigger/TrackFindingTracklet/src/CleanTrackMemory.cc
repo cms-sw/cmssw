@@ -7,7 +7,7 @@ using namespace std;
 using namespace trklet;
 
 CleanTrackMemory::CleanTrackMemory(
-    string name, const Settings* const settings, unsigned int iSector, double phimin, double phimax)
+    string name, Settings const& settings, unsigned int iSector, double phimin, double phimax)
     : MemoryBase(name, settings, iSector) {
   phimin_ = phimin;
   phimax_ = phimax;
@@ -39,7 +39,7 @@ void CleanTrackMemory::writeCT(bool first) {
 
   // --------------------------------------------------------------
   // print separately ALL cleaned tracks in single file
-  if (settings_->writeMonitorData("CT")) {
+  if (settings_.writeMonitorData("CT")) {
     std::string fnameAll = "CleanTracksAll.dat";
     if (first && getName() == "CT_L1L2" && iSector_ == 0)
       out_.open(fnameAll.c_str());

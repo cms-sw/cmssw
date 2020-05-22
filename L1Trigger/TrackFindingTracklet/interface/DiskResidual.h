@@ -16,7 +16,7 @@ namespace trklet {
 
     ~DiskResidual() = default;
 
-    void init(const Settings* settings,
+    void init(Settings const& settings,
               int disk,
               int iphiresid,
               int irresid,

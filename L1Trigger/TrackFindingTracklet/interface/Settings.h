@@ -15,7 +15,8 @@
 namespace trklet {
 
   // constants used within Settings
-  constexpr unsigned int N_SECTOR = 9;
+  constexpr unsigned int N_SECTOR = 9;   // number of phi sectors for the processing
+  constexpr unsigned int N_DSS_MOD = 5;  // number of rings with 2S modules per disk
 
   class Settings {
   public:
@@ -547,26 +548,41 @@ namespace trklet {
                                                  {"TRE", 108},
                                                  {"VMR", 108}};
 
-    std::map<std::string, bool> writeMonitorData_{{"IL", false},           {"TE", false},
-                                                  {"CT", false},           {"HitPattern", false},
-                                                  {"ChiSq", false},        {"Seeds", false},
-                                                  {"FT", false},           {"Residuals", false},
-                                                  {"MC", false},           {"ME", false},
-                                                  {"AP", false},           {"VMP", false},
-                                                  {"NMatches", false},     {"TrackProjOcc", false},
-                                                  {"TC", false},           {"Pars", false},
-                                                  {"TPars", false},        {"TPD", false},
-                                                  {"TrackletPars", false}, {"TED", false},
-                                                  {"TP", false},           {"TRE", false},
-                                                  {"VMR", false},          {"Variance", false},
-                                                  {"StubsLayer", false},   {"StubsLayerSector", false},
-                                                  {"ResEff", false},       {"HitEff", false},
-                                                  {"MatchEff", false},     {"Cabling", false},
-                                                  {"IFit", false},         {"AS", false}};
+    std::map<std::string, bool> writeMonitorData_{{"IL", false},
+                                                  {"TE", false},
+                                                  {"CT", false},
+                                                  {"HitPattern", false},
+                                                  {"ChiSq", false},
+                                                  {"Seeds", false},
+                                                  {"FT", false},
+                                                  {"Residuals", false},
+                                                  {"MC", false},
+                                                  {"ME", false},
+                                                  {"AP", false},
+                                                  {"VMP", false},
+                                                  {"NMatches", false},
+                                                  {"TrackProjOcc", false},
+                                                  {"TC", false},
+                                                  {"Pars", false},
+                                                  {"TPars", false},
+                                                  {"TPD", false},
+                                                  {"TrackletPars", false},
+                                                  {"TED", false},
+                                                  {"TP", false},
+                                                  {"TRE", false},
+                                                  {"VMR", false},
+                                                  {"Variance", false},
+                                                  {"StubsLayer", false},
+                                                  {"StubsLayerSector", false},
+                                                  {"HitEff", false},
+                                                  {"MatchEff", false},
+                                                  {"Cabling", false},
+                                                  {"IFit", false},
+                                                  {"AS", false}};
 
-    std::array<double, 5> rDSSinner_mod_{{68.9391, 78.7750, 85.4550, 96.3150, 102.3160}};
+    std::array<double, N_DSS_MOD> rDSSinner_mod_{{68.9391, 78.7750, 85.4550, 96.3150, 102.3160}};
 
-    std::array<double, 5> rDSSouter_mod_{{66.4903, 76.7750, 84.4562, 94.9920, 102.3160}};
+    std::array<double, N_DSS_MOD> rDSSouter_mod_{{66.4903, 76.7750, 84.4562, 94.9920, 102.3160}};
 
     //we want the center of the two strip positions in a module, not just the center of a module
     double halfstrip_{2.5};
@@ -670,15 +686,13 @@ namespace trklet {
   constexpr std::array<unsigned int, N_PSLAYER> N_MOD_PLANK = {
       {7, 11, 15}};  // number of modules per plank in TBPS layers
 
-  constexpr unsigned int N_SEEDINDEX = 12;      // number of tracklet+triplet seeds
-  constexpr unsigned int N_SEEDINDEX_TRKL = 7;  // number of tracklet seeds
-  constexpr unsigned int N_PROJLAYER = 4;       // max number of layers to project to
-  constexpr unsigned int N_PROJDISK = 5;        // max number of disks to project to
-  constexpr unsigned int N_DPROJMAX = 3;        // max number of projections (layers/disks) for disk seeds
+  constexpr unsigned int N_SEED = 12;     // number of tracklet+triplet seeds
+  constexpr unsigned int N_TRKLSEED = 7;  // number of tracklet seeds
+  constexpr unsigned int N_PROJ = 4;      // number of projections (beyond stubs from tracklet seed)
 
   // chi2 fitting
-  constexpr unsigned int N_FITSTUB = 6;  // maximum number of stubs used
-  constexpr unsigned int N_PROJ = 4;     // number of projections (beyond stubs from seed, i.e. N_FITSTUB-2)
+  constexpr unsigned int N_FITPARAM = 4;  // number of fit parameters for chi2 fit
+  constexpr unsigned int N_FITSTUB = 6;   // maximum number of stubs used
 
   constexpr unsigned int N_TRACKDER_PTBIN = 4;
   constexpr unsigned int N_TRACKDER_INDEX = 1000;

@@ -8,9 +8,9 @@
 using namespace std;
 using namespace trklet;
 
-FullMatchMemory::FullMatchMemory(string name, const Settings* const settings, unsigned int iSector)
+FullMatchMemory::FullMatchMemory(string name, Settings const& settings, unsigned int iSector)
     : MemoryBase(name, settings, iSector) {
-  if (settings_->extended()) {
+  if (settings_.extended()) {
     initLayerDisk(10, layer_, disk_);
   } else {
     initLayerDisk(8, layer_, disk_);
@@ -18,7 +18,7 @@ FullMatchMemory::FullMatchMemory(string name, const Settings* const settings, un
 }
 
 void FullMatchMemory::addMatch(Tracklet* tracklet, const Stub* stub) {
-  if (!settings_->doKF()) {  //When using KF we allow multiple matches
+  if (!settings_.doKF()) {  //When using KF we allow multiple matches
     for (auto& match : matches_) {
       if (match.first == tracklet) {  //Better match, replace
         match.second = stub;
@@ -29,8 +29,8 @@ void FullMatchMemory::addMatch(Tracklet* tracklet, const Stub* stub) {
   std::pair<Tracklet*, const Stub*> tmp(tracklet, stub);
   //Check that we have the right TCID order
   if (!matches_.empty()) {
-    if ((!settings_->doKF() && matches_[matches_.size() - 1].first->TCID() >= tracklet->TCID()) ||
-        (settings_->doKF() && matches_[matches_.size() - 1].first->TCID() > tracklet->TCID())) {
+    if ((!settings_.doKF() && matches_[matches_.size() - 1].first->TCID() >= tracklet->TCID()) ||
+        (settings_.doKF() && matches_[matches_.size() - 1].first->TCID() > tracklet->TCID())) {
       edm::LogPrint("Tracklet") << "Wrong TCID ordering in " << getName() << " : "
                                 << matches_[matches_.size() - 1].first->TCID() << " " << tracklet->TCID() << " "
                                 << matches_[matches_.size() - 1].first->trackletIndex() << " "

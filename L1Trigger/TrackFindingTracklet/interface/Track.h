@@ -50,17 +50,17 @@ namespace trklet {
     int duplicate() const { return duplicate_; }
     int sector() const { return sector_; }
 
-    double pt(const Settings* settings) const {
-      return (settings->c() * settings->bfield() * 0.01) / (ipars_.rinv() * settings->krinvpars());
+    double pt(Settings const& settings) const {
+      return (settings.c() * settings.bfield() * 0.01) / (ipars_.rinv() * settings.krinvpars());
     }
 
-    double phi0(const Settings* settings) const;
+    double phi0(Settings const& settings) const;
 
-    double eta(const Settings* settings) const { return asinh(ipars_.t() * settings->ktpars()); }
-    double tanL(const Settings* settings) const { return ipars_.t() * settings->ktpars(); }
-    double z0(const Settings* settings) const { return ipars_.z0() * settings->kz0pars(); }
-    double rinv(const Settings* settings) const { return ipars_.rinv() * settings->krinvpars(); }
-    double d0(const Settings* settings) const { return ipars_.d0() * settings->kd0pars(); }  //Fix when fit for 5 pars
+    double eta(Settings const& settings) const { return asinh(ipars_.t() * settings.ktpars()); }
+    double tanL(Settings const& settings) const { return ipars_.t() * settings.ktpars(); }
+    double z0(Settings const& settings) const { return ipars_.z0() * settings.kz0pars(); }
+    double rinv(Settings const& settings) const { return ipars_.rinv() * settings.krinvpars(); }
+    double d0(Settings const& settings) const { return ipars_.d0() * settings.kd0pars(); }
     double chisq() const { return chisqrphi_ + chisqrz_; }
 
     double chisqrphi() const { return chisqrphi_; }

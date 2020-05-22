@@ -13,7 +13,7 @@ namespace trklet {
 
     ~LayerProjection() = default;
 
-    void init(const Settings* settings,
+    void init(Settings const& settings,
               int projlayer,
               double rproj,
               int iphiproj,
@@ -157,8 +157,6 @@ namespace trklet {
     double zprojapprox_;
     double phiprojderapprox_;
     double zprojderapprox_;
-
-    const Settings* settings_;
   };
 };  // namespace trklet
 #endif

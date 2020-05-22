@@ -16,7 +16,7 @@ namespace trklet {
 
   class FullMatchMemory : public MemoryBase {
   public:
-    FullMatchMemory(std::string name, const Settings* const settings, unsigned int iSector);
+    FullMatchMemory(std::string name, Settings const& settings, unsigned int iSector);
 
     ~FullMatchMemory() override = default;
 

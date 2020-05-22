@@ -7,9 +7,7 @@
 using namespace std;
 using namespace trklet;
 
-TrackDerTable::TrackDerTable(const Settings* settings) {
-  settings_ = settings;
-
+TrackDerTable::TrackDerTable(Settings const& settings) : settings_(settings) {
   Nlay_ = N_LAYER;
   Ndisk_ = N_DISK;
 
@@ -17,7 +15,7 @@ TrackDerTable::TrackDerTable(const Settings* settings) {
   DiskMemBits_ = 7;
   LayerDiskMemBits_ = 18;
 
-  alphaBits_ = settings_->alphaBitsTable();
+  alphaBits_ = settings_.alphaBitsTable();
 
   nextLayerValue_ = 0;
   nextDiskValue_ = 0;
@@ -45,7 +43,7 @@ const TrackDer* TrackDerTable::getDerivatives(unsigned int layermask,
   if (index < 0) {
     return nullptr;
   }
-  return &derivatives_[index + alphaindex * (1 << settings_->nrinvBitsTable()) + rinvindex];
+  return &derivatives_[index + alphaindex * (1 << settings_.nrinvBitsTable()) + rinvindex];
 }
 
 int TrackDerTable::getIndex(unsigned int layermask, unsigned int diskmask) const {
@@ -57,7 +55,7 @@ int TrackDerTable::getIndex(unsigned int layermask, unsigned int diskmask) const
   int diskcode = DiskMem_[diskmask];
 
   if (diskcode < 0 || layercode < 0) {
-    if (settings_->warnNoDer()) {
+    if (settings_.warnNoDer()) {
       edm::LogPrint("Tracklet") << "layermask diskmask : " << layermask << " " << diskmask;
     }
     return -1;
@@ -76,7 +74,7 @@ int TrackDerTable::getIndex(unsigned int layermask, unsigned int diskmask) const
   int address = LayerDiskMem_[layerdiskaddress];
 
   if (address < 0) {
-    if (settings_->warnNoDer()) {
+    if (settings_.warnNoDer()) {
       edm::LogVerbatim("Tracklet") << "layermask diskmask : " << layermask << " " << diskmask;
     }
     return -1;
@@ -140,7 +138,7 @@ void TrackDerTable::addEntry(unsigned int layermask, unsigned int diskmask, int 
 
 void TrackDerTable::readPatternFile(std::string fileName) {
   ifstream in(fileName.c_str());
-  if (settings_->debugTracklet()) {
+  if (settings_.debugTracklet()) {
     edm::LogVerbatim("Tracklet") << "reading fit pattern file " << fileName;
     edm::LogVerbatim("Tracklet") << "  flags (good/eof/fail/bad): " << in.good() << " " << in.eof() << " " << in.fail()
                                  << " " << in.bad();
@@ -179,11 +177,11 @@ void TrackDerTable::readPatternFile(std::string fileName) {
     int layers = strtol(layerstr.c_str(), tmpptr, 2);
     int disks = strtol(diskstr.c_str(), tmpptr, 2);
 
-    addEntry(layers, disks, multiplicity, (1 << settings_->nrinvBitsTable()));
+    addEntry(layers, disks, multiplicity, (1 << settings_.nrinvBitsTable()));
   }
 }
 
-void TrackDerTable::fillTable(const Settings* settings) {
+void TrackDerTable::fillTable() {
   int nentries = getEntries();
 
   for (int i = 0; i < nentries; i++) {
@@ -193,8 +191,8 @@ void TrackDerTable::fillTable(const Settings* settings) {
     int alphamask = der.alphaMask();
     int irinv = der.irinv();
 
-    double rinv = (irinv - ((1 << (settings_->nrinvBitsTable() - 1)) - 0.5)) * settings_->rinvmax() /
-                  (1 << (settings_->nrinvBitsTable() - 1));
+    double rinv = (irinv - ((1 << (settings_.nrinvBitsTable() - 1)) - 0.5)) * settings_.rinvmax() /
+                  (1 << (settings_.nrinvBitsTable() - 1));
 
     bool print = false;
 
@@ -208,7 +206,7 @@ void TrackDerTable::fillTable(const Settings* settings) {
 
     for (unsigned l = 0; l < N_LAYER; l++) {
       if (layermask & (1 << (N_LAYER - 1 - l))) {
-        r[nlayers] = settings_->rmean(l);
+        r[nlayers] = settings_.rmean(l);
         nlayers++;
       }
     }
@@ -217,31 +215,31 @@ void TrackDerTable::fillTable(const Settings* settings) {
     double z[N_DISK];
     double alpha[N_DISK];
 
-    double t = tpar(settings, diskmask, layermask);
+    double t = tpar(settings_, diskmask, layermask);
 
     for (unsigned d = 0; d < N_DISK; d++) {
       if (diskmask & (3 << (2 * (N_DISK - 1 - d)))) {
-        z[ndisks] = settings_->zmean(d);
+        z[ndisks] = settings_.zmean(d);
         alpha[ndisks] = 0.0;
-        double r = settings_->zmean(d) / t;
+        double r = settings_.zmean(d) / t;
         double r2 = r * r;
         if (diskmask & (1 << (2 * (N_DISK - 1 - d)))) {
           if (alphaBits_ == 3) {
             int ialpha = alphamask & 7;
             alphamask = alphamask >> 3;
-            alpha[ndisks] = settings_->half2SmoduleWidth() * (ialpha - 3.5) / 4.0 / r2;
+            alpha[ndisks] = settings_.half2SmoduleWidth() * (ialpha - 3.5) / 4.0 / r2;
             if (print)
               edm::LogVerbatim("Tracklet") << "PRINT 3 alpha ialpha : " << alpha[ndisks] << " " << ialpha;
           }
           if (alphaBits_ == 2) {
             int ialpha = alphamask & 3;
             alphamask = alphamask >> 2;
-            alpha[ndisks] = settings_->half2SmoduleWidth() * (ialpha - 1.5) / 2.0 / r2;
+            alpha[ndisks] = settings_.half2SmoduleWidth() * (ialpha - 1.5) / 2.0 / r2;
           }
           if (alphaBits_ == 1) {
             int ialpha = alphamask & 1;
             alphamask = alphamask >> 1;
-            alpha[ndisks] = settings_->half2SmoduleWidth() * (ialpha - 0.5) / r2;
+            alpha[ndisks] = settings_.half2SmoduleWidth() * (ialpha - 0.5) / r2;
             if (print)
               edm::LogVerbatim("Tracklet") << "PRINT 1 alpha ialpha : " << alpha[ndisks] << " " << ialpha;
           }
@@ -250,13 +248,13 @@ void TrackDerTable::fillTable(const Settings* settings) {
       }
     }
 
-    double D[4][12];
-    int iD[4][12];
-    double MinvDt[4][12];
-    double MinvDtDelta[4][12];
-    int iMinvDt[4][12];
-    double sigma[12];
-    double kfactor[12];
+    double D[N_FITPARAM][N_FITSTUB * 2];
+    int iD[N_FITPARAM][N_FITSTUB * 2];
+    double MinvDt[N_FITPARAM][N_FITSTUB * 2];
+    double MinvDtDelta[N_FITPARAM][N_FITSTUB * 2];
+    int iMinvDt[N_FITPARAM][N_FITSTUB * 2];
+    double sigma[N_FITSTUB * 2];
+    double kfactor[N_FITSTUB * 2];
 
     if (print) {
       edm::LogVerbatim("Tracklet") << "PRINT ndisks alpha[0] z[0] t: " << ndisks << " " << alpha[0] << " " << z[0]
@@ -283,11 +281,11 @@ void TrackDerTable::fillTable(const Settings* settings) {
         if (r[ii] > 60.0)
           continue;
         double tder = (MinvDtDelta[2][2 * ii + 1] - MinvDt[2][2 * ii + 1]) / delta;
-        int itder = (1 << (settings_->fittbitshift() + settings_->rcorrbits())) * tder * settings_->kr() *
-                    settings_->kz() / settings_->ktpars();
+        int itder = (1 << (settings_.fittbitshift() + settings_.rcorrbits())) * tder * settings_.kr() * settings_.kz() /
+                    settings_.ktpars();
         double zder = (MinvDtDelta[3][2 * ii + 1] - MinvDt[3][2 * ii + 1]) / delta;
-        int izder = (1 << (settings_->fitz0bitshift() + settings_->rcorrbits())) * zder * settings_->kr() *
-                    settings_->kz() / settings_->kz0pars();
+        int izder = (1 << (settings_.fitz0bitshift() + settings_.rcorrbits())) * zder * settings_.kr() *
+                    settings_.kz() / settings_.kz0pars();
         der.settdzcorr(i, ii, tder);
         der.setz0dzcorr(i, ii, zder);
         der.setitdzcorr(i, ii, itder);
@@ -358,7 +356,7 @@ void TrackDerTable::fillTable(const Settings* settings) {
     }
   }
 
-  if (settings->writeTable()) {
+  if (settings_.writeTable()) {
     ofstream outL("FitDerTableNew_LayerMem.txt");
     for (unsigned int i = 0; i < LayerMem_.size(); i++) {
       FPGAWord tmp;
@@ -394,54 +392,54 @@ void TrackDerTable::fillTable(const Settings* settings) {
     unsigned int nderivatives = derivatives_.size();
     edm::LogVerbatim("Tracklet") << "nderivatives = " << nderivatives;
 
-    const std::array<string, N_SEEDINDEX_TRKL> seedings = {{"L1L2", "L3L4", "L5L6", "D1D2", "D3D4", "D1L1", "D1L2"}};
+    const std::array<string, N_TRKLSEED> seedings = {{"L1L2", "L3L4", "L5L6", "D1D2", "D3D4", "D1L1", "D1L2"}};
     const string prefix = "FitDerTableNew_";
 
     // open files for derivative tables
-    ofstream outrinvdphi[N_SEEDINDEX_TRKL];
-    for (unsigned int i = 0; i < N_SEEDINDEX_TRKL; ++i) {
+    ofstream outrinvdphi[N_TRKLSEED];
+    for (unsigned int i = 0; i < N_TRKLSEED; ++i) {
       const string fname = prefix + "Rinvdphi_" + seedings[i] + ".txt";
       outrinvdphi[i].open(fname.c_str());
     }
 
-    ofstream outrinvdzordr[N_SEEDINDEX_TRKL];
-    for (unsigned int i = 0; i < N_SEEDINDEX_TRKL; ++i) {
+    ofstream outrinvdzordr[N_TRKLSEED];
+    for (unsigned int i = 0; i < N_TRKLSEED; ++i) {
       const string fname = prefix + "Rinvdzordr_" + seedings[i] + ".txt";
       outrinvdzordr[i].open(fname.c_str());
     }
 
-    ofstream outphi0dphi[N_SEEDINDEX_TRKL];
-    for (unsigned int i = 0; i < N_SEEDINDEX_TRKL; ++i) {
+    ofstream outphi0dphi[N_TRKLSEED];
+    for (unsigned int i = 0; i < N_TRKLSEED; ++i) {
       const string fname = prefix + "Phi0dphi_" + seedings[i] + ".txt";
       outphi0dphi[i].open(fname.c_str());
     }
 
-    ofstream outphi0dzordr[N_SEEDINDEX_TRKL];
-    for (unsigned int i = 0; i < N_SEEDINDEX_TRKL; ++i) {
+    ofstream outphi0dzordr[N_TRKLSEED];
+    for (unsigned int i = 0; i < N_TRKLSEED; ++i) {
       const string fname = prefix + "Phi0dzordr_" + seedings[i] + ".txt";
       outphi0dzordr[i].open(fname.c_str());
     }
 
-    ofstream outtdphi[N_SEEDINDEX_TRKL];
-    for (unsigned int i = 0; i < N_SEEDINDEX_TRKL; ++i) {
+    ofstream outtdphi[N_TRKLSEED];
+    for (unsigned int i = 0; i < N_TRKLSEED; ++i) {
       const string fname = prefix + "Tdphi_" + seedings[i] + ".txt";
       outtdphi[i].open(fname.c_str());
     }
 
-    ofstream outtdzordr[N_SEEDINDEX_TRKL];
-    for (unsigned int i = 0; i < N_SEEDINDEX_TRKL; ++i) {
+    ofstream outtdzordr[N_TRKLSEED];
+    for (unsigned int i = 0; i < N_TRKLSEED; ++i) {
       const string fname = prefix + "Tdzordr_" + seedings[i] + ".txt";
       outtdzordr[i].open(fname.c_str());
     }
 
-    ofstream outz0dphi[N_SEEDINDEX_TRKL];
-    for (unsigned int i = 0; i < N_SEEDINDEX_TRKL; ++i) {
+    ofstream outz0dphi[N_TRKLSEED];
+    for (unsigned int i = 0; i < N_TRKLSEED; ++i) {
       const string fname = prefix + "Z0dphi_" + seedings[i] + ".txt";
       outz0dphi[i].open(fname.c_str());
     }
 
-    ofstream outz0dzordr[N_SEEDINDEX_TRKL];
-    for (unsigned int i = 0; i < N_SEEDINDEX_TRKL; ++i) {
+    ofstream outz0dzordr[N_TRKLSEED];
+    for (unsigned int i = 0; i < N_TRKLSEED; ++i) {
       string fname = prefix + "Z0dzordr_" + seedings[i] + ".txt";
       outz0dzordr[i].open(fname.c_str());
     }
@@ -501,19 +499,19 @@ void TrackDerTable::fillTable(const Settings* settings) {
 
         bool goodseed = (hits & (1 << (11 - iseed1))) and (hits & (1 << (11 - iseed2)));
 
-        int itmprinvdphi[4] = {9999999, 9999999, 9999999, 9999999};
-        int itmprinvdzordr[4] = {9999999, 9999999, 9999999, 9999999};
-        int itmpphi0dphi[4] = {9999999, 9999999, 9999999, 9999999};
-        int itmpphi0dzordr[4] = {9999999, 9999999, 9999999, 9999999};
-        int itmptdphi[4] = {9999999, 9999999, 9999999, 9999999};
-        int itmptdzordr[4] = {9999999, 9999999, 9999999, 9999999};
-        int itmpz0dphi[4] = {9999999, 9999999, 9999999, 9999999};
-        int itmpz0dzordr[4] = {9999999, 9999999, 9999999, 9999999};
+        int itmprinvdphi[N_PROJ] = {9999999, 9999999, 9999999, 9999999};
+        int itmprinvdzordr[N_PROJ] = {9999999, 9999999, 9999999, 9999999};
+        int itmpphi0dphi[N_PROJ] = {9999999, 9999999, 9999999, 9999999};
+        int itmpphi0dzordr[N_PROJ] = {9999999, 9999999, 9999999, 9999999};
+        int itmptdphi[N_PROJ] = {9999999, 9999999, 9999999, 9999999};
+        int itmptdzordr[N_PROJ] = {9999999, 9999999, 9999999, 9999999};
+        int itmpz0dphi[N_PROJ] = {9999999, 9999999, 9999999, 9999999};
+        int itmpz0dzordr[N_PROJ] = {9999999, 9999999, 9999999, 9999999};
 
         // loop over bits in hit pattern
         int ider = 0;
         if (goodseed) {
-          for (unsigned int ihit = 1; ihit < 12; ++ihit) {
+          for (unsigned int ihit = 1; ihit < N_FITSTUB * 2; ++ihit) {
             // skip seeding layers
             if (ihit == iseed1 or ihit == iseed2) {
               ider++;
@@ -579,7 +577,7 @@ void TrackDerTable::fillTable(const Settings* settings) {
               if (ihit == 11)
                 inputI = 3;  // D5
             }
-            if (inputI >= 0 and inputI < 4) {
+            if (inputI >= 0 and inputI < (int)N_PROJ) {
               itmprinvdphi[inputI] = der.irinvdphi(ider);
               itmprinvdzordr[inputI] = der.irinvdzordr(ider);
               itmpphi0dphi[inputI] = der.iphi0dphi(ider);
@@ -595,8 +593,8 @@ void TrackDerTable::fillTable(const Settings* settings) {
           }  // for (unsigned int ihit = 1; ihit < 12; ++ihit)
         }    // if (goodseed)
 
-        FPGAWord tmprinvdphi[4];
-        for (unsigned int j = 0; j < 4; ++j) {
+        FPGAWord tmprinvdphi[N_PROJ];
+        for (unsigned int j = 0; j < N_PROJ; ++j) {
           if (itmprinvdphi[j] > (1 << 13))
             itmprinvdphi[j] = (1 << 13) - 1;
           tmprinvdphi[j].set(itmprinvdphi[j], 14, false, __LINE__, __FILE__);
@@ -604,8 +602,8 @@ void TrackDerTable::fillTable(const Settings* settings) {
         outrinvdphi[i] << tmprinvdphi[0].str() << tmprinvdphi[1].str() << tmprinvdphi[2].str() << tmprinvdphi[3].str()
                        << endl;
 
-        FPGAWord tmprinvdzordr[4];
-        for (unsigned int j = 0; j < 4; ++j) {
+        FPGAWord tmprinvdzordr[N_PROJ];
+        for (unsigned int j = 0; j < N_PROJ; ++j) {
           if (itmprinvdzordr[j] > (1 << 15))
             itmprinvdzordr[j] = (1 << 15) - 1;
           tmprinvdzordr[j].set(itmprinvdzordr[j], 16, false, __LINE__, __FILE__);
@@ -613,8 +611,8 @@ void TrackDerTable::fillTable(const Settings* settings) {
         outrinvdzordr[i] << tmprinvdzordr[0].str() << tmprinvdzordr[1].str() << tmprinvdzordr[2].str()
                          << tmprinvdzordr[3].str() << endl;
 
-        FPGAWord tmpphi0dphi[4];
-        for (unsigned int j = 0; j < 4; ++j) {
+        FPGAWord tmpphi0dphi[N_PROJ];
+        for (unsigned int j = 0; j < N_PROJ; ++j) {
           if (itmpphi0dphi[j] > (1 << 13))
             itmpphi0dphi[j] = (1 << 13) - 1;
           tmpphi0dphi[j].set(itmpphi0dphi[j], 14, false, __LINE__, __FILE__);
@@ -622,8 +620,8 @@ void TrackDerTable::fillTable(const Settings* settings) {
         outphi0dphi[i] << tmpphi0dphi[0].str() << tmpphi0dphi[1].str() << tmpphi0dphi[2].str() << tmpphi0dphi[3].str()
                        << endl;
 
-        FPGAWord tmpphi0dzordr[4];
-        for (unsigned int j = 0; j < 4; ++j) {
+        FPGAWord tmpphi0dzordr[N_PROJ];
+        for (unsigned int j = 0; j < N_PROJ; ++j) {
           if (itmpphi0dzordr[j] > (1 << 15))
             itmpphi0dzordr[j] = (1 << 15) - 1;
           tmpphi0dzordr[j].set(itmpphi0dzordr[j], 16, false, __LINE__, __FILE__);
@@ -631,16 +629,16 @@ void TrackDerTable::fillTable(const Settings* settings) {
         outphi0dzordr[i] << tmpphi0dzordr[0].str() << tmpphi0dzordr[1].str() << tmpphi0dzordr[2].str()
                          << tmpphi0dzordr[3].str() << endl;
 
-        FPGAWord tmptdphi[4];
-        for (unsigned int j = 0; j < 4; ++j) {
+        FPGAWord tmptdphi[N_PROJ];
+        for (unsigned int j = 0; j < N_PROJ; ++j) {
           if (itmptdphi[j] > (1 << 13))
             itmptdphi[j] = (1 << 13) - 1;
           tmptdphi[j].set(itmptdphi[j], 14, false, __LINE__, __FILE__);
         }
         outtdphi[i] << tmptdphi[0].str() << tmptdphi[1].str() << tmptdphi[2].str() << tmptdphi[3].str() << endl;
 
-        FPGAWord tmptdzordr[4];
-        for (unsigned int j = 0; j < 4; ++j) {
+        FPGAWord tmptdzordr[N_PROJ];
+        for (unsigned int j = 0; j < N_PROJ; ++j) {
           if (itmptdzordr[j] > (1 << 15))
             itmptdzordr[j] = (1 << 15) - 1;
           tmptdzordr[j].set(itmptdzordr[j], 16, false, __LINE__, __FILE__);
@@ -648,16 +646,16 @@ void TrackDerTable::fillTable(const Settings* settings) {
         outtdzordr[i] << tmptdzordr[0].str() << tmptdzordr[1].str() << tmptdzordr[2].str() << tmptdzordr[3].str()
                       << endl;
 
-        FPGAWord tmpz0dphi[4];
-        for (unsigned int j = 0; j < 4; ++j) {
+        FPGAWord tmpz0dphi[N_PROJ];
+        for (unsigned int j = 0; j < N_PROJ; ++j) {
           if (itmpz0dphi[j] > (1 << 13))
             itmpz0dphi[j] = (1 << 13) - 1;
           tmpz0dphi[j].set(itmpz0dphi[j], 14, false, __LINE__, __FILE__);
         }
         outz0dphi[i] << tmpz0dphi[0].str() << tmpz0dphi[1].str() << tmpz0dphi[2].str() << tmpz0dphi[3].str() << endl;
 
-        FPGAWord tmpz0dzordr[4];
-        for (unsigned int j = 0; j < 4; ++j) {
+        FPGAWord tmpz0dzordr[N_PROJ];
+        for (unsigned int j = 0; j < N_PROJ; ++j) {
           if (itmpz0dzordr[j] > (1 << 15))
             itmpz0dzordr[j] = (1 << 15) - 1;
           tmpz0dzordr[j].set(itmpz0dzordr[j], 16, false, __LINE__, __FILE__);
@@ -671,7 +669,7 @@ void TrackDerTable::fillTable(const Settings* settings) {
     }  // for (auto & der : derivatives_)
 
     // close files
-    for (unsigned int i = 0; i < 6; ++i) {
+    for (unsigned int i = 0; i < N_TRKLSEED; ++i) {
       outrinvdphi[i].close();
       outrinvdzordr[i].close();
       outphi0dphi[i].close();
@@ -754,7 +752,7 @@ void TrackDerTable::invert(std::vector<std::vector<double> >& M, unsigned int n)
   }
 }
 
-void TrackDerTable::calculateDerivatives(const Settings* settings,
+void TrackDerTable::calculateDerivatives(Settings const& settings,
                                          unsigned int nlayers,
                                          double r[N_LAYER],
                                          unsigned int ndisks,
@@ -762,15 +760,15 @@ void TrackDerTable::calculateDerivatives(const Settings* settings,
                                          double alpha[N_DISK],
                                          double t,
                                          double rinv,
-                                         double D[4][12],
-                                         int iD[4][12],
-                                         double MinvDt[4][12],
-                                         int iMinvDt[4][12],
-                                         double sigma[12],
-                                         double kfactor[12]) {
-  double sigmax = settings->stripPitch(true) / sqrt(12.0);
-  double sigmaz = settings->stripLength(true) / sqrt(12.0);
-  double sigmaz2 = settings->stripLength(false) / sqrt(12.0);
+                                         double D[N_FITPARAM][N_FITSTUB * 2],
+                                         int iD[N_FITPARAM][N_FITSTUB * 2],
+                                         double MinvDt[N_FITPARAM][N_FITSTUB * 2],
+                                         int iMinvDt[N_FITPARAM][N_FITSTUB * 2],
+                                         double sigma[N_FITSTUB * 2],
+                                         double kfactor[N_FITSTUB * 2]) {
+  double sigmax = settings.stripPitch(true) / sqrt(12.0);
+  double sigmaz = settings.stripLength(true) / sqrt(12.0);
+  double sigmaz2 = settings.stripLength(false) / sqrt(12.0);
 
   double sigmazpsbarrel = sigmaz;  //This is a bit of a hack - these weights should be properly determined
   if (std::abs(t) > 2.0)
@@ -778,11 +776,11 @@ void TrackDerTable::calculateDerivatives(const Settings* settings,
   if (std::abs(t) > 3.8)
     sigmazpsbarrel = sigmaz * std::abs(t);
 
-  double sigmax2sdisk = settings->stripPitch(false) / sqrt(12.0);
-  double sigmaz2sdisk = settings->stripLength(false) / sqrt(12.0);
+  double sigmax2sdisk = settings.stripPitch(false) / sqrt(12.0);
+  double sigmaz2sdisk = settings.stripLength(false) / sqrt(12.0);
 
-  double sigmaxpsdisk = settings->stripPitch(true) / sqrt(12.0);
-  double sigmazpsdisk = settings->stripLength(true) / sqrt(12.0);
+  double sigmaxpsdisk = settings.stripPitch(true) / sqrt(12.0);
+  double sigmazpsdisk = settings.stripLength(true) / sqrt(12.0);
 
   unsigned int n = nlayers + ndisks;
 
@@ -804,7 +802,7 @@ void TrackDerTable::calculateDerivatives(const Settings* settings,
     D[2][j] = 0.0;
     D[3][j] = 0.0;
     sigma[j] = sigmax;
-    kfactor[j] = settings->kphi1();
+    kfactor[j] = settings.kphi1();
     j++;
     //second the z position
     D[0][j] = 0.0;
@@ -813,12 +811,12 @@ void TrackDerTable::calculateDerivatives(const Settings* settings,
       D[2][j] = (2 / rinv) * asin(0.5 * ri * rinv) / sigmazpsbarrel;
       D[3][j] = 1.0 / sigmazpsbarrel;
       sigma[j] = sigmazpsbarrel;
-      kfactor[j] = settings->kz();
+      kfactor[j] = settings.kz();
     } else {
       D[2][j] = (2 / rinv) * asin(0.5 * ri * rinv) / sigmaz2;
       D[3][j] = 1.0 / sigmaz2;
       sigma[j] = sigmaz2;
-      kfactor[j] = settings->kz();
+      kfactor[j] = settings.kz();
     }
 
     j++;
@@ -857,7 +855,7 @@ void TrackDerTable::calculateDerivatives(const Settings* settings,
     D[1][j] = (phimultiplier * dphidphi0 + rmultiplier * drdphi0) / sigma[j];
     D[2][j] = (phimultiplier * dphidt + rmultiplier * drdt) / sigma[j];
     D[3][j] = (phimultiplier * dphidz0 + rmultiplier * drdz0) / sigma[j];
-    kfactor[j] = settings->kphi();
+    kfactor[j] = settings.kphi();
 
     j++;
 
@@ -867,14 +865,14 @@ void TrackDerTable::calculateDerivatives(const Settings* settings,
       D[2][j] = drdt / sigmazpsdisk;
       D[3][j] = drdz0 / sigmazpsdisk;
       sigma[j] = sigmazpsdisk;
-      kfactor[j] = settings->kr();
+      kfactor[j] = settings.kr();
     } else {
       D[0][j] = drdrinv / sigmaz2sdisk;
       D[1][j] = drdphi0 / sigmaz2sdisk;
       D[2][j] = drdt / sigmaz2sdisk;
       D[3][j] = drdz0 / sigmaz2sdisk;
       sigma[j] = sigmaz2sdisk;
-      kfactor[j] = settings->kr();
+      kfactor[j] = settings.kr();
     }
 
     j++;
@@ -893,8 +891,8 @@ void TrackDerTable::calculateDerivatives(const Settings* settings,
 
   invert(M, 4);
 
-  for (unsigned int j = 0; j < 12; j++) {
-    for (unsigned int i1 = 0; i1 < 4; i1++) {
+  for (unsigned int j = 0; j < N_FITSTUB * 2; j++) {
+    for (unsigned int i1 = 0; i1 < N_FITPARAM; i1++) {
       MinvDt[i1][j] = 0.0;
       iMinvDt[i1][j] = 0;
     }
@@ -910,22 +908,22 @@ void TrackDerTable::calculateDerivatives(const Settings* settings,
 
   for (unsigned int i = 0; i < n; i++) {
     iD[0][2 * i] =
-        D[0][2 * i] * (1 << settings->chisqphifactbits()) * settings->krinvpars() / (1 << settings->fitrinvbitshift());
+        D[0][2 * i] * (1 << settings.chisqphifactbits()) * settings.krinvpars() / (1 << settings.fitrinvbitshift());
     iD[1][2 * i] =
-        D[1][2 * i] * (1 << settings->chisqphifactbits()) * settings->kphi0pars() / (1 << settings->fitphi0bitshift());
+        D[1][2 * i] * (1 << settings.chisqphifactbits()) * settings.kphi0pars() / (1 << settings.fitphi0bitshift());
     iD[2][2 * i] =
-        D[2][2 * i] * (1 << settings->chisqphifactbits()) * settings->ktpars() / (1 << settings->fittbitshift());
+        D[2][2 * i] * (1 << settings.chisqphifactbits()) * settings.ktpars() / (1 << settings.fittbitshift());
     iD[3][2 * i] =
-        D[3][2 * i] * (1 << settings->chisqphifactbits()) * settings->kz0pars() / (1 << settings->fitz0bitshift());
+        D[3][2 * i] * (1 << settings.chisqphifactbits()) * settings.kz0pars() / (1 << settings.fitz0bitshift());
 
-    iD[0][2 * i + 1] = D[0][2 * i + 1] * (1 << settings->chisqzfactbits()) * settings->krinvpars() /
-                       (1 << settings->fitrinvbitshift());
-    iD[1][2 * i + 1] = D[1][2 * i + 1] * (1 << settings->chisqzfactbits()) * settings->kphi0pars() /
-                       (1 << settings->fitphi0bitshift());
+    iD[0][2 * i + 1] =
+        D[0][2 * i + 1] * (1 << settings.chisqzfactbits()) * settings.krinvpars() / (1 << settings.fitrinvbitshift());
+    iD[1][2 * i + 1] =
+        D[1][2 * i + 1] * (1 << settings.chisqzfactbits()) * settings.kphi0pars() / (1 << settings.fitphi0bitshift());
     iD[2][2 * i + 1] =
-        D[2][2 * i + 1] * (1 << settings->chisqzfactbits()) * settings->ktpars() / (1 << settings->fittbitshift());
+        D[2][2 * i + 1] * (1 << settings.chisqzfactbits()) * settings.ktpars() / (1 << settings.fittbitshift());
     iD[3][2 * i + 1] =
-        D[3][2 * i + 1] * (1 << settings->chisqzfactbits()) * settings->kz0pars() / (1 << settings->fitz0bitshift());
+        D[3][2 * i + 1] * (1 << settings.chisqzfactbits()) * settings.kz0pars() / (1 << settings.fitz0bitshift());
 
     //First the barrel
     if (i < nlayers) {
@@ -935,11 +933,11 @@ void TrackDerTable::calculateDerivatives(const Settings* settings,
       MinvDt[3][2 * i] *= rnew[i] / sigmax;
 
       iMinvDt[0][2 * i] =
-          (1 << settings->fitrinvbitshift()) * MinvDt[0][2 * i] * settings->kphi1() / settings->krinvpars();
+          (1 << settings.fitrinvbitshift()) * MinvDt[0][2 * i] * settings.kphi1() / settings.krinvpars();
       iMinvDt[1][2 * i] =
-          (1 << settings->fitphi0bitshift()) * MinvDt[1][2 * i] * settings->kphi1() / settings->kphi0pars();
-      iMinvDt[2][2 * i] = (1 << settings->fittbitshift()) * MinvDt[2][2 * i] * settings->kphi1() / settings->ktpars();
-      iMinvDt[3][2 * i] = (1 << settings->fitz0bitshift()) * MinvDt[3][2 * i] * settings->kphi1() / settings->kz0pars();
+          (1 << settings.fitphi0bitshift()) * MinvDt[1][2 * i] * settings.kphi1() / settings.kphi0pars();
+      iMinvDt[2][2 * i] = (1 << settings.fittbitshift()) * MinvDt[2][2 * i] * settings.kphi1() / settings.ktpars();
+      iMinvDt[3][2 * i] = (1 << settings.fitz0bitshift()) * MinvDt[3][2 * i] * settings.kphi1() / settings.kz0pars();
 
       if (rnew[i] < 60.0) {
         MinvDt[0][2 * i + 1] /= sigmazpsbarrel;
@@ -948,29 +946,29 @@ void TrackDerTable::calculateDerivatives(const Settings* settings,
         MinvDt[3][2 * i + 1] /= sigmazpsbarrel;
 
         iMinvDt[0][2 * i + 1] =
-            (1 << settings->fitrinvbitshift()) * MinvDt[0][2 * i + 1] * settings->kz() / settings->krinvpars();
+            (1 << settings.fitrinvbitshift()) * MinvDt[0][2 * i + 1] * settings.kz() / settings.krinvpars();
         iMinvDt[1][2 * i + 1] =
-            (1 << settings->fitphi0bitshift()) * MinvDt[1][2 * i + 1] * settings->kz() / settings->kphi0pars();
+            (1 << settings.fitphi0bitshift()) * MinvDt[1][2 * i + 1] * settings.kz() / settings.kphi0pars();
         iMinvDt[2][2 * i + 1] =
-            (1 << settings->fittbitshift()) * MinvDt[2][2 * i + 1] * settings->kz() / settings->ktpars();
+            (1 << settings.fittbitshift()) * MinvDt[2][2 * i + 1] * settings.kz() / settings.ktpars();
         iMinvDt[3][2 * i + 1] =
-            (1 << settings->fitz0bitshift()) * MinvDt[3][2 * i + 1] * settings->kz() / settings->kz0pars();
+            (1 << settings.fitz0bitshift()) * MinvDt[3][2 * i + 1] * settings.kz() / settings.kz0pars();
       } else {
         MinvDt[0][2 * i + 1] /= sigmaz2;
         MinvDt[1][2 * i + 1] /= sigmaz2;
         MinvDt[2][2 * i + 1] /= sigmaz2;
         MinvDt[3][2 * i + 1] /= sigmaz2;
 
-        int fact = (1 << (settings->nzbitsstub(0) - settings->nzbitsstub(5)));
+        int fact = (1 << (settings.nzbitsstub(0) - settings.nzbitsstub(5)));
 
         iMinvDt[0][2 * i + 1] =
-            (1 << settings->fitrinvbitshift()) * MinvDt[0][2 * i + 1] * fact * settings->kz() / settings->krinvpars();
+            (1 << settings.fitrinvbitshift()) * MinvDt[0][2 * i + 1] * fact * settings.kz() / settings.krinvpars();
         iMinvDt[1][2 * i + 1] =
-            (1 << settings->fitphi0bitshift()) * MinvDt[1][2 * i + 1] * fact * settings->kz() / settings->kphi0pars();
+            (1 << settings.fitphi0bitshift()) * MinvDt[1][2 * i + 1] * fact * settings.kz() / settings.kphi0pars();
         iMinvDt[2][2 * i + 1] =
-            (1 << settings->fittbitshift()) * MinvDt[2][2 * i + 1] * fact * settings->kz() / settings->ktpars();
+            (1 << settings.fittbitshift()) * MinvDt[2][2 * i + 1] * fact * settings.kz() / settings.ktpars();
         iMinvDt[3][2 * i + 1] =
-            (1 << settings->fitz0bitshift()) * MinvDt[3][2 * i + 1] * fact * settings->kz() / settings->kz0pars();
+            (1 << settings.fitz0bitshift()) * MinvDt[3][2 * i + 1] * fact * settings.kz() / settings.kz0pars();
       }
     }
 
@@ -985,12 +983,10 @@ void TrackDerTable::calculateDerivatives(const Settings* settings,
 
       assert(MinvDt[0][2 * i] == MinvDt[0][2 * i]);
 
-      iMinvDt[0][2 * i] =
-          (1 << settings->fitrinvbitshift()) * MinvDt[0][2 * i] * settings->kphi() / settings->krinvpars();
-      iMinvDt[1][2 * i] =
-          (1 << settings->fitphi0bitshift()) * MinvDt[1][2 * i] * settings->kphi() / settings->kphi0pars();
-      iMinvDt[2][2 * i] = (1 << settings->fittbitshift()) * MinvDt[2][2 * i] * settings->kphi() / settings->ktpars();
-      iMinvDt[3][2 * i] = (1 << settings->fitz0bitshift()) * MinvDt[3][2 * i] * settings->kphi() / settings->kz();
+      iMinvDt[0][2 * i] = (1 << settings.fitrinvbitshift()) * MinvDt[0][2 * i] * settings.kphi() / settings.krinvpars();
+      iMinvDt[1][2 * i] = (1 << settings.fitphi0bitshift()) * MinvDt[1][2 * i] * settings.kphi() / settings.kphi0pars();
+      iMinvDt[2][2 * i] = (1 << settings.fittbitshift()) * MinvDt[2][2 * i] * settings.kphi() / settings.ktpars();
+      iMinvDt[3][2 * i] = (1 << settings.fitz0bitshift()) * MinvDt[3][2 * i] * settings.kphi() / settings.kz();
 
       denom = (std::abs(alpha[i - nlayers]) < 1e-10) ? sigmazpsdisk : sigmaz2sdisk;
 
@@ -999,19 +995,19 @@ void TrackDerTable::calculateDerivatives(const Settings* settings,
       MinvDt[2][2 * i + 1] /= denom;
       MinvDt[3][2 * i + 1] /= denom;
 
-      iMinvDt[0][2 * i + 1] = (1 << settings->fitrinvbitshift()) * MinvDt[0][2 * i + 1] * settings->krprojshiftdisk() /
-                              settings->krinvpars();
-      iMinvDt[1][2 * i + 1] = (1 << settings->fitphi0bitshift()) * MinvDt[1][2 * i + 1] * settings->krprojshiftdisk() /
-                              settings->kphi0pars();
+      iMinvDt[0][2 * i + 1] =
+          (1 << settings.fitrinvbitshift()) * MinvDt[0][2 * i + 1] * settings.krprojshiftdisk() / settings.krinvpars();
+      iMinvDt[1][2 * i + 1] =
+          (1 << settings.fitphi0bitshift()) * MinvDt[1][2 * i + 1] * settings.krprojshiftdisk() / settings.kphi0pars();
       iMinvDt[2][2 * i + 1] =
-          (1 << settings->fittbitshift()) * MinvDt[2][2 * i + 1] * settings->krprojshiftdisk() / settings->ktpars();
+          (1 << settings.fittbitshift()) * MinvDt[2][2 * i + 1] * settings.krprojshiftdisk() / settings.ktpars();
       iMinvDt[3][2 * i + 1] =
-          (1 << settings->fitz0bitshift()) * MinvDt[3][2 * i + 1] * settings->krprojshiftdisk() / settings->kz();
+          (1 << settings.fitz0bitshift()) * MinvDt[3][2 * i + 1] * settings.krprojshiftdisk() / settings.kz();
     }
   }
 }
 
-double TrackDerTable::tpar(const Settings* settings, int diskmask, int layermask) {
+double TrackDerTable::tpar(Settings const& settings, int diskmask, int layermask) {
   if (diskmask == 0)
     return 0.0;
 
@@ -1020,10 +1016,10 @@ double TrackDerTable::tpar(const Settings* settings, int diskmask, int layermask
 
   for (int d = 1; d <= 5; d++) {
     if (diskmask & (1 << (2 * (5 - d) + 1))) {  //PS hit
-      double dmax = settings->zmean(d - 1) / 22.0;
+      double dmax = settings.zmean(d - 1) / 22.0;
       if (dmax > sinh(2.4))
         dmax = sinh(2.4);
-      double dmin = settings->zmean(d - 1) / 65.0;
+      double dmin = settings.zmean(d - 1) / 65.0;
       if (dmax < tmax)
         tmax = dmax;
       if (dmin > tmin)
@@ -1031,8 +1027,8 @@ double TrackDerTable::tpar(const Settings* settings, int diskmask, int layermask
     }
 
     if (diskmask & (1 << (2 * (5 - d)))) {  //2S hit
-      double dmax = settings->zmean(d - 1) / 65.0;
-      double dmin = settings->zmean(d - 1) / 105.0;
+      double dmax = settings.zmean(d - 1) / 65.0;
+      double dmin = settings.zmean(d - 1) / 105.0;
       if (dmax < tmax)
         tmax = dmax;
       if (dmin > tmin)
@@ -1042,7 +1038,7 @@ double TrackDerTable::tpar(const Settings* settings, int diskmask, int layermask
 
   for (int l = 1; l <= 6; l++) {
     if (layermask & (1 << (6 - l))) {
-      double lmax = settings->zlength() / settings->rmean(l - 1);
+      double lmax = settings.zlength() / settings.rmean(l - 1);
       if (lmax < tmax)
         tmax = lmax;
     }

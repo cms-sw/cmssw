@@ -17,7 +17,7 @@ namespace trklet {
 
   class TrackDerTable {
   public:
-    TrackDerTable(const Settings* settings);
+    TrackDerTable(Settings const& settings);
 
     ~TrackDerTable() = default;
 
@@ -36,31 +36,31 @@ namespace trklet {
 
     int getEntries() const { return nextLayerDiskValue_; }
 
-    void fillTable(const Settings* settings);
+    void fillTable();
 
     static void invert(double M[4][8], unsigned int n);
 
     static void invert(std::vector<std::vector<double> >& M, unsigned int n);
 
-    static void calculateDerivatives(const Settings* settings,
+    static void calculateDerivatives(Settings const& settings,
                                      unsigned int nlayers,
-                                     double r[6],
+                                     double r[N_LAYER],
                                      unsigned int ndisks,
-                                     double z[5],
-                                     double alpha[5],
+                                     double z[N_DISK],
+                                     double alpha[N_DISK],
                                      double t,
                                      double rinv,
-                                     double D[4][12],
-                                     int iD[4][12],
-                                     double MinvDt[4][12],
-                                     int iMinvDt[4][12],
-                                     double sigma[12],
-                                     double kfactor[12]);
+                                     double D[N_FITPARAM][N_FITSTUB * 2],
+                                     int iD[N_FITPARAM][N_FITSTUB * 2],
+                                     double MinvDt[N_FITPARAM][N_FITSTUB * 2],
+                                     int iMinvDt[N_FITPARAM][N_FITSTUB * 2],
+                                     double sigma[N_FITSTUB * 2],
+                                     double kfactor[N_FITSTUB * 2]);
 
-    static double tpar(const Settings* settings, int diskmask, int layermask);
+    static double tpar(Settings const& settings, int diskmask, int layermask);
 
   private:
-    const Settings* settings_;
+    Settings const& settings_;
 
     std::vector<int> LayerMem_;
     std::vector<int> DiskMem_;

@@ -7,7 +7,7 @@
 using namespace trklet;
 using namespace std;
 
-AllProjectionsMemory::AllProjectionsMemory(string name, const Settings* const settings, unsigned int iSector)
+AllProjectionsMemory::AllProjectionsMemory(string name, Settings const& settings, unsigned int iSector)
     : MemoryBase(name, settings, iSector) {
   initLayerDisk(3, layer_, disk_);
 }

@@ -14,7 +14,7 @@ namespace trklet {
 
   class TrackletProjectionsMemory : public MemoryBase {
   public:
-    TrackletProjectionsMemory(std::string name, const Settings* const settings, unsigned int iSector);
+    TrackletProjectionsMemory(std::string name, Settings const& settings, unsigned int iSector);
 
     ~TrackletProjectionsMemory() override = default;
 

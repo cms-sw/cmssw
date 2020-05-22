@@ -55,7 +55,7 @@ namespace trklet {
 
   class Sector {
   public:
-    Sector(unsigned int i, const Settings* settings, Globals* globals);
+    Sector(unsigned int i, Settings const& settings, Globals* globals);
 
     ~Sector();
 
@@ -129,7 +129,7 @@ namespace trklet {
 
   private:
     int isector_;
-    const Settings* const settings_;
+    Settings const& settings_;
     Globals* globals_;
     double phimin_;
     double phimax_;

@@ -12,8 +12,7 @@ namespace trklet {
 
   class CleanTrackMemory : public MemoryBase {
   public:
-    CleanTrackMemory(
-        std::string name, const Settings* const settings, unsigned int iSector, double phimin, double phimax);
+    CleanTrackMemory(std::string name, Settings const& settings, unsigned int iSector, double phimin, double phimax);
 
     ~CleanTrackMemory() override = default;
 

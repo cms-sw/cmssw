@@ -7,7 +7,7 @@
 using namespace std;
 using namespace trklet;
 
-TrackletParametersMemory::TrackletParametersMemory(string name, const Settings* const settings, unsigned int iSector)
+TrackletParametersMemory::TrackletParametersMemory(string name, Settings const& settings, unsigned int iSector)
     : MemoryBase(name, settings, iSector) {}
 
 void TrackletParametersMemory::clean() {

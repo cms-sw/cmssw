@@ -40,7 +40,7 @@ namespace trklet {
     // double iz0, z0
     // int tp
     virtual void fillTrackletParams(
-        const Settings*, Globals*, int, int, double, double, double, double, double, double, double, double, int) {}
+        Settings const&, Globals*, int, int, double, double, double, double, double, double, double, double, int) {}
 
     //int seedIndex
     //double etaTP

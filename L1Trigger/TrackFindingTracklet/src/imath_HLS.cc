@@ -1,4 +1,6 @@
-#include "../interface/imath.h"
+#include "L1Trigger/TrackFindingTracklet/interface/imath.h"
+
+using namespace trklet;
 
 void VarInv::writeLUT(std::ofstream& fs, HLS) const {
   for (int i = 0; i < Nelements_ - 1; ++i)

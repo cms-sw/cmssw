@@ -14,7 +14,7 @@ namespace trklet {
 
   class TrackFitMemory : public MemoryBase {
   public:
-    TrackFitMemory(std::string name, const Settings* const settings, unsigned int iSector, double phimin, double phimax);
+    TrackFitMemory(std::string name, Settings const& settings, unsigned int iSector, double phimin, double phimax);
 
     ~TrackFitMemory() override = default;
 

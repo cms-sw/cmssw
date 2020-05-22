@@ -29,6 +29,7 @@
 #include "../interface/TrackletEventProcessor.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include <iomanip>
 #include <fstream>
@@ -75,7 +76,6 @@ int main(const int argc, const char **argv) {
   // ---------------------------------------------------------
 
   TrackletEventProcessor eventProcessor;
-
   eventProcessor.init(&settings);
 
   if (argc < 4)
@@ -93,13 +93,6 @@ int main(const int argc, const char **argv) {
   if (strcmp(argv[1], "stdin")) {
     infile.open(argv[1]);
     in = &infile;
-  }
-
-  ofstream outres;
-  ofstream outeff;
-  if (settings.writeMonitorData("ResEff")) {
-    outres.open("trackres.txt");
-    outeff.open("trackeff.txt");
   }
 
   ofstream outpars;
@@ -306,14 +299,14 @@ int main(const int argc, const char **argv) {
           }
 
           if (itrackmatch >= 0) {
-            dpt = tracks[itrackmatch]->pt(&settings) - q * simtrack.pt();
-            dphi = tracks[itrackmatch]->phi0(&settings) - simtrack.phi();
+            dpt = tracks[itrackmatch]->pt(settings) - q * simtrack.pt();
+            dphi = tracks[itrackmatch]->phi0(settings) - simtrack.phi();
             if (dphi > M_PI)
               dphi -= 2 * M_PI;
             if (dphi < -M_PI)
               dphi += 2 * M_PI;
-            deta = tracks[itrackmatch]->eta(&settings) - simtrack.eta();
-            dz0 = tracks[itrackmatch]->z0(&settings) - simtrack.vz();
+            deta = tracks[itrackmatch]->eta(settings) - simtrack.eta();
+            dz0 = tracks[itrackmatch]->z0(settings) - simtrack.vz();
           }
 
           out << eventnum << " " << simeventid << " " << seed << " " << simtrackid << " " << simtrack.type() << " "
@@ -327,9 +320,9 @@ int main(const int argc, const char **argv) {
     int ntrack = 0;
     for (auto &track : tracks) {
       if (settings.writeMonitorData("Pars")) {
-        outpars << track->duplicate() << " " << track->eta(&settings) << " " << track->phi0(&settings) << " "
-                << track->z0(&settings) << " " << phiRange2PI(track->phi0(&settings)) / (2 * M_PI / N_SECTOR) << " "
-                << track->rinv(&settings);
+        outpars << track->duplicate() << " " << track->eta(settings) << " " << track->phi0(settings) << " "
+                << track->z0(settings) << " " << angle0to2pi::make0To2pi(track->phi0(settings)) / (2 * M_PI / N_SECTOR)
+                << " " << track->rinv(settings);
       }
       if (!track->duplicate()) {
         ntrack++;

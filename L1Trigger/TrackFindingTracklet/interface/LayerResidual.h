@@ -16,7 +16,7 @@ namespace trklet {
 
     ~LayerResidual() = default;
 
-    void init(const Settings* settings,
+    void init(Settings const& settings,
               int layer,
               int iphiresid,
               int izresid,

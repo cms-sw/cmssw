@@ -5,7 +5,7 @@
 using namespace std;
 using namespace trklet;
 
-VMStubsTEMemory::VMStubsTEMemory(string name, const Settings* const settings, unsigned int iSector)
+VMStubsTEMemory::VMStubsTEMemory(string name, Settings const& settings, unsigned int iSector)
     : MemoryBase(name, settings, iSector) {
   //set the layer or disk that the memory is in
   initLayerDisk(6, layer_, disk_);
@@ -55,7 +55,7 @@ VMStubsTEMemory::VMStubsTEMemory(string name, const Settings* const settings, un
   if (overlap_ and extended_ and disk_ == 1)
     isinner_ = false;
 
-  stubsbinnedvm_.resize(settings_->NLONGVMBINS());
+  stubsbinnedvm_.resize(settings_.NLONGVMBINS());
 }
 
 bool VMStubsTEMemory::addVMStub(VMStubTE vmstub, int bin) {
@@ -64,7 +64,7 @@ bool VMStubsTEMemory::addVMStub(VMStubTE vmstub, int bin) {
   bool pass = passbend(vmstub.bend().value());
 
   if (!pass) {
-    if (settings_->debugTracklet())
+    if (settings_.debugTracklet())
       edm::LogVerbatim("Tracklet") << getName() << " Stub failed bend cut. bend = "
                                    << benddecode(vmstub.bend().value(), vmstub.isPSmodule());
     return false;
@@ -78,7 +78,7 @@ bool VMStubsTEMemory::addVMStub(VMStubTE vmstub, int bin) {
       if (negdisk)
         bin += 4;
       stubsbinnedvm_[bin].push_back(vmstub);
-      if (settings_->debugTracklet())
+      if (settings_.debugTracklet())
         edm::LogVerbatim("Tracklet") << getName() << " Stub in disk = " << disk_ << "  in bin = " << bin;
     } else if (layer_ == 2) {
       stubsbinnedvm_[bin].push_back(vmstub);
@@ -98,7 +98,7 @@ bool VMStubsTEMemory::addVMStub(VMStubTE vmstub, int bin) {
       }
     }
   }
-  if (settings_->debugTracklet())
+  if (settings_.debugTracklet())
     edm::LogVerbatim("Tracklet") << "Adding stubs to " << getName();
   stubsvm_.push_back(vmstub);
   return true;
@@ -116,7 +116,7 @@ bool VMStubsTEMemory::addVMStub(VMStubTE vmstub) {
   bool pass = passbend(vmstub.bend().value());
 
   if (!pass) {
-    if (settings_->debugTracklet())
+    if (settings_.debugTracklet())
       edm::LogVerbatim("Tracklet") << getName() << " Stub failed bend cut. bend = "
                                    << benddecode(vmstub.bend().value(), vmstub.isPSmodule());
     return false;
@@ -131,7 +131,7 @@ bool VMStubsTEMemory::addVMStub(VMStubTE vmstub) {
         if (negdisk)
           bin += 4;
         stubsbinnedvm_[bin].push_back(vmstub);
-        if (settings_->debugTracklet()) {
+        if (settings_.debugTracklet()) {
           edm::LogVerbatim("Tracklet") << getName() << " Stub with lookup = " << binlookup.value()
                                        << " in disk = " << disk_ << "  in bin = " << bin;
         }
@@ -176,7 +176,7 @@ bool VMStubsTEMemory::addVMStub(VMStubTE vmstub) {
     }
   }
 
-  if (settings_->debugTracklet())
+  if (settings_.debugTracklet())
     edm::LogVerbatim("Tracklet") << "Adding stubs to " << getName();
   stubsvm_.push_back(vmstub);
   return true;
@@ -184,7 +184,7 @@ bool VMStubsTEMemory::addVMStub(VMStubTE vmstub) {
 
 void VMStubsTEMemory::clean() {
   stubsvm_.clear();
-  for (unsigned int i = 0; i < settings_->NLONGVMBINS(); i++) {
+  for (unsigned int i = 0; i < settings_.NLONGVMBINS(); i++) {
     stubsbinnedvm_[i].clear();
   }
 }
@@ -201,7 +201,7 @@ void VMStubsTEMemory::writeStubs(bool first) {
       out_ << " " << stub << " " << trklet::hexFormat(stub) << endl;
     }
   } else {  // outer VM for TE purpose
-    for (unsigned int i = 0; i < settings_->NLONGVMBINS(); i++) {
+    for (unsigned int i = 0; i < settings_.NLONGVMBINS(); i++) {
       for (unsigned int j = 0; j < stubsbinnedvm_[i].size(); j++) {
         string stub = stubsbinnedvm_[i][j].str();
         out_ << hex << i << " " << j << dec << " " << stub << " " << trklet::hexFormat(stub) << endl;
@@ -216,38 +216,38 @@ void VMStubsTEMemory::getPhiRange(double& phimin, double& phimax, unsigned int i
   int nvm = -1;
   if (overlap_) {
     if (layer_ > 0) {
-      nvm = settings_->nallstubs(layer_ - 1) * settings_->nvmte(inner, iSeed);
+      nvm = settings_.nallstubs(layer_ - 1) * settings_.nvmte(inner, iSeed);
     }
     if (disk_ > 0) {
-      nvm = settings_->nallstubs(disk_ + 5) * settings_->nvmte(inner, iSeed);
+      nvm = settings_.nallstubs(disk_ + N_DISK) * settings_.nvmte(inner, iSeed);
     }
   } else {
     if (layer_ > 0) {
-      nvm = settings_->nallstubs(layer_ - 1) * settings_->nvmte(inner, iSeed);
+      nvm = settings_.nallstubs(layer_ - 1) * settings_.nvmte(inner, iSeed);
       if (extra_) {
-        nvm = settings_->nallstubs(layer_ - 1) * settings_->nvmte(inner, iSeed);
+        nvm = settings_.nallstubs(layer_ - 1) * settings_.nvmte(inner, iSeed);
       }
     }
     if (disk_ > 0) {
-      nvm = settings_->nallstubs(disk_ + 5) * settings_->nvmte(inner, iSeed);
+      nvm = settings_.nallstubs(disk_ + N_DISK) * settings_.nvmte(inner, iSeed);
     }
   }
   assert(nvm > 0);
   assert(nvm <= 32);
-  double dphi = settings_->dphisectorHG() / nvm;
+  double dphi = settings_.dphisectorHG() / nvm;
   phimax = phibin() * dphi;
   phimin = phimax - dphi;
 
   return;
 }
 
-void VMStubsTEMemory::setbendtable(const Settings* settings, std::vector<bool> vmbendtable) {
+void VMStubsTEMemory::setbendtable(std::vector<bool> vmbendtable) {
   assert(vmbendtable_.size() == vmbendtable.size());
   for (unsigned int i = 0; i < vmbendtable.size(); i++) {
     vmbendtable_[i] = vmbendtable[i];
   }
 
-  if (iSector_ == 0 && settings->writeTable())
+  if (iSector_ == 0 && settings_.writeTable())
     writeVMBendTable();
 }
 

@@ -13,7 +13,7 @@ namespace trklet {
 
   class AllProjectionsMemory : public MemoryBase {
   public:
-    AllProjectionsMemory(std::string name, const Settings* const settings, unsigned int iSector);
+    AllProjectionsMemory(std::string name, Settings const& settings, unsigned int iSector);
 
     ~AllProjectionsMemory() override = default;
 

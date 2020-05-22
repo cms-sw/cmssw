@@ -131,11 +131,6 @@ SLHCEvent::SLHCEvent(istream& in) {
     in >> tmp;
   }
 
-  int nlayer[11];
-  for (int i = 0; i < 10; i++) {
-    nlayer[i] = 0;
-  }
-
   int oldlayer = 0;
   int oldladder = 0;
   int oldmodule = 0;
@@ -198,9 +193,6 @@ SLHCEvent::SLHCEvent(istream& in) {
     layer--;
     x -= x_offset_;
     y -= y_offset_;
-
-    if (layer < 10)
-      nlayer[layer]++;
 
     L1TStub stub(
         eventid, tps, -1, -1, layer, ladder, module, strip, x, y, z, -1.0, -1.0, pt, bend, isPSmodule, isFlipped);

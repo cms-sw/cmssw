@@ -16,7 +16,7 @@ namespace trklet {
 
   class TrackletParametersMemory : public MemoryBase {
   public:
-    TrackletParametersMemory(std::string name, const Settings *const settings, unsigned int iSector);
+    TrackletParametersMemory(std::string name, Settings const &settings, unsigned int iSector);
 
     ~TrackletParametersMemory() override = default;
 

@@ -7,35 +7,35 @@
 using namespace std;
 using namespace trklet;
 
-VMRouterTable::VMRouterTable(const Settings* settings) : settings_(settings) {}
+VMRouterTable::VMRouterTable(Settings const& settings) : settings_(settings) {}
 
-VMRouterTable::VMRouterTable(const Settings* settings, unsigned int layerdisk) : settings_(settings) {
+VMRouterTable::VMRouterTable(Settings const& settings, unsigned int layerdisk) : settings_(settings) {
   init(layerdisk);
 }
 
 void VMRouterTable::init(unsigned int layerdisk) {
-  zbits_ = settings_->vmrlutzbits(layerdisk);
-  rbits_ = settings_->vmrlutrbits(layerdisk);
+  zbits_ = settings_.vmrlutzbits(layerdisk);
+  rbits_ = settings_.vmrlutrbits(layerdisk);
 
   rbins_ = (1 << rbits_);
   zbins_ = (1 << zbits_);
 
   if (layerdisk < N_LAYER) {
-    zmin_ = -settings_->zlength();
-    zmax_ = settings_->zlength();
-    rmin_ = settings_->rmean(layerdisk) - settings_->drmax();
-    rmax_ = settings_->rmean(layerdisk) + settings_->drmax();
+    zmin_ = -settings_.zlength();
+    zmax_ = settings_.zlength();
+    rmin_ = settings_.rmean(layerdisk) - settings_.drmax();
+    rmax_ = settings_.rmean(layerdisk) + settings_.drmax();
   } else {
     rmin_ = 0;
-    rmax_ = settings_->rmaxdisk();
-    zmin_ = settings_->zmean(layerdisk - N_LAYER) - settings_->dzmax();
-    zmax_ = settings_->zmean(layerdisk - N_LAYER) + settings_->dzmax();
+    rmax_ = settings_.rmaxdisk();
+    zmin_ = settings_.zmean(layerdisk - N_LAYER) - settings_.dzmax();
+    zmax_ = settings_.zmean(layerdisk - N_LAYER) + settings_.dzmax();
   }
 
   dr_ = (rmax_ - rmin_) / rbins_;
   dz_ = (zmax_ - zmin_) / zbins_;
 
-  int NBINS = settings_->NLONGVMBINS() * settings_->NLONGVMBINS();
+  int NBINS = settings_.NLONGVMBINS() * settings_.NLONGVMBINS();
 
   for (int izbin = 0; izbin < zbins_; izbin++) {
     for (int irbin = 0; irbin < rbins_; irbin++) {
@@ -43,15 +43,15 @@ void VMRouterTable::init(unsigned int layerdisk) {
       double z = zmin_ + (izbin + 0.5) * dz_;
 
       if (layerdisk > (N_LAYER - 1) && irbin < 10)  //special case for the tabulated radii in 2S disks
-        r = (layerdisk <= 7) ? settings_->rDSSinner(irbin) : settings_->rDSSouter(irbin);
+        r = (layerdisk <= 7) ? settings_.rDSSinner(irbin) : settings_.rDSSouter(irbin);
 
       int bin;
       if (layerdisk < N_LAYER) {
-        double zproj = z * settings_->rmean(layerdisk) / r;
-        bin = NBINS * (zproj + settings_->zlength()) / (2 * settings_->zlength());
+        double zproj = z * settings_.rmean(layerdisk) / r;
+        bin = NBINS * (zproj + settings_.zlength()) / (2 * settings_.zlength());
       } else {
-        double rproj = r * settings_->zmean(layerdisk - N_LAYER) / z;
-        bin = NBINS * (rproj - settings_->rmindiskvm()) / (settings_->rmaxdisk() - settings_->rmindiskvm());
+        double rproj = r * settings_.zmean(layerdisk - N_LAYER) / z;
+        bin = NBINS * (rproj - settings_.rmindiskvm()) / (settings_.rmaxdisk() - settings_.rmindiskvm());
       }
       if (bin < 0)
         bin = 0;
@@ -60,8 +60,8 @@ void VMRouterTable::init(unsigned int layerdisk) {
       vmrtable_.push_back(bin);
 
       if (layerdisk >= N_LAYER) {
-        double rproj = r * settings_->zmean(layerdisk - N_LAYER) / z;
-        bin = 0.5 * NBINS * (rproj - settings_->rmindiskvm()) / (settings_->rmaxdiskvm() - settings_->rmindiskvm());
+        double rproj = r * settings_.zmean(layerdisk - N_LAYER) / z;
+        bin = 0.5 * NBINS * (rproj - settings_.rmindiskvm()) / (settings_.rmaxdiskvm() - settings_.rmindiskvm());
         if (bin < 0)
           bin = 0;
         if (bin >= NBINS / 2)
@@ -101,13 +101,13 @@ void VMRouterTable::init(unsigned int layerdisk) {
 }
 
 int VMRouterTable::getLookup(unsigned int layerdisk, double z, double r, int iseed) {
-  double z0cut = settings_->z0cut();
+  double z0cut = settings_.z0cut();
 
   if (layerdisk < N_LAYER) {
     if (iseed == 1 && std::abs(z) < 52.0)
       return -1;
 
-    double rmean = settings_->rmean(layerdisk);
+    double rmean = settings_.rmean(layerdisk);
 
     double rratio1 = rmean / (r + 0.5 * dr_);
     double rratio2 = rmean / (r - 0.5 * dr_);
@@ -124,10 +124,10 @@ int VMRouterTable::getLookup(unsigned int layerdisk, double z, double r, int ise
     double zmin = std::min({z1, z2, z3, z4, z5, z6, z7, z8});
     double zmax = std::max({z1, z2, z3, z4, z5, z6, z7, z8});
 
-    int NBINS = settings_->NLONGVMBINS() * settings_->NLONGVMBINS();
+    int NBINS = settings_.NLONGVMBINS() * settings_.NLONGVMBINS();
 
-    int zbin1 = NBINS * (zmin + settings_->zlength()) / (2 * settings_->zlength());
-    int zbin2 = NBINS * (zmax + settings_->zlength()) / (2 * settings_->zlength());
+    int zbin1 = NBINS * (zmin + settings_.zlength()) / (2 * settings_.zlength());
+    int zbin2 = NBINS * (zmax + settings_.zlength()) / (2 * settings_.zlength());
 
     if (zbin1 >= NBINS)
       return -1;
@@ -169,7 +169,7 @@ int VMRouterTable::getLookup(unsigned int layerdisk, double z, double r, int ise
     if (std::abs(z) < 2.0 * z0cut)
       return -1;
 
-    double zmean = settings_->zmean(layerdisk - N_LAYER);
+    double zmean = settings_.zmean(layerdisk - N_LAYER);
     if (z < 0.0)
       zmean = -zmean;
 
@@ -185,17 +185,17 @@ int VMRouterTable::getLookup(unsigned int layerdisk, double z, double r, int ise
     double rmin = std::min({r1, r2, r3, r4, r5, r6, r7, r8});
     double rmax = std::max({r1, r2, r3, r4, r5, r6, r7, r8});
 
-    int NBINS = settings_->NLONGVMBINS() * settings_->NLONGVMBINS() / 2;
+    int NBINS = settings_.NLONGVMBINS() * settings_.NLONGVMBINS() / 2;
 
-    double rmindisk = settings_->rmindiskvm();
-    double rmaxdisk = settings_->rmaxdiskvm();
+    double rmindisk = settings_.rmindiskvm();
+    double rmaxdisk = settings_.rmaxdiskvm();
 
     if (iseed == 6)
-      rmaxdisk = settings_->rmaxdiskl1overlapvm();
+      rmaxdisk = settings_.rmaxdiskl1overlapvm();
     if (iseed == 7)
-      rmindisk = settings_->rmindiskl2overlapvm();
+      rmindisk = settings_.rmindiskl2overlapvm();
     if (iseed == 10)
-      rmaxdisk = settings_->rmaxdisk();
+      rmaxdisk = settings_.rmaxdisk();
 
     if (rmin > rmaxdisk)
       return -1;
@@ -207,12 +207,12 @@ int VMRouterTable::getLookup(unsigned int layerdisk, double z, double r, int ise
     if (rmin < rmindisk)
       rmin = rmindisk;
 
-    int rbin1 = NBINS * (rmin - settings_->rmindiskvm()) / (settings_->rmaxdiskvm() - settings_->rmindiskvm());
-    int rbin2 = NBINS * (rmax - settings_->rmindiskvm()) / (settings_->rmaxdiskvm() - settings_->rmindiskvm());
+    int rbin1 = NBINS * (rmin - settings_.rmindiskvm()) / (settings_.rmaxdiskvm() - settings_.rmindiskvm());
+    int rbin2 = NBINS * (rmax - settings_.rmindiskvm()) / (settings_.rmaxdiskvm() - settings_.rmindiskvm());
 
     if (iseed == 10) {
-      rbin1 = NBINS * (rmin - settings_->rmindiskvm()) / (settings_->rmaxdisk() - settings_->rmindiskvm());
-      rbin2 = NBINS * (rmax - settings_->rmindiskvm()) / (settings_->rmaxdisk() - settings_->rmindiskvm());
+      rbin1 = NBINS * (rmin - settings_.rmindiskvm()) / (settings_.rmaxdisk() - settings_.rmindiskvm());
+      rbin2 = NBINS * (rmax - settings_.rmindiskvm()) / (settings_.rmaxdisk() - settings_.rmindiskvm());
     }
 
     if (rbin2 >= NBINS)
@@ -238,7 +238,7 @@ int VMRouterTable::getLookup(unsigned int layerdisk, double z, double r, int ise
         value += 4;
     }
     value *= 2;
-    if (rbin1 / 8 - rbin2 / 8 > 0)
+    if (rbin2 / 8 - rbin1 / 8 > 0)
       value += 1;
     value *= 8;
     value += (rbin1 & 7);

@@ -594,21 +594,9 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     ev.write(asciiEventOut_);
   }
 
-  if (settings.writeMonitorData("Seeds")) {
-    ofstream fout("seeds.txt", ofstream::out);
-    fout.close();
-  }
-
   std::vector<trklet::Track*>& tracks = eventProcessor.tracks();
 
   trklet::L1SimTrack simtrk(0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-
-  ofstream outres;
-  ofstream outeff;
-  if (settings.writeMonitorData("ResEff")) {
-    outres.open("trackres.txt");
-    outeff.open("trackeff.txt");
-  }
 
   // this performs the actual tracklet event processing
   eventProcessor.event(ev);
@@ -622,11 +610,11 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     ntracks++;
 
     // this is where we create the TTTrack object
-    double tmp_rinv = track->rinv(&settings);
-    double tmp_phi = track->phi0(&settings);
-    double tmp_tanL = track->tanL(&settings);
-    double tmp_z0 = track->z0(&settings);
-    double tmp_d0 = track->d0(&settings);
+    double tmp_rinv = track->rinv(settings);
+    double tmp_phi = track->phi0(settings);
+    double tmp_tanL = track->tanL(settings);
+    double tmp_z0 = track->z0(settings);
+    double tmp_d0 = track->d0(settings);
     double tmp_chi2rphi = track->chisqrphi();
     double tmp_chi2rz = track->chisqrz();
     unsigned int tmp_hit = track->hitpattern();

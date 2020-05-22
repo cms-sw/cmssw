@@ -23,7 +23,7 @@ namespace trklet {
 
   class MatchProcessor : public ProcessBase {
   public:
-    MatchProcessor(std::string name, const Settings* settings, Globals* global, unsigned int iSector);
+    MatchProcessor(std::string name, Settings const& settings, Globals* global, unsigned int iSector);
 
     ~MatchProcessor() override = default;
 
@@ -52,13 +52,13 @@ namespace trklet {
 
     double phioffset_;
 
-    unsigned int phimatchcut_[12];
-    unsigned int zmatchcut_[12];
+    unsigned int phimatchcut_[N_SEED];
+    unsigned int zmatchcut_[N_SEED];
 
-    unsigned int rphicutPS_[12];
-    unsigned int rphicut2S_[12];
-    unsigned int rcutPS_[12];
-    unsigned int rcut2S_[12];
+    unsigned int rphicutPS_[N_SEED];
+    unsigned int rphicut2S_[N_SEED];
+    unsigned int rcutPS_[N_SEED];
+    unsigned int rcut2S_[N_SEED];
 
     double phifact_;
     double rzfact_;
@@ -70,8 +70,8 @@ namespace trklet {
     std::vector<VMStubsMEMemory*> vmstubs_;
     std::vector<TrackletProjectionsMemory*> inputprojs_;
 
-    int ialphafactinner_[10];
-    int ialphafactouter_[10];
+    int ialphafactinner_[N_DSS_MOD * 2];
+    int ialphafactouter_[N_DSS_MOD * 2];
 
     //Memory for the full matches
     std::vector<FullMatchMemory*> fullmatches_;

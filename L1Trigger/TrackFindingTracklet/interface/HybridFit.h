@@ -29,7 +29,7 @@ namespace trklet {
 
   class HybridFit {
   public:
-    HybridFit(unsigned int iSector, const Settings* settings, Globals* globals);
+    HybridFit(unsigned int iSector, Settings const& settings, Globals* globals);
 
     ~HybridFit() = default;
 
@@ -38,7 +38,7 @@ namespace trklet {
   private:
     unsigned int iSector_;
 
-    const Settings* settings_;
+    Settings const& settings_;
     Globals* globals_;
   };
 };  // namespace trklet

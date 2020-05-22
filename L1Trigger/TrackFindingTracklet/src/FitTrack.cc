@@ -11,11 +11,11 @@
 using namespace std;
 using namespace trklet;
 
-FitTrack::FitTrack(string name, const Settings* settings, Globals* global, unsigned int iSector)
+FitTrack::FitTrack(string name, Settings const& settings, Globals* global, unsigned int iSector)
     : ProcessBase(name, settings, global, iSector), trackfit_(nullptr) {}
 
 void FitTrack::addOutput(MemoryBase* memory, string output) {
-  if (settings_->writetrace()) {
+  if (settings_.writetrace()) {
     edm::LogVerbatim("Tracklet") << "In " << name_ << " adding output to " << memory->getName() << " to output "
                                  << output;
   }
@@ -30,7 +30,7 @@ void FitTrack::addOutput(MemoryBase* memory, string output) {
 }
 
 void FitTrack::addInput(MemoryBase* memory, string input) {
-  if (settings_->writetrace()) {
+  if (settings_.writetrace()) {
     edm::LogVerbatim("Tracklet") << "In " << name_ << " adding input from " << memory->getName() << " to input "
                                  << input;
   }
@@ -72,12 +72,12 @@ void FitTrack::addInput(MemoryBase* memory, string input) {
 void FitTrack::trackFitKF(Tracklet* tracklet,
                           std::vector<const Stub*>& trackstublist,
                           std::vector<std::pair<int, int>>& stubidslist) {
-  if (settings_->doKF()) {
+  if (settings_.doKF()) {
     // From full match lists, collect all the stubs associated with the tracklet seed
 
     // Get seed stubs first
     trackstublist.emplace_back(tracklet->innerFPGAStub());
-    if (tracklet->getISeed() >= 8)
+    if (tracklet->getISeed() >= (int)N_TRKLSEED + 1)
       trackstublist.emplace_back(tracklet->middleFPGAStub());
     trackstublist.emplace_back(tracklet->outerFPGAStub());
 
@@ -115,7 +115,7 @@ void FitTrack::trackFitKF(Tracklet* tracklet,
     }
 
     // For merge removal, loop through the resulting list of stubs to calculate their stubids
-    if (settings_->removalType() == "merge") {
+    if (settings_.removalType() == "merge") {
       for (const auto& it : trackstublist) {
         int layer = it->layer().value() + 1;  // Assume layer (1-6) stub first
         if (it->layer().value() < 0) {        // if disk stub, though...
@@ -139,9 +139,9 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
   if (globals_->trackDerTable() == nullptr) {
     TrackDerTable* derTablePtr = new TrackDerTable(settings_);
 
-    derTablePtr->readPatternFile(settings_->fitPatternFile());
-    derTablePtr->fillTable(settings_);
-    if (settings_->debugTracklet()) {
+    derTablePtr->readPatternFile(settings_.fitPatternFile());
+    derTablePtr->fillTable();
+    if (settings_.debugTracklet()) {
       edm::LogVerbatim("Tracklet") << "Number of entries in derivative table: " << derTablePtr->getEntries();
     }
     assert(derTablePtr->getEntries() != 0);
@@ -218,10 +218,10 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
       if (layermask & (1 << (d - 1)))
         continue;
 
-      if (mult == 1 << (3 * settings_->alphaBitsTable()))
+      if (mult == 1 << (3 * settings_.alphaBitsTable()))
         continue;
 
-      if (ndisks + nlayers >= 6)
+      if (ndisks + nlayers >= N_FITSTUB)
         continue;
       if (tracklet->matchdisk(d)) {
         if (std::abs(tracklet->alphadisk(d)) < 1e-20) {
@@ -230,14 +230,14 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
         } else {
           int ialpha = tracklet->ialphadisk(d).value();
           int nalpha = tracklet->ialphadisk(d).nbits();
-          nalpha = nalpha - settings_->alphaBitsTable();
-          ialpha = (1 << (settings_->alphaBitsTable() - 1)) + (ialpha >> nalpha);
+          nalpha = nalpha - settings_.alphaBitsTable();
+          ialpha = (1 << (settings_.alphaBitsTable() - 1)) + (ialpha >> nalpha);
 
           alphaindex += ialpha * power;
-          power = power << settings_->alphaBitsTable();
+          power = power << settings_.alphaBitsTable();
           dmatches.set(2 * (N_DISK - d));
           diskmask |= (1 << (2 * (N_DISK - d)));
-          mult = mult << settings_->alphaBitsTable();
+          mult = mult << settings_.alphaBitsTable();
         }
         alpha[ndisks] = tracklet->alphadisk(d);
         phiresid[nlayers + ndisks] = tracklet->phiresidapproxdisk(d);
@@ -251,8 +251,8 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
       }
     }
 
-    if (settings_->writeMonitorData("HitPattern")) {
-      if (mult <= 1 << (3 * settings_->alphaBitsTable())) {
+    if (settings_.writeMonitorData("HitPattern")) {
+      if (mult <= 1 << (3 * settings_.alphaBitsTable())) {
         globals_->ofstream("hitpattern.txt")
             << lmatches.to_string() << " " << dmatches.to_string() << " " << mult << endl;
       }
@@ -294,7 +294,7 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
         continue;
       }
 
-      if (ndisks + nlayers >= 6)
+      if (ndisks + nlayers >= N_FITSTUB)
         continue;
       if (tracklet->matchdisk(d)) {
         if (std::abs(tracklet->alphadisk(d)) < 1e-20) {
@@ -303,14 +303,14 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
         } else {
           int ialpha = tracklet->ialphadisk(d).value();
           int nalpha = tracklet->ialphadisk(d).nbits();
-          nalpha = nalpha - settings_->alphaBitsTable();
-          ialpha = (1 << (settings_->alphaBitsTable() - 1)) + (ialpha >> nalpha);
+          nalpha = nalpha - settings_.alphaBitsTable();
+          ialpha = (1 << (settings_.alphaBitsTable() - 1)) + (ialpha >> nalpha);
 
           alphaindex += ialpha * power;
-          power = power << settings_->alphaBitsTable();
+          power = power << settings_.alphaBitsTable();
           dmatches.set(2 * (N_DISK - d1));
           diskmask |= (1 << (2 * (N_DISK - d1)));
-          mult = mult << settings_->alphaBitsTable();
+          mult = mult << settings_.alphaBitsTable();
         }
 
         alpha[ndisks] = tracklet->alphadisk(d);
@@ -353,7 +353,7 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
     }
 
     for (unsigned int d1 = 1; d1 <= N_DISK; d1++) {
-      if (mult == 1 << (3 * settings_->alphaBitsTable()))
+      if (mult == 1 << (3 * settings_.alphaBitsTable()))
         continue;
       int d = d1;
       if (tracklet->fpgat().value() < 0.0)
@@ -366,7 +366,7 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
         continue;
       }
 
-      if (ndisks + nlayers >= 6)
+      if (ndisks + nlayers >= N_FITSTUB)
         continue;
       if (tracklet->matchdisk(d)) {
         if (std::abs(tracklet->alphadisk(d)) < 1e-20) {
@@ -377,16 +377,16 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
         } else {
           int ialpha = tracklet->ialphadisk(d).value();
           int nalpha = tracklet->ialphadisk(d).nbits();
-          nalpha = nalpha - settings_->alphaBitsTable();
-          ialpha = (1 << (settings_->alphaBitsTable() - 1)) + (ialpha >> nalpha);
+          nalpha = nalpha - settings_.alphaBitsTable();
+          ialpha = (1 << (settings_.alphaBitsTable() - 1)) + (ialpha >> nalpha);
 
           alphaindex += ialpha * power;
-          power = power << settings_->alphaBitsTable();
+          power = power << settings_.alphaBitsTable();
           dmatches.set(2 * (N_DISK - d1));
           diskmask |= (1 << (2 * (N_DISK - d1)));
           FPGAWord tmp;
           tmp.set(diskmask, 10);
-          mult = mult << settings_->alphaBitsTable();
+          mult = mult << settings_.alphaBitsTable();
         }
 
         alpha[ndisks] = tracklet->alphadisk(d);
@@ -405,16 +405,16 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
   }
 
   int rinvindex =
-      (1 << (settings_->nrinvBitsTable() - 1)) * rinv / settings_->rinvmax() + (1 << (settings_->nrinvBitsTable() - 1));
+      (1 << (settings_.nrinvBitsTable() - 1)) * rinv / settings_.rinvmax() + (1 << (settings_.nrinvBitsTable() - 1));
   if (rinvindex < 0)
     rinvindex = 0;
-  if (rinvindex >= (1 << settings_->nrinvBitsTable()))
-    rinvindex = (1 << settings_->nrinvBitsTable()) - 1;
+  if (rinvindex >= (1 << settings_.nrinvBitsTable()))
+    rinvindex = (1 << settings_.nrinvBitsTable()) - 1;
 
   const TrackDer* derivatives = derTable.getDerivatives(layermask, diskmask, alphaindex, rinvindex);
 
   if (derivatives == nullptr) {
-    if (settings_->warnNoDer()) {
+    if (settings_.warnNoDer()) {
       FPGAWord tmpl, tmpd;
       tmpl.set(layermask, 6);
       tmpd.set(diskmask, 10);
@@ -429,7 +429,7 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
     ttabi = -ttabi;
   double ttab = ttabi;
 
-  if (settings_->debugTracklet()) {
+  if (settings_.debugTracklet()) {
     edm::LogVerbatim("Tracklet") << "Doing trackfit in  " << getName();
   }
 
@@ -445,7 +445,7 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
   realrstub[2] = -1.0;
 
   for (unsigned i = 0; i < nlayers; i++) {
-    r[i] = settings_->rmean(layers[i] - 1);
+    r[i] = settings_.rmean(layers[i] - 1);
     if (layers[i] == tracklet->layer()) {
       if (tracklet->isOverlap()) {
         realrstub[i] = tracklet->outerStub()->r();
@@ -464,30 +464,30 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
     rstub[i] = r[i];
   }
   for (unsigned i = 0; i < ndisks; i++) {
-    z[i] = sign * settings_->zmean(abs(disks[i]) - 1);
+    z[i] = sign * settings_.zmean(abs(disks[i]) - 1);
     rstub[i + nlayers] = z[i] / ttabi;
   }
 
-  double D[4][12];
-  double MinvDt[4][12];
-  int iD[4][12];
-  int iMinvDt[4][12];
-  double sigma[12];
-  double kfactor[12];
+  double D[N_FITPARAM][N_FITSTUB * 2];
+  double MinvDt[N_FITPARAM][N_FITSTUB * 2];
+  int iD[N_FITPARAM][N_FITSTUB * 2];
+  int iMinvDt[N_FITPARAM][N_FITSTUB * 2];
+  double sigma[N_FITSTUB * 2];
+  double kfactor[N_FITSTUB * 2];
 
   unsigned int n = nlayers + ndisks;
 
-  if (settings_->exactderivatives()) {
+  if (settings_.exactderivatives()) {
     TrackDerTable::calculateDerivatives(
         settings_, nlayers, r, ndisks, z, alpha, t, rinv, D, iD, MinvDt, iMinvDt, sigma, kfactor);
     ttabi = t;
     ttab = t;
   } else {
-    if (settings_->exactderivativesforfloating()) {
+    if (settings_.exactderivativesforfloating()) {
       TrackDerTable::calculateDerivatives(
           settings_, nlayers, r, ndisks, z, alpha, t, rinv, D, iD, MinvDt, iMinvDt, sigma, kfactor);
 
-      double MinvDtDummy[4][12];
+      double MinvDtDummy[N_FITPARAM][N_FITSTUB * 2];
       derivatives->fill(tracklet->fpgat().value(), MinvDtDummy, iMinvDt);
       ttab = t;
     } else {
@@ -495,7 +495,7 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
     }
   }
 
-  if (!settings_->exactderivatives()) {
+  if (!settings_.exactderivatives()) {
     for (unsigned int i = 0; i < nlayers; i++) {
       if (r[i] > 60.0)
         continue;
@@ -514,10 +514,10 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
         int itder = derivatives->itdzcorr(i, ii);
         int izder = derivatives->iz0dzcorr(i, ii);
 
-        int idr = dr / settings_->kr();
+        int idr = dr / settings_.kr();
 
-        iMinvDt[2][2 * ii + 1] += ((idr * itder) >> settings_->rcorrbits());
-        iMinvDt[3][2 * ii + 1] += ((idr * izder) >> settings_->rcorrbits());
+        iMinvDt[2][2 * ii + 1] += ((idr * itder) >> settings_.rcorrbits());
+        iMinvDt[3][2 * ii + 1] += ((idr * izder) >> settings_.rcorrbits());
       }
     }
   }
@@ -627,10 +627,10 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
     if (false && j % 2 == 0) {
       edm::LogVerbatim("Tracklet") << "DEBUG CHI2FIT " << j << " " << rinvseed << " + " << MinvDt[0][j] * delta[j]
                                    << " " << MinvDt[0][j] << " " << delta[j] * rstub[j / 2] * 10000 << " \n"
-                                   << j << " " << tracklet->fpgarinv().value() * settings_->krinvpars() << " + "
-                                   << ((iMinvDt[0][j] * idelta[j])) * settings_->krinvpars() / 1024.0 << " "
-                                   << iMinvDt[0][j] * settings_->krinvpars() / settings_->kphi() / 1024.0 << " "
-                                   << idelta[j] * settings_->kphi() * rstub[j / 2] * 10000 << " " << idelta[j];
+                                   << j << " " << tracklet->fpgarinv().value() * settings_.krinvpars() << " + "
+                                   << ((iMinvDt[0][j] * idelta[j])) * settings_.krinvpars() / 1024.0 << " "
+                                   << iMinvDt[0][j] * settings_.krinvpars() / settings_.kphi() / 1024.0 << " "
+                                   << idelta[j] * settings_.kphi() * rstub[j / 2] * 10000 << " " << idelta[j];
     }
   }
 
@@ -643,12 +643,12 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
   int itseed = tracklet->fpgat().value();
   int iz0seed = tracklet->fpgaz0().value();
 
-  int irinvfit = irinvseed + ((idrinv + (1 << settings_->fitrinvbitshift())) >> settings_->fitrinvbitshift());
+  int irinvfit = irinvseed + ((idrinv + (1 << settings_.fitrinvbitshift())) >> settings_.fitrinvbitshift());
 
-  int iphi0fit = iphi0seed + (idphi0 >> settings_->fitphi0bitshift());
-  int itfit = itseed + (idt >> settings_->fittbitshift());
+  int iphi0fit = iphi0seed + (idphi0 >> settings_.fitphi0bitshift());
+  int itfit = itseed + (idt >> settings_.fittbitshift());
 
-  int iz0fit = iz0seed + (idz0 >> settings_->fitz0bitshift());
+  int iz0fit = iz0seed + (idz0 >> settings_.fitz0bitshift());
 
   double rinvfit = rinvseed - drinv;
   double phi0fit = phi0seed - dphi0;
@@ -692,7 +692,7 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
   for (unsigned int i = 0; i < n; i++) {  // loop over stubs
 
     phifactor = rstub[k / 2] * delta[k] / sigma[k] + D[0][k] * drinv + D[1][k] * dphi0 + D[2][k] * dt + D[3][k] * dz0;
-    iphifactor = kfactor[k] * rstub[k / 2] * idelta[k] * (1 << settings_->chisqphifactbits()) / sigma[k] -
+    iphifactor = kfactor[k] * rstub[k / 2] * idelta[k] * (1 << settings_.chisqphifactbits()) / sigma[k] -
                  iD[0][k] * idrinv - iD[1][k] * idphi0 - iD[2][k] * idt - iD[3][k] * idz0;
 
     if (NewChisqDebug) {
@@ -703,12 +703,12 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
     }
 
     chisqfit += phifactor * phifactor;
-    ichisqfit += iphifactor * iphifactor / (1 << (2 * settings_->chisqphifactbits() - 4));
+    ichisqfit += iphifactor * iphifactor / (1 << (2 * settings_.chisqphifactbits() - 4));
 
     k++;
 
     rzfactor = delta[k] / sigma[k] + D[0][k] * drinv + D[1][k] * dphi0 + D[2][k] * dt + D[3][k] * dz0;
-    irzfactor = kfactor[k] * idelta[k] * (1 << settings_->chisqzfactbits()) / sigma[k] - iD[0][k] * idrinv -
+    irzfactor = kfactor[k] * idelta[k] * (1 << settings_.chisqzfactbits()) / sigma[k] - iD[0][k] * idrinv -
                 iD[1][k] * idphi0 - iD[2][k] * idt - iD[3][k] * idz0;
 
     if (NewChisqDebug) {
@@ -719,13 +719,13 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
     }
 
     chisqfit += rzfactor * rzfactor;
-    ichisqfit += irzfactor * irzfactor / (1 << (2 * settings_->chisqzfactbits() - 4));
+    ichisqfit += irzfactor * irzfactor / (1 << (2 * settings_.chisqzfactbits() - 4));
 
     k++;
   }
 
-  if (settings_->writeMonitorData("ChiSq")) {
-    globals_->ofstream("chisq.txt") << asinh(itfit * settings_->ktpars()) << " " << chisqfit << " " << ichisqfit / 16.0
+  if (settings_.writeMonitorData("ChiSq")) {
+    globals_->ofstream("chisq.txt") << asinh(itfit * settings_.ktpars()) << " " << chisqfit << " " << ichisqfit / 16.0
                                     << endl;
   }
 
@@ -743,8 +743,8 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
   if (ichisqfit >= (1 << 8))
     ichisqfit = (1 << 8) - 1;
 
-  double phicrit = phi0fit - asin(0.5 * settings_->rcrit() * rinvfit);
-  bool keep = (phicrit > settings_->phicritmin()) && (phicrit < settings_->phicritmax());
+  double phicrit = phi0fit - asin(0.5 * settings_.rcrit() * rinvfit);
+  bool keep = (phicrit > settings_.phicritmin()) && (phicrit < settings_.phicritmax());
 
   if (!keep) {
     return;
@@ -817,7 +817,7 @@ std::vector<Tracklet*> FitTrack::orderedMatches(vector<FullMatchMemory*>& fullma
       }
     }
 
-    if (settings_->debugTracklet() && imatch->nMatches() != 0) {
+    if (settings_.debugTracklet() && imatch->nMatches() != 0) {
       edm::LogVerbatim("Tracklet") << "orderedMatches: " << imatch->getName() << " " << imatch->nMatches();
     }
 
@@ -866,7 +866,7 @@ void FitTrack::execute() {
   const std::vector<Tracklet*>& matches3 = orderedMatches(fullmatch3_);
   const std::vector<Tracklet*>& matches4 = orderedMatches(fullmatch4_);
 
-  if (settings_->debugTracklet() && (matches1.size() + matches2.size() + matches3.size() + matches4.size()) > 0) {
+  if (settings_.debugTracklet() && (matches1.size() + matches2.size() + matches3.size() + matches4.size()) > 0) {
     for (auto& imatch : fullmatch1_) {
       edm::LogVerbatim("Tracklet") << imatch->getName() << " " << imatch->nMatches();
     }
@@ -980,7 +980,7 @@ void FitTrack::execute() {
     if (match)
       nMatchesUniq++;
 
-    if (settings_->debugTracklet()) {
+    if (settings_.debugTracklet()) {
       edm::LogVerbatim("Tracklet") << getName() << " : nMatches = " << nMatches << " " << asinh(bestTracklet->t());
     }
 
@@ -993,20 +993,20 @@ void FitTrack::execute() {
 #ifdef USEHYBRID
       trackFitKF(bestTracklet, trackstublist, stubidslist);
 #else
-      if (settings_->fakefit()) {
+      if (settings_.fakefit()) {
         trackFitFake(bestTracklet, trackstublist, stubidslist);
       } else {
         trackFitChisq(bestTracklet, trackstublist, stubidslist);
       }
 #endif
 
-      if (settings_->removalType() == "merge") {
+      if (settings_.removalType() == "merge") {
         trackfit_->addStubList(trackstublist);
         trackfit_->addStubidsList(stubidslist);
         trackfit_->addTrack(bestTracklet);
       } else if (bestTracklet->fit()) {
         assert(trackfit_ != nullptr);
-        if (settings_->writeMonitorData("Seeds")) {
+        if (settings_.writeMonitorData("Seeds")) {
           ofstream fout("seeds.txt", ofstream::app);
           fout << __FILE__ << ":" << __LINE__ << " " << name_ << "_" << iSector_ << " " << bestTracklet->getISeed()
                << endl;
@@ -1018,7 +1018,7 @@ void FitTrack::execute() {
 
   } while (bestTracklet != nullptr);
 
-  if (settings_->writeMonitorData("FT")) {
+  if (settings_.writeMonitorData("FT")) {
     globals_->ofstream("fittrack.txt") << getName() << " " << countAll << " " << countFit << endl;
   }
 }
