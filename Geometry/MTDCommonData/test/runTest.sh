@@ -11,9 +11,9 @@ function checkDiff {
     fi
 }
 
-F1=${LOCAL_TEST_DIR}/testMTDinDDD.py
-F2=${LOCAL_TEST_DIR}/testMTDinDD4hep.py
-REF=${LOCAL_TOP_DIR}/src/Geometry/TestReference/data/mtdCommonDataRef.log.gz
+F1=${CMSSW_BASE}/src/Geometry/MTDCommonData/test/testMTDinDDD.py
+F2=${CMSSW_BASE}/src/Geometry/MTDCommonData/test/testMTDinDD4hep.py
+REF=${CMSSW_BASE}/src/Geometry/TestReference/data/mtdCommonDataRef.log.gz
 FILE1=mtdCommonDataDDD.log
 FILE2=mtdCommonDataDD4hep.log
 LOG=mtdcdlog

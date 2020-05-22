@@ -35,7 +35,4 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<bin file="dummyMain.cpp" name="GeometryMTDNumberingBuilderTestDriver">
-  <use name="FWCore/Utilities"/>
-  <flags TEST_RUNNER_ARGS="/bin/bash Geometry/MTDNumberingBuilder/test runTest.sh"/>
-</bin>
+<test name="GeometryMTDNumberingBuilderTestDriver" command="runTest.sh"/>
