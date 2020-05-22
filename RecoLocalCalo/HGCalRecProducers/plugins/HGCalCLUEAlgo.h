@@ -47,7 +47,12 @@ public:
         nonAgedNoises_(ps.getParameter<edm::ParameterSet>("noises").getParameter<std::vector<double>>("values")),
         noiseMip_(ps.getParameter<edm::ParameterSet>("noiseMip").getParameter<double>("noise_MIP")),
         use2x2_(ps.getParameter<bool>("use2x2")),
-        initialized_(false) {}
+        initialized_(false) {
+          // repeat same noises for CE-H as well
+          if (!isNose_) {  
+            nonAgedNoises_.insert(std::end(nonAgedNoises_), std::begin(nonAgedNoises_), std::end(nonAgedNoises_));
+          }
+        }
 
   ~HGCalCLUEAlgoT() override {}
 
