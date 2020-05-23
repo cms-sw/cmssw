@@ -20,7 +20,7 @@ EGammaPCAHelper::EGammaPCAHelper()
       invThicknessCorrection_({1. / 1.132, 1. / 1.092, 1. / 1.084}),
       pca_(new TPrincipal(3, "D")) {
   hitMapOrigin_ = 0;
-  hitMap_ = new std::map<DetId, const HGCRecHit*>();
+  hitMap_ = new std::unordered_map<DetId, const HGCRecHit*>();
   debug_ = false;
 }
 
@@ -29,7 +29,7 @@ EGammaPCAHelper::~EGammaPCAHelper() {
     delete hitMap_;
 }
 
-void EGammaPCAHelper::setHitMap(std::map<DetId, const HGCRecHit*>* hitMap) {
+void EGammaPCAHelper::setHitMap(std::unordered_map<DetId, const HGCRecHit*>* hitMap) {
   hitMapOrigin_ = 1;
   hitMap_ = hitMap;
   pcaIteration_ = 0;
@@ -97,7 +97,7 @@ void EGammaPCAHelper::storeRecHits(const std::vector<std::pair<DetId, float>>& h
     unsigned int layer = recHitTools_->getLayerWithOffset(hf[j].first);
 
     const DetId rh_detid = hf[j].first;
-    std::map<DetId, const HGCRecHit*>::const_iterator itcheck = hitMap_->find(rh_detid);
+    std::unordered_map<DetId, const HGCRecHit*>::const_iterator itcheck = hitMap_->find(rh_detid);
     if (itcheck == hitMap_->end()) {
       edm::LogWarning("EgammaPCAHelper") << " Big problem, unable to find a hit " << rh_detid.rawId() << " "
                                          << rh_detid.det() << " " << HGCalDetId(rh_detid) << std::endl;

@@ -49,7 +49,7 @@ public:
   explicit LayerClusterAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
                                                    bool,
                                                    std::shared_ptr<hgcal::RecHitTools>,
-                                                   const std::map<DetId, const HGCRecHit *> *&);
+                                                   const std::unordered_map<DetId, const HGCRecHit *> *&);
 
   hgcal::RecoToSimCollection associateRecoToSim(const edm::Handle<reco::CaloClusterCollection> &cCH,
                                                 const edm::Handle<CaloParticleCollection> &cPCH) const override;
@@ -60,7 +60,7 @@ public:
 private:
   const bool hardScatterOnly_;
   std::shared_ptr<hgcal::RecHitTools> recHitTools_;
-  const std::map<DetId, const HGCRecHit *> *hitMap_;
+  const std::unordered_map<DetId, const HGCRecHit *> *hitMap_;
   unsigned layers_;
   edm::EDProductGetter const *productGetter_;
   hgcal::association makeConnections(const edm::Handle<reco::CaloClusterCollection> &cCH,

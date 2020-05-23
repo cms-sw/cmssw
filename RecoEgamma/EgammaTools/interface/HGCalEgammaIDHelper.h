@@ -79,7 +79,7 @@ private:
   edm::EDGetTokenT<HGCRecHitCollection> recHitsEE_;
   edm::EDGetTokenT<HGCRecHitCollection> recHitsFH_;
   edm::EDGetTokenT<HGCRecHitCollection> recHitsBH_;
-  edm::EDGetTokenT<std::map<DetId, const HGCRecHit *>> hitMapToken_;
+  edm::EDGetTokenT<std::unordered_map<DetId, const HGCRecHit *>> hitMap_;
   hgcal::RecHitTools recHitTools_;
   bool debug_;
 };
