@@ -1,10 +1,9 @@
-#include <memory>
 #include <iostream>
-#include <string>
 #include <map>
+#include <memory>
+#include <string>
 #include <set>
-
-#include <boost/tuple/tuple.hpp>
+#include <tuple>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -104,7 +103,7 @@ void printAssociations(const char* label,
   if (bychi2.find(tp) != bychi2.end())
     found_bychi2 = bychi2[tp];
 
-  typedef boost::tuple<double, double> Quality;
+  typedef std::tuple<double, double> Quality;
   Quality quality;
   std::map<edm::RefToBase<reco::Track>, Quality> found;
   for (std::vector<std::pair<edm::RefToBase<reco::Track>, double> >::const_iterator it = found_byhits.begin();
@@ -112,24 +111,24 @@ void printAssociations(const char* label,
        ++it) {
     const edm::RefToBase<reco::Track> ref = it->first;
     found.insert(std::make_pair(ref, Quality()));
-    found[ref].get<0>() = it->second;
+    std::get<0>(found[ref]) = it->second;
   }
   for (std::vector<std::pair<edm::RefToBase<reco::Track>, double> >::const_iterator it = found_bychi2.begin();
        it != found_bychi2.end();
        ++it) {
     const edm::RefToBase<reco::Track> ref = it->first;
     found.insert(std::make_pair(ref, Quality()));
-    found[ref].get<1>() = -it->second;  // why is chi2 negative ?
+    std::get<1>(found[ref]) = -it->second;  // why is chi2 negative ?
   }
 
   for (std::map<edm::RefToBase<reco::Track>, Quality>::const_iterator it = found.begin(); it != found.end(); ++it) {
     std::cout << "    " << std::setw(7) << std::left << label << std::right << it->first;
-    if (it->second.get<0>())
-      std::cout << " [" << std::setw(6) << std::setprecision(3) << it->second.get<0>() << "]";
+    if (std::get<0>(it->second))
+      std::cout << " [" << std::setw(6) << std::setprecision(3) << std::get<0>(it->second) << "]";
     else
       std::cout << "         ";
-    if (it->second.get<1>())
-      std::cout << " [" << std::setw(6) << std::setprecision(3) << it->second.get<1>() << "]";
+    if (std::get<1>(it->second))
+      std::cout << " [" << std::setw(6) << std::setprecision(3) << std::get<1>(it->second) << "]";
     else
       std::cout << "         ";
     std::cout << std::endl;
@@ -147,7 +146,7 @@ void printAssociations(const char* label,
   if (bychi2.find(tp) != bychi2.end())
     found_bychi2 = bychi2[tp];
 
-  typedef boost::tuple<double, double> Quality;
+  typedef std::tuple<double, double> Quality;
   Quality quality;
   std::map<TrackingParticleRef, Quality> found;
   for (std::vector<std::pair<TrackingParticleRef, double> >::const_iterator it = found_byhits.begin();
@@ -155,24 +154,24 @@ void printAssociations(const char* label,
        ++it) {
     const TrackingParticleRef ref = it->first;
     found.insert(std::make_pair(ref, Quality()));
-    found[ref].get<0>() = it->second;
+    std::get<0>(found[ref]) = it->second;
   }
   for (std::vector<std::pair<TrackingParticleRef, double> >::const_iterator it = found_bychi2.begin();
        it != found_bychi2.end();
        ++it) {
     const TrackingParticleRef ref = it->first;
     found.insert(std::make_pair(ref, Quality()));
-    found[ref].get<1>() = -it->second;  // why is chi2 negative ?
+    std::get<1>(found[ref]) = -it->second;  // why is chi2 negative ?
   }
 
   for (std::map<TrackingParticleRef, Quality>::const_iterator it = found.begin(); it != found.end(); ++it) {
     std::cout << "    " << std::setw(7) << std::left << label << std::right << it->first;
-    if (it->second.get<0>())
-      std::cout << " [" << std::setw(6) << std::setprecision(3) << it->second.get<0>() << "]";
+    if (std::get<0>(it->second))
+      std::cout << " [" << std::setw(6) << std::setprecision(3) << std::get<0>(it->second) << "]";
     else
       std::cout << "         ";
-    if (it->second.get<1>())
-      std::cout << " [" << std::setw(6) << std::setprecision(3) << it->second.get<1>() << "]";
+    if (std::get<1>(it->second))
+      std::cout << " [" << std::setw(6) << std::setprecision(3) << std::get<1>(it->second) << "]";
     else
       std::cout << "         ";
     std::cout << std::endl;
