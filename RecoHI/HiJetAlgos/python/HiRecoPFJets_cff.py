@@ -75,14 +75,15 @@ akCs4PFJets = cms.EDProducer(
     AnomalousCellParameters,
     jetAlgorithm  = cms.string("AntiKt"),
     rParam        = cms.double(0.4),
-    etaMap    = cms.InputTag('hiFJRhoProducer','mapEtaEdges'),
-    rho       = cms.InputTag('hiFJRhoProducer','mapToRho'),
-    rhom      = cms.InputTag('hiFJRhoProducer','mapToRhoM'),
+    etaMap = cms.InputTag('hiPuRhoProducer', 'mapEtaEdges'),
+    rho = cms.InputTag('hiPuRhoProducer', 'mapToRho'),
+    rhom = cms.InputTag('hiPuRhoProducer', 'mapToRhoM'),
     csRParam  = cms.double(-1.),
     csAlpha   = cms.double(2.),
-    useModulatedRho = cms.bool(False),
     writeJetsWithConst = cms.bool(True),
-    jetCollInstanceName = cms.string("pfParticlesCs")
+    useModulatedRho = cms.bool(True),
+    rhoFlowFitParams = cms.InputTag('hiFJRhoFlowModulationProducer', 'rhoFlowFitParams'),
+    jetCollInstanceName = cms.string("pfParticlesCs"),
 )
 akCs4PFJets.src           = cms.InputTag('particleFlow')
 akCs4PFJets.doAreaFastjet = cms.bool(True)
@@ -91,12 +92,3 @@ akCs4PFJets.useExplicitGhosts = cms.bool(True)
 akCs4PFJets.GhostArea     = cms.double(0.005)
 
 akCs3PFJets = akCs4PFJets.clone(rParam       = cms.double(0.3))
-
-akFlowPuCs4PFJets = akCs4PFJets.clone(
-    etaMap = cms.InputTag('hiPuRhoProducer', 'mapEtaEdges'),
-    rho = cms.InputTag('hiPuRhoProducer', 'mapToRho'),
-    rhom = cms.InputTag('hiPuRhoProducer', 'mapToRhoM'),
-    useModulatedRho = cms.bool(True),
-    rhoFlowFitParams = cms.InputTag('hiFJRhoFlowModulationProducer', 'rhoFlowFitParams'),
-    jetCollInstanceName = cms.string("pfParticlesCs"),
-)
