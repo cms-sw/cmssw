@@ -93,40 +93,12 @@ protected:
 
   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext* vc) override {
     if (item()->getConfig()->template value<bool>("Heatmap")) {
+      const edm::EventBase* event = iItem->getEvent();
       hitmap.clear();
 
-      edm::Handle<HGCRecHitCollection> recHitHandleEE;
-      edm::Handle<HGCRecHitCollection> recHitHandleFH;
-      edm::Handle<HGCRecHitCollection> recHitHandleBH;
-
-      const edm::EventBase* event = iItem->getEvent();
-      event->getByLabel(edm::InputTag("HGCalRecHit", "HGCEERecHits"), recHitHandleEE);
-      event->getByLabel(edm::InputTag("HGCalRecHit", "HGCHEFRecHits"), recHitHandleFH);
-      event->getByLabel(edm::InputTag("HGCalRecHit", "HGCHEBRecHits"), recHitHandleBH);
-
-      if (recHitHandleEE.isValid()) {
-        const auto& rechitsEE = *recHitHandleEE;
-
-        for (unsigned int i = 0; i < rechitsEE.size(); ++i) {
-          hitmap[rechitsEE[i].detid().rawId()] = &rechitsEE[i];
-        }
-      }
-
-      if (recHitHandleFH.isValid()) {
-        const auto& rechitsFH = *recHitHandleFH;
-
-        for (unsigned int i = 0; i < rechitsFH.size(); ++i) {
-          hitmap[rechitsFH[i].detid().rawId()] = &rechitsFH[i];
-        }
-      }
-
-      if (recHitHandleBH.isValid()) {
-        const auto& rechitsBH = *recHitHandleBH;
-
-        for (unsigned int i = 0; i < rechitsBH.size(); ++i) {
-          hitmap[rechitsBH[i].detid().rawId()] = &rechitsBH[i];
-        }
-      }
+      edm::Handle<std::map<DetId, const HGCRecHit *>> hitMapHandle;
+      event->getByLabel(edm::InputTag("HGCRecHitMapProducer"), hitMapHandle);
+      hitmap = *hitMapHandle;
     }
 
     FWSimpleProxyBuilder::build(iItem, product, vc);
