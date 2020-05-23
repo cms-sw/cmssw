@@ -21,6 +21,7 @@
 //
 
 // system include files
+#include <limits>
 #include <ostream>
 
 // user include files
