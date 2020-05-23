@@ -14,12 +14,7 @@
 #include "L1Trigger/TrackFindingTMTT/interface/KFParamsComb.h"
 #include "L1Trigger/TrackFindingTMTT/interface/Settings.h"
 #endif
-/*
-namespace tmtt {
-  class Settings;
-  class KFParamsComb;
-}  // namespace tmtt
-*/
+
 namespace trklet {
 
   class TETableBase;
