@@ -27,7 +27,8 @@
 using namespace edm;
 
 EcalTrivialConditionRetriever::EcalTrivialConditionRetriever(const edm::ParameterSet& ps) {
-  std::string path = "CalibCalorimetry/EcalTrivialCondModules/data/";
+  //  std::string path = "CalibCalorimetry/EcalTrivialCondModules/data/";
+  std::string path = "CalibCalorimetry/EcalTrivialCondModules/data_test/";
 
   /*since CMSSW_10_6_0, this path points to https://github.com/cms-data/CalibCalorimetry-EcalTrivialCondModules  (extra package). 
 To modify the default values :
@@ -352,8 +353,8 @@ other solution : change this path name to work directly in afs, ex. :
   producedEcalPFRecHitThresholds_ = ps.getUntrackedParameter<bool>("producedEcalPFRecHitThresholds", false);
 
   // new for PFRecHit Thresholds
-  pfRecHitFile_ = ps.getUntrackedParameter<std::string>("pFRecHitFile", path + "EB_thresholds_-1.txt");
-  pfRecHitFileEE_ = ps.getUntrackedParameter<std::string>("pFRecHitFileEE", path + "EE_thresholds_-1.txt");
+  pfRecHitFile_ = ps.getUntrackedParameter<std::string>("pFRecHitFile", path + "EB_product_TL235.txt");
+  pfRecHitFileEE_ = ps.getUntrackedParameter<std::string>("pFRecHitFileEE", path + "EE_product_TL235.txt");
 
   if (producedEcalPFRecHitThresholds_) {  // user asks to produce constants
     if (!pfRecHitFile_.empty()) {         // if file provided read constants
@@ -2861,9 +2862,10 @@ std::unique_ptr<EcalPFRecHitThresholds> EcalTrivialConditionRetriever::getPFRecH
       edm::LogInfo("EB ") << std::dec << eta << "/" << std::dec << phi << "/" << std::dec << zeta
                           << " thresh: " << thresh;
     nxt = nxt + 1;
-
-    EBDetId ebid(eta, phi);
-    ical->setValue(ebid, thresh);
+    if (EBDetId::validDetId(eta, phi)) {
+      EBDetId ebid(eta, phi);
+      ical->setValue(ebid.rawId(), thresh);
+    }
   }
   PFRecHitsFile.close();
   // fclose(inpFile);
@@ -2901,14 +2903,13 @@ std::unique_ptr<EcalPFRecHitThresholds> EcalTrivialConditionRetriever::getPFRecH
     }
 
     if (ix == 50)
-      edm::LogInfo("EE ") << std::dec << ix << "/" << std::dec << iy << "/" << std::dec << iz << " thresh: " << thresh
-                          << " eta=" << eta;
-
-    EEDetId eeid(ix, iy, iz);
-    ical->setValue(eeid, thresh);
+      edm::LogInfo("EE ") << std::dec << ix << "/" << std::dec << iy << "/" << std::dec << iz << " thresh: " << thresh;
+    if (EEDetId::validDetId(ix, iy, iz)) {
+      EEDetId eeid(ix, iy, iz);
+      ical->setValue(eeid.rawId(), thresh);
+    }
     nxt = nxt + 1;
   }
-
   PFRecHitsFileEE.close();
   //  fclose(inpFileEE);
   edm::LogInfo("Read number of EE crystals: ") << nxt;
