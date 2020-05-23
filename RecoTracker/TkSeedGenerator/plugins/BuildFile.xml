@@ -1,4 +1,7 @@
+<use name="cuda"/>
 <use name="CommonTools/RecoAlgos"/>
+<use name="DataFormats/TrackerRecHit2D"/>
+<use name="HeterogeneousCore/CUDACore"/>
 <use name="RecoTracker/TkSeedGenerator"/>
 <use name="RecoTracker/TkTrackingRegions"/>
 <use name="RecoPixelVertexing/PixelTriplets"/>
@@ -6,5 +9,4 @@
 <use name="RecoPixelVertexing/PixelLowPtUtilities"/>
 <library file="*.cc" name="RecoTrackerTkSeedGeneratorPlugins">
   <flags EDM_PLUGIN="1"/>
-  <use name="DataFormats/TrackerRecHit2D"/>
 </library>

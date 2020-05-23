@@ -4,6 +4,7 @@
    <version ClassVersion="11" checksum="1473312403"/>
    <version ClassVersion="12" checksum="2042538185"/>
    <version ClassVersion="13" checksum="2314992115"/>
+   <field name="theOriginalClusterId" transient="true"/>
    <field name="err_x" transient="true"/>
    <field name="err_y" transient="true"/>
   <ioread sourceClass="SiPixelCluster" version="[11-12]" targetClass="SiPixelCluster" source="uint16_t thePixelCol" target="theMinPixelCol">
