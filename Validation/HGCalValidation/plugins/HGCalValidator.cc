@@ -34,7 +34,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
   }
 
   LCAssocByEnergyScoreProducer_ =
-      consumes<hgcal::LayerClusterToCaloParticleAssociator>(edm::InputTag("LCAssocByEnergyScoreProducer"));
+      consumes<hgcal::LayerClusterToCaloParticleAssociator>(edm::InputTag("lcAssocByEnergyScoreProducer"));
 
   cpSelector = CaloParticleSelector(pset.getParameter<double>("ptMinCP"),
                                     pset.getParameter<double>("ptMaxCP"),
