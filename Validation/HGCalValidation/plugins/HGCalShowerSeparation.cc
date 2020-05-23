@@ -51,9 +51,9 @@ private:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  void fillWithRecHits(std::map<DetId, const HGCRecHit*>&, DetId, unsigned int, float, int&, float&);
+  void fillWithRecHits(std::unordered_map<DetId, const HGCRecHit*>&, DetId, unsigned int, float, int&, float&);
 
-  edm::EDGetTokenT<std::map<DetId, const HGCRecHit *>> hitMap_;
+  edm::EDGetTokenT<std::unordered_map<DetId, const HGCRecHit *>> hitMap_;
   edm::EDGetTokenT<std::vector<CaloParticle> > caloParticles_;
 
   int debug_;
@@ -86,7 +86,7 @@ HGCalShowerSeparation::HGCalShowerSeparation(const edm::ParameterSet& iConfig)
       filterOnEnergyAndCaloP_(iConfig.getParameter<bool>("filterOnEnergyAndCaloP")) {
   auto hitMapInputTag = iConfig.getParameter<edm::InputTag>("hitMapTag");
   auto caloParticles = iConfig.getParameter<edm::InputTag>("caloParticles");
-  hitMap_ = consumes<std::map<DetId, const HGCRecHit *>>(hitMapInputTag);
+  hitMap_ = consumes<std::unordered_map<DetId, const HGCRecHit *>>(hitMapInputTag);
   caloParticles_ = consumes<std::vector<CaloParticle> >(caloParticles);
 }
 
@@ -166,7 +166,7 @@ void HGCalShowerSeparation::analyze(const edm::Event& iEvent, const edm::EventSe
   iEvent.getByToken(caloParticles_, caloParticleHandle);
   const std::vector<CaloParticle>& caloParticles = *caloParticleHandle;
 
-  Handle<std::map<DetId, const HGCRecHit *>> hitMapHandle;
+  Handle<std::unordered_map<DetId, const HGCRecHit *>> hitMapHandle;
   iEvent.getByToken(hitMap_, hitMapHandle);
   const auto hitmap = *hitMapHandle;
 

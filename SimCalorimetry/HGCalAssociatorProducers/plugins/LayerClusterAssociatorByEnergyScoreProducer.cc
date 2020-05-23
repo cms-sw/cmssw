@@ -22,13 +22,13 @@ public:
 
 private:
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
-  edm::EDGetTokenT<std::map<DetId, const HGCRecHit *>> hitMapToken_;
+  edm::EDGetTokenT<std::unordered_map<DetId, const HGCRecHit *>> hitMap_;
   const bool hardScatterOnly_;
   std::shared_ptr<hgcal::RecHitTools> rhtools_;
 };
 
 LayerClusterAssociatorByEnergyScoreProducer::LayerClusterAssociatorByEnergyScoreProducer(const edm::ParameterSet &ps)
-    : hitMapToken_(consumes<std::map<DetId, const HGCRecHit *>>(ps.getParameter<edm::InputTag>("hitMapTag"))),
+    : hitMap_(consumes<std::unordered_map<DetId, const HGCRecHit *>>(ps.getParameter<edm::InputTag>("hitMapTag"))),
       hardScatterOnly_(ps.getParameter<bool>("hardScatterOnly")) {
   rhtools_.reset(new hgcal::RecHitTools());
 
@@ -42,9 +42,9 @@ void LayerClusterAssociatorByEnergyScoreProducer::produce(edm::StreamID,
                                                           edm::Event &iEvent,
                                                           const edm::EventSetup &es) const {
   rhtools_->getEventSetup(es);
-  edm::Handle<std::map<DetId, const HGCRecHit *>> hitMapHandle;
-  iEvent.getByToken(hitMapToken_, hitMapHandle);
-  const std::map<DetId, const HGCRecHit *> *hitMap = &*hitMapHandle;
+  edm::Handle<std::unordered_map<DetId, const HGCRecHit *>> hitMapHandle;
+  iEvent.getByToken(hitMap_, hitMapHandle);
+  const std::unordered_map<DetId, const HGCRecHit *> *hitMap = &*hitMapHandle;
 
   auto impl = std::make_unique<LayerClusterAssociatorByEnergyScoreImpl>(
       iEvent.productGetter(), hardScatterOnly_, rhtools_, hitMap);
