@@ -19,7 +19,7 @@ void ProjectionRouterBendTable::init(Settings const& settings,
         int ir = irbin;
         if (ir > (1 << (nrbits - 1)))
           ir -= (1 << nrbits);
-        ir = ir << (settings.nrbitsstub(6) - nrbits);
+        ir = ir << (settings.nrbitsstub(N_LAYER) - nrbits);
         for (unsigned int iphiderbin = 0; iphiderbin < nphiderbins; iphiderbin++) {
           int iphider = iphiderbin;
           if (iphider > (1 << (nphiderbits - 1)))

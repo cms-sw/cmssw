@@ -3,9 +3,9 @@
 #define L1Trigger_TrackFindingTracklet_interface_TrackletEventProcessor_h
 
 #include "L1Trigger/TrackFindingTracklet/interface/Timer.h"
-#include "L1Trigger/TrackFindingTracklet/interface/Cabling.h"
 
 #include <map>
+#include <memory>
 #include <vector>
 #include <string>
 
@@ -17,10 +17,11 @@ namespace trklet {
   class Sector;
   class HistBase;
   class Track;
+  class Cabling;
 
   class TrackletEventProcessor {
   public:
-    TrackletEventProcessor(){};
+    TrackletEventProcessor();
 
     ~TrackletEventProcessor();
 
@@ -35,15 +36,15 @@ namespace trklet {
   private:
     const Settings* settings_{nullptr};
 
-    Globals* globals_{};
+    std::unique_ptr<Globals> globals_;
 
-    Sector** sectors_{};
+    std::vector<std::unique_ptr<Sector> > sectors_;
 
     HistBase* histbase_{};
 
     int eventnum_ = {0};
 
-    Cabling* cabling_{};
+    std::unique_ptr<Cabling> cabling_;
 
     Timer cleanTimer_;
     Timer addStubTimer_;

@@ -62,7 +62,6 @@ int main(const int argc, const char **argv) {
   settings.setMemoryModulesFile("../data/memorymodules_" + settings.geomext() + ".dat");
   settings.setWiresFile("../data/wires_" + settings.geomext() + ".dat");
 
-  //if (settings.debugTracklet()) {
   edm::LogVerbatim("Tracklet") << "cabling DTC links :     " << settings.DTCLinkFile();
   edm::LogVerbatim("Tracklet") << "module cabling :     " << settings.moduleCablingFile();
   edm::LogVerbatim("Tracklet") << "DTC link layer disk :     " << settings.DTCLinkLayerDiskFile();
@@ -71,22 +70,16 @@ int main(const int argc, const char **argv) {
   edm::LogVerbatim("Tracklet") << "process modules : " << settings.processingModulesFile();
   edm::LogVerbatim("Tracklet") << "memory modules :  " << settings.memoryModulesFile();
   edm::LogVerbatim("Tracklet") << "wires          :  " << settings.wiresFile();
-  //}
 
   // ---------------------------------------------------------
 
   TrackletEventProcessor eventProcessor;
   eventProcessor.init(&settings);
 
-  if (argc < 4)
-    edm::LogVerbatim("Tracklet") << "Need to specify the input ascii file and the number of events to run on and if "
-                                    "you want to filter on MC truth";
+  if (argc < 3)
+    edm::LogVerbatim("Tracklet") << "Need to specify the input ascii file and the number of events to run on!";
 
   int nevents = atoi(argv[2]);
-
-  int selectmu = atoi(argv[3]);
-
-  assert((selectmu == 0) || (selectmu == 1));
 
   ifstream infile;
   istream *in = &cin;
@@ -99,8 +92,8 @@ int main(const int argc, const char **argv) {
   if (settings.writeMonitorData("Pars"))
     outpars.open("trackpars.txt");
 
+    // ---------------------------------------------------------
     // Open file to hold ROOT-Tree
-    // --------------------------
 #ifdef USEROOT
   TFile *hfile = new TFile("myTest.root", "RECREATE", "Simple ROOT Ntuple");
   TTree *trackTree = new TTree("FPGAEvent", "L1Track Tree");
@@ -108,9 +101,7 @@ int main(const int argc, const char **argv) {
   fpgaEvent->reset();
   trackTree->Branch("Event", &fpgaEvent);
 #endif
-  // --------------------------
-
-  // Define Sectors (boards)
+  // ---------------------------------------------------------
 
   if (settings.writeMonitorData("Seeds")) {
     ofstream fout("seeds.txt", ofstream::out);
@@ -122,8 +113,8 @@ int main(const int argc, const char **argv) {
 
     L1SimTrack simtrk;
 
-    // setup ROOT Tree and Add Monte Carlo tracks to the ROOT-Tree Event
     // -----------------------------------------------------------------
+    // setup ROOT Tree and Add Monte Carlo tracks to the ROOT-Tree Event
 #ifdef USEROOT
     fpgaEvent->reset();
     fpgaEvent->nevt = eventnum;
@@ -222,12 +213,12 @@ int main(const int argc, const char **argv) {
 
     std::vector<Track *> &tracks = eventProcessor.tracks();
 
-// Block for producing ROOT-Tree
-// ------------------------------
+    // ---------------------------------------------------------
+    // Block for producing ROOT-Tree
 #ifdef USEROOT
 #include "FPGATree.icc"
 #endif
-    // ------------------------------
+    // ---------------------------------------------------------
 
     if (settings.writeMonitorData("MatchEff")) {
       static ofstream out("matcheff.txt");

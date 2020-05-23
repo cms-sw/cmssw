@@ -13,6 +13,8 @@
 using namespace std;
 using namespace trklet;
 
+constexpr double triplet_phioffset = 0.171;
+
 TrackletCalculatorDisplaced::TrackletCalculatorDisplaced(string name,
                                                          Settings const& settings,
                                                          Globals* global,
@@ -280,15 +282,14 @@ void TrackletCalculatorDisplaced::execute() {
 void TrackletCalculatorDisplaced::addDiskProj(Tracklet* tracklet, int disk) {
   FPGAWord fpgar = tracklet->fpgarprojdisk(disk);
 
-  if (fpgar.value() * settings_.krprojshiftdisk() < 12.0)
+  if (fpgar.value() * settings_.krprojshiftdisk() < settings_.rmindiskvm())
     return;
-  if (fpgar.value() * settings_.krprojshiftdisk() > 112.0)
+  if (fpgar.value() * settings_.krprojshiftdisk() > settings_.rmaxdisk())
     return;
 
   FPGAWord fpgaphi = tracklet->fpgaphiprojdisk(disk);
 
   int iphivmRaw = fpgaphi.value() >> (fpgaphi.nbits() - 5);
-
   int iphi = iphivmRaw / (32 / settings_.nallstubs(abs(disk) + N_DISK));
 
   addProjectionDisk(disk, iphi, trackletprojdisks_[abs(disk) - 1][iphi], tracklet);
@@ -429,8 +430,7 @@ bool TrackletCalculatorDisplaced::LLLSeeding(const Stub* innerFPGAStub,
   double phiderdiskapprox[N_DISK], rderdiskapprox[N_DISK];
 
   //TODO: implement the actual integer calculation
-
-  phi0 -= 0.171;
+  phi0 -= triplet_phioffset;
 
   //store the approcximate results
   rinvapprox = rinv;
@@ -440,7 +440,7 @@ bool TrackletCalculatorDisplaced::LLLSeeding(const Stub* innerFPGAStub,
   z0approx = z0;
 
   for (unsigned int i = 0; i < toR_.size(); ++i) {
-    phiproj[i] -= 0.171;
+    phiproj[i] -= triplet_phioffset;
     phiprojapprox[i] = phiproj[i];
     zprojapprox[i] = zproj[i];
     phiderapprox[i] = phider[i];
@@ -448,7 +448,7 @@ bool TrackletCalculatorDisplaced::LLLSeeding(const Stub* innerFPGAStub,
   }
 
   for (unsigned int i = 0; i < toZ_.size(); ++i) {
-    phiprojdisk[i] -= 0.171;
+    phiprojdisk[i] -= triplet_phioffset;
     phiprojdiskapprox[i] = phiprojdisk[i];
     rprojdiskapprox[i] = rprojdisk[i];
     phiderdiskapprox[i] = phiderdisk[i];
@@ -537,21 +537,21 @@ bool TrackletCalculatorDisplaced::LLLSeeding(const Stub* innerFPGAStub,
       continue;
 
     //check that phi projection is in range
-    if (iphiproj[i] >= (1 << settings_.nphibitsstub(5)) - 1)
+    if (iphiproj[i] >= (1 << settings_.nphibitsstub(N_LAYER - 1)) - 1)
       continue;
     if (iphiproj[i] <= 0)
       continue;
 
     //adjust number of bits for phi and z projection
-    if (rproj_[i] < 60.0) {
-      iphiproj[i] >>= (settings_.nphibitsstub(5) - settings_.nphibitsstub(0));
+    if (rproj_[i] < settings_.rPS2S()) {
+      iphiproj[i] >>= (settings_.nphibitsstub(N_LAYER - 1) - settings_.nphibitsstub(0));
       if (iphiproj[i] >= (1 << settings_.nphibitsstub(0)) - 1)
         iphiproj[i] = (1 << settings_.nphibitsstub(0)) - 2;  //-2 not to hit atExtreme
     } else {
-      izproj[i] >>= (settings_.nzbitsstub(0) - settings_.nzbitsstub(5));
+      izproj[i] >>= (settings_.nzbitsstub(0) - settings_.nzbitsstub(N_LAYER - 1));
     }
 
-    if (rproj_[i] < 60.0) {
+    if (rproj_[i] < settings_.rPS2S()) {
       if (iphider[i] < -(1 << (settings_.nbitsphiprojderL123() - 1))) {
         iphider[i] = -(1 << (settings_.nbitsphiprojderL123() - 1));
       }
@@ -599,7 +599,7 @@ bool TrackletCalculatorDisplaced::LLLSeeding(const Stub* innerFPGAStub,
         continue;
 
       //check r projection in range
-      if (rprojdiskapprox[i] < 20. || rprojdiskapprox[i] > 120.)
+      if (rprojdiskapprox[i] < settings_.rmindisk() || rprojdiskapprox[i] > settings_.rmaxdisk())
         continue;
 
       diskprojs[i].init(settings_,
@@ -775,7 +775,7 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
 
   //TODO: implement the actual integer calculation
 
-  phi0 -= 0.171;
+  phi0 -= triplet_phioffset;
 
   //store the approcximate results
   rinvapprox = rinv;
@@ -785,7 +785,7 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
   z0approx = z0;
 
   for (unsigned int i = 0; i < toR_.size(); ++i) {
-    phiproj[i] -= 0.171;
+    phiproj[i] -= triplet_phioffset;
     phiprojapprox[i] = phiproj[i];
     zprojapprox[i] = zproj[i];
     phiderapprox[i] = phider[i];
@@ -793,7 +793,7 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
   }
 
   for (unsigned int i = 0; i < toZ_.size(); ++i) {
-    phiprojdisk[i] -= 0.171;
+    phiprojdisk[i] -= triplet_phioffset;
     phiprojdiskapprox[i] = phiprojdisk[i];
     rprojdiskapprox[i] = rprojdisk[i];
     phiderdiskapprox[i] = phiderdisk[i];
@@ -890,13 +890,13 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
     if (iphiproj[i] <= 0)
       continue;
 
-    if (rproj_[i] < 60.0) {
+    if (rproj_[i] < settings_.rPS2S()) {
       iphiproj[i] >>= (settings_.nphibitsstub(5) - settings_.nphibitsstub(0));
     } else {
       izproj[i] >>= (settings_.nzbitsstub(0) - settings_.nzbitsstub(5));
     }
 
-    if (rproj_[i] < 60.0) {
+    if (rproj_[i] < settings_.rPS2S()) {
       if (iphider[i] < -(1 << (settings_.nbitsphiprojderL123() - 1)))
         iphider[i] = -(1 << (settings_.nbitsphiprojderL123() - 1));
       if (iphider[i] >= (1 << (settings_.nbitsphiprojderL123() - 1)))
@@ -938,7 +938,7 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
       if (iphiprojdisk[i] >= (1 << settings_.nphibitsstub(0)) - 1)
         continue;
 
-      if (irprojdisk[i] < 20. / krprojdisk || irprojdisk[i] > 120. / krprojdisk)
+      if (irprojdisk[i] < settings_.rmindisk() / krprojdisk || irprojdisk[i] > settings_.rmaxdisk() / krprojdisk)
         continue;
 
       diskprojs[i].init(settings_,
@@ -1105,7 +1105,7 @@ bool TrackletCalculatorDisplaced::LLDSeeding(const Stub* innerFPGAStub,
 
   //TODO: implement the actual integer calculation
 
-  phi0 -= 0.171;
+  phi0 -= triplet_phioffset;
 
   //store the approcximate results
   rinvapprox = rinv;
@@ -1115,7 +1115,7 @@ bool TrackletCalculatorDisplaced::LLDSeeding(const Stub* innerFPGAStub,
   z0approx = z0;
 
   for (unsigned int i = 0; i < toR_.size(); ++i) {
-    phiproj[i] -= 0.171;
+    phiproj[i] -= triplet_phioffset;
     phiprojapprox[i] = phiproj[i];
     zprojapprox[i] = zproj[i];
     phiderapprox[i] = phider[i];
@@ -1123,7 +1123,7 @@ bool TrackletCalculatorDisplaced::LLDSeeding(const Stub* innerFPGAStub,
   }
 
   for (unsigned int i = 0; i < toZ_.size(); ++i) {
-    phiprojdisk[i] -= 0.171;
+    phiprojdisk[i] -= triplet_phioffset;
     phiprojdiskapprox[i] = phiprojdisk[i];
     rprojdiskapprox[i] = rprojdisk[i];
     phiderdiskapprox[i] = phiderdisk[i];
@@ -1219,13 +1219,13 @@ bool TrackletCalculatorDisplaced::LLDSeeding(const Stub* innerFPGAStub,
     if (iphiproj[i] <= 0)
       continue;
 
-    if (rproj_[i] < 60.0) {
+    if (rproj_[i] < settings_.rPS2S()) {
       iphiproj[i] >>= (settings_.nphibitsstub(5) - settings_.nphibitsstub(0));
     } else {
       izproj[i] >>= (settings_.nzbitsstub(0) - settings_.nzbitsstub(5));
     }
 
-    if (rproj_[i] < 60.0) {
+    if (rproj_[i] < settings_.rPS2S()) {
       if (iphider[i] < -(1 << (settings_.nbitsphiprojderL123() - 1)))
         iphider[i] = -(1 << (settings_.nbitsphiprojderL123() - 1));
       if (iphider[i] >= (1 << (settings_.nbitsphiprojderL123() - 1)))
@@ -1269,7 +1269,7 @@ bool TrackletCalculatorDisplaced::LLDSeeding(const Stub* innerFPGAStub,
         continue;
 
       //Check r range of projection
-      if (irprojdisk[i] < 20. / krprojdisk || irprojdisk[i] > 120. / krprojdisk)
+      if (irprojdisk[i] < settings_.rmindisk() / krprojdisk || irprojdisk[i] > settings_.rmaxdisk() / krprojdisk)
         continue;
 
       diskprojs[i].init(settings_,

@@ -5,6 +5,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/HistBase.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Track.h"
 #include "L1Trigger/TrackFindingTracklet/interface/IMATH_TrackletCalculator.h"
+#include "L1Trigger/TrackFindingTracklet/interface/Cabling.h"
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 
@@ -13,13 +14,9 @@
 using namespace trklet;
 using namespace std;
 
-TrackletEventProcessor::~TrackletEventProcessor() {
-  for (unsigned int i = 0; i < N_SECTOR; i++) {
-    delete sectors_[i];
-  }
-  delete globals_;
-  delete cabling_;
+TrackletEventProcessor::TrackletEventProcessor() = default;
 
+TrackletEventProcessor::~TrackletEventProcessor() {
   if (settings_->bookHistos()) {
     histbase_->close();
   }
@@ -28,7 +25,7 @@ TrackletEventProcessor::~TrackletEventProcessor() {
 void TrackletEventProcessor::init(const Settings* theSettings) {
   settings_ = theSettings;
 
-  globals_ = new Globals(*settings_);
+  globals_ = make_unique<Globals>(*settings_);
 
   //Verify consistency
   if (settings_->kphi0pars() != globals_->ITC_L1L2()->phi0_final.K()) {
@@ -85,10 +82,10 @@ void TrackletEventProcessor::init(const Settings* theSettings) {
   }
 
   // create the sector processors (1 sector processor = 1 board)
-  sectors_ = new Sector*[N_SECTOR];
+  sectors_.resize(N_SECTOR);
 
   for (unsigned int i = 0; i < N_SECTOR; i++) {
-    sectors_[i] = new Sector(i, *settings_, globals_);
+    sectors_[i] = make_unique<Sector>(i, *settings_, globals_.get());
   }
 
   // get the memory modules
@@ -107,8 +104,8 @@ void TrackletEventProcessor::init(const Settings* theSettings) {
     if (settings_->writetrace()) {
       edm::LogVerbatim("Tracklet") << "Read memory: " << memType << " " << memName;
     }
-    for (unsigned int i = 0; i < N_SECTOR; i++) {
-      sectors_[i]->addMem(memType, memName);
+    for (auto& sector : sectors_) {
+      sector->addMem(memType, memName);
     }
   }
 
@@ -128,8 +125,8 @@ void TrackletEventProcessor::init(const Settings* theSettings) {
     if (settings_->writetrace()) {
       edm::LogVerbatim("Tracklet") << "Read process: " << procType << " " << procName;
     }
-    for (unsigned int i = 0; i < N_SECTOR; i++) {
-      sectors_[i]->addProc(procType, procName);
+    for (auto& sector : sectors_) {
+      sector->addProc(procType, procName);
     }
   }
 
@@ -159,8 +156,8 @@ void TrackletEventProcessor::init(const Settings* theSettings) {
       ss >> tmp2 >> procout;
     }
 
-    for (unsigned int i = 0; i < N_SECTOR; i++) {
-      sectors_[i]->addWire(mem, procin, procout);
+    for (auto& sector : sectors_) {
+      sector->addWire(mem, procin, procout);
     }
   }
 
@@ -181,7 +178,7 @@ void TrackletEventProcessor::init(const Settings* theSettings) {
     indtc >> dtc;
   }
 
-  cabling_ = new Cabling(settings_->DTCLinkFile(), settings_->moduleCablingFile(), *settings_);
+  cabling_ = make_unique<Cabling>(settings_->DTCLinkFile(), settings_->moduleCablingFile(), *settings_);
 }
 
 void TrackletEventProcessor::event(SLHCEvent& ev) {

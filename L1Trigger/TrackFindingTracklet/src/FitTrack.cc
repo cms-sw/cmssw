@@ -497,10 +497,10 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
 
   if (!settings_.exactderivatives()) {
     for (unsigned int i = 0; i < nlayers; i++) {
-      if (r[i] > 60.0)
+      if (r[i] > settings_.rPS2S())
         continue;
       for (unsigned int ii = 0; ii < nlayers; ii++) {
-        if (r[ii] > 60.0)
+        if (r[ii] > settings_.rPS2S())
           continue;
 
         double tder = derivatives->tdzcorr(i, ii);

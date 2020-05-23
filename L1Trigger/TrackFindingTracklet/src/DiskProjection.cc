@@ -3,6 +3,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <algorithm>
 #include <cassert>
 
 using namespace std;
@@ -60,10 +61,8 @@ void DiskProjection::init(Settings const& settings,
 
   if (rbin1 < 0)
     rbin1 = 0;
-  if (rbin2 < 0)
-    rbin2 = 0;
-  if (rbin2 > 7)
-    rbin2 = 7;
+  rbin2 = clamp(rbin2, 0, 7);
+
   assert(rbin1 <= rbin2);
   assert(rbin2 - rbin1 <= 1);
 
@@ -72,10 +71,7 @@ void DiskProjection::init(Settings const& settings,
                rbin1 * (settings.rmaxdisk() - settings.rmindiskvm()) / 8.0) /
               (settings.rmaxdisk() - settings.rmindiskvm());
 
-  if (finer < 0)
-    finer = 0;
-  if (finer > 15)
-    finer = 15;
+  finer = clamp(finer, 0, 15);
 
   int diff = rbin1 != rbin2;
   if (irder < 0)

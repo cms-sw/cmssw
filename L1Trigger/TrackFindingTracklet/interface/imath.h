@@ -126,6 +126,7 @@
 
 #include "L1Trigger/TrackFindingTracklet/interface/Util.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #ifdef IMATH_ROOT
 #include <TH2F.h>
@@ -536,11 +537,9 @@ namespace trklet {
             snprintf(
                 slog, 100, "VarAdd: bad units! %s^%i for variable %s", (it.first).c_str(), it.second, name_.c_str());
             edm::LogVerbatim("Tracklet") << slog;
-            edm::LogVerbatim("Tracklet") << " *********************************************************";
             p1->dump_msg();
-            edm::LogVerbatim("Tracklet") << " *********************************************************";
             p2->dump_msg();
-            assert(0);
+            throw cms::Exception("BadConfig") << "imath units are different!";
           }
         }
       }
@@ -551,11 +550,9 @@ namespace trklet {
       if (std::abs(ki1 / ki2 - 1.) > 1e-6) {
         snprintf(slog, 100, "VarAdd: bad constants! %f %f for variable %s", ki1, ki2, name_.c_str());
         edm::LogVerbatim("Tracklet") << slog;
-        edm::LogVerbatim("Tracklet") << " *********************************************************";
         p1->dump_msg();
-        edm::LogVerbatim("Tracklet") << " *********************************************************";
         p2->dump_msg();
-        assert(0);
+        throw cms::Exception("BadConfig") << "imath constants are different!";
       }
       //everything checks out!
 
@@ -609,8 +606,7 @@ namespace trklet {
       int s1 = map1["2"];
       int s2 = map2["2"];
 
-      //first check if the constants are all lined up
-      //go over the two maps subtracting the units
+      //first check if the constants are all lined up go over the two maps subtracting the units
       for (const auto &it : map2) {
         if (map1.find(it.first) == map1.end())
           map1[it.first] = -it.second;
@@ -627,11 +623,9 @@ namespace trklet {
             snprintf(
                 slog, 100, "VarAdd: bad units! %s^%i for variable %s", (it.first).c_str(), it.second, name_.c_str());
             edm::LogVerbatim("Tracklet") << slog;
-            edm::LogVerbatim("Tracklet") << " *********************************************************";
             p1->dump_msg();
-            edm::LogVerbatim("Tracklet") << " *********************************************************";
             p2->dump_msg();
-            assert(0);
+            throw cms::Exception("BadConfig") << "imath units are different!";
           }
         }
       }
@@ -642,11 +636,9 @@ namespace trklet {
       if (std::abs(ki1 / ki2 - 1.) > 1e-6) {
         snprintf(slog, 100, "VarAdd: bad constants! %f %f for variable %s", ki1, ki2, name_.c_str());
         edm::LogVerbatim("Tracklet") << slog;
-        edm::LogVerbatim("Tracklet") << " *********************************************************";
         p1->dump_msg();
-        edm::LogVerbatim("Tracklet") << " *********************************************************";
         p2->dump_msg();
-        assert(0);
+        throw cms::Exception("BadConfig") << "imath constants are different!";
       }
       //everything checks out!
 
@@ -899,13 +891,10 @@ namespace trklet {
                      it.second,
                      name_.c_str());
             edm::LogVerbatim("Tracklet") << slog;
-            edm::LogVerbatim("Tracklet") << " *********************************************************";
             p1->dump_msg();
-            edm::LogVerbatim("Tracklet") << " *********************************************************";
             p2->dump_msg();
-            edm::LogVerbatim("Tracklet") << " *********************************************************";
             p3->dump_msg();
-            assert(0);
+            throw cms::Exception("BadConfig") << "imath units are different!";
           }
         }
       }
@@ -916,21 +905,16 @@ namespace trklet {
       if (std::abs(ki1 / ki2 - 1.) > 1e-6) {
         snprintf(slog, 100, "VarDSPPostadd: bad constants! %f %f for variable %s", ki1, ki2, name_.c_str());
         edm::LogVerbatim("Tracklet") << slog;
-        edm::LogVerbatim("Tracklet") << " *********************************************************";
         p1->dump_msg();
-        edm::LogVerbatim("Tracklet") << " *********************************************************";
         p2->dump_msg();
-        edm::LogVerbatim("Tracklet") << " *********************************************************";
         p3->dump_msg();
-        assert(0);
+        throw cms::Exception("BadConfig") << "imath constants are different!";
       }
       //everything checks out!
 
       shift3_ = s3 - s0;
       if (shift3_ < 0) {
-        snprintf(slog, 100, "VarDSPPostadd: loosing precision on C in A*B+C: %i", shift3_);
-        edm::LogVerbatim("Tracklet") << slog;
-        assert(0);
+        throw cms::Exception("BadConfig") << "imath VarDSPPostadd: loosing precision on C in A*B+C: " << shift3_;
       }
 
       Kmap_ = p3->Kmap();

@@ -269,7 +269,7 @@ void TrackDerTable::fillTable() {
     double delta = 0.1;
 
     for (int i = 0; i < nlayers; i++) {
-      if (r[i] > 60.0)
+      if (r[i] > settings_.rPS2S())
         continue;
 
       r[i] += delta;
@@ -278,7 +278,7 @@ void TrackDerTable::fillTable() {
           settings_, nlayers, r, ndisks, z, alpha, t, rinv, D, iD, MinvDtDelta, iMinvDt, sigma, kfactor);
 
       for (int ii = 0; ii < nlayers; ii++) {
-        if (r[ii] > 60.0)
+        if (r[ii] > settings_.rPS2S())
           continue;
         double tder = (MinvDtDelta[2][2 * ii + 1] - MinvDt[2][2 * ii + 1]) / delta;
         int itder = (1 << (settings_.fittbitshift() + settings_.rcorrbits())) * tder * settings_.kr() * settings_.kz() /
@@ -807,7 +807,7 @@ void TrackDerTable::calculateDerivatives(Settings const& settings,
     //second the z position
     D[0][j] = 0.0;
     D[1][j] = 0.0;
-    if (ri < 60.0) {
+    if (ri < settings.rPS2S()) {
       D[2][j] = (2 / rinv) * asin(0.5 * ri * rinv) / sigmazpsbarrel;
       D[3][j] = 1.0 / sigmazpsbarrel;
       sigma[j] = sigmazpsbarrel;
@@ -939,7 +939,7 @@ void TrackDerTable::calculateDerivatives(Settings const& settings,
       iMinvDt[2][2 * i] = (1 << settings.fittbitshift()) * MinvDt[2][2 * i] * settings.kphi1() / settings.ktpars();
       iMinvDt[3][2 * i] = (1 << settings.fitz0bitshift()) * MinvDt[3][2 * i] * settings.kphi1() / settings.kz0pars();
 
-      if (rnew[i] < 60.0) {
+      if (rnew[i] < settings.rPS2S()) {
         MinvDt[0][2 * i + 1] /= sigmazpsbarrel;
         MinvDt[1][2 * i + 1] /= sigmazpsbarrel;
         MinvDt[2][2 * i + 1] /= sigmazpsbarrel;

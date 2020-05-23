@@ -1,6 +1,6 @@
 #common definitions go in here
 CXX           = g++
-CXXFLAGS      = -O -Wall  -fPIC -g -ansi -Wextra -Wno-deprecated -std=c++11 -I. -I../../..
+CXXFLAGS      = -O -Wall  -fPIC -g -ansi -Wextra -Wno-deprecated -std=c++17 -I. -I../../..
 LD            = g++
 LDFLAGS       = -O
 LIBDIR       = $(WORKDIR)
@@ -184,6 +184,7 @@ LDFLAGS      += $(ROOTLDFLAGS)
 # Needed for ROOT-Tree
 #LDFLAGS      += -L./ FPGAEvent_cxx.so
 
+CXXFLAGS += -std=c++17 #fix, otherwise ROOT cflags overrule c++11
 
 LIBS = -lHtml
 
