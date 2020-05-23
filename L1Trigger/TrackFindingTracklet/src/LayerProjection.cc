@@ -32,7 +32,7 @@ void LayerProjection::init(Settings const& settings,
 
   assert(iphiproj >= 0);
 
-  if (rproj < 60.0) {
+  if (rproj < settings.rPS2S()) {
     fpgaphiproj_.set(iphiproj, settings.nphibitsstub(0), true, __LINE__, __FILE__);
     int iphivm = (iphiproj >> (settings.nphibitsstub(0) - 5)) & 0x7;
     if ((projlayer_ % 2) == 1) {

@@ -26,7 +26,7 @@ namespace trklet {
   class Settings {
   public:
     Settings() {
-//Comment out to run tracklet-only algorithm
+      //Comment out to run tracklet-only algorithm
 #ifdef CMSSW_GIT_HASH
 #define USEHYBRID
 #endif
@@ -92,6 +92,7 @@ namespace trklet {
 
     double zlength() const { return zlength_; }
     double rmaxdisk() const { return rmaxdisk_; }
+    double rmindisk() const { return rmindisk_; }
 
     double drmax() const { return rmaxdisk_ / deltarzfract_; }
     double dzmax() const { return zlength_ / deltarzfract_; }
@@ -247,6 +248,8 @@ namespace trklet {
     double rmindiskl2overlapvm() const { return rmindiskl2overlapvm_; }
     double rmindiskl3overlapvm() const { return rmindiskl3overlapvm_; }
 
+    double rPS2S() const { return rPS2S_; }
+
     double z0cut() const { return z0cut_; }
 
     unsigned int NLONGVMBITS() const { return NLONGVMBITS_; }
@@ -374,12 +377,15 @@ namespace trklet {
     double rmindiskl2overlapvm_{40.0};
     double rmindiskl3overlapvm_{50.0};
 
+    double rPS2S_{60.0};
+
     double z0cut_{15.0};
 
     unsigned int NLONGVMBITS_{3};
 
     double zlength_{120.0};
     double rmaxdisk_{120.0};
+    double rmindisk_{20.0};
 
     double half2SmoduleWidth_{4.57};
 
@@ -592,7 +598,6 @@ namespace trklet {
                                                             {"AS", false}};
 
     std::array<double, N_DSS_MOD> rDSSinner_mod_{{68.9391, 78.7750, 85.4550, 96.3150, 102.3160}};
-
     std::array<double, N_DSS_MOD> rDSSouter_mod_{{66.4903, 76.7750, 84.4562, 94.9920, 102.3160}};
 
     //we want the center of the two strip positions in a module, not just the center of a module
