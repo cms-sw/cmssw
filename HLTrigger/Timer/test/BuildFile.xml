@@ -5,3 +5,7 @@
   <use name="FWCore/Framework"/>
   <use name="root"/>
 </bin>
+
+<bin name="processor_model_t" file="processor_model_t.cc">
+  <use name="HLTrigger/Timer"/>
+</bin>
