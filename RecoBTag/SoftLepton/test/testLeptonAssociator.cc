@@ -104,7 +104,6 @@ void printAssociations(const char* label,
     found_bychi2 = bychi2[tp];
 
   typedef std::tuple<double, double> Quality;
-  Quality quality;
   std::map<edm::RefToBase<reco::Track>, Quality> found;
   for (std::vector<std::pair<edm::RefToBase<reco::Track>, double> >::const_iterator it = found_byhits.begin();
        it != found_byhits.end();
@@ -147,7 +146,6 @@ void printAssociations(const char* label,
     found_bychi2 = bychi2[tp];
 
   typedef std::tuple<double, double> Quality;
-  Quality quality;
   std::map<TrackingParticleRef, Quality> found;
   for (std::vector<std::pair<TrackingParticleRef, double> >::const_iterator it = found_byhits.begin();
        it != found_byhits.end();
