@@ -1,7 +1,7 @@
 #include <iostream>
 #include <dlfcn.h>
 
-#include "memory_usage.h"
+#include "HLTrigger/Timer/interface/memory_usage.h"
 
 // see <jemalloc/jemalloc.h>
 extern "C" {
