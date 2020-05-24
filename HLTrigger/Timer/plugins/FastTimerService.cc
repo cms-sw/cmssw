@@ -33,11 +33,9 @@ using json = nlohmann::json;
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "HLTrigger/Timer/interface/memory_usage.h"
+#include "HLTrigger/Timer/interface/processor_model.h"
 #include "FastTimerService.h"
-
-// local headers
-#include "memory_usage.h"
-#include "processor_model.h"
 
 using namespace std::literals;
 
