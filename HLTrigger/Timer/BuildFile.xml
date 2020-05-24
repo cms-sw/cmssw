@@ -1,12 +1,11 @@
-<use name="DataFormats/HLTReco"/>
+<use name="sigcpp"/>
+<use name="boost_chrono"/>
 <use name="DataFormats/Provenance"/>
 <use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Utilities"/>
-<use name="DQMServices/Core"/>
-<use name="sigcpp"/>
-<use name="boost_chrono"/>
 <export>
   <lib name="1"/>
 </export>
