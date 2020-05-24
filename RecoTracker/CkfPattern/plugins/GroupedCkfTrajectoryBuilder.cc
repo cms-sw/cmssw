@@ -836,15 +836,13 @@ void GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed& see
   auto hitCloner = static_cast<TkTransientTrackingRecHitBuilder const*>(hitBuilder())->cloner();
   KFTrajectoryFitter fitter(backwardPropagator(seed), &updator(), &estimator(), 3, nullptr, &hitCloner);
   //
-  TrajectorySeed::range rseedHits = seed.recHits();
   std::vector<const TrackingRecHit*> seedHits;
   //seedHits.insert(seedHits.end(), rseedHits.first, rseedHits.second);
   //for (TrajectorySeed::recHitContainer::const_iterator iter = rseedHits.first; iter != rseedHits.second; iter++){
   //	seedHits.push_back(&*iter);
   //}
 
-  //unsigned int nSeed(seedHits.size());
-  unsigned int nSeed(rseedHits.second - rseedHits.first);
+  unsigned int nSeed = seed.nHits();
   //seedHits.reserve(nSeed);
   TempTrajectoryContainer rebuiltTrajectories;
 
@@ -1077,11 +1075,8 @@ TempTrajectory GroupedCkfTrajectoryBuilder::backwardFit(TempTrajectory& candidat
   //cout << "firstTsos "<< firstTsos << endl;
   firstTsos.rescaleError(10.);
   //TrajectoryContainer bwdFitted(fitter.fit(fwdTraj.seed(),fwdTraj.recHits(),firstTsos));
-  Trajectory&& bwdFitted = fitter.fitOne(
-      TrajectorySeed(
-          PTrajectoryStateOnDet(), TrajectorySeed::recHitContainer(), oppositeDirection(candidate.direction())),
-      fwdTraj.recHits(),
-      firstTsos);
+  Trajectory&& bwdFitted =
+      fitter.fitOne(TrajectorySeed({}, {}, oppositeDirection(candidate.direction())), fwdTraj.recHits(), firstTsos);
   if
     UNLIKELY(!bwdFitted.isValid()) return TempTrajectory();
 
