@@ -525,7 +525,7 @@ void TrackBuildingAnalyzer::analyze(const edm::Event& iEvent,
   //double qoverp       = tsAtClosestApproachSeed.trackStateAtPCA().charge()/p.mag();
   //double theta        = p.theta();
   //double lambda       = M_PI/2-p.theta();
-  double numberOfHits = candidate.recHits().second - candidate.recHits().first;
+  double numberOfHits = candidate.nHits();
   double dxy = (-v.x() * sin(p.phi()) + v.y() * cos(p.phi()));
   double dz = v.z() - (v.x() * p.x() + v.y() * p.y()) / p.perp() * p.z() / p.perp();
 

@@ -167,7 +167,7 @@ TrajectorySeed MuonSeedCleaner::BiggerCone(std::vector<TrajectorySeed>& seeds) {
   int winner = 0;
   AlgebraicSymMatrix mat(5, 0);
   for (size_t i = 0; i < seeds.size(); i++) {
-    edm::OwnVector<TrackingRecHit>::const_iterator r1 = seeds[i].recHits().first;
+    auto r1 = seeds[i].recHits().begin();
     mat = r1->parametersError().similarityT(r1->projectionMatrix());
 
     int NRecHits = NRecHitsFromSegment(*r1);
@@ -219,9 +219,8 @@ TrajectorySeed MuonSeedCleaner::MoreRecHits(std::vector<TrajectorySeed>& seeds) 
   double betterChi2 = 99999.;
   for (size_t i = 0; i < seeds.size(); i++) {
     int theHits = 0;
-    for (edm::OwnVector<TrackingRecHit>::const_iterator r1 = seeds[i].recHits().first; r1 != seeds[i].recHits().second;
-         r1++) {
-      theHits += NRecHitsFromSegment(*r1);
+    for (auto const& r1 : seeds[i].recHits()) {
+      theHits += NRecHitsFromSegment(r1);
     }
 
     double theChi2 = SeedChi2(seeds[i]);
@@ -295,14 +294,13 @@ SeedContainer MuonSeedCleaner::SeedCandidates(std::vector<TrajectorySeed>& seeds
     //std::cout<<"  Seed: "<<i<<" w/"<<seeds[i].nHits()<<" segs "<<std::endl;
     // looking for 1st layer segment
     int idx = 0;
-    for (edm::OwnVector<TrackingRecHit>::const_iterator r1 = seeds[i].recHits().first; r1 != seeds[i].recHits().second;
-         r1++) {
+    for (auto const& r1 : seeds[i].recHits()) {
       idx++;
-      const GeomDet* gdet = theService->trackingGeometry()->idToDet((*r1).geographicalId());
+      const GeomDet* gdet = theService->trackingGeometry()->idToDet(r1.geographicalId());
       DetId geoId = gdet->geographicalId();
 
       if (geoId.subdetId() == MuonSubdetId::DT) {
-        DTChamberId DT_Id((*r1).geographicalId());
+        DTChamberId DT_Id(r1.geographicalId());
         //std::cout<<" ID:"<<DT_Id <<" pos:"<< r1->localPosition()  <<std::endl;
         if (DT_Id.station() != 1)
           continue;
@@ -310,7 +308,7 @@ SeedContainer MuonSeedCleaner::SeedCandidates(std::vector<TrajectorySeed>& seeds
       }
       if (geoId.subdetId() == MuonSubdetId::CSC) {
         idx++;
-        CSCDetId CSC_Id = CSCDetId((*r1).geographicalId());
+        CSCDetId CSC_Id = CSCDetId(r1.geographicalId());
         //std::cout<<" ID:"<<CSC_Id <<" pos:"<< r1->localPosition()  <<std::endl;
         if (CSC_Id.station() != 1)
           continue;
@@ -378,19 +376,18 @@ std::vector<SeedContainer> MuonSeedCleaner::GroupSeeds(std::vector<TrajectorySee
 
 unsigned int MuonSeedCleaner::OverlapSegments(const TrajectorySeed& seed1, const TrajectorySeed& seed2) {
   unsigned int overlapping = 0;
-  for (edm::OwnVector<TrackingRecHit>::const_iterator r1 = seed1.recHits().first; r1 != seed1.recHits().second; r1++) {
-    DetId id1 = (*r1).geographicalId();
+  for (auto const& r1 : seed1.recHits()) {
+    DetId id1 = r1.geographicalId();
     const GeomDet* gdet1 = theService->trackingGeometry()->idToDet(id1);
-    GlobalPoint gp1 = gdet1->toGlobal((*r1).localPosition());
+    GlobalPoint gp1 = gdet1->toGlobal(r1.localPosition());
 
-    for (edm::OwnVector<TrackingRecHit>::const_iterator r2 = seed2.recHits().first; r2 != seed2.recHits().second;
-         r2++) {
-      DetId id2 = (*r2).geographicalId();
+    for (auto const& r2 : seed2.recHits()) {
+      DetId id2 = r2.geographicalId();
       if (id1 != id2)
         continue;
 
       const GeomDet* gdet2 = theService->trackingGeometry()->idToDet(id2);
-      GlobalPoint gp2 = gdet2->toGlobal((*r2).localPosition());
+      GlobalPoint gp2 = gdet2->toGlobal(r2.localPosition());
 
       double dx = gp1.x() - gp2.x();
       double dy = gp1.y() - gp2.y();
@@ -406,9 +403,9 @@ unsigned int MuonSeedCleaner::OverlapSegments(const TrajectorySeed& seed1, const
 
 double MuonSeedCleaner::SeedChi2(const TrajectorySeed& seed) {
   double theChi2 = 0.;
-  for (edm::OwnVector<TrackingRecHit>::const_iterator r1 = seed.recHits().first; r1 != seed.recHits().second; r1++) {
+  for (auto const& r1 : seed.recHits()) {
     //std::cout<<"    segmet : "<<it <<std::endl;
-    theChi2 += NChi2OfSegment(*r1);
+    theChi2 += NChi2OfSegment(r1);
   }
   theChi2 = theChi2 / seed.nHits();
 
@@ -418,9 +415,9 @@ double MuonSeedCleaner::SeedChi2(const TrajectorySeed& seed) {
 
 int MuonSeedCleaner::SeedLength(const TrajectorySeed& seed) {
   int theHits = 0;
-  for (edm::OwnVector<TrackingRecHit>::const_iterator r1 = seed.recHits().first; r1 != seed.recHits().second; r1++) {
+  for (auto const& recHit : seed.recHits()) {
     //std::cout<<"    segmet : "<<it <<std::endl;
-    theHits += NRecHitsFromSegment(*r1);
+    theHits += NRecHitsFromSegment(recHit);
   }
 
   //std::cout<<" final Length :"<<NSegs<<std::endl;

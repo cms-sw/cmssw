@@ -755,10 +755,9 @@ void TrackListMerger::produce(edm::Event& e, const edm::EventSetup& es) {
         edm::InputTag clusterRemovalInfos("");
         //grab on of the hits of the seed
         if (origSeedRef->nHits() != 0) {
-          TrajectorySeed::const_iterator firstHit = origSeedRef->recHits().first;
-          const TrackingRecHit* hit = &*firstHit;
-          if (firstHit->isValid()) {
-            edm::ProductID pID = clusterProductB(hit);
+          TrackingRecHit const& hit = origSeedRef->recHits()[0];
+          if (hit.isValid()) {
+            edm::ProductID pID = clusterProductB(&hit);
             // the cluster collection either produced a removalInfo or mot
             //get the clusterremoval info from the provenance: will rekey if this is found
             edm::Handle<reco::ClusterRemovalInfo> CRIh;
@@ -770,12 +769,10 @@ void TrackListMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 
         if (doRekeyOnThisSeed && !(clusterRemovalInfos == edm::InputTag(""))) {
           ClusterRemovalRefSetter refSetter(e, clusterRemovalInfos);
-          TrajectorySeed::recHitContainer newRecHitContainer;
+          TrajectorySeed::RecHitContainer newRecHitContainer;
           newRecHitContainer.reserve(origSeedRef->nHits());
-          TrajectorySeed::const_iterator iH = origSeedRef->recHits().first;
-          TrajectorySeed::const_iterator iH_end = origSeedRef->recHits().second;
-          for (; iH != iH_end; ++iH) {
-            newRecHitContainer.push_back(*iH);
+          for (auto const& recHit : origSeedRef->recHits()) {
+            newRecHitContainer.push_back(recHit);
             refSetter.reKey(&newRecHitContainer.back());
           }
           outputSeeds->push_back(
