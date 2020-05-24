@@ -38,7 +38,7 @@ namespace {
     size_t ptr_s = sizeof(uint64_t *);
 
     if (have_jemalloc_and_stats)
-      // get pointers to the thread-specific allocation statistics
+      // get a pointer to the thread-specific allocation statistics
       mallctl("thread.allocatedp", &stats, &ptr_s, nullptr, 0);
 
     return stats;
@@ -49,7 +49,7 @@ namespace {
     size_t ptr_s = sizeof(uint64_t *);
 
     if (have_jemalloc_and_stats)
-      // get pointers to the thread-specific allocation statistics
+      // get a pointer to the thread-specific allocation statistics
       mallctl("thread.deallocatedp", &stats, &ptr_s, nullptr, 0);
 
     return stats;
@@ -62,3 +62,16 @@ bool memory_usage::is_available() { return have_jemalloc_and_stats; }
 uint64_t memory_usage::allocated() { return *thread_allocated_p; }
 
 uint64_t memory_usage::deallocated() { return *thread_deallocated_p; }
+
+uint64_t memory_usage::peak() {
+  uint64_t peak = 0;
+  size_t size = sizeof(uint64_t);
+  if (is_available())
+    mallctl("thread.peak.read", &peak, &size, NULL, 0);
+  return peak;
+}
+
+void memory_usage::reset_peak() {
+  if (is_available())
+    mallctl("thread.peak.reset", NULL, NULL, NULL, 0);
+}

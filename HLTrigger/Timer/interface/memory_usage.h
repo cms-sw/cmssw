@@ -8,6 +8,8 @@ public:
   static bool is_available();
   static uint64_t allocated();
   static uint64_t deallocated();
+  static uint64_t peak();
+  static void reset_peak();
 };
 
 #endif  // memory_usage_h
