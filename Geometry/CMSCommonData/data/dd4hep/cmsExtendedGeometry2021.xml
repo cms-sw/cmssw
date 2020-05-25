@@ -247,7 +247,7 @@
     <Include ref="Geometry/ForwardCommonData/data/totemt2/2021/v1/totemt2.xml"/>
     <Include ref="Geometry/ForwardCommonData/data/forwardshield/2021/v1/forwardshield.xml"/>
     <Include ref="Geometry/ForwardCommonData/data/brmrotations.xml"/>
-    <Include ref="Geometry/ForwardCommonData/data/PostLS2/brm.xml"/>
+    <Include ref="Geometry/ForwardCommonData/data/brm/2021/v1/brm.xml"/>
     <Include ref="Geometry/ForwardCommonData/data/zdcmaterials.xml"/>
     <Include ref="Geometry/ForwardCommonData/data/lumimaterials.xml"/>
     <Include ref="Geometry/ForwardCommonData/data/zdcrotations.xml"/>
