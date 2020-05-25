@@ -2584,6 +2584,7 @@ unsigned int MTVHistoProducerAlgoForTracker::getSeedingLayerSetBin(const reco::T
     const bool isStripMono = subdetStrip && trackerHitRTTI::isSingle(recHit);
     searchId[i] =
         SeedingLayerId(SeedingLayerSetsBuilder::SeedingLayerId(subdet, side, ttopo.layer(detId)), isStripMono);
+    ++i;
   }
   auto found = seedingLayerSetToBin.find(searchId);
   if (found == seedingLayerSetToBin.end()) {

@@ -26,7 +26,7 @@ namespace fastTrackingUtilities {
           << "  given object has 0 hits" << std::endl;
     }
 
-    const TrackingRecHit &recHit = object.recHits()[0];
+    const TrackingRecHit &recHit = *object.recHits().begin();
     if (!trackerHitRTTI::isFast(recHit)) {
       throw cms::Exception("fastTrackingHelpers::setRecHitCombinationIndex")
           << "  one of hits in OwnVector is non-fastsim" << std::endl;

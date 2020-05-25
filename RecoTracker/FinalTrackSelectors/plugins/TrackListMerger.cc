@@ -755,7 +755,7 @@ void TrackListMerger::produce(edm::Event& e, const edm::EventSetup& es) {
         edm::InputTag clusterRemovalInfos("");
         //grab on of the hits of the seed
         if (origSeedRef->nHits() != 0) {
-          TrackingRecHit const& hit = origSeedRef->recHits()[0];
+          TrackingRecHit const& hit = *origSeedRef->recHits().begin();
           if (hit.isValid()) {
             edm::ProductID pID = clusterProductB(&hit);
             // the cluster collection either produced a removalInfo or mot

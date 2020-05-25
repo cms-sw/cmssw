@@ -37,7 +37,8 @@ namespace {
     if (s1.nHits() != s2.nHits())
       return false;
 
-    auto const &r1 = s1.recHits(), r2 = s2.recHits();
+    TrajectorySeed::RecHitRange r1 = s1.recHits();
+    TrajectorySeed::RecHitRange r2 = s2.recHits();
     for (auto i1 = r1.begin(), i2 = r2.begin(); i1 != r1.end(); ++i1, ++i2) {
       if (!i1->isValid() || !i2->isValid())
         return false;

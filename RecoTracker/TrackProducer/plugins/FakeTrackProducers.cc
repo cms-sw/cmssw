@@ -37,8 +37,10 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 namespace {
-  auto getHits(const TrajectorySeed &seed) { return seed.recHits(); }
-  auto getHits(const TrackCandidate &seed) {
+  edm::Range<edm::OwnVector<TrackingRecHit>::const_iterator> getHits(const TrajectorySeed &seed) {
+    return seed.recHits();
+  }
+  edm::Range<edm::OwnVector<TrackingRecHit>::const_iterator> getHits(const TrackCandidate &seed) {
     auto range = seed.recHits();
     return edm::Range{range.first, range.second};
   }

@@ -60,7 +60,7 @@ void FastTSGFromIOHit::trackerSeeds(const TrackCand& staMuon,
   for (const auto& seeds : seedCollections) {
     for (const auto& seed : *seeds) {
       // Find the simtrack corresponding to the seed
-      int simTrackId = static_cast<FastTrackerRecHit const&>(seed.recHits()[0]).simTrackId(0);
+      int simTrackId = static_cast<FastTrackerRecHit const&>(*seed.recHits().begin()).simTrackId(0);
       const SimTrack& simTrack = (*simTracks)[simTrackId];
 
       // skip if simTrack already associated to a seed

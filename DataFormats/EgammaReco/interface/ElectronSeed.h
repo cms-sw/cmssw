@@ -134,7 +134,7 @@ namespace reco {
                                              const float dRZ2Pos,
                                              const float dRZ2Neg,
                                              const char hitMask,
-                                             RecHitContainer const& recHits);
+                                             TrajectorySeed::RecHitRange const& recHits);
 
   private:
     static float bestVal(float val1, float val2) { return std::abs(val1) < std::abs(val2) ? val1 : val2; }
