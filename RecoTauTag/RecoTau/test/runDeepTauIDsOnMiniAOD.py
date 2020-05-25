@@ -30,7 +30,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(eventsToProc
 
 # Add new TauIDs
 import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
-tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, debug = False,
+tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, debug = False,
                     updatedTauName = updatedTauName,
                     toKeep = [ "2017v2", "dR0p32017v2", "newDM2017v2",
                                # "deepTau2017v1",
