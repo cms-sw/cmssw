@@ -6,6 +6,7 @@ from L1Trigger.L1THGCal.egammaIdentification import egamma_identification_drnn_c
 
 from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
 from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
+from Configuration.Eras.Modifier_phase2_hgcalV11_cff import phase2_hgcalV11
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 
 
@@ -149,10 +150,17 @@ energy_interpretations_em = cms.PSet(type = cms.string('HGCalTriggerClusterInter
                                      dr_bylayer = cms.vdouble([0.015]*15)
                                      )
 
-phase2_hgcalV10.toModify(energy_interpretations_em,
-                         layer_containment_corrs=cms.vdouble(0., 0., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.),
-                         scale_correction_coeff=cms.vdouble(0., 0.),
-                         )
+phase2_hgcalV10.toModify(
+        energy_interpretations_em,
+        layer_containment_corrs=cms.vdouble(0., 0.0, 2.0, 2.0, 0.63, 0.5, 1.91, 0.5, 1.3, 1.27, 0.66, 0.76, 0.78, 2.0, 2.0),
+        scale_correction_coeff=cms.vdouble(-43.074539, 76.823082),
+        )
+
+phase2_hgcalV11.toModify(
+        energy_interpretations_em,
+        layer_containment_corrs=cms.vdouble(0., 0.0, 2.0, 1.29, 0.5, 1.73, 0.5, 1.25, 1.46, 0.75, 0.68, 0.5, 1.89, 1.83, 1.71),
+        scale_correction_coeff=cms.vdouble(-41.7769, 80.5795),
+        )
 
 
 energy_interpretations = cms.VPSet(energy_interpretations_em)
