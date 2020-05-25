@@ -39,8 +39,8 @@ class TauIDEmbedder(object):
         self.updatedTauName = updatedTauName
         self.process.load('RecoTauTag.Configuration.loadRecoTauTagMVAsFromPrepDB_cfi')
         if len(conditionDB) != 0:
-            self.process.CondDBTauConnection.connect = cms.string(conditionDB)
-            self.process.loadRecoTauTagMVAsFromPrepDB.connect = cms.string(conditionDB)
+            self.process.CondDBTauConnection.connect = self.cms.string(conditionDB)
+            self.process.loadRecoTauTagMVAsFromPrepDB.connect = self.cms.string(conditionDB)
             # if debug:
             # 	print self.process.CondDBTauConnection.connect
             # 	print dir(self.process.loadRecoTauTagMVAsFromPrepDB)
