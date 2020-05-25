@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh -e
 
 set -x
 
@@ -30,23 +30,63 @@ while getopts ":n:" opt; do
 done
 
 # GEN-SIM goes first
-if [ ! -f SingleMuPt10_pythia8_cfi_GEN_SIM.root ] ; then
+if [ ! -f step1.root ] ; then
   cmsDriver.py SingleMuPt10_pythia8_cfi \
 -s GEN,SIM \
 --conditions auto:phase1_2021_realistic \
 --geometry ${geometry2021} \
---procModifiers dd4hep \
 -n ${events} \
---era Run3 \
+--era Run3_dd4hep \
 --eventcontent FEVTDEBUG \
 --datatier GEN-SIM \
 --beamspot NoSmear \
 --nThreads=4 \
---fileout file:SingleMuPt10_pythia8_cfi_GEN_SIM.root \
---python_filename SingleMuPt10_pythia8_cfi_GEN_SIM.py > SingleMuPt10_pythia8_cfi_GEN_SIM.log 2>&1
+--fileout file:step1.root \
+--python_filename SingleMuPt10_pythia8_cfi_GEN_SIM.py > step1.log 2>&1
 
     if [ $? -ne 0 ]; then
       echo "Error executing the GEN-SIM step, aborting."
+      exit 1
+    fi
+fi
+
+#DIGI-L1-HLT
+if [ -f step1.root ] ; then
+  cmsDriver.py step2 \
+-s DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2021 \
+--conditions auto:phase1_2021_realistic \
+--geometry ${geometry2021} \
+-n ${events} \
+--era Run3_dd4hep \
+--eventcontent FEVTDEBUGHLT \
+--datatier GEN-SIM-DIGI-RAW \
+--nThreads=4 \
+--filein  file:step1.root  \
+--fileout file:step2.root > step2.log 2>&1
+
+    if [ $? -ne 0 ]; then
+      echo "Error executing the DIGI-L1-HLT step, aborting."
+      exit 1
+    fi
+fi
+
+#RECO-DQM
+if [ -f step2.root ] ; then
+  cmsDriver.py step3  \
+-s RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM \
+--conditions auto:phase1_2021_realistic \
+--geometry ${geometry2021} \
+-n ${events} \
+--era Run3_dd4hep \
+--eventcontent RECOSIM,MINIAODSIM,DQM \
+--datatier GEN-SIM-RECO,MINIAODSIM,DQMIO \
+--runUnscheduled \
+--nThreads=4 \
+--filein  file:step2.root \
+--fileout file:step3.root > step3.log 2>&1
+
+    if [ $? -ne 0 ]; then
+      echo "Error executing the RECO-DQM step, aborting."
       exit 1
     fi
 fi
