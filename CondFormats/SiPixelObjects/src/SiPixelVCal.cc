@@ -40,3 +40,25 @@ float SiPixelVCal::getOffset(const uint32_t& pixid) const {
     edm::LogError("SiPixelVCal") << "SiPixelVCal offset for pixid " << pixid << " is not stored" << std::endl;
   return -60.;
 }
+
+SiPixelVCal::mapToDetId SiPixelVCal::getAllSlopes() const {
+  std::map<uint32_t, float> slopes;
+  std::transform(m_vcal.begin(),
+                 m_vcal.end(),
+                 std::inserter(slopes, slopes.end()),
+                 [](std::pair<uint32_t, SiPixelVCal::VCal> vcalentry) -> std::pair<uint32_t, float> {
+                   return std::make_pair(vcalentry.first, vcalentry.second.slope);
+                 });
+  return slopes;
+}
+
+SiPixelVCal::mapToDetId SiPixelVCal::getAllOffsets() const {
+  std::map<uint32_t, float> offsets;
+  std::transform(m_vcal.begin(),
+                 m_vcal.end(),
+                 std::inserter(offsets, offsets.end()),
+                 [](std::pair<uint32_t, SiPixelVCal::VCal> vcalentry) -> std::pair<uint32_t, float> {
+                   return std::make_pair(vcalentry.first, vcalentry.second.offset);
+                 });
+  return offsets;
+}
