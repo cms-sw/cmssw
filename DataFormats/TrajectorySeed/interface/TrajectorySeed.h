@@ -5,6 +5,7 @@
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
+#include "FWCore/Utilities/interface/Range.h"
 #include <utility>
 #include <algorithm>
 
@@ -17,6 +18,7 @@
 class TrajectorySeed {
 public:
   typedef edm::OwnVector<TrackingRecHit> RecHitContainer;
+  typedef edm::Range<RecHitContainer::const_iterator> RecHitRange;
 
   TrajectorySeed() {}
   virtual ~TrajectorySeed() {}
@@ -47,7 +49,7 @@ public:
 
   TrajectorySeed& operator=(TrajectorySeed&& o) noexcept = default;
 
-  auto const& recHits() const { return hits_; }
+  RecHitRange recHits() const { return {hits_.begin(), hits_.end()}; }
   unsigned int nHits() const { return hits_.size(); }
   PropagationDirection direction() const { return dir_; }
   PTrajectoryStateOnDet const& startingState() const { return tsos_; }
