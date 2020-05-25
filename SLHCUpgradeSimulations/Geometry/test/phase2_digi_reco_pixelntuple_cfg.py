@@ -99,7 +99,7 @@ process.mix.digitizers.pixel.PixelDigitizerAlgorithm.AddXTalk = cms.bool(False)
 
 # clusterizer
 process.siPixelClusters.ElectronPerADCGain  = cms.double(135.)
-process.siPixelClustersPreSplitting.ElectronPerADCGain  = cms.double(135.)
+process.siPixelClustersPreSplitting.cpu.ElectronPerADCGain  = cms.double(135.)
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T14', '')
