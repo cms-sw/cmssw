@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
 from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
+from Configuration.Eras.Modifier_phase2_hgcalV11_cff import phase2_hgcalV11
 
 inputs_small = ['cl3d_firstlayer', 'cl3d_coreshowerlength', 'cl3d_maxlayer', 'cl3d_srrmean']
 inputs_large = ['cl3d_coreshowerlength', 'cl3d_showerlength', 'cl3d_firstlayer', 'cl3d_maxlayer', 'cl3d_szz', 'cl3d_srrmean', 'cl3d_srrtot', 'cl3d_seetot', 'cl3d_spptot']
@@ -218,6 +219,14 @@ phase2_hgcalV9.toModify(egamma_identification_histomax,
         )
 
 phase2_hgcalV10.toModify(egamma_identification_histomax,
+        Inputs=cms.vstring(input_features_histomax['v10_3151']),
+        Weights=cms.vstring(bdt_weights_histomax['v10_3151']),
+        WorkingPoints=cms.vdouble(
+                [wps[eff] for wps,eff in zip(working_points_histomax['v10_3151'],tight_wp)]
+                )
+        )
+
+phase2_hgcalV11.toModify(egamma_identification_histomax,
         Inputs=cms.vstring(input_features_histomax['v10_3151']),
         Weights=cms.vstring(bdt_weights_histomax['v10_3151']),
         WorkingPoints=cms.vdouble(
