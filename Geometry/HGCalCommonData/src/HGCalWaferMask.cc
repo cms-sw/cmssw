@@ -125,7 +125,7 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
           break;
         }
         case (HGCalGeomTools::WaferCorner2): {
-	  int v2 = (v + 1) / 2;
+          int v2 = (v + 1) / 2;
           good = ((u - v2) < n);
           break;
         }
@@ -139,7 +139,7 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
           break;
         }
         default: {
-	  int v2 = v / 2;
+          int v2 = v / 2;
           good = (u > v2);
           break;
         }
@@ -269,7 +269,7 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
           break;
         }
         case (HGCalGeomTools::WaferCorner1): {
-	  int v2 = v / 2;
+          int v2 = v / 2;
           good = (u <= v2);
           break;
         }
@@ -283,7 +283,7 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
           break;
         }
         case (HGCalGeomTools::WaferCorner4): {
-	  int v2 = v / 2;
+          int v2 = v / 2;
           good = ((u - v2) >= n);
           break;
         }
@@ -359,9 +359,9 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
       iok *= base;
     }
   }
-  static const int ipat5[corners] = {101111,110111,111011,111101,111110,11111};
-  static const int ipat4[corners] = {100111,110011,111001,111100,11110,1111};
-  static const int ipat3[corners] = {100011,110001,111000,11100,1110,111};
+  static const int ipat5[corners] = {101111, 110111, 111011, 111101, 111110, 11111};
+  static const int ipat4[corners] = {100111, 110011, 111001, 111100, 11110, 1111};
+  static const int ipat3[corners] = {100011, 110001, 111000, 11100, 1110, 111};
   double dx1[corners] = {0.5 * delX, delX, 0.5 * delX, -0.5 * delX, -delX, -0.5 * delX};
   double dy1[corners] = {-0.75 * delY, 0.0, 0.75 * delY, 0.75 * delY, 0.0, -0.75 * delY};
   double dx2[corners] = {0.5 * delX, -0.5 * delX, -delX, -0.5 * delX, 0.5 * delX, delX};
@@ -405,12 +405,12 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
       if (rpos <= rout && rpos >= rin)
         type = HGCalGeomTools::WaferSemi;
       if ((type == HGCalGeomTools::WaferThree) && (wType == 0)) {
-	rpos = sqrt((xpos + dx3[rotn]) * (xpos + dx3[rotn]) + (ypos + dy3[rotn]) * (ypos + dy3[rotn]));
-	if (rpos <= rout && rpos >= rin) {
-	  rpos = sqrt((xpos + dx6[rotn]) * (xpos + dx6[rotn]) + (ypos + dy6[rotn]) * (ypos + dy6[rotn]));
-	  if (rpos <= rout && rpos >= rin)
-	    type = HGCalGeomTools::WaferSemi2;
-	}
+        rpos = sqrt((xpos + dx3[rotn]) * (xpos + dx3[rotn]) + (ypos + dy3[rotn]) * (ypos + dy3[rotn]));
+        if (rpos <= rout && rpos >= rin) {
+          rpos = sqrt((xpos + dx6[rotn]) * (xpos + dx6[rotn]) + (ypos + dy6[rotn]) * (ypos + dy6[rotn]));
+          if (rpos <= rout && rpos >= rin)
+            type = HGCalGeomTools::WaferSemi2;
+        }
       }
     }
   } else {
@@ -420,5 +420,5 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Pattern " << iok << " Corners " << ncor << " Type " << type << ":" << rotn;
 #endif
-  return ((mode == 0) ? std::make_pair(ncor, rotn) : std::make_pair(type, (rotn +  HGCalWaferMask::k_OffsetRotation)));
+  return ((mode == 0) ? std::make_pair(ncor, rotn) : std::make_pair(type, (rotn + HGCalWaferMask::k_OffsetRotation)));
 }
