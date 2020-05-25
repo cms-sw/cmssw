@@ -1,16 +1,25 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("BeamPixel", eras.Run2_2018)
+import sys
+from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+process = cms.Process("BeamPixel", Run2_2018)
 
+unitTest=False
+if 'unitTest=True' in sys.argv:
+    unitTest=True
 
 #----------------------------
 # Common for PP and HI running
 #----------------------------
+
+if unitTest:
+    process.load("DQM.Integration.config.unittestinputsource_cfi")
+else:
+    process.load("DQM.Integration.config.inputsource_cfi")
+
 # Use this to run locally (for testing purposes)
 #process.load("DQM.Integration.config.fileinputsource_cfi")
-# Otherwise use this
-process.load("DQM.Integration.config.inputsource_cfi")
 
 
 #----------------------------
@@ -91,7 +100,7 @@ process.pixelTracksTrackingRegions.RegionPSet.originZPos       = cms.double(0.)
 if (process.runType.getRunType() == process.runType.pp_run or process.runType.getRunType() == process.runType.pp_run_stage1 or 
     process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.cosmic_run_stage1 or 
     process.runType.getRunType() == process.runType.hpu_run):
-    print "[beampixel_dqm_sourceclient-live_cfg]::running pp"
+    print("[beampixel_dqm_sourceclient-live_cfg]::running pp")
 
 
     #----------------------------
@@ -109,10 +118,10 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.muonDTDigis.inputLabel           = cms.InputTag("rawDataCollector")
     process.muonRPCDigis.InputLabel          = cms.InputTag("rawDataCollector")
     process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
-    process.siPixelDigis.InputLabel          = cms.InputTag("rawDataCollector")
+    process.siPixelDigis.cpu.InputLabel      = cms.InputTag("rawDataCollector")
     process.siStripDigis.ProductLabel        = cms.InputTag("rawDataCollector")
 
-
+    
     #----------------------------
     # pixelVertexDQM Config
     #----------------------------
@@ -144,7 +153,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
 # Heavy Ion Specific Section
 #----------------------------
 if (process.runType.getRunType() == process.runType.hi_run):
-    print "[beampixel_dqm_sourceclient-live_cfg]::running HI"
+    print("[beampixel_dqm_sourceclient-live_cfg]::running HI")
 
 
     #----------------------------
@@ -162,7 +171,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.muonDTDigis.inputLabel           = cms.InputTag("rawDataRepacker")
     process.muonRPCDigis.InputLabel          = cms.InputTag("rawDataRepacker")
     process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
-    process.siPixelDigis.InputLabel          = cms.InputTag("rawDataRepacker")
+    process.siPixelDigis.cpu.InputLabel      = cms.InputTag("rawDataRepacker")
     process.siStripDigis.ProductLabel        = cms.InputTag("rawDataRepacker")
 
 
@@ -200,7 +209,7 @@ if process.dqmRunConfig.type.value() is "production":
     process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmpro/BeamMonitorDQM/BeamPixelResults.txt")
 else:
     process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt")
-print "[beampixel_dqm_sourceclient-live_cfg]::saving DIP file into " + str(process.pixelVertexDQM.fileName)
+print("[beampixel_dqm_sourceclient-live_cfg]::saving DIP file into " + str(process.pixelVertexDQM.fileName))
 
 
 #----------------------------

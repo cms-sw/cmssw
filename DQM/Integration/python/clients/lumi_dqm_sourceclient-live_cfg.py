@@ -8,7 +8,6 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 # Event Source
 #----------------------------
 process.load("DQM.Integration.config.inputsource_cfi")
-from DQM.Integration.config.inputsource_cfi import options
 #process.DQMEventStreamHttpReader.consumerName = 'DQM Luminosity Consumer'
 #process.DQMEventStreamHttpReader.SelectHLTOutput = cms.untracked.string('hltOutputALCALUMIPIXELS')
 
@@ -18,9 +17,6 @@ from DQM.Integration.config.inputsource_cfi import options
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder    = "Info/Lumi"
 process.dqmSaver.tag = "Lumi"
-process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = "Lumi"
-process.dqmSaverPB.runNumber = options.runNumber
 
 #---------------------------------------------
 # Global Tag
@@ -49,7 +45,7 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.load("Configuration.StandardSequences.EndOfProcess_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.siPixelDigis.InputLabel = cms.InputTag("hltFEDSelectorLumiPixels")
+process.siPixelDigis.cpu.InputLabel = cms.InputTag("hltFEDSelectorLumiPixels")
 
 process.reconstruction_step = cms.Sequence(
     process.siPixelDigis +
@@ -67,8 +63,7 @@ process.load("DQMServices/Components/DQMLumiMonitor_cfi")
 process.dqmmodules = cms.Sequence(process.dqmEnv
                                   + process.expressLumiProducer
                                   + process.dqmLumiMonitor    
-                                  + process.dqmSaver
-                                  + process.dqmSaverPB)
+                                  + process.dqmSaver)
 #----------------------------
 # Proton-Proton Running Stuff
 #----------------------------

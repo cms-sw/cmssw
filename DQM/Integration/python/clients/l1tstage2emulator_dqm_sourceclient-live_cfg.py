@@ -1,13 +1,21 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
-process = cms.Process("L1TStage2EmulatorDQM", eras.Run2_2018)
+import sys
+from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+process = cms.Process("L1TStage2EmulatorDQM", Run2_2018)
+
+unitTest = False
+if 'unitTest=True' in sys.argv:
+    unitTest=True
 
 #--------------------------------------------------
 # Event Source and Condition
 
-# Live Online DQM in P5
-process.load("DQM.Integration.config.inputsource_cfi")
+if unitTest:
+    process.load("DQM.Integration.config.unittestinputsource_cfi")
+else:
+    # Live Online DQM in P5
+    process.load("DQM.Integration.config.inputsource_cfi")
 
 # Testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
@@ -27,7 +35,6 @@ process.load("DQM.Integration.config.environment_cfi")
 
 process.dqmEnv.subSystemFolder = "L1TEMU"
 process.dqmSaver.tag = "L1TEMU"
-process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1temu_reference.root"
 
 process.dqmEndPath = cms.EndPath(
     process.dqmEnv *
@@ -123,7 +130,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.muonRPCDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.muonGEMDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
-    process.siPixelDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataRepacker")
     process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
     process.tcdsDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.tcdsRawToDigi.InputLabel = cms.InputTag("rawDataRepacker")
@@ -135,8 +142,8 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.gctDigis.inputLabel = cms.InputTag("rawDataRepacker")
     process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")
     process.twinMuxStage2Digis.DTTM7_FED_Source = cms.InputTag("rawDataRepacker")
-    process.RPCTwinMuxRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
     process.bmtfDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.valBmtfAlgoSel.feds = cms.InputTag("rawDataRepacker")
     process.omtfStage2Digis.inputLabel = cms.InputTag("rawDataRepacker")
     process.emtfStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
     process.gmtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
@@ -147,6 +154,9 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.l1tdeStage2CaloLayer1.fedRawDataLabel = cms.InputTag("rawDataRepacker")
     process.gtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
     process.selfFatEventFilter.rawInput = cms.InputTag("rawDataRepacker")
+    process.rpcTwinMuxRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
+    process.rpcCPPFRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
+    process.hltFatEventFilter.HLTPaths.append('HLT_HIPhysics_v*')
 
 #--------------------------------------------------
 # L1T Emulator Online DQM Schedule
