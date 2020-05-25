@@ -2,8 +2,8 @@ from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 import sys
-from Configuration.Eras.Era_Run3_cff import Run3
-process = cms.Process("PIXELDQMLIVE", Run3)
+from Configuration.Eras.Era_Run2_2018_pp_on_AA_cff import Run2_2018_pp_on_AA
+process = cms.Process("PIXELDQMLIVE", Run2_2018_pp_on_AA)
 
 live=True
 unitTest = False
@@ -34,16 +34,13 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 if (unitTest):
     process.load("DQM.Integration.config.unittestinputsource_cfi")
-    from DQM.Integration.config.unittestinputsource_cfi import options
 
 elif (live):
     process.load("DQM.Integration.config.inputsource_cfi")
-    from DQM.Integration.config.inputsource_cfi import options
 
 # for testing in lxplus
 elif(offlineTesting):
     process.load("DQM.Integration.config.fileinputsource_cfi")
-    from DQM.Integration.config.fileinputsource_cfi import options
 
 #-----------------------------
 # DQM Environment
@@ -59,16 +56,13 @@ process.load("DQM.Integration.config.environment_cfi")
 
 process.dqmEnv.subSystemFolder = TAG
 process.dqmSaver.tag = TAG
-process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = TAG
-process.dqmSaverPB.runNumber = options.runNumber
 
 
 #-----------------------------
 # Magnetic Field
 #-----------------------------
 
-process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 
 #-------------------------------------------------
 # GEOMETRY
@@ -104,18 +98,19 @@ process.load("DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi")
 
 # PixelPhase1 Real data raw to digi
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
-process.siPixelDigis.IncludeErrors = True
+process.siPixelDigis.cpu.IncludeErrors = True
 
 if (process.runType.getRunType() == process.runType.hi_run):    
     #--------------------------------
     # Heavy Ion Configuration Changes
     #--------------------------------
-    process.siPixelDigis.InputLabel   = cms.InputTag("rawDataRepacker")
+    process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataRepacker")
     process.siStripDigis.ProductLabel   = cms.InputTag("rawDataRepacker")
     process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
 else :
-    process.siPixelDigis.InputLabel   = cms.InputTag("rawDataCollector")
-    process.siStripDigis.InputLabel   = cms.InputTag("rawDataCollector")
+    process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataCollector")
+    process.siStripDigis.InputLabel     = cms.InputTag("rawDataCollector")
+
 
 ## Collision Reconstruction
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
@@ -165,7 +160,7 @@ process.hltHighLevel.throw =  cms.bool(False)
 # Scheduling
 #--------------------------
 
-process.DQMmodules = cms.Sequence(process.dqmEnv* process.dqmSaver*process.dqmSaverPB)
+process.DQMmodules = cms.Sequence(process.dqmEnv* process.dqmSaver)
 
 process.RecoForDQM_LocalReco = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.gtDigis*process.trackerlocalreco)
 
@@ -185,7 +180,6 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
                          ##### TRIGGER SELECTION #####
                          process.hltHighLevel*
                          process.scalersRawToDigi*
-                         process.tcdsDigis*
                          process.APVPhases*
                          process.consecutiveHEs*
                          process.hltTriggerTypeFilter*
@@ -231,7 +225,6 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.p = cms.Path(
       process.hltHighLevel #trigger selection
      *process.scalersRawToDigi
-     *process.tcdsDigis
      *process.APVPhases
      *process.consecutiveHEs
      *process.Reco
