@@ -90,8 +90,8 @@ class TauIDEmbedder(object):
             if debug: print ("is_above_cmssw_version:", True)
             return True
 
-    def tauIDMVAinputs(module, wp):
-        return cms.PSet(inputTag = self.cms.InputTag(module), workingPointIndex = self.cms.int32(-1 if wp=="raw" else -2 if wp=="category" else getattr(self.process, module).workingPoints.index(wp)))
+    def tauIDMVAinputs(self, module, wp):
+        return self.cms.PSet(inputTag = self.cms.InputTag(module), workingPointIndex = self.cms.int32(-1 if wp=="raw" else -2 if wp=="category" else getattr(self.process, module).workingPoints.index(wp)))
 
     def loadMVA_WPs_run2_2017(self):
         if self.debug: print ("loadMVA_WPs_run2_2017: performed")
@@ -172,7 +172,7 @@ class TauIDEmbedder(object):
                         variable = self.cms.string("pt"),
                     )
                 ),
-                workingPoints = cms.vstring(
+                workingPoints = self.cms.vstring(
                     "_WPEff95",
                     "_WPEff90",
                     "_WPEff80",
@@ -190,14 +190,14 @@ class TauIDEmbedder(object):
             self.process.rerunMvaIsolationTask.add(self.rerunIsolationOldDMMVArun2017v1Task)
             self.process.rerunMvaIsolationSequence += self.cms.Sequence(self.rerunIsolationOldDMMVArun2017v1Task)
 
-            tauIDSources.byIsolationMVArun2017v1DBoldDMwLTraw2017 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v1", "raw")
-            tauIDSources.byVVLooseIsolationMVArun2017v1DBoldDMwLT2017 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v1", "_WPEff95")
-            tauIDSources.byVLooseIsolationMVArun2017v1DBoldDMwLT2017 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v1", "_WPEff90")
-            tauIDSources.byLooseIsolationMVArun2017v1DBoldDMwLT2017 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v1", "_WPEff80")
-            tauIDSources.byMediumIsolationMVArun2017v1DBoldDMwLT2017 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v1", "_WPEff70")
-            tauIDSources.byTightIsolationMVArun2017v1DBoldDMwLT2017 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v1", "_WPEff60")
-            tauIDSources.byVTightIsolationMVArun2017v1DBoldDMwLT2017 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v1", "_WPEff50")
-            tauIDSources.byVVTightIsolationMVArun2017v1DBoldDMwLT2017 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v1", "_WPEff40")
+            tauIDSources.byIsolationMVArun2017v1DBoldDMwLTraw2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v1", "raw")
+            tauIDSources.byVVLooseIsolationMVArun2017v1DBoldDMwLT2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v1", "_WPEff95")
+            tauIDSources.byVLooseIsolationMVArun2017v1DBoldDMwLT2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v1", "_WPEff90")
+            tauIDSources.byLooseIsolationMVArun2017v1DBoldDMwLT2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v1", "_WPEff80")
+            tauIDSources.byMediumIsolationMVArun2017v1DBoldDMwLT2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v1", "_WPEff70")
+            tauIDSources.byTightIsolationMVArun2017v1DBoldDMwLT2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v1", "_WPEff60")
+            tauIDSources.byVTightIsolationMVArun2017v1DBoldDMwLT2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v1", "_WPEff50")
+            tauIDSources.byVVTightIsolationMVArun2017v1DBoldDMwLT2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v1", "_WPEff40")
 
 
         if "2017v2" in self.toKeep:
@@ -243,7 +243,7 @@ class TauIDEmbedder(object):
                         variable = self.cms.string("pt"),
                     )
                 ),
-                workingPoints = cms.vstring(
+                workingPoints = self.cms.vstring(
                     "_WPEff95",
                     "_WPEff90",
                     "_WPEff80",
@@ -262,14 +262,14 @@ class TauIDEmbedder(object):
             self.process.rerunMvaIsolationTask.add(self.rerunIsolationOldDMMVArun2017v2Task)
             self.process.rerunMvaIsolationSequence += self.cms.Sequence(self.rerunIsolationOldDMMVArun2017v2Task)
 
-            tauIDSources.byIsolationMVArun2017v2DBoldDMwLTraw2017 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v2", "raw")
-            tauIDSources.byVVLooseIsolationMVArun2017v2DBoldDMwLT2017 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v2", "_WPEff95")
-            tauIDSources.byVLooseIsolationMVArun2017v2DBoldDMwLT2017 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v2", "_WPEff90")
-            tauIDSources.byLooseIsolationMVArun2017v2DBoldDMwLT2017 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v2", "_WPEff80")
-            tauIDSources.byMediumIsolationMVArun2017v2DBoldDMwLT2017 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v2", "_WPEff70")
-            tauIDSources.byTightIsolationMVArun2017v2DBoldDMwLT2017 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v2", "_WPEff60")
-            tauIDSources.byVTightIsolationMVArun2017v2DBoldDMwLT2017 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v2", "_WPEff50")
-            tauIDSources.byVVTightIsolationMVArun2017v2DBoldDMwLT2017 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v2", "_WPEff40")
+            tauIDSources.byIsolationMVArun2017v2DBoldDMwLTraw2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v2", "raw")
+            tauIDSources.byVVLooseIsolationMVArun2017v2DBoldDMwLT2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v2", "_WPEff95")
+            tauIDSources.byVLooseIsolationMVArun2017v2DBoldDMwLT2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v2", "_WPEff90")
+            tauIDSources.byLooseIsolationMVArun2017v2DBoldDMwLT2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v2", "_WPEff80")
+            tauIDSources.byMediumIsolationMVArun2017v2DBoldDMwLT2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v2", "_WPEff70")
+            tauIDSources.byTightIsolationMVArun2017v2DBoldDMwLT2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v2", "_WPEff60")
+            tauIDSources.byVTightIsolationMVArun2017v2DBoldDMwLT2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v2", "_WPEff50")
+            tauIDSources.byVVTightIsolationMVArun2017v2DBoldDMwLT2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2017v2", "_WPEff40")
 
         if "newDM2017v2" in self.toKeep:
             self.tauIdDiscrMVA_2017_version = "v2"
@@ -314,7 +314,7 @@ class TauIDEmbedder(object):
                         variable = self.cms.string("pt"),
                     )
                 ),
-                workingPoints = cms.vstring(
+                workingPoints = self.cms.vstring(
                     "_WPEff95",
                     "_WPEff90",
                     "_WPEff80",
@@ -333,14 +333,14 @@ class TauIDEmbedder(object):
             self.process.rerunMvaIsolationTask.add(self.rerunIsolationNewDMMVArun2017v2Task)
             self.process.rerunMvaIsolationSequence += self.cms.Sequence(self.rerunIsolationNewDMMVArun2017v2Task)
 
-            tauIDSources.byIsolationMVArun2017v2DBnewDMwLTraw2017 = tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2017v2", "raw")
-            tauIDSources.byVVLooseIsolationMVArun2017v2DBnewDMwLT2017 = tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2017v2", "_WPEff95")
-            tauIDSources.byVLooseIsolationMVArun2017v2DBnewDMwLT2017 = tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2017v2", "_WPEff90")
-            tauIDSources.byLooseIsolationMVArun2017v2DBnewDMwLT2017 = tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2017v2", "_WPEff80")
-            tauIDSources.byMediumIsolationMVArun2017v2DBnewDMwLT2017 = tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2017v2", "_WPEff70")
-            tauIDSources.byTightIsolationMVArun2017v2DBnewDMwLT2017 = tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2017v2", "_WPEff60")
-            tauIDSources.byVTightIsolationMVArun2017v2DBnewDMwLT2017 = tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2017v2", "_WPEff50")
-            tauIDSources.byVVTightIsolationMVArun2017v2DBnewDMwLT2017 = tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2017v2", "_WPEff40")
+            tauIDSources.byIsolationMVArun2017v2DBnewDMwLTraw2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2017v2", "raw")
+            tauIDSources.byVVLooseIsolationMVArun2017v2DBnewDMwLT2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2017v2", "_WPEff95")
+            tauIDSources.byVLooseIsolationMVArun2017v2DBnewDMwLT2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2017v2", "_WPEff90")
+            tauIDSources.byLooseIsolationMVArun2017v2DBnewDMwLT2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2017v2", "_WPEff80")
+            tauIDSources.byMediumIsolationMVArun2017v2DBnewDMwLT2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2017v2", "_WPEff70")
+            tauIDSources.byTightIsolationMVArun2017v2DBnewDMwLT2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2017v2", "_WPEff60")
+            tauIDSources.byVTightIsolationMVArun2017v2DBnewDMwLT2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2017v2", "_WPEff50")
+            tauIDSources.byVVTightIsolationMVArun2017v2DBnewDMwLT2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2017v2", "_WPEff40")
 
         if "dR0p32017v2" in self.toKeep:
             self.tauIdDiscrMVA_2017_version = "v2"
@@ -389,7 +389,7 @@ class TauIDEmbedder(object):
                         variable = self.cms.string("pt"),
                     )
                 ),
-                workingPoints = cms.vstring(
+                workingPoints = self.cms.vstring(
                     "_WPEff95",
                     "_WPEff90",
                     "_WPEff80",
@@ -408,14 +408,14 @@ class TauIDEmbedder(object):
             self.process.rerunMvaIsolationTask.add(self.rerunIsolationOldDMdR0p3MVArun2017v2Task)
             self.process.rerunMvaIsolationSequence += self.cms.Sequence(self.rerunIsolationOldDMdR0p3MVArun2017v2Task)
 
-            tauIDSources.byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2", "raw")
-            tauIDSources.byVVLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2", "_WPEff95")
-            tauIDSources.byVLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2", "_WPEff90")
-            tauIDSources.byLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2", "_WPEff80")
-            tauIDSources.byMediumIsolationMVArun2017v2DBoldDMdR0p3wLT2017 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2", "_WPEff70")
-            tauIDSources.byTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2", "_WPEff60")
-            tauIDSources.byVTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2", "_WPEff50")
-            tauIDSources.byVVTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2", "_WPEff40")
+            tauIDSources.byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2", "raw")
+            tauIDSources.byVVLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2", "_WPEff95")
+            tauIDSources.byVLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2", "_WPEff90")
+            tauIDSources.byLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2", "_WPEff80")
+            tauIDSources.byMediumIsolationMVArun2017v2DBoldDMdR0p3wLT2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2", "_WPEff70")
+            tauIDSources.byTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2", "_WPEff60")
+            tauIDSources.byVTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2", "_WPEff50")
+            tauIDSources.byVVTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2", "_WPEff40")
 
         # 2016 training strategy(v2) - essentially the same as 2017 training strategy (v1), trained on 2016MC, old DM - currently not implemented in the tau sequence of any release
         # self.process.rerunDiscriminationByIsolationOldDMMVArun2v2raw = patDiscriminationByIsolationMVArun2v1raw.clone(
@@ -467,7 +467,7 @@ class TauIDEmbedder(object):
                             variable = self.cms.string("pt"),
                         )
                     ),
-                    workingPoints = cms.vstring(
+                    workingPoints = self.cms.vstring(
                         "_WPEff90",
                         "_WPEff80",
                         "_WPEff70",
@@ -484,13 +484,13 @@ class TauIDEmbedder(object):
             self.process.rerunMvaIsolationTask.add(self.rerunIsolationOldDMMVArun2016v1Task)
             self.process.rerunMvaIsolationSequence += self.cms.Sequence(self.rerunIsolationOldDMMVArun2016v1Task)
 
-            tauIDSources.byIsolationMVArun2v1DBoldDMwLTraw2016 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2v1", "raw")
-            tauIDSources.byVLooseIsolationMVArun2v1DBoldDMwLT2016 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2v1", "_WPEff90")
-            tauIDSources.byLooseIsolationMVArun2v1DBoldDMwLT2016 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2v1", "_WPEff80")
-            tauIDSources.byMediumIsolationMVArun2v1DBoldDMwLT2016 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2v1", "_WPEff70")
-            tauIDSources.byTightIsolationMVArun2v1DBoldDMwLT2016 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2v1", "_WPEff60")
-            tauIDSources.byVTightIsolationMVArun2v1DBoldDMwLT2016 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2v1", "_WPEff50")
-            tauIDSources.byVVTightIsolationMVArun2v1DBoldDMwLT2016 = tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2v1", "_WPEff40")
+            tauIDSources.byIsolationMVArun2v1DBoldDMwLTraw2016 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2v1", "raw")
+            tauIDSources.byVLooseIsolationMVArun2v1DBoldDMwLT2016 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2v1", "_WPEff90")
+            tauIDSources.byLooseIsolationMVArun2v1DBoldDMwLT2016 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2v1", "_WPEff80")
+            tauIDSources.byMediumIsolationMVArun2v1DBoldDMwLT2016 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2v1", "_WPEff70")
+            tauIDSources.byTightIsolationMVArun2v1DBoldDMwLT2016 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2v1", "_WPEff60")
+            tauIDSources.byVTightIsolationMVArun2v1DBoldDMwLT2016 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2v1", "_WPEff50")
+            tauIDSources.byVVTightIsolationMVArun2v1DBoldDMwLT2016 = self.tauIDMVAinputs("rerunDiscriminationByIsolationOldDMMVArun2v1", "_WPEff40")
 
         # 2016 training strategy(v1), trained on 2016MC, new DM
         if "newDM2016v1" in self.toKeep:
@@ -516,7 +516,7 @@ class TauIDEmbedder(object):
                         variable = self.cms.string("pt"),
                     )
                 ),
-                workingPoints = cms.vstring(
+                workingPoints = self.cms.vstring(
                     "_WPEff90",
                     "_WPEff80",
                     "_WPEff70",
@@ -533,13 +533,13 @@ class TauIDEmbedder(object):
             self.process.rerunMvaIsolationTask.add(self.rerunIsolationNewDMMVArun2016v1Task)
             self.process.rerunMvaIsolationSequence += self.cms.Sequence(self.rerunIsolationNewDMMVArun2016v1Task)
 
-            tauIDSources.byIsolationMVArun2v1DBnewDMwLTraw2016 = tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2v1", "raw")
-            tauIDSources.byVLooseIsolationMVArun2v1DBnewDMwLT2016 = tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2v1", "_WPEff90")
-            tauIDSources.byLooseIsolationMVArun2v1DBnewDMwLT2016 = tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2v1", "_WPEff80")
-            tauIDSources.byMediumIsolationMVArun2v1DBnewDMwLT2016 = tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2v1", "_WPEff70")
-            tauIDSources.byTightIsolationMVArun2v1DBnewDMwLT2016 = tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2v1", "_WPEff60")
-            tauIDSources.byVTightIsolationMVArun2v1DBnewDMwLT2016 = tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2v1", "_WPEff50")
-            tauIDSources.byVVTightIsolationMVArun2v1DBnewDMwLT2016 = tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2v1", "_WPEff40")
+            tauIDSources.byIsolationMVArun2v1DBnewDMwLTraw2016 = self.tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2v1", "raw")
+            tauIDSources.byVLooseIsolationMVArun2v1DBnewDMwLT2016 = self.tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2v1", "_WPEff90")
+            tauIDSources.byLooseIsolationMVArun2v1DBnewDMwLT2016 = self.tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2v1", "_WPEff80")
+            tauIDSources.byMediumIsolationMVArun2v1DBnewDMwLT2016 = self.tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2v1", "_WPEff70")
+            tauIDSources.byTightIsolationMVArun2v1DBnewDMwLT2016 = self.tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2v1", "_WPEff60")
+            tauIDSources.byVTightIsolationMVArun2v1DBnewDMwLT2016 = self.tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2v1", "_WPEff50")
+            tauIDSources.byVVTightIsolationMVArun2v1DBnewDMwLT2016 = self.tauIDMVAinputs("rerunDiscriminationByIsolationNewDMMVArun2v1", "_WPEff40")
 
         if "deepTau2017v1" in self.toKeep:
             if self.debug: print ("Adding DeepTau IDs")
@@ -785,7 +785,7 @@ class TauIDEmbedder(object):
             )
             ## WPs
             from RecoTauTag.RecoTau.PATTauDiscriminantCutMultiplexer_cfi import patTauDiscriminantCutMultiplexer
-            self.process.patTauDiscriminationByVLooseElectronRejectionMVA62018 = patTauDiscriminantCutMultiplexer.clone(
+            self.process.patTauDiscriminationByElectronRejectionMVA62018 = patTauDiscriminantCutMultiplexer.clone(
                 PATTauProducer = self.process.patTauDiscriminationByElectronRejectionMVA62018Raw.PATTauProducer,
                 Prediscriminants = self.process.patTauDiscriminationByElectronRejectionMVA62018Raw.Prediscriminants,
                 toMultiplex = self.cms.InputTag("patTauDiscriminationByElectronRejectionMVA62018Raw"),
@@ -831,7 +831,7 @@ class TauIDEmbedder(object):
                         variable = self.cms.string('pt')
                     )
                 ),
-                workingPoints = cms.vstring(
+                workingPoints = self.cms.vstring(
                     "_WPeff98",
                     "_WPeff90",
                     "_WPeff80",
@@ -849,13 +849,13 @@ class TauIDEmbedder(object):
             self.process.rerunMvaIsolationSequence += self.process.patTauDiscriminationByElectronRejectionMVA62018Seq
 
             _againstElectronTauIDSources = self.cms.PSet(
-                againstElectronMVA6Raw2018 = tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA62018", "raw"),
-                againstElectronMVA6category2018 = tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA62018", "category"),
-                againstElectronVLooseMVA62018 = tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA62018", "_WPeff98"),
-                againstElectronLooseMVA62018 = tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA62018", "_WPeff90"),
-                againstElectronMediumMVA62018 = tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA62018", "_WPeff80"),
-                againstElectronTightMVA62018 = tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA62018", "_WPeff70"),
-                againstElectronVTightMVA62018 = tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA62018", "_WPeff60")
+                againstElectronMVA6Raw2018 = self.tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA62018", "raw"),
+                againstElectronMVA6category2018 = self.tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA62018", "category"),
+                againstElectronVLooseMVA62018 = self.tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA62018", "_WPeff98"),
+                againstElectronLooseMVA62018 = self.tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA62018", "_WPeff90"),
+                againstElectronMediumMVA62018 = self.tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA62018", "_WPeff80"),
+                againstElectronTightMVA62018 = self.tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA62018", "_WPeff70"),
+                againstElectronVTightMVA62018 = self.tauIDMVAinputs("patTauDiscriminationByElectronRejectionMVA62018", "_WPeff60")
             )
             _tauIDSourcesWithAgainistEle = self.cms.PSet(
                 tauIDSources.clone(),
