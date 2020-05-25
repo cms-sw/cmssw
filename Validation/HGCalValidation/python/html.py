@@ -10,7 +10,15 @@ _sampleName = {
     "RelValCloseByParticleGun_CE_H_Coarse_300um" : "CloseByParticleGun in CE-H Coarse section with 300 um",
     "RelValCloseByParticleGun_CE_E_Front_300um" : "CloseByParticleGun in CE-E Front section with 300 um",
     "RelValCloseByParticleGun_CE_E_Front_200um" : "CloseByParticleGun in CE-E Front section with 200 um",
-    "RelValCloseByParticleGun_CE_E_Front_120um" : "CloseByParticleGun in CE-E Front section with 120 um",
+    "RelValCloseByPGun_CE_E_Front_120um" : "CloseByParticleGun in CE-E Front section with 120 um",
+    "RelValCloseByPGun_CE_H_Fine_300um" : "CloseByParticleGun in CE-H Fine section with 300 um",
+    "RelValCloseByPGun_CE_H_Fine_200um" : "CloseByParticleGun in CE-H Fine section with 200 um",
+    "RelValCloseByPGun_CE_H_Fine_120um" : "CloseByParticleGun in CE-H Fine section with 120 um",
+    "RelValCloseByPGun_CE_H_Coarse_Scint" : "CloseByParticleGun in CE-H Coarse section with scintillator",
+    "RelValCloseByPGun_CE_H_Coarse_300um" : "CloseByParticleGun in CE-H Coarse section with 300 um",
+    "RelValCloseByPGun_CE_E_Front_300um" : "CloseByParticleGun in CE-E Front section with 300 um",
+    "RelValCloseByPGun_CE_E_Front_200um" : "CloseByParticleGun in CE-E Front section with 200 um",
+    "RelValCloseByPGun_CE_E_Front_120um" : "CloseByParticleGun in CE-E Front section with 120 um",
     "RelValTTbar" : "TTbar",
     "RelValSingleGammaFlatPt8To150" : "Single Gamma Pt 8 GeV to 150 GeV ",
     "RelValSingleMuPt10" : "Single Muon Pt 10 GeV",
@@ -122,7 +130,8 @@ summhitcalib=[
     'Layer_Occupancy/LayerOccupancy_LayerOccupancy.png',
     'ReconstructableEnergyOverCPenergy/ReconstructableEnergyOverCPenergy_h_EoP_CPene_300_calib_fraction.png',
     'ReconstructableEnergyOverCPenergy/ReconstructableEnergyOverCPenergy_h_EoP_CPene_200_calib_fraction.png',
-    'ReconstructableEnergyOverCPenergy/ReconstructableEnergyOverCPenergy_h_EoP_CPene_100_calib_fraction.png'
+    'ReconstructableEnergyOverCPenergy/ReconstructableEnergyOverCPenergy_h_EoP_CPene_100_calib_fraction.png',
+    'ReconstructableEnergyOverCPenergy/ReconstructableEnergyOverCPenergy_h_EoP_CPene_scint_calib_fraction.png'
     ]
 
 #Plots to keep in summary from hitValidation
@@ -152,9 +161,9 @@ summlc = [
 #Plots to keep in summary from multiClustersFromTrackstersEM
 summmcEM = [
     'Efficiencies/Efficiencies_globalEfficiencies.png' ,
-    'Duplicates/Duplicates_globalDuplicates.png' ,
-    'FakeRate/FakeRate_globalFakeRate.png' ,
-    'MergeRate/MergeRate_globalMergeRate.png'
+    'Duplicates/Duplicates_globalEfficiencies.png' ,
+    'FakeRate/FakeRate_globalEfficiencies.png' ,
+    'MergeRate/MergeRate_globalEfficiencies.png'
 ]
 
 #Plots to keep in summary from multiClustersFromTrackstersHAD
