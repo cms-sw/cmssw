@@ -112,15 +112,15 @@ namespace {
     if (pfLeadChargedHadron.isNonnull()) {
       const pat::PackedCandidate* pCand = dynamic_cast<const pat::PackedCandidate*>(pfLeadChargedHadron.get());
       if (pCand != nullptr) {
-        double rawCaloEnergyFraction = pCand->rawCaloFraction();
-        //if ( !(rawCaloEnergyFraction > 0.) ) rawCaloEnergyFraction = 99; //MB: hack against cases when rawCaloEnergyFraction is not stored; it makes performance of the H/P cut rather poor
+        double caloEnergyFraction = pCand->caloFraction();
+        //if ( !(caloEnergyFraction > 0.) ) caloEnergyFraction = 99; //MB: hack against cases when caloEnergyFraction is not stored; it makes performance of the H/P cut rather poor
         if (verbosity_) {
           edm::LogPrint("PFTauAgainstMuonSimple")
               << "decayMode = " << pfTau->decayMode()
-              << ", rawCaloEnergy(ECAL+HCAL)Fraction = " << rawCaloEnergyFraction
+              << ", caloEnergy(ECAL+HCAL)Fraction = " << caloEnergyFraction
               << ", leadPFChargedHadronP = " << pCand->p() << ", leadPFChargedHadron pdgId = " << pCand->pdgId();
         }
-        if (pfTau->decayMode() == 0 && rawCaloEnergyFraction < hop_)
+        if (pfTau->decayMode() == 0 && caloEnergyFraction < hop_)
           passesCaloMuonVeto = false;
       }
     }

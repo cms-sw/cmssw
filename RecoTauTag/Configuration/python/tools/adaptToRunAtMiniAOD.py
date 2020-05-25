@@ -172,9 +172,17 @@ def adaptTauToMiniAODReReco(process, reclusterJets=True):
 		if name.find('againstElectron') > -1 or name.find('againstMuon') > -1:
 			delattr(process.patTaus.tauIDSources,name)
 	# Add MiniAOD specific ones
-	setattr(process.patTaus.tauIDSources,'againstMuonLooseSimple',cms.InputTag('hpsPFTauDiscriminationByLooseMuonRejectionSimple'))
-	setattr(process.patTaus.tauIDSources,'againstMuonTightSimple',cms.InputTag('hpsPFTauDiscriminationByTightMuonRejectionSimple'))
-	
+	setattr(process.patTaus.tauIDSources,'againstMuonLooseSimple',
+                cms.PSet(inputTag = cms.InputTag('hpsPFTauDiscriminationByLooseMuonRejectionSimple'),
+                         provenanceConfigLabel = cms.string(''),
+                         idLabel = cms.string('againstMuonLooseSimple')
+                 ))
+	setattr(process.patTaus.tauIDSources,'againstMuonTightSimple',
+                cms.PSet(inputTag = cms.InputTag('hpsPFTauDiscriminationByTightMuonRejectionSimple'),
+                         provenanceConfigLabel = cms.string(''),
+                         idLabel = cms.string('againstMuonTightSimple')
+                 ))
+
 	#print '[adaptTauToMiniAODReReco]: Done!'
 
 #####
