@@ -335,7 +335,7 @@ def miniAOD_customizeCommon(process):
     _noUpdatedTauName = 'slimmedTausNoDeepIDs'
     import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
     tauIdEmbedder = tauIdConfig.TauIDEmbedder(
-        process, cms, debug = False,
+        process, debug = False,
         updatedTauName = _updatedTauName,
         toKeep = ['deepTau2017v2p1']
     )
