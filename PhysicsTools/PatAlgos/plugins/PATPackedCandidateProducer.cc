@@ -347,7 +347,7 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event &iEvent,
 
     if (abs(cand.pdgId()) == 1 || abs(cand.pdgId()) == 130) {
       outPtrP->back().setHcalFraction(cand.hcalEnergy() / (cand.ecalEnergy() + cand.hcalEnergy()));
-    } else if (cand.charge() && cand.pt() > 0.5) {
+    } else if ((cand.charge() || abs(cand.pdgId()) == 22) && cand.pt() > 0.5) {
       outPtrP->back().setHcalFraction(cand.hcalEnergy() / (cand.ecalEnergy() + cand.hcalEnergy()));
       outPtrP->back().setCaloFraction((cand.hcalEnergy() + cand.ecalEnergy()) / cand.energy());
     } else {
