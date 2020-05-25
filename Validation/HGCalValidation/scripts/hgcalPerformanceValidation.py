@@ -79,6 +79,9 @@ def putype(t):
 #------------------------------------------------------------------------------------------
 #thereleases = { "CMSSW 11_1_X" : ["CMSSW_11_1_0_pre4_GEANT4","CMSSW_11_1_0_pre3","CMSSW_11_1_0_pre2"] }
 thereleases = { "CMSSW 11_1_X" : [
+    "CMSSW_11_1_0_pre7_raw1100_vs_CMSSW_11_1_0_pre7",
+    "CMSSW_11_1_0_pre7_raw1100_vs_CMSSW_11_1_0_pre6_raw1100",
+    "CMSSW_11_1_0_pre7_vs_CMSSW_11_1_0_pre6",
     "CMSSW_11_1_0_pre6_raw1100_vs_CMSSW_11_1_0_pre6",
     "CMSSW_11_1_0_pre6_raw1100_vs_CMSSW_11_1_0_pre5_raw1100",
     "CMSSW_11_1_0_pre6_vs_CMSSW_11_1_0_pre5",
@@ -90,9 +93,9 @@ thereleases = { "CMSSW 11_1_X" : [
     "CMSSW_11_1_0_pre4_GEANT4","CMSSW_11_1_0_pre4"
 ] }
 
-RefRelease='CMSSW_11_1_0_pre6'
+RefRelease='CMSSW_11_1_0_pre7'
 
-NewRelease='CMSSW_11_1_0_pre6'
+NewRelease='CMSSW_11_1_0_pre7'
 
 NotNormalRelease = "raw"
 NotNormalRefRelease = "normal"
@@ -167,7 +170,8 @@ phase2samples_noPU = [
     Sample("RelValH125GGgluonfusion", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag )
 
 ]
-    
+
+
 #More workflows 
 phase2samples_noPU_extend = [
     Sample("RelValSingleMuPt10", scenario="2026D49", appendGlobalTag=appendglobaltag ),
@@ -177,6 +181,7 @@ phase2samples_noPU_extend = [
 
 #These workflows were added in CMSSW_11_1_0_pre6 but there were missing from CMSSW_11_1_0_pre5.
 #So, I am only download them to be reary for pre7. Then, I comment them out
+#For the moment I cannot find these in pre7. 
 '''
 phase2samples_noPU_extend_more = [
     Sample("RelValCloseByPGun_CE_H_Fine_300um", scenario="2026D49", appendGlobalTag=appendglobaltag ),
@@ -276,8 +281,8 @@ if (opt.OBJ == 'hgcalLayerClusters' or opt.OBJ == 'hitCalibration' or opt.OBJ ==
             #cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("mcRun4_realistic_v3_raw1100-v1","mcRun4_realistic_v3_2026D49noPU-v1") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
             cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("mcRun4_realistic_v3_2026D49noPU_raw1100_rsb-v1","mcRun4_realistic_v3_2026D49noPU-v1") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
         elif "raw" in NotNormalRelease and "raw" in NotNormalRefRelease:
-            #cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease) + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
-            cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("_2026D49noPU_raw1100_rsb","_raw1100") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
+            cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease) + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
+            #cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("_2026D49noPU_raw1100_rsb","_raw1100") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
         elif "normal" in NotNormalRelease and "normal" in NotNormalRefRelease:
             cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease) + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
         else: 
@@ -367,10 +372,10 @@ if (opt.OBJ == 'hitValidation'):
         if RefRelease == None:
             cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename)+ ' --collection %s' %(opt.HTMLVALNAME)
         elif "raw" in NotNormalRelease and "normal" in NotNormalRefRelease:
-            cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("mcRun4_realistic_v3_raw1100-v1","mcRun4_realistic_v3_2026D49noPU-v1") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
+            cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("mcRun4_realistic_v3_2026D49noPU_raw1100_rsb-v1","mcRun4_realistic_v3_2026D49noPU-v1") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
         elif "raw" in NotNormalRelease and "raw" in NotNormalRefRelease:
-            #cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease) + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
-            cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("_2026D49noPU_raw1100_rsb","_raw1100") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
+            cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease) + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
+            #cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("_2026D49noPU_raw1100_rsb","_raw1100") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
         elif "normal" in NotNormalRelease and "normal" in NotNormalRefRelease:
             cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease) + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
         else: 
@@ -673,6 +678,21 @@ if (opt.GATHER != None) :
     index_file.write('</html>\n')
     index_file.close()
 
-    processCmd('cp -r %s %s/.' %(localoutputdir,opt.WWWAREA) )
+    #We choose to zip in uncompressed form all the files for two reasons:
+    #1. Copying to eos so many files is really slow. It is faster to
+    #   create one uncompressed file, copy that and unzip there.
+    #2. Inevitably, we will have to do some cleanup of the older campaigns,
+    #   since we will reach the number of files limit quite easily. 
+    #   It will be easier to have already save the zip file and just delete
+    #   the directory content, leaving inside only the zip file.
+
+    # This will take some time. 
+    processCmd('zip -0 -r %s.zip %s' %(localoutputdir,localoutputdir) )
+    processCmd('cp %s.zip %s/.' %(localoutputdir,opt.WWWAREA) )
+    processCmd('cd %s' %(opt.WWWAREA) )
+    processCmd('unzip %s.zip' %(localoutputdir) )
+    processCmd('mv %s.zip %s/.' %(localoutputdir,localoutputdir) )
+    processCmd('cd -')
+
 
 
