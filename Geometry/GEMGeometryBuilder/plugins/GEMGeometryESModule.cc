@@ -72,8 +72,10 @@ GEMGeometryESModule::GEMGeometryESModule(const edm::ParameterSet& p)
       applyAlignment_(p.getParameter<bool>("applyAlignment")),
       alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")) {
   auto cc = setWhatProduced(this);
-  if (useDDD_ || useDD4hep_) {
+  if (useDDD_) {
     cc.setConsumes(cpvToken_).setConsumes(mdcToken_);
+  } else if (useDD4hep_) {
+    cc.setConsumes(dd4hepcpvToken_).setConsumes(mdcToken_);
   } else {
     cc.setConsumes(riggemToken_);
   }
