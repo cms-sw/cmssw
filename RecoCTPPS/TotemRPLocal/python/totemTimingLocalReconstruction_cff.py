@@ -6,7 +6,8 @@ from RecoCTPPS.TotemRPLocal.totemTimingRecHits_cfi import totemTimingRecHits
 # local track fitting
 from RecoCTPPS.TotemRPLocal.totemTimingLocalTracks_cfi import totemTimingLocalTracks
 
-totemTimingLocalReconstruction = cms.Sequence(
-    totemTimingRecHits *
+totemTimingLocalReconstructionTask = cms.Task(
+    totemTimingRecHits ,
     totemTimingLocalTracks
 )
+totemTimingLocalReconstruction = cms.Sequence(totemTimingLocalReconstructionTask)

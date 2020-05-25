@@ -251,6 +251,8 @@ reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromMultiRP(const 
 
   if (verbosity_)
     os
+      << "    fit valid=" << result.IsValid()
+      << std::endl
       << "    xi=" << params[0] << " +- " << result.Error(0)
       << ", th_x=" << params[1] << " +-" << result.Error(1)
       << ", th_y=" << params[2] << " +-" << result.Error(2)
