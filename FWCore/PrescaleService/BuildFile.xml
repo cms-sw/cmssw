@@ -1,5 +1,4 @@
 <use name="DataFormats/Provenance"/>
-<use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 <export>
