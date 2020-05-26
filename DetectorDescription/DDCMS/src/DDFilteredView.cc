@@ -481,7 +481,8 @@ std::string_view DDFilteredView::get<string_view>(const string& key) const {
       int count = names.size();
       bool flag = false;
       for (int nit = level; count > 0 and nit > 0; --nit) {
-        if (!compareEqual(noNamespace(it_.back().GetNode(nit)->GetVolume()->GetName()), names[--count])) {
+        std::string_view name = noNamespace(it_.back().GetNode(nit)->GetVolume()->GetName());
+        if (!regex_match(std::string(name.data(), name.size()), regex(std::string(names[--count])))) {
           flag = false;
           break;
         } else {
