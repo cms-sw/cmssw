@@ -33,7 +33,6 @@ PGeometricDetExtraBuilder::PGeometricDetExtraBuilder(const edm::ParameterSet& iC
   fromDD4hep = iConfig.getUntrackedParameter<bool>("fromDD4hep", false);
 }
 
-
 void PGeometricDetExtraBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) {
   PGeometricDetExtra* pgde = new PGeometricDetExtra;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
