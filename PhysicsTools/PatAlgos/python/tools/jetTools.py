@@ -650,6 +650,16 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                       ),
                                     process, task)
 
+            if btagInfo == 'pfHiggsInteractionNetTagInfos':
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pfHiggsInteractionNetTagInfos.clone(
+                                      jets = jetSource,
+                                      vertices = pvSource,
+                                      secondary_vertices = svSource,
+                                      pf_candidates = pfCandidates,
+                                      ),
+                                    process, task)
+
             if btagInfo == 'pfDeepBoostedJetTagInfos':
                 if pfCandidates.value() == 'packedPFCandidates':
                     # case 1: running over jets whose daughters are PackedCandidates (only via updateJetCollection for now)

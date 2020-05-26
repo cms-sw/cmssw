@@ -63,6 +63,8 @@
 #include "DataFormats/BTauReco/interface/DeepFlavourTagInfo.h"
 #include "DataFormats/BTauReco/interface/DeepDoubleXFeatures.h"
 #include "DataFormats/BTauReco/interface/DeepDoubleXTagInfo.h"
+#include "DataFormats/BTauReco/interface/HiggsInteractionNetFeatures.h"
+#include "DataFormats/BTauReco/interface/HiggsInteractionNetTagInfo.h"
 #include "DataFormats/BTauReco/interface/DeepBoostedJetTagInfo.h"
 #include "DataFormats/BTauReco/interface/PixelClusterTagInfo.h"
 
