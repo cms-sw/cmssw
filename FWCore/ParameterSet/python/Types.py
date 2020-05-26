@@ -1532,6 +1532,25 @@ if __name__ == "__main__":
             self.assertEqual(it.getModuleLabel(), "label")
             self.assertEqual(it.getProductInstanceLabel(), "in")
             self.assertEqual(it.getProcessName(), "@skipCurrentProcess")
+
+            pset = PSet(it = InputTag("something"))
+            # "assignment" from string
+            pset.it = "label"
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getProductInstanceLabel(), "")
+            self.assertEqual(pset.it.getProcessName(), "")
+            pset.it = "label:in"
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getProductInstanceLabel(), "in")
+            self.assertEqual(pset.it.getProcessName(), "")
+            pset.it = "label:in:proc"
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getProductInstanceLabel(), "in")
+            self.assertEqual(pset.it.getProcessName(), "proc")
+            pset.it = "label::proc"
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getProductInstanceLabel(), "")
+            self.assertEqual(pset.it.getProcessName(), "proc")
         def testInputTagModified(self):
             a=InputTag("a")
             self.assertEqual(a.isModified(),False)
