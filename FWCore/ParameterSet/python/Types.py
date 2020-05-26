@@ -659,7 +659,15 @@ class InputTag(_ParameterTypeBase):
         self.__moduleLabel = moduleLabel
         self.__productInstance = productInstanceLabel
         self.__processName=processName
-        if -1 != moduleLabel.find(":"):
+        if isinstance(moduleLabel, tuple):
+            self.__moduleLabel = moduleLabel[0] if len(moduleLabel) > 0 else ""
+            if len(moduleLabel) > 1:
+                self.__productInstance = moduleLabel[1]
+            if len(moduleLabel) > 2:
+                self.__processName = moduleLabel[2]
+            if len(moduleLabel) > 3:
+                raise RuntimeError("Tuple argument may have at most 3 elements")
+        elif -1 != moduleLabel.find(":"):
             toks = moduleLabel.split(":")
             self.__moduleLabel = toks[0]
             if len(toks) > 1:
@@ -1551,6 +1559,31 @@ if __name__ == "__main__":
             self.assertEqual(pset.it.getModuleLabel(), "label")
             self.assertEqual(pset.it.getProductInstanceLabel(), "")
             self.assertEqual(pset.it.getProcessName(), "proc")
+            # "assignment" from tuple of strings
+            pset.it = ()
+            self.assertEqual(pset.it.getModuleLabel(), "")
+            self.assertEqual(pset.it.getProductInstanceLabel(), "")
+            self.assertEqual(pset.it.getProcessName(), "")
+            pset.it = ("label")
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getProductInstanceLabel(), "")
+            self.assertEqual(pset.it.getProcessName(), "")
+            pset.it = ("label", "in")
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getProductInstanceLabel(), "in")
+            self.assertEqual(pset.it.getProcessName(), "")
+            pset.it = ("label", "in", "proc")
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getProductInstanceLabel(), "in")
+            self.assertEqual(pset.it.getProcessName(), "proc")
+            pset.it = ("label", "", "proc")
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getProductInstanceLabel(), "")
+            self.assertEqual(pset.it.getProcessName(), "proc")
+            with self.assertRaises(RuntimeError):
+                pset.it = ("label", "too", "many", "elements")
+            with self.assertRaises(AttributeError):
+                pset.it = ["label"]
         def testInputTagModified(self):
             a=InputTag("a")
             self.assertEqual(a.isModified(),False)
