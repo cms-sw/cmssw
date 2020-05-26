@@ -465,6 +465,15 @@
   <class name="reco::DeepBoostedJetTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::DeepBoostedJetTagInfoCollection>" persistent="false"/>
 
+  <class name="btagbtvdeep::HiggsInteractionNetFeatures"/>
+  <class name="reco::HiggsInteractionNetTagInfo"/>
+  <class name="reco::HiggsInteractionNetTagInfoCollection"/>
+  <class name="reco::HiggsInteractionNetTagInfoRef"/>
+  <class name="reco::HiggsInteractionNetTagInfoFwdRef"/>
+  <class name="reco::HiggsInteractionNetTagInfoRefProd"/>
+  <class name="reco::HiggsInteractionNetTagInfoRefVector"/>
+  <class name="edm::Wrapper<reco::HiggsInteractionNetTagInfoCollection>" persistent="false"/>
+
   <class name="reco::PixelClusterProperties"/>
   <class name="reco::PixelClusterData" ClassVersion="3">
     <version ClassVersion="3" checksum="525314740"/>
