@@ -36,6 +36,9 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
     label_mclTokens.push_back(consumes<std::vector<reco::HGCalMultiCluster>>(itag));
   }
 
+  LCAssocByEnergyScoreProducer_ =
+      consumes<hgcal::LayerClusterToCaloParticleAssociator>(edm::InputTag("lcAssocByEnergyScoreProducer"));
+
   cpSelector = CaloParticleSelector(pset.getParameter<double>("ptMinCP"),
                                     pset.getParameter<double>("ptMaxCP"),
                                     pset.getParameter<double>("minRapidityCP"),
@@ -187,6 +190,9 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   edm::Handle<HGCRecHitCollection> recHitHandleBH;
   event.getByToken(recHitsBH_, recHitHandleBH);
 
+  edm::Handle<hgcal::LayerClusterToCaloParticleAssociator> LCAssocByEnergyScoreHandle;
+  event.getByToken(LCAssocByEnergyScoreProducer_, LCAssocByEnergyScoreHandle);
+
   std::map<DetId, const HGCRecHit*> hitMap;
   fillHitMap(hitMap, *recHitHandleEE, *recHitHandleFH, *recHitHandleBH);
 
@@ -236,15 +242,18 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   if (dolayerclustersPlots_) {
     histoProducerAlgo_->fill_generic_cluster_histos(histograms.histoProducerAlgo,
                                                     w,
+                                                    clusterHandle,
                                                     clusters,
                                                     densities,
+                                                    caloParticleHandle,
                                                     caloParticles,
                                                     cPIndices,
                                                     selected_cPeff,
                                                     hitMap,
                                                     cummatbudg,
                                                     totallayers_to_monitor_,
-                                                    thicknesses_to_monitor_);
+                                                    thicknesses_to_monitor_,
+                                                    LCAssocByEnergyScoreHandle);
 
     for (unsigned int layerclusterIndex = 0; layerclusterIndex < clusters.size(); layerclusterIndex++) {
       histoProducerAlgo_->fill_cluster_histos(histograms.histoProducerAlgo, w, clusters[layerclusterIndex]);
