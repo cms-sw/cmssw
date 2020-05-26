@@ -12,7 +12,7 @@
 
 class PTrackerParametersDBBuilder : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
-  PTrackerParametersDBBuilder(const edm::ParameterSet&); 
+  PTrackerParametersDBBuilder(const edm::ParameterSet&);
 
   void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {}
@@ -25,7 +25,6 @@ private:
 PTrackerParametersDBBuilder::PTrackerParametersDBBuilder(const edm::ParameterSet& iConfig) {
   fromDD4hep = iConfig.getUntrackedParameter<bool>("fromDD4hep", false);
 }
-
 
 void PTrackerParametersDBBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) {
   PTrackerParameters* ptp = new PTrackerParameters;

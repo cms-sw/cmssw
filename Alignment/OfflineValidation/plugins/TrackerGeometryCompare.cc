@@ -364,7 +364,7 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup) {
   }
 
   //accessing the initial geometry
-  if(!_fromDD4hep){
+  if (!_fromDD4hep) {
     edm::ESTransientHandle<DDCompactView> cpv;
     iSetup.get<IdealGeometryRecord>().get(cpv);
   } else {
