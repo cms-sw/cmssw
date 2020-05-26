@@ -656,10 +656,18 @@ class InputTag(_ParameterTypeBase):
         self._setValues(v)
         self._isModified=True
     def _setValues(self,moduleLabel,productInstanceLabel='',processName=''):
-        self.__moduleLabel = moduleLabel
         self.__productInstance = productInstanceLabel
         self.__processName=processName
-        if isinstance(moduleLabel, tuple) or isinstance(moduleLabel, list):
+        if isinstance(moduleLabel, str):
+            self.__moduleLabel = moduleLabel
+            if -1 != moduleLabel.find(":"):
+                toks = moduleLabel.split(":")
+                self.__moduleLabel = toks[0]
+                if len(toks) > 1:
+                    self.__productInstance = toks[1]
+                if len(toks) > 2:
+                    self.__processName=toks[2]
+        else:
             self.__moduleLabel = moduleLabel[0] if len(moduleLabel) > 0 else ""
             if len(moduleLabel) > 1:
                 self.__productInstance = moduleLabel[1]
@@ -667,13 +675,6 @@ class InputTag(_ParameterTypeBase):
                 self.__processName = moduleLabel[2]
             if len(moduleLabel) > 3:
                 raise RuntimeError("Tuple argument may have at most 3 elements")
-        elif -1 != moduleLabel.find(":"):
-            toks = moduleLabel.split(":")
-            self.__moduleLabel = toks[0]
-            if len(toks) > 1:
-                self.__productInstance = toks[1]
-            if len(toks) > 2:
-                self.__processName=toks[2]
     # convert to the wrapper class for C++ InputTags
     def cppTag(self, parameterSet):
         return parameterSet.newInputTag(self.getModuleLabel(),
