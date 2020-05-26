@@ -1565,7 +1565,7 @@ if __name__ == "__main__":
             self.assertEqual(pset.it.getModuleLabel(), "")
             self.assertEqual(pset.it.getProductInstanceLabel(), "")
             self.assertEqual(pset.it.getProcessName(), "")
-            pset.it = ("label")
+            pset.it = ("label",)
             self.assertEqual(pset.it.getModuleLabel(), "label")
             self.assertEqual(pset.it.getProductInstanceLabel(), "")
             self.assertEqual(pset.it.getProcessName(), "")
