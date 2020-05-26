@@ -106,6 +106,7 @@ private:
   std::string _inputFilename2;
   std::string _inputTreenameAlign;
   std::string _inputTreenameDeform;
+  bool _fromDD4hep;
   bool _writeToDB;
   std::string _weightBy;
   std::string _setCommonTrackerSystem;

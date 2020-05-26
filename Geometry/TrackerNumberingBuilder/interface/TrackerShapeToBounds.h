@@ -18,7 +18,7 @@ public:
 private:
   Bounds* buildBox(const std::vector<double>&) const;
   Bounds* buildTrap(const std::vector<double>&) const;
-  Bounds* buildOpen(const std::vector<double>&) const;
+  Bounds* buildOpen() const;
 };
 
 #endif

@@ -11,6 +11,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
@@ -21,7 +22,7 @@ using RotationMatrix = ROOT::Math::Rotation3D;
 
 class PGeometricDetBuilder : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
-  PGeometricDetBuilder(const edm::ParameterSet&) {}
+  PGeometricDetBuilder(const edm::ParameterSet&);
 
   void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {}
@@ -29,7 +30,12 @@ public:
 
 private:
   void putOne(const GeometricDet* gd, PGeometricDet* pgd, int lev);
+  bool fromDD4hep;
 };
+
+PGeometricDetBuilder::PGeometricDetBuilder(const edm::ParameterSet& iConfig) {
+  fromDD4hep = iConfig.getUntrackedParameter<bool>("fromDD4hep", false);
+}
 
 void PGeometricDetBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) {
   PGeometricDet* pgd = new PGeometricDet;
@@ -38,9 +44,14 @@ void PGeometricDetBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) 
     edm::LogError("PGeometricDetBuilder") << "PoolDBOutputService unavailable";
     return;
   }
-  edm::ESTransientHandle<cms::DDCompactView> pDD;
+  if (!fromDD4hep) {
+    edm::ESTransientHandle<DDCompactView> pDD;
+    es.get<IdealGeometryRecord>().get(pDD);
+  } else {
+    edm::ESTransientHandle<cms::DDCompactView> pDD;
+    es.get<IdealGeometryRecord>().get(pDD);
+  }
   edm::ESHandle<GeometricDet> rDD;
-  es.get<IdealGeometryRecord>().get(pDD);
   es.get<IdealGeometryRecord>().get(rDD);
   const GeometricDet* tracker = &(*rDD);
 

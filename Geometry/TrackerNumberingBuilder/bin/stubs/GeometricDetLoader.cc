@@ -10,7 +10,7 @@
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-//#include <DetectorDescription/Core/interface/DDCompactView.h>
+#include <DetectorDescription/Core/interface/DDCompactView.h>
 #include <DetectorDescription/DDCMS/interface/DDCompactView.h>
 #include <DetectorDescription/Core/interface/DDExpandedView.h>
 
@@ -26,6 +26,7 @@
 
 GeometricDetLoader::GeometricDetLoader(const edm::ParameterSet& iConfig) {
   std::cout << "GeometricDetLoader::GeometricDetLoader" << std::endl;
+  fromDD4hep = iConfig.getUntrackedParameter<bool>("fromDD4hep", false);
 }
 
 GeometricDetLoader::~GeometricDetLoader() { std::cout << "GeometricDetLoader::~GeometricDetLoader" << std::endl; }
@@ -38,9 +39,15 @@ void GeometricDetLoader::beginRun(edm::Run const& /* iEvent */, edm::EventSetup 
     std::cout << "PoolDBOutputService unavailable" << std::endl;
     return;
   }
-  edm::ESHandle<cms::DDCompactView> pDD;
+
+  if (!fromDD4hep) {
+    edm::ESHandle<DDCompactView> pDD;
+    es.get<IdealGeometryRecord>().get(pDD);
+  } else {
+    edm::ESHandle<cms::DDCompactView> pDD;
+    es.get<IdealGeometryRecord>().get(pDD);
+  }
   edm::ESHandle<GeometricDet> rDD;
-  es.get<IdealGeometryRecord>().get(pDD);
   es.get<IdealGeometryRecord>().get(rDD);
   const GeometricDet* tracker = &(*rDD);
 

@@ -38,13 +38,9 @@ Bounds* TrackerShapeToBounds::buildBounds(const cms::DDSolidShape& _shape, const
       return buildTrap(_par);
       break;
     case cms::DDSolidShape::ddtubs:
-      return buildOpen(_par);
-      break;
     case cms::DDSolidShape::ddpolycone:
-      return buildOpen(_par);
-      break;
     case cms::DDSolidShape::ddsubtraction:
-      return buildOpen(_par);
+      return buildOpen();
       break;
     default:
       std::cout << "Wrong DDshape to build...." << cms::dd::name(cms::DDSolidShapeMap, _shape) << std::endl;
@@ -106,7 +102,7 @@ Bounds* TrackerShapeToBounds::buildTrap(const std::vector<double>& paras) const 
   return bounds;
 }
 
-Bounds* TrackerShapeToBounds::buildOpen(const std::vector<double>& paras) const {
+Bounds* TrackerShapeToBounds::buildOpen() const {
   OpenBounds* bounds = new OpenBounds();
   return bounds;
 }
