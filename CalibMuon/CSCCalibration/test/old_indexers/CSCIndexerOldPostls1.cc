@@ -1,4 +1,5 @@
 #include "CSCIndexerOldPostls1.h"
+#include <algorithm>
 #include <iostream>
 
 void CSCIndexerOldPostls1::fillChamberLabel() const {
@@ -347,7 +348,7 @@ CSCIndexerOldPostls1::GasGainTuple CSCIndexerOldPostls1::detIdFromGasGainIndex(I
   IndexType chip = (igg_hvseg_etc - 1) % chips_per_layer + 1;
 
   CSCDetId id(endcaps[type], stations[type], rings[type], chamber, layer);
-  return boost::make_tuple(id, hvsegment, chip);
+  return std::make_tuple(id, hvsegment, chip);
 }
 
 int CSCIndexerOldPostls1::dbIndex(const CSCDetId &id, int &channel) {

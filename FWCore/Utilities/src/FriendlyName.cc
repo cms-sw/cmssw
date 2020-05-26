@@ -55,6 +55,8 @@ namespace edm {
     static std::regex const reUnsigned("unsigned ");
     static std::regex const reLong("long ");
     static std::regex const reVector("std::vector");
+    static std::regex const reUnorderedSet("std::unordered_set");
+    static std::regex const reUnorderedMap("std::unordered_map");
     static std::regex const reSharedPtr("std::shared_ptr");
     static std::regex const reAIKR(
         ", *edm::helper::AssociationIdenticalKeyReference");  //this is a default so can replaced with empty
@@ -98,6 +100,8 @@ namespace edm {
       name = regex_replace(name, reUnsigned, "u");
       name = regex_replace(name, reLong, "l");
       name = regex_replace(name, reVector, "s");
+      name = regex_replace(name, reUnorderedSet, "stduset");
+      name = regex_replace(name, reUnorderedMap, "stdumap");
       name = regex_replace(name, reSharedPtr, "SharedPtr");
       name = regex_replace(name, reOwnVector, "sOwned<$1>");
       name = regex_replace(name, reToVector, "AssociationVector<$1,To,$2>");
