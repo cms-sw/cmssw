@@ -1,4 +1,5 @@
 #include <CalibMuon/CSCCalibration/interface/CSCIndexerStartup.h>
+#include <algorithm>
 
 CSCIndexerStartup::~CSCIndexerStartup() {}
 
@@ -176,5 +177,5 @@ CSCIndexerBase::GasGainIndexType CSCIndexerStartup::detIdFromGasGainIndex(IndexT
   IndexType chip = (igg_hvseg_etc - 1) % chips_per_layer + 1;
 
   CSCDetId id(endcaps[type], stations[type], rings[type], chamber, layer);
-  return boost::make_tuple(id, hvsegment, chip);
+  return std::make_tuple(id, hvsegment, chip);
 }
