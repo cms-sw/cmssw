@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_11_1_0/PRef --type PRef
 
-# /dev/CMSSW_11_1_0/PRef/V8 (CMSSW_11_1_0_pre7)
+# /dev/CMSSW_11_1_0/PRef/V9 (CMSSW_11_1_0_pre7)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_1_0/PRef/V8')
+  tableName = cms.string('/dev/CMSSW_11_1_0/PRef/V9')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -6548,16 +6548,16 @@ fragment.hltSiPixelClusters = cms.EDProducer( "SiPixelClusterProducer",
     maxNumberOfClusters = cms.int32( 40000 ),
     ClusterThreshold_L1 = cms.int32( 2000 ),
     MissCalibrate = cms.bool( True ),
-    VCaltoElectronGain = cms.int32( 47 ),
-    VCaltoElectronGain_L1 = cms.int32( 50 ),
-    VCaltoElectronOffset = cms.int32( -60 ),
+    VCaltoElectronGain = cms.int32( 1 ),
+    VCaltoElectronGain_L1 = cms.int32( 1 ),
+    VCaltoElectronOffset = cms.int32( 0 ),
     SplitClusters = cms.bool( False ),
     payloadType = cms.string( "HLT" ),
     Phase2Calibration = cms.bool( False ),
     Phase2KinkADC = cms.int32( 8 ),
     ClusterMode = cms.string( "PixelThresholdClusterizer" ),
     SeedThreshold = cms.int32( 1000 ),
-    VCaltoElectronOffset_L1 = cms.int32( -670 ),
+    VCaltoElectronOffset_L1 = cms.int32( 0 ),
     ClusterThreshold = cms.int32( 4000 )
 )
 fragment.hltSiPixelClustersCache = cms.EDProducer( "SiPixelClusterShapeCacheProducer",
