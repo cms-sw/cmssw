@@ -659,7 +659,7 @@ class InputTag(_ParameterTypeBase):
         self.__moduleLabel = moduleLabel
         self.__productInstance = productInstanceLabel
         self.__processName=processName
-        if isinstance(moduleLabel, tuple):
+        if isinstance(moduleLabel, tuple) or isinstance(moduleLabel, list):
             self.__moduleLabel = moduleLabel[0] if len(moduleLabel) > 0 else ""
             if len(moduleLabel) > 1:
                 self.__productInstance = moduleLabel[1]
@@ -1582,8 +1582,29 @@ if __name__ == "__main__":
             self.assertEqual(pset.it.getProcessName(), "proc")
             with self.assertRaises(RuntimeError):
                 pset.it = ("label", "too", "many", "elements")
-            with self.assertRaises(AttributeError):
-                pset.it = ["label"]
+            # "assignment" from list of strings
+            pset.it = []
+            self.assertEqual(pset.it.getModuleLabel(), "")
+            self.assertEqual(pset.it.getProductInstanceLabel(), "")
+            self.assertEqual(pset.it.getProcessName(), "")
+            pset.it = ["label"]
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getProductInstanceLabel(), "")
+            self.assertEqual(pset.it.getProcessName(), "")
+            pset.it = ["label", "in"]
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getProductInstanceLabel(), "in")
+            self.assertEqual(pset.it.getProcessName(), "")
+            pset.it = ["label", "in", "proc"]
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getProductInstanceLabel(), "in")
+            self.assertEqual(pset.it.getProcessName(), "proc")
+            pset.it = ["label", "", "proc"]
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getProductInstanceLabel(), "")
+            self.assertEqual(pset.it.getProcessName(), "proc")
+            with self.assertRaises(RuntimeError):
+                pset.it = ["label", "too", "many", "elements"]
         def testInputTagModified(self):
             a=InputTag("a")
             self.assertEqual(a.isModified(),False)
