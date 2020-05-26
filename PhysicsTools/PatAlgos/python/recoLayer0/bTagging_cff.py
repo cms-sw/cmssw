@@ -47,6 +47,8 @@ supportedBtagInfos = [
   , 'pfDeepBoostedJetTagInfos'
     # ParticleNet tag infos
   , 'pfParticleNetTagInfos'
+    # HiggsInteractionNet tag infos
+  , 'pfHiggsInteractionNetTagInfos'
   ]
 # extend for "internal use" in PAT/MINIAOD (renaming)
 supportedBtagInfos.append( 'caTopTagInfosPAT' )
@@ -244,3 +246,8 @@ for disc in _pfParticleNetJetTagsMetaDiscrs:
 for disc in _pfMassDecorrelatedParticleNetJetTagsMetaDiscrs:
     supportedMetaDiscr[disc] = _pfMassDecorrelatedParticleNetJetTagsProbs
 # -----------------------------------
+# setup HiggsInteractionNet
+from RecoBTag.ONNXRuntime.pfHiggsInteractionNet_cff import _pfHiggsInteractionNetTagsProbs
+# update supportedBtagDiscr 
+for disc in _pfHiggsInteractionNetTagsProbs:
+    supportedBtagDiscr[disc] = [["pfHiggsInteractionNetTagInfos"]]
