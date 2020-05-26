@@ -19,7 +19,7 @@ namespace cms::Ort {
 
   using namespace ::Ort;
 
-  const Env ONNXRuntime::env_(ORT_LOGGING_LEVEL_WARNING, "");
+  const Env ONNXRuntime::env_(ORT_LOGGING_LEVEL_ERROR, "");
 
   ONNXRuntime::ONNXRuntime(const std::string& model_path, const SessionOptions* session_options) {
     // create session
