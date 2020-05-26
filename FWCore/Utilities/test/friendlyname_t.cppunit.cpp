@@ -37,6 +37,10 @@ void testfriendlyName::test() {
   classToFriendly.insert(Values("bar::Foo", "barFoo"));
   classToFriendly.insert(Values("std::vector<Foo>", "Foos"));
   classToFriendly.insert(Values("std::vector<bar::Foo>", "barFoos"));
+  classToFriendly.insert(Values("std::set<bar::Foo>", "barFoostdset"));
+  classToFriendly.insert(Values("std::map<Foo, bar::Bar>", "FoobarBarstdmap"));
+  classToFriendly.insert(Values("std::unordered_set<bar::Foo>", "barFoostduset"));
+  classToFriendly.insert(Values("std::unordered_map<Foo, bar::Bar>", "FoobarBarstdumap"));
   classToFriendly.insert(Values("std::shared_ptr<Foo>", "FooSharedPtr"));
   classToFriendly.insert(Values("std::shared_ptr<bar::Foo>", "barFooSharedPtr"));
   classToFriendly.insert(Values("std::basic_string<char>", "String"));
