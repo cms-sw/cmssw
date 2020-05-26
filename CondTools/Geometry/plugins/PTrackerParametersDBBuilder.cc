@@ -6,17 +6,26 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerParametersFromDD.h"
 
 class PTrackerParametersDBBuilder : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
-  PTrackerParametersDBBuilder(const edm::ParameterSet&) {}
+  PTrackerParametersDBBuilder(const edm::ParameterSet&); 
 
   void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {}
   void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
+
+private:
+  bool fromDD4hep;
 };
+
+PTrackerParametersDBBuilder::PTrackerParametersDBBuilder(const edm::ParameterSet& iConfig) {
+  fromDD4hep = iConfig.getUntrackedParameter<bool>("fromDD4hep", false);
+}
+
 
 void PTrackerParametersDBBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) {
   PTrackerParameters* ptp = new PTrackerParameters;
@@ -25,11 +34,18 @@ void PTrackerParametersDBBuilder::beginRun(const edm::Run&, edm::EventSetup cons
     edm::LogError("PTrackerParametersDBBuilder") << "PoolDBOutputService unavailable";
     return;
   }
-  edm::ESTransientHandle<cms::DDCompactView> cpv;
-  es.get<IdealGeometryRecord>().get(cpv);
 
   TrackerParametersFromDD builder;
-  builder.build(&(*cpv), *ptp);
+
+  if (!fromDD4hep) {
+    edm::ESTransientHandle<DDCompactView> cpv;
+    es.get<IdealGeometryRecord>().get(cpv);
+    builder.build(&(*cpv), *ptp);
+  } else {
+    edm::ESTransientHandle<cms::DDCompactView> cpv;
+    es.get<IdealGeometryRecord>().get(cpv);
+    builder.build(&(*cpv), *ptp);
+  }
 
   if (mydbservice->isNewTagRequest("PTrackerParametersRcd")) {
     mydbservice->createNewIOV<PTrackerParameters>(

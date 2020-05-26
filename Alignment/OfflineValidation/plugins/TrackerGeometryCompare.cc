@@ -68,6 +68,7 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg)
       theSurveyValues(nullptr),
       theSurveyErrors(nullptr),
       _levelStrings(cfg.getUntrackedParameter<std::vector<std::string> >("levels")),
+      _fromDD4hep(cfg.getUntrackedParameter<bool>("fromDD4hep")),
       _writeToDB(cfg.getUntrackedParameter<bool>("writeToDB")),
       _commonTrackerLevel(align::invalid),
       _moduleListFile(nullptr),
@@ -363,8 +364,13 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup) {
   }
 
   //accessing the initial geometry
-  edm::ESTransientHandle<cms::DDCompactView> cpv;
-  iSetup.get<IdealGeometryRecord>().get(cpv);
+  if(!_fromDD4hep){
+    edm::ESTransientHandle<DDCompactView> cpv;
+    iSetup.get<IdealGeometryRecord>().get(cpv);
+  } else {
+    edm::ESTransientHandle<cms::DDCompactView> cpv;
+    iSetup.get<IdealGeometryRecord>().get(cpv);
+  }
   edm::ESHandle<GeometricDet> theGeometricDet;
   iSetup.get<IdealGeometryRecord>().get(theGeometricDet);
   edm::ESHandle<PTrackerParameters> ptp;

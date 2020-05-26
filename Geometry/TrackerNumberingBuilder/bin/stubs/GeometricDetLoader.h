@@ -24,6 +24,7 @@ public:
 
 private:
   void putOne(const GeometricDet* gd, PGeometricDet* pgd, int lev);
+  bool fromDD4hep;
 };
 
 #endif
