@@ -12,14 +12,14 @@ from Configuration.EventContent.EventContent_cff import *
 from SimGeneral.Configuration.SimGeneral_HiMixing_EventContent_cff import * # heavy ion signal mixing
 from RecoHI.Configuration.RecoHI_EventContent_cff import *       # heavy ion reconstruction
 
-#################################################################
 
 #RAW
-RecoHIRAWOutput=cms.untracked.vstring('keep FEDRawDataCollection_rawDataRepacker_*_*',
-                                      'keep FEDRawDataCollection_hybridRawDataRepacker_*_*',
-                                      'keep FEDRawDataCollection_virginRawDataRepacker_*_*')
-
-RAWEventContent.outputCommands.extend(RecoHIRAWOutput)
+RAWEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring(
+	'keep FEDRawDataCollection_rawDataRepacker_*_*',
+        'keep FEDRawDataCollection_hybridRawDataRepacker_*_*',
+        'keep FEDRawDataCollection_virginRawDataRepacker_*_*')
+)
 
 #RECO
 RECOEventContent.outputCommands.extend(RecoHIRECO.outputCommands)
@@ -27,45 +27,45 @@ RECOEventContent.outputCommands.extend(RecoHIRECO.outputCommands)
 #AOD
 AODEventContent.outputCommands.extend(RecoHIAOD.outputCommands)
 
-#RAWSIM, RAWSIMHLT, RECOSIM, AODSIM
+#RAWSIM
 RAWSIMEventContent.outputCommands.extend(HiMixRAW.outputCommands)
-RAWSIMEventContent.outputCommands.extend(RecoHIRAWOutput)
+RAWSIMEventContent.outputCommands.extend(RAWEventContent.outputCommands)
 
-RAWSIMHLTEventContent.outputCommands.extend(HiMixRAW.outputCommands)
-RAWSIMHLTEventContent.outputCommands.extend(RecoHIRAWOutput)
+#RAWSIMHLT
+RAWSIMHLTEventContent.outputCommands.extend(RAWSIMEventContent.outputCommands)
 
+#RECOSIM
 RECOSIMEventContent.outputCommands.extend(RecoHIRECO.outputCommands)
 RECOSIMEventContent.outputCommands.extend(HiMixRECO.outputCommands)
 
+#AODSIM
 AODSIMEventContent.outputCommands.extend(RecoHIAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(HiMixAOD.outputCommands)
 
-#FEVT (RAW + RECO), FEVTHLTALL (FEVT + all HLT), FEVTSIM (RAWSIM + RECOSIM)
+#FEVT (RAW + RECO)
 FEVTEventContent.outputCommands.extend(RecoHIFEVT.outputCommands)
-FEVTEventContent.outputCommands.extend(RecoHIRAWOutput)
+FEVTEventContent.outputCommands.extend(RAWEventContent.outputCommands)
 
-FEVTHLTALLEventContent.outputCommands.extend(RecoHIFEVT.outputCommands)
-FEVTHLTALLEventContent.outputCommands.extend(RecoHIRAWOutput)
+#FEVTHLTALL (FEVT + all HLT)
+FEVTHLTALLEventContent.outputCommands.extend(FEVTEventContent.outputCommands)
 
+#FEVTSIM (RAWSIM + RECOSIM)
 FEVTSIMEventContent.outputCommands.extend(HiMixRAW.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(RecoHIFEVT.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(RecoHIRAWOutput)
+FEVTSIMEventContent.outputCommands.extend(FEVTEventContent.outputCommands)
 
-#add (HLT)DEBUG content to RAW, RECO, FEVT (e.g. mergedtruth from trackingParticles)
+#RAW DEBUG(e.g. mergedtruth from trackingParticles) 
 RAWDEBUGEventContent.outputCommands.extend(HiMixRAW.outputCommands)
-RAWDEBUGEventContent.outputCommands.extend(RecoHIRAWOutput)
+RAWDEBUGEventContent.outputCommands.extend(RAWEventContent.outputCommands)
 
-RAWDEBUGHLTEventContent.outputCommands.extend(HiMixRAW.outputCommands)
-RAWDEBUGHLTEventContent.outputCommands.extend(RecoHIRAWOutput)
+#RAW HLT DEBUG 
+RAWDEBUGHLTEventContent.outputCommands.extend(RAWDEBUGEventContent.outputCommands)
 
-FEVTDEBUGEventContent.outputCommands.extend(HiMixRAW.outputCommands)
-FEVTDEBUGEventContent.outputCommands.extend(RecoHIFEVT.outputCommands)
-FEVTDEBUGEventContent.outputCommands.extend(RecoHIRAWOutput)
-
-FEVTDEBUGHLTEventContent.outputCommands.extend(HiMixRAW.outputCommands)
-FEVTDEBUGHLTEventContent.outputCommands.extend(RecoHIFEVT.outputCommands)
-FEVTDEBUGHLTEventContent.outputCommands.extend(RecoHIRAWOutput)
-
+#RECO DEBUG  
 RECODEBUGEventContent.outputCommands.extend(HiMixRAW.outputCommands)
 RECODEBUGEventContent.outputCommands.extend(RecoHIRECO.outputCommands)
 
+#FEVT DEBUG 
+FEVTDEBUGEventContent.outputCommands.extend(FEVTSIMEventContent.outputCommands)
+
+#FEVT HLT DEBUG  
+FEVTDEBUGHLTEventContent.outputCommands.extend(FEVTSIMEventContent.outputCommands)
