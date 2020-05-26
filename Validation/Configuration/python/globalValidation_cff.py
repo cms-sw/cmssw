@@ -182,6 +182,7 @@ globalValidationHCAL = cms.Sequence(
 )
 
 globalValidationHGCal = cms.Sequence(hgcalValidation)
+globalPrevalidationHGCal = cms.Sequence(hgcalAssociators)
 
 globalValidationMTD = cms.Sequence()
 

@@ -27,6 +27,8 @@
 #include "Validation/HGCalValidation/interface/CaloParticleSelector.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalClusteringAlgoBase.h"
 
+#include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociator.h"
+
 class PileupSummaryInfo;
 
 struct HGCalValidatorHistograms {
@@ -74,6 +76,7 @@ protected:
   edm::EDGetTokenT<HGCRecHitCollection> recHitsFH_;
   edm::EDGetTokenT<HGCRecHitCollection> recHitsBH_;
   edm::EDGetTokenT<Density> density_;
+  edm::EDGetTokenT<hgcal::LayerClusterToCaloParticleAssociator> LCAssocByEnergyScoreProducer_;
   std::unique_ptr<HGVHistoProducerAlgo> histoProducerAlgo_;
 
 private:
