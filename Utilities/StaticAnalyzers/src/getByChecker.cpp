@@ -102,7 +102,7 @@ namespace clangcms {
       //			llvm::errs()<<os.str()<<"\n";
       PathDiagnosticLocation CELoc = PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(), AC);
       BugType *BT = new BugType(Checker, "edm::getByLabel or edm::getManyByType called", "optional");
-      std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT, os.str(), CELoc);
+      std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
       R->addRange(CE->getSourceRange());
       BR.emitReport(std::move(R));
     } else {
@@ -125,7 +125,7 @@ namespace clangcms {
           //				llvm::errs()<<" "<<qtname<<"\n";
           PathDiagnosticLocation CELoc = PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(), AC);
           BugType *BT = new BugType(Checker, "function call with argument of type edm::Event", "optional");
-          std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT, os.str(), CELoc);
+          std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
           R->addRange(CE->getSourceRange());
           BR.emitReport(std::move(R));
         }
