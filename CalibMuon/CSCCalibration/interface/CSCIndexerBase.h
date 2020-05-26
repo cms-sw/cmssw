@@ -62,7 +62,7 @@
  */
 
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
-#include <boost/tuple/tuple.hpp>
+#include <tuple>
 #include <utility>  // for pair
 #include <vector>
 
@@ -70,10 +70,10 @@ class CSCIndexerBase {
 public:
   typedef uint16_t IndexType;
   typedef uint32_t LongIndexType;
-  typedef boost::tuple<CSCDetId,   // id
-                       IndexType,  // HV segment
-                       IndexType   // chip
-                       >
+  typedef std::tuple<CSCDetId,   // id
+                     IndexType,  // HV segment
+                     IndexType   // chip
+                     >
       GasGainIndexType;
 
   CSCIndexerBase();
