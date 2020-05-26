@@ -152,6 +152,11 @@ _phase2HGALRecoTask = globalrecoTask.copy()
 _phase2HGALRecoTask.add(iterTICLTask)
 phase2_hgcal.toReplaceWith(globalrecoTask, _phase2HGALRecoTask)
 
+from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
+_phase2HFNoseRecoTask = globalrecoTask.copy()
+_phase2HFNoseRecoTask.add(iterHFNoseTICLTask)
+phase2_hfnose.toReplaceWith(globalrecoTask, _phase2HFNoseRecoTask)
+
 
 globalreco_plusPLTask= cms.Task(globalrecoTask,ctfTracksPixelLessTask)
 globalreco_plusPL= cms.Sequence(globalreco_plusPLTask)
