@@ -111,7 +111,7 @@ namespace evf {
         streamLabel_(ps.getParameter<std::string>("@module_label")),
         trToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"))),
         psetToken_(consumes<edm::SendJobHeader::ParameterSetMap, edm::InRun>(
-            ps.getUntrackedParameter<edm::InputTag>("psetMap"))) {
+            ps.getUntrackedParameter<edm::InputTag>("hltPSetMap"))) {
     //replace hltOutoputA with stream if the HLT menu uses this convention
     std::string testPrefix = "hltOutput";
     if (streamLabel_.find(testPrefix) == 0)
