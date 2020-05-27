@@ -15,7 +15,10 @@ public:
 
   void globalBeginRunProduce(edm::Run&, edm::EventSetup const&) const final;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions&) {}
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    descriptions.addWithDefaultLabel(desc);
+  }
 
 private:
   edm::EDPutTokenT<std::map<edm::ParameterSetID, edm::ParameterSetBlob>> const token_;
