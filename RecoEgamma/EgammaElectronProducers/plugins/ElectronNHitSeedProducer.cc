@@ -56,11 +56,6 @@ private:
 };
 
 namespace {
-  template <typename T>
-  inline auto convertToGP(const T& orgPoint) {
-    return GlobalPoint(orgPoint.x(), orgPoint.y(), orgPoint.z());
-  }
-
   int getLayerOrDiskNr(DetId detId, const TrackerTopology& trackerTopo) {
     if (detId.subdetId() == PixelSubdetector::PixelBarrel) {
       return trackerTopo.pxbLayer(detId);
@@ -111,12 +106,13 @@ void ElectronNHitSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& 
 void ElectronNHitSeedProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   auto const& trackerTopology = iSetup.getData(trackerTopologyToken_);
 
-  TrajSeedMatcher matcher{matcherConfiguration_, iSetup, iEvent.get(measTkEvtToken_)};
-
   reco::ElectronSeedCollection eleSeeds{};
-  auto const& initialSeeds = iEvent.get(initialSeedsToken_);
 
-  auto primVtxPos = convertToGP(iEvent.get(beamSpotToken_).position());
+  TrajSeedMatcher matcher{iEvent.get(initialSeedsToken_),
+                          iEvent.get(beamSpotToken_).position(),
+                          matcherConfiguration_,
+                          iSetup,
+                          iEvent.get(measTkEvtToken_)};
 
   // Loop over all super-cluster collections (typically barrel and forward are supplied separately)
   for (const auto& superClustersToken : superClustersTokens_) {
@@ -127,14 +123,12 @@ void ElectronNHitSeedProducer::produce(edm::StreamID, edm::Event& iEvent, const 
                                                   superClusRef->position().phi(),            //supercluster phi
                                                   superClusRef->position().r()));            //supercluster r
 
-      const auto matchedSeeds = matcher(initialSeeds, caloPosition, primVtxPos, superClusRef->energy());
-
-      for (auto& matchedSeed : matchedSeeds) {
-        reco::ElectronSeed eleSeed(matchedSeed.seed());
+      for (auto const& matchedSeed : matcher(caloPosition, superClusRef->energy())) {
+        reco::ElectronSeed eleSeed(matchedSeed.seed);
         reco::ElectronSeed::CaloClusterRef caloClusRef(superClusRef);
         eleSeed.setCaloCluster(caloClusRef);
-        eleSeed.setNrLayersAlongTraj(matchedSeed.nrValidLayers());
-        for (auto& matchInfo : matchedSeed.matches()) {
+        eleSeed.setNrLayersAlongTraj(matchedSeed.nrValidLayers);
+        for (auto const& matchInfo : matchedSeed.matchInfos) {
           eleSeed.addHitInfo(makeSeedPixelVar(matchInfo, trackerTopology));
         }
         eleSeeds.emplace_back(eleSeed);
