@@ -4,7 +4,6 @@
 <use name="CondCore/DBOutputService"/>
 <use name="FWCore/Framework"/>
 <use name="CondFormats/DataRecord"/>
-<use name="DataFormats/MuonDetId"/>
 <bin file="testDTBufferTree.cc">
 </bin>
 

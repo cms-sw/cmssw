@@ -2,7 +2,6 @@
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/SiPixelDetId"/>
 <use name="clhep"/>
-<use name="boost"/>
 <use name="root"/>
 <export>
   <lib name="1"/>

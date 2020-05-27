@@ -1,10 +1,7 @@
-<use name="FWCore/Framework"/>
-<use name="FWCore/PluginManager"/>
 <use name="CondCore/ESSources"/>
 <use name="CondFormats/PPSObjects"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/AlignmentRecord"/>
-<use name="CondFormats/Serialization"/>
 <use name="root"/>
 <use name="boost"/>
 <use name="boost_serialization"/>
