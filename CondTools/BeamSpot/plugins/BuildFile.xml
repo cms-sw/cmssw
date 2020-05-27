@@ -1,3 +1,5 @@
+<use name="CondTools/BeamSpot"/>
+<use name="CondCore/PopCon"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
@@ -5,5 +7,7 @@
 <use name="CondFormats/BeamSpotObjects"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="CondCore/CondDB"/>
-<use name="CondCore/DBOutputService"/>
 <flags EDM_PLUGIN="1"/>
+<library file="BeamSpotOnlinePopConAnalyzer.cc" name="CondToolsBeamSpotOnlinePopConAnalyzer">
+  <flags EDM_PLUGIN="1"/>
+</library>
