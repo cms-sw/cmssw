@@ -63,9 +63,7 @@ _endcap_MTDDigitizer = cms.PSet(
     DeviceSimulation  = cms.PSet(
         bxTime            = cms.double(25),
         tofDelay          = cms.double(1),
-        # Assuming an average energy W = 3.71 eV to produce an e-h couple in Si at -30 C:
-        #  fCPerMeV = electron charge / W
-        fCPerMeV          = cms.double(43.185354), # [fC/MeV]
+        meVPerMIP         = cms.double(0.085), # from HGCal
         ),
     ElectronicsSimulation = cms.PSet(
         bxTime               = cms.double(25),
@@ -78,11 +76,11 @@ _endcap_MTDDigitizer = cms.PSet(
         # n bits for the TDC
         tdcNbits             = cms.uint32(11),
         # ADC saturation
-        adcSaturation_fC     = cms.double(43.19),   # [fC]
+        adcSaturation_MIP  = cms.double(25),
         # for different thickness
-        adcThreshold_fC      = cms.double(0.125),   # [fC]
+        adcThreshold_MIP   = cms.double(0.025),
         # LSB for time of arrival estimate from TDC in ns
-        toaLSB_ns            = cms.double(0.013),   # [ns]
+        toaLSB_ns          = cms.double(0.013),
         )
 )
 
