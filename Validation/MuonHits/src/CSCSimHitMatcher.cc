@@ -26,6 +26,8 @@ void CSCSimHitMatcher::init(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 /// do the matching
 void CSCSimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
+  clear();
+
   // instantiates the track ids and simhits
   MuonSimHitMatcher::match(track, vertex);
 
@@ -340,3 +342,5 @@ std::set<unsigned int> CSCSimHitMatcher::chamberIdsStation(int station) const {
   };
   return result;
 }
+
+void CSCSimHitMatcher::clear() { MuonSimHitMatcher::clear(); }
