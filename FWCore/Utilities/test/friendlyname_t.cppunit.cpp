@@ -43,10 +43,16 @@ void testfriendlyName::test() {
   classToFriendly.insert(Values("std::unordered_set<bar::Foo, std::hash<bar::Foo>>", "barFoostduset"));
   classToFriendly.insert(
       Values("std::unordered_set<bar::Foo, std::hash<bar::Foo>, std::equal_to<bar::Foo>>", "barFoostduset"));
+  classToFriendly.insert(
+      Values("std::unordered_set<bar::Foo, CustomHash, std::equal_to<bar::Foo>>", "barFooCustomHashstduset"));
+  classToFriendly.insert(Values("std::unordered_set<bar::Foo, CustomHash>", "barFooCustomHashstduset"));
   classToFriendly.insert(Values("std::unordered_map<Foo, bar::Bar>", "FoobarBarstdumap"));
   classToFriendly.insert(Values("std::unordered_map<Foo, bar::Bar, std::hash<Foo>>", "FoobarBarstdumap"));
   classToFriendly.insert(
       Values("std::unordered_map<Foo, bar::Bar, std::hash<Foo>, std::equal_to<Foo>>", "FoobarBarstdumap"));
+  classToFriendly.insert(
+      Values("std::unordered_map<Foo, bar::Bar, CustomHash, std::equal_to<Foo>>", "FoobarBarCustomHashstdumap"));
+  classToFriendly.insert(Values("std::unordered_map<Foo, bar::Bar, CustomHash>", "FoobarBarCustomHashstdumap"));
   classToFriendly.insert(Values("std::shared_ptr<Foo>", "FooSharedPtr"));
   classToFriendly.insert(Values("std::shared_ptr<bar::Foo>", "barFooSharedPtr"));
   classToFriendly.insert(Values("std::basic_string<char>", "String"));
