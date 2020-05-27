@@ -160,6 +160,7 @@ public:
   }
   int waferType(DetId const& id) const;
   int waferType(int layer, int waferU, int waferV) const;
+  std::pair<int, int> waferTypeRotation(int layer, int waferU, int waferV) const;
   int waferUVMax() const { return hgpar_->waferUVMax_; }
   bool waferVirtual(int layer, int waferU, int waferV) const;
   double waferZ(int layer, bool reco) const;

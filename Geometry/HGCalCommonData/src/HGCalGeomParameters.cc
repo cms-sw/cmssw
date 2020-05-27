@@ -1406,7 +1406,7 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
           int wl = HGCalWaferIndex::waferIndex(lay, u, v);
           if (php.waferMaskMode_ > 0) {
             std::pair<int, int> corner0 = HGCalWaferMask::getTypeMode(
-                xpos, ypos, r, R, php.rMinLayHex_[i], php.rMaxLayHex_[i], N, php.waferMaskMode_);
+                xpos, ypos, r, R, php.rMinLayHex_[i], php.rMaxLayHex_[i], type, php.waferMaskMode_);
             waferTypes[wl] = corner0;
 #ifdef EDM_ML_DEBUG
             edm::LogVerbatim("HGCalGeom")
