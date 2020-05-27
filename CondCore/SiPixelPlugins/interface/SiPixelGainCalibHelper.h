@@ -334,7 +334,7 @@ namespace gainCalibHelper {
       auto iov = tag.iovs.front();
 
       // parse first if log
-      bool setLog(false);
+      bool setLog(true);
       auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
       auto ip = paramValues.find("SetLog");
       if (ip != paramValues.end()) {
@@ -404,7 +404,7 @@ namespace gainCalibHelper {
       if (setLog) {
         myPlots.setLogScale();
       }
-      myPlots.beautify(kBlue, 10);
+      myPlots.beautify(kBlue, -1);
       myPlots.draw(canvas, isBarrel, "HIST");
 
       TLegend legend = TLegend(0.45, 0.88, 0.91, 0.92);
@@ -418,7 +418,7 @@ namespace gainCalibHelper {
       unsigned int maxPads = isBarrel ? 4 : 12;
       for (unsigned int c = 1; c <= maxPads; c++) {
         canvas.cd(c);
-        SiPixelPI::adjustCanvasMargins(canvas.cd(c), 0.07, 0.12, 0.12, 0.05);
+        SiPixelPI::adjustCanvasMargins(canvas.cd(c), 0.06, 0.12, 0.12, 0.05);
         legend.Draw("same");
         canvas.cd(c)->Update();
       }
@@ -453,12 +453,16 @@ namespace gainCalibHelper {
   /*******************************************************************
     1d histograms comparison per region of SiPixelGainCalibration for Gains of 2 IOV
   ********************************************************************/
-  template <bool isBarrel, gainCalibPI::type myType, int ntags, class PayloadType>
+  template <bool isBarrel,
+            gainCalibPI::type myType,
+            cond::payloadInspector::IOVMultiplicity nIOVs,
+            int ntags,
+            class PayloadType>
   class SiPixelGainCalibrationValuesComparisonPerRegion
-      : public cond::payloadInspector::PlotImage<PayloadType, cond::payloadInspector::MULTI_IOV, ntags> {
+      : public cond::payloadInspector::PlotImage<PayloadType, nIOVs, ntags> {
   public:
     SiPixelGainCalibrationValuesComparisonPerRegion()
-        : cond::payloadInspector::PlotImage<PayloadType, cond::payloadInspector::MULTI_IOV, ntags>(
+        : cond::payloadInspector::PlotImage<PayloadType, nIOVs, ntags>(
               Form("SiPixelGainCalibration %s Values Per Region %i tag(s)", TypeName[myType], ntags)) {
       cond::payloadInspector::PlotBase::addInputParam("SetLog");
 
@@ -495,7 +499,7 @@ namespace gainCalibHelper {
       }
 
       // parse first if log
-      bool setLog(false);
+      bool setLog(true);
       auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
       auto ip = paramValues.find("SetLog");
       if (ip != paramValues.end()) {
@@ -545,13 +549,15 @@ namespace gainCalibHelper {
       canvas.Divide(isBarrel ? 2 : 4, isBarrel ? 2 : 3);
       canvas.cd();
 
-      const char* path_toTopologyXML = (l_detids.size() == SiPixelPI::phase0size)
-                                           ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                           : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      bool is_l_phase0 = (l_detids.size() == SiPixelPI::phase0size);
+      bool is_f_phase0 = (f_detids.size() == SiPixelPI::phase0size);
+
+      const char* path_toTopologyXML = is_l_phase0 ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
+                                                   : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
       auto l_tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
-      auto l_myPlots = PixelRegions::PixelRegionContainers(&l_tTopo, (l_detids.size() == SiPixelPI::phase1size));
+      auto l_myPlots = PixelRegions::PixelRegionContainers(&l_tTopo, !is_l_phase0);
       l_myPlots.bookAll(
           Form("Last SiPixel Gain Calibration %s - %s", (isForHLT_ ? "ForHLT" : "Offline"), TypeName[myType]),
           Form("per %s %s", (isForHLT_ ? "Column" : "Pixel"), TypeName[myType]),
@@ -560,13 +566,12 @@ namespace gainCalibHelper {
           minimum,
           maximum);
 
-      path_toTopologyXML = (f_detids.size() == SiPixelPI::phase0size)
-                               ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                               : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      path_toTopologyXML = is_f_phase0 ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
+                                       : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
       auto f_tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
-      auto f_myPlots = PixelRegions::PixelRegionContainers(&f_tTopo, (f_detids.size() == SiPixelPI::phase1size));
+      auto f_myPlots = PixelRegions::PixelRegionContainers(&f_tTopo, !is_f_phase0);
       f_myPlots.bookAll(
           Form("First SiPixel Gain Calibration %s - %s", (isForHLT_ ? "ForHLT" : "Offline"), TypeName[myType]),
           Form("per %s %s", (isForHLT_ ? "Column" : "Pixel"), TypeName[myType]),
@@ -577,8 +582,8 @@ namespace gainCalibHelper {
 
       // fill the histograms
       for (const auto& pixelId : PixelRegions::PixelIDs) {
-        auto f_wantedDets = PixelRegions::attachedDets(pixelId, &f_tTopo, (f_detids.size() == SiPixelPI::phase1size));
-        auto l_wantedDets = PixelRegions::attachedDets(pixelId, &l_tTopo, (l_detids.size() == SiPixelPI::phase1size));
+        auto f_wantedDets = PixelRegions::attachedDets(pixelId, &f_tTopo, !is_f_phase0);
+        auto l_wantedDets = PixelRegions::attachedDets(pixelId, &l_tTopo, !is_l_phase0);
         gainCalibPI::fillTheHisto(first_payload, f_myPlots.getHistoFromMap(pixelId), myType, f_wantedDets);
         gainCalibPI::fillTheHisto(last_payload, l_myPlots.getHistoFromMap(pixelId), myType, l_wantedDets);
       }
@@ -591,8 +596,8 @@ namespace gainCalibHelper {
       l_myPlots.beautify(kRed, -1);
       f_myPlots.beautify(kAzure, -1);
 
-      l_myPlots.draw(canvas, isBarrel, "HIST", true);
-      f_myPlots.draw(canvas, isBarrel, "HISTsames", true);
+      l_myPlots.draw(canvas, isBarrel, "HIST", (!is_f_phase0 || !is_l_phase0));
+      f_myPlots.draw(canvas, isBarrel, "HISTsames", (!is_f_phase0 || !is_l_phase0));
 
       // rescale the y-axis ranges in order to fit the canvas
       l_myPlots.rescaleMax(f_myPlots);
@@ -857,7 +862,6 @@ namespace gainCalibHelper {
       hBPix->SetFillColor(kBlue);
       hBPix->SetMarkerStyle(20);
       hBPix->SetMarkerSize(1);
-      //hBPix->Draw("bar2");
       hBPix->Draw("hist");
 
       SiPixelPI::makeNicePlotStyle(hBPix.get());
@@ -869,7 +873,6 @@ namespace gainCalibHelper {
       hFPix->SetFillColor(kBlue);
       hFPix->SetMarkerStyle(20);
       hFPix->SetMarkerSize(1);
-      //hFPix->Draw("bar2");
       hFPix->Draw("hist");
 
       SiPixelPI::makeNicePlotStyle(hFPix.get());
@@ -1011,16 +1014,13 @@ namespace gainCalibHelper {
       hfirst->GetYaxis()->SetRangeUser(1., extrema.second * 10);
 
       hfirst->SetTitle("");
-      //hfirst->SetFillColor(kRed);
       hfirst->SetLineColor(kRed);
       hfirst->SetBarWidth(0.95);
-      //hfirst->Draw("histbar");
       hfirst->Draw("hist");
 
       hlast->SetTitle("");
       hlast->SetFillColorAlpha(kBlue, 0.20);
       hlast->SetBarWidth(0.95);
-      //hlast->Draw("histbarsame");
       hlast->Draw("histsames");
 
       SiPixelPI::makeNicePlotStyle(hfirst.get());
