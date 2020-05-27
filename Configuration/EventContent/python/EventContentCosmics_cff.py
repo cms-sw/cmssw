@@ -32,10 +32,16 @@ from RecoLocalCalo.Configuration.RecoLocalCalo_EventContentCosmics_cff import *
 from RecoLocalTracker.Configuration.RecoLocalTracker_Cosmics_EventContent_cff import *
 from RecoJets.Configuration.RecoJets_EventContent_cff import *
 from RecoMET.Configuration.RecoMET_EventContent_cff import *
-from L1Trigger.Configuration.L1Trigger_EventContent_Cosmics_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_EventContent_cff import *
-from DQMOffline.Configuration.DQMOffline_EventContent_cff import *
-from HLTrigger.Configuration.HLTrigger_EventContent_cff import *
+from RecoEgamma.Configuration.RecoEgamma_EventContent_cff import *
+from RecoVertex.Configuration.RecoVertex_EventContent_cff import *
+# raw2digi that are already the final RECO/AOD products
+from EventFilter.ScalersRawToDigi.Scalers_EventContent_cff import *
+from EventFilter.OnlineMetaDataRawToDigi.OnlineMetaData_EventContent_cff import *
+from EventFilter.Utilities.Tcds_EventContent_cff import *
+# DigiToRaw content
+from EventFilter.Configuration.DigiToRaw_EventContent_cff import *
+# Simulation System
 from GeneratorInterface.Configuration.GeneratorInterface_EventContent_cff import *
 from SimG4Core.Configuration.SimG4Core_EventContent_cff import *
 from SimTracker.Configuration.SimTracker_EventContent_cff import *
@@ -43,13 +49,13 @@ from SimMuon.Configuration.SimMuon_EventContent_cff import *
 from SimCalorimetry.Configuration.SimCalorimetry_EventContent_cff import *
 from SimGeneral.Configuration.SimGeneral_EventContent_cff import *
 from IOMC.RandomEngine.IOMC_EventContent_cff import *
-from EventFilter.Configuration.DigiToRaw_EventContent_cff import *
-from RecoEgamma.Configuration.RecoEgamma_EventContent_cff import *
-from RecoVertex.Configuration.RecoVertex_EventContent_cff import *
-# raw2digi that are already the final RECO/AOD products
-from EventFilter.ScalersRawToDigi.Scalers_EventContent_cff import *
-from EventFilter.OnlineMetaDataRawToDigi.OnlineMetaData_EventContent_cff import *
-from EventFilter.Utilities.Tcds_EventContent_cff import *
+# L1
+from L1Trigger.Configuration.L1Trigger_EventContent_Cosmics_cff import *
+# HLT
+from HLTrigger.Configuration.HLTrigger_EventContent_cff import *
+# DQM
+from DQMOffline.Configuration.DQMOffline_EventContent_cff import *
+
 from Configuration.EventContent.EventContent_cff import REGENEventContent,RESIMEventContent,REDIGIEventContent
 from Configuration.EventContent.EventContent_cff import DQMEventContent
 
@@ -127,28 +133,6 @@ AODEventContent.outputCommands.extend(EvtScalersAOD.outputCommands)
 AODEventContent.outputCommands.extend(OnlineMetaDataContent.outputCommands)
 AODEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 #
-# FEVT Data Tier definition
-#
-#
-#FEVT is by definition RECO + RAW
-FEVTEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *',
-        'keep *_logErrorHarvester_*_*'),
-    splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
-)
-FEVTEventContent.outputCommands.extend(RAWEventContent.outputCommands)
-FEVTEventContent.outputCommands.extend(RECOEventContent.outputCommands)
-
-#replace FEVTEventContent.outputCommands += HLTriggerFEVT.outputCommands 
-FEVTHLTALLEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *'),
-    splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
-)
-FEVTHLTALLEventContent.outputCommands.extend(FEVTEventContent.outputCommands)
-FEVTHLTALLEventContent.outputCommands.append('keep *_*_*_HLT')
-#
 #
 # RAWSIM Data Tier definition
 #
@@ -191,6 +175,44 @@ RECOSIMEventContent.outputCommands.extend(RecoGenMETRECO.outputCommands)
 RECOSIMEventContent.outputCommands.extend(RecoGenJetsRECO.outputCommands)
 RECOSIMEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
 #
+# FEVT Data Tier definition
+#
+#
+#FEVT is by definition RECO + RAW
+FEVTEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *',
+        'keep *_logErrorHarvester_*_*'),
+    splitLevel = cms.untracked.int32(0),
+    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
+)
+FEVTEventContent.outputCommands.extend(RAWEventContent.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoLocalTrackerRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoLocalMuonRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoLocalCaloRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoEcalRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoEgammaRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoTrackerRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoJetsRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoMETRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoMuonRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(BeamSpotRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoVertexRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(L1TriggerRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(HLTriggerRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(OnlineMetaDataContent.outputCommands)
+FEVTEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
+
+#replace FEVTEventContent.outputCommands += HLTriggerFEVT.outputCommands 
+FEVTHLTALLEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
+)
+FEVTHLTALLEventContent.outputCommands.extend(FEVTEventContent.outputCommands)
+FEVTHLTALLEventContent.outputCommands.append('keep *_*_*_HLT')
+#
 # FEVTSIM Data Tier definition
 #
 #
@@ -200,8 +222,26 @@ FEVTSIMEventContent = cms.PSet(
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
-FEVTSIMEventContent.outputCommands.extend(RAWSIMEventContent.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(RECOSIMEventContent.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(FEVTEventContent.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(SimTrackerRAW.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(SimMuonRAW.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(SimCalorimetryRAW.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(SimGeneralRAW.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(GeneratorInterfaceRAW.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(RecoGenJetsFEVT.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(RecoGenMETFEVT.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(IOMCRAW.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(GeneratorInterfaceRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(RecoGenMETRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(RecoGenJetsRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(SimG4CoreRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(SimTrackerRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(SimMuonRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(SimCalorimetryRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
 #
 #
 # FEVTDEBUG Data Tier definition
