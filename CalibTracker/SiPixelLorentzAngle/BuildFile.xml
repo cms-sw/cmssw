@@ -10,4 +10,3 @@
 <use name="MagneticField/Records"/>
 <use name="root"/>
 <use name="clhep"/>
-<use name="boost"/>

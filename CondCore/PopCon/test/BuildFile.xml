@@ -1,5 +1,4 @@
 <use name="CondFormats/Calibration"/>
-<use name="CondFormats/DataRecord"/>
 <use name="CondCore/PopCon"/>
 <library name="ExPopConAnalyzer" file="stubs/ExSourceHandler.cc,stubs/ExAnalyzer.cc">
   <flags EDM_PLUGIN="1"/>

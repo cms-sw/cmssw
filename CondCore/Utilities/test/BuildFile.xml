@@ -2,7 +2,6 @@
 <use name="CondCore/Utilities"/>
 <use name="CondFormats/Common"/>
 <use name="FWCore/PluginManager"/>
-<use name="FWCore/Utilities"/>
 <use name="rootgraphics"/>
 <bin file="testBasicPayload.cpp" name="testBasicPayload">
 </bin>
