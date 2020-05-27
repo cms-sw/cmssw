@@ -35,9 +35,10 @@ run3_common.toReplaceWith(DigiToRawTask, DigiToRawTask.copyAndExclude([castorRaw
 from Configuration.Eras.Modifier_hcalSkipPacker_cff import hcalSkipPacker
 hcalSkipPacker.toReplaceWith(DigiToRawTask, DigiToRawTask.copyAndExclude([hcalRawDataTask]))
 
-# Remove siPixelRawData until we have phase1 pixel digis
+# Remove siPixelRawData until we have phase2 pixel digis
+# No Strip detector in Phase-2 Tracker
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toReplaceWith(DigiToRawTask, DigiToRawTask.copyAndExclude([siPixelRawData])) # FIXME
+phase2_tracker.toReplaceWith(DigiToRawTask, DigiToRawTask.copyAndExclude([siPixelRawData,SiStripDigiToRaw])) # FIXME
 
 # GEM settings
 _gem_DigiToRawTask = DigiToRawTask.copy()
