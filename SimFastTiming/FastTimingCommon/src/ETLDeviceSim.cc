@@ -9,7 +9,7 @@
 
 ETLDeviceSim::ETLDeviceSim(const edm::ParameterSet& pset)
     : geom_(nullptr),
-      fCPerMeV_(pset.getParameter<double>("fCPerMeV")),
+      MIPPerMeV_(1.0 / pset.getParameter<double>("meVPerMIP")),
       bxTime_(pset.getParameter<double>("bxTime")),
       tofDelay_(pset.getParameter<double>("tofDelay")) {}
 
@@ -50,7 +50,7 @@ void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
 
     const float toa = std::get<2>(hitRefs[i]) + tofDelay_;
     const PSimHit& hit = hits->at(hitidx);
-    const float charge = 1000.f * hit.energyLoss() * fCPerMeV_;
+    const float charge = 1000.f * hit.energyLoss() * MIPPerMeV_;
 
     // calculate the simhit row and column
     const auto& pentry = hit.entryPoint();
