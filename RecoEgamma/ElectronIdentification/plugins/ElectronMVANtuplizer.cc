@@ -28,6 +28,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "RecoEgamma/EgammaTools/interface/MVAVariableManager.h"
+#include "RecoEgamma/EgammaTools/interface/MVAVariableHelper.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
@@ -169,7 +170,7 @@ ElectronMVANtuplizer::ElectronMVANtuplizer(const edm::ParameterSet& iConfig)
       mvaValues_(nValMaps_),
       mvaCats_(nCats_),
       variableHelper_(consumesCollector()),
-      mvaVarMngr_(iConfig.getParameter<std::string>("variableDefinition")),
+      mvaVarMngr_(iConfig.getParameter<std::string>("variableDefinition"), MVAVariableHelper::indexMap()),
       nVars_(mvaVarMngr_.getNVars()),
       vars_(nVars_),
       doEnergyMatrix_(iConfig.getParameter<bool>("doEnergyMatrix")),
