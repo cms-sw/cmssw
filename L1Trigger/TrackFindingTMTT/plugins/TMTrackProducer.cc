@@ -374,7 +374,7 @@ namespace tmtt {
         }
       }
       PrintL1trk() << "Number of tracks after HT = " << numHTtracks;
-      for (const auto p : mapFinalTracks) {
+      for (const auto& p : mapFinalTracks) {
         const string& fitName = p.first;
         const list<const L1fittedTrack*> fittedTracks = p.second;
         PrintL1trk() << "Number of tracks after " << fitName << " track helix fit = " << fittedTracks.size();
