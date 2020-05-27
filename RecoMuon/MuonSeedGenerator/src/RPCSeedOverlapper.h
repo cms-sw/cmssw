@@ -32,7 +32,7 @@ public:
 
 private:
   void CheckOverlap(const edm::EventSetup &iSetup, std::vector<weightedTrajectorySeed> *SeedsRef);
-  bool isShareHit(const edm::OwnVector<TrackingRecHit> &RecHits,
+  bool isShareHit(const std::vector<TrackingRecHit const *> &RecHits,
                   const TrackingRecHit &hit,
                   edm::ESHandle<RPCGeometry> rpcGeometry);
   // Signal for call run()
