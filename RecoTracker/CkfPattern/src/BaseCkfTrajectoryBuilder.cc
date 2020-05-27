@@ -83,10 +83,9 @@ void BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed, Temp
       TSOS innerState = backwardPropagator(seed)->propagate(outerState, hitGeomDet->surface());
 
       // try to recover if propagation failed
-      if
-        UNLIKELY(!innerState.isValid())
-      innerState = trajectoryStateTransform::transientState(
-          pState, &(hitGeomDet->surface()), forwardPropagator(seed)->magneticField());
+      if UNLIKELY (!innerState.isValid())
+        innerState = trajectoryStateTransform::transientState(
+            pState, &(hitGeomDet->surface()), forwardPropagator(seed)->magneticField());
 
       if (innerState.isValid()) {
         TSOS innerUpdated = theUpdator->update(innerState, *recHit);
@@ -110,16 +109,15 @@ TempTrajectory BaseCkfTrajectoryBuilder::createStartingTrajectory(const Trajecto
 }
 
 bool BaseCkfTrajectoryBuilder::toBeContinued(TempTrajectory& traj, bool inOut) const {
-  if
-    UNLIKELY(traj.measurements().size() > 400) {
-      edm::LogError("BaseCkfTrajectoryBuilder_InfiniteLoop");
-      LogTrace("BaseCkfTrajectoryBuilder_InfiniteLoop")
-          << "Cropping Track After 400 Measurements:\n"
-          << "   Last predicted state: " << traj.lastMeasurement().predictedState() << "\n"
-          << "   Last layer subdetector: " << (traj.lastLayer() ? traj.lastLayer()->subDetector() : -1) << "\n"
-          << "   Found hits: " << traj.foundHits() << ", lost hits: " << traj.lostHits() << "\n\n";
-      return false;
-    }
+  if UNLIKELY (traj.measurements().size() > 400) {
+    edm::LogError("BaseCkfTrajectoryBuilder_InfiniteLoop");
+    LogTrace("BaseCkfTrajectoryBuilder_InfiniteLoop")
+        << "Cropping Track After 400 Measurements:\n"
+        << "   Last predicted state: " << traj.lastMeasurement().predictedState() << "\n"
+        << "   Last layer subdetector: " << (traj.lastLayer() ? traj.lastLayer()->subDetector() : -1) << "\n"
+        << "   Found hits: " << traj.foundHits() << ", lost hits: " << traj.lostHits() << "\n\n";
+    return false;
+  }
   // Called after each new hit is added to the trajectory, to see if it is
   // worth continuing to build this track candidate.
   if (inOut) {

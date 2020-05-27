@@ -350,7 +350,7 @@ bool HLTMuonTrackMassFilter::pairMatched(std::vector<reco::RecoChargedCandidateR
   // comparison by hits of TrajectorySeed of the new track
   // with the previous candidate
   //
-  auto const& seedHits = seedRef->recHits();
+  const TrajectorySeed::RecHitRange seedHits = seedRef->recHits();
   trackingRecHit_iterator prevTrackHitEnd;
   trackingRecHit_iterator iprev;
   for (size_t i = 0; i < prevMuonRefs.size(); ++i) {
