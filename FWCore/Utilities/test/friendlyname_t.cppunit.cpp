@@ -40,7 +40,13 @@ void testfriendlyName::test() {
   classToFriendly.insert(Values("std::set<bar::Foo>", "barFoostdset"));
   classToFriendly.insert(Values("std::map<Foo, bar::Bar>", "FoobarBarstdmap"));
   classToFriendly.insert(Values("std::unordered_set<bar::Foo>", "barFoostduset"));
+  classToFriendly.insert(Values("std::unordered_set<bar::Foo, std::hash<bar::Foo>>", "barFoostduset"));
+  classToFriendly.insert(
+      Values("std::unordered_set<bar::Foo, std::hash<bar::Foo>, std::equal_to<bar::Foo>>", "barFoostduset"));
   classToFriendly.insert(Values("std::unordered_map<Foo, bar::Bar>", "FoobarBarstdumap"));
+  classToFriendly.insert(Values("std::unordered_map<Foo, bar::Bar, std::hash<Foo>>", "FoobarBarstdumap"));
+  classToFriendly.insert(
+      Values("std::unordered_map<Foo, bar::Bar, std::hash<Foo>, std::equal_to<Foo>>", "FoobarBarstdumap"));
   classToFriendly.insert(Values("std::shared_ptr<Foo>", "FooSharedPtr"));
   classToFriendly.insert(Values("std::shared_ptr<bar::Foo>", "barFooSharedPtr"));
   classToFriendly.insert(Values("std::basic_string<char>", "String"));

@@ -55,7 +55,13 @@ namespace edm {
     static std::regex const reUnsigned("unsigned ");
     static std::regex const reLong("long ");
     static std::regex const reVector("std::vector");
+    static std::regex const reUnorderedSetHashKeyEqual(
+        "std::unordered_set< *(.*), *std::hash<\\1> *, *std::equal_to<\\1> *>");
+    static std::regex const reUnorderedSetHash("std::unordered_set< *(.*), *std::hash<\\1> *>");
     static std::regex const reUnorderedSet("std::unordered_set");
+    static std::regex const reUnorderedMapHashKeyEqual(
+        "std::unordered_map< *(.*), *(.*), *std::hash<\\1> *, *std::equal_to<\\1> *>");
+    static std::regex const reUnorderedMapHash("std::unordered_map< *(.*), *(.*), *std::hash<\\1> *>");
     static std::regex const reUnorderedMap("std::unordered_map");
     static std::regex const reSharedPtr("std::shared_ptr");
     static std::regex const reAIKR(
@@ -100,8 +106,6 @@ namespace edm {
       name = regex_replace(name, reUnsigned, "u");
       name = regex_replace(name, reLong, "l");
       name = regex_replace(name, reVector, "s");
-      name = regex_replace(name, reUnorderedSet, "stduset");
-      name = regex_replace(name, reUnorderedMap, "stdumap");
       name = regex_replace(name, reSharedPtr, "SharedPtr");
       name = regex_replace(name, reOwnVector, "sOwned<$1>");
       name = regex_replace(name, reToVector, "AssociationVector<$1,To,$2>");
@@ -143,6 +147,31 @@ namespace edm {
       }
       // insert the leading const back if it was there
       result = leadingConst + result;
+      // Handle unordered_set, which may contain a hash and an an equal for the key
+      {
+        auto result2 =
+            regex_replace(result, reUnorderedSetHashKeyEqual, "stduset<$1>", std::regex_constants::format_first_only);
+        if (result2 == result) {
+          result2 = regex_replace(result, reUnorderedSetHash, "stduset<$1>", std::regex_constants::format_first_only);
+        }
+        if (result2 == result) {
+          result2 = regex_replace(result, reUnorderedSet, "stduset", std::regex_constants::format_first_only);
+        }
+        result = std::move(result2);
+      }
+      // Handle unordered_map, which may contain a hash and an an equal for the key
+      {
+        auto result2 = regex_replace(
+            result, reUnorderedMapHashKeyEqual, "stdumap<$1, $2>", std::regex_constants::format_first_only);
+        if (result2 == result) {
+          result2 =
+              regex_replace(result, reUnorderedMapHash, "stdumap<$1, $2>", std::regex_constants::format_first_only);
+        }
+        if (result2 == result) {
+          result2 = regex_replace(result, reUnorderedMap, "stdumap", std::regex_constants::format_first_only);
+        }
+        result = std::move(result2);
+      }
       if (smatch theMatch; regex_match(result, theMatch, reTemplateArgs)) {
         //std::cout <<"found match \""<<theMatch.str(1) <<"\"" <<std::endl;
         //static regex const templateClosing(">$");
