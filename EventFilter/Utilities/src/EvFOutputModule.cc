@@ -111,7 +111,7 @@ namespace evf {
         streamLabel_(ps.getParameter<std::string>("@module_label")),
         trToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"))),
         psetToken_(consumes<edm::SendJobHeader::ParameterSetMap, edm::InRun>(
-            ps.getUntrackedParameter<edm::InputTag>("hltPSetMap"))) {
+            ps.getUntrackedParameter<edm::InputTag>("psetMap"))) {
     //replace hltOutoputA with stream if the HLT menu uses this convention
     std::string testPrefix = "hltOutput";
     if (streamLabel_.find(testPrefix) == 0)
@@ -140,7 +140,7 @@ namespace evf {
     edm::ParameterSetDescription desc;
     edm::StreamerOutputModuleCommon::fillDescription(desc);
     EvFOutputModuleType::fillDescription(desc);
-    desc.addUntracked<edm::InputTag>("psetMap", {"psetMap"})
+    desc.addUntracked<edm::InputTag>("psetMap", {"hltPSetMap"})
         ->setComment("Optionally allow the map of ParameterSets to be calculated externally.");
     descriptions.addDefault(desc);
   }
