@@ -3,7 +3,7 @@
 <use name="DataFormats/EgammaReco"/>
 <use name="DataFormats/EgammaCandidates"/>
 <use name="DataFormats/HLTReco"/>
-<use name="RecoEgamma/EgammaTools"/>
+<use name="CommonTools/Egamma"/>
 <use name="rootcore"/>
 <export>
   <lib name="1"/>

@@ -22,7 +22,7 @@
 #include "TrackingTools/IPTools/interface/IPTools.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include <cmath>
-#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "CommonTools/Egamma/interface/ConversionTools.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
 SoftPFElectronTagInfoProducer::SoftPFElectronTagInfoProducer(const edm::ParameterSet& conf) {

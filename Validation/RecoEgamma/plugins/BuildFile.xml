@@ -14,10 +14,10 @@
 <use name="Geometry/CaloTopology"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="DataFormats/Math"/>
+<use name="CommonTools/Egamma"/>
 <use name="CommonTools/Statistics"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="RecoEgamma/EgammaMCTools"/>
-<use name="RecoEgamma/EgammaTools"/>
 <use name="SimTracker/Records"/>
 <use name="SimTracker/TrackerHitAssociation"/>
 <use name="SimDataFormats/GeneratorProducts"/>
