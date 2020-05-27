@@ -1,6 +1,6 @@
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorWithEventContentBase.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
+#include "CommonTools/Egamma/interface/EffectiveAreas.h"
 
 class PhoAnyPFIsoWithEAAndExpoScalingEBCut : public CutApplicatorWithEventContentBase {
 public:

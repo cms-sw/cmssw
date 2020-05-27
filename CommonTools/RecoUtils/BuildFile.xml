@@ -11,7 +11,7 @@
 <use name="MagneticField/Records"/>
 <use name="MagneticField/Engine"/>
 <use name="HLTrigger/HLTcore"/>
-<use name="RecoEgamma/EgammaTools"/>
+<use name="CommonTools/Egamma"/>
 <use name="RecoVertex/KinematicFit"/>
 <use name="RecoVertex/KinematicFitPrimitives"/>
 <use name="TrackingTools/TransientTrack"/>

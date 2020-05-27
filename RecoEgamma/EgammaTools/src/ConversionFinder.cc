@@ -1,7 +1,6 @@
 #include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TMath.h"
 

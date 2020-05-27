@@ -1,0 +1,8 @@
+<use name="DataFormats/Common"/>
+<use name="DataFormats/EgammaCandidates"/>
+<use name="DataFormats/GsfTrackReco"/>
+<use name="DataFormats/TrackReco"/>
+<use name="FWCore/Utilities"/>
+<export>
+  <lib name="1"/>
+</export>
