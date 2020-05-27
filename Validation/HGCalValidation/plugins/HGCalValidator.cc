@@ -23,7 +23,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
 
   simVertices_ = consumes<std::vector<SimVertex>>(pset.getParameter<edm::InputTag>("simVertices"));
 
-  hitMap_ = consumes<std::unordered_map<DetId, const HGCRecHit *>>(edm::InputTag("HGCRecHitMapProducer"));
+  hitMap_ = consumes<std::unordered_map<DetId, const HGCRecHit *>>(edm::InputTag("hgcRecHitMapProducer"));
 
   density_ = consumes<Density>(edm::InputTag("hgcalLayerClusters"));
 
