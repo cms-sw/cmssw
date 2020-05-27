@@ -129,7 +129,7 @@ void DTRunConditionVarClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IG
 
         // Get the means per chamber
         float vDriftMean = VDriftME->getMean();
-        T0ME->setAxisRange(-15,15);
+        T0ME->setAxisRange(-15, 15);
         float t0Mean = T0ME->getMean();
 
         // Get the sigma per chamber
@@ -289,34 +289,33 @@ void DTRunConditionVarClient::bookWheelHistos(DQMStore::IBooker& ibooker,
   string histoName;
   string histoLabel;
 
-  if(makeRings){
-      ibooker.setCurrentFolder(folder + "/Wheel" + wheel.str());
-      for (int st = 1; st <= 4; st++){
-         stringstream station;
-         station << st;
-        
-         histoName = histoType + "_W" + wheel.str() + "_MB" + station.str();
-         histoLabel = histoType;
-         
-         (wheelRingHistos[wh][st])[histoType] = ibooker.book1D(histoName, histoLabel, nbins, min, max);
-      }
-  }
-  else{
-      histoName = histoType + "_W" + wheel.str();
+  if (makeRings) {
+    ibooker.setCurrentFolder(folder + "/Wheel" + wheel.str());
+    for (int st = 1; st <= 4; st++) {
+      stringstream station;
+      station << st;
+
+      histoName = histoType + "_W" + wheel.str() + "_MB" + station.str();
       histoLabel = histoType;
 
-      (wheelHistos[wh])[histoType] = ibooker.book1D(histoName, histoLabel, nbins, min, max);
+      (wheelRingHistos[wh][st])[histoType] = ibooker.book1D(histoName, histoLabel, nbins, min, max);
+    }
+  } else {
+    histoName = histoType + "_W" + wheel.str();
+    histoLabel = histoType;
+
+    (wheelHistos[wh])[histoType] = ibooker.book1D(histoName, histoLabel, nbins, min, max);
   }
 
- ibooker.setCurrentFolder(folder);
+  ibooker.setCurrentFolder(folder);
 
- if (isVDCorr) {
+  if (isVDCorr) {
     histoLabel = "Summary of corrections to VDrift DB values";
     histoName = "CorrTo" + histoType + "Summary_W" + wheel.str();
   } else {
     histoLabel = histoType + "Summary";
     histoName = histoType + "Summary_W" + wheel.str();
- }
+  }
 
   MonitorElement* me = ibooker.book2D(histoName, histoLabel, 12, 1, 13, 4, 1, 5);
 
