@@ -48,6 +48,8 @@ void CSCDigiMatcher::match(const SimTrack& t, const SimVertex& v) {
   const CSCStripDigiCollection& strips = *stripDigisH_.product();
   const CSCWireDigiCollection& wires = *wireDigisH_.product();
 
+  clear();
+
   // now match the digis
   matchComparatorsToSimTrack(comparators);
   matchStripsToSimTrack(strips);
@@ -331,14 +333,10 @@ std::set<int> CSCDigiMatcher::comparatorsInChamber(unsigned int detid, int max_g
   if (max_gap_to_fill > 0) {
     int prev = -111;
     for (const auto& s : result) {
-      //cout<<"gap "<<s<<" - "<<prev<<" = "<<s - prev<<"  added 0";
       if (s - prev > 1 && s - prev - 1 <= max_gap_to_fill) {
-        //int sz = result.size();
         for (int fill_s = prev + 1; fill_s < s; ++fill_s)
           result.insert(fill_s);
-        //cout<<result.size() - sz;
       }
-      //cout<<" elems"<<endl;
       prev = s;
     }
   }
@@ -355,14 +353,10 @@ std::set<int> CSCDigiMatcher::stripsInChamber(unsigned int detid, int max_gap_to
   if (max_gap_to_fill > 0) {
     int prev = -111;
     for (const auto& s : result) {
-      //cout<<"gap "<<s<<" - "<<prev<<" = "<<s - prev<<"  added 0";
       if (s - prev > 1 && s - prev - 1 <= max_gap_to_fill) {
-        //int sz = result.size();
         for (int fill_s = prev + 1; fill_s < s; ++fill_s)
           result.insert(fill_s);
-        //cout<<result.size() - sz;
       }
-      //cout<<" elems"<<endl;
       prev = s;
     }
   }
@@ -387,4 +381,15 @@ std::set<int> CSCDigiMatcher::wiregroupsInChamber(unsigned int detid, int max_ga
     }
   }
   return result;
+}
+
+void CSCDigiMatcher::clear() {
+  detid_to_comparators_.clear();
+  chamber_to_comparators_.clear();
+
+  detid_to_strips_.clear();
+  chamber_to_strips_.clear();
+
+  detid_to_wires_.clear();
+  chamber_to_wires_.clear();
 }
