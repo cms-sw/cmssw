@@ -57,48 +57,56 @@ namespace {
   using SiPixelGainCalibOfflineGainComparisonBarrelSingleTag =
       gainCalibHelper::SiPixelGainCalibrationValuesComparisonPerRegion<true,
                                                                        gainCalibHelper::gainCalibPI::t_gain,
+                                                                       cond::payloadInspector::MULTI_IOV,
                                                                        1,
                                                                        SiPixelGainCalibrationOffline>;
 
   using SiPixelGainCalibOfflinePedestalComparisonBarrelSingleTag =
       gainCalibHelper::SiPixelGainCalibrationValuesComparisonPerRegion<true,
                                                                        gainCalibHelper::gainCalibPI::t_pedestal,
+                                                                       cond::payloadInspector::MULTI_IOV,
                                                                        1,
                                                                        SiPixelGainCalibrationOffline>;
 
   using SiPixelGainCalibOfflineGainComparisonBarrelTwoTags =
       gainCalibHelper::SiPixelGainCalibrationValuesComparisonPerRegion<true,
                                                                        gainCalibHelper::gainCalibPI::t_gain,
+                                                                       cond::payloadInspector::SINGLE_IOV,
                                                                        2,
                                                                        SiPixelGainCalibrationOffline>;
 
   using SiPixelGainCalibOfflinePedestalComparisonBarrelTwoTags =
       gainCalibHelper::SiPixelGainCalibrationValuesComparisonPerRegion<true,
                                                                        gainCalibHelper::gainCalibPI::t_pedestal,
+                                                                       cond::payloadInspector::SINGLE_IOV,
                                                                        2,
                                                                        SiPixelGainCalibrationOffline>;
 
   using SiPixelGainCalibOfflineGainComparisonEndcapSingleTag =
       gainCalibHelper::SiPixelGainCalibrationValuesComparisonPerRegion<false,
                                                                        gainCalibHelper::gainCalibPI::t_gain,
+                                                                       cond::payloadInspector::MULTI_IOV,
                                                                        1,
                                                                        SiPixelGainCalibrationOffline>;
 
   using SiPixelGainCalibOfflinePedestalComparisonEndcapSingleTag =
       gainCalibHelper::SiPixelGainCalibrationValuesComparisonPerRegion<false,
                                                                        gainCalibHelper::gainCalibPI::t_pedestal,
+                                                                       cond::payloadInspector::MULTI_IOV,
                                                                        1,
                                                                        SiPixelGainCalibrationOffline>;
 
   using SiPixelGainCalibOfflineGainComparisonEndcapTwoTags =
       gainCalibHelper::SiPixelGainCalibrationValuesComparisonPerRegion<false,
                                                                        gainCalibHelper::gainCalibPI::t_gain,
+                                                                       cond::payloadInspector::SINGLE_IOV,
                                                                        2,
                                                                        SiPixelGainCalibrationOffline>;
 
   using SiPixelGainCalibOfflinePedestalComparisonEndcapTwoTags =
       gainCalibHelper::SiPixelGainCalibrationValuesComparisonPerRegion<false,
                                                                        gainCalibHelper::gainCalibPI::t_pedestal,
+                                                                       cond::payloadInspector::SINGLE_IOV,
                                                                        2,
                                                                        SiPixelGainCalibrationOffline>;
 

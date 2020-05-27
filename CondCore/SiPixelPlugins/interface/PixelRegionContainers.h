@@ -200,7 +200,7 @@ namespace PixelRegions {
     }
 
     //============================================================================
-    void draw(TCanvas& canv, bool isBarrel, const char* option = "bar2", bool isComparison = false) {
+    void draw(TCanvas& canv, bool isBarrel, const char* option = "bar2", bool isPhase1Comparison = false) {
       if (isBarrel) {
         for (int j = 1; j <= 4; j++) {
           if (!m_isLog) {
@@ -208,7 +208,7 @@ namespace PixelRegions {
           } else {
             canv.cd(j)->SetLogy();
           }
-          if ((j == 4) && !m_isPhase1 && !isComparison) {
+          if ((j == 4) && !m_isPhase1 && !isPhase1Comparison) {
             m_theMap.at(PixelIDs[j - 1])->Draw("AXIS");
             TLatex t2;
             t2.SetTextAlign(22);
@@ -228,7 +228,7 @@ namespace PixelRegions {
           } else {
             canv.cd(j)->SetLogy();
           }
-          if ((j % 6 == 5 || j % 6 == 0) && !m_isPhase1 && !isComparison) {
+          if ((j % 6 == 5 || j % 6 == 0) && !m_isPhase1 && !isPhase1Comparison) {
             m_theMap.at(PixelIDs[j + 3])->Draw("AXIS");
             TLatex t2;
             t2.SetTextAlign(22);
