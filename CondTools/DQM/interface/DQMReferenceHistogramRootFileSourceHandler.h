@@ -3,7 +3,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
-//#include "CondFormats/Common/interface/Time.h"
 #include "CondFormats/Common/interface/FileBlob.h"
 #include <string>
 
