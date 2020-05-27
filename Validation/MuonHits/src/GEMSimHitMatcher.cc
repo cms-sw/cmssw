@@ -26,6 +26,8 @@ void GEMSimHitMatcher::init(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 /// do the matching
 void GEMSimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
+  clear();
+
   // instantiates the track ids and simhits
   MuonSimHitMatcher::match(track, vertex);
 
@@ -344,4 +346,12 @@ int GEMSimHitMatcher::nCoincidencePadsWithHits() const {
     result += hitCoPadsInDetId(id).size();
   }
   return result;
+}
+
+void GEMSimHitMatcher::clear() {
+  MuonSimHitMatcher::clear();
+
+  superchamber_to_hits_.clear();
+  detids_to_pads_.clear();
+  detids_to_copads_.clear();
 }

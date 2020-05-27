@@ -75,6 +75,8 @@ public:
 private:
   void matchSimHitsToSimTrack();
 
+  void clear();
+
   edm::ESHandle<GEMGeometry> gem_geom_;
 
   std::map<unsigned int, edm::PSimHitContainer> superchamber_to_hits_;
