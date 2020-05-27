@@ -20,7 +20,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -31,13 +31,21 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-class TestESDummyDataAnalyzer : public edm::EDAnalyzer {
+namespace testesdummydata {
+  struct DummyRunCache {};
+}  // namespace testesdummydata
+
+using testesdummydata::DummyRunCache;
+
+class TestESDummyDataAnalyzer : public edm::one::EDAnalyzer<edm::RunCache<DummyRunCache>> {
 public:
   explicit TestESDummyDataAnalyzer(const edm::ParameterSet&);
 
 private:
-  virtual void endJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void endJob() override;
+  std::shared_ptr<DummyRunCache> globalBeginRun(const edm::Run&, const edm::EventSetup&) const override { return {}; }
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void globalEndRun(const edm::Run&, const edm::EventSetup&) override {}
 
   int m_expectedValue;
   int const m_nEventsValue;
@@ -84,4 +92,28 @@ void TestESDummyDataAnalyzer::endJob() {
   }
 }
 
+class TestESDummyDataNoPrefetchAnalyzer : public edm::one::EDAnalyzer<edm::RunCache<DummyRunCache>> {
+public:
+  explicit TestESDummyDataNoPrefetchAnalyzer(const edm::ParameterSet&) {}
+
+private:
+  std::shared_ptr<DummyRunCache> globalBeginRun(const edm::Run&, const edm::EventSetup&) const override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void globalEndRun(const edm::Run&, const edm::EventSetup&) override {}
+};
+
+std::shared_ptr<DummyRunCache> TestESDummyDataNoPrefetchAnalyzer::globalBeginRun(const edm::Run&,
+                                                                                 const edm::EventSetup& iES) const {
+  edm::ESHandle<edm::eventsetup::test::DummyData> h;
+  iES.getData(h);
+  *h;
+  return {};
+}
+void TestESDummyDataNoPrefetchAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iES) {
+  edm::ESHandle<edm::eventsetup::test::DummyData> h;
+  iES.getData(h);
+  *h;
+}
+
 DEFINE_FWK_MODULE(TestESDummyDataAnalyzer);
+DEFINE_FWK_MODULE(TestESDummyDataNoPrefetchAnalyzer);
