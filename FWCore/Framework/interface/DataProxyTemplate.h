@@ -64,16 +64,18 @@ namespace edm {
         taskList_.add(iTask);
 
         if (doPrefetch) {
-          try {
-            //We assume calling make is so fast that it isn't work launching a new task
-            RecordT rec;
-            rec.setImpl(&iRecord, std::numeric_limits<unsigned int>::max(), nullptr, iEventSetupImpl, true);
-            this->make(rec, iKey);
-          } catch (...) {
-            taskList_.doneWaiting(std::current_exception());
-            return;
-          }
-          taskList_.doneWaiting(std::exception_ptr{});
+          tbb::task::spawn(*edm::make_waiting_task(
+              tbb::task::allocate_root(), [this, &iRecord, iKey, iEventSetupImpl](std::exception_ptr const*) {
+                try {
+                  RecordT rec;
+                  rec.setImpl(&iRecord, std::numeric_limits<unsigned int>::max(), nullptr, iEventSetupImpl, true);
+                  this->make(rec, iKey);
+                } catch (...) {
+                  this->taskList_.doneWaiting(std::current_exception());
+                  return;
+                }
+                this->taskList_.doneWaiting(std::exception_ptr{});
+              }));
         }
       }
 
