@@ -436,9 +436,8 @@ namespace cms {
             PTrajectoryStateOnDet&& state = trajectoryStateTransform::persistentState(initState, initId);
             TrajectorySeed::RecHitContainer hits;
             hits.push_back(it->lastMeasurement().recHit()->hit()->clone());
-            std::shared_ptr<const TrajectorySeed> seed(new TrajectorySeed(state, std::move(hits), direction));
             // 3) make a trajectory
-            Trajectory trajectory(seed, direction);
+            Trajectory trajectory{std::make_shared<TrajectorySeed>(state, std::move(hits), direction), direction};
             trajectory.setNLoops(it->nLoops());
             trajectory.setSeedRef(it->seedRef());
             trajectory.setStopReason(it->stopReason());

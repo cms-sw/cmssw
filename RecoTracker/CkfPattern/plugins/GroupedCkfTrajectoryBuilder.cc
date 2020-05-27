@@ -836,10 +836,6 @@ void GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed& see
   KFTrajectoryFitter fitter(backwardPropagator(seed), &updator(), &estimator(), 3, nullptr, &hitCloner);
   //
   std::vector<const TrackingRecHit*> seedHits;
-  //seedHits.insert(seedHits.end(), rseedHits.first, rseedHits.second);
-  //for (TrajectorySeed::recHitContainer::const_iterator iter = rseedHits.first; iter != rseedHits.second; iter++){
-  //	seedHits.push_back(&*iter);
-  //}
 
   unsigned int nSeed = seed.nHits();
   //seedHits.reserve(nSeed);

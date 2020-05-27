@@ -54,7 +54,7 @@ void RPCSeedOverlapper::CheckOverlap(const edm::EventSetup &iSetup,
                                      std::vector<weightedTrajectorySeed> *weightedSeedsRef) {
   std::vector<weightedTrajectorySeed> sortweightedSeeds;
   std::vector<weightedTrajectorySeed> tempweightedSeeds;
-  edm::OwnVector<TrackingRecHit> tempRecHits;
+  std::vector<TrackingRecHit const *> tempRecHits;
 
   edm::ESHandle<RPCGeometry> rpcGeometry;
   iSetup.get<MuonGeometryRecord>().get(rpcGeometry);
@@ -74,7 +74,7 @@ void RPCSeedOverlapper::CheckOverlap(const edm::EventSetup &iSetup,
         cout << "Always take the 1st weighted seed to be the referrence." << endl;
         for (auto const &hit : recHitsRange) {
           cout << "Put its recHits to tempRecHits" << endl;
-          tempRecHits.push_back(hit.clone());
+          tempRecHits.push_back(&hit);
         }
         cout << "Put it to tempweightedSeeds" << endl;
         tempweightedSeeds.push_back(*itweightedseed);
@@ -93,7 +93,7 @@ void RPCSeedOverlapper::CheckOverlap(const edm::EventSetup &iSetup,
           for (auto const &hit : recHitsRange) {
             if (!isShareHit(tempRecHits, hit, rpcGeometry)) {
               cout << "Put its extra recHits to tempRecHits" << endl;
-              tempRecHits.push_back(hit.clone());
+              tempRecHits.push_back(&hit);
             }
           }
           cout << "Put it to tempSeeds" << endl;
@@ -133,7 +133,7 @@ void RPCSeedOverlapper::CheckOverlap(const edm::EventSetup &iSetup,
     tempRecHits.clear();
 
     for (auto const &hit : bestweightedSeed.first.recHits()) {
-      tempRecHits.push_back(hit.clone());
+      tempRecHits.push_back(&hit);
     }
 
     for (vector<weightedTrajectorySeed>::iterator itweightedseed = tempweightedSeeds.begin();
@@ -161,22 +161,22 @@ void RPCSeedOverlapper::CheckOverlap(const edm::EventSetup &iSetup,
   *weightedSeedsRef = sortweightedSeeds;
 }
 
-bool RPCSeedOverlapper::isShareHit(const edm::OwnVector<TrackingRecHit> &RecHits,
+bool RPCSeedOverlapper::isShareHit(const std::vector<TrackingRecHit const *> &recHits,
                                    const TrackingRecHit &hit,
                                    edm::ESHandle<RPCGeometry> rpcGeometry) {
   bool istheSame = false;
   unsigned int n = 1;
-  cout << "Checking from " << RecHits.size() << " temp recHits" << endl;
+  cout << "Checking from " << recHits.size() << " temp recHits" << endl;
 
   LocalPoint lpos1 = hit.localPosition();
   DetId RPCId1 = hit.geographicalId();
   const GeomDetUnit *rpcroll1 = rpcGeometry->idToDetUnit(RPCId1);
   GlobalPoint gpos1 = rpcroll1->toGlobal(lpos1);
   cout << "The hit's position: " << gpos1.x() << ", " << gpos1.y() << ", " << gpos1.z() << endl;
-  for (edm::OwnVector<TrackingRecHit>::const_iterator it = RecHits.begin(); it != RecHits.end(); it++, n++) {
+  for (auto const &recHit : recHits) {
     cout << "Checking the " << n << " th recHit from tempRecHits" << endl;
-    LocalPoint lpos2 = it->localPosition();
-    DetId RPCId2 = it->geographicalId();
+    LocalPoint lpos2 = recHit->localPosition();
+    DetId RPCId2 = recHit->geographicalId();
     const GeomDetUnit *rpcroll2 = rpcGeometry->idToDetUnit(RPCId2);
     GlobalPoint gpos2 = rpcroll2->toGlobal(lpos2);
     cout << "The temp hit's position: " << gpos2.x() << ", " << gpos2.y() << ", " << gpos2.z() << endl;
