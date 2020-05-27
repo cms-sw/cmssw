@@ -12,8 +12,8 @@ TTDTC::TTDTC(int numRegions, int numOverlappingRegions, int numDTCsPerRegion)
       numDTCsPerRegion_(numDTCsPerRegion),
       numDTCsPerTFP_(numOverlappingRegions * numDTCsPerRegion),
       regions_(numRegions_),
-      channels_(numDTCsPerRegion_ * numOverlappingRegions_),
-      streams_(numRegions_ * channels_.size()) {
+      channels_(numDTCsPerTFP_),
+      streams_(numRegions_ * numDTCsPerTFP_) {
   iota(regions_.begin(), regions_.end(), 0);
   iota(channels_.begin(), channels_.end(), 0);
 }
@@ -85,56 +85,6 @@ int TTDTC::nGaps() const {
     n += accumulate(stream.begin(), stream.end(), 0, gaps);
   return n;
 }
-
-// converts dtc id into tk layout scheme
-int TTDTC::tkLayoutId(int dtcId) const {
-  // check argument
-  if (dtcId < 0 || dtcId >= numDTCsPerRegion_ * numRegions_) {
-    cms::Exception exception("out_of_range");
-    exception.addContext("TTDTC::tkLayoutId");
-    exception << "Used DTC Id (" << dtcId << ") is out of range 0 to " << numDTCsPerRegion_ * numRegions_ - 1 << ".";
-    throw exception;
-  }
-  const int slot = dtcId % numSlots_;
-  const int region = dtcId / numDTCsPerRegion_;
-  const int side = (dtcId % numDTCsPerRegion_) / numSlots_;
-  return (side * numRegions_ + region) * numSlots_ + slot + 1;
-}
-
-// converts tk layout id into dtc id
-int TTDTC::dtcId(int tkLayoutId) const {
-  // check argument
-  if (tkLayoutId <= 0 || tkLayoutId > numDTCsPerRegion_ * numRegions_) {
-    cms::Exception exception("out_of_range");
-    exception.addContext("TTDTC::dtcId");
-    exception << "Used TKLayout Id (" << tkLayoutId << ") is out of range 1 to " << numDTCsPerRegion_ * numRegions_
-              << ".";
-    throw exception;
-  }
-  const int tkId = tkLayoutId - 1;
-  const int side = tkId / (numRegions_ * numSlots_);
-  const int region = (tkId % (numRegions_ * numSlots_)) / numSlots_;
-  const int slot = tkId % numSlots_;
-  return region * numDTCsPerRegion_ + side * numSlots_ + slot;
-}
-
-// converts TFP identifier (region[0-8], channel[0-47]) into dtc id
-int TTDTC::dtcId(int tfpRegion, int tfpChannel) const { return index(tfpRegion, tfpChannel) / numOverlappingRegions_; }
-
-// checks if given DTC id is connected to PS or 2S sensormodules
-bool TTDTC::psModlue(int dtcId) const {
-  // from tklayout: first 3 are 10 gbps PS, next 3 are 5 gbps PS and residual 6 are 5 gbps 2S modules
-  return slot(dtcId) < numSlots_ / 2;
-}
-
-// checks if given dtcId is connected to -z (false) or +z (true)
-bool TTDTC::side(int dtcId) const {
-  const int side = (dtcId % numDTCsPerRegion_) / numSlots_;
-  // from tkLayout: first 12 +z, next 12 -z
-  return side == 0;
-}
-// ATCA slot number [0-11] of given dtcId
-int TTDTC::slot(int dtcId) const { return dtcId % numSlots_; }
 
 // converts DTC identifier (region[0-8], board[0-23], channel[0-1]) into streams_ index [0-431]
 int TTDTC::index(int dtcRegion, int dtcBoard, int dtcChannel) const {

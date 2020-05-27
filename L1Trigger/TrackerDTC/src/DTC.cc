@@ -1,12 +1,8 @@
 #include "L1Trigger/TrackerDTC/interface/DTC.h"
-#include "L1Trigger/TrackerDTC/interface/Settings.h"
-#include "L1Trigger/TrackerDTC/interface/Module.h"
 
 #include <vector>
-#include <deque>
 #include <iterator>
 #include <algorithm>
-#include <utility>
 #include <numeric>
 
 using namespace std;
@@ -14,32 +10,36 @@ using namespace edm;
 
 namespace trackerDTC {
 
-  DTC::DTC(Settings* settings, int dtcId, const std::vector<std::vector<TTStubRef>>& modules)
-      : settings_(settings),
-        region_(dtcId / settings_->numDTCsPerRegion()),
-        board_(dtcId % settings_->numDTCsPerRegion()),
-        modules_(settings_->modules(dtcId)),
-        input_(settings_->numRoutingBlocks(), Stubss(settings_->numModulesPerRoutingBlock())),
-        lost_(settings_->numOverlappingRegions()) {
+  DTC::DTC(const ParameterSet& iConfig,
+           const Setup& setup,
+           int dtcId,
+           const std::vector<std::vector<TTStubRef>>& stubsDTC)
+      : setup_(&setup),
+        enableTruncation_(iConfig.getParameter<bool>("EnableTruncation")),
+        region_(dtcId / setup.numDTCsPerRegion()),
+        board_(dtcId % setup.numDTCsPerRegion()),
+        modules_(setup.dtcModules(dtcId)),
+        input_(setup.dtcNumRoutingBlocks(), Stubss(setup.dtcNumModulesPerRoutingBlock())),
+        lost_(setup.numOverlappingRegions()) {
     // count number of stubs on this dtc
-    auto acc = [](int& sum, const vector<TTStubRef>& module) { return sum += module.size(); };
-    const int nStubs = accumulate(modules.begin(), modules.end(), 0, acc);
+    auto acc = [](int& sum, const vector<TTStubRef>& stubsModule) { return sum += stubsModule.size(); };
+    const int nStubs = accumulate(stubsDTC.begin(), stubsDTC.end(), 0, acc);
     stubs_.reserve(nStubs);
     // convert and assign Stubs to DTC routing block channel
-    for (int modId = 0; modId < settings_->numModulesPerDTC(); modId++) {
-      const vector<TTStubRef>& ttStubRefs = modules[modId];
+    for (int modId = 0; modId < setup.numModulesPerDTC(); modId++) {
+      const vector<TTStubRef>& ttStubRefs = stubsDTC[modId];
       if (ttStubRefs.empty())
         continue;
       // Module which produced this ttStubRefs
-      Module* module = modules_.at(modId);
+      SensorModule* module = modules_.at(modId);
       // DTC routing block id [0-1]
-      const int blockId = modId / settings_->numModulesPerRoutingBlock();
+      const int blockId = modId / setup.dtcNumModulesPerRoutingBlock();
       // DTC routing blockc  channel id [0-35]
-      const int channelId = modId % settings_->numModulesPerRoutingBlock();
+      const int channelId = modId % setup.dtcNumModulesPerRoutingBlock();
       // convert TTStubs and fill input channel
       Stubs& stubs = input_[blockId][channelId];
       for (const TTStubRef& ttStubRef : ttStubRefs) {
-        stubs_.emplace_back(settings_, module, ttStubRef);
+        stubs_.emplace_back(iConfig, setup, module, ttStubRef);
         Stub& stub = stubs_.back();
         if (stub.valid())
           // passed pt and eta cut
@@ -48,12 +48,12 @@ namespace trackerDTC {
       // sort stubs by bend
       sort(stubs.begin(), stubs.end(), [](Stub* lhs, Stub* rhs) { return abs(lhs->bend()) < abs(rhs->bend()); });
       // truncate stubs if desired
-      if (!settings_->enableTruncation() || (int)stubs.size() <= settings_->maxFramesChannelInput())
+      if (!enableTruncation_ || (int)stubs.size() <= setup.numFramesFE())
         continue;
       // begin of truncated stubs
-      const auto limit = next(stubs.begin(), settings_->maxFramesChannelInput());
+      const auto limit = next(stubs.begin(), setup.numFramesFE());
       // copy truncated stubs into lost output channel
-      for (int region = 0; region < settings_->numOverlappingRegions(); region++)
+      for (int region = 0; region < setup.numOverlappingRegions(); region++)
         copy_if(
             limit, stubs.end(), back_inserter(lost_[region]), [region](Stub* stub) { return stub->inRegion(region); });
       // remove truncated stubs form input channel
@@ -65,16 +65,16 @@ namespace trackerDTC {
   void DTC::produce(TTDTC& productAccepted, TTDTC& productLost) {
     // router step 1: merges stubs of all modules connected to one routing block into one stream
     Stubs lost;
-    Stubss blockStubs(settings_->numRoutingBlocks());
-    for (int routingBlock = 0; routingBlock < settings_->numRoutingBlocks(); routingBlock++)
+    Stubss blockStubs(setup_->dtcNumRoutingBlocks());
+    for (int routingBlock = 0; routingBlock < setup_->dtcNumRoutingBlocks(); routingBlock++)
       merge(input_[routingBlock], blockStubs[routingBlock], lost);
     // copy lost stubs during merge into lost output channel
-    for (int region = 0; region < settings_->numOverlappingRegions(); region++)
-      copy_if(lost.begin(), lost.end(), back_inserter(lost_[region]), [region](Stub* stub) {
-        return stub->inRegion(region);
-      });
+    for (int region = 0; region < setup_->numOverlappingRegions(); region++) {
+      auto inRegion = [region](Stub* stub) { return stub->inRegion(region); };
+      copy_if(lost.begin(), lost.end(), back_inserter(lost_[region]), inRegion);
+    }
     // router step 2: merges stubs of all routing blocks and splits stubs into one stream per overlapping region
-    Stubss regionStubs(settings_->numOverlappingRegions());
+    Stubss regionStubs(setup_->numOverlappingRegions());
     split(blockStubs, regionStubs);
     // fill products
     produce(regionStubs, productAccepted);
@@ -96,7 +96,7 @@ namespace trackerDTC {
           continue;
         Stub* stub = pop_front(input);
         if (stub) {
-          if (settings_->enableTruncation() && (int)stack.size() == settings_->sizeStack() - 1)
+          if (enableTruncation_ && (int)stack.size() == setup_->dtcDepthMemory() - 1)
             // kill current first stub when fifo overflows
             lost.push_back(pop_front(stack));
           stack.push_back(stub);
@@ -118,8 +118,8 @@ namespace trackerDTC {
         output.push_back(nullptr);
     }
     // truncate if desired
-    if (settings_->enableTruncation() && (int)output.size() > settings_->maxFramesChannelOutput()) {
-      const auto limit = next(output.begin(), settings_->maxFramesChannelOutput());
+    if (enableTruncation_ && (int)output.size() > setup_->numFramesIO()) {
+      const auto limit = next(output.begin(), setup_->numFramesIO());
       copy_if(limit, output.end(), back_inserter(lost), [](Stub* stub) { return stub; });
       output.erase(limit, output.end());
     }
@@ -136,8 +136,12 @@ namespace trackerDTC {
       // copy of masked inputs for each output
       Stubss streams(inputs.size());
       int i(0);
-      for (Stubs& input : inputs)
-        transform(input.begin(), input.end(), back_inserter(streams[i++]), regionMask);
+      for (Stubs& input : inputs) {
+        Stubs& stream = streams[i++];
+        transform(input.begin(), input.end(), back_inserter(stream), regionMask);
+        for (auto it = stream.end(); it != stream.begin();)
+          it = (*--it) ? stream.begin() : stream.erase(it);
+      }
       merge(streams, output, lost_[region++]);
     }
   }

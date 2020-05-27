@@ -3,7 +3,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/GenericHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -11,26 +10,19 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Common/interface/Ptr.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1TrackTrigger/interface/TTDTC.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
-#include "L1Trigger/TrackerDTC/interface/Settings.h"
-#include "L1Trigger/TrackerDTC/interface/TTDTCConverter.h"
+#include "L1Trigger/TrackerDTC/interface/Setup.h"
 
 #include <TProfile.h>
 #include <TProfile2D.h>
@@ -83,6 +75,10 @@ namespace trackerDTC {
     void endJob() override;
 
   private:
+    // configuring track particle selector
+    void configTPSelector();
+    // book histograms
+    void bookHistograms();
     // associate TPPtr with TTStubRef
     void assoc(const Handle<TTStubDetSetVec>&, const Handle<TTClusterAssMap>&, map<TPPtr, set<TTStubRef>>&);
     // organize reconstrucable TrackingParticles used for efficiency measurements
@@ -96,11 +92,9 @@ namespace trackerDTC {
     // analyze DTC products and find still reconstrucable TrackingParticles
     void analyzeStubs(const TTDTC*, const TTDTC*, const map<TTStubRef, set<TPPtr>>&, map<TPPtr, set<TTStubRef>>&);
     // fill stub related histograms
-    void analyzeStream(const TTDTC::Stream& stream, int region, int& sum, TH2F* th2f);
-    // returns global stub position
-    GlobalPoint stubPos(const TTStubRef& ttStubRef) const;
-    // handles 2 pi overflow
-    double deltaPhi(double lhs, double rhs = 0.) { return reco::deltaPhi(lhs, rhs); }
+    void analyzeStream(const TTDTC::Stream& stream, int region, int channel, int& sum, TH2F* th2f);
+    // returns layerId [1-6, 11-15] of stub
+    int layerId(const TTStubRef& ttStubRef) const;
     // analyze survived TPs
     void analyzeTPs(const map<TPPtr, set<TTStubRef>>& mapTPsStubs);
     // prints out MC summary
@@ -108,22 +102,24 @@ namespace trackerDTC {
     // prints out DTC summary
     void endJobDTC();
 
-    // ed input tokens
-
+    // ED input token of DTC stubs
     EDGetTokenT<TTDTC> getTokenTTDTCAccepted_;
+    // ED input token of lost DTC stubs
     EDGetTokenT<TTDTC> getTokenTTDTCLost_;
+    // ED input token of TT stubs
     EDGetTokenT<TTStubDetSetVec> getTokenTTStubDetSetVec_;
+    // ED input token of TTCluster to TPPtr association
     EDGetTokenT<TTClusterAssMap> getTokenTTClusterAssMap_;
-
-    // es input tokens
-
-    ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> getTokenTrackerGeometry_;
-    ESGetToken<TrackerTopology, TrackerTopologyRcd> getTokenTrackerTopology_;
-
+    // Setup token
+    ESGetToken<Setup, SetupRcd> esGetToken_;
     // stores, calculates and provides run-time constants
-    Settings settings_;
+    Setup setup_;
     // selector to partly select TPs for efficiency measurements
     TrackingParticleSelector tpSelector_;
+    // enables analyze of TPs
+    bool useMCTruth_;
+    // specifies used TT algorithm
+    bool hybrid_;
 
     // Histograms
 
@@ -144,109 +140,40 @@ namespace trackerDTC {
     stringstream log_;
   };
 
-  Analyzer::Analyzer(const ParameterSet& iConfig) : settings_(iConfig) {
+  Analyzer::Analyzer(const ParameterSet& iConfig)
+      : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")), hybrid_(iConfig.getParameter<bool>("UseHybrid")) {
     usesResource("TFileService");
     // book in- and output ED products
-    getTokenTTDTCAccepted_ = consumes<TTDTC>(InputTag(settings_.producerLabel(), settings_.productBranchAccepted()));
-    getTokenTTDTCLost_ = consumes<TTDTC>(InputTag(settings_.producerLabel(), settings_.productBranchLost()));
-    if (settings_.useMCTruth()) {
-      getTokenTTStubDetSetVec_ = consumes<TTStubDetSetVec>(settings_.inputTagTTStubDetSetVec());
-      getTokenTTClusterAssMap_ = consumes<TTClusterAssMap>(settings_.inputTagTTClusterAssMap());
+    const auto& inputTagAccepted = iConfig.getParameter<InputTag>("InputTagAccepted");
+    const auto& inputTagLost = iConfig.getParameter<InputTag>("InputTagLost");
+    getTokenTTDTCAccepted_ = consumes<TTDTC>(inputTagAccepted);
+    getTokenTTDTCLost_ = consumes<TTDTC>(inputTagLost);
+    if (useMCTruth_) {
+      const auto& inputTagTTStubDetSetVec = iConfig.getParameter<InputTag>("InputTagTTStubDetSetVec");
+      const auto& inputTagTTClusterAssMap = iConfig.getParameter<InputTag>("InputTagTTClusterAssMap");
+      getTokenTTStubDetSetVec_ = consumes<TTStubDetSetVec>(inputTagTTStubDetSetVec);
+      getTokenTTClusterAssMap_ = consumes<TTClusterAssMap>(inputTagTTClusterAssMap);
     }
-    // book ES products
-    getTokenTrackerGeometry_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, Transition::BeginRun>(
-        settings_.inputTagTrackerGeometry());
-    getTokenTrackerTopology_ =
-        esConsumes<TrackerTopology, TrackerTopologyRcd, Transition::BeginRun>(settings_.inputTagTrackerTopology());
-    // configuring track particle selector
-    const double ptMin = settings_.tpMinPt();
-    constexpr double ptMax = 9999999999.;
-    const double etaMax = settings_.tpMaxEta();
-    const double tip = settings_.tpMaxVertR();
-    const double lip = settings_.tpMaxVertZ();
-    constexpr int minHit = 0;
-    constexpr bool signalOnly = true;
-    constexpr bool intimeOnly = true;
-    constexpr bool chargedOnly = true;
-    constexpr bool stableOnly = false;
-    tpSelector_ = TrackingParticleSelector(
-        ptMin, ptMax, -etaMax, etaMax, tip, lip, minHit, signalOnly, intimeOnly, chargedOnly, stableOnly);
-    // book histograms
-    Service<TFileService> fs;
-    TFileDirectory dir;
-    // mc
-    dir = fs->mkdir("MC");
-    profMC_ = dir.make<TProfile>("Counts", ";", 4, 0.5, 4.5);
-    profMC_->GetXaxis()->SetBinLabel(1, "Stubs");
-    profMC_->GetXaxis()->SetBinLabel(2, "Matched Stubs");
-    profMC_->GetXaxis()->SetBinLabel(3, "reco TPs");
-    profMC_->GetXaxis()->SetBinLabel(4, "eff TPs");
-    constexpr array<int, NumEfficiency> binsEff{{9 * 8, 10, 16, 10, 30, 24}};
-    constexpr array<pair<double, double>, NumEfficiency> rangesEff{
-        {{-M_PI, M_PI}, {0., 100.}, {-1. / 3., 1. / 3.}, {-5., 5.}, {-15., 15.}, {-2.4, 2.4}}};
-    if (settings_.useMCTruth()) {
-      hisEffMC_.reserve(NumEfficiency);
-      for (Efficiency e : AllEfficiency)
-        hisEffMC_.emplace_back(
-            dir.make<TH1F>(("HisTP" + name(e)).c_str(), ";", binsEff[e], rangesEff[e].first, rangesEff[e].second));
-    }
-    // dtc
-    dir = fs->mkdir("DTC");
-    profDTC_ = dir.make<TProfile>("Counts", ";", 3, 0.5, 3.5);
-    profDTC_->GetXaxis()->SetBinLabel(1, "Stubs");
-    profDTC_->GetXaxis()->SetBinLabel(2, "Lost Stubs");
-    profDTC_->GetXaxis()->SetBinLabel(3, "TPs");
-    // channel occupancy
-    constexpr int maxOcc = 180;
-    const int numChannels = settings_.numDTCs();
-    hisChannel_ = dir.make<TH1F>("Channel Occupancy", ";", maxOcc, -.5, maxOcc - .5);
-    profChannel_ = dir.make<TProfile>("Channel Occupancy", ";", numChannels, -.5, numChannels - .5);
-    // max tracking efficiencies
-    if (settings_.useMCTruth()) {
-      hisEff_.reserve(NumEfficiency);
-      for (Efficiency e : AllEfficiency)
-        hisEff_.emplace_back(
-            dir.make<TH1F>(("HisTP" + name(e)).c_str(), ";", binsEff[e], rangesEff[e].first, rangesEff[e].second));
-      dir = fs->mkdir("DTC/Effi");
-      eff_.reserve(NumEfficiency);
-      for (Efficiency e : AllEfficiency)
-        eff_.emplace_back(
-            dir.make<TEfficiency>(("Eff" + name(e)).c_str(), ";", binsEff[e], rangesEff[e].first, rangesEff[e].second));
-    }
-    // lost stub fraction in r-z
-    dir = fs->mkdir("DTC/Loss");
-    constexpr int bins = 400;
-    constexpr double maxZ = 300.;
-    constexpr double maxR = 120.;
-    hisRZStubs_ = dir.make<TH2F>("RZ Stubs", ";;", bins, -maxZ, maxZ, bins, 0., maxR);
-    hisRZStubsLost_ = dir.make<TH2F>("RZ Stubs Lost", ";;", bins, -maxZ, maxZ, bins, 0., maxR);
-    hisRZStubsEff_ = dir.make<TH2F>("RZ Stubs Eff", ";;", bins, -maxZ, maxZ, bins, 0., maxR);
-    // stub parameter resolutions
-    dir = fs->mkdir("DTC/Res");
-    constexpr array<double, NumResolution> ranges{{.2, .0001, .5}};
-    constexpr int binsHis = 100;
-    hisResolution_.reserve(NumResolution);
-    profResolution_.reserve(NumResolution);
-    for (Resolution r : AllResolution) {
-      hisResolution_.emplace_back(dir.make<TH1F>(("HisRes" + name(r)).c_str(), ";", binsHis, -ranges[r], ranges[r]));
-      profResolution_.emplace_back(
-          dir.make<TProfile2D>(("ProfRes" + name(r)).c_str(), ";;", bins, -maxZ, maxZ, bins, 0., maxR));
-    }
+    // book ES product
+    esGetToken_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
     // log config
     log_.setf(ios::fixed, ios::floatfield);
     log_.precision(4);
   }
 
   void Analyzer::beginRun(const Run& iEvent, const EventSetup& iSetup) {
-    // read in detector parameter
-    settings_.setTrackerGeometry(&iSetup.getData(getTokenTrackerGeometry_));
-    settings_.setTrackerTopology(&iSetup.getData(getTokenTrackerTopology_));
+    // helper class to store configurations
+    setup_ = iSetup.getData(esGetToken_);
+    // configuring track particle selector
+    configTPSelector();
+    // book histograms
+    bookHistograms();
   }
 
   void Analyzer::analyze(const Event& iEvent, const EventSetup& iSetup) {
     // read in TrackingParticle
     map<TTStubRef, set<TPPtr>> mapAllStubsTPs;
-    if (settings_.useMCTruth()) {
+    if (useMCTruth_) {
       Handle<TTStubDetSetVec> handleTTStubDetSetVec;
       iEvent.getByToken<TTStubDetSetVec>(getTokenTTStubDetSetVec_, handleTTStubDetSetVec);
       Handle<TTClusterAssMap> handleTTClusterAssMap;
@@ -277,7 +204,7 @@ namespace trackerDTC {
     hisRZStubsEff_->Add(hisRZStubsLost_);
     hisRZStubsEff_->Divide(&th2f);
     // create efficieny plots
-    if (settings_.useMCTruth()) {
+    if (useMCTruth_) {
       for (Efficiency e : AllEfficiency) {
         eff_[e]->SetPassedHistogram(*hisEff_[e], "f");
         eff_[e]->SetTotalHistogram(*hisEffMC_[e], "f");
@@ -315,8 +242,8 @@ namespace trackerDTC {
           nStubsMatched++;
       }
     }
-    profMC_->Fill(1, nStubs / (double)settings_.numRegions());
-    profMC_->Fill(2, nStubsMatched / (double)settings_.numRegions());
+    profMC_->Fill(1, nStubs / (double)setup_.numRegions());
+    profMC_->Fill(2, nStubsMatched / (double)setup_.numRegions());
   }
 
   // organize reconstrucable TrackingParticles used for efficiency measurements
@@ -341,8 +268,8 @@ namespace trackerDTC {
 
   // checks if a stub selection is considered reconstructable
   bool Analyzer::reconstructable(const set<TTStubRef>& ttStubRefs) const {
-    const TrackerGeometry* trackerGeometry = settings_.trackerGeometry();
-    const TrackerTopology* trackerTopology = settings_.trackerTopology();
+    const TrackerGeometry* trackerGeometry = setup_.trackerGeometry();
+    const TrackerTopology* trackerTopology = setup_.trackerTopology();
     set<int> hitPattern;
     set<int> hitPatternPS;
     for (const TTStubRef& ttStubRef : ttStubRefs) {
@@ -354,7 +281,7 @@ namespace trackerDTC {
       if (psModule)
         hitPatternPS.insert(layerId);
     }
-    return (int)hitPattern.size() >= settings_.tpMinLayers() && (int)hitPatternPS.size() >= settings_.tpMinLayersPS();
+    return (int)hitPattern.size() >= setup_.tpMinLayers() && (int)hitPatternPS.size() >= setup_.tpMinLayersPS();
   }
 
   // checks if TrackingParticle is selected for efficiency measurements
@@ -366,7 +293,7 @@ namespace trackerDTC {
     const TrackingParticle::Point& v = tp.vertex();
     const double z0 = v.z() - (v.x() * c + v.y() * s) * cot;
     const double d0 = v.x() * s - v.y() * c;
-    return selected && (fabs(d0) < settings_.tpMaxD0()) && (fabs(z0) < settings_.tpMaxVertZ());
+    return selected && (fabs(d0) < setup_.tpMaxD0()) && (fabs(z0) < setup_.tpMaxVertZ());
   }
 
   // fills kinematic tp histograms
@@ -389,13 +316,13 @@ namespace trackerDTC {
                               const TTDTC* lost,
                               const map<TTStubRef, set<TPPtr>>& mapStubsTPs,
                               map<TPPtr, set<TTStubRef>>& mapTPsStubs) {
-    for (int region = 0; region < settings_.numRegions(); region++) {
+    for (int region = 0; region < setup_.numRegions(); region++) {
       int nStubs(0);
       int nLost(0);
-      for (int channel = 0; channel < settings_.numDTCsPerTFP(); channel++) {
+      for (int channel = 0; channel < setup_.numDTCsPerTFP(); channel++) {
         const TTDTC::Stream& stream = accepted->stream(region, channel);
         hisChannel_->Fill(stream.size());
-        profChannel_->Fill(region * settings_.numDTCsPerTFP() + channel, stream.size());
+        profChannel_->Fill(region * setup_.numDTCsPerTFP() + channel, stream.size());
         for (const TTDTC::Frame& frame : stream) {
           if (frame.first.isNull())
             continue;
@@ -405,8 +332,8 @@ namespace trackerDTC {
           for (const TPPtr& tp : it->second)
             mapTPsStubs[tp].insert(frame.first);
         }
-        analyzeStream(stream, region, nStubs, hisRZStubs_);
-        analyzeStream(lost->stream(region, channel), region, nLost, hisRZStubsLost_);
+        analyzeStream(stream, region, channel, nStubs, hisRZStubs_);
+        analyzeStream(lost->stream(region, channel), region, channel, nLost, hisRZStubsLost_);
       }
       profDTC_->Fill(1, nStubs);
       profDTC_->Fill(2, nLost);
@@ -414,13 +341,13 @@ namespace trackerDTC {
   }
 
   // fill stub related histograms
-  void Analyzer::analyzeStream(const TTDTC::Stream& stream, int region, int& sum, TH2F* th2f) {
+  void Analyzer::analyzeStream(const TTDTC::Stream& stream, int region, int channel, int& sum, TH2F* th2f) {
     for (const TTDTC::Frame& frame : stream) {
       if (frame.first.isNull())
         continue;
       sum++;
-      const GlobalPoint& pos = TTDTCConverter(&settings_, frame, region);
-      const GlobalPoint& ttPos = stubPos(frame.first);
+      const GlobalPoint& pos = setup_.stubPos(hybrid_, frame, region, channel);
+      const GlobalPoint& ttPos = setup_.stubPos(frame.first);
       const vector<double> resolutions = {
           ttPos.perp() - pos.perp(), deltaPhi(ttPos.phi() - pos.phi()), ttPos.z() - pos.z()};
       for (Resolution r : AllResolution) {
@@ -428,19 +355,22 @@ namespace trackerDTC {
         profResolution_[r]->Fill(ttPos.z(), ttPos.perp(), abs(resolutions[r]));
       }
       th2f->Fill(ttPos.z(), ttPos.perp());
+      // check layerId encoding
+      if (!hybrid_)
+        continue;
+      const vector<int>& encodingLayerId = setup_.encodingLayerId(channel);
+      const auto it = find(encodingLayerId.begin(), encodingLayerId.end(), layerId(frame.first));
+      if (it == encodingLayerId.end())
+        throw cms::Exception("LogicError") << "Stub send from a DTC which is not connected to stub's layer.";
     }
   }
 
-  // returns global stub position
-  GlobalPoint Analyzer::stubPos(const TTStubRef& ttStubRef) const {
-    const TrackerGeometry* trackerGeometry = settings_.trackerGeometry();
-    const DetId detId = ttStubRef->getDetId() + settings_.offsetDetIdDSV();
-    const GeomDetUnit* det = trackerGeometry->idToDetUnit(detId);
-    const PixelTopology* topol =
-        dynamic_cast<const PixelTopology*>(&(dynamic_cast<const PixelGeomDetUnit*>(det)->specificTopology()));
-    const Plane& plane = dynamic_cast<const PixelGeomDetUnit*>(det)->surface();
-    const MeasurementPoint& mp = ttStubRef->clusterRef(0)->findAverageLocalCoordinatesCentered();
-    return plane.toGlobal(topol->localPosition(mp));
+  // returns layerId [1-6, 11-15] of stub
+  int Analyzer::layerId(const TTStubRef& ttStubRef) const {
+    const TrackerTopology* trackerTopology = setup_.trackerTopology();
+    const DetId detId = ttStubRef->getDetId() + setup_.offsetDetIdDSV();
+    const bool barrel = detId.subdetId() == StripSubdetector::TOB;
+    return barrel ? trackerTopology->layer(detId) : trackerTopology->tidWheel(detId) + setup_.offsetLayerDisks();
   }
 
   // analyze survived TPs
@@ -501,6 +431,86 @@ namespace trackerDTC {
     log_ << "number of lost stubs per TFP = " << setw(wNums) << numStubsLost << " +- " << setw(wErrs) << errStubsLost
          << endl;
     log_ << "     max tracking efficiency = " << setw(wNums) << eff << " +- " << setw(wErrs) << errEff << endl;
+  }
+
+  // configuring track particle selector
+  void Analyzer::configTPSelector() {
+    const double ptMin = hybrid_ ? setup_.hybridMinPt() : setup_.minPt();
+    constexpr double ptMax = 9999999999.;
+    const double etaMax = setup_.tpMaxEta();
+    const double tip = setup_.tpMaxVertR();
+    const double lip = setup_.tpMaxVertZ();
+    constexpr int minHit = 0;
+    constexpr bool signalOnly = true;
+    constexpr bool intimeOnly = true;
+    constexpr bool chargedOnly = true;
+    constexpr bool stableOnly = false;
+    tpSelector_ = TrackingParticleSelector(
+        ptMin, ptMax, -etaMax, etaMax, tip, lip, minHit, signalOnly, intimeOnly, chargedOnly, stableOnly);
+  }
+
+  // book histograms
+  void Analyzer::bookHistograms() {
+    Service<TFileService> fs;
+    TFileDirectory dir;
+    // mc
+    dir = fs->mkdir("MC");
+    profMC_ = dir.make<TProfile>("Counts", ";", 4, 0.5, 4.5);
+    profMC_->GetXaxis()->SetBinLabel(1, "Stubs");
+    profMC_->GetXaxis()->SetBinLabel(2, "Matched Stubs");
+    profMC_->GetXaxis()->SetBinLabel(3, "reco TPs");
+    profMC_->GetXaxis()->SetBinLabel(4, "eff TPs");
+    constexpr array<int, NumEfficiency> binsEff{{9 * 8, 10, 16, 10, 30, 24}};
+    constexpr array<pair<double, double>, NumEfficiency> rangesEff{
+        {{-M_PI, M_PI}, {0., 100.}, {-1. / 3., 1. / 3.}, {-5., 5.}, {-15., 15.}, {-2.4, 2.4}}};
+    if (useMCTruth_) {
+      hisEffMC_.reserve(NumEfficiency);
+      for (Efficiency e : AllEfficiency)
+        hisEffMC_.emplace_back(
+            dir.make<TH1F>(("HisTP" + name(e)).c_str(), ";", binsEff[e], rangesEff[e].first, rangesEff[e].second));
+    }
+    // dtc
+    dir = fs->mkdir("DTC");
+    profDTC_ = dir.make<TProfile>("Counts", ";", 3, 0.5, 3.5);
+    profDTC_->GetXaxis()->SetBinLabel(1, "Stubs");
+    profDTC_->GetXaxis()->SetBinLabel(2, "Lost Stubs");
+    profDTC_->GetXaxis()->SetBinLabel(3, "TPs");
+    // channel occupancy
+    constexpr int maxOcc = 180;
+    const int numChannels = setup_.numDTCs() * setup_.numOverlappingRegions();
+    hisChannel_ = dir.make<TH1F>("His Channel Occupancy", ";", maxOcc, -.5, maxOcc - .5);
+    profChannel_ = dir.make<TProfile>("Prof Channel Occupancy", ";", numChannels, -.5, numChannels - .5);
+    // max tracking efficiencies
+    if (useMCTruth_) {
+      dir = fs->mkdir("DTC/Effi");
+      hisEff_.reserve(NumEfficiency);
+      for (Efficiency e : AllEfficiency)
+        hisEff_.emplace_back(
+            dir.make<TH1F>(("HisTP" + name(e)).c_str(), ";", binsEff[e], rangesEff[e].first, rangesEff[e].second));
+      eff_.reserve(NumEfficiency);
+      for (Efficiency e : AllEfficiency)
+        eff_.emplace_back(
+            dir.make<TEfficiency>(("Eff" + name(e)).c_str(), ";", binsEff[e], rangesEff[e].first, rangesEff[e].second));
+    }
+    // lost stub fraction in r-z
+    dir = fs->mkdir("DTC/Loss");
+    constexpr int bins = 400;
+    constexpr double maxZ = 300.;
+    constexpr double maxR = 120.;
+    hisRZStubs_ = dir.make<TH2F>("RZ Stubs", ";;", bins, -maxZ, maxZ, bins, 0., maxR);
+    hisRZStubsLost_ = dir.make<TH2F>("RZ Stubs Lost", ";;", bins, -maxZ, maxZ, bins, 0., maxR);
+    hisRZStubsEff_ = dir.make<TH2F>("RZ Stubs Eff", ";;", bins, -maxZ, maxZ, bins, 0., maxR);
+    // stub parameter resolutions
+    dir = fs->mkdir("DTC/Res");
+    constexpr array<double, NumResolution> ranges{{.2, .0001, .5}};
+    constexpr int binsHis = 100;
+    hisResolution_.reserve(NumResolution);
+    profResolution_.reserve(NumResolution);
+    for (Resolution r : AllResolution) {
+      hisResolution_.emplace_back(dir.make<TH1F>(("HisRes" + name(r)).c_str(), ";", binsHis, -ranges[r], ranges[r]));
+      profResolution_.emplace_back(
+          dir.make<TProfile2D>(("ProfRes" + name(r)).c_str(), ";;", bins, -maxZ, maxZ, bins, 0., maxR));
+    }
   }
 
 }  // namespace trackerDTC
