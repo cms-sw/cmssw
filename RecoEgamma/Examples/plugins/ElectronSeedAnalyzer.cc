@@ -210,7 +210,7 @@ void ElectronSeedAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &i
 
   for (ElectronSeedCollection::const_iterator MyS = (*elSeeds).begin(); MyS != (*elSeeds).end(); ++MyS) {
     LogDebug("") << "\nSeed nr " << is << ": ";
-    auto const &r = (*MyS).recHits();
+    const TrajectorySeed::RecHitRange r = MyS->recHits();
     LogDebug("") << " Number of RecHits= " << (*MyS).nHits();
     const GeomDet *det1 = nullptr;
     const GeomDet *det2 = nullptr;
