@@ -227,7 +227,7 @@ namespace {
               "SiPixelTemplate assumed value of uH") {}
 
     bool fill() override {
-      gStyle->SetPalette(kBlackBody);
+      gStyle->SetPalette(kRainBow);
       TGaxis::SetMaxDigits(2);
 
       auto tag = PlotBase::getTag<0>();
@@ -268,10 +268,10 @@ namespace {
         Phase1PixelMaps theMaps("COLZ L");
 
         if (myType == t_barrel) {
-          theMaps.bookBarrelHistograms("templateLABarrel", "#muH");
+          theMaps.bookBarrelHistograms("templateLABarrel", "#muH", "#mu_{H} [1/T]");
           theMaps.bookBarrelBins("templateLABarrel");
         } else if (myType == t_forward) {
-          theMaps.bookForwardHistograms("templateLAForward", "#muH");
+          theMaps.bookForwardHistograms("templateLAForward", "#muH", "#mu_{H} [1/T]");
           theMaps.bookForwardBins("templateLAForward");
         }
 
@@ -344,11 +344,11 @@ namespace {
         // Book the TH2Poly
         Phase1PixelMaps theMaps("text");
         if (myType == t_barrel) {
-          theMaps.bookBarrelHistograms("templateIDsBarrel", "IDs");
+          theMaps.bookBarrelHistograms("templateIDsBarrel", "IDs", "template IDs");
           // book the barrel bins of the TH2Poly
           theMaps.bookBarrelBins("templateIDsBarrel");
         } else if (myType == t_forward) {
-          theMaps.bookForwardHistograms("templateIDsForward", "IDs");
+          theMaps.bookForwardHistograms("templateIDsForward", "IDs", "template IDs");
           // book the forward bins of the TH2Poly
           theMaps.bookForwardBins("templateIDsForward");
         }
