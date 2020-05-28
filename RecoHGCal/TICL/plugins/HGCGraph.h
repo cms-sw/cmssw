@@ -59,7 +59,4 @@ private:
   int verbosity_;
 };
 
-template class HGCGraphT<TICLLayerTiles>;
-template class HGCGraphT<TICLLayerTilesHFNose>;
-
 #endif
