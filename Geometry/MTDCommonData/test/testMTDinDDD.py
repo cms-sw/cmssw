@@ -9,7 +9,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.MessageLogger = cms.Service(
     "MessageLogger",
-    statistics = cms.untracked.vstring('cout', 'mtdCommonDataDDD'),
+    statistics = cms.untracked.vstring('cout'),
     categories = cms.untracked.vstring('MTDUnitTest',
                                        'TestMTDIdealGeometry',
                                        'TestMTDPath',

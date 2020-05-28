@@ -15,7 +15,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.MessageLogger = cms.Service(
     "MessageLogger",
-    statistics = cms.untracked.vstring('cout', 'mtdGeometryDDD'),
+    statistics = cms.untracked.vstring('cout'),
     categories = cms.untracked.vstring('MTDUnitTest',
                                        'MTDDigiGeometryAnalyzer'),
     cout = cms.untracked.PSet(
