@@ -16,6 +16,7 @@
 <use name="DataFormats/MuonDetId"/>
 <use name="DataFormats/MuonReco"/>
 <use name="DataFormats/TrackReco"/>
+<use name="DataFormats/RPCRecHit"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
