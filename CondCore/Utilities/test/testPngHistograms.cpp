@@ -9,10 +9,6 @@
 
 int main(int argc, char** argv) {
   Py_Initialize();
-  if (argc < 3) {
-    std::cout << "Not enough arguments given." << std::endl;
-    return 0;
-  }
 
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
@@ -24,11 +20,10 @@ int main(int argc, char** argv) {
   edm::ServiceToken servToken(edm::ServiceRegistry::createSet(psets));
   edm::ServiceRegistry::Operate operate(servToken);
 
-  std::string connectionString("oracle://cms_orcon_adg/CMS_CONDITIONS");
+  std::string connectionString("frontier://FrontierProd/CMS_CONDITIONS");
 
-  std::string tag = std::string(argv[1]);
-  std::string runTimeType = cond::time::timeTypeName(cond::runnumber);
-  cond::Time_t since = boost::lexical_cast<unsigned long long>(argv[2]);
+  std::string tag = std::string("BasicPayload_v10.0");
+  cond::Time_t since = boost::lexical_cast<unsigned long long>("901");
 
   std::cout << "## PNG Histo" << std::endl;
 
