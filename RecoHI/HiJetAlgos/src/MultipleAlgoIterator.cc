@@ -11,8 +11,8 @@ using namespace std;
 MultipleAlgoIterator::MultipleAlgoIterator(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC)
     : PileUpSubtractor(iConfig, std::move(iC)),
       sumRecHits_(iConfig.getParameter<bool>("sumRecHits")),
-      dropZeroTowers_(iConfig.getUntrackedParameter<bool>("dropZeroTowers", true)) {
-  minimumTowersFraction_ = iConfig.getParameter<double>("minimumTowersFraction");
+      dropZeroTowers_(iConfig.getUntrackedParameter<bool>("dropZeroTowers", true)),
+      minimumTowersFraction_(iConfig.getParameter<double>("minimumTowersFraction")) {
   LogDebug("PileUpSubtractor") << "LIMITING THE MINIMUM TOWERS FRACTION TO : " << minimumTowersFraction_ << endl;
 }
 
@@ -184,7 +184,7 @@ void MultipleAlgoIterator::calculateOrphanInput(vector<fastjet::PseudoJet>& orph
       continue;
 
     // find towers within radiusPU_ of this jet
-    for (vector<HcalDetId>::const_iterator im = allgeomid_.begin(); im != allgeomid_.end(); im++) {
+    for (auto const im : allgeomid_) {
       double dr = reco::deltaR(geo_->getPosition((DetId)(*im)), (*pseudojetTMP));
       vector<pair<int, int> >::const_iterator exclude =
           find(excludedTowers.begin(), excludedTowers.end(), pair<int, int>(im->ieta(), im->iphi()));
