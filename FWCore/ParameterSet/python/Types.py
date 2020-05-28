@@ -652,29 +652,30 @@ class InputTag(_ParameterTypeBase):
     def _valueFromString(string):
         parts = string.split(":")
         return InputTag(*parts)
+    @staticmethod
+    def _stringFromArgument(arg):
+        if isinstance(arg, InputTag):
+            return arg
+        elif isinstance(arg, str):
+            return arg
+        else:
+            if len(arg) > 3:
+                raise RuntimeError("Sequence argument may have at most 3 elements")
+            return ":".join(arg)
     def setValue(self,v):
         self._setValues(v)
         self._isModified=True
     def _setValues(self,moduleLabel,productInstanceLabel='',processName=''):
+        self.__moduleLabel = InputTag._stringFromArgument(moduleLabel)
         self.__productInstance = productInstanceLabel
         self.__processName=processName
-        if isinstance(moduleLabel, str):
-            self.__moduleLabel = moduleLabel
-            if -1 != moduleLabel.find(":"):
-                toks = moduleLabel.split(":")
-                self.__moduleLabel = toks[0]
-                if len(toks) > 1:
-                    self.__productInstance = toks[1]
-                if len(toks) > 2:
-                    self.__processName=toks[2]
-        else:
-            self.__moduleLabel = moduleLabel[0] if len(moduleLabel) > 0 else ""
-            if len(moduleLabel) > 1:
-                self.__productInstance = moduleLabel[1]
-            if len(moduleLabel) > 2:
-                self.__processName = moduleLabel[2]
-            if len(moduleLabel) > 3:
-                raise RuntimeError("Tuple argument may have at most 3 elements")
+        if -1 != self.__moduleLabel.find(":"):
+            toks = self.__moduleLabel.split(":")
+            self.__moduleLabel = toks[0]
+            if len(toks) > 1:
+                self.__productInstance = toks[1]
+            if len(toks) > 2:
+                self.__processName=toks[2]
     # convert to the wrapper class for C++ InputTags
     def cppTag(self, parameterSet):
         return parameterSet.newInputTag(self.getModuleLabel(),
@@ -993,7 +994,12 @@ class VLuminosityBlockID(_ValidatingParameterListBase):
 
 class VInputTag(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
-        super(VInputTag,self).__init__(*arg,**args)
+        if len(arg) == 1 and not isinstance(arg[0], str):
+            try:
+                arg = iter(arg[0])
+            except TypeError:
+                pass
+        super(VInputTag,self).__init__((InputTag._stringFromArgument(x) for x in arg),**args)
     @staticmethod
     def _itemIsValid(item):
         return InputTag._isValid(item)
@@ -1012,6 +1018,8 @@ class VInputTag(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return VInputTag(*_ValidatingParameterListBase._itemsFromStrings(value,InputTag._valueFromString))
+    def _itemFromArgument(self, x):
+        return InputTag._stringFromArgument(x)
     def insertInto(self, parameterSet, myname):
         cppTags = list()
         for i in self:
@@ -1529,6 +1537,10 @@ if __name__ == "__main__":
             self.assertEqual(repr(vit), "cms.VInputTag(cms.InputTag(\"label1\"), cms.InputTag(\"label2\"))")
             vit = VInputTag("label1", "label2:label3")
             self.assertEqual(repr(vit), "cms.VInputTag(\"label1\", \"label2:label3\")")
+            vit = VInputTag("label1", "label2", "label3")
+            self.assertEqual(repr(vit), "cms.VInputTag(\"label1\", \"label2\", \"label3\")")
+            vit = VInputTag(["label1", "label2", "label3"])
+            self.assertEqual(repr(vit), "cms.VInputTag(\"label1\", \"label2\", \"label3\")")
             it=InputTag('label',processName=InputTag.skipCurrentProcess())
             self.assertEqual(it.getModuleLabel(), "label")
             self.assertEqual(it.getProductInstanceLabel(), "")
@@ -1606,6 +1618,19 @@ if __name__ == "__main__":
             self.assertEqual(pset.it.getProcessName(), "proc")
             with self.assertRaises(RuntimeError):
                 pset.it = ["label", "too", "many", "elements"]
+
+            vit = VInputTag(("a2",), ("b2", "i"), ("c2", "i", "p"))
+            self.assertEqual(repr(vit), "cms.VInputTag(\"a2\", \"b2:i\", \"c2:i:p\")")
+
+            pset = PSet(vit = VInputTag())
+            pset.vit = ["a", "b:i", "c:i:p"]
+            self.assertEqual(repr(pset.vit), "cms.VInputTag(\"a\", \"b:i\", \"c:i:p\")")
+            pset.vit = [("a2",), ("b2", "i"), ("c2", "i", "p")]
+            self.assertEqual(repr(pset.vit), "cms.VInputTag(\"a2\", \"b2:i\", \"c2:i:p\")")
+            pset.vit = [["a3"], ["b3", "i"], ["c3", "i", "p"]]
+            self.assertEqual(repr(pset.vit), "cms.VInputTag(\"a3\", \"b3:i\", \"c3:i:p\")")
+            with self.assertRaises(RuntimeError):
+                pset.vit = [("label", "too", "many", "elements")]
         def testInputTagModified(self):
             a=InputTag("a")
             self.assertEqual(a.isModified(),False)
