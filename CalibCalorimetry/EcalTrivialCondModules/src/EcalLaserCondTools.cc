@@ -33,8 +33,7 @@ EcalLaserCondTools::EcalLaserCondTools(const edm::ParameterSet& ps)
       fromTime_(ps.getParameter<int>("fromTime")),
       toTime_(ps.getParameter<int>("toTime")),
       minP_(ps.getParameter<double>("transparencyMin")),
-      maxP_(ps.getParameter<double>("transparencyMax"))
-{
+      maxP_(ps.getParameter<double>("transparencyMax")) {
   ferr_ = fopen("corr_errors.txt", "w");
   fprintf(ferr_, "#t1\tdetid\tp1\tp2\tp3");
 
@@ -210,16 +209,10 @@ void EcalLaserCondTools::processIov(CorrReader& r, int t1, int t2[EcalLaserCondT
       std::cout << "Duplicate det id, for IOV " << iIov << " t1 = " << t1 << " detid = " << int(detid) << endl;
     }
 
-
-    if(!isfinite(corr.p1)
-       || !isfinite(corr.p2)
-       || !isfinite(corr.p3)
-       || corr.p1 < minP_ || corr.p1 > maxP_
-       || corr.p2 < minP_ || corr.p2 > maxP_
-       || corr.p3 < minP_ || corr.p3 > maxP_ ){
-       fprintf(ferr_, "%d %d %f %f %f\n", t1, (int)detid, corr.p1,
-               corr.p2, corr.p3);
-      corr.p1=corr.p2=corr.p3 = 1;
+    if (!isfinite(corr.p1) || !isfinite(corr.p2) || !isfinite(corr.p3) || corr.p1 < minP_ || corr.p1 > maxP_ ||
+        corr.p2 < minP_ || corr.p2 > maxP_ || corr.p3 < minP_ || corr.p3 > maxP_) {
+      fprintf(ferr_, "%d %d %f %f %f\n", t1, (int)detid, corr.p1, corr.p2, corr.p3);
+      corr.p1 = corr.p2 = corr.p3 = 1;
     }
 
     if (verb_ > 2) {
@@ -236,7 +229,7 @@ void EcalLaserCondTools::processIov(CorrReader& r, int t1, int t2[EcalLaserCondT
            << "p3 = " << corr.p3 << "\n";
     }
 
-    corrSet->setValue((int)detid, corr );
+    corrSet->setValue((int)detid, corr);
   }
 
   try {
