@@ -4,6 +4,7 @@
 <use name="boost"/>
 <use name="clhep"/>
 <use name="rootmath"/>
+<use name="tbb"/>
 <export>
   <lib name="1"/>
 </export>
