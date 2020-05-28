@@ -115,7 +115,7 @@ CaloSimHitAnalysis::CaloSimHitAnalysis(const edm::ParameterSet& ps)
   if (!tfile.isAvailable())
     throw cms::Exception("BadConfig") << "TFileService unavailable: "
                                       << "please add it to config file";
-  char name[20], title[120];
+  char name[29], title[120];
   std::string dets[nCalo_] = {"EB", "EE", "HB", "HE", "HO", "HF"};
   for (int i = 0; i < nCalo_; i++) {
     sprintf(name, "Hit%d", i);
