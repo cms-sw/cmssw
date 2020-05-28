@@ -121,11 +121,6 @@ void ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
              int ecal_tp, int hcal_tp,
              const PolarLorentzVector p4,
        GlobalPoint emPosition, GlobalPoint hadPosition);
-   CaloTower(const CaloTowerDetId& id,
-             double emE, double hadE, double outerE,
-             int ecal_tp, int hcal_tp,
-             const LorentzVector p4,
-       GlobalPoint emPosition, GlobalPoint hadPosition);
    */
 
   iEvent.put(std::move(prod));
