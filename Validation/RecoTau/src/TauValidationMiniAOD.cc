@@ -67,10 +67,6 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
   MonitorElement *dmMigration, *ntau_vs_dm;
   MonitorElement *pTOverProng_dm0, *pTOverProng_dm1, *pTOverProng_dm2, *pTOverProng_dm10, *pTOverProng_dm11; 
   
-  // temp:
-  //std::cout << "extensionName_: \n";
-  //std::cout<< extensionName_ ; 
-
   // ---------------------------- Book, Map Summary Histograms -------------------------------
   
   ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/Summary");
@@ -152,8 +148,6 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
   int j = 0;
   for (const auto& it : discriminators_) {
     string DiscriminatorLabel = it.getParameter<string>("discriminator");
-    //std::cout << "Current discriminator miniaod: \n";
-    //std::cout << DiscriminatorLabel;
     summaryMap.find("Den")->second->setBinLabel(j + 1, DiscriminatorLabel);
     summaryMap.find("Num")->second->setBinLabel(j + 1, DiscriminatorLabel);
     summaryMap.find("")->second->setBinLabel(j + 1, DiscriminatorLabel);
@@ -571,7 +565,6 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
 	genindex = genindex + 1;
       }
       std::cout << "***** Generated Tau!! : "; 
-      std::cout << genParticles->at(genmatchedTauIndex).numberOfDaughters(); 
       unsigned dtrpdgID ; //pdgID for daughter
       unsigned numChargedHadrons  = 0; 
       unsigned numNeutralHadrons  = 0; 
@@ -588,9 +581,6 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
            }	
         }
       } 
-      std::cout << numNeutralHadrons;
-      std::cout << numChargedHadrons;
-      std::cout << numPhotons;
       unsigned genTau_dm = -999 ;
       if (numChargedHadrons == 1) {
 	if (numNeutralHadrons != 0) {
