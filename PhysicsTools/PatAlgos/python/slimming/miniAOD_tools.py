@@ -382,6 +382,34 @@ def miniAOD_customizeCommon(process):
         era.toReplaceWith(process.deepTauIDTask,
                           deepTauIDTaskNew_)
 
+    #-- Adding tauID against dead ECal towers to taus
+    process.hpsPFTauDiscriminationByDeadECALElectronRejectionForMiniAOD = \
+        process.hpsPFTauDiscriminationByDeadECALElectronRejection.clone(
+            extrapolateToECalEntrance = True
+        )
+    _makePatTausTaskWithDeadECalVeto = process.makePatTausTask.copy()
+    _makePatTausTaskWithDeadECalVeto.add(
+        process.hpsPFTauDiscriminationByDeadECALElectronRejectionForMiniAOD
+    )
+    run2_miniAOD_devel.toReplaceWith(
+        process.makePatTausTask, _makePatTausTaskWithDeadECalVeto
+    )
+    _withDeadEcalTauIDPs = cms.PSet(
+        process.patTaus.tauIDSources,
+        againstElectronDeadECAL = cms.InputTag("hpsPFTauDiscriminationByDeadECALElectronRejectionForMiniAOD")
+    )
+    run2_miniAOD_devel.toModify(process.patTaus,
+                                tauIDSources = _withDeadEcalTauIDPs)
+    #... and to boosted taus
+    run2_miniAOD_devel.toModify(process.hpsPFTauDiscriminationByDeadECALElectronRejectionBoosted,
+                                extrapolateToECalEntrance = True)
+    _withDeadEcalTauIDBoostedPs = cms.PSet(
+        process.patTausBoosted.tauIDSources,
+        againstElectronDeadECAL = cms.InputTag("hpsPFTauDiscriminationByDeadECALElectronRejectionBoosted")
+    )
+    run2_miniAOD_devel.toModify(process.patTausBoosted,
+                                tauIDSources = _withDeadEcalTauIDBoostedPs)
+
     #-- Adding customization for 80X 2016 legacy reMiniAOD and 2018 heavy ions
     from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
     from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
