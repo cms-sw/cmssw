@@ -93,6 +93,7 @@ private:
   int nIovs_;
   int fromTime_;
   int toTime_;
+  double minP_, maxP_;
   FILE* ferr_;
 };
 

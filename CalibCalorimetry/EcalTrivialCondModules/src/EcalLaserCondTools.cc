@@ -31,7 +31,10 @@ EcalLaserCondTools::EcalLaserCondTools(const edm::ParameterSet& ps)
       skipIov_(ps.getParameter<int>("skipIov")),
       nIovs_(ps.getParameter<int>("nIovs")),
       fromTime_(ps.getParameter<int>("fromTime")),
-      toTime_(ps.getParameter<int>("toTime")) {
+      toTime_(ps.getParameter<int>("toTime")),
+      minP_(ps.getParameter<double>("transparencyMin")),
+      maxP_(ps.getParameter<double>("transparencyMax"))
+{
   ferr_ = fopen("corr_errors.txt", "w");
   fprintf(ferr_, "#t1\tdetid\tp1\tp2\tp3");
 
@@ -207,17 +210,16 @@ void EcalLaserCondTools::processIov(CorrReader& r, int t1, int t2[EcalLaserCondT
       std::cout << "Duplicate det id, for IOV " << iIov << " t1 = " << t1 << " detid = " << int(detid) << endl;
     }
 
-    //     constexpr float minp = 0.9;
-    //    constexpr float maxp = 1.1;
-    constexpr float minp = 0.00001;
-    constexpr float maxp = 1.8;
-    //constexpr float minp = -100;
-    //constexpr float maxp = 100;
 
-    if (!isfinite(corr.p1) || !isfinite(corr.p2) || !isfinite(corr.p3) || corr.p1 < minp || corr.p1 > maxp ||
-        corr.p2 < minp || corr.p2 > maxp || corr.p3 < minp || corr.p3 > maxp) {
-      fprintf(ferr_, "%d %d %f %f %f\n", t1, (int)detid, corr.p1, corr.p2, corr.p3);
-      corr.p1 = corr.p2 = corr.p3 = 1;
+    if(!isfinite(corr.p1)
+       || !isfinite(corr.p2)
+       || !isfinite(corr.p3)
+       || corr.p1 < minP_ || corr.p1 > maxP_
+       || corr.p2 < minP_ || corr.p2 > maxP_
+       || corr.p3 < minP_ || corr.p3 > maxP_ ){
+       fprintf(ferr_, "%d %d %f %f %f\n", t1, (int)detid, corr.p1,
+               corr.p2, corr.p3);
+      corr.p1=corr.p2=corr.p3 = 1;
     }
 
     if (verb_ > 2) {
@@ -233,15 +235,8 @@ void EcalLaserCondTools::processIov(CorrReader& r, int t1, int t2[EcalLaserCondT
            << "p2 = " << corr.p2 << "\t"
            << "p3 = " << corr.p3 << "\n";
     }
-    if (detid.subdetId() == EcalBarrel) {
-      if (corr.p1 < 0.55)
-        corr.p1 = .985;
-      if (corr.p2 < 0.55)
-        corr.p2 = .985;
-      if (corr.p3 < 0.55)
-        corr.p3 = .985;
-    }
-    corrSet->setValue((int)detid, corr);
+
+    corrSet->setValue((int)detid, corr );
   }
 
   try {
