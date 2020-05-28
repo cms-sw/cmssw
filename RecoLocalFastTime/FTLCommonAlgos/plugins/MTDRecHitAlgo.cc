@@ -39,7 +39,7 @@ FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32
   float energy = 0.;
   float time = 0.;
 
-  // position and positionError in unit cm
+  /// position and positionError in unit cm
   float position = -1.f;
   float positionError = -1.f;
 

@@ -22,14 +22,14 @@ public:
                         std::pair<float, float> ampl,
                         std::pair<float, float> time,
                         float timeError,
-                        float posit,
+                        float position,
                         float positionError,
                         unsigned char flags = 0);
   FTLUncalibratedRecHit(const DetId& detId,
                         std::pair<float, float> ampl,
                         std::pair<float, float> time,
                         float timeError,
-                        float posit,
+                        float position,
                         float positionError,
                         unsigned char flags = 0);
 
@@ -67,10 +67,11 @@ private:
   std::pair<float, float> amplitude_;
   std::pair<float, float> time_;
   float timeError_;
-  float position_;  //distance from the center of the bar to the hit
+  float position_;  /// distance from the center of the bar to the hit
   float positionError_;
   DetId id_;
-  uint8_t row_, column_;
+  uint8_t row_;
+  uint8_t column_;
   unsigned char flags_;
 };
 

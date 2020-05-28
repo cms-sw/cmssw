@@ -204,7 +204,7 @@ void MTDThresholdClusterizer::copy_to_buffer(RecHitIterator itr, const MTDGeomet
   float time = itr->time();
   float timeError = itr->timeError();
   float position = itr->position();
-  //position is the longitudinal offset that should be added into local x for bars in phi geometry
+  // position is the longitudinal offset that should be added into local x for bars in phi geometry
   LocalError local_error(0, 0, 0);
   GlobalPoint global_point(0, 0, 0);
   if (mtdId.mtdSubDetector() == MTDDetId::BTL) {
@@ -216,9 +216,9 @@ void MTDThresholdClusterizer::copy_to_buffer(RecHitIterator itr, const MTDGeomet
     const RectangularMTDTopology& topol = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
     MeasurementPoint mp(row, col);
     LocalPoint lp_ctr = topol.localPosition(mp);
-    LocalPoint lp(lp_ctr.x() + position + topol.pitch().first / 2.0, lp_ctr.y(), lp_ctr.z());
-    //local coordinates of BTL module locates RecHits on the left edge of the bar (-9.2, -3.067, 3.067)
-    //(position + topol.pitch().first/2.0) is the distance from the left edge to the Hit point
+    LocalPoint lp(lp_ctr.x() + position + topol.pitch().first * 0.5f, lp_ctr.y(), lp_ctr.z());
+    // local coordinates of BTL module locates RecHits on the left edge of the bar (-9.2, -3.067, 3.067)
+    // (position + topol.pitch().first/2.0) is the distance from the left edge to the Hit point
     global_point = det->toGlobal(lp);
     BTLRecHitsErrorEstimatorIM btlError(det, lp);
     local_error = btlError.localError();

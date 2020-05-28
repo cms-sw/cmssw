@@ -1,4 +1,5 @@
 #include "RecoLocalFastTime/FTLCommonAlgos/interface/MTDUncalibratedRecHitAlgoBase.h"
+#include "RecoLocalFastTime/FTLClusterizer/interface/BTLRecHitsErrorEstimatorIM.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class BTLUncalibRecHitAlgo : public BTLUncalibratedRecHitAlgoBase {
@@ -14,7 +15,6 @@ public:
         timeCorr_p0_(conf.getParameter<double>("timeCorr_p0")),
         timeCorr_p1_(conf.getParameter<double>("timeCorr_p1")),
         timeCorr_p2_(conf.getParameter<double>("timeCorr_p2")),
-        positionError_(conf.getParameter<double>("positionError")),
         c_LYSO_(conf.getParameter<double>("c_LYSO")) {}
 
   /// Destructor
@@ -36,7 +36,6 @@ private:
   const double timeCorr_p0_;
   const double timeCorr_p1_;
   const double timeCorr_p2_;
-  const double positionError_;
   const double c_LYSO_;
 };
 
@@ -50,7 +49,8 @@ FTLUncalibratedRecHit BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataF
   std::pair<float, float> amplitude(0., 0.);
   std::pair<float, float> time(0., 0.);
 
-  float position = -5.f;  //position in cm
+  float position = -1.f;       //position in cm
+  float positionError = -1.f;  //position error in cm
 
   unsigned char flag = 0;
 
@@ -75,9 +75,11 @@ FTLUncalibratedRecHit BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataF
     time.second -= timeCorr_p0_ * pow(amplitude.second, timeCorr_p1_) + timeCorr_p2_;
     flag |= (0x1 << 1);
   }
-  //calculate the position
+
+  // Calculate the position
+  // Distance from center of bar to hit
   position = 0.5 * (c_LYSO_ * (time.second - time.first));
-  //distance from center of bar to hit
+  positionError = BTLRecHitsErrorEstimatorIM::positionError();
 
   LogDebug("BTLUncalibRecHit") << "ADC+: set the charge to: (" << amplitude.first << ", " << amplitude.second << ")  ("
                                << sampleLeft.data() << ", " << sampleRight.data() << "  " << adcLSB_ << ' '
@@ -87,7 +89,7 @@ FTLUncalibratedRecHit BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataF
                                << std::endl;
 
   return FTLUncalibratedRecHit(
-      dataFrame.id(), dataFrame.row(), dataFrame.column(), amplitude, time, timeError_, position, positionError_, flag);
+      dataFrame.id(), dataFrame.row(), dataFrame.column(), amplitude, time, timeError_, position, positionError, flag);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
