@@ -657,10 +657,12 @@ class InputTag(_ParameterTypeBase):
         if isinstance(arg, InputTag):
             return arg
         elif isinstance(arg, str):
+            if arg.count(":") > 2:
+                raise RuntimeError("InputTag may have at most 3 elements")
             return arg
         else:
             if len(arg) > 3:
-                raise RuntimeError("Sequence argument may have at most 3 elements")
+                raise RuntimeError("InputTag may have at most 3 elements")
             return ":".join(arg)
     def setValue(self,v):
         self._setValues(v)
@@ -671,6 +673,8 @@ class InputTag(_ParameterTypeBase):
         self.__processName=processName
         if -1 != self.__moduleLabel.find(":"):
             toks = self.__moduleLabel.split(":")
+            if len(toks) > 3:
+                raise RuntimeError("InputTag may have at most 3 elements")
             self.__moduleLabel = toks[0]
             if len(toks) > 1:
                 self.__productInstance = toks[1]
@@ -1553,6 +1557,10 @@ if __name__ == "__main__":
             self.assertEqual(it.getModuleLabel(), "label")
             self.assertEqual(it.getProductInstanceLabel(), "in")
             self.assertEqual(it.getProcessName(), "@skipCurrentProcess")
+            with self.assertRaises(RuntimeError):
+                it = InputTag("label:too:many:elements")
+            with self.assertRaises(RuntimeError):
+                vit = VInputTag("label:too:many:elements")
 
             pset = PSet(it = InputTag("something"))
             # "assignment" from string
@@ -1572,6 +1580,8 @@ if __name__ == "__main__":
             self.assertEqual(pset.it.getModuleLabel(), "label")
             self.assertEqual(pset.it.getProductInstanceLabel(), "")
             self.assertEqual(pset.it.getProcessName(), "proc")
+            with self.assertRaises(RuntimeError):
+                pset.it = "label:too:many:elements"
             # "assignment" from tuple of strings
             pset.it = ()
             self.assertEqual(pset.it.getModuleLabel(), "")
