@@ -57,6 +57,17 @@ namespace cms {
       }
       return std::begin(a)->value;
     }
+
+    template <class Mapping, class V>
+    typename Mapping::value_type::name_type value_reverse(Mapping a, V value) {
+      auto pos = std::find_if(
+          std::begin(a), std::end(a), [&value](const typename Mapping::value_type& t) { return (t.value == value); });
+      if (pos != std::end(a)) {
+        return pos->name;
+      }
+      return std::begin(a)->name;
+    }
+
   };  // namespace dd
 
   enum class DDSolidShape {
@@ -67,6 +78,8 @@ namespace cms {
     ddcons = 4,
     ddpolycone = 5,
     ddpolyhedra = 6,
+    ddunsupported1 = 7,
+    ddunsupported2 = 8,
     ddtorus = 9,
     ddunion = 10,
     ddsubtraction = 11,
@@ -81,7 +94,7 @@ namespace cms {
     ddtrd1 = 20,
   };
 
-  const std::array<const cms::dd::NameValuePair<DDSolidShape>, 19> DDSolidShapeMap{
+  const std::array<const cms::dd::NameValuePair<DDSolidShape>, 21> DDSolidShapeMap{
       {{DDSolidShape::dd_not_init, "Solid not initialized"},
        {DDSolidShape::ddbox, "Box"},
        {DDSolidShape::ddtubs, "Tube"},
@@ -100,7 +113,9 @@ namespace cms {
        {DDSolidShape::ddellipticaltube, "EllipticalTube"},
        {DDSolidShape::ddcuttubs, "CutTube"},
        {DDSolidShape::ddextrudedpolygon, "ExtrudedPolygon"},
-       {DDSolidShape::ddtrd1, "Trd1"}}};
+       {DDSolidShape::ddtrd1, "Trd1"},
+       {DDSolidShape::ddunsupported1, "Unsupported1"},
+       {DDSolidShape::ddunsupported2, "Unsupported2"}}};
 
   const std::array<const cms::dd::ValuePair<LegacySolidShape, cms::DDSolidShape>, 20> LegacySolidShapeMap{
       {{LegacySolidShape::dd_not_init, cms::DDSolidShape::dd_not_init},
