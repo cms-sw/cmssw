@@ -9,37 +9,14 @@ class SiStripDigi;
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
-#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-#include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 #include <limits>
 
-class FedChannelConnection;
+#include "RecoLocalTracker/Records/interface/SiStripClusterizerConditionsRcd.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripClusterizerConditions.h"
 
 class StripClusterizerAlgorithm {
 public:
-  static constexpr unsigned short invalidI = std::numeric_limits<unsigned short>::max();
-
-  // state of detID
-  struct Det {
-    bool valid() const { return ind != invalidI; }
-    uint16_t rawNoise(const uint16_t strip) const { return SiStripNoises::getRawNoise(strip, noiseRange); }
-    float noise(const uint16_t strip) const { return SiStripNoises::getNoise(strip, noiseRange); }
-    float weight(const uint16_t strip) const { return m_weight[strip / 128]; }
-    bool bad(const uint16_t strip) const { return quality->IsStripBad(qualityRange, strip); }
-    bool allBadBetween(uint16_t L, const uint16_t& R) const {
-      while (++L < R && bad(L)) {
-      };
-      return L == R;
-    }
-    SiStripQuality const* quality;
-    SiStripNoises::Range noiseRange;
-    SiStripQuality::Range qualityRange;
-    float m_weight[6];
-    uint32_t detId = 0;
-    unsigned short ind = invalidI;
-  };
+  using Det = SiStripClusterizerConditions::Det;
 
   //state of the candidate cluster
   struct State {
@@ -55,7 +32,9 @@ public:
   };
 
   virtual ~StripClusterizerAlgorithm() {}
-  virtual void initialize(const edm::EventSetup&);
+
+  void initialize(const edm::EventSetup& es) { es.get<SiStripClusterizerConditionsRcd>().get(m_conditionsHandle); }
+  const SiStripClusterizerConditions& conditions() const { return *m_conditionsHandle; }
 
   //Offline DetSet interface
   typedef edmNew::DetSetVector<SiStripCluster> output_t;
@@ -65,7 +44,7 @@ public:
   virtual void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi>&, output_t::TSFastFiller&) const {}
 
   //HLT stripByStrip interface
-  Det const& stripByStripBegin(uint32_t id) const { return findDetId(id); }
+  Det const& stripByStripBegin(uint32_t id) const { return m_conditionsHandle->findDetId(id); }
 
   virtual void stripByStripAdd(State& state, uint16_t strip, uint8_t adc, std::vector<SiStripCluster>& out) const {}
   virtual void stripByStripEnd(State& state, std::vector<SiStripCluster>& out) const {}
@@ -78,26 +57,10 @@ public:
     InvalidChargeException(const SiStripDigi&);
   };
 
-  SiStripDetCabling const* cabling() const { return theCabling; }
-  std::vector<uint32_t> const& allDetIds() const { return detIds; }
-  auto const& allDets() const { return dets; }
-
-  std::vector<const FedChannelConnection*> const& currentConnection(const Det& det) const {
-    return connections[det.ind];
-  }
-
 protected:
-  StripClusterizerAlgorithm() : qualityLabel(""), noise_cache_id(0), gain_cache_id(0), quality_cache_id(0) {}
-
-  Det const& findDetId(const uint32_t) const;
-  bool isModuleBad(const uint32_t& id) const { return qualityHandle->IsModuleBad(id); }
-  bool isModuleUsable(const uint32_t& id) const { return qualityHandle->IsModuleUsable(id); }
-
-  std::string qualityLabel;
+  StripClusterizerAlgorithm() {}
 
 private:
-  void fillDets();
-
   template <class T>
   void clusterize_(const T& input, output_t& output) const {
     for (typename T::const_iterator it = input.begin(); it != input.end(); it++) {
@@ -108,17 +71,6 @@ private:
     }
   }
 
-  struct Index {
-    unsigned short gi = invalidI, ni = invalidI, qi = invalidI;
-  };
-  std::vector<uint32_t> detIds;  // from cabling (connected and not bad)
-  std::vector<Det> dets;
-  std::vector<std::vector<const FedChannelConnection*> > connections;
-  std::vector<Index> indices;
-  edm::ESHandle<SiStripGain> gainHandle;
-  edm::ESHandle<SiStripNoises> noiseHandle;
-  edm::ESHandle<SiStripQuality> qualityHandle;
-  SiStripDetCabling const* theCabling = nullptr;
-  uint32_t noise_cache_id, gain_cache_id, quality_cache_id;
+  edm::ESHandle<SiStripClusterizerConditions> m_conditionsHandle;
 };
 #endif

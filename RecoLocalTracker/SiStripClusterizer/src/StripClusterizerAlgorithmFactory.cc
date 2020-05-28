@@ -16,7 +16,6 @@ std::unique_ptr<StripClusterizerAlgorithm> StripClusterizerAlgorithmFactory::cre
                                     conf.getParameter<unsigned>("MaxSequentialHoles"),
                                     conf.getParameter<unsigned>("MaxSequentialBad"),
                                     conf.getParameter<unsigned>("MaxAdjacentBad"),
-                                    conf.getParameter<std::string>("QualityLabel"),
                                     conf.getParameter<bool>("RemoveApvShots"),
                                     clusterChargeCut(conf)));
   }
