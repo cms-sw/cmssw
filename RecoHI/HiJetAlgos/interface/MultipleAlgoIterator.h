@@ -13,10 +13,10 @@ public:
   void calculatePedestal(std::vector<fastjet::PseudoJet> const& coll) override;
   void subtractPedestal(std::vector<fastjet::PseudoJet>& coll) override;
   void calculateOrphanInput(std::vector<fastjet::PseudoJet>& orphanInput) override;
-  double minimumTowersFraction_;
+private:
+    double minimumTowersFraction_;
   bool sumRecHits_;
   bool dropZeroTowers_;
-  ~MultipleAlgoIterator() override { ; }
 };
 
 #endif
