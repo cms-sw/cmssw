@@ -217,7 +217,7 @@ L1TCaloParamsOnlineProd::L1TCaloParamsOnlineProd(const edm::ParameterSet& iConfi
 std::unique_ptr<const l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::string& objectKey,
                                                                           const L1TCaloParamsO2ORcd& record) {
   const L1TCaloParamsRcd& baseRcd = record.template getRecord<L1TCaloParamsRcd>();
-  edm::ESHandle<l1t::CaloParams> baseSettings;
+  edm::ESHandle<l1t::CaloParams> baseSettings; // this needs to be a token 
   baseRcd.get(baseSettings);
 
   if (objectKey.empty()) {

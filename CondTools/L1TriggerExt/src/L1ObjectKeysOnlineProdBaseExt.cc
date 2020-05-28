@@ -12,7 +12,8 @@ L1ObjectKeysOnlineProdBaseExt::L1ObjectKeysOnlineProdBaseExt(const edm::Paramete
 
   // The subsystemLabel is used by L1TriggerKeyOnlineProdExt to identify the
   // L1TriggerKeysExt to concatenate.
-  setWhatProduced(this, iConfig.getParameter<std::string>("subsystemLabel"));
+  setWhatProduced(this, iConfig.getParameter<std::string>("subsystemLabel"))
+    .setConsumes(L1TriggerKeyExt_token, edm::ESInputTag{"","SubsystemKeysOnly"});
 
   //now do what ever other initialization is needed
 }
@@ -26,15 +27,15 @@ L1ObjectKeysOnlineProdBaseExt::~L1ObjectKeysOnlineProdBaseExt() {
 L1ObjectKeysOnlineProdBaseExt::ReturnType L1ObjectKeysOnlineProdBaseExt::produce(const L1TriggerKeyExtRcd& iRecord) {
   // Get L1TriggerKeyExt with label "SubsystemKeysOnly".  Re-throw exception if
   // not present.
-  edm::ESHandle<L1TriggerKeyExt> subsystemKeys;
+  L1TriggerKeyExt subsystemKeys;
   try {
-    iRecord.get("SubsystemKeysOnly", subsystemKeys);
+    subsystemKeys = iRecord.get(L1TriggerKeyExt_token);
   } catch (l1t::DataAlreadyPresentException& ex) {
     throw ex;
   }
 
   // Copy L1TriggerKeyExt to new object.
-  auto pL1TriggerKey = std::make_unique<L1TriggerKeyExt>(*subsystemKeys);
+  auto pL1TriggerKey = std::make_unique<L1TriggerKeyExt>(subsystemKeys);
 
   // Get object keys.
   fillObjectKeys(pL1TriggerKey.get());

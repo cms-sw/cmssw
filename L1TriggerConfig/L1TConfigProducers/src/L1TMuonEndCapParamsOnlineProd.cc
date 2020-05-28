@@ -38,7 +38,7 @@ std::unique_ptr<const L1TMuonEndCapParams> L1TMuonEndCapParamsOnlineProd::newObj
   if (objectKey.empty()) {
     edm::LogError("L1-O2O: L1TMuonEndCapParamsOnlineProd") << "Key is empty";
     if (transactionSafe)
-      throw std::runtime_error("SummaryForFunctionManager: BMTF  | Faulty  | Empty objectKey");
+      throw std::runtime_error("SummaryForFunctionManager: EMTF  | Faulty  | Empty objectKey");
     else {
       edm::LogError("L1-O2O: L1TMuonEndCapParamsOnlineProd") << "returning unmodified prototype of L1TMuonEndCapParams";
       return std::make_unique<const L1TMuonEndCapParams>(*(baseSettings.product()));
