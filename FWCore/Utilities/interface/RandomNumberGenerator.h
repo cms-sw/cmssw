@@ -127,6 +127,7 @@ of the SWGuide.
 
 #include <cstdint>
 #include <iosfwd>
+#include <memory>
 #include <vector>
 
 class RandomEngineState;
@@ -156,6 +157,19 @@ namespace edm {
 
     /// Use this engine in the global begin luminosity block method
     virtual CLHEP::HepRandomEngine& getEngine(LuminosityBlockIndex const&) = 0;
+
+    /// This function is not intended for general use. It is intended for
+    /// the special case where multiple instances of Pythia 8 will
+    /// be run concurrently and we want them to be initialized exactly
+    /// the same. In this special case, the luminosity block engine(s)
+    /// owned by the service should not be used to generate random numbers
+    /// in between calls to cloneEngine, because the clone will be in
+    /// the state that existed at the moment of cloning.
+    /// Before initializing Pythia, this function should be used to clone
+    /// the engine owned by the service and the cloned random engine should be
+    /// used to generate numbers for initialization so that all initializations
+    /// in the process get identical sequences of random numbers.
+    virtual std::unique_ptr<CLHEP::HepRandomEngine> cloneEngine(LuminosityBlockIndex const&) = 0;
 
     /// This returns the seed from the configuration. In the unusual case where an
     /// an engine type takes multiple seeds to initialize a sequence, this function
