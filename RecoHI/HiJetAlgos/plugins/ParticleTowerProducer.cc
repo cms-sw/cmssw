@@ -49,10 +49,11 @@
 //
 // constructors and destructor
 //
-ParticleTowerProducer::ParticleTowerProducer(const edm::ParameterSet& iConfig) : geo_(nullptr) {
+ParticleTowerProducer::ParticleTowerProducer(const edm::ParameterSet& iConfig) : geo_(nullptr),
+  src_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+  useHF_(iConfig.getParameter<bool>("useHF"))
+ {
   //register your products
-  src_ = consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("src"));
-  useHF_ = iConfig.getParameter<bool>("useHF");
 
   produces<CaloTowerCollection>();
 
