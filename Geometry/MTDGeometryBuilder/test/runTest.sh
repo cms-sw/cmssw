@@ -5,6 +5,9 @@ function checkDiff {
     FSIZE=$(stat -c%s "$1")
     echo "The output diff is $FSIZE:"
     cat $1;
+#
+# expected difference in CMSSW_11_2_X_2020-05-27-2300
+#
     if [ $FSIZE -gt 4331 ]
     then
       exit -1;
