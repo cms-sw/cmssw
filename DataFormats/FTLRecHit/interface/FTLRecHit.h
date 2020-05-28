@@ -94,9 +94,14 @@ public:
 
 private:
   DetId id_;
-  float energy_, time_, timeError_, position_, positionError_;
-  //position is the distance from the center of the bar to hit
-  uint8_t row_, column_;
+  float energy_;
+  float time_;
+  float timeError_;
+  /// position is the distance from the center of the bar to hit
+  float position_;
+  float positionError_;
+  uint8_t row_;
+  uint8_t column_;
 
   /// store rechit condition (see Flags enum) in a bit-wise way
   unsigned char flagBits_;

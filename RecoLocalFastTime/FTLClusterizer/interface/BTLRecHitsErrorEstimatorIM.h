@@ -28,16 +28,20 @@ public:
     }
   }
   LocalError localError() const {
-    const float positionError = 0.6;
-    //position error, refer to:
-    //https://indico.cern.ch/event/825902/contributions/3455359/attachments/1858923/3054344/residual_calculation_0607.pdf
+    /// position error, refer to:
+    /// https://indico.cern.ch/event/825902/contributions/3455359/attachments/1858923/3054344/residual_calculation_0607.pdf
+    constexpr float positionError2 = 0.36f;  //0.6^2
     const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(det_->topology());
     const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
     MeasurementPoint mp = topo.measurementPosition(lp_);
     MeasurementError simpleRect(1. / 12., 0, 1. / 12.);
     LocalError error_before = topo.localError(mp, simpleRect);
-    LocalError error_modified(positionError * positionError, error_before.xy(), error_before.yy());
+    LocalError error_modified(positionError2, error_before.xy(), error_before.yy());
     return error_modified;
+  }
+  static float positionError() {
+    constexpr float positionError = 0.6f;
+    return positionError;
   }
 
 private:

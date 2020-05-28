@@ -12,13 +12,13 @@ FTLUncalibratedRecHit::FTLUncalibratedRecHit(const DetId& id,
                                              std::pair<float, float> ampl,
                                              std::pair<float, float> time,
                                              float timeError,
-                                             float posit,
+                                             float position,
                                              float positionError,
                                              unsigned char flags)
     : amplitude_(ampl),
       time_(time),
       timeError_(timeError),
-      position_(posit),
+      position_(position),
       positionError_(positionError),
       id_(id),
       row_(row),
@@ -29,10 +29,10 @@ FTLUncalibratedRecHit::FTLUncalibratedRecHit(const DetId& id,
                                              std::pair<float, float> ampl,
                                              std::pair<float, float> time,
                                              float timeError,
-                                             float posit,
+                                             float position,
                                              float positionError,
                                              unsigned char flags)
-    : FTLUncalibratedRecHit(id, 0, 0, ampl, time, timeError, posit, positionError, flags) {}
+    : FTLUncalibratedRecHit(id, 0, 0, ampl, time, timeError, position, positionError, flags) {}
 
 bool FTLUncalibratedRecHit::isSaturated() const { return FTLUncalibratedRecHit::checkFlag(kSaturated); }
 

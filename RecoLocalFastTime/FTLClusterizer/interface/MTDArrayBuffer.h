@@ -26,7 +26,7 @@ public:
 
   inline void setSize(uint rows, uint cols);
 
-  //use subDet to identify whether the Hit is in BTL or ETL
+  /// Use subDet to identify whether the Hit is in BTL or ETL
   inline GeomDetEnumerators::Location subDet(uint row, uint col) const;
   inline GeomDetEnumerators::Location subDet(const FTLCluster::FTLHitPos&) const;
   inline float energy(uint row, uint col) const;
