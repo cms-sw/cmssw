@@ -69,11 +69,9 @@ ParticleTowerProducer::ParticleTowerProducer(const edm::ParameterSet& iConfig) :
 void ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  if (!geo_) {
-    edm::ESHandle<CaloGeometry> pG;
-    iSetup.get<CaloGeometryRecord>().get(pG);
-    geo_ = pG.product();
-  }
+  edm::ESHandle<CaloGeometry> pG;
+  iSetup.get<CaloGeometryRecord>().get(pG);
+  geo_ = pG.product();
 
   resetTowers(iEvent, iSetup);
 
