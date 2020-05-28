@@ -7,7 +7,6 @@
 <use name="FWCore/ParameterSet"/>
 <use name="DQMServices/Core"/>
 <use name="boost"/>
-<use name="classlib"/>
 <export>
   <lib name="1"/>
 </export>
