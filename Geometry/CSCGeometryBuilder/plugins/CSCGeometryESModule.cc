@@ -22,8 +22,6 @@
 #include <memory>
 
 #include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
-#include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 
 using namespace edm;
 
