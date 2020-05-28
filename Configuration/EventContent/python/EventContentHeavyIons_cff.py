@@ -28,8 +28,8 @@ RECOEventContent.outputCommands.extend(RecoHIRECO.outputCommands)
 AODEventContent.outputCommands.extend(RecoHIAOD.outputCommands)
 
 #RAWSIM
-RAWSIMEventContent.outputCommands.extend(HiMixRAW.outputCommands)
 RAWSIMEventContent.outputCommands.extend(RAWEventContent.outputCommands)
+RAWSIMEventContent.outputCommands.extend(HiMixRAW.outputCommands)
 
 #RAWSIMHLT
 RAWSIMHLTEventContent.outputCommands.extend(RAWSIMEventContent.outputCommands)
@@ -50,19 +50,19 @@ FEVTEventContent.outputCommands.extend(RAWEventContent.outputCommands)
 FEVTHLTALLEventContent.outputCommands.extend(FEVTEventContent.outputCommands)
 
 #FEVTSIM (RAWSIM + RECOSIM)
-FEVTSIMEventContent.outputCommands.extend(HiMixRAW.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(FEVTEventContent.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(HiMixRAW.outputCommands)
 
 #RAW DEBUG(e.g. mergedtruth from trackingParticles) 
-RAWDEBUGEventContent.outputCommands.extend(HiMixRAW.outputCommands)
 RAWDEBUGEventContent.outputCommands.extend(RAWEventContent.outputCommands)
+RAWDEBUGEventContent.outputCommands.extend(HiMixRAW.outputCommands)
 
 #RAW HLT DEBUG 
 RAWDEBUGHLTEventContent.outputCommands.extend(RAWDEBUGEventContent.outputCommands)
 
 #RECO DEBUG  
-RECODEBUGEventContent.outputCommands.extend(HiMixRAW.outputCommands)
 RECODEBUGEventContent.outputCommands.extend(RecoHIRECO.outputCommands)
+RECODEBUGEventContent.outputCommands.extend(HiMixRAW.outputCommands)
 
 #FEVT DEBUG 
 FEVTDEBUGEventContent.outputCommands.extend(FEVTSIMEventContent.outputCommands)
