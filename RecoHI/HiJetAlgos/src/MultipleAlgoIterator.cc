@@ -216,9 +216,7 @@ void MultipleAlgoIterator::calculateOrphanInput(vector<fastjet::PseudoJet>& orph
   // Create a new collections from the towers not included in jets
   //
 
-  for (vector<fastjet::PseudoJet>::const_iterator it = fjInputs_->begin(), fjInputsEnd = fjInputs_->end();
-       it != fjInputsEnd;
-       ++it) {
+  for (auto const& jet : fjInputs_) {
     int index = it->user_index();
     vector<int>::const_iterator itjet = find(jettowers.begin(), jettowers.end(), index);
     if (itjet == jettowers.end()) {
