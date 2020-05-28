@@ -60,10 +60,6 @@ ParticleTowerProducer::ParticleTowerProducer(const edm::ParameterSet& iConfig) :
   //now do what ever other initialization is needed
 }
 
-ParticleTowerProducer::~ParticleTowerProducer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
 
 //
 // member functions
