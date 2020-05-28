@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    ParticleTowerProducer
+// Package:    RecoHI/HiJetAlgos
 // Class:      ParticleTowerProducer
 //
-/**\class ParticleTowerProducer ParticleTowerProducer.cc RecoHI/ParticleTowerProducer/src/ParticleTowerProducer.cc
+/**\class ParticleTowerProducer RecoHI/HiJetAlgos/plugins/ParticleTowerProducer.cc
  Description: [one line class summary]
  Implementation:
      [Notes on implementation]
