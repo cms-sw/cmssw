@@ -75,10 +75,8 @@ void ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   resetTowers(iEvent, iSetup);
 
-  edm::Handle<reco::PFCandidateCollection> inputsHandle;
-  iEvent.getByToken(src_, inputsHandle);
-
-  for (auto const& particle : *inputsHandle) {
+  auto const& inputs = iEvent.get(src_);
+  for (auto const& particle : inputs) {
     double eta = particle.eta();
 
     int ieta = eta2ieta(eta);
