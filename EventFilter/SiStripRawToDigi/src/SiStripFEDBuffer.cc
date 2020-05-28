@@ -45,8 +45,6 @@ namespace sistrip {
     }
   }
 
-  FEDBuffer::~FEDBuffer() {}
-
   FEDBufferStatusCode FEDBuffer::findChannels() {
     auto st = FEDBufferStatusCode::SUCCESS;
     //set min length to 2 for ZSLite, 7 for ZS and 3 for raw
@@ -97,7 +95,7 @@ namespace sistrip {
           break;
         }
 
-      channels_.push_back(FEDChannel(payloadPointer_, offsetBeginningOfChannel));
+      channels_.emplace_back(payloadPointer_, offsetBeginningOfChannel);
       //get length and check that whole channel fits into buffer
       uint16_t channelLength = channels_.back().length();
 
@@ -144,26 +142,6 @@ namespace sistrip {
         channels_.insert(channels_.end(), uint16_t(FEDCH_PER_FED - validChannels_), FEDChannel(payloadPointer_, 0, 0));
       }
     return st;
-  }
-
-  bool FEDBuffer::channelGood(const uint8_t internalFEDChannelNum, const bool doAPVeCheck) const {
-    return ((internalFEDChannelNum < validChannels_) &&
-            ((doAPVeCheck && feGood(internalFEDChannelNum / FEDCH_PER_FEUNIT)) ||
-             (!doAPVeCheck && feGoodWithoutAPVEmulatorCheck(internalFEDChannelNum / FEDCH_PER_FEUNIT))) &&
-            (this->readoutMode() == sistrip::READOUT_MODE_SCOPE || checkStatusBits(internalFEDChannelNum)));
-  }
-
-  bool FEDBuffer::doChecks(bool doCRC) const {
-    //check that all channels were unpacked properly
-    if (validChannels_ != FEDCH_PER_FED)
-      return false;
-    //do checks from base class
-    if (!FEDBufferBase::doChecks())
-      return false;
-    //check CRC
-    if (doCRC && !checkCRC())
-      return false;
-    return true;
   }
 
   bool FEDBuffer::doCorruptBufferChecks() const {

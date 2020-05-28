@@ -615,12 +615,12 @@ namespace sistrip {
   //holds information about position of a channel in the buffer for use by unpacker
   class FEDChannel {
   public:
-    FEDChannel(const uint8_t* const data, const size_t offset, const uint16_t length);
+    FEDChannel(const uint8_t* const data, const uint32_t offset, const uint16_t length);
     //gets length from first 2 bytes (assuming normal FED channel)
-    FEDChannel(const uint8_t* const data, const size_t offset);
+    FEDChannel(const uint8_t* const data, const uint32_t offset);
     uint16_t length() const;
     const uint8_t* data() const;
-    size_t offset() const;
+    uint32_t offset() const;
     /**
      * Retrieve the APV CM median for a non-lite zero-suppressed channel
      *
@@ -635,7 +635,7 @@ namespace sistrip {
   private:
     friend class FEDBuffer;
     const uint8_t* data_;
-    size_t offset_;
+    uint32_t offset_;
     uint16_t length_;
   };
 
@@ -702,7 +702,7 @@ namespace sistrip {
     //check for errors in DAQ heaqder and trailer (not including bad CRC)
     bool doDAQHeaderAndTrailerChecks() const;
     //do both
-    virtual bool doChecks() const;
+    bool doChecks() const;
     //print the result of all detailed checks
     virtual std::string checkSummary() const;
 
@@ -855,7 +855,7 @@ namespace sistrip {
     const auto nibble = trackerEventTypeNibble();
     //if it is scope mode then return as is (it cannot be fake data)
     //if it is premix then return as is: stripping last bit would make it spy data !
-    if ((nibble == READOUT_MODE_SCOPE) || (nibble == READOUT_MODE_PREMIX_RAW))
+    if ((nibble == READOUT_MODE_SCOPE) || (nibble == READOUT_MODE_PREMIX_RAW))  // 0x or 0xf
       return FEDReadoutMode(nibble);
     //if not then ignore the last bit which indicates if it is real or fake
     else {
@@ -1430,6 +1430,8 @@ namespace sistrip {
 
   inline FEDReadoutMode FEDBufferBase::readoutMode() const { return specialHeader_.readoutMode(); }
 
+  inline bool FEDBufferBase::doChecks() const { return doTrackerSpecialHeaderChecks() & doDAQHeaderAndTrailerChecks(); }
+
   inline uint8_t FEDBufferBase::packetCode(bool legacy, const uint8_t internalFEDChannelNum) const {
     if (legacy) {
       FEDLegacyReadoutMode mode = legacyReadoutMode();
@@ -1553,11 +1555,11 @@ namespace sistrip {
 
   //FEDChannel
 
-  inline FEDChannel::FEDChannel(const uint8_t* const data, const size_t offset) : data_(data), offset_(offset) {
+  inline FEDChannel::FEDChannel(const uint8_t* const data, const uint32_t offset) : data_(data), offset_(offset) {
     length_ = (data_[(offset_) ^ 7] + (data_[(offset_ + 1) ^ 7] << 8));
   }
 
-  inline FEDChannel::FEDChannel(const uint8_t* const data, const size_t offset, const uint16_t length)
+  inline FEDChannel::FEDChannel(const uint8_t* const data, const uint32_t offset, const uint16_t length)
       : data_(data), offset_(offset), length_(length) {}
 
   inline uint16_t FEDChannel::length() const { return length_; }
@@ -1574,7 +1576,7 @@ namespace sistrip {
 
   inline const uint8_t* FEDChannel::data() const { return data_; }
 
-  inline size_t FEDChannel::offset() const { return offset_; }
+  inline uint32_t FEDChannel::offset() const { return offset_; }
 }  // namespace sistrip
 
 #endif  //ndef EventFilter_SiStripRawToDigi_FEDBufferComponents_H

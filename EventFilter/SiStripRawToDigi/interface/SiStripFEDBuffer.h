@@ -39,7 +39,7 @@ namespace sistrip {
      * @see sistrip::preconstructCheckFEDBuffer() sistrip::FEDBuffer::findChannels()
      */
     explicit FEDBuffer(const FEDRawData& fedBuffer, const bool allowBadBuffer = false);
-    ~FEDBuffer() override;
+    ~FEDBuffer() override {}
 
     /**
      * Read the channel lengths from the payload
@@ -64,13 +64,13 @@ namespace sistrip {
     bool fePresent(uint8_t internalFEUnitNum) const;
     //check that a channel is present in data, found, on a good FE unit and has no errors flagged in status bits
     using sistrip::FEDBufferBase::channelGood;
-    virtual bool channelGood(const uint8_t internalFEDannelNum, const bool doAPVeCheck = true) const;
+    bool channelGood(const uint8_t internalFEDannelNum, const bool doAPVeCheck) const;
     void setLegacyMode(bool legacy) { legacyUnpacker_ = legacy; }
 
     //functions to check buffer. All return true if there is no problem.
     //minimum checks to do before using buffer
     using sistrip::FEDBufferBase::doChecks;
-    virtual bool doChecks(bool doCRC = true) const;
+    bool doChecks(bool doCRC) const;
 
     //additional checks to check for corrupt buffers
     //check channel lengths fit inside to buffer length
@@ -153,6 +153,13 @@ namespace sistrip {
 
   inline const FEDFEHeader* FEDBuffer::feHeader() const { return feHeader_.get(); }
 
+  inline bool FEDBuffer::channelGood(const uint8_t internalFEDChannelNum, const bool doAPVeCheck) const {
+    return ((internalFEDChannelNum < validChannels_) &&
+            ((doAPVeCheck && feGood(internalFEDChannelNum / FEDCH_PER_FEUNIT)) ||
+             (!doAPVeCheck && feGoodWithoutAPVEmulatorCheck(internalFEDChannelNum / FEDCH_PER_FEUNIT))) &&
+            (this->readoutMode() == sistrip::READOUT_MODE_SCOPE || checkStatusBits(internalFEDChannelNum)));
+  }
+
   inline bool FEDBuffer::feGood(const uint8_t internalFEUnitNum) const {
     return (!majorityAddressErrorForFEUnit(internalFEUnitNum) && !feOverflow(internalFEUnitNum) &&
             fePresent(internalFEUnitNum));
@@ -170,6 +177,15 @@ namespace sistrip {
 
   inline bool FEDBuffer::checkStatusBits(const uint8_t internalFEUnitNum, const uint8_t internalChannelNum) const {
     return checkStatusBits(internalFEDChannelNum(internalFEUnitNum, internalChannelNum));
+  }
+
+  inline bool FEDBuffer::doChecks(bool doCRC) const {
+    //check that all channels were unpacked properly
+    return (validChannels_ == FEDCH_PER_FED) &
+           //do checks from base class
+           (FEDBufferBase::doChecks()) &
+           // check crc if required
+           (!doCRC || checkCRC());
   }
 
   namespace fedchannelunpacker {
