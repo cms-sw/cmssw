@@ -20,9 +20,6 @@ class DDFilteredView;
 namespace cms {
   class DDFilteredView;
   class DDCompactView;
-  class MuonNumbering;
-  struct DDSpecPar;
-  struct DDSpecParRegistry;
 }  // namespace cms
 class ME0Geometry;
 class ME0DetId;
@@ -39,7 +36,7 @@ public:
 
   ME0Geometry* build(const DDCompactView* cview, const MuonGeometryConstants& muonConstants);
   //dd4hep
-  ME0Geometry* build(const cms::DDCompactView* cview, const cms::MuonNumbering& muonConstants);
+  ME0Geometry* build(const cms::DDCompactView* cview, const MuonGeometryConstants& muonConstants);
 
 private:
   ME0Geometry* buildGeometry(DDFilteredView& fview, const MuonGeometryConstants& muonConstants);
@@ -55,7 +52,7 @@ private:
 
   ME0EtaPartition* buildEtaPartition(DDFilteredView& fv, ME0DetId detId) const;
   //dd4hep
-  ME0Geometry* buildGeometry(cms::DDFilteredView& fview, const cms::MuonNumbering& muonConstants);
+  ME0Geometry* buildGeometry(cms::DDFilteredView& fview, const MuonGeometryConstants& muonConstants);
 
   ME0BoundPlane boundPlane(const cms::DDFilteredView& fv, Bounds* bounds, bool isOddChamber) const;
 

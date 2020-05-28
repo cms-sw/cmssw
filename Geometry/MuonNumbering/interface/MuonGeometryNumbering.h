@@ -1,7 +1,7 @@
-#ifndef Geometry_MuonNumbering_MuonDDDNumbering_h
-#define Geometry_MuonNumbering_MuonDDDNumbering_h
+#ifndef Geometry_MuonNumbering_MuonGeometryNumbering_h
+#define Geometry_MuonNumbering_MuonGeometryNumbering_h
 
-/** \class MuonDDDNumbering
+/** \class MuonGeometryNumbering
  *
  * class to handle the conversion to MuonBaseNumber from tree of 
  * DDD GeoHistory;  
@@ -21,10 +21,10 @@
 class MuonBaseNumber;
 class MuonGeometryConstants;
 
-class MuonDDDNumbering {
+class MuonGeometryNumbering {
 public:
-  MuonDDDNumbering(const MuonGeometryConstants& muonConstants);
-  ~MuonDDDNumbering(){};
+  MuonGeometryNumbering(const MuonGeometryConstants& muonConstants);
+  ~MuonGeometryNumbering() {};
 
   MuonBaseNumber geoHistoryToBaseNumber(const DDGeoHistory& history) const;
   MuonBaseNumber geoHistoryToBaseNumber(const cms::ExpandedNodes&) const;
