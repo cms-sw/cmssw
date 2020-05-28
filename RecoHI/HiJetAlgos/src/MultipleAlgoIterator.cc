@@ -199,7 +199,7 @@ void MultipleAlgoIterator::calculateOrphanInput(vector<fastjet::PseudoJet>& orph
 
     vector<fastjet::PseudoJet>::const_iterator it = fjInputs_->begin(), fjInputsEnd = fjInputs_->end();
 
-    for (; it != fjInputsEnd; ++it) {
+    for (auto const& jet : fjInputs_) {
       int index = it->user_index();
       int ie = ieta((*inputs_)[index]);
       int ip = iphi((*inputs_)[index]);
