@@ -98,11 +98,12 @@ namespace {
                   bool hybridZeroSuppressed)
         : rawColl(irawColl),
           clusterizer(iclusterizer),
+          conditions(iclusterizer.conditions()),
           rawAlgos(irawAlgos),
           doAPVEmulatorCheck(idoAPVEmulatorCheck),
           legacy_(legacy),
           hybridZeroSuppressed_(hybridZeroSuppressed) {
-      incTot(clusterizer.allDetIds().size());
+      incTot(clusterizer.conditions().allDetIds().size());
       for (auto& d : done)
         d = nullptr;
     }
@@ -118,6 +119,7 @@ namespace {
     const FEDRawDataCollection& rawColl;
 
     StripClusterizerAlgorithm& clusterizer;
+    const SiStripClusterizerConditions& conditions;
     SiStripRawProcessingAlgorithms& rawAlgos;
 
     // March 2012: add flag for disabling APVe check in configuration
@@ -170,7 +172,6 @@ class SiStripClusterizerFromRaw final : public edm::stream::EDProducer<> {
 public:
   explicit SiStripClusterizerFromRaw(const edm::ParameterSet& conf)
       : onDemand(conf.getParameter<bool>("onDemand")),
-        cabling_(nullptr),
         clusterizer_(StripClusterizerAlgorithmFactory::create(conf.getParameter<edm::ParameterSet>("Clusterizer"))),
         rawAlgos_(SiStripRawProcessingFactory::create(conf.getParameter<edm::ParameterSet>("Algorithms"))),
         doAPVEmulatorCheck_(conf.existsAs<bool>("DoAPVEmulatorCheck") ? conf.getParameter<bool>("DoAPVEmulatorCheck")
@@ -196,7 +197,7 @@ public:
         onDemand ? new edmNew::DetSetVector<SiStripCluster>(
                        std::shared_ptr<edmNew::DetSetVector<SiStripCluster>::Getter>(std::make_shared<ClusterFiller>(
                            *rawData, *clusterizer_, *rawAlgos_, doAPVEmulatorCheck_, legacy_, hybridZeroSuppressed_)),
-                       clusterizer_->allDetIds())
+                       clusterizer_->conditions().allDetIds())
                  : new edmNew::DetSetVector<SiStripCluster>());
 
     if (onDemand)
@@ -223,8 +224,6 @@ private:
 
   edm::EDGetTokenT<FEDRawDataCollection> productToken_;
 
-  SiStripDetCabling const* cabling_;
-
   std::unique_ptr<StripClusterizerAlgorithm> clusterizer_;
   std::unique_ptr<SiStripRawProcessingAlgorithms> rawAlgos_;
 
@@ -240,7 +239,6 @@ DEFINE_FWK_MODULE(SiStripClusterizerFromRaw);
 
 void SiStripClusterizerFromRaw::initialize(const edm::EventSetup& es) {
   (*clusterizer_).initialize(es);
-  cabling_ = (*clusterizer_).cabling();
   (*rawAlgos_).initialize(es);
 }
 
@@ -248,7 +246,7 @@ void SiStripClusterizerFromRaw::run(const FEDRawDataCollection& rawColl, edmNew:
   ClusterFiller filler(rawColl, *clusterizer_, *rawAlgos_, doAPVEmulatorCheck_, legacy_, hybridZeroSuppressed_);
 
   // loop over good det in cabling
-  for (auto idet : clusterizer_->allDetIds()) {
+  for (auto idet : clusterizer_->conditions().allDetIds()) {
     StripClusterizerAlgorithm::output_t::TSFastFiller record(output, idet);
 
     filler.fill(record);
@@ -322,7 +320,7 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::TSFastFiller& reco
     incSet();
     record.reserve(16);
     // Loop over apv-pairs of det
-    for (auto const conn : clusterizer.currentConnection(det)) {
+    for (auto const conn : conditions.currentConnection(det)) {
       if
         UNLIKELY(!conn) continue;
 
