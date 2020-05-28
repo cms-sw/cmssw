@@ -13,7 +13,7 @@
 #include "Geometry/RPCGeometryBuilder/src/RPCGeometryBuilderFromCondDB.h"
 
 #include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 
 #include <FWCore/Framework/interface/EventSetup.h>
