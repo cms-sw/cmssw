@@ -36,7 +36,8 @@ private:
   std::vector<TH2D*> hist_;
 };
 
-EcalPreshowerCellParameterDump::EcalPreshowerCellParameterDump(const edm::ParameterSet& ps) : debug_(ps.getUntrackedParameter<bool>("debug", false)) {
+EcalPreshowerCellParameterDump::EcalPreshowerCellParameterDump(const edm::ParameterSet& ps)
+    : debug_(ps.getUntrackedParameter<bool>("debug", false)) {
   usesResource(TFileService::kSharedResource);
 
   if (debug_) {
@@ -44,10 +45,10 @@ EcalPreshowerCellParameterDump::EcalPreshowerCellParameterDump(const edm::Parame
     for (int iz = 0; iz < 2; ++iz) {
       int zside = 2 * iz - 1;
       for (int lay = 1; lay <= 2; ++lay) {
-	char name[20], title[40];
-	sprintf (name, "hist%d%d", iz, lay);
-	sprintf (title, "y vs. x (zside = %d,layer = %d)", zside, lay);
-	hist_.emplace_back(fs->make<TH2D>(name, title, 5000, -125.0, 125.0, 5000, -125.0, 125.0));
+        char name[20], title[40];
+        sprintf(name, "hist%d%d", iz, lay);
+        sprintf(title, "y vs. x (zside = %d,layer = %d)", zside, lay);
+        hist_.emplace_back(fs->make<TH2D>(name, title, 5000, -125.0, 125.0, 5000, -125.0, 125.0));
       }
     }
   }
@@ -78,17 +79,18 @@ void EcalPreshowerCellParameterDump::analyze(const edm::Event& /*iEvent*/, const
     if (debug_) {
       std::cout << nall << " " << esid.rawId() << " " << std::setprecision(6) << geom->getPosition() << std::endl;
       unsigned int hid = ((esid.zside() + 1) + esid.plane() - 1);
-      if (hid < hist_.size()) 
-	hist_[hid]->Fill(geom->getPosition().x(), geom->getPosition().y());
+      if (hid < hist_.size())
+        hist_[hid]->Fill(geom->getPosition().x(), geom->getPosition().y());
     } else {
-      std::cout << "Cell[" << nall << "] " << esid << " geom->getPosition " << std::setprecision(4) << geom->getPosition()
-		<< " BackPoint " << geom->getBackPoint() << " [rho,eta:etaSpan,phi:phiSpan] (" << geom->rhoPos() << ", "
-		<< geom->etaPos() << ":" << geom->etaSpan() << ", " << geom->phiPos() << ":" << geom->phiSpan() << ")";
+      std::cout << "Cell[" << nall << "] " << esid << " geom->getPosition " << std::setprecision(4)
+                << geom->getPosition() << " BackPoint " << geom->getBackPoint() << " [rho,eta:etaSpan,phi:phiSpan] ("
+                << geom->rhoPos() << ", " << geom->etaPos() << ":" << geom->etaSpan() << ", " << geom->phiPos() << ":"
+                << geom->phiSpan() << ")";
 
       const CaloCellGeometry::CornersVec& corners(geom->getCorners());
 
       for (unsigned int ci(0); ci != corners.size(); ci++) {
-	std::cout << " Corner: " << ci << "  Location" << corners[ci] << " ; ";
+        std::cout << " Corner: " << ci << "  Location" << corners[ci] << " ; ";
       }
 
       std::cout << std::endl;
