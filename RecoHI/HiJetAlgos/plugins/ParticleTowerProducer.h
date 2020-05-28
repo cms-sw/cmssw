@@ -39,7 +39,6 @@ private:
   typedef std::map<EtaPhi, double> EtaPhiMap;
   EtaPhiMap towers_;
 
-  double PI;
 
   CaloGeometry const* geo_;  // geometry
 

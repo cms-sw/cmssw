@@ -14,7 +14,7 @@
 //
 //
 
-#include "RecoHI/HiJetAlgos/plugins/ParticleTowerProducer.h"
+#include "ParticleTowerProducer.h"
 
 #include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
@@ -90,7 +90,7 @@ void ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   }
 
   auto prod = std::make_unique<CaloTowerCollection>();
-
+  prod->reserve(towers_.size());
   for (auto const& tower : towers_) {
     EtaPhi ep = tower.first;
     double et = tower.second;
@@ -100,9 +100,6 @@ void ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
     CaloTowerDetId newTowerId(ieta, iphi);  // totally dummy id
 
-    if (et > 0) {
-      if (!useHF_ && abs(ieta) > 29)
-        continue;
 
       // currently sets et = pt, mass to zero
       // pt, eta, phi, mass
@@ -125,12 +122,6 @@ void ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   iEvent.put(std::move(prod));
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void ParticleTowerProducer::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void ParticleTowerProducer::endJob() {}
 
 void ParticleTowerProducer::resetTowers(edm::Event& iEvent, const edm::EventSetup& iSetup) { towers_.clear(); }
 
@@ -156,14 +147,14 @@ int ParticleTowerProducer::phi2iphi(double phi, int ieta) const {
   else if (phi > 2. * TMath::Pi())
     phi -= 2. * TMath::Pi();
 
-  int Nphi = 72;
+  int nphi = 72;
   int n = 1;
   if (abs(ieta) > 20)
     n = 2;
   if (abs(ieta) >= 40)
     n = 4;
 
-  int iphi = (int)TMath::Ceil(phi / 2.0 / TMath::Pi() * Nphi / n);
+  int iphi = (int)std::ceil(phi / 2.0 / M_PI * nphi / n);
 
   iphi = n * (iphi - 1) + 1;
 
@@ -182,9 +173,9 @@ double ParticleTowerProducer::iphi2phi(int iphi, int ieta) const {
 
   int myphi = (iphi - 1) / n + 1;
 
-  phi = 2. * TMath::Pi() * (myphi - 0.5) / Nphi * n;
-  while (phi > TMath::Pi())
-    phi -= 2. * TMath::Pi();
+  phi = 2. * M_PI * (myphi - 0.5) / nphi * n;
+  while (phi > M_PI)
+    phi -= 2. * M_PI;
 
   return phi;
 }
