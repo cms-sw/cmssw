@@ -4,6 +4,7 @@
 <use name="Geometry/CommonDetUnit"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
+<use name="DataFormats/TrackReco"/>
 <library file="*.cc" name="RecoHIHiTrackingTest">
   <flags EDM_PLUGIN="1"/>
 </library>
