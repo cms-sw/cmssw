@@ -14,6 +14,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "RecoEgamma/EgammaTools/interface/validateEgammaCandidate.h"
 
 #include <cmath>
 #include <memory>
@@ -121,6 +122,7 @@ void MVAValueMapProducer<ParticleType>::produce(edm::StreamID,
 
     // Loop over particles
     for (auto const& cand : src->ptrs()) {
+      egammaTools::validateEgammaCandidate(*cand);
       int cat = -1;  // Passed by reference to the mvaValue function to store the category
       const float response = mvaEstimators_[iEstimator]->mvaValue(cand.get(), auxVariables, cat);
       mvaRawValues.push_back(response);                             // The MVA score
