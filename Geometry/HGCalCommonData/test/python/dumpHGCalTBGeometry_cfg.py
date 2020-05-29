@@ -16,8 +16,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.add_(cms.ESProducer("TGeoMgrFromDdd",
-        verbose = cms.untracked.bool(False),
-        level   = cms.untracked.int32(14)
+    verbose = cms.untracked.bool(False),
+    level   = cms.untracked.int32(14)
 ))
 
 process.dump = cms.EDAnalyzer("DumpSimGeometry",
