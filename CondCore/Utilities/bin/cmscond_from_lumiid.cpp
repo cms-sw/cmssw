@@ -14,7 +14,7 @@ namespace cond {
 }  // namespace cond
 
 cond::FromLumiIdUtilities::FromLumiIdUtilities() : Utilities("cmscond_from_lumiid") {
-  addOption<boost::uint64_t>("lumiid", "i", "luminosity block id of unsigned 64bit int(required)");
+  addOption<uint64_t>("lumiid", "i", "luminosity block id of unsigned 64bit int(required)");
 }
 
 cond::FromLumiIdUtilities::~FromLumiIdUtilities() {}
@@ -24,7 +24,7 @@ int cond::FromLumiIdUtilities::execute() {
     std::cout << "ERROR: Missing mandatory option \"lumiid\"." << std::endl;
     return 1;
   }
-  boost::uint64_t lumiid = getOptionValue<boost::uint64_t>("lumiid");
+  uint64_t lumiid = getOptionValue<uint64_t>("lumiid");
   bool debug = hasDebug();
   std::cout << edm::LuminosityBlockID(lumiid) << std::endl;
   if (debug) {
