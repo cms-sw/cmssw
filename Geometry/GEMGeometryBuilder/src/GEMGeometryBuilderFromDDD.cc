@@ -57,7 +57,7 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("Geometry") << "Building the geometry service";
   edm::LogVerbatim("Geometry") << "About to run through the GEM structure\n"
-                                        << " First logical part " << fv.logicalPart().name().name();
+                               << " First logical part " << fv.logicalPart().name().name();
 #endif
 
   bool doSuper = fv.firstChild();
@@ -170,12 +170,12 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
           theGeometry.add(superChamber);
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("Geometry") << "Adding super chamber " << detId << " to ring: "
-                                                << "re " << re << " st " << st << " ri " << ri;
+                                       << "re " << re << " st " << st << " ri " << ri;
 #endif
         }
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("Geometry") << "Adding ring " << ri << " to station "
-                                              << "re " << re << " st " << st;
+                                     << "re " << re << " st " << st;
 #endif
         if (!foundSuperChamber) {
           delete ring;
@@ -285,9 +285,8 @@ GEMEtaPartition* GEMGeometryBuilderFromDDD::buildEtaPartition(DDFilteredView& fv
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("Geometry") << ((nStrips == 0.) ? ("No nStrips found!!")
-				   : ("Number of strips: " + std::to_string(nStrips)));
-  edm::LogVerbatim("Geometry") << ((nPads == 0.) ? ("No nPads found!!")
-				   : ("Number of pads: " + std::to_string(nPads)));
+                                                   : ("Number of strips: " + std::to_string(nStrips)));
+  edm::LogVerbatim("Geometry") << ((nPads == 0.) ? ("No nPads found!!") : ("Number of pads: " + std::to_string(nPads)));
 #endif
   // EtaPartition specific parameter (size)
   std::vector<double> dpar = fv.logicalPart().solid().parameters();
@@ -427,12 +426,12 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
 
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("Geometry") << "Adding super chamber " << detId << " to ring: "
-				       << "re " << re << " st " << st << " ri " << ri;
+                                       << "re " << re << " st " << st << " ri " << ri;
 #endif
         }
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("Geometry") << "Adding ring " << ri << " to station "
-				     << "re " << re << " st " << st;
+                                     << "re " << re << " st " << st;
 #endif
         station->add(ring);
         theGeometry.add(ring);
