@@ -7,7 +7,7 @@
 // Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
 //          Created:  27 Jan 2020 
 */
-#include "Geometry/GEMGeometryBuilder/src/GEMGeometryBuilderFromDDD.h"
+#include "Geometry/GEMGeometryBuilder/src/GEMGeometryBuilder.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
 
@@ -39,14 +39,14 @@ using namespace cms_units::operators;
 
 //#define EDM_ML_DEBUG
 
-GEMGeometryBuilderFromDDD::GEMGeometryBuilderFromDDD() {}
+GEMGeometryBuilder::GEMGeometryBuilder() {}
 
-GEMGeometryBuilderFromDDD::~GEMGeometryBuilderFromDDD() {}
+GEMGeometryBuilder::~GEMGeometryBuilder() {}
 
 // DDD
-void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
-                                      const DDCompactView* cview,
-                                      const MuonGeometryConstants& muonConstants) {
+void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
+			       const DDCompactView* cview,
+			       const MuonGeometryConstants& muonConstants) {
   std::string attribute = "MuStructure";
   std::string value = "MuonEndCapGEM";
 
@@ -162,7 +162,7 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
             GEMDetId chId(detId.region(), detId.ring(), detId.station(), la, detId.chamber(), 0);
             auto chamber = theGeometry.chamber(chId);
             if (!chamber) {
-              edm::LogWarning("GEMGeometryBuilderFromDDD") << "Missing chamber " << chId << std::endl;
+              edm::LogWarning("GEMGeometryBuilder") << "Missing chamber " << chId;
             }
             superChamber->add(chamber);
           }
@@ -204,7 +204,7 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
   }
 }
 
-GEMSuperChamber* GEMGeometryBuilderFromDDD::buildSuperChamber(DDFilteredView& fv, GEMDetId detId) const {
+GEMSuperChamber* GEMGeometryBuilder::buildSuperChamber(DDFilteredView& fv, GEMDetId detId) const {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("Geometry") << "buildSuperChamber " << fv.logicalPart().name().name() << " " << detId;
 #endif
@@ -238,7 +238,7 @@ GEMSuperChamber* GEMGeometryBuilderFromDDD::buildSuperChamber(DDFilteredView& fv
   return superChamber;
 }
 
-GEMChamber* GEMGeometryBuilderFromDDD::buildChamber(DDFilteredView& fv, GEMDetId detId) const {
+GEMChamber* GEMGeometryBuilder::buildChamber(DDFilteredView& fv, GEMDetId detId) const {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("Geometry") << "buildChamber " << fv.logicalPart().name().name() << " " << detId;
 #endif
@@ -267,7 +267,7 @@ GEMChamber* GEMGeometryBuilderFromDDD::buildChamber(DDFilteredView& fv, GEMDetId
   return chamber;
 }
 
-GEMEtaPartition* GEMGeometryBuilderFromDDD::buildEtaPartition(DDFilteredView& fv, GEMDetId detId) const {
+GEMEtaPartition* GEMGeometryBuilder::buildEtaPartition(DDFilteredView& fv, GEMDetId detId) const {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("Geometry") << "buildEtaPartition " << fv.logicalPart().name().name() << " " << detId;
 #endif
@@ -315,9 +315,9 @@ GEMEtaPartition* GEMGeometryBuilderFromDDD::buildEtaPartition(DDFilteredView& fv
   return etaPartition;
 }
 
-GEMGeometryBuilderFromDDD::RCPBoundPlane GEMGeometryBuilderFromDDD::boundPlane(const DDFilteredView& fv,
-                                                                               Bounds* bounds,
-                                                                               bool isOddChamber) const {
+GEMGeometryBuilder::RCPBoundPlane GEMGeometryBuilder::boundPlane(const DDFilteredView& fv,
+								 Bounds* bounds,
+								 bool isOddChamber) const {
   // extract the position
   const DDTranslation& trans(fv.translation());
   const Surface::PositionType posResult(float(trans.x() / cm), float(trans.y() / cm), float(trans.z() / cm));
@@ -349,9 +349,9 @@ GEMGeometryBuilderFromDDD::RCPBoundPlane GEMGeometryBuilderFromDDD::boundPlane(c
 
 // DD4HEP
 
-void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
-                                      const cms::DDCompactView* cview,
-                                      const MuonGeometryConstants& muonConstants) {
+void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
+			       const cms::DDCompactView* cview,
+			       const MuonGeometryConstants& muonConstants) {
   std::string attribute = "MuStructure";
   std::string value = "MuonEndCapGEM";
   cms::DDFilteredView fv(cview->detector(), cview->detector()->worldVolume());
@@ -449,7 +449,7 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
   }
 }
 
-GEMSuperChamber* GEMGeometryBuilderFromDDD::buildSuperChamber(cms::DDFilteredView& fv, GEMDetId detId) const {
+GEMSuperChamber* GEMGeometryBuilder::buildSuperChamber(cms::DDFilteredView& fv, GEMDetId detId) const {
   cms::DDSolid solid(fv.solid());
   auto solidA = solid.solidA();
   std::vector<double> dpar = solidA.dimensions();
@@ -475,7 +475,7 @@ GEMSuperChamber* GEMGeometryBuilderFromDDD::buildSuperChamber(cms::DDFilteredVie
   return superChamber;
 }
 
-GEMChamber* GEMGeometryBuilderFromDDD::buildChamber(cms::DDFilteredView& fv, GEMDetId detId) const {
+GEMChamber* GEMGeometryBuilder::buildChamber(cms::DDFilteredView& fv, GEMDetId detId) const {
   cms::DDSolid solid(fv.solid());
   auto solidA = solid.solidA();
   std::vector<double> dpar = solidA.dimensions();
@@ -497,7 +497,7 @@ GEMChamber* GEMGeometryBuilderFromDDD::buildChamber(cms::DDFilteredView& fv, GEM
   return chamber;
 }
 
-GEMEtaPartition* GEMGeometryBuilderFromDDD::buildEtaPartition(cms::DDFilteredView& fv, GEMDetId detId) const {
+GEMEtaPartition* GEMGeometryBuilder::buildEtaPartition(cms::DDFilteredView& fv, GEMDetId detId) const {
   // EtaPartition specific parameter (nstrips and npads)
 
   auto nStrips = fv.get<double>("nStrips");
@@ -522,9 +522,9 @@ GEMEtaPartition* GEMGeometryBuilderFromDDD::buildEtaPartition(cms::DDFilteredVie
   return etaPartition;
 }
 
-GEMGeometryBuilderFromDDD::RCPBoundPlane GEMGeometryBuilderFromDDD::boundPlane(const cms::DDFilteredView& fv,
-                                                                               Bounds* bounds,
-                                                                               bool isOddChamber) const {
+GEMGeometryBuilder::RCPBoundPlane GEMGeometryBuilder::boundPlane(const cms::DDFilteredView& fv,
+								 Bounds* bounds,
+								 bool isOddChamber) const {
   // extract the position
   const Double_t* tran = fv.trans();
   Surface::PositionType posResult(tran[0], tran[1], tran[2]);
