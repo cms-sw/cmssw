@@ -69,7 +69,6 @@ void ME0GeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descr
   descriptions.add("me0Geometry", desc);
 }
 
-
 std::unique_ptr<ME0Geometry> ME0GeometryESModule::produce(const MuonGeometryRecord& record) {
   edm::LogVerbatim("ME0GeometryESModule") << "ME0GeometryESModule::produce with useDDD = " << useDDD_;
   if (useDDD_) {
