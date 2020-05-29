@@ -12,7 +12,8 @@ class TauIDEmbedder(object):
         "2017v1", "2017v2", "newDM2017v2", "dR0p32017v2", "2016v1", "newDM2016v1",
         "deepTau2017v1", "deepTau2017v2", "deepTau2017v2p1",
         "DPFTau_2016_v0", "DPFTau_2016_v1",
-        "againstEle2018", "newDMwLTwGJPhase2"
+        "againstEle2018",
+        "newDMwLTwGJPhase2"
     ]
 
     def __init__(self, process, debug = False,
@@ -900,7 +901,7 @@ class TauIDEmbedder(object):
                     "_WPEff40"
                 )
             )
-            self.rerunIsolationMVADBnewDMwLTPhase2Task = self.cms.Task(
+            self.process.rerunIsolationMVADBnewDMwLTPhase2Task = self.cms.Task(
                 self.process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw,
                 self.process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2
             )

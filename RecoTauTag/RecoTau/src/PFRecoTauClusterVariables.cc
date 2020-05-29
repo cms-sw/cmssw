@@ -238,7 +238,7 @@ namespace reco {
 
       if (mvaOpt == kDBnewDMwLTwGJPhase2) {
          mvaInput[0] = tau.pt();
-         mvaInput[1] = abs(tau.eta());
+         mvaInput[1] = std::abs(tau.eta());
          mvaInput[2] = chargedIsoPtSum; //tauID("chargedIsoPtSum");
          mvaInput[3] = neutralIsoPtSum; //tauID("neutralIsoPtSum");
          mvaInput[4] = puCorrPtSum; //tauID("puCorrPtSum");
@@ -298,11 +298,11 @@ namespace reco {
          e>0. ? e=tau.ecalEnergy()/e : e=-1.;
          mvaInput[15] = e;
          mvaInput[16] = tau.dxy()>=0.?+1:-1;
-         mvaInput[17] = sqrt(abs(tau.dxy()));
-         mvaInput[18] = abs(tau.dxy_Sig());
+         mvaInput[17] = sqrt(std::abs(tau.dxy()));
+         mvaInput[18] = std::abs(tau.dxy_Sig());
          mvaInput[19] = tau.ip3d()>=0.?+1:-1;
-         mvaInput[20] = sqrt(abs(tau.ip3d()));
-         mvaInput[21] = abs(tau.ip3d_Sig());
+         mvaInput[20] = sqrt(std::abs(tau.ip3d()));
+         mvaInput[21] = std::abs(tau.ip3d_Sig());
          mvaInput[22] = tau.hasSecondaryVertex();
          mvaInput[23] = decayDistMag; //sqrt(tau.flightLength().Mag2());
          mvaInput[24] = tau.flightLengthSig();
@@ -333,10 +333,10 @@ namespace reco {
             if (tau.leadChargedHadrCand()->bestTrack()) {
                const float trackdxy = tau.leadChargedHadrCand()->bestTrack()->dxy();
                mvaInput[27] = trackdxy>=0.?+1:-1;
-               mvaInput[28] = sqrt(abs(trackdxy));
-               mvaInput[29] = abs(trackdxy/tau.leadChargedHadrCand()->bestTrack()->dxyError());
+               mvaInput[28] = sqrt(std::abs(trackdxy));
+               mvaInput[29] = std::abs(trackdxy/tau.leadChargedHadrCand()->bestTrack()->dxyError());
             }
-        }
+         }
       }
 
         if (mvaOpt == kOldDMwoLT || mvaOpt == kNewDMwoLT) {

@@ -316,11 +316,6 @@ for ver2017 in tauIdDiscrMVA_2017_version:
         )
 
 # MVAIso Phase2
-import os
-#loadRecoTauTagMVAsFromSQLiteDB_phase2 = loadRecoTauTagMVAsFromPrepDB.clone(
-#    connect = 'sqlite_file:'+os.getenv('CMSSW_BASE')+'/src/RecoTauTag/RecoTau/data/RecoTauTag_MVAs_2020Mar25.db',
-#    toGet   = cms.VPSet()
-#)
 for training, gbrForestName in tauIdDiscrMVA_trainings_phase2.items():
     loadRecoTauTagMVAsFromPrepDB.toGet.append(
         cms.PSet(
