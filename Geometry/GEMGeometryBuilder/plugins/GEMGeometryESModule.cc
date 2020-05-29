@@ -9,13 +9,15 @@
 */
 #include "Geometry/GEMGeometryBuilder/src/GEMGeometryBuilderFromDDD.h"
 #include "Geometry/GEMGeometryBuilder/src/GEMGeometryBuilderFromCondDB.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/Records/interface/GEMRecoGeometryRcd.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 
-#include "Geometry/Records/interface/GEMRecoGeometryRcd.h"
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -24,9 +26,7 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 // Alignments
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
@@ -38,15 +38,13 @@
 
 #include <memory>
 
-using namespace edm;
-
 class GEMGeometryESModule : public edm::ESProducer {
 public:
   /// Constructor
   GEMGeometryESModule(const edm::ParameterSet& p);
 
-  /// Destructor
-  ~GEMGeometryESModule() override;
+  /// Define the cfi file
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   /// Produce GEMGeometry.
   std::unique_ptr<GEMGeometry> produce(const MuonGeometryRecord& record);
@@ -68,7 +66,7 @@ private:
 
 GEMGeometryESModule::GEMGeometryESModule(const edm::ParameterSet& p)
     : useDDD_{p.getParameter<bool>("useDDD")},
-      useDD4hep_{p.getUntrackedParameter<bool>("useDD4hep", false)},
+      useDD4hep_{p.getParameter<bool>("useDD4Hep")},
       applyAlignment_(p.getParameter<bool>("applyAlignment")),
       alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")) {
   auto cc = setWhatProduced(this);
@@ -86,7 +84,14 @@ GEMGeometryESModule::GEMGeometryESModule(const edm::ParameterSet& p)
   }
 }
 
-GEMGeometryESModule::~GEMGeometryESModule() {}
+void GEMGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("useDDD", true);
+  desc.add<bool>("useDD4Hep", false);
+  desc.add<bool>("applyAlignment", false);
+  desc.add<std::string>("alignmentsLabel", "");
+  descriptions.add("gemGeometry", desc);
+}
 
 std::unique_ptr<GEMGeometry> GEMGeometryESModule::produce(const MuonGeometryRecord& record) {
   auto gemGeometry = std::make_unique<GEMGeometry>();

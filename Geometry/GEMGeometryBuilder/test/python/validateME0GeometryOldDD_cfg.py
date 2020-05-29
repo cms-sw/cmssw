@@ -8,30 +8,10 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
-
 process.load('Configuration.Geometry.GeometryExtended2026D41_cff')
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
-
-
-
-process.ME0GeometryESProducer = cms.ESProducer("ME0GeometryESModule",
-                                               DDDetector = cms.ESInputTag('',''),
-                                               attribute = cms.string('MuStructure'),
-                                               value = cms.string('MuonEndCapME0'),
-                                               useDDD = cms.bool(True),
-                                               useDD4hep = cms.untracked.bool(False),
-                                               use10EtaPart = cms.bool(True)
-                                              )
-
-process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProducer",
-                                                     appendToDataLabel = cms.string('MUON')
-                                                     )
-
-process.MuonNumberingESProducer = cms.ESProducer("MuonNumberingESProducer",
-                                                 label = cms.string('MUON'),
-                                                 key = cms.string('MuonCommonNumbering')
-                                                 )
+process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
+process.load("Geometry.GEMGeometryBuilder.me0Geometry_cff")
 
 #
 # Note: Please, download the geometry file from a location
