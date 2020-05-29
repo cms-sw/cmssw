@@ -673,24 +673,6 @@ ALCARECOStreamRpcCalHLT = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOStreamDtCalib = cms.FilteredStream(
-	responsible = 'Mario Pelliccioni',
-	name = 'DtCalib',
-	paths  = (pathALCARECODtCalib),
-	content = OutALCARECODtCalib.outputCommands,
-	selectEvents = OutALCARECODtCalib.SelectEvents,
-	dataTier = cms.untracked.string('ALCARECO')
-	)
-
-ALCARECOStreamDtCalibCosmics = cms.FilteredStream(
-	responsible = 'Antonio Vilela Pereira',
-	name = 'DtCalibCosmics',
-	paths  = (pathALCARECODtCalibCosmics),
-	content = OutALCARECODtCalibCosmics.outputCommands,
-	selectEvents = OutALCARECODtCalibCosmics.SelectEvents,
-	dataTier = cms.untracked.string('ALCARECO')
-	)
-
 ALCARECOStreamTkAlCosmicsInCollisions = cms.FilteredStream(
 	responsible = 'Andreas Mussgiller',
 	name = 'TkAlCosmicsInCollisions',
