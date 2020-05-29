@@ -21,16 +21,6 @@ class HeterogeneousHGCSiliconDetId {
     int N = (type() == HGCalFine) ? HGCalFineN : HGCalCoarseN;
     return (2 * cellU() - (N + cellV()));
   }
-
-  /* old HeterogeneousHGCalDetId
-  constexpr uint32_t cell()      { return id_ & kHGCalCellMask; }
-  constexpr uint32_t wafer()     { return (id_ >> kHGCalWaferOffset) & kHGCalWaferMask; }
-  constexpr uint32_t layer()     { return (id_ >> kHGCalLayerOffset) & kHGCalLayerMask; }
-  constexpr float    x()         { return 0.; }
-  constexpr float    y()         { return 0.; }
-  //CAREFUL: is this wafertype the right one? In the code waferTypeL_ from HGCalParameters is used
-  constexpr uint32_t waferType() { return ((id_ >> kHGCalWaferTypeOffset) & kHGCalWaferTypeMask ? 1 : -1); }
-  */
   
  private:
   uint32_t id_;
@@ -82,13 +72,26 @@ class HeterogeneousHGCScintillatorDetId {
 
 namespace hgcal_conditions {
   namespace parameters {
-    enum class HeterogeneousHGCalParametersType {Double, Int32_t};
-    const std::vector<HeterogeneousHGCalParametersType> types = { HeterogeneousHGCalParametersType::Double,
-								  HeterogeneousHGCalParametersType::Double,
-								  HeterogeneousHGCalParametersType::Double,
-								  HeterogeneousHGCalParametersType::Double,
-								  HeterogeneousHGCalParametersType::Int32_t };
-    class HeterogeneousHGCalParameters {
+    enum class HeterogeneousHGCalEEParametersType {Double, Int32_t};
+    enum class HeterogeneousHGCalHEFParametersType {Double, Int32_t};
+    enum class HeterogeneousHGCalHEBParametersType {Double, Int32_t};
+
+    const std::vector<HeterogeneousHGCalEEParametersType> typesEE = { HeterogeneousHGCalEEParametersType::Double,
+								      HeterogeneousHGCalEEParametersType::Double,
+								      HeterogeneousHGCalEEParametersType::Double,
+								      HeterogeneousHGCalEEParametersType::Double,
+								      HeterogeneousHGCalEEParametersType::Int32_t };
+
+    const std::vector<HeterogeneousHGCalHEFParametersType> typesHEF = { HeterogeneousHGCalHEFParametersType::Double,
+									HeterogeneousHGCalHEFParametersType::Double,
+									HeterogeneousHGCalHEFParametersType::Double,
+									HeterogeneousHGCalHEFParametersType::Double,
+									HeterogeneousHGCalHEFParametersType::Int32_t };
+
+    const std::vector<HeterogeneousHGCalHEBParametersType> typesHEB = { HeterogeneousHGCalHEBParametersType::Double,
+									HeterogeneousHGCalHEBParametersType::Int32_t };
+
+    class HeterogeneousHGCalEEParameters {
     public:
       //indexed by cell number
       double *cellFineX_;
@@ -98,11 +101,32 @@ namespace hgcal_conditions {
       //index by wafer number
       int32_t *waferTypeL_;
     };
+    class HeterogeneousHGCalHEFParameters {
+    public:
+      //indexed by cell number
+      double *cellFineX_;
+      double *cellFineY_;
+      double *cellCoarseX_;
+      double *cellCoarseY_;
+      //index by wafer number
+      int32_t *waferTypeL_;
+    };
+    class HeterogeneousHGCalHEBParameters {
+    public:
+      double *testD_;
+      int32_t *testI_;
+    };
+
   } //namespace parameters
 
+  struct HeterogeneousEEConditionsESProduct {
+    parameters::HeterogeneousHGCalEEParameters params;
+  };
   struct HeterogeneousHEFConditionsESProduct {
-    //memory block #1
-    parameters::HeterogeneousHGCalParameters params;
+    parameters::HeterogeneousHGCalHEFParameters params;
+  };
+  struct HeterogeneousHEBConditionsESProduct {
+    parameters::HeterogeneousHGCalHEBParameters params;
   };
 
 } //namespace conditions
