@@ -55,9 +55,12 @@ void MTDDigiGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   //
   edm::ESHandle<MTDGeometry> pDD;
   iSetup.get<MTDDigiGeometryRecord>().get(pDD);
+<<<<<<< HEAD
   edm::LogInfo("MTDDigiGeometryAnalyzer") << "Geometry node for MTDGeom is  " << &(*pDD) << "\n"
                                           << " # detectors = " << pDD->detUnits().size() << "\n"
-                                          << " # types     = " << pDD->detTypes().size() << "\n";
+                                          << " # types     = " << pDD->detTypes().size() << "\n"
+      << " # layers " << pDD->geomDetSubDetector(1) << "  = " << pDD->numberOfLayers(1) << "\n"
+      << " # layers " << pDD->geomDetSubDetector(2) << "  = " << pDD->numberOfLayers(2) << "\n";
   sunitt << std::fixed << std::setw(7) << pDD->detUnits().size() << std::setw(7) << pDD->detTypes().size() << "\n";
   for (auto const& it : pDD->detUnits()) {
     if (dynamic_cast<const MTDGeomDetUnit*>((it)) != nullptr) {
