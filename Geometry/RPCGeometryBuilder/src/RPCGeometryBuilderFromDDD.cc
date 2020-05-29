@@ -4,8 +4,9 @@
  Description: RPC Geometry builder from DD & DD4hep
               DD4hep part added to the original old file (DD version) made by M. Maggi (INFN Bari)
 //
-// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
+// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osborne made for DTs (DD4HEP migration)
 //          Created:  Fri, 20 Sep 2019 
+//          Modified: Fri, 29 May 2020, following what Sunanda Banerjee made in PR #29842 PR #29943 and Ianna Osborne in PR #29954    
 */
 #include "Geometry/RPCGeometryBuilder/src/RPCGeometryBuilderFromDDD.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
@@ -276,7 +277,23 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(cms::DDFilteredView& fview
     DDRotationMatrix rota;
     fview.rot(rota);
 
-    Surface::PositionType pos(tran[0], tran[1], tran[2]);
+    double pos_x = tran[0];
+    double pos_y = tran[1];
+    double pos_z = tran[2];
+
+    //-------TO BE FIXED--------
+    const double Reco_posZ_chamber_1 = 1061.755;
+    const double Reco_posZ_chamber_2 = 1066.155;
+    const double wrong_posZ_chamber_1 = 1061.29;
+    const double wrong_posZ_chamber_2 = 1065.69;
+    const double wrong_tollerance_posZ = 0.01;
+    if((pos_z >= -(wrong_posZ_chamber_1 + wrong_tollerance_posZ)) && (pos_z <= -wrong_posZ_chamber_1)) pos_z = -Reco_posZ_chamber_1; 
+    if((pos_z >= wrong_posZ_chamber_1) && (pos_z <= wrong_posZ_chamber_1 + wrong_tollerance_posZ)) pos_z = Reco_posZ_chamber_1; 
+    if((pos_z >= -(wrong_posZ_chamber_2 + wrong_tollerance_posZ)) && (pos_z <= -wrong_posZ_chamber_2)) pos_z = -Reco_posZ_chamber_2; 
+    if((pos_z >= wrong_posZ_chamber_2) && (pos_z <= wrong_posZ_chamber_2 + wrong_tollerance_posZ)) pos_z = Reco_posZ_chamber_2; 
+    //---------------------------
+
+    Surface::PositionType pos(pos_x, pos_y, pos_z);
 
     DD3Vector x, y, z;
     rota.GetComponents(x, y, z);
