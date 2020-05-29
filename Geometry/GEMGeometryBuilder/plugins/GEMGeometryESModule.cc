@@ -7,7 +7,7 @@
 // Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
 //          Created:  27 Jan 2020 
 */
-#include "Geometry/GEMGeometryBuilder/src/GEMGeometryBuilderFromDDD.h"
+#include "Geometry/GEMGeometryBuilder/src/GEMGeometryBuilder.h"
 #include "Geometry/GEMGeometryBuilder/src/GEMGeometryBuilderFromCondDB.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
@@ -99,12 +99,12 @@ std::unique_ptr<GEMGeometry> GEMGeometryESModule::produce(const MuonGeometryReco
   if (useDDD_) {
     auto cpv = record.getTransientHandle(cpvToken_);
     const auto& mdc = record.get(mdcToken_);
-    GEMGeometryBuilderFromDDD builder;
+    GEMGeometryBuilder builder;
     builder.build(*gemGeometry, cpv.product(), mdc);
   } else if (useDD4hep_) {
     edm::ESTransientHandle<cms::DDCompactView> cpv = record.getTransientHandle(dd4hepcpvToken_);
     const auto& mdc = record.get(mdcToken_);
-    GEMGeometryBuilderFromDDD builder;
+    GEMGeometryBuilder builder;
     builder.build(*gemGeometry, cpv.product(), mdc);
   } else {
     const auto& riggem = record.get(riggemToken_);
