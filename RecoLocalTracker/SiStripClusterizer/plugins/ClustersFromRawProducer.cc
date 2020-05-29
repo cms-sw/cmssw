@@ -46,34 +46,31 @@ namespace {
 
     // Check on FEDRawData pointer
     const auto st_buffer = sistrip::preconstructCheckFEDBuffer(rawData);
-    if
-      UNLIKELY(sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
-        if (edm::isDebugEnabled()) {
-          edm::LogWarning(sistrip::mlRawToCluster_)
-              << "[ClustersFromRawProducer::" << __func__ << "]" << st_buffer << " for FED ID " << fedId;
-        }
-        return buffer;
+    if UNLIKELY (sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
+      if (edm::isDebugEnabled()) {
+        edm::LogWarning(sistrip::mlRawToCluster_)
+            << "[ClustersFromRawProducer::" << __func__ << "]" << st_buffer << " for FED ID " << fedId;
       }
+      return buffer;
+    }
     buffer = std::make_unique<sistrip::FEDBuffer>(rawData);
     const auto st_chan = buffer->findChannels();
-    if
-      UNLIKELY(sistrip::FEDBufferStatusCode::SUCCESS != st_chan) {
-        if (edm::isDebugEnabled()) {
-          edm::LogWarning(sistrip::mlRawToCluster_)
-              << "Exception caught when creating FEDBuffer object for FED " << fedId << ": " << st_chan;
-        }
-        buffer.reset();
-        return buffer;
+    if UNLIKELY (sistrip::FEDBufferStatusCode::SUCCESS != st_chan) {
+      if (edm::isDebugEnabled()) {
+        edm::LogWarning(sistrip::mlRawToCluster_)
+            << "Exception caught when creating FEDBuffer object for FED " << fedId << ": " << st_chan;
       }
-    if
-      UNLIKELY(!buffer->doChecks(false)) {
-        if (edm::isDebugEnabled()) {
-          edm::LogWarning(sistrip::mlRawToCluster_)
-              << "Exception caught when creating FEDBuffer object for FED " << fedId << ": FED Buffer check fails";
-        }
-        buffer.reset();
-        return buffer;
+      buffer.reset();
+      return buffer;
+    }
+    if UNLIKELY (!buffer->doChecks(false)) {
+      if (edm::isDebugEnabled()) {
+        edm::LogWarning(sistrip::mlRawToCluster_)
+            << "Exception caught when creating FEDBuffer object for FED " << fedId << ": FED Buffer check fails";
       }
+      buffer.reset();
+      return buffer;
+    }
 
     /*
     // dump of FEDRawData to stdout
@@ -321,14 +318,15 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::TSFastFiller& reco
     record.reserve(16);
     // Loop over apv-pairs of det
     for (auto const conn : conditions.currentConnection(det)) {
-      if
-        UNLIKELY(!conn) continue;
+      if UNLIKELY (!conn)
+        continue;
 
       const uint16_t fedId = conn->fedId();
 
       // If fed id is null or connection is invalid continue
-      if
-        UNLIKELY(!fedId || !conn->isConnected()) { continue; }
+      if UNLIKELY (!fedId || !conn->isConnected()) {
+        continue;
+      }
 
       // If Fed hasnt already been initialised, extract data and initialise
       sistrip::FEDBuffer* buffer = done[fedId];
@@ -352,15 +350,14 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::TSFastFiller& reco
       // check channel
       const uint8_t fedCh = conn->fedCh();
 
-      if
-        UNLIKELY(!buffer->channelGood(fedCh, doAPVEmulatorCheck)) {
-          if (edm::isDebugEnabled()) {
-            std::ostringstream ss;
-            ss << "Problem unpacking channel " << fedCh << " on FED " << fedId;
-            edm::LogWarning(sistrip::mlRawToCluster_) << ss.str();
-          }
-          continue;
+      if UNLIKELY (!buffer->channelGood(fedCh, doAPVEmulatorCheck)) {
+        if (edm::isDebugEnabled()) {
+          std::ostringstream ss;
+          ss << "Problem unpacking channel " << fedCh << " on FED " << fedId;
+          edm::LogWarning(sistrip::mlRawToCluster_) << ss.str();
         }
+        continue;
+      }
 
       // Determine APV std::pair number
       uint16_t ipair = conn->apvPairNumber();
@@ -370,42 +367,32 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::TSFastFiller& reco
           legacy_ ? buffer->legacyReadoutMode() : sistrip::READOUT_MODE_LEGACY_INVALID;
 
       using namespace sistrip;
-      if
-        LIKELY(fedchannelunpacker::isZeroSuppressed(mode, legacy_, lmode)) {
-          auto perStripAdder = StripByStripAdder(clusterizer, state, record);
-          const auto isNonLite = fedchannelunpacker::isNonLiteZS(mode, legacy_, lmode);
-          const uint8_t pCode = (isNonLite ? buffer->packetCode(legacy_, fedCh) : 0);
-          auto st_ch = fedchannelunpacker::StatusCode::SUCCESS;
-          if
-            LIKELY(!hybridZeroSuppressed_) {
-              st_ch = fedchannelunpacker::unpackZeroSuppressed(
-                  buffer->channel(fedCh), perStripAdder, ipair * 256, isNonLite, mode, legacy_, lmode, pCode);
-            }
-          else {
-            const uint32_t id = conn->detId();
-            edm::DetSet<SiStripDigi> unpDigis{id};
-            unpDigis.reserve(256);
-            st_ch = fedchannelunpacker::unpackZeroSuppressed(buffer->channel(fedCh),
-                                                             std::back_inserter(unpDigis),
-                                                             ipair * 256,
-                                                             isNonLite,
-                                                             mode,
-                                                             legacy_,
-                                                             lmode,
-                                                             pCode);
-            if (fedchannelunpacker::StatusCode::SUCCESS == st_ch) {
-              edm::DetSet<SiStripDigi> suppDigis{id};
-              rawAlgos.suppressHybridData(unpDigis, suppDigis, ipair * 2);
-              std::copy(std::begin(suppDigis), std::end(suppDigis), perStripAdder);
-            }
-          }
-          if (fedchannelunpacker::StatusCode::SUCCESS != st_ch && edm::isDebugEnabled()) {
-            edm::LogWarning(sistrip::mlRawToCluster_)
-                << "Unordered clusters for channel " << fedCh << " on FED " << fedId << ": " << toString(st_ch);
-            continue;
+      if LIKELY (fedchannelunpacker::isZeroSuppressed(mode, legacy_, lmode)) {
+        auto perStripAdder = StripByStripAdder(clusterizer, state, record);
+        const auto isNonLite = fedchannelunpacker::isNonLiteZS(mode, legacy_, lmode);
+        const uint8_t pCode = (isNonLite ? buffer->packetCode(legacy_, fedCh) : 0);
+        auto st_ch = fedchannelunpacker::StatusCode::SUCCESS;
+        if LIKELY (!hybridZeroSuppressed_) {
+          st_ch = fedchannelunpacker::unpackZeroSuppressed(
+              buffer->channel(fedCh), perStripAdder, ipair * 256, isNonLite, mode, legacy_, lmode, pCode);
+        } else {
+          const uint32_t id = conn->detId();
+          edm::DetSet<SiStripDigi> unpDigis{id};
+          unpDigis.reserve(256);
+          st_ch = fedchannelunpacker::unpackZeroSuppressed(
+              buffer->channel(fedCh), std::back_inserter(unpDigis), ipair * 256, isNonLite, mode, legacy_, lmode, pCode);
+          if (fedchannelunpacker::StatusCode::SUCCESS == st_ch) {
+            edm::DetSet<SiStripDigi> suppDigis{id};
+            rawAlgos.suppressHybridData(unpDigis, suppDigis, ipair * 2);
+            std::copy(std::begin(suppDigis), std::end(suppDigis), perStripAdder);
           }
         }
-      else {
+        if (fedchannelunpacker::StatusCode::SUCCESS != st_ch && edm::isDebugEnabled()) {
+          edm::LogWarning(sistrip::mlRawToCluster_)
+              << "Unordered clusters for channel " << fedCh << " on FED " << fedId << ": " << toString(st_ch);
+          continue;
+        }
+      } else {
         auto st_ch = fedchannelunpacker::StatusCode::SUCCESS;
         if (fedchannelunpacker::isVirginRaw(mode, legacy_, lmode)) {
           std::vector<int16_t> digis;
