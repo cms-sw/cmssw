@@ -52,8 +52,7 @@ RPCGeometry* RPCGeometryBuilder::build(const DDCompactView* cview, const MuonGeo
   return this->buildGeometry(fview, muonConstants);
 }
 // for DD4hep
-RPCGeometry* RPCGeometryBuilder::build(const cms::DDCompactView* cview,
-                                              const cms::MuonNumbering& muonConstants) {
+RPCGeometry* RPCGeometryBuilder::build(const cms::DDCompactView* cview, const cms::MuonNumbering& muonConstants) {
   const std::string attribute = "ReadOutName";
   const std::string value = "MuonRPCHits";
   cms::DDFilteredView fview(cview->detector(), cview->detector()->worldVolume());
@@ -64,12 +63,11 @@ RPCGeometry* RPCGeometryBuilder::build(const cms::DDCompactView* cview,
   return this->buildGeometry(fview, muonConstants);
 }
 // for DDD
-RPCGeometry* RPCGeometryBuilder::buildGeometry(DDFilteredView& fview,
-                                                      const MuonGeometryConstants& muonConstants) {
+RPCGeometry* RPCGeometryBuilder::buildGeometry(DDFilteredView& fview, const MuonGeometryConstants& muonConstants) {
   LogDebug("RPCGeometryBuilder") << "Building the geometry service";
   RPCGeometry* geometry = new RPCGeometry();
   LogDebug("RPCGeometryBuilder") << "About to run through the RPC structure\n"
-                                        << " First logical part " << fview.logicalPart().name().name();
+                                 << " First logical part " << fview.logicalPart().name().name();
   bool doSubDets = fview.firstChild();
   LogDebug("RPCGeometryBuilder") << "doSubDets = " << doSubDets;
   while (doSubDets) {
@@ -138,8 +136,7 @@ RPCGeometry* RPCGeometryBuilder::buildGeometry(DDFilteredView& fview,
       }
 
       rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCBarrel, name, pars);
-      LogDebug("RPCGeometryBuilder")
-          << "Barrel " << name << " par " << width << " " << length << " " << thickness;
+      LogDebug("RPCGeometryBuilder") << "Barrel " << name << " par " << width << " " << length << " " << thickness;
 
     } else {
       const float be = geant_units::operators::convertMmToCm(dpar[4]);
@@ -153,8 +150,8 @@ RPCGeometry* RPCGeometryBuilder::buildGeometry(DDFilteredView& fview,
                                        float(geant_units::operators::convertMmToCm(dpar[8])),
                                        float(geant_units::operators::convertMmToCm(dpar[0])),
                                        float(numbOfStrips.doubles()[0])};
-      LogDebug("RPCGeometryBuilder")
-          << "Forward " << name << " par " << dpar[4] << " " << dpar[8] << " " << dpar[3] << " " << dpar[0];
+      LogDebug("RPCGeometryBuilder") << "Forward " << name << " par " << dpar[4] << " " << dpar[8] << " " << dpar[3]
+                                     << " " << dpar[0];
 
       rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCEndcap, name, pars);
 
@@ -252,8 +249,7 @@ RPCGeometry* RPCGeometryBuilder::buildGeometry(DDFilteredView& fview,
 }
 
 // for DD4hep
-RPCGeometry* RPCGeometryBuilder::buildGeometry(cms::DDFilteredView& fview,
-                                                      const cms::MuonNumbering& muonConstants) {
+RPCGeometry* RPCGeometryBuilder::buildGeometry(cms::DDFilteredView& fview, const cms::MuonNumbering& muonConstants) {
   RPCGeometry* geometry = new RPCGeometry();
 
   while (fview.firstChild()) {
@@ -287,10 +283,14 @@ RPCGeometry* RPCGeometryBuilder::buildGeometry(cms::DDFilteredView& fview,
     const double wrong_posZ_chamber_1 = 1061.29;
     const double wrong_posZ_chamber_2 = 1065.69;
     const double wrong_tollerance_posZ = 0.01;
-    if((pos_z >= -(wrong_posZ_chamber_1 + wrong_tollerance_posZ)) && (pos_z <= -wrong_posZ_chamber_1)) pos_z = -Reco_posZ_chamber_1; 
-    if((pos_z >= wrong_posZ_chamber_1) && (pos_z <= wrong_posZ_chamber_1 + wrong_tollerance_posZ)) pos_z = Reco_posZ_chamber_1; 
-    if((pos_z >= -(wrong_posZ_chamber_2 + wrong_tollerance_posZ)) && (pos_z <= -wrong_posZ_chamber_2)) pos_z = -Reco_posZ_chamber_2; 
-    if((pos_z >= wrong_posZ_chamber_2) && (pos_z <= wrong_posZ_chamber_2 + wrong_tollerance_posZ)) pos_z = Reco_posZ_chamber_2; 
+    if ((pos_z >= -(wrong_posZ_chamber_1 + wrong_tollerance_posZ)) && (pos_z <= -wrong_posZ_chamber_1))
+      pos_z = -Reco_posZ_chamber_1;
+    if ((pos_z >= wrong_posZ_chamber_1) && (pos_z <= wrong_posZ_chamber_1 + wrong_tollerance_posZ))
+      pos_z = Reco_posZ_chamber_1;
+    if ((pos_z >= -(wrong_posZ_chamber_2 + wrong_tollerance_posZ)) && (pos_z <= -wrong_posZ_chamber_2))
+      pos_z = -Reco_posZ_chamber_2;
+    if ((pos_z >= wrong_posZ_chamber_2) && (pos_z <= wrong_posZ_chamber_2 + wrong_tollerance_posZ))
+      pos_z = Reco_posZ_chamber_2;
     //---------------------------
 
     Surface::PositionType pos(pos_x, pos_y, pos_z);
