@@ -18,14 +18,13 @@ process.g4SimHits.CheckGeometry = True
 # Geant4 geometry check 
 process.g4SimHits.G4CheckOverlap.OutputBaseName = cms.string("cms2021")
 process.g4SimHits.G4CheckOverlap.OverlapFlag = cms.bool(True)
-process.g4SimHits.G4CheckOverlap.Tolerance  = cms.double(0.001)
+process.g4SimHits.G4CheckOverlap.Tolerance  = cms.double(0.01)
 process.g4SimHits.G4CheckOverlap.Resolution = cms.int32(10000)
 process.g4SimHits.G4CheckOverlap.Depth      = cms.int32(-1)
 # tells if NodeName is G4Region or G4PhysicalVolume
 process.g4SimHits.G4CheckOverlap.RegionFlag = cms.bool(False)
 # list of names
 process.g4SimHits.G4CheckOverlap.NodeNames  = cms.vstring('OCMS')
-process.g4SimHits.G4CheckOverlap.Tolerance  = cms.double(1)
 # enable dump gdml file 
 process.g4SimHits.G4CheckOverlap.gdmlFlag   = cms.bool(False)
 # if defined a G4PhysicsVolume info is printed
