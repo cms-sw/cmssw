@@ -20,7 +20,10 @@
 #include <algorithm>
 #include <iostream>
 
+//#define EDM_ML_DEBUG
+
 using namespace std;
+const std::string MTDTrayBarrelLayer::metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDTrayBarrelLayer";
 
 MTDTrayBarrelLayer::MTDTrayBarrelLayer(vector<const DetRod*>& rods)
     : RodBarrelLayer(false), theRods(rods), theBinFinder(nullptr), isOverlapping(false) {
@@ -29,8 +32,6 @@ MTDTrayBarrelLayer::MTDTrayBarrelLayer(vector<const DetRod*>& rods)
 
   theComponents.reserve(theRods.size());
   std::copy(theRods.begin(), theRods.end(), back_inserter(theComponents));
-
-  const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDTrayBarrelLayer";
 
   // Cache chamber pointers (the basic components_)
   for (vector<const DetRod*>::const_iterator it = rods.begin(); it != rods.end(); it++) {
@@ -51,10 +52,12 @@ MTDTrayBarrelLayer::MTDTrayBarrelLayer(vector<const DetRod*>& rods)
   // Compute the layer's surface and bounds (from the components())
   BarrelDetLayer::initialize();
 
-  LogTrace(metname) << "Constructing MTDTrayBarrelLayer: " << basicComponents().size() << " Dets " << theRods.size()
-                    << " Rods "
-                    << " R: " << specificSurface().radius() << " Per.: " << bf.isPhiPeriodic()
-                    << " Overl.: " << isOverlapping;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim(metname) << "Constructing MTDTrayBarrelLayer: " << basicComponents().size() << " Dets "
+                            << theRods.size() << " Rods "
+                            << " R: " << specificSurface().radius() << " Per.: " << bf.isPhiPeriodic()
+                            << " Overl.: " << isOverlapping;
+#endif
 }
 
 MTDTrayBarrelLayer::~MTDTrayBarrelLayer() {
@@ -66,32 +69,39 @@ MTDTrayBarrelLayer::~MTDTrayBarrelLayer() {
 
 vector<GeometricSearchDet::DetWithState> MTDTrayBarrelLayer::compatibleDets(
     const TrajectoryStateOnSurface& startingState, const Propagator& prop, const MeasurementEstimator& est) const {
-  const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDTrayBarrelLayer";
   vector<DetWithState> result;
 
-  LogTrace(metname) << "MTDTrayBarrelLayer::compatibleDets, Cyl R: " << specificSurface().radius()
-                    << " TSOS at R= " << startingState.globalPosition().perp()
-                    << " phi= " << startingState.globalPosition().phi();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim(metname) << "MTDTrayBarrelLayer::compatibleDets, Cyl R: " << specificSurface().radius()
+                            << " TSOS at R= " << startingState.globalPosition().perp()
+                            << " phi= " << startingState.globalPosition().phi();
+#endif
 
   pair<bool, TrajectoryStateOnSurface> compat = compatible(startingState, prop, est);
   if (!compat.first) {
-    LogTrace(metname) << "     MTDTrayBarrelLayer::compatibleDets: not compatible"
-                      << " (should not have been selected!)";
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim(metname) << "     MTDTrayBarrelLayer::compatibleDets: not compatible"
+                              << " (should not have been selected!)";
+#endif
     return vector<DetWithState>();
   }
 
   TrajectoryStateOnSurface& tsos = compat.second;
 
-  LogTrace(metname) << "     MTDTrayBarrelLayer::compatibleDets, reached layer at: " << tsos.globalPosition()
-                    << " R = " << tsos.globalPosition().perp() << " phi = " << tsos.globalPosition().phi();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim(metname) << "     MTDTrayBarrelLayer::compatibleDets, reached layer at: " << tsos.globalPosition()
+                            << " R = " << tsos.globalPosition().perp() << " phi = " << tsos.globalPosition().phi();
+#endif
 
   int closest = theBinFinder->binIndex(tsos.globalPosition().phi());
   const DetRod* closestRod = theRods[closest];
 
   // Check the closest rod
-  LogTrace(metname) << "     MTDTrayBarrelLayer::compatibleDets, closestRod: " << closest
-                    << " phi : " << closestRod->surface().position().phi()
-                    << " FTS phi: " << tsos.globalPosition().phi();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim(metname) << "     MTDTrayBarrelLayer::compatibleDets, closestRod: " << closest
+                            << " phi : " << closestRod->surface().position().phi()
+                            << " FTS phi: " << tsos.globalPosition().phi();
+#endif
 
   result = closestRod->compatibleDets(tsos, prop, est);
 
@@ -132,7 +142,9 @@ vector<GeometricSearchDet::DetWithState> MTDTrayBarrelLayer::compatibleDets(
       dist = +1.;
     }
 
-    LogTrace(metname) << "     MTDTrayBarrelLayer::fastCompatibleDets, none on closest rod!";
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim(metname) << "     MTDTrayBarrelLayer::fastCompatibleDets, none on closest rod!";
+#endif
   }
 
   if (checknext) {
@@ -145,17 +157,20 @@ vector<GeometricSearchDet::DetWithState> MTDTrayBarrelLayer::compatibleDets(
     next = theBinFinder->binIndex(next);  // Bin Periodicity
     const DetRod* nextRod = theRods[next];
 
-    LogTrace(metname) << "     MTDTrayBarrelLayer::fastCompatibleDets, next-to closest"
-                      << " rod: " << next << " dist " << dist << " phi : " << nextRod->surface().position().phi()
-                      << " FTS phi: " << tsos.globalPosition().phi();
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim(metname) << "     MTDTrayBarrelLayer::fastCompatibleDets, next-to closest"
+                              << " rod: " << next << " dist " << dist
+                              << " phi : " << nextRod->surface().position().phi()
+                              << " FTS phi: " << tsos.globalPosition().phi();
+#endif
 
     vector<DetWithState> nextRodDets = nextRod->compatibleDets(tsos, prop, est);
     result.insert(result.end(), nextRodDets.begin(), nextRodDets.end());
   }
 
 #ifdef EDM_ML_DEBUG
-  LogTrace(metname) << "     MTDTrayBarrelLayer::fastCompatibleDets: found: " << result.size()
-                    << " on closest: " << nclosest << " # checked rods: " << 1 + int(checknext);
+  edm::LogVerbatim(metname) << "     MTDTrayBarrelLayer::fastCompatibleDets: found: " << result.size()
+                            << " on closest: " << nclosest << " # checked rods: " << 1 + int(checknext);
 #endif
 
   return result;
@@ -165,7 +180,9 @@ vector<DetGroup> MTDTrayBarrelLayer::groupedCompatibleDets(const TrajectoryState
                                                            const Propagator& prop,
                                                            const MeasurementEstimator& est) const {
   // FIXME should return only 1 group
-  cout << "dummy implementation of MTDTrayBarrelLayer::groupedCompatibleDets()" << endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogInfo(metname) << "dummy implementation of MTDTrayBarrelLayer::groupedCompatibleDets()";
+#endif
   return vector<DetGroup>();
 }
 

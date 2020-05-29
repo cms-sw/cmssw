@@ -1,13 +1,10 @@
-/** \file
- *
- */
-
-#include <FWCore/Framework/interface/Frameworkfwd.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoMTD/DetLayers/interface/MTDDetLayerGeometry.h"
 #include "RecoMTD/Records/interface/MTDRecoGeometryRecord.h"
@@ -64,23 +61,20 @@ void MTDRecoGeometryAnalyzer::analyze(const Event& ev, const EventSetup& es) {
   es.get<IdealMagneticFieldRecord>().get(magfield);
   // Some printouts
 
-  cout << "*** allBTLLayers(): " << geo->allBTLLayers().size() << endl;
+  LogVerbatim("MTDLayerDump") << "\n*** allBTLLayers(): " << geo->allBTLLayers().size();
   for (auto dl = geo->allBTLLayers().begin(); dl != geo->allBTLLayers().end(); ++dl) {
-    cout << "  " << (int)(dl - geo->allBTLLayers().begin()) << " " << dumpLayer(*dl);
+    LogVerbatim("MTDLayerDump") << "  " << (int)(dl - geo->allBTLLayers().begin()) << " " << dumpLayer(*dl);
   }
-  cout << endl << endl;
 
-  cout << "*** allETLLayers(): " << geo->allETLLayers().size() << endl;
+  LogVerbatim("MTDLayerDump") << "\n*** allETLLayers(): " << geo->allETLLayers().size();
   for (auto dl = geo->allETLLayers().begin(); dl != geo->allETLLayers().end(); ++dl) {
-    cout << "  " << (int)(dl - geo->allETLLayers().begin()) << " " << dumpLayer(*dl);
+    LogVerbatim("MTDLayerDump") << "  " << (int)(dl - geo->allETLLayers().begin()) << " " << dumpLayer(*dl);
   }
-  cout << endl << endl;
 
-  cout << "*** allLayers(): " << geo->allLayers().size() << endl;
+  LogVerbatim("MTDLayerDump") << "\n*** allLayers(): " << geo->allLayers().size();
   for (auto dl = geo->allLayers().begin(); dl != geo->allLayers().end(); ++dl) {
-    cout << "  " << (int)(dl - geo->allLayers().begin()) << " " << dumpLayer(*dl);
+    LogVerbatim("MTDLayerDump") << "  " << (int)(dl - geo->allLayers().begin()) << " " << dumpLayer(*dl);
   }
-  cout << endl << endl;
 
   testBTLLayers(geo.product(), magfield.product());
   testETLLayers(geo.product(), magfield.product());
@@ -109,29 +103,28 @@ void MTDRecoGeometryAnalyzer::testBTLLayers(const MTDDetLayerGeometry* geo, cons
 
     GlobalTrajectoryParameters gtp(gp, gv, charge, field);
     TrajectoryStateOnSurface tsos(gtp, cyl);
-    cout << "testBTLLayers: at " << tsos.globalPosition() << " R=" << tsos.globalPosition().perp()
-         << " phi=" << tsos.globalPosition().phi() << " Z=" << tsos.globalPosition().z()
-         << " p = " << tsos.globalMomentum() << endl;
+    LogVerbatim("MTDLayerDump") << "\ntestBTLLayers: at " << tsos.globalPosition()
+                                << " R=" << tsos.globalPosition().perp() << " phi=" << tsos.globalPosition().phi()
+                                << " Z=" << tsos.globalPosition().z() << " p = " << tsos.globalMomentum();
 
     SteppingHelixPropagator prop(field, anyDirection);
 
     pair<bool, TrajectoryStateOnSurface> comp = layer->compatible(tsos, prop, *theEstimator);
-    cout << "is compatible: " << comp.first << " at: R=" << comp.second.globalPosition().perp()
-         << " phi=" << comp.second.globalPosition().phi() << " Z=" << comp.second.globalPosition().z() << endl;
+    LogVerbatim("MTDLayerDump") << "is compatible: " << comp.first << " at: R=" << comp.second.globalPosition().perp()
+                                << " phi=" << comp.second.globalPosition().phi()
+                                << " Z=" << comp.second.globalPosition().z();
 
     vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos, prop, *theEstimator);
     if (compDets.size()) {
-      cout << "compatibleDets: " << compDets.size() << endl
-
-           << "  final state pos: " << compDets.front().second.globalPosition() << endl
-           << "  det         pos: " << compDets.front().first->position() << " id: " << std::hex
-           << BTLDetId(compDets.front().first->geographicalId().rawId()).rawId() << std::dec << endl
-           << "  distance " << (tsos.globalPosition() - compDets.front().first->position()).mag()
-
-           << endl
-           << endl;
+      LogVerbatim("MTDLayerDump") << "compatibleDets: " << compDets.size() << "\n"
+                                  << "  final state pos: " << compDets.front().second.globalPosition() << "\n"
+                                  << "  det         pos: " << compDets.front().first->position() << " id: " << std::hex
+                                  << BTLDetId(compDets.front().first->geographicalId().rawId()).rawId() << std::dec
+                                  << "\n"
+                                  << "  distance "
+                                  << (tsos.globalPosition() - compDets.front().first->position()).mag();
     } else {
-      cout << " ERROR : no compatible det found" << endl;
+      LogVerbatim("MTDLayerDump") << " ERROR : no compatible det found";
     }
   }
 }
@@ -157,33 +150,32 @@ void MTDRecoGeometryAnalyzer::testETLLayers(const MTDDetLayerGeometry* geo, cons
 
     GlobalTrajectoryParameters gtp(gp, gv, charge, field);
     TrajectoryStateOnSurface tsos(gtp, disk);
-    cout << "testETLLayers: at " << tsos.globalPosition() << " R=" << tsos.globalPosition().perp()
-         << " phi=" << tsos.globalPosition().phi() << " Z=" << tsos.globalPosition().z()
-         << " p = " << tsos.globalMomentum() << endl;
+    LogVerbatim("MTDLayerDump") << "\ntestETLLayers: at " << tsos.globalPosition()
+                                << " R=" << tsos.globalPosition().perp() << " phi=" << tsos.globalPosition().phi()
+                                << " Z=" << tsos.globalPosition().z() << " p = " << tsos.globalMomentum();
 
     SteppingHelixPropagator prop(field, anyDirection);
 
     pair<bool, TrajectoryStateOnSurface> comp = layer->compatible(tsos, prop, *theEstimator);
-    cout << "is compatible: " << comp.first << " at: R=" << comp.second.globalPosition().perp()
-         << " phi=" << comp.second.globalPosition().phi() << " Z=" << comp.second.globalPosition().z() << endl;
+    LogVerbatim("MTDLayerDump") << "is compatible: " << comp.first << " at: R=" << comp.second.globalPosition().perp()
+                                << " phi=" << comp.second.globalPosition().phi()
+                                << " Z=" << comp.second.globalPosition().z();
 
     vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos, prop, *theEstimator);
     if (compDets.size()) {
-      cout << "compatibleDets: " << compDets.size() << endl
-
-           << "  final state pos: " << compDets.front().second.globalPosition() << endl
-           << "  det         pos: " << compDets.front().first->position() << " id: " << std::hex
-           << ETLDetId(compDets.front().first->geographicalId().rawId()).rawId() << std::dec << endl
-           << "  distance " << (tsos.globalPosition() - compDets.front().first->position()).mag()
-
-           << endl
-           << endl;
+      LogVerbatim("MTDLayerDump") << "compatibleDets: " << compDets.size() << "\n"
+                                  << "  final state pos: " << compDets.front().second.globalPosition() << "\n"
+                                  << "  det         pos: " << compDets.front().first->position() << " id: " << std::hex
+                                  << ETLDetId(compDets.front().first->geographicalId().rawId()).rawId() << std::dec
+                                  << "\n"
+                                  << "  distance "
+                                  << (tsos.globalPosition() - compDets.front().first->position()).mag();
     } else {
       if (layer->isCrack(gp)) {
-        cout << " CSC crack found ";
+        LogVerbatim("MTDLayerDump") << " MTD crack found ";
       } else {
-        cout << " ERROR : no compatible det found in CSC"
-             << " at: R=" << gp.perp() << " phi= " << gp.phi().degrees() << " Z= " << gp.z();
+        LogVerbatim("MTDLayerDump") << " ERROR : no compatible det found in MTD"
+                                    << " at: R=" << gp.perp() << " phi= " << gp.phi().degrees() << " Z= " << gp.z();
       }
     }
   }
@@ -198,9 +190,9 @@ string MTDRecoGeometryAnalyzer::dumpLayer(const DetLayer* layer) const {
 
   sur = &(layer->surface());
   if ((bc = dynamic_cast<const BoundCylinder*>(sur))) {
-    output << "  Cylinder of radius: " << bc->radius() << endl;
+    output << "  Cylinder of radius: " << bc->radius();
   } else if ((bd = dynamic_cast<const BoundDisk*>(sur))) {
-    output << "  Disk at: " << bd->position().z() << endl;
+    output << "  Disk at: " << bd->position().z();
   }
   return output.str();
 }

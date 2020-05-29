@@ -19,7 +19,10 @@
 #include <iostream>
 #include <vector>
 
+//#define EDM_ML_DEBUG
+
 using namespace std;
+const std::string MTDRingForwardLayer::metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDRingForwardLayer";
 
 MTDRingForwardLayer::MTDRingForwardLayer(const vector<const ForwardDetRing*>& rings)
     : RingedForwardLayer(false),
@@ -27,8 +30,6 @@ MTDRingForwardLayer::MTDRingForwardLayer(const vector<const ForwardDetRing*>& ri
       theComponents(theRings.begin(), theRings.end()),
       theBinFinder(nullptr),
       isOverlapping(false) {
-  const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDRingForwardLayer";
-
   // Initial values for R and Z bounds
   float theRmin = rings.front()->basicComponents().front()->position().perp();
   float theRmax = theRmin;
@@ -61,11 +62,13 @@ MTDRingForwardLayer::MTDRingForwardLayer(const vector<const ForwardDetRing*>& ri
 
   setSurface(new BoundDisk(pos, rot, new SimpleDiskBounds(theRmin, theRmax, theZmin - zPos, theZmax - zPos)));
 
-  LogTrace(metname) << "Constructing MTDRingForwardLayer: " << basicComponents().size() << " Dets " << theRings.size()
-                    << " Rings "
-                    << " Z: " << specificSurface().position().z() << " R1: " << specificSurface().innerRadius()
-                    << " R2: " << specificSurface().outerRadius() << " Per.: " << bf.isRPeriodic()
-                    << " Overl.: " << bf.isROverlapping();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim(metname) << "Constructing MTDRingForwardLayer: " << basicComponents().size() << " Dets "
+                            << theRings.size() << " Rings "
+                            << " Z: " << specificSurface().position().z() << " R1: " << specificSurface().innerRadius()
+                            << " R2: " << specificSurface().outerRadius() << " Per.: " << bf.isRPeriodic()
+                            << " Overl.: " << bf.isROverlapping();
+#endif
 }
 
 MTDRingForwardLayer::~MTDRingForwardLayer() {
@@ -77,18 +80,21 @@ MTDRingForwardLayer::~MTDRingForwardLayer() {
 
 vector<GeometricSearchDet::DetWithState> MTDRingForwardLayer::compatibleDets(
     const TrajectoryStateOnSurface& startingState, const Propagator& prop, const MeasurementEstimator& est) const {
-  const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDRingForwardLayer";
   vector<DetWithState> result;
 
-  LogTrace(metname) << "MTDRingForwardLayer::compatibleDets,"
-                    << " R1 " << specificSurface().innerRadius() << " R2: " << specificSurface().outerRadius()
-                    << " FTS at R: " << startingState.globalPosition().perp();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim(metname) << "MTDRingForwardLayer::compatibleDets,"
+                            << " R1 " << specificSurface().innerRadius() << " R2: " << specificSurface().outerRadius()
+                            << " FTS at R: " << startingState.globalPosition().perp();
+#endif
 
   pair<bool, TrajectoryStateOnSurface> compat = compatible(startingState, prop, est);
 
   if (!compat.first) {
-    LogTrace(metname) << "     MTDRingForwardLayer::compatibleDets: not compatible"
-                      << " (should not have been selected!)";
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim(metname) << "     MTDRingForwardLayer::compatibleDets: not compatible"
+                              << " (should not have been selected!)";
+#endif
     return result;
   }
 
@@ -99,15 +105,16 @@ vector<GeometricSearchDet::DetWithState> MTDRingForwardLayer::compatibleDets(
 
   // Check the closest ring
 
-  LogTrace(metname) << "     MTDRingForwardLayer::fastCompatibleDets, closestRing: " << closest << " R1 "
-                    << closestRing->specificSurface().innerRadius()
-                    << " R2: " << closestRing->specificSurface().outerRadius()
-                    << " FTS R: " << tsos.globalPosition().perp();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim(metname) << "     MTDRingForwardLayer::fastCompatibleDets, closestRing: " << closest << " R1 "
+                            << closestRing->specificSurface().innerRadius()
+                            << " R2: " << closestRing->specificSurface().outerRadius()
+                            << " FTS R: " << tsos.globalPosition().perp();
   if (tsos.hasError()) {
-    LogTrace(metname) << " sR: " << sqrt(tsos.localError().positionError().yy())
-                      << " sX: " << sqrt(tsos.localError().positionError().xx());
+    edm::LogVerbatim(metname) << " sR: " << sqrt(tsos.localError().positionError().yy())
+                              << " sX: " << sqrt(tsos.localError().positionError().xx());
   }
-  LogTrace(metname) << endl;
+#endif
 
   result = closestRing->compatibleDets(tsos, prop, est);
 
@@ -136,10 +143,11 @@ vector<GeometricSearchDet::DetWithState> MTDRingForwardLayer::compatibleDets(
       inside = theRings[idet]->specificSurface().bounds().inside(nextPos);
     }
     if (inside) {
-      LogTrace(metname) << "     MTDRingForwardLayer::fastCompatibleDets:NextRing" << idet << " R1 "
-                        << theRings[idet]->specificSurface().innerRadius()
-                        << " R2: " << theRings[idet]->specificSurface().outerRadius() << " FTS R " << nextPos.perp();
 #ifdef EDM_ML_DEBUG
+      edm::LogVerbatim(metname) << "     MTDRingForwardLayer::fastCompatibleDets:NextRing" << idet << " R1 "
+                                << theRings[idet]->specificSurface().innerRadius()
+                                << " R2: " << theRings[idet]->specificSurface().outerRadius() << " FTS R "
+                                << nextPos.perp();
       nnextdet++;
 #endif
       vector<DetWithState> nextRodDets = theRings[idet]->compatibleDets(tsos, prop, est);
@@ -159,10 +167,11 @@ vector<GeometricSearchDet::DetWithState> MTDRingForwardLayer::compatibleDets(
       inside = theRings[idet]->specificSurface().bounds().inside(nextPos);
     }
     if (inside) {
-      LogTrace(metname) << "     MTDRingForwardLayer::fastCompatibleDets:PreviousRing:" << idet << " R1 "
-                        << theRings[idet]->specificSurface().innerRadius()
-                        << " R2: " << theRings[idet]->specificSurface().outerRadius() << " FTS R " << nextPos.perp();
 #ifdef EDM_ML_DEBUG
+      edm::LogVerbatim(metname) << "     MTDRingForwardLayer::fastCompatibleDets:PreviousRing:" << idet << " R1 "
+                                << theRings[idet]->specificSurface().innerRadius()
+                                << " R2: " << theRings[idet]->specificSurface().outerRadius() << " FTS R "
+                                << nextPos.perp();
       nnextdet++;
 #endif
       vector<DetWithState> nextRodDets = theRings[idet]->compatibleDets(tsos, prop, est);
@@ -175,8 +184,8 @@ vector<GeometricSearchDet::DetWithState> MTDRingForwardLayer::compatibleDets(
   }
 
 #ifdef EDM_ML_DEBUG
-  LogTrace(metname) << "     MTDRingForwardLayer::fastCompatibleDets: found: " << result.size()
-                    << " on closest: " << nclosest << " # checked rings: " << 1 + nnextdet;
+  edm::LogVerbatim(metname) << "     MTDRingForwardLayer::fastCompatibleDets: found: " << result.size()
+                            << " on closest: " << nclosest << " # checked rings: " << 1 + nnextdet;
 #endif
 
   return result;
@@ -186,7 +195,9 @@ vector<DetGroup> MTDRingForwardLayer::groupedCompatibleDets(const TrajectoryStat
                                                             const Propagator& prop,
                                                             const MeasurementEstimator& est) const {
   // FIXME should return only 1 group
-  cout << "dummy implementation of MTDRingForwardLayer::groupedCompatibleDets()" << endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogInfo(metname) << "dummy implementation of MTDRingForwardLayer::groupedCompatibleDets()";
+#endif
   return vector<DetGroup>();
 }
 
