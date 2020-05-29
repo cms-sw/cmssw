@@ -107,7 +107,7 @@ void GEMGeometryBuilderFromCondDB::build(GEMGeometry& theGeometry, const RecoIde
 
         if (ring->nSuperChambers()) {
           LogDebug("GEMGeometryBuilder") << "Adding ring " << ri << " to station "
-					 << "re " << re << " st " << st;
+                                         << "re " << re << " st " << st;
           station->add(ring);
           theGeometry.add(ring);
         } else {
