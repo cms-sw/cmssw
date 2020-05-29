@@ -9,7 +9,7 @@
 */
 
 #include "Geometry/RPCGeometryBuilder/plugins/RPCGeometryESModule.h"
-#include "Geometry/RPCGeometryBuilder/src/RPCGeometryBuilderFromDDD.h"
+#include "Geometry/RPCGeometryBuilder/src/RPCGeometryBuilder.h"
 #include "Geometry/RPCGeometryBuilder/src/RPCGeometryBuilderFromCondDB.h"
 
 #include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
@@ -51,13 +51,13 @@ std::unique_ptr<RPCGeometry> RPCGeometryESModule::produce(const MuonGeometryReco
     edm::ESTransientHandle<DDCompactView> cpv = record.getTransientHandle(idealGeomToken_);
 
     auto const& mdc = record.get(dddConstantsToken_);
-    RPCGeometryBuilderFromDDD builder(comp11_);
+    RPCGeometryBuilder builder(comp11_);
     return std::unique_ptr<RPCGeometry>(builder.build(&(*cpv), mdc));
   } else if (useDD4hep_) {
     edm::ESTransientHandle<cms::DDCompactView> cpv = record.getTransientHandle(idealDD4hepGeomToken_);
 
     auto const& mdc = record.get(dd4hepConstantsToken_);
-    RPCGeometryBuilderFromDDD builder(comp11_);
+    RPCGeometryBuilder builder(comp11_);
     return std::unique_ptr<RPCGeometry>(builder.build(&(*cpv), mdc));
   } else {
     auto const& rigrpc = record.get(recoIdealToken_);
