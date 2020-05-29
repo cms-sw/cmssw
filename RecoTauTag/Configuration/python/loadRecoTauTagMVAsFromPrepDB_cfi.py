@@ -429,7 +429,41 @@ for category, gbrForestName in antiElectronDiscrMVA6_categories.items():
                 label = cms.untracked.string("RecoTauTag_antiElectronMVA6%s_%s_WP%s" % (antiElectronDiscrMVA6_2017_version, gbrForestName, WP))
             )
         )
-    
+
+# MVA6 phase2
+antiElectronDiscrMVA_phase2_categories = {
+     '0' : "gbr_NoEleMatch_woGwoGSF_BL",
+     '2' : "gbr_NoEleMatch_wGwoGSF_BL",
+     '5' : "gbr_woGwGSF_BL",
+     '7' : "gbr_wGwGSF_BL",
+     '8' : "gbr_NoEleMatch_woGwoGSF_FWEC",
+     '9' : "gbr_NoEleMatch_woGwoGSF_VFWEC",
+    '10' : "gbr_NoEleMatch_wGwoGSF_FWEC",
+    '11' : "gbr_NoEleMatch_wGwoGSF_VFWEC",
+    '13' : "gbr_woGwGSF_FWEC",
+    '14' : "gbr_woGwGSF_VFWEC",
+    '15' : "gbr_wGwGSF_FWEC",
+    '16' : "gbr_wGwGSF_VFWEC"
+}
+antiElectronDiscrMVA_phase2_WPs = [ "Eff98", "Eff90", "Eff80", "Eff70", "Eff60" ]
+antiElectronDiscrMVA_phase2_version = "v1"
+for category, gbrForestName in antiElectronDiscrMVA_phase2_categories.items():
+    loadRecoTauTagMVAsFromPrepDB.toGet.append(
+        cms.PSet(
+            record = cms.string('GBRWrapperRcd'),
+            tag = cms.string("RecoTauTag_antiElectronPhase2MVA6%s_%s" % (antiElectronDiscrMVA_phase2_version, gbrForestName)),
+            label = cms.untracked.string("RecoTauTag_antiElectronPhase2MVA6%s_%s" % (antiElectronDiscrMVA_phase2_version, gbrForestName))
+        )
+    )
+    for WP in antiElectronDiscrMVA_phase2_WPs:
+        loadRecoTauTagMVAsFromPrepDB.toGet.append(
+            cms.PSet(
+                record = cms.string('PhysicsTGraphPayloadRcd'),
+                tag = cms.string("RecoTauTag_antiElectronPhase2MVA6%s_%s_WP%s" % (antiElectronDiscrMVA_phase2_version, gbrForestName, WP)),
+                label = cms.untracked.string("RecoTauTag_antiElectronPhase2MVA6%s_%s_WP%s" % (antiElectronDiscrMVA_phase2_version, gbrForestName, WP))
+            )
+        )
+
 ####
 # register anti-muon discriminator MVA
 antiMuonDiscrMVA_WPs = [ "eff99_5", "eff99_0", "eff98_0" ]
