@@ -10,5 +10,4 @@
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="DQMServices/Core"/>
 <use name="Alignment/MillePedeAlignmentAlgorithm"/>
-<use name="classlib"/>
 <flags EDM_PLUGIN="1"/>
