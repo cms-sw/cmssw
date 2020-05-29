@@ -207,6 +207,7 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
         // Test of numbering scheme for sensitive detectors
         //
 
+        std::stringstream sunitt;
         std::stringstream snum;
 
         if (isBarrel) {
@@ -214,6 +215,7 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
           BTLDetId theId(btlNS_.getUnitID(thisN_));
           int hIndex = theId.hashedIndex(lay);
           BTLDetId theNewId(theId.getUnhashedIndex(hIndex, lay));
+          sunitt << theId.rawId();
           snum << theId << "\n layout type = " << static_cast<int>(lay) << "\n ieta        = " << theId.ieta(lay)
                << "\n iphi        = " << theId.iphi(lay) << "\n hashedIndex = " << theId.hashedIndex(lay)
                << "\n BTLDetId hI = " << theNewId;
@@ -235,6 +237,7 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
           snum << "\n";
         } else {
           ETLDetId theId(etlNS_.getUnitID(thisN_));
+          sunitt << theId.rawId();
           snum << theId;
         }
         edm::LogInfo("DD4hep_TestMTDNumbering") << snum.str();
@@ -292,7 +295,12 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
         if (std::fabs(convertCmToMm(distGlobal - distLocal)) > 1.e-6) {
           spos << "DIFFERENCE IN DISTANCE \n";
         }
+        sunitt << fround(convertCmToMm(zeroGlobal.X())) << fround(convertCmToMm(zeroGlobal.Y()))
+               << fround(convertCmToMm(zeroGlobal.Z())) << fround(convertCmToMm(cn1Global.X()))
+               << fround(convertCmToMm(cn1Global.Y())) << fround(convertCmToMm(cn1Global.Z()));
         edm::LogInfo("DD4hep_TestMTDPosition") << spos.str();
+
+        edm::LogVerbatim("MTDUnitTest") << sunitt.str();
       }
     }
   } while (fv.next(0));

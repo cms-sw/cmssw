@@ -173,6 +173,11 @@ void GeometricTimingDetAnalyzer::dumpGeometricTimingDet(const GeometricTimingDet
     log << "\n---------------------------------------------------------------------------------------\n";
   });
 
+  edm::LogVerbatim("MTDUnitTest") << det->geographicalID().rawId() << fround(trans.X()) << fround(trans.Y())
+                                  << fround(trans.Z()) << fround(x.X()) << fround(x.Y()) << fround(x.Z())
+                                  << fround(y.X()) << fround(y.Y()) << fround(y.Z()) << fround(z.X()) << fround(z.Y())
+                                  << fround(z.Z());
+
   DD3Vector colx(x.X(), x.Y(), x.Z());
   DD3Vector coly(y.X(), y.Y(), y.Z());
   DD3Vector colz(z.X(), z.Y(), z.Z());
