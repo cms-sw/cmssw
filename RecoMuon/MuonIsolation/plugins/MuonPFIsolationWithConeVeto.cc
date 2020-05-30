@@ -41,9 +41,11 @@ DEFINE_EDM_PLUGIN(CITKIsolationConeDefinitionFactory, MuonPFIsolationWithConeVet
 
 bool MuonPFIsolationWithConeVeto::isInIsolationCone(const reco::CandidatePtr& physob,
                                                     const reco::CandidatePtr& iso_obj) const {
-  if (iso_obj->pt() <= _vetoThreshold ) return false;
+  if (iso_obj->pt() <= _vetoThreshold )
+    return false;
   const double deltar2 = reco::deltaR2(*physob, *iso_obj);
-  if (deltar2 <= _vetoConeSize2 || deltar2 >= _coneSize2) return false;
+  if (deltar2 <= _vetoConeSize2 || deltar2 >= _coneSize2)
+    return false;
   
   //the rest will check the vertex selection
   const pat::PackedCandidatePtr aspacked(iso_obj);
