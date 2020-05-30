@@ -77,6 +77,9 @@ private:
   std::map<int, MonitorElement*> meanDistr;
   std::map<int, MonitorElement*> sigmaDistr;
 
+  // wheel and ring mean histograms
+  std::map<int, std::map<int, std::map<std::string, MonitorElement*> > > wheelRingHistos;
+
   // Compute the station from the bin number of mean and sigma histos
   int stationFromBin(int bin) const;
   // Compute the sl from the bin number of mean and sigma histos
