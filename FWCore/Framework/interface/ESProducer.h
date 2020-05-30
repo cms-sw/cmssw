@@ -264,6 +264,7 @@ namespace edm {
     std::vector<std::vector<ESRecordIndex>> recordsUsedDuringGet_;
 
     SharedResourcesAcquirer acquirer_;
+    std::unique_ptr<std::vector<std::string>> sharedResourceNames_;
     bool hasMayConsumes_ = false;
   };
 }  // namespace edm
