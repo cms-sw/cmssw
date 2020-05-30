@@ -41,8 +41,7 @@ PixelTestBeamValidation::PixelTestBeamValidation(const edm::ParameterSet& iConfi
     : config_(iConfig),
       geomType_(iConfig.getParameter<std::string>("GeometryType")),
       //phiValues(iConfig.getParameter<std::vector<double> >("PhiAngles")),
-      electronsPerADC_(
-          iConfig.getParameter<double>("ElectronsPerADC")),
+      electronsPerADC_(iConfig.getParameter<double>("ElectronsPerADC")),
       tracksEntryAngleX_(
           iConfig.getUntrackedParameter<std::vector<double>>("TracksEntryAngleX", std::vector<double>())),
       tracksEntryAngleY_(
@@ -91,7 +90,7 @@ PixelTestBeamValidation::PixelTestBeamValidation(const edm::ParameterSet& iConfi
                                             << "Invalid number of elements in 'TracksEntryAngle" << label_v.first
                                             << ".size()' = " << label_v.second->size() << ". Valid sizes are 1 or 2.";
     }
-    // convert the angles into its tangent (the check is going to be done 
+    // convert the angles into its tangent (the check is going to be done
     // against the tangent dx/dz and dy/dz)
     (*label_v.second)[0] = std::tan((*label_v.second)[0]);
     (*label_v.second)[1] = std::tan((*label_v.second)[1]);
@@ -103,9 +102,11 @@ PixelTestBeamValidation::PixelTestBeamValidation(const edm::ParameterSet& iConfi
     // The algorithm is defined in the implementation of _check_input_angles_
     use_this_track_ = std::bind(&PixelTestBeamValidation::_check_input_angles_, this, std::placeholders::_1);
     edm::LogInfo("Configuration") << "Considering hits from tracks entering the detectors between\n "
-              << "Considering hits from tracks entering the detectors between\n "
-              << "\tX-plane: (" << std::atan(active_entry_angles_[0].first) << "," << std::atan(active_entry_angles_[0].second) << ") rad. "
-              << "\tY-plane: (" << std::atan(active_entry_angles_[1].first) << "," << std::atan(active_entry_angles_[1].second) << ") rad. ";
+                                  << "Considering hits from tracks entering the detectors between\n "
+                                  << "\tX-plane: (" << std::atan(active_entry_angles_[0].first) << ","
+                                  << std::atan(active_entry_angles_[0].second) << ") rad. "
+                                  << "\tY-plane: (" << std::atan(active_entry_angles_[1].first) << ","
+                                  << std::atan(active_entry_angles_[1].second) << ") rad. ";
   } else {
     // There is no requiremnt, so always process it
     use_this_track_ = [](const PSimHit*) -> bool { return true; };
@@ -245,8 +246,8 @@ void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::Event
         const GlobalPoint tk_ep_gbl(dunit->surface().toGlobal(ps->entryPoint()));
         vME_track_XYMap_->Fill(tk_ep_gbl.x(), tk_ep_gbl.y());
         vME_track_RZMap_->Fill(tk_ep_gbl.z(), std::hypot(tk_ep_gbl.x(), tk_ep_gbl.y()));
-        vME_track_dxdzAngle_[me_unit]->Fill(std::atan2(ps->momentumAtEntry().x(),ps->momentumAtEntry().z()));
-        vME_track_dydzAngle_[me_unit]->Fill(std::atan2(ps->momentumAtEntry().y(),ps->momentumAtEntry().z()));
+        vME_track_dxdzAngle_[me_unit]->Fill(std::atan2(ps->momentumAtEntry().x(), ps->momentumAtEntry().z()));
+        vME_track_dydzAngle_[me_unit]->Fill(std::atan2(ps->momentumAtEntry().y(), ps->momentumAtEntry().z()));
 
         // Obtain the detected position of the sim particle:
         // the middle point between the entry and the exit
@@ -325,7 +326,7 @@ void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::Event
           vME_dx1D_[me_unit]->Fill(dx_um);
           vME_dy1D_[me_unit]->Fill(dy_um);
           // The track energy loss corresponding to that cluster
-          vME_sim_cluster_charge_[me_unit]->Fill(ps->energyLoss()*1.0_inv_keV,cluster_tot_elec);
+          vME_sim_cluster_charge_[me_unit]->Fill(ps->energyLoss() * 1.0_inv_keV, cluster_tot_elec);
         }
         // Histograms per cell
         for (unsigned int i = 0; i < vME_position_cell_[me_unit].size(); ++i) {
@@ -348,7 +349,7 @@ void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::Event
             vME_charge_cell_[me_unit][i]->Fill(
                 icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, cluster_tot);
             vME_charge_elec_cell_[me_unit][i]->Fill(
-                icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, cluster_tot*electronsPerADC_);
+                icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, cluster_tot * electronsPerADC_);
             // Cluster size
             vME_clsize_cell_[me_unit][i]->Fill(
                 icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, cluster_size);
@@ -459,8 +460,8 @@ void PixelTestBeamValidation::bookHistograms(DQMStore::IBooker& ibooker,
       vME_digi_charge1D_[me_unit] = setupH1D_(ibooker, "DigiCharge1D", "Digi charge;digi charge [ToT];N_{digi}");
       vME_sim_cluster_charge_[me_unit] =
           setupH2D_(ibooker,
-                  "SimClusterCharge",
-                  "PSimHit Energy deposit vs. Cluster Charge;deposited E_{sim} [keV];cluster_{charge} [Electrons];");
+                    "SimClusterCharge",
+                    "PSimHit Energy deposit vs. Cluster Charge;deposited E_{sim} [keV];cluster_{charge} [Electrons];");
 
       // The histos per cell
       // Prepare the ranges: 0- whole sensor, 1- cell 1x1, 2-cell 2x2,
@@ -503,10 +504,10 @@ void PixelTestBeamValidation::bookHistograms(DQMStore::IBooker& ibooker,
                                                          xranges[i],
                                                          yranges[i]));
         vME_charge_elec_cell_[me_unit].push_back(setupProf2D_(ibooker,
-                                                         "Charge_elec_" + std::to_string(i),
-                                                         cell + "MC-truth charge;x [#mum];y [#mum];<Electrons>",
-                                                         xranges[i],
-                                                         yranges[i]));
+                                                              "Charge_elec_" + std::to_string(i),
+                                                              cell + "MC-truth charge;x [#mum];y [#mum];<Electrons>",
+                                                              xranges[i],
+                                                              yranges[i]));
         vME_dx_cell_[me_unit].push_back(setupProf2D_(ibooker,
                                                      "Dx_" + std::to_string(i),
                                                      cell + "MC-truth residuals;x [#mum];y [#mum];<#Deltax [#mum]>",
@@ -519,8 +520,7 @@ void PixelTestBeamValidation::bookHistograms(DQMStore::IBooker& ibooker,
                                                      yranges[i]));
       }
 
-      edm::LogInfo("PixelTestBeamValidation")
-                << "Booking Histograms in: " << folder_name << " ME UNIT:" << me_unit;
+      edm::LogInfo("PixelTestBeamValidation") << "Booking Histograms in: " << folder_name << " ME UNIT:" << me_unit;
       edm::LogInfo("PixelTestBeamValidation") << "Booking Histograms in: " << folder_name;
     }
   }
@@ -747,8 +747,8 @@ std::set<std::pair<int, int>> PixelTestBeamValidation::get_illuminated_pixels_(c
 bool PixelTestBeamValidation::_check_input_angles_(const PSimHit* psimhit) {
   // Create a vector to check against the range map where
   // X axis is in the key 0, Y axis in the key 1
-  const std::vector<double> entry_tan({psimhit->momentumAtEntry().x()/psimhit->momentumAtEntry().z(),
-          psimhit->momentumAtEntry().y()/psimhit->momentumAtEntry().z()});
+  const std::vector<double> entry_tan({psimhit->momentumAtEntry().x() / psimhit->momentumAtEntry().z(),
+                                       psimhit->momentumAtEntry().y() / psimhit->momentumAtEntry().z()});
 
   for (const auto& axis_ranges : active_entry_angles_) {
     if (axis_ranges.second.first > entry_tan[axis_ranges.first] ||
