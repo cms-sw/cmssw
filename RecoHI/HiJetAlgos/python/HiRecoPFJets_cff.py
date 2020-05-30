@@ -69,6 +69,11 @@ kt4PFJetsForRho.doAreaFastjet = cms.bool(True)
 kt4PFJetsForRho.jetPtMin      = cms.double(0.0)
 kt4PFJetsForRho.GhostArea     = cms.double(0.005)
 
+from RecoHI.HiJetAlgos.hiFJRhoProducer import hiFJRhoProducer
+from RecoHI.HiJetAlgos.hiPuRhoProducer_cfi import hiPuRhoProducer
+from RecoHI.HiJetAlgos.hiFJRhoFlowModulationProducer_cfi import hiFJRhoFlowModulationProducer
+from RecoHI.HiJetAlgos.hiPFCandCleaner_cfi import hiPFCandCleaner
+
 akCs4PFJets = cms.EDProducer(
     "CSJetProducer",
     HiPFJetParameters,
@@ -92,3 +97,22 @@ akCs4PFJets.useExplicitGhosts = cms.bool(True)
 akCs4PFJets.GhostArea     = cms.double(0.005)
 
 akCs3PFJets = akCs4PFJets.clone(rParam       = cms.double(0.3))
+
+hiRecoPFJetsTask = cms.Task(
+                           PFTowers,
+                           akPu3PFJets,
+                           akPu4PFJets,
+                           akPu5PFJets,
+                           hiPFCandCleaner,
+                           kt4PFJetsForRho,
+                           ak4PFJetsForFlow,
+                           hiFJRhoProducer,
+                           hiPuRhoProducer,
+                           hiFJRhoFlowModulationProducer,
+                           akCs3PFJets,
+                           akCs4PFJets
+    )
+hiRecoPFJets = cms.Sequence(hiRecoPFJetsTask)
+
+
+
