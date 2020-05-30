@@ -5,7 +5,7 @@
 
 class QIE10DataFrame;
 class HcalCoder;
-class HcalChannelProperties;
+struct HcalChannelProperties;
 
 class HFPreRecAlgo {
 public:
