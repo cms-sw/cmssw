@@ -53,8 +53,8 @@ private:
 
   void fillWithRecHits(std::unordered_map<DetId, const HGCRecHit*>&, DetId, unsigned int, float, int&, float&);
 
-  edm::EDGetTokenT<std::unordered_map<DetId, const HGCRecHit *>> hitMap_;
-  edm::EDGetTokenT<std::vector<CaloParticle> > caloParticles_;
+  edm::EDGetTokenT<std::unordered_map<DetId, const HGCRecHit*>> hitMap_;
+  edm::EDGetTokenT<std::vector<CaloParticle>> caloParticles_;
 
   int debug_;
   bool filterOnEnergyAndCaloP_;
@@ -86,8 +86,8 @@ HGCalShowerSeparation::HGCalShowerSeparation(const edm::ParameterSet& iConfig)
       filterOnEnergyAndCaloP_(iConfig.getParameter<bool>("filterOnEnergyAndCaloP")) {
   auto hitMapInputTag = iConfig.getParameter<edm::InputTag>("hitMapTag");
   auto caloParticles = iConfig.getParameter<edm::InputTag>("caloParticles");
-  hitMap_ = consumes<std::unordered_map<DetId, const HGCRecHit *>>(hitMapInputTag);
-  caloParticles_ = consumes<std::vector<CaloParticle> >(caloParticles);
+  hitMap_ = consumes<std::unordered_map<DetId, const HGCRecHit*>>(hitMapInputTag);
+  caloParticles_ = consumes<std::vector<CaloParticle>>(caloParticles);
 }
 
 HGCalShowerSeparation::~HGCalShowerSeparation() {
@@ -162,11 +162,11 @@ void HGCalShowerSeparation::analyze(const edm::Event& iEvent, const edm::EventSe
 
   recHitTools_.getEventSetup(iSetup);
 
-  Handle<std::vector<CaloParticle> > caloParticleHandle;
+  Handle<std::vector<CaloParticle>> caloParticleHandle;
   iEvent.getByToken(caloParticles_, caloParticleHandle);
   const std::vector<CaloParticle>& caloParticles = *caloParticleHandle;
 
-  Handle<std::unordered_map<DetId, const HGCRecHit *>> hitMapHandle;
+  Handle<std::unordered_map<DetId, const HGCRecHit*>> hitMapHandle;
   iEvent.getByToken(hitMap_, hitMapHandle);
   const auto hitmap = *hitMapHandle;
 
@@ -194,7 +194,7 @@ void HGCalShowerSeparation::analyze(const edm::Event& iEvent, const edm::EventSe
       size += simClusterRefVector.size();
       for (const auto& it_sc : simClusterRefVector) {
         const SimCluster& simCluster = (*(it_sc));
-        const std::vector<std::pair<uint32_t, float> >& hits_and_fractions = simCluster.hits_and_fractions();
+        const std::vector<std::pair<uint32_t, float>>& hits_and_fractions = simCluster.hits_and_fractions();
         for (const auto& it_haf : hits_and_fractions) {
           if (hitmap.count(it_haf.first))
             energy += hitmap.at(it_haf.first)->energy() * it_haf.second;
@@ -223,7 +223,7 @@ void HGCalShowerSeparation::analyze(const edm::Event& iEvent, const edm::EventSe
         scEnergy_->Fill(simCluster.energy());
         IfLogTrace(debug_ > 1, "HGCalShowerSeparation")
             << ">>> SC.energy(): " << simCluster.energy() << " SC.simEnergy(): " << simCluster.simEnergy() << std::endl;
-        const std::vector<std::pair<uint32_t, float> >& hits_and_fractions = simCluster.hits_and_fractions();
+        const std::vector<std::pair<uint32_t, float>>& hits_and_fractions = simCluster.hits_and_fractions();
 
         for (const auto& it_haf : hits_and_fractions) {
           if (!hitmap.count(it_haf.first))

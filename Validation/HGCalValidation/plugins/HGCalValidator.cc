@@ -23,7 +23,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
 
   simVertices_ = consumes<std::vector<SimVertex>>(pset.getParameter<edm::InputTag>("simVertices"));
 
-  hitMap_ = consumes<std::unordered_map<DetId, const HGCRecHit *>>(edm::InputTag("hgcRecHitMapProducer"));
+  hitMap_ = consumes<std::unordered_map<DetId, const HGCRecHit*>>(edm::InputTag("hgcRecHitMapProducer"));
 
   density_ = consumes<Density>(edm::InputTag("hgcalLayerClusters"));
 
@@ -183,9 +183,9 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   edm::Handle<hgcal::LayerClusterToCaloParticleAssociator> LCAssocByEnergyScoreHandle;
   event.getByToken(LCAssocByEnergyScoreProducer_, LCAssocByEnergyScoreHandle);
 
-  edm::Handle<std::unordered_map<DetId, const HGCRecHit *>> hitMapHandle;
+  edm::Handle<std::unordered_map<DetId, const HGCRecHit*>> hitMapHandle;
   event.getByToken(hitMap_, hitMapHandle);
-  const std::unordered_map<DetId, const HGCRecHit *> *hitMap = &*hitMapHandle;
+  const std::unordered_map<DetId, const HGCRecHit*>* hitMap = &*hitMapHandle;
 
   //Some general info on layers etc.
   if (SaveGeneralInfo_) {
