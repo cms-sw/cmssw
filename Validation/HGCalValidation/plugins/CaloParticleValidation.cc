@@ -76,7 +76,7 @@ private:
   edm::EDGetTokenT<std::vector<CaloParticle>> caloParticles_;
   edm::EDGetTokenT<std::vector<reco::SuperCluster>> simPFClusters_;
   edm::EDGetTokenT<reco::PFCandidateCollection> simPFCandidates_;
-  const edm::EDGetTokenT<std::unordered_map<DetId, const HGCRecHit *>> hitMap_;
+  const edm::EDGetTokenT<std::unordered_map<DetId, const HGCRecHit*>> hitMap_;
 };
 
 //
@@ -97,7 +97,7 @@ CaloParticleValidation::CaloParticleValidation(const edm::ParameterSet& iConfig)
       caloParticles_(consumes<std::vector<CaloParticle>>(iConfig.getParameter<edm::InputTag>("caloParticles"))),
       simPFClusters_(consumes<std::vector<reco::SuperCluster>>(iConfig.getParameter<edm::InputTag>("simPFClusters"))),
       simPFCandidates_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("simPFCandidates"))),
-      hitMap_(consumes<std::unordered_map<DetId, const HGCRecHit *>>(iConfig.getParameter<edm::InputTag>("hitMapTag"))) {
+      hitMap_(consumes<std::unordered_map<DetId, const HGCRecHit*>>(iConfig.getParameter<edm::InputTag>("hitMapTag"))) {
   //now do what ever initialization is needed
 }
 
@@ -117,7 +117,7 @@ void CaloParticleValidation::dqmAnalyze(edm::Event const& iEvent,
                                         Histograms_CaloParticleValidation const& histos) const {
   using namespace edm;
 
-  Handle<std::unordered_map<DetId, const HGCRecHit *>> hitMapHandle;
+  Handle<std::unordered_map<DetId, const HGCRecHit*>> hitMapHandle;
   iEvent.getByToken(hitMap_, hitMapHandle);
   const auto hitmap = *hitMapHandle;
 

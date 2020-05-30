@@ -96,7 +96,7 @@ protected:
       const edm::EventBase* event = iItem->getEvent();
       hitmap.clear();
 
-      edm::Handle<std::unordered_map<DetId, const HGCRecHit *>> hitMapHandle;
+      edm::Handle<std::unordered_map<DetId, const HGCRecHit*>> hitMapHandle;
       event->getByLabel(edm::InputTag("hgcRecHitMapProducer"), hitMapHandle);
       hitmap = *hitMapHandle;
     }
