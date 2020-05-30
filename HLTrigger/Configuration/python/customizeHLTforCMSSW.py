@@ -17,6 +17,11 @@ from HLTrigger.Configuration.common import *
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
+# Hcal calibration lookup using linear indexing
+def customiseForXXXXX(process):
+    process.hcalChannelPropertiesESProd = cms.ESProducer('HcalChannelPropertiesEP')
+    return process
+
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHCAL_cfi import _thresholdsHB
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHBHE_cfi import _seedingThresholdsHB, _thresholdsHB
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHBHE_cfi import _thresholdsHB as _thresholdsHBRec
@@ -175,5 +180,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-
+    process = customiseForXXXXX(process)
     return process

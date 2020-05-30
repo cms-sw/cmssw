@@ -14,6 +14,7 @@ from RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi import *
 #HCAL reconstruction
 import RecoLocalCalo.Configuration.hcalLocalReco_cff as _hcalLocalReco_cff
 from RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi import *
+from RecoLocalCalo.HcalRecAlgos.hcalChannelPropertiesESProd_cfi import *
 #
 # sequence CaloLocalReco
 #
