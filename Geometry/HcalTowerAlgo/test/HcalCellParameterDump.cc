@@ -21,7 +21,7 @@ public:
   void endJob() override {}
 
 private:
-  static const int detMax_ = 4;
+  static constexpr int detMax_ = 4;
   int subdet_;
 };
 
