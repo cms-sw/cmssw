@@ -61,9 +61,7 @@ bool MuonPFIsolationWithConeVeto::isInIsolationCone(const reco::CandidatePtr& ph
       }
       result = result && (is_vertex_allowed);
     }
-    result = result;
   } else if (aspf.isNonnull() && aspf.get()) {
-    result = result;
   } else {
     throw cms::Exception("InvalidIsolationInput") << "The supplied candidate to be used as isolation "
                                                   << "was neither a reco::PFCandidate nor a pat::PackedCandidate!";
