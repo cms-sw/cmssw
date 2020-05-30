@@ -52,6 +52,12 @@ namespace edm {
   // member functions
   //
   void ESProducer::updateLookup(eventsetup::ESRecordsToProxyIndices const& iProxyToIndices) {
+    if (sharedResourceNames_) {
+      auto instance = SharedResourcesRegistry::instance();
+      acquirer_ = instance->createAcquirer(*sharedResourceNames_);
+      sharedResourceNames_.reset();
+    }
+
     itemsToGetFromRecords_.reserve(consumesInfos_.size());
     recordsUsedDuringGet_.reserve(consumesInfos_.size());
 
@@ -107,10 +113,15 @@ namespace edm {
 
   void ESProducer::usesResources(std::vector<std::string> const& iResourceNames) {
     auto instance = SharedResourcesRegistry::instance();
+    if (not sharedResourceNames_ and !iResourceNames.empty()) {
+      sharedResourceNames_ = std::make_unique<std::vector<std::string>>(iResourceNames);
+    }
+
     for (auto const& r : iResourceNames) {
       instance->registerSharedResource(r);
     }
-    acquirer_ = instance->createAcquirer(iResourceNames);
+    //Must defer setting acquirer_ until all resources have been registered
+    // by all modules in the job
   }
 
   //
