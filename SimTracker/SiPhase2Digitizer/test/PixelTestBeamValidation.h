@@ -132,6 +132,7 @@ private:
   std::map<int, MonitorElement *> vME_clsize1Dx_;
   std::map<int, MonitorElement *> vME_clsize1Dy_;
   std::map<int, MonitorElement *> vME_charge1D_;
+  std::map<int, MonitorElement *> vME_charge_elec1D_;
   std::map<int, MonitorElement *> vME_track_dxdz_;
   std::map<int, MonitorElement *> vME_track_dydz_;
   std::map<int, MonitorElement *> vME_track_dxdzAngle_;
@@ -139,6 +140,8 @@ private:
   std::map<int, MonitorElement *> vME_dx1D_;
   std::map<int, MonitorElement *> vME_dy1D_;
   std::map<int, MonitorElement *> vME_digi_charge1D_;
+  std::map<int, MonitorElement *> vME_digi_chargeElec1D_;
+  std::map<int, MonitorElement *> vME_sim_cluster_charge_;
   // --- cell histograms per subdector , each element on the
   //     vector 0: total, 1: 1x1, 2: 2x2, (3: 3x3, 4: 4x4)?
   std::map<int, std::vector<MonitorElement *>> vME_pshpos_cell_;
@@ -146,6 +149,7 @@ private:
   std::map<int, std::vector<MonitorElement *>> vME_eff_cell_;
   std::map<int, std::vector<MonitorElement *>> vME_clsize_cell_;
   std::map<int, std::vector<MonitorElement *>> vME_charge_cell_;
+  std::map<int, std::vector<MonitorElement *>> vME_charge_elec_cell_;
   std::map<int, std::vector<MonitorElement *>> vME_dx_cell_;
   std::map<int, std::vector<MonitorElement *>> vME_dy_cell_;
 
@@ -157,6 +161,9 @@ private:
   // Geometry to use
   std::string geomType_;
 
+  // The conversion between ToT to electrons (Be carefull, this should
+  // be using the same value used in the digitization module)
+  double electronsPerADC_;
   // The tracks entry angle to accept (if any)
   std::vector<double> tracksEntryAngleX_;
   std::vector<double> tracksEntryAngleY_;
