@@ -20,9 +20,7 @@ public:
         gain_(i_gain),
         gainWidth_(i_gainWidth) {}
 
-  inline float pedestal(const bool useEffectivePeds) const {
-    return useEffectivePeds ? effPedestal_ : pedestal_;
-  }
+  inline float pedestal(const bool useEffectivePeds) const { return useEffectivePeds ? effPedestal_ : pedestal_; }
 
   inline float pedestalWidth(const bool useEffectivePeds) const {
     return useEffectivePeds ? effPedestalWidth_ : pedestalWidth_;
@@ -40,4 +38,4 @@ private:
   float gainWidth_;
 };
 
-#endif // RecoLocalCalo_HcalRecAlgos_HcalPipelinePedestalAndGain_h_
+#endif  // RecoLocalCalo_HcalRecAlgos_HcalPipelinePedestalAndGain_h_

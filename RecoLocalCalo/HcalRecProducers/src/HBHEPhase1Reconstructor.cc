@@ -502,12 +502,17 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
       // Always use QIE-only pedestal for this computation
       const double rawCharge = rcfs.getRawCharge(cs[inputTS], pAndGain.pedestal(false));
       const float t = getTDCTimeFromSample(s);
-      const float dfc = getDifferentialChargeGain(*properties.channelCoder, *properties.shape,
-                                                  adc, capid, channelInfo->hasTimeInfo());
-      channelInfo->setSample(copyTS, adc, dfc, rawCharge,
+      const float dfc = getDifferentialChargeGain(
+          *properties.channelCoder, *properties.shape, adc, capid, channelInfo->hasTimeInfo());
+      channelInfo->setSample(copyTS,
+                             adc,
+                             dfc,
+                             rawCharge,
                              pAndGain.pedestal(saveEffectivePeds),
                              pAndGain.pedestalWidth(saveEffectivePeds),
-                             pAndGain.gain(), pAndGain.gainWidth(), t);
+                             pAndGain.gain(),
+                             pAndGain.gainWidth(),
+                             t);
       if (inputTS == soi)
         soiCapid = capid;
     }
@@ -648,8 +653,7 @@ void HBHEPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& even
       hbheFlagSetterQIE8_->Clear();
 
     HBHEChannelInfo channelInfo(false, false);
-    processData<HBHEDataFrame>(
-        *hbDigis, *htopo, *conditions, *prop, isData, &channelInfo, infos.get(), out.get());
+    processData<HBHEDataFrame>(*hbDigis, *htopo, *conditions, *prop, isData, &channelInfo, infos.get(), out.get());
     if (setNoiseFlagsQIE8_)
       hbheFlagSetterQIE8_->SetFlagsFromRecHits(*out);
   }
@@ -659,8 +663,7 @@ void HBHEPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& even
       hbheFlagSetterQIE11_->Clear();
 
     HBHEChannelInfo channelInfo(true, saveEffectivePedestal_);
-    processData<QIE11DataFrame>(
-        *heDigis, *htopo, *conditions, *prop, isData, &channelInfo, infos.get(), out.get());
+    processData<QIE11DataFrame>(*heDigis, *htopo, *conditions, *prop, isData, &channelInfo, infos.get(), out.get());
     if (setNoiseFlagsQIE11_)
       hbheFlagSetterQIE11_->SetFlagsFromRecHits(*out);
   }

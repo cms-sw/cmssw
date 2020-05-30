@@ -199,8 +199,7 @@ void HFPreReconstructor::fillInfos(const edm::Event& e, const edm::EventSetup& e
   }
 }
 
-void HFPreReconstructor::beginRun(const edm::Run& r, const edm::EventSetup& es) {
-}
+void HFPreReconstructor::beginRun(const edm::Run& r, const edm::EventSetup& es) {}
 
 // ------------ method called to produce the data  ------------
 void HFPreReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
