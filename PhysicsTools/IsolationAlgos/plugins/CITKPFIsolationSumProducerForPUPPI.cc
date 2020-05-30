@@ -145,7 +145,7 @@ namespace citk {
         for (unsigned i = 0; i < isolations.size(); ++i) {
           if (isolations[i]->isInIsolationCone(cand_to_isolate, isocand)) {
             double puppiWeight = 0.;
-            if (!useValueMapForPUPPI && aspackedCandidate.isNull()) 
+            if (!useValueMapForPUPPI && aspackedCandidate.isNull())
               aspackedCandidate = edm::Ptr<pat::PackedCandidate>(isocand);
             if (!useValueMapForPUPPI && !usePUPPINoLepton)
               puppiWeight = aspackedCandidate->puppiWeight();  // if miniAOD, take puppiWeight directly from the object
