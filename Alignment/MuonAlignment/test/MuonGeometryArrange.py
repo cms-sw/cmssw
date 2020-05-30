@@ -5,6 +5,8 @@ process =cms.Process("TEST")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
+process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
+
 
 process.DTGeometryMuonGeometryArrange1 = cms.ESProducer("DTGeometryESModule",
     appendToDataLabel = cms.string('MuonGeometryArrangeLabel1'),
@@ -44,15 +46,15 @@ process.CSCGeometryMuonGeometryArrange2 = cms.ESProducer("CSCGeometryESModule",
     useDDD = cms.bool(True)
 )
 
-process.DTGeometryMuonGeometryArrange3 = cms.ESProducer("DTGeometryESModule",
-    appendToDataLabel = cms.string('MuonGeometryArrangeLabel3'),
+process.DTGeometryMuonGeometryArrange2a = cms.ESProducer("DTGeometryESModule",
+    appendToDataLabel = cms.string('MuonGeometryArrangeLabel2a'),
     applyAlignment = cms.bool(False), 
     alignmentsLabel = cms.string(''),
     fromDDD = cms.bool(True)
 )
 
-process.CSCGeometryMuonGeometryArrange3 = cms.ESProducer("CSCGeometryESModule",
-    appendToDataLabel = cms.string('MuonGeometryArrangeLabel3'),
+process.CSCGeometryMuonGeometryArrange2a = cms.ESProducer("CSCGeometryESModule",
+    appendToDataLabel = cms.string('MuonGeometryArrangeLabel2a'),
     debugV = cms.untracked.bool(False),
     useGangedStripsInME1a = cms.bool(False),
     alignmentsLabel = cms.string(''),

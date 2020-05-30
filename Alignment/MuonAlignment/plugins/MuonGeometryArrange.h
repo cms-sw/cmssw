@@ -170,7 +170,7 @@ private:
 
   bool firstEvent_;
 
-  std::string idealLabel1, idealLabel2, idealLabel3;
+  std::string idealInputLabel1, idealInputLabel2, idealInputLabel2a;
 };
 
 #endif
