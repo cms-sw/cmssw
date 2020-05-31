@@ -29,9 +29,9 @@ EGammaPCAHelper::~EGammaPCAHelper() {
     delete hitMap_;
 }
 
-void EGammaPCAHelper::setHitMap(std::unordered_map<DetId, const HGCRecHit*>* hitMap) {
+void EGammaPCAHelper::setHitMap(const std::unordered_map<DetId, const HGCRecHit*>* hitMap) {
   hitMapOrigin_ = 1;
-  hitMap_ = hitMap;
+  hitMap_ = const_cast<std::unordered_map<DetId, const HGCRecHit*>*>(hitMap);
   pcaIteration_ = 0;
 }
 

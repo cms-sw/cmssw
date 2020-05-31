@@ -33,7 +33,7 @@ void HGCalEgammaIDHelper::eventInit(const edm::Event& iEvent, const edm::EventSe
   recHitTools_.getEventSetup(iSetup);
   pcaHelper_.setRecHitTools(&recHitTools_);
   isoHelper_.setRecHitTools(&recHitTools_);
-  pcaHelper_.setHitMap(const_cast<std::unordered_map<DetId, const HGCRecHit*>*>(hitMapHandle.product()));
+  pcaHelper_.setHitMap(hitMapHandle.product());
   isoHelper_.setRecHits(recHitHandleEE, recHitHandleFH, recHitHandleBH);
 }
 
