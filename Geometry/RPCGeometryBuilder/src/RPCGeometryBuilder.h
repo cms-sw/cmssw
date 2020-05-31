@@ -50,7 +50,6 @@ private:
 
   std::map<RPCDetId, std::list<RPCRoll*> > chids;
 
-  //std::unique_ptr<cms::RPCNumberingScheme> rpcnum_ = nullptr;
   bool theComp11Flag;
 };
 

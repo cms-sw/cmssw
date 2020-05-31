@@ -12,7 +12,6 @@ DD4hep part added to the original old file (DD version) made by M. Maggi (INFN B
 #include "Geometry/RPCGeometryBuilder/src/RPCGeometryBuilder.h"
 #include "Geometry/RPCGeometryBuilder/src/RPCGeometryBuilderFromCondDB.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
-//#include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include <FWCore/Framework/interface/EventSetup.h>
 #include "FWCore/Framework/interface/ESTransientHandle.h"
