@@ -8,7 +8,7 @@ int main(int, char** /*argv*/) try {
 
   IOSize n;
   char buf[1024];
-  auto s = StorageFactory::get()->open("http://home.web.cern.ch", IOFlags::OpenRead);
+  auto s = StorageFactory::get()->open("http://google.com", IOFlags::OpenRead);
 
   assert(s);
   while ((n = s->read(buf, sizeof(buf))))
