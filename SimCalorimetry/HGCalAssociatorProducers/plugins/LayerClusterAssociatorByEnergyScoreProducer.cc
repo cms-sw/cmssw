@@ -42,9 +42,8 @@ void LayerClusterAssociatorByEnergyScoreProducer::produce(edm::StreamID,
                                                           edm::Event &iEvent,
                                                           const edm::EventSetup &es) const {
   rhtools_->getEventSetup(es);
-  edm::Handle<std::unordered_map<DetId, const HGCRecHit *>> hitMapHandle;
-  iEvent.getByToken(hitMap_, hitMapHandle);
-  const std::unordered_map<DetId, const HGCRecHit *> *hitMap = &*hitMapHandle;
+
+  const std::unordered_map<DetId, const HGCRecHit *> *hitMap = &iEvent.get(hitMap_);
 
   auto impl = std::make_unique<LayerClusterAssociatorByEnergyScoreImpl>(
       iEvent.productGetter(), hardScatterOnly_, rhtools_, hitMap);

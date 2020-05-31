@@ -44,7 +44,7 @@ namespace hgcal {
 
     const TPrincipal &pcaResult();
     /// to set from outside - once per event
-    void setHitMap(std::unordered_map<DetId, const HGCRecHit *> *hitMap);
+    void setHitMap(const std::unordered_map<DetId, const HGCRecHit *> *hitMap);
     /// to compute from inside - once per event
     void fillHitMap(const HGCRecHitCollection &HGCEERecHits,
                     const HGCRecHitCollection &HGCFHRecHits,
