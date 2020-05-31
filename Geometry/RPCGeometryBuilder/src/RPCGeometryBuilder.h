@@ -10,8 +10,8 @@
 //          Created:  Fri, 20 Sep 2019 
 //          Modified: Fri, 29 May 2020, following what Sunanda Banerjee made in PR #29842 PR #29943 and Ianna Osborne in PR #29954    
 */
-#include "Geometry/MuonNumbering/interface/DD4hep_RPCNumberingScheme.h"
-#include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
+//#include "Geometry/MuonNumbering/interface/DD4hep_RPCNumberingScheme.h"
+//#include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
 #include <string>
 #include <map>
 #include <list>
@@ -22,7 +22,7 @@ class DDFilteredView;
 namespace cms {
   class DDFilteredView;
   class DDCompactView;
-  class MuonNumbering;
+  //class MuonNumbering;
   struct DDSpecPar;
   struct DDSpecParRegistry;
 }  // namespace cms
@@ -40,17 +40,17 @@ public:
   // for DDD
   RPCGeometry* build(const DDCompactView* cview, const MuonGeometryConstants& muonConstants);
   // for DD4hep
-  RPCGeometry* build(const cms::DDCompactView* cview, const cms::MuonNumbering& muonConstants);
+  RPCGeometry* build(const cms::DDCompactView* cview, const MuonGeometryConstants& muonConstants);
 
 private:
   // for DDD
   RPCGeometry* buildGeometry(DDFilteredView& fview, const MuonGeometryConstants& muonConstants);
   // for DD4hep
-  RPCGeometry* buildGeometry(cms::DDFilteredView& fview, const cms::MuonNumbering& muonConstants);
+  RPCGeometry* buildGeometry(cms::DDFilteredView& fview, const MuonGeometryConstants& muonConstants);
 
   std::map<RPCDetId, std::list<RPCRoll*> > chids;
 
-  std::unique_ptr<cms::RPCNumberingScheme> rpcnum_ = nullptr;
+  //std::unique_ptr<cms::RPCNumberingScheme> rpcnum_ = nullptr;
   bool theComp11Flag;
 };
 
