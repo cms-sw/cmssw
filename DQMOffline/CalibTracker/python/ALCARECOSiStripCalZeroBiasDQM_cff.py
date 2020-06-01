@@ -17,5 +17,8 @@ from DPGAnalysis.SiStripTools.FilterSequenceForAlCaRecoDQM_cfi import *
 # Sequence #
 #------------
 
-ALCARECOSiStripCalZeroBiasDQM = cms.Sequence(seqFilters*
-                                             SiStripCalZeroBiasMonitorCluster)
+# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
+# To be reverted in a subsequent PR
+ALCARECOSiStripCalZeroBiasDQMTask = cms.Task(SiStripCalZeroBiasMonitorCluster)
+ALCARECOSiStripCalZeroBiasDQM = cms.Sequence(seqFilters,
+                                             ALCARECOSiStripCalZeroBiasDQMTask)

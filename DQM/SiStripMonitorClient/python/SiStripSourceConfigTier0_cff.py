@@ -152,21 +152,30 @@ from RecoLuminosity.LumiProducer.lumiProducer_cff import *
 #    *SiStripMonitorTrackMB*MonitorTrackResiduals
 #    *dqmInfoSiStrip)
 
+# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
+# To be reverted in a subsequent PR
+SiStripDQMTier0Task = cms.Task(APVPhases,consecutiveHEs)
 SiStripDQMTier0 = cms.Sequence(
-    APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX
+    siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX
     *SiStripMonitorTrackCommon*SiStripMonitorTrackIB*refittedForPixelDQM*MonitorTrackResiduals
-    *dqmInfoSiStrip)
+    *dqmInfoSiStrip, SiStripDQMTier0Task)
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
+# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
+# To be reverted in a subsequent PR
+SiStripDQMTier0CommonTask = cms.Task(APVPhases,consecutiveHEs)
 SiStripDQMTier0Common = cms.Sequence(
-    APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX        
+    siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX        
     *SiStripMonitorTrackCommon*SiStripMonitorTrackIB
-    *dqmInfoSiStrip)
+    *dqmInfoSiStrip, SiStripDQMTier0CommonTask)
 
+# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
+# To be reverted in a subsequent PR
+SiStripDQMTier0MinBiasTask = cms.Task(APVPhases,consecutiveHEs)
 SiStripDQMTier0MinBias = cms.Sequence(
-    APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX
+    siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX
     *SiStripMonitorTrackMB*SiStripMonitorTrackIB*refittedForPixelDQM*MonitorTrackResiduals
-    *dqmInfoSiStrip)
+    *dqmInfoSiStrip, SiStripDQMTier0MinBiasTask)
 
 
 

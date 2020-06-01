@@ -18,7 +18,10 @@ ALCARECOHcalCalHOHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
    throw = False #dont throw except on unknown path name
 ) 
 
-seqALCARECOHcalCalHO = cms.Sequence(ALCARECOHcalCalHOHLT*hoCalibProducer)
+# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
+# To be reverted in a subsequent PR
+seqALCARECOHcalCalHOTask = cms.Task(hoCalibProducer)
+seqALCARECOHcalCalHO = cms.Sequence(ALCARECOHcalCalHOHLT, seqALCARECOHcalCalHOTask)
 
 
 

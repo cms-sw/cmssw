@@ -45,8 +45,11 @@ MonitorTrackResiduals_hi.Mod_On              = False
 
 
 
-SiStripDQMTier0_hi = cms.Sequence(APVPhases * consecutiveHEs *
-                                  siStripFEDCheck * siStripFEDMonitor *
+# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
+# To be reverted in a subsequent PR
+SiStripDQMTier0_hiTask = cms.Task(APVPhases, consecutiveHEs)
+SiStripDQMTier0_hi = cms.Sequence(siStripFEDCheck * siStripFEDMonitor *
                                   SiStripMonitorDigi * SiStripMonitorCluster *
                                   SiStripMonitorTrack_hi *
-                                  MonitorTrackResiduals_hi)
+                                  MonitorTrackResiduals_hi,
+                                  SiStripDQMTier0_hiTask)
