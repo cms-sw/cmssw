@@ -192,6 +192,8 @@ template <class Top, class Bottom, class Matcher>
 void TopProjector<Top, Bottom, Matcher>::fillDescriptions(edm::ConfigurationDescriptions& desc) {
   edm::ParameterSetDescription psD;
   psD.add<bool>("enable");
+  if (std::is_same<Matcher, TopProjectorDeltaROverlap<Top, Bottom>>::value)
+    psD.add<double>("deltaR");
   psD.addUntracked<std::string>("name", "No Name");
   psD.add<edm::InputTag>("topCollection");
   psD.add<edm::InputTag>("bottomCollection");
