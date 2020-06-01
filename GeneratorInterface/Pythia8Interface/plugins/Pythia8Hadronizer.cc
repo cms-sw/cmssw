@@ -61,12 +61,14 @@ using namespace Pythia8;
 
 #include "GeneratorInterface/Core/interface/GeneratorFilter.h"
 #include "GeneratorInterface/Core/interface/HadronizerFilter.h"
+#include "GeneratorInterface/Core/interface/ConcurrentHadronizerFilter.h"
 
 #include "GeneratorInterface/Pythia8Interface/plugins/LHAupLesHouches.h"
 
 #include "HepPID/ParticleIDTranslations.hh"
 
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
+#include "GeneratorInterface/ExternalDecays/interface/ConcurrentExternalDecayDriver.h"
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -1005,3 +1007,7 @@ DEFINE_FWK_MODULE(Pythia8GeneratorFilter);
 
 typedef edm::HadronizerFilter<Pythia8Hadronizer, ExternalDecayDriver> Pythia8HadronizerFilter;
 DEFINE_FWK_MODULE(Pythia8HadronizerFilter);
+
+typedef edm::ConcurrentHadronizerFilter<Pythia8Hadronizer, ConcurrentExternalDecayDriver>
+    Pythia8ConcurrentHadronizerFilter;
+DEFINE_FWK_MODULE(Pythia8ConcurrentHadronizerFilter);
