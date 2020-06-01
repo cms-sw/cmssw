@@ -329,13 +329,13 @@ namespace reco {
          mvaInput[27] = 0;
          mvaInput[28] = 10.;
          mvaInput[29] = 10.;
-         if (tau.leadChargedHadrCand().isNonnull()) {
-            if (tau.leadChargedHadrCand()->bestTrack()) {
-               const float trackdxy = tau.leadChargedHadrCand()->bestTrack()->dxy();
-               mvaInput[27] = trackdxy>=0.?+1:-1;
-               mvaInput[28] = sqrt(std::abs(trackdxy));
-               mvaInput[29] = std::abs(trackdxy/tau.leadChargedHadrCand()->bestTrack()->dxyError());
-            }
+         const pat::PackedCandidate* patcand = dynamic_cast<const pat::PackedCandidate*>(tau.leadChargedHadrCand);
+         if (patcand->hasTrackDetails()) {
+            const float trackdxy = patcand->dxy();
+            const float trackdxyerr = patcand->dxyError();
+            mvaInput[27] = trackdxy>=0.?+1:-1;
+            mvaInput[28] = sqrt(std::abs(trackdxy));
+            mvaInput[29] = std::abs(trackdxy/trackdxyerror);
          }
       }
 
