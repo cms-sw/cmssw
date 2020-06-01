@@ -1,5 +1,5 @@
-#ifndef PhysicsTools_PFCandProducer_TopProjector_
-#define PhysicsTools_PFCandProducer_TopProjector_
+#ifndef CommonTools_ParticleFlow_TopProjector_
+#define CommonTools_ParticleFlow_TopProjector_
 
 // system include files
 #include <iostream>
@@ -206,52 +206,10 @@ void TopProjector<Top, Bottom, Matcher>::produce(edm::Event& iEvent, const edm::
     topsList.push_back(*i);
   }
 
-  /*   if( !tops.isValid() ) { */
-  /*     std::ostringstream  err; */
-  /*     err<<"The top collection must be supplied."<<std::endl */
-  /*        <<"It is now set to : "<<inputTagTop_<<std::endl; */
-  /*     edm::LogError("PFPAT")<<err.str(); */
-  /*     throw cms::Exception( "MissingProduct", err.str()); */
-  /*   } */
-
   // Access the collection to
   // be masked by the other ones
   BottomFwdPtrHandle bottoms;
   iEvent.getByToken(tokenBottom_, bottoms);
-
-  /*   if( !bottoms.isValid() ) { */
-  /*     std::ostringstream  err; */
-  /*     err<<"The bottom collection must be supplied."<<std::endl */
-  /*        <<"It is now set to : "<<inputTagBottom_<<std::endl; */
-  /*     edm::LogError("PFPAT")<<err.str(); */
-  /*     throw cms::Exception( "MissingProduct", err.str()); */
-  /*   } */
-
-  /* if(verbose_) { */
-  /*   const edm::Provenance& topProv = iEvent.getProvenance(tops.id()); */
-  /*   const edm::Provenance& bottomProv = iEvent.getProvenance(bottoms.id()); */
-
-  /*   edm::LogDebug("TopProjection")<<"Top projector: event "<<iEvent.id().event()<<std::endl; */
-  /*   edm::LogDebug("TopProjection")<<"Inputs --------------------"<<std::endl; */
-  /*   edm::LogDebug("TopProjection")<<"Top      :  " */
-  /* 	     <<tops.id()<<"\t"<<tops->size()<<std::endl */
-  /* 	     <<topProv.branchDescription()<<std::endl; */
-
-  /*   for(unsigned i=0; i<tops->size(); i++) { */
-  /*     TopFwdPtr top = (*tops)[i]; */
-  /*     edm::LogDebug("TopProjection") << "< " << i << " " << top.key() << " : " << *top << std::endl; */
-  /*   } */
-
-  /*   edm::LogDebug("TopProjection")<<"Bottom   :  " */
-  /* 	     <<bottoms.id()<<"\t"<<bottoms->size()<<std::endl */
-  /* 	     <<bottomProv.branchDescription()<<std::endl; */
-
-  /*   for(unsigned i=0; i<bottoms->size(); i++) { */
-  /*     BottomFwdPtr bottom = (*bottoms)[i]; */
-  /*     edm::LogDebug("TopProjection") << "> " << i << " " << bottom.key() << " : " << *bottom << std::endl; */
-  /*   } */
-
-  /* } */
 
   // output collection of FwdPtrs to objects,
   // selected from the Bottom collection
