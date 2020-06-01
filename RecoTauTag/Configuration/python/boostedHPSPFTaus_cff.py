@@ -40,6 +40,7 @@ for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
 boostedTauSeeds = cms.EDProducer("BoostedTauSeedsProducer",
     subjetSrc = cms.InputTag('ca8PFJetsCHSprunedForBoostedTaus', 'subJetsForSeedingBoostedTaus'),
     pfCandidateSrc = cms.InputTag('particleFlow'),
+    correctlyExcludeOverlap = cms.bool(False), #Set to False to keep buggy behaviour to fulfill non-changing policy; set to True for correct overlap removal
     verbosity = cms.int32(0)
 )
 

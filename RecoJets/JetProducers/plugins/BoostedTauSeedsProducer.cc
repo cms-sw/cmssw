@@ -56,6 +56,7 @@ private:
   edm::EDGetTokenT<JetView> srcSubjets_;
   edm::EDGetTokenT<reco::PFCandidateCollection> srcPFCandidates_;
 
+  bool correctlyExcludeOverlap_;
   int verbosity_;
 };
 
@@ -63,6 +64,12 @@ BoostedTauSeedsProducer::BoostedTauSeedsProducer(const edm::ParameterSet& cfg)
     : moduleLabel_(cfg.getParameter<std::string>("@module_label")) {
   srcSubjets_ = consumes<JetView>(cfg.getParameter<edm::InputTag>("subjetSrc"));
   srcPFCandidates_ = consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("pfCandidateSrc"));
+
+  correctlyExcludeOverlap_ = (cfg.exists("correctlyExcludeOverlap")) ? cfg.getParameter<bool>("correctlyExcludeOverlap") : false;
+  if (!correctlyExcludeOverlap_) {
+    edm::LogWarning("") << "The \"correctlyExcludeOverlap\" flag set to \"False\":\n"
+      << "=> module is working in a buggy backward compatibility mode; is it intended?";
+  }
 
   verbosity_ = (cfg.exists("verbosity")) ? cfg.getParameter<int>("verbosity") : 0;
 
@@ -253,10 +260,18 @@ void BoostedTauSeedsProducer::produce(edm::Event& evt, const edm::EventSetup& es
     edm::Ref<reco::PFJetCollection> subjetRef2(selectedSubjetRefProd, selectedSubjets->size() - 1);
 
     // find all PFCandidates that are not constituents of the **other** subjet
-    std::vector<reco::PFCandidateRef> pfCandidatesNotInSubjet1 =
-        getPFCandidates_exclJetConstituents(*subjet1, pfCandidates, constitmap[2 * idx + 1], false);
-    std::vector<reco::PFCandidateRef> pfCandidatesNotInSubjet2 =
-        getPFCandidates_exclJetConstituents(*subjet2, pfCandidates, constitmap[2 * idx], false);
+    std::vector<reco::PFCandidateRef> pfCandidatesNotInSubjet1, pfCandidatesNotInSubjet2;
+    //Overlapping constituents can be incorrectly selected as in previous
+    //buggy version of this module to fulfill non-changing policy in
+    //10_6_X release series.
+    if (correctlyExcludeOverlap_) {
+      pfCandidatesNotInSubjet1 = getPFCandidates_exclJetConstituents(*subjet1, pfCandidates, constitmap[2 * idx + 1], false);
+      pfCandidatesNotInSubjet2 = getPFCandidates_exclJetConstituents(*subjet2, pfCandidates, constitmap[2 * idx], false);
+    }
+    else {
+      pfCandidatesNotInSubjet1 = getPFCandidates_exclJetConstituents(*subjet1, pfCandidates, constitmap[2 * idx], false);
+      pfCandidatesNotInSubjet2 = getPFCandidates_exclJetConstituents(*subjet2, pfCandidates, constitmap[2 * idx + 1], false);
+    }
     if (verbosity_ >= 1) {
       std::cout << "#pfCandidatesNotInSubjet1 = " << pfCandidatesNotInSubjet1.size() << std::endl;
       std::cout << "#pfCandidatesNotInSubjet2 = " << pfCandidatesNotInSubjet2.size() << std::endl;
