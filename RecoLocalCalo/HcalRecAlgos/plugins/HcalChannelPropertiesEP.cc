@@ -19,22 +19,38 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalChannelProperties.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalChannelPropertiesAuxRecord.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalChannelPropertiesRecord.h"
 
 class HcalChannelPropertiesEP : public edm::ESProducer {
 public:
-  typedef std::unique_ptr<HcalChannelPropertiesVec> ReturnType;
+  typedef std::unique_ptr<HcalRecoParams> ReturnType1;
+  typedef std::unique_ptr<HcalChannelPropertiesVec> ReturnType2;
 
   inline HcalChannelPropertiesEP(const edm::ParameterSet&) {
-    auto cc = setWhatProduced(this);
+    auto cc1 = setWhatProduced(this, &HcalChannelPropertiesEP::produce1);
+    cc1.setConsumes(topoToken_).setConsumes(paramsToken_);
+
+    auto cc2 = setWhatProduced(this, &HcalChannelPropertiesEP::produce2);
     edm::ESInputTag qTag("", "withTopo");
-    cc.setConsumes(condToken_).setConsumes(topoToken_).setConsumes(paramsToken_);
-    cc.setConsumes(sevToken_).setConsumes(qualToken_, qTag).setConsumes(geomToken_);
+    cc2.setConsumes(condToken_).setConsumes(myParamsToken_);
+    cc2.setConsumes(sevToken_).setConsumes(qualToken_, qTag).setConsumes(geomToken_);
   }
 
   inline ~HcalChannelPropertiesEP() override {}
 
-  ReturnType produce(const HcalChannelPropertiesRecord& rcd) {
+  ReturnType1 produce1(const HcalChannelPropertiesAuxRecord& rcd) {
+    using namespace edm;
+
+    const HcalTopology& htopo = rcd.getRecord<HcalRecNumberingRecord>().get(topoToken_);
+    const HcalRecoParams& params = rcd.getRecord<HcalRecoParamsRcd>().get(paramsToken_);
+
+    ReturnType1 prod(new HcalRecoParams(params));
+    prod->setTopo(&htopo);
+    return prod;
+  }
+
+  ReturnType2 produce2(const HcalChannelPropertiesRecord& rcd) {
     // There appears to be no easy way to trace the internal
     // dependencies of HcalDbService. So, rebuild the product
     // every time anything changes in the parent records.
@@ -46,17 +62,16 @@ public:
     // Retrieve various event setup records and data products
     const HcalDbRecord& dbRecord = rcd.getRecord<HcalDbRecord>();
     const HcalDbService& cond = dbRecord.get(condToken_);
-    const HcalTopology& htopo = dbRecord.getRecord<HcalRecNumberingRecord>().get(topoToken_);
-    const HcalRecoParams& params = dbRecord.getRecord<HcalRecoParamsRcd>().get(paramsToken_);
+    const HcalRecoParams& params = rcd.getRecord<HcalChannelPropertiesAuxRecord>().get(myParamsToken_);
     const HcalSeverityLevelComputer& severity = rcd.getRecord<HcalSeverityLevelComputerRcd>().get(sevToken_);
     const HcalChannelQuality& qual = dbRecord.getRecord<HcalChannelQualityRcd>().get(qualToken_);
     const CaloGeometry& geom = rcd.getRecord<CaloGeometryRecord>().get(geomToken_);
 
-    paramTS_ = std::make_unique<HcalRecoParams>(params);
-    paramTS_->setTopo(&htopo);
+    // HcalTopology is taken from "params" created by the "produce1" method
+    const HcalTopology& htopo(*params.topo());
 
     // Build the product
-    ReturnType prod(new HcalChannelPropertiesVec(htopo.ncells()));
+    ReturnType2 prod(new HcalChannelPropertiesVec(htopo.ncells()));
     std::array<HcalPipelinePedestalAndGain, 4> pedsAndGains;
     const HcalSubdetector subdetectors[3] = {HcalBarrel, HcalEndcap, HcalForward};
 
@@ -68,7 +83,7 @@ public:
         const auto rawId = cell.rawId();
 
         // ADC decoding tools, etc
-        const HcalRecoParam* param_ts = paramTS_->getValues(rawId);
+        const HcalRecoParam* param_ts = params.getValues(rawId);
         const HcalQIECoder* channelCoder = cond.getHcalCoder(cell);
         const HcalQIEShape* shape = cond.getHcalShape(channelCoder);
         const HcalSiPMParameter* siPMParameter = cond.getHcalSiPMParameter(cell);
@@ -110,8 +125,7 @@ private:
   edm::ESGetToken<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd> sevToken_;
   edm::ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> qualToken_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
-
-  std::unique_ptr<HcalRecoParams> paramTS_;
+  edm::ESGetToken<HcalRecoParams, HcalChannelPropertiesAuxRecord> myParamsToken_;
 };
 
 DEFINE_FWK_EVENTSETUP_MODULE(HcalChannelPropertiesEP);

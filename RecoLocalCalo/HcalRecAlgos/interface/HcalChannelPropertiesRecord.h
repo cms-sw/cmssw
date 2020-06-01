@@ -7,10 +7,11 @@
 class HcalDbRecord;
 class CaloGeometryRecord;
 class HcalSeverityLevelComputerRcd;
+class HcalChannelPropertiesAuxRecord;
 
 class HcalChannelPropertiesRecord
     : public edm::eventsetup::DependentRecordImplementation<
           HcalChannelPropertiesRecord,
-          boost::mpl::vector<CaloGeometryRecord, HcalDbRecord, HcalSeverityLevelComputerRcd> > {};
+          boost::mpl::vector<CaloGeometryRecord, HcalDbRecord, HcalSeverityLevelComputerRcd, HcalChannelPropertiesAuxRecord> > {};
 
 #endif  // RecoLocalCalo_HcalRecAlgos_HcalChannelPropertiesRecord_h_
