@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 trackingMaterialAnalyser = cms.EDAnalyzer("DD4hep_TrackingMaterialAnalyser",
     MaterialAccounting      = cms.InputTag("trackingMaterialProducer"),
     SplitMode               = cms.string("NearestLayer"),
+    DDDetector              = cms.ESInputTag("","CMS"),
     SkipBeforeFirstDetector = cms.bool(False),
     SkipAfterLastDetector   = cms.bool(True),
     SaveSummaryPlot         = cms.bool(True),
