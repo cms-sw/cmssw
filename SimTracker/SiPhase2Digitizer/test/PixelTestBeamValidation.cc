@@ -290,7 +290,8 @@ void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::Event
           vME_digi_RZMap_->Fill(digi_global_pos.z(), std::hypot(digi_global_pos.x(), digi_global_pos.y()));
           // Create the MC-cluster
           cluster_tot += current_digi.adc();
-          cluster_tot_elec += current_digi.adc() * electronsPerADC_;
+          // Add 0.5 to allow ToT = 0 (valid value)
+          cluster_tot_elec += (current_digi.adc() + 0.5) * electronsPerADC_;
           // Use the center of the pixel
           cluster_position.first += current_digi.adc() * (current_digi.row() + 0.5);
           cluster_position.second += current_digi.adc() * (current_digi.column() + 0.5);
@@ -349,7 +350,7 @@ void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::Event
             vME_charge_cell_[me_unit][i]->Fill(
                 icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, cluster_tot);
             vME_charge_elec_cell_[me_unit][i]->Fill(
-                icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, cluster_tot * electronsPerADC_);
+                icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, cluster_tot_elec);
             // Cluster size
             vME_clsize_cell_[me_unit][i]->Fill(
                 icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, cluster_size);
