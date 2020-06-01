@@ -45,11 +45,14 @@ public:
 
   explicit TopProjectorFwdPtrOverlap() { bottom_ = 0; }
 
-  explicit TopProjectorFwdPtrOverlap(edm::ParameterSet const& iConfig) { bottom_ = nullptr; }
+  explicit TopProjectorFwdPtrOverlap(edm::ParameterSet const& iConfig)
+      : bottom_(nullptr), matchByPtrDirect_(iConfig.getParameter<bool>("matchByPtrDirect")) {}
 
   inline void setBottom(BottomFwdPtr const& bottom) { bottom_ = &bottom; }
 
   bool operator()(TopFwdPtr const& top) const {
+    if (std::is_same<Top, Bottom>::value && matchByPtrDirect_)
+      return top.ptr().refCore() == bottom_->ptr().refCore() && top.ptr().key() == bottom_->ptr().key();
     bool topFwdGood = top.ptr().isNonnull() && top.ptr().isAvailable();
     bool topBckGood = top.backPtr().isNonnull() && top.backPtr().isAvailable();
     bool bottomFwdGood = bottom_->ptr().isNonnull() && bottom_->ptr().isAvailable();
@@ -95,6 +98,7 @@ public:
 
 protected:
   BottomFwdPtr const* bottom_;
+  const bool matchByPtrDirect_ = false;
 };
 
 /// This checks matching based on delta R
@@ -136,7 +140,7 @@ protected:
   float botEta_, botPhi_;
 };
 
-template <class Top, class Bottom, class Matcher = TopProjectorFwdPtrOverlap<Top, Bottom> >
+template <class Top, class Bottom, class Matcher = TopProjectorFwdPtrOverlap<Top, Bottom>>
 class TopProjector : public edm::stream::EDProducer<> {
 public:
   typedef std::vector<Top> TopCollection;
@@ -151,6 +155,8 @@ public:
 
   ~TopProjector() = default;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
@@ -164,11 +170,9 @@ private:
   const std::string name_;
 
   /// input tag for the top (masking) collection
-  const edm::InputTag inputTagTop_;
   const edm::EDGetTokenT<TopFwdPtrCollection> tokenTop_;
 
   /// input tag for the masked collection.
-  const edm::InputTag inputTagBottom_;
   const edm::EDGetTokenT<BottomFwdPtrCollection> tokenBottom_;
 };
 
@@ -177,13 +181,23 @@ TopProjector<Top, Bottom, Matcher>::TopProjector(const edm::ParameterSet& iConfi
     : match_(iConfig),
       enable_(iConfig.getParameter<bool>("enable")),
       name_(iConfig.getUntrackedParameter<std::string>("name", "No Name")),
-      inputTagTop_(iConfig.getParameter<edm::InputTag>("topCollection")),
-      tokenTop_(consumes<TopFwdPtrCollection>(inputTagTop_)),
-      inputTagBottom_(iConfig.getParameter<edm::InputTag>("bottomCollection")),
-      tokenBottom_(consumes<BottomFwdPtrCollection>(inputTagBottom_)) {
+      tokenTop_(consumes<TopFwdPtrCollection>(iConfig.getParameter<edm::InputTag>("topCollection"))),
+      tokenBottom_(consumes<BottomFwdPtrCollection>(iConfig.getParameter<edm::InputTag>("bottomCollection"))) {
   // will produce a collection of the unmasked candidates in the
   // bottom collection
   produces<BottomFwdPtrCollection>();
+}
+
+template <class Top, class Bottom, class Matcher>
+void TopProjector<Top, Bottom, Matcher>::fillDescriptions(edm::ConfigurationDescriptions& desc) {
+  edm::ParameterSetDescription psD;
+  psD.add<bool>("enable");
+  psD.addUntracked<std::string>("name", "No Name");
+  psD.add<edm::InputTag>("topCollection");
+  psD.add<edm::InputTag>("bottomCollection");
+  if (std::is_same<Matcher, TopProjectorFwdPtrOverlap<Top, Bottom>>::value)
+    psD.add<bool>("matchByPtrDirect", false)->setComment("fast check by ptr() only");
+  desc.addWithDefaultLabel(psD);
 }
 
 template <class Top, class Bottom, class Matcher>

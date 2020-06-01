@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
+from CommonTools.ParticleFlow.tppfCandidatesOnPFCandidates_cfi import tppfCandidatesOnPFCandidates
 
-pfNoPileUp = cms.EDProducer(
-    "TPPFCandidatesOnPFCandidates",
-    enable =  cms.bool( True ),
-    verbose = cms.untracked.bool( False ),
-    name = cms.untracked.string("pileUpOnPFCandidates"),
-    topCollection = cms.InputTag("pfPileUp"),
-    bottomCollection = cms.InputTag("particleFlowTmpPtrs"),
+pfNoPileUp = tppfCandidatesOnPFCandidates.clone(
+    enable =  True,
+    name = "pileUpOnPFCandidates",
+    topCollection = "pfPileUp",
+    bottomCollection = "particleFlowTmpPtrs",
+    matchByPtrDirect = True
 )
