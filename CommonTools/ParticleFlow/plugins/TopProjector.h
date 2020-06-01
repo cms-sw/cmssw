@@ -140,22 +140,16 @@ template <class Top, class Bottom, class Matcher = TopProjectorFwdPtrOverlap<Top
 class TopProjector : public edm::stream::EDProducer<> {
 public:
   typedef std::vector<Top> TopCollection;
-  typedef edm::Handle<std::vector<Top> > TopHandle;
   typedef edm::FwdPtr<Top> TopFwdPtr;
   typedef std::vector<TopFwdPtr> TopFwdPtrCollection;
-  typedef edm::Handle<TopFwdPtrCollection> TopFwdPtrHandle;
 
   typedef std::vector<Bottom> BottomCollection;
-  typedef edm::Handle<std::vector<Bottom> > BottomHandle;
-  typedef edm::Ptr<Bottom> BottomPtr;
-  typedef edm::Ref<BottomCollection> BottomRef;
   typedef edm::FwdPtr<Bottom> BottomFwdPtr;
   typedef std::vector<BottomFwdPtr> BottomFwdPtrCollection;
-  typedef edm::Handle<BottomFwdPtrCollection> BottomFwdPtrHandle;
 
   TopProjector(const edm::ParameterSet&);
 
-  ~TopProjector() override{};
+  ~TopProjector() = default;
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
@@ -164,29 +158,29 @@ private:
   Matcher match_;
 
   /// enable? if not, all candidates in the bottom collection are copied to the output collection
-  bool enable_;
+  const bool enable_;
 
   /// name of the top projection
-  std::string name_;
+  const std::string name_;
 
   /// input tag for the top (masking) collection
-  edm::InputTag inputTagTop_;
-  edm::EDGetTokenT<TopFwdPtrCollection> tokenTop_;
+  const edm::InputTag inputTagTop_;
+  const edm::EDGetTokenT<TopFwdPtrCollection> tokenTop_;
 
   /// input tag for the masked collection.
-  edm::InputTag inputTagBottom_;
-  edm::EDGetTokenT<BottomFwdPtrCollection> tokenBottom_;
+  const edm::InputTag inputTagBottom_;
+  const edm::EDGetTokenT<BottomFwdPtrCollection> tokenBottom_;
 };
 
 template <class Top, class Bottom, class Matcher>
 TopProjector<Top, Bottom, Matcher>::TopProjector(const edm::ParameterSet& iConfig)
-    : match_(iConfig), enable_(iConfig.getParameter<bool>("enable")) {
-  name_ = iConfig.getUntrackedParameter<std::string>("name", "No Name");
-  inputTagTop_ = iConfig.getParameter<edm::InputTag>("topCollection");
-  tokenTop_ = consumes<TopFwdPtrCollection>(inputTagTop_);
-  inputTagBottom_ = iConfig.getParameter<edm::InputTag>("bottomCollection");
-  tokenBottom_ = consumes<BottomFwdPtrCollection>(inputTagBottom_);
-
+    : match_(iConfig),
+      enable_(iConfig.getParameter<bool>("enable")),
+      name_(iConfig.getUntrackedParameter<std::string>("name", "No Name")),
+      inputTagTop_(iConfig.getParameter<edm::InputTag>("topCollection")),
+      tokenTop_(consumes<TopFwdPtrCollection>(inputTagTop_)),
+      inputTagBottom_(iConfig.getParameter<edm::InputTag>("bottomCollection")),
+      tokenBottom_(consumes<BottomFwdPtrCollection>(inputTagBottom_)) {
   // will produce a collection of the unmasked candidates in the
   // bottom collection
   produces<BottomFwdPtrCollection>();
@@ -197,19 +191,16 @@ void TopProjector<Top, Bottom, Matcher>::produce(edm::Event& iEvent, const edm::
   // get the various collections
 
   // Access the masking collection
-  TopFwdPtrHandle tops;
-  iEvent.getByToken(tokenTop_, tops);
+  auto const& tops = iEvent.get(tokenTop_);
   std::list<TopFwdPtr> topsList;
 
-  for (typename TopFwdPtrCollection::const_iterator ibegin = tops->begin(), iend = tops->end(), i = ibegin; i != iend;
-       ++i) {
-    topsList.push_back(*i);
+  for (auto const& top : tops) {
+    topsList.push_back(top);
   }
 
   // Access the collection to
   // be masked by the other ones
-  BottomFwdPtrHandle bottoms;
-  iEvent.getByToken(tokenBottom_, bottoms);
+  auto const& bottoms = iEvent.get(tokenBottom_);
 
   // output collection of FwdPtrs to objects,
   // selected from the Bottom collection
@@ -217,25 +208,24 @@ void TopProjector<Top, Bottom, Matcher>::produce(edm::Event& iEvent, const edm::
 
   LogDebug("TopProjection") << " Remaining candidates in the bottom collection ------ ";
 
-  for (typename BottomFwdPtrCollection::const_iterator i = bottoms->begin(), iend = bottoms->end(), ibegin = i;
-       i != iend;
-       ++i) {
-    BottomFwdPtr const& bottom = *i;
+  int iB = -1;
+  for (auto const& bottom : bottoms) {
+    iB++;
     match_.setBottom(bottom);
-    typename std::list<TopFwdPtr>::iterator found = topsList.end();
+    auto found = topsList.end();
     if (enable_) {
       found = std::find_if(topsList.begin(), topsList.end(), match_);
     }
 
     // If this is masked in the top projection, we remove it.
     if (found != topsList.end()) {
-      LogDebug("TopProjection") << "X " << i - ibegin << **i;
+      LogDebug("TopProjection") << "X " << iB << *bottom;
       topsList.erase(found);
       continue;
     }
     // otherwise, we keep it.
     else {
-      LogDebug("TopProjection") << "O " << i - ibegin << **i;
+      LogDebug("TopProjection") << "O " << iB << *bottom;
       pBottomFwdPtrOutput->push_back(bottom);
     }
   }
