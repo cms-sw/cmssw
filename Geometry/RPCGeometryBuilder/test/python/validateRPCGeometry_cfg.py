@@ -29,6 +29,8 @@ process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProduce
                                                      appendToDataLabel = cms.string('')
                                                      )
 
+process.muonGeometryConstants.fromDD4Hep = True
+
 process.test = cms.EDAnalyzer("DDTestMuonNumbering")
 
 #
