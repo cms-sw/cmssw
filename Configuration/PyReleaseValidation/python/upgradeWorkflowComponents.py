@@ -638,6 +638,24 @@ upgradeWFs['TestOldDigi'] = UpgradeWorkflow_TestOldDigi(
     offset = 0.1001,
 )
 
+class UpgradeWorkflow_DD4hep(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        stepDict[stepName][k] = merge([{'--geometry': 'DD4hepExtended2021', '--era': 'Run3_dd4hep'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return (fragment=='TTbar_13' or fragment=='ZMM_13' or fragment=='SingleMuPt10') and '2021' in key
+upgradeWFs['DD4hep'] = UpgradeWorkflow_DD4hep(
+    steps = [
+        'GenSimFull',
+        'DigiFull',
+        'RecoFull',
+        'HARVESTFull',
+        'ALCAFull',
+    ],
+    PU = [],
+    suffix = '_DD4hep',
+    offset = 0.911,
+)
+
 # check for duplicate offsets
 offsets = [specialWF.offset for specialType,specialWF in six.iteritems(upgradeWFs)]
 seen = set()
