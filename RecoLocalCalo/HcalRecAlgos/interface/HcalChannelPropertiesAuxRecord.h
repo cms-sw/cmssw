@@ -7,9 +7,8 @@
 class HcalRecNumberingRecord;
 class HcalRecoParamsRcd;
 
-class HcalChannelPropertiesAuxRecord
-    : public edm::eventsetup::DependentRecordImplementation<
-          HcalChannelPropertiesAuxRecord,
-          boost::mpl::vector<HcalRecNumberingRecord, HcalRecoParamsRcd> > {};
+class HcalChannelPropertiesAuxRecord : public edm::eventsetup::DependentRecordImplementation<
+                                           HcalChannelPropertiesAuxRecord,
+                                           boost::mpl::vector<HcalRecNumberingRecord, HcalRecoParamsRcd> > {};
 
 #endif  // RecoLocalCalo_HcalRecAlgos_HcalChannelPropertiesAuxRecord_h_
