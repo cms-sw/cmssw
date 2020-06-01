@@ -50,8 +50,8 @@ from Validation.SiTrackerPhase2V.Phase2TrackerValidationFirstStep_cff import *
 # filter/producer "pre-" sequence for globalValidation
 globalPrevalidationTracking = cms.Sequence(
     simHitTPAssocProducer
-  * tracksValidation
   * vertexValidation
+  , tracksValidation
 )
 globalPrevalidation = cms.Sequence(
     globalPrevalidationTracking
@@ -128,16 +128,16 @@ baseCommonValidation = cms.Sequence()
 # Tracking-only validation
 globalPrevalidationTrackingOnly = cms.Sequence(
       simHitTPAssocProducer
-    + tracksValidationTrackingOnly
     + vertexValidationTrackingOnly
+    , tracksValidationTrackingOnly
 )
 globalValidationTrackingOnly = cms.Sequence()
 
 # Pixel tracking only validation
 globalPrevalidationPixelTrackingOnly = cms.Sequence(
       simHitTPAssocProducer
-    + tracksValidationPixelTrackingOnly
     + vertexValidationPixelTrackingOnly
+    , tracksValidationPixelTrackingOnly
 )
 globalValidationPixelTrackingOnly = cms.Sequence()
 

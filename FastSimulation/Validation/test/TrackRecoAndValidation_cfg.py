@@ -116,5 +116,5 @@ process = customisePostLS1(process)
 # BEGIN MODIFICATIONS
 # redefine validation paths
 process.prevalidation = cms.Sequence(process.tracksPreValidation)
-process.validation = cms.Sequence(process.trackingTruthValid + process.tracksValidationFS)
+process.validation = cms.Sequence(process.trackingTruthValid , process.tracksValidationFS)
 # END MODIFICATIONS
