@@ -19,7 +19,7 @@ EGammaPCAHelper::EGammaPCAHelper()
       // See RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi
       invThicknessCorrection_({1. / 1.132, 1. / 1.092, 1. / 1.084}),
       pca_(new TPrincipal(3, "D")) {
-  hitMap_ = new std::unordered_map<DetId, const HGCRecHit*>();
+  hitMap_ = nullptr;
   debug_ = false;
 }
 
