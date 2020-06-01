@@ -19,45 +19,21 @@ EGammaPCAHelper::EGammaPCAHelper()
       // See RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi
       invThicknessCorrection_({1. / 1.132, 1. / 1.092, 1. / 1.084}),
       pca_(new TPrincipal(3, "D")) {
-  hitMapOrigin_ = 0;
   hitMap_ = new std::unordered_map<DetId, const HGCRecHit*>();
   debug_ = false;
 }
 
 EGammaPCAHelper::~EGammaPCAHelper() {
-  if (hitMapOrigin_ == 2)
-    delete hitMap_;
 }
 
 void EGammaPCAHelper::setHitMap(const std::unordered_map<DetId, const HGCRecHit*>* hitMap) {
-  hitMapOrigin_ = 1;
-  hitMap_ = const_cast<std::unordered_map<DetId, const HGCRecHit*>*>(hitMap);
+  hitMap_ = hitMap;
   pcaIteration_ = 0;
 }
 
 void EGammaPCAHelper::setRecHitTools(const hgcal::RecHitTools* recHitTools) {
   recHitTools_ = recHitTools;
   maxlayer_ = recHitTools_->lastLayerBH();
-}
-
-void EGammaPCAHelper::fillHitMap(const HGCRecHitCollection& rechitsEE,
-                                 const HGCRecHitCollection& rechitsFH,
-                                 const HGCRecHitCollection& rechitsBH) {
-  hitMap_->clear();
-  for (const auto& hit : rechitsEE) {
-    hitMap_->emplace_hint(hitMap_->end(), hit.detid(), &hit);
-  }
-
-  for (const auto& hit : rechitsFH) {
-    hitMap_->emplace_hint(hitMap_->end(), hit.detid(), &hit);
-  }
-
-  for (const auto& hit : rechitsBH) {
-    hitMap_->emplace_hint(hitMap_->end(), hit.detid(), &hit);
-  }
-
-  pcaIteration_ = 0;
-  hitMapOrigin_ = 2;
 }
 
 void EGammaPCAHelper::storeRecHits(const reco::HGCalMultiCluster& cluster) {
