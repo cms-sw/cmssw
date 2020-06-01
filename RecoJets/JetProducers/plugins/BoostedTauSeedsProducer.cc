@@ -253,10 +253,10 @@ void BoostedTauSeedsProducer::produce(edm::Event& evt, const edm::EventSetup& es
     edm::Ref<reco::PFJetCollection> subjetRef2(selectedSubjetRefProd, selectedSubjets->size() - 1);
 
     // find all PFCandidates that are not constituents of the **other** subjet
-    std::vector<reco::PFCandidateRef> pfCandidatesNotInSubjet1 = getPFCandidates_exclJetConstituents(
-        *subjet1, pfCandidates, constitmap[2 * idx + 1], false);
-    std::vector<reco::PFCandidateRef> pfCandidatesNotInSubjet2 = getPFCandidates_exclJetConstituents(
-        *subjet2, pfCandidates, constitmap[2 * idx], false);
+    std::vector<reco::PFCandidateRef> pfCandidatesNotInSubjet1 =
+        getPFCandidates_exclJetConstituents(*subjet1, pfCandidates, constitmap[2 * idx + 1], false);
+    std::vector<reco::PFCandidateRef> pfCandidatesNotInSubjet2 =
+        getPFCandidates_exclJetConstituents(*subjet2, pfCandidates, constitmap[2 * idx], false);
     if (verbosity_ >= 1) {
       std::cout << "#pfCandidatesNotInSubjet1 = " << pfCandidatesNotInSubjet1.size() << std::endl;
       std::cout << "#pfCandidatesNotInSubjet2 = " << pfCandidatesNotInSubjet2.size() << std::endl;
