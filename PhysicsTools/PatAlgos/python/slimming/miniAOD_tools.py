@@ -359,57 +359,20 @@ def miniAOD_customizeCommon(process):
         updatedTauName = _updatedTauName,
         toKeep = ['deepTau2017v2p1']
     )
-    from Configuration.Eras.Modifier_phase2_common_cff import phase2_common #Phase 2 Tau MVA
-    phase2_common.toModify(tauIdEmbedder, tauIdEmbedder.toKeep.append('newDMwLTwGJPhase2')) #Phase 2 Tau MVA
+    from Configuration.Eras.Modifier_phase2_common_cff import phase2_common #Phase2 Tau MVA
+    phase2_common.toModify(tauIdEmbedder, tauIdEmbedder.toKeep.append('newDMwLTwGJPhase2')) #Phase2 Tau MVA
     tauIdEmbedder.runTauID()
     addToProcessAndTask(_noUpdatedTauName, process.slimmedTaus.clone(),process,task)
     delattr(process, 'slimmedTaus')
     process.deepTau2017v2p1.taus = _noUpdatedTauName
+    phase2_common.toModify(process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw, PATTauProducer=_noUpdatedTauName) #Phase2 Tau MVA
+    phase2_common.toModify(process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2, PATTauProducer=_noUpdatedTauName) #Phase2 Tau MVA
     process.slimmedTaus = getattr(process, _updatedTauName).clone(
         src = _noUpdatedTauName
     )
     process.deepTauIDTask = cms.Task(process.deepTau2017v2p1, process.slimmedTaus)
     task.add(process.deepTauIDTask)
-
-    #Phase 2 Tau MVA
-    from RecoTauTag.RecoTau.PATTauDiscriminationByMVAIsolationRun2_cff import patDiscriminationByIsolationMVArun2v1raw, patDiscriminationByIsolationMVArun2v1
-    from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
-    process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw = patDiscriminationByIsolationMVArun2v1raw.clone(
-        PATTauProducer = cms.InputTag(_noUpdatedTauName),
-        Prediscriminants = noPrediscriminants,
-        loadMVAfromDB = cms.bool(True),
-        mvaName = cms.string("RecoTauTag_tauIdMVAIsoPhase2"),
-        mvaOpt = cms.string("DBnewDMwLTwGJPhase2"),
-        verbosity = cms.int32(0)
-    )
-    process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2 = patDiscriminationByIsolationMVArun2v1.clone(
-        PATTauProducer = cms.InputTag(_noUpdatedTauName),
-        Prediscriminants = noPrediscriminants,
-        toMultiplex = cms.InputTag('rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw'),
-        loadMVAfromDB = cms.bool(True),
-        mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVAIsoPhase2_mvaOutput_normalization"),
-        mapping = cms.VPSet(
-            cms.PSet(
-                category = cms.uint32(0),
-                cut = cms.string("RecoTauTag_tauIdMVAIsoPhase2"),
-                variable = cms.string("pt"),
-               )
-            ),
-        workingPoints = cms.vstring(
-            "_WPEff95",
-            "_WPEff90",
-            "_WPEff80",
-            "_WPEff70",
-            "_WPEff60",
-            "_WPEff50",
-            "_WPEff40"
-        )
-    )
-    process.rerunIsolationMVADBnewDMwLTPhase2Task = cms.Task(
-        process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw,
-        process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2
-    )
-    phase2_common.toModify(task, func=lambda t: t.add(process.rerunIsolationMVADBnewDMwLTPhase2Task))
+    phase2_common.toModify(process.deepTauIDTask, func=lambda t: process.deepTauIDTask.add(process.rerunIsolationMVADBnewDMwLTPhase2Task)) #Phase2 Tau MVA
 
     #-- Adding customization for 80X 2016 legacy reMiniAOD and 2018 heavy ions
     _makePatTausTaskWithTauReReco = process.makePatTausTask.copy()
