@@ -114,7 +114,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
   mtau_dm11Map.insert(std::make_pair("", mtau_dm11));
 
   dmMigration = ibooker.book2D("dmMigration", "dmMigration", 
-			       50, 0, 1000, 50, 0, 1000);
+			       15, 0, 15, 15, 0, 15);
   dmMigrationMap.insert(std::make_pair("", dmMigration));
 
   histoInfo pTOverProngHinfo = (histoSettings_.exists("pTOverProng"))
@@ -568,7 +568,66 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
       }
 	genindex = genindex + 1;
       }
-      dmMigrationMap.find("")->second->Fill(matchedTau->pt(),genParticles->at(genmatchedTauIndex).pt());   ////Find a way to acceess decaymode      
+
+      std::cout << "***** Generated Tau!! : "; 
+      unsigned dtrpdgID ; //pdgID for daughter
+      unsigned numChargedHadrons  = 0; 
+      unsigned numNeutralHadrons  = 0; 
+      unsigned numPhotons  = 0; 
+      for (unsigned idtrTau = 0; idtrTau < genParticles->at(genmatchedTauIndex).numberOfDaughters(); idtrTau++) {
+	dtrpdgID = std::abs(genParticles->at(genmatchedTauIndex).daughter(idtrTau)->pdgId());
+	if (dtrpdgID == 22) numPhotons++;
+	if (dtrpdgID != 22 && dtrpdgID != 11 && dtrpdgID  != 13) {
+	   if (genParticles->at(genmatchedTauIndex).daughter(idtrTau)->charge() != 0) {
+             numChargedHadrons++;
+           }
+           else if (dtrpdgID != 12 && dtrpdgID != 14 && dtrpdgID  != 16) {
+	     numNeutralHadrons++;
+           }	
+        }
+      } 
+      unsigned genTau_dm = -999 ;
+      if (numChargedHadrons == 1) {
+	if (numNeutralHadrons != 0) {
+		genTau_dm = -999;  // 1 prong + Other
+	}
+	if (numPhotons == 0) {
+		genTau_dm = 0;  // 1 prong + 0 piZero
+        }
+	else if (numPhotons == 2) {
+		genTau_dm = 1; // 1 prong + 1 piZero ; remember pi Zero generally decays to 2 photons
+	} 
+	else if (numPhotons == 4) {
+		genTau_dm = 2; // 1 prong + 2 piZero
+	} 
+	else if (numPhotons == 6) {
+		genTau_dm = 3; // 1 prong + 3 piZero
+	} 
+	else  {
+		genTau_dm = -999; // 1 prong + N piZero
+	} 
+      }
+      else if (numChargedHadrons == 3) {
+	if (numNeutralHadrons != 0) {
+		genTau_dm = -999;  // 3 prong + Other
+	}
+	if (numPhotons == 0) {
+		genTau_dm = 10;  // 3 prong + 0 piZero
+        }
+	else if (numPhotons == 2) {
+		genTau_dm = 11; // 3 prong + 1 piZero
+	} 
+	else if (numPhotons == 4) {
+		genTau_dm = 12; // 3 prong + 2 piZero
+	} 
+	else if (numPhotons == 6) {
+		genTau_dm = 13; // 3 prong + 3 piZero
+	} 
+	else  {
+		genTau_dm = -999; // 3 prong + N piZero
+	} 
+      }
+      dmMigrationMap.find("")->second->Fill(matchedTau->decayMode(), genTau_dm);
 
       // count number of taus passing each discriminator's selection cut
       int j = 0;
