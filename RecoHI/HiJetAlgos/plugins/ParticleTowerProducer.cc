@@ -14,8 +14,6 @@
 //
 //
 
-#include "ParticleTowerProducer.h"
-
 #include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -29,6 +27,16 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFiller.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "TMath.h"
 
@@ -37,29 +45,46 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <map>
+#include <utility>
 
-//
-// constants, enums and typedefs
-//
+class ParticleTowerProducer : public edm::stream::EDProducer<> {
+public:
+  explicit ParticleTowerProducer(const edm::ParameterSet&);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-//
-// static data member definitions
-//
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  int eta2ieta(double eta) const;
+  int phi2iphi(double phi, int ieta) const;
+  double ieta2eta(int ieta) const;
+  double iphi2phi(int iphi, int ieta) const;
+  // ----------member data ---------------------------
 
+  CaloGeometry const* geo_;  // geometry
+  edm::EDGetTokenT<reco::PFCandidateCollection> src_;
+  const bool useHF_;
+
+  typedef std::pair<int, int> EtaPhi;
+  typedef std::map<EtaPhi, double> EtaPhiMap;
+  EtaPhiMap towers_;
+
+  // tower edges from fast sim, used starting at index 30 for the HF
+  static constexpr double etaedge[42] = {0.000, 0.087, 0.174, 0.261, 0.348, 0.435, 0.522, 0.609, 0.696, 0.783, 0.870,
+                                         0.957, 1.044, 1.131, 1.218, 1.305, 1.392, 1.479, 1.566, 1.653, 1.740, 1.830,
+                                         1.930, 2.043, 2.172, 2.322, 2.500, 2.650, 2.853, 3.000, 3.139, 3.314, 3.489,
+                                         3.664, 3.839, 4.013, 4.191, 4.363, 4.538, 4.716, 4.889, 5.191};
+  static constexpr int ietaMax = 42;
+};
 //
 // constructors and destructor
 //
-ParticleTowerProducer::ParticleTowerProducer(const edm::ParameterSet& iConfig) : geo_(nullptr),
-  src_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("src"))),
-  useHF_(iConfig.getParameter<bool>("useHF"))
- {
-  //register your products
-
+ParticleTowerProducer::ParticleTowerProducer(const edm::ParameterSet& iConfig)
+    : geo_(nullptr),
+      src_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+      useHF_(iConfig.getUntrackedParameter<bool>("useHF")) {
   produces<CaloTowerCollection>();
-
-  //now do what ever other initialization is needed
 }
-
 
 //
 // member functions
@@ -73,7 +98,7 @@ void ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   iSetup.get<CaloGeometryRecord>().get(pG);
   geo_ = pG.product();
 
-  resetTowers(iEvent, iSetup);
+  towers_.clear();
 
   auto const& inputs = iEvent.get(src_);
   for (auto const& particle : inputs) {
@@ -100,30 +125,15 @@ void ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
     CaloTowerDetId newTowerId(ieta, iphi);  // totally dummy id
 
-
-      // currently sets et = pt, mass to zero
-      // pt, eta, phi, mass
-      reco::Particle::PolarLorentzVector p4(et, ieta2eta(ieta), iphi2phi(iphi, ieta), 0.);
-
-      GlobalPoint point(p4.x(), p4.y(), p4.z());
-      prod->emplace_back(newTowerId, et, 0, 0, 0, 0, p4, point, point);
-    }
+    // currently sets et = pt, mass to zero
+    // pt, eta, phi, mass
+    reco::Particle::PolarLorentzVector p4(et, ieta2eta(ieta), iphi2phi(iphi, ieta), 0.);
+    GlobalPoint point(p4.x(), p4.y(), p4.z());
+    prod->emplace_back(newTowerId, p4.e(), 0, 0, 0, 0, p4, point, point);
   }
-
-  //For reference, Calo Tower Constructors
-
-  /*
-   CaloTower(const CaloTowerDetId& id,
-             double emE, double hadE, double outerE,
-             int ecal_tp, int hcal_tp,
-             const PolarLorentzVector p4,
-       GlobalPoint emPosition, GlobalPoint hadPosition);
-   */
 
   iEvent.put(std::move(prod));
 }
-
-void ParticleTowerProducer::resetTowers(edm::Event& iEvent, const edm::EventSetup& iSetup) { towers_.clear(); }
 
 // Taken from FastSimulation/CalorimeterProperties/src/HCALProperties.cc
 // Note this returns an abs(ieta)
@@ -131,8 +141,7 @@ int ParticleTowerProducer::eta2ieta(double eta) const {
   // binary search in the array of towers eta edges
 
   int ieta = 0;
-
-  while (fabs(eta) > etaedge[ieta]) {
+  while (fabs(eta) > etaedge[ieta] && ieta < ietaMax - 1) {
     ++ieta;
   }
 
@@ -142,11 +151,7 @@ int ParticleTowerProducer::eta2ieta(double eta) const {
 }
 
 int ParticleTowerProducer::phi2iphi(double phi, int ieta) const {
-  if (phi < 0)
-    phi += 2. * TMath::Pi();
-  else if (phi > 2. * TMath::Pi())
-    phi -= 2. * TMath::Pi();
-
+  phi = angle0to2pi::make0To2pi(phi);
   int nphi = 72;
   int n = 1;
   if (abs(ieta) > 20)
@@ -163,7 +168,7 @@ int ParticleTowerProducer::phi2iphi(double phi, int ieta) const {
 
 double ParticleTowerProducer::iphi2phi(int iphi, int ieta) const {
   double phi = 0;
-  int Nphi = 72;
+  int nphi = 72;
 
   int n = 1;
   if (abs(ieta) > 20)
@@ -189,6 +194,14 @@ double ParticleTowerProducer::ieta2eta(int ieta) const {
 
   double eta = sign * (etaedge[ieta] + etaedge[ieta - 1]) / 2.;
   return eta;
+}
+
+void ParticleTowerProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // particleTowerProducer
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("src", edm::InputTag("particleFlow"));
+  desc.addUntracked<bool>("useHF", true);
+  descriptions.add("particleTowerProducer", desc);
 }
 
 // define this as a plug-in

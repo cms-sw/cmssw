@@ -7,7 +7,7 @@ from RecoHI.HiJetAlgos.HiPFJetParameters_cff import *
 #pseudo towers for noise suppression background subtraction
 PFTowers = cms.EDProducer("ParticleTowerProducer",
                           src = cms.InputTag("particleFlow"),
-                          useHF = cms.bool(False)
+                          useHF = cms.untracked.bool(False)
                           )
 
 #dummy sequence to speed-up reconstruction in pp_on_AA era
