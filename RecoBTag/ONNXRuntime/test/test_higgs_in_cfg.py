@@ -4,8 +4,7 @@ from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
 
 from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing('analysis')
-#options.inputFiles = '/store/mc/RunIIFall17MiniAODv2/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/90000/DCFE3F5F-AE42-E811-B6DB-008CFAF72A64.root'
-options.inputFiles = 'file:DCFE3F5F-AE42-E811-B6DB-008CFAF72A64.root'
+options.inputFiles = '/store/mc/RunIIFall17MiniAODv2/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/90000/DCFE3F5F-AE42-E811-B6DB-008CFAF72A64.root'
 options.maxEvents = 100
 options.parseArguments()
 
@@ -50,8 +49,6 @@ process.outpath = cms.EndPath(process.out, patAlgosToolsTask)
 ## and add them to the event content
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 from RecoBTag.ONNXRuntime.pfHiggsInteractionNet_cff import _pfHiggsInteractionNetTagsProbs as pfHiggsInteractionNetTagsProbs
-from RecoBTag.MXNet.pfParticleNet_cff import _pfParticleNetJetTagsAll as pfParticleNetJetTagsAll
-from RecoBTag.MXNet.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll as pfDeepBoostedJetTagsAll
 
 updateJetCollection(
    process,
@@ -60,20 +57,7 @@ updateJetCollection(
    svSource = cms.InputTag('slimmedSecondaryVertices'),
    rParam = 0.8,
    jetCorrections = ('AK8PFPuppi', cms.vstring(['L2Relative', 'L3Absolute']), 'None'),
-   btagDiscriminators = pfHiggsInteractionNetTagsProbs + pfParticleNetJetTagsAll + pfDeepBoostedJetTagsAll +
-    [ 'pfBoostedDoubleSecondaryVertexAK8BJetTags',
-      'pfDeepDoubleBvLJetTags:probQCD',
-      'pfDeepDoubleBvLJetTags:probHbb',
-      'pfDeepDoubleCvLJetTags:probQCD',
-      'pfDeepDoubleCvLJetTags:probHcc',
-      'pfDeepDoubleCvBJetTags:probHbb',
-      'pfDeepDoubleCvBJetTags:probHcc',
-      'pfMassIndependentDeepDoubleBvLJetTags:probQCD',
-      'pfMassIndependentDeepDoubleBvLJetTags:probHbb',
-      'pfMassIndependentDeepDoubleCvLJetTags:probQCD',
-      'pfMassIndependentDeepDoubleCvLJetTags:probHcc',
-      'pfMassIndependentDeepDoubleCvBJetTags:probHbb',
-      'pfMassIndependentDeepDoubleCvBJetTags:probHcc']
+   btagDiscriminators = pfHiggsInteractionNetTagsProbs
    )
 
 from Configuration.EventContent.EventContent_cff import MINIAODSIMEventContent

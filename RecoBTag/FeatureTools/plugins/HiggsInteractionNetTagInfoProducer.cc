@@ -73,19 +73,19 @@ const std::vector<std::string> HiggsInteractionNetTagInfoProducer::cpf_features_
     "cpf_btagSip2dVal", "cpf_btagSip2dSig", "cpf_btagSip3dVal", "cpf_btagSip3dSig", "cpf_btagJetDistVal"};
 
 const std::vector<std::string> HiggsInteractionNetTagInfoProducer::sv_features_{"sv_ptrel",
-                                                                    "sv_erel",
-                                                                    "sv_phirel",
-                                                                    "sv_etarel",
-                                                                    "sv_deltaR",
-                                                                    "sv_pt",
-                                                                    "sv_mass",
-                                                                    "sv_ntracks",
-                                                                    "sv_normchi2",
-                                                                    "sv_costhetasvpv",
-                                                                    "sv_dxy",
-                                                                    "sv_dxysig",
-                                                                    "sv_d3d",
-                                                                    "sv_d3dsig"};
+                                                                                "sv_erel",
+                                                                                "sv_phirel",
+                                                                                "sv_etarel",
+                                                                                "sv_deltaR",
+                                                                                "sv_pt",
+                                                                                "sv_mass",
+                                                                                "sv_ntracks",
+                                                                                "sv_normchi2",
+                                                                                "sv_costhetasvpv",
+                                                                                "sv_dxy",
+                                                                                "sv_dxysig",
+                                                                                "sv_d3d",
+                                                                                "sv_d3dsig"};
 
 HiggsInteractionNetTagInfoProducer::HiggsInteractionNetTagInfoProducer(const edm::ParameterSet &iConfig)
     : jet_radius_(iConfig.getParameter<double>("jet_radius")),
@@ -170,7 +170,8 @@ void HiggsInteractionNetTagInfoProducer::produce(edm::Event &iEvent, const edm::
   iEvent.put(std::move(output_tag_infos));
 }
 
-void HiggsInteractionNetTagInfoProducer::fillChargedParticleFeatures(HiggsInteractionNetFeatures &fts, const reco::Jet &jet) {
+void HiggsInteractionNetTagInfoProducer::fillChargedParticleFeatures(HiggsInteractionNetFeatures &fts,
+                                                                     const reco::Jet &jet) {
   // require the input to be a pat::Jet
   const auto *patJet = dynamic_cast<const pat::Jet *>(&jet);
   if (!patJet) {
