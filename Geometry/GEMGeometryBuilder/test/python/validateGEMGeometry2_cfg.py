@@ -11,28 +11,12 @@ process.maxEvents = cms.untracked.PSet(
 
 process.load('Configuration.Geometry.GeometryExtended2021_cff')
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
+process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
+process.load("Geometry.GEMGeometryBuilder.gemGeometry_cff")
 
-
-
-process.GEMGeometryESProducer = cms.ESProducer("GEMGeometryESModule",
-                                               DDDetector = cms.ESInputTag('',''),
-                                               applyAlignment = cms.bool(False),
-                                               alignmentsLabel = cms.string(''),
-                                               attribute = cms.string('MuStructure'),
-                                               value = cms.string('MuonEndCapGEM'),
-                                               useDDD = cms.bool(True),
-                                               useDD4hep = cms.untracked.bool(False)                                        
-                                               )
-
-process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProducer",
-                                                     appendToDataLabel = cms.string('MUON')
-                                                     )
-
-process.MuonNumberingESProducer = cms.ESProducer("MuonNumberingESProducer",
-                                                 label = cms.string('MUON'),
-                                                 key = cms.string('MuonCommonNumbering')
-                                                 )
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.categories.append('Geometry')
+    process.MessageLogger.categories.append('GEMNumberingScheme')
 
 #
 # Note: Please, download the geometry file from a location
