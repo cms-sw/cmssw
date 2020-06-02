@@ -101,11 +101,6 @@ void ConversionTrackProducer::produce(edm::Event& e, const edm::EventSetup& es) 
   edm::ESHandle<MagneticField> magFieldHandle;
   es.get<IdealMagneticFieldRecord>().get(magFieldHandle);
 
-  if (filterOnConvTrackHyp && !beamSpotHandle.isValid()) {
-    edm::LogError("Invalid Collection") << "invalid collection for the BeamSpot";
-    throw;
-  }
-
   ConvTrackPreSelector.setMagnField(magFieldHandle.product());
 
   //----------------------------------------------------------
