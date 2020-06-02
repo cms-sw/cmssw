@@ -218,7 +218,7 @@ void HiggsInteractionNetTagInfoProducer::fillChargedParticleFeatures(HiggsIntera
 
   std::sort(c_sorted.begin(), c_sorted.end(), btagbtvdeep::SortingClass<reco::CandidatePtr>::compareByABCInv);
 
-  for (const auto c : c_sorted) {
+  for (const auto &c : c_sorted) {
     const auto &cand = c.get();
     //for (const auto &cand : daughters) {
     const auto *packed_cand = dynamic_cast<const pat::PackedCandidate *>(&(*cand));
