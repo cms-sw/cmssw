@@ -9,7 +9,6 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDConstant.h"
 #include "DetectorDescription/Core/interface/DDVector.h"
-#include "DetectorDescription/Core/interface/DDVectorGetter.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
@@ -79,12 +78,6 @@ int main(int argc, char* argv[]) {
         }
         std::cout << std::endl;
       }
-    }
-
-    std::vector<string> vnames;
-    DDVectorGetter::beginWith("Subdetector", vnames);
-    for (std::vector<string>::const_iterator sit = vnames.begin(); sit != vnames.end(); ++sit) {
-      std::cout << sit->c_str() << std::endl;
     }
 
     return 0;
