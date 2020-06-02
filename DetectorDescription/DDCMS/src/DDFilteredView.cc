@@ -195,7 +195,7 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
           });
           if (l == end(currentFilter_->skeys)) {
             currentFilter_->skeys.emplace_back(std::string(toks[pos].data(), toks[pos].size()));
-            currentFilter_->keys.emplace_back(std::string(toks[pos].data(), toks[pos].size()));
+            currentFilter_->keys.emplace_back(std::string("^") + std::string(toks[pos].data(), toks[pos].size()) + std::string("$"));
           }
         } else {
           currentFilter_->next.reset(new Filter{{std::string(toks[pos].data(), toks[pos].size())},

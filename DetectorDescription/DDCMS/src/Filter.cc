@@ -26,15 +26,11 @@ namespace cms {
               end(keys));
     }
 
-    int contains(string_view input, string_view needle) {
-      auto const& it = search(begin(input), end(input), default_searcher(begin(needle), end(needle)));
-      if (it != end(input)) {
-        return (it - begin(input));
-      }
-      return -1;
-    }
+    // size_type contains(string_view input, string_view needle) {
+    //   return input.find(needle);
+    // }
 
-    bool isRegex(string_view input) { return ((contains(input, "*") != -1) || (contains(input, ".") != -1)); }
+    bool isRegex(string_view input) { return (input.find("*") != std::string_view::npos) || (input.find(".") != std::string_view::npos); }
 
     string_view realTopName(string_view input) {
       string_view v = input;
