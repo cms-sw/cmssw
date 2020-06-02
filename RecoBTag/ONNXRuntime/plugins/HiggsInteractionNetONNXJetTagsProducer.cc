@@ -57,7 +57,8 @@ private:
   bool debug_ = false;
 };
 
-HiggsInteractionNetONNXJetTagsProducer::HiggsInteractionNetONNXJetTagsProducer(const edm::ParameterSet &iConfig, const ONNXRuntime *cache)
+HiggsInteractionNetONNXJetTagsProducer::HiggsInteractionNetONNXJetTagsProducer(const edm::ParameterSet &iConfig,
+                                                                               const ONNXRuntime *cache)
     : src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src"))),
       flav_names_(iConfig.getParameter<std::vector<std::string>>("flav_names")),
       debug_(iConfig.getUntrackedParameter<bool>("debugMode", false)) {
@@ -118,7 +119,8 @@ void HiggsInteractionNetONNXJetTagsProducer::fillDescriptions(edm::Configuration
   descriptions.add("pfHiggsInteractionNetTags", desc);
 }
 
-std::unique_ptr<ONNXRuntime> HiggsInteractionNetONNXJetTagsProducer::initializeGlobalCache(const edm::ParameterSet &iConfig) {
+std::unique_ptr<ONNXRuntime> HiggsInteractionNetONNXJetTagsProducer::initializeGlobalCache(
+    const edm::ParameterSet &iConfig) {
   return std::make_unique<ONNXRuntime>(iConfig.getParameter<edm::FileInPath>("model_path").fullPath());
 }
 

@@ -36,8 +36,8 @@ namespace btagbtvdeep {
       for (unsigned i = 1; i < names.size(); ++i) {
         if (get(names[i]).size() != ref_len) {
           throw cms::Exception("InvalidArgument")
-              << "[HiggsInteractionNetFeatures::check_consistency()] Inconsistent variable length " << get(names[i]).size()
-              << " for " << names[i] << ", should be " << ref_len;
+              << "[HiggsInteractionNetFeatures::check_consistency()] Inconsistent variable length "
+              << get(names[i]).size() << " for " << names[i] << ", should be " << ref_len;
         }
       }
     }
@@ -47,7 +47,8 @@ namespace btagbtvdeep {
       if (item != feature_map_.end()) {
         return item->second;
       } else {
-        throw cms::Exception("InvalidArgument") << "[HiggsInteractionNetFeatures::get()] Feature " << name << " does not exist!";
+        throw cms::Exception("InvalidArgument")
+            << "[HiggsInteractionNetFeatures::get()] Feature " << name << " does not exist!";
       }
     }
 
