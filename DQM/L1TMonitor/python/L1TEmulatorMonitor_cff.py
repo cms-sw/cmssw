@@ -85,17 +85,23 @@ l1ExpertDataVsEmulator = cms.Sequence(
                                 )
 
 
+l1EmulatorMonitorTask = cms.Task(
+    l1GtUnpack
+)
 l1EmulatorMonitor = cms.Sequence(
-                            l1GtUnpack* 
                             l1demon+
-                            l1ExpertDataVsEmulator             
+                            l1ExpertDataVsEmulator,
+                            l1EmulatorMonitorTask
                             )
 
 # for use in processes where hardware validation is not run
+l1HwValEmulatorMonitorTask = cms.Task(
+    l1GtUnpack
+)
 l1HwValEmulatorMonitor = cms.Sequence(
-                                l1GtUnpack* 
                                 L1HardwareValidation*
-                                l1EmulatorMonitor
+                                l1EmulatorMonitor,
+                                l1HwValEmulatorMonitorTask
                                 )
 
 # for stage1
@@ -115,11 +121,14 @@ l1EmulatorMonitorStage1 = cms.Sequence(
     l1ExpertDataVsEmulatorStage1
     )
 
+l1Stage1HwValEmulatorMonitorTask = cms.Task(
+    rctDigis,
+    #caloStage1Digis,
+    #caloStage1LegacyFormatDigis,
+    l1GtUnpack
+)
 l1Stage1HwValEmulatorMonitor = cms.Sequence(
-    rctDigis*
-    #caloStage1Digis*
-    #caloStage1LegacyFormatDigis*
-    l1GtUnpack*
     L1HardwareValidationforStage1 +
-    l1EmulatorMonitorStage1                            
+    l1EmulatorMonitorStage1,
+    l1Stage1HwValEmulatorMonitorTask
     )
