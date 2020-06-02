@@ -276,14 +276,22 @@ namespace {
         }
 
         std::map<unsigned int, short> templMap = payload->getTemplateIDs();
-        if (templMap.size() != SiPixelPI::phase1size) {
+        if (templMap.size() == SiPixelPI::phase0size || templMap.size() > SiPixelPI::phase1size) {
           edm::LogError("SiPixelTemplateDBObject_PayloadInspector")
-              << "SiPixelTempateLA maps are not supported for non-Phase1 Pixel geometries !";
+              << "There are " << templMap.size()
+              << " DetIds in this payload. SiPixelTempate Lorentz Angle maps are not supported for non-Phase1 Pixel "
+                 "geometries !";
           TCanvas canvas("Canv", "Canv", 1200, 1000);
           SiPixelPI::displayNotSupported(canvas, templMap.size());
           std::string fileName(m_imageFileName);
           canvas.SaveAs(fileName.c_str());
           return false;
+        } else {
+          if (templMap.size() < SiPixelPI::phase1size) {
+            edm::LogWarning("SiPixelTemplateDBObject_PayloadInspector")
+                << "\n ********* WARNING! ********* \n There are " << templMap.size() << " DetIds in this payload !"
+                << "\n **************************** \n";
+          }
         }
 
         for (auto const& entry : templMap) {
@@ -354,14 +362,22 @@ namespace {
         }
 
         std::map<unsigned int, short> templMap = payload->getTemplateIDs();
-        if (templMap.size() != SiPixelPI::phase1size) {
+
+        if (templMap.size() == SiPixelPI::phase0size || templMap.size() > SiPixelPI::phase1size) {
           edm::LogError("SiPixelTemplateDBObject_PayloadInspector")
-              << "SiPixelTempateIDs maps are not supported for non-Phase1 Pixel geometries !";
+              << "There are " << templMap.size()
+              << " DetIds in this payload. SiPixelTempateIDs maps are not supported for non-Phase1 Pixel geometries !";
           TCanvas canvas("Canv", "Canv", 1200, 1000);
           SiPixelPI::displayNotSupported(canvas, templMap.size());
           std::string fileName(m_imageFileName);
           canvas.SaveAs(fileName.c_str());
           return false;
+        } else {
+          if (templMap.size() < SiPixelPI::phase1size) {
+            edm::LogWarning("SiPixelTemplateDBObject_PayloadInspector")
+                << "\n ********* WARNING! ********* \n There are " << templMap.size() << " DetIds in this payload !"
+                << "\n **************************** \n";
+          }
         }
 
         /*
