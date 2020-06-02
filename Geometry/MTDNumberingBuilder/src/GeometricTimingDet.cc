@@ -258,5 +258,5 @@ std::unique_ptr<Bounds> GeometricTimingDet::bounds() const {
   const std::vector<double>& par = params_;
   TrackerShapeToBounds shapeToBounds;
   return std::unique_ptr<Bounds>(
-      shapeToBounds.buildBounds(cms::dd::value_reverse(cms::LegacySolidShapeMap, shape_), par));
+      shapeToBounds.buildBounds(cms::dd::name_from_value(cms::LegacySolidShapeMap, shape_), par));
 }

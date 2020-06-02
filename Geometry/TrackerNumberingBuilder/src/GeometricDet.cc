@@ -73,7 +73,7 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type)
       _phi(_trans.Phi()),
       _rho(_trans.Rho()),
       _rot(fv->rotation()),
-      _shape(cms::DDSolidShape(static_cast<int>(fv->shape()))),
+      _shape(cms::dd::name_from_value(cms::LegacySolidShapeMap,fv->shape())),
       _ddname(fv->name()),
       _type(type),
       _params(fv->parameters()),
@@ -243,5 +243,5 @@ GeometricDet::Rotation GeometricDet::rotationBounds() const {
 std::unique_ptr<Bounds> GeometricDet::bounds() const {
   const std::vector<double>& par = _params;
   TrackerShapeToBounds shapeToBounds;
-  return std::unique_ptr<Bounds>(shapeToBounds.buildBounds(cms::DDSolidShape(static_cast<int>(_shape)), par));
+  return std::unique_ptr<Bounds>(shapeToBounds.buildBounds(_shape, par));
 }
