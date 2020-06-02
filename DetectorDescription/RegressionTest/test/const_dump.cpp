@@ -64,6 +64,7 @@ int main(int argc, char* argv[]) {
       cout << *cit << endl;
     }
 
+    std::vector<std::string> vnames;
     DDVector::iterator<DDVector> vit;
     DDVector::iterator<DDVector> ved(DDVector::end());
     if (vit == ved)
@@ -71,6 +72,10 @@ int main(int argc, char* argv[]) {
     for (; vit != ved; ++vit) {
       if (vit->isDefined().second) {
         std::cout << vit->toString() << std::endl;
+        {
+          DDName vname(vit->name());
+          vnames.emplace_back(vname.name());
+        }
         const std::vector<double>& tv = *vit;
         std::cout << "size: " << tv.size() << std::endl;
         for (double i : tv) {
@@ -78,6 +83,18 @@ int main(int argc, char* argv[]) {
         }
         std::cout << std::endl;
       }
+    }
+
+    //This forces the 'vector' to be filled
+    cpv.lockdown();
+    for (const auto& it : vnames) {
+      std::cout << it << std::endl;
+      auto v = cpv.vector(it);
+      std::cout << "size: " << v.size() << std::endl;
+      for (double i : v) {
+        std::cout << i << "\t";
+      }
+      std::cout << std::endl;
     }
 
     return 0;
