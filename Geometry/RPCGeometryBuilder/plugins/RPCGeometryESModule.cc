@@ -28,13 +28,13 @@ RPCGeometryESModule::RPCGeometryESModule(const edm::ParameterSet& p)
       useDDD_{p.getUntrackedParameter<bool>("useDDD", true)},
       useDD4hep_{p.getUntrackedParameter<bool>("useDD4hep", false)} {
   auto cc = setWhatProduced(this);
-  const edm::ESInputTag kEmptyTag;
-  if (useDDD_ || useDD4hep_) {
-    idealGeomToken_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(kEmptyTag);
-    dddConstantsToken_ = cc.consumesFrom<MuonGeometryConstants, IdealGeometryRecord>(kEmptyTag);
-    idealDD4hepGeomToken_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(kEmptyTag);
+
+  if (useDDD_) {
+    cc.setConsumes(idealGeomToken_).setConsumes(dddConstantsToken_);
+  } else if (useDD4hep_) {
+    cc.setConsumes(idealDD4hepGeomToken_).setConsumes(dddConstantsToken_);
   } else {
-    recoIdealToken_ = cc.consumesFrom<RecoIdealGeometry, RPCRecoGeometryRcd>(kEmptyTag);
+    cc.setConsumes(recoIdealToken_);
   }
 }
 
