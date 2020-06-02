@@ -110,82 +110,82 @@ l1GtUnpack.DaqGtInputTag = 'rawDataCollector'
 #############################################################
 
 #
-# define sequences 
+# define tasks
 #
 
 
-l1tRctSeq = cms.Sequence(
-                    l1tRct + l1tRctfromRCT + l1tPUM 
+l1tRctTask = cms.Task(
+                    l1tRct , l1tRctfromRCT , l1tPUM
                     )
 
-l1tGctSeq = cms.Sequence(
+l1tGctTask = cms.Task(
                     l1tGct
                     )
 
-l1tStage1Layer2Seq = cms.Sequence(
+l1tStage1Layer2Task = cms.Task(
                     l1tStage1Layer2
                     )
     
 # for L1ExtraDQM, one must run GGT and GMT/GT unpacker and L1Extra producer 
 # with special configurations
 
-l1ExtraDqmSeq = cms.Sequence(
-                        dqmGctDigis *
-                        dqmGtDigis *
-                        dqmL1ExtraParticles * 
+l1ExtraDqmTask = cms.Task(
+                        dqmGctDigis,
+                        dqmGtDigis,
+                        dqmL1ExtraParticles,
                         l1ExtraDQM
                         )
 
-l1ExtraStage1DqmSeq = cms.Sequence(
-    dqmGtDigis *
-    dqmL1ExtraParticlesStage1 *
+l1ExtraStage1DqmTask = cms.Task(
+    dqmGtDigis,
+    dqmL1ExtraParticlesStage1,
     l1ExtraDQMStage1
     )
 
 
-# L1T monitor sequence 
+# L1T monitor task 
 #     modules are independent, so the order is irrelevant 
 
-l1tMonitorOnline = cms.Sequence(
-                          l1GtUnpack*
-                          bxTiming +
-                          l1tDttf +
-                          l1tCsctf + 
-                          l1tRpctf +
-                          l1tGmt +
-                          l1tGt + 
-                          l1ExtraDqmSeq +
-                          l1tBPTX +
-                          l1tRate +
-                          l1tRctRun1 +
-                          l1tGctSeq
+l1tMonitorOnline = cms.Task(
+                          l1GtUnpack,
+                          bxTiming,
+                          l1tDttf,
+                          l1tCsctf,
+                          l1tRpctf,
+                          l1tGmt,
+                          l1tGt,
+                          l1ExtraDqmTask,
+                          l1tBPTX,
+                          l1tRate,
+                          l1tRctRun1,
+                          l1tGctTask
                           )
 
-l1tMonitorStage1Online = cms.Sequence(
-                          l1GtUnpack*
-                          bxTiming +
-                          l1tDttf +
-                          l1tCsctf + 
-                          l1tRpctf +
-                          l1tGmt +
-                          l1tGt +
-                          rctDigis *
-                          caloStage1Digis *
-                          caloStage1LegacyFormatDigis*
-                          l1ExtraStage1DqmSeq +
-                          #l1tBPTX +
-                          #l1tRate +
-                          l1tStage1Layer2Seq +
-                          #l1tRctRun1 +
-                          l1tRctSeq 
+l1tMonitorStage1Online = cms.Task(
+                          l1GtUnpack,
+                          bxTiming,
+                          l1tDttf,
+                          l1tCsctf, 
+                          l1tRpctf,
+                          l1tGmt,
+                          l1tGt,
+                          rctDigis,
+                          caloStage1Digis,
+                          caloStage1LegacyFormatDigis,
+                          l1ExtraStage1DqmTask,
+                          #l1tBPTX,
+                          #l1tRate,
+                          l1tStage1Layer2Task,
+                          #l1tRctRun1,
+                          l1tRctTask 
                           )
 
 
 # sequence for L1 Trigger DQM modules on EndPath 
 # FIXME clarify why needed on EndPath
 
-l1tMonitorEndPathSeq = cms.Sequence(
-                                    l1s +
+l1tMonitorEndPathTask = cms.Task(
+                                    l1s,
                                     l1tscalers
                                     )
                             

@@ -50,7 +50,7 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 
 # L1 Trigger sequences 
 
-# l1tMonitor and l1tMonitorEndPathSeq
+# l1tMonitor and l1tMonitorEndPathTask
 process.load("DQM.L1TMonitor.L1TMonitor_cff")    
 
 # L1 trigger synchronization module - it uses also HltHighLevel filter
@@ -93,7 +93,7 @@ process.l1tMonitorClientPath = cms.Path(process.l1tMonitorStage1Client)
 
 process.stage1UnpackPath = cms.Path(process.caloStage1Digis+process.caloStage1LegacyFormatDigis)
 #
-process.l1tMonitorEndPath = cms.EndPath(process.l1tMonitorEndPathSeq)
+process.l1tMonitorEndPath = cms.EndPath(process.l1tMonitorEndPathTask)
 
 #
 process.l1tMonitorClientEndPath = cms.EndPath(process.l1tMonitorClientEndPathSeq)
@@ -150,20 +150,20 @@ process.l1tMonitorStage1Online.remove(process.l1tRctRun1)
 
 #process.l1tMonitorOnline.remove(process.l1tGt)
 
-#process.l1tMonitorOnline.remove(process.l1ExtraDqmSeq)
+#process.l1tMonitorOnline.remove(process.l1ExtraDqmTask)
 
 process.l1tMonitorStage1Online.remove(process.l1tRate)
 
 #process.l1tMonitorOnline.remove(process.l1tRctRun1)
 
-#process.l1tMonitorStage1Online.remove(process.l1tRctSeq)
+#process.l1tMonitorStage1Online.remove(process.l1tRctTask)
 
-#process.l1tMonitorOnline.remove(process.l1tGctSeq)
+#process.l1tMonitorOnline.remove(process.l1tGctTask)
 
 
 # remove module(s) or system sequence from l1tMonitorEndPath
 #
-#process.l1tMonitorEndPathSeq.remove(process.l1s)
+#process.l1tMonitorEndPathTask.remove(process.l1s)
 
 #
 process.schedule.remove(process.l1tSyncPath)

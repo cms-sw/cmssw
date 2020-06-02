@@ -134,8 +134,8 @@ stage1L1Trigger.toModify(valStage1GtDigis, GctInputTag = 'caloStage1LegacyFormat
 #
 
 l1TriggerOnline = cms.Sequence(
+                               dqmEnvL1T,
                                l1tMonitorStage1Online
-                                * dqmEnvL1T
                                )
 
 l1TriggerOffline = cms.Sequence(
@@ -219,16 +219,16 @@ l1tMonitorStage1Online.remove(bxTiming)
 #l1tMonitorOnline.remove(l1tGmt)
 #l1tMonitorOnline.remove(l1tGt)
 #
-#l1ExtraDqmSeq.remove(dqmGctDigis)
-#l1ExtraDqmSeq.remove(dqmGtDigis)
-#l1ExtraDqmSeq.remove(dqmL1ExtraParticles)
-#l1ExtraDqmSeq.remove(l1ExtraDQM)
-#l1tMonitorOnline.remove(l1ExtraDqmSeq)
+#l1ExtraDqmTask.remove(dqmGctDigis)
+#l1ExtraDqmTask.remove(dqmGtDigis)
+#l1ExtraDqmTask.remove(dqmL1ExtraParticles)
+#l1ExtraDqmTask.remove(l1ExtraDQM)
+#l1tMonitorOnline.remove(l1ExtraDqmTask)
 #
 #l1tMonitorOnline.remove(l1tRate)
 #l1tMonitorOnline.remove(l1tBPTX)
-#l1tMonitorOnline.remove(l1tRctSeq)
-#l1tMonitorOnline.remove(l1tGctSeq)
+#l1tMonitorOnline.remove(l1tRctTask)
+#l1tMonitorOnline.remove(l1tGctTask)
 
 #
 
