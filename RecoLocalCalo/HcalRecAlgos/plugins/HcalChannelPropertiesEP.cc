@@ -45,7 +45,7 @@ public:
     const HcalTopology& htopo = rcd.getRecord<HcalRecNumberingRecord>().get(topoToken_);
     const HcalRecoParams& params = rcd.getRecord<HcalRecoParamsRcd>().get(paramsToken_);
 
-    ReturnType1 prod(new HcalRecoParams(params));
+    ReturnType1 prod = std::make_unique<HcalRecoParams>(params);
     prod->setTopo(&htopo);
     return prod;
   }
@@ -71,7 +71,7 @@ public:
     const HcalTopology& htopo(*params.topo());
 
     // Build the product
-    ReturnType2 prod(new HcalChannelPropertiesVec(htopo.ncells()));
+    ReturnType2 prod = std::make_unique<HcalChannelPropertiesVec>(htopo.ncells());
     std::array<HcalPipelinePedestalAndGain, 4> pedsAndGains;
     const HcalSubdetector subdetectors[3] = {HcalBarrel, HcalEndcap, HcalForward};
 
