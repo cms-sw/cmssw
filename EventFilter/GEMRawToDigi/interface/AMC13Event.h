@@ -50,12 +50,12 @@ namespace gem {
   union AMCHeader {
     uint64_t word;
     struct {
-      uint64_t boardId : 16;    // board id
-      uint64_t amcNo : 4;       // amc number
-      uint64_t blkNo : 8;       // block number
-      uint64_t unused : 4;      // unused
-      uint64_t amcSize : 24;    // amc size
-      uint64_t errStrip : 8;    // errStrip
+      uint64_t boardId : 16;  // board id
+      uint64_t amcNo : 4;     // amc number
+      uint64_t blkNo : 8;     // block number
+      uint64_t unused : 4;    // unused
+      uint64_t amcSize : 24;  // amc size
+      uint64_t errStrip : 8;  // errStrip
     };
   };
 

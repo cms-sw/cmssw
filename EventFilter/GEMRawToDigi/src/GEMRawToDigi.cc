@@ -38,14 +38,16 @@ std::unique_ptr<AMC13Event> GEMRawToDigi::convertWordToAMC13Event(const uint64_t
       }  // end of vfat loop
 
       gebData.setChamberTrailer(*(++word));
-      if (gebData.vfatWordCnt() != gebData.vfatWordCntT()) return NULL;
+      if (gebData.vfatWordCnt() != gebData.vfatWordCntT())
+        return nullptr;
       amcData.addGEB(gebData);
 
     }  // end of geb loop
 
     amcData.setGEMeventTrailer(*(++word));
     amcData.setAMCTrailer(*(++word));
-    if (amc13Event->getAMCsize(i) != amcData.dataLength()) return NULL;
+    if (amc13Event->getAMCsize(i) != amcData.dataLength())
+      return nullptr;
     amc13Event->addAMCpayload(amcData);
 
   }  // end of amc loop

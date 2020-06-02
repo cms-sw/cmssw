@@ -21,9 +21,9 @@
 using namespace gem;
 
 GEMDigiToRawModule::GEMDigiToRawModule(const edm::ParameterSet& pset)
-  : event_type_(pset.getParameter<int>("eventType")),
-    digi_token(consumes<GEMDigiCollection>(pset.getParameter<edm::InputTag>("gemDigi"))),
-    useDBEMap_(pset.getParameter<bool>("useDBEMap")) {
+    : event_type_(pset.getParameter<int>("eventType")),
+      digi_token(consumes<GEMDigiCollection>(pset.getParameter<edm::InputTag>("gemDigi"))),
+      useDBEMap_(pset.getParameter<bool>("useDBEMap")) {
   produces<FEDRawDataCollection>();
 }
 
@@ -70,7 +70,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
   uint32_t LV1_id = iEvent.id().event();
   uint16_t BX_id = iEvent.bunchCrossing();
   uint32_t OrN = iEvent.orbitNumber();
-  
+
   // making map of bx GEMDigiCollection
   // each bx will be saved as new AMC13Event, so GEMDigiCollection needs to be split into bx
   std::map<int, GEMDigiCollection> gemBxMap;
@@ -81,16 +81,15 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
       int bx = digi->bx();
       auto search = gemBxMap.find(bx);
       if (search != gemBxMap.end()) {
-        search->second.insertDigi(gemId, *digi);        
-      }
-      else {
+        search->second.insertDigi(gemId, *digi);
+      } else {
         GEMDigiCollection newGDC;
         newGDC.insertDigi(gemId, *digi);
-        gemBxMap.insert(std::pair<int, GEMDigiCollection> (digi->bx(), newGDC));
+        gemBxMap.insert(std::pair<int, GEMDigiCollection>(digi->bx(), newGDC));
       }
     }
   }
-  
+
   uint32_t amc13EvtLength = 0;
   for (unsigned int fedId = FEDNumbering::MINGEMFEDID; fedId <= FEDNumbering::MAXGEMFEDID; ++fedId) {
     std::unique_ptr<AMC13Event> amc13Event = std::make_unique<AMC13Event>();
@@ -98,7 +97,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
     for (auto const& x : gemBxMap) {
       int bx = x.first;
       GEMDigiCollection newGemDigis = x.second;
-      
+
       for (uint8_t amcNum = 0; amcNum < GEMeMap::maxAMCs_; ++amcNum) {
         uint32_t amcSize = 0;
         std::unique_ptr<AMCdata> amcData = std::make_unique<AMCdata>();
@@ -142,22 +141,22 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
                 msData |= 1UL << (chMap.chNum - 64);
 
               LogDebug("GEMDigiToRawModule")
-                << " fed: " << fedId << " amc:" << int(amcNum) << " geb:" << int(gebId)
-                << " vfat:" << vfat_dc.localPhi << ",type: " << vfat_dc.vfatType << " id:" << gemId
-                << " ch:" << chMap.chNum << " st:" << digi.strip() << " bx:" << digi.bx();
+                  << " fed: " << fedId << " amc:" << int(amcNum) << " geb:" << int(gebId)
+                  << " vfat:" << vfat_dc.localPhi << ",type: " << vfat_dc.vfatType << " id:" << gemId
+                  << " ch:" << chMap.chNum << " st:" << digi.strip() << " bx:" << digi.bx();
             }
 
             if (!hasDigi)
               continue;
             // only make vfat with hits
-            amcSize+=3;
+            amcSize += 3;
             auto vfatData = std::make_unique<VFATdata>(geb_dc.vfatVer, bx, 0, vfatId, lsData, msData);
             gebData->addVFAT(*vfatData);
 
           }  // end of vfats in GEB
 
           if (!gebData->vFATs()->empty()) {
-            amcSize+=2;
+            amcSize += 2;
             gebData->setChamberHeader(gebData->vFATs()->size() * 3, gebId);
             gebData->setChamberTrailer(0, 0, gebData->vFATs()->size() * 3);
             amcData->addGEB(*gebData);
@@ -166,7 +165,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
         }  // end of GEB loop
 
         if (!amcData->gebs()->empty()) {
-          amcSize+=5;
+          amcSize += 5;
           amcData->setAMCheader1(amcSize, bx, LV1_id, amcNum);
           amcData->setAMCheader2(amcNum, OrN, 1);
           amcData->setGEMeventHeader(amcData->gebs()->size(), 0);
@@ -176,12 +175,12 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
           uint8_t AMC_No = 0;
           uint16_t BoardID = 0;
           amc13Event->addAMCheader(amcSize, Blk_No, AMC_No, BoardID);
-          amc13EvtLength += amcSize+1; // AMC data size + AMC header size
+          amc13EvtLength += amcSize + 1;  // AMC data size + AMC header size
         }
-      
+
       }  // end of AMC loop
-    } // end of BX loop
-    
+    }    // end of BX loop
+
     if (!amc13Event->getAMCpayloads()->empty()) {
       // CDFHeader
       amc13Event->setCDFHeader(event_type_, LV1_id, BX_id, fedId);
@@ -190,12 +189,12 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
       amc13Event->setAMC13Header(1, nAMC, OrN);
       amc13Event->setAMC13Trailer(BX_id, LV1_id, BX_id);
       //CDF trailer
-      uint32_t EvtLength = amc13EvtLength + 4; // 2 header and 2 trailer
+      uint32_t EvtLength = amc13EvtLength + 4;  // 2 header and 2 trailer
       amc13Event->setCDFTrailer(EvtLength);
       amc13Events.emplace_back(std::move(amc13Event));
-    } // finished making amc13Event data    
-  } // end of FED loop
-  
+    }  // finished making amc13Event data
+  }    // end of FED loop
+
   // read out amc13Events into fedRawData
   for (const auto& amc13e : amc13Events) {
     std::vector<uint64_t> words;
