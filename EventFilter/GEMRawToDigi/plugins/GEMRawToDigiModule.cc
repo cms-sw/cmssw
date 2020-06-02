@@ -18,8 +18,7 @@ GEMRawToDigiModule::GEMRawToDigiModule(const edm::ParameterSet& pset)
     : fed_token(consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("InputLabel"))),
       useDBEMap_(pset.getParameter<bool>("useDBEMap")),
       unPackStatusDigis_(pset.getParameter<bool>("unPackStatusDigis")),
-      gemRawToDigi_(std::make_unique<GEMRawToDigi>())
-{
+      gemRawToDigi_(std::make_unique<GEMRawToDigi>()) {
   produces<GEMDigiCollection>();
   if (unPackStatusDigis_) {
     produces<GEMVfatStatusDigiCollection>("vfatStatus");
@@ -78,8 +77,9 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
 
     const uint64_t* word = reinterpret_cast<const uint64_t*>(data);
     auto amc13Event = gemRawToDigi_->convertWordToAMC13Event(word);
-    
-    if (amc13Event == NULL) continue;
+
+    if (amc13Event == nullptr)
+      continue;
 
     // Read AMC data
     for (auto amcData : *(amc13Event->getAMCpayloads())) {
