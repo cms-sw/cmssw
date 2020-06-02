@@ -26,11 +26,11 @@ public:
 
 private:
   void putOne(const GeometricDetExtra& gde, PGeometricDetExtra* pgde);
-  bool fromDD4hep;
+  bool fromDD4hep_;
 };
 
 PGeometricDetExtraBuilder::PGeometricDetExtraBuilder(const edm::ParameterSet& iConfig) {
-  fromDD4hep = iConfig.getUntrackedParameter<bool>("fromDD4hep", false);
+  fromDD4hep_ = iConfig.getParameter<bool>("fromDD4hep");
 }
 
 void PGeometricDetExtraBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) {
@@ -41,7 +41,7 @@ void PGeometricDetExtraBuilder::beginRun(const edm::Run&, edm::EventSetup const&
     return;
   }
 
-  if (!fromDD4hep) {
+  if (!fromDD4hep_) {
     edm::ESTransientHandle<DDCompactView> cpvH;
     es.get<IdealGeometryRecord>().get(cpvH);
   } else {

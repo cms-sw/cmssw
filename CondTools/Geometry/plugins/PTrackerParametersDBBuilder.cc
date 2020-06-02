@@ -19,11 +19,11 @@ public:
   void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
 
 private:
-  bool fromDD4hep;
+  bool fromDD4hep_;
 };
 
 PTrackerParametersDBBuilder::PTrackerParametersDBBuilder(const edm::ParameterSet& iConfig) {
-  fromDD4hep = iConfig.getUntrackedParameter<bool>("fromDD4hep", false);
+  fromDD4hep_ = iConfig.getParameter<bool>("fromDD4hep");
 }
 
 void PTrackerParametersDBBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) {
@@ -36,7 +36,7 @@ void PTrackerParametersDBBuilder::beginRun(const edm::Run&, edm::EventSetup cons
 
   TrackerParametersFromDD builder;
 
-  if (!fromDD4hep) {
+  if (!fromDD4hep_) {
     edm::ESTransientHandle<DDCompactView> cpv;
     es.get<IdealGeometryRecord>().get(cpv);
     builder.build(&(*cpv), *ptp);

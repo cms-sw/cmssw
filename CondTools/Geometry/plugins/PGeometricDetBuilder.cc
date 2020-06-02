@@ -30,11 +30,11 @@ public:
 
 private:
   void putOne(const GeometricDet* gd, PGeometricDet* pgd, int lev);
-  bool fromDD4hep;
+  bool fromDD4hep_;
 };
 
 PGeometricDetBuilder::PGeometricDetBuilder(const edm::ParameterSet& iConfig) {
-  fromDD4hep = iConfig.getUntrackedParameter<bool>("fromDD4hep", false);
+  fromDD4hep_ = iConfig.getParameter<bool>("fromDD4hep");
 }
 
 void PGeometricDetBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) {
@@ -44,7 +44,7 @@ void PGeometricDetBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) 
     edm::LogError("PGeometricDetBuilder") << "PoolDBOutputService unavailable";
     return;
   }
-  if (!fromDD4hep) {
+  if (!fromDD4hep_) {
     edm::ESTransientHandle<DDCompactView> pDD;
     es.get<IdealGeometryRecord>().get(pDD);
   } else {
