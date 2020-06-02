@@ -181,18 +181,18 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg)
   for (int ii = 0; ii < 13; ++ii) {
     std::stringstream histname0;
     histname0 << "SurfDeform_Par_" << ii;
-    m_h1_[histname0.str()] =
-        subDir_All.make<TH1D>((histname0.str()).c_str(), (histname0.str()).c_str(), m_nBins_, m_rangeLow_, m_rangeHigh_);
+    m_h1_[histname0.str()] = subDir_All.make<TH1D>(
+        (histname0.str()).c_str(), (histname0.str()).c_str(), m_nBins_, m_rangeLow_, m_rangeHigh_);
 
     std::stringstream histname1;
     histname1 << "SurfDeform_PixelBarrel_Par_" << ii;
-    m_h1_[histname1.str()] =
-        subDir_PXB.make<TH1D>((histname1.str()).c_str(), (histname1.str()).c_str(), m_nBins_, m_rangeLow_, m_rangeHigh_);
+    m_h1_[histname1.str()] = subDir_PXB.make<TH1D>(
+        (histname1.str()).c_str(), (histname1.str()).c_str(), m_nBins_, m_rangeLow_, m_rangeHigh_);
 
     std::stringstream histname2;
     histname2 << "SurfDeform_PixelEndcap_Par_" << ii;
-    m_h1_[histname2.str()] =
-        subDir_PXF.make<TH1D>((histname2.str()).c_str(), (histname2.str()).c_str(), m_nBins_, m_rangeLow_, m_rangeHigh_);
+    m_h1_[histname2.str()] = subDir_PXF.make<TH1D>(
+        (histname2.str()).c_str(), (histname2.str()).c_str(), m_nBins_, m_rangeLow_, m_rangeHigh_);
   }
 }
 
