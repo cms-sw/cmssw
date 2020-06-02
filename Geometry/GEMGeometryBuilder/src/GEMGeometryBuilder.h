@@ -1,5 +1,5 @@
-#ifndef Geometry_GEMGeometry_GEMGeometryBuilderFromDDD_H
-#define Geometry_GEMGeometry_GEMGeometryBuilderFromDDD_H
+#ifndef Geometry_GEMGeometry_GEMGeometryBuilder_H
+#define Geometry_GEMGeometry_GEMGeometryBuilder_H
 
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 /*
@@ -31,11 +31,11 @@ class GEMChamber;
 class GEMEtaPartition;
 class MuonGeometryConstants;
 
-class GEMGeometryBuilderFromDDD {
+class GEMGeometryBuilder {
 public:
-  GEMGeometryBuilderFromDDD();
+  GEMGeometryBuilder();
 
-  ~GEMGeometryBuilderFromDDD();
+  ~GEMGeometryBuilder();
 
   // for DDD
   void build(GEMGeometry& theGeometry, const DDCompactView* cview, const MuonGeometryConstants& muonConstants);

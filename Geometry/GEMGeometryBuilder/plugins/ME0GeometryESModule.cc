@@ -10,15 +10,15 @@
 
 #include "Geometry/GEMGeometryBuilder/src/ME0GeometryBuilder.h"
 #include "Geometry/GEMGeometryBuilder/src/ME0GeometryBuilderFromCondDB.h"
+#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/ME0RecoGeometryRcd.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 
-#include "Geometry/Records/interface/ME0RecoGeometryRcd.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -27,13 +27,15 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include <memory>
 
 class ME0GeometryESModule : public edm::ESProducer {
 public:
   ME0GeometryESModule(const edm::ParameterSet& p);
-  ~ME0GeometryESModule() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   std::unique_ptr<ME0Geometry> produce(const MuonGeometryRecord& record);
 
@@ -60,7 +62,12 @@ ME0GeometryESModule::ME0GeometryESModule(const edm::ParameterSet& p) {
   }
 }
 
-ME0GeometryESModule::~ME0GeometryESModule() {}
+void ME0GeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("useDDD", true);
+  desc.add<bool>("useDD4Hep", false);
+  descriptions.add("me0Geometry", desc);
+}
 
 std::unique_ptr<ME0Geometry> ME0GeometryESModule::produce(const MuonGeometryRecord& record) {
   edm::LogVerbatim("ME0GeometryESModule") << "ME0GeometryESModule::produce with useDDD = " << useDDD_;

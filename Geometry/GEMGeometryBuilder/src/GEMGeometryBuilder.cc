@@ -7,7 +7,7 @@
 // Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
 //          Created:  27 Jan 2020 
 */
-#include "Geometry/GEMGeometryBuilder/src/GEMGeometryBuilderFromDDD.h"
+#include "Geometry/GEMGeometryBuilder/src/GEMGeometryBuilder.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
 
@@ -37,14 +37,16 @@
 
 using namespace cms_units::operators;
 
-GEMGeometryBuilderFromDDD::GEMGeometryBuilderFromDDD() {}
+//#define EDM_ML_DEBUG
 
-GEMGeometryBuilderFromDDD::~GEMGeometryBuilderFromDDD() {}
+GEMGeometryBuilder::GEMGeometryBuilder() {}
+
+GEMGeometryBuilder::~GEMGeometryBuilder() {}
 
 // DDD
-void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
-                                      const DDCompactView* cview,
-                                      const MuonGeometryConstants& muonConstants) {
+void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
+			       const DDCompactView* cview,
+			       const MuonGeometryConstants& muonConstants) {
   std::string attribute = "MuStructure";
   std::string value = "MuonEndCapGEM";
 
@@ -52,13 +54,17 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
   DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0.0)};
   DDFilteredView fv(*cview, filter);
 
-  LogDebug("GEMGeometryBuilderFromDDD") << "Building the geometry service";
-  LogDebug("GEMGeometryBuilderFromDDD") << "About to run through the GEM structure\n"
-                                        << " First logical part " << fv.logicalPart().name().name();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("Geometry") << "Building the geometry service";
+  edm::LogVerbatim("Geometry") << "About to run through the GEM structure\n"
+                               << " First logical part " << fv.logicalPart().name().name();
+#endif
 
   bool doSuper = fv.firstChild();
 
-  LogDebug("GEMGeometryBuilderFromDDD") << "doSuperChamber = " << doSuper;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("Geometry") << "doSuperChamber = " << doSuper;
+#endif
   // loop over superchambers
   std::vector<GEMSuperChamber*> superChambers;
 
@@ -156,17 +162,21 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
             GEMDetId chId(detId.region(), detId.ring(), detId.station(), la, detId.chamber(), 0);
             auto chamber = theGeometry.chamber(chId);
             if (!chamber) {
-              edm::LogWarning("GEMGeometryBuilderFromDDD") << "Missing chamber " << chId << std::endl;
+              edm::LogWarning("GEMGeometryBuilder") << "Missing chamber " << chId;
             }
             superChamber->add(chamber);
           }
           ring->add(superChamber);
           theGeometry.add(superChamber);
-          LogDebug("GEMGeometryBuilderFromDDD") << "Adding super chamber " << detId << " to ring: "
-                                                << "re " << re << " st " << st << " ri " << ri << std::endl;
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("Geometry") << "Adding super chamber " << detId << " to ring: "
+                                       << "re " << re << " st " << st << " ri " << ri;
+#endif
         }
-        LogDebug("GEMGeometryBuilderFromDDD") << "Adding ring " << ri << " to station "
-                                              << "re " << re << " st " << st << std::endl;
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("Geometry") << "Adding ring " << ri << " to station "
+                                     << "re " << re << " st " << st;
+#endif
         if (!foundSuperChamber) {
           delete ring;
         } else {
@@ -175,24 +185,29 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
         }
       }
       if (!foundSuperChamber) {
-        LogDebug("GEMGeometryBuilderFromDDD") << "No superchamber found: re:" << re << " st:" << st << std::endl;
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("Geometry") << "No superchamber found: re:" << re << " st:" << st;
+#endif
         delete station;
       } else {
-        LogDebug("GEMGeometryBuilderFromDDD") << "Adding station " << st << " to region " << re << std::endl;
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("Geometry") << "Adding station " << st << " to region " << re;
+#endif
         region->add(station);
         theGeometry.add(station);
       }
     }
-    LogDebug("GEMGeometryBuilderFromDDD") << "Adding region " << re << " to the geometry " << std::endl;
-
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("Geometry") << "Adding region " << re << " to the geometry ";
+#endif
     theGeometry.add(region);
   }
 }
 
-GEMSuperChamber* GEMGeometryBuilderFromDDD::buildSuperChamber(DDFilteredView& fv, GEMDetId detId) const {
-  LogDebug("GEMGeometryBuilderFromDDD") << "buildSuperChamber " << fv.logicalPart().name().name() << " " << detId
-                                        << std::endl;
-
+GEMSuperChamber* GEMGeometryBuilder::buildSuperChamber(DDFilteredView& fv, GEMDetId detId) const {
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("Geometry") << "buildSuperChamber " << fv.logicalPart().name().name() << " " << detId;
+#endif
   DDBooleanSolid solid = (DDBooleanSolid)(fv.logicalPart().solid());
   bool ge0Station = detId.station() == GEMDetId::minStationId0;
   std::vector<double> dpar = ge0Station ? solid.parameters() : solid.solidA().parameters();
@@ -216,16 +231,17 @@ GEMSuperChamber* GEMGeometryBuilderFromDDD::buildSuperChamber(DDFilteredView& fv
   bool isOdd = detId.chamber() % 2;
   RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(dx1, dx2, dy, dz), isOdd));
 
-  LogDebug("GEMGeometryBuilderFromDDD") << "size " << dx1 << " " << dx2 << " " << dy << " " << dz << std::endl;
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("Geometry") << "size " << dx1 << " " << dx2 << " " << dy << " " << dz;
+#endif
   GEMSuperChamber* superChamber = new GEMSuperChamber(detId.superChamberId(), surf);
   return superChamber;
 }
 
-GEMChamber* GEMGeometryBuilderFromDDD::buildChamber(DDFilteredView& fv, GEMDetId detId) const {
-  LogDebug("GEMGeometryBuilderFromDDD") << "buildChamber " << fv.logicalPart().name().name() << " " << detId
-                                        << std::endl;
-
+GEMChamber* GEMGeometryBuilder::buildChamber(DDFilteredView& fv, GEMDetId detId) const {
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("Geometry") << "buildChamber " << fv.logicalPart().name().name() << " " << detId;
+#endif
   DDBooleanSolid solid = (DDBooleanSolid)(fv.logicalPart().solid());
   bool ge0Station = detId.station() == GEMDetId::minStationId0;
   std::vector<double> dpar = ge0Station ? solid.parameters() : solid.solidA().parameters();
@@ -244,16 +260,17 @@ GEMChamber* GEMGeometryBuilderFromDDD::buildChamber(DDFilteredView& fv, GEMDetId
 
   RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(dx1, dx2, dy, dz), isOdd));
 
-  LogDebug("GEMGeometryBuilderFromDDD") << "size " << dx1 << " " << dx2 << " " << dy << " " << dz << std::endl;
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("Geometry") << "size " << dx1 << " " << dx2 << " " << dy << " " << dz;
+#endif
   GEMChamber* chamber = new GEMChamber(detId.chamberId(), surf);
   return chamber;
 }
 
-GEMEtaPartition* GEMGeometryBuilderFromDDD::buildEtaPartition(DDFilteredView& fv, GEMDetId detId) const {
-  LogDebug("GEMGeometryBuilderFromDDD") << "buildEtaPartition " << fv.logicalPart().name().name() << " " << detId
-                                        << std::endl;
-
+GEMEtaPartition* GEMGeometryBuilder::buildEtaPartition(DDFilteredView& fv, GEMDetId detId) const {
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("Geometry") << "buildEtaPartition " << fv.logicalPart().name().name() << " " << detId;
+#endif
   // EtaPartition specific parameter (nstrips and npads)
   DDValue numbOfStrips("nStrips");
   DDValue numbOfPads("nPads");
@@ -266,11 +283,11 @@ GEMEtaPartition* GEMGeometryBuilderFromDDD::buildEtaPartition(DDFilteredView& fv
     if (DDfetch(*is, numbOfPads))
       nPads = numbOfPads.doubles()[0];
   }
-  LogDebug("GEMGeometryBuilderFromDDD") << ((nStrips == 0.) ? ("No nStrips found!!")
-                                                            : ("Number of strips: " + std::to_string(nStrips)));
-  LogDebug("GEMGeometryBuilderFromDDD") << ((nPads == 0.) ? ("No nPads found!!")
-                                                          : ("Number of pads: " + std::to_string(nPads)));
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("Geometry") << ((nStrips == 0.) ? ("No nStrips found!!")
+                                                   : ("Number of strips: " + std::to_string(nStrips)));
+  edm::LogVerbatim("Geometry") << ((nPads == 0.) ? ("No nPads found!!") : ("Number of pads: " + std::to_string(nPads)));
+#endif
   // EtaPartition specific parameter (size)
   std::vector<double> dpar = fv.logicalPart().solid().parameters();
 
@@ -291,15 +308,16 @@ GEMEtaPartition* GEMGeometryBuilderFromDDD::buildEtaPartition(DDFilteredView& fv
   std::string name = fv.logicalPart().name().name();
   GEMEtaPartitionSpecs* e_p_specs = new GEMEtaPartitionSpecs(GeomDetEnumerators::GEM, name, pars);
 
-  LogDebug("GEMGeometryBuilderFromDDD") << "size " << be << " " << te << " " << ap << " " << ti << std::endl;
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("Geometry") << "size " << be << " " << te << " " << ap << " " << ti;
+#endif
   GEMEtaPartition* etaPartition = new GEMEtaPartition(detId, surf, e_p_specs);
   return etaPartition;
 }
 
-GEMGeometryBuilderFromDDD::RCPBoundPlane GEMGeometryBuilderFromDDD::boundPlane(const DDFilteredView& fv,
-                                                                               Bounds* bounds,
-                                                                               bool isOddChamber) const {
+GEMGeometryBuilder::RCPBoundPlane GEMGeometryBuilder::boundPlane(const DDFilteredView& fv,
+								 Bounds* bounds,
+								 bool isOddChamber) const {
   // extract the position
   const DDTranslation& trans(fv.translation());
   const Surface::PositionType posResult(float(trans.x() / cm), float(trans.y() / cm), float(trans.z() / cm));
@@ -331,9 +349,9 @@ GEMGeometryBuilderFromDDD::RCPBoundPlane GEMGeometryBuilderFromDDD::boundPlane(c
 
 // DD4HEP
 
-void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
-                                      const cms::DDCompactView* cview,
-                                      const MuonGeometryConstants& muonConstants) {
+void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
+			       const cms::DDCompactView* cview,
+			       const MuonGeometryConstants& muonConstants) {
   std::string attribute = "MuStructure";
   std::string value = "MuonEndCapGEM";
   cms::DDFilteredView fv(cview->detector(), cview->detector()->worldVolume());
@@ -406,27 +424,32 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
           ring->add(superChamber);
           theGeometry.add(superChamber);
 
-          LogDebug("GEMGeometryBuilderFromDDD") << "Adding super chamber " << detId << " to ring: "
-                                                << "re " << re << " st " << st << " ri " << ri << std::endl;
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("Geometry") << "Adding super chamber " << detId << " to ring: "
+                                       << "re " << re << " st " << st << " ri " << ri;
+#endif
         }
-        LogDebug("GEMGeometryBuilderFromDDD") << "Adding ring " << ri << " to station "
-                                              << "re " << re << " st " << st << std::endl;
-
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("Geometry") << "Adding ring " << ri << " to station "
+                                     << "re " << re << " st " << st;
+#endif
         station->add(ring);
         theGeometry.add(ring);
       }
-      LogDebug("GEMGeometryBuilderFromDDD") << "Adding station " << st << " to region " << re << std::endl;
-
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("Geometry") << "Adding station " << st << " to region " << re;
+#endif
       region->add(station);
       theGeometry.add(station);
     }
-    LogDebug("GEMGeometryBuilderFromDDD") << "Adding region " << re << " to the geometry " << std::endl;
-
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("Geometry") << "Adding region " << re << " to the geometry";
+#endif
     theGeometry.add(region);
   }
 }
 
-GEMSuperChamber* GEMGeometryBuilderFromDDD::buildSuperChamber(cms::DDFilteredView& fv, GEMDetId detId) const {
+GEMSuperChamber* GEMGeometryBuilder::buildSuperChamber(cms::DDFilteredView& fv, GEMDetId detId) const {
   cms::DDSolid solid(fv.solid());
   auto solidA = solid.solidA();
   std::vector<double> dpar = solidA.dimensions();
@@ -452,7 +475,7 @@ GEMSuperChamber* GEMGeometryBuilderFromDDD::buildSuperChamber(cms::DDFilteredVie
   return superChamber;
 }
 
-GEMChamber* GEMGeometryBuilderFromDDD::buildChamber(cms::DDFilteredView& fv, GEMDetId detId) const {
+GEMChamber* GEMGeometryBuilder::buildChamber(cms::DDFilteredView& fv, GEMDetId detId) const {
   cms::DDSolid solid(fv.solid());
   auto solidA = solid.solidA();
   std::vector<double> dpar = solidA.dimensions();
@@ -474,7 +497,7 @@ GEMChamber* GEMGeometryBuilderFromDDD::buildChamber(cms::DDFilteredView& fv, GEM
   return chamber;
 }
 
-GEMEtaPartition* GEMGeometryBuilderFromDDD::buildEtaPartition(cms::DDFilteredView& fv, GEMDetId detId) const {
+GEMEtaPartition* GEMGeometryBuilder::buildEtaPartition(cms::DDFilteredView& fv, GEMDetId detId) const {
   // EtaPartition specific parameter (nstrips and npads)
 
   auto nStrips = fv.get<double>("nStrips");
@@ -499,9 +522,9 @@ GEMEtaPartition* GEMGeometryBuilderFromDDD::buildEtaPartition(cms::DDFilteredVie
   return etaPartition;
 }
 
-GEMGeometryBuilderFromDDD::RCPBoundPlane GEMGeometryBuilderFromDDD::boundPlane(const cms::DDFilteredView& fv,
-                                                                               Bounds* bounds,
-                                                                               bool isOddChamber) const {
+GEMGeometryBuilder::RCPBoundPlane GEMGeometryBuilder::boundPlane(const cms::DDFilteredView& fv,
+								 Bounds* bounds,
+								 bool isOddChamber) const {
   // extract the position
   const Double_t* tran = fv.trans();
   Surface::PositionType posResult(tran[0], tran[1], tran[2]);
