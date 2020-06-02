@@ -1,6 +1,6 @@
-import re
 import zlib
 import struct
+import asyncio
 from collections import namedtuple
 
 # If uproot is micro-Python ROOT, this is Nano ROOT.
@@ -8,14 +8,39 @@ from collections import namedtuple
 # but not actually decoding ROOT serialized objects.
 # The reason to use this rather than uproot is much higher performance on TDirectory's,
 # as well as fewer dependencies.
-# Everything is designed around a buffer like it is returned by mmap.mmap, that supports
-# indexing to get bytes. Reading from the bufer is rather lazy and copying data is
-# avoided as long as possible.
+# Everything is designed around a buffer like that supports indexing to get bytes. 
+# Reading from the buffer is rather lazy and copying data is avoided as long as possible.
+# This library supports asyncio; that is another reason for its existence. To acheive
+# that, many methods are async, and the buffers have an *async* [...:...] operator.
+# Though, when buffers read from file already are handled (e.g. all the TTree code), we
+# use normal, sync methods and normal `bytes` as a buffer type. This is not very 
+# consistent, but pragmatic.
+# To work around not having async constructors, the common pattern is await Thing().load(...).
+
+# First, a sample implementation of the 'async buffer' interface. This is not really
+# needed, except for testing. Not recommended for practical use, since it is *not*
+# actually async.
+
+import mmap
+class MMapFile:
+    def __init__(self, url):
+        self.file = open(url, 'rb')
+        self.mm = mmap.mmap(self.file.fileno(), 0, prot=mmap.PROT_READ)
+    def __len__(self):
+        return len(self.mm)
+    async def __getitem__(self, idx):
+        # This is quite inefficient: this *will* block the main thread.
+        return mm[idx]
+
+# Then, the basic structures to read a ROOT file: TFile and TKey.
+# We don't actually need TDirectory, since the directory structure can be inferred
+# from the TKeys (though reading the TDirectories *might* be more efficient).
 
 class TFile:
     # Structure from here: https://root.cern.ch/doc/master/classTFile.html
-    Fields = namedtuple("TFileFields", ["root", "fVersion", "fBEGIN", "fEND", "fSeekFree", "fNbytesFree", "nfree", "fNbytesName", "fUnits", "fCompress", "fSeekInfo", "fNbytesInfo", "fUUID"])
-    structure = struct.Struct(">4sIIIIIIIbIIII")
+    Fields = namedtuple("TFileFields", ["root", "fVersion", "fBEGIN", "fEND", "fSeekFree", "fNbytesFree", "nfree", "fNbytesName", "fUnits", "fCompress", "fSeekInfo", "fNbytesInfo", "fUUID_low", "fUUID_high"])
+    structure_small = struct.Struct(">4sIIIIIIIbIIIQQ")
+    structure_big   = struct.Struct(">4sIIQQIIIbIQIQQ")
 
     
     # These two are default transforms that can be overwritten.
@@ -28,25 +53,24 @@ class TFile:
     # fast, and the `fulllist` method that lists all objects using this.
     # Its behaviour can be adjusted with the `normalize` and `classes` 
     # callback functions.
-    def __init__(self, buf, normalize = topath, classes = allclasses):
+    async def load(self, buf):
         self.buf = buf
-        self.normalize = normalize
-        self.classes = classes
-        self.fields = TFile.Fields(*TFile.structure.unpack(
-            self.buf[0 : TFile.structure.size]))
+        self.fields = TFile.Fields(*TFile.structure_small.unpack(
+            await self.buf[0:TFile.structure_small.size]))
+        if self.fields.fVersion > 1000000:
+            self.fields = TFile.Fields(*TFile.structure_big.unpack(
+                await self.buf[0:TFile.structure_big.size]))
         assert self.fields.root == b'root'
-        self.normalizedcache = dict()
-        self.dircache = dict()
-        self.dircache[0] = ()
         self.error = False
+        return self
         
     def __repr__(self):
         return f"TFile({self.buf}, fields = {self.fields})"
 
     # First TKey in the file. They are sequential, use `next` on the key to
     # get the next key.
-    def first(self):
-        return TKey(self.buf, self.fields.fBEGIN, self.end())
+    async def first(self):
+        return await TKey().load(self.buf, self.fields.fBEGIN, self.end())
 
     def end(self):
         if len(self.buf) < self.fields.fEND:
@@ -55,43 +79,46 @@ class TFile:
             return len(self.buf)
         return self.fields.fEND
 
-    # Not that useful, but one could build a small file with only the streamers using this.
-    def streamerinfo(self):
-        return self.buf[tfile.fields.fSeekInfo : tfile.fields.fSeekInfo + tfile.fields.fNbytesInfo]
-    
-    def fullname(self, key):
-        return (self._normalized(key.fields.fSeekPdir), key.objname())
-    
-    def _fullname(self, fSeekKey):
-        if fSeekKey in self.dircache:
-            return self.dircache[fSeekKey]
-        k = TKey(self.buf, fSeekKey)
-        p = k.fields.fSeekPdir
-        res = self._fullname(p) + (k.objname(),)
-        self.dircache[fSeekKey] = res
-        return res
-    
-    def _normalized(self, fSeekKey):
-        if fSeekKey in self.normalizedcache:
-            return self.normalizedcache[fSeekKey]
-        parts = self._fullname(fSeekKey)
-        res = self.normalize(parts)
-        self.normalizedcache[fSeekKey] = res
-        return res
-    
     # Returns a generator producing (path, name, class, offset) tuples.
     # The paths are normalized with the `normalize` callback, the classes 
     # filtered with the `classes` callback.
-    def fulllist(self):
-        x = self.first()
-        while x:
-            c = x.classname()
-            if self.classes(c):
-                yield (*self.fullname(x), c, x.fSeekKey)
-            n = x.next()
-            if x.error:
+    # use `async for` to iterate this.
+    async def fulllist(self, normalize = topath, classes = allclasses):
+        # recursive list of path fragments with caching, indexed by fSeekKey
+        dircache = dict()
+        dircache[0] = ()
+        async def fullname(fSeekKey):
+            # fast path if in cache
+            if fSeekKey in dircache:
+                return dircache[fSeekKey]
+            # else load the TKey...
+            k = await TKey().load(self.buf, fSeekKey)
+            parent = k.fields.fSeekPdir
+            # ... and recurse to its parent.
+            res = await fullname(parent) + (await k.objname(),)
+            dircache[fSeekKey] = res
+            return res
+        
+        # normalized dirname for each dir identified by its fSeekKey
+        normalizedcache = dict()
+        async def normalized(fSeekKey):
+            if fSeekKey in normalizedcache:
+                return normalizedcache[fSeekKey]
+            parts = await fullname(fSeekKey)
+            res = normalize(parts)
+            normalizedcache[fSeekKey] = res
+            return res
+
+        key = await self.first()
+        while key:
+            c = await key.classname()
+            if classes(c):
+                yield (await normalized(key.fSeekKey), await key.objname(), c, key.fSeekKey)
+            n = await key.next()
+            if key.error:
                 self.error = True
-            x = n
+            key = n
+
         
 class TKey:
     # Structure also here: https://root.cern.ch/doc/master/classTFile.html
@@ -99,26 +126,24 @@ class TKey:
     structure_small = struct.Struct(">iHIIHHII")
     structure_big   = struct.Struct(">iHIIHHQQ")
     sizefield = struct.Struct(">i")
-
-    # In this case of curruption, we search for the next known class name and try it there.
-    # This should never be used in the normal case.
-    resync = re.compile(b'TDirectory|TH[123][DFSI]|TProfile|TProfile2D')
+    compressedheader = struct.Struct("2sBBBBBBB")
 
     # Decode key at offset `fSeekKey` in `buf`. `end` can be the file end
     # address if it is less then the buffer end.
-    def __init__(self, buf, fSeekKey, end = None):
+    async def load(self, buf, fSeekKey, end = None):
         self.buf = buf
         self.end = end if end != None else len(buf)
         self.fSeekKey = fSeekKey
         self.fields = TKey.Fields(*TKey.structure_small.unpack(
-            self.buf[self.fSeekKey : self.fSeekKey + TKey.structure_small.size]))
+            await self.buf[self.fSeekKey : self.fSeekKey + TKey.structure_small.size]))
         self.headersize = TKey.structure_small.size
         if self.fields.fVersion > 1000:
             self.fields = TKey.Fields(*TKey.structure_big.unpack(
-                self.buf[self.fSeekKey : self.fSeekKey + TKey.structure_big.size]))
+                await self.buf[self.fSeekKey : self.fSeekKey + TKey.structure_big.size]))
             self.headersize = TKey.structure_big.size
         assert self.fields.fSeekKey == self.fSeekKey, f"{self} is corrupted!"
         self.error = False
+        return self
 
     def __repr__(self):
         return f"TKey({self.buf}, {self.fSeekKey}, fields = {self.fields})"
@@ -128,91 +153,101 @@ class TKey:
     # sometimes gaps (resized/deleted objects?), which are skipped here.
     # If we still fail to read the next item, we try to find the next key
     # by searching for a familiar class name.
-    def next(self):
+    async def next(self):
         offset = self.fields.fSeekKey + self.fields.fNbytes
         while (offset+TKey.structure_small.size) < self.end:
             # It seems that a negative length indicates an unused block of that size. Skip it.
             # The number of such blocks matches nfree in the TFile.
-            size, = TKey.sizefield.unpack(self.buf[offset:offset+4])
+            size, = TKey.sizefield.unpack(await self.buf[offset:offset+4])
             if size < 0:
                 offset += -size
                 continue
-            try:
-                k = TKey(self.buf, offset, self.end)
-                return k
-            except AssertionError:
-                m = TKey.resync.search(self.buf, offset + TKey.structure_small.size + 2)
-                if not m: break
-                newoffset = m.start() - 1 - TKey.structure_small.size
-                # TODO: also try big header
-                print(f"Error: corrupted TKey at {offset}:{repr(self.buf[offset:offset+32])} resyncing (+{newoffset-offset})")
-                self.error = True
-                offset = newoffset
+            k = await TKey().load(self.buf, offset, self.end)
+            return k
         return None
 
-    def _getstr(self, pos):
-        size = self.buf[pos]
+    async def _getstr(self, pos):
+        size = await self.buf[pos]
         if size == 255: # soultion for when length does not fit one byte
-            size, = TKey.sizefield.unpack(self.buf[pos+1:pos+5])
+            size, = TKey.sizefield.unpack(await self.buf[pos+1:pos+5])
             pos += 4
         nextpos = pos + size + 1
-        value = self.buf[pos+1:nextpos]
+        value = await self.buf[pos+1:nextpos]
         return value, nextpos
 
     # Parse the three strings in the TKey (classname, objname, objtitle)
-    def names(self):
+    async def names(self):
         pos = self.fSeekKey + self.headersize
-        classname, pos = self._getstr(pos)
-        objname, pos = self._getstr(pos)
-        objtitle, pos = self._getstr(pos)
+        classname, pos = await self._getstr(pos)
+        objname, pos = await self._getstr(pos)
+        objtitle, pos = await self._getstr(pos)
         return classname, objname, objtitle
 
-    def classname(self):
-        return self._getstr(self.fSeekKey + self.headersize)[0]
+    async def classname(self):
+        return (await self._getstr(self.fSeekKey + self.headersize))[0]
 
-    def objname(self):
+    async def objname(self):
         # optimized self.names()[1]
         pos = self.fSeekKey + self.headersize
-        pos += self.buf[pos] + 1
-        if self.buf[pos] == 255:
-            size, = TKey.sizefield.unpack(self.buf[pos+1:pos+5])
+        pos += await self.buf[pos] + 1
+        if await self.buf[pos] == 255:
+            size, = TKey.sizefield.unpack(await self.buf[pos+1:pos+5])
             pos += 4
             nextpos = pos + size
         else:
-            nextpos = pos + self.buf[pos]
-        return self.buf[pos+1:nextpos+1]
+            nextpos = pos + await self.buf[pos]
+        return await self.buf[pos+1:nextpos+1]
+    
     def compressed(self):
         return self.fields.fNbytes - self.fields.fKeyLen != self.fields.fObjLen
 
     # Return and potentially decompress object data.
-    def objdata(self):
+    # Compression is done in thraed pool since it could take more time.
+    async def objdata(self):
         start = self.fields.fSeekKey + self.fields.fKeyLen
         end = self.fields.fSeekKey + self.fields.fNbytes
         if not self.compressed():
-            return self.buf[start:end]
+            return await self.buf[start:end]
         else:
-            comp = self.buf[start:start+2]
-            assert comp == b'ZL', "Only Zlib compression supported, not " + repr(comp)
-            # There are a bunch of header bytes, not exactly sure what they mean.
-            return zlib.decompress(self.buf[start+9:end])
+            def decompress(buf, start, end):
+                out = []
+                while start < end:
+                     # Thanks uproot!
+                     algo, method, c1, c2, c3, u1, u2, u3 = TKey.compressedheader.unpack(
+                         buf[start : start + TKey.compressedheader.size])
+                     compressedbytes = c1 + (c2 << 8) + (c3 << 16)
+                     uncompressedbytes = u1 + (u2 << 8) + (u3 << 16)
+                     start += TKey.compressedheader.size
+                     assert algo == b'ZL', "Only Zlib compression supported, not " + repr(comp)
+                     uncomp =  zlib.decompress(buf[start:start+compressedbytes])
+                     out.append(uncomp)
+                     assert len(uncomp) == uncompressedbytes
+                     start += compressedbytes
+                return b''.join(out)
+            buf = await self.buf[start:end]
+            return await asyncio.get_event_loop().run_in_executor(None, decompress, buf, 0, end-start)
 
     # Each key (except the root) has a parent directory.
     # Creates a new TKey pointing there.
-    def parent(self):
+    async def parent(self):
         if self.fields.fSeekPdir == 0:
             return None
-        return TKey(self.buf, self.fields.fSeekPdir, self.end)
+        return await TKey().load(self.buf, self.fields.fSeekPdir, self.end)
 
     # Derive the full path of an object by recursing up the parents.
     # slow, primarily for debugging.
-    def fullname(self):
-        parent = self.parent()
-        parentname = parent.fullname() if parent else b''
-        return b"%s/%s" % (parentname, self.objname())
+    async def fullname(self):
+        parent = await self.parent()
+        parentname = await parent.fullname() if parent else b''
+        return b"%s/%s" % (parentname, await self.objname())
 
+# Next, a helper to format TBufferFile data. All data in ROOT files is serialized
+# using TBufferFile serialization, but the headers aded to the data vary. This
+# class removes any detected headers and adds the headers needed for a bare object
+# that can be read using `ReadObjectAny`. Since TBufferFile data can contain
+# references into itself, we need to keep track of where the buffer actually 
+# started (`displacement` parameters).
 
-# TBufferFile data contains more headers compared to the data in a TKey or
-# TTree. This function tries to add the missing headers.
 class TBufferFile():
     def __init__(self, objdata, classname, displacement = 0,version = None):
         if objdata[0:1] != b'@' and objdata[1:2] == b'T': 
@@ -252,9 +287,11 @@ class TBufferFile():
         # the correct displacement here.
         # Getting it wrong usually does not matter, but can lead to missing
         # Objects (axis, labels, ...) inside the histograms and also sometimes
-        # root crashes due to infinite recursion.
+        # ROOT crashes due to infinite recursion.
         self.displacement = displacement
 
+
+# Then, TTree IO. This is more fragile than the TDirectory code.
 
 # Some minimal TTree IO. The structure of a TTree is not terribly complicated:
 # A TTree (table) consists of TBranches (columns). Each TBranch stores its values
@@ -267,7 +304,8 @@ class TBufferFile():
 # belong to. What remains to be figured out is how many entries there are in
 # the TBasket and what the first ID in this TBasket is. For the latter, we will
 # just assume that the TBaskets are stored in the file in the order of their
-# start IDs; this is not guaranteed but seems to hold.
+# start IDs; this is not guaranteed but seems to hold. (It seems we could also
+# use `fCycle` instead of the file order, not sure if it is better).
 # To find how many objects there are in a TBasket, there are two cases: 1. it
 # holds fixed size objects, then it's just size/object size, or 2. if holds
 # variable size objects. In this case, there is an array at the end of the 
@@ -283,72 +321,105 @@ class TBufferFile():
 # to read the TLeafs from the TTree blob for that), so we require an explicit
 # schema from the user.
 
-# First, the schema.
+# First, the schema. All schema types are in the TType namespace.
 # We use struct.Struct for fixed size types, and objects with a `size` of None
 # and a `unpack` method for variable size types.
 
-Int32 = struct.Struct(">i")
-Int64 = struct.Struct(">q")
-Float64 = struct.Struct(">d")
+class TType:
+    Int32 = struct.Struct(">i")
+    Int64 = struct.Struct(">q")
+    Float64 = struct.Struct(">d")
 
-class String:
-    size = None
-    @staticmethod
-    def unpack(buf, start, end, basket):
-        size = buf[start]
-        start += 1
-        if size == 0xFF:
-            size, = Int32.unpack(buf[start:start+4])
-            start += 4
-        s = buf[start:end]
-        assert len(s) == size, f"Size of string does not match buffer size: {repr(buf[start:end])}, {size})"
-        return s
+    class String:
+        # This signals "variable size" later.
+        size = None
 
-class ObjectBlob:
-    class Range:
-        def __init__(self, buf, start, end, fSeekKey):
-            self.buf = buf
+        @staticmethod
+        def unpack(buf, start, end, basket):
+            size = buf[start]
+            start += 1
+            if size == 0xFF:
+                size, = TType.Int32.unpack(buf[start:start+4])
+                start += 4
+            s = buf[start:end]
+            assert len(s) == size, f"Size of string does not match buffer size: {repr(buf[start:end])}, {size})"
+            return s
+    
+    class IndexRange:
+        # This tells the TBranch to not keep the uncompressed data. To actually get
+        # the data, the buffer has to be reconstructed using the seekkey and TKey.
+        dropdata = True
+        size = None
+
+        def __init__(self, start, end, fSeekKey):
             self.start = start
             self.end = end
             self.fSeekKey = fSeekKey # address of the basket this came from
-        def data(self):
-            return self.buf[self.start:self.end]
+
+        # To actually retrieve the object, we go back to the original file buffer, unpack the
+        # basket and then read the object from there, without needing any of the TTree code.
+        async def read(self, buf):
+            return (await TKey().load(buf, self.fSeekKey)).objdata[self.start:self.end]
+
         def __repr__(self):
-            return f"Range(buf=<len()={len(self.buf)}>, start={self.start}, end={self.end}, fSeekKey={self.fSeekKey})"
-    size = None
-    @staticmethod
-    def unpack(buf, start, end, basket):
-        # return object here, so we can later extract pointers pointing *into* the basket.
-        # To make that possible, API needs to diverge from Struct.unpack...
-        # The basket also passes itself in so we can keep whatever info we need.
-        return ObjectBlob.Range(buf, start, end, basket.fSeekKey)
+            return f"IndexRange(start={self.start}, end={self.end}, fSeekKey={self.fSeekKey})"
+
+        @staticmethod
+        def unpack(buf, start, end, basket):
+            # return object here, so we can later extract pointers pointing *into* the basket.
+            # To make that possible, API needs to diverge from Struct.unpack...
+            # The basket also passes itself in so we can keep whatever info we need.
+            return TType.IndexRange(start, end, basket.fSeekKey)
+
+    class ObjectBlob:
+        size = None
+
+        # This simply returns the bytes stored in the tree, without any decoding.
+        @staticmethod
+        def unpack(buf, start, end, basket):
+            return buf[start:end]
     
 # A schema for a TTree is a dict mapping branch names to types.
 # A schema for a file is a dict mapping TTree names to TTree schemas.
 
-# A Tbasket is pretty self-contained, we can read it from a TKey and its type.
+# A TBasket is pretty self-contained, we can read it from a TKey and its type.
 # The only thing it does not know is its starting index in the full table.
 # We don't save stuff that is not absolutely needed, like names or a ref to the
-# file (we do keep a copy of the (decompressed) data).
+# file (we do keep a copy of the (decompressed) data, unless dropdata is set).
+# `dropdata` is useful since we always need to read full files in the first 
+# pass, and a full 2GB file decompressed might not fit in memory. Later, we can
+# decode individual baskets and extract objects using the fields of `IndexRange`.
 class TBasket:
-    def __init__(self, tkey, ttype, startindex = None):
-        assert tkey.classname() == b'TBasket'
+    Index = struct.Struct(">i")
+    
+    async def load(self, tkey, ttype, startindex = None):
+        assert await tkey.classname() == b'TBasket'
         self.fKeyLen = tkey.fields.fKeyLen
         self.fSeekKey = tkey.fields.fSeekKey # we don't really need that, but keep it for later
         self.ttype = ttype
         self.startindex = startindex
-        self.buf = tkey.objdata() # read and decompress once.
+        self.buf = await tkey.objdata() # read and decompress once.
         if ttype.size != None:
             self.initfixed()
         else:
             self.initvariable()
+        if hasattr(ttype, 'dropdata') and ttype.dropdata:
+            del self.buf
+            self.buf = None
+        return self
+
     def initfixed(self):
+        # this case is easy -- just cut the buffer into fixed-size records
         self.offsets = [i*self.ttype.size for i in range(len(self.buf)//self.ttype.size + 1)]
+        
     def initvariable(self):
+        # this case is more complicated: there is a data structure at the end
+        # of the buffer that encodes where the objects start and end, but
+        # decoding that without the help of the TBranch metadata is complicated.
         buf = self.buf
         pos = len(buf) - 4
         def getint(pos):
-            i, = Int32.unpack(buf[pos:pos+4])
+            i, = TBasket.Index.unpack(buf[pos:pos+4])
             return i
         assert getint(pos) == 0
         pos -= 4
@@ -365,18 +436,22 @@ class TBasket:
             pos -= 4
         self.offsets = [x - self.fKeyLen for x in reversed(offs)]
         self.offsets.append(pos)
+        
     def __len__(self):
-        #  offsets always contains the end as well
+        # offsets always contains the end as well
         return len(self.offsets) - 1
+    
     def localindex(self, i):
         if self.ttype.size == None:
             return self.ttype.unpack(self.buf, self.offsets[i], self.offsets[i+1], self)
         else: # The [0] is for 1-element structs. We could support larger ones, but not sure for what...
             return self.ttype.unpack(self.buf[self.offsets[i] : self.offsets[i+1]])[0]
+        
     # local iteration
     def __iter__(self):
         for i in range(len(self)):
             yield self.localindex(i)
+            
     # global index stuff
     def iterat(self, start):
         for i in range(max(start, self.startindex), self.startindex + len(self)):
@@ -393,12 +468,13 @@ class TBranch:
     def __init__(self, ttype):
         self.ttype = ttype
         self.baskets = [(None, 0)]
-    def addbasket(self, tkey):
+
+    async def addbasket(self, tkey):
         currentend = self.baskets[-1][1]
-        basket = TBasket(tkey, self.ttype, currentend)
+        basket = await TBasket().load(tkey, self.ttype, currentend)
         self.baskets.append((basket, currentend + len(basket)))
+
     def iterat(self, start, end = -1):
-        # TODO: we could use this for tbranch[start:end]...
         # Binary search here would be smart, but we don't use this much anyways.
         for basket, basketend in self.baskets:
             if start < basketend:
@@ -406,6 +482,7 @@ class TBranch:
                     if end > 0 and i >= end:
                         return
                     yield i, x
+
     def __getitem__(self, i):
         if isinstance(i, slice):
             start, end, stride = i.indices(len(self))
@@ -416,8 +493,10 @@ class TBranch:
             idx, x = next(self.iterat(i))
             assert i == idx
             return x
+
     def __iter__(self):
         return self[:]
+
     def __len__(self):
         return self.baskets[-1][1]
 
@@ -428,23 +507,29 @@ class TTree:
             name: TBranch(ttype) for name, ttype in schema.items()
         }
         self.branchnames = sorted(schema.keys())
-    def addbasket(self, tkey):
-        cls, branch, tree = tkey.names()
+
+    async def addbasket(self, tkey):
+        cls, branch, tree = await tkey.names()
         # ignore branches that we don't have a schema for; this is how we can do partial reads.
         if branch in self.branches:
-            self.branches[branch].addbasket(tkey)
-    def __getitem__(self, i):
-        if isinstance(i, slice):
-            for tup in zip(*[self.brnaches[name][i] for name in self.branchnames]):
-                yield dict(zip(self.branchnames, tup))
-        else:
-            return {name: branch[i] for name, branch in self.branches.items()}
+            await self.branches[branch].addbasket(tkey)
+
     def __len__(self):
         lens = list(set(len(branch) for branch in self.branches.values()))
         assert len(lens) == 1, "Branches have uneven lenghts! %s" % repr(lens)
         return lens[0]
+            
+    def __getitem__(self, i):
+        # this returns dict's of brnach values.
+        # for something more efficient, direct access to the branches can be used.
+        if isinstance(i, slice):
+            for tup in zip(*[self.branches[name][i] for name in self.branchnames]):
+                yield dict(zip(self.branchnames, tup))
+        else:
+            return {name: branch[i] for name, branch in self.branches.items()}
+
     def __iter__(self):
-        return zip(*[self.branches[name] for name in self.branchnames])
+        return self[:]
 
 # Finally, set everything up based on a file.
 # This is necessarily slow: we read and decompress everything into memory here.
@@ -453,16 +538,85 @@ class TTree:
 # But we'll still need to touch each TKey, potentially triggering loading the
 # full file to cache.
 # The file can be closed after this, we don't keep any references to it.
-def TTreeFile(tfile, schema):
+async def TTreeFile(tfile, schema):
     trees = {
         name: TTree(treeschem) for name, treeschem in schema.items()
     }
-    k = tfile.first()
+    k = await tfile.first()
     while k:
-        cls, branch, tree = k.names()
+        cls, branch, tree = await k.names()
         if cls == b'TBasket':
             if tree in trees:
-                trees[tree].addbasket(k)
-        k = k.next()
+                # we could add some parallelism here, but it does not seem to help much.
+                await trees[tree].addbasket(k)
+        k = await k.next()
     return trees
 
+
+# Finally, some code for XrootD support. This is not really necessary to read (local)
+# ROOT files, but this is why we do asyncio in the first place. This should not be
+# used directly, without a layer of caching between us and XrootD. Such a cache is 
+# *not* provided here. (Maybe enabling XrootD client caching via env variables is
+# enough for some applications:
+# https://github.com/xrootd/xrootd/blob/master/src/XrdClient/README_params
+# Note that XrootD client *can* read local files (just use a local path as URL), but
+# it is much slower then mmap'ing.
+
+# XRootD IO, using pyxrootd. IO latency with xrootd is not as bad as one could 
+# think, it takes a few 100ms to open a remote file and a few ten's of ms to
+# perform a random read. This is comparable to a normal filesystem on spinning 
+# disks and faster than CEPH or mounted EOS (EOS xrootd is maybe 10x faster
+# then xrootd from GRID, and slightly faster than mounted EOS, which is faster
+# than CEPH standard volumes).
+# Throughput can be over 100MBytes/s.
+
+import pyxrootd.client
+
+# PyXrootD uses threads and callbacks.
+# We use this interface and translate it into asyncio coroutines.
+class XRDFile:
+    # All pyxrootd calls go through tis wrapper. It appends a calback= parameter
+    # to the call, which releases a asyncio lock in a thread-save way, and then
+    # async-waits for this lock to be released.
+    async def __async_call(self, function, *args, **kwargs):
+        done = asyncio.Event()
+        loop = asyncio.get_event_loop()
+        async_result = []
+
+        # this must be called from main thread
+        def unblock():
+            done.set()
+
+        # this can be called from different thread and will call `unblock`
+        def callback(*args):
+            async_result.append(args)
+            loop.call_soon_threadsafe(unblock)
+
+        # the actual call to pyxrootd
+        function(*args, **kwargs, callback=callback)
+        await done.wait()
+
+        # some minimal error handling: Throw AssertionFailure if *anything* went wrong.
+        ok = async_result[0][0]
+        assert not ok['error'], repr(ok)
+        return async_result[0][1]
+        
+    async def load(self, url, timeout = 5):
+        self.timeout = timeout
+        self.file = pyxrootd.client.File()
+        await self.__async_call(self.file.open, url, timeout=self.timeout)
+        stat = await self.__async_call(self.file.stat)
+        self.size = stat['size']
+        return self
+        
+    def __len__(self):
+        return self.size
+    
+    async def __getitem__(self, idx):
+        if isinstance(idx, slice):
+            start, end, stride = idx.indices(len(self))
+            assert stride == 1 and start >= 0 and end >= 0
+            buf = await self.__async_call(self.file.read, start, end-start, timeout = self.timeout)
+            return buf
+        else:
+            return (await self[idx:idx+1])[0]
