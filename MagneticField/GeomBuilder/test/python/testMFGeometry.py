@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("DDCMSDetectorTest")
+process = cms.Process("MFGeometryTest")
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
