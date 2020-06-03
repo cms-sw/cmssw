@@ -316,7 +316,8 @@ void MuonRecoAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
   vDThitsSoftMuonMVA = ibooker.book1D("vDThitsSoftMuonMVA", "vDThits", 50, 0, 50);
   vCSChitsSoftMuonMVA = ibooker.book1D("vCSChitsSoftMuonMVA", "vCSChits", 50, 0, 50);
   if (useGEM) {
-    vGEMhitsSoftMuonMVA = ibooker.book1D("vGEMhitsSoftMuonMVA", "vGEMhits", maxGEMhitsSoftMuonMVA, 0, maxGEMhitsSoftMuonMVA);
+    vGEMhitsSoftMuonMVA =
+        ibooker.book1D("vGEMhitsSoftMuonMVA", "vGEMhits", maxGEMhitsSoftMuonMVA, 0, maxGEMhitsSoftMuonMVA);
     vGEMhitsSoftMuonMVA->setXTitle("Number of Valid GEM Hits of Global Muon");
   } else {
     vGEMhitsSoftMuonMVA = nullptr;
