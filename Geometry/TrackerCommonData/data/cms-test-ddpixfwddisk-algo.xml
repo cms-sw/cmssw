@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <DDDefinition>
   <debug>
-    <debug_shapes/>
+    <!--debug_shapes/>
     <debug_includes/>
     <debug_rotations/>
     <debug_volumes/>
@@ -10,7 +10,7 @@
     <debug_namespaces/>
     <debug_placements/>
     <debug_algorithms/>
-    <debug_specpars/>
+    <debug_specpars/-->
   </debug>
   <open_geometry/>
   <close_geometry/>
