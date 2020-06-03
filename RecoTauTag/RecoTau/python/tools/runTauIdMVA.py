@@ -67,10 +67,10 @@ class TauIDEmbedder(object):
         """returns '(release, subversion, patch)' (without 'CMSSW_')"""
         v = klass.get_cmssw_version().split("CMSSW_")[1].split("_")[0:3]
         if debug: print ("get_cmssw_version_number:", v)
-        if v[2] == "X":
-            patch = -1
-        else:
+        try:
             patch = int(v[2])
+        except:
+            patch = -1
         return int(v[0]), int(v[1]), patch
 
     @staticmethod
