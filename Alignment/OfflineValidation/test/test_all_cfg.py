@@ -260,9 +260,9 @@ if isDA:
                                                                          maxNormalizedChi2 = cms.double(5.0),                        # chi2ndof < 5                  
                                                                          minPixelLayersWithHits = cms.int32(2),                      # PX hits > 2                       
                                                                          minSiliconLayersWithHits = cms.int32(5),                    # TK hits > 5  
-                                                                         maxD0Significance = cms.double(5.0),                        # fake cut (requiring 1 PXB hit)     
-                                                                         maxD0Error = cms.double(100.0),                        # fake cut (requiring 1 PXB hit)     
-                                                                         maxDzError = cms.double(100.0),                        # fake cut (requiring 1 PXB hit)     
+                                                                         maxD0Significance = cms.double(5.0),                        # fake cut (requiring 1 PXB hit)
+                                                                         maxD0Error = cms.double(100.0),                             # fake cut (requiring 1 PXB hit)
+                                                                         maxDzError = cms.double(100.0),                             # fake cut (requiring 1 PXB hit)
                                                                          minPt = cms.double(0.0),                                    # better for softish events
                                                                          maxEta = cms.double(5.0),                                   # as per recommendation in PR #18330
                                                                          trackQuality = cms.string("any")
@@ -308,13 +308,13 @@ else:
                                            runControlNumber = cms.untracked.vuint32(int(runboundary)),
                                            
                                            TkFilterParameters = cms.PSet(algorithm=cms.string('filter'),                             
-                                                                         maxNormalizedChi2 = cms.double(5.0),                        # chi2ndof < 20                  
-                                                                         minPixelLayersWithHits=cms.int32(2),                        # PX hits > 2                   
-                                                                         minSiliconLayersWithHits = cms.int32(5),                    # TK hits > 5                   
+                                                                         maxNormalizedChi2 = cms.double(5.0),                        # chi2ndof < 20
+                                                                         minPixelLayersWithHits=cms.int32(2),                        # PX hits > 2
+                                                                         minSiliconLayersWithHits = cms.int32(5),                    # TK hits > 5
                                                                          maxD0Significance = cms.double(5.0),                        # fake cut (requiring 1 PXB hit)
-                                                                         maxD0Error = cms.double(100.0),                        # fake cut (requiring 1 PXB hit)     
-                                                                         maxDzError = cms.double(100.0),                        # fake cut (requiring 1 PXB hit)     
-                                                                         minPt = cms.double(0.0),                                    # better for softish events    
+                                                                         maxD0Error = cms.double(100.0),                             # fake cut (requiring 1 PXB hit)
+                                                                         maxDzError = cms.double(100.0),                             # fake cut (requiring 1 PXB hit)
+                                                                         minPt = cms.double(0.0),                                    # better for softish events
                                                                          maxEta = cms.double(5.0),                                   # as per recommendation in PR #18330 
                                                                          trackQuality = cms.string("any")
                                                                          ),
@@ -344,8 +344,9 @@ process.offlinePrimaryVerticesFromRefittedTrks.vertexCollections.maxDistanceToBe
 process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.maxNormalizedChi2             = 20
 process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.minSiliconLayersWithHits      = 5
 process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.maxD0Significance             = 5.0
-process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.maxD0Error                    = 100.0
-process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.maxDzError                    = 100.0
+# as it was prior to https://github.com/cms-sw/cmssw/commit/c8462ae4313b6be3bbce36e45373aa6e87253c59
+process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.maxD0Error                    = 1.0
+process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.maxDzError                    = 1.0
 process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.minPixelLayersWithHits        = 2
 
 ###################################################################
