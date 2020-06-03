@@ -46,12 +46,3 @@ RecoHIFEVT.outputCommands.extend(RecoHiEvtPlaneFEVT.outputCommands)
 RecoHIFEVT.outputCommands.extend(RecoHiCentralityFEVT.outputCommands)
 RecoHIFEVT.outputCommands.extend(RecoHiMuonFEVT.outputCommands)
 
-# RAW content
-RecoHIRAWOutput=cms.untracked.vstring(
-	'keep FEDRawDataCollection_rawDataRepacker_*_*',
-        'keep FEDRawDataCollection_hybridRawDataRepacker_*_*',
-        'keep FEDRawDataCollection_virginRawDataRepacker_*_*')
-RecoHIRAW = cms.PSet(
-    outputCommands = cms.untracked.vstring()
-)
-RecoHIRAW.outputCommands.extend(RecoHIRAWOutput)
