@@ -178,10 +178,11 @@ def customiseFor2017DtUnpacking(process):
     return process
 
 def customiseFor30046(process):
-    process.SiStripClusterizerConditionsESProducer = cms.ESProducer('SiStripClusterizerConditionsESProducer',
-        QualityLabel = cms.string(''),
-        appendToDataLabel = cms.string('')
-    )
+    if hasattr(process, "SiStripGainESProducer"): ## not for Fake* HLT menus (adding this would cause an error because the SiStripGain dependency ESProducer is not there)
+        process.SiStripClusterizerConditionsESProducer = cms.ESProducer('SiStripClusterizerConditionsESProducer',
+            QualityLabel = cms.string(''),
+            appendToDataLabel = cms.string('')
+        )
     return process
 
 # CMSSW version specific customizations
