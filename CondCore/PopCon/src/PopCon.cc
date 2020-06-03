@@ -37,6 +37,7 @@ namespace popcon {
     if (!m_dbService.isAvailable())
       throw Exception("DBService not available");
     const std::string& connectionStr = m_dbService->session().connectionString();
+    m_dbService->forceInit();
     m_tag = m_dbService->tag(m_record);
     m_tagInfo.name = m_tag;
     if (m_targetConnectionString.empty())
