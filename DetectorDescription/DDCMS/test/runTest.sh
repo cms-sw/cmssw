@@ -5,13 +5,11 @@ function die { echo $1: status $2 ; exit $2; }
 F1=${LOCAL_TEST_DIR}/python/dump.py
 F2=${LOCAL_TEST_DIR}/python/dumpDDShapes.py
 
-F4=${LOCAL_TEST_DIR}/python/dumpMuonGeometry.py
 F5=${LOCAL_TEST_DIR}/python/testDDAngularAlgorithm.py
 F6=${LOCAL_TEST_DIR}/python/testDDDetectorESProducer.py
 F7=${LOCAL_TEST_DIR}/python/testDDPseudoTrapShapes.py
 F8=${LOCAL_TEST_DIR}/python/testDDSpecPars.py
 F9=${LOCAL_TEST_DIR}/python/testDDVectors.py
-
 
 F12=${LOCAL_TEST_DIR}/python/testShapes.py
 F13=${LOCAL_TEST_DIR}/python/testNavigateGeometry.py
@@ -30,14 +28,12 @@ echo " testing DetectorDescription/DDCMS"
 
 export tmpdir=${LOCAL_TMP_DIR:-/tmp}
 echo "===== Test \"python UnitsCheck.py cms.xml\" ===="
-python ${LOCAL_TEST_DIR}/python/UnitsCheck.py ${LOCAL_TEST_DIR}/data/mf.xml
+python ${LOCAL_TEST_DIR}/python/UnitsCheck.py ${LOCAL_TEST_DIR}/data/vacuum.xml
 echo "===== Test \"cmsRun dump.py\" ===="
 (cmsRun $F1) || die "Failure using cmsRun $F1" $?
 echo "===== Test \"cmsRun dumpDDShapes.py\" ===="
 (cmsRun $F2) || die "Failure using cmsRun $F2" $?
 
-echo "===== Test \"cmsRun dumpMuonGeometry.py\" ===="
-(cmsRun $F4) || die "Failure using cmsRun $F4" $?
 echo "===== Test \"cmsRun testDDAngularAlgorithm.py\" ===="
 (cmsRun $F5) || die "Failure using cmsRun $F5" $?
 echo "===== Test \"cmsRun testDDDetectorESProducer.py\" ===="
