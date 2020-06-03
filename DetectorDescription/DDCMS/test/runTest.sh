@@ -4,22 +4,18 @@ function die { echo $1: status $2 ; exit $2; }
 
 F1=${LOCAL_TEST_DIR}/python/dump.py
 F2=${LOCAL_TEST_DIR}/python/dumpDDShapes.py
-
 F5=${LOCAL_TEST_DIR}/python/testDDAngularAlgorithm.py
 F6=${LOCAL_TEST_DIR}/python/testDDDetectorESProducer.py
 F7=${LOCAL_TEST_DIR}/python/testDDPseudoTrapShapes.py
 F8=${LOCAL_TEST_DIR}/python/testDDSpecPars.py
 F9=${LOCAL_TEST_DIR}/python/testDDVectors.py
-
 F12=${LOCAL_TEST_DIR}/python/testShapes.py
 F13=${LOCAL_TEST_DIR}/python/testNavigateGeometry.py
 F14=${LOCAL_TEST_DIR}/python/testTGeoIterator.py
 F15=${LOCAL_TEST_DIR}/python/testDDSpecParsFilterG4ProdCuts.py
 F16=${LOCAL_TEST_DIR}/python/testDDSpecParsFilter.py
-
 F18=${LOCAL_TEST_DIR}/python/testDDHGCalCellAlgorithm.py
 F19=${LOCAL_TEST_DIR}/python/testDDCompactView.py
-
 F21=${LOCAL_TEST_DIR}/python/testGeometry2021.py
 F22=${LOCAL_TEST_DIR}/python/testGeometry2021FromDB.py
 F23=${LOCAL_TEST_DIR}/python/testDDFilteredView.py
@@ -28,7 +24,7 @@ echo " testing DetectorDescription/DDCMS"
 
 export tmpdir=${LOCAL_TMP_DIR:-/tmp}
 echo "===== Test \"python UnitsCheck.py cms.xml\" ===="
-python ${LOCAL_TEST_DIR}/python/UnitsCheck.py ${LOCAL_TEST_DIR}/data/vacuum.xml
+python ${LOCAL_TEST_DIR}/python/UnitsCheck.py ${LOCAL_TEST_DIR}/data/testUnits.xml
 echo "===== Test \"cmsRun dump.py\" ===="
 (cmsRun $F1) || die "Failure using cmsRun $F1" $?
 echo "===== Test \"cmsRun dumpDDShapes.py\" ===="
