@@ -31,7 +31,7 @@ private:
 CPPUNIT_TEST_SUITE_REGISTRATION(testDDCompactView);
 
 void testDDCompactView::setUp() {
-  fileName_ = edm::FileInPath("DetectorDescription/DDCMS/data/cms-test-muon-geometry-2015.xml").fullPath();
+  fileName_ = edm::FileInPath("Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2021.xml").fullPath();
 }
 
 void testDDCompactView::checkCompactView() {
