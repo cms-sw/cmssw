@@ -13,7 +13,7 @@ if hasattr(process,'MessageLogger'):
     process.MessageLogger.categories.append('MuonGeom')
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-test-ddgemangular-algorithm.xml'),
+                                            confGeomXMLFiles = cms.FileInPath('Geometry/MuonCommonData/data/cms-test-ddgemangular-algorithm.xml'),
                                             appendToDataLabel = cms.string('TestDDGEMAngular')
                                             )
 

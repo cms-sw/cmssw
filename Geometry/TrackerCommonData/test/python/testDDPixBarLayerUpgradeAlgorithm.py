@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("DDCMSDetectorTest")
+process = cms.Process("DDPixBarLayerUpgradeAlgoTest")
 
 process.source = cms.Source("EmptySource")
 
@@ -41,7 +41,7 @@ process.MessageLogger = cms.Service(
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
     confGeomXMLFiles = cms.FileInPath(
-        'DetectorDescription/DDCMS/data/cms-test-pixbarlayerupgrade-algorithm.xml'
+        'Geometry/TrackerCommonData/data/cms-test-ddpixbarlayerupgrade-algorithm.xml'
     ),
     appendToDataLabel = cms.string('testPixBarLayerUpgradeAlgo')
 )

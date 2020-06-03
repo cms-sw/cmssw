@@ -12,16 +12,16 @@ F7=${LOCAL_TEST_DIR}/python/testDDPseudoTrapShapes.py
 F8=${LOCAL_TEST_DIR}/python/testDDSpecPars.py
 F9=${LOCAL_TEST_DIR}/python/testDDVectors.py
 
-F11=${LOCAL_TEST_DIR}/python/testMuonGeometry.py
+
 F12=${LOCAL_TEST_DIR}/python/testShapes.py
 F13=${LOCAL_TEST_DIR}/python/testNavigateGeometry.py
 F14=${LOCAL_TEST_DIR}/python/testTGeoIterator.py
 F15=${LOCAL_TEST_DIR}/python/testDDSpecParsFilterG4ProdCuts.py
 F16=${LOCAL_TEST_DIR}/python/testDDSpecParsFilter.py
-F17=${LOCAL_TEST_DIR}/python/testMuonNumbering.py
+
 F18=${LOCAL_TEST_DIR}/python/testDDHGCalCellAlgorithm.py
 F19=${LOCAL_TEST_DIR}/python/testDDCompactView.py
-F20=${LOCAL_TEST_DIR}/python/testDDGEMAngularAlgorithm.py
+
 F21=${LOCAL_TEST_DIR}/python/testGeometry2021.py
 F22=${LOCAL_TEST_DIR}/python/testGeometry2021FromDB.py
 F23=${LOCAL_TEST_DIR}/python/testDDFilteredView.py
@@ -49,8 +49,6 @@ echo "===== Test \"cmsRun testDDSpecPars.py\" ===="
 echo "===== Test \"cmsRun testDDVectors.py\" ===="
 (cmsRun $F9) || die "Failure using cmsRun $F9" $?
 
-echo "===== Test \"cmsRun testMuonGeometry.py\" ===="
-(cmsRun $F11) || die "Failure using cmsRun $F11" $?
 echo "===== Test \"cmsRun testShapes.py\" ===="
 (cmsRun $F12) || die "Failure using cmsRun $F12" $?
 echo "===== Test \"cmsRun testNavigateGeometry.py\" ===="
@@ -61,14 +59,10 @@ echo "===== Test \"cmsRun testDDSpecParsFilterG4ProdCuts.py\" ===="
 (cmsRun $F15) || die "Failure using cmsRun $F15" $?
 echo "===== Test \"cmsRun testDDSpecParsFilter.py\" ===="
 (cmsRun $F16) || die "Failure using cmsRun $F16" $?
-echo "===== Test \"cmsRun testMuonNumbering.py\" ===="
-(cmsRun $F17) || die "Failure using cmsRun $F17" $?
 echo "===== Test \"cmsRun testDDHGCalCellAlgorithm.py\" ===="
 (cmsRun $F18) || die "Failure using cmsRun $F18" $?
 echo "===== Test \"cmsRun testDDCompactView.py\" ===="
 (cmsRun $F19) || die "Failure using cmsRun $F19" $?
-echo "===== Test \"cmsRun testDDGEMAngularAlgorithm.py\" ===="
-(cmsRun $F20) || die "Failure using cmsRun $F20" $?
 echo "===== Test \"cmsRun testGeometry2021.py\" ===="
 (cmsRun $F21) || die "Failure using cmsRun $F21" $?
 echo "===== Test \"cmsRun testGeometry2021FromDB.py\" ===="
