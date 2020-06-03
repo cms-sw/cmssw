@@ -45,8 +45,7 @@ namespace edm {
 
     schedule->fillModuleAndConsumesInfo(allModuleDescriptions_,
                                         moduleIDToIndex_,
-                                        modulesWhoseProductsAreConsumedByEvent_,
-                                        modulesWhoseProductsAreConsumedByLumiRun_,
+                                        modulesWhoseProductsAreConsumedBy_,
                                         modulesInPreviousProcessesWhoseProductsAreConsumedBy_,
                                         *preg);
   }
@@ -72,8 +71,10 @@ namespace edm {
       auto found = std::find(modules.begin(), modules.end(), allModuleDescriptions_[iModule]);
       if (found != modules.end()) {
         allModuleDescriptions_.erase(allModuleDescriptions_.begin() + iModule);
-        modulesWhoseProductsAreConsumedByEvent_.erase(modulesWhoseProductsAreConsumedByEvent_.begin() + iModule);
-        modulesWhoseProductsAreConsumedByLumiRun_.erase(modulesWhoseProductsAreConsumedByLumiRun_.begin() + iModule);
+        for (auto iBranchType = 0U; iBranchType != NumBranchTypes; ++iBranchType) {
+          modulesWhoseProductsAreConsumedBy_[iBranchType].erase(
+              modulesWhoseProductsAreConsumedBy_[iBranchType].begin() + iModule);
+        }
         modulesInPreviousProcessesWhoseProductsAreConsumedBy_.erase(
             modulesInPreviousProcessesWhoseProductsAreConsumedBy_.begin() + iModule);
         for (auto& idToIndex : moduleIDToIndex_) {
@@ -113,13 +114,8 @@ namespace edm {
   }
 
   std::vector<ModuleDescription const*> const& PathsAndConsumesOfModules::doModulesWhoseProductsAreConsumedBy(
-      unsigned int moduleID) const {
-    return modulesWhoseProductsAreConsumedByEvent_.at(moduleIndex(moduleID));
-  }
-
-  std::vector<ModuleDescription const*> const& PathsAndConsumesOfModules::doModulesWhoseProductsAreConsumedByLumiRun(
-      unsigned int moduleID) const {
-    return modulesWhoseProductsAreConsumedByLumiRun_.at(moduleIndex(moduleID));
+      unsigned int moduleID, BranchType branchType) const {
+    return modulesWhoseProductsAreConsumedBy_[branchType].at(moduleIndex(moduleID));
   }
 
   std::vector<ConsumesInfo> PathsAndConsumesOfModules::doConsumesInfo(unsigned int moduleID) const {
@@ -151,11 +147,11 @@ namespace {
       return;
     }
     consumedModules.insert(module->id());
-    for (auto const& c : iPnC.modulesWhoseProductsAreConsumedBy(module->id())) {
-      findAllConsumedModules(iPnC, c, consumedModules);
-    }
-    for (auto const& c : iPnC.modulesWhoseProductsAreConsumedByLumiRun(module->id())) {
-      findAllConsumedModules(iPnC, c, consumedModules);
+    for (auto iBranchType = 0U; iBranchType != edm::NumBranchTypes; ++iBranchType) {
+      for (auto const& c :
+           iPnC.modulesWhoseProductsAreConsumedBy(module->id(), static_cast<edm::BranchType>(iBranchType))) {
+        findAllConsumedModules(iPnC, c, consumedModules);
+      }
     }
   }
 }  // namespace

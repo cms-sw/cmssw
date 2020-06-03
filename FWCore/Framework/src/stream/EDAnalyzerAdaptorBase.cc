@@ -122,15 +122,14 @@ void EDAnalyzerAdaptorBase::updateLookup(eventsetup::ESRecordsToProxyIndices con
 const edm::EDConsumerBase* EDAnalyzerAdaptorBase::consumer() const { return m_streamModules[0]; }
 
 void EDAnalyzerAdaptorBase::modulesWhoseProductsAreConsumed(
-    std::vector<ModuleDescription const*>& modulesEvent,
-    std::vector<ModuleDescription const*>& modulesLumiRun,
+    std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modules,
     std::set<ModuleProcessName>& modulesInPreviousProcesses,
     ProductRegistry const& preg,
     std::map<std::string, ModuleDescription const*> const& labelsToDesc,
     std::string const& processName) const {
   assert(not m_streamModules.empty());
   return m_streamModules[0]->modulesWhoseProductsAreConsumed(
-      modulesEvent, modulesLumiRun, modulesInPreviousProcesses, preg, labelsToDesc, processName);
+      modules, modulesInPreviousProcesses, preg, labelsToDesc, processName);
 }
 
 void EDAnalyzerAdaptorBase::convertCurrentProcessAlias(std::string const& processName) {

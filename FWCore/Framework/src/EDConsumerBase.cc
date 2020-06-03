@@ -474,37 +474,20 @@ namespace {
   }
 }  // namespace
 
-void EDConsumerBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modulesEvent,
-                                                     std::vector<ModuleDescription const*>& modulesLumiRun,
-                                                     std::set<ModuleProcessName>& modulesInPreviousProcesses,
-                                                     ProductRegistry const& preg,
-                                                     std::map<std::string, ModuleDescription const*> const& labelsToDesc,
-                                                     std::string const& processName) const {
-  ProductResolverIndexHelper const& helperEvent = *preg.productLookup(InEvent);
-  ProductResolverIndexHelper const& helperLumi = *preg.productLookup(InLumi);
-  ProductResolverIndexHelper const& helperRun = *preg.productLookup(InRun);
-
+void EDConsumerBase::modulesWhoseProductsAreConsumed(
+    std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modulesAll,
+    std::set<ModuleProcessName>& modulesInPreviousProcesses,
+    ProductRegistry const& preg,
+    std::map<std::string, ModuleDescription const*> const& labelsToDesc,
+    std::string const& processName) const {
   std::set<std::string> alreadyFound;
 
   auto itKind = m_tokenInfo.begin<kKind>();
   auto itLabels = m_tokenInfo.begin<kLabels>();
   for (auto itInfo = m_tokenInfo.begin<kLookupInfo>(), itEnd = m_tokenInfo.end<kLookupInfo>(); itInfo != itEnd;
        ++itInfo, ++itKind, ++itLabels) {
-    ProductResolverIndexHelper const* helper = nullptr;
-    std::vector<ModuleDescription const*>* modules = nullptr;
-    if (itInfo->m_branchType == InEvent) {
-      helper = &helperEvent;
-      modules = &modulesEvent;
-    } else if (itInfo->m_branchType == InLumi) {
-      helper = &helperLumi;
-      modules = &modulesLumiRun;
-    } else if (itInfo->m_branchType == InRun) {
-      helper = &helperRun;
-      modules = &modulesLumiRun;
-    } else {
-      throw cms::Exception("LogicError") << "EDConsumerBase::modulesWhoseProductsAreConsumed(): unknown branch type "
-                                         << itInfo->m_branchType;
-    }
+    ProductResolverIndexHelper const& helper = *preg.productLookup(itInfo->m_branchType);
+    std::vector<ModuleDescription const*>& modules = *modulesAll[itInfo->m_branchType];
 
     const unsigned int labelStart = itLabels->m_startOfModuleLabel;
     const char* const consumedModuleLabel = &(m_tokenLabels[labelStart]);
@@ -514,7 +497,7 @@ void EDConsumerBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescripti
     if (not itInfo->m_index.skipCurrentProcess()) {
       if (*consumedModuleLabel != '\0') {    // not a consumesMany
         if (*consumedProcessName != '\0') {  // process name is specified in consumes call
-          if (helper->index(
+          if (helper.index(
                   *itKind, itInfo->m_type, consumedModuleLabel, consumedProductInstance, consumedProcessName) !=
               ProductResolverIndexInvalid) {
             if (processName == consumedProcessName) {
@@ -522,7 +505,7 @@ void EDConsumerBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescripti
                                      itInfo->m_type,
                                      consumedModuleLabel,
                                      consumedProductInstance,
-                                     *modules,
+                                     modules,
                                      alreadyFound,
                                      labelsToDesc,
                                      preg);
@@ -532,14 +515,14 @@ void EDConsumerBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescripti
             }
           }
         } else {  // process name was empty
-          auto matches = helper->relatedIndexes(*itKind, itInfo->m_type, consumedModuleLabel, consumedProductInstance);
+          auto matches = helper.relatedIndexes(*itKind, itInfo->m_type, consumedModuleLabel, consumedProductInstance);
           for (unsigned int j = 0; j < matches.numberOfMatches(); ++j) {
             if (processName == matches.processName(j)) {
               insertFoundModuleLabel(*itKind,
                                      itInfo->m_type,
                                      consumedModuleLabel,
                                      consumedProductInstance,
-                                     *modules,
+                                     modules,
                                      alreadyFound,
                                      labelsToDesc,
                                      preg);
@@ -552,14 +535,14 @@ void EDConsumerBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescripti
         }
         // consumesMany case
       } else if (itInfo->m_index.productResolverIndex() == ProductResolverIndexInvalid) {
-        auto matches = helper->relatedIndexes(*itKind, itInfo->m_type);
+        auto matches = helper.relatedIndexes(*itKind, itInfo->m_type);
         for (unsigned int j = 0; j < matches.numberOfMatches(); ++j) {
           if (processName == matches.processName(j)) {
             insertFoundModuleLabel(*itKind,
                                    itInfo->m_type,
                                    matches.moduleLabel(j),
                                    matches.productInstanceName(j),
-                                   *modules,
+                                   modules,
                                    alreadyFound,
                                    labelsToDesc,
                                    preg);
@@ -573,7 +556,7 @@ void EDConsumerBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescripti
       // except the current process is skipped. Therefore need to do
       // the same matching as above. There is no consumesMany branch
       // in this case.
-      auto matches = helper->relatedIndexes(*itKind, itInfo->m_type, consumedModuleLabel, consumedProductInstance);
+      auto matches = helper.relatedIndexes(*itKind, itInfo->m_type, consumedModuleLabel, consumedProductInstance);
       for (unsigned int j = 0; j < matches.numberOfMatches(); ++j) {
         if (processName != matches.processName(j)) {
           modulesInPreviousProcesses.emplace(matches.moduleLabel(j), matches.processName(j));
