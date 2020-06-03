@@ -39,7 +39,7 @@ process.MessageLogger = cms.Service(
     )
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-2015-muon-geometry.xml'),
+                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-test-muon-geometry-2015.xml'),
                                             appendToDataLabel = cms.string('CMS')
                                             )
 process.test = cms.EDAnalyzer("DDTestDumpGeometry",
