@@ -26,11 +26,9 @@ namespace cms {
               end(keys));
     }
 
-    // size_type contains(string_view input, string_view needle) {
-    //   return input.find(needle);
-    // }
-
-    bool isRegex(string_view input) { return (input.find("*") != std::string_view::npos) || (input.find(".") != std::string_view::npos); }
+    bool isRegex(string_view input) {
+      return (input.find(".") != std::string_view::npos) || (input.find("*") != std::string_view::npos);
+    }
 
     string_view realTopName(string_view input) {
       string_view v = input;
