@@ -1,10 +1,9 @@
-#ifndef RecoTracker_TkDetLayers_BoundDiskSector_h
-#define RecoTracker_TkDetLayers_BoundDiskSector_h
+#ifndef DataFormats_GeometrySurface_BoundDiskSector_h
+#define DataFormats_GeometrySurface_BoundDiskSector_h
 
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DiskSectorBounds.h"
 
-#pragma GCC visibility push(hidden)
 class BoundDiskSector final : public Plane {
 public:
   ~BoundDiskSector() override {}
@@ -19,5 +18,4 @@ public:
   DiskSectorBounds const& bounds() const { return static_cast<DiskSectorBounds const&>(Plane::bounds()); }
 };
 
-#pragma GCC visibility pop
 #endif
