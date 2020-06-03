@@ -547,10 +547,18 @@ namespace edm {
     actReg_->preallocateSignal_(bounds);
     schedule_->convertCurrentProcessAlias(processConfiguration_->processName());
     pathsAndConsumesOfModules_.initialize(schedule_.get(), preg());
-    std::set<ModuleProcessName> consumedBySubProcesses;
+    std::vector<ModuleProcessName> consumedBySubProcesses;
     for_all(subProcesses_, [&consumedBySubProcesses](auto& subProcess) {
       auto c = subProcess.keepOnlyConsumedUnscheduledModules();
-      consumedBySubProcesses.insert(c.begin(), c.end());
+      if (consumedBySubProcesses.empty()) {
+        consumedBySubProcesses = std::move(c);
+      } else if (not c.empty()) {
+        std::vector<ModuleProcessName> tmp;
+        tmp.reserve(consumedBySubProcesses.size() + c.size());
+        std::merge(
+            consumedBySubProcesses.begin(), consumedBySubProcesses.end(), c.begin(), c.end(), std::back_inserter(tmp));
+        std::swap(consumedBySubProcesses, tmp);
+      }
     });
 
     // Note: all these may throw

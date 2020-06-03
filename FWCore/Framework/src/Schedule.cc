@@ -1479,7 +1479,7 @@ namespace edm {
       std::vector<ModuleDescription const*>& allModuleDescriptions,
       std::vector<std::pair<unsigned int, unsigned int>>& moduleIDToIndex,
       std::array<std::vector<std::vector<ModuleDescription const*>>, NumBranchTypes>& modulesWhoseProductsAreConsumedBy,
-      std::vector<std::set<ModuleProcessName>>& modulesInPreviousProcessesWhoseProductsAreConsumedBy,
+      std::vector<std::vector<ModuleProcessName>>& modulesInPreviousProcessesWhoseProductsAreConsumedBy,
       ProductRegistry const& preg) const {
     allModuleDescriptions.clear();
     moduleIDToIndex.clear();
@@ -1513,7 +1513,7 @@ namespace edm {
         modules[iBranchType] = &modulesWhoseProductsAreConsumedBy[iBranchType].at(i);
       }
 
-      std::set<ModuleProcessName>& modulesInPreviousProcesses =
+      std::vector<ModuleProcessName>& modulesInPreviousProcesses =
           modulesInPreviousProcessesWhoseProductsAreConsumedBy.at(i);
       try {
         worker->modulesWhoseProductsAreConsumed(modules, modulesInPreviousProcesses, preg, labelToDesc);

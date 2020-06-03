@@ -220,7 +220,7 @@ namespace edm {
 
   SubProcess::~SubProcess() {}
 
-  std::set<ModuleProcessName> SubProcess::keepOnlyConsumedUnscheduledModules() {
+  std::vector<ModuleProcessName> SubProcess::keepOnlyConsumedUnscheduledModules() {
     ServiceRegistry::Operate operate(serviceToken_);
     schedule_->convertCurrentProcessAlias(processConfiguration_->processName());
     pathsAndConsumesOfModules_.initialize(schedule_.get(), preg_);
@@ -229,10 +229,17 @@ namespace edm {
     checkForModuleDependencyCorrectness(pathsAndConsumesOfModules_, false);
 
     // Consumes information from the child SubProcesses
-    std::set<ModuleProcessName> consumedByChildren;
+    std::vector<ModuleProcessName> consumedByChildren;
     for_all(subProcesses_, [&consumedByChildren](auto& subProcess) {
       auto c = subProcess.keepOnlyConsumedUnscheduledModules();
-      consumedByChildren.insert(c.begin(), c.end());
+      if (consumedByChildren.empty()) {
+        std::swap(consumedByChildren, c);
+      } else if (not c.empty()) {
+        std::vector<ModuleProcessName> tmp;
+        tmp.reserve(consumedByChildren.size() + c.size());
+        std::merge(consumedByChildren.begin(), consumedByChildren.end(), c.begin(), c.end(), std::back_inserter(tmp));
+        std::swap(consumedByChildren, tmp);
+      }
     });
 
     // Non-consumed unscheduled modules in this SubProcess, take into account of the consumes from child SubProcesses
@@ -257,7 +264,10 @@ namespace edm {
     for (auto const& description : pathsAndConsumesOfModules_.allModules()) {
       for (auto const& dep :
            pathsAndConsumesOfModules_.modulesInPreviousProcessesWhoseProductsAreConsumedBy(description->id())) {
-        consumedByChildren.emplace(dep.moduleLabel(), dep.processName());
+        auto it = std::lower_bound(consumedByChildren.begin(),
+                                   consumedByChildren.end(),
+                                   ModuleProcessName{dep.moduleLabel(), dep.processName()});
+        consumedByChildren.emplace(it, dep.moduleLabel(), dep.processName());
       }
     }
     return consumedByChildren;

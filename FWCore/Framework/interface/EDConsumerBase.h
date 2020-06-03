@@ -20,7 +20,6 @@
 
 // system include files
 #include <map>
-#include <set>
 #include <string>
 #include <vector>
 #include <array>
@@ -107,7 +106,7 @@ namespace edm {
     void labelsForToken(EDGetToken iToken, Labels& oLabels) const;
 
     void modulesWhoseProductsAreConsumed(std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modulesAll,
-                                         std::set<ModuleProcessName>& modulesInPreviousProcesses,
+                                         std::vector<ModuleProcessName>& modulesInPreviousProcesses,
                                          ProductRegistry const& preg,
                                          std::map<std::string, ModuleDescription const*> const& labelsToDesc,
                                          std::string const& processName) const;
