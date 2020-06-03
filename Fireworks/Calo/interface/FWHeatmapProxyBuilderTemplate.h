@@ -44,7 +44,7 @@ public:
   // ---------- member functions ---------------------------
 
 protected:
-  std::unordered_map<DetId, const HGCRecHit*> hitmap;
+  const std::unordered_map<DetId, const HGCRecHit*> *hitmap;
 
   static constexpr uint8_t gradient_steps = 9;
   static constexpr uint8_t gradient[3][gradient_steps] = {{static_cast<uint8_t>(0.2082 * 255),
@@ -94,11 +94,10 @@ protected:
   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext* vc) override {
     if (item()->getConfig()->template value<bool>("Heatmap")) {
       const edm::EventBase* event = iItem->getEvent();
-      hitmap.clear();
 
       edm::Handle<std::unordered_map<DetId, const HGCRecHit*>> hitMapHandle;
       event->getByLabel(edm::InputTag("hgcRecHitMapProducer"), hitMapHandle);
-      hitmap = *hitMapHandle;
+      hitmap = &*hitMapHandle;
     }
 
     FWSimpleProxyBuilder::build(iItem, product, vc);
