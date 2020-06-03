@@ -584,7 +584,9 @@ ctpps_2016.toModify(g4SimHits,
         MaxEtaCut = 13.0
     ),
     SteppingAction = dict(
-        MaxTrackTime = 2000.0,
+        MaxTrackTime = 2000.0
+    ),
+    StackingAction = dict(
         MaxTrackTime = 2000.0
     )
 )
