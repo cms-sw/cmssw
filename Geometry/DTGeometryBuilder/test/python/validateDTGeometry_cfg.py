@@ -38,7 +38,7 @@ process.MuonNumberingESProducer = cms.ESProducer("MuonNumberingESProducer",
 # For example: wget http://cmsdoc.cern.ch/cms/data/CMSSW/Fireworks/Geometry/data/v4/cmsGeom10.root
 #
 process.valid = cms.EDAnalyzer("DTGeometryValidate",
-                               infileName = cms.untracked.string('cmsRecoGeom-2021.root'),
+                               infileName = cms.untracked.string('cmsGeom2021.root'),
                                outfileName = cms.untracked.string('validateDTGeometry.root'),
                                tolerance = cms.untracked.int32(7)
                                )
