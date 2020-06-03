@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
-from CommonTools.ParticleFlow.tppfTausOnPFJetsDeltaR_cfi import tppfTausOnPFJetsDeltaR
+import CommonTools.ParticleFlow.tppfTausOnPFJetsDeltaR_cfi as _mod
 
-pfNoTau = tppfTausOnPFJetsDeltaR.clone(
+pfNoTau = _mod.tppfTausOnPFJetsDeltaR.clone(
     enable = True,
     deltaR = 0.5,
     name = "noTau",

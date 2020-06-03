@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
-from CommonTools.ParticleFlow.tppfCandidatesOnPFCandidates_cfi import tppfCandidatesOnPFCandidates
+import CommonTools.ParticleFlow.tppfCandidatesOnPFCandidates_cfi as _mod
 
-pfNoElectron = tppfCandidatesOnPFCandidates.clone(
+pfNoElectron = _mod.tppfCandidatesOnPFCandidates.clone(
     enable = True,
     name = "noElectron",
     topCollection = "pfIsolatedElectrons",
