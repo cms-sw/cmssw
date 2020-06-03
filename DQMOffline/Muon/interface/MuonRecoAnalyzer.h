@@ -189,4 +189,4 @@ private:
   bool IsminiAOD;
   std::string theFolder;
 };
-#endif // DQMOffline_Muon_MuonRecoAnalyzer_h
+#endif  // DQMOffline_Muon_MuonRecoAnalyzer_h
