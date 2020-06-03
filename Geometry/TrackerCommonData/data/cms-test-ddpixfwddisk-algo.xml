@@ -25,7 +25,7 @@
   </ConstantsSection>
 
   <IncludeSection>
-    <Include ref="DetectorDescription/DDCMS/data/testDDPixFwdDiskAlgo.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/testDDPixFwdDiskAlgo.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/PixelForward/pixfwdDisks.xml"/>
     <Include ref="Geometry/CMSCommonData/data/materials/2015/v1/materials.xml"/>
   </IncludeSection>

@@ -39,14 +39,14 @@ process.MessageLogger = cms.Service(
     )
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-2015-muon-geometry.xml'),
-                                            appendToDataLabel = cms.string('MUON')
+                                            confGeomXMLFiles = cms.FileInPath('Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2021.xml'),
+                                            appendToDataLabel = cms.string('CMS')
                                             )
 process.DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer",
-                                                    appendToDataLabel = cms.string('MUON'))
+                                                    appendToDataLabel = cms.string('CMS'))
 
 process.test = cms.EDAnalyzer("DD4hepTestG4Geometry",
-                              DDDetector = cms.ESInputTag('MUON','')
+                              DDDetector = cms.ESInputTag('CMS','')
                               )
 
 process.p = cms.Path(process.test)
