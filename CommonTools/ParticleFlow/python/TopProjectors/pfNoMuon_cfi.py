@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
-from CommonTools.ParticleFlow.tppfCandidatesOnPFCandidates_cfi import tppfCandidatesOnPFCandidates
+import CommonTools.ParticleFlow.tppfCandidatesOnPFCandidates_cfi as _mod
 
-pfNoMuon = tppfCandidatesOnPFCandidates.clone(
+pfNoMuon = _mod.tppfCandidatesOnPFCandidates.clone(
     enable = True,
     name = "noMuon",
     topCollection = "pfIsolatedMuons",

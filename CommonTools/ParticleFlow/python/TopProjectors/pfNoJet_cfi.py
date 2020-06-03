@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
-from CommonTools.ParticleFlow.tppfJetsOnPFCandidates_cfi import tppfJetsOnPFCandidates
+import CommonTools.ParticleFlow.tppfJetsOnPFCandidates_cfi as _mod
 
-pfNoJet = tppfJetsOnPFCandidates.clone(
+pfNoJet = _mod.tppfJetsOnPFCandidates.clone(
     enable = True,
     name = "noJet",
     topCollection = "pfJetsPtrs",
