@@ -102,7 +102,7 @@ queue {njobs:s}
     return job_submit_file
 
 ##############################################
-def getLuminosity(minRun,maxRun,isRunBased,verbose):
+def getLuminosity(homedir,minRun,maxRun,isRunBased,verbose):
 ##############################################
     """Expects something like
     +-------+------+--------+--------+-------------------+------------------+
@@ -117,10 +117,10 @@ def getLuminosity(minRun,maxRun,isRunBased,verbose):
         return myCachedLumi
     
     ## using normtag
-    #output = subprocess.check_output(["/afs/cern.ch/user/m/musich/.local/bin/brilcalc", "lumi", "-b", "STABLE BEAMS", "--normtag","/cvmfs/cms-bril.cern.ch/cms-lumi-pog/Normtags/normtag_PHYSICS.json", "-u", "/pb", "--begin", str(minRun),"--end",str(maxRun),"--output-style","csv"])
+    #output = subprocess.check_output([homedir+"/.local/bin/brilcalc", "lumi", "-b", "STABLE BEAMS", "--normtag","/cvmfs/cms-bril.cern.ch/cms-lumi-pog/Normtags/normtag_PHYSICS.json", "-u", "/pb", "--begin", str(minRun),"--end",str(maxRun),"--output-style","csv"])
 
     ## no normtag
-    output = subprocess.check_output(["/afs/cern.ch/user/m/musich/.local/bin/brilcalc", "lumi", "-b", "STABLE BEAMS","-u", "/pb", "--begin", str(minRun),"--end",str(maxRun),"--output-style","csv"])
+    output = subprocess.check_output([homedir+"/.local/bin/brilcalc", "lumi", "-b", "STABLE BEAMS","-u", "/pb", "--begin", str(minRun),"--end",str(maxRun),"--output-style","csv"])
 
     if(verbose):
         print("INSIDE GET LUMINOSITY")
@@ -156,13 +156,14 @@ def as_dict(config):
     return dictionary
 
 #######################################################
-def batchScriptCERN(runindex,lumiToRun,key,config):
+def batchScriptCERN(runindex, eosdir,lumiToRun,key,config):
 #######################################################
     '''prepare the batch script, to run on HTCondor'''
     script = """
 #!/bin/bash 
 CMSSW_DIR=$CMSSW_BASE/src/Alignment/OfflineValidation/test
-OUT_DIR=$CMSSW_DIR/harvest 
+#OUT_DIR=$CMSSW_DIR/harvest ## for local storage
+OUT_DIR={MYDIR}
 LOG_DIR=$CMSSW_DIR/out
 LXBATCH_DIR=`pwd`  
 cd $CMSSW_DIR
@@ -172,10 +173,11 @@ cp -pr $CMSSW_DIR/cfg/PrimaryVertexResolution_{KEY}_{runindex}_cfg.py .
 cmsRun PrimaryVertexResolution_{KEY}_{runindex}_cfg.py GlobalTag={GT} lumi={LUMITORUN} {REC} {EXT} >& log_{KEY}_run{runindex}.out
 ls -lh . 
 #for payloadOutput in $(ls *root ); do cp $payloadOutput $OUT_DIR/pvresolution_{KEY}_{runindex}.root ; done 
-for payloadOutput in $(ls *root ); do xrdcp -f $payloadOutput root://eoscms//eos/cms/store/group/alca_trackeralign/musich/test_out/PVResolutions2018WrongTemplates/pvresolution_{KEY}_{runindex}.root ; done
+for payloadOutput in $(ls *root ); do xrdcp -f $payloadOutput root://eoscms/$OUT_DIR/pvresolution_{KEY}_{runindex}.root ; done
 tar czf log_{KEY}_run{runindex}.tgz log_{KEY}_run{runindex}.out  
 for logOutput in $(ls *tgz ); do cp $logOutput $LOG_DIR/ ; done 
 """.format(runindex=runindex,
+           MYDIR=eosdir,
            KEY=key,
            LUMITORUN=lumiToRun,
            GT=config['globaltag'],
@@ -184,6 +186,30 @@ for logOutput in $(ls *tgz ); do cp $logOutput $LOG_DIR/ ; done
    
     return script
 
+#######################################################
+# method to create recursively directories on EOS
+#######################################################
+def mkdir_eos(out_path):
+    print("creating",out_path)
+    newpath='/'
+    for dir in out_path.split('/'):
+        newpath=os.path.join(newpath,dir)
+        # do not issue mkdir from very top of the tree
+        if newpath.find('test_out') > 0:
+            command="eos mkdir "+newpath
+            p = subprocess.Popen(command,shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            (out, err) = p.communicate()
+            #print(out,err)
+            p.wait()
+
+    # now check that the directory exists
+    command2="/afs/cern.ch/project/eos/installation/cms/bin/eos.select ls "+out_path
+    p = subprocess.Popen(command2,shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (out, err) = p.communicate()
+    p.wait()
+    if p.returncode !=0:
+        print(out)
+
 ##############################################
 def main():
 ##############################################
@@ -191,6 +217,7 @@ def main():
     desc="""This is a description of %prog."""
     parser = OptionParser(description=desc,version='%prog version 0.1')
     parser.add_option('-s','--submit',  help='job submitted',       dest='submit',      action='store_true', default=False)
+    parser.add_option('-j','--jobname', help='task name',           dest='taskname',    action='store',      default='myTask')
     parser.add_option('-i','--init',    help='ini file',            dest='iniPathName', action='store',      default="default.ini")
     parser.add_option('-b','--begin',   help='starting point',      dest='start',       action='store',      default='1')
     parser.add_option('-e','--end',     help='ending point',        dest='end',         action='store',      default='999999')
@@ -198,6 +225,18 @@ def main():
     parser.add_option('-v','--verbose', help='verbose output',      dest='verbose',     action='store_true', default=False)
     
     (opts, args) = parser.parse_args()
+
+    ## prepare the eos output directory
+
+    USER = os.environ.get('USER')
+    HOME = os.environ.get('HOME')
+    eosdir=os.path.join("/store/group/alca_trackeralign",USER,"test_out",opts.taskname)
+    if opts.submit:
+        mkdir_eos(eosdir)
+    else:
+        print("Not going to create EOS folder. -s option has not been chosen")
+
+    ## parse the configuration file
 
     try:
         config = ConfigParser.ConfigParser()
@@ -226,7 +265,7 @@ def main():
 
     runs.sort()
     # get from the DB the int luminosities
-    myLumiDB = getLuminosity(runs[0],runs[-1],True,opts.verbose)    
+    myLumiDB = getLuminosity(HOME,runs[0],runs[-1],True,opts.verbose)
     if(opts.verbose):
         pprint.pprint(myLumiDB)
 
@@ -296,7 +335,7 @@ def main():
             #print(key,value)
             if "Input" in key:
                 continue
-            else: 
+            else:
                 key = key.split(":", 1)[1]
                 print("dealing with",key)
 
@@ -307,11 +346,17 @@ def main():
 
             scriptFileName = os.path.join(bashdir,"batchHarvester_"+key+"_"+str(count)+".sh")
             scriptFile = open(scriptFileName,'w')
-            scriptFile.write(batchScriptCERN(run,theLumi,key,value)) 
+            scriptFile.write(batchScriptCERN(run,eosdir,theLumi,key,value))
             scriptFile.close()
             #os.system('chmod +x %s' % scriptFileName)
 
+    ## prepare the HTCondor submission files and eventually submit them
     for key, value in inputDict.items():
+        if "Input" in key:
+            continue
+        else:
+            key = key.split(":", 1)[1]
+
         job_submit_file = write_HTCondor_submit_file(bashdir,"batchHarvester_"+key,count,None)
 
         if opts.submit:
