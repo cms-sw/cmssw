@@ -55,11 +55,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMu_cff import ALCARECOTkAl
 #)
 
 #ALCARECOTkAlZMuMuDQM = cms.Sequence( ALCARECOTkAlZMuMuTrackingDQM + ALCARECOTkAlZMuMuTkAlDQM + ALCARECOTkAlZMuMuHLTDQM )
-
-# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
-# To be reverted in a subsequent PR
-ALCARECOTkAlZMuMuDQMTask = cms.Task(ALCARECOTkAlZMuMuTrackingDQM , ALCARECOTkAlZMuMuTkAlDQM)
-ALCARECOTkAlZMuMuDQM = cms.Sequence(ALCARECOTkAlZMuMuDQMTask)
+ALCARECOTkAlZMuMuDQM = cms.Sequence( ALCARECOTkAlZMuMuTrackingDQM + ALCARECOTkAlZMuMuTkAlDQM )
 
 #########################################################
 #############---  TkAlZMuMuHI ---########################
@@ -93,11 +89,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMuHI_cff import ALCARECOTk
 #)
 
 #ALCARECOTkAlZMuMuDQM = cms.Sequence( ALCARECOTkAlZMuMuTrackingDQM + ALCARECOTkAlZMuMuTkAlDQM + ALCARECOTkAlZMuMuHLTDQM)
-
-# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
-# To be reverted in a subsequent PR
-ALCARECOTkAlZMuMuHIDQMTask = cms.Task(ALCARECOTkAlZMuMuHITrackingDQM , ALCARECOTkAlZMuMuHITkAlDQM)
-ALCARECOTkAlZMuMuHIDQM = cms.Sequence(ALCARECOTkAlZMuMuHIDQMTask)
+ALCARECOTkAlZMuMuHIDQM = cms.Sequence( ALCARECOTkAlZMuMuHITrackingDQM + ALCARECOTkAlZMuMuHITkAlDQM )
 
 #########################################################
 #############---  TkAlZMuMuPA ---########################
@@ -127,11 +119,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMuPA_cff import ALCARECOTk
 #)
 
 #ALCARECOTkAlZMuMuDQM = cms.Sequence( ALCARECOTkAlZMuMuTrackingDQM + ALCARECOTkAlZMuMuTkAlDQM + ALCARECOTkAlZMuMuHLTDQM)
-
-# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
-# To be reverted in a subsequent PR
-ALCARECOTkAlZMuMuPADQMTask = cms.Task(ALCARECOTkAlZMuMuPATrackingDQM , ALCARECOTkAlZMuMuPATkAlDQM)
-ALCARECOTkAlZMuMuPADQM = cms.Sequence(ALCARECOTkAlZMuMuPADQMTask)
+ALCARECOTkAlZMuMuPADQM = cms.Sequence( ALCARECOTkAlZMuMuPATrackingDQM + ALCARECOTkAlZMuMuPATkAlDQM )
 
 #########################################################
 #############---  TkAlJpsiMuMu ---#######################
@@ -166,11 +154,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlJpsiMuMu_cff import ALCARECOT
 #)
 
 #ALCARECOTkAlJpsiMuMuDQM = cms.Sequence( ALCARECOTkAlJpsiMuMuTrackingDQM + ALCARECOTkAlJpsiMuMuTkAlDQM + ALCARECOTkAlJpsiMuMuHLTDQM)
-
-# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
-# To be reverted in a subsequent PR
-ALCARECOTkAlJpsiMuMuDQMTask = cms.Task(ALCARECOTkAlJpsiMuMuTrackingDQM , ALCARECOTkAlJpsiMuMuTkAlDQM)
-ALCARECOTkAlJpsiMuMuDQM = cms.Sequence(ALCARECOTkAlJpsiMuMuDQMTask)
+ALCARECOTkAlJpsiMuMuDQM = cms.Sequence( ALCARECOTkAlJpsiMuMuTrackingDQM + ALCARECOTkAlJpsiMuMuTkAlDQM )
 
 #########################################################
 #############---  TkAlJpsiMuMuHI ---#####################
@@ -210,11 +194,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlJpsiMuMuHI_cff import ALCAREC
 #)
 
 #ALCARECOTkAlJpsiMuMuDQM = cms.Sequence( ALCARECOTkAlJpsiMuMuTrackingDQM + ALCARECOTkAlJpsiMuMuTkAlDQM + ALCARECOTkAlJpsiMuMuHLTDQM)
-
-# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
-# To be reverted in a subsequent PR
-ALCARECOTkAlJpsiMuMuHIDQMTask = cms.Task(ALCARECOTkAlJpsiMuMuHITrackingDQM , ALCARECOTkAlJpsiMuMuHITkAlDQM)
-ALCARECOTkAlJpsiMuMuHIDQM = cms.Sequence(ALCARECOTkAlJpsiMuMuHIDQMTask)
+ALCARECOTkAlJpsiMuMuHIDQM = cms.Sequence( ALCARECOTkAlJpsiMuMuHITrackingDQM + ALCARECOTkAlJpsiMuMuHITkAlDQM )
 
 ############################################################
 #############---  TkAlUpsilonMuMu ---#######################
@@ -248,11 +228,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlUpsilonMuMu_cff import ALCARE
 #)
 
 #ALCARECOTkAlUpsilonMuMuDQM = cms.Sequence( ALCARECOTkAlUpsilonMuMuTrackingDQM + ALCARECOTkAlUpsilonMuMuTkAlDQM + ALCARECOTkAlUpsilonMuMuHLTDQM)
-
-# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
-# To be reverted in a subsequent PR
-ALCARECOTkAlUpsilonMuMuDQMTask = cms.Task(ALCARECOTkAlUpsilonMuMuTrackingDQM , ALCARECOTkAlUpsilonMuMuTkAlDQM)
-ALCARECOTkAlUpsilonMuMuDQM = cms.Sequence(ALCARECOTkAlUpsilonMuMuDQMTask)
+ALCARECOTkAlUpsilonMuMuDQM = cms.Sequence( ALCARECOTkAlUpsilonMuMuTrackingDQM + ALCARECOTkAlUpsilonMuMuTkAlDQM )
 
 ############################################################
 #############---  TkAlUpsilonMuMuHI ---#####################
@@ -292,11 +268,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlUpsilonMuMuHI_cff import ALCA
 #)
 
 #ALCARECOTkAlUpsilonMuMuDQM = cms.Sequence( ALCARECOTkAlUpsilonMuMuTrackingDQM + ALCARECOTkAlUpsilonMuMuTkAlDQM + ALCARECOTkAlUpsilonMuMuHLTDQM)
-
-# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
-# To be reverted in a subsequent PR
-ALCARECOTkAlUpsilonMuMuHIDQMTask = cms.Task(ALCARECOTkAlUpsilonMuMuHITrackingDQM , ALCARECOTkAlUpsilonMuMuHITkAlDQM)
-ALCARECOTkAlUpsilonMuMuHIDQM = cms.Sequence(ALCARECOTkAlUpsilonMuMuHIDQMTask)
+ALCARECOTkAlUpsilonMuMuHIDQM = cms.Sequence( ALCARECOTkAlUpsilonMuMuHITrackingDQM + ALCARECOTkAlUpsilonMuMuHITkAlDQM )
 
 ############################################################
 #############---  TkAlUpsilonMuMuPA ---#####################
@@ -332,11 +304,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlUpsilonMuMuPA_cff import ALCA
 #)
 
 #ALCARECOTkAlUpsilonMuMuDQM = cms.Sequence( ALCARECOTkAlUpsilonMuMuTrackingDQM + ALCARECOTkAlUpsilonMuMuTkAlDQM + ALCARECOTkAlUpsilonMuMuHLTDQM)
-
-# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
-# To be reverted in a subsequent PR
-ALCARECOTkAlUpsilonMuMuPADQMTask = cms.Task(ALCARECOTkAlUpsilonMuMuPATrackingDQM , ALCARECOTkAlUpsilonMuMuPATkAlDQM)
-ALCARECOTkAlUpsilonMuMuPADQM = cms.Sequence(ALCARECOTkAlUpsilonMuMuPADQMTask)
+ALCARECOTkAlUpsilonMuMuPADQM = cms.Sequence( ALCARECOTkAlUpsilonMuMuPATrackingDQM + ALCARECOTkAlUpsilonMuMuPATkAlDQM )
 
 #########################################################
 #############---  TkAlBeamHalo ---#######################
@@ -410,11 +378,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBias_cff import ALCARECOTk
 #)
 
 #ALCARECOTkAlMinBiasDQM = cms.Sequence( ALCARECOTkAlMinBiasTrackingDQM + ALCARECOTkAlMinBiasTkAlDQM+ALCARECOTkAlMinBiasHLTDQM+ALCARECOTkAlMinBiasNOTHLTDQM)
-
-# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
-# To be reverted in a subsequent PR
-ALCARECOTkAlMinBiasDQMTask = cms.Task(ALCARECOTkAlMinBiasTrackingDQM , ALCARECOTkAlMinBiasTkAlDQM)
-ALCARECOTkAlMinBiasDQM = cms.Sequence(ALCARECOTkAlMinBiasDQMTask)
+ALCARECOTkAlMinBiasDQM = cms.Sequence( ALCARECOTkAlMinBiasTrackingDQM + ALCARECOTkAlMinBiasTkAlDQM )
 
 
 ########################################################
@@ -460,11 +424,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBiasHI_cff import ALCARECO
 #    )
 
 #ALCARECOTkAlMinBiasHIDQM = cms.Sequence( ALCARECOTkAlMinBiasHITrackingDQM + ALCARECOTkAlMinBiasHITkAlDQM+ALCARECOTkAlMinBiasHIHLTDQM)
-
-# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
-# To be reverted in a subsequent PR
-ALCARECOTkAlMinBiasHIDQMTask = cms.Task(ALCARECOTkAlMinBiasHITrackingDQM , ALCARECOTkAlMinBiasHITkAlDQM)
-ALCARECOTkAlMinBiasHIDQM = cms.Sequence(ALCARECOTkAlMinBiasHIDQMTask)
+ALCARECOTkAlMinBiasHIDQM = cms.Sequence( ALCARECOTkAlMinBiasHITrackingDQM + ALCARECOTkAlMinBiasHITkAlDQM )
 
 
 #############################################################
@@ -497,11 +457,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlMuonIsolated_cff import ALCAR
 #)
 
 #ALCARECOTkAlMuonIsolatedDQM = cms.Sequence( ALCARECOTkAlMuonIsolatedTrackingDQM + ALCARECOTkAlMuonIsolatedTkAlDQM+ALCARECOTkAlMuonIsolatedHLTDQM)
-
-# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
-# To be reverted in a subsequent PR
-ALCARECOTkAlMuonIsolatedDQMTask = cms.Task(ALCARECOTkAlMuonIsolatedTrackingDQM , ALCARECOTkAlMuonIsolatedTkAlDQM)
-ALCARECOTkAlMuonIsolatedDQM = cms.Sequence(ALCARECOTkAlMuonIsolatedDQMTask)
+ALCARECOTkAlMuonIsolatedDQM = cms.Sequence( ALCARECOTkAlMuonIsolatedTrackingDQM + ALCARECOTkAlMuonIsolatedTkAlDQM )
 
 #############################################################
 #############---  TkAlMuonIsolatedHI ---#####################
@@ -537,11 +493,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlMuonIsolatedHI_cff import ALC
 #)
 
 #ALCARECOTkAlMuonIsolatedHIDQM = cms.Sequence( ALCARECOTkAlMuonIsolatedHITrackingDQM + ALCARECOTkAlMuonIsolatedHITkAlDQM+ALCARECOTkAlMuonIsolatedHIHLTDQM)
-
-# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
-# To be reverted in a subsequent PR
-ALCARECOTkAlMuonIsolatedHIDQMTask = cms.Task(ALCARECOTkAlMuonIsolatedHITrackingDQM , ALCARECOTkAlMuonIsolatedHITkAlDQM)
-ALCARECOTkAlMuonIsolatedHIDQM = cms.Sequence(ALCARECOTkAlMuonIsolatedHIDQMTask)
+ALCARECOTkAlMuonIsolatedHIDQM = cms.Sequence( ALCARECOTkAlMuonIsolatedHITrackingDQM + ALCARECOTkAlMuonIsolatedHITkAlDQM )
 
 #############################################################
 #############---  TkAlMuonIsolatedPA ---#####################
@@ -573,11 +525,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlMuonIsolatedPA_cff import ALC
 #)
 
 #ALCARECOTkAlMuonIsolatedPADQM = cms.Sequence( ALCARECOTkAlMuonIsolatedPATrackingDQM + ALCARECOTkAlMuonIsolatedPATkAlDQM+ALCARECOTkAlMuonIsolatedPAHLTDQM)
-
-# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
-# To be reverted in a subsequent PR
-ALCARECOTkAlMuonIsolatedPADQMTask = cms.Task(ALCARECOTkAlMuonIsolatedPATrackingDQM , ALCARECOTkAlMuonIsolatedPATkAlDQM)
-ALCARECOTkAlMuonIsolatedPADQM = cms.Sequence(ALCARECOTkAlMuonIsolatedPADQMTask)
+ALCARECOTkAlMuonIsolatedPADQM = cms.Sequence( ALCARECOTkAlMuonIsolatedPATrackingDQM + ALCARECOTkAlMuonIsolatedPATkAlDQM )
 
 ####################################################
 #############---  TkAlLAS ---#######################
@@ -598,11 +546,7 @@ ALCARECOTkAlLASDigiDQM= DQMOffline.Alignment.LaserAlignmentT0ProducerDQM_cfi.Las
         )
     )
 )
-
-# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
-# To be reverted in a subsequent PR
-ALCARECOTkAlLASDQMTask = cms.Task( ALCARECOTkAlLASDigiDQM )
-ALCARECOTkAlLASDQM = cms.Sequence( ALCARECOTkAlLASDQMTask )
+ALCARECOTkAlLASDQM = cms.Sequence( ALCARECOTkAlLASDigiDQM )
 
 ##################################################################
 ###### DQM modules for cosmic data taking during collisions ######
@@ -637,11 +581,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmicsInCollisions_cff impor
 #    eventSetupPathsKey =  ALCARECOTkAlCosmicsInCollisionsHLT.eventSetupPathsKey.value()
 #)
 #ALCARECOTkAlCosmicsInCollisionsDQM = cms.Sequence( ALCARECOTkAlCosmicsInCollisionsTrackingDQM + ALCARECOTkAlCosmicsInCollisionsTkAlDQM +ALCARECOTkAlCosmicsInCollisionsHLTDQM)
-
-# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
-# To be reverted in a subsequent PR
-ALCARECOTkAlCosmicsInCollisionsDQMTask = cms.Task( ALCARECOTkAlCosmicsInCollisionsTrackingDQM , ALCARECOTkAlCosmicsInCollisionsTkAlDQM )
-ALCARECOTkAlCosmicsInCollisionsDQM = cms.Sequence(ALCARECOTkAlCosmicsInCollisionsDQMTask)
+ALCARECOTkAlCosmicsInCollisionsDQM = cms.Sequence( ALCARECOTkAlCosmicsInCollisionsTrackingDQM + ALCARECOTkAlCosmicsInCollisionsTkAlDQM )
 
 
 ################################################
@@ -679,11 +619,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics0THLT_cff import ALCAR
 #    eventSetupPathsKey =  ALCARECOTkAlCosmics0THLT.eventSetupPathsKey.value()
 #)
 #ALCARECOTkAlCosmicsCTF0TDQM = cms.Sequence( ALCARECOTkAlCosmicsCTF0TTrackingDQM + ALCARECOTkAlCosmicsCTF0TTkAlDQM+ALCARECOTkAlCosmicsCTF0THLTDQM)
-
-# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
-# To be reverted in a subsequent PR
-ALCARECOTkAlCosmicsCTF0TDQMTask = cms.Task( ALCARECOTkAlCosmicsCTF0TTrackingDQM , ALCARECOTkAlCosmicsCTF0TTkAlDQM )
-ALCARECOTkAlCosmicsCTF0TDQM = cms.Sequence( ALCARECOTkAlCosmicsCTF0TDQMTask )
+ALCARECOTkAlCosmicsCTF0TDQM = cms.Sequence( ALCARECOTkAlCosmicsCTF0TTrackingDQM + ALCARECOTkAlCosmicsCTF0TTkAlDQM )
 
 
 #############################
@@ -710,11 +646,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics0THLT_cff import ALCAR
 #    eventSetupPathsKey =  ALCARECOTkAlCosmics0THLT.eventSetupPathsKey.value()
 #)
 #ALCARECOTkAlCosmicsCosmicTF0TDQM = cms.Sequence( ALCARECOTkAlCosmicsCosmicTF0TTrackingDQM + ALCARECOTkAlCosmicsCosmicTF0TTkAlDQM +ALCARECOTkAlCosmicsCosmicTF0THLTDQM)
-
-# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
-# To be reverted in a subsequent PR
-ALCARECOTkAlCosmicsCosmicTF0TDQMTask = cms.Task( ALCARECOTkAlCosmicsCosmicTF0TTrackingDQM , ALCARECOTkAlCosmicsCosmicTF0TTkAlDQM )
-ALCARECOTkAlCosmicsCosmicTF0TDQM = cms.Sequence( ALCARECOTkAlCosmicsCosmicTF0TDQMTask )
+ALCARECOTkAlCosmicsCosmicTF0TDQM = cms.Sequence( ALCARECOTkAlCosmicsCosmicTF0TTrackingDQM + ALCARECOTkAlCosmicsCosmicTF0TTkAlDQM )
 
 
 #############################
@@ -741,11 +673,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics0THLT_cff import ALCAR
 #    eventSetupPathsKey =  ALCARECOTkAlCosmics0THLT.eventSetupPathsKey.value()
 #)
 #ALCARECOTkAlCosmicsRegional0TDQM = cms.Sequence( ALCARECOTkAlCosmicsRegional0TTrackingDQM + ALCARECOTkAlCosmicsRegional0TTkAlDQM +ALCARECOTkAlCosmicsRegional0THLTDQM)
-
-# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
-# To be reverted in a subsequent PR
-ALCARECOTkAlCosmicsRegional0TDQMTask = cms.Task( ALCARECOTkAlCosmicsRegional0TTrackingDQM , ALCARECOTkAlCosmicsRegional0TTkAlDQM )
-ALCARECOTkAlCosmicsRegional0TDQM = cms.Sequence( ALCARECOTkAlCosmicsRegional0TDQMTask )
+ALCARECOTkAlCosmicsRegional0TDQM = cms.Sequence( ALCARECOTkAlCosmicsRegional0TTrackingDQM + ALCARECOTkAlCosmicsRegional0TTkAlDQM )
 
 #############################
 ### TkAlCosmicsInCollisions0T ###
@@ -802,11 +730,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmicsHLT_cff import ALCAREC
 #    eventSetupPathsKey =  ALCARECOTkAlCosmicsHLT.eventSetupPathsKey.value()
 #)
 #ALCARECOTkAlCosmicsCTFDQM = cms.Sequence( ALCARECOTkAlCosmicsCTFTrackingDQM + ALCARECOTkAlCosmicsCTFTkAlDQM +ALCARECOTkAlCosmicsCTFHLTDQM)
-
-# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
-# To be reverted in a subsequent PR
-ALCARECOTkAlCosmicsCTFDQMTask = cms.Task( ALCARECOTkAlCosmicsCTFTrackingDQM , ALCARECOTkAlCosmicsCTFTkAlDQM )
-ALCARECOTkAlCosmicsCTFDQM = cms.Sequence( ALCARECOTkAlCosmicsCTFDQMTask )
+ALCARECOTkAlCosmicsCTFDQM = cms.Sequence( ALCARECOTkAlCosmicsCTFTrackingDQM + ALCARECOTkAlCosmicsCTFTkAlDQM )
 
 
 ###########################
@@ -833,11 +757,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmicsHLT_cff import ALCAREC
 #    eventSetupPathsKey =  ALCARECOTkAlCosmicsHLT.eventSetupPathsKey.value()
 #)
 #ALCARECOTkAlCosmicsCosmicTFDQM = cms.Sequence( ALCARECOTkAlCosmicsCosmicTFTrackingDQM + ALCARECOTkAlCosmicsCosmicTFTkAlDQM+ALCARECOTkAlCosmicsCosmicTFHLTDQM)
-
-# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
-# To be reverted in a subsequent PR
-ALCARECOTkAlCosmicsCosmicTFDQMTask = cms.Task( ALCARECOTkAlCosmicsCosmicTFTrackingDQM , ALCARECOTkAlCosmicsCosmicTFTkAlDQM )
-ALCARECOTkAlCosmicsCosmicTFDQM = cms.Sequence( ALCARECOTkAlCosmicsCosmicTFDQMTask )
+ALCARECOTkAlCosmicsCosmicTFDQM = cms.Sequence( ALCARECOTkAlCosmicsCosmicTFTrackingDQM + ALCARECOTkAlCosmicsCosmicTFTkAlDQM )
 
 
 ###########################
@@ -864,9 +784,5 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmicsHLT_cff import ALCAREC
 #    eventSetupPathsKey =  ALCARECOTkAlCosmicsHLT.eventSetupPathsKey.value()
 #)
 #ALCARECOTkAlCosmicsRegionalDQM = cms.Sequence( ALCARECOTkAlCosmicsRegionalTrackingDQM + ALCARECOTkAlCosmicsRegionalTkAlDQM+ALCARECOTkAlCosmicsRegionalHLTDQM)
-
-# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
-# To be reverted in a subsequent PR
-ALCARECOTkAlCosmicsRegionalDQMTask = cms.Task( ALCARECOTkAlCosmicsRegionalTrackingDQM , ALCARECOTkAlCosmicsRegionalTkAlDQM )
-ALCARECOTkAlCosmicsRegionalDQM = cms.Sequence( ALCARECOTkAlCosmicsRegionalDQMTask )
+ALCARECOTkAlCosmicsRegionalDQM = cms.Sequence( ALCARECOTkAlCosmicsRegionalTrackingDQM + ALCARECOTkAlCosmicsRegionalTkAlDQM )
 
