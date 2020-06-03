@@ -10,7 +10,4 @@
 </bin>
 
 <bin file="testPngHistograms.cpp" name="testPngHistograms">
- <ifrelease name="_PY3_">
-    <flags SETENV="PYTHONHOME=$(PYTHON_BASE)"/>
- </ifrelease>
 </bin>
