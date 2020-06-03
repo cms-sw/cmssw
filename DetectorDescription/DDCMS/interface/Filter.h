@@ -52,7 +52,7 @@ namespace cms {
       });
     }
 
-    std::vector<std::string> skeys;
+    std::vector<std::string_view> skeys;
     std::vector<std::regex> keys;
     std::unique_ptr<Filter> next;
     struct Filter* up;
