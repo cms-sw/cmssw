@@ -14,7 +14,6 @@ F13=${LOCAL_TEST_DIR}/python/testNavigateGeometry.py
 F14=${LOCAL_TEST_DIR}/python/testTGeoIterator.py
 F15=${LOCAL_TEST_DIR}/python/testDDSpecParsFilterG4ProdCuts.py
 F16=${LOCAL_TEST_DIR}/python/testDDSpecParsFilter.py
-F18=${LOCAL_TEST_DIR}/python/testDDHGCalCellAlgorithm.py
 F19=${LOCAL_TEST_DIR}/python/testDDCompactView.py
 F21=${LOCAL_TEST_DIR}/python/testGeometry2021.py
 F22=${LOCAL_TEST_DIR}/python/testGeometry2021FromDB.py
@@ -29,7 +28,6 @@ echo "===== Test \"cmsRun dump.py\" ===="
 (cmsRun $F1) || die "Failure using cmsRun $F1" $?
 echo "===== Test \"cmsRun dumpDDShapes.py\" ===="
 (cmsRun $F2) || die "Failure using cmsRun $F2" $?
-
 echo "===== Test \"cmsRun testDDAngularAlgorithm.py\" ===="
 (cmsRun $F5) || die "Failure using cmsRun $F5" $?
 echo "===== Test \"cmsRun testDDDetectorESProducer.py\" ===="
@@ -40,7 +38,6 @@ echo "===== Test \"cmsRun testDDSpecPars.py\" ===="
 (cmsRun $F8) || die "Failure using cmsRun $F8" $?
 echo "===== Test \"cmsRun testDDVectors.py\" ===="
 (cmsRun $F9) || die "Failure using cmsRun $F9" $?
-
 echo "===== Test \"cmsRun testShapes.py\" ===="
 (cmsRun $F12) || die "Failure using cmsRun $F12" $?
 echo "===== Test \"cmsRun testNavigateGeometry.py\" ===="
@@ -51,8 +48,6 @@ echo "===== Test \"cmsRun testDDSpecParsFilterG4ProdCuts.py\" ===="
 (cmsRun $F15) || die "Failure using cmsRun $F15" $?
 echo "===== Test \"cmsRun testDDSpecParsFilter.py\" ===="
 (cmsRun $F16) || die "Failure using cmsRun $F16" $?
-echo "===== Test \"cmsRun testDDHGCalCellAlgorithm.py\" ===="
-(cmsRun $F18) || die "Failure using cmsRun $F18" $?
 echo "===== Test \"cmsRun testDDCompactView.py\" ===="
 (cmsRun $F19) || die "Failure using cmsRun $F19" $?
 echo "===== Test \"cmsRun testGeometry2021.py\" ===="
