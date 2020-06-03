@@ -161,10 +161,11 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData,
         oItemHolder.AddElement(marker);
       }
 
-      const float energy = fmin(
-          (item()->getConfig()->value<bool>("Cluster(0)/RecHit(1)") ? hitmap->at(it->first)->energy() : iData.energy()) /
-              saturation_energy,
-          1.0f);
+      const float energy =
+          fmin((item()->getConfig()->value<bool>("Cluster(0)/RecHit(1)") ? hitmap->at(it->first)->energy()
+                                                                         : iData.energy()) /
+                   saturation_energy,
+               1.0f);
       const uint8_t colorFactor = gradient_steps * energy;
 
       // Scintillator

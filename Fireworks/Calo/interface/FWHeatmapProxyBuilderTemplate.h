@@ -44,7 +44,7 @@ public:
   // ---------- member functions ---------------------------
 
 protected:
-  const std::unordered_map<DetId, const HGCRecHit*> *hitmap;
+  const std::unordered_map<DetId, const HGCRecHit*>* hitmap;
 
   static constexpr uint8_t gradient_steps = 9;
   static constexpr uint8_t gradient[3][gradient_steps] = {{static_cast<uint8_t>(0.2082 * 255),
