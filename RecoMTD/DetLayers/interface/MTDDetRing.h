@@ -1,5 +1,5 @@
-#ifndef DetLayers_MTDDetRing_H
-#define DetLayers_MTDDetRing_H
+#ifndef RecoMTD_DetLayers_MTDDetRing_H
+#define RecoMTD_DetLayers_MTDDetRing_H
 
 /** \class MTDDetRing
  *  A ring of periodic, possibly overlapping vertical detectors.
