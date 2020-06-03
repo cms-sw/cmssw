@@ -87,7 +87,7 @@ namespace edm {
     }
   }
 
-  std::set<ModuleProcessName> const& PathsAndConsumesOfModules::modulesInPreviousProcessesWhoseProductsAreConsumedBy(
+  std::vector<ModuleProcessName> const& PathsAndConsumesOfModules::modulesInPreviousProcessesWhoseProductsAreConsumedBy(
       unsigned int moduleID) const {
     return modulesInPreviousProcessesWhoseProductsAreConsumedBy_.at(moduleIndex(moduleID));
   }
@@ -157,8 +157,8 @@ namespace {
 }  // namespace
 
 namespace edm {
-  std::vector<ModuleDescription const*> nonConsumedUnscheduledModules(edm::PathsAndConsumesOfModulesBase const& iPnC,
-                                                                      std::set<ModuleProcessName>& consumedByChildren) {
+  std::vector<ModuleDescription const*> nonConsumedUnscheduledModules(
+      edm::PathsAndConsumesOfModulesBase const& iPnC, std::vector<ModuleProcessName>& consumedByChildren) {
     const std::string kTriggerResults("TriggerResults");
 
     std::vector<std::string> pathNames = iPnC.paths();
@@ -191,10 +191,12 @@ namespace edm {
       if (description->moduleLabel() == kTriggerResults or
           std::find(pathNames.begin(), pathNames.end(), description->moduleLabel()) != pathNames.end()) {
         consumerModules.push_back(description);
-      } else if (consumedByChildren.find(ModuleProcessName{description->moduleLabel(), description->processName()}) !=
-                     consumedByChildren.end() or
-                 consumedByChildren.find(ModuleProcessName{description->moduleLabel(), ""}) !=
-                     consumedByChildren.end()) {
+      } else if (std::binary_search(consumedByChildren.begin(),
+                                    consumedByChildren.end(),
+                                    ModuleProcessName{description->moduleLabel(), description->processName()}) or
+                 std::binary_search(consumedByChildren.begin(),
+                                    consumedByChildren.end(),
+                                    ModuleProcessName{description->moduleLabel(), ""})) {
         consumerModules.push_back(description);
       }
     }

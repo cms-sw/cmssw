@@ -476,11 +476,18 @@ namespace {
 
 void EDConsumerBase::modulesWhoseProductsAreConsumed(
     std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modulesAll,
-    std::set<ModuleProcessName>& modulesInPreviousProcesses,
+    std::vector<ModuleProcessName>& modulesInPreviousProcesses,
     ProductRegistry const& preg,
     std::map<std::string, ModuleDescription const*> const& labelsToDesc,
     std::string const& processName) const {
   std::set<std::string> alreadyFound;
+
+  auto modulesInPreviousProcessesEmplace = [&modulesInPreviousProcesses](std::string_view module,
+                                                                         std::string_view process) {
+    auto it = std::lower_bound(
+        modulesInPreviousProcesses.begin(), modulesInPreviousProcesses.end(), ModuleProcessName(module, process));
+    modulesInPreviousProcesses.emplace(it, module, process);
+  };
 
   auto itKind = m_tokenInfo.begin<kKind>();
   auto itLabels = m_tokenInfo.begin<kLabels>();
@@ -511,7 +518,7 @@ void EDConsumerBase::modulesWhoseProductsAreConsumed(
                                      preg);
             } else {
               // Product explicitly from different process than the current process, so must refer to an earlier process (unless it ends up "not found")
-              modulesInPreviousProcesses.emplace(consumedModuleLabel, consumedProcessName);
+              modulesInPreviousProcessesEmplace(consumedModuleLabel, consumedProcessName);
             }
           }
         } else {  // process name was empty
@@ -529,7 +536,7 @@ void EDConsumerBase::modulesWhoseProductsAreConsumed(
             } else {
               // Product did not match to current process, so must refer to an earlier process (unless it ends up "not found")
               // Recall that empty process name means "in the latest process" that can change event-by-event
-              modulesInPreviousProcesses.emplace(consumedModuleLabel, matches.processName(j));
+              modulesInPreviousProcessesEmplace(consumedModuleLabel, matches.processName(j));
             }
           }
         }
@@ -547,7 +554,7 @@ void EDConsumerBase::modulesWhoseProductsAreConsumed(
                                    labelsToDesc,
                                    preg);
           } else {
-            modulesInPreviousProcesses.emplace(matches.moduleLabel(j), matches.processName(j));
+            modulesInPreviousProcessesEmplace(matches.moduleLabel(j), matches.processName(j));
           }
         }
       }
@@ -559,7 +566,7 @@ void EDConsumerBase::modulesWhoseProductsAreConsumed(
       auto matches = helper.relatedIndexes(*itKind, itInfo->m_type, consumedModuleLabel, consumedProductInstance);
       for (unsigned int j = 0; j < matches.numberOfMatches(); ++j) {
         if (processName != matches.processName(j)) {
-          modulesInPreviousProcesses.emplace(matches.moduleLabel(j), matches.processName(j));
+          modulesInPreviousProcessesEmplace(matches.moduleLabel(j), matches.processName(j));
         }
       }
     }

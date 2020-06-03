@@ -119,7 +119,7 @@ namespace edm {
     template <typename T>
     void ProducingModuleAdaptorBase<T>::modulesWhoseProductsAreConsumed(
         std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modules,
-        std::set<ModuleProcessName>& modulesInPreviousProcesses,
+        std::vector<ModuleProcessName>& modulesInPreviousProcesses,
         ProductRegistry const& preg,
         std::map<std::string, ModuleDescription const*> const& labelsToDesc,
         std::string const& processName) const {

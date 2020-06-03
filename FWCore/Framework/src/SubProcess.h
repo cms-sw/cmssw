@@ -78,7 +78,7 @@ namespace edm {
 
     // Returns the set of modules whose products may be consumed by
     // modules in this SubProcess or its child SubProcesses
-    std::set<ModuleProcessName> keepOnlyConsumedUnscheduledModules();
+    std::vector<ModuleProcessName> keepOnlyConsumedUnscheduledModules();
 
     void doBeginJob();
     void doEndJob();

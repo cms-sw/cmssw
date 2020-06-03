@@ -213,7 +213,7 @@ namespace edm {
 
     virtual void modulesWhoseProductsAreConsumed(
         std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modules,
-        std::set<ModuleProcessName>& modulesInPreviousProcesses,
+        std::vector<ModuleProcessName>& modulesInPreviousProcesses,
         ProductRegistry const& preg,
         std::map<std::string, ModuleDescription const*> const& labelsToDesc) const = 0;
 
