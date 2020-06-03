@@ -165,9 +165,7 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
     for (const auto& j : i->paths) {
       vector<string_view> toks = split(j, "/");
       auto const& filter = find_if(begin(filters_), end(filters_), [&](auto const& f) {
-        auto const& k = find_if(begin(f->skeys), end(f->skeys), [&](auto const& p) {
-          return toks.front() == p;
-        });
+        auto const& k = find_if(begin(f->skeys), end(f->skeys), [&](auto const& p) { return toks.front() == p; });
         if (k != end(f->skeys)) {
           currentFilter_ = f.get();
           return true;
@@ -175,12 +173,12 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
         return false;
       });
       if (filter == end(filters_)) {
-        filters_.emplace_back(
-            unique_ptr<Filter>(new Filter{{toks.front()},
-		  {std::regex(std::string("^").append({toks.front().data(), toks.front().size()}).append("$"))},
-                                          nullptr,
-                                          nullptr,
-                                          i}));
+        filters_.emplace_back(unique_ptr<Filter>(
+            new Filter{{toks.front()},
+                       {std::regex(std::string("^").append({toks.front().data(), toks.front().size()}).append("$"))},
+                       nullptr,
+                       nullptr,
+                       i}));
         // initialize current filter if it's empty
         if (currentFilter_ == nullptr) {
           currentFilter_ = filters_.back().get();
@@ -195,14 +193,16 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
           });
           if (l == end(currentFilter_->skeys)) {
             currentFilter_->skeys.emplace_back(toks[pos]);
-            currentFilter_->keys.emplace_back(std::regex(std::string("^").append({toks[pos].data(), toks[pos].size()}).append("$")));
+            currentFilter_->keys.emplace_back(
+                std::regex(std::string("^").append({toks[pos].data(), toks[pos].size()}).append("$")));
           }
         } else {
-          currentFilter_->next.reset(new Filter{{toks[pos]},
-		{std::regex(std::string("^").append({toks[pos].data(), toks[pos].size()}).append("$"))},
-                                                nullptr,
-                                                currentFilter_,
-                                                i});
+          currentFilter_->next.reset(
+              new Filter{{toks[pos]},
+                         {std::regex(std::string("^").append({toks[pos].data(), toks[pos].size()}).append("$"))},
+                         nullptr,
+                         currentFilter_,
+                         i});
         }
       }
     }
