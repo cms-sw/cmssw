@@ -146,7 +146,7 @@ for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoA
 import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
 def nanoAOD_addTauIds(process):
     updatedTauName = "slimmedTausUpdated"
-    tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, debug = False, updatedTauName = updatedTauName,
+    tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, debug = False, updatedTauName = updatedTauName,
             toKeep = [ "deepTau2017v2p1" ])
     tauIdEmbedder.runTauID()
     process.patTauMVAIDsSeq.insert(process.patTauMVAIDsSeq.index(getattr(process, updatedTauName)),
