@@ -166,7 +166,7 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
       vector<string_view> toks = split(j, "/");
       auto const& filter = find_if(begin(filters_), end(filters_), [&](auto const& f) {
         auto const& k = find_if(begin(f->skeys), end(f->skeys), [&](auto const& p) {
-          return std::string({toks.front().data(), toks.front().size()}) == p;
+          return toks.front() == p;
         });
         if (k != end(f->skeys)) {
           currentFilter_ = f.get();
@@ -176,8 +176,8 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
       });
       if (filter == end(filters_)) {
         filters_.emplace_back(
-            unique_ptr<Filter>(new Filter{{std::string(toks.front().data(), toks.front().size())},
-                                          {std::regex(std::string(toks.front().data(), toks.front().size()))},
+            unique_ptr<Filter>(new Filter{{toks.front()},
+		  {std::regex(std::string("^").append({toks.front().data(), toks.front().size()}).append("$"))},
                                           nullptr,
                                           nullptr,
                                           i}));
@@ -191,16 +191,15 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
         if (currentFilter_->next != nullptr) {
           currentFilter_ = currentFilter_->next.get();
           auto const& l = find_if(begin(currentFilter_->skeys), end(currentFilter_->skeys), [&](auto const& p) {
-            return std::string({toks.front().data(), toks.front().size()}) == p;
+            return toks.front() == p;
           });
           if (l == end(currentFilter_->skeys)) {
-            currentFilter_->skeys.emplace_back(std::string(toks[pos].data(), toks[pos].size()));
-            currentFilter_->keys.emplace_back(std::string("^") + std::string(toks[pos].data(), toks[pos].size()) +
-                                              std::string("$"));
+            currentFilter_->skeys.emplace_back(toks[pos]);
+            currentFilter_->keys.emplace_back(std::regex(std::string("^").append({toks[pos].data(), toks[pos].size()}).append("$")));
           }
         } else {
-          currentFilter_->next.reset(new Filter{{std::string(toks[pos].data(), toks[pos].size())},
-                                                {std::regex(std::string(toks[pos].data(), toks[pos].size()))},
+          currentFilter_->next.reset(new Filter{{toks[pos]},
+		{std::regex(std::string("^").append({toks[pos].data(), toks[pos].size()}).append("$"))},
                                                 nullptr,
                                                 currentFilter_,
                                                 i});
@@ -304,7 +303,7 @@ std::vector<std::vector<Node*>> DDFilteredView::children(const std::string& sele
   auto rit = names.rbegin();
   Node* node = it_.back().Next();
   while (node != nullptr) {
-    if (node->GetVolume()->GetName() == std::string({rit->first.data(), rit->first.size()})) {
+    if (node->GetVolume()->GetName() == rit->first) {
       std::string pathToNode = path();
       std::string::size_type n = pathToNode.find(node_->GetName());
       std::string pathFromParent = pathToNode.substr(n);
