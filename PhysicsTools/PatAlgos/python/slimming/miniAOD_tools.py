@@ -332,10 +332,6 @@ def miniAOD_customizeCommon(process):
     addBoostedTaus(process)
     process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
     process.load("RecoTauTag.Configuration.HPSPFTaus_cff")
-    #enable correct behaviour of overlap removal in boosted tau seeding
-    from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
-    run2_miniAOD_devel.toModify(process.boostedTauSeeds,
-                                correctlyExcludeOverlap = True)
     #-- Adding customization for 94X 2017 legacy reMniAOD
     from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
     _makePatTausTaskWithRetrainedMVATauID = process.makePatTausTask.copy()
@@ -377,6 +373,7 @@ def miniAOD_customizeCommon(process):
     process.deepTau2017v2p1.taus = _noUpdatedTauName
     deepTauIDTaskNew_ = cms.Task(process.deepTau2017v2p1,process.slimmedTaus)
 
+    from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
     from Configuration.Eras.Modifier_run2_tau_ul_2016_cff import run2_tau_ul_2016
     from Configuration.Eras.Modifier_run2_tau_ul_2018_cff import run2_tau_ul_2018
     for era in [run2_miniAOD_devel,run2_tau_ul_2016,run2_tau_ul_2018]:
