@@ -23,6 +23,7 @@
 //         Created: 11/5/2014
 
 #include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
+#include "FWCore/Utilities/interface/BranchType.h"
 
 #include <string>
 #include <vector>
@@ -60,12 +61,9 @@ namespace edm {
     // it consumes a module label that is an EDAlias, the corresponding module
     // description will be included in the returned vector (but the label in the
     // module description is not the EDAlias label).
-    std::vector<ModuleDescription const*> const& modulesWhoseProductsAreConsumedBy(unsigned int moduleID) const {
-      return doModulesWhoseProductsAreConsumedBy(moduleID);
-    }
-
-    std::vector<ModuleDescription const*> const& modulesWhoseProductsAreConsumedByLumiRun(unsigned int moduleID) const {
-      return doModulesWhoseProductsAreConsumedByLumiRun(moduleID);
+    std::vector<ModuleDescription const*> const& modulesWhoseProductsAreConsumedBy(
+        unsigned int moduleID, BranchType branchType = InEvent) const {
+      return doModulesWhoseProductsAreConsumedBy(moduleID, branchType);
     }
 
     // This returns the declared consumes information for a module.
@@ -85,9 +83,7 @@ namespace edm {
     virtual std::vector<ModuleDescription const*> const& doModulesOnPath(unsigned int pathIndex) const = 0;
     virtual std::vector<ModuleDescription const*> const& doModulesOnEndPath(unsigned int endPathIndex) const = 0;
     virtual std::vector<ModuleDescription const*> const& doModulesWhoseProductsAreConsumedBy(
-        unsigned int moduleID) const = 0;
-    virtual std::vector<ModuleDescription const*> const& doModulesWhoseProductsAreConsumedByLumiRun(
-        unsigned int moduleID) const = 0;
+        unsigned int moduleID, BranchType branchType) const = 0;
     virtual std::vector<ConsumesInfo> doConsumesInfo(unsigned int moduleID) const = 0;
   };
 }  // namespace edm

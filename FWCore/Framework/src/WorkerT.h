@@ -110,17 +110,12 @@ namespace edm {
     TaskQueueAdaptor serializeRunModule() override;
 
     void modulesWhoseProductsAreConsumed(
-        std::vector<ModuleDescription const*>& modulesEvent,
-        std::vector<ModuleDescription const*>& modulesLumiRun,
+        std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modules,
         std::set<ModuleProcessName>& modulesInPreviousProcesses,
         ProductRegistry const& preg,
         std::map<std::string, ModuleDescription const*> const& labelsToDesc) const override {
-      module_->modulesWhoseProductsAreConsumed(modulesEvent,
-                                               modulesLumiRun,
-                                               modulesInPreviousProcesses,
-                                               preg,
-                                               labelsToDesc,
-                                               module_->moduleDescription().processName());
+      module_->modulesWhoseProductsAreConsumed(
+          modules, modulesInPreviousProcesses, preg, labelsToDesc, module_->moduleDescription().processName());
     }
 
     void convertCurrentProcessAlias(std::string const& processName) override {

@@ -212,8 +212,7 @@ namespace edm {
             iIndicies) = 0;
 
     virtual void modulesWhoseProductsAreConsumed(
-        std::vector<ModuleDescription const*>& modulesEvent,
-        std::vector<ModuleDescription const*>& modulesLumiRun,
+        std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modules,
         std::set<ModuleProcessName>& modulesInPreviousProcesses,
         ProductRegistry const& preg,
         std::map<std::string, ModuleDescription const*> const& labelsToDesc) const = 0;

@@ -111,8 +111,7 @@ namespace edm {
 
       const EDConsumerBase* consumer() const;
 
-      void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modulesEvent,
-                                           std::vector<ModuleDescription const*>& modulesLumiRun,
+      void modulesWhoseProductsAreConsumed(std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modules,
                                            std::set<ModuleProcessName>& modulesInPreviousProcesses,
                                            ProductRegistry const& preg,
                                            std::map<std::string, ModuleDescription const*> const& labelsToDesc,

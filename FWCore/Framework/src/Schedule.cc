@@ -1478,20 +1478,21 @@ namespace edm {
   void Schedule::fillModuleAndConsumesInfo(
       std::vector<ModuleDescription const*>& allModuleDescriptions,
       std::vector<std::pair<unsigned int, unsigned int>>& moduleIDToIndex,
-      std::vector<std::vector<ModuleDescription const*>>& modulesWhoseProductsAreConsumedByEvent,
-      std::vector<std::vector<ModuleDescription const*>>& modulesWhoseProductsAreConsumedByLumiRun,
+      std::array<std::vector<std::vector<ModuleDescription const*>>, NumBranchTypes>& modulesWhoseProductsAreConsumedBy,
       std::vector<std::set<ModuleProcessName>>& modulesInPreviousProcessesWhoseProductsAreConsumedBy,
       ProductRegistry const& preg) const {
     allModuleDescriptions.clear();
     moduleIDToIndex.clear();
-    modulesWhoseProductsAreConsumedByEvent.clear();
-    modulesWhoseProductsAreConsumedByLumiRun.clear();
+    for (auto iBranchType = 0U; iBranchType < NumBranchTypes; ++iBranchType) {
+      modulesWhoseProductsAreConsumedBy[iBranchType].clear();
+    }
     modulesInPreviousProcessesWhoseProductsAreConsumedBy.clear();
 
     allModuleDescriptions.reserve(allWorkers().size());
     moduleIDToIndex.reserve(allWorkers().size());
-    modulesWhoseProductsAreConsumedByEvent.resize(allWorkers().size());
-    modulesWhoseProductsAreConsumedByLumiRun.resize(allWorkers().size());
+    for (auto iBranchType = 0U; iBranchType < NumBranchTypes; ++iBranchType) {
+      modulesWhoseProductsAreConsumedBy[iBranchType].resize(allWorkers().size());
+    }
     modulesInPreviousProcessesWhoseProductsAreConsumedBy.resize(allWorkers().size());
 
     std::map<std::string, ModuleDescription const*> labelToDesc;
@@ -1507,13 +1508,15 @@ namespace edm {
 
     i = 0;
     for (auto const& worker : allWorkers()) {
-      std::vector<ModuleDescription const*>& modulesEvent = modulesWhoseProductsAreConsumedByEvent.at(i);
-      std::vector<ModuleDescription const*>& modulesLumiRun = modulesWhoseProductsAreConsumedByLumiRun.at(i);
+      std::array<std::vector<ModuleDescription const*>*, NumBranchTypes> modules;
+      for (auto iBranchType = 0U; iBranchType < NumBranchTypes; ++iBranchType) {
+        modules[iBranchType] = &modulesWhoseProductsAreConsumedBy[iBranchType].at(i);
+      }
+
       std::set<ModuleProcessName>& modulesInPreviousProcesses =
           modulesInPreviousProcessesWhoseProductsAreConsumedBy.at(i);
       try {
-        worker->modulesWhoseProductsAreConsumed(
-            modulesEvent, modulesLumiRun, modulesInPreviousProcesses, preg, labelToDesc);
+        worker->modulesWhoseProductsAreConsumed(modules, modulesInPreviousProcesses, preg, labelToDesc);
       } catch (cms::Exception& ex) {
         ex.addContext("Calling Worker::modulesWhoseProductsAreConsumed() for module " +
                       worker->description()->moduleLabel());

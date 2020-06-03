@@ -233,8 +233,8 @@ namespace edm {
     void fillModuleAndConsumesInfo(
         std::vector<ModuleDescription const*>& allModuleDescriptions,
         std::vector<std::pair<unsigned int, unsigned int>>& moduleIDToIndex,
-        std::vector<std::vector<ModuleDescription const*>>& modulesWhoseProductsAreConsumedByEvent,
-        std::vector<std::vector<ModuleDescription const*>>& modulesWhoseProductsAreConsumedByLumiRun,
+        std::array<std::vector<std::vector<ModuleDescription const*>>, NumBranchTypes>&
+            modulesWhoseProductsAreConsumedBy,
         std::vector<std::set<ModuleProcessName>>& modulesInPreviousProcessesWhoseProductsAreConsumedBy,
         ProductRegistry const& preg) const;
 
