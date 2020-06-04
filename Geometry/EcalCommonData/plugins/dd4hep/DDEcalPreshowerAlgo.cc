@@ -18,7 +18,6 @@ static constexpr float const& k_one32nd = 0.03125;
 static constexpr float const& k_one64th = 0.015625;
 
 namespace {
-  static constexpr char myNameSpace[] = "esalgo:";
 
   struct EcalPreshower {
     vector<string> materials;  // materials of the presh-layers
@@ -199,13 +198,13 @@ static long algorithm(dd4hep::Detector& /* description */,
         int cutabsx = -1;
         int cutabsy = -1;
 
-        const string& dd_tmp_name_b(myNameSpace + es.layName[i] + "Lcut");
-        const string& dd_tmp_name_c(myNameSpace + es.layName[i] + "tmpb");
-        const string& dd_tmp_name_d(myNameSpace + es.layName[i] + "LinPb");
-        const string& dd_tmp_name_e(myNameSpace + es.layName[i] + "LinAl");
-        const string& dd_tmp_name_f(myNameSpace + es.layName[i] + "LOutAl");
+        const string& dd_tmp_name_b("esalgo:" + es.layName[i] + "Lcut");
+        const string& dd_tmp_name_c("esalgo:" + es.layName[i] + "tmpb");
+        const string& dd_tmp_name_d("esalgo:" + es.layName[i] + "LinPb");
+        const string& dd_tmp_name_e("esalgo:" + es.layName[i] + "LinAl");
+        const string& dd_tmp_name_f("esalgo:" + es.layName[i] + "LOutAl");
 
-        const string& dd_Alname_fin(myNameSpace + es.layName[i] + "LtmpAl" + to_string(absz - 1));
+        const string& dd_Alname_fin("esalgo:" + es.layName[i] + "LtmpAl" + to_string(absz - 1));
 
         const string& dd_Alname_f(es.layName[i] + "LOutAl");
         const string& dd_Alname_g(es.layName[i] + "LOutAl2");
@@ -217,8 +216,7 @@ static long algorithm(dd4hep::Detector& /* description */,
         const string& dd_Alname_m(es.layName[i] + "LOutAltmp6");
 
         Solid outAl = ns.addSolid(
-            dd_Alname_f, Tube(dd_Alname_f, es.rMax_Abs_Al - 20_cm, es.rMax_Abs_Al, zHalf - 0.1_mm, 0., 90._deg));
-
+				  dd_Alname_f, Tube(dd_Alname_f, es.rMax_Abs_Al - 20_cm, es.rMax_Abs_Al, zHalf - 0.1_mm, 0., 90._deg));
         outalbx = es.absAlX_X * 0.1;
         outalby = es.rMax_Abs_Al + 0.1_mm - es.absAlX_subtr1_Yshift;
         shiftR = es.absAlX_subtr1_Yshift;
@@ -232,6 +230,7 @@ static long algorithm(dd4hep::Detector& /* description */,
         Solid outAltmp3 = ns.addSolid(
             dd_Alname_j,
             SubtractionSolid(dd_Alname_j, outAl, outAltmp, Position(outalbx * k_half, outalby * k_half + shiftR, 0)));
+	
         outalby2 = es.absAlX_Y * 0.1;
         outalbx2 = es.rMax_Abs_Al + 0.1_mm - es.absAlX_subtr1_Xshift;
         shiftR2 = es.absAlX_subtr1_Xshift;
@@ -456,17 +455,17 @@ static long algorithm(dd4hep::Detector& /* description */,
           }
         }
 
-        const string& ddname(myNameSpace + es.ladPfx[0] + es.typesL5[M]);
+        const string& ddname("esalgo:" + es.ladPfx[0] + es.typesL5[M]);
         ladder_length = es.micromodule_length + 4 * es.waf_active + 0.1_mm;
 
         if (ladd_not_plain) {
           if (!ladd_upper) {
             enb++;
-            const string& dd_tmp_name_5a(myNameSpace + es.ladPfx[2]);
-            const string& dd_tmp_name_5b(myNameSpace + es.ladPfx[3] + to_string(enb));
-            const string& dd_tmp_name_5c(myNameSpace + es.ladPfx[4] + to_string(enb));
-            const string& dd_tmp_name_5d(myNameSpace + es.ladPfx[5] + to_string(enb));
-            const string& dd_tmp_name_5e(myNameSpace + es.ladPfx[6]);
+            const string& dd_tmp_name_5a("esalgo:" + es.ladPfx[2]);
+            const string& dd_tmp_name_5b("esalgo:" + es.ladPfx[3] + to_string(enb));
+            const string& dd_tmp_name_5c("esalgo:" + es.ladPfx[4] + to_string(enb));
+            const string& dd_tmp_name_5d("esalgo:" + es.ladPfx[5] + to_string(enb));
+            const string& dd_tmp_name_5e("esalgo:" + es.ladPfx[6]);
 
             boxay = ladder_length - es.ldrFrnt_Length - es.ldrBck_Length;
             boxax = es.ladder_width;
@@ -510,12 +509,12 @@ static long algorithm(dd4hep::Detector& /* description */,
                            Transform3D(ns.rotation("esalgo:RM1299"), Position(sdxe3[enb], sdye3[enb], sdze3[enb])));
 
             ns.addVolumeNS(Volume(ddname, solid, ns.material(es.laddMaterial)));
-            ns.addVolumeNS(Volume(myNameSpace + es.ladPfx[1] + es.typesL5[M], solid, ns.material(es.laddMaterial)));
+            ns.addVolumeNS(Volume("esalgo:" + es.ladPfx[1] + es.typesL5[M], solid, ns.material(es.laddMaterial)));
           }
         }  // end of not plain ladder shape
         else {
-          const string& dd_tmp_name_5pa(myNameSpace + es.ladPfx[2] + "5p");
-          const string& dd_tmp_name_5pb(myNameSpace + es.ladPfx[3] + "5p");
+          const string& dd_tmp_name_5pa("esalgo:" + es.ladPfx[2] + "5p");
+          const string& dd_tmp_name_5pb("esalgo:" + es.ladPfx[3] + "5p");
 
           boxay = ladder_length - es.ldrFrnt_Length - es.ldrBck_Length;
           boxax = es.ladder_width;
@@ -538,7 +537,7 @@ static long algorithm(dd4hep::Detector& /* description */,
           Solid solid = UnionSolid(
               ddname, solid_5pb, solid_lbck, Transform3D(ns.rotation("esalgo:RM1299"), Position(sdx, sdy, sdz)));
           ns.addVolumeNS(Volume(ddname, solid, ns.material(es.laddMaterial)));
-          ns.addVolumeNS(Volume(myNameSpace + es.ladPfx[1] + es.typesL5[M], solid, ns.material(es.laddMaterial)));
+          ns.addVolumeNS(Volume("esalgo:" + es.ladPfx[1] + es.typesL5[M], solid, ns.material(es.laddMaterial)));
         }
       }
 
@@ -559,18 +558,18 @@ static long algorithm(dd4hep::Detector& /* description */,
           }
         }
 
-        const string& ddname(myNameSpace + es.ladPfx[0] + es.typesL4[d]);
+        const string& ddname("esalgo:" + es.ladPfx[0] + es.typesL4[d]);
         ladder_length = es.micromodule_length + 3 * es.waf_active + 0.1_mm;
 
         if (ladd_not_plain) {
           if (ladd_upper) {
             enb++;
 
-            const string& dd_tmp_name_a(myNameSpace + es.ladPfx[7]);
-            const string& dd_tmp_name_b(myNameSpace + es.ladPfx[8] + to_string(enb));
-            const string& dd_tmp_name_c(myNameSpace + es.ladPfx[9] + to_string(enb));
-            const string& dd_tmp_name_d(myNameSpace + es.ladPfx[10] + to_string(enb));
-            const string& dd_tmp_name_e(myNameSpace + es.ladPfx[11]);
+            const string& dd_tmp_name_a("esalgo:" + es.ladPfx[7]);
+            const string& dd_tmp_name_b("esalgo:" + es.ladPfx[8] + to_string(enb));
+            const string& dd_tmp_name_c("esalgo:" + es.ladPfx[9] + to_string(enb));
+            const string& dd_tmp_name_d("esalgo:" + es.ladPfx[10] + to_string(enb));
+            const string& dd_tmp_name_e("esalgo:" + es.ladPfx[11]);
 
             boxay = ladder_length - es.ldrFrnt_Length - es.ldrBck_Length;
             boxax = es.ladder_width;
@@ -599,18 +598,18 @@ static long algorithm(dd4hep::Detector& /* description */,
                            Transform3D(ns.rotation("esalgo:RM1299"), Position(sdxe2[enb], sdye2[enb], sdze2[enb])));
 
             ns.addVolumeNS(Volume(ddname, solid, ns.material(es.laddMaterial)));
-            ns.addVolumeNS(Volume(myNameSpace + es.ladPfx[1] + es.typesL4[d], solid, ns.material(es.laddMaterial)));
+            ns.addVolumeNS(Volume("esalgo:" + es.ladPfx[1] + es.typesL4[d], solid, ns.material(es.laddMaterial)));
 
           }  // upper
           else {
             if (ladd_subtr_no > 1) {
               enb++;
 
-              const string& dd_tmp_name_a(myNameSpace + es.ladPfx[7]);
-              const string& dd_tmp_name_b(myNameSpace + es.ladPfx[8] + to_string(enb));
-              const string& dd_tmp_name_c(myNameSpace + es.ladPfx[9] + to_string(enb));
-              const string& dd_tmp_name_d(myNameSpace + es.ladPfx[10] + to_string(enb));
-              const string& dd_tmp_name_e(myNameSpace + es.ladPfx[11]);
+              const string& dd_tmp_name_a("esalgo:" + es.ladPfx[7]);
+              const string& dd_tmp_name_b("esalgo:" + es.ladPfx[8] + to_string(enb));
+              const string& dd_tmp_name_c("esalgo:" + es.ladPfx[9] + to_string(enb));
+              const string& dd_tmp_name_d("esalgo:" + es.ladPfx[10] + to_string(enb));
+              const string& dd_tmp_name_e("esalgo:" + es.ladPfx[11]);
 
               boxay = ladder_length - es.ldrFrnt_Length - es.ldrBck_Length;
               boxax = es.ladder_width;
@@ -641,14 +640,14 @@ static long algorithm(dd4hep::Detector& /* description */,
                              Transform3D(ns.rotation("esalgo:RM1299"), Position(sdxe2[enb], sdye2[enb], sdze2[enb])));
 
               ns.addVolumeNS(Volume(ddname, solid, ns.material(es.laddMaterial)));
-              ns.addVolumeNS(Volume(myNameSpace + es.ladPfx[1] + es.typesL4[d], solid, ns.material(es.laddMaterial)));
+              ns.addVolumeNS(Volume("esalgo:" + es.ladPfx[1] + es.typesL4[d], solid, ns.material(es.laddMaterial)));
             } else {
               enb++;
-              const string& dd_tmp_name_a(myNameSpace + es.ladPfx[7]);
-              const string& dd_tmp_name_b(myNameSpace + es.ladPfx[8] + to_string(enb));
-              const string& dd_tmp_name_c(myNameSpace + es.ladPfx[9] + to_string(enb));
-              const string& dd_tmp_name_d(myNameSpace + es.ladPfx[10] + to_string(enb));
-              const string& dd_tmp_name_e(myNameSpace + es.ladPfx[11]);
+              const string& dd_tmp_name_a("esalgo:" + es.ladPfx[7]);
+              const string& dd_tmp_name_b("esalgo:" + es.ladPfx[8] + to_string(enb));
+              const string& dd_tmp_name_c("esalgo:" + es.ladPfx[9] + to_string(enb));
+              const string& dd_tmp_name_d("esalgo:" + es.ladPfx[10] + to_string(enb));
+              const string& dd_tmp_name_e("esalgo:" + es.ladPfx[11]);
 
               boxay = ladder_length - es.ldrFrnt_Length - es.ldrBck_Length;
               boxax = es.ladder_width;
@@ -691,13 +690,13 @@ static long algorithm(dd4hep::Detector& /* description */,
                              Transform3D(ns.rotation("esalgo:RM1299"), Position(sdxe3[enb], sdye3[enb], sdze3[enb])));
 
               ns.addVolumeNS(Volume(ddname, solid, ns.material(es.laddMaterial)));
-              ns.addVolumeNS(Volume(myNameSpace + es.ladPfx[1] + es.typesL4[d], solid, ns.material(es.laddMaterial)));
+              ns.addVolumeNS(Volume("esalgo:" + es.ladPfx[1] + es.typesL4[d], solid, ns.material(es.laddMaterial)));
             }
           }
         }  // end of not plain ladder shape
         else {
-          const string& dd_tmp_name_pa(myNameSpace + es.ladPfx[2] + "p");
-          const string& dd_tmp_name_pb(myNameSpace + es.ladPfx[3] + "p");
+          const string& dd_tmp_name_pa("esalgo:" + es.ladPfx[2] + "p");
+          const string& dd_tmp_name_pb("esalgo:" + es.ladPfx[3] + "p");
 
           boxay = ladder_length - es.ldrFrnt_Length - es.ldrBck_Length;
           boxax = es.ladder_width;
@@ -719,15 +718,15 @@ static long algorithm(dd4hep::Detector& /* description */,
           Solid solid = UnionSolid(
               ddname, solid_pb, solid_lbck, Transform3D(ns.rotation("esalgo:RM1299"), Position(sdx, sdy, sdz)));
           ns.addVolumeNS(Volume(ddname, solid, ns.material(es.laddMaterial)));
-          ns.addVolumeNS(Volume(myNameSpace + es.ladPfx[1] + es.typesL4[d], solid, ns.material(es.laddMaterial)));
+          ns.addVolumeNS(Volume("esalgo:" + es.ladPfx[1] + es.typesL4[d], solid, ns.material(es.laddMaterial)));
         }
       }
 
       // insert SWED, SFBX and SFBY into ladders
       swed_scopy_glob++;
       if (M < int(es.typesL5.size())) {
-        const string& ddname(myNameSpace + es.ladPfx[0] + es.typesL5[M]);
-        const string& ddname2(myNameSpace + es.ladPfx[1] + es.typesL5[M]);
+        const string& ddname("esalgo:" + es.ladPfx[0] + es.typesL5[M]);
+        const string& ddname2("esalgo:" + es.ladPfx[1] + es.typesL5[M]);
         for (int i = 0; i <= 1; i++) {
           for (int j = 0; j <= 4; j++) {
             xpos = (i * 2 - 1) * es.waf_intra_col_sep * k_half;
@@ -756,8 +755,8 @@ static long algorithm(dd4hep::Detector& /* description */,
         }
       } else {
         int d = M - es.typesL5.size();
-        const string& ddname(myNameSpace + es.ladPfx[0] + es.typesL4[d]);
-        const string& ddname2(myNameSpace + es.ladPfx[1] + es.typesL4[d]);
+        const string& ddname("esalgo:" + es.ladPfx[0] + es.typesL4[d]);
+        const string& ddname2("esalgo:" + es.ladPfx[1] + es.typesL4[d]);
         for (int i = 0; i <= 1; i++) {
           for (int j = 0; j <= 3; j++) {
             xpos = (i * 2 - 1) * es.waf_intra_col_sep * k_half;
@@ -849,10 +848,10 @@ static long algorithm(dd4hep::Detector& /* description */,
         zpos = es.zlead1 + es.ladder_thick * k_half + 0.01_mm;
         icopy[j] += 1;
 
-        sfLog.placeVolume(ns.volume(myNameSpace + es.ladPfx[0] + type), icopy[j], Position(xpos, ypos, zpos));
+        sfLog.placeVolume(ns.volume("esalgo:" + es.ladPfx[0] + type), icopy[j], Position(xpos, ypos, zpos));
 
         xpos = I * (2 * es.waf_intra_col_sep + es.waf_inter_col_sep);
-        sfLog.placeVolume(ns.volume(myNameSpace + es.ladPfx[1] + type),
+        sfLog.placeVolume(ns.volume("esalgo:" + es.ladPfx[1] + type),
                           icopy[j],
                           Transform3D(ns.rotation("esalgo:R270"), Position(ypos, -xpos, zpos - es.zlead1 + es.zlead2)));
 
@@ -891,14 +890,14 @@ static long algorithm(dd4hep::Detector& /* description */,
         if (I < 0)
           xpos = xpos - es.dee_separation;
 
-        sfLog.placeVolume(ns.volume(myNameSpace + es.ladPfx[0] + type),
+        sfLog.placeVolume(ns.volume("esalgo:" + es.ladPfx[0] + type),
                           icopy[j],
                           Transform3D(ns.rotation("esalgo:R180"), Position(xpos, -ypos, zpos)));
 
         xpos = I * (2 * es.waf_intra_col_sep + es.waf_inter_col_sep);
 
         sfLog.placeVolume(
-            ns.volume(myNameSpace + es.ladPfx[1] + type),
+            ns.volume("esalgo:" + es.ladPfx[1] + type),
             icopy[j],
             Transform3D(ns.rotation("esalgo:R090"), Position(-ypos, -xpos, zpos - es.zlead1 + es.zlead2)));
       }
