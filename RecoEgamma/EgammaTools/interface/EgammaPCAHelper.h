@@ -36,7 +36,6 @@ namespace hgcal {
     typedef ROOT::Math::Transform3D::Point Point;
 
     EGammaPCAHelper();
-    ~EGammaPCAHelper();
 
     // for the GsfElectrons
     void storeRecHits(const reco::CaloCluster &theCluster);
