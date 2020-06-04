@@ -5,6 +5,7 @@
 <use name="FWCore/Framework"/>
 <use name="HeterogeneousCore/CUDACore"/>
 <use name="HeterogeneousCore/CUDAUtilities"/>
+
 <export>
   <lib name="1"/>
 </export>
