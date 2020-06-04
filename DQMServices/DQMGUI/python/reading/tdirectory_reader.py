@@ -32,9 +32,17 @@ class TDirectoryReader:
                         s = nanoroot.String.unpack(obj, 0, len(obj), None)
                         return ScalarValue(b'', b's', s)
                     
-                    classversion = 3 #TODO: we need to have a better guess here...
+                    # Usually this value is unused since the class version is already in
+                    # the buffer. Only needed for some Trees in DQMIO.
+                    #TODO: we need to have a better guess here...
+                    classversion = 3 
+                    # The buffers in a TKey based file start with the TKey. Since we only 
+                    # send the object to the renderer, we need to compensate for that using
+                    # the displacement.
+                    # TODO: not sure if this does in fact work for TTrees.
+                    displacement = - key.fields.fKeyLen - me_info.offset
                     # metype doubles as root class name here.
-                    return nanoroot.TBufferFile(obj, me_info.type, classversion)
+                    return nanoroot.TBufferFile(obj, me_info.type, displacement, classversion) 
 
                 return await asyncio.get_event_loop().run_in_executor(None, get_object)
 

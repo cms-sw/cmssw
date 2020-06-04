@@ -213,31 +213,47 @@ class TKey:
 
 # TBufferFile data contains more headers compared to the data in a TKey or
 # TTree. This function tries to add the missing headers.
-def TBufferFile(objdata, classname, version = None):
-    if objdata[0:1] != b'@' and objdata[1:2] == b'T': 
-        # This came out of a branch (TBranchObject?) with class and version header.
-        clslen = objdata[0]
-        cls = objdata[1:1+clslen]
-        assert cls == classname, f"Classname {repr(cls)} from Branch should match {repr(classname)}"
-        objdata = objdata[clslen+2:] # strip class and continue.
-    if objdata[0:1] == b'@':
-        # @-decode and see if that could be a version header.
-        size, = struct.unpack(">I", objdata[0:4])
-        size = (size & ~0x40000000) + 4
-        if size != len(objdata):
-            # this does not look like a version header. Add one.
-            totlen = 2 + len(objdata)
-            head = struct.pack(">IH", totlen | 0x40000000, version)
-            objdata = head + objdata
-    else:
-        assert False, "No known header found, TBufferFile wrapping would probably fail."
-    # The format is <@length><kNewClassTag=0xFFFFFFFF><classname><nul><@length><2 bytes version><data ...
-    # @length is 4byte length of the *entire* remaining object with bit 0x40 (kByteCountMask)
-    # set in the first (most significant) byte. This prints as "@" in the dump...
-    # the data inside the TKey seems to have the version already.
-    totlen = 4 + len(classname) + 1 + len(objdata)
-    head = struct.pack(">II", totlen | 0x40000000, 0xFFFFFFFF)
-    return head + classname + b'\0' + objdata
+class TBufferFile():
+    def __init__(self, objdata, classname, displacement = 0,version = None):
+        if objdata[0:1] != b'@' and objdata[1:2] == b'T': 
+            # This came out of a branch (TBranchObject?) with class and version header.
+            clslen = objdata[0]
+            cls = objdata[1:1+clslen]
+            assert cls == classname, f"Classname {repr(cls)} from Branch should match {repr(classname)}"
+            objdata = objdata[clslen+2:] # strip class and continue.
+            displacement -= clslen + 2
+        if objdata[0:1] == b'@':
+            # @-decode and see if that could be a version header.
+            size, = struct.unpack(">I", objdata[0:4])
+            size = (size & ~0x40000000) + 4
+            if size != len(objdata):
+                # this does not look like a version header. Add one.
+                totlen = 2 + len(objdata)
+                head = struct.pack(">IH", totlen | 0x40000000, version)
+                objdata = head + objdata
+                displacement += len(head)
+        else:
+            assert False, "No known header found, TBufferFile wrapping would probably fail."
+        # The format is <@length><kNewClassTag=0xFFFFFFFF><classname><nul><@length><2 bytes version><data ...
+        # @length is 4byte length of the *entire* remaining object with bit 0x40 (kByteCountMask)
+        # set in the first (most significant) byte. This prints as "@" in the dump...
+        # the data inside the TKey seems to have the version already.
+        totlen = 4 + len(classname) + 1 + len(objdata)
+        head = struct.pack(">II", totlen | 0x40000000, 0xFFFFFFFF)
+        self.buffer =  head + classname + b'\0' + objdata
+        displacement += len(head) + len(classname) + 1
+
+        # The TBufferFile data can contain references into itself, when an 
+        # already stored object is used again. This happens especially with
+        # class definitions, which can also be re-used. Since these offsets are
+        # absolute offsets into the buffer, they will be wrong if we add or
+        # remove to/from the beginning of the buffer. To compensate for that,
+        # we can use the `SetDisplacement` option, but we need to keep track of
+        # the correct displacement here.
+        # Getting it wrong usually does not matter, but can lead to missing
+        # Objects (axis, labels, ...) inside the histograms and also sometimes
+        # root crashes due to infinite recursion.
+        self.displacement = displacement
 
 
 # Some minimal TTree IO. The structure of a TTree is not terribly complicated:

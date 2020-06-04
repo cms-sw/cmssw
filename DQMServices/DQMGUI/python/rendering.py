@@ -96,7 +96,7 @@ class GUIRenderer:
 
         # We can render either ScalarValue or bytes (TH* object)
         root_object = rendering_infos[0].root_object
-        if not isinstance(root_object, ScalarValue) and not isinstance(root_object, bytes):
+        if not isinstance(root_object, ScalarValue) and not isinstance(root_object, nanoroot.TBufferFile):
             raise Exception('Only ScalarValue and TH* can be rendered.')
 
         # Pack the message for rendering context
@@ -132,7 +132,7 @@ class GUIRenderer:
                 flags |= 0x00200000
             
             for info in rendering_infos:
-                data += struct.pack('=i', len(info.root_object)) + info.root_object
+                data += struct.pack('=ii', len(info.root_object.buffer), info.root_object.displacement) + info.root_object.buffer
             
             num_objs = len(rendering_infos)
             name = rendering_infos[0].path.encode('utf-8')

@@ -77,11 +77,11 @@ void RootErrorHandler(int level, Bool_t abort, const char *location, const char 
   if (std::string(msg).find("Could not find the StreamerInfo") != std::string::npos) {
     hadmissingstreamers = true;
   }
-  
+
   defaulterrorhandler(level, abort, location, msg);
 }
 
-// This method parses the flags set by RootErrorHandler and creates a single 
+// This method parses the flags set by RootErrorHandler and creates a single
 // status code. Currently used codes:
 // 0 - OK
 // 1 - Streamers are missing
@@ -90,8 +90,7 @@ int getReturnCode() {
   int returnCode = 0;
   if (hadmissingstreamers) {
     returnCode = 1;
-  }
-  else if (haderror) {
+  } else if (haderror) {
     returnCode = 2;
   }
   return returnCode;
@@ -619,8 +618,7 @@ protected:
       if (jsonsize) {
         copydata(msg, json.Data(), jsonsize);
       }
-    }
-    else {
+    } else {
       // Render a PNG
       DataBlob imgdata;
       blacklisted = doRender(info, &objs[0], numobjs, imgdata);
@@ -683,6 +681,7 @@ private:
   // ----------------------------------------------------------------------
   bool readRequest(VisDQMImgInfo &info, std::string &odata, std::vector<VisDQMObject> &objs, uint32_t &numobjs) {
     uint32_t lenbits;
+    int32_t displacement;
     uint32_t firstobj = 0;
     uint32_t pos = 0;
 
@@ -696,7 +695,7 @@ private:
         objs[0].object = new TObjString(odata.c_str());
     } else {
       for (uint32_t i = firstobj; i < numobjs; ++i) {
-        if (odata.size() - pos < sizeof(lenbits)) {
+        if (odata.size() - pos < sizeof(lenbits) + sizeof(displacement)) {
           logme() << "ERROR: 'GET IMAGE DATA' missing object length"
                   << ", expected " << sizeof(lenbits) << " but " << (odata.size() - pos) << " bytes left of "
                   << odata.size() << " for image #" << i << " of " << numobjs << std::endl;
@@ -705,6 +704,8 @@ private:
 
         memcpy(&lenbits, &odata[pos], sizeof(lenbits));
         pos += sizeof(lenbits);
+        memcpy(&displacement, &odata[pos], sizeof(displacement));
+        pos += sizeof(displacement);
 
         if (odata.size() - pos < lenbits) {
           logme() << "ERROR: 'GET IMAGE DATA' missing object data"
@@ -715,6 +716,9 @@ private:
 
         TBufferFile buf(TBufferFile::kRead, lenbits, &odata[pos], kFALSE);
         buf.Reset();
+        // for whatever reasons, SetBufferDisplacement assumes a value relative
+        // to the *end* of the buffer, so we compensate for that.
+        buf.SetBufferDisplacement(lenbits - displacement);
         objs[i].object = extractNextObject(buf);
         pos += lenbits;
       }
@@ -1350,7 +1354,6 @@ private:
 
     // It's there and wasn't black-listed, paint it.
     else {
-
       try {
         // Real drawing
         switch (i.reference) {
@@ -1363,8 +1366,7 @@ private:
           default:
             doRenderOrdinary(c, i, objs, numobjs, ri, nukem);
         }
-      } 
-      catch (const std::exception& e) {
+      } catch (const std::exception &e) {
         Color_t c = TColor::GetColor(178, 32, 32);
         doRenderMsg(o.name, e.what(), c, nukem);
       }
