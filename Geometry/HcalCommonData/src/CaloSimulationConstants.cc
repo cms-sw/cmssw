@@ -1,17 +1,17 @@
-#include "Geometry/HcalCommonData/interface/CaloDDDSimulationConstants.h"
+#include "Geometry/HcalCommonData/interface/CaloSimulationConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#define EDM_ML_DEBUG
 
-CaloDDDSimulationConstants::CaloDDDSimulationConstants(const CaloSimulationParameters* csp) : calospar_(csp) {
+CaloSimulationConstants::CaloSimulationConstants(const CaloSimulationParameters* csp) : calospar_(csp) {
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("HCalGeom")
-      << "CaloDDDSimulationConstants::CaloDDDSimulationConstants (const CaloSimulationParameters* csp) constructor\n";
+      << "CaloSimulationConstants::CaloSimulationConstants (const CaloSimulationParameters* csp) constructor\n";
 #endif
 }
 
-CaloDDDSimulationConstants::~CaloDDDSimulationConstants() {
+CaloSimulationConstants::~CaloSimulationConstants() {
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HCalGeom") << "CaloDDDSimulationConstants::destructed!!!\n";
+  edm::LogInfo("HCalGeom") << "CaloSimulationConstants::destructed!!!\n";
 #endif
 }

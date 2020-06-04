@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    CaloDDDSimulationConstantsESModule
-// Class:      CaloDDDSimulationConstantsESModule
+// Package:    CaloSimulationConstantsESModule
+// Class:      CaloSimulationConstantsESModule
 //
-/**\class CaloDDDSimulationConstantsESModule Geometry/HcalCommonData/plugins/CaloDDDSimulationConstantsESModule.cc
+/**\class CaloSimulationConstantsESModule Geometry/HcalCommonData/plugins/CaloSimulationConstantsESModule.cc
 
  Description: <one line class summary>
 
@@ -22,16 +22,16 @@
 #include <FWCore/Framework/interface/ESProducer.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
-#include <Geometry/HcalCommonData/interface/CaloDDDSimulationConstants.h>
+#include <Geometry/HcalCommonData/interface/CaloSimulationConstants.h>
 #include <Geometry/Records/interface/HcalSimNumberingRecord.h>
 
 //#define EDM_ML_DEBUG
 
-class CaloDDDSimulationConstantsESModule : public edm::ESProducer {
+class CaloSimulationConstantsESModule : public edm::ESProducer {
 public:
-  CaloDDDSimulationConstantsESModule(const edm::ParameterSet&);
+  CaloSimulationConstantsESModule(const edm::ParameterSet&);
 
-  using ReturnType = std::unique_ptr<CaloDDDSimulationConstants>;
+  using ReturnType = std::unique_ptr<CaloSimulationConstants>;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
@@ -41,25 +41,25 @@ private:
   edm::ESGetToken<CaloSimulationParameters, HcalParametersRcd> parSimToken_;
 };
 
-CaloDDDSimulationConstantsESModule::CaloDDDSimulationConstantsESModule(const edm::ParameterSet&) {
+CaloSimulationConstantsESModule::CaloSimulationConstantsESModule(const edm::ParameterSet&) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalGeom") << "constructing CaloDDDSimulationConstantsESModule";
+  edm::LogVerbatim("HcalGeom") << "constructing CaloSimulationConstantsESModule";
 #endif
   auto cc = setWhatProduced(this);
   parSimToken_ = cc.consumesFrom<CaloSimulationParameters, HcalParametersRcd>(edm::ESInputTag{});
 }
 
-void CaloDDDSimulationConstantsESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void CaloSimulationConstantsESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  descriptions.add("caloDDDSimulationConstants", desc);
+  descriptions.add("caloSimulationConstants", desc);
 }
 
 // ------------ method called to produce the data  ------------
-CaloDDDSimulationConstantsESModule::ReturnType CaloDDDSimulationConstantsESModule::produce(
+CaloSimulationConstantsESModule::ReturnType CaloSimulationConstantsESModule::produce(
     const HcalSimNumberingRecord& iRecord) {
   const auto& parSim = iRecord.get(parSimToken_);
-  return std::make_unique<CaloDDDSimulationConstants>(&parSim);
+  return std::make_unique<CaloSimulationConstants>(&parSim);
 }
 
 //define this as a plug-in
-DEFINE_FWK_EVENTSETUP_MODULE(CaloDDDSimulationConstantsESModule);
+DEFINE_FWK_EVENTSETUP_MODULE(CaloSimulationConstantsESModule);
