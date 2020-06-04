@@ -42,9 +42,9 @@ namespace {
     vector<float> startOfFirstLadd;
     vector<float> laddL5map;
     vector<float> laddL4map;
-    string laddMaterial;       // ladd material - air
-    float thickness;           // overall thickness of the preshower envelope
-    
+    string laddMaterial;  // ladd material - air
+    float thickness;      // overall thickness of the preshower envelope
+
     float zlead1;
     float zlead2;
     float waf_intra_col_sep;
@@ -216,7 +216,7 @@ static long algorithm(dd4hep::Detector& /* description */,
         const string& dd_Alname_m(es.layName[i] + "LOutAltmp6");
 
         Solid outAl = ns.addSolid(
-				  dd_Alname_f, Tube(dd_Alname_f, es.rMax_Abs_Al - 20_cm, es.rMax_Abs_Al, zHalf - 0.1_mm, 0., 90._deg));
+            dd_Alname_f, Tube(dd_Alname_f, es.rMax_Abs_Al - 20_cm, es.rMax_Abs_Al, zHalf - 0.1_mm, 0., 90._deg));
         outalbx = es.absAlX_X * 0.1;
         outalby = es.rMax_Abs_Al + 0.1_mm - es.absAlX_subtr1_Yshift;
         shiftR = es.absAlX_subtr1_Yshift;
@@ -230,7 +230,7 @@ static long algorithm(dd4hep::Detector& /* description */,
         Solid outAltmp3 = ns.addSolid(
             dd_Alname_j,
             SubtractionSolid(dd_Alname_j, outAl, outAltmp, Position(outalbx * k_half, outalby * k_half + shiftR, 0)));
-	
+
         outalby2 = es.absAlX_Y * 0.1;
         outalbx2 = es.rMax_Abs_Al + 0.1_mm - es.absAlX_subtr1_Xshift;
         shiftR2 = es.absAlX_subtr1_Xshift;
