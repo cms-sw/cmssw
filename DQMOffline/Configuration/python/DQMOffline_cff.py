@@ -108,7 +108,7 @@ DQMOfflineTrigger = cms.Sequence( triggerOfflineDQMSource )
 
 DQMOfflineBTag = cms.Sequence( bTagPlotsDATA )
 
-DQMOfflineBeam = cms.Sequence( alcaBeamMonitor )
+DQMOfflineBeam = cms.Sequence( )
 
 DQMOfflinePhysics = cms.Sequence( dqmPhysics )
 

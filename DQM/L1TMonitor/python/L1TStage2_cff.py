@@ -32,7 +32,6 @@ from DQM.L1TMonitor.L1TStage2uGT_cff import *
 
 # sequence to run for every event
 l1tStage2OnlineDQM = cms.Sequence(
-    l1tStage2CaloLayer1 +
     l1tStage2CaloLayer2 +
     l1tStage2BmtfOnlineDQMSeq +
     l1tStage2Omtf +

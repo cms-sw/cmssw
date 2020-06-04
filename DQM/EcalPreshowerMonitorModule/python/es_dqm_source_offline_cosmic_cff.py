@@ -10,4 +10,4 @@ dqmInfoES = DQMEDAnalyzer('DQMEventInfo',
     subSystemFolder = cms.untracked.string('EcalPreshower')
 )
 
-es_dqm_source_offline = cms.Sequence(ecalPreshowerRawDataTask*ecalPreshowerFEDIntegrityTask*ecalPreshowerIntegrityTask*ecalPreshowerOccupancyTask)
+es_dqm_source_offline = cms.Sequence(ecalPreshowerRawDataTask*ecalPreshowerFEDIntegrityTask*ecalPreshowerOccupancyTask)
