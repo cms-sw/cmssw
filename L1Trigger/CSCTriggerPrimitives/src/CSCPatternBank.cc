@@ -10,54 +10,23 @@ const int CSCPatternBank::alct_keywire_offset_[2][CSCConstants::ALCT_PATTERN_WID
 const CSCPatternBank::LCTPatterns CSCPatternBank::alct_pattern_legacy_ = {
     // Accelerator pattern
     // For beam-halo muons or displaced muons from long-lived particles
-  {{0, 0, 1, 0, 0},
-   {0, 0, 1, 0, 0},
-   {0, 0, 1, 0, 0},
-   {0, 0, 1, 0, 0},
-   {0, 0, 1, 0, 0},
-   {0, 0, 1, 0, 0}},
+    {{0, 0, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 0, 0}},
 
-  // Collision pattern A
-  {{1, 1, 1, 0, 0},
-   {0, 1, 1, 0, 0},
-   {0, 0, 1, 0, 0},
-   {0, 0, 1, 1, 0},
-   {0, 0, 1, 1, 1},
-   {0, 0, 1, 1, 1}},
+    // Collision pattern A
+    {{1, 1, 1, 0, 0}, {0, 1, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 1, 0}, {0, 0, 1, 1, 1}, {0, 0, 1, 1, 1}},
 
-  // Collision pattern B
-  {{1, 1, 1, 0, 0},
-   {0, 1, 1, 0, 0},
-   {0, 0, 1, 0, 0},
-   {0, 0, 1, 1, 0},
-   {0, 0, 1, 1, 1},
-   {0, 0, 1, 1, 1}}};
+    // Collision pattern B
+    {{1, 1, 1, 0, 0}, {0, 1, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 1, 0}, {0, 0, 1, 1, 1}, {0, 0, 1, 1, 1}}};
 
 const CSCPatternBank::LCTPatterns CSCPatternBank::alct_pattern_r1_ = {
-  // Accelerator pattern
-  {{0, 0, 1, 0, 0},
-   {0, 0, 1, 0, 0},
-   {0, 0, 1, 0, 0},
-   {0, 0, 1, 0, 0},
-   {0, 0, 1, 0, 0},
-   {0, 0, 1, 0, 0}},
+    // Accelerator pattern
+    {{0, 0, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 0, 0}},
 
-  // Collision pattern A
-  {{0, 1, 1, 0, 0},
-   {0, 1, 1, 0, 0},
-   {0, 0, 1, 0, 0},
-   {0, 0, 1, 0, 0},
-   {0, 0, 1, 1, 0},
-   {0, 0, 1, 1, 0}},
+    // Collision pattern A
+    {{0, 1, 1, 0, 0}, {0, 1, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 1, 0}, {0, 0, 1, 1, 0}},
 
-  // Collision pattern B
-  {{0, 1, 1, 0, 0},
-   {0, 1, 1, 0, 0},
-   {0, 0, 1, 0, 0},
-   {0, 0, 1, 0, 0},
-   {0, 0, 1, 1, 0},
-   {0, 0, 1, 1, 0}}
-};
+    // Collision pattern B
+    {{0, 1, 1, 0, 0}, {0, 1, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 1, 0}, {0, 0, 1, 1, 0}}};
 
 const int CSCPatternBank::clct_pattern_offset_[CSCConstants::CLCT_PATTERN_WIDTH] = {
     -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5};

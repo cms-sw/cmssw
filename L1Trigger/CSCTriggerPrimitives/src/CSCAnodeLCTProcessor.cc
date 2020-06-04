@@ -527,7 +527,7 @@ bool CSCAnodeLCTProcessor::preTrigger(const int key_wire, const int start_bx) {
 
   unsigned int layers_hit;
   bool hit_layer[CSCConstants::NUM_LAYERS];
-  int this_layer, this_wire;
+  int this_wire;
   // If nplanes_hit_accel_pretrig is 0, the firmware uses the value
   // of nplanes_hit_pretrig instead.
   const unsigned int nplanes_hit_pretrig_acc =
@@ -542,7 +542,6 @@ bool CSCAnodeLCTProcessor::preTrigger(const int key_wire, const int start_bx) {
   unsigned int stop_bx = fifo_tbins - drift_delay;
   for (unsigned int bx_time = start_bx; bx_time < stop_bx; bx_time++) {
     for (int i_pattern = 0; i_pattern < CSCConstants::NUM_ALCT_PATTERNS; i_pattern++) {
-
       // initialize the hit layers
       for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++)
         hit_layer[i_layer] = false;
@@ -576,7 +575,7 @@ bool CSCAnodeLCTProcessor::preTrigger(const int key_wire, const int start_bx) {
                   // make a new pre-trigger digi
                   // useful for calculating DAQ rates
                   thePreTriggerDigis.emplace_back(
-                                                  CSCALCTPreTriggerDigi(1, layers_hit - 3, 0, 0, this_wire, bx_time, nPreTriggers));
+                      CSCALCTPreTriggerDigi(1, layers_hit - 3, 0, 0, this_wire, bx_time, nPreTriggers));
                   return true;
                 }
               }
@@ -594,7 +593,7 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
   bool trigger = false;
   bool hit_layer[CSCConstants::NUM_LAYERS];
   unsigned int temp_quality;
-  int this_layer, this_wire, delta_wire;
+  int this_wire, delta_wire;
   // If nplanes_hit_accel_pattern is 0, the firmware uses the value
   // of nplanes_hit_pattern instead.
   const unsigned int nplanes_hit_pattern_acc =
@@ -631,8 +630,8 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
                 hit_layer[i_layer] = true;
                 if (infoV > 1)
                   LogTrace("CSCAnodeLCTProcessor")
-                    << "bx_time: " << first_bx[key_wire] << " pattern: " << i_pattern << " keywire: " << key_wire
-                    << " layer: " << i_layer << " quality: " << temp_quality;
+                      << "bx_time: " << first_bx[key_wire] << " pattern: " << i_pattern << " keywire: " << key_wire
+                      << " layer: " << i_layer << " quality: " << temp_quality;
               }
 
               // for averaged time use only the closest WGs around the key WG
@@ -1338,8 +1337,7 @@ void CSCAnodeLCTProcessor::showPatterns(const int key_wire) {
             for (int i = 1; i <= 32; i++) {
               strstrm_pulse << ((pulse[i_layer][this_wire] >> (32 - i)) & 1);
             }
-            LogTrace("CSCAnodeLCTProcessor")
-              << strstrm_pulse.str() << " on layer " << i_layer << " wire " << this_wire;
+            LogTrace("CSCAnodeLCTProcessor") << strstrm_pulse.str() << " on layer " << i_layer << " wire " << this_wire;
           }
         }
       }
