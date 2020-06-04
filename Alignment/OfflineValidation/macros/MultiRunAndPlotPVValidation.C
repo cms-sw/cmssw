@@ -427,7 +427,8 @@ struct outTrends {
 void MultiRunPVValidation(TString namesandlabels = "",
                           bool lumi_axis_format = false,
                           bool time_axis_format = false,
-                          bool useRMS = true);
+                          bool useRMS = true,
+                          TString lumiInputFile = "");
 outTrends processData(size_t iter,
                       std::vector<int> intersection,
                       const Int_t nDirs_,
@@ -513,7 +514,8 @@ std::vector<std::string> split(const std::string &s, char delimiter)
 //
 ///////////////////////////////////
 
-void MultiRunPVValidation(TString namesandlabels, bool lumi_axis_format, bool time_axis_format, bool useRMS) {
+void MultiRunPVValidation(
+    TString namesandlabels, bool lumi_axis_format, bool time_axis_format, bool useRMS, TString lumiInputFile) {
   TStopwatch timer;
   timer.Start();
 
@@ -535,12 +537,11 @@ void MultiRunPVValidation(TString namesandlabels, bool lumi_axis_format, bool ti
 
   // preload the dates from file
   std::map<int, TDatime> times;
-
   if (time_axis_format) {
     std::ifstream infile("times.txt");
 
     if (!infile) {
-      std::cout << "missing input file :(" << std::endl;
+      std::cout << "Required time axis options, but missing input times file :(" << std::endl;
       std::cout << " -- exiting" << std::endl;
       return;
     }
@@ -601,8 +602,6 @@ void MultiRunPVValidation(TString namesandlabels, bool lumi_axis_format, bool ti
 
   std::vector<int> intersection;
   std::vector<double> runs;
-  std::vector<double> lumiByRun;
-  std::map<int, double> lumiMapByRun;
   std::vector<double> x_ticks;
   std::vector<double> ex_ticks = {0.};
 
@@ -638,6 +637,41 @@ void MultiRunPVValidation(TString namesandlabels, bool lumi_axis_format, bool ti
     intersection.clear();
     intersection = tempSwap;
     tempSwap.clear();
+  }
+
+  // prelod the lumi from file
+  std::vector<double> lumiByRun;
+  std::map<int, double> lumiMapByRun;
+
+  bool useLumiByFile = (lumiInputFile.Length() > 0);
+
+  if (lumi_axis_format && useLumiByFile) {
+    std::ifstream lumifile(lumiInputFile.Data());
+    if (!lumifile) {
+      std::cout << "Required luminosity from file, but missing input file :(" << std::endl;
+      std::cout << " -- exiting" << std::endl;
+      return;
+    }
+
+    std::string line;
+    double lumiSoFar = 0.0;
+    while (std::getline(lumifile, line)) {
+      std::istringstream iss(line);
+      std::string a, b;
+      if (!(iss >> a >> b)) {
+        break;
+      }  // error
+      int run = std::stoi(a);
+      double lumi = std::stod(b) / 1000.;
+
+      // check if the run is in the list
+      if (std::find(intersection.begin(), intersection.end(), run) != intersection.end()) {
+        lumiByRun.push_back(lumiSoFar + lumi);
+        lumiMapByRun[run] = (lumiSoFar + lumi);
+        lumiSoFar += lumi;
+      }
+      std::cout << run << " ====> lumi so far: " << lumiSoFar << std::endl;
+    }
   }
 
   // debug only
@@ -719,9 +753,11 @@ void MultiRunPVValidation(TString namesandlabels, bool lumi_axis_format, bool ti
     // we need to re-sum the luminosity so far
 
     for (const auto &run : extractedTrend.m_runs) {
-      std::cout << run << " " << lumiSoFar + extractedTrend.m_lumiMapByRun[run] << std::endl;
-      lumiByRun.push_back(lumiSoFar + extractedTrend.m_lumiMapByRun[run]);
-      lumiMapByRun[run] = (lumiSoFar + extractedTrend.m_lumiMapByRun[run]);
+      if (!useLumiByFile) {
+        std::cout << run << " ====> lumi so far: " << lumiSoFar + extractedTrend.m_lumiMapByRun[run] << std::endl;
+        lumiByRun.push_back(lumiSoFar + extractedTrend.m_lumiMapByRun[run]);
+        lumiMapByRun[run] = (lumiSoFar + extractedTrend.m_lumiMapByRun[run]);
+      }
     }
 
     lumiSoFar += (extractedTrend.m_lumiSoFar / 1000.);
