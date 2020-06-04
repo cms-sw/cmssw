@@ -33,6 +33,84 @@ process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Alignment.MuonAlignment.muonGeometryDBConverter_cfi")
 
+process.DTGeometryAlInputMethod = cms.ESProducer("DTGeometryESModule",
+    appendToDataLabel = cms.string('idealForInputMethod'),
+    applyAlignment = cms.bool(False),
+    alignmentsLabel = cms.string(''),
+    fromDDD = cms.bool(True)
+)
+
+process.CSCGeometryAlInputMethod = cms.ESProducer("CSCGeometryESModule",
+    appendToDataLabel = cms.string('idealForInputMethod'),
+    debugV = cms.untracked.bool(False),
+    useGangedStripsInME1a = cms.bool(False),
+    alignmentsLabel = cms.string(''),
+    useOnlyWiresInME1a = cms.bool(False),
+    useRealWireGeometry = cms.bool(True),
+    useCentreTIOffsets = cms.bool(False),
+    applyAlignment = cms.bool(False),
+    useDDD = cms.bool(True)
+)
+
+process.DTGeometryAlInputDB = cms.ESProducer("DTGeometryESModule",
+    appendToDataLabel = cms.string('idealForInputDB'),
+    applyAlignment = cms.bool(False),
+    alignmentsLabel = cms.string(''),
+    fromDDD = cms.bool(True)
+)
+
+process.CSCGeometryAlInputDB = cms.ESProducer("CSCGeometryESModule",
+    appendToDataLabel = cms.string('idealForInputDB'),
+    debugV = cms.untracked.bool(False),
+    useGangedStripsInME1a = cms.bool(False),
+    alignmentsLabel = cms.string(''),
+    useOnlyWiresInME1a = cms.bool(False),
+    useRealWireGeometry = cms.bool(True),
+    useCentreTIOffsets = cms.bool(False),
+    applyAlignment = cms.bool(False),
+    useDDD = cms.bool(True)
+)
+
+process.DTGeometryAlOutputXML = cms.ESProducer("DTGeometryESModule",
+    appendToDataLabel = cms.string('idealForOutputXML'),
+    applyAlignment = cms.bool(False),
+    alignmentsLabel = cms.string(''),
+    fromDDD = cms.bool(True)
+)
+
+process.CSCGeometryAlOutputXML = cms.ESProducer("CSCGeometryESModule",
+    appendToDataLabel = cms.string('idealForOutputXML'),
+    debugV = cms.untracked.bool(False),
+    useGangedStripsInME1a = cms.bool(False),
+    alignmentsLabel = cms.string(''),
+    useOnlyWiresInME1a = cms.bool(False),
+    useRealWireGeometry = cms.bool(True),
+    useCentreTIOffsets = cms.bool(False),
+    applyAlignment = cms.bool(False),
+    useDDD = cms.bool(True)
+)
+
+process.DTGeometryAlInputXML = cms.ESProducer("DTGeometryESModule",
+    appendToDataLabel = cms.string('idealForInputXML'),
+    applyAlignment = cms.bool(False),
+    alignmentsLabel = cms.string(''),
+    fromDDD = cms.bool(True)
+)
+
+process.CSCGeometryAlInputXML = cms.ESProducer("CSCGeometryESModule",
+    appendToDataLabel = cms.string('idealForInputXML'),
+    debugV = cms.untracked.bool(False),
+    useGangedStripsInME1a = cms.bool(False),
+    alignmentsLabel = cms.string(''),
+    useOnlyWiresInME1a = cms.bool(False),
+    useRealWireGeometry = cms.bool(True),
+    useCentreTIOffsets = cms.bool(False),
+    applyAlignment = cms.bool(False),
+    useDDD = cms.bool(True)
+)
+
+
+
 ################################################################################
 # parameters to configure:
 from Configuration.AlCa.GlobalTag import GlobalTag
