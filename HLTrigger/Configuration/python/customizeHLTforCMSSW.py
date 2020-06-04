@@ -18,8 +18,10 @@ from HLTrigger.Configuration.common import *
 #     return process
 
 # Hcal calibration lookup using linear indexing
-def customiseFor30060(process):
-    process.hcalChannelPropertiesESProd = cms.ESProducer('HcalChannelPropertiesEP')
+def customiseFor30060(process, menuType):
+    menusToSkip = ("Fake", "Fake1", "Fake2")
+    if menuType not in menusToSkip:
+        process.hcalChannelPropertiesESProd = cms.ESProducer('HcalChannelPropertiesEP')
     return process
 
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHCAL_cfi import _thresholdsHB
@@ -180,5 +182,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-    process = customiseFor30060(process)
+    process = customiseFor30060(process, menuType)
     return process
