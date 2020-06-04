@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MFGEOMDUMP")
 process.source = cms.Source("EmptySource")
-process.load("MagneticField.GeomBuilder.cmsMFGeometryXML_cfi")
+process.load("MagneticField.GeomBuilder.cmsMFGeometryXML_160812_cfi")
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
