@@ -160,7 +160,7 @@ protected:
   static const unsigned int def_l1a_window_width;
 
   /** Chosen pattern mask. */
-  int pattern_mask[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
+  CSCPatternBank::LCTPatterns alct_pattern_ = {};
 
   /** Load pattern mask defined by configuration into pattern_mask */
   void loadPatternMask();
