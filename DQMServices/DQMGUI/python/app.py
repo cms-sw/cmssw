@@ -17,10 +17,11 @@ import argparse
 
 from logging.handlers import TimedRotatingFileHandler
 
+from data_types import SampleFull
 from rendering import GUIRenderer
 from service import GUIService
 from storage import GUIDataStore
-from importing import GUIImporter
+from importing.importing import GUIImportManager
 from aiohttp import web, WSCloseCode
 from helpers import get_absolute_path
 
@@ -269,13 +270,29 @@ async def jsroot_overlay(request):
     return web.json_response(data)
 
 
+async def register(request):
+    """
+    Regsiters a sample into a database. 
+    A list of samples has to be posted in HTTP body, in JSON format:
+    [{"dataset": "/a/b/c", "run": "123456", "lumi": "0", "file": "/a/b/c.root", "fileformat": 1}]'
+    """
+
+    samples = await request.json()
+    samples = [SampleFull(dataset=x['dataset'], run=int(x['run']), lumi=int(x['lumi']), 
+        file=x['file'], fileformat=x['fileformat']) for x in samples]
+
+    await service.register_samples(samples)
+    
+    return web.HTTPCreated()
+
+
 # ###################################################################################################### #
 # ==================== Server configuration, initialization/destruction of services ==================== #
 # ###################################################################################################### #
 
 async def initialize_services(in_memory, files, workers):
     await GUIDataStore.initialize(in_memory=in_memory)
-    await GUIImporter.initialize(root_files=files)
+    await GUIImportManager.initialize(files=files)
     await GUIRenderer.initialize(workers=workers)
 
 
@@ -310,7 +327,7 @@ def config_and_start_webserver(port):
     app.add_routes([web.get('/data/json/samples', samples_legacy),
                     web.get(r'/data/json/archive/{run}/{path:.+}', archive_legacy),
                     web.get(r'/plotfairy/archive/{run}/{path:.+}', render_legacy),
-                    web.get(r'/plotfairy/overlay', render_overlay_legacy),
+                    web.get('/plotfairy/overlay', render_overlay_legacy),
                     web.get(r'/jsrootfairy/archive/{run}/{path:.+}', jsroot_legacy),])
 
     # Version 1 API routes
@@ -318,9 +335,10 @@ def config_and_start_webserver(port):
                     web.get('/api/v1/layouts', layouts_v1),
                     web.get(r'/api/v1/archive/{run}/{path:.+}', archive_v1),
                     web.get(r'/api/v1/render/{run}/{path:.+}', render_v1),
-                    web.get(r'/api/v1/render_overlay', render_overlay_v1),
+                    web.get('/api/v1/render_overlay', render_overlay_v1),
                     web.get(r'/api/v1/json/{run}/{path:.+}', jsroot_legacy),
-                    web.get(r'/api/v1/json_overlay', jsroot_overlay)])
+                    web.get('/api/v1/json_overlay', jsroot_overlay),
+                    web.post('/api/v1/register', register)])
 
     # Routes for HTML files
     app.add_routes([web.get('/', index), web.static('/', get_absolute_path('../data/'), show_index=True)])

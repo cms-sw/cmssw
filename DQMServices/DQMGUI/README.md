@@ -61,6 +61,68 @@ python3 DQMServices/DQMGUI/python/app.py
 
 It will listen on `http://localhost:8889` (and you can't just change that, see below), and It will automatically create a DB file in `DQMServices/DQMGUI/data/` and populate it using data from EOS. 
 
+## File formats
+
+Currently there are two supported file formats:
+
+* Legacy DQM TDirectory based ROOT files (1)
+* DQMIO TTree based ROOT files (2)
+
+There will most probably be a format for online/live data streaming.
+
+Format in the code is expressed as FileFormat enum.
+
+## Adding new file format importer
+
+`GUIImportManager` is responsible for importing blobs containing ME information into the database.
+There are two types of blobs: `names_blob` and `infos_blob`. `names_blob` is `\n` separated, alphabetically ordered list of normalized full ME paths. All strings are represented as python3 binary strings. `infos_blob` contains a list MEInfo objects in exactly the same order as `infos_blob`. So in order to find out more information about a monitor element, we have to binary search for it in a sorted `names_blob` and access `MEInfo` from `infos_blob` at the same index. `get_rendered_image()` function in `GUIService` does this. Blobs are stored in the database compressed. `GUIBlobCompressor` service is responsible for compressing them for storage and uncompressing them for usage in the program.
+
+In order to add new importer you have to do three things:
+
+* Add a class into `python/importing/` folder following this naming convention: `<fileformat>_importer.py`.
+  * This class has to have a single static coroutine `get_mes_list(cls, file, dataset, run, lumi):`
+  * It has to return a tuple where first item is a binary string of a full, normalized ME path within a file and a second item is an MEInfo object describing that ME.
+* Add your new format to a `FileFormat` enum defined in `python/data_types.py`
+* Modify `__pick_importer()` function in `GUIImportManager` to return an instance your importer when new file format is selected.
+
+### Sample importer:
+
+``` python
+from data_types import MEInfo
+class MyFormatImporter:
+  @classmethod
+  async def get_mes_list(cls, file, dataset, run, lumi):
+    # Actual reading of a file removed for brevity
+    return [
+      (b'/normalized/path/to/ME1', MEInfo(b'Float', value=float(1.23)), 
+      (b'/normalized/path/to/ME2', MEInfo(b'TH1D', offset=123)
+    ]
+```
+
+## Adding new file format reader
+
+After adding a new importer, a new reader has to be added as well. The process of adding a new reader is basically the same.
+
+`GUIMEReader` is format agnostic service that will select a correct reader based on file format. The format specific service then opens up a ROOT files, reads an ME based on provided `MEInfo` and return one of these types: `ScalarValue`, `EfficiencyFlag`, `QTest`, `bytes`.
+
+In order to add new reader you have to do three things:
+
+* Add a class into `python/reading/` folder following this naming convention: `<fileformat>_reader.py`.
+  * This class has to have a single static coroutine `read(cls, filename, me_info):`
+  * It has to return one of the types listed above.
+* Modify `__pick_reader()` function in `GUIMEReader` to return an instance your reader when new file format is selected.
+
+### Sample reader:
+
+``` python
+from data_types import ScalarValue
+class MyFormatReader:
+    @classmethod
+    async def read(cls, filename, me_info):
+      # Actual reading of a file removed for brevity
+      return ScalarValue(b'', b's', 'Value of the string ME')
+```
+
 ## The HTML frontend
 
 The frontend is developed here: https://github.com/cms-DQM/dqmgui_frontend
@@ -153,3 +215,13 @@ Renders a PNG of a histogram.
 Overlays multiple (or one) histograms and renders an overlay to a PNG.
 
 `http://localhost:8889/api/v1/render_overlay?obj=archive/316142/StreamExpress/Run2018A-Express-v1/DQMIO/PixelPhase1/EventInfo/reportSummary&obj=archive/316144/StreamExpress/Run2018A-Express-v1/DQMIO/PixelPhase1/EventInfo/reportSummary&w=266&h=200&stats=false&norm=false&errors=true`
+
+#### New file registering endpoint
+
+Registers new samples into the database.
+
+`POST http://localhost:8889/api/v1/register`
+
+HTTP request body:
+
+`[{"dataset": "/a/b/c", "run": "123456", "lumi": "0", "file": "/a/b/c.root", "fileformat": 1}]`

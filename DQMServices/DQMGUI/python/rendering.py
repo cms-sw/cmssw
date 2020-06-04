@@ -10,7 +10,8 @@ import subprocess
 
 from DQMServices.DQMGUI import nanoroot
 from helpers import get_base_release_dir
-from data_types import RenderingInfo, EfficiencyFlag, ScalarValue, QTest, RenderingOptions
+from reading.reading import GUIMEReader
+from data_types import RenderingInfo, EfficiencyFlag, ScalarValue, QTest, RenderingOptions, FileFormat
 
 
 class GUIRenderer:
@@ -20,6 +21,8 @@ class GUIRenderer:
 
     __rendering_contexts = []
     __semaphore = None
+
+    reader = GUIMEReader()
 
 
     @classmethod
@@ -64,7 +67,7 @@ class GUIRenderer:
         """Renders a single string."""
 
         options = RenderingOptions(width=width, height=height)
-        rendering_info = RenderingInfo('', '', '', ScalarValue(b'', string, b''))
+        rendering_info = RenderingInfo('', FileFormat.NONE, '', '', ScalarValue(b'', b'', string))
         message = cls.__pack_message_for_renderer([rendering_info], options)
         data, error = await cls.__render(message)
 
@@ -89,16 +92,7 @@ class GUIRenderer:
         """
         # Collect root objects from files
         for info in rendering_infos:
-            # TODO: to read int and float we don't need to go to the file
-            with open(info.filename, 'rb') as root_file:
-                with mmap.mmap(root_file.fileno(), 0, prot=mmap.PROT_READ) as mm:
-
-                    def get_object():
-                        # Possible return values: ScalarValue, EfficiencyFlag, QTest, bytes 
-                        return info.me_info.read(mm)
-
-                    # Executing on a different thread because it will potentially perform blocking IO on the mmapped file
-                    info.root_object = await asyncio.get_event_loop().run_in_executor(None, get_object)
+            info.root_object = await cls.reader.read(info.filename, info.fileformat, info.me_info)
 
         # We can render either ScalarValue or bytes (TH* object)
         root_object = rendering_infos[0].root_object

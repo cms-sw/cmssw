@@ -11,7 +11,7 @@ from async_lru import alru_cache
 
 from rendering import GUIRenderer
 from storage import GUIDataStore
-from importing import GUIImporter
+from importing.importing import GUIImportManager
 from helpers import PathUtil, get_api_error, binary_search
 from data_types import Sample, RootDir, RootObj, RootDirContent, RenderingInfo
 
@@ -22,7 +22,7 @@ class GUIService:
 
     store = GUIDataStore()
     renderer = GUIRenderer()
-    importer = GUIImporter()
+    import_manager = GUIImportManager()
     layouts_manager = LayoutManager()
 
     @classmethod
@@ -51,7 +51,7 @@ class GUIService:
             path = path + '/'
         
         # Get a list of all MEs
-        lines = await cls.__get_melist(run, dataset)
+        lines = await cls.__get_me_names_list(run, dataset)
 
         # dir is a dict where key is subdir name and value is a count of 
         # how many MEs are inside that subdir (in all deeper levels)
@@ -117,23 +117,23 @@ class GUIService:
         rendering_infos = []
 
         for me in me_descriptions:
-            filename, me_list, me_infos = await cls.__get_filename_melist_offsets(me.run, me.dataset)
+            filename, fileformat, names_list, infos_list = await cls.__get_filename_fileformat_names_infos(me.dataset, me.run)
 
             # Find the index of run/dataset/me in me list blob. 
-            # The index in me list will correspond to the index in offsets list.
+            # The index in me list will correspond to the index in infos list.
             me_info = None
-            index = binary_search(array=me_list, target=bytes(me.path, 'utf-8'))
+            index = binary_search(array=names_list, target=bytes(me.path, 'utf-8'))
             if index != -1:
-                me_info = me_infos[index]
+                me_info = infos_list[index]
             else:
                 continue
             
             # If efficiency flag is set for at least one of the MEs, it will be set for an overlay
             if not options.efficiency:
                 efficiency_line = bytes('%s\0e=1' % me.path, 'utf-8')
-                options.efficiency = binary_search(array=me_list, target=efficiency_line) != -1
+                options.efficiency = binary_search(array=names_list, target=efficiency_line) != -1
 
-            rendering_infos.append(RenderingInfo(filename=filename, path=me.path, me_info=me_info))
+            rendering_infos.append(RenderingInfo(filename=filename, fileformat=fileformat, path=me.path, me_info=me_info))
 
         if not rendering_infos: # No MEs were found
             if options.json:
@@ -162,34 +162,41 @@ class GUIService:
 
 
     @classmethod
+    async def register_samples(cls, samples):
+        """Register a sample in DB. Samples array if of type SamplesFull."""
+
+        await cls.import_manager.register_samples(samples)
+
+
+    @classmethod
     @alru_cache(maxsize=10)
-    async def __get_melist(cls, run, dataset):
-        lines = await cls.store.get_me_list_blob(run, dataset)
+    async def __get_me_names_list(cls, run, dataset):
+        lines = await cls.store.get_me_names_list(dataset, run)
 
         if lines == None:
             # Import and retry
-            success = await cls.importer.import_blobs(run, dataset)
+            success = await cls.import_manager.import_blobs(dataset, run)
             if success: 
                 # Retry
-                lines = await cls.store.get_me_list_blob(run, dataset)
+                lines = await cls.store.get_me_names_list(dataset, run)
 
         return lines if lines else []
 
 
     @classmethod
     @alru_cache(maxsize=10)
-    async def __get_filename_melist_offsets(cls, run, dataset):
-        blobs_and_filename = await cls.store.get_blobs_and_filename(run, dataset)
+    async def __get_filename_fileformat_names_infos(cls, dataset, run):
+        filename_fileformat_names_infos = await cls.store.get_filename_fileformat_names_infos(dataset, run)
 
-        if blobs_and_filename == None:
+        if filename_fileformat_names_infos == None:
             # Import and retry
-            success = await cls.importer.import_blobs(run, dataset)
+            success = await cls.import_manager.import_blobs(dataset, run)
             if success:
                 # Retry
-                blobs_and_filename = await cls.store.get_blobs_and_filename(run, dataset)
+                filename_fileformat_names_infos = await cls.store.get_filename_fileformat_names_infos(dataset, run)
 
-        if blobs_and_filename:
-            filename, me_list, me_infos = blobs_and_filename
-            return (filename, me_list, me_infos)
+        if filename_fileformat_names_infos:
+            filename, fileformat, names_list, infos_list = filename_fileformat_names_infos
+            return (filename, fileformat, names_list, infos_list)
         else:
             return None

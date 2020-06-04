@@ -3,18 +3,30 @@ This file contains data classes/named tuples for most of the types
 used throughout the DQM GUI application.
 """
 
+from enum import IntEnum
 from collections import namedtuple
 
 
 Sample = namedtuple('Sample', ['run', 'dataset'])
-SampleFull = namedtuple('SampleFull', ['dataset', 'run', 'file'])
+SampleFull = namedtuple('SampleFull', ['dataset', 'run', 'lumi', 'file', 'fileformat'])
 RootDir = namedtuple('RootDir', ['name', 'me_count'])
 RootObj = namedtuple('RootObj', ['name', 'path', 'layout'])
 RootDirContent = namedtuple('RootDirContent', ['dirs', 'objs'])
 
-EfficiencyFlag = namedtuple("EfficiencyFlag", ["name"])
-ScalarValue = namedtuple("ScalarValue", ["name", "value", "type"])
-QTest = namedtuple("QTest", ["name", "qtestname", "status", "result", "algorithm", "message"])
+# type can be one of those: Flag, Int, Float, XMLString, QTest or one of ROOT histogram types (TH*)
+# Only type is non-optional parameter
+MEInfo = namedtuple('MEInfo', ['type', 'seekkey', 'offset', 'size', 'value', 'qteststatus'], defaults=[0, 0, -1, None, 0])
+
+EfficiencyFlag = namedtuple('EfficiencyFlag', ['name'])
+ScalarValue = namedtuple('ScalarValue', ['name', 'type', 'value'])
+QTest = namedtuple('QTest', ['name', 'qtestname', 'status', 'result', 'algorithm', 'message'])
+
+
+class FileFormat(IntEnum):
+    """An enumeration of all possible file formats that can be imported and used."""
+    NONE = 0
+    TDIRECTORY = 1
+    TTREE = 2
 
 
 class MEDescription:
@@ -32,11 +44,12 @@ class MEDescription:
 class RenderingInfo:
     """Information needed to render a histogram"""
 
-    def __init__(self, filename, path, me_info, root_object=None):
-        if filename == None or path == None or me_info == None:
-            raise Exception('filename, path and me_info must be provided to RenderingInfo.')
+    def __init__(self, filename, fileformat, path, me_info, root_object=None):
+        if filename == None or fileformat == None or path == None or me_info == None:
+            raise Exception('filename, fileformat, path and me_info must be provided to RenderingInfo.')
 
         self.filename = filename
+        self.fileformat = fileformat
         self.path = path
         self.me_info = me_info
         self.root_object = root_object

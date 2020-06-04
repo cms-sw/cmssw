@@ -8,7 +8,7 @@ import tempfile
 import aiosqlite
 import subprocess
 
-from meinfo import MEInfo
+from compressing import GUIBlobCompressor
 from helpers import get_absolute_path
 
 
@@ -16,17 +16,19 @@ class GUIDataStore:
 
     __DBSCHEMA = """
     BEGIN;
-    CREATE TABLE IF NOT EXISTS samples(dataset, run, lumi, filename, menamesid, meoffsetsid);
+    CREATE TABLE IF NOT EXISTS samples(dataset, run, lumi, filename, fileformat, menamesid, meinfosid);
     CREATE INDEX IF NOT EXISTS samplelookup ON samples(dataset, run, lumi);
-    CREATE UNIQUE INDEX IF NOT EXISTS uniquesamples on samples(dataset, run, lumi, filename);
+    CREATE UNIQUE INDEX IF NOT EXISTS uniquesamples on samples(dataset, run, lumi, filename, fileformat);
     CREATE TABLE IF NOT EXISTS menames(menamesid INTEGER PRIMARY KEY, menameblob);
     CREATE UNIQUE INDEX IF NOT EXISTS menamesdedup ON menames(menameblob);
-    CREATE TABLE IF NOT EXISTS meoffsets(meoffsetsid INTEGER PRIMARY KEY, meoffsetsblob);
+    CREATE TABLE IF NOT EXISTS meinfos(meinfosid INTEGER PRIMARY KEY, meinfosblob);
     COMMIT;
     """
 
     __db = None
     __lock = asyncio.Lock()
+
+    compressor = GUIBlobCompressor()
 
 
     @classmethod
@@ -81,7 +83,7 @@ class GUIDataStore:
 
 
     @classmethod
-    async def get_me_list_blob(cls, run, dataset):
+    async def get_me_names_list(cls, dataset, run):
         """
         me_list format for an ME (ME/Path/mename) that has 2 QTests and an efficiency flag set looks like this:
         ME/Path/mename
@@ -101,22 +103,23 @@ class GUIDataStore:
             # Blob doesn't exist, we should probably try to import
             return None
 
-        me_list = await cls.__me_list_from_blob(row[0])
-        return me_list
+        names_list = await cls.compressor.uncompress_names_blob(row[0])
+        return names_list
 
 
     @classmethod
-    async def get_blobs_and_filename(cls, run, dataset):
+    async def get_filename_fileformat_names_infos(cls, dataset, run):
         # For now adding a LIMIT 1 because there might be multiple version of the same file.
         sql = '''
         SELECT
             filename,
+            fileformat,
             menameblob,
-            meoffsetsblob
+            meinfosblob
         FROM
             samples
             JOIN menames ON samples.menamesid = menames.menamesid
-            JOIN meoffsets ON samples.meoffsetsid = meoffsets.meoffsetsid
+            JOIN meinfos ON samples.meinfosid = meinfos.meinfosid
         WHERE
             run = ?
         AND 
@@ -133,10 +136,11 @@ class GUIDataStore:
             return None
 
         filename = row[0]
-        me_list = await cls.__me_list_from_blob(row[1])
-        me_infos = await cls.__me_infos_from_blob(row[2])
+        fileformat = row[1]
+        names_list = await cls.compressor.uncompress_names_blob(row[2])
+        infos_list = await cls.compressor.uncompress_infos_blob(row[3])
 
-        return (filename, me_list, me_infos)
+        return (filename, fileformat, names_list, infos_list)
 
 
     @classmethod
@@ -149,56 +153,56 @@ class GUIDataStore:
 
 
     @classmethod
-    async def get_sample_filename(cls, run, dataset):
+    async def get_sample_file_info(cls, dataset, run, lumi=0):
         """
-        Returns a full path to a ROOT file containing plots of a given sample. 
+        Returns a full path and a format of a ROOT file containing plots of a given sample. 
         Returns None if given sample doesn't exist.
         """
 
-        sql = 'SELECT filename FROM samples WHERE run = ? AND dataset = ?;'
-        cursor = await cls.__db.execute(sql, (int(run), dataset))
+        sql = 'SELECT filename, fileformat FROM samples WHERE dataset = ? AND run = ? AND lumi = ?;'
+        cursor = await cls.__db.execute(sql, (dataset, int(run), int(lumi)))
         row = await cursor.fetchone()
 
         await cursor.close()
 
         if row:
-            return row[0]
+            return row[0], row[1]
         else:
             return None
 
 
     @classmethod
-    async def add_samples(cls, samples):
+    async def register_samples(cls, samples):
         """
         Adds multiple samples to the database.
         Sample is declared here: data_types.SampleFull
         """
 
-        sql = 'INSERT OR REPLACE INTO samples VALUES(?,?,0,?,NULL,NULL);'
+        sql = 'INSERT OR REPLACE INTO samples VALUES(?,?,?,?,?,NULL,NULL);'
         await cls.__db.executemany(sql, samples)
         await cls.__db.commit()
 
 
     @classmethod
-    async def add_blobs(cls, me_list_blob, offsets_blob, run, dataset, filename):
-        """Adds me list blob and offsets blob to a DB in a single transaction."""
+    async def add_blobs(cls, names_blob, infos_blob, dataset, filename, run, lumi=0):
+        """Adds me list blob and infos blob to a DB in a single transaction."""
 
         try:
             await cls.__lock.acquire()
             await cls.__db.execute('BEGIN;')
 
-            await cls.__db.execute('INSERT OR IGNORE INTO menames (menameblob) VALUES (?);', (me_list_blob,))
-            cursor = await cls.__db.execute('SELECT menamesid FROM menames WHERE menameblob = ?;', (me_list_blob,))
+            await cls.__db.execute('INSERT OR IGNORE INTO menames (menameblob) VALUES (?);', (names_blob,))
+            cursor = await cls.__db.execute('SELECT menamesid FROM menames WHERE menameblob = ?;', (names_blob,))
             row = await cursor.fetchone()
-            me_list_blob_id = row[0]
+            names_blob_id = row[0]
 
-            await cls.__db.execute('INSERT OR IGNORE INTO meoffsets (meoffsetsblob) VALUES (?);', (offsets_blob,))
-            cursor = await cls.__db.execute('SELECT meoffsetsid FROM meoffsets WHERE meoffsetsblob = ?;', (offsets_blob,))
+            await cls.__db.execute('INSERT OR IGNORE INTO meinfos (meinfosblob) VALUES (?);', (infos_blob,))
+            cursor = await cls.__db.execute('SELECT meinfosid FROM meinfos WHERE meinfosblob = ?;', (infos_blob,))
             row = await cursor.fetchone()
-            offsets_blob_id = row[0]
+            infos_blob_id = row[0]
 
-            sql = 'UPDATE samples SET menamesid = ?, meoffsetsid = ? WHERE run = ? AND dataset = ? AND filename = ?;'
-            await cls.__db.execute(sql, (me_list_blob_id, offsets_blob_id, int(run), dataset, filename))
+            sql = 'UPDATE samples SET menamesid = ?, meinfosid = ? WHERE run = ? AND lumi = ? AND dataset = ? AND filename = ?;'
+            await cls.__db.execute(sql, (names_blob_id, infos_blob_id, int(run), int(lumi), dataset, filename))
 
             await cls.__db.execute('COMMIT;')
         except Exception as e:
@@ -209,22 +213,3 @@ class GUIDataStore:
                 pass
         finally:
             cls.__lock.release()
-
-
-    @classmethod
-    async def __me_list_from_blob(cls, namesblob):
-        def me_list_from_blob_sync():
-            return zlib.decompress(namesblob).splitlines()
-
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, me_list_from_blob_sync)
-
-    
-    @classmethod
-    async def __me_infos_from_blob(cls, offsetblob):
-        def me_infos_from_blob_sync():
-            return MEInfo.blobtolist(offsetblob)
-
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, me_infos_from_blob_sync)
-
