@@ -74,6 +74,6 @@ process.StripTrackingRecHitsValid.outputFile='striptrackingrechitshisto.root'
 process.simhits = cms.Sequence(process.trackerHitsValidation)
 process.digis = cms.Sequence(process.trackerDigisValidation)
 process.rechits = cms.Sequence(process.siPixelRecHits*process.siStripMatchedRecHits*process.trackerRecHitsValidation)
-process.tracks = cms.Sequence(process.trackingTruthValid,process.tracksValidation)
+process.tracks = cms.Sequence(process.trackingTruthValid*process.tracksValidation)
 process.trackinghits = cms.Sequence(process.TrackRefitter*process.trackingRecHitsValid)
 process.p1 = cms.Path(process.mix*process.simhits*process.digis*process.rechits*process.tracks*process.trackinghits)
