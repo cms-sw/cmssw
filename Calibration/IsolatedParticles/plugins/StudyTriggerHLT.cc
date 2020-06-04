@@ -110,7 +110,9 @@ StudyTriggerHLT::StudyTriggerHLT(const edm::ParameterSet& iConfig)
   tok_Muon_ = consumes<reco::MuonCollection>(labelMuon_);
   tok_genTrack_ = consumes<reco::TrackCollection>(labelGenTrack_);
 
-  edm::LogVerbatim("StudyHLT") << "Verbosity " << verbosity_ << " Trigger labels " << triggerEvent_ << " and " << theTriggerResultsLabel_ << " Labels used: Track " << labelGenTrack_ << " Muon " << labelMuon_ << " Track Quality " << theTrackQuality_;
+  edm::LogVerbatim("StudyHLT") << "Verbosity " << verbosity_ << " Trigger labels " << triggerEvent_ << " and "
+                               << theTriggerResultsLabel_ << " Labels used: Track " << labelGenTrack_ << " Muon "
+                               << labelMuon_ << " Track Quality " << theTrackQuality_;
 
   firstEvent_ = true;
   changed_ = false;
@@ -130,7 +132,8 @@ void StudyTriggerHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& i
   int EvtNo = iEvent.id().event();
 
   if (verbosity_ > 0)
-    edm::LogVerbatim("StudyHLT") << "RunNo " << RunNo << " EvtNo " << EvtNo << " Lumi " << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing();
+    edm::LogVerbatim("StudyHLT") << "RunNo " << RunNo << " EvtNo " << EvtNo << " Lumi " << iEvent.luminosityBlock()
+                                 << " Bunch " << iEvent.bunchCrossing();
 
   trigger::TriggerEvent triggerEvent;
   edm::Handle<trigger::TriggerEvent> triggerEventHandle;
@@ -187,7 +190,8 @@ void StudyTriggerHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& i
   iEvent.getByToken(tok_Muon_, muonEventHandle);
   edm::Handle<reco::TrackCollection> trackEventHandle;
   iEvent.getByToken(tok_genTrack_, trackEventHandle);
-  edm::LogVerbatim("StudyHLT") << "Muon Handle " << muonEventHandle.isValid() << " Track Handle " << trackEventHandle.isValid();
+  edm::LogVerbatim("StudyHLT") << "Muon Handle " << muonEventHandle.isValid() << " Track Handle "
+                               << trackEventHandle.isValid();
   for (reco::TrackCollection::const_iterator track1 = trackEventHandle->begin(); track1 != trackEventHandle->end();
        ++track1) {
     double localMin = 1000;
@@ -217,7 +221,8 @@ void StudyTriggerHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& i
     h_dr1->Fill(localMin);
     if (track1->quality(trackQuality_))
       h_dr3->Fill(localMin);
-    edm::LogVerbatim("StudyHLT") << "Track pT " << track1->pt() << " eta " << track1->eta() << " phi " << track1->phi() << " minimum distance " << localMin;
+    edm::LogVerbatim("StudyHLT") << "Track pT " << track1->pt() << " eta " << track1->eta() << " phi " << track1->phi()
+                                 << " minimum distance " << localMin;
   }
   edm::LogVerbatim("StudyHLT") << "GlobalMinimum  = " << globalMin;
   h_dr2->Fill(globalMin);
@@ -247,7 +252,8 @@ void StudyTriggerHLT::beginJob() {
 // ------------ method called when starting to processes a run  ------------
 void StudyTriggerHLT::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   char hname[100], htit[400];
-  edm::LogVerbatim("StudyHLT") << "Run[" << nRun_ << "] " << iRun.run() << " hltconfig.init " << hltConfig_.init(iRun, iSetup, "HLT", changed_);
+  edm::LogVerbatim("StudyHLT") << "Run[" << nRun_ << "] " << iRun.run() << " hltconfig.init "
+                               << hltConfig_.init(iRun, iSetup, "HLT", changed_);
   sprintf(hname, "h_HLTAccepts_%i", iRun.run());
   sprintf(htit, "HLT Accepts for Run No %i", iRun.run());
   TH1I* hnew = fs_->make<TH1I>(hname, htit, 500, 0, 500);
