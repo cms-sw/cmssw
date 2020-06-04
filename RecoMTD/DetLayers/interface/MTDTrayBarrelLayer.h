@@ -51,7 +51,6 @@ private:
   std::vector<const GeomDet*> theBasicComps;             // All chambers
   BaseBinFinder<double>* theBinFinder;
   bool isOverlapping;
-  static const std::string theMetname_;
 };
 
 #endif

@@ -23,7 +23,6 @@
 //#define EDM_ML_DEBUG
 
 using namespace std;
-const std::string MTDTrayBarrelLayer::theMetname_ = "MTD|RecoMTD|RecoMTDDetLayers|MTDTrayBarrelLayer";
 
 MTDTrayBarrelLayer::MTDTrayBarrelLayer(vector<const DetRod*>& rods)
     : RodBarrelLayer(false), theRods(rods), theBinFinder(nullptr), isOverlapping(false) {
@@ -53,10 +52,10 @@ MTDTrayBarrelLayer::MTDTrayBarrelLayer(vector<const DetRod*>& rods)
   BarrelDetLayer::initialize();
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim(theMetname_) << "Constructing MTDTrayBarrelLayer: " << basicComponents().size() << " Dets "
-                                << theRods.size() << " Rods "
-                                << " R: " << specificSurface().radius() << " Per.: " << bf.isPhiPeriodic()
-                                << " Overl.: " << isOverlapping;
+  edm::LogVerbatim("MTDDetLayers") << "Constructing MTDTrayBarrelLayer: " << basicComponents().size() << " Dets "
+                                   << theRods.size() << " Rods "
+                                   << " R: " << specificSurface().radius() << " Per.: " << bf.isPhiPeriodic()
+                                   << " Overl.: " << isOverlapping;
 #endif
 }
 
@@ -72,16 +71,16 @@ vector<GeometricSearchDet::DetWithState> MTDTrayBarrelLayer::compatibleDets(
   vector<DetWithState> result;
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim(theMetname_) << "MTDTrayBarrelLayer::compatibleDets, Cyl R: " << specificSurface().radius()
-                                << " TSOS at R= " << startingState.globalPosition().perp()
-                                << " phi= " << startingState.globalPosition().phi();
+  edm::LogVerbatim("MTDDetLayers") << "MTDTrayBarrelLayer::compatibleDets, Cyl R: " << specificSurface().radius()
+                                   << " TSOS at R= " << startingState.globalPosition().perp()
+                                   << " phi= " << startingState.globalPosition().phi();
 #endif
 
   pair<bool, TrajectoryStateOnSurface> compat = compatible(startingState, prop, est);
   if (!compat.first) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim(theMetname_) << "     MTDTrayBarrelLayer::compatibleDets: not compatible"
-                                  << " (should not have been selected!)";
+    edm::LogVerbatim("MTDDetLayers") << "     MTDTrayBarrelLayer::compatibleDets: not compatible"
+                                     << " (should not have been selected!)";
 #endif
     return vector<DetWithState>();
   }
@@ -89,9 +88,9 @@ vector<GeometricSearchDet::DetWithState> MTDTrayBarrelLayer::compatibleDets(
   TrajectoryStateOnSurface& tsos = compat.second;
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim(theMetname_) << "     MTDTrayBarrelLayer::compatibleDets, reached layer at: "
-                                << tsos.globalPosition() << " R = " << tsos.globalPosition().perp()
-                                << " phi = " << tsos.globalPosition().phi();
+  edm::LogVerbatim("MTDDetLayers") << "     MTDTrayBarrelLayer::compatibleDets, reached layer at: "
+                                   << tsos.globalPosition() << " R = " << tsos.globalPosition().perp()
+                                   << " phi = " << tsos.globalPosition().phi();
 #endif
 
   int closest = theBinFinder->binIndex(tsos.globalPosition().phi());
@@ -99,9 +98,9 @@ vector<GeometricSearchDet::DetWithState> MTDTrayBarrelLayer::compatibleDets(
 
   // Check the closest rod
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim(theMetname_) << "     MTDTrayBarrelLayer::compatibleDets, closestRod: " << closest
-                                << " phi : " << closestRod->surface().position().phi()
-                                << " FTS phi: " << tsos.globalPosition().phi();
+  edm::LogVerbatim("MTDDetLayers") << "     MTDTrayBarrelLayer::compatibleDets, closestRod: " << closest
+                                   << " phi : " << closestRod->surface().position().phi()
+                                   << " FTS phi: " << tsos.globalPosition().phi();
 #endif
 
   result = closestRod->compatibleDets(tsos, prop, est);
@@ -144,7 +143,7 @@ vector<GeometricSearchDet::DetWithState> MTDTrayBarrelLayer::compatibleDets(
     }
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim(theMetname_) << "     MTDTrayBarrelLayer::fastCompatibleDets, none on closest rod!";
+    edm::LogVerbatim("MTDDetLayers") << "     MTDTrayBarrelLayer::fastCompatibleDets, none on closest rod!";
 #endif
   }
 
@@ -159,10 +158,10 @@ vector<GeometricSearchDet::DetWithState> MTDTrayBarrelLayer::compatibleDets(
     const DetRod* nextRod = theRods[next];
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim(theMetname_) << "     MTDTrayBarrelLayer::fastCompatibleDets, next-to closest"
-                                  << " rod: " << next << " dist " << dist
-                                  << " phi : " << nextRod->surface().position().phi()
-                                  << " FTS phi: " << tsos.globalPosition().phi();
+    edm::LogVerbatim("MTDDetLayers") << "     MTDTrayBarrelLayer::fastCompatibleDets, next-to closest"
+                                     << " rod: " << next << " dist " << dist
+                                     << " phi : " << nextRod->surface().position().phi()
+                                     << " FTS phi: " << tsos.globalPosition().phi();
 #endif
 
     vector<DetWithState> nextRodDets = nextRod->compatibleDets(tsos, prop, est);
@@ -170,8 +169,8 @@ vector<GeometricSearchDet::DetWithState> MTDTrayBarrelLayer::compatibleDets(
   }
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim(theMetname_) << "     MTDTrayBarrelLayer::fastCompatibleDets: found: " << result.size()
-                                << " on closest: " << nclosest << " # checked rods: " << 1 + int(checknext);
+  edm::LogVerbatim("MTDDetLayers") << "     MTDTrayBarrelLayer::fastCompatibleDets: found: " << result.size()
+                                   << " on closest: " << nclosest << " # checked rods: " << 1 + int(checknext);
 #endif
 
   return result;
@@ -182,7 +181,7 @@ vector<DetGroup> MTDTrayBarrelLayer::groupedCompatibleDets(const TrajectoryState
                                                            const MeasurementEstimator& est) const {
   // FIXME should return only 1 group
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo(theMetname_) << "dummy implementation of MTDTrayBarrelLayer::groupedCompatibleDets()";
+  edm::LogInfo("MTDDetLayers") << "dummy implementation of MTDTrayBarrelLayer::groupedCompatibleDets()";
 #endif
   return vector<DetGroup>();
 }

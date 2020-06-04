@@ -19,7 +19,6 @@
 //#define EDM_ML_DEBUG
 
 using namespace std;
-const std::string MTDRingForwardDoubleLayer::theMetname_ = "MTD|RecoMTD|RecoMTDDetLayers|MTDRingForwardDoubleLayer";
 
 MTDRingForwardDoubleLayer::MTDRingForwardDoubleLayer(const vector<const ForwardDetRing*>& frontRings,
                                                      const vector<const ForwardDetRing*>& backRings)
@@ -42,11 +41,11 @@ MTDRingForwardDoubleLayer::MTDRingForwardDoubleLayer(const vector<const ForwardD
   setSurface(computeSurface());
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim(theMetname_) << "Constructing MTDRingForwardDoubleLayer: " << basicComponents().size() << " Dets "
-                                << theRings.size() << " Rings "
-                                << " Z: " << specificSurface().position().z()
-                                << " R1: " << specificSurface().innerRadius()
-                                << " R2: " << specificSurface().outerRadius();
+  edm::LogVerbatim("MTDDetLayers") << "Constructing MTDRingForwardDoubleLayer: " << basicComponents().size() << " Dets "
+                                   << theRings.size() << " Rings "
+                                   << " Z: " << specificSurface().position().z()
+                                   << " R1: " << specificSurface().innerRadius()
+                                   << " R2: " << specificSurface().outerRadius();
 #endif
 
   selfTest();
@@ -83,8 +82,8 @@ std::pair<bool, TrajectoryStateOnSurface> MTDRingForwardDoubleLayer::compatible(
   bool insideOut = isInsideOut(startingState);
   const MTDRingForwardLayer& closerLayer = (insideOut) ? theFrontLayer : theBackLayer;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim(theMetname_) << "MTDRingForwardDoubleLayer::compatible is assuming inside-out direction: "
-                                << insideOut;
+  edm::LogVerbatim("MTDDetLayers") << "MTDRingForwardDoubleLayer::compatible is assuming inside-out direction: "
+                                   << insideOut;
 #endif
 
   TrajectoryStateOnSurface myState = prop.propagate(startingState, closerLayer.specificSurface());
@@ -115,8 +114,8 @@ vector<GeometricSearchDet::DetWithState> MTDRingForwardDoubleLayer::compatibleDe
 
   if (!compat.first) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim(theMetname_) << "     MTDRingForwardDoubleLayer::compatibleDets: not compatible"
-                                  << " (should not have been selected!)";
+    edm::LogVerbatim("MTDDetLayers") << "     MTDRingForwardDoubleLayer::compatibleDets: not compatible"
+                                     << " (should not have been selected!)";
 #endif
     return result;
   }
@@ -142,7 +141,7 @@ vector<DetGroup> MTDRingForwardDoubleLayer::groupedCompatibleDets(const Trajecto
   vector<GeometricSearchDet::DetWithState> detWithStates1, detWithStates2;
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim(theMetname_) << "groupedCompatibleDets are currently given always in inside-out order";
+  edm::LogVerbatim("MTDDetLayers") << "groupedCompatibleDets are currently given always in inside-out order";
 #endif
   // this should be fixed either in RecoMTD/MeasurementDet/MTDDetLayerMeasurements or
   // RecoMTD/DetLayers/MTDRingForwardDoubleLayer
@@ -156,7 +155,7 @@ vector<DetGroup> MTDRingForwardDoubleLayer::groupedCompatibleDets(const Trajecto
   if (!detWithStates2.empty())
     result.push_back(DetGroup(detWithStates2));
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim(theMetname_) << "DoubleLayer Compatible dets: " << result.size();
+  edm::LogVerbatim("MTDDetLayers") << "DoubleLayer Compatible dets: " << result.size();
 #endif
   return result;
 }
@@ -173,7 +172,7 @@ bool MTDRingForwardDoubleLayer::isCrack(const GlobalPoint& gp) const {
     float crackInner = innerRing->specificSurface().outerRadius();
     float crackOuter = outerRing->specificSurface().innerRadius();
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim(theMetname_) << "In a crack:" << crackInner << " " << r << " " << crackOuter;
+    edm::LogVerbatim("MTDDetLayers") << "In a crack:" << crackInner << " " << r << " " << crackOuter;
 #endif
     if (r > crackInner && r < crackOuter)
       return true;
