@@ -9,9 +9,9 @@ def validation_only(process):
     process.trackMCMatchSequence.remove(process.assoc2GsfTracks)
     process.only_validation_and_TP = cms.Sequence(process.mix
                                                   *process.trackingParticles
+                                                  *process.tracksValidation
                                                   *process.recoMuonValidation
                                                   *process.HLTMuonVal
-                                                  ,process.tracksValidation
                                                   )
     process.validation_step.replace(process.validation,process.only_validation_and_TP)
     

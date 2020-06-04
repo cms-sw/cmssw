@@ -118,6 +118,6 @@ process.reconstruction = cms.Sequence(
 
 # redefine validation paths
 process.prevalidation = cms.Sequence(process.tracksPreValidation)
-process.validation = cms.Sequence(process.trackingTruthValid , process.tracksValidation)
+process.validation = cms.Sequence(process.trackingTruthValid + process.tracksValidation)
 
 # END MODIFICATIONS
