@@ -42,7 +42,7 @@ public:
 private:
   typedef PeriodicBinFinderInPhi<float> BinFinderType;
   BinFinderType theBinFinder;
-  static const std::string metname;
+  static const std::string theMetname_;
 
   void init();
 };

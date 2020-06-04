@@ -69,6 +69,6 @@ private:
   std::vector<const ForwardDetRing*> theRings;
   std::vector<const GeometricSearchDet*> theComponents;  // duplication of the above
   std::vector<const GeomDet*> theBasicComponents;        // All chambers
-  static const std::string metname;
+  static const std::string theMetname_;
 };
 #endif

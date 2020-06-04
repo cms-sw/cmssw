@@ -14,7 +14,7 @@
 //#define EDM_ML_DEBUG
 
 using namespace std;
-const std::string MTDDetTray::metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDDetTray";
+const std::string MTDDetTray::theMetname_ = "MTD|RecoMTD|RecoMTDDetLayers|MTDDetTray";
 
 MTDDetTray::MTDDetTray(vector<const GeomDet*>::const_iterator first, vector<const GeomDet*>::const_iterator last)
     : DetRodOneR(first, last) {
@@ -29,7 +29,7 @@ MTDDetTray::~MTDDetTray() {}
 
 const vector<const GeometricSearchDet*>& MTDDetTray::components() const {
   // FIXME dummy impl.
-  edm::LogError(metname) << "temporary dummy implementation of MTDDetTray::components()!!";
+  edm::LogError(theMetname_) << "temporary dummy implementation of MTDDetTray::components()!!";
   static const vector<const GeometricSearchDet*> result;
   return result;
 }
@@ -48,7 +48,7 @@ vector<GeometricSearchDet::DetWithState> MTDDetTray::compatibleDets(const Trajec
                                                                     const Propagator& prop,
                                                                     const MeasurementEstimator& est) const {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim(metname) << "MTDDetTray::compatibleDets, Surface at R,phi: " << surface().position().perp() << ","
+  edm::LogVerbatim(theMetname_) << "MTDDetTray::compatibleDets, Surface at R,phi: " << surface().position().perp() << ","
                             << surface().position().phi() << "     DetRod pos.";
   // FIXME	    << " TS at R,phi: " << startingState.position().perp() << ","
   // 		    << startingState.position().phi()
@@ -61,7 +61,7 @@ vector<GeometricSearchDet::DetWithState> MTDDetTray::compatibleDets(const Trajec
 
   if (!compat.first) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim(metname) << "    MTDDetTray::compatibleDets: not compatible"
+    edm::LogVerbatim(theMetname_) << "    MTDDetTray::compatibleDets: not compatible"
                               << "    (should not have been selected!)";
 #endif
     return result;
@@ -73,7 +73,7 @@ vector<GeometricSearchDet::DetWithState> MTDDetTray::compatibleDets(const Trajec
   int closest = theBinFinder.binIndex(startPos.z());
   const vector<const GeomDet*> dets = basicComponents();
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim(metname) << "     MTDDetTray::compatibleDets, closest det: " << closest
+  edm::LogVerbatim(theMetname_) << "     MTDDetTray::compatibleDets, closest det: " << closest
                             << " pos: " << dets[closest]->surface().position() << " impact " << startPos;
 #endif
 
@@ -99,7 +99,7 @@ vector<GeometricSearchDet::DetWithState> MTDDetTray::compatibleDets(const Trajec
       LocalPoint nextPos(dets[idet]->toLocal(startPos));
       if (fabs(nextPos.y()) < detHalfLen + maxDistance.y()) {
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim(metname) << "     negativeZ: det:" << idet << " pos " << nextPos.y() << " maxDistance "
+        edm::LogVerbatim(theMetname_) << "     negativeZ: det:" << idet << " pos " << nextPos.y() << " maxDistance "
                                   << maxDistance.y();
         nnextdet++;
 #endif
@@ -114,7 +114,7 @@ vector<GeometricSearchDet::DetWithState> MTDDetTray::compatibleDets(const Trajec
       LocalPoint nextPos(dets[idet]->toLocal(startPos));
       if (fabs(nextPos.y()) < detHalfLen + maxDistance.y()) {
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim(metname) << "     positiveZ: det:" << idet << " pos " << nextPos.y() << " maxDistance "
+        edm::LogVerbatim(theMetname_) << "     positiveZ: det:" << idet << " pos " << nextPos.y() << " maxDistance "
                                   << maxDistance.y();
         nnextdet++;
 #endif
@@ -127,10 +127,10 @@ vector<GeometricSearchDet::DetWithState> MTDDetTray::compatibleDets(const Trajec
   }
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim(metname) << "     MTDDetTray::compatibleDets, size: " << result.size() << " on closest: " << nclosest
+  edm::LogVerbatim(theMetname_) << "     MTDDetTray::compatibleDets, size: " << result.size() << " on closest: " << nclosest
                             << " # checked dets: " << nnextdet + 1;
   if (result.empty()) {
-    edm::LogVerbatim(metname) << "   ***Rod not compatible---should have been discarded before!!!";
+    edm::LogVerbatim(theMetname_) << "   ***Rod not compatible---should have been discarded before!!!";
   }
 #endif
   return result;
@@ -141,7 +141,7 @@ vector<DetGroup> MTDDetTray::groupedCompatibleDets(const TrajectoryStateOnSurfac
                                                    const MeasurementEstimator& est) const {
   // FIXME should return only 1 group
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim(metname) << "dummy implementation of MTDDetTray::groupedCompatibleDets()";
+  edm::LogVerbatim(theMetname_) << "dummy implementation of MTDDetTray::groupedCompatibleDets()";
 #endif
   vector<DetGroup> result;
   return result;

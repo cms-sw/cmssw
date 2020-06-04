@@ -21,7 +21,7 @@ BTLDetLayerGeometryBuilder::BTLDetLayerGeometryBuilder() {}
 BTLDetLayerGeometryBuilder::~BTLDetLayerGeometryBuilder() {}
 
 vector<DetLayer*> BTLDetLayerGeometryBuilder::buildLayers(const MTDGeometry& geo) {
-  const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|BTLDetLayerGeometryBuilder";
+  const std::string theMetname_ = "MTD|RecoMTD|RecoMTDDetLayers|BTLDetLayerGeometryBuilder";
 
   vector<DetLayer*> detlayers;
   vector<MTDTrayBarrelLayer*> result;
@@ -36,7 +36,7 @@ vector<DetLayer*> BTLDetLayerGeometryBuilder::buildLayers(const MTDGeometry& geo
         if (geomDet != nullptr) {
           geomDets.push_back(geomDet);
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim(metname) << "get BTL module " << std::hex << BTLDetId(side, tray, module, 0, 1).rawId()
+          edm::LogVerbatim(theMetname_) << "get BTL module " << std::hex << BTLDetId(side, tray, module, 0, 1).rawId()
                                     << std::dec << " at R=" << geomDet->position().perp()
                                     << ", phi=" << geomDet->position().phi();
 #endif
@@ -48,7 +48,7 @@ vector<DetLayer*> BTLDetLayerGeometryBuilder::buildLayers(const MTDGeometry& geo
       precomputed_value_sort(geomDets.begin(), geomDets.end(), geomsort::DetZ());
       btlDetTrays.push_back(new MTDDetTray(geomDets));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim(metname) << "  New BTLDetTray with " << geomDets.size()
+      edm::LogVerbatim(theMetname_) << "  New BTLDetTray with " << geomDets.size()
                                 << " modules at R=" << btlDetTrays.back()->position().perp()
                                 << ", phi=" << btlDetTrays.back()->position().phi();
 #endif
@@ -58,7 +58,7 @@ vector<DetLayer*> BTLDetLayerGeometryBuilder::buildLayers(const MTDGeometry& geo
   precomputed_value_sort(btlDetTrays.begin(), btlDetTrays.end(), geomsort::ExtractPhi<GeometricSearchDet, float>());
   result.push_back(new MTDTrayBarrelLayer(btlDetTrays));
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim(metname) << "BTLDetLayerGeometryBuilder: "
+  edm::LogVerbatim(theMetname_) << "BTLDetLayerGeometryBuilder: "
                             << "    New MTDTrayBarrelLayer with " << btlDetTrays.size() << " rods, at R "
                             << result.back()->specificSurface().radius();
 #endif
