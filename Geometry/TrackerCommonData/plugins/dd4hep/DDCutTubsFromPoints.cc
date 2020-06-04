@@ -110,17 +110,13 @@ static long algorithm(dd4hep::Detector& /* description */,
       float P3_z_t = (P1_z_t + P2_z_t) / 2;
 
       edm::LogVerbatim("TrackerGeom").log([&](auto& log) {
-	  std::string segname(solidOutput + "_seg_" + std::to_string(segment));
-	  log << "DDCutTubsFromPoints: P1 l: " << segname << P1_x_l << " , " << P1_y_l << " , "
-                                      << P1_z_l;
-	  log << "DDCutTubsFromPoints: P1 t: " << segname << P1_x_t << " , " << P1_y_t << " , "
-                                      << P1_z_t;
-	  log << "DDCutTubsFromPoints: P2 l: " << segname << P2_x_l << " , " << P2_y_l << " , "
-                                      << P2_z_l;
-	  log << "DDCutTubsFromPoints: P2 t: " << segname << P2_x_t << " , " << P2_y_t << " , "
-                                      << P2_z_t;
-	});
-      
+        std::string segname(solidOutput + "_seg_" + std::to_string(segment));
+        log << "DDCutTubsFromPoints: P1 l: " << segname << P1_x_l << " , " << P1_y_l << " , " << P1_z_l;
+        log << "DDCutTubsFromPoints: P1 t: " << segname << P1_x_t << " , " << P1_y_t << " , " << P1_z_t;
+        log << "DDCutTubsFromPoints: P2 l: " << segname << P2_x_l << " , " << P2_y_l << " , " << P2_z_l;
+        log << "DDCutTubsFromPoints: P2 t: " << segname << P2_x_t << " , " << P2_y_t << " , " << P2_z_t;
+      });
+
       // we only have one dz to position both planes. The anchor is implicitly
       // between the P3's, we have to use an offset later to make the segments
       // line up correctly.
@@ -187,16 +183,17 @@ static long algorithm(dd4hep::Detector& /* description */,
   float shift = offsets[0];
 
   for (unsigned i = 1; i < segments.size() - 1; i++) {
-    solid = dd4hep::UnionSolid(solidOutput + "_uni" + std::to_string(i + 1), solid, segments[i], dd4hep::Position(0., 0., offsets[i] - shift));
+    solid = dd4hep::UnionSolid(
+        solidOutput + "_uni" + std::to_string(i + 1), solid, segments[i], dd4hep::Position(0., 0., offsets[i] - shift));
   }
 
   solid = dd4hep::UnionSolid(solidOutput,
-                                         solid,
-                                         segments[segments.size() - 1],
-                                         dd4hep::Position(0., 0., offsets[segments.size() - 1] - shift));
+                             solid,
+                             segments[segments.size() - 1],
+                             dd4hep::Position(0., 0., offsets[segments.size() - 1] - shift));
 
   // remove the common offset from the input, to get sth. aligned at z=0.
-  float offset = -shift + (min_z + (max_z - min_z) / 2.);
+  float offset = -shift + (min_z + 0.5 * (max_z - min_z));
 
   auto logical = dd4hep::Volume(solidOutput, solid, ns.material(material));
 
