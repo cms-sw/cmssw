@@ -59,13 +59,11 @@ MTDRingForwardLayer::MTDRingForwardLayer(const vector<const ForwardDetRing*>& ri
 
   setSurface(new BoundDisk(pos, rot, new SimpleDiskBounds(theRmin, theRmax, theZmin - zPos, theZmax - zPos)));
 
-#ifdef EDM_ML_DEBUG
   LogTrace("MTDDetLayers") << "Constructing MTDRingForwardLayer: " << basicComponents().size() << " Dets "
                            << theRings.size() << " Rings "
                            << " Z: " << specificSurface().position().z() << " R1: " << specificSurface().innerRadius()
                            << " R2: " << specificSurface().outerRadius() << " Per.: " << bf.isRPeriodic()
                            << " Overl.: " << bf.isROverlapping();
-#endif
 }
 
 MTDRingForwardLayer::~MTDRingForwardLayer() {
@@ -79,19 +77,15 @@ vector<GeometricSearchDet::DetWithState> MTDRingForwardLayer::compatibleDets(
     const TrajectoryStateOnSurface& startingState, const Propagator& prop, const MeasurementEstimator& est) const {
   vector<DetWithState> result;
 
-#ifdef EDM_ML_DEBUG
   LogTrace("MTDDetLayers") << "MTDRingForwardLayer::compatibleDets,"
                            << " R1 " << specificSurface().innerRadius() << " R2: " << specificSurface().outerRadius()
                            << " FTS at R: " << startingState.globalPosition().perp();
-#endif
 
   pair<bool, TrajectoryStateOnSurface> compat = compatible(startingState, prop, est);
 
   if (!compat.first) {
-#ifdef EDM_ML_DEBUG
     LogTrace("MTDDetLayers") << "     MTDRingForwardLayer::compatibleDets: not compatible"
                              << " (should not have been selected!)";
-#endif
     return result;
   }
 
@@ -102,7 +96,6 @@ vector<GeometricSearchDet::DetWithState> MTDRingForwardLayer::compatibleDets(
 
   // Check the closest ring
 
-#ifdef EDM_ML_DEBUG
   LogTrace("MTDDetLayers") << "     MTDRingForwardLayer::fastCompatibleDets, closestRing: " << closest << " R1 "
                            << closestRing->specificSurface().innerRadius()
                            << " R2: " << closestRing->specificSurface().outerRadius()
@@ -111,7 +104,6 @@ vector<GeometricSearchDet::DetWithState> MTDRingForwardLayer::compatibleDets(
     LogTrace("MTDDetLayers") << " sR: " << sqrt(tsos.localError().positionError().yy())
                              << " sX: " << sqrt(tsos.localError().positionError().xx());
   }
-#endif
 
   result = closestRing->compatibleDets(tsos, prop, est);
 
@@ -192,9 +184,7 @@ vector<DetGroup> MTDRingForwardLayer::groupedCompatibleDets(const TrajectoryStat
                                                             const Propagator& prop,
                                                             const MeasurementEstimator& est) const {
   // FIXME should return only 1 group
-#ifdef EDM_ML_DEBUG
   edm::LogError("MTDDetLayers") << "dummy implementation of MTDRingForwardLayer::groupedCompatibleDets()";
-#endif
   return vector<DetGroup>();
 }
 

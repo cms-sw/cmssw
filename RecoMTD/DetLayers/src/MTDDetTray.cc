@@ -44,12 +44,10 @@ pair<bool, TrajectoryStateOnSurface> MTDDetTray::compatible(const TrajectoryStat
 vector<GeometricSearchDet::DetWithState> MTDDetTray::compatibleDets(const TrajectoryStateOnSurface& startingState,
                                                                     const Propagator& prop,
                                                                     const MeasurementEstimator& est) const {
-#ifdef EDM_ML_DEBUG
   LogTrace("MTDDetLayers") << "MTDDetTray::compatibleDets, Surface at R,phi: " << surface().position().perp() << ","
                            << surface().position().phi() << "     DetRod pos.";
   // FIXME	    << " TS at R,phi: " << startingState.position().perp() << ","
   // 		    << startingState.position().phi()
-#endif
 
   vector<DetWithState> result;
 
@@ -57,10 +55,8 @@ vector<GeometricSearchDet::DetWithState> MTDDetTray::compatibleDets(const Trajec
   pair<bool, TrajectoryStateOnSurface> compat = compatible(startingState, prop, est);
 
   if (!compat.first) {
-#ifdef EDM_ML_DEBUG
     LogTrace("MTDDetLayers") << "    MTDDetTray::compatibleDets: not compatible"
                              << "    (should not have been selected!)";
-#endif
     return result;
   }
 
@@ -69,10 +65,8 @@ vector<GeometricSearchDet::DetWithState> MTDDetTray::compatibleDets(const Trajec
   GlobalPoint startPos = tsos.globalPosition();
   int closest = theBinFinder.binIndex(startPos.z());
   const vector<const GeomDet*> dets = basicComponents();
-#ifdef EDM_ML_DEBUG
   LogTrace("MTDDetLayers") << "     MTDDetTray::compatibleDets, closest det: " << closest
                            << " pos: " << dets[closest]->surface().position() << " impact " << startPos;
-#endif
 
   // Add this detector, if it is compatible
   // NOTE: add performs a null propagation
@@ -137,9 +131,7 @@ vector<DetGroup> MTDDetTray::groupedCompatibleDets(const TrajectoryStateOnSurfac
                                                    const Propagator& prop,
                                                    const MeasurementEstimator& est) const {
   // FIXME should return only 1 group
-#ifdef EDM_ML_DEBUG
-  LogTrace("MTDDetLayers") << "dummy implementation of MTDDetTray::groupedCompatibleDets()";
-#endif
+  edm::LogError("MTDDetLayers") << "dummy implementation of MTDDetTray::groupedCompatibleDets()";
   vector<DetGroup> result;
   return result;
 }

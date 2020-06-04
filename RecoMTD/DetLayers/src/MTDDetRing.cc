@@ -60,22 +60,18 @@ pair<bool, TrajectoryStateOnSurface> MTDDetRing::compatible(const TrajectoryStat
 vector<GeometricSearchDet::DetWithState> MTDDetRing::compatibleDets(const TrajectoryStateOnSurface& startingState,
                                                                     const Propagator& prop,
                                                                     const MeasurementEstimator& est) const {
-#ifdef EDM_ML_DEBUG
   LogTrace("MTDDetLayers") << "MTDDetRing::compatibleDets, Surface at Z: " << surface().position().z()
                            << " R1: " << specificSurface().innerRadius() << " R2: " << specificSurface().outerRadius()
                            << " TS at Z,R: " << startingState.globalPosition().z() << ","
                            << startingState.globalPosition().perp() << "     DetRing pos." << position();
-#endif
 
   vector<DetWithState> result;
 
   // Propagate and check that the result is within bounds
   pair<bool, TrajectoryStateOnSurface> compat = compatible(startingState, prop, est);
   if (!compat.first) {
-#ifdef EDM_ML_DEBUG
     LogTrace("MTDDetLayers") << "    MTDDetRing::compatibleDets: not compatible"
                              << "    (should not have been selected!)";
-#endif
     return result;
   }
 
@@ -84,10 +80,8 @@ vector<GeometricSearchDet::DetWithState> MTDDetRing::compatibleDets(const Trajec
   GlobalPoint startPos = tsos.globalPosition();
   int closest = theBinFinder.binIndex(startPos.phi());
   const vector<const GeomDet*> dets = basicComponents();
-#ifdef EDM_ML_DEBUG
   LogTrace("MTDDetLayers") << "     MTDDetRing::compatibleDets, closest det: " << closest
                            << " Phi: " << dets[closest]->surface().position().phi() << " impactPhi " << startPos.phi();
-#endif
 
   // Add this detector, if it is compatible
   // NOTE: add performs a null propagation
@@ -146,13 +140,11 @@ vector<GeometricSearchDet::DetWithState> MTDDetRing::compatibleDets(const Trajec
 #ifdef EDM_ML_DEBUG
   LogTrace("MTDDetLayers") << "     MTDDetRing::compatibleDets, size: " << result.size() << " on closest: " << nclosest
                            << " # checked dets: " << nnextdet + 1;
-#endif
 
   if (result.empty()) {
-#ifdef EDM_ML_DEBUG
     LogTrace("MTDDetLayers") << "   ***Ring not compatible,should have been discarded before!!!";
-#endif
   }
+#endif
 
   return result;
 }
@@ -162,9 +154,7 @@ vector<DetGroup> MTDDetRing::groupedCompatibleDets(const TrajectoryStateOnSurfac
                                                    const MeasurementEstimator& est) const {
   // FIXME should be implemented to allow returning  overlapping chambers
   // as separate groups!
-#ifdef EDM_ML_DEBUG
   edm::LogError("MTDDetLayers") << "dummy implementation of MTDDetRing::groupedCompatibleDets()";
-#endif
   vector<DetGroup> result;
   return result;
 }
