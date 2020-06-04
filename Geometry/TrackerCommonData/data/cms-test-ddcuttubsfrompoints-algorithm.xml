@@ -16,15 +16,6 @@
   <open_geometry/>
   <close_geometry/>
 
-  <ConstantsSection label="" eval="true">
-    <Constant name="world_x" value="5*m"/>
-    <Constant name="world_y" value="5*m"/>
-    <Constant name="world_z" value="5*m"/>
-    <Constant name="fm"      value="1e-12*m"/>
-    <Constant name="Air"     value="materials:Air"     type="string"/>
-    <Constant name="Vacuum"  value="materials:Vacuum"  type="string"/>
-  </ConstantsSection>
-
   <IncludeSection>
     <Include ref="Geometry/TrackerCommonData/data/testDDCutTubsFromPointsAlgorithm.xml"/>
     <Include ref="Geometry/CMSCommonData/data/materials/2015/v1/materials.xml"/>

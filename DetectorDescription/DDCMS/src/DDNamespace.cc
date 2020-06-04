@@ -254,3 +254,15 @@ std::vector<double> DDNamespace::vecDbl(const std::string& name) const {
   } else
     return std::vector<double>();
 }
+
+std::vector<float> DDNamespace::vecFloat(const std::string& name) const {
+  cms::DDVectorsMap* registry = m_context->description.load()->extension<cms::DDVectorsMap>();
+  auto it = registry->find(name);
+  if (it != registry->end()) {
+    std::vector<float> result;
+    for (auto in : it->second)
+      result.emplace_back((float)in);
+    return result;
+  } else
+    return std::vector<float>();
+}

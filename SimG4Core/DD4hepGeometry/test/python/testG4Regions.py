@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("G4GeometryTest")
+process.load('Configuration.Geometry.GeometryDD4hepExtended2021_cff')
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
@@ -38,19 +39,8 @@ process.MessageLogger = cms.Service(
                                          'g4Geometry')
     )
 
-process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-2015-muon-geometry.xml'),
-                                            appendToDataLabel = cms.string('MUON')
-                                            )
-
-process.DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer",
-                                                    appendToDataLabel = cms.string('MUON'))
-
-process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProducer",
-                                                     appendToDataLabel = cms.string('MUON'))
-
 process.test = cms.EDAnalyzer("DD4hepTestDDDWorld",
-                              DDDetector = cms.ESInputTag('','MUON')
+                              DDDetector = cms.ESInputTag('','')
                               )
 
 process.p = cms.Path(process.test)
