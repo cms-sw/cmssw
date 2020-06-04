@@ -220,8 +220,7 @@ namespace edm {
 
   SubProcess::~SubProcess() {}
 
-  std::vector<ModuleProcessName> SubProcess::keepOnlyConsumedUnscheduledModules() {
-    ServiceRegistry::Operate operate(serviceToken_);
+  std::vector<ModuleProcessName> SubProcess::keepOnlyConsumedUnscheduledModules(bool deleteModules) {
     schedule_->convertCurrentProcessAlias(processConfiguration_->processName());
     pathsAndConsumesOfModules_.initialize(schedule_.get(), preg_);
 
@@ -230,8 +229,8 @@ namespace edm {
 
     // Consumes information from the child SubProcesses
     std::vector<ModuleProcessName> consumedByChildren;
-    for_all(subProcesses_, [&consumedByChildren](auto& subProcess) {
-      auto c = subProcess.keepOnlyConsumedUnscheduledModules();
+    for_all(subProcesses_, [&consumedByChildren, deleteModules](auto& subProcess) {
+      auto c = subProcess.keepOnlyConsumedUnscheduledModules(deleteModules);
       if (consumedByChildren.empty()) {
         std::swap(consumedByChildren, c);
       } else if (not c.empty()) {
@@ -243,20 +242,23 @@ namespace edm {
     });
 
     // Non-consumed unscheduled modules in this SubProcess, take into account of the consumes from child SubProcesses
-    if (auto const unusedModules = nonConsumedUnscheduledModules(pathsAndConsumesOfModules_, consumedByChildren);
-        not unusedModules.empty()) {
-      pathsAndConsumesOfModules_.removeModules(unusedModules);
+    if (deleteModules) {
+      if (auto const unusedModules = nonConsumedUnscheduledModules(pathsAndConsumesOfModules_, consumedByChildren);
+          not unusedModules.empty()) {
+        pathsAndConsumesOfModules_.removeModules(unusedModules);
 
-      edm::LogWarning("DeleteModules").log([&unusedModules, this](auto& l) {
-        l << "Following modules are not in any Path or EndPath, nor is their output consumed by any other module, and "
-             "therefore they are deleted from SubProcess "
-          << processConfiguration_->processName() << " before beginJob transition.";
+        edm::LogWarning("DeleteModules").log([&unusedModules, this](auto& l) {
+          l << "Following modules are not in any Path or EndPath, nor is their output consumed by any other module, "
+               "and "
+               "therefore they are deleted from SubProcess "
+            << processConfiguration_->processName() << " before beginJob transition.";
+          for (auto const& description : unusedModules) {
+            l << "\n " << description->moduleLabel();
+          }
+        });
         for (auto const& description : unusedModules) {
-          l << "\n " << description->moduleLabel();
+          schedule_->deleteModule(description->moduleLabel(), actReg_.get());
         }
-      });
-      for (auto const& description : unusedModules) {
-        schedule_->deleteModule(description->moduleLabel(), actReg_.get());
       }
     }
 
