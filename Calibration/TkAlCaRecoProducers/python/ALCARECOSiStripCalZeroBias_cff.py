@@ -53,10 +53,7 @@ qualityStatistics = DQMEDAnalyzer("SiStripQualityStatistics",
                                   )
 
 # Sequence #
-# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
-# To be reverted in a subsequent PR
-seqALCARECOSiStripCalZeroBiasTask = cms.Task(calZeroBiasClusters,APVPhases,consecutiveHEs)
-seqALCARECOSiStripCalZeroBias = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*DCSStatusForSiStripCalZeroBias, seqALCARECOSiStripCalZeroBiasTask)
+seqALCARECOSiStripCalZeroBias = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*DCSStatusForSiStripCalZeroBias*calZeroBiasClusters*APVPhases*consecutiveHEs)
 
 ## customizations for the pp_on_AA eras
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
@@ -71,10 +68,7 @@ HLTPixelActivityFilterForSiStripCalZeroBias = HLTrigger.special.hltPixelActivity
 HLTPixelActivityFilterForSiStripCalZeroBias.maxClusters = 500
 HLTPixelActivityFilterForSiStripCalZeroBias.inputTag    = 'siPixelClusters'
 
-# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
-# To be reverted in a subsequent PR
-seqALCARECOSiStripCalZeroBiasHITask = cms.Task(calZeroBiasClusters, APVPhases,consecutiveHEs)
-seqALCARECOSiStripCalZeroBiasHI = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*HLTPixelActivityFilterForSiStripCalZeroBias*DCSStatusForSiStripCalZeroBias, seqALCARECOSiStripCalZeroBiasHITask)
+seqALCARECOSiStripCalZeroBiasHI = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*HLTPixelActivityFilterForSiStripCalZeroBias*DCSStatusForSiStripCalZeroBias*calZeroBiasClusters*APVPhases*consecutiveHEs)
 
 #Specify we want to use our other sequence 
 (pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(seqALCARECOSiStripCalZeroBias,

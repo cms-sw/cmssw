@@ -59,7 +59,4 @@ qualityStatistics = DQMEDAnalyzer("SiStripQualityStatistics",
                                   )
 
 # Sequence #
-# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
-# To be reverted in a subsequent PR
-seqALCARECOSiStripCalZeroBiasTask = cms.Task(calZeroBiasClusters,APVPhases,consecutiveHEs)
-seqALCARECOSiStripCalZeroBias = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*HLTPixelActivityFilterForSiStripCalZeroBias*DCSStatusForSiStripCalZeroBias, seqALCARECOSiStripCalZeroBiasTask)
+seqALCARECOSiStripCalZeroBias = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*HLTPixelActivityFilterForSiStripCalZeroBias*DCSStatusForSiStripCalZeroBias*calZeroBiasClusters*APVPhases*consecutiveHEs)
