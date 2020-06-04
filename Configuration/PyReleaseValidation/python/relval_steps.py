@@ -2107,7 +2107,7 @@ steps['ALCAHARVDSIPIXELCALRUN1']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibPro
                         '--filein':'file:PromptCalibProdSiPixel.root'}
 
 steps['RECOCOSD']=merge([{'--scenario':'cosmics',
-                          '-s':'RAW2DIGI,L1Reco,RECO,DQM,ALCA:DtCalib',
+                          '-s':'RAW2DIGI,L1Reco,RECO,DQM',
                           '--datatier':'RECO,DQMIO',     # no miniAOD for cosmics
                           '--eventcontent':'RECO,DQM',
                           '--customise':'Configuration/DataProcessing/RecoTLR.customiseCosmicData'
@@ -2493,16 +2493,16 @@ steps['ALCACOSD']={'--conditions':'auto:run1_data',
                    '-s':'ALCA:TkAlCosmics0T+MuAlGlobalCosmics+HcalCalHOCosmics+DQM'
                    }
 
-steps['ALCACOSDRUN2']=merge([{'--conditions':'auto:run2_data','--era':'Run2_2016','-s':'ALCA:SiPixelCalCosmics+TkAlCosmics0T+SiStripCalCosmics+MuAlGlobalCosmics+HcalCalHOCosmics+DtCalibCosmics+DQM'},steps['ALCACOSD']])
+steps['ALCACOSDRUN2']=merge([{'--conditions':'auto:run2_data','--era':'Run2_2016','-s':'ALCA:SiPixelCalCosmics+TkAlCosmics0T+SiStripCalCosmics+MuAlGlobalCosmics+HcalCalHOCosmics+DQM'},steps['ALCACOSD']])
 
-steps['ALCACOSDRUN3']=merge([{'--conditions':'auto:run3_data_promptlike','--era':'Run3','-s':'ALCA:SiPixelCalCosmics+TkAlCosmics0T+SiStripCalCosmics+MuAlGlobalCosmics+HcalCalHOCosmics+DtCalibCosmics+DQM'},steps['ALCACOSD']])
+steps['ALCACOSDRUN3']=merge([{'--conditions':'auto:run3_data_promptlike','--era':'Run3','-s':'ALCA:SiPixelCalCosmics+TkAlCosmics0T+SiStripCalCosmics+MuAlGlobalCosmics+HcalCalHOCosmics+DQM'},steps['ALCACOSD']])
 
 steps['ALCAPROMPT']={'-s':'ALCA:PromptCalibProd',
                      '--filein':'file:TkAlMinBias.root',
                      '--conditions':'auto:run1_data',
                      '--datatier':'ALCARECO',
                      '--eventcontent':'ALCARECO'}
-steps['ALCAEXP']={'-s':'ALCAOUTPUT:SiStripCalZeroBias+TkAlMinBias+DtCalib+Hotline+LumiPixelsMinBias+AlCaPCCZeroBiasFromRECO+AlCaPCCRandomFromRECO,ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains+PromptCalibProdSiStripGainsAAG+PromptCalibProdSiPixelAli+PromptCalibProdSiPixel',
+steps['ALCAEXP']={'-s':'ALCAOUTPUT:SiStripCalZeroBias+TkAlMinBias+Hotline+LumiPixelsMinBias+AlCaPCCZeroBiasFromRECO+AlCaPCCRandomFromRECO,ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains+PromptCalibProdSiStripGainsAAG+PromptCalibProdSiPixelAli+PromptCalibProdSiPixel',
                   '--conditions':'auto:run1_data',
                   '--datatier':'ALCARECO',
                   '--eventcontent':'ALCARECO',
