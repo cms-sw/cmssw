@@ -2,8 +2,12 @@ import mmap
 import asyncio
 from DQMServices.DQMGUI import nanoroot
 from data_types import ScalarValue, EfficiencyFlag, QTest
+from ioservice import IOService
+
 
 class TDirectoryReader:
+
+    ioservice = IOService()
 
     @classmethod
     async def read(cls, filename, me_info):
@@ -15,36 +19,32 @@ class TDirectoryReader:
         if me_info.value != None:
             return ScalarValue(b'', b'', me_info.value) # TODO: do sth. better.
 
-        with open(filename, 'rb') as root_file:
-            with mmap.mmap(root_file.fileno(), 0, prot=mmap.PROT_READ) as mm:
-                def get_object():
-                    key = nanoroot.TKey(mm, me_info.seekkey)
-                    data = key.objdata()
-                    if me_info.type == b'QTest':
-                        return cls.parse_string_entry(key.objname())
-                    if me_info.type == b'XMLString':
-                        return cls.parse_string_entry(key.objname())
-                    if me_info.offset == 0 and me_info.size == -1:
-                        obj = data
-                    else:
-                        obj = data[me_info.offset : me_info.offset + me_info.size]
-                    if me_info.type == b'String':
-                        s = nanoroot.String.unpack(obj, 0, len(obj), None)
-                        return ScalarValue(b'', b's', s)
-                    
-                    # Usually this value is unused since the class version is already in
-                    # the buffer. Only needed for some Trees in DQMIO.
-                    #TODO: we need to have a better guess here...
-                    classversion = 3 
-                    # The buffers in a TKey based file start with the TKey. Since we only 
-                    # send the object to the renderer, we need to compensate for that using
-                    # the displacement.
-                    # TODO: not sure if this does in fact work for TTrees.
-                    displacement = - key.fields.fKeyLen - me_info.offset
-                    # metype doubles as root class name here.
-                    return nanoroot.TBufferFile(obj, me_info.type, displacement, classversion) 
-
-                return await asyncio.get_event_loop().run_in_executor(None, get_object)
+        buffer = await cls.ioservice.open_url(filename)
+        key = await nanoroot.TKey().load(buffer, me_info.seekkey)
+        data = await key.objdata()
+        if me_info.type == b'QTest':
+            return cls.parse_string_entry(await key.objname())
+        if me_info.type == b'XMLString':
+            return cls.parse_string_entry(await key.objname())
+        if me_info.offset == 0 and me_info.size == -1:
+            obj = data
+        else:
+            obj = data[me_info.offset : me_info.offset + me_info.size]
+        if me_info.type == b'String':
+            s = nanoroot.String.unpack(obj, 0, len(obj), None)
+            return ScalarValue(b'', b's', s)
+        
+        # Usually this value is unused since the class version is already in
+        # the buffer. Only needed for some Trees in DQMIO.
+        #TODO: we need to have a better guess here...
+        classversion = 3 
+        # The buffers in a TKey based file start with the TKey. Since we only 
+        # send the object to the renderer, we need to compensate for that using
+        # the displacement.
+        # TODO: not sure if this does in fact work for TTrees.
+        displacement = - key.fields.fKeyLen - me_info.offset
+        # metype doubles as root class name here.
+        return nanoroot.TBufferFile(obj, me_info.type, displacement, classversion)
 
 
     @classmethod

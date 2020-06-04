@@ -2,6 +2,7 @@ import asyncio
 from async_lru import alru_cache
 from DQMServices.DQMGUI import nanoroot
 
+
 class IOService:
     BLOCKSIZE = 128*1024 # number of bytes to read at once
     # TODO: not sure if the readahead mechanism is really worth the trouble.
@@ -10,6 +11,9 @@ class IOService:
     CONNECTIONS = 100    # maximum number of open connections
     OPENTIMEOUT = 5      # maximum time to wait while opening file (seconds)
     MAXOPENTIME = 60     # maximum time that a connection stays open (seconds)
+
+    do_read_ahead = True
+    
     
     @classmethod
     async def open_url(cls, url, blockcache=True):
@@ -28,15 +32,18 @@ class IOService:
         await f.preload()
         return f
     
+
     @classmethod
     async def read_ahead(cls, url, firstblock):
         """Internal: trigger reading some extra blocks in background after cache miss."""
+
         size = await cls.read_len(url)
         for blockid in range(firstblock, firstblock+cls.READAHEAD):
             if size < cls.BLOCKSIZE*blockid:
                 break
             await cls.read_block(url, blockid) 
     
+
     @classmethod
     @alru_cache(maxsize=CACHEBLOCKS)
     async def read_block(cls, url, blockid):
@@ -45,7 +52,7 @@ class IOService:
 
         This method is cached, and that cache is the main block cache.
         """
-        print(f"readblock {url} {blockid}")
+
         # Start reading some blocks. This will read more blocks than we actually
         # need in the background, to pre-populate the cache.
         if cls.do_read_ahead:
@@ -56,21 +63,23 @@ class IOService:
         
         file = await cls.__connect(url)
         return await file[blockid*cls.BLOCKSIZE : (blockid+1)*cls.BLOCKSIZE]
- 
+
+
     @classmethod
     @alru_cache(maxsize=CONNECTIONS)
     async def read_len(cls, url):
         """Internal: read length of the file at the given url."""
-        print(f"readlen {url}")
+        
         file = await cls.__connect(url)
         return len(file)
-    
+
+
     @classmethod
     @alru_cache(maxsize=CONNECTIONS)
     async def __connect(cls, url):
         """Create a pyxrootd.client (via nanoroot) connection to the url."""
-        print(f"connect {url}")
-        def closefile():
+
+        async def closefile():
             # XRD connections tend to break after a while.
             # To prevent this, we preventively close all connections after a certain time.
             await asyncio.sleep(cls.MAXOPENTIME)
@@ -79,20 +88,24 @@ class IOService:
         file = await nanoroot.XRDFile().load(url, timeout=cls.OPENTIMEOUT)
         asyncio.Task(closefile())
         return file
-    
+
+
 class BlockCachedFile:
     """This type of file handle reads blocks via the global block cache."""
     def __init__(self, url, blocksize):
         self.url = url 
         self.blocksize = blocksize
         
+
     async def preload(self):
         # since len() can't be async, we read the length here.
         self.size = await IOService.read_len(self.url)
         
+
     def __len__(self):
         return self.size
     
+
     async def __getblocks(self, idxslice):
         # Process the __getitem__ parameters.
         start, end, stride = idxslice.indices(len(self))
@@ -112,13 +125,15 @@ class BlockCachedFile:
             offset = blockid*self.blocksize
             parts.append(block[max(0, start-offset) : max(0, end-offset)])
         return b''.join(parts)
-            
+
+
     async def __getitem__(self, idx):
         if isinstance(idx, slice):
             return await self.__getblocks(idx)
         else:
             return (await self[idx:idx+1])[0]
-    
+
+
 class FullFile:
     """This type of file handle loads and keeps a full copy of the file content, bypassing the cache."""
 
@@ -126,13 +141,16 @@ class FullFile:
         self.url = url
         self.timeout = timeout
 
+
     async def preload(self):
         # in this mode, we just preload the full file in the beginning, into a per-file cache.
         f = await nanoroot.XRDFile().load(url, timeout=self.timeout)
         self.buf = await f[:]
 
+
     def __len__(self):
         return len(self.buf)
+
 
     async def __getitem__(self, idx):
         return self.buf[idx]

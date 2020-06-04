@@ -3,6 +3,7 @@ import struct
 import asyncio
 from data_types import MEInfo
 
+
 class GUIBlobCompressor():
     """This class is responsible for compressing/uncompressing ME names and infos blobs."""
 

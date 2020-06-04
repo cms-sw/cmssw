@@ -2,6 +2,7 @@
 from data_types import FileFormat
 from reading.tdirectory_reader import TDirectoryReader
 
+
 class GUIMEReader:
     """
     This service reads monitor elements from files.

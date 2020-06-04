@@ -1,9 +1,10 @@
-
+import re
 import mmap
 import asyncio
 from nanoroot import *
 from reading.reading import TDirectoryReader
 from data_types import MEInfo, ScalarValue, EfficiencyFlag, QTest
+
 
 class TDirectoryImporter:
 
