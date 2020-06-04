@@ -220,7 +220,18 @@ StudyCaloResponse::StudyCaloResponse(const edm::ParameterSet& iConfig)
   edm::LogVerbatim("IsoTrack") << "Verbosity " << verbosity_ << " with " << trigNames_.size() << " triggers:";
   for (unsigned int k = 0; k < trigNames_.size(); ++k)
     edm::LogVerbatim("IsoTrack") << " [" << k << "] " << trigNames_[k];
-  edm::LogVerbatim("IsoTrack") << "TrackQuality " << theTrackQuality_ << " Minpt " << selectionParameters_.minPt << " maxDxy " << selectionParameters_.maxDxyPV << " maxDz " << selectionParameters_.maxDzPV << " maxChi2 " << selectionParameters_.maxChi2 << " maxDp/p " << selectionParameters_.maxDpOverP << " minOuterHit " << selectionParameters_.minOuterHit << " minLayerCrossed " << selectionParameters_.minLayerCrossed << " maxInMiss " << selectionParameters_.maxInMiss << " maxOutMiss " << selectionParameters_.maxOutMiss << " minTrackP " << minTrackP_ << " maxTrackEta " << maxTrackEta_ << " tMinE_ " << tMinE_ << " tMaxE " << tMaxE_ << " tMinH_ " << tMinH_ << " tMaxH_ " << tMaxH_ << " isItAOD " << isItAOD_ << " doTree " << doTree_ << " vetoTrigger " << vetoTrigger_ << " vetoMuon " << vetoMuon_ << ":" << cutMuon_ << " vetoEcal " << vetoEcal_ << ":" << cutEcal_ << ":" << cutRatio_;
+  edm::LogVerbatim("IsoTrack") << "TrackQuality " << theTrackQuality_ << " Minpt " << selectionParameters_.minPt
+                               << " maxDxy " << selectionParameters_.maxDxyPV << " maxDz "
+                               << selectionParameters_.maxDzPV << " maxChi2 " << selectionParameters_.maxChi2
+                               << " maxDp/p " << selectionParameters_.maxDpOverP << " minOuterHit "
+                               << selectionParameters_.minOuterHit << " minLayerCrossed "
+                               << selectionParameters_.minLayerCrossed << " maxInMiss "
+                               << selectionParameters_.maxInMiss << " maxOutMiss " << selectionParameters_.maxOutMiss
+                               << " minTrackP " << minTrackP_ << " maxTrackEta " << maxTrackEta_ << " tMinE_ " << tMinE_
+                               << " tMaxE " << tMaxE_ << " tMinH_ " << tMinH_ << " tMaxH_ " << tMaxH_ << " isItAOD "
+                               << isItAOD_ << " doTree " << doTree_ << " vetoTrigger " << vetoTrigger_ << " vetoMuon "
+                               << vetoMuon_ << ":" << cutMuon_ << " vetoEcal " << vetoEcal_ << ":" << cutEcal_ << ":"
+                               << cutRatio_;
 
   double pBins[nPBin_ + 1] = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 9.0, 11.0, 15.0, 20.0, 25.0, 30.0, 40.0, 60.0, 100.0};
   int etaBins[nEtaBin_ + 1] = {1, 7, 13, 17, 23};
@@ -268,7 +279,7 @@ void StudyCaloResponse::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.addUntracked<bool>("doTree", false);
   desc.addUntracked<bool>("vetoMuon", false);
   desc.addUntracked<double>("cutMuon", 0.001);
-  desc.addUntracked<bool>("vetoEcal", false); 
+  desc.addUntracked<bool>("vetoEcal", false);
   desc.addUntracked<double>("cutEcal", 2.0);
   desc.addUntracked<double>("cutRatio", 0.9);
   desc.addUntracked<std::vector<double> >("puWeights", weights);
@@ -423,7 +434,8 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
       tr_eventWeight = genEventInfo->weight();
 
     if ((verbosity_ / 10) % 10 > 0)
-      edm::LogVerbatim("IsoTrack") << "Number of vertices: " << nvtxs << " Good " << ngoodPV << " Bin " << nPV << " Event weight " << tr_eventWeight;
+      edm::LogVerbatim("IsoTrack") << "Number of vertices: " << nvtxs << " Good " << ngoodPV << " Bin " << nPV
+                                   << " Event weight " << tr_eventWeight;
     h_numberPV->Fill(nvtxs, tr_eventWeight);
     h_goodPV->Fill(ngoodPV, tr_eventWeight);
     tr_goodPV = ngoodPV;
@@ -508,37 +520,44 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
       double eta1 = pTrack->momentum().eta();
       double phi1 = pTrack->momentum().phi();
       if ((verbosity_ / 10) % 10 > 0)
-        edm::LogVerbatim("IsoTrack") << "track: p " << p1 << " pt " << pt1 << " eta " << eta1 << " phi " << phi1 << " okEcal " << trkDetItr->okECAL;
+        edm::LogVerbatim("IsoTrack") << "track: p " << p1 << " pt " << pt1 << " eta " << eta1 << " phi " << phi1
+                                     << " okEcal " << trkDetItr->okECAL;
       fillTrack(2, pt1, p1, eta1, phi1);
-      
+
       bool vetoMuon(false);
       double chiGlobal(0), dr(0);
       bool goodGlob(false);
       if (vetoMuon_) {
-	if (muonEventHandle.isValid()) {
-	  for (reco::MuonCollection::const_iterator recMuon = muonEventHandle->begin(); recMuon != muonEventHandle->end();
-	       ++recMuon) {
-	    if (((recMuon->isPFMuon()) && (recMuon->isGlobalMuon() || recMuon->isTrackerMuon())) &&
-		(recMuon->innerTrack()->validFraction() > 0.49)) {
-	      chiGlobal = ((recMuon->globalTrack().isNonnull()) ? recMuon->globalTrack()->normalizedChi2() : 999);
-	      goodGlob = (recMuon->isGlobalMuon() && chiGlobal < 3 && recMuon->combinedQuality().chi2LocalPosition < 12 && recMuon->combinedQuality().trkKink < 20);
-	      if (muon::segmentCompatibility(*recMuon) > (goodGlob ? 0.303 : 0.451)) {
-		dr = deltaR(pTrack->momentum().eta(), pTrack->momentum().phi(), recMuon->momentum().eta(), recMuon->momentum().phi());
-		if (dr < cutMuon_) {
-		  vetoMuon = true;
-		  break;
-		}
-	      }
-	    }
-	  }
-	}
+        if (muonEventHandle.isValid()) {
+          for (reco::MuonCollection::const_iterator recMuon = muonEventHandle->begin();
+               recMuon != muonEventHandle->end();
+               ++recMuon) {
+            if (((recMuon->isPFMuon()) && (recMuon->isGlobalMuon() || recMuon->isTrackerMuon())) &&
+                (recMuon->innerTrack()->validFraction() > 0.49)) {
+              chiGlobal = ((recMuon->globalTrack().isNonnull()) ? recMuon->globalTrack()->normalizedChi2() : 999);
+              goodGlob = (recMuon->isGlobalMuon() && chiGlobal < 3 &&
+                          recMuon->combinedQuality().chi2LocalPosition < 12 && recMuon->combinedQuality().trkKink < 20);
+              if (muon::segmentCompatibility(*recMuon) > (goodGlob ? 0.303 : 0.451)) {
+                dr = deltaR(pTrack->momentum().eta(),
+                            pTrack->momentum().phi(),
+                            recMuon->momentum().eta(),
+                            recMuon->momentum().phi());
+                if (dr < cutMuon_) {
+                  vetoMuon = true;
+                  break;
+                }
+              }
+            }
+          }
+        }
       }
       if ((verbosity_ / 10) % 10 > 0)
-        edm::LogVerbatim("IsoTrack") << "vetoMuon: " << vetoMuon_ << ":" << vetoMuon << " chi:good:dr " << chiGlobal << ":" << goodGlob << ":" << dr;
+        edm::LogVerbatim("IsoTrack") << "vetoMuon: " << vetoMuon_ << ":" << vetoMuon << " chi:good:dr " << chiGlobal
+                                     << ":" << goodGlob << ":" << dr;
       if (pt1 > minTrackP_ && std::abs(eta1) < maxTrackEta_ && trkDetItr->okECAL && (!vetoMuon)) {
-	fillTrack(3, pt1, p1, eta1, phi1);
+        fillTrack(3, pt1, p1, eta1, phi1);
         double maxNearP31x31 =
-	  spr::chargeIsolationEcal(ntrk, trkCaloDets, geo, caloTopology, 15, 15, ((verbosity_ / 1000) % 10 > 0));
+            spr::chargeIsolationEcal(ntrk, trkCaloDets, geo, caloTopology, 15, 15, ((verbosity_ / 1000) % 10 > 0));
 
         edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
         iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
@@ -599,7 +618,9 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
         double h3x3(0), h5x5(0), h7x7(0);
         fillIsolation(0, maxNearP31x31, e11x11P.first, e15x15P.first);
         if ((verbosity_ / 10) % 10 > 0)
-          edm::LogVerbatim("IsoTrack") << "Accepted Tracks reaching Ecal maxNearP31x31 " << maxNearP31x31 << " e11x11P " << e11x11P.first << " e15x15P " << e15x15P.first << " okHCAL " << trkDetItr->okHCAL;
+          edm::LogVerbatim("IsoTrack") << "Accepted Tracks reaching Ecal maxNearP31x31 " << maxNearP31x31 << " e11x11P "
+                                       << e11x11P.first << " e15x15P " << e15x15P.first << " okHCAL "
+                                       << trkDetItr->okHCAL;
 
         int trackID = trackPID(pTrack, genParticles);
         if (trkDetItr->okHCAL) {
@@ -650,10 +671,11 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
                                   tMaxH_,
                                   ((verbosity_ / 10000) % 10 > 0));
           fillIsolation(1, maxNearHcalP7x7, h5x5, h7x7);
-	  double eByh = ((e11x11P.second) ? (e11x11P.first/std::max(h3x3,0.001)) : 0.0);
-	  bool notAnElec = ((vetoEcal_ && e11x11P.second) ? ((e11x11P.first < cutEcal_) || (eByh < cutRatio_)) : true);
+          double eByh = ((e11x11P.second) ? (e11x11P.first / std::max(h3x3, 0.001)) : 0.0);
+          bool notAnElec = ((vetoEcal_ && e11x11P.second) ? ((e11x11P.first < cutEcal_) || (eByh < cutRatio_)) : true);
           if ((verbosity_ / 10) % 10 > 0)
-	  edm::LogVerbatim("IsoTrack") << "Tracks Reaching Hcal maxNearHcalP7x7/h5x5/h7x7 " << maxNearHcalP7x7 << "/" << h5x5 << "/" << h7x7 << " eByh " << eByh << " notAnElec " << notAnElec;
+            edm::LogVerbatim("IsoTrack") << "Tracks Reaching Hcal maxNearHcalP7x7/h5x5/h7x7 " << maxNearHcalP7x7 << "/"
+                                         << h5x5 << "/" << h7x7 << " eByh " << eByh << " notAnElec " << notAnElec;
           tr_TrkPt.push_back(pt1);
           tr_TrkP.push_back(p1);
           tr_TrkEta.push_back(eta1);
@@ -944,7 +966,8 @@ void StudyCaloResponse::beginJob() {
 // ------------ method called when starting to processes a run  ------------
 void StudyCaloResponse::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   char hname[100], htit[400];
-  edm::LogVerbatim("IsoTrack") << "Run[" << nRun_ << "] " << iRun.run() << " hltconfig.init " << hltConfig_.init(iRun, iSetup, "HLT", changed_);
+  edm::LogVerbatim("IsoTrack") << "Run[" << nRun_ << "] " << iRun.run() << " hltconfig.init "
+                               << hltConfig_.init(iRun, iSetup, "HLT", changed_);
   sprintf(hname, "h_HLTAccepts_%i", iRun.run());
   sprintf(htit, "HLT Accepts for Run No %i", iRun.run());
   TH1I* hnew = fs_->make<TH1I>(hname, htit, 500, 0, 500);
