@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-def UpdatePuppiTuneV14(process):
+def UpdatePuppiTuneV14(process, runOnMC=True):
   #
   # Adapt for re-running PUPPI
   #
@@ -12,7 +12,7 @@ def UpdatePuppiTuneV14(process):
   process.puppi.useExistingWeights = False
   process.puppiNoLep.useExistingWeights = False
   from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
-  runMetCorAndUncFromMiniAOD(process,isData=False,metType="Puppi",postfix="Puppi",jetFlavor="AK4PFPuppi",recoMetFromPFCs=True)
+  runMetCorAndUncFromMiniAOD(process,isData=(not runOnMC),metType="Puppi",postfix="Puppi",jetFlavor="AK4PFPuppi",recoMetFromPFCs=True)
   from PhysicsTools.PatAlgos.patPuppiJetSpecificProducer_cfi import patPuppiJetSpecificProducer
   addToProcessAndTask('patPuppiJetSpecificProducer', patPuppiJetSpecificProducer.clone(src=cms.InputTag("patJetsPuppi")), process, task)
   from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
@@ -34,3 +34,9 @@ def UpdatePuppiTuneV14(process):
   process.puppiNoLep.PtMaxCharged = 20.
   process.puppiNoLep.EtaMinUseDeltaZ = 2.4
   process.puppiNoLep.PtMaxNeutralsStartSlope = 20.
+
+def UpdatePuppiTuneV14_MC(process):
+  UpdatePuppiTuneV14(process,runOnMC=True)
+
+def UpdatePuppiTuneV14_Data(process):
+  UpdatePuppiTuneV14(process,runOnMC=False)
