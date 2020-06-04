@@ -54,8 +54,7 @@ std::unique_ptr<MTDDetLayerGeometry> MTDDetLayerGeometryESProducer::produce(cons
     // Build ETL layers
     mtdDetLayerGeometry->addETLLayers(ETLDetLayerGeometryBuilder::buildLayers(*mtd));
   } else {
-    const std::string theMetname_ = "MTD|RecoMTD|RecoMTDDetLayers|MTDDetLayerGeometryESProducer";
-    LogWarning(theMetname_) << "No MTD geometry is available.";
+    LogWarning("MTDDetLayers") << "No MTD geometry is available.";
   }
 
   // Sort layers properly

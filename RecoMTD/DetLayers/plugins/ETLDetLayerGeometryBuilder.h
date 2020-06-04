@@ -32,6 +32,5 @@ private:
 
   static MTDDetRing* makeDetRing(std::vector<const GeomDet*>& geomDets);
   static bool isFront(int layer, int ring, int module);
-  static const std::string theMetname_;
 };
 #endif

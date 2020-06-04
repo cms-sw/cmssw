@@ -44,7 +44,6 @@ public:
 private:
   typedef GenericBinFinderInZ<float, GeomDet> BinFinderType;
   BinFinderType theBinFinder;
-  static const std::string theMetname_;
 
   void init();
 };
