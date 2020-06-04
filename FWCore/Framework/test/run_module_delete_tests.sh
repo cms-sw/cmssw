@@ -11,3 +11,5 @@ cmsRun $TEST_DIR/test_module_delete_subprocess_cfg.py || die "module deletion te
 echo "module deletion test with subprocess succeeded"
 cmsRun $TEST_DIR/test_module_delete_improperDependencies_cfg.py && die "module deletion with improper module ordering test failed" $?
 echo "module deletion test with improper module ordering succeeded"
+cmsRun $TEST_DIR/test_module_delete_looper_cfg.py || die "module deletetion test with looper failed" $?
+echo "module deletion test with looper succeeded"

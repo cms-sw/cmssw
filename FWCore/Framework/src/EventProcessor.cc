@@ -547,9 +547,13 @@ namespace edm {
     actReg_->preallocateSignal_(bounds);
     schedule_->convertCurrentProcessAlias(processConfiguration_->processName());
     pathsAndConsumesOfModules_.initialize(schedule_.get(), preg());
+
+    // in presence of looper do not delete modules
+    bool const deleteModules = not looper_;
+
     std::vector<ModuleProcessName> consumedBySubProcesses;
-    for_all(subProcesses_, [&consumedBySubProcesses](auto& subProcess) {
-      auto c = subProcess.keepOnlyConsumedUnscheduledModules();
+    for_all(subProcesses_, [&consumedBySubProcesses, deleteModules](auto& subProcess) {
+      auto c = subProcess.keepOnlyConsumedUnscheduledModules(deleteModules);
       if (consumedBySubProcesses.empty()) {
         consumedBySubProcesses = std::move(c);
       } else if (not c.empty()) {
@@ -563,19 +567,22 @@ namespace edm {
 
     // Note: all these may throw
     checkForModuleDependencyCorrectness(pathsAndConsumesOfModules_, printDependencies_);
-    if (auto const unusedModules = nonConsumedUnscheduledModules(pathsAndConsumesOfModules_, consumedBySubProcesses);
-        not unusedModules.empty()) {
-      pathsAndConsumesOfModules_.removeModules(unusedModules);
+    if (deleteModules) {
+      if (auto const unusedModules = nonConsumedUnscheduledModules(pathsAndConsumesOfModules_, consumedBySubProcesses);
+          not unusedModules.empty()) {
+        pathsAndConsumesOfModules_.removeModules(unusedModules);
 
-      edm::LogWarning("DeleteModules").log([&unusedModules](auto& l) {
-        l << "Following modules are not in any Path or EndPath, nor is their output consumed by any other module, and "
-             "therefore they are deleted before beginJob transition.";
+        edm::LogWarning("DeleteModules").log([&unusedModules](auto& l) {
+          l << "Following modules are not in any Path or EndPath, nor is their output consumed by any other module, "
+               "and "
+               "therefore they are deleted before beginJob transition.";
+          for (auto const& description : unusedModules) {
+            l << "\n " << description->moduleLabel();
+          }
+        });
         for (auto const& description : unusedModules) {
-          l << "\n " << description->moduleLabel();
+          schedule_->deleteModule(description->moduleLabel(), actReg_.get());
         }
-      });
-      for (auto const& description : unusedModules) {
-        schedule_->deleteModule(description->moduleLabel(), actReg_.get());
       }
     }
 
