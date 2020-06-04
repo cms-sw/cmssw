@@ -31,8 +31,6 @@ from CalibMuon.DTCalibration.ALCARECODtCalibCosmics_cff import ALCARECODtCalibCo
 #                                               dtAlcaResolutionMonitorCosmics + 
 #                                               ALCARECODtCalibCosmicsHLTDQM )
 
-# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
-# To be reverted in a subsequent PR
-ALCARECODTCalibSynchCosmicsDQMTask = cms.Task(dtPreCalibrationTaskAlcaCosmics, dtAlcaResolutionMonitorCosmics)
-ALCARECODTCalibSynchCosmicsDQM = cms.Sequence(ALCARECODTCalibSynchCosmicsDQMTask)
+ALCARECODTCalibSynchCosmicsDQM = cms.Sequence( dtPreCalibrationTaskAlcaCosmics +
+                                               dtAlcaResolutionMonitorCosmics )
 
