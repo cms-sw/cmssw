@@ -177,8 +177,8 @@ def customiseFor2017DtUnpacking(process):
 
     return process
 
-def customiseFor30046(process):
-    if hasattr(process, "SiStripGainESProducer"): ## not for Fake* HLT menus (adding this would cause an error because the SiStripGain dependency ESProducer is not there)
+def customiseFor30046(process, menuType="GRun"):
+    if not menuType.startswith("Fake"): ## not for Fake* HLT menus (adding this would cause an error because the SiStripGain dependency ESProducer is not there)
         process.SiStripClusterizerConditionsESProducer = cms.ESProducer('SiStripClusterizerConditionsESProducer',
             QualityLabel = cms.string(''),
             appendToDataLabel = cms.string('')
@@ -191,6 +191,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
     process = customiseFor30060(process, menuType)
-    process = customiseFor30046(process)
+    process = customiseFor30046(process, menuType=menuType)
 
     return process
