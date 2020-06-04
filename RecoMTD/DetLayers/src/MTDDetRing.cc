@@ -15,7 +15,7 @@
 //#define EDM_ML_DEBUG
 
 using namespace std;
-const std::string MTDDetRing::metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDDetRing";
+const std::string MTDDetRing::theMetname_ = "MTD|RecoMTD|RecoMTDDetLayers|MTDDetRing";
 
 MTDDetRing::MTDDetRing(vector<const GeomDet*>::const_iterator first, vector<const GeomDet*>::const_iterator last)
     : ForwardDetRingOneZ(first, last) {
@@ -32,7 +32,7 @@ MTDDetRing::~MTDDetRing() {}
 
 const vector<const GeometricSearchDet*>& MTDDetRing::components() const {
   // FIXME dummy impl.
-  edm::LogError(metname) << "temporary dummy implementation of MTDDetRing::components()!!";
+  edm::LogError(theMetname_) << "temporary dummy implementation of MTDDetRing::components()!!";
   static const vector<const GeometricSearchDet*> result;
   return result;
 }
@@ -43,14 +43,14 @@ pair<bool, TrajectoryStateOnSurface> MTDDetRing::compatible(const TrajectoryStat
   TrajectoryStateOnSurface ms = prop.propagate(ts, specificSurface());
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim(metname) << "MTDDetRing::compatible, Surface at Z: " << specificSurface().position().z()
+  edm::LogVerbatim(theMetname_) << "MTDDetRing::compatible, Surface at Z: " << specificSurface().position().z()
                             << " R1: " << specificSurface().innerRadius() << " R2: " << specificSurface().outerRadius()
                             << " TS   at Z,R: " << ts.globalPosition().z() << "," << ts.globalPosition().perp();
   if (ms.isValid()) {
-    edm::LogVerbatim(metname) << " DEST at Z,R: " << ms.globalPosition().z() << "," << ms.globalPosition().perp()
+    edm::LogVerbatim(theMetname_) << " DEST at Z,R: " << ms.globalPosition().z() << "," << ms.globalPosition().perp()
                               << " local Z: " << ms.localPosition().z();
   } else {
-    edm::LogVerbatim(metname) << " DEST: not valid";
+    edm::LogVerbatim(theMetname_) << " DEST: not valid";
   }
 #endif
 
@@ -64,7 +64,7 @@ vector<GeometricSearchDet::DetWithState> MTDDetRing::compatibleDets(const Trajec
                                                                     const Propagator& prop,
                                                                     const MeasurementEstimator& est) const {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim(metname) << "MTDDetRing::compatibleDets, Surface at Z: " << surface().position().z()
+  edm::LogVerbatim(theMetname_) << "MTDDetRing::compatibleDets, Surface at Z: " << surface().position().z()
                             << " R1: " << specificSurface().innerRadius() << " R2: " << specificSurface().outerRadius()
                             << " TS at Z,R: " << startingState.globalPosition().z() << ","
                             << startingState.globalPosition().perp() << "     DetRing pos." << position();
@@ -76,7 +76,7 @@ vector<GeometricSearchDet::DetWithState> MTDDetRing::compatibleDets(const Trajec
   pair<bool, TrajectoryStateOnSurface> compat = compatible(startingState, prop, est);
   if (!compat.first) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim(metname) << "    MTDDetRing::compatibleDets: not compatible"
+    edm::LogVerbatim(theMetname_) << "    MTDDetRing::compatibleDets: not compatible"
                               << "    (should not have been selected!)";
 #endif
     return result;
@@ -88,7 +88,7 @@ vector<GeometricSearchDet::DetWithState> MTDDetRing::compatibleDets(const Trajec
   int closest = theBinFinder.binIndex(startPos.phi());
   const vector<const GeomDet*> dets = basicComponents();
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim(metname) << "     MTDDetRing::compatibleDets, closest det: " << closest
+  edm::LogVerbatim(theMetname_) << "     MTDDetRing::compatibleDets, closest det: " << closest
                             << " Phi: " << dets[closest]->surface().position().phi() << " impactPhi " << startPos.phi();
 #endif
 
@@ -109,7 +109,7 @@ vector<GeometricSearchDet::DetWithState> MTDDetRing::compatibleDets(const Trajec
                             result.back().second.globalPosition().perp());
     }
   } else {
-    edm::LogVerbatim(metname) << "     MTDDetRing::compatibleDets, closest not compatible!";
+    edm::LogVerbatim(theMetname_) << "     MTDDetRing::compatibleDets, closest not compatible!";
     //FIXME:  if closest is not compatible the next cannot be either
   }
 #endif
@@ -120,7 +120,7 @@ vector<GeometricSearchDet::DetWithState> MTDDetRing::compatibleDets(const Trajec
     int idetp = theBinFinder.binIndex(idet);
     {
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim(metname) << "     next det:" << idetp << " at Z: " << dets[idetp]->position().z()
+      edm::LogVerbatim(theMetname_) << "     next det:" << idetp << " at Z: " << dets[idetp]->position().z()
                                 << " phi: " << dets[idetp]->position().phi() << " FTS phi " << startPos.phi()
                                 << " max dphi " << dphi;
       nnextdet++;
@@ -136,7 +136,7 @@ vector<GeometricSearchDet::DetWithState> MTDDetRing::compatibleDets(const Trajec
     int idetp = theBinFinder.binIndex(idet);
     {
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim(metname) << "     previous det:" << idetp << " " << idet << " " << closest - dets.size() / 4 - 1
+      edm::LogVerbatim(theMetname_) << "     previous det:" << idetp << " " << idet << " " << closest - dets.size() / 4 - 1
                                 << " at Z: " << dets[idetp]->position().z() << " phi: " << dets[idetp]->position().phi()
                                 << " FTS phi " << startPos.phi() << " max dphi" << dphi;
       nnextdet++;
@@ -147,13 +147,13 @@ vector<GeometricSearchDet::DetWithState> MTDDetRing::compatibleDets(const Trajec
   }
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim(metname) << "     MTDDetRing::compatibleDets, size: " << result.size() << " on closest: " << nclosest
+  edm::LogVerbatim(theMetname_) << "     MTDDetRing::compatibleDets, size: " << result.size() << " on closest: " << nclosest
                             << " # checked dets: " << nnextdet + 1;
 #endif
 
   if (result.empty()) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim(metname) << "   ***Ring not compatible,should have been discarded before!!!";
+    edm::LogVerbatim(theMetname_) << "   ***Ring not compatible,should have been discarded before!!!";
 #endif
   }
 
@@ -166,7 +166,7 @@ vector<DetGroup> MTDDetRing::groupedCompatibleDets(const TrajectoryStateOnSurfac
   // FIXME should be implemented to allow returning  overlapping chambers
   // as separate groups!
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo(metname) << "dummy implementation of MTDDetRod::groupedCompatibleDets()";
+  edm::LogInfo(theMetname_) << "dummy implementation of MTDDetRod::groupedCompatibleDets()";
 #endif
   vector<DetGroup> result;
   return result;
