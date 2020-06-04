@@ -204,7 +204,7 @@ static long algorithm(dd4hep::Detector& /* description */,
         const string& dd_tmp_name_e("esalgo:" + es.layName[i] + "LinAl");
         const string& dd_tmp_name_f("esalgo:" + es.layName[i] + "LOutAl");
 
-        const string& dd_Alname_fin("esalgo:" + es.layName[i] + "LtmpAl" + to_string(absz - 1));
+        //        const string& dd_Alname_fin("esalgo:" + es.layName[i] + "LtmpAl" + to_string(absz - 1));
 
         const string& dd_Alname_f(es.layName[i] + "LOutAl");
         const string& dd_Alname_g(es.layName[i] + "LOutAl2");
@@ -464,9 +464,6 @@ static long algorithm(dd4hep::Detector& /* description */,
             const string& dd_tmp_name_5a("esalgo:" + es.ladPfx[2]);
             const string& dd_tmp_name_5b("esalgo:" + es.ladPfx[3] + to_string(enb));
             const string& dd_tmp_name_5c("esalgo:" + es.ladPfx[4] + to_string(enb));
-            const string& dd_tmp_name_5d("esalgo:" + es.ladPfx[5] + to_string(enb));
-            const string& dd_tmp_name_5e("esalgo:" + es.ladPfx[6]);
-
             boxay = ladder_length - es.ldrFrnt_Length - es.ldrBck_Length;
             boxax = es.ladder_width;
             boxaz = es.ladder_thick;
@@ -567,10 +564,6 @@ static long algorithm(dd4hep::Detector& /* description */,
 
             const string& dd_tmp_name_a("esalgo:" + es.ladPfx[7]);
             const string& dd_tmp_name_b("esalgo:" + es.ladPfx[8] + to_string(enb));
-            const string& dd_tmp_name_c("esalgo:" + es.ladPfx[9] + to_string(enb));
-            const string& dd_tmp_name_d("esalgo:" + es.ladPfx[10] + to_string(enb));
-            const string& dd_tmp_name_e("esalgo:" + es.ladPfx[11]);
-
             boxay = ladder_length - es.ldrFrnt_Length - es.ldrBck_Length;
             boxax = es.ladder_width;
             boxaz = es.ladder_thick;
@@ -607,10 +600,6 @@ static long algorithm(dd4hep::Detector& /* description */,
 
               const string& dd_tmp_name_a("esalgo:" + es.ladPfx[7]);
               const string& dd_tmp_name_b("esalgo:" + es.ladPfx[8] + to_string(enb));
-              const string& dd_tmp_name_c("esalgo:" + es.ladPfx[9] + to_string(enb));
-              const string& dd_tmp_name_d("esalgo:" + es.ladPfx[10] + to_string(enb));
-              const string& dd_tmp_name_e("esalgo:" + es.ladPfx[11]);
-
               boxay = ladder_length - es.ldrFrnt_Length - es.ldrBck_Length;
               boxax = es.ladder_width;
               boxaz = es.ladder_thick;
@@ -646,8 +635,6 @@ static long algorithm(dd4hep::Detector& /* description */,
               const string& dd_tmp_name_a("esalgo:" + es.ladPfx[7]);
               const string& dd_tmp_name_b("esalgo:" + es.ladPfx[8] + to_string(enb));
               const string& dd_tmp_name_c("esalgo:" + es.ladPfx[9] + to_string(enb));
-              const string& dd_tmp_name_d("esalgo:" + es.ladPfx[10] + to_string(enb));
-              const string& dd_tmp_name_e("esalgo:" + es.ladPfx[11]);
 
               boxay = ladder_length - es.ldrFrnt_Length - es.ldrBck_Length;
               boxax = es.ladder_width;
