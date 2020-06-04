@@ -150,9 +150,9 @@ void PGeometricDetBuilder::putOne(const GeometricDet* gd, PGeometricDet* pgd, in
   item._a31 = x.Z();
   item._a32 = y.Z();
   item._a33 = z.Z();
-  item._shape = static_cast<int>(gd->shape());
+  item._shape = static_cast<int>(gd->shape_dd4hep());
   item._type = gd->type();
-  if (gd->shape() == cms::DDSolidShape::ddbox) {
+  if (gd->shape_dd4hep() == cms::DDSolidShape::ddbox) {
     item._params0 = gd->params()[0];
     item._params1 = gd->params()[1];
     item._params2 = gd->params()[2];
@@ -164,7 +164,7 @@ void PGeometricDetBuilder::putOne(const GeometricDet* gd, PGeometricDet* pgd, in
     item._params8 = 0;
     item._params9 = 0;
     item._params10 = 0;
-  } else if (gd->shape() == cms::DDSolidShape::ddtrap) {
+  } else if (gd->shape_dd4hep() == cms::DDSolidShape::ddtrap) {
     item._params0 = gd->params()[0];
     item._params1 = gd->params()[1];
     item._params2 = gd->params()[2];
