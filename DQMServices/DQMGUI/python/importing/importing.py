@@ -3,6 +3,7 @@ from storage import GUIDataStore
 from compressing import GUIBlobCompressor
 from data_types import FileFormat, SampleFull
 from importing.dqmclassic_importer import DQMCLASSICImporter
+from importing.dqmio_importer import DQMIOImporter
 
 
 class GUIImportManager:
@@ -93,5 +94,5 @@ class GUIImportManager:
         if file_format == FileFormat.DQMCLASSIC:
             return DQMCLASSICImporter()
         elif file_format == FileFormat.DQMIO:
-            raise Exception('DQMIO import is not yet supported.')
+            return DQMIOImporter()
         return None
