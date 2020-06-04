@@ -551,13 +551,13 @@ bool CSCAnodeLCTProcessor::preTrigger(const int key_wire, const int start_bx) {
       for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
         for (int i_wire = 0; i_wire < CSCConstants::ALCT_PATTERN_WIDTH; i_wire++) {
           // check if the hit is valid
-          if (alct_pattern_[i_pattern][i_layer][i_wire] != 0) {
+          if (alct_pattern_[i_pattern][i_layer][i_wire]) {
             this_wire = CSCPatternBank::alct_keywire_offset_[MESelection][i_wire] + key_wire;
             if ((this_wire >= 0) && (this_wire < numWireGroups)) {
               // Perform bit operation to see if pulse is 1 at a certain bx_time.
               if (((pulse[i_layer][this_wire] >> bx_time) & 1) == 1) {
                 // Store number of layers hit.
-                if (hit_layer[i_layer] == false) {
+                if (!hit_layer[i_layer]) {
                   hit_layer[i_layer] = true;
                   layers_hit++;
                 }
@@ -615,7 +615,8 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
 
     for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
       for (int i_wire = 0; i_wire < CSCConstants::ALCT_PATTERN_WIDTH; i_wire++) {
-        if (alct_pattern_[i_pattern][i_layer][i_wire] != 0) {
+        // check if the hit is valid
+        if (alct_pattern_[i_pattern][i_layer][i_wire]) {
           delta_wire = CSCPatternBank::alct_keywire_offset_[MESelection][i_wire];
           this_wire = delta_wire + key_wire;
           if ((this_wire >= 0) && (this_wire < numWireGroups)) {
@@ -624,7 +625,7 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
             if (((pulse[i_layer][this_wire] >> (first_bx[key_wire] + drift_delay)) & 1) == 1) {
               // If layer has never had a hit before, then increment number
               // of layer hits.
-              if (hit_layer[i_layer] == false) {
+              if (!hit_layer[i_layer]) {
                 temp_quality++;
                 // keep track of which layers already had hits.
                 hit_layer[i_layer] = true;
@@ -1330,6 +1331,7 @@ void CSCAnodeLCTProcessor::showPatterns(const int key_wire) {
     LogTrace("CSCAnodeLCTProcessor") << strstrm_header.str();
     for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
       for (int i_wire = 0; i_wire < CSCConstants::ALCT_PATTERN_WIDTH; i_wire++) {
+        // check if the hit is valid
         if (alct_pattern_[i_pattern][i_layer][i_wire]) {
           std::ostringstream strstrm_pulse;
           int this_wire = CSCPatternBank::alct_keywire_offset_[MESelection][i_wire] + key_wire;
