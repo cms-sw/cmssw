@@ -44,11 +44,12 @@ pair<bool, TrajectoryStateOnSurface> MTDDetRing::compatible(const TrajectoryStat
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim(theMetname_) << "MTDDetRing::compatible, Surface at Z: " << specificSurface().position().z()
-                            << " R1: " << specificSurface().innerRadius() << " R2: " << specificSurface().outerRadius()
-                            << " TS   at Z,R: " << ts.globalPosition().z() << "," << ts.globalPosition().perp();
+                                << " R1: " << specificSurface().innerRadius()
+                                << " R2: " << specificSurface().outerRadius()
+                                << " TS   at Z,R: " << ts.globalPosition().z() << "," << ts.globalPosition().perp();
   if (ms.isValid()) {
     edm::LogVerbatim(theMetname_) << " DEST at Z,R: " << ms.globalPosition().z() << "," << ms.globalPosition().perp()
-                              << " local Z: " << ms.localPosition().z();
+                                  << " local Z: " << ms.localPosition().z();
   } else {
     edm::LogVerbatim(theMetname_) << " DEST: not valid";
   }
@@ -65,9 +66,10 @@ vector<GeometricSearchDet::DetWithState> MTDDetRing::compatibleDets(const Trajec
                                                                     const MeasurementEstimator& est) const {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim(theMetname_) << "MTDDetRing::compatibleDets, Surface at Z: " << surface().position().z()
-                            << " R1: " << specificSurface().innerRadius() << " R2: " << specificSurface().outerRadius()
-                            << " TS at Z,R: " << startingState.globalPosition().z() << ","
-                            << startingState.globalPosition().perp() << "     DetRing pos." << position();
+                                << " R1: " << specificSurface().innerRadius()
+                                << " R2: " << specificSurface().outerRadius()
+                                << " TS at Z,R: " << startingState.globalPosition().z() << ","
+                                << startingState.globalPosition().perp() << "     DetRing pos." << position();
 #endif
 
   vector<DetWithState> result;
@@ -77,7 +79,7 @@ vector<GeometricSearchDet::DetWithState> MTDDetRing::compatibleDets(const Trajec
   if (!compat.first) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim(theMetname_) << "    MTDDetRing::compatibleDets: not compatible"
-                              << "    (should not have been selected!)";
+                                  << "    (should not have been selected!)";
 #endif
     return result;
   }
@@ -89,7 +91,8 @@ vector<GeometricSearchDet::DetWithState> MTDDetRing::compatibleDets(const Trajec
   const vector<const GeomDet*> dets = basicComponents();
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim(theMetname_) << "     MTDDetRing::compatibleDets, closest det: " << closest
-                            << " Phi: " << dets[closest]->surface().position().phi() << " impactPhi " << startPos.phi();
+                                << " Phi: " << dets[closest]->surface().position().phi() << " impactPhi "
+                                << startPos.phi();
 #endif
 
   // Add this detector, if it is compatible
@@ -121,8 +124,8 @@ vector<GeometricSearchDet::DetWithState> MTDDetRing::compatibleDets(const Trajec
     {
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim(theMetname_) << "     next det:" << idetp << " at Z: " << dets[idetp]->position().z()
-                                << " phi: " << dets[idetp]->position().phi() << " FTS phi " << startPos.phi()
-                                << " max dphi " << dphi;
+                                    << " phi: " << dets[idetp]->position().phi() << " FTS phi " << startPos.phi()
+                                    << " max dphi " << dphi;
       nnextdet++;
 #endif
       if (!add(idetp, result, tsos, prop, est))
@@ -136,9 +139,10 @@ vector<GeometricSearchDet::DetWithState> MTDDetRing::compatibleDets(const Trajec
     int idetp = theBinFinder.binIndex(idet);
     {
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim(theMetname_) << "     previous det:" << idetp << " " << idet << " " << closest - dets.size() / 4 - 1
-                                << " at Z: " << dets[idetp]->position().z() << " phi: " << dets[idetp]->position().phi()
-                                << " FTS phi " << startPos.phi() << " max dphi" << dphi;
+      edm::LogVerbatim(theMetname_) << "     previous det:" << idetp << " " << idet << " "
+                                    << closest - dets.size() / 4 - 1 << " at Z: " << dets[idetp]->position().z()
+                                    << " phi: " << dets[idetp]->position().phi() << " FTS phi " << startPos.phi()
+                                    << " max dphi" << dphi;
       nnextdet++;
 #endif
       if (!add(idetp, result, tsos, prop, est))
@@ -147,8 +151,8 @@ vector<GeometricSearchDet::DetWithState> MTDDetRing::compatibleDets(const Trajec
   }
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim(theMetname_) << "     MTDDetRing::compatibleDets, size: " << result.size() << " on closest: " << nclosest
-                            << " # checked dets: " << nnextdet + 1;
+  edm::LogVerbatim(theMetname_) << "     MTDDetRing::compatibleDets, size: " << result.size()
+                                << " on closest: " << nclosest << " # checked dets: " << nnextdet + 1;
 #endif
 
   if (result.empty()) {

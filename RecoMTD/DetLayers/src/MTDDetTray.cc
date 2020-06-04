@@ -48,8 +48,8 @@ vector<GeometricSearchDet::DetWithState> MTDDetTray::compatibleDets(const Trajec
                                                                     const Propagator& prop,
                                                                     const MeasurementEstimator& est) const {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim(theMetname_) << "MTDDetTray::compatibleDets, Surface at R,phi: " << surface().position().perp() << ","
-                            << surface().position().phi() << "     DetRod pos.";
+  edm::LogVerbatim(theMetname_) << "MTDDetTray::compatibleDets, Surface at R,phi: " << surface().position().perp()
+                                << "," << surface().position().phi() << "     DetRod pos.";
   // FIXME	    << " TS at R,phi: " << startingState.position().perp() << ","
   // 		    << startingState.position().phi()
 #endif
@@ -62,7 +62,7 @@ vector<GeometricSearchDet::DetWithState> MTDDetTray::compatibleDets(const Trajec
   if (!compat.first) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim(theMetname_) << "    MTDDetTray::compatibleDets: not compatible"
-                              << "    (should not have been selected!)";
+                                  << "    (should not have been selected!)";
 #endif
     return result;
   }
@@ -74,7 +74,7 @@ vector<GeometricSearchDet::DetWithState> MTDDetTray::compatibleDets(const Trajec
   const vector<const GeomDet*> dets = basicComponents();
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim(theMetname_) << "     MTDDetTray::compatibleDets, closest det: " << closest
-                            << " pos: " << dets[closest]->surface().position() << " impact " << startPos;
+                                << " pos: " << dets[closest]->surface().position() << " impact " << startPos;
 #endif
 
   // Add this detector, if it is compatible
@@ -100,7 +100,7 @@ vector<GeometricSearchDet::DetWithState> MTDDetTray::compatibleDets(const Trajec
       if (fabs(nextPos.y()) < detHalfLen + maxDistance.y()) {
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim(theMetname_) << "     negativeZ: det:" << idet << " pos " << nextPos.y() << " maxDistance "
-                                  << maxDistance.y();
+                                      << maxDistance.y();
         nnextdet++;
 #endif
         if (!add(idet, result, tsos, prop, est))
@@ -115,7 +115,7 @@ vector<GeometricSearchDet::DetWithState> MTDDetTray::compatibleDets(const Trajec
       if (fabs(nextPos.y()) < detHalfLen + maxDistance.y()) {
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim(theMetname_) << "     positiveZ: det:" << idet << " pos " << nextPos.y() << " maxDistance "
-                                  << maxDistance.y();
+                                      << maxDistance.y();
         nnextdet++;
 #endif
         if (!add(idet, result, tsos, prop, est))
@@ -127,8 +127,8 @@ vector<GeometricSearchDet::DetWithState> MTDDetTray::compatibleDets(const Trajec
   }
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim(theMetname_) << "     MTDDetTray::compatibleDets, size: " << result.size() << " on closest: " << nclosest
-                            << " # checked dets: " << nnextdet + 1;
+  edm::LogVerbatim(theMetname_) << "     MTDDetTray::compatibleDets, size: " << result.size()
+                                << " on closest: " << nclosest << " # checked dets: " << nnextdet + 1;
   if (result.empty()) {
     edm::LogVerbatim(theMetname_) << "   ***Rod not compatible---should have been discarded before!!!";
   }

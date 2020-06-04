@@ -59,9 +59,9 @@ MTDRingForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayer(int endcap,
         }
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim(theMetname_) << "get ETL module " << std::hex << ETLDetId(endcap, layer, ring, module).rawId()
-                                  << std::dec << " at R=" << geomDet->position().perp()
-                                  << ", phi=" << geomDet->position().phi() << ", z= " << geomDet->position().z()
-                                  << " isFront? " << isInFront;
+                                      << std::dec << " at R=" << geomDet->position().perp()
+                                      << ", phi=" << geomDet->position().phi() << ", z= " << geomDet->position().z()
+                                      << " isFront? " << isInFront;
 #endif
       }
     }
@@ -84,9 +84,9 @@ MTDRingForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayer(int endcap,
   result = new MTDRingForwardDoubleLayer(frontRings, backRings);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim(theMetname_) << "New MTDRingForwardLayer with " << frontRings.size() << " and " << backRings.size()
-                            << " rings, at Z " << result->position().z()
-                            << " R1: " << result->specificSurface().innerRadius()
-                            << " R2: " << result->specificSurface().outerRadius();
+                                << " rings, at Z " << result->position().z()
+                                << " R1: " << result->specificSurface().innerRadius()
+                                << " R2: " << result->specificSurface().outerRadius();
 #endif
   return result;
 }
@@ -97,9 +97,10 @@ MTDDetRing* ETLDetLayerGeometryBuilder::makeDetRing(vector<const GeomDet*>& geom
   precomputed_value_sort(geomDets.begin(), geomDets.end(), geomsort::DetPhi());
   MTDDetRing* result = new MTDDetRing(geomDets);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim(theMetname_) << "New MTDDetRing with " << geomDets.size() << " chambers at z=" << result->position().z()
-                            << " R1: " << result->specificSurface().innerRadius()
-                            << " R2: " << result->specificSurface().outerRadius();
+  edm::LogVerbatim(theMetname_) << "New MTDDetRing with " << geomDets.size()
+                                << " chambers at z=" << result->position().z()
+                                << " R1: " << result->specificSurface().innerRadius()
+                                << " R2: " << result->specificSurface().outerRadius();
 #endif
   return result;
 }
