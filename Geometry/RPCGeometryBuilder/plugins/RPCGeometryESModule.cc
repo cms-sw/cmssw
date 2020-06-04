@@ -24,8 +24,7 @@ DD4hep part added to the original old file (DD version) made by M. Maggi (INFN B
 using namespace edm;
 
 RPCGeometryESModule::RPCGeometryESModule(const edm::ParameterSet& p)
-    : comp11_{p.getUntrackedParameter<bool>("compatibiltyWith11", true)},
-      useDDD_{p.getUntrackedParameter<bool>("useDDD", true)},
+    : useDDD_{p.getUntrackedParameter<bool>("useDDD", true)},
       useDD4hep_{p.getUntrackedParameter<bool>("useDD4hep", false)} {
   auto cc = setWhatProduced(this);
 
@@ -42,16 +41,16 @@ std::unique_ptr<RPCGeometry> RPCGeometryESModule::produce(const MuonGeometryReco
   if (useDDD_) {
     edm::ESTransientHandle<DDCompactView> cpv = record.getTransientHandle(idealGeomToken_);
     auto const& mdc = record.get(dddConstantsToken_);
-    RPCGeometryBuilder builder(comp11_);
+    RPCGeometryBuilder builder;
     return std::unique_ptr<RPCGeometry>(builder.build(&(*cpv), mdc));
   } else if (useDD4hep_) {
     edm::ESTransientHandle<cms::DDCompactView> cpv = record.getTransientHandle(idealDD4hepGeomToken_);
     auto const& mdc = record.get(dddConstantsToken_);
-    RPCGeometryBuilder builder(comp11_);
+    RPCGeometryBuilder builder;
     return std::unique_ptr<RPCGeometry>(builder.build(&(*cpv), mdc));
   } else {
     auto const& rigrpc = record.get(recoIdealToken_);
-    RPCGeometryBuilderFromCondDB builder(comp11_);
+    RPCGeometryBuilderFromCondDB builder;
     return std::unique_ptr<RPCGeometry>(builder.build(rigrpc));
   }
 }

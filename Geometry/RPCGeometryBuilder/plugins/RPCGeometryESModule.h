@@ -37,7 +37,6 @@ private:
   // Reco
   edm::ESGetToken<RecoIdealGeometry, RPCRecoGeometryRcd> recoIdealToken_;
 
-  const bool comp11_;
   const bool useDDD_;
   const bool useDD4hep_;
 };

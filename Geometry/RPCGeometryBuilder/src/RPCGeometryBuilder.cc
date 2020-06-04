@@ -31,12 +31,12 @@
 
 using namespace cms_units::operators;
 
-RPCGeometryBuilder::RPCGeometryBuilder(bool comp11) : theComp11Flag(comp11) {}
-
-RPCGeometryBuilder::~RPCGeometryBuilder() {}
+RPCGeometryBuilder::RPCGeometryBuilder() {}
 
 // for DDD
-RPCGeometry* RPCGeometryBuilder::build(const DDCompactView* cview, const MuonGeometryConstants& muonConstants) {
+
+std::unique_ptr<RPCGeometry> RPCGeometryBuilder::build(const DDCompactView* cview,
+                                                       const MuonGeometryConstants& muonConstants) {
   const std::string attribute = "ReadOutName";
   const std::string value = "MuonRPCHits";
   DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0.0)};
@@ -44,7 +44,9 @@ RPCGeometry* RPCGeometryBuilder::build(const DDCompactView* cview, const MuonGeo
   return this->buildGeometry(fview, muonConstants);
 }
 // for DD4hep
-RPCGeometry* RPCGeometryBuilder::build(const cms::DDCompactView* cview, const MuonGeometryConstants& muonConstants) {
+
+std::unique_ptr<RPCGeometry> RPCGeometryBuilder::build(const cms::DDCompactView* cview,
+                                                       const MuonGeometryConstants& muonConstants) {
   const std::string attribute = "ReadOutName";
   const std::string value = "MuonRPCHits";
   cms::DDFilteredView fview(cview->detector(), cview->detector()->worldVolume());
@@ -55,9 +57,11 @@ RPCGeometry* RPCGeometryBuilder::build(const cms::DDCompactView* cview, const Mu
   return this->buildGeometry(fview, muonConstants);
 }
 // for DDD
-RPCGeometry* RPCGeometryBuilder::buildGeometry(DDFilteredView& fview, const MuonGeometryConstants& muonConstants) {
+
+std::unique_ptr<RPCGeometry> RPCGeometryBuilder::buildGeometry(DDFilteredView& fview,
+                                                               const MuonGeometryConstants& muonConstants) {
   LogDebug("RPCGeometryBuilder") << "Building the geometry service";
-  RPCGeometry* geometry = new RPCGeometry();
+  std::unique_ptr<RPCGeometry> geometry = std::make_unique<RPCGeometry>();
   LogDebug("RPCGeometryBuilder") << "About to run through the RPC structure\n"
                                  << " First logical part " << fview.logicalPart().name().name();
   bool doSubDets = fview.firstChild();
@@ -118,13 +122,11 @@ RPCGeometry* RPCGeometryBuilder::buildGeometry(DDFilteredView& fview, const Muon
       bounds = new RectangularPlaneBounds(width, length, thickness);
       const std::vector<float> pars = {width, length, float(numbOfStrips.doubles()[0])};
 
-      if (!theComp11Flag) {
-        if (tran.z() > -1500.) {
-          Basic3DVector<float> newX(-1., 0., 0.);
-          Basic3DVector<float> newY(0., -1., 0.);
-          Basic3DVector<float> newZ(0., 0., 1.);
-          rot.rotateAxes(newX, newY, newZ);
-        }
+      if (tran.z() > -1500.) {
+        Basic3DVector<float> newX(-1., 0., 0.);
+        Basic3DVector<float> newY(0., -1., 0.);
+        Basic3DVector<float> newZ(0., 0., 1.);
+        rot.rotateAxes(newX, newY, newZ);
       }
 
       rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCBarrel, name, pars);
@@ -241,8 +243,10 @@ RPCGeometry* RPCGeometryBuilder::buildGeometry(DDFilteredView& fview, const Muon
 }
 
 // for DD4hep
-RPCGeometry* RPCGeometryBuilder::buildGeometry(cms::DDFilteredView& fview, const MuonGeometryConstants& muonConstants) {
-  RPCGeometry* geometry = new RPCGeometry();
+
+std::unique_ptr<RPCGeometry> RPCGeometryBuilder::buildGeometry(cms::DDFilteredView& fview,
+                                                               const MuonGeometryConstants& muonConstants) {
+  std::unique_ptr<RPCGeometry> geometry = std::make_unique<RPCGeometry>();
 
   while (fview.firstChild()) {
     MuonGeometryNumbering mdddnum(muonConstants);
@@ -263,11 +267,7 @@ RPCGeometry* RPCGeometryBuilder::buildGeometry(cms::DDFilteredView& fview, const
     DDRotationMatrix rota;
     fview.rot(rota);
 
-    double pos_x = tran[0];
-    double pos_y = tran[1];
-    double pos_z = tran[2];
-
-    Surface::PositionType pos(pos_x, pos_y, pos_z);
+    Surface::PositionType pos(tran[0], tran[1], tran[2]);
 
     DD3Vector x, y, z;
     rota.GetComponents(x, y, z);
@@ -293,13 +293,11 @@ RPCGeometry* RPCGeometryBuilder::buildGeometry(cms::DDFilteredView& fview, const
 
       const std::vector<float> pars = {width, length, float(nStrips)};
 
-      if (!theComp11Flag) {
-        if (tran[2] > -1500.) {
-          Basic3DVector<float> newX(-1., 0., 0.);
-          Basic3DVector<float> newY(0., -1., 0.);
-          Basic3DVector<float> newZ(0., 0., 1.);
-          rot.rotateAxes(newX, newY, newZ);
-        }
+      if (tran[2] > -1500.) {
+        Basic3DVector<float> newX(-1., 0., 0.);
+        Basic3DVector<float> newY(0., -1., 0.);
+        Basic3DVector<float> newZ(0., 0., 1.);
+        rot.rotateAxes(newX, newY, newZ);
       }
 
       rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCBarrel, std::string(name), pars);

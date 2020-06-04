@@ -14,7 +14,6 @@ process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
 
 process.RPCGeometryESProducer = cms.ESProducer("RPCGeometryESModule",
                                                DDDetector = cms.ESInputTag('',''),
-                                               comp11 = cms.untracked.bool(True),
                                                attribute = cms.string('ReadOutName'),
                                                value = cms.string('MuonRPCHits'),
                                                useDDD = cms.untracked.bool(False),
