@@ -30,8 +30,6 @@ from CalibMuon.DTCalibration.ALCARECODtCalib_cff import ALCARECODtCalibHLTFilter
 #                                        dtAlcaResolutionMonitor + 
 #                                        dtTriggerSynchMonitor +
 #                                        ALCARECODtCalibHLTDQM )
-
-# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
-# To be reverted in a subsequent PR
-ALCARECODTCalibSynchDQMTask = cms.Task(dtPreCalibrationTaskAlca, dtAlcaResolutionMonitor, dtTriggerSynchMonitor)
-ALCARECODTCalibSynchDQM = cms.Sequence(ALCARECODTCalibSynchDQMTask)
+ALCARECODTCalibSynchDQM = cms.Sequence( dtPreCalibrationTaskAlca +
+                                        dtAlcaResolutionMonitor +
+                                        dtTriggerSynchMonitor )
