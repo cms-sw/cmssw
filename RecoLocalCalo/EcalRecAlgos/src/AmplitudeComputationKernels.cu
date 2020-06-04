@@ -158,7 +158,8 @@ namespace ecal {
         auto const* dids = ch >= offsetForInputs ? dids_ee : dids_eb;
         auto const did = DetId{dids[inputCh]};
         auto const isBarrel = did.subdetId() == EcalBarrel;
-        auto const hashedId = isBarrel ? hashedIndexEB(did.rawId()) : offsetForHashes + hashedIndexEE(did.rawId());
+        auto const hashedId = isBarrel ? ecal::reconstruction::hashedIndexEB(did.rawId())
+                                       : offsetForHashes + ecal::reconstruction::hashedIndexEE(did.rawId());
 
         // inits
         int iter = 0;
@@ -351,6 +352,7 @@ namespace ecal {
         // FIXME: amplitudes are used in global directly
         chi2s[idx] = chi2;
         energies[idx] = resultAmplitudes(5);
+
 #pragma unroll
         for (int counter = 0; counter < NPULSES; counter++)
           amplitudes[idx](counter) = resultAmplitudes(counter);

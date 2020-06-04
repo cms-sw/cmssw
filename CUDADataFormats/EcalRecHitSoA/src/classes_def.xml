@@ -2,12 +2,17 @@
     <class name="std::vector<float, cms::cuda::HostAllocator<float, 0>>" />
     <class name="std::vector<double, cms::cuda::HostAllocator<double, 0>>" />
     <class name="std::vector<uint32_t, cms::cuda::HostAllocator<uint32_t, 0>>" />
+    <class name="std::vector<uint16_t, cms::cuda::HostAllocator<uint16_t, 0>>" />
     <class name="ecal::Tag::soa"/>
     <class name="ecal::Detail::Base<ecal::Tag::soa>" />
 
     <class name="cms::cuda::Product<ecal::UncalibratedRecHit<ecal::Tag::ptr>>" persistent="false" />
     <class name="edm::Wrapper<cms::cuda::Product<ecal::UncalibratedRecHit<ecal::Tag::ptr>>>" persistent="false" />
-
+    <class name="cms::cuda::Product<ecal::RecHit<ecal::Tag::ptr>>" persistent="false" />
+    <class name="edm::Wrapper<cms::cuda::Product<ecal::RecHit<ecal::Tag::ptr>>>" persistent="false" />
+                                                                                             
+    <class name="ecal::RecHit<ecal::Tag::soa>"/>
+    <class name="edm::Wrapper<ecal::RecHit<ecal::Tag::soa> >"/>          
     <class name="ecal::UncalibratedRecHit<ecal::Tag::soa>"/>
     <class name="edm::Wrapper<ecal::UncalibratedRecHit<ecal::Tag::soa> >"/>
 </lcgdict>
