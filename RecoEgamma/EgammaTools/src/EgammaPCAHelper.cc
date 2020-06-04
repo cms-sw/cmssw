@@ -23,8 +23,6 @@ EGammaPCAHelper::EGammaPCAHelper()
   debug_ = false;
 }
 
-EGammaPCAHelper::~EGammaPCAHelper() {}
-
 void EGammaPCAHelper::setHitMap(const std::unordered_map<DetId, const HGCRecHit*>* hitMap) {
   hitMap_ = hitMap;
   pcaIteration_ = 0;
