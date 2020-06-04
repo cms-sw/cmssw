@@ -43,9 +43,10 @@ MTDRingForwardDoubleLayer::MTDRingForwardDoubleLayer(const vector<const ForwardD
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim(theMetname_) << "Constructing MTDRingForwardDoubleLayer: " << basicComponents().size() << " Dets "
-                            << theRings.size() << " Rings "
-                            << " Z: " << specificSurface().position().z() << " R1: " << specificSurface().innerRadius()
-                            << " R2: " << specificSurface().outerRadius();
+                                << theRings.size() << " Rings "
+                                << " Z: " << specificSurface().position().z()
+                                << " R1: " << specificSurface().innerRadius()
+                                << " R2: " << specificSurface().outerRadius();
 #endif
 
   selfTest();
@@ -82,7 +83,8 @@ std::pair<bool, TrajectoryStateOnSurface> MTDRingForwardDoubleLayer::compatible(
   bool insideOut = isInsideOut(startingState);
   const MTDRingForwardLayer& closerLayer = (insideOut) ? theFrontLayer : theBackLayer;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim(theMetname_) << "MTDRingForwardDoubleLayer::compatible is assuming inside-out direction: " << insideOut;
+  edm::LogVerbatim(theMetname_) << "MTDRingForwardDoubleLayer::compatible is assuming inside-out direction: "
+                                << insideOut;
 #endif
 
   TrajectoryStateOnSurface myState = prop.propagate(startingState, closerLayer.specificSurface());
@@ -114,7 +116,7 @@ vector<GeometricSearchDet::DetWithState> MTDRingForwardDoubleLayer::compatibleDe
   if (!compat.first) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim(theMetname_) << "     MTDRingForwardDoubleLayer::compatibleDets: not compatible"
-                              << " (should not have been selected!)";
+                                  << " (should not have been selected!)";
 #endif
     return result;
   }
