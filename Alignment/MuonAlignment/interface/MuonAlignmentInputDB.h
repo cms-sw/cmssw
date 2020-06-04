@@ -29,7 +29,7 @@
 class MuonAlignmentInputDB : public MuonAlignmentInputMethod {
 public:
   MuonAlignmentInputDB();
-  MuonAlignmentInputDB(std::string dtLabel, std::string cscLabel, bool getAPEs);
+  MuonAlignmentInputDB(std::string dtLabel, std::string cscLabel, std::string idealLabel, bool getAPEs);
   ~MuonAlignmentInputDB() override;
 
   // ---------- const member functions ---------------------
@@ -47,7 +47,7 @@ private:
 
   // ---------- member data --------------------------------
 
-  std::string m_dtLabel, m_cscLabel;
+  std::string m_dtLabel, m_cscLabel, idealGeometryLabel;
   bool m_getAPEs;
 };
 
