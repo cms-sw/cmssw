@@ -43,7 +43,4 @@ ALCARECOSiStripCalMinBiasTrackerDQM = DQMOffline.Alignment.TkAlCaRecoMonitor_cfi
 # Sequence #
 #------------
 
-# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
-# To be reverted in a subsequent PR
-ALCARECOSiStripCalMinBiasDQMTask = cms.Task(ALCARECOSiStripCalMinBiasTrackingDQM , ALCARECOSiStripCalMinBiasTrackerDQM)
-ALCARECOSiStripCalMinBiasDQM = cms.Sequence(ALCARECOSiStripCalMinBiasDQMTask)
+ALCARECOSiStripCalMinBiasDQM = cms.Sequence( ALCARECOSiStripCalMinBiasTrackingDQM + ALCARECOSiStripCalMinBiasTrackerDQM)
