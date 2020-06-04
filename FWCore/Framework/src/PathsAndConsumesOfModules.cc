@@ -123,6 +123,11 @@ namespace edm {
     return worker->consumesInfo();
   }
 
+  unsigned int PathsAndConsumesOfModules::doLargestModuleID() const {
+    // moduleIDToIndex_ is sorted, so last element has the largest ID
+    return moduleIDToIndex_.empty() ? 0 : moduleIDToIndex_.back().first;
+  }
+
   unsigned int PathsAndConsumesOfModules::moduleIndex(unsigned int moduleID) const {
     unsigned int dummy = 0;
     auto target = std::make_pair(moduleID, dummy);

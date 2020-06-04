@@ -13,3 +13,5 @@ cmsRun $TEST_DIR/test_module_delete_improperDependencies_cfg.py && die "module d
 echo "module deletion test with improper module ordering succeeded"
 cmsRun $TEST_DIR/test_module_delete_looper_cfg.py || die "module deletetion test with looper failed" $?
 echo "module deletion test with looper succeeded"
+cmsRun $TEST_DIR/test_module_delete_dependencygraph_cfg.py || die "module deletetion test with DependencyGraph failed" $?
+echo "module deletion test with DependencyGraph succeeded"

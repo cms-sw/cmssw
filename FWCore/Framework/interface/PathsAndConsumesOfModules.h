@@ -55,6 +55,8 @@ namespace edm {
 
     std::vector<ConsumesInfo> doConsumesInfo(unsigned int moduleID) const override;
 
+    unsigned int doLargestModuleID() const override;
+
     unsigned int moduleIndex(unsigned int moduleID) const;
 
     // data members

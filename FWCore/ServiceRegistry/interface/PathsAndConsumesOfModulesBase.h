@@ -75,6 +75,8 @@ namespace edm {
     // than just a pointer.
     std::vector<ConsumesInfo> consumesInfo(unsigned int moduleID) const { return doConsumesInfo(moduleID); }
 
+    unsigned int largestModuleID() const { return doLargestModuleID(); }
+
   private:
     virtual std::vector<std::string> const& doPaths() const = 0;
     virtual std::vector<std::string> const& doEndPaths() const = 0;
@@ -85,6 +87,7 @@ namespace edm {
     virtual std::vector<ModuleDescription const*> const& doModulesWhoseProductsAreConsumedBy(
         unsigned int moduleID, BranchType branchType) const = 0;
     virtual std::vector<ConsumesInfo> doConsumesInfo(unsigned int moduleID) const = 0;
+    virtual unsigned int doLargestModuleID() const = 0;
   };
 }  // namespace edm
 #endif
