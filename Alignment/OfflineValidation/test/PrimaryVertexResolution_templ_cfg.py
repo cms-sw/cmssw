@@ -1,7 +1,7 @@
 #! /bin/env cmsRun
 
 '''
-cfg to produce ntuples for error scale calibration
+cfg to produce pv resolution plots
 here doing refit of tracks and vertices using latest alignment 
 '''
 
@@ -26,27 +26,33 @@ def best_match(rcd):
 
 options = VarParsing.VarParsing("analysis")
 
+options.register('lumi',
+                 1.,
+                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                 VarParsing.VarParsing.varType.float,          # string, int, or float
+                 "luminosity used")
+
 options.register ('outputRootFile',
-                  "pvresolution_test.root",
+                  "pvresolution_YYY_KEY_YYY_XXX_RUN_XXX.root",
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
-                  VarParsing.VarParsing.varType.string,         # string, int, or float
+                  VarParsing.VarParsing.varType.string,          # string, int, or float
                   "output root file")
 
 options.register ('records',
                   [],
-                  VarParsing.VarParsing.multiplicity.list,       # singleton or list
+                  VarParsing.VarParsing.multiplicity.list, # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "record:tag names to be used/changed from GT")
 
 options.register ('external',
                   [],
-                  VarParsing.VarParsing.multiplicity.list,       # singleton or list
+                  VarParsing.VarParsing.multiplicity.list, # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "record:fle.db picks the following record from this external file")
 
 options.register ('GlobalTag',
-                  'auto:run2_data',
-                  VarParsing.VarParsing.multiplicity.singleton,  # singleton or list
+                  '110X_dataRun3_Prompt_v3',
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "Global Tag to be used")
 
@@ -56,7 +62,6 @@ print "conditionGT       : ", options.GlobalTag
 print "conditionOverwrite: ", options.records
 print "external conditions:", options.external
 print "outputFile        : ", options.outputRootFile
-print "maxEvents         : ", options.maxEvents
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr = cms.untracked.PSet(placeholder = cms.untracked.bool(True))
@@ -65,9 +70,10 @@ process.MessageLogger.cout = cms.untracked.PSet(INFO = cms.untracked.PSet(
         #    limit = cms.untracked.int32(10)       # or limit to 10 printouts...
     ))
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(150000) )
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 process.load('Configuration.Geometry.GeometryRecoDB_cff')
 
@@ -75,23 +81,16 @@ process.load('Configuration/StandardSequences/Services_cff')
 process.load('TrackingTools.TransientTrack.TransientTrackBuilder_cfi')
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
-        '/store/express/Run2018C/StreamExpressAlignment/ALCARECO/TkAlMinBias-Express-v1/000/320/039/00000/4C851925-AF8D-E811-96A4-02163E010E90.root',
-        '/store/express/Run2018C/StreamExpressAlignment/ALCARECO/TkAlMinBias-Express-v1/000/320/040/00000/A8A78033-B18D-E811-9477-02163E019F55.root',
-        '/store/express/Run2018C/StreamExpressAlignment/ALCARECO/TkAlMinBias-Express-v1/000/320/058/00000/6A45BA9D-F88D-E811-B907-FA163E600F07.root',
-        # '/store/express/Run2018C/StreamExpressAlignment/ALCARECO/TkAlMinBias-Express-v1/000/320/040/00000/B09C5228-B18D-E811-9271-FA163E573834.root',
-        # '/store/express/Run2018C/StreamExpressAlignment/ALCARECO/TkAlMinBias-Express-v1/000/320/040/00000/C28F8F68-B18D-E811-BC8A-FA163EE8669D.root',
-        # '/store/express/Run2018C/StreamExpressAlignment/ALCARECO/TkAlMinBias-Express-v1/000/320/040/00000/12BDA2F4-BC8D-E811-BEF2-02163E00C3F8.root',
-        # '/store/express/Run2018C/StreamExpressAlignment/ALCARECO/TkAlMinBias-Express-v1/000/320/040/00000/788386DF-BC8D-E811-AE14-FA163EC41EB1.root',
-        # '/store/express/Run2018C/StreamExpressAlignment/ALCARECO/TkAlMinBias-Express-v1/000/320/040/00000/608E8A35-B18D-E811-93ED-FA163E8674D5.root',
-        # '/store/express/Run2018C/StreamExpressAlignment/ALCARECO/TkAlMinBias-Express-v1/000/320/040/00000/E03C67DD-BC8D-E811-BBF6-FA163EF274DA.root',
-    )
-)
+                            fileNames = cms.untracked.vstring(XXX_FILES_XXX)
+                            )
 
 ###################################################################
 # Tell the program where to find the conditons
 connection_map = [
     ('Tracker*', 'frontier://PromptProd/CMS_CONDITIONS'),
+    ('SiPixel*', 'frontier://PromptProd/CMS_CONDITIONS'),
+    ('SiStrip*', 'frontier://PromptProd/CMS_CONDITIONS'),
+    ('Beam*', 'frontier://PromptProd/CMS_CONDITIONS'),
     ]
 
 if options.external:
@@ -116,11 +115,9 @@ if options.records:
             )
 
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
-
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, options.GlobalTag, '')
-process.GlobalTag.toGet = cms.VPSet(*records)
+process.GlobalTag.globaltag  = options.GlobalTag
 #process.GlobalTag.DumpStat = cms.untracked.bool(True)
+process.GlobalTag.toGet = cms.VPSet(*records)
 
 process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 # remove the following lines if you run on RECO files
@@ -136,42 +133,21 @@ process.offlinePrimaryVerticesFromRefittedTrks.TrackLabel                       
 process.offlinePrimaryVerticesFromRefittedTrks.vertexCollections.maxDistanceToBeam              = 1
 process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.maxNormalizedChi2             = 20
 process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.minSiliconLayersWithHits      = 5
-process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.maxD0Significance             = 5.0 
+process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.maxD0Significance             = 5.0
 # as it was prior to https://github.com/cms-sw/cmssw/commit/c8462ae4313b6be3bbce36e45373aa6e87253c59
 process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.maxD0Error                    = 1.0
 process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.maxDzError                    = 1.0
 process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.minPixelLayersWithHits        = 2   
 
-###################################################################
-# The trigger filter module
-###################################################################
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import *
-process.HLTFilter = triggerResultsFilter.clone(
-    #triggerConditions = cms.vstring("HLT_ZeroBias_*"),
-    triggerConditions = cms.vstring("HLT_HT*"),
-    hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
-    l1tResults = cms.InputTag( "" ),
-    throw = cms.bool(False)
-)
-###################################################################
-# The analysis module
-###################################################################
-process.myanalysis = cms.EDAnalyzer("GeneralPurposeTrackAnalyzer",
-                                    TkTag  = cms.string('TrackRefitter'),
-                                    isCosmics = cms.bool(False)
-                                    )
-
-###################################################################
-# The PV resolution module
-###################################################################
 process.PrimaryVertexResolution = cms.EDAnalyzer('SplitVertexResolution',
-                                                 storeNtuple         = cms.bool(True),
+                                                 storeNtuple         = cms.bool(False),
+                                                 intLumi             = cms.untracked.double(options.lumi),
                                                  vtxCollection       = cms.InputTag("offlinePrimaryVerticesFromRefittedTrks"),
                                                  trackCollection     = cms.InputTag("TrackRefitter"),		
                                                  minVertexNdf        = cms.untracked.double(10.),
                                                  minVertexMeanWeight = cms.untracked.double(0.5),
                                                  runControl = cms.untracked.bool(True),
-                                                 runControlNumber = cms.untracked.vuint32(320040)
+                                                 runControlNumber = cms.untracked.vuint32(int(XXX_RUN_XXX))
                                                  )
 
 process.TFileService = cms.Service("TFileService",
@@ -179,12 +155,9 @@ process.TFileService = cms.Service("TFileService",
                                    closeFileFast = cms.untracked.bool(False)
                                    )
 
-process.p = cms.Path(process.HLTFilter                               +
-                     process.offlineBeamSpot                         +
-                     process.TrackRefitter                           +
-                     process.offlinePrimaryVerticesFromRefittedTrks  +
-                     process.PrimaryVertexResolution                 +
-                     process.myanalysis
-                     )
+process.p = cms.Path(process.offlineBeamSpot                        + 
+                     process.TrackRefitter                          + 
+                     process.offlinePrimaryVerticesFromRefittedTrks +
+                     process.PrimaryVertexResolution)
 
 
