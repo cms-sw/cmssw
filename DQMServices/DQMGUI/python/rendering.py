@@ -67,7 +67,7 @@ class GUIRenderer:
         """Renders a single string."""
 
         options = RenderingOptions(width=width, height=height)
-        rendering_info = RenderingInfo('', FileFormat.NONE, '', '', ScalarValue(b'', b'', string))
+        rendering_info = RenderingInfo('', FileFormat.NONE, '', '', ScalarValue(b'', b's', string))
         message = cls.__pack_message_for_renderer([rendering_info], options)
         data, error = await cls.__render(message)
 
