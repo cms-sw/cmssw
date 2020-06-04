@@ -20,8 +20,6 @@
 #include <algorithm>
 #include <iostream>
 
-//#define EDM_ML_DEBUG
-
 using namespace std;
 
 MTDTrayBarrelLayer::MTDTrayBarrelLayer(vector<const DetRod*>& rods)
@@ -52,10 +50,10 @@ MTDTrayBarrelLayer::MTDTrayBarrelLayer(vector<const DetRod*>& rods)
   BarrelDetLayer::initialize();
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("MTDDetLayers") << "Constructing MTDTrayBarrelLayer: " << basicComponents().size() << " Dets "
-                                   << theRods.size() << " Rods "
-                                   << " R: " << specificSurface().radius() << " Per.: " << bf.isPhiPeriodic()
-                                   << " Overl.: " << isOverlapping;
+  LogTrace("MTDDetLayers") << "Constructing MTDTrayBarrelLayer: " << basicComponents().size() << " Dets "
+                           << theRods.size() << " Rods "
+                           << " R: " << specificSurface().radius() << " Per.: " << bf.isPhiPeriodic()
+                           << " Overl.: " << isOverlapping;
 #endif
 }
 
@@ -71,16 +69,16 @@ vector<GeometricSearchDet::DetWithState> MTDTrayBarrelLayer::compatibleDets(
   vector<DetWithState> result;
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("MTDDetLayers") << "MTDTrayBarrelLayer::compatibleDets, Cyl R: " << specificSurface().radius()
-                                   << " TSOS at R= " << startingState.globalPosition().perp()
-                                   << " phi= " << startingState.globalPosition().phi();
+  LogTrace("MTDDetLayers") << "MTDTrayBarrelLayer::compatibleDets, Cyl R: " << specificSurface().radius()
+                           << " TSOS at R= " << startingState.globalPosition().perp()
+                           << " phi= " << startingState.globalPosition().phi();
 #endif
 
   pair<bool, TrajectoryStateOnSurface> compat = compatible(startingState, prop, est);
   if (!compat.first) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("MTDDetLayers") << "     MTDTrayBarrelLayer::compatibleDets: not compatible"
-                                     << " (should not have been selected!)";
+    LogTrace("MTDDetLayers") << "     MTDTrayBarrelLayer::compatibleDets: not compatible"
+                             << " (should not have been selected!)";
 #endif
     return vector<DetWithState>();
   }
@@ -88,9 +86,8 @@ vector<GeometricSearchDet::DetWithState> MTDTrayBarrelLayer::compatibleDets(
   TrajectoryStateOnSurface& tsos = compat.second;
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("MTDDetLayers") << "     MTDTrayBarrelLayer::compatibleDets, reached layer at: "
-                                   << tsos.globalPosition() << " R = " << tsos.globalPosition().perp()
-                                   << " phi = " << tsos.globalPosition().phi();
+  LogTrace("MTDDetLayers") << "     MTDTrayBarrelLayer::compatibleDets, reached layer at: " << tsos.globalPosition()
+                           << " R = " << tsos.globalPosition().perp() << " phi = " << tsos.globalPosition().phi();
 #endif
 
   int closest = theBinFinder->binIndex(tsos.globalPosition().phi());
@@ -98,9 +95,9 @@ vector<GeometricSearchDet::DetWithState> MTDTrayBarrelLayer::compatibleDets(
 
   // Check the closest rod
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("MTDDetLayers") << "     MTDTrayBarrelLayer::compatibleDets, closestRod: " << closest
-                                   << " phi : " << closestRod->surface().position().phi()
-                                   << " FTS phi: " << tsos.globalPosition().phi();
+  LogTrace("MTDDetLayers") << "     MTDTrayBarrelLayer::compatibleDets, closestRod: " << closest
+                           << " phi : " << closestRod->surface().position().phi()
+                           << " FTS phi: " << tsos.globalPosition().phi();
 #endif
 
   result = closestRod->compatibleDets(tsos, prop, est);
@@ -143,7 +140,7 @@ vector<GeometricSearchDet::DetWithState> MTDTrayBarrelLayer::compatibleDets(
     }
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("MTDDetLayers") << "     MTDTrayBarrelLayer::fastCompatibleDets, none on closest rod!";
+    LogTrace("MTDDetLayers") << "     MTDTrayBarrelLayer::fastCompatibleDets, none on closest rod!";
 #endif
   }
 
@@ -158,10 +155,9 @@ vector<GeometricSearchDet::DetWithState> MTDTrayBarrelLayer::compatibleDets(
     const DetRod* nextRod = theRods[next];
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("MTDDetLayers") << "     MTDTrayBarrelLayer::fastCompatibleDets, next-to closest"
-                                     << " rod: " << next << " dist " << dist
-                                     << " phi : " << nextRod->surface().position().phi()
-                                     << " FTS phi: " << tsos.globalPosition().phi();
+    LogTrace("MTDDetLayers") << "     MTDTrayBarrelLayer::fastCompatibleDets, next-to closest"
+                             << " rod: " << next << " dist " << dist << " phi : " << nextRod->surface().position().phi()
+                             << " FTS phi: " << tsos.globalPosition().phi();
 #endif
 
     vector<DetWithState> nextRodDets = nextRod->compatibleDets(tsos, prop, est);
@@ -169,8 +165,8 @@ vector<GeometricSearchDet::DetWithState> MTDTrayBarrelLayer::compatibleDets(
   }
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("MTDDetLayers") << "     MTDTrayBarrelLayer::fastCompatibleDets: found: " << result.size()
-                                   << " on closest: " << nclosest << " # checked rods: " << 1 + int(checknext);
+  LogTrace("MTDDetLayers") << "     MTDTrayBarrelLayer::fastCompatibleDets: found: " << result.size()
+                           << " on closest: " << nclosest << " # checked rods: " << 1 + int(checknext);
 #endif
 
   return result;
@@ -181,7 +177,7 @@ vector<DetGroup> MTDTrayBarrelLayer::groupedCompatibleDets(const TrajectoryState
                                                            const MeasurementEstimator& est) const {
   // FIXME should return only 1 group
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("MTDDetLayers") << "dummy implementation of MTDTrayBarrelLayer::groupedCompatibleDets()";
+  edm::LogError("MTDDetLayers") << "dummy implementation of MTDTrayBarrelLayer::groupedCompatibleDets()";
 #endif
   return vector<DetGroup>();
 }
