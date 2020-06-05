@@ -46,8 +46,10 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf)
       minConvRadius(conf.getParameter<double>("minConvRadius")) {
   edm::InputTag thetp(trackProducer);
   genericTracks = consumes<edm::View<reco::Track> >(thetp);
-  kfTrajectories = consumes<TrajTrackAssociationCollection>(thetp);
-  gsfTrajectories = consumes<TrajGsfTrackAssociationCollection>(thetp);
+  if (useTrajectory) {
+    kfTrajectories = consumes<TrajTrackAssociationCollection>(thetp);
+    gsfTrajectories = consumes<TrajGsfTrackAssociationCollection>(thetp);
+  }
   produces<reco::ConversionTrackCollection>();
 }
 
