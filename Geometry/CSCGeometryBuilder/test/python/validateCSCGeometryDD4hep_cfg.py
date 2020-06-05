@@ -11,7 +11,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.load('Configuration.StandardSequences.DD4hep_GeometrySim_cff')
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
+process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
 
 
 process.CSCGeometryESProducer = cms.ESProducer("CSCGeometryESModule",
@@ -30,14 +30,16 @@ process.CSCGeometryESProducer = cms.ESProducer("CSCGeometryESModule",
                                                useCentreTIOffsets = cms.bool(False)
                                               )
 
+process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
+                                                 appendToDataLabel = cms.string('')
+)
+
+
 process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProducer",
                                                      appendToDataLabel = cms.string('') 
                                                      )
 
-process.MuonNumberingESProducer = cms.ESProducer("MuonNumberingESProducer",
-                                                 label = cms.string(''),
-                                                 key = cms.string('MuonCommonNumbering')
-                                                 )
+process.muonGeometryConstants.fromDD4Hep = True
 
 process.test = cms.EDAnalyzer("DDTestMuonNumbering")
 

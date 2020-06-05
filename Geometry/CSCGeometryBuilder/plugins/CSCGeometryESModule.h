@@ -1,18 +1,17 @@
 #ifndef CSCGeometryBuilder_CSCGeometryESModule_h
 #define CSCGeometryBuilder_CSCGeometryESModule_h
-
 /*
 // \class CSCGeometryESModule
 //
 //  Description: CSC ESModule for DD4hep
 //              
 //
-// \author Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
+// \author Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osborne made for DTs (DD4HEP migration)
 //         Created:  Thu, 05 March 2020 
+//         Modified: Thu, 04 June 2020, following what made in PR #30047               
 //   
 //         Original author: Tim Cox
 */
-
 #include <FWCore/Framework/interface/ESProducer.h>
 #include "FWCore/Framework/interface/ESProductHost.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
@@ -23,14 +22,11 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/Records/interface/MuonNumberingRecord.h"
-#include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
 #include "Geometry/Records/interface/CSCRecoGeometryRcd.h"
 #include "Geometry/Records/interface/CSCRecoDigiParametersRcd.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
 #include "CondFormats/GeometryObjects/interface/CSCRecoDigiParameters.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 // Alignments
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
@@ -54,7 +50,7 @@ public:
   std::shared_ptr<CSCGeometry> produce(const MuonGeometryRecord& record);
 
 private:
-  using HostType = edm::ESProductHost<CSCGeometry, MuonNumberingRecord, CSCRecoGeometryRcd, CSCRecoDigiParametersRcd>;
+  using HostType = edm::ESProductHost<CSCGeometry, IdealGeometryRecord, CSCRecoGeometryRcd, CSCRecoDigiParametersRcd>;
 
   void initCSCGeometry_(const MuonGeometryRecord&, std::shared_ptr<HostType>& host);
 
@@ -64,7 +60,6 @@ private:
   edm::ESGetToken<MuonGeometryConstants, IdealGeometryRecord> mdcToken_;
   //dd4hep
   edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> cpvTokendd4hep_;
-  edm::ESGetToken<cms::MuonNumbering, MuonNumberingRecord> mdcTokendd4hep_;
 
   edm::ESGetToken<RecoIdealGeometry, CSCRecoGeometryRcd> rigToken_;
   edm::ESGetToken<CSCRecoDigiParameters, CSCRecoDigiParametersRcd> rdpToken_;
