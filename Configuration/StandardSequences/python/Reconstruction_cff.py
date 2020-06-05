@@ -227,6 +227,8 @@ reconstruction_ecalOnlyTask = cms.Task(
 )
 reconstruction_ecalOnly = cms.Sequence(reconstruction_ecalOnlyTask)
 
+particleFlowRecHitHBHE.producers[0].src=cms.InputTag("hbheprereco","")
+
 reconstruction_hcalOnlyTask = cms.Task(
     bunchSpacingProducer,
     offlineBeamSpot,
