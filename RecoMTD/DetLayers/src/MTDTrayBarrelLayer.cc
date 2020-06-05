@@ -20,6 +20,8 @@
 #include <algorithm>
 #include <iostream>
 
+#define EDM_ML_DEBUG
+
 using namespace std;
 
 MTDTrayBarrelLayer::MTDTrayBarrelLayer(vector<const DetRod*>& rods)

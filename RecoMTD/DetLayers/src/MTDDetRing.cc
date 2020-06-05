@@ -12,6 +12,8 @@
 #include <iostream>
 #include <vector>
 
+#define EDM_ML_DEBUG
+
 using namespace std;
 
 MTDDetRing::MTDDetRing(vector<const GeomDet*>::const_iterator first, vector<const GeomDet*>::const_iterator last)

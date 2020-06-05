@@ -11,6 +11,8 @@
 
 #include <iostream>
 
+#define EDM_ML_DEBUG
+
 using namespace std;
 
 MTDDetTray::MTDDetTray(vector<const GeomDet*>::const_iterator first, vector<const GeomDet*>::const_iterator last)
