@@ -51,13 +51,17 @@ SubLayerCrossings TBLayer::computeCrossings(const TrajectoryStateOnSurface& star
 
   HelixBarrelCylinderCrossing innerCrossing(
       startPos, startDir, rho, propDir, *theInnerCylinder, HelixBarrelCylinderCrossing::onlyPos);
-  if (!innerCrossing.hasSolution())
-    return SubLayerCrossings();
 
   HelixBarrelCylinderCrossing outerCrossing(
       startPos, startDir, rho, propDir, *theOuterCylinder, HelixBarrelCylinderCrossing::onlyPos);
-  if (!outerCrossing.hasSolution())
-    return SubLayerCrossings();
+
+  if (!innerCrossing.hasSolution() && !outerCrossing.hasSolution()) return SubLayerCrossings();
+
+  if (!innerCrossing.hasSolution() && outerCrossing.hasSolution()) {
+    innerCrossing = outerCrossing;
+  } else if (!outerCrossing.hasSolution() && innerCrossing.hasSolution()) {
+    outerCrossing = innerCrossing;
+  }
 
   GlobalPoint gInnerPoint(innerCrossing.position());
   GlobalPoint gOuterPoint(outerCrossing.position());
