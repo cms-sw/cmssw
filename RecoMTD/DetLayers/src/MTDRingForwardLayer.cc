@@ -1,3 +1,5 @@
+//#define EDM_ML_DEBUG
+
 /** \file
  *
  *  \author L. Gray - FNAL
@@ -9,7 +11,6 @@
 #include <DataFormats/GeometrySurface/interface/SimpleDiskBounds.h>
 #include <TrackingTools/GeomPropagators/interface/Propagator.h>
 #include <TrackingTools/DetLayers/interface/MeasurementEstimator.h>
-
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include "RBorderFinder.h"
@@ -18,8 +19,6 @@
 #include <algorithm>
 #include <iostream>
 #include <vector>
-
-#define EDM_ML_DEBUG
 
 using namespace std;
 

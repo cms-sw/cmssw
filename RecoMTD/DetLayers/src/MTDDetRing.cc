@@ -1,3 +1,5 @@
+//#define EDM_ML_DEBUG
+
 /** \file
  *
  *  \author L. Gray - FNAL
@@ -11,8 +13,6 @@
 
 #include <iostream>
 #include <vector>
-
-#define EDM_ML_DEBUG
 
 using namespace std;
 

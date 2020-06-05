@@ -1,3 +1,5 @@
+//#define EDM_ML_DEBUG
+
 #include "ETLDetLayerGeometryBuilder.h"
 
 #include <RecoMTD/DetLayers/interface/MTDRingForwardDoubleLayer.h>
@@ -7,12 +9,9 @@
 
 #include <Utilities/General/interface/precomputed_value_sort.h>
 #include <Geometry/CommonDetUnit/interface/DetSorting.h>
-
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <iostream>
-
-#define EDM_ML_DEBUG
 
 using namespace std;
 
