@@ -150,7 +150,7 @@ GenParticleProducer::GenParticleProducer(const ParameterSet& cfg)
       saveBarCodes_(cfg.getUntrackedParameter<bool>("saveBarCodes", false)),
       doSubEvent_(cfg.getUntrackedParameter<bool>("doSubEvent", false)),
       useCF_(cfg.getUntrackedParameter<bool>("useCrossingFrame", false)) {
-  particleTableToken_ = esConsumes<HepPDT::ParticleDataTable, edm::DefaultRecord>();
+  particleTableToken_ = esConsumes<HepPDT::ParticleDataTable, edm::DefaultRecord, edm::Transition::BeginRun>();
   produces<GenParticleCollection>();
   produces<math::XYZPointF>("xyz0");
   produces<float>("t0");
