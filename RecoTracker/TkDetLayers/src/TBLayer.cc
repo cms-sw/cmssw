@@ -55,7 +55,8 @@ SubLayerCrossings TBLayer::computeCrossings(const TrajectoryStateOnSurface& star
   HelixBarrelCylinderCrossing outerCrossing(
       startPos, startDir, rho, propDir, *theOuterCylinder, HelixBarrelCylinderCrossing::onlyPos);
 
-  if (!innerCrossing.hasSolution() && !outerCrossing.hasSolution()) return SubLayerCrossings();
+  if (!innerCrossing.hasSolution() && !outerCrossing.hasSolution())
+    return SubLayerCrossings();
 
   if (!innerCrossing.hasSolution() && outerCrossing.hasSolution()) {
     innerCrossing = outerCrossing;
