@@ -39,19 +39,22 @@ class GUIService:
 
     @classmethod
     @alru_cache(maxsize=10)
-    async def get_archive(cls, run, dataset, path, search):
+    async def get_archive(cls, run, dataset, path, search, lumi=0):
         """
-        Returns a directory listing for run/dataset/path combination.
+        Returns a directory listing for run/lumi/dataset/path combination.
         Search is performed on ME name if it is provided.
         Layout property is the name of the layout the ME is coming from. If layout property is null, 
         it means that ME is not coming from a layout. 
         """
+
         # Path must end with a slash
         if path and not path.endswith('/'):
             path = path + '/'
         
         # Get a list of all MEs
-        lines = await cls.__get_me_names_list(run, dataset)
+        lines = await cls.__get_me_names_list(dataset, run, lumi)
+        if not lines:
+            return None
 
         # dir is a dict where key is subdir name and value is a count of 
         # how many MEs are inside that subdir (in all deeper levels)
@@ -170,17 +173,17 @@ class GUIService:
 
     @classmethod
     @alru_cache(maxsize=10)
-    async def __get_me_names_list(cls, run, dataset):
-        lines = await cls.store.get_me_names_list(dataset, run)
+    async def __get_me_names_list(cls, dataset, run, lumi=0):
+        lines = await cls.store.get_me_names_list(dataset, run, lumi)
 
         if lines == None:
             # Import and retry
-            success = await cls.import_manager.import_blobs(dataset, run)
+            success = await cls.import_manager.import_blobs(dataset, run, lumi)
             if success: 
                 # Retry
-                lines = await cls.store.get_me_names_list(dataset, run)
+                lines = await cls.store.get_me_names_list(dataset, run, lumi)
 
-        return lines if lines else []
+        return lines
 
 
     @classmethod
@@ -190,7 +193,7 @@ class GUIService:
 
         if filename_fileformat_names_infos == None:
             # Import and retry
-            success = await cls.import_manager.import_blobs(dataset, run)
+            success = await cls.import_manager.import_blobs(dataset, run, lumi)
             if success:
                 # Retry
                 filename_fileformat_names_infos = await cls.store.get_filename_fileformat_names_infos(dataset, run, lumi)

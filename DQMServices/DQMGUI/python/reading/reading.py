@@ -1,6 +1,7 @@
 
 from data_types import FileFormat
 from reading.dqmclassic_reader import DQMCLASSICReader
+from reading.dqmio_reader import DQMIOReader
 
 
 class GUIMEReader:
@@ -25,5 +26,5 @@ class GUIMEReader:
         if file_format == FileFormat.DQMCLASSIC:
             return DQMCLASSICReader()
         elif file_format == FileFormat.DQMIO:
-            raise Exception('DQMIO reading is not yet supported.')
+            return DQMIOReader()
         return None

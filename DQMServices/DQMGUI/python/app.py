@@ -92,7 +92,9 @@ async def archive_legacy(request):
     dataset = '/' + '/'.join(parts[0:3])
     path = '/'.join(parts[3:])
 
-    data = await service.get_archive(run, dataset, path, search)
+    data = await service.get_archive(run, dataset, path, search, lumi=0)#7
+    if not data:
+        return web.HTTPNotFound()
 
     result = {'contents': []}
     result['contents'].extend({'subdir': name, 'me_count': me_count} for name, me_count in data.dirs)
@@ -113,7 +115,9 @@ async def archive_v1(request):
     dataset = '/' + '/'.join(parts[0:3])
     path = '/'.join(parts[3:])
 
-    data = await service.get_archive(run, dataset, path, search)
+    data = await service.get_archive(run, dataset, path, search, lumi=0)
+    if not data:
+        return web.HTTPNotFound()
 
     result = {'data': []}
     result['data'].extend({'subdir': name, 'me_count': me_count} for name, me_count in data.dirs)
@@ -149,7 +153,7 @@ async def render_legacy(request):
     dataset = '/' + '/'.join(parts[0:3])
     path = '/'.join(parts[3:])
 
-    me_description = MEDescription(dataset, path, run, lumi=0)
+    me_description = MEDescription(dataset, path, run, lumi=0)#7
 
     data = await service.get_rendered_image([me_description], options)
 

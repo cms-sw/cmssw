@@ -68,18 +68,27 @@ class GUIImportManager:
             return False
         
         importer = cls.__pick_importer(fileformat)
-        mes = await importer.get_mes_list(filename, dataset, run, lumi)
-        mes.sort()
+        mes_lists = await importer.get_me_lists(filename, dataset, run, lumi)
 
-        # Separate lists
-        names_list = b'\n'.join(name for name, _ in mes)
-        infos_list = [info for _, info in mes]
+        # It's possible that some samples that exists in this file were not yet
+        # registered as samples (through register API endpoint). So we (re)create 
+        # all samples that we have found
+        samples = [SampleFull(dataset, run=key[0], lumi=key[1], file=filename, fileformat=fileformat) for key in mes_lists]
+        await cls.store.register_samples(samples)
 
-        # Compress blobs
-        names_blob = await cls.compressor.compress_names_list(names_list)
-        infos_blob = await cls.compressor.compress_infos_list(infos_list)
+        for key in mes_lists:
+            mes = mes_lists[key]
+            mes.sort()
 
-        await cls.store.add_blobs(names_blob, infos_blob, dataset, filename, run, lumi)
+            # Separate lists
+            names_list = b'\n'.join(name for name, _ in mes)
+            infos_list = [info for _, info in mes]
+
+            # Compress blobs
+            names_blob = await cls.compressor.compress_names_list(names_list)
+            infos_blob = await cls.compressor.compress_infos_list(infos_list)
+
+            await cls.store.add_blobs(names_blob, infos_blob, dataset, filename, run=key[0], lumi=key[1])
 
         return True
 

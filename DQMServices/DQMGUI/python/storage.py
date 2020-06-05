@@ -83,7 +83,7 @@ class GUIDataStore:
 
 
     @classmethod
-    async def get_me_names_list(cls, dataset, run):
+    async def get_me_names_list(cls, dataset, run, lumi):
         """
         me_list format for an ME (ME/Path/mename) that has 2 QTests and an efficiency flag set looks like this:
         ME/Path/mename
@@ -92,10 +92,11 @@ class GUIDataStore:
         ME/Path/mename\0e=1
         This function returns a list of contents in provided run/dataset combination, in a format explained above.
         """
-        # For now adding a LIMIT 1 because there might be multiple version of the same file.
-        sql = 'SELECT menameblob FROM samples JOIN menames ON samples.menamesid = menames.menamesid WHERE run = ? AND dataset = ? LIMIT 1;'
 
-        cursor = await cls.__db.execute(sql, (int(run), dataset))
+        # For now adding a LIMIT 1 because there might be multiple version of the same file.
+        sql = 'SELECT menameblob FROM samples JOIN menames ON samples.menamesid = menames.menamesid WHERE run = ? AND lumi = ? AND dataset = ? LIMIT 1;'
+
+        cursor = await cls.__db.execute(sql, (int(run), int(lumi), dataset))
         row = await cursor.fetchone()
         await cursor.close()
 
@@ -170,7 +171,7 @@ class GUIDataStore:
         if row:
             return row[0], row[1]
         else:
-            return None
+            return None, None
 
 
     @classmethod

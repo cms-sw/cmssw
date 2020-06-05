@@ -18,7 +18,7 @@ class DQMIOReader:
         if me_info.value != None:
             return ScalarValue(b'', b'', me_info.value) # TODO: do sth. better.
 
-        buffer = await cls.ioservice.open_url(filename)
+        buffer = await cls.ioservice.open_url(filename, blockcache=True)
         key = await nanoroot.TKey().load(buffer, me_info.seekkey)
         data = await key.objdata()
         obj = data[me_info.offset : me_info.offset + me_info.size]

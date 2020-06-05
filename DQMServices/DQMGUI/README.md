@@ -80,10 +80,21 @@ There are two types of blobs: `names_blob` and `infos_blob`. `names_blob` is `\n
 In order to add new importer you have to do three things:
 
 * Add a class into `python/importing/` folder following this naming convention: `<fileformat>_importer.py`.
-  * This class has to have a single static coroutine `get_mes_list(cls, file, dataset, run, lumi):`
-  * It has to return a tuple where first item is a binary string of a full, normalized ME path within a file and a second item is an MEInfo object describing that ME.
+  * This class has to have a single static coroutine `get_me_lists(cls, file, dataset, run, lumi):`
+  * It returns a list which contains dicts. Keys of the dicts are (run, lumi) tuples and values are lists of tuples (me_path, me_info). Full structure: [(run, lumi):[(me_path, me_info)]]
 * Add your new format to a `FileFormat` enum defined in `python/data_types.py`
 * Modify `__pick_importer()` function in `GUIImportManager` to return an instance your importer when new file format is selected.
+
+
+"""
+        Returns a list which contains dicts. Keys of the dicts are (run, lumi) 
+        tuples and values are lists of tuples (me_path, me_info). Full structure:
+        [(run, lumi):[(me_path, me_info)]]
+        me_path is normalized and represented as a binary string.
+        We can return multiple (run, lumi) pairs because some file formats might 
+        contain multiple runs/lumis in ine file.
+        me_path, me_info will be saved as separete blobs in the DB.
+        """
 
 ### Sample importer:
 
@@ -91,12 +102,13 @@ In order to add new importer you have to do three things:
 from data_types import MEInfo
 class MyFormatImporter:
   @classmethod
-  async def get_mes_list(cls, filename, dataset, run, lumi):
+  async def get_me_lists(cls, filename, dataset, run, lumi):
     # Actual reading of a file removed for brevity
-    return [
-      (b'/normalized/path/to/ME1', MEInfo(b'Float', value=float(1.23)), 
-      (b'/normalized/path/to/ME2', MEInfo(b'TH1D', offset=123)
-    ]
+    return {
+      (run, lumi): [
+        (b'/normalized/path/to/ME1', MEInfo(b'Float', value=float(1.23)), 
+        (b'/normalized/path/to/ME2', MEInfo(b'TH1D', offset=123)
+    ]}
 ```
 
 ## Adding new file format reader
@@ -225,3 +237,22 @@ Registers new samples into the database.
 HTTP request body:
 
 `[{"dataset": "/a/b/c", "run": "123456", "lumi": "0", "file": "/a/b/c.root", "fileformat": 1}]`
+
+## Getting DQMIO files
+
+First you have to authenticate to access CMS data:
+
+`voms-proxy-init --rfc --voms cms`
+
+Getting a list of files and lumis:
+
+`dasgoclient -query 'file run lumi dataset=/ZeroBias/Run2018C-12Nov2019_UL2018-v2/DQMIO'`
+
+File needs to be on disk. In order to find out on which site the file resides:
+
+`dasgoclient -query 'site file=/store/data/Run2018C/ZeroBias/DQMIO/12Nov2019_UL2018-v2/110000/E9FB467E-F8DF-4544-869F-F98E462FDF97.root'`
+
+Copy desired file to local storage with a XRD redirector:
+
+`xrdcp "root://cms-xrd-global.cern.ch//store/data/Run2018B/ZeroBias/DQMIO/12Nov2019_UL2018-v2/100000/0971E5EA-DA92-C249-96BD-1CE58A95C339.root" .`
+

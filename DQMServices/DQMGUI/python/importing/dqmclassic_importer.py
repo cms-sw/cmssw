@@ -17,24 +17,26 @@ class DQMCLASSICImporter:
     ioservice = IOService()
 
     @classmethod
-    async def get_mes_list(cls, filename, dataset, run, lumi):
+    async def get_me_lists(cls, filename, dataset, run, lumi):
         """
-        Returns a tuple of normalized ME path represented as binary string 
-        and a corresponding MEInfo object.
+        Returns a list which contains dicts. Keys of the dicts are (run, lumi) 
+        tuples and values are lists of tuples (me_path, me_info). Full structure:
+        [(run, lumi):[(me_path, me_info)]]
+        me_path is normalized and represented as a binary string.
+        We can return multiple (run, lumi) pairs because some file formats might 
+        contain multiple runs/lumis in ine file.
+        me_path, me_info will be saved as separete blobs in the DB.
         """
 
         buffer = await cls.ioservice.open_url(filename, blockcache=False)
         tfile = await nanoroot.TFile().load(buffer)
-        return await cls.list_mes(tfile)
+        result = await cls.list_mes(tfile)
+
+        return { (run, 0): result }
 
 
     @classmethod
     async def list_mes(cls, tfile):
-        """
-        Returns a list of tuples: (me_path, me_info)
-        These lists will be saved as separete blobs in the DB.
-        """
-
         # Remove the folder structure that CMSSW adds
         # TODO: Check run numbers here?
         def normalize(parts):
