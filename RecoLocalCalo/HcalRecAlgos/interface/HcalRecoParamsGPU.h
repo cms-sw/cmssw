@@ -25,9 +25,6 @@ public:
   // get device pointers
   Product const& getProduct(cudaStream_t) const;
 
-  //
-  static std::string name() { return std::string{"hcalRecoParamsGPU"}; }
-
 private:
   uint64_t totalChannels_;  // hb + he
   std::vector<uint32_t, cms::cuda::HostAllocator<uint32_t>> param1_;

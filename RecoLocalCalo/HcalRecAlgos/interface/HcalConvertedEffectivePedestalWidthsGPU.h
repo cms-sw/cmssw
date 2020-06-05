@@ -7,10 +7,6 @@
 class HcalConvertedEffectivePedestalWidthsGPU final : public HcalConvertedPedestalWidthsGPU {
 public:
   using HcalConvertedPedestalWidthsGPU::HcalConvertedPedestalWidthsGPU;
-
-#ifndef __CUDACC__
-  static std::string name() { return std::string{"hcalConvertedEffectivePedestalWidthsGPU"}; }
-#endif
 };
 
 #endif  // RecoLocalCalo_HcalRecAlgos_interface_HcalConvertedEffectivePedestalWidthsGPU_h

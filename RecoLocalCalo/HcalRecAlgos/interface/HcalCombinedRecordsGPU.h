@@ -1,12 +1,11 @@
-#ifndef RecoLocalCalo_HcalRecProducers_src_HcalCombinedRecordsGPU_h
-#define RecoLocalCalo_HcalRecProducers_src_HcalCombinedRecordsGPU_h
+#ifndef RecoLocalCalo_HcalRecAlgos_interface_HcalCombinedRecordsGPU_h
+#define RecoLocalCalo_HcalRecAlgos_interface_HcalCombinedRecordsGPU_h
 
-#include "CondFormats/DataRecord/interface/HcalPedestalsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalPedestalWidthsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalPedestalsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"
 #include "CondFormats/DataRecord/interface/HcalQIETypesRcd.h"
-
-#include "RecoLocalCalo/HcalRecProducers/src/HcalCombinedRecord.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCombinedRecord.h"
 
 using HcalConvertedPedestalsRcd = HcalCombinedRecord<HcalPedestalsRcd, HcalQIEDataRcd, HcalQIETypesRcd>;
 
@@ -18,4 +17,4 @@ using HcalConvertedPedestalWidthsRcd =
 using HcalConvertedEffectivePedestalWidthsRcd =
     HcalCombinedRecord<HcalPedestalsRcd, HcalPedestalWidthsRcd, HcalQIEDataRcd, HcalQIETypesRcd>;
 
-#endif  // RecoLocalCalo_HcalRecProducers_src_HcalCombinedRecordsGPU_h
+#endif  // RecoLocalCalo_HcalRecAlgos_interface_HcalCombinedRecordsGPU_h

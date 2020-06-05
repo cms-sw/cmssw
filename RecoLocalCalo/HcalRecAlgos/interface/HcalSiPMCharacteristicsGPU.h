@@ -29,9 +29,6 @@ public:
   // get device pointers
   Product const &getProduct(cudaStream_t) const;
 
-  //
-  static std::string name() { return std::string{"hcalSiPMCharacteristicsGPU"}; }
-
 private:
   std::vector<int, cms::cuda::HostAllocator<int>> pixels_, auxi1_;
   std::vector<float, cms::cuda::HostAllocator<float>> parLin1_, parLin2_, parLin3_, crossTalk_, auxi2_;

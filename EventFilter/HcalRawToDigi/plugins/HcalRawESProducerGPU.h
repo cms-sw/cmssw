@@ -1,15 +1,15 @@
 #ifndef RecoLocalCalo_HcalRecProducers_src_HcalRawESProducerGPU_h
 #define RecoLocalCalo_HcalRecProducers_src_HcalRawESProducerGPU_h
 
-#include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Utilities/interface/typelookup.h"
-#include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include <iostream>
+
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
 template <typename Target, typename Source, typename Record>
 class HcalRawESProducerGPU : public edm::ESProducer {
@@ -31,10 +31,9 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& confDesc) {
     edm::ParameterSetDescription desc;
 
-    std::string label = Target::name() + "ESProducer";
     desc.add<std::string>("ComponentName", "");
     desc.add<std::string>("label", "")->setComment("Product Label");
-    confDesc.add(label, desc);
+    confDesc.addWithDefaultLabel(desc);
   }
 
 private:

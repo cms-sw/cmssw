@@ -1,5 +1,5 @@
-#ifndef RecoLocalCalo_HcalRecProducers_src_HcalCombinedRecord_h
-#define RecoLocalCalo_HcalRecProducers_src_HcalCombinedRecord_h
+#ifndef RecoLocalCalo_HcalRecAlgos_interface_HcalCombinedRecord_h
+#define RecoLocalCalo_HcalRecAlgos_interface_HcalCombinedRecord_h
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 
@@ -10,4 +10,4 @@ public:
   using DependencyRecords = std::tuple<Sources...>;
 };
 
-#endif  // RecoLocalCalo_HcalRecProducers_interface_HcalCombinedRecord_h
+#endif  // RecoLocalCalo_HcalRecAlgos_interface_HcalCombinedRecord_h

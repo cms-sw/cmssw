@@ -28,9 +28,6 @@ public:
   // get device pointers
   Product const &getProduct(cudaStream_t) const;
 
-  //
-  static std::string name() { return std::string{"hcalGainWidthsGPU"}; }
-
 private:
   uint64_t totalChannels_;
   std::vector<float, cms::cuda::HostAllocator<float>> value0_, value1_, value2_, value3_;

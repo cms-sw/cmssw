@@ -29,9 +29,6 @@ public:
   // as in cpu version
   bool unitIsADC() const { return unitIsADC_; }
 
-  //
-  static std::string name() { return std::string{"hcalPedestalWidthsGPU"}; }
-
 private:
   bool unitIsADC_;
   uint64_t totalChannels_;

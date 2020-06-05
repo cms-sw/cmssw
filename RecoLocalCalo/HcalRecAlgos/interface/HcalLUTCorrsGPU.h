@@ -25,9 +25,6 @@ public:
   // get device pointers
   Product const& getProduct(cudaStream_t) const;
 
-  //
-  static std::string name() { return std::string{"hcalLUTCorrsGPU"}; }
-
 private:
   std::vector<float, cms::cuda::HostAllocator<float>> value_;
 

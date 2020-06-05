@@ -39,9 +39,6 @@ public:
   // as in cpu version
   bool unitIsADC() const { return unitIsADC_; }
 
-  //
-  static std::string name() { return std::string{"hcalPedestalsGPU"}; }
-
   uint32_t offsetForHashes() const { return offsetForHashes_; }
 
 private:

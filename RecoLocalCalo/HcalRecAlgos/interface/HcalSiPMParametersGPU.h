@@ -26,20 +26,16 @@ public:
   // get device pointers
   Product const &getProduct(cudaStream_t) const;
 
-  //
-  static std::string name() { return std::string{"hcalSiPMParametersGPU"}; }
-
 private:
   uint64_t totalChannels_;
   std::vector<int, cms::cuda::HostAllocator<int>> type_, auxi1_;
   std::vector<float, cms::cuda::HostAllocator<float>> fcByPE_, darkCurrent_, auxi2_;
   /*
-    std::vector<float, cms::cuda::HostAllocator<float>> value0_, value1_, value2_, value3_,
-                                                 width0_, width1_, width2_, width3_;
-                                                 */
+  std::vector<float, cms::cuda::HostAllocator<float>> value0_, value1_, value2_, value3_, width0_, width1_, width2_, width3_;
+  */
 
   cms::cuda::ESProduct<Product> product_;
-#endif
+#endif  // __CUDACC__
 };
 
-#endif
+#endif  // RecoLocalCalo_HcalRecAlgos_interface_HcalSiPMParametersGPU_h

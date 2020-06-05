@@ -27,9 +27,6 @@ public:
   // get device pointers
   Product const& getProduct(cudaStream_t) const;
 
-  //
-  static std::string name() { return std::string{"hcalConvertedPedestalsGPU"}; }
-
   uint32_t offsetForHashes() const { return offsetForHashes_; }
 
 protected:

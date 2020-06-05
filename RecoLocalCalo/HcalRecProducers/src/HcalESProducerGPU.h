@@ -1,21 +1,20 @@
 #ifndef RecoLocalCalo_HcalRecProducers_src_HcalESProducerGPU_h
 #define RecoLocalCalo_HcalRecProducers_src_HcalESProducerGPU_h
 
-#include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Utilities/interface/typelookup.h"
-#include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "FWCore/Framework/interface/ESProductHost.h"
-#include "FWCore/Utilities/interface/ReusableObjectHolder.h"
-
-#include <iostream>
 #include <array>
+#include <iostream>
 #include <tuple>
 #include <utility>
+
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ESProductHost.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ReusableObjectHolder.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
 template <typename Record, typename Target, typename Source>
 class HcalESProducerGPU : public edm::ESProducer {
@@ -38,10 +37,9 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& confDesc) {
     edm::ParameterSetDescription desc;
 
-    std::string label = Target::name() + "ESProducer";
     desc.add<std::string>("ComponentName", "");
     desc.add<std::string>("label", "")->setComment("Product Label");
-    confDesc.add(label, desc);
+    confDesc.addWithDefaultLabel(desc);
   }
 
 private:
@@ -104,11 +102,10 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& confDesc) {
     edm::ParameterSetDescription desc;
 
-    std::string label = Target::name() + "ESProducerWithDependencies";
     desc.add<std::string>("ComponentName", "");
     for (std::size_t i = 0; i < nsources; i++)
       desc.add<std::string>("label" + std::to_string(i), "")->setComment("Product Label");
-    confDesc.add(label, desc);
+    confDesc.addWithDefaultLabel(desc);
   }
 
 private:

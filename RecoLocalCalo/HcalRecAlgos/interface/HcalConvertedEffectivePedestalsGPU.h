@@ -9,10 +9,6 @@
 class HcalConvertedEffectivePedestalsGPU final : public HcalConvertedPedestalsGPU {
 public:
   using HcalConvertedPedestalsGPU::HcalConvertedPedestalsGPU;
-
-#ifndef __CUDACC__
-  static std::string name() { return std::string{"hcalConvertedEffectivePedestalsGPU"}; }
-#endif
 };
 
 #endif  // RecoLocalCalo_HcalRecAlgos_interface_HcalConvertedEffectivePedestalsGPU_h
