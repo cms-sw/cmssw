@@ -29,9 +29,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
 ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf)
     : conf_(conf),
       trackProducer(conf.getParameter<std::string>("TrackProducer")),
@@ -50,6 +47,7 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf)
     kfTrajectories = consumes<TrajTrackAssociationCollection>(thetp);
     gsfTrajectories = consumes<TrajGsfTrackAssociationCollection>(thetp);
   }
+  magFieldToken = esConsumes<MagneticField, IdealMagneticFieldRecord>();
   produces<reco::ConversionTrackCollection>();
 }
 
@@ -91,10 +89,7 @@ void ConversionTrackProducer::produce(edm::Event& e, const edm::EventSetup& es) 
 
   math::XYZVector beamSpot{e.get(beamSpotInputTag).position()};
 
-  edm::ESHandle<MagneticField> magFieldHandle;
-  es.get<IdealMagneticFieldRecord>().get(magFieldHandle);
-
-  ConvTrackPreSelector.setMagnField(magFieldHandle.product());
+  ConvTrackPreSelector.setMagnField(&es.getData(magFieldToken));
 
   //----------------------------------------------------------
 
