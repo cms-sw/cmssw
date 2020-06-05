@@ -16,6 +16,8 @@
 #include <iostream>
 #include <vector>
 
+#define EDM_ML_DEBUG
+
 using namespace std;
 
 MTDRingForwardDoubleLayer::MTDRingForwardDoubleLayer(const vector<const ForwardDetRing*>& frontRings,

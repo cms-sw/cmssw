@@ -12,6 +12,8 @@
 
 #include <iostream>
 
+#define EDM_ML_DEBUG
+
 using namespace std;
 
 BTLDetLayerGeometryBuilder::BTLDetLayerGeometryBuilder() {}
