@@ -150,7 +150,7 @@ void DD4hep_TrackingMaterialAnalyser::endJob(void) {
 void DD4hep_TrackingMaterialAnalyser::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   using namespace edm;
   ESTransientHandle<cms::DDCompactView> hDDD;
-  setup.get<IdealGeometryRecord>().get(m_tag,hDDD);
+  setup.get<IdealGeometryRecord>().get(m_tag, hDDD);
 
   m_groups.reserve(m_groupNames.size());
   // Initialize m_groups iff it has size equal to zero, so that we are
