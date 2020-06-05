@@ -3,11 +3,11 @@ import mmap
 import asyncio
 from DQMServices.DQMGUI import nanoroot
 from ioservice import IOService
-from reading.reading import TDirectoryReader
+from reading.reading import DQMCLASSICReader
 from data_types import MEInfo, ScalarValue, EfficiencyFlag, QTest
 
 
-class TDirectoryImporter:
+class DQMCLASSICImporter:
 
     # Don't import these (known obsolete/broken stuff)
     # The notorious SiStrip bad component workflow creates are varying number of MEs
@@ -65,7 +65,7 @@ class TDirectoryImporter:
                 continue
             
             if class_name == b'TObjString':
-                parsed = TDirectoryReader.parse_string_entry(name)
+                parsed = DQMCLASSICReader.parse_string_entry(name)
                 if isinstance(parsed, EfficiencyFlag):
                     item = (path + parsed.name + b'\0e=1', MEInfo(b'Flag'))
                 elif isinstance(parsed, ScalarValue):

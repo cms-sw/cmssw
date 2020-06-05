@@ -25,8 +25,8 @@ QTest = namedtuple('QTest', ['name', 'qtestname', 'status', 'result', 'algorithm
 class FileFormat(IntEnum):
     """An enumeration of all possible file formats that can be imported and used."""
     NONE = 0
-    TDIRECTORY = 1
-    TTREE = 2
+    DQMCLASSIC = 1
+    DQMIO = 2
 
 
 class MEDescription:

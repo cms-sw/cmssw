@@ -2,7 +2,7 @@ import glob
 from storage import GUIDataStore
 from compressing import GUIBlobCompressor
 from data_types import FileFormat, SampleFull
-from importing.tdirectory_importer import TDirectoryImporter
+from importing.dqmclassic_importer import DQMCLASSICImporter
 
 
 class GUIImportManager:
@@ -37,13 +37,13 @@ class GUIImportManager:
             
             print(f'Found {len(files)} files, importing...')
         
-            importer = cls.__pick_importer(FileFormat.TDIRECTORY)
+            importer = cls.__pick_importer(FileFormat.DQMCLASSIC)
             samples = []
 
             # Parse filenames to get the metadata
             for file in files:
                 run, dataset = importer.parse_filename(file)
-                samples.append(SampleFull(dataset=dataset, run=int(run), lumi=0, file=file, fileformat=FileFormat.TDIRECTORY))
+                samples.append(SampleFull(dataset=dataset, run=int(run), lumi=0, file=file, fileformat=FileFormat.DQMCLASSIC))
 
             await cls.register_samples(samples)
 
@@ -90,8 +90,8 @@ class GUIImportManager:
         If a new file format are added, an importer has to be registered in this method.
         """
 
-        if file_format == FileFormat.TDIRECTORY:
-            return TDirectoryImporter()
-        elif file_format == FileFormat.TTREE:
+        if file_format == FileFormat.DQMCLASSIC:
+            return DQMCLASSICImporter()
+        elif file_format == FileFormat.DQMIO:
             raise Exception('DQMIO import is not yet supported.')
         return None

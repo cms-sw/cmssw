@@ -1,6 +1,6 @@
 
 from data_types import FileFormat
-from reading.tdirectory_reader import TDirectoryReader
+from reading.dqmclassic_reader import DQMCLASSICReader
 
 
 class GUIMEReader:
@@ -22,8 +22,8 @@ class GUIMEReader:
         If a new file format are added, a reader has to be registered in this method.
         """
 
-        if file_format == FileFormat.TDIRECTORY:
-            return TDirectoryReader()
-        elif file_format == FileFormat.TTREE:
+        if file_format == FileFormat.DQMCLASSIC:
+            return DQMCLASSICReader()
+        elif file_format == FileFormat.DQMIO:
             raise Exception('DQMIO reading is not yet supported.')
         return None
