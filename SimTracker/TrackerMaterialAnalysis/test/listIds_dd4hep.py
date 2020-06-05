@@ -27,8 +27,7 @@ process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
 
 
 process.DDSpecParRegistryESProducer = cms.ESProducer(
-    "DDSpecParRegistryESProducer",
-    appendToDataLabel = cms.string('CMS')
+    "DDSpecParRegistryESProducer"
 )
 
 process.DDCompactViewESProducer = cms.ESProducer(
