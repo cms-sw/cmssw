@@ -30,9 +30,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf)
-    : conf_(conf),
-      trackProducer(conf.getParameter<std::string>("TrackProducer")),
-      useTrajectory(conf.getParameter<bool>("useTrajectory")),
+    : useTrajectory(conf.getParameter<bool>("useTrajectory")),
       setTrackerOnly(conf.getParameter<bool>("setTrackerOnly")),
       setIsGsfTrackOpen(conf.getParameter<bool>("setIsGsfTrackOpen")),
       setArbitratedEcalSeeded(conf.getParameter<bool>("setArbitratedEcalSeeded")),
@@ -41,7 +39,7 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf)
       beamSpotInputTag(consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpotInputTag"))),
       filterOnConvTrackHyp(conf.getParameter<bool>("filterOnConvTrackHyp")),
       minConvRadius(conf.getParameter<double>("minConvRadius")) {
-  edm::InputTag thetp(trackProducer);
+  edm::InputTag thetp(conf.getParameter<std::string>("TrackProducer"));
   genericTracks = consumes<edm::View<reco::Track> >(thetp);
   if (useTrajectory) {
     kfTrajectories = consumes<TrajTrackAssociationCollection>(thetp);
@@ -80,7 +78,7 @@ void ConversionTrackProducer::produce(edm::Event& e, const edm::EventSetup& es) 
   }
 
   // Step B: create empty output collection
-  outputTrks = std::make_unique<reco::ConversionTrackCollection>();
+  auto outputTrks = std::make_unique<reco::ConversionTrackCollection>();
 
   //--------------------------------------------------
   //Added by D. Giordano

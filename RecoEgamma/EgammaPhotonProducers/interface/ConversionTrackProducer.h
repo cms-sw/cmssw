@@ -54,9 +54,6 @@ public:
   void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 private:
-  edm::ParameterSet conf_;
-
-  std::string trackProducer;
   edm::EDGetTokenT<edm::View<reco::Track> > genericTracks;
   edm::EDGetTokenT<TrajTrackAssociationCollection> kfTrajectories;
   edm::EDGetTokenT<TrajGsfTrackAssociationCollection> gsfTrajectories;
@@ -77,8 +74,5 @@ private:
   bool filterOnConvTrackHyp;
   double minConvRadius;
   IdealHelixParameters ConvTrackPreSelector;
-  //--------------------------------------------------
-
-  std::unique_ptr<reco::ConversionTrackCollection> outputTrks;
 };
 #endif
