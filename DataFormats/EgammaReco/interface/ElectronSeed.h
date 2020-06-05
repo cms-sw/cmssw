@@ -65,7 +65,6 @@ namespace reco {
       void setDet(int iDetId, int iLayerOrDiskNr);
     };
 
-    typedef edm::OwnVector<TrackingRecHit> RecHitContainer;
     typedef edm::RefToBase<CaloCluster> CaloClusterRef;
     typedef edm::Ref<TrackCollection> CtfTrackRef;
 
@@ -135,7 +134,7 @@ namespace reco {
                                              const float dRZ2Pos,
                                              const float dRZ2Neg,
                                              const char hitMask,
-                                             const TrajectorySeed::range recHits);
+                                             TrajectorySeed::RecHitRange const& recHits);
 
   private:
     static float bestVal(float val1, float val2) { return std::abs(val1) < std::abs(val2) ? val1 : val2; }

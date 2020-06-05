@@ -119,14 +119,14 @@ Trajectory CosmicTrajectoryBuilder::createStartingTrajectory(const TrajectorySee
 
 std::vector<TrajectoryMeasurement> CosmicTrajectoryBuilder::seedMeasurements(const TrajectorySeed &seed) const {
   std::vector<TrajectoryMeasurement> result;
-  TrajectorySeed::range hitRange = seed.recHits();
-  for (TrajectorySeed::const_iterator ihit = hitRange.first; ihit != hitRange.second; ihit++) {
+  auto const &hitRange = seed.recHits();
+  for (auto ihit = hitRange.begin(); ihit != hitRange.end(); ihit++) {
     //RC TransientTrackingRecHit* recHit = RHBuilder->build(&(*ihit));
     TransientTrackingRecHit::RecHitPointer recHit = RHBuilder->build(&(*ihit));
     const GeomDet *hitGeomDet = (&(*tracker))->idToDet(ihit->geographicalId());
     TSOS invalidState(new BasicSingleTrajectoryState(hitGeomDet->surface()));
 
-    if (ihit == hitRange.second - 1) {
+    if (ihit == hitRange.end() - 1) {
       TSOS updatedState = startingTSOS(seed);
       result.emplace_back(invalidState, updatedState, recHit);
     } else {
@@ -148,13 +148,11 @@ vector<const TrackingRecHit *> CosmicTrajectoryBuilder::SortHits(const SiStripRe
   vector<const TrackingRecHit *> allHits;
 
   SiStripRecHit2DCollection::DataContainer::const_iterator istrip;
-  TrajectorySeed::range hRange = seed.recHits();
-  TrajectorySeed::const_iterator ihit;
   float yref = 0.;
-  for (ihit = hRange.first; ihit != hRange.second; ihit++) {
-    yref = RHBuilder->build(&(*ihit))->globalPosition().y();
-    hits.push_back((RHBuilder->build(&(*ihit))));
-    LogDebug("CosmicTrackFinder") << "SEED HITS" << RHBuilder->build(&(*ihit))->globalPosition();
+  for (auto const &recHit : seed.recHits()) {
+    yref = RHBuilder->build(&recHit)->globalPosition().y();
+    hits.push_back((RHBuilder->build(&recHit)));
+    LogDebug("CosmicTrackFinder") << "SEED HITS" << RHBuilder->build(&recHit)->globalPosition();
   }
 
   SiPixelRecHitCollection::DataContainer::const_iterator ipix;

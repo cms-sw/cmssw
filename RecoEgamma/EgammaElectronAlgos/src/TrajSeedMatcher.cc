@@ -212,7 +212,7 @@ std::vector<TrajSeedMatcher::SCHitMatch> TrajSeedMatcher::processSeed(const Traj
   for (size_t iHit = 0;
        matches.size() < nCuts && iHit < seed.nHits() && (cfg_.enableHitSkipping || iHit == matches.size());
        iHit++) {
-    auto const& recHit = *(seed.recHits().first + iHit);
+    auto const& recHit = *(seed.recHits().begin() + iHit);
 
     if (!recHit.isValid()) {
       continue;
