@@ -8,7 +8,7 @@
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
-#include "FWCore/Concurrency/interface/WaitingTaskWithArenaSpawnHolder.h"
+#include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 #include "FWCore/Framework/src/esTaskArenas.h"
 
 namespace edm {
@@ -328,7 +328,7 @@ namespace edm {
       //We need iTask to run in the default arena since it is not an ES task
       auto task = make_waiting_task(
           tbb::task::allocate_root(),
-          [this, holder = WaitingTaskWithArenaSpawnHolder{iTask}](std::exception_ptr const* iExcept) mutable {
+          [this, holder = WaitingTaskWithArenaHolder{iTask}](std::exception_ptr const* iExcept) mutable {
             if (iExcept) {
               holder.doneWaiting(*iExcept);
             } else {
