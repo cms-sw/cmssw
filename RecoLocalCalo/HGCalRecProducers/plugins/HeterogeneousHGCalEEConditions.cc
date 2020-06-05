@@ -5,9 +5,7 @@ HeterogeneousHGCalEEConditionsWrapper::HeterogeneousHGCalEEConditionsWrapper(con
   calculate_memory_bytes(cpuHGCalParameters);
 
   chunk_ = std::accumulate(this->sizes_.begin(), this->sizes_.end(), 0); //total memory required in bytes
-  std::cout << "ee: check before" << std::endl;
   gpuErrchk(cudaMallocHost(&this->params_.cellFineX_, chunk_));
-  std::cout << "ee: check after" << std::endl;
 
   //store cumulative sum in bytes and convert it to sizes in units of C++ typesEE, i.e., number if items to be transferred to GPU
   std::vector<size_t> cumsum_sizes( this->sizes_.size()+1, 0 ); //starting with zero
