@@ -61,7 +61,7 @@ CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet& p)
 
   // Find out if using the DDD or CondDB Geometry source.
   useDDD_ = p.getParameter<bool>("useDDD");
- 
+
   if (useDDD_) {
     cc.setConsumes(cpvToken_).setConsumes(mdcToken_);
   } else if (useDD4hep_) {
@@ -120,20 +120,20 @@ std::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryReco
 void CSCGeometryESModule::initCSCGeometry_(const MuonGeometryRecord& record, std::shared_ptr<HostType>& host) {
   if (useDDD_) {
     host->ifRecordChanges<IdealGeometryRecord>(record, [&host, &record, this](auto const& rec) {
-	host->clear();
-	edm::ESTransientHandle<DDCompactView> cpv = record.getTransientHandle(cpvToken_);
-	const auto& mdc = rec.get(mdcToken_);
-	CSCGeometryBuilderFromDDD builder;
-	builder.build(*host, cpv.product(), mdc);
-      });
+      host->clear();
+      edm::ESTransientHandle<DDCompactView> cpv = record.getTransientHandle(cpvToken_);
+      const auto& mdc = rec.get(mdcToken_);
+      CSCGeometryBuilderFromDDD builder;
+      builder.build(*host, cpv.product(), mdc);
+    });
   } else if (useDD4hep_) {
     host->ifRecordChanges<IdealGeometryRecord>(record, [&host, &record, this](auto const& rec) {
-	host->clear();
-	edm::ESTransientHandle<cms::DDCompactView> cpv = record.getTransientHandle(cpvTokendd4hep_);
-	const auto& mdc = rec.get(mdcToken_);
-	CSCGeometryBuilderFromDDD builder;
-	builder.build(*host, cpv.product(), mdc);
-      });
+      host->clear();
+      edm::ESTransientHandle<cms::DDCompactView> cpv = record.getTransientHandle(cpvTokendd4hep_);
+      const auto& mdc = rec.get(mdcToken_);
+      CSCGeometryBuilderFromDDD builder;
+      builder.build(*host, cpv.product(), mdc);
+    });
   } else {
     bool recreateGeometry = false;
 
