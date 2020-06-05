@@ -443,8 +443,7 @@ upgradeWFs['PatatrackHCALOnlyCPU'] = UpgradeWorkflowPatatrack_HCALOnlyCPU(
 )
 
 upgradeWFs['PatatrackHCALOnlyCPU'].step3 = {
-#    '-s': 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnly,VALIDATION:@hcalOnlyValidation,DQM:@hcalOnly',
-    '-s': 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnly',
+    '-s': 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnly,VALIDATION:@hcalOnlyValidation,DQM:@hcalOnly',
     '--datatier': 'GEN-SIM-RECO,DQMIO',
     '--eventcontent': 'RECOSIM,DQM',
 }
