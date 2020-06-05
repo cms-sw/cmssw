@@ -114,7 +114,7 @@ TTStubBuilder<T>::TTStubBuilder(const edm::ParameterSet& iConfig) {
   clustersToken = consumes<edmNew::DetSetVector<TTCluster<T> > >(iConfig.getParameter<edm::InputTag>("TTClusters"));
   tTopoToken = esConsumes<TrackerTopology, TrackerTopologyRcd>();
   tGeomToken = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
-  ttStubToken = esConsumes<TTStubAlgorithm<T>, TTStubAlgorithmRecord>();
+  ttStubToken = esConsumes<TTStubAlgorithm<T>, TTStubAlgorithmRecord, edm::Transition::BeginRun>();
   ForbidMultipleStubs = iConfig.getParameter<bool>("OnlyOnePerInputCluster");
   applyFE = iConfig.getParameter<bool>("FEineffs");
   maxStubs_2S = iConfig.getParameter<uint32_t>("CBClimit");
