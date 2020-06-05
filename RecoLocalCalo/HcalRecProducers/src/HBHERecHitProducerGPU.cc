@@ -1,50 +1,42 @@
-// framework
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-//#include "HeterogeneousCore/Producer/interface/HeterogeneousEDProducer.h"
-//#include "HeterogeneousCore/Producer/interface/HeterogeneousEvent.h"
-
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-
-#include "CondFormats/DataRecord/interface/HcalRecoParamsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalGainWidthsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalGainsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalLUTCorrsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"
-#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalTimeCorrsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalQIETypesRcd.h"
-#include "CondFormats/DataRecord/interface/HcalSiPMParametersRcd.h"
+#include "CondFormats/DataRecord/interface/HcalRecoParamsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalSiPMCharacteristicsRcd.h"
-
-//#include "CondFormats/DataRecord/interface/HcalPedestalsRcd.h"
-#include "RecoLocalCalo/HcalRecProducers/src/HcalCombinedRecordsGPU.h"
-
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalRecoParamsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalRecoParamsWithPulseShapesGPU.h"
+#include "CondFormats/DataRecord/interface/HcalSiPMParametersRcd.h"
+#include "CondFormats/DataRecord/interface/HcalTimeCorrsRcd.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
+#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/DeclsForKernels.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCombinedRecordsGPU.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedEffectivePedestalWidthsGPU.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedEffectivePedestalsGPU.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedPedestalWidthsGPU.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedPedestalsGPU.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalGainWidthsGPU.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalGainsGPU.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalLUTCorrsGPU.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalPedestalWidthsGPU.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalQIECodersGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalRespCorrsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalTimeCorrsGPU.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalQIETypesGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSiPMParametersGPU.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalRecoParamsGPU.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalRecoParamsWithPulseShapesGPU.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalRespCorrsGPU.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSiPMCharacteristicsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedPedestalsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedEffectivePedestalsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedPedestalWidthsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedEffectivePedestalWidthsGPU.h"
-
-#include "RecoLocalCalo/HcalRecAlgos/interface/DeclsForKernels.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSiPMParametersGPU.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalTimeCorrsGPU.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/MahiGPU.h"
 
 class HBHERecHitProducerGPU : public edm::stream::EDProducer<edm::ExternalWork> {
@@ -109,23 +101,30 @@ HBHERecHitProducerGPU::HBHERecHitProducerGPU(edm::ParameterSet const& ps)
   configParameters_.kernelMinimizeThreads[1] = threadsMinimize[1];
   configParameters_.kernelMinimizeThreads[2] = threadsMinimize[2];
 
-  outputGPU_.allocate(configParameters_);
-  scratchGPU_.allocate(configParameters_);
+  // call CUDA API functions only if CUDA is available
+  edm::Service<CUDAService> cs;
+  if (cs and cs->enabled()) {
+    outputGPU_.allocate(configParameters_);
+    scratchGPU_.allocate(configParameters_);
 
-  // FIXME: use default device and default stream
-  cudaCheck(
-      cudaMalloc((void**)&configParameters_.pulseOffsetsDevice, sizeof(int) * configParameters_.pulseOffsets.size()));
-  cudaCheck(cudaMemcpy(configParameters_.pulseOffsetsDevice,
-                       configParameters_.pulseOffsets.data(),
-                       configParameters_.pulseOffsets.size() * sizeof(int),
-                       cudaMemcpyHostToDevice));
+    // FIXME: use default device and default stream
+    cudaCheck(cudaMalloc((void**)&configParameters_.pulseOffsetsDevice, sizeof(int) * configParameters_.pulseOffsets.size()));
+    cudaCheck(cudaMemcpy(configParameters_.pulseOffsetsDevice,
+                         configParameters_.pulseOffsets.data(),
+                         configParameters_.pulseOffsets.size() * sizeof(int),
+                         cudaMemcpyHostToDevice));
+  }
 }
 
 HBHERecHitProducerGPU::~HBHERecHitProducerGPU() {
-  outputGPU_.deallocate(configParameters_);
-  scratchGPU_.deallocate(configParameters_);
+  // call CUDA API functions only if CUDA is available
+  edm::Service<CUDAService> cs;
+  if (cs and cs->enabled()) {
+    outputGPU_.deallocate(configParameters_);
+    scratchGPU_.deallocate(configParameters_);
 
-  cudaCheck(cudaFree(configParameters_.pulseOffsetsDevice));
+    cudaCheck(cudaFree(configParameters_.pulseOffsetsDevice));
+  }
 }
 
 void HBHERecHitProducerGPU::fillDescriptions(edm::ConfigurationDescriptions& cdesc) {
@@ -154,8 +153,7 @@ void HBHERecHitProducerGPU::fillDescriptions(edm::ConfigurationDescriptions& cde
   desc.add<std::vector<double>>("tmaxTimeSlewParameters", {16.00, 10.00, 6.25});
   desc.add<std::vector<uint32_t>>("kernelMinimizeThreads", {16, 1, 1});
 
-  std::string label = "hbheRecHitProducerGPU";
-  cdesc.add(label, desc);
+  cdesc.addWithDefaultLabel(desc);
 }
 
 void HBHERecHitProducerGPU::acquire(edm::Event const& event,

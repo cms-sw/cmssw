@@ -22,5 +22,6 @@
   <use name="CUDADataFormats/HcalCommon"/>
   <use name="CUDADataFormats/HcalDigi" />
   <use name="HeterogeneousCore/CUDACore"/>
+  <use name="HeterogeneousCore/CUDAServices"/>
   <use name="HeterogeneousCore/CUDAUtilities"/>
 </library>
