@@ -2930,8 +2930,8 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
       std::vector<int> hitIdx;
       std::vector<int> hitType;
 
-      for (auto hit = seed.recHits().first; hit != seed.recHits().second; ++hit) {
-        TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder.build(&*hit);
+      for (auto const& hit : seed.recHits()) {
+        TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder.build(&hit);
         int subid = recHit->geographicalId().subdetId();
         if (subid == (int)PixelSubdetector::PixelBarrel || subid == (int)PixelSubdetector::PixelEndcap) {
           const BaseTrackerRecHit* bhit = dynamic_cast<const BaseTrackerRecHit*>(&*recHit);
@@ -3011,8 +3011,8 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
       //the part below is not strictly needed
       float chi2 = -1;
       if (nHits == 2) {
-        TransientTrackingRecHit::RecHitPointer recHit0 = theTTRHBuilder.build(&*(seed.recHits().first));
-        TransientTrackingRecHit::RecHitPointer recHit1 = theTTRHBuilder.build(&*(seed.recHits().first + 1));
+        TransientTrackingRecHit::RecHitPointer recHit0 = theTTRHBuilder.build(&*(seed.recHits().begin()));
+        TransientTrackingRecHit::RecHitPointer recHit1 = theTTRHBuilder.build(&*(seed.recHits().begin() + 1));
         std::vector<GlobalPoint> gp(2);
         std::vector<GlobalError> ge(2);
         gp[0] = recHit0->globalPosition();
@@ -3036,9 +3036,9 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
                                                     : GlobalPoint(0, 0, 0))
             << " eta,phi: " << gp[0].eta() << "," << gp[0].phi();
       } else if (nHits == 3) {
-        TransientTrackingRecHit::RecHitPointer recHit0 = theTTRHBuilder.build(&*(seed.recHits().first));
-        TransientTrackingRecHit::RecHitPointer recHit1 = theTTRHBuilder.build(&*(seed.recHits().first + 1));
-        TransientTrackingRecHit::RecHitPointer recHit2 = theTTRHBuilder.build(&*(seed.recHits().first + 2));
+        TransientTrackingRecHit::RecHitPointer recHit0 = theTTRHBuilder.build(&*(seed.recHits().begin()));
+        TransientTrackingRecHit::RecHitPointer recHit1 = theTTRHBuilder.build(&*(seed.recHits().begin() + 1));
+        TransientTrackingRecHit::RecHitPointer recHit2 = theTTRHBuilder.build(&*(seed.recHits().begin() + 2));
         declareDynArray(GlobalPoint, 4, gp);
         declareDynArray(GlobalError, 4, ge);
         declareDynArray(bool, 4, bl);

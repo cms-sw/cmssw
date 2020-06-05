@@ -204,8 +204,8 @@ pair<bool, reco::Track> MuonSeedTrack::buildTrackAtPCA(const TrajectorySeed& see
 double MuonSeedTrack::computeNDOF(const TrajectorySeed& trajectory) const {
   const string metname = "MuonSeedTrack";
 
-  BasicTrajectorySeed::const_iterator recHits1 = (trajectory.recHits().first);
-  BasicTrajectorySeed::const_iterator recHits2 = (trajectory.recHits().second);
+  auto recHits1 = (trajectory.recHits().begin());
+  auto recHits2 = (trajectory.recHits().end());
 
   double ndof = 0.;
 

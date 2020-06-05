@@ -23,13 +23,11 @@ MuonTrajectoryBuilder::TrajectoryContainer ExhaustiveMuonTrajectoryBuilder::traj
   //   float p_err = sqr(sptmean/(ptmean*ptmean));
   //  mat[0][0]= p_err;
   float sigmapt = sqrt(err00) * pt * pt;
-  TrajectorySeed::range range = seed.recHits();
   TrajectoryContainer result;
   // Make a new seed based on each segment, using the original pt and sigmapt
-  for (TrajectorySeed::const_iterator recHitItr = range.first; recHitItr != range.second; ++recHitItr) {
-    const GeomDet* geomDet = theService->trackingGeometry()->idToDet((*recHitItr).geographicalId());
-    MuonTransientTrackingRecHit::MuonRecHitPointer muonRecHit =
-        MuonTransientTrackingRecHit::specificBuild(geomDet, &*recHitItr);
+  for (auto const& recHit : seed.recHits()) {
+    const GeomDet* geomDet = theService->trackingGeometry()->idToDet(recHit.geographicalId());
+    auto muonRecHit = MuonTransientTrackingRecHit::specificBuild(geomDet, &recHit);
     TrajectorySeed tmpSeed(theSeeder.createSeed(pt, sigmapt, muonRecHit));
     TrajectoryContainer trajectories(theTrajBuilder.trajectories(tmpSeed));
     result.insert(

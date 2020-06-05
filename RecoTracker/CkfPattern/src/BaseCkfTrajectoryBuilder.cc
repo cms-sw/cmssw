@@ -49,8 +49,6 @@ std::unique_ptr<TrajectoryFilter> BaseCkfTrajectoryBuilder::createTrajectoryFilt
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TRecHit5DParamConstraint.h"
 void BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed, TempTrajectory& result, bool as5D) const {
-  TrajectorySeed::range hitRange = seed.recHits();
-
   PTrajectoryStateOnDet pState(seed.startingState());
   const GeomDet* gdet = theMeasurementTracker->geomTracker()->idToDet(pState.detId());
   TSOS outerState =
@@ -64,14 +62,14 @@ void BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed, Temp
     return;
   }
 
-  for (TrajectorySeed::const_iterator ihit = hitRange.first; ihit != hitRange.second; ihit++) {
+  for (auto ihit = seed.recHits().begin(); ihit != seed.recHits().end(); ihit++) {
     TrackingRecHit::RecHitPointer recHit = ihit->cloneSH();
     const GeomDet* hitGeomDet = recHit->det();
 
     const DetLayer* hitLayer = theMeasurementTracker->geometricSearchTracker()->detLayer(ihit->geographicalId());
 
     TSOS invalidState(hitGeomDet->surface());
-    if (ihit == hitRange.second - 1) {
+    if (ihit == seed.recHits().end() - 1) {
       // the seed trajectory state should correspond to this hit
       if (&gdet->surface() != &hitGeomDet->surface()) {
         edm::LogError("CkfPattern")
@@ -85,10 +83,9 @@ void BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed, Temp
       TSOS innerState = backwardPropagator(seed)->propagate(outerState, hitGeomDet->surface());
 
       // try to recover if propagation failed
-      if
-        UNLIKELY(!innerState.isValid())
-      innerState = trajectoryStateTransform::transientState(
-          pState, &(hitGeomDet->surface()), forwardPropagator(seed)->magneticField());
+      if UNLIKELY (!innerState.isValid())
+        innerState = trajectoryStateTransform::transientState(
+            pState, &(hitGeomDet->surface()), forwardPropagator(seed)->magneticField());
 
       if (innerState.isValid()) {
         TSOS innerUpdated = theUpdator->update(innerState, *recHit);
@@ -112,16 +109,15 @@ TempTrajectory BaseCkfTrajectoryBuilder::createStartingTrajectory(const Trajecto
 }
 
 bool BaseCkfTrajectoryBuilder::toBeContinued(TempTrajectory& traj, bool inOut) const {
-  if
-    UNLIKELY(traj.measurements().size() > 400) {
-      edm::LogError("BaseCkfTrajectoryBuilder_InfiniteLoop");
-      LogTrace("BaseCkfTrajectoryBuilder_InfiniteLoop")
-          << "Cropping Track After 400 Measurements:\n"
-          << "   Last predicted state: " << traj.lastMeasurement().predictedState() << "\n"
-          << "   Last layer subdetector: " << (traj.lastLayer() ? traj.lastLayer()->subDetector() : -1) << "\n"
-          << "   Found hits: " << traj.foundHits() << ", lost hits: " << traj.lostHits() << "\n\n";
-      return false;
-    }
+  if UNLIKELY (traj.measurements().size() > 400) {
+    edm::LogError("BaseCkfTrajectoryBuilder_InfiniteLoop");
+    LogTrace("BaseCkfTrajectoryBuilder_InfiniteLoop")
+        << "Cropping Track After 400 Measurements:\n"
+        << "   Last predicted state: " << traj.lastMeasurement().predictedState() << "\n"
+        << "   Last layer subdetector: " << (traj.lastLayer() ? traj.lastLayer()->subDetector() : -1) << "\n"
+        << "   Found hits: " << traj.foundHits() << ", lost hits: " << traj.lostHits() << "\n\n";
+    return false;
+  }
   // Called after each new hit is added to the trajectory, to see if it is
   // worth continuing to build this track candidate.
   if (inOut) {

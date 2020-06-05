@@ -45,10 +45,10 @@ bool CachingSeedCleanerBySharedInput::good(const TrajectorySeed *seed) {
     return true;
   }
 
-  auto range = seed->recHits();
+  auto const &range = seed->recHits();
 
-  auto first = range.first;
-  auto last = range.second;
+  auto first = range.begin();
+  auto last = range.end();
   auto detid = first->geographicalId().rawId();
 
   //calls_++;

@@ -350,10 +350,9 @@ bool HLTMuonTrackMassFilter::pairMatched(std::vector<reco::RecoChargedCandidateR
   // comparison by hits of TrajectorySeed of the new track
   // with the previous candidate
   //
-  TrajectorySeed::range seedHits = seedRef->recHits();
+  const TrajectorySeed::RecHitRange seedHits = seedRef->recHits();
   trackingRecHit_iterator prevTrackHitEnd;
   trackingRecHit_iterator iprev;
-  TrajectorySeed::const_iterator iseed;
   for (size_t i = 0; i < prevMuonRefs.size(); ++i) {
     // identity of muon
     if (prevMuonRefs[i] != muonRef)
@@ -369,11 +368,11 @@ bool HLTMuonTrackMassFilter::pairMatched(std::vector<reco::RecoChargedCandidateR
     if (seedRef->nHits() != prevTrackRef->recHitsSize())
       continue;
     // hit-by-hit comparison based on the sharesInput method
-    iseed = seedHits.first;
+    auto iseed = seedHits.begin();
     iprev = prevTrackRef->recHitsBegin();
     prevTrackHitEnd = prevTrackRef->recHitsEnd();
     bool identical(true);
-    for (; iseed != seedHits.second && iprev != prevTrackHitEnd; ++iseed, ++iprev) {
+    for (; iseed != seedHits.end() && iprev != prevTrackHitEnd; ++iseed, ++iprev) {
       if ((*iseed).isValid() != (**iprev).isValid() || !(*iseed).sharesInput(&**iprev, TrackingRecHit::all)) {
         // terminate loop over hits on first mismatch
         identical = false;
