@@ -113,7 +113,7 @@ class TFile:
         while key:
             c = await key.classname()
             if classes(c):
-                yield (await normalized(key.fSeekKey), await key.objname(), c, key.fSeekKey)
+                yield (await normalized(key.fields.fSeekPdir), await key.objname(), c, key.fSeekKey)
             n = await key.next()
             if key.error:
                 self.error = True

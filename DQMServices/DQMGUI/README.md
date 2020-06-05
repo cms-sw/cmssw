@@ -91,7 +91,7 @@ In order to add new importer you have to do three things:
 from data_types import MEInfo
 class MyFormatImporter:
   @classmethod
-  async def get_mes_list(cls, file, dataset, run, lumi):
+  async def get_mes_list(cls, filename, dataset, run, lumi):
     # Actual reading of a file removed for brevity
     return [
       (b'/normalized/path/to/ME1', MEInfo(b'Float', value=float(1.23)), 

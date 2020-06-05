@@ -62,12 +62,12 @@ class GUIImportManager:
         It is required to first import the blobs before samples can be used.
         """
 
-        file, fileformat = await cls.store.get_sample_file_info(dataset, run, lumi)
-        if not file: # Sample doesn't exist
+        filename, fileformat = await cls.store.get_sample_file_info(dataset, run, lumi)
+        if not filename: # Sample doesn't exist
             return False
         
         importer = cls.__pick_importer(fileformat)
-        mes = await importer.get_mes_list(file, dataset, run, lumi)
+        mes = await importer.get_mes_list(filename, dataset, run, lumi)
         mes.sort()
 
         # Separate lists
@@ -78,7 +78,7 @@ class GUIImportManager:
         names_blob = await cls.compressor.compress_names_list(names_list)
         infos_blob = await cls.compressor.compress_infos_list(infos_list)
 
-        await cls.store.add_blobs(names_blob, infos_blob, dataset, file, run, lumi)
+        await cls.store.add_blobs(names_blob, infos_blob, dataset, filename, run, lumi)
 
         return True
 

@@ -13,7 +13,7 @@ class IOService:
     MAXOPENTIME = 60     # maximum time that a connection stays open (seconds)
 
     do_read_ahead = True
-    
+
     
     @classmethod
     async def open_url(cls, url, blockcache=True):
@@ -144,7 +144,7 @@ class FullFile:
 
     async def preload(self):
         # in this mode, we just preload the full file in the beginning, into a per-file cache.
-        f = await nanoroot.XRDFile().load(url, timeout=self.timeout)
+        f = await nanoroot.XRDFile().load(self.url, timeout=self.timeout)
         self.buf = await f[:]
 
 

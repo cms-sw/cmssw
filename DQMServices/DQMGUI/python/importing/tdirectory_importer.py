@@ -1,7 +1,8 @@
 import re
 import mmap
 import asyncio
-from nanoroot import *
+from DQMServices.DQMGUI import nanoroot
+from ioservice import IOService
 from reading.reading import TDirectoryReader
 from data_types import MEInfo, ScalarValue, EfficiencyFlag, QTest
 
@@ -13,11 +14,25 @@ class TDirectoryImporter:
     # for each run. We just hardcode-ban them here to help the deduplication
     __BLACKLIST = re.compile(b'By Lumi Section |/Reference/|BadModuleList')
 
+    ioservice = IOService()
+
     @classmethod
-    async def get_mes_list(cls, file, dataset, run, lumi):
+    async def get_mes_list(cls, filename, dataset, run, lumi):
         """
         Returns a tuple of normalized ME path represented as binary string 
         and a corresponding MEInfo object.
+        """
+
+        buffer = await cls.ioservice.open_url(filename, blockcache=False)
+        tfile = await nanoroot.TFile().load(buffer)
+        return await cls.list_mes(tfile)
+
+
+    @classmethod
+    async def list_mes(cls, tfile):
+        """
+        Returns a list of tuples: (me_path, me_info)
+        These lists will be saved as separete blobs in the DB.
         """
 
         # Remove the folder structure that CMSSW adds
@@ -43,26 +58,9 @@ class TDirectoryImporter:
                 b'TProfile2D',
             }
 
-        mes = []
-        with open(file, 'rb') as root_file:
-            with mmap.mmap(root_file.fileno(), 0, prot=mmap.PROT_READ) as mm:
-                tfile = TFile(mm, normalize=normalize, classes=dqm_classes)
-                mes = cls.list_mes(tfile)
-                error = "Problems on import" if tfile.error else None
-                
-        return mes
-
-
-    @classmethod
-    def list_mes(cls, tfile):
-        """
-        Returns a list of tuples: (me_path, me_info)
-        These lists will be saved as separete blobs in the DB.
-        """
-
         result = []
 
-        for path, name, class_name, offset in tfile.fulllist():
+        async for path, name, class_name, offset in tfile.fulllist(normalize=normalize, classes=dqm_classes):
             if cls.__BLACKLIST.search(path):
                 continue
             
