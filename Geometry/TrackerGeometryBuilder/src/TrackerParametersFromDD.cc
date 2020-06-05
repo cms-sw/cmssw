@@ -3,7 +3,6 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/Filter.h"
-#include "DetectorDescription/Core/interface/DDVectorGetter.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 
 bool TrackerParametersFromDD::build(const DDCompactView* cvp, PTrackerParameters& ptp) {
@@ -12,13 +11,14 @@ bool TrackerParametersFromDD::build(const DDCompactView* cvp, PTrackerParameters
     sstm << "Subdetector" << subdet;
     std::string name = sstm.str();
 
-    if (DDVectorGetter::check(name)) {
-      std::vector<int> subdetPars = dbl_to_int(DDVectorGetter::get(name));
+    auto const& v = cvp->vector(name);
+    if (!v.empty()) {
+      std::vector<int> subdetPars = dbl_to_int(v);
       putOne(subdet, subdetPars, ptp);
     }
   }
 
-  ptp.vpars = dbl_to_int(DDVectorGetter::get("vPars"));
+  ptp.vpars = dbl_to_int(cvp->vector("vPars"));
 
   return true;
 }
