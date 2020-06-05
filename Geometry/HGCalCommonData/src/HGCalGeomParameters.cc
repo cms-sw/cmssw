@@ -10,7 +10,6 @@
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
-#include "DetectorDescription/Core/interface/DDVectorGetter.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/DDCMS/interface/DDShapes.h"
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
@@ -986,7 +985,7 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const DDFilteredView& fv, HGCalPa
   php.fracAreaMin_ = dummy[2];
   php.zMinForRad_ = HGCalParameters::k_ScaleFromDDD * dummy[3];
 
-  php.radiusMixBoundary_ = DDVectorGetter::get("RadiusMixBoundary");
+  php.radiusMixBoundary_ = fv.vector("RadiusMixBoundary");
   rescale(php.radiusMixBoundary_, HGCalParameters::k_ScaleFromDDD);
 
   php.slopeMin_ = getDDDArray("SlopeBottom", sv, 0);
@@ -1001,12 +1000,12 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const DDFilteredView& fv, HGCalPa
   php.rMaxFront_ = getDDDArray("RMaxFront", sv, 0);
   rescale(php.rMaxFront_, HGCalParameters::k_ScaleFromDDD);
 
-  php.zRanges_ = DDVectorGetter::get("ZRanges");
+  php.zRanges_ = fv.vector("ZRanges");
   rescale(php.zRanges_, HGCalParameters::k_ScaleFromDDD);
 
   const auto& dummy2 = getDDDArray("LayerOffset", sv, 1);
   php.layerOffset_ = dummy2[0];
-  php.layerCenter_ = dbl_to_int(DDVectorGetter::get("LayerCenter"));
+  php.layerCenter_ = dbl_to_int(fv.vector("LayerCenter"));
 
   loadSpecParsHexagon8(php);
 }
@@ -1105,7 +1104,7 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const HGCalParameters& php) {
 
 void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalParameters& php) {
   DDsvalues_type sv(fv.mergedSpecifics());
-  php.radiusMixBoundary_ = DDVectorGetter::get("RadiusMixBoundary");
+  php.radiusMixBoundary_ = fv.vector("RadiusMixBoundary");
   rescale(php.radiusMixBoundary_, HGCalParameters::k_ScaleFromDDD);
 
   php.nPhiBinBH_ = dbl_to_int(getDDDArray("NPhiBinBH", sv, 0));
@@ -1129,13 +1128,13 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalP
   php.rMaxFront_ = getDDDArray("RMaxFront", sv, 0);
   rescale(php.rMaxFront_, HGCalParameters::k_ScaleFromDDD);
 
-  php.zRanges_ = DDVectorGetter::get("ZRanges");
+  php.zRanges_ = fv.vector("ZRanges");
   rescale(php.zRanges_, HGCalParameters::k_ScaleFromDDD);
 
   // Offsets
   const auto& dummy2 = getDDDArray("LayerOffset", sv, 1);
   php.layerOffset_ = dummy2[0];
-  php.layerCenter_ = dbl_to_int(DDVectorGetter::get("LayerCenter"));
+  php.layerCenter_ = dbl_to_int(fv.vector("LayerCenter"));
 
   loadSpecParsTrapezoid(php);
 }
@@ -1495,8 +1494,8 @@ void HGCalGeomParameters::loadCellParsHexagon(const DDCompactView* cpv, HGCalPar
   bool ok = fv1.firstChild();
 
   if (ok) {
-    php.cellFine_ = dbl_to_int(DDVectorGetter::get("waferFine"));
-    php.cellCoarse_ = dbl_to_int(DDVectorGetter::get("waferCoarse"));
+    php.cellFine_ = dbl_to_int(cpv->vector("waferFine"));
+    php.cellCoarse_ = dbl_to_int(cpv->vector("waferCoarse"));
   }
 
   loadCellParsHexagon(php);
