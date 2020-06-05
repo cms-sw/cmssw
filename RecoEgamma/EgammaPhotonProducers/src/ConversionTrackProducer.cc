@@ -95,8 +95,7 @@ void ConversionTrackProducer::produce(edm::Event& e, const edm::EventSetup& es) 
   // 2011/08/05
   // Reduction of the track sample based on geometric hypothesis for conversion tracks
 
-  edm::Handle<reco::BeamSpot> beamSpotHandle;
-  e.getByToken(beamSpotInputTag, beamSpotHandle);
+  math::XYZVector beamSpot{e.get(beamSpotInputTag).position()};
 
   edm::ESHandle<MagneticField> magFieldHandle;
   es.get<IdealMagneticFieldRecord>().get(magFieldHandle);
@@ -112,7 +111,6 @@ void ConversionTrackProducer::produce(edm::Event& e, const edm::EventSetup& es) 
     // 2011/08/05
     // Reduction of the track sample based on geometric hypothesis for conversion tracks
 
-    math::XYZVector beamSpot = math::XYZVector(beamSpotHandle->position());
     edm::RefToBase<reco::Track> trackBaseRef = hTrks->refAt(i);
     if (filterOnConvTrackHyp &&
         ConvTrackPreSelector.isTangentPointDistanceLessThan(minConvRadius, trackBaseRef.get(), beamSpot))
