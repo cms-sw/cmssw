@@ -42,6 +42,8 @@ DQMOfflineEcal = cms.Sequence(
     ecal_dqm_source_offline +
     es_dqm_source_offline )
 
+recHitTask.tagHBHE = cms.untracked.InputTag("hbheprereco")
+
 DQMOfflineHcal = cms.Sequence( hcalOfflineSourceSequence )
 
 DQMOfflineHcal2 = cms.Sequence( HcalDQMOfflineSequence )

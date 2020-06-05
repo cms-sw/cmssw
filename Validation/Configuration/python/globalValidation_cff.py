@@ -178,6 +178,8 @@ globalPrevalidationHCALOnly = cms.Sequence(
     + globalPrevalidationHCAL
 )
 
+hcalRecHitsOnlyValidationSequence = hcalRecHitsValidationSequence.copyAndExclude([NoiseRatesValidation])
+
 globalValidationHCAL = cms.Sequence(
       hcalSimHitsValidationSequence
     + hcaldigisValidationSequence
