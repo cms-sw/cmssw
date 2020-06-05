@@ -486,31 +486,30 @@ bool GroupedCkfTrajectoryBuilder::advanceOneLayer(const TrajectorySeed& seed,
     TSOS stateToUse = stateAndLayers.first;
 
     double dPhiCacheForLoopersReconstruction(0);
-    if
-      UNLIKELY(!traj.empty() && (*il) == traj.lastLayer()) {
-        if (maxPt2ForLooperReconstruction > 0) {
-          // ------ For loopers reconstruction
-          //cout<<" self propagating in advanceOneLayer (for loopers) \n";
-          const BarrelDetLayer* sbdl = dynamic_cast<const BarrelDetLayer*>(traj.lastLayer());
-          if (sbdl) {
-            HelixBarrelCylinderCrossing cylinderCrossing(stateToUse.globalPosition(),
-                                                         stateToUse.globalMomentum(),
-                                                         stateToUse.transverseCurvature(),
-                                                         propagator->propagationDirection(),
-                                                         sbdl->specificSurface());
-            if (!cylinderCrossing.hasSolution())
-              continue;
-            GlobalPoint starting = stateToUse.globalPosition();
-            GlobalPoint target1 = cylinderCrossing.position1();
-            GlobalPoint target2 = cylinderCrossing.position2();
+    if UNLIKELY (!traj.empty() && (*il) == traj.lastLayer()) {
+      if (maxPt2ForLooperReconstruction > 0) {
+        // ------ For loopers reconstruction
+        //cout<<" self propagating in advanceOneLayer (for loopers) \n";
+        const BarrelDetLayer* sbdl = dynamic_cast<const BarrelDetLayer*>(traj.lastLayer());
+        if (sbdl) {
+          HelixBarrelCylinderCrossing cylinderCrossing(stateToUse.globalPosition(),
+                                                       stateToUse.globalMomentum(),
+                                                       stateToUse.transverseCurvature(),
+                                                       propagator->propagationDirection(),
+                                                       sbdl->specificSurface());
+          if (!cylinderCrossing.hasSolution())
+            continue;
+          GlobalPoint starting = stateToUse.globalPosition();
+          GlobalPoint target1 = cylinderCrossing.position1();
+          GlobalPoint target2 = cylinderCrossing.position2();
 
-            GlobalPoint farther =
-                fabs(starting.phi() - target1.phi()) > fabs(starting.phi() - target2.phi()) ? target1 : target2;
+          GlobalPoint farther =
+              fabs(starting.phi() - target1.phi()) > fabs(starting.phi() - target2.phi()) ? target1 : target2;
 
-            const Bounds& bounds(sbdl->specificSurface().bounds());
-            float length = 0.5f * bounds.length();
+          const Bounds& bounds(sbdl->specificSurface().bounds());
+          float length = 0.5f * bounds.length();
 
-            /*
+          /*
 	      cout << "starting: " << starting << endl;
 	      cout << "target1: " << target1 << endl;
 	      cout << "target2: " << target2 << endl;
@@ -518,46 +517,46 @@ bool GroupedCkfTrajectoryBuilder::advanceOneLayer(const TrajectorySeed& seed,
 	    cout << "length: " << length << endl;
 	    */
 
-            /*
+          /*
 	      float deltaZ = bounds.thickness()/2.f/fabs(tan(stateToUse.globalDirection().theta()) ) ;
 	      if(stateToUse.hasError())
 	      deltaZ += 3*sqrt(stateToUse.cartesianError().position().czz());
 	      if( fabs(farther.z()) > length + deltaZ ) continue;
 	    */
-            if (fabs(farther.z()) * 0.95f > length)
-              continue;
-
-            Geom::Phi<float> tmpDphi = target1.phi() - target2.phi();
-            if (std::abs(tmpDphi) > maxDPhiForLooperReconstruction)
-              continue;
-            GlobalPoint target(0.5f * (target1.basicVector() + target2.basicVector()));
-            //cout << "target: " << target << endl;
-
-            TransverseImpactPointExtrapolator extrapolator;
-            stateToUse = extrapolator.extrapolate(stateToUse, target, *propagator);
-            if (!stateToUse.isValid())
-              continue;  //SK: consider trying the original? probably not
-
-            //dPhiCacheForLoopersReconstruction = fabs(target1.phi()-target2.phi())*2.;
-            dPhiCacheForLoopersReconstruction = std::abs(tmpDphi);
-            traj.incrementLoops();
-          } else {  // not barrel
+          if (fabs(farther.z()) * 0.95f > length)
             continue;
-          }
-        } else {  // loopers not requested (why else???)
-                  // ------ For cosmics reconstruction
-          LogDebug("CkfPattern") << " self propagating in advanceOneLayer.\n from: \n" << stateToUse;
-          //self navigation case
-          // go to a middle point first
-          TransverseImpactPointExtrapolator middle;
-          GlobalPoint center(0, 0, 0);
-          stateToUse = middle.extrapolate(stateToUse, center, *(forwardPropagator(seed)));
 
+          Geom::Phi<float> tmpDphi = target1.phi() - target2.phi();
+          if (std::abs(tmpDphi) > maxDPhiForLooperReconstruction)
+            continue;
+          GlobalPoint target(0.5f * (target1.basicVector() + target2.basicVector()));
+          //cout << "target: " << target << endl;
+
+          TransverseImpactPointExtrapolator extrapolator;
+          stateToUse = extrapolator.extrapolate(stateToUse, target, *propagator);
           if (!stateToUse.isValid())
-            continue;
-          LogDebug("CkfPattern") << "to: " << stateToUse;
+            continue;  //SK: consider trying the original? probably not
+
+          //dPhiCacheForLoopersReconstruction = fabs(target1.phi()-target2.phi())*2.;
+          dPhiCacheForLoopersReconstruction = std::abs(tmpDphi);
+          traj.incrementLoops();
+        } else {  // not barrel
+          continue;
         }
-      }  // last layer...
+      } else {  // loopers not requested (why else???)
+                // ------ For cosmics reconstruction
+        LogDebug("CkfPattern") << " self propagating in advanceOneLayer.\n from: \n" << stateToUse;
+        //self navigation case
+        // go to a middle point first
+        TransverseImpactPointExtrapolator middle;
+        GlobalPoint center(0, 0, 0);
+        stateToUse = middle.extrapolate(stateToUse, center, *(forwardPropagator(seed)));
+
+        if (!stateToUse.isValid())
+          continue;
+        LogDebug("CkfPattern") << "to: " << stateToUse;
+      }
+    }  // last layer...
 
     //unsigned int maxCandidates = theMaxCand > 21 ? theMaxCand*2 : 42; //limit the number of returned segments
     LayerMeasurements layerMeasurements(theMeasurementTracker->measurementTracker(), *theMeasurementTracker);
@@ -836,15 +835,9 @@ void GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed& see
   auto hitCloner = static_cast<TkTransientTrackingRecHitBuilder const*>(hitBuilder())->cloner();
   KFTrajectoryFitter fitter(backwardPropagator(seed), &updator(), &estimator(), 3, nullptr, &hitCloner);
   //
-  TrajectorySeed::range rseedHits = seed.recHits();
   std::vector<const TrackingRecHit*> seedHits;
-  //seedHits.insert(seedHits.end(), rseedHits.first, rseedHits.second);
-  //for (TrajectorySeed::recHitContainer::const_iterator iter = rseedHits.first; iter != rseedHits.second; iter++){
-  //	seedHits.push_back(&*iter);
-  //}
 
-  //unsigned int nSeed(seedHits.size());
-  unsigned int nSeed(rseedHits.second - rseedHits.first);
+  unsigned int nSeed = seed.nHits();
   //seedHits.reserve(nSeed);
   TempTrajectoryContainer rebuiltTrajectories;
 
@@ -854,13 +847,12 @@ void GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed& see
     //
 
     auto&& reFitted = backwardFit(*it, nSeed, fitter, seedHits);
-    if
-      UNLIKELY(!reFitted.isValid()) {
-        rebuiltTrajectories.push_back(std::move(*it));
-        LogDebug("CkfPattern") << "RebuildSeedingRegion skipped as backward fit failed";
-        //			    << "after reFitted.size() " << reFitted.size();
-        continue;
-      }
+    if UNLIKELY (!reFitted.isValid()) {
+      rebuiltTrajectories.push_back(std::move(*it));
+      LogDebug("CkfPattern") << "RebuildSeedingRegion skipped as backward fit failed";
+      //			    << "after reFitted.size() " << reFitted.size();
+      continue;
+    }
     //LogDebug("CkfPattern")<<"after reFitted.size() " << reFitted.size();
     //
     // Rebuild seeding part. In case it fails: keep initial trajectory
@@ -1022,8 +1014,8 @@ TempTrajectory GroupedCkfTrajectoryBuilder::backwardFit(TempTrajectory& candidat
   unsigned int nHitMin = std::max(candidate.foundHits() - nSeed, theMinNrOfHitsForRebuild);
   //  unsigned int nHitMin = oldMeasurements.size()-nSeed;
   // we want to rebuild only if the number of VALID measurements excluding the seed measurements is higher than the cut
-  if
-    UNLIKELY(nHitMin < theMinNrOfHitsForRebuild) return TempTrajectory();
+  if UNLIKELY (nHitMin < theMinNrOfHitsForRebuild)
+    return TempTrajectory();
 
   LogDebug("CkfPattern") /* << "nHitMin " << nHitMin*/ << "Sizes: " << candidate.measurements().size() << " / ";
   //
@@ -1047,13 +1039,12 @@ TempTrajectory GroupedCkfTrajectoryBuilder::backwardFit(TempTrajectory& candidat
       //
       // count valid / 2D hits
       //
-      if
-        LIKELY(hit->isValid()) {
-          nHit++;
-          //if ( hit.isMatched() ||
-          //     hit.det().detUnits().front()->type().module()==pixel )
-          //nHit2d++;
-        }
+      if LIKELY (hit->isValid()) {
+        nHit++;
+        //if ( hit.isMatched() ||
+        //     hit.det().detUnits().front()->type().module()==pixel )
+        //nHit2d++;
+      }
     }
     //if (nHit==nHitMin) lastBwdDetLayer=im->layer();
     //
@@ -1067,8 +1058,8 @@ TempTrajectory GroupedCkfTrajectoryBuilder::backwardFit(TempTrajectory& candidat
   //
   // Fit only if required number of valid hits can be used
   //
-  if
-    UNLIKELY(nHit < nHitMin) return TempTrajectory();
+  if UNLIKELY (nHit < nHitMin)
+    return TempTrajectory();
 
   //
   // Do the backward fit (important: start from scaled, not random cov. matrix!)
@@ -1077,13 +1068,10 @@ TempTrajectory GroupedCkfTrajectoryBuilder::backwardFit(TempTrajectory& candidat
   //cout << "firstTsos "<< firstTsos << endl;
   firstTsos.rescaleError(10.);
   //TrajectoryContainer bwdFitted(fitter.fit(fwdTraj.seed(),fwdTraj.recHits(),firstTsos));
-  Trajectory&& bwdFitted = fitter.fitOne(
-      TrajectorySeed(
-          PTrajectoryStateOnDet(), TrajectorySeed::recHitContainer(), oppositeDirection(candidate.direction())),
-      fwdTraj.recHits(),
-      firstTsos);
-  if
-    UNLIKELY(!bwdFitted.isValid()) return TempTrajectory();
+  Trajectory&& bwdFitted =
+      fitter.fitOne(TrajectorySeed({}, {}, oppositeDirection(candidate.direction())), fwdTraj.recHits(), firstTsos);
+  if UNLIKELY (!bwdFitted.isValid())
+    return TempTrajectory();
 
   LogDebug("CkfPattern") << "Obtained bwdFitted trajectory with measurement size " << bwdFitted.measurements().size();
   TempTrajectory fitted(fwdTraj.direction(), nSeed);

@@ -73,26 +73,20 @@ void ElectronSeedMerger::produce(edm::StreamID, Event& iEvent, const EventSetup&
       if (AlreadyMatched)
         continue;
 
-      //HITS FOR ECAL SEED
-      TrajectorySeed::const_iterator eh = e_beg->recHits().first;
-      TrajectorySeed::const_iterator eh_end = e_beg->recHits().second;
-
       //HITS FOR TK SEED
       unsigned int hitShared = 0;
       unsigned int hitSeed = 0;
-      for (; eh != eh_end; ++eh) {
-        if (!eh->isValid())
+      for (auto const& eh : e_beg->recHits()) {
+        if (!eh.isValid())
           continue;
         hitSeed++;
         bool Shared = false;
-        TrajectorySeed::const_iterator th = TSeed[it].recHits().first;
-        TrajectorySeed::const_iterator th_end = TSeed[it].recHits().second;
-        for (; th != th_end; ++th) {
-          if (!th->isValid())
+        for (auto const& th : TSeed[it].recHits()) {
+          if (!th.isValid())
             continue;
           //CHECK THE HIT COMPATIBILITY: put back sharesInput
           // as soon Egamma solves the bug on the seed collection
-          if (eh->sharesInput(&(*th), TrackingRecHit::all))
+          if (eh.sharesInput(&th, TrackingRecHit::all))
             Shared = true;
           //   if(eh->geographicalId() == th->geographicalId() &&
           // 	     (eh->localPosition() - th->localPosition()).mag() < 0.001) Shared=true;

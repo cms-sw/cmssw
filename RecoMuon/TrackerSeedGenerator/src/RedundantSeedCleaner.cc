@@ -55,22 +55,17 @@ void RedundantSeedCleaner::clean(const std::vector<TrajectorySeed>& seedTr, std:
   for (TrajectorySeedCollection::iterator s1 = seed.begin(); s1 != seed.end(); ++s1) {
     //rechits from seed
 
-    TrajectorySeed::range r1 = s1->recHits();
-
     for (TrajectorySeedCollection::const_iterator s2 = seedTr.begin(); s2 != seedTr.end(); ++s2) {
       //empty
       if (s2->nHits() == 0)
         continue;
 
-      TrajectorySeed::range r2 = s2->recHits();
-      TrajectorySeed::const_iterator h2 = r2.first;
-
       //number of shared hits;
       int shared = 0;
 
-      for (; h2 < r2.second; h2++) {
-        for (TrajectorySeed::const_iterator h1 = r1.first; h1 < r1.second; h1++) {
-          if (h2->sharesInput(&(*h1), TrackingRecHit::all))
+      for (auto const& h2 : s2->recHits()) {
+        for (auto const& h1 : s1->recHits()) {
+          if (h2.sharesInput(&h1, TrackingRecHit::all))
             shared++;
           if (s1->nHits() != 3)
             LogDebug(theCategory) << shared << " shared hits counter if 2 erease the seed.";

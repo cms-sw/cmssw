@@ -2529,9 +2529,8 @@ unsigned int MTVHistoProducerAlgoForTracker::getSeedingLayerSetBin(const reco::T
     return seedingLayerSetNames.size() - 1;
 
   const TrajectorySeed& seed = *(track.seedRef());
-  const auto hitRange = seed.recHits();
   SeedingLayerSetId searchId;
-  const int nhits = std::distance(hitRange.first, hitRange.second);
+  const int nhits = seed.nHits();
   if (nhits > static_cast<int>(std::tuple_size<SeedingLayerSetId>::value)) {
     LogDebug("TrackValidator") << "Got seed with " << nhits << " hits, but I have a hard-coded maximum of "
                                << std::tuple_size<SeedingLayerSetId>::value
@@ -2540,8 +2539,8 @@ unsigned int MTVHistoProducerAlgoForTracker::getSeedingLayerSetBin(const reco::T
     return seedingLayerSetNames.size() - 1;
   }
   int i = 0;
-  for (auto iHit = hitRange.first; iHit != hitRange.second; ++iHit, ++i) {
-    DetId detId = iHit->geographicalId();
+  for (auto const& recHit : seed.recHits()) {
+    DetId detId = recHit.geographicalId();
 
     if (detId.det() != DetId::Tracker) {
       throw cms::Exception("LogicError") << "Encountered seed hit detId " << detId.rawId() << " not from Tracker, but "
@@ -2582,9 +2581,10 @@ unsigned int MTVHistoProducerAlgoForTracker::getSeedingLayerSetBin(const reco::T
     // Even with the recent addition of
     // SeedingLayerSetsBuilder::fillDescription() this assumption is a
     // bit ugly.
-    const bool isStripMono = subdetStrip && trackerHitRTTI::isSingle(*iHit);
+    const bool isStripMono = subdetStrip && trackerHitRTTI::isSingle(recHit);
     searchId[i] =
         SeedingLayerId(SeedingLayerSetsBuilder::SeedingLayerId(subdet, side, ttopo.layer(detId)), isStripMono);
+    ++i;
   }
   auto found = seedingLayerSetToBin.find(searchId);
   if (found == seedingLayerSetToBin.end()) {

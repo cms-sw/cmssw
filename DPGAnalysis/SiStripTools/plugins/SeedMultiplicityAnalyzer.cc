@@ -372,7 +372,7 @@ void SeedMultiplicityAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
       if (filter->isSelected(iseed)) {
         ++nseeds;
 
-        TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&*(seed->recHits().second - 1));
+        TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&*(seed->recHits().end() - 1));
         TrajectoryStateOnSurface state =
             trajectoryStateTransform::transientState(seed->startingState(), recHit->surface(), theMF.product());
         //      TrajectoryStateClosestToBeamLine tsAtClosestApproachSeed = tscblBuilder(*state.freeState(),bs); // here I need them BS
@@ -388,17 +388,13 @@ void SeedMultiplicityAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
             (*histoeta2D)[i]->Fill(tmpmult[i], eta);
         }
 
-        // loop on rec hits
-
-        TrajectorySeed::range rechits = seed->recHits();
-
         int npixelrh = 0;
-        for (TrajectorySeed::const_iterator hit = rechits.first; hit != rechits.second; ++hit) {
-          const SiPixelRecHit* sphit = dynamic_cast<const SiPixelRecHit*>(&(*hit));
+        for (auto const& hit : seed->recHits()) {
+          const SiPixelRecHit* sphit = dynamic_cast<const SiPixelRecHit*>(&hit);
           if (sphit) {
             ++npixelrh;
             // compute state on recHit surface
-            TransientTrackingRecHit::RecHitPointer ttrhit = theTTRHBuilder->build(&*hit);
+            TransientTrackingRecHit::RecHitPointer ttrhit = theTTRHBuilder->build(&hit);
             TrajectoryStateOnSurface tsos =
                 trajectoryStateTransform::transientState(seed->startingState(), ttrhit->surface(), theMF.product());
 

@@ -37,10 +37,9 @@ namespace {
     if (s1.nHits() != s2.nHits())
       return false;
 
-    unsigned int nHits;
-    TrajectorySeed::range r1 = s1.recHits(), r2 = s2.recHits();
-    TrajectorySeed::const_iterator i1, i2;
-    for (i1 = r1.first, i2 = r2.first, nHits = 0; i1 != r1.second; ++i1, ++i2, ++nHits) {
+    const TrajectorySeed::RecHitRange r1 = s1.recHits();
+    const TrajectorySeed::RecHitRange r2 = s2.recHits();
+    for (auto i1 = r1.begin(), i2 = r2.begin(); i1 != r1.end(); ++i1, ++i2) {
       if (!i1->isValid() || !i2->isValid())
         return false;
       if (i1->geographicalId() != i2->geographicalId())
