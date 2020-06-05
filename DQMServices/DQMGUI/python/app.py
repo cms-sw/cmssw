@@ -149,7 +149,7 @@ async def render_legacy(request):
     dataset = '/' + '/'.join(parts[0:3])
     path = '/'.join(parts[3:])
 
-    me_description = MEDescription(run, dataset, path)
+    me_description = MEDescription(dataset, path, run, lumi=0)
 
     data = await service.get_rendered_image([me_description], options)
 
@@ -170,7 +170,7 @@ async def render_v1(request):
     dataset = '/' + '/'.join(parts[0:3])
     path = '/'.join(parts[3:])
 
-    me_description = MEDescription(run, dataset, path)
+    me_description = MEDescription(dataset, path, run, lumi=0)
 
     data = await service.get_rendered_image([me_description], options)
 
@@ -191,7 +191,7 @@ async def render_overlay_legacy(request):
         dataset = '/' + '/'.join(parts[2:5])
         path = '/'.join(parts[5:])
 
-        me_description = MEDescription(run, dataset, path)
+        me_description = MEDescription(dataset, path, run, lumi=0)
         me_descriptions.append(me_description)
 
     data = await service.get_rendered_image(me_descriptions, options)
@@ -213,7 +213,7 @@ async def render_overlay_v1(request):
         dataset = '/' + '/'.join(parts[2:5])
         path = '/'.join(parts[5:])
 
-        me_description = MEDescription(run, dataset, path)
+        me_description = MEDescription(dataset, path, run, lumi=0)
         me_descriptions.append(me_description)
 
     data = await service.get_rendered_image(me_descriptions, options)
@@ -238,7 +238,7 @@ async def jsroot_legacy(request):
     dataset = '/' + '/'.join(parts[0:3])
     path = '/'.join(parts[3:])
 
-    me_description = MEDescription(run, dataset, path)
+    me_description = MEDescription(dataset, path, run, lumi=0)
     options = RenderingOptions(json=True)
 
     data = await service.get_rendered_json([me_description], options)
@@ -258,7 +258,7 @@ async def jsroot_overlay(request):
         dataset = '/' + '/'.join(parts[2:5])
         path = '/'.join(parts[5:])
 
-        me_description = MEDescription(run, dataset, path)
+        me_description = MEDescription(dataset, path, run, lumi=0)
         me_descriptions.append(me_description)
 
     options = RenderingOptions(json=True)

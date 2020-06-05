@@ -117,7 +117,7 @@ class GUIService:
         rendering_infos = []
 
         for me in me_descriptions:
-            filename, fileformat, names_list, infos_list = await cls.__get_filename_fileformat_names_infos(me.dataset, me.run)
+            filename, fileformat, names_list, infos_list = await cls.__get_filename_fileformat_names_infos(me.dataset, me.run, me.lumi)
 
             # Find the index of run/dataset/me in me list blob. 
             # The index in me list will correspond to the index in infos list.
@@ -185,15 +185,15 @@ class GUIService:
 
     @classmethod
     @alru_cache(maxsize=10)
-    async def __get_filename_fileformat_names_infos(cls, dataset, run):
-        filename_fileformat_names_infos = await cls.store.get_filename_fileformat_names_infos(dataset, run)
+    async def __get_filename_fileformat_names_infos(cls, dataset, run, lumi=0):
+        filename_fileformat_names_infos = await cls.store.get_filename_fileformat_names_infos(dataset, run, lumi)
 
         if filename_fileformat_names_infos == None:
             # Import and retry
             success = await cls.import_manager.import_blobs(dataset, run)
             if success:
                 # Retry
-                filename_fileformat_names_infos = await cls.store.get_filename_fileformat_names_infos(dataset, run)
+                filename_fileformat_names_infos = await cls.store.get_filename_fileformat_names_infos(dataset, run, lumi)
 
         if filename_fileformat_names_infos:
             filename, fileformat, names_list, infos_list = filename_fileformat_names_infos

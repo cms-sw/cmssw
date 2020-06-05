@@ -32,13 +32,14 @@ class FileFormat(IntEnum):
 class MEDescription:
     """Full description of a monitor element containing a run, dataset and full path to the ME."""
 
-    def __init__(self, run, dataset, path):
-        if run == None or dataset == None or path == None:
-            raise Exception('run, dataset and path must be provided to MEDescription.')
+    def __init__(self, dataset, path, run, lumi=0):
+        if dataset == None or path == None or run == None :
+            raise Exception('dataset, path and run must be provided to MEDescription.')
 
-        self.run = run
         self.dataset = dataset
         self.path = path
+        self.run = run
+        self.lumi = lumi
 
 
 class RenderingInfo:

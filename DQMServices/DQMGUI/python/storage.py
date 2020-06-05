@@ -108,7 +108,7 @@ class GUIDataStore:
 
 
     @classmethod
-    async def get_filename_fileformat_names_infos(cls, dataset, run):
+    async def get_filename_fileformat_names_infos(cls, dataset, run, lumi=0):
         # For now adding a LIMIT 1 because there might be multiple version of the same file.
         sql = '''
         SELECT
@@ -123,11 +123,13 @@ class GUIDataStore:
         WHERE
             run = ?
         AND 
+            lumi = ?
+        AND 
             dataset = ?
         LIMIT 1;
         '''
 
-        cursor = await cls.__db.execute(sql, (int(run), dataset))
+        cursor = await cls.__db.execute(sql, (int(run), int(lumi), dataset))
         row = await cursor.fetchone()
         await cursor.close()
 
