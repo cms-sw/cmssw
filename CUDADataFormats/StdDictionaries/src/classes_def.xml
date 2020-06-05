@@ -1,0 +1,14 @@
+<lcgdict>
+    <class name="std::vector<std::byte, cms::cuda::HostAllocator<std::byte, 0>>" />
+
+    <class name="std::vector<uint8_t, cms::cuda::HostAllocator<uint8_t, 0>>" />
+    <class name="std::vector<uint16_t, cms::cuda::HostAllocator<uint16_t, 0>>" />
+    <class name="std::vector<uint32_t, cms::cuda::HostAllocator<uint32_t, 0>>" />
+
+    <class name="std::vector<int8_t, cms::cuda::HostAllocator<int8_t, 0>>" />
+    <class name="std::vector<int16_t, cms::cuda::HostAllocator<int16_t, 0>>" />
+    <class name="std::vector<int32_t, cms::cuda::HostAllocator<int32_t, 0>>" />
+
+    <class name="std::vector<float, cms::cuda::HostAllocator<float, 0>>" />
+    <class name="std::vector<double, cms::cuda::HostAllocator<double, 0>>" />
+</lcgdict>
