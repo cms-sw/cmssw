@@ -372,7 +372,6 @@ bool CSCGeometryParsFromDD::build(const cms::DDCompactView* cview,
   std::vector<double> grmat(9);
   std::vector<double> trm(9);
   while (fv.firstChild()) {
-
     MuonGeometryNumbering mbn(muonConstants);
     CSCNumberingScheme cscnum(muonConstants);
     int id = cscnum.baseNumberToUnitNumber(mbn.geoHistoryToBaseNumber(fv.history()));
