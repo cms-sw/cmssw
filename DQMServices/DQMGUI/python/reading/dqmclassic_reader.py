@@ -32,7 +32,7 @@ class DQMCLASSICReader:
         # the displacement.
         displacement = - key.fields.fKeyLen
         # metype doubles as root class name here.
-        return nanoroot.TBufferFile(obj, me_info.type, displacement, classversion)
+        return nanoroot.TBufferFile(obj, me_info.type, displacement)
 
 
     @classmethod

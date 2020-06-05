@@ -1,8 +1,8 @@
 import asyncio
 from ioservice import IOService
 from data_types import MEInfo, ScalarValue
-from nanoroot import TKey, TFile, TTreeFile
-from nanoroot.TType import Int32, Int64, Float64, String, IndexRange
+from nanoroot import TKey, TFile, TTreeFile, TType
+# from nanoroot.TType import Int32, Int64, Float64, String, IndexRange
 
 
 class DQMIOImporter:
@@ -15,19 +15,19 @@ class DQMIOImporter:
         """
         
         dqmioschema = {
-            b'Indices': {b'Run': Int32, b'Lumi': Int32, b'Type': Int32,
-                         b'FirstIndex': Int64, b'LastIndex': Int64},
-            b'Ints':   {b'FullName': String, b'Value': Int64},
-            b'Floats': {b'FullName': String, b'Value': Float64},
-            b'Strings':{b'FullName': String, b'Value': IndexRange},
-            b'TH1Fs':  {b'FullName': String, b'Value': IndexRange},
-            b'TH1Ss':  {b'FullName': String, b'Value': IndexRange},
-            b'TH1Ds':  {b'FullName': String, b'Value': IndexRange},
-            b'TH2Fs':  {b'FullName': String, b'Value': IndexRange},
-            b'TH2Ss':  {b'FullName': String, b'Value': IndexRange},
-            b'TH2Ds':  {b'FullName': String, b'Value': IndexRange},
-            b'TProfiles':   {b'FullName': String, b'Value': IndexRange},
-            b'TProfile2Ds': {b'FullName': String, b'Value': IndexRange},
+            b'Indices': {b'Run': TType.Int32, b'Lumi': TType.Int32, b'Type': TType.Int32,
+                         b'FirstIndex': TType.Int64, b'LastIndex': TType.Int64},
+            b'Ints':   {b'FullName': String, b'Value': TType.Int64},
+            b'Floats': {b'FullName': String, b'Value': TType.Float64},
+            b'Strings':{b'FullName': String, b'Value': TType.IndexRange},
+            b'TH1Fs':  {b'FullName': String, b'Value': TType.IndexRange},
+            b'TH1Ss':  {b'FullName': String, b'Value': TType.IndexRange},
+            b'TH1Ds':  {b'FullName': String, b'Value': TType.IndexRange},
+            b'TH2Fs':  {b'FullName': String, b'Value': TType.IndexRange},
+            b'TH2Ss':  {b'FullName': String, b'Value': TType.IndexRange},
+            b'TH2Ds':  {b'FullName': String, b'Value': TType.IndexRange},
+            b'TProfiles':   {b'FullName': String, b'Value': TType.IndexRange},
+            b'TProfile2Ds': {b'FullName': String, b'Value': TType.IndexRange},
         }
 
         treenames = {
