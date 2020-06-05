@@ -69,6 +69,9 @@ RawToDigi_pixelOnly = cms.Sequence(RawToDigiTask_pixelOnly)
 RawToDigiTask_ecalOnly = cms.Task(ecalDigisTask, ecalPreshowerDigis, scalersRawToDigi)
 RawToDigi_ecalOnly = cms.Sequence(RawToDigiTask_ecalOnly)
 
+RawToDigiTask_hcalOnly = cms.Task(hcalDigis)
+RawToDigi_hcalOnly = cms.Sequence(RawToDigiTask_hcalOnly)
+
 scalersRawToDigi.scalersInputTag = 'rawDataCollector'
 siPixelDigis.InputLabel = 'rawDataCollector'
 ecalDigis.InputLabel = 'rawDataCollector'
