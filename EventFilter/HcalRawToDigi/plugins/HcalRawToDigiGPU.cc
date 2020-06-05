@@ -1,31 +1,20 @@
 #include <iostream>
 
-// framework
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-//#include "HeterogeneousCore/Producer/interface/HeterogeneousEDProducer.h"
-//#include "HeterogeneousCore/Producer/interface/HeterogeneousEvent.h"
-
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-// algorithm specific
-
+#include "CondFormats/DataRecord/interface/HcalElectronicsMapRcd.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-//#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-//#include "CUDADataFormats/HcalDigi/interface/DigisCollection.h"
-
-//#include "CondFormats/DataRecord/interface/HcalMappingElectronicsRcd.h"
-//#include "EventFilter/HcalRawToDigi/interface/ElectronicsMappingGPU.h"
-
 #include "EventFilter/HcalRawToDigi/plugins/DeclsForKernels.h"
 #include "EventFilter/HcalRawToDigi/plugins/DecodeGPU.h"
 #include "EventFilter/HcalRawToDigi/plugins/ElectronicsMappingGPU.h"
-#include "CondFormats/DataRecord/interface/HcalElectronicsMapRcd.h"
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 class HcalRawToDigiGPU : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -95,17 +84,26 @@ HcalRawToDigiGPU::HcalRawToDigiGPU(const edm::ParameterSet& ps)
   config_.nsamplesF5HB = ps.getParameter<uint32_t>("nsamplesF5HB");
   config_.nsamplesF3HB = ps.getParameter<uint32_t>("nsamplesF3HB");
 
-  inputCPU_.allocate();
-  inputGPU_.allocate();
-  outputGPU_.allocate(config_);
-  scratchGPU_.allocate(config_);
-  outputCPU_.allocate();
+  // reserve memory and call CUDA API functions only if CUDA is available
+  edm::Service<CUDAService> cs;
+  if (cs and cs->enabled()) {
+    inputCPU_.allocate();
+    outputCPU_.allocate();
+
+    inputGPU_.allocate();
+    outputGPU_.allocate(config_);
+    scratchGPU_.allocate(config_);
+  }
 }
 
 HcalRawToDigiGPU::~HcalRawToDigiGPU() {
-  inputGPU_.deallocate();
-  outputGPU_.deallocate(config_);
-  scratchGPU_.deallocate(config_);
+  // call CUDA API functions only if CUDA is available
+  edm::Service<CUDAService> cs;
+  if (cs and cs->enabled()) {
+    inputGPU_.deallocate();
+    outputGPU_.deallocate(config_);
+    scratchGPU_.deallocate(config_);
+  }
 }
 
 void HcalRawToDigiGPU::acquire(edm::Event const& event,

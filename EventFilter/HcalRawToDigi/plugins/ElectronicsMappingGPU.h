@@ -4,8 +4,8 @@
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 
 #ifndef __CUDACC__
-#include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 #include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 #endif
 
 namespace hcal {
@@ -31,9 +31,6 @@ namespace hcal {
 
       // get device pointers
       Product const &getProduct(cudaStream_t) const;
-
-      //
-      static std::string name() { return std::string{"hcalElectronicsMappingGPU"}; }
 
     private:
       // in the future, we need to arrange so to avoid this copy on the host

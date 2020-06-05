@@ -1,22 +1,16 @@
 #include <iostream>
 
-// framework
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-//#include "HeterogeneousCore/Producer/interface/HeterogeneousEDProducer.h"
-//#include "HeterogeneousCore/Producer/interface/HeterogeneousEvent.h"
-
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CUDADataFormats/HcalDigi/interface/DigiCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
-
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "CUDADataFormats/HcalDigi/interface/DigiCollection.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 class HcalCPUDigisProducer : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -62,8 +56,7 @@ void HcalCPUDigisProducer::fillDescriptions(edm::ConfigurationDescriptions& conf
   desc.add<std::string>("digisLabelF5HBOut", "f5HBDigis");
   desc.add<std::string>("digisLabelF3HBOut", "f3HBDigis");
 
-  std::string label = "hcalCPUDigisProducer";
-  confDesc.add(label, desc);
+  confDesc.addWithDefaultLabel(desc);
 }
 
 HcalCPUDigisProducer::HcalCPUDigisProducer(const edm::ParameterSet& ps)
@@ -153,13 +146,9 @@ void HcalCPUDigisProducer::acquire(edm::Event const& event,
 }
 
 void HcalCPUDigisProducer::produce(edm::Event& event, edm::EventSetup const& setup) {
-  auto outf01 = std::make_unique<OProductTypef01>(std::move(digisf01HE_));
-  auto outf5 = std::make_unique<OProductTypef5>(std::move(digisf5HB_));
-  auto outf3 = std::make_unique<OProductTypef3>(std::move(digisf3HB_));
-
-  event.put(digisF01HETokenOut_, std::move(outf01));
-  event.put(digisF5HBTokenOut_, std::move(outf5));
-  event.put(digisF3HBTokenOut_, std::move(outf3));
+  event.emplace(digisF01HETokenOut_, std::move(digisf01HE_));
+  event.emplace(digisF5HBTokenOut_, std::move(digisf5HB_));
+  event.emplace(digisF3HBTokenOut_, std::move(digisf3HB_));
 
   // output collections
   /*

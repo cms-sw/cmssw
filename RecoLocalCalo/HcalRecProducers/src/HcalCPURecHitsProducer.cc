@@ -1,20 +1,16 @@
 #include <iostream>
+#include <string>
 
-// framework
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-//#include "HeterogeneousCore/Producer/interface/HeterogeneousEDProducer.h"
-//#include "HeterogeneousCore/Producer/interface/HeterogeneousEvent.h"
-
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CUDADataFormats/HcalRecHitSoA/interface/RecHitCollection.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
-#include "CUDADataFormats/HcalRecHitSoA/interface/RecHitCollection.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 class HcalCPURecHitsProducer : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -44,8 +40,7 @@ void HcalCPURecHitsProducer::fillDescriptions(edm::ConfigurationDescriptions& co
   desc.add<std::string>("recHitsM0LabelOut", "recHitsM0HBHE");
   desc.add<std::string>("recHitsLegacyLabelOut", "recHitsLegacyHBHE");
 
-  std::string label = "hcalCPURecHitsProducer";
-  confDesc.add(label, desc);
+  confDesc.addWithDefaultLabel(desc);
 }
 
 HcalCPURecHitsProducer::HcalCPURecHitsProducer(const edm::ParameterSet& ps)
@@ -103,7 +98,7 @@ void HcalCPURecHitsProducer::produce(edm::Event& event, edm::EventSetup const& s
   event.put(recHitsLegacyTokenOut_, std::move(recHitsLegacy));
 
   // put a new format
-  event.put(recHitsM0TokenOut_, std::make_unique<OProductType>(std::move(tmpRecHits_)));
+  event.emplace(recHitsM0TokenOut_, std::move(tmpRecHits_));
 }
 
 DEFINE_FWK_MODULE(HcalCPURecHitsProducer);

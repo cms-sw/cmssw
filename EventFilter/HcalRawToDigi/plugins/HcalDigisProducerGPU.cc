@@ -1,18 +1,16 @@
 #include <iostream>
 
-// framework
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CUDADataFormats/HcalDigi/interface/DigiCollection.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-
-#include "CUDADataFormats/HcalDigi/interface/DigiCollection.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 class HcalDigisProducerGPU : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -93,8 +91,7 @@ void HcalDigisProducerGPU::fillDescriptions(edm::ConfigurationDescriptions& conf
   desc.add<uint32_t>("nsamplesF5HB", 8);
   desc.add<uint32_t>("nsamplesF3HB", 8);
 
-  std::string label = "hcalDigisProducerGPU";
-  confDesc.add(label, desc);
+  confDesc.addWithDefaultLabel(desc);
 }
 
 HcalDigisProducerGPU::HcalDigisProducerGPU(const edm::ParameterSet& ps)
@@ -110,22 +107,20 @@ HcalDigisProducerGPU::HcalDigisProducerGPU(const edm::ParameterSet& ps)
   config_.nsamplesF5HB = ps.getParameter<uint32_t>("nsamplesF5HB");
   config_.nsamplesF3HB = ps.getParameter<uint32_t>("nsamplesF3HB");
 
-  // allocate on the device
-  cudaCheck(cudaMalloc(
-      (void**)&df01_.data,
-      config_.maxChannelsF01HE * sizeof(uint16_t) * hcal::compute_stride<hcal::Flavor01>(config_.nsamplesF01HE)));
-  cudaCheck(cudaMalloc((void**)&df01_.ids, config_.maxChannelsF01HE * sizeof(uint32_t)));
+  // call CUDA API functions only if CUDA is available
+  edm::Service<CUDAService> cs;
+  if (cs and cs->enabled()) {
+    // allocate on the device
+    cudaCheck(cudaMalloc((void**)&df01_.data, config_.maxChannelsF01HE * sizeof(uint16_t) * hcal::compute_stride<hcal::Flavor01>(config_.nsamplesF01HE)));
+    cudaCheck(cudaMalloc((void**)&df01_.ids, config_.maxChannelsF01HE * sizeof(uint32_t)));
 
-  cudaCheck(cudaMalloc(
-      (void**)&df5_.data,
-      config_.maxChannelsF5HB * sizeof(uint16_t) * hcal::compute_stride<hcal::Flavor5>(config_.nsamplesF5HB)));
-  cudaCheck(cudaMalloc((void**)&df5_.ids, config_.maxChannelsF5HB * sizeof(uint32_t)));
-  cudaCheck(cudaMalloc((void**)&df5_.npresamples, sizeof(uint8_t) * config_.maxChannelsF5HB));
+    cudaCheck(cudaMalloc((void**)&df5_.data, config_.maxChannelsF5HB * sizeof(uint16_t) * hcal::compute_stride<hcal::Flavor5>(config_.nsamplesF5HB)));
+    cudaCheck(cudaMalloc((void**)&df5_.ids, config_.maxChannelsF5HB * sizeof(uint32_t)));
+    cudaCheck(cudaMalloc((void**)&df5_.npresamples, sizeof(uint8_t) * config_.maxChannelsF5HB));
 
-  cudaCheck(cudaMalloc(
-      (void**)&df3_.data,
-      config_.maxChannelsF3HB * sizeof(uint16_t) * hcal::compute_stride<hcal::Flavor3>(config_.nsamplesF3HB)));
-  cudaCheck(cudaMalloc((void**)&df3_.ids, config_.maxChannelsF3HB * sizeof(uint32_t)));
+    cudaCheck(cudaMalloc((void**)&df3_.data, config_.maxChannelsF3HB * sizeof(uint16_t) * hcal::compute_stride<hcal::Flavor3>(config_.nsamplesF3HB)));
+    cudaCheck(cudaMalloc((void**)&df3_.ids, config_.maxChannelsF3HB * sizeof(uint32_t)));
+  }
 
   // preallocate on the host
   hf01_.stride = hcal::compute_stride<hcal::Flavor01>(config_.nsamplesF01HE);
@@ -137,13 +132,20 @@ HcalDigisProducerGPU::HcalDigisProducerGPU(const edm::ParameterSet& ps)
 }
 
 HcalDigisProducerGPU::~HcalDigisProducerGPU() {
-  // deallocate on the device
-  cudaCheck(cudaFree(df01_.data));
-  cudaCheck(cudaFree(df01_.ids));
+  // call CUDA API functions only if CUDA is available
+  edm::Service<CUDAService> cs;
+  if (cs and cs->enabled()) {
+    // deallocate on the device
+    cudaCheck(cudaFree(df01_.data));
+    cudaCheck(cudaFree(df01_.ids));
 
-  cudaCheck(cudaFree(df5_.data));
-  cudaCheck(cudaFree(df5_.ids));
-  cudaCheck(cudaFree(df5_.npresamples));
+    cudaCheck(cudaFree(df5_.data));
+    cudaCheck(cudaFree(df5_.ids));
+    cudaCheck(cudaFree(df5_.npresamples));
+
+    cudaCheck(cudaFree(df3_.data));
+    cudaCheck(cudaFree(df3_.ids));
+  }
 }
 
 void HcalDigisProducerGPU::acquire(edm::Event const& event,

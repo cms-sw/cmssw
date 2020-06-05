@@ -1,10 +1,8 @@
-#include "HcalRawESProducerGPU.h"
+#include <iostream>
 
 #include "CondFormats/DataRecord/interface/HcalElectronicsMapRcd.h"
-
 #include "EventFilter/HcalRawToDigi/plugins/ElectronicsMappingGPU.h"
-
-#include <iostream>
+#include "HcalRawESProducerGPU.h"
 
 using HcalElectronicsMappingGPUESProducer =
     HcalRawESProducerGPU<hcal::raw::ElectronicsMappingGPU, HcalElectronicsMap, HcalElectronicsMapRcd>;
