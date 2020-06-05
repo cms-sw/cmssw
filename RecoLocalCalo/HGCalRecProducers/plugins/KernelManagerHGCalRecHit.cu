@@ -37,7 +37,6 @@ void KernelManagerHGCalRecHit::reuse_device_pointers_()
 void KernelManagerHGCalRecHit::run_kernels(const KernelConstantData<HGCeeUncalibratedRecHitConstantData> *kcdata)
 {
   transfer_soas_to_device_();
-
   /*
   ee_step1<<<::nblocks_, ::nthreads_>>>( *(data_->d_2_), *(data_->d_1_), kcdata->data_, data_->nhits_ );
   after_();
@@ -52,15 +51,18 @@ void KernelManagerHGCalRecHit::run_kernels(const KernelConstantData<HGCeeUncalib
 void KernelManagerHGCalRecHit::run_kernels(const KernelConstantData<HGChefUncalibratedRecHitConstantData> *kcdata, const hgcal_conditions::HeterogeneousHEFConditionsESProduct* d_conds)
 {
   transfer_soas_to_device_();
-
+ 
   /*
   hef_step1<<<::nblocks_,::nthreads_>>>( *(data_->d_2), *(data_->d_1_), d_kcdata->data, data_->nhits_);
   after_();
   reuse_device_pointers_();
   */
 
+  std::cout << "before kernel" << std::endl;
   hef_to_rechit<<<::nblocks_,::nthreads_>>>( *(data_->d_out_), *(data_->d_1_), kcdata->data_, d_conds, data_->nhits_ );
+  std::cout << "after kernel" <<  std::endl;
   after_();
+
   transfer_soa_to_host_and_synchronize_();
 }
 

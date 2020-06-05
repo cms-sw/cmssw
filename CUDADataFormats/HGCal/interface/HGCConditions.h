@@ -1,6 +1,45 @@
 #ifndef CUDADataFormats_HGCal_HGCConditions_h
 #define CUDADataFormats_HGCal_HGCConditions_h
 
+#include <utility>
+#include <stdexcept>
+
+namespace {
+  struct xyz {
+    float x;
+    float y;
+    float z;
+    constexpr bool operator ==(const xyz& rhs) const { return this->x == rhs.x && this->y == rhs.y; }
+  };
+  using Item = std::pair<int, xyz>;
+  constexpr Item map_items[] = {
+				{ 0, {3.,3} },
+				{ 1, {4.,4.} },
+				{ 2, {5.,5.2} },
+  };
+  constexpr int map_size = sizeof(map_items)/sizeof(map_items[0]);
+
+  static constexpr xyz findValue(int key, int range = map_size) {
+    return
+      (range == 0) ? throw std::runtime_error("Value not present"):
+      (map_items[range - 1].first == key) ? map_items[range - 1].second:
+      findValue(key, range - 1);
+  };
+
+  static constexpr int findKey(xyz value, int range = map_size) {
+    return
+      (range == 0) ? throw std::runtime_error("Key not present"):
+      (map_items[range - 1].second == value) ? map_items[range - 1].first:
+      findKey(value, range - 1);
+  };
+}
+
+
+
+
+
+
+
 class HeterogeneousHGCSiliconDetId {
  public:
   constexpr HeterogeneousHGCSiliconDetId(uint32_t id): id_(id) {}
@@ -13,14 +52,7 @@ class HeterogeneousHGCSiliconDetId {
   constexpr uint32_t waferV() { return (((id_ >> kHGCalWaferVSignOffset) & kHGCalWaferVSignMask) ? -waferVAbs() : waferVAbs()); }
   constexpr uint32_t cellU() { return (id_ >> kHGCalCellUOffset) & kHGCalCellUMask; }
   constexpr uint32_t cellV() { return (id_ >> kHGCalCellVOffset) & kHGCalCellVMask; }
-  constexpr int cellX() { 
-    int N = (type() == HGCalFine) ? HGCalFineN : HGCalCoarseN;
-    return (3 * (cellV() - N) + 2);
-  }
-  constexpr int cellY() {
-    int N = (type() == HGCalFine) ? HGCalFineN : HGCalCoarseN;
-    return (2 * cellU() - (N + cellV()));
-  }
+  constexpr float cellX() { return ::findValue(0).x; } //CHANGE!!
   
  private:
   uint32_t id_;

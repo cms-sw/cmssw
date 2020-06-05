@@ -108,8 +108,8 @@ void hef_to_rechit(HGCRecHitSoA dst_soa, HGCUncalibratedRecHitSoA src_soa, const
 {
   unsigned int tid = blockDim.x * blockIdx.x + threadIdx.x;
   HeterogeneousHGCSiliconDetId detid(src_soa.id_[tid]);
-  printf("waferTypeL: %d - cellCoarseY: %lf - cellX: %d\n", conds->params.waferTypeL_[0], conds->params.cellCoarseY_[12], detid.cellX());
-
+  printf("cellCoarseY: %lf - cellX: %lf - cellLayer: %d\n", conds->params.cellCoarseY_[12], detid.cellX(), detid.layer());
+  
   for (unsigned int i = tid; i < length; i += blockDim.x * gridDim.x)
     {
       double weight         = get_weight_from_layer(detid.layer(), cdata.weights_);

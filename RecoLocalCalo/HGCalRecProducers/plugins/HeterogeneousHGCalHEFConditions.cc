@@ -5,9 +5,7 @@ HeterogeneousHGCalHEFConditionsWrapper::HeterogeneousHGCalHEFConditionsWrapper(c
   calculate_memory_bytes(cpuHGCalParameters);
 
   chunk_ = std::accumulate(this->sizes_.begin(), this->sizes_.end(), 0); //total memory required in bytes
-  std::cout << "hef: check before" << std::endl;
   gpuErrchk(cudaMallocHost(&this->params_.cellFineX_, chunk_));
-  std::cout << "hef: check after" << std::endl;
 
   //store cumulative sum in bytes and convert it to sizes in units of C++ typesHEF, i.e., number if items to be transferred to GPU
   std::vector<size_t> cumsum_sizes( this->sizes_.size()+1, 0 ); //starting with zero
@@ -39,7 +37,6 @@ HeterogeneousHGCalHEFConditionsWrapper::HeterogeneousHGCalHEFConditionsWrapper(c
       }
 
     //copying the pointers' content
-    std::cout << "hef: check pointers before" << std::endl;
     for(unsigned int i=cumsum_sizes[j]; i<cumsum_sizes[j+1]; ++i) 
       {
 	unsigned int index = i - cumsum_sizes[j];
@@ -53,7 +50,6 @@ HeterogeneousHGCalHEFConditionsWrapper::HeterogeneousHGCalHEFConditionsWrapper(c
 	else
 	  edm::LogError("HeterogeneousHGCalHEFConditionsWrapper") << "Wrong HeterogeneousHGCalParameters type";
       }
-    std::cout << "hef: check pointers after" << std::endl;
   }
 }
 
