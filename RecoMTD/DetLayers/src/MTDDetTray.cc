@@ -1,3 +1,5 @@
+//#define EDM_ML_DEBUG
+
 /** \file
  *
  *  \author L. Gray - FNAL
@@ -10,8 +12,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
-
-#define EDM_ML_DEBUG
 
 using namespace std;
 

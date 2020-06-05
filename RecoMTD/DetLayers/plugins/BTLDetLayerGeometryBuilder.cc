@@ -1,3 +1,5 @@
+//#define EDM_ML_DEBUG
+
 #include "BTLDetLayerGeometryBuilder.h"
 
 #include <DataFormats/ForwardDetId/interface/BTLDetId.h>
@@ -11,8 +13,6 @@
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <iostream>
-
-#define EDM_ML_DEBUG
 
 using namespace std;
 
