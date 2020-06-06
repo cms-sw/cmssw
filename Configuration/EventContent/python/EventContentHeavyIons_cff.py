@@ -14,12 +14,11 @@ from RecoHI.Configuration.RecoHI_EventContent_cff import *       # heavy ion rec
 
 
 #RAW
-RAWEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring(
+RecoHIRAWOutput=cms.untracked.vstring(
 	'keep FEDRawDataCollection_rawDataRepacker_*_*',
         'keep FEDRawDataCollection_hybridRawDataRepacker_*_*',
         'keep FEDRawDataCollection_virginRawDataRepacker_*_*')
-)
+RAWEventContent.outputCommands.extend(RecoHIRAWOutput)
 
 #RECO
 RECOEventContent.outputCommands.extend(RecoHIRECO.outputCommands)
@@ -28,11 +27,12 @@ RECOEventContent.outputCommands.extend(RecoHIRECO.outputCommands)
 AODEventContent.outputCommands.extend(RecoHIAOD.outputCommands)
 
 #RAWSIM
-RAWSIMEventContent.outputCommands.extend(RAWEventContent.outputCommands)
+RAWSIMEventContent.outputCommands.extend(RecoHIRAWOutput)
 RAWSIMEventContent.outputCommands.extend(HiMixRAW.outputCommands)
 
 #RAWSIMHLT
-RAWSIMHLTEventContent.outputCommands.extend(RAWSIMEventContent.outputCommands)
+RAWSIMHLTEventContent.outputCommands.extend(RecoHIRAWOutput)
+RAWSIMHLTEventContent.outputCommands.extend(HiMixRAW.outputCommands)
 
 #RECOSIM
 RECOSIMEventContent.outputCommands.extend(RecoHIRECO.outputCommands)
@@ -44,28 +44,35 @@ AODSIMEventContent.outputCommands.extend(HiMixAOD.outputCommands)
 
 #FEVT (RAW + RECO)
 FEVTEventContent.outputCommands.extend(RecoHIFEVT.outputCommands)
-FEVTEventContent.outputCommands.extend(RAWEventContent.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoHIRAWOutput)
 
 #FEVTHLTALL (FEVT + all HLT)
-FEVTHLTALLEventContent.outputCommands.extend(FEVTEventContent.outputCommands)
+FEVTHLTALLEventContent.outputCommands.extend(RecoHIFEVT.outputCommands)
+FEVTHLTALLEventContent.outputCommands.extend(RecoHIRAWOutput)
 
 #FEVTSIM (RAWSIM + RECOSIM)
-FEVTSIMEventContent.outputCommands.extend(FEVTEventContent.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(RecoHIFEVT.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(RecoHIRAWOutput)
 FEVTSIMEventContent.outputCommands.extend(HiMixRAW.outputCommands)
 
 #RAW DEBUG(e.g. mergedtruth from trackingParticles) 
-RAWDEBUGEventContent.outputCommands.extend(RAWEventContent.outputCommands)
+RAWDEBUGEventContent.outputCommands.extend(RecoHIRAWOutput)
 RAWDEBUGEventContent.outputCommands.extend(HiMixRAW.outputCommands)
 
 #RAW HLT DEBUG 
-RAWDEBUGHLTEventContent.outputCommands.extend(RAWDEBUGEventContent.outputCommands)
+RAWDEBUGHLTEventContent.outputCommands.extend(RecoHIRAWOutput)
+RAWDEBUGHLTEventContent.outputCommands.extend(HiMixRAW.outputCommands)
 
 #RECO DEBUG  
 RECODEBUGEventContent.outputCommands.extend(RecoHIRECO.outputCommands)
 RECODEBUGEventContent.outputCommands.extend(HiMixRAW.outputCommands)
 
 #FEVT DEBUG 
-FEVTDEBUGEventContent.outputCommands.extend(FEVTSIMEventContent.outputCommands)
+FEVTDEBUGEventContent.outputCommands.extend(RecoHIFEVT.outputCommands)
+FEVTDEBUGEventContent.outputCommands.extend(RecoHIRAWOutput)
+FEVTDEBUGEventContent.outputCommands.extend(HiMixRAW.outputCommands)
 
 #FEVT HLT DEBUG  
-FEVTDEBUGHLTEventContent.outputCommands.extend(FEVTSIMEventContent.outputCommands)
+FEVTDEBUGHLTEventContent.outputCommands.extend(RecoHIFEVT.outputCommands)
+FEVTDEBUGHLTEventContent.outputCommands.extend(RecoHIRAWOutput)
+FEVTDEBUGHLTEventContent.outputCommands.extend(HiMixRAW.outputCommands)
