@@ -17,7 +17,7 @@
 #define L1_TRACK_TRIGGER_STUB_BUILDER_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -40,7 +40,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 template <typename T>
-class TTStubBuilder : public edm::EDProducer {
+class TTStubBuilder : public edm::one::EDProducer<edm::one::WatchRuns> {
 public:
   /// Constructor
   explicit TTStubBuilder(const edm::ParameterSet& iConfig);
