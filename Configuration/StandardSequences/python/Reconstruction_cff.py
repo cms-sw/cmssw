@@ -227,7 +227,8 @@ reconstruction_ecalOnlyTask = cms.Task(
 )
 reconstruction_ecalOnly = cms.Sequence(reconstruction_ecalOnlyTask)
 
-particleFlowRecHitHBHE.producers[0].src=cms.InputTag("hbheprereco","")
+from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHBHE_cfi import particleFlowRecHitHBHE as _particleFlowRecHitHBHE
+_particleFlowRecHitHBHE.producers[0].src=cms.InputTag("hbheprereco","")
 
 reconstruction_hcalOnlyTask = cms.Task(
     bunchSpacingProducer,
@@ -237,6 +238,8 @@ reconstruction_hcalOnlyTask = cms.Task(
 )
 
 reconstruction_hcalOnly = cms.Sequence(reconstruction_hcalOnlyTask)
+reconstruction_hcalOnly.replace(particleFlowRecHitHBHE,_particleFlowRecHitHBHE)
+
 
 #need a fully expanded sequence copy
 modulesToRemove = list() # copy does not work well
