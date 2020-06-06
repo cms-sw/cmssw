@@ -14,7 +14,6 @@
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/EgammaTrackReco/interface/ConversionTrack.h"
@@ -25,6 +24,9 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/GsfTracking/interface/TrajGsfTrackAssociation.h"
@@ -52,9 +54,6 @@ public:
   void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 private:
-  edm::ParameterSet conf_;
-
-  std::string trackProducer;
   edm::EDGetTokenT<edm::View<reco::Track> > genericTracks;
   edm::EDGetTokenT<TrajTrackAssociationCollection> kfTrajectories;
   edm::EDGetTokenT<TrajGsfTrackAssociationCollection> gsfTrajectories;
@@ -71,11 +70,9 @@ private:
   // Reduction of the track sample based on geometric hypothesis for conversion tracks
 
   edm::EDGetTokenT<reco::BeamSpot> beamSpotInputTag;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken;
   bool filterOnConvTrackHyp;
   double minConvRadius;
   IdealHelixParameters ConvTrackPreSelector;
-  //--------------------------------------------------
-
-  std::unique_ptr<reco::ConversionTrackCollection> outputTrks;
 };
 #endif
