@@ -1,7 +1,6 @@
 #include "RecoMuon/TrackerSeedGenerator/plugins/TSGForRoadSearch.h"
 
 #include <Geometry/Records/interface/GlobalTrackingGeometryRecord.h>
-//#include <RecoTracker/Record/interface/TrackerRecoGeometryRecord.h>
 #include <RecoTracker/Record/interface/CkfComponentsRecord.h>
 #include <MagneticField/Records/interface/IdealMagneticFieldRecord.h>
 #include <TrackingTools/Records/interface/TrackingComponentsRecord.h>
@@ -15,7 +14,6 @@
 
 #include <RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h>
 
-#include "RecoTracker/MeasurementDet/interface/StartingLayerFinder.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"

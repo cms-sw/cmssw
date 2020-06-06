@@ -70,9 +70,6 @@ private:
     theAlias = alias;
   }
 
-  /// compute the TrajectorySeed's degree of freedom
-  double computeNDOF(const TrajectorySeed&) const;
-
   /// Build a track at the PCA WITHOUT any vertex constriant
   std::pair<bool, reco::Track> buildTrackAtPCA(const TrajectorySeed&) const;
 
