@@ -49,14 +49,16 @@ SubLayerCrossings TBLayer::computeCrossings(const TrajectoryStateOnSurface& star
   GlobalVector startDir(startingState.globalMomentum());
   double rho(startingState.transverseCurvature());
 
+  bool inBetween = ((theOuterCylinder->position() - startPos).perp() < theOuterCylinder->radius()) &&
+                   ((theInnerCylinder->position() - startPos).perp() > theInnerCylinder->radius());
+
   HelixBarrelCylinderCrossing innerCrossing(
       startPos, startDir, rho, propDir, *theInnerCylinder, HelixBarrelCylinderCrossing::onlyPos);
+  if (!inBetween && !innerCrossing.hasSolution())
+    return SubLayerCrossings();
 
   HelixBarrelCylinderCrossing outerCrossing(
       startPos, startDir, rho, propDir, *theOuterCylinder, HelixBarrelCylinderCrossing::onlyPos);
-
-  if (!innerCrossing.hasSolution() && !outerCrossing.hasSolution())
-    return SubLayerCrossings();
 
   if (!innerCrossing.hasSolution() && outerCrossing.hasSolution()) {
     innerCrossing = outerCrossing;
