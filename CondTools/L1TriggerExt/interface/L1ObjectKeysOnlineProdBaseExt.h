@@ -7,6 +7,7 @@
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ESConsumesCollector.h"
 
 #include "CondFormats/L1TObjects/interface/L1TriggerKeyExt.h"
 #include "CondFormats/DataRecord/interface/L1TriggerKeyExtRcd.h"

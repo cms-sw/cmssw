@@ -15,7 +15,6 @@ L1CondDBPayloadWriterExt::L1CondDBPayloadWriterExt(const edm::ParameterSet& iCon
       m_newL1TriggerKeyListExt(iConfig.getParameter<bool>("newL1TriggerKeyListExt")) {
   //now do what ever initialization is needed
   key_token = esConsumes<L1TriggerKeyExt, L1TriggerKeyExtRcd>();      
-      std::cout << "*************** HERE WE DIVE ***************************" << std::endl;
 
 }
 
@@ -49,7 +48,6 @@ void L1CondDBPayloadWriterExt::analyze(const edm::Event& iEvent, const edm::Even
   
   try {
     // Get L1TriggerKeyExt
-    std::cout << "*************** HERE WE JIBE ***************************" << std::endl;
     key = iSetup.get<L1TriggerKeyExtRcd>().get(key_token);
     if (!m_overwriteKeys) {
       triggerKeyOK = oldKeyList.token(key.tscKey()).empty();
@@ -59,15 +57,10 @@ void L1CondDBPayloadWriterExt::analyze(const edm::Event& iEvent, const edm::Even
     edm::LogVerbatim("L1-O2O") << ex.what();
   }
 
-  std::cout << "*************** HERE WE ARRIVE ***************************" << std::endl;
-
   if (triggerKeyOK && m_writeL1TriggerKeyExt) {
     edm::LogVerbatim("L1-O2O") << "Object key for L1TriggerKeyExtRcd@L1TriggerKeyExt: " << key.tscKey();
     token = m_writer.writePayload(iSetup, "L1TriggerKeyExtRcd@L1TriggerKeyExt");
   }
-
-  std::cout << "*************** HERE WE STRIVE ***************************" << std::endl;
-
 
   // If L1TriggerKeyExt is invalid, then all configuration data is already in DB
   bool throwException = false;
@@ -80,8 +73,6 @@ void L1CondDBPayloadWriterExt::analyze(const edm::Event& iEvent, const edm::Even
         throw cond::Exception("L1CondDBPayloadWriter: TSC key " + key.tscKey() + " already in L1TriggerKeyListExt");
       }
     }
-
-    std::cout << "*************** HERE WE DRIVE ***************************" << std::endl;
 
     if (m_writeConfigData) {
       // Loop over record@type in L1TriggerKeyExt
@@ -135,8 +126,6 @@ void L1CondDBPayloadWriterExt::analyze(const edm::Event& iEvent, const edm::Even
       }
     }
   }
-
-   std::cout << "*************** HERE WE DIE ***************************" << std::endl;
 
 
   if (keyList) {

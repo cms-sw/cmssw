@@ -18,6 +18,12 @@ L1ObjectKeysOnlineProdBaseExt::L1ObjectKeysOnlineProdBaseExt(const edm::Paramete
   //now do what ever other initialization is needed
 }
 
+// edm::ESConsumesCollectorT<L1TriggerKeyExtRcd> L1ObjectKeysOnlineProdBaseExt::m_setWhatProduced(const edm::ParameterSet& iConfig) {
+//   edm::ESConsumesCollectorT<L1TriggerKeyExtRcd> collector = setWhatProduced(this, iConfig.getParameter<std::string>("subsystemLabel"));
+//   collector.setConsumes(L1TriggerKeyExt_token, edm::ESInputTag{"","SubsystemKeysOnly"});
+//   return collector;
+// }
+
 L1ObjectKeysOnlineProdBaseExt::~L1ObjectKeysOnlineProdBaseExt() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
@@ -42,6 +48,7 @@ L1ObjectKeysOnlineProdBaseExt::ReturnType L1ObjectKeysOnlineProdBaseExt::produce
 
   return pL1TriggerKey;
 }
+
 
 //define this as a plug-in
 //DEFINE_FWK_EVENTSETUP_MODULE(L1ObjectKeysOnlineProdBaseExt);
