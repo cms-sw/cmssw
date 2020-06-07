@@ -40,6 +40,7 @@ public:
 
 L1TGlobalPrescalesVetosOnlineProd::L1TGlobalPrescalesVetosOnlineProd(const edm::ParameterSet &iConfig)
     : L1ConfigOnlineProdBaseExt<L1TGlobalPrescalesVetosO2ORcd, L1TGlobalPrescalesVetos>(iConfig) {
+  m_setWhatProduced(iConfig);
   transactionSafe = iConfig.getParameter<bool>("transactionSafe");
 }
 

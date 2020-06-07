@@ -21,6 +21,8 @@ class L1TCaloParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TCaloParamsO2
 private:
   unsigned int exclusiveLayer;  // 0 - process calol1 and calol2, 1 - only calol1, 2 - only calol2
   bool transactionSafe;
+  edm::ESGetToken<l1t::CaloParams,L1TCaloParamsRcd> baseSettings_token;
+
 
   bool readCaloLayer1OnlineSettings(l1t::CaloParamsHelperO2O& paramsHelper,
                                     std::map<std::string, l1t::Parameter>& conf,
@@ -210,6 +212,8 @@ bool L1TCaloParamsOnlineProd::readCaloLayer2OnlineSettings(l1t::CaloParamsHelper
 
 L1TCaloParamsOnlineProd::L1TCaloParamsOnlineProd(const edm::ParameterSet& iConfig)
     : L1ConfigOnlineProdBaseExt<L1TCaloParamsO2ORcd, l1t::CaloParams>(iConfig) {
+  m_setWhatProduced(iConfig)
+    .setConsumes(baseSettings_token);
   exclusiveLayer = iConfig.getParameter<uint32_t>("exclusiveLayer");
   transactionSafe = iConfig.getParameter<bool>("transactionSafe");
 }
@@ -217,8 +221,7 @@ L1TCaloParamsOnlineProd::L1TCaloParamsOnlineProd(const edm::ParameterSet& iConfi
 std::unique_ptr<const l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::string& objectKey,
                                                                           const L1TCaloParamsO2ORcd& record) {
   const L1TCaloParamsRcd& baseRcd = record.template getRecord<L1TCaloParamsRcd>();
-  edm::ESHandle<l1t::CaloParams> baseSettings; // this needs to be a token 
-  baseRcd.get(baseSettings);
+  auto const baseSettings = baseRcd.get(baseSettings_token);
 
   if (objectKey.empty()) {
     edm::LogError("L1-O2O: L1TCaloParamsOnlineProd") << "Key is empty";
@@ -226,7 +229,7 @@ std::unique_ptr<const l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const 
       throw std::runtime_error("SummaryForFunctionManager: Calo  | Faulty  | Empty objectKey");
     else {
       edm::LogError("L1-O2O: L1TCaloParamsOnlineProd") << "returning unmodified prototype of l1t::CaloParams";
-      return std::make_unique<const l1t::CaloParams>(*(baseSettings.product()));
+      return std::make_unique<const l1t::CaloParams>(baseSettings);
     }
   }
 
@@ -283,7 +286,7 @@ std::unique_ptr<const l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const 
       throw std::runtime_error(std::string("SummaryForFunctionManager: Calo  | Faulty  | ") + e.what());
     else {
       edm::LogError("L1-O2O: L1TCaloParamsOnlineProd") << "returning unmodified prototype of l1t::CaloParams";
-      return std::make_unique<const l1t::CaloParams>(*(baseSettings.product()));
+      return std::make_unique<const l1t::CaloParams>(baseSettings);
     }
   }
 
@@ -305,7 +308,7 @@ std::unique_ptr<const l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const 
     output.close();
   }
 
-  l1t::CaloParamsHelperO2O m_params_helper(*(baseSettings.product()));
+  l1t::CaloParamsHelperO2O m_params_helper(baseSettings);
 
   if (exclusiveLayer == 0 || exclusiveLayer == 1) {
     try {
@@ -329,7 +332,7 @@ std::unique_ptr<const l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const 
         throw std::runtime_error(std::string("SummaryForFunctionManager: Calo  | Faulty  | ") + e.what());
       else {
         edm::LogError("L1-O2O: L1TCaloParamsOnlineProd") << "returning unmodified prototype of l1t::CaloParams";
-        return std::make_unique<const l1t::CaloParams>(*(baseSettings.product()));
+        return std::make_unique<const l1t::CaloParams>(baseSettings);
       }
     }
   }
@@ -363,7 +366,7 @@ std::unique_ptr<const l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const 
         throw std::runtime_error(std::string("SummaryForFunctionManager: Calo  | Faulty  | ") + e.what());
       else {
         edm::LogError("L1-O2O: L1TCaloParamsOnlineProd") << "returning unmodified prototype of l1t::CaloParams";
-        return std::make_unique<const l1t::CaloParams>(*(baseSettings.product()));
+        return std::make_unique<const l1t::CaloParams>(baseSettings);
       }
     }
   }

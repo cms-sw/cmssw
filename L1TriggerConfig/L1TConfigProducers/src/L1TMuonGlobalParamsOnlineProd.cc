@@ -27,7 +27,7 @@ public:
 
 L1TMuonGlobalParamsOnlineProd::L1TMuonGlobalParamsOnlineProd(const edm::ParameterSet &iConfig)
     : L1ConfigOnlineProdBaseExt<L1TMuonGlobalParamsO2ORcd, L1TMuonGlobalParams>(iConfig) {
-  setWhatProduced(this,&L1TMuonGlobalParamsOnlineProd::newObject)
+  m_setWhatProduced(iConfig)
     .setConsumes(baseSettings_token);
   transactionSafe = iConfig.getParameter<bool>("transactionSafe");
 }
@@ -35,7 +35,7 @@ L1TMuonGlobalParamsOnlineProd::L1TMuonGlobalParamsOnlineProd(const edm::Paramete
 std::unique_ptr<const L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(
     const std::string &objectKey, const L1TMuonGlobalParamsO2ORcd &record) {
   const L1TMuonGlobalParamsRcd &baseRcd = record.template getRecord<L1TMuonGlobalParamsRcd>();
-  const L1TMuonGlobalParams &baseSettings = baseRcd.get(baseSettings_token);
+  auto const baseSettings = baseRcd.get(baseSettings_token);
 
   if (objectKey.empty()) {
     edm::LogError("L1-O2O: L1TMuonGlobalParamsOnlineProd") << "Key is empty";

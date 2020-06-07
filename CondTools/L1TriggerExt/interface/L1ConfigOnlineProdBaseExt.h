@@ -47,6 +47,7 @@ private:
 protected:
   l1t::OMDSReader m_omdsReader;
   bool m_forceGeneration;
+  edm::ESConsumesCollectorT<TRcd> m_setWhatProduced(const edm::ParameterSet&);
 
   // Called from produce methods.
   // bool is true if the object data should be made.
@@ -67,9 +68,9 @@ L1ConfigOnlineProdBaseExt<TRcd, TData>::L1ConfigOnlineProdBaseExt(const edm::Par
       m_copyFromCondDB(false) {
   //the following line is needed to tell the framework what
   // data is being produced
-  setWhatProduced(this)
-    .setConsumes(keyList_token)
-    .setConsumes(key_token);
+  // setWhatProduced(this)
+  //   .setConsumes(keyList_token)
+  //   .setConsumes(key_token);
 
   //now do what ever other initialization is needed
 
@@ -88,6 +89,15 @@ L1ConfigOnlineProdBaseExt<TRcd, TData>::L1ConfigOnlineProdBaseExt(const edm::Par
                          iConfig.getParameter<std::string>("onlineAuthentication"));
   }
 }
+
+template<class TRcd, class TData>
+edm::ESConsumesCollectorT<TRcd> L1ConfigOnlineProdBaseExt<TRcd, TData>::m_setWhatProduced(const edm::ParameterSet& iConfig){
+  auto collector = setWhatProduced(this);
+  collector.setConsumes(keyList_token);
+  collector.setConsumes(key_token);
+  return collector; 
+}
+
 
 template <class TRcd, class TData>
 L1ConfigOnlineProdBaseExt<TRcd, TData>::~L1ConfigOnlineProdBaseExt() {
