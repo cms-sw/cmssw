@@ -20,7 +20,7 @@ public:
 
 L1TMuonOverlapParamsOnlineProxy::L1TMuonOverlapParamsOnlineProxy(const edm::ParameterSet& iConfig) : edm::ESProducer() {
   setWhatProduced(this)
-  	.setConsumes(baseSettings_token);
+    .setConsumes(baseSettings_token);
 }
 
 std::unique_ptr<L1TMuonOverlapParams> L1TMuonOverlapParamsOnlineProxy::produce(
