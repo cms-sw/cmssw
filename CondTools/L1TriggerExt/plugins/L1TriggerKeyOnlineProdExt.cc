@@ -7,15 +7,14 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 L1TriggerKeyOnlineProdExt::L1TriggerKeyOnlineProdExt(const edm::ParameterSet& iConfig)  {
-  //  : m_subsystemLabels(iConfig.getParameter<std::vector<std::string> >("subsystemLabels")) {
   //the following line is needed to tell the framework what
   // data is being produced
   auto cc = setWhatProduced(this);
-  //TODO HERE understand how to have multiple tokens per each subsystem
   
-  //now do what ever other initialization is needed
   for(auto const& label : iConfig.getParameter<std::vector<std::string> >("subsystemLabels"))  {
     m_subsystemTokens.emplace_back(cc.consumesFrom<L1TriggerKeyExt, L1TriggerKeyExtRcd>(edm::ESInputTag{"",label}));
+  
+  //now do what ever other initialization is needed
   }
 
   cc.setConsumes(L1TriggerKeyExt_token, edm::ESInputTag{"","SubsystemKeysOnly"});
