@@ -26,6 +26,14 @@ hcalOfflineSourceSequence = cms.Sequence(
 	+recHitTask
 	+rawTask)
 
+recHitPreRecoTask = recHitTask.clone()
+recHitPreRecoTask.tagHBHE = cms.untracked.InputTag("hbheprereco")
+
+hcalOnlyOfflineSourceSequence = cms.Sequence(
+        digiTask
+        +recHitPreRecoTask
+        +rawTask)
+
 
 from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
 _phase2_hcalOfflineSourceSequence = hcalOfflineSourceSequence.copyAndExclude([tpTask,rawTask])
