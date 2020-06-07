@@ -8,7 +8,7 @@
 #include "G4CrossSectionInelastic.hh"
 #include "G4ComponentGGHadronNucleusXsc.hh"
 #include "G4HadronicParameters.hh"
-  
+
 #include "G4LambdaInelasticProcess.hh"
 #include "G4AntiLambdaInelasticProcess.hh"
 #include "G4SigmaPlusInelasticProcess.hh"
@@ -28,21 +28,18 @@
 #include "G4LundStringFragmentation.hh"
 #include "G4ExcitedStringDecay.hh"
 #include "G4CascadeInterface.hh"
-  
-CMSHyperonFTFPBuilder::CMSHyperonFTFPBuilder()
-{}
 
-CMSHyperonFTFPBuilder::~CMSHyperonFTFPBuilder()
-{}
+CMSHyperonFTFPBuilder::CMSHyperonFTFPBuilder() {}
 
-void CMSHyperonFTFPBuilder::Build()
-{
+CMSHyperonFTFPBuilder::~CMSHyperonFTFPBuilder() {}
+
+void CMSHyperonFTFPBuilder::Build() {
   // Hyperon : Bertini at low energies, then FTFP
 
   auto HyperonFTFP = new G4TheoFSGenerator("FTFP");
-  
-  HyperonFTFP->SetMinEnergy( G4HadronicParameters::Instance()->GetMinEnergyTransitionFTF_Cascade() );
-  HyperonFTFP->SetMaxEnergy( G4HadronicParameters::Instance()->GetMaxEnergy() );
+
+  HyperonFTFP->SetMinEnergy(G4HadronicParameters::Instance()->GetMinEnergyTransitionFTF_Cascade());
+  HyperonFTFP->SetMaxEnergy(G4HadronicParameters::Instance()->GetMaxEnergy());
 
   auto theStringModel = new G4FTFModel;
   auto theStringDecay = new G4ExcitedStringDecay(new G4LundStringFragmentation());
@@ -52,23 +49,23 @@ void CMSHyperonFTFPBuilder::Build()
 
   HyperonFTFP->SetTransport(theCascade);
   HyperonFTFP->SetHighEnergyGenerator(theStringModel);
-  
-  auto theBertini = new G4CascadeInterface;
-  theBertini->SetMinEnergy( 0.0 );
-  theBertini->SetMaxEnergy( G4HadronicParameters::Instance()->GetMaxEnergyTransitionFTF_Cascade() );
 
-  // AntiHyperons: Use FTFP for full energy range, starting at 0.  
+  auto theBertini = new G4CascadeInterface;
+  theBertini->SetMinEnergy(0.0);
+  theBertini->SetMaxEnergy(G4HadronicParameters::Instance()->GetMaxEnergyTransitionFTF_Cascade());
+
+  // AntiHyperons: Use FTFP for full energy range, starting at 0.
 
   auto AntiHyperonFTFP = new G4TheoFSGenerator("FTFP");
-  AntiHyperonFTFP->SetMinEnergy( 0.0 );
-  AntiHyperonFTFP->SetMaxEnergy( G4HadronicParameters::Instance()->GetMaxEnergy() );
+  AntiHyperonFTFP->SetMinEnergy(0.0);
+  AntiHyperonFTFP->SetMaxEnergy(G4HadronicParameters::Instance()->GetMaxEnergy());
   AntiHyperonFTFP->SetTransport(theCascade);
   AntiHyperonFTFP->SetHighEnergyGenerator(theStringModel);
 
   // use Glauber-Gribov cross sections
-  auto theInelasticCrossSection = new G4CrossSectionInelastic( new G4ComponentGGHadronNucleusXsc );
+  auto theInelasticCrossSection = new G4CrossSectionInelastic(new G4ComponentGGHadronNucleusXsc);
 
-  G4ProcessManager * aProcMan = nullptr;
+  G4ProcessManager* aProcMan = nullptr;
 
   // Lambda
   auto theLambdaInelastic = new G4LambdaInelasticProcess();
@@ -77,15 +74,15 @@ void CMSHyperonFTFPBuilder::Build()
   theLambdaInelastic->AddDataSet(theInelasticCrossSection);
   aProcMan = G4Lambda::Lambda()->GetProcessManager();
   aProcMan->AddDiscreteProcess(theLambdaInelastic);
-  
+
   // AntiLambda
   auto theAntiLambdaInelastic = new G4AntiLambdaInelasticProcess();
   theAntiLambdaInelastic->RegisterMe(AntiHyperonFTFP);
   theAntiLambdaInelastic->AddDataSet(theInelasticCrossSection);
-  
+
   aProcMan = G4AntiLambda::AntiLambda()->GetProcessManager();
   aProcMan->AddDiscreteProcess(theAntiLambdaInelastic);
-    
+
   // SigmaMinus
   auto theSigmaMinusInelastic = new G4SigmaMinusInelasticProcess();
   theSigmaMinusInelastic->RegisterMe(theBertini);
@@ -171,4 +168,3 @@ void CMSHyperonFTFPBuilder::Build()
   aProcMan = G4AntiOmegaMinus::AntiOmegaMinus()->GetProcessManager();
   aProcMan->AddDiscreteProcess(theAntiOmegaMinusInelastic);
 }
-
