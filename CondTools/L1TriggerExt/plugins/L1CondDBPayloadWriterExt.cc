@@ -44,7 +44,6 @@ void L1CondDBPayloadWriterExt::analyze(const edm::Event& iEvent, const edm::Even
   // L1TriggerKeyListExt.  writePayload() will not catch this situation in
   // the case of dummy configurations.
   bool triggerKeyOK = true;
-  
   try {
     // Get L1TriggerKeyExt
     key = iSetup.get<L1TriggerKeyExtRcd>().get(key_token);
