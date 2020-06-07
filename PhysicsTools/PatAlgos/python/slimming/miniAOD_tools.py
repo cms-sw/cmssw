@@ -287,6 +287,13 @@ def miniAOD_customizeCommon(process):
         cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
     process.electronMVAValueMapProducer.src = \
         cms.InputTag('reducedEgamma','reducedGedGsfElectrons')
+
+    # To use older DataFormats, the electronMVAValueMapProducer MUST take a updated electron collection
+    # such that the conversion variables are filled correctly.
+    run2_miniAOD_80XLegacy.toModify(process.electronMVAValueMapProducer,
+                                     keysForValueMaps = cms.InputTag('reducedEgamma','reducedGedGsfElectrons'),
+                                     src = cms.InputTag("gedGsfElectronsTo106X"))
+
     for idmod in electron_ids:
         setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection,None,False,task)
 
