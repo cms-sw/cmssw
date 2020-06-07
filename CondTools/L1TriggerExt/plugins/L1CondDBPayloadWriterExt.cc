@@ -14,8 +14,7 @@ L1CondDBPayloadWriterExt::L1CondDBPayloadWriterExt(const edm::ParameterSet& iCon
       m_logTransactions(iConfig.getParameter<bool>("logTransactions")),
       m_newL1TriggerKeyListExt(iConfig.getParameter<bool>("newL1TriggerKeyListExt")) {
   //now do what ever initialization is needed
-  key_token = esConsumes<L1TriggerKeyExt, L1TriggerKeyExtRcd>();      
-
+  key_token = esConsumes<L1TriggerKeyExt, L1TriggerKeyExtRcd>();
 }
 
 L1CondDBPayloadWriterExt::~L1CondDBPayloadWriterExt() {
