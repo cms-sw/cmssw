@@ -181,7 +181,7 @@ bool CSCCLCTDigi::operator==(const CSCCLCTDigi& rhs) const {
   // Exact equality.
   bool returnValue = false;
   if (isValid() == rhs.isValid() && getQuality() == rhs.getQuality() && getPattern() == rhs.getPattern() &&
-      getKeyStrip() == rhs.getKeyStrip() && getStripType() == rhs.getStripType() && getBend() == getBend() &&
+      getKeyStrip() == rhs.getKeyStrip() && getStripType() == rhs.getStripType() && getBend() == rhs.getBend() &&
       getBX() == rhs.getBX() && getCompCode() == rhs.getCompCode()) {
     returnValue = true;
   }
