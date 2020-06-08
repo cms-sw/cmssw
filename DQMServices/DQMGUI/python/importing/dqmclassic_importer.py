@@ -1,7 +1,7 @@
 import re
 import mmap
 import asyncio
-from DQMServices.DQMGUI import nanoroot
+from nanoroot.tfile import TFile
 from ioservice import IOService
 from reading.reading import DQMCLASSICReader
 from data_types import MEInfo, ScalarValue, EfficiencyFlag, QTest

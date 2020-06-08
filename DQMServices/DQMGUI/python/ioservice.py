@@ -1,6 +1,6 @@
 import asyncio
 from async_lru import alru_cache
-from DQMServices.DQMGUI import nanoroot
+from nanoroot.io import XRDFile
 
 
 class IOService:
@@ -85,7 +85,7 @@ class IOService:
             await asyncio.sleep(cls.MAXOPENTIME)
             # This is done by removing the file from the cache, GC takes care of the rest.
             cls.__connect.invalidate(cls, url)
-        file = await nanoroot.XRDFile().load(url, timeout=cls.OPENTIMEOUT)
+        file = await XRDFile().load(url, timeout=cls.OPENTIMEOUT)
         asyncio.Task(closefile())
         return file
 
@@ -144,7 +144,7 @@ class FullFile:
 
     async def preload(self):
         # in this mode, we just preload the full file in the beginning, into a per-file cache.
-        f = await nanoroot.XRDFile().load(self.url, timeout=self.timeout)
+        f = await XRDFile().load(self.url, timeout=self.timeout)
         self.buf = await f[:]
 
 

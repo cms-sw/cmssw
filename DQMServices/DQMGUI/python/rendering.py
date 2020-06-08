@@ -8,7 +8,7 @@ import asyncio
 import tempfile
 import subprocess
 
-from DQMServices.DQMGUI import nanoroot
+from nanoroot.tbufferfile import TBufferFile
 from helpers import get_base_release_dir
 from reading.reading import GUIMEReader
 from data_types import RenderingInfo, EfficiencyFlag, ScalarValue, QTest, RenderingOptions, FileFormat
@@ -96,7 +96,7 @@ class GUIRenderer:
 
         # We can render either ScalarValue or bytes (TH* object)
         root_object = rendering_infos[0].root_object
-        if not isinstance(root_object, ScalarValue) and not isinstance(root_object, nanoroot.TBufferFile):
+        if not isinstance(root_object, ScalarValue) and not isinstance(root_object, TBufferFile):
             raise Exception('Only ScalarValue and TH* can be rendered.')
 
         # Pack the message for rendering context

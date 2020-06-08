@@ -3,7 +3,8 @@ from collections import defaultdict
 from ioservice import IOService
 from compressing import GUIBlobCompressor
 from data_types import MEInfo, ScalarValue
-from nanoroot import TKey, TFile, TTreeFile, TType
+from nanoroot.tfile import TFile
+from nanoroot.ttree import TTreeFile, TType
 
 
 class DQMIOImporter:
@@ -54,14 +55,6 @@ class DQMIOImporter:
           11: b"TProfile2Ds",
         }
 
-        # Open file and preload all data -- we'll need to read everything anyways.
-        buffer = await cls.ioservice.open_url(filename, blockcache=False)
-        tfile = await TFile().load(buffer)
-        trees = await TTreeFile(tfile, dqmioschema)
-
-        # now, we'll iterate over all Indices, and read the MEs for each entry.
-        # We sort them into a dict by run/lumi and then return them.
-        entries = list(trees[b'Indices'])
         infos = defaultdict(list)
 
         # create a MEInfo object from whatever the value is.
@@ -73,18 +66,34 @@ class DQMIOImporter:
                 # value is IndexRange
                 return MEInfo(metype, value.fSeekKey, value.start, value.end - value.start)
 
-        for entry in entries:
-            if entry[b'Lumi'] == 0:
-                # Skip per run histograms
-                continue
+        # TODO: figure out proper caching: maybe it is not ideal to put all this
+        # data into the main page cache. It is perfectly feasible to use an 
+        # (uncached) XRDFile here.
+        buffer = await cls.ioservice.open_url(filename)
+        tfile = await TFile().load(buffer)
+        t = await TTreeFile(tfile, dqmioschema)
 
+        # now, we'll iterate over all Indices, and read the MEs for each entry.
+        # We sort them into a dict by run/lumi and then return them.
+
+        infos = []
+
+        async for e in await t.trees[b'Indices'][:]:
+            if e[b'Run'] != run or e[b'Lumi'] != lumi:
+                continue
+            if e[b'Type'] == 1000: # 1000 means no data
+                continue
             # Value TTree for the type of this entry
-            tree = trees[treenames[entry[b'Type']]]
+            tree = t.trees[treenames[e[b'Type']]]
+            namebranch = tree.branches[b'FullName']
+            valuebranch = tree.branches[b'Value']
+            firstindex = e[b'FirstIndex']
+            lastindex = e[b'LastIndex'] + 1 # DQMIO uses *inclusive* upper.
             # first, read the names for this entry
-            names = tree.branches[b'FullName'][entry[b'FirstIndex'] : entry[b'LastIndex']+1]
+            names = [name async for name in await namebranch[firstindex : lastindex]]
             # ...then the values...
-            values = [createinfo(v, entry[b'Type']) for v in tree.branches[b'Value'][entry[b'FirstIndex'] : entry[b'LastIndex']+1]]
-            # ... then turn all the iterators into a list and add them to the output set.
-            infos[(entry[b'Run'], entry[b'Lumi'])] += list(zip(names, values))
+            values = [createinfo(v, e[b'Type']) async for v in await valuebranch[firstindex : lastindex]]
+            # ... finally pair up the results. There may be more than one entry per run/lumi.
+            infos += list(zip(names, values))
 
         return infos

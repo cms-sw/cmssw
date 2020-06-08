@@ -1,5 +1,6 @@
 import asyncio
-from DQMServices.DQMGUI import nanoroot
+from nanoroot.tfile import TKey
+from nanoroot.tbufferfile import TBufferFile
 from data_types import ScalarValue, EfficiencyFlag, QTest
 from ioservice import IOService
 
@@ -19,7 +20,7 @@ class DQMCLASSICReader:
             return ScalarValue(b'', b'', me_info.value) # TODO: do sth. better.
 
         buffer = await cls.ioservice.open_url(filename)
-        key = await nanoroot.TKey().load(buffer, me_info.seekkey)
+        key = await TKey().load(buffer, me_info.seekkey)
         data = await key.objdata()
         if me_info.type == b'QTest':
             return cls.parse_string_entry(await key.objname())
@@ -32,7 +33,7 @@ class DQMCLASSICReader:
         # the displacement.
         displacement = - key.fields.fKeyLen
         # metype doubles as root class name here.
-        return nanoroot.TBufferFile(obj, me_info.type, displacement)
+        return TBufferFile(obj, me_info.type, displacement)
 
 
     @classmethod
