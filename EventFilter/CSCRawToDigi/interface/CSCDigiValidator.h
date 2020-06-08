@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
@@ -22,6 +23,8 @@
 #include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
 #include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
+#include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
+#include "CondFormats/DataRecord/interface/CSCChamberMapRcd.h"
 
 class CSCWireDigi;
 class CSCStripDigi;
@@ -82,4 +85,5 @@ private:
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> co2_token;
   edm::EDGetTokenT<L1CSCTrackCollection> tr2_token;
   edm::EDGetTokenT<CSCTriggerContainer<csctf::TrackStub> > ts2_token;
+  edm::ESGetToken<CSCChamberMap, CSCChamberMapRcd> cham_token;
 };

@@ -7,10 +7,15 @@
  * \author Alex Tumanov 
  */
 
-#include <FWCore/Framework/interface/ConsumesCollector.h>
-#include <FWCore/Framework/interface/stream/EDProducer.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
+#include "CondFormats/DataRecord/interface/CSCCrateMapRcd.h"
+#include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
+#include "CondFormats/DataRecord/interface/CSCChamberMapRcd.h"
 
 class CSCMonitorInterface;
 
@@ -46,6 +51,8 @@ private:
 
   /// Token for consumes interface & access to data
   edm::EDGetTokenT<FEDRawDataCollection> i_token;
+  edm::ESGetToken<CSCCrateMap, CSCCrateMapRcd> crateToken;
+  edm::ESGetToken<CSCChamberMap, CSCChamberMapRcd> cscmapToken;
 };
 
 #endif
