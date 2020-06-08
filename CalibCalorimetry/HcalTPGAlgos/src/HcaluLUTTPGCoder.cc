@@ -416,7 +416,9 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
       int granularity = meta->getLutGranularity();
 
       double correctionPhaseNS = conditions.getHcalRecoParam(cell)->correctionPhaseNS();
-      if (containPhaseNS_ != -1.0) correctionPhaseNS = containPhaseNS_;
+
+      // When containPhaseNS is not -999.0, and for QIE11 only, override from configuration
+      if (containPhaseNS_ != -999.0 and qieType == QIE11) correctionPhaseNS = containPhaseNS_;
       for (unsigned int adc = 0; adc < SIZE; ++adc) {
         if (isMasked)
           lut[adc] = 0;
@@ -432,9 +434,12 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
             // from the individual samples
             double correctedCharge = containmentCorrection1TS * adc2fC(adc);
             double containmentCorrection2TSCorrected = pulseCorr_->correction(cell, 2, correctionPhaseNS, correctedCharge);
-            if (contain1TS_) containmentCorrection = containmentCorrection1TS;
-            else containmentCorrection = containmentCorrection2TSCorrected; 
+
+            containmentCorrection = containmentCorrection2TSCorrected; 
             if (qieType == QIE11) {
+              // When contain1TS_ is set, it should still only apply for QIE11-related things
+              if (contain1TS_) containmentCorrection = containmentCorrection1TS;
+
               const HcalSiPMParameter& siPMParameter(*conditions.getHcalSiPMParameter(cell));
               HcalSiPMnonlinearity corr(
                   conditions.getHcalSiPMCharacteristics()->getNonLinearities(siPMParameter.getType()));
