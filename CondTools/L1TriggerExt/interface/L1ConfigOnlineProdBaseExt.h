@@ -43,7 +43,6 @@ private:
   edm::ESGetToken<L1TriggerKeyListExt, L1TriggerKeyListExtRcd> keyList_token;
   edm::ESGetToken<L1TriggerKeyExt, L1TriggerKeyExtRcd> key_token;
 
-
 protected:
   l1t::OMDSReader m_omdsReader;
   bool m_forceGeneration;
@@ -90,14 +89,14 @@ L1ConfigOnlineProdBaseExt<TRcd, TData>::L1ConfigOnlineProdBaseExt(const edm::Par
   }
 }
 
-template<class TRcd, class TData>
-edm::ESConsumesCollectorT<TRcd> L1ConfigOnlineProdBaseExt<TRcd, TData>::m_setWhatProduced(const edm::ParameterSet& iConfig){
+template <class TRcd, class TData>
+edm::ESConsumesCollectorT<TRcd> L1ConfigOnlineProdBaseExt<TRcd, TData>::m_setWhatProduced(
+    const edm::ParameterSet& iConfig) {
   auto collector = setWhatProduced(this);
   collector.setConsumes(keyList_token);
   collector.setConsumes(key_token);
-  return collector; 
+  return collector;
 }
-
 
 template <class TRcd, class TData>
 L1ConfigOnlineProdBaseExt<TRcd, TData>::~L1ConfigOnlineProdBaseExt() {
@@ -121,7 +120,7 @@ std::unique_ptr<const TData> L1ConfigOnlineProdBaseExt<TRcd, TData>::produce(con
       ///	   iRecord.template getRecord< L1TriggerKeyListRcd >() ;
       ///	 edm::ESHandle< L1TriggerKeyList > keyList ;
 
-      auto const keyList = keyListRcd.get(keyList_token);
+      auto const& keyList = keyListRcd.get(keyList_token);
 
       // Find payload token
       std::string recordName = edm::typelookup::className<TRcd>();
