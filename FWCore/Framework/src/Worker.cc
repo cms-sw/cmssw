@@ -292,39 +292,37 @@ namespace edm {
     // default tbb arena. It will not process any tasks on the es arena. We need to add a
     // task that will synchronously do a wait_for_all in the es arena to be sure prefetching
     // will work.
-    if
-      UNLIKELY(tbb::this_task_arena::max_concurrency() == 1) {
-        //We spawn this first so that the other ES tasks are before it in the TBB queue
-        tbb::task::spawn(*make_functor_task(tbb::task::allocate_root(),
-                                            [this, task = edm::WaitingTaskHolder(iTask), iTrans, &iImpl]() mutable {
-                                              auto waitTask = edm::make_empty_waiting_task();
-                                              waitTask->set_ref_count(2);
-                                              auto waitTaskPtr = waitTask.get();
-                                              esTaskArena().execute([waitTaskPtr, this, iTrans, &iImpl]() {
-                                                auto const& recs = esRecordsToGetFrom(iTrans);
-                                                auto const& items = esItemsToGetFrom(iTrans);
-                                                waitTaskPtr->set_ref_count(2);
-                                                for (size_t i = 0; i != items.size(); ++i) {
-                                                  if (recs[i] != ESRecordIndex{}) {
-                                                    auto rec = iImpl.findImpl(recs[i]);
-                                                    if (rec) {
-                                                      rec->prefetchAsync(waitTaskPtr, items[i], &iImpl);
-                                                    }
+    if UNLIKELY (tbb::this_task_arena::max_concurrency() == 1) {
+      //We spawn this first so that the other ES tasks are before it in the TBB queue
+      tbb::task::spawn(*make_functor_task(tbb::task::allocate_root(),
+                                          [this, task = edm::WaitingTaskHolder(iTask), iTrans, &iImpl]() mutable {
+                                            auto waitTask = edm::make_empty_waiting_task();
+                                            waitTask->set_ref_count(2);
+                                            auto waitTaskPtr = waitTask.get();
+                                            esTaskArena().execute([waitTaskPtr, this, iTrans, &iImpl]() {
+                                              auto const& recs = esRecordsToGetFrom(iTrans);
+                                              auto const& items = esItemsToGetFrom(iTrans);
+                                              waitTaskPtr->set_ref_count(2);
+                                              for (size_t i = 0; i != items.size(); ++i) {
+                                                if (recs[i] != ESRecordIndex{}) {
+                                                  auto rec = iImpl.findImpl(recs[i]);
+                                                  if (rec) {
+                                                    rec->prefetchAsync(waitTaskPtr, items[i], &iImpl);
                                                   }
                                                 }
-                                                waitTaskPtr->decrement_ref_count();
-                                                waitTaskPtr->wait_for_all();
-                                              });
-
-                                              auto exPtr = waitTask->exceptionPtr();
-                                              if (exPtr) {
-                                                task.doneWaiting(*exPtr);
-                                              } else {
-                                                task.doneWaiting(std::exception_ptr{});
                                               }
-                                            }));
-      }
-    else {
+                                              waitTaskPtr->decrement_ref_count();
+                                              waitTaskPtr->wait_for_all();
+                                            });
+
+                                            auto exPtr = waitTask->exceptionPtr();
+                                            if (exPtr) {
+                                              task.doneWaiting(*exPtr);
+                                            } else {
+                                              task.doneWaiting(std::exception_ptr{});
+                                            }
+                                          }));
+    } else {
       //We need iTask to run in the default arena since it is not an ES task
       auto task = make_waiting_task(
           tbb::task::allocate_root(),

@@ -324,7 +324,7 @@ void EDConsumerBase::itemsMayGet(BranchType iBranch, std::vector<ProductResolver
          ++it, ++itAlwaysGet) {
       if (iBranch == it->m_branchType) {
         if (it->m_index.productResolverIndex() != ProductResolverIndexInvalid) {
-          if (not*itAlwaysGet) {
+          if (not *itAlwaysGet) {
             ++count;
           }
         }
@@ -338,7 +338,7 @@ void EDConsumerBase::itemsMayGet(BranchType iBranch, std::vector<ProductResolver
          ++it, ++itAlwaysGet) {
       if (iBranch == it->m_branchType) {
         if (it->m_index.productResolverIndex() != ProductResolverIndexInvalid) {
-          if (not*itAlwaysGet) {
+          if (not *itAlwaysGet) {
             oIndices.push_back(it->m_index);
           }
         }

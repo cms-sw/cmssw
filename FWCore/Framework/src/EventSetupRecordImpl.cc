@@ -278,8 +278,9 @@ namespace edm {
     bool EventSetupRecordImpl::doGet(ESProxyIndex iProxyIndex,
                                      EventSetupImpl const* iEventSetupImpl,
                                      bool aGetTransiently) const {
-      if
-        UNLIKELY(iProxyIndex.value() == std::numeric_limits<int>::max()) { return false; }
+      if UNLIKELY (iProxyIndex.value() == std::numeric_limits<int>::max()) {
+        return false;
+      }
 
       const DataProxy* proxy = proxies_[iProxyIndex.value()];
       if (nullptr != proxy) {
@@ -302,8 +303,9 @@ namespace edm {
     void EventSetupRecordImpl::prefetchAsync(WaitingTask* iTask,
                                              ESProxyIndex iProxyIndex,
                                              EventSetupImpl const* iEventSetupImpl) const {
-      if
-        UNLIKELY(iProxyIndex.value() == std::numeric_limits<int>::max()) { return; }
+      if UNLIKELY (iProxyIndex.value() == std::numeric_limits<int>::max()) {
+        return;
+      }
 
       const DataProxy* proxy = proxies_[iProxyIndex.value()];
       if (nullptr != proxy) {

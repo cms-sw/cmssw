@@ -25,9 +25,9 @@ namespace edm {
     Intervals::iterator itFound = intervals_.find(iKey);
     assert(itFound != intervals_.end());
     if (!itFound->second.validFor(iInstance)) {
-      if
-        LIKELY(iInstance != IOVSyncValue::invalidIOVSyncValue()) { setIntervalFor(iKey, iInstance, itFound->second); }
-      else {
+      if LIKELY (iInstance != IOVSyncValue::invalidIOVSyncValue()) {
+        setIntervalFor(iKey, iInstance, itFound->second);
+      } else {
         itFound->second = ValidityInterval::invalidInterval();
       }
     }
