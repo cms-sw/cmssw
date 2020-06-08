@@ -25,7 +25,7 @@ public:
 private:
   // ----------member data ---------------------------
   edm::ESGetToken<L1TriggerKeyExt, L1TriggerKeyExtRcd> L1TriggerKeyExt_token;
-  std::vector<edm::ESGetToken< L1TriggerKeyExt, L1TriggerKeyExtRcd>> m_subsystemTokens;
+  std::vector<edm::ESGetToken<L1TriggerKeyExt, L1TriggerKeyExtRcd>> m_subsystemTokens;
   std::vector<std::string> m_subsystemLabels;
 };
 

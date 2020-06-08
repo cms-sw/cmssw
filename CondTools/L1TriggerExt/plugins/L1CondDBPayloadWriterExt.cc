@@ -125,7 +125,6 @@ void L1CondDBPayloadWriterExt::analyze(const edm::Event& iEvent, const edm::Even
     }
   }
 
-
   if (keyList) {
     // Write L1TriggerKeyListExt to ORCON
     m_writer.writeKeyList(keyList, 0, m_logTransactions);

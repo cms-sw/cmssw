@@ -10,7 +10,7 @@
 
 class L1TMuonEndCapForestOnlineProxy : public edm::ESProducer {
 private:
-	 edm::ESGetToken<L1TMuonEndCapForest,L1TMuonEndCapForestRcd> baseSettings_token;
+  edm::ESGetToken<L1TMuonEndCapForest, L1TMuonEndCapForestRcd> baseSettings_token;
 
 public:
   std::unique_ptr<L1TMuonEndCapForest> produce(const L1TMuonEndCapForestO2ORcd& record);
@@ -20,13 +20,12 @@ public:
 };
 
 L1TMuonEndCapForestOnlineProxy::L1TMuonEndCapForestOnlineProxy(const edm::ParameterSet& iConfig) : edm::ESProducer() {
-  setWhatProduced(this)
-  	.setConsumes(baseSettings_token);
+  setWhatProduced(this).setConsumes(baseSettings_token);
 }
 
 std::unique_ptr<L1TMuonEndCapForest> L1TMuonEndCapForestOnlineProxy::produce(const L1TMuonEndCapForestO2ORcd& record) {
   const L1TMuonEndCapForestRcd& baseRcd = record.template getRecord<L1TMuonEndCapForestRcd>();
-  auto const baseSettings = baseRcd.get(baseSettings_token);
+  auto const& baseSettings = baseRcd.get(baseSettings_token);
 
   return std::make_unique<L1TMuonEndCapForest>(baseSettings);
 }

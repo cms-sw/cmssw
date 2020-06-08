@@ -16,7 +16,7 @@ using namespace XERCES_CPP_NAMESPACE;
 class L1TMuonBarrelParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TMuonBarrelParamsO2ORcd, L1TMuonBarrelParams> {
 private:
   bool transactionSafe;
-  edm::ESGetToken<L1TMuonBarrelParams,L1TMuonBarrelParamsRcd> baseSettings_token;
+  edm::ESGetToken<L1TMuonBarrelParams, L1TMuonBarrelParamsRcd> baseSettings_token;
 
 public:
   std::unique_ptr<const L1TMuonBarrelParams> newObject(const std::string& objectKey,
@@ -28,15 +28,14 @@ public:
 
 L1TMuonBarrelParamsOnlineProd::L1TMuonBarrelParamsOnlineProd(const edm::ParameterSet& iConfig)
     : L1ConfigOnlineProdBaseExt<L1TMuonBarrelParamsO2ORcd, L1TMuonBarrelParams>(iConfig) {
-  m_setWhatProduced(iConfig)
-    .setConsumes(baseSettings_token);
+  m_setWhatProduced(iConfig).setConsumes(baseSettings_token);
   transactionSafe = iConfig.getParameter<bool>("transactionSafe");
 }
 
 std::unique_ptr<const L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(
     const std::string& objectKey, const L1TMuonBarrelParamsO2ORcd& record) {
   const L1TMuonBarrelParamsRcd& baseRcd = record.template getRecord<L1TMuonBarrelParamsRcd>();
-  auto const baseSettings = baseRcd.get(baseSettings_token);
+  auto const& baseSettings = baseRcd.get(baseSettings_token);
 
   if (objectKey.empty()) {
     edm::LogError("L1-O2O: L1TMuonBarrelParamsOnlineProd") << "Key is empty, returning empty L1TMuonBarrelParams";
