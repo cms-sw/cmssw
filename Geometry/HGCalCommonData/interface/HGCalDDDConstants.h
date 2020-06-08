@@ -14,7 +14,6 @@
 #include <string>
 #include <vector>
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 
