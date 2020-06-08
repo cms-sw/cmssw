@@ -71,31 +71,29 @@ namespace edm {
         auto doPrefetch = wasCalledForThisRecord_.compare_exchange_strong(expected, true);
         taskList_.add(iTask);
         if (doPrefetch) {
-          if
-            UNLIKELY(producer_->hasMayConsumes()) {
-              //after prefetching need to do the mayGet
-              auto mayGetTask = edm::make_waiting_task(
-                  tbb::task::allocate_root(), [this, iRecord, iEventSetupImpl](std::exception_ptr const* iExcept) {
-                    if (iExcept) {
-                      runProducerAsync(iExcept, iRecord, iEventSetupImpl);
-                      return;
-                    }
-                    if (handleMayGet(iRecord, iEventSetupImpl)) {
-                      auto runTask =
-                          edm::make_waiting_task(tbb::task::allocate_root(),
-                                                 [this, iRecord, iEventSetupImpl](std::exception_ptr const* iExcept) {
-                                                   runProducerAsync(iExcept, iRecord, iEventSetupImpl);
-                                                 });
-                      prefetchNeededDataAsync(runTask, iEventSetupImpl, &((*postMayGetProxies_).front()));
-                    } else {
-                      runProducerAsync(iExcept, iRecord, iEventSetupImpl);
-                    }
-                  });
+          if UNLIKELY (producer_->hasMayConsumes()) {
+            //after prefetching need to do the mayGet
+            auto mayGetTask = edm::make_waiting_task(
+                tbb::task::allocate_root(), [this, iRecord, iEventSetupImpl](std::exception_ptr const* iExcept) {
+                  if (iExcept) {
+                    runProducerAsync(iExcept, iRecord, iEventSetupImpl);
+                    return;
+                  }
+                  if (handleMayGet(iRecord, iEventSetupImpl)) {
+                    auto runTask =
+                        edm::make_waiting_task(tbb::task::allocate_root(),
+                                               [this, iRecord, iEventSetupImpl](std::exception_ptr const* iExcept) {
+                                                 runProducerAsync(iExcept, iRecord, iEventSetupImpl);
+                                               });
+                    prefetchNeededDataAsync(runTask, iEventSetupImpl, &((*postMayGetProxies_).front()));
+                  } else {
+                    runProducerAsync(iExcept, iRecord, iEventSetupImpl);
+                  }
+                });
 
-              //Get everything we can before knowing about the mayGets
-              prefetchNeededDataAsync(mayGetTask, iEventSetupImpl, getTokenIndices());
-            }
-          else {
+            //Get everything we can before knowing about the mayGets
+            prefetchNeededDataAsync(mayGetTask, iEventSetupImpl, getTokenIndices());
+          } else {
             auto task = edm::make_waiting_task(tbb::task::allocate_root(),
                                                [this, iRecord, iEventSetupImpl](std::exception_ptr const* iExcept) {
                                                  runProducerAsync(iExcept, iRecord, iEventSetupImpl);

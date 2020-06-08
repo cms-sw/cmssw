@@ -74,17 +74,18 @@ namespace edm {
       //This also must be before the cache_ check since we want to setCacheIsValid before a possible
       // exception throw. If we don't, 'getImpl' will be called again on a second request for the data.
 
-      if
-        LIKELY(!iTransiently) { nonTransientAccessRequested_.store(true, std::memory_order_release); }
+      if LIKELY (!iTransiently) {
+        nonTransientAccessRequested_.store(true, std::memory_order_release);
+      }
 
-      if
-        UNLIKELY(!cacheIsValid()) {
-          cache_ = getAfterPrefetchImpl();
-          cacheIsValid_.store(true, std::memory_order_release);
-        }
+      if UNLIKELY (!cacheIsValid()) {
+        cache_ = getAfterPrefetchImpl();
+        cacheIsValid_.store(true, std::memory_order_release);
+      }
 
-      if
-        UNLIKELY(nullptr == cache_) { throwMakeException(iRecord, iKey); }
+      if UNLIKELY (nullptr == cache_) {
+        throwMakeException(iRecord, iKey);
+      }
       return cache_;
     }
 
