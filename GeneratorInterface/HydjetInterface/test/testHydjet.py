@@ -6,7 +6,6 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("GeneratorInterface.HydjetInterface.hydjetDefault_cfi")
 
-
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
 	generator = cms.PSet(
 		initialSeed = cms.untracked.uint32(123456789),
@@ -15,14 +14,14 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 )
 
 process.maxEvents = cms.untracked.PSet(
-	input = cms.untracked.int32(100)
-)
+	input = cms.untracked.int32(5)
+	)
 
-process.ana = cms.EDAnalyzer('Hydjet2Analyzer',
+process.ana = cms.EDAnalyzer('HydjetAnalyzer',
 
 	doHistos		= cms.untracked.bool(True),
 	userHistos		= cms.untracked.bool(False),
-
+        
 	# Settings for USER histos
 
 	uStatus		= cms.untracked.int32(2),	# 1 - it's 1,2,3,4,5 of Pythia status; 2 - 11,12,13,14,15; 3 - All
@@ -62,6 +61,7 @@ process.ana = cms.EDAnalyzer('Hydjet2Analyzer',
 )
 
 
+#process.generator.signalVtx = cms.untracked.vdouble(0.,0.,0.,0.) # Signal event vertex option, to set it by hand (instead of smearing)
 
 process.TFileService = cms.Service('TFileService',
 	fileName = cms.string('Hydjet1_MB_5020GeV.root')
