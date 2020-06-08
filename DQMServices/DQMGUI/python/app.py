@@ -23,7 +23,7 @@ from service import GUIService
 from storage import GUIDataStore
 from importing.importing import GUIImportManager
 from aiohttp import web, WSCloseCode
-from helpers import get_absolute_path
+from helpers import get_absolute_path, parse_run_lumi
 
 from data_types import RenderingOptions, MEDescription
 
@@ -92,7 +92,7 @@ async def archive_legacy(request):
     dataset = '/' + '/'.join(parts[0:3])
     path = '/'.join(parts[3:])
 
-    data = await service.get_archive(run, dataset, path, search, lumi=0)#7
+    data = await service.get_archive(run, dataset, path, search, lumi=0)
     if not data:
         return web.HTTPNotFound()
 
@@ -104,9 +104,9 @@ async def archive_legacy(request):
 
 
 async def archive_v1(request):
-    """Returns a directory listing for provided run/dataset/path combination."""
+    """Returns a directory listing for provided run:lumi/dataset/path combination."""
 
-    run = request.match_info['run']
+    run, lumi = parse_run_lumi(request.match_info['run'])
     full_path = request.match_info['path']
     search = request.rel_url.query.get('search')
 
@@ -115,7 +115,7 @@ async def archive_v1(request):
     dataset = '/' + '/'.join(parts[0:3])
     path = '/'.join(parts[3:])
 
-    data = await service.get_archive(run, dataset, path, search, lumi=0)
+    data = await service.get_archive(run, dataset, path, search, lumi)
     if not data:
         return web.HTTPNotFound()
 
@@ -153,7 +153,7 @@ async def render_legacy(request):
     dataset = '/' + '/'.join(parts[0:3])
     path = '/'.join(parts[3:])
 
-    me_description = MEDescription(dataset, path, run, lumi=0)#7
+    me_description = MEDescription(dataset, path, run, lumi=0)
 
     data = await service.get_rendered_image([me_description], options)
 
@@ -163,9 +163,9 @@ async def render_legacy(request):
 
 
 async def render_v1(request):
-    """Returns a PNG image for provided run/dataset/path combination"""
+    """Returns a PNG image for provided run:lumi/dataset/path combination"""
 
-    run = request.match_info['run']
+    run, lumi = parse_run_lumi(request.match_info['run'])
     full_path = request.match_info['path']
     options = RenderingOptions.from_dict(request.rel_url.query)
 
@@ -174,7 +174,7 @@ async def render_v1(request):
     dataset = '/' + '/'.join(parts[0:3])
     path = '/'.join(parts[3:])
 
-    me_description = MEDescription(dataset, path, run, lumi=0)
+    me_description = MEDescription(dataset, path, run, lumi)
 
     data = await service.get_rendered_image([me_description], options)
 
@@ -206,18 +206,20 @@ async def render_overlay_legacy(request):
 
 
 async def render_overlay_v1(request):
-    """Returns a PNG image for provided run/dataset/path combination"""
+    """Returns a PNG image for provided run:lumi/dataset/path combination"""
 
     options = RenderingOptions.from_dict(request.rel_url.query)
 
     me_descriptions = []
     for obj in request.rel_url.query.getall('obj', []):
         parts = obj.split('/')
-        run = int(parts[1])
+        run, lumi = parse_run_lumi(parts[1])
         dataset = '/' + '/'.join(parts[2:5])
         path = '/'.join(parts[5:])
 
-        me_description = MEDescription(dataset, path, run, lumi=0)
+        print(run, lumi, dataset, path)
+
+        me_description = MEDescription(dataset, path, run, lumi)
         me_descriptions.append(me_description)
 
     data = await service.get_rendered_image(me_descriptions, options)
@@ -230,7 +232,7 @@ async def render_overlay_v1(request):
 async def jsroot_legacy(request):
     """Returns a JSON representation of a ROOT histogram for provided run/dataset/path combination"""
 
-    run = request.match_info['run']
+    run, lumi = parse_run_lumi(request.match_info['run'])
     full_path = request.match_info['path']
 
     # This is caused by a double slash in the url
@@ -242,7 +244,7 @@ async def jsroot_legacy(request):
     dataset = '/' + '/'.join(parts[0:3])
     path = '/'.join(parts[3:])
 
-    me_description = MEDescription(dataset, path, run, lumi=0)
+    me_description = MEDescription(dataset, path, run, lumi)
     options = RenderingOptions(json=True)
 
     data = await service.get_rendered_json([me_description], options)
@@ -253,16 +255,16 @@ async def jsroot_legacy(request):
 
 
 async def jsroot_overlay(request):
-    """Returns a list of JSON representations of ROOT histograms for provided run/dataset/path combinations"""
+    """Returns a list of JSON representations of ROOT histograms for provided run:lumi/dataset/path combinations"""
 
     me_descriptions = []
     for obj in request.rel_url.query.getall('obj', []):
         parts = obj.split('/')
-        run = int(parts[1])
+        run, lumi = parse_run_lumi(parts[1])
         dataset = '/' + '/'.join(parts[2:5])
         path = '/'.join(parts[5:])
 
-        me_description = MEDescription(dataset, path, run, lumi=0)
+        me_description = MEDescription(dataset, path, run, lumi)
         me_descriptions.append(me_description)
 
     options = RenderingOptions(json=True)
@@ -271,6 +273,16 @@ async def jsroot_overlay(request):
 
     if data == b'crashed':
         return web.HTTPInternalServerError()
+    return web.json_response(data)
+
+
+async def available_lumis_v1(request):
+    """Returns a list of available lumisections for provided dataset/run combination."""
+
+    run = request.match_info['run']
+    dataset = '/' + request.match_info['dataset']
+
+    data = await service.get_available_lumis(dataset, run)
     return web.json_response(data)
 
 
@@ -342,6 +354,7 @@ def config_and_start_webserver(port):
                     web.get('/api/v1/render_overlay', render_overlay_v1),
                     web.get(r'/api/v1/json/{run}/{path:.+}', jsroot_legacy),
                     web.get('/api/v1/json_overlay', jsroot_overlay),
+                    web.get(r'/api/v1/lumis/{run}/{dataset:.+}', available_lumis_v1),
                     web.post('/api/v1/register', register)])
 
     # Routes for HTML files

@@ -115,3 +115,17 @@ def binary_search(array, target, key=None):
             else:
                 first = mid + 1
     return -1
+
+
+def parse_run_lumi(runlumi):
+    """
+    Run/lumi pair is passed to the API in this format: run:lumi
+    This method parses such string and returns a tuple (run, lumi).
+    If lumi is not passed, it's assumed that it's value is 0.
+    """
+
+    if ':' in runlumi:
+        parts = runlumi.split(':')
+        return parts[0], parts[1]
+    else:
+        return runlumi, 0

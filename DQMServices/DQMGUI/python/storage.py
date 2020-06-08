@@ -156,6 +156,17 @@ class GUIDataStore:
 
 
     @classmethod
+    async def get_lumis(cls, dataset, run):
+        """Returns all registered lumis for dataset/run combination"""
+        
+        sql = 'SELECT lumi FROM samples WHERE dataset = ? AND run = ? ORDER BY lumi;'
+        cursor = await cls.__db.execute(sql, (dataset, int(run)))
+        rows = await cursor.fetchall()
+        await cursor.close()
+        return [x[0] for x in rows]
+
+
+    @classmethod
     async def get_sample_file_info(cls, dataset, run, lumi=0):
         """
         Returns a full path and a format of a ROOT file containing plots of a given sample. 

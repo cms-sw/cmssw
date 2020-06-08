@@ -122,6 +122,9 @@ class GUIService:
         for me in me_descriptions:
             filename, fileformat, names_list, infos_list = await cls.__get_filename_fileformat_names_infos(me.dataset, me.run, me.lumi)
 
+            if not filename:
+                continue
+
             # Find the index of run/dataset/me in me list blob. 
             # The index in me list will correspond to the index in infos list.
             me_info = None
@@ -165,6 +168,11 @@ class GUIService:
 
 
     @classmethod
+    async def get_available_lumis(cls, dataset, run):
+        return await cls.store.get_lumis(dataset, run)
+
+
+    @classmethod
     async def register_samples(cls, samples):
         """Register a sample in DB. Samples array if of type SamplesFull."""
 
@@ -202,4 +210,4 @@ class GUIService:
             filename, fileformat, names_list, infos_list = filename_fileformat_names_infos
             return (filename, fileformat, names_list, infos_list)
         else:
-            return None
+            return (None, None, None, None)

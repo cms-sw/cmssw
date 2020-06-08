@@ -238,6 +238,37 @@ HTTP request body:
 
 `[{"dataset": "/a/b/c", "run": "123456", "lumi": "0", "file": "/a/b/c.root", "fileformat": 1}]`
 
+### API endpoints for dealing with per lumisection data:
+
+### Archive endpoint
+
+Because not all plots are being saved per lumisection (depends on CMSSW configuration) and new per run plots are created in harvesting step, per run and per lumi directory listings of the same dataset will not match. For this reason, archive endpoint supports querying a directory listing of a specific lumisection:
+
+`/api/v1/archive/run:lumi/dataset/me_path`
+
+Lumi 0 indicates per run plots. If lumi is omitted and only run is provided, it's assumed that it's value is 0.
+
+### Render endpoint
+
+`/api/v1/render/run:lumi/dataset/me_path`
+
+### Render overlay endpoint
+
+`/api/v1/render_overlay?obj=archive/run:lumi/dataset/me_path`
+
+### JSRoot render endpoint
+
+`/api/v1/json/run:lumi/dataset/me_path`
+
+### JSRoot overlay render endpoint
+
+`/api/v1/json_overlay?obj=archive/run:lumi/dataset/me_path`
+
+## List of lumisection available in dataset/run combination
+
+`/api/v1/lumis/run/dataset`
+
+
 ## Getting DQMIO files
 
 First you have to authenticate to access CMS data:
