@@ -162,52 +162,47 @@ JPTAntiKtPu5JetExtender.jets = cms.InputTag("akPu5CaloJets")
 JPTAntiKtPu5JetExtender.jet2TracksAtCALO = cms.InputTag("JPTAntiKtPu5JetTracksAssociatorAtCaloFace")
 JPTAntiKtPu5JetExtender.jet2TracksAtVX = cms.InputTag("JPTAntiKtPu5JetTracksAssociatorAtVertex")
 
-### ---------- Task, Sequences
+### ---------- Sequences
 
 # IC5
 
-JPTrecoJetAssociationsIconePu5Task = cms.Task(
-    trackExtrapolator,
-    JPTiterativeConePu5JetTracksAssociatorAtVertex,
-    JPTiterativeConePu5JetTracksAssociatorAtCaloFace,
+JPTrecoJetAssociationsIconePu5 = cms.Sequence(
+    trackExtrapolator*
+###    JPTtrackExtrapolatorAA*
+    JPTiterativeConePu5JetTracksAssociatorAtVertex*
+    JPTiterativeConePu5JetTracksAssociatorAtCaloFace*
     JPTiterativeConePu5JetExtender
     )
-JPTrecoJetAssociationsIconePu5 = cms.Sequence(JPTrecoJetAssociationsIconePu5Task)
 
-JetPlusTrackCorrectionsIconePu5Task = cms.Task(
-    JPTrecoJetAssociationsIconePu5,
+JetPlusTrackCorrectionsIconePu5 = cms.Sequence(
+    JPTrecoJetAssociationsIconePu5*
     JetPlusTrackZSPCorJetIconePu5
     )
-JetPlusTrackCorrectionsIconePu5 = cms.Sequence(JetPlusTrackCorrectionsIconePu5Task)
 
 # SC5
 
-JPTrecoJetAssociationsSisConePu5Task = cms.Task(
-    trackExtrapolator,
-    JPTSisConePu5JetTracksAssociatorAtVertex,
-    JPTSisConePu5JetTracksAssociatorAtCaloFace,
+JPTrecoJetAssociationsSisConePu5 = cms.Sequence(
+    trackExtrapolator*
+    JPTSisConePu5JetTracksAssociatorAtVertex*
+    JPTSisConePu5JetTracksAssociatorAtCaloFace*
     JPTSisConePu5JetExtender
     )
-JPTrecoJetAssociationsSisConePu5 = cms.Sequence(JPTrecoJetAssociationsSisConePu5Task)
 
-JetPlusTrackCorrectionsSisConePu5Task = cms.Task(
-    JPTrecoJetAssociationsSisConePu5,
+JetPlusTrackCorrectionsSisConePu5 = cms.Sequence(
+    JPTrecoJetAssociationsSisConePu5*
     JetPlusTrackZSPCorJetSisconePu5
     )
-JetPlusTrackCorrectionsSisConePu5 = cms.Sequence(JetPlusTrackCorrectionsSisConePu5Task)
 
 # Anti-Kt
 
-JPTrecoJetAssociationsAntiKtPu5Task = cms.Task(
-    trackExtrapolator,
-    JPTAntiKtPu5JetTracksAssociatorAtVertex,
-    JPTAntiKtPu5JetTracksAssociatorAtCaloFace,
+JPTrecoJetAssociationsAntiKtPu5 = cms.Sequence(
+    trackExtrapolator*
+    JPTAntiKtPu5JetTracksAssociatorAtVertex*
+    JPTAntiKtPu5JetTracksAssociatorAtCaloFace*
     JPTAntiKtPu5JetExtender
     )
-JPTrecoJetAssociationsAntiKtPu5 = cms.Sequence(JPTrecoJetAssociationsAntiKtPu5Task)
 
-JetPlusTrackCorrectionsAntiKtPu5Task = cms.Task(
-    JPTrecoJetAssociationsAntiKtPu5,
+JetPlusTrackCorrectionsAntiKtPu5 = cms.Sequence(
+    JPTrecoJetAssociationsAntiKtPu5*
     JetPlusTrackZSPCorJetAntiKtPu5
     )
-JetPlusTrackCorrectionsAntiKtPu5 = cms.Sequence(JetPlusTrackCorrectionsAntiKtPu5Task)

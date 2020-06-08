@@ -6,6 +6,7 @@ JPTZSPCorrectorAntiKt4 = cms.PSet(
 
     # General Configuration
     Verbose = cms.bool(True),
+    UseReco = cms.bool(True),
 
     # Vectorial corrections
     VectorialCorrection  = cms.bool(True),
@@ -30,14 +31,16 @@ JPTZSPCorrectorAntiKt4 = cms.PSet(
     # Muons
     UseMuons = cms.bool(True),
     Muons    = cms.InputTag("muons"),
+    PatMuons = cms.InputTag("slimmedMuons"),
     
     # Electrons
     UseElectrons    = cms.bool(True),
     Electrons       = cms.InputTag("gedGsfElectrons"),
     ElectronIds     = cms.InputTag("JPTeidTight"),
+    PatElectrons       = cms.InputTag("slimmedElectrons"),
     
     # Filtering tracks using quality
-    UseTrackQuality = cms.bool(True),
+    UseTrackQuality = cms.bool(False),
     TrackQuality    = cms.string('highPurity'),
     PtErrorQuality  = cms.double(0.05),
     DzVertexCut     = cms.double(0.2),
