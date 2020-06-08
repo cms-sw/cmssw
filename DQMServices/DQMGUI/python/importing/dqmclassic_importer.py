@@ -30,16 +30,19 @@ class DQMCLASSICImporter:
 
         buffer = await cls.ioservice.open_url(filename, blockcache=False)
         tfile = await nanoroot.TFile().load(buffer)
-        result = await cls.list_mes(tfile)
+        result = await cls.list_mes(tfile, run)
 
         return { (run, 0): result }
 
 
     @classmethod
-    async def list_mes(cls, tfile):
+    async def list_mes(cls, tfile, run):
         # Remove the folder structure that CMSSW adds
-        # TODO: Check run numbers here?
+        run_str = bytes('Run %s' % run, 'utf-8')
         def normalize(parts):
+            # Assert that a correct run number is being imported
+            assert parts[2] == run_str, 'Run number that is being imported does not match the number in a ROOT file.'
+
             if len(parts) < 5 or parts[4] != b'Run summary':
                 return b'<broken>' + b'/'.join(parts) + b'/'
             else:

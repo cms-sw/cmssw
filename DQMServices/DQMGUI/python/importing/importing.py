@@ -73,7 +73,7 @@ class GUIImportManager:
         # It's possible that some samples that exists in this file were not yet
         # registered as samples (through register API endpoint). So we (re)create 
         # all samples that we have found
-        samples = [SampleFull(dataset, run=key[0], lumi=key[1], file=filename, fileformat=fileformat) for key in mes_lists]
+        samples = [SampleFull(dataset, run=int(key[0]), lumi=int(key[1]), file=filename, fileformat=fileformat) for key in mes_lists]
         await cls.store.register_samples(samples)
 
         for key in mes_lists:
