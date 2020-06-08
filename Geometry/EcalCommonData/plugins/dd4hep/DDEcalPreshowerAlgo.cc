@@ -13,7 +13,6 @@ using namespace dd4hep;
 using namespace cms_units::operators;
 
 static constexpr float const& k_half = 0.5;
-static constexpr float const& k_quarter = 0.25;
 static constexpr float const& k_one32nd = 0.03125;
 static constexpr float const& k_one64th = 0.015625;
 
@@ -203,8 +202,6 @@ static long algorithm(dd4hep::Detector& /* description */,
         const string& dd_tmp_name_d("esalgo:" + es.layName[i] + "LinPb");
         const string& dd_tmp_name_e("esalgo:" + es.layName[i] + "LinAl");
         const string& dd_tmp_name_f("esalgo:" + es.layName[i] + "LOutAl");
-
-        const string& dd_Alname_fin("esalgo:" + es.layName[i] + "LtmpAl" + to_string(absz - 1));
 
         const string& dd_Alname_f("esalgo:" + es.layName[i] + "LOutAl");
         const string& dd_Alname_g("esalgo:" + es.layName[i] + "LOutAl2");
