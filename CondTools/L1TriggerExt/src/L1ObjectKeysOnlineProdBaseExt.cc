@@ -13,7 +13,7 @@ L1ObjectKeysOnlineProdBaseExt::L1ObjectKeysOnlineProdBaseExt(const edm::Paramete
   // The subsystemLabel is used by L1TriggerKeyOnlineProdExt to identify the
   // L1TriggerKeysExt to concatenate.
   setWhatProduced(this, iConfig.getParameter<std::string>("subsystemLabel"))
-    .setConsumes(L1TriggerKeyExt_token, edm::ESInputTag{"","SubsystemKeysOnly"});
+      .setConsumes(L1TriggerKeyExt_token, edm::ESInputTag{"", "SubsystemKeysOnly"});
 
   //now do what ever other initialization is needed
 }
@@ -48,7 +48,6 @@ L1ObjectKeysOnlineProdBaseExt::ReturnType L1ObjectKeysOnlineProdBaseExt::produce
 
   return pL1TriggerKey;
 }
-
 
 //define this as a plug-in
 //DEFINE_FWK_EVENTSETUP_MODULE(L1ObjectKeysOnlineProdBaseExt);

@@ -6,18 +6,18 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 
-L1TriggerKeyOnlineProdExt::L1TriggerKeyOnlineProdExt(const edm::ParameterSet& iConfig)  {
+L1TriggerKeyOnlineProdExt::L1TriggerKeyOnlineProdExt(const edm::ParameterSet& iConfig) {
   //the following line is needed to tell the framework what
   // data is being produced
   auto cc = setWhatProduced(this);
-  
-  for(auto const& label : iConfig.getParameter<std::vector<std::string> >("subsystemLabels"))  {
-    m_subsystemTokens.emplace_back(cc.consumesFrom<L1TriggerKeyExt, L1TriggerKeyExtRcd>(edm::ESInputTag{"",label}));
-  
-  //now do what ever other initialization is needed
+
+  for (auto const& label : iConfig.getParameter<std::vector<std::string> >("subsystemLabels")) {
+    m_subsystemTokens.emplace_back(cc.consumesFrom<L1TriggerKeyExt, L1TriggerKeyExtRcd>(edm::ESInputTag{"", label}));
+
+    //now do what ever other initialization is needed
   }
 
-  cc.setConsumes(L1TriggerKeyExt_token, edm::ESInputTag{"","SubsystemKeysOnly"});
+  cc.setConsumes(L1TriggerKeyExt_token, edm::ESInputTag{"", "SubsystemKeysOnly"});
 }
 
 L1TriggerKeyOnlineProdExt::~L1TriggerKeyOnlineProdExt() {
@@ -42,7 +42,7 @@ L1TriggerKeyOnlineProdExt::ReturnType L1TriggerKeyOnlineProdExt::produce(const L
   auto pL1TriggerKey = std::make_unique<L1TriggerKeyExt>(subsystemKeys);
 
   // Collate object keys
-  for(auto const& token: m_subsystemTokens) {
+  for (auto const& token : m_subsystemTokens) {
     pL1TriggerKey->add(iRecord.get(token).recordToKeyMap());
   }
 
