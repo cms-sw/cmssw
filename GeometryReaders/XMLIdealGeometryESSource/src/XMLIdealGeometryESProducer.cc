@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Concurrency/interface/SharedResourceNames.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
@@ -28,6 +29,7 @@ private:
 
 XMLIdealGeometryESProducer::XMLIdealGeometryESProducer(const edm::ParameterSet& iConfig)
     : rootDDName_(iConfig.getParameter<std::string>("rootDDName")) {
+  usesResources({{edm::ESSharedResourceNames::kDDGeometry}});
   setWhatProduced(this).setConsumes(blobToken_, edm::ESInputTag("", iConfig.getParameter<std::string>("label")));
 }
 
