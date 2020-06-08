@@ -27,9 +27,9 @@ MaterialBudgetHcalHistos::MaterialBudgetHcalHistos(const edm::ParameterSet& p) {
   etaMaxP_ = p.getUntrackedParameter<double>("EtaMaxP", 0.0);
   edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos: FillHisto : " << fillHistos_ << " PrintSummary "
                                      << printSum_ << " == Eta plot: NX " << binEta_ << " Range " << -maxEta_ << ":"
-                                     << maxEta_ << " Phi plot: NX " << binPhi_ << " Range " << -CLHEP::pi << ":" << CLHEP::pi
-                                     << " (Eta limit " << etaLow_ << ":" << etaHigh_ << ")" << " Debug for eta range "
-				     << etaMinP_ << ":" << etaMaxP_;
+                                     << maxEta_ << " Phi plot: NX " << binPhi_ << " Range " << -CLHEP::pi << ":"
+                                     << CLHEP::pi << " (Eta limit " << etaLow_ << ":" << etaHigh_ << ")"
+                                     << " Debug for eta range " << etaMinP_ << ":" << etaMaxP_;
   if (fillHistos_)
     book();
 }
@@ -183,12 +183,12 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
             if (lay >= 20)
               ++nlayHO_;
             else
-	      ++nlayHB_;
+              ++nlayHB_;
           }
         }
-	if (verbose_ || ((abseta >= etaMinP_) && (abseta <= etaMaxP_)))
-	  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos: Det " << det << " Layer " << lay << " Eta "
-					     << eta_ << " Phi " << phi_ / CLHEP::deg;
+        if (verbose_ || ((abseta >= etaMinP_) && (abseta <= etaMaxP_)))
+          edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos: Det " << det << " Layer " << lay << " Eta "
+                                             << eta_ << " Phi " << phi_ / CLHEP::deg;
       } else if (layer_ == 1) {
         det = -1;
         lay = 2;
@@ -203,8 +203,8 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
 
     if (id_ > idOld) {
       if (verbose_ || ((abseta >= etaMinP_) && (abseta <= etaMaxP_)))
-	edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos: Step at " << name << " calls filHisto with "
-					   << (id_ - 1);
+        edm::LogVerbatim("MaterialBudget")
+            << "MaterialBudgetHcalHistos: Step at " << name << " calls filHisto with " << (id_ - 1);
       fillHisto(id_ - 1);
     }
   }
@@ -215,10 +215,10 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
   if (fillHistos_) {
     if (id_ == 21) {
       if (!isItHF(aStep->GetPostStepPoint()->GetTouchable())) {
-	if (verbose_ || ((abseta >= etaMinP_) && (abseta <= etaMaxP_)))
-	  edm::LogVerbatim("MaterialBudget")
-            << "MaterialBudgetHcalHistos: After HF in " << name << ":"
-            << aStep->GetPostStepPoint()->GetTouchable()->GetVolume(0)->GetName() << " calls fillHisto with " << id_;
+        if (verbose_ || ((abseta >= etaMinP_) && (abseta <= etaMaxP_)))
+          edm::LogVerbatim("MaterialBudget")
+              << "MaterialBudgetHcalHistos: After HF in " << name << ":"
+              << aStep->GetPostStepPoint()->GetTouchable()->GetVolume(0)->GetName() << " calls fillHisto with " << id_;
         fillHisto(idOld);
         ++id_;
         layer_ = 0;
@@ -228,8 +228,8 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
 }
 
 void MaterialBudgetHcalHistos::fillEndTrack() {
-  edm::LogVerbatim("MaterialBudget") << "Number of layers hit in HB:" << nlayHB_ << " HE:" << nlayHE_ << " HO:" << nlayHO_
-                                     << " HF:" << nlayHF_;
+  edm::LogVerbatim("MaterialBudget") << "Number of layers hit in HB:" << nlayHB_ << " HE:" << nlayHE_
+                                     << " HO:" << nlayHO_ << " HF:" << nlayHF_;
   if (fillHistos_) {
     fillHisto(maxSet_ - 1);
     fillLayer();
@@ -265,8 +265,8 @@ void MaterialBudgetHcalHistos::book() {
         std::to_string(i + 200).c_str(), ("MB(L0) prof Eta in region " + iter).c_str(), binEta_, -maxEta_, maxEta_);
     me300[i] = tfile->make<TProfile>(
         std::to_string(i + 300).c_str(), ("MB(Step) prof Eta in region " + iter).c_str(), binEta_, -maxEta_, maxEta_);
-    me400[i] =
-        tfile->make<TH1F>(std::to_string(i + 400).c_str(), ("Eta in region " + iter).c_str(), binEta_, -maxEta_, maxEta_);
+    me400[i] = tfile->make<TH1F>(
+        std::to_string(i + 400).c_str(), ("Eta in region " + iter).c_str(), binEta_, -maxEta_, maxEta_);
     me500[i] = tfile->make<TProfile>(
         std::to_string(i + 500).c_str(), ("MB(X0) prof Ph in region " + iter).c_str(), binPhi_, -maxPhi, maxPhi);
     me600[i] = tfile->make<TProfile>(
@@ -336,7 +336,7 @@ void MaterialBudgetHcalHistos::book() {
 void MaterialBudgetHcalHistos::fillHisto(int ii) {
   if (verbose_ || ((std::abs(eta_) >= etaMinP_) && (std::abs(eta_) <= etaMaxP_)))
     edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos:FillHisto called with index " << ii
-				       << " integrated  step " << stepLen_ << " X0 " << radLen_ << " Lamda " << intLen_;
+                                       << " integrated  step " << stepLen_ << " X0 " << radLen_ << " Lamda " << intLen_;
 
   if (ii >= 0 && ii < maxSet_) {
     me100[ii]->Fill(eta_, radLen_);
