@@ -59,11 +59,7 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCRPCData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
-#include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
-#include "CondFormats/DataRecord/interface/CSCCrateMapRcd.h"
-#include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
-#include "CondFormats/DataRecord/interface/CSCChamberMapRcd.h"
-#include <EventFilter/CSCRawToDigi/interface/CSCMonitorInterface.h>
+#include "EventFilter/CSCRawToDigi/interface/CSCMonitorInterface.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <iostream>
@@ -75,6 +71,8 @@
 CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet& pset) : numOfEvents(0) {
   // Tracked
   i_token = consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("InputObjects"));
+  crateToken = esConsumes<CSCCrateMap, CSCCrateMapRcd>();
+  cscmapToken = esConsumes<CSCChamberMap, CSCChamberMapRcd>();
 
   useExaminer = pset.getParameter<bool>("UseExaminer");
   examinerMask = pset.getParameter<unsigned int>("ExaminerMask");
@@ -167,13 +165,11 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
   // Do we really have to do this every event???
   // ... Yes, because framework is more efficient than you are at caching :)
   // (But if you want to actually DO something specific WHEN the mapping changes, check out ESWatcher)
-  edm::ESHandle<CSCCrateMap> hcrate;
-  c.get<CSCCrateMapRcd>().get(hcrate);
+  edm::ESHandle<CSCCrateMap> hcrate = c.getHandle(crateToken);
   const CSCCrateMap* pcrate = hcrate.product();
 
   // Need access to CSCChamberMap for chamber<->FED/DDU mapping consistency checks
-  edm::ESHandle<CSCChamberMap> cscmap;
-  c.get<CSCChamberMapRcd>().get(cscmap);
+  edm::ESHandle<CSCChamberMap> cscmap = c.getHandle(cscmapToken);
   const CSCChamberMap* cscmapping = cscmap.product();
 
   if (printEventNumber)
