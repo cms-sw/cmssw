@@ -211,7 +211,7 @@
     <Include ref='Geometry/EcalCommonData/data/ebcon.xml'/>
     <Include ref='Geometry/EcalCommonData/data/ebrot.xml'/>
     <Include ref='Geometry/EcalCommonData/data/eecon.xml'/>
-    <Include ref='Geometry/EcalCommonData/data/eefixed.xml'/>
+    <Include ref='Geometry/EcalCommonData/data/eefixed/2021/v1/eefixed.xml'/>
     <Include ref='Geometry/EcalCommonData/data/eehier.xml'/>
     <Include ref='Geometry/EcalCommonData/data/eealgo.xml'/>
     <Include ref='Geometry/EcalCommonData/data/escon.xml'/>
