@@ -20,6 +20,9 @@ from DQM.SiPixelPhase1Common.SiPixelPhase1RawData_cfi import *
 #Summary maps
 from DQM.SiPixelPhase1Summary.SiPixelPhase1Summary_cfi import *
 
+from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
+from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
+
 PerModule.enabled = False
 IsOffline.enabled=True
 
