@@ -72,6 +72,11 @@ namespace edm {
       wrapLongTimes_ = ps_mix.getParameter<bool>("WrapLongTimes");
     }
 
+    skipSignal_ = false;
+    if (ps_mix.exists("skipSignal")) {
+      skipSignal_ = ps_mix.getParameter<bool>("skipSignal");
+    }
+
     ParameterSet ps = ps_mix.getParameter<ParameterSet>("mixObjects");
     std::vector<std::string> names = ps.getParameterNames();
     for (std::vector<std::string>::iterator it = names.begin(); it != names.end(); ++it) {
@@ -312,14 +317,14 @@ namespace edm {
   void MixingModule::checkSignal(const edm::Event& e) {
     if (adjusters_.empty()) {
       for (auto const& adjuster : adjustersObjects_) {
-        if (adjuster->checkSignal(e)) {
+        if (skipSignal_ or adjuster->checkSignal(e)) {
           adjusters_.push_back(adjuster);
         }
       }
     }
     if (workers_.empty()) {
       for (auto const& worker : workersObjects_) {
-        if (worker->checkSignal(e)) {
+        if (skipSignal_ or worker->checkSignal(e)) {
           workers_.push_back(worker);
         }
       }
@@ -351,6 +356,10 @@ namespace edm {
   }
 
   void MixingModule::addSignals(const edm::Event& e, const edm::EventSetup& setup) {
+    if (skipSignal_) {
+      return;
+    }
+
     LogDebug("MixingModule") << "===============> adding signals for " << e.id();
 
     accumulateEvent(e, setup);
