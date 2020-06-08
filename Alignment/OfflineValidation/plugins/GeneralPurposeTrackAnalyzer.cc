@@ -37,6 +37,7 @@
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
+#include "CondCore/SiPixelPlugins/interface/Phase1PixelMaps.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -86,17 +87,17 @@ public:
   GeneralPurposeTrackAnalyzer(const edm::ParameterSet &pset) {
     usesResource(TFileService::kSharedResource);
 
-    TkTag_ = pset.getParameter<std::string>("TkTag");
+    TkTag_ = pset.getParameter<edm::InputTag>("TkTag");
     theTrackCollectionToken = consumes<reco::TrackCollection>(TkTag_);
 
-    edm::InputTag tag("TriggerResults", "", "HLT");
-    hltresultsToken = consumes<edm::TriggerResults>(tag);
+    TriggerResultsTag_ = pset.getParameter<edm::InputTag>("TriggerResultsTag");
+    hltresultsToken = consumes<edm::TriggerResults>(TriggerResultsTag_);
 
-    edm::InputTag beamSpotTag("offlineBeamSpot");
-    beamspotToken = consumes<reco::BeamSpot>(beamSpotTag);
+    BeamSpotTag_ = pset.getParameter<edm::InputTag>("BeamSpotTag");
+    beamspotToken = consumes<reco::BeamSpot>(BeamSpotTag_);
 
-    edm::InputTag vertexTag("offlinePrimaryVertices");
-    vertexToken = consumes<reco::VertexCollection>(vertexTag);
+    VerticesTag_ = pset.getParameter<edm::InputTag>("VerticesTag");
+    vertexToken = consumes<reco::VertexCollection>(VerticesTag_);
 
     isCosmics_ = pset.getParameter<bool>("isCosmics");
 
@@ -108,9 +109,17 @@ public:
     tmap = std::make_unique<TrackerMap>("Strip");
     tmap->setTitle("Strip Hit entries");
     tmap->setPalette(1);
+
+    pixelmap = std::make_unique<Phase1PixelMaps>("COLZ L");
+    pixelmap->bookBarrelHistograms("entriesBarrel", "# hits", "# pixel hits");
+    pixelmap->bookBarrelBins("entriesBarrel");
+    pixelmap->bookForwardHistograms("entriesForward", "# hits", "# pixel hits");
+    pixelmap->bookForwardBins("entriesForward");
   }
 
   ~GeneralPurposeTrackAnalyzer() override {}
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &);
 
   template <class OBJECT_TYPE>
   int GetIndex(const std::vector<OBJECT_TYPE *> &vec, const TString &name) {
@@ -129,6 +138,8 @@ public:
 
   std::unique_ptr<TrackerMap> tmap;
   std::unique_ptr<TrackerMap> pmap;
+
+  std::unique_ptr<Phase1PixelMaps> pixelmap;
 
   TH1D *hchi2ndof;
   TH1D *hNtrk;
@@ -248,7 +259,11 @@ public:
 
   const TrackerGeometry *trackerGeometry_;
 
-  std::string TkTag_;
+  edm::InputTag TkTag_;
+  edm::InputTag TriggerResultsTag_;
+  edm::InputTag BeamSpotTag_;
+  edm::InputTag VerticesTag_;
+
   bool isCosmics_;
 
   edm::EDGetTokenT<reco::TrackCollection> theTrackCollectionToken;
@@ -338,8 +353,15 @@ public:
             unsigned int subid = detId.subdetId();
             int detid_db = detId.rawId();
 
-            if (!isPhase1_)
+            if (!isPhase1_) {
               pmap->fill(detid_db, 1);
+            } else {
+              if (subid == PixelSubdetector::PixelBarrel) {
+                pixelmap->fillBarrelBin("entriesBarrel", detid_db, 1);
+              } else {
+                pixelmap->fillForwardBin("entriesForward", detid_db, 1);
+              }
+            }
 
             LocalPoint lp = (*iHit)->localPosition();
             //LocalError le = (*iHit)->localPositionError();
@@ -1103,6 +1125,17 @@ public:
 
     tmap->save(true, 0, 0, "trackermap.pdf");
     tmap->save(true, 0, 0, "trackermap.png");
+
+    gStyle->SetPalette(kRainBow);
+    pixelmap->beautifyAllHistograms();
+
+    TCanvas cB("CanvBarrel", "CanvBarrel", 1200, 1000);
+    pixelmap->DrawBarrelMaps("entriesBarrel", cB);
+    cB.SaveAs("pixelBarrelEntries.png");
+
+    TCanvas cF("CanvForward", "CanvForward", 1600, 1000);
+    pixelmap->DrawForwardMaps("entriesForward", cF);
+    cF.SaveAs("pixelForwardEntries.png");
   }
 
   //*************************************************************
@@ -1148,5 +1181,19 @@ public:
     // never reached...
   }
 };
+
+//*************************************************************
+void GeneralPurposeTrackAnalyzer::fillDescriptions(edm::ConfigurationDescriptions &descriptions)
+//*************************************************************
+{
+  edm::ParameterSetDescription desc;
+  desc.setComment("Generic track analyzer to check ALCARECO sample quantities");
+  desc.add<edm::InputTag>("TkTag", edm::InputTag("generalTracks"));
+  desc.add<edm::InputTag>("TriggerResultsTag", edm::InputTag("TriggerResults", "", "HLT"));
+  desc.add<edm::InputTag>("BeamSpotTag", edm::InputTag("offlineBeamSpot"));
+  desc.add<edm::InputTag>("VerticesTag", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<bool>("isCosmics", false);
+  descriptions.add("GeneralPurposeTrackAnalyzer", desc);
+}
 
 DEFINE_FWK_MODULE(GeneralPurposeTrackAnalyzer);

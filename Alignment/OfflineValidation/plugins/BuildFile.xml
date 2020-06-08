@@ -5,6 +5,7 @@
 <use name="CondCore/DBOutputService"/>
 <use name="CondFormats/Alignment"/>
 <use name="CondFormats/RunInfo"/>
+<use name="CondCore/SiPixelPlugins"/>
 <use name="CondFormats/SiPixelObjects"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/MuonReco"/>
