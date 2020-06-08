@@ -169,8 +169,10 @@ JetPlusTrackAddonSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup
     } else {
   //    std::cout<<" RECO "<<std::endl;
       edm::Handle<CaloTowerCollection> ct;
-      bool getFromFwdPtr = iEvent.getByToken(input_ctw_token_, ct);
-      for(CaloTowerCollection::const_iterator it = ct->begin();it != ct->end(); it++) {  
+      iEvent.getByToken(input_ctw_token_, ct);
+      if(ct.isValid()) {
+      for(CaloTowerCollection::const_iterator it = ct->begin();
+                                           it != ct->end(); it++) {  
         double  deta=(*jet).eta()-(*it).eta();
         double  dphi=(*jet).phi()-(*it).phi();
         if(dphi > 4.*atan(1.) ) dphi = dphi-8.*atan(1.);
@@ -185,10 +187,9 @@ JetPlusTrackAddonSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup
          emineb += (*it).energy()-(*it).energyInHB();
          eminee += (*it).energy()-(*it).energyInHE();
          eminhf += 0.5*(*it).energyInHF();
-         double eeen = 2.*(*it).energy()-(*it).energyInHB()-(*it).energyInHE();
-         double hcen = (*it).energyInHB()+(*it).energyInHE()+(*it).energyInHO()+0.5*(*it).energyInHF();
          ncand++;
-      } 
+      }
+      } // tower collection is valid. 
      } 
          eefraction = (emineb+eminee)/caloen;
          hhfraction = (hadinhb+hadinhe+hadinhf+hadinho)/caloen;
