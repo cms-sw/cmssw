@@ -36,7 +36,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
-#include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
+//#include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryNumbering.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/Records/interface/DDSpecParRegistryRcd.h"
@@ -78,7 +80,8 @@ private:
   edm::ESGetToken<Alignments, GlobalPositionRcd> m_globalPositionToken;
   edm::ESGetToken<Alignments, DTAlignmentRcd> m_alignmentsToken;
   edm::ESGetToken<AlignmentErrorsExtended, DTAlignmentErrorExtendedRcd> m_alignmentErrorsToken;
-  edm::ESGetToken<MuonNumbering, MuonNumberingRecord> m_mdcToken;
+  edm::ESGetToken<MuonGeometryConstants, MuonNumberingRecord> m_mdcToken;
+  //  edm::ESGetToken<MuonNumbering, MuonNumberingRecord> m_mdcToken;
   edm::ESGetToken<DDDetector, IdealGeometryRecord> m_cpvToken;
   edm::ESGetToken<DDSpecParRegistry, DDSpecParRegistryRcd> m_registryToken;
   const ESInputTag m_tag;
@@ -109,7 +112,7 @@ DTGeometryESProducer::DTGeometryESProducer(const ParameterSet& iConfig)
   }
 
   if (m_fromDDD) {
-    m_mdcToken = cc.consumesFrom<MuonNumbering, MuonNumberingRecord>(edm::ESInputTag{});
+    m_mdcToken = cc.consumesFrom<MuonGeometryConstants, MuonNumberingRecord>(edm::ESInputTag{});// era MuonNumbering 
     m_cpvToken = cc.consumesFrom<DDDetector, IdealGeometryRecord>(m_tag);
     m_registryToken = cc.consumesFrom<DDSpecParRegistry, DDSpecParRegistryRcd>(m_tag);
   }
