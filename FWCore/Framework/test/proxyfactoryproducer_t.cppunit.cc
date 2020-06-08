@@ -28,8 +28,10 @@ public:
   DummyProxy() {}
 
 protected:
-  const value_type* make(const record_type&, const DataKey&) { return static_cast<const value_type*>(nullptr); }
-  void invalidateCache() {}
+  const value_type* make(const record_type&, const DataKey&) override {
+    return static_cast<const value_type*>(nullptr);
+  }
+  void invalidateCache() override {}
   void const* getAfterPrefetchImpl() const override { return nullptr; }
 };
 
