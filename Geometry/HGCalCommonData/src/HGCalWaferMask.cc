@@ -1,4 +1,5 @@
 #include "Geometry/HGCalCommonData/interface/HGCalWaferMask.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -109,32 +110,32 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
   int n3 = (n + 1) / 3;
   int n4 = n / 4;
   switch (type) {
-    case (HGCalGeomTools::WaferFull): {  //WaferFull
+    case (HGCalTypes::WaferFull): {  //WaferFull
       good = true;
       break;
     }
-    case (HGCalGeomTools::WaferFive): {  //WaferFive
+    case (HGCalTypes::WaferFive): {  //WaferFive
       switch (rotn) {
-        case (HGCalGeomTools::WaferCorner0): {
+        case (HGCalTypes::WaferCorner0): {
           int u2 = u / 2;
           good = ((v - u2) < n);
           break;
         }
-        case (HGCalGeomTools::WaferCorner1): {
+        case (HGCalTypes::WaferCorner1): {
           good = ((v + u) < (3 * n - 1));
           break;
         }
-        case (HGCalGeomTools::WaferCorner2): {
+        case (HGCalTypes::WaferCorner2): {
           int v2 = (v + 1) / 2;
           good = ((u - v2) < n);
           break;
         }
-        case (HGCalGeomTools::WaferCorner3): {
+        case (HGCalTypes::WaferCorner3): {
           int u2 = (u + 1) / 2;
           good = (u2 <= v);
           break;
         }
-        case (HGCalGeomTools::WaferCorner4): {
+        case (HGCalTypes::WaferCorner4): {
           good = ((v + u) >= n);
           break;
         }
@@ -146,25 +147,25 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
       }
       break;
     }
-    case (HGCalGeomTools::WaferChopTwo): {  //WaferChopTwo
+    case (HGCalTypes::WaferChopTwo): {  //WaferChopTwo
       switch (rotn) {
-        case (HGCalGeomTools::WaferCorner0): {
+        case (HGCalTypes::WaferCorner0): {
           good = (v < (3 * n2));
           break;
         }
-        case (HGCalGeomTools::WaferCorner1): {
+        case (HGCalTypes::WaferCorner1): {
           good = (u < (3 * n2));
           break;
         }
-        case (HGCalGeomTools::WaferCorner2): {
+        case (HGCalTypes::WaferCorner2): {
           good = ((u - v) <= n2);
           break;
         }
-        case (HGCalGeomTools::WaferCorner3): {
+        case (HGCalTypes::WaferCorner3): {
           good = (v >= n2);
           break;
         }
-        case (HGCalGeomTools::WaferCorner4): {
+        case (HGCalTypes::WaferCorner4): {
           good = (u >= n2);
           break;
         }
@@ -175,25 +176,25 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
       }
       break;
     }
-    case (HGCalGeomTools::WaferChopTwoM): {  //WaferChopTwoM
+    case (HGCalTypes::WaferChopTwoM): {  //WaferChopTwoM
       switch (rotn) {
-        case (HGCalGeomTools::WaferCorner0): {
+        case (HGCalTypes::WaferCorner0): {
           good = (v < (5 * n4));
           break;
         }
-        case (HGCalGeomTools::WaferCorner1): {
+        case (HGCalTypes::WaferCorner1): {
           good = (u < (5 * n4));
           break;
         }
-        case (HGCalGeomTools::WaferCorner2): {
+        case (HGCalTypes::WaferCorner2): {
           good = ((u - v) <= n4);
           break;
         }
-        case (HGCalGeomTools::WaferCorner3): {
+        case (HGCalTypes::WaferCorner3): {
           good = (v >= (3 * n4));
           break;
         }
-        case (HGCalGeomTools::WaferCorner4): {
+        case (HGCalTypes::WaferCorner4): {
           good = (u >= (3 * n4));
           break;
         }
@@ -204,25 +205,25 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
       }
       break;
     }
-    case (HGCalGeomTools::WaferHalf): {  //WaferHalf
+    case (HGCalTypes::WaferHalf): {  //WaferHalf
       switch (rotn) {
-        case (HGCalGeomTools::WaferCorner0): {
+        case (HGCalTypes::WaferCorner0): {
           good = (v < n);
           break;
         }
-        case (HGCalGeomTools::WaferCorner1): {
+        case (HGCalTypes::WaferCorner1): {
           good = (u < n);
           break;
         }
-        case (HGCalGeomTools::WaferCorner2): {
+        case (HGCalTypes::WaferCorner2): {
           good = (v >= u);
           break;
         }
-        case (HGCalGeomTools::WaferCorner3): {
+        case (HGCalTypes::WaferCorner3): {
           good = (v >= n);
           break;
         }
-        case (HGCalGeomTools::WaferCorner4): {
+        case (HGCalTypes::WaferCorner4): {
           good = (u >= n);
           break;
         }
@@ -233,25 +234,25 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
       }
       break;
     }
-    case (HGCalGeomTools::WaferSemi): {  //WaferSemi
+    case (HGCalTypes::WaferSemi): {  //WaferSemi
       switch (rotn) {
-        case (HGCalGeomTools::WaferCorner0): {
+        case (HGCalTypes::WaferCorner0): {
           good = ((u + v) < (2 * n));
           break;
         }
-        case (HGCalGeomTools::WaferCorner1): {
+        case (HGCalTypes::WaferCorner1): {
           good = ((2 * u - v) < n);
           break;
         }
-        case (HGCalGeomTools::WaferCorner2): {
+        case (HGCalTypes::WaferCorner2): {
           good = ((2 * v - u) >= n);
           break;
         }
-        case (HGCalGeomTools::WaferCorner3): {
+        case (HGCalTypes::WaferCorner3): {
           good = ((u + v) >= (2 * n));
           break;
         }
-        case (HGCalGeomTools::WaferCorner4): {
+        case (HGCalTypes::WaferCorner4): {
           good = ((2 * u - v) > n);
           break;
         }
@@ -262,27 +263,27 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
       }
       break;
     }
-    case (HGCalGeomTools::WaferThree): {  //WaferThree
+    case (HGCalTypes::WaferThree): {  //WaferThree
       switch (rotn) {
-        case (HGCalGeomTools::WaferCorner0): {
+        case (HGCalTypes::WaferCorner0): {
           good = ((v + u) < n);
           break;
         }
-        case (HGCalGeomTools::WaferCorner1): {
+        case (HGCalTypes::WaferCorner1): {
           int v2 = v / 2;
           good = (u <= v2);
           break;
         }
-        case (HGCalGeomTools::WaferCorner2): {
+        case (HGCalTypes::WaferCorner2): {
           int u2 = (u / 2);
           good = ((v - u2) >= n);
           break;
         }
-        case (HGCalGeomTools::WaferCorner3): {
+        case (HGCalTypes::WaferCorner3): {
           good = ((v + u) >= (3 * n - 1));
           break;
         }
-        case (HGCalGeomTools::WaferCorner4): {
+        case (HGCalTypes::WaferCorner4): {
           int v2 = v / 2;
           good = ((u - v2) >= n);
           break;
@@ -295,25 +296,25 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
       }
       break;
     }
-    case (HGCalGeomTools::WaferSemi2): {  //WaferSemi2
+    case (HGCalTypes::WaferSemi2): {  //WaferSemi2
       switch (rotn) {
-        case (HGCalGeomTools::WaferCorner0): {
+        case (HGCalTypes::WaferCorner0): {
           good = ((u + v) < (4 * n3));
           break;
         }
-        case (HGCalGeomTools::WaferCorner1): {
+        case (HGCalTypes::WaferCorner1): {
           good = ((2 * u - v) <= n2);
           break;
         }
-        case (HGCalGeomTools::WaferCorner2): {
+        case (HGCalTypes::WaferCorner2): {
           good = ((2 * v - u) > (3 * n2));
           break;
         }
-        case (HGCalGeomTools::WaferCorner3): {
+        case (HGCalTypes::WaferCorner3): {
           good = ((u + v) >= (5 * n2 - 1));
           break;
         }
-        case (HGCalGeomTools::WaferCorner4): {
+        case (HGCalTypes::WaferCorner4): {
           good = ((2 * u - v) < (3 * n2));
           break;
         }
@@ -341,7 +342,7 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
                                                 const int& wType,
                                                 const int& mode) {
   int ncor(0), iok(0);
-  int type(HGCalGeomTools::WaferFull), rotn(HGCalGeomTools::WaferCorner0);
+  int type(HGCalTypes::WaferFull), rotn(HGCalTypes::WaferCorner0);
 
   static const int corners = 6;
   static const int base = 10;
@@ -378,43 +379,43 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
   if (ncor == HGCalGeomTools::k_allCorners) {
   } else if (ncor == HGCalGeomTools::k_fiveCorners) {
     rotn = static_cast<int>(std::find(ipat5, ipat5 + 6, iok) - ipat5);
-    type = HGCalGeomTools::WaferFive;
+    type = HGCalTypes::WaferFive;
   } else if (ncor == HGCalGeomTools::k_fourCorners) {
     rotn = static_cast<int>(std::find(ipat4, ipat4 + 6, iok) - ipat4);
-    type = HGCalGeomTools::WaferHalf;
+    type = HGCalTypes::WaferHalf;
     double rpos = sqrt((xpos + dx1[rotn]) * (xpos + dx1[rotn]) + (ypos + dy1[rotn]) * (ypos + dy1[rotn]));
     if (rpos <= rout && rpos >= rin) {
       rpos = sqrt((xpos + dx2[rotn]) * (xpos + dx2[rotn]) + (ypos + dy2[rotn]) * (ypos + dy2[rotn]));
       if (rpos <= rout && rpos >= rin)
-        type = HGCalGeomTools::WaferChopTwo;
+        type = HGCalTypes::WaferChopTwo;
     }
-    if ((type == HGCalGeomTools::WaferHalf) && (wType == 0)) {
+    if ((type == HGCalTypes::WaferHalf) && (wType == 0)) {
       rpos = sqrt((xpos + dx3[rotn]) * (xpos + dx3[rotn]) + (ypos + dy3[rotn]) * (ypos + dy3[rotn]));
       if (rpos <= rout && rpos >= rin) {
         rpos = sqrt((xpos + dx4[rotn]) * (xpos + dx4[rotn]) + (ypos + dy4[rotn]) * (ypos + dy4[rotn]));
         if (rpos <= rout && rpos >= rin)
-          type = HGCalGeomTools::WaferChopTwoM;
+          type = HGCalTypes::WaferChopTwoM;
       }
     }
   } else if (ncor == HGCalGeomTools::k_threeCorners) {
     rotn = static_cast<int>(std::find(ipat3, ipat3 + 6, iok) - ipat3);
-    type = HGCalGeomTools::WaferThree;
+    type = HGCalTypes::WaferThree;
     double rpos = sqrt((xpos + dx1[rotn]) * (xpos + dx1[rotn]) + (ypos + dy1[rotn]) * (ypos + dy1[rotn]));
     if (rpos <= rout && rpos >= rin) {
       rpos = sqrt((xpos + dx5[rotn]) * (xpos + dx5[rotn]) + (ypos + dy5[rotn]) * (ypos + dy5[rotn]));
       if (rpos <= rout && rpos >= rin)
-        type = HGCalGeomTools::WaferSemi;
-      if ((type == HGCalGeomTools::WaferThree) && (wType == 0)) {
+        type = HGCalTypes::WaferSemi;
+      if ((type == HGCalTypes::WaferThree) && (wType == 0)) {
         rpos = sqrt((xpos + dx3[rotn]) * (xpos + dx3[rotn]) + (ypos + dy3[rotn]) * (ypos + dy3[rotn]));
         if (rpos <= rout && rpos >= rin) {
           rpos = sqrt((xpos + dx6[rotn]) * (xpos + dx6[rotn]) + (ypos + dy6[rotn]) * (ypos + dy6[rotn]));
           if (rpos <= rout && rpos >= rin)
-            type = HGCalGeomTools::WaferSemi2;
+            type = HGCalTypes::WaferSemi2;
         }
       }
     }
   } else {
-    type = HGCalGeomTools::WaferOut;
+    type = HGCalTypes::WaferOut;
   }
 
 #ifdef EDM_ML_DEBUG
