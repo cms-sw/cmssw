@@ -23,11 +23,16 @@ using namespace gem;
 GEMDigiToRawModule::GEMDigiToRawModule(const edm::ParameterSet& pset)
     : event_type_(pset.getParameter<int>("eventType")),
       digi_token(consumes<GEMDigiCollection>(pset.getParameter<edm::InputTag>("gemDigi"))),
-      useDBEMap_(pset.getParameter<bool>("useDBEMap")) {
+      useDBEMap_(pset.getParameter<bool>("useDBEMap"))
+{
   produces<FEDRawDataCollection>();
+  if (useDBEMap_) {
+    gemEMapToken_ = esConsumes<GEMeMap, GEMeMapRcd, edm::Transition::BeginRun>();
+  }  
 }
 
-void GEMDigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void GEMDigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+{
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("gemDigi", edm::InputTag("simMuonGEMDigis"));
   desc.add<int>("eventType", 0);
@@ -35,12 +40,12 @@ void GEMDigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions& descri
   descriptions.add("gemPackerDefault", desc);
 }
 
-std::shared_ptr<GEMROMapping> GEMDigiToRawModule::globalBeginRun(edm::Run const&, edm::EventSetup const& iSetup) const {
+std::shared_ptr<GEMROMapping> GEMDigiToRawModule::globalBeginRun(edm::Run const&, edm::EventSetup const& iSetup) const
+{
   auto gemROmap = std::make_shared<GEMROMapping>();
   if (useDBEMap_) {
-    edm::ESHandle<GEMeMap> gemEMapRcd;
-    iSetup.get<GEMeMapRcd>().get(gemEMapRcd);
-    auto gemEMap = std::make_unique<GEMeMap>(*(gemEMapRcd.product()));
+    const auto& eMap = iSetup.getData(gemEMapToken_);
+    auto gemEMap = std::make_unique<GEMeMap>(eMap);
     gemEMap->convert(*gemROmap);
     gemEMap.reset();
   } else {
@@ -48,11 +53,12 @@ std::shared_ptr<GEMROMapping> GEMDigiToRawModule::globalBeginRun(edm::Run const&
     auto gemEMap = std::make_unique<GEMeMap>();
     gemEMap->convertDummy(*gemROmap);
     gemEMap.reset();
-  }
+  }  
   return gemROmap;
 }
 
-void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::EventSetup const&) const {
+void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::EventSetup const&) const
+{
   auto fedRawDataCol = std::make_unique<FEDRawDataCollection>();
 
   edm::Handle<GEMDigiCollection> gemDigis;
