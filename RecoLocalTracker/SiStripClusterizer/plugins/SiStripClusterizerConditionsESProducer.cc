@@ -35,7 +35,7 @@ private:
 };
 
 SiStripClusterizerConditionsESProducer::SiStripClusterizerConditionsESProducer(const edm::ParameterSet& iConfig) {
-  auto cc = setWhatProduced(this);
+  auto cc = setWhatProduced(this, iConfig.getParameter<std::string>("Label"));
 
   m_gainToken = cc.consumesFrom<SiStripGain, SiStripGainRcd>();
   m_noisesToken = cc.consumesFrom<SiStripNoises, SiStripNoisesRcd>();
@@ -46,6 +46,7 @@ SiStripClusterizerConditionsESProducer::SiStripClusterizerConditionsESProducer(c
 void SiStripClusterizerConditionsESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("QualityLabel", "");
+  desc.add<std::string>("Label", "");
   descriptions.add("SiStripClusterizerConditionsESProducer", desc);
 }
 

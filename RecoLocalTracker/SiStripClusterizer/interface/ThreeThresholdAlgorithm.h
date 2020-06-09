@@ -28,7 +28,8 @@ private:
   template <class T>
   void clusterizeDetUnit_(const T&, output_t::TSFastFiller&) const;
 
-  ThreeThresholdAlgorithm(float, float, float, unsigned, unsigned, unsigned, bool removeApvShots, float minGoodCharge);
+  ThreeThresholdAlgorithm(
+      const std::string&, float, float, float, unsigned, unsigned, unsigned, bool removeApvShots, float minGoodCharge);
 
   //constant methods with state information
   uint16_t firstStrip(State const& state) const { return state.lastStrip - state.ADCs.size() + 1; }

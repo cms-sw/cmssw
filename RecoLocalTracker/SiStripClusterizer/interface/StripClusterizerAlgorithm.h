@@ -33,7 +33,9 @@ public:
 
   virtual ~StripClusterizerAlgorithm() {}
 
-  void initialize(const edm::EventSetup& es) { es.get<SiStripClusterizerConditionsRcd>().get(m_conditionsHandle); }
+  void initialize(const edm::EventSetup& es) {
+    es.get<SiStripClusterizerConditionsRcd>().get(m_conditionsLabel, m_conditionsHandle);
+  }
   const SiStripClusterizerConditions& conditions() const { return *m_conditionsHandle; }
 
   //Offline DetSet interface
@@ -58,7 +60,7 @@ public:
   };
 
 protected:
-  StripClusterizerAlgorithm() {}
+  explicit StripClusterizerAlgorithm(const std::string& conditionsLabel = "") : m_conditionsLabel(conditionsLabel) {}
 
 private:
   template <class T>
@@ -71,6 +73,7 @@ private:
     }
   }
 
+  std::string m_conditionsLabel;
   edm::ESHandle<SiStripClusterizerConditions> m_conditionsHandle;
 };
 #endif
