@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi import *
 from RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi import *
 
-from SimCalorimetry.HGCalSimProducers.hgcHitAssociation_cfi import hgcRecHitMapProducer
+from RecoLocalCalo.HGCalRecProducers.hgcalRecHitMapProducer_cfi import hgcalRecHitMapProducer
 
 # patch particle flow clusters for HGC into local reco sequence
 # (for now until global reco is going with some sort of clustering)
@@ -14,7 +14,7 @@ from RecoLocalCalo.HGCalRecProducers.hgcalLayerClusters_cff import hgcalLayerClu
 
 hgcalLocalRecoTask = cms.Task( HGCalUncalibRecHit,
                                        HGCalRecHit,
-                                       hgcRecHitMapProducer,
+                                       hgcalRecHitMapProducer,
                                        hgcalLayerClusters,
                                        hgcalMultiClusters,
                                        particleFlowRecHitHGC,

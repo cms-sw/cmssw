@@ -4,7 +4,7 @@ from RecoEgamma.EgammaTools.cleanedEcalDrivenGsfElectronsFromMultiCl_cfi import 
 from RecoEgamma.EgammaTools.hgcalElectronIDValueMap_cff import hgcalElectronIDValueMap
 from PhysicsTools.PatAlgos.PATElectronProducer_cfi import PATElectronProducer
 from PhysicsTools.PatAlgos.slimming.slimmedElectrons_cfi import slimmedElectrons
-from SimCalorimetry.HGCalSimProducers.hgcHitAssociation_cfi import hgcRecHitMapProducer
+from RecoLocalCalo.HGCalRecProducers.hgcalRecHitMapProducer_cfi import hgcalRecHitMapProducer
 
 hgcElectronID = hgcalElectronIDValueMap.clone(
     electrons = cms.InputTag("cleanedEcalDrivenGsfElectronsFromMultiCl"),
@@ -110,7 +110,7 @@ slimmedPhotonsFromMultiClTask = cms.Task(
 )
 
 slimmedEgammaFromMultiClTask = cms.Task(
-    hgcRecHitMapProducer,
+    hgcalRecHitMapProducer,
     slimmedElectronsFromMultiClTask,
     slimmedPhotonsFromMultiClTask
 )
