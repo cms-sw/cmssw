@@ -22,8 +22,6 @@
 #include <DataFormats/DTDigi/interface/DTDigiCollection.h>
 #include <DataFormats/DTDigi/interface/DTLocalTriggerCollection.h>
 
-#include <CondFormats/DataRecord/interface/DTReadOutMappingRcd.h>
-
 #include <EventFilter/DTRawToDigi/plugins/DTDDUUnpacker.h>
 #include <EventFilter/DTRawToDigi/plugins/DTROS25Unpacker.h>
 #include <EventFilter/DTRawToDigi/plugins/DTROS8Unpacker.h>
@@ -49,10 +47,11 @@ DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& ps) : unpacker(nul
   }
 
   inputLabel = consumes<FEDRawDataCollection>(ps.getParameter<InputTag>("inputLabel"));  // default was: source
-  useStandardFEDid_ = ps.getParameter<bool>("useStandardFEDid");                         // default was: true
-  minFEDid_ = ps.getUntrackedParameter<int>("minFEDid", 770);                            // default: 770
-  maxFEDid_ = ps.getUntrackedParameter<int>("maxFEDid", 779);                            // default 779
-  dqmOnly = ps.getParameter<bool>("dqmOnly");                                            // default: false
+  mappingToken_ = esConsumes<DTReadOutMapping, DTReadOutMappingRcd>();
+  useStandardFEDid_ = ps.getParameter<bool>("useStandardFEDid");  // default was: true
+  minFEDid_ = ps.getUntrackedParameter<int>("minFEDid", 770);     // default: 770
+  maxFEDid_ = ps.getUntrackedParameter<int>("maxFEDid", 779);     // default 779
+  dqmOnly = ps.getParameter<bool>("dqmOnly");                     // default: false
   performDataIntegrityMonitor =
       unpackerParameters.getUntrackedParameter<bool>("performDataIntegrityMonitor", false);  // default: false
 
@@ -107,8 +106,7 @@ void DTUnpackingModule::produce(Event& e, const EventSetup& context) {
   }
 
   // Get the mapping from the setup
-  ESHandle<DTReadOutMapping> mapping;
-  context.get<DTReadOutMappingRcd>().get(mapping);
+  ESHandle<DTReadOutMapping> mapping = context.getHandle(mappingToken_);
 
   // Create the result i.e. the collections of MB Digis and SC local triggers
   auto detectorProduct = std::make_unique<DTDigiCollection>();
