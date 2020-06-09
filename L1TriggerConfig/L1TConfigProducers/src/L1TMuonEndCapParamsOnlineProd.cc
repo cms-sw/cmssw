@@ -27,7 +27,7 @@ public:
 
 L1TMuonEndCapParamsOnlineProd::L1TMuonEndCapParamsOnlineProd(const edm::ParameterSet& iConfig)
     : L1ConfigOnlineProdBaseExt<L1TMuonEndCapParamsO2ORcd, L1TMuonEndCapParams>(iConfig) {
-  m_setWhatProduced(iConfig).setConsumes(baseSettings_token);
+  wrappedSetWhatProduced(iConfig).setConsumes(baseSettings_token);
   transactionSafe = iConfig.getParameter<bool>("transactionSafe");
 }
 

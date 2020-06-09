@@ -46,7 +46,7 @@ private:
 protected:
   l1t::OMDSReader m_omdsReader;
   bool m_forceGeneration;
-  edm::ESConsumesCollectorT<TRcd> m_setWhatProduced(const edm::ParameterSet&);
+  edm::ESConsumesCollectorT<TRcd> wrappedSetWhatProduced(const edm::ParameterSet&);
 
   // Called from produce methods.
   // bool is true if the object data should be made.
@@ -90,7 +90,7 @@ L1ConfigOnlineProdBaseExt<TRcd, TData>::L1ConfigOnlineProdBaseExt(const edm::Par
 }
 
 template <class TRcd, class TData>
-edm::ESConsumesCollectorT<TRcd> L1ConfigOnlineProdBaseExt<TRcd, TData>::m_setWhatProduced(
+edm::ESConsumesCollectorT<TRcd> L1ConfigOnlineProdBaseExt<TRcd, TData>::wrappedSetWhatProduced(
     const edm::ParameterSet& iConfig) {
   auto collector = setWhatProduced(this);
   collector.setConsumes(keyList_token);
