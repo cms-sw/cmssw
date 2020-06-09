@@ -77,15 +77,21 @@ bool VMStubsTEMemory::addVMStub(VMStubTE vmstub, int bin) {
       assert(bin < 4);
       if (negdisk)
         bin += 4;
+      if (stubsbinnedvm_[bin].size() >= settings_.maxStubsPerBin())
+        return false;
       stubsbinnedvm_[bin].push_back(vmstub);
       if (settings_.debugTracklet())
         edm::LogVerbatim("Tracklet") << getName() << " Stub in disk = " << disk_ << "  in bin = " << bin;
     } else if (layer_ == 2) {
+      if (stubsbinnedvm_[bin].size() >= settings_.maxStubsPerBin())
+        return false;
       stubsbinnedvm_[bin].push_back(vmstub);
     }
   } else {
     if (vmstub.stub()->isBarrel()) {
       if (!isinner_) {
+        if (stubsbinnedvm_[bin].size() >= settings_.maxStubsPerBin())
+          return false;
         stubsbinnedvm_[bin].push_back(vmstub);
       }
 
@@ -94,12 +100,16 @@ bool VMStubsTEMemory::addVMStub(VMStubTE vmstub, int bin) {
         assert(bin < 4);
         if (negdisk)
           bin += 4;
+        if (stubsbinnedvm_[bin].size() >= settings_.maxStubsPerBin())
+          return false;
         stubsbinnedvm_[bin].push_back(vmstub);
       }
     }
   }
   if (settings_.debugTracklet())
     edm::LogVerbatim("Tracklet") << "Adding stubs to " << getName();
+  if (stubsbinnedvm_[bin].size() >= settings_.maxStubsPerBin())
+    return false;
   stubsvm_.push_back(vmstub);
   return true;
 }

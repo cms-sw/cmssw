@@ -35,6 +35,8 @@ TrackletProcessor::TrackletProcessor(string name, Settings const& settings, Glob
     trackletprojdisks_.push_back(tmp);
   }
 
+  initLayerDisksandISeed(layerdisk1_, layerdisk2_, iSeed_);
+  
   layer_ = 0;
   disk_ = 0;
 
@@ -453,28 +455,24 @@ void TrackletProcessor::execute() {
               if (rbin - rbinfirst > rdiffmax)
                 continue;
 
-              unsigned int irouterbin = vmbits >> 2;
-
+	      int rzbin = outervmstub.vmbits().bits(0, 3);
+	      
               FPGAWord iphiinnerbin = innervmstub.finephi();
               FPGAWord iphiouterbin = outervmstub.finephi();
 
-              unsigned int index = (irouterbin << (outerphibits_ + innerphibits_)) +
-                                   (iphiinnerbin.value() << outerphibits_) + iphiouterbin.value();
+	      unsigned int index = (iphiinnerbin.value() << outerphibits_) + iphiouterbin.value();
 
-              assert(index < phitable_[phiindex].size());
-              if (!phitable_[phiindex][index]) {
-                if (settings_.debugTracklet()) {
-                  edm::LogVerbatim("Tracklet") << "Stub pair rejected because of tracklet pt cut";
-                }
-                continue;
-              }
-
+	      if (iSeed_ >= 4) {  //Also use r-position
+		int ir = ((ibin & 3) << 1) + (rzbin >> 2);
+		index = (index << 3) + ir;
+	      }
+	      
               FPGAWord innerbend = innervmstub.bend();
               FPGAWord outerbend = outervmstub.bend();
 
               unsigned int ptinnerindex = (index << innerbend.nbits()) + innerbend.value();
               unsigned int ptouterindex = (index << outerbend.nbits()) + outerbend.value();
-
+	      
               assert(ptinnerindex < pttableinner_[phiindex].size());
               assert(ptouterindex < pttableouter_[phiindex].size());
 
@@ -487,7 +485,6 @@ void TrackletProcessor::execute() {
                       << " pass : " << pttableinner_[phiindex][ptinnerindex] << " "
                       << pttableouter_[phiindex][ptouterindex];
                 }
-                continue;
               }
 
               if (settings_.debugTracklet())
@@ -710,7 +707,7 @@ void TrackletProcessor::setVMPhiBin() {
 
     if ((disk_ == 1 && layer_ == 0) || (disk_ == 3 && layer_ == 0)) {
       innerphibits_ = settings_.nfinephi(0, iSeed_);
-      outerphibits_ = settings_.nfinephi(0, iSeed_);
+      outerphibits_ = settings_.nfinephi(1, iSeed_);
 
       int outerrbits = 3;
 
