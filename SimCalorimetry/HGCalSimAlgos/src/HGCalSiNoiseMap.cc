@@ -2,12 +2,12 @@
 
 //
 HGCalSiNoiseMap::HGCalSiNoiseMap()
-    : encpScale_(840.),
-      encCommonNoiseSub_(sqrt(1.25)),
-      qe2fc_(1.60217646E-4),
-      ignoreFluence_(false),
-      ignoreCCE_(false),
-      ignoreNoise_(false) {
+  : encCommonNoiseSub_(sqrt(1.0)),
+    qe2fc_(1.60217646E-4),
+    ignoreFluence_(false),
+    ignoreCCE_(false),
+    ignoreNoise_(false) {
+
   encsParam_.push_back({636., 15.6, 0.0328});   // q80fC: II order polynomial coefficients
   chargeAtFullScaleADCPerGain_.push_back(80.);  //        the num of fC (charge) which corresponds to the max ADC value
   encsParam_.push_back({1045., 8.74, 0.0685});  // q160fC
@@ -55,6 +55,23 @@ void HGCalSiNoiseMap::setDoseMap(const std::string &fullpath, const unsigned int
   HGCalRadiationMap::setDoseMap(fullpath, algo);
 }
 
+
+//
+double HGCalSiNoiseMap::getENCpad(const double &ileak,bool useHGCROCV2) {
+
+  if(useHGCROCV2)            return 840*sqrt(ileak);
+  
+  if(ileak>45.40)      return 23.30*ileak+1410.04;
+  else if(ileak>38.95) return 30.07*ileak+1156.76;
+  else if(ileak>32.50) return 38.58*ileak+897.94;
+  else if(ileak>26.01) return 193.67*pow(ileak,0.70)+21.12;
+  else if(ileak>19.59) return 167.60*pow(ileak,0.77);
+  else if(ileak>13.06) return 162.35*pow(ileak,0.82);
+  else if(ileak>6.53)  return 202.73*pow(ileak,0.81);
+  else                 return 457.15*pow(ileak,0.57);
+}
+
+
 //
 HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteristics(const HGCSiliconDetId &cellId,
                                                                                      GainRange_t gain,
@@ -66,6 +83,26 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
   unsigned int cellThick = cellId.type();
   double cellCap(cellCapacitance_[cellThick]);
   double cellVol(cellVolume_[cellThick]);
+  double mipEqfC(mipEqfC_[cellThick]);
+
+  //location of the cell
+  int subdet(cellId.subdet());
+  std::vector<double> &cceParam=cceParam_[cellThick];
+  auto xy(ddd()->locateCell(cellId.layer(), cellId.waferU(), cellId.waferV(), cellId.cellU(), cellId.cellV(), true, true));
+  double radius = sqrt(std::pow(xy.first, 2) + std::pow(xy.second, 2));  //in cm
+
+    //call baseline method
+  return getSiCellOpCharacteristics(cellCap,cellVol,mipEqfC,cceParam,
+                                    subdet,layer,radius,
+                                    gain,aimMIPtoADC);
+}
+
+//
+HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteristics(double &cellCap, double &cellVol, double &mipEqfC, std::vector<double> &cceParam,
+                                                                                     int &subdet, int &layer, double &radius,
+                                                                                     GainRange_t &gain,
+                                                                                     int &aimMIPtoADC) {
+  SiCellOpCharacteristics siop;
 
   //leakage current and CCE [muA]
   if (ignoreFluence_) {
@@ -74,41 +111,36 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
     siop.ileak = exp(ileakParam_[1]) * cellVol * unitToMicro_;
     siop.cce = 1;
   } else {
+
     if (getDoseMap().empty()) {
       throw cms::Exception("BadConfiguration")
-          << " Fluence is required but no DoseMap has been passed to HGCalSiNoiseMap";
+        << " Fluence is required but no DoseMap has been passed to HGCalSiNoiseMap";
       return siop;
     }
+    
+    siop.lnfluence = getFluenceValue(subdet, layer, radius, true);
+    siop.fluence   = exp(siop.lnfluence);
+    
+    double conv(log(cellVol)+unitToMicroLog_);    
+    siop.ileak = exp(ileakParam_[0] * siop.lnfluence + ileakParam_[1] + conv);
 
-    //compute the radius here
-    auto xy(ddd()->locateCell(
-        cellId.layer(), cellId.waferU(), cellId.waferV(), cellId.cellU(), cellId.cellV(), true, true));
-    double radius2 = std::pow(xy.first, 2) + std::pow(xy.second, 2);  //in cm
-
-    double radius = sqrt(radius2);
-    double radius3 = radius * radius2;
-    double radius4 = pow(radius2, 2);
-    radiiVec radii{{radius, radius2, radius3, radius4, 0., 0., 0., 0.}};
-    siop.fluence = getFluenceValue(cellId.subdet(), layer, radii);
-    siop.lnfluence = log(siop.fluence);
-    siop.ileak = exp(ileakParam_[0] * siop.lnfluence + ileakParam_[1]) * cellVol * unitToMicro_;
-
+    //charge collection efficiency
     if (ignoreCCE_) {
       siop.cce = 1.0;
     } else {
       //lin+log parametrization
-      //cceParam_ are parameters as defined in equation (2) of DN-19-045
-      siop.cce = siop.fluence <= cceParam_[cellThick][0] ? 1. + cceParam_[cellThick][1] * siop.fluence
-                                                         : (1. - cceParam_[cellThick][2] * siop.lnfluence) +
-                                                               (cceParam_[cellThick][1] * cceParam_[cellThick][0] +
-                                                                cceParam_[cellThick][2] * log(cceParam_[cellThick][0]));
+      //cceParam are parameters as defined in equation (2) of DN-19-045
+      siop.cce = siop.fluence <= cceParam[0] ? 1. + cceParam[1] * siop.fluence
+        : (1. - cceParam[2] * siop.lnfluence) +
+        (cceParam[1] * cceParam[0] +
+         cceParam[2] * log(cceParam[0]));
       siop.cce = std::max(0., siop.cce);
     }
   }
 
   //determine the gain to apply accounting for cce
   //move computation to ROC level (one day)
-  double S(siop.cce * mipEqfC_[cellThick]);
+  double S(siop.cce * mipEqfC);
   if (gain == GainRange_t::AUTO) {
     double desiredLSB(S / aimMIPtoADC);
     std::vector<double> diffToPhysLSB = {fabs(desiredLSB - lsbPerGain_[GainRange_t::q80fC]),
@@ -131,10 +163,12 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
   //build noise estimate
   if (ignoreNoise_) {
     siop.noise = 0.0;
+    siop.enc_s = 0.0;
+    siop.enc_p = 0.0;
   } else {
-    double enc_s(encsParam_[gain][0] + encsParam_[gain][1] * cellCap + encsParam_[gain][2] * pow(cellCap, 2));
-    double enc_p(encpScale_ * sqrt(siop.ileak));
-    siop.noise = hypot(enc_p, enc_s * encCommonNoiseSub_) * qe2fc_;
+    siop.enc_s = encsParam_[gain][0] + encsParam_[gain][1] * cellCap + encsParam_[gain][2] * pow(cellCap, 2);
+    siop.enc_p = getENCpad(siop.ileak);
+    siop.noise = hypot(siop.enc_p * encCommonNoiseSub_, siop.enc_s ) * qe2fc_;
   }
 
   return siop;
