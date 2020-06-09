@@ -238,6 +238,8 @@ HTTP request body:
 
 `[{"dataset": "/a/b/c", "run": "123456", "lumi": "0", "file": "/a/b/c.root", "fileformat": 1}]`
 
+`fileformat` is an integer. Please look at File formats section above for details.
+
 ### API endpoints for dealing with per lumisection data:
 
 ### Archive endpoint
