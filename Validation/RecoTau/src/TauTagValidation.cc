@@ -592,9 +592,10 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
           try {
             int i = std::stoi(prov_ID_label);
             if (prov_cfg_label == "direct_rawValues")
-              currentDiscriminatorContainerToken_[idx].second = -i;
+              currentDiscriminatorContainerToken_[idx].second = -1 - i;
             else
               currentDiscriminatorContainerToken_[idx].second = i;
+            found = true;
           } catch (std::invalid_argument const& e) {
             throw cms::Exception("Configuration") << "TauTagValidation: Direct access to ID container requested, so "
                                                      "argument of 'idLabel' must be convertable to int!\n";

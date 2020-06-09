@@ -414,9 +414,10 @@ void PATTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
               try {
                 int i = std::stoi(prov_ID_label);
                 if (prov_cfg_label == "direct_rawValues")
-                  idcfg.second.second = -i;
+                  idcfg.second.second = -1 - i;
                 else
                   idcfg.second.second = i;
+                found = true;
               } catch (std::invalid_argument const& e) {
                 throw cms::Exception("Configuration") << "PATTauProducer: Direct access to ID container requested, so "
                                                          "argument of 'idLabel' must be convertable to int!\n";
