@@ -47,8 +47,10 @@ void MatchEngineUnit::step() {
 
   int deltaphi = stubfinephi - projfinephi_;
 
+  
   bool dphicut = (abs(deltaphi) < 3) || (abs(deltaphi) > 5);  //TODO - need better implementations
-
+  dphicut=true; //Not used until cuts cleaned up
+  
   if (!barrel_)
     dphicut = true;
 

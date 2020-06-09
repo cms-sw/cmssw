@@ -297,7 +297,7 @@ void TrackletEventProcessor::event(SLHCEvent& ev) {
         assert(layerdiskcode < 4);
         FPGAWord ldcode;
         ldcode.set(layerdiskcode, 2);
-        string dataword = ldcode.str() + "|" + fpgastub.str();
+        string dataword = "1|" + ldcode.str() + "|" + fpgastub.str();
         if (topbit == 0) {
           (*dtcstubs[dtcbase + "A"]) << dataword << " " << trklet::hexFormat(dataword) << endl;
         } else {
@@ -359,9 +359,6 @@ void TrackletEventProcessor::event(SLHCEvent& ev) {
   // tracklet processor (alternative implementation to TE+TC)
   for (unsigned int k = 0; k < N_SECTOR; k++) {
     sectors_[k]->executeTP();
-    if (settings_->writeMem() && k == settings_->writememsect()) {
-      sectors_[k]->writeTPAR(first);
-    }
   }
 
   for (unsigned int k = 0; k < N_SECTOR; k++) {
@@ -374,9 +371,6 @@ void TrackletEventProcessor::event(SLHCEvent& ev) {
   TCTimer_.start();
   for (unsigned int k = 0; k < N_SECTOR; k++) {
     sectors_[k]->executeTC();
-    if (settings_->writeMem() && k == settings_->writememsect()) {
-      sectors_[k]->writeTPAR(first);
-    }
   }
   TCTimer_.stop();
 
@@ -427,12 +421,15 @@ void TrackletEventProcessor::event(SLHCEvent& ev) {
   TCDTimer_.start();
   for (unsigned int k = 0; k < N_SECTOR; k++) {
     sectors_[k]->executeTCD();
+  }
+  TCDTimer_.stop();
+
+  for (unsigned int k = 0; k < N_SECTOR; k++) {
     if (settings_->writeMem() && k == settings_->writememsect()) {
       sectors_[k]->writeTPAR(first);
       sectors_[k]->writeTPROJ(first);
     }
   }
-  TCDTimer_.stop();
 
   // projection router
   PRTimer_.start();
@@ -479,9 +476,11 @@ void TrackletEventProcessor::event(SLHCEvent& ev) {
   FTTimer_.start();
   for (unsigned int k = 0; k < N_SECTOR; k++) {
     sectors_[k]->executeFT();
+#ifndef USEHYBRID //don't try to print these memories if running hybrid
     if ((settings_->writeMem() || settings_->writeMonitorData("IFit")) && k == settings_->writememsect()) {
       sectors_[k]->writeTF(first);
     }
+#endif
   }
   FTTimer_.stop();
 
@@ -489,10 +488,12 @@ void TrackletEventProcessor::event(SLHCEvent& ev) {
   PDTimer_.start();
   for (unsigned int k = 0; k < N_SECTOR; k++) {
     sectors_[k]->executePD(tracks_);
+#ifndef USEHYBRID //don't try to print these memories if running hybrid
     if (((settings_->writeMem() || settings_->writeMonitorData("IFit")) && k == settings_->writememsect()) ||
         settings_->writeMonitorData("CT")) {
       sectors_[k]->writeCT(first);
     }
+#endif
   }
   PDTimer_.stop();
 }
