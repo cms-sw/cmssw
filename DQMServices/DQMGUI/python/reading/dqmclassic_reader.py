@@ -23,9 +23,9 @@ class DQMCLASSICReader:
         key = await TKey().load(buffer, me_info.seekkey)
         data = await key.objdata()
         if me_info.type == b'QTest':
-            return cls.parse_string_entry(await key.objname())
+            return cls.parse_string_entry(key.objname())
         if me_info.type == b'XMLString':
-            return cls.parse_string_entry(await key.objname())
+            return cls.parse_string_entry(key.objname())
         obj = data
         
         # The buffers in a TKey based file start with the TKey. Since we only 

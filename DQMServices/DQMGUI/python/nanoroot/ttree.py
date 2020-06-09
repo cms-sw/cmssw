@@ -173,7 +173,7 @@ class TTreeFile:
                 # The rx is not precise, it might have false matches that fail to read.
                 # This is fine, ignore them.
                 continue
-            classname, name, _ = await tkey.names()
+            classname, name = tkey.classname(), tkey.objname()
             if classname == b'TTree':
                 # Sometimes we find multiple versions of one tree. Then, we want the latest one.
                 if not name in trees or trees[name].fields.fCycle < tkey.fields.fCycle:
@@ -199,7 +199,7 @@ class TTree:
         return self
         
     async def __parsebranchinfo(self, treekey, expectedbranches = []):
-        assert (await treekey.classname()) == b'TTree'
+        assert (treekey.classname()) == b'TTree'
         Int64 = struct.Struct(">Q")
         buf = await treekey.objdata()
         filebuf = treekey.buf
@@ -254,9 +254,9 @@ class TTree:
                 continue
             
             # if we made it here, record the offset for later.
-            names = await k.names()
-            if not names[1] in roots:
-                roots[names[1]] = m.start() + 8 # address of the \x01
+            brnachname = k.objname()
+            if not branchname in roots:
+                roots[branchname] = m.start() + 8 # address of the \x01
 
         # Now, we can start decoding the arrays "from the middle".
         for branchname, root in roots.items():
@@ -399,7 +399,7 @@ class TBranch:
 # as a sanity check against the fBasketEntry data and keeps data flow simple.
 class TBasket:
     async def load(self, tkey, ttype):
-        assert await tkey.classname() == b'TBasket'
+        assert tkey.classname() == b'TBasket'
         # we don't really need these, but keep them for later
         self.fKeyLen = tkey.fields.fKeyLen
         self.fSeekKey = tkey.fields.fSeekKey

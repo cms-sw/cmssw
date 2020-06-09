@@ -15,6 +15,7 @@ class GUIImportManager:
     """
 
     __EOSPATH = '/eos/cms/store/group/comm_dqm/DQMGUI_data/Run*/*/R000*/DQM_*.root'
+    __EOSPREFIX = "root://eoscms.cern.ch/"
 
     store = GUIDataStore()
     compressor = GUIBlobCompressor()
@@ -45,7 +46,7 @@ class GUIImportManager:
             # Parse filenames to get the metadata
             for file in files:
                 run, dataset = importer.parse_filename(file)
-                samples.append(SampleFull(dataset=dataset, run=int(run), lumi=0, file=file, fileformat=FileFormat.DQMCLASSIC))
+                samples.append(SampleFull(dataset=dataset, run=int(run), lumi=0, file=cls.__EOSPREFIX + file, fileformat=FileFormat.DQMCLASSIC))
 
             await cls.register_samples(samples)
 

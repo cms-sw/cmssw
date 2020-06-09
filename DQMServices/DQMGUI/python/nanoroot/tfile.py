@@ -77,7 +77,7 @@ class TFile:
             k = await TKey().load(self.buf, fSeekKey)
             parent = k.fields.fSeekPdir
             # ... and recurse to its parent.
-            res = await fullname(parent) + (await k.objname(),)
+            res = await fullname(parent) + (k.objname(),)
             dircache[fSeekKey] = res
             return res
         
@@ -93,9 +93,9 @@ class TFile:
 
         key = await self.first()
         while key:
-            c = await key.classname()
+            c = key.classname()
             if classes(c):
-                yield (await normalized(key.fields.fSeekPdir), await key.objname(), c, key.fSeekKey)
+                yield (await normalized(key.fields.fSeekPdir), key.objname(), c, key.fSeekKey)
             n = await key.next()
             if key.error:
                 self.error = True
@@ -116,16 +116,37 @@ class TKey:
         self.buf = buf
         self.end = end if end != None else len(buf)
         self.fSeekKey = fSeekKey
+
         self.fields = TKey.Fields(*TKey.structure_small.unpack(
             await self.buf[self.fSeekKey : self.fSeekKey + TKey.structure_small.size]))
-        self.headersize = TKey.structure_small.size
+        headersize = TKey.structure_small.size
+
         if self.fields.fVersion > 1000:
             self.fields = TKey.Fields(*TKey.structure_big.unpack(
                 await self.buf[self.fSeekKey : self.fSeekKey + TKey.structure_big.size]))
-            self.headersize = TKey.structure_big.size
+            headersize = TKey.structure_big.size
+
         assert self.fields.fSeekKey == self.fSeekKey, f"{self} is corrupted!"
+
+        # The TKey struct is followed by three strings: class, object name, object title.
+        # These consume the sest of the space of the key, unitl, fKeyLen.
+        # Read them here eagerly to avoid making to many async read requests later.
+        namebuf = await self.buf[self.fSeekKey + headersize : self.fSeekKey + self.fields.fKeyLen]
+        self.__classname, pos = self.__readstr(namebuf, 0)
+        self.__objname, pos = self.__readstr(namebuf, pos)
+        self.__objtitle, pos = self.__readstr(namebuf, pos)
+
         self.error = False
         return self
+
+    def __readstr(self, buf, pos):
+        size = buf[pos]
+        if size == 255: # solution for when length does not fit one byte
+            size, = TKey.sizefield.unpack(buf[pos+1:pos+5])
+            pos += 4
+        nextpos = pos + size + 1
+        value = buf[pos+1:nextpos]
+        return value, nextpos
 
     def __repr__(self):
         return f"TKey({self.buf}, {self.fSeekKey}, fields = {self.fields})"
@@ -146,38 +167,12 @@ class TKey:
             return k
         return None
 
-    #TODO: maybe make all the name stuff sync, to reduce total number of reads.
-    async def _getstr(self, pos):
-        size = await self.buf[pos]
-        if size == 255: # soultion for when length does not fit one byte
-            size, = TKey.sizefield.unpack(await self.buf[pos+1:pos+5])
-            pos += 4
-        nextpos = pos + size + 1
-        value = await self.buf[pos+1:nextpos]
-        return value, nextpos
-
     # Parse the three strings in the TKey (classname, objname, objtitle)
-    async def names(self):
-        pos = self.fSeekKey + self.headersize
-        classname, pos = await self._getstr(pos)
-        objname, pos = await self._getstr(pos)
-        objtitle, pos = await self._getstr(pos)
-        return classname, objname, objtitle
+    def classname(self):
+        return self.__classname
 
-    async def classname(self):
-        return (await self._getstr(self.fSeekKey + self.headersize))[0]
-
-    async def objname(self):
-        # optimized self.names()[1]
-        pos = self.fSeekKey + self.headersize
-        pos += await self.buf[pos] + 1
-        if await self.buf[pos] == 255:
-            size, = TKey.sizefield.unpack(await self.buf[pos+1:pos+5])
-            pos += 4
-            nextpos = pos + size
-        else:
-            nextpos = pos + await self.buf[pos]
-        return await self.buf[pos+1:nextpos+1]
+    def objname(self):
+        return self.__objname
     
     def compressed(self):
         return self.fields.fNbytes - self.fields.fKeyLen != self.fields.fObjLen
@@ -220,6 +215,6 @@ class TKey:
     async def fullname(self):
         parent = await self.parent()
         parentname = await parent.fullname() if parent else b''
-        return b"%s/%s" % (parentname, await self.objname())
+        return b"%s/%s" % (parentname, self.objname())
 
 
