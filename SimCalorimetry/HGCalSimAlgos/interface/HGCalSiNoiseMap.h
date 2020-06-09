@@ -18,8 +18,8 @@ public:
 
   struct SiCellOpCharacteristics {
     SiCellOpCharacteristics()
-        : lnfluence(0.), fluence(0.), ileak(0.), cce(1.), noise(0.), mipfC(0), gain(0), mipADC(0), thrADC(0) {}
-    double lnfluence, fluence, ileak, cce, noise, mipfC;
+    : lnfluence(0.), fluence(0.), ileak(0.), cce(1.), noise(0.), enc_s(0.), enc_p(0.), mipfC(0), gain(0), mipADC(0), thrADC(0) {}
+    double lnfluence, fluence, ileak, cce, noise, enc_s, enc_p, mipfC;
     unsigned int gain, mipADC, thrADC;
   };
 
@@ -54,6 +54,14 @@ public:
   SiCellOpCharacteristics getSiCellOpCharacteristics(const HGCSiliconDetId &did,
                                                      GainRange_t gain = GainRange_t::AUTO,
                                                      int aimMIPtoADC = 10);
+  SiCellOpCharacteristics getSiCellOpCharacteristics(double &cellCap, 
+                                                     double &cellVol, 
+                                                     double &mipEqfC, 
+                                                     std::vector<double> &cceParam,
+                                                     int &subdet, int &layer, double &radius,
+                                                     GainRange_t &gain,
+                                                     int &aimMIPtoADC);
+
 
   std::array<double, 3> &getMipEqfC() { return mipEqfC_; }
   std::array<double, 3> &getCellCapacitance() { return cellCapacitance_; }
@@ -63,8 +71,12 @@ public:
   std::vector<std::vector<double> > &getENCsParam() { return encsParam_; }
   std::vector<double> &getLSBPerGain() { return lsbPerGain_; }
   std::vector<double> &getMaxADCPerGain() { return chargeAtFullScaleADCPerGain_; }
+  double getENCpad(const double &ileak,bool useHGCROCV2=false);
+
+  inline void setENCCommonNoiseSubScale(double val) { encCommonNoiseSub_=val; }
 
 private:
+
   //vector of three params, per sensor type: 0:120 [mum], 1:200, 2:300
   std::array<double, 3> mipEqfC_, cellCapacitance_, cellVolume_;
   std::vector<std::vector<double> > cceParam_;
@@ -72,11 +84,8 @@ private:
   //leakage current/volume vs fluence
   std::vector<double> ileakParam_;
 
-  //shaper noise param
-  const double encpScale_;
-
   //common noise subtraction noise (final scaling value)
-  const double encCommonNoiseSub_;
+  double encCommonNoiseSub_;
 
   //electron charge in fC
   const double qe2fc_;
@@ -89,6 +98,7 @@ private:
 
   //conversions
   const double unitToMicro_ = 1.e6;
+  const double unitToMicroLog_ = log(unitToMicro_);
 
   //flags used to disable specific components of the Si operation parameters
   bool ignoreFluence_, ignoreCCE_, ignoreNoise_;
