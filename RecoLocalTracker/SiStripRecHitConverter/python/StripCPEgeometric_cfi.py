@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEESProducer_cfi import *
 StripCPEgeometricESProducer = stripCPEESProducer.clone(
-     ComponentName = 'StripCPEgeometric'
-     ComponentType = 'StripCPEgeometric'
+     ComponentName = 'StripCPEgeometric',
+     ComponentType = 'StripCPEgeometric',
      parameters    = cms.PSet(
         TanDiffusionAngle            = 0.01,
         ThicknessRelativeUncertainty = 0.02,
