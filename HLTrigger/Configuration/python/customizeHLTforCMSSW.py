@@ -184,6 +184,10 @@ def customiseFor30046(process, menuType="GRun"):
             Label = cms.string(''),
             appendToDataLabel = cms.string('')
         )
+    for producer in producers_by_type(process, "SiStripClusterizer", "SiStripClusterizerFromRaw"):
+        del producer.Clusterizer.QualityLabel
+        producer.Clusterizer.ConditionsLabel = cms.string('')
+
     return process
 
 # CMSSW version specific customizations
