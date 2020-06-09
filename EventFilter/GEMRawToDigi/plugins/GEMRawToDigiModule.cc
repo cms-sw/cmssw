@@ -32,8 +32,7 @@ GEMRawToDigiModule::GEMRawToDigiModule(const edm::ParameterSet& pset)
   }
 }
 
-void GEMRawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
-{
+void GEMRawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector"));
   desc.add<bool>("useDBEMap", false);
@@ -41,8 +40,7 @@ void GEMRawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions& descri
   descriptions.add("muonGEMDigisDefault", desc);
 }
 
-std::shared_ptr<GEMROMapping> GEMRawToDigiModule::globalBeginRun(edm::Run const&, edm::EventSetup const& iSetup) const
-{
+std::shared_ptr<GEMROMapping> GEMRawToDigiModule::globalBeginRun(edm::Run const&, edm::EventSetup const& iSetup) const {
   auto gemROmap = std::make_shared<GEMROMapping>();
   if (useDBEMap_) {
     const auto& eMap = iSetup.getData(gemEMapToken_);
@@ -54,12 +52,11 @@ std::shared_ptr<GEMROMapping> GEMRawToDigiModule::globalBeginRun(edm::Run const&
     auto gemEMap = std::make_unique<GEMeMap>();
     gemEMap->convertDummy(*gemROmap);
     gemEMap.reset();
-  }  
+  }
   return gemROmap;
 }
 
-void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::EventSetup const& iSetup) const
-{
+void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::EventSetup const& iSetup) const {
   auto outGEMDigis = std::make_unique<GEMDigiCollection>();
   auto outVFATStatus = std::make_unique<GEMVfatStatusDigiCollection>();
   auto outGEBStatus = std::make_unique<GEMGEBdataCollection>();
@@ -71,7 +68,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
   iEvent.getByToken(fed_token, fed_buffers);
 
   auto gemROMap = runCache(iEvent.getRun().index());
-  
+
   for (unsigned int fedId = FEDNumbering::MINGEMFEDID; fedId <= FEDNumbering::MAXGEMFEDID; ++fedId) {
     const FEDRawData& fedData = fed_buffers->FEDData(fedId);
 
@@ -124,7 +121,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
                   << "DIFFERENT CRC :" << vfatData.crc() << "   " << vfatData.checkCRC();
             }
           }
-          
+
           GEMROMapping::vfatDC vfat_dc = gemROMap->vfatPos(vfat_ec);
 
           vfatData.setPhi(vfat_dc.localPhi);
@@ -150,7 +147,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
 
             GEMDigi digi(stripId, bx);
 
-            LogDebug("GEMRawToDigiModule") << stripId <<" ";
+            LogDebug("GEMRawToDigiModule") << stripId << " ";
 
             outGEMDigis.get()->insertDigi(gemId, digi);
 
