@@ -110,9 +110,9 @@ StudyTriggerHLT::StudyTriggerHLT(const edm::ParameterSet& iConfig)
   tok_Muon_ = consumes<reco::MuonCollection>(labelMuon_);
   tok_genTrack_ = consumes<reco::TrackCollection>(labelGenTrack_);
 
-  edm::LogInfo("StudyHLT") << "Verbosity " << verbosity_ << " Trigger labels " << triggerEvent_ << " and "
-                           << theTriggerResultsLabel_ << " Labels used: Track " << labelGenTrack_ << " Muon "
-                           << labelMuon_ << " Track Quality " << theTrackQuality_;
+  edm::LogVerbatim("StudyHLT") << "Verbosity " << verbosity_ << " Trigger labels " << triggerEvent_ << " and "
+                               << theTriggerResultsLabel_ << " Labels used: Track " << labelGenTrack_ << " Muon "
+                               << labelMuon_ << " Track Quality " << theTrackQuality_;
 
   firstEvent_ = true;
   changed_ = false;
@@ -132,8 +132,8 @@ void StudyTriggerHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& i
   int EvtNo = iEvent.id().event();
 
   if (verbosity_ > 0)
-    edm::LogInfo("StudyHLT") << "RunNo " << RunNo << " EvtNo " << EvtNo << " Lumi " << iEvent.luminosityBlock()
-                             << " Bunch " << iEvent.bunchCrossing();
+    edm::LogVerbatim("StudyHLT") << "RunNo " << RunNo << " EvtNo " << EvtNo << " Lumi " << iEvent.luminosityBlock()
+                                 << " Bunch " << iEvent.bunchCrossing();
 
   trigger::TriggerEvent triggerEvent;
   edm::Handle<trigger::TriggerEvent> triggerEventHandle;
@@ -170,7 +170,7 @@ void StudyTriggerHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& i
             h_HLTAccept->GetXaxis()->SetBinLabel(ipos, newtriggerName.c_str());
         }
         if ((int)(iHLT + 1) > h_HLTAccepts[nRun_]->GetNbinsX()) {
-          edm::LogInfo("StudyHLT") << "Wrong trigger " << RunNo << " Event " << EvtNo << " Hlt " << iHLT;
+          edm::LogVerbatim("StudyHLT") << "Wrong trigger " << RunNo << " Event " << EvtNo << " Hlt " << iHLT;
         } else {
           if (firstEvent_)
             h_HLTAccepts[nRun_]->GetXaxis()->SetBinLabel(iHLT + 1, newtriggerName.c_str());
@@ -241,26 +241,26 @@ void StudyTriggerHLT::beginJob() {
   h_eta->Sumw2();
   h_phi = fs_->make<TH1D>("h_phi", "#phi", 50, -10, 10);
   h_phi->Sumw2();
-  h_dr1 = fs_->make<TH1D>("dR1", "#Delta R (Track)", 1000, 0, 1.0);
+  h_dr1 = fs_->make<TH1D>("dR1", "#Delta R (Track)", 1000, 0, 0.1);
   h_dr1->Sumw2();
   h_dr2 = fs_->make<TH1D>("dR2", "#Delta R (Global)", 3000, 0, 0.000003);
   h_dr2->Sumw2();
-  h_dr3 = fs_->make<TH1D>("dR1", "#Delta R (Good Track)", 1000, 0, 1.0);
+  h_dr3 = fs_->make<TH1D>("dR3", "#Delta R (Good Track)", 1000, 0, 0.1);
   h_dr3->Sumw2();
 }
 
 // ------------ method called when starting to processes a run  ------------
 void StudyTriggerHLT::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   char hname[100], htit[400];
-  edm::LogInfo("StudyHLT") << "Run[" << nRun_ << "] " << iRun.run() << " hltconfig.init "
-                           << hltConfig_.init(iRun, iSetup, "HLT", changed_);
+  edm::LogVerbatim("StudyHLT") << "Run[" << nRun_ << "] " << iRun.run() << " hltconfig.init "
+                               << hltConfig_.init(iRun, iSetup, "HLT", changed_);
   sprintf(hname, "h_HLTAccepts_%i", iRun.run());
   sprintf(htit, "HLT Accepts for Run No %i", iRun.run());
   TH1I* hnew = fs_->make<TH1I>(hname, htit, 500, 0, 500);
   for (int i = 1; i <= 500; ++i)
     hnew->GetXaxis()->SetBinLabel(i, " ");
   h_HLTAccepts.push_back(hnew);
-  edm::LogInfo("StudyHLT") << "beginrun " << iRun.run();
+  edm::LogVerbatim("StudyHLT") << "beginRun " << iRun.run();
   firstEvent_ = true;
   changed_ = false;
 }
@@ -268,7 +268,7 @@ void StudyTriggerHLT::beginRun(edm::Run const& iRun, edm::EventSetup const& iSet
 // ------------ method called when ending the processing of a run  ------------
 void StudyTriggerHLT::endRun(edm::Run const& iRun, edm::EventSetup const&) {
   ++nRun_;
-  edm::LogInfo("StudyHLT") << "endrun[" << nRun_ << "] " << iRun.run();
+  edm::LogVerbatim("StudyHLT") << "endRun[" << nRun_ << "] " << iRun.run();
 }
 
 std::string StudyTriggerHLT::truncate_str(const std::string& str) {
