@@ -119,8 +119,7 @@ void CSCDigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<bool>("usePreTriggers", true)->setComment("Set to false if CSCCLCTPreTrigger digis are not available");
   desc.add<bool>("packEverything", false)
       ->setComment("Set to true to disable trigger-related constraints on readout data");
-  desc.add<bool>("useGEMs", false)
-    ->setComment("Pack GEM trigger data");
+  desc.add<bool>("useGEMs", false)->setComment("Pack GEM trigger data");
 
   desc.add<edm::InputTag>("wireDigiTag", edm::InputTag("simMuonCSCDigis", "MuonCSCWireDigi"));
   desc.add<edm::InputTag>("stripDigiTag", edm::InputTag("simMuonCSCDigis", "MuonCSCStripDigi"));
