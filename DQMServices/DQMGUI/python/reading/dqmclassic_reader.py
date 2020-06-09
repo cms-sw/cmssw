@@ -41,6 +41,9 @@ class DQMCLASSICReader:
         """
         Non-object data is stored in fake-XML stings in the TDirectory.
         This decodes these strings into an object of correct type.
+        INTs are saved as strings in this format: <objectName>i=value</objectName>
+        FLOATs are saved as strings in this format: <objectName>f=value</objectName>
+        STRINGs are saved as strings in this format: <objectName>s="value"</objectName>
         Possible return types: EfficiencyFlag, ScalarValue, QTest
         """
 

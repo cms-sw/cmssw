@@ -287,3 +287,11 @@ Copy desired file to local storage with a XRD redirector:
 
 `xrdcp "root://cms-xrd-global.cern.ch//store/data/Run2018B/ZeroBias/DQMIO/12Nov2019_UL2018-v2/100000/0971E5EA-DA92-C249-96BD-1CE58A95C339.root" .`
 
+
+# Random things
+
+## Scalar types are stored as such:
+
+INTs are saved as strings in this format: <objectName>i=value</objectName>
+FLOATs are saved as strings in this format: <objectName>f=value</objectName>
+STRINGs are saved as strings in this format: <objectName>s="value"</objectName>
