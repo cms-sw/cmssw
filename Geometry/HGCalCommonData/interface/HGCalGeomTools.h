@@ -10,36 +10,6 @@ public:
   HGCalGeomTools();
   ~HGCalGeomTools() {}
 
-  enum WaferCorner {
-    WaferCorner0 = 0,
-    WaferCorner1 = 1,
-    WaferCorner2 = 2,
-    WaferCorner3 = 3,
-    WaferCorner4 = 4,
-    WaferCorner5 = 5
-  };
-
-  enum WaferPosition {
-    UnknownPosition = -1,
-    WaferCenter = 0,
-    CornerCenterYp = 1,
-    CornerCenterYm = 2,
-    CornerCenterXp = 3,
-    CornerCenterXm = 4
-  };
-
-  enum WaferType {
-    WaferFull = 0,
-    WaferFive = 1,
-    WaferChopTwo = 2,
-    WaferChopTwoM = 3,
-    WaferHalf = 4,
-    WaferSemi = 5,
-    WaferSemi2 = 6,
-    WaferThree = 7,
-    WaferOut = 99
-  };
-
   static const int k_allCorners = 6;
   static const int k_fiveCorners = 5;
   static const int k_fourCorners = 4;
