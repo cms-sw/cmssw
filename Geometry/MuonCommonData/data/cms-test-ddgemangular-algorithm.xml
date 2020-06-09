@@ -34,9 +34,10 @@
     <Include ref='Geometry/CMSCommonData/data/rotations.xml'/>
     <Include ref='Geometry/CMSCommonData/data/extend/v2/cmsextent.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cavernData/2017/v1/cavernData.xml'/>
-    <Include ref='Geometry/CMSCommonData/data/cms/2019/v3/cms.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cms/2021/v3/cms.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cmsMother.xml'/>
-    <Include ref='DetectorDescription/DDCMS/test/data/mf.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/muonBase/2018/v1/muonBase.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/mf/2021/v2/mf.xml'/>
     <Include ref='Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml'/>
     <Include ref='Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml'/>
   </IncludeSection>
