@@ -11,7 +11,7 @@
 //
 
 #include <cstdio>
-#include <boost/bind.hpp>
+#include <functional>
 #include <algorithm>
 #include <sstream>
 
@@ -52,7 +52,7 @@ FWDetailViewManager::FWDetailViewManager(fireworks::Context* iCtx) : m_context(i
   // force white background for all embedded canvases
   gROOT->SetStyle("Plain");
 
-  m_context->colorManager()->colorsHaveChanged_.connect(boost::bind(&FWDetailViewManager::colorsChanged, this));
+  m_context->colorManager()->colorsHaveChanged_.connect(std::bind(&FWDetailViewManager::colorsChanged, this));
   gEve->GetWindowManager()->Connect(
       "WindowDeleted(TEveWindow*)", "FWDetailViewManager", this, "eveWindowDestroyed(TEveWindow*)");
 }
@@ -142,7 +142,7 @@ std::vector<std::string> FWDetailViewManager::findViewersFor(const std::string& 
   std::transform(all.begin(),
                  all.end(),
                  std::inserter(detailViews, detailViews.begin()),
-                 boost::bind(&edmplugin::PluginInfo::name_, _1));
+                 std::bind(&edmplugin::PluginInfo::name_, std::placeholders::_1));
   unsigned int closestMatch = 0xFFFFFFFF;
 
   for (std::set<std::string>::iterator it = detailViews.begin(), itEnd = detailViews.end(); it != itEnd; ++it) {
