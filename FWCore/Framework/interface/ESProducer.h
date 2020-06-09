@@ -71,6 +71,7 @@ Example: two algorithms each creating only one objects
 // system include files
 #include <memory>
 #include <string>
+#include <optional>
 
 // user include files
 #include "FWCore/Framework/interface/ESConsumesCollector.h"
@@ -83,6 +84,8 @@ Example: two algorithms each creating only one objects
 #include "FWCore/Framework/interface/produce_helpers.h"
 #include "FWCore/Framework/interface/eventsetup_dependsOn.h"
 #include "FWCore/Framework/interface/es_Label.h"
+
+#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 
 // forward declarations
 namespace edm {
@@ -113,23 +116,45 @@ namespace edm {
       return (itemsToGetFromRecords_[iIndex].empty()) ? static_cast<ESProxyIndex const*>(nullptr)
                                                       : &(itemsToGetFromRecords_[iIndex].front());
     }
+    ESRecordIndex const* getTokenRecordIndices(unsigned int iIndex) const {
+      if (recordsUsedDuringGet_.empty()) {
+        return nullptr;
+      }
+      return (recordsUsedDuringGet_[iIndex].empty()) ? static_cast<ESRecordIndex const*>(nullptr)
+                                                     : &(recordsUsedDuringGet_[iIndex].front());
+    }
+    size_t numberOfTokenIndices(unsigned int iIndex) const {
+      if (itemsToGetFromRecords_.empty()) {
+        return 0;
+      }
+      return itemsToGetFromRecords_[iIndex].size();
+    }
+
+    bool hasMayConsumes() const noexcept { return hasMayConsumes_; }
 
     template <typename Record>
-    void updateFromMayConsumes(unsigned int iIndex, const Record& iRecord) {
-      if (itemsToGetFromRecords_.empty() or itemsToGetFromRecords_[iIndex].empty()) {
-        return;
+    std::optional<std::vector<ESProxyIndex>> updateFromMayConsumes(unsigned int iIndex, const Record& iRecord) const {
+      if (not hasMayConsumes()) {
+        return {};
       }
+      std::vector<ESProxyIndex> ret = itemsToGetFromRecords_[iIndex];
       auto const info = consumesInfos_[iIndex].get();
       for (size_t i = 0; i < info->size(); ++i) {
         auto chooserBase = (*info)[i].chooser_.get();
         if (chooserBase) {
           auto chooser = static_cast<eventsetup::impl::MayConsumeChooserBase<Record>*>(chooserBase);
-          itemsToGetFromRecords_[iIndex][i] = chooser->makeChoice(iRecord);
+          ret[i] = chooser->makeChoice(iRecord);
         }
       }
+      return ret;
     }
 
+    SerialTaskQueueChain& queue() { return acquirer_.serialQueueChain(); }
+
   protected:
+    /** Specify the names of the shared resources used by this ESProducer */
+    void usesResources(std::vector<std::string> const&);
+
     /** \param iThis the 'this' pointer to an inheriting class instance
         The method determines the Record argument and return value of the 'produce'
         method in order to do the registration with the EventSetup
@@ -237,6 +262,10 @@ namespace edm {
     //need another structure to say which record to get the data from in
     // order to make prefetching work
     std::vector<std::vector<ESRecordIndex>> recordsUsedDuringGet_;
+
+    SharedResourcesAcquirer acquirer_;
+    std::unique_ptr<std::vector<std::string>> sharedResourceNames_;
+    bool hasMayConsumes_ = false;
   };
 }  // namespace edm
 #endif

@@ -389,3 +389,4 @@
 </bin>
 
 <test name="testFWCoreFrameworkNonEventOrdering" command="test_non_event_ordering.sh"/>
+<test name="testFWCoreFramework1ThreadESPrefetch" command="run_test_1_thread_es_prefetching.sh"/>

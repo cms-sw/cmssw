@@ -50,6 +50,7 @@ namespace edm {
 
     // ---------- const member functions ---------------------
     eventsetup::EventSetupRecordImpl const* findImpl(const eventsetup::EventSetupRecordKey&) const;
+    eventsetup::EventSetupRecordImpl const* findImpl(ESRecordIndex) const;
 
     std::optional<eventsetup::EventSetupRecordGeneric> find(const eventsetup::EventSetupRecordKey&,
                                                             unsigned int iTransitionID,

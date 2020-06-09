@@ -216,6 +216,8 @@ void EDConsumerBase::updateLookup(eventsetup::ESRecordsToProxyIndices const& iPI
       for (auto& itemIndex : items) {
         if (itemIndex.value() == negIndex) {
           itemIndex = indexInRecord;
+          esRecordsToGetFromTransition_[&items - &esItemsToGetFromTransition_.front()][&itemIndex - &items.front()] =
+              iPI.recordIndexFor(it->m_record);
           negIndex = 1;
           break;
         }
@@ -250,7 +252,8 @@ ESTokenIndex EDConsumerBase::recordESConsumes(Transition iTrans,
       ESTokenLookupInfo{iRecord, eventsetup::DataKey{iDataType, iTag.data().c_str()}, startOfComponentName},
       ESProxyIndex{-1});
   auto indexForToken = esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)].size();
-  esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)].push_back(ESProxyIndex{-1 * (index + 1)});
+  esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)].emplace_back(-1 * (index + 1));
+  esRecordsToGetFromTransition_[static_cast<unsigned int>(iTrans)].emplace_back();
   return ESTokenIndex{static_cast<ESTokenIndex::Value_t>(indexForToken)};
 }
 
@@ -321,7 +324,7 @@ void EDConsumerBase::itemsMayGet(BranchType iBranch, std::vector<ProductResolver
          ++it, ++itAlwaysGet) {
       if (iBranch == it->m_branchType) {
         if (it->m_index.productResolverIndex() != ProductResolverIndexInvalid) {
-          if (not*itAlwaysGet) {
+          if (not *itAlwaysGet) {
             ++count;
           }
         }
@@ -335,7 +338,7 @@ void EDConsumerBase::itemsMayGet(BranchType iBranch, std::vector<ProductResolver
          ++it, ++itAlwaysGet) {
       if (iBranch == it->m_branchType) {
         if (it->m_index.productResolverIndex() != ProductResolverIndexInvalid) {
-          if (not*itAlwaysGet) {
+          if (not *itAlwaysGet) {
             oIndices.push_back(it->m_index);
           }
         }
