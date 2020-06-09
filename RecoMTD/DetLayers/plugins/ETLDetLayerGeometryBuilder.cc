@@ -1,3 +1,5 @@
+//#define EDM_ML_DEBUG
+
 #include "ETLDetLayerGeometryBuilder.h"
 
 #include <RecoMTD/DetLayers/interface/MTDRingForwardDoubleLayer.h>
@@ -7,7 +9,6 @@
 
 #include <Utilities/General/interface/precomputed_value_sort.h>
 #include <Geometry/CommonDetUnit/interface/DetSorting.h>
-
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <iostream>
@@ -37,7 +38,6 @@ MTDRingForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayer(int endcap,
                                                                   int layer,
                                                                   vector<unsigned>& rings,
                                                                   const MTDGeometry& geo) {
-  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|ETLDetLayerGeometryBuilder";
   MTDRingForwardDoubleLayer* result = nullptr;
 
   vector<const ForwardDetRing*> frontRings, backRings;
@@ -55,9 +55,10 @@ MTDRingForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayer(int endcap,
         } else {
           backGeomDets.push_back(geomDet);
         }
-        LogTrace(metname) << "get ETL module " << std::hex << ETLDetId(endcap, layer, ring, module).rawId() << std::dec
-                          << " at R=" << geomDet->position().perp() << ", phi=" << geomDet->position().phi()
-                          << ", z= " << geomDet->position().z() << " isFront? " << isInFront << std::endl;
+        LogTrace("MTDDetLayers") << "get ETL module " << std::hex << ETLDetId(endcap, layer, ring, module).rawId()
+                                 << std::dec << " at R=" << geomDet->position().perp()
+                                 << ", phi=" << geomDet->position().phi() << ", z= " << geomDet->position().z()
+                                 << " isFront? " << isInFront;
       }
     }
 
@@ -77,22 +78,21 @@ MTDRingForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayer(int endcap,
   // How should they be sorted?
   //    precomputed_value_sort(muDetRods.begin(), muDetRods.end(), geomsort::ExtractZ<GeometricSearchDet,float>());
   result = new MTDRingForwardDoubleLayer(frontRings, backRings);
-  LogTrace(metname) << "New MTDRingForwardLayer with " << frontRings.size() << " and " << backRings.size()
-                    << " rings, at Z " << result->position().z() << " R1: " << result->specificSurface().innerRadius()
-                    << " R2: " << result->specificSurface().outerRadius() << std::endl;
+  LogTrace("MTDDetLayers") << "New MTDRingForwardLayer with " << frontRings.size() << " and " << backRings.size()
+                           << " rings, at Z " << result->position().z()
+                           << " R1: " << result->specificSurface().innerRadius()
+                           << " R2: " << result->specificSurface().outerRadius();
   return result;
 }
 
 bool ETLDetLayerGeometryBuilder::isFront(int layer, int ring, int module) { return (module + 1) % 2; }
 
 MTDDetRing* ETLDetLayerGeometryBuilder::makeDetRing(vector<const GeomDet*>& geomDets) {
-  const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|ETLDetLayerGeometryBuilder";
-
   precomputed_value_sort(geomDets.begin(), geomDets.end(), geomsort::DetPhi());
   MTDDetRing* result = new MTDDetRing(geomDets);
-  LogTrace(metname) << "New MTDDetRing with " << geomDets.size() << " chambers at z=" << result->position().z()
-                    << " R1: " << result->specificSurface().innerRadius()
-                    << " R2: " << result->specificSurface().outerRadius() << std::endl;
-  ;
+  LogTrace("MTDDetLayers") << "ETLDetLayerGeometryBuilder: new MTDDetRing with " << geomDets.size()
+                           << " chambers at z=" << result->position().z()
+                           << " R1: " << result->specificSurface().innerRadius()
+                           << " R2: " << result->specificSurface().outerRadius();
   return result;
 }
