@@ -210,7 +210,8 @@ std::string Tracklet::trackletparstr() {
       str += middleFPGAStub_->stubindex().str() + "|";
     }
     str += outerFPGAStub_->stubindex().str() + "|" + fpgapars_.rinv().str() + "|" + fpgapars_.phi0().str() + "|";
-    if (middleFPGAStub_) str += fpgapars_.d0().str() + "|";
+    if (middleFPGAStub_)
+      str += fpgapars_.d0().str() + "|";
     str += fpgapars_.z0().str() + "|" + fpgapars_.t().str();
     return str;
   }

@@ -36,7 +36,7 @@ TrackletProcessor::TrackletProcessor(string name, Settings const& settings, Glob
   }
 
   initLayerDisksandISeed(layerdisk1_, layerdisk2_, iSeed_);
-  
+
   layer_ = 0;
   disk_ = 0;
 
@@ -455,24 +455,24 @@ void TrackletProcessor::execute() {
               if (rbin - rbinfirst > rdiffmax)
                 continue;
 
-	      int rzbin = outervmstub.vmbits().bits(0, 3);
-	      
+              int rzbin = outervmstub.vmbits().bits(0, 3);
+
               FPGAWord iphiinnerbin = innervmstub.finephi();
               FPGAWord iphiouterbin = outervmstub.finephi();
 
-	      unsigned int index = (iphiinnerbin.value() << outerphibits_) + iphiouterbin.value();
+              unsigned int index = (iphiinnerbin.value() << outerphibits_) + iphiouterbin.value();
 
-	      if (iSeed_ >= 4) {  //Also use r-position
-		int ir = ((ibin & 3) << 1) + (rzbin >> 2);
-		index = (index << 3) + ir;
-	      }
-	      
+              if (iSeed_ >= 4) {  //Also use r-position
+                int ir = ((ibin & 3) << 1) + (rzbin >> 2);
+                index = (index << 3) + ir;
+              }
+
               FPGAWord innerbend = innervmstub.bend();
               FPGAWord outerbend = outervmstub.bend();
 
               unsigned int ptinnerindex = (index << innerbend.nbits()) + innerbend.value();
               unsigned int ptouterindex = (index << outerbend.nbits()) + outerbend.value();
-	      
+
               assert(ptinnerindex < pttableinner_[phiindex].size());
               assert(ptouterindex < pttableouter_[phiindex].size());
 

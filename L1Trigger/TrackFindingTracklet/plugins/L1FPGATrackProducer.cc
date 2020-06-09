@@ -155,7 +155,7 @@ private:
 
   edm::FileInPath tableTEDFile;
   edm::FileInPath tableTREFile;
-  
+
   string asciiEventOutName_;
   std::ofstream asciiEventOut_;
 
@@ -233,7 +233,7 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
   DTCLinkFile = iConfig.getParameter<edm::FileInPath>("DTCLinkFile");
   moduleCablingFile = iConfig.getParameter<edm::FileInPath>("moduleCablingFile");
   DTCLinkLayerDiskFile = iConfig.getParameter<edm::FileInPath>("DTCLinkLayerDiskFile");
-  
+
   extended_ = iConfig.getParameter<bool>("Extended");
   nHelixPar_ = iConfig.getParameter<unsigned int>("Hnpar");
 
@@ -242,7 +242,6 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
     tableTREFile = iConfig.getParameter<edm::FileInPath>("tableTREFile");
   }
 
-  
   // --------------------------------------------------------------------------------
   // set options in Settings based on inputs from configuration files
   // --------------------------------------------------------------------------------
@@ -257,7 +256,7 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
   settings.setProcessingModulesFile(processingModulesFile.fullPath());
   settings.setMemoryModulesFile(memoryModulesFile.fullPath());
   settings.setWiresFile(wiresFile.fullPath());
-  
+
   if (extended_) {
     settings.setTableTEDFile(tableTEDFile.fullPath());
     settings.setTableTREFile(tableTREFile.fullPath());
@@ -278,7 +277,7 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
                                  << "\n wires          :  " << wiresFile.fullPath();
     if (extended_) {
       edm::LogVerbatim("Tracklet") << "table_TED    :  " << tableTEDFile.fullPath()
-				   << "\n table_TRE    :  " << tableTREFile.fullPath();
+                                   << "\n table_TRE    :  " << tableTREFile.fullPath();
     }
   }
 }
