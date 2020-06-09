@@ -29,7 +29,7 @@ class DQMCLASSICImporter:
         """
 
         buffer = await cls.ioservice.open_url(filename, blockcache=False)
-        tfile = await nanoroot.TFile().load(buffer)
+        tfile = await TFile().load(buffer)
         result = await cls.list_mes(tfile, run)
 
         return { (run, 0): result }
@@ -41,7 +41,8 @@ class DQMCLASSICImporter:
         run_str = bytes('Run %s' % run, 'utf-8')
         def normalize(parts):
             # Assert that a correct run number is being imported
-            assert parts[2] == run_str, 'Run number that is being imported does not match the number in a ROOT file.'
+            if parts[2][:3] == b'Run':
+                assert parts[2] == run_str, 'Imported run (%s) doesn\'t match the number in a ROOT file (%s)' % (parts[2], run_str)
 
             if len(parts) < 5 or parts[4] != b'Run summary':
                 return b'<broken>' + b'/'.join(parts) + b'/'

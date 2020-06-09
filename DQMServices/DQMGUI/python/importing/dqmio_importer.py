@@ -23,6 +23,8 @@ class DQMIOImporter:
         contain multiple runs/lumis in ine file.
         me_path, me_info will be saved as separete blobs in the DB.
         """
+
+        run, lumi = int(run), int(lumi)
         
         dqmioschema = {
             b'Indices': {b'Run': TType.Int32, b'Lumi': TType.Int32, b'Type': TType.Int32,
@@ -55,8 +57,6 @@ class DQMIOImporter:
           11: b"TProfile2Ds",
         }
 
-        infos = defaultdict(list)
-
         # create a MEInfo object from whatever the value is.
         def createinfo(value, typeid):
             metype = cls.compressor.id_to_type[typeid]
@@ -71,29 +71,30 @@ class DQMIOImporter:
         # (uncached) XRDFile here.
         buffer = await cls.ioservice.open_url(filename)
         tfile = await TFile().load(buffer)
-        t = await TTreeFile(tfile, dqmioschema)
+        t = await TTreeFile().load(tfile, dqmioschema)
 
         # now, we'll iterate over all Indices, and read the MEs for each entry.
         # We sort them into a dict by run/lumi and then return them.
 
-        infos = []
+        infos = defaultdict(list)
 
-        async for e in await t.trees[b'Indices'][:]:
-            if e[b'Run'] != run or e[b'Lumi'] != lumi:
+        async for entry in await t.trees[b'Indices'][:]:
+            if entry[b'Run'] != run or entry[b'Lumi'] != lumi:
                 continue
-            if e[b'Type'] == 1000: # 1000 means no data
+            if entry[b'Type'] == 1000: # 1000 means no data
                 continue
             # Value TTree for the type of this entry
-            tree = t.trees[treenames[e[b'Type']]]
+            tree = t.trees[treenames[entry[b'Type']]]
             namebranch = tree.branches[b'FullName']
             valuebranch = tree.branches[b'Value']
-            firstindex = e[b'FirstIndex']
-            lastindex = e[b'LastIndex'] + 1 # DQMIO uses *inclusive* upper.
+            firstindex = entry[b'FirstIndex']
+            lastindex = entry[b'LastIndex'] + 1 # DQMIO uses *inclusive* upper.
             # first, read the names for this entry
             names = [name async for name in await namebranch[firstindex : lastindex]]
             # ...then the values...
-            values = [createinfo(v, e[b'Type']) async for v in await valuebranch[firstindex : lastindex]]
+            values = [createinfo(v, entry[b'Type']) async for v in await valuebranch[firstindex : lastindex]]
             # ... finally pair up the results. There may be more than one entry per run/lumi.
-            infos += list(zip(names, values))
+            # infos += list(zip(names, values))
+            infos[(entry[b'Run'], entry[b'Lumi'])] += list(zip(names, values))
 
         return infos
