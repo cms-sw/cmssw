@@ -68,6 +68,7 @@ namespace cms {
     std::string_view name() const { return m_name; }
 
     std::vector<double> vecDbl(const std::string& name) const;
+    std::vector<float> vecFloat(const std::string& name) const;
 
   private:
     DDParsingContext* m_context = nullptr;
