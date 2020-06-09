@@ -224,7 +224,7 @@ void VMRouter::execute() {
 
       // pad disk PS bend word with a '0' in MSB so that all disk bends have 4 bits (for HLS compatibility)
       int nbendbits = stub->bend().nbits();
-      if (layerdisk_ >= N_LAYER) 
+      if (layerdisk_ >= N_LAYER)
         nbendbits = settings_.nbendbitsmedisk();
 
       VMStubME vmstub(

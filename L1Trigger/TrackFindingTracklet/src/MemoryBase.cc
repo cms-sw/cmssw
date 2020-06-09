@@ -106,7 +106,8 @@ void MemoryBase::openFile(bool first, std::string filebase) {
 }
 
 size_t MemoryBase::find_nth(const string& haystack, size_t pos, const string& needle, size_t nth) {
-    size_t found_pos = haystack.find(needle, pos);
-    if(0 == nth || string::npos == found_pos)  return found_pos;
-    return find_nth(haystack, found_pos+1, needle, nth-1);
+  size_t found_pos = haystack.find(needle, pos);
+  if (0 == nth || string::npos == found_pos)
+    return found_pos;
+  return find_nth(haystack, found_pos + 1, needle, nth - 1);
 }
