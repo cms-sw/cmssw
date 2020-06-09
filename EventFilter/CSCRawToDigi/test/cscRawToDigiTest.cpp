@@ -6,7 +6,10 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCAnodeData2007.h"
 
 int main() {
-  CSCTMBHeader::selfTest();
+  // For Run-1
+  CSCTMBHeader::selfTest(2007, 0x50c3);
+  // For Run-2
+  CSCTMBHeader::selfTest(2013, 0x6200);
   CSCALCTHeader::selfTest(2007);
   CSCALCTHeader::selfTest(2006);
   CSCTMBData::selfTest();

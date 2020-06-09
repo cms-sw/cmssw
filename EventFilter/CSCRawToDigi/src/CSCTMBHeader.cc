@@ -160,7 +160,7 @@ CSCTMBHeader2006 CSCTMBHeader::tmbHeader2006() const {
   return *result;
 }
 
-void CSCTMBHeader::selfTest() {
+void CSCTMBHeader::selfTest(int firmwareVersion, int firmwareRevision) {
   constexpr bool debug = false;
 
   // tests packing and unpacking
@@ -181,7 +181,7 @@ void CSCTMBHeader::selfTest() {
       CSCCorrelatedLCTDigi lct0(1, 1, 2, 10, 98, 5, 0, 1, 0, 0, 0, 0);
       CSCCorrelatedLCTDigi lct1(2, 1, 2, 20, 15, 9, 1, 0, 0, 0, 0, 0);
 
-      CSCTMBHeader tmbHeader(2007, 0x50c3);
+      CSCTMBHeader tmbHeader(firmwareVersion, firmwareRevision);
       tmbHeader.addCLCT0(clct0);
       tmbHeader.addCLCT1(clct1);
       tmbHeader.addCorrelatedLCT0(lct0);
