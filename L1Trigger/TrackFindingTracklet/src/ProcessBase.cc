@@ -93,7 +93,7 @@ void ProcessBase::initLayerDisksandISeed(unsigned int& layerdisk1, unsigned int&
     }
   }
 
-  if (name_.substr(0, 3) == "TC_") {
+  if ((name_.substr(0, 3) == "TC_") || (name_.substr(0, 3) == "TP_")) {
     if (name_[3] == 'L') {
       layerdisk1 = name_[4] - '1';
     } else if (name_[3] == 'D') {

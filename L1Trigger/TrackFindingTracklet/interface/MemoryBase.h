@@ -36,6 +36,8 @@ namespace trklet {
     void findAndReplaceAll(std::string& data, std::string toSearch, std::string replaceStr);
 
     void openFile(bool first, std::string filebase);
+    
+    static size_t find_nth(const std::string& haystack, size_t pos, const std::string& needle, size_t nth);
 
   protected:
     std::string name_;
