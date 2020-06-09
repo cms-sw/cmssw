@@ -32,6 +32,7 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCRPCDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCDMBStatusDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCDMBStatusDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCTMBStatusDigi.h"
@@ -83,6 +84,7 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet& pset) : numOfEvents(0) {
   /// Enable Format Status Digis
   useFormatStatus = pset.getParameter<bool>("UseFormatStatus");
 
+  useGEMs_ = pset.getParameter<bool>("useGEMs");
   // Untracked
 
   printEventNumber = pset.getUntrackedParameter<bool>("PrintEventNumber", true);
@@ -120,6 +122,10 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet& pset) : numOfEvents(0) {
 
   if (useFormatStatus) {
     produces<CSCDCCFormatStatusDigiCollection>("MuonCSCDCCFormatStatusDigi");
+  }
+
+  if (useGEMs_) {
+    produces<GEMPadDigiClusterCollection>("MuonGEMPadDigiCluster");
   }
   //CSCAnodeData::setDebug(debug);
   CSCALCTHeader::setDebug(debug);
@@ -195,6 +201,8 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
   auto alctStatusProduct = std::make_unique<CSCALCTStatusDigiCollection>();
 
   auto formatStatusProduct = std::make_unique<CSCDCCFormatStatusDigiCollection>();
+
+  auto gemProduct = std::make_unique<GEMPadDigiClusterCollection>();
 
   // If set selective unpacking mode
   // hardcoded examiner mask below to check for DCC and DDU level errors will be used first
@@ -591,6 +599,9 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
     e.put(std::move(dduStatusProduct), "MuonCSCDDUStatusDigi");
     e.put(std::move(dccStatusProduct), "MuonCSCDCCStatusDigi");
     e.put(std::move(alctStatusProduct), "MuonCSCALCTStatusDigi");
+  }
+  if (useGEMs_) {
+    e.put(std::move(gemProduct), "MuonGEMPadDigiCluster");
   }
   if (printEventNumber)
     LogTrace("CSCDCCUnpacker|CSCRawToDigi") << "[CSCDCCUnpacker]: " << numOfEvents << " events processed ";

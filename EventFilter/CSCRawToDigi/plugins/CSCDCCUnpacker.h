@@ -39,6 +39,9 @@ private:
   bool debug, printEventNumber, goodEvent, useExaminer, unpackStatusDigis;
   bool useSelectiveUnpacking, useFormatStatus;
 
+  /// option to unpack GEM cluster data
+  bool useGEMs_;
+
   /// Visualization of raw data
   bool visualFEDInspect, visualFEDShort, formatedEventDump;
   /// Suppress zeros LCTs
