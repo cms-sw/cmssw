@@ -11,6 +11,7 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 #include "EventFilter/GEMRawToDigi/plugins/GEMRawToDigiModule.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 
 using namespace gem;
 
@@ -26,9 +27,13 @@ GEMRawToDigiModule::GEMRawToDigiModule(const edm::ParameterSet& pset)
     produces<GEMAMCdataCollection>("AMCdata");
     produces<GEMAMC13EventCollection>("AMC13Event");
   }
+  if (useDBEMap_) {
+    gemEMapToken_ = esConsumes<GEMeMap, GEMeMapRcd, edm::Transition::BeginRun>();
+  }
 }
 
-void GEMRawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void GEMRawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+{
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector"));
   desc.add<bool>("useDBEMap", false);
@@ -36,10 +41,11 @@ void GEMRawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions& descri
   descriptions.add("muonGEMDigisDefault", desc);
 }
 
-std::shared_ptr<GEMROMapping> GEMRawToDigiModule::globalBeginRun(edm::Run const&, edm::EventSetup const& iSetup) const {
+std::shared_ptr<GEMROMapping> GEMRawToDigiModule::globalBeginRun(edm::Run const&, edm::EventSetup const& iSetup) const
+{
   auto gemROmap = std::make_shared<GEMROMapping>();
   if (useDBEMap_) {
-    GEMeMap const& eMap = iSetup.getData(gemEMapToken_);
+    const auto& eMap = iSetup.getData(gemEMapToken_);
     auto gemEMap = std::make_unique<GEMeMap>(eMap);
     gemEMap->convert(*gemROmap);
     gemEMap.reset();
@@ -48,11 +54,12 @@ std::shared_ptr<GEMROMapping> GEMRawToDigiModule::globalBeginRun(edm::Run const&
     auto gemEMap = std::make_unique<GEMeMap>();
     gemEMap->convertDummy(*gemROmap);
     gemEMap.reset();
-  }
+  }  
   return gemROmap;
 }
 
-void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::EventSetup const&) const {
+void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::EventSetup const& iSetup) const
+{
   auto outGEMDigis = std::make_unique<GEMDigiCollection>();
   auto outVFATStatus = std::make_unique<GEMVfatStatusDigiCollection>();
   auto outGEBStatus = std::make_unique<GEMGEBdataCollection>();
@@ -64,7 +71,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
   iEvent.getByToken(fed_token, fed_buffers);
 
   auto gemROMap = runCache(iEvent.getRun().index());
-
+  
   for (unsigned int fedId = FEDNumbering::MINGEMFEDID; fedId <= FEDNumbering::MAXGEMFEDID; ++fedId) {
     const FEDRawData& fedData = fed_buffers->FEDData(fedId);
 
@@ -89,6 +96,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
       for (auto gebData : *amcData.gebs()) {
         uint8_t gebId = gebData.inputID();
         GEMROMapping::chamEC geb_ec = {fedId, amcNum, gebId};
+        LogDebug("GEMRawToDigiModule") << " fed: " << fedId << " amc:" << int(amcNum) << " geb:" << int(gebId);
         GEMROMapping::chamDC geb_dc = gemROMap->chamberPos(geb_ec);
         GEMDetId gemChId = geb_dc.detId;
 
@@ -97,6 +105,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
           vfatData.setVersion(geb_dc.vfatVer);
           uint16_t vfatId = vfatData.vfatId();
           GEMROMapping::vfatEC vfat_ec = {vfatId, gemChId};
+          LogDebug("GEMRawToDigiModule") << " vfatId: " << vfatId << " gemChId:" << gemChId;
 
           // check if ChipID exists.
           if (!gemROMap->isValidChipID(vfat_ec)) {
@@ -115,12 +124,13 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
                   << "DIFFERENT CRC :" << vfatData.crc() << "   " << vfatData.checkCRC();
             }
           }
-
+          
           GEMROMapping::vfatDC vfat_dc = gemROMap->vfatPos(vfat_ec);
 
           vfatData.setPhi(vfat_dc.localPhi);
           GEMDetId gemId = vfat_dc.detId;
           int bx(vfatData.bc());
+          LogDebug("GEMRawToDigiModule") << " gemId: " << gemId << " bx:" << bx;
 
           for (int chan = 0; chan < VFATdata::nChannels; ++chan) {
             uint8_t chan0xf = 0;
@@ -140,10 +150,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
 
             GEMDigi digi(stripId, bx);
 
-            LogDebug("GEMRawToDigiModule")
-                << " fed: " << fedId << " amc:" << int(amcNum) << " geb:" << int(gebId) << " vfat:" << vfat_dc.localPhi
-                << ",type: " << vfat_dc.vfatType << " id:" << gemId << " ch:" << chMap.chNum << " st:" << digi.strip()
-                << " bx:" << digi.bx();
+            LogDebug("GEMRawToDigiModule") << stripId <<" ";
 
             outGEMDigis.get()->insertDigi(gemId, digi);
 
