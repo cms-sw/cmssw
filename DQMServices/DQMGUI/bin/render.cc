@@ -222,10 +222,6 @@ static bool parseReference(const char *&p, const char *name, size_t len, VisDQMR
       value = DQM_REF_OBJECT;
       p += 6;
       return true;
-    } else if (!strncmp(p, "reference", 9)) {
-      value = DQM_REF_REFERENCE;
-      p += 9;
-      return true;
     } else if (!strncmp(p, "overlay", 7)) {
       value = DQM_REF_OVERLAY;
       p += 7;
@@ -233,10 +229,6 @@ static bool parseReference(const char *&p, const char *name, size_t len, VisDQMR
     } else if (!strncmp(p, "ratiooverlay", 12)) {
       value = DQM_REF_OVERLAY_RATIO;
       p += 12;
-      return true;
-    } else if (!strncmp(p, "samesample", 10)) {
-      value = DQM_REF_SAMESAMPLE;
-      p += 10;
       return true;
     } else if (!strncmp(p, "stacked", 7)) {
       value = DQM_REF_STACKED;
@@ -597,7 +589,6 @@ protected:
       //unpackQualityData(objs[i].qreports, objs[i].flags, qdata.c_str());
       objs[i].name = name;
       objs[i].object = nullptr;
-      objs[i].reference = nullptr;
     }
 
     if (!readRequest(info, odata, objs, numobjs))
@@ -632,17 +623,15 @@ protected:
     }
 
     // Release the objects.
-    bool hadref = objs[0].reference;
     for (uint32_t i = 0; i < numobjs; ++i) {
       delete objs[i].object;
-      delete objs[i].reference;
     }
 
     // Report how long it took.
     //Time end = Time::current();
     logme() << "INFO: rendered '" << objs[0].name << "' version " << objs[0].version << " as '" << spec
             << (blacklisted ? "', black-listed" : "'") << ", " << numobjs << " objects, main object had"
-            << (hadref ? "" : " no") << " reference, in " << /*((end - start).ns() * 1e-3)*/ "TODO"
+            << " in " << /*((end - start).ns() * 1e-3)*/ "TODO"
             << "us" << (::haderror ? " (ERROR)" : " (OK)") << "\n";
 
     ::resetErrorFlags();
@@ -767,40 +756,33 @@ private:
       currentStat->SetBorderSize(1);
       nukem.push_back(currentStat);
       std::stringstream ss;
-      if (order == 0)
-        currentStat->AddText("StandardRef");
-      else {
-        if (i.reference == DQM_REF_SAMESAMPLE)
-          ss << name;
-        else
-          // The numbering logic here is misleading. Numbers do **not** refer
-          // directly to the text-field numbering used in the Javascript,
-          // rather they refer to the actual objects that have been asked and
-          // found in the index. If an object/sample has been asked but not
-          // found, it is skipped but the counter is not incremented. All the
-          // correct handling is done on the server side while searching for
-          // samples/objects and packing information. At this stage we are mere
-          // clients that rely on that information.
-          switch (order) {
-            case 1:
-              ss << i.reflabel1;
-              break;
-            case 2:
-              ss << i.reflabel2;
-              break;
-            case 3:
-              ss << i.reflabel3;
-              break;
-            case 4:
-              ss << i.reflabel4;
-              break;
-            default:
-              assert(0);
-              break;
-          }
-        currentStat->AddText(ss.str().c_str())->SetTextColor(color);
-        ss.str("");
+      // The numbering logic here is misleading. Numbers do **not** refer
+      // directly to the text-field numbering used in the Javascript,
+      // rather they refer to the actual objects that have been asked and
+      // found in the index. If an object/sample has been asked but not
+      // found, it is skipped but the counter is not incremented. All the
+      // correct handling is done on the server side while searching for
+      // samples/objects and packing information. At this stage we are mere
+      // clients that rely on that information.
+      switch (order) {
+        case 1:
+          ss << i.reflabel1;
+          break;
+        case 2:
+          ss << i.reflabel2;
+          break;
+        case 3:
+          ss << i.reflabel3;
+          break;
+        case 4:
+          ss << i.reflabel4;
+          break;
+        default:
+          assert(0);
+          break;
       }
+      currentStat->AddText(ss.str().c_str())->SetTextColor(color);
+      ss.str("");
       ss << "Entries = " << ref->GetEntries();
       currentStat->AddText(ss.str().c_str())->SetTextColor(color);
       ss.str("");
@@ -966,12 +948,7 @@ private:
       double ratio_min = RATIO_MAX;
       double ratio_max = RATIO_MIN;
       size_t histograms_to_be_drawn = nukem.size();
-      for (size_t n = 0; n < numobjs; ++n) {
-        // Skip the embedded reference histograms, in case it is
-        // there.
-        if (n == 0)
-          continue;
-
+      for (size_t n = 1; n < numobjs; ++n) {
         if (TH1 *den = dynamic_cast<TH1 *>(objs[n].object)) {
           // No point in making the ratio if we do have an empty
           // denominator. The numerator has been already checked.
@@ -1160,12 +1137,8 @@ private:
       max_value_in_Y = h->GetMaximum();
       float norm = h->GetSumOfWeights();
       if (i.refnorm != "False" && norm > 0 && !(objs[0].flags & SUMMARY_PROP_EFFICIENCY_PLOT) && !isMultiDimensional) {
-        for (size_t n = 0; n < numobjs; ++n) {
-          TObject *refobj = nullptr;
-          if (n == 0)
-            refobj = objs[0].reference;
-          else if (n > 0)
-            refobj = objs[n].object;
+        for (size_t n = 1; n < numobjs; ++n) {
+          TObject *refobj = objs[n].object;
           TH1F *ref1 = dynamic_cast<TH1F *>(refobj);
           if (ref1) {
             float den = ref1->GetSumOfWeights();
@@ -1191,17 +1164,14 @@ private:
     ob->Draw(ri.drawOptions.c_str());
 
     // Maybe draw overlay from reference and other objects.
-    for (size_t n = 0; n < numobjs; ++n) {
+    for (size_t n = 1; n < numobjs; ++n) {
       TObject *refobj = nullptr;
       // Compute colors array size on the fly and use it to loop
       // over defined colors in case the number of objects to
       // overlay is greater than the available colors
       // (n%colorIndex).
       int colorIndex = sizeof(colors) / sizeof(int);
-      if (n == 0 && (i.reference == DQM_REF_OVERLAY || i.reference == DQM_REF_OVERLAY_RATIO))
-        refobj = objs[0].reference;
-      else if (n > 0)
-        refobj = objs[n].object;
+      refobj = objs[n].object;
 
       TH1 *ref1 = dynamic_cast<TH1 *>(refobj);
       TProfile *refp = dynamic_cast<TProfile *>(refobj);
@@ -1290,18 +1260,9 @@ private:
     for (size_t n = 0; n < numobjs; ++n) {
       if (objs[n].object)
         objs[n].object->UseCurrentStyle();
-      if (objs[n].reference)
-        objs[n].reference->UseCurrentStyle();
     }
 
-    // If we were requested to draw only the reference, use the
-    // reference in place of the object but otherwise applying all the
-    // same logic.
     TObject *ob = o.object;
-    if (i.reference == DQM_REF_REFERENCE) {
-      ob = o.object = o.reference;
-      o.reference = nullptr;
-    }
 
     TCanvas c("", "", i.width + 4, i.height + 28);
     c.SetFillColor(TColor::GetColor(255, 255, 255));
@@ -1343,7 +1304,7 @@ private:
     // Actually draw something.  If there's no object, inform user.
     if (!ob) {
       Color_t c = TColor::GetColor(64, 64, 64);
-      doRenderMsg(o.name, i.reference != DQM_REF_REFERENCE ? "is not available now" : "has no reference", c, nukem);
+      doRenderMsg(o.name, "is not available now", c, nukem);
     }
 
     // If it exists but was black-listed, inform user.

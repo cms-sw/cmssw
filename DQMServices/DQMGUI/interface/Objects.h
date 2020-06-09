@@ -25,14 +25,7 @@ struct VisDQMAxisInfo {
   double max;
 };
 
-enum VisDQMReference {
-  DQM_REF_OBJECT,
-  DQM_REF_OVERLAY,
-  DQM_REF_OVERLAY_RATIO,
-  DQM_REF_REFERENCE,
-  DQM_REF_SAMESAMPLE,
-  DQM_REF_STACKED
-};
+enum VisDQMReference { DQM_REF_OBJECT, DQM_REF_OVERLAY, DQM_REF_OVERLAY_RATIO, DQM_REF_STACKED };
 
 enum VisDQMStripTrend {
   DQM_TREND_OBJECT,
@@ -89,7 +82,6 @@ struct VisDQMObject {
   uint32_t tag;  // Unused.
   std::string name;
   TObject *object;
-  TObject *reference;
   VisDQMImgInfo image;
 };
 
