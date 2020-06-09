@@ -65,15 +65,16 @@ class GUIDataStore:
         cursor = None
 
         if run == dataset == None:
-            return []
+            sql = 'SELECT DISTINCT run, dataset FROM samples;'
+            cursor = await cls.__db.execute(sql)
         elif run != None and dataset != None:
-            sql = 'SELECT DISTINCT run, dataset FROM samples WHERE dataset LIKE ? AND run LIKE ?'
+            sql = 'SELECT DISTINCT run, dataset FROM samples WHERE dataset LIKE ? AND run LIKE ?;'
             cursor = await cls.__db.execute(sql, (dataset, run))
         elif run != None:
-            sql = 'SELECT DISTINCT run, dataset FROM samples WHERE run LIKE ?'
+            sql = 'SELECT DISTINCT run, dataset FROM samples WHERE run LIKE ?;'
             cursor = await cls.__db.execute(sql, (run,))
         elif dataset != None:
-            sql = 'SELECT DISTINCT run, dataset FROM samples WHERE dataset LIKE ?'
+            sql = 'SELECT DISTINCT run, dataset FROM samples WHERE dataset LIKE ?;'
             cursor = await cls.__db.execute(sql, (dataset,))
 
         rows = await cursor.fetchall()
@@ -193,8 +194,9 @@ class GUIDataStore:
         """
 
         sql = 'INSERT OR REPLACE INTO samples VALUES(?,?,?,?,?,NULL,NULL);'
-        await cls.__db.executemany(sql, samples)
-        await cls.__db.commit()
+        async with cls.__lock:
+            await cls.__db.executemany(sql, samples)
+            await cls.__db.commit()
 
 
     @classmethod
