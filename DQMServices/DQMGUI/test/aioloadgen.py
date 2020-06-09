@@ -6,14 +6,14 @@ import aiohttp
 
 BASEURL = "http://localhost:7000"
 
-CONNLIMIT = asyncio.Semaphore(500)
+CONNLIMIT = asyncio.Semaphore(10)
 
 async def loadsamples(dataset, run):
     url = f"{BASEURL}/data/json/samples?match={dataset}&run={run}"
     async with CONNLIMIT:
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as resp:
-                print(resp.status)
+                assert resp.status == 200, f"Server responded with error {resp.status} on request '{url}'"
                 data = await resp.text()
                 obj = json.loads(data)
                 return [(it['dataset'], it['run']) for it in obj['samples'][0]['items']]
@@ -23,7 +23,7 @@ async def listdir(dataset, run, folder = ""):
     async with CONNLIMIT:
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as resp:
-                #print(resp.status)
+                assert resp.status == 200, f"Server responded with error {resp.status} on request '{url}'"
                 data = await resp.text()
                 obj = json.loads(data)
                 return ([(it['subdir']) for it in obj['contents'] if 'subdir' in it], 
@@ -39,8 +39,7 @@ async def getobject(dataset, run, name):
                 data = await resp.read()
                 took = time.time() - start
                 res = (status, took, len(data))
-                if status != 200:
-                    print(status, name)
+                assert resp.status == 200, f"Server responded with error {resp.status} on request '{url}'"
                 return res
         
 async def recursivelist(dataset, run, folder = ""):
@@ -61,7 +60,7 @@ async def main():
         print(f"listdir: {time.time() - now:.3f}s")
 
         now = time.time()
-        l = await recursivelist(*s, "Hcal")
+        l = await recursivelist(*s, "")
         tot = time.time() - now
         print(f"recursivelist: {tot:.3f}s for {l} requests ({l/tot:.1f}/s)")
    
