@@ -16,16 +16,13 @@ _LHCTransportPSet = cms.PSet()
 # so far, it is not yet defined the optic for 2017 and 2018, if needed, change the config for these year to the 2016 one
 
 from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
-ctpps_2016.toReplaceWith(_LHCTransportPSet, _totemTransportSetup_2016)
-#ctpps_2016.toReplaceWith(_LHCTransportPSet, _opticalfunctionsTransportSetup_2016.optics_parameters)
+ctpps_2016.toReplaceWith(_LHCTransportPSet, _opticalfunctionsTransportSetup_2016.optics_parameters)
 
 from Configuration.Eras.Modifier_ctpps_2017_cff import ctpps_2017
-ctpps_2017.toReplaceWith(_LHCTransportPSet, _totemTransportSetup_2016)
-#ctpps_2017.toReplaceWith(_LHCTransportPSet, _opticalfunctionsTransportSetup_2017.optics_parameters)
+ctpps_2017.toReplaceWith(_LHCTransportPSet, _opticalfunctionsTransportSetup_2017.optics_parameters)
 
 from Configuration.Eras.Modifier_ctpps_2018_cff import ctpps_2018
-ctpps_2018.toReplaceWith(_LHCTransportPSet, _totemTransportSetup_2016)
-#ctpps_2018.toReplaceWith(_LHCTransportPSet, _opticalfunctionsTransportSetup_2018.optics_parameters)
+ctpps_2018.toReplaceWith(_LHCTransportPSet, _opticalfunctionsTransportSetup_2018.optics_parameters)
 
 from Configuration.Eras.Modifier_ctpps_2021_cff import ctpps_2021
 ctpps_2021.toReplaceWith(_LHCTransportPSet, _opticalfunctionsTransportSetup_2021.optics_parameters)

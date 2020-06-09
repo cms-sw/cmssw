@@ -24,12 +24,20 @@ process.load('Configuration.Geometry.GeometryExtended2016_CTPPS_cff')
 
 process.RandomNumberGeneratorService.generator.initialSeed = cms.untracked.uint32(random.randint(0,900000000))
 
-nEvent_ = 1000
+nEvent_ = 500000
 process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(nEvent_)
         )
 
-process.source = cms.Source("EmptySource")
+process.source = cms.Source("EmptySource",
+                #firstRun = cms.untracked.uint32(306572), # 2016H data
+                #firstTime = cms.untracked.uint64(6487615523004612608)  # this is needed because it lacks the MC tag, run based
+                #firstRun = cms.untracked.uint32(273730), # 2016H data
+                #firstTime = cms.untracked.uint64(6286859745043152896)  # this is needed because it lacks the MC tag, run based
+                firstRun = cms.untracked.uint32(282730), # 2016H data
+                firstTime = cms.untracked.uint64(6339435345951588352)  # this is needed because it lacks the MC tag, run based
+)
+
 
 process.options = cms.untracked.PSet()
 
@@ -46,8 +54,8 @@ phi_min = -math.pi
 phi_max = math.pi
 t_min   = 0.
 t_max   = 2.
-xi_min  = 0.01
-xi_max  = 0.3
+xi_min  = 0.02
+xi_max  = 0.2
 ecms = 13000.
 
 process.generator = cms.EDProducer("RandomtXiGunProducer",

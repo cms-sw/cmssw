@@ -25,13 +25,20 @@ process.load('Configuration.Geometry.GeometryExtended2017_CTPPS_cff')
 
 process.RandomNumberGeneratorService.generator.initialSeed = cms.untracked.uint32(random.randint(0,900000000))
 
-nEvent_ = 1000
+nEvent_ = 500000
 process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(nEvent_)
         )
 
 process.source = cms.Source("EmptySource",
-                firstRun = cms.untracked.uint32(297180)
+                firstRun = cms.untracked.uint32(297046),  # 2017B data
+                firstTime = cms.untracked.uint64(6432299367889108992)
+                #firstRun = cms.untracked.uint32(298653),  # 2017B data
+                #firstTime = cms.untracked.uint64(6440921708009357312)
+                #firstRun = cms.untracked.uint32(303719),  # 2017E data
+                #firstTime = cms.untracked.uint64(6468633270794846208)
+                #firstRun = cms.untracked.uint32(306896),  # 2017H data
+                #firstTime = cms.untracked.uint64(6490831126364422144)
 )
 
 process.options = cms.untracked.PSet()
@@ -40,42 +47,14 @@ process.options = cms.untracked.PSet()
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
 
-# Optical functions
-#process.load('CalibPPS.ESProducers.ctppsInterpolatedOpticalFunctionsESSource_cfi')
-#process.ctppsInterpolatedOpticalFunctionsESSource.lhcInfoLabel = ""
-
-#process.load('CalibPPS.ESProducers.ctppsOpticalFunctionsESSource_cfi')
-#print process.ctppsOpticalFunctionsESSource.label
-
-#process.load('CalibPPS.ESProducers.ctppsBeamParametersESSource_cfi')
-#from SimTransport.PPSProtonTransport.PPSTransportESSources_cfi import *
-"""
-process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-    process.CondDB,
-    timetype = cms.untracked.string('runnumber'),
-    DumpStat=cms.untracked.bool(True),
-    toGet = cms.VPSet(
-                cms.PSet(
-                    record = cms.string('LHCInfoRcd'),
-                    tag = cms.string("LHCInfoEndFill_prompt_v2"),  #  FrontierProd
-                    connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
-                ),
-                cms.PSet(
-                    record = cms.string('CTPPSOpticsRcd'),
-                    tag = cms.string("PPSOpticalFunctions_offline_v6"),
-                    connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
-                )
-            )
-)
-"""
 # generator
 
 phi_min = -math.pi
 phi_max = math.pi
 t_min   = 0.
 t_max   = 2.
-xi_min  = 0.01
-xi_max  = 0.3
+xi_min  = 0.02
+xi_max  = 0.20
 ecms = 13000.
 
 process.generator = cms.EDProducer("RandomtXiGunProducer",

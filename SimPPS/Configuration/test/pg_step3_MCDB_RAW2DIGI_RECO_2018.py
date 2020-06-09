@@ -46,7 +46,7 @@ process.options = cms.untracked.PSet(
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('step3_RAW2DIGI_RECO2018.root'),
-    outputCommands = cms.untracked.vstring("drop *","keep PSimHits*_*_*_*","keep CTPPS*_*_*_*","keep *_*RP*_*_*",'keep *_LHCTransport_*_*')
+    outputCommands = cms.untracked.vstring("drop *","keep SimVertexs_g4SimHits_*_*","keep PSimHits*_*_*_*","keep CTPPS*_*_*_*","keep *_*RP*_*_*",'keep *_LHCTransport_*_*')
 )
 
 

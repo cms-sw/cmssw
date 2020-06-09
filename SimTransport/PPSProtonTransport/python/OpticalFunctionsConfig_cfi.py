@@ -5,7 +5,7 @@ _baseOpticalFunctionsParameters = cms.PSet(
           ApplyZShift = cms.bool(True),
           lhcInfoLabel = cms.string(""),
           opticsLabel = cms.string(""),
-          produceHitsRelativeToBeam = cms.bool(True),
+          produceHitsRelativeToBeam = cms.bool(False),
           useEmpiricalApertures = cms.bool(True)
 )
 

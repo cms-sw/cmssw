@@ -27,12 +27,10 @@ process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 #process.load("Geometry.VeryForwardGeometry.geometryPPS_CMSxz_fromDD_2016_cfi")
 process.load("Geometry.VeryForwardGeometry.geometryRPFromDB_cfi")
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
-)
-
 # Input source
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 process.source = cms.Source("PoolSource",
+    skipEvents=cms.untracked.uint32(0),
     dropDescendantsOfDroppedBranches = cms.untracked.bool(False),
     fileNames = cms.untracked.vstring('file:step1_SIM2016.root'),
     inputCommands = cms.untracked.vstring('keep *', 

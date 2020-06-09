@@ -16,6 +16,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load("Geometry.VeryForwardGeometry.geometryRPFromDB_cfi")                       # totem frame
 #process.load("Geometry.VeryForwardGeometry.geometryPPS_CMSxz_fromDD_2017_cfi")           # CMS frame
+"""
 process.GlobalTag.toGet = cms.VPSet(
     cms.PSet(record = cms.string("GeometryFileRcd"),
              tag = cms.string("XMLFILE_Geometry_110YV3_Extended2017CTPPS_mc"),
@@ -23,6 +24,7 @@ process.GlobalTag.toGet = cms.VPSet(
     )
 )
 process.XMLFromDBSource.label=''
+"""
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -52,7 +54,7 @@ process.options = cms.untracked.PSet(
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('step3_RAW2DIGI_RECO2017.root'),
-    outputCommands = cms.untracked.vstring("drop *","keep PSimHits*_*_*_*","keep CTPPS*_*_*_*","keep *_*RP*_*_*",'keep *_LHCTransport_*_*')
+    outputCommands = cms.untracked.vstring("drop *","keep SimVertexs_g4SimHits_*_*","keep PSimHits*_*_*_*","keep CTPPS*_*_*_*","keep *_*RP*_*_*",'keep *_LHCTransport_*_*')
 )
 
 
