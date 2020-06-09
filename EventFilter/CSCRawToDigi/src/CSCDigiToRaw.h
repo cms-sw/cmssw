@@ -14,6 +14,7 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
 
 class FEDRawDataCollection;
@@ -33,11 +34,13 @@ public:
                         const CSCCLCTDigiCollection& clctDigis,
                         const CSCCLCTPreTriggerCollection& preTriggers,
                         const CSCCorrelatedLCTDigiCollection& correlatedLCTDigis,
+                        const GEMPadDigiClusterCollection& padDigiClusters,
                         FEDRawDataCollection& fed_buffers,
                         const CSCChamberMap* theMapping,
                         edm::Event& e,
                         uint16_t theFormatVersion = 2005,
                         bool usePreTriggers = true,
+                        bool useGEMs = false,
                         bool packEverything = false) const;
 
 private:
@@ -68,6 +71,7 @@ private:
   void add(const CSCALCTDigiCollection& alctDigis, FindEventDataInfo&) const;
   void add(const CSCCLCTDigiCollection& clctDigis, FindEventDataInfo&) const;
   void add(const CSCCorrelatedLCTDigiCollection& corrLCTDigis, FindEventDataInfo&) const;
+  void add(const GEMPadDigiClusterCollection& gemPadClusters, FindEventDataInfo&) const;
   /// pick out the correct data object for this chamber
   CSCEventData& findEventData(const CSCDetId& cscDetId, FindEventDataInfo&) const;
 
