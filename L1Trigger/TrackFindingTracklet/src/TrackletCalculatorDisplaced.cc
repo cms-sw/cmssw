@@ -528,7 +528,7 @@ bool TrackletCalculatorDisplaced::LLLSeeding(const Stub* innerFPGAStub,
       continue;
     if (izproj[i] >= (1 << (settings_.nzbitsstub(0) - 1)))
       continue;
-    
+
     //check that phi projection is in range
     if (iphiproj[i] >= (1 << settings_.nphibitsstub(N_LAYER - 1)) - 1)
       continue;
@@ -590,7 +590,7 @@ bool TrackletCalculatorDisplaced::LLLSeeding(const Stub* innerFPGAStub,
         continue;
       if (iphiprojdisk[i] >= (1 << settings_.nphibitsstub(0)) - 1)
         continue;
-      
+
       //check r projection in range
       if (rprojdiskapprox[i] < settings_.rmindisk() || rprojdiskapprox[i] > settings_.rmaxdisk())
         continue;
@@ -1402,7 +1402,7 @@ void TrackletCalculatorDisplaced::exactprojdisk(double zproj,
 
   phiproj = atan2(y, x);
 
-  phiproj = reco::reduceRange(phiproj - phimin_ );
+  phiproj = reco::reduceRange(phiproj - phimin_);
 
   rproj = sqrt(x * x + y * y);
 

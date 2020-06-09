@@ -982,7 +982,7 @@ void FitTrack::execute() {
 
     if (settings_.debugTracklet()) {
       edm::LogVerbatim("Tracklet") << getName() << " : nMatches = " << nMatches << " nMatchesUniq = " << nMatchesUniq
-				   << " " << asinh(bestTracklet->t());
+                                   << " " << asinh(bestTracklet->t());
     }
 
     std::vector<const Stub*> trackstublist;

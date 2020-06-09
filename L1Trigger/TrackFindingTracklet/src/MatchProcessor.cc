@@ -246,10 +246,10 @@ void MatchProcessor::execute() {
         iprojmem++;
       } else if (iproj < projMem->nTracklets()) {
         if (!inputProjBuffer_.almostfull()) {
-	  if (settings_.debugTracklet()) {
-            edm::LogVerbatim("Tracklet") << getName() << " have projection in memory : "<<projMem->getName();
+          if (settings_.debugTracklet()) {
+            edm::LogVerbatim("Tracklet") << getName() << " have projection in memory : " << projMem->getName();
           }
-	  
+
           Tracklet* proj = projMem->getTracklet(iproj);
           FPGAWord fpgaphi = barrel_ ? proj->fpgaphiproj(layer_) : proj->fpgaphiprojdisk(disk_);
 
@@ -317,9 +317,9 @@ void MatchProcessor::execute() {
         ProjectionTemp tmpProj = inputProjBuffer_.read();
         VMStubsMEMemory* stubmem = vmstubs_[tmpProj.iphi()];
 
-	if (settings_.debugTracklet()) {
-	  edm::LogVerbatim("Tracklet") << getName()<<" adding projection to match engine";
-	}
+        if (settings_.debugTracklet()) {
+          edm::LogVerbatim("Tracklet") << getName() << " adding projection to match engine";
+        }
 
         matchengines_[iME].init(stubmem,
                                 tmpProj.slot(),
@@ -363,12 +363,11 @@ void MatchProcessor::execute() {
       oldTracklet = tracklet;
 
       bool match = matchCalculator(tracklet, fpgastub);
-      
-      if (settings_.debugTracklet()&&match) {
-	edm::LogVerbatim("Tracklet") << getName() << " have match";
+
+      if (settings_.debugTracklet() && match) {
+        edm::LogVerbatim("Tracklet") << getName() << " have match";
       }
 
-      
       countall++;
       if (match)
         countsel++;

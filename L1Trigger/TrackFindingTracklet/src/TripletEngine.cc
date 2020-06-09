@@ -440,8 +440,8 @@ void TripletEngine::readTables() {
 
   string tablePath = settings_.tableTREFile();
   unsigned int finddir = tablePath.find("table_TRE_");
-  tableName = tablePath.substr(0,finddir) + "table_" + name_ + ".txt";
-  
+  tableName = tablePath.substr(0, finddir) + "table_" + name_ + ".txt";
+
   fin.open(tableName, ifstream::in);
   if (!fin) {
     throw cms::Exception("BadConfig") << "TripletEngine::readTables, file " << tableName << " not known";

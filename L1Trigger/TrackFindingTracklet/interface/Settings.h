@@ -182,7 +182,7 @@ namespace trklet {
 
     std::string geomext() const {
       if (combined_)
-	return "hourglassCombined";
+        return "hourglassCombined";
       return extended_ ? "hourglassExtended" : "hourglass";
     }
 
@@ -371,7 +371,7 @@ namespace trklet {
     unsigned int nbitszprojderL123_{10};
     unsigned int nbitszprojderL456_{9};
 
-    unsigned int nbendbitsmedisk_{4}; // Always 4 bits even for PS disk hits, for HLS compatibility
+    unsigned int nbendbitsmedisk_{4};  // Always 4 bits even for PS disk hits, for HLS compatibility
 
     std::set<unsigned int> useseeding_{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
 
@@ -523,12 +523,12 @@ namespace trklet {
 
     //rphi cuts for layers - the column is the seedindex
     std::array<std::array<double, N_SEED>, N_LAYER> rphimatchcut_{
-        {{{0.0,  0.1,  0.07, 0.08, 0.07, 0.05, 0.0,  0.05, 0.08, 0.15, 0.125, 0.15}},  //Layer 1
-         {{0.0,  0.0,  0.06, 0.08, 0.05, 0.0,  0.0,  0.0,  0.0,  0.1,  0.0,   0.0}},         //Layer 2
-         {{0.1,  0.0,  0.0,  0.08, 0.0,  0.0,  0.0,  0.0,  0.0,  0.08, 0.0,   0.0}},          //Layer 3
-         {{0.19, 0.19, 0.0,  0.05, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0}},         //Layer 4
-         {{0.4,  0.4,  0.08, 0.0,  0.0,  0.0,  0.0,  0.0,  0.08, 0.0,  0.0,   0.0}},          //Layer 5
-         {{0.5,  0.0,  0.19, 0.0,  0.0,  0.0,  0.0,  0.0,  0.2,  0.0,  0.0,   0.0}}}};         //Layer 6
+        {{{0.0, 0.1, 0.07, 0.08, 0.07, 0.05, 0.0, 0.05, 0.08, 0.15, 0.125, 0.15}},  //Layer 1
+         {{0.0, 0.0, 0.06, 0.08, 0.05, 0.0, 0.0, 0.0, 0.0, 0.1, 0.0, 0.0}},         //Layer 2
+         {{0.1, 0.0, 0.0, 0.08, 0.0, 0.0, 0.0, 0.0, 0.0, 0.08, 0.0, 0.0}},          //Layer 3
+         {{0.19, 0.19, 0.0, 0.05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}},         //Layer 4
+         {{0.4, 0.4, 0.08, 0.0, 0.0, 0.0, 0.0, 0.0, 0.08, 0.0, 0.0, 0.0}},          //Layer 5
+         {{0.5, 0.0, 0.19, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2, 0.0, 0.0, 0.0}}}};         //Layer 6
 
     //z cuts for layers - the column is the seedindex
     std::array<std::array<double, N_SEED>, N_LAYER> zmatchcut_{
