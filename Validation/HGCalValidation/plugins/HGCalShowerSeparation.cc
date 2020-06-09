@@ -284,7 +284,7 @@ void HGCalShowerSeparation::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<int>("debug", 1);
   desc.add<bool>("filterOnEnergyAndCaloP", false);
   desc.add<edm::InputTag>("caloParticles", edm::InputTag("mix", "MergedCaloTruth"));
-  desc.add<edm::InputTag>("hitMapTag", edm::InputTag("hgcRecHitMapProducer"));
+  desc.add<edm::InputTag>("hitMapTag", edm::InputTag("hgcalRecHitMapProducer"));
   descriptions.add("hgcalShowerSeparationDefault", desc);
 }
 

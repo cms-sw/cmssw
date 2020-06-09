@@ -244,7 +244,7 @@ void CaloParticleValidation::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<edm::InputTag>("caloParticles", edm::InputTag("mix", "MergedCaloTruth"));
   desc.add<edm::InputTag>("simPFClusters", edm::InputTag("simPFProducer", "perfect"));
   desc.add<edm::InputTag>("simPFCandidates", edm::InputTag("simPFProducer"));
-  desc.add<edm::InputTag>("hitMapTag", edm::InputTag("hgcRecHitMapProducer"));
+  desc.add<edm::InputTag>("hitMapTag", edm::InputTag("hgcalRecHitMapProducer"));
   descriptions.add("caloparticlevalidationDefault", desc);
 }
 
