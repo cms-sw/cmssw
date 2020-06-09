@@ -174,7 +174,7 @@ void CSCTMBHeader::selfTest(int firmwareVersion, int firmwareRevision) {
       // In 2007 firmware, there are no distrips, so the 4th argument (strip
       // type) should always be set to 1 (halfstrips).
       CSCCLCTDigi clct0(1, 1, 4, 1, 0, 30, 4, 2, 1);  // valid for 2007
-      CSCCLCTDigi clct1(1, 1, 2, 1, 1, 31, 1, 2, 2);
+      CSCCLCTDigi clct1(1, 1, 3, 1, 1, 31, 1, 2, 2);
 
       // BX of LCT (8th argument) is 1-bit word (the least-significant bit
       // of ALCT's bx).
