@@ -28,7 +28,7 @@ public:
 
 L1TMuonBarrelParamsOnlineProd::L1TMuonBarrelParamsOnlineProd(const edm::ParameterSet& iConfig)
     : L1ConfigOnlineProdBaseExt<L1TMuonBarrelParamsO2ORcd, L1TMuonBarrelParams>(iConfig) {
-  m_setWhatProduced(iConfig).setConsumes(baseSettings_token);
+  wrappedSetWhatProduced(iConfig).setConsumes(baseSettings_token);
   transactionSafe = iConfig.getParameter<bool>("transactionSafe");
 }
 

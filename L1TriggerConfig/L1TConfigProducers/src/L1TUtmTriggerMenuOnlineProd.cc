@@ -29,7 +29,7 @@ public:
 
 L1TUtmTriggerMenuOnlineProd::L1TUtmTriggerMenuOnlineProd(const edm::ParameterSet& iConfig)
     : L1ConfigOnlineProdBaseExt<L1TUtmTriggerMenuO2ORcd, L1TUtmTriggerMenu>(iConfig) {
-  m_setWhatProduced(iConfig);
+  wrappedSetWhatProduced(iConfig);
 }
 
 std::unique_ptr<const L1TUtmTriggerMenu> L1TUtmTriggerMenuOnlineProd::newObject(const std::string& objectKey,

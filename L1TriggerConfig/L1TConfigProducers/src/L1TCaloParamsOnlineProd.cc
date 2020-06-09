@@ -211,7 +211,7 @@ bool L1TCaloParamsOnlineProd::readCaloLayer2OnlineSettings(l1t::CaloParamsHelper
 
 L1TCaloParamsOnlineProd::L1TCaloParamsOnlineProd(const edm::ParameterSet& iConfig)
     : L1ConfigOnlineProdBaseExt<L1TCaloParamsO2ORcd, l1t::CaloParams>(iConfig) {
-  m_setWhatProduced(iConfig).setConsumes(baseSettings_token);
+  wrappedSetWhatProduced(iConfig).setConsumes(baseSettings_token);
   exclusiveLayer = iConfig.getParameter<uint32_t>("exclusiveLayer");
   transactionSafe = iConfig.getParameter<bool>("transactionSafe");
 }
