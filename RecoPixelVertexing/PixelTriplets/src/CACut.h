@@ -19,8 +19,7 @@ public:
       : useCACuts(true), foundAllLayerIds(false), defaultCut_(defaultCut) {
     if (tripletCuts.size() == 1 && tripletCuts[0].getParameter<double>("cut") == -1.) {
       useCACuts = false;
-      //TODO Uncomment the Following warning after tuning
-      //edm::LogWarning("Configuration") << "No CACut VPSet. Using default cut value of " << defaultCut << " for all layer triplets";
+      LogDebug("Configuration") << "No CACut VPSet. Using default cut value of " << defaultCut << " for all layer triplets";
       return;
     }
 
