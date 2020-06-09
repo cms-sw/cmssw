@@ -16,18 +16,18 @@ static long algorithm(dd4hep::Detector& /* description */,
   int n = args.value<int>("n");
   int startCopyNo = args.value<int>("startCopyNo");
   int incrCopyNo = args.value<int>("incrCopyNo");
-  double rangeAngle = args.value<double>("rangeAngle");  //Angular range
-  double startAngle = args.value<double>("startAngle");  //Start anle
-  double shiftX = args.value<double>("shiftX");          //x Shift
-  double shiftY = args.value<double>("shiftY");          //y Shift
-  double zoffset = args.value<double>("zoffset");        //z offset
+  float rangeAngle = args.value<float>("rangeAngle");  //Angular range
+  float startAngle = args.value<float>("startAngle");  //Start anle
+  float shiftX = args.value<float>("shiftX");          //x Shift
+  float shiftY = args.value<float>("shiftY");          //y Shift
+  float zoffset = args.value<float>("zoffset");        //z offset
   dd4hep::Volume mother = ns.volume(args.parentName());
   std::string childName = args.value<std::string>("ChildName");
   childName = ns.prepend(childName);
   dd4hep::Volume child = ns.volume(childName);
 
   // Increment
-  double dphi = rangeAngle / n;
+  float dphi = rangeAngle / n;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalAngular: Parameters for positioning::"
                                << " n " << n << " Start, Range, Delta " << convertRadToDeg(startAngle) << " "
@@ -36,7 +36,7 @@ static long algorithm(dd4hep::Detector& /* description */,
                                << "\tChild " << child.name() << " NameSpace " << ns.name();
 #endif
   int copy = startCopyNo;
-  double phix = startAngle;
+  float phix = startAngle;
   for (int ii = 0; ii < n; ++ii) {
     if (phix >= 2._pi)
       phix -= 2._pi;
@@ -52,8 +52,8 @@ static long algorithm(dd4hep::Detector& /* description */,
       rotation = dd4hep::RotationZ(phix);
     }
 
-    double xpos = shiftX * cos(phix) - shiftY * sin(phix);
-    double ypos = shiftX * sin(phix) + shiftY * cos(phix);
+    float xpos = shiftX * cos(phix) - shiftY * sin(phix);
+    float ypos = shiftX * sin(phix) + shiftY * cos(phix);
     dd4hep::Position tran(xpos, ypos, zoffset);
     mother.placeVolume(child, copy, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG

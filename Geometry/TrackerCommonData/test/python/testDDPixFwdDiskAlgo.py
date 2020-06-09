@@ -1,53 +1,48 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("DDCMSDetectorTest")
+process = cms.Process("DDPixFwdDiskAlgoTest")
 
 process.source = cms.Source("EmptySource")
-
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
 process.MessageLogger = cms.Service(
     "MessageLogger",
-    statistics = cms.untracked.vstring('cout', 'testCutTubsFromPointsAlgo'),
-    categories = cms.untracked.vstring('TrackerGeom'),
+    statistics = cms.untracked.vstring('cout', 'testDDPixFwdDiskAlgo'),
+    categories = cms.untracked.vstring('PixFwdGeom'),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('WARNING'),
         noLineBreaks = cms.untracked.bool(True)
         ),
-    testCutTubsFromPointsAlgo = cms.untracked.PSet(
+    testDDPixFwdDiskAlgo = cms.untracked.PSet(
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
-        ),
+            ),
+        noLineBreaks = cms.untracked.bool(True),
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
-        ),
+            ),
         WARNING = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
-        ),
+            ),
         ERROR = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
+            ),
+        threshold = cms.untracked.string('INFO'),
+        PixFwdGeom = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+            )
         ),
-        threshold = cms.untracked.string('DEBUG'),
-        TrackerGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
-    ),
-
     destinations = cms.untracked.vstring('cout',
-                                         'testCutTubsLog')
-)
-
-
+                                         'testDDPixFwdDiskAlgo')
+    )
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-    confGeomXMLFiles = cms.FileInPath(
-        'DetectorDescription/DDCMS/data/cms-test-cuttubsfrompoints-algorithm.xml'
-    ),
-    appendToDataLabel = cms.string('testCutTubsFromPointsAlgo')
-)
+    confGeomXMLFiles = cms.FileInPath('Geometry/TrackerCommonData/data/cms-test-ddpixfwddisk-algo.xml'),
+    appendToDataLabel = cms.string('testDDPixFwdDiskAlgo')
+    )
 
 process.testDump = cms.EDAnalyzer("DDTestDumpFile",
-    DDDetector = cms.ESInputTag('','testCutTubsFromPointsAlgo')
+    DDDetector = cms.ESInputTag('','testDDPixFwdDiskAlgo')
 )
 
 process.p = cms.Path(process.testDump)

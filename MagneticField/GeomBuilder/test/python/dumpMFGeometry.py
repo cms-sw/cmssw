@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("SHAPESDUMP")
+process = cms.Process("MFGEOMDUMP")
 process.source = cms.Source("EmptySource")
-process.load("DetectorDescription.DDCMS.cmsMFGeometryXML_cfi")
+process.load("MagneticField.GeomBuilder.cmsMFGeometryXML_160812_cfi")
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
@@ -12,7 +12,7 @@ process.add_(cms.ESProducer("TGeoMgrFromDdd",
                             ))
 
 process.dump = cms.EDAnalyzer("DumpSimGeometry", 
-                              tag = cms.untracked.string("DDShapes"),
+                              tag = cms.untracked.string("MFGeometry"),
                               outputFileName = cms.untracked.string("cmsDDMFGeometryTest.root"))
 
 process.p = cms.Path(process.dump)
