@@ -20,6 +20,8 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 //
 // class declaration
@@ -29,6 +31,7 @@ class BadParticleFilter : public edm::global::EDFilter<> {
 public:
   explicit BadParticleFilter(const edm::ParameterSet&);
   ~BadParticleFilter() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   bool filter(edm::StreamID iID, edm::Event&, const edm::EventSetup&) const override;
@@ -242,6 +245,26 @@ bool BadParticleFilter::filter(edm::StreamID iID, edm::Event& iEvent, const edm:
   iEvent.put(std::unique_ptr<bool>(new bool(pass)));
 
   return taggingMode_ || pass;
+}
+
+void BadParticleFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // BadPFMuonFilter
+  edm::ParameterSetDescription desc;
+  desc.add<double>("innerTrackRelErr", 1.0);
+  desc.add<double>("minDzBestTrack", -1.0);
+  desc.add<edm::InputTag>("PFCandidates", edm::InputTag("particleFlow"));
+  desc.add<std::string>("filterType", "BadPFMuon");
+  desc.add<double>("segmentCompatibility", 0.3);
+  desc.add<double>("minMuonPt", 100);
+  desc.add<double>("minDxyBestTrack", -1.0);
+  desc.add<int>("algo", 14);
+  desc.add<bool>("taggingMode", false);
+  desc.add<edm::InputTag>("vtx", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<double>("minMuonTrackRelErr", 2.0);
+  desc.add<double>("maxDR", 0.001);
+  desc.add<edm::InputTag>("muons", edm::InputTag("muons"));
+  desc.add<double>("minPtDiffRel", 0.0);
+  descriptions.add("BadPFMuonFilter", desc);
 }
 
 //define this as a plug-in
