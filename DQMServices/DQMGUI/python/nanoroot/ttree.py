@@ -254,7 +254,7 @@ class TTree:
                 continue
             
             # if we made it here, record the offset for later.
-            brnachname = k.objname()
+            branchname = k.objname()
             if not branchname in roots:
                 roots[branchname] = m.start() + 8 # address of the \x01
 
