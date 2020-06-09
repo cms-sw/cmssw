@@ -7,7 +7,6 @@
   <use   name="DataFormats/Common"/>
   <use   name="DataFormats/DetId"/>
   <use   name="DataFormats/EgammaReco"/>
-  <use   name="DataFormats/EgammaReco"/>
   <use   name="DataFormats/EgammaCandidates"/>
   <use   name="EgammaAnalysis/ElectronTools"/>
   <use   name="DataFormats/JetReco"/>
