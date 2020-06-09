@@ -79,6 +79,11 @@ class _ProxyParameter(_ParameterTypeBase):
         if not _ParameterTypeBase.isTracked(self):
             v = untracked(v)
         return v
+    def isCompatibleCMSType(self,aType):
+        v = self.__dict__.get('_ProxyParameter__value',None)
+        if v is not None:
+            return v.isCompatibleCMSType(aType)
+        return self.__type == aType
 
 class _RequiredParameter(_ProxyParameter):
     @staticmethod
@@ -624,22 +629,22 @@ class InputTag(_ParameterTypeBase):
         return True
     def __eq__(self,other):
         return ((self.__moduleLabel,self.__productInstance,self.__processName) ==
-                (other.__moduleLabel,other.__productInstance,other.__processName))
+                (other.moduleLabel,other.productInstanceLabel,other.processName))
     def __ne__(self,other):
         return ((self.__moduleLabel,self.__productInstance,self.__processName) !=
-                (other.__moduleLabel,other.__productInstance,other.__processName))
+                (other.moduleLabel,other.productInstanceLabel,other.processName))
     def __lt__(self,other):
         return ((self.__moduleLabel,self.__productInstance,self.__processName) <
-                (other.__moduleLabel,other.__productInstance,other.__processName))
+                (other.moduleLabel,other.productInstanceLabel,other.processName))
     def __gt__(self,other):
         return ((self.__moduleLabel,self.__productInstance,self.__processName) >
-                (other.__moduleLabel,other.__productInstance,other.__processName))
+                (other.moduleLabel,other.productInstanceLabel,other.processName))
     def __le__(self,other):
         return ((self.__moduleLabel,self.__productInstance,self.__processName) <=
-                (other.__moduleLabel,other.__productInstance,other.__processName))
+                (other.moduleLabel,other.productInstanceLabel,other.processName))
     def __ge__(self,other):
         return ((self.__moduleLabel,self.__productInstance,self.__processName) >=
-                (other.__moduleLabel,other.__productInstance,other.__processName))
+                (other.moduleLabel,other.productInstanceLabel,other.processName))
 
 
     def value(self):
@@ -1624,6 +1629,8 @@ if __name__ == "__main__":
             self.assertEqual(p1.dumpPython(), 'cms.PSet(\n    anInt = cms.required.untracked.int32\n)')
             p1.anInt = 6
             self.assertEqual(p1.dumpPython(), 'cms.PSet(\n    anInt = cms.untracked.int32(6)\n)')
+            self.assert_(p1.anInt.isCompatibleCMSType(int32))
+            self.failIf(p1.anInt.isCompatibleCMSType(uint32))
             p1 = PSet(allowAnyLabel_ = required.int32)
             self.failIf(p1.hasParameter(['allowAnyLabel_']))
             p1.foo = 3
@@ -1656,6 +1663,8 @@ if __name__ == "__main__":
             self.assertEqual(p1.dumpPython(), 'cms.PSet(\n    anInt = cms.optional.untracked.int32\n)')
             p1.anInt = 6
             self.assertEqual(p1.dumpPython(), 'cms.PSet(\n    anInt = cms.untracked.int32(6)\n)')
+            self.assert_(p1.anInt.isCompatibleCMSType(int32))
+            self.failIf(p1.anInt.isCompatibleCMSType(uint32))
             p1 = PSet(f = required.vint32)
             self.failIf(p1.f)
             p1.f = []
@@ -1668,11 +1677,15 @@ if __name__ == "__main__":
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.required.allowed(cms.int32,cms.string)\n)')
             p1.aValue = 1
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.int32(1)\n)')
+            self.assert_(p1.aValue.isCompatibleCMSType(int32))
+            self.failIf(p1.aValue.isCompatibleCMSType(uint32))
             self.assertRaises(ValueError,setattr(p1,'aValue',PSet()))
             p1 = PSet(aValue = required.allowed(int32, string))
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.required.allowed(cms.int32,cms.string)\n)')
             p1.aValue = "foo"
             self.assertEqual(p1.dumpPython(),"cms.PSet(\n    aValue = cms.string('foo')\n)")
+            self.assert_(p1.aValue.isCompatibleCMSType(string))
+            self.failIf(p1.aValue.isCompatibleCMSType(uint32))
 
             p1 = PSet(aValue = required.untracked.allowed(int32, string))
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.required.untracked.allowed(cms.int32,cms.string)\n)')
