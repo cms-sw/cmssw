@@ -1367,24 +1367,6 @@ private:
       }
       return;
     }
-
-    if (o.name.find("TimeBox_W") != std::string::npos) {
-      TH1F *histo = dynamic_cast<TH1F *>(o.object);
-      TH1F *hRef = dynamic_cast<TH1F *>(o.reference);
-
-      if (hRef != nullptr && histo != nullptr) {
-        double nEntries = histo->Integral();
-        if (nEntries != 0 && hRef->Integral() != 0) {
-          hRef->Scale(nEntries / hRef->Integral());
-          hRef->SetLineColor(600);
-          hRef->SetFillColor(590);
-
-          hRef->Draw("same");
-          histo->Draw("same");
-        }
-      }
-      return;
-    }
   }
 };
 
