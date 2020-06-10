@@ -77,14 +77,14 @@ void ParametrizedSubtractor::setupGeometryMap(edm::Event& iEvent, const edm::Eve
         allgeomid_.push_back(*did);
 
         if (hid.ieta() != ietaold) {
-          ietaold = (hid).ieta();
-          geomtowers_[(hid).ieta()] = 1;
-          if ((hid).ieta() > ietamax_)
-            ietamax_ = (hid).ieta();
-          if ((hid).ieta() < ietamin_)
-            ietamin_ = (hid).ieta();
+          ietaold = hid.ieta();
+          geomtowers_[hid.ieta()] = 1;
+          if (hid.ieta() > ietamax_)
+            ietamax_ = hid.ieta();
+          if (hid.ieta() < ietamin_)
+            ietamin_ = hid.ieta();
         } else {
-          geomtowers_[(hid).ieta()]++;
+          geomtowers_[hid.ieta()]++;
         }
       }
     }
