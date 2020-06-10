@@ -132,43 +132,14 @@ namespace edm {
       Transients();
       void reset();
 
-      std::shared_ptr<ProductResolverIndexHelper const> eventProductLookup() const {
-        return get_underlying_safe(eventProductLookup_);
-      }
-      std::shared_ptr<ProductResolverIndexHelper>& eventProductLookup() {
-        return get_underlying_safe(eventProductLookup_);
-      }
-      std::shared_ptr<ProductResolverIndexHelper const> lumiProductLookup() const {
-        return get_underlying_safe(lumiProductLookup_);
-      }
-      std::shared_ptr<ProductResolverIndexHelper>& lumiProductLookup() {
-        return get_underlying_safe(lumiProductLookup_);
-      }
-      std::shared_ptr<ProductResolverIndexHelper const> runProductLookup() const {
-        return get_underlying_safe(runProductLookup_);
-      }
-      std::shared_ptr<ProductResolverIndexHelper>& runProductLookup() { return get_underlying_safe(runProductLookup_); }
-      std::shared_ptr<ProductResolverIndexHelper const> processProductLookup() const {
-        return get_underlying_safe(processProductLookup_);
-      }
-      std::shared_ptr<ProductResolverIndexHelper>& processProductLookup() {
-        return get_underlying_safe(processProductLookup_);
-      }
-
       bool frozen_;
       // Is at least one (run), (lumi), (event) persistent product produced this process?
       std::array<bool, NumBranchTypes> productProduced_;
       bool anyProductProduced_;
 
-      edm::propagate_const<std::shared_ptr<ProductResolverIndexHelper>> eventProductLookup_;
-      edm::propagate_const<std::shared_ptr<ProductResolverIndexHelper>> lumiProductLookup_;
-      edm::propagate_const<std::shared_ptr<ProductResolverIndexHelper>> runProductLookup_;
-      edm::propagate_const<std::shared_ptr<ProductResolverIndexHelper>> processProductLookup_;
+      std::array<edm::propagate_const<std::shared_ptr<ProductResolverIndexHelper>>, NumBranchTypes> productLookups_;
 
-      ProductResolverIndex eventNextIndexValue_;
-      ProductResolverIndex lumiNextIndexValue_;
-      ProductResolverIndex runNextIndexValue_;
-      ProductResolverIndex processNextIndexValue_;
+      std::array<ProductResolverIndex, NumBranchTypes> nextIndexValues_;
 
       std::map<BranchID, ProductResolverIndex> branchIDToIndex_;
 

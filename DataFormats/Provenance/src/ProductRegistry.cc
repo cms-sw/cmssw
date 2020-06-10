@@ -35,15 +35,11 @@ namespace edm {
       : frozen_(false),
         productProduced_(),
         anyProductProduced_(false),
-        eventProductLookup_(new ProductResolverIndexHelper),
-        lumiProductLookup_(new ProductResolverIndexHelper),
-        runProductLookup_(new ProductResolverIndexHelper),
-        processProductLookup_(new ProductResolverIndexHelper),
-        eventNextIndexValue_(0),
-        lumiNextIndexValue_(0),
-        runNextIndexValue_(0),
-        processNextIndexValue_(0),
-
+        productLookups_{{new ProductResolverIndexHelper,
+                         new ProductResolverIndexHelper,
+                         new ProductResolverIndexHelper,
+                         new ProductResolverIndexHelper}},
+        nextIndexValues_(),
         branchIDToIndex_() {
     for (bool& isProduced : productProduced_)
       isProduced = false;
@@ -56,15 +52,10 @@ namespace edm {
     anyProductProduced_ = false;
 
     // propagate_const<T> has no reset() function
-    eventProductLookup_ = std::make_unique<ProductResolverIndexHelper>();
-    lumiProductLookup_ = std::make_unique<ProductResolverIndexHelper>();
-    runProductLookup_ = std::make_unique<ProductResolverIndexHelper>();
-    processProductLookup_ = std::make_unique<ProductResolverIndexHelper>();
-
-    eventNextIndexValue_ = 0;
-    lumiNextIndexValue_ = 0;
-    runNextIndexValue_ = 0;
-    processNextIndexValue_ = 0;
+    for (int i = InEvent; i < NumBranchTypes; ++i) {
+      productLookups_[i] = std::make_unique<ProductResolverIndexHelper>();
+    }
+    nextIndexValues_.fill(0);
 
     branchIDToIndex_.clear();
   }
@@ -151,23 +142,11 @@ namespace edm {
   }
 
   std::shared_ptr<ProductResolverIndexHelper const> ProductRegistry::productLookup(BranchType branchType) const {
-    if (branchType == InEvent)
-      return transient_.eventProductLookup();
-    if (branchType == InLumi)
-      return transient_.lumiProductLookup();
-    if (branchType == InRun)
-      return transient_.runProductLookup();
-    return transient_.processProductLookup();
+    return get_underlying_safe(transient_.productLookups_[branchType]);
   }
 
   std::shared_ptr<ProductResolverIndexHelper> ProductRegistry::productLookup(BranchType branchType) {
-    if (branchType == InEvent)
-      return transient_.eventProductLookup();
-    if (branchType == InLumi)
-      return transient_.lumiProductLookup();
-    if (branchType == InRun)
-      return transient_.runProductLookup();
-    return transient_.processProductLookup();
+    return get_underlying_safe(transient_.productLookups_[branchType]);
   }
 
   void ProductRegistry::setFrozen(bool initializeLookupInfo) {
@@ -464,10 +443,10 @@ namespace edm {
     productLookup(InRun)->setFrozen();
     productLookup(InProcess)->setFrozen();
 
-    transient_.eventNextIndexValue_ = productLookup(InEvent)->nextIndexValue();
-    transient_.lumiNextIndexValue_ = productLookup(InLumi)->nextIndexValue();
-    transient_.runNextIndexValue_ = productLookup(InRun)->nextIndexValue();
-    transient_.processNextIndexValue_ = productLookup(InProcess)->nextIndexValue();
+    for (unsigned int i = InEvent; i < NumBranchTypes; ++i) {
+      BranchType branchType = static_cast<BranchType>(i);
+      transient_.nextIndexValues_[branchType] = productLookup(branchType)->nextIndexValue();
+    }
 
     for (auto const& product : productList_) {
       auto const& desc = product.second;
@@ -586,22 +565,10 @@ namespace edm {
   }
 
   ProductResolverIndex const& ProductRegistry::getNextIndexValue(BranchType branchType) const {
-    if (branchType == InEvent)
-      return transient_.eventNextIndexValue_;
-    if (branchType == InLumi)
-      return transient_.lumiNextIndexValue_;
-    if (branchType == InRun)
-      return transient_.runNextIndexValue_;
-    return transient_.processNextIndexValue_;
+    return transient_.nextIndexValues_[branchType];
   }
 
   ProductResolverIndex& ProductRegistry::nextIndexValue(BranchType branchType) {
-    if (branchType == InEvent)
-      return transient_.eventNextIndexValue_;
-    if (branchType == InLumi)
-      return transient_.lumiNextIndexValue_;
-    if (branchType == InRun)
-      return transient_.runNextIndexValue_;
-    return transient_.processNextIndexValue_;
+    return transient_.nextIndexValues_[branchType];
   }
 }  // namespace edm
