@@ -143,7 +143,7 @@ namespace {
 
       // determine how the plot will be paginated
       auto sides = getClosestFactors(the_detids.size());
-      edm::LogPrint("SiStripNoisePerDetId") <<"Aspect ratio: " << sides.first << ":" << sides.second << std::endl;
+      edm::LogPrint("SiStripNoisePerDetId") << "Aspect ratio: " << sides.first << ":" << sides.second << std::endl;
 
       if (payload.get()) {
         //=========================
@@ -153,11 +153,12 @@ namespace {
         SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
         for (const auto& the_detid : the_detids) {
-	  edm::LogPrint("SiStripNoisePerDetId") <<"DetId:" << the_detid << std::endl;
+          edm::LogPrint("SiStripNoisePerDetId") << "DetId:" << the_detid << std::endl;
 
           unsigned int nAPVs = reader->getNumberOfApvsAndStripLength(the_detid).first;
-	  if(nAPVs==0) nAPVs=6;
-	  v_nAPVs.push_back(nAPVs);
+          if (nAPVs == 0)
+            nAPVs = 6;
+          v_nAPVs.push_back(nAPVs);
 
           auto histo =
               std::make_shared<TH1F>(Form("Noise profile_%s", std::to_string(the_detid).c_str()),
@@ -170,14 +171,14 @@ namespace {
           histo->SetStats(false);
           histo->SetTitle("");
 
-	  if(the_detid!=0xFFFFFFFF){
-	    fillHisto(payload,histo,the_detid);
-	  } else {
-	    auto allDetIds = reader->getAllDetIds();
-	    for(const auto& id : allDetIds) {
-	      fillHisto(payload,histo,id);
-	    }
-	  }
+          if (the_detid != 0xFFFFFFFF) {
+            fillHisto(payload, histo, the_detid);
+          } else {
+            auto allDetIds = reader->getAllDetIds();
+            for (const auto& id : allDetIds) {
+              fillHisto(payload, histo, id);
+            }
+          }
 
           SiStripPI::makeNicePlotStyle(histo.get());
           histo->GetYaxis()->SetTitleOffset(1.0);
@@ -255,13 +256,13 @@ namespace {
       return std::make_pair(testNum, input / testNum);
     }
 
-    void fillHisto(const std::shared_ptr<SiStripNoises> payload, std::shared_ptr<TH1F>& histo, uint32_t the_detid){
+    void fillHisto(const std::shared_ptr<SiStripNoises> payload, std::shared_ptr<TH1F>& histo, uint32_t the_detid) {
       int nstrip = 0;
       SiStripNoises::Range range = payload->getRange(the_detid);
       for (int it = 0; it < (range.second - range.first) * 8 / 9; ++it) {
-	auto noise = payload->getNoise(it, range);
-	nstrip++;
-	histo->AddBinContent(nstrip, noise);
+        auto noise = payload->getNoise(it, range);
+        nstrip++;
+        histo->AddBinContent(nstrip, noise);
       }  // end of loop on strips
     }
   };
