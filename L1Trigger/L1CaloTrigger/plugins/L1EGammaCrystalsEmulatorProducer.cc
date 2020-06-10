@@ -23,7 +23,7 @@ Implementation:
 #include <memory>
 #include <array>
 #include <iostream>
-#include "TMath.h"
+#include <cmath>
 
 // user include files
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -1186,30 +1186,19 @@ bool L1EGCrystalClusterEmulatorProducer::passes_iso(float pt, float iso) {
 }
 
 bool L1EGCrystalClusterEmulatorProducer::passes_looseTkiso(float pt, float iso) {
-  if ((b0 + b1 * TMath::Exp(-b2 * pt) > iso))
-    return true;
-  else
-    return false;
+  return (b0 + b1 * std::exp(-b2 * pt) > iso);
 }
 
 bool L1EGCrystalClusterEmulatorProducer::passes_ss(float pt, float ss) {
-  if ((c0_ss + c1_ss * TMath::Exp(-c2_ss * pt)) > ss)
-    return false;
-  else
-    return true;
+  return  ((c0_ss + c1_ss * std::exp(-c2_ss * pt)) <= ss);
 }
 
 bool L1EGCrystalClusterEmulatorProducer::passes_photon(float pt, float pss) {
-  if (pss > d0 - d1 * pt)
-    return true;
-  return false;
+  return (pss > d0 - d1 * pt);
 }
 
 bool L1EGCrystalClusterEmulatorProducer::passes_looseTkss(float pt, float ss) {
-  if ((e0_looseTkss - e1_looseTkss * TMath::Exp(-e2_looseTkss * pt)) > ss)
-    return false;
-  else
-    return true;
+  return ((e0_looseTkss - e1_looseTkss * std::exp(-e2_looseTkss * pt)) <= ss);
 }
 
 //define this as a plug-in

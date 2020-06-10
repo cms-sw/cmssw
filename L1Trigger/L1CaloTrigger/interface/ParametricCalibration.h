@@ -36,10 +36,8 @@ namespace l1tp2 {
                              "Bad number of calibration scales, pts.size() * etas.size() != scales.size()");
     }
     float operator()(const float pt, const float abseta) const {
-      //std::cout << " ParametricCalibration : (pt=" << pt << ", abseta="<< abseta << ") : " << std::endl;
       int ptBin = -1;
       for (unsigned int i = 0, n = pts.size(); i < n; ++i) {
-        //std::cout << "     pt = " << pt << " , i = " << i << "  , pts[" << i << "] = " << pts[i] <<  std::endl;
         if (pt < pts[i]) {
           ptBin = i;
           break;
@@ -53,8 +51,6 @@ namespace l1tp2 {
         }
       }
 
-      //std::cout << "     ptBin = " << ptBin << std::endl;
-      //std::cout << "    etaBin = " << etaBin << std::endl;
       if (ptBin == -1 || etaBin == -1)
         return 1;
       else
