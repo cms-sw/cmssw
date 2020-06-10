@@ -32,17 +32,21 @@ public:
   void clusterizeHisto(const std::vector<edm::Ptr<l1t::HGCalCluster>>& clustersPtr,
                        const std::vector<std::pair<GlobalPoint, double>>& seedPositionsEnergy,
                        const HGCalTriggerGeometryBase& triggerGeometry,
-                       l1t::HGCalMulticlusterBxCollection& multiclusters) const;
+                       l1t::HGCalMulticlusterBxCollection& multiclusters,
+                       l1t::HGCalClusterBxCollection& rejected_clusters) const;
 
 private:
   enum ClusterAssociationStrategy { NearestNeighbour, EnergySplit };
 
   std::vector<l1t::HGCalMulticluster> clusterSeedMulticluster(
       const std::vector<edm::Ptr<l1t::HGCalCluster>>& clustersPtrs,
-      const std::vector<std::pair<GlobalPoint, double>>& seeds) const;
+      const std::vector<std::pair<GlobalPoint, double>>& seeds,
+      std::vector<l1t::HGCalCluster>& rejected_clusters) const;
 
   void finalizeClusters(std::vector<l1t::HGCalMulticluster>&,
+                        std::vector<l1t::HGCalCluster>&,
                         l1t::HGCalMulticlusterBxCollection&,
+                        l1t::HGCalClusterBxCollection&,
                         const HGCalTriggerGeometryBase&) const;
 
   double dr_;
