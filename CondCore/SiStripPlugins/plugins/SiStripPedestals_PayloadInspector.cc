@@ -130,7 +130,6 @@ namespace {
         edm::LogWarning("SiStripNoisePerDetId")
             << "\n WARNING!!!! \n The needed parameter DetIds has not been passed. Will use all Strip DetIds! \n\n";
         the_detids.push_back(0xFFFFFFFF);
-        return false;
       }
 
       size_t ndets = the_detids.size();
@@ -141,9 +140,8 @@ namespace {
       hpedestal.reserve(ndets);
       legends.reserve(ndets);
 
-      //int side = nextPerfectSquare(the_detids.size());
       auto sides = getClosestFactors(the_detids.size());
-      std::cout << sides.first << ":" << sides.second << std::endl;
+      edm::LogPrint("SiStripPedestalPerDetId") <<"Aspect ratio: " << sides.first << ":" << sides.second << std::endl;
 
       if (payload.get()) {
         //=========================
@@ -153,9 +151,10 @@ namespace {
         SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
         for (const auto& the_detid : the_detids) {
-          std::cout << the_detid << std::endl;
+	  edm::LogPrint("SiStripNoisePerDetId") <<"DetId:" << the_detid << std::endl;
 
           unsigned int nAPVs = reader->getNumberOfApvsAndStripLength(the_detid).first;
+	  if(nAPVs==0) nAPVs=6;
           v_nAPVs.push_back(nAPVs);
 
           auto histo = std::make_shared<TH1F>(
@@ -169,14 +168,15 @@ namespace {
           histo->SetStats(false);
           histo->SetTitle("");
 
-          int nstrip = 0;
-          SiStripPedestals::Range range = payload->getRange(the_detid);
-          for (int it = 0; it < (range.second - range.first) * 8 / 10; ++it) {
-            auto pedestal = payload->getPed(it, range);
-            nstrip++;
-            histo->SetBinContent(nstrip, pedestal);
-          }  // end of loop on strips
-
+	  if(the_detid!=0xFFFFFFFF){
+	    fillHisto(payload,histo,the_detid);
+	  } else {
+	    auto allDetIds = reader->getAllDetIds();
+	    for(const auto& id : allDetIds) {
+	      fillHisto(payload,histo,id);
+	    }
+	  }
+         
           SiStripPI::makeNicePlotStyle(histo.get());
           histo->GetYaxis()->SetTitleOffset(1.0);
           hpedestal.push_back(histo);
@@ -222,13 +222,13 @@ namespace {
           ltx.SetTextAlign(11);
           ltx.DrawLatexNDC(gPad->GetLeftMargin(),
                            1 - gPad->GetTopMargin() + 0.01,
-                           Form("SiStrip Noise profile for DetId %s", std::to_string(the_detids[index]).c_str()));
+                           Form("SiStrip Pedestals profile for DetId %s", std::to_string(the_detids[index]).c_str()));
 
-          legends.push_back(std::make_shared<TLegend>(0.52, 0.83, 0.95, 0.93));
+          legends.push_back(std::make_shared<TLegend>(0.45, 0.83, 0.95, 0.93));
           legends.at(index)->SetHeader(tagname.c_str(), "C");  // option "C" allows to center the header
           legends.at(index)->AddEntry(
               hpedestal.at(index).get(), ("IOV: " + std::to_string(std::get<0>(iov))).c_str(), "PL");
-          legends.at(index)->SetTextSize(0.025);
+          legends.at(index)->SetTextSize(0.045);
           legends.at(index)->Draw("same");
         }
 
@@ -252,6 +252,17 @@ namespace {
       }
       return std::make_pair(testNum, input / testNum);
     }
+
+    void fillHisto(const std::shared_ptr<SiStripPedestals> payload, std::shared_ptr<TH1F>& histo, uint32_t the_detid){
+      int nstrip = 0;
+      SiStripPedestals::Range range = payload->getRange(the_detid);
+      for (int it = 0; it < (range.second - range.first) * 8 / 10; ++it) {
+	auto pedestal = payload->getPed(it, range);
+	nstrip++;
+	histo->AddBinContent(nstrip, pedestal);
+      }  // end of loop on strips
+    }
+
   };
 
   /************************************************

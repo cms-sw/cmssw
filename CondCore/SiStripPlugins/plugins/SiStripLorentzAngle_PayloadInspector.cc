@@ -291,7 +291,7 @@ namespace {
 
       auto ltx = TLatex();
       ltx.SetTextFont(62);
-      ltx.SetTextSize(0.05);
+      ltx.SetTextSize(0.045);
       ltx.SetTextAlign(11);
 
       std::unique_ptr<TLegend> legend = std::make_unique<TLegend>(0.50, 0.25, 0.80, 0.35);
