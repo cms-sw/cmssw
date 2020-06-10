@@ -98,7 +98,7 @@ HydjetHadronizer::HydjetHadronizer(const ParameterSet& pset, edm::ConsumesCollec
 
   if (pset.exists("signalVtx"))
     signalVtx_ = pset.getUntrackedParameter<std::vector<double> >("signalVtx");
-           
+
   if (signalVtx_.size() == 4) {
     if (!fVertex_)
       fVertex_ = new HepMC::FourVector();
@@ -313,7 +313,7 @@ bool HydjetHadronizer::generatePartonsAndHadronize() {
   LogDebug("HEPEVT_info") << "Ev numb: " << HepMC::HEPEVT_Wrapper::event_number()
                           << " Entries number: " << HepMC::HEPEVT_Wrapper::number_entries() << " Max. entries "
                           << HepMC::HEPEVT_Wrapper::max_number_entries() << std::endl;
-  
+
   event().reset(evt);
   return true;
 }
@@ -370,7 +370,7 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent* evt) {
                              << hyjets.khj[4][ihy] - (isub * 50000) + index[isub] + 1 << "), vtx ("
                              << hyjets.vhj[0][ihy] << "," << hyjets.vhj[1][ihy] << "," << hyjets.vhj[2][ihy] << ") "
                              << std::endl;
-     
+
     if (hyjets.khj[2][ihy] == 0) {
       primary_particle[ihy] = build_hyjet(ihy, ihy + 1);
       sub_vertices->add_particle_out(primary_particle[ihy]);
@@ -391,7 +391,7 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent* evt) {
         mother = particle[mid];
         primary_particle[mid] = mother;
       }
-       
+
       HepMC::GenVertex* prod_vertex = mother->end_vertex();
       if (!prod_vertex) {
         prod_vertex = prods;
@@ -403,7 +403,7 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent* evt) {
 
       prod_vertex->add_particle_out(particle[ihy]);
       LogDebug("Hydjet_array") << " ---" << mid + 1 << "---> " << ihy + 1 << std::endl;
-       
+
       if (prods)
         delete prods;
     }
@@ -411,7 +411,7 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent* evt) {
   }
   LogDebug("Hydjet_array") << " MULTin ev.:" << hyjets.nhj << ", last index: " << ihy - 1
                            << ", Sub events: " << isub + 1 << ", stable particles: " << stab << std::endl;
-   
+
   return true;
 }
 
