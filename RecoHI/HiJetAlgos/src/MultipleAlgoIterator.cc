@@ -184,8 +184,7 @@ void MultipleAlgoIterator::calculateOrphanInput(vector<fastjet::PseudoJet>& orph
     // find towers within radiusPU_ of this jet
     for (auto const im : allgeomid_) {
       double dr = reco::deltaR(geo_->getPosition(im), pseudojetTMP);
-      vector<pair<int, int> >::const_iterator exclude =
-          find(excludedTowers.begin(), excludedTowers.end(), pair<int, int>(im.ieta(), im.iphi()));
+      auto exclude = find(excludedTowers.begin(), excludedTowers.end(), pair<int, int>(im.ieta(), im.iphi()));
       if (dr < radiusPU_ && exclude == excludedTowers.end() &&
           (geomtowers_[im.ieta()] - ntowersWithJets_[im.ieta()]) > minimumTowersFraction_ * (geomtowers_[im.ieta()])) {
         ntowersWithJets_[im.ieta()]++;
@@ -198,8 +197,7 @@ void MultipleAlgoIterator::calculateOrphanInput(vector<fastjet::PseudoJet>& orph
       int index = it.user_index();
       int ie = ieta((*inputs_)[index]);
       int ip = iphi((*inputs_)[index]);
-      vector<pair<int, int> >::const_iterator exclude =
-          find(excludedTowers.begin(), excludedTowers.end(), pair<int, int>(ie, ip));
+      auto exclude = find(excludedTowers.begin(), excludedTowers.end(), pair<int, int>(ie, ip));
       if (exclude != excludedTowers.end()) {
         jettowers.push_back(index);
       }
