@@ -325,9 +325,9 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent* evt) {
   // The SubEvent information is kept by storing indeces of main vertices
   // of subevents as a vector in GenHIEvent.
 
-  LogDebug("SubEvent") std::cout << " Number of sub events " << nsub_;
-  LogDebug("Hydjet") std::cout<< " Number of hard events " << hyjpar.njet;
-  LogDebug("Hydjet") std::cout<< " Number of hard particles " << nhard_;
+  LogDebug("SubEvent") << " Number of sub events " << nsub_;
+  LogDebug("Hydjet") << " Number of hard events " << hyjpar.njet;
+  LogDebug("Hydjet") << " Number of hard particles " << nhard_;
     LogDebug("Hydjet") << " Number of soft particles " << nsoft_;
   LogDebug("Hydjet") << "nhard_ + nsoft_ = " << nhard_ + nsoft_ << " hyjets.nhj = " << hyjets.nhj << endl;
 
