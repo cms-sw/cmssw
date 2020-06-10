@@ -76,7 +76,7 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
                                                                                      int aimMIPtoADC) {
 
   //check if this already exists in the cache
-  uint32_t key( getSiOpCacheKey(cellId) );
+  uint32_t key(cellId.rawId());
   if(siopCache_.find(key)==siopCache_.end()) {
 
     //decode cell properties
@@ -85,7 +85,7 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
     double cellCap(cellCapacitance_[cellThick]);
     double cellVol(cellVolume_[cellThick]);
     double mipEqfC(mipEqfC_[cellThick]);
-    
+
     //location of the cell
     int subdet(cellId.subdet());
     std::vector<double> &cceParam=cceParam_[cellThick];
@@ -95,7 +95,7 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
     //call baseline method and add to cache
     siopCache_[key]=getSiCellOpCharacteristics(cellCap,cellVol,mipEqfC,cceParam,
                                                subdet,layer,radius,
-                                               gain,aimMIPtoADC);
+                                               gain,aimMIPtoADC);    
   }
   
   return siopCache_[key];
@@ -121,13 +121,13 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
         << " Fluence is required but no DoseMap has been passed to HGCalSiNoiseMap";
       return siop;
     }
-    
+
     siop.lnfluence = getFluenceValue(subdet, layer, radius, true);
     siop.fluence   = exp(siop.lnfluence);
-    
+
     double conv(log(cellVol)+unitToMicroLog_);    
     siop.ileak = exp(ileakParam_[0] * siop.lnfluence + ileakParam_[1] + conv);
-
+    
     //charge collection efficiency
     if (ignoreCCE_) {
       siop.cce = 1.0;
@@ -163,7 +163,7 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
   siop.mipfC = S;
   siop.mipADC = std::floor(S / lsbPerGain_[gain]);
   siop.thrADC = std::floor(S / 2. / lsbPerGain_[gain]);
-
+ 
   //build noise estimate
   if (ignoreNoise_) {
     siop.noise = 0.0;
@@ -176,63 +176,4 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
   }
 
   return siop;
-}
-
-
-//
-uint32_t HGCalSiNoiseMap::getSiOpCacheKey(const HGCSiliconDetId &detId) {
-  
-  bool isEE(detId.det()==DetId::HGCalEE);
-  bool isOddLayer(detId.layer()%2==1);
-  int waferU(detId.waferU());
-  int waferV(detId.waferV());
-
-  //determine parameters of the mapping
-  int offset(0),sector(0);
-  if(isEE) {
-    if(waferU>0 && waferV>=0)           sector=0;
-    else if(waferU>=waferV && waferV<0) sector=2;
-    else                                sector=1;
-  } else if(isOddLayer) {
-    if(waferU>0 && waferV>=0) {
-      sector=0;
-    }
-    else{
-      offset=-1;    
-      if(waferU>waferV && waferV<0) sector=2;
-      else sector=1;
-    }
-  } else {
-    
-    if(waferU>=1 && waferV>=1) {
-      sector=0;
-    }
-    else {
-      offset=1;
-      if(waferU>=waferV && waferV<1) sector=2;
-      else sector=1;
-    }
-  }
-    
-  //map to sector 0
-  int eqWaferU(waferU), eqWaferV(waferV);
-  if(sector==1) {
-    eqWaferU=waferV-waferV;
-    waferV=-waferV+offset;    
-    
-  } else {
-    eqWaferU=-waferV+offset;
-    waferV=waferV-waferV+offset;
-  }
-  
-  //build an equivalent detId (positive side and mapped to sector 0)
-  HGCSiliconDetId eqDetId(detId.subdet(), 
-                          1, 
-                          detId.type(), 
-                          detId.layer(), 
-                          eqWaferU, 
-                          eqWaferV, 
-                          detId.cellU(), 
-                          detId.cellV());
-  return eqDetId.rawId();
 }

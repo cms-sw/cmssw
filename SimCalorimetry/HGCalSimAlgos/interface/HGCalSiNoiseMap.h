@@ -79,9 +79,6 @@ public:
 
 private:
 
-  //maps any detId to a wafer in sector=0 by equivalence
-  uint32_t getSiOpCacheKey(const HGCSiliconDetId &detId);
-
   //cache of SiCellOpCharacteristics
   std::unordered_map<uint32_t, SiCellOpCharacteristics> siopCache_;
 
