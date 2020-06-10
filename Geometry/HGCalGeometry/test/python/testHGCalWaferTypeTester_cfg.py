@@ -2,9 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-process.load("Configuration.Geometry.GeometryExtended2026D46Reco_cff")
-process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load("Configuration.Geometry.GeometryExtended2026D57Reco_cff")
+process.load("Geometry.HGCalGeometry.hgcalEEWaferTypeTester_cfi")
 
+process.load('FWCore.MessageService.MessageLogger_cfi')
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.categories.append('HGCalGeom')
 
@@ -32,16 +33,9 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.prodEE = cms.EDAnalyzer("HGCalWaferCheck",
-                                NameSense     = cms.string("HGCalEESensitive"),
-                                NameDevice    = cms.string("HGCal EE"),
-                                Reco          = cms.bool(True)
+process.hgcalHEWaferTypeTester = process.hgcalEEWaferTypeTester.clone(
+    NameSense  = "HGCalHESiliconSensitive",
+    NameDevice = "HGCal HE Silicon",
 )
 
-process.prodHEF = process.prodEE.clone(
-    NameSense  = "HGCalHESiliconSensitive",
-    NameDevice = "HGCal HE Front",
-)
- 
- 
-process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF)
+process.p1 = cms.Path(process.generator*process.hgcalEEWaferTypeTester*process.hgcalHEWaferTypeTester)
