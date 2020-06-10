@@ -16,11 +16,11 @@ bool compare_cluster_pt(const l1t::HGCalMulticluster *cl1, const l1t::HGCalMulti
   return cl1->pt() > cl2->pt();
 }
 
-int get_eta_bin(const l1t::HGCalMulticluster *cl) {
+int etaBin(const l1t::HGCalMulticluster *cl) {
   float eta_min = 1.;
   float eta_max = 4.;
   unsigned n_eta_bins = 150;
-  int eta_bin = floor((fabs(cl->eta()) - eta_min) / ((eta_max - eta_min) / n_eta_bins));
+  int eta_bin = floor((std::abs(cl->eta()) - eta_min) / ((eta_max - eta_min) / n_eta_bins));
   if (cl->eta() < 0)
     return -1 * eta_bin;  // bin 0 doesn't exist
   return eta_bin;
@@ -30,11 +30,11 @@ int get_phi_bin(const l1t::HGCalMulticluster *cl) {
   float phi_min = -M_PI;
   float phi_max = M_PI;
   unsigned n_phi_bins = 63;
-  return floor(fabs(reco::deltaPhi(cl->phi(), phi_min)) / ((phi_max - phi_min) / n_phi_bins));
+  return floor(std::abs(reco::deltaPhi(cl->phi(), phi_min)) / ((phi_max - phi_min) / n_phi_bins));
 }
 
 pair<int, int> get_eta_phi_bin(const l1t::HGCalMulticluster *cl) {
-  return std::make_pair(get_eta_bin(cl), get_phi_bin(cl));
+  return std::make_pair(etaBin(cl), get_phi_bin(cl));
 }
 
 class L1EGammaEEProducer : public edm::EDProducer {
@@ -74,7 +74,7 @@ void L1EGammaEEProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSet
     if (cl3d->hwQual()) {
       if (cl3d->et() > minEt_) {
         int hw_quality = 1;  // baseline EG ID passed
-        if (fabs(cl3d->eta()) >= 1.52) {
+        if (std::abs(cl3d->eta()) >= 1.52) {
           hw_quality = 2;  // baseline EG ID passed + cleanup of transition region
         }
 
@@ -142,8 +142,8 @@ void L1EGammaEEProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSet
             // this bucket is not empty
             for (auto other_cl_ptr : bucket->second) {
               if (used_clusters.find(other_cl_ptr) == used_clusters.end()) {
-                if (fabs(other_cl_ptr->eta() - cl3d->eta()) < 0.02) {
-                  if (fabs(reco::deltaPhi(other_cl_ptr->phi(), cl3d->phi())) < 0.1) {
+                if (std::abs(other_cl_ptr->eta() - cl3d->eta()) < 0.02) {
+                  if (std::abs(reco::deltaPhi(other_cl_ptr->phi(), cl3d->phi())) < 0.1) {
                     // std::cout << "MERGE with cl pt: " << other_cl_ptr->pt()
                     //           << " eta: " << other_cl_ptr->eta()
                     //           << " phi: " << other_cl_ptr->phi()

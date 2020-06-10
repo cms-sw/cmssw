@@ -641,8 +641,8 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
     // Merge clusters from different regions
     for (unsigned int jj = 0; jj < unsigned(cluster_list[cc].size()); ++jj) {
       for (unsigned int kk = jj + 1; kk < unsigned(cluster_list[cc].size()); ++kk) {
-        if (fabs(cluster_list[cc][jj].ceta - cluster_list[cc][kk].ceta) < 2 &&
-            fabs(cluster_list[cc][jj].cphi - cluster_list[cc][kk].cphi) < 2) {  //Diagonale + exact neighbors
+        if (std::abs(cluster_list[cc][jj].ceta - cluster_list[cc][kk].ceta) < 2 &&
+            std::abs(cluster_list[cc][jj].cphi - cluster_list[cc][kk].cphi) < 2) {  //Diagonale + exact neighbors
           if (cluster_list[cc][kk].cpt > cluster_list[cc][jj].cpt) {
             cluster_list[cc][kk].cpt += cluster_list[cc][jj].cpt;
             cluster_list[cc][kk].c5x5 += cluster_list[cc][jj].c5x5;
@@ -666,7 +666,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
         cluster_list[cc][jj].cpt =
             cluster_list[cc][jj].cpt *
             calib_(cluster_list[cc][jj].cpt,
-                   fabs(cluster_list[cc][jj].craweta));  //Mark's calibration as a function of eta and pt
+                   std::abs(cluster_list[cc][jj].craweta));  //Mark's calibration as a function of eta and pt
         cluster_list_merged[cc].push_back(cluster_list[cc][jj]);
       }
     }
@@ -711,7 +711,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
             for (int ii = 0; ii < n_towers_cardEta; ++ii) {
               //Apply Mark's calibration at the same time (row of the lowest pT, as a function of eta)
               if ((getCrystal_etaID(hit.position.eta()) / n_crystals_towerEta) % n_towers_cardEta == ii) {
-                ECAL_tower_L1Card[jj][ii][cc] += hit.pt() * calib_(0, fabs(hit.position.eta()));
+                ECAL_tower_L1Card[jj][ii][cc] += hit.pt() * calib_(0, std::abs(hit.position.eta()));
                 iEta_tower_L1Card[jj][ii][cc] = getTower_absoluteEtaID(hit.position.eta());  //hit.id.ieta();
                 iPhi_tower_L1Card[jj][ii][cc] = getTower_absolutePhiID(hit.position.phi());  //hit.id.iphi();
               }
@@ -824,7 +824,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
           for (int ll = 0; ll < n_clusters_4link; ++ll) {  // We check the 12 clusters in the card on the right
             if (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] < n_towers_cardEta &&
                 crystalID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] < 5 &&
-                fabs(5 * (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right]) % n_towers_cardEta +
+                std::abs(5 * (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right]) % n_towers_cardEta +
                      crystalID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] % 5 -
                      5 * (towerID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left]) % n_towers_cardEta -
                      crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] % 5) < 2) {
@@ -861,7 +861,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
                   0) {  // if the tower is at the edge there might be brem corrections, whatever the crystal ID
             for (int ll = 0; ll < n_clusters_4link; ++ll) {  // We check the 12 clusters in the card on the right
               if (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] < n_towers_cardEta &&
-                  fabs(5 * (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right]) %
+                  std::abs(5 * (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right]) %
                            n_towers_cardEta +
                        crystalID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] % 5 -
                        5 * (towerID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left]) %
@@ -869,7 +869,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
                        crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] % 5) <=
                       1) {  //Distance of 1 max in eta
                 if (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] < n_towers_cardEta &&
-                    fabs(5 + crystalID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] / 5 -
+                    std::abs(5 + crystalID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] / 5 -
                          (crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] / 5)) <=
                         5) {  //Distance of 5 max in phi
                   if (energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] >
@@ -909,7 +909,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
           energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom] >
               0) {                                       // If there is one cluster on the right side of the first card
         for (int ll = 0; ll < n_clusters_4link; ++ll) {  // We check the card on the right
-          if (fabs(5 * (towerID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom] / n_towers_cardEta) +
+          if (std::abs(5 * (towerID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom] / n_towers_cardEta) +
                    crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom] / 5 -
                    5 * (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_top] / n_towers_cardEta) -
                    crystalID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_top] / 5) < 2) {

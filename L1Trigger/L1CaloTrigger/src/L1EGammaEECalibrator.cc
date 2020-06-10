@@ -36,13 +36,13 @@ L1EGammaEECalibrator::L1EGammaEECalibrator(const edm::ParameterSet& pset) {
   calib_factors.reserve(n_bins_eta * n_bins_pt);
   for (auto calib_f = calib_data.begin(); calib_f != calib_data.end(); ++calib_f) {
     auto index = calib_f - calib_data.begin();
-    int eta_bin = get_eta_bin(eta_l[index]);
-    int pt_bin = get_pt_bin(pt_l[index]);
+    int eta_bin = etaBin(eta_l[index]);
+    int pt_bin = ptBin(pt_l[index]);
     calib_factors[(eta_bin * n_bins_pt) + pt_bin] = *calib_f;
   }
 }
 
-int L1EGammaEECalibrator::get_bin(const std::set<float>& container, float value) const {
+int L1EGammaEECalibrator::bin(const std::set<float>& container, float value) const {
   auto bin_l = container.upper_bound(value);
   // std::cout << "value " << value << "lower boud " << *bin_l << " distance: " << std::distance(container.begin(), bin_l)-1 << std::endl;
   if (bin_l == container.end()) {
@@ -54,8 +54,8 @@ int L1EGammaEECalibrator::get_bin(const std::set<float>& container, float value)
 }
 
 float L1EGammaEECalibrator::calibrationFactor(const float& pt, const float& eta) const {
-  int bin_eta = get_eta_bin(eta);
-  int bin_pt = get_pt_bin(pt);
+  int bin_eta = etaBin(eta);
+  int bin_pt = ptBin(pt);
   if (bin_eta == -1 || bin_pt == -1)
     return 1.;
   auto n_bins_pt = pt_bins.size();

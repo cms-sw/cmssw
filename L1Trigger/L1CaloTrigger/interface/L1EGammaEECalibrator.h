@@ -13,9 +13,9 @@ public:
   float calibrationFactor(const float& pt, const float& eta) const;
 
 private:
-  int get_eta_bin(float eta) const { return get_bin(eta_bins, fabs(eta)); }
-  int get_pt_bin(float pt) const { return get_bin(pt_bins, pt); }
-  int get_bin(const std::set<float>& container, float value) const;
+  int etaBin(float eta) const { return bin(eta_bins, std::abs(eta)); }
+  int ptBin(float pt) const { return bin(pt_bins, pt); }
+  int bin(const std::set<float>& container, float value) const;
 
   std::set<float> eta_bins;
   std::set<float> pt_bins;
