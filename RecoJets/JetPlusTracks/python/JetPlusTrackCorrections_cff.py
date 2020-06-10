@@ -19,6 +19,7 @@ JetPlusTrackAddonSeedReco = cms.EDProducer(
     srcTrackJets = cms.InputTag("ak4TrackJets"),
     srcPVs = cms.InputTag('offlinePrimaryVertices'),
     ptCUT = cms.double(15.),
+    dRcone = cms.double(0.4),
     PFCandidates = cms.InputTag('packedPFCandidates'),
     towerMaker = cms.InputTag('towerMaker'),
     UsePAT = cms.bool(False)
