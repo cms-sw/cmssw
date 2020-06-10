@@ -5,11 +5,11 @@ StripCPEgeometricESProducer = stripCPEESProducer.clone(
      ComponentName = 'StripCPEgeometric',
      ComponentType = 'StripCPEgeometric',
      parameters    = cms.PSet(
-        TanDiffusionAngle            = 0.01,
-        ThicknessRelativeUncertainty = 0.02,
-        NoiseThreshold               = 2.3,
-        MaybeNoiseThreshold          = 3.5,
-        UncertaintyScaling           = 1.42,
-        MinimumUncertainty           = 0.01
+        TanDiffusionAngle            = cms.double(0.01),
+        ThicknessRelativeUncertainty = cms.double(0.02),
+        NoiseThreshold               = cms.double(2.3),
+        MaybeNoiseThreshold          = cms.double(3.5),
+        UncertaintyScaling           = cms.double(1.42),
+        MinimumUncertainty           = cms.double(0.01)
      )
 )
