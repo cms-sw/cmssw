@@ -2,7 +2,7 @@
 //
 // Package:    JetPlusTracks
 // Class:      JetPlusTrackProducer
-// 
+//
 /**\class JetPlusTrackProducer JetPlusTrackProducer.cc JetPlusTrackProducer.cc
 
  Description: [one line class summary]
@@ -15,7 +15,6 @@
 //         Created:  Fri Feb 19 10:14:02 CET 2010
 //
 //
-
 
 // system include files
 #include <memory>
@@ -45,26 +44,24 @@
 //
 
 class JetPlusTrackAddonSeedProducer : public edm::stream::EDProducer<> {
-   public:
-      explicit JetPlusTrackAddonSeedProducer(const edm::ParameterSet&);
-      ~JetPlusTrackAddonSeedProducer() override;
-      void produce(edm::Event&, const edm::EventSetup&) override;
+public:
+  explicit JetPlusTrackAddonSeedProducer(const edm::ParameterSet&);
+  ~JetPlusTrackAddonSeedProducer() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-   // ---------- private data members ---------------------------
-   private:
-      
-      edm::InputTag          srcCaloJets;
-      edm::InputTag          srcTrackJets;
-      edm::InputTag          srcPVs_;
-      
-      std::string            alias;
-      double                 ptCUT;
-      double                 dRcone;
-      bool                   usePAT;
-      edm::EDGetTokenT<edm::View<reco::CaloJet> > input_jets_token_;
-      edm::EDGetTokenT<edm::View<reco::TrackJet> > input_trackjets_token_;
-      edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;  
-      edm::EDGetTokenT<std::vector<pat::PackedCandidate> >   tokenPFCandidates_;
-      edm::EDGetTokenT<CaloTowerCollection> input_ctw_token_; 
+  // ---------- private data members ---------------------------
+private:
+  edm::InputTag srcCaloJets;
+  edm::InputTag srcTrackJets;
+  edm::InputTag srcPVs_;
 
+  std::string alias;
+  double ptCUT;
+  double dRcone;
+  bool usePAT;
+  edm::EDGetTokenT<edm::View<reco::CaloJet> > input_jets_token_;
+  edm::EDGetTokenT<edm::View<reco::TrackJet> > input_trackjets_token_;
+  edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;
+  edm::EDGetTokenT<std::vector<pat::PackedCandidate> > tokenPFCandidates_;
+  edm::EDGetTokenT<CaloTowerCollection> input_ctw_token_;
 };
