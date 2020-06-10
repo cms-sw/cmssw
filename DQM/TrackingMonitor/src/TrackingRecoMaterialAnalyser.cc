@@ -40,9 +40,7 @@ public:
   ~TrackingRecoMaterialAnalyser() override;
 
 private:
-  inline bool isDoubleSided(const TrackerTopology* tTopo, DetId id) {
-    return (tTopo->glued(id));
-  }
+  inline bool isDoubleSided(const TrackerTopology *tTopo, DetId id) { return (tTopo->glued(id)); }
   TrackTransformer refitter_;
   const edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
   const edm::EDGetTokenT<reco::BeamSpot> beamspotToken_;
@@ -183,7 +181,7 @@ void TrackingRecoMaterialAnalyser::analyze(const edm::Event &event, const edm::E
 
   // Get the TrackerTopology
   setup.get<TrackerTopologyRcd>().get(trk_topology);
-  const TrackerTopology* const tTopo = trk_topology.product();
+  const TrackerTopology *const tTopo = trk_topology.product();
 
   // Get Tracks
   event.getByToken(tracksToken_, tracks);
@@ -296,7 +294,7 @@ void TrackingRecoMaterialAnalyser::analyze(const edm::Event &event, const edm::E
         // scaling of 0.5. The actual plane is built few lines below:
         // http://cmslxr.fnal.gov/dxr/CMSSW_8_0_5/source/Geometry/TrackerGeometryBuilder/src/TrackerGeomBuilderFromGeometricDet.cc#287
 
-        if (isDoubleSided(tTopo,current_det)) {
+        if (isDoubleSided(tTopo, current_det)) {
           LogTrace("TrackingRecoMaterialAnalyser")
               << "Eta: " << track.eta() << " " << sDETS[current_det.subdetId()] << tTopo->layer(current_det)
               << " has ori_radLen: " << ori_radLen << " and ori_xi: " << xi << " and has radLen: " << radLen
