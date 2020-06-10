@@ -8,7 +8,7 @@
 class HGCalTypes {
 public:
   HGCalTypes() {}
- 
+
   enum class CellType {
     UndefinedType = -1,
     CentralType = 0,
@@ -26,7 +26,7 @@ public:
     BottomRightCorner = 16
   };
 
- enum WaferCorner {
+  enum WaferCorner {
     WaferCorner0 = 0,
     WaferCorner1 = 1,
     WaferCorner2 = 2,

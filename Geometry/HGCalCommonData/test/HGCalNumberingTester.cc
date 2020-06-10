@@ -79,7 +79,10 @@ HGCalNumberingTester::HGCalNumberingTester(const edm::ParameterSet& iC) {
       positionY_[k] /= CLHEP::mm;
     }
   }
-  std::cout << "Test numbering for " << nameDetector_ << " using constants of " << nameSense_ << " at " << positionX_.size() << " local positions " << "for every " << increment_ << " layers for DetType " << detType_ << " and  RecoFlag " << reco_ << std::endl;
+  std::cout << "Test numbering for " << nameDetector_ << " using constants of " << nameSense_ << " at "
+            << positionX_.size() << " local positions "
+            << "for every " << increment_ << " layers for DetType " << detType_ << " and  RecoFlag " << reco_
+            << std::endl;
   for (unsigned int k = 0; k < positionX_.size(); ++k)
     std::cout << "Position[" << k << "] " << positionX_[k] << " " << unit << ", " << positionY_[k] << " " << unit
               << std::endl;
@@ -96,7 +99,9 @@ void HGCalNumberingTester::analyze(const edm::Event& iEvent, const edm::EventSet
     for (unsigned int i = 0; i < hgdc.layers(true); ++i) {
       int lay = i + 1;
       double z = hgdc.waferZ(lay, reco_);
-      std::cout << "Layer " << lay << " Wafers " << hgdc.wafers(lay, 0) << ":" << hgdc.wafers(lay, 1) << ":" << hgdc.wafers(lay, 2) << " Z " << z << " R " << hgdc.rangeR(z, reco_).first << ":" << hgdc.rangeR(z, reco_).second << std::endl;
+      std::cout << "Layer " << lay << " Wafers " << hgdc.wafers(lay, 0) << ":" << hgdc.wafers(lay, 1) << ":"
+                << hgdc.wafers(lay, 2) << " Z " << z << " R " << hgdc.rangeR(z, reco_).first << ":"
+                << hgdc.rangeR(z, reco_).second << std::endl;
     }
   }
   std::cout << std::endl << std::endl;

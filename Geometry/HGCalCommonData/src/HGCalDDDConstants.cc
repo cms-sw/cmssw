@@ -49,9 +49,10 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp, const std::strin
         maxWafersPerLayer_ = std::max(maxWafersPerLayer_, max_modules_layer_[simreco][layer]);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "Layer " << layer << " with " << max_modules_layer_[simreco][layer] << ":"
-				      << modHalf_ << " modules in RECO";
+                                      << modHalf_ << " modules in RECO";
       } else {
-	         edm::LogVerbatim("HGCalGeom") << "Layer " << layer << " with " << max_modules_layer_[simreco][layer] << " modules in SIM";
+        edm::LogVerbatim("HGCalGeom") << "Layer " << layer << " with " << max_modules_layer_[simreco][layer]
+                                      << " modules in SIM";
 #endif
       }
     }
@@ -925,7 +926,8 @@ std::pair<double, double> HGCalDDDConstants::rangeRLayer(int lay, bool reco) con
     rmax *= HGCalParameters::k_ScaleToDDD;
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants:rangeR: " << lay << ":" << index.first << " R " << rmin << ":" << rmax;
+  edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants:rangeR: " << lay << ":" << index.first << " R " << rmin << ":"
+                                << rmax;
 #endif
   return std::make_pair(rmin, rmax);
 }
@@ -1221,8 +1223,10 @@ std::pair<int, int> HGCalDDDConstants::waferTypeRotation(int layer, int waferU, 
       }
     }
   }
-  if (debug) 
-    edm::LogVerbatim("HGCalGeom") << "waferTypeRotation: Layer " << layer << " Wafer " << waferU << ":" << waferV << " Index " << std::hex << wl << std::dec << ":" << (itr != hgpar_->waferTypes_.end()) << " Type " << type << " Rotation " << rotn;
+  if (debug)
+    edm::LogVerbatim("HGCalGeom") << "waferTypeRotation: Layer " << layer << " Wafer " << waferU << ":" << waferV
+                                  << " Index " << std::hex << wl << std::dec << ":"
+                                  << (itr != hgpar_->waferTypes_.end()) << " Type " << type << " Rotation " << rotn;
   return std::make_pair(type, rotn);
 }
 

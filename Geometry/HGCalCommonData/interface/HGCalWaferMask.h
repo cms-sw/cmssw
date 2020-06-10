@@ -27,7 +27,7 @@ public:
                                          const double& rout,
                                          const int& waferType,
                                          const int& mode,
-					 bool deug=false);
+                                         bool deug = false);
   static const int k_OffsetRotation = 10;
 };
 

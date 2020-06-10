@@ -61,7 +61,8 @@ HGCalWaferTypeTester::HGCalWaferTypeTester(const edm::ParameterSet& iC) {
 
   geomToken_ = esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameSense_});
 
-  std::cout << "Test wafer types for " << nameDetector_ << " using constants of " << nameSense_ << " for  RecoFlag true" << std::endl;
+  std::cout << "Test wafer types for " << nameDetector_ << " using constants of " << nameSense_ << " for  RecoFlag true"
+            << std::endl;
 }
 
 void HGCalWaferTypeTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -83,90 +84,90 @@ void HGCalWaferTypeTester::analyze(const edm::Event& iEvent, const edm::EventSet
     double R = hgdc.waferParameters(true).second;
     std::cout << "Wafer Parameters " << r << ":" << R << std::endl << std::endl;
     static const unsigned int nc = 24;
-    double dx[nc] = {0.0, 0.25*r, 0.50*r, 0.75*r, r, r, r, r, r, 0.75*r,
-		     0.50*r, 0.25*r, 0.0, -0.25*r, -0.50*r, -0.75*r, -r,
-		     -r, -r, -r, -r, -0.75*r, -0.50*r, -0.25*r};
-    double dy[nc] = {-R, -0.875*R, -0.75*R, -0.625*R, -0.50*R, -0.25*R, 0.0,
-		     0.25*R, 0.50*R, 0.625*R, 0.75*R, 0.875*R, R, 0.875*R,
-		     0.75*R, 0.625*R, 0.50*R, 0.25*R, 0.0, -0.25*R, -0.50*R,
-		     -0.625*R, -0.75*R, -0.875*R};
+    double dx[nc] = {0.0, 0.25 * r,  0.50 * r,  0.75 * r,  r,  r,  r,  r,  r,  0.75 * r,  0.50 * r,  0.25 * r,
+                     0.0, -0.25 * r, -0.50 * r, -0.75 * r, -r, -r, -r, -r, -r, -0.75 * r, -0.50 * r, -0.25 * r};
+    double dy[nc] = {-R,       -0.875 * R, -0.75 * R, -0.625 * R, -0.50 * R, -0.25 * R,  0.0,       0.25 * R,
+                     0.50 * R, 0.625 * R,  0.75 * R,  0.875 * R,  R,         0.875 * R,  0.75 * R,  0.625 * R,
+                     0.50 * R, 0.25 * R,   0.0,       -0.25 * R,  -0.50 * R, -0.625 * R, -0.75 * R, -0.875 * R};
     static const unsigned int np = 43;
-    unsigned int pat[np] = {0xFFFF01, 0xFFF01F, 0xFF01FF, 0xF01FFF, 0x01FFFF,
-			    0x1FFFF0, 0xFFFC07, 0xFFC07F, 0xFC07FF, 0xC07FFF,
-			    0x07FFFC, 0x7FFFC0, 0xFFF803, 0xFF803F, 0xF803FF,
-			    0x803FFF, 0x03FFF8, 0x3FFF80, 0xFFF001, 0xFF001F,
-			    0xF001FF, 0x001FFF, 0x01FFF0, 0x1FFF00, 0xFFC007,
-			    0xFC007F, 0xC007FF, 0x007FFC, 0x07FFC0, 0x7FFC00,
-			    0xFF8003, 0xF8003F, 0x8003FF, 0x003FF8, 0x03FF80,
-			    0x3FF800, 0xFF0001, 0xF0001F, 0x0001FF, 0x001FF0,
-			    0x01FF00, 0x1FF000, 0xFFFFFF};
+    unsigned int pat[np] = {0xFFFF01, 0xFFF01F, 0xFF01FF, 0xF01FFF, 0x01FFFF, 0x1FFFF0, 0xFFFC07, 0xFFC07F, 0xFC07FF,
+                            0xC07FFF, 0x07FFFC, 0x7FFFC0, 0xFFF803, 0xFF803F, 0xF803FF, 0x803FFF, 0x03FFF8, 0x3FFF80,
+                            0xFFF001, 0xFF001F, 0xF001FF, 0x001FFF, 0x01FFF0, 0x1FFF00, 0xFFC007, 0xFC007F, 0xC007FF,
+                            0x007FFC, 0x07FFC0, 0x7FFC00, 0xFF8003, 0xF8003F, 0x8003FF, 0x003FF8, 0x03FF80, 0x3FF800,
+                            0xFF0001, 0xF0001F, 0x0001FF, 0x001FF0, 0x01FF00, 0x1FF000, 0xFFFFFF};
     const std::vector<DetId>& ids = geom->getValidGeomDetIds();
     int all(0), total(0), good(0), bad(0);
     for (auto id : ids) {
       HGCSiliconDetId hid(id);
       auto type = hgdc.waferTypeRotation(hid.layer(), hid.waferU(), hid.waferV());
-      if (hid.zside() > 0) ++all;
+      if (hid.zside() > 0)
+        ++all;
       // Not a full wafer
       if (type.first > 0 && type.first < 10 && hid.zside() > 0) {
-	++total;
-	int wtype = hgdc.waferType(hid.layer(), hid.waferU(), hid.waferV());
-	int indx = (type.first - 1) * 6 + type.second;
-	GlobalPoint xyz = geom->getWaferPosition(id);
-	auto range = hgdc.rangeRLayer(hid.layer(), true);
-	unsigned int ipat(0), ii(1); 
-	for (unsigned int i = 0; i < nc; ++i) {
-	  double rp = std::sqrt((xyz.x() + dx[i]) * (xyz.x() + dx[i]) +
-				(xyz.y() + dy[i]) * (xyz.y() + dy[i]));
-	  if ((rp >= range.first) && (rp <= range.second))
-	    ipat += ii;
-	  ii *= 2;
-	}
-	bool match = (ipat == pat[indx]);
-	if (!match) {
-	  ii = 1;
-	  match = true;
-	  for (unsigned int i = 0; i < nc; ++i) {
-	    if ((((pat[indx] / ii) & 1) != 0) && (((ipat / ii) & 1) == 0)) {
-	      std::cout << "Fail at " << i << ":" << ii << " Expect " << ((pat[indx] / ii) & 1) << " Found " << ((ipat / ii) & 1) << std::endl;
-	      match = false;
-	      break;
-	    }
-	    ii *= 2;
-	  }
-	  if (match) {
-	    if (wtype == 0) {
-	      match = (static_cast<unsigned int>(std::find(pat, pat + np, ipat) - pat) >= np);
-	    } else {
-	      for (unsigned int i = 0; i < np; ++i) {
-		if (i < 12 || (i >= 18 && i  < 30) || (i >= 36)) {
-		  if (ipat == pat[i]) {
-		    match = false;
-		    break;
-		  }
-		}
-	      }
-	    }
-	  }
-	}
-	std::cout << "Wafer[" << wtype << ", " << hid.layer() << ", " << hid.waferU() << ", " << hid.waferV() << "] " << " with type: rotation " << type.first << ":" << type.second << " Pattern " << std::hex << pat[indx] << ":" << ipat << std::dec;
-	if (!match) {
-	  ++bad;
-	  std::cout << " ***** ERROR *****" << std::endl;
-	  hgdc.waferTypeRotation(hid.layer(), hid.waferU(), hid.waferV(), true);
-	  HGCalWaferMask::getTypeMode(xyz.x(), xyz.y(), r, R, range.first, range.second, wtype, 0, true);
-	  for (unsigned int i = 0; i < 24; ++i) {
-	    double rp = std::sqrt((xyz.x() + dx[i]) * (xyz.x() + dx[i]) +
-				  (xyz.y() + dy[i]) * (xyz.y() + dy[i]));
-	    std::cout << "Corner[" << i << "] (" << xyz.x() << ":" << xyz.y() << ") (" << (xyz.x() + dx[i]) << ":" << (xyz.y() + dy[i]) << " ) R " << rp << " Limit " << range.first << ":" << range.second << std::endl;
- 	  }
-	} else {
-	  ++good;
-	  std::cout << std::endl;
-	}
-	++total;
+        ++total;
+        int wtype = hgdc.waferType(hid.layer(), hid.waferU(), hid.waferV());
+        int indx = (type.first - 1) * 6 + type.second;
+        GlobalPoint xyz = geom->getWaferPosition(id);
+        auto range = hgdc.rangeRLayer(hid.layer(), true);
+        unsigned int ipat(0), ii(1);
+        for (unsigned int i = 0; i < nc; ++i) {
+          double rp = std::sqrt((xyz.x() + dx[i]) * (xyz.x() + dx[i]) + (xyz.y() + dy[i]) * (xyz.y() + dy[i]));
+          if ((rp >= range.first) && (rp <= range.second))
+            ipat += ii;
+          ii *= 2;
+        }
+        bool match = (ipat == pat[indx]);
+        if (!match) {
+          ii = 1;
+          match = true;
+          for (unsigned int i = 0; i < nc; ++i) {
+            if ((((pat[indx] / ii) & 1) != 0) && (((ipat / ii) & 1) == 0)) {
+              std::cout << "Fail at " << i << ":" << ii << " Expect " << ((pat[indx] / ii) & 1) << " Found "
+                        << ((ipat / ii) & 1) << std::endl;
+              match = false;
+              break;
+            }
+            ii *= 2;
+          }
+          if (match) {
+            if (wtype == 0) {
+              match = (static_cast<unsigned int>(std::find(pat, pat + np, ipat) - pat) >= np);
+            } else {
+              for (unsigned int i = 0; i < np; ++i) {
+                if (i < 12 || (i >= 18 && i < 30) || (i >= 36)) {
+                  if (ipat == pat[i]) {
+                    match = false;
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        }
+        std::cout << "Wafer[" << wtype << ", " << hid.layer() << ", " << hid.waferU() << ", " << hid.waferV() << "] "
+                  << " with type: rotation " << type.first << ":" << type.second << " Pattern " << std::hex << pat[indx]
+                  << ":" << ipat << std::dec;
+        if (!match) {
+          ++bad;
+          std::cout << " ***** ERROR *****" << std::endl;
+          hgdc.waferTypeRotation(hid.layer(), hid.waferU(), hid.waferV(), true);
+          HGCalWaferMask::getTypeMode(xyz.x(), xyz.y(), r, R, range.first, range.second, wtype, 0, true);
+          for (unsigned int i = 0; i < 24; ++i) {
+            double rp = std::sqrt((xyz.x() + dx[i]) * (xyz.x() + dx[i]) + (xyz.y() + dy[i]) * (xyz.y() + dy[i]));
+            std::cout << "Corner[" << i << "] (" << xyz.x() << ":" << xyz.y() << ") (" << (xyz.x() + dx[i]) << ":"
+                      << (xyz.y() + dy[i]) << " ) R " << rp << " Limit " << range.first << ":" << range.second
+                      << std::endl;
+          }
+        } else {
+          ++good;
+          std::cout << std::endl;
+        }
+        ++total;
       }
     }
-    std::cout << "\n\nExamined " << ids.size() << ":" << all << " wafers " << total << " partial wafers of which " << good << " are good and " << bad << " are bad" << std::endl << std::endl;
+    std::cout << "\n\nExamined " << ids.size() << ":" << all << " wafers " << total << " partial wafers of which "
+              << good << " are good and " << bad << " are bad" << std::endl
+              << std::endl;
   }
 }
 
