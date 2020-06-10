@@ -59,6 +59,7 @@ class JetPlusTrackAddonSeedProducer : public edm::stream::EDProducer<> {
       
       std::string            alias;
       double                 ptCUT;
+      double                 dRcone;
       bool                   usePAT;
       edm::EDGetTokenT<edm::View<reco::CaloJet> > input_jets_token_;
       edm::EDGetTokenT<edm::View<reco::TrackJet> > input_trackjets_token_;
