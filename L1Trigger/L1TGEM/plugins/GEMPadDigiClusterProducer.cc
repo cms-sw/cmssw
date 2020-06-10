@@ -108,6 +108,7 @@ private:
   unsigned int nOHGE11_;
   unsigned int nOHGE21_;
   unsigned int maxClusterSize_;
+  bool sendOverflowClusters_;
 
   const GEMGeometry* geometry_;
 };
@@ -119,6 +120,12 @@ GEMPadDigiClusterProducer::GEMPadDigiClusterProducer(const edm::ParameterSet& ps
   nOHGE11_ = ps.getParameter<unsigned int>("nOHGE11");
   nOHGE21_ = ps.getParameter<unsigned int>("nOHGE21");
   maxClusterSize_ = ps.getParameter<unsigned int>("maxClusterSize");
+  sendOverflowClusters_ = ps.getParameter<bool>("sendOverflowClusters");
+
+  if (sendOverflowClusters_) {
+    maxClustersOHGE11_ *= 2;
+    maxClustersOHGE21_ *= 2;
+  }
 
   pad_token_ = consumes<GEMPadDigiCollection>(pads_);
 
@@ -136,6 +143,7 @@ void GEMPadDigiClusterProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<unsigned int>("nOHGE11", 2);
   desc.add<unsigned int>("nOHGE21", 4);
   desc.add<unsigned int>("maxClusterSize", 8);
+  desc.add<unsigned int>("sendOverflowClusters", false);
 
   descriptions.add("simMuonGEMPadDigiClustersDef", desc);
 }
