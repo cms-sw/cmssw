@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 // system include files
-#include <boost/bind.hpp>
+#include <functional>
 #include <stdexcept>
 #include <iostream>
 #include <cstdio>
@@ -124,9 +124,9 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx, const FWViewManagerManager* 
   measureWMOffsets();
 
   FWEventItemsManager* im = (FWEventItemsManager*)m_context->eventItemsManager();
-  im->newItem_.connect(boost::bind(&FWGUIManager::newItem, this, _1));
+  im->newItem_.connect(std::bind(&FWGUIManager::newItem, this, std::placeholders::_1));
 
-  m_context->colorManager()->colorsHaveChangedFinished_.connect(boost::bind(&FWGUIManager::finishUpColorChange, this));
+  m_context->colorManager()->colorsHaveChangedFinished_.connect(std::bind(&FWGUIManager::finishUpColorChange, this));
 
   TEveCompositeFrame::IconBarCreator_foo foo = &FWGUIManager::makeGUIsubview;
   TEveCompositeFrame::SetupFrameMarkup(foo, 20, 4, false);
@@ -148,7 +148,7 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx, const FWViewManagerManager* 
 
       bool separator = (i == FWViewType::kGlimpse || i == FWViewType::kTableHLT || i == FWViewType::kLegoPFECAL);
       CSGAction* action = m_cmsShowMainFrame->createNewViewerAction(FWViewType::idToName(i), separator);
-      action->activated.connect(boost::bind(&FWGUIManager::newViewSlot, this, FWViewType::idToName(i)));
+      action->activated.connect(std::bind(&FWGUIManager::newViewSlot, this, FWViewType::idToName(i)));
     }
 
     m_detailViewManager = new FWDetailViewManager(m_context);
@@ -168,7 +168,7 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx, const FWViewManagerManager* 
         ->activated.connect(sigc::mem_fun(*this, &FWGUIManager::promptForSaveConfigurationFile));
     getAction(cmsshow::sSavePartialConfigAs)
         ->activated.connect(sigc::mem_fun(*this, &FWGUIManager::promptForPartialSaveConfigurationFile));
-    getAction(cmsshow::sShowEventDisplayInsp)->activated.connect(boost::bind(&FWGUIManager::showEDIFrame, this, -1));
+    getAction(cmsshow::sShowEventDisplayInsp)->activated.connect(std::bind(&FWGUIManager::showEDIFrame, this, -1));
     getAction(cmsshow::sShowMainViewCtl)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showViewPopup));
     getAction(cmsshow::sShowObjInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showModelPopup));
 
@@ -189,7 +189,7 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx, const FWViewManagerManager* 
 
     // toolbar special widget with non-void actions
     m_cmsShowMainFrame->m_delaySliderListener->valueChanged_.connect(
-        boost::bind(&FWGUIManager::delaySliderChanged, this, _1));
+        std::bind(&FWGUIManager::delaySliderChanged, this, std::placeholders::_1));
 
     TQObject::Connect(m_cmsShowMainFrame->m_runEntry, "ReturnPressed()", "FWGUIManager", this, "runIdChanged()");
     TQObject::Connect(m_cmsShowMainFrame->m_lumiEntry, "ReturnPressed()", "FWGUIManager", this, "lumiIdChanged()");
@@ -219,10 +219,10 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx, const FWViewManagerManager* 
 }
 
 void FWGUIManager::connectSubviewAreaSignals(FWGUISubviewArea* a) {
-  a->goingToBeDestroyed_.connect(boost::bind(&FWGUIManager::subviewIsBeingDestroyed, this, _1));
-  a->selected_.connect(boost::bind(&FWGUIManager::subviewInfoSelected, this, _1));
-  a->unselected_.connect(boost::bind(&FWGUIManager::subviewInfoUnselected, this, _1));
-  a->swap_.connect(boost::bind(&FWGUIManager::subviewSwapped, this, _1));
+  a->goingToBeDestroyed_.connect(std::bind(&FWGUIManager::subviewIsBeingDestroyed, this, std::placeholders::_1));
+  a->selected_.connect(std::bind(&FWGUIManager::subviewInfoSelected, this, std::placeholders::_1));
+  a->unselected_.connect(std::bind(&FWGUIManager::subviewInfoUnselected, this, std::placeholders::_1));
+  a->swap_.connect(std::bind(&FWGUIManager::subviewSwapped, this, std::placeholders::_1));
 }
 
 //
@@ -299,8 +299,8 @@ FWGUIManager::ViewMap_i FWGUIManager::createView(const std::string& iName, TEveW
   FWViewBase* viewBase = itFind->second(slot, iName);
   //in future, get context from 'view'
   FWViewContextMenuHandlerBase* base = viewBase->contextMenuHandler();
-  viewBase->openSelectedModelContextMenu_.connect(
-      boost::bind(&FWGUIManager::showSelectedModelContextMenu, m_guiManager, _1, _2, base));
+  viewBase->openSelectedModelContextMenu_.connect(std::bind(
+      &FWGUIManager::showSelectedModelContextMenu, m_guiManager, std::placeholders::_1, std::placeholders::_2, base));
 
   TEveWindow* eveWindow = ef->GetEveWindow();
   eveWindow->SetElementName(iName.c_str());
@@ -450,7 +450,7 @@ void FWGUIManager::subviewIsBeingDestroyed(FWGUISubviewArea* sva) {
     setViewPopup(nullptr);
 
   CmsShowTaskExecutor::TaskFunctor f;
-  f = boost::bind(&FWGUIManager::subviewDestroy, this, sva);
+  f = std::bind(&FWGUIManager::subviewDestroy, this, sva);
   m_tasks->addTask(f);
   m_tasks->startDoingTasks();
 }

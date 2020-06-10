@@ -14,7 +14,7 @@
 #include <iostream>
 #include <sstream>
 #include <sigc++/sigc++.h>
-#include <boost/bind.hpp>
+#include <functional>
 #include "TClass.h"
 #include "TGFrame.h"
 #include "TGTab.h"
@@ -70,7 +70,7 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
   m_selectionManager = selMgr;
   SetCleanup(kDeepCleanup);
 
-  m_selectionManager->itemSelectionChanged_.connect(boost::bind(&CmsShowEDI::fillEDIFrame, this));
+  m_selectionManager->itemSelectionChanged_.connect(std::bind(&CmsShowEDI::fillEDIFrame, this));
 
   TGVerticalFrame* vf = new TGVerticalFrame(this);
   AddFrame(vf, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0, 0, 0, 0));
@@ -292,10 +292,10 @@ void CmsShowEDI::fillEDIFrame() {
       updateLayerControls();
       m_layerEntry->SetState(kTRUE);
       m_displayChangedConn =
-          m_item->defaultDisplayPropertiesChanged_.connect(boost::bind(&CmsShowEDI::updateDisplay, this));
-      m_modelChangedConn = m_item->changed_.connect(boost::bind(&CmsShowEDI::updateFilter, this));
+          m_item->defaultDisplayPropertiesChanged_.connect(std::bind(&CmsShowEDI::updateDisplay, this));
+      m_modelChangedConn = m_item->changed_.connect(std::bind(&CmsShowEDI::updateFilter, this));
       //    m_selectionChangedConn = m_selectionManager->selectionChanged_.connect(boost::bind(&CmsShowEDI::updateSelection, this));
-      m_destroyedConn = m_item->goingToBeDestroyed_.connect(boost::bind(&CmsShowEDI::disconnectAll, this));
+      m_destroyedConn = m_item->goingToBeDestroyed_.connect(std::bind(&CmsShowEDI::disconnectAll, this));
 
       clearPBFrame();
       m_item->getConfig()->populateFrame(m_settersFrame);

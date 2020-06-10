@@ -12,7 +12,7 @@
 
 // system include files
 #include <sstream>
-#include <boost/bind.hpp>
+#include <functional>
 #include "TClass.h"
 
 // user include files
@@ -88,7 +88,7 @@ FWEventItem* FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem, const FW
 
   m_items.push_back(new FWEventItem(m_context, m_items.size(), m_accessorFactory->accessorFor(temp.type()), temp, pbc));
   newItem_(m_items.back());
-  m_items.back()->goingToBeDestroyed_.connect(boost::bind(&FWEventItemsManager::removeItem, this, _1));
+  m_items.back()->goingToBeDestroyed_.connect(std::bind(&FWEventItemsManager::removeItem, this, std::placeholders::_1));
   if (doSetEvent && m_event) {
     FWChangeSentry sentry(*m_changeManager);
     m_items.back()->setEvent(m_event);
