@@ -169,7 +169,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
               zv = polygon.zVec();
               rv = polygon.xVec();
             }
-	    php.waferR_ = 2.0 * HGCalParameters::k_ScaleFromDDDToG4 * rv[0] * tan30deg_;
+            php.waferR_ = 2.0 * HGCalParameters::k_ScaleFromDDDToG4 * rv[0] * tan30deg_;
             php.waferSize_ = HGCalParameters::k_ScaleFromDDD * rv[0];
             double dz = 0.5 * HGCalParameters::k_ScaleFromDDDToG4 * (zv[1] - zv[0]);
 #ifdef EDM_ML_DEBUG
@@ -1377,8 +1377,8 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
         int copy = i + php.layerOffset_;
         std::pair<double, double> xyoff = geomTools_.shiftXY(php.layerCenter_[copy], (waferW + waferS));
         int lay = php.layer_[php.layerIndex_[i]];
-	double xpos0 = xpos + xyoff.first;
-	double ypos0 = ypos + xyoff.second;
+        double xpos0 = xpos + xyoff.first;
+        double ypos0 = ypos + xyoff.second;
         double zpos = php.zLayerHex_[i];
         int type = wType->getType(HGCalParameters::k_ScaleToDDD * xpos0,
                                   HGCalParameters::k_ScaleToDDD * ypos0,
@@ -1412,7 +1412,11 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
                 xpos0, ypos0, r1, R1, php.rMinLayHex_[i], php.rMaxLayHex_[i], type, php.waferMaskMode_);
             waferTypes[wl] = corner0;
 #ifdef EDM_ML_DEBUG
-	    edm::LogVerbatim("HGCalGeom") << "Layer " << lay << " u|v " << u << ":" << v << " Index " << std::hex << wl << std::dec << " pos " << xpos0 << ":" << ypos0 << " R " << r1 << ":" << R1 << " Range " << php.rMinLayHex_[i] << ":" << php.rMaxLayHex_[i] << type << ":" << php.waferMaskMode_ << " corner " << corner.first << ":" << corner.second << " croner0 " << corner0.first << ":" << corner0.second;
+            edm::LogVerbatim("HGCalGeom")
+                << "Layer " << lay << " u|v " << u << ":" << v << " Index " << std::hex << wl << std::dec << " pos "
+                << xpos0 << ":" << ypos0 << " R " << r1 << ":" << R1 << " Range " << php.rMinLayHex_[i] << ":"
+                << php.rMaxLayHex_[i] << type << ":" << php.waferMaskMode_ << " corner " << corner.first << ":"
+                << corner.second << " croner0 " << corner0.first << ":" << corner0.second;
 #endif
           } else {
             waferTypes[wl] = corner;
