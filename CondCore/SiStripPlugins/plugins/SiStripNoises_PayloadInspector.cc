@@ -51,14 +51,14 @@ namespace {
     test class
   *************************************************/
 
-  class SiStripNoisesTest : public cond::payloadInspector::Histogram1D<SiStripNoises> {
+  class SiStripNoisesTest
+      : public cond::payloadInspector::Histogram1D<SiStripNoises, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripNoisesTest()
-        : cond::payloadInspector::Histogram1D<SiStripNoises>("SiStrip Noise test", "SiStrip Noise test", 10, 0.0, 10.0),
+        : cond::payloadInspector::Histogram1D<SiStripNoises, cond::payloadInspector::SINGLE_IOV>(
+              "SiStrip Noise test", "SiStrip Noise test", 10, 0.0, 10.0),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {
-      Base::setSingleIov(true);
-    }
+              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -261,13 +261,12 @@ namespace {
   *************************************************/
 
   // inherit from one of the predefined plot class: Histogram1D
-  class SiStripNoiseValue : public cond::payloadInspector::Histogram1D<SiStripNoises> {
+  class SiStripNoiseValue
+      : public cond::payloadInspector::Histogram1D<SiStripNoises, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripNoiseValue()
-        : cond::payloadInspector::Histogram1D<SiStripNoises>(
-              "SiStrip Noise values", "SiStrip Noise values", 100, 0.0, 10.0) {
-      Base::setSingleIov(true);
-    }
+        : cond::payloadInspector::Histogram1D<SiStripNoises, cond::payloadInspector::SINGLE_IOV>(
+              "SiStrip Noise values", "SiStrip Noise values", 100, 0.0, 10.0) {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -296,13 +295,13 @@ namespace {
   *************************************************/
 
   // inherit from one of the predefined plot class: Histogram1D
-  class SiStripNoiseValuePerDetId : public cond::payloadInspector::Histogram1D<SiStripNoises> {
+  class SiStripNoiseValuePerDetId
+      : public cond::payloadInspector::Histogram1D<SiStripNoises, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripNoiseValuePerDetId()
-        : cond::payloadInspector::Histogram1D<SiStripNoises>(
+        : cond::payloadInspector::Histogram1D<SiStripNoises, cond::payloadInspector::SINGLE_IOV>(
               "SiStrip Noise values per DetId", "SiStrip Noise values per DetId", 100, 0.0, 10.0) {
       cond::payloadInspector::PlotBase::addInputParam("DetId");
-      Base::setSingleIov(true);
     }
 
     bool fill() override {
@@ -335,14 +334,16 @@ namespace {
 
   // inherit from one of the predefined plot class: PlotImage
   template <SiStripPI::OpMode op_mode_>
-  class SiStripNoiseDistribution : public cond::payloadInspector::PlotImage<SiStripNoises> {
+  class SiStripNoiseDistribution
+      : public cond::payloadInspector::PlotImage<SiStripNoises, cond::payloadInspector::SINGLE_IOV> {
   public:
-    SiStripNoiseDistribution() : cond::payloadInspector::PlotImage<SiStripNoises>("SiStrip Noise values") {
-      setSingleIov(true);
+    SiStripNoiseDistribution()
+        : cond::payloadInspector::PlotImage<SiStripNoises, cond::payloadInspector::SINGLE_IOV>("SiStrip Noise values") {
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
 
       TGaxis::SetMaxDigits(3);
       gStyle->SetOptStat("emr");
@@ -788,16 +789,16 @@ namespace {
   *************************************************/
 
   template <SiStripPI::estimator est>
-  class SiStripNoiseTrackerMap : public cond::payloadInspector::PlotImage<SiStripNoises> {
+  class SiStripNoiseTrackerMap
+      : public cond::payloadInspector::PlotImage<SiStripNoises, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripNoiseTrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripNoises>("Tracker Map of SiStripNoise " + estimatorType(est) +
-                                                           " per module") {
-      setSingleIov(true);
-    }
+        : cond::payloadInspector::PlotImage<SiStripNoises, cond::payloadInspector::SINGLE_IOV>(
+              "Tracker Map of SiStripNoise " + estimatorType(est) + " per module") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripNoises> payload = fetchPayload(std::get<1>(iov));
 
       std::string titleMap =
@@ -1055,17 +1056,18 @@ namespace {
   *************************************************/
 
   template <SiStripPI::estimator est>
-  class SiStripNoiseByRegion : public cond::payloadInspector::PlotImage<SiStripNoises> {
+  class SiStripNoiseByRegion
+      : public cond::payloadInspector::PlotImage<SiStripNoises, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripNoiseByRegion()
-        : cond::payloadInspector::PlotImage<SiStripNoises>("SiStrip Noise " + estimatorType(est) + " by Region"),
+        : cond::payloadInspector::PlotImage<SiStripNoises, cond::payloadInspector::SINGLE_IOV>(
+              "SiStrip Noise " + estimatorType(est) + " by Region"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {
-      setSingleIov(true);
-    }
+              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripNoises> payload = fetchPayload(std::get<1>(iov));
 
       SiStripDetSummary summaryNoise{&m_trackerTopo};
@@ -1385,15 +1387,16 @@ namespace {
   /************************************************
     Noise linearity
   *************************************************/
-  class SiStripNoiseLinearity : public cond::payloadInspector::PlotImage<SiStripNoises> {
+  class SiStripNoiseLinearity
+      : public cond::payloadInspector::PlotImage<SiStripNoises, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripNoiseLinearity()
-        : cond::payloadInspector::PlotImage<SiStripNoises>("Linearity of Strip Noise as a fuction of strip length") {
-      setSingleIov(true);
-    }
+        : cond::payloadInspector::PlotImage<SiStripNoises, cond::payloadInspector::SINGLE_IOV>(
+              "Linearity of Strip Noise as a fuction of strip length") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripNoises> payload = fetchPayload(std::get<1>(iov));
 
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
