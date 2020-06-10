@@ -179,7 +179,7 @@ bool PyquenHadronizer::generatePartonsAndHadronize() {
       LogWarning("EventEmbedding") << "Background event does not have heavy ion record!";
     }
   }
-  
+
   // Generate PYQUEN event
   // generate single partonic PYTHIA jet event
 
@@ -231,9 +231,9 @@ bool PyquenHadronizer::generatePartonsAndHadronize() {
   }
 
   //  HepMC::HEPEVT_Wrapper::check_hepevt_consistency();
-  
+
   event().reset(evt);
-  
+
   return true;
 }
 
