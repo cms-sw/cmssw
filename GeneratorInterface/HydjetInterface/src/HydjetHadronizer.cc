@@ -334,7 +334,7 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent* evt) {
   int ihy = 0;
   int isub = -1;
   int isub_l = -1;
-
+  int stab = 0;
 
   vector<HepMC::GenParticle*> primary_particle(hyjets.nhj);
   vector<HepMC::GenParticle*> particle(hyjets.nhj);
