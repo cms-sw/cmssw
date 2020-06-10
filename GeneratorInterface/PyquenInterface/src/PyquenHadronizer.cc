@@ -233,7 +233,7 @@ bool PyquenHadronizer::generatePartonsAndHadronize() {
   //  HepMC::HEPEVT_Wrapper::check_hepevt_consistency();
   
   event().reset(evt);
-
+  
   return true;
 }
 
