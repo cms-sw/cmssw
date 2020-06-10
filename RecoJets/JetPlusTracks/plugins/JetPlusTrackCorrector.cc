@@ -426,10 +426,12 @@ bool JetPlusTrackCorrector::jtaUsingEventData( const reco::Jet& fJet,
   else { rebuildJta( fJet, jtV, trks.vertex_, excluded ); rebuildJta( fJet, jtV, relocate, excluded ); trks.vertex_ = relocate;}
 
   // std::cout<<" JetPlusTrackCorrector::trks.vertex_.empty() "<<trks.vertex_.size()<<" "<<relocate.size()<<std::endl;   
-  // Check if any tracks are associated to jet at vertex
-  // if ( trks.vertex_.empty() ) { return false; }
 
-  if ( trks.vertex_.size() == 0 ) { return false; }
+  // Check if any tracks are associated to jet at vertex
+
+  if ( trks.vertex_.empty() ) { return false; }
+
+  //if ( trks.vertex_.size() == 0 ) { return false; }
 
   // Get Jet-track association at Calo
   edm::Handle<reco::JetTracksAssociation::Container> jetTracksAtCalo;

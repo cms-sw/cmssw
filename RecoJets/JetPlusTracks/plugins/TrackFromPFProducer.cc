@@ -38,7 +38,7 @@ void TrackFromPFProducer::produce(edm::Event& theEvent, const edm::EventSetup& s
     for(unsigned int i = 0, n = pfCandidates->size(); i < n; ++i) {
         const pat::PackedCandidate &pf = (*pfCandidates)[i];
         if(pf.hasTrackDetails()){
-          reco::Track mytrack = pf.pseudoTrack();
+          const reco::Track &mytrack = pf.pseudoTrack();
 
          // std::cout<<" Track "<<std::isfinite(mytrack.pt())<<" "<<
            //    isnan(mytrack.eta())<<" "<<pf.ptTrk()<<" "<<pf.etaAtVtx()<<" "<<

@@ -64,6 +64,7 @@ JetPlusTrackAddonSeedProducer::JetPlusTrackAddonSeedProducer(const edm::Paramete
    srcTrackJets = iConfig.getParameter<edm::InputTag>("srcTrackJets");
    srcPVs_ = iConfig.getParameter<edm::InputTag>("srcPVs");
    ptCUT = iConfig.getParameter<double>("ptCUT");
+   dRcone = iConfig.getParameter<double>("dRcone");
    usePAT = iConfig.getParameter<bool>("UsePAT");
  
    produces<reco::CaloJetCollection>("ak4CaloJetsJPTSeed"); 
@@ -109,7 +110,7 @@ JetPlusTrackAddonSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup
   auto pCaloOut = std::make_unique<reco::CaloJetCollection>();
 
    if (jetsTrackJets.isValid()) {
-     if(jetsTrackJets->size() > 0 ) {
+     if(!jetsTrackJets->empty() ) {
      // std::cout<<" AddonSeed::The size of trackjets "<<jetsTrackJets->size()<<" "<<jets_h->size()<<std::endl;
       for (unsigned ijet = 0; ijet < jetsTrackJets->size(); ++ijet) {
           const reco::TrackJet* jet = &(*(jetsTrackJets->refAt(ijet)));
@@ -120,7 +121,7 @@ JetPlusTrackAddonSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup
           double dphi = fabs(jet->phi()-oldjet->phi()); 
           if(dphi>4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
           double dr = sqrt(dphi*dphi+deta*deta);
-          if(dr<0.4) iflag = 1;  
+          if(dr<dRcone) iflag = 1;  
          } // Calojets
 
      if(iflag == 1) continue;
@@ -171,8 +172,7 @@ JetPlusTrackAddonSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup
       edm::Handle<CaloTowerCollection> ct;
       iEvent.getByToken(input_ctw_token_, ct);
       if(ct.isValid()) {
-      for(CaloTowerCollection::const_iterator it = ct->begin();
-                                           it != ct->end(); it++) {  
+      for(CaloTowerCollection::const_iterator it = ct->begin();it != ct->end(); it++) {  
         double  deta=(*jet).eta()-(*it).eta();
         double  dphi=(*jet).phi()-(*it).phi();
         if(dphi > 4.*atan(1.) ) dphi = dphi-8.*atan(1.);
@@ -189,7 +189,7 @@ JetPlusTrackAddonSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup
          eminhf += 0.5*(*it).energyInHF();
          ncand++;
       }
-      } // tower collection is valid. 
+      } 
      } 
          eefraction = (emineb+eminee)/caloen;
          hhfraction = (hadinhb+hadinhe+hadinhf+hadinho)/caloen;

@@ -134,7 +134,7 @@ JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double scaleJPT = 1.;
     std::vector<reco::JPTJet> theJPTJets;
    if (jetsTrackJets.isValid()) {
-     if(jetsTrackJets->size() > 0 ) {
+     if(!jetsTrackJets->empty()) {
       for (unsigned ijet = 0; ijet < jetsTrackJets->size(); ++ijet) {
          const reco::TrackJet* jet = &(*(jetsTrackJets->refAt(ijet)));
          int icalo = -1;
