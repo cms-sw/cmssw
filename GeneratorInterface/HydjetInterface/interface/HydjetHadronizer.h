@@ -33,7 +33,7 @@ namespace HepMC {
   class GenParticle;
   class GenVertex;
   class FourVector;
-}
+}  // namespace HepMC
 
 namespace gen {
   class Pythia6Service;
@@ -117,29 +117,26 @@ namespace gen {
     double qgptau0_;                      ///< proper time of QGP formation
                                           ///< DEFAULT = 0.1 fm/c; allowed range [0.01,10.0]fm/
 
-    double phi0_;  			  ///< Event plane angle
+    double phi0_;  ///< Event plane angle
     double sinphi0_;
     double cosphi0_;
-    bool rotate_;  			  ///< Switch to rotate event plane
+    bool rotate_;  ///< Switch to rotate event plane
 
-    unsigned int shadowingswitch_;  	  ///< shadowing switcher
-                                    	  ///< 1-ON, 0-OFF
-    double signn_;                  	  ///< inelastic nucleon nucleon cross section [mb]
-                                    	  ///< DEFAULT= 58 mb
-    HepMC::FourVector* fVertex_;	  ///< Event signal vertex
-    std::vector<double> signalVtx_;	  ///< Pset double vector to set event signal vertex
+    unsigned int shadowingswitch_;   ///< shadowing switcher
+                                     ///< 1-ON, 0-OFF
+    double signn_;                   ///< inelastic nucleon nucleon cross section [mb]
+                                     ///< DEFAULT= 58 mb
+    HepMC::FourVector* fVertex_;     ///< Event signal vertex
+    std::vector<double> signalVtx_;  ///< Pset double vector to set event signal vertex
 
     Pythia6Service* pythia6Service_;
     edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct> > src_;
   };
 
- /**
+  /**
     Return the nuclear radius derived from the
     beam/target atomic mass number.
  */
-  double HydjetHadronizer::nuclear_radius() const {
-
-    return 1.15 * pow((double)abeamtarget_, 1. / 3.);
-  }
+  double HydjetHadronizer::nuclear_radius() const { return 1.15 * pow((double)abeamtarget_, 1. / 3.); }
 }  // namespace gen
 #endif
