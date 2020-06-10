@@ -12,7 +12,7 @@
 
 // system include files
 #include <sstream>
-#include <boost/bind.hpp>
+#include <functional>
 #include "TClass.h"
 
 // user include files
@@ -40,8 +40,8 @@ FWCollectionSummaryTableManager::FWCollectionSummaryTableManager(FWEventItem* iI
       m_renderer(iContext, iHighlightContext),
       m_bodyRenderer(iContext, iHighlightContext, FWTextTableCellRenderer::kJustifyRight),
       m_widget(iWidget) {
-  m_collection->changed_.connect(boost::bind(&FWTableManagerBase::dataChanged, this));
-  m_collection->itemChanged_.connect(boost::bind(&FWCollectionSummaryTableManager::dataChanged, this));
+  m_collection->changed_.connect(std::bind(&FWTableManagerBase::dataChanged, this));
+  m_collection->itemChanged_.connect(std::bind(&FWCollectionSummaryTableManager::dataChanged, this));
 
   //try to find the default columns
   std::vector<std::pair<std::string, std::string> > s_names;

@@ -10,7 +10,7 @@
 //         Created:  Thu Feb 21 11:22:41 EST 2008
 //
 
-#include <boost/bind.hpp>
+#include <functional>
 
 #include "TGLPerspectiveCamera.h"
 #include "TGLViewer.h"
@@ -69,8 +69,8 @@ FWGlimpseView::FWGlimpseView(TEveWindowSlot* iParent, FWViewType::EType typeId)
 
   TGLViewer* ev = viewerGL();
   ev->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
-  m_showAxes.changed_.connect(boost::bind(&FWGlimpseView::showAxes, this));
-  m_showCylinder.changed_.connect(boost::bind(&FWGlimpseView::showCylinder, this));
+  m_showAxes.changed_.connect(std::bind(&FWGlimpseView::showAxes, this));
+  m_showCylinder.changed_.connect(std::bind(&FWGlimpseView::showCylinder, this));
 }
 
 FWGlimpseView::~FWGlimpseView() {}

@@ -13,7 +13,7 @@
 // system include files
 #include <iostream>
 #include <vector>
-#include <boost/bind.hpp>
+#include <functional>
 #include "TGButton.h"
 #include "TGResourcePool.h"
 #include "TVirtualX.h"
@@ -41,7 +41,8 @@ struct FWCollectionSummaryWidgetConnectionHolder {
   std::vector<sigc::connection> m_connections;
 
   ~FWCollectionSummaryWidgetConnectionHolder() {
-    for_each(m_connections.begin(), m_connections.end(), boost::bind(&sigc::connection::disconnect, _1));
+    for_each(
+        m_connections.begin(), m_connections.end(), std::bind(&sigc::connection::disconnect, std::placeholders::_1));
   }
   void push_back(const sigc::connection& iC) { m_connections.push_back(iC); }
   void reserve(size_t iSize) { m_connections.reserve(iSize); }
@@ -296,11 +297,11 @@ FWCollectionSummaryWidget::FWCollectionSummaryWidget(TGFrame* iParent, FWEventIt
 
   m_connectionHolder->reserve(3);
   m_connectionHolder->push_back(m_collection->defaultDisplayPropertiesChanged_.connect(
-      boost::bind(&FWCollectionSummaryWidget::displayChanged, this)));
+      std::bind(&FWCollectionSummaryWidget::displayChanged, this)));
   m_connectionHolder->push_back(
-      m_collection->itemChanged_.connect(boost::bind(&FWCollectionSummaryWidget::itemChanged, this)));
+      m_collection->itemChanged_.connect(std::bind(&FWCollectionSummaryWidget::itemChanged, this)));
   m_connectionHolder->push_back(
-      m_collection->filterChanged_.connect(boost::bind(&FWCollectionSummaryWidget::itemChanged, this)));
+      m_collection->filterChanged_.connect(std::bind(&FWCollectionSummaryWidget::itemChanged, this)));
 
   MapSubwindows();
   Layout();
