@@ -6,6 +6,7 @@
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include <string>
 #include <array>
+#include <unordered_map>
 
 /**
    @class HGCalSiNoiseMap
@@ -13,6 +14,7 @@
 */
 class HGCalSiNoiseMap : public HGCalRadiationMap {
 public:
+
   enum GainRange_t { q80fC, q160fC, q320fC, AUTO };
   enum NoiseMapAlgoBits_t { FLUENCE, CCE, NOISE };
 
@@ -71,11 +73,17 @@ public:
   std::vector<std::vector<double> > &getENCsParam() { return encsParam_; }
   std::vector<double> &getLSBPerGain() { return lsbPerGain_; }
   std::vector<double> &getMaxADCPerGain() { return chargeAtFullScaleADCPerGain_; }
-  double getENCpad(const double &ileak,bool useHGCROCV2=false);
+  double getENCpad(const double &ileak);
 
   inline void setENCCommonNoiseSubScale(double val) { encCommonNoiseSub_=val; }
 
 private:
+
+  //maps any detId to a wafer in sector=0 by equivalence
+  uint32_t getSiOpCacheKey(const HGCSiliconDetId &detId);
+
+  //cache of SiCellOpCharacteristics
+  std::unordered_map<uint32_t, SiCellOpCharacteristics> siopCache_;
 
   //vector of three params, per sensor type: 0:120 [mum], 1:200, 2:300
   std::array<double, 3> mipEqfC_, cellCapacitance_, cellVolume_;
