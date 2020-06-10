@@ -11,7 +11,8 @@
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include "RecoLocalCalo/HGCalRecProducers/plugins/KernelManagerHGCalRecHit.h"
 
-namespace cp = hgcal_conditions::parameters;  
+namespace cpar = hgcal_conditions::parameters;
+namespace cpos = hgcal_conditions::positions;  
 
 // Declare the wrapper ESProduct. The corresponding ESProducer should
 // produce objects of this type.
@@ -19,7 +20,7 @@ class HeterogeneousHGCalHEFConditionsWrapper {
  public:
   // Constructor takes the standard CPU ESProduct, and transforms the
   // necessary data to array(s) in pinned host memory
-  HeterogeneousHGCalHEFConditionsWrapper(const HGCalParameters*);
+  HeterogeneousHGCalHEFConditionsWrapper(const HGCalParameters*, const cpos::HGCalPositions*);
   
   // Deallocates all pinned host memory
   ~HeterogeneousHGCalHEFConditionsWrapper();
@@ -30,16 +31,27 @@ class HeterogeneousHGCalHEFConditionsWrapper {
  private:
   // Holds the data in pinned CPU memory
   // Contrary to its non-heterogeneous counterpart (constructor argument) it is *not* a pointer (so to avoid an extra allocation)
-  cp::HeterogeneousHGCalHEFParameters params_;
+  cpar::HeterogeneousHGCalHEFParameters params_;
+  cpos::HeterogeneousHGCalPositions pos_;
 
-  std::vector<size_t> sizes_;
-  size_t chunk_;
+  std::vector<size_t> sizes_params_;
+  std::vector<size_t> sizes_pos_;
+  size_t chunk_params_;
+  size_t chunk_pos_;
 
-  void calculate_memory_bytes(const HGCalParameters*);
-  double*& select_pointer_d(cp::HeterogeneousHGCalHEFParameters*, const unsigned int&) const;
+  std::vector<size_t> calculate_memory_bytes_params_(const HGCalParameters*);
+  std::vector<size_t> calculate_memory_bytes_pos_(const cpos::HGCalPositions*);
+  size_t allocate_memory_params_(const std::vector<size_t>&);
+  size_t allocate_memory_pos_(const std::vector<size_t>&);
+  void transfer_data_to_heterogeneous_pointers_params_(const std::vector<size_t>&, const HGCalParameters*);
+  void transfer_data_to_heterogeneous_pointers_pos_(const std::vector<size_t>&, const cpos::HGCalPositions*);
+  
+  double*& select_pointer_d(cpar::HeterogeneousHGCalHEFParameters*, const unsigned int&) const;
   std::vector<double> select_pointer_d(const HGCalParameters*, const unsigned int&) const;
-  int32_t*& select_pointer_i(cp::HeterogeneousHGCalHEFParameters*, const unsigned int&) const;
+  int32_t*& select_pointer_i(cpar::HeterogeneousHGCalHEFParameters*, const unsigned int&) const;
   std::vector<int32_t> select_pointer_i(const HGCalParameters*, const unsigned int&) const;
+  float*& select_pointer_f(cpos::HeterogeneousHGCalPositions*, const unsigned int&) const;
+  std::vector<float> select_pointer_f(const cpos::HGCalPositions*, const unsigned int&) const;
 
   // Helper struct to hold all information that has to be allocated and
   // deallocated per device
