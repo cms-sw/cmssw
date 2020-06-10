@@ -95,8 +95,11 @@ public:
   inline int nDisc() const {
     return (((((id_ >> kRodRingOffset) & kRodRingMask) - 1) >> kETLnDiscOffset) & kETLnDiscMask) + 1;
   }
+
+  uint32_t newForm(const uint32_t& rawid);
+
 };
 
-std::ostream& operator<<(std::ostream&, const ETLDetId&);
+  std::ostream& operator<<(std::ostream&, const ETLDetId&);
 
 #endif  // DataFormats_ETLDetId_ETLDetId_h
