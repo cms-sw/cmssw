@@ -46,16 +46,16 @@ async def index(request):
 async def samples_legacy(request):
     """Returns a list of matching run/dataset pairs based on provided regex search."""
 
-    run = request.rel_url.query.get('run')
+    run, lumi = parse_run_lumi(request.rel_url.query.get('run'))
     dataset = request.rel_url.query.get('match')
 
-    samples = await service.get_samples(run, dataset)
+    samples = await service.get_samples(run, dataset, lumi)
 
     result = {
         'samples': [{
             'type': 'offline_data',
             'items': [{
-                'run': sample.run,
+                'run': sample.run if sample.lumi == 0 else '%s:%s' % (sample.run, sample.lumi),
                 'dataset': sample.dataset
             } for sample in samples]
         }]
@@ -67,14 +67,16 @@ async def samples_v1(request):
     """Returns a list of matching run/dataset pairs based on provided regex search."""
 
     run = request.rel_url.query.get('run')
+    lumi = request.rel_url.query.get('lumi', 10)
     dataset = request.rel_url.query.get('dataset')
 
-    samples = await service.get_samples(run, dataset)
+    samples = await service.get_samples(run, dataset, lumi)
 
     result = {
         'data': [{
             'run': sample.run,
-            'dataset': sample.dataset
+            'lumi': sample.lumi,
+            'dataset': sample.dataset,
         } for sample in samples]
     }
     return web.json_response(result)

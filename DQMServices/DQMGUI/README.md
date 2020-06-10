@@ -149,19 +149,21 @@ This is the future version of the DQM GUI API and it is preferred for all servic
 
 #### Samples endpoint
 
-Returns run/dataset pairs available in the GUI. Both arguments are optional and support regex.
+Returns run/dataset pairs available in the GUI. All arguments are optional. If lumi is not passed, 0 is assumed and only per run plots are returned.
 
-`http://localhost:8889/api/v1/samples?run=295120&dataset=Run2017A`
+`http://localhost:8889/api/v1/samples?run=295120&lumi=123&dataset=Run2017A`
 
 ```json
 {
   "data": [
     {
       "run": 295120,
+      "lumi": 123,
       "dataset": "/Cosmics/Run2017A-PromptReco-v1/DQMIO"
     },
     {
       "run": 295120,
+      "lumi": 123,
       "dataset": "/StreamExpressCosmics/Run2017A-Express-v1/DQMIO"
     }
   ]
@@ -174,7 +176,10 @@ Run, full dataset and a path has to be provided in the URL.
 
 If `layout` is `null`, ME is not coming from a layout. Otherwise, `layout` contains the name of the layout this ME comes from. 
 
+`lumi` is optional. Passing 0 or not passing it at all returns per result.
+
 `http://localhost:8889/api/v1/archive/316142/StreamExpress/Run2018A-Express-v1/DQMIO/PixelPhase1`
+`http://localhost:8889/api/v1/archive/316142:123/StreamExpress/Run2018A-Express-v1/DQMIO/PixelPhase1`
 
 ```json
 {
@@ -220,7 +225,7 @@ Returns all layouts with the same name. Used for quick collections.
 
 Renders a PNG of a histogram.
 
-`http://localhost:8889/api/v1/render/316142/StreamExpress/Run2018A-Express-v1/DQMIO/PixelPhase1/EventInfo/reportSummaryMap?w=266&h=200&stats=false&norm=false&errors=true`
+`http://localhost:8889/api/v1/render/316142:lumi/StreamExpress/Run2018A-Express-v1/DQMIO/PixelPhase1/EventInfo/reportSummaryMap?w=266&h=200&stats=false&norm=false&errors=true`
 
 #### Overlay rendering endpoint
 
@@ -249,6 +254,10 @@ Because not all plots are being saved per lumisection (depends on CMSSW configur
 `/api/v1/archive/run:lumi/dataset/me_path`
 
 Lumi 0 indicates per run plots. If lumi is omitted and only run is provided, it's assumed that it's value is 0.
+
+### Samples endpoint
+
+`/api/v1/samples?run=317297&dataset=ZeroBias&lumi=555`
 
 ### Render endpoint
 
@@ -297,3 +306,18 @@ Copy desired file to local storage with a XRD redirector:
 INTs are saved as strings in this format: <objectName>i=value</objectName>
 FLOATs are saved as strings in this format: <objectName>f=value</objectName>
 STRINGs are saved as strings in this format: <objectName>s="value"</objectName>
+
+
+## Desired UI functionality for per lumi data
+
+We want to have two search fields (dataset and run) and a toggle switch. If toggle is off, we search only for per run data. If toggle is on, another text field appears (for lumi search). If that new text field is left empty, we search only for data that's available per lumi and return all lumis. If that text field is filled, we search for only for data that's available per lumi and filter lumis based on the contents of the field.
+
+# Protocol buffers
+
+``` bash
+cd DQMServices/DQMGUI/python/
+cp ../../Core/src/ROOTFilePB.proto protobuf/
+protoc -I=protobuf --python_out=protobuf protobuf/ROOTFilePB.proto
+```
+
+

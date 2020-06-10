@@ -27,13 +27,15 @@ class GUIService:
 
     @classmethod
     @alru_cache(maxsize=10)
-    async def get_samples(cls, run, dataset):
+    async def get_samples(cls, run, dataset, lumi=0):
         if run == '':
             run = None
         if dataset == '':
             dataset = None
+        if lumi == '':
+            lumi = None
         
-        results = await cls.store.get_samples(run, dataset)
+        results = await cls.store.get_samples(run, dataset, lumi)
         return [Sample(*x) for x in results]
 
 

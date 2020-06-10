@@ -56,27 +56,32 @@ class GUIDataStore:
 
 
     @classmethod
-    async def get_samples(cls, run, dataset):
-        if run:
+    async def get_samples(cls, run, dataset, lumi=0):
+        if run != None:
             run = '%%%s%%' % run
-        if dataset:
+        if dataset != None:
             dataset = '%%%s%%' % dataset
+        if lumi == None:
+            lumi = 0
 
-        cursor = None
+        sql = 'SELECT DISTINCT run, dataset, lumi FROM samples '
+        args = ()
 
-        if run == dataset == None:
-            sql = 'SELECT DISTINCT run, dataset FROM samples;'
-            cursor = await cls.__db.execute(sql)
-        elif run != None and dataset != None:
-            sql = 'SELECT DISTINCT run, dataset FROM samples WHERE dataset LIKE ? AND run LIKE ?;'
-            cursor = await cls.__db.execute(sql, (dataset, run))
-        elif run != None:
-            sql = 'SELECT DISTINCT run, dataset FROM samples WHERE run LIKE ?;'
-            cursor = await cls.__db.execute(sql, (run,))
-        elif dataset != None:
-            sql = 'SELECT DISTINCT run, dataset FROM samples WHERE dataset LIKE ?;'
-            cursor = await cls.__db.execute(sql, (dataset,))
+        def add_where_condition(condition, arg):
+            nonlocal sql
+            nonlocal args
+            sql += 'WHERE ' if len(args) == 0 else 'AND '
+            sql += condition + ' '
+            args += (arg,)
 
+        if dataset != None:
+            add_where_condition('dataset LIKE ?', dataset)
+        if run != None:
+            add_where_condition('run LIKE ?', run)
+        if lumi != None:
+            add_where_condition('lumi = ?', int(lumi))
+
+        cursor = await cls.__db.execute(sql, args)
         rows = await cursor.fetchall()
         await cursor.close()
 

@@ -123,9 +123,14 @@ def parse_run_lumi(runlumi):
     This method parses such string and returns a tuple (run, lumi).
     If lumi is not passed, it's assumed that it's value is 0.
     """
-
-    if ':' in runlumi:
+    
+    if not runlumi:
+        return None, None
+    elif ':' in runlumi:
         parts = runlumi.split(':')
-        return parts[0], parts[1]
+        if not parts[1]:
+            return parts[0], 0
+        else:
+            return parts[0], parts[1]
     else:
         return runlumi, 0

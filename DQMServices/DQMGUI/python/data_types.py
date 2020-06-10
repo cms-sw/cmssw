@@ -7,7 +7,7 @@ from enum import IntEnum
 from collections import namedtuple
 
 
-Sample = namedtuple('Sample', ['run', 'dataset'])
+Sample = namedtuple('Sample', ['run', 'dataset', 'lumi'])
 SampleFull = namedtuple('SampleFull', ['dataset', 'run', 'lumi', 'file', 'fileformat'])
 RootDir = namedtuple('RootDir', ['name', 'me_count'])
 RootObj = namedtuple('RootObj', ['name', 'path', 'layout'])
