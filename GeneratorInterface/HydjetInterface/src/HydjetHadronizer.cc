@@ -96,14 +96,15 @@ HydjetHadronizer::HydjetHadronizer(const ParameterSet& pset, edm::ConsumesCollec
       pythia6Service_(new Pythia6Service(pset)) {
   // Default constructor
 
-    if (pset.exists("signalVtx")) signalVtx_ = pset.getUntrackedParameter<std::vector<double> >("signalVtx");
-   
+  if (pset.exists("signalVtx"))
+    signalVtx_ = pset.getUntrackedParameter<std::vector<double> >("signalVtx");
+           
   if (signalVtx_.size() == 4) {
     if (!fVertex_)
       fVertex_ = new HepMC::FourVector();
     LogDebug("EventSignalVertex") << "Setting event signal vertex "
-         << " x = " << signalVtx_.at(0) << " y = " << signalVtx_.at(1) << "  z= " << signalVtx_.at(2) << " t = "
-         << signalVtx_.at(3) << endl;
+                                  << " x = " << signalVtx_.at(0) << " y = " << signalVtx_.at(1)
+                                  << "  z= " << signalVtx_.at(2) << " t = " << signalVtx_.at(3) << endl;
     fVertex_->set(signalVtx_.at(0), signalVtx_.at(1), signalVtx_.at(2), signalVtx_.at(3));
   }
 
@@ -238,7 +239,7 @@ bool HydjetHadronizer::generatePartonsAndHadronize() {
       fVertex_ = new HepMC::FourVector();
     }
     LogInfo("MatchVtx") << " setting vertex "
-         << " aX " << aX << " aY " << aY << " aZ " << aZ << " aT " << aT << endl;
+                        << " aX " << aX << " aY " << aY << " aZ " << aZ << " aT " << aT << endl;
     fVertex_->set(aX, aY, aZ, aT);
 
     const HepMC::HeavyIon* hi = inev->heavy_ion();
@@ -309,8 +310,10 @@ bool HydjetHadronizer::generatePartonsAndHadronize() {
   }
 
   HepMC::HEPEVT_Wrapper::check_hepevt_consistency();
-  LogDebug("HEPEVT_info") <<"Ev numb: "<< HepMC::HEPEVT_Wrapper::event_number()<< " Entries number: "<<HepMC::HEPEVT_Wrapper::number_entries() <<" Max. entries "<<HepMC::HEPEVT_Wrapper::max_number_entries()<<std::endl;
-
+  LogDebug("HEPEVT_info") << "Ev numb: " << HepMC::HEPEVT_Wrapper::event_number()
+                          << " Entries number: " << HepMC::HEPEVT_Wrapper::number_entries() << " Max. entries "
+                          << HepMC::HEPEVT_Wrapper::max_number_entries() << std::endl;
+  
   event().reset(evt);
   return true;
 }
@@ -328,8 +331,8 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent* evt) {
   LogDebug("SubEvent") << " Number of sub events " << nsub_;
   LogDebug("Hydjet") << " Number of hard events " << hyjpar.njet;
   LogDebug("Hydjet") << " Number of hard particles " << nhard_;
-    LogDebug("Hydjet") << " Number of soft particles " << nsoft_;
-  LogDebug("Hydjet") << "nhard_ + nsoft_ = " << nhard_ + nsoft_ << " hyjets.nhj = " << hyjets.nhj << endl;
+  LogDebug("Hydjet") << " Number of soft particles " << nsoft_;
+  LogDebug("Hydjet") << " nhard_ + nsoft_ = " << nhard_ + nsoft_ << " hyjets.nhj = " << hyjets.nhj << endl;
 
   int ihy = 0;
   int isub = -1;
@@ -359,12 +362,19 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent* evt) {
 
     if (convertStatus(hyjets.khj[0][ihy]) == 1)
       stab++;
-    LogDebug("Hydjet_array") <<ihy <<" MULTin ev.:"<<hyjets.nhj<<" SubEv.#"<< isub<<" Part #"<<ihy+1<<", PDG: "<<hyjets.khj[1][ihy]<<" (st. "<<convertStatus(hyjets.khj[0][ihy])<<") mother="<< hyjets.khj[2][ihy]-(isub*50000)+index[isub]+1<<" ("<<hyjets.khj[2][ihy]<<"), childs ("<<hyjets.khj[3][ihy]-(isub*50000)+index[isub]+1<<"-"<<hyjets.khj[4][ihy]-(isub*50000)+index[isub]+1<<"), vtx ("<<hyjets.vhj[0][ihy]<<","<<hyjets.vhj[1][ihy]<<","<<hyjets.vhj[2][ihy]<<") "<<std::endl;
-
+    LogDebug("Hydjet_array") << ihy << " MULTin ev.:" << hyjets.nhj << " SubEv.#" << isub << " Part #" << ihy + 1
+                             << ", PDG: " << hyjets.khj[1][ihy] << " (st. " << convertStatus(hyjets.khj[0][ihy])
+                             << ") mother=" << hyjets.khj[2][ihy] - (isub * 50000) + index[isub] + 1 << " ("
+                             << hyjets.khj[2][ihy] << "), childs ("
+                             << hyjets.khj[3][ihy] - (isub * 50000) + index[isub] + 1 << "-"
+                             << hyjets.khj[4][ihy] - (isub * 50000) + index[isub] + 1 << "), vtx ("
+                             << hyjets.vhj[0][ihy] << "," << hyjets.vhj[1][ihy] << "," << hyjets.vhj[2][ihy] << ") "
+                             << std::endl;
+     
     if (hyjets.khj[2][ihy] == 0) {
       primary_particle[ihy] = build_hyjet(ihy, ihy + 1);
       sub_vertices->add_particle_out(primary_particle[ihy]);
-      LogDebug("Hydjet_array") <<" ---> "<< ihy+1<<std::endl;
+      LogDebug("Hydjet_array") << " ---> " << ihy + 1 << std::endl;
     } else {
       particle[ihy] = build_hyjet(ihy, ihy + 1);
       int mid = hyjets.khj[2][ihy] - hjoffset + index[isub];
@@ -378,29 +388,30 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent* evt) {
       HepMC::GenVertex* prods = build_hyjet_vertex(ihy, isub);
 
       if (!mother) {
-        mother = particle[mid]; 
+        mother = particle[mid];
         primary_particle[mid] = mother;
       }
+       
       HepMC::GenVertex* prod_vertex = mother->end_vertex();
       if (!prod_vertex) {
         prod_vertex = prods;
         prod_vertex->add_particle_in(mother);
-        LogDebug("Hydjet_array") <<" <--- "<<mid+1 <<std::endl;
+        LogDebug("Hydjet_array") << " <--- " << mid + 1 << std::endl;
         evt->add_vertex(prod_vertex);
         prods = nullptr;
       }
 
       prod_vertex->add_particle_out(particle[ihy]);
-      LogDebug("Hydjet_array") <<" ---"<<mid+1<<"---> "<< ihy+1<<std::endl;
-
+      LogDebug("Hydjet_array") << " ---" << mid + 1 << "---> " << ihy + 1 << std::endl;
+       
       if (prods)
         delete prods;
     }
     ihy++;
   }
-  LogDebug("Hydjet_array") << " MULTin ev.:" << hyjets.nhj << ", last index: " << ihy - 1 << ", Sub events: " << isub + 1
-            << ", stable particles: " << stab << std::endl;
-
+  LogDebug("Hydjet_array") << " MULTin ev.:" << hyjets.nhj << ", last index: " << ihy - 1
+                           << ", Sub events: " << isub + 1 << ", stable particles: " << stab << std::endl;
+   
   return true;
 }
 
