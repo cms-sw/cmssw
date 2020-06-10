@@ -81,7 +81,8 @@ void GEMPadDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetu
 
   // build the pads
   buildPads(*(hdigis.product()), *pPads);
-  if (use16GE21_) buildPads16GE21(*(hdigis.product()), *pPads);
+  if (use16GE21_)
+    buildPads16GE21(*(hdigis.product()), *pPads);
 
   // store them in the event
   e.put(std::move(pPads));
@@ -89,10 +90,10 @@ void GEMPadDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetu
 
 void GEMPadDigiProducer::buildPads(const GEMDigiCollection& det_digis, GEMPadDigiCollection& out_pads) const {
   for (const auto& p : geometry_->etaPartitions()) {
-
     // when using the GE2/1 geometry with 16 eta partitions
     // ->ignore GE2/1
-    if (use16GE21_ and p->id().station() == 2) continue;
+    if (use16GE21_ and p->id().station() == 2)
+      continue;
 
     // set of <pad, bx> pairs, sorted first by pad then by bx
     std::set<std::pair<int, int> > proto_pads;
@@ -115,14 +116,15 @@ void GEMPadDigiProducer::buildPads(const GEMDigiCollection& det_digis, GEMPadDig
 
 void GEMPadDigiProducer::buildPads16GE21(const GEMDigiCollection& det_digis, GEMPadDigiCollection& out_pads) const {
   for (const auto& p : geometry_->etaPartitions()) {
-
     // when using the GE2/1 geometry with 16 eta partitions
     // ->ignore GE1/1
-    if (p->id().station() == 1) continue;
+    if (p->id().station() == 1)
+      continue;
 
     // ignore eta partition with even numbers
     // these are included in the odd numbered pads
-    if (p->id().roll() % 2 == 0) continue;
+    if (p->id().roll() % 2 == 0)
+      continue;
 
     // set of <pad, bx> pairs, sorted first by pad then by bx
     std::set<std::pair<int, int> > proto_pads;
@@ -131,8 +133,8 @@ void GEMPadDigiProducer::buildPads16GE21(const GEMDigiCollection& det_digis, GEM
     // and stuff them into a set of unique pads (equivalent of OR operation)
     auto digis = det_digis.get(p->id());
 
-    GEMDetId gemId2(p->id().region(), p->id().ring(), p->id().station(),
-                    p->id().layer(), p->id().chamber(), p->id().roll() - 1);
+    GEMDetId gemId2(
+        p->id().region(), p->id().ring(), p->id().station(), p->id().layer(), p->id().chamber(), p->id().roll() - 1);
     auto digis2 = det_digis.get(gemId2);
 
     for (auto d = digis.first; d != digis.second; ++d) {
