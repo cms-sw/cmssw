@@ -411,14 +411,16 @@ void Pixel3DDigitizerAlgorithm::induce_signal(const PSimHit& hit,
 
     float corr_time = hit.tof() - pixdet->surface().toGlobal(hit.localPosition()).mag() * c_inv;
     if (makeDigiSimLinks_) {
-      the_signal[channel] += DigitizerUtility::Amplitude(pt.amplitude(), &hit, pt.amplitude(), corr_time, hitIndex, tofBin);
+      the_signal[channel] +=
+          DigitizerUtility::Amplitude(pt.amplitude(), &hit, pt.amplitude(), corr_time, hitIndex, tofBin);
     } else {
       the_signal[channel] += DigitizerUtility::Amplitude(pt.amplitude(), nullptr, pt.amplitude());
     }
 
     LogDebug("Pixel3DDigitizerAlgorithm::induce_signal")
         << " Induce charge at row,col:" << rowcol << " N_electrons:" << pt.amplitude() << " [Channel:" << channel
-        << "]\n   [Accumulated signal in this channel:" << the_signal[channel].ampl() << "] " 
-        <<  " Global index linked PSimHit:" << hitIndex;;
+        << "]\n   [Accumulated signal in this channel:" << the_signal[channel].ampl() << "] "
+        << " Global index linked PSimHit:" << hitIndex;
+    ;
   }
 }
