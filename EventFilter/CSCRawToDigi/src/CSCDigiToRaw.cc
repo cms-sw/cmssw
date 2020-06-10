@@ -360,8 +360,10 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
   add(wireDigis, alctDigis, fedInfo, packEverything);
   add(comparatorDigis, clctDigis, fedInfo, packEverything);
   add(correlatedLCTDigis, fedInfo);
-  add(gemPadDigiClusters, fedInfo);
-
+  // Starting Run-3, the CSC DAQ will pack/unpack GEM clusters
+  if (useGEMs) {
+    add(gemPadDigiClusters, fedInfo);
+  }
   int l1a = e.id().event();  //need to add increments or get it from lct digis
   int bx = l1a;              //same as above
   //int startingFED = FEDNumbering::MINCSCFEDID;

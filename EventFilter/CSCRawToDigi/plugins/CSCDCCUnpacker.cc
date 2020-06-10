@@ -155,6 +155,7 @@ void CSCDCCUnpacker::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<unsigned int>("ErrorMask", 0)->setComment("# This mask simply reduces error reporting");
   desc.add<bool>("UnpackStatusDigis", false)->setComment("# Unpack general status digis?");
   desc.add<bool>("UseFormatStatus", true)->setComment("# Unpack FormatStatus digi?");
+  desc.add<bool>("useGEMs", false)->setComment("Unpack GEM trigger data");
   desc.addUntracked<bool>("Debug", false)->setComment("# Turn on lots of output");
   desc.addUntracked<bool>("PrintEventNumber", false);
   desc.addUntracked<bool>("runDQM", false);
