@@ -18,11 +18,11 @@ ecalDigisGPU = _ecalRawToDigiGPU.clone()
 
 # copy the digi from the GPU to the CPU and convert to legacy format
 from EventFilter.EcalRawToDigi.ecalCPUDigisProducer_cfi import ecalCPUDigisProducer as _ecalCPUDigisProducer
-_gpu_ecalDigis = _ecalCPUDigisProducer.clone(
-  digisInLabelEB = 'ecalDigisGPU:ebDigisGPU',
-  digisInLabelEE = 'ecalDigisGPU:eeDigisGPU',
-  produceDummyIntegrityCollections = True,
+_ecalDigis_gpu = _ecalCPUDigisProducer.clone(
+  digisInLabelEB = cms.InputTag('ecalDigisGPU', 'ebDigisGPU'),
+  digisInLabelEE = cms.InputTag('ecalDigisGPU', 'eeDigisGPU'),
+  produceDummyIntegrityCollections = True
 )
-gpu.toReplaceWith(ecalDigis, _gpu_ecalDigis)
+gpu.toReplaceWith(ecalDigis, _ecalDigis_gpu)
 
 gpu.toReplaceWith(ecalDigisTask, cms.Task(ecalElectronicsMappingGPUESProducer, ecalDigisGPU, ecalDigis))
