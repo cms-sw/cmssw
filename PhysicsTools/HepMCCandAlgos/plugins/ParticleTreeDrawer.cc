@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -21,6 +22,7 @@ private:
   edm::EDGetTokenT<edm::View<reco::Candidate> > srcToken_;
   void printDecay(const reco::Candidate &, const std::string &pre) const;
   edm::ESHandle<ParticleDataTable> pdt_;
+  edm::ESGetToken<ParticleDataTable, edm::DefaultRecord> pdtToken_;
   /// print parameters
   bool printP4_, printPtEtaPhi_, printVertex_, printStatus_, printIndex_;
   /// accepted status codes
@@ -49,6 +51,7 @@ using namespace reco;
 
 ParticleTreeDrawer::ParticleTreeDrawer(const ParameterSet &cfg)
     : srcToken_(consumes<edm::View<reco::Candidate> >(cfg.getParameter<InputTag>("src"))),
+      pdtToken_(esConsumes<ParticleDataTable, edm::DefaultRecord>()),
       printP4_(cfg.getUntrackedParameter<bool>("printP4", false)),
       printPtEtaPhi_(cfg.getUntrackedParameter<bool>("printPtEtaPhi", false)),
       printVertex_(cfg.getUntrackedParameter<bool>("printVertex", false)),
@@ -81,7 +84,7 @@ std::string ParticleTreeDrawer::getParticleName(int id) const {
 }
 
 void ParticleTreeDrawer::analyze(const Event &event, const EventSetup &es) {
-  es.getData(pdt_);
+  pdt_ = es.getHandle(pdtToken_);
   Handle<View<Candidate> > particles;
   event.getByToken(srcToken_, particles);
   cands_.clear();
