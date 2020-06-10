@@ -1,6 +1,5 @@
 #ifndef PhysicsTools_Utilities_Power_h
 #define PhysicsTools_Utilities_Power_h
-#include <boost/static_assert.hpp>
 #include <cmath>
 
 namespace funct {
