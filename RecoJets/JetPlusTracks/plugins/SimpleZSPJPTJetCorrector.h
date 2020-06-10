@@ -12,25 +12,23 @@
 
 /// classes declaration
 
-
 class SimpleZSPJPTJetCorrector {
- public:
-  SimpleZSPJPTJetCorrector ();
-  SimpleZSPJPTJetCorrector (const std::string& fDataFile);
-  virtual ~SimpleZSPJPTJetCorrector ();
+public:
+  SimpleZSPJPTJetCorrector();
+  SimpleZSPJPTJetCorrector(const std::string& fDataFile);
+  virtual ~SimpleZSPJPTJetCorrector();
 
-  void init (const std::string& fDataFile);
-  virtual double correctionPtEtaPhiE (double fPt, double fEta, double fPhi, double fE) const;
-  virtual double correctionEtEtaPhiP (double fEt, double fEta, double fPhi, double fP) const;
-  virtual double correctionPUEtEtaPhiP (double fEt, double fEta, double fPhi, double fP) const;
+  void init(const std::string& fDataFile);
+  virtual double correctionPtEtaPhiE(double fPt, double fEta, double fPhi, double fE) const;
+  virtual double correctionEtEtaPhiP(double fEt, double fEta, double fPhi, double fP) const;
+  virtual double correctionPUEtEtaPhiP(double fEt, double fEta, double fPhi, double fP) const;
 
- private:
-  SimpleZSPJPTJetCorrector (const SimpleZSPJPTJetCorrector&);
-  SimpleZSPJPTJetCorrector& operator= (const SimpleZSPJPTJetCorrector&);
-  JetCorrectorParameters* mParameters; 
-  TFormula*               mFunc;   
-  bool debug_; //removing statics - just add it to the class for now
-
+private:
+  SimpleZSPJPTJetCorrector(const SimpleZSPJPTJetCorrector&);
+  SimpleZSPJPTJetCorrector& operator=(const SimpleZSPJPTJetCorrector&);
+  JetCorrectorParameters* mParameters;
+  TFormula* mFunc;
+  bool debug_;  //removing statics - just add it to the class for now
 };
 
 #endif
