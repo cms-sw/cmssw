@@ -57,10 +57,8 @@ void HGCalSiNoiseMap::setDoseMap(const std::string &fullpath, const unsigned int
 
 
 //
-double HGCalSiNoiseMap::getENCpad(const double &ileak,bool useHGCROCV2) {
+double HGCalSiNoiseMap::getENCpad(const double &ileak) {
 
-  if(useHGCROCV2)            return 840*sqrt(ileak);
-  
   if(ileak>45.40)      return 23.30*ileak+1410.04;
   else if(ileak>38.95) return 30.07*ileak+1156.76;
   else if(ileak>32.50) return 38.58*ileak+897.94;
@@ -76,25 +74,31 @@ double HGCalSiNoiseMap::getENCpad(const double &ileak,bool useHGCROCV2) {
 HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteristics(const HGCSiliconDetId &cellId,
                                                                                      GainRange_t gain,
                                                                                      int aimMIPtoADC) {
-  SiCellOpCharacteristics siop;
 
-  //decode cell properties
-  int layer(cellId.layer());
-  unsigned int cellThick = cellId.type();
-  double cellCap(cellCapacitance_[cellThick]);
-  double cellVol(cellVolume_[cellThick]);
-  double mipEqfC(mipEqfC_[cellThick]);
+  //check if this already exists in the cache
+  uint32_t key( getSiOpCacheKey(cellId) );
+  if(siopCache_.find(key)==siopCache_.end()) {
 
-  //location of the cell
-  int subdet(cellId.subdet());
-  std::vector<double> &cceParam=cceParam_[cellThick];
-  auto xy(ddd()->locateCell(cellId.layer(), cellId.waferU(), cellId.waferV(), cellId.cellU(), cellId.cellV(), true, true));
-  double radius = sqrt(std::pow(xy.first, 2) + std::pow(xy.second, 2));  //in cm
+    //decode cell properties
+    int layer(cellId.layer());
+    unsigned int cellThick = cellId.type();
+    double cellCap(cellCapacitance_[cellThick]);
+    double cellVol(cellVolume_[cellThick]);
+    double mipEqfC(mipEqfC_[cellThick]);
+    
+    //location of the cell
+    int subdet(cellId.subdet());
+    std::vector<double> &cceParam=cceParam_[cellThick];
+    auto xy(ddd()->locateCell(cellId.layer(), cellId.waferU(), cellId.waferV(), cellId.cellU(), cellId.cellV(), true, true));
+    double radius = sqrt(std::pow(xy.first, 2) + std::pow(xy.second, 2));  //in cm
 
-    //call baseline method
-  return getSiCellOpCharacteristics(cellCap,cellVol,mipEqfC,cceParam,
-                                    subdet,layer,radius,
-                                    gain,aimMIPtoADC);
+    //call baseline method and add to cache
+    siopCache_[key]=getSiCellOpCharacteristics(cellCap,cellVol,mipEqfC,cceParam,
+                                               subdet,layer,radius,
+                                               gain,aimMIPtoADC);
+  }
+  
+  return siopCache_[key];
 }
 
 //
@@ -172,4 +176,63 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
   }
 
   return siop;
+}
+
+
+//
+uint32_t HGCalSiNoiseMap::getSiOpCacheKey(const HGCSiliconDetId &detId) {
+  
+  bool isEE(detId.det()==DetId::HGCalEE);
+  bool isOddLayer(detId.layer()%2==1);
+  int waferU(detId.waferU());
+  int waferV(detId.waferV());
+
+  //determine parameters of the mapping
+  int offset(0),sector(0);
+  if(isEE) {
+    if(waferU>0 && waferV>=0)           sector=0;
+    else if(waferU>=waferV && waferV<0) sector=2;
+    else                                sector=1;
+  } else if(isOddLayer) {
+    if(waferU>0 && waferV>=0) {
+      sector=0;
+    }
+    else{
+      offset=-1;    
+      if(waferU>waferV && waferV<0) sector=2;
+      else sector=1;
+    }
+  } else {
+    
+    if(waferU>=1 && waferV>=1) {
+      sector=0;
+    }
+    else {
+      offset=1;
+      if(waferU>=waferV && waferV<1) sector=2;
+      else sector=1;
+    }
+  }
+    
+  //map to sector 0
+  int eqWaferU(waferU), eqWaferV(waferV);
+  if(sector==1) {
+    eqWaferU=waferV-waferV;
+    waferV=-waferV+offset;    
+    
+  } else {
+    eqWaferU=-waferV+offset;
+    waferV=waferV-waferV+offset;
+  }
+  
+  //build an equivalent detId (positive side and mapped to sector 0)
+  HGCSiliconDetId eqDetId(detId.subdet(), 
+                          1, 
+                          detId.type(), 
+                          detId.layer(), 
+                          eqWaferU, 
+                          eqWaferV, 
+                          detId.cellU(), 
+                          detId.cellV());
+  return eqDetId.rawId();
 }
