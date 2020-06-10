@@ -7,6 +7,8 @@
 //ultimately should become a class
 
 #include <array>
+#include <cstddef>
+#include <string>
 
 class EGEnergySysIndex {
 public:
