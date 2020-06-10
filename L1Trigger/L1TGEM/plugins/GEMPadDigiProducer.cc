@@ -134,7 +134,7 @@ void GEMPadDigiProducer::buildPads16GE21(const GEMDigiCollection& det_digis, GEM
     auto digis = det_digis.get(p->id());
 
     GEMDetId gemId2(
-        p->id().region(), p->id().ring(), p->id().station(), p->id().layer(), p->id().chamber(), p->id().roll() - 1);
+        p->id().region(), p->id().ring(), p->id().station(), p->id().layer(), p->id().chamber(), p->id().roll() + 1);
     auto digis2 = det_digis.get(gemId2);
 
     for (auto d = digis.first; d != digis.second; ++d) {
