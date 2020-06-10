@@ -138,7 +138,6 @@ namespace edm {
         EndProcessBlockProducer(EndProcessBlockProducer const&) = delete;
         EndProcessBlockProducer& operator=(EndProcessBlockProducer const&) = delete;
 
-      private:
         ///requires the following be defined in the inheriting class
         /// static void endProcessBlockProduce(edm::ProcessBlock&, GlobalCache const* )
       };
@@ -159,7 +158,6 @@ namespace edm {
         EndRunProducer(EndRunProducer const&) = delete;
         EndRunProducer& operator=(EndRunProducer const&) = delete;
 
-      private:
         ///requires the following be defined in the inheriting class
         /// static void globalEndRunProduce(edm::Run&, edm::EventSetup const&, RunContext const* )
       };
@@ -170,7 +168,6 @@ namespace edm {
         BeginLuminosityBlockProducer(BeginLuminosityBlockProducer const&) = delete;
         BeginLuminosityBlockProducer& operator=(BeginLuminosityBlockProducer const&) = delete;
 
-      private:
         ///requires the following be defined in the inheriting class
         ///static void globalBeginLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&, LuminosityBlockContext const*)
       };
@@ -181,7 +178,6 @@ namespace edm {
         EndLuminosityBlockProducer(EndLuminosityBlockProducer const&) = delete;
         EndLuminosityBlockProducer& operator=(EndLuminosityBlockProducer const&) = delete;
 
-      private:
         ///requires the following be defined in the inheriting class
         ///static void globalEndLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&, LuminosityBlockContext const*)
       };
