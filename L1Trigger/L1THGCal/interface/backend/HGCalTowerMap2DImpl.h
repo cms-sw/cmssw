@@ -5,6 +5,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include "DataFormats/L1THGCal/interface/HGCalTriggerSums.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalTowerMap.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
@@ -16,8 +17,37 @@ public:
 
   void resetTowerMaps();
 
-  void buildTowerMap2D(const std::vector<edm::Ptr<l1t::HGCalTriggerCell>>& triggerCellsPtrs,
-                       l1t::HGCalTowerMapBxCollection& towermaps);
+  template <class T>
+  void buildTowerMap2D(const std::vector<edm::Ptr<T>>& ptrs, l1t::HGCalTowerMapBxCollection& towerMaps) {
+    std::unordered_map<int, l1t::HGCalTowerMap> towerMapsTmp = newTowerMaps();
+
+    for (auto ptr : ptrs) {
+      if (triggerTools_.isNose(ptr->detId()))
+        continue;
+      unsigned layer = triggerTools_.layerWithOffset(ptr->detId());
+      if (towerMapsTmp.find(layer) == towerMapsTmp.end()) {
+        throw cms::Exception("Out of range")
+            << "HGCalTowerMap2dImpl: Found trigger sum in layer " << layer << " for which there is no tower map\n";
+      }
+      // FIXME: should actually sum the energy not the Et...
+      double calibPt = ptr->pt();
+      if (useLayerWeights_)
+        calibPt = layerWeights_[layer] * ptr->mipPt();
+
+      double etEm = layer <= triggerTools_.lastLayerEE() ? calibPt : 0;
+      double etHad = layer > triggerTools_.lastLayerEE() ? calibPt : 0;
+
+      towerMapsTmp[layer].addEt(towerGeometryHelper_.getTriggerTower(*ptr), etEm, etHad);
+    }
+
+    /* store towerMaps in the persistent collection */
+    towerMaps.resize(0, towerMapsTmp.size());
+    int i = 0;
+    for (auto towerMap : towerMapsTmp) {
+      towerMaps.set(0, i, towerMap.second);
+      i++;
+    }
+  }
 
   void eventSetup(const edm::EventSetup& es) {
     triggerTools_.eventSetup(es);
