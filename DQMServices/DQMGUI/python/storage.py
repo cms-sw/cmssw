@@ -57,14 +57,16 @@ class GUIDataStore:
 
     @classmethod
     async def get_samples(cls, run, dataset, lumi=0):
+        """
+        If lumi is None or 0, only per run samples will be returned.
+        If lumi is -1, all per lumi samples will be returned and per run samples will not be returned.
+        If lumi is greater than 0, samples matching that lumi will be returned.
+        """
+
         if run != None:
             run = '%%%s%%' % run
         if dataset != None:
             dataset = '%%%s%%' % dataset
-        if lumi == None:
-            lumi = 0
-
-        lumi = '%%%s%%' % lumi
 
         sql = 'SELECT DISTINCT run, dataset, lumi FROM samples '
         args = ()
@@ -80,8 +82,14 @@ class GUIDataStore:
             add_where_condition('dataset LIKE ?', dataset)
         if run != None:
             add_where_condition('run LIKE ?', run)
-        if lumi != None:
-            add_where_condition('lumi LIKE ?', lumi)
+
+        if lumi == None or int(lumi) == 0:
+            add_where_condition('lumi = ?', 0)
+        elif int(lumi) == -1:
+            add_where_condition('lumi != ?', 0)
+        elif int(lumi) > 0:
+            lumi_pattern = '%%%s%%' % lumi
+            add_where_condition('lumi LIKE ?', lumi_pattern)
 
         cursor = await cls.__db.execute(sql, args)
         rows = await cursor.fetchall()
