@@ -5,6 +5,11 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Generator.PythiaUESettings_cfi import *
 pyquenPythiaDefaultBlock = cms.PSet(
     pythiaUESettingsBlock,
+    pyquenMain = cms.vstring(
+                            'MSTP(122)=0', # ! no printout of Pythia initialization information hereinafter
+                            'MSTP(128)=2'  # ! instructs pythia not to put multiple copies of resonances in the event record             
+                            ),
+
     ppDefault = cms.vstring('MSEL=1   ! QCD hight pT processes',
                             'CKIN(3)=7.',# ! ptMin
                             'MSTP(81)=0'
