@@ -64,6 +64,8 @@ class GUIDataStore:
         if lumi == None:
             lumi = 0
 
+        lumi = '%%%s%%' % lumi
+
         sql = 'SELECT DISTINCT run, dataset, lumi FROM samples '
         args = ()
 
@@ -79,7 +81,7 @@ class GUIDataStore:
         if run != None:
             add_where_condition('run LIKE ?', run)
         if lumi != None:
-            add_where_condition('lumi = ?', int(lumi))
+            add_where_condition('lumi LIKE ?', lumi)
 
         cursor = await cls.__db.execute(sql, args)
         rows = await cursor.fetchall()
