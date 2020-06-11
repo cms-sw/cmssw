@@ -15,40 +15,15 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     comEnergy = cms.double(91.188),
     ElectronPositronInitialState = cms.PSet(),
-    DirePlugin = cms.PSet(),
     PythiaParameters = cms.PSet(
-        pythia8_example14 = cms.vstring('WeakSingleBoson:ffbar2gmZ = on',
+        pythia8_example13 = cms.vstring('WeakSingleBoson:ffbar2gmZ = on',
                                         '23:onMode = off',
                                         '23:onIfAny = 1 2 3 4 5',
                                         'PDF:lepton = off',
                                         'SpaceShower:QEDshowerByL = off',
                                         'HadronLevel:all = on',
-                                        #NLO corrections
-                                        'DireTimes:kernelOrder = 3',
-                                        #PS variations
-                                        'Variations:doVariations = on',
-                                        'Variations:muRfsrDown = 0.25',
-                                        'Variations:muRfsrUp   = 4.0',),
-        DireTune = cms.vstring(# Tuned hadronization from e+e- data
-                               "StringPT:sigma = 0.2952",
-                               "StringZ:aLund = 0.9704",
-                               "StringZ:bLund = 1.0809",
-                               "StringZ:aExtraDiquark = 1.3490",
-                               "StringFlav:probStoUD = 0.2046",
-                               "StringZ:rFactB = 0.8321",
-                               "StringZ:aExtraSQuark = 0.0",
-                               "TimeShower:pTmin = 0.9",
-
-                               # Tuned MPI and primordial kT to LHC data (UE in dijets + Drell-Yan pT).
-                               "SpaceShower:pTmin = 0.9",
-                               "MultipartonInteractions:alphaSvalue = 0.1309",
-                               "MultipartonInteractions:pT0Ref = 1.729",
-                               "MultipartonInteractions:expPow = 1.769",
-                               "ColourReconnection:range = 2.1720",
-                               "BeamRemnants:primordialKThard = 2.2873",
-                               "BeamRemnants:primordialKTsoft =  0.25",
-                               "BeamRemnants:reducedKTatHighY =  0.47",),
-        parameterSets = cms.vstring('pythia8_example14', 'DireTune')
+                                        'PartonShowers:model = 3'),
+        parameterSets = cms.vstring('pythia8_example13')
     )
 )
 
@@ -73,7 +48,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.GEN = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('pythia8ex14.root')
+    fileName = cms.untracked.string('pythia8ex13.root')
 )
 
 process.p = cms.Path(process.generator)
