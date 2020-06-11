@@ -36,7 +36,5 @@ herwig7CH3SettingsBlock = cms.PSet(
         'set /Herwig/UnderlyingEvent/MPIHandler:pTmin0 3.04',
         'set /Herwig/UnderlyingEvent/MPIHandler:InvRadius 1.284',
         'set /Herwig/UnderlyingEvent/MPIHandler:Power 0.1362',
-        'set /Herwig/Partons/RemnantDecayer:ladderPower -0.08',
-        'set /Herwig/Partons/RemnantDecayer:ladderNorm 0.95',
                                 )
 )
