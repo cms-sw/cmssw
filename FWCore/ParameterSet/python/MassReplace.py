@@ -22,7 +22,7 @@ class MassSearchReplaceAnyInputTagVisitor(object):
                     self.doIt(value,base+"."+name)
                 elif value.isCompatibleCMSType(cms.VPSet):
                     for (i,ps) in enumerate(value): self.doIt(ps, "%s.%s[%d]"%(base,name,i) )
-                elif value.isCompatibleCMSType(cms.VInputTag):
+                elif value.isCompatibleCMSType(cms.VInputTag) and value:
                     for (i,n) in enumerate(value):
                         # VInputTag can be declared as a list of strings, so ensure that n is formatted correctly
                         n = self.standardizeInputTagFmt(n)
@@ -38,7 +38,7 @@ class MassSearchReplaceAnyInputTagVisitor(object):
                             nrep = n; nrep.moduleLabel = self._paramReplace.moduleLabel
                             if self._verbose:print("Replace %s.%s[%d] %s ==> %s " % (base, name, i, n, nrep))
                             value[i] = nrep
-                elif value.isCompatibleCMSType(cms.InputTag):
+                elif value.isCompatibleCMSType(cms.InputTag) and value:
                     if value == self._paramSearch:
                         if self._verbose:print("Replace %s.%s %s ==> %s " % (base, name, self._paramSearch, self._paramReplace))
                         from copy import deepcopy
@@ -172,8 +172,9 @@ if __name__=="__main__":
                                        nested = cms.PSet(src = cms.InputTag("b"), src2 = cms.InputTag("c"), usrc = cms.untracked.InputTag("b"))
                                        ),
             )
-            p.op = cms.EDProducer("op", src = cms.optional.InputTag)
+            p.op = cms.EDProducer("op", src = cms.optional.InputTag, unset = cms.optional.InputTag, vsrc = cms.optional.VInputTag, vunset = cms.optional.VInputTag)
             p.op.src="b"
+            p.op.vsrc=cms.VInputTag("b")
             p.s = cms.Sequence(p.a*p.b*p.c*p.sp*p.op)
             massSearchReplaceAnyInputTag(p.s, cms.InputTag("b"), cms.InputTag("new"))
             self.assertNotEqual(cms.InputTag("new"), p.b.src)
@@ -208,6 +209,7 @@ if __name__=="__main__":
             self.assertEqual(cms.InputTag("c"), p.sp.test2.nested.src2)
             self.assertEqual(cms.untracked.InputTag("new"), p.sp.test2.nested.usrc)
             self.assertEqual(cms.InputTag("new"), p.op.src)
+            self.assertEqual(cms.InputTag("new"), p.op.vsrc[0])
 
         def testMassReplaceInputTag(self):
             process1 = cms.Process("test")
