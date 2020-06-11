@@ -49,6 +49,20 @@ public:
     NONELES,
   };
 
+  struct Track {
+    const double pt;
+    const double eta;
+    const double phi;
+    const double vz;
+  };
+
+  using TrackContainer = std::vector<Track>;
+
+  struct PreselectedTracks {
+    const TrackContainer withBarrelCuts;
+    const TrackContainer withEndcapCuts;
+  };
+
 private:
   struct TrkCuts {
     float minPt;
@@ -65,9 +79,17 @@ private:
     static edm::ParameterSetDescription pSetDescript();
   };
 
+  TrackContainer preselectTracksWithCuts(reco::TrackCollection const& tracks, TrkCuts const& cuts) const;
+  TrackContainer preselectTracksWithCuts(pat::PackedCandidateCollection const& cands,
+                                         TrkCuts const& cuts,
+                                         PIDVeto = PIDVeto::NONE) const;
+
   TrkCuts barrelCuts_, endcapCuts_;
 
 public:
+  PreselectedTracks preselectTracks(reco::TrackCollection const& tracks) const;
+  PreselectedTracks preselectTracks(pat::PackedCandidateCollection const& cands, PIDVeto = PIDVeto::NONE) const;
+
   explicit EleTkIsolFromCands(const edm::ParameterSet& para);
   EleTkIsolFromCands(const EleTkIsolFromCands&) = default;
   ~EleTkIsolFromCands() = default;
@@ -75,20 +97,11 @@ public:
 
   static edm::ParameterSetDescription pSetDescript();
 
-  std::pair<int, double> calIsol(const reco::TrackBase& trk,
-                                 const pat::PackedCandidateCollection& cands,
-                                 const PIDVeto = PIDVeto::NONE) const;
+  std::pair<int, double> calIsol(const reco::TrackBase& trk, const PreselectedTracks& tracks) const;
   std::pair<int, double> calIsol(const double eleEta,
                                  const double elePhi,
                                  const double eleVZ,
-                                 const pat::PackedCandidateCollection& cands,
-                                 const PIDVeto = PIDVeto::NONE) const;
-
-  std::pair<int, double> calIsol(const reco::TrackBase& trk, const reco::TrackCollection& tracks) const;
-  std::pair<int, double> calIsol(const double eleEta,
-                                 const double elePhi,
-                                 const double eleVZ,
-                                 const reco::TrackCollection& tracks) const;
+                                 const PreselectedTracks& tracks) const;
 
   //little helper function for the four calIsol functions for it to directly return the pt
   template <typename... Args>
@@ -100,12 +113,9 @@ public:
   static bool passPIDVeto(const int pdgId, const EleTkIsolFromCands::PIDVeto pidVeto);
 
 private:
-  static bool passTrkSel(const reco::TrackBase& trk,
-                         const double trkPt,
-                         const TrkCuts& cuts,
-                         const double eleEta,
-                         const double elePhi,
-                         const double eleVZ);
+  static bool passTrackPreselection(const reco::TrackBase& trk, const TrkCuts& cuts);
+  static bool passTrkSel(
+      const Track& trk, const TrkCuts& cuts, const double eleEta, const double elePhi, const double eleVZ);
   //no qualities specified, accept all, ORed
   static bool passQual(const reco::TrackBase& trk, const std::vector<reco::TrackBase::TrackQuality>& quals);
   static bool passAlgo(const reco::TrackBase& trk, const std::vector<reco::TrackBase::TrackAlgorithm>& algosToRej);

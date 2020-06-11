@@ -51,51 +51,71 @@ edm::ParameterSetDescription EleTkIsolFromCands::pSetDescript() {
   return desc;
 }
 
-std::pair<int, double> EleTkIsolFromCands::calIsol(const reco::TrackBase& eleTrk,
-                                                   const pat::PackedCandidateCollection& cands,
-                                                   const PIDVeto pidVeto) const {
-  return calIsol(eleTrk.eta(), eleTrk.phi(), eleTrk.vz(), cands, pidVeto);
+EleTkIsolFromCands::TrackContainer EleTkIsolFromCands::preselectTracksWithCuts(reco::TrackCollection const& tracks,
+                                                                               TrkCuts const& cuts) const {
+  TrackContainer outTracks;
+  outTracks.reserve(tracks.size());
+
+  for (auto const& trk : tracks) {
+    if (passTrackPreselection(trk, cuts)) {
+      outTracks.push_back(Track{.pt = trk.pt(), .eta = trk.eta(), .phi = trk.phi(), .vz = trk.vz()});
+    }
+  }
+
+  return outTracks;
 }
 
-std::pair<int, double> EleTkIsolFromCands::calIsol(const double eleEta,
-                                                   const double elePhi,
-                                                   const double eleVZ,
-                                                   const pat::PackedCandidateCollection& cands,
-                                                   const PIDVeto pidVeto) const {
-  double ptSum = 0.;
-  int nrTrks = 0;
+EleTkIsolFromCands::TrackContainer EleTkIsolFromCands::preselectTracksWithCuts(
+    pat::PackedCandidateCollection const& cands, TrkCuts const& cuts, PIDVeto pidVeto) const {
+  TrackContainer outTracks;
+  outTracks.reserve(cands.size());
 
-  const TrkCuts& cuts = std::abs(eleEta) < 1.5 ? barrelCuts_ : endcapCuts_;
-
-  for (auto& cand : cands) {
+  for (auto const& cand : cands) {
     if (cand.hasTrackDetails() && cand.charge() != 0 && passPIDVeto(cand.pdgId(), pidVeto)) {
       const reco::Track& trk = cand.pseudoTrack();
-      if (passTrkSel(trk, trk.pt(), cuts, eleEta, elePhi, eleVZ)) {
-        ptSum += trk.pt();
-        nrTrks++;
+      if (passTrackPreselection(trk, cuts)) {
+        outTracks.push_back(Track{.pt = trk.pt(), .eta = trk.eta(), .phi = trk.phi(), .vz = trk.vz()});
       }
     }
   }
-  return {nrTrks, ptSum};
+
+  return outTracks;
+}
+
+EleTkIsolFromCands::PreselectedTracks EleTkIsolFromCands::preselectTracks(reco::TrackCollection const& tracks) const {
+  return {
+      .withBarrelCuts = preselectTracksWithCuts(tracks, barrelCuts_),
+      .withEndcapCuts = preselectTracksWithCuts(tracks, endcapCuts_),
+  };
+}
+EleTkIsolFromCands::PreselectedTracks EleTkIsolFromCands::preselectTracks(pat::PackedCandidateCollection const& cands,
+                                                                          PIDVeto pidVeto) const {
+  return {
+      .withBarrelCuts = preselectTracksWithCuts(cands, barrelCuts_, pidVeto),
+      .withEndcapCuts = preselectTracksWithCuts(cands, endcapCuts_, pidVeto),
+  };
 }
 
 std::pair<int, double> EleTkIsolFromCands::calIsol(const reco::TrackBase& eleTrk,
-                                                   const reco::TrackCollection& tracks) const {
+                                                   const PreselectedTracks& tracks) const {
   return calIsol(eleTrk.eta(), eleTrk.phi(), eleTrk.vz(), tracks);
 }
 
 std::pair<int, double> EleTkIsolFromCands::calIsol(const double eleEta,
                                                    const double elePhi,
                                                    const double eleVZ,
-                                                   const reco::TrackCollection& tracks) const {
+                                                   const PreselectedTracks& tracks) const {
   double ptSum = 0.;
   int nrTrks = 0;
 
-  const TrkCuts& cuts = std::abs(eleEta) < 1.5 ? barrelCuts_ : endcapCuts_;
+  bool isBarrelElectron = std::abs(eleEta) < 1.5;
 
-  for (auto& trk : tracks) {
-    if (passTrkSel(trk, trk.pt(), cuts, eleEta, elePhi, eleVZ)) {
-      ptSum += trk.pt();
+  auto const& preselectedTracks = isBarrelElectron ? tracks.withBarrelCuts : tracks.withEndcapCuts;
+  auto const& cuts = isBarrelElectron ? barrelCuts_ : endcapCuts_;
+
+  for (auto& trk : preselectedTracks) {
+    if (passTrkSel(trk, cuts, eleEta, elePhi, eleVZ)) {
+      ptSum += trk.pt;
       nrTrks++;
     }
   }
@@ -135,21 +155,20 @@ EleTkIsolFromCands::PIDVeto EleTkIsolFromCands::pidVetoFromStr(const std::string
   }
 }
 
-bool EleTkIsolFromCands::passTrkSel(const reco::TrackBase& trk,
-                                    const double trkPt,
-                                    const TrkCuts& cuts,
-                                    const double eleEta,
-                                    const double elePhi,
-                                    const double eleVZ) {
-  const float dR2 = reco::deltaR2(eleEta, elePhi, trk.eta(), trk.phi());
-  const float dEta = trk.eta() - eleEta;
-  const float dZ = eleVZ - trk.vz();
-
-  return dR2 >= cuts.minDR2 && dR2 <= cuts.maxDR2 && std::abs(dEta) >= cuts.minDEta && std::abs(dZ) < cuts.maxDZ &&
-         trk.hitPattern().numberOfValidHits() >= cuts.minHits &&
+bool EleTkIsolFromCands::passTrackPreselection(const reco::TrackBase& trk, const TrkCuts& cuts) {
+  return trk.hitPattern().numberOfValidHits() >= cuts.minHits &&
          trk.hitPattern().numberOfValidPixelHits() >= cuts.minPixelHits &&
-         (trk.ptError() / trkPt < cuts.maxDPtPt || cuts.maxDPtPt < 0) && passQual(trk, cuts.allowedQualities) &&
-         passAlgo(trk, cuts.algosToReject) && trkPt > cuts.minPt;
+         (trk.ptError() / trk.pt() < cuts.maxDPtPt || cuts.maxDPtPt < 0) && passQual(trk, cuts.allowedQualities) &&
+         passAlgo(trk, cuts.algosToReject) && trk.pt() > cuts.minPt;
+}
+
+bool EleTkIsolFromCands::passTrkSel(
+    const Track& trk, const TrkCuts& cuts, const double eleEta, const double elePhi, const double eleVZ) {
+  const float dR2 = reco::deltaR2(eleEta, elePhi, trk.eta, trk.phi);
+  const float dEta = trk.eta - eleEta;
+  const float dZ = eleVZ - trk.vz;
+
+  return dR2 >= cuts.minDR2 && dR2 <= cuts.maxDR2 && std::abs(dEta) >= cuts.minDEta && std::abs(dZ) < cuts.maxDZ;
 }
 
 bool EleTkIsolFromCands::passQual(const reco::TrackBase& trk, const std::vector<reco::TrackBase::TrackQuality>& quals) {

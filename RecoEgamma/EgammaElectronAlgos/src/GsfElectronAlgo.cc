@@ -74,6 +74,12 @@ struct GsfElectronAlgo::EventData {
   EgammaRecHitIsolation ecalBarrelIsol03, ecalBarrelIsol04;
   EgammaRecHitIsolation ecalEndcapIsol03, ecalEndcapIsol04;
 
+  // cached information
+  EleTkIsolFromCands::PreselectedTracks preselectedTracksForIso03;
+  EleTkIsolFromCands::PreselectedTracks preselectedTracksForIso04;
+  EleTkIsolFromCands::PreselectedTracks preselectedTracksForIsoHEEP03;
+  EleTkIsolFromCands::PreselectedTracks preselectedTracksForIsoHEEP04;
+
   edm::Handle<reco::TrackCollection> originalCtfTracks;
   edm::Handle<reco::GsfTrackCollection> originalGsfTracks;
 
@@ -489,6 +495,10 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
                                                 *endcapRecHits,
                                                 &ecalSeveretyLevelAlgo,
                                                 DetId::Ecal),
+      .preselectedTracksForIso03 = tkIsol03Calc_.preselectTracks(event.get(cfg_.tokens.ctfTracks)),
+      .preselectedTracksForIso04 = tkIsol04Calc_.preselectTracks(event.get(cfg_.tokens.ctfTracks)),
+      .preselectedTracksForIsoHEEP03 = tkIsolHEEP03Calc_.preselectTracks(event.get(cfg_.tokens.ctfTracks)),
+      .preselectedTracksForIsoHEEP04 = tkIsolHEEP04Calc_.preselectTracks(event.get(cfg_.tokens.ctfTracks)),
       .originalCtfTracks = {},
       .originalGsfTracks = {}};
 
@@ -968,12 +978,11 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
   //====================================================
   // now isolation variables
   //====================================================
-
   reco::GsfElectron::IsolationVariables dr03, dr04;
-  dr03.tkSumPt = tkIsol03Calc_.calIsolPt(*ele.gsfTrack(), *eventData.currentCtfTracks);
-  dr04.tkSumPt = tkIsol04Calc_.calIsolPt(*ele.gsfTrack(), *eventData.currentCtfTracks);
-  dr03.tkSumPtHEEP = tkIsolHEEP03Calc_.calIsolPt(*ele.gsfTrack(), *eventData.currentCtfTracks);
-  dr04.tkSumPtHEEP = tkIsolHEEP04Calc_.calIsolPt(*ele.gsfTrack(), *eventData.currentCtfTracks);
+  dr03.tkSumPt = tkIsol03Calc_.calIsolPt(*ele.gsfTrack(), eventData.preselectedTracksForIso03);
+  dr04.tkSumPt = tkIsol04Calc_.calIsolPt(*ele.gsfTrack(), eventData.preselectedTracksForIso04);
+  dr03.tkSumPtHEEP = tkIsolHEEP03Calc_.calIsolPt(*ele.gsfTrack(), eventData.preselectedTracksForIsoHEEP03);
+  dr04.tkSumPtHEEP = tkIsolHEEP04Calc_.calIsolPt(*ele.gsfTrack(), eventData.preselectedTracksForIsoHEEP04);
 
   if (!EcalTools::isHGCalDet((DetId::Detector)region)) {
     dr03.hcalDepth1TowerSumEt = eventData.hadDepth1Isolation03.getTowerEtSum(&ele);
