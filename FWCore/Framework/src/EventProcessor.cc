@@ -489,7 +489,7 @@ namespace edm {
       principalCache_.insert(std::move(pb));
 
       auto pbForInput = std::make_unique<ProcessBlockPrincipal>(preg(), *processConfiguration_);
-      principalCache_.insertForInput(std::move(pb));
+      principalCache_.insertForInput(std::move(pbForInput));
     }
 
     // fill the subprocesses, if there are any

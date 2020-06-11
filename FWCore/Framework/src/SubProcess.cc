@@ -195,7 +195,7 @@ namespace edm {
       principalCache_.insert(std::move(pb));
 
       auto pbForInput = std::make_unique<ProcessBlockPrincipal>(preg_, *processConfiguration_, false);
-      principalCache_.insertForInput(std::move(pb));
+      principalCache_.insertForInput(std::move(pbForInput));
     }
 
     inUseLumiPrincipals_.resize(preallocConfig.numberOfLuminosityBlocks());
