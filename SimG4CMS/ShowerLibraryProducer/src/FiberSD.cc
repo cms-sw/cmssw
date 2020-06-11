@@ -2,7 +2,7 @@
 #include "SimDataFormats/CaloHit/interface/HFShowerPhoton.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
-#include "Geometry/HcalCommonData/interface/HcalDDDSimulationConstants.h"
+#include "Geometry/HcalCommonData/interface/HcalSimulationConstants.h"
 #include "Geometry/Records/interface/HcalSimNumberingRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -29,14 +29,14 @@ FiberSD::FiberSD(const std::string& iname,
       theShower(nullptr),
       theHCID(-1),
       theHC(nullptr) {
-  // Get pointer to HcalDDDConstant and HcalDDDSimulationConstants
-  edm::ESHandle<HcalDDDSimulationConstants> hdsc;
+  // Get pointer to HcalDDDConstant and HcalSimulationConstants
+  edm::ESHandle<HcalSimulationConstants> hdsc;
   es.get<HcalSimNumberingRecord>().get(hdsc);
   if (!hdsc.isValid()) {
     edm::LogError("FiberSim") << "FiberSD : Cannot find HcalDDDSimulationConstant";
     throw cms::Exception("Unknown", "FiberSD") << "Cannot find HcalDDDSimulationConstant\n";
   }
-  const HcalDDDSimulationConstants* hsps = hdsc.product();
+  const HcalSimulationConstants* hsps = hdsc.product();
   edm::ESHandle<HcalDDDSimConstants> hdc;
   es.get<HcalSimNumberingRecord>().get(hdc);
   if (hdc.isValid()) {
