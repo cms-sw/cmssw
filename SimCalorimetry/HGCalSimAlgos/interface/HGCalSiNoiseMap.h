@@ -85,7 +85,7 @@ public:
   std::vector<double> &getLSBPerGain() { return lsbPerGain_; }
   std::vector<double> &getMaxADCPerGain() { return chargeAtFullScaleADCPerGain_; }
   double getENCpad(const double &ileak);
-  void setUseCached(bool flag) { useCached_=true; }
+  void setUseCached(bool flag) { useCached_=flag; }
 
   inline void setENCCommonNoiseSubScale(double val) { encCommonNoiseSub_=val; }
 
