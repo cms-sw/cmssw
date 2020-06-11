@@ -1,3 +1,4 @@
+import copy
 import FWCore.ParameterSet.Config as cms
 
 # customisation for running on CPUs, common parts
@@ -315,7 +316,7 @@ def customise_gpu_ecal(process):
     process.load("RecoLocalCalo.EcalRecProducers.ecalLaserAPDPNRatiosRefGPUESProducer_cfi")
     process.load("RecoLocalCalo.EcalRecProducers.ecalLaserAlphasGPUESProducer_cfi")
     process.load("RecoLocalCalo.EcalRecProducers.ecalLinearCorrectionsGPUESProducer_cfi")
-    
+
 
     # Modules and EDAliases
 
@@ -394,61 +395,44 @@ def customise_gpu_ecal(process):
         recHitsLabelCPUEE = cms.string("EcalUncalibRecHitsEE")
     )
 
-
-    #
-    # ecal rechit
-    #
-    # run on gpu
-    process.hltEcalRecHitGPU = cms.EDProducer("EcalRecHitProducerGPU",                            
+    process.hltEcalRecHitGPU = cms.EDProducer("EcalRecHitProducerGPU",
         uncalibrecHitsInLabelEB = cms.InputTag("hltEcalUncalibRecHitGPU","EcalUncalibRecHitsEB"),
         uncalibrecHitsInLabelEE = cms.InputTag("hltEcalUncalibRecHitGPU","EcalUncalibRecHitsEE"),
         recHitsLabelEB = cms.string("EcalRecHitsEB"),
         recHitsLabelEE = cms.string("EcalRecHitsEE"),
-        
-        maxNumberHits = cms.uint32(20000),  # max number -> real max 75k
-        
-        ## db statuses to be exluded from reconstruction (some will be recovered)
-        ChannelStatusToBeExcluded = cms.vstring(   'kDAC',
-                                                   'kNoisy',
-                                                   'kNNoisy',
-                                                   'kFixedG6',
-                                                   'kFixedG1',
-                                                   'kFixedG0',
-                                                   'kNonRespondingIsolated',
-                                                   'kDeadVFE',
-                                                   'kDeadFE',
-                                                   'kNoDataNoTP',
-                                                   ),
-        
-        ## avoid propagation of dead channels other than after recovery
+        maxNumberHits = cms.uint32(20000),
+        ChannelStatusToBeExcluded = cms.vstring(
+            'kDAC',
+            'kNoisy',
+            'kNNoisy',
+            'kFixedG6',
+            'kFixedG1',
+            'kFixedG0',
+            'kNonRespondingIsolated',
+            'kDeadVFE',
+            'kDeadFE',
+            'kNoDataNoTP'),
         killDeadChannels = cms.bool(True),
-        ## define maximal and minimal values for the laser corrections      
         EBLaserMIN = cms.double(0.01),
-        EELaserMIN = cms.double(0.01),                                
+        EELaserMIN = cms.double(0.01),
         EBLaserMAX = cms.double(30.0),
         EELaserMAX = cms.double(30.0),
-                                
-        ## reco flags association to DB flag
         flagsMapDBReco = cms.PSet(
-            kGood  = cms.vstring('kOk','kDAC','kNoLaser','kNoisy'),
+            kGood = cms.vstring('kOk','kDAC','kNoLaser','kNoisy'),
             kNoisy = cms.vstring('kNNoisy','kFixedG6','kFixedG1'),
-            kNeighboursRecovered = cms.vstring('kFixedG0',
-                                               'kNonRespondingIsolated',
-                                               'kDeadVFE'),
+            kNeighboursRecovered = cms.vstring('kFixedG0', 'kNonRespondingIsolated', 'kDeadVFE'),
             kTowerRecovered = cms.vstring('kDeadFE'),
-            kDead           = cms.vstring('kNoDataNoTP')
-            ), 
-        ## for channel recovery
+            kDead = cms.vstring('kNoDataNoTP')
+        ),
         recoverEBIsolatedChannels = cms.bool(False),
         recoverEEIsolatedChannels = cms.bool(False),
-        recoverEBVFE  = cms.bool(False),
-        recoverEEVFE  = cms.bool(False),
+        recoverEBVFE = cms.bool(False),
+        recoverEEVFE = cms.bool(False),
         recoverEBFE = cms.bool(True),
         recoverEEFE = cms.bool(True),
     )
 
-    # copy from gpu to cpu
-    process.hltEcalRecHitSoA  = cms.EDProducer('EcalCPURecHitProducer',
+    process.hltEcalRecHitSoA = cms.EDProducer('EcalCPURecHitProducer',
         recHitsInLabelEB = cms.InputTag('hltEcalRecHitGPU', 'EcalRecHitsEB'),
         recHitsInLabelEE = cms.InputTag('hltEcalRecHitGPU', 'EcalRecHitsEE'),
         recHitsOutLabelEB = cms.string('EcalRecHitsEB'),
@@ -456,59 +440,33 @@ def customise_gpu_ecal(process):
         containsTimingInformation = cms.bool(False),
     )
 
-    # transform to legacy format
-    process.hltEcalRecHit  = cms.EDProducer('EcalRecHitConvertGPU2CPUFormat',
-        recHitsLabelGPUEB = cms.InputTag('ecalRecHitProducerGPU', 'EcalRecHitsGPUEB'),
-        recHitsLabelGPUEE = cms.InputTag('ecalRecHitProducerGPU', 'EcalRecHitsGPUEE'),
+    process.hltEcalRecHit = cms.EDProducer('EcalRecHitConvertGPU2CPUFormat',
+        recHitsLabelGPUEB = cms.InputTag('hltEcalRecHitSoA', 'EcalRecHitsEB'),
+        recHitsLabelGPUEE = cms.InputTag('hltEcalRecHitSoA', 'EcalRecHitsEE'),
         recHitsLabelCPUEB = cms.string('EcalRecHitsEB'),
         recHitsLabelCPUEE = cms.string('EcalRecHitsEE'),
     )
 
 
- 
     # Sequences
 
-    process.HLTDoFullUnpackingEgammaEcalMFSequence = cms.Sequence(
-        process.hltEcalDigisGPU
-      + process.hltEcalDigis
-      + process.hltEcalPreshowerDigis
-      + process.hltEcalUncalibRecHitGPU
-      + process.hltEcalUncalibRecHitSoA
-      + process.hltEcalUncalibRecHit
-      + process.hltEcalDetIdToBeRecovered
-      + process.hltEcalRecHitGPU
-      + process.hltEcalRecHitSoA
-      + process.hltEcalRecHit
-      + process.hltEcalPreshowerRecHit)
-
     process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence = cms.Sequence(
-        process.hltEcalDigisGPU
-      + process.hltEcalDigis
-      + process.hltEcalUncalibRecHitGPU
-      + process.hltEcalUncalibRecHitSoA
-      + process.hltEcalUncalibRecHit
-      + process.hltEcalDetIdToBeRecovered
-      + process.hltEcalRecHitGPU
-      + process.hltEcalRecHitSoA
-      + process.hltEcalRecHit)
+        process.hltEcalDigisGPU                             # unpack ECAL digis on gpu
+      + process.hltEcalDigis                                # copy to host and convert to legacy format
+      + process.hltEcalUncalibRecHitGPU                     # run ECAL local reconstruction and multifit on Ggpu
+      + process.hltEcalUncalibRecHitSoA                     # needed by hltEcalPhiSymFilter - copy to host
+      + process.hltEcalUncalibRecHit                        # needed by hltEcalPhiSymFilter - convert to legacy format
+      + process.hltEcalRecHitGPU                            # make ECAL calibrated rechits on gpu
+      + process.hltEcalRecHitSoA                            # copy to host
+      + process.hltEcalRecHit)                              # convert to legacy format
 
     process.HLTDoFullUnpackingEgammaEcalSequence = cms.Sequence(
-        process.hltEcalDigisGPU
-      + process.hltEcalDigis
-      + process.hltEcalPreshowerDigis
-      + process.hltEcalUncalibRecHitGPU
-      + process.hltEcalUncalibRecHitSoA
-      + process.hltEcalUncalibRecHit
-      + process.hltEcalDetIdToBeRecovered
-      + process.hltEcalRecHitGPU
-      + process.hltEcalRecHitSoA
-      + process.hltEcalRecHit
-      + process.hltEcalPreshowerRecHit)
+        process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence
+      + process.hltEcalPreshowerDigis                       # unpack ECAL preshower digis on the host
+      + process.hltEcalPreshowerRecHit)                     # build ECAL preshower rechits on the host
 
-    # 
-    # hltEcalUncalibRecHitSoA + hltEcalUncalibRecHit
-    # Needed by phi-symmetry filter for calibration stream -> ECAL will follow up
-    #
+    process.HLTDoFullUnpackingEgammaEcalMFSequence = copy.copy(process.HLTDoFullUnpackingEgammaEcalSequence)
+
 
     # done
     return process
