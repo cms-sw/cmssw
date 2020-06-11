@@ -1715,7 +1715,7 @@ if __name__ == "__main__":
             self.assertEqual(pset.it.getModuleLabel(), "")
             self.assertEqual(pset.it.getDataLabel(), "data")
             with self.assertRaises(RuntimeError):
-                pset.it = "label:too:many:elements"
+                pset.it = "too:many:elements"
             with self.assertRaises(RuntimeError):
                 pset.it = "too_few_elements"
             # "assignment" from tuple of strings
@@ -1732,7 +1732,7 @@ if __name__ == "__main__":
             self.assertEqual(pset.it.getModuleLabel(), "")
             self.assertEqual(pset.it.getDataLabel(), "data")
             with self.assertRaises(RuntimeError):
-                pset.it = ("label", "too", "many", "elements")
+                pset.it = ("too", "many", "elements")
             with self.assertRaises(RuntimeError):
                 pset.it = ("too_few_elements",)
             # "assignment" from list of strings
@@ -1749,7 +1749,7 @@ if __name__ == "__main__":
             self.assertEqual(pset.it.getModuleLabel(), "")
             self.assertEqual(pset.it.getDataLabel(), "data")
             with self.assertRaises(RuntimeError):
-                pset.it = ["label", "too", "many", "elements"]
+                pset.it = ["too", "many", "elements"]
             with self.assertRaises(RuntimeError):
                 pset.it = ["too_few_elements"]
 
@@ -1764,7 +1764,7 @@ if __name__ == "__main__":
             pset.vit = [["a3", ""], ["b3", "d3"], ["", "c3"]]
             self.assertEqual(repr(pset.vit), "cms.VESInputTag(\"a3:\", \"b3:d3\", \":c3\")")
             with self.assertRaises(RuntimeError):
-                pset.vit = [("label", "too", "many", "elements")]
+                pset.vit = [("too", "many", "elements")]
             with self.assertRaises(RuntimeError):
                 pset.vit = ["too_few_elements"]
             with self.assertRaises(RuntimeError):
