@@ -114,7 +114,7 @@ int main(int argc, char* argv[]) {
               << "for scintillator 1 additional parameter after the first 3\n"
               << "  debug flag\n"
               << std::endl;
-    return -1;
+    return 0;
   }
 
   int mode = std::atoi(argv[1]);
@@ -128,7 +128,7 @@ int main(int argc, char* argv[]) {
               << "output mode (0: gobal; 1: local)\n"
               << "debug (three digis to set debug for each output)\n"
               << std::endl;
-    return -1;
+    return 0;
   }
 
   const char* infile = argv[2];
