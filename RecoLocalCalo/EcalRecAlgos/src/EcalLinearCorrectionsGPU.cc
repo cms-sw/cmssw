@@ -38,6 +38,10 @@ EcalLinearCorrectionsGPU::Product::~Product() {
   // deallocation
   cudaCheck(cudaFree(p1));
   cudaCheck(cudaFree(p2));
+  cudaCheck(cudaFree(p3));
+  cudaCheck(cudaFree(t1));
+  cudaCheck(cudaFree(t2));
+  cudaCheck(cudaFree(t3));
 }
 
 EcalLinearCorrectionsGPU::Product const& EcalLinearCorrectionsGPU::getProduct(cudaStream_t cudaStream) const {

@@ -157,7 +157,7 @@ namespace ecal {
 
         ::ecal::reco::StorageScalarType const* amplitude = isEndcap ? amplitude_ee : amplitude_eb;
 
-        ::ecal::reco::StorageScalarType const* time_in = isEndcap ? time_ee : time_eb;
+        //::ecal::reco::StorageScalarType const* time_in = isEndcap ? time_ee : time_eb;
 
         ::ecal::reco::StorageScalarType const* chi2_in = isEndcap ? chi2_ee : chi2_eb;
 
@@ -287,15 +287,30 @@ namespace ecal {
         //
         energy[ch] = -1;  //---- AM: default, un-physical, ok
 
-        //
-        static const int chStatusMask = 0x1F;
+        // truncate the chi2
+        if (chi2_in[inputCh] > 64)
+          chi2[ch] = 64;
+        else
+          chi2[ch] = chi2_in[inputCh];
+
+        // default values for the flags
+        flagBits[ch] = 0;
+        extra[ch] = 0;
+
+        static const int chStatusMask = 0x1f;
         // ChannelStatusToBeExcluded is a "int" then I put "dbstatus" to be the same
         int dbstatus = EcalChannelStatusCode_Code((status[hashedId]) & chStatusMask);
         if (ChannelStatusToBeExcludedSize != 0) {
+          bool skip_this_channel = false;
           for (int ich_to_check = 0; ich_to_check < ChannelStatusToBeExcludedSize; ich_to_check++) {
             if (ChannelStatusToBeExcluded[ich_to_check] == dbstatus) {
-              return;
+              skip_this_channel = true;
+              break;
             }
+          }
+          if (skip_this_channel) {
+            // skip this channel
+            continue;
           }
         }
 
@@ -335,12 +350,12 @@ namespace ecal {
           flagbit_counter += 1;
         }
 
-        if ((flagmask & temporary_flagBits) && killDeadChannels) {
-          return;
-        }
-
-        //
         flagBits[ch] = temporary_flagBits;
+
+        if ((flagmask & temporary_flagBits) && killDeadChannels) {
+          // skip this channel
+          continue;
+        }
 
         //
         // multiply the adc counts with factors to get GeV
@@ -352,13 +367,7 @@ namespace ecal {
         // Time is not saved so far, FIXME
         //         time[ch] = time_in[inputCh];
 
-        if (chi2_in[inputCh] > 64)
-          chi2[ch] = 64;
-        else
-          chi2[ch] = chi2_in[inputCh];
-
         // NB: calculate the "flagBits extra"  --> not really "flags", but actually an encoded version of energy uncertainty, time unc., ...
-        extra[ch] = 0;
 
         //
         // extra packing ...
