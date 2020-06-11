@@ -1408,15 +1408,18 @@ void FedRawDataInputSource::readNextChunkIntoBuffer(InputFile* file) {
 
   if (fileDescriptor_ < 0) {
     bufferInputRead_ = 0;
-    if (file->rawFd_ == -1)
+    if (file->rawFd_ == -1) { 
       fileDescriptor_ = open(file->fileName_.c_str(), O_RDONLY);
-    else {
-      fileDescriptor_ = file->rawFd_;
-      //skip header size in destination buffer (chunk position was already adjusted)
-      bufferInputRead_ += file->rawHeaderSize_;
-      existingSize += file->rawHeaderSize_;
+      if (file->rawHeaderSize_)
+        lseek(fileDescriptor_, file->rawHeaderSize_, SEEK_SET);
     }
-    //off_t pos = lseek(fileDescriptor,0,SEEK_SET);
+    else
+      fileDescriptor_ = file->rawFd_;
+
+    //skip header size in destination buffer (chunk position was already adjusted)
+    bufferInputRead_ += file->rawHeaderSize_;
+    existingSize += file->rawHeaderSize_;
+
     if (fileDescriptor_ >= 0)
       LogDebug("FedRawDataInputSource") << "opened file -: " << std::endl << file->fileName_;
     else {
@@ -1424,32 +1427,42 @@ void FedRawDataInputSource::readNextChunkIntoBuffer(InputFile* file) {
           << "failed to open file " << std::endl
           << file->fileName_ << " fd:" << fileDescriptor_;
     }
-  }
-
-  if (file->chunkPosition_ == 0) {  //in the rare case the last byte barely fit
+    //fill chunk (skipping file header if present)
     for (unsigned int i = 0; i < readBlocks_; i++) {
-      const ssize_t last = ::read(fileDescriptor_, (void*)(file->chunks_[0]->buf_ + existingSize), eventChunkBlock_);
+      const ssize_t last = ::read(fileDescriptor_, (void*)(file->chunks_[0]->buf_ + existingSize), eventChunkBlock_ - (i==readBlocks_ -1 ? existingSize : 0));
       bufferInputRead_ += last;
       existingSize += last;
     }
-  } else {
-    const uint32_t chunksize = file->chunkPosition_;
-    const uint32_t blockcount = chunksize / eventChunkBlock_;
-    const uint32_t leftsize = chunksize % eventChunkBlock_;
-    uint32_t existingSizeLeft = eventChunkSize_ - file->chunkPosition_;
-    memmove((void*)file->chunks_[0]->buf_, file->chunks_[0]->buf_ + file->chunkPosition_, existingSizeLeft);
 
-    for (uint32_t i = 0; i < blockcount; i++) {
-      const ssize_t last =
-          ::read(fileDescriptor_, (void*)(file->chunks_[0]->buf_ + existingSizeLeft), eventChunkBlock_);
-      bufferInputRead_ += last;
-      existingSizeLeft += last;
+  } else {
+    //continue reading
+    if (file->chunkPosition_ == 0) {  //in the rare case the last byte barely fit
+      for (unsigned int i = 0; i < readBlocks_; i++) {
+        const ssize_t last = ::read(fileDescriptor_, (void*)(file->chunks_[0]->buf_ + existingSize), eventChunkBlock_);
+        bufferInputRead_ += last;
+        existingSize += last;
+      }
+    } else {
+      //event didn't fit in last chunk, so leftover must be moved to the beginning and completed
+      uint32_t existingSizeLeft = eventChunkSize_ - file->chunkPosition_;
+      memmove((void*)file->chunks_[0]->buf_, file->chunks_[0]->buf_ + file->chunkPosition_, existingSizeLeft);
+
+      //calculate amount of data that can be added
+      const uint32_t blockcount = file->chunkPosition_ / eventChunkBlock_;
+      const uint32_t leftsize =  file->chunkPosition_ % eventChunkBlock_;
+
+      for (uint32_t i = 0; i < blockcount; i++) {
+        const ssize_t last =
+            ::read(fileDescriptor_, (void*)(file->chunks_[0]->buf_ + existingSizeLeft), eventChunkBlock_);
+        bufferInputRead_ += last;
+        existingSizeLeft += last;
+      }
+      if (leftsize) {
+        const ssize_t last = ::read(fileDescriptor_, (void*)(file->chunks_[0]->buf_ + existingSizeLeft), leftsize);
+        bufferInputRead_ += last;
+      }
+      file->chunkPosition_ = 0;  //data was moved to beginning of the chunk
     }
-    if (leftsize) {
-      const ssize_t last = ::read(fileDescriptor_, (void*)(file->chunks_[0]->buf_ + existingSizeLeft), leftsize);
-      bufferInputRead_ += last;
-    }
-    file->chunkPosition_ = 0;  //data was moved to beginning of the chunk
   }
   if (bufferInputRead_ == file->fileSize_) {  // no more data in this file
     if (fileDescriptor_ != -1) {
