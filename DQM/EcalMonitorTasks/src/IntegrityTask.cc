@@ -6,11 +6,11 @@
 namespace ecaldqm {
   IntegrityTask::IntegrityTask() : DQWorkerTask() {}
 
-  void IntegrityTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-    // Reset by LS plots at beginning of every LS
-    MEs_.at("MapByLumi").reset();
-    MEs_.at("ByLumi").reset();
-  }
+  // void IntegrityTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
+  //   // Reset by LS plots at beginning of every LS
+  //   MEs_.at("MapByLumi").reset();
+  //   MEs_.at("ByLumi").reset();
+  // }
 
   template <typename IDCollection>
   void IntegrityTask::runOnDetIdCollection(IDCollection const& _ids, Collections _collection) {
@@ -36,18 +36,18 @@ namespace ecaldqm {
         return;
     }
 
-    MESet& meMapByLumi(MEs_.at("MapByLumi"));
-    MESet& meByLumi(MEs_.at("ByLumi"));
+    // MESet& meMapByLumi(MEs_.at("MapByLumi"));
+    // MESet& meByLumi(MEs_.at("ByLumi"));
     MESet& meTotal(MEs_.at("Total"));
     MESet& meTrendNErrors(MEs_.at("TrendNErrors"));
 
     std::for_each(_ids.begin(), _ids.end(), [&](typename IDCollection::value_type const& id) {
       set->fill(id);
       int dccid(dccId(id));
-      meByLumi.fill(dccid);
+      // meByLumi.fill(dccid);
       meTotal.fill(dccid);
       // Fill Integrity Errors Map with channel errors for this lumi
-      meMapByLumi.fill(id);
+      // meMapByLumi.fill(id);
 
       meTrendNErrors.fill(double(timestamp_.iLumi), 1.);
     });
@@ -70,8 +70,8 @@ namespace ecaldqm {
         return;
     }
 
-    MESet& meMapByLumi(MEs_.at("MapByLumi"));
-    MESet& meByLumi(MEs_.at("ByLumi"));
+    // MESet& meMapByLumi(MEs_.at("MapByLumi"));
+    // MESet& meByLumi(MEs_.at("ByLumi"));
     MESet& meTotal(MEs_.at("Total"));
     MESet& meTrendNErrors(MEs_.at("TrendNErrors"));
 
@@ -84,13 +84,13 @@ namespace ecaldqm {
         nCrystals = chIds.size();
       else
         nCrystals = 25.;
-      meByLumi.fill(dccid, nCrystals);
+      // meByLumi.fill(dccid, nCrystals);
       meTotal.fill(dccid, nCrystals);
       // Fill Integrity Errors Map with tower errors for this lumi
       // Since binned by crystal for compatibility with channel errors,
       // fill with constituent channels of tower
-      for (std::vector<DetId>::iterator chItr(chIds.begin()); chItr != chIds.end(); ++chItr)
-        meMapByLumi.fill(*chItr);
+      // for (std::vector<DetId>::iterator chItr(chIds.begin()); chItr != chIds.end(); ++chItr)
+      //   meMapByLumi.fill(*chItr);
 
       meTrendNErrors.fill(double(timestamp_.iLumi), nCrystals);
     });

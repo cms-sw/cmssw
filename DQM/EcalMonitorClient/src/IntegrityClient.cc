@@ -22,9 +22,9 @@ namespace ecaldqm {
 
   // Check Channel Status Record at every endLumi
   // Used to fill Channel Status Map MEs
-  void IntegrityClient::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const& _es) {
-    _es.get<EcalChannelStatusRcd>().get(chStatus);
-  }
+  // void IntegrityClient::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const& _es) {
+  //   _es.get<EcalChannelStatusRcd>().get(chStatus);
+  // }
 
   void IntegrityClient::producePlots(ProcessType) {
     uint32_t mask(1 << EcalDQMStatusHelper::CH_ID_ERROR | 1 << EcalDQMStatusHelper::CH_GAIN_ZERO_ERROR |
@@ -33,7 +33,7 @@ namespace ecaldqm {
 
     MESet& meQuality(MEs_.at("Quality"));
     MESet& meQualitySummary(MEs_.at("QualitySummary"));
-    MESet& meChStatus(MEs_.at("ChStatus"));
+    // MESet& meChStatus(MEs_.at("ChStatus"));
 
     MESet const& sOccupancy(sources_.at("Occupancy"));
     MESet const& sGain(sources_.at("Gain"));
@@ -44,28 +44,29 @@ namespace ecaldqm {
 
     // Fill Channel Status Map MEs
     // Record is checked for updates at every endLumi and filled here
-    MESet::iterator chSEnd(meChStatus.end());
-    for (MESet::iterator chSItr(meChStatus.beginChannel()); chSItr != chSEnd; chSItr.toNextChannel()) {
-      DetId id(chSItr->getId());
+    // MESet::iterator chSEnd(meChStatus.end());
+    // for (MESet::iterator chSItr(meChStatus.beginChannel()); chSItr != chSEnd; chSItr.toNextChannel()) {
+    //   DetId id(chSItr->getId());
 
-      EcalChannelStatusMap::const_iterator chIt(nullptr);
+    //   EcalChannelStatusMap::const_iterator chIt(nullptr);
 
-      // Set appropriate channel map (EB or EE)
-      if (id.subdetId() == EcalBarrel) {
-        EBDetId ebid(id);
-        chIt = chStatus->find(ebid);
-      } else {
-        EEDetId eeid(id);
-        chIt = chStatus->find(eeid);
-      }
+    //   // Set appropriate channel map (EB or EE)
+    //   if (id.subdetId() == EcalBarrel) {
+    //     EBDetId ebid(id);
+    //     chIt = chStatus->find(ebid);
+    //   } else {
+    //     EEDetId eeid(id);
+    //     chIt = chStatus->find(eeid);
+    //   }
 
-      // Get status code and fill ME
-      if (chIt != chStatus->end()) {
-        uint16_t code(chIt->getEncodedStatusCode());
-        chSItr->setBinContent(code);
-      }
+    //   // Get status code and fill ME
+    //   if (chIt != chStatus->end()) {
+    //     uint16_t code(chIt->getEncodedStatusCode());
+    //     chSItr->setBinContent(code);
+    //   }
 
-    }  // Channel Status Map
+    // }
+    // Channel Status Map
 
     MESet::iterator qEnd(meQuality.end());
     MESet::const_iterator occItr(sOccupancy);

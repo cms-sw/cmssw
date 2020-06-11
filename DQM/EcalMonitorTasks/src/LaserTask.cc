@@ -55,10 +55,10 @@ namespace ecaldqm {
 
   void LaserTask::beginRun(edm::Run const&, edm::EventSetup const&) { emptyLS_ = 0; }
 
-  void LaserTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-    if (++emptyLS_ > emptyLSLimit_)
-      emptyLS_ = -1;
-  }
+  // void LaserTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
+  //   if (++emptyLS_ > emptyLSLimit_)
+  //     emptyLS_ = -1;
+  // }
 
   void LaserTask::beginEvent(edm::Event const& _evt, edm::EventSetup const&) { pnAmp_.clear(); }
 

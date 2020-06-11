@@ -8,7 +8,7 @@
 
 namespace ecaldqm {
   PresampleTask::PresampleTask()
-      : DQWorkerTask(), doPulseMaxCheck_(true), pulseMaxPosition_(0), nSamples_(0), mePedestalByLS(nullptr) {}
+    : DQWorkerTask(), doPulseMaxCheck_(true), pulseMaxPosition_(0), nSamples_(0)/*, mePedestalByLS(nullptr)*/ {}
 
   void PresampleTask::setParams(edm::ParameterSet const& _params) {
     doPulseMaxCheck_ = _params.getUntrackedParameter<bool>("doPulseMaxCheck");
@@ -28,14 +28,14 @@ namespace ecaldqm {
     return false;
   }
 
-  void PresampleTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-    // Fill separate MEs with only 10 LSs worth of stats
-    // Used to correctly fill Presample Trend plots:
-    // 1 pt:10 LS in Trend plots
-    mePedestalByLS = &MEs_.at("PedestalByLS");
-    if (timestamp_.iLumi % 10 == 0)
-      mePedestalByLS->reset();
-  }
+  // void PresampleTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
+  //   // Fill separate MEs with only 10 LSs worth of stats
+  //   // Used to correctly fill Presample Trend plots:
+  //   // 1 pt:10 LS in Trend plots
+  //   mePedestalByLS = &MEs_.at("PedestalByLS");
+  //   if (timestamp_.iLumi % 10 == 0)
+  //     mePedestalByLS->reset();
+  // }
 
   template <typename DigiCollection>
   void PresampleTask::runOnDigis(DigiCollection const& _digis) {
@@ -70,7 +70,7 @@ namespace ecaldqm {
 
       for (int iSample(0); iSample < nSamples_; ++iSample) {
         mePedestal.fill(id, double(dataFrame.sample(iSample).adc()));
-        mePedestalByLS->fill(id, double(dataFrame.sample(iSample).adc()));
+        // mePedestalByLS->fill(id, double(dataFrame.sample(iSample).adc()));
       }
 
     }  // _digis loop

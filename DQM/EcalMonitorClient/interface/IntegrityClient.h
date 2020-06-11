@@ -14,11 +14,11 @@ namespace ecaldqm {
     ~IntegrityClient() override {}
 
     void producePlots(ProcessType) override;
-    void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+    /* void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override; */
 
   private:
     void setParams(edm::ParameterSet const&) override;
-    edm::ESHandle<EcalChannelStatus> chStatus;
+    /* edm::ESHandle<EcalChannelStatus> chStatus; */
 
     float errFractionThreshold_;
   };

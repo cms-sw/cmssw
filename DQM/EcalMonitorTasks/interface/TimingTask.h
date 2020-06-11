@@ -20,7 +20,7 @@ namespace ecaldqm {
     void runOnUncalibRecHits(EcalUncalibratedRecHitCollection const&);
 
   private:
-    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+    /* void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override; */
     void beginEvent(edm::Event const&, edm::EventSetup const&) override;
     void setParams(edm::ParameterSet const&) override;
 
@@ -35,7 +35,7 @@ namespace ecaldqm {
     float timingVsBXThreshold_;
     float timeErrorThreshold_;
 
-    MESet* meTimeMapByLS;
+    /* MESet* meTimeMapByLS; */
   };
 
   inline bool TimingTask::analyze(void const* _p, Collections _collection) {

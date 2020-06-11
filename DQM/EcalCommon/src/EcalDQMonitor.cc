@@ -112,31 +112,31 @@ namespace ecaldqm {
       edm::LogInfo("EcalDQM") << moduleName_ << "::ecaldqmEndRun";
   }
 
-  void EcalDQMonitor::ecaldqmBeginLuminosityBlock(edm::LuminosityBlock const &_lumi, edm::EventSetup const &_es) {
-    executeOnWorkers_(
-        [&_lumi, &_es](DQWorker *worker) {
-          if (worker->onlineMode())
-            worker->setTime(time(nullptr));
-          worker->setLumiNumber(_lumi.luminosityBlock());
-          worker->beginLuminosityBlock(_lumi, _es);
-        },
-        "beginLumi");
+  // void EcalDQMonitor::ecaldqmBeginLuminosityBlock(edm::LuminosityBlock const &_lumi, edm::EventSetup const &_es) {
+  //   executeOnWorkers_(
+  //       [&_lumi, &_es](DQWorker *worker) {
+  //         if (worker->onlineMode())
+  //           worker->setTime(time(nullptr));
+  //         worker->setLumiNumber(_lumi.luminosityBlock());
+  //         worker->beginLuminosityBlock(_lumi, _es);
+  //       },
+  //       "beginLumi");
 
-    if (verbosity_ > 1)
-      edm::LogInfo("EcalDQM") << moduleName_ << "::ecaldqmBeginLuminosityBlock";
-  }
+  //   if (verbosity_ > 1)
+  //     edm::LogInfo("EcalDQM") << moduleName_ << "::ecaldqmBeginLuminosityBlock";
+  // }
 
-  void EcalDQMonitor::ecaldqmEndLuminosityBlock(edm::LuminosityBlock const &_lumi, edm::EventSetup const &_es) {
-    executeOnWorkers_(
-        [&_lumi, &_es](DQWorker *worker) {
-          if (worker->onlineMode())
-            worker->setTime(time(nullptr));
-          worker->setLumiNumber(_lumi.luminosityBlock());
-          worker->endLuminosityBlock(_lumi, _es);
-        },
-        "endLumi");
+  // void EcalDQMonitor::ecaldqmEndLuminosityBlock(edm::LuminosityBlock const &_lumi, edm::EventSetup const &_es) {
+  //   executeOnWorkers_(
+  //       [&_lumi, &_es](DQWorker *worker) {
+  //         if (worker->onlineMode())
+  //           worker->setTime(time(nullptr));
+  //         worker->setLumiNumber(_lumi.luminosityBlock());
+  //         worker->endLuminosityBlock(_lumi, _es);
+  //       },
+  //       "endLumi");
 
-    if (verbosity_ > 2)
-      edm::LogInfo("EcalDQM") << moduleName_ << "::ecaldqmEndLuminosityBlock";
-  }
+  //   if (verbosity_ > 2)
+  //     edm::LogInfo("EcalDQM") << moduleName_ << "::ecaldqmEndLuminosityBlock";
+  // }
 }  // namespace ecaldqm
