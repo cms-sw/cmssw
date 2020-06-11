@@ -29,6 +29,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "EventFilter/EcalDigiToRaw/interface/TowerBlockFormatter.h"
 #include "EventFilter/EcalDigiToRaw/interface/TCCBlockFormatter.h"
@@ -70,6 +71,7 @@ private:
   edm::EDGetTokenT<EESrFlagCollection> labelEESR_;
   edm::EDGetTokenT<EBDigiCollection> EBDigiToken_;
   edm::EDGetTokenT<EEDigiCollection> EEDigiToken_;
+  edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> ecalmappingToken_;
   edm::EDPutTokenT<FEDRawDataCollection> putToken_;
 
   const std::vector<int32_t> listDCCId_;
@@ -103,6 +105,7 @@ EcalDigiToRaw::EcalDigiToRaw(const edm::ParameterSet& iConfig)
 
   labelEBSR_ = consumes<EBSrFlagCollection>(iConfig.getParameter<edm::InputTag>("labelEBSRFlags"));
   labelEESR_ = consumes<EESrFlagCollection>(iConfig.getParameter<edm::InputTag>("labelEESRFlags"));
+  ecalmappingToken_ = esConsumes<EcalElectronicsMapping, EcalMappingRcd>();
 
   putToken_ = produces<FEDRawDataCollection>();
 }
@@ -116,8 +119,7 @@ void EcalDigiToRaw::produce(edm::StreamID, edm::Event& iEvent, const edm::EventS
   if (config_.debug_)
     cout << "Enter in EcalDigiToRaw::produce ... " << endl;
 
-  ESHandle<EcalElectronicsMapping> ecalmapping;
-  iSetup.get<EcalMappingRcd>().get(ecalmapping);
+  ESHandle<EcalElectronicsMapping> ecalmapping = iSetup.getHandle(ecalmappingToken_);
   const EcalElectronicsMapping* TheMapping = ecalmapping.product();
 
   FEDRawDataCollection productRawData;
