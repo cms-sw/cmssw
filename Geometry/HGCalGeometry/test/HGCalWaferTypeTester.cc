@@ -85,7 +85,7 @@ void HGCalWaferTypeTester::analyze(const edm::Event& iEvent, const edm::EventSet
     std::cout << "Wafer Parameters " << r << ":" << R << std::endl << std::endl;
     // Determine if the 24 points on the perphery of the wafer is within range
     // These are the 6 corners; the middle of the edges and the positions
-    // which determines the positions of choptwoMinus and semiMinus 
+    // which determines the positions of choptwoMinus and semiMinus
     // Offset of these points wrt the center of the wafer is given in dx, dy
     static const unsigned int nc = 24;
     double dx[nc] = {0.0, 0.25 * r,  0.50 * r,  0.75 * r,  r,  r,  r,  r,  r,  0.75 * r,  0.50 * r,  0.25 * r,
@@ -125,7 +125,7 @@ void HGCalWaferTypeTester::analyze(const edm::Event& iEvent, const edm::EventSet
         }
         bool match = (ipat == pat[indx]);
         if (!match) {
-	  // Make sure the minimum requirement is satisfied
+          // Make sure the minimum requirement is satisfied
           ii = 1;
           match = true;
           for (unsigned int i = 0; i < nc; ++i) {
@@ -138,11 +138,11 @@ void HGCalWaferTypeTester::analyze(const edm::Event& iEvent, const edm::EventSet
             ii *= 2;
           }
           if (match) {
-	    // and it doe not satify the higher ups
+            // and it doe not satify the higher ups
             if (wtype == 0) {
               match = (static_cast<unsigned int>(std::find(pat, pat + np, ipat) - pat) >= np);
             } else {
-	      // for coarse wafers the "minus" types are not allowed
+              // for coarse wafers the "minus" types are not allowed
               for (unsigned int i = 0; i < np; ++i) {
                 if (i < 12 || (i >= 18 && i < 30) || (i >= 36)) {
                   if (ipat == pat[i]) {
@@ -160,7 +160,7 @@ void HGCalWaferTypeTester::analyze(const edm::Event& iEvent, const edm::EventSet
         if (!match) {
           ++bad;
           std::cout << " ***** ERROR *****" << std::endl;
-	  // Need debug information here
+          // Need debug information here
           hgdc.waferTypeRotation(hid.layer(), hid.waferU(), hid.waferV(), true);
           HGCalWaferMask::getTypeMode(xyz.x(), xyz.y(), r, R, range.first, range.second, wtype, 0, true);
           for (unsigned int i = 0; i < 24; ++i) {
