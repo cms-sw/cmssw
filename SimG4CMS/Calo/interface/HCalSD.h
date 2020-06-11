@@ -20,7 +20,7 @@
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
-#include "Geometry/HcalCommonData/interface/HcalDDDSimulationConstants.h"
+#include "Geometry/HcalCommonData/interface/HcalSimulationConstants.h"
 #include "Geometry/Records/interface/HcalParametersRcd.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 
@@ -87,7 +87,7 @@ private:
   std::unique_ptr<HFShowerFibreBundle> showerBundle;
 
   const HcalDDDSimConstants* hcalConstants_;
-  const HcalDDDSimulationConstants* hcalSimConstants_;
+  const HcalSimulationConstants* hcalSimConstants_;
   const HBHEDarkening* m_HBDarkening;
   const HBHEDarkening* m_HEDarkening;
   std::unique_ptr<HFDarkening> m_HFDarkening;

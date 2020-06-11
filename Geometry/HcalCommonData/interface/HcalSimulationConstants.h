@@ -1,7 +1,7 @@
-#ifndef Geometry_HcalCommonData_HcalDDDSimulationConstants_h
-#define Geometry_HcalCommonData_HcalDDDSimulationConstants_h
+#ifndef Geometry_HcalCommonData_HcalSimulationConstants_h
+#define Geometry_HcalCommonData_HcalSimulationConstants_h
 
-/** \class HcalDDDSimulationConstants
+/** \class HcalSimulationConstants
  *
  * this class reads the constant section of
  * the xml-files related to HF for HCAL simulation
@@ -12,10 +12,10 @@
 
 #include "CondFormats/GeometryObjects/interface/HcalSimulationParameters.h"
 
-class HcalDDDSimulationConstants {
+class HcalSimulationConstants {
 public:
-  HcalDDDSimulationConstants(const HcalSimulationParameters* hps);
-  ~HcalDDDSimulationConstants();
+  HcalSimulationConstants(const HcalSimulationParameters* hps);
+  ~HcalSimulationConstants();
 
   const HcalSimulationParameters* hcalsimpar() const { return hspar_; }
 
