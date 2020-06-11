@@ -42,7 +42,8 @@ JetPlusTrackZSPCorJetAntiKt4 = cms.EDProducer(
     UseZSP = cms.bool(False),
     srcPVs = cms.InputTag('offlinePrimaryVertices'),    
     alias = cms.untracked.string('JetPlusTrackZSPCorJetAntiKt4'),
-    ptCUT = cms.double(15.)
+    ptCUT = cms.double(15.),
+    dRcone = cms.double(0.4)
     )
 
 JetPlusTrackZSPCorJetAntiKt4.JetTracksAssociationAtVertex = cms.InputTag("ak4JetTracksAssociatorAtVertexJPT")
