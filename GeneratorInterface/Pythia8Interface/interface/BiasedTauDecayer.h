@@ -8,11 +8,10 @@
 //
 class BiasedTauDecayer : public Pythia8::DecayHandler {
 public:
-  BiasedTauDecayer(Pythia8::Info* infoPtr,
+  BiasedTauDecayer(const Pythia8::Info* infoPtr,
                    Pythia8::Settings* settingsPtr,
                    Pythia8::ParticleData* particleDataPtr,
-                   Pythia8::Rndm* rndmPtr,
-                   Pythia8::Couplings* couplingsPtr);
+                   Pythia8::Rndm* rndmPtr);
 
   bool decay(std::vector<int>& idProd,
              std::vector<double>& mProd,
