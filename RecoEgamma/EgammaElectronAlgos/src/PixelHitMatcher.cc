@@ -134,9 +134,10 @@ std::vector<SeedWithInfo> PixelHitMatcher::operator()(const std::vector<const Tr
   std::vector<TrajectoryStateOnSurface> vTsos;
   vTsos.reserve(allSeedsSize);
 
+  std::vector<GlobalPoint> hitGpMap;
   for (const auto seeds : seedsV) {
     for (const auto &seed : *seeds) {
-      std::vector<GlobalPoint> hitGpMap;
+      hitGpMap.clear();
       if (seed.nHits() > 9) {
         edm::LogWarning("GsfElectronAlgo|UnexpectedSeed") << "We cannot deal with seeds having more than 9 hits.";
         continue;
