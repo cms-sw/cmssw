@@ -29,8 +29,7 @@ EcalDQMonitorTask::EcalDQMonitorTask(edm::ParameterSet const& _ps)
       ecaldqm::EcalDQMonitor(_ps),
       schedule_(),
       allowMissingCollections_(_ps.getUntrackedParameter<bool>("allowMissingCollections")),
-      processedEvents_(0)
-{
+      processedEvents_(0) {
   ecaldqm::DependencySet dependencies;
   std::bitset<ecaldqm::nCollections> hasTaskToRun;
   edm::ConsumesCollector collector(consumesCollector());
@@ -69,7 +68,6 @@ EcalDQMonitorTask::EcalDQMonitorTask(edm::ParameterSet const& _ps)
       ss << ecaldqm::collectionName[schedule_[iCol].second] << std::endl;
     edm::LogInfo("EcalDQM") << ss.str();
   }
-
 }
 
 /*static*/

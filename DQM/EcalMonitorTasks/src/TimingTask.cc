@@ -20,8 +20,7 @@ namespace ecaldqm {
         energyThresholdEE_(0.),
         energyThresholdEEFwd_(0.),
         timingVsBXThreshold_(0.),
-        timeErrorThreshold_(0.)
-  {}
+        timeErrorThreshold_(0.) {}
 
   void TimingTask::setParams(edm::ParameterSet const& _params) {
     bxBinEdges_ = onlineMode_ ? _params.getUntrackedParameter<std::vector<int> >("bxBins")

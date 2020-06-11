@@ -44,7 +44,6 @@ private:
   std::vector<std::pair<Processor, ecaldqm::Collections> > schedule_;  // schedule of collections to run
   bool allowMissingCollections_;                                       // when true, skip missing collections silently
   int processedEvents_;
-
 };
 
 #endif

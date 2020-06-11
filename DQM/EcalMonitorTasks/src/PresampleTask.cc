@@ -7,8 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace ecaldqm {
-  PresampleTask::PresampleTask()
-      : DQWorkerTask(), doPulseMaxCheck_(true), pulseMaxPosition_(0), nSamples_(0) {}
+  PresampleTask::PresampleTask() : DQWorkerTask(), doPulseMaxCheck_(true), pulseMaxPosition_(0), nSamples_(0) {}
 
   void PresampleTask::setParams(edm::ParameterSet const& _params) {
     doPulseMaxCheck_ = _params.getUntrackedParameter<bool>("doPulseMaxCheck");
