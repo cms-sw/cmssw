@@ -163,6 +163,10 @@ namespace ecal {
       // 36 for 4 EE TCC blocks or 18 for 1 EB TCC block
       // 6 for SR block size
 
+      // dcc header w2
+      auto const w2 = buffer[2];
+      uint8_t const fov = (w2 >> 48) & 0xf;
+
       //
       // print Tower block headers
       //
@@ -179,7 +183,8 @@ namespace ecal {
 
         uint16_t const dccbx = bx & 0xfff;
         uint16_t const dccl1 = lv1 & 0xfff;
-        if (!is_synced_towerblock(dccbx, bxlocal, dccl1, lv1local)) {
+        // fov>=1 is required to support simulated data for which bx==bxlocal==0
+        if (fov>=1 && !is_synced_towerblock(dccbx, bxlocal, dccl1, lv1local)) {
           current_tower_block += block_length;
           continue;
         }
