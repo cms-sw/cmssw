@@ -17,6 +17,7 @@
 <use name="IOPool/Provenance"/>
 <use name="DQMServices/Core"/>
 <use name="CondFormats/BTauObjects"/>
+<use name="CondFormats/L1TObjects"/>
 <use name="CondTools/BTau"/>
 <use name="fastjet"/>
 <use name="fastjet-contrib"/>
