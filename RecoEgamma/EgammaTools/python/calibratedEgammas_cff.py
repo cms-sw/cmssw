@@ -15,7 +15,7 @@ from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_
 run2_miniAOD_80XLegacy.toModify(calibratedEgammaSettings,correctionFile = _correctionFile2016Legacy)
 
 from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
-run2_miniAOD_devel.toModify(calibratedEgammaSettings,correctionFile = _correctionFile2017UL17)
+run2_miniAOD_devel.toModify(calibratedEgammaSettings,correctionFile = _correctionFile2017UL)
 
 calibratedEgammaPatSettings = calibratedEgammaSettings.clone(
     recHitCollectionEB = cms.InputTag('reducedEgamma','reducedEBRecHits'),
