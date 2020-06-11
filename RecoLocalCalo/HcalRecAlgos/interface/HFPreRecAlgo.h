@@ -5,7 +5,7 @@
 
 class QIE10DataFrame;
 class HcalCoder;
-class HcalCalibrations;
+struct HcalChannelProperties;
 
 class HFPreRecAlgo {
 public:
@@ -16,7 +16,7 @@ public:
   HFQIE10Info reconstruct(const QIE10DataFrame& digi,
                           int tsToUse,
                           const HcalCoder& coder,
-                          const HcalCalibrations& calibs) const;
+                          const HcalChannelProperties& prop) const;
 
 private:
   bool sumAllTS_;

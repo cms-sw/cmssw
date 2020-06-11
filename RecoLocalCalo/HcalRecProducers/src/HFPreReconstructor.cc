@@ -34,11 +34,16 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
-#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 
+#include "CondFormats/HcalObjects/interface/HcalRecoParam.h"
+
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFPreRecAlgo.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalChannelProperties.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalChannelPropertiesRecord.h"
 
 //
 // class declaration
@@ -70,7 +75,6 @@ private:
   edm::EDGetTokenT<QIE10DigiCollection> tok_hfQIE10_;
   std::vector<HFQIE10Info> qie10Infos_;
   std::vector<QIE10InfoWithId> sortedQIE10Infos_;
-  std::unique_ptr<HcalRecoParams> paramTS_;
 
   // Fill qie10Infos_ from the event data
   void fillInfos(const edm::Event& e, const edm::EventSetup& eventSetup);
@@ -138,16 +142,14 @@ void HFPreReconstructor::fillInfos(const edm::Event& e, const edm::EventSetup& e
   // Clear the collection we want to fill in this method
   qie10Infos_.clear();
 
-  // Get the Hcal topology if needed
-  ESHandle<HcalTopology> htopo;
-  if (tsFromDB_) {
-    eventSetup.get<HcalRecNumberingRecord>().get(htopo);
-    paramTS_->setTopo(htopo.product());
-  }
-
   // Get the calibrations
-  ESHandle<HcalDbService> conditions;
-  eventSetup.get<HcalDbRecord>().get(conditions);
+  ESHandle<HcalTopology> htopoHandle;
+  eventSetup.get<HcalRecNumberingRecord>().get(htopoHandle);
+  const HcalTopology& htopo(*htopoHandle);
+
+  ESHandle<HcalChannelPropertiesVec> propHandle;
+  eventSetup.get<HcalChannelPropertiesRecord>().get(propHandle);
+  const HcalChannelPropertiesVec& prop(*propHandle);
 
   // Get the input collection
   Handle<QIE10DigiCollection> digi;
@@ -173,36 +175,31 @@ void HFPreReconstructor::fillInfos(const edm::Event& e, const edm::EventSetup& e
         if (frame.zsMarkAndPass())
           continue;
 
-      const HcalCalibrations& calibrations(conditions->getHcalCalibrations(cell));
-      const HcalQIECoder* channelCoder = conditions->getHcalCoder(cell);
-      const HcalQIEShape* shape = conditions->getHcalShape(channelCoder);
-      const HcalCoderDb coder(*channelCoder, *shape);
+      // Look up the channel properties. This lookup is O(1).
+      const HcalChannelProperties& properties(prop.at(htopo.detId2denseId(cell)));
+
+      // ADC decoding tool
+      const HcalCoderDb coder(*properties.channelCoder, *properties.shape);
 
       int tsToUse = forceSOI_;
       if (tsToUse < 0) {
         if (tsFromDB_) {
-          const HcalRecoParam* param_ts = paramTS_->getValues(cell.rawId());
-          tsToUse = param_ts->firstSample();
-        } else
+          tsToUse = properties.paramTs->firstSample();
+        } else {
           // Get the "sample of interest" from the data frame itself
           tsToUse = frame.presamples();
+        }
       }
 
       // Reconstruct the charge, energy, etc
-      const HFQIE10Info& info = reco_.reconstruct(frame, tsToUse + soiShift_, coder, calibrations);
+      const HFQIE10Info& info = reco_.reconstruct(frame, tsToUse + soiShift_, coder, properties);
       if (info.id().rawId())
         qie10Infos_.push_back(info);
     }
   }
 }
 
-void HFPreReconstructor::beginRun(const edm::Run& r, const edm::EventSetup& es) {
-  if (tsFromDB_) {
-    edm::ESHandle<HcalRecoParams> p;
-    es.get<HcalRecoParamsRcd>().get(p);
-    paramTS_ = std::make_unique<HcalRecoParams>(*p.product());
-  }
-}
+void HFPreReconstructor::beginRun(const edm::Run& r, const edm::EventSetup& es) {}
 
 // ------------ method called to produce the data  ------------
 void HFPreReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
