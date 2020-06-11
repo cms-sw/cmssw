@@ -98,7 +98,6 @@ struct L1GtConditionTypeStringToEnum {
 L1GtConditionType l1GtConditionTypeStringToEnum(const std::string&);
 std::string l1GtConditionTypeEnumToString(const L1GtConditionType&);
 
-
 struct L1GtConditionCategoryStringToEnum {
   const char* label;
   L1GtConditionCategory value;
