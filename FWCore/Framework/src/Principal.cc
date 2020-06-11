@@ -480,9 +480,9 @@ namespace edm {
     fillPrincipal(reader);
 
     std::vector<std::string> const& lookupProcessNames = productLookup_->lookupProcessNames();
-    auto iter = std::find(lookupProcessNames.begin(), lookupProcessNames.end(), processNameOfBlock);
     lookupProcessOrder_.assign(lookupProcessNames.size(), 0);
     if (!lookupProcessOrder_.empty()) {
+      auto iter = std::find(lookupProcessNames.begin(), lookupProcessNames.end(), processNameOfBlock);
       if (iter != lookupProcessNames.end()) {
         lookupProcessOrder_[0] = iter - lookupProcessNames.begin();
       }
