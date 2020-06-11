@@ -1,4 +1,4 @@
-#include "EventFilter/CSCRawToDigi/interface/CSCDCCUnpacker.h"
+#include "EventFilter/CSCRawToDigi/plugins/CSCDCCUnpacker.h"
 
 //Framework stuff
 #include "DataFormats/Common/interface/Handle.h"
