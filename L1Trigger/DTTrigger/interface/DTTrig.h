@@ -42,6 +42,11 @@
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManagerRcd.h"
 
 #include <memory>
 
@@ -255,6 +260,9 @@ private:
   SCcontainer _cache1;                   // Sector Collector units
   const DTConfigManager* _conf_manager;  // Configuration Manager class pointer
   edm::InputTag _digitag;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomBeginRunToken_;
+  edm::ESGetToken<DTConfigManager, DTConfigManagerRcd> confToken_;
   bool _debug;  // Debug flag
   bool _inputexist;
 
