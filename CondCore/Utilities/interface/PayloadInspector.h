@@ -236,7 +236,7 @@ namespace cond {
       template <int index>
       TagReference getTag() {
         size_t sz = m_tagNames.size();
-        if (sz == 0 || index > (sz - 1)) {
+        if (sz == 0 || index >= sz) {
           cond::throwException("Index out of range", "PlotBase::getTag()");
         }
         return TagReference(m_tagNames[index], m_tagBoundaries[index], m_tagIovs[index]);
@@ -715,7 +715,7 @@ namespace cond {
 
       // to be used to fill the histogram!
       void fillWithBinAndValue(size_t bin, float weight = 1) {
-        if (bin >= 0 && bin < Base::m_plotData.size()) {
+        if (bin < Base::m_plotData.size()) {
           std::get<1>(Base::m_plotData[bin]) = weight;
         }
       }
