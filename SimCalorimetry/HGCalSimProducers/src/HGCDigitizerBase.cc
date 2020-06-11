@@ -122,8 +122,8 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
     uint32_t gainIdx = 0;
     if (scaleByDose_) {
       HGCSiliconDetId detId(id);
-      HGCalSiNoiseMap::SiCellOpCharacteristics siop =
-          scal_.getSiCellOpCharacteristics(detId, HGCalSiNoiseMap::AUTO, myFEelectronics_->getTargetMipValue());
+      HGCalSiNoiseMap::SiCellOpCharacteristicsCore siop =
+          scal_.getSiCellOpCharacteristicsCore(detId, HGCalSiNoiseMap::AUTO, myFEelectronics_->getTargetMipValue());
       cce = siop.cce;
       noiseWidth = siop.noise;
       lsbADC = scal_.getLSBPerGain()[(HGCalSiNoiseMap::GainRange_t)siop.gain];

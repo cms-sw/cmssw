@@ -2,7 +2,8 @@
 
 //
 HGCalSiNoiseMap::HGCalSiNoiseMap()
-  : encCommonNoiseSub_(sqrt(1.0)),
+  : useCached_(true),
+    encCommonNoiseSub_(sqrt(1.0)),
     qe2fc_(1.60217646E-4),
     ignoreFluence_(false),
     ignoreCCE_(false),
@@ -71,35 +72,53 @@ double HGCalSiNoiseMap::getENCpad(const double &ileak) {
 
 
 //
+HGCalSiNoiseMap::SiCellOpCharacteristicsCore HGCalSiNoiseMap::getSiCellOpCharacteristicsCore(const HGCSiliconDetId &cellId,
+                                                                                             GainRange_t gain,
+                                                                                             int aimMIPtoADC) {
+
+  //check if this already exists in the cache
+  HGCSiliconDetId posCellId(cellId.subdet(), 
+                            1, 
+                            cellId.type(), 
+                            cellId.layer(), 
+                            cellId.waferU(), 
+                            cellId.waferV(), 
+                            cellId.cellU(), 
+                            cellId.cellV());
+  uint32_t key(posCellId.rawId());
+  if(!useCached_ || siopCache_.find(key)==siopCache_.end()) {
+    SiCellOpCharacteristicsCore siop=getSiCellOpCharacteristics(cellId,gain,aimMIPtoADC).core;
+    return siop;
+  }
+  
+  //fallback if cache is in use and key exists
+  return siopCache_[key];
+}
+
+//
 HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteristics(const HGCSiliconDetId &cellId,
                                                                                      GainRange_t gain,
                                                                                      int aimMIPtoADC) {
 
-  //check if this already exists in the cache
-  uint32_t key(cellId.rawId());
-  if(siopCache_.find(key)==siopCache_.end()) {
-
-    //decode cell properties
-    int layer(cellId.layer());
-    unsigned int cellThick = cellId.type();
-    double cellCap(cellCapacitance_[cellThick]);
-    double cellVol(cellVolume_[cellThick]);
-    double mipEqfC(mipEqfC_[cellThick]);
-
-    //location of the cell
-    int subdet(cellId.subdet());
-    std::vector<double> &cceParam=cceParam_[cellThick];
-    auto xy(ddd()->locateCell(cellId.layer(), cellId.waferU(), cellId.waferV(), cellId.cellU(), cellId.cellV(), true, true));
-    double radius = sqrt(std::pow(xy.first, 2) + std::pow(xy.second, 2));  //in cm
-
-    //call baseline method and add to cache
-    siopCache_[key]=getSiCellOpCharacteristics(cellCap,cellVol,mipEqfC,cceParam,
-                                               subdet,layer,radius,
-                                               gain,aimMIPtoADC);    
-  }
+  //decode cell properties
+  int layer(cellId.layer());
+  unsigned int cellThick = cellId.type();
+  double cellCap(cellCapacitance_[cellThick]);
+  double cellVol(cellVolume_[cellThick]);
+  double mipEqfC(mipEqfC_[cellThick]);
   
-  return siopCache_[key];
-}
+  //location of the cell
+  int subdet(cellId.subdet());
+  std::vector<double> &cceParam=cceParam_[cellThick];
+  auto xy(ddd()->locateCell(cellId.layer(), cellId.waferU(), cellId.waferV(), cellId.cellU(), cellId.cellV(), true, true));
+  double radius = sqrt(std::pow(xy.first, 2) + std::pow(xy.second, 2));  //in cm
+  
+  //call baseline method and add to cache
+  return getSiCellOpCharacteristics(cellCap,cellVol,mipEqfC,cceParam,
+                                    subdet,layer,radius,
+                                    gain,aimMIPtoADC);
+}  
+
 
 //
 HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteristics(double &cellCap, double &cellVol, double &mipEqfC, std::vector<double> &cceParam,
@@ -113,7 +132,7 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
     siop.fluence = 0;
     siop.lnfluence = -1;
     siop.ileak = exp(ileakParam_[1]) * cellVol * unitToMicro_;
-    siop.cce = 1;
+    siop.core.cce = 1;
   } else {
 
     if (getDoseMap().empty()) {
@@ -130,21 +149,21 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
     
     //charge collection efficiency
     if (ignoreCCE_) {
-      siop.cce = 1.0;
+      siop.core.cce = 1.0;
     } else {
       //lin+log parametrization
       //cceParam are parameters as defined in equation (2) of DN-19-045
-      siop.cce = siop.fluence <= cceParam[0] ? 1. + cceParam[1] * siop.fluence
+      siop.core.cce = siop.fluence <= cceParam[0] ? 1. + cceParam[1] * siop.fluence
         : (1. - cceParam[2] * siop.lnfluence) +
         (cceParam[1] * cceParam[0] +
          cceParam[2] * log(cceParam[0]));
-      siop.cce = std::max(0., siop.cce);
+      siop.core.cce = std::max((float)0., siop.core.cce);
     }
   }
 
   //determine the gain to apply accounting for cce
   //move computation to ROC level (one day)
-  double S(siop.cce * mipEqfC);
+  double S(siop.core.cce * mipEqfC);
   if (gain == GainRange_t::AUTO) {
     double desiredLSB(S / aimMIPtoADC);
     std::vector<double> diffToPhysLSB = {fabs(desiredLSB - lsbPerGain_[GainRange_t::q80fC]),
@@ -159,20 +178,20 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
   }
 
   //fill in the parameters of the struct
-  siop.gain = gain;
+  siop.core.gain = gain;
   siop.mipfC = S;
   siop.mipADC = std::floor(S / lsbPerGain_[gain]);
-  siop.thrADC = std::floor(S / 2. / lsbPerGain_[gain]);
+  siop.core.thrADC = std::floor(S / 2. / lsbPerGain_[gain]);
  
   //build noise estimate
   if (ignoreNoise_) {
-    siop.noise = 0.0;
+    siop.core.noise = 0.0;
     siop.enc_s = 0.0;
     siop.enc_p = 0.0;
   } else {
     siop.enc_s = encsParam_[gain][0] + encsParam_[gain][1] * cellCap + encsParam_[gain][2] * pow(cellCap, 2);
     siop.enc_p = getENCpad(siop.ileak);
-    siop.noise = hypot(siop.enc_p * encCommonNoiseSub_, siop.enc_s ) * qe2fc_;
+    siop.core.noise = hypot(siop.enc_p * encCommonNoiseSub_, siop.enc_s ) * qe2fc_;
   }
 
   return siop;

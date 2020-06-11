@@ -18,11 +18,19 @@ public:
   enum GainRange_t { q80fC, q160fC, q320fC, AUTO };
   enum NoiseMapAlgoBits_t { FLUENCE, CCE, NOISE };
 
+  struct SiCellOpCharacteristicsCore {
+    SiCellOpCharacteristicsCore()
+    : cce(0.), noise(0.), gain(0), thrADC(0) {}
+    float cce,noise;
+    unsigned short gain, thrADC;
+  };
+
   struct SiCellOpCharacteristics {
     SiCellOpCharacteristics()
-    : lnfluence(0.), fluence(0.), ileak(0.), cce(1.), noise(0.), enc_s(0.), enc_p(0.), mipfC(0), gain(0), mipADC(0), thrADC(0) {}
-    double lnfluence, fluence, ileak, cce, noise, enc_s, enc_p, mipfC;
-    unsigned int gain, mipADC, thrADC;
+    : lnfluence(0.), fluence(0.), ileak(0.), enc_s(0.), enc_p(0.), mipfC(0), mipADC(0) {}
+    SiCellOpCharacteristicsCore core;
+    double lnfluence, fluence, ileak, enc_s, enc_p, mipfC;
+    unsigned int mipADC;
   };
 
   HGCalSiNoiseMap();
@@ -53,6 +61,9 @@ public:
      @short returns the charge collection efficiency and noise
      if gain range is set to auto, it will find the most appropriate gain to put the mip peak close to 10 ADC counts
   */
+  SiCellOpCharacteristicsCore getSiCellOpCharacteristicsCore(const HGCSiliconDetId &did,
+                                                             GainRange_t gain = GainRange_t::AUTO,
+                                                             int aimMIPtoADC = 10);
   SiCellOpCharacteristics getSiCellOpCharacteristics(const HGCSiliconDetId &did,
                                                      GainRange_t gain = GainRange_t::AUTO,
                                                      int aimMIPtoADC = 10);
@@ -74,13 +85,15 @@ public:
   std::vector<double> &getLSBPerGain() { return lsbPerGain_; }
   std::vector<double> &getMaxADCPerGain() { return chargeAtFullScaleADCPerGain_; }
   double getENCpad(const double &ileak);
+  void setUseCached(bool flag) { useCached_=true; }
 
   inline void setENCCommonNoiseSubScale(double val) { encCommonNoiseSub_=val; }
 
 private:
 
   //cache of SiCellOpCharacteristics
-  std::unordered_map<uint32_t, SiCellOpCharacteristics> siopCache_;
+  bool useCached_;
+  std::unordered_map<uint32_t, SiCellOpCharacteristicsCore> siopCache_;
 
   //vector of three params, per sensor type: 0:120 [mum], 1:200, 2:300
   std::array<double, 3> mipEqfC_, cellCapacitance_, cellVolume_;
