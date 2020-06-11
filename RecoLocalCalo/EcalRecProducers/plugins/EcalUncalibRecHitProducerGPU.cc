@@ -287,6 +287,10 @@ void EcalUncalibRecHitProducerGPU::acquire(edm::Event const& event,
   neb_ = ebDigis.ndigis;
   nee_ = eeDigis.ndigis;
 
+  if ((neb_ + nee_) > maxNumberHits_) {
+    edm::LogError("EcalUncalibRecHitProducerGPU") << "max number of channels exceeded. See options 'maxNumberHits' ";
+  }
+  
   // conditions
   setup.get<EcalPedestalsRcd>().get(pedestalsHandle_);
   setup.get<EcalGainRatiosRcd>().get(gainRatiosHandle_);
