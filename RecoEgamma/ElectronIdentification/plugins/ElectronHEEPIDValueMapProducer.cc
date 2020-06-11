@@ -71,9 +71,7 @@ private:
                                   edm::ESHandle<CaloTopology>& caloTopo);
 
   static float calTrkIso(const reco::GsfElectron& ele,
-                         const edm::View<reco::GsfElectron>& eles,
-                         const std::vector<edm::Handle<pat::PackedCandidateCollection> >& handles,
-                         const std::vector<EleTkIsolFromCands::PIDVeto>& pidVetos,
+                         std::vector<EleTkIsolFromCands::PreselectedTracks> const& preselectedTracks,
                          const EleTkIsolFromCands& trkIsoCalc);
 
   template <typename T>
@@ -234,10 +232,31 @@ void ElectronHEEPIDValueMapProducer::produce(edm::Event& iEvent, const edm::Even
   auto ebRecHitHandle = getHandle(iEvent, ebRecHitToken_);
   auto eeRecHitHandle = getHandle(iEvent, eeRecHitToken_);
   auto beamSpotHandle = getHandle(iEvent, beamSpotToken_);
-  auto candHandles = getHandles(iEvent, candTokens_);
 
   bool isAOD = isEventAOD(iEvent, eleToken_);
   const auto& candVetos = isAOD ? candVetosAOD_ : candVetosMiniAOD_;
+
+  std::vector<EleTkIsolFromCands::PreselectedTracks> preselectedTracksForIso03;
+  std::vector<EleTkIsolFromCands::PreselectedTracks> preselectedTracksForIso04;
+
+  {
+    int handleNr = 0;
+    for (auto const& handle : getHandles(iEvent, candTokens_)) {
+      if (handle.isValid()) {
+        preselectedTracksForIso03.push_back(trkIsoCalc_.preselectTracks(*handle, candVetos[handleNr]));
+      } else {
+        preselectedTracksForIso03.emplace_back();
+      }
+      if (makeTrkIso04_) {
+        if (handle.isValid()) {
+          preselectedTracksForIso04.push_back(trkIsoCalc_.preselectTracks(*handle, candVetos[handleNr]));
+        } else {
+          preselectedTracksForIso04.emplace_back();
+        }
+      }
+      ++handleNr;
+    }
+  }
 
   edm::ESHandle<CaloTopology> caloTopoHandle;
   iSetup.get<CaloTopologyRecord>().get(caloTopoHandle);
@@ -246,9 +265,9 @@ void ElectronHEEPIDValueMapProducer::produce(edm::Event& iEvent, const edm::Even
   std::vector<float> eleTrkPtIso04;
   std::vector<int> eleNrSaturateIn5x5;
   for (auto const& ele : *eleHandle) {
-    eleTrkPtIso.push_back(calTrkIso(ele, *eleHandle, candHandles, candVetos, trkIsoCalc_));
+    eleTrkPtIso.push_back(calTrkIso(ele, preselectedTracksForIso03, trkIsoCalc_));
     if (makeTrkIso04_) {
-      eleTrkPtIso04.push_back(calTrkIso(ele, *eleHandle, candHandles, candVetos, trkIso04Calc_));
+      eleTrkPtIso04.push_back(calTrkIso(ele, preselectedTracksForIso03, trkIso04Calc_));
     }
     eleNrSaturateIn5x5.push_back(nrSaturatedCrysIn5x5(ele, ebRecHitHandle, eeRecHitHandle, caloTopoHandle));
   }
@@ -268,29 +287,19 @@ int ElectronHEEPIDValueMapProducer::nrSaturatedCrysIn5x5(const reco::GsfElectron
   return noZS::EcalClusterTools::nrSaturatedCrysIn5x5(id, recHits, caloTopo.product());
 }
 
-float ElectronHEEPIDValueMapProducer::calTrkIso(const reco::GsfElectron& ele,
-                                                const edm::View<reco::GsfElectron>& eles,
-                                                const std::vector<edm::Handle<pat::PackedCandidateCollection> >& handles,
-                                                const std::vector<EleTkIsolFromCands::PIDVeto>& pidVetos,
-                                                const EleTkIsolFromCands& trkIsoCalc) {
-  if (ele.gsfTrack().isNull())
+float ElectronHEEPIDValueMapProducer::calTrkIso(
+    const reco::GsfElectron& ele,
+    std::vector<EleTkIsolFromCands::PreselectedTracks> const& preselectedTracks,
+    const EleTkIsolFromCands& trkIsoCalc) {
+  if (ele.gsfTrack().isNull()) {
     return std::numeric_limits<float>::max();
-  else {
-    float trkIso = 0.;
-    for (size_t handleNr = 0; handleNr < handles.size(); handleNr++) {
-      auto& handle = handles[handleNr];
-      if (handle.isValid()) {
-        if (handleNr < pidVetos.size()) {
-          trkIso += trkIsoCalc.calIsolPt(*ele.gsfTrack(), *handle, pidVetos[handleNr]);
-        } else {
-          throw cms::Exception("LogicError") << " somehow the pidVetos and handles do not much, given this is checked "
-                                                "at construction time, something has gone wrong in the code handle nr "
-                                             << handleNr << " size of vetos " << pidVetos.size();
-        }
-      }
-    }
-    return trkIso;
   }
+
+  float trkIso = 0.;
+  for (auto const& tracks : preselectedTracks) {
+    trkIso += trkIsoCalc.calIsolPt(*ele.gsfTrack(), tracks);
+  }
+  return trkIso;
 }
 
 template <typename T>
