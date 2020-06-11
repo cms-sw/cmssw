@@ -1161,9 +1161,11 @@ std::pair<double, double> HGCalDDDConstants::waferPosition(
   int ll = lay - hgpar_->firstLayer_;
   double x = hgpar_->xLayerHex_[ll];
   double y = hgpar_->yLayerHex_[ll];
+#ifdef EDM_ML_DEBUG
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "Layer " << lay << ":" << ll << " Shift " << hgpar_->xLayerHex_[ll] << ":"
                                   << hgpar_->yLayerHex_[ll];
+#endif
   if (!reco) {
     x *= HGCalParameters::k_ScaleToDDD;
     y *= HGCalParameters::k_ScaleToDDD;
@@ -1172,8 +1174,10 @@ std::pair<double, double> HGCalDDDConstants::waferPosition(
   const auto& xy = waferPosition(waferU, waferV, reco);
   x += xy.first;
   y += xy.second;
+#ifdef EDM_ML_DEBUG
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "With wafer " << x << ":" << y << ":" << xy.first << ":" << xy.second;
+#endif
   return std::make_pair(x, y);
 }
 
@@ -1223,10 +1227,12 @@ std::pair<int, int> HGCalDDDConstants::waferTypeRotation(int layer, int waferU, 
       }
     }
   }
+#ifdef EDM_ML_DEBUG
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "waferTypeRotation: Layer " << layer << " Wafer " << waferU << ":" << waferV
                                   << " Index " << std::hex << wl << std::dec << ":"
                                   << (itr != hgpar_->waferTypes_.end()) << " Type " << type << " Rotation " << rotn;
+#endif
   return std::make_pair(type, rotn);
 }
 
@@ -1309,9 +1315,11 @@ void HGCalDDDConstants::cellHex(double xloc, double yloc, int cellType, int& cel
   cv0 = std::max(0, std::min(cv0, 2 * N - 1));
   if (cv0 - cu0 >= N)
     cv0 = cu0 + N - 1;
+#ifdef EDM_ML_DEBUG
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "cellHex: input " << xloc << ":" << yloc << ":" << cellType << " parameter " << rc
                                   << ":" << Rc << " u0 " << u0 << ":" << cu0 << " v0 " << v0 << ":" << cv0;
+#endif
   bool found(false);
   static const int shift[3] = {0, 1, -1};
   for (int i1 = 0; i1 < 3; ++i1) {
@@ -1324,11 +1332,13 @@ void HGCalDDDConstants::cellHex(double xloc, double yloc, int cellType, int& cel
         double yc = (2 * cellU - cellV - N) * rc;
         if ((std::abs(yloc - yc) <= rc) && (std::abs(xloc - xc) <= Rc) &&
             ((std::abs(xloc - xc) <= 0.5 * Rc) || (std::abs(yloc - yc) <= sqrt3_ * (Rc - std::abs(xloc - xc))))) {
+#ifdef EDM_ML_DEBUG
           if (debug)
             edm::LogVerbatim("HGCalGeom")
                 << "cellHex: local " << xc << ":" << yc << " difference " << std::abs(xloc - xc) << ":"
                 << std::abs(yloc - yc) << ":" << sqrt3_ * (Rc - std::abs(yloc - yc)) << " comparator " << rc << ":"
                 << Rc << " (u,v) = (" << cellU << "," << cellV << ")";
+#endif
           found = true;
           break;
         }
