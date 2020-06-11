@@ -300,6 +300,10 @@ void EcalRecHitProducerGPU::acquire(edm::Event const& event,
   nee_ = eeUncalibRecHits.size;
   // std::cout << " [EcalRecHitProducerGPU::acquire]  neb_:nee_ = " << neb_ << " : " << nee_ << std::endl;
 
+  if ((neb_ + nee_) > maxNumberHits_) {
+    edm::LogError("EcalRecHitProducerGPU") << "max number of channels exceeded. See options 'maxNumberHits' ";
+  }
+  
   int nchannelsEB = ebUncalibRecHits.size;  // --> offsetForInput, first EB and then EE
 
   // conditions
