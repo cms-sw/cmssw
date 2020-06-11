@@ -1,7 +1,7 @@
-#ifndef Geometry_HcalCommonData_CaloDDDSimulationConstants_h
-#define Geometry_HcalCommonData_CaloDDDSimulationConstants_h
+#ifndef Geometry_HcalCommonData_CaloSimulationConstants_h
+#define Geometry_HcalCommonData_CaloSimulationConstants_h
 
-/** \class CaloDDDSimulationConstants
+/** \class CaloSimulationConstants
  *
  * this class reads the constant section of
  * the xml-files related to calorimeter utility for Calo simulation
@@ -12,10 +12,10 @@
 
 #include "CondFormats/GeometryObjects/interface/CaloSimulationParameters.h"
 
-class CaloDDDSimulationConstants {
+class CaloSimulationConstants {
 public:
-  CaloDDDSimulationConstants(const CaloSimulationParameters* cps);
-  ~CaloDDDSimulationConstants();
+  CaloSimulationConstants(const CaloSimulationParameters* cps);
+  ~CaloSimulationConstants();
 
   const CaloSimulationParameters* caloSimPar() const { return calospar_; }
 
