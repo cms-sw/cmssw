@@ -838,7 +838,7 @@ void FedRawDataInputSource::readSupervisor() {
             ls = lsFromRaw;
         }
       } else if (!useFileBroker_)
-        status = daqDirector_->updateFuLock(ls, nextFile, fileSizeIndex, thisLockWaitTimeUs);
+        status = daqDirector_->updateFuLock(ls, nextFile, fileSizeIndex, rawHeaderSize, thisLockWaitTimeUs);
       else {
         status = daqDirector_->getNextFromFileBroker(currentLumiSection,
                                                      ls,
@@ -876,7 +876,7 @@ void FedRawDataInputSource::readSupervisor() {
           fms_->setInStateSup(evf::FastMonitoringThread::inRunEnd);
         usleep(100000);
         //now all files should have appeared in ramdisk, check again if any raw files were left behind
-        status = daqDirector_->updateFuLock(ls, nextFile, fileSizeIndex, thisLockWaitTimeUs);
+        status = daqDirector_->updateFuLock(ls, nextFile, fileSizeIndex, rawHeaderSize, thisLockWaitTimeUs);
         if (currentLumiSection != ls && status == evf::EvFDaqDirector::runEnded)
           status = evf::EvFDaqDirector::noFile;
       }
@@ -972,7 +972,7 @@ void FedRawDataInputSource::readSupervisor() {
 
       std::string rawFile;
       //file service will report raw extension
-      if (useFileBroker_)
+      if (useFileBroker_ || rawHeaderSize)
         rawFile = nextFile;
       else {
         boost::filesystem::path rawFilePath(nextFile);
@@ -1001,8 +1001,18 @@ void FedRawDataInputSource::readSupervisor() {
           eventsInNewFile = -1;
       } else {
         std::string empty;
-        if (!useFileBroker_)
-          eventsInNewFile = daqDirector_->grabNextJsonFileAndUnlock(nextFile);
+        if (!useFileBroker_) {
+          if (rawHeaderSize) {
+            int rawFdEmpty = -1;
+            uint16_t rawHeaderCheck;
+            bool fileFound;
+            eventsInNewFile = daqDirector_->grabNextJsonFromRaw(nextFile, rawFdEmpty, rawHeaderCheck, fileSizeFromMetadata, fileFound, 0, true);
+            assert(fileFound && rawHeaderCheck==rawHeaderSize);
+            daqDirector_->unlockFULocal();
+          }
+          else
+            eventsInNewFile = daqDirector_->grabNextJsonFileAndUnlock(nextFile);
+        }
         else
           eventsInNewFile = serverEventsInNewFile;
         assert(eventsInNewFile >= 0);
@@ -1207,7 +1217,7 @@ void FedRawDataInputSource::readWorker(unsigned int tid) {
     chunk = workerJob_[tid].second;
 
     //skip reading initial header size in first chunk if inheriting file descriptor (already set at appropriate position)
-    unsigned int bufferLeft = (chunk->offset_ == 0 && file->rawFd_ != 0) ? file->rawHeaderSize_ : 0;
+    unsigned int bufferLeft = (chunk->offset_ == 0 && file->rawFd_ != -1) ? file->rawHeaderSize_ : 0;
 
     //if only one worker thread exists, use single fd for all operations
     //if more worker threads exist, use rawFd_ for only the first read operation and then close file
