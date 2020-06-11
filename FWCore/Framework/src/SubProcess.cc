@@ -424,7 +424,7 @@ namespace edm {
     processBlockPrincipal.fillProcessBlockPrincipal(principal.processName(), principal.reader());
     propagateProducts(InProcess, principal, processBlockPrincipal);
 
-    typedef OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalOther> Traits;
+    using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalOther>;
     beginGlobalTransitionAsync<Traits>(
         std::move(iHolder), *schedule_, processBlockPrincipal, serviceToken_, subProcesses_);
   }
@@ -441,7 +441,7 @@ namespace edm {
     processBlockPrincipal.fillProcessBlockPrincipal(processConfiguration_->processName());
     propagateProducts(InProcess, principal, processBlockPrincipal);
 
-    typedef OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalBegin> Traits;
+    using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalBegin>;
     beginGlobalTransitionAsync<Traits>(
         std::move(iHolder), *schedule_, processBlockPrincipal, serviceToken_, subProcesses_);
   }
@@ -454,7 +454,7 @@ namespace edm {
     ProcessBlockPrincipal& processBlockPrincipal = principalCache_.processBlockPrincipal();
     propagateProducts(InProcess, principal, processBlockPrincipal);
 
-    typedef OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalEnd> Traits;
+    using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalEnd>;
     endGlobalTransitionAsync<Traits>(
         std::move(iHolder), *schedule_, processBlockPrincipal, serviceToken_, subProcesses_, cleaningUpAfterException);
   }
@@ -485,7 +485,7 @@ namespace edm {
 
     RunPrincipal& rp = *principalCache_.runPrincipalPtr();
     propagateProducts(InRun, principal, rp);
-    typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin> Traits;
+    using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin>;
     beginGlobalTransitionAsync<Traits>(
         std::move(iHolder), *schedule_, rp, ts, esp_->eventSetupImpl(), iEventSetupImpls, serviceToken_, subProcesses_);
   }
@@ -497,7 +497,7 @@ namespace edm {
                                  bool cleaningUpAfterException) {
     RunPrincipal& rp = *principalCache_.runPrincipalPtr();
     propagateProducts(InRun, principal, rp);
-    typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> Traits;
+    using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd>;
     endGlobalTransitionAsync<Traits>(std::move(iHolder),
                                      *schedule_,
                                      rp,
@@ -592,7 +592,7 @@ namespace edm {
     lbpp->setRunPrincipal(principalCache_.runPrincipalPtr());
     LuminosityBlockPrincipal& lbp = *lbpp;
     propagateProducts(InLumi, principal, lbp);
-    typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin> Traits;
+    using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin>;
     beginGlobalTransitionAsync<Traits>(std::move(iHolder),
                                        *schedule_,
                                        lbp,
@@ -610,7 +610,7 @@ namespace edm {
                                              bool cleaningUpAfterException) {
     LuminosityBlockPrincipal& lbp = *inUseLumiPrincipals_[principal.index()];
     propagateProducts(InLumi, principal, lbp);
-    typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Traits;
+    using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd>;
     endGlobalTransitionAsync<Traits>(std::move(iHolder),
                                      *schedule_,
                                      lbp,
@@ -666,7 +666,7 @@ namespace edm {
                                          RunPrincipal const& principal,
                                          IOVSyncValue const& ts,
                                          std::vector<std::shared_ptr<const EventSetupImpl>> const* iEventSetupImpls) {
-    typedef OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> Traits;
+    using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>;
 
     RunPrincipal& rp = *principalCache_.runPrincipalPtr();
 
@@ -688,7 +688,7 @@ namespace edm {
                                        std::vector<std::shared_ptr<const EventSetupImpl>> const* iEventSetupImpls,
                                        bool cleaningUpAfterException) {
     RunPrincipal& rp = *principalCache_.runPrincipalPtr();
-    typedef OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> Traits;
+    using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamEnd>;
 
     endStreamTransitionAsync<Traits>(std::move(iHolder),
                                      *schedule_,
@@ -708,7 +708,7 @@ namespace edm {
       LuminosityBlockPrincipal const& principal,
       IOVSyncValue const& ts,
       std::vector<std::shared_ptr<const EventSetupImpl>> const* iEventSetupImpls) {
-    typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> Traits;
+    using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>;
 
     LuminosityBlockPrincipal& lbp = *inUseLumiPrincipals_[principal.index()];
 
@@ -731,7 +731,7 @@ namespace edm {
       std::vector<std::shared_ptr<const EventSetupImpl>> const* iEventSetupImpls,
       bool cleaningUpAfterException) {
     LuminosityBlockPrincipal& lbp = *inUseLumiPrincipals_[principal.index()];
-    typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> Traits;
+    using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>;
     endStreamTransitionAsync<Traits>(std::move(iHolder),
                                      *schedule_,
                                      id,

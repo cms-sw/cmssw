@@ -875,7 +875,7 @@ namespace edm {
     ProcessBlockPrincipal& processBlockPrincipal = principalCache_.processBlockPrincipal();
     processBlockPrincipal.fillProcessBlockPrincipal(processConfiguration_->processName());
 
-    typedef OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalBegin> Traits;
+    using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalBegin>;
     auto globalWaitTask = make_empty_waiting_task();
     globalWaitTask->increment_ref_count();
 
@@ -900,7 +900,7 @@ namespace edm {
       DelayedReader* reader = nullptr;
       processBlockPrincipal.fillProcessBlockPrincipal(processConfiguration_->processName(), reader);
 
-      typedef OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalOther> Traits;
+      using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalOther>;
       auto globalWaitTask = make_empty_waiting_task();
       globalWaitTask->increment_ref_count();
 
@@ -931,7 +931,7 @@ namespace edm {
   void EventProcessor::endProcessBlock(bool cleaningUpAfterException, bool beginProcessBlockSucceeded) {
     ProcessBlockPrincipal& processBlockPrincipal = principalCache_.processBlockPrincipal();
 
-    typedef OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalEnd> Traits;
+    using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalEnd>;
     auto globalWaitTask = make_empty_waiting_task();
     globalWaitTask->increment_ref_count();
 
@@ -994,7 +994,7 @@ namespace edm {
       looper_->doStartingNewLoop();
     }
     {
-      typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin> Traits;
+      using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin>;
       auto globalWaitTask = make_empty_waiting_task();
       globalWaitTask->increment_ref_count();
       beginGlobalTransitionAsync<Traits>(WaitingTaskHolder(globalWaitTask.get()),
@@ -1020,7 +1020,7 @@ namespace edm {
       auto streamLoopWaitTask = make_empty_waiting_task();
       streamLoopWaitTask->increment_ref_count();
 
-      typedef OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> Traits;
+      using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>;
 
       beginStreamsTransitionAsync<Traits>(streamLoopWaitTask.get(),
                                           *schedule_,
@@ -1090,7 +1090,7 @@ namespace edm {
       auto streamLoopWaitTask = make_empty_waiting_task();
       streamLoopWaitTask->increment_ref_count();
 
-      typedef OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> Traits;
+      using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamEnd>;
 
       endStreamsTransitionAsync<Traits>(WaitingTaskHolder(streamLoopWaitTask.get()),
                                         *schedule_,
@@ -1116,7 +1116,7 @@ namespace edm {
       auto globalWaitTask = make_empty_waiting_task();
       globalWaitTask->increment_ref_count();
 
-      typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> Traits;
+      using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd>;
       endGlobalTransitionAsync<Traits>(WaitingTaskHolder(globalWaitTask.get()),
                                        *schedule_,
                                        runPrincipal,
@@ -1230,7 +1230,7 @@ namespace edm {
                       return;
                     }
                   }
-                  typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> Traits;
+                  using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>;
 
                   for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
                     streamQueues_[i].push([this, i, status, holder, ts, &es]() mutable {
@@ -1276,7 +1276,7 @@ namespace edm {
 
           EventSetupImpl const& es = status->eventSetupImpl(esp_->subProcessIndex());
           {
-            typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin> Traits;
+            using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin>;
             beginGlobalTransitionAsync<Traits>(beginStreamsHolder,
                                                *schedule_,
                                                lumiPrincipal,
@@ -1460,7 +1460,7 @@ namespace edm {
 
     IOVSyncValue ts(EventID(lp.run(), lp.luminosityBlock(), EventID::maxEventNumber()), lp.beginTime());
 
-    typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Traits;
+    using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd>;
 
     endGlobalTransitionAsync<Traits>(WaitingTaskHolder(writeT),
                                      *schedule_,
