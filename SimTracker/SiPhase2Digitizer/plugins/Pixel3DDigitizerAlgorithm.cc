@@ -94,7 +94,7 @@ void Pixel3DDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_it
     LogDebug("Pixel3DDigitizerAlgorithm:: Geant4 hit info: ")
         << (*it).particleType() << " " << (*it).pabs() << " " << (*it).energyLoss() << " " << (*it).tof() << " "
         << (*it).trackId() << " " << (*it).processType() << " " << (*it).detUnitId() << (*it).entryPoint() << " "
-        << (*it).exitPoint();
+        << (*it).exitPoint() << " Global index for PSimHit:" << simHitGlobalIndex;
 
     // Convert the simhit position into global to check if the simhit was
     // produced within a given time-window
@@ -409,14 +409,18 @@ void Pixel3DDigitizerAlgorithm::induce_signal(const PSimHit& hit,
     MeasurementPoint rowcol(pt.position().x(), pt.position().y());
     const int channel = topo.channel(topo.localPosition(rowcol));
 
+    float corr_time = hit.tof() - pixdet->surface().toGlobal(hit.localPosition()).mag() * c_inv;
     if (makeDigiSimLinks_) {
-      the_signal[channel] += DigitizerUtility::Amplitude(pt.amplitude(), &hit, pt.amplitude(), hitIndex, tofBin);
+      the_signal[channel] +=
+          DigitizerUtility::Amplitude(pt.amplitude(), &hit, pt.amplitude(), corr_time, hitIndex, tofBin);
     } else {
       the_signal[channel] += DigitizerUtility::Amplitude(pt.amplitude(), nullptr, pt.amplitude());
     }
 
     LogDebug("Pixel3DDigitizerAlgorithm::induce_signal")
         << " Induce charge at row,col:" << rowcol << " N_electrons:" << pt.amplitude() << " [Channel:" << channel
-        << "]\n   [Accumulated signal in this channel:" << the_signal[channel].ampl() << "]";
+        << "]\n   [Accumulated signal in this channel:" << the_signal[channel].ampl() << "] "
+        << " Global index linked PSimHit:" << hitIndex;
+    ;
   }
 }
