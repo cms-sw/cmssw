@@ -122,7 +122,7 @@ namespace ecaldqm {
 
       // If there are no RawData or Integrity errors in this LS, set them back to GOOD
       //if(integrity == kBad && integrityByLumi[iDCC] == 0.) integrity = kGood;
-      if (integrity == kBad /*&& integrityByLumi[iDCC] == 0. */&& !hasMismatchDCC[iDCC])
+      if (integrity == kBad /*&& integrityByLumi[iDCC] == 0. */ && !hasMismatchDCC[iDCC])
         integrity = kGood;
       //if(rawdata == kBad && rawDataByLumi[iDCC] == 0.) rawdata = kGood;
       if (rawdata == kBad /*&& rawDataByLumi[iDCC] == 0. && rawdataLS == 0.*/)
@@ -162,7 +162,7 @@ namespace ecaldqm {
       // Keep running count of good channels in RawData only: Uses LS stats only.
       // LS-based reports only use RawData as input to save on having to run other workers
       bool isMasked(meQualitySummary.maskMatches(id, mask, statusManager_));
-      if (/*rawdataLS == 0. || */isMasked) {  // channel != kBad in rawdata
+      if (/*rawdataLS == 0. || */ isMasked) {  // channel != kBad in rawdata
         dccGoodRaw[iDCC] += 1.;
         totalGoodRaw += 1.;
       }

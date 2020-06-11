@@ -8,7 +8,7 @@
 
 namespace ecaldqm {
   PresampleTask::PresampleTask()
-    : DQWorkerTask(), doPulseMaxCheck_(true), pulseMaxPosition_(0), nSamples_(0)/*, mePedestalByLS(nullptr)*/ {}
+      : DQWorkerTask(), doPulseMaxCheck_(true), pulseMaxPosition_(0), nSamples_(0) /*, mePedestalByLS(nullptr)*/ {}
 
   void PresampleTask::setParams(edm::ParameterSet const& _params) {
     doPulseMaxCheck_ = _params.getUntrackedParameter<bool>("doPulseMaxCheck");

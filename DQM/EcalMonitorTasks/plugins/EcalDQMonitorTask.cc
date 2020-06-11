@@ -30,9 +30,9 @@ EcalDQMonitorTask::EcalDQMonitorTask(edm::ParameterSet const& _ps)
       schedule_(),
       allowMissingCollections_(_ps.getUntrackedParameter<bool>("allowMissingCollections")),
       processedEvents_(0)
-      // ,
-      // lastResetTime_(0),
-      // resetInterval_(_ps.getUntrackedParameter<double>("resetInterval"))
+// ,
+// lastResetTime_(0),
+// resetInterval_(_ps.getUntrackedParameter<double>("resetInterval"))
 {
   ecaldqm::DependencySet dependencies;
   std::bitset<ecaldqm::nCollections> hasTaskToRun;
