@@ -84,7 +84,9 @@ class _ParameterTypeBase(object):
         return self._isFrozen 
     def setIsFrozen(self):
         self._isFrozen = True
-
+    def isCompatibleCMSType(self,aType):
+        return isinstance(self,aType)
+ 
 class _SimpleParameterTypeBase(_ParameterTypeBase):
     """base class for parameter classes which only hold a single value"""
     def __init__(self,value):
