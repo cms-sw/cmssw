@@ -77,7 +77,7 @@ public:
   explicit EleTkIsolFromCands(Configuration const& cfg,
                               pat::PackedCandidateCollection const& cands,
                               PIDVeto pidVeto = PIDVeto::NONE)
-      : cfg_{cfg}, cands_{&cands} {}
+      : cfg_{cfg}, cands_{&cands}, pidVeto_{pidVeto} {}
 
   static edm::ParameterSetDescription pSetDescript();
 

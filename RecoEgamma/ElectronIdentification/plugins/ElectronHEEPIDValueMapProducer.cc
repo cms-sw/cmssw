@@ -125,12 +125,6 @@ private:
   }
 
   template <typename T>
-  static edm::Handle<T> getHandle(const edm::Event& iEvent, const edm::EDGetTokenT<T>& token) {
-    edm::Handle<T> handle;
-    iEvent.getByToken(token, handle);
-    return handle;
-  }
-  template <typename T>
   static edm::Handle<T> getHandle(const edm::Event& iEvent, const DualToken<T>& token) {
     edm::Handle<T> handle;
     if (!token.aod.isUninitialized())
@@ -230,7 +224,7 @@ void ElectronHEEPIDValueMapProducer::produce(edm::Event& iEvent, const edm::Even
   auto eleHandle = getHandle(iEvent, eleToken_);
   auto ebRecHitHandle = getHandle(iEvent, ebRecHitToken_);
   auto eeRecHitHandle = getHandle(iEvent, eeRecHitToken_);
-  auto beamSpotHandle = getHandle(iEvent, beamSpotToken_);
+  auto beamSpotHandle = iEvent.getHandle(beamSpotToken_);
 
   bool isAOD = isEventAOD(iEvent, eleToken_);
   const auto& candVetos = isAOD ? candVetosAOD_ : candVetosMiniAOD_;

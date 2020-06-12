@@ -5,6 +5,13 @@
 using namespace egammaisolation;
 using namespace reco;
 
+namespace {
+  template <class T>
+  bool inside(const T& value, std::pair<T, T> const& range) {
+    return value >= range.first && range.second >= value;
+  }
+}  // namespace
+
 EgammaTrackSelector::result_type EgammaTrackSelector::operator()(const EgammaTrackSelector::input_type& tracks) const {
   static const std::string metname = "EgammaIsolationAlgos|EgammaTrackSelector";
   result_type result;
@@ -38,11 +45,11 @@ EgammaTrackSelector::result_type EgammaTrackSelector::operator()(const EgammaTra
 
     //! access to the remaining vars is slow
 
-    if (!thePars.zRange.inside(tZ))
+    if (!inside(tZ, thePars.zRange))
       continue;
     if (tPt < thePars.ptMin)
       continue;
-    if (!thePars.rRange.inside(tD0Cor))
+    if (!inside(tD0Cor, thePars.rRange))
       continue;
     if (thePars.dir.deltaR(reco::isodeposit::Direction(tEta, tPhi)) > thePars.drMax)
       continue;
