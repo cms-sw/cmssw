@@ -74,11 +74,10 @@ struct GsfElectronAlgo::EventData {
   EgammaRecHitIsolation ecalBarrelIsol03, ecalBarrelIsol04;
   EgammaRecHitIsolation ecalEndcapIsol03, ecalEndcapIsol04;
 
-  // cached information
-  EleTkIsolFromCands::PreselectedTracks preselectedTracksForIso03;
-  EleTkIsolFromCands::PreselectedTracks preselectedTracksForIso04;
-  EleTkIsolFromCands::PreselectedTracks preselectedTracksForIsoHEEP03;
-  EleTkIsolFromCands::PreselectedTracks preselectedTracksForIsoHEEP04;
+  EleTkIsolFromCands tkIsol03Calc;
+  EleTkIsolFromCands tkIsol04Calc;
+  EleTkIsolFromCands tkIsolHEEP03Calc;
+  EleTkIsolFromCands tkIsolHEEP04Calc;
 
   edm::Handle<reco::TrackCollection> originalCtfTracks;
   edm::Handle<reco::GsfTrackCollection> originalGsfTracks;
@@ -380,10 +379,10 @@ GsfElectronAlgo::GsfElectronAlgo(const Tokens& input,
                                  const edm::ParameterSet& tkIsolHEEP04,
                                  edm::ConsumesCollector&& cc)
     : cfg_{input, strategy, cuts, iso, recHits},
-      tkIsol03Calc_(tkIsol03),
-      tkIsol04Calc_(tkIsol04),
-      tkIsolHEEP03Calc_(tkIsolHEEP03),
-      tkIsolHEEP04Calc_(tkIsolHEEP04),
+      tkIsol03CalcCfg_(tkIsol03),
+      tkIsol04CalcCfg_(tkIsol04),
+      tkIsolHEEP03CalcCfg_(tkIsolHEEP03),
+      tkIsolHEEP04CalcCfg_(tkIsolHEEP04),
       magneticFieldToken_{cc.esConsumes<MagneticField, IdealMagneticFieldRecord>()},
       caloGeometryToken_{cc.esConsumes<CaloGeometry, CaloGeometryRecord>()},
       caloTopologyToken_{cc.esConsumes<CaloTopology, CaloTopologyRecord>()},
@@ -497,10 +496,10 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
                                                 *endcapRecHits,
                                                 &ecalSeveretyLevelAlgo,
                                                 DetId::Ecal),
-      .preselectedTracksForIso03 = tkIsol03Calc_.preselectTracks(*ctfTracks),
-      .preselectedTracksForIso04 = tkIsol04Calc_.preselectTracks(*ctfTracks),
-      .preselectedTracksForIsoHEEP03 = tkIsolHEEP03Calc_.preselectTracks(*ctfTracks),
-      .preselectedTracksForIsoHEEP04 = tkIsolHEEP04Calc_.preselectTracks(*ctfTracks),
+      .tkIsol03Calc = EleTkIsolFromCands(tkIsol03CalcCfg_, *ctfTracks),
+      .tkIsol04Calc = EleTkIsolFromCands(tkIsol04CalcCfg_, *ctfTracks),
+      .tkIsolHEEP03Calc = EleTkIsolFromCands(tkIsolHEEP03CalcCfg_, *ctfTracks),
+      .tkIsolHEEP04Calc = EleTkIsolFromCands(tkIsolHEEP04CalcCfg_, *ctfTracks),
       .originalCtfTracks = {},
       .originalGsfTracks = {}};
 
@@ -981,10 +980,10 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
   // now isolation variables
   //====================================================
   reco::GsfElectron::IsolationVariables dr03, dr04;
-  dr03.tkSumPt = tkIsol03Calc_(*ele.gsfTrack(), eventData.preselectedTracksForIso03).ptSum;
-  dr04.tkSumPt = tkIsol04Calc_(*ele.gsfTrack(), eventData.preselectedTracksForIso04).ptSum;
-  dr03.tkSumPtHEEP = tkIsolHEEP03Calc_(*ele.gsfTrack(), eventData.preselectedTracksForIsoHEEP03).ptSum;
-  dr04.tkSumPtHEEP = tkIsolHEEP04Calc_(*ele.gsfTrack(), eventData.preselectedTracksForIsoHEEP04).ptSum;
+  dr03.tkSumPt = eventData.tkIsol03Calc(*ele.gsfTrack()).ptSum;
+  dr04.tkSumPt = eventData.tkIsol04Calc(*ele.gsfTrack()).ptSum;
+  dr03.tkSumPtHEEP = eventData.tkIsolHEEP03Calc(*ele.gsfTrack()).ptSum;
+  dr04.tkSumPtHEEP = eventData.tkIsolHEEP04Calc(*ele.gsfTrack()).ptSum;
 
   if (!EcalTools::isHGCalDet((DetId::Detector)region)) {
     dr03.hcalDepth1TowerSumEt = eventData.hadDepth1Isolation03.getTowerEtSum(&ele);

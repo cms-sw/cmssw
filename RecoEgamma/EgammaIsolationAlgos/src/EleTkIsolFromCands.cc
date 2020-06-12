@@ -40,10 +40,6 @@ edm::ParameterSetDescription EleTkIsolFromCands::TrkCuts::pSetDescript() {
   return desc;
 }
 
-EleTkIsolFromCands::EleTkIsolFromCands(const edm::ParameterSet& para)
-    : barrelCuts_(para.getParameter<edm::ParameterSet>("barrelCuts")),
-      endcapCuts_(para.getParameter<edm::ParameterSet>("endcapCuts")) {}
-
 edm::ParameterSetDescription EleTkIsolFromCands::pSetDescript() {
   edm::ParameterSetDescription desc;
   desc.add("barrelCuts", TrkCuts::pSetDescript());
@@ -51,8 +47,8 @@ edm::ParameterSetDescription EleTkIsolFromCands::pSetDescript() {
   return desc;
 }
 
-std::vector<EleTkIsolFromCands::SimpleTrack> EleTkIsolFromCands::preselectTracksWithCuts(
-    reco::TrackCollection const& tracks, TrkCuts const& cuts) {
+std::vector<EleTkIsolFromCands::SimpleTrack> EleTkIsolFromCands::preselectTracks(reco::TrackCollection const& tracks,
+                                                                                 TrkCuts const& cuts) {
   std::vector<SimpleTrack> outTracks;
   outTracks.reserve(tracks.size());
 
@@ -65,7 +61,7 @@ std::vector<EleTkIsolFromCands::SimpleTrack> EleTkIsolFromCands::preselectTracks
   return outTracks;
 }
 
-std::vector<EleTkIsolFromCands::SimpleTrack> EleTkIsolFromCands::preselectTracksWithCuts(
+std::vector<EleTkIsolFromCands::SimpleTrack> EleTkIsolFromCands::preselectTracksFromCands(
     pat::PackedCandidateCollection const& cands, TrkCuts const& cuts, PIDVeto pidVeto) {
   std::vector<SimpleTrack> outTracks;
   outTracks.reserve(cands.size());
@@ -82,22 +78,7 @@ std::vector<EleTkIsolFromCands::SimpleTrack> EleTkIsolFromCands::preselectTracks
   return outTracks;
 }
 
-EleTkIsolFromCands::PreselectedTracks EleTkIsolFromCands::preselectTracks(reco::TrackCollection const& tracks) const {
-  return {
-      .withBarrelCuts = preselectTracksWithCuts(tracks, barrelCuts_),
-      .withEndcapCuts = preselectTracksWithCuts(tracks, endcapCuts_),
-  };
-}
-EleTkIsolFromCands::PreselectedTracks EleTkIsolFromCands::preselectTracks(pat::PackedCandidateCollection const& cands,
-                                                                          PIDVeto pidVeto) const {
-  return {
-      .withBarrelCuts = preselectTracksWithCuts(cands, barrelCuts_, pidVeto),
-      .withEndcapCuts = preselectTracksWithCuts(cands, endcapCuts_, pidVeto),
-  };
-}
-
-EleTkIsolFromCands::Output EleTkIsolFromCands::operator()(const reco::TrackBase& eleTrk,
-                                                          const PreselectedTracks& tracks) const {
+EleTkIsolFromCands::Output EleTkIsolFromCands::operator()(const reco::TrackBase& eleTrk) {
   double ptSum = 0.;
   int nrTrks = 0;
 
@@ -107,8 +88,8 @@ EleTkIsolFromCands::Output EleTkIsolFromCands::operator()(const reco::TrackBase&
 
   const bool isBarrelElectron = std::abs(eleEta) < 1.5;
 
-  auto const& preselectedTracks = isBarrelElectron ? tracks.withBarrelCuts : tracks.withEndcapCuts;
-  auto const& cuts = isBarrelElectron ? barrelCuts_ : endcapCuts_;
+  auto const& preselectedTracks = getPreselectedTracks(isBarrelElectron);
+  auto const& cuts = isBarrelElectron ? cfg_.barrelCuts : cfg_.endcapCuts;
 
   for (auto& trk : preselectedTracks) {
     if (passMatchingToElectron(trk, cuts, eleEta, elePhi, eleVz)) {
@@ -183,4 +164,17 @@ bool EleTkIsolFromCands::passQual(const reco::TrackBase& trk, const std::vector<
 bool EleTkIsolFromCands::passAlgo(const reco::TrackBase& trk,
                                   const std::vector<reco::TrackBase::TrackAlgorithm>& algosToRej) {
   return algosToRej.empty() || !std::binary_search(algosToRej.begin(), algosToRej.end(), trk.algo());
+}
+
+std::vector<EleTkIsolFromCands::SimpleTrack> const& EleTkIsolFromCands::getPreselectedTracks(bool isBarrel) {
+  auto const& cuts = isBarrel ? cfg_.barrelCuts : cfg_.endcapCuts;
+  auto& preselectedTracks = isBarrel ? preselectedTracksWithBarrelCuts_ : preselectedTracksWithEndcapCuts_;
+  bool& tracksCached = isBarrel ? tracksCachedForBarrelCuts_ : tracksCachedForEndcapCuts_;
+
+  if (!tracksCached) {
+    preselectedTracks = tracks_ ? preselectTracks(*tracks_, cuts) : preselectTracksFromCands(*cands_, cuts, pidVeto_);
+    tracksCached = true;
+  }
+
+  return preselectedTracks;
 }
