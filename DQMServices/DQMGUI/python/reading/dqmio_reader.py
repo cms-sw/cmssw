@@ -1,4 +1,5 @@
 import asyncio
+from async_lru import alru_cache
 from nanoroot.tfile import TKey
 from nanoroot.tbufferfile import TBufferFile
 from nanoroot.ttree import TType
@@ -9,6 +10,18 @@ from ioservice import IOService
 class DQMIOReader:
 
     ioservice = IOService()
+    
+    # Baskets are quite big (MB's compressd, 10's od MBs decompressed as cached
+    # here, so we want this cache. But it will take a few hand full of baskets
+    # for one sample, so 1 is not sufficient.
+    @classmethod
+    @alru_cache(maxsize=20)
+    async def read_basket(cls, filename, seekkey):
+         buffer = await cls.ioservice.open_url(filename, blockcache=True)
+         key = await TKey().load(buffer, seekkey)
+         data = await key.objdata()
+         return data
+
 
     @classmethod
     async def read(cls, filename, me_info):
@@ -20,9 +33,7 @@ class DQMIOReader:
         if me_info.value != None:
             return ScalarValue(b'', b'', me_info.value) # TODO: do sth. better.
 
-        buffer = await cls.ioservice.open_url(filename, blockcache=True)
-        key = await TKey().load(buffer, me_info.seekkey)
-        data = await key.objdata()
+        data = await cls.read_basket(filename, me_info.seekkey)
         obj = data[me_info.offset : me_info.offset + me_info.size]
         if me_info.type == b'String':
             s = TType.String.unpack(obj, 0, len(obj), None)
@@ -36,7 +47,7 @@ class DQMIOReader:
         # send the object to the renderer, we need to compensate for that using
         # the displacement.
         # TODO: not sure if this does in fact work for TTrees.
-        displacement = - key.fields.fKeyLen - me_info.offset
+        displacement = 0 # - key.fields.fKeyLen - me_info.offset
         # metype doubles as root class name here.
         return TBufferFile(obj, me_info.type, displacement, classversion)
 
