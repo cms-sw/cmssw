@@ -30,7 +30,7 @@ public:
   LocalError localError() const {
     /// position error, refer to:
     /// https://indico.cern.ch/event/825902/contributions/3455359/attachments/1858923/3054344/residual_calculation_0607.pdf
-    constexpr float positionError2 = 0.36f;  //0.6^2
+    const float positionError2 = std::pow(positionError(), 2);
     const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(det_->topology());
     const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
     MeasurementPoint mp = topo.measurementPosition(lp_);
