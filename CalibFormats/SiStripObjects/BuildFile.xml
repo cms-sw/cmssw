@@ -3,7 +3,6 @@
 <use name="CondFormats/SiStripObjects"/>
 <use name="CalibTracker/SiStripCommon"/>
 <use name="DataFormats/TrackerCommon"/>
-<use name="boost"/>
 <export>
   <lib name="1"/>
 </export>
