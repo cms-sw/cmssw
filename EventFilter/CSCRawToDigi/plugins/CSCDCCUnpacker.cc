@@ -1,4 +1,8 @@
-#include "EventFilter/CSCRawToDigi/plugins/CSCDCCUnpacker.h"
+/** \class CSCDCCUnpacker
+ *
+ *
+ * \author Alex Tumanov
+ */
 
 //Framework stuff
 #include "DataFormats/Common/interface/Handle.h"
@@ -9,21 +13,23 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
+#include "CondFormats/DataRecord/interface/CSCCrateMapRcd.h"
+#include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
+#include "CondFormats/DataRecord/interface/CSCChamberMapRcd.h"
 
 //FEDRawData
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 //Digi stuff
-#include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCCFEBStatusDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCRPCDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
-
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCFEBStatusDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
@@ -33,21 +39,13 @@
 #include "DataFormats/CSCDigi/interface/CSCRPCDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCDMBStatusDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCDMBStatusDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCTMBStatusDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCTMBStatusDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCDDUStatusDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCDDUStatusDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCDCCStatusDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCDCCStatusDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCALCTStatusDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTStatusDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTStatusDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigiCollection.h"
-
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
@@ -61,13 +59,53 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCRPCData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCMonitorInterface.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <iomanip>
 #include <cstdio>
+
+class CSCMonitorInterface;
+
+class CSCDCCUnpacker : public edm::stream::EDProducer<> {
+public:
+  /// Constructor
+  CSCDCCUnpacker(const edm::ParameterSet& pset);
+
+  /// Destructor
+  ~CSCDCCUnpacker() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  /// Produce digis out of raw data
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
+
+  /// Visualization of raw data in FED-less events (Robert Harr and Alexander Sakharov)
+  void visual_raw(int hl, int id, int run, int event, bool fedshort, bool fDump, short unsigned int* buf) const;
+
+private:
+  bool debug, printEventNumber, goodEvent, useExaminer, unpackStatusDigis;
+  bool useSelectiveUnpacking, useFormatStatus;
+
+  /// option to unpack GEM cluster data
+  bool useGEMs_;
+
+  /// Visualization of raw data
+  bool visualFEDInspect, visualFEDShort, formatedEventDump;
+  /// Suppress zeros LCTs
+  bool SuppressZeroLCT;
+
+  int numOfEvents;
+  unsigned int errorMask, examinerMask;
+  bool instantiateDQM;
+  CSCMonitorInterface* monitor;
+
+  /// Token for consumes interface & access to data
+  edm::EDGetTokenT<FEDRawDataCollection> i_token;
+  edm::ESGetToken<CSCCrateMap, CSCCrateMapRcd> crateToken;
+  edm::ESGetToken<CSCChamberMap, CSCChamberMapRcd> cscmapToken;
+};
 
 CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet& pset) : numOfEvents(0) {
   // Tracked
@@ -1591,3 +1629,6 @@ void CSCDCCUnpacker::visual_raw(
     std::cout << "Line:  " << cfeb_t1_coll[k] << std::endl;
   std::cout << "********************************************************************************" << std::endl;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(CSCDCCUnpacker);
