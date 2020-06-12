@@ -49,9 +49,6 @@ FTLUncalibratedRecHit BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataF
   std::pair<float, float> amplitude(0., 0.);
   std::pair<float, float> time(0., 0.);
 
-  float position = -1.f;       //position in cm
-  float positionError = -1.f;  //position error in cm
-
   unsigned char flag = 0;
 
   const auto& sampleLeft = dataFrame.sample(0);
@@ -78,8 +75,8 @@ FTLUncalibratedRecHit BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataF
 
   // Calculate the position
   // Distance from center of bar to hit
-  position = 0.5 * (c_LYSO_ * (time.second - time.first));
-  positionError = BTLRecHitsErrorEstimatorIM::positionError();
+  float position = 0.5f * (c_LYSO_ * (time.second - time.first));
+  float positionError = BTLRecHitsErrorEstimatorIM::positionError();
 
   LogDebug("BTLUncalibRecHit") << "ADC+: set the charge to: (" << amplitude.first << ", " << amplitude.second << ")  ("
                                << sampleLeft.data() << ", " << sampleRight.data() << "  " << adcLSB_ << ' '

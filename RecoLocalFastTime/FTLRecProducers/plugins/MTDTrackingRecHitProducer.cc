@@ -66,7 +66,7 @@ void MTDTrackingRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& 
   geom_ = geom.product();
 
   edm::ESHandle<MTDClusterParameterEstimator> cpe;
-  es.get<MTDCPERecord>().get("MTDCPESiPMTimeBTLGenericETL", cpe);
+  es.get<MTDCPERecord>().get("MTDCPEBase", cpe);
   cpe_ = cpe.product();
 
   edm::Handle<FTLClusterCollection> inputBarrel;
