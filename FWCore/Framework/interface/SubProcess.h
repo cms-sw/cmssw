@@ -145,7 +145,8 @@ namespace edm {
 
     void deleteLumiFromCache(LuminosityBlockPrincipal&);
 
-    void writeProcessBlockAsync(edm::WaitingTaskHolder task, bool isInputProcessBlock);
+    using ProcessBlockType = PrincipalCache::ProcessBlockType;
+    void writeProcessBlockAsync(edm::WaitingTaskHolder task, ProcessBlockType);
 
     void writeRunAsync(WaitingTaskHolder,
                        ProcessHistoryID const& parentPhID,
@@ -154,7 +155,7 @@ namespace edm {
 
     void deleteRunFromCache(ProcessHistoryID const& parentPhID, int runNumber);
 
-    void clearProcessBlockPrincipal(bool isInputProcessBlock = false);
+    void clearProcessBlockPrincipal(ProcessBlockType);
 
     // Call closeFile() on all OutputModules.
     void closeOutputFiles() {

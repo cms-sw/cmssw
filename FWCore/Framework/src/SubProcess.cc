@@ -509,22 +509,22 @@ namespace edm {
                                      cleaningUpAfterException);
   }
 
-  void SubProcess::writeProcessBlockAsync(edm::WaitingTaskHolder task, bool isInputProcessBlock) {
+  void SubProcess::writeProcessBlockAsync(edm::WaitingTaskHolder task, ProcessBlockType processBlockType) {
     ServiceRegistry::Operate operate(serviceToken_);
 
-    auto subTasks = edm::make_waiting_task(
-        tbb::task::allocate_root(), [this, task, isInputProcessBlock](std::exception_ptr const* iExcept) mutable {
-          if (iExcept) {
-            task.doneWaiting(*iExcept);
-          } else {
-            ServiceRegistry::Operate operate(serviceToken_);
-            for (auto& s : subProcesses_) {
-              s.writeProcessBlockAsync(task, isInputProcessBlock);
-            }
-          }
-        });
+    auto subTasks = edm::make_waiting_task(tbb::task::allocate_root(),
+                                           [this, task, processBlockType](std::exception_ptr const* iExcept) mutable {
+                                             if (iExcept) {
+                                               task.doneWaiting(*iExcept);
+                                             } else {
+                                               ServiceRegistry::Operate operate(serviceToken_);
+                                               for (auto& s : subProcesses_) {
+                                                 s.writeProcessBlockAsync(task, processBlockType);
+                                               }
+                                             }
+                                           });
     schedule_->writeProcessBlockAsync(WaitingTaskHolder(subTasks),
-                                      principalCache_.processBlockPrincipal(isInputProcessBlock),
+                                      principalCache_.processBlockPrincipal(processBlockType),
                                       &processContext_,
                                       actReg_.get());
   }
@@ -566,11 +566,11 @@ namespace edm {
             [&childPhID, runNumber](auto& subProcess) { subProcess.deleteRunFromCache(childPhID, runNumber); });
   }
 
-  void SubProcess::clearProcessBlockPrincipal(bool isInputProcessBlock) {
-    ProcessBlockPrincipal& processBlockPrincipal = principalCache_.processBlockPrincipal(isInputProcessBlock);
+  void SubProcess::clearProcessBlockPrincipal(ProcessBlockType processBlockType) {
+    ProcessBlockPrincipal& processBlockPrincipal = principalCache_.processBlockPrincipal(processBlockType);
     processBlockPrincipal.clearPrincipal();
     for (auto& s : subProcesses_) {
-      s.clearProcessBlockPrincipal(isInputProcessBlock);
+      s.clearProcessBlockPrincipal(processBlockType);
     }
   }
 

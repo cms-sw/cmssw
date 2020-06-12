@@ -914,8 +914,7 @@ namespace edm {
 
       auto writeWaitTask = edm::make_empty_waiting_task();
       writeWaitTask->increment_ref_count();
-      bool isInputProcessBlock = true;
-      writeProcessBlockAsync(edm::WaitingTaskHolder{writeWaitTask.get()}, isInputProcessBlock);
+      writeProcessBlockAsync(edm::WaitingTaskHolder{writeWaitTask.get()}, ProcessBlockType::Input);
       writeWaitTask->wait_for_all();
       if (writeWaitTask->exceptionPtr()) {
         std::rethrow_exception(*writeWaitTask->exceptionPtr());
@@ -923,7 +922,7 @@ namespace edm {
 
       processBlockPrincipal.clearPrincipal();
       for (auto& s : subProcesses_) {
-        s.clearProcessBlockPrincipal(isInputProcessBlock);
+        s.clearProcessBlockPrincipal(ProcessBlockType::Input);
       }
     }
   }
@@ -950,7 +949,7 @@ namespace edm {
     if (beginProcessBlockSucceeded) {
       auto writeWaitTask = edm::make_empty_waiting_task();
       writeWaitTask->increment_ref_count();
-      writeProcessBlockAsync(edm::WaitingTaskHolder{writeWaitTask.get()});
+      writeProcessBlockAsync(edm::WaitingTaskHolder{writeWaitTask.get()}, ProcessBlockType::New);
       writeWaitTask->wait_for_all();
       if (writeWaitTask->exceptionPtr()) {
         std::rethrow_exception(*writeWaitTask->exceptionPtr());
@@ -959,7 +958,7 @@ namespace edm {
 
     processBlockPrincipal.clearPrincipal();
     for (auto& s : subProcesses_) {
-      s.clearProcessBlockPrincipal();
+      s.clearProcessBlockPrincipal(ProcessBlockType::New);
     }
   }
 
@@ -1611,21 +1610,21 @@ namespace edm {
     return input_->luminosityBlock();
   }
 
-  void EventProcessor::writeProcessBlockAsync(WaitingTaskHolder task, bool isInputProcessBlock) {
+  void EventProcessor::writeProcessBlockAsync(WaitingTaskHolder task, ProcessBlockType processBlockType) {
     auto subsT = edm::make_waiting_task(tbb::task::allocate_root(),
-                                        [this, task, isInputProcessBlock](std::exception_ptr const* iExcept) mutable {
+                                        [this, task, processBlockType](std::exception_ptr const* iExcept) mutable {
                                           if (iExcept) {
                                             task.doneWaiting(*iExcept);
                                           } else {
                                             ServiceRegistry::Operate op(serviceToken_);
                                             for (auto& s : subProcesses_) {
-                                              s.writeProcessBlockAsync(task, isInputProcessBlock);
+                                              s.writeProcessBlockAsync(task, processBlockType);
                                             }
                                           }
                                         });
     ServiceRegistry::Operate op(serviceToken_);
     schedule_->writeProcessBlockAsync(WaitingTaskHolder(subsT),
-                                      principalCache_.processBlockPrincipal(isInputProcessBlock),
+                                      principalCache_.processBlockPrincipal(processBlockType),
                                       &processContext_,
                                       actReg_.get());
   }
