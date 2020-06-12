@@ -5,8 +5,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Run.h"
 #include <fstream>
-#include "CalibFormats/CastorObjects/interface/CastorDbService.h"
-#include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include "EventFilter/CastorRawToDigi/interface/CastorRawCollections.h"
@@ -59,6 +57,7 @@ CastorRawToDigi::CastorRawToDigi(edm::ParameterSet const& conf)
     produces<HcalTTPDigiCollection>();
 
   tok_input_ = consumes<FEDRawDataCollection>(dataTag_);
+  tok_pSetup_ = esConsumes<CastorDbService, CastorDbRecord>();
 }
 
 // Virtual destructor needed.
@@ -70,8 +69,7 @@ void CastorRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
   edm::Handle<FEDRawDataCollection> rawraw;
   e.getByToken(tok_input_, rawraw);
   // get the mapping
-  edm::ESHandle<CastorDbService> pSetup;
-  es.get<CastorDbRecord>().get(pSetup);
+  edm::ESHandle<CastorDbService> pSetup = es.getHandle(tok_pSetup_);
   const CastorElectronicsMap* readoutMap = pSetup->getCastorMapping();
 
   // Step B: Create empty output  : three vectors for three classes...
