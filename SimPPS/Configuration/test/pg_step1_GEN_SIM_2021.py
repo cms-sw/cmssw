@@ -4,7 +4,7 @@ import random
 import math
 
 from Configuration.StandardSequences.Eras import eras
-process = cms.Process('SIM',eras.run3_common,eras.ctpps_2021)
+process = cms.Process('SIM',eras.Run3)
 
 # import of standard configurations
 process.load("CondCore.CondDB.CondDB_cfi")
@@ -20,7 +20,7 @@ process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.load('Configuration.Geometry.GeometryExtended2021_CTPPS_cff')
+process.load('Configuration.Geometry.GeometryExtended2021_cff')
 
 process.RandomNumberGeneratorService.generator.initialSeed = cms.untracked.uint32(random.randint(0,900000000))
 
@@ -29,6 +29,13 @@ process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(nEvent_)
         )
 
+process.source = cms.Source("EmptySource")
+"""
+process.source = cms.Source("EmptySource",
+                firstRun = cms.untracked.uint32(324612),               #2018D
+                firstTime = cms.untracked.uint64(6612348794983940096)  
+)
+"""
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
 #process.GlobalTag = GlobalTag(process.GlobalTag, "106X_dataRun2_v26")
@@ -39,8 +46,8 @@ phi_min = -math.pi
 phi_max = math.pi
 t_min   = 0.
 t_max   = 2.
-xi_min  = 0.01
-xi_max  = 0.3
+xi_min  = 0.03
+xi_max  = 0.15
 ecms = 13000.
 
 process.generator = cms.EDProducer("RandomtXiGunProducer",
@@ -60,9 +67,6 @@ process.generator = cms.EDProducer("RandomtXiGunProducer",
         FireForward  = cms.bool(True),
         firstRun = cms.untracked.uint32(1),
         )
-
-process.source = cms.Source("EmptySource",
-)
 
 process.ProductionFilterSequence = cms.Sequence(process.generator)
 
