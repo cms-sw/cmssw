@@ -396,7 +396,7 @@ HBHEPhase1Reconstructor::HBHEPhase1Reconstructor(const edm::ParameterSet& conf)
   if (setNegativeFlagsQIE8_ || setNegativeFlagsQIE11_)
     negToken_ = esConsumes<HBHENegativeEFilter, HBHENegativeEFilterRcd>();
   if (setNoiseFlagsQIE8_ || setNoiseFlagsQIE11_)
-    feMapToken_ = esConsumes<HcalFrontEndMap, HcalFrontEndMapRcd>();
+    feMapToken_ = esConsumes<HcalFrontEndMap, HcalFrontEndMapRcd, edm::Transition::BeginRun>();
 }
 
 HBHEPhase1Reconstructor::~HBHEPhase1Reconstructor() {
