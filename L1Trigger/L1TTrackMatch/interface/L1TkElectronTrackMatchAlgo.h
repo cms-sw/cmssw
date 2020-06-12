@@ -6,15 +6,19 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
 namespace L1TkElectronTrackMatchAlgo {
-  typedef TTTrack< Ref_Phase2TrackerDigi_ >  L1TTTrackType;
-  typedef std::vector< L1TTTrackType > L1TTTrackCollection;
-  void doMatch(BXVector<l1t::EGamma>::const_iterator egIter, const edm::Ptr< L1TTTrackType >& pTrk, double&  dph, double&  dr, double& deta);
-  void doMatch(const GlobalPoint& epos, const edm::Ptr< L1TTTrackType >& pTrk, double& dph, double&  dr, double& deta);
+  typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
+  typedef std::vector<L1TTTrackType> L1TTTrackCollection;
+  void doMatch(BXVector<l1t::EGamma>::const_iterator egIter,
+               const edm::Ptr<L1TTTrackType>& pTrk,
+               double& dph,
+               double& dr,
+               double& deta);
+  void doMatch(const GlobalPoint& epos, const edm::Ptr<L1TTTrackType>& pTrk, double& dph, double& dr, double& deta);
 
-  double deltaR(const GlobalPoint& epos, const edm::Ptr< L1TTTrackType >& pTrk);
-  double deltaPhi(const GlobalPoint& epos, const edm::Ptr< L1TTTrackType >& pTrk);
-  double deltaEta(const GlobalPoint& epos, const edm::Ptr< L1TTTrackType >& pTrk);
+  double deltaR(const GlobalPoint& epos, const edm::Ptr<L1TTTrackType>& pTrk);
+  double deltaPhi(const GlobalPoint& epos, const edm::Ptr<L1TTTrackType>& pTrk);
+  double deltaEta(const GlobalPoint& epos, const edm::Ptr<L1TTTrackType>& pTrk);
   GlobalPoint calorimeterPosition(double phi, double eta, double e);
 
-}  
+}  // namespace L1TkElectronTrackMatchAlgo
 #endif

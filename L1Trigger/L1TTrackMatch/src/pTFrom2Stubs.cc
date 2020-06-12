@@ -1,77 +1,74 @@
-#include <iostream> 
-#include <memory>
-#include <cmath>
-#include <assert.h>
-#include "Geometry/CommonTopologies/interface/Topology.h"
 #include "L1Trigger/L1TTrackMatch/interface/pTFrom2Stubs.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "Geometry/CommonTopologies/interface/Topology.h"
+#include <cassert>
+#include <cmath>
+#include <iostream>
+#include <memory>
 
-namespace pTFrom2Stubs{
+namespace pTFrom2Stubs {
 
-	//====================
-	float rInvFrom2(std::vector< TTTrack< Ref_Phase2TrackerDigi_ > >::const_iterator trk, const TrackerGeometry* tkGeometry){
+  //====================
+  float rInvFrom2(std::vector<TTTrack<Ref_Phase2TrackerDigi_> >::const_iterator trk,
+                  const TrackerGeometry* tkGeometry) {
+    //vector of R, r and phi for each stub
+    std::vector<std::vector<float> > riPhiStubs(0);
+    //get stub reference
+    std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > >
+        vecStubRefs = trk->getStubRefs();
 
-		//vector of R, r and phi for each stub
-		std::vector< std::vector<float> > riPhiStubs(0);
-		//get stub reference
-		std::vector< edm::Ref<edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > vecStubRefs = trk->getStubRefs();
+    //loop over L1Track's stubs
+    int rsize = vecStubRefs.size();
+    for (int j = 0; j < rsize; ++j) {
+      edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > stubRef =
+          vecStubRefs.at(j);
+      const TTStub<Ref_Phase2TrackerDigi_>* stub = &(*stubRef);
+      MeasurementPoint localPos = stub->clusterRef(0)->findAverageLocalCoordinates();
 
-		//loop over L1Track's stubs 
-		int rsize =vecStubRefs.size();
-		for(int j =0; j< rsize; ++j){
+      DetId detid = stub->clusterRef(0)->getDetId();
 
-			edm::Ref<edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > stubRef =vecStubRefs.at(j) ;
-			const TTStub<Ref_Phase2TrackerDigi_>* stub=&(*stubRef) ;
-			MeasurementPoint localPos = stub->clusterRef(0)->findAverageLocalCoordinates();
+      if (detid.det() != DetId::Detector::Tracker)
+        continue;
+      if (detid.subdetId() != StripSubdetector::TOB && detid.subdetId() != StripSubdetector::TID)
+        continue;
+      const GeomDet* geomDet = tkGeometry->idToDet(detid);
+      if (geomDet) {
+        const GeomDetUnit* gDetUnit = tkGeometry->idToDetUnit(detid);
+        GlobalPoint stubPosition = geomDet->surface().toGlobal(gDetUnit->topology().localPosition(localPos));
 
-                        DetId detid = stub->clusterRef(0)->getDetId();  
+        std::vector<float> tmp(0);
+        float Rad = sqrt(stubPosition.x() * stubPosition.x() + stubPosition.y() * stubPosition.y() + stubPosition.z() +
+                         stubPosition.z());
+        float r_i = sqrt(stubPosition.x() * stubPosition.x() + stubPosition.y() * stubPosition.y());
+        float phi_i = stubPosition.phi();
 
-			if (detid.det() != DetId::Detector::Tracker) continue;
-      			if (detid.subdetId() != StripSubdetector::TOB && detid.subdetId() != StripSubdetector::TID) continue;
-			const GeomDet *geomDet = tkGeometry->idToDet(detid);
-                        if (geomDet) {
-			  const GeomDetUnit* gDetUnit = tkGeometry->idToDetUnit(detid);
-			  GlobalPoint stubPosition = geomDet->surface().toGlobal( gDetUnit->topology().localPosition( localPos ) ) ;
+        tmp.push_back(Rad);
+        tmp.push_back(r_i);
+        tmp.push_back(phi_i);
 
-			  std::vector<float> tmp(0);
-			  float Rad = sqrt(stubPosition.x()*stubPosition.x() + stubPosition.y()*stubPosition.y() + stubPosition.z()+stubPosition.z());
-			  float r_i = sqrt(stubPosition.x()*stubPosition.x() + stubPosition.y()*stubPosition.y());
-			  float  phi_i=stubPosition.phi();
+        riPhiStubs.push_back(tmp);
+      }
+    }
 
-			  tmp.push_back(Rad);
-			  tmp.push_back(r_i);
-			  tmp.push_back(phi_i);
+    std::sort(riPhiStubs.begin(), riPhiStubs.end());
+    //now calculate the curvature from first 2 stubs
+    float nr1 = (riPhiStubs[0])[1];
+    float nphi1 = (riPhiStubs[0])[2];
 
-			  riPhiStubs.push_back(tmp);
-			}
-		}
+    float nr2 = (riPhiStubs[1])[1];
+    float nphi2 = (riPhiStubs[1])[2];
 
-		std::sort(riPhiStubs.begin(), riPhiStubs.end());
-		//now calculate the curvature from first 2 stubs
-		float nr1   = (riPhiStubs[0])[1];
-		float nphi1 = (riPhiStubs[0])[2];
+    float dPhi = reco::deltaPhi(nphi1, nphi2);
 
-		float nr2   = (riPhiStubs[1])[1];
-		float nphi2 = (riPhiStubs[1])[2];
+    float ndist = sqrt(nr2 * nr2 + nr1 * nr1 - 2 * nr1 * nr2 * cos(dPhi));
 
-		/*		float ndeltaphi=nphi1 -nphi2;
-		static float two_pi=8*atan(1.0);
-		if (ndeltaphi>0.5*two_pi) ndeltaphi-=two_pi;
-		if (ndeltaphi<-0.5*two_pi) ndeltaphi+=two_pi;*/
-
-                float dPhi = reco::deltaPhi(nphi1, nphi2);
-
-		float ndist=sqrt(nr2*nr2+nr1*nr1-2*nr1*nr2*cos(dPhi));
-
-		float curvature = 2*sin(dPhi)/ndist;
-		return curvature;
-	}
-	//====================
-	float pTFrom2(std::vector< TTTrack< Ref_Phase2TrackerDigi_> >::const_iterator trk, const TrackerGeometry* tkGeometry){
-
-		float rinv= rInvFrom2(trk, tkGeometry);
-		return fabs( 0.00299792*3.8/rinv); 
-
-	}
-	//====================
-}
+    float curvature = 2 * sin(dPhi) / ndist;
+    return curvature;
+  }
+  //====================
+  float pTFrom2(std::vector<TTTrack<Ref_Phase2TrackerDigi_> >::const_iterator trk, const TrackerGeometry* tkGeometry) {
+    float rinv = rInvFrom2(trk, tkGeometry);
+    return fabs(0.00299792 * 3.8 / rinv);
+  }
+  //====================
+}  // namespace pTFrom2Stubs
