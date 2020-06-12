@@ -4,46 +4,39 @@
  Description: RPC Geometry builder from DD & DD4hep
               DD4hep part added to the original old file (DD version) made by M. Maggi (INFN Bari)
 //
-// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
+// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osborne made for DTs (DD4HEP migration)
 //          Created:  Fri, 20 Sep 2019 
+//          Modified: Fri, 29 May 2020, following what Sunanda Banerjee made in PR #29842 PR #29943 and Ianna Osborne in PR #29954    
 */
-#include "Geometry/RPCGeometryBuilder/src/RPCGeometryBuilderFromDDD.h"
+#include "Geometry/RPCGeometryBuilder/src/RPCGeometryBuilder.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCRollSpecs.h"
-
 #include <DetectorDescription/Core/interface/DDFilter.h>
 #include <DetectorDescription/Core/interface/DDFilteredView.h>
 #include <DetectorDescription/DDCMS/interface/DDFilteredView.h>
 #include <DetectorDescription/DDCMS/interface/DDCompactView.h>
 #include <DetectorDescription/Core/interface/DDSolid.h>
-
-#include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/RPCNumberingScheme.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
-
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
-
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
-
 #include <iostream>
 #include <algorithm>
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
-#include "Geometry/MuonNumbering/interface/DD4hep_RPCNumberingScheme.h"
-
 #include "DataFormats/Math/interface/CMSUnits.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
 
 using namespace cms_units::operators;
 
-RPCGeometryBuilderFromDDD::RPCGeometryBuilderFromDDD(bool comp11) : theComp11Flag(comp11) {}
-
-RPCGeometryBuilderFromDDD::~RPCGeometryBuilderFromDDD() {}
+RPCGeometryBuilder::RPCGeometryBuilder() {}
 
 // for DDD
-RPCGeometry* RPCGeometryBuilderFromDDD::build(const DDCompactView* cview, const MuonGeometryConstants& muonConstants) {
+
+std::unique_ptr<RPCGeometry> RPCGeometryBuilder::build(const DDCompactView* cview,
+                                                       const MuonGeometryConstants& muonConstants) {
   const std::string attribute = "ReadOutName";
   const std::string value = "MuonRPCHits";
   DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0.0)};
@@ -51,8 +44,9 @@ RPCGeometry* RPCGeometryBuilderFromDDD::build(const DDCompactView* cview, const 
   return this->buildGeometry(fview, muonConstants);
 }
 // for DD4hep
-RPCGeometry* RPCGeometryBuilderFromDDD::build(const cms::DDCompactView* cview,
-                                              const cms::MuonNumbering& muonConstants) {
+
+std::unique_ptr<RPCGeometry> RPCGeometryBuilder::build(const cms::DDCompactView* cview,
+                                                       const MuonGeometryConstants& muonConstants) {
   const std::string attribute = "ReadOutName";
   const std::string value = "MuonRPCHits";
   cms::DDFilteredView fview(cview->detector(), cview->detector()->worldVolume());
@@ -63,27 +57,28 @@ RPCGeometry* RPCGeometryBuilderFromDDD::build(const cms::DDCompactView* cview,
   return this->buildGeometry(fview, muonConstants);
 }
 // for DDD
-RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview,
-                                                      const MuonGeometryConstants& muonConstants) {
-  LogDebug("RPCGeometryBuilderFromDDD") << "Building the geometry service";
-  RPCGeometry* geometry = new RPCGeometry();
-  LogDebug("RPCGeometryBuilderFromDDD") << "About to run through the RPC structure\n"
-                                        << " First logical part " << fview.logicalPart().name().name();
+
+std::unique_ptr<RPCGeometry> RPCGeometryBuilder::buildGeometry(DDFilteredView& fview,
+                                                               const MuonGeometryConstants& muonConstants) {
+  LogDebug("RPCGeometryBuilder") << "Building the geometry service";
+  std::unique_ptr<RPCGeometry> geometry = std::make_unique<RPCGeometry>();
+  LogDebug("RPCGeometryBuilder") << "About to run through the RPC structure\n"
+                                 << " First logical part " << fview.logicalPart().name().name();
   bool doSubDets = fview.firstChild();
-  LogDebug("RPCGeometryBuilderFromDDD") << "doSubDets = " << doSubDets;
+  LogDebug("RPCGeometryBuilder") << "doSubDets = " << doSubDets;
   while (doSubDets) {
-    LogDebug("RPCGeometryBuilderFromDDD") << "start the loop";
+    LogDebug("RPCGeometryBuilder") << "start the loop";
     MuonGeometryNumbering mdddnum(muonConstants);
-    LogDebug("RPCGeometryBuilderFromDDD") << "Getting the Muon base Number";
+    LogDebug("RPCGeometryBuilder") << "Getting the Muon base Number";
     MuonBaseNumber mbn = mdddnum.geoHistoryToBaseNumber(fview.geoHistory());
-    LogDebug("RPCGeometryBuilderFromDDD") << "Start the Rpc Numbering Schema";
+    LogDebug("RPCGeometryBuilder") << "Start the Rpc Numbering Schema";
     RPCNumberingScheme rpcnum(muonConstants);
-    LogDebug("RPCGeometryBuilderFromDDD") << "Getting the Unit Number";
+    LogDebug("RPCGeometryBuilder") << "Getting the Unit Number";
     const int detid = rpcnum.baseNumberToUnitNumber(mbn);
-    LogDebug("RPCGeometryBuilderFromDDD") << "Getting the RPC det Id " << detid;
+    LogDebug("RPCGeometryBuilder") << "Getting the RPC det Id " << detid;
     RPCDetId rpcid(detid);
     RPCDetId chid(rpcid.region(), rpcid.ring(), rpcid.station(), rpcid.sector(), rpcid.layer(), rpcid.subsector(), 0);
-    LogDebug("RPCGeometryBuilderFromDDD") << "The RPCDetid is " << rpcid;
+    LogDebug("RPCGeometryBuilder") << "The RPCDetid is " << rpcid;
 
     DDValue numbOfStrips("nStrips");
 
@@ -95,7 +90,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview,
       }
     }
 
-    LogDebug("RPCGeometryBuilderFromDDD") << ((nStrips == 0) ? ("No strip found!!") : (""));
+    LogDebug("RPCGeometryBuilder") << ((nStrips == 0) ? ("No strip found!!") : (""));
 
     std::vector<double> dpar = fview.logicalPart().solid().parameters();
     std::string name = fview.logicalPart().name().name();
@@ -127,18 +122,8 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview,
       bounds = new RectangularPlaneBounds(width, length, thickness);
       const std::vector<float> pars = {width, length, float(numbOfStrips.doubles()[0])};
 
-      if (!theComp11Flag) {
-        if (tran.z() > -1500.) {
-          Basic3DVector<float> newX(-1., 0., 0.);
-          Basic3DVector<float> newY(0., -1., 0.);
-          Basic3DVector<float> newZ(0., 0., 1.);
-          rot.rotateAxes(newX, newY, newZ);
-        }
-      }
-
       rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCBarrel, name, pars);
-      LogDebug("RPCGeometryBuilderFromDDD")
-          << "Barrel " << name << " par " << width << " " << length << " " << thickness;
+      LogDebug("RPCGeometryBuilder") << "Barrel " << name << " par " << width << " " << length << " " << thickness;
 
     } else {
       const float be = geant_units::operators::convertMmToCm(dpar[4]);
@@ -152,8 +137,8 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview,
                                        float(geant_units::operators::convertMmToCm(dpar[8])),
                                        float(geant_units::operators::convertMmToCm(dpar[0])),
                                        float(numbOfStrips.doubles()[0])};
-      LogDebug("RPCGeometryBuilderFromDDD")
-          << "Forward " << name << " par " << dpar[4] << " " << dpar[8] << " " << dpar[3] << " " << dpar[0];
+      LogDebug("RPCGeometryBuilder") << "Forward " << name << " par " << dpar[4] << " " << dpar[8] << " " << dpar[3]
+                                     << " " << dpar[0];
 
       rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCEndcap, name, pars);
 
@@ -163,7 +148,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview,
       Basic3DVector<float> newZ(0., 1., 0.);
       rot.rotateAxes(newX, newY, newZ);
     }
-    LogDebug("RPCGeometryBuilderFromDDD") << "   Number of strips " << nStrips;
+    LogDebug("RPCGeometryBuilder") << "   Number of strips " << nStrips;
 
     BoundPlane* bp = new BoundPlane(pos, rot, bounds);
     ReferenceCountingPointer<BoundPlane> surf(bp);
@@ -251,19 +236,17 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview,
 }
 
 // for DD4hep
-RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(cms::DDFilteredView& fview,
-                                                      const cms::MuonNumbering& muonConstants) {
-  RPCGeometry* geometry = new RPCGeometry();
+
+std::unique_ptr<RPCGeometry> RPCGeometryBuilder::buildGeometry(cms::DDFilteredView& fview,
+                                                               const MuonGeometryConstants& muonConstants) {
+  std::unique_ptr<RPCGeometry> geometry = std::make_unique<RPCGeometry>();
 
   while (fview.firstChild()) {
-    MuonBaseNumber mbn = muonConstants.geoHistoryToBaseNumber(fview.history());
+    MuonGeometryNumbering mdddnum(muonConstants);
+    RPCNumberingScheme rpcnum(muonConstants);
+    int rawidCh = rpcnum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fview.history()));
+    RPCDetId rpcid = RPCDetId(rawidCh);
 
-    cms::RPCNumberingScheme rpcnum(muonConstants.values());
-
-    rpcnum.baseNumberToUnitNumber(mbn);
-    int detid = rpcnum.getDetId();
-
-    RPCDetId rpcid(detid);
     RPCDetId chid(rpcid.region(), rpcid.ring(), rpcid.station(), rpcid.sector(), rpcid.layer(), rpcid.subsector(), 0);
 
     auto nStrips = fview.get<double>("nStrips");
@@ -273,6 +256,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(cms::DDFilteredView& fview
     std::string_view name = fview.name();
 
     const Double_t* tran = fview.trans();
+
     DDRotationMatrix rota;
     fview.rot(rota);
 
@@ -301,15 +285,6 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(cms::DDFilteredView& fview
       bounds = new RectangularPlaneBounds(width, length, thickness);
 
       const std::vector<float> pars = {width, length, float(nStrips)};
-
-      if (!theComp11Flag) {
-        if (tran[2] > -1500.) {
-          Basic3DVector<float> newX(-1., 0., 0.);
-          Basic3DVector<float> newY(0., -1., 0.);
-          Basic3DVector<float> newZ(0., 0., 1.);
-          rot.rotateAxes(newX, newY, newZ);
-        }
-      }
 
       rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCBarrel, std::string(name), pars);
 
