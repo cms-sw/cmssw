@@ -167,7 +167,7 @@ FedRawDataInputSource::~FedRawDataInputSource() {
   //delete any remaining open files
   for (auto it = filesToDelete_.begin(); it != filesToDelete_.end(); it++)
     it->second.reset();
-  
+
   if (startedSupervisorThread_) {
     readSupervisorThread_->join();
   } else {
@@ -838,7 +838,8 @@ void FedRawDataInputSource::readSupervisor() {
             ls = lsFromRaw;
         }
       } else if (!useFileBroker_)
-        status = daqDirector_->updateFuLock(ls, nextFile, fileSizeIndex, rawHeaderSize, thisLockWaitTimeUs, setExceptionState_);
+        status = daqDirector_->updateFuLock(
+            ls, nextFile, fileSizeIndex, rawHeaderSize, thisLockWaitTimeUs, setExceptionState_);
       else {
         status = daqDirector_->getNextFromFileBroker(currentLumiSection,
                                                      ls,
@@ -876,7 +877,8 @@ void FedRawDataInputSource::readSupervisor() {
           fms_->setInStateSup(evf::FastMonitoringThread::inRunEnd);
         usleep(100000);
         //now all files should have appeared in ramdisk, check again if any raw files were left behind
-        status = daqDirector_->updateFuLock(ls, nextFile, fileSizeIndex, rawHeaderSize, thisLockWaitTimeUs, setExceptionState_);
+        status = daqDirector_->updateFuLock(
+            ls, nextFile, fileSizeIndex, rawHeaderSize, thisLockWaitTimeUs, setExceptionState_);
         if (currentLumiSection != ls && status == evf::EvFDaqDirector::runEnded)
           status = evf::EvFDaqDirector::noFile;
       }
@@ -1006,14 +1008,13 @@ void FedRawDataInputSource::readSupervisor() {
             int rawFdEmpty = -1;
             uint16_t rawHeaderCheck;
             bool fileFound;
-            eventsInNewFile = daqDirector_->grabNextJsonFromRaw(nextFile, rawFdEmpty, rawHeaderCheck, fileSizeFromMetadata, fileFound, 0, true);
-            assert(fileFound && rawHeaderCheck==rawHeaderSize);
+            eventsInNewFile = daqDirector_->grabNextJsonFromRaw(
+                nextFile, rawFdEmpty, rawHeaderCheck, fileSizeFromMetadata, fileFound, 0, true);
+            assert(fileFound && rawHeaderCheck == rawHeaderSize);
             daqDirector_->unlockFULocal();
-          }
-          else
+          } else
             eventsInNewFile = daqDirector_->grabNextJsonFileAndUnlock(nextFile);
-        }
-        else
+        } else
           eventsInNewFile = serverEventsInNewFile;
         assert(eventsInNewFile >= 0);
         assert((eventsInNewFile > 0) ==
@@ -1408,12 +1409,11 @@ void FedRawDataInputSource::readNextChunkIntoBuffer(InputFile* file) {
 
   if (fileDescriptor_ < 0) {
     bufferInputRead_ = 0;
-    if (file->rawFd_ == -1) { 
+    if (file->rawFd_ == -1) {
       fileDescriptor_ = open(file->fileName_.c_str(), O_RDONLY);
       if (file->rawHeaderSize_)
         lseek(fileDescriptor_, file->rawHeaderSize_, SEEK_SET);
-    }
-    else
+    } else
       fileDescriptor_ = file->rawFd_;
 
     //skip header size in destination buffer (chunk position was already adjusted)
@@ -1429,7 +1429,9 @@ void FedRawDataInputSource::readNextChunkIntoBuffer(InputFile* file) {
     }
     //fill chunk (skipping file header if present)
     for (unsigned int i = 0; i < readBlocks_; i++) {
-      const ssize_t last = ::read(fileDescriptor_, (void*)(file->chunks_[0]->buf_ + existingSize), eventChunkBlock_ - (i==readBlocks_ -1 ? existingSize : 0));
+      const ssize_t last = ::read(fileDescriptor_,
+                                  (void*)(file->chunks_[0]->buf_ + existingSize),
+                                  eventChunkBlock_ - (i == readBlocks_ - 1 ? existingSize : 0));
       bufferInputRead_ += last;
       existingSize += last;
     }
@@ -1449,7 +1451,7 @@ void FedRawDataInputSource::readNextChunkIntoBuffer(InputFile* file) {
 
       //calculate amount of data that can be added
       const uint32_t blockcount = file->chunkPosition_ / eventChunkBlock_;
-      const uint32_t leftsize =  file->chunkPosition_ % eventChunkBlock_;
+      const uint32_t leftsize = file->chunkPosition_ % eventChunkBlock_;
 
       for (uint32_t i = 0; i < blockcount; i++) {
         const ssize_t last =

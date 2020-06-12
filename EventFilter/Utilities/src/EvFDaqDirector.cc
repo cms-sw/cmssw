@@ -647,7 +647,7 @@ namespace evf {
             edm::LogError("EvFDaqDirector")
                 << "seek on fu read/write lock for updating failed with error " << strerror(errno);
             setExceptionState = true;
-            return noFile; 
+            return noFile;
           }
         } else if (currentLs < readLs) {
           //there is no new file in next LS (yet), but lock file can be updated to the next LS
@@ -663,7 +663,7 @@ namespace evf {
             edm::LogError("EvFDaqDirector")
                 << "seek on fu read/write lock for updating failed with error " << strerror(errno);
             setExceptionState = true;
-            return noFile; 
+            return noFile;
           }
         }
       } else {
@@ -770,8 +770,13 @@ namespace evf {
     return boost::lexical_cast<int>(data);
   }
 
-  bool EvFDaqDirector::bumpFile(
-      unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize, uint16_t& rawHeaderSize, int maxLS, bool& setExceptionState) {
+  bool EvFDaqDirector::bumpFile(unsigned int& ls,
+                                unsigned int& index,
+                                std::string& nextFile,
+                                uint32_t& fsize,
+                                uint16_t& rawHeaderSize,
+                                int maxLS,
+                                bool& setExceptionState) {
     if (previousFileSize_ != 0) {
       if (!fms_) {
         fms_ = (FastMonitoringService*)(edm::Service<evf::MicroStateService>().operator->());
@@ -800,7 +805,6 @@ namespace evf {
     }
     // 2. No file -> lumi ended? (and how many?)
     else {
-
       // 3. No file -> check for standalone raw file
       std::string nextFileRaw = getRawFilePath(ls, index);
       if (stat(nextFileRaw.c_str(), &buf) == 0 && rawFileHasHeader(nextFileRaw, rawHeaderSize)) {
@@ -808,7 +812,7 @@ namespace evf {
         nextFile = nextFileRaw;
         return true;
       }
- 
+
       std::string BUEoLSFile = getEoLSFilePathOnBU(ls);
 
       if (stat(BUEoLSFile.c_str(), &buf) == 0) {
@@ -1045,11 +1049,10 @@ namespace evf {
   }
 
   bool EvFDaqDirector::rawFileHasHeader(std::string const& rawSourcePath, uint16_t& rawHeaderSize) {
-
-    int infile; 
+    int infile;
     if ((infile = ::open(rawSourcePath.c_str(), O_RDONLY)) < 0) {
-      edm::LogWarning("EvFDaqDirector")
-          << "rawFileHasHeader - failed to open input file -: " << rawSourcePath << " : " << strerror(errno);
+      edm::LogWarning("EvFDaqDirector") << "rawFileHasHeader - failed to open input file -: " << rawSourcePath << " : "
+                                        << strerror(errno);
       return false;
     }
     constexpr std::size_t buf_sz = sizeof(FRDFileHeader_v1);  //try to read v1 FRD header size
@@ -1075,7 +1078,7 @@ namespace evf {
 
     close(infile);
 
-    if (frd_version>0) {
+    if (frd_version > 0) {
       rawHeaderSize = fileHead.headerSize_;
       return true;
     }
