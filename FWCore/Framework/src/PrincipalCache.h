@@ -53,8 +53,10 @@ namespace edm {
 
     ProcessBlockPrincipal& processBlockPrincipal() const { return *processBlockPrincipal_; }
     ProcessBlockPrincipal& inputProcessBlockPrincipal() const { return *inputProcessBlockPrincipal_; }
-    ProcessBlockPrincipal& processBlockPrincipal(bool input) const {
-      return input ? *inputProcessBlockPrincipal_ : *processBlockPrincipal_;
+
+    enum class ProcessBlockType { New, Input };
+    ProcessBlockPrincipal& processBlockPrincipal(ProcessBlockType processBlockType) const {
+      return processBlockType == ProcessBlockType::Input ? *inputProcessBlockPrincipal_ : *processBlockPrincipal_;
     }
 
     RunPrincipal& runPrincipal(ProcessHistoryID const& phid, RunNumber_t run) const;
