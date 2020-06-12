@@ -51,30 +51,30 @@ edm::ParameterSetDescription EleTkIsolFromCands::pSetDescript() {
   return desc;
 }
 
-EleTkIsolFromCands::TrackContainer EleTkIsolFromCands::preselectTracksWithCuts(reco::TrackCollection const& tracks,
-                                                                               TrkCuts const& cuts) const {
-  TrackContainer outTracks;
+std::vector<EleTkIsolFromCands::SimpleTrack> EleTkIsolFromCands::preselectTracksWithCuts(
+    reco::TrackCollection const& tracks, TrkCuts const& cuts) {
+  std::vector<SimpleTrack> outTracks;
   outTracks.reserve(tracks.size());
 
   for (auto const& trk : tracks) {
     if (passTrackPreselection(trk, cuts)) {
-      outTracks.push_back(Track{.pt = trk.pt(), .eta = trk.eta(), .phi = trk.phi(), .vz = trk.vz()});
+      outTracks.emplace_back(trk);
     }
   }
 
   return outTracks;
 }
 
-EleTkIsolFromCands::TrackContainer EleTkIsolFromCands::preselectTracksWithCuts(
-    pat::PackedCandidateCollection const& cands, TrkCuts const& cuts, PIDVeto pidVeto) const {
-  TrackContainer outTracks;
+std::vector<EleTkIsolFromCands::SimpleTrack> EleTkIsolFromCands::preselectTracksWithCuts(
+    pat::PackedCandidateCollection const& cands, TrkCuts const& cuts, PIDVeto pidVeto) {
+  std::vector<SimpleTrack> outTracks;
   outTracks.reserve(cands.size());
 
   for (auto const& cand : cands) {
     if (cand.hasTrackDetails() && cand.charge() != 0 && passPIDVeto(cand.pdgId(), pidVeto)) {
       const reco::Track& trk = cand.pseudoTrack();
       if (passTrackPreselection(trk, cuts)) {
-        outTracks.push_back(Track{.pt = trk.pt(), .eta = trk.eta(), .phi = trk.phi(), .vz = trk.vz()});
+        outTracks.emplace_back(trk);
       }
     }
   }
@@ -96,25 +96,22 @@ EleTkIsolFromCands::PreselectedTracks EleTkIsolFromCands::preselectTracks(pat::P
   };
 }
 
-std::pair<int, double> EleTkIsolFromCands::calIsol(const reco::TrackBase& eleTrk,
-                                                   const PreselectedTracks& tracks) const {
-  return calIsol(eleTrk.eta(), eleTrk.phi(), eleTrk.vz(), tracks);
-}
-
-std::pair<int, double> EleTkIsolFromCands::calIsol(const double eleEta,
-                                                   const double elePhi,
-                                                   const double eleVZ,
-                                                   const PreselectedTracks& tracks) const {
+EleTkIsolFromCands::Output EleTkIsolFromCands::operator()(const reco::TrackBase& eleTrk,
+                                                          const PreselectedTracks& tracks) const {
   double ptSum = 0.;
   int nrTrks = 0;
 
-  bool isBarrelElectron = std::abs(eleEta) < 1.5;
+  const double eleEta = eleTrk.eta();
+  const double elePhi = eleTrk.phi();
+  const double eleVz = eleTrk.vz();
+
+  const bool isBarrelElectron = std::abs(eleEta) < 1.5;
 
   auto const& preselectedTracks = isBarrelElectron ? tracks.withBarrelCuts : tracks.withEndcapCuts;
   auto const& cuts = isBarrelElectron ? barrelCuts_ : endcapCuts_;
 
   for (auto& trk : preselectedTracks) {
-    if (passTrkSel(trk, cuts, eleEta, elePhi, eleVZ)) {
+    if (passMatchingToElectron(trk, cuts, eleEta, elePhi, eleVz)) {
       ptSum += trk.pt;
       nrTrks++;
     }
@@ -162,8 +159,8 @@ bool EleTkIsolFromCands::passTrackPreselection(const reco::TrackBase& trk, const
          passAlgo(trk, cuts.algosToReject) && trk.pt() > cuts.minPt;
 }
 
-bool EleTkIsolFromCands::passTrkSel(
-    const Track& trk, const TrkCuts& cuts, const double eleEta, const double elePhi, const double eleVZ) {
+bool EleTkIsolFromCands::passMatchingToElectron(
+    SimpleTrack const& trk, const TrkCuts& cuts, double eleEta, double elePhi, double eleVZ) {
   const float dR2 = reco::deltaR2(eleEta, elePhi, trk.eta, trk.phi);
   const float dEta = trk.eta - eleEta;
   const float dZ = eleVZ - trk.vz;
