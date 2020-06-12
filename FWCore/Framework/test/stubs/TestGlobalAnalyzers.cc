@@ -301,7 +301,9 @@ namespace edmtest {
       }
     };
 
-    class ProcessBlockIntAnalyzer : public edm::global::EDAnalyzer<edm::ProcessBlockCache<UnsafeCache>> {
+    class ProcessBlockIntAnalyzer : public edm::global::EDAnalyzer<edm::ProcessBlockCache<UnsafeCache>,
+                                                                   edm::StreamCache<UnsafeCache>,
+                                                                   edm::RunCache<UnsafeCache>> {
     public:
       explicit ProcessBlockIntAnalyzer(edm::ParameterSet const& p) : trans_(p.getParameter<int>("transitions")) {
         {
@@ -318,10 +320,27 @@ namespace edmtest {
         }
       }
 
-      void beginProcessBlock(edm::ProcessBlock const& processBlock) const override {
+      void beginJob() override {
         if (m_count != 0) {
           throw cms::Exception("transitions")
-              << "ProcessBlockIntAnalyzer::begin transitions " << m_count << " but it was supposed to be " << 0;
+              << "ProcessBlockIntAnalyzer::beginJob transition " << m_count << " but it was supposed to be " << 0;
+        }
+        ++m_count;
+      }
+
+      std::unique_ptr<UnsafeCache> beginStream(edm::StreamID) const override {
+        if (m_count < 1) {
+          throw cms::Exception("transitions") << "ProcessBlockIntAnalyzer::beginStream transition " << m_count
+                                              << " but it was supposed to be at least 1";
+        }
+        ++m_count;
+        return std::make_unique<UnsafeCache>();
+      }
+
+      void beginProcessBlock(edm::ProcessBlock const& processBlock) const override {
+        if (m_count != 5) {
+          throw cms::Exception("transitions") << "ProcessBlockIntAnalyzer::beginProcessBlock transition " << m_count
+                                              << " but it was supposed to be " << 5;
         }
         ++m_count;
 
@@ -334,19 +353,36 @@ namespace edmtest {
         }
       }
 
+      std::shared_ptr<UnsafeCache> globalBeginRun(edm::Run const&, edm::EventSetup const&) const override {
+        if (m_count < 6u) {
+          throw cms::Exception("transitions") << "ProcessBlockIntAnalyzer::globalBeginRun transition " << m_count
+                                              << " but it was supposed to be at least 6";
+        }
+        ++m_count;
+        return std::make_shared<UnsafeCache>();
+      }
+
       void analyze(edm::StreamID iID, edm::Event const&, edm::EventSetup const&) const override {
-        if (m_count < 1u) {
+        if (m_count < 7u) {
           throw cms::Exception("out of sequence") << "analyze before beginProcessBlock " << m_count;
         }
         ++m_count;
       }
 
-      void endProcessBlock(edm::ProcessBlock const& processBlock) const override {
-        ++m_count;
-        if (m_count != trans_) {
-          throw cms::Exception("transitions")
-              << "ProcessBlockIntAnalyzer::end transitions " << m_count << " but it was supposed to be " << trans_;
+      void globalEndRun(edm::Run const&, edm::EventSetup const&) const override {
+        if (m_count < 15u) {
+          throw cms::Exception("transitions") << "ProcessBlockIntAnalyzer::globalEndRun transition " << m_count
+                                              << " but it was supposed to be at least 15";
         }
+        ++m_count;
+      }
+
+      void endProcessBlock(edm::ProcessBlock const& processBlock) const override {
+        if (m_count != 646u) {
+          throw cms::Exception("transitions") << "ProcessBlockIntAnalyzer::endProcessBlock transition " << m_count
+                                              << " but it was supposed to be " << 646;
+        }
+        ++m_count;
         {
           const unsigned int valueToGet = 11;
           if (not getTokenBegin_.isUninitialized()) {
@@ -365,6 +401,22 @@ namespace edmtest {
             }
           }
         }
+      }
+
+      void endStream(edm::StreamID) const override {
+        if (m_count < 647u) {
+          throw cms::Exception("transitions") << "ProcessBlockIntAnalyzer::endStream transition " << m_count
+                                              << " but it was supposed to be at least 647";
+        }
+        ++m_count;
+      }
+
+      void endJob() override {
+        if (m_count != 651u) {
+          throw cms::Exception("transitions")
+              << "ProcessBlockIntAnalyzer::endJob transition " << m_count << " but it was supposed to be " << 651;
+        }
+        ++m_count;
       }
 
       ~ProcessBlockIntAnalyzer() {

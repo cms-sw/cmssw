@@ -120,7 +120,7 @@ process.LumiSumIntAn = cms.EDAnalyzer("edmtest::global::LumiSummaryIntAnalyzer",
 )
 
 process.ProcessBlockIntAn = cms.EDAnalyzer("edmtest::global::ProcessBlockIntAnalyzer",
-    transitions = cms.int32(int(nEvt + 2)),
+    transitions = cms.int32(652),
     consumesBeginProcessBlock = cms.InputTag("TestBeginProcessBlockProd" ,"begin"),
     consumesEndProcessBlock = cms.InputTag("TestEndProcessBlockProd", "end")
 )
