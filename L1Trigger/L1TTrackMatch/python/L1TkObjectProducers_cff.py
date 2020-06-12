@@ -12,38 +12,38 @@ import FWCore.ParameterSet.Config as cms
 
 # Phase II EG seeds, Barrel (Crystal):
 
-#+ from L1Trigger.L1TTrackMatch.L1TkElectronTrackProducer_cfi import L1TkElectronsCrystal
-#+ pL1TkElectronsCrystal = cms.Path( L1TkElectronsCrystal )
-#+ 
-#+ from L1Trigger.L1TTrackMatch.L1TkElectronTrackProducer_cfi import L1TkElectronsEllipticMatchCrystal
-#+ pL1TkElectronsEllipticMatchCrystal = cms.Path( L1TkElectronsEllipticMatchCrystal )
-#+ 
-#+ from L1Trigger.L1TTrackMatch.L1TkElectronTrackProducer_cfi import L1TkElectronsLooseCrystal
-#+ pL1TkElectronsLooseCrystal = cms.Path( L1TkElectronsLooseCrystal )
-#+ 
-#+ from L1Trigger.L1TTrackMatch.L1TkElectronTrackProducer_cfi import L1TkIsoElectronsCrystal
-#+ pL1TkIsoElectronsCrystal = cms.Path( L1TkIsoElectronsCrystal )
-#+ 
+from L1Trigger.L1TTrackMatch.L1TkElectronTrackProducer_cfi import L1TkElectronsCrystal
+pL1TkElectronsCrystal = cms.Path( L1TkElectronsCrystal )
+
+from L1Trigger.L1TTrackMatch.L1TkElectronTrackProducer_cfi import L1TkElectronsEllipticMatchCrystal
+pL1TkElectronsEllipticMatchCrystal = cms.Path( L1TkElectronsEllipticMatchCrystal )
+
+from L1Trigger.L1TTrackMatch.L1TkElectronTrackProducer_cfi import L1TkElectronsLooseCrystal
+pL1TkElectronsLooseCrystal = cms.Path( L1TkElectronsLooseCrystal )
+
+from L1Trigger.L1TTrackMatch.L1TkElectronTrackProducer_cfi import L1TkIsoElectronsCrystal
+pL1TkIsoElectronsCrystal = cms.Path( L1TkIsoElectronsCrystal )
+
 #+ from L1Trigger.L1TTrackMatch.L1TkEmParticleProducer_cfi import L1TkPhotonsCrystal
 #+ pL1TkPhotonsCrystal = cms.Path( L1TkPhotonsCrystal )
-#+ 
+
 #+ from L1Trigger.L1TTrackMatch.L1WP2ElectronProducer_cfi import L1WP2Electrons
 #+ pL1WP2Electrons = cms.Path( L1WP2Electrons)
 
 # Phase II EG seeds, Endcap (HGC):
 # Two objects for now to follow 2017 discussions, merging collections would be nice...
 
-#+ from L1Trigger.L1TTrackMatch.L1TkElectronTrackProducer_cfi import L1TkElectronsHGC
-#+ pL1TkElectronsHGC = cms.Path( L1TkElectronsHGC )
-#+ 
-#+ from L1Trigger.L1TTrackMatch.L1TkElectronTrackProducer_cfi import L1TkElectronsEllipticMatchHGC
-#+ pL1TkElectronsEllipticMatchHGC = cms.Path( L1TkElectronsEllipticMatchHGC )
-#+ 
-#+ from L1Trigger.L1TTrackMatch.L1TkElectronTrackProducer_cfi import L1TkIsoElectronsHGC
-#+ pL1TkIsoElectronsHGC = cms.Path( L1TkIsoElectronsHGC )
-#+ 
-#+ from L1Trigger.L1TTrackMatch.L1TkElectronTrackProducer_cfi import L1TkElectronsLooseHGC
-#+ pL1TkElectronsLooseHGC = cms.Path( L1TkElectronsLooseHGC )
+from L1Trigger.L1TTrackMatch.L1TkElectronTrackProducer_cfi import L1TkElectronsHGC
+pL1TkElectronsHGC = cms.Path( L1TkElectronsHGC )
+
+from L1Trigger.L1TTrackMatch.L1TkElectronTrackProducer_cfi import L1TkElectronsEllipticMatchHGC
+pL1TkElectronsEllipticMatchHGC = cms.Path( L1TkElectronsEllipticMatchHGC )
+
+from L1Trigger.L1TTrackMatch.L1TkElectronTrackProducer_cfi import L1TkIsoElectronsHGC
+pL1TkIsoElectronsHGC = cms.Path( L1TkIsoElectronsHGC )
+
+from L1Trigger.L1TTrackMatch.L1TkElectronTrackProducer_cfi import L1TkElectronsLooseHGC
+pL1TkElectronsLooseHGC = cms.Path( L1TkElectronsLooseHGC )
 #+ 
 #+ from L1Trigger.L1TTrackMatch.L1TkEmParticleProducer_cfi import L1TkPhotonsHGC
 #+ pL1TkPhotonsHGC = cms.Path( L1TkPhotonsHGC )
