@@ -76,7 +76,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
   // making map of bx GEMDigiCollection
   // each bx will be saved as new AMC13Event, so GEMDigiCollection needs to be split into bx
   std::map<int, GEMDigiCollection> gemBxMap;
-  for (auto etaPart : *gemDigis) {
+  for (auto const& etaPart : *gemDigis) {
     GEMDetId gemId = etaPart.first;
     const GEMDigiCollection::Range& digis = etaPart.second;
     for (auto digi = digis.first; digi != digis.second; ++digi) {
@@ -113,7 +113,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
           GEMROMapping::chamDC geb_dc = gemROMap->chamberPos(geb_ec);
 
           auto vfats = gemROMap->getVfats(geb_dc.detId);
-          for (auto vfat_ec : vfats) {
+          for (auto const& vfat_ec : vfats) {
             GEMROMapping::vfatDC vfat_dc = gemROMap->vfatPos(vfat_ec);
             GEMDetId gemId = vfat_dc.detId;
             uint16_t vfatId = vfat_ec.vfatAdd;
