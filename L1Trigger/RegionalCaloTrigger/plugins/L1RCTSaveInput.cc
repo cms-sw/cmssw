@@ -86,8 +86,8 @@ void L1RCTSaveInput::analyze(const edm::Event &event, const edm::EventSetup &eve
     eventSetup.get<CaloTPGRecord>().get(transcoder);
     const CaloTPGTranscoder *h_tpg = transcoder.product();
 
-    EcalTPGScale *e_tpg = new EcalTPGScale();
-    e_tpg->setEventSetup(eventSetup);
+    EcalTPGScale e_tpg;
+    e_tpg.setEventSetup(eventSetup);
 
     L1CaloEcalScale *ecalScale = new L1CaloEcalScale();
     L1CaloHcalScale *hcalScale = new L1CaloHcalScale();
@@ -99,11 +99,11 @@ void L1RCTSaveInput::analyze(const edm::Event &event, const edm::EventSetup &eve
       for (unsigned short irank = 0; irank < L1CaloEcalScale::nBinRank; ++irank) {
         std::cout << ieta << " " << irank;
         EcalSubdetector subdet = (ieta <= 17) ? EcalBarrel : EcalEndcap;
-        double etGeVPos = e_tpg->getTPGInGeV(irank,
-                                             EcalTrigTowerDetId(1,  // +ve eta
-                                                                subdet,
-                                                                ieta,
-                                                                1));  // dummy phi value
+        double etGeVPos = e_tpg.getTPGInGeV(irank,
+                                            EcalTrigTowerDetId(1,  // +ve eta
+                                                               subdet,
+                                                               ieta,
+                                                               1));  // dummy phi value
         ecalScale->setBin(irank, ieta, 1, etGeVPos);
         std::cout << etGeVPos << ", ";
       }
@@ -117,11 +117,11 @@ void L1RCTSaveInput::analyze(const edm::Event &event, const edm::EventSetup &eve
         EcalSubdetector subdet = (ieta <= 17) ? EcalBarrel : EcalEndcap;
 
         std::cout << ieta << " " << irank;
-        double etGeVNeg = e_tpg->getTPGInGeV(irank,
-                                             EcalTrigTowerDetId(-1,  // -ve eta
-                                                                subdet,
-                                                                ieta,
-                                                                2));  // dummy phi value
+        double etGeVNeg = e_tpg.getTPGInGeV(irank,
+                                            EcalTrigTowerDetId(-1,  // -ve eta
+                                                               subdet,
+                                                               ieta,
+                                                               2));  // dummy phi value
         ecalScale->setBin(irank, ieta, -1, etGeVNeg);
         std::cout << etGeVNeg << ", ";
       }
@@ -146,8 +146,6 @@ void L1RCTSaveInput::analyze(const edm::Event &event, const edm::EventSetup &eve
     // set the input scales
     rctLookupTables->setEcalScale(ecalScale);
     rctLookupTables->setHcalScale(hcalScale);
-
-    delete e_tpg;
 
   } else {
     edm::ESHandle<L1CaloHcalScale> hcalScale;

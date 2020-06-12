@@ -73,8 +73,8 @@ void L1CaloInputScaleTester::analyze(const edm::Event& iEvent, const edm::EventS
   iSetup.get<L1CaloHcalScaleRcd>().get(caloHcalScale);
   iSetup.get<CaloTPGRecord>().get(caloTPGTranscoder);
 
-  EcalTPGScale* ecalTPGScale = new EcalTPGScale();
-  ecalTPGScale->setEventSetup(iSetup);
+  EcalTPGScale ecalTPGScale;
+  ecalTPGScale.setEventSetup(iSetup);
 
   bool ecalIsConsistent = true;
   bool hcalIsConsistent = true;
@@ -93,7 +93,7 @@ void L1CaloInputScaleTester::analyze(const edm::Event& iEvent, const edm::EventS
     // loop over ietas, barrel first
     for (unsigned short absIeta = 1; absIeta <= 17; absIeta++) {
       // positive eta
-      ecal1 = ecalTPGScale->getTPGInGeV((unsigned int)input, EcalTrigTowerDetId(1, EcalBarrel, absIeta, 1));
+      ecal1 = ecalTPGScale.getTPGInGeV((unsigned int)input, EcalTrigTowerDetId(1, EcalBarrel, absIeta, 1));
       ecal2 = caloEcalScale->et(input, absIeta, 1);
 
       if (!(ecal1 == ecal2)) {
@@ -106,7 +106,7 @@ void L1CaloInputScaleTester::analyze(const edm::Event& iEvent, const edm::EventS
       }
 
       // negative eta
-      ecal1 = ecalTPGScale->getTPGInGeV((unsigned int)input, EcalTrigTowerDetId(-1, EcalBarrel, absIeta, 2));
+      ecal1 = ecalTPGScale.getTPGInGeV((unsigned int)input, EcalTrigTowerDetId(-1, EcalBarrel, absIeta, 2));
       ecal2 = caloEcalScale->et(input, absIeta, -1);
 
       if (!(ecal1 == ecal2)) {
@@ -121,7 +121,7 @@ void L1CaloInputScaleTester::analyze(const edm::Event& iEvent, const edm::EventS
     // now loop over endcap ietas
     for (unsigned short absIeta = 18; absIeta <= 28; absIeta++) {
       // positive eta
-      ecal1 = ecalTPGScale->getTPGInGeV((unsigned int)input, EcalTrigTowerDetId(1, EcalEndcap, absIeta, 1));
+      ecal1 = ecalTPGScale.getTPGInGeV((unsigned int)input, EcalTrigTowerDetId(1, EcalEndcap, absIeta, 1));
       ecal2 = caloEcalScale->et(input, absIeta, 1);
 
       if (!(ecal1 == ecal2)) {
@@ -134,7 +134,7 @@ void L1CaloInputScaleTester::analyze(const edm::Event& iEvent, const edm::EventS
       }
 
       // negative eta
-      ecal1 = ecalTPGScale->getTPGInGeV((unsigned int)input, EcalTrigTowerDetId(-1, EcalEndcap, absIeta, 2));
+      ecal1 = ecalTPGScale.getTPGInGeV((unsigned int)input, EcalTrigTowerDetId(-1, EcalEndcap, absIeta, 2));
       ecal2 = caloEcalScale->et(input, absIeta, -1);
 
       if (!(ecal1 == ecal2)) {
