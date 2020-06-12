@@ -498,7 +498,8 @@ namespace evf {
                                                           std::string& nextFile,
                                                           uint32_t& fsize,
                                                           uint16_t& rawHeaderSize,
-                                                          uint64_t& lockWaitTime) {
+                                                          uint64_t& lockWaitTime,
+                                                          bool& setExceptionState) {
     EvFDaqDirector::FileStatus fileStatus = noFile;
     rawHeaderSize = 0;
 
@@ -609,7 +610,7 @@ namespace evf {
           ls++;
         else {
           // try to bump (look for new index or EoLS file)
-          bumpedOk = bumpFile(readLs, readIndex, nextFile, fsize, rawHeaderSize, stopFileLS);
+          bumpedOk = bumpFile(readLs, readIndex, nextFile, fsize, rawHeaderSize, stopFileLS, setExceptionState);
           //avoid 2 lumisections jump
           if (ls && readLs > currentLs && currentLs > ls) {
             ls++;
@@ -643,8 +644,10 @@ namespace evf {
             fileStatus = newFile;
             LogDebug("EvFDaqDirector") << "Written to file -: " << readLs << ":" << readIndex + 1;
           } else {
-            throw cms::Exception("EvFDaqDirector")
+            edm::LogError("EvFDaqDirector")
                 << "seek on fu read/write lock for updating failed with error " << strerror(errno);
+            setExceptionState = true;
+            return noFile; 
           }
         } else if (currentLs < readLs) {
           //there is no new file in next LS (yet), but lock file can be updated to the next LS
@@ -657,8 +660,10 @@ namespace evf {
             fsync(fu_readwritelock_fd2);
             LogDebug("EvFDaqDirector") << "Written to file -: " << readLs << ":" << readIndex;
           } else {
-            throw cms::Exception("EvFDaqDirector")
+            edm::LogError("EvFDaqDirector")
                 << "seek on fu read/write lock for updating failed with error " << strerror(errno);
+            setExceptionState = true;
+            return noFile; 
           }
         }
       } else {
@@ -766,7 +771,7 @@ namespace evf {
   }
 
   bool EvFDaqDirector::bumpFile(
-      unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize, uint16_t& rawHeaderSize, int maxLS) {
+      unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize, uint16_t& rawHeaderSize, int maxLS, bool& setExceptionState) {
     if (previousFileSize_ != 0) {
       if (!fms_) {
         fms_ = (FastMonitoringService*)(edm::Service<evf::MicroStateService>().operator->());
@@ -830,6 +835,7 @@ namespace evf {
             edm::LogError("EvFDaqDirector")
                 << "Potential miss of index file in LS -: " << ls << ". Missing " << nextFile << " because "
                 << indexFilesInLS - 1 << " is the highest index expected. Will not update fu.lock file";
+            setExceptionState = true;
             return false;
           }
         }
