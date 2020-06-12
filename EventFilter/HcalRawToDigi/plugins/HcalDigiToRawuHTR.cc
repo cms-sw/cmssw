@@ -285,7 +285,7 @@ void HcalDigiToRawuHTR::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.addUntracked<int>("Verbosity", 0);
   desc.add<int>("tdc1", 4);
   desc.add<int>("tdc2", 20);
-  desc.add<bool>("packHBTDC", true);
+  desc.add<bool>("packHBTDC", false);
   desc.add<std::string>("ElectronicsMap", "");
   desc.add<edm::InputTag>("QIE10", edm::InputTag("simHcalDigis", "HFQIE10DigiCollection"));
   desc.add<edm::InputTag>("QIE11", edm::InputTag("simHcalDigis", "HBHEQIE11DigiCollection"));
