@@ -62,7 +62,7 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
-  virtual void beginRun(edm::Run&, edm::EventSetup const&);
+  //virtual void beginRun(edm::Run&, edm::EventSetup const&);
 
   // ----------member data ---------------------------
 
@@ -370,7 +370,7 @@ void L1TkFastVertexProducer::beginJob() {}
 void L1TkFastVertexProducer::endJob() {}
 
 // ------------ method called when starting to processes a run  ------------
-void L1TkFastVertexProducer::beginRun(edm::Run& iRun, edm::EventSetup const& iSetup) {}
+//void L1TkFastVertexProducer::beginRun(edm::Run& iRun, edm::EventSetup const& iSetup) {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void L1TkFastVertexProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
