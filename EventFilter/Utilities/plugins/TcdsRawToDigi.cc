@@ -71,9 +71,15 @@ void TcdsRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   TCDSRecord tcdsRecord;
   if (rawdata.isValid()) {
-    const FEDRawData& tcdsData = rawdata->FEDData(FEDNumbering::MINTCDSuTCAFEDID);
-    if (tcdsData.size() > 0) {
-      tcdsRecord = TCDSRecord(tcdsData.data());
+    uint16_t selectedId = 0;
+    for (uint16_t fedId = FEDNumbering::MINTCDSuTCAFEDID; fedId <= FEDNumbering::MINTCDSuTCAFEDID; fedId++) {
+      const FEDRawData& tcdsData = rawdata->FEDData(fedId);
+      if (tcdsData.size() > 0) {
+        if (selectedId)
+          throw cms::Exception("TcdsRawToDigi::produce") << "Second TCDS FED ID " << fedId << " found. First ID: " << selectedId;
+        tcdsRecord = TCDSRecord(tcdsData.data());
+        selectedId = fedId;
+      }
     }
   }
   iEvent.put(std::make_unique<TCDSRecord>(tcdsRecord), "tcdsRecord");

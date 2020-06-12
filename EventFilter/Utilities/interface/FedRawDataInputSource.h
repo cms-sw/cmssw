@@ -92,6 +92,7 @@ private:
   const bool alwaysStartFromFirstLS_;
   const bool verifyChecksum_;
   const bool useL1EventID_;
+  const std::vector<unsigned int> testTCDSFEDRange_;
   std::vector<std::string> fileNames_;
   bool useFileBroker_;
   //std::vector<std::string> fileNamesSorted_;
