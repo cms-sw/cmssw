@@ -12,6 +12,14 @@ public:
   static int32_t tileLayer(const int32_t& index);
   static int32_t tileRing(const int32_t& index);
   static int32_t tilePhi(const int32_t& index);
+
+private:
+  static constexpr int32_t kHGCalLayerOffset = 18;
+  static constexpr int32_t kHGCalLayerMask = 0x1F;
+  static constexpr int32_t kHGCalPhiOffset = 0;
+  static constexpr int32_t kHGCalPhiMask = 0x1FF;
+  static constexpr int32_t kHGCalRingOffset = 9;
+  static constexpr int32_t kHGCalRingMask = 0x1FF;
 };
 
 #endif
