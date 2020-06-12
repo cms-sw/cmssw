@@ -1,4 +1,12 @@
+Label '' IGNORING alignment labels ''.
+%MSG
 DTGeometryTest::analyze: 
+DDDetectorESProducer::Produce MUON
+
+
+
+
+
  Geometry node for DTGeom is valid
  I have 0 detTypes
  I have 2720 detUnits
@@ -3672,40 +3680,13 @@ MessageLogger Summary
 
  type     category        sev    module        subroutine        count    total
  ---- -------------------- -- ---------------- ----------------  -----    -----
-    1 DDFilteredView       -i DTGeometryTest:t                       1*       1
-    2 DTGeometryTest       -i DTGeometryTest:t                      17       17
-    3 EventSetupDependency -i AfterModConstruc                       3*       3
-    4 FwkReport            -i AfterSource                            1*       1
-    5 Geometry             -i (NoModuleName)   DTGeometryESProd      1*       1
-    6 Geometry             -i DTGeometryTest:t                       3*       3
-    7 Root_Information     -i DTGeometryTest:t TGeoManager::Che      2*       2
-    8 Root_Information     -i DTGeometryTest:t TGeoManager::Clo      4*       4
-    9 Root_Information     -i DTGeometryTest:t TGeoManager::Cou      1*       1
-   10 Root_Information     -i DTGeometryTest:t TGeoManager::Set      1*       1
-   11 Root_Information     -i DTGeometryTest:t TGeoManager::TGe      1*       1
-   12 Root_Information     -i DTGeometryTest:t TGeoManager::Vox      1*       1
-   13 Root_Information     -i DTGeometryTest:t TGeoNavigator::B      1*       1
 
 * Some occurrences of this message were suppressed in all logs, due to limits.
 
  type    category    Examples: run/evt        run/evt          run/evt
  ---- -------------------- ---------------- ---------------- ----------------
-    1 DDFilteredView       1/1                               
-    2 DTGeometryTest       1/1              1/1              1/1
-    3 EventSetupDependency pre-events       pre-events       pre-events
-    4 FwkReport            AfterSource                       
-    5 Geometry             pre-events                        
-    6 Geometry             1/1              1/1              1/1
-    7 Root_Information     1/1              1/1              
-    8 Root_Information     1/1              1/1              1/1
-    9 Root_Information     1/1                               
-   10 Root_Information     1/1                               
-   11 Root_Information     1/1                               
-   12 Root_Information     1/1                               
-   13 Root_Information     1/1                               
 
 Severity    # Occurrences   Total Occurrences
 --------    -------------   -----------------
-Info                   37                  37
 
 dropped waiting message count 0
