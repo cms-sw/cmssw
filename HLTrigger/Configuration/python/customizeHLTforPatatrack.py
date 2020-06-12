@@ -288,7 +288,6 @@ def customise_gpu_pixel(process):
 
 
 # customisation for offloading the ECAL local reconstruction to GPUs
-# TODO find automatically the list of Sequences to be updated
 def customise_gpu_ecal(process):
 
     # FIXME replace the Sequences with empty ones to avoid exanding them during the (re)definition of Modules and EDAliases
@@ -335,16 +334,16 @@ def customise_gpu_ecal(process):
             646, 647, 648, 649, 650,
             651, 652, 653, 654
         ),
-        digisLabelEB = cms.string('ebDigis'),
-        digisLabelEE = cms.string('eeDigis'),
+        digisLabelEB = cms.string("ebDigis"),
+        digisLabelEE = cms.string("eeDigis"),
         maxChannels = cms.uint32(20000)
     )
 
     process.hltEcalDigis = cms.EDProducer("EcalCPUDigisProducer",
         digisInLabelEB = cms.InputTag("hltEcalDigisGPU", "ebDigis"),
         digisInLabelEE = cms.InputTag("hltEcalDigisGPU", "eeDigis"),
-        digisOutLabelEB = cms.string('ebDigis'),
-        digisOutLabelEE = cms.string('eeDigis'),
+        digisOutLabelEB = cms.string("ebDigis"),
+        digisOutLabelEE = cms.string("eeDigis"),
         produceDummyIntegrityCollections = cms.bool(True)
     )
 
@@ -384,8 +383,8 @@ def customise_gpu_ecal(process):
         containsTimingInformation = cms.bool(False),
         recHitsInLabelEB = cms.InputTag("hltEcalUncalibRecHitGPU", "EcalUncalibRecHitsEB"),
         recHitsInLabelEE = cms.InputTag("hltEcalUncalibRecHitGPU", "EcalUncalibRecHitsEE"),
-        recHitsOutLabelEB = cms.string('EcalUncalibRecHitsEB'),
-        recHitsOutLabelEE = cms.string('EcalUncalibRecHitsEE')
+        recHitsOutLabelEB = cms.string("EcalUncalibRecHitsEB"),
+        recHitsOutLabelEE = cms.string("EcalUncalibRecHitsEE")
     )
 
     process.hltEcalUncalibRecHit = cms.EDProducer("EcalUncalibRecHitConvertGPU2CPUFormat",
@@ -402,27 +401,27 @@ def customise_gpu_ecal(process):
         recHitsLabelEE = cms.string("EcalRecHitsEE"),
         maxNumberHits = cms.uint32(20000),
         ChannelStatusToBeExcluded = cms.vstring(
-            'kDAC',
-            'kNoisy',
-            'kNNoisy',
-            'kFixedG6',
-            'kFixedG1',
-            'kFixedG0',
-            'kNonRespondingIsolated',
-            'kDeadVFE',
-            'kDeadFE',
-            'kNoDataNoTP'),
+            "kDAC",
+            "kNoisy",
+            "kNNoisy",
+            "kFixedG6",
+            "kFixedG1",
+            "kFixedG0",
+            "kNonRespondingIsolated",
+            "kDeadVFE",
+            "kDeadFE",
+            "kNoDataNoTP"),
         killDeadChannels = cms.bool(True),
         EBLaserMIN = cms.double(0.01),
         EELaserMIN = cms.double(0.01),
         EBLaserMAX = cms.double(30.0),
         EELaserMAX = cms.double(30.0),
         flagsMapDBReco = cms.PSet(
-            kGood = cms.vstring('kOk','kDAC','kNoLaser','kNoisy'),
-            kNoisy = cms.vstring('kNNoisy','kFixedG6','kFixedG1'),
-            kNeighboursRecovered = cms.vstring('kFixedG0', 'kNonRespondingIsolated', 'kDeadVFE'),
-            kTowerRecovered = cms.vstring('kDeadFE'),
-            kDead = cms.vstring('kNoDataNoTP')
+            kGood = cms.vstring("kOk","kDAC","kNoLaser","kNoisy"),
+            kNoisy = cms.vstring("kNNoisy","kFixedG6","kFixedG1"),
+            kNeighboursRecovered = cms.vstring("kFixedG0", "kNonRespondingIsolated", "kDeadVFE"),
+            kTowerRecovered = cms.vstring("kDeadFE"),
+            kDead = cms.vstring("kNoDataNoTP")
         ),
         recoverEBIsolatedChannels = cms.bool(False),
         recoverEEIsolatedChannels = cms.bool(False),
@@ -432,19 +431,19 @@ def customise_gpu_ecal(process):
         recoverEEFE = cms.bool(True),
     )
 
-    process.hltEcalRecHitSoA = cms.EDProducer('EcalCPURecHitProducer',
-        recHitsInLabelEB = cms.InputTag('hltEcalRecHitGPU', 'EcalRecHitsEB'),
-        recHitsInLabelEE = cms.InputTag('hltEcalRecHitGPU', 'EcalRecHitsEE'),
-        recHitsOutLabelEB = cms.string('EcalRecHitsEB'),
-        recHitsOutLabelEE = cms.string('EcalRecHitsEE'),
+    process.hltEcalRecHitSoA = cms.EDProducer("EcalCPURecHitProducer",
+        recHitsInLabelEB = cms.InputTag("hltEcalRecHitGPU", "EcalRecHitsEB"),
+        recHitsInLabelEE = cms.InputTag("hltEcalRecHitGPU", "EcalRecHitsEE"),
+        recHitsOutLabelEB = cms.string("EcalRecHitsEB"),
+        recHitsOutLabelEE = cms.string("EcalRecHitsEE"),
         containsTimingInformation = cms.bool(False),
     )
 
-    process.hltEcalRecHit = cms.EDProducer('EcalRecHitConvertGPU2CPUFormat',
-        recHitsLabelGPUEB = cms.InputTag('hltEcalRecHitSoA', 'EcalRecHitsEB'),
-        recHitsLabelGPUEE = cms.InputTag('hltEcalRecHitSoA', 'EcalRecHitsEE'),
-        recHitsLabelCPUEB = cms.string('EcalRecHitsEB'),
-        recHitsLabelCPUEE = cms.string('EcalRecHitsEE'),
+    process.hltEcalRecHit = cms.EDProducer("EcalRecHitConvertGPU2CPUFormat",
+        recHitsLabelGPUEB = cms.InputTag("hltEcalRecHitSoA", "EcalRecHitsEB"),
+        recHitsLabelGPUEE = cms.InputTag("hltEcalRecHitSoA", "EcalRecHitsEE"),
+        recHitsLabelCPUEB = cms.string("EcalRecHitsEB"),
+        recHitsLabelCPUEE = cms.string("EcalRecHitsEE"),
     )
 
 
@@ -453,7 +452,7 @@ def customise_gpu_ecal(process):
     process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence = cms.Sequence(
         process.hltEcalDigisGPU                             # unpack ECAL digis on gpu
       + process.hltEcalDigis                                # copy to host and convert to legacy format
-      + process.hltEcalUncalibRecHitGPU                     # run ECAL local reconstruction and multifit on Ggpu
+      + process.hltEcalUncalibRecHitGPU                     # run ECAL local reconstruction and multifit on gpu
       + process.hltEcalUncalibRecHitSoA                     # needed by hltEcalPhiSymFilter - copy to host
       + process.hltEcalUncalibRecHit                        # needed by hltEcalPhiSymFilter - convert to legacy format
       + process.hltEcalRecHitGPU                            # make ECAL calibrated rechits on gpu
@@ -466,6 +465,94 @@ def customise_gpu_ecal(process):
       + process.hltEcalPreshowerRecHit)                     # build ECAL preshower rechits on the host
 
     process.HLTDoFullUnpackingEgammaEcalMFSequence = copy.copy(process.HLTDoFullUnpackingEgammaEcalSequence)
+
+
+    # done
+    return process
+
+# customisation for offloading the HCAL local reconstruction to GPUs
+def customise_gpu_hcal(process):
+
+    # FIXME replace the Sequences with empty ones to avoid exanding them during the (re)definition of Modules and EDAliases
+
+    process.HLTDoLocalHcalSequence = cms.Sequence()
+    process.HLTStoppedHSCPLocalHcalReco = cms.Sequence()
+
+
+    # Event Setup
+
+    process.load("EventFilter.HcalRawToDigi.hcalElectronicsMappingGPUESProducer_cfi")
+
+    process.load("RecoLocalCalo.HcalRecProducers.hcalGainsGPUESProducer_cfi")
+    process.load("RecoLocalCalo.HcalRecProducers.hcalGainWidthsGPUESProducer_cfi")
+    process.load("RecoLocalCalo.HcalRecProducers.hcalLUTCorrsGPUESProducer_cfi")
+    process.load("RecoLocalCalo.HcalRecProducers.hcalConvertedPedestalsGPUESProducer_cfi")
+    process.load("RecoLocalCalo.HcalRecProducers.hcalConvertedEffectivePedestalsGPUESProducer_cfi")
+    process.hcalConvertedEffectivePedestalsGPUESProducer.label0 = "withTopoEff"
+    process.load("RecoLocalCalo.HcalRecProducers.hcalConvertedPedestalWidthsGPUESProducer_cfi")
+    process.load("RecoLocalCalo.HcalRecProducers.hcalConvertedEffectivePedestalWidthsGPUESProducer_cfi")
+    process.hcalConvertedEffectivePedestalWidthsGPUESProducer.label0 = "withTopoEff"
+    process.hcalConvertedEffectivePedestalWidthsGPUESProducer.label1 = "withTopoEff"
+    process.load("RecoLocalCalo.HcalRecProducers.hcalQIECodersGPUESProducer_cfi")
+    process.load("RecoLocalCalo.HcalRecProducers.hcalRecoParamsWithPulseShapesGPUESProducer_cfi")
+    process.load("RecoLocalCalo.HcalRecProducers.hcalRespCorrsGPUESProducer_cfi")
+    process.load("RecoLocalCalo.HcalRecProducers.hcalTimeCorrsGPUESProducer_cfi")
+    process.load("RecoLocalCalo.HcalRecProducers.hcalQIETypesGPUESProducer_cfi")
+    process.load("RecoLocalCalo.HcalRecProducers.hcalSiPMParametersGPUESProducer_cfi")
+    process.load("RecoLocalCalo.HcalRecProducers.hcalSiPMCharacteristicsGPUESProducer_cfi")
+
+
+    # Modules and EDAliases
+
+    # The HCAL unpacker running on the gpu supports only the HB and HE digis.
+    # So, run the legacy unacker on the cpu, then convert the HB and HE digis
+    # to SoA format and copy them to the gpu.
+    process.hltHcalDigisGPU = cms.EDProducer("HcalDigisProducerGPU",
+        hbheDigisLabel = cms.InputTag("hltHcalDigis"),
+        qie11DigiLabel = cms.InputTag("hltHcalDigis"),
+        digisLabelF01HE = cms.string(""),
+        digisLabelF5HB = cms.string(""),
+        digisLabelF3HB = cms.string(""),
+        maxChannelsF01HE = cms.uint32(10000),
+        maxChannelsF5HB = cms.uint32(10000),
+        maxChannelsF3HB = cms.uint32(10000),
+        nsamplesF01HE = cms.uint32(8),
+        nsamplesF5HB = cms.uint32(8),
+        nsamplesF3HB = cms.uint32(8)
+    )
+
+    from RecoLocalCalo.HcalRecProducers.hbheRecHitProducerGPU_cfi import hbheRecHitProducerGPU as _hbheRecHitProducerGPU
+    process.hltHbherecoGPU = _hbheRecHitProducerGPU.clone(
+        digisLabelF01HE = "hltHcalDigisGPU",
+        digisLabelF5HB = "hltHcalDigisGPU",
+        digisLabelF3HB = "hltHcalDigisGPU",
+        recHitsLabelM0HBHE = ""
+    )
+
+    from RecoLocalCalo.HcalRecProducers.hcalCPURecHitsProducer_cfi import hcalCPURecHitsProducer as _hcalCPURecHitsProducer
+    process.hltHbhereco = _hcalCPURecHitsProducer.clone(
+        recHitsM0LabelIn = "hltHbherecoGPU",
+        recHitsM0LabelOut = "",
+        recHitsLegacyLabelOut = ""
+    )
+
+
+    # Sequences
+
+    process.HLTDoLocalHcalSequence = cms.Sequence(
+          process.hltHcalDigis                              # legacy producer, unpack HCAL digis on cpu
+        + process.hltHcalDigisGPU                           # copy to gpu and convert to SoA format
+        + process.hltHbherecoGPU                            # run HCAL local reconstruction (Method 0 and MAHI) on gpu
+        + process.hltHbhereco                               # copy to host and convert to legacy format
+        + process.hltHfprereco                              # legacy producer
+        + process.hltHfreco                                 # legacy producer
+        + process.hltHoreco)                                # legacy producer
+
+    process.HLTStoppedHSCPLocalHcalReco = cms.Sequence(
+          process.hltHcalDigis                              # legacy producer, unpack HCAL digis on cpu
+        + process.hltHcalDigisGPU                           # copy to gpu and convert to SoA format
+        + process.hltHbherecoGPU                            # run HCAL local reconstruction (Method 0 and MAHI) on gpu
+        + process.hltHbhereco)                              # copy to host and convert to legacy format
 
 
     # done
@@ -484,5 +571,5 @@ def customise_for_Patatrack_on_gpu(process):
     process = customise_gpu_common(process)
     process = customise_gpu_pixel(process)
     process = customise_gpu_ecal(process)
+    process = customise_gpu_hcal(process)
     return process
-
