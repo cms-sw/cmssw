@@ -113,8 +113,8 @@ void L1RCTLutWriter::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
     const CaloTPGTranscoder *h_tpg = transcoder.product();
 
     // old version of ecal energy scale to convert input
-    EcalTPGScale *e_tpg = new EcalTPGScale();
-    e_tpg->setEventSetup(iSetup);
+    EcalTPGScale e_tpg;
+    e_tpg.setEventSetup(iSetup);
 
     L1CaloEcalScale *ecalScale = new L1CaloEcalScale();
     L1CaloHcalScale *hcalScale = new L1CaloHcalScale();
@@ -125,11 +125,11 @@ void L1RCTLutWriter::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
     for (unsigned short ieta = 1; ieta <= L1CaloEcalScale::nBinEta; ++ieta) {
       for (unsigned short irank = 0; irank < L1CaloEcalScale::nBinRank; ++irank) {
         EcalSubdetector subdet = (ieta <= 17) ? EcalBarrel : EcalEndcap;
-        double etGeVPos = e_tpg->getTPGInGeV(irank,
-                                             EcalTrigTowerDetId(1,  // +ve eta
-                                                                subdet,
-                                                                ieta,
-                                                                1));  // dummy phi value
+        double etGeVPos = e_tpg.getTPGInGeV(irank,
+                                            EcalTrigTowerDetId(1,  // +ve eta
+                                                               subdet,
+                                                               ieta,
+                                                               1));  // dummy phi value
         ecalScale->setBin(irank, ieta, 1, etGeVPos);
       }
     }
@@ -138,11 +138,11 @@ void L1RCTLutWriter::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
       for (unsigned short irank = 0; irank < L1CaloEcalScale::nBinRank; ++irank) {
         EcalSubdetector subdet = (ieta <= 17) ? EcalBarrel : EcalEndcap;
 
-        double etGeVNeg = e_tpg->getTPGInGeV(irank,
-                                             EcalTrigTowerDetId(-1,  // -ve eta
-                                                                subdet,
-                                                                ieta,
-                                                                2));  // dummy phi value
+        double etGeVNeg = e_tpg.getTPGInGeV(irank,
+                                            EcalTrigTowerDetId(-1,  // -ve eta
+                                                               subdet,
+                                                               ieta,
+                                                               2));  // dummy phi value
         ecalScale->setBin(irank, ieta, -1, etGeVNeg);
       }
     }
@@ -163,8 +163,6 @@ void L1RCTLutWriter::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
 
     dummyE = ecalScale;
     dummyH = hcalScale;
-
-    delete e_tpg;
 
   } else {
     // get energy scale to convert input from ECAL
