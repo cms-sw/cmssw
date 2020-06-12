@@ -65,7 +65,6 @@ bool DTuROSRawToDigi::fillRawData(edm::Event& e,
   e.getByToken(Raw_token, data);
 
   edm::ESHandle<DTReadOutMapping> mapping = c.getHandle(mapping_token_);
-  c.get<DTReadOutMappingRcd>().get(mapping);
 
   for (int w_i = 0; w_i < nfeds_; ++w_i) {
     DTuROSFEDData fwords;
