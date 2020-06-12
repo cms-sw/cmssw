@@ -108,7 +108,12 @@ namespace evf {
     void removeFile(unsigned int ls, unsigned int index);
     void removeFile(std::string);
 
-    FileStatus updateFuLock(unsigned int& ls, std::string& nextFile, uint32_t& fsize, uint16_t& rawHeaderSize, uint64_t& lockWaitTime, bool& setExceptionState);
+    FileStatus updateFuLock(unsigned int& ls,
+                            std::string& nextFile,
+                            uint32_t& fsize,
+                            uint16_t& rawHeaderSize,
+                            uint64_t& lockWaitTime,
+                            bool& setExceptionState);
     void tryInitializeFuLockFile();
     unsigned int getRunNumber() const { return run_; }
     void lockInitLock();
@@ -179,7 +184,13 @@ namespace evf {
     static struct flock make_flock(short type, short whence, off_t start, off_t len, pid_t pid);
 
   private:
-    bool bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize, uint16_t& rawHeaderSize, int maxLS, bool& setExceptionState);
+    bool bumpFile(unsigned int& ls,
+                  unsigned int& index,
+                  std::string& nextFile,
+                  uint32_t& fsize,
+                  uint16_t& rawHeaderSize,
+                  int maxLS,
+                  bool& setExceptionState);
     void openFULockfileStream(bool create);
     std::string inputFileNameStem(const unsigned int ls, const unsigned int index) const;
     std::string outputFileNameStem(const unsigned int ls, std::string const& stream) const;
