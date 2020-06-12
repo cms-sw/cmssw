@@ -40,8 +40,8 @@ HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf)
 
   // ES tokens
   if (tsFromDB_) {
-    htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
-    paramsToken_ = esConsumes<HcalRecoParams, HcalRecoParamsRcd>();
+    htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+    paramsToken_ = esConsumes<HcalRecoParams, HcalRecoParamsRcd, edm::Transition::BeginRun>();
   }
   conditionsToken_ = esConsumes<HcalDbService, HcalDbRecord>();
 }

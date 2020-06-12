@@ -58,8 +58,8 @@ ZdcHitReconstructor::ZdcHitReconstructor(edm::ParameterSet const& conf)
   }
 
   // ES tokens
-  htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
-  paramsToken_ = esConsumes<HcalLongRecoParams, HcalLongRecoParamsRcd>();
+  htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+  paramsToken_ = esConsumes<HcalLongRecoParams, HcalLongRecoParamsRcd, edm::Transition::BeginRun>();
   conditionsToken_ = esConsumes<HcalDbService, HcalDbRecord>();
   qualToken_ = esConsumes<HcalChannelQuality, HcalChannelQualityRcd>(edm::ESInputTag("", "withTopo"));
   sevToken_ = esConsumes<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd>();

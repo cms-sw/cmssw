@@ -38,8 +38,8 @@ ZdcSimpleReconstructor::ZdcSimpleReconstructor(edm::ParameterSet const& conf)
   hcalTimeSlew_delay_ = nullptr;
 
   // ES tokens
-  htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
-  paramsToken_ = esConsumes<HcalLongRecoParams, HcalLongRecoParamsRcd>();
+  htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+  paramsToken_ = esConsumes<HcalLongRecoParams, HcalLongRecoParamsRcd, edm::Transition::BeginRun>();
   conditionsToken_ = esConsumes<HcalDbService, HcalDbRecord>();
   timeSlewToken_ = esConsumes<HcalTimeSlew, HcalTimeSlewRecord>(edm::ESInputTag("", "HBHE"));
 }
@@ -53,7 +53,6 @@ void ZdcSimpleReconstructor::beginRun(edm::Run const& r, edm::EventSetup const& 
   longRecoParams_->setTopo(&htopo);
 
   hcalTimeSlew_delay_ = &es.getData(timeSlewToken_);
-  ;
 }
 
 void ZdcSimpleReconstructor::endRun(edm::Run const& r, edm::EventSetup const& es) {}

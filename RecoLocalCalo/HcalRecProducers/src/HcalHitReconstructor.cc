@@ -160,11 +160,11 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf)
     setPileupCorrection_ = nullptr;
 
   // ES tokens
-  htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
+  htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
   if (tsFromDB_ || recoParamsFromDB_)
-    paramsToken_ = esConsumes<HcalRecoParams, HcalRecoParamsRcd>();
+    paramsToken_ = esConsumes<HcalRecoParams, HcalRecoParamsRcd, edm::Transition::BeginRun>();
   if (digiTimeFromDB_)
-    digiTimeToken_ = esConsumes<HcalFlagHFDigiTimeParams, HcalFlagHFDigiTimeParamsRcd>();
+    digiTimeToken_ = esConsumes<HcalFlagHFDigiTimeParams, HcalFlagHFDigiTimeParamsRcd, edm::Transition::BeginRun>();
   conditionsToken_ = esConsumes<HcalDbService, HcalDbRecord>();
   qualToken_ = esConsumes<HcalChannelQuality, HcalChannelQualityRcd>(edm::ESInputTag("", "withTopo"));
   sevToken_ = esConsumes<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd>();
