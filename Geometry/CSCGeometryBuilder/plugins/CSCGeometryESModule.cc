@@ -4,24 +4,22 @@
 //  Description: CSC ESModule for DD4hep
 //              
 //
-// \author Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
+// \author Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osborne made for DTs (DD4HEP migration)
 //         Created:  Thu, 05 March 2020 
-//   
+//         Modified: Thu, 04 June 2020, following what made in PR #30047               
+//
 //         Original author: Tim Cox
 */
 #include "CSCGeometryESModule.h"
 #include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
 #include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilder.h"
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
-
 #include "Geometry/CommonTopologies/interface/GeometryAligner.h"
-
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
+#include "Geometry/Records/interface/MuonNumberingRecord.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
-
 #include <memory>
-
-#include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
 
 using namespace edm;
 
@@ -63,12 +61,11 @@ CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet& p)
 
   // Find out if using the DDD or CondDB Geometry source.
   useDDD_ = p.getParameter<bool>("useDDD");
+
   if (useDDD_) {
-    cpvToken_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag{});
-    mdcToken_ = cc.consumesFrom<MuonGeometryConstants, IdealGeometryRecord>(edm::ESInputTag{});
+    cc.setConsumes(cpvToken_).setConsumes(mdcToken_);
   } else if (useDD4hep_) {
-    cpvTokendd4hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag{});
-    mdcTokendd4hep_ = cc.consumesFrom<cms::MuonNumbering, MuonNumberingRecord>(edm::ESInputTag{});
+    cc.setConsumes(cpvTokendd4hep_).setConsumes(mdcToken_);
   } else {
     rigToken_ = cc.consumesFrom<RecoIdealGeometry, CSCRecoGeometryRcd>(edm::ESInputTag{});
     rdpToken_ = cc.consumesFrom<CSCRecoDigiParameters, CSCRecoDigiParametersRcd>(edm::ESInputTag{});
@@ -122,7 +119,7 @@ std::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryReco
 
 void CSCGeometryESModule::initCSCGeometry_(const MuonGeometryRecord& record, std::shared_ptr<HostType>& host) {
   if (useDDD_) {
-    host->ifRecordChanges<MuonNumberingRecord>(record, [&host, &record, this](auto const& rec) {
+    host->ifRecordChanges<IdealGeometryRecord>(record, [&host, &record, this](auto const& rec) {
       host->clear();
       edm::ESTransientHandle<DDCompactView> cpv = record.getTransientHandle(cpvToken_);
       const auto& mdc = rec.get(mdcToken_);
@@ -130,10 +127,10 @@ void CSCGeometryESModule::initCSCGeometry_(const MuonGeometryRecord& record, std
       builder.build(*host, cpv.product(), mdc);
     });
   } else if (useDD4hep_) {
-    host->ifRecordChanges<MuonNumberingRecord>(record, [&host, &record, this](auto const& rec) {
+    host->ifRecordChanges<IdealGeometryRecord>(record, [&host, &record, this](auto const& rec) {
       host->clear();
       edm::ESTransientHandle<cms::DDCompactView> cpv = record.getTransientHandle(cpvTokendd4hep_);
-      const auto& mdc = rec.get(mdcTokendd4hep_);
+      const auto& mdc = rec.get(mdcToken_);
       CSCGeometryBuilderFromDDD builder;
       builder.build(*host, cpv.product(), mdc);
     });
