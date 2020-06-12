@@ -297,7 +297,7 @@ float ElectronHEEPIDValueMapProducer::calTrkIso(
 
   float trkIso = 0.;
   for (auto const& tracks : preselectedTracks) {
-    trkIso += trkIsoCalc.calIsolPt(*ele.gsfTrack(), tracks);
+    trkIso += trkIsoCalc(*ele.gsfTrack(), tracks).ptSum;
   }
   return trkIso;
 }
