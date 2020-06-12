@@ -26,15 +26,6 @@ def generateGeom(detectorTuple, options):
     else:
         if not doTest: print("Detector "+str(detectorTuple)+" not found in dictionary, using "+("default" if options.detectorVersionManual==detectorVersionDefault else "provided")+" version number "+str(detectorVersion))
 
-    # check for deprecation
-    if detectorVersion in deprecatedDets:
-        print("Error: "+detectorVersion+" is deprecated and cannot be used.")
-        sys.exit(1)
-    for subdet in detectorTuple:
-        if subdet in deprecatedSubdets:
-            print("Error: "+subdet+" is deprecated and cannot be used.")
-            sys.exit(1)
-        
     # create output files
     xmlName = "cmsExtendedGeometry"+detectorVersion+"XML_cfi.py"
     simName = "GeometryExtended"+detectorVersion+"_cff.py"

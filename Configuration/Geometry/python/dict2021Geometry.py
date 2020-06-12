@@ -411,8 +411,5 @@ ctppsDict = {
 allDicts = [ commonDict, trackerDict, caloDict, muonDict, forwardDict, ctppsDict ]
 
 detectorVersionDict = {
-    ("O1","T1","C1","M1","F1") : "2021"
+    ("O1","T1","C1","M1","F1", "P1") : "2021",
  }
-
-deprecatedDets = set([])
-deprecatedSubdets = set([])
