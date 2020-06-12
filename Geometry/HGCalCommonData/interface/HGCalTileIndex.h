@@ -8,10 +8,10 @@ class HGCalTileIndex {
 public:
   HGCalTileIndex() {}
   ~HGCalTileIndex() {}
-  static int32_t tileIndex(const int32_t& layer, const int32_t& ring, const int32_t& phi);
-  static int32_t tileLayer(const int32_t& index);
-  static int32_t tileRing(const int32_t& index);
-  static int32_t tilePhi(const int32_t& index);
+  static int32_t tileIndex(int32_t layer, int32_t ring, int32_t phi);
+  static int32_t tileLayer(int32_t index);
+  static int32_t tileRing(int32_t index);
+  static int32_t tilePhi(int32_t index);
 
 private:
   static constexpr int32_t kHGCalLayerOffset = 18;
