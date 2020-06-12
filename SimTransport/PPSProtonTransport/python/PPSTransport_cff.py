@@ -25,6 +25,6 @@ from Configuration.Eras.Modifier_ctpps_2018_cff import ctpps_2018
 ctpps_2018.toReplaceWith(_LHCTransportPSet, _opticalfunctionsTransportSetup_2018.optics_parameters)
 
 from Configuration.Eras.Modifier_ctpps_2021_cff import ctpps_2021
-ctpps_2021.toReplaceWith(_LHCTransportPSet, _totemTransportSetup_2016)
+ctpps_2021.toReplaceWith(_LHCTransportPSet, _totemTransportSetup_2016) # there is no LHCInfo tag for Run3 yet, force to use a nonDB propagation
 
 LHCTransport = cms.EDProducer("PPSSimTrackProducer",_commonParameters,_LHCTransportPSet)
