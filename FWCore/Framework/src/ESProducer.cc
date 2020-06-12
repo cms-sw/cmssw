@@ -77,6 +77,9 @@ namespace edm {
           auto tagGetter = iProxyToIndices.makeTagGetter(chooser->recordKey(), chooser->productType());
           if (not tagGetter.hasNothingToGet()) {
             records.push_back(iProxyToIndices.recordIndexFor(chooser->recordKey()));
+          } else {
+            //The record is not actually missing but the proxy is
+            records.emplace_back(eventsetup::ESRecordsToProxyIndices::missingRecordIndex());
           }
           chooser->setTagGetter(std::move(tagGetter));
           items.push_back(eventsetup::ESRecordsToProxyIndices::missingProxyIndex());
