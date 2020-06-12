@@ -7,6 +7,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -60,7 +61,7 @@ private:
   edm::EDGetTokenT<CSCCLCTDigiCollection> cl_token;
   edm::EDGetTokenT<CSCCLCTPreTriggerCollection> pr_token;
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> co_token;
-
+  edm::ESGetToken<CSCChamberMap, CSCChamberMapRcd> cham_token;
   edm::EDPutTokenT<FEDRawDataCollection> put_token_;
 };
 
@@ -81,7 +82,7 @@ CSCDigiToRawModule::CSCDigiToRawModule(const edm::ParameterSet& pset) : packer_(
   al_token = consumes<CSCALCTDigiCollection>(pset.getParameter<edm::InputTag>("alctDigiTag"));
   cl_token = consumes<CSCCLCTDigiCollection>(pset.getParameter<edm::InputTag>("clctDigiTag"));
   co_token = consumes<CSCCorrelatedLCTDigiCollection>(pset.getParameter<edm::InputTag>("correlatedLCTDigiTag"));
-
+  cham_token = esConsumes<CSCChamberMap, CSCChamberMapRcd>();
   put_token_ = produces<FEDRawDataCollection>("CSCRawData");
 }
 
@@ -131,8 +132,7 @@ void CSCDigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions& descri
 
 void CSCDigiToRawModule::produce(edm::StreamID, edm::Event& e, const edm::EventSetup& c) const {
   ///reverse mapping for packer
-  edm::ESHandle<CSCChamberMap> hcham;
-  c.get<CSCChamberMapRcd>().get(hcham);
+  edm::ESHandle<CSCChamberMap> hcham = c.getHandle(cham_token);
   const CSCChamberMap* theMapping = hcham.product();
 
   FEDRawDataCollection fed_buffers;

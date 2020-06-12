@@ -1,9 +1,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include <EventFilter/CSCRawToDigi/interface/CSCDCCUnpacker.h>
+#include <EventFilter/CSCRawToDigi/plugins/CSCDCCUnpacker.h>
 #include <EventFilter/CSCRawToDigi/interface/DigiAnalyzer.h>
 #include <EventFilter/CSCRawToDigi/src/CSCDigiToPattern.h>
 #include <EventFilter/CSCRawToDigi/interface/CSCViewDigi.h>
-#include <EventFilter/CSCRawToDigi/interface/CSCDigiValidator.h>
+#include <EventFilter/CSCRawToDigi/plugins/CSCDigiValidator.h>
 
 DEFINE_FWK_MODULE(CSCDCCUnpacker);
 DEFINE_FWK_MODULE(DigiAnalyzer);
