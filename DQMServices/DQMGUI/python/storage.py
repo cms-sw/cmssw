@@ -209,10 +209,20 @@ class GUIDataStore:
         """
 
         sql = 'INSERT OR REPLACE INTO samples VALUES(?,?,?,?,?,NULL,NULL);'
-        async with cls.__lock:
-            await cls.__db.executemany(sql, samples)
-            await cls.__db.commit()
+        try:
+            await cls.__lock.acquire()
+            await cls.__db.execute('BEGIN;')
 
+            await cls.__db.executemany(sql, samples)
+            await cls.__db.execute('COMMIT;')
+        except Exception as e:
+            print(e)
+            try:
+                await cls.__db.execute('ROLLBACK;')
+            except:
+                pass
+        finally:
+            cls.__lock.release()
 
     @classmethod
     async def add_blobs(cls, names_blob, infos_blob, dataset, filename, run, lumi=0):
