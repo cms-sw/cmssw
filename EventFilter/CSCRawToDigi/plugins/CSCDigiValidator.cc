@@ -8,16 +8,12 @@
 #include <algorithm>
 #include <iostream>
 
-#include "EventFilter/CSCRawToDigi/interface/CSCDigiValidator.h"
+#include "EventFilter/CSCRawToDigi/plugins/CSCDigiValidator.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
-#include "CondFormats/DataRecord/interface/CSCChamberMapRcd.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
@@ -39,6 +35,7 @@ CSCDigiValidator::CSCDigiValidator(const edm::ParameterSet& iConfig) {
   tr2_token = consumes<L1CSCTrackCollection>(iConfig.getParameter<edm::InputTag>("repackCSCTF"));
   ts1_token = consumes<CSCTriggerContainer<csctf::TrackStub> >(iConfig.getParameter<edm::InputTag>("inputCSCTFStubs"));
   ts2_token = consumes<CSCTriggerContainer<csctf::TrackStub> >(iConfig.getParameter<edm::InputTag>("repackCSCTFStubs"));
+  cham_token = esConsumes<CSCChamberMap, CSCChamberMapRcd>();
 
   //  reorderStrips(iConfig.getUntrackedParameter<bool>("applyStripReordering",true))
 }
@@ -59,8 +56,7 @@ bool CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   typedef std::map<CSCDetId, std::pair<std::vector<CSCCorrelatedLCTDigi>, std::vector<CSCCorrelatedLCTDigi> > >
       matchingDetLCTCollection;
 
-  edm::ESHandle<CSCChamberMap> hcham;
-  iSetup.get<CSCChamberMapRcd>().get(hcham);
+  edm::ESHandle<CSCChamberMap> hcham = iSetup.getHandle(cham_token);
   const CSCChamberMap* theMapping = hcham.product();
 
   Handle<CSCWireDigiCollection> _wi, _swi;
