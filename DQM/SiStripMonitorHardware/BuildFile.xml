@@ -14,7 +14,6 @@
 <use name="CommonTools/UtilAlgos"/>
 <use name="EventFilter/SiStripRawToDigi"/>
 <use name="DQM/SiStripCommon"/>
-<use name="boost"/>
 <use name="CondFormats/DataRecord"/>
 <use name="DPGAnalysis/SiStripTools"/>
 <use name="CommonTools/TrackerMap"/>
