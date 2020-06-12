@@ -43,56 +43,6 @@
 
 class EleTkIsolFromCands {
 public:
-  explicit EleTkIsolFromCands(const edm::ParameterSet& para);
-  EleTkIsolFromCands(const EleTkIsolFromCands&) = default;
-  ~EleTkIsolFromCands() = default;
-  EleTkIsolFromCands& operator=(const EleTkIsolFromCands&) = default;
-
-  static edm::ParameterSetDescription pSetDescript();
-
-  enum class PIDVeto {
-    NONE = 0,
-    ELES,
-    NONELES,
-  };
-
-  static PIDVeto pidVetoFromStr(const std::string& vetoStr);
-
-  class SimpleTrack {
-  public:
-    SimpleTrack(reco::TrackBase const& trk) : pt{trk.pt()}, eta{trk.eta()}, phi{trk.phi()}, vz{trk.vz()} {}
-    const double pt;
-    const double eta;
-    const double phi;
-    const double vz;
-  };
-
-  // For each electron, we want to try out which tracks are in a cone around
-  // it. However, this will get expensive if there are many electrons and
-  // tracks (Phase II conditions). In particular, calling
-  // reco::TrackBase::eta() many times is costy because eta is not precomputed.
-  // To solve this, we first cache the tracks in a simpler data structure in
-  // which eta is already computed (SimpleTrack). Furthermore, the tracks are
-  // preselected by the cuts that can already be applied without considering
-  // the electron. Note that this has to be done twice, because the required
-  // preselection is different for barrel and endcap electrons.
-
-  struct PreselectedTracks {
-    const std::vector<SimpleTrack> withBarrelCuts;
-    const std::vector<SimpleTrack> withEndcapCuts;
-  };
-
-  PreselectedTracks preselectTracks(reco::TrackCollection const& tracks) const;
-  PreselectedTracks preselectTracks(pat::PackedCandidateCollection const& cands, PIDVeto = PIDVeto::NONE) const;
-
-  struct Output {
-    const int nTracks;
-    const double ptSum;
-  };
-
-  Output operator()(const reco::TrackBase& electronTrack, const PreselectedTracks& tracks) const;
-
-private:
   struct TrkCuts {
     float minPt;
     float minDR2;
@@ -108,12 +58,64 @@ private:
     static edm::ParameterSetDescription pSetDescript();
   };
 
+  struct Configuration {
+    explicit Configuration(const edm::ParameterSet& para)
+        : barrelCuts(para.getParameter<edm::ParameterSet>("barrelCuts")),
+          endcapCuts(para.getParameter<edm::ParameterSet>("endcapCuts")) {}
+    const TrkCuts barrelCuts;
+    const TrkCuts endcapCuts;
+  };
+
+  enum class PIDVeto {
+    NONE = 0,
+    ELES,
+    NONELES,
+  };
+
+  explicit EleTkIsolFromCands(Configuration const& cfg, reco::TrackCollection const& tracks)
+      : cfg_{cfg}, tracks_{&tracks} {}
+  explicit EleTkIsolFromCands(Configuration const& cfg,
+                              pat::PackedCandidateCollection const& cands,
+                              PIDVeto pidVeto = PIDVeto::NONE)
+      : cfg_{cfg}, cands_{&cands} {}
+
+  static edm::ParameterSetDescription pSetDescript();
+
+  static PIDVeto pidVetoFromStr(const std::string& vetoStr);
+
+  struct Output {
+    const int nTracks;
+    const double ptSum;
+  };
+
+  Output operator()(const reco::TrackBase& electronTrack);
+
+private:
+  // For each electron, we want to try out which tracks are in a cone around
+  // it. However, this will get expensive if there are many electrons and
+  // tracks (Phase II conditions). In particular, calling
+  // reco::TrackBase::eta() many times is costy because eta is not precomputed.
+  // To solve this, we first cache the tracks in a simpler data structure in
+  // which eta is already computed (SimpleTrack). Furthermore, the tracks are
+  // preselected by the cuts that can already be applied without considering
+  // the electron. Note that this has to be done twice, because the required
+  // preselection is different for barrel and endcap electrons.
+  //
+  class SimpleTrack {
+  public:
+    SimpleTrack(reco::TrackBase const& trk) : pt{trk.pt()}, eta{trk.eta()}, phi{trk.phi()}, vz{trk.vz()} {}
+    const double pt;
+    const double eta;
+    const double phi;
+    const double vz;
+  };
+
   static bool passPIDVeto(const int pdgId, const EleTkIsolFromCands::PIDVeto pidVeto);
 
-  static std::vector<SimpleTrack> preselectTracksWithCuts(reco::TrackCollection const& tracks, TrkCuts const& cuts);
-  static std::vector<SimpleTrack> preselectTracksWithCuts(pat::PackedCandidateCollection const& cands,
-                                                          TrkCuts const& cuts,
-                                                          PIDVeto = PIDVeto::NONE);
+  static std::vector<SimpleTrack> preselectTracks(reco::TrackCollection const& tracks, TrkCuts const& cuts);
+  static std::vector<SimpleTrack> preselectTracksFromCands(pat::PackedCandidateCollection const& cands,
+                                                           TrkCuts const& cuts,
+                                                           PIDVeto = PIDVeto::NONE);
 
   static bool passTrackPreselection(const reco::TrackBase& trk, const TrkCuts& cuts);
   static bool passMatchingToElectron(
@@ -122,7 +124,18 @@ private:
   static bool passQual(const reco::TrackBase& trk, const std::vector<reco::TrackBase::TrackQuality>& quals);
   static bool passAlgo(const reco::TrackBase& trk, const std::vector<reco::TrackBase::TrackAlgorithm>& algosToRej);
 
-  TrkCuts barrelCuts_, endcapCuts_;
+  std::vector<SimpleTrack> const& getPreselectedTracks(bool isBarrel);
+
+  Configuration const& cfg_;
+
+  // All of these member variables are related to the caching of preselected tracks
+  reco::TrackCollection const* tracks_ = nullptr;
+  pat::PackedCandidateCollection const* cands_ = nullptr;
+  const PIDVeto pidVeto_ = PIDVeto::NONE;
+  std::vector<SimpleTrack> preselectedTracksWithBarrelCuts_;
+  std::vector<SimpleTrack> preselectedTracksWithEndcapCuts_;
+  bool tracksCachedForBarrelCuts_ = false;
+  bool tracksCachedForEndcapCuts_ = false;
 };
 
 #endif

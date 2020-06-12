@@ -26,8 +26,9 @@
 #include <memory>
 #include <vector>
 
-//Heavily inspired from ElectronIDValueMapProducer
+using IsolationCalculators = std::vector<std::unique_ptr<EleTkIsolFromCands>>;
 
+//Heavily inspired from ElectronIDValueMapProducer
 class ElectronHEEPIDValueMapProducer : public edm::stream::EDProducer<> {
 private:
   //helper classes to handle AOD vs MiniAOD
@@ -61,7 +62,7 @@ private:
 
   template <typename T>
   static void writeValueMap(edm::Event& iEvent,
-                            const edm::Handle<edm::View<reco::GsfElectron> >& handle,
+                            const edm::Handle<edm::View<reco::GsfElectron>>& handle,
                             const std::vector<T>& values,
                             const std::string& label);
 
@@ -70,9 +71,7 @@ private:
                                   edm::Handle<EcalRecHitCollection>& eeHits,
                                   edm::ESHandle<CaloTopology>& caloTopo);
 
-  static float calTrkIso(const reco::GsfElectron& ele,
-                         std::vector<EleTkIsolFromCands::PreselectedTracks> const& preselectedTracks,
-                         const EleTkIsolFromCands& trkIsoCalc);
+  static float calTrkIso(const reco::GsfElectron& ele, IsolationCalculators const& isolationCalculators);
 
   template <typename T>
   void setToken(edm::EDGetTokenT<T>& token, edm::InputTag tag) {
@@ -83,8 +82,8 @@ private:
     token = consumes<T>(iPara.getParameter<edm::InputTag>(tag));
   }
   template <typename T>
-  void setToken(std::vector<edm::EDGetTokenT<T> >& tokens, const edm::ParameterSet& iPara, const std::string& tagName) {
-    auto tags = iPara.getParameter<std::vector<edm::InputTag> >(tagName);
+  void setToken(std::vector<edm::EDGetTokenT<T>>& tokens, const edm::ParameterSet& iPara, const std::string& tagName) {
+    auto tags = iPara.getParameter<std::vector<edm::InputTag>>(tagName);
     for (auto& tag : tags) {
       edm::EDGetTokenT<T> token;
       setToken(token, tag);
@@ -103,13 +102,13 @@ private:
       token.miniAOD = consumes<T>(iPara.getParameter<edm::InputTag>(tagMiniAOD));
   }
   template <typename T>
-  void setToken(std::vector<DualToken<T> >& tokens,
+  void setToken(std::vector<DualToken<T>>& tokens,
                 const edm::ParameterSet& iPara,
                 const std::string& tagAOD,
                 const std::string& tagMiniAOD,
                 DataFormat format) {
-    auto tagsAOD = iPara.getParameter<std::vector<edm::InputTag> >(tagAOD);
-    auto tagsMiniAOD = iPara.getParameter<std::vector<edm::InputTag> >(tagMiniAOD);
+    auto tagsAOD = iPara.getParameter<std::vector<edm::InputTag>>(tagAOD);
+    auto tagsMiniAOD = iPara.getParameter<std::vector<edm::InputTag>>(tagMiniAOD);
     size_t maxSize = std::max(tagsAOD.size(), tagsMiniAOD.size());
     tokens.clear();
     tokens.resize(maxSize);
@@ -142,8 +141,8 @@ private:
   }
 
   template <typename T>
-  static std::vector<edm::Handle<T> > getHandles(const edm::Event& iEvent, const std::vector<DualToken<T> >& tokens) {
-    std::vector<edm::Handle<T> > handles(tokens.size());
+  static std::vector<edm::Handle<T>> getHandles(const edm::Event& iEvent, const std::vector<DualToken<T>>& tokens) {
+    std::vector<edm::Handle<T>> handles(tokens.size());
     if (tokens.empty())
       return handles;
     if (!tokens[0].aod.isUninitialized())
@@ -173,12 +172,12 @@ private:
 
   DualToken<EcalRecHitCollection> ebRecHitToken_;
   DualToken<EcalRecHitCollection> eeRecHitToken_;
-  DualToken<edm::View<reco::GsfElectron> > eleToken_;
-  std::vector<DualToken<pat::PackedCandidateCollection> > candTokens_;
+  DualToken<edm::View<reco::GsfElectron>> eleToken_;
+  std::vector<DualToken<pat::PackedCandidateCollection>> candTokens_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
 
-  EleTkIsolFromCands trkIsoCalc_;
-  EleTkIsolFromCands trkIso04Calc_;
+  EleTkIsolFromCands::Configuration trkIsoCalcCfg_;
+  EleTkIsolFromCands::Configuration trkIso04CalcCfg_;
   bool makeTrkIso04_;
   DataFormat dataFormat_;
   std::vector<EleTkIsolFromCands::PIDVeto> candVetosAOD_;
@@ -194,8 +193,8 @@ const std::string ElectronHEEPIDValueMapProducer::eleTrkPtIso04Label_ = "eleTrkP
 const std::string ElectronHEEPIDValueMapProducer::eleNrSaturateIn5x5Label_ = "eleNrSaturateIn5x5";
 
 ElectronHEEPIDValueMapProducer::ElectronHEEPIDValueMapProducer(const edm::ParameterSet& iConfig)
-    : trkIsoCalc_(iConfig.getParameter<edm::ParameterSet>("trkIsoConfig")),
-      trkIso04Calc_(iConfig.getParameter<edm::ParameterSet>("trkIso04Config")),
+    : trkIsoCalcCfg_(iConfig.getParameter<edm::ParameterSet>("trkIsoConfig")),
+      trkIso04CalcCfg_(iConfig.getParameter<edm::ParameterSet>("trkIso04Config")),
       makeTrkIso04_(iConfig.getParameter<bool>("makeTrkIso04")),
       dataFormat_(iConfig.getParameter<int>("dataFormat")) {
   setToken(ebRecHitToken_, iConfig, "ebRecHitsAOD", "ebRecHitsMiniAOD", dataFormat_);
@@ -208,21 +207,21 @@ ElectronHEEPIDValueMapProducer::ElectronHEEPIDValueMapProducer(const edm::Parame
     std::transform(in.begin(), in.end(), std::back_inserter(out), EleTkIsolFromCands::pidVetoFromStr);
   };
 
-  fillVetos(iConfig.getParameter<std::vector<std::string> >("candVetosAOD"), candVetosAOD_);
-  if (candVetosAOD_.size() != iConfig.getParameter<std::vector<edm::InputTag> >("candsAOD").size()) {
+  fillVetos(iConfig.getParameter<std::vector<std::string>>("candVetosAOD"), candVetosAOD_);
+  if (candVetosAOD_.size() != iConfig.getParameter<std::vector<edm::InputTag>>("candsAOD").size()) {
     throw cms::Exception("ConfigError") << " Error candVetosAOD should be the same size as candsAOD " << std::endl;
   }
 
-  fillVetos(iConfig.getParameter<std::vector<std::string> >("candVetosMiniAOD"), candVetosMiniAOD_);
-  if (candVetosMiniAOD_.size() != iConfig.getParameter<std::vector<edm::InputTag> >("candsMiniAOD").size()) {
+  fillVetos(iConfig.getParameter<std::vector<std::string>>("candVetosMiniAOD"), candVetosMiniAOD_);
+  if (candVetosMiniAOD_.size() != iConfig.getParameter<std::vector<edm::InputTag>>("candsMiniAOD").size()) {
     throw cms::Exception("ConfigError") << " Error candVetosMiniAOD should be the same size as candsMiniAOD "
                                         << std::endl;
   }
 
-  produces<edm::ValueMap<float> >(eleTrkPtIsoLabel_);
+  produces<edm::ValueMap<float>>(eleTrkPtIsoLabel_);
   if (makeTrkIso04_)
-    produces<edm::ValueMap<float> >(eleTrkPtIso04Label_);
-  produces<edm::ValueMap<int> >(eleNrSaturateIn5x5Label_);
+    produces<edm::ValueMap<float>>(eleTrkPtIso04Label_);
+  produces<edm::ValueMap<int>>(eleNrSaturateIn5x5Label_);
 }
 
 ElectronHEEPIDValueMapProducer::~ElectronHEEPIDValueMapProducer() {}
@@ -236,22 +235,17 @@ void ElectronHEEPIDValueMapProducer::produce(edm::Event& iEvent, const edm::Even
   bool isAOD = isEventAOD(iEvent, eleToken_);
   const auto& candVetos = isAOD ? candVetosAOD_ : candVetosMiniAOD_;
 
-  std::vector<EleTkIsolFromCands::PreselectedTracks> preselectedTracksForIso03;
-  std::vector<EleTkIsolFromCands::PreselectedTracks> preselectedTracksForIso04;
+  IsolationCalculators trkIsoCalcs;
+  IsolationCalculators trkIso04Calcs;
 
   {
     int handleNr = 0;
     for (auto const& handle : getHandles(iEvent, candTokens_)) {
       if (handle.isValid()) {
-        preselectedTracksForIso03.push_back(trkIsoCalc_.preselectTracks(*handle, candVetos[handleNr]));
-      } else {
-        preselectedTracksForIso03.emplace_back();
-      }
-      if (makeTrkIso04_) {
-        if (handle.isValid()) {
-          preselectedTracksForIso04.push_back(trkIsoCalc_.preselectTracks(*handle, candVetos[handleNr]));
-        } else {
-          preselectedTracksForIso04.emplace_back();
+        trkIsoCalcs.emplace_back(std::make_unique<EleTkIsolFromCands>(trkIsoCalcCfg_, *handle, candVetos[handleNr]));
+        if (makeTrkIso04_) {
+          trkIso04Calcs.emplace_back(
+              std::make_unique<EleTkIsolFromCands>(trkIso04CalcCfg_, *handle, candVetos[handleNr]));
         }
       }
       ++handleNr;
@@ -265,9 +259,9 @@ void ElectronHEEPIDValueMapProducer::produce(edm::Event& iEvent, const edm::Even
   std::vector<float> eleTrkPtIso04;
   std::vector<int> eleNrSaturateIn5x5;
   for (auto const& ele : *eleHandle) {
-    eleTrkPtIso.push_back(calTrkIso(ele, preselectedTracksForIso03, trkIsoCalc_));
+    eleTrkPtIso.push_back(calTrkIso(ele, trkIsoCalcs));
     if (makeTrkIso04_) {
-      eleTrkPtIso04.push_back(calTrkIso(ele, preselectedTracksForIso03, trkIso04Calc_));
+      eleTrkPtIso04.push_back(calTrkIso(ele, trkIso04Calcs));
     }
     eleNrSaturateIn5x5.push_back(nrSaturatedCrysIn5x5(ele, ebRecHitHandle, eeRecHitHandle, caloTopoHandle));
   }
@@ -287,27 +281,25 @@ int ElectronHEEPIDValueMapProducer::nrSaturatedCrysIn5x5(const reco::GsfElectron
   return noZS::EcalClusterTools::nrSaturatedCrysIn5x5(id, recHits, caloTopo.product());
 }
 
-float ElectronHEEPIDValueMapProducer::calTrkIso(
-    const reco::GsfElectron& ele,
-    std::vector<EleTkIsolFromCands::PreselectedTracks> const& preselectedTracks,
-    const EleTkIsolFromCands& trkIsoCalc) {
+float ElectronHEEPIDValueMapProducer::calTrkIso(const reco::GsfElectron& ele,
+                                                IsolationCalculators const& isolationCalculators) {
   if (ele.gsfTrack().isNull()) {
     return std::numeric_limits<float>::max();
   }
 
   float trkIso = 0.;
-  for (auto const& tracks : preselectedTracks) {
-    trkIso += trkIsoCalc(*ele.gsfTrack(), tracks).ptSum;
+  for (auto& calculator : isolationCalculators) {
+    trkIso += (*calculator)(*ele.gsfTrack()).ptSum;
   }
   return trkIso;
 }
 
 template <typename T>
 void ElectronHEEPIDValueMapProducer::writeValueMap(edm::Event& iEvent,
-                                                   const edm::Handle<edm::View<reco::GsfElectron> >& handle,
+                                                   const edm::Handle<edm::View<reco::GsfElectron>>& handle,
                                                    const std::vector<T>& values,
                                                    const std::string& label) {
-  std::unique_ptr<edm::ValueMap<T> > valMap(new edm::ValueMap<T>());
+  std::unique_ptr<edm::ValueMap<T>> valMap(new edm::ValueMap<T>());
   typename edm::ValueMap<T>::Filler filler(*valMap);
   filler.insert(handle, values.begin(), values.end());
   filler.fill();
@@ -319,14 +311,14 @@ void ElectronHEEPIDValueMapProducer::fillDescriptions(edm::ConfigurationDescript
   desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
   desc.add<edm::InputTag>("ebRecHitsAOD", edm::InputTag("reducedEcalRecHitsEB"));
   desc.add<edm::InputTag>("eeRecHitsAOD", edm::InputTag("reducedEcalRecHitsEE"));
-  desc.add<std::vector<edm::InputTag> >("candsAOD", {edm::InputTag("packedCandidates")});
-  desc.add<std::vector<std::string> >("candVetosAOD", {"none"});
+  desc.add<std::vector<edm::InputTag>>("candsAOD", {edm::InputTag("packedCandidates")});
+  desc.add<std::vector<std::string>>("candVetosAOD", {"none"});
   desc.add<edm::InputTag>("elesAOD", edm::InputTag("gedGsfElectrons"));
 
   desc.add<edm::InputTag>("ebRecHitsMiniAOD", edm::InputTag("reducedEcalRecHitsEB"));
   desc.add<edm::InputTag>("eeRecHitsMiniAOD", edm::InputTag("reducedEcalRecHitsEE"));
-  desc.add<std::vector<edm::InputTag> >("candsMiniAOD", {edm::InputTag("packedCandidates")});
-  desc.add<std::vector<std::string> >("candVetosMiniAOD", {"none"});
+  desc.add<std::vector<edm::InputTag>>("candsMiniAOD", {edm::InputTag("packedCandidates")});
+  desc.add<std::vector<std::string>>("candVetosMiniAOD", {"none"});
   desc.add<edm::InputTag>("elesMiniAOD", edm::InputTag("gedGsfElectrons"));
   desc.add<int>("dataFormat", 0);
   desc.add<bool>("makeTrkIso04", false);
