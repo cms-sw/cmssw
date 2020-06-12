@@ -79,7 +79,7 @@ void GEMeMap::convertDummy(GEMROMapping& romap) {
   uint8_t gebId = 0;
 
   for (int re = -1; re <= 1; re = re + 2) {
-    for (int st = 0; st <= GEMDetId::maxStationId; ++st) {
+    for (int st = GEMDetId::minStationId0; st <= GEMDetId::maxStationId; ++st) {
       int maxVFat = maxVFatGE11_;
       if (st == 2)
         maxVFat = maxVFatGE21_;

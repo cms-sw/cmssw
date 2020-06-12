@@ -76,10 +76,10 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
   // making map of bx GEMDigiCollection
   // each bx will be saved as new AMC13Event, so GEMDigiCollection needs to be split into bx
   std::map<int, GEMDigiCollection> gemBxMap;
-  for (auto range_iter = gemDigis->begin(); range_iter != gemDigis->end(); range_iter++) {
-    GEMDetId gemId = (*range_iter).first;
-    const GEMDigiCollection::Range& range = (*range_iter).second;
-    for (auto digi = range.first; digi != range.second; ++digi) {
+  for (auto etaPart : *gemDigis) {
+    GEMDetId gemId = etaPart.first;
+    const GEMDigiCollection::Range& digis = etaPart.second;
+    for (auto digi = digis.first; digi != digis.second; ++digi) {
       int bx = digi->bx();
       auto search = gemBxMap.find(bx);
       if (search != gemBxMap.end()) {
@@ -87,7 +87,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
       } else {
         GEMDigiCollection newGDC;
         newGDC.insertDigi(gemId, *digi);
-        gemBxMap.insert(std::pair<int, GEMDigiCollection>(digi->bx(), newGDC));
+        gemBxMap.insert(std::pair<int, GEMDigiCollection>(bx, newGDC));
       }
     }
   }
@@ -96,9 +96,9 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
   for (unsigned int fedId = FEDNumbering::MINGEMFEDID; fedId <= FEDNumbering::MAXGEMFEDID; ++fedId) {
     std::unique_ptr<AMC13Event> amc13Event = std::make_unique<AMC13Event>();
 
-    for (auto const& x : gemBxMap) {
-      int bx = x.first;
-      GEMDigiCollection newGemDigis = x.second;
+    for (auto const& gemBx : gemBxMap) {
+      int bx = gemBx.first;
+      GEMDigiCollection newGemDigis = gemBx.second;
 
       for (uint8_t amcNum = 0; amcNum < GEMeMap::maxAMCs_; ++amcNum) {
         uint32_t amcSize = 0;
