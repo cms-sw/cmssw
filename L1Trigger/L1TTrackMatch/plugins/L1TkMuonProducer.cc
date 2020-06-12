@@ -136,7 +136,7 @@ L1TkMuonProducer::L1TkMuonProducer(const edm::ParameterSet& iConfig)
   PTMINTRA_ = (float)iConfig.getParameter<double>("PTMINTRA");
   DRmax_ = (float)iConfig.getParameter<double>("DRmax");
   nStubsmin_ = iConfig.getParameter<int>("nStubsmin");
-  
+
   // --- mantra corr params
 
   mantra_n_trk_par_ = iConfig.getParameter<int>("mantra_n_trk_par");
@@ -507,7 +507,7 @@ void L1TkMuonProducer::runOnMTFCollection_v2(const edm::Handle<EMTFTrackCollecti
     float p4e = sqrt(mu_mass * mu_mass + p3.mag2());
     math::XYZTLorentzVector l1tkp4(p3.x(), p3.y(), p3.z(), p4e);
 
-    edm::Ref<RegionalMuonCandBxCollection> l1muRef;  
+    edm::Ref<RegionalMuonCandBxCollection> l1muRef;
     edm::Ptr<L1TTTrackType> l1tkPtr(l1tksH, il1ttrack);
     float trkisol = -999;  // now doing as in the TP algo
     TkMuon l1tkmu(l1tkp4, l1muRef, l1tkPtr, trkisol);
@@ -668,7 +668,7 @@ void L1TkMuonProducer::build_tkMuons_from_idxs(TkMuonCollection& tkMuons,
     edm::Ptr<L1TTTrackType> l1tkPtr(l1tksH, match_trk_idx);
     edm::Ref<RegionalMuonCandBxCollection> l1muRef(muonH, imatch);
 
-    float trkisol = -999;  
+    float trkisol = -999;
     TkMuon l1tkmu(l1tkp4, l1muRef, l1tkPtr, trkisol);
     l1tkmu.setTrackCurvature(matchTk.rInv());
     l1tkmu.setTrkzVtx((float)tkv3.z());
@@ -698,7 +698,7 @@ void L1TkMuonProducer::build_tkMuons_from_idxs(TkMuonCollection& tkMuons,
     edm::Ref<RegionalMuonCandBxCollection>
         l1muRef;  // NOTE: this is the only difference from the function above, but could not find a way to make a conditional constructor
 
-    float trkisol = -999;  
+    float trkisol = -999;
     TkMuon l1tkmu(l1tkp4, l1muRef, l1tkPtr, trkisol);
     l1tkmu.setTrackCurvature(matchTk.rInv());
     l1tkmu.setTrkzVtx((float)tkv3.z());
