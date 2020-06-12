@@ -838,7 +838,7 @@ void FedRawDataInputSource::readSupervisor() {
             ls = lsFromRaw;
         }
       } else if (!useFileBroker_)
-        status = daqDirector_->updateFuLock(ls, nextFile, fileSizeIndex, rawHeaderSize, thisLockWaitTimeUs);
+        status = daqDirector_->updateFuLock(ls, nextFile, fileSizeIndex, rawHeaderSize, thisLockWaitTimeUs, setExceptionState_);
       else {
         status = daqDirector_->getNextFromFileBroker(currentLumiSection,
                                                      ls,
@@ -876,7 +876,7 @@ void FedRawDataInputSource::readSupervisor() {
           fms_->setInStateSup(evf::FastMonitoringThread::inRunEnd);
         usleep(100000);
         //now all files should have appeared in ramdisk, check again if any raw files were left behind
-        status = daqDirector_->updateFuLock(ls, nextFile, fileSizeIndex, rawHeaderSize, thisLockWaitTimeUs);
+        status = daqDirector_->updateFuLock(ls, nextFile, fileSizeIndex, rawHeaderSize, thisLockWaitTimeUs, setExceptionState_);
         if (currentLumiSection != ls && status == evf::EvFDaqDirector::runEnded)
           status = evf::EvFDaqDirector::noFile;
       }
