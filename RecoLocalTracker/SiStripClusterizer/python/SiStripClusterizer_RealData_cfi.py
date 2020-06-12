@@ -18,5 +18,5 @@ phase2_tracker.toModify(siStripClusters, # FIXME
   DigiProducersList = [ 'simSiStripDigis:ZeroSuppressed',
                         'siStripZeroSuppression:VirginRaw',
                         'siStripZeroSuppression:ProcessedRaw',
-                        'siStripZeroSuppression:ScopeMode')
+                        'siStripZeroSuppression:ScopeMode']
 )
