@@ -608,6 +608,10 @@ namespace edmtest {
       check(processBlock.get(bpbGet_), bpbExpect_);
     }
     if (sleepTime_ > 0) {
+      // These sleeps are here to force modules to run concurrently
+      // in multi-threaded processes. Otherwise, the modules are so
+      // fast it is hard to tell whether a module finishes before the
+      // the Framework starts the next module.
       usleep(sleepTime_);
     }
     processBlock.emplace(bpbToken_, value_);
