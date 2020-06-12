@@ -18,8 +18,8 @@
     <Include ref='Geometry/CMSCommonData/data/muonBase/2018/v1/muonBase.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cmsMuon.xml'/>
     <Include ref='Geometry/CMSCommonData/data/mgnt.xml'/>
-    <Include ref='Geometry/CMSCommonData/data/beampipe/2026/v1/beampipe.xml'/>
-    <Include ref='Geometry/CMSCommonData/data/cmsBeam/2026/v1/cmsBeam.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/beampipe/2021/v1/beampipe.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cmsBeam/2021/v1/cmsBeam.xml'/>
     <Include ref='Geometry/CMSCommonData/data/muonMB.xml'/>
     <Include ref='Geometry/CMSCommonData/data/muonMagnet.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cavern/2021/v1/cavern.xml'/>
@@ -241,7 +241,7 @@
     <Include ref='Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml'/>
     <Include ref='Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml'/>
     <Include ref='Geometry/MuonCommonData/data/csc/2021/v1/csc.xml'/>
-    <Include ref='Geometry/MuonCommonData/data/mfshield/2017/v1/mfshield.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/mfshield/2017/v2/mfshield.xml'/>
     <Include ref="Geometry/VeryForwardData/data/pps/2021/v1/pps.xml"/>
     <Include ref="Geometry/ForwardCommonData/data/forward/2021/v1/forward.xml"/>
     <Include ref="Geometry/ForwardCommonData/data/totemt2/2021/v1/totemt2.xml"/>
