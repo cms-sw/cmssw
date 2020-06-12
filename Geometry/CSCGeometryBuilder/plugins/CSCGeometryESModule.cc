@@ -142,10 +142,12 @@ CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet& p)
     globalPositionToken_ = cc.consumesFrom<Alignments, GlobalPositionRcd>(edm::ESInputTag{"", alignmentsLabel_});
     alignmentsToken_ = cc.consumesFrom<Alignments, CSCAlignmentRcd>(edm::ESInputTag{"", alignmentsLabel_});
     alignmentErrorsToken_ =
-      cc.consumesFrom<AlignmentErrorsExtended, CSCAlignmentErrorExtendedRcd>(edm::ESInputTag{"", alignmentsLabel_});
+        cc.consumesFrom<AlignmentErrorsExtended, CSCAlignmentErrorExtendedRcd>(edm::ESInputTag{"", alignmentsLabel_});
   }
 
-  edm::LogVerbatim("Geometry") << "@SUB=CSCGeometryESModule Label '" << myLabel_ << "' " << (applyAlignment_ ? "looking for" : "IGNORING") << " alignment labels '" << alignmentsLabel_ << "'.";
+  edm::LogVerbatim("Geometry") << "@SUB=CSCGeometryESModule Label '" << myLabel_ << "' "
+                               << (applyAlignment_ ? "looking for" : "IGNORING") << " alignment labels '"
+                               << alignmentsLabel_ << "'.";
 }
 
 void CSCGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -164,14 +166,15 @@ void CSCGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<bool>("useOnlyWiresInME1a", false);
   desc.add<bool>("useGangedStripsInME1a", true);
   desc.add<bool>("useCentreTIOffsets", false);
-  desc.add<bool>("applyAlignment", true); //GF: to be abandoned
+  desc.add<bool>("applyAlignment", true);  //GF: to be abandoned
   desc.addUntracked<bool>("debugV", false);
   descriptions.add("CSCGeometryESModule", desc);
 }
 
 std::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryRecord& record) {
   auto host = holder_.makeOrGet([this]() {
-    return new HostType(debugV_, useGangedStripsInME1a_, useOnlyWiresInME1a_, useRealWireGeometry_, useCentreTIOffsets_);
+    return new HostType(
+        debugV_, useGangedStripsInME1a_, useOnlyWiresInME1a_, useRealWireGeometry_, useCentreTIOffsets_);
   });
 
   initCSCGeometry_(record, host);
@@ -186,7 +189,9 @@ std::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryReco
     const auto& alignmentErrors = record.get(alignmentErrorsToken_);
     // Only apply alignment if values exist
     if (alignments.empty() && alignmentErrors.empty() && globalPosition.empty()) {
-      edm::LogVerbatim("Config") << "@SUB=CSCGeometryRecord::produce Alignment(Error)s and global position (label '" << alignmentsLabel_ << "') empty: Geometry producer (label " << "'" << myLabel_ << "') assumes fake and does not apply.";
+      edm::LogVerbatim("Config") << "@SUB=CSCGeometryRecord::produce Alignment(Error)s and global position (label '"
+                                 << alignmentsLabel_ << "') empty: Geometry producer (label "
+                                 << "'" << myLabel_ << "') assumes fake and does not apply.";
     } else {
       GeometryAligner aligner;
       aligner.applyAlignments<CSCGeometry>(
