@@ -1,12 +1,15 @@
 #ifndef ZDCHITRECONSTRUCTOR_H
 #define ZDCHITRECONSTRUCTOR_H 1
 
+#include <memory>
+
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/ZdcSimpleRecAlgo.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalHFStatusBitFromRecHits.h"
@@ -26,6 +29,14 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
 class HcalTopology;
+class HcalRecNumberingRecord;
+class HcalLongRecoParamsRcd;
+class HcalDbService;
+class HcalDbRecord;
+class HcalChannelQuality;
+class HcalChannelQualityRcd;
+class HcalSeverityLevelComputer;
+class HcalSeverityLevelComputerRcd;
 
 /** \class ZdcHitReconstructor
 	
@@ -43,11 +54,11 @@ public:
 private:
   ZdcSimpleRecAlgo reco_;
   HcalADCSaturationFlag* saturationFlagSetter_;
-  HFTimingTrustFlag* HFTimingTrustFlagSetter_;
-  HBHETimeProfileStatusBitSetter* hbheHSCPFlagSetter_;
-  HBHETimingShapedFlagSetter* hbheTimingShapedFlagSetter_;
-  HcalHFStatusBitFromRecHits* hfrechitbit_;
-  HcalHFStatusBitFromDigis* hfdigibit_;
+  // HFTimingTrustFlag* HFTimingTrustFlagSetter_;
+  // HBHETimeProfileStatusBitSetter* hbheHSCPFlagSetter_;
+  // HBHETimingShapedFlagSetter* hbheTimingShapedFlagSetter_;
+  // HcalHFStatusBitFromRecHits* hfrechitbit_;
+  // HcalHFStatusBitFromDigis* hfdigibit_;
 
   DetId::Detector det_;
   int subdet_;
@@ -67,8 +78,14 @@ private:
   int lowGainOffset_;
   double lowGainFrac_;
 
-  HcalLongRecoParams* myobject;  //noiseTS and signalTS from db
-  HcalTopology* theTopology;
+  std::unique_ptr<HcalLongRecoParams> longRecoParams_;  //noiseTS and signalTS from db
+
+  // ES tokens
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
+  edm::ESGetToken<HcalLongRecoParams, HcalLongRecoParamsRcd> paramsToken_;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> conditionsToken_;
+  edm::ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> qualToken_;
+  edm::ESGetToken<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd> sevToken_;
 };
 
 #endif
