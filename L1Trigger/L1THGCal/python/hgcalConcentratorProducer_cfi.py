@@ -158,6 +158,49 @@ coarsetc_equalshare_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentrat
 )
 
 
+autoencoder_triggerCellRemap = [47, 44, 41, 38, -1, -1, -1, -1,
+                                1, 35, 32, 29, 26, -1, -1, -1,
+                                13,  4, 23, 20, 17, 14, -1, -1,
+                                25, 16,  7, 11,  8,  5,  2, -1,
+                                37, 28, 19, 10,  9, 21, 33, 45,
+                                -1, 40, 31, 22,  6, 18, 30, 42,
+                                -1, -1, 43, 34,  3, 15, 27, 39,
+                                -1, -1, -1, 46,  0, 12, 24, 36]
+
+autoEncoder_bitsPerOutputLink = cms.vint32([0, 1, 3, 5, 7, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9])
+
+autoEncoder_training_2eLinks = cms.PSet(encoderModelFile = cms.FileInPath('L1Trigger/L1THGCal/data/encoder_2eLinks_PUdriven_constantgraph.pb'),
+                                        decoderModelFile = cms.FileInPath('L1Trigger/L1THGCal/data/decoder_2eLinks_PUdriven_constantgraph.pb'))
+
+autoEncoder_training_3eLinks = cms.PSet(encoderModelFile = cms.FileInPath('L1Trigger/L1THGCal/data/encoder_3eLinks_PUdriven_constantgraph.pb'),
+                                        decoderModelFile = cms.FileInPath('L1Trigger/L1THGCal/data/decoder_3eLinks_PUdriven_constantgraph.pb'))
+
+autoEncoder_training_4eLinks = cms.PSet(encoderModelFile = cms.FileInPath('L1Trigger/L1THGCal/data/encoder_4eLinks_PUdriven_constantgraph.pb'),
+                                        decoderModelFile = cms.FileInPath('L1Trigger/L1THGCal/data/decoder_4eLinks_PUdriven_constantgraph.pb'))
+
+autoEncoder_training_5eLinks = cms.PSet(encoderModelFile = cms.FileInPath('L1Trigger/L1THGCal/data/encoder_5eLinks_PUdriven_constantgraph.pb'),
+                                        decoderModelFile = cms.FileInPath('L1Trigger/L1THGCal/data/decoder_5eLinks_PUdriven_constantgraph.pb'))
+
+linkToGraphMapping = [0,0,0,1,2,3,3,3,3,3,3,3,3,3,3]
+
+autoEncoder_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcessorSelection'),
+                                 Method = cms.vstring(['autoEncoder','autoEncoder','thresholdSelect']),
+                                 cellRemap = cms.vint32(autoencoder_triggerCellRemap),
+                                 nBitsPerInput = cms.int32(8),
+                                 maxBitsPerOutput = cms.int32(9),
+                                 bitsPerLink = autoEncoder_bitsPerOutputLink,
+                                 coarsenTriggerCells = cms.vuint32(0,0,0),
+                                 fixedDataSizePerHGCROC = cms.bool(False),
+                                 ctcSize = cms.vuint32(CTC_SIZE),
+                                 modelFiles = cms.VPSet([autoEncoder_training_2eLinks, autoEncoder_training_3eLinks, autoEncoder_training_4eLinks, autoEncoder_training_5eLinks]),
+                                 linkToGraphMap = cms.vuint32(linkToGraphMapping),
+                                 zeroSuppresionThreshold = cms.double(0.1),
+                                 saveEncodedValues = cms.bool(False),
+                                 preserveModuleSum = cms.bool(True),
+                                 threshold_silicon = cms.double(2.), # MipT
+                                 threshold_scintillator = cms.double(2.), # MipT
+)
+
 
 
 
