@@ -75,6 +75,11 @@ ntuple_triggersums = cms.PSet(
     TriggerSums = cms.InputTag('hgcalConcentratorProducer:HGCalConcentratorProcessorSelection'),
 )
 
+ntuple_econdata = cms.PSet(
+    NtupleName = cms.string('HGCalTriggerNtupleHGCConcentratorData'),
+    ConcentratorData = cms.InputTag('hgcalConcentratorProducer:HGCalConcentratorProcessorSelection'),
+)
+
 ntuple_clusters = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCClusters'),
     Clusters = cms.InputTag('hgcalBackEndLayer1Producer:HGCalBackendLayer1Processor2DClustering'),

@@ -82,6 +82,7 @@ chains.register_vfe("Floatingpoint", vfe.create_vfe)
 chains.register_concentrator("Supertriggercell", concentrator.create_supertriggercell)
 chains.register_concentrator("Threshold", concentrator.create_threshold)
 chains.register_concentrator("Bestchoice", concentrator.create_bestchoice)
+chains.register_concentrator("AutoEncoder", concentrator.create_autoencoder)
 ## BE1
 chains.register_backend1("Dummy", clustering2d.create_dummy)
 ## BE2
@@ -93,7 +94,7 @@ ntuple_list = ['event', 'gen', 'multiclusters']
 chains.register_ntuple("Genclustersntuple", lambda p,i : ntuple.create_ntuple(p,i, ntuple_list))
 
 # Register trigger chains
-concentrator_algos = ['Supertriggercell', 'Threshold', 'Bestchoice']
+concentrator_algos = ['Supertriggercell', 'Threshold', 'Bestchoice', 'AutoEncoder']
 backend_algos = ['Histomax']
 ## Make cross product fo ECON and BE algos
 import itertools
