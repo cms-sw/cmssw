@@ -19,8 +19,6 @@
 #include <vector>
 #include <cmath>
 
-#include <boost/bind.hpp>
-
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "PhysicsTools/MVAComputer/interface/AtomicId.h"
@@ -144,7 +142,7 @@ double MVAModuleHelper<Record, Object, Filler>::operator()(
 						const Object &object) const
 {
 	std::for_each(values.begin(), values.end(),
-	              boost::bind(&Value::update, _1, object));
+	              std::bind(&Value::update, std::placeholders::_1, object));
 	return cache->eval(values);
 }
 
@@ -158,10 +156,9 @@ void MVAModuleHelper<Record, Object, Filler>::train(
 	if (!cache)
 		return;
 
-	using boost::bind;
 	if (std::accumulate(values.begin(), values.end(), 0,
-	                    bind(std::plus<int>(), _1,
-	                         bind(&Value::update, _2, object))))
+	                    std::bind(std::plus<int>(), std::placeholders::_1,
+	                         std::bind(&Value::update,std::placeholders::_2, object))))
 		return;
 
 	PhysicsTools::Variable::ValueList list;
