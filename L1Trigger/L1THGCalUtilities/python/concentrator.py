@@ -1,7 +1,7 @@
 
 import FWCore.ParameterSet.Config as cms
 import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
-from L1Trigger.L1THGCal.hgcalConcentratorProducer_cfi import threshold_conc_proc, best_conc_proc, supertc_conc_proc, coarsetc_onebitfraction_proc, custom_conc_proc
+from L1Trigger.L1THGCal.hgcalConcentratorProducer_cfi import threshold_conc_proc, best_conc_proc, supertc_conc_proc, coarsetc_onebitfraction_proc, custom_conc_proc, autoEncoder_conc_proc
 
 
 def create_supertriggercell(process, inputs,
@@ -53,6 +53,31 @@ def create_bestchoice(process, inputs,
             NData = triggercells,
             coarsenTriggerCells = coarsenTriggerCells,
             ctcSize=ctcSize,
+            )
+    return producer
+
+
+def create_autoencoder(process, inputs,
+                       cellRemap = autoEncoder_conc_proc.cellRemap,
+                       nBitsPerInput = autoEncoder_conc_proc.nBitsPerInput,
+                       maxBitsPerOutput = autoEncoder_conc_proc.maxBitsPerOutput,
+                       bitsPerLink = autoEncoder_conc_proc.bitsPerLink,
+                       modelFiles = autoEncoder_conc_proc.modelFiles,
+                       linkToGraphMap = autoEncoder_conc_proc.linkToGraphMap,
+                       preserveModuleSum = autoEncoder_conc_proc.preserveModuleSum
+                     ):
+    producer = process.hgcalConcentratorProducer.clone(
+            InputTriggerCells = cms.InputTag('{}:HGCalVFEProcessorSums'.format(inputs)),
+            InputTriggerSums = cms.InputTag('{}:HGCalVFEProcessorSums'.format(inputs))
+            )
+    producer.ProcessorParameters = autoEncoder_conc_proc.clone(
+            cellRemap = cellRemap,
+            nBitsPerInput = nBitsPerInput,
+            maxBitsPerOutput = maxBitsPerOutput,
+            bitsPerLink = bitsPerLink,
+            modelFiles = modelFiles,
+            linkToGraphMap = linkToGraphMap,
+            preserveModuleSum = preserveModuleSum
             )
     return producer
 
