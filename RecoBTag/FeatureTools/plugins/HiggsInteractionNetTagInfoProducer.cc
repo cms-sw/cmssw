@@ -20,8 +20,7 @@
 #include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-#include "DataFormats/BTauReco/interface/HiggsInteractionNetFeatures.h"
-#include "DataFormats/BTauReco/interface/HiggsInteractionNetTagInfo.h"
+#include "DataFormats/BTauReco/interface/DeepBoostedJetTagInfo.h"
 
 using namespace btagbtvdeep;
 
@@ -33,7 +32,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  typedef std::vector<reco::HiggsInteractionNetTagInfo> HiggsInteractionNetTagInfoCollection;
+  typedef std::vector<reco::DeepBoostedJetTagInfo> DeepBoostedJetTagInfoCollection;
   typedef reco::VertexCompositePtrCandidateCollection SVCollection;
   typedef reco::VertexCollection VertexCollection;
   typedef edm::View<reco::Candidate> CandidateView;
@@ -42,8 +41,8 @@ private:
   void produce(edm::Event &, const edm::EventSetup &) override;
   void endStream() override {}
 
-  void fillChargedParticleFeatures(HiggsInteractionNetFeatures &fts, const reco::Jet &jet);
-  void fillSVFeatures(HiggsInteractionNetFeatures &fts, const reco::Jet &jet);
+  void fillChargedParticleFeatures(DeepBoostedJetFeatures &fts, const reco::Jet &jet);
+  void fillSVFeatures(DeepBoostedJetFeatures &fts, const reco::Jet &jet);
 
   const double jet_radius_;
   const double min_jet_pt_;
@@ -95,7 +94,7 @@ HiggsInteractionNetTagInfoProducer::HiggsInteractionNetTagInfoProducer(const edm
       vtx_token_(consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
       sv_token_(consumes<SVCollection>(iConfig.getParameter<edm::InputTag>("secondary_vertices"))),
       pfcand_token_(consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("pf_candidates"))) {
-  produces<HiggsInteractionNetTagInfoCollection>();
+  produces<DeepBoostedJetTagInfoCollection>();
 }
 
 HiggsInteractionNetTagInfoProducer::~HiggsInteractionNetTagInfoProducer() {}
@@ -114,7 +113,7 @@ void HiggsInteractionNetTagInfoProducer::fillDescriptions(edm::ConfigurationDesc
 }
 
 void HiggsInteractionNetTagInfoProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  auto output_tag_infos = std::make_unique<HiggsInteractionNetTagInfoCollection>();
+  auto output_tag_infos = std::make_unique<DeepBoostedJetTagInfoCollection>();
 
   auto jets = iEvent.getHandle(jet_token_);
 
@@ -138,7 +137,7 @@ void HiggsInteractionNetTagInfoProducer::produce(edm::Event &iEvent, const edm::
     edm::RefToBase<reco::Jet> jet_ref(jets, jet_n);
 
     // create jet features
-    HiggsInteractionNetFeatures features;
+    DeepBoostedJetFeatures features;
     // declare all the feature variables (init as empty vector)
     for (const auto &name : cpf_features_) {
       features.add(name);
@@ -170,7 +169,7 @@ void HiggsInteractionNetTagInfoProducer::produce(edm::Event &iEvent, const edm::
   iEvent.put(std::move(output_tag_infos));
 }
 
-void HiggsInteractionNetTagInfoProducer::fillChargedParticleFeatures(HiggsInteractionNetFeatures &fts,
+void HiggsInteractionNetTagInfoProducer::fillChargedParticleFeatures(DeepBoostedJetFeatures &fts,
                                                                      const reco::Jet &jet) {
   // require the input to be a pat::Jet
   const auto *patJet = dynamic_cast<const pat::Jet *>(&jet);
@@ -302,7 +301,7 @@ void HiggsInteractionNetTagInfoProducer::fillChargedParticleFeatures(HiggsIntera
   }
 }
 
-void HiggsInteractionNetTagInfoProducer::fillSVFeatures(HiggsInteractionNetFeatures &fts, const reco::Jet &jet) {
+void HiggsInteractionNetTagInfoProducer::fillSVFeatures(DeepBoostedJetFeatures &fts, const reco::Jet &jet) {
   std::vector<const reco::VertexCompositePtrCandidate *> jetSVs;
   for (const auto &sv : *svs_) {
     if (reco::deltaR2(sv, jet) < jet_radius_ * jet_radius_) {
