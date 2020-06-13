@@ -6,7 +6,6 @@
 
   <bin file="CalcAdler32.cpp">
     <use name="FWCore/Utilities"/>
-    <use name="boost"/>
   </bin>
 
 </environment>
