@@ -8,8 +8,6 @@
 #include <cmath>
 #include <cstring>
 
-#include <boost/bind.hpp>
-
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/sax/HandlerBase.hpp>
