@@ -11,7 +11,7 @@
 
 #include "DataFormats/BTauReco/interface/JetTag.h"
 
-#include "DataFormats/BTauReco/interface/HiggsInteractionNetTagInfo.h"
+#include "DataFormats/BTauReco/interface/DeepBoostedJetTagInfo.h"
 
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 
@@ -39,12 +39,12 @@ public:
   static void globalEndJob(const ONNXRuntime *);
 
 private:
-  typedef std::vector<reco::HiggsInteractionNetTagInfo> TagInfoCollection;
+  typedef std::vector<reco::DeepBoostedJetTagInfo> TagInfoCollection;
   typedef reco::JetTagCollection JetTagCollection;
 
   void produce(edm::Event &, const edm::EventSetup &) override;
 
-  void make_inputs(const reco::HiggsInteractionNetTagInfo &taginfo);
+  void make_inputs(const reco::DeepBoostedJetTagInfo &taginfo);
 
   const edm::EDGetTokenT<TagInfoCollection> src_;
   std::vector<std::string> flav_names_;                  // names of the output scores
@@ -181,7 +181,7 @@ void HiggsInteractionNetONNXJetTagsProducer::produce(edm::Event &iEvent, const e
   }
 }
 
-void HiggsInteractionNetONNXJetTagsProducer::make_inputs(const reco::HiggsInteractionNetTagInfo &taginfo) {
+void HiggsInteractionNetONNXJetTagsProducer::make_inputs(const reco::DeepBoostedJetTagInfo &taginfo) {
   for (unsigned igroup = 0; igroup < input_names_.size(); ++igroup) {
     const auto &group_name = input_names_.at(igroup);
     auto &group_values = data_.at(igroup);
