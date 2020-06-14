@@ -5,8 +5,15 @@
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronTools.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
 
 namespace egamma {
+
+  std::vector<double> getTrackEtas(reco::TrackCollection const& tracks) {
+    std::vector<double> etas(tracks.size());
+    std::transform (tracks.begin(), tracks.end(), etas.begin(), [](auto const& tk){ return tk.eta(); });
+    return etas;
+  }
 
   using namespace reco;
 
@@ -15,7 +22,8 @@ namespace egamma {
   //=======================================================================================
 
   std::pair<TrackRef, float> getClosestCtfToGsf(GsfTrackRef const& gsfTrackRef,
-                                                edm::Handle<reco::TrackCollection> const& ctfTracksH) {
+                                                edm::Handle<reco::TrackCollection> const& ctfTracksH,
+                                                std::vector<double> ctfTrackEtas) {
     float maxFracShared = 0;
     TrackRef ctfTrackRef = TrackRef();
     const TrackCollection* ctfTrackCollection = ctfTracksH.product();
@@ -25,7 +33,7 @@ namespace egamma {
 
     unsigned int counter = 0;
     for (auto ctfTkIter = ctfTrackCollection->begin(); ctfTkIter != ctfTrackCollection->end(); ctfTkIter++, counter++) {
-      double dEta = gsfTrackRef->eta() - ctfTkIter->eta();
+      double dEta = gsfTrackRef->eta() - ctfTrackEtas[counter];
       double dPhi = gsfTrackRef->phi() - ctfTkIter->phi();
       double pi = acos(-1.);
       if (std::abs(dPhi) > pi)

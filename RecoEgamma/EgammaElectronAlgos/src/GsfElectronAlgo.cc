@@ -545,6 +545,8 @@ reco::GsfElectronCollection GsfElectronAlgo::completeElectrons(edm::Event const&
   MultiTrajectoryStateTransform mtsTransform(&trackerGeometry, &magneticField);
   GsfConstraintAtVertex constraintAtVtx(eventSetup);
 
+  auto ctfTrackEtas = egamma::getTrackEtas(*eventData.currentCtfTracks);
+
   const GsfElectronCoreCollection* coreCollection = eventData.coreElectrons.product();
   for (unsigned int i = 0; i < coreCollection->size(); ++i) {
     // check there is no existing electron with this core
@@ -569,6 +571,11 @@ reco::GsfElectronCollection GsfElectronAlgo::completeElectrons(edm::Event const&
     // calculate and check Trajectory StatesOnSurface....
     if (!electronData.calculateTSOS(mtsTransform, constraintAtVtx))
       continue;
+
+    // eventually check ctf track
+    if (cfg_.strategy.ctfTracksCheck && electronData.ctfTrackRef.isNull()) {
+      electronData.ctfTrackRef = egamma::getClosestCtfToGsf(electronData.gsfTrackRef, eventData.currentCtfTracks, ctfTrackEtas).first;
+    }
 
     createElectron(
         electrons, electronData, eventData, caloTopology, caloGeometry, mtsTransform, magneticFieldInTesla, hoc);
@@ -703,11 +710,6 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
                                      MultiTrajectoryStateTransform const& mtsTransform,
                                      double magneticFieldInTesla,
                                      const GsfElectronAlgo::HeavyObjectCache* hoc) {
-  // eventually check ctf track
-  if (cfg_.strategy.ctfTracksCheck && electronData.ctfTrackRef.isNull()) {
-    electronData.ctfTrackRef = egamma::getClosestCtfToGsf(electronData.gsfTrackRef, eventData.currentCtfTracks).first;
-  }
-
   // charge ID
   int eleCharge;
   GsfElectron::ChargeInfo eleChargeInfo;
