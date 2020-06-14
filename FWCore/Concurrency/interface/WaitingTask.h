@@ -38,7 +38,6 @@ namespace edm {
     friend class WaitingTaskList;
     friend class WaitingTaskHolder;
     friend class WaitingTaskWithArenaHolder;
-    friend class WaitingTaskWithArenaSpawnHolder;
 
     ///Constructor
     WaitingTask() : m_ptr{nullptr} {}
