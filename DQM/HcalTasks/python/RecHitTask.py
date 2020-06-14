@@ -28,7 +28,8 @@ recHitTask = DQMEDAnalyzer(
 )
 
 
-
+recHitPreRecoTask = recHitTask.clone()
+recHitPreRecoTask.tagHBHE = cms.untracked.InputTag("hbheprereco")
 
 
 
