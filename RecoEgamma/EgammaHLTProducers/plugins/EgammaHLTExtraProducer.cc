@@ -17,6 +17,8 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Math/interface/deltaR.h"
@@ -42,6 +44,9 @@ private:
   static void setGsfTracks(reco::EgTrigSumObj& egTrigObj,const edm::Handle<reco::GsfTrackCollection>& gsfTrksHandle);
   static void setSeeds(reco::EgTrigSumObj& egTrigObj,edm::Handle<reco::ElectronSeedCollection>& eleSeedsHandle);
 
+  //these three filter functions are overly similar but with annoying differences
+  //eg rechits needs to access geometry, trk dr is also w.r.t the track eta/phi
+  //still could collapse into a single function
   template<typename RecHitCollection>
   std::unique_ptr<RecHitCollection> 
   filterRecHits(const reco::EgTrigSumObjCollection& egTrigObjs,
@@ -51,6 +56,9 @@ private:
   std::unique_ptr<reco::TrackCollection>
   filterTrks(const reco::EgTrigSumObjCollection& egTrigObjs,const edm::Handle<reco::TrackCollection>& trks,float maxDR2=0.4*0.4)const;
 
+  std::unique_ptr<reco::PFClusterCollection> 
+  filterPFClusIso(const reco::EgTrigSumObjCollection& egTrigObjs,const edm::Handle<reco::PFClusterCollection>& pfClus,float maxDR2=0.4*0.4)const;
+
   struct Tokens {
     edm::EDGetTokenT<reco::RecoEcalCandidateCollection> ecalCands;
     edm::EDGetTokenT<reco::GsfTrackCollection> gsfTracks;
@@ -58,6 +66,7 @@ private:
     std::vector<std::pair<edm::EDGetTokenT<EcalRecHitCollection>,std::string> > ecal;
     std::vector<std::pair<edm::EDGetTokenT<HBHERecHitCollection>,std::string> > hcal;
     std::vector<std::pair<edm::EDGetTokenT<reco::TrackCollection>,std::string> > trks;
+    std::vector<std::pair<edm::EDGetTokenT<reco::PFClusterCollection>,std::string> > pfClusIso;
     
     template<typename T>
     static void setToken(edm::EDGetTokenT<T>& token,edm::ConsumesCollector& cc,const edm::ParameterSet& pset,const std::string& tagname){
@@ -100,7 +109,8 @@ EgammaHLTExtraProducer::Tokens::Tokens(const edm::ParameterSet& pset,edm::Consum
   setToken(gsfTracks,cc,pset,"gsfTracks");
   setToken(ecal,cc,pset,"ecal");
   setToken(hcal,cc,pset,"hcal");
-  setToken(trks,cc,pset,"trks");
+  setToken(trks,cc,pset,"trks");  
+  setToken(pfClusIso,cc,pset,"pfClusIso");
 }
 
 
@@ -121,6 +131,9 @@ EgammaHLTExtraProducer::EgammaHLTExtraProducer(const edm::ParameterSet& pset):
   }
   for(auto& tokenLabel : tokens_.trks){
     produces<reco::TrackCollection>(tokenLabel.second);
+  }
+  for(auto& tokenLabel : tokens_.pfClusIso){
+    produces<reco::PFClusterCollection>(tokenLabel.second);
   }
   
 }
@@ -148,10 +161,16 @@ void EgammaHLTExtraProducer::fillDescriptions(edm::ConfigurationDescriptions& de
   std::vector<edm::ParameterSet> trksDefaults(1);
   trksDefaults[0].addParameter("src",edm::InputTag("generalTracks"));
   trksDefaults[0].addParameter("label",std::string(""));
+  std::vector<edm::ParameterSet> pfClusIsoDefaults(2);
+  pfClusIsoDefaults[0].addParameter("src",edm::InputTag("hltParticleFlowClusterECALUnseeded"));
+  pfClusIsoDefaults[0].addParameter("label",std::string("Ecal"));
+  pfClusIsoDefaults[1].addParameter("src",edm::InputTag("hltParticleFlowClusterHCAL"));
+  pfClusIsoDefaults[1].addParameter("label",std::string("Hcal"));
 
   desc.addVPSet("ecal",tokenLabelDesc,ecalDefaults);
   desc.addVPSet("hcal",tokenLabelDesc,hcalDefaults);
   desc.addVPSet("trks",tokenLabelDesc,trksDefaults);
+  desc.addVPSet("pfClusIso",tokenLabelDesc,pfClusIsoDefaults);
   
   descriptions.add(("hltEgammaHLTExtraProducer"), desc);
 }
@@ -186,14 +205,24 @@ void EgammaHLTExtraProducer::produce(edm::StreamID streamID,
       event.put(std::move(recHits),tokenLabel.second);
     }
   };
+  auto filterAndStore=[&event,this](const reco::EgTrigSumObjCollection& egTrigObjs,auto& tokenLabels,auto filterFunc){
+    for(const auto& tokenLabel : tokenLabels){
+      auto handle = event.getHandle(tokenLabel.first);
+      auto filtered = (this->*filterFunc)(egTrigObjs,handle,0.4*0.4);
+      event.put(std::move(filtered),tokenLabel.second);
+    }
+  };
+
   filterAndStoreRecHits(*egTrigObjs,tokens_.ecal);
   filterAndStoreRecHits(*egTrigObjs,tokens_.hcal);
-  
-  for(const auto& tokenLabel : tokens_.trks){
-    auto handle = event.getHandle(tokenLabel.first);
-    auto trks = filterTrks(*egTrigObjs,handle);
-    event.put(std::move(trks),tokenLabel.second);
-  }
+  filterAndStore(*egTrigObjs,tokens_.pfClusIso,&EgammaHLTExtraProducer::filterPFClusIso);
+  filterAndStore(*egTrigObjs,tokens_.trks,&EgammaHLTExtraProducer::filterTrks);
+
+  // for(const auto& tokenLabel : tokens_.trks){
+  //   auto handle = event.getHandle(tokenLabel.first);
+  //   auto trks = filterTrks(*egTrigObjs,handle);
+  //   event.put(std::move(trks),tokenLabel.second);
+  // }
   
     
   event.put(std::move(egTrigObjs));
@@ -298,7 +327,6 @@ std::unique_ptr<RecHitCollection> EgammaHLTExtraProducer::filterRecHits(const re
   return filteredHits;
 }
 
-
 std::unique_ptr<reco::TrackCollection> EgammaHLTExtraProducer::filterTrks(const reco::EgTrigSumObjCollection& egTrigObjs,const edm::Handle<reco::TrackCollection>& trks,float maxDR2)const
 {
   auto filteredTrks = std::make_unique<reco::TrackCollection>();
@@ -334,6 +362,32 @@ std::unique_ptr<reco::TrackCollection> EgammaHLTExtraProducer::filterTrks(const 
     if(deltaR2Match(trk.eta(),trk.phi())) filteredTrks->push_back(trk);
   }
   return filteredTrks;
+}
+
+std::unique_ptr<reco::PFClusterCollection> EgammaHLTExtraProducer::filterPFClusIso(const reco::EgTrigSumObjCollection& egTrigObjs,const edm::Handle<reco::PFClusterCollection>& pfClus,float maxDR2)const
+{
+  auto filteredPFClus = std::make_unique<reco::PFClusterCollection>();
+  if(!pfClus.isValid()) return filteredPFClus;
+  
+  std::vector<std::pair<float,float> > etaPhis;
+  for(const auto& egTrigObj : egTrigObjs){
+    if(egTrigObj.pt()>=minPtToSaveHits_){
+      etaPhis.push_back({egTrigObj.eta(),egTrigObj.phi()});
+      if(saveHitsPlusPi_) etaPhis.push_back({egTrigObj.eta(),egTrigObj.phi()+3.14159});
+      if(saveHitsPlusHalfPi_) etaPhis.push_back({egTrigObj.eta(),egTrigObj.phi()+3.14159/2.});
+    }
+  }
+  auto deltaR2Match = [&etaPhis,&maxDR2](float eta,float phi){
+    for(auto& etaPhi : etaPhis){ 
+      if(reco::deltaR2(eta,phi,etaPhi.first,etaPhi.second)<maxDR2) return true;
+    }
+    return false;
+  };
+
+  for(auto& clus : *pfClus){
+    if(deltaR2Match(clus.eta(),clus.phi())) filteredPFClus->push_back(clus);
+  }
+  return filteredPFClus;
 }
 
 
