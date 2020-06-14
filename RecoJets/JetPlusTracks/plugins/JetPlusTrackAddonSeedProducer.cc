@@ -85,9 +85,6 @@ JetPlusTrackAddonSeedProducer::~JetPlusTrackAddonSeedProducer() {
 // ------------ method called to produce the data  ------------
 void JetPlusTrackAddonSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
-
-  // std::cout<<" RecoJets::JetPlusTrackAddonSeedProducer::produce "<<std::endl;
-
   // get stuff from Event
   edm::Handle<edm::View<reco::CaloJet> > jets_h;
   iEvent.getByToken(input_jets_token_, jets_h);
@@ -99,25 +96,19 @@ void JetPlusTrackAddonSeedProducer::produce(edm::Event& iEvent, const edm::Event
 
   if (jetsTrackJets.isValid()) {
     if (!jetsTrackJets->empty()) {
-      // std::cout<<" AddonSeed::The size of trackjets "<<jetsTrackJets->size()<<" "<<jets_h->size()<<std::endl;
       for (unsigned ijet = 0; ijet < jetsTrackJets->size(); ++ijet) {
         const reco::TrackJet* jet = &(*(jetsTrackJets->refAt(ijet)));
         int iflag = 0;
         for (unsigned i = 0; i < jets_h->size(); ++i) {
           const reco::CaloJet* oldjet = &(*(jets_h->refAt(i)));
-          double deta = fabs(jet->eta() - oldjet->eta());
-          double dphi = fabs(jet->phi() - oldjet->phi());
-          if (dphi > 4. * atan(1.))
-            dphi = 8. * atan(1.) - dphi;
-          double dr = sqrt(dphi * dphi + deta * deta);
+          double dr = deltaR(jet->eta(),jet->phi(),
+                             oldjet->eta(),oldjet->phi());
           if (dr < dRcone)
             iflag = 1;
         }  // Calojets
 
         if (iflag == 1)
           continue;
-        // std::cout<<" AddonSeed::There is the additional trackjet seed "<<jet->pt()<<" "<<jet->eta()<<
-        // " "<<jet->phi()<<std::endl;
         double caloen = 0.;
         double hadinho = 0.;
         double hadinhb = 0.;
@@ -134,7 +125,6 @@ void JetPlusTrackAddonSeedProducer::produce(edm::Event& iEvent, const edm::Event
           edm::Handle<pat::PackedCandidateCollection> pfCandidates;
           iEvent.getByToken(tokenPFCandidates_, pfCandidates);
           if (!pfCandidates.isValid()) {
-            //  std::cout<<" No PFCandidate collection "<<std::endl;
             return;
           } else {
             for (unsigned int i = 0, n = pfCandidates->size(); i < n; ++i) {
@@ -168,7 +158,6 @@ void JetPlusTrackAddonSeedProducer::produce(edm::Event& iEvent, const edm::Event
             }  // Calojet
           }
         } else {
-          //    std::cout<<" RECO "<<std::endl;
           edm::Handle<CaloTowerCollection> ct;
           iEvent.getByToken(input_ctw_token_, ct);
           if (ct.isValid()) {
@@ -198,7 +187,6 @@ void JetPlusTrackAddonSeedProducer::produce(edm::Event& iEvent, const edm::Event
         hhfraction = (hadinhb + hadinhe + hadinhf + hadinho) / caloen;
 
         double trackp = sqrt(pow(jet->pt(), 2) + pow(jet->pz(), 2));
-        //      std::cout<<" Caloenergy "<<caloen<<"area"<<jet->jetArea()<<std::endl;
         if (caloen <= 0.)
           caloen = 0.001;
         math::XYZTLorentzVector pcalo4(
@@ -216,21 +204,14 @@ void JetPlusTrackAddonSeedProducer::produce(edm::Event& iEvent, const edm::Event
         calospe.mEnergyFractionHadronic = hhfraction / caloen;
 
         reco::CaloJet mycalo(pcalo4, jet->primaryVertex()->position(), calospe);
-        mycalo.setJetArea(3.14159 * dRcone * dRcone);
-
-        //std::cout<<" AddonSeed::New Calojet "<<mycalo.pt()<<std::endl;
-        //       std::cout<<" Caloenergy "<<caloen<<"area"<<jet->jetArea()<<std::endl;
-        //       std::cout<<" CaloJetArea "<<mycalo.jetArea()<<std::endl;
-
+        mycalo.setJetArea(M_PI * dRcone * dRcone);
         pCaloOut->push_back(mycalo);
 
       }  // trackjets
     }    // jets
   }      // There is trackjet collection
 
-  // std::cout<<" AddonSeed::size of collection "<<pCaloOut->size()<<std::endl;
   iEvent.put(std::move(pCaloOut), "ak4CaloJetsJPTSeed");
-  // theEvent.put(std::move(outputTColl),"tracksFromPF"
 }
 
 //define this as a plug-in
