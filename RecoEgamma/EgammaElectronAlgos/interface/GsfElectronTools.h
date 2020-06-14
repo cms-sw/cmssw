@@ -5,18 +5,27 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "RecoEgamma/EgammaTools/interface/LazyResult.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
 
 namespace egamma {
 
-  std::vector<double> getTrackEtas(reco::TrackCollection const& tracks);
+  struct TrackVariables {
+    explicit TrackVariables(reco::TrackBase const& tk) : eta{tk.eta()}, phi{tk.phi()} {}
+    const double eta;
+    const double phi;
+  };
 
-  inline auto getTrackEtasLazy(reco::TrackCollection const& tracks) { return LazyResult(&getTrackEtas, tracks); }
+  std::vector<TrackVariables> getTrackVariables(reco::TrackCollection const& tracks);
+
+  inline auto getTrackVariablesLazy(reco::TrackCollection const& tracks) {
+    return LazyResult(&getTrackVariables, tracks);
+  }
 
   // From Puneeth Kalavase : returns the CTF track that has the highest fraction
   // of shared hits in Pixels and the inner strip tracker with the electron Track
   std::pair<reco::TrackRef, float> getClosestCtfToGsf(reco::GsfTrackRef const&,
                                                       edm::Handle<reco::TrackCollection> const& ctfTracksH,
-                                                      std::vector<double> ctfTrackEtas);
+                                                      std::vector<TrackVariables> const& ctfTrackVariables);
 
 }  // namespace egamma
 
