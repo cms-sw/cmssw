@@ -545,7 +545,7 @@ reco::GsfElectronCollection GsfElectronAlgo::completeElectrons(edm::Event const&
   MultiTrajectoryStateTransform mtsTransform(&trackerGeometry, &magneticField);
   GsfConstraintAtVertex constraintAtVtx(eventSetup);
 
-  auto ctfTrackEtas = egamma::getTrackEtas(*eventData.currentCtfTracks);
+  auto ctfTrackEtas = egamma::getTrackEtasLazy(*eventData.currentCtfTracks);
 
   const GsfElectronCoreCollection* coreCollection = eventData.coreElectrons.product();
   for (unsigned int i = 0; i < coreCollection->size(); ++i) {
@@ -574,7 +574,8 @@ reco::GsfElectronCollection GsfElectronAlgo::completeElectrons(edm::Event const&
 
     // eventually check ctf track
     if (cfg_.strategy.ctfTracksCheck && electronData.ctfTrackRef.isNull()) {
-      electronData.ctfTrackRef = egamma::getClosestCtfToGsf(electronData.gsfTrackRef, eventData.currentCtfTracks, ctfTrackEtas).first;
+      electronData.ctfTrackRef =
+          egamma::getClosestCtfToGsf(electronData.gsfTrackRef, eventData.currentCtfTracks, ctfTrackEtas.value()).first;
     }
 
     createElectron(
