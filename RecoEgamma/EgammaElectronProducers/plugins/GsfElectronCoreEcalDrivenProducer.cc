@@ -18,7 +18,6 @@ public:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
-
   const bool useGsfPfRecTracks_;
 
   const edm::EDGetTokenT<reco::GsfPFRecTrackCollection> gsfPfRecTracksToken_;
@@ -54,30 +53,30 @@ void GsfElectronCoreEcalDrivenProducer::produce(edm::StreamID, edm::Event& event
   auto gsfTracksHandle = event.getHandle(gsfTracksToken_);
   auto ctfTracksHandle = event.getHandle(ctfTracksToken_);
 
-  auto ctfTrackEtas = egamma::getTrackEtas(*ctfTracksHandle);
+  auto ctfTrackEtas = egamma::getTrackEtasLazy(*ctfTracksHandle);
 
   // output
   reco::GsfElectronCoreCollection electrons;
 
-  auto produceEcalDrivenCore = [&](const reco::GsfTrackRef& gsfTrackRef){
-      electrons.emplace_back(gsfTrackRef);
-      auto& eleCore = electrons.back();
+  auto produceEcalDrivenCore = [&](const reco::GsfTrackRef& gsfTrackRef) {
+    electrons.emplace_back(gsfTrackRef);
+    auto& eleCore = electrons.back();
 
-      if (!eleCore.ecalDrivenSeed()) {
-        electrons.pop_back();
-        return;
-      }
+    if (!eleCore.ecalDrivenSeed()) {
+      electrons.pop_back();
+      return;
+    }
 
-      auto ctfpair = egamma::getClosestCtfToGsf(eleCore.gsfTrack(), ctfTracksHandle, ctfTrackEtas);
-      eleCore.setCtfTrack(ctfpair.first, ctfpair.second);
+    auto ctfpair = egamma::getClosestCtfToGsf(eleCore.gsfTrack(), ctfTracksHandle, ctfTrackEtas.value());
+    eleCore.setCtfTrack(ctfpair.first, ctfpair.second);
 
-      auto scRef = gsfTrackRef->extra()->seedRef().castTo<ElectronSeedRef>()->caloCluster().castTo<SuperClusterRef>();
-      if (!scRef.isNull()) {
-        eleCore.setSuperCluster(scRef);
-      } else {
-        electrons.pop_back();
-        edm::LogWarning("GsfElectronCoreEcalDrivenProducer") << "Seed CaloCluster is not a SuperCluster, unexpected...";
-      }
+    auto scRef = gsfTrackRef->extra()->seedRef().castTo<ElectronSeedRef>()->caloCluster().castTo<SuperClusterRef>();
+    if (!scRef.isNull()) {
+      eleCore.setSuperCluster(scRef);
+    } else {
+      electrons.pop_back();
+      edm::LogWarning("GsfElectronCoreEcalDrivenProducer") << "Seed CaloCluster is not a SuperCluster, unexpected...";
+    }
   };
 
   // loop on ecal driven tracks

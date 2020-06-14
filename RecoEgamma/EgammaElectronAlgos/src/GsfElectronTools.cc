@@ -11,7 +11,7 @@ namespace egamma {
 
   std::vector<double> getTrackEtas(reco::TrackCollection const& tracks) {
     std::vector<double> etas(tracks.size());
-    std::transform (tracks.begin(), tracks.end(), etas.begin(), [](auto const& tk){ return tk.eta(); });
+    std::transform(tracks.begin(), tracks.end(), etas.begin(), [](auto const& tk) { return tk.eta(); });
     return etas;
   }
 
