@@ -52,5 +52,6 @@ run3_HB.toModify(particleFlowClusterHCAL,
 )
 
 # HCALonly WF
-particleFlowClusterHCALOnly = particleFlowClusterHCAL.clone()
-particleFlowClusterHCALOnly.clustersSource = cms.InputTag("particleFlowClusterHBHEOnly")
+particleFlowClusterHCALOnly = particleFlowClusterHCAL.clone(
+    clustersSource = cms.InputTag("particleFlowClusterHBHEOnly")
+)
