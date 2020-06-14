@@ -55,14 +55,16 @@ bool reco::EgTrigSumObj::hasVar(const std::string& varName)const
   return vars_.find(varName)!=vars_.end();
 }
 
-float reco::EgTrigSumObj::var(const std::string& varName)const
+float reco::EgTrigSumObj::var(const std::string& varName,const bool raiseExcept)const
 {
   auto varIt = vars_.find(varName);
   if(varIt!=vars_.end()) return varIt->second;
-  else{
+  else if(raiseExcept){
     cms::Exception ex("AttributeError");
     ex <<" error variable "<<varName<<" is not present, variables present are "<<varNamesStr();
     throw ex;
+  }else{
+    return std::numeric_limits<float>::max();
   }
 }
 

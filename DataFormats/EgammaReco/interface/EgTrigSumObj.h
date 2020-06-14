@@ -41,7 +41,7 @@ namespace reco{
     void setSeeds(const reco::ElectronSeedRefVector&& seeds);
 
     bool hasVar(const std::string& varName)const; 
-    float var(const std::string& varName)const; 
+    float var(const std::string& varName,bool raiseExcept=true)const; 
     const std::unordered_map<std::string,float>& vars()const{return vars_;}
     //varNames and varNamesStr are reasonably expensive functions and are more
     //intended for debugging than normal use
