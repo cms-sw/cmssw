@@ -42,9 +42,9 @@ EcalPreshowerCellParameterDump::EcalPreshowerCellParameterDump(const edm::Parame
 
   if (debug_) {
     edm::Service<TFileService> fs;
-    for (int iz = 0; iz < 2; ++iz) {
-      int zside = 2 * iz - 1;
-      for (int lay = 1; lay <= 2; ++lay) {
+    for (short iz = 0; iz < 2; ++iz) {
+      short zside = 2 * iz - 1;
+      for (short lay = 1; lay <= 2; ++lay) {
         char name[20], title[40];
         sprintf(name, "hist%d%d", iz, lay);
         sprintf(title, "y vs. x (zside = %d,layer = %d)", zside, lay);
