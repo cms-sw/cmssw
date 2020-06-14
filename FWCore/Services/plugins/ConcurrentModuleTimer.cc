@@ -256,7 +256,10 @@ void ConcurrentModuleTimer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.addUntracked<std::vector<std::string>>("modulesToExclude", std::vector<std::string>{})
       ->setComment("Module labels to exclude from the timing measurements");
   desc.addUntracked<bool>("excludeSource", false)->setComment("Exclude the time the source is running");
-  desc.addUntracked<unsigned int>("padding", 0)->setComment("Extra possible concurrent modules beyond thread count");
+  desc.addUntracked<unsigned int>("padding", 0)
+      ->setComment(
+          "[Expert use only] Extra possible concurrent modules beyond thread count.\n Only useful in debugging "
+          "possible framework scheduling problems.");
   desc.addUntracked<bool>("trackGlobalBeginRun", false)
       ->setComment("Check for concurrent modules during global begin run");
   descriptions.add("ConcurrentModuleTimer", desc);
