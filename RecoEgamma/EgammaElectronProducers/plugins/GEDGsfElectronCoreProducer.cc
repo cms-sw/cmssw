@@ -21,7 +21,7 @@ private:
                            reco::PFCandidateEGammaExtraRef const &extraRef,
                            reco::GsfElectronCoreCollection &electrons,
                            edm::Handle<reco::TrackCollection> const &ctfTracksHandle,
-                           std::vector<double> ctfTrackEtas) const;
+                           std::vector<egamma::TrackVariables> const &ctfTrackVariables) const;
 
   const edm::EDGetTokenT<reco::TrackCollection> ctfTracksToken_;
   const edm::EDGetTokenT<reco::PFCandidateCollection> gedEMUnbiasedToken_;
@@ -44,7 +44,7 @@ GEDGsfElectronCoreProducer::GEDGsfElectronCoreProducer(const edm::ParameterSet &
 
 void GEDGsfElectronCoreProducer::produce(edm::StreamID iStream, edm::Event &event, const edm::EventSetup &setup) const {
   auto ctfTracksHandle = event.getHandle(ctfTracksToken_);
-  auto ctfTrackEtas = egamma::getTrackEtasLazy(*ctfTracksHandle);
+  auto ctfTrackVariables = egamma::getTrackVariablesLazy(*ctfTracksHandle);
 
   // output
   reco::GsfElectronCoreCollection electrons;
@@ -57,21 +57,22 @@ void GEDGsfElectronCoreProducer::produce(edm::StreamID iStream, edm::Event &even
     reco::PFCandidateEGammaExtraRef extraRef = pfCand.egammaExtraRef();
     if (extraRef.isNull())
       continue;
-    produceElectronCore(gsfTrackRef, extraRef, electrons, ctfTracksHandle, ctfTrackEtas.value());
+    produceElectronCore(gsfTrackRef, extraRef, electrons, ctfTracksHandle, ctfTrackVariables.value());
   }
 
   event.emplace(putToken_, std::move(electrons));
 }
 
-void GEDGsfElectronCoreProducer::produceElectronCore(GsfTrackRef const &gsfTrackRef,
-                                                     reco::PFCandidateEGammaExtraRef const &extraRef,
-                                                     reco::GsfElectronCoreCollection &electrons,
-                                                     edm::Handle<reco::TrackCollection> const &ctfTracksHandle,
-                                                     std::vector<double> ctfTrackEtas) const {
+void GEDGsfElectronCoreProducer::produceElectronCore(
+    GsfTrackRef const &gsfTrackRef,
+    reco::PFCandidateEGammaExtraRef const &extraRef,
+    reco::GsfElectronCoreCollection &electrons,
+    edm::Handle<reco::TrackCollection> const &ctfTracksHandle,
+    std::vector<egamma::TrackVariables> const &ctfTrackVariables) const {
   electrons.emplace_back(gsfTrackRef);
   auto &eleCore = electrons.back();
 
-  auto ctfpair = egamma::getClosestCtfToGsf(eleCore.gsfTrack(), ctfTracksHandle, ctfTrackEtas);
+  auto ctfpair = egamma::getClosestCtfToGsf(eleCore.gsfTrack(), ctfTracksHandle, ctfTrackVariables);
   eleCore.setCtfTrack(ctfpair.first, ctfpair.second);
 
   SuperClusterRef scRef = extraRef->superClusterRef();

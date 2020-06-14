@@ -43,7 +43,7 @@ void LowPtGsfElectronCoreProducer::produce(edm::StreamID, edm::Event& event, con
   auto ctfTracksHandle = event.getHandle(ctfTracksToken_);
   auto const& superClusterRefs = event.get(superClusterRefs_);
 
-  auto ctfTrackEtas = egamma::getTrackEtasLazy(*ctfTracksHandle);
+  auto ctfTrackVariables = egamma::getTrackVariablesLazy(*ctfTracksHandle);
 
   // Create ElectronCore objects
   for (size_t ipfgsf = 0; ipfgsf < gsfPfRecTracksHandle->size(); ++ipfgsf) {
@@ -60,7 +60,7 @@ void LowPtGsfElectronCoreProducer::produce(edm::StreamID, edm::Event& event, con
     }
 
     // Add GSF(PF) track information
-    auto ctfpair = egamma::getClosestCtfToGsf(electrons.back().gsfTrack(), ctfTracksHandle, ctfTrackEtas.value());
+    auto ctfpair = egamma::getClosestCtfToGsf(electrons.back().gsfTrack(), ctfTracksHandle, ctfTrackVariables.value());
     electrons.back().setCtfTrack(ctfpair.first, ctfpair.second);
 
     // Add super cluster information

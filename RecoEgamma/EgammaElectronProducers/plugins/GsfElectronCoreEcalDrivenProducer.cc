@@ -53,7 +53,7 @@ void GsfElectronCoreEcalDrivenProducer::produce(edm::StreamID, edm::Event& event
   auto gsfTracksHandle = event.getHandle(gsfTracksToken_);
   auto ctfTracksHandle = event.getHandle(ctfTracksToken_);
 
-  auto ctfTrackEtas = egamma::getTrackEtasLazy(*ctfTracksHandle);
+  auto ctfTrackVariables = egamma::getTrackVariablesLazy(*ctfTracksHandle);
 
   // output
   reco::GsfElectronCoreCollection electrons;
@@ -67,7 +67,7 @@ void GsfElectronCoreEcalDrivenProducer::produce(edm::StreamID, edm::Event& event
       return;
     }
 
-    auto ctfpair = egamma::getClosestCtfToGsf(eleCore.gsfTrack(), ctfTracksHandle, ctfTrackEtas.value());
+    auto ctfpair = egamma::getClosestCtfToGsf(eleCore.gsfTrack(), ctfTracksHandle, ctfTrackVariables.value());
     eleCore.setCtfTrack(ctfpair.first, ctfpair.second);
 
     auto scRef = gsfTrackRef->extra()->seedRef().castTo<ElectronSeedRef>()->caloCluster().castTo<SuperClusterRef>();
