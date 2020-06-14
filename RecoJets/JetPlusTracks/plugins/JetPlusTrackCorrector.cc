@@ -9,6 +9,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include <fstream>
 #include <vector>
 #include <iomanip>
@@ -47,6 +49,10 @@ JetPlusTrackCorrector::JetPlusTrackCorrector(const edm::ParameterSet& pset, edm:
       response_(Map(pset.getParameter<std::string>("ResponseMap"), verbose_)),
       efficiency_(Map(pset.getParameter<std::string>("EfficiencyMap"), verbose_)),
       leakage_(Map(pset.getParameter<std::string>("LeakageMap"), verbose_)),
+      muonPtmatch_(pset.getParameter<double>("muonPtmatch")),
+      muonEtamatch_(pset.getParameter<double>("muonEtamatch")),
+      muonPhimatch_(pset.getParameter<double>("muonPhimatch")),
+      electronDRmatch_(pset.getParameter<double>("electronDRmatch")),
       pionMass_(0.140),
       muonMass_(0.105),
       elecMass_(0.000511),
@@ -1317,9 +1323,9 @@ bool JetPlusTrackCorrector::matchMuons(TrackRefs::const_iterator& itrk,
     //  <<(**itrk).eta()<<" "<<(**itrk).phi()<<" Muon "<<
     // (*(imuon->innerTrack())).pt()<<" "<< (*(imuon->innerTrack())).eta()<<" "<<
     // (*(imuon->innerTrack())).phi()<<std::endl;
-    if (fabs((**itrk).pt() - (*(imuon->innerTrack())).pt()) < 0.1 &&
-        fabs((**itrk).eta() - (*(imuon->innerTrack())).eta()) < 0.001 &&
-        fabs((**itrk).phi() - (*(imuon->innerTrack())).phi()) < 0.001) {
+    if (fabs((**itrk).pt() - (*(imuon->innerTrack())).pt()) < muonPtmatch_ &&
+        fabs((**itrk).eta() - (*(imuon->innerTrack())).eta()) < muonEtamatch_ &&
+        fabs((**itrk).phi() - (*(imuon->innerTrack())).phi()) < muonPhimatch_) {
       //   std::cout<<" Needed muon-track "<<(**itrk).pt()<<" "<<
       // (**itrk).eta()<<" "<<(**itrk).phi()<<std::endl;
       return true;
@@ -1338,7 +1344,7 @@ bool JetPlusTrackCorrector::matchElectrons(TrackRefs::const_iterator& itrk,
     return false;
   }
 
-  double deltaR = 999.;
+  double dR = 999.;
   double deltaRMIN = 999.;
 
   uint32_t electron_index = 0;
@@ -1353,18 +1359,14 @@ bool JetPlusTrackCorrector::matchElectrons(TrackRefs::const_iterator& itrk,
     }  //@@ Check for null value
 
     // DR matching b/w electron and track
-    double deltaphi = fabs(ielec->phi() - (*itrk)->momentum().phi());
-    if (deltaphi > 6.283185308)
-      deltaphi -= 6.283185308;
-    if (deltaphi > 3.141592654)
-      deltaphi = 6.283185308 - deltaphi;
-    deltaR = abs(sqrt(pow((ielec->eta() - (*itrk)->momentum().eta()), 2) + pow(deltaphi, 2)));
-    if (deltaR < deltaRMIN) {
-      deltaRMIN = deltaR;
+
+    dR = deltaR(ielec->eta(),ielec->phi(),(*itrk)->momentum().eta(),(*itrk)->momentum().phi()); 
+    if (dR < deltaRMIN) {
+      deltaRMIN = dR;
     }
   }
 
-  if (deltaRMIN < 0.02)
+  if (deltaRMIN < electronDRmatch_)
     return true;
   else
     return false;
@@ -1376,25 +1378,21 @@ bool JetPlusTrackCorrector::matchElectrons(TrackRefs::const_iterator& itrk,
     return false;
   }
   // std::cout<<"JetPlusTrackCorrector::matchElectrons "<<std::endl;
-  double deltaR = 999.;
+  double dR = 999.;
   double deltaRMIN = 999.;
   pat::ElectronCollection::const_iterator ielec = elecs->begin();
   pat::ElectronCollection::const_iterator jelec = elecs->end();
   for (; ielec != jelec; ++ielec) {
     //  std::cout<<"Electron "<<ielec->eta()<<" "<<ielec->phi()<<" Track "<<(*itrk)->momentum().eta()<<" "<<
     //     (*itrk)->momentum().phi()<<" PT "<<ielec->pt()<<" "<<(*itrk)->pt()<<std::endl;
-    double deltaphi = fabs(ielec->phi() - (*itrk)->momentum().phi());
-    if (deltaphi > 6.283185308)
-      deltaphi -= 6.283185308;
-    if (deltaphi > 3.141592654)
-      deltaphi = 6.283185308 - deltaphi;
-    deltaR = abs(sqrt(pow((ielec->eta() - (*itrk)->momentum().eta()), 2) + pow(deltaphi, 2)));
-    if (deltaR < deltaRMIN) {
-      deltaRMIN = deltaR;
+    dR = deltaR(ielec->eta(),ielec->phi(),(*itrk)->momentum().eta(),(*itrk)->momentum().phi());
+    if (dR < deltaRMIN) {
+      deltaRMIN = dR;
     }
+
   }
   //   std::cout<<" matchElectrons:DeltaR "<<deltaRMIN<<std::endl;
-  if (deltaRMIN < 0.02) { /*std::cout<<"Electron is accepted "<<std::endl;*/
+  if (deltaRMIN < electronDRmatch_) { /*std::cout<<"Electron is accepted "<<std::endl;*/
     return true;
   } else
     return false;

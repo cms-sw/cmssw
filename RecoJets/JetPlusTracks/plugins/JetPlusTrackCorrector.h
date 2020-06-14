@@ -434,6 +434,12 @@ protected:
   const jpt::Map efficiency_;
   const jpt::Map leakage_;
 
+  // Muon/Electron
+  double muonPtmatch_;
+  double muonEtamatch_;
+  double muonPhimatch_;
+  double electronDRmatch_;
+
   // Mass
   double pionMass_;
   double muonMass_;
