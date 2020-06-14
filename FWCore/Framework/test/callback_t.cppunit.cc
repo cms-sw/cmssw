@@ -150,7 +150,6 @@ void testCallback::uniquePtrTest() {
 
   callback.newRecordComing();
   call(callback);
-  ;
   CPPUNIT_ASSERT(0 != handle.get());
   CPPUNIT_ASSERT(prod.value_ == 1);
   assert(0 != handle.get());
@@ -158,7 +157,6 @@ void testCallback::uniquePtrTest() {
 
   //since haven't cleared, should not have changed
   call(callback);
-  ;
   CPPUNIT_ASSERT(prod.value_ == 1);
   CPPUNIT_ASSERT(prod.value_ == handle->value_);
 
@@ -167,7 +165,6 @@ void testCallback::uniquePtrTest() {
   callback.newRecordComing();
 
   call(callback);
-  ;
   CPPUNIT_ASSERT(0 != handle.get());
   CPPUNIT_ASSERT(prod.value_ == 2);
   assert(0 != handle.get());
@@ -178,14 +175,12 @@ void testCallback::uniquePtrTest() {
   CPPUNIT_ASSERT(handle->value_ == 2);
 
   call(callback);
-  ;
   call(*callback2);
   CPPUNIT_ASSERT(handle2->value_ == 3);
   CPPUNIT_ASSERT(handle->value_ == 2);
 
   callback2->newRecordComing();
   call(callback);
-  ;
   call(*callback2);
   CPPUNIT_ASSERT(handle2->value_ == 4);
   CPPUNIT_ASSERT(handle->value_ == 2);
@@ -203,13 +198,11 @@ void testCallback::sharedPtrTest() {
 
   callback.newRecordComing();
   call(callback);
-  ;
   CPPUNIT_ASSERT(handle.get() == prod.ptr_.get());
   CPPUNIT_ASSERT(prod.ptr_->value_ == 1);
 
   //since haven't cleared, should not have changed
   call(callback);
-  ;
   CPPUNIT_ASSERT(handle.get() == prod.ptr_.get());
   CPPUNIT_ASSERT(prod.ptr_->value_ == 1);
 
@@ -217,7 +210,6 @@ void testCallback::sharedPtrTest() {
   callback.newRecordComing();
 
   call(callback);
-  ;
   CPPUNIT_ASSERT(handle.get() == prod.ptr_.get());
   CPPUNIT_ASSERT(prod.ptr_->value_ == 2);
 }
@@ -237,20 +229,17 @@ void testCallback::ptrProductsTest() {
 
   callback.newRecordComing();
   call(callback);
-  ;
   CPPUNIT_ASSERT(handle.get() == &(prod.data_));
   CPPUNIT_ASSERT(prod.data_.value_ == 1);
 
   //since haven't cleared, should not have changed
   call(callback);
-  ;
   CPPUNIT_ASSERT(handle.get() == &(prod.data_));
   CPPUNIT_ASSERT(prod.data_.value_ == 1);
 
   callback.newRecordComing();
 
   call(callback);
-  ;
   CPPUNIT_ASSERT(handle.get() == &(prod.data_));
   CPPUNIT_ASSERT(prod.data_.value_ == 2);
 }
