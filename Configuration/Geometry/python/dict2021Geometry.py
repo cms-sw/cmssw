@@ -386,9 +386,9 @@ forwardDict = {
     }
 }
 
-ctppsDict = {
+ppsDict = {
     "abbrev" : "P",
-    "name" : "ctpps",
+    "name" : "pps",
     "default" : 1,
     "P1" : {
         1 : [
@@ -408,7 +408,7 @@ ctppsDict = {
     },
 }
 
-allDicts = [ commonDict, trackerDict, caloDict, muonDict, forwardDict, ctppsDict ]
+allDicts = [ commonDict, trackerDict, caloDict, muonDict, forwardDict, ppsDict ]
 
 detectorVersionDict = {
     ("O1","T1","C1","M1","F1", "P1") : "2021",

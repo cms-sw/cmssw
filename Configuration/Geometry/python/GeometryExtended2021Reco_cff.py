@@ -32,6 +32,6 @@ from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *
 # forward
 from Geometry.ForwardGeometry.ForwardGeometry_cfi import *
 
-# ctpps
+# pps
 
 
