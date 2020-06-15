@@ -1,29 +1,20 @@
 #include <iostream>
 
-// framework
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-//#include "HeterogeneousCore/Producer/interface/HeterogeneousEDProducer.h"
-//#include "HeterogeneousCore/Producer/interface/HeterogeneousEvent.h"
-
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CUDADataFormats/EcalDigi/interface/DigisCollection.h"
+#include "CondFormats/DataRecord/interface/EcalMappingElectronicsRcd.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "EventFilter/EcalRawToDigi/interface/ElectronicsMappingGPU.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
-// algorithm specific
-
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "CUDADataFormats/EcalDigi/interface/DigisCollection.h"
-
-#include "CondFormats/DataRecord/interface/EcalMappingElectronicsRcd.h"
-
-#include "EventFilter/EcalRawToDigi/interface/ElectronicsMappingGPU.h"
-
-#include "EventFilter/EcalRawToDigi/interface/DeclsForKernels.h"
-#include "EventFilter/EcalRawToDigi/interface/UnpackGPU.h"
+#include "DeclsForKernels.h"
+#include "UnpackGPU.h"
 
 class EcalRawToDigiGPU : public edm::stream::EDProducer<edm::ExternalWork> {
 public:

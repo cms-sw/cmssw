@@ -8,7 +8,6 @@
 <use name="DataFormats/EcalDetId"/>
 <use name="DataFormats/EcalDigi"/>
 <use name="DataFormats/EcalRawData"/>
-<use name="DataFormats/EcalRecHit"/>
 <use name="DataFormats/FEDRawData"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
@@ -18,8 +17,6 @@
 <use name="Geometry/Records"/>
 <use name="HeterogeneousCore/CUDACore"/>
 <use name="HeterogeneousCore/CUDAUtilities"/>
-<use name="RecoLocalCalo/EcalRecAlgos"/>
-<use name="RecoLocalCalo/EcalRecProducers"/>
 <use name="Utilities/StorageFactory"/>
 <export>
   <lib name="1"/>

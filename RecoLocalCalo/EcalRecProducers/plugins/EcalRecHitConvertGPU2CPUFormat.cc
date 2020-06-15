@@ -1,18 +1,16 @@
-// framework
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <iostream>
+
+#include "CUDADataFormats/EcalRecHitSoA/interface/EcalRecHit_soa.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-// algorithm specific
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "CUDADataFormats/EcalRecHitSoA/interface/EcalRecHit_soa.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/Common.h"
-
-#include <iostream>
+#include "Common.h"
 
 class EcalRecHitConvertGPU2CPUFormat : public edm::stream::EDProducer<> {
 public:
@@ -57,7 +55,7 @@ EcalRecHitConvertGPU2CPUFormat::~EcalRecHitConvertGPU2CPUFormat() {}
 void EcalRecHitConvertGPU2CPUFormat::produce(edm::Event& event, edm::EventSetup const& setup) {
   auto const& hRecHitsGPUEB = event.get(recHitsGPUEB_);
   auto const& hRecHitsGPUEE = event.get(recHitsGPUEE_);
-  
+
   auto recHitsCPUEB = std::make_unique<EBRecHitCollection>();
   auto recHitsCPUEE = std::make_unique<EERecHitCollection>();
   recHitsCPUEB->reserve(hRecHitsGPUEB.energy.size());
