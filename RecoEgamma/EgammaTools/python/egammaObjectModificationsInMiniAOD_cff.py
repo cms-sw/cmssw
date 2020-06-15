@@ -170,4 +170,5 @@ run2_miniAOD_80XLegacy.toModify(egamma_modifications,appendEgamma8XLegacyAppenda
 run2_miniAOD_80XLegacy.toModify(egamma_modifications,prependEgamma8XObjectUpdateModifier)
 
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-pp_on_AA_2018.toModify(egamma_modifications, appendEgammaHIPhotonIsolationModifier)
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+(pp_on_AA_2018 | pp_on_PbPb_run3).toModify(egamma_modifications, appendEgammaHIPhotonIsolationModifier)
