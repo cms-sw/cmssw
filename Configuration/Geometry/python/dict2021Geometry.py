@@ -357,7 +357,7 @@ forwardDict = {
     "name" : "forward",
     "default" : 1,
     "F1" : {
-        1 : [
+        2 : [
             'Geometry/ForwardCommonData/data/forward/2021/v1/forward.xml',
             'Geometry/ForwardCommonData/data/totemt2/2021/v1/totemt2.xml',
             'Geometry/ForwardCommonData/data/forwardshield/2021/v1/forwardshield.xml',
@@ -391,7 +391,7 @@ ppsDict = {
     "name" : "pps",
     "default" : 1,
     "P1" : {
-        1 : [
+        2 : [
             'Geometry/VeryForwardData/data/pps/2021/v1/pps.xml',
             ],
         "sim" : [
