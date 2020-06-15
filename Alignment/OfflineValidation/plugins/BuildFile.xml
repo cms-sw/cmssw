@@ -5,7 +5,6 @@
 <use name="CondCore/DBOutputService"/>
 <use name="CondFormats/Alignment"/>
 <use name="CondFormats/RunInfo"/>
-<use name="CondCore/SiPixelPlugins"/>
 <use name="CondFormats/SiPixelObjects"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/MuonReco"/>
@@ -18,6 +17,7 @@
 <use name="CommonTools/UtilAlgos"/>
 <use name="CommonTools/Utils"/>
 <use name="RecoMuon/TrackingTools"/>
+<use name="CalibTracker/StandaloneTrackerTopology"/>
 <use name="TrackingTools/TransientTrack"/>
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/GeneratorProducts"/>
