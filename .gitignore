@@ -4,3 +4,5 @@ __init__.py
 .#*
 #*#
 *~
+.python_packages
+*.sqlite

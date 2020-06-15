@@ -54,6 +54,11 @@ Please install python dependencies before running the code:
 pip3 install -r DQMServices/DQMGUI/python/requirements.txt --user
 ```
 
+Add python packages to a local directory. This is required for long time deployments because auth to AFS will eventually expire.
+``` bash
+python3 -m pip install -r requirements.txt -t .python_packages
+```
+
 The server is started like this:
 ```
 python3 DQMServices/DQMGUI/python/app.py
@@ -63,10 +68,11 @@ It will listen on `http://localhost:8889` (and you can't just change that, see b
 
 ## File formats
 
-Currently there are two supported file formats:
+Currently there are three supported file formats:
 
 * Legacy DQM TDirectory based ROOT files (1)
 * DQMIO TTree based ROOT files (2)
+* Protobuf based format used in Online live mode (3)
 
 There will most probably be a format for online/live data streaming.
 
@@ -149,7 +155,7 @@ This is the future version of the DQM GUI API and it is preferred for all servic
 
 #### Samples endpoint
 
-Returns run/dataset pairs available in the GUI. All arguments are optional. If lumi is not passed, 0 is assumed and only per run plots are returned.
+Returns run/dataset pairs available in the GUI. All arguments are optional. If lumi is not passed, 0 is assumed and only per run plots are returned. Passing -1, returns all per lumi samples and no per run samples.
 
 `http://localhost:8889/api/v1/samples?run=295120&lumi=123&dataset=Run2017A`
 

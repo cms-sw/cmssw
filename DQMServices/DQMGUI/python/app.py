@@ -10,7 +10,14 @@ If a new version of the API needs to be provided, new /v2/ methods can be provid
 and configured here.
 """
 
-import time
+from helpers import get_absolute_path, parse_run_lumi
+
+# Add local python packages dir (if it exists) to python path.
+import sys, os
+local_packages_dir = get_absolute_path('.python_packages/')
+if os.path.isdir(local_packages_dir):
+    sys.path.insert(0, local_packages_dir)
+
 import asyncio
 import logging
 import argparse
@@ -23,7 +30,6 @@ from service import GUIService
 from storage import GUIDataStore
 from importing.importing import GUIImportManager
 from aiohttp import web, WSCloseCode
-from helpers import get_absolute_path, parse_run_lumi
 
 from data_types import RenderingOptions, MEDescription
 
