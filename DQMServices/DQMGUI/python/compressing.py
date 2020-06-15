@@ -36,6 +36,10 @@ class GUIBlobCompressor():
     scalar_format = struct.Struct("<xBBBBBBxxBBxxxxxHxx") 
     int_format    = struct.Struct("<q")
     float_format  = struct.Struct("<d")
+    # we delta-encode the MEInfo values. To be able to do partial decoding, we
+    # use fixed size blocks of this size, so at most that many entries need to
+    # be read to decode one item.
+    deltablocksize = 1024
 
 
     @classmethod
@@ -60,11 +64,14 @@ class GUIBlobCompressor():
         # for that, we need the format characters (without the "<")
         fstring = cls.normal_format.format[1:]
         normal_format = cls.normal_format
-        # SoA
         lists = [[] for _ in fstring]
-        # current value fot the delta-encoding
-        cur = [0 for _ in fstring]
-        for info in infos:
+        # current value for the delta-encoding
+        cur = None
+        for k, info in enumerate(infos):
+            # we delta-encode but reset the state regularly so the unpacker does not
+            # always need to read everything.
+            if k % cls.deltablocksize == 0:
+                cur = [0 for _ in fstring]
             # convert into bare words (explicitly ignoring the special cases)
             b = cls.pack_meinfo(info)
             words = normal_format.unpack(b)
@@ -90,32 +97,15 @@ class GUIBlobCompressor():
 
     @classmethod
     async def uncompress_infos_blob(cls, infos_blob):
-        # Here, we undo the transform from `compress_infos_list`.
         fstring = cls.normal_format.format[1:]
-        normal_format = struct.Struct(fstring)
-        # agagin, this is very fast -- could be in threadpool, but does no really need to.
+        # again, this is very fast -- could be in threadpool, but does no really need to.
         buf = zlib.decompress(infos_blob)
-        n = len(buf) // normal_format.size
-        bufs = []
-        sizes = []
-        start = 0
-        for t in fstring:
-            # Unpack SoA
-            s = struct.Struct(f"<{n}{t}")
-            sizes.append(s.size // n)
-            l = list(s.unpack_from(buf, offset=start))
-            start += s.size
-            # delta decode
-            cur = 0
-            for i in range(n):
-                cur += l[i]
-                l[i] = cur
-            # and repack SoA! We will use `unpack_meinfo` later, which expects bytes.
-            bufs.append(s.pack(*l))
-        # All further steps can be done on-demand. We only need to do the 
-        # delta-decode here, the reads can be done per-element (and most likely
-        # we will only read very few elements).
-        # Inner class defined here so we can access cls. This allows us to 
+        n = len(buf) // cls.normal_format.size
+        # All further steps can be done on-demand. 
+        # Even the delta-decode can be done per-element, and most likely
+        # we will only read very few elements. deltablocksize is a compromise
+        # between good compression (large) and fast decoding here (small).
+        # Inner class defined here so we can access cls. This allows us to
         # also access all the other state via the closure.
         class LazyMEInfoList:
             """
@@ -123,10 +113,25 @@ class GUIBlobCompressor():
             created form their binary representation lazyliy as they are accessed.
             """
             def __getitem__(self, idx):
+                if not (0 <= idx < n):
+                    raise IndexError(f"Index {idx} is not legal.")
+                # Here, we undo the transform from `compress_infos_list`.
                 parts = []
-                # read one entry out of each of the arrays
-                for i, buf in enumerate(bufs):
-                    parts.append(buf[idx*sizes[i] : (idx+1)*sizes[i]])
+                start = 0
+                # to undo the delta coding, we start at a reset point, and sum
+                # all the values up to the one we want (first:first+count)
+                count = idx % cls.deltablocksize + 1
+                first = idx - count + 1
+                for t in fstring:
+                    field = struct.Struct(f"<{t}")
+                    # read the values needed to decde this field
+                    array = struct.unpack_from(f"<{count}{t}", buf, offset=start + first * field.size)
+                    # sum() to undo delta coding
+                    part = field.pack(sum(array))
+                    # then back to bytes, for `unpaack_meinfo`.
+                    parts.append(part)
+                    start += n * field.size
+                assert start == len(buf)
                 # then merge them into one struct, and decode the object from that.
                 return  cls.unpack_meinfo(b''.join(parts))
             def __len__(self):
