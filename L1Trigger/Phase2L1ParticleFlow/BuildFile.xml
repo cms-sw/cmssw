@@ -1,0 +1,17 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="DataFormats/L1TParticleFlow"/>
+<use name="CommonTools/BaseParticlePropagator"/>
+<use name="FastSimulation/Particle"/>
+<use name="DataFormats/ParticleFlowReco"/>
+
+<use   name="L1Trigger/L1THGCal"/>
+<use   name="CommonTools/Utils"/>
+<use   name="CommonTools/MVAUtils"/>
+<use   name="roottmva"/>
+<use   name="hls"/>
+<export>
+  <lib name="1"/>
+</export>
+<flags ADD_SUBDIR="1"/>
