@@ -22,9 +22,31 @@ cosmicDCSeeds = RecoTracker.SpecialSeedGenerators.outInSeedsFromStandaloneMuons_
 )
 
 # Ckf pattern
+import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderP5_cff
+Chi2MeasurementEstimatorForCDC = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderP5_cff.Chi2MeasurementEstimatorForP5.clone(
+    ComponentName = cms.string('Chi2MeasurementEstimatorForCDC'),
+    MaxDisplacement = 500
+)
+
+ckfBaseTrajectoryFilterCDC = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderP5_cff.ckfBaseTrajectoryFilterP5.clone(
+    maxLostHits = 10,
+    maxConsecLostHits = 10
+)
+
+GroupedCkfTrajectoryBuilderCDC = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderP5_cff.GroupedCkfTrajectoryBuilderP5.clone(
+    maxCand = 3,
+    estimator = 'Chi2MeasurementEstimatorForCDC',
+    trajectoryFilter = cms.PSet(
+        refToPSet_ = cms.string('ckfBaseTrajectoryFilterCDC')
+    )
+)
+
 import RecoTracker.CkfPattern.CkfTrackCandidatesP5_cff
 cosmicDCCkfTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidatesP5_cff.ckfTrackCandidatesP5.clone(
     src = cms.InputTag( "cosmicDCSeeds" ),
+    TrajectoryBuilderPSet = cms.PSet(
+        refToPSet_ = cms.string('GroupedCkfTrajectoryBuilderCDC')
+    )
 )
 
 # Track producer
