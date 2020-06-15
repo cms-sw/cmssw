@@ -12,42 +12,38 @@
 namespace pat {
 
   class PackedCandidateMuonSelectorProducer : public edm::stream::EDProducer<> {
-
     typedef edm::ValueMap<bool> BoolMap;
 
-    public:
-
-      explicit PackedCandidateMuonSelectorProducer(const edm::ParameterSet & iConfig):
-          muonToken_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
-          candidateToken_(consumes<edm::View<pat::PackedCandidate> >(iConfig.getParameter<edm::InputTag>("candidates"))),
+  public:
+    explicit PackedCandidateMuonSelectorProducer(const edm::ParameterSet& iConfig)
+        : muonToken_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
+          candidateToken_(
+              consumes<edm::View<pat::PackedCandidate> >(iConfig.getParameter<edm::InputTag>("candidates"))),
           muonSelectors_(iConfig.getParameter<std::vector<std::string> >("muonSelectors")),
-          muonIDs_(iConfig.getParameter<std::vector<std::string> >("muonIDs"))
-      {
-        for (const auto& sel : muonSelectors_) {
-          produces<BoolMap>(sel);
-        }
-        for (const auto& sel : muonIDs_) {
-          muonIDMap_[sel].reset(new StringCutObjectSelector<pat::Muon>("passed('"+sel+"')"));
-          produces<BoolMap>(sel);
-        }
+          muonIDs_(iConfig.getParameter<std::vector<std::string> >("muonIDs")) {
+      for (const auto& sel : muonSelectors_) {
+        produces<BoolMap>(sel);
       }
-      ~PackedCandidateMuonSelectorProducer() override {};
+      for (const auto& sel : muonIDs_) {
+        muonIDMap_[sel].reset(new StringCutObjectSelector<pat::Muon>("passed('" + sel + "')"));
+        produces<BoolMap>(sel);
+      }
+    }
+    ~PackedCandidateMuonSelectorProducer() override{};
 
-      void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
-      static void fillDescriptions(edm::ConfigurationDescriptions&);
+    static void fillDescriptions(edm::ConfigurationDescriptions&);
 
-    private:
-
-      edm::EDGetTokenT<pat::MuonCollection> muonToken_;
-      edm::EDGetTokenT<edm::View<pat::PackedCandidate> > candidateToken_;
-      std::vector<std::string> muonSelectors_;
-      std::vector<std::string> muonIDs_;
-      std::map<std::string, std::unique_ptr<StringCutObjectSelector<pat::Muon> > > muonIDMap_;
-
+  private:
+    edm::EDGetTokenT<pat::MuonCollection> muonToken_;
+    edm::EDGetTokenT<edm::View<pat::PackedCandidate> > candidateToken_;
+    std::vector<std::string> muonSelectors_;
+    std::vector<std::string> muonIDs_;
+    std::map<std::string, std::unique_ptr<StringCutObjectSelector<pat::Muon> > > muonIDMap_;
   };
 
-}
+}  // namespace pat
 
 void pat::PackedCandidateMuonSelectorProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<pat::MuonCollection> muons;
@@ -69,23 +65,22 @@ void pat::PackedCandidateMuonSelectorProducer::produce(edm::Event& iEvent, const
   // loop over muons
   for (const auto& muon : *muons) {
     // ignore muons without high purity inner track
-    if (muon.innerTrack().isNull() ||
-        !muon.innerTrack()->quality(reco::TrackBase::qualityByName("highPurity"))) continue;
+    if (muon.innerTrack().isNull() || !muon.innerTrack()->quality(reco::TrackBase::qualityByName("highPurity")))
+      continue;
 
     // find candidate associated to muon
     const auto& muonTrack = *muon.innerTrack();
     for (size_t i = 0; i < nCand; i++) {
       const auto& cand = candidates->refAt(i);
       // ignore neutral candidates or without track
-      if (cand->charge()==0 || !cand->hasTrackDetails()) continue;
+      if (cand->charge() == 0 || !cand->hasTrackDetails())
+        continue;
 
       // check if candidate and muon are compatible
       const auto& candTrack = cand->pseudoTrack();
-      if (muonTrack.charge()==candTrack.charge() &&
-          muonTrack.numberOfValidHits()==candTrack.numberOfValidHits() &&
-          std::abs(muonTrack.eta()-candTrack.eta())<1E-3 &&
-          std::abs(muonTrack.phi()-candTrack.phi())<1E-3 &&
-          std::abs((muonTrack.pt()-candTrack.pt())/muonTrack.pt())<1E-2) {
+      if (muonTrack.charge() == candTrack.charge() && muonTrack.numberOfValidHits() == candTrack.numberOfValidHits() &&
+          std::abs(muonTrack.eta() - candTrack.eta()) < 1E-3 && std::abs(muonTrack.phi() - candTrack.phi()) < 1E-3 &&
+          std::abs((muonTrack.pt() - candTrack.pt()) / muonTrack.pt()) < 1E-2) {
         // fill muon selector map
         for (const auto& sel : muonSelectors_) {
           muonSelMap[sel][i] = muon.muonID(sel);
@@ -112,7 +107,8 @@ void pat::PackedCandidateMuonSelectorProducer::produce(edm::Event& iEvent, const
 void pat::PackedCandidateMuonSelectorProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("muons", edm::InputTag("patMuons"))->setComment("muon input collection");
-  desc.add<edm::InputTag>("candidates", edm::InputTag("packedPFCandidates"))->setComment("packed candidate input collection");
+  desc.add<edm::InputTag>("candidates", edm::InputTag("packedPFCandidates"))
+      ->setComment("packed candidate input collection");
   desc.add<std::vector<std::string> >("muonSelectors", {})->setComment("muon selectors");
   desc.add<std::vector<std::string> >("muonIDs", {})->setComment("muon IDs");
   descriptions.add("packedPFCandidateMuonID", desc);
