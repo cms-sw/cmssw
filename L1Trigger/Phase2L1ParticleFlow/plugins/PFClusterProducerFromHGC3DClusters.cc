@@ -15,7 +15,7 @@ namespace l1tpf {
   class PFClusterProducerFromHGC3DClusters : public edm::stream::EDProducer<> {
   public:
     explicit PFClusterProducerFromHGC3DClusters(const edm::ParameterSet &);
-    ~PFClusterProducerFromHGC3DClusters() {}
+    ~PFClusterProducerFromHGC3DClusters() override {}
 
   private:
     edm::EDGetTokenT<l1t::HGCalMulticlusterBxCollection> src_;
@@ -27,7 +27,7 @@ namespace l1tpf {
     l1tpf::corrector corrector_;
     l1tpf::ParametricResolution resol_;
 
-    virtual void produce(edm::Event &, const edm::EventSetup &) override;
+    void produce(edm::Event &, const edm::EventSetup &) override;
 
   };  // class
 }  // namespace l1tpf
@@ -40,16 +40,16 @@ l1tpf::PFClusterProducerFromHGC3DClusters::PFClusterProducerFromHGC3DClusters(co
       emVsPionID_(iConfig.getParameter<edm::ParameterSet>("emVsPionID")),
       emVsPUID_(iConfig.getParameter<edm::ParameterSet>("emVsPUID")),
       hasEmId_((iConfig.existsAs<std::string>("preEmId") && !iConfig.getParameter<std::string>("preEmId").empty()) ||
-               emVsPionID_.method() != ""),
+               !emVsPionID_.method().empty()),
       corrector_(iConfig.getParameter<std::string>("corrector"),
                  emOnly_ || iConfig.getParameter<std::string>("corrector").empty()
                      ? -1
                      : iConfig.getParameter<double>("correctorEmfMax")),
       resol_(iConfig.getParameter<edm::ParameterSet>("resol")) {
-  if (emVsPionID_.method() != "") {
+  if (!emVsPionID_.method().empty()) {
     emVsPionID_.prepareTMVA();
   }
-  if (emVsPUID_.method() != "") {
+  if (!emVsPUID_.method().empty()) {
     emVsPUID_.prepareTMVA();
   }
 
@@ -82,12 +82,12 @@ void l1tpf::PFClusterProducerFromHGC3DClusters::produce(edm::Event &iEvent, cons
       continue;
 
     l1t::PFCluster cluster(pt, it->eta(), it->phi(), hoe, /*isEM=*/isEM);
-    if (emVsPUID_.method() != "") {
+    if (!emVsPUID_.method().empty()) {
       if (!emVsPUID_.passID(*it, cluster)) {
         continue;
       }
     }
-    if (emVsPionID_.method() != "") {
+    if (!emVsPionID_.method().empty()) {
       cluster.setIsEM(emVsPionID_.passID(*it, cluster));
     }
     if (corrector_.valid())

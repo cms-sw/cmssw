@@ -51,10 +51,10 @@
 class L1TPFJetMetTreeProducer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit L1TPFJetMetTreeProducer(const edm::ParameterSet &);
-  ~L1TPFJetMetTreeProducer();
+  ~L1TPFJetMetTreeProducer() override;
 
 private:
-  virtual void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
   struct JetInput {
     std::string name;

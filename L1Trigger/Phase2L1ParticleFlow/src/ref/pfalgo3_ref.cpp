@@ -354,7 +354,7 @@ void pfalgo3_ref(const pfalgo3_config &cfg,
                  int(track[it].hwPt),
                  ibest,
                  int(hadcalo_subem[ibest].hwPt));
-        track_good[it] = 1;
+        track_good[it] = true;
         calo_sumtk[ibest] += track[it].hwPt;
         calo_sumtkErr2[ibest] += sqr(track[it].hwPtErr);
       }

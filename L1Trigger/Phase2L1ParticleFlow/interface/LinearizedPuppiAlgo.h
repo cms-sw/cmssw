@@ -8,7 +8,7 @@ namespace l1tpf_impl {
   class LinearizedPuppiAlgo : public PuppiAlgo {
   public:
     LinearizedPuppiAlgo(const edm::ParameterSet &);
-    virtual ~LinearizedPuppiAlgo();
+    ~LinearizedPuppiAlgo() override;
 
     const std::vector<std::string> &puGlobalNames() const override;
     void doPUGlobals(const std::vector<Region> &rs, float npu, std::vector<float> &globals) const override;

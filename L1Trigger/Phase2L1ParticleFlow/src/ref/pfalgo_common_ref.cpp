@@ -13,7 +13,7 @@ void pfalgo_mu_ref(const pfalgo_config &cfg,
   for (unsigned int ipf = 0; ipf < cfg.nMU; ++ipf)
     clear(outmu[ipf]);
   for (unsigned int it = 0; it < cfg.nTRACK; ++it)
-    isMu[it] = 0;
+    isMu[it] = false;
 
   // for each muon, find the closest track
   for (unsigned int im = 0; im < cfg.nMU; ++im) {
@@ -37,7 +37,7 @@ void pfalgo_mu_ref(const pfalgo_config &cfg,
         outmu[im].hwPhi = track[ibest].hwPhi;
         outmu[im].hwId = PID_Muon;
         outmu[im].hwZ0 = track[ibest].hwZ0;
-        isMu[ibest] = 1;
+        isMu[ibest] = true;
         if (debug)
           printf("FW  \t muon %3d linked to track %3d \n", im, ibest);
       } else {

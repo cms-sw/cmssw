@@ -52,7 +52,7 @@ namespace l1tpf_calo {
   public:
     Phase1GridBase(int nEta, int nPhi, int ietaCoarse, int ietaVeryCoarse, const float *towerEtas);
 
-    virtual int find_cell(float eta, float phi) const override;
+    int find_cell(float eta, float phi) const override;
     int ifind_cell(int ieta, int iphi) const { return cell_map_[(ieta + nEta_) + 2 * nEta_ * (iphi - 1)]; }
 
   protected:
@@ -269,7 +269,7 @@ namespace l1tpf_calo {
   class SimpleCaloLinker : public SimpleCaloLinkerBase {
   public:
     SimpleCaloLinker(const edm::ParameterSet &pset, const SingleCaloClusterer &ecal, const SingleCaloClusterer &hcal);
-    ~SimpleCaloLinker();
+    ~SimpleCaloLinker() override;
     void clear() override;
     void run() override;
 
@@ -279,7 +279,7 @@ namespace l1tpf_calo {
   class FlatCaloLinker : public SimpleCaloLinkerBase {
   public:
     FlatCaloLinker(const edm::ParameterSet &pset, const SingleCaloClusterer &ecal, const SingleCaloClusterer &hcal);
-    ~FlatCaloLinker();
+    ~FlatCaloLinker() override;
     void clear() override;
     void run() override;
 

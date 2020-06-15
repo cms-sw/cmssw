@@ -16,7 +16,7 @@ namespace l1tpf {
   class PFTrackProducerFromL1Tracks : public edm::stream::EDProducer<> {
   public:
     explicit PFTrackProducerFromL1Tracks(const edm::ParameterSet &);
-    ~PFTrackProducerFromL1Tracks() {}
+    ~PFTrackProducerFromL1Tracks() override {}
 
   private:
     edm::EDGetTokenT<std::vector<l1t::PFTrack::L1TTTrackType>> TrackTag_;
@@ -24,9 +24,9 @@ namespace l1tpf {
     float fBz_;
     l1tpf::ParametricResolution resolCalo_, resolTrk_;
 
-    virtual void produce(edm::Event &, const edm::EventSetup &) override;
+    void produce(edm::Event &, const edm::EventSetup &) override;
 
-    virtual void beginRun(edm::Run const &, edm::EventSetup const &iSetup) override {
+    void beginRun(edm::Run const &, edm::EventSetup const &iSetup) override {
       edm::ESHandle<MagneticField> magneticField;
       iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
       fBz_ = magneticField->inTesla(GlobalPoint(0, 0, 0)).z();

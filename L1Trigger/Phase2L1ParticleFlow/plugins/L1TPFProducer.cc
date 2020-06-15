@@ -34,7 +34,7 @@
 class L1TPFProducer : public edm::stream::EDProducer<> {
 public:
   explicit L1TPFProducer(const edm::ParameterSet&);
-  ~L1TPFProducer();
+  ~L1TPFProducer() override;
 
 private:
   int debug_;
@@ -71,7 +71,7 @@ private:
   // region of interest debugging
   float debugEta_, debugPhi_, debugR_;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   void addUInt(unsigned int value, std::string iLabel, edm::Event& iEvent);
 };
 

@@ -52,7 +52,7 @@ private:
 
   l1tpf::ParametricResolution resol_;
 
-  virtual void produce(edm::Event &, const edm::EventSetup &) override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
 
   void readHcalDigis_(edm::Event &event, const edm::EventSetup &);
   void readPhase2BarrelCaloTowers_(edm::Event &event, const edm::EventSetup &);

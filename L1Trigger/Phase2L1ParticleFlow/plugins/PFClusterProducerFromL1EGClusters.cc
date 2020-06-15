@@ -13,7 +13,7 @@ namespace l1tpf {
   class PFClusterProducerFromL1EGClusters : public edm::stream::EDProducer<> {
   public:
     explicit PFClusterProducerFromL1EGClusters(const edm::ParameterSet &);
-    ~PFClusterProducerFromL1EGClusters() {}
+    ~PFClusterProducerFromL1EGClusters() override {}
 
   private:
     edm::EDGetTokenT<l1tp2::CaloCrystalClusterCollection> src_;
@@ -21,7 +21,7 @@ namespace l1tpf {
     l1tpf::corrector corrector_;
     l1tpf::ParametricResolution resol_;
 
-    virtual void produce(edm::Event &, const edm::EventSetup &) override;
+    void produce(edm::Event &, const edm::EventSetup &) override;
 
   };  // class
 }  // namespace l1tpf

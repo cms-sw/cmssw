@@ -7,7 +7,7 @@ namespace l1tpf_impl {
   class PFAlgo3 : public PFAlgoBase {
   public:
     PFAlgo3(const edm::ParameterSet &);
-    virtual void runPF(Region &r) const override;
+    void runPF(Region &r) const override;
 
   protected:
     float drMatchMu_;

@@ -31,7 +31,7 @@ void COEFile::writeHeaderToFile() {
                                       "memory_initialization_radix=2;\n",
                                       "memory_initialization_vector=\n"};
   for (uint32_t i = 0; i < vheader.size(); ++i)
-    fprintf(file, vheader[i].c_str());
+    fprintf(file, "%s", vheader[i].c_str());
 }
 
 void COEFile::writeTracksToFile(const std::vector<Region>& regions, bool print) {
@@ -69,19 +69,19 @@ void COEFile::writeTracksToFile(const std::vector<Region>& regions, bool print) 
                 bset_.set(ibit + offset, getBit<uint16_t>(current_track.hwZ0, ibit));
                 break;
               case 5:
-                bset_.set(ibit + offset, 0);
+                bset_.set(ibit + offset, false);
                 break;
               case 6:
                 bset_.set(ibit + offset, getBit<uint16_t>(current_track.hwChi2, ibit));
                 break;
               case 7:
-                bset_.set(ibit + offset, 0);
+                bset_.set(ibit + offset, false);
                 break;
               case 8:
                 bset_.set(ibit + offset, getBit<uint16_t>(current_track.hwStubs, ibit));
                 break;
               case 9:
-                bset_.set(ibit + offset, 0);
+                bset_.set(ibit + offset, false);
                 break;
             }
           }

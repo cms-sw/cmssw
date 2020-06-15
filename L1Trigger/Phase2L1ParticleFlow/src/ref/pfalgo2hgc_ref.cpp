@@ -126,7 +126,7 @@ void pfalgo2hgc_ref(const pfalgo_config &cfg,
                  int(track[it].hwPt),
                  ibest,
                  int(calo[ibest].hwPt));
-        track_good[it] = 1;
+        track_good[it] = true;
         isEle[it] = calo[ibest].hwIsEM;
         calo_sumtk[ibest] += track[it].hwPt;
         calo_sumtkErr2[ibest] += sqr(track[it].hwPtErr);
