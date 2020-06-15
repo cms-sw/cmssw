@@ -1,5 +1,5 @@
 /** \file
- * 
+ *
  *
  * \author M.Schmitt, Northwestern
  */
@@ -62,7 +62,7 @@ int CSCComparatorDigi::getTimeBin() const {
 }
 
 // This definition is consistent with the one used in
-// the function CSCCLCTData::add() in EventFilter/CSCRawToDigi
+// the function CSCComparatorData::add() in EventFilter/CSCRawToDigi
 // The halfstrip counts from 0!
 int CSCComparatorDigi::getHalfStrip() const { return (getStrip() - 1) * 2 + getComparator(); }
 

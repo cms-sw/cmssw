@@ -345,7 +345,7 @@ bool CSCValidation::filterEvents(edm::Handle<CSCRecHit2DCollection> recHits,
   return true;
   //if (saMuons->size() != 1) return false;
   /*
-  for(reco::TrackCollection::const_iterator muon = saMuons->begin(); muon != saMuons->end(); ++ muon ) {  
+  for(reco::TrackCollection::const_iterator muon = saMuons->begin(); muon != saMuons->end(); ++ muon ) {
     double p  = muon->p();
     double reducedChisq = muon->normalizedChi2();
 
@@ -378,7 +378,7 @@ bool CSCValidation::filterEvents(edm::Handle<CSCRecHit2DCollection> recHits,
       && ( crudeLength > lengthMin )
       && ( crudeLength < lengthMax );
 
-    
+
     goodSAMuon = goodSAMuon && ( fabs(deltaPhi) < deltaPhiMax );
     goodSAMuon = goodSAMuon &&
       (
@@ -391,13 +391,13 @@ bool CSCValidation::filterEvents(edm::Handle<CSCRecHit2DCollection> recHits,
        ( (M_PI-outerGlobalPolarAngle > polarMin) && (M_PI-outerGlobalPolarAngle < polarMax) )
        );
 
-   //goodSAMuon = goodSAMuon && (nCSCHits > nCSCHitsMin) && (nCSCHits < 13);  
+   //goodSAMuon = goodSAMuon && (nCSCHits > nCSCHitsMin) && (nCSCHits < 13);
    //goodSAMuon = goodSAMuon && (nCSCHits > 13) && (nCSCHits < 19);
    //goodSAMuon = goodSAMuon && (nCSCHits > 19) && (nCSCHits < nCSCHitsMax);
 
 
    if (goodSAMuon) nGoodSAMuons++;
-   
+
   } // end loop over stand-alone muon collection
 
 
@@ -2704,7 +2704,7 @@ void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn,
               /*
                    std::cout<<idchamber<<"   "<<id.station()<<" "<<id.ring()<<" "
                    <<id.chamber()<<"    "<<layer<<" "<< wire<<" "<<m_strip[1]<<" "<<
-                   chambertype<<" "<< hvsgmtnmb<<" "<< nmbofhvsegm<<" "<< 
+                   chambertype<<" "<< hvsgmtnmb<<" "<< nmbofhvsegm<<" "<<
                    location<<"   "<<adc_3_3_sum<<std::endl;
                  */
             }  // end of if flag==0
@@ -2818,7 +2818,7 @@ void CSCValidation::doCompTiming(const CSCComparatorDigiCollection& compars) {
         /*
           if(id.station()==1 && (id.ring()==1 || id.ring()==4))
              std::cout<<idchamber<<" "<<id.station()<<" "<<id.ring()<<" "
-                      <<strip <<std::endl;  
+                      <<strip <<std::endl;
           */
         indexer.dbIndex(id, strip);  // strips 1-16 of ME1/1a
                                      // become strips 65-80 of ME1/1
@@ -2903,7 +2903,7 @@ void CSCValidation::doADCTiming(const CSCRecHit2DCollection& rechitcltn) {
                       if(id.station()==1 && (id.ring()==1 || id.ring()==4))
                       std::cout<<idchamber<<" "<<id.station()<<" "<<id.ring()<<" "<<m_strip[1]<<" "<<
                           "      "<<centerStrip<<
-                             " "<<adc_3_3_wtbin<<"     "<<adc_3_3_sum<<std::endl;    
+                             " "<<adc_3_3_wtbin<<"     "<<adc_3_3_sum<<std::endl;
                       */
             ss << "adc_3_3_weight_time_bin_vs_cfeb_occupancy_ME_" << idchamber;
             name = ss.str();
@@ -3424,7 +3424,7 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
             bool goodTMB = false;
             if (nclct && cscData[iCSC].tmbData()) {
               if (cscData[iCSC].tmbHeader()->check()) {
-                if (cscData[iCSC].clctData()->check())
+                if (cscData[iCSC].comparatorData()->check())
                   goodTMB = true;
               }
             }

@@ -46,7 +46,7 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCAnodeData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCCLCTData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCComparatorData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader.h"
