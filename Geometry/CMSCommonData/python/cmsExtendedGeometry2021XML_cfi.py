@@ -280,14 +280,12 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/ForwardCommonData/data/brmsens.xml',
         'Geometry/ForwardSimData/data/totemsensT2/2021/totemsensT2.xml',
         'Geometry/ForwardSimData/data/zdcsens.xml',
-
         'Geometry/HcalSimData/data/HcalProdCuts.xml',
         'Geometry/EcalSimData/data/EcalProdCuts.xml',
         'Geometry/EcalSimData/data/ESProdCuts.xml',
         'Geometry/MuonSimData/data/muonProdCuts/2021/v1/muonProdCuts.xml',
         'Geometry/ForwardSimData/data/zdcProdCuts.xml',
         'Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml',
-
         'Geometry/CMSCommonData/data/FieldParameters.xml',
     ),
     rootNodeName = cms.string('cms:OCMS')

@@ -277,14 +277,12 @@
     <Include ref='Geometry/ForwardCommonData/data/brmsens.xml'/>
     <Include ref='Geometry/ForwardSimData/data/totemsensT2/2021/totemsensT2.xml'/>
     <Include ref='Geometry/ForwardSimData/data/zdcsens.xml'/>
-
     <Include ref='Geometry/HcalSimData/data/HcalProdCuts.xml'/>
     <Include ref='Geometry/EcalSimData/data/EcalProdCuts.xml'/>
     <Include ref='Geometry/EcalSimData/data/ESProdCuts.xml'/>
     <Include ref='Geometry/MuonSimData/data/muonProdCuts/2021/v1/muonProdCuts.xml'/>
     <Include ref='Geometry/ForwardSimData/data/zdcProdCuts.xml'/>
     <Include ref='Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml'/>
-
     <Include ref='Geometry/CMSCommonData/data/FieldParameters.xml'/>
   </IncludeSection>
 </DDDefinition>
