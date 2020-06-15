@@ -80,7 +80,7 @@ private:
   edm::ESGetToken<Alignments, GlobalPositionRcd> m_globalPositionToken;
   edm::ESGetToken<Alignments, DTAlignmentRcd> m_alignmentsToken;
   edm::ESGetToken<AlignmentErrorsExtended, DTAlignmentErrorExtendedRcd> m_alignmentErrorsToken;
-  edm::ESGetToken<MuonGeometryConstants, MuonNumberingRecord> m_mdcToken;
+  edm::ESGetToken<MuonGeometryConstants, IdealGeometryRecord> m_mdcToken;
   //  edm::ESGetToken<MuonNumbering, MuonNumberingRecord> m_mdcToken;
   edm::ESGetToken<DDDetector, IdealGeometryRecord> m_cpvToken;
   edm::ESGetToken<DDSpecParRegistry, DDSpecParRegistryRcd> m_registryToken;
@@ -112,7 +112,7 @@ DTGeometryESProducer::DTGeometryESProducer(const ParameterSet& iConfig)
   }
 
   if (m_fromDDD) {
-    m_mdcToken = cc.consumesFrom<MuonGeometryConstants, MuonNumberingRecord>(edm::ESInputTag{});// era MuonNumbering 
+    m_mdcToken = cc.consumesFrom<MuonGeometryConstants, IdealGeometryRecord>(edm::ESInputTag{});//IdealGeometryRecord? 
     m_cpvToken = cc.consumesFrom<DDDetector, IdealGeometryRecord>(m_tag);
     m_registryToken = cc.consumesFrom<DDSpecParRegistry, DDSpecParRegistryRcd>(m_tag);
   }
