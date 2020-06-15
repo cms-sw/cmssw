@@ -1,7 +1,7 @@
-#include "KernelHelpers.h"
-
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+
+#include "KernelHelpers.h"
 
 namespace ecal {
   namespace reconstruction {

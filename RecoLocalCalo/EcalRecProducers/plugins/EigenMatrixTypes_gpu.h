@@ -1,8 +1,9 @@
-#ifndef RecoLocalCalo_EcalRecAlgos_EigenMatrixTypes_gpu_h
-#define RecoLocalCalo_EcalRecAlgos_EigenMatrixTypes_gpu_h
+#ifndef RecoLocalCalo_EcalRecProducers_plugins_EigenMatrixTypes_gpu_h
+#define RecoLocalCalo_EcalRecProducers_plugins_EigenMatrixTypes_gpu_h
+
+#include <array>
 
 #include <Eigen/Dense>
-#include <array>
 
 #include "CUDADataFormats/EcalRecHitSoA/interface/RecoTypes.h"
 
@@ -45,4 +46,4 @@ namespace ecal {
   }  // namespace multifit
 }  // namespace ecal
 
-#endif
+#endif  // RecoLocalCalo_EcalRecProducers_plugins_EigenMatrixTypes_gpu_h

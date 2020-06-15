@@ -1,9 +1,9 @@
-#ifndef RecoLocalCalo_EcalRecAlgos_src_AmplitudeComputationCommonKernels
-#define RecoLocalCalo_EcalRecAlgos_src_AmplitudeComputationCommonKernels
+#ifndef RecoLocalCalo_EcalRecProducers_plugins_AmplitudeComputationCommonKernels_h
+#define RecoLocalCalo_EcalRecProducers_plugins_AmplitudeComputationCommonKernels_h
 
-#include "RecoLocalCalo/EcalRecAlgos/interface/EigenMatrixTypes_gpu.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/DeclsForKernels.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/Common.h"
+#include "Common.h"
+#include "DeclsForKernels.h"
+#include "EigenMatrixTypes_gpu.h"
 
 class EcalPulseShape;
 // this flag setting is applied to all of the cases
@@ -95,4 +95,4 @@ namespace ecal {
   }  // namespace multifit
 }  // namespace ecal
 
-#endif  // RecoLocalCalo_EcalRecAlgos_src_AmplitudeComputationCommonKernels
+#endif  // RecoLocalCalo_EcalRecProducers_plugins_AmplitudeComputationCommonKernels_h

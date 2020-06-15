@@ -1,19 +1,17 @@
 #include <iostream>
 #include <limits>
 
-#include "cuda.h"
+#include <cuda.h>
 
+#include "CondFormats/EcalObjects/interface/EcalPulseCovariances.h"
+#include "CondFormats/EcalObjects/interface/EcalPulseShapes.h"
+#include "CondFormats/EcalObjects/interface/EcalSamplesCorrelation.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/Math/interface/approx_exp.h"
 #include "DataFormats/Math/interface/approx_log.h"
 
-#include "CondFormats/EcalObjects/interface/EcalPulseShapes.h"
-#include "CondFormats/EcalObjects/interface/EcalPulseCovariances.h"
-#include "CondFormats/EcalObjects/interface/EcalSamplesCorrelation.h"
-
 #include "AmplitudeComputationCommonKernels.h"
-#include "inplace_fnnls.h"
 #include "KernelHelpers.h"
 
 namespace ecal {

@@ -1,44 +1,35 @@
-// framework
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-//#include "HeterogeneousCore/Producer/interface/HeterogeneousEDProducer.h"
-//#include "HeterogeneousCore/Producer/interface/HeterogeneousEvent.h"
-
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-// algorithm specific
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "CUDADataFormats/EcalRecHitSoA/interface/EcalUncalibratedRecHit_soa.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/Common.h"
-
 #include <iostream>
 
-#include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
-
-#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
+#include "CUDADataFormats/EcalRecHitSoA/interface/EcalUncalibratedRecHit_soa.h"
 #include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
-#include "CondFormats/DataRecord/interface/EcalPulseShapesRcd.h"
+#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalPulseCovariancesRcd.h"
+#include "CondFormats/DataRecord/interface/EcalPulseShapesRcd.h"
+#include "CondFormats/DataRecord/interface/EcalSampleMaskRcd.h"
 #include "CondFormats/DataRecord/interface/EcalSamplesCorrelationRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTimeBiasCorrectionsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTimeOffsetConstantRcd.h"
-#include "CondFormats/DataRecord/interface/EcalSampleMaskRcd.h"
-
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalPedestalsGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalGainRatiosGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalPulseShapesGPU.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalPedestalsGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalPulseCovariancesGPU.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalPulseShapesGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSamplesCorrelationGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalTimeBiasCorrectionsGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalTimeCalibConstantsGPU.h"
 
-#include "RecoLocalCalo/EcalRecAlgos/interface/DeclsForKernels.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitMultiFitAlgo_gpu_new.h"
+#include "Common.h"
+#include "DeclsForKernels.h"
+#include "EcalUncalibRecHitMultiFitAlgo_gpu_new.h"
 
 class EcalUncalibRecHitProducerGPU : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -290,7 +281,7 @@ void EcalUncalibRecHitProducerGPU::acquire(edm::Event const& event,
   if ((neb_ + nee_) > maxNumberHits_) {
     edm::LogError("EcalUncalibRecHitProducerGPU") << "max number of channels exceeded. See options 'maxNumberHits' ";
   }
-  
+
   // conditions
   setup.get<EcalPedestalsRcd>().get(pedestalsHandle_);
   setup.get<EcalGainRatiosRcd>().get(gainRatiosHandle_);

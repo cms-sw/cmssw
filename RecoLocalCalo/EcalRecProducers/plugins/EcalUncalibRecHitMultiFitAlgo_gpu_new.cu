@@ -1,24 +1,22 @@
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitMultiFitAlgo_gpu_new.h"
-
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
-#include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
-#include "CondFormats/EcalObjects/interface/EcalXtalGroupId.h"
-#include "CondFormats/EcalObjects/interface/EcalPulseShapes.h"
-#include "CondFormats/EcalObjects/interface/EcalPulseCovariances.h"
-#include "CondFormats/EcalObjects/interface/EcalSampleMask.h"
-#include "CondFormats/EcalObjects/interface/EcalSamplesCorrelation.h"
-
 #include <iostream>
 #include <limits>
 
-#include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/Common.h"
+#include <cuda.h>
 
-#include "cuda.h"
+#include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
+#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+#include "CondFormats/EcalObjects/interface/EcalPulseCovariances.h"
+#include "CondFormats/EcalObjects/interface/EcalPulseShapes.h"
+#include "CondFormats/EcalObjects/interface/EcalSampleMask.h"
+#include "CondFormats/EcalObjects/interface/EcalSamplesCorrelation.h"
+#include "CondFormats/EcalObjects/interface/EcalXtalGroupId.h"
+#include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
 #include "AmplitudeComputationCommonKernels.h"
 #include "AmplitudeComputationKernels.h"
+#include "Common.h"
+#include "EcalUncalibRecHitMultiFitAlgo_gpu_new.h"
 #include "TimeComputationKernels.h"
 
 //#define DEBUG

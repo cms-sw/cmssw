@@ -1,53 +1,39 @@
-#ifndef RecoLocalCalo_EcalRecAlgos_interface_DeclsForKernels_h
-#define RecoLocalCalo_EcalRecAlgos_interface_DeclsForKernels_h
+#ifndef RecoLocalCalo_EcalRecProducers_plugins_DeclsForKernels_h
+#define RecoLocalCalo_EcalRecProducers_plugins_DeclsForKernels_h
 
 #include <vector>
 
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EigenMatrixTypes_gpu.h"
+#include "CUDADataFormats/EcalDigi/interface/DigisCollection.h"
+#include "CUDADataFormats/EcalRecHitSoA/interface/EcalRecHit_soa.h"
 #include "CUDADataFormats/EcalRecHitSoA/interface/EcalUncalibratedRecHit_soa.h"
 #include "CUDADataFormats/EcalRecHitSoA/interface/RecoTypes.h"
-
-//
-// ECAL UncalibRechit producer
-//
-
-#include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
-#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
-#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
-#include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
-#include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
-
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalPedestalsGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalGainRatiosGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalPulseShapesGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalPulseCovariancesGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSamplesCorrelationGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalTimeBiasCorrectionsGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalTimeCalibConstantsGPU.h"
-
-#include "CUDADataFormats/EcalDigi/interface/DigisCollection.h"
-
-//
-// ECAL Rechit producer
-//
-
-#include "CUDADataFormats/EcalRecHitSoA/interface/EcalRecHit_soa.h"
-
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatusCode.h"
-
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalRechitADCToGeVConstantGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
+#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
+#include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalGainRatiosGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalIntercalibConstantsGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalRechitChannelStatusGPU.h"
-
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalLaserAPDPNRatiosGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalLaserAPDPNRatiosRefGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalLaserAlphasGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalLinearCorrectionsGPU.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalPedestalsGPU.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalPulseCovariancesGPU.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalPulseShapesGPU.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalRechitADCToGeVConstantGPU.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalRechitChannelStatusGPU.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSamplesCorrelationGPU.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalTimeBiasCorrectionsGPU.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalTimeCalibConstantsGPU.h"
+
+#include "EigenMatrixTypes_gpu.h"
 
 struct EcalPulseShape;
 class EcalSampleMask;
@@ -344,4 +330,4 @@ namespace ecal {
   }  // namespace rechit
 }  // namespace ecal
 
-#endif
+#endif  // RecoLocalCalo_EcalRecProducers_plugins_DeclsForKernels_h

@@ -1,14 +1,12 @@
-#ifndef EventFilter_EcalRawToDigi_interface_DeclsForKernels_h
-#define EventFilter_EcalRawToDigi_interface_DeclsForKernels_h
+#ifndef EventFilter_EcalRawToDigi_plugins_DeclsForKernels_h
+#define EventFilter_EcalRawToDigi_plugins_DeclsForKernels_h
 
 #include <vector>
 
+#include "EventFilter/EcalRawToDigi/interface/DCCRawDataDefinitions.h"
+#include "EventFilter/EcalRawToDigi/interface/ElectronicsMappingGPU.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-
-#include "EventFilter/EcalRawToDigi/interface/DCCRawDataDefinitions.h"
-
-#include "EventFilter/EcalRawToDigi/interface/ElectronicsMappingGPU.h"
 
 namespace ecal {
   namespace raw {
@@ -107,4 +105,4 @@ namespace ecal {
   }  // namespace raw
 }  // namespace ecal
 
-#endif  // EventFilter_EcalRawToDigi_interface_DeclsForKernels_h
+#endif  // EventFilter_EcalRawToDigi_plugins_DeclsForKernels_h

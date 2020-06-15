@@ -1,11 +1,11 @@
-#ifndef RecoLocalCalo_EcalRecAlgos_EcalUncalibRecHitMultiFitAlgo_gpu_new_HH
-#define RecoLocalCalo_EcalRecAlgos_EcalUncalibRecHitMultiFitAlgo_gpu_new_HH
+#ifndef RecoLocalCalo_EcalRecProducers_plugins_EcalUncalibRecHitMultiFitAlgo_gpu_new_h
+#define RecoLocalCalo_EcalRecProducers_plugins_EcalUncalibRecHitMultiFitAlgo_gpu_new_h
 
 #include <vector>
 
 #include <cuda.h>
 
-#include "RecoLocalCalo/EcalRecAlgos/interface/DeclsForKernels.h"
+#include "DeclsForKernels.h"
 
 namespace ecal {
   namespace multifit {
@@ -17,7 +17,7 @@ namespace ecal {
                     ConfigurationParameters const&,
                     cudaStream_t);
 
-  }
+  }  // namespace multifit
 }  // namespace ecal
 
-#endif
+#endif  // RecoLocalCalo_EcalRecProducers_plugins_EcalUncalibRecHitMultiFitAlgo_gpu_new_h

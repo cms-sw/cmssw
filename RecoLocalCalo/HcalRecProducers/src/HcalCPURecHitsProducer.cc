@@ -45,8 +45,8 @@ void HcalCPURecHitsProducer::fillDescriptions(edm::ConfigurationDescriptions& co
 
 HcalCPURecHitsProducer::HcalCPURecHitsProducer(const edm::ParameterSet& ps)
     : recHitsM0TokenIn_{consumes<IProductType>(ps.getParameter<edm::InputTag>("recHitsM0LabelIn"))},
-      recHitsM0TokenOut_{produces<OProductType>("recHitsM0LabelOut")},
-      recHitsLegacyTokenOut_{produces<HBHERecHitCollection>("recHitsLegacyLabelOut")} {}
+      recHitsM0TokenOut_{produces<OProductType>(ps.getParameter<std::string>("recHitsM0LabelOut"))},
+      recHitsLegacyTokenOut_{produces<HBHERecHitCollection>(ps.getParameter<std::string>("recHitsLegacyLabelOut"))} {}
 
 HcalCPURecHitsProducer::~HcalCPURecHitsProducer() {}
 

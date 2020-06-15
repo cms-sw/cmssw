@@ -1,15 +1,14 @@
 #include <iostream>
 #include <limits>
 
-#include "cuda.h"
+#include <cuda.h>
 
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/Common.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-
 #include "DataFormats/Math/interface/approx_exp.h"
 #include "DataFormats/Math/interface/approx_log.h"
 
+#include "Common.h"
 #include "TimeComputationKernels.h"
 #include "KernelHelpers.h"
 
@@ -865,7 +864,8 @@ namespace ecal {
         const auto did = DetId{dids[inputCh]};
         const auto isBarrel = did.subdetId() == EcalBarrel;
         const auto sample_mask = did.subdetId() == EcalBarrel ? sample_maskEB : sample_maskEE;
-        const auto hashedId = isBarrel ? ecal::reconstruction::hashedIndexEB(did.rawId()) : offsetForHashes + ecal::reconstruction::hashedIndexEE(did.rawId());
+        const auto hashedId = isBarrel ? ecal::reconstruction::hashedIndexEB(did.rawId())
+                                       : offsetForHashes + ecal::reconstruction::hashedIndexEE(did.rawId());
 
         // set pedestal
         // TODO this branch is non-divergent for a group of 10 threads
@@ -1041,7 +1041,8 @@ namespace ecal {
 
       const auto did = DetId{dids[inputGtx]};
       const auto isBarrel = did.subdetId() == EcalBarrel;
-      const auto hashedId = isBarrel ? ecal::reconstruction::hashedIndexEB(did.rawId()) : offsetForHashes + ecal::reconstruction::hashedIndexEE(did.rawId());
+      const auto hashedId = isBarrel ? ecal::reconstruction::hashedIndexEB(did.rawId())
+                                     : offsetForHashes + ecal::reconstruction::hashedIndexEE(did.rawId());
       const auto* amplitudeBins = isBarrel ? amplitudeBinsEB : amplitudeBinsEE;
       const auto* shiftBins = isBarrel ? shiftBinsEB : shiftBinsEE;
       const auto amplitudeBinsSize = isBarrel ? amplitudeBinsSizeEB : amplitudeBinsSizeEE;

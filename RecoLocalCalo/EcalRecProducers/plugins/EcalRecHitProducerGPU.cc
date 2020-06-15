@@ -1,50 +1,33 @@
-// framework
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-// format
-#include "CUDADataFormats/EcalRecHitSoA/interface/EcalUncalibratedRecHit_soa.h"
 #include "CUDADataFormats/EcalRecHitSoA/interface/EcalRecHit_soa.h"
+#include "CUDADataFormats/EcalRecHitSoA/interface/EcalUncalibratedRecHit_soa.h"
 #include "CUDADataFormats/EcalRecHitSoA/interface/RecoTypes.h"
-
-// needed for definition of flags
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-
-// the kernels
-#include "RecoLocalCalo/EcalRecAlgos/src/EcalRecHitBuilderKernels.h"
-
-// conditions cpu
+#include "CommonTools/Utils/interface/StringToEnumValue.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRefRcd.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAlphasRcd.h"
 #include "CondFormats/DataRecord/interface/EcalLinearCorrectionsRcd.h"
-
-// conditions gpu
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalRechitADCToGeVConstantGPU.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalIntercalibConstantsGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalRechitChannelStatusGPU.h"
-
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalLaserAPDPNRatiosGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalLaserAPDPNRatiosRefGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalLaserAlphasGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalLinearCorrectionsGPU.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalRechitADCToGeVConstantGPU.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalRechitChannelStatusGPU.h"
 
-#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
-
-// configuration
-#include "CommonTools/Utils/interface/StringToEnumValue.h"
+#include "EcalRecHitBuilderKernels.h"
 
 class EcalRecHitProducerGPU : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -175,18 +158,16 @@ EcalRecHitProducerGPU::EcalRecHitProducerGPU(const edm::ParameterSet& ps) {
 
   configParameters_.ChannelStatusToBeExcludedSize = v_chstatus_.size();
 
-  
   // call CUDA API functions only if CUDA is available
   edm::Service<CUDAService> cs;
   if (cs and cs->enabled()) {
-    
     cudaCheck(cudaMalloc((void**)&configParameters_.ChannelStatusToBeExcluded, sizeof(int) * v_chstatus_.size()));
     cudaCheck(cudaMemcpy(configParameters_.ChannelStatusToBeExcluded,
                          v_chstatus_.data(),
                          v_chstatus_.size() * sizeof(int),
                          cudaMemcpyHostToDevice));
   }
-  
+
   //
   //     https://github.com/cms-sw/cmssw/blob/266e21cfc9eb409b093e4cf064f4c0a24c6ac293/RecoLocalCalo/EcalRecProducers/plugins/EcalRecHitWorkerSimple.cc
   //
@@ -216,33 +197,33 @@ EcalRecHitProducerGPU::EcalRecHitProducerGPU(const edm::ParameterSet& ps) {
   // call CUDA API functions only if CUDA is available
   if (cs and cs->enabled()) {
     // actual values
-    cudaCheck(
-        cudaMalloc((void**)&configParameters_.expanded_v_DB_reco_flags, sizeof(int) * expanded_v_DB_reco_flags_.size()));
-    
+    cudaCheck(cudaMalloc((void**)&configParameters_.expanded_v_DB_reco_flags,
+                         sizeof(int) * expanded_v_DB_reco_flags_.size()));
+
     cudaCheck(cudaMemcpy(configParameters_.expanded_v_DB_reco_flags,
                          expanded_v_DB_reco_flags_.data(),
                          expanded_v_DB_reco_flags_.size() * sizeof(int),
                          cudaMemcpyHostToDevice));
-    
+
     // sizes
     cudaCheck(cudaMalloc((void**)&configParameters_.expanded_Sizes_v_DB_reco_flags,
                          sizeof(uint32_t) * expanded_Sizes_v_DB_reco_flags_.size()));
-    
+
     cudaCheck(cudaMemcpy(configParameters_.expanded_Sizes_v_DB_reco_flags,
                          expanded_Sizes_v_DB_reco_flags_.data(),
                          expanded_Sizes_v_DB_reco_flags_.size() * sizeof(uint32_t),
                          cudaMemcpyHostToDevice));
-    
+
     // keys
     cudaCheck(cudaMalloc((void**)&configParameters_.expanded_flagbit_v_DB_reco_flags,
                          sizeof(uint32_t) * expanded_flagbit_v_DB_reco_flags_.size()));
-    
+
     cudaCheck(cudaMemcpy(configParameters_.expanded_flagbit_v_DB_reco_flags,
                          expanded_flagbit_v_DB_reco_flags_.data(),
                          expanded_flagbit_v_DB_reco_flags_.size() * sizeof(uint32_t),
                          cudaMemcpyHostToDevice));
   }
-  
+
   configParameters_.expanded_v_DB_reco_flagsSize = expanded_flagbit_v_DB_reco_flags_.size();
 
   flagmask_ = 0;
@@ -266,7 +247,6 @@ EcalRecHitProducerGPU::EcalRecHitProducerGPU(const edm::ParameterSet& ps) {
 }
 
 EcalRecHitProducerGPU::~EcalRecHitProducerGPU() {
-  
   edm::Service<CUDAService> cs;
   if (cs and cs->enabled()) {
     // free event ouput data
@@ -303,7 +283,7 @@ void EcalRecHitProducerGPU::acquire(edm::Event const& event,
   if ((neb_ + nee_) > maxNumberHits_) {
     edm::LogError("EcalRecHitProducerGPU") << "max number of channels exceeded. See options 'maxNumberHits' ";
   }
-  
+
   int nchannelsEB = ebUncalibRecHits.size;  // --> offsetForInput, first EB and then EE
 
   // conditions

@@ -1,14 +1,9 @@
-#include "cuda.h"
+#include <cuda.h>
 
-#include "KernelHelpers.h"
-
-#include "CUDADataFormats/EcalRecHitSoA/interface/EcalUncalibratedRecHit_soa.h"
 #include "CUDADataFormats/EcalRecHitSoA/interface/EcalRecHit_soa.h"
+#include "CUDADataFormats/EcalRecHitSoA/interface/EcalUncalibratedRecHit_soa.h"
 
-//
-//
 #include "EcalRecHitBuilderKernels.h"
-
 #include "KernelHelpers.h"
 
 namespace ecal {

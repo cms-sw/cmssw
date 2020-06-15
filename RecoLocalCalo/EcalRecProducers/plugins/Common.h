@@ -1,5 +1,5 @@
-#ifndef RecoLocalCalo_EcalRecAlgos_interface_Common_h
-#define RecoLocalCalo_EcalRecAlgos_interface_Common_h
+#ifndef RecoLocalCalo_EcalRecProducers_plugins_Common_h
+#define RecoLocalCalo_EcalRecProducers_plugins_Common_h
 
 #include <cstdint>
 #include <cmath>
@@ -43,4 +43,4 @@ private:
   std::chrono::high_resolution_clock::time_point start_;
 };
 
-#endif
+#endif  // RecoLocalCalo_EcalRecProducers_plugins_Common_h

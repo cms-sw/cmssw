@@ -1,34 +1,29 @@
-#ifndef RecoLocalCalo_HcalRecAlgos_interface_DeclsForKernels_h
-#define RecoLocalCalo_HcalRecAlgos_interface_DeclsForKernels_h
+#ifndef RecoLocalCalo_HcalRecProducers_src_DeclsForKernels_h
+#define RecoLocalCalo_HcalRecProducers_src_DeclsForKernels_h
 
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include <functional>
+#include <optional>
 
 #include "CUDADataFormats/HcalDigi/interface/DigiCollection.h"
-
-#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
+#include "CUDADataFormats/HcalRecHitSoA/interface/RecHitCollection.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
-
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalRecoParamsWithPulseShapesGPU.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedEffectivePedestalWidthsGPU.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedEffectivePedestalsGPU.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedPedestalWidthsGPU.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedPedestalsGPU.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalGainWidthsGPU.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalGainsGPU.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalLUTCorrsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedPedestalWidthsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedEffectivePedestalWidthsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedPedestalsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedEffectivePedestalsGPU.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalQIECodersGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalRespCorrsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalTimeCorrsGPU.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalQIETypesGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSiPMParametersGPU.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalRecoParamsWithPulseShapesGPU.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalRespCorrsGPU.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSiPMCharacteristicsGPU.h"
-
-#include "CUDADataFormats/HcalRecHitSoA/interface/RecHitCollection.h"
-
-#include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
-
-#include <optional>
-#include <functional>
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSiPMParametersGPU.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalTimeCorrsGPU.h"
 
 namespace hcal {
   namespace mahi {
@@ -138,4 +133,4 @@ namespace hcal {
   }  // namespace mahi
 }  // namespace hcal
 
-#endif  // RecoLocalCalo_HcalRecAlgos_interface_DeclsForKernels_h
+#endif  // RecoLocalCalo_HcalRecProducers_src_DeclsForKernels_h

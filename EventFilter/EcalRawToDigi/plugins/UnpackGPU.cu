@@ -1,5 +1,6 @@
 #include "EventFilter/EcalRawToDigi/interface/ElectronicsIdGPU.h"
-#include "EventFilter/EcalRawToDigi/interface/UnpackGPU.h"
+
+#include "UnpackGPU.h"
 
 namespace ecal {
   namespace raw {
@@ -184,7 +185,7 @@ namespace ecal {
         uint16_t const dccbx = bx & 0xfff;
         uint16_t const dccl1 = lv1 & 0xfff;
         // fov>=1 is required to support simulated data for which bx==bxlocal==0
-        if (fov>=1 && !is_synced_towerblock(dccbx, bxlocal, dccl1, lv1local)) {
+        if (fov >= 1 && !is_synced_towerblock(dccbx, bxlocal, dccl1, lv1local)) {
           current_tower_block += block_length;
           continue;
         }
