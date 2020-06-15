@@ -63,11 +63,10 @@ int SiPixelArrayBuffer::operator()(int row, int col) const { return pixel_vec[in
 
 int SiPixelArrayBuffer::operator()(const SiPixelCluster::PixelPos& pix) const { return pixel_vec[index(pix)]; }
 
-// unchecked!
-void SiPixelArrayBuffer::set_adc(int row, int col, int adc) { pixel_vec[index(row, col)] = adc; }
+void SiPixelArrayBuffer::set_adc(int row, int col, int adc) { pixel_vec.at(index(row, col)) = adc; }
 
-void SiPixelArrayBuffer::set_adc(const SiPixelCluster::PixelPos& pix, int adc) { pixel_vec[index(pix)] = adc; }
+void SiPixelArrayBuffer::set_adc(const SiPixelCluster::PixelPos& pix, int adc) { pixel_vec.at(index(pix)) = adc; }
 
-void SiPixelArrayBuffer::add_adc(int row, int col, int adc) { pixel_vec[index(row, col)] += adc; }
+void SiPixelArrayBuffer::add_adc(int row, int col, int adc) { pixel_vec.at(index(row, col)) += adc; }
 
 #endif
