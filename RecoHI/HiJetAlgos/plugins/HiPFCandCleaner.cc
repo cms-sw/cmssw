@@ -1,5 +1,3 @@
-#include "RecoHI/HiJetAlgos/plugins/HiPFCandCleaner.h"
-
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -7,13 +5,30 @@
 #include "FWCore/Framework/src/WorkerMaker.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFiller.h"
-
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include <cstdlib>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
 
+class HiPFCandCleaner : public edm::global::EDProducer<> {
+public:
+  explicit HiPFCandCleaner(const edm::ParameterSet&);
+
+  // class methods
+
+private:
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+  // ----------member data ---------------------------
+  edm::EDGetTokenT<reco::PFCandidateCollection> candidatesToken_;
+
+  double ptMin_;
+  double absEtaMax_;
+};
 //
 // constructors and destructor
 //
@@ -24,17 +39,8 @@ HiPFCandCleaner::HiPFCandCleaner(const edm::ParameterSet& iConfig)
   produces<reco::PFCandidateCollection>("particleFlowCleaned");
 }
 
-HiPFCandCleaner::~HiPFCandCleaner() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
-//
-// member functions
-//
-
 // ------------ method called to for each event  ------------
-void HiPFCandCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void HiPFCandCleaner::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   edm::Handle<reco::PFCandidateCollection> candidates;
   iEvent.getByToken(candidatesToken_, candidates);
 
@@ -53,9 +59,5 @@ void HiPFCandCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   iEvent.put(std::move(prod), "particleFlowCleaned");
 }
-
-void HiPFCandCleaner::beginJob() {}
-
-void HiPFCandCleaner::endJob() {}
 
 DEFINE_FWK_MODULE(HiPFCandCleaner);
