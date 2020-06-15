@@ -90,6 +90,7 @@ class GUIRenderer:
 
         rendering_infos is a list. If many rendering infos is provided, an overlay of all of these MEs is drawn.
         """
+
         # Collect root objects from files
         for info in rendering_infos:
             info.root_object = await cls.reader.read(info.filename, info.fileformat, info.me_info)
@@ -115,6 +116,7 @@ class GUIRenderer:
         Packing is done using struct.pack() method. We essentially pack the bytes that describe what we want to get 
         rendered into a data structure that C++ code running in the out of process renderer can read.
         """
+        
         # If it's not string, it's TH* object
         is_string = isinstance(rendering_infos[0].root_object, ScalarValue) 
 

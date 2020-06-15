@@ -27,6 +27,7 @@ class FileFormat(IntEnum):
     NONE = 0
     DQMCLASSIC = 1
     DQMIO = 2
+    PROTOBUF = 3
 
 
 class MEDescription:
@@ -66,7 +67,7 @@ class RenderingOptions:
         self, width=266, height=200, stats=True, normalize=True, error_bars=False,
         xtype=None, ytype=None, ztype=None,
         xmin=None, xmax=None, ymin=None, ymax=None, zmin=None, zmax=None,
-        draw_opts=None, efficiency=False, json=False
+        ref_labels=[], draw_opts=None, efficiency=False, json=False
     ):
         self.width = width
         self.height = height
@@ -86,6 +87,8 @@ class RenderingOptions:
         self.xtype = None
         self.ytype = None
         self.ztype = None
+
+        self.ref_labels = ref_labels
 
         if xtype == 'lin' or xtype == 'log':
             self.xtype = xtype
@@ -115,6 +118,7 @@ class RenderingOptions:
             ymax = cls.__get_float_or_none(dictionary, 'ymax'),
             zmin = cls.__get_float_or_none(dictionary, 'zmin'),
             zmax = cls.__get_float_or_none(dictionary, 'zmax'),
+            ref_labels = dictionary.getall('reflabel', []),
         )
 
     
@@ -138,6 +142,7 @@ class RenderingOptions:
             ymax = cls.__get_float_or_none(dictionary, 'ymax'),
             zmin = cls.__get_float_or_none(dictionary, 'zmin'),
             zmax = cls.__get_float_or_none(dictionary, 'zmax'),
+            ref_labels = dictionary.getall('reflabel', []),
         )
 
 
@@ -193,6 +198,10 @@ class RenderingOptions:
             # TODO: sanitize draw_opts properly
             sanitized_draw_opts = self.draw_opts.replace(';', '')
             spec += f'drawopts={sanitized_draw_opts};'
+        if self.ref_labels:
+            # For now we support up to 4 references
+            for i in range(min(4, len(self.ref_labels))):
+                spec += f'reflabel{i + 1}={self.ref_labels[i]};'
 
         if spec.endswith(';'):
             spec = spec[:-1]
