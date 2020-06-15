@@ -1,6 +1,7 @@
 //
 // Toyoko Orimoto (Caltech), 10 July 2007
-//
+// Fabrice Couderc (Saclay), 16 March 2020 : add protection if t > t3 +deltat : t = t3 + deltat
+// 
 
 #ifndef EcalLaserDbService_h
 #define EcalLaserDbService_h
@@ -36,11 +37,14 @@ public:
   void setAPDPNData(const EcalLaserAPDPNRatios* fItem) { mAPDPNRatios_ = fItem; }
   void setLinearCorrectionsData(const EcalLinearCorrections* fItem) { mLinearCorrections_ = fItem; }
 
+  void setDeltaTSafety( int deltaT_safety ) { deltaT_safety_ = deltaT_safety; }
+
 private:
   const EcalLaserAlphas* mAlphas_;
   const EcalLaserAPDPNRatiosRef* mAPDPNRatiosRef_;
   const EcalLaserAPDPNRatios* mAPDPNRatios_;
   const EcalLinearCorrections* mLinearCorrections_;
+  int deltaT_safety_;
 
   typedef tbb::concurrent_unordered_set<uint32_t> ErrorMapT;
   mutable ErrorMapT channelsWithInvalidCorrection_;
