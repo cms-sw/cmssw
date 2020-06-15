@@ -3,9 +3,6 @@
 #include "CondFormats/DataRecord/interface/HcalElectronicsMapRcd.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "EventFilter/HcalRawToDigi/plugins/DeclsForKernels.h"
-#include "EventFilter/HcalRawToDigi/plugins/DecodeGPU.h"
-#include "EventFilter/HcalRawToDigi/plugins/ElectronicsMappingGPU.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -15,6 +12,10 @@
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+
+#include "DeclsForKernels.h"
+#include "DecodeGPU.h"
+#include "ElectronicsMappingGPU.h"
 
 class HcalRawToDigiGPU : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
