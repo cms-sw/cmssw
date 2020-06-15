@@ -16,8 +16,6 @@
  *          Christian Veelken (LLR)
  *
  */
-#include "boost/bind.hpp"
-#include <boost/ptr_container/ptr_vector.hpp>
 
 #include <algorithm>
 #include <functional>
@@ -198,7 +196,7 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
           (*builder)(jetRef, chargedHadrons, piZeros, uniqueRegionalCands));
 
       // Make sure all taus have their jetref set correctly
-      std::for_each(taus.begin(), taus.end(), boost::bind(&reco::PFTau::setjetRef, _1, reco::JetBaseRef(jetRef)));
+      std::for_each(taus.begin(), taus.end(), [&](auto& arg) { arg.setjetRef(reco::JetBaseRef(jetRef)); });
       // Copy without selection
       if (!outputSelector_.get()) {
         output->insert(output->end(), taus.begin(), taus.end());
