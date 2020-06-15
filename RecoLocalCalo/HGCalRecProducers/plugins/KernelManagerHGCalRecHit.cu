@@ -58,9 +58,7 @@ void KernelManagerHGCalRecHit::run_kernels(const KernelConstantData<HGChefUncali
   reuse_device_pointers_();
   */
 
-  std::cout << "before kernel" << std::endl;
   hef_to_rechit<<<::nblocks_,::nthreads_>>>( *(data_->d_out_), *(data_->d_1_), kcdata->data_, d_conds, data_->nhits_ );
-  std::cout << "after kernel" <<  std::endl;
   after_();
 
   transfer_soa_to_host_and_synchronize_();
