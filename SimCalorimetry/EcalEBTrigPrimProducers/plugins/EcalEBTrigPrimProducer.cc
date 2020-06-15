@@ -21,7 +21,6 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 //
 
-
 /*
 #include "CondFormats/DataRecord/interface/EcalTPGFineGrainEBGroupRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGFineGrainEBIdMapRcd.h"
@@ -50,12 +49,15 @@ EcalEBTrigPrimProducer::EcalEBTrigPrimProducer(const edm::ParameterSet& iConfig)
       nSamples_(iConfig.getParameter<int>("nOfSamples")),
       binOfMaximum_(iConfig.getParameter<int>("binOfMaximum")) {
   tokenEBdigi_ = consumes<EBDigiCollection>(iConfig.getParameter<edm::InputTag>("barrelEcalDigis"));
-  theEcalTPGLinearization_Token_ = esConsumes<EcalTPGLinearizationConst, EcalTPGLinearizationConstRcd, edm::Transition::BeginRun>();
+  theEcalTPGLinearization_Token_ =
+      esConsumes<EcalTPGLinearizationConst, EcalTPGLinearizationConstRcd, edm::Transition::BeginRun>();
   theEcalTPGPedestals_Token_ = esConsumes<EcalTPGPedestals, EcalTPGPedestalsRcd, edm::Transition::BeginRun>();
-  theEcalTPGCrystalStatus_Token_ = esConsumes<EcalTPGCrystalStatus, EcalTPGCrystalStatusRcd, edm::Transition::BeginRun>();
+  theEcalTPGCrystalStatus_Token_ =
+      esConsumes<EcalTPGCrystalStatus, EcalTPGCrystalStatusRcd, edm::Transition::BeginRun>();
   theEcalTPGWEightIdMap_Token_ = esConsumes<EcalTPGWeightIdMap, EcalTPGWeightIdMapRcd, edm::Transition::BeginRun>();
   theEcalTPGWEightGroup_Token_ = esConsumes<EcalTPGWeightGroup, EcalTPGWeightGroupRcd, edm::Transition::BeginRun>();
-  theEcalTPGSlidingWindow_Token_ = esConsumes<EcalTPGSlidingWindow, EcalTPGSlidingWindowRcd, edm::Transition::BeginRun>();
+  theEcalTPGSlidingWindow_Token_ =
+      esConsumes<EcalTPGSlidingWindow, EcalTPGSlidingWindowRcd, edm::Transition::BeginRun>();
   theEcalTPGLutGroup_Token_ = esConsumes<EcalTPGLutGroup, EcalTPGLutGroupRcd, edm::Transition::BeginRun>();
   theEcalTPGLutIdMap_Token_ = esConsumes<EcalTPGLutIdMap, EcalTPGLutIdMapRcd, edm::Transition::BeginRun>();
   theEcalTPGTowerStatus_Token_ = esConsumes<EcalTPGTowerStatus, EcalTPGTowerStatusRcd, edm::Transition::BeginRun>();
@@ -78,7 +80,8 @@ void EcalEBTrigPrimProducer::beginRun(edm::Run const& run, edm::EventSetup const
 
 unsigned long long EcalEBTrigPrimProducer::getRecords(edm::EventSetup const& setup) {
   // get parameter records for xtals
-  edm::ESHandle<EcalTPGLinearizationConst> theEcalTPGLinearization_handle = setup.getHandle(theEcalTPGLinearization_Token_);
+  edm::ESHandle<EcalTPGLinearizationConst> theEcalTPGLinearization_handle =
+      setup.getHandle(theEcalTPGLinearization_Token_);
   const EcalTPGLinearizationConst* ecaltpLin = theEcalTPGLinearization_handle.product();
   //
   edm::ESHandle<EcalTPGPedestals> theEcalTPGPedestals_handle = setup.getHandle(theEcalTPGPedestals_Token_);
