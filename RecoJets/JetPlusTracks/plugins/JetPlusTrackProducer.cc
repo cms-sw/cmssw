@@ -210,6 +210,8 @@ void JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     }    // jets
   }      // There is trackjet collection
 
+  //  std::cout<<" Size of the addition "<<pOut->size()<<" "<<pOut1->size()<<std::endl;
+
   for (unsigned i = 0; i < jets_h->size(); ++i) {
     const reco::CaloJet* oldjet = &(*(jets_h->refAt(i)));
     reco::CaloJet corrected = *oldjet;
@@ -237,11 +239,12 @@ void JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
                                    corrected.py() * scaleJPT,
                                    corrected.pz() * scaleJPT,
                                    corrected.energy() * scaleJPT);
-      // std::cout<<" JetPlusTrackProducer "<< (*oldjet).pt()<<" "<< (*oldjet).eta()<<" "<< (*oldjet).phi()<<
+      // std::cout<<" JetPlusTrackProducer "<< (*oldjet).pt()<<" "
+      // << (*oldjet).eta()<<" "<< (*oldjet).phi()<<
       //      " "<<scaleJPT<<" "<<(*oldjet).jetArea()<<std::endl;
     } else {
       scaleJPT = mJPTalgo->correction(corrected, *oldjet, iEvent, iSetup, p4, pions, muons, elecs, ok);
-      // std::cout<<" JetPlusTrackProducer "<< (*oldjet).pt()<<" "<< (*oldjet).eta()<<" "<<
+      // std::cout<<" JetPlusTrackProducer::mainpart "<< (*oldjet).pt()<<" "<< (*oldjet).eta()<<" "<<
       //     (*oldjet).phi()<<" "<<(*oldjet).jetArea()<<" Corr "<<
       //    p4.pt()<<" "<<p4.eta()<<" "<<p4.phi()<<std::endl;
     }
