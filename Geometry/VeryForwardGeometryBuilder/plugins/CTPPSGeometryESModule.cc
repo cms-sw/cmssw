@@ -261,6 +261,11 @@ void CTPPSGeometryESModule::buildDetGeomDesc(DDFilteredView* fv, DetGeomDesc* gd
     else if (name == DDD_CTPPS_DIAMONDS_SEGMENT_NAME || name == DDD_CTPPS_UFSD_SEGMENT_NAME) {
       const std::vector<int>& copy_num = fv->copyNumbers();
 
+      // check size of copy numbers array
+      if (copy_num.size() < 2)
+        throw cms::Exception("DDDTotemRPConstruction")
+            << "size of copyNumbers for diamond segments is " << copy_num.size() << ". It must be >= 2.";
+
       const unsigned int decRPId= copy_num[1];
       const unsigned int id = copy_num[copy_num.size()-1];
       const unsigned int arm = (decRPId % 1000) / 100;
@@ -276,9 +281,9 @@ void CTPPSGeometryESModule::buildDetGeomDesc(DDFilteredView* fv, DetGeomDesc* gd
     else if (name == DDD_CTPPS_DIAMONDS_RP_NAME) {
       const std::vector<int>& copy_num = fv->copyNumbers();
 
-      // check size of copy numubers array
+      // check size of copy numbers array
       if (copy_num.size() < 2)
-        throw cms::Exception("DDDTotemRPContruction")
+        throw cms::Exception("DDDTotemRPConstruction")
             << "size of copyNumbers for diamond RP is " << copy_num.size() << ". It must be >= 2.";
 
       const unsigned int decRPId= copy_num[1];
