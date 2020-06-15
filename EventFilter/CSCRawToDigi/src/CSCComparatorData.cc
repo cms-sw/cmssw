@@ -324,7 +324,7 @@ void CSCComparatorData::dump() const {
 }
 
 void CSCComparatorData::selfTest() {
-  CSCComparatorData clctData(5, 16);
+  CSCComparatorData comparatorData(5, 16);
   // aim for output 4 in 5th time bin, = 0000000000010000
   CSCComparatorDigi comparatorDigi1(1, 0, 0x10);
   // aim for output 5 in 6th time bin, = 0000 0000 0010 0000
@@ -332,17 +332,17 @@ void CSCComparatorData::selfTest() {
   // aim for output 7 in 7th time bin, = 000 0000 0100 0000
   CSCComparatorDigi comparatorDigi3(80, 1, 0x40);
 
-  clctData.add(comparatorDigi1, 1);
-  clctData.add(comparatorDigi2, 4);
-  clctData.add(comparatorDigi3, 6);
+  comparatorData.add(comparatorDigi1, 1);
+  comparatorData.add(comparatorDigi2, 4);
+  comparatorData.add(comparatorDigi3, 6);
 
   CSCDetId layer1(1, 4, 1, 2, 1);
   CSCDetId layer4(1, 4, 1, 2, 4);
   CSCDetId layer6(1, 4, 1, 2, 6);
 
-  std::vector<CSCComparatorDigi> digis1 = clctData.comparatorDigis(1);
-  std::vector<CSCComparatorDigi> digis2 = clctData.comparatorDigis(4);
-  std::vector<CSCComparatorDigi> digis3 = clctData.comparatorDigis(6);
+  std::vector<CSCComparatorDigi> digis1 = comparatorData.comparatorDigis(1);
+  std::vector<CSCComparatorDigi> digis2 = comparatorData.comparatorDigis(4);
+  std::vector<CSCComparatorDigi> digis3 = comparatorData.comparatorDigis(6);
 
   assert(digis1.size() == 1);
   assert(digis2.size() == 1);
