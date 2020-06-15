@@ -233,7 +233,7 @@ void PuppiAlgo::computePuppiMedRMS(
 }
 
 void PuppiAlgo::fillPuppi(Region &r) const {
-  constexpr uint16_t PUPPIW_0p01 = std::round(0.01 * PFParticle::PUPPI_SCALE);
+  uint16_t PUPPIW_0p01 = std::round(0.01 * PFParticle::PUPPI_SCALE);
   r.puppi.clear();
   for (PFParticle &p : r.pf) {
     if (p.hwId == l1t::PFCandidate::ChargedHadron || p.hwId == l1t::PFCandidate::Electron ||
