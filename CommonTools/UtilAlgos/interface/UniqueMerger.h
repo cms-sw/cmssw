@@ -61,17 +61,18 @@ UniqueMerger<InputCollection, OutputCollection, P>::~UniqueMerger() {}
 
 template <typename InputCollection, typename OutputCollection, typename P>
 void UniqueMerger<InputCollection, OutputCollection, P>::produce(edm::StreamID,
-                                                              edm::Event& evt,
-                                                              const edm::EventSetup&) const {
+                                                                 edm::Event& evt,
+                                                                 const edm::EventSetup&) const {
   set_type coll_set;
   for (typename vtoken::const_iterator s = srcToken_.begin(); s != srcToken_.end(); ++s) {
     edm::Handle<InputCollection> h;
     evt.getByToken(*s, h);
     for (typename InputCollection::const_iterator c = h->begin(); c != h->end(); ++c) {
-      if (P::clone(*c).isNonnull() && P::clone(*c).isAvailable() ) {
-	coll_set.emplace(P::clone(*c));
-	}
-      else { edm::LogWarning ("InvalidPointer") <<  "Found an invalid pointer. Will not merge to collection." << std::endl; }
+      if (P::clone(*c).isNonnull() && P::clone(*c).isAvailable()) {
+        coll_set.emplace(P::clone(*c));
+      } else {
+        edm::LogWarning("InvalidPointer") << "Found an invalid pointer. Will not merge to collection." << std::endl;
+      }
     }
   }
   std::unique_ptr<OutputCollection> coll(new OutputCollection(coll_set.size()));
