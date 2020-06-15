@@ -29,7 +29,7 @@ from RecoLocalCalo.HcalRecAlgos.hcalRecAlgos_cfi import hcalRecAlgos
 
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 run2_HCAL_2017.toModify(hcalRecAlgos,
-    phase = cms.uint32(1),
+    phase = 1,
     SeverityLevels = {
         2 : dict( RecHitFlags = cms.vstring('HBHEIsolatedNoise',
                                             'HFAnomalousHit'
