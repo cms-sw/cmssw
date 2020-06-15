@@ -1360,7 +1360,7 @@ bool JetPlusTrackCorrector::matchElectrons(TrackRefs::const_iterator& itrk,
 
     // DR matching b/w electron and track
 
-    dR = deltaR(ielec->eta(),ielec->phi(),(*itrk)->momentum().eta(),(*itrk)->momentum().phi()); 
+    dR = deltaR(ielec->eta(), ielec->phi(), (*itrk)->momentum().eta(), (*itrk)->momentum().phi());
     if (dR < deltaRMIN) {
       deltaRMIN = dR;
     }
@@ -1385,11 +1385,10 @@ bool JetPlusTrackCorrector::matchElectrons(TrackRefs::const_iterator& itrk,
   for (; ielec != jelec; ++ielec) {
     //  std::cout<<"Electron "<<ielec->eta()<<" "<<ielec->phi()<<" Track "<<(*itrk)->momentum().eta()<<" "<<
     //     (*itrk)->momentum().phi()<<" PT "<<ielec->pt()<<" "<<(*itrk)->pt()<<std::endl;
-    dR = deltaR(ielec->eta(),ielec->phi(),(*itrk)->momentum().eta(),(*itrk)->momentum().phi());
+    dR = deltaR(ielec->eta(), ielec->phi(), (*itrk)->momentum().eta(), (*itrk)->momentum().phi());
     if (dR < deltaRMIN) {
       deltaRMIN = dR;
     }
-
   }
   //   std::cout<<" matchElectrons:DeltaR "<<deltaRMIN<<std::endl;
   if (deltaRMIN < electronDRmatch_) { /*std::cout<<"Electron is accepted "<<std::endl;*/
