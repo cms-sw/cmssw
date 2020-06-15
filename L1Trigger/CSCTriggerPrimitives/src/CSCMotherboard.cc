@@ -478,7 +478,7 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
                                                    int type,
                                                    int trknmb) const {
   // CLCT pattern number
-  unsigned int pattern = encodePattern(cLCT.getPattern());
+  unsigned int pattern = use_run3_patterns_ ? 0 : encodePattern(cLCT.getPattern());
 
   // LCT quality number
   unsigned int quality = findQuality(aLCT, cLCT);
@@ -486,9 +486,8 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
   // Bunch crossing: get it from cathode LCT if anode LCT is not there.
   int bx = aLCT.isValid() ? aLCT.getBX() : cLCT.getBX();
 
-  // in Run-3 we plan to use the synchronization error bit
-  // to denote the presence of exotic signatures in the chamber
-  unsigned int syncErr = useHighMultiplicityBits_ ? highMultiplicityBits_ : 0;
+  // Not used in Run-2. Will not be assigned in Run-3
+  unsigned int syncErr = 0;
 
   // construct correlated LCT
   CSCCorrelatedLCTDigi thisLCT(trknmb,
@@ -504,6 +503,14 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
                                syncErr,
                                theTrigChamber);
   thisLCT.setType(type);
+
+  if (use_run3_patterns_) {
+    thisLCT.setRun3(true);
+    // in Run-3 we plan to denote the presence of exotic signatures in the chamber
+    if (useHighMultiplicityBits_)
+      thisLCT.setHMT(highMultiplicityBits_);
+  }
+
   // make sure to shift the ALCT BX from 8 to 3 and the CLCT BX from 8 to 7!
   thisLCT.setALCT(getBXShiftedALCT(aLCT));
   thisLCT.setCLCT(getBXShiftedCLCT(cLCT));

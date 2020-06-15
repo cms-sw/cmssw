@@ -25,7 +25,7 @@ The C++ code is located in `L1Trigger/CSCTriggerPrimitives/src/` and `L1Trigger/
 
 The `plugins/` directory contains the producer module `CSCTriggerPrimitivesProducer`. The `CSCTriggerPrimitivesReader` should be used for firmware vs emulator comparisons.
 
-The `src/` directory contains the builder `CSCTriggerPrimitivesBuilder`, processors (`CSCAnodeLCTProcessor`,  `CSCCathodeLCTProcessor`, `GEMCoPadProcessor`), motherboards (`CSCMotherboard` and similar names), a muon port card (`CSCMuonPortCard`), auxiliary classes to produce and access look-up-tables (`CSCUpgradeMotherboardLUT` and `CSCUpgradeMotherboardLUTGenerator`) and a module to fit a straight line to comparator digis (`CSCComparatorDigiFitter`). Trigger patterns are stored in `CSCPatternBank`.
+The `src/` directory contains the builder `CSCTriggerPrimitivesBuilder`, processors (`CSCAnodeLCTProcessor`,  `CSCCathodeLCTProcessor`, `GEMCoPadProcessor`), motherboards (`CSCMotherboard` and similar names), a muon port card (`CSCMuonPortCard`), auxiliary classes to produce and access look-up-tables (`CSCUpgradeMotherboardLUT` and `CSCUpgradeMotherboardLUTGenerator`). Trigger patterns are stored in `CSCPatternBank`.
 
 The `CSCTriggerPrimitivesBuilder` instantiates the TMBs for each chamber and the MPCs for each trigger sector. TMBs and MPC are organized in trigger sectors. A trigger sector has 9 associated TMBs and a single MPC. Once instantiated, the TMBs are configured and run according to settings defined `cscTriggerPrimitiveDigis_cfi` (see Configuration). After running the TMB the ALCT/CLCT/LCT collections are read out and put into the event. After all TMBs are run, the MPCs produce LCTs to be sent to the OMTF and EMTF.
 
@@ -37,7 +37,7 @@ The `CSCMuonPortCard` class collects LCTs from a trigger sector and relays them 
 
 The `CSCUpgradeMotherboardLUTGenerator` and `CSCUpgradeMotherboardLUT` produce and contain look-up-tables that are used in the CSC upgrade algorithm and/or the GEM-CSC algorithm.
 
-The `CSCComparatorDigiFitter` is a relatively new feature in CSC trigger. It fits a straight line to a set of comparator digis associated to an LCT. The fitted LCT position has a resolution which is better by about a factor 2 than for non-fitted LCTs. This module will at some point be integrated into the `CSCCathodeLCTProcessor` to produce CLCTs with a better position resolution. Better LCT position is critical to reconstruct L1 muons for displaced signatures, one of the cornerstones of the Phase-2 muon upgrade.
+A new class is `CSCComparatorCodeLUT` which provides access to look-up-tables for improved local bending and position in Run-3 (CCLUT). Better LCT position and bending is critical to reconstruct L1 muons for displaced signatures, one of the cornerstones of the Phase-2 muon upgrade.
 
 The `test/` directory contains python configuration to test the CSC local trigger and analyzer the data.
 
@@ -96,3 +96,8 @@ Recent work includes:
 * The removal of outdated classes `CSCTriggerGeometry` and `CSCTriggerGeomManager` (https://github.com/cms-sw/cmssw/pull/21655)
 * The removal of a lot of outdated code (https://github.com/cms-sw/cmssw/pull/24171), which was used for very early MC studies (early 2000s) or to emulate beam-test data from the Magnet Test and Cosmic Challenge (MTCC - 2006). In case you need to look back at this code, please look at the [CMSSW_10_2_X branch](https://github.com/cms-sw/cmssw/tree/CMSSW_10_2_X/L1Trigger/CSCTriggerPrimitives).
 * The removal of an outdated DQM module (https://github.com/cms-sw/cmssw/pull/24196).
+* The removal of pre-2007 code (https://github.com/cms-sw/cmssw/pull/24254)
+* Implementation of a common baseboard class (https://github.com/cms-sw/cmssw/pull/24403)
+* Update GE1/1-ME1/1 and GE2/1-ME2/1 local triggers (https://github.com/cms-sw/cmssw/pull/27957, https://github.com/cms-sw/cmssw/pull/28334, https://github.com/cms-sw/cmssw/pull/28605)
+* Improvements to the CLCT algorithm following data vs emulator studies Summer and Fall of 2018 (https://github.com/cms-sw/cmssw/pull/25165)
+* Implementation of the CCLUT algorithm (https://github.com/cms-sw/cmssw/pull/28044, https://github.com/cms-sw/cmssw/pull/28600, https://github.com/cms-sw/cmssw/pull/29205, https://github.com/cms-sw/cmssw/pull/28846)
