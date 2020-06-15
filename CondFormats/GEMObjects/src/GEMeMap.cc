@@ -103,7 +103,7 @@ void GEMeMap::convertDummy(GEMROMapping& romap) {
 
           uint16_t chipPos = 0;
           for (int lphi = 0; lphi < maxVFat; ++lphi) {
-            for (int roll = 1; roll <= maxEtaPartition_; ++roll) {
+            for (int roll = 1; roll <= GEMDetId::maxRollId; ++roll) {
               GEMROMapping::vfatEC vec;
               vec.vfatAdd = chipPos;
               vec.detId = gemId;
