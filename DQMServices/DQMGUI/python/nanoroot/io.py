@@ -71,6 +71,11 @@ class XRDFile:
         stat = await self.__async_call(self.file.stat)
         self.size = stat['size']
         return self
+
+    async def close(self):
+        # no timeout here, better block eternally here than to return and then
+        # have GC block forever.
+        await self.__async_call(self.file.close)
         
     def __len__(self):
         return self.size

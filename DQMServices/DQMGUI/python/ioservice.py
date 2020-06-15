@@ -79,14 +79,24 @@ class IOService:
     async def __connect(cls, url):
         """Create a pyxrootd.client (via nanoroot) connection to the url."""
 
-        async def closefile():
+        async def closefile(url):
             # XRD connections tend to break after a while.
             # To prevent this, we preventively close all connections after a certain time.
             await asyncio.sleep(cls.MAXOPENTIME)
-            # This is done by removing the file from the cache, GC takes care of the rest.
+            # First, take a reference to the file.
+            file = await cls.__connect(url)
+            # Then,remove it from the cache. Since we have a ref, the connection
+            # will not be closed yet (via GC).
             cls.__connect.invalidate(cls, url)
+            # now close the connection. This has to be done async, so we can't 
+            # leave it up to GC (which would do a sync close)
+            await file.close()
+            # note that this close tends to time out/take forever. But leaking
+            # a connection is much better than deadlocking the main thread when
+            # GC destroys and closes the connection.
+            # now file goes out of scope and should be destroyed.
         file = await XRDFile().load(url, timeout=cls.OPENTIMEOUT)
-        asyncio.Task(closefile())
+        asyncio.Task(closefile(url))
         return file
 
 
