@@ -6,9 +6,7 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "EventFilter/EcalRawToDigi/interface/DeclsForKernels.h"
 #include "EventFilter/EcalRawToDigi/interface/ElectronicsMappingGPU.h"
-#include "EventFilter/EcalRawToDigi/interface/UnpackGPU.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -17,6 +15,9 @@
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+
+#include "DeclsForKernels.h"
+#include "UnpackGPU.h"
 
 class EcalCPUDigisProducer : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
