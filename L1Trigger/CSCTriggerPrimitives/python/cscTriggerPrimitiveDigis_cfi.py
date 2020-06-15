@@ -28,6 +28,22 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
     # Write out pre-triggers
     savePreTriggers = cms.bool(False),
 
+    positionLUTFiles = cms.vstring(
+        "L1Trigger/CSCTriggerPrimitives/data/CSCComparatorCodePosOffsetLUT_pat0_ideal_v1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/CSCComparatorCodePosOffsetLUT_pat1_ideal_v1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/CSCComparatorCodePosOffsetLUT_pat2_ideal_v1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/CSCComparatorCodePosOffsetLUT_pat3_ideal_v1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/CSCComparatorCodePosOffsetLUT_pat4_ideal_v1.txt"
+    ),
+
+    slopeLUTFiles = cms.vstring(
+        "L1Trigger/CSCTriggerPrimitives/data/CSCComparatorCodeSlopeLUT_pat0_v1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/CSCComparatorCodeSlopeLUT_pat1_v1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/CSCComparatorCodeSlopeLUT_pat2_v1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/CSCComparatorCodeSlopeLUT_pat3_v1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/CSCComparatorCodeSlopeLUT_pat4_v1.txt"
+    ),
+
     # Parameters common for all boards
     commonParam = cms.PSet(
         # Master flag for SLHC studies
@@ -165,6 +181,8 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         useRun3Patterns = cms.bool(False),
 
         useComparatorCodes = cms.bool(False),
+        nBitsPositionCC = cms.uint32(10),
+        nBitsSlopeCC = cms.uint32(5)
     ),
 
     # Parameters for CLCT processors: SLHC studies
@@ -211,6 +229,9 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         useRun3Patterns = cms.bool(False),
 
         useComparatorCodes = cms.bool(False),
+
+        nBitsPositionCC = cms.uint32(10),
+        nBitsSlopeCC = cms.uint32(5)
     ),
 
     tmbParam = cms.PSet(
@@ -479,20 +500,32 @@ run2_common.toModify( cscTriggerPrimitiveDigis,
                       commonParam = dict(gangedME1a = False),
                       )
 
-## GEM-CSC ILT in ME1/1
+## Run-3 CSC-only: new LCT data format
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify( cscTriggerPrimitiveDigis,
+                      commonParam = dict(isSLHC = True,
+                                         runME11Up = cms.bool(True),
+                                         enableAlctSLHC = cms.bool(False)),
+                      ## EMTF will take of this
+                      tmbSLHC = dict(ignoreAlctCrossClct = cms.bool(False)),
+                      clctSLHC = dict(
+                          clctNplanesHitPattern = 4,
+                      ),
+                   )
+
+## Run3: GEM-CSC ILT in ME1/1
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toModify( cscTriggerPrimitiveDigis,
                    GEMPadDigiProducer = cms.InputTag("simMuonGEMPadDigis"),
                    GEMPadDigiClusterProducer = cms.InputTag("simMuonGEMPadDigiClusters"),
-                   commonParam = dict(isSLHC = True,
-                                      runME11Up = cms.bool(True),
-                                      runME11ILT = cms.bool(True),
-                                      useClusters = cms.bool(False),
-                                      enableAlctSLHC = cms.bool(True)),
-                   clctSLHC = dict(clctNplanesHitPattern = 3),
+                   commonParam = dict(runME11ILT = cms.bool(True),
+                                      useClusters = cms.bool(False)),
+                   clctSLHC = dict(
+                       clctNplanesHitPattern = 3,
+                   ),
                    me11tmbSLHCGEM = me11tmbSLHCGEM,
                    copadParamGE11 = copadParamGE11
-                   )
+)
 
 ## GEM-CSC ILT in ME2/1, CSC in ME3/1 and ME4/1
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
@@ -501,7 +534,6 @@ phase2_muon.toModify( cscTriggerPrimitiveDigis,
                                          runME21ILT = cms.bool(True),
                                          runME31Up = cms.bool(True),
                                          runME41Up = cms.bool(True)),
-                      tmbSLHC = dict(ignoreAlctCrossClct = cms.bool(False)),
                       clctSLHC = dict(useDynamicStateMachineZone = cms.bool(True)),
                       alctSLHCME21 = cscTriggerPrimitiveDigis.alctSLHC.clone(alctNplanesHitPattern = 3),
                       clctSLHCME21 = cscTriggerPrimitiveDigis.clctSLHC.clone(clctNplanesHitPattern = 3),

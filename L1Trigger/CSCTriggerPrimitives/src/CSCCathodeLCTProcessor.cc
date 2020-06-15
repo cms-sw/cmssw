@@ -61,6 +61,10 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
 
   use_comparator_codes_ = clctParams_.getParameter<bool>("useComparatorCodes");
 
+  nbits_position_cc_ = clctParams_.getParameter<unsigned int>("nBitsPositionCC");
+
+  nbits_slope_cc_ = clctParams_.getParameter<unsigned int>("nBitsSlopeCC");
+
   // Check and print configuration parameters.
   checkConfigParameters();
   if ((infoV > 0) && !config_dumped) {
@@ -82,6 +86,16 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
     clct_pattern_ = CSCPatternBank::clct_pattern_run3_;
   } else {
     clct_pattern_ = CSCPatternBank::clct_pattern_legacy_;
+  }
+
+  if (use_comparator_codes_) {
+    positionLUTFiles_ = conf.getParameter<std::vector<std::string>>("positionLUTFiles");
+    slopeLUTFiles_ = conf.getParameter<std::vector<std::string>>("slopeLUTFiles");
+
+    for (int i = 0; i < 5; ++i) {
+      lutpos_[i].reset(new CSCComparatorCodeLUT(positionLUTFiles_[i]));
+      lutslope_[i].reset(new CSCComparatorCodeLUT(slopeLUTFiles_[i]));
+    }
   }
 
   thePreTriggerDigis.clear();
@@ -661,19 +675,23 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
                                 keystrip_data[ilct][CLCT_BX]);
 
             // get the comparator hits for this pattern
-            auto compHits = hits_in_patterns[best_hs][keystrip_data[ilct][CLCT_PATTERN]];
-
-            // purge the comparator digi collection from the obsolete "65535" entries...
-            cleanComparatorContainer(compHits);
+            const auto& compHits = hits_in_patterns[best_hs][keystrip_data[ilct][CLCT_PATTERN]];
 
             // set the hit collection
             thisLCT.setHits(compHits);
+
+            // do the CCLUT procedures
+            if (use_comparator_codes_) {
+              runCCLUT(thisLCT);
+            }
+
+            // purge the comparator digi collection from the obsolete "65535" entries...
+            cleanComparatorContainer(thisLCT);
 
             // useful debugging
             if (infoV > 1) {
               LogTrace("CSCCathodeLCTProcessor") << " Final selection: ilct " << ilct << " " << thisLCT << std::endl;
             }
-
             // put the CLCT into the collection
             lctList.push_back(thisLCT);
           }
@@ -863,7 +881,7 @@ bool CSCCathodeLCTProcessor::patternFinding(
   // Loop over candidate key strips.
   for (int key_hstrip = stagger[CSCConstants::KEY_CLCT_LAYER - 1]; key_hstrip < nStrips; key_hstrip++) {
     // Loop over patterns and look for hits matching each pattern.
-    for (unsigned int pid = clct_pattern_.size() - 1; pid >= pid_thresh_pretrig; pid--) {
+    for (unsigned int pid = clct_pattern_.size() - 1; pid >= pid_thresh_pretrig and pid < clct_pattern_.size(); pid--) {
       layers_hit = 0;
       // clear all layers
       for (int ilayer = 0; ilayer < CSCConstants::NUM_LAYERS; ilayer++) {
@@ -989,8 +1007,8 @@ void CSCCathodeLCTProcessor::markBusyKeys(const int best_hstrip,
   }
 }  // markBusyKeys -- TMB-07 version.
 
-void CSCCathodeLCTProcessor::cleanComparatorContainer(CSCCLCTDigi::ComparatorContainer& compHits) const {
-  for (auto& p : compHits) {
+void CSCCathodeLCTProcessor::cleanComparatorContainer(CSCCLCTDigi& clct) const {
+  for (auto& p : clct.getHits()) {
     p.erase(std::remove_if(
                 p.begin(), p.end(), [](unsigned i) -> bool { return i == CSCCathodeLCTProcessor::INVALID_HALFSTRIP; }),
             p.end());
@@ -1225,4 +1243,192 @@ CSCCLCTDigi CSCCathodeLCTProcessor::getSecondCLCT(int bx) const {
   CSCCLCTDigi lct = CLCTContainer_[bx][1];
   lct.setBX(lct.getBX() + alctClctOffset_);
   return lct;
+}
+
+// --------Functions for the comparator code algorith for Run-3 ---------//
+
+int CSCCathodeLCTProcessor::calculateComparatorCode(const std::array<std::array<int, 3>, 6>& halfStripPattern) const {
+  int id = 0;
+
+  for (unsigned int column = 0; column < CSCConstants::NUM_LAYERS; column++) {
+    int rowPat = 0;   //physical arrangement of the three bits
+    int rowCode = 0;  //code used to identify the arrangement
+
+    //use Firmware definition for comparator code definition
+    for (int row = 2; row >= 0; row--) {
+      rowPat = rowPat << 1;  //bitshift the last number to the left
+      rowPat += halfStripPattern[column][row];
+    }
+    switch (rowPat) {
+      case 0:  //000
+        rowCode = 0;
+        break;
+      case 1:  //00X
+        rowCode = 1;
+        break;
+      case 2:  //0X0
+        rowCode = 2;
+        break;
+      case 4:  //00X
+        rowCode = 3;
+        break;
+      default:
+        // default return value is -1
+        return -1;
+    }
+    //each column has two bits of information, largest layer is most significant bit
+    id += (rowCode << 2 * column);
+  }
+  return id;
+}
+
+void CSCCathodeLCTProcessor::calculatePositionCC(float offset,
+                                                 uint16_t& halfstrip,
+                                                 bool& quartstrip,
+                                                 bool& eightstrip) const {
+  // offset is too small, no bits are are set!
+  if (std::abs(offset) < 0.25)
+    return;
+
+  // if the offset is less than -0.25, reduce the halfstrip number by 1
+  float positiveOffset = offset;
+  if (offset <= -0.25 and halfstrip >= 1) {
+    halfstrip = halfstrip - 1;
+    positiveOffset = positiveOffset + 1;
+    // offset by one more halfstrip!
+    if (offset <= -1.25) {
+      halfstrip = halfstrip - 1;
+      positiveOffset = positiveOffset + 1;
+    }
+  }
+
+  // if the offset is more than 1, increase halfstrip by 1
+  if (offset >= 1 and halfstrip <= numStrips) {
+    halfstrip = halfstrip + 1;
+    positiveOffset = positiveOffset - 1;
+    // offset by one more halfstrip!
+    if (offset >= 2) {
+      halfstrip = halfstrip + 1;
+      positiveOffset = positiveOffset - 1;
+    }
+  }
+
+  // determine the quart and eight strip bits
+  if (0 < positiveOffset and positiveOffset < 0.5) {
+    quartstrip = false;
+    if (positiveOffset < 0.25)
+      eightstrip = false;
+    if (positiveOffset > 0.25)
+      eightstrip = true;
+  }
+  if (0.5 < positiveOffset and positiveOffset < 1) {
+    quartstrip = true;
+    if (positiveOffset < 0.75)
+      eightstrip = false;
+    if (positiveOffset > 0.75)
+      eightstrip = true;
+  }
+}
+
+int CSCCathodeLCTProcessor::calculateSlopeCC(float slope, int nBits) const {
+  int returnValue;
+  float minSlope = -1.0;
+  float maxSlope = 1.0;
+  int range = pow(2, nBits);
+  float deltaSlope = (maxSlope - minSlope) / range;
+
+  if (slope <= -1.0)
+    returnValue = 0;
+  else if (slope >= 1.0)
+    returnValue = range - 1;
+  else if (slope == 0) {
+    returnValue = pow(2, nBits - 1);
+  } else {
+    if (slope < 0) {
+      returnValue = std::floor(std::abs(slope) / deltaSlope);
+    } else {
+      returnValue = std::floor(std::abs(slope) / deltaSlope) + pow(2, nBits - 1);
+    }
+  }
+  return returnValue;
+}
+
+void CSCCathodeLCTProcessor::runCCLUT(CSCCLCTDigi& digi) const {
+  // print out the old CLCT for debugging
+  if (infoV > 2) {
+    std::ostringstream strm;
+    strm << "\n";
+    strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+    strm << "+                  Before CCCLUT algorithm:                       +\n";
+    strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+    strm << " Old CLCT digi " << digi << "\n";
+    strm << " 1/4 strip bit " << digi.getQuartStrip() << " 1/8 strip bit " << digi.getEightStrip() << "\n";
+    strm << " 1/4 strip number " << digi.getKeyStrip(4) << " 1/8 strip number " << digi.getKeyStrip(8) << "\n";
+    strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+    LogDebug("CSCCathodeLCTProcessor") << strm.str();
+  }
+
+  // Get the comparator hits
+  auto compHits = digi.getHits();
+
+  // Wrap the comparator code in a format for calculation
+  std::array<std::array<int, 3>, CSCConstants::NUM_LAYERS> compHitsCC;
+
+  for (int i = 0; i < CSCConstants::NUM_LAYERS; i++) {
+    int iCC = 0;
+    for (int j = 0; j < CSCConstants::CLCT_PATTERN_WIDTH; j++) {
+      // only fill when the pattern is active
+      if (clct_pattern_[digi.getPattern()][i][j]) {
+        if (compHits[i][j] != INVALID_HALFSTRIP) {
+          compHitsCC[i][iCC] = 1;
+        } else {
+          compHitsCC[i][iCC] = 0;
+        }
+        iCC++;
+      }
+    }
+  }
+
+  // calculate the comparator code
+  int comparatorCode = calculateComparatorCode(compHitsCC);
+
+  // store the comparator code
+  digi.setCompCode(comparatorCode);
+
+  // calculate the slope and position offset
+  int pattern = digi.getPattern();
+  // position offset is in strips -> *2 to get to half-strips!
+  float positionCC = 2 * lutpos_[pattern]->lookup(comparatorCode);
+  float slopeCC = lutslope_[pattern]->lookup(comparatorCode);
+
+  // calculate the new position
+  uint16_t halfstrip = digi.getStrip();
+  bool quartstrip;
+  bool eightstrip;
+  calculatePositionCC(positionCC, halfstrip, quartstrip, eightstrip);
+
+  // store the new 1/2, 1/4 and 1/8 strip positions
+  digi.setStrip(halfstrip);
+  digi.setQuartStrip(quartstrip);
+  digi.setEightStrip(eightstrip);
+
+  // store the bending angle value
+  digi.setBend(calculateSlopeCC(slopeCC, nbits_slope_cc_));
+
+  // set Run-3 flag
+  digi.setRun3(true);
+
+  // now print out the new CLCT for debugging
+  if (infoV > 2) {
+    std::ostringstream strm;
+    strm << "\n";
+    strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+    strm << "+                  CCCLUT algorithm results:                       +\n";
+    strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+    strm << " New CLCT digi " << digi << "\n";
+    strm << " 1/4 strip bit " << digi.getQuartStrip() << " 1/8 strip bit " << digi.getEightStrip() << "\n";
+    strm << " 1/4 strip number " << digi.getKeyStrip(4) << " 1/8 strip number " << digi.getKeyStrip(8) << "\n";
+    strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+    LogDebug("CSCCathodeLCTProcessor") << strm.str();
+  }
 }
