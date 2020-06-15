@@ -28,6 +28,7 @@ def generateGeom(detectorTuple, options):
 
     # create output files
     xmlName = "cmsExtendedGeometry"+detectorVersion+"XML_cfi.py"
+    xmlDD4hepName = "cmsExtendedGeometry"+detectorVersion+".xml"
     simName = "GeometryExtended"+detectorVersion+"_cff.py"
     recoName = "GeometryExtended"+detectorVersion+"Reco_cff.py"
 
@@ -36,16 +37,22 @@ def generateGeom(detectorTuple, options):
     CMSSWRELBASE = os.getenv("CMSSW_RELEASE_BASE")
     if CMSSWBASE is None: CMSSWBASE = ""
     xmlDir = os.path.join(CMSSWBASE,"src","Geometry","CMSCommonData","python")
+    xmlDD4hepDir = os.path.join(CMSSWBASE,"src","Geometry","CMSCommonData","data","dd4hep")
     simrecoDir = os.path.join(CMSSWBASE,"src","Configuration","Geometry","python")
     if doTest:
         if not os.path.isdir(xmlDir):
             xmlDir = os.path.join(CMSSWRELBASE,"src","Geometry","CMSCommonData","python")
+            xmlDD4hepDir = os.path.join(CMSSWBASE,"src","Geometry","CMSCommonData","data","dd4hep")
     else:
         mvCommands = ""
         if not os.path.isdir(xmlDir):
             mvCommands += "mv "+xmlName+" "+xmlDir+"/\n"
         else:
             xmlName = os.path.join(xmlDir,xmlName)
+        if not os.path.isdir(xmlDD4hepDir):
+            mvCommands += "mv "+xmlDD4hepName+" "+xmlDD4hepDir+"/\n"
+        else:
+            xmlDD4hepName = os.path.join(xmlDD4hepDir,xmlDD4hepName)
         if not os.path.isdir(simrecoDir):
             mvCommands += "mv "+simName+" "+simrecoDir+"/\n"
             mvCommands += "mv "+recoName+" "+simrecoDir+"/\n"
@@ -57,6 +64,7 @@ def generateGeom(detectorTuple, options):
 
     # open files
     xmlFile = open(xmlName,'w')
+    xmlDD4hepFile = open(xmlDD4hepName,'w')
     simFile = open(simName,'w')
     recoFile = open(recoName,'w')
 
@@ -80,6 +88,23 @@ def generateGeom(detectorTuple, options):
     # postamble
     xmlFile.write("    ),"+"\n"+"    rootNodeName = cms.string('cms:OCMS')"+"\n"+")"+"\n")
     xmlFile.close()
+
+    # create DD4hep XML config
+    xmlDD4hepFile.write("<?xml version=\"1.0\"?>\n"+
+                        "<DDDefinition>\n"+
+                        "  <open_geometry/>\n"+
+                        "  <close_geometry/>\n"+
+                        "\n"+
+                        "  <IncludeSection>\n")
+    for section in range(1,maxsections+1):
+        # midamble
+        for iDict,aDict in enumerate(allDicts):
+            if section in aDict[detectorTuple[iDict]].keys():
+                xmlDD4hepFile.write('\n'.join([ "    <Include ref='"+aLine+"'/>" for aLine in aDict[detectorTuple[iDict]][section] ])+"\n")
+    # postamble
+    xmlDD4hepFile.write("  </IncludeSection>\n"+
+                        "</DDDefinition>"+"\n")
+    xmlDD4hepFile.close()
 
     # create sim config
     simFile.write(preamble)

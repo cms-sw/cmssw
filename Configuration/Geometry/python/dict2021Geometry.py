@@ -203,7 +203,7 @@ trackerDict = {
             'Geometry/TrackerCommonData/data/tecpetal6b.xml',
             'Geometry/TrackerCommonData/data/tecpetal8f.xml',
             'Geometry/TrackerCommonData/data/tecpetal8b.xml',
-            'Geometry/TrackerCommonData/data/tecwheel2021/v1/tecwheel.xml',
+            'Geometry/TrackerCommonData/data/tecwheel/2021/v1/tecwheel.xml',
             'Geometry/TrackerCommonData/data/tecwheela.xml',
             'Geometry/TrackerCommonData/data/tecwheelb.xml',
             'Geometry/TrackerCommonData/data/tecwheelc.xml',
@@ -224,7 +224,7 @@ trackerDict = {
             'Geometry/TrackerCommonData/data/trackerother.xml',
             'Geometry/TrackerCommonData/data/PhaseI/trackerStructureTopology.xml',
             'Geometry/TrackerSimData/data/PhaseI/trackersens.xml',
-            'Geometry/TrackerRecoData/data/PhaseI/trackerRecoMaterial.xml'
+            'Geometry/TrackerRecoData/data/PhaseI/trackerRecoMaterial.xml',
             'Geometry/TrackerSimData/data/PhaseI/trackerProdCuts.xml',
             'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml',
         ],
