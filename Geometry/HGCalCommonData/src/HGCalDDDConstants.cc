@@ -616,8 +616,10 @@ std::pair<float, float> HGCalDDDConstants::locateCell(
   int type = ((itr == hgpar_->typesInLayers_.end()) ? 2 : hgpar_->waferTypeL_[itr->second]);
 #ifdef EDM_ML_DEBUG
   if (debug)
-    edm::LogVerbatim("HGCalGeom") << "LocateCell " << lay << ":" << waferU << ":" << waferV << ":" << indx << ":"
-                                  << (itr == hgpar_->typesInLayers_.end()) << ":" << type;
+    {
+      edm::LogVerbatim("HGCalGeom") << "LocateCell " << lay << ":" << waferU << ":" << waferV << ":" << indx << ":"
+				    << (itr == hgpar_->typesInLayers_.end()) << ":" << type;
+    }
 #endif
   int kndx = cellV * 100 + cellU;
   if (type == 0) {
@@ -897,6 +899,7 @@ std::vector<int> HGCalDDDConstants::numberCells(int lay, bool reco) const {
   if (i >= 0) {
     if (waferHexagon6()) {
       for (unsigned int k = 0; k < hgpar_->waferTypeT_.size(); ++k) {
+	std::cout << "SIZE WAFERTYPET_:  " << hgpar_->waferTypeT_.size() << std::endl;
         if (waferInLayerTest(k, i, hgpar_->defineFull_)) {
           unsigned int cell = (hgpar_->waferTypeT_[k] - 1 == HGCSiliconDetId::HGCalFine)
                                   ? (hgpar_->cellFineX_.size())
@@ -909,6 +912,8 @@ std::vector<int> HGCalDDDConstants::numberCells(int lay, bool reco) const {
       for (int k = hgpar_->firstModule_[i]; k <= hgpar_->lastModule_[i]; ++k)
         ncell.emplace_back(nphi);
     } else {
+      std::cout << "PRE: SIZE WAFERTYPET_:  " << hgpar_->waferTypeT_.size() << std::endl;
+      std::cout <<  mode_ << std::endl; 
       for (unsigned int k = 0; k < hgpar_->waferCopy_.size(); ++k) {
         if (waferInLayerTest(k, index.first, hgpar_->defineFull_)) {
           int cell = numberCellsHexagon(lay,

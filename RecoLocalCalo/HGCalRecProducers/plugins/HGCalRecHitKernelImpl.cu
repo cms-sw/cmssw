@@ -108,7 +108,7 @@ void hef_to_rechit(HGCRecHitSoA dst_soa, HGCUncalibratedRecHitSoA src_soa, const
 {
   unsigned int tid = blockDim.x * blockIdx.x + threadIdx.x;
   HeterogeneousHGCSiliconDetId detid(src_soa.id_[tid]);
-  printf("cellCoarseY: %lf - cellLayer: %d - cellPosX: %lf - cellPosY: %lf - cellPosZ: %lf\n", conds->params.cellCoarseY_[12], detid.layer(), conds->pos.x[9], conds->pos.y[9], conds->pos.z[9]);
+  printf("cellCoarseY: %lf - cellLayer: %d - numberCellsHexagon: %d - DetId: %d - Var: %d\n", conds->params.cellCoarseY_[12], detid.layer(), conds->posmap.numberCellsHexagon[0], conds->posmap.detid[9], conds->posmap.waferMax);
   
   for (unsigned int i = tid; i < length; i += blockDim.x * gridDim.x)
     {

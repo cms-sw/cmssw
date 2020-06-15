@@ -112,7 +112,6 @@ namespace hgcal_conditions {
   } //namespace parameters
 
   namespace positions {
-
     //stores the positions taken from the detid's in the CPU
     struct HGCalPositions {
       std::vector<float> x;
@@ -128,6 +127,31 @@ namespace hgcal_conditions {
       float* z;
     };
 
+    enum class HeterogeneousHGCalPositionsType {Int32_t, Uint32_t};
+    
+    const std::vector<HeterogeneousHGCalPositionsType> types = { HeterogeneousHGCalPositionsType::Int32_t,
+								 HeterogeneousHGCalPositionsType::Uint32_t };
+    
+    struct HGCalPositionsMapping {
+      std::vector<int32_t> numberCellsHexagon;
+      std::vector<uint32_t> detid;
+      //variables required for the mapping of detid -> cell in the geometry
+      int firstLayer;
+      int lastLayer;
+      int waferMax;
+      int waferMin;
+    };
+
+    struct HeterogeneousHGCalPositionsMapping {
+      int32_t *numberCellsHexagon;
+      uint32_t *detid;
+      //variables required for the mapping of detid -> cell in the geometry
+      int firstLayer;
+      int lastLayer;
+      int waferMax;
+      int waferMin;
+    };
+    
   } //namespace positions
   
   struct HeterogeneousEEConditionsESProduct {
@@ -135,7 +159,7 @@ namespace hgcal_conditions {
   };
   struct HeterogeneousHEFConditionsESProduct {
     parameters::HeterogeneousHGCalHEFParameters params;
-    positions::HeterogeneousHGCalPositions pos;
+    positions::HeterogeneousHGCalPositionsMapping posmap;
   };
   struct HeterogeneousHEBConditionsESProduct {
     parameters::HeterogeneousHGCalHEBParameters params;
@@ -143,4 +167,4 @@ namespace hgcal_conditions {
 
 } //namespace conditions
 
-#endif
+#endif //CUDADataFormats_HGCal_HGCConditions_h
