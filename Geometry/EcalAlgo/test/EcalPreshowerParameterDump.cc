@@ -17,7 +17,7 @@
 
 #include <iomanip>
 #include <iostream>
-#include <sstream> // for ostringstream
+#include <sstream>  // for ostringstream
 
 typedef EZArrayFL<GlobalPoint> CornersVec;
 
@@ -48,8 +48,9 @@ EcalPreshowerCellParameterDump::EcalPreshowerCellParameterDump(const edm::Parame
       for (short lay = 1; lay <= 2; ++lay) {
         std::ostringstream name, title;
         name << "hist" << iz << lay;
-        title << "y vs. x (zside = "<<zside<<",layer = "<<lay<<")";
-        hist_.emplace_back(fs->make<TH2D>(name.str().c_str(), title.str().c_str(), 5000, -125.0, 125.0, 5000, -125.0, 125.0));
+        title << "y vs. x (zside = " << zside << ",layer = " << lay << ")";
+        hist_.emplace_back(
+            fs->make<TH2D>(name.str().c_str(), title.str().c_str(), 5000, -125.0, 125.0, 5000, -125.0, 125.0));
       }
     }
   }
