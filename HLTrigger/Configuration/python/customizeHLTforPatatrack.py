@@ -394,6 +394,9 @@ def customise_gpu_ecal(process):
         recHitsLabelCPUEE = cms.string("EcalUncalibRecHitsEE")
     )
 
+    # Reconstructing the ECAL calibrated rechits on GPU works, but is extremely slow.
+    # Disable it for the time being, until the performance has been addressed.
+    """
     process.hltEcalRecHitGPU = cms.EDProducer("EcalRecHitProducerGPU",
         uncalibrecHitsInLabelEB = cms.InputTag("hltEcalUncalibRecHitGPU","EcalUncalibRecHitsEB"),
         uncalibrecHitsInLabelEE = cms.InputTag("hltEcalUncalibRecHitGPU","EcalUncalibRecHitsEE"),
@@ -445,6 +448,7 @@ def customise_gpu_ecal(process):
         recHitsLabelCPUEB = cms.string("EcalRecHitsEB"),
         recHitsLabelCPUEE = cms.string("EcalRecHitsEE"),
     )
+    """
 
 
     # Sequences
@@ -455,9 +459,10 @@ def customise_gpu_ecal(process):
       + process.hltEcalUncalibRecHitGPU                     # run ECAL local reconstruction and multifit on gpu
       + process.hltEcalUncalibRecHitSoA                     # needed by hltEcalPhiSymFilter - copy to host
       + process.hltEcalUncalibRecHit                        # needed by hltEcalPhiSymFilter - convert to legacy format
-      + process.hltEcalRecHitGPU                            # make ECAL calibrated rechits on gpu
-      + process.hltEcalRecHitSoA                            # copy to host
-      + process.hltEcalRecHit)                              # convert to legacy format
+      # process.hltEcalRecHitGPU                            # make ECAL calibrated rechits on gpu
+      # process.hltEcalRecHitSoA                            # copy to host
+      + process.hltEcalDetIdToBeRecovered                   # legacy producer
+      + process.hltEcalRecHit)                              # legacy producer
 
     process.HLTDoFullUnpackingEgammaEcalSequence = cms.Sequence(
         process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence
