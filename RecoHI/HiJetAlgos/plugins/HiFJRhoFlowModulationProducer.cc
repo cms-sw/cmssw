@@ -3,8 +3,6 @@
 // Package:    RecoHI/HiJetAlgos/plugins/HiFJRhoFlowModulationProducer
 // Class:      HiFJRhoFlowModulationProducer
 
-#include "RecoHI/HiJetAlgos/plugins/HiFJRhoFlowModulationProducer.h"
-
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -18,6 +16,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFiller.h"
+#include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
+#include "DataFormats/JetReco/interface/JetCollection.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "TF1.h"
 #include "TH1.h"
@@ -30,6 +34,28 @@
 #include <utility>
 #include <vector>
 
+class HiFJRhoFlowModulationProducer : public edm::stream::EDProducer<> {
+public:
+  explicit HiFJRhoFlowModulationProducer(const edm::ParameterSet&);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  void beginStream(edm::StreamID) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endStream() override;
+
+  bool doEvtPlane_;
+  bool doFreePlaneFit_;
+  bool doJettyExclusion_;
+  int evtPlaneLevel_;
+  edm::EDGetTokenT<reco::JetView> jetTag_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> pfCandsToken_;
+  edm::EDGetTokenT<reco::EvtPlaneCollection> evtPlaneToken_;
+
+  float* hiEvtPlane;
+};
+
 HiFJRhoFlowModulationProducer::HiFJRhoFlowModulationProducer(const edm::ParameterSet& iConfig)
     : doEvtPlane_(iConfig.getParameter<bool>("doEvtPlane")),
       doFreePlaneFit_(iConfig.getParameter<bool>("doFreePlaneFit")),
@@ -39,11 +65,6 @@ HiFJRhoFlowModulationProducer::HiFJRhoFlowModulationProducer(const edm::Paramete
       pfCandsToken_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCandSource"))),
       evtPlaneToken_(consumes<reco::EvtPlaneCollection>(iConfig.getParameter<edm::InputTag>("EvtPlane"))) {
   produces<std::vector<double>>("rhoFlowFitParams");
-}
-
-HiFJRhoFlowModulationProducer::~HiFJRhoFlowModulationProducer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 // ------------ method called to produce the data  ------------
@@ -204,16 +225,16 @@ void HiFJRhoFlowModulationProducer::produce(edm::Event& iEvent, const edm::Event
   iEvent.put(std::move(rhoFlowFitParamsOut), "rhoFlowFitParams");
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void HiFJRhoFlowModulationProducer::beginJob() {
+// ------------ method called once each stream just before starting event loop  ------------
+void HiFJRhoFlowModulationProducer::beginStream(edm::StreamID) {
   if (doEvtPlane_) {
     constexpr int kMaxEvtPlanes = 1000;
     hiEvtPlane = new float[kMaxEvtPlanes];
   }
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
-void HiFJRhoFlowModulationProducer::endJob() {
+// ------------ method called once each stream just after ending the event loop  ------------
+void HiFJRhoFlowModulationProducer::endStream() {
   if (doEvtPlane_)
     delete hiEvtPlane;
 }
