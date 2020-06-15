@@ -1,9 +1,8 @@
-#include "EventFilter/HcalRawToDigi/plugins/ElectronicsMappingGPU.h"
-
+#include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
-#include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
+#include "ElectronicsMappingGPU.h"
 
 namespace hcal {
   namespace raw {

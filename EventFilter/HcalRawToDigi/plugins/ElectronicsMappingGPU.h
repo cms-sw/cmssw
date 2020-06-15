@@ -1,5 +1,5 @@
-#ifndef EventFilter_HcalRawToDigi_interface_ElectronicsMappingGPU_h
-#define EventFilter_HcalRawToDigi_interface_ElectronicsMappingGPU_h
+#ifndef EventFilter_HcalRawToDigi_plugins_ElectronicsMappingGPU_h
+#define EventFilter_HcalRawToDigi_plugins_ElectronicsMappingGPU_h
 
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 
@@ -45,4 +45,4 @@ namespace hcal {
   }  // namespace raw
 }  // namespace hcal
 
-#endif  // EventFilter_HcalRawToDigi_interface_ElectronicsMappingGPU_h
+#endif  // EventFilter_HcalRawToDigi_plugins_ElectronicsMappingGPU_h

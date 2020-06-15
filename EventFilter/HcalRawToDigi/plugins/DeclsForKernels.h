@@ -1,14 +1,13 @@
 #ifndef EventFilter_HcalRawToDigi_interface_DeclsForKernels_h
 #define EventFilter_HcalRawToDigi_interface_DeclsForKernels_h
 
+#include <vector>
+
+#include "CUDADataFormats/HcalDigi/interface/DigiCollection.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
-#include "EventFilter/HcalRawToDigi/plugins/ElectronicsMappingGPU.h"
-
-#include "CUDADataFormats/HcalDigi/interface/DigiCollection.h"
-
-#include <vector>
+#include "ElectronicsMappingGPU.h"
 
 namespace hcal {
   namespace raw {

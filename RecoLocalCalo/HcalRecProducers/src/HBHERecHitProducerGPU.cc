@@ -19,7 +19,6 @@
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/DeclsForKernels.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCombinedRecordsGPU.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedEffectivePedestalWidthsGPU.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalConvertedEffectivePedestalsGPU.h"
@@ -37,7 +36,8 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSiPMCharacteristicsGPU.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSiPMParametersGPU.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalTimeCorrsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/MahiGPU.h"
+
+#include "MahiGPU.h"
 
 class HBHERecHitProducerGPU : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -108,7 +108,8 @@ HBHERecHitProducerGPU::HBHERecHitProducerGPU(edm::ParameterSet const& ps)
     scratchGPU_.allocate(configParameters_);
 
     // FIXME: use default device and default stream
-    cudaCheck(cudaMalloc((void**)&configParameters_.pulseOffsetsDevice, sizeof(int) * configParameters_.pulseOffsets.size()));
+    cudaCheck(
+        cudaMalloc((void**)&configParameters_.pulseOffsetsDevice, sizeof(int) * configParameters_.pulseOffsets.size()));
     cudaCheck(cudaMemcpy(configParameters_.pulseOffsetsDevice,
                          configParameters_.pulseOffsets.data(),
                          configParameters_.pulseOffsets.size() * sizeof(int),
