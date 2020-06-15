@@ -63,12 +63,14 @@ void CTPPSDiamondLocalTrackFitter::produce(edm::Event& iEvent, const edm::EventS
       // skip hits without a leading edge
       if (hit.ootIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING)
         trk_algo_[detid]->addHit(hit);
-    auto& tracks = pOut->find_or_insert(detid);
-    // retrieve the tracks for both arms
-    trk_algo_[detid]->produceTracks(tracks);
-    std::cout<<">>>"<<detid<<">>"<<tracks.size()<<std::endl;
-    // remove all hits from the track producers to prepare for the forthcoming event
-    trk_algo_[detid]->clear();
+  }
+
+  for (auto& algo_vs_id : trk_algo_) {
+    auto& tracks = pOut->find_or_insert(algo_vs_id.first);
+    // build the tracks for all stations
+    algo_vs_id.second->produceTracks(tracks);
+    // clear all hits to prepare for the next event
+    algo_vs_id.second->clear();
   }
 
   iEvent.put(std::move(pOut));
