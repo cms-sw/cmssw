@@ -405,4 +405,3 @@ std::unique_ptr<CTPPSGeometry> CTPPSGeometryESModule::produceMisalignedTG(
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(CTPPSGeometryESModule);
-
