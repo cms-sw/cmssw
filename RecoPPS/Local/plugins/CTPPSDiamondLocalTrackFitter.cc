@@ -36,7 +36,7 @@ private:
 
   edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondRecHit> > recHitsToken_;
   const edm::ParameterSet trk_algo_params_;
-  std::unordered_map<CTPPSDetId,std::unique_ptr<CTPPSDiamondTrackRecognition> > trk_algo_;
+  std::unordered_map<CTPPSDetId, std::unique_ptr<CTPPSDiamondTrackRecognition> > trk_algo_;
 };
 
 CTPPSDiamondLocalTrackFitter::CTPPSDiamondLocalTrackFitter(const edm::ParameterSet& iConfig)

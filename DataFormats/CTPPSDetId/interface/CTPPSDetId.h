@@ -153,15 +153,13 @@ private:
 
 std::ostream &operator<<(std::ostream &os, const CTPPSDetId &id);
 
-namespace std
-{
-  template<> struct hash<CTPPSDetId> {
+namespace std {
+  template <>
+  struct hash<CTPPSDetId> {
     typedef CTPPSDetId argument_type;
     typedef std::size_t result_type;
-    result_type operator()(const argument_type& id) const noexcept {
-      return std::hash<uint64_t>()(id.rawId());
-    }
+    result_type operator()(const argument_type &id) const noexcept { return std::hash<uint64_t>()(id.rawId()); }
   };
-}
+}  // namespace std
 
 #endif
