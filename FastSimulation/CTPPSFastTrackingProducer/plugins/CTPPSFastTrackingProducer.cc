@@ -47,15 +47,9 @@ Implementation:
 class CTPPSFastTrackingProducer : public edm::stream::EDProducer<> {
 public:
   explicit CTPPSFastTrackingProducer(const edm::ParameterSet&);
-  ~CTPPSFastTrackingProducer() override;
 
 private:
-  void beginStream(edm::StreamID) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endStream() override;
-  //this function will only be called once per event
-  virtual void beginEvent(edm::Event& event, const edm::EventSetup& eventSetup);
-  virtual void endEvent(edm::Event& event, const edm::EventSetup& eventSetup);
 
   // ----------member data ---------------------------
 
@@ -93,7 +87,6 @@ private:
   // Hector objects
   bool SetBeamLine();
 
-  std::map<unsigned int, H_BeamParticle*> m_beamPart;
   std::unique_ptr<H_BeamLine> m_beamlineCTPPS1;
   std::unique_ptr<H_BeamLine> m_beamlineCTPPS2;
   std::unique_ptr<H_RecRPObject> pps_stationF;
@@ -213,11 +206,7 @@ CTPPSFastTrackingProducer::CTPPSFastTrackingProducer(const edm::ParameterSet& iC
       fToFNCellX, fToFNCellY, vToFCellWidth, fToFCellHeight, fToFPitchX, fToFPitchY, pos_tof, fTimeSigma));
   //
 }
-CTPPSFastTrackingProducer::~CTPPSFastTrackingProducer() {
-  for (std::map<unsigned int, H_BeamParticle*>::iterator it = m_beamPart.begin(); it != m_beamPart.end(); ++it) {
-    delete (*it).second;
-  }
-}
+
 // ------------ method called to produce the data  ------------
 void CTPPSFastTrackingProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
@@ -241,13 +230,6 @@ void CTPPSFastTrackingProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
   iEvent.put(std::move(output_tracks), "CTPPSFastTrack");
 }  //end
-void CTPPSFastTrackingProducer::beginEvent(edm::Event& event, const edm::EventSetup& eventSetup) {
-  TrackerStationStarting();
-}
-////////////////////
-void CTPPSFastTrackingProducer::endEvent(edm::Event& event, const edm::EventSetup& eventSetup) {
-  TrackerStationClear();
-}
 
 /////////////////////////
 void CTPPSFastTrackingProducer::TrackerStationClear() {
@@ -525,13 +507,6 @@ void CTPPSFastTrackingProducer::FastReco(int Direction, H_RecRPObject* station) 
   }
 }  //end FastReco
 
-// ------------ method called once each stream before processing any runs, lumis or events  ------------
-
-void CTPPSFastTrackingProducer::beginStream(edm::StreamID) {}
-
-// ------------ method called once each stream after processing all runs, lumis and events  ------------
-
-void CTPPSFastTrackingProducer::endStream() {}
 bool CTPPSFastTrackingProducer::SetBeamLine() {
   edm::FileInPath b1(beam1filename.c_str());
   edm::FileInPath b2(beam2filename.c_str());
