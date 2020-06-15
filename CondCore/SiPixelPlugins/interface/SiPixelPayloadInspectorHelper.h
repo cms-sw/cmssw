@@ -5,8 +5,6 @@
 #include <numeric>
 #include <fstream>  // std::ifstream
 #include <string>
-#include <boost/tokenizer.hpp>
-#include <boost/range/adaptor/indexed.hpp>
 
 #include "TGraph.h"
 #include "TH1.h"
@@ -903,69 +901,6 @@ namespace SiPixelPI {
       ++idx;
     }
     return rocsToMask;
-  }
-
-  using indexedCorners = std::map<unsigned int, std::pair<std::vector<float>, std::vector<float>>>;
-
-  /*--------------------------------------------------------------------*/
-  const indexedCorners retrieveCorners(const std::vector<edm::FileInPath>& cornerFiles, const unsigned int reads)
-  /*--------------------------------------------------------------------*/
-  {
-    indexedCorners theOutMap;
-
-    for (const auto& file : cornerFiles) {
-      auto cornerFileName = file.fullPath();
-      std::ifstream cornerFile(cornerFileName.c_str());
-      if (!cornerFile.good()) {
-        throw cms::Exception("FileError") << "Problem opening corner file: " << cornerFileName;
-      }
-      std::string line;
-      while (std::getline(cornerFile, line)) {
-        if (!line.empty()) {
-          std::istringstream iss(line);
-          unsigned int id;
-          std::string name;
-          std::vector<std::string> corners(reads, "");
-          std::vector<float> xP, yP;
-
-          iss >> id >> name;
-          for (unsigned int i = 0; i < reads; ++i) {
-            iss >> corners.at(i);
-          }
-
-          COUT << id << " : ";
-          for (unsigned int i = 0; i < reads; i++) {
-            // remove the leading and trailing " signs in the corners list
-            (corners[i]).erase(std::remove(corners[i].begin(), corners[i].end(), '"'), corners[i].end());
-            COUT << corners.at(i) << " ";
-            typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
-            boost::char_separator<char> sep{","};
-            tokenizer tok{corners.at(i), sep};
-            for (const auto& t : tok | boost::adaptors::indexed(0)) {
-              if (t.index() == 0) {
-                xP.push_back(atof((t.value()).c_str()));
-              } else if (t.index() == 1) {
-                yP.push_back(atof((t.value()).c_str()));
-              } else {
-                edm::LogError("LogicError") << "There should not be any token with index " << t.index() << std::endl;
-              }
-            }
-          }
-          COUT << std::endl;
-
-          xP.push_back(xP.front());
-          yP.push_back(yP.front());
-
-          for (unsigned int i = 0; i < xP.size(); i++) {
-            COUT << "x[" << i << "]=" << xP[i] << " y[" << i << "]" << yP[i] << std::endl;
-          }
-
-          theOutMap[id] = std::make_pair(xP, yP);
-
-        }  // if line is empty
-      }    // loop on lines
-    }      // loop on files
-    return theOutMap;
   }
 
   /*--------------------------------------------------------------------*/
