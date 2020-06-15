@@ -25,7 +25,7 @@
 **/
 class CTPPSDiamondTrackRecognition : public CTPPSTimingTrackRecognition<CTPPSDiamondLocalTrack, CTPPSDiamondRecHit> {
 public:
-  CTPPSDiamondTrackRecognition(const edm::ParameterSet& iConfig);
+  CTPPSDiamondTrackRecognition(const edm::ParameterSet& iConfig = edm::ParameterSet());
 
   void clear() override;
   /// Feed a new hit to the tracks recognition algorithm
