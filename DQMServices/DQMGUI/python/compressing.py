@@ -56,21 +56,30 @@ class GUIBlobCompressor():
         values small. Then, the Huffmann coder in Zlib compresses well.
         Decreases output size about 4x.
         """
-
-        words = cls.normal_format
-        def delta_encode(a):
-            prev = [0, 0, 0, 0, 0]
-            for x in a:
-                new = words.unpack(x)
-                yield words.pack(*[a-b for a, b in zip(new, prev)])
-                prev = new
-        delta = delta_encode(cls.__pack(info) for info in infos)
-        buffer = b''.join(delta)
-        def compress_buffer_sync():
-            return zlib.compress(buffer)
-        infos_blob = await asyncio.get_event_loop().run_in_executor(None, compress_buffer_sync)
-        return infos_blob
-
+        # we do a conversion from "array of structs" to "struct of arrays".
+        # for that, we need the format characters (without the "<")
+        fstring = cls.normal_format.format[1:]
+        normal_format = cls.normal_format
+        # SoA
+        lists = [[] for _ in fstring]
+        # current value fot the delta-encoding
+        cur = [0 for _ in fstring]
+        for info in infos:
+            # convert into bare words (explicitly ignoring the special cases)
+            b = cls.pack_meinfo(info)
+            words = normal_format.unpack(b)
+            # delta-encode
+            for i in range(len(fstring)):
+                lists[i].append(words[i] - cur[i])
+                cur[i] = words[i]
+        # now we pack the SoA into blobs (again).
+        blobs = []
+        for i, l in enumerate(lists):
+            blobs.append(struct.pack(f"<{len(l)}{fstring[i]}", *l))
+        blob = b"".join(blobs)
+        # and finally compress it. This takes negligible time compared to the pure Python logic above.
+        ziped = zlib.compress(blob)
+        return ziped
 
     @classmethod
     async def uncompress_names_blob(cls, names_blob):
@@ -81,20 +90,53 @@ class GUIBlobCompressor():
 
     @classmethod
     async def uncompress_infos_blob(cls, infos_blob):
-        words = cls.normal_format
-        def delta_decode(d):
-            prev = [0, 0, 0, 0, 0]
-            for x in d:
-                new = [a+b for a, b in zip(prev, words.unpack(x))]
-                yield words.pack(*new)
-                prev = new
-        buffer = zlib.decompress(infos_blob)
-        packed = delta_decode(buffer[i:i+words.size] for i in range(0, len(buffer), words.size))
-        return [cls.__unpack(x) for x in list(packed)]
+        # Here, we undo the transform from `compress_infos_list`.
+        fstring = cls.normal_format.format[1:]
+        normal_format = struct.Struct(fstring)
+        # agagin, this is very fast -- could be in threadpool, but does no really need to.
+        buf = zlib.decompress(infos_blob)
+        n = len(buf) // normal_format.size
+        bufs = []
+        sizes = []
+        start = 0
+        for t in fstring:
+            # Unpack SoA
+            s = struct.Struct(f"<{n}{t}")
+            sizes.append(s.size // n)
+            l = list(s.unpack_from(buf, offset=start))
+            start += s.size
+            # delta decode
+            cur = 0
+            for i in range(n):
+                cur += l[i]
+                l[i] = cur
+            # and repack SoA! We will use `unpack_meinfo` later, which expects bytes.
+            bufs.append(s.pack(*l))
+        # All further steps can be done on-demand. We only need to do the 
+        # delta-decode here, the reads can be done per-element (and most likely
+        # we will only read very few elements).
+        # Inner class defined here so we can access cls. This allows us to 
+        # also access all the other state via the closure.
+        class LazyMEInfoList:
+            """
+            This represents a list of MEInfo objects. However, the objects are only
+            created form their binary representation lazyliy as they are accessed.
+            """
+            def __getitem__(self, idx):
+                parts = []
+                # read one entry out of each of the arrays
+                for i, buf in enumerate(bufs):
+                    parts.append(buf[idx*sizes[i] : (idx+1)*sizes[i]])
+                # then merge them into one struct, and decode the object from that.
+                return  cls.unpack_meinfo(b''.join(parts))
+            def __len__(self):
+                return n
+        return LazyMEInfoList()
+
 
     
     @classmethod
-    def __pack(cls, me_info):
+    def pack_meinfo(cls, me_info):
         if me_info.type == b'Int':
             buffer = cls.int_format.pack(me_info.value)
             return cls.scalar_format.pack(*buffer, cls.type_to_id[me_info.type])
@@ -107,7 +149,7 @@ class GUIBlobCompressor():
 
 
     @classmethod
-    def __unpack(cls, buffer):
+    def unpack_meinfo(cls, buffer):
         seekkey, offset, size, metype, qteststatus = cls.normal_format.unpack(buffer)
         metype = cls.id_to_type[metype]
 
