@@ -5,7 +5,8 @@
  * Merges an arbitrary number of collections
  * into a single collection, without duplicates. Based on logic from Merger.h.
  * This class template differs from Merger.h in that it uses a set instead of std::vector.
- * This requires the OutputCollection type to be sortable, which allows us to search for elements downstream efficiently.
+ * This requires the OutputCollection type to be sortable, 
+ * which allows us to search for elements downstream efficiently.
  *
  * Template parameters:
  * - C : collection type
@@ -14,16 +15,18 @@
  *
  * \author Lauren Hay
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
  * 
  */
+
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/transform.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/CloneTrait.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
 
 template <typename InputCollection,
@@ -65,7 +68,10 @@ void UniqueMerger<InputCollection, OutputCollection, P>::produce(edm::StreamID,
     edm::Handle<InputCollection> h;
     evt.getByToken(*s, h);
     for (typename InputCollection::const_iterator c = h->begin(); c != h->end(); ++c) {
-      coll_set.emplace(P::clone(*c));
+      if (P::clone(*c).isNonnull() && P::clone(*c).isAvailable() ) {
+	coll_set.emplace(P::clone(*c));
+	}
+      else { edm::LogWarning ("InvalidPointer") <<  "Found an invalid pointer. Will not merge to collection." << std::endl; }
     }
   }
   std::unique_ptr<OutputCollection> coll(new OutputCollection(coll_set.size()));
