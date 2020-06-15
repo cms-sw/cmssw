@@ -394,10 +394,6 @@ ppsDict = {
         1 : [
             'Geometry/VeryForwardData/data/pps/2021/v1/pps.xml',
             ],
-        3 : [
-            ],
-        4 : [
-            ],
         "sim" : [
 
         ],
