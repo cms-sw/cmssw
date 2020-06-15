@@ -13,6 +13,7 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 //Plotters
+#include "DQMOffline/Trigger/interface/IWrapper.h"
 #include "DQMOffline/Trigger/interface/HLTTauDQML1Plotter.h"
 #include "DQMOffline/Trigger/interface/HLTTauDQMPathPlotter.h"
 #include "DQMOffline/Trigger/interface/HLTTauDQMPathSummaryPlotter.h"
@@ -44,11 +45,12 @@ private:
   edm::EDGetTokenT<trigger::TriggerEvent> triggerEventToken_;
 
   // For path plotters
-  const std::string pathRegexString_;
   const std::regex pathRegex_;
   const int nPtBins_, nEtaBins_, nPhiBins_;
   const double ptMax_, highPtMax_, l1MatchDr_, hltMatchDr_;
   const std::string dqmBaseFolder_;
+
+  IWrapper *iWrapper;
 
   HLTConfigProvider HLTCP_;
 

@@ -46,7 +46,7 @@ HLTTauDQMTagAndProbePlotter::HLTTauDQMTagAndProbePlotter(const edm::ParameterSet
 }
 
 #include <algorithm>
-void HLTTauDQMTagAndProbePlotter::bookHistograms(DQMStore::IBooker& iBooker,
+void HLTTauDQMTagAndProbePlotter::bookHistograms(IWrapper& iWrapper, DQMStore::IBooker &iBooker,
                                                  edm::Run const& iRun,
                                                  edm::EventSetup const& iSetup) {
   if (!isValid())
@@ -54,22 +54,22 @@ void HLTTauDQMTagAndProbePlotter::bookHistograms(DQMStore::IBooker& iBooker,
 
   // Efficiency helpers
   iBooker.setCurrentFolder(triggerTag() + "/helpers");
-  h_num_pt = iBooker.book1D(xvariable + "EtEffNum", "", nbinsPt_, ptmin_, ptmax_);
-  h_den_pt = iBooker.book1D(xvariable + "EtEffDenom", "", nbinsPt_, ptmin_, ptmax_);
+  h_num_pt = iWrapper.book1D(iBooker,xvariable + "EtEffNum", "", nbinsPt_, ptmin_, ptmax_, kVital);
+  h_den_pt = iWrapper.book1D(iBooker,xvariable + "EtEffDenom", "", nbinsPt_, ptmin_, ptmax_, kVital);
 
   if (xvariable != "met") {
-    h_num_eta = iBooker.book1D(xvariable + "EtaEffNum", "", nbinsEta_, etamin_, etamax_);
-    h_den_eta = iBooker.book1D(xvariable + "EtaEffDenom", "", nbinsEta_, etamin_, etamax_);
+    h_num_eta = iWrapper.book1D(iBooker,xvariable + "EtaEffNum", "", nbinsEta_, etamin_, etamax_);
+    h_den_eta = iWrapper.book1D(iBooker,xvariable + "EtaEffDenom", "", nbinsEta_, etamin_, etamax_);
 
     h_num_etaphi =
-        iBooker.book2D(xvariable + "EtaPhiEffNum", "", nbinsEta_, etamin_, etamax_, nbinsPhi_, phimin_, phimax_);
+      iWrapper.book2D(iBooker,xvariable + "EtaPhiEffNum", "", nbinsEta_, etamin_, etamax_, nbinsPhi_, phimin_, phimax_);
     h_den_etaphi =
-        iBooker.book2D(xvariable + "EtaPhiEffDenom", "", nbinsEta_, etamin_, etamax_, nbinsPhi_, phimin_, phimax_);
-    h_den_etaphi->setOption("COL");
+      iWrapper.book2D(iBooker,xvariable + "EtaPhiEffDenom", "", nbinsEta_, etamin_, etamax_, nbinsPhi_, phimin_, phimax_);
+    if(h_den_etaphi) h_den_etaphi->setOption("COL");
   }
 
-  h_num_phi = iBooker.book1D(xvariable + "PhiEffNum", "", nbinsPhi_, phimin_, phimax_);
-  h_den_phi = iBooker.book1D(xvariable + "PhiEffDenom", "", nbinsPhi_, phimin_, phimax_);
+  h_num_phi = iWrapper.book1D(iBooker,xvariable + "PhiEffNum", "", nbinsPhi_, phimin_, phimax_);
+  h_den_phi = iWrapper.book1D(iBooker,xvariable + "PhiEffDenom", "", nbinsPhi_, phimin_, phimax_);
 
   iBooker.setCurrentFolder(triggerTag());
 }
@@ -142,12 +142,12 @@ void HLTTauDQMTagAndProbePlotter::analyze(edm::Event const& iEvent,
     if (hltMatched)
       return;  // do not consider offline objects which match the tag trigger
 
-    h_den_pt->Fill(offlineObject.pt());
+    if(h_den_pt) h_den_pt->Fill(offlineObject.pt());
     if (xvariable != "met") {
-      h_den_eta->Fill(offlineObject.eta());
-      h_den_etaphi->Fill(offlineObject.eta(), offlineObject.phi());
+      if(h_den_eta) h_den_eta->Fill(offlineObject.eta());
+      if(h_den_etaphi) h_den_etaphi->Fill(offlineObject.eta(), offlineObject.phi());
     }
-    h_den_phi->Fill(offlineObject.phi());
+    if(h_den_phi) h_den_phi->Fill(offlineObject.phi());
 
     // applying selection for numerator
     passTrigger = false;
@@ -164,11 +164,11 @@ void HLTTauDQMTagAndProbePlotter::analyze(edm::Event const& iEvent,
     if (!passTrigger)
       return;
 
-    h_num_pt->Fill(offlineObject.pt());
+    if(h_num_pt) h_num_pt->Fill(offlineObject.pt());
     if (xvariable != "met") {
-      h_num_eta->Fill(offlineObject.eta());
-      h_num_etaphi->Fill(offlineObject.eta(), offlineObject.phi());
+      if(h_num_eta) h_num_eta->Fill(offlineObject.eta());
+      if(h_num_etaphi) h_num_etaphi->Fill(offlineObject.eta(), offlineObject.phi());
     }
-    h_num_phi->Fill(offlineObject.phi());
+    if(h_num_phi) h_num_phi->Fill(offlineObject.phi());
   }
 }

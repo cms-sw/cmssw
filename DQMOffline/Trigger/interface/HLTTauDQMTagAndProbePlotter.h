@@ -4,6 +4,7 @@
 
 #include "DQMOffline/Trigger/interface/HLTTauDQMPlotter.h"
 #include "DQMOffline/Trigger/interface/HLTTauDQMPath.h"
+#include "DQMOffline/Trigger/interface/IWrapper.h"
 
 //#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 #include "FWCore/Common/interface/TriggerNames.h"
@@ -29,7 +30,7 @@ public:
 
   using HLTTauDQMPlotter::isValid;
 
-  void bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun, edm::EventSetup const &iSetup);
+  void bookHistograms(IWrapper &iWrapper, DQMStore::IBooker &iBooker, edm::Run const &iRun, edm::EventSetup const &iSetup);
 
   void analyze(edm::Event const &iEvent,
                const edm::TriggerResults &triggerResults,

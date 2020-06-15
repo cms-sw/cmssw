@@ -3,6 +3,7 @@
 #define HLTTauDQML1Plotter_h
 
 #include "DQMOffline/Trigger/interface/HLTTauDQMPlotter.h"
+#include "DQMOffline/Trigger/interface/IWrapper.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -25,7 +26,7 @@ public:
 
   using HLTTauDQMPlotter::isValid;
 
-  void bookHistograms(DQMStore::IBooker& iBooker);
+  void bookHistograms(IWrapper &iWrapper, DQMStore::IBooker &iBooker);
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const HLTTauDQMOfflineObjects& refC);
 
 private:

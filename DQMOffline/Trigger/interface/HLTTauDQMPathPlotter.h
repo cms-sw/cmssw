@@ -4,6 +4,7 @@
 
 #include "DQMOffline/Trigger/interface/HLTTauDQMPlotter.h"
 #include "DQMOffline/Trigger/interface/HLTTauDQMPath.h"
+#include "DQMOffline/Trigger/interface/IWrapper.h"
 
 namespace edm {
   class Event;
@@ -35,7 +36,7 @@ public:
 
   using HLTTauDQMPlotter::isValid;
 
-  void bookHistograms(DQMStore::IBooker &iBooker);
+  void bookHistograms(IWrapper & iWrapper, DQMStore::IBooker &iBooker);
 
   void analyze(const edm::TriggerResults &triggerResults,
                const trigger::TriggerEvent &triggerEvent,

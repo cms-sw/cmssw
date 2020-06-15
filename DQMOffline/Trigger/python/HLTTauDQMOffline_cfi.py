@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.ProcessModifiers.tau_readOldDiscriminatorFormat_cff import tau_readOldDiscriminatorFormat
 
 hltTauDQMofflineProcess = "HLT"
 
@@ -7,18 +6,13 @@ hltTauDQMofflineProcess = "HLT"
 TauRefProducer = cms.EDProducer("HLTTauRefProducer",
 
                     PFTaus = cms.untracked.PSet(
+                            PFTauDiscriminatorContainers  = cms.untracked.VInputTag(),
+                            PFTauDiscriminatorContainerWPs  = cms.untracked.vstring(),
                             PFTauDiscriminators = cms.untracked.VInputTag(
-                                    cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding")
-                            ),
-                            PFTauDiscriminatorContainers = cms.untracked.VInputTag(
-                                    cms.InputTag("hpsPFTauBasicDiscriminators"),
-                                    cms.InputTag("hpsPFTauDiscriminationByMuonRejection3"),
-                                    cms.InputTag("hpsPFTauDiscriminationByMVA6ElectronRejection")
-                            ),
-                            PFTauDiscriminatorContainerWPs =  cms.untracked.vstring(
-                                    "ByLooseCombinedIsolationDBSumPtCorr3Hits",
-                                    "ByLooseMuonRejection3",
-                                    "_Tight"
+                                    cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding"),
+                                    cms.InputTag("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits"),
+                                    cms.InputTag("hpsPFTauDiscriminationByLooseMuonRejection3"),
+                                    cms.InputTag("hpsPFTauDiscriminationByMVA6TightElectronRejection")
                             ),
                             doPFTaus = cms.untracked.bool(True),
                             ptMin = cms.untracked.double(15.0),
@@ -79,24 +73,15 @@ TauRefProducer = cms.EDProducer("HLTTauRefProducer",
                     PhiMax = cms.untracked.double(3.15)
                   )
 
-tau_readOldDiscriminatorFormat.toModify(TauRefProducer.PFTaus,
-              PFTauDiscriminators = cms.untracked.VInputTag(
-                                    cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding"),
-                                    cms.InputTag("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits"),
-                                    cms.InputTag("hpsPFTauDiscriminationByLooseMuonRejection3"),
-                                    cms.InputTag("hpsPFTauDiscriminationByMVA6TightElectronRejection"),
-                                    cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding")
-                            ),
-              PFTauDiscriminatorContainers = cms.untracked.VInputTag(),
-              PFTauDiscriminatorContainerWPs = cms.untracked.vstring()
-)
-
 #----------------------------------MONITORS--------------------------------------------------------------------------
+kEverything = 0
+kVital      = 1
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hltTauOfflineMonitor_PFTaus = DQMEDAnalyzer('HLTTauDQMOfflineSource',
     HLTProcessName = cms.untracked.string(hltTauDQMofflineProcess),
     DQMBaseFolder = cms.untracked.string("HLT/TAU/PFTaus"),
+    PlotLevel = cms.untracked.int32(kVital),
     TriggerResultsSrc = cms.untracked.InputTag("TriggerResults", "", hltTauDQMofflineProcess),
     TriggerEventSrc = cms.untracked.InputTag("hltTriggerSummaryAOD", "", hltTauDQMofflineProcess),
     L1Plotter = cms.untracked.PSet(

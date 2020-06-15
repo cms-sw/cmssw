@@ -185,6 +185,7 @@ void HLTTauRefProducer::doPFTaus(edm::StreamID iID, edm::Event& iEvent) const {
           pftau.phi() > phiMinPFTau_ && pftau.phi() < phiMaxPFTau_) {
         reco::PFTauRef thePFTau{pftaus, i};
         bool passAll{true};
+
         for (auto const& token : PFTauDis_) {
           edm::Handle<reco::PFTauDiscriminator> pftaudis;
           if (iEvent.getByToken(token, pftaudis)) {
@@ -197,6 +198,7 @@ void HLTTauRefProducer::doPFTaus(edm::StreamID iID, edm::Event& iEvent) const {
             break;
           }
         }
+
         int idx = 0;
         for (auto const& token : PFTauDisCont_) {
           edm::Handle<reco::TauDiscriminatorContainer> pftaudis;
