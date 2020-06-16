@@ -19,7 +19,8 @@ public:
       : useCACuts_(true), foundAllLayerIds_(false), defaultCut_(defaultCut) {
     if (tripletCuts.size() == 1 && tripletCuts[0].getParameter<double>("cut") == -1.) {
       useCACuts_ = false;
-      LogDebug("Configuration") << "No CACut VPSet. Using default cut value of " << defaultCut << " for all layer triplets";
+      LogDebug("Configuration") << "No CACut VPSet. Using default cut value of " << defaultCut
+                                << " for all layer triplets";
       return;
     }
 
@@ -67,8 +68,9 @@ public:
         thisCACut.layerIds_.emplace_back(caLayers.getLayerId(layerName));
         if (thisCACut.layerIds_.back() == -1) {
           foundAllLayerIds_ = false;
-          edm::LogWarning("Configuration")
-              << "Layer name '" << layerName << "' not found in the CAGraph. Please check CACuts parameter set if this warning is present for all events";
+          edm::LogWarning("Configuration") << "Layer name '" << layerName
+                                           << "' not found in the CAGraph. Please check CACuts parameter set if this "
+                                              "warning is present for all events";
         }
       }
 
