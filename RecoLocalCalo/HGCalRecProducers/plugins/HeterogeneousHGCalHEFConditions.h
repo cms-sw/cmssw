@@ -33,12 +33,14 @@ class HeterogeneousHGCalHEFConditionsWrapper {
   // Contrary to its non-heterogeneous counterpart (constructor argument) it is *not* a pointer (so to avoid an extra allocation)
   cpar::HeterogeneousHGCalHEFParameters params_;
   cpos::HeterogeneousHGCalPositionsMapping posmap_;
+  size_t nelems_posmap_;
 
   std::vector<size_t> sizes_params_;
   std::vector<size_t> sizes_pos_;
   size_t chunk_params_;
   size_t chunk_pos_;
-
+  const size_t number_position_arrays = 3; //x, y and z; required due to the assymetry between cpos::HeterogeneousHGCalPositionsMapping and cpos::HGCalPositionsMapping
+  
   std::vector<size_t> calculate_memory_bytes_params_(const HGCalParameters*);
   std::vector<size_t> calculate_memory_bytes_pos_(cpos::HGCalPositionsMapping*);
   size_t allocate_memory_params_(const std::vector<size_t>&);
@@ -51,6 +53,8 @@ class HeterogeneousHGCalHEFConditionsWrapper {
   //double
   double*& select_pointer_d_(cpar::HeterogeneousHGCalHEFParameters*, const unsigned int&) const;
   std::vector<double> select_pointer_d_(const HGCalParameters*, const unsigned int&) const;
+  //float
+  float*& select_pointer_f_(cpos::HeterogeneousHGCalPositionsMapping*, const unsigned int&) const;
   //int32_t
   int32_t*& select_pointer_i_(cpar::HeterogeneousHGCalHEFParameters*, const unsigned int&) const;
   std::vector<int32_t> select_pointer_i_(const HGCalParameters*, const unsigned int&) const;
