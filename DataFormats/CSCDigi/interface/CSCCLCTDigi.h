@@ -127,7 +127,7 @@ public:
   void setCompCode(const int16_t code) { compCode_ = code; }
 
   // comparator hits in this CLCT
-  ComparatorContainer getHits() const { return hits_; }
+  const ComparatorContainer& getHits() const { return hits_; }
 
   void setHits(const ComparatorContainer& hits) { hits_ = hits; }
 
