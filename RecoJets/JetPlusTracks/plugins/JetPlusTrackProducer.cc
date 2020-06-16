@@ -155,7 +155,7 @@ void JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
                ++ixtrp) {
             if (ixtrp->positions().empty())
               continue;
-            double mydphi = deltaPhi(ixtrp->track()->phi(),(**itrack).phi());
+            double mydphi = deltaPhi(ixtrp->track()->phi(), (**itrack).phi());
             if (fabs(ixtrp->track()->pt() - (**itrack).pt()) > 0.001 ||
                 fabs(ixtrp->track()->eta() - (**itrack).eta()) > 0.001 || mydphi > 0.001)
               continue;
@@ -203,7 +203,7 @@ void JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     }    // jets
   }      // There is trackjet collection
 
-  //  std::cout<<" Size of the addition "<<pOut->size()<<" "<<pOut1->size()<<std::endl;
+  // std::cout<<" Size of the addition "<<pOut->size()<<" "<<pOut1->size()<<std::endl;
 
   for (unsigned i = 0; i < jets_h->size(); ++i) {
     const reco::CaloJet* oldjet = &(*(jets_h->refAt(i)));
