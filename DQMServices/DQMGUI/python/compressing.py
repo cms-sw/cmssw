@@ -63,8 +63,6 @@ class GUIBlobCompressor():
         # we do a conversion from "array of structs" to "struct of arrays".
         # for that, we need the format characters (without the "<")
         fstring = cls.normal_format.format[1:]
-        if isinstance(fstring, bytes): # bug in PyPy, it seems.
-            fstring = fstring.decode("ascii")
         normal_format = cls.normal_format
         lists = [[] for _ in fstring]
         # current value for the delta-encoding
@@ -100,8 +98,6 @@ class GUIBlobCompressor():
     @classmethod
     async def uncompress_infos_blob(cls, infos_blob):
         fstring = cls.normal_format.format[1:]
-        if isinstance(fstring, bytes): # bug in PyPy, it seems.
-            fstring = fstring.decode("ascii")
         # again, this is very fast -- could be in threadpool, but does no really need to.
         buf = zlib.decompress(infos_blob)
         n = len(buf) // cls.normal_format.size
@@ -171,4 +167,4 @@ class GUIBlobCompressor():
             value, = cls.float_format.unpack(bytes(buffer[:-1])) # last is metype again
             return MEInfo(metype, value=value)
         
-        return MEInfo(metype, seekkey=seekkey, offset=offset, size=size, qteststatus=qteststatus, value=None)
+        return MEInfo(metype, seekkey=seekkey, offset=offset, size=size, qteststatus=qteststatus)

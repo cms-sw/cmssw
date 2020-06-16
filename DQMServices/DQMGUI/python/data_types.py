@@ -15,7 +15,7 @@ RootDirContent = namedtuple('RootDirContent', ['dirs', 'objs'])
 
 # type can be one of those: Flag, Int, Float, XMLString, QTest or one of ROOT histogram types (TH*)
 # Only type is non-optional parameter
-MEInfo = namedtuple('MEInfo', ['type', 'seekkey', 'offset', 'size', 'value', 'qteststatus'])
+MEInfo = namedtuple('MEInfo', ['type', 'seekkey', 'offset', 'size', 'value', 'qteststatus'], defaults=[0, 0, -1, None, 0])
 
 EfficiencyFlag = namedtuple('EfficiencyFlag', ['name'])
 ScalarValue = namedtuple('ScalarValue', ['name', 'type', 'value'])

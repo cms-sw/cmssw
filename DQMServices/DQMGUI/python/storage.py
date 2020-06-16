@@ -11,31 +11,6 @@ import subprocess
 from .helpers import get_absolute_path
 from .compressing import GUIBlobCompressor
 
-import sqlite3
-class notaiosqlite:
-   @classmethod
-   async def connect(cls, str):
-       return notaiosqlite(sqlite3.connect(str))
-   def __init__(self, conn):
-       self.conn = conn
-   async def execute(self, *args):
-       cur = self.conn.execute(*args)
-       return notaiosqlitecur(cur)
-   async def executemany(self, *args):
-       cur = self.conn.executemany(*args)
-       return notaiosqlitecur(cur)
-   async def executescript(self, *args):
-       cur = self.conn.executescript(*args)
-       return notaiosqlitecur(cur)
-class notaiosqlitecur:
-   def __init__(self, cur):
-       self.cur = cur
-   async def fetchall(self):
-       return self.cur.fetchall()
-   async def fetchone(self):
-       return self.cur.fetchone()
-   async def close(self):
-       return self.cur.close()
 
 class GUIDataStore:
 
@@ -68,8 +43,7 @@ class GUIDataStore:
         else:
             connection_string = get_absolute_path(connection_string)
 
-        cls.__db = await notaiosqlite.connect(connection_string)
-
+        cls.__db = await aiosqlite.connect(connection_string)
         await cls.__db.executescript(cls.__DBSCHEMA)
 
 
