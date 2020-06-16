@@ -1,4 +1,7 @@
 import glob
+import asyncio
+
+from concurrent.futures import ProcessPoolExecutor
 
 from ..storage import GUIDataStore
 from ..data_types import FileFormat, SampleFull
@@ -21,6 +24,7 @@ class GUIImportManager:
 
     store = GUIDataStore()
     compressor = GUIBlobCompressor()
+    executor = ProcessPoolExecutor(4)
 
     @classmethod
     async def initialize(cls, files=__EOSPATH):
@@ -52,6 +56,12 @@ class GUIImportManager:
 
             await cls.register_samples(samples)
 
+    @classmethod
+    async def destroy(cls):
+        # TODO: this does not work. Deadlocks on shutdown.
+        cls.executor.shutdown(wait=True)
+
+
 
     @classmethod
     async def register_samples(cls, samples):
@@ -71,8 +81,9 @@ class GUIImportManager:
         if not filename: # Sample doesn't exist
             return False
         
-        importer = cls.__pick_importer(fileformat)
-        mes_lists = await importer.get_me_lists(filename, dataset, run, lumi)
+        # delegate the hard work to a process pool.
+        mes_lists = await asyncio.get_event_loop().run_in_executor(cls.executor,
+            cls.import_sync, fileformat, filename, dataset, run, lumi)
 
         # It's possible that some samples that exists in this file were not yet
         # registered as samples (through register API endpoint). So we (re)create 
@@ -111,3 +122,14 @@ class GUIImportManager:
         elif file_format == FileFormat.PROTOBUF:
             return ProtobufImporter()
         return None
+
+    @classmethod
+    def import_sync(cls, fileformat, filename, dataset, run, lumi):
+        """
+        This function should be called in a different process (via multiprocessing)
+        to actually perform the import.
+        """
+        importer = cls.__pick_importer(fileformat)
+        mes_lists = asyncio.run(importer.get_me_lists(filename, dataset, run, lumi))
+        return mes_lists
+        

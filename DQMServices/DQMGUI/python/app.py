@@ -319,6 +319,7 @@ async def initialize_services(in_memory, files, workers):
 
 async def destroy_services():
     await GUIDataStore.destroy()
+    await GUIImportManager.destroy()
     await GUIRenderer.destroy()
 
 
