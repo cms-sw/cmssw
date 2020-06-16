@@ -36,7 +36,7 @@
   <class name="edm::reftobase::Holder<CaloRecHit, edm::Ref<edm::SortedCollection<HGCRecHit, edm::StrictWeakOrdering<HGCRecHit> >, HGCRecHit, edm::refhelper::FindUsingAdvance<edm::SortedCollection<HGCRecHit, edm::StrictWeakOrdering<HGCRecHit> >, HGCRecHit> > >" />
   <enum name="HGCSeverityLevel::SeverityLevel"/> 
 
-  <class name="std::map<DetId,const HGCRecHit*>" persistent="false"/>
-  <class name="edm::Wrapper<std::map<DetId,const HGCRecHit*>>" persistent="false"/>
+  <class name="std::unordered_map<DetId,const HGCRecHit*>" persistent="false"/>
+  <class name="edm::Wrapper<std::unordered_map<DetId,const HGCRecHit*>>" persistent="false"/>
   <class name="std::pair<const DetId,const HGCRecHit*>" />
 </lcgdict>

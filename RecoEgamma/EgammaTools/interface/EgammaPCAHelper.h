@@ -22,7 +22,7 @@
 #include "RecoEgamma/EgammaTools/interface/ShowerDepth.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "Math/Transform3D.h"
-#include <map>
+#include <unordered_map>
 
 #include "TPrincipal.h"
 
@@ -36,21 +36,15 @@ namespace hgcal {
     typedef ROOT::Math::Transform3D::Point Point;
 
     EGammaPCAHelper();
-    ~EGammaPCAHelper();
 
     // for the GsfElectrons
     void storeRecHits(const reco::CaloCluster &theCluster);
     void storeRecHits(const reco::HGCalMultiCluster &cluster);
 
     const TPrincipal &pcaResult();
-    /// to set from outside - once per event
-    void setHitMap(std::map<DetId, const HGCRecHit *> *hitMap);
-    /// to compute from inside - once per event
-    void fillHitMap(const HGCRecHitCollection &HGCEERecHits,
-                    const HGCRecHitCollection &HGCFHRecHits,
-                    const HGCRecHitCollection &HGCBHRecHits);
-
-    std::map<DetId, const HGCRecHit *> *getHitMap() { return hitMap_; }
+    /// to set once per event
+    void setHitMap(const std::unordered_map<DetId, const HGCRecHit *> *hitMap);
+    const std::unordered_map<DetId, const HGCRecHit *> *getHitMap() { return hitMap_; }
 
     void setRecHitTools(const hgcal::RecHitTools *recHitTools);
 
@@ -90,9 +84,8 @@ namespace hgcal {
     std::vector<double> dEdXWeights_;
     std::vector<double> invThicknessCorrection_;
 
-    int hitMapOrigin_;  // 0 not initialized; 1 set from outside ; 2 set from inside
     const reco::CaloCluster *theCluster_;
-    std::map<DetId, const HGCRecHit *> *hitMap_;
+    const std::unordered_map<DetId, const HGCRecHit *> *hitMap_;
     std::vector<Spot> theSpots_;
     int pcaIteration_;
     unsigned int maxlayer_;
