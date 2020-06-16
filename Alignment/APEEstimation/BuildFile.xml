@@ -1,5 +1,4 @@
 <use name="CommonTools/Utils"/>
-<use name="CondFormats/AlignmentRecord"/>
 <use name="rootcore"/>
 <use name="root"/>
 <export>
