@@ -32,11 +32,22 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"    // why doesn't mkedanlzr
 #include "FWCore/Framework/interface/EventSetup.h"  // add these??
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "CondFormats/DataRecord/interface/L1RCTParametersRcd.h"
+#include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
+#include "CondFormats/DataRecord/interface/L1CaloEcalScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1CaloHcalScaleRcd.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"
+#include "CondFormats/L1TObjects/interface/L1CaloHcalScale.h"
+#include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
+#include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
+#include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
 class L1RCTLookupTables;
 class L1RCTParameters;
 // class L1RCTChannelMask;
@@ -65,6 +76,12 @@ private:
   // const L1RCTChannelMask* channelMask_;
   std::ofstream lutFile_;
   std::string keyName_;
+  edm::ESGetToken<L1RCTParameters, L1RCTParametersRcd> rctParametersToken_;
+  edm::ESGetToken<L1CaloEtScale, L1EmEtScaleRcd> emScaleToken_;
+  edm::ESGetToken<CaloTPGTranscoder, CaloTPGRecord> transcoderToken_;
+  edm::ESGetToken<L1CaloHcalScale, L1CaloHcalScaleRcd> hcalScaleToken_;
+  edm::ESGetToken<L1CaloEcalScale, L1CaloEcalScaleRcd> ecalScaleToken_;
   bool useDebugTpgScales_;
+  EcalTPGScale::Tokens tokens_;
 };
 #endif
