@@ -68,7 +68,7 @@ public:
         if (thisCACut.layerIds_.back() == -1) {
           foundAllLayerIds_ = false;
           edm::LogWarning("Configuration")
-              << "Layer name '" << layerName << "' not found in the CAGraph. Please check CACuts parameter set.";
+              << "Layer name '" << layerName << "' not found in the CAGraph. Please check CACuts parameter set if this warning is present for all events";
         }
       }
 
