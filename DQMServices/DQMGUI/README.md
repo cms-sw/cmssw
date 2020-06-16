@@ -61,7 +61,7 @@ python3 -m pip install -r requirements.txt -t .python_packages
 
 The server is started like this:
 ```
-python3 DQMServices/DQMGUI/python/app.py
+dqmguibackend.sh
 ```
 
 It will listen on `http://localhost:8889` (and you can't just change that, see below), and It will automatically create a DB file in `DQMServices/DQMGUI/data/` and populate it using data from EOS. 
