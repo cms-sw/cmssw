@@ -16,9 +16,9 @@
 class CACut {
 public:
   explicit CACut(const double defaultCut, const std::vector<edm::ParameterSet> &tripletCuts)
-      : useCACuts(true), foundAllLayerIds(false), defaultCut_(defaultCut) {
+      : useCACuts_(true), foundAllLayerIds_(false), defaultCut_(defaultCut) {
     if (tripletCuts.size() == 1 && tripletCuts[0].getParameter<double>("cut") == -1.) {
-      useCACuts = false;
+      useCACuts_ = false;
       LogDebug("Configuration") << "No CACut VPSet. Using default cut value of " << defaultCut << " for all layer triplets";
       return;
     }
@@ -40,10 +40,10 @@ public:
   }
 
   void setCutValuesByLayerIds(CAGraph &caLayers) {
-    if (!useCACuts || foundAllLayerIds)
+    if (!useCACuts_ || foundAllLayerIds_)
       return;
 
-    foundAllLayerIds = true;
+    foundAllLayerIds_ = true;
     valuesByLayerIds_.clear();
 
     for (const auto &thisTriplet : valuesByTripletNames_) {
@@ -66,7 +66,7 @@ public:
         // Get layer ID
         thisCACut.layerIds.emplace_back(caLayers.getLayerId(layerName));
         if (thisCACut.layerIds.back() == -1) {
-          foundAllLayerIds = false;
+          foundAllLayerIds_ = false;
           edm::LogWarning("Configuration")
               << "Layer name '" << layerName << "' not found in the CAGraph. Please check CACuts parameter set.";
         }
@@ -160,14 +160,12 @@ private:
     bool hasValueByInnerLayerId;
   };
 
-public:
-  bool useCACuts;
-  bool foundAllLayerIds;
-
 private:
   std::vector<CAValueByTripletName> valuesByTripletNames_;
   std::vector<CAValueByLayerIds> valuesByLayerIds_;
   std::vector<CAValuesByInnerLayerIds> valuesByInnerLayerIds_;
+  bool useCACuts_;
+  bool foundAllLayerIds_;
   const float defaultCut_;
 };
 
