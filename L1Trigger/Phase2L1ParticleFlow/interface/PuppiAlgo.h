@@ -19,13 +19,13 @@ namespace l1tpf_impl {
         const std::vector<Region> &rs, float &alphaCMed, float &alphaCRms, float &alphaFMed, float &alphaFRms) const;
     virtual void fillPuppi(Region &r) const;
     virtual void computePuppiAlphas(const Region &r, std::vector<float> &alphaC, std::vector<float> &alphaF) const;
-    virtual void computePuppiWeights(Region &r,
-                                     const std::vector<float> &alphaC,
-                                     const std::vector<float> &alphaF,
-                                     float alphaCMed,
-                                     float alphaCRms,
-                                     float alphaFMed,
-                                     float alphaFRms) const;
+    void computePuppiWeights(Region &r,
+                             const std::vector<float> &alphaC,
+                             const std::vector<float> &alphaF,
+                             float alphaCMed,
+                             float alphaCRms,
+                             float alphaFMed,
+                             float alphaFRms) const;
 
     float puppiDr_, puppiDrMin_, puppiPtMax_;
     std::vector<float> puppiEtaCuts_, puppiPtCuts_, puppiPtCutsPhotons_;
