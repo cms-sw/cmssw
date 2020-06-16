@@ -48,22 +48,14 @@ private:
   const double minPtDiffRel_;
   const double minMuonTrackRelErr_;
   const double innerTrackRelErr_;
-  const double minDxyBestTrack;
-  const double minDzBestTrack;
+  const double minDzBestTrack_;
   const double minMuPt_;
   const double segmentCompatibility_;
 
   double maxDR2_;
 
   int filterType_;
-  enum {
-    kBadPFMuon = 0,
-    kBadPFMuonSummer16,
-    kBadChargedCandidate,
-    kBadChargedCandidateSummer16,
-    kBadPFMuonDxyDz,
-    kBadPFMuonDz
-  };
+  enum { kBadPFMuon = 0, kBadPFMuonSummer16, kBadChargedCandidate, kBadChargedCandidateSummer16, kBadPFMuonDz };
 };
 
 //
@@ -78,8 +70,7 @@ BadParticleFilter::BadParticleFilter(const edm::ParameterSet& iConfig)
       minPtDiffRel_(iConfig.getParameter<double>("minPtDiffRel")),
       minMuonTrackRelErr_(iConfig.getParameter<double>("minMuonTrackRelErr")),
       innerTrackRelErr_(iConfig.getParameter<double>("innerTrackRelErr")),
-      minDxyBestTrack(iConfig.getParameter<double>("minDxyBestTrack")),
-      minDzBestTrack(iConfig.getParameter<double>("minDzBestTrack")),
+      minDzBestTrack_(iConfig.getParameter<double>("minDzBestTrack")),
       minMuPt_(iConfig.getParameter<double>("minMuonPt")),
       segmentCompatibility_(iConfig.getParameter<double>("segmentCompatibility"))
 
@@ -95,8 +86,6 @@ BadParticleFilter::BadParticleFilter(const edm::ParameterSet& iConfig)
     filterType_ = kBadChargedCandidate;
   else if (filterName == "BadChargedCandidateSummer16")
     filterType_ = kBadChargedCandidateSummer16;
-  else if (filterName == "BadPFMuonDxyDz")
-    filterType_ = kBadPFMuonDxyDz;
   else if (filterName == "BadPFMuonDz")
     filterType_ = kBadPFMuonDz;
   else {
@@ -104,7 +93,7 @@ BadParticleFilter::BadParticleFilter(const edm::ParameterSet& iConfig)
   }
 
   algo_ = 0;
-  if (filterType_ == kBadPFMuon || filterType_ == kBadPFMuonDxyDz || filterType_ == kBadPFMuonDz) {
+  if (filterType_ == kBadPFMuon || filterType_ == kBadPFMuonDz) {
     algo_ = iConfig.getParameter<int>("algo");
   }
 
@@ -130,10 +119,7 @@ bool BadParticleFilter::filter(edm::StreamID iID, edm::Event& iEvent, const edm:
   Handle<MuonView> muons;
   iEvent.getByToken(tokenMuons_, muons);
 
-  Handle<std::vector<reco::Vertex>> vtx;
-  iEvent.getByToken(vtx_, vtx);
-  assert(!vtx->empty());
-  const auto& PV = vtx->front().position();
+  auto const& aPV = iEvent.get(vtx_).at(0).position();
 
   bool foundBadCandidate = false;
 
@@ -148,8 +134,7 @@ bool BadParticleFilter::filter(edm::StreamID iID, edm::Event& iEvent, const edm:
       continue;
     }
 
-    if (filterType_ == kBadChargedCandidate || filterType_ == kBadPFMuon || filterType_ == kBadPFMuonDxyDz ||
-        filterType_ == kBadPFMuonDz) {
+    if (filterType_ == kBadChargedCandidate || filterType_ == kBadPFMuon || filterType_ == kBadPFMuonDz) {
       if (muon.pt() < minMuPt_ && innerMuonTrack->pt() < minMuPt_)
         continue;
     }
@@ -163,41 +148,29 @@ bool BadParticleFilter::filter(edm::StreamID iID, edm::Event& iEvent, const edm:
     }
 
     // Consider only Global Muons
-    if (filterType_ == kBadChargedCandidate || filterType_ == kBadPFMuon || filterType_ == kBadPFMuonDxyDz ||
-        filterType_ == kBadPFMuonDz) {
+    if (filterType_ == kBadChargedCandidate || filterType_ == kBadPFMuon || filterType_ == kBadPFMuonDz) {
       if (muon.isGlobalMuon() == 0)
         continue;
     }
 
-    if (filterType_ == kBadPFMuon || filterType_ == kBadPFMuonSummer16 || filterType_ == kBadPFMuonDxyDz ||
-        filterType_ == kBadPFMuonDz) {
+    if (filterType_ == kBadPFMuon || filterType_ == kBadPFMuonSummer16 || filterType_ == kBadPFMuonDz) {
       if (!(innerMuonTrack->originalAlgo() == algo_ && innerMuonTrack->algo() == algo_))
         continue;
     }
 
-    if (filterType_ == kBadChargedCandidate || filterType_ == kBadPFMuon) {
+    if (filterType_ == kBadChargedCandidate || filterType_ == kBadPFMuon || filterType_ == kBadPFMuonDz) {
       if (muon::segmentCompatibility(muon) > segmentCompatibility_ &&
           bestMuonTrack->ptError() / bestMuonTrack->pt() < minMuonTrackRelErr_ &&
           innerMuonTrack->ptError() / innerMuonTrack->pt() < innerTrackRelErr_) {
-        continue;
-      }
-    }
+        if (filterType_ == kBadChargedCandidate || filterType_ == kBadPFMuon) {
+          continue;
+        }
 
-    if (filterType_ == kBadPFMuonDxyDz) {
-      if (muon::segmentCompatibility(muon) > segmentCompatibility_ &&
-          bestMuonTrack->ptError() / bestMuonTrack->pt() < minMuonTrackRelErr_ &&
-          innerMuonTrack->ptError() / innerMuonTrack->pt() < innerTrackRelErr_ &&
-          fabs(bestMuonTrack->dxy(PV)) < minDxyBestTrack && fabs(bestMuonTrack->dz(PV)) < minDzBestTrack) {
-        continue;
-      }
-    }
-
-    if (filterType_ == kBadPFMuonDz) {
-      if (muon::segmentCompatibility(muon) > segmentCompatibility_ &&
-          bestMuonTrack->ptError() / bestMuonTrack->pt() < minMuonTrackRelErr_ &&
-          innerMuonTrack->ptError() / innerMuonTrack->pt() < innerTrackRelErr_ &&
-          fabs(bestMuonTrack->dz(PV)) < minDzBestTrack) {
-        continue;
+        if (filterType_ == kBadPFMuonDz) {
+          if (fabs(bestMuonTrack->dz(aPV)) < minDzBestTrack_) {
+            continue;
+          }
+        }
       }
     }
 
@@ -224,8 +197,7 @@ bool BadParticleFilter::filter(edm::StreamID iID, edm::Event& iEvent, const edm:
         }
       }
 
-      if (filterType_ == kBadPFMuon || filterType_ == kBadPFMuonSummer16 || filterType_ == kBadPFMuonDxyDz ||
-          filterType_ == kBadPFMuonDz) {
+      if (filterType_ == kBadPFMuon || filterType_ == kBadPFMuonSummer16 || filterType_ == kBadPFMuonDz) {
         if (!((std::abs(pfCandidate.pdgId()) == 13) && (pfCandidate.pt() > minMuPt_)))
           continue;
         dr2 = deltaR2(muon.eta(), muon.phi(), pfCandidate.eta(), pfCandidate.phi());
@@ -256,7 +228,6 @@ void BadParticleFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<std::string>("filterType", "BadPFMuon");
   desc.add<double>("segmentCompatibility", 0.3);
   desc.add<double>("minMuonPt", 100);
-  desc.add<double>("minDxyBestTrack", -1.0);
   desc.add<int>("algo", 14);
   desc.add<bool>("taggingMode", false);
   desc.add<edm::InputTag>("vtx", edm::InputTag("offlinePrimaryVertices"));
