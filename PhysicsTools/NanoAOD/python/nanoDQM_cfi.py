@@ -21,6 +21,20 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('sumEt', 'sumEt', 20, 600, 5000, 'raw chs PF scalar sum of Et'),
             )
         ),
+        DeepMETResolutionTune = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'Deep MET Resolution Tune phi'),
+                Plot1D('pt', 'pt', 20, 0, 400, 'Deep MET Response Tune pt'),
+            )
+        ),
+        DeepMETResponseTune = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'Deep MET Response Tune phi'),
+                Plot1D('pt', 'pt', 20, 0, 400, 'Deep MET Response Tune pt'),
+            )
+        ),
         CorrT1METJet = cms.PSet(
             sels = cms.PSet(),
             plots = cms.VPSet(
