@@ -24,7 +24,6 @@ public:
 
   EcalTPGScale(Tokens const&, const edm::EventSetup& evtSetup);
 
-
   double getTPGInGeV(const EcalTriggerPrimitiveDigi& tpDigi) const;
   double getTPGInGeV(unsigned int ADC, const EcalTrigTowerDetId& towerId) const;
 

@@ -24,7 +24,6 @@
 
 //#include "CalibCalorimetry/EcalTPGTools/interface/EcalEBTPGScale.h"
 
-
 #include "EcalEBTrigPrimAnalyzer.h"
 
 #include <TMath.h>
@@ -63,7 +62,7 @@ EcalEBTrigPrimAnalyzer::EcalEBTrigPrimAnalyzer(const edm::ParameterSet& iConfig)
   debug_ = iConfig.getParameter<bool>("Debug");
   rechits_labelEB_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("inputRecHitsEB"));
   primToken_ = consumes<EcalEBTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("inputTP"));
-  barrelGeomToken_ = esConsumes<CaloSubdetectorGeometry, EcalBarrelGeometryRecord>(edm::ESInputTag("","EcalBarrel"));
+  barrelGeomToken_ = esConsumes<CaloSubdetectorGeometry, EcalBarrelGeometryRecord>(edm::ESInputTag("", "EcalBarrel"));
   tokenEBdigi_ = consumes<EBDigiCollection>(iConfig.getParameter<edm::InputTag>("barrelEcalDigis"));
   nEvents_ = 0;
 
@@ -100,7 +99,7 @@ EcalEBTrigPrimAnalyzer::~EcalEBTrigPrimAnalyzer() {
   histfile_->Close();
 }
 
-void EcalEBTrigPrimAnalyzer::init(const edm::EventSetup& iSetup) {eTTmap_ = iSetup.getHandle(eTTmapToken_); }
+void EcalEBTrigPrimAnalyzer::init(const edm::EventSetup& iSetup) { eTTmap_ = iSetup.getHandle(eTTmapToken_); }
 
 //
 // member functions
