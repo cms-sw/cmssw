@@ -143,6 +143,9 @@ class DMRChecker_v2 : public edm::EDAnalyzer {
     pixelmap->bookForwardHistograms("DMRsY", "Median Residuals y-direction", "Median Residuals");
     pixelmap->bookForwardBins("DMRsY");
    
+    // set no rescale
+    pixelmap->setNoRescale();
+
   }
 
   ~DMRChecker_v2(){}

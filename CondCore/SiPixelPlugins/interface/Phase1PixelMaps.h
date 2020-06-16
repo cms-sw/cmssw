@@ -28,6 +28,10 @@ public:
       : m_option{option},
         m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
             edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {
+
+    // set the rescale to true by default
+    m_autorescale=true;
+
     // store the file in path for the corners (BPIX)
     for (unsigned int i = 1; i <= 4; i++) {
       m_cornersBPIX.push_back(edm::FileInPath(Form("DQM/SiStripMonitorClient/data/Geometry/vertices_barrel_%i", i)));
@@ -40,6 +44,11 @@ public:
   }
 
   ~Phase1PixelMaps() {}
+
+  // set of no rescale
+  void setNoRescale(){
+    m_autorescale=false;
+  }
 
   /*--------------------------------------------------------------------*/
   const indexedCorners retrieveCorners(const std::vector<edm::FileInPath>& cornerFiles, const unsigned int reads)
@@ -404,6 +413,21 @@ public:
   }
 
   //============================================================================
+  void setBarrelScale(const std::string& currentHistoName, std::pair<float,float> extrema){
+    for (auto& histo : pxbTh2PolyBarrel[currentHistoName]) {
+      histo->GetZaxis()->SetRangeUser(extrema.first,extrema.second);
+    }
+  }
+
+  //============================================================================
+  void setForwardScale(const std::string& currentHistoName, std::pair<float,float> extrema){
+    for (auto& histo : pxfTh2PolyForward[currentHistoName]) {
+      histo->GetZaxis()->SetRangeUser(extrema.first, extrema.second);
+    }  
+  }
+
+
+  //============================================================================
   void DrawBarrelMaps(const std::string& currentHistoName, TCanvas& canvas) {
     canvas.Divide(2, 2);
     for (int i = 1; i <= 4; i++) {
@@ -412,7 +436,7 @@ public:
         canvas.cd(i)->SetRightMargin(0.02);
         pxbTh2PolyBarrel[currentHistoName].at(i - 1)->SetMarkerColor(kRed);
       } else {
-        rescaleAllBarrel(currentHistoName);
+        if(m_autorescale) rescaleAllBarrel(currentHistoName);
 	adjustCanvasMargins(canvas.cd(i), 0.07, 0.12, 0.10, 0.18);
       }
       pxbTh2PolyBarrel[currentHistoName].at(i - 1)->Draw();
@@ -428,7 +452,7 @@ public:
         canvas.cd(i)->SetRightMargin(0.02);
         pxfTh2PolyForward[currentHistoName].at(i - 1)->SetMarkerColor(kRed);
       } else {
-        rescaleAllForward(currentHistoName);
+        if(m_autorescale) rescaleAllForward(currentHistoName);
         adjustCanvasMargins(canvas.cd(i), 0.07, 0.12, 0.10, 0.18);
       }
       pxfTh2PolyForward[currentHistoName].at(i - 1)->Draw();
@@ -437,6 +461,7 @@ public:
 
 private:
   Option_t* m_option;
+  bool m_autorescale;
   TrackerTopology m_trackerTopo;
 
   std::map<uint32_t, std::shared_ptr<TGraph>> bins, binsSummary;

@@ -179,8 +179,8 @@ process.TrackRefitter1 = process.TrackRefitterP5.clone(
     TrajectoryInEvent = True,
     TTRHBuilder = "WithTrackAngle",  #"WithAngleAndTemplate",
     NavigationSchool = "",
-    constraint = 'momentum', ### SPECIFIC FOR CRUZET
-    srcConstr='AliMomConstraint' ### SPECIFIC FOR CRUZET$works only with tag V02-10-02 TrackingTools/PatternTools / or CMSSW >=31X
+    #constraint = 'momentum', ### SPECIFIC FOR CRUZET
+    #srcConstr='AliMomConstraint' ### SPECIFIC FOR CRUZET$works only with tag V02-10-02 TrackingTools/PatternTools / or CMSSW >=31X
     )
 
 ###################################################################
@@ -207,7 +207,7 @@ process.TFileService = cms.Service("TFileService",
 # Path
 ###################################################################
 process.p1 = cms.Path(process.offlineBeamSpot*
-                      process.AliMomConstraint*
+                      #process.AliMomConstraint*
                       process.TrackRefitter1*
                       process.myanalysis*
                       process.myanalysis2
