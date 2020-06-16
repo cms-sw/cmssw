@@ -6,7 +6,8 @@ HGCalEgammaIDHelper::HGCalEgammaIDHelper(const edm::ParameterSet& iConfig, edm::
     : eeRecHitInputTag_(iConfig.getParameter<edm::InputTag>("EERecHits")),
       fhRecHitInputTag_(iConfig.getParameter<edm::InputTag>("FHRecHits")),
       bhRecHitInputTag_(iConfig.getParameter<edm::InputTag>("BHRecHits")),
-      dEdXWeights_(iConfig.getParameter<std::vector<double> >("dEdXWeights")) {
+      hitMapInputTag_(iConfig.getParameter<edm::InputTag>("hitMapTag")),
+      dEdXWeights_(iConfig.getParameter<std::vector<double>>("dEdXWeights")) {
   isoHelper_.setDeltaR(iConfig.getParameter<double>("isoDeltaR"));
   isoHelper_.setNRings(iConfig.getParameter<unsigned int>("isoNRings"));
   isoHelper_.setMinDeltaR(iConfig.getParameter<double>("isoDeltaRmin"));
@@ -14,6 +15,7 @@ HGCalEgammaIDHelper::HGCalEgammaIDHelper(const edm::ParameterSet& iConfig, edm::
   recHitsEE_ = iC.consumes<HGCRecHitCollection>(eeRecHitInputTag_);
   recHitsFH_ = iC.consumes<HGCRecHitCollection>(fhRecHitInputTag_);
   recHitsBH_ = iC.consumes<HGCRecHitCollection>(bhRecHitInputTag_);
+  hitMap_ = iC.consumes<std::unordered_map<DetId, const HGCRecHit*>>(hitMapInputTag_);
   pcaHelper_.setdEdXWeights(dEdXWeights_);
   debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
 }
@@ -25,11 +27,13 @@ void HGCalEgammaIDHelper::eventInit(const edm::Event& iEvent, const edm::EventSe
   iEvent.getByToken(recHitsFH_, recHitHandleFH);
   edm::Handle<HGCRecHitCollection> recHitHandleBH;
   iEvent.getByToken(recHitsBH_, recHitHandleBH);
+  edm::Handle<std::unordered_map<DetId, const HGCRecHit*>> hitMapHandle;
+  iEvent.getByToken(hitMap_, hitMapHandle);
 
   recHitTools_.getEventSetup(iSetup);
   pcaHelper_.setRecHitTools(&recHitTools_);
   isoHelper_.setRecHitTools(&recHitTools_);
-  pcaHelper_.fillHitMap(*recHitHandleEE, *recHitHandleFH, *recHitHandleBH);
+  pcaHelper_.setHitMap(hitMapHandle.product());
   isoHelper_.setRecHits(recHitHandleEE, recHitHandleFH, recHitHandleBH);
 }
 

@@ -51,12 +51,10 @@ private:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  void fillWithRecHits(std::map<DetId, const HGCRecHit*>&, DetId, unsigned int, float, int&, float&);
+  void fillWithRecHits(std::unordered_map<DetId, const HGCRecHit*>&, DetId, unsigned int, float, int&, float&);
 
-  edm::EDGetTokenT<HGCRecHitCollection> recHitsEE_;
-  edm::EDGetTokenT<HGCRecHitCollection> recHitsFH_;
-  edm::EDGetTokenT<HGCRecHitCollection> recHitsBH_;
-  edm::EDGetTokenT<std::vector<CaloParticle> > caloParticles_;
+  edm::EDGetTokenT<std::unordered_map<DetId, const HGCRecHit*>> hitMap_;
+  edm::EDGetTokenT<std::vector<CaloParticle>> caloParticles_;
 
   int debug_;
   bool filterOnEnergyAndCaloP_;
@@ -86,14 +84,10 @@ private:
 HGCalShowerSeparation::HGCalShowerSeparation(const edm::ParameterSet& iConfig)
     : debug_(iConfig.getParameter<int>("debug")),
       filterOnEnergyAndCaloP_(iConfig.getParameter<bool>("filterOnEnergyAndCaloP")) {
-  auto recHitsEE = iConfig.getParameter<edm::InputTag>("recHitsEE");
-  auto recHitsFH = iConfig.getParameter<edm::InputTag>("recHitsFH");
-  auto recHitsBH = iConfig.getParameter<edm::InputTag>("recHitsBH");
+  auto hitMapInputTag = iConfig.getParameter<edm::InputTag>("hitMapTag");
   auto caloParticles = iConfig.getParameter<edm::InputTag>("caloParticles");
-  recHitsEE_ = consumes<HGCRecHitCollection>(recHitsEE);
-  recHitsFH_ = consumes<HGCRecHitCollection>(recHitsFH);
-  recHitsBH_ = consumes<HGCRecHitCollection>(recHitsBH);
-  caloParticles_ = consumes<std::vector<CaloParticle> >(caloParticles);
+  hitMap_ = consumes<std::unordered_map<DetId, const HGCRecHit*>>(hitMapInputTag);
+  caloParticles_ = consumes<std::vector<CaloParticle>>(caloParticles);
 }
 
 HGCalShowerSeparation::~HGCalShowerSeparation() {
@@ -168,31 +162,13 @@ void HGCalShowerSeparation::analyze(const edm::Event& iEvent, const edm::EventSe
 
   recHitTools_.getEventSetup(iSetup);
 
-  Handle<HGCRecHitCollection> recHitHandleEE;
-  Handle<HGCRecHitCollection> recHitHandleFH;
-  Handle<HGCRecHitCollection> recHitHandleBH;
-
-  Handle<std::vector<CaloParticle> > caloParticleHandle;
+  Handle<std::vector<CaloParticle>> caloParticleHandle;
   iEvent.getByToken(caloParticles_, caloParticleHandle);
   const std::vector<CaloParticle>& caloParticles = *caloParticleHandle;
 
-  iEvent.getByToken(recHitsEE_, recHitHandleEE);
-  iEvent.getByToken(recHitsFH_, recHitHandleFH);
-  iEvent.getByToken(recHitsBH_, recHitHandleBH);
-  const auto& rechitsEE = *recHitHandleEE;
-  const auto& rechitsFH = *recHitHandleFH;
-  const auto& rechitsBH = *recHitHandleBH;
-
-  std::map<DetId, const HGCRecHit*> hitmap;
-  for (unsigned int i = 0; i < rechitsEE.size(); ++i) {
-    hitmap[rechitsEE[i].detid()] = &rechitsEE[i];
-  }
-  for (unsigned int i = 0; i < rechitsFH.size(); ++i) {
-    hitmap[rechitsFH[i].detid()] = &rechitsFH[i];
-  }
-  for (unsigned int i = 0; i < rechitsBH.size(); ++i) {
-    hitmap[rechitsBH[i].detid()] = &rechitsBH[i];
-  }
+  Handle<std::unordered_map<DetId, const HGCRecHit*>> hitMapHandle;
+  iEvent.getByToken(hitMap_, hitMapHandle);
+  const auto hitmap = *hitMapHandle;
 
   // loop over caloParticles
   IfLogTrace(debug_ > 0, "HGCalShowerSeparation") << "Number of caloParticles: " << caloParticles.size() << std::endl;
@@ -218,10 +194,10 @@ void HGCalShowerSeparation::analyze(const edm::Event& iEvent, const edm::EventSe
       size += simClusterRefVector.size();
       for (const auto& it_sc : simClusterRefVector) {
         const SimCluster& simCluster = (*(it_sc));
-        const std::vector<std::pair<uint32_t, float> >& hits_and_fractions = simCluster.hits_and_fractions();
+        const std::vector<std::pair<uint32_t, float>>& hits_and_fractions = simCluster.hits_and_fractions();
         for (const auto& it_haf : hits_and_fractions) {
           if (hitmap.count(it_haf.first))
-            energy += hitmap[it_haf.first]->energy() * it_haf.second;
+            energy += hitmap.at(it_haf.first)->energy() * it_haf.second;
         }  //hits and fractions
       }    // simcluster
       if (count == 1) {
@@ -247,7 +223,7 @@ void HGCalShowerSeparation::analyze(const edm::Event& iEvent, const edm::EventSe
         scEnergy_->Fill(simCluster.energy());
         IfLogTrace(debug_ > 1, "HGCalShowerSeparation")
             << ">>> SC.energy(): " << simCluster.energy() << " SC.simEnergy(): " << simCluster.simEnergy() << std::endl;
-        const std::vector<std::pair<uint32_t, float> >& hits_and_fractions = simCluster.hits_and_fractions();
+        const std::vector<std::pair<uint32_t, float>>& hits_and_fractions = simCluster.hits_and_fractions();
 
         for (const auto& it_haf : hits_and_fractions) {
           if (!hitmap.count(it_haf.first))
@@ -277,23 +253,23 @@ void HGCalShowerSeparation::analyze(const edm::Event& iEvent, const edm::EventSe
           if (hitmap.count(it_haf.first)) {
             profileOnLayer_[hitlayer]->Fill(10. * (globalx - half_point_x),
                                             10. * (globaly - half_point_y),
-                                            hitmap[it_haf.first]->energy() * it_haf.second);
+                                            hitmap.at(it_haf.first)->energy() * it_haf.second);
             profileOnLayer_[55]->Fill(10. * (globalx - half_point_x),
                                       10. * (globaly - half_point_y),
-                                      hitmap[it_haf.first]->energy() * it_haf.second);
-            globalProfileOnLayer_[hitlayer]->Fill(globalx, globaly, hitmap[it_haf.first]->energy() * it_haf.second);
-            globalProfileOnLayer_[55]->Fill(globalx, globaly, hitmap[it_haf.first]->energy() * it_haf.second);
-            layerEnergy_->Fill(hitlayer, hitmap[it_haf.first]->energy());
-            layerDistance_->Fill(hitlayer, std::abs(10. * distance), hitmap[it_haf.first]->energy() * it_haf.second);
+                                      hitmap.at(it_haf.first)->energy() * it_haf.second);
+            globalProfileOnLayer_[hitlayer]->Fill(globalx, globaly, hitmap.at(it_haf.first)->energy() * it_haf.second);
+            globalProfileOnLayer_[55]->Fill(globalx, globaly, hitmap.at(it_haf.first)->energy() * it_haf.second);
+            layerEnergy_->Fill(hitlayer, hitmap.at(it_haf.first)->energy());
+            layerDistance_->Fill(hitlayer, std::abs(10. * distance), hitmap.at(it_haf.first)->energy() * it_haf.second);
             etaPhi_->Fill(global.eta(), global.phi());
             distanceOnLayer_[hitlayer]->Fill(10. * distance);                  //,
             idealDistanceOnLayer_[hitlayer]->Fill(10. * idealDistance);        //,
             idealDeltaXY_[hitlayer]->Fill(10. * (x1 - x2), 10. * (y1 - y2));   //,
             centers_[hitlayer]->Fill(10. * half_point_x, 10. * half_point_y);  //,
             IfLogTrace(debug_ > 0, "HGCalShowerSeparation")
-                << ">>> " << distance << " " << hitlayer << " " << hitmap[it_haf.first]->energy() * it_haf.second
+                << ">>> " << distance << " " << hitlayer << " " << hitmap.at(it_haf.first)->energy() * it_haf.second
                 << std::endl;
-            showerProfile_->Fill(10. * distance, hitlayer, hitmap[it_haf.first]->energy() * it_haf.second);
+            showerProfile_->Fill(10. * distance, hitlayer, hitmap.at(it_haf.first)->energy() * it_haf.second);
           }
         }  // end simHit
       }    // end simCluster
@@ -308,9 +284,7 @@ void HGCalShowerSeparation::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<int>("debug", 1);
   desc.add<bool>("filterOnEnergyAndCaloP", false);
   desc.add<edm::InputTag>("caloParticles", edm::InputTag("mix", "MergedCaloTruth"));
-  desc.add<edm::InputTag>("recHitsEE", edm::InputTag("HGCalRecHit", "HGCEERecHits"));
-  desc.add<edm::InputTag>("recHitsFH", edm::InputTag("HGCalRecHit", "HGCHEFRecHits"));
-  desc.add<edm::InputTag>("recHitsBH", edm::InputTag("HGCalRecHit", "HGCHEBRecHits"));
+  desc.add<edm::InputTag>("hitMapTag", edm::InputTag("hgcalRecHitMapProducer"));
   descriptions.add("hgcalShowerSeparationDefault", desc);
 }
 
