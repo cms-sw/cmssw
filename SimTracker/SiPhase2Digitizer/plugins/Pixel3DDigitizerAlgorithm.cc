@@ -310,8 +310,8 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
     // away is probably showing some backward problem worth it to track.
     // This is also correcting out of bounds migrated charge from diffusion.
     // The charge will be moved to the edge of the row/column.
-    current_pixel.first  = std::clamp(current_pixel.first, float(0.0), (nrows-1)+pix_rounding);
-    current_pixel.second = std::clamp(current_pixel.second, float(0.0), (ncolumns-1)+pix_rounding);
+    current_pixel.first = std::clamp(current_pixel.first, float(0.0), (nrows - 1) + pix_rounding);
+    current_pixel.second = std::clamp(current_pixel.second, float(0.0), (ncolumns - 1) + pix_rounding);
 
     const auto current_pixel_int = std::make_pair(std::floor(current_pixel.first), std::floor(current_pixel.second));
 
