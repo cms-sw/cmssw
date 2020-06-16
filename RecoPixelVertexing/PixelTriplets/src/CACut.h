@@ -114,8 +114,7 @@ public:
     }
   }
 
-  class CAValuesByInnerLayerIds {
-  public:
+  struct CAValuesByInnerLayerIds {
     explicit CAValuesByInnerLayerIds(float cut) : defaultCut_(cut) {}
 
     float at(int layerId) const {
@@ -147,14 +146,12 @@ public:
   }
 
 private:
-  class CAValueByTripletName {
-  public:
+  struct CAValueByTripletName {
     std::string tripletName;
     float cutValue;
   };
 
-  class CAValueByLayerIds {
-  public:
+  struct CAValueByLayerIds {
     std::vector<int> layerIds;
     float cutValue;
     bool hasValueByInnerLayerId;
