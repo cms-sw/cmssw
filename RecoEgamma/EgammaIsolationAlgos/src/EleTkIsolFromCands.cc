@@ -47,7 +47,7 @@ edm::ParameterSetDescription EleTkIsolFromCands::pSetDescript() {
   return desc;
 }
 
-EleTkIsolFromCands::SimpleTrackTable EleTkIsolFromCands::preselectTracks(reco::TrackCollection const& tracks,
+EleTkIsolFromCands::TrackTable EleTkIsolFromCands::preselectTracks(reco::TrackCollection const& tracks,
                                                                          TrkCuts const& cuts) {
   std::vector<double> pt;
   std::vector<double> eta;
@@ -71,7 +71,7 @@ EleTkIsolFromCands::SimpleTrackTable EleTkIsolFromCands::preselectTracks(reco::T
   return {std::move(pt), std::move(eta), std::move(phi), std::move(vz)};
 }
 
-EleTkIsolFromCands::SimpleTrackTable EleTkIsolFromCands::preselectTracksFromCands(
+EleTkIsolFromCands::TrackTable EleTkIsolFromCands::preselectTracksFromCands(
     pat::PackedCandidateCollection const& cands, TrkCuts const& cuts, PIDVeto pidVeto) {
   std::vector<double> pt;
   std::vector<double> eta;
@@ -99,6 +99,9 @@ EleTkIsolFromCands::SimpleTrackTable EleTkIsolFromCands::preselectTracksFromCand
 }
 
 EleTkIsolFromCands::Output EleTkIsolFromCands::operator()(const reco::TrackBase& eleTrk) {
+
+  using namespace egamma::tracktable;
+
   double ptSum = 0.;
   int nrTrks = 0;
 
@@ -181,7 +184,7 @@ bool EleTkIsolFromCands::passAlgo(const reco::TrackBase& trk,
   return algosToRej.empty() || !std::binary_search(algosToRej.begin(), algosToRej.end(), trk.algo());
 }
 
-EleTkIsolFromCands::SimpleTrackTable const& EleTkIsolFromCands::getPreselectedTracks(bool isBarrel) {
+EleTkIsolFromCands::TrackTable const& EleTkIsolFromCands::getPreselectedTracks(bool isBarrel) {
   auto const& cuts = isBarrel ? cfg_.barrelCuts : cfg_.endcapCuts;
   auto& preselectedTracks = isBarrel ? preselectedTracksWithBarrelCuts_ : preselectedTracksWithEndcapCuts_;
   bool& tracksCached = isBarrel ? tracksCachedForBarrelCuts_ : tracksCachedForEndcapCuts_;
