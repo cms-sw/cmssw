@@ -6,9 +6,7 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
-#include "FWCore/SOA/interface/Column.h"
-#include "FWCore/SOA/interface/Table.h"
+#include "RecoEgamma/EgammaTools/interface/tracktable.h"
 
 //author S. Harper (RAL)
 //this class does a simple calculation of the track isolation for a track with eta,
@@ -43,6 +41,7 @@
 //      Note in all this, I'm not concerned about the electron in questions track, that will be rejected,
 //      I'm concerned about near by fake electrons which have been recoed by PF
 //      This is handled by the PIDVeto, which obviously is only used/required when using PFCandidates
+
 
 class EleTkIsolFromCands {
 public:
@@ -99,22 +98,17 @@ private:
   // tracks (Phase II conditions). In particular, calling
   // reco::TrackBase::eta() many times is costy because eta is not precomputed.
   // To solve this, we first cache the tracks in a simpler data structure in
-  // which eta is already computed (SimpleTrack). Furthermore, the tracks are
+  // which eta is already computed (SimpleTrackTable). Furthermore, the tracks are
   // preselected by the cuts that can already be applied without considering
   // the electron. Note that this has to be done twice, because the required
   // preselection is different for barrel and endcap electrons.
 
-  SOA_DECLARE_COLUMN(Pt, double, "pt");
-  SOA_DECLARE_COLUMN(Eta, double, "eta");
-  SOA_DECLARE_COLUMN(Phi, double, "phi");
-  SOA_DECLARE_COLUMN(Vz, double, "vz");
-
-  using SimpleTrackTable = edm::soa::Table<Pt, Eta, Phi, Vz>;
+  using TrackTable = egamma::tracktable::SimpleTrackTable;
 
   static bool passPIDVeto(const int pdgId, const EleTkIsolFromCands::PIDVeto pidVeto);
 
-  static SimpleTrackTable preselectTracks(reco::TrackCollection const& tracks, TrkCuts const& cuts);
-  static SimpleTrackTable preselectTracksFromCands(pat::PackedCandidateCollection const& cands,
+  static TrackTable preselectTracks(reco::TrackCollection const& tracks, TrkCuts const& cuts);
+  static TrackTable preselectTracksFromCands(pat::PackedCandidateCollection const& cands,
                                                    TrkCuts const& cuts,
                                                    PIDVeto = PIDVeto::NONE);
 
@@ -124,7 +118,7 @@ private:
   static bool passQual(const reco::TrackBase& trk, const std::vector<reco::TrackBase::TrackQuality>& quals);
   static bool passAlgo(const reco::TrackBase& trk, const std::vector<reco::TrackBase::TrackAlgorithm>& algosToRej);
 
-  SimpleTrackTable const& getPreselectedTracks(bool isBarrel);
+  TrackTable const& getPreselectedTracks(bool isBarrel);
 
   Configuration const& cfg_;
 
@@ -132,8 +126,8 @@ private:
   reco::TrackCollection const* tracks_ = nullptr;
   pat::PackedCandidateCollection const* cands_ = nullptr;
   const PIDVeto pidVeto_ = PIDVeto::NONE;
-  SimpleTrackTable preselectedTracksWithBarrelCuts_;
-  SimpleTrackTable preselectedTracksWithEndcapCuts_;
+  TrackTable preselectedTracksWithBarrelCuts_;
+  TrackTable preselectedTracksWithEndcapCuts_;
   bool tracksCachedForBarrelCuts_ = false;
   bool tracksCachedForEndcapCuts_ = false;
 };
