@@ -176,10 +176,34 @@ def nanoAOD_addDeepInfo(process,addDeepBTag,addDeepFlavour):
     process.updatedJets.jetSource="selectedUpdatedPatJetsWithDeepInfo"
     return process
 
+def nanoAOD_addDeepMET(process, addDeepMETProducer):
+    if addDeepMETProducer:
+        # produce DeepMET on the fly if it is not in MiniAOD
+        print("add DeepMET Producers")
+        process.load('RecoMET.METPUSubtraction.deepMETProducer_cfi')
+        process.deepMETsResolutionTune = process.deepMETProducer.clone()
+        process.deepMETsResponseTune = process.deepMETProducer.clone()
+        process.deepMETsResponseTune.graph_path = 'RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2018.pb'
+    process.metTables += process.deepMetTables
+    return process
+
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
 #from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
 def nanoAOD_recalibrateMETs(process,isData):
-    runMetCorAndUncFromMiniAOD(process,isData=isData)
+    # add DeepMETs
+    addDeepMET_switch = cms.PSet(
+        nanoAOD_addDeepMET_switch = cms.untracked.bool(True), # decide if DeeMET should be included in Nano
+        nanoAOD_produceDeepMET_switch = cms.untracked.bool(False), # decide if DeepMET should be computed on the fly
+    )
+    if addDeepMET_switch.nanoAOD_addDeepMET_switch:
+        process = nanoAOD_addDeepMET(process, addDeepMETProducer=addDeepMET_switch.nanoAOD_produceDeepMET_switch)
+        #for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
+        #    modifier.toModify(process.deepMETsResponseTune.graph_path, "RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2016.pb")
+
+    # if included in Nano, and not computed in the fly, then it should be extracted from minAOD
+    extractDeepMETs = addDeepMET_switch.nanoAOD_addDeepMET_switch and not addDeepMET_switch.nanoAOD_produceDeepMET_switch
+
+    runMetCorAndUncFromMiniAOD(process,isData=isData, extractDeepMETs=extractDeepMETs)
     process.nanoSequenceCommon.insert(process.nanoSequenceCommon.index(process.jetSequence),cms.Sequence(process.fullPatMetSequence))
     process.basicJetsForMetForT1METNano = process.basicJetsForMet.clone(
         src = process.updatedJetsWithUserData.src,
