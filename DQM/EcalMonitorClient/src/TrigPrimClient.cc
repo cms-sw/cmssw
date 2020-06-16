@@ -106,7 +106,6 @@ namespace ecaldqm {
     // Loop over all TTs
     for (unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; iTT++) {
       EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
-      // unsigned iDCC(dccId(ttid) - 1);
       bool isMasked(sTTMaskMapAll.getBinContent(ttid) > 0.);
       bool hasTTF4(sTTFlags4.getBinContent(ttid) > 0.);
       if (isMasked) {

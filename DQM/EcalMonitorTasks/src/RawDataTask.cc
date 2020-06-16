@@ -170,7 +170,6 @@ namespace ecaldqm {
       }
 
       if (feDesync > 0.) {
-        // meDesyncByLumi.fill(dccId, feDesync);
         meDesyncTotal.fill(dccId, feDesync);
         meTrendNSyncErrors.fill(double(timestamp_.iLumi), feDesync);
       }

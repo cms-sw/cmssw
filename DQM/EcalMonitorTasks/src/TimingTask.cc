@@ -113,7 +113,6 @@ namespace ecaldqm {
       if (energy > energyThreshold) {
         meTimeAll.fill(id, time);
         meTimeMap.fill(id, time);
-        // meTimeMapByLS->fill(id, time);
         meTime1D.fill(id, time);
         meTimeAllMap.fill(id, time);
       }

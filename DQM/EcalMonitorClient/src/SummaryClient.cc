@@ -106,8 +106,6 @@ namespace ecaldqm {
       int trigprim(sTriggerPrimitives ? (int)sTriggerPrimitives->getBinContent(id) : kUnknown);
       int rawdata(sRawData.getBinContent(id));
 
-      // double rawdataLS(sFEStatusErrMapByLumi.getBinContent(id));  // Includes FE=Disabled
-
       // If there are no RawData or Integrity errors in this LS, set them back to GOOD
       //if(integrity == kBad && integrityByLumi[iDCC] == 0.) integrity = kGood;
       if (integrity == kBad && !hasMismatchDCC[iDCC])
