@@ -16,7 +16,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "RecoEgamma/EgammaTools/interface/validateEgammaCandidate.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
+#include <atomic>
 #include <cmath>
 #include <memory>
 #include <string>
@@ -45,6 +47,8 @@ private:
 
   // To get the auxiliary MVA variables
   const MVAVariableHelper variableHelper_;
+
+  CMS_THREAD_SAFE mutable std::atomic<bool> validated_ = false;
 };
 
 namespace {
@@ -127,6 +131,12 @@ void MVAValueMapProducer<ParticleType>::produce(edm::StreamID,
   auto keysForValueMapsHandle =
       keysForValueMapsToken_.isUninitialized() ? srcHandle : iEvent.getHandle(keysForValueMapsToken_);
 
+  // check if nothing is wrong with the data format of the candidates
+  if (!validated_ && !srcHandle->empty()) {
+    egammaTools::validateEgammaCandidate((*srcHandle)[0]);
+    validated_ = true;
+  }
+
   // Loop over MVA estimators
   for (unsigned iEstimator = 0; iEstimator < mvaEstimators_.size(); iEstimator++) {
     std::vector<float> mvaValues;
@@ -135,7 +145,6 @@ void MVAValueMapProducer<ParticleType>::produce(edm::StreamID,
 
     // Loop over particles
     for (auto const& cand : *srcHandle) {
-      egammaTools::validateEgammaCandidate(cand);
       int cat = -1;  // Passed by reference to the mvaValue function to store the category
       const float response = mvaEstimators_[iEstimator]->mvaValue(&cand, auxVariables, cat);
       mvaRawValues.push_back(response);                             // The MVA score
