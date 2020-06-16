@@ -54,18 +54,13 @@ public:
 private:
   ZdcSimpleRecAlgo reco_;
   HcalADCSaturationFlag* saturationFlagSetter_;
-  // HFTimingTrustFlag* HFTimingTrustFlagSetter_;
-  // HBHETimeProfileStatusBitSetter* hbheHSCPFlagSetter_;
-  // HBHETimingShapedFlagSetter* hbheTimingShapedFlagSetter_;
-  // HcalHFStatusBitFromRecHits* hfrechitbit_;
-  // HcalHFStatusBitFromDigis* hfdigibit_;
 
   DetId::Detector det_;
   int subdet_;
   HcalOtherSubdetector subdetOther_;
   edm::EDGetTokenT<ZDCDigiCollection> tok_input_hcal;
   edm::EDGetTokenT<ZDCDigiCollection> tok_input_castor;
-  //std::vector<std::string> channelStatusToDrop_;
+
   bool correctTiming_;        // turn on/off Ken Rossato's algorithm to fix timing
   bool setNoiseFlags_;        // turn on/off basic noise flags
   bool setHSCPFlags_;         // turn on/off HSCP noise flags
@@ -74,6 +69,7 @@ private:
 
   bool dropZSmarkedPassed_;  // turn on/off dropping of zero suppression marked and passed digis
   std::vector<int> AuxTSvec_;
+
   // new lowGainEnergy variables
   int lowGainOffset_;
   double lowGainFrac_;
