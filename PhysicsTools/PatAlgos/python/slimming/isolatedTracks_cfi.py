@@ -24,6 +24,15 @@ _exoHighPtTrackCut = (
     " abs(dxy) < 0.5 && abs(dz) < 0.5 && "+
     " (miniPFIsolation().chargedHadronIso()/pt < 1.0 || pt > 100)"
 )
+_exoDisappearingTrackCut = (
+    "pt > 30 && "+
+    "abs(dxy) < 0.05 && abs(dz) < 1.0 &&"+
+    "numMissingInnerHits == 0 &&"+
+    "numMissingMiddleHits == 0 &&"+
+    "numMissingOuterHits >= 1 &&"+
+    "trackIsolation/pt < 0.1"
+)
+
 isolatedTracks = cms.EDProducer("PATIsolatedTrackProducer",
     tkAssocParamBlock,
     packedPFCandidates = cms.InputTag("packedPFCandidates"),
@@ -35,6 +44,10 @@ isolatedTracks = cms.EDProducer("PATIsolatedTrackProducer",
     dEdxDataPixel = cms.InputTag("dedxPixelHarmonic2"),
     dEdxHitInfo = cms.InputTag("dedxHitInfo"),
     dEdxHitInfoPrescale = cms.InputTag("dedxHitInfo","prescale"), 
+    EBRecHits =  cms.InputTag  ("reducedEcalRecHitsEB"),
+    EERecHits =  cms.InputTag  ("reducedEcalRecHitsEE"),
+    HBHERecHits =  cms.InputTag  ("reducedHcalRecHits", "hbhereco"),
+
     addPrescaledDeDxTracks = cms.bool(False),
     usePrecomputedDeDxStrip = cms.bool(True),        # if these are set to True, will get estimated DeDx from DeDxData branches
     usePrecomputedDeDxPixel = cms.bool(True),        # if set to False, will manually compute using dEdxHitInfo
@@ -44,11 +57,15 @@ isolatedTracks = cms.EDProducer("PATIsolatedTrackProducer",
     pfIsolation_DZ = cms.double(0.1),
     miniIsoParams = cms.vdouble(0.05, 0.2, 10.0), # (minDR, maxDR, kT)
                                                   # dR for miniiso is max(minDR, min(maxDR, kT/pT))
+    trackIsolation_DR = cms.double(0.3),
+    trackIsolation_maxDZSig = cms.double(3.0),
+
     absIso_cut = cms.double(5.0),
     relIso_cut = cms.double(0.2),
     miniRelIso_cut = cms.double(0.2),
 
     caloJet_DR = cms.double(0.3),
+    associatedCaloEnergy_DR = cms.double(0.5),
 
     pflepoverlap_DR = cms.double(0.001),
     pflepoverlap_pTmin = cms.double(5.0),
@@ -59,7 +76,7 @@ isolatedTracks = cms.EDProducer("PATIsolatedTrackProducer",
     pfneutralsum_DR = cms.double(0.05),
 
     saveDeDxHitInfo = cms.bool(True),
-    saveDeDxHitInfoCut = cms.string("(%s) || (%s)" % (_susySoftDisappearingTrackCut,_exoHighPtTrackCut)), 
+    saveDeDxHitInfoCut = cms.string("(%s) || (%s) || (%s)" % (_susySoftDisappearingTrackCut,_exoHighPtTrackCut,_exoDisappearingTrackCut)), 
 )
 
 def miniAOD_customizeIsolatedTracksFastSim(process):

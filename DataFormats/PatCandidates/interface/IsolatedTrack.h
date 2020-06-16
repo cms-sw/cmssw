@@ -24,8 +24,11 @@ namespace pat {
         : LeafCandidate(0, LorentzVector(0, 0, 0, 0)),
           pfIsolationDR03_(pat::PFIsolation()),
           miniIsolation_(pat::PFIsolation()),
+          trackIsolation_(0.),
           matchedCaloJetEmEnergy_(0.),
           matchedCaloJetHadEnergy_(0.),
+          associatedEcalEnergy_(0.),
+          associatedHcalEnergy_(0.),
           pfLepOverlap_(false),
           pfNeutralSum_(0.),
           dz_(0.),
@@ -47,8 +50,11 @@ namespace pat {
 
     explicit IsolatedTrack(const PFIsolation& iso,
                            const PFIsolation& miniiso,
+                           float trackiso,
                            float caloJetEm,
                            float caloJetHad,
+                           float ecalEnergy,
+                           float hcalEnergy,
                            bool pfLepOverlap,
                            float pfNeutralSum,
                            const LorentzVector& p4,
@@ -73,8 +79,11 @@ namespace pat {
         : LeafCandidate(charge, p4, Point(0., 0., 0.), id),
           pfIsolationDR03_(iso),
           miniIsolation_(miniiso),
+          trackIsolation_(trackiso),
           matchedCaloJetEmEnergy_(caloJetEm),
           matchedCaloJetHadEnergy_(caloJetHad),
+          associatedEcalEnergy_(ecalEnergy),
+          associatedHcalEnergy_(hcalEnergy),
           pfLepOverlap_(pfLepOverlap),
           pfNeutralSum_(pfNeutralSum),
           dz_(dz),
@@ -97,11 +106,14 @@ namespace pat {
     ~IsolatedTrack() override {}
 
     const PFIsolation& pfIsolationDR03() const { return pfIsolationDR03_; }
-
     const PFIsolation& miniPFIsolation() const { return miniIsolation_; }
+    float trackIsolation() const { return trackIsolation_; }
 
     float matchedCaloJetEmEnergy() const { return matchedCaloJetEmEnergy_; }
     float matchedCaloJetHadEnergy() const { return matchedCaloJetHadEnergy_; }
+
+    float associatedEcalEnergy() const { return associatedEcalEnergy_; }
+    float associatedHcalEnergy() const { return associatedHcalEnergy_; }
 
     bool pfLepOverlap() const { return pfLepOverlap_; }
     float pfNeutralSum() const { return pfNeutralSum_; }
@@ -120,6 +132,11 @@ namespace pat {
     bool isLooseTrack() const { return (trackQuality_ & (1 << reco::TrackBase::loose)) >> reco::TrackBase::loose; }
 
     const reco::HitPattern& hitPattern() const { return hitPattern_; }
+
+    // helper functions for PhysicsTools/PatAlgos/python/slimming/isolatedTracks_cfi.py
+    int numMissingInnerHits() const { return hitPattern_.trackerLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS); }
+    int numMissingMiddleHits() const { return hitPattern_.trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS); }
+    int numMissingOuterHits() const { return hitPattern_.trackerLayersWithoutMeasurement(reco::HitPattern::MISSING_OUTER_HITS); }
 
     float dEdxStrip() const { return dEdxStrip_; }
     float dEdxPixel() const { return dEdxPixel_; }
@@ -141,8 +158,11 @@ namespace pat {
   protected:
     PFIsolation pfIsolationDR03_;
     PFIsolation miniIsolation_;
+    float trackIsolation_;
     float matchedCaloJetEmEnergy_;  //energy of nearest calojet within a given dR;
     float matchedCaloJetHadEnergy_;
+    float associatedEcalEnergy_; // sum of EBEE recHits within a given dR
+    float associatedHcalEnergy_; // sum of HBHE recHits within a given dR
     bool pfLepOverlap_;
     float pfNeutralSum_;
     float dz_, dxy_, dzError_, dxyError_;
