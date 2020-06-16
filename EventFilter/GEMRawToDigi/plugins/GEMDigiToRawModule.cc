@@ -98,7 +98,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
 
     for (auto const& gemBx : gemBxMap) {
       int bx = gemBx.first;
-      GEMDigiCollection newGemDigis = gemBx.second;
+      GEMDigiCollection inBxGemDigis = gemBx.second;
 
       for (uint8_t amcNum = 0; amcNum < GEMeMap::maxAMCs_; ++amcNum) {
         uint32_t amcSize = 0;
@@ -123,7 +123,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
             uint64_t lsData = 0;  ///<channels from 1to64
             uint64_t msData = 0;  ///<channels from 65to128
 
-            GEMDigiCollection::Range range = newGemDigis.get(gemId);
+            const GEMDigiCollection::Range& range = inBxGemDigis.get(gemId);
             for (GEMDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; ++digiIt) {
               const GEMDigi& digi = (*digiIt);
 
