@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronTools.h"
 
 class LowPtGsfElectronCoreProducer : public edm::global::EDProducer<> {
@@ -43,7 +44,7 @@ void LowPtGsfElectronCoreProducer::produce(edm::StreamID, edm::Event& event, con
   auto ctfTracksHandle = event.getHandle(ctfTracksToken_);
   auto const& superClusterRefs = event.get(superClusterRefs_);
 
-  auto ctfTrackVariables = egamma::getTrackVariablesLazy(*ctfTracksHandle);
+  auto ctfTrackVariables = egamma::soa::makeEtaPhiTableLazy(*ctfTracksHandle);
 
   // Create ElectronCore objects
   for (size_t ipfgsf = 0; ipfgsf < gsfPfRecTracksHandle->size(); ++ipfgsf) {

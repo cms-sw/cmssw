@@ -6,7 +6,7 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "RecoEgamma/EgammaTools/interface/tracktable.h"
+#include "RecoEgamma/EgammaTools/interface/tables.h"
 
 //author S. Harper (RAL)
 //this class does a simple calculation of the track isolation for a track with eta,
@@ -41,7 +41,6 @@
 //      Note in all this, I'm not concerned about the electron in questions track, that will be rejected,
 //      I'm concerned about near by fake electrons which have been recoed by PF
 //      This is handled by the PIDVeto, which obviously is only used/required when using PFCandidates
-
 
 class EleTkIsolFromCands {
 public:
@@ -98,19 +97,20 @@ private:
   // tracks (Phase II conditions). In particular, calling
   // reco::TrackBase::eta() many times is costy because eta is not precomputed.
   // To solve this, we first cache the tracks in a simpler data structure in
-  // which eta is already computed (SimpleTrackTable). Furthermore, the tracks are
+  // which eta is already computed (TrackTable). Furthermore, the tracks are
   // preselected by the cuts that can already be applied without considering
   // the electron. Note that this has to be done twice, because the required
   // preselection is different for barrel and endcap electrons.
 
-  using TrackTable = egamma::tracktable::SimpleTrackTable;
+  using TrackTable =
+      edm::soa::Table<egamma::soa::col::Pt, egamma::soa::col::Eta, egamma::soa::col::Phi, egamma::soa::col::Vz>;
 
   static bool passPIDVeto(const int pdgId, const EleTkIsolFromCands::PIDVeto pidVeto);
 
   static TrackTable preselectTracks(reco::TrackCollection const& tracks, TrkCuts const& cuts);
   static TrackTable preselectTracksFromCands(pat::PackedCandidateCollection const& cands,
-                                                   TrkCuts const& cuts,
-                                                   PIDVeto = PIDVeto::NONE);
+                                             TrkCuts const& cuts,
+                                             PIDVeto = PIDVeto::NONE);
 
   static bool passTrackPreselection(const reco::TrackBase& trk, double trkPt, const TrkCuts& cuts);
 

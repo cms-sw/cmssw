@@ -21,7 +21,7 @@ private:
                            reco::PFCandidateEGammaExtraRef const &extraRef,
                            reco::GsfElectronCoreCollection &electrons,
                            edm::Handle<reco::TrackCollection> const &ctfTracksHandle,
-                           std::vector<egamma::TrackVariables> const &ctfTrackVariables) const;
+                           egamma::soa::EtaPhiTable const &ctfTrackVariables) const;
 
   const edm::EDGetTokenT<reco::TrackCollection> ctfTracksToken_;
   const edm::EDGetTokenT<reco::PFCandidateCollection> gedEMUnbiasedToken_;
@@ -44,7 +44,7 @@ GEDGsfElectronCoreProducer::GEDGsfElectronCoreProducer(const edm::ParameterSet &
 
 void GEDGsfElectronCoreProducer::produce(edm::StreamID iStream, edm::Event &event, const edm::EventSetup &setup) const {
   auto ctfTracksHandle = event.getHandle(ctfTracksToken_);
-  auto ctfTrackVariables = egamma::getTrackVariablesLazy(*ctfTracksHandle);
+  auto ctfTrackVariables = egamma::soa::makeEtaPhiTableLazy(*ctfTracksHandle);
 
   // output
   reco::GsfElectronCoreCollection electrons;
@@ -63,12 +63,11 @@ void GEDGsfElectronCoreProducer::produce(edm::StreamID iStream, edm::Event &even
   event.emplace(putToken_, std::move(electrons));
 }
 
-void GEDGsfElectronCoreProducer::produceElectronCore(
-    GsfTrackRef const &gsfTrackRef,
-    reco::PFCandidateEGammaExtraRef const &extraRef,
-    reco::GsfElectronCoreCollection &electrons,
-    edm::Handle<reco::TrackCollection> const &ctfTracksHandle,
-    std::vector<egamma::TrackVariables> const &ctfTrackVariables) const {
+void GEDGsfElectronCoreProducer::produceElectronCore(GsfTrackRef const &gsfTrackRef,
+                                                     reco::PFCandidateEGammaExtraRef const &extraRef,
+                                                     reco::GsfElectronCoreCollection &electrons,
+                                                     edm::Handle<reco::TrackCollection> const &ctfTracksHandle,
+                                                     egamma::soa::EtaPhiTable const &ctfTrackVariables) const {
   electrons.emplace_back(gsfTrackRef);
   auto &eleCore = electrons.back();
 

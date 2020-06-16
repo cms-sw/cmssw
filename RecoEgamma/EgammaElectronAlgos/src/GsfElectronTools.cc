@@ -6,15 +6,6 @@
 
 namespace egamma {
 
-  std::vector<TrackVariables> getTrackVariables(reco::TrackCollection const& tracks) {
-    std::vector<TrackVariables> out;
-    out.reserve(tracks.size());
-    for (auto const& tk : tracks) {
-      out.emplace_back(tk);
-    }
-    return out;
-  }
-
   using namespace reco;
 
   //=======================================================================================
@@ -23,7 +14,7 @@ namespace egamma {
 
   std::pair<TrackRef, float> getClosestCtfToGsf(GsfTrackRef const& gsfTrackRef,
                                                 edm::Handle<reco::TrackCollection> const& ctfTracksH,
-                                                std::vector<TrackVariables> const& ctfTrackVariables) {
+                                                egamma::soa::EtaPhiTable const& trackTable) {
     float maxFracShared = 0;
     TrackRef ctfTrackRef = TrackRef();
     const TrackCollection* ctfTrackCollection = ctfTracksH.product();
@@ -36,9 +27,8 @@ namespace egamma {
 
     unsigned int counter = 0;
     for (auto ctfTkIter = ctfTrackCollection->begin(); ctfTkIter != ctfTrackCollection->end(); ctfTkIter++, counter++) {
-      auto const& trackVariables = ctfTrackVariables[counter];
-      double dEta = gsfEta - trackVariables.eta;
-      double dPhi = gsfPhi - trackVariables.phi;
+      double dEta = gsfEta - trackTable.get<egamma::soa::col::Eta>(counter);
+      double dPhi = gsfPhi - trackTable.get<egamma::soa::col::Phi>(counter);
       if (std::abs(dPhi) > M_PI)
         dPhi = 2 * M_PI - std::abs(dPhi);
 
