@@ -34,8 +34,8 @@ public:
       valuesByTripletNames_.emplace_back();
       auto &thisCACut = valuesByTripletNames_.back();
 
-      thisCACut.tripletName = thisTriplet.getParameter<std::string>("seedingLayers");
-      thisCACut.cutValue = thisTriplet.getParameter<double>("cut");
+      thisCACut.tripletName_ = thisTriplet.getParameter<std::string>("seedingLayers");
+      thisCACut.cutValue_ = thisTriplet.getParameter<double>("cut");
     }
   }
 
@@ -51,7 +51,7 @@ public:
       auto &thisCACut = valuesByLayerIds_.back();
 
       // Triplet name, e.g. 'BPix1+BPix2+BPix3'
-      std::string layersToSet = thisTriplet.tripletName;
+      std::string layersToSet = thisTriplet.tripletName_;
       for (int thisLayer = 0; thisLayer < 3; thisLayer++) {
         // Get layer name
         std::size_t layerPos = layersToSet.find("+");
@@ -64,8 +64,8 @@ public:
         layersToSet = layersToSet.substr(layerPos + 1);
 
         // Get layer ID
-        thisCACut.layerIds.emplace_back(caLayers.getLayerId(layerName));
-        if (thisCACut.layerIds.back() == -1) {
+        thisCACut.layerIds_.emplace_back(caLayers.getLayerId(layerName));
+        if (thisCACut.layerIds_.back() == -1) {
           foundAllLayerIds_ = false;
           edm::LogWarning("Configuration")
               << "Layer name '" << layerName << "' not found in the CAGraph. Please check CACuts parameter set.";
@@ -73,8 +73,8 @@ public:
       }
 
       // Cut
-      thisCACut.cutValue = thisTriplet.cutValue;
-      thisCACut.hasValueByInnerLayerId = false;
+      thisCACut.cutValue_ = thisTriplet.cutValue_;
+      thisCACut.hasValueByInnerLayerId_ = false;
     }
 
     setCutValuesByInnerLayerIds();
@@ -82,19 +82,19 @@ public:
 
   void setCutValuesByInnerLayerIds() {
     for (auto &thisTriplet : valuesByLayerIds_) {
-      if (thisTriplet.hasValueByInnerLayerId)
+      if (thisTriplet.hasValueByInnerLayerId_)
         continue;
-      auto it = std::find(thisTriplet.layerIds.begin(), thisTriplet.layerIds.end(), -1);
-      if (it != thisTriplet.layerIds.end())
+      auto it = std::find(thisTriplet.layerIds_.begin(), thisTriplet.layerIds_.end(), -1);
+      if (it != thisTriplet.layerIds_.end())
         continue;
 
       bool foundOuterDoublet = false;
 
       for (auto &thisOuterDoublet : valuesByInnerLayerIds_) {
-        if (thisOuterDoublet.outerDoubletIds[0] == thisTriplet.layerIds[1] &&
-            thisOuterDoublet.outerDoubletIds[1] == thisTriplet.layerIds[2]) {
-          thisOuterDoublet.innerLayerIds.emplace_back(thisTriplet.layerIds[0]);
-          thisOuterDoublet.cutValues.emplace_back(thisTriplet.cutValue);
+        if (thisOuterDoublet.outerDoubletIds_[0] == thisTriplet.layerIds_[1] &&
+            thisOuterDoublet.outerDoubletIds_[1] == thisTriplet.layerIds_[2]) {
+          thisOuterDoublet.innerLayerIds_.emplace_back(thisTriplet.layerIds_[0]);
+          thisOuterDoublet.cutValues_.emplace_back(thisTriplet.cutValue_);
           foundOuterDoublet = true;
           break;
         }
@@ -104,13 +104,13 @@ public:
         valuesByInnerLayerIds_.emplace_back(defaultCut_);
         auto &newOuterDoublet = valuesByInnerLayerIds_.back();
 
-        newOuterDoublet.outerDoubletIds.emplace_back(thisTriplet.layerIds[1]);
-        newOuterDoublet.outerDoubletIds.emplace_back(thisTriplet.layerIds[2]);
-        newOuterDoublet.innerLayerIds.emplace_back(thisTriplet.layerIds[0]);
-        newOuterDoublet.cutValues.emplace_back(thisTriplet.cutValue);
+        newOuterDoublet.outerDoubletIds_.emplace_back(thisTriplet.layerIds_[1]);
+        newOuterDoublet.outerDoubletIds_.emplace_back(thisTriplet.layerIds_[2]);
+        newOuterDoublet.innerLayerIds_.emplace_back(thisTriplet.layerIds_[0]);
+        newOuterDoublet.cutValues_.emplace_back(thisTriplet.cutValue_);
       }
 
-      thisTriplet.hasValueByInnerLayerId = true;
+      thisTriplet.hasValueByInnerLayerId_ = true;
     }
   }
 
@@ -118,17 +118,17 @@ public:
     explicit CAValuesByInnerLayerIds(float cut) : defaultCut_(cut) {}
 
     float at(int layerId) const {
-      for (size_t thisLayer = 0; thisLayer < innerLayerIds.size(); thisLayer++) {
-        if (innerLayerIds.at(thisLayer) == layerId)
-          return cutValues.at(thisLayer);
+      for (size_t thisLayer = 0; thisLayer < innerLayerIds_.size(); thisLayer++) {
+        if (innerLayerIds_.at(thisLayer) == layerId)
+          return cutValues_.at(thisLayer);
       }
 
       return defaultCut_;
     }
 
-    std::vector<int> outerDoubletIds;
-    std::vector<int> innerLayerIds;
-    std::vector<float> cutValues;
+    std::vector<int> outerDoubletIds_;
+    std::vector<int> innerLayerIds_;
+    std::vector<float> cutValues_;
 
   private:
     double defaultCut_;
@@ -136,7 +136,7 @@ public:
 
   CAValuesByInnerLayerIds getCutsByInnerLayer(int layerIds1, int layerIds2) const {
     for (const auto &thisCut : valuesByInnerLayerIds_) {
-      if (thisCut.outerDoubletIds[0] == layerIds1 && thisCut.outerDoubletIds[1] == layerIds2) {
+      if (thisCut.outerDoubletIds_[0] == layerIds1 && thisCut.outerDoubletIds_[1] == layerIds2) {
         return thisCut;
       }
     }
@@ -147,14 +147,14 @@ public:
 
 private:
   struct CAValueByTripletName {
-    std::string tripletName;
-    float cutValue;
+    std::string tripletName_;
+    float cutValue_;
   };
 
   struct CAValueByLayerIds {
-    std::vector<int> layerIds;
-    float cutValue;
-    bool hasValueByInnerLayerId;
+    std::vector<int> layerIds_;
+    float cutValue_;
+    bool hasValueByInnerLayerId_;
   };
 
 private:
