@@ -33,9 +33,7 @@ int get_phi_bin(const l1t::HGCalMulticluster *cl) {
   return floor(std::abs(reco::deltaPhi(cl->phi(), phi_min)) / ((phi_max - phi_min) / n_phi_bins));
 }
 
-pair<int, int> get_eta_phi_bin(const l1t::HGCalMulticluster *cl) {
-  return std::make_pair(etaBin(cl), get_phi_bin(cl));
-}
+pair<int, int> get_eta_phi_bin(const l1t::HGCalMulticluster *cl) { return std::make_pair(etaBin(cl), get_phi_bin(cl)); }
 
 class L1EGammaEEProducer : public edm::EDProducer {
 public:

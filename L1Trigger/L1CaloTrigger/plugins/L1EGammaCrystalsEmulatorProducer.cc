@@ -824,10 +824,11 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
           for (int ll = 0; ll < n_clusters_4link; ++ll) {  // We check the 12 clusters in the card on the right
             if (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] < n_towers_cardEta &&
                 crystalID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] < 5 &&
-                std::abs(5 * (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right]) % n_towers_cardEta +
-                     crystalID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] % 5 -
-                     5 * (towerID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left]) % n_towers_cardEta -
-                     crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] % 5) < 2) {
+                std::abs(
+                    5 * (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right]) % n_towers_cardEta +
+                    crystalID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] % 5 -
+                    5 * (towerID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left]) % n_towers_cardEta -
+                    crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] % 5) < 2) {
               if (energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] >
                   energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right]) {
                 energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] +=
@@ -862,15 +863,15 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
             for (int ll = 0; ll < n_clusters_4link; ++ll) {  // We check the 12 clusters in the card on the right
               if (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] < n_towers_cardEta &&
                   std::abs(5 * (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right]) %
-                           n_towers_cardEta +
-                       crystalID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] % 5 -
-                       5 * (towerID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left]) %
-                           n_towers_cardEta -
-                       crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] % 5) <=
+                               n_towers_cardEta +
+                           crystalID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] % 5 -
+                           5 * (towerID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left]) %
+                               n_towers_cardEta -
+                           crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] % 5) <=
                       1) {  //Distance of 1 max in eta
                 if (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] < n_towers_cardEta &&
                     std::abs(5 + crystalID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] / 5 -
-                         (crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] / 5)) <=
+                             (crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] / 5)) <=
                         5) {  //Distance of 5 max in phi
                   if (energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] >
                           energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] &&
@@ -909,10 +910,11 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
           energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom] >
               0) {                                       // If there is one cluster on the right side of the first card
         for (int ll = 0; ll < n_clusters_4link; ++ll) {  // We check the card on the right
-          if (std::abs(5 * (towerID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom] / n_towers_cardEta) +
-                   crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom] / 5 -
-                   5 * (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_top] / n_towers_cardEta) -
-                   crystalID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_top] / 5) < 2) {
+          if (std::abs(
+                  5 * (towerID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom] / n_towers_cardEta) +
+                  crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom] / 5 -
+                  5 * (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_top] / n_towers_cardEta) -
+                  crystalID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_top] / 5) < 2) {
             if (energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom] >
                 energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_bottom]) {
               energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom] +=
@@ -1190,12 +1192,10 @@ bool L1EGCrystalClusterEmulatorProducer::passes_looseTkiso(float pt, float iso) 
 }
 
 bool L1EGCrystalClusterEmulatorProducer::passes_ss(float pt, float ss) {
-  return  ((c0_ss + c1_ss * std::exp(-c2_ss * pt)) <= ss);
+  return ((c0_ss + c1_ss * std::exp(-c2_ss * pt)) <= ss);
 }
 
-bool L1EGCrystalClusterEmulatorProducer::passes_photon(float pt, float pss) {
-  return (pss > d0 - d1 * pt);
-}
+bool L1EGCrystalClusterEmulatorProducer::passes_photon(float pt, float pss) { return (pss > d0 - d1 * pt); }
 
 bool L1EGCrystalClusterEmulatorProducer::passes_looseTkss(float pt, float ss) {
   return ((e0_looseTkss - e1_looseTkss * std::exp(-e2_looseTkss * pt)) <= ss);
