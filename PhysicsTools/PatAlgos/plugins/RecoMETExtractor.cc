@@ -36,10 +36,10 @@ RecoMETExtractor::RecoMETExtractor(const edm::ParameterSet& iConfig) {
     corLevel_ = pat::MET::Type01SmearXY;
   } else if (corLevel == "rawCalo") {
     corLevel_ = pat::MET::RawCalo;
-  } else if(corLevel=="rawDeepResponseTune") {
-    corLevel_=pat::MET::RawDeepResponseTune;
-  } else if(corLevel=="rawDeepResolutionTune") {
-    corLevel_=pat::MET::RawDeepResolutionTune;
+  } else if (corLevel == "rawDeepResponseTune") {
+    corLevel_ = pat::MET::RawDeepResponseTune;
+  } else if (corLevel == "rawDeepResolutionTune") {
+    corLevel_ = pat::MET::RawDeepResolutionTune;
   } else {
     //throw exception
   }
