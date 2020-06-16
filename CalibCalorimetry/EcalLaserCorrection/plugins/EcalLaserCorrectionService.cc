@@ -65,8 +65,7 @@ EcalLaserCorrectionService::EcalLaserCorrectionService(const edm::ParameterSet& 
       .setConsumes(apdpnToken_)
       .setConsumes(linearToken_);
 
-
-  deltat_safety_ = fConfig.getUntrackedParameter<int>("deltat_safety",0);
+  deltat_safety_ = fConfig.getUntrackedParameter<int>("deltat_safety", 0);
 
   //now do what ever other initialization is needed
 
@@ -91,7 +90,7 @@ EcalLaserCorrectionService::~EcalLaserCorrectionService() {
 std::shared_ptr<EcalLaserDbService> EcalLaserCorrectionService::produce(const EcalLaserDbRecord& record) {
   auto host = holder_.makeOrGet([]() { return new HostType; });
 
-  host.get()->setDeltaTSafety( deltat_safety_ );
+  host.get()->setDeltaTSafety(deltat_safety_);
 
   host->ifRecordChanges<EcalLinearCorrectionsRcd>(
       record, [this, h = host.get()](auto const& rec) { h->setLinearCorrectionsData(&rec.get(linearToken_)); });

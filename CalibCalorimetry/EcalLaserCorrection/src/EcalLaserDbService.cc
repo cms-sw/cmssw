@@ -12,10 +12,14 @@
 
 using namespace std;
 
-long long oneSecond = 4294967296; // which is 2^32
+long long oneSecond = 4294967296;  // which is 2^32
 
 EcalLaserDbService::EcalLaserDbService()
-  : mAlphas_(nullptr), mAPDPNRatiosRef_(nullptr), mAPDPNRatios_(nullptr), mLinearCorrections_(nullptr), deltaT_safety_(0) {}
+    : mAlphas_(nullptr),
+      mAPDPNRatiosRef_(nullptr),
+      mAPDPNRatios_(nullptr),
+      mLinearCorrections_(nullptr),
+      deltaT_safety_(0) {}
 
 const EcalLaserAlphas* EcalLaserDbService::getAlphas() const { return mAlphas_; }
 
@@ -195,8 +199,8 @@ float EcalLaserDbService::getLaserCorrection(DetId const& xid, edm::Timestamp co
     p_f = apdpnpair.p3;
   }
 
-  if( t >  timestamp.t3.value() + (deltaT_safety_* oneSecond) )
-    t_laser = ((long long) timestamp.t3.value()) + deltaT_safety_ * oneSecond;
+  if (t > timestamp.t3.value() + (deltaT_safety_ * oneSecond))
+    t_laser = ((long long)timestamp.t3.value()) + deltaT_safety_ * oneSecond;
 
   if (t >= linTimes.t1.value() && t < linTimes.t2.value()) {
     lt_i = linTimes.t1.value();
@@ -223,7 +227,8 @@ float EcalLaserDbService::getLaserCorrection(DetId const& xid, edm::Timestamp co
 
   if (apdpnref != 0 && (t_i - t_f) != 0 && (lt_i - lt_f) != 0) {
     long long tt = t;  // never subtract two unsigned!
-    float interpolatedLaserResponse = p_i / apdpnref + float(t_laser - t_i) * (p_f - p_i) / (apdpnref * float(t_f - t_i));
+    float interpolatedLaserResponse =
+        p_i / apdpnref + float(t_laser - t_i) * (p_f - p_i) / (apdpnref * float(t_f - t_i));
     float interpolatedLinearResponse =
         lp_i / apdpnref + float(tt - lt_i) * (lp_f - lp_i) / (apdpnref * float(lt_f - lt_i));  // FIXED BY FC
 
