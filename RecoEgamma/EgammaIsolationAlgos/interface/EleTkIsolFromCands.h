@@ -7,6 +7,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+#include "FWCore/SOA/interface/Column.h"
+#include "FWCore/SOA/interface/Table.h"
+
 //author S. Harper (RAL)
 //this class does a simple calculation of the track isolation for a track with eta,
 //phi and z vtx (typically the GsfTrack of the electron). It uses
@@ -100,31 +103,28 @@ private:
   // preselected by the cuts that can already be applied without considering
   // the electron. Note that this has to be done twice, because the required
   // preselection is different for barrel and endcap electrons.
-  //
-  class SimpleTrack {
-  public:
-    SimpleTrack(reco::TrackBase const& trk) : pt{trk.pt()}, eta{trk.eta()}, phi{trk.phi()}, vz{trk.vz()} {}
-    const double pt;
-    const double eta;
-    const double phi;
-    const double vz;
-  };
+
+  SOA_DECLARE_COLUMN(Pt, double, "pt");
+  SOA_DECLARE_COLUMN(Eta, double, "eta");
+  SOA_DECLARE_COLUMN(Phi, double, "phi");
+  SOA_DECLARE_COLUMN(Vz, double, "vz");
+
+  using SimpleTrackTable = edm::soa::Table<Pt, Eta, Phi, Vz>;
 
   static bool passPIDVeto(const int pdgId, const EleTkIsolFromCands::PIDVeto pidVeto);
 
-  static std::vector<SimpleTrack> preselectTracks(reco::TrackCollection const& tracks, TrkCuts const& cuts);
-  static std::vector<SimpleTrack> preselectTracksFromCands(pat::PackedCandidateCollection const& cands,
-                                                           TrkCuts const& cuts,
-                                                           PIDVeto = PIDVeto::NONE);
+  static SimpleTrackTable preselectTracks(reco::TrackCollection const& tracks, TrkCuts const& cuts);
+  static SimpleTrackTable preselectTracksFromCands(pat::PackedCandidateCollection const& cands,
+                                                   TrkCuts const& cuts,
+                                                   PIDVeto = PIDVeto::NONE);
 
-  static bool passTrackPreselection(const reco::TrackBase& trk, const TrkCuts& cuts);
-  static bool passMatchingToElectron(
-      SimpleTrack const& trk, const TrkCuts& cuts, double eleEta, double elePhi, double eleVZ);
+  static bool passTrackPreselection(const reco::TrackBase& trk, double trkPt, const TrkCuts& cuts);
+
   //no qualities specified, accept all, ORed
   static bool passQual(const reco::TrackBase& trk, const std::vector<reco::TrackBase::TrackQuality>& quals);
   static bool passAlgo(const reco::TrackBase& trk, const std::vector<reco::TrackBase::TrackAlgorithm>& algosToRej);
 
-  std::vector<SimpleTrack> const& getPreselectedTracks(bool isBarrel);
+  SimpleTrackTable const& getPreselectedTracks(bool isBarrel);
 
   Configuration const& cfg_;
 
@@ -132,8 +132,8 @@ private:
   reco::TrackCollection const* tracks_ = nullptr;
   pat::PackedCandidateCollection const* cands_ = nullptr;
   const PIDVeto pidVeto_ = PIDVeto::NONE;
-  std::vector<SimpleTrack> preselectedTracksWithBarrelCuts_;
-  std::vector<SimpleTrack> preselectedTracksWithEndcapCuts_;
+  SimpleTrackTable preselectedTracksWithBarrelCuts_;
+  SimpleTrackTable preselectedTracksWithEndcapCuts_;
   bool tracksCachedForBarrelCuts_ = false;
   bool tracksCachedForEndcapCuts_ = false;
 };
