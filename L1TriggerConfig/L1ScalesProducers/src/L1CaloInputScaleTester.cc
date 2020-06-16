@@ -38,8 +38,10 @@ using std::setprecision;
 // constructors and destructor
 //
 L1CaloInputScaleTester::L1CaloInputScaleTester(const edm::ParameterSet& iConfig)
-
-{
+    : hcalScaleToken_(esConsumes<L1CaloHcalScale, L1CaloHcalScaleRcd>()),
+      ecalScaleToken_(esConsumes<L1CaloEcalScale, L1CaloEcalScaleRcd>()),
+      transcoderToken_(esConsumes<CaloTPGTranscoder, CaloTPGRecord>()),
+      tokens_(consumesCollector()) {
   //now do what ever initialization is needed
 }
 
@@ -66,15 +68,11 @@ void L1CaloInputScaleTester::analyze(const edm::Event& iEvent, const edm::EventS
   iSetup.get<SetupRecord>().get(pSetup);
 #endif
 
-  ESHandle<L1CaloEcalScale> caloEcalScale;
-  ESHandle<L1CaloHcalScale> caloHcalScale;
-  ESHandle<CaloTPGTranscoder> caloTPGTranscoder;
-  iSetup.get<L1CaloEcalScaleRcd>().get(caloEcalScale);
-  iSetup.get<L1CaloHcalScaleRcd>().get(caloHcalScale);
-  iSetup.get<CaloTPGRecord>().get(caloTPGTranscoder);
+  ESHandle<L1CaloEcalScale> caloEcalScale = iSetup.getHandle(ecalScaleToken_);
+  ESHandle<L1CaloHcalScale> caloHcalScale = iSetup.getHandle(hcalScaleToken_);
+  ESHandle<CaloTPGTranscoder> caloTPGTranscoder = iSetup.getHandle(transcoderToken_);
 
-  EcalTPGScale ecalTPGScale;
-  ecalTPGScale.setEventSetup(iSetup);
+  EcalTPGScale ecalTPGScale(tokens_, iSetup);
 
   bool ecalIsConsistent = true;
   bool hcalIsConsistent = true;

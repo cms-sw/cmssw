@@ -36,8 +36,7 @@ using std::ofstream;
 // constructors and destructor
 //
 L1CaloInputScalesGenerator::L1CaloInputScalesGenerator(const edm::ParameterSet& iConfig)
-
-{
+    : transcoderToken_(esConsumes<CaloTPGTranscoder, CaloTPGRecord>()), tokens_(consumesCollector()) {
   //now do what ever initialization is needed
 }
 
@@ -54,11 +53,9 @@ L1CaloInputScalesGenerator::~L1CaloInputScalesGenerator() {
 void L1CaloInputScalesGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  ESHandle<CaloTPGTranscoder> caloTPGTranscoder;
-  iSetup.get<CaloTPGRecord>().get(caloTPGTranscoder);
+  ESHandle<CaloTPGTranscoder> caloTPGTranscoder = iSetup.getHandle(transcoderToken_);
 
-  EcalTPGScale ecalTPGScale;
-  ecalTPGScale.setEventSetup(iSetup);
+  EcalTPGScale ecalTPGScale(tokens_, iSetup);
 
   double output;
   ofstream scalesFile("L1CaloInputScales_cfi.py");
