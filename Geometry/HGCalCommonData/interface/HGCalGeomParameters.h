@@ -117,6 +117,7 @@ private:
   void rescale(std::vector<double>&, const double s);
   void resetZero(std::vector<double>&);
 
+  constexpr static double tan30deg_ = 0.5773502693;
   HGCalGeomTools geomTools_;
   const double sqrt3_;
   double waferSize_;
