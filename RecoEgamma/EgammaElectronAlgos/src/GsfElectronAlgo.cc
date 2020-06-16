@@ -545,7 +545,7 @@ reco::GsfElectronCollection GsfElectronAlgo::completeElectrons(edm::Event const&
   MultiTrajectoryStateTransform mtsTransform(&trackerGeometry, &magneticField);
   GsfConstraintAtVertex constraintAtVtx(eventSetup);
 
-  auto ctfTrackVariables = egamma::getTrackVariablesLazy(*eventData.currentCtfTracks);
+  auto ctfTrackVariables = egamma::soa::makeEtaPhiTableLazy(*eventData.currentCtfTracks);
 
   const GsfElectronCoreCollection* coreCollection = eventData.coreElectrons.product();
   for (unsigned int i = 0; i < coreCollection->size(); ++i) {

@@ -48,7 +48,7 @@ edm::ParameterSetDescription EleTkIsolFromCands::pSetDescript() {
 }
 
 EleTkIsolFromCands::TrackTable EleTkIsolFromCands::preselectTracks(reco::TrackCollection const& tracks,
-                                                                         TrkCuts const& cuts) {
+                                                                   TrkCuts const& cuts) {
   std::vector<double> pt;
   std::vector<double> eta;
   std::vector<double> phi;
@@ -71,8 +71,9 @@ EleTkIsolFromCands::TrackTable EleTkIsolFromCands::preselectTracks(reco::TrackCo
   return {std::move(pt), std::move(eta), std::move(phi), std::move(vz)};
 }
 
-EleTkIsolFromCands::TrackTable EleTkIsolFromCands::preselectTracksFromCands(
-    pat::PackedCandidateCollection const& cands, TrkCuts const& cuts, PIDVeto pidVeto) {
+EleTkIsolFromCands::TrackTable EleTkIsolFromCands::preselectTracksFromCands(pat::PackedCandidateCollection const& cands,
+                                                                            TrkCuts const& cuts,
+                                                                            PIDVeto pidVeto) {
   std::vector<double> pt;
   std::vector<double> eta;
   std::vector<double> phi;
@@ -99,8 +100,7 @@ EleTkIsolFromCands::TrackTable EleTkIsolFromCands::preselectTracksFromCands(
 }
 
 EleTkIsolFromCands::Output EleTkIsolFromCands::operator()(const reco::TrackBase& eleTrk) {
-
-  using namespace egamma::tracktable;
+  using namespace egamma::soa::col;
 
   double ptSum = 0.;
   int nrTrks = 0;
