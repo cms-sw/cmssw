@@ -1,16 +1,10 @@
-/**\class CSCViewDigi CSCViewDigi.h
-
-Location: EventFilter/CSCRawToDigi/interface/CSCViewDigi.h
-
-*/
-
 // Original Author:  Alexandre Sakharov
 //         Created:  Sun May 10 15:43:28 CEST 2009
 
 #include <memory>
 #include <iostream>
 
-#include <FWCore/Framework/interface/ConsumesCollector.h>
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -28,7 +22,6 @@ Location: EventFilter/CSCRawToDigi/interface/CSCViewDigi.h
 #include "DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCDDUStatusDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCDCCStatusDigiCollection.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class CSCViewDigi : public edm::EDAnalyzer {
 public:

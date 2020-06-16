@@ -7,26 +7,25 @@
 //Framework stuff
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
 #include "CondFormats/DataRecord/interface/CSCCrateMapRcd.h"
 #include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
 #include "CondFormats/DataRecord/interface/CSCChamberMapRcd.h"
 
 //FEDRawData
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 //Digi stuff
@@ -47,17 +46,10 @@
 #include "DataFormats/CSCDigi/interface/CSCALCTStatusDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigiCollection.h"
 
-#include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCAnodeData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCCLCTData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCRPCData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCMonitorInterface.h"
 
 #include <iostream>

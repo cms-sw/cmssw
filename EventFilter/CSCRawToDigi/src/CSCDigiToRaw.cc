@@ -325,14 +325,14 @@ void CSCDigiToRaw::add(const CSCCorrelatedLCTDigiCollection& corrLCTDigis, FindE
 }
 
 void CSCDigiToRaw::add(const GEMPadDigiClusterCollection& gemPadClusters, FindEventDataInfo& fedInfo) const {
-  for (auto j = gemPadClusters.begin(); j != gemPadClusters.end(); ++j) {
-    const GEMDetId& gemDetId = (*j).first;
+  for (const auto& jclus : gemPadClusters) {
+    const GEMDetId& gemDetId = jclus.first;
 
     const int zendcap = gemDetId.region() == 1 ? 1 : 2;
     CSCDetId cscDetId(zendcap, gemDetId.station(), 1, gemDetId.chamber(), 0);
     CSCEventData& cscData = findEventData(cscDetId, fedInfo);
 
-    cscData.add(std::vector<GEMPadDigiCluster>((*j).second.first, (*j).second.second), gemDetId);
+    cscData.add(std::vector<GEMPadDigiCluster>(jclus.second.first, jclus.second.second), gemDetId);
   }
 }
 
