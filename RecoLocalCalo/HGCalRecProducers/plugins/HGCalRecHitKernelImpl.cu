@@ -107,11 +107,12 @@ __global__
 void hef_to_rechit(HGCRecHitSoA dst_soa, HGCUncalibratedRecHitSoA src_soa, const HGChefUncalibratedRecHitConstantData cdata, const hgcal_conditions::HeterogeneousHEFConditionsESProduct* conds, int length)
 {
   unsigned int tid = blockDim.x * blockIdx.x + threadIdx.x;
-  HeterogeneousHGCSiliconDetId detid(src_soa.id_[tid]);
-  printf("cellCoarseY: %lf - cellLayer: %d - numberCellsHexagon: %d - DetId: %d - Var: %d\n", conds->params.cellCoarseY_[12], detid.layer(), conds->posmap.numberCellsHexagon[0], conds->posmap.detid[9], conds->posmap.waferMax);
   
   for (unsigned int i = tid; i < length; i += blockDim.x * gridDim.x)
     {
+      HeterogeneousHGCSiliconDetId detid(src_soa.id_[tid]);
+      printf("cellCoarseY: %lf - cellX: %d - numberCellsHexagon: %d - DetId: %d - Var: %d\n", conds->params.cellCoarseY_[12], detid.cellX(), conds->posmap.numberCellsHexagon[0], conds->posmap.detid[9], conds->posmap.waferMax);
+
       double weight         = get_weight_from_layer(detid.layer(), cdata.weights_);
       double rcorr          = get_thickness_correction(detid.type(), cdata.rcorr_);
       double noise          = get_noise(detid.type(), cdata.noise_fC_);
@@ -137,4 +138,35 @@ void heb_to_rechit(HGCRecHitSoA dst_soa, HGCUncalibratedRecHitSoA src_soa, const
       make_rechit(i, dst_soa, src_soa, true, weight, 0., 0., sigmaNoiseGeV,
 		  0, 0, 0, 0);
     }
+}
+
+__global__
+void fill_positions_from_detids(const hgcal_conditions::HeterogeneousHEFConditionsESProduct* conds)
+{
+  unsigned int tid = blockDim.x * blockIdx.x + threadIdx.x;
+
+  for (unsigned int i = tid; i < conds->nelems_posmap; i += blockDim.x * gridDim.x)
+    {
+      HeterogeneousHGCSiliconDetId did(conds->posmap.detid[tid]);
+      uint32_t cU = did.cellU();
+      uint32_t cV = did.cellV();
+      uint32_t wU = did.waferU();
+      uint32_t wV = did.waferV();
+      conds->posmap.x[tid] = 1.1;
+      conds->posmap.y[tid] = 1.2;
+      conds->posmap.z[tid] = 1.3;
+    }
+  
+}
+
+__global__
+void print_positions_from_detids(const hgcal_conditions::HeterogeneousHEFConditionsESProduct* conds)
+{
+  unsigned int tid = blockDim.x * blockIdx.x + threadIdx.x;
+
+  for (unsigned int i = tid; i < conds->nelems_posmap; i += blockDim.x * gridDim.x)
+    {
+      printf("PosX: %lf - PosY: %lf - Posz: %lf\n", conds->posmap.x[tid], conds->posmap.y[tid], conds->posmap.z[tid]);
+    }
+  
 }
