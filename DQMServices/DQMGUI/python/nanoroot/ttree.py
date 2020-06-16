@@ -137,12 +137,10 @@ class TTreeFile:
         # This pattern depends on wether it is a "big" (>2GB) or "small" file.
         # It relies on the fact that there is a pointer back to key 100 (b'd', TFile.first())
         # behind each entry.
-        if tfile.fields.fVersion >= 1000000:
-            Int = Int64
-            dirrx = re.compile(b"(\x00\x00\x00.....)\x00\x00\x00\x00\x00\x00\x00d", flags=re.DOTALL)
-        else:
-            Int = Int32
-            dirrx = re.compile(b"(....)\x00\x00\x00d", flags=re.DOTALL)
+        # It should be possible to tell which format is used by the TFile version number,
+        # but that seems to not always work. So we just use both pattern on every file.
+        dirrx_32 = re.compile(b"(\x00\x00\x00.....)\x00\x00\x00\x00\x00\x00\x00d", flags=re.DOTALL)
+        dirrx_64 = re.compile(b"(....)\x00\x00\x00d", flags=re.DOTALL)
 
         # First locate the / dir, which is usually at the end of the file, but
         # there is a reference to it in the first TKey.
@@ -165,8 +163,11 @@ class TTreeFile:
 
         # then, list the contents of that dir
         trees = dict()
-        for x in dirrx.findall(buf):
-            key, = Int.unpack(x)
+        for x in dirrx_32.findall(buf) + dirrx_64.findall(buf):
+            if len(x) == 4:
+                key, = Int32.unpack(x)
+            else:
+                key, = Int64.unpack(x)
             try:
                 tkey = await TKey().load(tfile.buf, key)
             except:

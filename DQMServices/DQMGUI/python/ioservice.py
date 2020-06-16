@@ -146,6 +146,10 @@ class BlockCachedFile:
             return (await self[idx:idx+1])[0]
 
 
+    def __repr__(self):
+        return f"BlockCachedFile(url={repr(self.url)})"
+
+
 class FullFile:
     """This type of file handle loads and keeps a full copy of the file content, bypassing the cache."""
 
@@ -166,3 +170,7 @@ class FullFile:
 
     async def __getitem__(self, idx):
         return self.buf[idx]
+
+
+    def __repr__(self):
+        return f"FullFile(url={repr(self.url)})"
