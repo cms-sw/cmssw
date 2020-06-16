@@ -35,10 +35,10 @@ namespace edm {
       : frozen_(false),
         productProduced_(),
         anyProductProduced_(false),
-        productLookups_{{new ProductResolverIndexHelper,
-                         new ProductResolverIndexHelper,
-                         new ProductResolverIndexHelper,
-                         new ProductResolverIndexHelper}},
+        productLookups_{{std::make_unique<ProductResolverIndexHelper>(),
+                         std::make_unique<ProductResolverIndexHelper>(),
+                         std::make_unique<ProductResolverIndexHelper>(),
+                         std::make_unique<ProductResolverIndexHelper>()}},
         nextIndexValues_(),
         branchIDToIndex_() {
     for (bool& isProduced : productProduced_)
@@ -52,8 +52,8 @@ namespace edm {
     anyProductProduced_ = false;
 
     // propagate_const<T> has no reset() function
-    for (int i = InEvent; i < NumBranchTypes; ++i) {
-      productLookups_[i] = std::make_unique<ProductResolverIndexHelper>();
+    for (auto& iterProductLookup : productLookups_) {
+      iterProductLookup = std::make_unique<ProductResolverIndexHelper>();
     }
     nextIndexValues_.fill(0);
 
@@ -438,14 +438,14 @@ namespace edm {
       throwMissingDictionariesException(missingDictionaries, context, producedTypes, branchNamesForMissing);
     }
 
-    productLookup(InEvent)->setFrozen();
-    productLookup(InLumi)->setFrozen();
-    productLookup(InRun)->setFrozen();
-    productLookup(InProcess)->setFrozen();
+    for (auto& iterProductLookup : transient_.productLookups_) {
+      iterProductLookup->setFrozen();
+    }
 
-    for (unsigned int i = InEvent; i < NumBranchTypes; ++i) {
-      BranchType branchType = static_cast<BranchType>(i);
-      transient_.nextIndexValues_[branchType] = productLookup(branchType)->nextIndexValue();
+    unsigned int indexIntoNextIndexValue = 0;
+    for (auto const& iterProductLookup : transient_.productLookups_) {
+      transient_.nextIndexValues_[indexIntoNextIndexValue] = iterProductLookup->nextIndexValue();
+      ++indexIntoNextIndexValue;
     }
 
     for (auto const& product : productList_) {
