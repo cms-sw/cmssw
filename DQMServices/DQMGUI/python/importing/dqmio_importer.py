@@ -66,7 +66,8 @@ class DQMIOImporter:
                 return MEInfo(metype, value=value)
             else:
                 # value is IndexRange
-                return MEInfo(metype, value.fSeekKey, value.start, value.end - value.start)
+                start, end, fSeekKey = value
+                return MEInfo(metype, fSeekKey, start, end - start)
 
         # TODO: figure out proper caching: maybe it is not ideal to put all this
         # data into the main page cache. It is perfectly feasible to use an 

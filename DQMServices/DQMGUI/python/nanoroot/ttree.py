@@ -97,7 +97,7 @@ class TType:
             # return object here, so we can later have pointers pointing *into* the basket.
             # To make that possible, API needs to diverge from Struct.unpack...
             # The basket also passes itself in so we can keep whatever info we need.
-            return TType.IndexRange(start, end, basket.fSeekKey)
+            return (start, end, basket.fSeekKey)
 
     class ObjectBlob:
         size = None
@@ -421,21 +421,27 @@ class TBasket:
         self.fEntryOffset = [i*self.ttype.size for i in range(len(self.buf)//self.ttype.size + 1)]
         
     def __initvariable(self):
-        Int32 = struct.Struct(">i")
         # this case is more complicated: there is a data structure at the end
         # of the buffer that encodes where the objects start and end, but
         # decoding that without the help of the TBranch metadata is complicated.
         assert self.buf[-4:] == b'\x00\x00\x00\x00'
-        pos = len(self.buf) - 8
+        pos = -2
         prev = len(self.buf) # just so the sanity check works
         fEntryOffset = []
+        # assume no more than that many entries per basket.
+        # This number is from observation, it might need to be increased.
+        # Unpacking all the ints at once is much faster than calling unpack over
+        # and over, even if we rarely need all of them.
+        maxlen = min(len(self.buf)//4, 2**15) 
+        Int32 = struct.Struct(">i")
+        ints = struct.unpack_from(f">{maxlen}i", self.buf, offset = len(self.buf) - 4 * maxlen)
         while True:
-            entryoffset, = Int32.unpack(self.buf[pos:pos+4])
+            entryoffset = ints[pos]
             # First object should start at fKeyLen, and the last word is the length
             if  fEntryOffset and fEntryOffset[-1] == self.fKeyLen and entryoffset-1 == len(fEntryOffset):
                 break
             fEntryOffset.append(entryoffset)
-            pos -= 4
+            pos -= 1
             # sanity check
             assert entryoffset <= prev, f"objects should have ascending offsets ({entryoffset} < {prev})"
             prev = entryoffset
@@ -444,7 +450,8 @@ class TBasket:
         # into the buffer.
         self.fEntryOffset = [x - self.fKeyLen for x in reversed(fEntryOffset)]
         # We always keep one offset more, so we know the length of the last element.
-        self.fEntryOffset.append(pos)
+        # The fEntryOffset suffix is the array data plus the length plus the 0 at the end.
+        self.fEntryOffset.append(len(self.buf) - 4*len(fEntryOffset) - 8) 
 
     def __len__(self):
         # fEntryOffset[-1] is the end of the last entry
