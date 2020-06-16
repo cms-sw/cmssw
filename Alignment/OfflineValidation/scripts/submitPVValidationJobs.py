@@ -63,7 +63,7 @@ def write_HTCondor_submit_file(path, name, nruns, proxy_path=None):
         
     job_submit_template="""\
 universe              = vanilla
-requirements          = (OpSysAndVer =?= "SLCern6")
+requirements          = (OpSysAndVer =?= "CentOS7")
 executable            = {script:s}
 output                = {jobm:s}/{out:s}.out
 error                 = {jobm:s}/{out:s}.err
