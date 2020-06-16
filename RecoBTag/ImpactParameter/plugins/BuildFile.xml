@@ -12,7 +12,6 @@
 <use name="RecoVertex/GhostTrackFitter"/>
 <use name="RecoBTau/JetTagComputer"/>
 <use name="RecoBTag/TrackProbability"/>
-<use name="boost"/>
 <library file="*.cc" name="RecoBTagImpactParameterPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
