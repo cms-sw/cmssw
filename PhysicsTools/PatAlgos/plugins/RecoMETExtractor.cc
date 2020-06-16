@@ -15,20 +15,34 @@ RecoMETExtractor::RecoMETExtractor(const edm::ParameterSet& iConfig) {
   std::string corLevel = iConfig.getParameter<std::string>("correctionLevel");
 
   //all possible met flavors
-  if(corLevel=="raw")           { corLevel_=pat::MET::Raw;}
-  else if(corLevel=="type1")         { corLevel_=pat::MET::Type1;}
-  else if(corLevel=="type01")        { corLevel_=pat::MET::Type01;}
-  else if(corLevel=="typeXY")        { corLevel_=pat::MET::TypeXY;}
-  else if(corLevel=="type1XY")       { corLevel_=pat::MET::Type1XY;}
-  else if(corLevel=="type01XY")      { corLevel_=pat::MET::Type01XY;}
-  else if(corLevel=="type1Smear")    { corLevel_=pat::MET::Type1Smear;}
-  else if(corLevel=="type01Smear")   { corLevel_=pat::MET::Type01Smear;}
-  else if(corLevel=="type1SmearXY")  { corLevel_=pat::MET::Type1SmearXY;}
-  else if(corLevel=="type01SmearXY") { corLevel_=pat::MET::Type01SmearXY;}
-  else if(corLevel=="rawCalo")       { corLevel_=pat::MET::RawCalo;}
-  else {
+  if (corLevel == "raw") {
+    corLevel_ = pat::MET::Raw;
+  } else if (corLevel == "type1") {
+    corLevel_ = pat::MET::Type1;
+  } else if (corLevel == "type01") {
+    corLevel_ = pat::MET::Type01;
+  } else if (corLevel == "typeXY") {
+    corLevel_ = pat::MET::TypeXY;
+  } else if (corLevel == "type1XY") {
+    corLevel_ = pat::MET::Type1XY;
+  } else if (corLevel == "type01XY") {
+    corLevel_ = pat::MET::Type01XY;
+  } else if (corLevel == "type1Smear") {
+    corLevel_ = pat::MET::Type1Smear;
+  } else if (corLevel == "type01Smear") {
+    corLevel_ = pat::MET::Type01Smear;
+  } else if (corLevel == "type1SmearXY") {
+    corLevel_ = pat::MET::Type1SmearXY;
+  } else if (corLevel == "type01SmearXY") {
+    corLevel_ = pat::MET::Type01SmearXY;
+  } else if (corLevel == "rawCalo") {
+    corLevel_ = pat::MET::RawCalo;
+  } else if(corLevel=="rawDeepResponseTune") {
+    corLevel_=pat::MET::RawDeepResponseTune;
+  } else if(corLevel=="rawDeepResolutionTune") {
+    corLevel_=pat::MET::RawDeepResolutionTune;
+  } else {
     //throw exception
-
   }
 
   // produces vector of recoMet
