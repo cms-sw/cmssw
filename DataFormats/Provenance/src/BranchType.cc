@@ -1,6 +1,7 @@
 #include "DataFormats/Provenance/interface/BranchType.h"
-#include "FWCore/Utilities/interface/EDMException.h"
+
 #include <array>
+#include <cassert>
 #include <cstddef>
 #include <iostream>
 
@@ -89,71 +90,46 @@ namespace edm {
   std::string const& BranchTypeToString(BranchType const& branchType) { return branchTypeNames[branchType]; }
 
   std::string const& BranchTypeToProductTreeName(BranchType const& branchType) {
-    if (branchType >= InProcess) {
-      throw Exception(errors::LogicError,
-                      "branchType argument out of legal range for the function BranchTypeToProductTreeName");
-    }
+    assert(branchType < eventLumiRunSize);
     return treeNames[branchType];
   }
 
   std::string const& BranchTypeToMetaDataTreeName(BranchType const& branchType) {
-    if (branchType >= InProcess) {
-      throw Exception(errors::LogicError,
-                      "branchType argument out of legal range for the function BranchTypeToMetaDataTreeName");
-    }
+    assert(branchType < eventLumiRunSize);
     return metaTreeNames[branchType];
   }
 
   // backward compatibility
   std::string const& BranchTypeToInfoTreeName(BranchType const& branchType) {
-    if (branchType >= InProcess) {
-      throw Exception(errors::LogicError,
-                      "branchType argument out of legal range for the function BranchTypeToInfoTreeName");
-    }
+    assert(branchType < eventLumiRunSize);
     return infoNames[branchType];
   }
 
   std::string const& BranchTypeToAuxiliaryBranchName(BranchType const& branchType) {
-    if (branchType >= InProcess) {
-      throw Exception(errors::LogicError,
-                      "branchType argument out of legal range for the function BranchTypeToAuxiliaryBranchName");
-    }
+    assert(branchType < eventLumiRunSize);
     return auxiliaryNames[branchType];
   }
 
   // backward compatibility
   std::string const& BranchTypeToAuxBranchName(BranchType const& branchType) {
-    if (branchType >= InProcess) {
-      throw Exception(errors::LogicError,
-                      "branchType argument out of legal range for the function BranchTypeToAuxBranchName");
-    }
+    assert(branchType < eventLumiRunSize);
     return auxNames[branchType];
   }
 
   // backward compatibility
   std::string const& BranchTypeToProductStatusBranchName(BranchType const& branchType) {
-    if (branchType >= InProcess) {
-      throw Exception(errors::LogicError,
-                      "branchType argument out of legal range for the function BranchTypeToProductStatusBranchName");
-    }
+    assert(branchType < eventLumiRunSize);
     return productStatusNames[branchType];
   }
 
   // backward compatibility
   std::string const& BranchTypeToBranchEntryInfoBranchName(BranchType const& branchType) {
-    if (branchType >= InProcess) {
-      throw Exception(errors::LogicError,
-                      "branchType argument out of legal range for the function BranchTypeToBranchEntryInfoBranchName");
-    }
+    assert(branchType < eventLumiRunSize);
     return eventEntryInfoNames[branchType];
   }
 
   std::string const& BranchTypeToProductProvenanceBranchName(BranchType const& branchType) {
-    if (branchType >= InProcess) {
-      throw Exception(
-          errors::LogicError,
-          "branchType argument out of legal range for the function BranchTypeToProductProvenanceBranchName");
-    }
+    assert(branchType < eventLumiRunSize);
     return productProvenanceNames[branchType];
   }
 
