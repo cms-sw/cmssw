@@ -14,7 +14,6 @@
  * collection.
  *
  */
-#include <boost/foreach.hpp>
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
