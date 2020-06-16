@@ -12,14 +12,12 @@
 
 using namespace std;
 
-long long oneSecond = 4294967296;  // which is 2^32
-
 EcalLaserDbService::EcalLaserDbService()
     : mAlphas_(nullptr),
       mAPDPNRatiosRef_(nullptr),
       mAPDPNRatios_(nullptr),
       mLinearCorrections_(nullptr),
-      deltaT_safety_(0) {}
+      maxExtrapolationTime_(0) {}
 
 const EcalLaserAlphas* EcalLaserDbService::getAlphas() const { return mAlphas_; }
 
@@ -170,7 +168,6 @@ float EcalLaserDbService::getLaserCorrection(DetId const& xid, edm::Timestamp co
   // interpolation
 
   edm::TimeValue_t t = iTime.value();
-  long long t_laser = t;
   long long t_i = 0, t_f = 0;
   float p_i = 0, p_f = 0;
   long long lt_i = 0, lt_f = 0;
@@ -199,8 +196,9 @@ float EcalLaserDbService::getLaserCorrection(DetId const& xid, edm::Timestamp co
     p_f = apdpnpair.p3;
   }
 
-  if (t > timestamp.t3.value() + (deltaT_safety_ * oneSecond))
-    t_laser = ((long long)timestamp.t3.value()) + deltaT_safety_ * oneSecond;
+  long long t_laser = t;
+  if (t > timestamp.t3.value() + maxExtrapolationTime_)
+    t_laser = ((long long)timestamp.t3.value()) + maxExtrapolationTime_;
 
   if (t >= linTimes.t1.value() && t < linTimes.t2.value()) {
     lt_i = linTimes.t1.value();

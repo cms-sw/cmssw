@@ -37,14 +37,14 @@ public:
   void setAPDPNData(const EcalLaserAPDPNRatios* fItem) { mAPDPNRatios_ = fItem; }
   void setLinearCorrectionsData(const EcalLinearCorrections* fItem) { mLinearCorrections_ = fItem; }
 
-  void setDeltaTSafety(int deltaT_safety) { deltaT_safety_ = deltaT_safety; }
+  void setMaxExtrapolationTimeInSec(int deltaT) { maxExtrapolationTime_ = ((unsigned long long)deltaT) << 32; }
 
 private:
   const EcalLaserAlphas* mAlphas_;
   const EcalLaserAPDPNRatiosRef* mAPDPNRatiosRef_;
   const EcalLaserAPDPNRatios* mAPDPNRatios_;
   const EcalLinearCorrections* mLinearCorrections_;
-  int deltaT_safety_;
+  unsigned long long maxExtrapolationTime_;
 
   typedef tbb::concurrent_unordered_set<uint32_t> ErrorMapT;
   mutable ErrorMapT channelsWithInvalidCorrection_;

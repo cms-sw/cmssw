@@ -1,7 +1,6 @@
 //
 // Toyoko Orimoto (Caltech), 10 July 2007
 // Andrea Massironi, 3 Aug 2019
-// Fabrice Couderc, 16 March 2020 (add protection for extrapolation if t > t3 + delta t : t = t3 + delta t
 //
 
 // system include files
@@ -44,8 +43,6 @@ private:
   edm::ESGetToken<EcalLaserAPDPNRatiosRef, EcalLaserAPDPNRatiosRefRcd> apdpnRefToken_;
   edm::ESGetToken<EcalLaserAPDPNRatios, EcalLaserAPDPNRatiosMCRcd> apdpnToken_;
   edm::ESGetToken<EcalLinearCorrections, EcalLinearCorrectionsRcd> linearToken_;
-
-  int deltat_safety_;
 };
 
 EcalLaserCorrectionServiceMC::EcalLaserCorrectionServiceMC(const edm::ParameterSet& fConfig) : ESProducer() {
@@ -59,8 +56,6 @@ EcalLaserCorrectionServiceMC::EcalLaserCorrectionServiceMC(const edm::ParameterS
       .setConsumes(apdpnToken_)
       .setConsumes(linearToken_);
 
-  deltat_safety_ = fConfig.getUntrackedParameter<int>("deltat_safety", 0);
-
   //now do what ever other initialization is needed
 }
 
@@ -73,8 +68,6 @@ EcalLaserCorrectionServiceMC::~EcalLaserCorrectionServiceMC() {}
 // ------------ method called to produce the data  ------------
 std::shared_ptr<EcalLaserDbService> EcalLaserCorrectionServiceMC::produce(const EcalLaserDbRecordMC& record) {
   auto host = holder_.makeOrGet([]() { return new HostType; });
-
-  host.get()->setDeltaTSafety(deltat_safety_);
 
   host->ifRecordChanges<EcalLinearCorrectionsRcd>(
       record, [this, h = host.get()](auto const& rec) { h->setLinearCorrectionsData(&rec.get(linearToken_)); });
