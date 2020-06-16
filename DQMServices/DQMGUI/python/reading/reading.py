@@ -2,6 +2,7 @@
 from data_types import FileFormat
 from reading.dqmclassic_reader import DQMCLASSICReader
 from reading.dqmio_reader import DQMIOReader
+from reading.protobuf_reader import ProtobufReader
 
 
 class GUIMEReader:
@@ -27,4 +28,6 @@ class GUIMEReader:
             return DQMCLASSICReader()
         elif file_format == FileFormat.DQMIO:
             return DQMIOReader()
+        elif file_format == FileFormat.PROTOBUF:
+            return ProtobufReader()
         return None

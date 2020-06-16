@@ -4,6 +4,7 @@ from compressing import GUIBlobCompressor
 from data_types import FileFormat, SampleFull
 from importing.dqmclassic_importer import DQMCLASSICImporter
 from importing.dqmio_importer import DQMIOImporter
+from importing.protobuf_importer import ProtobufImporter
 
 
 class GUIImportManager:
@@ -104,4 +105,6 @@ class GUIImportManager:
             return DQMCLASSICImporter()
         elif file_format == FileFormat.DQMIO:
             return DQMIOImporter()
+        elif file_format == FileFormat.PROTOBUF:
+            return ProtobufImporter()
         return None

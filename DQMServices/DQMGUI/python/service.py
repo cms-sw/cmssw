@@ -178,6 +178,9 @@ class GUIService:
     async def register_samples(cls, samples):
         """Register a sample in DB. Samples array if of type SamplesFull."""
 
+        # TODO: validate samples:
+        # 1. Check if file format is one of the supported values
+        # 2. Check if file and dataset are not empty
         await cls.import_manager.register_samples(samples)
 
 

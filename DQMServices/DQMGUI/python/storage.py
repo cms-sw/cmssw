@@ -18,7 +18,7 @@ class GUIDataStore:
     BEGIN;
     CREATE TABLE IF NOT EXISTS samples(dataset, run, lumi, filename, fileformat, menamesid, meinfosid);
     CREATE INDEX IF NOT EXISTS samplelookup ON samples(dataset, run, lumi);
-    CREATE UNIQUE INDEX IF NOT EXISTS uniquesamples on samples(dataset, run, lumi, filename, fileformat);
+    CREATE UNIQUE INDEX IF NOT EXISTS uniquesamples on samples(dataset, run, lumi);
     CREATE TABLE IF NOT EXISTS menames(menamesid INTEGER PRIMARY KEY, menameblob);
     CREATE UNIQUE INDEX IF NOT EXISTS menamesdedup ON menames(menameblob);
     CREATE TABLE IF NOT EXISTS meinfos(meinfosid INTEGER PRIMARY KEY, meinfosblob);
