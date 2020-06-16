@@ -410,10 +410,7 @@ reco::TrackRefVector JetPlusTrackProducerAA::calculateBGtracksJet(
       //  <<" jetE="<<jet->energy()<<" jetEta="<<jetEta<<" jetPhi="<<jetPhi<<std::endl;
 
       if (fabs(jetEta - trackEta) < mConeSize) {
-        double dphiTrackJet = fabs(trackPhi - jetPhi);
-        if (dphiTrackJet > M_PI)
-          dphiTrackJet = 2 * M_PI - dphiTrackJet;
-
+        double dphiTrackJet = deltaPhi(trackPhi, jetPhi);
         if (dphiTrackJet < mConeSize) {
           track_bg = 1;
           //    std::cout<<"===>>>> Track inside jet at vertex, track_bg="<< track_bg <<" track="<<t<<" jet="<<j
