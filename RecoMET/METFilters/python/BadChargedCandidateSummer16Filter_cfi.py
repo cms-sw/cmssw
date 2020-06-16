@@ -11,6 +11,7 @@ BadChargedCandidateSummer16Filter = cms.EDFilter(
     # computed as (pfcand.pt - muon.track.pt)/(0.5*(pfcand.pt + muon.track.pt))
     innerTrackRelErr = cms.double(0.5),          # minimum ptError/pt on muon innertrack 
     minMuonTrackRelErr = cms.double(2.0),          # minimum ptError/pt on muon best track
+    minDzBestTrack = cms.double(-1.0),
     minMuonPt     = cms.double(100),               # minimum muon pt 
     segmentCompatibility = cms.double(0.3),        # compatibility between the inner track and the segments in the muon spectrometer
     )
