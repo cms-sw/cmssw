@@ -36,8 +36,11 @@ using namespace XrdAdaptor;
 // inactive anyway!) can even timeout.  Rather than wait around for
 // a few minutes in the main thread, this class asynchronously closes
 // and deletes the XrdCl::File
-class DelayedClose : boost::noncopyable, public XrdCl::ResponseHandler {
+class DelayedClose : public XrdCl::ResponseHandler {
 public:
+  DelayedClose(const DelayedClose &) = delete;
+  DelayedClose &operator=(const DelayedClose &) = delete;
+
   DelayedClose(std::shared_ptr<XrdCl::File> fh, const std::string &id, const std::string &site)
       : m_fh(std::move(fh)), m_id(id), m_site(site) {
     if (m_fh && m_fh->IsOpen()) {
