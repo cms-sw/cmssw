@@ -24,36 +24,33 @@ namespace edm {
     std::size_t constexpr eventLumiRunSize = 3;
     using NameArray = const std::array<std::string, eventLumiRunSize>;
 
-    NameArray treeNames{{branchTypeNames[InEvent] + 's', branchTypeNames[InLumi] + 's', branchTypeNames[InRun] + 's'}};
+    NameArray makeNameArray(std::string const& postfix) {
+      static_assert(InEvent == 0);
+      static_assert(InLumi == 1);
+      static_assert(InRun == 2);
+      return NameArray{
+          {branchTypeNames[InEvent] + postfix, branchTypeNames[InLumi] + postfix, branchTypeNames[InRun] + postfix}};
+    }
 
-    NameArray metaTreeNames{
-        {branchTypeNames[InEvent] + metaData, branchTypeNames[InLumi] + metaData, branchTypeNames[InRun] + metaData}};
+    NameArray treeNames{makeNameArray(std::string("s"))};
 
-    // backward compatibility
-    NameArray infoNames{{branchTypeNames[InEvent] + "StatusInformation",
-                         branchTypeNames[InLumi] + "StatusInformation",
-                         branchTypeNames[InRun] + "StatusInformation"}};
-
-    NameArray auxiliaryNames{{branchTypeNames[InEvent] + auxiliary,
-                              branchTypeNames[InLumi] + auxiliary,
-                              branchTypeNames[InRun] + auxiliary}};
+    NameArray metaTreeNames{makeNameArray(metaData)};
 
     // backward compatibility
-    NameArray productStatusNames{{branchTypeNames[InEvent] + productStatus,
-                                  branchTypeNames[InLumi] + productStatus,
-                                  branchTypeNames[InRun] + productStatus}};
+    NameArray infoNames{makeNameArray(std::string("StatusInformation"))};
+
+    NameArray auxiliaryNames{makeNameArray(auxiliary)};
 
     // backward compatibility
-    NameArray eventEntryInfoNames{{branchTypeNames[InEvent] + branchEntryInfo,
-                                   branchTypeNames[InLumi] + branchEntryInfo,
-                                   branchTypeNames[InRun] + branchEntryInfo}};
-
-    NameArray productProvenanceNames{{branchTypeNames[InEvent] + productProvenance,
-                                      branchTypeNames[InLumi] + productProvenance,
-                                      branchTypeNames[InRun] + productProvenance}};
+    NameArray productStatusNames{makeNameArray(productStatus)};
 
     // backward compatibility
-    NameArray auxNames{{branchTypeNames[InEvent] + aux, branchTypeNames[InLumi] + aux, branchTypeNames[InRun] + aux}};
+    NameArray eventEntryInfoNames{makeNameArray(branchEntryInfo)};
+
+    NameArray productProvenanceNames{makeNameArray(productProvenance)};
+
+    // backward compatibility
+    NameArray auxNames{makeNameArray(aux)};
 
     std::string const entryDescriptionTree = "EntryDescription";
     std::string const entryDescriptionIDBranch = "Hash";
