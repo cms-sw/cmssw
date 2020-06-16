@@ -9,13 +9,13 @@ from collections import defaultdict
 
 from async_lru import alru_cache
 
-from rendering import GUIRenderer
-from storage import GUIDataStore
-from importing.importing import GUIImportManager
-from helpers import PathUtil, get_api_error, binary_search
-from data_types import Sample, RootDir, RootObj, RootDirContent, RenderingInfo
+from .storage import GUIDataStore
+from .helpers import PathUtil, get_api_error, binary_search
+from .rendering import GUIRenderer
+from .importing.importing import GUIImportManager
+from .data_types import Sample, RootDir, RootObj, RootDirContent, RenderingInfo
 
-from layouts.layout_manager import LayoutManager
+from .layouts.layout_manager import LayoutManager
 
 
 class GUIService:

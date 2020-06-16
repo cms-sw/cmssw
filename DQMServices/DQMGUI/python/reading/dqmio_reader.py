@@ -1,10 +1,12 @@
 import asyncio
+
 from async_lru import alru_cache
-from nanoroot.tfile import TKey
-from nanoroot.tbufferfile import TBufferFile
-from nanoroot.ttree import TType
-from data_types import ScalarValue
-from ioservice import IOService
+
+from ..ioservice import IOService
+from ..data_types import ScalarValue
+from ..nanoroot.tfile import TKey
+from ..nanoroot.ttree import TType
+from ..nanoroot.tbufferfile import TBufferFile
 
 
 class DQMIOReader:

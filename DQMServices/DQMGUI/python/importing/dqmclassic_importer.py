@@ -1,10 +1,11 @@
 import re
 import mmap
 import asyncio
-from nanoroot.tfile import TFile
-from ioservice import IOService
-from reading.reading import DQMCLASSICReader
-from data_types import MEInfo, ScalarValue, EfficiencyFlag, QTest
+
+from ..ioservice import IOService
+from ..data_types import MEInfo, ScalarValue, EfficiencyFlag, QTest
+from ..nanoroot.tfile import TFile
+from ..reading.reading import DQMCLASSICReader
 
 
 class DQMCLASSICImporter:

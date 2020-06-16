@@ -1,7 +1,7 @@
 import zlib
 import struct
 import asyncio
-from data_types import MEInfo
+from .data_types import MEInfo
 
 
 class GUIBlobCompressor():

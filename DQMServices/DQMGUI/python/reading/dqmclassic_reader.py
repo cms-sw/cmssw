@@ -1,8 +1,9 @@
 import asyncio
-from nanoroot.tfile import TKey
-from nanoroot.tbufferfile import TBufferFile
-from data_types import ScalarValue, EfficiencyFlag, QTest
-from ioservice import IOService
+
+from ..ioservice import IOService
+from ..data_types import ScalarValue, EfficiencyFlag, QTest
+from ..nanoroot.tfile import TKey
+from ..nanoroot.tbufferfile import TBufferFile
 
 
 class DQMCLASSICReader:

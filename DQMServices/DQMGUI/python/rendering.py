@@ -8,10 +8,10 @@ import asyncio
 import tempfile
 import subprocess
 
-from nanoroot.tbufferfile import TBufferFile
-from helpers import get_base_release_dir
-from reading.reading import GUIMEReader
-from data_types import RenderingInfo, EfficiencyFlag, ScalarValue, QTest, RenderingOptions, FileFormat
+from .helpers import get_base_release_dir
+from .data_types import RenderingInfo, EfficiencyFlag, ScalarValue, QTest, RenderingOptions, FileFormat
+from .reading.reading import GUIMEReader
+from .nanoroot.tbufferfile import TBufferFile
 
 
 class GUIRenderer:

@@ -1,10 +1,12 @@
 import asyncio
+
 from collections import defaultdict
-from ioservice import IOService
-from compressing import GUIBlobCompressor
-from data_types import MEInfo, ScalarValue
-from nanoroot.tfile import TFile
-from nanoroot.ttree import TTreeFile, TType
+
+from ..ioservice import IOService
+from ..data_types import MEInfo, ScalarValue
+from ..compressing import GUIBlobCompressor
+from ..nanoroot.tfile import TFile
+from ..nanoroot.ttree import TTreeFile, TType
 
 
 class DQMIOImporter:

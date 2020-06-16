@@ -1,6 +1,8 @@
 import asyncio
 from async_lru import alru_cache
-from nanoroot.io import XRDFile
+from .nanoroot.io import XRDFile
+
+import timeit
 
 
 class IOService:

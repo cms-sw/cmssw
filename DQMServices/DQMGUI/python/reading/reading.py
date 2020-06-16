@@ -1,8 +1,8 @@
+from ..data_types import FileFormat
 
-from data_types import FileFormat
-from reading.dqmclassic_reader import DQMCLASSICReader
-from reading.dqmio_reader import DQMIOReader
-from reading.protobuf_reader import ProtobufReader
+from .dqmio_reader import DQMIOReader
+from .dqmclassic_reader import DQMCLASSICReader
+from .protobuf_reader import ProtobufReader
 
 
 class GUIMEReader:

@@ -1,10 +1,12 @@
 import glob
-from storage import GUIDataStore
-from compressing import GUIBlobCompressor
-from data_types import FileFormat, SampleFull
-from importing.dqmclassic_importer import DQMCLASSICImporter
-from importing.dqmio_importer import DQMIOImporter
-from importing.protobuf_importer import ProtobufImporter
+
+from ..storage import GUIDataStore
+from ..data_types import FileFormat, SampleFull
+from ..compressing import GUIBlobCompressor
+
+from .dqmio_importer import DQMIOImporter
+from .dqmclassic_importer import DQMCLASSICImporter
+from .protobuf_importer import ProtobufImporter
 
 
 class GUIImportManager:

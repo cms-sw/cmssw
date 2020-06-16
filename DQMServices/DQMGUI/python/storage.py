@@ -8,8 +8,8 @@ import tempfile
 import aiosqlite
 import subprocess
 
-from compressing import GUIBlobCompressor
-from helpers import get_absolute_path
+from .helpers import get_absolute_path
+from .compressing import GUIBlobCompressor
 
 
 class GUIDataStore:
