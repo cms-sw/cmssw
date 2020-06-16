@@ -42,6 +42,12 @@ public:
   MonitorElement *Stub_Eta = nullptr;  // TTstub eta distribution
   MonitorElement *Stub_Phi = nullptr;  // TTstub phi distribution
   MonitorElement *Stub_R = nullptr;    // TTstub r distribution
+  MonitorElement *Stub_bendFE = nullptr;    // TTstub trigger bend
+  MonitorElement *Stub_bendBE = nullptr;    // TTstub hardware bend
+  MonitorElement *Stub_rawBend = nullptr;    // TTstub raw bend
+  MonitorElement *Stub_bendOffset = nullptr;    // TTstub bend offset
+  MonitorElement *Stub_isPS = nullptr;    // is this stub a PS module?
+
 
   // STUB Displacement - offset
   MonitorElement *Stub_Barrel_W = nullptr;       // TTstub Pos-Corr Displacement (layer)
