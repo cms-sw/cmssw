@@ -21,6 +21,17 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('sumEt', 'sumEt', 20, 600, 5000, 'raw chs PF scalar sum of Et'),
             )
         ),
+        CorrT1METJet = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Count1D('_size', 20, -0.5, 19.5, 'Additional low-pt jets for Type-1 MET re-correction'),
+                Plot1D('area', 'area', 20, 0.2, 0.8, 'jet catchment area, for JECs'),
+                Plot1D('eta', 'eta', 20, -5, 5, 'eta'),
+                Plot1D('muonSubtrFactor', 'muonSubtrFactor', 20, 0, 1, '1-(muon-subtracted raw pt)/(raw pt)'),
+                Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
+                Plot1D('rawPt', 'rawPt', 20, 5, 25, "pt()*jecFactor('Uncorrected')"),
+            )
+        ),
         DeepMETResolutionTune = cms.PSet(
             sels = cms.PSet(),
             plots = cms.VPSet(
@@ -33,17 +44,6 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
             plots = cms.VPSet(
                 Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'Deep MET Response Tune phi'),
                 Plot1D('pt', 'pt', 20, 0, 400, 'Deep MET Response Tune pt'),
-            )
-        ),
-        CorrT1METJet = cms.PSet(
-            sels = cms.PSet(),
-            plots = cms.VPSet(
-                Count1D('_size', 20, -0.5, 19.5, 'Additional low-pt jets for Type-1 MET re-correction'),
-                Plot1D('area', 'area', 20, 0.2, 0.8, 'jet catchment area, for JECs'),
-                Plot1D('eta', 'eta', 20, -5, 5, 'eta'),
-                Plot1D('muonSubtrFactor', 'muonSubtrFactor', 20, 0, 1, '1-(muon-subtracted raw pt)/(raw pt)'),
-                Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
-                Plot1D('rawPt', 'rawPt', 20, 5, 25, "pt()*jecFactor('Uncorrected')"),
             )
         ),
         Electron = cms.PSet(
