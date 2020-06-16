@@ -128,14 +128,7 @@ void JetPlusTrackAddonSeedProducer::produce(edm::Event& iEvent, const edm::Event
           } else {
             for (unsigned int i = 0, n = pfCandidates->size(); i < n; ++i) {
               const pat::PackedCandidate& pf = (*pfCandidates)[i];
-              double deta = (*jet).eta() - pf.eta();
-              double dphi = (*jet).phi() - pf.phi();
-
-              if (dphi > 4. * atan(1.))
-                dphi = dphi - 8. * atan(1.);
-              if (dphi < -1. * 4. * atan(1.))
-                dphi = dphi + 8. * atan(1.);
-              double dr = sqrt(dphi * dphi + deta * deta);
+              double dr = deltaR(jet->eta(), jet->phi(), pf.eta(), pf.phi());
               if (dr > dRcone)
                 continue;
               // jetconstit
@@ -161,13 +154,7 @@ void JetPlusTrackAddonSeedProducer::produce(edm::Event& iEvent, const edm::Event
           iEvent.getByToken(input_ctw_token_, ct);
           if (ct.isValid()) {
             for (CaloTowerCollection::const_iterator it = ct->begin(); it != ct->end(); it++) {
-              double deta = (*jet).eta() - (*it).eta();
-              double dphi = (*jet).phi() - (*it).phi();
-              if (dphi > 4. * atan(1.))
-                dphi = dphi - 8. * atan(1.);
-              if (dphi < -1. * 4. * atan(1.))
-                dphi = dphi + 8. * atan(1.);
-              double dr = sqrt(dphi * dphi + deta * deta);
+              double dr = deltaR(jet->eta(), jet->phi(), (*it).eta(), (*it).phi());
               if (dr > dRcone)
                 continue;
               caloen = caloen + (*it).energy();

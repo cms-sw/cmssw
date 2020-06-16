@@ -132,11 +132,7 @@ void JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         if (addjets_h.isValid()) {
           for (unsigned i = 0; i < addjets_h->size(); ++i) {
             const reco::CaloJet* oldjet = &(*(addjets_h->refAt(i)));
-            double deta = fabs(jet->eta() - oldjet->eta());
-            double dphi = fabs(jet->phi() - oldjet->phi());
-            if (dphi > 4. * atan(1.))
-              dphi = 8. * atan(1.) - dphi;
-            double dr = sqrt(dphi * dphi + deta * deta);
+            double dr = reco::deltaR<double>(jet->eta(), jet->phi(), oldjet->eta(), oldjet->phi());
             if (dr <= dRcone) {
               icalo = i;
             }
@@ -159,15 +155,12 @@ void JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
                ++ixtrp) {
             if (ixtrp->positions().empty())
               continue;
-            double mydphi = fabs(ixtrp->track()->phi() - (**itrack).phi());
-            if (mydphi > 4. * atan(1.))
-              mydphi = 8. * atan(1) - mydphi;
+            double mydphi = deltaPhi(ixtrp->track()->phi(),(**itrack).phi());
             if (fabs(ixtrp->track()->pt() - (**itrack).pt()) > 0.001 ||
                 fabs(ixtrp->track()->eta() - (**itrack).eta()) > 0.001 || mydphi > 0.001)
               continue;
             tracksinvert.push_back(ixtrp->track());
             reco::TrackBase::Point const& point = ixtrp->positions().at(0);
-
             double dr = reco::deltaR<double>(jet->eta(), jet->phi(), point.eta(), point.phi());
             if (dr <= dRcone) {
               /*std::cout<<" TrackINcalo "<<std::endl;*/
