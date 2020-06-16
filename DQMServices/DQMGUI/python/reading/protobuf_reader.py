@@ -1,10 +1,10 @@
 import asyncio
-from ioservice import IOService
-from data_types import ScalarValue
+from ..ioservice import IOService
+from ..data_types import ScalarValue
 from io import BytesIO, BufferedReader
-from nanoroot.tbufferfile import TBufferFile
-from reading.reading import DQMCLASSICReader
-from protobuf.protobuf_parser import ProtobufParser
+from ..nanoroot.tbufferfile import TBufferFile
+from ..reading.reading import DQMCLASSICReader
+from ..protobuf.protobuf_parser import ProtobufParser
 
 
 class ProtobufReader:

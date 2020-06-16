@@ -1,7 +1,7 @@
 import asyncio
-from data_types import MEInfo
-from reading.reading import DQMCLASSICReader, ProtobufReader
-from protobuf.protobuf_parser import ProtobufParser
+from ..data_types import MEInfo
+from ..reading.reading import DQMCLASSICReader, ProtobufReader
+from ..protobuf.protobuf_parser import ProtobufParser
 
 
 class ProtobufImporter:

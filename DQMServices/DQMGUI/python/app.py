@@ -103,7 +103,7 @@ async def archive_legacy(request):
 
     result = {'contents': []}
     result['contents'].extend({'subdir': name, 'me_count': me_count} for name, me_count in data.dirs)
-    result['contents'].extend({'obj': name, 'dir': path, 'layout': layout} for name, path, layout in data.objs)
+    result['contents'].extend({'obj': name, 'path': path, 'layout': layout} for name, path, layout in data.objs)
 
     return web.json_response(result)
 

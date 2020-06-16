@@ -1,6 +1,6 @@
 
 import os
-from ioservice import IOService
+from ..ioservice import IOService
 from collections import namedtuple
 from io import BytesIO, BufferedReader
 

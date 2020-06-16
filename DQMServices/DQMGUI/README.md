@@ -326,4 +326,12 @@ cp ../../Core/src/ROOTFilePB.proto protobuf/
 protoc -I=protobuf --python_out=protobuf protobuf/ROOTFilePB.proto
 ```
 
+# TODO
 
+Backend related task list.
+
+* ~~Live mode code~~
+* Protobuf make parser async
+* Live mode integration
+* Cache invalidation in samples
+* 
