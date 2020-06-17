@@ -156,12 +156,13 @@ class GatherAllModulesVisitor(object):
 class CloneSequenceVisitor(object):
     """Visitor that travels within a cms.Sequence, and returns a cloned version of the Sequence.
     All modules and sequences are cloned and a postfix is added"""
-    def __init__(self, process, label, postfix, removePostfix="", noClones = [], addToTask = False):
+    def __init__(self, process, label, postfix, removePostfix="", noClones = [], addToTask = False, verbose = False):
         self._process = process
         self._postfix = postfix
         self._removePostfix = removePostfix
         self._noClones = noClones
         self._addToTask = addToTask
+        self._verbose = verbose
         self._moduleLabels = []
         self._clonedSequence = cms.Sequence()
         setattr(process, self._newLabel(label), self._clonedSequence)
@@ -189,7 +190,7 @@ class CloneSequenceVisitor(object):
 
     def clonedSequence(self):
         for label in self._moduleLabels:
-            massSearchReplaceAnyInputTag(self._clonedSequence, label, self._newLabel(label), moduleLabelOnly=True, verbose=False)
+            massSearchReplaceAnyInputTag(self._clonedSequence, label, self._newLabel(label), moduleLabelOnly=True, verbose=self._verbose)
         self._moduleLabels = [] # prevent the InputTag replacement next time the 'clonedSequence' function is called.
         return self._clonedSequence
 
@@ -254,7 +255,7 @@ def contains(sequence, moduleName):
 
 
 
-def cloneProcessingSnippet(process, sequence, postfix, removePostfix="", noClones = [], addToTask = False):
+def cloneProcessingSnippet(process, sequence, postfix, removePostfix="", noClones = [], addToTask = False, verbose = False):
     """
     ------------------------------------------------------------------
     copy a sequence plus the modules and sequences therein
@@ -264,7 +265,7 @@ def cloneProcessingSnippet(process, sequence, postfix, removePostfix="", noClone
     """
     result = sequence
     if not postfix == "":
-        visitor = CloneSequenceVisitor(process, sequence.label(), postfix, removePostfix, noClones, addToTask)
+        visitor = CloneSequenceVisitor(process, sequence.label(), postfix, removePostfix, noClones, addToTask, verbose)
         sequence.visit(visitor)
         result = visitor.clonedSequence()
     return result
