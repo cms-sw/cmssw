@@ -2,6 +2,7 @@
 #define DQM_OBJECTS_H
 
 #include <string>
+#include <vector>
 #include <cstdint>
 
 class TObject;
@@ -53,13 +54,20 @@ enum VisDQMStripTrend {
   DQM_TREND_Z_NUM_BINS
 };
 
+struct VisDQMObject {
+  uint32_t flags;
+  uint64_t version;
+  std::string dirname;
+  std::string objname;
+  std::string name;
+  TObject *object;
+};
+
 struct VisDQMImgInfo {
   std::string imgspec;
   std::string drawOptions;
-  std::string reflabel1;
-  std::string reflabel2;
-  std::string reflabel3;
-  std::string reflabel4;
+  std::vector<std::string> reflabels;
+  std::vector<VisDQMObject> objects;
   VisDQMReference reference;
   VisDQMStripTrend trend;
   int width;
@@ -72,17 +80,6 @@ struct VisDQMImgInfo {
   VisDQMAxisInfo zaxis;
   std::string refnorm;
   std::string json;
-};
-
-struct VisDQMObject {
-  uint32_t flags;
-  uint64_t version;
-  std::string dirname;
-  std::string objname;
-  uint32_t tag;  // Unused.
-  std::string name;
-  TObject *object;
-  VisDQMImgInfo image;
 };
 
 #endif  // DQM_OBJECTS_H

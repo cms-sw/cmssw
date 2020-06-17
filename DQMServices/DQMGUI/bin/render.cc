@@ -298,17 +298,37 @@ static bool parseImageSpec(VisDQMImgInfo &i, const std::string &spec, const char
 
     // Handle various keywords.
     error = "unexpected image parameter";
-    if (!parseInt(p, "w=", 2, i.width) && !parseInt(p, "h=", 2, i.height) &&
-        !parseReference(p, "ref=", 4, i.reference) && !parseInt(p, "showstats=", 10, i.showstats) &&
-        !parseInt(p, "showerrbars=", 12, i.showerrbars) && !parseDouble(p, "xmin=", 5, i.xaxis.min) &&
-        !parseDouble(p, "xmax=", 5, i.xaxis.max) && !parseAxisType(p, "xtype=", 6, i.xaxis.type) &&
-        !parseDouble(p, "ymin=", 5, i.yaxis.min) && !parseDouble(p, "ymax=", 5, i.yaxis.max) &&
-        !parseAxisType(p, "ytype=", 6, i.yaxis.type) && !parseDouble(p, "zmin=", 5, i.zaxis.min) &&
-        !parseDouble(p, "zmax=", 5, i.zaxis.max) && !parseDouble(p, "ktest=", 6, i.ktest) &&
-        !parseAxisType(p, "ztype=", 6, i.zaxis.type) && !parseOption(p, "drawopts=", 9, i.drawOptions) &&
-        !parseOption(p, "norm=", 5, i.refnorm) && !parseOption(p, "reflabel1=", 10, i.reflabel1) &&
-        !parseOption(p, "reflabel2=", 10, i.reflabel2) && !parseOption(p, "reflabel3=", 10, i.reflabel3) &&
-        !parseOption(p, "reflabel4=", 10, i.reflabel4) && !parseOption(p, "json=", 5, i.json))
+    bool ok = false;
+    ok |= parseInt(p, "w=", 2, i.width);
+    ok |= parseInt(p, "h=", 2, i.height);
+    ok |= parseReference(p, "ref=", 4, i.reference);
+    ok |= parseInt(p, "showstats=", 10, i.showstats);
+    ok |= parseInt(p, "showerrbars=", 12, i.showerrbars);
+    ok |= parseDouble(p, "xmin=", 5, i.xaxis.min);
+    ok |= parseDouble(p, "xmax=", 5, i.xaxis.max);
+    ok |= parseAxisType(p, "xtype=", 6, i.xaxis.type);
+    ok |= parseDouble(p, "ymin=", 5, i.yaxis.min);
+    ok |= parseDouble(p, "ymax=", 5, i.yaxis.max);
+    ok |= parseAxisType(p, "ytype=", 6, i.yaxis.type);
+    ok |= parseDouble(p, "zmin=", 5, i.zaxis.min);
+    ok |= parseDouble(p, "zmax=", 5, i.zaxis.max);
+    ok |= parseDouble(p, "ktest=", 6, i.ktest);
+    ok |= parseAxisType(p, "ztype=", 6, i.zaxis.type);
+    ok |= parseOption(p, "drawopts=", 9, i.drawOptions);
+    ok |= parseOption(p, "norm=", 5, i.refnorm);
+    ok |= parseOption(p, "json=", 5, i.json);
+    char refoptionname[] = "reflabel0=";
+    std::string reflabel;
+    for (int k = 0; k < 10; k++) {
+      bool gotit = parseOption(p, refoptionname, 10, reflabel);
+      if (gotit) {
+        ok = true;
+        i.reflabels.resize(k + 1);
+        i.reflabels[k] = reflabel;
+      }
+      refoptionname[8] += 1;  // 8 is the position of the digit
+    }
+    if (!ok)
       return false;
 
     if (*p && *p != ';') {
@@ -580,7 +600,8 @@ protected:
     }
 
     // Reconstruct the object, defaulting to missing in action.
-    std::vector<VisDQMObject> objs(numobjs);
+    std::vector<VisDQMObject> &objs = info.objects;
+    objs.resize(numobjs);
     for (uint32_t i = 0; i < numobjs; ++i) {
       objs[i].flags = flags;
       objs[i].version = (((uint64_t)vhigh) << 32) | vlow;
@@ -764,23 +785,8 @@ private:
       // correct handling is done on the server side while searching for
       // samples/objects and packing information. At this stage we are mere
       // clients that rely on that information.
-      switch (order) {
-        case 1:
-          ss << i.reflabel1;
-          break;
-        case 2:
-          ss << i.reflabel2;
-          break;
-        case 3:
-          ss << i.reflabel3;
-          break;
-        case 4:
-          ss << i.reflabel4;
-          break;
-        default:
-          assert(0);
-          break;
-      }
+      if (i.reflabels.size() > order)
+        ss << i.reflabels[order];
       currentStat->AddText(ss.str().c_str())->SetTextColor(color);
       ss.str("");
       ss << "Entries = " << ref->GetEntries();
@@ -1171,6 +1177,7 @@ private:
       // overlay is greater than the available colors
       // (n%colorIndex).
       int colorIndex = sizeof(colors) / sizeof(int);
+      int color = colors[n % colorIndex];
       refobj = objs[n].object;
 
       TH1 *ref1 = dynamic_cast<TH1 *>(refobj);
@@ -1178,20 +1185,15 @@ private:
       TH2 *ref2d = dynamic_cast<TH2 *>(refobj);
       TH3 *ref3d = dynamic_cast<TH3 *>(refobj);
       if (refp) {
-        refp->SetLineColor(colors[n % colorIndex]);
+        refp->SetLineColor(color);
         refp->SetLineWidth(2);
         refp->GetListOfFunctions()->Delete();
         refp->Draw("same hist");
-      }
-      // No point in even trying to overlay 2D or 3D histograms in the
-      // same canvas. Bail out w/o complaints.
-      else if (ref2d || ref3d) {
-        return;
-      } else if (ref1) {
-        // Perform KS statistical test only on the first available
-        // reference, excluding the (possible) default one
-        // injected during the harvesting step.
-        int color = colors[n % colorIndex];
+
+        // No point in even trying to overlay 2D or 3D histograms in the
+        // same canvas. Still draw the stat box, in case they are requested.
+      } else if (!ref2d && !ref3d && ref1) {
+        // Perform KS statistical test only on the first available reference
         double norm = 1.;
         if (h)
           norm = h->GetSumOfWeights();
@@ -1226,14 +1228,13 @@ private:
         } else {
           ref1->Draw(samePlotOptions.c_str());
         }
-
-        if (i.showstats) {
-          // Apply user-defined ranges also to reference histograms, so
-          // that the shown statistics is consistent with the one of the
-          // main plot.
-          applyUserRange(ref1, i);
-          drawReferenceStatBox(i, n, ref1, color, objs[n].name, nukem);
-        }
+      }
+      if (i.showstats) {
+        // Apply user-defined ranges also to reference histograms, so
+        // that the shown statistics is consistent with the one of the
+        // main plot.
+        applyUserRange(ref1, i);
+        drawReferenceStatBox(i, n, ref1, color, objs[n].name, nukem);
       }
     }  // End of loop over all reference sample
   }
