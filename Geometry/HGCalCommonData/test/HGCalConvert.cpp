@@ -384,20 +384,20 @@ void ConvertScintillator::convert(const char* infile, const char* outfile, int d
     fOut << "  <Vector name=" << apost << "TileRMin" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << ringR.size() << apost << ">";
     for (it1 = ringR.begin(); it1 != ringR.end(); ++it1) {
-      if (l1 % 7 == 0)
-        fOut << "\n    " << std::setw(8) << std::setprecision(6) << (it1->second).first << ",";
+      if (l1 % 6 == 0)
+        fOut << "\n    " << std::setw(8) << std::setprecision(6) << (it1->second).first << "*mm,";
       else
-        fOut << std::setw(8) << std::setprecision(6) << (it1->second).first << ",";
+        fOut << std::setw(8) << std::setprecision(6) << (it1->second).first << "*mm,";
       ++l1;
     }
     fOut << "\n  </Vector>\n";
     fOut << "  <Vector name=" << apost << "TileRMax" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << ringR.size() << apost << ">";
     for (it1 = ringR.begin(); it1 != ringR.end(); ++it1) {
-      if (l2 % 7 == 0)
-        fOut << "\n    " << std::setw(8) << std::setprecision(6) << (it1->second).second << ",";
+      if (l2 % 6 == 0)
+        fOut << "\n    " << std::setw(8) << std::setprecision(6) << (it1->second).second << "*mm,";
       else
-        fOut << std::setw(8) << std::setprecision(6) << (it1->second).second << ",";
+        fOut << std::setw(8) << std::setprecision(6) << (it1->second).second << "*mm,";
       ++l2;
     }
     fOut << "\n  </Vector>\n";
