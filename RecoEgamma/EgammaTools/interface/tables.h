@@ -13,10 +13,10 @@ namespace egamma {
 
     namespace col {
 
-      SOA_DECLARE_COLUMN(Pt, double, "pt");
-      SOA_DECLARE_COLUMN(Eta, double, "eta");
-      SOA_DECLARE_COLUMN(Phi, double, "phi");
-      SOA_DECLARE_COLUMN(Vz, double, "vz");
+      SOA_DECLARE_COLUMN(Pt, float, "pt");
+      SOA_DECLARE_COLUMN(Eta, float, "eta");
+      SOA_DECLARE_COLUMN(Phi, float, "phi");
+      SOA_DECLARE_COLUMN(Vz, float, "vz");
 
     }  // namespace col
 

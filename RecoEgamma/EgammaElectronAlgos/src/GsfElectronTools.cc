@@ -19,16 +19,16 @@ namespace egamma {
     TrackRef ctfTrackRef = TrackRef();
     const TrackCollection* ctfTrackCollection = ctfTracksH.product();
 
-    double gsfEta = gsfTrackRef->eta();
-    double gsfPhi = gsfTrackRef->phi();
+    float gsfEta = gsfTrackRef->eta();
+    float gsfPhi = gsfTrackRef->phi();
     const HitPattern& gsfHitPattern = gsfTrackRef->hitPattern();
 
-    constexpr double dR2 = 0.3 * 0.3;
+    constexpr float dR2 = 0.3 * 0.3;
 
     unsigned int counter = 0;
     for (auto ctfTkIter = ctfTrackCollection->begin(); ctfTkIter != ctfTrackCollection->end(); ctfTkIter++, counter++) {
-      double dEta = gsfEta - trackTable.get<egamma::soa::col::Eta>(counter);
-      double dPhi = gsfPhi - trackTable.get<egamma::soa::col::Phi>(counter);
+      float dEta = gsfEta - trackTable.get<egamma::soa::col::Eta>(counter);
+      float dPhi = gsfPhi - trackTable.get<egamma::soa::col::Phi>(counter);
       if (std::abs(dPhi) > M_PI)
         dPhi = 2 * M_PI - std::abs(dPhi);
 

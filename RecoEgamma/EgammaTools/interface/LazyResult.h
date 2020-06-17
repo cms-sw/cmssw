@@ -3,7 +3,7 @@
 // -*- C++ -*-
 //
 // Package:     RecoEgamma/EgammaTools
-// Class  :     TableTest
+// Class  :     LazyResult
 //
 /**\class LazyResult LazyResult.h "RecoEgamma/EgammaTools/interface/LazyResult.h"
  Description: Wrapper around a function call for lazy execution.
@@ -26,7 +26,7 @@ Implementation:
   * For the Args... we explicitly add const& (also in the the args_ tuple).
     Otherwise, the arguments will be stored by value which comes with too much
     overhead. This implies that the lifetime of the arguments passed to
-    LazyResult neet to live longer than the Lazy instance. Function pointers
+    LazyResult neet to live longer than the LazyResult instance. Function pointers
     are small, so no need for const& to the Func.
   * An alternative to using a ::value() member function to get the result could
     be a cast operator: operator Result const &(). This might be pretty because

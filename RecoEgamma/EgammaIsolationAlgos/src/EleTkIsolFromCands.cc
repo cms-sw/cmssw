@@ -49,10 +49,10 @@ edm::ParameterSetDescription EleTkIsolFromCands::pSetDescript() {
 
 EleTkIsolFromCands::TrackTable EleTkIsolFromCands::preselectTracks(reco::TrackCollection const& tracks,
                                                                    TrkCuts const& cuts) {
-  std::vector<double> pt;
-  std::vector<double> eta;
-  std::vector<double> phi;
-  std::vector<double> vz;
+  std::vector<float> pt;
+  std::vector<float> eta;
+  std::vector<float> phi;
+  std::vector<float> vz;
   pt.reserve(tracks.size());
   eta.reserve(tracks.size());
   phi.reserve(tracks.size());
@@ -74,10 +74,10 @@ EleTkIsolFromCands::TrackTable EleTkIsolFromCands::preselectTracks(reco::TrackCo
 EleTkIsolFromCands::TrackTable EleTkIsolFromCands::preselectTracksFromCands(pat::PackedCandidateCollection const& cands,
                                                                             TrkCuts const& cuts,
                                                                             PIDVeto pidVeto) {
-  std::vector<double> pt;
-  std::vector<double> eta;
-  std::vector<double> phi;
-  std::vector<double> vz;
+  std::vector<float> pt;
+  std::vector<float> eta;
+  std::vector<float> phi;
+  std::vector<float> vz;
   pt.reserve(cands.size());
   eta.reserve(cands.size());
   phi.reserve(cands.size());
@@ -86,7 +86,7 @@ EleTkIsolFromCands::TrackTable EleTkIsolFromCands::preselectTracksFromCands(pat:
   for (auto const& cand : cands) {
     if (cand.hasTrackDetails() && cand.charge() != 0 && passPIDVeto(cand.pdgId(), pidVeto)) {
       const reco::Track& trk = cand.pseudoTrack();
-      auto trkPt = trk.pt();
+      float trkPt = trk.pt();
       if (passTrackPreselection(trk, trkPt, cuts)) {
         pt.emplace_back(trkPt);
         eta.emplace_back(trk.eta());
@@ -102,12 +102,12 @@ EleTkIsolFromCands::TrackTable EleTkIsolFromCands::preselectTracksFromCands(pat:
 EleTkIsolFromCands::Output EleTkIsolFromCands::operator()(const reco::TrackBase& eleTrk) {
   using namespace egamma::soa::col;
 
-  double ptSum = 0.;
+  float ptSum = 0.;
   int nrTrks = 0;
 
-  const double eleEta = eleTrk.eta();
-  const double elePhi = eleTrk.phi();
-  const double eleVz = eleTrk.vz();
+  const float eleEta = eleTrk.eta();
+  const float elePhi = eleTrk.phi();
+  const float eleVz = eleTrk.vz();
 
   const bool isBarrelElectron = std::abs(eleEta) < 1.5;
 
@@ -160,11 +160,10 @@ EleTkIsolFromCands::PIDVeto EleTkIsolFromCands::pidVetoFromStr(const std::string
   }
 }
 
-bool EleTkIsolFromCands::passTrackPreselection(const reco::TrackBase& trk, double trackPt, const TrkCuts& cuts) {
-  return trk.hitPattern().numberOfValidHits() >= cuts.minHits &&
-         trk.hitPattern().numberOfValidPixelHits() >= cuts.minPixelHits &&
-         (trk.ptError() / trackPt < cuts.maxDPtPt || cuts.maxDPtPt < 0) && passQual(trk, cuts.allowedQualities) &&
-         passAlgo(trk, cuts.algosToReject) && trackPt > cuts.minPt;
+bool EleTkIsolFromCands::passTrackPreselection(const reco::TrackBase& trk, float trackPt, const TrkCuts& cuts) {
+  return trackPt > cuts.minPt && trk.numberOfValidHits() >= cuts.minHits &&
+         trk.hitPattern().numberOfValidPixelHits() >= cuts.minPixelHits && passQual(trk, cuts.allowedQualities) &&
+         passAlgo(trk, cuts.algosToReject) && (cuts.maxDPtPt < 0 || trk.ptError() / trackPt < cuts.maxDPtPt);
 }
 
 bool EleTkIsolFromCands::passQual(const reco::TrackBase& trk, const std::vector<reco::TrackBase::TrackQuality>& quals) {
