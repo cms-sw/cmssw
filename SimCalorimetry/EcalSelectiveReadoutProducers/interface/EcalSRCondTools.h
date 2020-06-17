@@ -7,7 +7,9 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
+#include "CondFormats/DataRecord/interface/EcalSRSettingsRcd.h"
 
 /**
  */
@@ -67,8 +69,9 @@ private:
   //fields
 private:
   edm::ParameterSet ps_;
+  edm::ESGetToken<EcalSRSettings, EcalSRSettingsRcd> hSrToken_;
 
-  bool done_;
+      bool done_;
 };
 
 #endif  //SRCONDACCESS_H not defined
