@@ -35,7 +35,7 @@ namespace edm {
     unsigned int index() { return 0; }
 
   private:
-    unsigned int transitionIndex_() const override;
+    unsigned int transitionIndex_() const final;
 
     std::string processName_;
   };
