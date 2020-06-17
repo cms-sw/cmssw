@@ -99,6 +99,17 @@ uint16_t CSCCLCTDigi::getKeyStrip(const uint16_t n) const {
   }
 }
 
+/// return the fractional strip
+float CSCCLCTDigi::getFractionalStrip(const uint16_t n) const {
+  if (n == 8) {
+    return 0.125f * (getKeyStrip(n) + 1) - 0.0625f;
+  } else if (n == 4) {
+    return 0.25f * (getKeyStrip(n) + 1) - 0.125f;
+  } else {
+    return 0.5f * (getKeyStrip(n) + 1) - 0.25f;
+  }
+}
+
 uint16_t CSCCLCTDigi::getStrip() const { return strip_ & kHalfStripMask; }
 
 bool CSCCLCTDigi::getQuartStrip() const { return (strip_ >> kQuartStripShift) & kQuartStripMask; }
@@ -170,7 +181,7 @@ bool CSCCLCTDigi::operator==(const CSCCLCTDigi& rhs) const {
   // Exact equality.
   bool returnValue = false;
   if (isValid() == rhs.isValid() && getQuality() == rhs.getQuality() && getPattern() == rhs.getPattern() &&
-      getKeyStrip() == rhs.getKeyStrip() && getStripType() == rhs.getStripType() && getBend() == getBend() &&
+      getKeyStrip() == rhs.getKeyStrip() && getStripType() == rhs.getStripType() && getBend() == rhs.getBend() &&
       getBX() == rhs.getBX() && getCompCode() == rhs.getCompCode()) {
     returnValue = true;
   }

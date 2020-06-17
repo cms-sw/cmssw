@@ -110,7 +110,10 @@ public:
   /// Halfstrip = (cfeb*32 + strip).
   /// This function can also return the quartstrip or eightstrip
   /// when the comparator code has been set
-  uint16_t getKeyStrip(uint16_t n = 2) const;
+  uint16_t getKeyStrip(const uint16_t n = 2) const;
+
+  /// return the fractional strip
+  float getFractionalStrip(const uint16_t n = 2) const;
 
   /// Set track number (1,2) after sorting CLCTs.
   void setTrknmb(const uint16_t number) { trknmb_ = number; }
