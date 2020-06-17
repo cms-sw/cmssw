@@ -7,9 +7,9 @@
 #include "EventFilter/GEMRawToDigi/interface/AMC13Event.h"
 
 class GEMRawToDigi {
- public:
+public:
   std::unique_ptr<gem::AMC13Event> convertWordToAMC13Event(const uint64_t* word);
 
- private:
+private:
 };
 #endif
