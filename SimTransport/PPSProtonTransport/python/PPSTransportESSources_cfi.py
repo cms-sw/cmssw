@@ -10,29 +10,6 @@ ctppsInterpolatedOpticalFunctionsESSource.lhcInfoLabel = ""
 
 from SimTransport.PPSProtonTransport.OpticalFunctionsConfig_cfi import *
 
-from CondCore.CondDB.CondDB_cfi import *
-ppsDBESSource = cms.ESSource("PoolDBESSource",
-    label = cms.string(""),
-    validityRange = cms.EventRange("0:min - 999999:max"),
-    beamEnergy = cms.double(6500),
-    xangle = cms.double(-1),
-    timetype = cms.untracked.string('runnumber'),
-    DumpStat=cms.untracked.bool(False),
-    toGet = cms.VPSet(
-                cms.PSet(
-                    record = cms.string('LHCInfoRcd'),
-                    tag = cms.string("LHCInfoEndFill_prompt_v2"),  #  FrontierProd
-                    connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
-                ),
-                cms.PSet(
-                    record = cms.string('CTPPSOpticsRcd'),
-                    tag = cms.string("PPSOpticalFunctions_offline_v6"),
-                    connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
-                )
-            )
-)
-es_prefer_ppsDBESSource = cms.ESPrefer("PoolDBESSource","ppsDBESSource")
-
 _opticsConfig = cms.PSet(
                     defaultCrossingAngle=cms.double(0.0),
                     es_source = cms.PSet()

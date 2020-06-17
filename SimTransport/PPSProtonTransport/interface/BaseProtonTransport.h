@@ -56,16 +56,15 @@ protected:
 
   double fPPSRegionStart_45;
   double fPPSRegionStart_56;
-  double fCrossingAngle_45;
-  double fCrossingAngle_56;
+  double fCrossingAngleX_45;
+  double fCrossingAngleX_56;
+  double fCrossingAngleY_45;
+  double fCrossingAngleY_56;
 
   double beamMomentum_;
   double beamEnergy_;
   double etaCut_;
   double momentumCut_;
-  double fVtxMeanX;
-  double fVtxMeanY;
-  double fVtxMeanZ;
 
   double m_sigmaSTX;
   double m_sigmaSTY;

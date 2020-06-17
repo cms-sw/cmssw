@@ -35,6 +35,8 @@ private:
   edm::ESHandle<LHCInfo> lhcInfo_;
   edm::ESHandle<CTPPSBeamParameters> beamParameters_;
   edm::ESHandle<LHCInterpolatedOpticalFunctionsSetCollection> opticalFunctions_;
+  unsigned int optFunctionId45_;
+  unsigned int optFunctionId56_;
 
   bool useEmpiricalApertures_;
   double empiricalAperture45_xi0_int_, empiricalAperture45_xi0_slp_, empiricalAperture45_a_int_,
