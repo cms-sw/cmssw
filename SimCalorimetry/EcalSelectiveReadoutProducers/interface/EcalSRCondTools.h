@@ -71,7 +71,7 @@ private:
   edm::ParameterSet ps_;
   edm::ESGetToken<EcalSRSettings, EcalSRSettingsRcd> hSrToken_;
 
-      bool done_;
+  bool done_;
 };
 
 #endif  //SRCONDACCESS_H not defined
