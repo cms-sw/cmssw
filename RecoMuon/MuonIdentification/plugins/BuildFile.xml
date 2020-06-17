@@ -15,7 +15,6 @@
   <use name="PhysicsTools/SelectorUtils"/>
   <use name="RecoMuon/MuonIdentification"/>
   <use name="RecoMuon/MuonIsolation"/>
-  <use name="RecoMuon/TrackingTools"/>
   <use name="TrackingTools/Records"/>
   <use name="TrackingTools/TrackAssociator"/>
   <use name="TrackingTools/TransientTrackingRecHit"/>
@@ -40,7 +39,6 @@
   <use name="Geometry/CaloTopology"/>
   <use name="PhysicsTools/IsolationAlgos"/>
   <use name="RecoMuon/MuonIdentification"/>
-  <use name="RecoMuon/TrackingTools"/>
   <use name="TrackingTools/Records"/>
   <use name="TrackingTools/TrackAssociator"/>
   <use name="TrackingTools/TransientTrackingRecHit"/>
