@@ -4,9 +4,9 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
+#include <memory>
 #include <utility>
 #include <vector>
-#include <boost/ptr_container/ptr_vector.hpp>
 
 class GlobalVariablesTableProducer : public edm::stream::EDProducer<> {
 public:
@@ -16,20 +16,24 @@ public:
       const auto& varPSet = varsPSet.getParameter<edm::ParameterSet>(vname);
       const std::string& type = varPSet.getParameter<std::string>("type");
       if (type == "int")
-        vars_.push_back(new IntVar(vname, nanoaod::FlatTable::IntColumn, varPSet, consumesCollector()));
+        vars_.push_back(std::make_unique<IntVar>(vname, nanoaod::FlatTable::IntColumn, varPSet, consumesCollector()));
       else if (type == "float")
-        vars_.push_back(new FloatVar(vname, nanoaod::FlatTable::FloatColumn, varPSet, consumesCollector()));
-      else if (type == "double")
-        vars_.push_back(new DoubleVar(vname, nanoaod::FlatTable::FloatColumn, varPSet, consumesCollector()));
-      else if (type == "bool")
-        vars_.push_back(new BoolVar(vname, nanoaod::FlatTable::BoolColumn, varPSet, consumesCollector()));
-      else if (type == "candidatescalarsum")
         vars_.push_back(
-            new CandidateScalarSumVar(vname, nanoaod::FlatTable::FloatColumn, varPSet, consumesCollector()));
+            std::make_unique<FloatVar>(vname, nanoaod::FlatTable::FloatColumn, varPSet, consumesCollector()));
+      else if (type == "double")
+        vars_.push_back(
+            std::make_unique<DoubleVar>(vname, nanoaod::FlatTable::FloatColumn, varPSet, consumesCollector()));
+      else if (type == "bool")
+        vars_.push_back(std::make_unique<BoolVar>(vname, nanoaod::FlatTable::BoolColumn, varPSet, consumesCollector()));
+      else if (type == "candidatescalarsum")
+        vars_.push_back(std::make_unique<CandidateScalarSumVar>(
+            vname, nanoaod::FlatTable::FloatColumn, varPSet, consumesCollector()));
       else if (type == "candidatesize")
-        vars_.push_back(new CandidateSizeVar(vname, nanoaod::FlatTable::IntColumn, varPSet, consumesCollector()));
+        vars_.push_back(
+            std::make_unique<CandidateSizeVar>(vname, nanoaod::FlatTable::IntColumn, varPSet, consumesCollector()));
       else if (type == "candidatesummass")
-        vars_.push_back(new CandidateSumMassVar(vname, nanoaod::FlatTable::FloatColumn, varPSet, consumesCollector()));
+        vars_.push_back(std::make_unique<CandidateSumMassVar>(
+            vname, nanoaod::FlatTable::FloatColumn, varPSet, consumesCollector()));
       else
         throw cms::Exception("Configuration", "unsupported type " + type + " for variable " + vname);
     }
@@ -43,7 +47,7 @@ public:
     auto out = std::make_unique<nanoaod::FlatTable>(1, "", true);
 
     for (const auto& var : vars_)
-      var.fill(iEvent, *out);
+      var->fill(iEvent, *out);
 
     iEvent.put(std::move(out));
   }
@@ -157,7 +161,7 @@ protected:
       CandidateScalarSumVar;
   typedef VariableT<edm::View<reco::Candidate>, float, MassSum<float, edm::View<reco::Candidate>>> CandidateSumMassVar;
   typedef VariableT<edm::View<reco::Candidate>, int, Size<edm::View<reco::Candidate>>> CandidateSizeVar;
-  boost::ptr_vector<Variable> vars_;
+  std::vector<std::unique_ptr<Variable>> vars_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
