@@ -131,9 +131,7 @@ class TTreeFile:
         # only desinged to find TTrees in a DQMIO file.
         # Basically we just RegEx-match things that look like TKey addresses and try to
         # load them, then return those that loaded.
-        # TODO: this won't work for files larger than 4GB. Just adding one more . does
-        # not work immediatley, since then we get overlapping matches.
-        rootrx = re.compile(b"(\x00\x00\x00\x00....)", flags=re.DOTALL)
+        rootrx = re.compile(b"(\x00\x00\x00.....)", flags=re.DOTALL)
         # This pattern depends on wether it is a "big" (>2GB) or "small" file.
         # It relies on the fact that there is a pointer back to key 100 (b'd', TFile.first())
         # behind each entry.
@@ -146,8 +144,12 @@ class TTreeFile:
         # there is a reference to it in the first TKey.
         rootdir = None
         firstblock = await (await tfile.first()).objdata()
-        for x in rootrx.findall(firstblock):
-            key, = Int64.unpack(x)
+        start = 0
+        while True: # manual search here to get overlapping matches
+            m = rootrx.search(firstblock, pos=start)
+            if not m: break
+            start = m.start() + 1
+            key, = Int64.unpack(m.group(1))
             if key <= 100 or key > len(tfile.buf):
                 continue
             try:
@@ -157,7 +159,7 @@ class TTreeFile:
                 # This is fine, ignore them.
                 pass
 
-        assert rootdir != None, "Index to / directory not found in ROOT file!"
+        assert rootdir != None, f"Index to / directory not found in ROOT file {tfile}!"
         
         buf = await rootdir.objdata()
 
@@ -429,14 +431,17 @@ class TBasket:
         pos = -2
         prev = len(self.buf) # just so the sanity check works
         fEntryOffset = []
-        # assume no more than that many entries per basket.
-        # This number is from observation, it might need to be increased.
         # Unpacking all the ints at once is much faster than calling unpack over
         # and over, even if we rarely need all of them.
-        maxlen = min(len(self.buf)//4, 2**15) 
-        Int32 = struct.Struct(">i")
-        ints = struct.unpack_from(f">{maxlen}i", self.buf, offset = len(self.buf) - 4 * maxlen)
+        # We use exponential growth to read enough ints without too much overhead.
+        def readints(maxlen):
+            maxlen = min(len(self.buf)//4, maxlen) 
+            ints = struct.unpack_from(f">{maxlen}i", self.buf, offset = len(self.buf) - 4 * maxlen)
+            return maxlen, ints
+        maxlen, ints = readints(1024)
         while True:
+            if -pos > maxlen:  # pos is always negative, reading in reverse.
+                maxlen, ints = readints(2*maxlen)
             entryoffset = ints[pos]
             # First object should start at fKeyLen, and the last word is the length
             if  fEntryOffset and fEntryOffset[-1] == self.fKeyLen and entryoffset-1 == len(fEntryOffset):
