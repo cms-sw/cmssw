@@ -343,3 +343,7 @@ Backend related task list.
 * Speed up linear search over sorted layouts
 * Flavours?
 * Move common ME methods (like DQMCLASSICReader.parse_string_entry) to a separate location
+* Check RelVal files are handled correctly
+* Make sure exceptions are logged to log file (atm the go to stderr)
+* Handle crashing import processes (prob. can't restart them, so at least crash the full server and wait for restart)
+* Check handling of XRD access failures (atm 500 response on the request, retry on next request -- might be good enough.)
