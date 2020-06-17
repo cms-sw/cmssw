@@ -24,12 +24,16 @@ if os.path.isdir(local_packages_dir):
 processpoolexecutor = None
 if __name__ == '__main__':
     from concurrent.futures import ProcessPoolExecutor
+    import signal
+    # remove SIGINT handler for the fork'ed children to avoid the stack traces on shutdown.
+    original_sigint_handler = signal.signal(signal.SIGINT, signal.SIG_IGN)
     # TODO: make process count configurable? 4 seems to be enough to saturate IO.
     processpoolexecutor = ProcessPoolExecutor(8)
     # concurrent.futures initializes the actual multiprocessing pool lazily. So we
     # need to submit some work here to start the processes.
     fut = processpoolexecutor.submit(print, "Process pool initialized.")
     fut.result()
+    signal.signal(signal.SIGINT, original_sigint_handler)
 # Now we should be safe.
 
 import asyncio

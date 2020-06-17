@@ -98,7 +98,7 @@ class XRDFile:
                 cachehit = self.cache[start - self.cachestart : end - self.cachestart]
                 return cachehit
             if end - start < CACHESIZE:
-                self.cache = await self.__async_call(self.file.read, start, CACHESIZE, timeout = self.timeout)
+                self.cache = await self.__async_call(self.file.read, start, min(CACHESIZE, self.size-start), timeout = self.timeout)
                 self.cachestart = start
                 return self.cache[0:end-start]
             # else: uncached read    

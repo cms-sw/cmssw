@@ -100,6 +100,5 @@ class DQMIOImporter:
             # infos += list(zip(names, values))
             infos[(entry[b'Run'], entry[b'Lumi'])] += list(zip(names, values))
 
-        # close in background, this may time out.
-        asyncio.Task(buffer.close())
+        await buffer.close()
         return infos
