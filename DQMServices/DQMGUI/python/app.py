@@ -18,6 +18,21 @@ local_packages_dir = get_absolute_path('.python_packages/')
 if os.path.isdir(local_packages_dir):
     sys.path.insert(0, local_packages_dir)
 
+# Initialize a process pool before doing anything else.
+# This is to make sure that the fork() happens before any imports, and before 
+# any threads are created.
+processpoolexecutor = None
+if __name__ == '__main__':
+    from concurrent.futures import ProcessPoolExecutor
+    processpoolexecutor = ProcessPoolExecutor(4)
+    def nop():
+        pass
+    # concurrent.futures initializes the actual multiprocessing pool lazily. So we
+    # need to submit some work here t start the processes.
+    fut = processpoolexecutor.submit(nop)
+    fut.result()
+# Now we should be safe.
+
 import asyncio
 import logging
 import argparse
@@ -313,7 +328,7 @@ async def register(request):
 
 async def initialize_services(in_memory, files, workers):
     await GUIDataStore.initialize(in_memory=in_memory)
-    await GUIImportManager.initialize(files=files)
+    await GUIImportManager.initialize(files=files, executor=processpoolexecutor)
     await GUIRenderer.initialize(workers=workers)
 
 
@@ -321,6 +336,7 @@ async def destroy_services():
     await GUIDataStore.destroy()
     await GUIImportManager.destroy()
     await GUIRenderer.destroy()
+    processpoolexecutor.shutdown(wait=True)
 
 
 async def on_shutdown(app):

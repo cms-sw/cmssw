@@ -1,5 +1,7 @@
+import os
 import mmap
 import asyncio
+os.environ["XRD_RUNFORKHANDLER"] = "1"   # To make xrootd + multiprocessing work (Thanks uproot!)
 import pyxrootd.client
 
 # First, a sample implementation of the 'async buffer' interface. This is not really
@@ -42,7 +44,7 @@ class XRDFile:
     # async-waits for this lock to be released.
     async def __async_call(self, function, *args, **kwargs):
         done = asyncio.Event()
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         async_result = []
 
         # this must be called from main thread

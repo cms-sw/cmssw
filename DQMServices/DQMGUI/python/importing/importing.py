@@ -24,16 +24,18 @@ class GUIImportManager:
 
     store = GUIDataStore()
     compressor = GUIBlobCompressor()
-    executor = ProcessPoolExecutor(4)
+    # this is a global instance, created before loading any modules.
+    executor = None
 
     @classmethod
-    async def initialize(cls, files=__EOSPATH):
+    async def initialize(cls, files=__EOSPATH, executor=None):
         """
         Imports all samples from given ROOT files if no samples are present in the DB.
         Format is assumed to be TDirectory.
         If files is a string, it is globed to get the list of files.
         If files is a list, all these files gets imported.
         """
+        cls.executor = executor
 
         count = await cls.store.get_samples_count()
         if count == 0:
@@ -58,9 +60,7 @@ class GUIImportManager:
 
     @classmethod
     async def destroy(cls):
-        # TODO: this does not work. Deadlocks on shutdown.
-        cls.executor.shutdown(wait=True)
-
+        pass
 
 
     @classmethod
@@ -82,8 +82,11 @@ class GUIImportManager:
             return False
         
         # delegate the hard work to a process pool.
-        mes_lists = await asyncio.get_event_loop().run_in_executor(cls.executor,
-            cls.import_sync, fileformat, filename, dataset, run, lumi)
+        if cls.executor:
+            mes_lists = await asyncio.get_event_loop().run_in_executor(cls.executor,
+                cls.import_sync, fileformat, filename, dataset, run, lumi)
+        else:
+            assert False, "Could run in-process here but we don't need that."
 
         # It's possible that some samples that exists in this file were not yet
         # registered as samples (through register API endpoint). So we (re)create 
