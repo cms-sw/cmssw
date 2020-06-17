@@ -28,7 +28,7 @@ namespace cms {
 
 class GeometricDet {
 public:
-  using NavRange = std::pair<int const *, size_t>;
+  using NavRange = std::pair<int const*, size_t>;
   using ConstGeometricDetContainer = std::vector<GeometricDet const*>;
   using GeometricDetContainer = std::vector<GeometricDet*>;
   using RotationMatrix = ROOT::Math::Rotation3D;
