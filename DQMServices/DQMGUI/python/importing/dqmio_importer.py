@@ -2,16 +2,15 @@ import asyncio
 
 from collections import defaultdict
 
-from ..ioservice import IOService
 from ..data_types import MEInfo, ScalarValue
 from ..compressing import GUIBlobCompressor
+from ..nanoroot.io import XRDFile
 from ..nanoroot.tfile import TFile
 from ..nanoroot.ttree import TTreeFile, TType
 
 
 class DQMIOImporter:
 
-    ioservice = IOService()
     compressor = GUIBlobCompressor()
 
     @classmethod
@@ -72,7 +71,8 @@ class DQMIOImporter:
         # TODO: figure out proper caching: maybe it is not ideal to put all this
         # data into the main page cache. It is perfectly feasible to use an 
         # (uncached) XRDFile here.
-        buffer = await cls.ioservice.open_url(filename)
+        #buffer = await cls.ioservice.open_url(filename)
+        buffer = await XRDFile().load(filename)
         tfile = await TFile().load(buffer)
         t = await TTreeFile().load(tfile, dqmioschema)
 
@@ -100,4 +100,6 @@ class DQMIOImporter:
             # infos += list(zip(names, values))
             infos[(entry[b'Run'], entry[b'Lumi'])] += list(zip(names, values))
 
+        # close in background, this may time out.
+        asyncio.Task(buffer.close())
         return infos

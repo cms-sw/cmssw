@@ -24,12 +24,11 @@ if os.path.isdir(local_packages_dir):
 processpoolexecutor = None
 if __name__ == '__main__':
     from concurrent.futures import ProcessPoolExecutor
-    processpoolexecutor = ProcessPoolExecutor(4)
-    def nop():
-        pass
+    # TODO: make process count configurable? 4 seems to be enough to saturate IO.
+    processpoolexecutor = ProcessPoolExecutor(1)
     # concurrent.futures initializes the actual multiprocessing pool lazily. So we
-    # need to submit some work here t start the processes.
-    fut = processpoolexecutor.submit(nop)
+    # need to submit some work here to start the processes.
+    fut = processpoolexecutor.submit(print, "Process pool initialized.")
     fut.result()
 # Now we should be safe.
 
