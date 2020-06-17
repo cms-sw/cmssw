@@ -1,9 +1,7 @@
-<use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="CondFormats/SiPixelObjects"/>
 <use name="CalibTracker/SiPixelESProducers"/>
 <use name="DataFormats/TrackerCommon"/>
-<use name="DataFormats/SiPixelCluster"/>
 <use name="DataFormats/TrackerRecHit2D"/>
 <use name="CondFormats/SiPixelTransient"/>
 <use name="RecoLocalTracker/ClusterParameterEstimator"/>
