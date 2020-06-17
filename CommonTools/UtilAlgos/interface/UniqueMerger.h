@@ -53,7 +53,7 @@ private:
 template <typename InputCollection, typename OutputCollection, typename P>
 UniqueMerger<InputCollection, OutputCollection, P>::UniqueMerger(const edm::ParameterSet& par)
     : srcToken_(edm::vector_transform(par.template getParameter<std::vector<edm::InputTag> >("src"),
-                                      [this](edm::InputTag const& tag) { return consumes<InputCollection>(tag); })){
+                                      [this](edm::InputTag const& tag) { return consumes<InputCollection>(tag); })) {
   produces<OutputCollection>();
 }
 
@@ -62,16 +62,16 @@ UniqueMerger<InputCollection, OutputCollection, P>::~UniqueMerger() {}
 
 template <typename InputCollection, typename OutputCollection, typename P>
 void UniqueMerger<InputCollection, OutputCollection, P>::produce(edm::StreamID,
-                                                              edm::Event& evt,
-                                                              const edm::EventSetup&) const {
+                                                                 edm::Event& evt,
+                                                                 const edm::EventSetup&) const {
   set_type coll_set;
   for (auto const& s : srcToken_) {
     edm::Handle<InputCollection> h;
     evt.getByToken(s, h);
     for (typename InputCollection::const_iterator c = h->begin(); c != h->end(); ++c) {
-    if (c->isNonnull() && c->isAvailable()){
-	coll_set.emplace(P::clone(*c));
-	}
+      if (c->isNonnull() && c->isAvailable()) {
+        coll_set.emplace(P::clone(*c));
+      }
     }
   }
   std::unique_ptr<OutputCollection> coll(new OutputCollection(coll_set.size()));
