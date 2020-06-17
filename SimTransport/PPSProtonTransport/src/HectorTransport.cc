@@ -15,19 +15,19 @@ HectorTransport::HectorTransport(const edm::ParameterSet& iConfig)
   MODE = TransportMode::HECTOR;  // defines the MODE for the transport
   beam1Filename_ = iConfig.getParameter<std::string>("Beam1Filename");
   beam2Filename_ = iConfig.getParameter<std::string>("Beam2Filename");
-  fCrossingAngle_45 = iConfig.getParameter<double>("halfCrossingAngleSector45");
-  fCrossingAngle_56 = iConfig.getParameter<double>("halfCrossingAngleSector56");
+  fCrossingAngleX_45 = iConfig.getParameter<double>("halfCrossingAngleXSector45");
+  fCrossingAngleX_56 = iConfig.getParameter<double>("halfCrossingAngleXSector56");
+  fCrossingAngleY_45 = iConfig.getParameter<double>("halfCrossingAngleYSector45");
+  fCrossingAngleY_56 = iConfig.getParameter<double>("halfCrossingAngleYSector56");
   beamEnergy_ = iConfig.getParameter<double>("BeamEnergy");
-  fVtxMeanX = iConfig.getParameter<double>("VtxMeanX");
-  fVtxMeanY = iConfig.getParameter<double>("VtxMeanY");
-  fVtxMeanZ = iConfig.getParameter<double>("VtxMeanZ");
   m_sigmaSTX = iConfig.getParameter<double>("BeamDivergenceX");
   m_sigmaSTY = iConfig.getParameter<double>("BeamDivergenceY");
   m_sigmaSX = iConfig.getParameter<double>("BeamSigmaX");
   m_sigmaSY = iConfig.getParameter<double>("BeamSigmaY");
   m_sig_E = iConfig.getParameter<double>("BeamEnergyDispersion");
-  fBeamXatIP = iConfig.getUntrackedParameter<double>("BeamXatIP", fVtxMeanX);
-  fBeamYatIP = iConfig.getUntrackedParameter<double>("BeamYatIP", fVtxMeanY);
+  fBeamXatIP = iConfig.getUntrackedParameter<double>("BeamXatIP", 0.);
+  fBeamYatIP = iConfig.getUntrackedParameter<double>("BeamYatIP", 0.);
+  produceHitsRelativeToBeam_ = iConfig.getParameter<bool>("produceHitsRelativeToBeam");
 
   //PPS
   edm::LogInfo("ProtonTransport") << "=============================================================================\n"
@@ -77,55 +77,31 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart) {
   double mass = gpart->generatedMass();
   double charge = 1.;
 
-  px = gpart->momentum().px();
+  // Momentum in LHC ref. frame
+  px = -gpart->momentum().px();
   py = gpart->momentum().py();
-  pz = gpart->momentum().pz();
+  pz = -gpart->momentum().pz();
   e = gpart->momentum().e();
 
-  e = sqrt(pow(mass, 2) + pow(px, 2) + pow(py, 2) + pow(pz, 2));
+  int direction = (pz > 0) ? 1 : -1;  // in relation to LHC ref frame
 
-  int direction = (pz > 0) ? 1 : -1;
-
-  // Apply Beam and Crossing Angle Corrections
-  TLorentzVector p_out(px, py, pz, e);
-  PPSTools::LorentzBoost(p_out,
-                         "LAB",
-                         {fCrossingAngle_56,  //Beam1
-                          fCrossingAngle_45,  //Beam2
-                          beamMomentum_,
-                          beamEnergy_});
-
-  ApplyBeamCorrection(p_out);
-
-  // from mm to cm
-  double XforPosition = gpart->production_vertex()->position().x() / cm;  //cm
-  double YforPosition = gpart->production_vertex()->position().y() / cm;  //cm
-  double ZforPosition = gpart->production_vertex()->position().z() / cm;  //cm
+  double XforPosition = -gpart->production_vertex()->position().x();  //mm in the ref. frame of LHC
+  double YforPosition = gpart->production_vertex()->position().y();   //mm
+  double ZforPosition = -gpart->production_vertex()->position().z();  //mm
+  double fCrossingAngleX = (pz < 0) ? fCrossingAngleX_45 : fCrossingAngleX_56;
+  double fCrossingAngleY = (pz < 0) ? fCrossingAngleY_45 : fCrossingAngleY_56;
 
   H_BeamParticle h_p(mass, charge);
-  h_p.set4Momentum(-direction * p_out.Px(), p_out.Py(), fabs(p_out.Pz()), p_out.E());
-  // shift the beam position to the given beam position at IP (in cm)
-  XforPosition = (XforPosition - fVtxMeanX) + fBeamXatIP * mm_to_cm;
-  YforPosition = (YforPosition - fVtxMeanY) + fBeamYatIP * mm_to_cm;
-  //ZforPosition stays the same, move the closed orbit only in the X,Y plane
+  h_p.set4Momentum(px, py, pz, e);
   //
   // shift the starting position of the track to Z=0 if configured so (all the variables below are still in cm)
-  if (bApplyZShift) {
-    double fCrossingAngle = (p_out.Pz() > 0) ? fCrossingAngle_45 : -fCrossingAngle_56;
-    XforPosition = XforPosition +
-                   (tan((long double)fCrossingAngle * urad) - ((long double)p_out.Px()) / ((long double)p_out.Pz())) *
-                       ZforPosition;
-    YforPosition = YforPosition - ((long double)p_out.Py()) / ((long double)p_out.Pz()) * ZforPosition;
-    ZforPosition = 0.;
-  }
+  XforPosition = XforPosition - ZforPosition * (px / pz + fCrossingAngleX * urad);  // theta ~=tan(theta)
+  YforPosition = YforPosition - ZforPosition * (py / pz + fCrossingAngleY * urad);
+  ZforPosition = 0.;
 
-  //
   // set position, but do not invert the coordinate for the angles (TX,TY) because it is done by set4Momentum
-  h_p.setPosition(-direction * XforPosition * cm_to_um,
-                  YforPosition * cm_to_um,
-                  h_p.getTX(),
-                  h_p.getTY(),
-                  -direction * ZforPosition * cm_to_m);
+  h_p.setPosition(XforPosition * mm_to_um, YforPosition * mm_to_um, h_p.getTX(), h_p.getTY(), 0.);
+
   bool is_stop;
   float x1_ctpps;
   float y1_ctpps;
@@ -133,11 +109,11 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart) {
   H_BeamLine* _beamline = nullptr;
   double _targetZ = 0;
   switch (direction) {
-    case -1:
+    case 1:
       _beamline = &*m_beamline56;  // negative side propagation
       _targetZ = fPPSRegionStart_56;
       break;
-    case 1:
+    case -1:
       _beamline = &*m_beamline45;
       _targetZ = fPPSRegionStart_45;
       break;
@@ -155,20 +131,38 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart) {
   //propagating
   //
   h_p.propagate(_targetZ);
+  x1_ctpps = h_p.getX();
+  y1_ctpps = h_p.getY();
 
-  p_out = PPSTools::HectorParticle2LorentzVector(h_p, direction);
+  double thx = h_p.getTX();
+  double thy = h_p.getTY();
 
-  p_out.SetPx(direction * p_out.Px());
-  x1_ctpps = direction * h_p.getX() * um_to_mm;
-  y1_ctpps = h_p.getY() * um_to_mm;
+  if (produceHitsRelativeToBeam_) {
+    H_BeamParticle p_beam(mass, charge);
+    p_beam.set4Momentum(0., 0., beamMomentum_, beamEnergy_);
+    p_beam.setPosition(0., 0., fCrossingAngleX * urad, fCrossingAngleY * urad, 0.);
+    p_beam.computePath(&*_beamline);
+    thx -= p_beam.getTX();
+    thy -= p_beam.getTY();
+    x1_ctpps -= p_beam.getX();
+    y1_ctpps -= p_beam.getY();
+  }
 
+  double partP = sqrt(pow(h_p.getE(), 2) - ProtonMassSQ);
+  double theta = sqrt(thx * thx + thy * thy) * urad;
+
+  TLorentzVector p_out(
+      tan(thx * urad) * partP * cos(theta), tan(thy * urad) * partP * cos(theta), partP * cos(theta), h_p.getE());
+
+  // get variables in CMS ref frame
+  p_out.RotateY(TMath::Pi());
+  m_beamPart[line] = p_out;
+  m_xAtTrPoint[line] = -x1_ctpps * um_to_mm;  // move to CMS ref. frame
+  m_yAtTrPoint[line] = y1_ctpps * um_to_mm;
   if (verbosity_)
     LogDebug("HectorTransportEventProcessing")
         << "HectorTransport:filterPPS: barcode = " << line << " x=  " << x1_ctpps << " y= " << y1_ctpps;
 
-  m_beamPart[line] = p_out;
-  m_xAtTrPoint[line] = x1_ctpps;
-  m_yAtTrPoint[line] = y1_ctpps;
   return true;
 }
 bool HectorTransport::setBeamLine() {
@@ -177,9 +171,11 @@ bool HectorTransport::setBeamLine() {
 
   // construct beam line for PPS (forward 1 backward 2):
   if (fPPSBeamLineLength_ > 0.) {
-    m_beamline45 = std::unique_ptr<H_BeamLine>(new H_BeamLine(-1, fPPSBeamLineLength_ + 0.1));  // (direction, length)
+    m_beamline45 = std::unique_ptr<H_BeamLine>(
+        new H_BeamLine(-1, fPPSBeamLineLength_ + 0.1));  // it is needed to move too  (direction, length, beamEnergy_)
     m_beamline45->fill(b2.fullPath(), 1, "IP5");
-    m_beamline56 = std::unique_ptr<H_BeamLine>(new H_BeamLine(1, fPPSBeamLineLength_ + 0.1));  //
+    m_beamline56 = std::unique_ptr<H_BeamLine>(
+        new H_BeamLine(1, fPPSBeamLineLength_ + 0.1));  // the same as above, it requires a change in HECTOR
     m_beamline56->fill(b1.fullPath(), 1, "IP5");
   } else {
     if (verbosity_)

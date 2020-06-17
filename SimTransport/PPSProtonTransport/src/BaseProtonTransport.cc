@@ -36,7 +36,7 @@ void BaseProtonTransport::ApplyBeamCorrection(TLorentzVector& p_out) {
     theta = TMath::Pi() - theta;
 
   if (MODE == TransportMode::TOTEM)
-    thetax += (p_out.Pz() > 0) ? fCrossingAngle_45 * urad : fCrossingAngle_56 * urad;
+    thetax += (p_out.Pz() > 0) ? fCrossingAngleX_45 * urad : fCrossingAngleX_56 * urad;
 
   double dtheta_x = (double)CLHEP::RandGauss::shoot(engine_, 0., m_sigmaSTX);
   double dtheta_y = (double)CLHEP::RandGauss::shoot(engine_, 0., m_sigmaSTY);
