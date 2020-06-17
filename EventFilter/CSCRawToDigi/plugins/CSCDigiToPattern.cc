@@ -1,7 +1,31 @@
+/** \file
+ *
+ *  \author A. Tumanov - Rice
+ */
+
+#include <iostream>
+
+#include <FWCore/Framework/interface/ConsumesCollector.h>
 #include <FWCore/Utilities/interface/InputTag.h>
-#include "EventFilter/CSCRawToDigi/src/CSCDigiToPattern.h"
-#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+
+class CSCDigiToPattern : public edm::EDAnalyzer {
+public:
+  explicit CSCDigiToPattern(edm::ParameterSet const& conf);
+  void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;
+
+  //virtual void endJob();
+private:
+  // variables persistent across events should be declared here.
+  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> d_token;
+  //
+};
 
 CSCDigiToPattern::CSCDigiToPattern(edm::ParameterSet const& conf) {
   d_token = consumes<CSCCorrelatedLCTDigiCollection>(conf.getParameter<edm::InputTag>("corrlctDigiTag"));
@@ -39,3 +63,6 @@ void CSCDigiToPattern::analyze(edm::Event const& e, edm::EventSetup const& iSetu
     }
   }
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(CSCDigiToPattern);

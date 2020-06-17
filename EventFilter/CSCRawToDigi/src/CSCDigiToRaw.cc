@@ -324,6 +324,18 @@ void CSCDigiToRaw::add(const CSCCorrelatedLCTDigiCollection& corrLCTDigis, FindE
   }
 }
 
+void CSCDigiToRaw::add(const GEMPadDigiClusterCollection& gemPadClusters, FindEventDataInfo& fedInfo) const {
+  for (const auto& jclus : gemPadClusters) {
+    const GEMDetId& gemDetId = jclus.first;
+
+    const int zendcap = gemDetId.region() == 1 ? 1 : 2;
+    CSCDetId cscDetId(zendcap, gemDetId.station(), 1, gemDetId.chamber(), 0);
+    CSCEventData& cscData = findEventData(cscDetId, fedInfo);
+
+    cscData.add(std::vector<GEMPadDigiCluster>(jclus.second.first, jclus.second.second), gemDetId);
+  }
+}
+
 void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
                                     const CSCWireDigiCollection& wireDigis,
                                     const CSCComparatorDigiCollection& comparatorDigis,
@@ -331,11 +343,13 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
                                     const CSCCLCTDigiCollection& clctDigis,
                                     const CSCCLCTPreTriggerCollection& preTriggers,
                                     const CSCCorrelatedLCTDigiCollection& correlatedLCTDigis,
+                                    const GEMPadDigiClusterCollection& gemPadDigiClusters,
                                     FEDRawDataCollection& fed_buffers,
                                     const CSCChamberMap* mapping,
                                     Event& e,
                                     uint16_t format_version,
                                     bool use_pre_triggers,
+                                    bool useGEMs,
                                     bool packEverything) const {
   //bits of code from ORCA/Muon/METBFormatter - thanks, Rick:)!
 
@@ -346,7 +360,10 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
   add(wireDigis, alctDigis, fedInfo, packEverything);
   add(comparatorDigis, clctDigis, fedInfo, packEverything);
   add(correlatedLCTDigis, fedInfo);
-
+  // Starting Run-3, the CSC DAQ will pack/unpack GEM clusters
+  if (useGEMs) {
+    add(gemPadDigiClusters, fedInfo);
+  }
   int l1a = e.id().event();  //need to add increments or get it from lct digis
   int bx = l1a;              //same as above
   //int startingFED = FEDNumbering::MINCSCFEDID;
