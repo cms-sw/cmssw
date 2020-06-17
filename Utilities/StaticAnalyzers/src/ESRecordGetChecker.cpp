@@ -63,7 +63,6 @@ namespace clangcms {
     }
   }
 
-
   void ESRGetChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager &mgr, BugReporter &BR) const {
     const SourceManager &SM = BR.getSourceManager();
     PathDiagnosticLocation DLoc = PathDiagnosticLocation::createBegin(MD, SM);
@@ -75,7 +74,7 @@ namespace clangcms {
     walker.Visit(MD->getBody());
     return;
   }
-  
+
   void ESRGetChecker::checkASTDecl(const FunctionTemplateDecl *TD, AnalysisManager &mgr, BugReporter &BR) const {
     const clang::SourceManager &SM = BR.getSourceManager();
     clang::ento::PathDiagnosticLocation DLoc = clang::ento::PathDiagnosticLocation::createBegin(TD, SM);
