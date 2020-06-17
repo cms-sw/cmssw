@@ -13,7 +13,7 @@ namespace edm {
     BranchActionStreamBegin = 1,
     BranchActionStreamEnd = 2,
     BranchActionGlobalEnd = 3,
-    BranchActionGlobalOther = 4
+    BranchActionProcessBlockInput = 4
   };
 }
 #endif

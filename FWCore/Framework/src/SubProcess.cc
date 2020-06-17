@@ -413,7 +413,7 @@ namespace edm {
   }
 
   template <>
-  void SubProcess::doBeginProcessBlockAsync<OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalOther>>(
+  void SubProcess::doBeginProcessBlockAsync<OccurrenceTraits<ProcessBlockPrincipal, BranchActionProcessBlockInput>>(
       WaitingTaskHolder iHolder,
       ProcessBlockPrincipal const& principal,
       IOVSyncValue const&,
@@ -424,7 +424,7 @@ namespace edm {
     processBlockPrincipal.fillProcessBlockPrincipal(principal.processName(), principal.reader());
     propagateProducts(InProcess, principal, processBlockPrincipal);
 
-    using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalOther>;
+    using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionProcessBlockInput>;
     beginGlobalTransitionAsync<Traits>(
         std::move(iHolder), *schedule_, processBlockPrincipal, serviceToken_, subProcesses_);
   }

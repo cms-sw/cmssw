@@ -832,9 +832,9 @@ namespace edm {
       static SerialTaskQueue* enableGlobalQueue(Worker*) { return nullptr; }
     };
     template <>
-    class CallImpl<OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalOther>> {
+    class CallImpl<OccurrenceTraits<ProcessBlockPrincipal, BranchActionProcessBlockInput>> {
     public:
-      typedef OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalOther> Arg;
+      typedef OccurrenceTraits<ProcessBlockPrincipal, BranchActionProcessBlockInput> Arg;
       static bool call(Worker* iWorker,
                        StreamID,
                        ProcessBlockPrincipal const& pbp,

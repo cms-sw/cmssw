@@ -419,7 +419,7 @@ namespace edm {
   };
 
   template <>
-  class OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalOther> {
+  class OccurrenceTraits<ProcessBlockPrincipal, BranchActionProcessBlockInput> {
   public:
     using MyPrincipal = ProcessBlockPrincipal;
     using Context = GlobalContext;

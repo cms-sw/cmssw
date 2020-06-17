@@ -900,7 +900,7 @@ namespace edm {
       DelayedReader* reader = nullptr;
       processBlockPrincipal.fillProcessBlockPrincipal(processConfiguration_->processName(), reader);
 
-      using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalOther>;
+      using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionProcessBlockInput>;
       auto globalWaitTask = make_empty_waiting_task();
       globalWaitTask->increment_ref_count();
 
