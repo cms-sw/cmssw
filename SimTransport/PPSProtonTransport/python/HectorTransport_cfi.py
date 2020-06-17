@@ -127,7 +127,7 @@ hector_2017 = cms.PSet(
               Nominal_2017_beta40cm
 )
 
-hector_2018 = cms.Pset(
+hector_2018 = cms.PSet(
               baseHectorParameters,
               Nominal_2017_beta30cm  # CHANGE THIS WHEN THE PROPER ONE GET READY
 )
