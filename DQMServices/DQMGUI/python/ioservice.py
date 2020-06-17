@@ -3,19 +3,13 @@ import asyncio
 from async_lru import alru_cache
 from .nanoroot.io import XRDFile
 
-import timeit
-
 
 class IOService:
-    BLOCKSIZE = 128*1024 # number of bytes to read at once
-    # TODO: not sure if the readahead mechanism is really worth the trouble.
-    READAHEAD = 10       # number of blocks to read at once
+    BLOCKSIZE = 256*1024 # number of bytes to read at once
     CACHEBLOCKS = 1000   # total number of block to keep in cache
     CONNECTIONS = 100    # maximum number of open connections
     OPENTIMEOUT = 5      # maximum time to wait while opening file (seconds)
     MAXOPENTIME = 60     # maximum time that a connection stays open (seconds)
-
-    do_read_ahead = True
 
     
     @classmethod
@@ -37,17 +31,6 @@ class IOService:
     
 
     @classmethod
-    async def read_ahead(cls, url, firstblock):
-        """Internal: trigger reading some extra blocks in background after cache miss."""
-
-        size = await cls.read_len(url)
-        for blockid in range(firstblock, firstblock+cls.READAHEAD):
-            if size < cls.BLOCKSIZE*blockid:
-                break
-            await cls.read_block(url, blockid) 
-    
-
-    @classmethod
     @alru_cache(maxsize=CACHEBLOCKS)
     async def read_block(cls, url, blockid):
         """ 
@@ -55,15 +38,6 @@ class IOService:
 
         This method is cached, and that cache is the main block cache.
         """
-
-        # Start reading some blocks. This will read more blocks than we actually
-        # need in the background, to pre-populate the cache.
-        if cls.do_read_ahead:
-            # We need this flag to prevent an infinite recursion once 
-            # read_ahead calls read_block again...
-            cls.do_read_ahead = False
-            asyncio.Task(cls.read_ahead(url, blockid))
-        
         file = await cls.__connect(url)
         return await file[blockid*cls.BLOCKSIZE : (blockid+1)*cls.BLOCKSIZE]
 
@@ -164,7 +138,6 @@ class BlockCachedFile(AsyncBufferBase):
         
         # For the blocks we actually need (rarely more than one), we start parallel requests.
         blockids = list(range(firstblock, lastblock+1))
-        IOService.do_readahead = True
         tasks = [IOService.read_block(self.url, blockid) for blockid in blockids]
         blocks = await asyncio.gather(*tasks)
         
