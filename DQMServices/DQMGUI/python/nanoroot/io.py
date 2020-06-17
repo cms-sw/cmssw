@@ -22,8 +22,8 @@ class MMapFile:
 # Finally, some code for XrootD support. This is not really necessary to read (local)
 # ROOT files, but this is why we do asyncio in the first place. This should not be
 # used directly, without a layer of caching between us and XrootD. Such a cache is 
-# *not* provided here. (Maybe enabling XrootD client caching via env variables is
-# enough for some applications:
+# *not* provided here. There is minimal caching for small reads, which is enough to
+# read TTrees efficiently.
 # https://github.com/xrootd/xrootd/blob/master/src/XrdClient/README_params
 # Note that XrootD client *can* read local files (just use a local path as URL), but
 # it is much slower then mmap'ing.
@@ -54,7 +54,8 @@ class XRDFile:
         # this can be called from different thread and will call `unblock`
         def callback(*args):
             async_result.append(args)
-            loop.call_soon_threadsafe(unblock)
+            if loop.is_running(): # the loop may be shut down by the time we come back
+                loop.call_soon_threadsafe(unblock)
 
         # the actual call to pyxrootd
         function(*args, **kwargs, callback=callback)
@@ -72,6 +73,8 @@ class XRDFile:
         await self.__async_call(self.file.open, url, timeout=self.timeout)
         stat = await self.__async_call(self.file.stat)
         self.size = stat['size']
+        self.cache = []
+        self.cachestart = 0
         return self
 
     async def close(self):
@@ -83,10 +86,20 @@ class XRDFile:
         return self.size
     
     async def __getitem__(self, idx):
+        CACHESIZE = 1024*100
         if isinstance(idx, slice):
             start, end, stride = idx.indices(len(self))
             assert stride == 1 and start >= 0 and end >= 0
+            if self.cachestart <= start <= end <= self.cachestart + len(self.cache):
+                cachehit = self.cache[start - self.cachestart : end - self.cachestart]
+                return cachehit
+            if end - start < CACHESIZE:
+                self.cache = await self.__async_call(self.file.read, start, CACHESIZE, timeout = self.timeout)
+                self.cachestart = start
+                return self.cache[0:end-start]
+            # else: uncached read    
             buf = await self.__async_call(self.file.read, start, end-start, timeout = self.timeout)
+            #print(f"XRDFile.read  {(end-start)/1024:.2f}kB at {start} {endt-startt:.4f}s {(end-start)/(endt-startt)/1024/1024:.3f}MB/s from {startt} to {endt}")
             return buf
         else:
             return (await self[idx:idx+1])[0]
