@@ -176,14 +176,15 @@ def nanoAOD_addDeepInfo(process,addDeepBTag,addDeepFlavour):
     process.updatedJets.jetSource="selectedUpdatedPatJetsWithDeepInfo"
     return process
 
-def nanoAOD_addDeepMET(process, addDeepMETProducer):
+def nanoAOD_addDeepMET(process, addDeepMETProducer, ResponseTune_Graph):
     if addDeepMETProducer:
         # produce DeepMET on the fly if it is not in MiniAOD
         print("add DeepMET Producers")
         process.load('RecoMET.METPUSubtraction.deepMETProducer_cfi')
         process.deepMETsResolutionTune = process.deepMETProducer.clone()
         process.deepMETsResponseTune = process.deepMETProducer.clone()
-        process.deepMETsResponseTune.graph_path = 'RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2018.pb'
+        #process.deepMETsResponseTune.graph_path = 'RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2018.pb'
+        process.deepMETsResponseTune.graph_path = ResponseTune_Graph.value()
     process.metTables += process.deepMetTables
     return process
 
@@ -191,17 +192,23 @@ from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMet
 #from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
 def nanoAOD_recalibrateMETs(process,isData):
     # add DeepMETs
-    addDeepMET_switch = cms.PSet(
+    nanoAOD_DeepMET_switch = cms.PSet(
         nanoAOD_addDeepMET_switch = cms.untracked.bool(True), # decide if DeeMET should be included in Nano
         nanoAOD_produceDeepMET_switch = cms.untracked.bool(False), # decide if DeepMET should be computed on the fly
+        ResponseTune_Graph = cms.untracked.string('RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2018.pb')
     )
-    if addDeepMET_switch.nanoAOD_addDeepMET_switch:
-        process = nanoAOD_addDeepMET(process, addDeepMETProducer=addDeepMET_switch.nanoAOD_produceDeepMET_switch)
-        #for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-        #    modifier.toModify(process.deepMETsResponseTune.graph_path, "RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2016.pb")
+    for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_102Xv1, run2_nanoAOD_106Xv1:
+        # compute DeepMETs in these eras (before 111X)
+        modifier.toModify(nanoAOD_DeepMET_switch, nanoAOD_produceDeepMET_switch =  cms.untracked.bool(True))
+    for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
+        modifier.toModify(nanoAOD_DeepMET_switch, ResponseTune_Graph=cms.untracked.string("RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2016.pb"))
+    if nanoAOD_DeepMET_switch.nanoAOD_addDeepMET_switch:
+        process = nanoAOD_addDeepMET(process,
+                                     addDeepMETProducer=nanoAOD_DeepMET_switch.nanoAOD_produceDeepMET_switch,
+                                     ResponseTune_Graph=nanoAOD_DeepMET_switch.ResponseTune_Graph)
 
     # if included in Nano, and not computed in the fly, then it should be extracted from minAOD
-    extractDeepMETs = addDeepMET_switch.nanoAOD_addDeepMET_switch and not addDeepMET_switch.nanoAOD_produceDeepMET_switch
+    extractDeepMETs = nanoAOD_DeepMET_switch.nanoAOD_addDeepMET_switch and not nanoAOD_DeepMET_switch.nanoAOD_produceDeepMET_switch
 
     runMetCorAndUncFromMiniAOD(process,isData=isData, extractDeepMETs=extractDeepMETs)
     process.nanoSequenceCommon.insert(process.nanoSequenceCommon.index(process.jetSequence),cms.Sequence(process.fullPatMetSequence))
