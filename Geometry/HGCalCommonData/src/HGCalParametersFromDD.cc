@@ -205,7 +205,8 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       edm::LogVerbatim("HGCalGeom") << "Top levels " << php.levelT_[0] << ":" << php.levelT_[1] << " first layers "
                                     << php.firstLayer_ << ":" << php.firstMixedLayer_ << " Det Type "
                                     << php.detectorType_ << "  thickenss " << php.waferThick_ << " Tile Mask Mode "
-                                    << php.waferMaskMode_;;
+                                    << php.waferMaskMode_;
+      ;
 #endif
       // Load the SpecPars
       geom->loadSpecParsTrapezoid(fv, php);
@@ -292,8 +293,9 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "Top levels " << php.levelT_[0] << ":" << php.levelT_[1] << " ZSide Level "
                                     << php.levelZSide_ << " first layers " << php.firstLayer_ << ":"
-                                    << php.firstMixedLayer_ << " Det Type " << php.detectorType_<< " Wafer Mask Mode "
-                                    << php.waferMaskMode_;;
+                                    << php.firstMixedLayer_ << " Det Type " << php.detectorType_ << " Wafer Mask Mode "
+                                    << php.waferMaskMode_;
+      ;
 #endif
 
       tempS = fv.get<std::vector<std::string> >(namet, "WaferMode");
@@ -389,7 +391,8 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       edm::LogVerbatim("HGCalGeom") << "Top levels " << php.levelT_[0] << ":" << php.levelT_[1] << " first layers "
                                     << php.firstLayer_ << ":" << php.firstMixedLayer_ << " Det Type "
                                     << php.detectorType_ << "  thickenss " << php.waferThick_ << " min tile size "
-                                    << php.minTileSize_ << " Tile Mask Mode " << php.waferMaskMode_;;
+                                    << php.minTileSize_ << " Tile Mask Mode " << php.waferMaskMode_;
+      ;
 #endif
       // Load the SpecPars
       geom->loadSpecParsTrapezoid(fv, vmap, php, name);

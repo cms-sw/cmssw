@@ -194,7 +194,8 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
       unsigned int kk(0);
       std::unordered_map<int32_t, HGCalParameters::waferInfo>::const_iterator itr = phgp->waferInfoMap_.begin();
       for (; itr != phgp->waferInfoMap_.end(); ++itr, ++kk)
-	std::cout << "[" << kk << "] " << itr->first << " (" << (itr->second).type << ", " << (itr->second).part << ", " << (itr->second).orient << ")" << std::endl;
+        std::cout << "[" << kk << "] " << itr->first << " (" << (itr->second).type << ", " << (itr->second).part << ", "
+                  << (itr->second).orient << ")" << std::endl;
     }
   } else {
     // Tpaezoid (scintillator) type
@@ -274,7 +275,9 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
       unsigned int kk(0);
       std::unordered_map<int32_t, HGCalParameters::tileInfo>::const_iterator itr = phgp->tileInfoMap_.begin();
       for (; itr != phgp->tileInfoMap_.end(); ++itr, ++kk)
-	std::cout << "[" << kk << "] " << itr->first << " (" << (itr->second).type << ", " << (itr->second).sipm << std::hex << ", " << (itr->second).hex1<< ", " << (itr->second).hex2 << ", " << (itr->second).hex3 << ", " << (itr->second).hex4 << ")" << std::dec << std::endl;
+        std::cout << "[" << kk << "] " << itr->first << " (" << (itr->second).type << ", " << (itr->second).sipm
+                  << std::hex << ", " << (itr->second).hex1 << ", " << (itr->second).hex2 << ", " << (itr->second).hex3
+                  << ", " << (itr->second).hex4 << ")" << std::dec << std::endl;
     }
   }
 
