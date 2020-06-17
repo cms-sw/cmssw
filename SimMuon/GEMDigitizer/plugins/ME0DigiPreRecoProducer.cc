@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -46,6 +47,7 @@ public:
 private:
   //Name of Collection used for create the XF
   edm::EDGetTokenT<CrossingFrame<PSimHit> > cf_token;
+  edm::ESGetToken<ME0Geometry, MuonGeometryRecord> geom_token_;
 
   std::string digiPreRecoModelString_;
   std::unique_ptr<ME0DigiPreRecoModel> me0DigiPreRecoModel_;
@@ -69,14 +71,14 @@ ME0DigiPreRecoProducer::ME0DigiPreRecoProducer(const edm::ParameterSet& ps)
   std::string collection_(ps.getParameter<std::string>("inputCollection"));
 
   cf_token = consumes<CrossingFrame<PSimHit> >(edm::InputTag(mix_, collection_));
+  geom_token_ = esConsumes<ME0Geometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 }
 
 ME0DigiPreRecoProducer::~ME0DigiPreRecoProducer() = default;
 
 void ME0DigiPreRecoProducer::beginRun(const edm::Run&, const edm::EventSetup& eventSetup) {
   // set geometry
-  edm::ESHandle<ME0Geometry> hGeom;
-  eventSetup.get<MuonGeometryRecord>().get(hGeom);
+  edm::ESHandle<ME0Geometry> hGeom = eventSetup.getHandle(geom_token_);
   me0DigiPreRecoModel_->setGeometry(&*hGeom);
   me0DigiPreRecoModel_->setup();
 }
