@@ -3,7 +3,7 @@
 
 class CSCCFEBData;
 class CSCTMBHeader;
-class CSCCLCTData;
+class CSCComparatorData;
 class CSCWireDigi;
 class CSCStripDigi;
 #include <map>
@@ -92,7 +92,7 @@ public:
   CSCTMBHeader *tmbHeader() const;
 
   /// user must check if nclct > 0
-  CSCCLCTData *clctData() const;
+  CSCComparatorData *comparatorData() const;
 
   /// DMB trailer
   const CSCDMBTrailer *dmbTrailer() const { return &theDMBTrailer; }

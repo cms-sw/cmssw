@@ -152,7 +152,6 @@ process.pfPileUp = cms.EDProducer("PFPileUp",
 #                                    enable = cms.bool(True),
 #                                    topCollection = cms.InputTag("pfPileUp"),
 #                                    name = cms.untracked.string('pileUpOnPFCandidates'),
-#                                    verbose = cms.untracked.bool(False)
 #                                    )
 
 process.pfElectronBenchmarkGeneric = cms.EDAnalyzer("GenericBenchmarkAnalyzer",

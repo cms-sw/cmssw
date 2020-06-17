@@ -1,5 +1,5 @@
-#ifndef CSCCLCTData_h
-#define CSCCLCTData_h
+#ifndef CSCComparatorData_h
+#define CSCComparatorData_h
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include <vector>
@@ -9,8 +9,8 @@
 #include <atomic>
 #endif
 
-struct CSCCLCTDataWord {
-  CSCCLCTDataWord(unsigned cfeb, unsigned tbin, unsigned data) : data_(data), tbin_(tbin), cfeb_(cfeb) {}
+struct CSCComparatorDataWord {
+  CSCComparatorDataWord(unsigned cfeb, unsigned tbin, unsigned data) : data_(data), tbin_(tbin), cfeb_(cfeb) {}
   bool value(int distrip) { return (data_ >> distrip) & 0x1; }
   ///@@ not right! doesn't set zero
   void set(int distrip, bool value) { data_ |= (value << distrip); }
@@ -21,11 +21,11 @@ struct CSCCLCTDataWord {
 
 class CSCTMBHeader;
 
-class CSCCLCTData {
+class CSCComparatorData {
 public:
-  explicit CSCCLCTData(const CSCTMBHeader *tmbHeader);
-  CSCCLCTData(int ncfebs, int ntbins, int firmware_version = 2007);
-  CSCCLCTData(int ncfebs, int ntbins, const unsigned short *e0bbuf, int firmware_version = 2007);
+  explicit CSCComparatorData(const CSCTMBHeader *tmbHeader);
+  CSCComparatorData(int ncfebs, int ntbins, int firmware_version = 2007);
+  CSCComparatorData(int ncfebs, int ntbins, const unsigned short *e0bbuf, int firmware_version = 2007);
 
   /** turns on/off debug flag for this class */
   static void setDebug(const bool value) { debug = value; };
@@ -46,19 +46,19 @@ public:
   ///TODO for packing.  Doesn't do flipping yet
   void add(const CSCComparatorDigi &digi, const CSCDetId &id);
 
-  CSCCLCTDataWord &dataWord(int iline) const {
+  CSCComparatorDataWord &dataWord(int iline) const {
 #ifdef ASSERTS
     assert(iline < nlines());
 #endif
     union dataPtr {
       const unsigned short *s;
-      CSCCLCTDataWord *d;
+      CSCComparatorDataWord *d;
     } mptr;
     mptr.s = theData + iline;
     return *(mptr.d);
   }
 
-  CSCCLCTDataWord &dataWord(int cfeb, int tbin, int layer) const {
+  CSCComparatorDataWord &dataWord(int cfeb, int tbin, int layer) const {
     int iline = (layer - 1) + tbin * 6 + cfeb * 6 * ntbins_;
     return dataWord(iline);
   }

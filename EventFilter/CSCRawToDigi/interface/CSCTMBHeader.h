@@ -101,7 +101,7 @@ public:
   void add(const std::vector<CSCCorrelatedLCTDigi>& digis);
 
   /// tests that packing and unpacking give same results
-  static void selfTest();
+  static void selfTest(int firmwwareVersion, int firmwareRevision);
 
   friend std::ostream& operator<<(std::ostream& os, const CSCTMBHeader& hdr);
 

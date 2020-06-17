@@ -30,7 +30,6 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include <TTree.h>
-#include <boost/utility.hpp>
 
 /** Class that makes a TTree with:
      - variables from a Probe
@@ -133,9 +132,11 @@ namespace tnp {
     mutable std::vector<reco::CandidateBaseRef> passingProbes_;
   };
 
-  // This class inherits from boost::noncopyable, as copying it would break the addresses in the TTree
-  class BaseTreeFiller : boost::noncopyable {
+  // This class is noncopyable, as copying it would break the addresses in the TTree
+  class BaseTreeFiller {
   public:
+    BaseTreeFiller(const BaseTreeFiller &) = delete;
+    BaseTreeFiller &operator=(const BaseTreeFiller &) = delete;
     /// specify the name of the TTree, and the configuration for it
     BaseTreeFiller(const char *name, const edm::ParameterSet &config, edm::ConsumesCollector &&iC)
         : BaseTreeFiller(name, config, iC){};

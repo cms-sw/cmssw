@@ -29,10 +29,10 @@ public:
   void rememberHit(const HBHERecHit& hbhe);
   void SetFlagsFromRecHits(HBHERecHitCollection& rec);
 
-private:
   HBHEStatusBitSetter(const HBHEStatusBitSetter&) = delete;
   HBHEStatusBitSetter& operator=(const HBHEStatusBitSetter&) = delete;
 
+private:
   double hitEnergyMinimum_;
   int hitMultiplicityThreshold_;
   double nominalPedestal_;
