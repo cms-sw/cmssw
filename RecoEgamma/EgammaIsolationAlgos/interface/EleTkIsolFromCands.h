@@ -86,7 +86,7 @@ public:
 
   struct Output {
     const int nTracks;
-    const double ptSum;
+    const float ptSum;
   };
 
   Output operator()(const reco::TrackBase& electronTrack);
@@ -112,7 +112,7 @@ private:
                                              TrkCuts const& cuts,
                                              PIDVeto = PIDVeto::NONE);
 
-  static bool passTrackPreselection(const reco::TrackBase& trk, double trkPt, const TrkCuts& cuts);
+  static bool passTrackPreselection(const reco::TrackBase& trk, float trkPt, const TrkCuts& cuts);
 
   //no qualities specified, accept all, ORed
   static bool passQual(const reco::TrackBase& trk, const std::vector<reco::TrackBase::TrackQuality>& quals);
