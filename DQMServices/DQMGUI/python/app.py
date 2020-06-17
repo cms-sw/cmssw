@@ -58,7 +58,7 @@ async def samples_legacy(request):
         'samples': [{
             'type': 'offline_data',
             'items': [{
-                'run': sample.run if sample.lumi == 0 else '%s:%s' % (sample.run, sample.lumi),
+                'run': str(sample.run) if sample.lumi == 0 else '%s:%s' % (sample.run, sample.lumi),
                 'dataset': sample.dataset
             } for sample in samples]
         }]

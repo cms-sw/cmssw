@@ -337,7 +337,8 @@ Backend related task list.
 * Add QTests to protobuf output in CMSSW
 * Live mode integration
 * Cache invalidation in samples
-* Move efficiency flag to MEInfo
+* ~~Move efficiency flag to MEInfo~~
+  * It's not worth it as it adds a couple of seconds to import time
 * Clean up Scalar, EfficiencyFlag and QTest to OO hierarchy
 * Speed up linear search over sorted layouts
 * Flavours?
