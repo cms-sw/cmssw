@@ -22,7 +22,7 @@ DTPrimitive::DTPrimitive() {
     setPayload(0.0, i);
 }
 
-DTPrimitive::DTPrimitive(DTPrimitivePtr &ptr) {
+DTPrimitive::DTPrimitive(DTPrimitivePtr& ptr) {
   //std::cout<<"Clonando una 'DTPrimitive'"<<std::endl;
 
   setTimeCorrection(ptr->timeCorrection());
@@ -71,4 +71,3 @@ float DTPrimitive::wireHorizPos(void) {
     wireHorizPos += CELL_SEMILENGTH;
   return wireHorizPos;
 }
-

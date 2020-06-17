@@ -27,9 +27,9 @@ public:
   int nLayerhits() const { return nLayerhits_; };
   int nLayerUp() const { return nLayerUp_; };
   int nLayerDown() const { return nLayerDown_; };
-  DTPrimitivePtrs candHits() const { return candHits_; };  
+  DTPrimitivePtrs candHits() const { return candHits_; };
   std::bitset<8> quality() const { return quality_; };
-  const DTPattern* pattern() const { return pattern_; };  
+  const DTPattern* pattern() const { return pattern_; };
 
   //Set Methods
   void setCandId(int cId) { candId_ = cId; };

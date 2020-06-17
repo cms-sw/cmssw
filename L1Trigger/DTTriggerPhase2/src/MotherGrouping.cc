@@ -29,7 +29,7 @@ void MotherGrouping::initialise(const edm::EventSetup& iEventSetup) {
 void MotherGrouping::run(Event& iEvent,
                          const EventSetup& iEventSetup,
                          const DTDigiCollection& digis,
-                         MuonPathPtrs &mpaths) {
+                         MuonPathPtrs& mpaths) {
   if (debug)
     cout << "MotherGrouping: run" << endl;
 }

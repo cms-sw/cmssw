@@ -67,7 +67,7 @@ void MPRedundantFilter::filter(MuonPathPtr& mPath, MuonPathPtrs& outMPaths) {
   }
 }
 
-bool MPRedundantFilter::isInBuffer(MuonPathPtr &mPath) {
+bool MPRedundantFilter::isInBuffer(MuonPathPtr& mPath) {
   bool ans = false;
 
   if (!buffer.empty()) {

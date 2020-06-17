@@ -233,7 +233,7 @@ void MuonPathAnalyzerPerSL::analyze(MuonPathPtr &inMPath, std::vector<metaPrimit
 
         int idxHitNotValid = latQuality_[i].invalidateHitIdx;
         if (idxHitNotValid >= 0) {
-	  auto dtpAux = DTPrimitivePtr(new DTPrimitive());
+          auto dtpAux = DTPrimitivePtr(new DTPrimitive());
           mpAux->setPrimitive(dtpAux, idxHitNotValid);
         }
 

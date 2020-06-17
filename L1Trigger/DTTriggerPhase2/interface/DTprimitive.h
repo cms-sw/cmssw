@@ -41,13 +41,12 @@ public:
   const int cameraId(void) { return cameraId_; };
   const int superLayerId(void) { return superLayerId_; };
   const LATERAL_CASES laterality(void) { return laterality_; };
- 
 
 private:
-  int cameraId_;              // Chamber ID  
+  int cameraId_;              // Chamber ID
   int superLayerId_;          // SL ID
-  int layerId_;               // Layer ID 
-  int channelId_;             // Wire number 
+  int layerId_;               // Layer ID
+  int channelId_;             // Wire number
   LATERAL_CASES laterality_;  // LEFT, RIGHT, NONE
 
   int timeCorrection_;  // Correccion temporal por electronica, etc...

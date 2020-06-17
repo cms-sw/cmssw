@@ -98,7 +98,7 @@ void MuonPathAnalyzerInChamber::analyze(MuonPathPtr &inMPath, MuonPathPtrs &outM
   if (debug_)
     cout << inMPath->nprimitives() << endl;
   auto mPath = MuonPathPtr(new MuonPath(inMPath));
-  
+
   if (debug_) {
     std::cout << "DTp2::analyze, looking at mPath: " << std::endl;
     for (int i = 0; i < mPath->nprimitives(); i++)
@@ -118,7 +118,7 @@ void MuonPathAnalyzerInChamber::analyze(MuonPathPtr &inMPath, MuonPathPtrs &outM
   //  setCellLayout(mPath);
   setWirePosAndTimeInMP(mPath);
 
-  std::shared_ptr<MuonPath> mpAux; // = std::make_unique<MuonPath>(new MuonPath(NULL));
+  std::shared_ptr<MuonPath> mpAux;  // = std::make_unique<MuonPath>(new MuonPath(NULL));
   int bestI = -1;
   float best_chi2 = 99999.;
   for (int i = 0; i < totalNumValLateralities_; i++) {  // LOOP for all lateralities:
@@ -208,7 +208,7 @@ void MuonPathAnalyzerInChamber::analyze(MuonPathPtr &inMPath, MuonPathPtrs &outM
     double psi = atan(mPath->tanPhi());
     mPath->setPhi(jm_x_cmssw_global.phi() - 0.5235988 * (thisec - 1));
     mPath->setPhiB(hasPosRF(MuonPathSLId.wheel(), MuonPathSLId.sector()) ? psi - phi : -psi - phi);
-    
+
     if (mPath->chiSquare() < best_chi2 && mPath->chiSquare() > 0) {
       mpAux = std::shared_ptr<MuonPath>(new MuonPath(mPath));
       bestI = i;

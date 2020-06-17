@@ -19,7 +19,7 @@ CandidateGroup::~CandidateGroup() {}
 
 void CandidateGroup::addHit(DTPrimitive dthit, int lay, bool isGood) {
   //Add a hit, check if the hits layer was fired and if it wasn't add it to the fired layers
-  candHits_.push_back( DTPrimitivePtr( new DTPrimitive(dthit) ) );
+  candHits_.push_back(DTPrimitivePtr(new DTPrimitive(dthit)));
   if (quality_ != (quality_ | std::bitset<8>(power(2, lay))))
     nLayerhits_++;
   if (isGood)
@@ -43,8 +43,7 @@ void CandidateGroup::removeHit(DTPrimitive dthit) {
   quality_ = std::bitset<8>("00000000");
   for (auto dt_it = candHits_.begin(); dt_it != candHits_.end(); dt_it++) {
     if (dthit.layerId() == (*dt_it)->layerId() && dthit.channelId() == (*dt_it)->channelId()) {
-    } 
-    else {
+    } else {
       if (pattern_->latHitIn((*dt_it)->layerId(), (*dt_it)->channelId(), 0) > -5)
         nisGood_++;
       if (quality_ != (quality_ | std::bitset<8>(power(2, (*dt_it)->layerId()))))

@@ -27,10 +27,8 @@ MuonPath::MuonPath() {
   }
 }
 
-
-
 MuonPath::MuonPath(DTPrimitivePtrs &ptrPrimitive, int nprimUp, int nprimDown) {
-  if (nprimUp>0 && nprimDown>0) 
+  if (nprimUp > 0 && nprimDown > 0)
     nprimitives_ = 8;  //Instead of nprimUp + nprimDown;
   else {
     nprimitives_ = 4;
@@ -135,7 +133,8 @@ bool MuonPath::isEqualTo(MuonPath *ptr) {
 bool MuonPath::isAnalyzable(void) {
   short countValidHits = 0;
   for (int i = 0; i < this->nprimitives(); i++) {
-    if (!this->primitive(i)) continue;
+    if (!this->primitive(i))
+      continue;
     if (this->primitive(i)->isValidTime())
       countValidHits++;
   }

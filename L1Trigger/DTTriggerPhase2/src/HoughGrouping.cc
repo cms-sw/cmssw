@@ -873,7 +873,7 @@ void HoughGrouping::OrderAndFilter(std::vector<ProtoCand>& invector, MuonPathPtr
           tmpupfill++;
       }
     }
-    
+
     auto ptrMuonPath = MuonPathPtr(new MuonPath(ptrPrimitive, tmplowfill, tmpupfill));
     outMuonPath.push_back(ptrMuonPath);
     if (debug) {

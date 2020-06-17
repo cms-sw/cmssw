@@ -5,16 +5,15 @@
 
 #include "L1Trigger/DTTriggerPhase2/interface/DTprimitive.h"
 
-
 class MuonPath {
- public:
+public:
   MuonPath();
-  MuonPath(DTPrimitivePtrs &ptrPrimitive, int prup=0, int prdw=0);
-  MuonPath(std::shared_ptr<MuonPath>& ptr);
-  virtual ~MuonPath() {};
+  MuonPath(DTPrimitivePtrs &ptrPrimitive, int prup = 0, int prdw = 0);
+  MuonPath(std::shared_ptr<MuonPath> &ptr);
+  virtual ~MuonPath(){};
 
   // setter methods
-  void setPrimitive(DTPrimitivePtr& ptr, int layer);
+  void setPrimitive(DTPrimitivePtr &ptr, int layer);
   void setNPrimitives(short nprim) { nprimitives_ = nprim; };
   void setNPrimitivesUp(short nprim) { nprimitivesUp_ = nprim; };
   void setNPrimitivesDown(short nprim) { nprimitivesDown_ = nprim; };

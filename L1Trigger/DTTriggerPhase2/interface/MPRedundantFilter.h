@@ -54,10 +54,7 @@ public:
            const edm::EventSetup& iEventSetup,
            std::vector<metaPrimitive>& inMPath,
            std::vector<metaPrimitive>& outMPath){};
-  void run(edm::Event& iEvent,
-           const edm::EventSetup& iEventSetup,
-           MuonPathPtrs& inMPath,
-           MuonPathPtrs& outMPath);
+  void run(edm::Event& iEvent, const edm::EventSetup& iEventSetup, MuonPathPtrs& inMPath, MuonPathPtrs& outMPath);
   void finish() { buffer.clear(); };
 
   // Other public methods

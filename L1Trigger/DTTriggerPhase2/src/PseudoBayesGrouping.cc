@@ -204,7 +204,8 @@ void PseudoBayesGrouping::FillMuonPaths(MuonPathPtrs& mpaths) {
     if (debug)
       std::cout << "PseudoBayesGrouping::run Create pointers " << std::endl;
     DTPrimitivePtrs ptrPrimitive;
-    for (int i=0; i<8; i++) ptrPrimitive.push_back(DTPrimitivePtr(new DTPrimitive()));
+    for (int i = 0; i < 8; i++)
+      ptrPrimitive.push_back(DTPrimitivePtr(new DTPrimitive()));
 
     std::bitset<8> qualityDTP;
     int intHit = 0;
@@ -212,7 +213,7 @@ void PseudoBayesGrouping::FillMuonPaths(MuonPathPtrs& mpaths) {
     for (auto itDTP = (*itCand)->candHits().begin(); itDTP != (*itCand)->candHits().end(); itDTP++) {
       if (debug)
         std::cout << "PseudoBayesGrouping::run loop over dt hits to fill pointer" << std::endl;
-      
+
       int layerHit = (*itDTP)->layerId();
       //Back to the usual basis for SL
       if (layerHit >= 4) {
@@ -238,13 +239,13 @@ void PseudoBayesGrouping::FillMuonPaths(MuonPathPtrs& mpaths) {
         if (saveOnPlace) {
           //This will save the primitive in a place of the vector equal to its L position
           //ptrPrimitive[layerHit] = new DTPrimitive(&(*(itDTP)));
-	  ptrPrimitive.at(layerHit) = DTPrimitivePtr(new DTPrimitive((*itDTP))); 
+          ptrPrimitive.at(layerHit) = DTPrimitivePtr(new DTPrimitive((*itDTP)));
         }
         if (!saveOnPlace) {
           //This will save the primitive in order
           intHit++;
           //ptrPrimitive[intHit] = new DTPrimitive(&(*(itDTP)));
-	  ptrPrimitive.at(intHit) =  DTPrimitivePtr(new DTPrimitive((*itDTP))); 
+          ptrPrimitive.at(intHit) = DTPrimitivePtr(new DTPrimitive((*itDTP)));
         }
       }
     }
@@ -256,10 +257,9 @@ void PseudoBayesGrouping::FillMuonPaths(MuonPathPtrs& mpaths) {
         ptrPrimitive.at(i) = DTPrimitivePtr(new DTPrimitive());
       }
     }
-    
-    mpaths.push_back(MuonPathPtr(new MuonPath(ptrPrimitive, (short)(*itCand)->nLayerUp(), (short)(*itCand)->nLayerDown())));
-    
-    
+
+    mpaths.push_back(
+        MuonPathPtr(new MuonPath(ptrPrimitive, (short)(*itCand)->nLayerUp(), (short)(*itCand)->nLayerDown())));
   }
 }
 
@@ -422,13 +422,11 @@ void PseudoBayesGrouping::ReCleanPatternsAndDigis() {
     if (prelimMatches->size() == 0) {
       return;
     };
-    for (auto cand_it = prelimMatches->begin(); cand_it != prelimMatches->end();
-         cand_it++) {
+    for (auto cand_it = prelimMatches->begin(); cand_it != prelimMatches->end(); cand_it++) {
       //std::cout << "Ghostbusting hits: " << std::endl;
       if (*(*cand_it) == *(*itSel) && allowDuplicates)
         continue;
-      for (auto dt_it = (*itSel)->candHits().begin(); dt_it != (*itSel)->candHits().end();
-           dt_it++) {
+      for (auto dt_it = (*itSel)->candHits().begin(); dt_it != (*itSel)->candHits().end(); dt_it++) {
         //std::cout << "Ghostbusting hit " << std::endl;
         (*cand_it)->removeHit((*dt_it));
       }

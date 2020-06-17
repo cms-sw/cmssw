@@ -45,7 +45,7 @@ void InitialGrouping::run(Event &iEvent,
 
   //   This function returns the analyzable mpath collection back to the the main function
   //   so it can be fitted. This is in fact doing the so-called grouping.
-  
+
   for (int supLayer = 0; supLayer < NUM_SUPERLAYERS; supLayer++) {  // for each SL:
     if (debug)
       cout << "InitialGrouping::run Reading SL" << supLayer << endl;
@@ -61,13 +61,16 @@ void InitialGrouping::run(Event &iEvent,
         cout << "InitialGrouping::run --> now check pathId" << endl;
       for (int pathId = 0; pathId < 8; pathId++) {
         resetPrvTDCTStamp();
-	if (debug) cout << "[InitialGrouping::run] mixChannels calling" << endl;       	
+        if (debug)
+          cout << "[InitialGrouping::run] mixChannels calling" << endl;
         mixChannels(supLayer, pathId, mpaths);
-	if (debug) cout << "[InitialGrouping::run] mixChannels end" << endl;       	
+        if (debug)
+          cout << "[InitialGrouping::run] mixChannels end" << endl;
       }
     }
   }
-  if (debug) cout << "[InitialGrouping::run] end" << endl;       
+  if (debug)
+    cout << "[InitialGrouping::run] end" << endl;
 }
 
 void InitialGrouping::finish() { return; };
@@ -76,7 +79,6 @@ void InitialGrouping::finish() { return; };
 // Other methods
 // ============================================================================
 void InitialGrouping::setInChannels(const DTDigiCollection *digis, int sl) {
-  
   //   before setting channels we need to clear
   for (int lay = 0; lay < NUM_LAYERS; lay++) {
     for (int ch = 0; ch < NUM_CH_PER_LAYER; ch++) {
@@ -99,10 +101,9 @@ void InitialGrouping::setInChannels(const DTDigiCollection *digis, int sl) {
       int digiTIME = (*digiIt).time();
       int digiTIMEPhase2 = digiTIME;
 
-
       auto dtpAux = DTPrimitivePtr(new DTPrimitive());
       dtpAux->setTDCTimeStamp(digiTIMEPhase2);
-      dtpAux->setChannelId(wire);   
+      dtpAux->setChannelId(wire);
       dtpAux->setLayerId(layer);    //  L=0, 1, 2, 3
       dtpAux->setSuperLayerId(sl);  // SL=0,1,2
       dtpAux->setCameraId(dtLId.rawId());
@@ -123,7 +124,6 @@ void InitialGrouping::selectInChannels(int baseChannel) {
   // -----------------
   // |   0   |
   // ---------
-
 
   // ****** LAYER 0 ******
   muxInChannels[0] = channelIn[0][baseChannel];
@@ -195,12 +195,12 @@ void InitialGrouping::resetPrvTDCTStamp(void) {
     prevTDCTimeStamps[i] = -1;
 }
 
-
 bool InitialGrouping::isEqualComb2Previous(DTPrimitivePtrs dtPrims) {
   bool answer = true;
- 
+
   for (int i = 0; i < (int)dtPrims.size(); i++) {
-    if (dtPrims.at(i).get() == nullptr) continue;
+    if (dtPrims.at(i).get() == nullptr)
+      continue;
     if (prevTDCTimeStamps[i] != dtPrims.at(i)->tdcTimeStamp()) {
       answer = false;
       for (int j = 0; j < (int)dtPrims.size(); j++) {
@@ -213,7 +213,8 @@ bool InitialGrouping::isEqualComb2Previous(DTPrimitivePtrs dtPrims) {
 }
 
 void InitialGrouping::mixChannels(int supLayer, int pathId, MuonPathPtrs &outMuonPath) {
-  if (debug) cout << "[InitialGrouping::mixChannel] begin" << endl; 
+  if (debug)
+    cout << "[InitialGrouping::mixChannel] begin" << endl;
   DTPrimitivePtrs data[4];
 
   int horizLayout[4];
@@ -253,8 +254,9 @@ void InitialGrouping::mixChannels(int supLayer, int pathId, MuonPathPtrs &outMuo
       maxPrimsToBeRetrieved = 1;
 
     for (unsigned int items = 0; items < maxPrimsToBeRetrieved; items++) {
-      if (muxInChannels[canal].size() == 0) continue; 
-      
+      if (muxInChannels[canal].size() == 0)
+        continue;
+
       auto dtpAux = DTPrimitivePtr(std::move(muxInChannels[canal].at(items)));
       /*
         I won't allow a whole loop cycle. When a DTPrimitive has an invalid
@@ -264,8 +266,8 @@ void InitialGrouping::mixChannels(int supLayer, int pathId, MuonPathPtrs &outMuo
         DTPrim (even invalid) on the outgoing array. This is mandatory to cope
         with the idea explained in the previous comment block
       */
-      if (!dtpAux)  
-	break;
+      if (!dtpAux)
+        break;
       if (dtpAux->tdcTimeStamp() < 0 && items > 0)
         break;
 
@@ -285,7 +287,7 @@ void InitialGrouping::mixChannels(int supLayer, int pathId, MuonPathPtrs &outMuo
       numPrimsPerLayer[layer]++;
     }
   }
-  
+
   // Here we do the different combinations and send them to the output FIFO.
   int chIdx[4];
   for (chIdx[0] = 0; chIdx[0] < numPrimsPerLayer[0]; chIdx[0]++) {
@@ -296,15 +298,15 @@ void InitialGrouping::mixChannels(int supLayer, int pathId, MuonPathPtrs &outMuo
           // in each thread of the process independently, allowing us also to
           // delete them whenever it is necessary, without relying upon a
           // unique reference all over the code.
-	  
-	  DTPrimitivePtrs ptrPrimitive; 
+
+          DTPrimitivePtrs ptrPrimitive;
           for (int i = 0; i <= 3; i++) {
-	    ptrPrimitive.push_back(std::move((data[i])[chIdx[i]]));
-	  }
-	  
-	  auto ptrMuonPath = MuonPathPtr(new MuonPath(ptrPrimitive));
+            ptrPrimitive.push_back(std::move((data[i])[chIdx[i]]));
+          }
+
+          auto ptrMuonPath = MuonPathPtr(new MuonPath(ptrPrimitive));
           ptrMuonPath->setCellHorizontalLayout(horizLayout);
-	  
+
           /*
             This new version of this code is redundant with PathAnalyzer code,
             where every MuonPath not analyzable is discarded.
@@ -326,15 +328,15 @@ void InitialGrouping::mixChannels(int supLayer, int pathId, MuonPathPtrs &outMuo
             If duplicated combinations are not consecutive, they won't be
             detected here
           */
-	    ptrMuonPath->setBaseChannelId(currentBaseChannel);
-	    outMuonPath.push_back(std::move(ptrMuonPath));
-	    ptrPrimitive.clear();
-	  }
+            ptrMuonPath->setBaseChannelId(currentBaseChannel);
+            outMuonPath.push_back(std::move(ptrMuonPath));
+            ptrPrimitive.clear();
+          }
         }
       }
     }
   }
   for (int layer = 0; layer <= 3; layer++) {
     data[layer].clear();
-  } 
+  }
 }
