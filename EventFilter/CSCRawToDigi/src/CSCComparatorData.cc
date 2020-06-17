@@ -1,4 +1,4 @@
-#include "EventFilter/CSCRawToDigi/interface/CSCCLCTData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCComparatorData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -7,13 +7,14 @@
 #include <cstring>
 
 #ifdef LOCAL_UNPACK
-bool CSCCLCTData::debug = false;
+bool CSCComparatorData::debug = false;
 #else
 #include <atomic>
-std::atomic<bool> CSCCLCTData::debug{false};
+std::atomic<bool> CSCComparatorData::debug{false};
 #endif
 
-CSCCLCTData::CSCCLCTData(const CSCTMBHeader* tmbHeader) : ncfebs_(tmbHeader->NCFEBs()), ntbins_(tmbHeader->NTBins()) {
+CSCComparatorData::CSCComparatorData(const CSCTMBHeader* tmbHeader)
+    : ncfebs_(tmbHeader->NCFEBs()), ntbins_(tmbHeader->NTBins()) {
   if (tmbHeader != nullptr)
     theFirmwareVersion = tmbHeader->FirmwareVersion();
   else
@@ -22,13 +23,13 @@ CSCCLCTData::CSCCLCTData(const CSCTMBHeader* tmbHeader) : ncfebs_(tmbHeader->NCF
   zero();
 }
 
-CSCCLCTData::CSCCLCTData(int ncfebs, int ntbins, int firmware_version)
+CSCComparatorData::CSCComparatorData(int ncfebs, int ntbins, int firmware_version)
     : ncfebs_(ncfebs), ntbins_(ntbins), theFirmwareVersion(firmware_version) {
   size_ = nlines();
   zero();
 }
 
-CSCCLCTData::CSCCLCTData(int ncfebs, int ntbins, const unsigned short* buf, int firmware_version)
+CSCComparatorData::CSCComparatorData(int ncfebs, int ntbins, const unsigned short* buf, int firmware_version)
     : ncfebs_(ncfebs), ntbins_(ntbins), theFirmwareVersion(firmware_version) {
   // add two more for odd ntbins, plus one for the e0c
   // Oct 2004 Rick: e0c line belongs to CSCTMBTrailer
@@ -37,17 +38,17 @@ CSCCLCTData::CSCCLCTData(int ncfebs, int ntbins, const unsigned short* buf, int 
   memcpy(theData, buf, size_ * 2);
 }
 
-void CSCCLCTData::zero() {
+void CSCComparatorData::zero() {
   for (int ifeb = 0; ifeb < ncfebs_; ++ifeb) {
     for (int tbin = 0; tbin < ntbins_; ++tbin) {
       for (int layer = 1; layer <= 6; ++layer) {
-        dataWord(ifeb, tbin, layer) = CSCCLCTDataWord(ifeb, tbin, 0);
+        dataWord(ifeb, tbin, layer) = CSCComparatorDataWord(ifeb, tbin, 0);
       }
     }
   }
 }
 
-std::vector<CSCComparatorDigi> CSCCLCTData::comparatorDigis(uint32_t idlayer, unsigned cfeb) {
+std::vector<CSCComparatorDigi> CSCComparatorData::comparatorDigis(uint32_t idlayer, unsigned cfeb) {
   static const bool doStripSwapping = true;
   bool me1a = (CSCDetId::station(idlayer) == 1) && (CSCDetId::ring(idlayer) == 4);
   bool zplus = (CSCDetId::endcap(idlayer) == 1);
@@ -69,7 +70,7 @@ std::vector<CSCComparatorDigi> CSCCLCTData::comparatorDigis(uint32_t idlayer, un
     for (int tbin = 0; tbin < ntbins_ - 2; ++tbin) {
       if (bitValue(cfeb, tbin, layer, distrip)) {
         /// first do some checks
-        CSCCLCTDataWord word = dataWord(cfeb, tbin, layer);
+        CSCComparatorDataWord word = dataWord(cfeb, tbin, layer);
         assert(word.tbin_ == tbin);
         assert(word.cfeb_ == cfeb);
         // we have a hit.  The next two time samples
@@ -91,7 +92,7 @@ std::vector<CSCComparatorDigi> CSCCLCTData::comparatorDigis(uint32_t idlayer, un
                */
 
         if (debug)
-          LogTrace("CSCCLCTData|CSCRawToDigi")
+          LogTrace("CSCComparatorData|CSCRawToDigi")
               << "fillComparatorOutputs: layer = " << layer << " timebin = " << tbin << " cfeb = " << cfeb
               << " distrip = " << chamberDistrip << " HalfStrip = " << HalfStrip << " Output " << output << std::endl;
         ///what is actually stored in comparator digis are 0/1 for left/right halfstrip for each strip
@@ -146,8 +147,8 @@ std::vector<CSCComparatorDigi> CSCCLCTData::comparatorDigis(uint32_t idlayer, un
       int strip = 16 * cfeb_corr + 2 * distrip_corr + 1;
 
       if (debug)
-        LogTrace("CSCCLCTData|CSCRawToDigi") << "fillComparatorOutputs: cfeb_corr = " << cfeb_corr
-                                             << " distrip_corr = " << distrip_corr << " strip = " << strip;
+        LogTrace("CSCComparatorData|CSCRawToDigi") << "fillComparatorOutputs: cfeb_corr = " << cfeb_corr
+                                                   << " distrip_corr = " << distrip_corr << " strip = " << strip;
 
       if (doStripSwapping && ((me1a && zplus) || (me1b && !zplus))) {
         // Half-strips need to be flipped too.
@@ -175,7 +176,7 @@ std::vector<CSCComparatorDigi> CSCCLCTData::comparatorDigis(uint32_t idlayer, un
   return result;
 }
 
-std::vector<CSCComparatorDigi> CSCCLCTData::comparatorDigis(int layer) {
+std::vector<CSCComparatorDigi> CSCComparatorData::comparatorDigis(int layer) {
   //returns comparators for one layer for all cfebs
   std::vector<CSCComparatorDigi> result;
   assert(layer > 0 && layer <= 6);
@@ -188,7 +189,7 @@ std::vector<CSCComparatorDigi> CSCCLCTData::comparatorDigis(int layer) {
   return result;
 }
 
-void CSCCLCTData::add(const CSCComparatorDigi& digi, int layer) {
+void CSCComparatorData::add(const CSCComparatorDigi& digi, int layer) {
   //FIXME do flipping
   int strip = digi.getStrip();
   int halfStrip = (strip - 1) * 2 + digi.getComparator();
@@ -216,10 +217,10 @@ void CSCCLCTData::add(const CSCComparatorDigi& digi, int layer) {
   }
 }
 
-/*** 
+/***
  * Comparator packing version with ME11 strips swapping
  ***/
-void CSCCLCTData::add(const CSCComparatorDigi& digi, const CSCDetId& cid) {
+void CSCComparatorData::add(const CSCComparatorDigi& digi, const CSCDetId& cid) {
   static const bool doStripSwapping = true;
   bool me1a = (cid.station() == 1) && (cid.ring() == 4);
   bool zplus = (cid.endcap() == 1);
@@ -293,37 +294,37 @@ void CSCCLCTData::add(const CSCComparatorDigi& digi, const CSCDetId& cid) {
   }
 }
 
-bool CSCCLCTData::check() const {
+bool CSCComparatorData::check() const {
   bool result = true;
   for (int cfeb = 0; cfeb < ncfebs_; ++cfeb) {
     for (int tbin = 0; tbin < ntbins_; ++tbin) {
       for (int layer = 1; layer <= 6; ++layer) {
         /// first do some checks
-        const CSCCLCTDataWord& word = dataWord(cfeb, tbin, layer);
+        const CSCComparatorDataWord& word = dataWord(cfeb, tbin, layer);
         bool wordIsGood = (word.tbin_ == tbin) && (word.cfeb_ == cfeb);
         result = result && wordIsGood;
         if (!wordIsGood && debug) {
-          LogTrace("CSCCLCTData|CSCRawToDigi")
+          LogTrace("CSCComparatorData|CSCRawToDigi")
               << "Bad CLCT data  in layer " << layer << " expect CFEB " << cfeb << " tbin " << tbin;
-          LogTrace("CSCCLCTData|CSCRawToDigi") << " See " << word.cfeb_ << " " << word.tbin_;
+          LogTrace("CSCComparatorData|CSCRawToDigi") << " See " << word.cfeb_ << " " << word.tbin_;
         }
       }
     }
   }
   if (!result)
-    LogTrace("CSCCLCTData|CSCRawToDigi") << "++ Bad CLCT Data ++ ";
+    LogTrace("CSCComparatorData|CSCRawToDigi") << "++ Bad CLCT Data ++ ";
   return result;
 }
 
-void CSCCLCTData::dump() const {
+void CSCComparatorData::dump() const {
   for (int i = 0; i < size_; i++) {
     printf("%04x %04x %04x %04x\n", theData[i + 3], theData[i + 2], theData[i + 1], theData[i]);
     i += 3;
   }
 }
 
-void CSCCLCTData::selfTest() {
-  CSCCLCTData clctData(5, 16);
+void CSCComparatorData::selfTest() {
+  CSCComparatorData comparatorData(5, 16);
   // aim for output 4 in 5th time bin, = 0000000000010000
   CSCComparatorDigi comparatorDigi1(1, 0, 0x10);
   // aim for output 5 in 6th time bin, = 0000 0000 0010 0000
@@ -331,17 +332,17 @@ void CSCCLCTData::selfTest() {
   // aim for output 7 in 7th time bin, = 000 0000 0100 0000
   CSCComparatorDigi comparatorDigi3(80, 1, 0x40);
 
-  clctData.add(comparatorDigi1, 1);
-  clctData.add(comparatorDigi2, 4);
-  clctData.add(comparatorDigi3, 6);
+  comparatorData.add(comparatorDigi1, 1);
+  comparatorData.add(comparatorDigi2, 4);
+  comparatorData.add(comparatorDigi3, 6);
 
   CSCDetId layer1(1, 4, 1, 2, 1);
   CSCDetId layer4(1, 4, 1, 2, 4);
   CSCDetId layer6(1, 4, 1, 2, 6);
 
-  std::vector<CSCComparatorDigi> digis1 = clctData.comparatorDigis(1);
-  std::vector<CSCComparatorDigi> digis2 = clctData.comparatorDigis(4);
-  std::vector<CSCComparatorDigi> digis3 = clctData.comparatorDigis(6);
+  std::vector<CSCComparatorDigi> digis1 = comparatorData.comparatorDigis(1);
+  std::vector<CSCComparatorDigi> digis2 = comparatorData.comparatorDigis(4);
+  std::vector<CSCComparatorDigi> digis3 = comparatorData.comparatorDigis(6);
 
   assert(digis1.size() == 1);
   assert(digis2.size() == 1);

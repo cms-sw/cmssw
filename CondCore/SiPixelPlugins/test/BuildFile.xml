@@ -4,7 +4,4 @@
 <use name="CondFormats/SiPixelTransient"/>
 <use name="CalibTracker/SiPixelESProducers"/>
 <bin file="testSiPixelPayloadInspector.cpp" name="testPixelPayloadInspector">
- <ifrelease name="_PY3_">
-    <flags SETENV="PYTHONHOME=$(PYTHON_BASE)"/>
- </ifrelease>
 </bin>

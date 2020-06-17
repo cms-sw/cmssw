@@ -2,7 +2,6 @@
 <use name="DataFormats/MuonReco"/>
 <use name="DataFormats/CSCRecHit"/>
 <use name="DataFormats/DTRecHit"/>
-<use name="FWCore/Utilities"/>
 <export>
   <lib name="1"/>
 </export>
