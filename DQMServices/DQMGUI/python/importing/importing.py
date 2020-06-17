@@ -83,30 +83,16 @@ class GUIImportManager:
         
         # delegate the hard work to a process pool.
         if cls.executor:
-            mes_lists = await asyncio.get_event_loop().run_in_executor(cls.executor,
+            samples, blob_descriptions = await asyncio.get_event_loop().run_in_executor(cls.executor,
                 cls.import_sync, fileformat, filename, dataset, run, lumi)
         else:
+            # TODO: we could directly call import_async here.
             assert False, "Could run in-process here but we don't need that."
 
-        # It's possible that some samples that exists in this file were not yet
-        # registered as samples (through register API endpoint). So we (re)create 
-        # all samples that we have found
-        samples = [SampleFull(dataset, run=int(key[0]), lumi=int(key[1]), file=filename, fileformat=fileformat) for key in mes_lists]
         await cls.store.register_samples(samples)
-
-        for key in mes_lists:
-            mes = mes_lists[key]
-            mes.sort()
-
-            # Separate lists
-            names_list = b'\n'.join(name for name, _ in mes)
-            infos_list = [info for _, info in mes]
-
-            # Compress blobs
-            names_blob = await cls.compressor.compress_names_list(names_list)
-            infos_blob = await cls.compressor.compress_infos_list(infos_list)
-
-            await cls.store.add_blobs(names_blob, infos_blob, dataset, filename, run=key[0], lumi=key[1])
+        for blob_description in blob_descriptions:
+            # import_sync prepares everything
+            await cls.store.add_blobs(**blob_description)
 
         return True
 
@@ -132,7 +118,45 @@ class GUIImportManager:
         This function should be called in a different process (via multiprocessing)
         to actually perform the import.
         """
-        importer = cls.__pick_importer(fileformat)
-        mes_lists = asyncio.run(importer.get_me_lists(filename, dataset, run, lumi))
-        return mes_lists
+        # This must be a top-level, sync,  public function, so multiprocessing 
+        # can import this module on the (clean, forked before initalization)
+        # worker process and then call it using the pickle'd arguments.
+
+        # But we need an async function to call async stuff, so here it is.
+        async def import_async():
+            importer = cls.__pick_importer(fileformat)
+            mes_lists = await importer.get_me_lists(filename, dataset, run, lumi)
+
+            # It's possible that some samples that exists in this file were not yet
+            # registered as samples (through register API endpoint). So we (re)create 
+            # all samples that we have found
+            samples = [SampleFull(dataset, run=int(key[0]), lumi=int(key[1]), file=filename, fileformat=fileformat) for key in mes_lists]
+            
+            blob_descriptions = []
+
+            for key in mes_lists:
+                mes = mes_lists[key]
+                mes.sort()
+
+                # Separate lists
+                names_list = b'\n'.join(name for name, _ in mes)
+                infos_list = [info for _, info in mes]
+
+                # these go straight into GUIDataStore.add_blobs(...), but back in the main process.
+                blob_descriptions.append({
+                    # Compress blobs
+                    'names_blob': await cls.compressor.compress_names_list(names_list),
+                    'infos_blob': await cls.compressor.compress_infos_list(infos_list),
+                    'dataset': dataset,
+                    'filename': filename,
+                    'run': key[0],
+                    'lumi': key[1],
+                })
+            return samples, blob_descriptions
+
+        # To call the async function, we set up and tear down and event loop just
+        # for this one call. The worker is left 'clean', without anything running.
+        return asyncio.run(import_async())
+
+
         
