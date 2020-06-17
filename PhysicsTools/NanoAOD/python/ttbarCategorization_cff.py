@@ -22,7 +22,7 @@ matchGenCHadron = matchGenCHadron.clone(
 )
 
 ## Producer for ttbar categorisation ID
-from TopQuarkAnalysis.TopTools.GenTtbarCategorizer_cfi import categorizeGenTtbar
+from TopQuarkAnalysis.TopTools.categorizeGenTtbar_cfi import categorizeGenTtbar
 categorizeGenTtbar = categorizeGenTtbar.clone(
     genJetPtMin = 20.,
     genJetAbsEtaMax = 2.4,
