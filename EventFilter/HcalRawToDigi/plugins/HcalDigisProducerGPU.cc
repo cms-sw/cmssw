@@ -111,14 +111,20 @@ HcalDigisProducerGPU::HcalDigisProducerGPU(const edm::ParameterSet& ps)
   edm::Service<CUDAService> cs;
   if (cs and cs->enabled()) {
     // allocate on the device
-    cudaCheck(cudaMalloc((void**)&df01_.data, config_.maxChannelsF01HE * sizeof(uint16_t) * hcal::compute_stride<hcal::Flavor01>(config_.nsamplesF01HE)));
+    cudaCheck(cudaMalloc(
+        (void**)&df01_.data,
+        config_.maxChannelsF01HE * sizeof(uint16_t) * hcal::compute_stride<hcal::Flavor01>(config_.nsamplesF01HE)));
     cudaCheck(cudaMalloc((void**)&df01_.ids, config_.maxChannelsF01HE * sizeof(uint32_t)));
 
-    cudaCheck(cudaMalloc((void**)&df5_.data, config_.maxChannelsF5HB * sizeof(uint16_t) * hcal::compute_stride<hcal::Flavor5>(config_.nsamplesF5HB)));
+    cudaCheck(cudaMalloc(
+        (void**)&df5_.data,
+        config_.maxChannelsF5HB * sizeof(uint16_t) * hcal::compute_stride<hcal::Flavor5>(config_.nsamplesF5HB)));
     cudaCheck(cudaMalloc((void**)&df5_.ids, config_.maxChannelsF5HB * sizeof(uint32_t)));
     cudaCheck(cudaMalloc((void**)&df5_.npresamples, sizeof(uint8_t) * config_.maxChannelsF5HB));
 
-    cudaCheck(cudaMalloc((void**)&df3_.data, config_.maxChannelsF3HB * sizeof(uint16_t) * hcal::compute_stride<hcal::Flavor3>(config_.nsamplesF3HB)));
+    cudaCheck(cudaMalloc(
+        (void**)&df3_.data,
+        config_.maxChannelsF3HB * sizeof(uint16_t) * hcal::compute_stride<hcal::Flavor3>(config_.nsamplesF3HB)));
     cudaCheck(cudaMalloc((void**)&df3_.ids, config_.maxChannelsF3HB * sizeof(uint32_t)));
   }
 

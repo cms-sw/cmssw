@@ -23,7 +23,8 @@ namespace ecal {
 
     typename type_wrapper<reco::StorageScalarType, L>::type energy;
     typename type_wrapper<reco::StorageScalarType, L>::type time;
-    typename type_wrapper<reco::StorageScalarType, L>::type chi2;  // should we remove this, since already included in "extra" ?
+    // should we remove the following, since already included in "extra" ?
+    typename type_wrapper<reco::StorageScalarType, L>::type chi2;
     typename type_wrapper<uint32_t, L>::type extra;     // packed uint32_t for timeError, chi2, energyError
     typename type_wrapper<uint32_t, L>::type flagBits;  // store rechit condition (see Flags enum) in a bit-wise way
 
