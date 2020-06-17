@@ -7,7 +7,6 @@
 
 #include "MahiGPU.h"
 
-
 #ifdef HCAL_MAHI_GPUDEBUG
 #define DETID_TO_DEBUG 1125647428
 #endif
