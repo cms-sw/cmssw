@@ -368,21 +368,21 @@ int main(int argc, char *argv[]) {
       stats->SetY2NDC(y1);
       stats->SetY1NDC(y1 - (y2 - y1));
     }
-    
+
     c.cd(2);
     gPad->SetGrid();
     hSOIAmplitudesEBGPUvsCPU->Draw("COLZ");
-    
+
     c.cd(5);
     gPad->SetGrid();
     hSOIAmplitudesEEGPUvsCPU->Draw("COLZ");
-    
+
     c.cd(3);
-    
+
     hSOIAmplitudesEBGPUCPUratio->Draw("");
-    
+
     c.cd(6);
-    
+
     hSOIAmplitudesEEGPUCPUratio->Draw("");
 
     c.SaveAs("ecal-amplitudes.root");
@@ -406,7 +406,7 @@ int main(int argc, char *argv[]) {
       stats->SetY2NDC(y1);
       stats->SetY1NDC(y1 - (y2 - y1));
     }
-    
+
     c.cd(4);
     {
       gPad->SetLogy();
@@ -423,21 +423,21 @@ int main(int argc, char *argv[]) {
       stats->SetY2NDC(y1);
       stats->SetY1NDC(y1 - (y2 - y1));
     }
-    
+
     c.cd(2);
     gPad->SetGrid();
     hChi2EBGPUvsCPU->Draw("COLZ");
-    
+
     c.cd(5);
     gPad->SetGrid();
     hChi2EEGPUvsCPU->Draw("COLZ");
-    
+
     c.cd(3);
-    
+
     hChi2EBGPUCPUratio->Draw("");
-    
+
     c.cd(6);
-    
+
     hChi2EEGPUCPUratio->Draw("");
 
     c.SaveAs("ecal-chi2.root");
@@ -445,7 +445,6 @@ int main(int argc, char *argv[]) {
 
     // flags
 
-    
     c.cd(1);
     {
       gPad->SetLogy();
@@ -462,7 +461,7 @@ int main(int argc, char *argv[]) {
       stats->SetY2NDC(y1);
       stats->SetY1NDC(y1 - (y2 - y1));
     }
-    
+
     c.cd(4);
     {
       gPad->SetLogy();
@@ -479,19 +478,18 @@ int main(int argc, char *argv[]) {
       stats->SetY2NDC(y1);
       stats->SetY1NDC(y1 - (y2 - y1));
     }
-    
+
     c.cd(2);
     gPad->SetGrid();
     hFlagsEBGPUvsCPU->Draw("COLZ");
-    
+
     c.cd(5);
     gPad->SetGrid();
     hFlagsEEGPUvsCPU->Draw("COLZ");
-    
+
     c.cd(3);
     hFlagsEBGPUCPUratio->Draw("");
 
-    
     c.cd(6);
     hFlagsEEGPUCPUratio->Draw("");
 
