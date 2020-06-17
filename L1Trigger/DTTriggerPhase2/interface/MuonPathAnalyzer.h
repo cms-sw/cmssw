@@ -54,12 +54,12 @@ public:
   virtual void initialise(const edm::EventSetup& iEventSetup);
   virtual void run(edm::Event& iEvent,
                    const edm::EventSetup& iEventSetup,
-                   std::vector<MuonPath*>& inMpath,
+                   MuonPathPtrs& inMpath,
                    std::vector<metaPrimitive>& metaPrimitives) = 0;
   virtual void run(edm::Event& iEvent,
                    const edm::EventSetup& iEventSetup,
-                   std::vector<MuonPath*>& inMpath,
-                   std::vector<MuonPath*>& outMPath) = 0;
+                   MuonPathPtrs& inMpath,
+                   MuonPathPtrs& outMPath) = 0;
 
   virtual void finish();
 

@@ -71,8 +71,8 @@ void MuonPathAnalyzerInChamber::initialise(const edm::EventSetup &iEventSetup) {
 
 void MuonPathAnalyzerInChamber::run(edm::Event &iEvent,
                                     const edm::EventSetup &iEventSetup,
-                                    std::vector<MuonPath *> &muonpaths,
-                                    std::vector<MuonPath *> &outmuonpaths) {
+                                    MuonPathPtrs &muonpaths,
+                                    MuonPathPtrs &outmuonpaths) {
   if (debug_)
     cout << "MuonPathAnalyzerInChamber: run" << endl;
 
@@ -90,15 +90,15 @@ void MuonPathAnalyzerInChamber::finish() {
 //------------------------------------------------------------------
 //--- Métodos privados
 //------------------------------------------------------------------
-void MuonPathAnalyzerInChamber::analyze(MuonPath *inMPath, std::vector<MuonPath *> &outMPath) {
+void MuonPathAnalyzerInChamber::analyze(MuonPathPtr &inMPath, MuonPathPtrs &outMPath) {
   if (debug_)
     std::cout << "DTp2:analyze \t\t\t\t starts" << std::endl;
 
   // Clonamos el objeto analizado.
   if (debug_)
     cout << inMPath->nprimitives() << endl;
-  MuonPath *mPath = new MuonPath(*inMPath);
-
+  auto mPath = MuonPathPtr(new MuonPath(inMPath));
+  
   if (debug_) {
     std::cout << "DTp2::analyze, looking at mPath: " << std::endl;
     for (int i = 0; i < mPath->nprimitives(); i++)
@@ -118,7 +118,7 @@ void MuonPathAnalyzerInChamber::analyze(MuonPath *inMPath, std::vector<MuonPath 
   //  setCellLayout(mPath);
   setWirePosAndTimeInMP(mPath);
 
-  MuonPath *mpAux(NULL);
+  std::shared_ptr<MuonPath> mpAux; // = std::make_unique<MuonPath>(new MuonPath(NULL));
   int bestI = -1;
   float best_chi2 = 99999.;
   for (int i = 0; i < totalNumValLateralities_; i++) {  // LOOP for all lateralities:
@@ -208,9 +208,9 @@ void MuonPathAnalyzerInChamber::analyze(MuonPath *inMPath, std::vector<MuonPath 
     double psi = atan(mPath->tanPhi());
     mPath->setPhi(jm_x_cmssw_global.phi() - 0.5235988 * (thisec - 1));
     mPath->setPhiB(hasPosRF(MuonPathSLId.wheel(), MuonPathSLId.sector()) ? psi - phi : -psi - phi);
-
+    
     if (mPath->chiSquare() < best_chi2 && mPath->chiSquare() > 0) {
-      mpAux = new MuonPath(mPath);
+      mpAux = std::shared_ptr<MuonPath>(new MuonPath(mPath));
       bestI = i;
       best_chi2 = mPath->chiSquare();
     }
@@ -227,7 +227,7 @@ void MuonPathAnalyzerInChamber::analyze(MuonPath *inMPath, std::vector<MuonPath 
     std::cout << "DTp2:analize \t\t\t\t\t Ended working with this set of lateralities" << std::endl;
 }
 
-void MuonPathAnalyzerInChamber::setCellLayout(MuonPath *mpath) {
+void MuonPathAnalyzerInChamber::setCellLayout(MuonPathPtr &mpath) {
   for (int i = 0; i <= mpath->nprimitives(); i++) {
     if (mpath->primitive(i)->isValidTime())
       cellLayout_[i] = mpath->primitive(i)->channelId();
@@ -252,7 +252,7 @@ void MuonPathAnalyzerInChamber::setCellLayout(MuonPath *mpath) {
  * trayectoria recta. Es decir, la partícula no hace un zig-zag entre los hilos
  * de diferentes celdas, al pasar de una a otra.
  */
-void MuonPathAnalyzerInChamber::buildLateralities(MuonPath *mpath) {
+void MuonPathAnalyzerInChamber::buildLateralities(MuonPathPtr &mpath) {
   if (debug_)
     cout << "MPAnalyzer::buildLateralities << setLateralitiesFromPrims " << endl;
   mpath->setLateralCombFromPrimitives();
@@ -331,14 +331,14 @@ void MuonPathAnalyzerInChamber::buildLateralities(MuonPath *mpath) {
     }
   }
 }
-void MuonPathAnalyzerInChamber::setLateralitiesInMP(MuonPath *mpath, TLateralities lat) {
+void MuonPathAnalyzerInChamber::setLateralitiesInMP(MuonPathPtr &mpath, TLateralities lat) {
   LATERAL_CASES tmp[8];
   for (int i = 0; i < 8; i++)
     tmp[i] = lat[i];
 
   mpath->setLateralComb(tmp);
 }
-void MuonPathAnalyzerInChamber::setWirePosAndTimeInMP(MuonPath *mpath) {
+void MuonPathAnalyzerInChamber::setWirePosAndTimeInMP(MuonPathPtr &mpath) {
   int selected_Id = 0;
   for (int i = 0; i < mpath->nprimitives(); i++) {
     if (mpath->primitive(i)->isValidTime()) {
@@ -388,7 +388,7 @@ void MuonPathAnalyzerInChamber::setWirePosAndTimeInMP(MuonPath *mpath) {
   if (debug_)
     cout << endl;
 }
-void MuonPathAnalyzerInChamber::calculateFitParameters(MuonPath *mpath,
+void MuonPathAnalyzerInChamber::calculateFitParameters(MuonPathPtr &mpath,
                                                        TLateralities laterality,
                                                        int present_layer[8]) {
   // First prepare mpath for fit:
@@ -585,7 +585,7 @@ void MuonPathAnalyzerInChamber::calculateFitParameters(MuonPath *mpath,
  * válidas, para determinar la calidad final asignada al "MuonPath" con el que
  * se está trabajando.
  */
-void MuonPathAnalyzerInChamber::evaluateQuality(MuonPath *mPath) {
+void MuonPathAnalyzerInChamber::evaluateQuality(MuonPathPtr &mPath) {
   // Por defecto.
   mPath->setQuality(NOPATH);
 

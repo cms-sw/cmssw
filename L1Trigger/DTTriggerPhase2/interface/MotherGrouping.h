@@ -55,7 +55,7 @@ public:
   virtual void run(edm::Event& iEvent,
                    const edm::EventSetup& iEventSetup,
                    const DTDigiCollection& digis,
-                   std::vector<MuonPath*>* outMpath);
+                   MuonPathPtrs& outMpath);
   virtual void finish();
 
   // Other public methods

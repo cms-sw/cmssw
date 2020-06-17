@@ -167,7 +167,7 @@ void PseudoBayesGrouping::LoadPattern(std::vector<std::vector<std::vector<int>>>
 void PseudoBayesGrouping::run(Event& iEvent,
                               const EventSetup& iEventSetup,
                               const DTDigiCollection& digis,
-                              std::vector<MuonPath*>* mpaths) {
+                              MuonPathPtrs& mpaths) {
   //Takes dt digis collection and does the grouping for correlated hits, it is saved in a vector of up to 8 (or 4) correlated hits
   if (debug)
     cout << "PseudoBayesGrouping::run" << endl;
@@ -198,33 +198,36 @@ void PseudoBayesGrouping::run(Event& iEvent,
     std::cout << "PseudoBayesGrouping::run ended run" << std::endl;
 }
 
-void PseudoBayesGrouping::FillMuonPaths(std::vector<MuonPath*>* mpaths) {
+void PseudoBayesGrouping::FillMuonPaths(MuonPathPtrs& mpaths) {
   //Loop over all selected candidates
   for (auto itCand = finalMatches->begin(); itCand != finalMatches->end(); itCand++) {
     if (debug)
       std::cout << "PseudoBayesGrouping::run Create pointers " << std::endl;
-    DTPrimitive* ptrPrimitive[8];
+    DTPrimitivePtrs ptrPrimitive;
+    for (int i=0; i<8; i++) ptrPrimitive.push_back(DTPrimitivePtr(new DTPrimitive()));
+
     std::bitset<8> qualityDTP;
     int intHit = 0;
     //And for each candidate loop over all grouped hits
     for (auto itDTP = (*itCand)->candHits().begin(); itDTP != (*itCand)->candHits().end(); itDTP++) {
       if (debug)
         std::cout << "PseudoBayesGrouping::run loop over dt hits to fill pointer" << std::endl;
-      int layerHit = itDTP->layerId();
+      
+      int layerHit = (*itDTP)->layerId();
       //Back to the usual basis for SL
       if (layerHit >= 4) {
-        itDTP->setLayerId(layerHit - 4);
+        (*itDTP)->setLayerId(layerHit - 4);
       }
       std::bitset<8> ref8Hit((*itCand)->power(2, layerHit));
       //Get the predicted laterality
       if (setLateralities) {
-        int predLat = (*itCand)->pattern()->latHitIn(layerHit, itDTP->channelId(), allowedVariance);
+        int predLat = (*itCand)->pattern()->latHitIn(layerHit, (*itDTP)->channelId(), allowedVariance);
         if (predLat == -10 || predLat == 0) {
-          itDTP->setLaterality(NONE);
+          (*itDTP)->setLaterality(NONE);
         } else if (predLat == -1) {
-          itDTP->setLaterality(LEFT);
+          (*itDTP)->setLaterality(LEFT);
         } else if (predLat == +1) {
-          itDTP->setLaterality(RIGHT);
+          (*itDTP)->setLaterality(RIGHT);
         }
       }
       //Only fill the DT primitives pointer if there is not one hit already in the layer
@@ -234,12 +237,14 @@ void PseudoBayesGrouping::FillMuonPaths(std::vector<MuonPath*>* mpaths) {
         qualityDTP = (qualityDTP | ref8Hit);
         if (saveOnPlace) {
           //This will save the primitive in a place of the vector equal to its L position
-          ptrPrimitive[layerHit] = new DTPrimitive(&(*(itDTP)));
+          //ptrPrimitive[layerHit] = new DTPrimitive(&(*(itDTP)));
+	  ptrPrimitive.at(layerHit) = DTPrimitivePtr(new DTPrimitive((*itDTP))); 
         }
         if (!saveOnPlace) {
           //This will save the primitive in order
           intHit++;
-          ptrPrimitive[intHit] = new DTPrimitive(&(*(itDTP)));
+          //ptrPrimitive[intHit] = new DTPrimitive(&(*(itDTP)));
+	  ptrPrimitive.at(intHit) =  DTPrimitivePtr(new DTPrimitive((*itDTP))); 
         }
       }
     }
@@ -248,10 +253,13 @@ void PseudoBayesGrouping::FillMuonPaths(std::vector<MuonPath*>* mpaths) {
     for (int i = 0; i <= 7; i++) {
       ipow *= 2;
       if (qualityDTP != (qualityDTP | std::bitset<8>(1 << i))) {
-        ptrPrimitive[i] = new DTPrimitive();
+        ptrPrimitive.at(i) = DTPrimitivePtr(new DTPrimitive());
       }
     }
-    mpaths->push_back(new MuonPath(ptrPrimitive, (short)(*itCand)->nLayerUp(), (short)(*itCand)->nLayerDown()));
+    
+    mpaths.push_back(MuonPathPtr(new MuonPath(ptrPrimitive, (short)(*itCand)->nLayerUp(), (short)(*itCand)->nLayerDown())));
+    
+    
   }
 }
 
@@ -414,12 +422,12 @@ void PseudoBayesGrouping::ReCleanPatternsAndDigis() {
     if (prelimMatches->size() == 0) {
       return;
     };
-    for (std::vector<CandidateGroup*>::iterator cand_it = prelimMatches->begin(); cand_it != prelimMatches->end();
+    for (auto cand_it = prelimMatches->begin(); cand_it != prelimMatches->end();
          cand_it++) {
       //std::cout << "Ghostbusting hits: " << std::endl;
       if (*(*cand_it) == *(*itSel) && allowDuplicates)
         continue;
-      for (std::vector<DTPrimitive>::iterator dt_it = (*itSel)->candHits().begin(); dt_it != (*itSel)->candHits().end();
+      for (auto dt_it = (*itSel)->candHits().begin(); dt_it != (*itSel)->candHits().end();
            dt_it++) {
         //std::cout << "Ghostbusting hit " << std::endl;
         (*cand_it)->removeHit((*dt_it));

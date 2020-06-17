@@ -2,13 +2,17 @@
 #define L1Trigger_DTTriggerPhase2_DTprimitive_h
 
 #include "L1Trigger/DTTriggerPhase2/interface/constants.h"
+#include <ostream>
+#include <memory>
+#include <vector>
 
 using namespace cmsdt;
 
 class DTPrimitive {
 public:
   DTPrimitive();
-  DTPrimitive(DTPrimitive *ptr);
+  DTPrimitive(std::shared_ptr<DTPrimitive>& ptr);
+  DTPrimitive(DTPrimitive* ptr);
   virtual ~DTPrimitive();
 
   /* Este método se implementará en la FPGA mediante la comprobación de un
@@ -27,30 +31,23 @@ public:
   void setSuperLayerId(int lay) { superLayerId_ = lay; };
   void setLaterality(LATERAL_CASES lat) { laterality_ = lat; };
 
-  int timeCorrection(void) { return timeCorrection_; };
-  int tdcTimeStamp(void) { return tdcTimeStamp_; };
-  int orbit(void) { return orbit_; };
-  int tdcTimeStampNoOffset(void) { return tdcTimeStamp_ - timeCorrection_; };
-  double payLoad(int idx) { return payLoad_[idx]; };
-  int channelId(void) { return channelId_; };
-  int layerId(void) { return layerId_; };
-  int cameraId(void) { return cameraId_; };
-  int superLayerId(void) { return superLayerId_; };
-  LATERAL_CASES laterality(void) { return laterality_; };
+  const int timeCorrection(void) { return timeCorrection_; };
+  const int tdcTimeStamp(void) { return tdcTimeStamp_; };
+  const int orbit(void) { return orbit_; };
+  const int tdcTimeStampNoOffset(void) { return tdcTimeStamp_ - timeCorrection_; };
+  const double payLoad(int idx) { return payLoad_[idx]; };
+  const int channelId(void) { return channelId_; };
+  const int layerId(void) { return layerId_; };
+  const int cameraId(void) { return cameraId_; };
+  const int superLayerId(void) { return superLayerId_; };
+  const LATERAL_CASES laterality(void) { return laterality_; };
+ 
 
 private:
-  /* Estos identificadores no tienen nada que ver con el "número de canal"
-       que se emplea en el analizador y el resto de componentes. Estos sirven
-       para identificar, en el total de la cámara, cada canal individual, y el
-       par "cameraId, channelId" (o equivalente) ha de ser único en todo el
-       experimento.
-       Aquellos sirven para identificar un canal concreto dentro de un
-       analizador, recorren los valores de 0 a 9 (tantos como canales tiene
-       un analizador) y se repiten entre analizadores */
-  int cameraId_;              // Identificador de la cámara
-  int superLayerId_;          // Identificador de la super-layer
-  int layerId_;               // Identificador de la capa del canal
-  int channelId_;             // Identificador del canal en la capa
+  int cameraId_;              // Chamber ID  
+  int superLayerId_;          // SL ID
+  int layerId_;               // Layer ID 
+  int channelId_;             // Wire number 
   LATERAL_CASES laterality_;  // LEFT, RIGHT, NONE
 
   int timeCorrection_;  // Correccion temporal por electronica, etc...
@@ -58,5 +55,9 @@ private:
   int orbit_;           // Número de órbita
   double payLoad_[PAYLOAD_ENTRIES];
 };
+
+typedef std::vector<DTPrimitive> DTPrimitives;
+typedef std::shared_ptr<DTPrimitive> DTPrimitivePtr;
+typedef std::vector<DTPrimitivePtr> DTPrimitivePtrs;
 
 #endif

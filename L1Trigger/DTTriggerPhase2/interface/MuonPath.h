@@ -1,19 +1,20 @@
 #ifndef L1Trigger_DTTriggerPhase2_MuonPath_h
 #define L1Trigger_DTTriggerPhase2_MuonPath_h
 #include <iostream>
+#include <memory>
 
 #include "L1Trigger/DTTriggerPhase2/interface/DTprimitive.h"
 
+
 class MuonPath {
-public:
+ public:
   MuonPath();
-  MuonPath(DTPrimitive *ptrPrimitive[4]);
-  MuonPath(DTPrimitive *ptrPrimitive[8], int nprimUp, int nprimDown);
-  MuonPath(MuonPath *ptr);
-  virtual ~MuonPath();
+  MuonPath(DTPrimitivePtrs &ptrPrimitive, int prup=0, int prdw=0);
+  MuonPath(std::shared_ptr<MuonPath>& ptr);
+  virtual ~MuonPath() {};
 
   // setter methods
-  void setPrimitive(DTPrimitive *ptr, int layer);
+  void setPrimitive(DTPrimitivePtr& ptr, int layer);
   void setNPrimitives(short nprim) { nprimitives_ = nprim; };
   void setNPrimitivesUp(short nprim) { nprimitivesUp_ = nprim; };
   void setNPrimitivesDown(short nprim) { nprimitivesDown_ = nprim; };
@@ -39,7 +40,7 @@ public:
   void setRawId(uint32_t id) { rawId_ = id; };
 
   // getter methods
-  DTPrimitive *primitive(int layer) { return prim_[layer]; };
+  DTPrimitivePtr primitive(int layer) { return prim_[layer]; };
   short nprimitives(void) { return nprimitives_; };
   short nprimitivesDown(void) { return nprimitivesDown_; };
   short nprimitivesUp(void) { return nprimitivesUp_; };
@@ -73,8 +74,8 @@ private:
   /*
       Primitivas que forman el path. En posición 0 está el dato del canal de la
       capa inferior, y de ahí hacia arriba. El orden es crítico.
-     */
-  DTPrimitive *prim_[8];
+  */
+  DTPrimitivePtrs prim_;  //ENSURE that there are no more than 4-8 prims
   short nprimitives_;
   short nprimitivesUp_;
   short nprimitivesDown_;
@@ -122,5 +123,9 @@ private:
 
   uint32_t rawId_;
 };
+
+typedef std::vector<MuonPath> MuonPaths;
+typedef std::shared_ptr<MuonPath> MuonPathPtr;
+typedef std::vector<MuonPathPtr> MuonPathPtrs;
 
 #endif

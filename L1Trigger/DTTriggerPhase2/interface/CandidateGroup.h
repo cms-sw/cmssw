@@ -27,9 +27,9 @@ public:
   int nLayerhits() const { return nLayerhits_; };
   int nLayerUp() const { return nLayerUp_; };
   int nLayerDown() const { return nLayerDown_; };
-  std::vector<DTPrimitive> candHits() { return candHits_; };  // WHAT TO DO WITH THIS!!!
+  DTPrimitivePtrs candHits() const { return candHits_; };  
   std::bitset<8> quality() const { return quality_; };
-  const DTPattern* pattern() const { return pattern_; };  // WHAT TO DO WITH THIS!!!
+  const DTPattern* pattern() const { return pattern_; };  
 
   //Set Methods
   void setCandId(int cId) { candId_ = cId; };
@@ -51,7 +51,8 @@ public:
   }
 
 private:
-  std::vector<DTPrimitive> candHits_;
+  //std::vector<DTPrimitive> candHits_;
+  DTPrimitivePtrs candHits_;
   std::bitset<8> quality_;
   int nhits_;
   int nLayerhits_;

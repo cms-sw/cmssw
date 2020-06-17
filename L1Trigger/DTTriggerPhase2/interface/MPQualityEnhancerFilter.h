@@ -55,8 +55,8 @@ public:
            std::vector<metaPrimitive> &outMPath);
   void run(edm::Event &iEvent,
            const edm::EventSetup &iEventSetup,
-           std::vector<MuonPath *> &inMPath,
-           std::vector<MuonPath *> &outMPath){};
+           MuonPathPtrs &inMPath,
+           MuonPathPtrs &outMPath){};
 
   void finish();
 

@@ -65,7 +65,7 @@ void MuonPathAnalyzerPerSL::initialise(const edm::EventSetup &iEventSetup) {
 
 void MuonPathAnalyzerPerSL::run(edm::Event &iEvent,
                                 const edm::EventSetup &iEventSetup,
-                                std::vector<MuonPath *> &muonpaths,
+                                MuonPathPtrs &muonpaths,
                                 std::vector<metaPrimitive> &metaPrimitives) {
   if (debug_)
     cout << "MuonPathAnalyzerPerSL: run" << endl;
@@ -92,7 +92,7 @@ const int MuonPathAnalyzerPerSL::LAYER_ARRANGEMENTS_[4][3] = {
 //--- Métodos privados
 //------------------------------------------------------------------
 
-void MuonPathAnalyzerPerSL::analyze(MuonPath *inMPath, std::vector<metaPrimitive> &metaPrimitives) {
+void MuonPathAnalyzerPerSL::analyze(MuonPathPtr &inMPath, std::vector<metaPrimitive> &metaPrimitives) {
   if (debug_)
     std::cout << "DTp2:analyze \t\t\t\t starts" << std::endl;
 
@@ -122,7 +122,7 @@ void MuonPathAnalyzerPerSL::analyze(MuonPath *inMPath, std::vector<metaPrimitive
     return;  // avoid running when mpath not in chosen SL (for 1SL fitting)
 
   // Clonamos el objeto analizado.
-  MuonPath *mPath = new MuonPath(inMPath);
+  auto mPath = MuonPathPtr(new MuonPath(inMPath));
 
   if (mPath->isAnalyzable()) {
     if (debug_)
@@ -136,18 +136,18 @@ void MuonPathAnalyzerPerSL::analyze(MuonPath *inMPath, std::vector<metaPrimitive
   }
 
   int wi[8], tdc[8], lat[8];
-  DTPrimitive Prim0(mPath->primitive(0));
-  wi[0] = Prim0.channelId();
-  tdc[0] = Prim0.tdcTimeStamp();
-  DTPrimitive Prim1(mPath->primitive(1));
-  wi[1] = Prim1.channelId();
-  tdc[1] = Prim1.tdcTimeStamp();
-  DTPrimitive Prim2(mPath->primitive(2));
-  wi[2] = Prim2.channelId();
-  tdc[2] = Prim2.tdcTimeStamp();
-  DTPrimitive Prim3(mPath->primitive(3));
-  wi[3] = Prim3.channelId();
-  tdc[3] = Prim3.tdcTimeStamp();
+  DTPrimitivePtr Prim0(mPath->primitive(0));
+  wi[0] = Prim0->channelId();
+  tdc[0] = Prim0->tdcTimeStamp();
+  DTPrimitivePtr Prim1(mPath->primitive(1));
+  wi[1] = Prim1->channelId();
+  tdc[1] = Prim1->tdcTimeStamp();
+  DTPrimitivePtr Prim2(mPath->primitive(2));
+  wi[2] = Prim2->channelId();
+  tdc[2] = Prim2->tdcTimeStamp();
+  DTPrimitivePtr Prim3(mPath->primitive(3));
+  wi[3] = Prim3->channelId();
+  tdc[3] = Prim3->tdcTimeStamp();
   for (int i = 4; i < 8; i++) {
     wi[i] = -1;
     tdc[i] = -1;
@@ -212,7 +212,7 @@ void MuonPathAnalyzerPerSL::analyze(MuonPath *inMPath, std::vector<metaPrimitive
           std::cout << "DTp2:analyze \t\t\t\t\t laterality #- " << i << " done settingLateralCombination" << std::endl;
 
         // Clonamos el objeto analizado.
-        MuonPath *mpAux = new MuonPath(mPath);
+        auto mpAux = MuonPathPtr(new MuonPath(mPath));
         lat[0] = mpAux->lateralComb()[0];
         lat[1] = mpAux->lateralComb()[1];
         lat[2] = mpAux->lateralComb()[2];
@@ -233,8 +233,8 @@ void MuonPathAnalyzerPerSL::analyze(MuonPath *inMPath, std::vector<metaPrimitive
 
         int idxHitNotValid = latQuality_[i].invalidateHitIdx;
         if (idxHitNotValid >= 0) {
-          delete mpAux->primitive(idxHitNotValid);
-          mpAux->setPrimitive(std::move(new DTPrimitive()), idxHitNotValid);
+	  auto dtpAux = DTPrimitivePtr(new DTPrimitive());
+          mpAux->setPrimitive(dtpAux, idxHitNotValid);
         }
 
         if (debug_)
@@ -372,7 +372,6 @@ void MuonPathAnalyzerPerSL::analyze(MuonPath *inMPath, std::vector<metaPrimitive
                         << std::endl;
           }
         }
-        delete mpAux;
       } else {
         if (debug_)
           std::cout << "DTp2:analyze \t\t\t\t\t\t\t\t  latQuality_[i].valid and (((mPath->quality()==HIGHQ or "
@@ -419,7 +418,6 @@ void MuonPathAnalyzerPerSL::analyze(MuonPath *inMPath, std::vector<metaPrimitive
                                               -1}));
     }
   }
-  delete mPath;
   if (debug_)
     std::cout << "DTp2:analyze \t\t\t\t finishes" << std::endl;
 }
@@ -514,7 +512,7 @@ bool MuonPathAnalyzerPerSL::isStraightPath(LATERAL_CASES sideComb[4]) {
  * válidas, para determinar la calidad final asignada al "MuonPath" con el que
  * se está trabajando.
  */
-void MuonPathAnalyzerPerSL::evaluatePathQuality(MuonPath *mPath) {
+void MuonPathAnalyzerPerSL::evaluatePathQuality(MuonPathPtr &mPath) {
   // here
   int totalHighQ = 0, totalLowQ = 0;
 
@@ -568,7 +566,7 @@ void MuonPathAnalyzerPerSL::evaluatePathQuality(MuonPath *mPath) {
   }
 }
 
-void MuonPathAnalyzerPerSL::evaluateLateralQuality(int latIdx, MuonPath *mPath, LATQ_TYPE *latQuality) {
+void MuonPathAnalyzerPerSL::evaluateLateralQuality(int latIdx, MuonPathPtr &mPath, LATQ_TYPE *latQuality) {
   int layerGroup[3];
   LATERAL_CASES sideComb[3];
   PARTIAL_LATQ_TYPE latQResult[4] = {{false, 0}, {false, 0}, {false, 0}, {false, 0}};
@@ -706,7 +704,7 @@ void MuonPathAnalyzerPerSL::evaluateLateralQuality(int latIdx, MuonPath *mPath, 
  */
 void MuonPathAnalyzerPerSL::validate(LATERAL_CASES sideComb[3],
                                      int layerIndex[3],
-                                     MuonPath *mPath,
+                                     MuonPathPtr &mPath,
                                      PARTIAL_LATQ_TYPE *latq) {
   // Valor por defecto.
   latq->bxValue = 0;
@@ -902,7 +900,7 @@ void MuonPathAnalyzerPerSL::validate(LATERAL_CASES sideComb[3],
  *    layerIdx[0] -> Capa más baja,
  *    layerIdx[1] -> Capa más alta
  */
-int MuonPathAnalyzerPerSL::eqMainBXTerm(LATERAL_CASES sideComb[2], int layerIdx[2], MuonPath *mPath) {
+int MuonPathAnalyzerPerSL::eqMainBXTerm(LATERAL_CASES sideComb[2], int layerIdx[2], MuonPathPtr &mPath) {
   int eqTerm = 0, coefs[2];
 
   lateralCoeficients(sideComb, coefs);
@@ -925,7 +923,7 @@ int MuonPathAnalyzerPerSL::eqMainBXTerm(LATERAL_CASES sideComb[2], int layerIdx[
  *    layerIdx[0] -> Capa más baja,
  *    layerIdx[1] -> Capa más alta
  */
-int MuonPathAnalyzerPerSL::eqMainTerm(LATERAL_CASES sideComb[2], int layerIdx[2], MuonPath *mPath, int bxValue) {
+int MuonPathAnalyzerPerSL::eqMainTerm(LATERAL_CASES sideComb[2], int layerIdx[2], MuonPathPtr &mPath, int bxValue) {
   int eqTerm = 0, coefs[2];
 
   lateralCoeficients(sideComb, coefs);
@@ -1032,7 +1030,7 @@ bool MuonPathAnalyzerPerSL::sameBXValue(PARTIAL_LATQ_TYPE *latq) {
  * El eje 'Y' se apoya sobre los hilos de las capas 1 y 3 y sobre los costados
  * de las capas 0 y 2.
  */
-void MuonPathAnalyzerPerSL::calculatePathParameters(MuonPath *mPath) {
+void MuonPathAnalyzerPerSL::calculatePathParameters(MuonPathPtr &mPath) {
   // El orden es importante. No cambiar sin revisar el codigo.
   if (debug_)
     std::cout << "DTp2:calculatePathParameters \t\t\t\t\t\t  calculating calcCellDriftAndXcoor(mPath) " << std::endl;
@@ -1060,7 +1058,7 @@ void MuonPathAnalyzerPerSL::calculatePathParameters(MuonPath *mPath) {
   calcChiSquare(mPath);
 }
 
-void MuonPathAnalyzerPerSL::calcTanPhiXPosChamber(MuonPath *mPath) {
+void MuonPathAnalyzerPerSL::calcTanPhiXPosChamber(MuonPathPtr &mPath) {
   /*
       La mayoría del código de este método tiene que ser optimizado puesto que
       se hacen llamadas y cálculos redundantes que ya se han evaluado en otros
@@ -1146,7 +1144,7 @@ void MuonPathAnalyzerPerSL::calcTanPhiXPosChamber(MuonPath *mPath) {
 /**
  * Cálculos de coordenada y ángulo para un caso de 4 HITS de alta calidad.
  */
-void MuonPathAnalyzerPerSL::calcTanPhiXPosChamber4Hits(MuonPath *mPath) {
+void MuonPathAnalyzerPerSL::calcTanPhiXPosChamber4Hits(MuonPathPtr &mPath) {
   int x_prec_inv = (int)(1. / (10. * x_precision_));
   int numberOfBits = (int)(round(std::log(x_prec_inv) / std::log(2.)));
   int numerator = 3 * (int)round(mPath->xCoorCell(3) / (10 * x_precision_)) +
@@ -1164,7 +1162,7 @@ void MuonPathAnalyzerPerSL::calcTanPhiXPosChamber4Hits(MuonPath *mPath) {
 /**
  * Cálculos de coordenada y ángulo para un caso de 3 HITS.
  */
-void MuonPathAnalyzerPerSL::calcTanPhiXPosChamber3Hits(MuonPath *mPath) {
+void MuonPathAnalyzerPerSL::calcTanPhiXPosChamber3Hits(MuonPathPtr &mPath) {
   int layerIdx[2];
   int x_prec_inv = (int)(1. / (10. * x_precision_));
   int numberOfBits = (int)(round(std::log(x_prec_inv) / std::log(2.)));
@@ -1214,7 +1212,7 @@ void MuonPathAnalyzerPerSL::calcTanPhiXPosChamber3Hits(MuonPath *mPath) {
  *
  * La posición horizontal de cada hilo es calculada en el "DTPrimitive".
  */
-void MuonPathAnalyzerPerSL::calcCellDriftAndXcoor(MuonPath *mPath) {
+void MuonPathAnalyzerPerSL::calcCellDriftAndXcoor(MuonPathPtr &mPath) {
   long int drift_speed_new = 889;
   //long int drift_speed_new = (long int) (round (DRIFT_SPEED * 1000 * 10.24) / (10*x_precision_*10) );
   long int drift_dist_um_x4;
@@ -1241,7 +1239,7 @@ void MuonPathAnalyzerPerSL::calcCellDriftAndXcoor(MuonPath *mPath) {
 /**
  * Calcula el estimador de calidad de la trayectoria.
  */
-void MuonPathAnalyzerPerSL::calcChiSquare(MuonPath *mPath) {
+void MuonPathAnalyzerPerSL::calcChiSquare(MuonPathPtr &mPath) {
   /*
     float xi, zi, factor;
 

@@ -1,6 +1,7 @@
 #include "L1Trigger/DTTriggerPhase2/interface/DTprimitive.h"
 #include "L1Trigger/DTTriggerPhase2/interface/constants.h"
 #include <iostream>
+#include <iomanip>
 
 //------------------------------------------------------------------
 //--- Constructores y destructores
@@ -21,7 +22,23 @@ DTPrimitive::DTPrimitive() {
     setPayload(0.0, i);
 }
 
-DTPrimitive::DTPrimitive(DTPrimitive *ptr) {
+DTPrimitive::DTPrimitive(DTPrimitivePtr &ptr) {
+  //std::cout<<"Clonando una 'DTPrimitive'"<<std::endl;
+
+  setTimeCorrection(ptr->timeCorrection());
+  setTDCTimeStamp(ptr->tdcTimeStamp());
+  setOrbit(ptr->orbit());
+  setChannelId(ptr->channelId());
+  setLayerId(ptr->layerId());
+  setCameraId(ptr->cameraId());
+  setSuperLayerId(ptr->superLayerId());
+  setLaterality(ptr->laterality());
+
+  for (int i = 0; i < PAYLOAD_ENTRIES; i++)
+    setPayload(ptr->payLoad(i), i);
+}
+
+DTPrimitive::DTPrimitive(DTPrimitive* ptr) {
   //std::cout<<"Clonando una 'DTPrimitive'"<<std::endl;
 
   setTimeCorrection(ptr->timeCorrection());
@@ -54,3 +71,4 @@ float DTPrimitive::wireHorizPos(void) {
     wireHorizPos += CELL_SEMILENGTH;
   return wireHorizPos;
 }
+

@@ -61,7 +61,7 @@ public:
   void run(edm::Event& iEvent,
            const edm::EventSetup& iEventSetup,
            const DTDigiCollection& digis,
-           std::vector<MuonPath*>* outMpath) override;
+           MuonPathPtrs& outMpath) override;
   void finish() override;
 
   // Other public methods
@@ -78,7 +78,7 @@ private:
                          std::vector<DTPrimitive> digisinLUp,
                          std::vector<DTPattern*> patterns);
   void ReCleanPatternsAndDigis();
-  void FillMuonPaths(std::vector<MuonPath*>* mpaths);
+  void FillMuonPaths(MuonPathPtrs& mpaths);
 
   //Comparator for pointer mode
   struct CandPointGreat {

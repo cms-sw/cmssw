@@ -10,8 +10,8 @@ MuonPath::MuonPath() {
   quality_ = NOPATH;
   baseChannelId_ = -1;
 
-  for (int i = 0; i <= 3; i++) {
-    prim_[i] = new DTPrimitive();
+  for (int i = 0; i <= 7; i++) {
+    prim_.push_back(DTPrimitivePtr(new DTPrimitive()));
   }
 
   nprimitives_ = 4;
@@ -27,42 +27,14 @@ MuonPath::MuonPath() {
   }
 }
 
-MuonPath::MuonPath(DTPrimitive *ptrPrimitive[4]) {
-  //    std::cout<<"Creando un 'MuonPath'"<<std::endl;
 
-  quality_ = NOPATH;
-  baseChannelId_ = -1;
 
-  for (int i = 0; i <= 3; i++) {
-    if ((prim_[i] = ptrPrimitive[i]) == NULL)
-      std::cout << "Unable to create 'MuonPath'. Null 'Primitive'." << std::endl;
+MuonPath::MuonPath(DTPrimitivePtrs &ptrPrimitive, int nprimUp, int nprimDown) {
+  if (nprimUp>0 && nprimDown>0) 
+    nprimitives_ = 8;  //Instead of nprimUp + nprimDown;
+  else {
+    nprimitives_ = 4;
   }
-
-  nprimitives_ = 4;
-  //Dummy values
-  nprimitivesUp_ = 0;
-  nprimitivesDown_ = 0;
-  bxTimeValue_ = -1;
-  bxNumId_ = -1;
-  tanPhi_ = 0;
-  horizPos_ = 0;
-  chiSquare_ = 0;
-  phi_ = 0;
-  phiB_ = 0;
-  rawId_ = 0;
-  for (int i = 0; i <= 3; i++) {
-    lateralComb_[i] = LEFT;
-    setXCoorCell(0, i);
-    setDriftDistance(0, i);
-    setXWirePos(0, i);
-    setZWirePos(0, i);
-    setTWireTDC(0, i);
-  }
-}
-
-MuonPath::MuonPath(DTPrimitive *ptrPrimitive[8], int nprimUp, int nprimDown) {
-  //    std::cout<<"Creando un 'MuonPath'"<<std::endl;
-  nprimitives_ = 8;  //Instead of nprimUp + nprimDown;
   nprimitivesUp_ = nprimUp;
   nprimitivesDown_ = nprimDown;
   rawId_ = 0;
@@ -75,14 +47,11 @@ MuonPath::MuonPath(DTPrimitive *ptrPrimitive[8], int nprimUp, int nprimDown) {
   chiSquare_ = 0;
   phi_ = 0;
   phiB_ = 0;
-  for (int l = 0; l <= 3; l++) {
-    lateralComb_[l] = LEFT;
-  }
 
   for (short i = 0; i < nprimitives_; i++) {
-    if ((prim_[i] = ptrPrimitive[i]) == NULL) {
-      std::cout << "Unable to create 'MuonPath'. Null 'Primitive'." << std::endl;
-    }
+    lateralComb_[i] = LEFT;
+    prim_.push_back(std::move(ptrPrimitive[i]));
+
     setXCoorCell(0, i);
     setDriftDistance(0, i);
     setXWirePos(0, i);
@@ -91,7 +60,7 @@ MuonPath::MuonPath(DTPrimitive *ptrPrimitive[8], int nprimUp, int nprimDown) {
   }
 }
 
-MuonPath::MuonPath(MuonPath *ptr) {
+MuonPath::MuonPath(MuonPathPtr &ptr) {
   //  std::cout<<"Clonando un 'MuonPath'"<<std::endl;
   setRawId(ptr->rawId());
   setPhi(ptr->phi());
@@ -101,9 +70,6 @@ MuonPath::MuonPath(MuonPath *ptr) {
   setCellHorizontalLayout(ptr->cellLayout());
   setNPrimitives(ptr->nprimitives());
 
-  for (int i = 0; i < ptr->nprimitives(); i++)
-    setPrimitive(new DTPrimitive(ptr->primitive(i)), i);
-
   setLateralComb(ptr->lateralComb());
   setBxTimeValue(ptr->bxTimeValue());
   setTanPhi(ptr->tanPhi());
@@ -111,6 +77,8 @@ MuonPath::MuonPath(MuonPath *ptr) {
   setChiSquare(ptr->chiSquare());
 
   for (int i = 0; i < ptr->nprimitives(); i++) {
+    prim_.push_back(std::move(ptr->primitive(i)));
+
     setXCoorCell(ptr->xCoorCell(i), i);
     setDriftDistance(ptr->xDriftDistance(i), i);
     setXWirePos(ptr->xWirePos(i), i);
@@ -119,21 +87,13 @@ MuonPath::MuonPath(MuonPath *ptr) {
   }
 }
 
-MuonPath::~MuonPath() {
-  //std::cout<<"Destruyendo un 'MuonPath'"<<std::endl;
-
-  for (int i = 0; i < nprimitives_; i++)
-    if (prim_[i] != NULL)
-      delete prim_[i];
-}
-
 //------------------------------------------------------------------
 //--- Public
 //------------------------------------------------------------------
-void MuonPath::setPrimitive(DTPrimitive *ptr, int layer) {
+void MuonPath::setPrimitive(DTPrimitivePtr &ptr, int layer) {
   if (ptr == NULL)
     std::cout << "NULL 'Primitive'." << std::endl;
-  prim_[layer] = ptr;
+  prim_[layer] = std::move(ptr);
 }
 
 void MuonPath::setCellHorizontalLayout(int layout[4]) {
@@ -175,6 +135,7 @@ bool MuonPath::isEqualTo(MuonPath *ptr) {
 bool MuonPath::isAnalyzable(void) {
   short countValidHits = 0;
   for (int i = 0; i < this->nprimitives(); i++) {
+    if (!this->primitive(i)) continue;
     if (this->primitive(i)->isValidTime())
       countValidHits++;
   }

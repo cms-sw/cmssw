@@ -125,7 +125,7 @@ void HoughGrouping::initialise(const edm::EventSetup& iEventSetup) {
 void HoughGrouping::run(edm::Event& iEvent,
                         const edm::EventSetup& iEventSetup,
                         const DTDigiCollection& digis,
-                        std::vector<MuonPath*>* outMpath) {
+                        MuonPathPtrs& outMpath) {
   if (debug)
     cout << "\nHoughGrouping::run" << endl;
 
@@ -242,7 +242,7 @@ void HoughGrouping::run(edm::Event& iEvent,
   // Now we filter them:
   OrderAndFilter(cands, outMpath);
   if (debug)
-    cout << "HoughGrouping::run - now we have our muonpaths! It has " << outMpath->size() << " elements" << endl;
+    cout << "HoughGrouping::run - now we have our muonpaths! It has " << outMpath.size() << " elements" << endl;
 
   cands.clear();
   //  short int indi = cands.size() - 1;
@@ -764,7 +764,7 @@ void HoughGrouping::SetDifferenceBetweenSL(ProtoCand& tupl) {
     tupl.NHitsDiff = (unsigned short int)(-absres);
 }
 
-void HoughGrouping::OrderAndFilter(std::vector<ProtoCand>& invector, std::vector<MuonPath*>*& outMuonPath) {
+void HoughGrouping::OrderAndFilter(std::vector<ProtoCand>& invector, MuonPathPtrs& outMuonPath) {
   if (debug)
     cout << "HoughGrouping::OrderAndFilter" << endl;
   // 0: # of layers with hits.
@@ -851,11 +851,12 @@ void HoughGrouping::OrderAndFilter(std::vector<ProtoCand>& invector, std::vector
 
   // Packing dt primitives
   for (unsigned short int i = 0; i < invector.size(); i++) {
-    DTPrimitive* ptrPrimitive[8];
+    DTPrimitivePtrs ptrPrimitive;
     unsigned short int tmplowfill = 0;
     unsigned short int tmpupfill = 0;
     for (unsigned short int lay = 0; lay < 8; lay++) {
-      ptrPrimitive[lay] = new DTPrimitive(invector.at(i).DTHits[lay]);
+      auto dtAux = DTPrimitivePtr(new DTPrimitive(invector.at(i).DTHits[lay]));
+      ptrPrimitive.push_back(std::move(dtAux));
       if (debug) {
         cout << "\nHoughGrouping::OrderAndFilter - cameraid: " << ptrPrimitive[lay]->cameraId() << endl;
         cout << "HoughGrouping::OrderAndFilter - channelid (GOOD): " << ptrPrimitive[lay]->channelId() << endl;
@@ -872,17 +873,16 @@ void HoughGrouping::OrderAndFilter(std::vector<ProtoCand>& invector, std::vector
           tmpupfill++;
       }
     }
-
-    MuonPath* ptrMuonPath = new MuonPath(ptrPrimitive, tmplowfill, tmpupfill);
-    //     MuonPath *ptrMuonPath = new MuonPath(ptrPrimitive, 7);
-    outMuonPath->push_back(ptrMuonPath);
+    
+    auto ptrMuonPath = MuonPathPtr(new MuonPath(ptrPrimitive, tmplowfill, tmpupfill));
+    outMuonPath.push_back(ptrMuonPath);
     if (debug) {
       for (unsigned short int lay = 0; lay < 8; lay++) {
-        cout << "HoughGrouping::OrderAndFilter - Final cameraID: " << outMuonPath->back()->primitive(lay)->cameraId()
+        cout << "HoughGrouping::OrderAndFilter - Final cameraID: " << outMuonPath.back()->primitive(lay)->cameraId()
              << endl;
-        cout << "HoughGrouping::OrderAndFilter - Final channelID: " << outMuonPath->back()->primitive(lay)->channelId()
+        cout << "HoughGrouping::OrderAndFilter - Final channelID: " << outMuonPath.back()->primitive(lay)->channelId()
              << endl;
-        cout << "HoughGrouping::OrderAndFilter - Final time: " << outMuonPath->back()->primitive(lay)->tdcTimeStamp()
+        cout << "HoughGrouping::OrderAndFilter - Final time: " << outMuonPath.back()->primitive(lay)->tdcTimeStamp()
              << endl;
       }
     }

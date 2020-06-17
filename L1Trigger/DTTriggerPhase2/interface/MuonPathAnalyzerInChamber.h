@@ -54,12 +54,12 @@ public:
   void initialise(const edm::EventSetup &iEventSetup);
   void run(edm::Event &iEvent,
            const edm::EventSetup &iEventSetup,
-           std::vector<MuonPath *> &inMpath,
+           MuonPathPtrs &inMpath,
            std::vector<metaPrimitive> &metaPrimitives) {}
   void run(edm::Event &iEvent,
            const edm::EventSetup &iEventSetup,
-           std::vector<MuonPath *> &inMpath,
-           std::vector<MuonPath *> &outMPath);
+           MuonPathPtrs &inMpath,
+           MuonPathPtrs &outMPath);
 
   void finish();
 
@@ -93,14 +93,14 @@ public:
 
 private:
   // Private methods
-  //  void analyze(MuonPath *inMPath, std::vector<metaPrimitive> &metaPrimitives);
-  void analyze(MuonPath *inMPath, std::vector<MuonPath *> &outMPaths);
+  //  void analyze(MuonPathPtr &inMPath, std::vector<metaPrimitive> &metaPrimitives);
+  void analyze(MuonPathPtr &inMPath, MuonPathPtrs &outMPaths);
 
-  void setCellLayout(MuonPath *mpath);
-  void buildLateralities(MuonPath *mpath);
-  void setLateralitiesInMP(MuonPath *mpath, TLateralities lat);
-  void setWirePosAndTimeInMP(MuonPath *mpath);
-  void calculateFitParameters(MuonPath *mpath, TLateralities lat, int present_layer[NLayers]);
+  void setCellLayout(MuonPathPtr &mpath);
+  void buildLateralities(MuonPathPtr &mpath);
+  void setLateralitiesInMP(MuonPathPtr &mpath, TLateralities lat);
+  void setWirePosAndTimeInMP(MuonPathPtr &mpath);
+  void calculateFitParameters(MuonPathPtr &mpath, TLateralities lat, int present_layer[NLayers]);
   //void calculateFitParameters(MuonPath *mpath, TLateralities lat);
 
   /* Determina si los valores de 4 primitivas forman una trayectoria
@@ -108,7 +108,7 @@ private:
      0    -> Capa más próxima al centro del detector,
      1, 2 -> Siguientes capas
      3    -> Capa más externa */
-  void evaluateQuality(MuonPath *mPath);
+  void evaluateQuality(MuonPathPtr &mPath);
   // Private attributes
 
   /* El máximo de combinaciones de lateralidad para 4 celdas es 16 grupos

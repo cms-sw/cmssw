@@ -51,12 +51,12 @@ public:
   void initialise(const edm::EventSetup &iEventSetup);
   void run(edm::Event &iEvent,
            const edm::EventSetup &iEventSetup,
-           std::vector<MuonPath *> &inMpath,
+           MuonPathPtrs &inMpath,
            std::vector<metaPrimitive> &metaPrimitives);
   void run(edm::Event &iEvent,
            const edm::EventSetup &iEventSetup,
-           std::vector<MuonPath *> &inMpath,
-           std::vector<MuonPath *> &outMPath){};
+           MuonPathPtrs &inMpath,
+           MuonPathPtrs &outMPath){};
 
   void finish();
 
@@ -86,7 +86,7 @@ public:
 
 private:
   // Private methods
-  void analyze(MuonPath *inMPath, std::vector<metaPrimitive> &metaPrimitives);
+  void analyze(MuonPathPtr &inMPath, std::vector<metaPrimitive> &metaPrimitives);
 
   void setCellLayout(const int layout[4]);
   void buildLateralities(void);
@@ -97,8 +97,8 @@ private:
      0    -> Capa más próxima al centro del detector,
      1, 2 -> Siguientes capas
      3    -> Capa más externa */
-  void evaluatePathQuality(MuonPath *mPath);
-  void evaluateLateralQuality(int latIdx, MuonPath *mPath, LATQ_TYPE *latQuality);
+  void evaluatePathQuality(MuonPathPtr &mPath);
+  void evaluateLateralQuality(int latIdx, MuonPathPtr &mPath, LATQ_TYPE *latQuality);
   /* Función que evalua, mediante el criterio de mean-timer, la bondad
      de una trayectoria. Involucra 3 celdas en 3 capas distintas, ordenadas
      de abajo arriba siguiendo el índice del array.
@@ -114,22 +114,22 @@ private:
      haciendo uso de funciones que generen el código en tiempo de síntesis,
      aunque la función software diseñada debería ser exportable directamente
      a VHDL */
-  void validate(LATERAL_CASES sideComb[3], int layerIndex[3], MuonPath *mPath, PARTIAL_LATQ_TYPE *latq);
+  void validate(LATERAL_CASES sideComb[3], int layerIndex[3], MuonPathPtr &mPath, PARTIAL_LATQ_TYPE *latq);
 
-  int eqMainBXTerm(LATERAL_CASES sideComb[2], int layerIdx[2], MuonPath *mPath);
+  int eqMainBXTerm(LATERAL_CASES sideComb[2], int layerIdx[2], MuonPathPtr &mPath);
 
-  int eqMainTerm(LATERAL_CASES sideComb[2], int layerIdx[2], MuonPath *mPath, int bxValue);
+  int eqMainTerm(LATERAL_CASES sideComb[2], int layerIdx[2], MuonPathPtr &mPath, int bxValue);
 
   void lateralCoeficients(LATERAL_CASES sideComb[2], int *coefs);
   bool sameBXValue(PARTIAL_LATQ_TYPE *latq);
 
-  void calculatePathParameters(MuonPath *mPath);
-  void calcTanPhiXPosChamber(MuonPath *mPath);
-  void calcCellDriftAndXcoor(MuonPath *mPath);
-  void calcChiSquare(MuonPath *mPath);
+  void calculatePathParameters(MuonPathPtr &mPath);
+  void calcTanPhiXPosChamber(MuonPathPtr &mPath);
+  void calcCellDriftAndXcoor(MuonPathPtr &mPath);
+  void calcChiSquare(MuonPathPtr &mPath);
 
-  void calcTanPhiXPosChamber3Hits(MuonPath *mPath);
-  void calcTanPhiXPosChamber4Hits(MuonPath *mPath);
+  void calcTanPhiXPosChamber3Hits(MuonPathPtr &mPath);
+  void calcTanPhiXPosChamber4Hits(MuonPathPtr &mPath);
 
   int omittedHit(int idx);
 

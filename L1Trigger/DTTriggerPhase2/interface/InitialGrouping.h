@@ -1,3 +1,4 @@
+
 #ifndef Phase2L1Trigger_DTTrigger_InitialGrouping_cc
 #define Phase2L1Trigger_DTTrigger_InitialGrouping_cc
 
@@ -87,7 +88,7 @@ public:
   void run(edm::Event& iEvent,
            const edm::EventSetup& iEventSetup,
            const DTDigiCollection& digis,
-           std::vector<MuonPath*>* outMpath) override;
+           MuonPathPtrs& outMpath) override;
   void finish() override;
 
   // Other public methods
@@ -99,18 +100,18 @@ private:
   void setInChannels(const DTDigiCollection* digi, int sl);
   void selectInChannels(int baseCh);
   void resetPrvTDCTStamp(void);
-  void mixChannels(int sl, int pathId, std::vector<MuonPath*>* outMpath);
+  void mixChannels(int sl, int pathId, MuonPathPtrs& outMpath);
   bool notEnoughDataInChannels(void);
-  bool isEqualComb2Previous(DTPrimitive* ptr[4]);
+  bool isEqualComb2Previous(DTPrimitivePtrs ptr);
 
   // Private attributes
   bool debug;
   std::string ttrig_filename;
   std::map<int, float> ttriginfo;
 
-  std::vector<DTPrimitive> muxInChannels[NUM_CELLS_PER_BLOCK];
-  std::vector<DTPrimitive> channelIn[NUM_LAYERS][NUM_CH_PER_LAYER];
-  std::vector<DTPrimitive> chInDummy;
+  DTPrimitivePtrs muxInChannels[NUM_CELLS_PER_BLOCK];
+  DTPrimitivePtrs channelIn[NUM_LAYERS][NUM_CH_PER_LAYER];
+  DTPrimitivePtrs chInDummy;
   int prevTDCTimeStamps[4];
   int currentBaseChannel;
 };

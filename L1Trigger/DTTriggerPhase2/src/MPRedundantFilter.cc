@@ -31,8 +31,8 @@ void MPRedundantFilter::initialise(const edm::EventSetup& iEventSetup) {
 
 void MPRedundantFilter::run(edm::Event& iEvent,
                             const edm::EventSetup& iEventSetup,
-                            std::vector<MuonPath*>& inMPaths,
-                            std::vector<MuonPath*>& outMPaths) {
+                            MuonPathPtrs& inMPaths,
+                            MuonPathPtrs& outMPaths) {
   buffer.clear();
   for (auto muonpath = inMPaths.begin(); muonpath != inMPaths.end(); ++muonpath) {
     filter(*muonpath, outMPaths);
@@ -43,7 +43,7 @@ void MPRedundantFilter::run(edm::Event& iEvent,
   buffer.clear();
 }
 
-void MPRedundantFilter::filter(MuonPath* mPath, std::vector<MuonPath*>& outMPaths) {
+void MPRedundantFilter::filter(MuonPathPtr& mPath, MuonPathPtrs& outMPaths) {
   /*
     Esta línea se incluye para evitar que, tras un 'stop', que fuerza la
     liberación del mutex de la fifo de entrada, devuelva un puntero nulo, lo que
@@ -62,12 +62,12 @@ void MPRedundantFilter::filter(MuonPath* mPath, std::vector<MuonPath*>& outMPath
     buffer.push_back(mPath);
 
     // Enviamos una copia
-    MuonPath* mpAux = new MuonPath(mPath);
+    auto mpAux = MuonPathPtr(new MuonPath(mPath));
     outMPaths.push_back(mpAux);
   }
 }
 
-bool MPRedundantFilter::isInBuffer(MuonPath* mPath) {
+bool MPRedundantFilter::isInBuffer(MuonPathPtr &mPath) {
   bool ans = false;
 
   if (!buffer.empty()) {
@@ -77,7 +77,8 @@ bool MPRedundantFilter::isInBuffer(MuonPath* mPath) {
        * salimos, indicando el resultado.
        * No se siguen procesando los restantes elementos.
        */
-      if (mPath->isEqualTo((MuonPath*)buffer.at(i))) {
+      //      if (mPath->isEqualTo((MuonPathPtr*)buffer.at(i))) {
+      if (mPath->isEqualTo((MuonPath*)buffer.at(i).get())) {
         ans = true;
         break;
       }

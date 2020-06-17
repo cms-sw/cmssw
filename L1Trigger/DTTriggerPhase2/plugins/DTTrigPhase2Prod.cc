@@ -276,7 +276,8 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
          << endl;
   else if (debug_)
     cout << "DTTrigPhase2Prod::produce - Getting and grouping digis per chamber." << endl;
-  std::vector<MuonPath*> muonpaths;
+
+  MuonPathPtrs muonpaths;
   for (auto ich = dtGeo_->chambers().begin(); ich != dtGeo_->chambers().end(); ich++) {
     // The code inside this for loop would ideally later fit inside a trigger unit (in principle, a DT station) of the future Phase 2 DT Trigger.
     const DTChamber* chamb = (*ich);
@@ -322,11 +323,11 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
       // Process each supercell & collect the resulting muonpaths (as the muonpaths std::vector is only enlarged each time
       // the groupings access it, it's not needed to "collect" the final products).
       while (!superCells.empty()) {
-        grouping_obj_->run(iEvent, iEventSetup, *(superCells.back()), &muonpaths);
+        grouping_obj_->run(iEvent, iEventSetup, *(superCells.back()), muonpaths);
         superCells.pop_back();
       }
     } else {
-      grouping_obj_->run(iEvent, iEventSetup, (*dmit).second, &muonpaths);
+      grouping_obj_->run(iEvent, iEventSetup, (*dmit).second, muonpaths);
     }
   }
   digiMap.clear();
@@ -346,7 +347,7 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
   }
 
   // FILTER GROUPING
-  std::vector<MuonPath*> filteredmuonpaths;
+  MuonPathPtrs filteredmuonpaths;
   if (grcode_ == 0) {
     mpathredundantfilter_->run(iEvent, iEventSetup, muonpaths, filteredmuonpaths);
   }
@@ -372,7 +373,7 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
   if (debug_)
     std::cout << "filling NmetaPrimtives" << std::endl;
   std::vector<metaPrimitive> metaPrimitives;
-  std::vector<MuonPath*> outmpaths;
+  MuonPathPtrs outmpaths;
   if (grcode_ == 0) {
     if (debug_)
       cout << "Fitting 1SL " << endl;
@@ -398,24 +399,12 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
     }
   }
 
-  if (debug_)
-    std::cout << "deleting muonpaths" << std::endl;
-  for (unsigned int i = 0; i < muonpaths.size(); i++) {
-    delete muonpaths[i];
-  }
   muonpaths.clear();
-
-  for (unsigned int i = 0; i < filteredmuonpaths.size(); i++) {
-    delete filteredmuonpaths[i];
-  }
   filteredmuonpaths.clear();
 
   /////////////////////////////////////
   //  FILTER SECTIONS:
   ////////////////////////////////////
-  //filtro de duplicados puro popdr'ia ir ac'a mpredundantfilter.cpp primos?
-  //filtro en |tanPhi|<~1.?
-
   if (debug_)
     std::cout << "declaring new vector for filtered" << std::endl;
 
@@ -447,7 +436,6 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
   if (grcode_ == 0)
     mpathassociator_->run(iEvent, iEventSetup, dtdigis, filteredMetaPrimitives, correlatedMetaPrimitives);
   else {
-    //for(auto muonpath = muonpaths.begin();muonpath!=muonpaths.end();++muonpath) {
     for (auto muonpath = outmpaths.begin(); muonpath != outmpaths.end(); ++muonpath) {
       correlatedMetaPrimitives.push_back(metaPrimitive({
           (*muonpath)->rawId(),
@@ -493,6 +481,9 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
               << " correlatedMetPrimitives (chamber)" << std::endl;
 
   if (dump_) {
+    std::cout << "DTp2 in event:" << iEvent.id().event() << " we found " << correlatedMetaPrimitives.size()
+              << " correlatedMetPrimitives (chamber)" << std::endl;
+
     for (unsigned int i = 0; i < correlatedMetaPrimitives.size(); i++) {
       cout << iEvent.id().event() << " correlated mp " << i << ": ";
       printmPC(correlatedMetaPrimitives.at(i));
@@ -501,8 +492,6 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
   }
 
   double shift_back = 0;
-
-  //if (iEvent.eventAuxiliary().run() == 1) //FIX MC
   if (scenario_ == 0)  //scope for MC
     shift_back = 400;
 

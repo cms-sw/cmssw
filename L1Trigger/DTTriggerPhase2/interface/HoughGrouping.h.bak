@@ -125,7 +125,7 @@ public:
   void run(edm::Event& iEvent,
            const edm::EventSetup& iEventSetup,
            const DTDigiCollection& digis,
-           MuonPathPtrs& outMpath) override;
+           std::vector<std::unique_ptr<MuonPath> >* outMpath) override;
   void finish() override;
 
   // Other public methods
@@ -154,7 +154,7 @@ private:
 
   ProtoCand AssociateHits(const DTChamber* thechamb, double m, double n);
 
-  void OrderAndFilter(std::vector<ProtoCand>& invector, MuonPathPtrs& outMuonPath);
+  void OrderAndFilter(std::vector<ProtoCand>& invector, std::vector<MuonPath*>*& outMuonPath);
 
   void SetDifferenceBetweenSL(ProtoCand& tupl);
   bool AreThereEnoughHits(ProtoCand& tupl);
