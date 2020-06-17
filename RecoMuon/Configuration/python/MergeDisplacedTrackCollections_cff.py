@@ -28,14 +28,14 @@ mergedDuplicateDisplacedTracks = RecoTracker.TrackProducer.TrackProducer_cfi.Tra
 #for displaced global muons
 from RecoTracker.FinalTrackSelectors.TrackCutClassifier_cff import *
 duplicateDisplacedTrackClassifier = TrackCutClassifier.clone(
-    src = 'mergedDuplicateDisplacedTracks',
-    mva.minPixelHits  = [0,0,0],
-    mva.maxChi2       = [9999.,9999.,9999.],
-    mva.maxChi2n      = [9999.,9999.,9999.],
-    mva.minLayers     = [0,0,0],
-    mva.min3DLayers   = [0,0,0],
-    mva.maxLostLayers = [99,99,99]
+    src = 'mergedDuplicateDisplacedTracks'
 )
+duplicateDisplacedTrackClassifier.mva.minPixelHits = [0,0,0]
+duplicateDisplacedTrackClassifier.mva.maxChi2 = [9999.,9999.,9999.]
+duplicateDisplacedTrackClassifier.mva.maxChi2n = [9999.,9999.,9999.]
+duplicateDisplacedTrackClassifier.mva.minLayers = [0,0,0]
+duplicateDisplacedTrackClassifier.mva.min3DLayers = [0,0,0]
+duplicateDisplacedTrackClassifier.mva.maxLostLayers = [99,99,99]
 
 #for displaced global muons
 displacedTracks = DuplicateListMerger.clone(
