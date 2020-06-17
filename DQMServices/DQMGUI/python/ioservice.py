@@ -1,3 +1,4 @@
+import os
 import asyncio
 from async_lru import alru_cache
 from .nanoroot.io import XRDFile
@@ -102,9 +103,45 @@ class IOService:
         return file
 
 
-class BlockCachedFile:
+class AsyncBufferBase:
+    """Base class that provides some async buffer methods."""
+
+    def __init__(self):
+        self.position = 0
+
+    
+    def seek(self, offset, whence=os.SEEK_SET):
+        """
+        Changes current position pointer.
+        os.SEEK_SET or 0 - start of the stream (the default); offset should be zero or positive
+        os.SEEK_CUR or 1 - current stream position; offset may be negative
+        """
+
+        if whence == os.SEEK_SET:
+            self.position = offset
+        elif whence == os.SEEK_CUR:
+            self.position += offset
+
+        return self.position
+
+
+    async def peek(self, size):
+        """Return bytes from the stream without advancing the position."""
+        return await self[self.position:self.position + size]
+    
+
+    async def read(self, size):
+        """Read up to size bytes from the object and return them."""
+
+        data = await self[self.position:self.position + size]
+        self.position += size
+        return data
+
+
+class BlockCachedFile(AsyncBufferBase):
     """This type of file handle reads blocks via the global block cache."""
     def __init__(self, url, blocksize):
+        super().__init__()
         self.url = url 
         self.blocksize = blocksize
         
@@ -150,10 +187,11 @@ class BlockCachedFile:
         return f"BlockCachedFile(url={repr(self.url)})"
 
 
-class FullFile:
+class FullFile(AsyncBufferBase):
     """This type of file handle loads and keeps a full copy of the file content, bypassing the cache."""
 
     def __init__(self, url, timeout):
+        super().__init__()
         self.url = url
         self.timeout = timeout
 

@@ -31,7 +31,7 @@ class ProtobufImporter:
         me_paths = [] 
         me_infos = []
 
-        histo_messages = cls.protobuf_parser.deserialize_file(filename, read_histogram_bytes=True)
+        histo_messages = await cls.protobuf_parser.deserialize_file(filename, read_histogram_bytes=True)
 
         for histo_message in histo_messages:
             me_type = cls.get_me_type(histo_message.flags)

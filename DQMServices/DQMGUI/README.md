@@ -331,7 +331,14 @@ protoc -I=protobuf --python_out=protobuf protobuf/ROOTFilePB.proto
 Backend related task list.
 
 * ~~Live mode code~~
-* Protobuf make parser async
+* ~~Provide async stream methods to IOService~~
+* ~~Protobuf make parser async~~
+* ~~Use bitwise operators for parsing variants in protobuf~~
+* Add QTests to protobuf output in CMSSW
 * Live mode integration
 * Cache invalidation in samples
-* 
+* Move efficiency flag to MEInfo
+* Clean up Scalar, EfficiencyFlag and QTest to OO hierarchy
+* Speed up linear search over sorted layouts
+* Flavours?
+* Move common ME methods (like DQMCLASSICReader.parse_string_entry) to a separate location

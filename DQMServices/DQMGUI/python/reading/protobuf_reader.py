@@ -1,7 +1,7 @@
+import os
 import asyncio
 from ..ioservice import IOService
 from ..data_types import ScalarValue
-from io import BytesIO, BufferedReader
 from ..nanoroot.tbufferfile import TBufferFile
 from ..reading.reading import DQMCLASSICReader
 from ..protobuf.protobuf_parser import ProtobufParser
@@ -23,8 +23,8 @@ class ProtobufReader:
             return ScalarValue(b'', b'', me_info.value) # TODO: do sth. better.
 
         buffer = await cls.ioservice.open_url(filename, True)
-        buffer = BufferedReader(BytesIO(await buffer[me_info.offset:me_info.offset + me_info.size]))
-        histo_message = cls.protobuf_parser.read_histo_message(buffer, me_info.size, read_histogram_bytes=True)
+        buffer.seek(me_info.offset, os.SEEK_CUR)
+        histo_message = await cls.protobuf_parser.read_histo_message(buffer, me_info.size, read_histogram_bytes=True)
 
         if me_info.type == b'String':
             string_value = cls.get_tobjstring_content(histo_message.full_pathname, histo_message.streamed_histo)
