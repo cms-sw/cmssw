@@ -33,26 +33,26 @@ muons = muons1stStep.clone(
                             'tev dyt'],
     fillIsolation = True,
     fillGlobalTrackQuality = True,
-    TimingFillerParameters.DTTimingParameters.PruneCut = 9999,
-    TimingFillerParameters.CSCTimingParameters.PruneCut = 9999,
-    # need to modify track selection as well (not clear to what)
-    TrackExtractorPSet.inputTrackCollection = 'ctfWithMaterialTracksP5LHCNavigation',
-    CaloExtractorPSet.CenterConeOnCalIntersection = True,
-    # set wide cone until the code is made to compute this wrt CalIntersection
-    CaloExtractorPSet.DR_Max = 1.0
 )
+muons.TimingFillerParameters.DTTimingParameters.PruneCut = 9999
+muons.TimingFillerParameters.CSCTimingParameters.PruneCut = 9999
+# need to modify track selection as well (not clear to what)
+muons.TrackExtractorPSet.inputTrackCollection = 'ctfWithMaterialTracksP5LHCNavigation'
+muons.CaloExtractorPSet.CenterConeOnCalIntersection = True
+# set wide cone until the code is made to compute this wrt CalIntersection
+muons.CaloExtractorPSet.DR_Max = 1.0
 
 #similar to what's in pp configuration
 muonsFromCosmics = muons1stStep.clone(
     inputCollectionLabels = ['cosmicMuons'],
     inputCollectionTypes = ['outer tracks'],
-    TrackExtractorPSet.inputTrackCollection = 'cosmicMuons',
-    TimingFillerParameters.DTTimingParameters.PruneCut = 9999,
-    TimingFillerParameters.CSCTimingParameters.PruneCut = 9999,
     fillIsolation = False,
     fillGlobalTrackQuality = False,
     fillGlobalTrackRefits = False
 )
+muonsFromCosmics.TrackExtractorPSet.inputTrackCollection = 'cosmicMuons'
+muonsFromCosmics.TimingFillerParameters.DTTimingParameters.PruneCut = 9999
+muonsFromCosmics.TimingFillerParameters.CSCTimingParameters.PruneCut = 9999
 
 ## Sequences
 # Stand Alone Tracking
@@ -68,9 +68,9 @@ muontrackingforcosmics = cms.Sequence(muontrackingforcosmicsTask)
 from RecoMuon.MuonIsolationProducers.muIsolation_cff import *
 # muisodeposits based on "muons"
 # we are using copy extractors now
-muIsoDepositTk.inputTags = 'muons:tracker'
-muIsoDepositJets.inputTags = 'muons:jets'
-muIsoDepositCalByAssociatorTowers.inputTags = ['muons:ecal', 'muons:hcal', 'muons:ho']
+muIsoDepositTk.inputTags = cms.VInputTag(cms.InputTag('muons:tracker'))
+muIsoDepositJets.inputTags = cms.VInputTag(cms.InputTag('muons:jets'))
+muIsoDepositCalByAssociatorTowers.inputTags = cms.VInputTag(cms.InputTag('muons:ecal'), cms.InputTag('muons:hcal'), cms.InputTag('muons:ho'))
 
 # TeV refinement
 from RecoMuon.GlobalMuonProducer.tevMuons_cfi import *
@@ -97,15 +97,15 @@ muonrecoforcosmics = cms.Sequence(muonrecoforcosmicsTask)
 # 1 leg mode
 # Stand alone muon track producer
 cosmicMuons1Leg = cosmicMuons.clone(
-    TrajectoryBuilderParameters.BuildTraversingMuon = True,
     MuonSeedCollectionLabel = 'CosmicMuonSeed'
 )
+cosmicMuons1Leg.TrajectoryBuilderParameters.BuildTraversingMuon = True
 
 # Global muon track producer
 globalCosmicMuons1Leg = globalCosmicMuons.clone(
-    TrajectoryBuilderParameters.TkTrackCollectionLabel = 'ctfWithMaterialTracksP5',
     MuonCollectionLabel = 'cosmicMuons1Leg'
 )
+globalCosmicMuons1Leg.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'ctfWithMaterialTracksP5'
 
 # Muon Id producer
 muons1Leg = muons1stStep.clone(
@@ -115,10 +115,10 @@ muons1Leg = muons1stStep.clone(
     inputCollectionTypes = ['inner tracks', 'links', 'outer tracks'],
     fillIsolation = False,
     fillGlobalTrackQuality = False,
-    fillGlobalTrackRefits = False,
-    TimingFillerParameters.DTTimingParameters.PruneCut = 9999,
-    TimingFillerParameters.CSCTimingParameters.PruneCut = 9999
+    fillGlobalTrackRefits = False
 )
+muons1Leg.TimingFillerParameters.DTTimingParameters.PruneCut = 9999
+muons1Leg.TimingFillerParameters.CSCTimingParameters.PruneCut = 9999
 
 # Sequences
 
@@ -142,16 +142,16 @@ CosmicMuonSeedWitht0Correction = CosmicMuonSeed.clone(
 
 # Stand alone muon track producer
 cosmicMuonsWitht0Correction = cosmicMuons.clone(
-    TrajectoryBuilderParameters.BuildTraversingMuon = False,
     MuonSeedCollectionLabel = 'CosmicMuonSeedWitht0Correction',
-    TrajectoryBuilderParameters.DTRecSegmentLabel = 'dt4DSegmentsT0Seg'
 )
+cosmicMuonsWitht0Correction.TrajectoryBuilderParameters.BuildTraversingMuon = False
+cosmicMuonsWitht0Correction.TrajectoryBuilderParameters.DTRecSegmentLabel = 'dt4DSegmentsT0Seg'
 
 # Global muon track producer
 globalCosmicMuonsWitht0Correction = globalCosmicMuons.clone(
-    TrajectoryBuilderParameters.TkTrackCollectionLabel = 'ctfWithMaterialTracksP5',
     MuonCollectionLabel = 'cosmicMuonsWitht0Correction'
 )
+globalCosmicMuonsWitht0Correction.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'ctfWithMaterialTracksP5'
 
 # Muon Id producer
 muonsWitht0Correction = muons1stStep.clone(
@@ -161,14 +161,14 @@ muonsWitht0Correction = muons1stStep.clone(
     inputCollectionTypes = ['inner tracks', 'links', 'outer tracks'],
     fillIsolation = True,
     fillGlobalTrackQuality = False,
-    TimingFillerParameters.DTTimingParameters.UseSegmentT0 = True,
-    TimingFillerParameters.MatchParameters.DTsegments = 'dt4DSegmentsT0Seg',
-    TrackExtractorPSet.inputTrackCollection = 'ctfWithMaterialTracksP5',
-    CaloExtractorPSet.CenterConeOnCalIntersection = True,
-    # set wide cone until the code is made to compute this wrt CalIntersection
-    CaloExtractorPSet.DR_Max = 1.0,
     fillGlobalTrackRefits = False
 )
+muonsWitht0Correction.TimingFillerParameters.DTTimingParameters.UseSegmentT0 = True
+muonsWitht0Correction.TimingFillerParameters.MatchParameters.DTsegments = 'dt4DSegmentsT0Seg'
+muonsWitht0Correction.TrackExtractorPSet.inputTrackCollection = 'ctfWithMaterialTracksP5'
+muonsWitht0Correction.CaloExtractorPSet.CenterConeOnCalIntersection = True
+# set wide cone until the code is made to compute this wrt CalIntersection
+muonsWitht0Correction.CaloExtractorPSet.DR_Max = 1.0
 
 #Sequences
 
@@ -202,16 +202,16 @@ CosmicMuonSeedEndCapsOnly = CosmicMuonSeed.clone(
 
 # Stand alone muon track producer
 cosmicMuonsEndCapsOnly = cosmicMuons.clone(
-    TrajectoryBuilderParameters.EnableDTMeasurement = False,
-    TrajectoryBuilderParameters.MuonNavigationParameters.Barrel = False,
     MuonSeedCollectionLabel = 'CosmicMuonSeedEndCapsOnly'
 )
+cosmicMuonsEndCapsOnly.TrajectoryBuilderParameters.EnableDTMeasurement = False
+cosmicMuonsEndCapsOnly.TrajectoryBuilderParameters.MuonNavigationParameters.Barrel = False
 
 # Global muon track producer
 globalBeamHaloMuonEndCapslOnly = globalCosmicMuons.clone(
-    TrajectoryBuilderParameters.TkTrackCollectionLabel = 'beamhaloTracks',
     MuonCollectionLabel = 'cosmicMuonsEndCapsOnly'
 )
+globalBeamHaloMuonEndCapslOnly.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'beamhaloTracks'
 
 # Muon Id producer
 muonsBeamHaloEndCapsOnly = muons1stStep.clone(
@@ -221,12 +221,12 @@ muonsBeamHaloEndCapsOnly = muons1stStep.clone(
     inputCollectionTypes = ['inner tracks', 'links', 'outer tracks'],
     fillIsolation = True,
     fillGlobalTrackQuality = False,
-    TrackExtractorPSet.inputTrackCollection = 'ctfWithMaterialTracksP5',
-    CaloExtractorPSet.CenterConeOnCalIntersection = True,
-    # set wide cone until the code is made to compute this wrt CalIntersection
-    CaloExtractorPSet.DR_Max = 1.0,
     fillGlobalTrackRefits = False
 )
+muonsBeamHaloEndCapsOnly.TrackExtractorPSet.inputTrackCollection = 'ctfWithMaterialTracksP5'
+muonsBeamHaloEndCapsOnly.CaloExtractorPSet.CenterConeOnCalIntersection = True
+# set wide cone until the code is made to compute this wrt CalIntersection
+muonsBeamHaloEndCapsOnly.CaloExtractorPSet.DR_Max = 1.0
 
 # Sequences
 muonrecoBeamHaloEndCapsOnlyTask = cms.Task(CosmicMuonSeedEndCapsOnly,
@@ -240,14 +240,14 @@ muonrecoBeamHaloEndCapsOnly = cms.Sequence(muonrecoBeamHaloEndCapsOnlyTask)
 ## Full detector but NO RPC ##
 
 # Stand alone muon track producer
-cosmicMuonsNoRPC = cosmicMuons.clone(
-    TrajectoryBuilderParameters.EnableRPCMeasurement = False
-)
+cosmicMuonsNoRPC = cosmicMuons.clone()
+cosmicMuonsNoRPC.TrajectoryBuilderParameters.EnableRPCMeasurement = False
+
 # Global muon track producer
 globalCosmicMuonsNoRPC = globalCosmicMuons.clone(
-    TrajectoryBuilderParameters.TkTrackCollectionLabel = 'ctfWithMaterialTracksP5',
     MuonCollectionLabel = 'cosmicMuonsNoRPC'
 )
+globalCosmicMuonsNoRPC.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'ctfWithMaterialTracksP5'
 
 # Muon Id producer
 muonsNoRPC = muons1stStep.clone(
@@ -257,12 +257,12 @@ muonsNoRPC = muons1stStep.clone(
     inputCollectionTypes = ['inner tracks', 'links', 'outer tracks'],
     fillIsolation = True,
     fillGlobalTrackQuality = False,
-    TrackExtractorPSet.inputTrackCollection = 'ctfWithMaterialTracksP5',
-    CaloExtractorPSet.CenterConeOnCalIntersection = True,
-    # set wide cone until the code is made to compute this wrt CalIntersection
-    CaloExtractorPSet.DR_Max = 1.0,
     fillGlobalTrackRefits = False
 )
+muonsNoRPC.TrackExtractorPSet.inputTrackCollection = 'ctfWithMaterialTracksP5'
+muonsNoRPC.CaloExtractorPSet.CenterConeOnCalIntersection = True
+# set wide cone until the code is made to compute this wrt CalIntersection
+muonsNoRPC.CaloExtractorPSet.DR_Max = 1.0
 
 #Sequences
 
@@ -280,9 +280,9 @@ muonrecoforcosmicsNoRPC = cms.Sequence(muonrecoforcosmicsNoRPCTask)
 
 # Global muon track producer
 globalCosmicSplitMuons = globalCosmicMuons.clone(
-    TrajectoryBuilderParameters.TkTrackCollectionLabel = 'splittedTracksP5',
     MuonCollectionLabel = 'cosmicMuons'
 )
+globalCosmicSplitMuons.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'splittedTracksP5'
 
 # Muon Id producer
 splitMuons = muons1stStep.clone(
@@ -292,12 +292,12 @@ splitMuons = muons1stStep.clone(
     inputCollectionTypes = ['inner tracks', 'links', 'outer tracks'],
     fillIsolation = True,
     fillGlobalTrackQuality = False,
-    TrackExtractorPSet.inputTrackCollection = 'splittedTracksP5',
-    CaloExtractorPSet.CenterConeOnCalIntersection = True,
-    # set wide cone until the code is made to compute this wrt CalIntersection
-    CaloExtractorPSet.DR_Max = 1.0,
     fillGlobalTrackRefits = False
 )
+splitMuons.TrackExtractorPSet.inputTrackCollection = 'splittedTracksP5'
+splitMuons.CaloExtractorPSet.CenterConeOnCalIntersection = True
+# set wide cone until the code is made to compute this wrt CalIntersection
+splitMuons.CaloExtractorPSet.DR_Max = 1.0
 
 #Sequences
 
@@ -318,12 +318,12 @@ lhcSTAMuons = muons1stStep.clone(
     inputCollectionTypes = ['outer tracks'],
     fillIsolation = True,
     fillGlobalTrackQuality = False,
-    TrackExtractorPSet.inputTrackCollection = 'ctfWithMaterialTracksP5LHCNavigation',
-    CaloExtractorPSet.CenterConeOnCalIntersection = True,
-    # set wide cone until the code is made to compute this wrt CalIntersection
-    CaloExtractorPSet.DR_Max = 1.0,
     fillGlobalTrackRefits = False
 )
+lhcSTAMuons.TrackExtractorPSet.inputTrackCollection = 'ctfWithMaterialTracksP5LHCNavigation'
+lhcSTAMuons.CaloExtractorPSet.CenterConeOnCalIntersection = True
+# set wide cone until the code is made to compute this wrt CalIntersection
+lhcSTAMuons.CaloExtractorPSet.DR_Max = 1.0
 
 # Final sequence
 muonRecoLHCTask = cms.Task(ancientMuonSeed,

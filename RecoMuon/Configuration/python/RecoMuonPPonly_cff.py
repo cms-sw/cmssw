@@ -17,9 +17,9 @@ displacedMuonSeeds = CosmicMuonSeed.clone(
 
 displacedStandAloneMuons = standAloneMuons.clone(
     InputObjects = 'displacedMuonSeeds',
-    MuonTrajectoryBuilder = 'StandAloneMuonTrajectoryBuilder',
-    TrackLoaderParameters.VertexConstraint = False 
+    MuonTrajectoryBuilder = 'StandAloneMuonTrajectoryBuilder'
 )
+displacedStandAloneMuons.TrackLoaderParameters.VertexConstraint = False 
 
 # Global muon track producer
 from RecoMuon.GlobalMuonProducer.GlobalMuonProducer_cff import *
