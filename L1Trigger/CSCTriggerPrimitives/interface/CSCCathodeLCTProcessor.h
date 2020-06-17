@@ -219,9 +219,6 @@ protected:
   unsigned int nbits_position_cc_;
   unsigned int nbits_slope_cc_;
 
-  // which hits per CLCT?
-  PulseArray hitsCLCT[99];
-
   /** Default values of configuration parameters. */
   static const unsigned int def_fifo_tbins, def_fifo_pretrig;
   static const unsigned int def_hit_persist, def_drift_delay;
