@@ -25,7 +25,7 @@ processpoolexecutor = None
 if __name__ == '__main__':
     from concurrent.futures import ProcessPoolExecutor
     # TODO: make process count configurable? 4 seems to be enough to saturate IO.
-    processpoolexecutor = ProcessPoolExecutor(1)
+    processpoolexecutor = ProcessPoolExecutor(8)
     # concurrent.futures initializes the actual multiprocessing pool lazily. So we
     # need to submit some work here to start the processes.
     fut = processpoolexecutor.submit(print, "Process pool initialized.")

@@ -8,7 +8,7 @@ class IOService:
     BLOCKSIZE = 256*1024 # number of bytes to read at once
     CACHEBLOCKS = 1000   # total number of block to keep in cache
     CONNECTIONS = 100    # maximum number of open connections
-    OPENTIMEOUT = 5      # maximum time to wait while opening file (seconds)
+    OPENTIMEOUT = 20     # maximum time to wait while opening file (seconds)
     MAXOPENTIME = 60     # maximum time that a connection stays open (seconds)
 
     

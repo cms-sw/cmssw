@@ -17,7 +17,7 @@ class DQMIOReader:
     # here, so we want this cache. But it will take a few hand full of baskets
     # for one sample, so 1 is not sufficient.
     @classmethod
-    @alru_cache(maxsize=20)
+    @alru_cache(maxsize=200)
     async def read_basket(cls, filename, seekkey):
          buffer = await cls.ioservice.open_url(filename, blockcache=True)
          key = await TKey().load(buffer, seekkey)

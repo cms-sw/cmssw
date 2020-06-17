@@ -64,11 +64,12 @@ class XRDFile:
         # some minimal error handling: Throw AssertionFailure if *anything* went wrong.
         # TODO: better produce some more specific errors...
         ok = async_result[0][0]
-        assert not ok['error'], repr(ok)
+        assert not ok['error'], f"Problem with {function} {args} {kwargs} on {self.url}: {repr(ok)}"
         return async_result[0][1]
         
-    async def load(self, url, timeout = 5):
+    async def load(self, url, timeout = 20):
         self.timeout = timeout
+        self.url = url
         self.file = pyxrootd.client.File()
         await self.__async_call(self.file.open, url, timeout=self.timeout)
         stat = await self.__async_call(self.file.stat)
@@ -76,6 +77,9 @@ class XRDFile:
         self.cache = []
         self.cachestart = 0
         return self
+
+    def __repr__(self):
+        return f"XRDFile(url={repr(self.url)})"
 
     async def close(self):
         # no timeout here, better block eternally here than to return and then

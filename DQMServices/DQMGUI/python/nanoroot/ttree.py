@@ -429,7 +429,7 @@ class TBasket:
         # decoding that without the help of the TBranch metadata is complicated.
         assert self.buf[-4:] == b'\x00\x00\x00\x00'
         pos = -2
-        prev = len(self.buf) # just so the sanity check works
+        prev = len(self.buf) + self.fKeyLen # just so the sanity check works
         fEntryOffset = []
         # Unpacking all the ints at once is much faster than calling unpack over
         # and over, even if we rarely need all of them.
