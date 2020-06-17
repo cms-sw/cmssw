@@ -20,6 +20,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -101,6 +102,7 @@ private:
 
   /// Name of input digi Collection
   edm::EDGetTokenT<GEMPadDigiCollection> pad_token_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geom_token_;
   edm::InputTag pads_;
 
   unsigned int maxClustersOHGE11_;
@@ -121,6 +123,7 @@ GEMPadDigiClusterProducer::GEMPadDigiClusterProducer(const edm::ParameterSet& ps
   maxClusterSize_ = ps.getParameter<unsigned int>("maxClusterSize");
 
   pad_token_ = consumes<GEMPadDigiCollection>(pads_);
+  geom_token_ = esConsumes<GEMGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 
   produces<GEMPadDigiClusterCollection>();
   consumes<GEMPadDigiCollection>(pads_);
@@ -141,8 +144,7 @@ void GEMPadDigiClusterProducer::fillDescriptions(edm::ConfigurationDescriptions&
 }
 
 void GEMPadDigiClusterProducer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {
-  edm::ESHandle<GEMGeometry> hGeom;
-  eventSetup.get<MuonGeometryRecord>().get(hGeom);
+  edm::ESHandle<GEMGeometry> hGeom = eventSetup.getHandle(geom_token_);
   geometry_ = &*hGeom;
 }
 
