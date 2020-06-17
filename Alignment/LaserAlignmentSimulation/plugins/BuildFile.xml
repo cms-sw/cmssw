@@ -1,7 +1,6 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/MessageLogger"/>
 <use name="clhep"/>
-<use name="boost"/>
 <library file="LaserAlignmentSimulation.cc" name="LaserAlignmentSimulationPlugins">
   <use name="Alignment/LaserAlignmentSimulation"/>
   <use name="SimG4Core/Notification"/>
