@@ -143,7 +143,7 @@ void GEMPadDigiClusterProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<unsigned int>("nOHGE11", 2);
   desc.add<unsigned int>("nOHGE21", 4);
   desc.add<unsigned int>("maxClusterSize", 8);
-  desc.add<unsigned int>("sendOverflowClusters", false);
+  desc.add<bool>("sendOverflowClusters", false);
 
   descriptions.add("simMuonGEMPadDigiClustersDef", desc);
 }
