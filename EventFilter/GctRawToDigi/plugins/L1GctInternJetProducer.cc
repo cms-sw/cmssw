@@ -23,14 +23,10 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
-#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
-#include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
-
-#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
-#include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
-
 L1GctInternJetProducer::L1GctInternJetProducer(const edm::ParameterSet& iConfig)
     : internalJetSource_(iConfig.getParameter<edm::InputTag>("internalJetSource")),
+      caloGeomToken_(esConsumes<L1CaloGeometry, L1CaloGeometryRecord>()),
+      jetScaleToken_(esConsumes<L1CaloEtScale, L1JetEtScaleRcd>()),
       centralBxOnly_(iConfig.getParameter<bool>("centralBxOnly")) {
   using namespace l1extra;
 
@@ -47,12 +43,10 @@ void L1GctInternJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
   unique_ptr<L1JetParticleCollection> internJetColl(new L1JetParticleCollection);
 
-  ESHandle<L1CaloGeometry> caloGeomESH;
-  iSetup.get<L1CaloGeometryRecord>().get(caloGeomESH);
+  ESHandle<L1CaloGeometry> caloGeomESH = iSetup.getHandle(caloGeomToken_);
   const L1CaloGeometry* caloGeom = &(*caloGeomESH);
 
-  ESHandle<L1CaloEtScale> jetScale;
-  iSetup.get<L1JetEtScaleRcd>().get(jetScale);
+  ESHandle<L1CaloEtScale> jetScale = iSetup.getHandle(jetScaleToken_);
 
   double etSumLSB = jetScale->linearLsb();
   //std::cout << "Inside the Jet producer " << etSumLSB << std::endl;
