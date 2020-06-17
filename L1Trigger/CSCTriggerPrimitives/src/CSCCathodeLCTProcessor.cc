@@ -1008,11 +1008,13 @@ void CSCCathodeLCTProcessor::markBusyKeys(const int best_hstrip,
 }  // markBusyKeys -- TMB-07 version.
 
 void CSCCathodeLCTProcessor::cleanComparatorContainer(CSCCLCTDigi& clct) const {
-  for (auto& p : clct.getHits()) {
+  CSCCLCTDigi::ComparatorContainer newHits = clct.getHits();
+  for (auto& p : newHits) {
     p.erase(std::remove_if(
                 p.begin(), p.end(), [](unsigned i) -> bool { return i == CSCCathodeLCTProcessor::INVALID_HALFSTRIP; }),
             p.end());
   }
+  clct.setHits(newHits);
 }
 
 // --------------------------------------------------------------------------
