@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -33,17 +34,18 @@ public:
 private:
   edm::EDGetTokenT<GEMDigiCollection> gemDigiToken_;
   edm::EDGetTokenT<GEMPadDigiCollection> gemPadToken_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;
 };
 
 GEMPadDigiReader::GEMPadDigiReader(const edm::ParameterSet& pset)
     : gemDigiToken_(consumes<GEMDigiCollection>(pset.getParameter<edm::InputTag>("gemDigiToken"))),
-      gemPadToken_(consumes<GEMPadDigiCollection>(pset.getParameter<edm::InputTag>("gemPadToken"))) {}
+      gemPadToken_(consumes<GEMPadDigiCollection>(pset.getParameter<edm::InputTag>("gemPadToken"))),
+      geomToken_(esConsumes<GEMGeometry, MuonGeometryRecord>()) {}
 
 void GEMPadDigiReader::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
   //cout << "--- Run: " << event.id().run() << " Event: " << event.id().event() << endl;
 
-  edm::ESHandle<GEMGeometry> geometry;
-  eventSetup.get<MuonGeometryRecord>().get(geometry);
+  edm::ESHandle<GEMGeometry> geometry = eventSetup.getHandle(geomToken_);
 
   edm::Handle<GEMDigiCollection> digis;
   event.getByToken(gemDigiToken_, digis);
