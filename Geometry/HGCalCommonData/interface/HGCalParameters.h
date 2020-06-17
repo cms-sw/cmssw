@@ -14,12 +14,12 @@ class HGCalParameters {
 public:
   struct waferInfo {
     int32_t type, part, orient;
-    waferInfo(int32_t t = 0, int32_t p = 0, int32_t o = 0) : type(t), part(p), orient(o) {};
+    waferInfo(int32_t t = 0, int32_t p = 0, int32_t o = 0) : type(t), part(p), orient(o){};
   };
   struct tileInfo {
     int32_t type, sipm, hex1, hex2, hex3, hex4;
-    tileInfo(int32_t t = 0, int32_t s = 0, int32_t h1 = 0, int32_t h2 = 0, int32_t h3 = 0,
-	     int32_t h4 = 0) : type(t), sipm(s), hex1(h1), hex2(h2), hex3(h3), hex4(h4) {};
+    tileInfo(int32_t t = 0, int32_t s = 0, int32_t h1 = 0, int32_t h2 = 0, int32_t h3 = 0, int32_t h4 = 0)
+        : type(t), sipm(s), hex1(h1), hex2(h2), hex3(h3), hex4(h4){};
   };
   typedef std::vector<std::unordered_map<int32_t, int32_t> > layer_map;
   typedef std::unordered_map<int32_t, int32_t> wafer_map;
