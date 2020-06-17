@@ -52,15 +52,12 @@ namespace clangcms {
       for (auto I = CE->arg_begin(), E = CE->arg_end(); I != E; ++I) {
         QualType QT = (*I)->getType();
         std::string qtname = QT.getAsString();
-        //if (qtname == "edm::Event" || qtname == "const edm::Event" || qtname == "edm::Event *" ||
-        //    qtname == "const edm::Event *") {
-          os << "' with argument of type '" << qtname;
-          PathDiagnosticLocation CELoc = PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(), AC);
-          BugType *BT = new BugType(Checker, "EventSetupRecord::get function called", "ThreadSafety");
-          std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
-          R->addRange(CE->getSourceRange());
-          BR.emitReport(std::move(R));
-	  //}
+        os << "' with argument of type '" << qtname;
+        PathDiagnosticLocation CELoc = PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(), AC);
+        BugType *BT = new BugType(Checker, "EventSetupRecord::get function called", "ThreadSafety");
+        std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
+        R->addRange(CE->getSourceRange());
+        BR.emitReport(std::move(R));
       }
       os << "'";
     }
