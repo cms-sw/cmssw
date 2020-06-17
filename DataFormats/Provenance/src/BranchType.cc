@@ -22,35 +22,39 @@ namespace edm {
 
     std::array<std::string, NumBranchTypes> const branchTypeNames{{"Event", "LuminosityBlock", "Run", "ProcessBlock"}};
     std::size_t constexpr eventLumiRunSize = 3;
-    using NameArray = const std::array<std::string, eventLumiRunSize>;
+    using NameArray = std::array<std::string, eventLumiRunSize>;
 
     NameArray makeNameArray(std::string const& postfix) {
       static_assert(InEvent == 0);
       static_assert(InLumi == 1);
       static_assert(InRun == 2);
-      return NameArray{
-          {branchTypeNames[InEvent] + postfix, branchTypeNames[InLumi] + postfix, branchTypeNames[InRun] + postfix}};
+      static_assert(InProcess == 3);
+      NameArray ret;
+      for (auto i = 0U; i != eventLumiRunSize; ++i) {
+        ret[i] = branchTypeNames[i] + postfix;
+      }
+      return ret;
     }
 
-    NameArray treeNames{makeNameArray(std::string("s"))};
+    const NameArray treeNames{makeNameArray(std::string("s"))};
 
-    NameArray metaTreeNames{makeNameArray(metaData)};
-
-    // backward compatibility
-    NameArray infoNames{makeNameArray(std::string("StatusInformation"))};
-
-    NameArray auxiliaryNames{makeNameArray(auxiliary)};
+    const NameArray metaTreeNames{makeNameArray(metaData)};
 
     // backward compatibility
-    NameArray productStatusNames{makeNameArray(productStatus)};
+    const NameArray infoNames{makeNameArray(std::string("StatusInformation"))};
+
+    const NameArray auxiliaryNames{makeNameArray(auxiliary)};
 
     // backward compatibility
-    NameArray eventEntryInfoNames{makeNameArray(branchEntryInfo)};
-
-    NameArray productProvenanceNames{makeNameArray(productProvenance)};
+    const NameArray productStatusNames{makeNameArray(productStatus)};
 
     // backward compatibility
-    NameArray auxNames{makeNameArray(aux)};
+    const NameArray eventEntryInfoNames{makeNameArray(branchEntryInfo)};
+
+    const NameArray productProvenanceNames{makeNameArray(productProvenance)};
+
+    // backward compatibility
+    const NameArray auxNames{makeNameArray(aux)};
 
     std::string const entryDescriptionTree = "EntryDescription";
     std::string const entryDescriptionIDBranch = "Hash";
