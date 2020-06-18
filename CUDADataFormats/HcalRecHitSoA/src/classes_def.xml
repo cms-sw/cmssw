@@ -1,15 +1,9 @@
 <lcgdict>
-    <class name="std::vector<float, cms::cuda::HostAllocator<float, 0>>" />
-    <class name="std::vector<int, cms::cuda::HostAllocator<int, 0>>" />
-    <class name="std::vector<uint32_t, cms::cuda::HostAllocator<uint32_t, 0>>" />
-
-
     <class name="hcal::RecHitCollection<hcal::common::VecStoragePolicy<std::allocator>>"/>
-    <class name="hcal::RecHitCollection<hcal::common::VecStoragePolicy<hcal::CUDAHostAllocatorAlias>>"/>
     <class name="edm::Wrapper<hcal::RecHitCollection<hcal::common::VecStoragePolicy<std::allocator>>>"/>
+
+    <class name="hcal::RecHitCollection<hcal::common::VecStoragePolicy<hcal::CUDAHostAllocatorAlias>>"/>
     <class name="edm::Wrapper<hcal::RecHitCollection<hcal::common::VecStoragePolicy<hcal::CUDAHostAllocatorAlias>>>"/>
-            
-            
 
     <class name="cms::cuda::Product<hcal::RecHitCollection<hcal::common::ViewStoragePolicy>>" persistent="false" />
     <class name="edm::Wrapper<cms::cuda::Product<hcal::RecHitCollection<hcal::common::ViewStoragePolicy>>>" persistent="false" />
