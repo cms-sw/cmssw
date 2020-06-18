@@ -272,11 +272,10 @@ void CTPPSGeometryESModule::buildDetGeomDesc(DDFilteredView* fv, DetGeomDesc* gd
       const unsigned int decRPId = copy_num[1];
       unsigned int arm, station, rp;
       if (legacyDiamondHierarchy_) {
-        arm = decRPId-1;
+        arm = decRPId - 1;
         station = 1;
         rp = 6;
-      }
-      else {
+      } else {
         arm = (decRPId / 100) / 10;
         station = (decRPId / 10) % 10;
         rp = decRPId % 10;
@@ -300,11 +299,10 @@ void CTPPSGeometryESModule::buildDetGeomDesc(DDFilteredView* fv, DetGeomDesc* gd
       const unsigned int decRPId = copy_num[1];
       unsigned int arm, station, rp;
       if (legacyDiamondHierarchy_) {
-        arm = decRPId-1;
+        arm = decRPId - 1;
         station = 1;
         rp = 6;
-      }
-      else {
+      } else {
         arm = (decRPId / 100) % 10;
         station = (decRPId / 10) % 10;
         rp = decRPId % 10;
