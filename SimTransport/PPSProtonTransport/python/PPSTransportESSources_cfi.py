@@ -1,15 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 # beam optics
-#from CalibPPS.ESProducers.ctppsBeamParametersFromLHCInfoESSource_cfi import *
-from CalibPPS.ESProducers.ctppsOpticalFunctionsESSource_cfi import *
-from CalibPPS.ESProducers.ctppsBeamParametersESSource_cfi import *
-
+from CalibPPS.ESProducers.ctppsBeamParametersFromLHCInfoESSource_cfi import *
 from CalibPPS.ESProducers.ctppsInterpolatedOpticalFunctionsESSource_cfi import *
 ctppsInterpolatedOpticalFunctionsESSource.lhcInfoLabel = ""
 
 from SimTransport.PPSProtonTransport.OpticalFunctionsConfig_cfi import *
 
+# For optical functions from root file, use the definitino below
+"""
 _opticsConfig = cms.PSet(
                     defaultCrossingAngle=cms.double(0.0),
                     es_source = cms.PSet()
@@ -30,10 +29,10 @@ ctpps_2021.toReplaceWith(_opticsConfig, opticalfunctionsTransportSetup_2021.opti
 ctppsBeamParametersESSource.halfXangleX45 = _opticsConfig.defaultCrossingAngle
 ctppsBeamParametersESSource.halfXangleX56 = _opticsConfig.defaultCrossingAngle
 ctppsOpticalFunctionsESSource.configuration.append(_opticsConfig.es_source)
-
 # clean up to avoid spreading uneeded modules up in the configuration chain
 del _opticsConfig
 del opticalfunctionsTransportSetup_2016
 del opticalfunctionsTransportSetup_2018
 del opticalfunctionsTransportSetup_2017
 del opticalfunctionsTransportSetup_2021
+"""
