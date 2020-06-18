@@ -2,19 +2,29 @@
 
 //
 HGCalSiNoiseMap::HGCalSiNoiseMap()
-  : useCached_(true),
-    encCommonNoiseSub_(sqrt(1.0)),
+  : encCommonNoiseSub_(sqrt(1.0)),
     qe2fc_(1.60217646E-4),
     ignoreFluence_(false),
     ignoreCCE_(false),
-    ignoreNoise_(false) {
+    ignoreNoise_(false),
+    ignoreGainDependentPulse_(false),
+    ignoreCachedOp_(false) {
 
-  encsParam_.push_back({636., 15.6, 0.0328});   // q80fC: II order polynomial coefficients
-  chargeAtFullScaleADCPerGain_.push_back(80.);  //        the num of fC (charge) which corresponds to the max ADC value
-  encsParam_.push_back({1045., 8.74, 0.0685});  // q160fC
+  //q80fC
+  encsParam_.push_back({636., 15.6, 0.0328});          //2nd order polynomial coefficients as function of capacitance
+  chargeAtFullScaleADCPerGain_.push_back(80.);         //the num of fC (charge) which corresponds to the max ADC value
+  adcPulses_.push_back({{0.,0.,1.0,0.066/0.934,0.,0.}}); //in-time bunch is the 3rd entry in the array
+  //q160fC
+  encsParam_.push_back({1045., 8.74, 0.0685});  
   chargeAtFullScaleADCPerGain_.push_back(160.);
-  encsParam_.push_back({1915., 2.79, 0.0878});  // q320fC
+  adcPulses_.push_back({{0.,0.,1.0,0.153/0.847,0.,0.}});
+  // q320fC
+  encsParam_.push_back({1915., 2.79, 0.0878});  
   chargeAtFullScaleADCPerGain_.push_back(320.);
+  adcPulses_.push_back({{0.,0.,1.0,0.0963/0.9037,0.,0.}});
+
+  //start with a default value
+  defaultADCPulse_=adcPulses_[(GainRange_t)q160fC];
 
   // adc has 10 bits -> 1024 counts at max ( >0 baseline to be handled)
   for (auto i : chargeAtFullScaleADCPerGain_)
@@ -47,10 +57,13 @@ HGCalSiNoiseMap::HGCalSiNoiseMap()
 
 //
 void HGCalSiNoiseMap::setDoseMap(const std::string &fullpath, const unsigned int &algo) {
+
   //decode bits in the algo word
-  ignoreFluence_ = ((algo >> FLUENCE) & 0x1);
-  ignoreCCE_ = ((algo >> CCE) & 0x1);
-  ignoreNoise_ = ((algo >> NOISE) & 0x1);
+  ignoreFluence_            = ((algo >> FLUENCE) & 0x1);
+  ignoreCCE_                = ((algo >> CCE) & 0x1);
+  ignoreNoise_              = ((algo >> NOISE) & 0x1);
+  ignoreGainDependentPulse_ = ((algo >> PULSEPERGAIN) & 0x1);
+  ignoreCachedOp_           = ((algo >> CACHEDOP) & 0x1);
 
   //call base class method
   HGCalRadiationMap::setDoseMap(fullpath, algo);
@@ -86,7 +99,7 @@ HGCalSiNoiseMap::SiCellOpCharacteristicsCore HGCalSiNoiseMap::getSiCellOpCharact
                             cellId.cellU(), 
                             cellId.cellV());
   uint32_t key(posCellId.rawId());
-  if(!useCached_ || siopCache_.find(key)==siopCache_.end()) {
+  if(ignoreCachedOp_ || siopCache_.find(key)==siopCache_.end()) {
     SiCellOpCharacteristicsCore siop=getSiCellOpCharacteristics(cellId,gain,aimMIPtoADC).core;
     return siop;
   }
