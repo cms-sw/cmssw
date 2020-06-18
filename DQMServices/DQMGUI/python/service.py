@@ -26,7 +26,7 @@ class GUIService:
     layouts_manager = LayoutManager()
 
     @classmethod
-    @alru_cache(maxsize=10)
+    # @alru_cache(maxsize=10)
     async def get_samples(cls, run, dataset, lumi=0):
         if run == '':
             run = None
