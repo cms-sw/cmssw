@@ -21,13 +21,13 @@
  */
 
 #include <typeinfo>
+#include <iostream>
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/transform.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/CloneTrait.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
 
 template <typename InputCollection,
@@ -48,12 +48,18 @@ private:
   typedef std::vector<edm::EDGetTokenT<InputCollection> > vtoken;
   /// labels of the collections to be merged
   vtoken srcToken_;
+  /// choose whether to skip null/invalid pointers
+  bool skipNulls_;
+  /// choose whether to warn when skipping pointers
+  bool warnOnSkip_;
 };
 
 template <typename InputCollection, typename OutputCollection, typename P>
 UniqueMerger<InputCollection, OutputCollection, P>::UniqueMerger(const edm::ParameterSet& par)
     : srcToken_(edm::vector_transform(par.template getParameter<std::vector<edm::InputTag> >("src"),
-                                      [this](edm::InputTag const& tag) { return consumes<InputCollection>(tag); })) {
+                                      [this](edm::InputTag const& tag) { return consumes<InputCollection>(tag); })),
+      skipNulls_(par.getParameter<bool>("skipNulls")),
+      warnOnSkip_(par.getParameter<bool>("warnOnSkip")) {
   produces<OutputCollection>();
 }
 
@@ -66,11 +72,11 @@ void UniqueMerger<InputCollection, OutputCollection, P>::produce(edm::StreamID,
                                                                  const edm::EventSetup&) const {
   set_type coll_set;
   for (auto const& s : srcToken_) {
-    edm::Handle<InputCollection> h;
-    evt.getByToken(s, h);
-    for (typename InputCollection::const_iterator c = h->begin(); c != h->end(); ++c) {
-      if (c->isNonnull() && c->isAvailable()) {
-        coll_set.emplace(P::clone(*c));
+    for (auto const& c : evt.get(s)) {
+      if (!skipNulls_ || (c.isNonnull() && c.isAvailable())) {
+        coll_set.emplace(P::clone(c));
+      } else if (warnOnSkip_) {
+        edm::LogWarning("InvalidPointer") << "Found an invalid pointer. Will not merge to collection.";
       }
     }
   }
