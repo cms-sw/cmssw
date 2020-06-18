@@ -169,9 +169,8 @@ bool L1ConfigOnlineProdBaseExt<TRcd, TData>::getObjectKey(const TRcd& record, st
   // If L1TriggerKeyExt is invalid, then all configuration objects are
   // already in ORCON.
   // edm::ESHandle<L1TriggerKeyExt> key_token;
-  L1TriggerKeyExt key;
   try {
-    key = keyRcd.get(key_token);
+    keyRcd.get(key_token);
   } catch (l1t::DataAlreadyPresentException& ex) {
     objectKey = std::string();
     return false;
@@ -181,7 +180,7 @@ bool L1ConfigOnlineProdBaseExt<TRcd, TData>::getObjectKey(const TRcd& record, st
   std::string recordName = edm::typelookup::className<TRcd>();
   std::string dataType = edm::typelookup::className<TData>();
 
-  objectKey = key.get(recordName, dataType);
+  objectKey = keyRcd.get(key_token).get(recordName, dataType);
 
   /*    edm::LogVerbatim( "L1-O2O" ) */
   /*      << "L1ConfigOnlineProdBase record " << recordName */
