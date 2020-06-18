@@ -124,7 +124,7 @@ GeometricDet::GeometricDet(const PGeometricDet::Item& onePGD, GeometricEnumType 
            onePGD._a31,
            onePGD._a32,
            onePGD._a33),
-      _shape(static_cast<cms::DDSolidShape>(onePGD._shape)),
+      _shape(cms::dd::name_from_value(cms::LegacySolidShapeMap, static_cast<LegacySolidShape>(onePGD._shape))),
       _ddd(),
       _ddname(onePGD._name),
       _type(type),
