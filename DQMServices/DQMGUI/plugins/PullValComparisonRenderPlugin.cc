@@ -124,13 +124,16 @@ public:
     pull_hist->SetMinimum(-max_pull);
     pull_hist->SetMaximum(max_pull);
     if (ii.reflabels.size() >= 2) {
-      std::string title = std::string(pull_hist->GetTitle()) + " (" + ii.reflabels[0] + " vs. " + ii.reflabels[1] + ")";
+      std::string title =
+          std::string(pull_hist->GetTitle()) + " (PullVal " + ii.reflabels[0] + " vs. " + ii.reflabels[1] + ")";
       pull_hist->SetTitle(title.c_str());
     }
-    // TODO: this tends to be overridden by other render plugins.
-    //renderInfo.drawOptions += " COLZ";
-    gStyle->SetPalette(kLightTemperature);
-    gStyle->SetNumberContours(255);
+
+    // Only set this if no other options are set, it will then override the
+    // object settings (which tend to get set by other  Render Plugins)
+    if (renderInfo.drawOptions.empty()) {
+      renderInfo.drawOptions = "COLZ";
+    }
 
     // Replace object. Now normal rendering takes over.
     VisDQMObject* mut_o = const_cast<VisDQMObject*>(&o);
@@ -138,7 +141,13 @@ public:
     mut_o->object = pull_hist;
   }
 
-  void postDraw(TCanvas* canvas, const VisDQMObject& o, const VisDQMImgInfo& ii) override {}
+  void postDraw(TCanvas* canvas, const VisDQMObject& o, const VisDQMImgInfo& ii) override {
+    // TODO: this tends to be overridden by other render plugins.
+    // But setting it only in postDraw helps, most render plugins set it in preDraw
+    // The unusual color palette helps to remind the user that these are comparisons.
+    gStyle->SetPalette(kLightTemperature);
+    gStyle->SetNumberContours(255);
+  }
 
   double pull(double bin1, double binerr1, double bin2, double binerr2) {
     return (bin1 - bin2) / (sqrt(binerr1 * binerr1 + binerr2 * binerr2));
