@@ -1367,7 +1367,7 @@ void TrackletCalculatorDisplaced::exactproj(double rproj,
   zproj = z0 + t * std::abs(rho * beta);
 
   //not exact, but close
-  phider = -0.5 * rinv / sqrt(1 - pow(0.5 * rproj * rinv, 2)) - d0 / (rproj * rproj);
+  phider = -0.5 * rinv / sqrt(1 - pow(0.5 * rproj * rinv, 2)) + d0 / (rproj * rproj);
   zder = t / sqrt(1 - pow(0.5 * rproj * rinv, 2));
 
   if (settings_.debugTracklet()) {
