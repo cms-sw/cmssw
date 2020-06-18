@@ -1082,33 +1082,33 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
   if (php.waferMaskMode_ == siliconFileEE) {
     for (auto const& it : vmap) {
       if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "WaferIndexEE")) {
-	for (const auto& i : it.second)
-	  waferIndex_.emplace_back(std::round(i));
+        for (const auto& i : it.second)
+          waferIndex_.emplace_back(std::round(i));
       } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "WaferTypesEE")) {
-	for (const auto& i : it.second)
-	  waferTypes_.emplace_back(std::round(i));
+        for (const auto& i : it.second)
+          waferTypes_.emplace_back(std::round(i));
       } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "WaferPartialEE")) {
-	for (const auto& i : it.second)
-	  waferParts_.emplace_back(std::round(i));
+        for (const auto& i : it.second)
+          waferParts_.emplace_back(std::round(i));
       } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "WaferOrientEE")) {
-	for (const auto& i : it.second)
-	  waferOrien_.emplace_back(std::round(i));
+        for (const auto& i : it.second)
+          waferOrien_.emplace_back(std::round(i));
       }
     }
   } else if (php.waferMaskMode_ == siliconFileHE) {
     for (auto const& it : vmap) {
       if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "WaferIndexHE")) {
-	for (const auto& i : it.second)
-	  waferIndex_.emplace_back(std::round(i));
+        for (const auto& i : it.second)
+          waferIndex_.emplace_back(std::round(i));
       } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "WaferTypesHE")) {
-	for (const auto& i : it.second)
-	  waferTypes_.emplace_back(std::round(i));
+        for (const auto& i : it.second)
+          waferTypes_.emplace_back(std::round(i));
       } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "WaferPartialHE")) {
-	for (const auto& i : it.second)
-	  waferParts_.emplace_back(std::round(i));
+        for (const auto& i : it.second)
+          waferParts_.emplace_back(std::round(i));
       } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "WaferOrientHE")) {
-	for (const auto& i : it.second)
-	  waferOrien_.emplace_back(std::round(i));
+        for (const auto& i : it.second)
+          waferOrien_.emplace_back(std::round(i));
       }
     }
   }
