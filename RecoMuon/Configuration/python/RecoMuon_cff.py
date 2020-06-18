@@ -19,10 +19,14 @@ muonsFromCosmics = RecoMuon.MuonIdentification.muons1stStep_cfi.muons1stStep.clo
     inputCollectionTypes = ['outer tracks'],
     fillIsolation = False,
     fillGlobalTrackQuality = False,
-    fillGlobalTrackRefits = False
+    fillGlobalTrackRefits = False,
+
+    TrackAssociatorParameters = dict(
+	DTRecSegment4DCollectionLabel = 'dt4DCosmicSegments'),
+
+    TrackExtractorPSet = dict(
+	inputTrackCollection = 'cosmicMuons')
 )
-muonsFromCosmics.TrackAssociatorParameters.DTRecSegment4DCollectionLabel = 'dt4DCosmicSegments'
-muonsFromCosmics.TrackExtractorPSet.inputTrackCollection = 'cosmicMuons'
 muonsFromCosmics.TimingFillerParameters.MatchParameters.DTsegments = 'dt4DCosmicSegments'
 muonsFromCosmics.TimingFillerParameters.DTTimingParameters.PruneCut = 9999
 muonsFromCosmics.TimingFillerParameters.CSCTimingParameters.PruneCut = 9999
@@ -36,11 +40,13 @@ muoncosmicreco2legsHighLevel = cms.Sequence(muoncosmicreco2legsHighLevelTask)
 # 1 Leg type
 # Stand alone muon track producer
 cosmicMuons1Leg = cosmicMuons.clone(
-    MuonSeedCollectionLabel = 'CosmicMuonSeed'
+    MuonSeedCollectionLabel = 'CosmicMuonSeed',
+
+    TrajectoryBuilderParameters = dict(
+	BuildTraversingMuon = True,
+	Strict1Leg = True,
+	DTRecSegmentLabel = 'dt4DCosmicSegments')
 )
-cosmicMuons1Leg.TrajectoryBuilderParameters.BuildTraversingMuon = True
-cosmicMuons1Leg.TrajectoryBuilderParameters.Strict1Leg = True
-cosmicMuons1Leg.TrajectoryBuilderParameters.DTRecSegmentLabel = 'dt4DCosmicSegments'
 
 # Muon Id producer
 muonsFromCosmics1Leg = muons1stStep.clone(
@@ -48,10 +54,14 @@ muonsFromCosmics1Leg = muons1stStep.clone(
     inputCollectionTypes = ['outer tracks'],
     fillIsolation = False,
     fillGlobalTrackQuality = False,
-    fillGlobalTrackRefits = False
+    fillGlobalTrackRefits = False,
+
+    TrackAssociatorParameters = dict(
+	DTRecSegment4DCollectionLabel = 'dt4DCosmicSegments'),
+
+    TrackExtractorPSet = dict(
+	inputTrackCollection = 'cosmicMuons1Leg')
 )
-muonsFromCosmics1Leg.TrackAssociatorParameters.DTRecSegment4DCollectionLabel = 'dt4DCosmicSegments'
-muonsFromCosmics1Leg.TrackExtractorPSet.inputTrackCollection = 'cosmicMuons1Leg'
 muonsFromCosmics1Leg.TimingFillerParameters.MatchParameters.DTsegments = 'dt4DCosmicSegments'
 muonsFromCosmics1Leg.TimingFillerParameters.DTTimingParameters.PruneCut = 9999
 muonsFromCosmics1Leg.TimingFillerParameters.CSCTimingParameters.PruneCut = 9999
