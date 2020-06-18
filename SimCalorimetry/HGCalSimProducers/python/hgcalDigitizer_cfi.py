@@ -208,6 +208,7 @@ endOfLifeCCEs = [0.5, 0.5, 0.7]
 endOfLifeNoises = [2400.0,2250.0,1750.0]
 def HGCal_setEndOfLifeNoise(process,byDose=True,byDoseAlgo=0):
     """includes all effects from radiation and gain choice"""
+    # byDoseAlgo is used as a collection of bits to toggle: FLUENCE, CCE, NOISE, PULSEPERGAIN, CACHEDOP (from lsb to Msb)
     process=HGCal_setRealisticNoiseSi(process,byDose=byDose,byDoseAlgo=byDoseAlgo)
     process=HGCal_setRealisticNoiseSci(process,byDose=byDose,byDoseAlgo=byDoseAlgo)
     return process
@@ -215,7 +216,17 @@ def HGCal_setEndOfLifeNoise(process,byDose=True,byDoseAlgo=0):
 def HGCal_setRealisticStartupNoise(process):
     """include all effects except fluence impact on leakage current and CCE"""
     #note: realistic electronics with Sci is not yet switched on
+    # byDoseAlgo is used as a collection of bits to toggle: FLUENCE, CCE, NOISE, PULSEPERGAIN, CACHEDOP (from lsb to Msb)
+    # for instance turning on the 1st bit turns off the impact of fluence
     process=HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=1)
+    return process
+
+def HGCal_ignoreCaching(process):
+    """include all effects except fluence impact on leakage current and CCE"""
+    #note: realistic electronics with Sci is not yet switched on
+    # byDoseAlgo is used as a collection of bits to toggle: FLUENCE, CCE, NOISE, PULSEPERGAIN, CACHEDOP (from lsb to Msb)
+    # for instance turning on the 5th bit activates ignoring the cache
+    process=HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=32)
     return process
 
 def HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0):
