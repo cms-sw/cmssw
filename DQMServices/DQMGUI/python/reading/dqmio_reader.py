@@ -22,7 +22,8 @@ class DQMIOReader:
          buffer = await cls.ioservice.open_url(filename, blockcache=True)
          key = await TKey().load(buffer, seekkey)
          data = await key.objdata()
-         return data
+         # keylen is need to compute displacement later.
+         return data, key.fields.fKeyLen
 
 
     @classmethod
@@ -35,7 +36,7 @@ class DQMIOReader:
         if me_info.value != None:
             return ScalarValue(b'', b'', me_info.value) # TODO: do sth. better.
 
-        data = await cls.read_basket(filename, me_info.seekkey)
+        data, keylen = await cls.read_basket(filename, me_info.seekkey)
         obj = data[me_info.offset : me_info.offset + me_info.size]
         if me_info.type == b'String':
             s = TType.String.unpack(obj, 0, len(obj), None)
@@ -48,8 +49,7 @@ class DQMIOReader:
         # The buffers in a TKey based file start with the TKey. Since we only 
         # send the object to the renderer, we need to compensate for that using
         # the displacement.
-        # TODO: not sure if this does in fact work for TTrees.
-        displacement = 0 # - key.fields.fKeyLen - me_info.offset
+        displacement = - keylen - me_info.offset
         # metype doubles as root class name here.
         return TBufferFile(obj, me_info.type, displacement, classversion)
 

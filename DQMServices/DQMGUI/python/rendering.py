@@ -135,7 +135,6 @@ class GUIRenderer:
             
             for info in rendering_infos:
                 displacement = - info.root_object.displacement
-                print("disp. ", displacement)
                 data += struct.pack('=ii', len(info.root_object.buffer), displacement) + info.root_object.buffer
             
             num_objs = len(rendering_infos)

@@ -726,9 +726,6 @@ private:
 
         TBufferFile buf(TBufferFile::kRead, lenbits, &odata[pos], kFALSE);
         buf.Reset();
-        // for whatever reasons, SetBufferDisplacement assumes a value relative
-        // to the *end* of the buffer, so we compensate for that.
-        std::cout << " lenbits " << lenbits << " disp " << displacement << "\n";
         buf.SetBufferDisplacement(displacement);
         objs[i].object = extractNextObject(buf);
         pos += lenbits;
