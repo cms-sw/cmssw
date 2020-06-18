@@ -81,9 +81,10 @@ private:
                                          const char* name);
 
   static void applyAlignments(const DetGeomDesc&, const CTPPSRPAlignmentCorrectionsData*, DetGeomDesc*&);
-  static void buildDetGeomDesc(DDFilteredView* fv, DetGeomDesc* gd);
+  void buildDetGeomDesc(DDFilteredView* fv, DetGeomDesc* gd) const;
 
   const unsigned int verbosity_;
+  const bool legacyDiamondHierarchy_;
   const edm::ESGetToken<DDCompactView, IdealGeometryRecord> compactViewToken_;
 
   const GDTokens<RPRealAlignmentRecord> gdRealTokens_;
@@ -98,6 +99,7 @@ private:
 
 CTPPSGeometryESModule::CTPPSGeometryESModule(const edm::ParameterSet& iConfig)
     : verbosity_(iConfig.getUntrackedParameter<unsigned int>("verbosity")),
+      legacyDiamondHierarchy_(iConfig.getUntrackedParameter<bool>("legacyDiamondHierarchy", false)),
       compactViewToken_{setWhatProduced(this, &CTPPSGeometryESModule::produceIdealGD)
                             .consumes<DDCompactView>(edm::ESInputTag(
                                 "" /*optional module label */, iConfig.getParameter<std::string>("compactViewTag")))},
@@ -174,7 +176,7 @@ void CTPPSGeometryESModule::applyAlignments(const DetGeomDesc& idealGD,
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSGeometryESModule::buildDetGeomDesc(DDFilteredView* fv, DetGeomDesc* gd) {
+void CTPPSGeometryESModule::buildDetGeomDesc(DDFilteredView* fv, DetGeomDesc* gd) const {
   // try to dive into next level
   if (!fv->firstChild())
     return;
@@ -267,14 +269,24 @@ void CTPPSGeometryESModule::buildDetGeomDesc(DDFilteredView* fv, DetGeomDesc* gd
             << "size of copyNumbers for diamond segments is " << copy_num.size() << ". It must be >= 2.";
 
       const unsigned int decRPId = copy_num[1];
+      unsigned int arm, station, rp;
+      if (legacyDiamondHierarchy_) {
+        arm = decRPId-1;
+        station = 1;
+        rp = 6;
+      }
+      else {
+        arm = (decRPId / 100) / 10;
+        station = (decRPId / 10) % 10;
+        rp = decRPId % 10;
+      }
       const unsigned int id = copy_num[copy_num.size() - 1];
-      const unsigned int arm = (decRPId % 1000) / 100;
-      const unsigned int station = (decRPId % 100) / 10;
-      const unsigned int rp = decRPId % 10;
       const unsigned int plane = id / 100;
       const unsigned int channel = id % 100;
 
       newGD->setGeographicalID(CTPPSDiamondDetId(arm, station, rp, plane, channel));
+      std::cout << "SEGMENT: " << decRPId << "/" << id << ">> " << CTPPSDiamondDetId(arm, station, rp, plane, channel) << std::endl;
+      for (const auto& id:copy_num)std::cout <<">>>"<<id<<std::endl;
     }
 
     // diamond/UFSD RPs
@@ -287,11 +299,21 @@ void CTPPSGeometryESModule::buildDetGeomDesc(DDFilteredView* fv, DetGeomDesc* gd
             << "size of copyNumbers for diamond RP is " << copy_num.size() << ". It must be >= 2.";
 
       const unsigned int decRPId = copy_num[1];
-      const unsigned int arm = (decRPId % 1000) / 100;
-      const unsigned int station = (decRPId % 100) / 10;
-      const unsigned int rp = decRPId % 10;
+      unsigned int arm, station, rp;
+      if (legacyDiamondHierarchy_) {
+        arm = decRPId-1;
+        station = 1;
+        rp = 6;
+      }
+      else {
+        arm = (decRPId / 100) % 10;
+        station = (decRPId / 10) % 10;
+        rp = decRPId % 10;
+      }
 
       newGD->setGeographicalID(CTPPSDiamondDetId(arm, station, rp));
+      std::cout << "RP: " << decRPId << ">> " << CTPPSDiamondDetId(arm, station, rp) << std::endl;
+      for (const auto& id:copy_num)std::cout <<">>>"<<id<<std::endl;
     }
 
     // add component
