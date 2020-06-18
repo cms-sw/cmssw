@@ -5,10 +5,11 @@ from CalibPPS.ESProducers.ctppsBeamParametersFromLHCInfoESSource_cfi import *
 from CalibPPS.ESProducers.ctppsInterpolatedOpticalFunctionsESSource_cfi import *
 ctppsInterpolatedOpticalFunctionsESSource.lhcInfoLabel = ""
 
+
+# For optical functions from root file, when they are not yet in the database, use the definitino below
+"""
 from SimTransport.PPSProtonTransport.OpticalFunctionsConfig_cfi import *
 
-# For optical functions from root file, use the definitino below
-"""
 _opticsConfig = cms.PSet(
                     defaultCrossingAngle=cms.double(0.0),
                     es_source = cms.PSet()
