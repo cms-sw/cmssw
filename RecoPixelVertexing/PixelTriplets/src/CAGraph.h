@@ -49,7 +49,7 @@ struct CALayerPair {
 
 struct CAGraph {
   int getLayerId(const std::string &layerName) {
-    for (auto thisLayer : theLayers) {
+    for (const auto &thisLayer : theLayers) {
       if (thisLayer == layerName)
         return thisLayer.seqNum();
     }
