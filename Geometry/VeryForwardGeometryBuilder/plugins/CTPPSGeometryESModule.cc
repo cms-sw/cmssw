@@ -286,8 +286,6 @@ void CTPPSGeometryESModule::buildDetGeomDesc(DDFilteredView* fv, DetGeomDesc* gd
       const unsigned int channel = id % 100;
 
       newGD->setGeographicalID(CTPPSDiamondDetId(arm, station, rp, plane, channel));
-      std::cout << "SEGMENT: " << decRPId << "/" << id << ">> " << CTPPSDiamondDetId(arm, station, rp, plane, channel) << std::endl;
-      for (const auto& id:copy_num)std::cout <<">>>"<<id<<std::endl;
     }
 
     // diamond/UFSD RPs
@@ -313,8 +311,6 @@ void CTPPSGeometryESModule::buildDetGeomDesc(DDFilteredView* fv, DetGeomDesc* gd
       }
 
       newGD->setGeographicalID(CTPPSDiamondDetId(arm, station, rp));
-      std::cout << "RP: " << decRPId << ">> " << CTPPSDiamondDetId(arm, station, rp) << std::endl;
-      for (const auto& id:copy_num)std::cout <<">>>"<<id<<std::endl;
     }
 
     // add component
