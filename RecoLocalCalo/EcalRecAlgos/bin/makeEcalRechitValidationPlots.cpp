@@ -183,7 +183,7 @@ int main(int argc, char *argv[]) {
   rt->SetBranchAddress("EcalRecHitsSorted_ecalRecHit_EcalRecHitsEB_RECO.", &wcpuEB);
   rt->SetBranchAddress("EcalRecHitsSorted_ecalRecHit_EcalRecHitsEE_RECO.", &wcpuEE);
 
-  constexpr float eps_diff = 1e-3;
+  // constexpr float eps_diff = 1e-3;
 
   // accumulate sizes for events and sizes of each event on both GPU and CPU
   //   auto const nentries = rt->GetEntries();
