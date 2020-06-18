@@ -15,7 +15,7 @@ from SimTransport.PPSProtonTransport.OpticalFunctionsConfig_cfi import opticalfu
 
 _LHCTransportPSet = cms.PSet()
 
-# so far, it is not yet defined the optic for 2017 and 2018, if needed, change the config for these year to the 2016 one
+# To configure the optical function parameter, use _opticalfunctionsTransportSetup_XXXX.es_source
 
 from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
 ctpps_2016.toReplaceWith(_LHCTransportPSet, _hector_2016)
@@ -24,7 +24,7 @@ from Configuration.Eras.Modifier_ctpps_2017_cff import ctpps_2017
 ctpps_2017.toReplaceWith(_LHCTransportPSet, _hector_2017)
 
 from Configuration.Eras.Modifier_ctpps_2018_cff import ctpps_2018
-ctpps_2018.toReplaceWith(_LHCTransportPSet, _hector_2018)
+ctpps_2018.toReplaceWith(_LHCTransportPSet,_hector_2018)
 
 from Configuration.Eras.Modifier_ctpps_2021_cff import ctpps_2021
 ctpps_2021.toReplaceWith(_LHCTransportPSet, _hector_2021) # there is no LHCInfo tag for Run3 yet, force to use a nonDB propagation
