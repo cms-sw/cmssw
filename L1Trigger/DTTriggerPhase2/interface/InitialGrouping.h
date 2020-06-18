@@ -102,16 +102,16 @@ private:
   void resetPrvTDCTStamp(void);
   void mixChannels(int sl, int pathId, MuonPathPtrs& outMpath);
   bool notEnoughDataInChannels(void);
-  bool isEqualComb2Previous(DTPrimitivePtrs ptr);
+  bool isEqualComb2Previous(DTPrimitives& ptr);
 
   // Private attributes
   bool debug;
   std::string ttrig_filename;
   std::map<int, float> ttriginfo;
 
-  DTPrimitivePtrs muxInChannels[NUM_CELLS_PER_BLOCK];
-  DTPrimitivePtrs channelIn[NUM_LAYERS][NUM_CH_PER_LAYER];
-  DTPrimitivePtrs chInDummy;
+  DTPrimitives muxInChannels[NUM_CELLS_PER_BLOCK];
+  DTPrimitives channelIn[NUM_LAYERS][NUM_CH_PER_LAYER];
+  DTPrimitives chInDummy;
   int prevTDCTimeStamps[4];
   int currentBaseChannel;
 };

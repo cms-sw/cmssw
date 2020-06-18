@@ -58,6 +58,37 @@ MuonPath::MuonPath(DTPrimitivePtrs &ptrPrimitive, int nprimUp, int nprimDown) {
   }
 }
 
+MuonPath::MuonPath(DTPrimitives &ptrPrimitive, int nprimUp, int nprimDown) {
+  if (nprimUp > 0 && nprimDown > 0)
+    nprimitives_ = 8;  //Instead of nprimUp + nprimDown;
+  else {
+    nprimitives_ = 4;
+  }
+  nprimitivesUp_ = nprimUp;
+  nprimitivesDown_ = nprimDown;
+  rawId_ = 0;
+  quality_ = NOPATH;
+  baseChannelId_ = -1;
+  bxTimeValue_ = -1;
+  bxNumId_ = -1;
+  tanPhi_ = 0;
+  horizPos_ = 0;
+  chiSquare_ = 0;
+  phi_ = 0;
+  phiB_ = 0;
+
+  for (short i = 0; i < nprimitives_; i++) {
+    lateralComb_[i] = LEFT;
+    prim_.push_back(DTPrimitivePtr(new DTPrimitive(ptrPrimitive[i])));
+
+    setXCoorCell(0, i);
+    setDriftDistance(0, i);
+    setXWirePos(0, i);
+    setZWirePos(0, i);
+    setTWireTDC(0, i);
+  }
+}
+
 MuonPath::MuonPath(MuonPathPtr &ptr) {
   //  std::cout<<"Clonando un 'MuonPath'"<<std::endl;
   setRawId(ptr->rawId());

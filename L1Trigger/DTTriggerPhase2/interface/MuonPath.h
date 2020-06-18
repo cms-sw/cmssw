@@ -9,6 +9,7 @@ class MuonPath {
 public:
   MuonPath();
   MuonPath(DTPrimitivePtrs &ptrPrimitive, int prup = 0, int prdw = 0);
+  MuonPath(DTPrimitives &ptrPrimitive, int prup = 0, int prdw = 0);
   MuonPath(std::shared_ptr<MuonPath> &ptr);
   virtual ~MuonPath(){};
 

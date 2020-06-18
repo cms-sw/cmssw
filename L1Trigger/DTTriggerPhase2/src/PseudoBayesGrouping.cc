@@ -27,9 +27,6 @@ PseudoBayesGrouping::PseudoBayesGrouping(const ParameterSet& pset, edm::Consumes
 PseudoBayesGrouping::~PseudoBayesGrouping() {
   if (debug)
     cout << "PseudoBayesGrouping:: destructor" << endl;
-  //  delete prelimMatches;
-  //  delete allMatches;
-  //  delete finalMatches;
   for (std::vector<DTPattern*>::iterator pat_it = allPatterns.begin(); pat_it != allPatterns.end(); pat_it++) {
     delete (*pat_it);
   }
@@ -88,75 +85,75 @@ void PseudoBayesGrouping::LoadPattern(std::vector<std::vector<std::vector<int>>>
   }
   //Classified by seeding layers for optimized search later
   //TODO::This can be vastly improved using std::bitset<8>, for example
-  if (p->SL1() == 0) {
-    if (p->SL2() == 7)
+  if (p->sl1() == 0) {
+    if (p->sl2() == 7)
       L0L7Patterns.push_back(p);
-    if (p->SL2() == 6)
+    if (p->sl2() == 6)
       L0L6Patterns.push_back(p);
-    if (p->SL2() == 5)
+    if (p->sl2() == 5)
       L0L5Patterns.push_back(p);
-    if (p->SL2() == 4)
+    if (p->sl2() == 4)
       L0L4Patterns.push_back(p);
-    if (p->SL2() == 3)
+    if (p->sl2() == 3)
       L0L3Patterns.push_back(p);
-    if (p->SL2() == 2)
+    if (p->sl2() == 2)
       L0L2Patterns.push_back(p);
-    if (p->SL2() == 1)
+    if (p->sl2() == 1)
       L0L1Patterns.push_back(p);
   }
-  if (p->SL1() == 1) {
-    if (p->SL2() == 7)
+  if (p->sl1() == 1) {
+    if (p->sl2() == 7)
       L1L7Patterns.push_back(p);
-    if (p->SL2() == 6)
+    if (p->sl2() == 6)
       L1L6Patterns.push_back(p);
-    if (p->SL2() == 5)
+    if (p->sl2() == 5)
       L1L5Patterns.push_back(p);
-    if (p->SL2() == 4)
+    if (p->sl2() == 4)
       L1L4Patterns.push_back(p);
-    if (p->SL2() == 3)
+    if (p->sl2() == 3)
       L1L3Patterns.push_back(p);
-    if (p->SL2() == 2)
+    if (p->sl2() == 2)
       L1L2Patterns.push_back(p);
   }
-  if (p->SL1() == 2) {
-    if (p->SL2() == 7)
+  if (p->sl1() == 2) {
+    if (p->sl2() == 7)
       L2L7Patterns.push_back(p);
-    if (p->SL2() == 6)
+    if (p->sl2() == 6)
       L2L6Patterns.push_back(p);
-    if (p->SL2() == 5)
+    if (p->sl2() == 5)
       L2L5Patterns.push_back(p);
-    if (p->SL2() == 4)
+    if (p->sl2() == 4)
       L2L4Patterns.push_back(p);
-    if (p->SL2() == 3)
+    if (p->sl2() == 3)
       L2L3Patterns.push_back(p);
   }
-  if (p->SL1() == 3) {
-    if (p->SL2() == 7)
+  if (p->sl1() == 3) {
+    if (p->sl2() == 7)
       L3L7Patterns.push_back(p);
-    if (p->SL2() == 6)
+    if (p->sl2() == 6)
       L3L6Patterns.push_back(p);
-    if (p->SL2() == 5)
+    if (p->sl2() == 5)
       L3L5Patterns.push_back(p);
-    if (p->SL2() == 4)
+    if (p->sl2() == 4)
       L3L4Patterns.push_back(p);
   }
 
-  if (p->SL1() == 4) {
-    if (p->SL2() == 7)
+  if (p->sl1() == 4) {
+    if (p->sl2() == 7)
       L4L7Patterns.push_back(p);
-    if (p->SL2() == 6)
+    if (p->sl2() == 6)
       L4L6Patterns.push_back(p);
-    if (p->SL2() == 5)
+    if (p->sl2() == 5)
       L4L5Patterns.push_back(p);
   }
-  if (p->SL1() == 5) {
-    if (p->SL2() == 7)
+  if (p->sl1() == 5) {
+    if (p->sl2() == 7)
       L5L7Patterns.push_back(p);
-    if (p->SL2() == 6)
+    if (p->sl2() == 6)
       L5L6Patterns.push_back(p);
   }
-  if (p->SL1() == 6) {
-    if (p->SL2() == 7)
+  if (p->sl1() == 6) {
+    if (p->sl2() == 7)
       L6L7Patterns.push_back(p);
   }
   //Also creating a list of all patterns, needed later for deleting and avoid a memory leak
@@ -207,7 +204,7 @@ void PseudoBayesGrouping::FillMuonPaths(MuonPathPtrs& mpaths) {
     for (int i = 0; i < 8; i++)
       ptrPrimitive.push_back(DTPrimitivePtr(new DTPrimitive()));
 
-    std::bitset<8> qualityDTP;
+    qualitybits qualityDTP;
     int intHit = 0;
     //And for each candidate loop over all grouped hits
     for (auto itDTP = (*itCand)->candHits().begin(); itDTP != (*itCand)->candHits().end(); itDTP++) {
@@ -219,7 +216,7 @@ void PseudoBayesGrouping::FillMuonPaths(MuonPathPtrs& mpaths) {
       if (layerHit >= 4) {
         (*itDTP)->setLayerId(layerHit - 4);
       }
-      std::bitset<8> ref8Hit((*itCand)->power(2, layerHit));
+      qualitybits ref8Hit(std::pow(2, layerHit));
       //Get the predicted laterality
       if (setLateralities) {
         int predLat = (*itCand)->pattern()->latHitIn(layerHit, (*itDTP)->channelId(), allowedVariance);
@@ -253,7 +250,7 @@ void PseudoBayesGrouping::FillMuonPaths(MuonPathPtrs& mpaths) {
     int ipow = 1;
     for (int i = 0; i <= 7; i++) {
       ipow *= 2;
-      if (qualityDTP != (qualityDTP | std::bitset<8>(1 << i))) {
+      if (qualityDTP != (qualityDTP | qualitybits(1 << i))) {
         ptrPrimitive.at(i) = DTPrimitivePtr(new DTPrimitive());
       }
     }
@@ -308,7 +305,8 @@ void PseudoBayesGrouping::RecognisePatternsByLayerPairs() {
 void PseudoBayesGrouping::RecognisePatterns(std::vector<DTPrimitive> digisinLDown,
                                             std::vector<DTPrimitive> digisinLUp,
                                             std::vector<DTPattern*> patterns) {
-  //Loop over all hits and search for matching patterns (there will be four amongst ~60, accounting for possible lateralities)
+  //Loop over all hits and search for matching patterns (there will be four
+  // amongst ~60, accounting for possible lateralities)
   for (auto dtPD_it = digisinLDown.begin(); dtPD_it != digisinLDown.end(); dtPD_it++) {
     int LDown = dtPD_it->layerId();
     int wireDown = dtPD_it->channelId();
@@ -318,16 +316,13 @@ void PseudoBayesGrouping::RecognisePatterns(std::vector<DTPrimitive> digisinLDow
       int diff = wireUp - wireDown;
       for (auto pat_it = patterns.begin(); pat_it != patterns.end(); pat_it++) {
         //For each pair of hits in the layers search for the seeded patterns
-        if ((*pat_it)->SL1() != (LDown) || (*pat_it)->SL2() != (LUp) || (*pat_it)->Diff() != diff)
+        if ((*pat_it)->sl1() != (LDown) || (*pat_it)->sl2() != (LUp) || (*pat_it)->diff() != diff)
           continue;
         //If we are here a pattern was found and we can start comparing
-        //if (debug) cout << "Pattern look for pair in " << LDown << " ," << wireDown << " ," << LUp << " ," << wireUp << endl;
-        //if (debug) cout << *(*pat_it) << endl;
         (*pat_it)->setHitDown(wireDown);
         cand = new CandidateGroup(*pat_it);
         for (auto dtTest_it = alldigis.begin(); dtTest_it != alldigis.end(); dtTest_it++) {
           //Find hits matching to the pattern
-          //if (debug) cout << "Hit in " << dtTest_it->layerId() << " , " << dtTest_it->channelId();
           if (((*pat_it)->latHitIn(dtTest_it->layerId(), dtTest_it->channelId(), allowedVariance)) != -999) {
             if (((*pat_it)->latHitIn(dtTest_it->layerId(), dtTest_it->channelId(), allowedVariance)) == -10)
               cand->addHit((*dtTest_it), dtTest_it->layerId(), false);
@@ -423,25 +418,12 @@ void PseudoBayesGrouping::ReCleanPatternsAndDigis() {
       return;
     };
     for (auto cand_it = prelimMatches->begin(); cand_it != prelimMatches->end(); cand_it++) {
-      //std::cout << "Ghostbusting hits: " << std::endl;
       if (*(*cand_it) == *(*itSel) && allowDuplicates)
         continue;
       for (auto dt_it = (*itSel)->candHits().begin(); dt_it != (*itSel)->candHits().end(); dt_it++) {
-        //std::cout << "Ghostbusting hit " << std::endl;
         (*cand_it)->removeHit((*dt_it));
       }
     }
-    //To Clean also the digis use this
-    /*if (alldigis.size() == 0){ return;}
-    for (std::vector<DTPrimitive>::iterator dt_it = alldigis.begin(); dt_it != alldigis.end(); dt_it++){
-      //std::cout << "Ghostbusting hits: " << std::endl;
-      for (std::vector<DTPrimitive>::iterator dthit = (*itSel)->candHits().begin(); dthit != (*itSel)->candHits().end(); dthit++){ 
-        //std::cout << "Ghostbusting hit " << std::endl;
-        if (dthit->layerId() == dt_it->layerId() && dthit->channelId() == dt_it->channelId()){
-            alldigis.erase(dt_it);
-        }
-      }
-    }*/
 
     std::sort(prelimMatches->begin(), prelimMatches->end(), CandPointGreat());
     if (debug) {

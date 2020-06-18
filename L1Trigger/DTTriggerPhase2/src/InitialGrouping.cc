@@ -13,14 +13,13 @@ InitialGrouping::InitialGrouping(const ParameterSet &pset, edm::ConsumesCollecto
   if (debug)
     cout << "InitialGrouping: constructor" << endl;
 
-  chInDummy.push_back(DTPrimitivePtr(new DTPrimitive()));
   // Initialisation of channelIn array
-  //  for (int lay = 0; lay < NUM_LAYERS; lay++) {
-  //    for (int ch = 0; ch < NUM_CH_PER_LAYER; ch++) {
-  //      channelIn[lay][ch] = chInDummy;
-  //      channelIn[lay][ch].clear();
-  //    }
-  //  }
+  for (int lay = 0; lay < NUM_LAYERS; lay++) {
+    for (int ch = 0; ch < NUM_CH_PER_LAYER; ch++) {
+      channelIn[lay][ch] = {chInDummy};
+      channelIn[lay][ch].clear();
+    }
+  }
 }
 
 InitialGrouping::~InitialGrouping() {
@@ -101,13 +100,16 @@ void InitialGrouping::setInChannels(const DTDigiCollection *digis, int sl) {
       int digiTIME = (*digiIt).time();
       int digiTIMEPhase2 = digiTIME;
 
-      auto dtpAux = DTPrimitivePtr(new DTPrimitive());
-      dtpAux->setTDCTimeStamp(digiTIMEPhase2);
-      dtpAux->setChannelId(wire);
-      dtpAux->setLayerId(layer);    //  L=0, 1, 2, 3
-      dtpAux->setSuperLayerId(sl);  // SL=0,1,2
-      dtpAux->setCameraId(dtLId.rawId());
-      channelIn[layer][wire].push_back(std::move(dtpAux));
+      if (debug)
+        cout << "[InitialGrouping::setInChannels] SL" << sl << " L" << layer << " : " << wire << " " << digiTIMEPhase2
+             << endl;
+      auto dtpAux = DTPrimitive();
+      dtpAux.setTDCTimeStamp(digiTIMEPhase2);
+      dtpAux.setChannelId(wire);
+      dtpAux.setLayerId(layer);    //  L=0,1,2,3
+      dtpAux.setSuperLayerId(sl);  // SL=0,1,2
+      dtpAux.setCameraId(dtLId.rawId());
+      channelIn[layer][wire].push_back(dtpAux);
     }
   }
 }
@@ -195,16 +197,14 @@ void InitialGrouping::resetPrvTDCTStamp(void) {
     prevTDCTimeStamps[i] = -1;
 }
 
-bool InitialGrouping::isEqualComb2Previous(DTPrimitivePtrs dtPrims) {
+bool InitialGrouping::isEqualComb2Previous(DTPrimitives &dtPrims) {
   bool answer = true;
 
   for (int i = 0; i < (int)dtPrims.size(); i++) {
-    if (dtPrims.at(i).get() == nullptr)
-      continue;
-    if (prevTDCTimeStamps[i] != dtPrims.at(i)->tdcTimeStamp()) {
+    if (prevTDCTimeStamps[i] != dtPrims[i].tdcTimeStamp()) {
       answer = false;
       for (int j = 0; j < (int)dtPrims.size(); j++) {
-        prevTDCTimeStamps[j] = dtPrims.at(j)->tdcTimeStamp();
+        prevTDCTimeStamps[j] = dtPrims[j].tdcTimeStamp();
       }
       break;
     }
@@ -215,7 +215,7 @@ bool InitialGrouping::isEqualComb2Previous(DTPrimitivePtrs dtPrims) {
 void InitialGrouping::mixChannels(int supLayer, int pathId, MuonPathPtrs &outMuonPath) {
   if (debug)
     cout << "[InitialGrouping::mixChannel] begin" << endl;
-  DTPrimitivePtrs data[4];
+  DTPrimitives data[4];
 
   int horizLayout[4];
   memcpy(horizLayout, CELL_HORIZONTAL_LAYOUTS[pathId], 4 * sizeof(int));
@@ -257,7 +257,8 @@ void InitialGrouping::mixChannels(int supLayer, int pathId, MuonPathPtrs &outMuo
       if (muxInChannels[canal].size() == 0)
         continue;
 
-      auto dtpAux = DTPrimitivePtr(std::move(muxInChannels[canal].at(items)));
+      auto dtpAux = DTPrimitive(&(muxInChannels[canal].at(items)));
+
       /*
         I won't allow a whole loop cycle. When a DTPrimitive has an invalid
         time-stamp (TDC value = -1) it means that the buffer is empty or the
@@ -266,9 +267,7 @@ void InitialGrouping::mixChannels(int supLayer, int pathId, MuonPathPtrs &outMuo
         DTPrim (even invalid) on the outgoing array. This is mandatory to cope
         with the idea explained in the previous comment block
       */
-      if (!dtpAux)
-        break;
-      if (dtpAux->tdcTimeStamp() < 0 && items > 0)
+      if (dtpAux.tdcTimeStamp() < 0 && items > 0)
         break;
 
       // In this new schema, if the hit corresponds with the SL over which
@@ -280,13 +279,16 @@ void InitialGrouping::mixChannels(int supLayer, int pathId, MuonPathPtrs &outMuo
       // where you will have invalid mixings. Because of that, the verification
       // that is done later, where the segment is analysed to check whether it
       // can be analysed is essential.
-      if (dtpAux->superLayerId() == supLayer)
-        data[layer].push_back(std::move(dtpAux));  // values are 0, 1, 2
+      if (dtpAux.superLayerId() == supLayer)
+        data[layer].push_back(dtpAux);  // values are 0, 1, 2
       else
-        data[layer].push_back(DTPrimitivePtr(new DTPrimitive()));
+        data[layer].push_back(DTPrimitive());
       numPrimsPerLayer[layer]++;
     }
   }
+
+  if (debug)
+    cout << "[InitialGrouping::mixChannels] filled data" << endl;
 
   // Here we do the different combinations and send them to the output FIFO.
   int chIdx[4];
@@ -299,9 +301,11 @@ void InitialGrouping::mixChannels(int supLayer, int pathId, MuonPathPtrs &outMuo
           // delete them whenever it is necessary, without relying upon a
           // unique reference all over the code.
 
-          DTPrimitivePtrs ptrPrimitive;
+          DTPrimitives ptrPrimitive;
           for (int i = 0; i <= 3; i++) {
-            ptrPrimitive.push_back(std::move((data[i])[chIdx[i]]));
+            ptrPrimitive.push_back((data[i])[chIdx[i]]);
+            if (debug)
+              cout << "[InitialGrouping::mixChannels] reading " << ptrPrimitive[i].tdcTimeStamp() << endl;
           }
 
           auto ptrMuonPath = MuonPathPtr(new MuonPath(ptrPrimitive));
@@ -317,7 +321,11 @@ void InitialGrouping::mixChannels(int supLayer, int pathId, MuonPathPtrs &outMuo
             both.
             Code in the PathAnalyzer should be doing nothing now.
           */
+          if (debug)
+            cout << "[InitialGrouping::mixChannels] muonPath is analyzable? " << ptrMuonPath << endl;
           if (ptrMuonPath->isAnalyzable()) {
+            if (debug)
+              cout << "[InitialGrouping::mixChannels] YES" << endl;
             /*
             This is a very simple filter because, during the tests, it has been
             detected that many consecutive MuonPaths are duplicated mainly due
@@ -327,7 +335,11 @@ void InitialGrouping::mixChannels(int supLayer, int pathId, MuonPathPtrs &outMuo
             
             If duplicated combinations are not consecutive, they won't be
             detected here
-          */
+	    */
+            if (isEqualComb2Previous(ptrPrimitive))
+              continue;
+            if (debug)
+              cout << "[InitialGrouping::mixChannels] isNOT equal to previous" << endl;
             ptrMuonPath->setBaseChannelId(currentBaseChannel);
             outMuonPath.push_back(std::move(ptrMuonPath));
             ptrPrimitive.clear();

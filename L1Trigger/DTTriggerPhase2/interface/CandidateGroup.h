@@ -5,9 +5,12 @@
 #include <vector>
 #include <bitset>
 #include <iostream>
-//Note that this being in src is probably wrong but I don't want to crash everone's code for being picky
+#include <complex>
+
 #include "L1Trigger/DTTriggerPhase2/interface/DTprimitive.h"
 #include "L1Trigger/DTTriggerPhase2/interface/DTPattern.h"
+
+typedef std::bitset<8> qualitybits;
 
 class CandidateGroup {
 public:
@@ -28,7 +31,7 @@ public:
   int nLayerUp() const { return nLayerUp_; };
   int nLayerDown() const { return nLayerDown_; };
   DTPrimitivePtrs candHits() const { return candHits_; };
-  std::bitset<8> quality() const { return quality_; };
+  qualitybits quality() const { return quality_; };
   const DTPattern* pattern() const { return pattern_; };
 
   //Set Methods
@@ -38,22 +41,9 @@ public:
   bool operator>(const CandidateGroup& cOther) const;
   bool operator==(const CandidateGroup& cOther) const;
 
-  //Just so we don't need need std::pow for powers
-  int power(int a, int n) {
-    int res = 1;
-    while (n) {
-      if (n & 1)
-        res *= a;
-      a *= a;
-      n >>= 1;
-    }
-    return res;
-  }
-
 private:
-  //std::vector<DTPrimitive> candHits_;
   DTPrimitivePtrs candHits_;
-  std::bitset<8> quality_;
+  qualitybits quality_;
   int nhits_;
   int nLayerhits_;
   int nLayerUp_;

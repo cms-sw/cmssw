@@ -15,11 +15,8 @@ public:
   DTPrimitive(DTPrimitive* ptr);
   virtual ~DTPrimitive();
 
-  /* Este método se implementará en la FPGA mediante la comprobación de un
-       bit que indique la validez del valor. En el software lo hacemos
-       representando como valor no válido, un número negativo cualquiera */
-  bool isValidTime(void);
-  float wireHorizPos(void);
+  bool isValidTime();
+  float wireHorizPos();
 
   void setTimeCorrection(int time) { timeCorrection_ = time; };
   void setTDCTimeStamp(int tstamp) { tdcTimeStamp_ = tstamp; };
@@ -31,16 +28,16 @@ public:
   void setSuperLayerId(int lay) { superLayerId_ = lay; };
   void setLaterality(LATERAL_CASES lat) { laterality_ = lat; };
 
-  const int timeCorrection(void) { return timeCorrection_; };
-  const int tdcTimeStamp(void) { return tdcTimeStamp_; };
-  const int orbit(void) { return orbit_; };
-  const int tdcTimeStampNoOffset(void) { return tdcTimeStamp_ - timeCorrection_; };
-  const double payLoad(int idx) { return payLoad_[idx]; };
-  const int channelId(void) { return channelId_; };
-  const int layerId(void) { return layerId_; };
-  const int cameraId(void) { return cameraId_; };
-  const int superLayerId(void) { return superLayerId_; };
-  const LATERAL_CASES laterality(void) { return laterality_; };
+  const int timeCorrection() const { return timeCorrection_; };
+  const int tdcTimeStamp() const { return tdcTimeStamp_; };
+  const int orbit() const { return orbit_; };
+  const int tdcTimeStampNoOffset() const { return tdcTimeStamp_ - timeCorrection_; };
+  const double payLoad(int idx) const { return payLoad_[idx]; };
+  const int channelId() const { return channelId_; };
+  const int layerId() const { return layerId_; };
+  const int cameraId() const { return cameraId_; };
+  const int superLayerId() const { return superLayerId_; };
+  const LATERAL_CASES laterality() const { return laterality_; };
 
 private:
   int cameraId_;              // Chamber ID

@@ -20,11 +20,11 @@ CandidateGroup::~CandidateGroup() {}
 void CandidateGroup::addHit(DTPrimitive dthit, int lay, bool isGood) {
   //Add a hit, check if the hits layer was fired and if it wasn't add it to the fired layers
   candHits_.push_back(DTPrimitivePtr(new DTPrimitive(dthit)));
-  if (quality_ != (quality_ | std::bitset<8>(power(2, lay))))
+  if (quality_ != (quality_ | qualitybits(std::pow(2, lay))))
     nLayerhits_++;
   if (isGood)
     nisGood_++;
-  quality_ = quality_ | std::bitset<8>(power(2, lay));
+  quality_ = quality_ | qualitybits(std::pow(2, lay));
   nhits_++;
   if (lay <= 3)
     nLayerDown_++;
@@ -40,15 +40,15 @@ void CandidateGroup::removeHit(DTPrimitive dthit) {
   nLayerUp_ = 0;
   nLayerhits_ = 0;
   nisGood_ = 0;
-  quality_ = std::bitset<8>("00000000");
+  quality_ = qualitybits("00000000");
   for (auto dt_it = candHits_.begin(); dt_it != candHits_.end(); dt_it++) {
     if (dthit.layerId() == (*dt_it)->layerId() && dthit.channelId() == (*dt_it)->channelId()) {
     } else {
       if (pattern_->latHitIn((*dt_it)->layerId(), (*dt_it)->channelId(), 0) > -5)
         nisGood_++;
-      if (quality_ != (quality_ | std::bitset<8>(power(2, (*dt_it)->layerId()))))
+      if (quality_ != (quality_ | qualitybits(std::pow(2, (*dt_it)->layerId()))))
         nLayerhits_++;
-      quality_ = quality_ | std::bitset<8>(power(2, (*dt_it)->layerId()));
+      quality_ = quality_ | qualitybits(std::pow(2, (*dt_it)->layerId()));
       nhits_++;
       if ((*dt_it)->layerId() <= 3)
         nLayerDown_++;
