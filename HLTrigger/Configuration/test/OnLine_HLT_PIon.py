@@ -3719,7 +3719,6 @@ process.CSCGeometryESModule = cms.ESProducer( "CSCGeometryESModule",
   debugV = cms.untracked.bool( False ),
   useOnlyWiresInME1a = cms.bool( False ),
   useDDD = cms.bool( False ),
-  useDD4hep = cms.bool( False ),
   useCentreTIOffsets = cms.bool( False ),
   applyAlignment = cms.bool( True )
 )
@@ -3904,7 +3903,7 @@ process.PropagatorWithMaterialForMixedStep = cms.ESProducer( "PropagatorWithMate
 )
 process.RPCGeometryESModule = cms.ESProducer( "RPCGeometryESModule",
   useDDD = cms.untracked.bool( False ),
-  useDD4hep = cms.untracked.bool( False )
+  compatibiltyWith11 = cms.untracked.bool( True )
 )
 process.SiStripGainESProducer = cms.ESProducer( "SiStripGainESProducer",
   printDebug = cms.untracked.bool( False ),
