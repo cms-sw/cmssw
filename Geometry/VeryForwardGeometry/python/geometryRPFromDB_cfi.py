@@ -10,3 +10,12 @@ ctppsGeometryESModule = cms.ESProducer("CTPPSGeometryESModule",
     verbosity = cms.untracked.uint32(1),
     compactViewTag = cms.string('XMLIdealGeometryESSource_CTPPS')
 )
+
+from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
+ctpps_2016.toModify(ctppsGeometryESModule, legacyDiamondHierarchy=cms.untracked.bool(True))
+
+from Configuration.Eras.Modifier_ctpps_2017_cff import ctpps_2017
+ctpps_2017.toModify(ctppsGeometryESModule, legacyDiamondHierarchy=cms.untracked.bool(True))
+
+from Configuration.Eras.Modifier_ctpps_2018_cff import ctpps_2018
+ctpps_2018.toModify(ctppsGeometryESModule, legacyDiamondHierarchy=cms.untracked.bool(True))
