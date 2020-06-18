@@ -12,6 +12,7 @@
 <use name="rootmath"/>
 <use name="fastjet"/>
 <use name="xz"/>
+<use name="hdf5"/>
 <export>
   <lib name="1"/>
 </export>
