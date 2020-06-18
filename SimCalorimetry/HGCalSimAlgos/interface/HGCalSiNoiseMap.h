@@ -16,7 +16,7 @@ class HGCalSiNoiseMap : public HGCalRadiationMap {
 public:
 
   enum GainRange_t { q80fC, q160fC, q320fC, AUTO };
-  enum NoiseMapAlgoBits_t { FLUENCE, CCE, NOISE };
+  enum NoiseMapAlgoBits_t { FLUENCE, CCE, NOISE, PULSEPERGAIN, CACHEDOP };
 
   struct SiCellOpCharacteristicsCore {
     SiCellOpCharacteristicsCore()
@@ -83,16 +83,21 @@ public:
   std::vector<double> &getIleakParam() { return ileakParam_; }
   std::vector<std::vector<double> > &getENCsParam() { return encsParam_; }
   std::vector<double> &getLSBPerGain() { return lsbPerGain_; }
+  void setDefaultADCPulseShape(const std::array<float, 6> &adcPulse) { defaultADCPulse_=adcPulse; }
+  const std::array<float, 6> &getADCPulseForGain(GainRange_t gain) {
+    if(ignoreGainDependentPulse_) 
+      return defaultADCPulse_;
+    return adcPulses_[gain];
+  }
   std::vector<double> &getMaxADCPerGain() { return chargeAtFullScaleADCPerGain_; }
   double getENCpad(const double &ileak);
-  void setUseCached(bool flag) { useCached_=flag; }
+  void setIgnoreCachedOp(bool flag) { ignoreCachedOp_=flag; }
 
   inline void setENCCommonNoiseSubScale(double val) { encCommonNoiseSub_=val; }
 
 private:
 
   //cache of SiCellOpCharacteristics
-  bool useCached_;
   std::unordered_map<uint32_t, SiCellOpCharacteristicsCore> siopCache_;
 
   //vector of three params, per sensor type: 0:120 [mum], 1:200, 2:300
@@ -108,8 +113,10 @@ private:
   //electron charge in fC
   const double qe2fc_;
 
-  //electronics noise (series+parallel) polynomial coeffs;
+  //electronics noise (series+parallel) polynomial coeffs and ADC pulses;
   std::vector<std::vector<double> > encsParam_;
+  std::array<float,6> defaultADCPulse_;
+  std::vector<std::array<float,6> > adcPulses_;
 
   //lsb
   std::vector<double> lsbPerGain_, chargeAtFullScaleADCPerGain_;
@@ -118,8 +125,8 @@ private:
   const double unitToMicro_ = 1.e6;
   const double unitToMicroLog_ = log(unitToMicro_);
 
-  //flags used to disable specific components of the Si operation parameters
-  bool ignoreFluence_, ignoreCCE_, ignoreNoise_;
+  //flags used to disable specific components of the Si operation parameters or usage of operation cache
+  bool ignoreFluence_, ignoreCCE_, ignoreNoise_,ignoreGainDependentPulse_, ignoreCachedOp_;
 };
 
 #endif
