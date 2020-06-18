@@ -99,7 +99,7 @@ private:
 
 CTPPSGeometryESModule::CTPPSGeometryESModule(const edm::ParameterSet& iConfig)
     : verbosity_(iConfig.getUntrackedParameter<unsigned int>("verbosity")),
-      legacyDiamondHierarchy_(iConfig.getUntrackedParameter<bool>("legacyDiamondHierarchy", false)),
+      legacyDiamondHierarchy_(iConfig.getUntrackedParameter<bool>("legacyDiamondHierarchy")),
       compactViewToken_{setWhatProduced(this, &CTPPSGeometryESModule::produceIdealGD)
                             .consumes<DDCompactView>(edm::ESInputTag(
                                 "" /*optional module label */, iConfig.getParameter<std::string>("compactViewTag")))},
@@ -114,6 +114,7 @@ CTPPSGeometryESModule::CTPPSGeometryESModule(const edm::ParameterSet& iConfig)
 void CTPPSGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<unsigned int>("verbosity", 1);
+  desc.addUntracked<bool>("legacyDiamondHierarchy", false);
   desc.add<std::string>("compactViewTag", std::string());
   descriptions.add("DoodadESSource", desc);
 }
