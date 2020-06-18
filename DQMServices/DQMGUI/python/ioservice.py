@@ -1,6 +1,8 @@
 import os
 import asyncio
 from async_lru import alru_cache
+
+from .helpers import logged
 from .nanoroot.io import XRDFile
 
 
@@ -32,6 +34,7 @@ class IOService:
 
     @classmethod
     @alru_cache(maxsize=CACHEBLOCKS)
+    @logged
     async def read_block(cls, url, blockid):
         """ 
         Internal: read a block from a url, creating a connection as needed.
@@ -53,6 +56,7 @@ class IOService:
 
     @classmethod
     @alru_cache(maxsize=CONNECTIONS)
+    @logged
     async def __connect(cls, url):
         """Create a pyxrootd.client (via nanoroot) connection to the url."""
 

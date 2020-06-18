@@ -10,7 +10,7 @@ from collections import defaultdict
 from async_lru import alru_cache
 
 from .storage import GUIDataStore
-from .helpers import PathUtil, get_api_error, binary_search
+from .helpers import PathUtil, get_api_error, binary_search, logged
 from .rendering import GUIRenderer
 from .importing.importing import GUIImportManager
 from .data_types import Sample, RootDir, RootObj, RootDirContent, RenderingInfo
@@ -26,7 +26,8 @@ class GUIService:
     layouts_manager = LayoutManager()
 
     @classmethod
-    # @alru_cache(maxsize=10)
+    @alru_cache(maxsize=10)
+    @logged
     async def get_samples(cls, run, dataset, lumi=0):
         if run == '':
             run = None
@@ -41,6 +42,7 @@ class GUIService:
 
     @classmethod
     @alru_cache(maxsize=10)
+    @logged
     async def get_archive(cls, run, dataset, path, search, lumi=0):
         """
         Returns a directory listing for run/lumi/dataset/path combination.
@@ -115,6 +117,7 @@ class GUIService:
 
 
     @classmethod
+    @logged
     async def get_rendered_image(cls, me_descriptions, options):
         """options are defined here: data_types.RenderingOptions"""
 
@@ -153,6 +156,7 @@ class GUIService:
 
 
     @classmethod
+    @logged
     async def get_rendered_json(cls, me_descriptions, options):
         """
         Uses out of process renderer to get JSON representation of a ROOT object.
@@ -170,11 +174,13 @@ class GUIService:
 
 
     @classmethod
+    @logged
     async def get_available_lumis(cls, dataset, run):
         return await cls.store.get_lumis(dataset, run)
 
 
     @classmethod
+    @logged
     async def register_samples(cls, samples):
         """Register a sample in DB. Samples array if of type SamplesFull."""
 
@@ -186,6 +192,7 @@ class GUIService:
 
     @classmethod
     @alru_cache(maxsize=10)
+    @logged
     async def __get_me_names_list(cls, dataset, run, lumi=0):
         lines = await cls.store.get_me_names_list(dataset, run, lumi)
 
@@ -201,6 +208,7 @@ class GUIService:
 
     @classmethod
     @alru_cache(maxsize=10)
+    @logged
     async def __get_filename_fileformat_names_infos(cls, dataset, run, lumi=0):
         filename_fileformat_names_infos = await cls.store.get_filename_fileformat_names_infos(dataset, run, lumi)
 

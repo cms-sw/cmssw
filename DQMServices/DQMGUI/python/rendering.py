@@ -249,8 +249,8 @@ class GUIRenderingContext:
 
         self.working_dir = tempfile.mkdtemp()
         self.render_process = subprocess.Popen(
-                f"dqmRender --state-directory {self.working_dir}/ {render_plugins} > {self.working_dir}/render.log 2>&1",
-                shell=True, stdout=subprocess.PIPE)
+                f"dqmRender --state-directory {self.working_dir}/ {render_plugins}",
+                shell=True)
         
         # Wait for the socket to initialise and be ready to accept connections
         while not os.path.exists(f'{self.working_dir}/socket'):

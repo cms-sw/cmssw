@@ -3,6 +3,7 @@ import asyncio
 
 from concurrent.futures import ProcessPoolExecutor
 
+from ..helpers import logged
 from ..storage import GUIDataStore
 from ..data_types import FileFormat, SampleFull
 from ..compressing import GUIBlobCompressor
@@ -88,6 +89,8 @@ class GUIImportManager:
         else:
             # TODO: we could directly call import_async here.
             assert False, "Could run in-process here but we don't need that."
+            await cls.import_async(fileformat, filename, dataset, run, lumi)
+
 
         await cls.store.register_samples(samples)
         for blob_description in blob_descriptions:
@@ -122,41 +125,41 @@ class GUIImportManager:
         # can import this module on the (clean, forked before initalization)
         # worker process and then call it using the pickle'd arguments.
 
-        # But we need an async function to call async stuff, so here it is.
-        async def import_async():
-            importer = cls.__pick_importer(fileformat)
-            mes_lists = await importer.get_me_lists(filename, dataset, run, lumi)
-
-            # It's possible that some samples that exists in this file were not yet
-            # registered as samples (through register API endpoint). So we (re)create 
-            # all samples that we have found
-            samples = [SampleFull(dataset, run=int(key[0]), lumi=int(key[1]), file=filename, fileformat=fileformat) for key in mes_lists]
-            
-            blob_descriptions = []
-
-            for key in mes_lists:
-                mes = mes_lists[key]
-                mes.sort()
-
-                # Separate lists
-                names_list = b'\n'.join(name for name, _ in mes)
-                infos_list = [info for _, info in mes]
-
-                # these go straight into GUIDataStore.add_blobs(...), but back in the main process.
-                blob_descriptions.append({
-                    # Compress blobs
-                    'names_blob': await cls.compressor.compress_names_list(names_list),
-                    'infos_blob': await cls.compressor.compress_infos_list(infos_list),
-                    'dataset': dataset,
-                    'filename': filename,
-                    'run': key[0],
-                    'lumi': key[1],
-                })
-            return samples, blob_descriptions
-
         # To call the async function, we set up and tear down and event loop just
         # for this one call. The worker is left 'clean', without anything running.
-        return asyncio.run(import_async())
+        return asyncio.run(cls.import_async(fileformat, filename, dataset, run, lumi))
 
+    # But we need an async function to call async stuff, so here it is.
+    @classmethod
+    @logged
+    async def import_async(cls, fileformat, filename, dataset, run, lumi):
+        importer = cls.__pick_importer(fileformat)
+        mes_lists = await importer.get_me_lists(filename, dataset, run, lumi)
 
+        # It's possible that some samples that exists in this file were not yet
+        # registered as samples (through register API endpoint). So we (re)create 
+        # all samples that we have found
+        samples = [SampleFull(dataset, run=int(key[0]), lumi=int(key[1]), file=filename, fileformat=fileformat) for key in mes_lists]
+        
+        blob_descriptions = []
+
+        for key in mes_lists:
+            mes = mes_lists[key]
+            mes.sort()
+
+            # Separate lists
+            names_list = b'\n'.join(name for name, _ in mes)
+            infos_list = [info for _, info in mes]
+
+            # these go straight into GUIDataStore.add_blobs(...), but back in the main process.
+            blob_descriptions.append({
+                # Compress blobs
+                'names_blob': await cls.compressor.compress_names_list(names_list),
+                'infos_blob': await cls.compressor.compress_infos_list(infos_list),
+                'dataset': dataset,
+                'filename': filename,
+                'run': key[0],
+                'lumi': key[1],
+            })
+        return samples, blob_descriptions
         

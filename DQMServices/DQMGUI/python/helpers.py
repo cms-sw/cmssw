@@ -21,6 +21,22 @@ class Timed():
         elapsed = elapsed * 1000
         print('%s:%s - %s ms' % (self.filename, self.lineno, elapsed))
 
+def logged(fn):
+    """ A decorator to writee timing information to a log. """
+    async def wrapped(*posargs, **kwargs):
+        showargs = [repr(arg) for arg in posargs if isinstance(arg, str) or isinstance(arg, int) or isinstance(arg, tuple)]
+        showargs += [repr(arg) for arg in kwargs.values() if isinstance(arg, str) or isinstance(arg, int) or isinstance(arg, tuple)]
+        msg = f"{fn.__name__}({', '.join(showargs)})"
+        start_time = time.time()
+        ok = "FAIL"
+        try:
+            ret = await fn(*posargs, **kwargs)
+            ok = "OK"
+        finally:
+            elapsed = time.time() - start_time
+            print(f"{msg} [{ok} {elapsed*1000:.1f}ms]")
+        return ret
+    return wrapped
 
 class PathUtil:
     """This helper class provides methods to handle common ME path related operations."""

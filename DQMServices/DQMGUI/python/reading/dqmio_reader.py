@@ -2,6 +2,7 @@ import asyncio
 
 from async_lru import alru_cache
 
+from ..helpers import logged
 from ..ioservice import IOService
 from ..data_types import ScalarValue
 from ..nanoroot.tfile import TKey
@@ -18,6 +19,7 @@ class DQMIOReader:
     # for one sample, so 1 is not sufficient.
     @classmethod
     @alru_cache(maxsize=200)
+    @logged
     async def read_basket(cls, filename, seekkey):
          buffer = await cls.ioservice.open_url(filename, blockcache=True)
          key = await TKey().load(buffer, seekkey)
