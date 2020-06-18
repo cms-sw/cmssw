@@ -119,7 +119,7 @@ public:
   double rho() const { return _rho; }
 
   LegacySolidShape shape() const { return cms::dd::value(cms::LegacySolidShapeMap, _shape); }
-  cms::DDSolidShape const& shape_dd4hep() const { return _shape; }
+  cms::DDSolidShape shape_dd4hep() const { return _shape; }
   GeometricEnumType type() const { return _type; }
   std::string const& name() const { return _ddname; }
 
