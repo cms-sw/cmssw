@@ -23,6 +23,7 @@ using namespace gem;
 GEMDigiToRawModule::GEMDigiToRawModule(const edm::ParameterSet& pset)
     : event_type_(pset.getParameter<int>("eventType")),
       digi_token(consumes<GEMDigiCollection>(pset.getParameter<edm::InputTag>("gemDigi"))),
+      gemEMapRcd_token_(esConsumes<GEMeMap, GEMeMapRcd, edm::Transition::BeginRun>()),
       useDBEMap_(pset.getParameter<bool>("useDBEMap")) {
   produces<FEDRawDataCollection>();
 }
@@ -38,8 +39,7 @@ void GEMDigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions& descri
 std::shared_ptr<GEMROMapping> GEMDigiToRawModule::globalBeginRun(edm::Run const&, edm::EventSetup const& iSetup) const {
   auto gemROmap = std::make_shared<GEMROMapping>();
   if (useDBEMap_) {
-    edm::ESHandle<GEMeMap> gemEMapRcd;
-    iSetup.get<GEMeMapRcd>().get(gemEMapRcd);
+    edm::ESHandle<GEMeMap> gemEMapRcd = iSetup.getHandle(gemEMapRcd_token_);
     auto gemEMap = std::make_unique<GEMeMap>(*(gemEMapRcd.product()));
     gemEMap->convert(*gemROmap);
     gemEMap.reset();
