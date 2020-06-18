@@ -11,9 +11,9 @@ struct CALayer {
     isOuterHitOfCell.resize(numberOfHits);
   }
 
-  bool operator==(const std::string &otherString) { return otherString == theName; }
+  bool operator==(const std::string &otherString) const { return otherString == theName; }
 
-  bool operator==(const int otherSeqNum) { return otherSeqNum == theSeqNum; }
+  bool operator==(const int otherSeqNum) const { return otherSeqNum == theSeqNum; }
 
   const std::string &name() const { return theName; }
 
