@@ -477,6 +477,15 @@ bool HGCalTopology::valid(const DetId& idin) const {
   return flag;
 }
 
+bool HGCalTopology::valid(const DetId& idin, int cornerMin) const {
+  if ((mode_ == HGCalGeometryMode::Hexagon8) || (mode_ == HGCalGeometryMode::Hexagon8Full)) {
+    bool mask = (cornerMin < HGCalTypes::WaferCornerMin) ? false : hdcons_.maskCell(idin, cornerMin);
+    return (valid(idin) && (!mask));
+  } else {
+    return valid(idin);
+  }
+}
+
 DetId HGCalTopology::offsetBy(const DetId startId, int nrStepsX, int nrStepsY) const {
   if (startId.det() == DetId::Forward && startId.subdetId() == (int)(subdet_)) {
     DetId id = changeXY(startId, nrStepsX, nrStepsY);
