@@ -1238,13 +1238,13 @@ private:
         } else {
           ref1->Draw(samePlotOptions.c_str());
         }
-      }
-      if (i.showstats) {
-        // Apply user-defined ranges also to reference histograms, so
-        // that the shown statistics is consistent with the one of the
-        // main plot.
-        applyUserRange(ref1, i);
-        drawReferenceStatBox(i, n, ref1, color, objs[n].name, nukem);
+        if (i.showstats) {
+          // Apply user-defined ranges also to reference histograms, so
+          // that the shown statistics is consistent with the one of the
+          // main plot.
+          applyUserRange(ref1, i);
+          drawReferenceStatBox(i, n, ref1, color, objs[n].name, nukem);
+        }
       }
     }  // End of loop over all reference sample
   }

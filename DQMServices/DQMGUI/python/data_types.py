@@ -199,9 +199,10 @@ class RenderingOptions:
             sanitized_draw_opts = self.draw_opts.replace(';', '')
             spec += f'drawopts={sanitized_draw_opts};'
         if self.ref_labels:
-            # For now we support up to 4 references
-            for i in range(min(4, len(self.ref_labels))):
-                spec += f'reflabel{i + 1}={self.ref_labels[i]};'
+            # For now we support up to 9 references
+            # TODO: We could set reflabel0 (for the base histogram) but that needs support from frontend.
+            for i in range(min(9, len(self.ref_labels))):
+                spec += f'reflabel{i+1}={self.ref_labels[i]};'
 
         if spec.endswith(';'):
             spec = spec[:-1]
