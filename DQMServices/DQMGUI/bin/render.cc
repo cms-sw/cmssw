@@ -9,6 +9,7 @@
 
 #include <string>
 #include <cstdio>
+#include <chrono>
 
 #include "TASImage.h"
 #include "TAxis.h"
@@ -71,6 +72,17 @@ ErrorHandlerFunc_t defaulterrorhandler;
 bool haderror = false;
 bool hadmissingstreamers = false;
 void RootErrorHandler(int level, Bool_t abort, const char *location, const char *msg) {
+  // These errors happen whenever displacement is used with TBufferFile, because
+  // null pointers are no longer recognized as null. (ROOT bug?)
+  // The last one is cause by the others.
+  // Ignore them.
+  if (std::string(msg).find("reference to object of unavailable class THashList, offset=-") != std::string::npos ||
+      std::string(msg).find("reference to object of unavailable class TList, offset=-") != std::string::npos ||
+      std::string(msg).find("reference to object of unavailable class TObject, offset=-") != std::string::npos ||
+      std::string(location).find("TExMap::Remove") != std::string::npos) {
+    return;
+  }
+
   haderror = true;
 
   // Check for a specific kind of error. Other errors could be identified here as well
@@ -528,8 +540,7 @@ protected:
     uint32_t gotlen;
 
     memcpy(&type, data + sizeof(uint32_t), sizeof(type));
-    //TODO
-    //Time start = Time::current();
+    auto start = std::chrono::steady_clock::now();
     if (len < 9 * sizeof(uint32_t)) {
       logme() << "ERROR: corrupt 'GET IMAGE DATA' message of length " << len << "\n";
       return false;
@@ -650,10 +661,11 @@ protected:
 
     // Report how long it took.
     //Time end = Time::current();
+    auto end = std::chrono::steady_clock::now();
+    auto time_span = std::chrono::duration<double>(end - start);
     logme() << "INFO: rendered '" << objs[0].name << "' version " << objs[0].version << " as '" << spec
-            << (blacklisted ? "', black-listed" : "'") << ", " << numobjs << " objects, main object had"
-            << " in " << /*((end - start).ns() * 1e-3)*/ "TODO"
-            << "us" << (::haderror ? " (ERROR)" : " (OK)") << "\n";
+            << (blacklisted ? "', black-listed" : "'") << ", " << numobjs << " objects"
+            << " in " << (int)(time_span.count() * 1e6) / 1e3 << "ms" << (::haderror ? " (ERROR)" : " (OK)") << "\n";
 
     ::resetErrorFlags();
     return true;
