@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -27,6 +28,8 @@
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "CondFormats/DataRecord/interface/CSCBadChambersRcd.h"
 
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCCathodeLCTProcessor.h"  // TMB07
 
@@ -186,6 +189,8 @@ private:
   edm::EDGetTokenT<CSCCLCTPreTriggerDigiCollection> pretrigs_e_token_;
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> lcts_tmb_e_token_;
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> lcts_mpc_e_token_;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
+  edm::ESGetToken<CSCBadChambers, CSCBadChambersRcd> pBadToken_;
 
   // a prefix for results ps files
   std::string resultsFileNamesPrefix_;
