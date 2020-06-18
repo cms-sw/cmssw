@@ -134,7 +134,9 @@ class GUIRenderer:
                 flags |= 0x00200000
             
             for info in rendering_infos:
-                data += struct.pack('=ii', len(info.root_object.buffer), info.root_object.displacement) + info.root_object.buffer
+                displacement = - info.root_object.displacement
+                print("disp. ", displacement)
+                data += struct.pack('=ii', len(info.root_object.buffer), displacement) + info.root_object.buffer
             
             num_objs = len(rendering_infos)
             name = rendering_infos[0].path.encode('utf-8')
