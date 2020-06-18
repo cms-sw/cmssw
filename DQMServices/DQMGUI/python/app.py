@@ -70,7 +70,7 @@ async def samples_v1(request):
     """Returns a list of matching run/dataset pairs based on provided regex search."""
 
     run = request.rel_url.query.get('run')
-    lumi = request.rel_url.query.get('lumi', 10)
+    lumi = request.rel_url.query.get('lumi', 0)
     dataset = request.rel_url.query.get('dataset')
 
     samples = await service.get_samples(run, dataset, lumi)
