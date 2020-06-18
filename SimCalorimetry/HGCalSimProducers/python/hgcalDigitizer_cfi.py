@@ -227,6 +227,7 @@ def HGCal_ignoreCaching(process):
     # byDoseAlgo is used as a collection of bits to toggle: FLUENCE, CCE, NOISE, PULSEPERGAIN, CACHEDOP (from lsb to Msb)
     # for instance turning on the 5th bit activates ignoring the cache
     process=HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=32)
+    process=HGCal_setRealisticNoiseSci(process,byDose=True,byDoseAlgo=32)
     return process
 
 def HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0):
