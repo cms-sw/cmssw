@@ -76,9 +76,7 @@ namespace hcal {
 
       auto const iamc = threadIdx.x / NTHREADS;
       auto const ifed = blockIdx.x;
-      auto const fed = feds[ifed];
       auto const offset = offsets[ifed];
-      auto const size = ifed == gridDim.x - 1 ? nBytesTotal - offset : offsets[ifed + 1] - offset;
 
 #ifdef HCAL_RAWDECODE_GPUDEBUG_CG
       if (ifed > 0 || iamc > 0)
@@ -87,12 +85,15 @@ namespace hcal {
 #endif
 
 #ifdef HCAL_RAWDECODE_GPUDEBUG
+      auto const fed = feds[ifed];
+      auto const size = ifed == gridDim.x - 1 ? nBytesTotal - offset : offsets[ifed + 1] - offset;
       printf("ifed = %d fed = %d offset = %u size = %u\n", ifed, fed, offset, size);
 #endif
 
       // offset to the right raw buffer
       uint64_t const* buffer = reinterpret_cast<uint64_t const*>(data + offset);
 
+#ifdef HCAL_RAWDECODE_GPUDEBUG
       //
       // fed header
       //
@@ -103,7 +104,6 @@ namespace hcal {
       uint8_t const trigger_type = (fed_header >> 56) & 0xf;
       uint8_t const bid_fed_header = (fed_header >> 60) & 0xf;
 
-#ifdef HCAL_RAWDECODE_GPUDEBUG
       printf("fed = %d fed_id = %u bx = %u lv1 = %u trigger_type = %u bid = %u\n",
              fed,
              fed_id,
@@ -116,13 +116,12 @@ namespace hcal {
       // amc 13 header
       auto const amc13word = buffer[1];
       uint8_t const namc = (amc13word >> 52) & 0xf;
-      uint8_t const amc13version = (amc13word >> 60) & 0xf;
-      uint32_t const amc13OrbitNumber = (amc13word >> 4) & 0xffffffffu;
-
       if (iamc >= namc)
         return;
 
 #ifdef HCAL_RAWDECODE_GPUDEBUG
+      uint8_t const amc13version = (amc13word >> 60) & 0xf;
+      uint32_t const amc13OrbitNumber = (amc13word >> 4) & 0xffffffffu;
       printf("fed = %d namc = %u amc13version = %u amc13OrbitNumber = %u\n", fed, namc, amc13version, amc13OrbitNumber);
 #endif
 
@@ -134,16 +133,14 @@ namespace hcal {
         amcoffset += amcSize;
       }
 
-      //    for (uint8_t iamc=0u; iamc < namc; ++iamc) {
       auto const word = buffer[2 + iamc];
-      uint16_t const amcid = word & 0xffff;
-      int const slot = (word >> 16) & 0xf;
-      int const amcBlockNumber = (word >> 20) & 0xff;
       int const amcSize = (word >> 32) & 0xffffff;
 
 #ifdef HCAL_RAWDECODE_GPUDEBUG
+      uint16_t const amcid = word & 0xffff;
+      int const slot = (word >> 16) & 0xf;
+      int const amcBlockNumber = (word >> 20) & 0xff;
       printf("fed = %d amcid = %u slot = %d amcBlockNumber = %d\n", fed, amcid, slot, amcBlockNumber);
-#endif
 
       bool const amcmore = ((word >> 61) & 0x1) != 0;
       bool const amcSegmented = ((word >> 60) & 0x1) != 0;
@@ -152,8 +149,6 @@ namespace hcal {
       bool const amcDataPresent = ((word >> 58) & 0x1) != 0;
       bool const amcDataValid = ((word >> 56) & 0x1) != 0;
       bool const amcEnabled = ((word >> 59) & 0x1) != 0;
-
-#ifdef HCAL_RAWDECODE_GPUDEBUG
       printf(
           "fed = %d amcmore = %d amcSegmented = %d, amcLengthOk = %d amcCROk = %d\n>> amcDataPresent = %d amcDataValid "
           "= %d amcEnabled = %d\n",
@@ -169,18 +164,19 @@ namespace hcal {
 
       // get to the payload
       auto const* payload64 = buffer + 2 + namc + amcoffset;
-      auto const* payload16 = reinterpret_cast<uint16_t const*>(payload64);
       //amcoffset += amcSize;
 
+#ifdef HCAL_RAWDECODE_GPUDEBUG
       // uhtr header v1 1st 64 bits
       auto const payload64_w0 = payload64[0];
-      // uhtr n bytes comes from amcSize, according to the cpu version!
       //uint32_t const data_length64 = payload64_w0 & 0xfffff;
+#endif
+      // uhtr n bytes comes from amcSize, according to the cpu version!
       uint32_t const data_length64 = amcSize;
-      uint16_t bcn = (payload64_w0 >> 20) & 0xfff;
-      uint32_t evn = (payload64_w0 >> 32) & 0xffffff;
 
 #ifdef HCAL_RAWDECODE_GPUDEBUG
+      uint16_t bcn = (payload64_w0 >> 20) & 0xfff;
+      uint32_t evn = (payload64_w0 >> 32) & 0xffffff;
       printf("fed = %d data_length64 = %u bcn = %u evn = %u\n", fed, data_length64, bcn, evn);
 #endif
 
@@ -189,12 +185,12 @@ namespace hcal {
       uint8_t const uhtrcrate = payload64_w1 & 0xff;
       uint8_t const uhtrslot = (payload64_w1 >> 8) & 0xf;
       uint8_t const presamples = (payload64_w1 >> 12) & 0xf;
-      uint16_t const orbitN = (payload64_w1 >> 16) & 0xffff;
-      uint8_t const firmFlavor = (payload64_w1 >> 32) & 0xff;
-      uint8_t const eventType = (payload64_w1 >> 40) & 0xf;
       uint8_t const payloadFormat = (payload64_w1 >> 44) & 0xf;
 
 #ifdef HCAL_RAWDECODE_GPUDEBUG
+      uint16_t const orbitN = (payload64_w1 >> 16) & 0xffff;
+      uint8_t const firmFlavor = (payload64_w1 >> 32) & 0xff;
+      uint8_t const eventType = (payload64_w1 >> 40) & 0xf;
       printf(
           "fed = %d crate = %u slot = %u presamples = %u\n>>> orbitN = %u firmFlavor = %u eventType = %u payloadFormat "
           "= %u\n",
@@ -215,7 +211,7 @@ namespace hcal {
       // skip uhtr header words
       auto const channelDataSize = data_length64 - 2;        // 2 uhtr header v1 words
       auto const* channelDataBuffer64Start = payload64 + 2;  // 2 uhtr header v2 wds
-      auto const* channelDataBuffer64End = channelDataBuffer64Start + channelDataSize;
+      //auto const* channelDataBuffer64End = channelDataBuffer64Start + channelDataSize;
       auto const* ptr = reinterpret_cast<uint16_t const*>(channelDataBuffer64Start);
       auto const* end = ptr + sizeof(uint64_t) / sizeof(uint16_t) * (channelDataSize - 1);
       auto const t_rank = thread_group.thread_rank();
