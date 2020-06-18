@@ -28,7 +28,7 @@ namespace hcal {
 
     // FIXME remove duplication...
     // this is from PulesFunctor. nvcc was complaining... if included that header...
-    constexpr int maxSamples = 10;
+    //constexpr int maxSamples = 10;
     constexpr int maxPSshapeBin = 256;
     constexpr int nsPerBX = 25;
     constexpr float iniTimeShift = 92.5f;
@@ -229,9 +229,6 @@ namespace hcal {
       auto const nchannels_per_block = blockDim.y;
       auto const linearThPerBlock = threadIdx.x + threadIdx.y * blockDim.x;
 
-      constexpr uint32_t mantissaMaskQIE8 = 0x1fu;
-      constexpr uint32_t mantissaMaskQIE11 = 0x3f;
-
       // remove
       if (gch >= nchannels)
         return;
@@ -375,13 +372,17 @@ namespace hcal {
       // sits on the boundary when flavor 01 channels end and flavor 5 start
       //
       float rawCharge;
+#ifdef COMPUTE_TDC_TIME
       float tdcTime;
+#endif  // COMPUTE_TDC_TIME
       auto const dfc = compute_diff_charge_gain(
           qieType, adc, capid, qieOffsets, qieSlopes, gch < nchannelsf01HE || gch >= nchannelsf015);
       if (gch >= nchannelsf01HE && gch < nchannelsf015) {
         // flavor 5
         rawCharge = charge;
+#ifdef COMPUTE_TDC_TIME
         tdcTime = HcalSpecialTimes::UNKNOWN_T_NOTDC;
+#endif  // COMPUTE_TDC_TIME
       } else {
         // flavor 0 or 1 or 3
         // conditions needed for sipms
@@ -397,11 +398,13 @@ namespace hcal {
         auto const effectivePixelsFired = sipmq / fcByPE;
         auto const factor = compute_reco_correction_factor(parLin1, parLin2, parLin3, effectivePixelsFired);
         rawCharge = (charge - pedestal) * factor + pedestal;
+#ifdef COMPUTE_TDC_TIME
         if (gch < nchannelsf01HE)
           tdcTime = HcalSpecialTimes::getTDCTime(tdc_for_sample<Flavor01>(dataf01HE + stride * gch, sample));
         else if (gch >= nchannelsf015)
           tdcTime =
               HcalSpecialTimes::getTDCTime(tdc_for_sample<Flavor3>(dataf3HB + stride * (gch - nchannelsf015), sample));
+#endif  // COMPUTE_TDC_TIME
 
 #ifdef HCAL_MAHI_GPUDEBUG
         printf("first = %d last = %d sipmQ = %f factor = %f rawCharge = %f\n", first, last, sipmq, factor, rawCharge);
@@ -454,7 +457,7 @@ namespace hcal {
         do {
           assumed = old;
           // decode energy, sample values
-          int const current_sample = (assumed >> 32) & 0xffffffff;
+          //int const current_sample = (assumed >> 32) & 0xffffffff;
           float const current_energy = __uint_as_float(assumed & 0xffffffff);
           if (energym0_per_ts > current_energy)
             old = atomicCAS(&shrMethod0EnergySamplePair[lch], assumed, val);
@@ -554,8 +557,8 @@ namespace hcal {
       constexpr float pulse_height = 1.0f;
       constexpr float slew = 0.f;
       constexpr auto ns_per_bx = nsPerBX;
-      constexpr auto num_ns = nsPerBX * maxSamples;
-      constexpr auto num_bx = num_ns / ns_per_bx;
+      //constexpr auto num_ns = nsPerBX * maxSamples;
+      //constexpr auto num_bx = num_ns / ns_per_bx;
 
       // FIXME: clean up all the rounding... this is coming from original cpu version
       float const i_start_float =
@@ -786,9 +789,10 @@ namespace hcal {
       // FIXME: shift should be treated properly,
       // here assume 8 time slices and 8 samples
       auto const shift = 4 - soi;  // as in cpu version!
-                                   //    auto const offset = ipulse - soi;
-                                   //    auto const idx = sample - offset;
-      auto const idx = sample - pulseOffset;
+
+      // auto const offset = ipulse - soi;
+      // auto const idx = sample - offset;
+      int32_t const idx = sample - pulseOffset;
       auto const value = idx >= 0 && idx < nsamples ? compute_pulse_shape_value(t0,
                                                                                 idx,
                                                                                 shift,
@@ -1346,8 +1350,10 @@ namespace hcal {
 #endif
 #endif
 
+      /*
       // TODO: provide this properly
       int const soi = soiSamples[gch];
+      */
       constexpr float deltaChi2Threashold = 1e-3;
 
       ColumnVector<NPULSES, int> pulseOffsets;
@@ -1633,12 +1639,12 @@ namespace hcal {
       auto const idx_for_energy = std::abs(pulseOffsetValues[0]);
       outputEnergy[gch] = (gain * resultAmplitudesVector(idx_for_energy)) * respCorrection;
       /*
-    #pragma unroll
-    for (int i=0; i<NPULSES; i++)
-        if (pulseOffsets[i] == soi)
-            // NOTE: gain is a number < 10^-3/4, multiply first to avoid stab issues
-            outputEnergy[gch] = (gain*resultAmplitudesVector(i))*respCorrection;
-    */
+      #pragma unroll
+      for (int i=0; i<NPULSES; i++)
+          if (pulseOffsets[i] == soi)
+              // NOTE: gain is a number < 10^-3/4, multiply first to avoid stab issues
+              outputEnergy[gch] = (gain*resultAmplitudesVector(i))*respCorrection;
+      */
     }
 
     void entryPoint(InputDataGPU const& inputGPU,
