@@ -68,7 +68,7 @@ public:
   int getUVMax(int type) const { return ((type == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_); }
   bool isHalfCell(int waferType, int cell) const;
   bool isValidHex(int lay, int mod, int cell, bool reco) const;
-  bool isValidHex8(int lay, int modU, int modV, int cellU, int cellV, bool fullAndPart=false) const;
+  bool isValidHex8(int lay, int modU, int modV, int cellU, int cellV, bool fullAndPart = false) const;
   bool isValidTrap(int lay, int ieta, int iphi) const;
   int lastLayer(bool reco) const;
   int layerIndex(int lay, bool reco) const;

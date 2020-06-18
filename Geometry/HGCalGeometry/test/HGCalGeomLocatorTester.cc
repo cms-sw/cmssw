@@ -62,8 +62,8 @@ void HGCalGeomLocaterTester::doTest(const HGCalGeometry* geom, DetId::Detector d
     auto waferxy = geom->topology().dddConstants().locateCell(id, false);
     double dx = global.x() - waferxy.first;
     double dy = global.y() - waferxy.second;
-    std::cout << " position (" << global.x() << ", " << global.y() << ", " << global.z() << ") waferXY (" << waferxy.first
-	      << ", " << waferxy.second << ") Delta (" << dx << ", " << dy << ")";
+    std::cout << " position (" << global.x() << ", " << global.y() << ", " << global.z() << ") waferXY ("
+              << waferxy.first << ", " << waferxy.second << ") Delta (" << dx << ", " << dy << ")";
     if ((std::abs(dx) > tol) || (std::abs(dy) > tol)) {
       std::cout << "***** ERROR *****" << std::endl;
       ++bad;
@@ -73,7 +73,8 @@ void HGCalGeomLocaterTester::doTest(const HGCalGeometry* geom, DetId::Detector d
       ++good;
     }
   }
-  std::cout << "\n\nStudied " << all << " (" << ids.size() << ") IDs of which " << good << " are good and " << bad << " are bad\n\n\n\n";
+  std::cout << "\n\nStudied " << all << " (" << ids.size() << ") IDs of which " << good << " are good and " << bad
+            << " are bad\n\n\n\n";
 }
 
 //define this as a plug-in
