@@ -1,4 +1,4 @@
-#ifndef GeneratorInterface_LHEInterface_LHEReader_h
+#ifndef GeneratorInterface_LHEInterface_LH5Reader_h
 #define GeneratorInterface_LHEInterface_LH5Reader_h
 
 #include <string>
@@ -27,8 +27,6 @@ namespace lhef {
      std::vector<lheh5::Particle> getEvent();
      lheh5::EventHeader getHeader();
      std::pair<lheh5::EventHeader, std::vector<lheh5::Particle> > getEventProperties();
-//     std::unique_ptr<lheh5::Events2> _events2;
-//     std::unique_ptr<lheh5::Events> _events1;
   private:
      std::unique_ptr<HighFive::File> h5file;
      unsigned int long _eventsTotal;
@@ -61,8 +59,6 @@ namespace lhef {
     std::unique_ptr<Source> curSource;
     bool curDoc;
     std::shared_ptr<LHERunInfo> curRunInfo;
-//    std::unique_ptr<HighFive::File> handler;
-//    std::shared_ptr<void> platform;
   };
 
 }  // namespace lhef
