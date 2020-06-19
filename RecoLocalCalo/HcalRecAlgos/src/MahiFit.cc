@@ -486,7 +486,7 @@ void MahiFit::resetPulseShapeTemplate(const int pulseShapeId,
     // the uncertainty terms calculated inside PulseShapeFunctor are used for Method 2 only
     auto p = std::make_shared<FitterFuncs::PulseShapeFunctor>(
         ps.getShape(pulseShapeId), false, false, false, 1, 0, 0, HcalConst::maxSamples);
-    knownPulseShapes_.push_back(std::make_pair(pulseShapeId, p));
+    knownPulseShapes_.emplace_back(pulseShapeId, p);
     psfPtr_ = &*p;
   }
 
