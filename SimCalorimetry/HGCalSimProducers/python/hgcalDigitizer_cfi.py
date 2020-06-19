@@ -213,20 +213,20 @@ def HGCal_setEndOfLifeNoise(process,byDose=True,byDoseAlgo=0):
     process=HGCal_setRealisticNoiseSci(process,byDose=byDose,byDoseAlgo=byDoseAlgo)
     return process
 
+def HGCal_ignoreFluence(process):
+    """include all effects except fluence impact on leakage current and CCE"""
+    # byDoseAlgo is used as a collection of bits to toggle: FLUENCE, CCE, NOISE, PULSEPERGAIN, CACHEDOP (from lsb to Msb)
+    # for instance turning on the 0th bit turns off the impact of fluence
+    process=HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=1)
+    process=HGCal_setRealisticNoiseSci(process,byDose=True,byDoseAlgo=1)
+    return process
+
 def HGCal_setRealisticStartupNoise(process):
     """include all effects except fluence impact on leakage current and CCE"""
     #note: realistic electronics with Sci is not yet switched on
     # byDoseAlgo is used as a collection of bits to toggle: FLUENCE, CCE, NOISE, PULSEPERGAIN, CACHEDOP (from lsb to Msb)
     # for instance turning on the 0th  bit turns off the impact of fluence
-    process=HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=1)
-    return process
-
-def HGCal_ignoreFluence(process):
-    """include all effects except fluence impact on leakage current and CCE"""
-    # byDoseAlgo is used as a collection of bits to toggle: FLUENCE, CCE, NOISE, PULSEPERGAIN, CACHEDOP (from lsb to Msb)
-    # for instance turning on the 0th bit activates ignoring the cache
-    process=HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=1)
-    process=HGCal_setRealisticNoiseSci(process,byDose=True,byDoseAlgo=1)
+    process=HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=4)
     return process
 
 def HGCal_ignoreNoise(process):
@@ -254,11 +254,25 @@ def HGCal_ignoreCaching(process):
     process=HGCal_setRealisticNoiseSci(process,byDose=True,byDoseAlgo=16)
     return process
 
-def HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0):
+def HGCal_oldDoseMap(process):
+    """revert dose map to 11_ release, Oct 2019"""
+    process=HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0,byDoseMap=cms.string("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.5.15.9.txt"))
+    process=HGCal_setRealisticNoiseSci(process,byDose=True,byDoseAlgo=0,byDoseMap=cms.string("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.5.15.9.txt"))
+    return process
+
+
+def HGCal_oldDoseMap_ignorePulsePerGain(process):
+    """revert dose map to 11_ release, Oct 2019 AND ignore PulsePerGain"""
+    process=HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=8,byDoseMap=cms.string("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.5.15.9.txt"))
+    process=HGCal_setRealisticNoiseSci(process,byDose=True,byDoseAlgo=8,byDoseMap=cms.string("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.5.15.9.txt"))
+    return process
+
+
+def HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0,byDoseMap=cms.string("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt")):
     process.HGCAL_noise_fC = cms.PSet(
         scaleByDose = cms.bool(byDose),
         scaleByDoseAlgo = cms.uint32(byDoseAlgo),
-        doseMap = cms.string("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt"),
+        doseMap = byDoseMap,
         values = cms.vdouble( [x*fC_per_ele for x in endOfLifeNoises] ), #100,200,300 um
         )
     process.HGCAL_chargeCollectionEfficiencies = cms.PSet(
@@ -269,11 +283,11 @@ def HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0):
         )
     return process
 
-def HGCal_setRealisticNoiseSci(process,byDose=True,byDoseAlgo=0):
+def HGCal_setRealisticNoiseSci(process,byDose=True,byDoseAlgo=0,byDoseMap=cms.string("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt")):
     process.HGCAL_noise_heback = cms.PSet(
         scaleByDose = cms.bool(byDose),
         scaleByDoseAlgo = cms.uint32(byDoseAlgo),
-        doseMap = cms.string("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt"),
+        doseMap = byDoseMap,
         noise_MIP = cms.double(1./5.) #uses noise map
         )
     return process
