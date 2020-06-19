@@ -1,4 +1,0 @@
-[submodule "deps/git-cmake-format"]
-	path = deps/git-cmake-format
-	url = https://github.com/tristan0x/git-cmake-format.git
-	branch = bbp
