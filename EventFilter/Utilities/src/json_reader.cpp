@@ -430,8 +430,7 @@ namespace Json {
       while (token.type_ == tokenComment && ok) {
         ok = readToken(token);
       }
-      bool badTokenType = (token.type_ == tokenArraySeparator && token.type_ == tokenArrayEnd);
-      if (!ok || badTokenType) {
+      if (!ok) {
         return addErrorAndRecover("Missing ',' or ']' in array declaration", token, tokenArrayEnd);
       }
       if (token.type_ == tokenArrayEnd)
