@@ -98,8 +98,8 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/ForwardCommonData/data/cmszdc.xml',
         'Geometry/MTDCommonData/data/mtdMaterial/v2/mtdMaterial.xml',
         'Geometry/MTDCommonData/data/btl/v1/btl.xml',
-        'Geometry/MTDCommonData/data/etl/v4/etl.xml',
-        'Geometry/MTDCommonData/data/mtdParameters/v2/mtdStructureTopology.xml',
+        'Geometry/MTDCommonData/data/etl/v5/etl.xml',
+        'Geometry/MTDCommonData/data/mtdParameters/v3/mtdStructureTopology.xml',
         'Geometry/MTDCommonData/data/mtdParameters/v2/mtdParameters.xml',
     )+
     cms.vstring(
