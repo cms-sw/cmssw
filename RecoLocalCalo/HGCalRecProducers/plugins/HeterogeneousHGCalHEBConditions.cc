@@ -5,7 +5,7 @@ HeterogeneousHGCalHEBConditionsWrapper::HeterogeneousHGCalHEBConditionsWrapper(c
   calculate_memory_bytes(cpuHGCalParameters);
 
   chunk_ = std::accumulate(this->sizes_.begin(), this->sizes_.end(), 0); //total memory required in bytes
-  gpuErrchk(cudaMallocHost(&this->params_.testD_, chunk_));
+  cudaCheck(cudaMallocHost(&this->params_.testD_, chunk_));
 
   //store cumulative sum in bytes and convert it to sizes in units of C++ typesHEB, i.e., number if items to be transferred to GPU
   std::vector<size_t> cumsum_sizes( this->sizes_.size()+1, 0 ); //starting with zero
@@ -77,7 +77,7 @@ void HeterogeneousHGCalHEBConditionsWrapper::calculate_memory_bytes(const HGCalP
 }
 
 HeterogeneousHGCalHEBConditionsWrapper::~HeterogeneousHGCalHEBConditionsWrapper() {
-  gpuErrchk(cudaFreeHost(this->params_.testD_));
+  cudaCheck(cudaFreeHost(this->params_.testD_));
 }
 
 //I could use template specializations
@@ -141,14 +141,14 @@ hgcal_conditions::HeterogeneousHEBConditionsESProduct const *HeterogeneousHGCalH
 	  [this](GPUData& data, cudaStream_t stream)
 	  {    
 	    // Allocate the payload object on pinned host memory.
-	    gpuErrchk(cudaMallocHost(&data.host, sizeof(hgcal_conditions::HeterogeneousHEBConditionsESProduct)));
+	    cudaCheck(cudaMallocHost(&data.host, sizeof(hgcal_conditions::HeterogeneousHEBConditionsESProduct)));
 	    // Allocate the payload array(s) on device memory.
-	    gpuErrchk(cudaMalloc(&(data.host->params.testD_), chunk_));
+	    cudaCheck(cudaMalloc(&(data.host->params.testD_), chunk_));
 
 	    // Allocate the payload object on the device memory.
-	    gpuErrchk(cudaMalloc(&data.device, sizeof(hgcal_conditions::HeterogeneousHEBConditionsESProduct)));
+	    cudaCheck(cudaMalloc(&data.device, sizeof(hgcal_conditions::HeterogeneousHEBConditionsESProduct)));
 	    // Transfer the payload, first the array(s) ...
-	    gpuErrchk(cudaMemcpyAsync(data.host->params.testD_, this->params_.testD_, chunk_, cudaMemcpyHostToDevice, stream));
+	    cudaCheck(cudaMemcpyAsync(data.host->params.testD_, this->params_.testD_, chunk_, cudaMemcpyHostToDevice, stream));
 	    
 	    for(unsigned int j=0; j<this->sizes_.size()-1; ++j)
 	      {
@@ -163,7 +163,7 @@ hgcal_conditions::HeterogeneousHEBConditionsESProduct const *HeterogeneousHGCalH
 	      }
 
 	    // ... and then the payload object
-	    gpuErrchk(cudaMemcpyAsync(data.device, data.host, sizeof(hgcal_conditions::HeterogeneousHEBConditionsESProduct), cudaMemcpyHostToDevice, stream));
+	    cudaCheck(cudaMemcpyAsync(data.device, data.host, sizeof(hgcal_conditions::HeterogeneousHEBConditionsESProduct), cudaMemcpyHostToDevice, stream));
 	  }); //gpuData_.dataForCurrentDeviceAsync
 
   // Returns the payload object on the memory of the current device
@@ -174,10 +174,10 @@ hgcal_conditions::HeterogeneousHEBConditionsESProduct const *HeterogeneousHGCalH
 HeterogeneousHGCalHEBConditionsWrapper::GPUData::~GPUData() {
   if(host != nullptr) 
     {
-      gpuErrchk(cudaFree(host->params.testD_));
-      gpuErrchk(cudaFreeHost(host));
+      cudaCheck(cudaFree(host->params.testD_));
+      cudaCheck(cudaFreeHost(host));
     }
-  gpuErrchk(cudaFree(device));
+  cudaCheck(cudaFree(device));
 }
 
 //template double*& HeterogeneousHGCalHEBConditionsWrapper::select_pointer_d<cp::HeterogeneousHGCalParameters*>(cp::HeterogeneousHGCalParameters*, const unsigned int&) const;

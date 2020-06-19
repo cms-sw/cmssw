@@ -171,12 +171,12 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event& evt,
           break;
       }
   }
+
   switch (idtype) {
     case hgcee:
       rechitMaker_->setADCToGeVConstant(float(hgceeUncalib2GeV_));
       cce_correction = hgcEE_cce_[thickness - 1];
-      sigmaNoiseGeV =
-          1e-3 * weights_[layer] * rcorr_[thickness] * hgcEE_noise_fC_[thickness - 1] / hgcEE_fCPerMIP_[thickness - 1];
+      sigmaNoiseGeV = 1e-3 * weights_[layer] * rcorr_[thickness] * hgcEE_noise_fC_[thickness - 1] / hgcEE_fCPerMIP_[thickness - 1];
       break;
     case hgcfh:
       rechitMaker_->setADCToGeVConstant(float(hgchefUncalib2GeV_));
@@ -215,8 +215,8 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event& evt,
   myrechit.setEnergy(new_E);
   float SoN = new_E / sigmaNoiseGeV;
   myrechit.setSignalOverSigmaNoise(SoN);
-
-  if (detid.det() == DetId::HGCalHSc || myrechit.time() < 0.) {
+  
+  if (detid.det() == DetId::HGCalHSc || myrechit.time() < 0. ) {
     myrechit.setTimeError(-1.);
   } else {
     float timeError = timeEstimatorSi_.getTimeError("recHit", SoN);

@@ -6,13 +6,13 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "CUDADataFormats/HGCal/interface/HGCConditions.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include "RecoLocalCalo/HGCalRecProducers/plugins/KernelManagerHGCalRecHit.h"
 
 namespace cpar = hgcal_conditions::parameters;
-namespace cpos = hgcal_conditions::positions;  
 
 // Declare the wrapper ESProduct. The corresponding ESProducer should
 // produce objects of this type.
@@ -20,7 +20,7 @@ class HeterogeneousHGCalHEFConditionsWrapper {
  public:
   // Constructor takes the standard CPU ESProduct, and transforms the
   // necessary data to array(s) in pinned host memory
-  HeterogeneousHGCalHEFConditionsWrapper(const HGCalParameters*, cpos::HGCalPositionsMapping*);
+  HeterogeneousHGCalHEFConditionsWrapper(const HGCalParameters*);
   
   // Deallocates all pinned host memory
   ~HeterogeneousHGCalHEFConditionsWrapper();
@@ -32,37 +32,21 @@ class HeterogeneousHGCalHEFConditionsWrapper {
   // Holds the data in pinned CPU memory
   // Contrary to its non-heterogeneous counterpart (constructor argument) it is *not* a pointer (so to avoid an extra allocation)
   cpar::HeterogeneousHGCalHEFParameters params_;
-  cpos::HeterogeneousHGCalPositionsMapping posmap_;
-  size_t nelems_posmap_;
 
   std::vector<size_t> sizes_params_;
-  std::vector<size_t> sizes_pos_;
   size_t chunk_params_;
-  size_t chunk_pos_;
-  const size_t number_position_arrays = 3; //x, y and z; required due to the assymetry between cpos::HeterogeneousHGCalPositionsMapping and cpos::HGCalPositionsMapping
   
   std::vector<size_t> calculate_memory_bytes_params_(const HGCalParameters*);
-  std::vector<size_t> calculate_memory_bytes_pos_(cpos::HGCalPositionsMapping*);
   size_t allocate_memory_params_(const std::vector<size_t>&);
-  size_t allocate_memory_pos_(const std::vector<size_t>&);
   void transfer_data_to_heterogeneous_pointers_params_(const std::vector<size_t>&, const HGCalParameters*);
-  void transfer_data_to_heterogeneous_pointers_pos_(const std::vector<size_t>&, cpos::HGCalPositionsMapping*);
-  void transfer_data_to_heterogeneous_vars_pos_(const cpos::HGCalPositionsMapping*);
 
   /*methods for managing SoA's pointers*/
   //double
   double*& select_pointer_d_(cpar::HeterogeneousHGCalHEFParameters*, const unsigned int&) const;
   std::vector<double> select_pointer_d_(const HGCalParameters*, const unsigned int&) const;
-  //float
-  float*& select_pointer_f_(cpos::HeterogeneousHGCalPositionsMapping*, const unsigned int&) const;
   //int32_t
   int32_t*& select_pointer_i_(cpar::HeterogeneousHGCalHEFParameters*, const unsigned int&) const;
   std::vector<int32_t> select_pointer_i_(const HGCalParameters*, const unsigned int&) const;
-  int32_t*& select_pointer_i_(cpos::HeterogeneousHGCalPositionsMapping*, const unsigned int&) const;
-  std::vector<int32_t>& select_pointer_i_(cpos::HGCalPositionsMapping*, const unsigned int&);
-  //uint32_t
-  uint32_t*& select_pointer_u_(cpos::HeterogeneousHGCalPositionsMapping*, const unsigned int&) const;
-  std::vector<uint32_t>& select_pointer_u_(cpos::HGCalPositionsMapping*, const unsigned int&);
 
   // Helper struct to hold all information that has to be allocated and
   // deallocated per device
