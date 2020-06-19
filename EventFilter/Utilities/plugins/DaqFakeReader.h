@@ -38,7 +38,6 @@ private:
   // private member functions
   //
   void fillFEDs(const int, const int, edm::EventID& eID, FEDRawDataCollection& data, float meansize, float width);
-  void fillGTPFED(edm::EventID& eID, FEDRawDataCollection& data, timeval* now);
   void fillTCDSFED(edm::EventID& eID, FEDRawDataCollection& data, uint32_t ls, timeval* now);
   virtual void beginLuminosityBlock(edm::LuminosityBlock const& iL, edm::EventSetup const& iE);
 
