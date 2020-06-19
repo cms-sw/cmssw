@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-_cuda_enabled_cached = None
+_cuda_enabled_cached = True
 
 def _switch_cuda():
     global _cuda_enabled_cached

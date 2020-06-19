@@ -1,0 +1,8 @@
+<use   name="FWCore/Utilities"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="HeterogeneousCore/CUDACore"/>
+<use   name="CUDADataFormats/HGCal"/>
+<use   name="Geometry/HGCalCommonData"/>
+<export>
+  <lib   name="1"/>
+</export>

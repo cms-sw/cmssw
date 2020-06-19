@@ -1,4 +1,4 @@
----
+macs -nw 2	---
 Language:        Cpp
 BasedOnStyle:  Google
 ColumnLimit:     120

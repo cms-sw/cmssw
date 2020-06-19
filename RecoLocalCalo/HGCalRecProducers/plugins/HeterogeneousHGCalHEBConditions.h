@@ -6,6 +6,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "CUDADataFormats/HGCal/interface/HGCConditions.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
