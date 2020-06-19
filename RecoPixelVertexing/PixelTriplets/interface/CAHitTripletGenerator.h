@@ -17,6 +17,7 @@
 #include "RecoTracker/TkHitPairs/interface/IntermediateHitDoublets.h"
 
 #include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitSeeds.h"
+#include "RecoPixelVertexing/PixelTriplets/src/CACut.h"
 class TrackingRegion;
 class SeedingLayerSetsHits;
 
@@ -124,8 +125,8 @@ private:
   const QuantityDependsPt maxChi2;
   const bool useBendingCorrection;
 
-  const float caThetaCut = 0.00125f;
-  const float caPhiCut = 1.f;
+  CACut caThetaCut;
+  CACut caPhiCut;
   const float caHardPtCut = 0.f;
 };
 
