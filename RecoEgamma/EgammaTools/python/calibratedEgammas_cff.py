@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 _correctionFile2016Legacy = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Legacy2016_07Aug2017_FineEtaR9_v3_ele_unc"
 _correctionFile2017Nov17 = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2017_17Nov2017_v1_ele_unc"
+_correctionFile2017UL    = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2017_24Feb2020_runEtaR9Gain_v2"
 
 calibratedEgammaSettings = cms.PSet(minEtToCalibrate = cms.double(5.0),
                                     semiDeterministic = cms.bool(True),
@@ -9,9 +10,12 @@ calibratedEgammaSettings = cms.PSet(minEtToCalibrate = cms.double(5.0),
                                     recHitCollectionEB = cms.InputTag('reducedEcalRecHitsEB'),
                                     recHitCollectionEE = cms.InputTag('reducedEcalRecHitsEE'),
                                     produceCalibratedObjs = cms.bool(True)
-                                    )
+                                   )
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 run2_miniAOD_80XLegacy.toModify(calibratedEgammaSettings,correctionFile = _correctionFile2016Legacy)
+
+from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
+run2_miniAOD_devel.toModify(calibratedEgammaSettings,correctionFile = _correctionFile2017UL)
 
 calibratedEgammaPatSettings = calibratedEgammaSettings.clone(
     recHitCollectionEB = cms.InputTag('reducedEgamma','reducedEBRecHits'),
@@ -60,7 +64,7 @@ calibratedPatElectrons = cms.EDProducer("CalibratedPatElectronProducer",
                                         calibratedEgammaPatSettings,
                                         epCombConfig = ecalTrkCombinationRegression,
                                         src = cms.InputTag('slimmedElectrons'), 
-                                       )
+                                        )
 
 calibratedPhotons = cms.EDProducer("CalibratedPhotonProducer",
                                    calibratedEgammaSettings,
