@@ -1,0 +1,118 @@
+# How to set up the new DQMGUI backend on a clean OpenStack CC7 machine.
+# This should be essentially a c&p script, but it will ask for passwords in
+# some places. Better run it step-by-step. Replace user names as needed.
+#
+# Most of it is one-time setup and can be skipped after doing it once.
+
+# Start with OpenStack CC7 vm with volume attached (remember to set key pair).
+ssh root@newmachine.cern.ch
+
+# Set up CVMFS. Not sure how to do that properly, but stealing the config from
+# a Puppetized machine works.
+yum install cvmfs
+scp mschneid@cmsdev22:/etc/cvmfs/config.d/* /etc/cvmfs/config.d/
+scp mschneid@cmsdev22:/etc/cvmfs/default.local /etc/cvmfs/
+# default.local:
+#CVMFS_DNS_MIN_TTL='300'
+#CVMFS_QUOTA_LIMIT='20000'
+#CVMFS_HTTP_PROXY='http://ca-proxy-meyrin.cern.ch:3128;http://ca-proxy.cern.ch:3128'
+#CVMFS_CACHE_BASE='/var/lib/cvmfs'
+#CVMFS_REPOSITORIES='cms-ib.cern.ch,cms.cern.ch,grid.cern.ch,projects.cern.ch,'
+# config.d/cms-ib.cern.ch.local:
+#CVMFS_SERVER_URL='http://cvmfs-stratum-one.cern.ch/cvmfs/cms-ib.cern.ch;http://cvmfs.fnal.gov/cvmfs/cms-ib.cern.ch'
+
+cvmfs_config setup
+cvmfs_config chksetup
+
+# Now GRID auth. See also: https://wiki.egi.eu/wiki/EGI_IGTF_Release
+cat <<EOF >  /etc/yum.repos.d/EGI-trustanchors.repo
+[EGI-trustanchors]
+name=EGI-trustanchors
+baseurl=http://repository.egi.eu/sw/production/cas/1/current/
+gpgkey=http://repository.egi.eu/sw/production/cas/1/GPG-KEY-EUGridPMA-RPM-3
+gpgcheck=1
+enabled=1
+EOF
+
+yum install voms voms-clients-java ca-policy-lcg ca-policy-egi-core
+
+# and another bunch of files that I am not sure where they come from.
+scp -r mschneid@cmsdev22:/etc/grid-security/vomsdir /etc/grid-security/
+scp -r mschneid@cmsdev22:/etc/vomses /etc/
+
+# Now voms-proxy-init should work, given a certificate.
+# To set up the certificate, see below.
+
+# install CMSSW dependencies (see https://gitlab.cern.ch/cms-cloud/cmssw-docker/blob/master/cc7-cms/Dockerfile or similar)
+yum install -y libX11-devel libXext-devel mesa-libGLU-devel mesa-libGL-devel libSM libXft libXext pciutils glx-utils mesa-dri-drivers libX11 libXi libXrender tcsh zsh tcl tk e2fsprogs perl-ExtUtils-Embed compat-libstdc++-33 libXmu e2fsprogs-libs libXpm bc libaio tar patch krb5-devel perl-Data-Dumper gcc unzip zip perl-libwww-perl libXpm-devel libXft-devel svn cvs gcc-c++ strace cern-wrappers krb5-workstation wget hostname readline-devel nano bzip2 perl-Switch perl-Storable perl-Env packages perl-Thread-Queue CERN-CA-certs tk-devel tcl-devel which python-pip voms-clients-cpp java-1.8.0-openjdk java-1.8.0-openjdk-devel popt libXcursor libXrandr libXinerama nspr nss nss-util file file-libs readline bzip2-libs python-requests-kerberos libgfortran time python2-psutil HEP_OSlibs_CC7 git yum-plugin-ovl openssl glibc-devel.i686 glibc-devel glibc-headers
+
+# Open a port in the firewall
+firewall-cmd --zone=public --add-port=1234/tcp --permanent
+firewall-cmd --zone=public --add-port=1234/tcp
+
+# That's it for systemwide setup, now we drop priveledges.
+adduser dqmgui
+su dqmgui
+cd
+
+# Aliases to make CMSSW from CVMFS easier to use.
+echo "source /cvmfs/cms.cern.ch/cmsset_default.sh" >> ~/.bashrc
+echo "alias cmsenv='eval \`scramv1 runtime -sh\`'" >> ~/.bashrc
+echo "alias cmsrel='scramv1 project CMSSW'" >> ~/.bashrc
+. ~/.bashrc
+git config --global user.email "you@example.com"
+git config --global user.name "Your Name"
+
+# cmsrel etc. should work now
+
+
+# To get the certificate, make a new GRID user cert here:
+# https://ca.cern.ch/ca/user/Request.aspx?template=ee2user
+mkdir ~/.globus
+cd ~/.globus
+# Upload the cert you got from the website
+# scp myCertificate.p12 root@newmachine.cern.ch:~dqmgui/.globus
+# Repack it to the right formats (see https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookStartingGrid#ObtainingCert)
+rm -f usercert.pem
+rm -f userkey.pem
+openssl pkcs12 -in myCertificate.p12 -clcerts -nokeys -out usercert.pem
+# Set a PEM password here, like 123456789
+openssl pkcs12 -in myCertificate.p12 -nocerts -out userkey.pem
+chmod 400 userkey.pem
+chmod 400 usercert.pem
+
+cat <<EOF > ~/gridauth
+echo '123456789' | voms-proxy-init --rfc --voms cms --pwstdin
+EOF
+chmod +x gridauth
+
+# now /home/dqmgui/gridauth does a proxy cert without password.
+# Doing this with your personal certificate is terribly insecure, obviously.
+# It also has full access to SSO etc.!
+# Now just run it often enough. The default life time of the proxy cert is 12h.
+echo '0 */6 * * * /home/dqmgui/gridauth >/dev/null 2>&1' > cronentry
+crontab cronentry
+
+# Finally, set up the GUI using CMSSW.
+cmsrel CMSSW_11_1_0_pre6
+
+# Install GUI (-patches) from Github
+cd CMSSW_11_1_0_pre6/src
+cmsenv
+git cms-merge-topic schneiml:dqm-gui-based-on-eos-files
+scram b -j4
+# Python Errors are fine as long as CMSSW is not Python3 by default.
+
+# Install Python dependencies for the GUI (needs to be in cmsenv, but installs
+# globally for the user.
+python3 -mpip install --user async_lru
+python3 -mpip install --user aiohttp
+python3 -mpip install --user aiosqlite
+
+# Finally start the GUI.
+# TODO: use systemd.
+nohup dqmguibackend.sh -p 1234 -r 4 -f &
+
+# Samples need to be registered fromthe outside now, the machine does not have
+# the EOS access for automatic setup.
+
