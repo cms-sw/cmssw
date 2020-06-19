@@ -198,7 +198,11 @@ protected:
   // enum used in the wire hit assignment
   enum ALCT_WireInfo { INVALID_WIRE = 65535 };
 
+  // remove the invalid wires from the container
   void cleanWireContainer(CSCALCTDigi::WireContainer& wireHits) const;
+
+  //  set the wire hit container
+  void setWireContainer(CSCALCTDigi&, CSCALCTDigi::WireContainer& wireHits) const;
 
   /* This function looks for LCTs on the previous and next wires.  If one
      exists and it has a better quality and a bx_time up to 4 clocks earlier

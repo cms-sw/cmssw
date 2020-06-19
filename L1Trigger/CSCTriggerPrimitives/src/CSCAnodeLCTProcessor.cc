@@ -327,14 +327,8 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
               int valid = (ghost_cleared[0] == 0) ? 1 : 0;  //cancelled, valid=0, otherwise it is 1
               CSCALCTDigi newALCT(valid, quality[i_wire][0], 1, 0, i_wire, bx);
 
-              // get the comparator hits for this pattern
-              auto wireHits = hits_in_patterns[i_wire][0];
-
-              // purge the wire digi collection
-              cleanWireContainer(wireHits);
-
-              // set the hit collection
-              newALCT.setHits(wireHits);
+              // set the wire digis for this pattern
+              setWireContainer(newALCT, hits_in_patterns[i_wire][0]);
 
               lct_list.push_back(newALCT);
               ALCTContainer_[bx][ALCTIndex_[bx]] = newALCT;
@@ -349,14 +343,8 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
 
               CSCALCTDigi newALCT(valid, quality[i_wire][1], 0, quality[i_wire][2], i_wire, bx);
 
-              // get the comparator hits for this pattern
-              auto wireHits = hits_in_patterns[i_wire][1];
-
-              // purge the wire digi collection
-              cleanWireContainer(wireHits);
-
-              // set the hit collection
-              newALCT.setHits(wireHits);
+              // set the wire digis for this pattern
+              setWireContainer(newALCT, hits_in_patterns[i_wire][1]);
 
               lct_list.push_back(newALCT);
               ALCTContainer_[bx][ALCTIndex_[bx]] = newALCT;
@@ -638,6 +626,7 @@ bool CSCAnodeLCTProcessor::patternDetection(
 
     // clear a single pattern!
     CSCALCTDigi::WireContainer hits_single_pattern;
+    hits_single_pattern.clear();
     hits_single_pattern.resize(CSCConstants::NUM_LAYERS);
     for (auto& p : hits_single_pattern) {
       p.resize(CSCConstants::ALCT_PATTERN_WIDTH, INVALID_WIRE);
@@ -1403,4 +1392,12 @@ void CSCAnodeLCTProcessor::cleanWireContainer(CSCALCTDigi::WireContainer& wireHi
         std::remove_if(p.begin(), p.end(), [](unsigned i) -> bool { return i == CSCAnodeLCTProcessor::INVALID_WIRE; }),
         p.end());
   }
+}
+
+void CSCAnodeLCTProcessor::setWireContainer(CSCALCTDigi& alct, CSCALCTDigi::WireContainer& wireHits) const {
+  // clean the wire digi container
+  cleanWireContainer(wireHits);
+
+  // set the hit container
+  alct.setHits(wireHits);
 }
