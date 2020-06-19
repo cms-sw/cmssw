@@ -86,6 +86,8 @@ The generic `SonicClient*` should be replaced with one of the available modes:
 
 In addition, as indicated, the input and output data types must be specified.
 (If both types are the same, only the input type needs to be specified.)
+The client constructor can optionally provide a value for `clientName_`,
+which will be used in output messages alongside the debug name set by the producers.
 
 In all cases, the implementation of `evaluate()` must call `finish()`.
 For the `Sync` and `PseudoAsync` modes, `finish()` should be called at the end of `evaluate()`.
