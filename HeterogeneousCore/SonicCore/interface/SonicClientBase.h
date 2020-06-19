@@ -16,8 +16,14 @@ public:
   //destructor
   virtual ~SonicClientBase() = default;
 
-  void setDebugName(const std::string& debugName) { debugName_ = debugName; }
+  void setDebugName(const std::string& debugName) {
+    debugName_ = debugName;
+    fullDebugName_ = debugName_;
+    if (!clientName_.empty())
+      fullDebugName_ += ":" + clientName_;
+  }
   const std::string& debugName() const { return debugName_; }
+  const std::string& clientName() const { return clientName_; }
 
   //main operation
   virtual void dispatch(edm::WaitingTaskWithArenaHolder holder) = 0;
@@ -54,8 +60,8 @@ protected:
     }
     if (!debugName_.empty()) {
       auto t1 = std::chrono::high_resolution_clock::now();
-      edm::LogInfo(debugName_) << "Client time: "
-                               << std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0_).count();
+      edm::LogInfo(fullDebugName_) << "Client time: "
+                                   << std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0_).count();
     }
     holder_.doneWaiting(eptr);
   }
@@ -65,7 +71,7 @@ protected:
   edm::WaitingTaskWithArenaHolder holder_;
 
   //for logging/debugging
-  std::string debugName_;
+  std::string clientName_, debugName_, fullDebugName_;
   std::chrono::time_point<std::chrono::high_resolution_clock> t0_;
 };
 
