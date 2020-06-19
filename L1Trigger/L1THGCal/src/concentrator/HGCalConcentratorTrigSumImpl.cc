@@ -4,7 +4,7 @@ HGCalConcentratorTrigSumImpl::HGCalConcentratorTrigSumImpl(const edm::ParameterS
 
 void HGCalConcentratorTrigSumImpl::doSum(uint32_t module_id,
                                          const std::vector<l1t::HGCalTriggerCell>& trigCellVecInput,
-                                         std::vector<l1t::HGCalTriggerSums>& trigSumsVecOutput) {
+                                         std::vector<l1t::HGCalTriggerSums>& trigSumsVecOutput) const {
   double ptsum = 0;
   double mipptsum = 0;
   double hwptsum = 0;
