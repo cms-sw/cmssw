@@ -192,11 +192,10 @@ namespace reco {
       if (((mvaOpt == kOldDMwoLT || mvaOpt == kOldDMwLT || mvaOpt == kDBoldDMwLT || mvaOpt == kPWoldDMwLT ||
             mvaOpt == kDBoldDMwLTwGJ) &&
            (tauDecayMode == 0 || tauDecayMode == 1 || tauDecayMode == 2 || tauDecayMode == 10)) ||
-          ((mvaOpt==kDBnewDMwLTwGJPhase2 || mvaOpt == kNewDMwoLT || mvaOpt == kNewDMwLT || mvaOpt == kDBnewDMwLT || mvaOpt == kPWnewDMwLT ||
-            mvaOpt == kDBnewDMwLTwGJ) &&
+          ((mvaOpt == kDBnewDMwLTwGJPhase2 || mvaOpt == kNewDMwoLT || mvaOpt == kNewDMwLT || mvaOpt == kDBnewDMwLT ||
+            mvaOpt == kPWnewDMwLT || mvaOpt == kDBnewDMwLTwGJ) &&
            (tauDecayMode == 0 || tauDecayMode == 1 || tauDecayMode == 2 || tauDecayMode == 5 || tauDecayMode == 6 ||
             tauDecayMode == 10 || tauDecayMode == 11))) {
-
         float chargedIsoPtSum = tau.tauID(nameCharged);
         float neutralIsoPtSum = tau.tauID(nameNeutral);
         float puCorrPtSum = tau.tauID(namePu);
@@ -236,21 +235,21 @@ namespace reco {
           }
         }
 
-      if (mvaOpt == kDBnewDMwLTwGJPhase2) {
-         mvaInput[0] = tau.pt();
-         mvaInput[1] = std::abs(tau.eta());
-         mvaInput[2] = chargedIsoPtSum; //tauID("chargedIsoPtSum");
-         mvaInput[3] = neutralIsoPtSum; //tauID("neutralIsoPtSum");
-         mvaInput[4] = puCorrPtSum; //tauID("puCorrPtSum");
-         mvaInput[5] = photonPtSumOutsideSignalCone; //tauID("photonPtSumOutsideSignalCone");
-         mvaInput[7] = tauDecayMode; //tau.decayMode();
-         mvaInput[7] = tau.signalGammaCands().size();
-         mvaInput[8] = tau.isolationGammaCands().size();
+        if (mvaOpt == kDBnewDMwLTwGJPhase2) {
+          mvaInput[0] = tau.pt();
+          mvaInput[1] = std::abs(tau.eta());
+          mvaInput[2] = chargedIsoPtSum;               //tauID("chargedIsoPtSum");
+          mvaInput[3] = neutralIsoPtSum;               //tauID("neutralIsoPtSum");
+          mvaInput[4] = puCorrPtSum;                   //tauID("puCorrPtSum");
+          mvaInput[5] = photonPtSumOutsideSignalCone;  //tauID("photonPtSumOutsideSignalCone");
+          mvaInput[7] = tauDecayMode;                  //tau.decayMode();
+          mvaInput[7] = tau.signalGammaCands().size();
+          mvaInput[8] = tau.isolationGammaCands().size();
 
-         float sigCands_pt = 0.;
-         float sigCands_dr, sigCands_deta, sigCands_dphi;
-         sigCands_dr = sigCands_deta = sigCands_dphi = 0.;
-         for (auto & j : tau.signalGammaCands()) {
+          float sigCands_pt = 0.;
+          float sigCands_dr, sigCands_deta, sigCands_dphi;
+          sigCands_dr = sigCands_deta = sigCands_dphi = 0.;
+          for (auto& j : tau.signalGammaCands()) {
             const float dr = reco::deltaR(tau, *j);
             const float deta = std::abs(tau.eta() - j->eta());
             const float dphi = std::abs(reco::deltaPhi(tau.phi(), j->phi()));
@@ -259,18 +258,18 @@ namespace reco {
             sigCands_deta += deta * pt_;
             sigCands_dphi += dphi * pt_;
             sigCands_pt += pt_;
-         }
-         if (sigCands_pt>0.) {
+          }
+          if (sigCands_pt > 0.) {
             sigCands_dr = sigCands_dr / sigCands_pt;
             sigCands_deta = sigCands_deta / sigCands_pt;
             sigCands_dphi = sigCands_dphi / sigCands_pt;
-         } else {
+          } else {
             sigCands_dr = sigCands_deta = sigCands_dphi = -0.1;
-         }
-         float isoCands_pt = 0.;
-         float isoCands_dr, isoCands_deta, isoCands_dphi;
-         isoCands_dr = isoCands_deta = isoCands_dphi = 0.;
-         for (auto& j : tau.isolationGammaCands()) {
+          }
+          float isoCands_pt = 0.;
+          float isoCands_dr, isoCands_deta, isoCands_dphi;
+          isoCands_dr = isoCands_deta = isoCands_dphi = 0.;
+          for (auto& j : tau.isolationGammaCands()) {
             const float dr = reco::deltaR(tau, *j);
             const float deta = std::abs(tau.eta() - j->eta());
             const float dphi = std::abs(reco::deltaPhi(tau.phi(), j->phi()));
@@ -279,66 +278,70 @@ namespace reco {
             isoCands_deta += deta * pt_;
             isoCands_dphi += dphi * pt_;
             isoCands_pt += pt_;
-         }
-         if (isoCands_pt>0.) {
+          }
+          if (isoCands_pt > 0.) {
             isoCands_dr = isoCands_dr / isoCands_pt;
             isoCands_deta = isoCands_deta / isoCands_pt;
             isoCands_dphi = isoCands_dphi / isoCands_pt;
-         } else {
+          } else {
             isoCands_dr = isoCands_deta = isoCands_dphi = -0.1;
-         }
-         mvaInput[9] = isoCands_deta;
-         mvaInput[10] = isoCands_dphi;
-         mvaInput[11] = isoCands_dr;
-         mvaInput[12] = sigCands_deta;
-         mvaInput[13] = sigCands_dphi;
-         mvaInput[14] = sigCands_dr;
-         
-         float e = tau.hcalEnergy()+tau.ecalEnergy();
-         e>0. ? e=tau.ecalEnergy()/e : e=-1.;
-         mvaInput[15] = e;
-         mvaInput[16] = tau.dxy()>=0.?+1:-1;
-         mvaInput[17] = sqrt(std::abs(tau.dxy()));
-         mvaInput[18] = std::abs(tau.dxy_Sig());
-         mvaInput[19] = tau.ip3d()>=0.?+1:-1;
-         mvaInput[20] = sqrt(std::abs(tau.ip3d()));
-         mvaInput[21] = std::abs(tau.ip3d_Sig());
-         mvaInput[22] = tau.hasSecondaryVertex();
-         mvaInput[23] = decayDistMag; //sqrt(tau.flightLength().Mag2());
-         mvaInput[24] = tau.flightLengthSig();
-         mvaInput[25] = leadingTrackChi2; //tau.leadingTrackNormChi2();
+          }
+          mvaInput[9] = isoCands_deta;
+          mvaInput[10] = isoCands_dphi;
+          mvaInput[11] = isoCands_dr;
+          mvaInput[12] = sigCands_deta;
+          mvaInput[13] = sigCands_dphi;
+          mvaInput[14] = sigCands_dr;
 
-         float thetaGJmax, thetaGJ;
-         thetaGJmax = thetaGJ = 0.;
-         if (decayDistMag>0.) {
+          float e = tau.hcalEnergy() + tau.ecalEnergy();
+          e > 0. ? e = tau.ecalEnergy() / e : e = -1.;
+          mvaInput[15] = e;
+          mvaInput[16] = tau.dxy() >= 0. ? +1 : -1;
+          mvaInput[17] = sqrt(std::abs(tau.dxy()));
+          mvaInput[18] = std::abs(tau.dxy_Sig());
+          mvaInput[19] = tau.ip3d() >= 0. ? +1 : -1;
+          mvaInput[20] = sqrt(std::abs(tau.ip3d()));
+          mvaInput[21] = std::abs(tau.ip3d_Sig());
+          mvaInput[22] = tau.hasSecondaryVertex();
+          mvaInput[23] = decayDistMag;  //sqrt(tau.flightLength().Mag2());
+          mvaInput[24] = tau.flightLengthSig();
+          mvaInput[25] = leadingTrackChi2;  //tau.leadingTrackNormChi2();
+
+          float thetaGJmax, thetaGJ;
+          thetaGJmax = thetaGJ = 0.;
+          if (decayDistMag > 0.) {
             const float mTau = 1.77686;
             const float mAOne = tau.p4().M();
             const float pAOneMag = tau.p();
-            thetaGJmax = (mTau*mTau - mAOne*mAOne) / ( 2. * mTau * pAOneMag);
+            thetaGJmax = (mTau * mTau - mAOne * mAOne) / (2. * mTau * pAOneMag);
             thetaGJmax = asin(thetaGJmax);
-            thetaGJ = (tau.px()*tau.flightLength().x() + tau.py()*tau.flightLength().y() + tau.pz()*tau.flightLength().z()) / (pAOneMag * decayDistMag);
+            thetaGJ = (tau.px() * tau.flightLength().x() + tau.py() * tau.flightLength().y() +
+                       tau.pz() * tau.flightLength().z()) /
+                      (pAOneMag * decayDistMag);
             thetaGJ = acos(thetaGJ);
-         } else {
+          } else {
             thetaGJ = -15.;
             thetaGJmax = -10.;
-         }
-         if (std::isnan(thetaGJ)) thetaGJ = -16.;
-         if (std::isnan(thetaGJmax)) thetaGJmax = -11.;
-         mvaInput[26] = tau.hasSecondaryVertex()?thetaGJ-thetaGJmax:-5.;
+          }
+          if (std::isnan(thetaGJ))
+            thetaGJ = -16.;
+          if (std::isnan(thetaGJmax))
+            thetaGJmax = -11.;
+          mvaInput[26] = tau.hasSecondaryVertex() ? thetaGJ - thetaGJmax : -5.;
 
-         mvaInput[27] = 0;
-         mvaInput[28] = 10.;
-         mvaInput[29] = 10.;
-         if (tau.leadChargedHadrCand().isNonnull()) {
+          mvaInput[27] = 0;
+          mvaInput[28] = 10.;
+          mvaInput[29] = 10.;
+          if (tau.leadChargedHadrCand().isNonnull()) {
             if (tau.leadChargedHadrCand()->bestTrack()) {
-               const float trackdxy = tau.leadChargedHadrCand()->bestTrack()->dxy();
-               const float trackdxy_err = tau.leadChargedHadrCand()->bestTrack()->dxyError();
-               mvaInput[27] = trackdxy>=0.?+1:-1;
-               mvaInput[28] = sqrt(std::abs(trackdxy));
-               mvaInput[29] = std::abs(trackdxy/trackdxy_err);
+              const float trackdxy = tau.leadChargedHadrCand()->bestTrack()->dxy();
+              const float trackdxy_err = tau.leadChargedHadrCand()->bestTrack()->dxyError();
+              mvaInput[27] = trackdxy >= 0. ? +1 : -1;
+              mvaInput[28] = sqrt(std::abs(trackdxy));
+              mvaInput[29] = std::abs(trackdxy / trackdxy_err);
             }
+          }
         }
-      }
         if (mvaOpt == kOldDMwoLT || mvaOpt == kNewDMwoLT) {
           mvaInput[0] = std::log(std::max(1.f, (float)tau.pt()));
           mvaInput[1] = std::abs((float)tau.eta());
