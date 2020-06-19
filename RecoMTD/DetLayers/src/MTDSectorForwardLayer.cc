@@ -57,11 +57,11 @@ MTDSectorForwardLayer::MTDSectorForwardLayer(const vector<const MTDDetSector*>& 
   setSurface(new BoundDisk(pos, rot, new SimpleDiskBounds(theRmin, theRmax, theZmin - zPos, theZmax - zPos)));
 
   LogTrace("MTDDetLayers") << "Constructing MTDSectorForwardLayer: " << basicComponents().size() << " Dets "
-                            << theSectors.size() << " Sectors "
-                            << " Z: " << specificSurface().position().z() << " R1: " << specificSurface().innerRadius()
-                            << " R2: " << specificSurface().outerRadius();
-                            //<< " Per.: " << bf.isRPeriodic()
-                            //<< " Overl.: " << bf.isROverlapping();
+                           << theSectors.size() << " Sectors "
+                           << " Z: " << specificSurface().position().z() << " R1: " << specificSurface().innerRadius()
+                           << " R2: " << specificSurface().outerRadius();
+  //<< " Per.: " << bf.isRPeriodic()
+  //<< " Overl.: " << bf.isROverlapping();
 }
 
 MTDSectorForwardLayer::~MTDSectorForwardLayer() {
@@ -76,14 +76,14 @@ vector<GeometricSearchDet::DetWithState> MTDSectorForwardLayer::compatibleDets(
   vector<DetWithState> result;
 
   LogTrace("MTDDetLayers") << "MTDSectorForwardLayer::compatibleDets,"
-                            << " R1 " << specificSurface().innerRadius() << " R2: " << specificSurface().outerRadius()
-                            << " FTS at R: " << startingState.globalPosition().perp();
+                           << " R1 " << specificSurface().innerRadius() << " R2: " << specificSurface().outerRadius()
+                           << " FTS at R: " << startingState.globalPosition().perp();
 
   pair<bool, TrajectoryStateOnSurface> compat = compatible(startingState, prop, est);
 
   if (!compat.first) {
     LogTrace("MTDDetLayers") << "     MTDSectorForwardLayer::compatibleDets: not compatible"
-                              << " (should not have been selected!)";
+                             << " (should not have been selected!)";
     return result;
   }
 
@@ -96,12 +96,12 @@ vector<GeometricSearchDet::DetWithState> MTDSectorForwardLayer::compatibleDets(
 
 #ifdef EDM_ML_DEBUG
   LogTrace("MTDDetLayers") << "     MTDSectorForwardLayer::fastCompatibleDets, closestSector: " << closest << " R1 "
-                            << closestSector->specificSurface().innerRadius()
-                            << " R2: " << closestSector->specificSurface().outerRadius()
-                            << " FTS R: " << tsos.globalPosition().perp();
+                           << closestSector->specificSurface().innerRadius()
+                           << " R2: " << closestSector->specificSurface().outerRadius()
+                           << " FTS R: " << tsos.globalPosition().perp();
   if (tsos.hasError()) {
     LogTrace("MTDDetLayers") << " sR: " << sqrt(tsos.localError().positionError().yy())
-                              << " sX: " << sqrt(tsos.localError().positionError().xx());
+                             << " sX: " << sqrt(tsos.localError().positionError().xx());
   }
 #endif
 
@@ -134,9 +134,9 @@ vector<GeometricSearchDet::DetWithState> MTDSectorForwardLayer::compatibleDets(
     if (inside) {
 #ifdef EDM_ML_DEBUG
       LogTrace("MTDDetLayers") << "     MTDSectorForwardLayer::fastCompatibleDets:NextSector" << idet << " R1 "
-                                << theSectors[idet]->specificSurface().innerRadius()
-                                << " R2: " << theSectors[idet]->specificSurface().outerRadius() << " FTS R "
-                                << nextPos.perp();
+                               << theSectors[idet]->specificSurface().innerRadius()
+                               << " R2: " << theSectors[idet]->specificSurface().outerRadius() << " FTS R "
+                               << nextPos.perp();
       nnextdet++;
 #endif
       vector<DetWithState> nextRodDets = theSectors[idet]->compatibleDets(tsos, prop, est);
@@ -158,9 +158,9 @@ vector<GeometricSearchDet::DetWithState> MTDSectorForwardLayer::compatibleDets(
     if (inside) {
 #ifdef EDM_ML_DEBUG
       LogTrace("MTDDetLayers") << "     MTDSectorForwardLayer::fastCompatibleDets:PreviousSector:" << idet << " R1 "
-                                << theSectors[idet]->specificSurface().innerRadius()
-                                << " R2: " << theSectors[idet]->specificSurface().outerRadius() << " FTS R "
-                                << nextPos.perp();
+                               << theSectors[idet]->specificSurface().innerRadius()
+                               << " R2: " << theSectors[idet]->specificSurface().outerRadius() << " FTS R "
+                               << nextPos.perp();
       nnextdet++;
 #endif
       vector<DetWithState> nextRodDets = theSectors[idet]->compatibleDets(tsos, prop, est);
@@ -174,15 +174,15 @@ vector<GeometricSearchDet::DetWithState> MTDSectorForwardLayer::compatibleDets(
 
 #ifdef EDM_ML_DEBUG
   LogTrace("MTDDetLayers") << "     MTDSectorForwardLayer::fastCompatibleDets: found: " << result.size()
-                            << " on closest: " << nclosest << " # checked sectors: " << 1 + nnextdet;
+                           << " on closest: " << nclosest << " # checked sectors: " << 1 + nnextdet;
 #endif
 
   return result;
 }
 
 vector<DetGroup> MTDSectorForwardLayer::groupedCompatibleDets(const TrajectoryStateOnSurface& startingState,
-                                                            const Propagator& prop,
-                                                            const MeasurementEstimator& est) const {
+                                                              const Propagator& prop,
+                                                              const MeasurementEstimator& est) const {
   // FIXME should return only 1 group
   edm::LogInfo("MTDDetLayers") << "dummy implementation of MTDSectorForwardLayer::groupedCompatibleDets()";
   return vector<DetGroup>();

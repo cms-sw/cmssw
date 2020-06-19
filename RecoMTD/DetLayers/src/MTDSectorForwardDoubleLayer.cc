@@ -15,7 +15,7 @@
 using namespace std;
 
 MTDSectorForwardDoubleLayer::MTDSectorForwardDoubleLayer(const vector<const MTDDetSector*>& frontSectors,
-                                                     const vector<const MTDDetSector*>& backSectors)
+                                                         const vector<const MTDDetSector*>& backSectors)
     : ForwardDetLayer(true),
       theFrontLayer(frontSectors),
       theBackLayer(backSectors),
@@ -122,8 +122,8 @@ vector<GeometricSearchDet::DetWithState> MTDSectorForwardDoubleLayer::compatible
 }
 
 vector<DetGroup> MTDSectorForwardDoubleLayer::groupedCompatibleDets(const TrajectoryStateOnSurface& startingState,
-                                                                  const Propagator& prop,
-                                                                  const MeasurementEstimator& est) const {
+                                                                    const Propagator& prop,
+                                                                    const MeasurementEstimator& est) const {
   vector<GeometricSearchDet::DetWithState> detWithStates1, detWithStates2;
 
   LogTrace("MTDDetLayers") << "groupedCompatibleDets are currently given always in inside-out order";
