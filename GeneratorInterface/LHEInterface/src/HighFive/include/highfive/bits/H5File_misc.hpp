@@ -18,30 +18,28 @@
 
 namespace HighFive {
 
-namespace {
+  namespace {
 
-// libhdf5 uses a preprocessor trick on their oflags
-// we can not declare them constant without a mapper
-inline int convert_open_flag(int openFlags) {
-    int res_open = 0;
-    if (openFlags & File::ReadOnly)
+    // libhdf5 uses a preprocessor trick on their oflags
+    // we can not declare them constant without a mapper
+    inline int convert_open_flag(int openFlags) {
+      int res_open = 0;
+      if (openFlags & File::ReadOnly)
         res_open |= H5F_ACC_RDONLY;
-    if (openFlags & File::ReadWrite)
+      if (openFlags & File::ReadWrite)
         res_open |= H5F_ACC_RDWR;
-    if (openFlags & File::Create)
+      if (openFlags & File::Create)
         res_open |= H5F_ACC_CREAT;
-    if (openFlags & File::Truncate)
+      if (openFlags & File::Truncate)
         res_open |= H5F_ACC_TRUNC;
-    if (openFlags & File::Excl)
+      if (openFlags & File::Excl)
         res_open |= H5F_ACC_EXCL;
-    return res_open;
-}
-}  // namespace
+      return res_open;
+    }
+  }  // namespace
 
-inline File::File(const std::string& filename, int openFlags,
-                  const Properties& fileAccessProps)
-    : _filename(filename) {
-
+  inline File::File(const std::string& filename, int openFlags, const Properties& fileAccessProps)
+      : _filename(filename) {
     openFlags = convert_open_flag(openFlags);
 
     int createMode = openFlags & (H5F_ACC_TRUNC | H5F_ACC_EXCL);
@@ -52,40 +50,36 @@ inline File::File(const std::string& filename, int openFlags,
     // open is default. It's skipped only if flags require creation
     // If open fails it will try create() if H5F_ACC_CREAT is set
     if (!mustCreate) {
-        // Silence open errors if create is allowed
-        std::unique_ptr<SilenceHDF5> silencer;
-        if (openOrCreate) silencer.reset(new SilenceHDF5());
+      // Silence open errors if create is allowed
+      std::unique_ptr<SilenceHDF5> silencer;
+      if (openOrCreate)
+        silencer.reset(new SilenceHDF5());
 
-        _hid = H5Fopen(_filename.c_str(), openMode, fileAccessProps.getId());
+      _hid = H5Fopen(_filename.c_str(), openMode, fileAccessProps.getId());
 
-        if (isValid()) return;  // Done
+      if (isValid())
+        return;  // Done
 
-        if (openOrCreate) {
-            // Will attempt to create ensuring wont clobber any file
-            createMode = H5F_ACC_EXCL;
-        } else {
-            HDF5ErrMapper::ToException<FileException>(
-                std::string("Unable to open file " + _filename));
-        }
+      if (openOrCreate) {
+        // Will attempt to create ensuring wont clobber any file
+        createMode = H5F_ACC_EXCL;
+      } else {
+        HDF5ErrMapper::ToException<FileException>(std::string("Unable to open file " + _filename));
+      }
     }
 
-    if ((_hid = H5Fcreate(_filename.c_str(), createMode, H5P_DEFAULT,
-                          fileAccessProps.getId())) < 0) {
-        HDF5ErrMapper::ToException<FileException>(
-            std::string("Unable to create file " + _filename));
+    if ((_hid = H5Fcreate(_filename.c_str(), createMode, H5P_DEFAULT, fileAccessProps.getId())) < 0) {
+      HDF5ErrMapper::ToException<FileException>(std::string("Unable to create file " + _filename));
     }
-}
+  }
 
-inline const std::string& File::getName() const {
-    return _filename;
-}
+  inline const std::string& File::getName() const { return _filename; }
 
-inline void File::flush() {
+  inline void File::flush() {
     if (H5Fflush(_hid, H5F_SCOPE_GLOBAL) < 0) {
-        HDF5ErrMapper::ToException<FileException>(
-            std::string("Unable to flush file " + _filename));
+      HDF5ErrMapper::ToException<FileException>(std::string("Unable to flush file " + _filename));
     }
-}
+  }
 }  // namespace HighFive
 
 #endif  // H5FILE_MISC_HPP

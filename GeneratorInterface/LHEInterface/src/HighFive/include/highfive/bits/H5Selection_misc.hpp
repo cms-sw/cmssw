@@ -14,17 +14,16 @@
 
 namespace HighFive {
 
-inline Selection::Selection(const DataSpace& memspace,
-                            const DataSpace& file_space, const DataSet& set)
-    : _mem_space(memspace), _file_space(file_space), _set(set) {}
+  inline Selection::Selection(const DataSpace& memspace, const DataSpace& file_space, const DataSet& set)
+      : _mem_space(memspace), _file_space(file_space), _set(set) {}
 
-inline DataSpace Selection::getSpace() const { return _file_space; }
+  inline DataSpace Selection::getSpace() const { return _file_space; }
 
-inline DataSpace Selection::getMemSpace() const { return _mem_space; }
+  inline DataSpace Selection::getMemSpace() const { return _mem_space; }
 
-inline DataSet& Selection::getDataset() { return _set; }
+  inline DataSet& Selection::getDataset() { return _set; }
 
-inline const DataSet& Selection::getDataset() const { return _set; }
-}
+  inline const DataSet& Selection::getDataset() const { return _set; }
+}  // namespace HighFive
 
-#endif // H5SELECTION_MISC_HPP
+#endif  // H5SELECTION_MISC_HPP

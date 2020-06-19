@@ -13,12 +13,12 @@
 
 namespace HighFive {
 
-template <typename Derivate>
-class NodeTraits;
-template <typename Derivate>
-class AnnotateTraits;
+  template <typename Derivate>
+  class NodeTraits;
+  template <typename Derivate>
+  class AnnotateTraits;
 
-class Object {
+  class Object {
   public:
     // decrease reference counter
     ~Object();
@@ -52,9 +52,9 @@ class Object {
     friend class NodeTraits;
     template <typename Derivate>
     friend class AnnotateTraits;
-};
-}
+  };
+}  // namespace HighFive
 
 #include "bits/H5Object_misc.hpp"
 
-#endif // H5OBJECT_HPP
+#endif  // H5OBJECT_HPP

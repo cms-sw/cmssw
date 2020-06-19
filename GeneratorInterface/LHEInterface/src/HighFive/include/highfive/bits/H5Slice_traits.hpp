@@ -16,16 +16,16 @@
 
 namespace HighFive {
 
-class DataSet;
-class Group;
-class DataSpace;
-class DataType;
-class Selection;
+  class DataSet;
+  class Group;
+  class DataSpace;
+  class DataType;
+  class Selection;
 
-template <typename Derivate>
-class SliceTraits;
+  template <typename Derivate>
+  class SliceTraits;
 
-class ElementSet {
+  class ElementSet {
   public:
     explicit ElementSet(const std::vector<std::size_t>& element_ids);
 
@@ -34,10 +34,10 @@ class ElementSet {
 
     template <typename Derivate>
     friend class SliceTraits;
-};
+  };
 
-template <typename Derivate>
-class SliceTraits {
+  template <typename Derivate>
+  class SliceTraits {
   public:
     ///
     /// select a region in the current Slice/Dataset of 'count' points at
@@ -47,8 +47,7 @@ class SliceTraits {
     ///
     Selection select(const std::vector<size_t>& offset,
                      const std::vector<size_t>& count,
-                     const std::vector<size_t>& stride = std::vector<size_t>())
-        const;
+                     const std::vector<size_t>& stride = std::vector<size_t>()) const;
 
     ///
     /// select a set of columns in the last dimension of this dataset.
@@ -104,7 +103,7 @@ class SliceTraits {
 
   private:
     typedef Derivate derivate_type;
-};
-}
+  };
+}  // namespace HighFive
 
-#endif // H5SLICE_TRAITS_HPP
+#endif  // H5SLICE_TRAITS_HPP

@@ -13,14 +13,14 @@
 
 namespace HighFive {
 
-class Attribute;
-class DataSet;
-class Group;
-class DataSpace;
-class DataType;
+  class Attribute;
+  class DataSet;
+  class Group;
+  class DataSpace;
+  class DataType;
 
-template <typename Derivate>
-class NodeTraits {
+  template <typename Derivate>
+  class NodeTraits {
   public:
     ///
     /// \brief createDataSet Create a new dataset in the current file of
@@ -32,9 +32,9 @@ class NodeTraits {
     /// \param createProps A property list with data set creation properties
     /// \return DataSet Object
     DataSet createDataSet(const std::string& dataset_name,
-                          const DataSpace& space, const DataType& type,
-                          const DataSetCreateProps& createProps =
-                            DataSetCreateProps());
+                          const DataSpace& space,
+                          const DataType& type,
+                          const DataSetCreateProps& createProps = DataSetCreateProps());
 
     ///
     /// \brief createDataSet create a new dataset in the current file with a
@@ -50,8 +50,7 @@ class NodeTraits {
     template <typename Type>
     DataSet createDataSet(const std::string& dataset_name,
                           const DataSpace& space,
-                          const DataSetCreateProps& createProps =
-                            DataSetCreateProps());
+                          const DataSetCreateProps& createProps = DataSetCreateProps());
 
     ///
     /// \brief get an existing dataset in the current file
@@ -99,9 +98,9 @@ class NodeTraits {
 
   private:
     typedef Derivate derivate_type;
-};
-}
+  };
+}  // namespace HighFive
 
 #include "H5Node_traits_misc.hpp"
 
-#endif // H5NODE_TRAITS_HPP
+#endif  // H5NODE_TRAITS_HPP

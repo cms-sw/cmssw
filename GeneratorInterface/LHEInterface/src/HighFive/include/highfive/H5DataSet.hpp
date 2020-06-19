@@ -17,16 +17,14 @@
 
 namespace HighFive {
 
-template <typename Derivate>
-class NodeTraits;
-template <typename Derivate>
-class SliceTraits;
-class DataType;
-class DataSpace;
+  template <typename Derivate>
+  class NodeTraits;
+  template <typename Derivate>
+  class SliceTraits;
+  class DataType;
+  class DataSpace;
 
-class DataSet : public Object,
-                public SliceTraits<DataSet>,
-                public AnnotateTraits<DataSet> {
+  class DataSet : public Object, public SliceTraits<DataSet>, public AnnotateTraits<DataSet> {
   public:
     size_t getStorageSize() const;
 
@@ -55,7 +53,7 @@ class DataSet : public Object,
     /// class
     ///
     size_t getOffset() const;
-    
+
     /// \brief Change the size of the dataset
     ///
     /// This requires that the dataset was created with chunking, and you would
@@ -67,9 +65,9 @@ class DataSet : public Object,
     DataSet();
     template <typename Derivate>
     friend class ::HighFive::NodeTraits;
-};
-}
+  };
+}  // namespace HighFive
 
 #include "bits/H5DataSet_misc.hpp"
 
-#endif // H5DATASET_HPP
+#endif  // H5DATASET_HPP

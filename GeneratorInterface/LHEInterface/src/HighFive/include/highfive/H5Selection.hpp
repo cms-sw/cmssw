@@ -16,15 +16,15 @@
 
 namespace HighFive {
 
-template <typename Derivate>
-class SliceTraits;
+  template <typename Derivate>
+  class SliceTraits;
 
-///
-/// \brief Selection: represent a view on a slice/part of a dataset
-///
-/// A Selection is valid only if its parent dataset is valid
-///
-class Selection : public SliceTraits<Selection> {
+  ///
+  /// \brief Selection: represent a view on a slice/part of a dataset
+  ///
+  /// A Selection is valid only if its parent dataset is valid
+  ///
+  class Selection : public SliceTraits<Selection> {
   public:
     ///
     /// \brief getSpace
@@ -47,8 +47,7 @@ class Selection : public SliceTraits<Selection> {
     const DataSet& getDataset() const;
 
   private:
-    Selection(const DataSpace& memspace, const DataSpace& file_space,
-              const DataSet& set);
+    Selection(const DataSpace& memspace, const DataSpace& file_space, const DataSet& set);
 
     DataSpace _mem_space, _file_space;
     DataSet _set;
@@ -56,9 +55,9 @@ class Selection : public SliceTraits<Selection> {
     template <typename Derivate>
     friend class ::HighFive::SliceTraits;
     // absolute namespace naming due to GCC bug 52625
-};
-}
+  };
+}  // namespace HighFive
 
 #include "bits/H5Selection_misc.hpp"
 
-#endif // H5SELECTION_HPP
+#endif  // H5SELECTION_HPP

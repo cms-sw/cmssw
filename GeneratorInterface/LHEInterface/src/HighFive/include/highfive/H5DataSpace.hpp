@@ -21,19 +21,18 @@
 
 namespace HighFive {
 
-class File;
-class DataSet;
+  class File;
+  class DataSet;
 
-class DataSpace : public Object {
+  class DataSpace : public Object {
   public:
-
     static const size_t UNLIMITED = SIZE_MAX;
 
     /// dataspace type
     enum DataspaceType {
-        datascape_scalar,
-        datascape_null
-        // simple dataspace are handle directly from their dimensions
+      datascape_scalar,
+      datascape_null
+      // simple dataspace are handle directly from their dimensions
     };
 
     /// create a dataspace of N-dimensions
@@ -50,8 +49,7 @@ class DataSpace : public Object {
     /// \brief Create a resizable N-dimensional dataspace
     /// \params dims Initial size of dataspace
     /// \params maxdims Maximum size of the dataspace
-    explicit DataSpace(const std::vector<size_t>& dims,
-                       const std::vector<size_t>& maxdims);
+    explicit DataSpace(const std::vector<size_t>& dims, const std::vector<size_t>& maxdims);
 
     ///
     /// \brief DataSpace create a dataspace of a single dimension and of size
@@ -99,7 +97,6 @@ class DataSpace : public Object {
     template <typename Value>
     static DataSpace From(const std::vector<Value>& vec);
 
-
 #ifdef H5_USE_BOOST
     template <typename Value, std::size_t Dims>
     static DataSpace From(const boost::multi_array<Value, Dims>& container);
@@ -114,9 +111,9 @@ class DataSpace : public Object {
     friend class Attribute;
     friend class File;
     friend class DataSet;
-};
-}
+  };
+}  // namespace HighFive
 
 #include "bits/H5Dataspace_misc.hpp"
 
-#endif // H5DATASPACE_HPP
+#endif  // H5DATASPACE_HPP
