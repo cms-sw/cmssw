@@ -12,7 +12,7 @@ class MTDSectorForwardDoubleLayer : public ForwardDetLayer {
 public:
   /// Constructor, takes ownership of pointers
   MTDSectorForwardDoubleLayer(const std::vector<const MTDDetSector*>& frontSectors,
-                            const std::vector<const MTDDetSector*>& backSectors);
+                              const std::vector<const MTDDetSector*>& backSectors);
 
   ~MTDSectorForwardDoubleLayer() override {}
 

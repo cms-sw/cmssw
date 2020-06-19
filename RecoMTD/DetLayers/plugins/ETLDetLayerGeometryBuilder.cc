@@ -6,6 +6,7 @@
 #include <RecoMTD/DetLayers/interface/MTDDetRing.h>
 #include <DataFormats/ForwardDetId/interface/ETLDetId.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
+#include <Geometry/MTDCommonData/interface/MTDTopologyMode.h>
 
 #include <Utilities/General/interface/precomputed_value_sort.h>
 #include <Geometry/CommonDetUnit/interface/DetSorting.h>
@@ -15,19 +16,22 @@
 
 using namespace std;
 
-pair<vector<DetLayer*>, vector<DetLayer*> > ETLDetLayerGeometryBuilder::buildLayers(const MTDGeometry& geo) {
+pair<vector<DetLayer*>, vector<DetLayer*> > ETLDetLayerGeometryBuilder::buildLayers(const MTDGeometry& geo,
+                                                                                    const int mtdTopologyMode) {
   vector<DetLayer*> result[2];  // one for each endcap
 
-  for (unsigned endcap = 0; endcap < 2; ++endcap) {
-    // there is only one layer for ETL right now, maybe more later
-    for (unsigned layer = 0; layer <= 0; ++layer) {
-      vector<unsigned> rings;
-      for (unsigned ring = 1; ring <= 12; ++ring) {
-        rings.push_back(ring);
+  if (mtdTopologyMode <= static_cast<int>(MTDTopologyMode::Mode::barphiflat)) {
+    for (unsigned endcap = 0; endcap < 2; ++endcap) {
+      // there is only one layer for ETL right now, maybe more later
+      for (unsigned layer = 0; layer <= 0; ++layer) {
+        vector<unsigned> rings;
+        for (unsigned ring = 1; ring <= 12; ++ring) {
+          rings.push_back(ring);
+        }
+        MTDRingForwardDoubleLayer* thelayer = buildLayer(endcap, layer, rings, geo);
+        if (thelayer)
+          result[endcap].push_back(thelayer);
       }
-      MTDRingForwardDoubleLayer* thelayer = buildLayer(endcap, layer, rings, geo);
-      if (thelayer)
-        result[endcap].push_back(thelayer);
     }
   }
   pair<vector<DetLayer*>, vector<DetLayer*> > res_pair(result[0], result[1]);

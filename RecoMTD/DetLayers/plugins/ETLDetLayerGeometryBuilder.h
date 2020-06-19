@@ -19,7 +19,8 @@ class ETLDetLayerGeometryBuilder {
 public:
   /// return.first=forward (+Z), return.second=backward (-Z)
   /// both vectors are sorted inside-out
-  static std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> > buildLayers(const MTDGeometry& geo);
+  static std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> > buildLayers(const MTDGeometry& geo,
+                                                                                const int mtdTopologyMode);
 
 private:
   // Disable constructor - only static access is allowed.
