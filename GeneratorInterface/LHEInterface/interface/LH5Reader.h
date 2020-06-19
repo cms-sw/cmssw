@@ -6,7 +6,6 @@
 #include <memory>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "GeneratorInterface/LHEInterface/code/HighFive/include/highfive/H5File.hpp"
 #include "GeneratorInterface/LHEInterface/interface/lheh5.h"
 
 namespace lhef {

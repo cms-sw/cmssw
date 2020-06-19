@@ -8,8 +8,14 @@
 
 #include <unistd.h>
 
+<<<<<<< HEAD
 #include "highfive/H5File.hpp"
 #include "highfive/H5DataSet.hpp"
+=======
+#include "GeneratorInterface/LHEInterface/src/HighFive/include/highfive/H5File.hpp"
+#include "GeneratorInterface/LHEInterface/src/HighFive/include/highfive/H5DataSet.hpp"
+using namespace HighFive;
+>>>>>>> changes to src after moving headers
 
 namespace lheh5 {
 
