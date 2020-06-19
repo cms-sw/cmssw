@@ -148,7 +148,8 @@ std::pair<double, double> HGCalWaferType::intersection(
     dist[i] = ((xx[i] - xpos) * (xx[i] - xpos)) + ((yy[i] - ypos) * (yy[i] - ypos));
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalWaferType: InterSection " << dist[0] << ":" << xx[0] << ":" << yy[0] << " vs " << dist[1] << ":" << xx[1] << ":" << yy[1];
+  edm::LogVerbatim("HGCalGeom") << "HGCalWaferType: InterSection " << dist[0] << ":" << xx[0] << ":" << yy[0] << " vs "
+                                << dist[1] << ":" << xx[1] << ":" << yy[1];
 #endif
   if (dist[0] > dist[1])
     return std::make_pair(xx[1], yy[1]);
