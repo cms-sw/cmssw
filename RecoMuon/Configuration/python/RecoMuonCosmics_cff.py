@@ -73,9 +73,9 @@ muontrackingforcosmics = cms.Sequence(muontrackingforcosmicsTask)
 from RecoMuon.MuonIsolationProducers.muIsolation_cff import *
 # muisodeposits based on "muons"
 # we are using copy extractors now
-muIsoDepositTk.inputTags = cms.VInputTag(cms.InputTag('muons:tracker'))
-muIsoDepositJets.inputTags = cms.VInputTag(cms.InputTag('muons:jets'))
-muIsoDepositCalByAssociatorTowers.inputTags = cms.VInputTag(cms.InputTag('muons:ecal'), cms.InputTag('muons:hcal'), cms.InputTag('muons:ho'))
+muIsoDepositTk.inputTags = ['muons:tracker']
+muIsoDepositJets.inputTags = ['muons:jets']
+muIsoDepositCalByAssociatorTowers.inputTags = ['muons:ecal', 'muons:hcal', 'muons:ho']
 
 # TeV refinement
 from RecoMuon.GlobalMuonProducer.tevMuons_cfi import *
