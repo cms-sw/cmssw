@@ -123,7 +123,7 @@ namespace reco {
                  mvaOpt_ == kDBoldDMwLTwGJ || mvaOpt_ == kDBnewDMwLTwGJ)
           mvaInput_ = new float[23];
         else if (mvaOpt_ == kDBnewDMwLTwGJPhase2)
-           mvaInput_ = new float[30];
+          mvaInput_ = new float[30];
         else
           assert(0);
 
