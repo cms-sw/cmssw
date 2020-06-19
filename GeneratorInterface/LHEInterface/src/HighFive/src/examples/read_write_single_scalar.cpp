@@ -21,35 +21,33 @@ const std::string DATASET_NAME("single_scalar");
 // which contains only the perfect integer number "42"
 //
 int main(void) {
-    using namespace HighFive;
-    try {
-        // Create a new file using the default property lists.
-        File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+  using namespace HighFive;
+  try {
+    // Create a new file using the default property lists.
+    File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
-        int perfect_number = 42;
+    int perfect_number = 42;
 
-        // Create the dataset
-        DataSet dataset = file.createDataSet<double>(
-            DATASET_NAME, DataSpace::From(perfect_number));
+    // Create the dataset
+    DataSet dataset = file.createDataSet<double>(DATASET_NAME, DataSpace::From(perfect_number));
 
-        // write it
-        dataset.write(perfect_number);
+    // write it
+    dataset.write(perfect_number);
 
-        // flush everything
-        file.flush();
+    // flush everything
+    file.flush();
 
-        // let's read it back
-        int potentially_perfect_number;
+    // let's read it back
+    int potentially_perfect_number;
 
-        dataset.read(potentially_perfect_number);
+    dataset.read(potentially_perfect_number);
 
-        std::cout << "perfect number: " << potentially_perfect_number
-                  << std::endl;
+    std::cout << "perfect number: " << potentially_perfect_number << std::endl;
 
-    } catch (Exception& err) {
-        // catch and print any HDF5 error
-        std::cerr << err.what() << std::endl;
-    }
+  } catch (Exception& err) {
+    // catch and print any HDF5 error
+    std::cerr << err.what() << std::endl;
+  }
 
-    return 0; // successfully terminated
+  return 0;  // successfully terminated
 }

@@ -22,40 +22,38 @@ const std::string DATASET_NAME("story");
 // create a dataset from a vector of string
 // read it back and print it
 int main(void) {
+  try {
+    // Create a new file using the default property lists.
+    File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
-    try {
-        // Create a new file using the default property lists.
-        File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+    std::vector<std::string> string_list;
+    string_list.push_back("Hello World !");
+    string_list.push_back(
+        "This string list is mapped to a dataset of "
+        "variable length string");
+    string_list.push_back("Encoding is done in UTF-8 - 你好 - Здравствуйте!");
+    string_list.push_back("May the force be with you");
+    string_list.push_back("Enjoy !");
 
-        std::vector<std::string> string_list;
-        string_list.push_back("Hello World !");
-        string_list.push_back("This string list is mapped to a dataset of "
-                              "variable length string");
-        string_list.push_back(
-            "Encoding is done in UTF-8 - 你好 - Здравствуйте!");
-        string_list.push_back("May the force be with you");
-        string_list.push_back("Enjoy !");
+    // create a dataset ready to contains strings of the size of the vector
+    // string_list
+    DataSet dataset = file.createDataSet<std::string>(DATASET_NAME, DataSpace::From(string_list));
 
-        // create a dataset ready to contains strings of the size of the vector
-        // string_list
-        DataSet dataset = file.createDataSet<std::string>(
-            DATASET_NAME, DataSpace::From(string_list));
+    // let's write our vector of  string
+    dataset.write(string_list);
 
-        // let's write our vector of  string
-        dataset.write(string_list);
+    // now we read it back
+    std::vector<std::string> result_string_list;
+    dataset.read(result_string_list);
 
-        // now we read it back
-        std::vector<std::string> result_string_list;
-        dataset.read(result_string_list);
-
-        for (size_t i = 0; i < result_string_list.size(); ++i) {
-            std::cout << ":" << i << " " << result_string_list[i] << "\n";
-        }
-
-    } catch (Exception& err) {
-        // catch and print any HDF5 error
-        std::cerr << err.what() << std::endl;
+    for (size_t i = 0; i < result_string_list.size(); ++i) {
+      std::cout << ":" << i << " " << result_string_list[i] << "\n";
     }
 
-    return 0; // successfully terminated
+  } catch (Exception& err) {
+    // catch and print any HDF5 error
+    std::cerr << err.what() << std::endl;
+  }
+
+  return 0;  // successfully terminated
 }

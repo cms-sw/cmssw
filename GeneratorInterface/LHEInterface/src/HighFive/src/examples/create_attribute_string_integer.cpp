@@ -26,49 +26,43 @@ const std::string ATTRIBUTE_NAME_VERSION("version_string");
 // create a dataset from a vector of string
 // read it back and print it
 int main(void) {
+  try {
+    // Create a new file using the default property lists.
+    File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
-    try {
-        // Create a new file using the default property lists.
-        File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+    // Create a dummy dataset of one single integer
+    DataSet dataset = file.createDataSet(DATASET_NAME, DataSpace(1), AtomicType<int>());
 
-        // Create a dummy dataset of one single integer
-        DataSet dataset =
-            file.createDataSet(DATASET_NAME, DataSpace(1), AtomicType<int>());
+    // Now let's add a attribute on this dataset
+    // This attribute will be named "note"
+    // and have the following content
+    std::string string_list("very important Dataset !");
 
-        // Now let's add a attribute on this dataset
-        // This attribute will be named "note"
-        // and have the following content
-        std::string string_list("very important Dataset !");
+    Attribute a = dataset.createAttribute<std::string>(ATTRIBUTE_NAME_NOTE, DataSpace::From(string_list));
+    a.write(string_list);
 
-        Attribute a = dataset.createAttribute<std::string>(
-            ATTRIBUTE_NAME_NOTE, DataSpace::From(string_list));
-        a.write(string_list);
+    // We also add a "version" attribute
+    // that will be an array 1x2 of integer
+    std::vector<int> version;
+    version.push_back(1);
+    version.push_back(0);  // version 1.0
 
-        // We also add a "version" attribute
-        // that will be an array 1x2 of integer
-        std::vector<int> version;
-        version.push_back(1);
-        version.push_back(0); // version 1.0
+    Attribute v = dataset.createAttribute<int>(ATTRIBUTE_NAME_VERSION, DataSpace::From(version));
+    v.write(version);
 
-        Attribute v = dataset.createAttribute<int>(ATTRIBUTE_NAME_VERSION,
-                                                   DataSpace::From(version));
-        v.write(version);
+    // Ok all attributes are now written
 
-        // Ok all attributes are now written
-
-        // let's list the keys of all attributes now
-        std::vector<std::string> all_attributes_keys =
-            dataset.listAttributeNames();
-        for (std::vector<std::string>::const_iterator it =
-                 all_attributes_keys.begin();
-             it < all_attributes_keys.end(); ++it) {
-            std::cout << "attribute: " << *it << std::endl;
-        }
-
-    } catch (Exception& err) {
-        // catch and print any HDF5 error
-        std::cerr << err.what() << std::endl;
+    // let's list the keys of all attributes now
+    std::vector<std::string> all_attributes_keys = dataset.listAttributeNames();
+    for (std::vector<std::string>::const_iterator it = all_attributes_keys.begin(); it < all_attributes_keys.end();
+         ++it) {
+      std::cout << "attribute: " << *it << std::endl;
     }
 
-    return 0; // successfully terminated
+  } catch (Exception& err) {
+    // catch and print any HDF5 error
+    std::cerr << err.what() << std::endl;
+  }
+
+  return 0;  // successfully terminated
 }
