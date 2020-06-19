@@ -34,9 +34,8 @@ using namespace lhef;
 
 LH5Source::LH5Source(const edm::ParameterSet& params, const edm::InputSourceDescription& desc)
     : ProducerSourceFromFiles(params, desc, false),
-//      reader_(new LH5Reader(params)),
-      reader_(new LH5Reader(fileNames(), params.getUntrackedParameter<unsigned int>("skipEvents", 0),
-                                         params.getUntrackedParameter<int>("limitEvents", -1) )),
+      //      reader_(new LH5Reader(params)),
+      reader_(new LH5Reader(fileNames(0), params.getUntrackedParameter<unsigned int>("skipEvents", 0))),
       lheProvenanceHelper_(
           edm::TypeID(typeid(LHEEventProduct)), edm::TypeID(typeid(LHERunInfoProduct)), productRegistryUpdate()),
       phid_() {
@@ -71,7 +70,6 @@ void LH5Source::nextEvent() {
   if (!partonLevel_) {
     return;
   }
-
 
   auto runInfoThis = partonLevel_->getRunInfo();
   if (runInfoThis != runInfoLast_) {
@@ -192,7 +190,7 @@ void LH5Source::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.setComment("A source which reads LHE files.");
   edm::ProducerSourceFromFiles::fillDescription(desc);
   desc.addUntracked<unsigned int>("skipEvents", 0U)->setComment("Skip the first 'skipEvents' events.");
-//  desc.addUntracked<int>("limitEvents", -1)->setComment("Limit the number of read events.");
+  //  desc.addUntracked<int>("limitEvents", -1)->setComment("Limit the number of read events.");
   descriptions.add("source", desc);
 }
 
