@@ -18,7 +18,7 @@ namespace edm {
     BeginProcessBlock,
     EndProcessBlock,
     NumberOfTransitions,
-    NumberOfEventSetupTransitions = 5
+    NumberOfEventSetupTransitions = BeginProcessBlock
   };
 
   //Useful for converting EndBranchType to BranchType
