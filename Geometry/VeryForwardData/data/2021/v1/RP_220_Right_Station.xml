@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
-  <ConstantsSection label="RP_220_Right_Station.xml">
+  <ConstantsSection label="RP_220_Right_Station.xml" eval="true">
     <Constant name="RP_220_Right_Station_Length" value="6588*mm"/>
     <!--Positions calculated from the wall closer to IP point-->
     <Constant name="RP_220_Right_Prim_Vert_z" value="608*mm"/>
