@@ -865,7 +865,7 @@ caloDict = {
             'from Geometry.EcalMapping.EcalMapping_cfi import *',
             'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
         ],
-        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, phase2_hgcalV9, phase2_hgcalV10, phase2_hgcalV11, hcalHardcodeConditions, hcalSkipPacker",
+        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, phase2_hgcalV9, phase2_hgcalV10, phase2_hgcalV11, phase2_hgcalV12, hcalHardcodeConditions, hcalSkipPacker",
     },
     "C12" : {
         1 : [
@@ -950,7 +950,7 @@ caloDict = {
             'from Geometry.EcalMapping.EcalMapping_cfi import *',
             'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
         ],
-        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, phase2_hgcalV9, phase2_hgcalV10, phase2_hgcalV11, phase2_hfnose, hcalHardcodeConditions, hcalSkipPacker",
+        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, phase2_hgcalV9, phase2_hgcalV10, phase2_hgcalV11, phase2_hgcalV12, phase2_hfnose, hcalHardcodeConditions, hcalSkipPacker",
     },
 
 }
