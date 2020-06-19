@@ -99,7 +99,7 @@ namespace edm {
         os << "endJob";
         break;
       case GlobalContext::Transition::kWriteProcessBlock:
-        os << "write ProcessBlock ";
+        os << "write ProcessBlock";
         break;
       case GlobalContext::Transition::kWriteRun:
         os << "write Run " << RunID(gc.luminosityBlockID().run());
