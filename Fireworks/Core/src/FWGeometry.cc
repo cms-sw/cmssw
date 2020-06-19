@@ -1,6 +1,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TEveGeoNode.h"
+#include "TEveGeoShape.h"
 #include "TPRegexp.h"
 #include "TSystem.h"
 #include "TGeoArb8.h"
