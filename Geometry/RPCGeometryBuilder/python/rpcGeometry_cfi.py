@@ -1,5 +1,5 @@
-from Geometry.RPCGeometryBuilder.RPCGeometryESModule_cfi import RPCGeometryESModule as RPCGeometryESModuleDefault
-RPCGeometryESModule = RPCGeometryESModuleDefault.clone()
+from Geometry.RPCGeometryBuilder.RPCGeometryESModule_cfi import RPCGeometryESModule as _RPCGeometryESModuleDefault
+RPCGeometryESModule = _RPCGeometryESModuleDefault.clone()
 
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 
