@@ -23,7 +23,6 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronMomentumCorrector.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronTools.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
 #include "CommonTools/Egamma/interface/ConversionTools.h"
 
@@ -545,21 +544,10 @@ reco::GsfElectronCollection GsfElectronAlgo::completeElectrons(edm::Event const&
   MultiTrajectoryStateTransform mtsTransform(&trackerGeometry, &magneticField);
   GsfConstraintAtVertex constraintAtVtx(eventSetup);
 
-  auto ctfTrackVariables = egamma::soa::makeEtaPhiTableLazy(*eventData.currentCtfTracks);
-
   const GsfElectronCoreCollection* coreCollection = eventData.coreElectrons.product();
   for (unsigned int i = 0; i < coreCollection->size(); ++i) {
     // check there is no existing electron with this core
     const GsfElectronCoreRef coreRef = edm::Ref<GsfElectronCoreCollection>(eventData.coreElectrons, i);
-    bool coreFound = false;
-    for (auto const& ele : electrons) {
-      if (ele.core() == coreRef) {
-        coreFound = true;
-        break;
-      }
-    }
-    if (coreFound)
-      continue;
 
     // check there is a super-cluster
     if (coreRef->superCluster().isNull())
@@ -571,13 +559,6 @@ reco::GsfElectronCollection GsfElectronAlgo::completeElectrons(edm::Event const&
     // calculate and check Trajectory StatesOnSurface....
     if (!electronData.calculateTSOS(mtsTransform, constraintAtVtx))
       continue;
-
-    // eventually check ctf track
-    if (cfg_.strategy.ctfTracksCheck && electronData.ctfTrackRef.isNull()) {
-      electronData.ctfTrackRef =
-          egamma::getClosestCtfToGsf(electronData.gsfTrackRef, eventData.currentCtfTracks, ctfTrackVariables.value())
-              .first;
-    }
 
     createElectron(
         electrons, electronData, eventData, caloTopology, caloGeometry, mtsTransform, magneticFieldInTesla, hoc);
