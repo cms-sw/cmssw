@@ -28,6 +28,7 @@ Implementation:
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -54,6 +55,7 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct> > hepmcSrc_;
   edm::ESHandle<ParticleDataTable> pdt;
+  edm::ESGetToken<ParticleDataTable, edm::DefaultRecord> pdtToken_;
 
   double ptCut_;
   bool doParticleInfo_;
@@ -73,6 +75,7 @@ private:
 GenHIEventProducer::GenHIEventProducer(const edm::ParameterSet& iConfig) {
   produces<edm::GenHIEvent>();
   hepmcSrc_ = consumes<CrossingFrame<edm::HepMCProduct> >(iConfig.getParameter<edm::InputTag>("src"));
+  pdtToken_ = esConsumes<ParticleDataTable, edm::DefaultRecord>();
   doParticleInfo_ = iConfig.getUntrackedParameter<bool>("doParticleInfo", false);
   if (doParticleInfo_) {
     ptCut_ = iConfig.getParameter<double>("ptCut");
@@ -92,8 +95,9 @@ GenHIEventProducer::~GenHIEventProducer() {
 void GenHIEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  if (!(pdt.isValid()))
-    iSetup.getData(pdt);
+  if (!(pdt.isValid())) {
+    pdt = iSetup.getHandle(pdtToken_);
+  }
 
   double b = -1;
   int npart = -1;
