@@ -292,8 +292,6 @@ def HGCal_setRealisticNoiseSci(process,byDose=True,byDoseAlgo=0,byDoseMap=cms.st
         )
     return process
 
-
-
 def HGCal_disableNoise(process):
     process.HGCAL_noise_fC = cms.PSet(
         scaleByDose = cms.bool(False),
