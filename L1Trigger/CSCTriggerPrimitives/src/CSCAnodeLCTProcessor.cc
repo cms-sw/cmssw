@@ -295,6 +295,11 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
   // Take the best MAX_CLCTS_PER_PROCESSOR candidates per bx.
   int ALCTIndex_[CSCConstants::MAX_ALCT_TBINS] = {};
 
+  // define a new pattern map
+  // for each key half strip, and for each pattern, store the 2D collection of fired comparator digis
+  std::map<int, std::map<int, CSCCLCTDigi::ComparatorContainer>> hits_in_patterns;
+  hits_in_patterns.clear();
+
   // Only do the rest of the processing if chamber is not empty.
   // Stop drift_delay bx's short of fifo_tbins since at later bx's we will
   // not have a full set of hits to start pattern search anyway.
@@ -307,7 +312,7 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
         if (preTrigger(i_wire, start_bx)) {
           if (infoV > 2)
             showPatterns(i_wire);
-          if (patternDetection(i_wire)) {
+          if (patternDetection(i_wire, hits_in_patterns)) {
             trigger = true;
             int ghost_cleared[2] = {0, 0};
             ghostCancellationLogicOneWire(i_wire, ghost_cleared);
@@ -320,7 +325,17 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
             //acceleration mode
             if (quality[i_wire][0] > 0 and bx < CSCConstants::MAX_ALCT_TBINS) {
               int valid = (ghost_cleared[0] == 0) ? 1 : 0;  //cancelled, valid=0, otherwise it is 1
-              const auto& newALCT(CSCALCTDigi(valid, quality[i_wire][0], 1, 0, i_wire, bx));
+              CSCALCTDigi newALCT(valid, quality[i_wire][0], 1, 0, i_wire, bx);
+
+              // get the comparator hits for this pattern
+              auto wireHits = hits_in_patterns[i_wire][0];
+
+              // purge the wire digi collection
+              cleanWireContainer(wireHits);
+
+              // set the hit collection
+              newALCT.setHits(wireHits);
+
               lct_list.push_back(newALCT);
               ALCTContainer_[bx][ALCTIndex_[bx]] = newALCT;
               ALCTIndex_[bx]++;
@@ -331,7 +346,18 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
             //collision mode
             if (quality[i_wire][1] > 0 and bx < CSCConstants::MAX_ALCT_TBINS) {
               int valid = (ghost_cleared[1] == 0) ? 1 : 0;  //cancelled, valid=0, otherwise it is 1
-              const auto& newALCT(CSCALCTDigi(valid, quality[i_wire][1], 0, quality[i_wire][2], i_wire, bx));
+
+              CSCALCTDigi newALCT(valid, quality[i_wire][1], 0, quality[i_wire][2], i_wire, bx);
+
+              // get the comparator hits for this pattern
+              auto wireHits = hits_in_patterns[i_wire][1];
+
+              // purge the wire digi collection
+              cleanWireContainer(wireHits);
+
+              // set the hit collection
+              newALCT.setHits(wireHits);
+
               lct_list.push_back(newALCT);
               ALCTContainer_[bx][ALCTIndex_[bx]] = newALCT;
               ALCTIndex_[bx]++;
@@ -589,7 +615,8 @@ bool CSCAnodeLCTProcessor::preTrigger(const int key_wire, const int start_bx) {
   return false;
 }
 
-bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
+bool CSCAnodeLCTProcessor::patternDetection(
+    const int key_wire, std::map<int, std::map<int, CSCALCTDigi::WireContainer>>& hits_in_patterns) {
   bool trigger = false;
   bool hit_layer[CSCConstants::NUM_LAYERS];
   unsigned int temp_quality;
@@ -609,6 +636,13 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
     for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++)
       hit_layer[i_layer] = false;
 
+    // clear a single pattern!
+    CSCALCTDigi::WireContainer hits_single_pattern;
+    hits_single_pattern.resize(CSCConstants::NUM_LAYERS);
+    for (auto& p : hits_single_pattern) {
+      p.resize(CSCConstants::ALCT_PATTERN_WIDTH, INVALID_WIRE);
+    }
+
     double num_pattern_hits = 0., times_sum = 0.;
     std::multiset<int> mset_for_median;
     mset_for_median.clear();
@@ -623,6 +657,9 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
             // Wait a drift_delay time later and look for layers hit in
             // the pattern.
             if (((pulse[i_layer][this_wire] >> (first_bx[key_wire] + drift_delay)) & 1) == 1) {
+              // store hits in the temporary pattern vector
+              hits_single_pattern[i_layer][i_wire] = this_wire;
+
               // If layer has never had a hit before, then increment number
               // of layer hits.
               if (!hit_layer[i_layer]) {
@@ -683,8 +720,10 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
 #endif
     }
 
+    // save the pattern information when a trigger was formed!
     if (temp_quality >= pattern_thresh[i_pattern]) {
       trigger = true;
+      hits_in_patterns[key_wire][i_pattern] = hits_single_pattern;
 
       // Quality definition changed on 22 June 2007: it no longer depends
       // on pattern_thresh.
@@ -1356,4 +1395,12 @@ int CSCAnodeLCTProcessor::getTempALCTQuality(int temp_quality) const {
     Q = 0;  // quality code 0 is valid!
 
   return Q;
+}
+
+void CSCAnodeLCTProcessor::cleanWireContainer(CSCALCTDigi::WireContainer& wireHits) const {
+  for (auto& p : wireHits) {
+    p.erase(
+        std::remove_if(p.begin(), p.end(), [](unsigned i) -> bool { return i == CSCAnodeLCTProcessor::INVALID_WIRE; }),
+        p.end());
+  }
 }
