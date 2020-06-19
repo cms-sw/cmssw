@@ -1,6 +1,10 @@
 #ifndef RecoLocalCalo_HcalRecAlgos_MahiFit_HH
 #define RecoLocalCalo_HcalRecAlgos_MahiFit_HH
 
+#include <climits>
+#include <utility>
+#include <memory>
+
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
@@ -12,11 +16,9 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/PulseShapeFunctor.h"
 
-#include <Math/Functor.h>
-
 struct MahiNnlsWorkspace {
   unsigned int nPulseTot;
-  unsigned int tsSize;
+  unsigned int tsSize = 0U;
   unsigned int tsOffset;
   int bxOffset;
   int maxoffset;
@@ -116,20 +118,22 @@ public:
 
   void doFit(std::array<float, 3>& correctedOutput, const int nbx) const;
 
-  void setPulseShapeTemplate(const HcalPulseShapes::Shape& ps,
+  void setPulseShapeTemplate(int pulseShapeId,
+                             const HcalPulseShapes& ps,
                              bool hasTimeInfo,
                              const HcalTimeSlew* hcalTimeSlewDelay,
                              unsigned int nSamples);
-  void resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps, bool hasTimeInfo, unsigned int nSamples);
 
   typedef BXVector::Index Index;
-  const HcalPulseShapes::Shape* currentPulseShape_ = nullptr;
   const HcalTimeSlew* hcalTimeSlewDelay_ = nullptr;
 
 private:
+  typedef std::pair<int, std::shared_ptr<FitterFuncs::PulseShapeFunctor> > ShapeWithId;
+
   const float minimize() const;
   void onePulseMinimize() const;
   void updateCov(const SampleMatrix& invCovMat) const;
+  void resetPulseShapeTemplate(int pulseShapeId, const HcalPulseShapes& ps, unsigned int nSamples);
   void updatePulseShape(const float itQ,
                         FullSampleVector& pulseShape,
                         FullSampleVector& pulseDeriv,
@@ -181,8 +185,10 @@ private:
   int bxOffsetConf_;
 
   //for pulse shapes
-  int cntsetPulseShape_;
-  std::unique_ptr<FitterFuncs::PulseShapeFunctor> psfPtr_;
-  std::unique_ptr<ROOT::Math::Functor> pfunctor_;
+  int currentPulseShapeId_ = INT_MIN;
+  int cntsetPulseShape_ = 0;
+  FitterFuncs::PulseShapeFunctor* psfPtr_ = nullptr;
+  std::vector<ShapeWithId> knownPulseShapes_;
 };
+
 #endif
