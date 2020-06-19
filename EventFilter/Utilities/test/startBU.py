@@ -123,7 +123,7 @@ process.a = cms.EDAnalyzer("ExceptionGenerator",
 process.s = cms.EDProducer("DaqFakeReader",
                            meanSize = cms.untracked.uint32(options.fedMeanSize),
                            width = cms.untracked.uint32(int(math.ceil(options.fedMeanSize/2.))),
-                           #tcdsFEDID = cms.untracked.uint32(1024),
+                           tcdsFEDID = cms.untracked.uint32(1024),
                            injectErrPpm = cms.untracked.uint32(0)
                            )
 
