@@ -159,7 +159,6 @@ private:
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
-
 #include <algorithm>
 
 using namespace edm;
