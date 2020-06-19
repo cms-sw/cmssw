@@ -15,18 +15,16 @@
 
 namespace HighFive {
 
-class File;
+  class File;
 
-class Group : public Object,
-              public NodeTraits<Group>,
-              public AnnotateTraits<Group> {
+  class Group : public Object, public NodeTraits<Group>, public AnnotateTraits<Group> {
   public:
     Group();
 
     friend class File;
-};
-}
+  };
+}  // namespace HighFive
 
 #include "bits/H5Group_misc.hpp"
 
-#endif // HIGHFIVE_H5GROUP_HPP
+#endif  // HIGHFIVE_H5GROUP_HPP

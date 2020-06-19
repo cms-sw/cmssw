@@ -19,13 +19,11 @@
 
 namespace HighFive {
 
-///
-/// \brief File class
-///
-class File : public Object,
-             public NodeTraits<File>,
-             public AnnotateTraits<File> {
- public:
+  ///
+  /// \brief File class
+  ///
+  class File : public Object, public NodeTraits<File>, public AnnotateTraits<File> {
+  public:
     /// Open flag: Read only access
     static const int ReadOnly = 0x00;
     /// Open flag: Read Write access
@@ -43,14 +41,14 @@ class File : public Object,
     /// Derived open flag: Opens RW or exclusivelly creates
     static const int OpenOrCreate = ReadWrite | Create;
 
-
     ///
     /// \brief File
     /// \param filename: filepath of the HDF5 file
     /// \param openFlags: Open mode / flags ( ReadOnly, ReadWrite)
     ///
     /// Open or create a new HDF5 file
-    explicit File(const std::string& filename, int openFlags = ReadOnly,
+    explicit File(const std::string& filename,
+                  int openFlags = ReadOnly,
                   const Properties& fileAccessProps = FileDriver());
 
     ///
@@ -65,12 +63,11 @@ class File : public Object,
     ///
     void flush();
 
- private:
+  private:
     std::string _filename;
-};
+  };
 }  // namespace HighFive
 
 #include "bits/H5File_misc.hpp"
 
 #endif  // H5FILE_HPP
-

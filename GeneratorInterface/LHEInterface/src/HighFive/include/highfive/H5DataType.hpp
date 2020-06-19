@@ -13,12 +13,12 @@
 
 namespace HighFive {
 
-struct TypeMapper;
+  struct TypeMapper;
 
-///
-/// \brief HDF5 Data Type
-///
-class DataType : public Object {
+  ///
+  /// \brief HDF5 Data Type
+  ///
+  class DataType : public Object {
   public:
     DataType();
 
@@ -30,22 +30,22 @@ class DataType : public Object {
     friend class Attribute;
     friend class File;
     friend class DataSet;
-};
+  };
 
-///
-/// \brief create an HDF5 DataType from a C++ type
-///
-///  Support only basic data type
-///
-template <typename T>
-class AtomicType : public DataType {
+  ///
+  /// \brief create an HDF5 DataType from a C++ type
+  ///
+  ///  Support only basic data type
+  ///
+  template <typename T>
+  class AtomicType : public DataType {
   public:
     AtomicType();
 
     typedef T basic_type;
-};
-}
+  };
+}  // namespace HighFive
 
 #include "bits/H5DataType_misc.hpp"
 
-#endif // H5DATATYPE_HPP
+#endif  // H5DATATYPE_HPP

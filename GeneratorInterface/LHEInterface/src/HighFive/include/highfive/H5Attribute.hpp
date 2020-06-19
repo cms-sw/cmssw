@@ -15,12 +15,12 @@
 
 namespace HighFive {
 
-template <typename Derivate>
-class AnnotateTraits;
-class DataType;
-class DataSpace;
+  template <typename Derivate>
+  class AnnotateTraits;
+  class DataType;
+  class DataSpace;
 
-class Attribute : public Object {
+  class Attribute : public Object {
   public:
     size_t getStorageSize() const;
 
@@ -67,9 +67,9 @@ class Attribute : public Object {
     Attribute();
     template <typename Derivate>
     friend class ::HighFive::AnnotateTraits;
-};
-}
+  };
+}  // namespace HighFive
 
 #include "bits/H5Attribute_misc.hpp"
 
-#endif // H5ATTRIBUTE_HPP
+#endif  // H5ATTRIBUTE_HPP

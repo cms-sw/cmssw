@@ -15,16 +15,12 @@
 
 namespace HighFive {
 
-///
-/// \brief Generic HDF5 property List
-///
-class Properties {
+  ///
+  /// \brief Generic HDF5 property List
+  ///
+  class Properties {
   public:
-    enum Type
-    {
-       FILE_ACCESS,
-       DATASET_CREATE
-    };
+    enum Type { FILE_ACCESS, DATASET_CREATE };
 
     ~Properties();
 
@@ -46,7 +42,6 @@ class Properties {
     void add(const Property& property);
 
   protected:
-
     // protected constructor
     explicit Properties(Type type);
 
@@ -61,15 +56,14 @@ class Properties {
 
     Type _type;
     hid_t _hid;
-};
+  };
 
-class DataSetCreateProps : public Properties {
-public:
-  DataSetCreateProps() : Properties(DATASET_CREATE) {}
-};
+  class DataSetCreateProps : public Properties {
+  public:
+    DataSetCreateProps() : Properties(DATASET_CREATE) {}
+  };
 
-class Chunking
-{
+  class Chunking {
   public:
     Chunking(const std::vector<hsize_t>& dims) : _dims(dims) {}
 
@@ -77,10 +71,9 @@ class Chunking
     friend class Properties;
     void apply(hid_t hid) const;
     std::vector<hsize_t> _dims;
-};
+  };
 
-class Deflate
-{
+  class Deflate {
   public:
     Deflate(int level) : _level(level) {}
 
@@ -88,20 +81,19 @@ class Deflate
     friend class Properties;
     void apply(hid_t hid) const;
     int _level;
-};
+  };
 
-class Shuffle
-{
+  class Shuffle {
   public:
     Shuffle() {}
 
   private:
     friend class Properties;
     void apply(hid_t hid) const;
-};
+  };
 
-} // HighFive
+}  // namespace HighFive
 
 #include "bits/H5PropertyList_misc.hpp"
 
-#endif // H5PROPERTY_LIST_HPP
+#endif  // H5PROPERTY_LIST_HPP

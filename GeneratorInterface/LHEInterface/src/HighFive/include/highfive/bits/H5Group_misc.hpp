@@ -13,6 +13,6 @@
 
 namespace HighFive {
 
-inline Group::Group() {}
+  inline Group::Group() {}
 
-} // namespace HighFive
+}  // namespace HighFive

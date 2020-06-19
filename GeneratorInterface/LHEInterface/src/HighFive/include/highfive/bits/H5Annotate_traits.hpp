@@ -13,22 +13,21 @@
 
 namespace HighFive {
 
-class Attribute;
-class DataSet;
-class Group;
-class DataSpace;
-class DataType;
+  class Attribute;
+  class DataSet;
+  class Group;
+  class DataSpace;
+  class DataType;
 
-template <typename Derivate>
-class AnnotateTraits {
+  template <typename Derivate>
+  class AnnotateTraits {
   public:
     ///
     /// \brief create a new attribute with the name attribute_name
     /// \param attribute_name
     /// \return the attribute object
     ///
-    Attribute createAttribute(const std::string& attribute_name,
-                              const DataSpace& space, const DataType& type);
+    Attribute createAttribute(const std::string& attribute_name, const DataSpace& space, const DataType& type);
 
     ///
     /// \brief createDataSet create a new dataset in the current file with a
@@ -41,8 +40,7 @@ class AnnotateTraits {
     ///
     ///
     template <typename Type>
-    Attribute createAttribute(const std::string& attribute_name,
-                              const DataSpace& space);
+    Attribute createAttribute(const std::string& attribute_name, const DataSpace& space);
 
     ///
     /// \brief open an existing attribute with the name attribute_name
@@ -68,9 +66,9 @@ class AnnotateTraits {
 
   private:
     typedef Derivate derivate_type;
-};
-}
+  };
+}  // namespace HighFive
 
 #include "H5Annotate_traits_misc.hpp"
 
-#endif // H5ANNOTATE_TRAITS_HPP
+#endif  // H5ANNOTATE_TRAITS_HPP
