@@ -1,0 +1,16 @@
+language: cpp
+
+matrix:
+    include:
+        - os: linux
+          sudo: required
+
+install:
+ - ./ci/travis/install.sh
+
+script:
+ - mkdir -p build && pushd build
+ - cmake -G Ninja ../
+ - ninja -v
+ - ninja test
+

@@ -65,7 +65,11 @@ namespace lheh5 {
   }
 
   // Read function, returns an Events struct
-  Events readEvents(HighFive::Group& g_index, HighFive::Group& g_particle, HighFive::Group& g_event, size_t first_event, size_t n_events) {
+  Events readEvents(HighFive::Group& g_index,
+                    HighFive::Group& g_particle,
+                    HighFive::Group& g_event,
+                    size_t first_event,
+                    size_t n_events) {
     // Lookup
     std::vector<size_t> _vstart, _vend;
     // Particles
@@ -241,7 +245,8 @@ namespace lheh5 {
   }
 
   // Read function, returns an Events struct --- this is for the new structure
-  Events2 readEvents(HighFive::Group& g_particle, HighFive::Group& g_event, size_t first_event, size_t n_events, int npLO, int npNLO) {
+  Events2 readEvents(
+      HighFive::Group& g_particle, HighFive::Group& g_event, size_t first_event, size_t n_events, int npLO, int npNLO) {
     // Lookup
     std::vector<size_t> _vstart;
     // Particles

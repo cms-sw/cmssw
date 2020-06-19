@@ -13,6 +13,7 @@
 <use name="fastjet"/>
 <use name="xz"/>
 <use name="hdf5"/>
+<use name="highfive"/>
 <export>
   <lib name="1"/>
 </export>

@@ -8,9 +8,8 @@
 
 #include <unistd.h>
 
-#include "GeneratorInterface/LHEInterface/src/HighFive/include/highfive/H5File.hpp"
-#include "GeneratorInterface/LHEInterface/src/HighFive/include/highfive/H5DataSet.hpp"
-//using namespace HighFive;
+#include "highfive/H5File.hpp"
+#include "highfive/H5DataSet.hpp"
 
 namespace lheh5 {
 
@@ -114,8 +113,13 @@ namespace lheh5 {
     EventHeader mkEventHeader(int ievent) const;
   };
 
-  Events readEvents(HighFive::Group& g_index, HighFive::Group& g_particle, HighFive::Group& g_event, size_t first_event, size_t n_events);
-  Events2 readEvents(HighFive::Group& g_particle, HighFive::Group& g_event, size_t first_event, size_t n_events, int npLO, int npNLO);
+  Events readEvents(HighFive::Group& g_index,
+                    HighFive::Group& g_particle,
+                    HighFive::Group& g_event,
+                    size_t first_event,
+                    size_t n_events);
+  Events2 readEvents(
+      HighFive::Group& g_particle, HighFive::Group& g_event, size_t first_event, size_t n_events, int npLO, int npNLO);
   std::ostream& operator<<(std::ostream& os, Particle const& p);
   std::ostream& operator<<(std::ostream& os, EventHeader const& eh);
 }  // namespace lheh5
