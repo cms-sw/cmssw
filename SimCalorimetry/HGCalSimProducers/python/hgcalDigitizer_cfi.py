@@ -226,7 +226,7 @@ def HGCal_setRealisticStartupNoise(process):
     #note: realistic electronics with Sci is not yet switched on
     # byDoseAlgo is used as a collection of bits to toggle: FLUENCE, CCE, NOISE, PULSEPERGAIN, CACHEDOP (from lsb to Msb)
     # for instance turning on the 0th  bit turns off the impact of fluence
-    process=HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=4)
+    process=HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=1)
     return process
 
 def HGCal_ignoreNoise(process):
