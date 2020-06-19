@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerSums.h"
@@ -28,6 +29,7 @@ private:
   // inputs
   edm::EDGetToken input_cell_, input_sums_;
   edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
+  edm::ESGetToken<HGCalTriggerGeometryBase, CaloGeometryRecord> triggerGeomToken_;
 
   std::unique_ptr<HGCalBackendLayer1ProcessorBase> backendProcess_;
 };
@@ -35,7 +37,8 @@ private:
 DEFINE_FWK_MODULE(HGCalBackendLayer1Producer);
 
 HGCalBackendLayer1Producer::HGCalBackendLayer1Producer(const edm::ParameterSet& conf)
-    : input_cell_(consumes<l1t::HGCalTriggerCellBxCollection>(conf.getParameter<edm::InputTag>("InputTriggerCells"))) {
+    : input_cell_(consumes<l1t::HGCalTriggerCellBxCollection>(conf.getParameter<edm::InputTag>("InputTriggerCells"))),
+      triggerGeomToken_(esConsumes<HGCalTriggerGeometryBase, CaloGeometryRecord, edm::Transition::BeginRun>()) {
   //setup Backend parameters
   const edm::ParameterSet& beParamConfig = conf.getParameterSet("ProcessorParameters");
   const std::string& beProcessorName = beParamConfig.getParameter<std::string>("ProcessorName");
@@ -46,7 +49,7 @@ HGCalBackendLayer1Producer::HGCalBackendLayer1Producer(const edm::ParameterSet& 
 }
 
 void HGCalBackendLayer1Producer::beginRun(const edm::Run& /*run*/, const edm::EventSetup& es) {
-  es.get<CaloGeometryRecord>().get("", triggerGeometry_);
+  triggerGeometry_ = es.getHandle(triggerGeomToken_);
   backendProcess_->setGeometry(triggerGeometry_.product());
 }
 
