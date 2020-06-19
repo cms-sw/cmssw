@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerSums.h"
 #include "DataFormats/L1THGCal/interface/HGCalTower.h"
@@ -27,14 +27,15 @@ private:
   // inputs
   edm::EDGetToken input_cell_;
   edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
-
+  edm::ESGetToken<HGCalTriggerGeometryBase, CaloGeometryRecord> triggerGeomToken_;
   std::unique_ptr<HGCalTowerMapProcessorBase> towersMapProcess_;
 };
 
 DEFINE_FWK_MODULE(HGCalTowerMapProducer);
 
 HGCalTowerMapProducer::HGCalTowerMapProducer(const edm::ParameterSet& conf)
-    : input_cell_(consumes<l1t::HGCalTriggerCellBxCollection>(conf.getParameter<edm::InputTag>("InputTriggerCells"))) {
+    : input_cell_(consumes<l1t::HGCalTriggerCellBxCollection>(conf.getParameter<edm::InputTag>("InputTriggerCells"))),
+      triggerGeomToken_(esConsumes<HGCalTriggerGeometryBase, CaloGeometryRecord, edm::Transition::BeginRun>()) {
   //setup TowerMap parameters
   const edm::ParameterSet& towerMapParamConfig = conf.getParameterSet("ProcessorParameters");
   const std::string& towerMapProcessorName = towerMapParamConfig.getParameter<std::string>("ProcessorName");
@@ -45,7 +46,7 @@ HGCalTowerMapProducer::HGCalTowerMapProducer(const edm::ParameterSet& conf)
 }
 
 void HGCalTowerMapProducer::beginRun(const edm::Run& /*run*/, const edm::EventSetup& es) {
-  es.get<CaloGeometryRecord>().get("", triggerGeometry_);
+  triggerGeometry_ = es.getHandle(triggerGeomToken_);
   towersMapProcess_->setGeometry(triggerGeometry_.product());
 }
 
