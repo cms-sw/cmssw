@@ -257,27 +257,30 @@ private:
   }
 
   void gotoNewInputAndOutputFiles(EventProcessor& iEP) {
-    // If this is still true when we hit the destructor for
-    // the filesOpen_ object, then we will know an exception
-    // was thrown on one of the following 5 lines.
-    filesOpen_->closingSequenceAlreadyFailed_ = true;
+    {
+      // If this is still true when we hit the destructor for
+      // the filesOpen_ object, then we will know an exception
+      // was thrown on one of the following 5 lines.
+      filesOpen_->closingSequenceAlreadyFailed_ = true;
 
-    iEP.respondToCloseInputFile();
-    bool cleaningUpAfterException = false;
-    iEP.closeInputFile(cleaningUpAfterException);
-    iEP.endProcessBlock(cleaningUpAfterException, filesOpen_->beginProcessBlockSucceeded_);
-    iEP.closeOutputFiles();
+      iEP.respondToCloseInputFile();
+      bool cleaningUpAfterException = false;
+      iEP.closeInputFile(cleaningUpAfterException);
+      iEP.endProcessBlock(cleaningUpAfterException, filesOpen_->beginProcessBlockSucceeded_);
+      iEP.closeOutputFiles();
 
-    // Initialize these for the next output file
-    filesOpen_->closingSequenceAlreadyFailed_ = false;
-    filesOpen_->beginProcessBlockSucceeded_ = false;
+      filesOpen_->closingSequenceAlreadyFailed_ = false;
+    }
+    {
+      filesOpen_->beginProcessBlockSucceeded_ = false;
 
-    iEP.readFile();
-    iEP.respondToOpenInputFile();
+      iEP.readFile();
+      iEP.respondToOpenInputFile();
 
-    iEP.openOutputFiles();
+      iEP.openOutputFiles();
 
-    iEP.beginProcessBlock(filesOpen_->beginProcessBlockSucceeded_);
+      iEP.beginProcessBlock(filesOpen_->beginProcessBlockSucceeded_);
+    }
     iEP.inputProcessBlocks();
   }
 
