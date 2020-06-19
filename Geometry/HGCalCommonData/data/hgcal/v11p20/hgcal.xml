@@ -22,7 +22,7 @@
   <Constant name="rad200300P1"           value="7.70078E-04"/>
   <Constant name="rad200300P2"           value="-4.97013E-01"/>
   <Constant name="rad200300P3"           value="1.40778E+02"/>
-  <Constant name="rad200300P4"           value="-1.46140E+04"/>
+  <Constant name="rad200300P4"           value="-1.46340E+04"/>
   <Constant name="zMinForRadPar"         value="335.0*cm"/>
   <Constant name="ChoiceType"            value="0"/>
   <Constant name="NCornerCut"            value="2"/>
