@@ -118,6 +118,9 @@ def customizeNanoGEN(process):
     process.genParticleTable.src = "genParticles"
     process.patJetPartons.particles = "genParticles"
     process.particleLevel.src = "generatorSmeared"
+    process.particleLevel.particleMaxEta = 999.
+    process.particleLevel.lepMinPt = 0.
+    process.particleLevel.lepMaxEta = 999.
     process.rivetProducerHTXS.HepMCCollection = "generatorSmeared"
 
     process.genJetTable.src = "ak4GenJets"
