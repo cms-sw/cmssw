@@ -441,7 +441,7 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
     (fUserHooksVector->hooks).push_back(fPTFilterHook);
   }
 
-  if ((fUserHooksVector->hooks).size() && !UserHooksSet) {
+  if (!(fUserHooksVector->hooks).empty() && !UserHooksSet) {
     fMasterGen->setUserHooksPtr(fUserHooksVector);
     UserHooksSet = true;
   }
@@ -580,7 +580,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
     (fUserHooksVector->hooks).push_back(fPTFilterHook);
   }
 
-  if ((fUserHooksVector->hooks).size() && !UserHooksSet) {
+  if (!(fUserHooksVector->hooks).empty() && !UserHooksSet) {
     fMasterGen->setUserHooksPtr(fUserHooksVector);
     UserHooksSet = true;
   }
