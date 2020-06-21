@@ -233,7 +233,7 @@ int getPhiMin_card(int card) {
   return phimin;
 }
 
-class L1EGCrystalClusterEmulatorProducer : public edm::stream::EDProducer <> {
+class L1EGCrystalClusterEmulatorProducer : public edm::stream::EDProducer<> {
 public:
   explicit L1EGCrystalClusterEmulatorProducer(const edm::ParameterSet&);
   ~L1EGCrystalClusterEmulatorProducer() override;

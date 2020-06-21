@@ -35,7 +35,7 @@ int get_phi_bin(const l1t::HGCalMulticluster *cl) {
 
 pair<int, int> get_eta_phi_bin(const l1t::HGCalMulticluster *cl) { return std::make_pair(etaBin(cl), get_phi_bin(cl)); }
 
-class L1EGammaEEProducer : public edm::stream::EDProducer <> {
+class L1EGammaEEProducer : public edm::stream::EDProducer<> {
 public:
   explicit L1EGammaEEProducer(const edm::ParameterSet &);
 
