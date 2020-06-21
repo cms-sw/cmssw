@@ -7,6 +7,7 @@
 #include <TFile.h>
 #include <boost/lexical_cast.hpp>
 #include <fstream>
+#include <regex>
 
 namespace sistrip {
 
@@ -62,12 +63,12 @@ namespace sistrip {
       std::string label;
       {
         std::cout << ensemble.first << std::endl;
-        boost::regex format(".*(T[IO]B)_layer(\\d)([as])_(.*)");
-        if (boost::regex_match(ensemble.first, format)) {
-          const bool TIB = "TIB" == boost::regex_replace(ensemble.first, format, "\\1");
-          const bool stereo = "s" == boost::regex_replace(ensemble.first, format, "\\3");
-          const unsigned layer = boost::lexical_cast<unsigned>(boost::regex_replace(ensemble.first, format, "\\2"));
-          label = boost::regex_replace(ensemble.first, format, "\\4");
+        std::regex format(".*(T[IO]B)_layer(\\d)([as])_(.*)");
+        if (std::regex_match(ensemble.first, format)) {
+          const bool TIB = "TIB" == std::regex_replace(ensemble.first, format, "\\1");
+          const bool stereo = "s" == std::regex_replace(ensemble.first, format, "\\3");
+          const unsigned layer = boost::lexical_cast<unsigned>(std::regex_replace(ensemble.first, format, "\\2"));
+          label = std::regex_replace(ensemble.first, format, "\\4");
           index = LA_Filler_Fitter::layer_index(TIB, stereo, layer);
 
           calibrations[label].slopes[index] = line.second.first;

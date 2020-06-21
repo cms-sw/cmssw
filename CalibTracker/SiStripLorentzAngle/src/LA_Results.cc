@@ -2,7 +2,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <cmath>
-#include <boost/regex.hpp>
+#include <regex>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/erase.hpp>
 #include <TF1.h>
@@ -62,7 +62,7 @@ std::map<uint32_t, LA_Filler_Fitter::Result> LA_Filler_Fitter::module_results(co
   std::map<uint32_t, Result> results;
   for (Book::const_iterator it = book.begin(".*_module\\d*" + method(m)); it != book.end(); ++it) {
     const uint32_t detid = boost::lexical_cast<uint32_t>(
-        boost::regex_replace(it->first, boost::regex(".*_module(\\d*)_.*"), std::string("\\1")));
+        std::regex_replace(it->first, std::regex(".*_module(\\d*)_.*"), std::string("\\1")));
     results[detid] = result(m, it->first, book);
   }
   return results;
@@ -81,7 +81,7 @@ std::map<std::string, std::vector<LA_Filler_Fitter::Result> > LA_Filler_Fitter::
                                                                                                  const Method m) {
   std::map<std::string, std::vector<Result> > results;
   for (Book::const_iterator it = book.begin(".*_sample.*" + method(m)); it != book.end(); ++it) {
-    const std::string name = boost::regex_replace(it->first, boost::regex("sample\\d*_"), "");
+    const std::string name = std::regex_replace(it->first, std::regex("sample\\d*_"), "");
     results[name].push_back(result(m, it->first, book));
   }
   return results;
@@ -136,7 +136,7 @@ std::map<std::string, std::vector<LA_Filler_Fitter::EnsembleSummary> > LA_Filler
     s.pull = std::make_pair<float, float>(pull->GetFunction("gaus")->GetParameter(2),
                                           pull->GetFunction("gaus")->GetParError(2));
 
-    const std::string name = boost::regex_replace(base, boost::regex("ensembleBin\\d*_"), "");
+    const std::string name = std::regex_replace(base, std::regex("ensembleBin\\d*_"), "");
     summary[name].push_back(s);
   }
   return summary;
