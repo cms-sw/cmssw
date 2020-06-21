@@ -20,7 +20,9 @@ namespace pat {
           candidateToken_(
               consumes<edm::View<pat::PackedCandidate> >(iConfig.getParameter<edm::InputTag>("candidates"))),
           muonSelectors_(iConfig.getParameter<std::vector<std::string> >("muonSelectors")),
-          muonIDs_(iConfig.getParameter<std::vector<std::string> >("muonIDs")) {
+          muonIDs_(iConfig.getParameter<std::vector<std::string> >("muonIDs")),
+          maxDeltaR_(iConfig.getUntrackedParameter<double>("maxDeltaR", 1.E-3)),
+          maxDeltaRelPt_(iConfig.getUntrackedParameter<double>("maxDeltaRelPt", 1.E-2)) {
       for (const auto& sel : muonSelectors_) {
         produces<BoolMap>(sel);
       }
@@ -41,6 +43,7 @@ namespace pat {
     std::vector<std::string> muonSelectors_;
     std::vector<std::string> muonIDs_;
     std::map<std::string, std::unique_ptr<StringCutObjectSelector<pat::Muon> > > muonIDMap_;
+    double maxDeltaR_, maxDeltaRelPt_;
   };
 
 }  // namespace pat
@@ -79,8 +82,8 @@ void pat::PackedCandidateMuonSelectorProducer::produce(edm::Event& iEvent, const
       // check if candidate and muon are compatible
       const auto& candTrack = cand->pseudoTrack();
       if (muonTrack.charge() == candTrack.charge() && muonTrack.numberOfValidHits() == candTrack.numberOfValidHits() &&
-          std::abs(muonTrack.eta() - candTrack.eta()) < 1E-3 && std::abs(muonTrack.phi() - candTrack.phi()) < 1E-3 &&
-          std::abs((muonTrack.pt() - candTrack.pt()) / muonTrack.pt()) < 1E-2) {
+          reco::deltaR(muonTrack.eta(), muonTrack.phi(), candTrack.eta(), candTrack.phi()) < maxDeltaR_ &&
+          std::abs((muonTrack.pt() - candTrack.pt()) / muonTrack.pt()) < maxDeltaRelPt_) {
         // fill muon selector map
         for (const auto& sel : muonSelectors_) {
           muonSelMap[sel][i] = muon.muonID(sel);
