@@ -26,7 +26,7 @@ Implementation:
 #include <cmath>
 
 // user include files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -233,7 +233,7 @@ int getPhiMin_card(int card) {
   return phimin;
 }
 
-class L1EGCrystalClusterEmulatorProducer : public edm::EDProducer {
+class L1EGCrystalClusterEmulatorProducer : public edm::stream::EDProducer <> {
 public:
   explicit L1EGCrystalClusterEmulatorProducer(const edm::ParameterSet&);
   ~L1EGCrystalClusterEmulatorProducer() override;

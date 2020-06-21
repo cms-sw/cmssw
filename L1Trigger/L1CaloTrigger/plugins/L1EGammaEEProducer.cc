@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -35,7 +35,7 @@ int get_phi_bin(const l1t::HGCalMulticluster *cl) {
 
 pair<int, int> get_eta_phi_bin(const l1t::HGCalMulticluster *cl) { return std::make_pair(etaBin(cl), get_phi_bin(cl)); }
 
-class L1EGammaEEProducer : public edm::EDProducer {
+class L1EGammaEEProducer : public edm::stream::EDProducer <> {
 public:
   explicit L1EGammaEEProducer(const edm::ParameterSet &);
 
