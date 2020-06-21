@@ -47,7 +47,7 @@ int HGCalWaferType::getType(double xpos, double ypos, double zpos) {
   yc[4] = ypos - R_;
   xc[5] = xpos + r_;
   yc[5] = ypos - 0.5 * R_;
-  auto rv = rLimits(zpos);
+  const auto & rv = rLimits(zpos);
   std::vector<int> fine, coarse;
   for (unsigned int k = 0; k < HGCalParameters::k_CornerSize; ++k) {
     double rpos = std::sqrt(xc[k] * xc[k] + yc[k] * yc[k]);
@@ -86,7 +86,7 @@ int HGCalWaferType::getType(double xpos, double ypos, double zpos) {
         ycn.emplace_back(yc[k1]);
         if (!ok) {
           double rr = (type == -1) ? rv.first : rv.second;
-          auto xy = intersection(k1, k2, xc, yc, xpos, ypos, rr);
+          const auto & xy = intersection(k1, k2, xc, yc, xpos, ypos, rr);
           xcn.emplace_back(xy.first);
           ycn.emplace_back(xy.second);
         }
