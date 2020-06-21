@@ -51,7 +51,6 @@
 #include <vector>
 #include <map>
 #include <memory>
-#include <boost/utility.hpp>
 #include <boost/range.hpp>
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
@@ -99,8 +98,11 @@ namespace edm {
       /// It requires to fill items in strict key order.
       /// You can have a single FastFiller for a given map at time
       /// You can't access the map for this collection while filling it
-      class FastFiller : boost::noncopyable {
+      class FastFiller {
       public:
+        FastFiller(const FastFiller &) = delete;
+        FastFiller &operator=(const FastFiller &) = delete;
+
         /// Make a filler for a collection with a given product id and size
         FastFiller(IndexRangeAssociation &assoc, ProductID id, unsigned int size);
 
