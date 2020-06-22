@@ -49,7 +49,7 @@ public:
     descClient.add<unsigned>("nOutput");
     descClient.add<std::string>("modelName");
     descClient.add<int>("modelVersion", -1);
-	//server parameters should not affect the physics results
+    //server parameters should not affect the physics results
     descClient.addUntracked<unsigned>("batchSize");
     descClient.addUntracked<std::string>("address");
     descClient.addUntracked<unsigned>("port");
@@ -93,5 +93,14 @@ protected:
 using TritonClientSync = TritonClient<SonicClientSync<std::vector<float>>>;
 using TritonClientPseudoAsync = TritonClient<SonicClientPseudoAsync<std::vector<float>>>;
 using TritonClientAsync = TritonClient<SonicClientAsync<std::vector<float>>>;
+
+//avoid ""explicit specialization after instantiation" error
+template <>
+void TritonClientAsync::evaluate();
+
+//explicit template instantiation declarations
+extern template class TritonClient<SonicClientSync<std::vector<float>>>;
+extern template class TritonClient<SonicClientAsync<std::vector<float>>>;
+extern template class TritonClient<SonicClientPseudoAsync<std::vector<float>>>;
 
 #endif
