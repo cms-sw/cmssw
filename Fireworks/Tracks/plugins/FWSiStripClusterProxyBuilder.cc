@@ -4,6 +4,7 @@
 #include "TEveGeoNode.h"
 #include "TEveLine.h"
 #include "TEveCompound.h"
+#include "TEveGeoShape.h"
 
 #include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
