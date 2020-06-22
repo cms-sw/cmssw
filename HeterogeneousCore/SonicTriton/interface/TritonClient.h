@@ -47,14 +47,15 @@ public:
     edm::ParameterSetDescription descClient;
     descClient.add<unsigned>("nInput");
     descClient.add<unsigned>("nOutput");
-    descClient.add<unsigned>("batchSize");
-    descClient.add<std::string>("address");
-    descClient.add<unsigned>("port");
-    descClient.add<unsigned>("timeout");
     descClient.add<std::string>("modelName");
     descClient.add<int>("modelVersion", -1);
-    descClient.add<bool>("verbose", false);
-    descClient.add<unsigned>("allowedTries", 0);
+	//server parameters should not affect the physics results
+    descClient.addUntracked<unsigned>("batchSize");
+    descClient.addUntracked<std::string>("address");
+    descClient.addUntracked<unsigned>("port");
+    descClient.addUntracked<unsigned>("timeout");
+    descClient.addUntracked<bool>("verbose", false);
+    descClient.addUntracked<unsigned>("allowedTries", 0);
     iDesc.add<edm::ParameterSetDescription>("Client", descClient);
   }
 

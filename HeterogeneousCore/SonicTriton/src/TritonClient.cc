@@ -18,15 +18,15 @@ namespace nic = ni::client;
 
 template <typename Client>
 TritonClient<Client>::TritonClient(const edm::ParameterSet& params)
-    : url_(params.getParameter<std::string>("address") + ":" + std::to_string(params.getParameter<unsigned>("port"))),
-      timeout_(params.getParameter<unsigned>("timeout")),
+    : url_(params.getUntrackedParameter<std::string>("address") + ":" + std::to_string(params.getUntrackedParameter<unsigned>("port"))),
+      timeout_(params.getUntrackedParameter<unsigned>("timeout")),
       modelName_(params.getParameter<std::string>("modelName")),
       modelVersion_(params.getParameter<int>("modelVersion")),
-      batchSize_(params.getParameter<unsigned>("batchSize")),
+      batchSize_(params.getUntrackedParameter<unsigned>("batchSize")),
       nInput_(params.getParameter<unsigned>("nInput")),
       nOutput_(params.getParameter<unsigned>("nOutput")),
-      verbose_(params.getParameter<bool>("verbose")),
-      allowedTries_(params.getParameter<unsigned>("allowedTries")) {
+      verbose_(params.getUntrackedParameter<bool>("verbose")),
+      allowedTries_(params.getUntrackedParameter<unsigned>("allowedTries")) {
   this->clientName_ = "TritonClient";
 }
 
