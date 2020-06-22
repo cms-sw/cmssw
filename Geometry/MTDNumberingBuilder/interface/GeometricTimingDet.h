@@ -2,11 +2,12 @@
 #define Geometry_MTDNumberingBuilder_GeometricTimingDet_H
 
 #include "CondFormats/GeometryObjects/interface/PGeometricTimingDet.h"
-#include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include <Math/Rotation3D.h>
+#include <Math/Vector3D.h>
 
 #include <vector>
 #include <memory>
@@ -27,18 +28,16 @@ namespace cms {
 
 class GeometricTimingDet {
 public:
-  using NavRange = DDExpandedView::NavRange;
+  using NavRange = std::pair<int const*, size_t>;
   using ConstGeometricTimingDetContainer = std::vector<GeometricTimingDet const*>;
   using GeometricTimingDetContainer = std::vector<GeometricTimingDet*>;
   using RotationMatrix = ROOT::Math::Rotation3D;
   using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> >;
 
 #ifdef PoolAlloc
-  using GeoHistory = std::vector<DDExpandedNode, PoolAlloc<DDExpandedNode> >;
   using nav_type = std::vector<int, PoolAlloc<int> >;
 #else
-  using GeoHistory = std::vector<DDExpandedNode>;
-  using nav_type = DDExpandedView::nav_type;
+  using nav_type = std::vector<int>;
 #endif
 
   using Position = Surface::PositionType;

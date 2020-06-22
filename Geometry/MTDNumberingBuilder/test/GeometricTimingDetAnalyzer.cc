@@ -38,6 +38,11 @@
 
 #include "DataFormats/Math/interface/Rounding.h"
 
+// Trivial using definition valid both for DDD and DD4hep
+
+#include "DetectorDescription/DDCMS/interface/DDTranslation.h"
+#include "DetectorDescription/DDCMS/interface/DDRotationMatrix.h"
+
 //
 //
 // class decleration

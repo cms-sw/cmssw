@@ -53,6 +53,8 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
