@@ -13,7 +13,7 @@ class TauIDEmbedder(object):
         "deepTau2017v1", "deepTau2017v2", "deepTau2017v2p1",
         "DPFTau_2016_v0", "DPFTau_2016_v1",
         "againstEle2018",
-        "newDMwLTwGJPhase2"
+        "newDMPhase2v1"
     ]
 
     def __init__(self, process, debug = False,
@@ -864,8 +864,8 @@ class TauIDEmbedder(object):
             )
             tauIDSources =_tauIDSourcesWithAgainistEle.clone()
 
-        if "newDMwLTwGJPhase2" in self.toKeep:
-            if self.debug: print ("Adding newDMwLTwGJPhase2 ID")
+        if "newDMPhase2v1" in self.toKeep:
+            if self.debug: print ("Adding newDMPhase2v1 ID")
             def tauIDMVAinputs(module, wp):
                 return cms.PSet(inputTag = cms.InputTag(module), workingPointIndex = cms.int32(-1 if wp=="raw" else -2 if wp=="category" else getattr(self.process, module).workingPoints.index(wp)))
             self.process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw = patDiscriminationByIsolationMVArun2v1raw.clone(
