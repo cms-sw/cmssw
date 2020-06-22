@@ -41,6 +41,8 @@ public:
 
 private:
   bool m_verbosity;
+  bool produceHitsRelativeToBeam_;
+
   static constexpr double fPPSBeamLineLength_ = 250.;  // default beam line length
 
   //!propagate the particles through a beamline to PPS
