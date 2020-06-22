@@ -1,5 +1,5 @@
-#ifndef __IWrapper__
-#define __IWrapper__
+#ifndef __HistoWrapper__
+#define __HistoWrapper__
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -10,10 +10,10 @@ typedef dqm::legacy::MonitorElement MonitorElement;
 
 enum PL {kEverything, kVital};
 
-class IWrapper {
+class HistoWrapper {
  public:
-  IWrapper(const edm::ParameterSet&);
-  ~IWrapper();
+  HistoWrapper(const edm::ParameterSet&);
+  ~HistoWrapper();
 
   MonitorElement* book1D(DQMStore::IBooker& iBooker, TString const &name, TString const &title, int const nchX, double const lowX, double const highX, int level = kEverything);
   MonitorElement* book2D(DQMStore::IBooker& iBooker, TString const &name, TString const &title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, int level = kEverything);
