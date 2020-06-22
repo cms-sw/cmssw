@@ -25,21 +25,6 @@
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
-#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
-
-#include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
-#include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
-#include "CondFormats/DataRecord/interface/L1HfRingEtScaleRcd.h"
-#include "CondFormats/DataRecord/interface/L1HtMissScaleRcd.h"
-#include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
-#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
-#include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
-
-#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
-#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
-#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
-#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -80,7 +65,15 @@ L1ExtraParticlesProd::L1ExtraParticlesProd(const edm::ParameterSet &iConfig)
       hfRingEtSumsSource_(iConfig.getParameter<edm::InputTag>("hfRingEtSumsSource")),
       hfRingBitCountsSource_(iConfig.getParameter<edm::InputTag>("hfRingBitCountsSource")),
       centralBxOnly_(iConfig.getParameter<bool>("centralBxOnly")),
-      ignoreHtMiss_(iConfig.getParameter<bool>("ignoreHtMiss")) {
+      ignoreHtMiss_(iConfig.getParameter<bool>("ignoreHtMiss")),
+      muScalesToken_(esConsumes<L1MuTriggerScales, L1MuTriggerScalesRcd>()),
+      muPtScaleToken_(esConsumes<L1MuTriggerPtScale, L1MuTriggerPtScaleRcd>()),
+      caloGeomToken_(esConsumes<L1CaloGeometry, L1CaloGeometryRecord>()),
+      emScaleToken_(esConsumes<L1CaloEtScale, L1EmEtScaleRcd>()),
+      jetScaleToken_(esConsumes<L1CaloEtScale, L1JetEtScaleRcd>()),
+      jetFinderParamsToken_(esConsumes<L1GctJetFinderParams, L1GctJetFinderParamsRcd>()),
+      htMissScaleToken_(esConsumes<L1CaloEtScale, L1HtMissScaleRcd>()),
+      hfRingEtScaleToken_(esConsumes<L1CaloEtScale, L1HfRingEtScaleRcd>()) {
   using namespace l1extra;
 
   // register your products
@@ -133,11 +126,9 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent, const edm::EventSetup &iS
   unique_ptr<L1MuonParticleCollection> muColl(new L1MuonParticleCollection);
 
   if (produceMuonParticles_) {
-    ESHandle<L1MuTriggerScales> muScales;
-    iSetup.get<L1MuTriggerScalesRcd>().get(muScales);
+    ESHandle<L1MuTriggerScales> muScales = iSetup.getHandle(muScalesToken_);
 
-    ESHandle<L1MuTriggerPtScale> muPtScale;
-    iSetup.get<L1MuTriggerPtScaleRcd>().get(muPtScale);
+    ESHandle<L1MuTriggerPtScale> muPtScale = iSetup.getHandle(muPtScaleToken_);
 
     Handle<L1MuGMTReadoutCollection> hwMuCollection;
     iEvent.getByLabel(muonSource_, hwMuCollection);
@@ -224,14 +215,12 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent, const edm::EventSetup &iS
   if (produceCaloParticles_) {
     // ~~~~~~~~~~~~~~~~~~~~ Geometry ~~~~~~~~~~~~~~~~~~~~
 
-    ESHandle<L1CaloGeometry> caloGeomESH;
-    iSetup.get<L1CaloGeometryRecord>().get(caloGeomESH);
+    ESHandle<L1CaloGeometry> caloGeomESH = iSetup.getHandle(caloGeomToken_);
     const L1CaloGeometry *caloGeom = &(*caloGeomESH);
 
     // ~~~~~~~~~~~~~~~~~~~~ EM ~~~~~~~~~~~~~~~~~~~~
 
-    ESHandle<L1CaloEtScale> emScale;
-    iSetup.get<L1EmEtScaleRcd>().get(emScale);
+    ESHandle<L1CaloEtScale> emScale = iSetup.getHandle(emScaleToken_);
 
     // Isolated EM
     Handle<L1GctEmCandCollection> hwIsoEmCands;
@@ -305,8 +294,7 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent, const edm::EventSetup &iS
 
     // ~~~~~~~~~~~~~~~~~~~~ Jets ~~~~~~~~~~~~~~~~~~~~
 
-    ESHandle<L1CaloEtScale> jetScale;
-    iSetup.get<L1JetEtScaleRcd>().get(jetScale);
+    ESHandle<L1CaloEtScale> jetScale = iSetup.getHandle(jetScaleToken_);
 
     // Central jets.
     Handle<L1GctJetCandCollection> hwCenJetCands;
@@ -612,14 +600,13 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent, const edm::EventSetup &iS
       iEvent.getByLabel(htMissSource_, hwHtMissColl);
     }
 
-    ESHandle<L1GctJetFinderParams> jetFinderParams;
-    iSetup.get<L1GctJetFinderParamsRcd>().get(jetFinderParams);
+    ESHandle<L1GctJetFinderParams> jetFinderParams = iSetup.getHandle(jetFinderParamsToken_);
     double htSumLSB = jetFinderParams->getHtLsbGeV();
 
     ESHandle<L1CaloEtScale> htMissScale;
     std::vector<bool> htMissMatched;
     if (!ignoreHtMiss_) {
-      iSetup.get<L1HtMissScaleRcd>().get(htMissScale);
+      htMissScale = iSetup.getHandle(htMissScaleToken_);
 
       if (!hwEtHadColl.isValid()) {
         LogDebug("L1ExtraParticlesProd") << "\nWarning: L1GctEtHadCollection with " << etHadSource_
@@ -776,8 +763,7 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent, const edm::EventSetup &iS
     Handle<L1GctHFBitCountsCollection> hwHFBitCountsColl;
     iEvent.getByLabel(hfRingBitCountsSource_, hwHFBitCountsColl);
 
-    ESHandle<L1CaloEtScale> hfRingEtScale;
-    iSetup.get<L1HfRingEtScaleRcd>().get(hfRingEtScale);
+    ESHandle<L1CaloEtScale> hfRingEtScale = iSetup.getHandle(hfRingEtScaleToken_);
 
     if (!hwHFEtSumsColl.isValid()) {
       LogDebug("L1ExtraParticlesProd") << "\nWarning: L1GctHFRingEtSumsCollection with " << hfRingEtSumsSource_
