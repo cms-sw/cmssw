@@ -96,7 +96,7 @@ void GEMPadDigiProducer::buildPads(const GEMDigiCollection& det_digis, GEMPadDig
 
     // fill the output collections
     for (const auto& d : proto_pads) {
-      GEMPadDigi pad_digi(d.first, d.second);
+      GEMPadDigi pad_digi(d.first, d.second, GEMSubDetId::station(p->id().station()));
       out_pads.insertDigi(p->id(), pad_digi);
     }
   }

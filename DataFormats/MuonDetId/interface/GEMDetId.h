@@ -2,13 +2,14 @@
 #define DataFormats_MuonDetId_GEMDetId_h
 
 /** \class GEMDetId
- * 
+ *
  *  DetUnit identifier for GEMs
  *
  */
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/MuonDetId/interface/GEMSubDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <iosfwd>
@@ -165,25 +166,25 @@ public:
   constexpr int region() const { return (static_cast<int>((id_ >> RegionStartBit) & RegionMask) + minRegionId); }
 
   /** Ring id: GEM are installed only on ring 1
-      the ring is the group of chambers with same r (distance of beam axis) 
+      the ring is the group of chambers with same r (distance of beam axis)
       and increasing phi */
   constexpr int ring() const { return (static_cast<int>((id_ >> RingStartBit) & RingMask) + minRingId); }
 
   /** Station id : the station is the set of chambers at same disk */
   constexpr int station() const { return (static_cast<int>((id_ >> StationStartBit) & StationMask) + minStationId0); }
 
-  /** Chamber id: it identifies a chamber in a ring it goes from 1 to 36 
+  /** Chamber id: it identifies a chamber in a ring it goes from 1 to 36
       for GE1 and GE2 and 1 to 18 for ME0 */
   constexpr int chamber() const {
     return (static_cast<int>((id_ >> ChamberStartBit) & ChamberMask) + (minChamberId + 1));
   }
 
-  /** Layer id: each station have two layers of chambers for GE1 and GE2: 
-      layer 1 is the inner chamber and layer 2 is the outer chamber 
+  /** Layer id: each station have two layers of chambers for GE1 and GE2:
+      layer 1 is the inner chamber and layer 2 is the outer chamber
       For ME0 there are 6 layers of chambers */
   constexpr int layer() const { return (static_cast<int>((id_ >> LayerStartBit) & LayerMask) + minLayerId); }
 
-  /** Roll id  (also known as eta partition): each chamber is divided along 
+  /** Roll id  (also known as eta partition): each chamber is divided along
       the strip direction in  several parts  (rolls) GEM up to 12 */
   constexpr int roll() const {
     return (static_cast<int>((id_ >> RollStartBit) & RollMask));  // value 0 is used as wild card
