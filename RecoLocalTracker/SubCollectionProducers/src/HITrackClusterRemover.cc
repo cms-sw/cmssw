@@ -318,7 +318,7 @@ void HITrackClusterRemover::process(OmniClusterRef const &ocluster, SiStripDetId
   if (pblocks_[subdet - 1].usesSize_ && (cluster->amplitudes().size() > pblocks_[subdet - 1].maxSize_))
     return;
   if (!fromTrack) {
-    if (pblocks_[subdet - 0].cutOnStripCharge_ &&
+    if (pblocks_[subdet - 1].cutOnStripCharge_ &&
         (cluster->charge() > (pblocks_[subdet - 1].minGoodStripCharge_ * sensorThickness(detid))))
       return;
   }
