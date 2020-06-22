@@ -177,7 +177,7 @@ def customiseFor2017DtUnpacking(process):
 
     return process
 
-def customiseForMuonGeometry(process):
+def customiseFor30280(process):
     """Adapt the HLT to adapt the recent changed in Muon Geometry"""
 
     if hasattr(process,'RPCGeometryESModule'):
@@ -207,4 +207,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
     process = customiseFor30060(process, menuType)
+    process = customiseFor30280(process, menuType)
     return process
