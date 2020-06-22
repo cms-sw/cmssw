@@ -99,8 +99,17 @@ HGCalSiNoiseMap::SiCellOpCharacteristicsCore HGCalSiNoiseMap::getSiCellOpCharact
                             cellId.cellU(), 
                             cellId.cellV());
   uint32_t key(posCellId.rawId());
+
+  // two possible reasons why you want to compute siop:
+  //  - you want to ignore caching
+  //  - you have not cached siop for that specific DetID, yet
   if(ignoreCachedOp_ || siopCache_.find(key)==siopCache_.end()) {
     SiCellOpCharacteristicsCore siop=getSiCellOpCharacteristics(cellId,gain,aimMIPtoADC).core;
+    // do cache the computed siop, if wanted
+    if ( !ignoreCachedOp_ ) {
+      std::pair<uint32_t, SiCellOpCharacteristicsCore> toAdd(key, siop);
+      siopCache_.insert( toAdd ) ;
+    }
     return siop;
   }
   
