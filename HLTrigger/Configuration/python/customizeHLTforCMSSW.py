@@ -17,6 +17,21 @@ from HLTrigger.Configuration.common import *
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
+
+
+### ECAL customisation for PR30254
+def customiseFor30254(process, menuType):
+    menusToSkip = ("Fake", "Fake1", "Fake2")
+    if menuType not in menusToSkip:
+        from  CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi import EcalLaserCorrectionService
+        process.EcalLaserCorrectionService = cms.ESProducer("EcalLaserCorrectionService",
+                    maxExtrapolationTimeInSec = EcalLaserCorrectionService.maxExtrapolationTimeInSec 
+         )
+
+
+    return process
+
+
 # Hcal calibration lookup using linear indexing
 def customiseFor30060(process, menuType):
     menusToSkip = ("Fake", "Fake1", "Fake2")
@@ -183,4 +198,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
     process = customiseFor30060(process, menuType)
+    process = customiseFor30254(process, menuType)
     return process
