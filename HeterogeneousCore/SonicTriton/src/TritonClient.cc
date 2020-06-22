@@ -127,7 +127,7 @@ bool TritonClient<Client>::getResults(const nic::InferContext::Result& result) {
 template <typename Client>
 void TritonClient<Client>::evaluate() {
   //in case there is nothing to process
-  if (this->batchSize_ == 0) {
+  if (batchSize_ == 0) {
     this->finish(true);
     return;
   }
@@ -157,11 +157,11 @@ void TritonClient<Client>::evaluate() {
     edm::LogInfo(this->fullDebugName_) << "Remote time: "
                                        << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 
-  const auto& end_status = this->getServerSideStatus();
+  const auto& end_status = getServerSideStatus();
 
-  if (this->verbose()) {
-    const auto& stats = this->summarizeServerStats(start_status, end_status);
-    this->reportServerSideStats(stats);
+  if (verbose()) {
+    const auto& stats = summarizeServerStats(start_status, end_status);
+    reportServerSideStats(stats);
   }
 
   status = getResults(*results.begin()->second);
@@ -173,7 +173,7 @@ void TritonClient<Client>::evaluate() {
 template <>
 void TritonClientAsync::evaluate() {
   //in case there is nothing to process
-  if (this->batchSize_ == 0) {
+  if (batchSize_ == 0) {
     this->finish(true);
     return;
   }
@@ -196,30 +196,30 @@ void TritonClientAsync::evaluate() {
         //get results
         bool status = true;
         std::map<std::string, std::unique_ptr<nic::InferContext::Result>> results;
-        status = this->wrap(ctx->GetAsyncRunResults(request, &results), "evaluate(): unable to get result");
+        status = wrap(ctx->GetAsyncRunResults(request, &results), "evaluate(): unable to get result");
         if (!status) {
-          this->output_.resize(nOutput_ * batchSize_, 0.f);
-          this->finish(false);
+          output_.resize(nOutput_ * batchSize_, 0.f);
+          finish(false);
           return;
         }
         auto t2 = std::chrono::high_resolution_clock::now();
 
-        if (!this->debugName_.empty())
-          edm::LogInfo(this->fullDebugName_)
+        if (!debugName_.empty())
+          edm::LogInfo(fullDebugName_)
               << "Remote time: " << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 
-        const auto& end_status = this->getServerSideStatus();
+        const auto& end_status = getServerSideStatus();
 
-        if (this->verbose()) {
-          const auto& stats = this->summarizeServerStats(start_status, end_status);
-          this->reportServerSideStats(stats);
+        if (verbose()) {
+          const auto& stats = summarizeServerStats(start_status, end_status);
+          reportServerSideStats(stats);
         }
 
         //check result
-        status = this->getResults(*results.begin()->second);
+        status = getResults(*results.begin()->second);
 
         //finish
-        this->finish(status);
+        finish(status);
       }),
            "evaluate(): unable to launch async run");
 
