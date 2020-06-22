@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <cassert>
 
-#include "boost/regex.hpp"
+#include <regex>
 
 #include "PhysicsTools/FWLite/interface/TH1Store.h"
 
@@ -101,11 +101,11 @@ TDirectory *TH1Store::_createDir(const string &dirName, TFile *filePtr) const {
   }
   // if we're here, then this directory doesn't exist.  Is this
   // directory a subdirectory?
-  const boost::regex subdirRE("(.+?)/([^/]+)");
-  boost::smatch matches;
+  const std::regex subdirRE("(.+?)/([^/]+)");
+  std::smatch matches;
   TDirectory *parentDir = nullptr;
   string useName = dirName;
-  if (boost::regex_match(dirName, matches, subdirRE)) {
+  if (std::regex_match(dirName, matches, subdirRE)) {
     parentDir = _createDir(matches[1], filePtr);
     useName = matches[2];
   } else {

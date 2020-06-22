@@ -13,7 +13,7 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 
 #include "boost/algorithm/string.hpp"
-#include "boost/regex.hpp"
+#include <regex>
 
 #include <algorithm>
 #include <iostream> // ###
@@ -350,10 +350,10 @@ namespace edm
   EventSelector::matching_triggers(Strings const& trigs, std::string const& s) 
   {
     std::vector< Strings::const_iterator > m;
-    boost::regex r ( glob2reg(s) );
+    std::regex r ( glob2reg(s) );
     for (Strings::const_iterator i = trigs.begin(); i != trigs.end(); ++i)
     {
-      if  (boost::regex_match((*i),r)) 
+      if  (std::regex_match((*i),r)) 
       {
         m.push_back(i);
       }

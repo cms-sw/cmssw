@@ -1,6 +1,7 @@
 #include "EventFilter/L1TRawToDigi/interface/MP7PacketReader.h"
 
 #include <iostream>
+#include <set>
 
 using std::cout;
 using std::endl;

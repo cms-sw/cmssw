@@ -3,7 +3,7 @@
 #include <cstring>
 
 // boost headers
-#include <boost/regex.hpp>
+#include <regex>
 
 // Root headers
 #include <TH1F.h>
@@ -100,13 +100,13 @@ void FastTimerServiceClient::fillSummaryPlots(DQMStore::IBooker& booker, DQMStor
     // the plots are directly in the configured folder
     fillProcessSummaryPlots(booker, getter, m_dqm_path);
   } else {
-    static const boost::regex running_n_processes(".*/Running .*");
+    static const std::regex running_n_processes(".*/Running .*");
 
     booker.setCurrentFolder(m_dqm_path);
     std::vector<std::string> subdirs = getter.getSubdirs();
     for (auto const& subdir : subdirs) {
       // the plots are in a per-number-of-processes folder
-      if (boost::regex_match(subdir, running_n_processes)) {
+      if (std::regex_match(subdir, running_n_processes)) {
         booker.setCurrentFolder(subdir);
         if (getter.get(subdir + "/event time_real"))
           fillProcessSummaryPlots(booker, getter, subdir);
@@ -141,12 +141,12 @@ void FastTimerServiceClient::fillProcessSummaryPlots(DQMStore::IBooker& booker,
   double events = me->getTH1F()->GetEntries();
 
   // look for per-process directories
-  static const boost::regex process_name(".*/process .*");
+  static const std::regex process_name(".*/process .*");
 
   booker.setCurrentFolder(current_path);  // ?!?!?
   std::vector<std::string> subdirs = getter.getSubdirs();
   for (auto const& subdir : subdirs) {
-    if (boost::regex_match(subdir, process_name)) {
+    if (std::regex_match(subdir, process_name)) {
       getter.setCurrentFolder(subdir);
       // look for per-path plots inside each per-process directory
       std::vector<std::string> subsubdirs = getter.getSubdirs();
@@ -189,8 +189,8 @@ void FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker& booker,
     if (subsubdir.find(test) == std::string::npos)
       continue;
 
-    static const boost::regex prefix(current_path + "/path ");
-    std::string path = boost::regex_replace(subsubdir, prefix, "");
+    static const std::regex prefix(current_path + "/path ");
+    std::string path = std::regex_replace(subsubdir, prefix, "");
 
     paths_time->setBinLabel(ibin, path);
     paths_thread->setBinLabel(ibin, path);
@@ -366,14 +366,14 @@ void FastTimerServiceClient::fillPlotsVsLumi(DQMStore::IBooker& booker,
                                              MEPSet pset) {
   std::vector<std::string> menames;
 
-  static const boost::regex byls(".*byls");
-  static const boost::regex test(suffix);
+  static const std::regex byls(".*byls");
+  static const std::regex test(suffix);
   // get all MEs in the current_path
   getter.setCurrentFolder(current_path);
   std::vector<std::string> allmenames = getter.getMEs();
   for (auto const& m : allmenames) {
     // get only MEs vs LS
-    if (boost::regex_match(m, byls))
+    if (std::regex_match(m, byls))
       menames.push_back(m);
   }
   // if no MEs available, return

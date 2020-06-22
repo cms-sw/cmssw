@@ -45,7 +45,7 @@
 
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
-#include <boost/regex.hpp>
+#include <regex>
 #include <map>
 //#include <math>
 
@@ -169,8 +169,8 @@ namespace reco {
     };  // class
 
     TrackerTrackHitFilter::Rule::Rule(const std::string &str) {
-      static const boost::regex rule("(keep|drop)\\s+([A-Z]+)(\\s+(\\d+))?");
-      boost::cmatch match;
+      static const std::regex rule("(keep|drop)\\s+([A-Z]+)(\\s+(\\d+))?");
+      std::cmatch match;
       std::string match_1;
       std::string match_2;
       std::string match_3;
@@ -218,13 +218,13 @@ namespace reco {
       // match a set of capital case chars (preceded by an arbitrary number of leading blanks),
       //followed b an arbitrary number of blanks, one or more digits (not necessary, they cannot also be,
       // another set of blank spaces and, again another *eventual* digit
-      // static boost::regex rule("\\s+([A-Z]+)(\\s+(\\d+)(\\.)?(\\d+))?(\\s+(\\d+)(\\.)?(\\d+))?");
-      static const boost::regex rule(
+      // static std::regex rule("\\s+([A-Z]+)(\\s+(\\d+)(\\.)?(\\d+))?(\\s+(\\d+)(\\.)?(\\d+))?");
+      static const std::regex rule(
           "([A-Z]+)"
           "\\s*(\\d+\\.*\\d*)?"
           "\\s*(\\d+\\.*\\d*)?");
 
-      boost::cmatch match;
+      std::cmatch match;
       std::string match_1;
       std::string match_2;
       std::string match_3;

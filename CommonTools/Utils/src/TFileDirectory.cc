@@ -3,7 +3,7 @@
 
 #include "CommonTools/Utils/interface/TFileDirectory.h"
 
-#include "boost/regex.hpp"
+#include <regex>
 
 using namespace std;
 
@@ -75,11 +75,11 @@ TDirectory *TFileDirectory::_mkdir(TDirectory *dirPtr, const string &subdirName,
   }
   // if we're here, then this directory doesn't exist.  Is this
   // directory a subdirectory?
-  const boost::regex subdirRE("(.+?)/([^/]+)");
-  boost::smatch matches;
+  const std::regex subdirRE("(.+?)/([^/]+)");
+  std::smatch matches;
   TDirectory *parentDir = nullptr;
   string useName = subdirName;
-  if (boost::regex_match(subdirName, matches, subdirRE)) {
+  if (std::regex_match(subdirName, matches, subdirRE)) {
     parentDir = _mkdir(dirPtr, matches[1], description);
     useName = matches[2];
   } else {

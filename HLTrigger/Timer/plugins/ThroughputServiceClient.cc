@@ -3,7 +3,7 @@
 #include <cstring>
 
 // boost headers
-#include <boost/regex.hpp>
+#include <regex>
 
 // Root headers
 #include <TH1F.h>
@@ -65,11 +65,11 @@ void ThroughputServiceClient::fillSummaryPlots(DQMStore::IBooker &booker, DQMSto
     // the plots are in the main folder
     folders.push_back(m_dqm_path);
   } else {
-    static const boost::regex running_n_processes(".*/Running .*");
+    static const std::regex running_n_processes(".*/Running .*");
     booker.setCurrentFolder(m_dqm_path);
     std::vector<std::string> subdirs = getter.getSubdirs();
     for (auto const &subdir : subdirs) {
-      if (boost::regex_match(subdir, running_n_processes)) {
+      if (std::regex_match(subdir, running_n_processes)) {
         if (getter.get(subdir + "/throughput_sourced"))
           // the plots are in a per-number-of-processes subfolder
           folders.push_back(subdir);

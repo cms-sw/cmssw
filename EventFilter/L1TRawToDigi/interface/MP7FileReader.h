@@ -16,7 +16,7 @@
 #include <vector>
 
 // Boost Headers
-#include <boost/regex.hpp>
+#include <regex>
 
 class FileData {
 public:
@@ -89,11 +89,11 @@ public:
   std::vector<FileData> buffers_;
 
 private:
-  static boost::regex reBoard_;
-  static boost::regex reLink_;
-  static boost::regex reQuadChan_;
-  static boost::regex reFrame_;
-  static boost::regex reValid_;
+  static std::regex reBoard_;
+  static std::regex reLink_;
+  static std::regex reQuadChan_;
+  static std::regex reFrame_;
+  static std::regex reValid_;
 };
 
 #endif /* READER_H */

@@ -11,7 +11,8 @@
 //
 
 // system include files
-#include <boost/regex.hpp>
+#include <cassert>
+#include <regex>
 
 // user include files
 #include "Fireworks/Core/src/expressionFormatHelpers.h"
@@ -25,9 +26,9 @@ namespace fireworks {
     std::string oldToNewFormat(const std::string& iExpression) {
       //Backwards compatibility with old format: If find a $. or a () just remove them
       const std::string variable;
-      static boost::regex const reVarName("(\\$\\.)|(\\(\\))");
+      static std::regex const reVarName("(\\$\\.)|(\\(\\))");
 
-      return boost::regex_replace(iExpression, reVarName, variable);
+      return std::regex_replace(iExpression, reVarName, variable);
     }
 
     long indexFromNewFormatToOldFormat(const std::string& iNewFormat,

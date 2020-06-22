@@ -3,7 +3,7 @@
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include <boost/regex.hpp>
+#include <regex>
 
 #include <typeinfo>
 #include <iostream>
@@ -131,11 +131,11 @@ namespace pat {
     public:
       explicit RoleRegexpFilter(const std::string &roleRegexp) : re_(roleRegexp) {}
       bool operator()(const CandRefType &cand, const std::string &role) const override {
-        return boost::regex_match(role, re_);
+        return std::regex_match(role, re_);
       }
 
     private:
-      boost::regex re_;
+      std::regex re_;
     };
   }  // namespace eventhypothesis
 

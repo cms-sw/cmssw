@@ -9,7 +9,7 @@
 // Original Author:
 //         Created:  Tue Jan 25 16:02:03 CET 2011
 //
-#include <boost/regex.hpp>
+#include <regex>
 
 #include "Fireworks/Core/interface/FWHLTTriggerTableView.h"
 #include "Fireworks/Core/interface/fwLog.h"
@@ -45,9 +45,9 @@ void FWHLTTriggerTableView::fillTable(fwlite::Event* event) {
     m_tableManager->dataChanged();
     return;
   }
-  boost::regex filter(m_regex.value());
+  std::regex filter(m_regex.value());
   for (unsigned int i = 0; i < triggerNames->size(); ++i) {
-    if (!boost::regex_search(triggerNames->triggerName(i), filter))
+    if (!std::regex_search(triggerNames->triggerName(i), filter))
       continue;
     m_columns.at(0).values.push_back(triggerNames->triggerName(i));
     m_columns.at(1).values.push_back(Form("%d", hTriggerResults->accept(i)));

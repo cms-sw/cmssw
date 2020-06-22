@@ -10,7 +10,7 @@
 //         Created:  Tue Jan 25 16:02:11 CET 2011
 //
 
-#include <boost/regex.hpp>
+#include <regex>
 #include "Fireworks/Core/interface/FWL1TriggerTableView.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
@@ -52,7 +52,7 @@ void FWL1TriggerTableView::fillTable(fwlite::Event* event) {
     int pfIndexTechTrig = -1;
     int pfIndexAlgoTrig = -1;
 
-    boost::regex filter(m_regex.value());
+    std::regex filter(m_regex.value());
 
     /// prescale factors
     std::vector<std::vector<int> > prescaleFactorsAlgoTrig = triggerMenuLite->gtPrescaleFactorsAlgoTrig();
@@ -83,7 +83,7 @@ void FWL1TriggerTableView::fillTable(fwlite::Event* event) {
       int errorCode = 0;
       const bool result = triggerMenuLite->gtTriggerResult(aName, dWord, errorCode);
 
-      if (!boost::regex_search(aName, filter))
+      if (!std::regex_search(aName, filter))
         continue;
 
       m_columns.at(0).values.push_back(aName);
@@ -102,7 +102,7 @@ void FWL1TriggerTableView::fillTable(fwlite::Event* event) {
 
     int tBitNumber = 0;
     int tBitResult = 0;
-    if (boost::regex_search(kTechTriggerName, filter)) {
+    if (std::regex_search(kTechTriggerName, filter)) {
       for (TechnicalTriggerWord::const_iterator tBitIt = ttWord.begin(), tBitEnd = ttWord.end(); tBitIt != tBitEnd;
            ++tBitIt, ++tBitNumber) {
         if (*tBitIt)

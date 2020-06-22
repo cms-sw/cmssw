@@ -4,7 +4,7 @@
 #include "EventFilter/L1TRawToDigi/interface/MP7FileReader.h"
 
 #include <boost/algorithm/string.hpp>
-#include <boost/regex.hpp>
+#include <regex>
 #include <boost/lexical_cast.hpp>
 
 #include <iostream>
@@ -15,11 +15,11 @@ using std::cout;
 using std::endl;
 
 // Constants initialization
-boost::regex MP7FileReader::reBoard_("^Board (.+)");
-boost::regex MP7FileReader::reLink_("^Link : (.*)");
-boost::regex MP7FileReader::reQuadChan_("^Quad/Chan : (.*)");
-boost::regex MP7FileReader::reFrame_("^Frame (\\d{4}) : (.*)");
-boost::regex MP7FileReader::reValid_("([01])v([0-9a-fA-F]{8})");
+std::regex MP7FileReader::reBoard_("^Board (.+)");
+std::regex MP7FileReader::reLink_("^Link : (.*)");
+std::regex MP7FileReader::reQuadChan_("^Quad/Chan : (.*)");
+std::regex MP7FileReader::reFrame_("^Frame (\\d{4}) : (.*)");
+std::regex MP7FileReader::reValid_("([01])v([0-9a-fA-F]{8})");
 
 //____________________________________________________________________________//
 const std::vector<uint64_t>& FileData::link(uint32_t i) const {
@@ -116,7 +116,7 @@ void MP7FileReader::load() {
 std::string MP7FileReader::searchBoard() {
   std::string line;
   std::string id;
-  boost::smatch what;
+  std::smatch what;
 
   while (getline(file_, line)) {
     // Trim and skip empties and comments
@@ -126,7 +126,7 @@ std::string MP7FileReader::searchBoard() {
     if (line[0] == '#')
       continue;
 
-    if (boost::regex_match(line, what, reBoard_)) {
+    if (std::regex_match(line, what, reBoard_)) {
       // Create a new buffer snapshot
       id = what[1];
       return id;
@@ -142,7 +142,7 @@ std::string MP7FileReader::searchBoard() {
 //____________________________________________________________________________//
 std::vector<uint32_t> MP7FileReader::searchLinks() {
   std::string line;
-  boost::smatch what;
+  std::smatch what;
 
   while (getline(file_, line)) {
     boost::trim(line);
@@ -151,12 +151,12 @@ std::vector<uint32_t> MP7FileReader::searchLinks() {
     if (line[0] == '#')
       continue;
 
-    if (boost::regex_match(line, what, reQuadChan_)) {
+    if (std::regex_match(line, what, reQuadChan_)) {
       // Not used
       continue;
     }
 
-    if (boost::regex_match(line, what, reLink_)) {
+    if (std::regex_match(line, what, reLink_)) {
       std::vector<std::string> tokens;
       std::string tmp = what[1].str();
       // Trim the line
@@ -176,8 +176,8 @@ std::vector<uint32_t> MP7FileReader::searchLinks() {
 }
 
 uint64_t MP7FileReader::validStrToUint64(const std::string& token) {
-  boost::smatch what;
-  if (!boost::regex_match(token, what, reValid_)) {
+  std::smatch what;
+  if (!std::regex_match(token, what, reValid_)) {
     throw std::logic_error("Token '" + token + "' doesn't match the valid format");
   }
 
@@ -189,17 +189,17 @@ uint64_t MP7FileReader::validStrToUint64(const std::string& token) {
 //____________________________________________________________________________//
 std::vector<std::vector<uint64_t> > MP7FileReader::readRows() {
   std::string line;
-  boost::smatch what;
+  std::smatch what;
   std::vector<std::vector<uint64_t> > data;
   int place = file_.tellg();
   while (getline(file_, line)) {
-    if (boost::regex_match(line, what, reBoard_)) {
+    if (std::regex_match(line, what, reBoard_)) {
       // Upos, next board found. Go back by one line
       file_.seekg(place);
       return data;
     }
 
-    if (boost::regex_match(line, what, reFrame_)) {
+    if (std::regex_match(line, what, reFrame_)) {
       // check frame number
       uint32_t n = boost::lexical_cast<uint32_t>(what[1].str());
 

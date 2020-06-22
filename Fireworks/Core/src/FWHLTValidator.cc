@@ -7,7 +7,7 @@
 // system include files
 #include <algorithm>
 #include <cstring>
-#include <boost/regex.hpp>
+#include <regex>
 
 // user include files
 #include "Fireworks/Core/interface/FWHLTValidator.h"
@@ -25,7 +25,7 @@ void FWHLTValidator::fillOptions(const char* iBegin,
                                  std::vector<std::pair<std::shared_ptr<std::string>, std::string> >& oOptions) const {
   oOptions.clear();
   std::string part(iBegin, iEnd);
-  part = boost::regex_replace(part, boost::regex(".*?(\\&\\&|\\|\\||\\s)+"), "");
+  part = std::regex_replace(part, std::regex(".*?(\\&\\&|\\|\\||\\s)+"), "");
 
   if (m_triggerNames.empty()) {
     edm::Handle<edm::TriggerResults> hTriggerResults;
