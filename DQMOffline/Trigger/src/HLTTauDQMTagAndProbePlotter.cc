@@ -46,7 +46,7 @@ HLTTauDQMTagAndProbePlotter::HLTTauDQMTagAndProbePlotter(const edm::ParameterSet
 }
 
 #include <algorithm>
-void HLTTauDQMTagAndProbePlotter::bookHistograms(IWrapper& iWrapper, DQMStore::IBooker &iBooker,
+void HLTTauDQMTagAndProbePlotter::bookHistograms(HistoWrapper& iWrapper, DQMStore::IBooker &iBooker,
                                                  edm::Run const& iRun,
                                                  edm::EventSetup const& iSetup) {
   if (!isValid())

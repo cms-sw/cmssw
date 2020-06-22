@@ -46,7 +46,7 @@ HLTTauDQML1Plotter::HLTTauDQML1Plotter(const edm::ParameterSet& ps,
   configValid_ = true;
 }
 
-void HLTTauDQML1Plotter::bookHistograms(IWrapper &iWrapper, DQMStore::IBooker &iBooker) {
+void HLTTauDQML1Plotter::bookHistograms(HistoWrapper &iWrapper, DQMStore::IBooker &iBooker) {
   if (!configValid_)
     return;
 
