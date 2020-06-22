@@ -39,7 +39,7 @@ HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(const std::string& pathName,
 
 #include <algorithm>
 //void HLTTauDQMPathPlotter::bookHistograms(DQMStore::IBooker& iBooker) {
-void HLTTauDQMPathPlotter::bookHistograms(IWrapper & iWrapper, DQMStore::IBooker &iBooker) {
+void HLTTauDQMPathPlotter::bookHistograms(HistoWrapper & iWrapper, DQMStore::IBooker &iBooker) {
   if (!isValid())
     return;
 

@@ -9,7 +9,7 @@ HLTTauDQMPathSummaryPlotter::HLTTauDQMPathSummaryPlotter(const edm::ParameterSet
 
 HLTTauDQMPathSummaryPlotter::~HLTTauDQMPathSummaryPlotter() = default;
 
-void HLTTauDQMPathSummaryPlotter::bookHistograms(IWrapper &iWrapper, DQMStore::IBooker &iBooker) {
+void HLTTauDQMPathSummaryPlotter::bookHistograms(HistoWrapper &iWrapper, DQMStore::IBooker &iBooker) {
   if (!isValid() || pathObjects_.empty())
     return;
 
