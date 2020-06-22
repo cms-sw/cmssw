@@ -1,3 +1,4 @@
+
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
@@ -360,19 +361,20 @@ def miniAOD_customizeCommon(process):
         toKeep = ['deepTau2017v2p1']
     )
     from Configuration.Eras.Modifier_phase2_common_cff import phase2_common #Phase2 Tau MVA
-    phase2_common.toModify(tauIdEmbedder, tauIdEmbedder.toKeep.append('newDMwLTwGJPhase2')) #Phase2 Tau MVA
+    phase2_common.toModify(tauIdEmbedder.toKeep, func=lambda t:t.append('newDMwLTwGJPhase2')) #Phase2 Tau MVA
     tauIdEmbedder.runTauID()
     addToProcessAndTask(_noUpdatedTauName, process.slimmedTaus.clone(),process,task)
     delattr(process, 'slimmedTaus')
     process.deepTau2017v2p1.taus = _noUpdatedTauName
-    phase2_common.toModify(process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw, PATTauProducer=_noUpdatedTauName) #Phase2 Tau MVA
-    phase2_common.toModify(process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2, PATTauProducer=_noUpdatedTauName) #Phase2 Tau MVA
     process.slimmedTaus = getattr(process, _updatedTauName).clone(
         src = _noUpdatedTauName
     )
     process.deepTauIDTask = cms.Task(process.deepTau2017v2p1, process.slimmedTaus)
     task.add(process.deepTauIDTask)
-    phase2_common.toModify(process.deepTauIDTask, func=lambda t: process.deepTauIDTask.add(process.rerunIsolationMVADBnewDMwLTPhase2Task)) #Phase2 Tau MVA
+    if 'newDMwLTwGJPhase2' in tauIdEmbedder.toKeep:
+        process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw.PATTauProducer=_noUpdatedTauName
+        process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2.PATTauProducer=_noUpdatedTauName
+        task.add(process.rerunIsolationMVADBnewDMwLTPhase2Task)
 
     #-- Adding customization for 80X 2016 legacy reMiniAOD and 2018 heavy ions
     _makePatTausTaskWithTauReReco = process.makePatTausTask.copy()
