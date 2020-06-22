@@ -18,7 +18,8 @@ namespace nic = ni::client;
 
 template <typename Client>
 TritonClient<Client>::TritonClient(const edm::ParameterSet& params)
-    : url_(params.getUntrackedParameter<std::string>("address") + ":" + std::to_string(params.getUntrackedParameter<unsigned>("port"))),
+    : url_(params.getUntrackedParameter<std::string>("address") + ":" +
+           std::to_string(params.getUntrackedParameter<unsigned>("port"))),
       timeout_(params.getUntrackedParameter<unsigned>("timeout")),
       modelName_(params.getParameter<std::string>("modelName")),
       modelVersion_(params.getParameter<int>("modelVersion")),
@@ -205,8 +206,8 @@ void TritonClientAsync::evaluate() {
         auto t2 = std::chrono::high_resolution_clock::now();
 
         if (!debugName_.empty())
-          edm::LogInfo(fullDebugName_)
-              << "Remote time: " << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+          edm::LogInfo(fullDebugName_) << "Remote time: "
+                                       << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 
         const auto& end_status = getServerSideStatus();
 
