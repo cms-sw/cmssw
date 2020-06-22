@@ -13,8 +13,11 @@
 
 #include "request_grpc.h"
 
-namespace ni = nvidia::inferenceserver;
-namespace nic = ni::client;
+//avoid possible collisions in global namespace
+namespace {
+  namespace ni = nvidia::inferenceserver;
+  namespace nic = ni::client;
+}  // namespace
 
 template <typename Client>
 class TritonClient : public Client {
@@ -30,7 +33,7 @@ public:
   TritonClient(const edm::ParameterSet& params);
 
   //helper
-  bool getResults(const std::unique_ptr<nic::InferContext::Result>& result);
+  bool getResults(const nic::InferContext::Result& result);
 
   //accessors
   unsigned nInput() const { return nInput_; }
@@ -86,8 +89,8 @@ protected:
   std::shared_ptr<nic::InferContext::Input> nicInput_;
 };
 
-typedef TritonClient<SonicClientSync<std::vector<float>>> TritonClientSync;
-typedef TritonClient<SonicClientPseudoAsync<std::vector<float>>> TritonClientPseudoAsync;
-typedef TritonClient<SonicClientAsync<std::vector<float>>> TritonClientAsync;
+using TritonClientSync = TritonClient<SonicClientSync<std::vector<float>>>;
+using TritonClientPseudoAsync = TritonClient<SonicClientPseudoAsync<std::vector<float>>>;
+using TritonClientAsync = TritonClient<SonicClientAsync<std::vector<float>>>;
 
 #endif
