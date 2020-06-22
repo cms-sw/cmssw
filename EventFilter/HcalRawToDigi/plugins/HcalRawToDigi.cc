@@ -35,7 +35,7 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf)
   tok_data_ = consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("InputLabel"));
   tok_dbService_ = esConsumes<HcalDbService, HcalDbRecord>();
   tok_electronicsMap_ =
-      esConsumes<HcalElectronicsMap, HcalElectronicsMapRcd>(edm::ESInputTag("", "electronicsMapLabel_"));
+      esConsumes<HcalElectronicsMap, HcalElectronicsMapRcd>(edm::ESInputTag("", electronicsMapLabel_));
 
   if (fedUnpackList_.empty()) {
     // VME range for back-compatibility
