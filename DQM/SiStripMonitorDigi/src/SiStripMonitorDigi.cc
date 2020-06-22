@@ -275,7 +275,7 @@ std::shared_ptr<bool> SiStripMonitorDigi::globalBeginLuminosityBlock(const edm::
 }
 
 //--------------------------------------------------------------------------------------------
-void SiStripMonitorDigi::globalEndLuminosityBlock(const edm::LuminosityBlock& lb, const edm::EventSetup& es) {
+void SiStripMonitorDigi::dqmEndLuminosityBlock(const edm::LuminosityBlock& lb, const edm::EventSetup& es) {
   unsigned int currentLS = lb.id().luminosityBlock();
   const bool isStableBeams = luminosityBlockCache(lb.index());
   if (subdetswitchtotdigifailureon && isStableBeams && !SBTransitionDone) {

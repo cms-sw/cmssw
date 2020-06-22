@@ -800,7 +800,7 @@ void LaserTask::processLaserMon(edm::Handle<QIE10DigiCollection>& col, std::vect
   }
 }
 
-/* virtual */ void LaserTask::globalEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+/* virtual */ void LaserTask::dqmEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
   auto lumiCache = luminosityBlockCache(lb.index());
   _currentLS = lumiCache->currentLS;
 
@@ -808,7 +808,7 @@ void LaserTask::processLaserMon(edm::Handle<QIE10DigiCollection>& col, std::vect
     return;
   this->_dump();
 
-  DQTask::globalEndLuminosityBlock(lb, es);
+  DQTask::dqmEndLuminosityBlock(lb, es);
 }
 
 /* virtual */ bool LaserTask::_isApplicable(edm::Event const& e) {

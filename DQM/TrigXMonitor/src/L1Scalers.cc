@@ -416,6 +416,6 @@ std::shared_ptr<l1s::Empty> L1Scalers::globalBeginLuminosityBlock(const edm::Lum
   return std::shared_ptr<l1s::Empty>();
 }
 
-void L1Scalers::globalEndLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) {
+void L1Scalers::dqmEndLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) {
   nLumiBlock_->Fill(lumiSeg.id().luminosityBlock());
 }

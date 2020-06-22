@@ -126,7 +126,7 @@ public:
   void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
   std::shared_ptr<qlpd::Cache> globalBeginLuminosityBlock(const edm::LuminosityBlock &,
                                                           const edm::EventSetup &) const override;
-  void globalEndLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &iSetup) override;
+  void dqmEndLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &iSetup) override;
   void dqmEndRun(const edm::Run &r, const edm::EventSetup &iSetup) override;
 
 private:

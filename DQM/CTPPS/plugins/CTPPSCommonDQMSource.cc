@@ -36,7 +36,7 @@ protected:
   void analyze(edm::Event const &e, edm::EventSetup const &eSetup) override;
   std::shared_ptr<std::vector<int>> globalBeginLuminosityBlock(const edm::LuminosityBlock &iLumi,
                                                                const edm::EventSetup &c) const override;
-  void globalEndLuminosityBlock(const edm::LuminosityBlock &iLumi, const edm::EventSetup &c) override;
+  void dqmEndLuminosityBlock(const edm::LuminosityBlock &iLumi, const edm::EventSetup &c) override;
 
   void analyzeCTPPSRecord(edm::Event const &event, edm::EventSetup const &eventSetup);
   void analyzeTracks(edm::Event const &event, edm::EventSetup const &eventSetup);
@@ -537,7 +537,7 @@ std::shared_ptr<std::vector<int>> CTPPSCommonDQMSource::globalBeginLuminosityBlo
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSCommonDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock &iLumi, const edm::EventSetup &c) {
+void CTPPSCommonDQMSource::dqmEndLuminosityBlock(const edm::LuminosityBlock &iLumi, const edm::EventSetup &c) {
   auto const &rpstate = *luminosityBlockCache(iLumi.index());
   auto currentLS = iLumi.id().luminosityBlock();
   for (std::vector<int>::size_type i = 0; i < rpstate.size(); i++)

@@ -1195,7 +1195,7 @@ std::shared_ptr<hcaldqm::Cache> TPTask::globalBeginLuminosityBlock(edm::Luminosi
   return DQTask::globalBeginLuminosityBlock(lb, es);
 }
 
-/* virtual */ void TPTask::globalEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+/* virtual */ void TPTask::dqmEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
   if (_ptype != fOnline)
     return;
 
@@ -1285,7 +1285,7 @@ std::shared_ptr<hcaldqm::Cache> TPTask::globalBeginLuminosityBlock(edm::Luminosi
   _xEmulTotal.reset();
 
   //	in the end always do the DQTask::endLumi
-  DQTask::globalEndLuminosityBlock(lb, es);
+  DQTask::dqmEndLuminosityBlock(lb, es);
 }
 
 DEFINE_FWK_MODULE(TPTask);

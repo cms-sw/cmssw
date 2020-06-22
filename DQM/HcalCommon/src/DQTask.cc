@@ -129,7 +129,7 @@ namespace hcaldqm {
     return d;
   }
 
-  void DQTask::globalEndLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) { _procLSs++; }
+  void DQTask::dqmEndLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) { _procLSs++; }
 
   void DQTask::_resetMonitors(UpdateFreq uf) {
     //	reset per event

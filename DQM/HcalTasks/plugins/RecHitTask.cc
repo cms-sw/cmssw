@@ -868,7 +868,7 @@ std::shared_ptr<hcaldqm::Cache> RecHitTask::globalBeginLuminosityBlock(edm::Lumi
   return DQTask::globalBeginLuminosityBlock(lb, es);
 }
 
-/* virtual */ void RecHitTask::globalEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+/* virtual */ void RecHitTask::dqmEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
   if (_ptype != fOnline)
     return;
 
@@ -941,7 +941,7 @@ std::shared_ptr<hcaldqm::Cache> RecHitTask::globalBeginLuminosityBlock(edm::Lumi
   }
 
   //	in the end always do the DQTask::endLumi
-  DQTask::globalEndLuminosityBlock(lb, es);
+  DQTask::dqmEndLuminosityBlock(lb, es);
 }
 
 DEFINE_FWK_MODULE(RecHitTask);

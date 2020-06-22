@@ -32,7 +32,7 @@ public:
         return;
     }
   }
-  void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void dqmEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
 protected:
   //	funcs

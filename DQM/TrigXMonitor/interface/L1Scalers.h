@@ -25,7 +25,7 @@ public:
   /// DQM Client Diagnostic should be performed here:
   std::shared_ptr<l1s::Empty> globalBeginLuminosityBlock(const edm::LuminosityBlock &lumiSeg,
                                                          const edm::EventSetup &c) const final;
-  void globalEndLuminosityBlock(const edm::LuminosityBlock &lumiSeg, const edm::EventSetup &c) override;
+  void dqmEndLuminosityBlock(const edm::LuminosityBlock &lumiSeg, const edm::EventSetup &c) override;
 
 private:
   int nev_;  // Number of events processed

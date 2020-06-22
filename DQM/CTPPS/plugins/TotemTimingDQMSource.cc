@@ -57,7 +57,7 @@ protected:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   std::shared_ptr<totemds::Cache> globalBeginLuminosityBlock(const edm::LuminosityBlock &,
                                                              const edm::EventSetup &) const override;
-  void globalEndLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override;
+  void dqmEndLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override;
 
 private:
   // Constants
@@ -734,7 +734,7 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
 
 //----------------------------------------------------------------------------------------------------
 
-void TotemTimingDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock &iLumi, const edm::EventSetup &) {
+void TotemTimingDQMSource::dqmEndLuminosityBlock(const edm::LuminosityBlock &iLumi, const edm::EventSetup &) {
   auto lumiCache = luminosityBlockCache(iLumi.index());
   for (auto &plot : potPlots_) {
     *(plot.second.hitDistribution2d_lumisection->getTH2F()) = *(lumiCache->hitDistribution2dMap[plot.first]);

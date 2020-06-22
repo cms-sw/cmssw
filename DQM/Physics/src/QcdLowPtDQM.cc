@@ -918,7 +918,7 @@ std::shared_ptr<qlpd::Cache> QcdLowPtDQM::globalBeginLuminosityBlock(const Lumin
   return std::shared_ptr<qlpd::Cache>();
 }
 
-void QcdLowPtDQM::globalEndLuminosityBlock(const LuminosityBlock &l, const EventSetup &iSetup) {
+void QcdLowPtDQM::dqmEndLuminosityBlock(const LuminosityBlock &l, const EventSetup &iSetup) {
   // Update various histograms.
   repSummary_->Fill(1.);
   repSumMap_->Fill(0.5, 0.5, 1.);

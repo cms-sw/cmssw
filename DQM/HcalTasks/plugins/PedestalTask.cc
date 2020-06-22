@@ -937,7 +937,7 @@ std::shared_ptr<hcaldqm::Cache> PedestalTask::globalBeginLuminosityBlock(edm::Lu
     return;
 }
 
-/* virtual */ void PedestalTask::globalEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+/* virtual */ void PedestalTask::dqmEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
   auto lumiCache = luminosityBlockCache(lb.index());
   _currentLS = lumiCache->currentLS;
   _xQuality.reset();
@@ -947,7 +947,7 @@ std::shared_ptr<hcaldqm::Cache> PedestalTask::globalBeginLuminosityBlock(edm::Lu
     return;
   this->_dump();
 
-  DQTask::globalEndLuminosityBlock(lb, es);
+  DQTask::dqmEndLuminosityBlock(lb, es);
 }
 
 /* virtual */ void PedestalTask::_process(edm::Event const& e, edm::EventSetup const& es) {

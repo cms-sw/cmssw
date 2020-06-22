@@ -42,7 +42,7 @@ namespace hcaldqm {
     void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
     std::shared_ptr<hcaldqm::Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const &,
                                                                edm::EventSetup const &) const override;
-    void globalEndLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
+    void dqmEndLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
   protected:
     // protected funcs

@@ -421,7 +421,7 @@ std::shared_ptr<hcaldqm::Cache> RawTask::globalBeginLuminosityBlock(edm::Luminos
   //	_cSummaryvsLS.extendAxisRange(_currentLS);
 }
 
-/* virtual */ void RawTask::globalEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+/* virtual */ void RawTask::dqmEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
   auto lumiCache = luminosityBlockCache(lb.index());
   _currentLS = lumiCache->currentLS;
   _evsPerLS = lumiCache->EvtCntLS;
@@ -490,7 +490,7 @@ std::shared_ptr<hcaldqm::Cache> RawTask::globalBeginLuminosityBlock(edm::Luminos
   _xBadQLS.reset();
 
   //	in the end always do the DQTask::endLumi
-  DQTask::globalEndLuminosityBlock(lb, es);
+  DQTask::dqmEndLuminosityBlock(lb, es);
 }
 
 DEFINE_FWK_MODULE(RawTask);

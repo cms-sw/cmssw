@@ -130,8 +130,8 @@ std::shared_ptr<hcaldqm::Cache> NoCQTask::globalBeginLuminosityBlock(edm::Lumino
   return DQTask::globalBeginLuminosityBlock(lb, es);
 }
 
-/* virtual */ void NoCQTask::globalEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
-  DQTask::globalEndLuminosityBlock(lb, es);
+/* virtual */ void NoCQTask::dqmEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+  DQTask::dqmEndLuminosityBlock(lb, es);
 }
 
 DEFINE_FWK_MODULE(NoCQTask);
