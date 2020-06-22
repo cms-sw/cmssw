@@ -79,7 +79,7 @@ HcalDigiToRawuHTR::HcalDigiToRawuHTR(const edm::ParameterSet& iConfig)
       tok_HFDigiCollection_(consumes<HFDigiCollection>(iConfig.getParameter<edm::InputTag>("HFqie8"))),
       tok_TPDigiCollection_(consumes<HcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("TP"))),
       tok_electronicsMap_(
-          esConsumes<HcalElectronicsMap, HcalElectronicsMapRcd>(edm::ESInputTag("", "electronicsMapLabel_"))),
+          esConsumes<HcalElectronicsMap, HcalElectronicsMapRcd>(edm::ESInputTag("", electronicsMapLabel_))),
       premix_(iConfig.getParameter<bool>("premix")) {
   produces<FEDRawDataCollection>("");
   if (!(tdc1_ >= 0 && tdc1_ <= tdc2_ && tdc2_ <= tdcmax_))
