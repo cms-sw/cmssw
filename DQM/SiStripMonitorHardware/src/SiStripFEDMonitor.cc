@@ -518,8 +518,7 @@ std::shared_ptr<sifedmon::LumiErrors> SiStripFEDMonitorPlugin::globalBeginLumino
   return lumiErrors;
 }
 
-void SiStripFEDMonitorPlugin::dqmEndLuminosityBlock(const edm::LuminosityBlock& lumi,
-                                                       const edm::EventSetup& iSetup) {
+void SiStripFEDMonitorPlugin::dqmEndLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& iSetup) {
   auto lumiErrors = luminosityBlockCache(lumi.index());
   if (enableFEDerrLumi_ && lumiErrfac_) {
     for (unsigned int iD(0); iD < lumiErrors->nTotal.size(); iD++) {

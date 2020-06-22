@@ -81,7 +81,7 @@ public:
   // This could safely be used, and might need to be used to get some types of
   // products, but it will *only* be called if subsystem code adds a lumi cache.
   // For consistency, we use endLuminosityBlockProduce and ban this.
-  virtual void globalEndLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) final{};
+  void globalEndLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) final{};
 
   // Subsystems could safely override this, but any changes to MEs would not be
   // noticeable since the product was made already.
