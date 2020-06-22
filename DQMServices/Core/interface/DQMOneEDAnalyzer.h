@@ -17,8 +17,11 @@
  * and fill per-run histograms with the results.
  */
 template <typename... Args>
-class DQMOneEDAnalyzer
-    : public edm::one::EDProducer<edm::EndRunProducer, edm::one::WatchRuns, edm::Accumulator, Args...> {
+class DQMOneEDAnalyzer : public edm::one::EDProducer<edm::EndRunProducer,
+                                                     edm::EndLuminosityBlockProducer,
+                                                     edm::one::WatchRuns,
+                                                     edm::Accumulator,
+                                                     Args...> {
 public:
   typedef dqm::reco::DQMStore DQMStore;
   typedef dqm::reco::MonitorElement MonitorElement;
@@ -29,6 +32,7 @@ public:
   DQMOneEDAnalyzer() {
     // for whatever reason we need the explicit `template` keyword here.
     runToken_ = this->template produces<DQMToken, edm::Transition::EndRun>("DQMGenerationRecoRun");
+    lumiToken_ = this->template produces<DQMToken, edm::Transition::EndLuminosityBlock>("DQMGenerationRecoLumi");
   }
 
   void beginRun(edm::Run const& run, edm::EventSetup const& setup) final {
@@ -58,11 +62,26 @@ public:
         lumi.run(), lumi.luminosityBlock(), this->moduleDescription().id());
   }
 
+  void endLuminosityBlockProduce(edm::LuminosityBlock& lumi, edm::EventSetup const& setup) final {
+    edm::Service<dqm::legacy::DQMStore>()->enterLumi(
+        lumi.run(), lumi.luminosityBlock(), this->moduleDescription().id());
+    dqmEndLuminosityBlock(lumi, setup);
+    // fully qualified name required for... reasons.
+    edm::Service<dqm::legacy::DQMStore>()->leaveLumi(
+        lumi.run(), lumi.luminosityBlock(), this->moduleDescription().id());
+    lumi.emplace(lumiToken_);
+  }
+
   void endRunProduce(edm::Run& run, edm::EventSetup const& setup) final {
     dqmEndRun(run, setup);
     edm::Service<DQMStore>()->leaveLumi(run.run(), /* lumi */ 0, this->moduleDescription().id());
     run.emplace<DQMToken>(runToken_);
   }
+
+  // This could safely be used, and might need to be used to get some types of
+  // products, but it will *only* be called if subsystem code adds a lumi cache.
+  // For consistency, we use endLuminosityBlockProduce and ban this.
+  virtual void globalEndLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) final{};
 
   // Subsystems could safely override this, but any changes to MEs would not be
   // noticeable since the product was made already.
@@ -73,9 +92,11 @@ protected:
   virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) {}
   virtual void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) = 0;
   virtual void analyze(edm::Event const&, edm::EventSetup const&) {}
+  virtual void dqmEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
   virtual void dqmEndRun(edm::Run const&, edm::EventSetup const&) {}
 
   edm::EDPutTokenT<DQMToken> runToken_;
+  edm::EDPutTokenT<DQMToken> lumiToken_;
 };
 
 /**
@@ -87,16 +108,12 @@ protected:
  */
 
 template <typename... Args>
-class DQMOneLumiEDAnalyzer
-    : public DQMOneEDAnalyzer<edm::EndLuminosityBlockProducer, edm::one::WatchLuminosityBlocks, Args...> {
+class DQMOneLumiEDAnalyzer : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks, Args...> {
 public:
   bool getCanSaveByLumi() override { return true; }
 
   // framework calls in the order of invocation
-  DQMOneLumiEDAnalyzer() {
-    // for whatever reason we need the explicit `template` keyword here.
-    lumiToken_ = this->template produces<DQMToken, edm::Transition::EndLuminosityBlock>("DQMGenerationRecoLumi");
-  }
+  DQMOneLumiEDAnalyzer() {}
 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) final {
     edm::Service<dqm::legacy::DQMStore>()->enterLumi(
@@ -106,14 +123,6 @@ public:
 
   void accumulate(edm::Event const& event, edm::EventSetup const& setup) override { this->analyze(event, setup); }
 
-  void endLuminosityBlockProduce(edm::LuminosityBlock& lumi, edm::EventSetup const& setup) final {
-    dqmEndLuminosityBlock(lumi, setup);
-    // fully qualified name required for... reasons.
-    edm::Service<dqm::legacy::DQMStore>()->leaveLumi(
-        lumi.run(), lumi.luminosityBlock(), this->moduleDescription().id());
-    lumi.emplace(lumiToken_);
-  }
-
   // Subsystems could safely override this, but any changes to MEs would not be
   // noticeable since the product was made already.
   void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) final{};
@@ -121,9 +130,6 @@ public:
 protected:
   // methods to be implemented by the user, in order of invocation
   virtual void dqmBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
-  virtual void dqmEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
-
-  edm::EDPutTokenT<DQMToken> lumiToken_;
 };
 
 #endif  // DQMServices_Core_DQMOneEDAnalyzer_h
