@@ -114,7 +114,7 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
 
     if (id.det() == DetId::HGCalHSc)  //skip those geometries that have HE used as BH
     {
-      radiiVec radius;
+      double radius(0);
       if (scaleByTileArea_ or scaleByDose_ or scaleBySipmArea_)
         radius = scal_.computeRadius(id);
 
@@ -131,7 +131,7 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
 
       //take into account the sipm size
       if (scaleBySipmArea_) {
-        sipmFactor = scal_.scaleBySipmArea(id, radius[0]);
+        sipmFactor = scal_.scaleBySipmArea(id, radius);
         scaledPePerMip *= sipmFactor;
         tunedNoise *= sqrt(sipmFactor);
       }
