@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -54,6 +55,7 @@ public:
 private:
   //Name of Collection used for create the XF
   edm::EDGetTokenT<CrossingFrame<PSimHit> > cf_token;
+  edm::ESGetToken<ME0Geometry, MuonGeometryRecord> geom_token_;
 
   std::unique_ptr<ME0DigiModel> ME0DigiModel_;
 };
@@ -78,13 +80,13 @@ ME0DigiProducer::ME0DigiProducer(const edm::ParameterSet& ps)
   std::string collection_(ps.getParameter<std::string>("inputCollection"));
 
   cf_token = consumes<CrossingFrame<PSimHit> >(edm::InputTag(mix_, collection_));
+  geom_token_ = esConsumes<ME0Geometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 }
 
 ME0DigiProducer::~ME0DigiProducer() = default;
 
 void ME0DigiProducer::beginRun(const edm::Run&, const edm::EventSetup& eventSetup) {
-  edm::ESHandle<ME0Geometry> hGeom;
-  eventSetup.get<MuonGeometryRecord>().get(hGeom);
+  edm::ESHandle<ME0Geometry> hGeom = eventSetup.getHandle(geom_token_);
   ME0DigiModel_->setGeometry(&*hGeom);
   ME0DigiModel_->setup();
 }
