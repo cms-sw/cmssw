@@ -17,6 +17,7 @@
 
 #include "TEveManager.h"
 #include "TEveGeoNode.h"
+#include "TEveGeoShape.h"
 #include "TEveCompound.h"
 
 #include "Fireworks/Core/interface/FW3DViewGeometry.h"

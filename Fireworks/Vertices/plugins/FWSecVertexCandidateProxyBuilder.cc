@@ -10,6 +10,7 @@
 #include "TGeoSphere.h"
 #include "TGeoMatrix.h"
 #include "TEveGeoNode.h"
+#include "TEveGeoShape.h"
 #include "TEveVSDStructs.h"
 
 #include "Fireworks/Candidates/interface/CandidateUtils.h"
