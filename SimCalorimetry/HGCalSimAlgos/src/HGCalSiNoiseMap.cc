@@ -2,7 +2,9 @@
 
 //
 HGCalSiNoiseMap::HGCalSiNoiseMap()
-  : encCommonNoiseSub_(sqrt(1.0)),
+  : defaultGain_(GainRange_t::AUTO),
+    defaultAimMIPtoADC_(10),
+    encCommonNoiseSub_(sqrt(1.0)),
     qe2fc_(1.60217646E-4),
     ignoreFluence_(false),
     ignoreCCE_(false),
@@ -83,13 +85,47 @@ double HGCalSiNoiseMap::getENCpad(const double &ileak) {
   else                 return 457.15*pow(ileak,0.57);
 }
 
+//
+void HGCalSiNoiseMap::setGeometry(const CaloSubdetectorGeometry *hgcGeom,
+                                  GainRange_t gain,
+                                  int aimMIPtoADC){
+
+  //call base class method
+  HGCalRadiationMap::setGeometry(hgcGeom);
+
+  defaultGain_=gain;
+  defaultAimMIPtoADC_=aimMIPtoADC;
+
+  //exit if cache is to be ignored
+  if(ignoreCachedOp_) return; 
+
+  //fill cache if it's not filled
+  if(!siopCache_.empty()) return;
+
+  std::cout << "[HGCalSiNoiseMap::setGeometry] instantianting Si operation cache" << std::endl;
+  const std::vector<DetId> &validDetIds = geom()->getValidDetIds();
+  for(auto &did : validDetIds) {
+
+    //use only positive side detIds
+    unsigned int rawId(did.rawId());
+    HGCSiliconDetId hgcDetId(rawId);
+    if(hgcDetId.zside()!=1) continue;
+
+    //compute and store in ache
+    SiCellOpCharacteristicsCore siop=getSiCellOpCharacteristicsCore(hgcDetId);
+    std::pair<uint32_t, SiCellOpCharacteristicsCore> toAdd(rawId, siop);
+    siopCache_.insert( toAdd ) ;
+  }
+}
+
 
 //
 HGCalSiNoiseMap::SiCellOpCharacteristicsCore HGCalSiNoiseMap::getSiCellOpCharacteristicsCore(const HGCSiliconDetId &cellId,
                                                                                              GainRange_t gain,
                                                                                              int aimMIPtoADC) {
-
-  //check if this already exists in the cache
+  if(ignoreCachedOp_)
+    return getSiCellOpCharacteristics(cellId,gain,aimMIPtoADC).core;
+  
   HGCSiliconDetId posCellId(cellId.subdet(), 
                             1, 
                             cellId.type(), 
@@ -99,21 +135,6 @@ HGCalSiNoiseMap::SiCellOpCharacteristicsCore HGCalSiNoiseMap::getSiCellOpCharact
                             cellId.cellU(), 
                             cellId.cellV());
   uint32_t key(posCellId.rawId());
-
-  // two possible reasons why you want to compute siop:
-  //  - you want to ignore caching
-  //  - you have not cached siop for that specific DetID, yet
-  if(ignoreCachedOp_ || siopCache_.find(key)==siopCache_.end()) {
-    SiCellOpCharacteristicsCore siop=getSiCellOpCharacteristics(cellId,gain,aimMIPtoADC).core;
-    // do cache the computed siop, if wanted
-    if ( !ignoreCachedOp_ ) {
-      std::pair<uint32_t, SiCellOpCharacteristicsCore> toAdd(key, siop);
-      siopCache_.insert( toAdd ) ;
-    }
-    return siop;
-  }
-  
-  //fallback if cache is in use and key exists
   return siopCache_[key];
 }
 
