@@ -350,10 +350,10 @@ void HcalDigisValidation::booking(DQMStore::IBooker& ib, const std::string bsubd
 
       //...TDC
       if (bsubdet == "HB" || bsubdet == "HE") {
-        sprintf(histo, "HcalDigiTask_TDC_time_%s", sub);
+        sprintf(histo, "HcalDigiTask_TDCtime_%s", sub);
         book1D(ib, histo, tdcLim);
 
-        sprintf(histo, "HcalDigiTask_TDC_vs_ADC_%s", sub);
+        sprintf(histo, "HcalDigiTask_TDCtime_vs_ADC_%s", sub);
         book2D(ib, histo, adcLim, tdcLim);
       }
 
@@ -1160,12 +1160,14 @@ void HcalDigisValidation::reco(const edm::Event& iEvent,
           double digiADC = (dataFrame)[ii].adc();
           const QIE11DataFrame dataFrameHBHE = static_cast<const QIE11DataFrame>(*digiItr);
           double digiTDC = (dataFrameHBHE)[ii].tdc();
-          double time = ii * 25. + (digiTDC * 0.5);
-          strtmp = "HcalDigiTask_TDC_time_" + subdet_;
-          fill1D(strtmp, time);
+          if (digiTDC < 50) {
+            double time = ii * 25. + (digiTDC * 0.5);
+            strtmp = "HcalDigiTask_TDCtime_" + subdet_;
+            fill1D(strtmp, time);
 
-          strtmp = "HcalDigiTask_TDC_vs_ADC_" + subdet_;
-          fill2D(strtmp, digiADC, digiTDC);
+            strtmp = "HcalDigiTask_TDCtime_vs_ADC_" + subdet_;
+            fill2D(strtmp, digiADC, time);
+          }
         }
       }
       // end of time bucket sample
