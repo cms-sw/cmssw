@@ -1,4 +1,4 @@
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 #include "RecoMTD/DetLayers/interface/MTDDetSector.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"

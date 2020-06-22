@@ -1,4 +1,4 @@
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 #include "ETLDetLayerGeometryBuilder.h"
 
@@ -18,14 +18,16 @@ using namespace std;
 
 pair<vector<DetLayer*>, vector<DetLayer*> > ETLDetLayerGeometryBuilder::buildLayers(const MTDGeometry& geo,
                                                                                     const int mtdTopologyMode) {
-  vector<DetLayer*> result[2];  // one for each endcap
+  pair<vector<DetLayer*>, vector<DetLayer*> > res_pair;
 
   if (mtdTopologyMode <= static_cast<int>(MTDTopologyMode::Mode::barphiflat)) {
+    vector<DetLayer*> result[2];  // one for each endcap
+
     for (unsigned endcap = 0; endcap < 2; ++endcap) {
       // there is only one layer for ETL right now, maybe more later
-      for (unsigned layer = 0; layer <= 0; ++layer) {
+      for (unsigned layer = 0; layer < ETLDetId::kETLv1nDisc; ++layer) {
         vector<unsigned> rings;
-        for (unsigned ring = 1; ring <= 12; ++ring) {
+        for (unsigned ring = 1; ring <= ETLDetId::kETLv1maxRing; ++ring) {
           rings.push_back(ring);
         }
         MTDRingForwardDoubleLayer* thelayer = buildLayer(endcap, layer, rings, geo);
@@ -33,8 +35,8 @@ pair<vector<DetLayer*>, vector<DetLayer*> > ETLDetLayerGeometryBuilder::buildLay
           result[endcap].push_back(thelayer);
       }
     }
+    res_pair = std::make_pair(result[0], result[1]);
   }
-  pair<vector<DetLayer*>, vector<DetLayer*> > res_pair(result[0], result[1]);
   return res_pair;
 }
 
