@@ -106,8 +106,8 @@ private:
                             const int& firstLayer,
                             HGCalParameters& php);
   void loadSpecParsHexagon(const HGCalParameters& php);
-  void loadSpecParsHexagon8(const HGCalParameters& php);
-  void loadSpecParsTrapezoid(const HGCalParameters& php);
+  void loadSpecParsHexagon8(HGCalParameters& php);
+  void loadSpecParsTrapezoid(HGCalParameters& php);
   std::vector<double> getDDDArray(const std::string& str, const DDsvalues_type& sv, const int nmin);
   std::pair<double, double> cellPosition(const std::vector<cellParameters>& wafers,
                                          std::vector<cellParameters>::const_iterator& itrf,
@@ -118,9 +118,17 @@ private:
   void resetZero(std::vector<double>&);
 
   constexpr static double tan30deg_ = 0.5773502693;
+  constexpr static int siliconFileEE = 2;
+  constexpr static int siliconFileHE = 3;
+  constexpr static int scintillatorFile = 4;
   HGCalGeomTools geomTools_;
   const double sqrt3_;
   double waferSize_;
+  std::vector<int> waferIndex_, waferTypes_, waferParts_, waferOrien_;
+  std::vector<int> tileIndx_, tileType_, tileSiPM_;
+  std::vector<int> tileHEX1_, tileHEX2_, tileHEX3_, tileHEX4_;
+  std::vector<double> tileRMin_, tileRMax_;
+  std::vector<int> tileRingMin_, tileRingMax_;
 };
 
 #endif
