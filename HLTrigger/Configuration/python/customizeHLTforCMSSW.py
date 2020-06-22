@@ -207,5 +207,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
     process = customiseFor30060(process, menuType)
-    process = customiseFor30280(process, menuType)
+    process = customiseFor30280(process)
     return process
