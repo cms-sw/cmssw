@@ -81,7 +81,7 @@ void HGCDigitizerBase<DFr>::run(std::unique_ptr<HGCDigitizerBase::DColl>& digiCo
                                 uint32_t digitizationType,
                                 CLHEP::HepRandomEngine* engine) {
   if (scaleByDose_)
-    scal_.setGeometry(theGeom);
+    scal_.setGeometry(theGeom, HGCalSiNoiseMap::AUTO, myFEelectronics_->getTargetMipValue());
   if (NoiseGeneration_Method_ == true) {
     if (RandNoiseGenerationFlag_ == false) {
       GenerateGaussianNoise(engine, NoiseMean_, NoiseStd_);
@@ -132,8 +132,7 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
 
     if (scaleByDose_) {
       HGCSiliconDetId detId(id);
-      HGCalSiNoiseMap::SiCellOpCharacteristicsCore siop =
-          scal_.getSiCellOpCharacteristicsCore(detId, HGCalSiNoiseMap::AUTO, myFEelectronics_->getTargetMipValue());
+      HGCalSiNoiseMap::SiCellOpCharacteristicsCore siop = scal_.getSiCellOpCharacteristicsCore(detId);
       cce = siop.cce;
       noiseWidth = siop.noise;
       HGCalSiNoiseMap::GainRange_t gain((HGCalSiNoiseMap::GainRange_t)siop.gain);
