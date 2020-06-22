@@ -18,8 +18,7 @@ namespace nic = ni::client;
 
 template <typename Client>
 TritonClient<Client>::TritonClient(const edm::ParameterSet& params)
-    : Client(),
-      url_(params.getParameter<std::string>("address") + ":" + std::to_string(params.getParameter<unsigned>("port"))),
+    : url_(params.getParameter<std::string>("address") + ":" + std::to_string(params.getParameter<unsigned>("port"))),
       timeout_(params.getParameter<unsigned>("timeout")),
       modelName_(params.getParameter<std::string>("modelName")),
       modelVersion_(params.getParameter<int>("modelVersion")),
@@ -52,8 +51,8 @@ bool TritonClient<Client>::setup() {
   //only used for monitoring
   bool has_server = false;
   if (verbose_) {
-    bool has_server = wrap(nic::ServerStatusGrpcContext::Create(&serverCtx_, url_, false),
-                           "setup(): unable to create server context");
+    has_server = wrap(nic::ServerStatusGrpcContext::Create(&serverCtx_, url_, false),
+                      "setup(): unable to create server context");
   }
   if (!has_server)
     serverCtx_ = nullptr;
@@ -74,13 +73,18 @@ bool TritonClient<Client>::setup() {
     return status;
 
   const auto& nicInputs = context_->Inputs();
+  if (nicInputs.empty()) {
+    //currently no use case is foreseen for a model with zero inputs
+    edm::LogWarning("TritonServerWarning") << "Model on server appears malformed (zero input size)";
+    return false;
+  }
   nicInput_ = nicInputs[0];
   nicInput_->Reset();
 
   auto t1 = std::chrono::high_resolution_clock::now();
   std::vector<int64_t> input_shape;
   for (unsigned i0 = 0; i0 < batchSize_; i0++) {
-    float* arr = &(this->input_.data()[i0 * nInput_]);
+    float* arr = &(this->input_[i0 * nInput_]);
     status = wrap(nicInput_->SetRaw(reinterpret_cast<const uint8_t*>(arr), nInput_ * sizeof(float)),
                   "setup(): unable to set data for batch entry " + std::to_string(i0));
     if (!status)
@@ -96,7 +100,7 @@ bool TritonClient<Client>::setup() {
 }
 
 template <typename Client>
-bool TritonClient<Client>::getResults(const std::unique_ptr<nic::InferContext::Result>& result) {
+bool TritonClient<Client>::getResults(const nic::InferContext::Result& result) {
   bool status = true;
 
   auto t1 = std::chrono::high_resolution_clock::now();
@@ -104,12 +108,11 @@ bool TritonClient<Client>::getResults(const std::unique_ptr<nic::InferContext::R
   for (unsigned i0 = 0; i0 < batchSize_; i0++) {
     const uint8_t* r0;
     size_t content_byte_size;
-    status = wrap(result->GetRaw(i0, &r0, &content_byte_size),
+    status = wrap(result.GetRaw(i0, &r0, &content_byte_size),
                   "getResults(): unable to get raw for entry " + std::to_string(i0));
     if (!status)
       return status;
-    const float* lVal = reinterpret_cast<const float*>(r0);
-    std::memcpy(&this->output_[i0 * nOutput_], lVal, nOutput_ * sizeof(float));
+    std::memcpy(&this->output_[i0 * nOutput_], r0, nOutput_ * sizeof(float));
   }
   auto t2 = std::chrono::high_resolution_clock::now();
   if (!this->debugName_.empty())
@@ -161,7 +164,7 @@ void TritonClient<Client>::evaluate() {
     this->reportServerSideStats(stats);
   }
 
-  status = getResults(results.begin()->second);
+  status = getResults(*results.begin()->second);
 
   this->finish(status);
 }
@@ -213,7 +216,7 @@ void TritonClientAsync::evaluate() {
         }
 
         //check result
-        status = this->getResults(results.begin()->second);
+        status = this->getResults(*results.begin()->second);
 
         //finish
         this->finish(status);
