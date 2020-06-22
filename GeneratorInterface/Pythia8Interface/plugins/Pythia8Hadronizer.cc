@@ -93,7 +93,6 @@ public:
   std::unique_ptr<GenLumiInfoHeader> getGenLumiInfoHeader() const override;
 
 private:
-
   void doSetRandomEngine(CLHEP::HepRandomEngine *v) override { p8SetRandomEngine(v); }
   std::vector<std::string> const &doSharedResources() const override { return p8SharedResources; }
 
@@ -315,13 +314,11 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
     throw edm::Exception(edm::errors::Configuration, "Pythia8Interface")
         << " Obsolete parameter: DirePlugin \n Please use the parameter PartonShowers:model instead \n";
   }
-
 }
 
 Pythia8Hadronizer::~Pythia8Hadronizer() {}
 
 bool Pythia8Hadronizer::initializeForInternalPartons() {
-
   bool status = false, status1 = false;
 
   if (lheFile_.empty()) {
@@ -346,7 +343,7 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
     fMasterGen->settings.word("Beams:LHEF", lheFile_);
   }
 
-  if(!fUserHooksVector.get())
+  if (!fUserHooksVector.get())
     fUserHooksVector.reset(new UserHooksVector);
   (fUserHooksVector->hooks).clear();
 
@@ -371,7 +368,8 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
           << " Attempt to turn on PowhegHooks by pythia8 settings but there are incompatible hooks on \n Incompatible "
              "are : jetMatching, emissionVeto1 \n";
 
-    if(!fEmissionVetoHook.get()) fEmissionVetoHook.reset(new PowhegHooks());
+    if (!fEmissionVetoHook.get())
+      fEmissionVetoHook.reset(new PowhegHooks());
 
     edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook from pythia8 code";
     (fUserHooksVector->hooks).push_back(fEmissionVetoHook);
@@ -380,14 +378,16 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
   bool PowhegRes = fMasterGen->settings.flag("POWHEGres:calcScales");
   if (PowhegRes) {
     edm::LogInfo("Pythia8Interface") << "Turning on resonance scale setting from CMSSW Pythia8Interface";
-    if(!fPowhegResHook.get()) fPowhegResHook.reset(new PowhegResHook());
+    if (!fPowhegResHook.get())
+      fPowhegResHook.reset(new PowhegResHook());
     (fUserHooksVector->hooks).push_back(fPowhegResHook);
   }
 
   bool PowhegBB4L = fMasterGen->settings.flag("POWHEG:bb4l");
   if (PowhegBB4L) {
     edm::LogInfo("Pythia8Interface") << "Turning on BB4l hook from CMSSW Pythia8Interface";
-    if(!fPowhegHooksBB4L.get()) fPowhegHooksBB4L.reset(new PowhegHooksBB4L());
+    if (!fPowhegHooksBB4L.get())
+      fPowhegHooksBB4L.reset(new PowhegHooksBB4L());
     (fUserHooksVector->hooks).push_back(fPowhegHooksBB4L);
   }
 
@@ -401,7 +401,8 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
   }
 
   if (internalMatching) {
-    if(!fJetMatchingPy8InternalHook.get()) fJetMatchingPy8InternalHook.reset(new Pythia8::JetMatchingMadgraph);
+    if (!fJetMatchingPy8InternalHook.get())
+      fJetMatchingPy8InternalHook.reset(new Pythia8::JetMatchingMadgraph);
     (fUserHooksVector->hooks).push_back(fJetMatchingPy8InternalHook);
   }
 
@@ -414,16 +415,18 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
                          fMasterGen->settings.flag("Merging:doUNLOPSSubtNLO"))
                             ? 2
                             : 0);
-    if(!fMergingHook.get()) fMergingHook.reset(new Pythia8::amcnlo_unitarised_interface(scheme));
+    if (!fMergingHook.get())
+      fMergingHook.reset(new Pythia8::amcnlo_unitarised_interface(scheme));
     (fUserHooksVector->hooks).push_back(fMergingHook);
   }
 
   bool biasedTauDecayer = fMasterGen->settings.flag("BiasedTauDecayer:filter");
   if (biasedTauDecayer) {
-    if(!fBiasedTauDecayer.get()) fBiasedTauDecayer.reset(new BiasedTauDecayer(&(fMasterGen->info),
-                                                                              &(fMasterGen->settings),
-                                                                              &(fMasterGen->particleData),
-                                                                              &(fMasterGen->rndm)));
+    if (!fBiasedTauDecayer.get())
+      fBiasedTauDecayer.reset(new BiasedTauDecayer(&(fMasterGen->info),
+                                                   &(fMasterGen->settings),
+                                                   &(fMasterGen->particleData),
+                                                   &(fMasterGen->rndm)));
     std::vector<int> handledParticles;
     handledParticles.push_back(15);
     fMasterGen->setDecayPtr(fBiasedTauDecayer, handledParticles);
@@ -469,7 +472,7 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
 
   if (useEvtGen) {
     edm::LogInfo("Pythia8Hadronizer") << "Creating and initializing pythia8 EvtGen plugin";
-    if(!evtgenDecays.get()) {
+    if (!evtgenDecays.get()) {
       evtgenDecays.reset(new EvtGenDecays(fMasterGen.get(), evtgenDecFile, evtgenPdlFile));
       for (unsigned int i = 0; i < evtgenUserFiles.size(); i++)
         evtgenDecays->readDecayFile(evtgenUserFiles.at(i));
@@ -480,12 +483,11 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
 }
 
 bool Pythia8Hadronizer::initializeForExternalPartons() {
-
   edm::LogInfo("Pythia8Interface") << "Initializing for external partons";
 
   bool status = false, status1 = false;
 
-  if(!fUserHooksVector.get())
+  if (!fUserHooksVector.get())
     fUserHooksVector.reset(new UserHooksVector);
   (fUserHooksVector->hooks).clear();
 
@@ -510,7 +512,8 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
           << " Attempt to turn on PowhegHooks by pythia8 settings but there are incompatible hooks on \n Incompatible "
              "are : jetMatching, emissionVeto1 \n";
 
-    if(!fEmissionVetoHook.get()) fEmissionVetoHook.reset(new PowhegHooks());
+    if (!fEmissionVetoHook.get())
+      fEmissionVetoHook.reset(new PowhegHooks());
 
     edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook from pythia8 code";
     (fUserHooksVector->hooks).push_back(fEmissionVetoHook);
@@ -519,14 +522,16 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
   bool PowhegRes = fMasterGen->settings.flag("POWHEGres:calcScales");
   if (PowhegRes) {
     edm::LogInfo("Pythia8Interface") << "Turning on resonance scale setting from CMSSW Pythia8Interface";
-    if(!fPowhegResHook.get()) fPowhegResHook.reset(new PowhegResHook());
+    if (!fPowhegResHook.get())
+      fPowhegResHook.reset(new PowhegResHook());
     (fUserHooksVector->hooks).push_back(fPowhegResHook);
   }
 
   bool PowhegBB4L = fMasterGen->settings.flag("POWHEG:bb4l");
   if (PowhegBB4L) {
     edm::LogInfo("Pythia8Interface") << "Turning on BB4l hook from CMSSW Pythia8Interface";
-    if(!fPowhegHooksBB4L.get()) fPowhegHooksBB4L.reset(new PowhegHooksBB4L());
+    if (!fPowhegHooksBB4L.get())
+      fPowhegHooksBB4L.reset(new PowhegHooksBB4L());
     (fUserHooksVector->hooks).push_back(fPowhegHooksBB4L);
   }
 
@@ -540,7 +545,8 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
   }
 
   if (internalMatching) {
-    if(!fJetMatchingPy8InternalHook.get()) fJetMatchingPy8InternalHook.reset(new Pythia8::JetMatchingMadgraph);
+    if (!fJetMatchingPy8InternalHook.get())
+      fJetMatchingPy8InternalHook.reset(new Pythia8::JetMatchingMadgraph);
     (fUserHooksVector->hooks).push_back(fJetMatchingPy8InternalHook);
   }
 
@@ -553,16 +559,18 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
                          fMasterGen->settings.flag("Merging:doUNLOPSSubtNLO"))
                             ? 2
                             : 0);
-    if(!fMergingHook.get()) fMergingHook.reset(new Pythia8::amcnlo_unitarised_interface(scheme));
+    if (!fMergingHook.get())
+      fMergingHook.reset(new Pythia8::amcnlo_unitarised_interface(scheme));
     (fUserHooksVector->hooks).push_back(fMergingHook);
   }
 
   bool biasedTauDecayer = fMasterGen->settings.flag("BiasedTauDecayer:filter");
   if (biasedTauDecayer) {
-    if(!fBiasedTauDecayer.get()) fBiasedTauDecayer.reset(new BiasedTauDecayer(&(fMasterGen->info),
-                                                                              &(fMasterGen->settings),
-                                                                              &(fMasterGen->particleData),
-                                                                              &(fMasterGen->rndm)));
+    if (!fBiasedTauDecayer.get())
+      fBiasedTauDecayer.reset(new BiasedTauDecayer(&(fMasterGen->info),
+                                                   &(fMasterGen->settings),
+                                                   &(fMasterGen->particleData),
+                                                   &(fMasterGen->rndm)));
     std::vector<int> handledParticles;
     handledParticles.push_back(15);
     fMasterGen->setDecayPtr(fBiasedTauDecayer, handledParticles);
@@ -627,7 +635,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
 
   if (useEvtGen) {
     edm::LogInfo("Pythia8Hadronizer") << "Creating and initializing pythia8 EvtGen plugin";
-    if(!evtgenDecays.get()) {
+    if (!evtgenDecays.get()) {
       evtgenDecays.reset(new EvtGenDecays(fMasterGen.get(), evtgenDecFile, evtgenPdlFile));
       for (unsigned int i = 0; i < evtgenUserFiles.size(); i++)
         evtgenDecays->readDecayFile(evtgenUserFiles.at(i));
