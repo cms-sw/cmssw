@@ -1,31 +1,14 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/mms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/mms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
 
-  <!-- Unit of measurement mm to adapt to Natalia's units -->
+  <!-- Unit of measurement: mm  -->
   <ConstantsSection label="etl.xml" eval="true/false">
-
-    <Constant name="ETLzmin" value="-0.5*([caloBase:Zpos110]-[caloBase:Zpos100])+0.2*mm"/>
-    <Constant name="ETLzmax" value="0.5*([caloBase:Zpos110]-[caloBase:Zpos100])-0.2*mm"/>
+    <Constant name="ETLthickness" value="([caloBase:Zpos110]-[caloBase:Zpos100])-0.4*mm"/>
     <Constant name="ETLcenter" value="0.5*([caloBase:Zpos110]+[caloBase:Zpos100])"/>
-
-    <!--<Constant name="ETLcenter" value="3025.3*mm"/>-->
     <Constant name="Disc1center" value="3000.42*mm+0.2*mm"/>
     <Constant name="Disc2center" value="3030.42*mm+0.2*mm"/>
-
-    <!--<Constant name="ETLcenter" value="3024.5*mm"/>
-    <Constant name="Disc1center" value="2999.62*mm"/>
-    <Constant name="Disc2center" value="3029.62*mm"/>-->
-
-    <!--<Constant name="ETLcenter" value="3024.68497*mm"/>
-    <Constant name="Disc1center" value="2999.62*mm"/>
-    <Constant name="Disc2center" value="3029.62*mm"/>-->
     <Constant name="ETLrmin" value="[caloBase:Rmin100]"/>
     <Constant name="ETLrmax" value="[caloBase:Rmax100]"/>
-    <Constant name="ETLrmax2" value="[caloBase:Rmax100]"/> 
-
-    <!--<Constant name="ETLrmax2" value="[caloBase:Rmax110]"/>-->
-    <!--<Constant name="ETLzmin" value="-39.3*mm"/> 
-    <Constant name="ETLzmax" value="39.3*mm"/>--> 
     <Constant name="Disc_thickness" value="27.9"/>
     <Constant name="Al_Disc_thickness" value="7.24"/>
     <Constant name="Disc_Rmin" value="310"/>
@@ -62,11 +45,7 @@
 
 
   <SolidSection label="etl.xml">
-    <Polycone name="EndcapTimingLayer" startPhi="0*deg" deltaPhi="360*deg">
-      <ZSection z="[ETLzmin]"         rMin="[ETLrmin]"          rMax="[ETLrmax]" />
-      <ZSection z="[ETLzmax]"         rMin="[ETLrmin]"          rMax="[ETLrmax2]" />
-    </Polycone>
-     
+    <Tubs name="EndcapTimingLayer" rMin="[ETLrmin]" rMax="[ETLrmax]" dz="0.5*[ETLthickness]" startPhi="0*deg" deltaPhi="360*deg"/>
     <Tubs name="Disc" rMin="[Disc_Rmin]*mm" rMax="[Disc_Rmax]*mm" dz="0.5*[Disc_thickness]*mm" startPhi="0*deg" deltaPhi="360*deg"/>
     <Tubs name="Al_Disc" rMin="[Disc_Rmin]*mm" rMax="[Disc_Rmax]*mm" dz="0.5*[Al_Disc_thickness]*mm" startPhi="0*deg" deltaPhi="360*deg"/>
     
