@@ -113,7 +113,6 @@ namespace lheh5 {
     EventHeader mkEventHeader(int ievent) const;
   };
 
-<<<<<<< HEAD
   Events readEvents(HighFive::Group& g_index,
                     HighFive::Group& g_particle,
                     HighFive::Group& g_event,
@@ -121,10 +120,6 @@ namespace lheh5 {
                     size_t n_events);
   Events2 readEvents(
       HighFive::Group& g_particle, HighFive::Group& g_event, size_t first_event, size_t n_events, int npLO, int npNLO);
-=======
-  Events readEvents(Group& g_index, Group& g_particle, Group& g_event, size_t first_event, size_t n_events);
-  Events2 readEvents(Group& g_particle, Group& g_event, size_t first_event, size_t n_events, int npLO, int npNLO);
->>>>>>> fixes from scram build code-checks and code-format
   std::ostream& operator<<(std::ostream& os, Particle const& p);
   std::ostream& operator<<(std::ostream& os, EventHeader const& eh);
 }  // namespace lheh5
