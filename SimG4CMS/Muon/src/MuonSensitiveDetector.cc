@@ -5,7 +5,6 @@
 #include "SimG4CMS/Muon/interface/MuonGEMFrameRotation.h"
 #include "SimG4CMS/Muon/interface/MuonME0FrameRotation.h"
 #include "Geometry/MuonNumbering/interface/MuonSubDetector.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 
 #include "SimG4CMS/Muon/interface/SimHitPrinter.h"
 #include "SimDataFormats/TrackingHit/interface/UpdatablePSimHit.h"
