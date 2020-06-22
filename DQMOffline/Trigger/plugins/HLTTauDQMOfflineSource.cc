@@ -32,7 +32,7 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource(const edm::ParameterSet& ps)
   edm::ParameterSet matching = ps.getParameter<edm::ParameterSet>("Matching");
   doRefAnalysis_ = matching.getUntrackedParameter<bool>("doMatching");
 
-  iWrapper = new IWrapper(ps);
+  iWrapper = new HistoWrapper(ps);
 
   if (ps.exists("L1Plotter") && !ps.exists("TagAndProbe")) {
     l1Plotter_ = std::make_unique<HLTTauDQML1Plotter>(ps.getUntrackedParameter<edm::ParameterSet>("L1Plotter"),

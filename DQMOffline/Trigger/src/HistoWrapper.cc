@@ -1,19 +1,19 @@
-#include "DQMOffline/Trigger/interface/IWrapper.h"
+#include "DQMOffline/Trigger/interface/HistoWrapper.h"
 
-IWrapper::IWrapper(const edm::ParameterSet& pset){
+HistoWrapper::HistoWrapper(const edm::ParameterSet& pset){
   plotlevel = (PL)pset.getUntrackedParameter<int>("PlotLevel", int(kEverything));
   cAllHistograms = 0;
   cPlottedHistograms = 0;
 }
 
-IWrapper::~IWrapper(){
+HistoWrapper::~HistoWrapper(){
   std::string s_pl = "kEverything";
   if(plotlevel == 1) s_pl = "kVital";
   std::cout << "Plot level " << plotlevel << " " << s_pl << std::endl;
   std::cout << "Plotting " << cPlottedHistograms << " out of " << cAllHistograms << std::endl;
 }
 
-MonitorElement* IWrapper::book1D(DQMStore::IBooker& iBooker, TString const &name, TString const &title, int const nchX, double const lowX, double const highX, int level){
+MonitorElement* HistoWrapper::book1D(DQMStore::IBooker& iBooker, TString const &name, TString const &title, int const nchX, double const lowX, double const highX, int level){
   cAllHistograms++;
   if(level >= plotlevel){
     cPlottedHistograms++;
@@ -23,7 +23,7 @@ MonitorElement* IWrapper::book1D(DQMStore::IBooker& iBooker, TString const &name
   return 0;
 }
 
-MonitorElement* IWrapper::book2D(DQMStore::IBooker& iBooker, TString const &name, TString const &title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, int level){
+MonitorElement* HistoWrapper::book2D(DQMStore::IBooker& iBooker, TString const &name, TString const &title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, int level){
   cAllHistograms++;
   if(level >= plotlevel){
     cPlottedHistograms++;
