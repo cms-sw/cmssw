@@ -58,12 +58,24 @@ public:
   void setDoseMap(const std::string &, const unsigned int &);
 
   /**
+     @short overrides base class method which sets the geometry so that it can instantiate an operation
+     cache the first time it is called - intrinsically related to the valid detIds in the geometry
+     the filling of the cache is ignored by configuration or if it has already been filled
+   */
+  void setGeometry(const CaloSubdetectorGeometry *,
+                   GainRange_t gain=GainRange_t::AUTO,
+                   int aimMIPtoADC=10);
+
+  /**
      @short returns the charge collection efficiency and noise
      if gain range is set to auto, it will find the most appropriate gain to put the mip peak close to 10 ADC counts
   */
   SiCellOpCharacteristicsCore getSiCellOpCharacteristicsCore(const HGCSiliconDetId &did,
-                                                             GainRange_t gain = GainRange_t::AUTO,
-                                                             int aimMIPtoADC = 10);
+                                                             GainRange_t gain,
+                                                             int aimMIPtoADC);
+  SiCellOpCharacteristicsCore getSiCellOpCharacteristicsCore(const HGCSiliconDetId &did) {
+    return getSiCellOpCharacteristicsCore(did,defaultGain_,defaultAimMIPtoADC_);
+  }
   SiCellOpCharacteristics getSiCellOpCharacteristics(const HGCSiliconDetId &did,
                                                      GainRange_t gain = GainRange_t::AUTO,
                                                      int aimMIPtoADC = 10);
@@ -97,8 +109,11 @@ public:
 
 private:
 
+  GainRange_t defaultGain_;
+  int defaultAimMIPtoADC_;
+
   //cache of SiCellOpCharacteristics
-  std::unordered_map<uint32_t, SiCellOpCharacteristicsCore> siopCache_;
+  std::map<uint32_t, SiCellOpCharacteristicsCore> siopCache_;
 
   //vector of three params, per sensor type: 0:120 [mum], 1:200, 2:300
   std::array<double, 3> mipEqfC_, cellCapacitance_, cellVolume_;
