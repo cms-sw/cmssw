@@ -6,6 +6,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "EventFilter/HcalRawToDigi/interface/HcalUHTRData.h"
 #include "DataFormats/HcalDigi/interface/HcalQIESample.h"
@@ -59,6 +60,7 @@ private:
   edm::EDGetTokenT<HBHEDigiCollection> tok_HBHEDigiCollection_;
   edm::EDGetTokenT<HFDigiCollection> tok_HFDigiCollection_;
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> tok_TPDigiCollection_;
+  edm::ESGetToken<HcalElectronicsMap, HcalElectronicsMapRcd> tok_electronicsMap_;
 
   bool premix_;
 };
@@ -76,6 +78,8 @@ HcalDigiToRawuHTR::HcalDigiToRawuHTR(const edm::ParameterSet& iConfig)
       tok_HBHEDigiCollection_(consumes<HBHEDigiCollection>(iConfig.getParameter<edm::InputTag>("HBHEqie8"))),
       tok_HFDigiCollection_(consumes<HFDigiCollection>(iConfig.getParameter<edm::InputTag>("HFqie8"))),
       tok_TPDigiCollection_(consumes<HcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("TP"))),
+      tok_electronicsMap_(
+          esConsumes<HcalElectronicsMap, HcalElectronicsMapRcd>(edm::ESInputTag("", electronicsMapLabel_))),
       premix_(iConfig.getParameter<bool>("premix")) {
   produces<FEDRawDataCollection>("");
   if (!(tdc1_ >= 0 && tdc1_ <= tdc2_ && tdc2_ <= tdcmax_))
@@ -87,8 +91,7 @@ HcalDigiToRawuHTR::~HcalDigiToRawuHTR() {}
 void HcalDigiToRawuHTR::produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
-  edm::ESHandle<HcalElectronicsMap> item;
-  iSetup.get<HcalElectronicsMapRcd>().get(electronicsMapLabel_, item);
+  edm::ESHandle<HcalElectronicsMap> item = iSetup.getHandle(tok_electronicsMap_);
   const HcalElectronicsMap* readoutMap = item.product();
 
   //collection to be inserted into event
