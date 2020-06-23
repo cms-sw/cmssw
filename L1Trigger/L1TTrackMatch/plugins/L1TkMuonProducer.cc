@@ -202,7 +202,6 @@ L1TkMuonProducer::L1TkMuonProducer(const edm::ParameterSet& iConfig) :
     auto bounds = L1TkMuCorrDynamicWindows::prepare_corr_bounds(fIn_bounds_name, "h_dphi_l");
     TFile* fIn_theta = TFile::Open(fIn_theta_name.c_str());
     TFile* fIn_phi = TFile::Open(fIn_phi_name.c_str());
-    //dwcorr_ = std::unique_ptr<L1TkMuCorrDynamicWindows>(new L1TkMuCorrDynamicWindows(bounds, fIn_theta, fIn_phi));
     dwcorr_ = std::make_unique<L1TkMuCorrDynamicWindows>(bounds, fIn_theta, fIn_phi);
 
     // files can be closed since the correlator code clones the TF1s
