@@ -494,7 +494,9 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
         if (build_cluster)
           nclusters++;
 
-        if (build_cluster && nclusters > 0 && nclusters < 6) {  // Use only the 5 most energetic clusters
+        // Use only the 5 most energetic clusters
+        if (build_cluster && nclusters > 0 && nclusters <= n_clusters_max) {  
+          
           mycluster mc1;
           mc1.cpt = 0.0;
           mc1.cWeightedEta_ = 0.0;
@@ -567,10 +569,8 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
                 getCrystal_etaID(hit.position.eta()) >= getEtaMin_card(cc) && !hit.used && hit.pt() > 0 &&
                 abs(hit.dieta(centerhit)) <= 1 && abs(hit.diphi(centerhit)) <= 2 &&
                 getCrystal_etaID(hit.position.eta()) < getEtaMin_card(cc) + n_crystals_3towers * (nregion + 1) &&
-                getCrystal_etaID(hit.position.eta()) >=
-                    getEtaMin_card(cc) +
-                        n_crystals_3towers *
-                            nregion) {  // clusters 3x5 in etaxphi using only the hits in the corresponding card and in the corresponding 3x4 region
+                getCrystal_etaID(hit.position.eta()) >= getEtaMin_card(cc) + n_crystals_3towers * nregion) {  
+              // clusters 3x5 in etaxphi using only the hits in the corresponding card and in the corresponding 3x4 region
               hit.used = true;
               mc1.cpt += hit.pt();
               mc1.cWeightedEta_ += float(hit.pt()) * float(hit.position.eta());
