@@ -4,6 +4,7 @@
 // Helper Class for applying MVA anti-electron discrimination
 //
 // Authors: F.Colombo, C.Veelken
+//          M. Bluj (template version)
 //--------------------------------------------------------------------------------------------------
 
 #ifndef RECOTAUTAG_RECOTAU_AntiElectronIDMVA6_H
@@ -32,6 +33,59 @@
 
 #include <vector>
 
+struct TauVars {
+  float tauPt;
+  float tauEtaAtEcalEntrance;
+  float tauPhi;
+  float tauLeadChargedPFCandPt;
+  float tauLeadChargedPFCandEtaAtEcalEntrance;
+  float tauEmFraction;
+  float tauLeadPFChargedHadrHoP;
+  float tauLeadPFChargedHadrEoP;
+  float tauVisMassIn;
+  float taudCrackEta;
+  float taudCrackPhi;
+  float tauHasGsf;
+};
+struct TauGammaVecs {
+  std::vector<float> gammasdEtaInSigCone;
+  std::vector<float> gammasdPhiInSigCone;
+  std::vector<float> gammasPtInSigCone;
+  std::vector<float> gammasdEtaOutSigCone;
+  std::vector<float> gammasdPhiOutSigCone;
+  std::vector<float> gammasPtOutSigCone;
+};
+struct TauGammaMoms {
+  int tauSignalPFGammaCandsIn;
+  int tauSignalPFGammaCandsOut;
+  float tauGammaEtaMomIn;
+  float tauGammaEtaMomOut;
+  float tauGammaPhiMomIn;
+  float tauGammaPhiMomOut;
+  float tauGammaEnFracIn;
+  float tauGammaEnFracOut;
+};
+struct EleVars {
+  float elecEta;
+  float elecPhi;
+  float elecEtotOverPin;
+  float elecChi2NormGSF;
+  float elecChi2NormKF;
+  float elecGSFNumHits;
+  float elecKFNumHits;
+  float elecGSFTrackResol;
+  float elecGSFTracklnPt;
+  float elecPin;
+  float elecPout;
+  float elecEecal;
+  float elecDeltaEta;
+  float elecDeltaPhi;
+  float elecMvaInSigmaEtaEta;
+  float elecMvaInHadEnergy;
+  float elecMvaInDeltaEta;
+};
+
+template <class TauType, class ElectronType>
 class AntiElectronIDMVA6 {
 public:
   AntiElectronIDMVA6(const edm::ParameterSet&);
@@ -39,91 +93,26 @@ public:
 
   void beginEvent(const edm::Event&, const edm::EventSetup&);
 
-  double MVAValue(Float_t TauPt,
-                  Float_t TauEtaAtEcalEntrance,
-                  Float_t TauPhi,
-                  Float_t TauLeadChargedPFCandPt,
-                  Float_t TauLeadChargedPFCandEtaAtEcalEntrance,
-                  Float_t TauEmFraction,
-                  Float_t TauLeadPFChargedHadrHoP,
-                  Float_t TauLeadPFChargedHadrEoP,
-                  Float_t TauVisMassIn,
-                  Float_t TaudCrackEta,
-                  Float_t TaudCrackPhi,
-                  Float_t TauHasGsf,
-                  Int_t TauSignalPFGammaCandsIn,
-                  Int_t TauSignalPFGammaCandsOut,
-                  const std::vector<Float_t>& GammasdEtaInSigCone,
-                  const std::vector<Float_t>& GammasdPhiInSigCone,
-                  const std::vector<Float_t>& GammasPtInSigCone,
-                  const std::vector<Float_t>& GammasdEtaOutSigCone,
-                  const std::vector<Float_t>& GammasdPhiOutSigCone,
-                  const std::vector<Float_t>& GammasPtOutSigCone,
-                  Float_t ElecEta,
-                  Float_t ElecPhi,
-                  Float_t ElecEtotOverPin,
-                  Float_t ElecChi2NormGSF,
-                  Float_t ElecChi2NormKF,
-                  Float_t ElecGSFNumHits,
-                  Float_t ElecKFNumHits,
-                  Float_t ElecGSFTrackResol,
-                  Float_t ElecGSFTracklnPt,
-                  Float_t ElecPin,
-                  Float_t ElecPout,
-                  Float_t ElecEecal,
-                  Float_t ElecDeltaEta,
-                  Float_t ElecDeltaPhi,
-                  Float_t ElecMvaInSigmaEtaEta,
-                  Float_t ElecMvaInHadEnergy,
-                  Float_t ElecMvaInDeltaEta);
+  double MVAValue(const TauVars& tauVars,
+		  const TauGammaVecs& tauGammaVecs,
+		  const EleVars& eleVars);
 
-  double MVAValue(Float_t TauPt,
-                  Float_t TauEtaAtEcalEntrance,
-                  Float_t TauPhi,
-                  Float_t TauLeadChargedPFCandPt,
-                  Float_t TauLeadChargedPFCandEtaAtEcalEntrance,
-                  Float_t TauEmFraction,
-                  Float_t TauLeadPFChargedHadrHoP,
-                  Float_t TauLeadPFChargedHadrEoP,
-                  Float_t TauVisMassIn,
-                  Float_t TaudCrackEta,
-                  Float_t TaudCrackPhi,
-                  Float_t TauHasGsf,
-                  Int_t TauSignalPFGammaCandsIn,
-                  Int_t TauSignalPFGammaCandsOut,
-                  Float_t TauGammaEtaMomIn,
-                  Float_t TauGammaEtaMomOut,
-                  Float_t TauGammaPhiMomIn,
-                  Float_t TauGammaPhiMomOut,
-                  Float_t TauGammaEnFracIn,
-                  Float_t TauGammaEnFracOut,
-                  Float_t ElecEta,
-                  Float_t ElecPhi,
-                  Float_t ElecEtotOverPin,
-                  Float_t ElecChi2NormGSF,
-                  Float_t ElecChi2NormKF,
-                  Float_t ElecGSFNumHits,
-                  Float_t ElecKFNumHits,
-                  Float_t ElecGSFTrackResol,
-                  Float_t ElecGSFTracklnPt,
-                  Float_t ElecPin,
-                  Float_t ElecPout,
-                  Float_t ElecEecal,
-                  Float_t ElecDeltaEta,
-                  Float_t ElecDeltaPhi,
-                  Float_t ElecMvaInSigmaEtaEta,
-                  Float_t ElecMvaInHadEnergy,
-                  Float_t ElecMvaInDeltaEta);
+  double MVAValue(const TauVars& tauVars,
+		  const TauGammaMoms& tauGammaMoms,
+		  const EleVars& eleVars);
 
   // this function can be called for all categories
-  double MVAValue(const reco::PFTau& thePFTau, const reco::GsfElectron& theGsfEle);
+  double MVAValue(const TauType& theTau, const ElectronType& theEle);
   // this function can be called for category 1 only !!
-  double MVAValue(const reco::PFTau& thePFTau);
+  double MVAValue(const TauType& theTau);
 
-  // this function can be called for all categories
-  double MVAValue(const pat::Tau& theTau, const pat::Electron& theEle);
-  // this function can be called for category 1 only !!
-  double MVAValue(const pat::Tau& theTau);
+  // overloaded method with explicit tau type to avoid partial imlementation of full class
+  TauVars getTauVarsTypeSpecific(const reco::PFTau& theTau);
+  TauVars getTauVarsTypeSpecific(const pat::Tau& theTau);
+  TauVars getTauVars(const TauType& theTau);
+  TauGammaVecs getTauGammaVecs(const TauType& theTau);
+  EleVars getEleVars(const ElectronType& theEle);
+  
   // track extrapolation to ECAL entrance (used to re-calculate variables that might not be available on miniAOD)
   bool atECalEntrance(const reco::Candidate* part, math::XYZPoint& pos);
 
@@ -147,14 +136,14 @@ private:
 
   bool usePhiAtEcalEntranceExtrapolation_;
 
-  Float_t* Var_NoEleMatch_woGwoGSF_Barrel_;
-  Float_t* Var_NoEleMatch_wGwoGSF_Barrel_;
-  Float_t* Var_woGwGSF_Barrel_;
-  Float_t* Var_wGwGSF_Barrel_;
-  Float_t* Var_NoEleMatch_woGwoGSF_Endcap_;
-  Float_t* Var_NoEleMatch_wGwoGSF_Endcap_;
-  Float_t* Var_woGwGSF_Endcap_;
-  Float_t* Var_wGwGSF_Endcap_;
+  float* Var_NoEleMatch_woGwoGSF_Barrel_;
+  float* Var_NoEleMatch_wGwoGSF_Barrel_;
+  float* Var_woGwGSF_Barrel_;
+  float* Var_wGwGSF_Barrel_;
+  float* Var_NoEleMatch_woGwoGSF_Endcap_;
+  float* Var_NoEleMatch_wGwoGSF_Endcap_;
+  float* Var_woGwGSF_Endcap_;
+  float* Var_wGwGSF_Endcap_;
 
   const GBRForest* mva_NoEleMatch_woGwoGSF_BL_;
   const GBRForest* mva_NoEleMatch_wGwoGSF_BL_;
