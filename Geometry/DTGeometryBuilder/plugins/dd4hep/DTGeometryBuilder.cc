@@ -14,6 +14,7 @@
 //
 // Original Author:  Ianna Osborne
 //         Created:  Wed, 16 Jan 2019 10:19:37 GMT
+//         Modified by Sergio Lo Meo (sergio.lo.meo@cern.ch) Tue, 23 June 2020
 //
 //
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
@@ -28,8 +29,6 @@
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
-
-//#include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryNumbering.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -37,7 +36,6 @@
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-//#include "Geometry/MuonNumbering/interface/DD4hep_DTNumberingScheme.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/DTNumberingScheme.h"
 #include "DTGeometryBuilder.h"
@@ -100,9 +98,6 @@ DTChamber* DTGeometryBuilder::buildChamber(DDFilteredView& fview, const MuonGeom
 
   DTChamberId detId(rawid);
   auto const& par = fview.parameters();
-  // par[0] r-phi  dimension - different in different chambers
-  // par[1] z      dimension - constant 125.55 cm
-  // par[2] radial thickness - almost constant about 18 cm
 
   RCPPlane surf(plane(fview, new RectangularPlaneBounds(par[0], par[1], par[2])));
 
@@ -121,11 +116,7 @@ DTSuperLayer* DTGeometryBuilder::buildSuperLayer(DDFilteredView& fview,
   DTSuperLayerId slId(rawid);
 
   auto const& par = fview.parameters();
-  // par[0] r-phi  dimension - changes in different chambers
-  // par[1] z      dimension - constant 126.8 cm
-  // par[2] radial thickness - almost constant about 20 cm
 
-  // Ok this is the slayer position...
   RCPPlane surf(plane(fview, new RectangularPlaneBounds(par[0], par[1], par[2])));
 
   DTSuperLayer* slayer = new DTSuperLayer(slId, surf, chamber);
@@ -146,16 +137,13 @@ DTLayer* DTGeometryBuilder::buildLayer(DDFilteredView& fview,
   DTLayerId layId(rawid);
 
   auto const& par = fview.parameters();
-  // Layer specific parameter (size)
-  // par[0] r-phi  dimension - changes in different chambers
-  // par[1] z      dimension - constant 126.8 cm
-  // par[2] radial thickness - almost constant about 20 cm
+
   RCPPlane surf(plane(fview, new RectangularPlaneBounds(par[0], par[1], par[2])));
 
   // Loop on wires
   fview.down();
   bool doWire = fview.sibling();
-  int firstWire = fview.volume()->GetNumber();  // copy no
+  int firstWire = fview.volume()->GetNumber();
   auto const& wpar = fview.parameters();
   float wireLength = wpar[1];
 
@@ -184,6 +172,5 @@ void DTGeometryBuilder::build(DTGeometry& geom,
   Volume top = det->worldVolume();
   DDFilteredView fview(det, top);
   fview.mergedSpecifics(refs);
-  //  dtnum_ = make_unique<DTNumberingScheme>(num.values());
   buildGeometry(fview, geom, num);
 }

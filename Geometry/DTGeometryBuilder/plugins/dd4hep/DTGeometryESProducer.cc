@@ -13,6 +13,7 @@
 //
 // Original Author:  Ianna Osborne
 //         Created:  Wed, 16 Jan 2019 10:19:37 GMT
+//         Modified by Sergio Lo Meo (sergio.lo.meo@cern.ch) Tue, 23 June 2020
 //
 //
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
@@ -35,7 +36,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
-//#include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
@@ -80,7 +80,6 @@ private:
   edm::ESGetToken<Alignments, DTAlignmentRcd> m_alignmentsToken;
   edm::ESGetToken<AlignmentErrorsExtended, DTAlignmentErrorExtendedRcd> m_alignmentErrorsToken;
   edm::ESGetToken<MuonGeometryConstants, IdealGeometryRecord> m_mdcToken;
-  //  edm::ESGetToken<MuonNumbering, MuonNumberingRecord> m_mdcToken;
   edm::ESGetToken<DDDetector, IdealGeometryRecord> m_cpvToken;
   edm::ESGetToken<DDSpecParRegistry, DDSpecParRegistryRcd> m_registryToken;
   const ESInputTag m_tag;
@@ -111,7 +110,7 @@ DTGeometryESProducer::DTGeometryESProducer(const ParameterSet& iConfig)
   }
 
   if (m_fromDDD) {
-    m_mdcToken = cc.consumesFrom<MuonGeometryConstants, IdealGeometryRecord>(edm::ESInputTag{});  //IdealGeometryRecord?
+    m_mdcToken = cc.consumesFrom<MuonGeometryConstants, IdealGeometryRecord>(edm::ESInputTag{});
     m_cpvToken = cc.consumesFrom<DDDetector, IdealGeometryRecord>(m_tag);
     m_registryToken = cc.consumesFrom<DDSpecParRegistry, DDSpecParRegistryRcd>(m_tag);
   }
@@ -139,8 +138,6 @@ std::shared_ptr<DTGeometry> DTGeometryESProducer::produce(const MuonGeometryReco
   // Called whenever the alignments or alignment errors change
   //
   if (m_applyAlignment) {
-    // m_applyAlignment is scheduled for removal.
-    // Ideal geometry obtained by using 'fake alignment' (with m_applyAlignment = true)
     edm::ESHandle<Alignments> globalPosition;
     record.getRecord<GlobalPositionRcd>().get(m_alignmentsLabel, globalPosition);
     edm::ESHandle<Alignments> alignments;
