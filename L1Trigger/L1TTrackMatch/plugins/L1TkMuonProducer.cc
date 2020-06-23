@@ -87,13 +87,13 @@ private:
 
   // dump and convert tracks to the format needed for the MAnTra correlator
   std::vector<L1TkMuMantraDF::track_df> product_to_trkvec(const L1TTTrackCollectionType& l1tks);  // tracks
-  std::vector<L1TkMuMantraDF::muon_df> product_to_muvec(
-      const RegionalMuonCandBxCollection& l1mtfs);  // regional muon finder
-  std::vector<L1TkMuMantraDF::muon_df> product_to_muvec(
-      const EMTFTrackCollection& l1mus);  // endcap muon finder - eventually to be moved to regional candidate
+  // regional muon finder
+  std::vector<L1TkMuMantraDF::muon_df> product_to_muvec(const RegionalMuonCandBxCollection& l1mtfs);  
+  // endcap muon finder - eventually to be moved to regional candidate
+  std::vector<L1TkMuMantraDF::muon_df> product_to_muvec(const EMTFTrackCollection& l1mus);  
 
-  float ETAMIN_;
-  float ETAMAX_;
+  float etaMin_;
+  float etaMax_;
   float zMax_;  // |z_track| < zMax_ in cm
   float chi2Max_;
   float pTMinTra_;
@@ -114,23 +114,23 @@ private:
   std::unique_ptr<L1TkMuMantra> mantracorr_endc_;
   int mantra_n_trk_par_;
 
-  const edm::EDGetTokenT<RegionalMuonCandBxCollection> bmtfToken;
-  const edm::EDGetTokenT<RegionalMuonCandBxCollection> omtfToken;
-  const edm::EDGetTokenT<RegionalMuonCandBxCollection> emtfToken;
-  const edm::EDGetTokenT<EMTFTrackCollection>
-      emtfTCToken;  // the track collection, directly from the EMTF and not formatted by GT
+  const edm::EDGetTokenT<RegionalMuonCandBxCollection> bmtfToken_;
+  const edm::EDGetTokenT<RegionalMuonCandBxCollection> omtfToken_;
+  const edm::EDGetTokenT<RegionalMuonCandBxCollection> emtfToken_;
+  // the track collection, directly from the EMTF and not formatted by GT
+  const edm::EDGetTokenT<EMTFTrackCollection> emtfTCToken_;  
   const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > trackToken;
 };
 
 L1TkMuonProducer::L1TkMuonProducer(const edm::ParameterSet& iConfig)
-    : bmtfToken(consumes<RegionalMuonCandBxCollection>(iConfig.getParameter<edm::InputTag>("L1BMTFInputTag"))),
-      omtfToken(consumes<RegionalMuonCandBxCollection>(iConfig.getParameter<edm::InputTag>("L1OMTFInputTag"))),
-      emtfToken(consumes<RegionalMuonCandBxCollection>(iConfig.getParameter<edm::InputTag>("L1EMTFInputTag"))),
-      emtfTCToken(consumes<EMTFTrackCollection>(iConfig.getParameter<edm::InputTag>("L1EMTFTrackCollectionInputTag"))),
+    : bmtfToken_(consumes<RegionalMuonCandBxCollection>(iConfig.getParameter<edm::InputTag>("L1BMTFInputTag"))),
+      omtfToken_(consumes<RegionalMuonCandBxCollection>(iConfig.getParameter<edm::InputTag>("L1OMTFInputTag"))),
+      emtfToken_(consumes<RegionalMuonCandBxCollection>(iConfig.getParameter<edm::InputTag>("L1EMTFInputTag"))),
+      emtfTCToken_(consumes<EMTFTrackCollection>(iConfig.getParameter<edm::InputTag>("L1EMTFTrackCollectionInputTag"))),
       trackToken(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(
           iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))) {
-  ETAMIN_ = (float)iConfig.getParameter<double>("ETAMIN");
-  ETAMAX_ = (float)iConfig.getParameter<double>("ETAMAX");
+  etaMin_ = (float)iConfig.getParameter<double>("ETAMIN");
+  etaMax_ = (float)iConfig.getParameter<double>("ETAMAX");
   zMax_ = (float)iConfig.getParameter<double>("ZMAX");
   chi2Max_ = (float)iConfig.getParameter<double>("CHI2MAX");
   pTMinTra_ = (float)iConfig.getParameter<double>("PTMINTRA");
@@ -298,10 +298,10 @@ void L1TkMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::Handle<RegionalMuonCandBxCollection> l1emtfH;
   edm::Handle<EMTFTrackCollection> l1emtfTCH;
 
-  iEvent.getByToken(bmtfToken, l1bmtfH);
-  iEvent.getByToken(omtfToken, l1omtfH);
-  iEvent.getByToken(emtfToken, l1emtfH);
-  iEvent.getByToken(emtfTCToken, l1emtfTCH);
+  iEvent.getByToken(bmtfToken_, l1bmtfH);
+  iEvent.getByToken(omtfToken_, l1omtfH);
+  iEvent.getByToken(emtfToken_, l1emtfH);
+  iEvent.getByToken(emtfTCToken_, l1emtfTCH);
 
   // the L1Tracks
   edm::Handle<L1TTTrackCollectionType> l1tksH;
@@ -382,9 +382,9 @@ void L1TkMuonProducer::runOnMTFCollection_v1(const edm::Handle<RegionalMuonCandB
                      2 * M_PI / 576.;
 
     float l1mu_feta = fabs(l1mu_eta);
-    if (l1mu_feta < ETAMIN_)
+    if (l1mu_feta < etaMin_)
       continue;
-    if (l1mu_feta > ETAMAX_)
+    if (l1mu_feta > etaMax_)
       continue;
 
     float drmin = 999;

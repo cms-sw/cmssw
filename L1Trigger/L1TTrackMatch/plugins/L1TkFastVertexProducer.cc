@@ -213,7 +213,7 @@ void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
         break;  //
       }
     } else {
-      edm::LogError("L1TkFastVertexProducer")
+      throw cms::Exception("L1TkFastVertexProducer")
           << "\nerror: try to retrieve the MC vertex (monteCarloVertex_ = True) "
           << "\nbut the input file contains neither edm::HepMCProduct>  nor vector<reco::GenParticle>. Exit"
           << std::endl;
@@ -232,7 +232,7 @@ void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByToken(trackToken, L1TTTrackHandle);
 
   if (!L1TTTrackHandle.isValid()) {
-    LogError("L1TkFastVertexProducer") << "\nWarning: L1TkTrackCollection with not found in the event. Exit"
+    throw cms::Exception("L1TkFastVertexProducer") << "\nWarning: L1TkTrackCollection with not found in the event. Exit"
                                        << std::endl;
     return;
   }
@@ -272,7 +272,7 @@ void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
     int tmp_trk_nstub = (int)theStubs.size();
     if (tmp_trk_nstub < 0) {
-      std::cout << " ... could not retrieve the vector of stubs in L1TkFastVertexProducer::SumPtVertex " << std::endl;
+      LogTrace("L1TkFastVertexProducer") << " ... could not retrieve the vector of stubs in L1TkFastVertexProducer::SumPtVertex " << std::endl;
       continue;
     }
 
