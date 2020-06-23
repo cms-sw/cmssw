@@ -83,7 +83,7 @@ private:
 
   bool primaryVtxConstrain_;  // use the primary vertex (default = false)
   float deltaZ_;              // | z_track - z_ref_track | < deltaZ_ in cm.
-                             // Used only when primaryVtxConstrain_ = True.
+                              // Used only when primaryVtxConstrain_ = True.
   float isoCut_;
   bool relativeIsolation_;
 
@@ -106,13 +106,12 @@ L1TkElectronTrackProducer::L1TkElectronTrackProducer(const edm::ParameterSet& iC
     : egToken(consumes<EGammaBxCollection>(iConfig.getParameter<edm::InputTag>("L1EGammaInputTag"))),
       trackToken(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(
           iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))) {
-
   // label of the collection produced
   // e.g. EG or IsoEG if all objects are kept
   // EGIsoTrk or IsoEGIsoTrk if only the EG or IsoEG
   // objects that pass a cut RelIso < isoCut_ are written
   // in the new collection.
-  label = iConfig.getParameter<std::string>("label");  
+  label = iConfig.getParameter<std::string>("label");
 
   etMin_ = (float)iConfig.getParameter<double>("ETmin");
 
@@ -162,11 +161,13 @@ void L1TkElectronTrackProducer::produce(edm::Event& iEvent, const edm::EventSetu
   L1TTTrackCollectionType::const_iterator trackIter;
 
   if (!eGammaHandle.isValid()) {
-    throw cms::Exception("L1TkElectronTrackProducer") << "\nWarning: L1EmCollection not found in the event. Exit" << std::endl;
+    throw cms::Exception("L1TkElectronTrackProducer")
+        << "\nWarning: L1EmCollection not found in the event. Exit" << std::endl;
     return;
   }
   if (!L1TTTrackHandle.isValid()) {
-    throw cms::Exception("TkEmProducer") << "\nWarning: L1TTTrackCollectionType not found in the event. Exit." << std::endl;
+    throw cms::Exception("TkEmProducer") << "\nWarning: L1TTTrackCollectionType not found in the event. Exit."
+                                         << std::endl;
     return;
   }
 

@@ -65,7 +65,7 @@ private:
 
   // ----------member data ---------------------------
 
-  float zMax_;    // in cm
+  float zMax_;   // in cm
   float DeltaZ;  // in cm
   float chi2Max_;
   float pTMinTra_;  // in GeV
@@ -79,7 +79,7 @@ private:
   int nBinning_;  // number of bins used in the temp histogram
 
   bool monteCarloVertex_;  //
-                          //const StackedTrackerGeometry*                   theStackedGeometry;
+                           //const StackedTrackerGeometry*                   theStackedGeometry;
 
   bool doPtComp_;
   bool doTightChi2_;
@@ -232,8 +232,8 @@ void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByToken(trackToken, L1TTTrackHandle);
 
   if (!L1TTTrackHandle.isValid()) {
-    throw cms::Exception("L1TkFastVertexProducer") << "\nWarning: L1TkTrackCollection with not found in the event. Exit"
-                                       << std::endl;
+    throw cms::Exception("L1TkFastVertexProducer")
+        << "\nWarning: L1TkTrackCollection with not found in the event. Exit" << std::endl;
     return;
   }
 
@@ -272,7 +272,8 @@ void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
     int tmp_trk_nstub = (int)theStubs.size();
     if (tmp_trk_nstub < 0) {
-      LogTrace("L1TkFastVertexProducer") << " ... could not retrieve the vector of stubs in L1TkFastVertexProducer::SumPtVertex " << std::endl;
+      LogTrace("L1TkFastVertexProducer")
+          << " ... could not retrieve the vector of stubs in L1TkFastVertexProducer::SumPtVertex " << std::endl;
       continue;
     }
 

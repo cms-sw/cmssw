@@ -96,9 +96,9 @@ private:
   // dump and convert tracks to the format needed for the MAnTra correlator
   std::vector<L1TkMuMantraDF::track_df> product_to_trkvec(const L1TTTrackCollectionType& l1tks);  // tracks
   // regional muon finder
-  std::vector<L1TkMuMantraDF::muon_df> product_to_muvec(const RegionalMuonCandBxCollection& l1mtfs);  
+  std::vector<L1TkMuMantraDF::muon_df> product_to_muvec(const RegionalMuonCandBxCollection& l1mtfs);
   // endcap muon finder - eventually to be moved to regional candidate
-  std::vector<L1TkMuMantraDF::muon_df> product_to_muvec(const EMTFTrackCollection& l1mus);  
+  std::vector<L1TkMuMantraDF::muon_df> product_to_muvec(const EMTFTrackCollection& l1mus);
 
   float etaMin_;
   float etaMax_;
@@ -126,12 +126,12 @@ private:
   const edm::EDGetTokenT<RegionalMuonCandBxCollection> omtfToken_;
   const edm::EDGetTokenT<RegionalMuonCandBxCollection> emtfToken_;
   // the track collection, directly from the EMTF and not formatted by GT
-  const edm::EDGetTokenT<EMTFTrackCollection> emtfTCToken_;  
+  const edm::EDGetTokenT<EMTFTrackCollection> emtfTCToken_;
   const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > trackToken;
 };
 
-L1TkMuonProducer::L1TkMuonProducer(const edm::ParameterSet& iConfig) :
-      etaMin_((float)iConfig.getParameter<double>("ETAMIN")),
+L1TkMuonProducer::L1TkMuonProducer(const edm::ParameterSet& iConfig)
+    : etaMin_((float)iConfig.getParameter<double>("ETAMIN")),
       etaMax_((float)iConfig.getParameter<double>("ETAMAX")),
       zMax_((float)iConfig.getParameter<double>("ZMAX")),
       chi2Max_((float)iConfig.getParameter<double>("CHI2MAX")),
@@ -144,10 +144,8 @@ L1TkMuonProducer::L1TkMuonProducer(const edm::ParameterSet& iConfig) :
       omtfToken_(consumes<RegionalMuonCandBxCollection>(iConfig.getParameter<edm::InputTag>("L1OMTFInputTag"))),
       emtfToken_(consumes<RegionalMuonCandBxCollection>(iConfig.getParameter<edm::InputTag>("L1EMTFInputTag"))),
       emtfTCToken_(consumes<EMTFTrackCollection>(iConfig.getParameter<edm::InputTag>("L1EMTFTrackCollectionInputTag"))),
-      trackToken(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))) 
-{
-
-
+      trackToken(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(
+          iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))) {
   // --------------------- configuration of the muon algorithm type
 
   std::string bmtfMatchAlgoVersionString = iConfig.getParameter<std::string>("bmtfMatchAlgoVersion");
@@ -173,7 +171,8 @@ L1TkMuonProducer::L1TkMuonProducer(const edm::ParameterSet& iConfig) :
   else if (bmtfMatchAlgoVersionString == "mantra")
     bmtfMatchAlgoVersion_ = kMantra;
   else
-    throw cms::Exception("TkMuAlgoConfig") << "the ID " << bmtfMatchAlgoVersionString << " of the BMTF algo matcher passed is invalid\n";
+    throw cms::Exception("TkMuAlgoConfig")
+        << "the ID " << bmtfMatchAlgoVersionString << " of the BMTF algo matcher passed is invalid\n";
 
   //
 
@@ -182,7 +181,8 @@ L1TkMuonProducer::L1TkMuonProducer(const edm::ParameterSet& iConfig) :
   else if (omtfMatchAlgoVersionString == "mantra")
     omtfMatchAlgoVersion_ = kMantra;
   else
-    throw cms::Exception("TkMuAlgoConfig") << "the ID " << omtfMatchAlgoVersionString << " of the OMTF algo matcher passed is invalid\n";
+    throw cms::Exception("TkMuAlgoConfig")
+        << "the ID " << omtfMatchAlgoVersionString << " of the OMTF algo matcher passed is invalid\n";
 
   //
 
@@ -193,7 +193,8 @@ L1TkMuonProducer::L1TkMuonProducer(const edm::ParameterSet& iConfig) :
   else if (emtfMatchAlgoVersionString == "mantra")
     emtfMatchAlgoVersion_ = kMantra;
   else
-    throw cms::Exception("TkMuAlgoConfig") << "the ID " << emtfMatchAlgoVersionString << " of the EMTF algo matcher passed is invalid\n";
+    throw cms::Exception("TkMuAlgoConfig")
+        << "the ID " << emtfMatchAlgoVersionString << " of the EMTF algo matcher passed is invalid\n";
 
   correctGMTPropForTkZ_ = iConfig.getParameter<bool>("correctGMTPropForTkZ");
 
@@ -333,8 +334,8 @@ void L1TkMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     auto match_idx = mantracorr_barr_->find_match(mantradf_tracks, muons);
     build_tkMuons_from_idxs(oc_bmtf_tkmuon, match_idx, l1tksH, l1bmtfH, barrel_MTF_region);
   } else
-    throw cms::Exception("TkMuAlgoConfig")
-        << " barrel : trying to run an invalid algorithm version " << bmtfMatchAlgoVersion_ << " (this should never happen)\n";
+    throw cms::Exception("TkMuAlgoConfig") << " barrel : trying to run an invalid algorithm version "
+                                           << bmtfMatchAlgoVersion_ << " (this should never happen)\n";
 
   // ----------------------------------------------------- overlap
   if (omtfMatchAlgoVersion_ == kTP)
@@ -344,8 +345,8 @@ void L1TkMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     auto match_idx = mantracorr_ovrl_->find_match(mantradf_tracks, muons);
     build_tkMuons_from_idxs(oc_omtf_tkmuon, match_idx, l1tksH, l1omtfH, overlap_MTF_region);
   } else
-    throw cms::Exception("TkMuAlgoConfig")
-        << " overlap : trying to run an invalid algorithm version " << omtfMatchAlgoVersion_ << " (this should never happen)\n";
+    throw cms::Exception("TkMuAlgoConfig") << " overlap : trying to run an invalid algorithm version "
+                                           << omtfMatchAlgoVersion_ << " (this should never happen)\n";
 
   // ----------------------------------------------------- endcap
   if (emtfMatchAlgoVersion_ == kTP)
@@ -357,8 +358,8 @@ void L1TkMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     auto match_idx = mantracorr_endc_->find_match(mantradf_tracks, muons);
     build_tkMuons_from_idxs(oc_emtf_tkmuon, match_idx, l1tksH, endcap_MTF_region);
   } else
-    throw cms::Exception("TkMuAlgoConfig")
-        << "endcap : trying to run an invalid algorithm version " << emtfMatchAlgoVersion_ << " (this should never happen)\n";
+    throw cms::Exception("TkMuAlgoConfig") << "endcap : trying to run an invalid algorithm version "
+                                           << emtfMatchAlgoVersion_ << " (this should never happen)\n";
 
   // now combine all trk muons into a single output collection!
   auto oc_tkmuon = std::make_unique<TkMuonCollection>();
@@ -385,8 +386,8 @@ void L1TkMuonProducer::runOnMTFCollection_v1(const edm::Handle<RegionalMuonCandB
 
     float l1mu_eta = l1mu->hwEta() * eta_scale;
     // get the global phi
-    float l1mu_phi = MicroGMTConfiguration::calcGlobalPhi(l1mu->hwPhi(), l1mu->trackFinderType(), l1mu->processor()) *
-                     phi_scale;
+    float l1mu_phi =
+        MicroGMTConfiguration::calcGlobalPhi(l1mu->hwPhi(), l1mu->trackFinderType(), l1mu->processor()) * phi_scale;
 
     float l1mu_feta = fabs(l1mu_eta);
     if (l1mu_feta < etaMin_)
@@ -500,7 +501,8 @@ void L1TkMuonProducer::runOnMTFCollection_v2(const edm::Handle<EMTFTrackCollecti
 
   // sanity check
   if (corr_mu_idxs.size() != l1trks.size())
-    throw cms::Exception("TkMuAlgoOutput") << "the size of tkmu indices does not match the size of input trk collection\n";
+    throw cms::Exception("TkMuAlgoOutput")
+        << "the size of tkmu indices does not match the size of input trk collection\n";
 
   for (uint il1ttrack = 0; il1ttrack < corr_mu_idxs.size(); ++il1ttrack) {
     int emtf_idx = corr_mu_idxs.at(il1ttrack);
@@ -633,7 +635,8 @@ std::vector<L1TkMuMantraDF::muon_df> L1TkMuonProducer::product_to_muvec(const Re
     this_mu.pt = l1mu->hwPt() * 0.5;
     this_mu.eta = l1mu->hwEta() * eta_scale;
     this_mu.theta = L1TkMuMantra::to_mpio2_pio2(L1TkMuMantra::eta_to_theta(l1mu->hwEta() * eta_scale));
-    this_mu.phi = MicroGMTConfiguration::calcGlobalPhi(l1mu->hwPhi(), l1mu->trackFinderType(), l1mu->processor()) * phi_scale;
+    this_mu.phi =
+        MicroGMTConfiguration::calcGlobalPhi(l1mu->hwPhi(), l1mu->trackFinderType(), l1mu->processor()) * phi_scale;
     this_mu.charge = (l1mu->hwSign() == 0 ? 1 : -1);  // charge sign bit (charge = (-1)^(sign))
     result.push_back(this_mu);
   }

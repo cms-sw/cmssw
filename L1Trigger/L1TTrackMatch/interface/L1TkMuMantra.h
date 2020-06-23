@@ -106,7 +106,6 @@ public:
     return x;
   }
 
-
 private:
   int findBin(double val);
 

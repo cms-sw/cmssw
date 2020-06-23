@@ -42,7 +42,8 @@ L1TkMuMantra::L1TkMuMantra(std::vector<double>& bounds, TFile* fIn_theta, TFile*
         LogTrace("L1TkMuMantra") << "... fit theta cent : " << fc << std::endl;
         LogTrace("L1TkMuMantra") << "... fit theta high : " << fh << std::endl;
       }
-      throw cms::Exception("L1TkMuMantra") << "TF1 named " << nml  << " or " << nmc << " or " << nmh<< " not found in file " << fIn_theta->GetName() << ".\n";
+      throw cms::Exception("L1TkMuMantra") << "TF1 named " << nml << " or " << nmc << " or " << nmh
+                                           << " not found in file " << fIn_theta->GetName() << ".\n";
     }
     wdws_theta_.at(ib).SetName(wdn);
     wdws_theta_.at(ib).SetLower(fl);
@@ -62,7 +63,8 @@ L1TkMuMantra::L1TkMuMantra(std::vector<double>& bounds, TFile* fIn_theta, TFile*
         LogTrace("L1TkMuMantra") << "... fit phi cent : " << fc << std::endl;
         LogTrace("L1TkMuMantra") << "... fit phi high : " << fh << std::endl;
       }
-      throw cms::Exception("L1TkMuMantra") << "TF1 named " << nml  << " or " << nmc << " or " << nmh<< " not found in file " << fIn_theta->GetName() << ".\n";
+      throw cms::Exception("L1TkMuMantra") << "TF1 named " << nml << " or " << nmc << " or " << nmh
+                                           << " not found in file " << fIn_theta->GetName() << ".\n";
     }
     wdws_phi_.at(ib).SetName(wdn);
     wdws_phi_.at(ib).SetLower(fl);
@@ -125,8 +127,8 @@ std::vector<int> L1TkMuMantra::find_match(const std::vector<track_df>& tracks, c
 
       double dphi_charge = to_mpi_pi((trk.phi - mu.phi) * trk.charge);
       // sign from theta, to avoid division by 0
-      double dtheta_endc = (mu.theta - trk.theta) * sign(mu.theta);  
-      if (sign(mu.theta) != sign( trk.theta)) {  
+      double dtheta_endc = (mu.theta - trk.theta) * sign(mu.theta);
+      if (sign(mu.theta) != sign(trk.theta)) {
         // crossing the barrel -> remove 180 deg to the theta of the neg candidate to avoid jumps at eta = 0
         dtheta_endc -= TMath::Pi();
       }
@@ -152,7 +154,7 @@ std::vector<int> L1TkMuMantra::find_match(const std::vector<track_df>& tracks, c
           sort_par = trk.pt;
         else if (sort_type_ == kMinDeltaPt) {
           // trk.pt should always be > 0, but put this protection just in case
-          sort_par = (trk.pt > 0 ? std::abs(1. - (mu.pt / trk.pt)) : 0);  
+          sort_par = (trk.pt > 0 ? std::abs(1. - (mu.pt / trk.pt)) : 0);
         }
         matched_trks.push_back(std::make_pair(sort_par, itrk));
       }
@@ -191,7 +193,7 @@ void L1TkMuMantra::setArbitrationType(std::string type) {
   else if (type == "MinDeltaPt")
     sort_type_ = kMinDeltaPt;
   else
-    throw cms::Exception("L1TkMuMantra") <<  "setArbitrationType : cannot understand the arbitration type passed.\n";
+    throw cms::Exception("L1TkMuMantra") << "setArbitrationType : cannot understand the arbitration type passed.\n";
 }
 
 std::vector<double> L1TkMuMantra::prepare_corr_bounds(std::string fname, std::string hname) {
@@ -199,7 +201,8 @@ std::vector<double> L1TkMuMantra::prepare_corr_bounds(std::string fname, std::st
   TFile* fIn = TFile::Open(fname.c_str());
   TH2* h_test = (TH2*)fIn->Get(hname.c_str());
   if (h_test == nullptr) {
-    throw cms::Exception("L1TkMuMantra") << "Can't find histo " << hname << " in file " << fname << " to derive bounds.\n";
+    throw cms::Exception("L1TkMuMantra") << "Can't find histo " << hname << " in file " << fname
+                                         << " to derive bounds.\n";
   }
 
   int nbds = h_test->GetNbinsY() + 1;

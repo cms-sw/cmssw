@@ -35,7 +35,8 @@ L1TkMuCorrDynamicWindows::L1TkMuCorrDynamicWindows(std::vector<double>& bounds, 
     fl = (TF1*)fIn_theta->Get(nml.c_str());
     fh = (TF1*)fIn_theta->Get(nmh.c_str());
     if (fl == nullptr || fh == nullptr)
-      throw cms::Exception("L1TkMuCorrDynamicWindows") << "TF1 named " << nml  << " or " << nmh<< " not found in file " << fIn_theta->GetName() << ".\n";
+      throw cms::Exception("L1TkMuCorrDynamicWindows")
+          << "TF1 named " << nml << " or " << nmh << " not found in file " << fIn_theta->GetName() << ".\n";
     wdws_theta_.at(ib).SetName(wdn);
     wdws_theta_.at(ib).SetLower(fl);
     wdws_theta_.at(ib).SetUpper(fh);
@@ -46,7 +47,8 @@ L1TkMuCorrDynamicWindows::L1TkMuCorrDynamicWindows(std::vector<double>& bounds, 
     fl = (TF1*)fIn_phi->Get(nml.c_str());
     fh = (TF1*)fIn_phi->Get(nmh.c_str());
     if (fl == nullptr || fh == nullptr)
-      throw cms::Exception("L1TkMuCorrDynamicWindows") << "TF1 named " << nml  << " or " << nmh<< " not found in file " << fIn_theta->GetName() << ".\n";
+      throw cms::Exception("L1TkMuCorrDynamicWindows")
+          << "TF1 named " << nml << " or " << nmh << " not found in file " << fIn_theta->GetName() << ".\n";
     wdws_phi_.at(ib).SetName(wdn);
     wdws_phi_.at(ib).SetLower(fl);
     wdws_phi_.at(ib).SetUpper(fh);
@@ -85,7 +87,8 @@ L1TkMuCorrDynamicWindows::L1TkMuCorrDynamicWindows(
     fl = (TF1*)fIn_theta->Get(nml.c_str());
     fh = (TF1*)fIn_theta->Get(nmh.c_str());
     if (fl == nullptr || fh == nullptr)
-      throw cms::Exception("L1TkMuCorrDynamicWindows") << "TF1 named " << nml  << " or " << nmh<< " not found in file " << fIn_theta->GetName() << ".\n";
+      throw cms::Exception("L1TkMuCorrDynamicWindows")
+          << "TF1 named " << nml << " or " << nmh << " not found in file " << fIn_theta->GetName() << ".\n";
     wdws_theta_.at(ib).SetName(wdn);
     wdws_theta_.at(ib).SetLower(fl);
     wdws_theta_.at(ib).SetUpper(fh);
@@ -96,7 +99,8 @@ L1TkMuCorrDynamicWindows::L1TkMuCorrDynamicWindows(
     fl = (TF1*)fIn_phi->Get(nml.c_str());
     fh = (TF1*)fIn_phi->Get(nmh.c_str());
     if (fl == nullptr || fh == nullptr)
-      throw cms::Exception("L1TkMuCorrDynamicWindows") << "TF1 named " << nml  << " or " << nmh<< " not found in file " << fIn_theta->GetName() << ".\n";
+      throw cms::Exception("L1TkMuCorrDynamicWindows")
+          << "TF1 named " << nml << " or " << nmh << " not found in file " << fIn_theta->GetName() << ".\n";
     wdws_phi_.at(ib).SetName(wdn);
     wdws_phi_.at(ib).SetLower(fl);
     wdws_phi_.at(ib).SetUpper(fh);
@@ -109,7 +113,8 @@ L1TkMuCorrDynamicWindows::L1TkMuCorrDynamicWindows(
     fl = (TF1*)fIn_theta_S1->Get(nml.c_str());
     fh = (TF1*)fIn_theta_S1->Get(nmh.c_str());
     if (fl == nullptr || fh == nullptr)
-      throw cms::Exception("L1TkMuCorrDynamicWindows") << "TF1 named " << nml  << " or " << nmh<< " not found in file " << fIn_theta->GetName() << ".\n";
+      throw cms::Exception("L1TkMuCorrDynamicWindows")
+          << "TF1 named " << nml << " or " << nmh << " not found in file " << fIn_theta->GetName() << ".\n";
     wdws_theta_S1_.at(ib).SetName(wdn);
     wdws_theta_S1_.at(ib).SetLower(fl);
     wdws_theta_S1_.at(ib).SetUpper(fh);
@@ -120,7 +125,8 @@ L1TkMuCorrDynamicWindows::L1TkMuCorrDynamicWindows(
     fl = (TF1*)fIn_phi_S1->Get(nml.c_str());
     fh = (TF1*)fIn_phi_S1->Get(nmh.c_str());
     if (fl == nullptr || fh == nullptr)
-      throw cms::Exception("L1TkMuCorrDynamicWindows") << "TF1 named " << nml  << " or " << nmh<< " not found in file " << fIn_theta->GetName() << ".\n";
+      throw cms::Exception("L1TkMuCorrDynamicWindows")
+          << "TF1 named " << nml << " or " << nmh << " not found in file " << fIn_theta->GetName() << ".\n";
     wdws_phi_S1_.at(ib).SetName(wdn);
     wdws_phi_S1_.at(ib).SetLower(fl);
     wdws_phi_S1_.at(ib).SetUpper(fh);
@@ -223,7 +229,6 @@ std::vector<int> L1TkMuCorrDynamicWindows::find_match(const EMTFTrackCollection&
 
   // now convert out to a unique set
   return make_unique_coll(l1mus.size(), l1trks, out);
-
 }
 
 std::vector<int> L1TkMuCorrDynamicWindows::find_match_stub(const EMTFHitCollection& l1mus,
@@ -384,7 +389,8 @@ std::vector<double> L1TkMuCorrDynamicWindows::prepare_corr_bounds(const string& 
   TFile* fIn = TFile::Open(fname.c_str());
   TH2* h_test = (TH2*)fIn->Get(hname.c_str());
   if (h_test == nullptr) {
-    throw cms::Exception("L1TkMuCorrDynamicWindows") << "Can't find histo " << hname << " in file " << fname << " to derive bounds.\n";
+    throw cms::Exception("L1TkMuCorrDynamicWindows")
+        << "Can't find histo " << hname << " in file " << fname << " to derive bounds.\n";
   }
 
   int nbds = h_test->GetNbinsY() + 1;

@@ -29,7 +29,7 @@ public:
   L1TkMuCorrDynamicWindows(std::vector<double>& bounds, TFile* fIn_theta, TFile* fIn_phi);
   L1TkMuCorrDynamicWindows(
       std::vector<double>& bounds, TFile* fIn_theta, TFile* fIn_phi, TFile* fIn_theta_S1, TFile* fIn_phi_S1);
-  ~L1TkMuCorrDynamicWindows(){}
+  ~L1TkMuCorrDynamicWindows() {}
   std::vector<int> find_match(
       const EMTFTrackCollection& l1mus,
       const L1TTTrackCollectionType& l1trks);  // gives a vector with the idxs of muons for each L1TTT

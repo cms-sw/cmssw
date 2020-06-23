@@ -34,7 +34,7 @@
 #include <string>
 #include <cmath>
 
-static constexpr float EtaECal =  1.479;
+static constexpr float EtaECal = 1.479;
 static constexpr float REcal = 129.;
 static constexpr float ZEcal = 315.4;
 using namespace l1t;
@@ -78,9 +78,9 @@ private:
   float dRMax_;
   float pTMinTra_;
   bool primaryVtxConstrain_;  // use the primary vertex (default = false)
-                             //bool DeltaZConstrain;	// use z = z of the leading track within DR < dRMax_;
+                              //bool DeltaZConstrain;	// use z = z of the leading track within DR < dRMax_;
   float deltaZMax_;           // | z_track - z_primaryvtx | < deltaZMax_ in cm.
-                             // Used only when primaryVtxConstrain_ = True.
+                              // Used only when primaryVtxConstrain_ = True.
   float isoCut_;
   bool relativeIsolation_;
 
