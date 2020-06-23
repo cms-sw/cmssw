@@ -23,7 +23,6 @@ class MaterialBudgetHcal : public SimWatcher,
 public:
   MaterialBudgetHcal(const edm::ParameterSet&);
   MaterialBudgetHcal(const MaterialBudgetHcal&) = delete;  // stop default
-  ~MaterialBudgetHcal() override;
 
   const MaterialBudgetHcal& operator=(const MaterialBudgetHcal&) = delete;  // stop default
 
@@ -35,9 +34,9 @@ private:
 
   bool stopAfter(const G4Step*);
 
-  MaterialBudgetHcalHistos* theHistoHcal;
-  MaterialBudgetCastorHistos* theHistoCastor;
-  double rMax, zMax;
+  std::unique_ptr<MaterialBudgetHcalHistos> theHistoHcal_;
+  std::unique_ptr<MaterialBudgetCastorHistos> theHistoCastor_;
+  double rMax_, zMax_;
 };
 
 #endif

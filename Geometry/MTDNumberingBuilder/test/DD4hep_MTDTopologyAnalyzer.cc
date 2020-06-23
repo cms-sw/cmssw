@@ -72,23 +72,23 @@ void DD4hep_MTDTopologyAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
   auto pSP = iSetup.getTransientHandle(dspecToken_);
 
   if (!pDD.isValid()) {
-    edm::LogError("DD4hep_MTDTopologyAnalyzer") << "ESTransientHandle<DDCompactView> pDD is not valid!";
+    edm::LogError("MTDTopologyAnalyzer") << "ESTransientHandle<DDCompactView> pDD is not valid!";
     return;
   }
   if (pDD.description()) {
-    edm::LogInfo("DD4hep_MTDTopologyAnalyzer") << pDD.description()->type_ << " label: " << pDD.description()->label_;
+    edm::LogInfo("MTDTopologyAnalyzer") << pDD.description()->type_ << " label: " << pDD.description()->label_;
   } else {
-    edm::LogWarning("DD4hep_MTDTopologyAnalyzer") << "NO label found pDD.description() returned false.";
+    edm::LogWarning("MTDTopologyAnalyzer") << "NO label found pDD.description() returned false.";
   }
 
   if (!pSP.isValid()) {
-    edm::LogError("DD4hep_MTDTopologyAnalyzer") << "ESTransientHandle<DDSpecParRegistry> pSP is not valid!";
+    edm::LogError("MTDTopologyAnalyzer") << "ESTransientHandle<DDSpecParRegistry> pSP is not valid!";
     return;
   }
 
   auto pTP = iSetup.getTransientHandle(mtdtopoToken_);
   if (!pTP.isValid()) {
-    edm::LogError("DD4hep_MTDTopologyAnalyzer") << "ESTransientHandle<MTDTopology> pTP is not valid!";
+    edm::LogError("MTDTopologyAnalyzer") << "ESTransientHandle<MTDTopology> pTP is not valid!";
     return;
   } else {
     edm::LogInfo("MTDTopologyAnalyzer") << "MTD topology mode = " << pTP->getMTDTopologyMode();
@@ -96,7 +96,7 @@ void DD4hep_MTDTopologyAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 
   DDFilteredView fv(pDD.product(), pDD.product()->worldVolume());
   fv.next(0);
-  edm::LogInfo("DD4hep_MTDTopologyAnalyzer") << fv.name();
+  edm::LogInfo("MTDTopologyAnalyzer") << fv.name();
 
   DDSpecParRefs specs;
   std::string attribute("ReadOutName"), name;
@@ -133,11 +133,11 @@ void DD4hep_MTDTopologyAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
     if (fv.name() == "BarrelTimingLayer") {
       isBarrel = true;
       ddtop = "BarrelTimingLayer";
-      edm::LogInfo("DD4hep_MTDTopologyAnalyzer") << "isBarrel = " << isBarrel;
+      edm::LogInfo("MTDTopologyAnalyzer") << "isBarrel = " << isBarrel;
     } else if (fv.name() == "EndcapTimingLayer") {
       isBarrel = false;
       ddtop = "EndcapTimingLayer";
-      edm::LogInfo("DD4hep_MTDTopologyAnalyzer") << "isBarrel = " << isBarrel;
+      edm::LogInfo("MTDTopologyAnalyzer") << "isBarrel = " << isBarrel;
     }
 
 #ifdef EDM_ML_DEBUG
@@ -158,12 +158,12 @@ void DD4hep_MTDTopologyAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
       }
     };
 
-    if (level > 0 && fv.navPos().size() < level) {
+    if (level > 0 && fv.copyNos().size() < level) {
       level = 0;
       ddtop.clear();
     }
     if (fv.name() == "BarrelTimingLayer" || fv.name() == "EndcapTimingLayer") {
-      level = fv.navPos().size();
+      level = fv.copyNos().size();
     }
 
     if (!ddtop.empty()) {
@@ -172,7 +172,7 @@ void DD4hep_MTDTopologyAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
       print_path();
 
 #ifdef EDM_ML_DEBUG
-      edm::LogInfo("DD4hep_MTDTopologyAnalyzer") << "Top level volume: " << ddtop << " at history " << ss.str();
+      edm::LogInfo("MTDTopologyAnalyzer") << "Top level volume: " << ddtop << " at history " << ss.str();
 #endif
 
       bool isSens = false;
@@ -209,9 +209,9 @@ void DD4hep_MTDTopologyAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 
 void DD4hep_MTDTopologyAnalyzer::theBaseNumber(cms::DDFilteredView& fv) {
   thisN_.reset();
-  thisN_.setSize(fv.navPos().size());
+  thisN_.setSize(fv.copyNos().size());
 
-  for (uint ii = 0; ii < fv.navPos().size(); ii++) {
+  for (uint ii = 0; ii < fv.copyNos().size(); ii++) {
     std::string name((fv.geoHistory()[ii])->GetName());
     name.assign(name.erase(name.rfind('_')));
     int copyN(fv.copyNos()[ii]);

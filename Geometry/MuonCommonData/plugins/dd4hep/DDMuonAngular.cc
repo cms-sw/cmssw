@@ -18,9 +18,9 @@ static long algorithm(Detector& /* description */,
   int n = args.value<int>("n");
   int startCopyNo = args.find("startCopyNo") ? args.value<int>("startCopyNo") : 1;
   int incrCopyNo = args.find("incrCopyNo") ? args.value<int>("incrCopyNo") : 1;
-  double startAngle = args.value<double>("startAngle");
-  double stepAngle = args.value<double>("stepAngle");
-  double zoffset = args.value<double>("zoffset");
+  float startAngle = args.value<float>("startAngle");
+  float stepAngle = args.value<float>("stepAngle");
+  float zoffset = args.value<float>("zoffset");
   string rotns = args.value<string>("RotNameSpace");
   Volume mother = ns.volume(args.parentName());
   string childName = args.value<string>("ChildName");
@@ -34,11 +34,11 @@ static long algorithm(Detector& /* description */,
   LogDebug("DDAlgorithm") << "debug: Parent " << mother.name() << "\tChild " << child.name() << " NameSpace "
                           << ns.name();
 
-  double phi = startAngle;
+  float phi = startAngle;
   int copyNo = startCopyNo;
 
   for (int i = 0; i < n; ++i) {
-    double phitmp = phi;
+    float phitmp = phi;
     if (phitmp >= 2._pi)
       phitmp -= 2._pi;
     Rotation3D rotation = makeRotation3D(90._deg, phitmp, 90._deg, 90._deg + phitmp, 0., 0.);

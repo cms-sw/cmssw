@@ -1,4 +1,5 @@
 <use name="CalibCalorimetry/CaloMiscalibTools"/>
+<use name="CondCore/DBOutputService"/>
 <library file="*.cc" name="CalibCalorimetryCaloMiscalibToolsPlugin">
   <flags EDM_PLUGIN="1"/>
 </library>

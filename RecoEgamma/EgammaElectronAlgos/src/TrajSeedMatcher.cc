@@ -53,6 +53,31 @@ namespace {
     float dRZ = hit.geographicalId().subdetId() == PixelSubdetector::PixelBarrel ? pointPair.dZ() : pointPair.dPerp();
     return {hit.geographicalId(), hit.globalPosition(), dRZ, pointPair.dPhi(), hit, et, eta, phi, charge, nrClus};
   }
+
+  const std::vector<TrajSeedMatcher::MatchInfo> makeMatchInfoVector(
+      std::vector<TrajSeedMatcher::SCHitMatch> const& posCharge,
+      std::vector<TrajSeedMatcher::SCHitMatch> const& negCharge) {
+    std::vector<TrajSeedMatcher::MatchInfo> matchInfos;
+    size_t nrHitsMax = std::max(posCharge.size(), negCharge.size());
+    for (size_t hitNr = 0; hitNr < nrHitsMax; hitNr++) {
+      DetId detIdPos = hitNr < posCharge.size() ? posCharge[hitNr].detId : DetId(0);
+      float dRZPos = hitNr < posCharge.size() ? posCharge[hitNr].dRZ : std::numeric_limits<float>::max();
+      float dPhiPos = hitNr < posCharge.size() ? posCharge[hitNr].dPhi : std::numeric_limits<float>::max();
+
+      DetId detIdNeg = hitNr < negCharge.size() ? negCharge[hitNr].detId : DetId(0);
+      float dRZNeg = hitNr < negCharge.size() ? negCharge[hitNr].dRZ : std::numeric_limits<float>::max();
+      float dPhiNeg = hitNr < negCharge.size() ? negCharge[hitNr].dPhi : std::numeric_limits<float>::max();
+
+      if (detIdPos != detIdNeg && (detIdPos.rawId() != 0 && detIdNeg.rawId() != 0)) {
+        cms::Exception("LogicError") << " error in " << __FILE__ << ", " << __LINE__
+                                     << " hits to be combined have different detIDs, this should not be possible and "
+                                        "nothing good will come of it";
+      }
+      DetId detId = detIdPos.rawId() != 0 ? detIdPos : detIdNeg;
+      matchInfos.push_back({detId, dRZPos, dRZNeg, dPhiPos, dPhiNeg});
+    }
+    return matchInfos;
+  }
 };  // namespace
 
 TrajSeedMatcher::Configuration::Configuration(const edm::ParameterSet& pset, edm::ConsumesCollector&& cc)
@@ -77,10 +102,14 @@ TrajSeedMatcher::Configuration::Configuration(const edm::ParameterSet& pset, edm
   }
 }
 
-TrajSeedMatcher::TrajSeedMatcher(TrajSeedMatcher::Configuration const& cfg,
+TrajSeedMatcher::TrajSeedMatcher(TrajectorySeedCollection const& seeds,
+                                 math::XYZPoint const& vprim,
+                                 TrajSeedMatcher::Configuration const& cfg,
                                  edm::EventSetup const& iSetup,
                                  MeasurementTrackerEvent const& measTkEvt)
-    : cfg_{cfg},
+    : seeds_{seeds},
+      vprim_(vprim.x(), vprim.y(), vprim.z()),
+      cfg_{cfg},
       magField_{iSetup.getData(cfg_.magFieldToken)},
       magFieldParam_{iSetup.getData(cfg_.paramMagFieldToken)},
       measTkEvt_{measTkEvt},
@@ -127,29 +156,26 @@ edm::ParameterSetDescription TrajSeedMatcher::makePSetDescription() {
   return desc;
 }
 
-std::vector<TrajSeedMatcher::SeedWithInfo> TrajSeedMatcher::operator()(const TrajectorySeedCollection& seeds,
-                                                                       const GlobalPoint& candPos,
-                                                                       const GlobalPoint& vprim,
-                                                                       const float energy) {
+std::vector<TrajSeedMatcher::SeedWithInfo> TrajSeedMatcher::operator()(const GlobalPoint& candPos, const float energy) {
   clearCache();
 
   std::vector<SeedWithInfo> matchedSeeds;
 
   //these are super expensive functions
-  TrajectoryStateOnSurface scTrajStateOnSurfNeg = makeTrajStateOnSurface(candPos, vprim, energy, -1);
-  TrajectoryStateOnSurface scTrajStateOnSurfPos = makeTrajStateOnSurface(candPos, vprim, energy, 1);
+  TrajectoryStateOnSurface scTrajStateOnSurfNeg = makeTrajStateOnSurface(candPos, energy, -1);
+  TrajectoryStateOnSurface scTrajStateOnSurfPos = makeTrajStateOnSurface(candPos, energy, 1);
 
-  for (const auto& seed : seeds) {
-    std::vector<SCHitMatch> matchedHitsNeg = processSeed(seed, candPos, vprim, energy, scTrajStateOnSurfNeg);
-    std::vector<SCHitMatch> matchedHitsPos = processSeed(seed, candPos, vprim, energy, scTrajStateOnSurfPos);
+  for (const auto& seed : seeds_) {
+    std::vector<SCHitMatch> matchedHitsNeg = processSeed(seed, candPos, energy, scTrajStateOnSurfNeg);
+    std::vector<SCHitMatch> matchedHitsPos = processSeed(seed, candPos, energy, scTrajStateOnSurfPos);
 
     int nrValidLayersPos = 0;
     int nrValidLayersNeg = 0;
     if (matchedHitsNeg.size() >= 2) {
-      nrValidLayersNeg = getNrValidLayersAlongTraj(matchedHitsNeg[0], matchedHitsNeg[1], candPos, vprim, energy, -1);
+      nrValidLayersNeg = getNrValidLayersAlongTraj(matchedHitsNeg[0], matchedHitsNeg[1], candPos, energy, -1);
     }
     if (matchedHitsPos.size() >= 2) {
-      nrValidLayersPos = getNrValidLayersAlongTraj(matchedHitsPos[0], matchedHitsPos[1], candPos, vprim, energy, +1);
+      nrValidLayersPos = getNrValidLayersAlongTraj(matchedHitsPos[0], matchedHitsPos[1], candPos, energy, +1);
     }
 
     int nrValidLayers = std::max(nrValidLayersNeg, nrValidLayersPos);
@@ -163,7 +189,7 @@ std::vector<TrajSeedMatcher::SeedWithInfo> TrajSeedMatcher::operator()(const Tra
       matchCountPasses = matchedHitsNeg.size() >= nrHitsRequired || matchedHitsPos.size() >= nrHitsRequired;
     }
     if (matchCountPasses) {
-      matchedSeeds.push_back({seed, matchedHitsPos, matchedHitsNeg, nrValidLayers});
+      matchedSeeds.push_back({seed, makeMatchInfoVector(matchedHitsPos, matchedHitsNeg), nrValidLayers});
     }
   }
   return matchedSeeds;
@@ -171,7 +197,6 @@ std::vector<TrajSeedMatcher::SeedWithInfo> TrajSeedMatcher::operator()(const Tra
 
 std::vector<TrajSeedMatcher::SCHitMatch> TrajSeedMatcher::processSeed(const TrajectorySeed& seed,
                                                                       const GlobalPoint& candPos,
-                                                                      const GlobalPoint& vprim,
                                                                       const float energy,
                                                                       const TrajectoryStateOnSurface& initialTrajState) {
   //next try passing these variables in once...
@@ -179,22 +204,21 @@ std::vector<TrajSeedMatcher::SCHitMatch> TrajSeedMatcher::processSeed(const Traj
   const float candEt = energy * std::sin(candPos.theta());
   const int charge = initialTrajState.charge();
 
-  std::vector<SCHitMatch> matchedHits;
+  std::vector<SCHitMatch> matches;
   FreeTrajectoryState firstMatchFreeTraj;
   GlobalPoint prevHitPos;
   GlobalPoint vertex;
-  for (size_t hitNr = 0; hitNr < cfg_.matchingCuts.size() && hitNr < seed.nHits(); hitNr++) {
-    if (!cfg_.enableHitSkipping && hitNr > 0 && matchedHits.empty()) {
-      break;
-    }
-
-    auto const& recHit = *(seed.recHits().first + hitNr);
+  const auto nCuts = cfg_.matchingCuts.size();
+  for (size_t iHit = 0;
+       matches.size() < nCuts && iHit < seed.nHits() && (cfg_.enableHitSkipping || iHit == matches.size());
+       iHit++) {
+    auto const& recHit = *(seed.recHits().begin() + iHit);
 
     if (!recHit.isValid()) {
       continue;
     }
 
-    const bool doFirstMatch = matchedHits.empty();
+    const bool doFirstMatch = matches.empty();
 
     auto const& trajState = doFirstMatch
                                 ? getTrajStateFromVtx(recHit, initialTrajState, backwardPropagator_)
@@ -203,22 +227,21 @@ std::vector<TrajSeedMatcher::SCHitMatch> TrajSeedMatcher::processSeed(const Traj
       continue;
     }
 
-    auto const& vtxForMatchObject = doFirstMatch ? vprim : vertex;
+    auto const& vtxForMatchObject = doFirstMatch ? vprim_ : vertex;
     auto match = makeSCHitMatch(vtxForMatchObject, trajState, recHit, candEt, candEta, candPos.phi(), charge, 1);
 
-    if (passesMatchSel(match, matchedHits.size())) {
-      matchedHits.push_back(match);
+    if ((*cfg_.matchingCuts[matches.size()])(match)) {
+      matches.push_back(match);
       if (doFirstMatch) {
         //now we can figure out the z vertex
-        double zVertex = cfg_.useRecoVertex ? vprim.z() : getZVtxFromExtrapolation(vprim, match.hitPos, candPos);
-        vertex = GlobalPoint(vprim.x(), vprim.y(), zVertex);
-        firstMatchFreeTraj =
-            trackingTools::ftsFromVertexToPoint(getMagField(match.hitPos), match.hitPos, vertex, energy, charge);
+        double zVertex = cfg_.useRecoVertex ? vprim_.z() : getZVtxFromExtrapolation(vprim_, match.hitPos, candPos);
+        vertex = GlobalPoint(vprim_.x(), vprim_.y(), zVertex);
+        firstMatchFreeTraj = ftsFromVertexToPoint(match.hitPos, vertex, energy, charge);
       }
       prevHitPos = match.hitPos;
     }
   }
-  return matchedHits;
+  return matches;
 }
 
 // compute the z vertex from the candidate position and the found pixel hit
@@ -270,12 +293,10 @@ const TrajectoryStateOnSurface& TrajSeedMatcher::getTrajStateFromPoint(const Tra
 }
 
 TrajectoryStateOnSurface TrajSeedMatcher::makeTrajStateOnSurface(const GlobalPoint& pos,
-                                                                 const GlobalPoint& vtx,
                                                                  const float energy,
                                                                  const int charge) const {
-  auto freeTS = trackingTools::ftsFromVertexToPoint(getMagField(pos), pos, vtx, energy, charge);
-  PerpendicularBoundPlaneBuilder bpb;
-  return TrajectoryStateOnSurface(freeTS, *bpb(freeTS.position(), freeTS.momentum()));
+  auto freeTS = ftsFromVertexToPoint(pos, vprim_, energy, charge);
+  return TrajectoryStateOnSurface(freeTS, *PerpendicularBoundPlaneBuilder{}(freeTS.position(), freeTS.momentum()));
 }
 
 void TrajSeedMatcher::clearCache() {
@@ -285,26 +306,12 @@ void TrajSeedMatcher::clearCache() {
   trajStateFromPointNegChargeCache_.clear();
 }
 
-bool TrajSeedMatcher::passesMatchSel(const TrajSeedMatcher::SCHitMatch& hit, const size_t hitNr) const {
-  if (hitNr < cfg_.matchingCuts.size()) {
-    return (*cfg_.matchingCuts[hitNr])(hit);
-  } else {
-    throw cms::Exception("LogicError") << " Error, attempting to apply selection to hit " << hitNr
-                                       << " but only cuts for " << cfg_.matchingCuts.size() << " defined";
-  }
-}
+int TrajSeedMatcher::getNrValidLayersAlongTraj(
+    const SCHitMatch& hit1, const SCHitMatch& hit2, const GlobalPoint& candPos, const float energy, const int charge) {
+  double zVertex = cfg_.useRecoVertex ? vprim_.z() : getZVtxFromExtrapolation(vprim_, hit1.hitPos, candPos);
+  GlobalPoint vertex(vprim_.x(), vprim_.y(), zVertex);
 
-int TrajSeedMatcher::getNrValidLayersAlongTraj(const SCHitMatch& hit1,
-                                               const SCHitMatch& hit2,
-                                               const GlobalPoint& candPos,
-                                               const GlobalPoint& vprim,
-                                               const float energy,
-                                               const int charge) {
-  double zVertex = cfg_.useRecoVertex ? vprim.z() : getZVtxFromExtrapolation(vprim, hit1.hitPos, candPos);
-  GlobalPoint vertex(vprim.x(), vprim.y(), zVertex);
-
-  auto firstMatchFreeTraj =
-      trackingTools::ftsFromVertexToPoint(getMagField(hit1.hitPos), hit1.hitPos, vertex, energy, charge);
+  auto firstMatchFreeTraj = ftsFromVertexToPoint(hit1.hitPos, vertex, energy, charge);
   auto const& secondHitTraj = getTrajStateFromPoint(hit2.hit, firstMatchFreeTraj, hit1.hitPos, forwardPropagator_);
   return getNrValidLayersAlongTraj(hit2.hit.geographicalId(), secondHitTraj);
 }
@@ -366,31 +373,6 @@ size_t TrajSeedMatcher::getNrHitsRequired(const int nrValidLayers) const {
       return cfg_.minNrHits[binNr];
   }
   return cfg_.minNrHits.back();
-}
-
-TrajSeedMatcher::SeedWithInfo::SeedWithInfo(const TrajectorySeed& seed,
-                                            const std::vector<SCHitMatch>& posCharge,
-                                            const std::vector<SCHitMatch>& negCharge,
-                                            int nrValidLayers)
-    : seed_(seed), nrValidLayers_(nrValidLayers) {
-  size_t nrHitsMax = std::max(posCharge.size(), negCharge.size());
-  for (size_t hitNr = 0; hitNr < nrHitsMax; hitNr++) {
-    DetId detIdPos = hitNr < posCharge.size() ? posCharge[hitNr].detId : DetId(0);
-    float dRZPos = hitNr < posCharge.size() ? posCharge[hitNr].dRZ : std::numeric_limits<float>::max();
-    float dPhiPos = hitNr < posCharge.size() ? posCharge[hitNr].dPhi : std::numeric_limits<float>::max();
-
-    DetId detIdNeg = hitNr < negCharge.size() ? negCharge[hitNr].detId : DetId(0);
-    float dRZNeg = hitNr < negCharge.size() ? negCharge[hitNr].dRZ : std::numeric_limits<float>::max();
-    float dPhiNeg = hitNr < negCharge.size() ? negCharge[hitNr].dPhi : std::numeric_limits<float>::max();
-
-    if (detIdPos != detIdNeg && (detIdPos.rawId() != 0 && detIdNeg.rawId() != 0)) {
-      cms::Exception("LogicError")
-          << " error in " << __FILE__ << ", " << __LINE__
-          << " hits to be combined have different detIDs, this should not be possible and nothing good will come of it";
-    }
-    DetId detId = detIdPos.rawId() != 0 ? detIdPos : detIdNeg;
-    matchInfo_.push_back(MatchInfo(detId, dRZPos, dRZNeg, dPhiPos, dPhiNeg));
-  }
 }
 
 TrajSeedMatcher::MatchingCutsV1::MatchingCutsV1(const edm::ParameterSet& pset)

@@ -9,7 +9,6 @@
 <use name="DataFormats/EcalDetId"/>
 <use name="DataFormats/HcalDetId"/>
 <use name="DataFormats/DetId"/>
-<use name="DataFormats/HcalDigi"/>
 <use name="DataFormats/HcalRecHit"/>
 <use name="Geometry/HcalTowerAlgo"/>
 <use name="Geometry/Records"/>

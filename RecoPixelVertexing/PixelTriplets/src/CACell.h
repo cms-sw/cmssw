@@ -8,6 +8,7 @@
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
+#include "CACut.h"
 
 class CACellStatus {
 public:
@@ -40,6 +41,10 @@ public:
   Hit const& getInnerHit() const { return theDoublets->hit(theDoubletId, HitDoublets::inner); }
 
   Hit const& getOuterHit() const { return theDoublets->hit(theDoubletId, HitDoublets::outer); }
+
+  int getInnerLayer() const { return theDoublets->detLayer(HitDoublets::inner)->seqNum(); }
+
+  int getOuterLayer() const { return theDoublets->detLayer(HitDoublets::outer)->seqNum(); }
 
   float getInnerX() const { return theDoublets->x(theDoubletId, HitDoublets::inner); }
 
@@ -80,8 +85,8 @@ public:
                             const float region_origin_x,
                             const float region_origin_y,
                             const float region_origin_radius,
-                            const float thetaCut,
-                            const float phiCut,
+                            const CACut::CAValuesByInnerLayerIds& thetaCutByInnerLayer,
+                            const CACut::CAValuesByInnerLayerIds& phiCutByInnerLayer,
                             const float hardPtCut,
                             std::vector<CACell::CAntuplet>* foundTriplets) {
     int ncells = innerCells.size();
@@ -89,6 +94,8 @@ public:
     int ok[VSIZE];
     float r1[VSIZE];
     float z1[VSIZE];
+    float thetaCut[VSIZE];
+    float phiCut[VSIZE];
     auto ro = getOuterR();
     auto zo = getOuterZ();
     unsigned int cellId = this - &allCells.front();
@@ -98,15 +105,17 @@ public:
         auto& oc = allCells[koc];
         r1[j] = oc.getInnerR();
         z1[j] = oc.getInnerZ();
+        thetaCut[j] = thetaCutByInnerLayer.at(oc.getInnerLayer());
+        phiCut[j] = phiCutByInnerLayer.at(oc.getInnerLayer());
       }
       // this vectorize!
       for (int j = 0; j < vs; ++j)
-        ok[j] = areAlignedRZ(r1[j], z1[j], ro, zo, ptmin, thetaCut);
+        ok[j] = areAlignedRZ(r1[j], z1[j], ro, zo, ptmin, thetaCut[j]);
       for (int j = 0; j < vs; ++j) {
         auto koc = innerCells[i + j];
         auto& oc = allCells[koc];
         if (ok[j] && haveSimilarCurvature(
-                         oc, ptmin, region_origin_x, region_origin_y, region_origin_radius, phiCut, hardPtCut)) {
+                         oc, ptmin, region_origin_x, region_origin_y, region_origin_radius, phiCut[j], hardPtCut)) {
           if (foundTriplets)
             foundTriplets->emplace_back(CACell::CAntuplet{koc, cellId});
           else {
@@ -127,8 +136,8 @@ public:
                             const float region_origin_x,
                             const float region_origin_y,
                             const float region_origin_radius,
-                            const float thetaCut,
-                            const float phiCut,
+                            const CACut::CAValuesByInnerLayerIds& thetaCutByInnerLayer,
+                            const CACut::CAValuesByInnerLayerIds& phiCutByInnerLayer,
                             const float hardPtCut) {
     checkAlignmentAndAct(allCells,
                          innerCells,
@@ -136,8 +145,8 @@ public:
                          region_origin_x,
                          region_origin_y,
                          region_origin_radius,
-                         thetaCut,
-                         phiCut,
+                         thetaCutByInnerLayer,
+                         phiCutByInnerLayer,
                          hardPtCut,
                          nullptr);
   }
@@ -148,8 +157,8 @@ public:
                                     const float region_origin_x,
                                     const float region_origin_y,
                                     const float region_origin_radius,
-                                    const float thetaCut,
-                                    const float phiCut,
+                                    const CACut::CAValuesByInnerLayerIds& thetaCutByInnerLayer,
+                                    const CACut::CAValuesByInnerLayerIds& phiCutByInnerLayer,
                                     const float hardPtCut) {
     checkAlignmentAndAct(allCells,
                          innerCells,
@@ -157,8 +166,8 @@ public:
                          region_origin_x,
                          region_origin_y,
                          region_origin_radius,
-                         thetaCut,
-                         phiCut,
+                         thetaCutByInnerLayer,
+                         phiCutByInnerLayer,
                          hardPtCut,
                          &foundTriplets);
   }

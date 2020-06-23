@@ -79,20 +79,14 @@ namespace cond {
       return m_session->iovSchema().tagTable().select(tag);
     }
 
-    //IOVProxy Session::iovProxy(){
+    //bool Session::getIovRange(const std::string& tag,
+    //                          cond::Time_t begin,
+    //                          cond::Time_t end,
+    //                          std::vector<std::tuple<cond::Time_t, cond::Hash> >& range) {
     //  m_session->openIovDb();
-    //  IOVProxy proxy( m_session );
-    //  return proxy;
+    //  boost::posix_time::ptime snapshotTime;
+    //  return m_session->iovSchema().iovTable().getRange(tag, begin, end, snapshotTime, range);
     //}
-
-    bool Session::getIovRange(const std::string& tag,
-                              cond::Time_t begin,
-                              cond::Time_t end,
-                              std::vector<std::tuple<cond::Time_t, cond::Hash> >& range) {
-      m_session->openIovDb();
-      boost::posix_time::ptime snapshotTime;
-      return m_session->iovSchema().iovTable().getRange(tag, begin, end, snapshotTime, range);
-    }
 
     IOVEditor Session::createIov(const std::string& payloadType,
                                  const std::string& tag,

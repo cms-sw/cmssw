@@ -17,7 +17,7 @@ import time
 import pprint
 
 # package modules
-from FWCore.Skeletons.utils import parse_word, functor, user_info, tree
+from FWCore.Skeletons.utils import parse_word, functor, user_info, tree, template_directory
 
 class AbstractPkg(object):
     """
@@ -45,7 +45,7 @@ class AbstractPkg(object):
         self.pname  = self.config.get('pname', None)
         self.tmpl   = self.config.get('tmpl', None)
         self.debug  = self.config.get('debug', 0)
-        self.tdir   = self.config.get('tmpl_dir')
+        self.tdir   = template_directory()
         self.author = user_info(self.config.get('author', None))
         self.date   = time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime())
         self.not_in_dir = self.config.get('not_in_dir', [])

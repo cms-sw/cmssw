@@ -19,6 +19,7 @@
 #define METAlgorithms_PFMETInfo_h
 
 //____________________________________________________________________________||
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/METReco/interface/SpecificPFMETData.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -28,7 +29,7 @@ class PFSpecificAlgo {
 public:
   PFSpecificAlgo() {}
 
-  SpecificPFMETData run(const edm::View<reco::Candidate>& pfCands);
+  SpecificPFMETData run(const edm::View<reco::Candidate>& pfCands, edm::ValueMap<float> const* weights = nullptr);
 };
 
 //____________________________________________________________________________||

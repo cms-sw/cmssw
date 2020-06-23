@@ -12,4 +12,5 @@
 <use name="DataFormats/Common"/>
 <use name="rootcore"/>
 <use name="boost"/>
+<use name="rootgpad"/>
 <flags EDM_PLUGIN="1"/>

@@ -16,24 +16,31 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
     # Configure by firmware version, which may be different than the default parameters in this file
     FWConfig = cms.bool(True),
 
+    # Era (options: 'Run2_2016', 'Run2_2017', 'Run2_2018')
+    Era = cms.string('Run2_2018'),
+
     # Input collections
     # Three options for CSCInput
     #   * 'simCscTriggerPrimitiveDigis','MPCSORTED' : simulated trigger primitives (LCTs) from re-emulating CSC digis
     #   * 'csctfDigis' : real trigger primitives as received by CSCTF (legacy trigger), available only in 2016 data
     #   * 'emtfStage2Digis' : real trigger primitives as received by EMTF, unpacked in EventFilter/L1TRawToDigi/
-    CSCInput  = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED'),
-    RPCInput  = cms.InputTag('simMuonRPCDigis'),
+    DTPhiInput = cms.InputTag('simTwinMuxDigis'),
+    DTThetaInput = cms.InputTag('simDtTriggerPrimitiveDigis'),
+    CSCInput = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED'),
+    CSCComparatorInput = cms.InputTag('simMuonCSCDigis','MuonCSCComparatorDigi'),
+    RPCInput = cms.InputTag('simMuonRPCDigis'),
     CPPFInput = cms.InputTag('simCPPFDigis'),  ## Cannot use in MC workflow, does not exist yet.  CPPFEnable set to False - AWB 01.06.18
-    GEMInput  = cms.InputTag('simMuonGEMPadDigis'),
+    GEMInput = cms.InputTag('simMuonGEMPadDigiClusters'),
+    ME0Input = cms.InputTag('me0TriggerConvertedPseudoDigis'),
 
     # Run with CSC, RPC, GEM
+    DTEnable = cms.bool(False),
     CSCEnable = cms.bool(True),   # Use CSC LCTs from the MPCs in track-building
     RPCEnable = cms.bool(True),   # Use clustered RPC hits from CPPF in track-building
+    IRPCEnable = cms.bool(False),
     CPPFEnable = cms.bool(False), # Use CPPF-emulated clustered RPC hits from CPPF as the RPC hits
     GEMEnable = cms.bool(False),  # Use hits from GEMs in track-building
-
-    # Era (options: 'Run2_2016', 'Run2_2017', 'Run2_2018')
-    Era = cms.string('Run2_2016'),
+    ME0Enable = cms.bool(False),
 
     # BX
     MinBX    = cms.int32(-3), # Minimum BX considered
@@ -44,10 +51,10 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
     CSCInputBXShift = cms.int32(-8), # Shift applied to input CSC LCT primitives, to center at BX = 0
     RPCInputBXShift = cms.int32(0),
     GEMInputBXShift = cms.int32(0),
+    ME0InputBXShift = cms.int32(-8),
 
     # Sector processor primitive-conversion parameters
     spPCParams16 = cms.PSet(
-        PrimConvLUT     = cms.int32(2),    # v0, v1, and v2 LUTs used at different times, "-1" for local CPPF files (only works if FWConfig = False)
         ZoneBoundaries  = cms.vint32(0,41,49,87,127), # Vertical boundaries of track-building zones, in integer theta (5 for 4 zones)
         # ZoneBoundaries  = cms.vint32(0,36,54,96,127), # New proposed zone boundaries
         ZoneOverlap     = cms.int32(2),    # Overlap between zones
@@ -119,10 +126,12 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
 )
 
 simEmtfDigisData = simEmtfDigisMC.clone(
-    CSCInput  = cms.InputTag('emtfStage2Digis'),
-    RPCInput  = cms.InputTag('muonRPCDigis'),
+    DTPhiInput = cms.InputTag('bmtfDigis'),
+    DTThetaInput = cms.InputTag('bmtfDigis'),
+    CSCInput = cms.InputTag('emtfStage2Digis'),
+    CSCComparatorInput = cms.InputTag('muonCSCDigis','MuonCSCComparatorDigi'),
+    RPCInput = cms.InputTag('muonRPCDigis'),
     CPPFInput = cms.InputTag('emtfStage2Digis'),
-    GEMInput  = cms.InputTag('muonGEMPadDigis'),
 
     CPPFEnable = cms.bool(True), # Use CPPF-emulated clustered RPC hits from CPPF as the RPC hits
 
@@ -143,6 +152,6 @@ stage2L1Trigger.toModify(simEmtfDigis, RPCEnable = cms.bool(False), Era = cms.st
 from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
 stage2L1Trigger_2017.toModify(simEmtfDigis, RPCEnable = cms.bool(True), Era = cms.string('Run2_2017'))
 
-### Era: Run2_2018
+## Era: Run2_2018
 from Configuration.Eras.Modifier_stage2L1Trigger_2018_cff import stage2L1Trigger_2018
 stage2L1Trigger_2018.toModify(simEmtfDigis, RPCEnable = cms.bool(True), Era = cms.string('Run2_2018'))

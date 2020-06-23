@@ -26,16 +26,17 @@ puppiForward = cms.VPSet(
 
 puppi = cms.EDProducer("PuppiProducer",#cms.PSet(#"PuppiProducer",
                        puppiDiagnostics = cms.bool(False),
-                       puppiForLeptons = cms.bool(False),
+                       puppiNoLep = cms.bool(False),
                        UseFromPVLooseTight = cms.bool(False),
                        UseDeltaZCut   = cms.bool(True),
+                       EtaMinUseDeltaZ = cms.double(2.4),
                        DeltaZCut      = cms.double(0.3),
-		       PtMaxCharged   = cms.double(-1.),
+		       PtMaxCharged   = cms.double(20.),
 		       EtaMaxCharged   = cms.double(99999.),
 		       PtMaxPhotons = cms.double(-1.),
 		       EtaMaxPhotons = cms.double(2.5),
 		       PtMaxNeutrals  = cms.double(200.),
-		       PtMaxNeutralsStartSlope = cms.double(0.),
+		       PtMaxNeutralsStartSlope = cms.double(20.),
                        candName       = cms.InputTag('particleFlow'),
                        vertexName     = cms.InputTag('offlinePrimaryVertices'),
                        #candName      = cms.string('packedPFCandidates'),
@@ -45,7 +46,6 @@ puppi = cms.EDProducer("PuppiProducer",#cms.PSet(#"PuppiProducer",
                        useExp         = cms.bool  (False),
                        MinPuppiWeight = cms.double(0.01),
                        useExistingWeights = cms.bool(False),
-                       useWeightsNoLep    = cms.bool(False),
                        clonePackedCands   = cms.bool(False), # should only be set to True for MiniAOD
                        vtxNdofCut     = cms.int32(4),
                        vtxZCut        = cms.double(24),
@@ -87,10 +87,13 @@ puppi = cms.EDProducer("PuppiProducer",#cms.PSet(#"PuppiProducer",
                        # )
                       )
 )
-                        
+
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(
     puppi,
+    EtaMinUseDeltaZ = -1.,
+    PtMaxCharged = -1.,
+    PtMaxNeutralsStartSlope = 0.,
     DeltaZCut = cms.double(0.1),
     algos = cms.VPSet( 
         cms.PSet( 
@@ -116,3 +119,8 @@ phase2_common.toModify(
        )
     )
 )
+
+puppiNoLep = puppi.clone(
+    puppiNoLep = True,
+    PtMaxPhotons = 20.
+    )

@@ -1,7 +1,11 @@
 <use name="DataFormats/Common"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/EgammaReco"/>
+<use name="DataFormats/CaloRecHit"/>
+<use name="DataFormats/TrackCandidate"/>
+<use name="DataFormats/TrackingRecHit"/>
 <use name="clhepheader"/>
 <export>
   <lib name="1"/>
 </export>
+

@@ -500,6 +500,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             addToProcessAndTask(_myPatMet,  getattr(process,'patPFMet').clone(), process, task)
             getattr(process, _myPatMet).metSource = cms.InputTag("pfMet"+postfix)
             getattr(process, _myPatMet).srcPFCands = copy.copy(self.getvalue("pfCandCollection"))
+            if self.getvalue("Puppi"):
+                getattr(process, _myPatMet).srcWeights = "puppiNoLep"
         if metType == "PF":
             getattr(process, _myPatMet).srcLeptons = \
               cms.VInputTag(copy.copy(self.getvalue("electronCollection")) if self.getvalue("onMiniAOD") else
@@ -614,6 +616,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if "Txy" in correctionLevel:
             self.tuneTxyParameters(process, corScheme, postfix)
             getattr(process, "patPFMetTxyCorr"+postfix).srcPFlow = self._parameters["pfCandCollection"].value
+            if self.getvalue("Puppi"):
+                getattr(process, "patPFMetTxyCorr"+postfix).srcWeights = "puppiNoLep"
 
 
         #Enable MET significance if the type1 MET is computed
@@ -633,7 +637,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 from RecoMET.METProducers.METSignificanceParams_cfi import METSignificanceParams_Data
                 getattr(process, _myPatMet).parameters = METSignificanceParams_Data
             if self.getvalue("Puppi"):
-                getattr(process, _myPatMet).srcPFCands = cms.InputTag('puppiForMET')
+                getattr(process, _myPatMet).srcWeights = "puppiNoLep"
                 getattr(process, _myPatMet).srcJets = cms.InputTag('cleanedPatJets'+postfix)
                 getattr(process, _myPatMet).srcJetSF = 'AK4PFPuppi'
                 getattr(process, _myPatMet).srcJetResPt = 'AK4PFPuppi_pt'
@@ -650,6 +654,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                             copy.copy(self.getvalue("muonCollection")),
                             copy.copy(self.getvalue("photonCollection")) if self.getvalue("onMiniAOD") else
                               cms.InputTag("pfeGammaToCandidate","photons"))
+            if self.getvalue("Puppi"):
+                getattr(process, _myPatMet).srcWeights = "puppiNoLep"
 
         if hasattr(process, "patCaloMet"):
             getattr(process, "patCaloMet").computeMETSignificance = cms.bool(False)
@@ -818,10 +824,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             pfCandsNoJets = cms.EDProducer("CandPtrProjector", 
                                            src = pfCandCollection, 
                                            veto = copy.copy(jetCollection),
-                                           useDeltaRforFootprint = cms.bool(False)
                                            )
-            if self.getvalue("Puppi"):
-              pfCandsNoJets.useDeltaRforFootprint = True
             addToProcessAndTask("pfCandsNoJets"+postfix, pfCandsNoJets, process, task)
             metUncSequence += getattr(process, "pfCandsNoJets"+postfix)
 
@@ -829,10 +832,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             pfCandsNoJetsNoEle = cms.EDProducer("CandPtrProjector", 
                                                 src = cms.InputTag("pfCandsNoJets"+postfix),
                                                 veto = copy.copy(electronCollection),
-                                                useDeltaRforFootprint = cms.bool(False),
                                                 )
             if not self.getvalue("onMiniAOD"):
-              pfCandsNoJetsNoEle.useDeltaRforFootprint = True
               pfCandsNoJetsNoEle.veto = "pfeGammaToCandidate:electrons"
             addToProcessAndTask("pfCandsNoJetsNoEle"+postfix, pfCandsNoJetsNoEle, process, task)
             metUncSequence += getattr(process, "pfCandsNoJetsNoEle"+postfix)
@@ -841,10 +842,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             pfCandsNoJetsNoEleNoMu = cms.EDProducer("CandPtrProjector", 
                                               src = cms.InputTag("pfCandsNoJetsNoEle"+postfix),
                                               veto = copy.copy(muonCollection),
-                                              useDeltaRforFootprint = cms.bool(False)
                                               )
-            if not self.getvalue("onMiniAOD"):
-              pfCandsNoJetsNoEleNoMu.useDeltaRforFootprint = True
             addToProcessAndTask("pfCandsNoJetsNoEleNoMu"+postfix, pfCandsNoJetsNoEleNoMu, process, task)
             metUncSequence += getattr(process, "pfCandsNoJetsNoEleNoMu"+postfix)
 
@@ -852,10 +850,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             pfCandsNoJetsNoEleNoMuNoTau = cms.EDProducer("CandPtrProjector", 
                                               src = cms.InputTag("pfCandsNoJetsNoEleNoMu"+postfix),
                                               veto = copy.copy(tauCollection),
-                                              useDeltaRforFootprint = cms.bool(False)
                                               )
-            if self.getvalue("Puppi"):
-              pfCandsNoJetsNoEleNoMuNoTau.useDeltaRforFootprint = True
             addToProcessAndTask("pfCandsNoJetsNoEleNoMuNoTau"+postfix, pfCandsNoJetsNoEleNoMuNoTau, process, task)
             metUncSequence += getattr(process, "pfCandsNoJetsNoEleNoMuNoTau"+postfix)
 
@@ -863,10 +858,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             pfCandsForUnclusteredUnc = cms.EDProducer("CandPtrProjector", 
                                               src = cms.InputTag("pfCandsNoJetsNoEleNoMuNoTau"+postfix),
                                               veto = copy.copy(photonCollection),
-                                              useDeltaRforFootprint = cms.bool(False),
                                               )
             if not self.getvalue("onMiniAOD"):
-              pfCandsForUnclusteredUnc.useDeltaRforFootprint = True
               pfCandsForUnclusteredUnc.veto = "pfeGammaToCandidate:photons"
             addToProcessAndTask("pfCandsForUnclusteredUnc"+postfix, pfCandsForUnclusteredUnc, process, task)
             metUncSequence += getattr(process, "pfCandsForUnclusteredUnc"+postfix)
@@ -966,28 +959,32 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             shiftedModuleUp = cms.EDProducer("ShiftedParticleProducer",
                                              src = objectCollection,
                                              uncertainty = cms.string('((abs(y)<1.479)?(0.006+0*x):(0.015+0*x))'),
-                                             shiftBy = cms.double(+1.*varyByNsigmas)
+                                             shiftBy = cms.double(+1.*varyByNsigmas),
+                                             srcWeights = cms.InputTag("")
                                              )
 
         if identifier == "Photon":
             shiftedModuleUp = cms.EDProducer("ShiftedParticleProducer",
                                              src = objectCollection,
                                              uncertainty = cms.string('((abs(y)<1.479)?(0.01+0*x):(0.025+0*x))'),
-                                             shiftBy = cms.double(+1.*varyByNsigmas)
+                                             shiftBy = cms.double(+1.*varyByNsigmas),
+                                             srcWeights = cms.InputTag("")
                                              )
 
         if identifier == "Muon":
             shiftedModuleUp = cms.EDProducer("ShiftedParticleProducer",
                                              src = objectCollection,
                                              uncertainty = cms.string('((x<100)?(0.002+0*y):(0.05+0*y))'),
-                                             shiftBy = cms.double(+1.*varyByNsigmas)
+                                             shiftBy = cms.double(+1.*varyByNsigmas),
+                                             srcWeights = cms.InputTag("")
                                              )
 
         if identifier == "Tau":
             shiftedModuleUp = cms.EDProducer("ShiftedParticleProducer",
                                              src = objectCollection,
                                              uncertainty = cms.string('0.03+0*x*y'),
-                                             shiftBy = cms.double(+1.*varyByNsigmas)
+                                             shiftBy = cms.double(+1.*varyByNsigmas),
+                                             srcWeights = cms.InputTag("")
                                              )
 
         if identifier == "Unclustered":        
@@ -1018,7 +1015,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                         binUncertainty = cms.string('sqrt(1./x+0.0025)+0*y')
                         ),
                     ),
-                                             shiftBy = cms.double(+1.*varyByNsigmas)
+                                             shiftBy = cms.double(+1.*varyByNsigmas),
+                                             srcWeights = cms.InputTag("")
                                              )
 
         if identifier == "Jet":
@@ -1188,6 +1186,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             #MM: FIXME MVA
             #if  "MVA" in metModName and identifier == "Jet": #dummy fix
             #    modName = "uncorrectedshiftedPat"+preId+identifier+varType+mod+postfix
+            if (identifier=="Photon" or identifier=="Unclustered") and self.getvalue("Puppi"):
+                shiftedCollModules[mod].srcWeights = "puppiNoLep"
             if not hasattr(process, modName):
                 addToProcessAndTask(modName, shiftedCollModules[mod], process, task)
                 metUncSequence += getattr(process, modName)
@@ -1199,6 +1199,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             if "PF" in metModName:
                 #create the MET shifts and add them to the sequence
                 shiftedMETCorrModule = self.createShiftedMETModule(process, objectCollection, modName)
+                if (identifier=="Photon" or identifier=="Unclustered") and self.getvalue("Puppi"):
+                   shiftedMETCorrModule.srcWeights = "puppiNoLep"
                 modMETShiftName = "shiftedPatMETCorr"+preId+identifier+varType+mod+postfix
                 if not hasattr(process, modMETShiftName):
                     addToProcessAndTask(modMETShiftName, shiftedMETCorrModule, process, task)
@@ -1253,6 +1255,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         shiftedModule = cms.EDProducer("ShiftedParticleMETcorrInputProducer",
                                        srcOriginal = originCollection,
                                        srcShifted = cms.InputTag(shiftedCollection),
+                                       srcWeights = cms.InputTag("")
                                        )
 
         return shiftedModule
@@ -1451,13 +1454,17 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if not hasattr(process, "pfMet"+postfix) and self._parameters["metType"].value == "PF":
             #common to AOD/mAOD processing
             #raw MET
-            from RecoMET.METProducers.PFMET_cfi import pfMet
+            from RecoMET.METProducers.pfMet_cfi import pfMet
             addToProcessAndTask("pfMet"+postfix, pfMet.clone(), process, task)
             getattr(process, "pfMet"+postfix).src = pfCandCollection
             getattr(process, "pfMet"+postfix).calculateSignificance = False
+            if self.getvalue("Puppi"):
+                getattr(process, "pfMet"+postfix).applyWeight = True
+                getattr(process, "pfMet"+postfix).srcWeights = "puppiNoLep"
             patMetModuleSequence += getattr(process, "pfMet"+postfix)
 
-            #PAT METs
+        #PAT METs
+        if not hasattr(process, "patMETs"+postfix) and self._parameters["metType"].value == "PF":
             process.load("PhysicsTools.PatAlgos.producersLayer1.metProducer_cff")
             task.add(process.makePatMETsTask)
             configtools.cloneProcessingSnippet(process, getattr(process,"patMETCorrections"), postfix, addToTask = True)
@@ -1481,7 +1488,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                     getattr(process, _myPatMet).computeMETSignificance = cms.bool(False)
 
                 if self.getvalue("Puppi"):
-                    getattr(process, _myPatMet).srcPFCands = cms.InputTag('puppiForMET')
+                    getattr(process, _myPatMet).srcWeights = "puppiNoLep"
                     getattr(process, _myPatMet).srcJets = cms.InputTag('cleanedPatJets'+postfix)
                     getattr(process, _myPatMet).srcJetSF = cms.string('AK4PFPuppi')
                     getattr(process, _myPatMet).srcJetResPt = cms.string('AK4PFPuppi_pt')
@@ -1599,12 +1606,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 process.load("CommonTools.ParticleFlow.pfNoPileUpJME_cff")
                 task.add(process.pfNoPileUpJMETask)
                 configtools.cloneProcessingSnippet(process, getattr(process,"pfNoPileUpJMESequence"), postfix, addToTask = True )
-                getattr(process, "pfPileUpJME"+postfix).PFCandidates = cms.InputTag("tmpPFCandCollPtr"+postfix)
-                addToProcessAndTask("pfNoPileUpJME"+postfix,
-                        getattr(process, "pfNoPileUpJME"+postfix).clone( 
-                        bottomCollection = cms.InputTag("tmpPFCandCollPtr"+postfix) ),
-                        process, task )
-                pfCandColl = cms.InputTag("pfNoPileUpJME"+postfix)
+                getattr(process, "pfPileUpJME"+postfix).PFCandidates = "tmpPFCandCollPtr"+postfix
+                getattr(process, "pfNoPileUpJME"+postfix).bottomCollection = "tmpPFCandCollPtr"+postfix
+                pfCandColl = "pfNoPileUpJME"+postfix
                 patMetModuleSequence += getattr(process, "tmpPFCandCollPtr"+postfix)
                 patMetModuleSequence += getattr(process, "pfNoPileUpJME"+postfix)
 
@@ -1675,13 +1679,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         pfCHS = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV(0)>0"))
         addToProcessAndTask("pfCHS", pfCHS, process, task)
-        pfMetCHS = cms.EDProducer("PFMETProducer",
-                                  src = cms.InputTag('pfCHS'),
-                                  alias = cms.string('pfMet'),
-                                  globalThreshold = cms.double(0.0),
-                                  calculateSignificance = cms.bool(False),
-                                  )            
-
+        from RecoMET.METProducers.pfMet_cfi import pfMet
+        pfMetCHS = pfMet.clone(src = 'pfCHS')
         addToProcessAndTask("pfMetCHS", pfMetCHS, process, task)
 
         addMETCollection(process,
@@ -1698,13 +1697,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         pfTrk = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV(0) > 0 && charge()!=0"))
         addToProcessAndTask("pfTrk", pfTrk, process, task)
-        pfMetTrk = cms.EDProducer("PFMETProducer",
-                                  src = cms.InputTag('pfTrk'),
-                                  alias = cms.string('pfMet'),
-                                  globalThreshold = cms.double(0.0),
-                                  calculateSignificance = cms.bool(False),
-                                  )            
-
+        pfMetTrk = pfMet.clone(src = 'pfTrk')
         addToProcessAndTask("pfMetTrk", pfMetTrk, process, task)
 
         addMETCollection(process,

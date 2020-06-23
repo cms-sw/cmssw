@@ -4,6 +4,7 @@
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="Geometry/Records"/>
+<use name="CondFormats/Common"/>
 <use name="CondFormats/GeometryObjects"/>
 <use name="MagneticField/Records"/>
 <flags EDM_PLUGIN="1"/>

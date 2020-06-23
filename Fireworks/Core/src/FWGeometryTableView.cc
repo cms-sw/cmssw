@@ -11,7 +11,7 @@
 //
 
 // system include files
-#include <boost/bind.hpp>
+#include <functional>
 
 // user include files
 #include "Fireworks/Core/src/FWGeometryTableView.h"
@@ -204,21 +204,21 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager
   m_mode.addEntry(kNode, "Node");
   m_mode.addEntry(kVolume, "Volume");
 
-  m_mode.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D, this));
-  m_autoExpand.changed_.connect(boost::bind(&FWGeometryTableView::autoExpandCallback, this));
-  m_visLevel.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D, this));
+  m_mode.changed_.connect(std::bind(&FWGeometryTableView::refreshTable3D, this));
+  m_autoExpand.changed_.connect(std::bind(&FWGeometryTableView::autoExpandCallback, this));
+  m_visLevel.changed_.connect(std::bind(&FWGeometryTableView::refreshTable3D, this));
 
-  m_visLevelFilter.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D, this));
+  m_visLevelFilter.changed_.connect(std::bind(&FWGeometryTableView::refreshTable3D, this));
 
-  m_disableTopNode.changed_.connect(boost::bind(&FWGeometryTableView::updateVisibilityTopNode, this));
+  m_disableTopNode.changed_.connect(std::bind(&FWGeometryTableView::updateVisibilityTopNode, this));
   postConst();
 
   m_proximityAlgo.addEntry(kBBoxCenter, "BBox center");
   m_proximityAlgo.addEntry(kBBoxSurface, "BBox surface");
 
-  m_selectRegion.changed_.connect(boost::bind(&FWGeometryTableView::checkRegionOfInterest, this));
-  m_regionRadius.changed_.connect(boost::bind(&FWGeometryTableView::checkRegionOfInterest, this));
-  m_proximityAlgo.changed_.connect(boost::bind(&FWGeometryTableView::checkRegionOfInterest, this));
+  m_selectRegion.changed_.connect(std::bind(&FWGeometryTableView::checkRegionOfInterest, this));
+  m_regionRadius.changed_.connect(std::bind(&FWGeometryTableView::checkRegionOfInterest, this));
+  m_proximityAlgo.changed_.connect(std::bind(&FWGeometryTableView::checkRegionOfInterest, this));
 }
 
 FWGeometryTableView::~FWGeometryTableView() {}

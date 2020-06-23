@@ -14,9 +14,6 @@
 // Needed only for output
 #include "DataFormats/DetId/interface/DetId.h"
 
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
-
 SiStripQuality::SiStripQuality()
     : toCleanUp(false),
       FileInPath_("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"),
@@ -147,12 +144,10 @@ void SiStripQuality::add(const RunInfo *runInfo) {
     // Take the list of active feds from RunInfo
     std::vector<int> activeFedsFromRunInfo;
     // Take only Tracker feds (remove all non Tracker)
-    std::remove_copy_if(runInfo->m_fed_in.begin(),
-                        runInfo->m_fed_in.end(),
-                        std::back_inserter(activeFedsFromRunInfo),
-                        !boost::bind(std::logical_and<bool>(),
-                                     boost::bind(std::greater_equal<int>(), _1, int(FEDNumbering::MINSiStripFEDID)),
-                                     boost::bind(std::less_equal<int>(), _1, int(FEDNumbering::MAXSiStripFEDID))));
+    std::remove_copy_if(
+        runInfo->m_fed_in.begin(), runInfo->m_fed_in.end(), std::back_inserter(activeFedsFromRunInfo), [&](int x) {
+          return !((x >= int(FEDNumbering::MINSiStripFEDID)) && (x <= int(FEDNumbering::MAXSiStripFEDID)));
+        });
 
     // Compare the two. If a fedId from RunInfo is not present in the fedCabling
     // we need to get all the corresponding fedChannels and then the single apv

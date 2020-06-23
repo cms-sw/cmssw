@@ -10,7 +10,7 @@
 #include <DetectorDescription/Core/interface/DDFilteredView.h>
 #include <DetectorDescription/Core/interface/DDSolid.h>
 
-#include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/RPCNumberingScheme.h"
 
@@ -25,7 +25,7 @@
 #include <iostream>
 #include <algorithm>
 
-RPCGeometryBuilderFromCondDB::RPCGeometryBuilderFromCondDB(bool comp11) : theComp11Flag(comp11) {}
+RPCGeometryBuilderFromCondDB::RPCGeometryBuilderFromCondDB() {}
 
 RPCGeometryBuilderFromCondDB::~RPCGeometryBuilderFromCondDB() {}
 
@@ -57,27 +57,14 @@ RPCGeometry* RPCGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo) 
     RPCRollSpecs* rollspecs = nullptr;
     Bounds* bounds = nullptr;
 
-    //    if (dpar.size()==4){
     if (rgeo.shapeEnd(id) - shapeStart == 4) {
       const float width = *(shapeStart + 0) / cm;
       const float length = *(shapeStart + 1) / cm;
       const float thickness = *(shapeStart + 2) / cm;
       const float nstrip = *(shapeStart + 3);
-      //RectangularPlaneBounds*
+
       bounds = new RectangularPlaneBounds(width, length, thickness);
       const std::vector<float> pars = {width, length, nstrip};
-
-      if (!theComp11Flag) {
-        //Correction of the orientation to get the REAL geometry.
-        //Change of axes for the +z part only.
-        //Including the 0 whell
-        if (*(tranStart + 2) > -1500.) {  //tran[2] >-1500. ){
-          Basic3DVector<float> newX(-1., 0., 0.);
-          Basic3DVector<float> newY(0., -1., 0.);
-          Basic3DVector<float> newZ(0., 0., 1.);
-          rot.rotateAxes(newX, newY, newZ);
-        }
-      }
 
       rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCBarrel, name, pars);
 
@@ -87,16 +74,16 @@ RPCGeometry* RPCGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo) 
       const float ap = *(shapeStart + 2) / cm;
       const float ti = *(shapeStart + 3) / cm;
       const float nstrip = *(shapeStart + 4);
-      //  TrapezoidalPlaneBounds*
+
       bounds = new TrapezoidalPlaneBounds(be, te, ap, ti);
-      const std::vector<float> pars = {be /*b/2*/, te /*B/2*/, ap /*h/2*/, nstrip};
+      const std::vector<float> pars = {be, te, ap, nstrip};
 
       rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCEndcap, name, pars);
 
       //Change of axes for the forward
       Basic3DVector<float> newX(1., 0., 0.);
       Basic3DVector<float> newY(0., 0., 1.);
-      //      if (tran[2] > 0. )
+
       newY *= -1;
       Basic3DVector<float> newZ(0., 1., 0.);
       rot.rotateAxes(newX, newY, newZ);
@@ -151,7 +138,7 @@ RPCGeometry* RPCGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo) 
           const double w2 = rl->surface().bounds().width() / 2;
           const auto& topo = dynamic_cast<const TrapezoidalStripTopology&>(rl->specificTopology());
           const double r = topo.radius();
-          const double wAtLo = w2 / r * (r - h2);  // tan(theta/2) = (w/2)/r = x/(r-h/2)
+          const double wAtLo = w2 / r * (r - h2);
           const double wAtHi = w2 / r * (r + h2);
 
           const auto x1y1AtRef = refSurf.toLocal(rl->toGlobal(LocalPoint(-wAtLo, -h2, 0)));

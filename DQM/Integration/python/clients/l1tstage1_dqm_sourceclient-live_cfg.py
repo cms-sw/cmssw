@@ -30,7 +30,6 @@ process.dqmSaver.tag = 'L1TStage1'
 
 #
 # references needed
-process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference.root"
 
 # Condition for P5 cluster
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")

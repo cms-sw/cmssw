@@ -31,7 +31,7 @@ namespace cscdqm {
   }
 
   /**
-   * @brief  Set a single bit in the 3D Histogram (aka EMU level event display). Checks if mo and x != null. 
+   * @brief  Set a single bit in the 3D Histogram (aka EMU level event display). Checks if mo and x != null.
    * @param  eventNumber number of event
    * @param  mo Histogram
    * @param  x X bin number
@@ -863,7 +863,7 @@ namespace cscdqm {
         CSCTMBTrailer* tmbTrailer = tmbData->tmbTrailer();
 
         if (tmbHeader && tmbTrailer) {
-          CSCCLCTData* clctData = data.clctData();
+          CSCComparatorData* comparatorData = data.comparatorData();
 
           std::vector<CSCCLCTDigi> clctsDatasTmp = tmbHeader->CLCTDigis(cid.rawId());
           std::vector<CSCCLCTDigi> clctsDatas;
@@ -1064,7 +1064,7 @@ namespace cscdqm {
 
               // == For CLCT0 Fill Summary dTime Histograms
               if (lct == 0) {
-                /* -- Moved 
+                /* -- Moved
                 if (cid.endcap() == 1) {
                   if (mo_CSC_Plus_endcap_CLCT0_dTime) mo_CSC_Plus_endcap_CLCT0_dTime->Fill(dTime);
                 }
@@ -1246,7 +1246,7 @@ namespace cscdqm {
           int NumberOfLayersWithHitsInCLCT = 0;
           int NumberOfHalfStripsWithHitsInCLCT = 0;
 
-          if (clctData && clctData->check()) {
+          if (comparatorData && comparatorData->check()) {
             MonitorObject* mo_CFEB_Comparators_TimeSamples = nullptr;
             getCSCHisto(h::CSC_CFEB_COMPARATORS_TIMESAMPLES, crateID, dmbID, mo_CFEB_Comparators_TimeSamples);
 
@@ -1268,7 +1268,7 @@ namespace cscdqm {
                 int tbin_clct_previous = -1;
                 bool CheckLayerCLCT = true;
 
-                std::vector<CSCComparatorDigi> compOutData = clctData->comparatorDigis(nLayer, nCFEB);
+                std::vector<CSCComparatorDigi> compOutData = comparatorData->comparatorDigis(nLayer, nCFEB);
 
                 for (std::vector<CSCComparatorDigi>::iterator compOutDataItr = compOutData.begin();
                      compOutDataItr != compOutData.end();

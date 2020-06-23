@@ -12,9 +12,9 @@
 #include <cmath>
 
 namespace hcaldqm {
-  typedef boost::unordered_map<uint32_t, double> doubleCompactMap;
-  typedef boost::unordered_map<uint32_t, int> intCompactMap;
-  typedef boost::unordered_map<uint32_t, uint32_t> uintCompactMap;
+  typedef std::unordered_map<uint32_t, double> doubleCompactMap;
+  typedef std::unordered_map<uint32_t, int> intCompactMap;
+  typedef std::unordered_map<uint32_t, uint32_t> uintCompactMap;
 
   template <typename STDTYPE>
   class ContainerXXX {
@@ -60,7 +60,7 @@ namespace hcaldqm {
     virtual void print();
 
   protected:
-    typedef boost::unordered_map<uint32_t, STDTYPE> CompactMap;
+    typedef std::unordered_map<uint32_t, STDTYPE> CompactMap;
     CompactMap _cmap;
     mapper::HashMapper _hashmap;
     Logger _logger;

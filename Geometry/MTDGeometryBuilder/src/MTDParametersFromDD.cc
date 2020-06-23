@@ -3,7 +3,6 @@
 #include "CondFormats/GeometryObjects/interface/PMTDParameters.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDVectorGetter.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
@@ -33,14 +32,15 @@ bool MTDParametersFromDD::build(const DDCompactView* cvp, PMTDParameters& ptp) {
   std::array<std::string, 2> mtdSubdet{{"BTL", "ETL"}};
   int subdet(0);
   for (const auto& name : mtdSubdet) {
-    if (DDVectorGetter::check(name)) {
+    auto const& v = cvp->vector(name);
+    if (!v.empty()) {
       subdet += 1;
-      std::vector<int> subdetPars = dbl_to_int(DDVectorGetter::get(name));
+      std::vector<int> subdetPars = dbl_to_int(v);
       putOne(subdet, subdetPars, ptp);
     }
   }
 
-  ptp.vpars_ = dbl_to_int(DDVectorGetter::get("vPars"));
+  ptp.vpars_ = dbl_to_int(cvp->vector("vPars"));
 
   std::string attribute = "OnlyForMTDRecNumbering";
   DDSpecificsHasNamedValueFilter filter1{attribute};

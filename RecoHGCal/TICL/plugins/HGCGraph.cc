@@ -7,21 +7,22 @@
 #include "HGCGraph.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
-void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
-                                      const std::vector<TICLSeedingRegion> &regions,
-                                      int nEtaBins,
-                                      int nPhiBins,
-                                      const std::vector<reco::CaloCluster> &layerClusters,
-                                      const std::vector<float> &mask,
-                                      const edm::ValueMap<std::pair<float, float>> &layerClustersTime,
-                                      int deltaIEta,
-                                      int deltaIPhi,
-                                      float minCosTheta,
-                                      float minCosPointing,
-                                      float etaLimitIncreaseWindow,
-                                      int missing_layers,
-                                      int maxNumberOfLayers,
-                                      float maxDeltaTime) {
+template <typename TILES>
+void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
+                                              const std::vector<TICLSeedingRegion> &regions,
+                                              int nEtaBins,
+                                              int nPhiBins,
+                                              const std::vector<reco::CaloCluster> &layerClusters,
+                                              const std::vector<float> &mask,
+                                              const edm::ValueMap<std::pair<float, float>> &layerClustersTime,
+                                              int deltaIEta,
+                                              int deltaIPhi,
+                                              float minCosTheta,
+                                              float minCosPointing,
+                                              float etaLimitIncreaseWindow,
+                                              int missing_layers,
+                                              int maxNumberOfLayers,
+                                              float maxDeltaTime) {
   isOuterClusterOfDoublets_.clear();
   isOuterClusterOfDoublets_.resize(layerClusters.size());
   allDoublets_.clear();
@@ -189,10 +190,11 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
   // #endif
 }
 
-bool HGCGraph::areTimeCompatible(int innerIdx,
-                                 int outerIdx,
-                                 const edm::ValueMap<std::pair<float, float>> &layerClustersTime,
-                                 float maxDeltaTime) {
+template <typename TILES>
+bool HGCGraphT<TILES>::areTimeCompatible(int innerIdx,
+                                         int outerIdx,
+                                         const edm::ValueMap<std::pair<float, float>> &layerClustersTime,
+                                         float maxDeltaTime) {
   float timeIn = layerClustersTime.get(innerIdx).first;
   float timeInE = layerClustersTime.get(innerIdx).second;
   float timeOut = layerClustersTime.get(outerIdx).first;
@@ -203,11 +205,12 @@ bool HGCGraph::areTimeCompatible(int innerIdx,
 }
 
 //also return a vector of seedIndex for the reconstructed tracksters
-void HGCGraph::findNtuplets(std::vector<HGCDoublet::HGCntuplet> &foundNtuplets,
-                            std::vector<int> &seedIndices,
-                            const unsigned int minClustersPerNtuplet,
-                            const bool outInDFS,
-                            unsigned int maxOutInHops) {
+template <typename TILES>
+void HGCGraphT<TILES>::findNtuplets(std::vector<HGCDoublet::HGCntuplet> &foundNtuplets,
+                                    std::vector<int> &seedIndices,
+                                    const unsigned int minClustersPerNtuplet,
+                                    const bool outInDFS,
+                                    unsigned int maxOutInHops) {
   HGCDoublet::HGCntuplet tmpNtuplet;
   tmpNtuplet.reserve(minClustersPerNtuplet);
   std::vector<std::pair<unsigned int, unsigned int>> outInToVisit;
@@ -230,3 +233,6 @@ void HGCGraph::findNtuplets(std::vector<HGCDoublet::HGCntuplet> &foundNtuplets,
     }
   }
 }
+
+template class HGCGraphT<TICLLayerTiles>;
+template class HGCGraphT<TICLLayerTilesHFNose>;

@@ -9,6 +9,7 @@
 #define CSCTMBMiniScope_h
 #include <vector>
 #include <map>
+#include <cstdint>
 
 class CSCTMBMiniScope {
 public:

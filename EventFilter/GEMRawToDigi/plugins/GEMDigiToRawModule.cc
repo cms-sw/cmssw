@@ -23,6 +23,7 @@ using namespace gem;
 GEMDigiToRawModule::GEMDigiToRawModule(const edm::ParameterSet& pset)
     : event_type_(pset.getParameter<int>("eventType")),
       digi_token(consumes<GEMDigiCollection>(pset.getParameter<edm::InputTag>("gemDigi"))),
+      gemEMapRcd_token_(esConsumes<GEMeMap, GEMeMapRcd, edm::Transition::BeginRun>()),
       useDBEMap_(pset.getParameter<bool>("useDBEMap")) {
   produces<FEDRawDataCollection>();
   if (useDBEMap_) {

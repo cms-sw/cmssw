@@ -1,11 +1,8 @@
-<use name="CondCore/CondDB"/>
+<use name="CondCore/PopCon"/>
 <use name="CondFormats/Common"/>
 <use name="CondFormats/DQMObjects"/>
 <use name="CoralBase"/>
-<use name="DataFormats/Provenance"/>
-<use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="FWCore/ServiceRegistry"/>
 <use name="RelationalAccess"/>
 <export>
   <lib name="1"/>

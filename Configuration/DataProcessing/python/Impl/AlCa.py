@@ -127,9 +127,6 @@ class AlCa(Scenario):
         #process.maxEvents.input = -1
         #process.dqmSaver.workflow = datasetName
         #process.dqmSaver.saveByLumiSection = 1
-        #if args.has_key('referenceFile') and args.get('referenceFile', ''):
-        #    process.DQMStore.referenceFileName = \
-        #                        cms.untracked.string(args['referenceFile'])
         harvestingMode(process,datasetName,args)
 
         return process

@@ -16,11 +16,11 @@ autoCond = {
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
     'run2_design'       :   '110X_mcRun2_design_v5',
     #GlobalTag for MC production with optimistic alignment and calibrations for 2016, prior to VFP change
-    'run2_mc_pre_vfp'   :   '110X_mcRun2_asymptotic_preVFP_v4',
+    'run2_mc_pre_vfp'   :   '111X_mcRun2_asymptotic_preVFP_v1',
     #GlobalTag for MC production with optimistic alignment and calibrations for 2016, after VFP change
-    'run2_mc'           :   '110X_mcRun2_asymptotic_v7',
+    'run2_mc'           :   '111X_mcRun2_asymptotic_v1',
     # GlobalTag for MC production (cosmics) with starup-like alignment and calibrations for Run2, Strip tracker in peak mode
-    'run2_mc_cosmics'   :   '110X_mcRun2cosmics_startup_deco_v6',
+    'run2_mc_cosmics'   :   '111X_mcRun2cosmics_startup_deco_v1',
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
     'run2_mc_hi'        :   '110X_mcRun2_HeavyIon_v2',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
@@ -47,37 +47,37 @@ autoCond = {
     # GlobalTag for Run3 data relvals
     'run3_data_promptlike'     :   '110X_dataRun3_Prompt_v3',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
-    'phase1_2017_design'       :  '110X_mc2017_design_v3',
+    'phase1_2017_design'       :  '111X_mc2017_design_v2',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
-    'phase1_2017_realistic'    :  '110X_mc2017_realistic_v4',
+    'phase1_2017_realistic'    :  '111X_mc2017_realistic_v2',
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in DECO mode
-    'phase1_2017_cosmics'      :  '110X_mc2017cosmics_realistic_deco_v3',
+    'phase1_2017_cosmics'      :  '111X_mc2017cosmics_realistic_deco_v1',
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in PEAK mode
-    'phase1_2017_cosmics_peak' :  '110X_mc2017cosmics_realistic_peak_v3',
+    'phase1_2017_cosmics_peak' :  '111X_mc2017cosmics_realistic_peak_v1',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for full Phase1 2018 (and 0,0,0-centred beamspot)
-    'phase1_2018_design'       :  '110X_upgrade2018_design_v4',
+    'phase1_2018_design'       :  '111X_upgrade2018_design_v1',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector
-    'phase1_2018_realistic'    :  '110X_upgrade2018_realistic_v9',
+    'phase1_2018_realistic'    :  '111X_upgrade2018_realistic_v1',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector for Heavy Ion
     'phase1_2018_realistic_hi' :  '110X_upgrade2018_realistic_HI_v5',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector: HEM-15-16 fail
-    'phase1_2018_realistic_HEfail' :  '110X_upgrade2018_realistic_HEfail_v7',
+    'phase1_2018_realistic_HEfail' :  '111X_upgrade2018_realistic_HEfail_v1',
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in DECO mode
-    'phase1_2018_cosmics'      :   '110X_upgrade2018cosmics_realistic_deco_v6',
+    'phase1_2018_cosmics'      :   '111X_upgrade2018cosmics_realistic_deco_v1',
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in PEAK mode
-    'phase1_2018_cosmics_peak' :   '110X_upgrade2018cosmics_realistic_peak_v7',
+    'phase1_2018_cosmics_peak' :   '111X_upgrade2018cosmics_realistic_peak_v1',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2021
-    'phase1_2021_design'       : '111X_mcRun3_2021_design_v4', # GT containing design conditions for Phase1 2021
+    'phase1_2021_design'       : '112X_mcRun3_2021_design_v2', # GT containing design conditions for Phase1 2021
     # GlobalTag for MC production with realistic conditions for Phase1 2021
-    'phase1_2021_realistic'    : '111X_mcRun3_2021_realistic_v4', # GT containing realistic conditions for Phase1 2021
+    'phase1_2021_realistic'    : '112X_mcRun3_2021_realistic_v2', # GT containing realistic conditions for Phase1 2021
     # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2021,  Strip tracker in DECO mode
-    'phase1_2021_cosmics'      : '111X_mcRun3_2021cosmics_realistic_deco_v4',
+    'phase1_2021_cosmics'      : '112X_mcRun3_2021cosmics_realistic_deco_v2',
     # GlobalTag for MC production with realistic conditions for Phase1 2021 detector for Heavy Ion
-    'phase1_2021_realistic_hi' :  '111X_mcRun3_2021_realistic_HI_v5',
+    'phase1_2021_realistic_hi' :  '112X_mcRun3_2021_realistic_HI_v2',
     # GlobalTag for MC production with realistic conditions for Phase1 2023
-    'phase1_2023_realistic'    : '111X_mcRun3_2023_realistic_v4', # GT containing realistic conditions for Phase1 2023
+    'phase1_2023_realistic'    : '112X_mcRun3_2023_realistic_v2', # GT containing realistic conditions for Phase1 2023
     # GlobalTag for MC production with realistic conditions for Phase1 2024
-    'phase1_2024_realistic'    : '111X_mcRun3_2024_realistic_v4', # GT containing realistic conditions for Phase1 2024
+    'phase1_2024_realistic'    : '112X_mcRun3_2024_realistic_v2', # GT containing realistic conditions for Phase1 2024
     # GlobalTag for MC production with realistic conditions for Phase2
     'phase2_realistic'         : '110X_mcRun4_realistic_v3'
 }

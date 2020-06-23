@@ -107,6 +107,8 @@ private:
   void matchClustersToSimTrack(const GEMPadDigiClusterCollection&);
   void matchCoPadsToSimTrack(const GEMCoPadDigiCollection&);
 
+  void clear();
+
   edm::EDGetTokenT<GEMDigiCollection> gemDigiToken_;
   edm::EDGetTokenT<GEMPadDigiCollection> gemPadToken_;
   edm::EDGetTokenT<GEMPadDigiClusterCollection> gemClusterToken_;

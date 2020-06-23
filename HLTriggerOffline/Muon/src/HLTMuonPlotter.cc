@@ -28,9 +28,9 @@ HLTMuonPlotter::HLTMuonPlotter(const ParameterSet &pset,
                                string hltPath,
                                const std::vector<string> &moduleLabels,
                                const std::vector<string> &stepLabels,
-                               const boost::tuple<edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
-                                                  edm::EDGetTokenT<reco::GenParticleCollection>,
-                                                  edm::EDGetTokenT<reco::MuonCollection>> &tokens)
+                               const std::tuple<edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
+                                                edm::EDGetTokenT<reco::GenParticleCollection>,
+                                                edm::EDGetTokenT<reco::MuonCollection>> &tokens)
     :
 
       l1Matcher_(pset) {
@@ -52,17 +52,14 @@ HLTMuonPlotter::HLTMuonPlotter(const ParameterSet &pset,
   recMuonSelector_ = nullptr;
 
   // set tokens
-  hltTriggerSummaryRAW_ = tokens.get<0>();
-  genParticleLabel_ = tokens.get<1>();
-  recMuonLabel_ = tokens.get<2>();
+  hltTriggerSummaryRAW_ = std::get<0>(tokens);
+  genParticleLabel_ = std::get<1>(tokens);
+  recMuonLabel_ = std::get<2>(tokens);
 }
 
 void HLTMuonPlotter::beginJob() {}
 
 void HLTMuonPlotter::beginRun(DQMStore::IBooker &iBooker, const Run &iRun, const EventSetup &iSetup) {
-  static int runNumber = 0;
-  runNumber++;
-
   l1Matcher_.init(iSetup);
 
   cutMaxEta_ = 2.4;
@@ -108,10 +105,8 @@ void HLTMuonPlotter::beginRun(DQMStore::IBooker &iBooker, const Run &iRun, const
 }
 
 void HLTMuonPlotter::analyze(const Event &iEvent, const EventSetup &iSetup) {
-  static int eventNumber = 0;
-  eventNumber++;
   LogTrace("HLTMuonVal") << "In HLTMuonPlotter::analyze,  "
-                         << "Event: " << eventNumber;
+                         << "Event: " << iEvent.id();
 
   // cout << hltPath_ << endl;
   // for (size_t i = 0; i < moduleLabels_.size(); i++)
@@ -258,9 +253,9 @@ void HLTMuonPlotter::analyze(const Event &iEvent, const EventSetup &iSetup) {
   }  // End loop over sources
 }
 
-boost::tuple<edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
-             edm::EDGetTokenT<reco::GenParticleCollection>,
-             edm::EDGetTokenT<reco::MuonCollection>>
+std::tuple<edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
+           edm::EDGetTokenT<reco::GenParticleCollection>,
+           edm::EDGetTokenT<reco::MuonCollection>>
 HLTMuonPlotter::getTokens(const edm::ParameterSet &pset, edm::ConsumesCollector &&iC) {
   edm::EDGetTokenT<trigger::TriggerEventWithRefs> _hltTriggerSummaryRAW =
       iC.consumes<TriggerEventWithRefs>(edm::InputTag("hltTriggerSummaryRAW"));
@@ -269,9 +264,9 @@ HLTMuonPlotter::getTokens(const edm::ParameterSet &pset, edm::ConsumesCollector 
   edm::EDGetTokenT<reco::MuonCollection> _recMuonLabel =
       iC.consumes<MuonCollection>(pset.getParameter<string>("recMuonLabel"));
 
-  boost::tuple<edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
-               edm::EDGetTokenT<reco::GenParticleCollection>,
-               edm::EDGetTokenT<reco::MuonCollection>>
+  std::tuple<edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
+             edm::EDGetTokenT<reco::GenParticleCollection>,
+             edm::EDGetTokenT<reco::MuonCollection>>
       myTuple(_hltTriggerSummaryRAW, _genParticleLabel, _recMuonLabel);
 
   return (myTuple);

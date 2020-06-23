@@ -12,9 +12,20 @@
 
 class HGCalParameters {
 public:
+  struct waferInfo {
+    int32_t type, part, orient;
+    waferInfo(int32_t t = 0, int32_t p = 0, int32_t o = 0) : type(t), part(p), orient(o){};
+  };
+  struct tileInfo {
+    int32_t type, sipm, hex1, hex2, hex3, hex4;
+    tileInfo(int32_t t = 0, int32_t s = 0, int32_t h1 = 0, int32_t h2 = 0, int32_t h3 = 0, int32_t h4 = 0)
+        : type(t), sipm(s), hex1(h1), hex2(h2), hex3(h3), hex4(h4){};
+  };
   typedef std::vector<std::unordered_map<int32_t, int32_t> > layer_map;
   typedef std::unordered_map<int32_t, int32_t> wafer_map;
   typedef std::unordered_map<int32_t, std::pair<int32_t, int32_t> > waferT_map;
+  typedef std::unordered_map<int32_t, waferInfo> waferInfo_map;
+  typedef std::unordered_map<int32_t, tileInfo> tileInfo_map;
 
   static constexpr double k_ScaleFromDDD = 0.1;
   static constexpr double k_ScaleToDDD = 10.0;
@@ -160,6 +171,10 @@ public:
   wafer_map typesInLayers_;
   waferT_map waferTypes_;
   int waferMaskMode_;
+  waferInfo_map waferInfoMap_;
+  tileInfo_map tileInfoMap_;
+  std::vector<std::pair<double, double> > tileRingR_;
+  std::vector<std::pair<int, int> > tileRingRange_;
 
   COND_SERIALIZABLE;
 

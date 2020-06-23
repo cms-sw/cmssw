@@ -6,36 +6,27 @@
 //
 // \author Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
 //         Created:  Thu, 05 March 2020 
+//         Modified: Thu, 04 June 2020, following what made in PR #30047               
 //   
 //         Original author: Tim Cox
 */
 #include "CSCGeometryParsFromDD.h"
-
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 #include "Geometry/MuonNumbering/interface/CSCNumberingScheme.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
-
+#include "Geometry/MuonNumbering/interface/MuonGeometryNumbering.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "Geometry/CSCGeometry/src/CSCWireGroupPackage.h"
 #include "CondFormats/GeometryObjects/interface/CSCRecoDigiParameters.h"
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
-
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
-#include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
-#include "Geometry/MuonNumbering/interface/DD4hep_CSCNumberingScheme.h"
-
 #include "DataFormats/Math/interface/CMSUnits.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
-
 #include "DataFormats/Math/interface/Rounding.h"
 
 using namespace std;
@@ -46,7 +37,7 @@ CSCGeometryParsFromDD::CSCGeometryParsFromDD() : myName("CSCGeometryParsFromDD")
 CSCGeometryParsFromDD::~CSCGeometryParsFromDD() {}
 
 bool CSCGeometryParsFromDD::build(const DDCompactView* cview,
-                                  const MuonDDDConstants& muonConstants,
+                                  const MuonGeometryConstants& muonConstants,
                                   RecoIdealGeometry& rig,
                                   CSCRecoDigiParameters& rdp) {
   std::string attribute = "MuStructure";  // could come from outside
@@ -82,7 +73,7 @@ bool CSCGeometryParsFromDD::build(const DDCompactView* cview,
 
     LogTrace(myName) << myName << ": create numbering scheme...";
 
-    MuonDDDNumbering mdn(muonConstants);
+    MuonGeometryNumbering mdn(muonConstants);
     MuonBaseNumber mbn = mdn.geoHistoryToBaseNumber(fv.geoHistory());
     CSCNumberingScheme mens(muonConstants);
 
@@ -361,7 +352,7 @@ bool CSCGeometryParsFromDD::build(const DDCompactView* cview,
 
 // dd4hep
 bool CSCGeometryParsFromDD::build(const cms::DDCompactView* cview,
-                                  const cms::MuonNumbering& muonConstants,
+                                  const MuonGeometryConstants& muonConstants,
                                   RecoIdealGeometry& rig,
                                   CSCRecoDigiParameters& rdp) {
   const std::string attribute = "MuStructure";
@@ -381,14 +372,11 @@ bool CSCGeometryParsFromDD::build(const cms::DDCompactView* cview,
   std::vector<double> grmat(9);
   std::vector<double> trm(9);
   while (fv.firstChild()) {
-    MuonBaseNumber mbn = muonConstants.geoHistoryToBaseNumber(fv.history());
-
-    cms::CSCNumberingScheme cscnum(muonConstants.values());
-
-    cscnum.baseNumberToUnitNumber(mbn);
-    int id = cscnum.getDetId();
-
+    MuonGeometryNumbering mbn(muonConstants);
+    CSCNumberingScheme cscnum(muonConstants);
+    int id = cscnum.baseNumberToUnitNumber(mbn.geoHistoryToBaseNumber(fv.history()));
     CSCDetId detid = CSCDetId(id);
+
     int jendcap = detid.endcap();
     int jstation = detid.station();
     int jring = detid.ring();

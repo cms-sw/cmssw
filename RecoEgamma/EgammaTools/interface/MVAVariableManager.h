@@ -2,18 +2,17 @@
 #define RecoEgamma_EgammaTools_MVAVariableManager_H
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
-#include "RecoEgamma/EgammaTools/interface/ThreadSafeStringCut.h"
-#include "RecoEgamma/EgammaTools/interface/MVAVariableHelper.h"
+#include "CommonTools/Utils/interface/StringObjectFunction.h"
+#include "CommonTools/Utils/interface/ThreadSafeFunctor.h"
 
 #include <fstream>
 
 template <class ParticleType>
 class MVAVariableManager {
 public:
-  MVAVariableManager(const std::string &variableDefinitionFileName) : nVars_(0) {
+  template <class IndexMap>
+  MVAVariableManager(const std::string &variableDefinitionFileName, IndexMap const &indexMap) : nVars_(0) {
     edm::FileInPath variableDefinitionFileEdm(variableDefinitionFileName);
     std::ifstream file(variableDefinitionFileEdm.fullPath());
 
@@ -31,7 +30,7 @@ public:
       if (file.eof()) {
         break;
       }
-      addVariable(name, formula, lower, upper);
+      addVariable(name, formula, lower, upper, indexMap);
     }
   }
 
@@ -76,10 +75,12 @@ private:
     int auxIndex;
   };
 
+  template <class IndexMap>
   void addVariable(const std::string &name,
                    const std::string &formula,
                    const std::string &lowerClip,
-                   const std::string &upperClip) {
+                   const std::string &upperClip,
+                   IndexMap const &indexMap) {
     bool hasLowerClip = lowerClip.find("None") == std::string::npos;
     bool hasUpperClip = upperClip.find("None") == std::string::npos;
     bool isAuxiliary = formula.find("Rho") != std::string::npos;  // *Rho* is still hardcoded...
@@ -95,7 +96,7 @@ private:
 
     formulas_.push_back(formula);
 
-    int auxIndex = isAuxiliary ? indexMap.getIndex(formula) : -1;
+    int auxIndex = isAuxiliary ? indexMap.at(formula) : -1;
 
     MVAVariableInfo varInfo{
         .hasLowerClip = hasLowerClip,
@@ -114,12 +115,10 @@ private:
   int nVars_;
 
   std::vector<MVAVariableInfo> variableInfos_;
-  std::vector<ThreadSafeStringCut<StringObjectFunction<ParticleType>, ParticleType>> functions_;
+  std::vector<ThreadSafeFunctor<StringObjectFunction<ParticleType>>> functions_;
   std::vector<std::string> formulas_;
   std::vector<std::string> names_;
   std::map<std::string, int> indexMap_;
-
-  const MVAVariableIndexMap indexMap;
 };
 
 #endif

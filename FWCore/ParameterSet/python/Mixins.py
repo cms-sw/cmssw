@@ -84,7 +84,9 @@ class _ParameterTypeBase(object):
         return self._isFrozen 
     def setIsFrozen(self):
         self._isFrozen = True
-
+    def isCompatibleCMSType(self,aType):
+        return isinstance(self,aType)
+ 
 class _SimpleParameterTypeBase(_ParameterTypeBase):
     """base class for parameter classes which only hold a single value"""
     def __init__(self,value):
@@ -587,14 +589,21 @@ class _ValidatingListBase(list):
             if not self._itemIsValid(item):
                 return False
         return True
+    def _itemFromArgument(self, x):
+        return x
+    def _convertArguments(self, seq):
+        if isinstance(seq, str):
+            yield seq
+        for x in seq:
+            yield self._itemFromArgument(x)
     def append(self,x):
         if not self._itemIsValid(x):
             raise TypeError("wrong type being appended to container "+self._labelIfAny())
-        super(_ValidatingListBase,self).append(x)
+        super(_ValidatingListBase,self).append(self._itemFromArgument(x))
     def extend(self,x):
         if not self._isValid(x):
             raise TypeError("wrong type being extended to container "+self._labelIfAny())
-        super(_ValidatingListBase,self).extend(x)
+        super(_ValidatingListBase,self).extend(self._convertArguments(x))
     def __add__(self,rhs):
         if not self._isValid(rhs):
             raise TypeError("wrong type being added to container "+self._labelIfAny())
@@ -605,7 +614,7 @@ class _ValidatingListBase(list):
     def insert(self,i,x):
         if not self._itemIsValid(x):
             raise TypeError("wrong type being inserted to container "+self._labelIfAny())
-        super(_ValidatingListBase,self).insert(i,x)
+        super(_ValidatingListBase,self).insert(i,self._itemFromArgument(x))
     def _labelIfAny(self):
         result = type(self).__name__
         if hasattr(self, '__label'):

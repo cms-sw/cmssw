@@ -117,8 +117,6 @@ def harvestingMode(process, datasetName, args,rANDl=True):
         process.source.processingMode = cms.untracked.string('RunsAndLumis')
     process.dqmSaver.workflow = datasetName
     process.dqmSaver.saveByLumiSection = 1
-    if 'referenceFile' in args and args.get('referenceFile', ''):
-        process.DQMStore.referenceFileName = cms.untracked.string(args['referenceFile'])
 
 def dictIO(options,args):
     if 'outputs' in args:

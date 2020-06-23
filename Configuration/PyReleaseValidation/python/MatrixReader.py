@@ -52,7 +52,6 @@ class MatrixReader(object):
                              'relval_2026':'2026-',
                              'relval_identity':'id-',
                              'relval_machine': 'mach-',
-                             'relval_unsch': 'unsch-',
                              'relval_premix': 'premix-'
                              }
 
@@ -68,7 +67,6 @@ class MatrixReader(object):
                       'relval_2026',
                       'relval_identity',
                       'relval_machine',
-                      'relval_unsch',
                       'relval_premix'
                       ]
         self.filesDefault = {'relval_standard':True ,
@@ -83,7 +81,6 @@ class MatrixReader(object):
                              'relval_2026':True,
                              'relval_identity':False,
                              'relval_machine':True,
-                             'relval_unsch':True,
                              'relval_premix':True
                              }
 

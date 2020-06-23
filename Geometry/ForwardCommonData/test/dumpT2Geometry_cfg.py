@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DUMP")
-process.load("Geometry.ForwardCommonData.totemT22021XML_cfi")
+#process.load("Geometry.ForwardCommonData.totemT22021V1XML_cfi")
+process.load("Geometry.ForwardCommonData.totemT22021V2XML_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if 'MessageLogger' in process.__dict__:

@@ -18,6 +18,5 @@ caloJetsForTrk = cms.Sequence(caloJetsForTrkTask)
 from Configuration.Eras.Modifier_pf_badHcalMitigation_cff import pf_badHcalMitigation
 pf_badHcalMitigation.toModify( caloTowerForTrk, missingHcalRescaleFactorForEcal = 1.0 )
 
-from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
-phase2_hcal.toModify( caloTowerForTrk, hbheInput = cms.InputTag("hbhereco") )
-
+from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
+run3_HB.toModify( caloTowerForTrk, hbheInput = cms.InputTag("hbhereco") )

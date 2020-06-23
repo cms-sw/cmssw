@@ -164,6 +164,11 @@ globalValidationECAL = cms.Sequence(
     + ecalRecHitsValidationSequence
     + ecalClustersValidationSequence
 )
+globalValidationECALOnly = cms.Sequence(
+      ecalSimHitsValidationSequence
+    + ecalDigisValidationSequence
+    + ecalRecHitsValidationSequence
+)
 
 # HCAL local reconstruction
 globalPrevalidationHCAL = cms.Sequence()
@@ -177,6 +182,7 @@ globalValidationHCAL = cms.Sequence(
 )
 
 globalValidationHGCal = cms.Sequence(hgcalValidation)
+globalPrevalidationHGCal = cms.Sequence(hgcalAssociators)
 
 globalValidationMTD = cms.Sequence()
 

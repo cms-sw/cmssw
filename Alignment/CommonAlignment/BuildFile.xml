@@ -3,10 +3,7 @@
 </export>
 <use name="CondCore/CondDB"/>
 <use name="DataFormats/GeometrySurface"/>
-<use name="DataFormats/GeometryVector"/>
 <use name="DataFormats/TrackingRecHit"/>
-<use name="DataFormats/CSCRecHit"/>
-<use name="DataFormats/DTRecHit"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
@@ -15,4 +12,3 @@
 <use name="Geometry/CommonTopologies"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="clhep"/>
-<use name="boost_serialization"/>

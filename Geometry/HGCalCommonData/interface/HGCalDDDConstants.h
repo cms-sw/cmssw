@@ -14,9 +14,9 @@
 #include <string>
 #include <vector>
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 
 #include <unordered_map>
 
@@ -24,23 +24,6 @@ class HGCalDDDConstants {
 public:
   HGCalDDDConstants(const HGCalParameters* hp, const std::string& name);
   ~HGCalDDDConstants();
-
-  enum class CellType {
-    UndefinedType = -1,
-    CentralType = 0,
-    BottomLeftEdge = 1,
-    LeftEdge = 2,
-    TopLeftEdge = 3,
-    TopRightEdge = 4,
-    RightEdge = 5,
-    BottomRightEdge = 6,
-    BottomCorner = 11,
-    BottomLeftCorner = 12,
-    TopLeftCorner = 13,
-    TopCorner = 14,
-    TopRightCorner = 15,
-    BottomRightCorner = 16
-  };
 
   std::pair<int, int> assignCell(float x, float y, int lay, int subSec, bool reco) const;
   std::array<int, 5> assignCellHex(float x, float y, int lay, bool reco) const;
@@ -52,7 +35,7 @@ public:
     return std::make_pair(hgpar_->radiusLayer_[type][irad - 1], hgpar_->radiusLayer_[type][irad]);
   }
   double cellThickness(int layer, int waferU, int waferV) const;
-  CellType cellType(int type, int waferU, int waferV) const;
+  HGCalTypes::CellType cellType(int type, int waferU, int waferV) const;
   double distFromEdgeHex(double x, double y, double z) const;
   double distFromEdgeTrap(double x, double y, double z) const;
   void etaPhiFromPosition(const double x,
@@ -114,6 +97,7 @@ public:
   int numberCellsHexagon(int wafer) const;
   int numberCellsHexagon(int lay, int waferU, int waferV, bool flag) const;
   std::pair<double, double> rangeR(double z, bool reco) const;
+  std::pair<double, double> rangeRLayer(int lay, bool reco) const;
   std::pair<double, double> rangeZ(bool reco) const;
   std::pair<int, int> rowColumnWafer(const int wafer) const;
   int sectors() const { return hgpar_->nSectors_; }
@@ -136,6 +120,7 @@ public:
   int waferCount(const int type) const { return ((type == 0) ? waferMax_[2] : waferMax_[3]); }
   int waferMax() const { return waferMax_[1]; }
   int waferMin() const { return waferMax_[0]; }
+  std::pair<double, double> waferParameters(bool reco) const;
   std::pair<double, double> waferPosition(int wafer, bool reco) const;
   std::pair<double, double> waferPosition(int lay, int waferU, int waferV, bool reco, bool debug = false) const;
   double waferSepar(bool reco) const {
@@ -160,6 +145,7 @@ public:
   }
   int waferType(DetId const& id) const;
   int waferType(int layer, int waferU, int waferV) const;
+  std::pair<int, int> waferTypeRotation(int layer, int waferU, int waferV, bool debug = false) const;
   int waferUVMax() const { return hgpar_->waferUVMax_; }
   bool waferVirtual(int layer, int waferU, int waferV) const;
   double waferZ(int layer, bool reco) const;

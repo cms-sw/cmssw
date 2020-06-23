@@ -16,8 +16,6 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "DataFormats/Common/interface/Trie.h"
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
 
 using namespace std;
 

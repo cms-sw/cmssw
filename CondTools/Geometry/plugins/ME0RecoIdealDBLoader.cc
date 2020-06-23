@@ -8,7 +8,7 @@
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/GEMGeometryBuilder/src/ME0GeometryParsFromDD.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "Geometry/Records/interface/ME0RecoGeometryRcd.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 
@@ -32,9 +32,9 @@ void ME0RecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) 
 
   if (mydbservice->isNewTagRequest("ME0RecoGeometryRcd")) {
     edm::ESTransientHandle<DDCompactView> pDD;
-    edm::ESHandle<MuonDDDConstants> pMNDC;
+    edm::ESHandle<MuonGeometryConstants> pMNDC;
     es.get<IdealGeometryRecord>().get(pDD);
-    es.get<MuonNumberingRecord>().get(pMNDC);
+    es.get<IdealGeometryRecord>().get(pMNDC);
 
     const DDCompactView& cpv = *pDD;
     ME0GeometryParsFromDD me0pd;

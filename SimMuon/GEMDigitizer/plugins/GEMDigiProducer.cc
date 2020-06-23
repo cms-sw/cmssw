@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -54,6 +55,7 @@ public:
 private:
   //Name of Collection used for create the XF
   edm::EDGetTokenT<CrossingFrame<PSimHit> > cf_token;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geom_token_;
 
   const GEMGeometry* geometry_;
 
@@ -76,6 +78,7 @@ GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps) : gemDigiModule_(s
   std::string collection_(ps.getParameter<std::string>("inputCollection"));
 
   cf_token = consumes<CrossingFrame<PSimHit> >(edm::InputTag(mix_, collection_));
+  geom_token_ = esConsumes<GEMGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 }
 
 GEMDigiProducer::~GEMDigiProducer() = default;
@@ -137,8 +140,7 @@ void GEMDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
 }
 
 void GEMDigiProducer::beginRun(const edm::Run&, const edm::EventSetup& eventSetup) {
-  edm::ESHandle<GEMGeometry> hGeom;
-  eventSetup.get<MuonGeometryRecord>().get(hGeom);
+  edm::ESHandle<GEMGeometry> hGeom = eventSetup.getHandle(geom_token_);
   gemDigiModule_->setGeometry(&*hGeom);
   geometry_ = &*hGeom;
 }

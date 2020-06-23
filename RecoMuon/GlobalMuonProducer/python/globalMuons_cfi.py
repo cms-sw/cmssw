@@ -14,7 +14,7 @@ globalMuons = cms.EDProducer("GlobalMuonProducer",
 )
 
 globalMuons.GLBTrajBuilderParameters.GlobalMuonTrackMatcher.Propagator = cms.string('SmartPropagatorRK')
-globalMuons.GLBTrajBuilderParameters.TrackTransformer.Propagator = cms.string('SmartPropagatorAnyRK') 
+globalMuons.GLBTrajBuilderParameters.TrackTransformer.Propagator = cms.string('SmartPropagatorAnyRK')
 
 # FastSim has no template fit on tracker hits
 # FastSim doesn't use Runge Kute for propagation
@@ -28,4 +28,3 @@ fastSim.toModify(globalMuons,
                                                 GlobalMuonTrackMatcher = dict(Propagator = 'SmartPropagator') 
                                                 )
 )
-

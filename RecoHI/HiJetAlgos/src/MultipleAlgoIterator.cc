@@ -3,9 +3,18 @@
 #include "RecoHI/HiJetAlgos/interface/MultipleAlgoIterator.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 using namespace std;
+
+MultipleAlgoIterator::MultipleAlgoIterator(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC)
+    : PileUpSubtractor(iConfig, std::move(iC)),
+      minimumTowersFraction_(iConfig.getParameter<double>("minimumTowersFraction")),
+      sumRecHits_(iConfig.getParameter<bool>("sumRecHits")),
+      dropZeroTowers_(iConfig.getUntrackedParameter<bool>("dropZeroTowers", true)) {
+  LogDebug("PileUpSubtractor") << "LIMITING THE MINIMUM TOWERS FRACTION TO : " << minimumTowersFraction_ << endl;
+}
 
 void MultipleAlgoIterator::rescaleRMS(double s) {
   for (std::map<int, double>::iterator iter = esigma_.begin(); iter != esigma_.end(); ++iter) {
@@ -157,6 +166,59 @@ void MultipleAlgoIterator::calculatePedestal(vector<fastjet::PseudoJet> const& c
       esigma_[it] = 0.;
     }
     LogDebug("PileUpSubtractor") << " ieta : " << it << " Pedestals : " << emean_[it] << "  " << esigma_[it] << "\n";
+  }
+}
+
+void MultipleAlgoIterator::calculateOrphanInput(vector<fastjet::PseudoJet>& orphanInput) {
+  LogDebug("PileUpSubtractor") << "The subtractor calculating orphan input...\n";
+
+  (*fjInputs_) = fjOriginalInputs_;
+
+  vector<int> jettowers;                   // vector of towers indexed by "user_index"
+  vector<pair<int, int> > excludedTowers;  // vector of excluded ieta, iphi values
+
+  for (auto const& pseudojetTMP : *fjJets_) {
+    if (pseudojetTMP.perp() < puPtMin_)
+      continue;
+
+    // find towers within radiusPU_ of this jet
+    for (auto const im : allgeomid_) {
+      double dr = reco::deltaR(geo_->getPosition(im), pseudojetTMP);
+      auto exclude = find(excludedTowers.begin(), excludedTowers.end(), pair<int, int>(im.ieta(), im.iphi()));
+      if (dr < radiusPU_ && exclude == excludedTowers.end() &&
+          (geomtowers_[im.ieta()] - ntowersWithJets_[im.ieta()]) > minimumTowersFraction_ * (geomtowers_[im.ieta()])) {
+        ntowersWithJets_[im.ieta()]++;
+
+        excludedTowers.push_back(pair<int, int>(im.ieta(), im.iphi()));
+      }
+    }
+
+    for (auto const& it : *fjInputs_) {
+      int index = it.user_index();
+      int ie = ieta((*inputs_)[index]);
+      int ip = iphi((*inputs_)[index]);
+      auto exclude = find(excludedTowers.begin(), excludedTowers.end(), pair<int, int>(ie, ip));
+      if (exclude != excludedTowers.end()) {
+        jettowers.push_back(index);
+      }
+    }  // initial input collection
+
+  }  // pseudojets
+
+  //
+  // Create a new collections from the towers not included in jets
+  //
+
+  for (auto const& it : *fjInputs_) {
+    int index = it.user_index();
+    vector<int>::const_iterator itjet = find(jettowers.begin(), jettowers.end(), index);
+    if (itjet == jettowers.end()) {
+      const reco::CandidatePtr& originalTower = (*inputs_)[index];
+      fastjet::PseudoJet orphan(originalTower->px(), originalTower->py(), originalTower->pz(), originalTower->energy());
+      orphan.set_user_index(index);
+
+      orphanInput.push_back(orphan);
+    }
   }
 }
 

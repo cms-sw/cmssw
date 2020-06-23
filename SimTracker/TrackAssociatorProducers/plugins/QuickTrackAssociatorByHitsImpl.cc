@@ -607,13 +607,13 @@ reco::RecoToSimCollectionSeed QuickTrackAssociatorByHitsImpl::associateRecoToSim
         (clusterToTPMap_) ? associateTrack(*clusterToTPMap_,
                                            trackingParticleCollectionHandle,
                                            nullptr,
-                                           pSeed->recHits().first,
-                                           pSeed->recHits().second)
+                                           pSeed->recHits().begin(),
+                                           pSeed->recHits().end())
                           : associateTrack(*hitAssociator_,
                                            trackingParticleCollectionHandle,
                                            nullptr,
-                                           pSeed->recHits().first,
-                                           pSeed->recHits().second);
+                                           pSeed->recHits().begin(),
+                                           pSeed->recHits().end());
     for (auto iTrackingParticleQualityPair = trackingParticleQualityPairs.begin();
          iTrackingParticleQualityPair != trackingParticleQualityPairs.end();
          ++iTrackingParticleQualityPair) {
@@ -630,10 +630,10 @@ reco::RecoToSimCollectionSeed QuickTrackAssociatorByHitsImpl::associateRecoToSim
           (trackingParticleRef->g4Track_end() - trackingParticleRef->g4Track_begin()) > 1) {
         if (clusterToTPMap_)
           numberOfSharedClusters -=
-              getDoubleCount(*clusterToTPMap_, pSeed->recHits().first, pSeed->recHits().second, trackingParticleRef);
+              getDoubleCount(*clusterToTPMap_, pSeed->recHits().begin(), pSeed->recHits().end(), trackingParticleRef);
         else
           numberOfSharedClusters -=
-              getDoubleCount(*hitAssociator_, pSeed->recHits().first, pSeed->recHits().second, trackingParticleRef);
+              getDoubleCount(*hitAssociator_, pSeed->recHits().begin(), pSeed->recHits().end(), trackingParticleRef);
       }
 
       double quality;
@@ -683,13 +683,13 @@ reco::SimToRecoCollectionSeed QuickTrackAssociatorByHitsImpl::associateSimToReco
         (clusterToTPMap_) ? associateTrack(*clusterToTPMap_,
                                            trackingParticleCollectionHandle,
                                            nullptr,
-                                           pSeed->recHits().first,
-                                           pSeed->recHits().second)
+                                           pSeed->recHits().begin(),
+                                           pSeed->recHits().end())
                           : associateTrack(*hitAssociator_,
                                            trackingParticleCollectionHandle,
                                            nullptr,
-                                           pSeed->recHits().first,
-                                           pSeed->recHits().second);
+                                           pSeed->recHits().begin(),
+                                           pSeed->recHits().end());
     for (auto iTrackingParticleQualityPair = trackingParticleQualityPairs.begin();
          iTrackingParticleQualityPair != trackingParticleQualityPairs.end();
          ++iTrackingParticleQualityPair) {
@@ -707,10 +707,10 @@ reco::SimToRecoCollectionSeed QuickTrackAssociatorByHitsImpl::associateSimToReco
           (trackingParticleRef->g4Track_end() - trackingParticleRef->g4Track_begin()) > 1) {
         if (clusterToTPMap_)
           numberOfSharedClusters -=
-              getDoubleCount(*clusterToTPMap_, pSeed->recHits().first, pSeed->recHits().second, trackingParticleRef);
+              getDoubleCount(*clusterToTPMap_, pSeed->recHits().begin(), pSeed->recHits().end(), trackingParticleRef);
         else
           numberOfSharedClusters -=
-              getDoubleCount(*hitAssociator_, pSeed->recHits().first, pSeed->recHits().second, trackingParticleRef);
+              getDoubleCount(*hitAssociator_, pSeed->recHits().begin(), pSeed->recHits().end(), trackingParticleRef);
       }
 
       if (simToRecoDenominator_ == denomsim ||
@@ -762,7 +762,7 @@ double QuickTrackAssociatorByHitsImpl::weightedNumberOfTrackClusters(const reco:
 double QuickTrackAssociatorByHitsImpl::weightedNumberOfTrackClusters(const TrajectorySeed& seed,
                                                                      const TrackerHitAssociator&) const {
   double sum = 0.0;
-  for (auto iHit = seed.recHits().first; iHit != seed.recHits().second; ++iHit) {
+  for (auto iHit = seed.recHits().begin(); iHit != seed.recHits().end(); ++iHit) {
     const auto subdetId = track_associator::getHitFromIter(iHit)->geographicalId().subdetId();
     const double weight = (subdetId == PixelSubdetector::PixelBarrel || subdetId == PixelSubdetector::PixelEndcap)
                               ? pixelHitWeight_
@@ -780,7 +780,7 @@ double QuickTrackAssociatorByHitsImpl::weightedNumberOfTrackClusters(const reco:
 double QuickTrackAssociatorByHitsImpl::weightedNumberOfTrackClusters(const TrajectorySeed& seed,
                                                                      const ClusterTPAssociation&) const {
   const auto& hitRange = seed.recHits();
-  return weightedNumberOfTrackClusters(hitRange.first, hitRange.second);
+  return weightedNumberOfTrackClusters(hitRange.begin(), hitRange.end());
 }
 
 template <typename iter>

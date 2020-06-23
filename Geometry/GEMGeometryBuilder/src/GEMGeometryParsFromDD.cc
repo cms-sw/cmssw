@@ -10,7 +10,7 @@
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 
-#include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/GEMNumberingScheme.h"
 
@@ -26,7 +26,7 @@ GEMGeometryParsFromDD::GEMGeometryParsFromDD() {}
 GEMGeometryParsFromDD::~GEMGeometryParsFromDD() {}
 
 void GEMGeometryParsFromDD::build(const DDCompactView* cview,
-                                  const MuonDDDConstants& muonConstants,
+                                  const MuonGeometryConstants& muonConstants,
                                   RecoIdealGeometry& rgeo) {
   std::string attribute = "MuStructure";
   std::string value = "MuonEndCapGEM";
@@ -39,13 +39,13 @@ void GEMGeometryParsFromDD::build(const DDCompactView* cview,
 }
 
 void GEMGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
-                                          const MuonDDDConstants& muonConstants,
+                                          const MuonGeometryConstants& muonConstants,
                                           RecoIdealGeometry& rgeo) {
   LogDebug("GEMGeometryParsFromDD") << "Building the geometry service";
   LogDebug("GEMGeometryParsFromDD") << "About to run through the GEM structure\n"
                                     << " First logical part " << fv.logicalPart().name().name();
 
-  MuonDDDNumbering muonDDDNumbering(muonConstants);
+  MuonGeometryNumbering muonDDDNumbering(muonConstants);
   GEMNumberingScheme gemNumbering(muonConstants);
 
   bool doSuper = fv.firstChild();

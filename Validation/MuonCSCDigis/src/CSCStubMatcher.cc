@@ -68,6 +68,9 @@ void CSCStubMatcher::match(const SimTrack& t, const SimVertex& v) {
   const CSCCorrelatedLCTDigiCollection& lcts = *lctsH_.product();
   const CSCCorrelatedLCTDigiCollection& mplcts = *mplctsH_.product();
 
+  // clear collections
+  clear();
+
   matchCLCTsToSimTrack(clcts);
   matchALCTsToSimTrack(alcts);
   matchLCTsToSimTrack(lcts);
@@ -76,21 +79,11 @@ void CSCStubMatcher::match(const SimTrack& t, const SimVertex& v) {
 
 void CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts) {
   const auto& cathode_ids = cscDigiMatcher_->chamberIdsStrip(0);
-  int n_minLayers = 0;
+
   for (const auto& id : cathode_ids) {
     CSCDetId ch_id(id);
     if (verboseCLCT_) {
       cout << "To check CSC chamber " << ch_id << endl;
-    }
-    if (cscDigiMatcher_->nLayersWithStripInChamber(id) >= minNHitsChamberCLCT_)
-      ++n_minLayers;
-
-    // fill 1 half-strip wide gaps
-    const auto& digi_strips = cscDigiMatcher_->stripsInChamber(id, 1);
-    if (verboseCLCT_) {
-      cout << "clct: digi_strips " << ch_id << " Nlayers " << cscDigiMatcher_->nLayersWithStripInChamber(id) << " ";
-      copy(digi_strips.begin(), digi_strips.end(), ostream_iterator<int>(cout, " "));
-      cout << endl;
     }
 
     int ring = ch_id.ring();
@@ -98,11 +91,35 @@ void CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts) {
       ring = 1;  //use ME1b id to get CLCTs
     CSCDetId ch_id2(ch_id.endcap(), ch_id.station(), ring, ch_id.chamber(), 0);
 
+    // do not consider CSCs with too few hits
+    if (cscDigiMatcher_->nLayersWithStripInChamber(ch_id2) < minNHitsChamberCLCT_)
+      continue;
+
+    // get the comparator digis in this chamber
+    std::vector<CSCComparatorDigiContainer> comps;
+    for (int ilayer = 1; ilayer <= 6; ilayer++) {
+      CSCDetId layerid(ch_id.endcap(), ch_id.station(), ring, ch_id.chamber(), ilayer);
+      comps.push_back(cscDigiMatcher_->comparatorDigisInDetId(layerid));
+    }
+
+    // print out the digis
+    if (verboseCLCT_) {
+      cout << "clct: digi_strips " << ch_id2 << endl;
+      int layer = 0;
+      for (const auto& p : comps) {
+        layer++;
+        for (const auto& q : p) {
+          cout << "L" << layer << " " << q << " " << q.getHalfStrip() << " ";
+        }
+        cout << endl;
+      }
+    }
+
     const auto& clcts_in_det = clcts.get(ch_id2);
 
     for (auto c = clcts_in_det.first; c != clcts_in_det.second; ++c) {
       if (verboseCLCT_)
-        cout << "clct " << ch_id << " " << *c << endl;
+        cout << "clct " << ch_id2 << " " << *c << endl;
 
       if (!c->isValid())
         continue;
@@ -111,24 +128,34 @@ void CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts) {
       if (c->getBX() < minBXCLCT_ || c->getBX() > maxBXCLCT_)
         continue;
 
-      int half_strip = c->getKeyStrip() + 1;  // CLCT halfstrip numbers start from 0
-      if (ch_id.ring() == 4 and ch_id.station() == 1 and half_strip > 128)
-        half_strip = half_strip - 128;
-
       // store all CLCTs in this chamber
       chamber_to_clcts_all_[id].push_back(*c);
 
-      // match by half-strip with the digis
-      if (digi_strips.find(half_strip) == digi_strips.end()) {
-        if (verboseCLCT_)
-          cout << "clctBAD, half_strip " << half_strip << endl;
-        continue;
+      // check that at least 3 comparator digis were matched!
+      int nMatches = 0;
+      int layer = 0;
+      for (const auto& p : comps) {
+        layer++;
+        for (const auto& q : p) {
+          for (const auto& clctComp : (*c).getHits()[layer - 1]) {
+            if (q.getHalfStrip() == clctComp) {
+              nMatches++;
+            }
+          }
+        }
       }
+
+      // require at least 3 good half-strip matches
+      if (nMatches < 3)
+        continue;
+
       if (verboseCLCT_)
         cout << "clctGOOD" << endl;
 
       // store matching CLCTs in this chamber
-      chamber_to_clcts_[id].push_back(*c);
+      if (std::find(chamber_to_clcts_[id].begin(), chamber_to_clcts_[id].end(), *c) == chamber_to_clcts_[id].end()) {
+        chamber_to_clcts_[id].push_back(*c);
+      }
     }
     if (chamber_to_clcts_[id].size() > 2) {
       cout << "WARNING!!! too many CLCTs " << chamber_to_clcts_[id].size() << " in " << ch_id << endl;
@@ -178,15 +205,15 @@ void CSCStubMatcher::matchALCTsToSimTrack(const CSCALCTDigiCollection& alcts) {
 
       // match by wiregroup with the digis
       if (digi_wgs.find(wg) == digi_wgs.end()) {
-        if (verboseALCT_)
-          cout << "alctBAD" << endl;
         continue;
       }
       if (verboseALCT_)
         cout << "alctGOOD" << endl;
 
       // store matching ALCTs in this chamber
-      chamber_to_alcts_[id].push_back(*a);
+      if (std::find(chamber_to_alcts_[id].begin(), chamber_to_alcts_[id].end(), *a) == chamber_to_alcts_[id].end()) {
+        chamber_to_alcts_[id].push_back(*a);
+      }
     }
     if (chamber_to_alcts_[id].size() > 2) {
       cout << "WARNING!!! too many ALCTs " << chamber_to_alcts_[id].size() << " in " << ch_id << endl;
@@ -282,7 +309,9 @@ void CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& l
       if (lct_matched) {
         if (verboseLCT_)
           cout << "this LCT matched to simtrack in chamber " << ch_id << endl;
-        chamber_to_lcts_[id].emplace_back(lct);
+        if (std::find(chamber_to_lcts_[id].begin(), chamber_to_lcts_[id].end(), lct) == chamber_to_lcts_[id].end()) {
+          chamber_to_lcts_[id].emplace_back(lct);
+        }
       }
     }  // lct loop over
   }
@@ -308,7 +337,10 @@ void CSCStubMatcher::matchMPLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection&
       // check if this stub corresponds with a previously matched stub
       for (const auto& sim_stub : lctsInChamber(id)) {
         if (sim_stub == *lct) {
-          chamber_to_mplcts_[id].emplace_back(*lct);
+          if (std::find(chamber_to_mplcts_[id].begin(), chamber_to_mplcts_[id].end(), *lct) ==
+              chamber_to_mplcts_[id].end()) {
+            chamber_to_mplcts_[id].emplace_back(*lct);
+          }
         }
       }
     }
@@ -551,4 +583,16 @@ GlobalPoint CSCStubMatcher::getGlobalPosition(unsigned int rawId, const CSCCorre
   const LocalPoint& csc_intersect = layer_geo->intersectionOfStripAndWire(fractional_strip, wire);
   const GlobalPoint& csc_gp = cscGeometry_->idToDet(key_id)->surface().toGlobal(csc_intersect);
   return csc_gp;
+}
+
+void CSCStubMatcher::clear() {
+  chamber_to_clcts_all_.clear();
+  chamber_to_alcts_all_.clear();
+  chamber_to_lcts_all_.clear();
+  chamber_to_mplcts_all_.clear();
+
+  chamber_to_clcts_.clear();
+  chamber_to_alcts_.clear();
+  chamber_to_lcts_.clear();
+  chamber_to_mplcts_.clear();
 }

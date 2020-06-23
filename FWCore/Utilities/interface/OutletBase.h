@@ -29,14 +29,14 @@ namespace edm {
   class OutletBase {
   protected:
     OutletBase(ExtensionCord<T>& iCord) : cord_(iCord) {}
-    virtual ~OutletBase() { this->setGetter(0); }
+    virtual ~OutletBase() { this->setGetter(nullptr); }
 
     void setGetter(extensioncord::ECGetterBase<T>* iGetter) { cord_.setGetter(iGetter); }
 
   private:
-    OutletBase(const OutletBase&);  // stop default
+    OutletBase(const OutletBase&) = delete;  // stop default
 
-    const OutletBase& operator=(const OutletBase&);  // stop default
+    const OutletBase& operator=(const OutletBase&) = delete;  // stop default
 
     // ---------- member data --------------------------------
     ExtensionCord<T>& cord_;

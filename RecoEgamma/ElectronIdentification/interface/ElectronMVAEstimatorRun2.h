@@ -5,13 +5,12 @@
 #include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Base.h"
 #include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 #include "RecoEgamma/EgammaTools/interface/MVAVariableManager.h"
-#include "RecoEgamma/EgammaTools/interface/ThreadSafeStringCut.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "CommonTools/Utils/interface/ThreadSafeFunctor.h"
 
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "CommonTools/Egamma/interface/ConversionTools.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-
-#include <TMath.h>
 
 class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base {
 public:
@@ -44,7 +43,7 @@ private:
 
   int findCategory(reco::GsfElectron const& electron) const;
 
-  std::vector<ThreadSafeStringCut<StringCutObjectSelector<reco::GsfElectron>, reco::GsfElectron>> categoryFunctions_;
+  std::vector<ThreadSafeFunctor<StringCutObjectSelector<reco::GsfElectron>>> categoryFunctions_;
   std::vector<int> nVariables_;
 
   // Data members
