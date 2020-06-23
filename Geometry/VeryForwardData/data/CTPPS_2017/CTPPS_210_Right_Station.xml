@@ -10,38 +10,38 @@
         <Constant name="RP_210_Right_Sec_Hor_z" value="9781*mm"/>
         <Constant name="RP_210_Right_Sec_Vert_z" value="10231*mm"/>
 
-        <Constant name="RP_210_Right_Sec_Rot_Angle" value="8"/>
-        <Constant name="RP_210_Right_Sec_Rot_Angle_neg8" value="-8"/>
-        <Constant name="RP_210_Right_Sec_Rot_Angle_180" value="180"/>
-        <Constant name="RP_210_Right_Sec_Rot_Angle_172" value="172"/>
+        <Constant name="RP_210_Right_Sec_Rot_Angle" value="8*deg"/>
+        <Constant name="RP_210_Right_Sec_Rot_Angle_neg8" value="-8*deg"/>
+        <Constant name="RP_210_Right_Sec_Rot_Angle_180" value="180*deg"/>
+        <Constant name="RP_210_Right_Sec_Rot_Angle_172" value="172*deg"/>
 
         <Constant name="RP_210_Right_Hor_Vac_Length" value="[RP_Device:RP_Device_Envelope_Radius]+[RP_Device:RP_Device_Length_y]/2-[RP_Horizontal_Device:RP_Device_Hor_Closed_Wall_Thick_Int]"/>
     </ConstantsSection>
 
     <RotationSection label="CTPPS_210_Right_Station.xml">
         <Rotation name="RP_210_Right_Sec_Rotation" 
-            phiX="[RP_210_Right_Sec_Rot_Angle]*deg" thetaX="90*deg" 
-            phiY="(90+[RP_210_Right_Sec_Rot_Angle])*deg" thetaY="90*deg"
+            phiX="[RP_210_Right_Sec_Rot_Angle]" thetaX="90*deg" 
+            phiY="(90*deg+[RP_210_Right_Sec_Rot_Angle])" thetaY="90*deg"
             phiZ="0*deg" thetaZ="0*deg"/>
         <Rotation name="RP_210_Right_90_y_Sec_Rotation_neg8" 
             phiX="0*deg" thetaX="180*deg" 
-            phiY="(90+[RP_210_Right_Sec_Rot_Angle_neg8])*deg" thetaY="90*deg" 
-            phiZ="(0+[RP_210_Right_Sec_Rot_Angle_neg8])*deg" thetaZ="90*deg"/>
+            phiY="(90*deg+[RP_210_Right_Sec_Rot_Angle_neg8])" thetaY="90*deg" 
+            phiZ="(0*deg+[RP_210_Right_Sec_Rot_Angle_neg8])" thetaZ="90*deg"/>
         <Rotation name="RP_210_Right_90_x_Sec_Rotation_neg8" 
-            phiX="(0+[RP_210_Right_Sec_Rot_Angle_neg8])*deg" thetaX="90*deg" 
+            phiX="(0*deg+[RP_210_Right_Sec_Rot_Angle_neg8])" thetaX="90*deg" 
             phiY="0*deg" thetaY="180*deg" 
-            phiZ="(90+[RP_210_Right_Sec_Rot_Angle_neg8])*deg" thetaZ="90*deg"/>
+            phiZ="(90*deg+[RP_210_Right_Sec_Rot_Angle_neg8])" thetaZ="90*deg"/>
         <Rotation name="RP_210_Right_Sec_Rotation_neg8" 
-            phiX="[RP_210_Right_Sec_Rot_Angle_neg8]*deg" thetaX="90*deg" 
-            phiY="(90+[RP_210_Right_Sec_Rot_Angle_neg8])*deg" thetaY="90*deg"
+            phiX="[RP_210_Right_Sec_Rot_Angle_neg8]" thetaX="90*deg" 
+            phiY="(90*deg+[RP_210_Right_Sec_Rot_Angle_neg8])" thetaY="90*deg"
             phiZ="0*deg" thetaZ="0*deg"/>
         <Rotation name="RP_210_Right_Sec_Rotation_180" 
-            phiX="[RP_210_Right_Sec_Rot_Angle_180]*deg" thetaX="90*deg" 
-            phiY="(90+[RP_210_Right_Sec_Rot_Angle_180])*deg" thetaY="90*deg"
+            phiX="[RP_210_Right_Sec_Rot_Angle_180]" thetaX="90*deg" 
+            phiY="(90*deg+[RP_210_Right_Sec_Rot_Angle_180])" thetaY="90*deg"
             phiZ="0*deg" thetaZ="0*deg"/>
         <Rotation name="RP_210_Right_Sec_Rotation_172" 
-            phiX="[RP_210_Right_Sec_Rot_Angle_172]*deg" thetaX="90*deg" 
-            phiY="(90+[RP_210_Right_Sec_Rot_Angle_172])*deg" thetaY="90*deg"
+            phiX="[RP_210_Right_Sec_Rot_Angle_172]" thetaX="90*deg" 
+            phiY="(90*deg+[RP_210_Right_Sec_Rot_Angle_172])" thetaY="90*deg"
             phiZ="0*deg" thetaZ="0*deg"/>
     </RotationSection>
 
