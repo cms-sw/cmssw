@@ -22,6 +22,7 @@ HcalRealisticZS::HcalRealisticZS(edm::ParameterSet const &conf)
       consumes<QIE10DigiCollection>(edm::InputTag(inputLabel_, useInstanceLabels ? "HFQIE10DigiCollection" : ""));
   tok_hbheQIE11_ =
       consumes<QIE11DigiCollection>(edm::InputTag(inputLabel_, useInstanceLabels ? "HBHEQIE11DigiCollection" : ""));
+  tok_dbService_ = esConsumes<HcalDbService, HcalDbRecord>();
 
   bool use1ts_ = conf.getParameter<bool>("use1ts");
 
@@ -94,8 +95,7 @@ void HcalRealisticZS::produce(edm::Event &e, const edm::EventSetup &eventSetup) 
   edm::Handle<QIE10DigiCollection> hfQIE10;
   edm::Handle<QIE11DigiCollection> hbheQIE11;
 
-  edm::ESHandle<HcalDbService> conditions;
-  eventSetup.get<HcalDbRecord>().get(conditions);
+  edm::ESHandle<HcalDbService> conditions = eventSetup.getHandle(tok_dbService_);
   algo_->setDbService(conditions.product());
 
   e.getByToken(tok_hbhe_, hbhe);
