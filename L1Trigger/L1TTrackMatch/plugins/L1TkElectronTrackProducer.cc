@@ -65,11 +65,6 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
-  //virtual void beginRun(edm::Run&, edm::EventSetup const&);
-  //virtual void endRun(edm::Run&, edm::EventSetup const&);
-  //virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-  //virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-
   float isolation(const edm::Handle<L1TTTrackCollectionType>& trkHandle, int match_index);
   double getPtScaledCut(double pt, std::vector<double>& parameters);
   bool selectMatchedTrack(double& d_r, double& d_phi, double& d_eta, double& tk_pt, float& eg_eta);
@@ -110,11 +105,13 @@ L1TkElectronTrackProducer::L1TkElectronTrackProducer(const edm::ParameterSet& iC
     : egToken(consumes<EGammaBxCollection>(iConfig.getParameter<edm::InputTag>("L1EGammaInputTag"))),
       trackToken(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(
           iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))) {
-  label = iConfig.getParameter<std::string>("label");  // label of the collection produced
-                                                       // e.g. EG or IsoEG if all objects are kept
-                                                       // EGIsoTrk or IsoEGIsoTrk if only the EG or IsoEG
-                                                       // objects that pass a cut RelIso < isoCut_ are written
-                                                       // in the new collection.
+
+  // label of the collection produced
+  // e.g. EG or IsoEG if all objects are kept
+  // EGIsoTrk or IsoEGIsoTrk if only the EG or IsoEG
+  // objects that pass a cut RelIso < isoCut_ are written
+  // in the new collection.
+  label = iConfig.getParameter<std::string>("label");  
 
   etMin_ = (float)iConfig.getParameter<double>("ETmin");
 
@@ -164,11 +161,11 @@ void L1TkElectronTrackProducer::produce(edm::Event& iEvent, const edm::EventSetu
   L1TTTrackCollectionType::const_iterator trackIter;
 
   if (!eGammaHandle.isValid()) {
-    edm::LogError("L1TkElectronTrackProducer") << "\nWarning: L1EmCollection not found in the event. Exit" << std::endl;
+    throw cms::Exception("L1TkElectronTrackProducer") << "\nWarning: L1EmCollection not found in the event. Exit" << std::endl;
     return;
   }
   if (!L1TTTrackHandle.isValid()) {
-    edm::LogError("TkEmProducer") << "\nWarning: L1TTTrackCollectionType not found in the event. Exit." << std::endl;
+    throw cms::Exception("TkEmProducer") << "\nWarning: L1TTTrackCollectionType not found in the event. Exit." << std::endl;
     return;
   }
 
@@ -180,8 +177,9 @@ void L1TkElectronTrackProducer::produce(edm::Event& iEvent, const edm::EventSetu
     float e_ele = egIter->energy();
     float eta_ele = egIter->eta();
     float et_ele = 0;
-    if (cosh(eta_ele) > 0.0)
-      et_ele = e_ele / cosh(eta_ele);
+    float cosh_eta_ele = cosh(eta_ele);
+    if (cosh_eta_ele > 0.0)
+      et_ele = e_ele / cosh_eta_ele;
     else
       et_ele = -1.0;
     if (etMin_ > 0.0 && et_ele <= etMin_)
