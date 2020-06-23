@@ -43,9 +43,10 @@ namespace L1TkMuMantraDF {
 #include <utility>
 #include "L1Trigger/L1TTrackMatch/interface/MuMatchWindow.h"
 #include "TFile.h"
-#include "TMath.h"
+#include <cmath>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Math/interface/angle_units.h"
 
 class L1TkMuMantra {
 public:
@@ -72,7 +73,7 @@ public:
   int sign(double x) {
     if (x == 0)
       return 1;
-    return int(x / std::abs(x));
+    return (0 < x) - (x < 0);
   }
 
   void setArbitrationType(std::string type);  // MaxPt, MinDeltaPt
@@ -81,29 +82,30 @@ public:
   static std::vector<double> prepare_corr_bounds(std::string fname, std::string hname);
 
   // converters
-  static double deg_to_rad(double x) { return (x * TMath::Pi() / 180.); }
+  static double deg_to_rad(double x) { return (x * angle_units::degPerRad); }
 
   static double eta_to_theta(double x) {
     //  give theta in rad
-    return (2. * TMath::ATan(TMath::Exp(-1. * x)));
+    return (2. * atan(exp(-1. * x)));
   }
 
   static double to_mpio2_pio2(double x) {
     //  put the angle in radians between -pi/2 and pi/2
-    while (x >= 0.5 * TMath::Pi())
-      x -= TMath::Pi();
-    while (x < -0.5 * TMath::Pi())
-      x += TMath::Pi();
+    while (x >= 0.5 * M_PI)
+      x -= M_PI;
+    while (x < -0.5 * M_PI)
+      x += M_PI;
     return x;
   }
 
   static double to_mpi_pi(double x) {
-    while (x >= TMath::Pi())
-      x -= 2. * TMath::Pi();
-    while (x < -TMath::Pi())
-      x += 2. * TMath::Pi();
+    while (x >= M_PI)
+      x -= 2. * M_PI;
+    while (x < -M_PI)
+      x += 2. * M_PI;
     return x;
   }
+
 
 private:
   int findBin(double val);
