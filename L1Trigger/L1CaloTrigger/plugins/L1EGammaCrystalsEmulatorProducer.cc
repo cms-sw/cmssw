@@ -70,7 +70,6 @@ static constexpr int n_links_card = 4;
 static constexpr int n_links_GCTcard = 48;
 static constexpr float ECAL_eta_range = 1.4841;
 static constexpr float half_crystal_size = 0.00873;
-static constexpr float PiValue = 3.14159;
 static constexpr float a0_80 = 0.85, a1_80 = 0.0080, a0 = 0.21;                        // passes_iso
 static constexpr float b0 = 0.38, b1 = 1.9, b2 = 0.05;                                 //passes_looseTkiso
 static constexpr float c0_ss = 0.94, c1_ss = 0.052, c2_ss = 0.044;                     //passes_ss
@@ -87,8 +86,8 @@ float getEta_fromL2LinkCardTowerCrystal(int link, int card, int tower, int cryst
 float getPhi_fromL2LinkCardTowerCrystal(int link, int card, int tower, int crystal) {
   int phiID = n_crystals_towerPhi * ((card * 24) + (n_links_card * (link / 8)) + (tower / n_towers_cardEta)) +
               crystal / n_crystals_towerPhi;
-  float size_cell = 2 * PiValue / (n_crystals_towerPhi * n_towers_Phi);
-  return phiID * size_cell - PiValue + half_crystal_size;
+  float size_cell = 2 * M_PI / (n_crystals_towerPhi * n_towers_Phi);
+  return phiID * size_cell - M_PI + half_crystal_size;
 }
 
 int getCrystal_etaID(float eta) {
@@ -110,7 +109,7 @@ int get_insideEta(float eta, float centereta) {
 }
 
 int get_insidePhi(float phi, float centerphi) {
-  float size_cell = 2 * PiValue / (n_crystals_towerPhi * n_towers_Phi);
+  float size_cell = 2 * M_PI / (n_crystals_towerPhi * n_towers_Phi);
   if (phi - centerphi < -1 * size_cell / 4)
     return 0;
   else if (phi - centerphi < 0)
@@ -128,8 +127,8 @@ int convert_L2toL1_tower(int tower) { return tower; }
 int convert_L2toL1_card(int card, int link) { return card * n_clusters_4link + link / n_links_card; }
 
 int getCrystal_phiID(float phi) {
-  float size_cell = 2 * PiValue / (n_crystals_towerPhi * n_towers_Phi);
-  int phiID = int((phi + PiValue) / size_cell);
+  float size_cell = 2 * M_PI / (n_crystals_towerPhi * n_towers_Phi);
+  int phiID = int((phi + M_PI) / size_cell);
   return phiID;
 }
 
@@ -140,8 +139,8 @@ int getTower_absoluteEtaID(float eta) {
 }
 
 int getTower_absolutePhiID(float phi) {
-  float size_cell = 2 * PiValue / n_towers_Phi;
-  int phiID = int((phi + PiValue) / size_cell);
+  float size_cell = 2 * M_PI / n_towers_Phi;
+  int phiID = int((phi + M_PI) / size_cell);
   return phiID;
 }
 
@@ -172,8 +171,8 @@ float getTowerEta_fromAbsoluteID(int id) {
 }
 
 float getTowerPhi_fromAbsoluteID(int id) {
-  float size_cell = 2 * PiValue / n_towers_Phi;
-  float phi = (id * size_cell) - PiValue + 0.5 * size_cell;
+  float size_cell = 2 * M_PI / n_towers_Phi;
+  float phi = (id * size_cell) - M_PI + 0.5 * size_cell;
   return phi;
 }
 
@@ -722,7 +721,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
         static constexpr float tower_width = 0.0873;
         for (int jj = 0; jj < n_links_card; ++jj) {
           for (int ii = 0; ii < n_towers_cardEta; ++ii) {
-            float phi = getPhiMin_card(cc) * tower_width / n_crystals_towerPhi - PiValue + (jj + 0.5) * tower_width;
+            float phi = getPhiMin_card(cc) * tower_width / n_crystals_towerPhi - M_PI + (jj + 0.5) * tower_width;
             float eta = getEtaMin_card(cc) * tower_width / n_crystals_towerEta - n_towers_cardEta * tower_width +
                         (ii + 0.5) * tower_width;
             iEta_tower_L1Card[jj][ii][cc] = getTower_absoluteEtaID(eta);
