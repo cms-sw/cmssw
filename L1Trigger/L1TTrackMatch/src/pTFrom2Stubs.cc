@@ -6,6 +6,9 @@
 #include <iostream>
 #include <memory>
 
+static constexpr float local_c_light = 0.00299792;
+static constexpr float B_field = 3.8;
+
 namespace pTFrom2Stubs {
 
   //====================
@@ -68,7 +71,7 @@ namespace pTFrom2Stubs {
   //====================
   float pTFrom2(std::vector<TTTrack<Ref_Phase2TrackerDigi_> >::const_iterator trk, const TrackerGeometry* tkGeometry) {
     float rinv = rInvFrom2(trk, tkGeometry);
-    return fabs(0.00299792 * 3.8 / rinv);
+    return fabs(local_c_light * B_field / rinv);
   }
   //====================
 }  // namespace pTFrom2Stubs
