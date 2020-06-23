@@ -290,7 +290,7 @@ private:
       if (isEndcapHit || other.isEndcapHit)
         return 9999;  // We shouldn't compare integer indices in endcap, the map is not linear
       // Logic from EBDetId::distancePhi() without the abs()
-      int PI = 180;
+      static constexpr int PI = 180;
       int result = id.iphi() - other.id.iphi();
       while (result > PI)
         result -= 2 * PI;
@@ -304,10 +304,7 @@ private:
       return (position - other.position).mag();
     };
     bool operator==(SimpleCaloHit& other) const {
-      if (id == other.id && position == other.position && energy == other.energy && isEndcapHit == other.isEndcapHit)
-        return true;
-
-      return false;
+      return (id == other.id && position == other.position && energy == other.energy && isEndcapHit == other.isEndcapHit);
     };
   };
 };
