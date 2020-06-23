@@ -4,6 +4,7 @@
 #include "CommonTools/Utils/interface/KinematicColumns.h"
 #include "CommonTools/Utils/interface/LazyResult.h"
 #include "FWCore/SOA/interface/Table.h"
+#include "FWCore/SOA/interface/TableView.h"
 
 #include <vector>
 
@@ -12,6 +13,7 @@ namespace edm {
   namespace soa {
 
     using EtaPhiTable = edm::soa::Table<col::Eta, col::Phi>;
+    using EtaPhiTableView = edm::soa::TableView<col::Eta, col::Phi>;
 
     template <class Object>
     EtaPhiTable makeEtaPhiTable(std::vector<Object> const& objects) {

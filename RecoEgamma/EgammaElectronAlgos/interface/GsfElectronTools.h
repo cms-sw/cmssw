@@ -12,7 +12,7 @@ namespace egamma {
   // of shared hits in Pixels and the inner strip tracker with the electron Track
   std::pair<reco::TrackRef, float> getClosestCtfToGsf(reco::GsfTrackRef const&,
                                                       edm::Handle<reco::TrackCollection> const& ctfTracksH,
-                                                      edm::soa::EtaPhiTable const& trackEtaPhiTable);
+                                                      edm::soa::EtaPhiTableView trackEtaPhiTable);
 
 }  // namespace egamma
 

@@ -3,6 +3,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronTools.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 namespace egamma {
 
@@ -14,7 +15,7 @@ namespace egamma {
 
   std::pair<TrackRef, float> getClosestCtfToGsf(GsfTrackRef const& gsfTrackRef,
                                                 edm::Handle<reco::TrackCollection> const& ctfTracksH,
-                                                edm::soa::EtaPhiTable const& trackTable) {
+                                                edm::soa::EtaPhiTableView trackTable) {
     float maxFracShared = 0;
     TrackRef ctfTrackRef = TrackRef();
     const TrackCollection* ctfTrackCollection = ctfTracksH.product();
@@ -27,13 +28,9 @@ namespace egamma {
 
     unsigned int counter = 0;
     for (auto ctfTkIter = ctfTrackCollection->begin(); ctfTkIter != ctfTrackCollection->end(); ctfTkIter++, counter++) {
-      float dEta = gsfEta - trackTable.get<edm::soa::col::Eta>(counter);
-      float dPhi = gsfPhi - trackTable.get<edm::soa::col::Phi>(counter);
-      if (std::abs(dPhi) > M_PI)
-        dPhi = 2 * M_PI - std::abs(dPhi);
-
       // dont want to look at every single track in the event!
-      if (dEta * dEta + dPhi * dPhi > dR2)
+      using namespace edm::soa::col;
+      if (reco::deltaR2(gsfEta, gsfPhi, trackTable.get<Eta>(counter), trackTable.get<Phi>(counter)) > dR2)
         continue;
 
       unsigned int shared = 0;
