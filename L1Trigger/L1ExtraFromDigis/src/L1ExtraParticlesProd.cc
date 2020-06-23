@@ -65,15 +65,7 @@ L1ExtraParticlesProd::L1ExtraParticlesProd(const edm::ParameterSet &iConfig)
       hfRingEtSumsSource_(iConfig.getParameter<edm::InputTag>("hfRingEtSumsSource")),
       hfRingBitCountsSource_(iConfig.getParameter<edm::InputTag>("hfRingBitCountsSource")),
       centralBxOnly_(iConfig.getParameter<bool>("centralBxOnly")),
-      ignoreHtMiss_(iConfig.getParameter<bool>("ignoreHtMiss")),
-      muScalesToken_(esConsumes<L1MuTriggerScales, L1MuTriggerScalesRcd>()),
-      muPtScaleToken_(esConsumes<L1MuTriggerPtScale, L1MuTriggerPtScaleRcd>()),
-      caloGeomToken_(esConsumes<L1CaloGeometry, L1CaloGeometryRecord>()),
-      emScaleToken_(esConsumes<L1CaloEtScale, L1EmEtScaleRcd>()),
-      jetScaleToken_(esConsumes<L1CaloEtScale, L1JetEtScaleRcd>()),
-      jetFinderParamsToken_(esConsumes<L1GctJetFinderParams, L1GctJetFinderParamsRcd>()),
-      htMissScaleToken_(esConsumes<L1CaloEtScale, L1HtMissScaleRcd>()),
-      hfRingEtScaleToken_(esConsumes<L1CaloEtScale, L1HfRingEtScaleRcd>()) {
+      ignoreHtMiss_(iConfig.getParameter<bool>("ignoreHtMiss")) {
   using namespace l1extra;
 
   // register your products
@@ -102,6 +94,21 @@ L1ExtraParticlesProd::L1ExtraParticlesProd(const edm::ParameterSet &iConfig)
   consumes<L1GctHtMissCollection>(htMissSource_);
   consumes<L1GctHFRingEtSumsCollection>(hfRingEtSumsSource_);
   consumes<L1GctHFBitCountsCollection>(hfRingBitCountsSource_);
+
+  if (produceMuonParticles_) {
+    muScalesToken_ = esConsumes<L1MuTriggerScales, L1MuTriggerScalesRcd>();
+    muPtScaleToken_ = esConsumes<L1MuTriggerPtScale, L1MuTriggerPtScaleRcd>();
+  }
+  if (produceCaloParticles_) {
+    caloGeomToken_ = esConsumes<L1CaloGeometry, L1CaloGeometryRecord>();
+    emScaleToken_ = esConsumes<L1CaloEtScale, L1EmEtScaleRcd>();
+    jetScaleToken_ = esConsumes<L1CaloEtScale, L1JetEtScaleRcd>();
+    jetFinderParamsToken_ = esConsumes<L1GctJetFinderParams, L1GctJetFinderParamsRcd>();
+    hfRingEtScaleToken_ = esConsumes<L1CaloEtScale, L1HfRingEtScaleRcd>();
+    if (!ignoreHtMiss_) {
+      htMissScaleToken_ = esConsumes<L1CaloEtScale, L1HtMissScaleRcd>();
+    }
+  }
 }
 
 L1ExtraParticlesProd::~L1ExtraParticlesProd() {
