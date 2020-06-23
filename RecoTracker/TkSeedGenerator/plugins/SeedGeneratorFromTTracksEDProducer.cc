@@ -43,24 +43,25 @@ using namespace reco;
 
 SeedGeneratorFromTTracksEDProducer::SeedGeneratorFromTTracksEDProducer(const ParameterSet& cfg)
     : theConfig(cfg),
-      theInputCollectionTag(consumes<std::vector< TTTrack< Ref_Phase2TrackerDigi_ >>>(cfg.getParameter<InputTag>("InputCollection"))),
+      theInputCollectionTag(
+          consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>(cfg.getParameter<InputTag>("InputCollection"))),
       theEstimatorName(cfg.getParameter<std::string>("estimator")),
       thePropagatorName(cfg.getParameter<std::string>("propagator")),
-      theMeasurementTrackerTag(consumes<MeasurementTrackerEvent>(cfg.getParameter<edm::InputTag>("MeasurementTrackerEvent"))),
+      theMeasurementTrackerTag(
+          consumes<MeasurementTrackerEvent>(cfg.getParameter<edm::InputTag>("MeasurementTrackerEvent"))),
       theMinEtaForTEC(cfg.getParameter<double>("minEtaForTEC")),
       theMaxEtaForTOB(cfg.getParameter<double>("maxEtaForTOB")),
-      errorSFHitless(cfg.getParameter<double>("errorSFHitless"))
-{
+      errorSFHitless(cfg.getParameter<double>("errorSFHitless")) {
   produces<TrajectorySeedCollection>();
 }
 
 void SeedGeneratorFromTTracksEDProducer::findSeedsOnLayer(const GeometricSearchDet& layer,
-							  const TrajectoryStateOnSurface& tsosAtIP,
-							  const Propagator& propagatorAlong,
-							  const TTTrack< Ref_Phase2TrackerDigi_ >& l1,
-							  edm::ESHandle<Chi2MeasurementEstimatorBase>& estimatorH,
-							  unsigned int& numSeedsMade,
-							  std::unique_ptr<std::vector<TrajectorySeed> >& out) const {
+                                                          const TrajectoryStateOnSurface& tsosAtIP,
+                                                          const Propagator& propagatorAlong,
+                                                          const TTTrack<Ref_Phase2TrackerDigi_>& l1,
+                                                          edm::ESHandle<Chi2MeasurementEstimatorBase>& estimatorH,
+                                                          unsigned int& numSeedsMade,
+                                                          std::unique_ptr<std::vector<TrajectorySeed>>& out) const {
   std::vector<GeometricSearchDet::DetWithState> dets;
   layer.compatibleDetsV(tsosAtIP, propagatorAlong, *estimatorH, dets);
 
@@ -71,23 +72,23 @@ void SeedGeneratorFromTTracksEDProducer::findSeedsOnLayer(const GeometricSearchD
       std::cout << "ERROR!: Hitless TSOS is not valid! \n";
     } else {
       dets.front().second.rescaleError(errorSFHitless);
-      
-      PTrajectoryStateOnDet const& ptsod = trajectoryStateTransform::persistentState(tsosOnLayer, detOnLayer->geographicalId().rawId());
+
+      PTrajectoryStateOnDet const& ptsod =
+          trajectoryStateTransform::persistentState(tsosOnLayer, detOnLayer->geographicalId().rawId());
       TrajectorySeed::RecHitContainer rHC;
-      if(numSeedsMade < 1){ // only outermost seed 
-	out->push_back(TrajectorySeed(ptsod, rHC, oppositeToMomentum));
-	numSeedsMade++;
+      if (numSeedsMade < 1) {  // only outermost seed
+        out->push_back(TrajectorySeed(ptsod, rHC, oppositeToMomentum));
+        numSeedsMade++;
       }
     }
   }
 }
 
 void SeedGeneratorFromTTracksEDProducer::produce(edm::Event& ev, const edm::EventSetup& es) {
-
-  std::unique_ptr<std::vector<TrajectorySeed> > result(new std::vector<TrajectorySeed>());
+  std::unique_ptr<std::vector<TrajectorySeed>> result(new std::vector<TrajectorySeed>());
 
   // TTrack Collection
-  Handle<std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > trks;
+  Handle<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> trks;
   ev.getByToken(theInputCollectionTag, trks);
 
   // Trk Geometry
@@ -116,23 +117,23 @@ void SeedGeneratorFromTTracksEDProducer::produce(edm::Event& ev, const edm::Even
   ev.getByToken(theMeasurementTrackerTag, measurementTrackerH);
   std::vector<BarrelDetLayer const*> const& tob = measurementTrackerH->geometricSearchTracker()->tobLayers();
   std::vector<ForwardDetLayer const*> const& tecPositive =
-    tmpTkGeometryH->isThere(GeomDetEnumerators::P2OTEC)
-    ? measurementTrackerH->geometricSearchTracker()->posTidLayers()
-    : measurementTrackerH->geometricSearchTracker()->posTecLayers();
+      tmpTkGeometryH->isThere(GeomDetEnumerators::P2OTEC)
+          ? measurementTrackerH->geometricSearchTracker()->posTidLayers()
+          : measurementTrackerH->geometricSearchTracker()->posTecLayers();
   std::vector<ForwardDetLayer const*> const& tecNegative =
-    tmpTkGeometryH->isThere(GeomDetEnumerators::P2OTEC)
-    ? measurementTrackerH->geometricSearchTracker()->negTidLayers()
-    : measurementTrackerH->geometricSearchTracker()->negTecLayers();
+      tmpTkGeometryH->isThere(GeomDetEnumerators::P2OTEC)
+          ? measurementTrackerH->geometricSearchTracker()->negTidLayers()
+          : measurementTrackerH->geometricSearchTracker()->negTecLayers();
 
   /// Surface used to make a TSOS at the PCA to the beamline
   Plane::PlanePointer dummyPlane = Plane::build(Plane::PositionType(), Plane::RotationType());
 
   // Loop over the L1's and make seeds for all of them:
-  std::vector< TTTrack< Ref_Phase2TrackerDigi_ > >::const_iterator it;
-  for ( it = trks->begin(); it != trks->end(); it++ ) {
-    const TTTrack< Ref_Phase2TrackerDigi_ >& l1 = (*it);
+  std::vector<TTTrack<Ref_Phase2TrackerDigi_>>::const_iterator it;
+  for (it = trks->begin(); it != trks->end(); it++) {
+    const TTTrack<Ref_Phase2TrackerDigi_>& l1 = (*it);
 
-    std::unique_ptr<std::vector<TrajectorySeed> > out(new std::vector<TrajectorySeed>());
+    std::unique_ptr<std::vector<TrajectorySeed>> out(new std::vector<TrajectorySeed>());
     FreeTrajectoryState fts = trajectoryStateTransform::initialFreeStateTTrack(l1, magfieldH.product(), false);
     dummyPlane->move(fts.position() - dummyPlane->position());
     TrajectoryStateOnSurface tsosAtIP = TrajectoryStateOnSurface(fts, *dummyPlane);
@@ -141,46 +142,28 @@ void SeedGeneratorFromTTracksEDProducer::produce(edm::Event& ev, const edm::Even
     //BARREL
     if (std::abs(l1.momentum().eta()) < theMaxEtaForTOB) {
       for (auto it = tob.rbegin(); it != tob.rend(); ++it) {  //This goes from outermost to innermost layer
-        findSeedsOnLayer(**it,
-                         tsosAtIP,
-                         *(propagatorAlong.get()),
-                         l1,
-                         estimatorH,
-			 numSeedsMade,
-                         out);
+        findSeedsOnLayer(**it, tsosAtIP, *(propagatorAlong.get()), l1, estimatorH, numSeedsMade, out);
       }
     }
     if (std::abs(l1.momentum().eta()) > theMinEtaForTEC && std::abs(l1.momentum().eta()) < theMaxEtaForTOB) {
-      numSeedsMade = 0; // reset num of seeds
+      numSeedsMade = 0;  // reset num of seeds
     }
     //ENDCAP+
     if (l1.momentum().eta() > theMinEtaForTEC) {
       for (auto it = tecPositive.rbegin(); it != tecPositive.rend(); ++it) {
-        findSeedsOnLayer(**it,
-                         tsosAtIP,
-                         *(propagatorAlong.get()),
-                         l1,
-                         estimatorH,
-			 numSeedsMade,
-                         out);
+        findSeedsOnLayer(**it, tsosAtIP, *(propagatorAlong.get()), l1, estimatorH, numSeedsMade, out);
       }
     }
     //ENDCAP-
     if (l1.momentum().eta() < -theMinEtaForTEC) {
       for (auto it = tecNegative.rbegin(); it != tecNegative.rend(); ++it) {
-        findSeedsOnLayer(**it,
-                         tsosAtIP,
-                         *(propagatorAlong.get()),
-                         l1,
-                         estimatorH,
-			 numSeedsMade,
-                         out);
+        findSeedsOnLayer(**it, tsosAtIP, *(propagatorAlong.get()), l1, estimatorH, numSeedsMade, out);
       }
     }
     for (std::vector<TrajectorySeed>::iterator it = out->begin(); it != out->end(); ++it) {
       result->push_back(*it);
     }
-  } // end loop over L1Tracks
+  }  // end loop over L1Tracks
 
   auto const& seeds = *result;
   ev.put(std::move(result));

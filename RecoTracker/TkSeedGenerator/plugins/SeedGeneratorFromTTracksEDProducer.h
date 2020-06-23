@@ -55,16 +55,16 @@ public:
   ~SeedGeneratorFromTTracksEDProducer() override {}
   void produce(edm::Event& ev, const edm::EventSetup& es) override;
   void findSeedsOnLayer(const GeometricSearchDet& layer,
-			const TrajectoryStateOnSurface& tsosAtIP,
-			const Propagator& propagatorAlong,
-			const TTTrack< Ref_Phase2TrackerDigi_ >& l1,
-			edm::ESHandle<Chi2MeasurementEstimatorBase>& estimatorH,
-			unsigned int& numSeedsMade,
-			std::unique_ptr<std::vector<TrajectorySeed> >& out) const;
+                        const TrajectoryStateOnSurface& tsosAtIP,
+                        const Propagator& propagatorAlong,
+                        const TTTrack<Ref_Phase2TrackerDigi_>& l1,
+                        edm::ESHandle<Chi2MeasurementEstimatorBase>& estimatorH,
+                        unsigned int& numSeedsMade,
+                        std::unique_ptr<std::vector<TrajectorySeed> >& out) const;
 
 private:
   const edm::ParameterSet theConfig;
-  const edm::EDGetTokenT< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > theInputCollectionTag;
+  const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > theInputCollectionTag;
   const std::string theEstimatorName;
   const std::string thePropagatorName;
   const edm::EDGetTokenT<MeasurementTrackerEvent> theMeasurementTrackerTag;
@@ -76,6 +76,5 @@ private:
   const double theMaxEtaForTOB;
 
   const double errorSFHitless;
-
 };
 #endif

@@ -67,18 +67,21 @@ namespace trajectoryStateTransform {
     return FreeTrajectoryState(par, err);
   }
 
-  FreeTrajectoryState initialFreeStateTTrack(const TTTrack< Ref_Phase2TrackerDigi_ >& tk, const MagneticField* field, bool withErr) {
+  FreeTrajectoryState initialFreeStateTTrack(const TTTrack<Ref_Phase2TrackerDigi_>& tk,
+                                             const MagneticField* field,
+                                             bool withErr) {
     Basic3DVector<float> pos(tk.POCA());
     GlobalPoint gpos(pos);
     GlobalVector gmom = tk.momentum();
 
-    float speedOfLightConverted = CLHEP::c_light/1.0E5; // -2.99792458e-3f
+    float speedOfLightConverted = CLHEP::c_light / 1.0E5;  // -2.99792458e-3f
     double mMagneticFieldStrength = field->inTesla(tk.POCA()).z();
-    float trk_signedPt = speedOfLightConverted * mMagneticFieldStrength / tk.rInv(); 
-    int charge = (trk_signedPt/fabs(trk_signedPt)) > 0.f ? 1 : -1;
+    float trk_signedPt = speedOfLightConverted * mMagneticFieldStrength / tk.rInv();
+    int charge = (trk_signedPt / fabs(trk_signedPt)) > 0.f ? 1 : -1;
 
     GlobalTrajectoryParameters par(gpos, gmom, charge, field);
-    AlgebraicSymMatrix55 mat; mat = mat + 1e-8;
+    AlgebraicSymMatrix55 mat;
+    mat = mat + 1e-8;
     CurvilinearTrajectoryError newError(mat);
 
     return FreeTrajectoryState(par, newError);
