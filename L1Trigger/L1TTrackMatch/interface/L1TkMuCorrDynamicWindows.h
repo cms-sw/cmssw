@@ -89,7 +89,7 @@ private:
   // if a pointer to narbitrated is passed, this vector is filled with the number of tracks arbitrated that were matched to the same EMTF
   std::vector<int> make_unique_coll(const unsigned int& l1musSize,
                                     const L1TTTrackCollectionType& l1trks,
-                                    std::vector<int> matches);
+                                    const std::vector<int>& matches);
 
   // converters
   double deg_to_rad(double x) { return (x * angle_units::degPerRad); }

@@ -344,7 +344,7 @@ std::vector<int> L1TkMuCorrDynamicWindows::find_match_stub(const EMTFHitCollecti
 
 std::vector<int> L1TkMuCorrDynamicWindows::make_unique_coll(const unsigned int& l1musSize,
                                                             const L1TTTrackCollectionType& l1trks,
-                                                            std::vector<int> matches) {
+                                                            const std::vector<int>& matches) {
   std::vector<int> out(matches.size(), -1);
 
   std::vector<std::vector<int>> macthed_to_emtf(l1musSize,
