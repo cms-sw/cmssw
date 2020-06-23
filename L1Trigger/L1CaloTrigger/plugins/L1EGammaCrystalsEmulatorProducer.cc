@@ -396,7 +396,6 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
     hhit.id = hit.id();
     hhit.id_hcal = hit.id();
     hhit.position = hcal_tp_position;
-    //float et = hit.SOI_compressedEt() / 2.;
     hhit.energy = et / sin(hhit.position.theta());
     hcalhits.push_back(hhit);
   }
