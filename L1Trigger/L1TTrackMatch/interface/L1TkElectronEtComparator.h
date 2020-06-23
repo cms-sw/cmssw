@@ -1,5 +1,5 @@
-#ifndef L1TkElectronEtComparator_HH
-#define L1TkElectronEtComparator_HH
+#ifndef L1TTrackMatch_L1TkElectronEtComparator_HH
+#define L1TTrackMatch_L1TkElectronEtComparator_HH
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 
 namespace L1TkElectron {

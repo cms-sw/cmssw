@@ -1,5 +1,5 @@
-#ifndef L1TKMUMANTRA_H
-#define L1TKMUMANTRA_H
+#ifndef L1TTrackMatch_L1TKMUMANTRA_H
+#define L1TTrackMatch_L1TKMUMANTRA_H
 
 /*
 ** class  : GenericDataFormat
