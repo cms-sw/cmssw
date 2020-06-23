@@ -35,6 +35,7 @@ namespace dqm {
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
     std::shared_ptr<rdm::Empty> globalBeginLuminosityBlock(edm::LuminosityBlock const &lumi,
                                                            edm::EventSetup const &eSetup) const override;
+    void globalEndLuminosityBlock(edm::LuminosityBlock const &lumi, edm::EventSetup const &eSetup) final {}
     void dqmEndLuminosityBlock(edm::LuminosityBlock const &lumi, edm::EventSetup const &eSetup) final {}
     void analyze(edm::Event const &e, edm::EventSetup const &eSetup) override{};
 

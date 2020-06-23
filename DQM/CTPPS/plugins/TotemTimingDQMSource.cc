@@ -57,6 +57,7 @@ protected:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   std::shared_ptr<totemds::Cache> globalBeginLuminosityBlock(const edm::LuminosityBlock &,
                                                              const edm::EventSetup &) const override;
+  void globalEndLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override{};
   void dqmEndLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override;
 
 private:

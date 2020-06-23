@@ -36,6 +36,7 @@ protected:
   void analyze(edm::Event const &e, edm::EventSetup const &eSetup) override;
   std::shared_ptr<std::vector<int>> globalBeginLuminosityBlock(const edm::LuminosityBlock &iLumi,
                                                                const edm::EventSetup &c) const override;
+  void globalEndLuminosityBlock(const edm::LuminosityBlock &iLumi, const edm::EventSetup &c) override{};
   void dqmEndLuminosityBlock(const edm::LuminosityBlock &iLumi, const edm::EventSetup &c) override;
 
   void analyzeCTPPSRecord(edm::Event const &event, edm::EventSetup const &eventSetup);

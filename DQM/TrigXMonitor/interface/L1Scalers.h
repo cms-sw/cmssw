@@ -13,18 +13,12 @@
 #define MAX_LUMI_SEG 2000
 #define MAX_LUMI_BIN 400
 
-namespace l1s {
-  struct Empty {};
-}  // namespace l1s
-class L1Scalers : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<l1s::Empty>> {
+class L1Scalers : public DQMOneEDAnalyzer<> {
 public:
   L1Scalers(const edm::ParameterSet &ps);
   ~L1Scalers() override{};
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;
-  /// DQM Client Diagnostic should be performed here:
-  std::shared_ptr<l1s::Empty> globalBeginLuminosityBlock(const edm::LuminosityBlock &lumiSeg,
-                                                         const edm::EventSetup &c) const final;
   void dqmEndLuminosityBlock(const edm::LuminosityBlock &lumiSeg, const edm::EventSetup &c) override;
 
 private:

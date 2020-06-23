@@ -38,6 +38,7 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   std::shared_ptr<bool> globalBeginLuminosityBlock(const edm::LuminosityBlock& lumi,
                                                    const edm::EventSetup& iSetup) const override;
+  void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override{};
   void dqmEndLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& iSetup) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;

@@ -19,11 +19,7 @@ class TH1F;
 class TH2F;
 class TH3F;
 
-namespace qlpd {
-  struct Cache {};
-}  // namespace qlpd
-
-class QcdLowPtDQM : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<qlpd::Cache>> {
+class QcdLowPtDQM : public DQMOneEDAnalyzer<> {
 public:
   class Pixel {
   public:
@@ -124,8 +120,6 @@ public:
   void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
-  std::shared_ptr<qlpd::Cache> globalBeginLuminosityBlock(const edm::LuminosityBlock &,
-                                                          const edm::EventSetup &) const override;
   void dqmEndLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &iSetup) override;
   void dqmEndRun(const edm::Run &r, const edm::EventSetup &iSetup) override;
 

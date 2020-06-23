@@ -111,6 +111,7 @@ protected:
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;  // Analyze
   std::shared_ptr<ltso::LSValid> globalBeginLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
                                                             edm::EventSetup const& c) const final;
+  void globalEndLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) final {}
   void dqmEndLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) final {}
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) override;
