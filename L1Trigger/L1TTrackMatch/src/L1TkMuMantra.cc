@@ -124,11 +124,10 @@ std::vector<int> L1TkMuMantra::find_match(const std::vector<track_df>& tracks, c
       // col_dthetaendc = dataframe.loc[ : , theta_name].subtract(dataframe.loc[ : , 'trk_theta']).multiply(dataframe.loc[ : , etasign_name])
 
       double dphi_charge = to_mpi_pi((trk.phi - mu.phi) * trk.charge);
-      double dtheta_endc =
-          (mu.theta - trk.theta) * (std::abs(mu.theta) / mu.theta);  // sign from theta, to avoid division by 0
-      if (sign(mu.theta) !=
-          sign(
-              trk.theta)) {  // crossing the barrel -> remove 180 deg to the theta of the neg candidate to avoid jumps at eta = 0
+      // sign from theta, to avoid division by 0
+      double dtheta_endc = (mu.theta - trk.theta) * sign(mu.theta);  
+      if (sign(mu.theta) != sign( trk.theta)) {  
+        // crossing the barrel -> remove 180 deg to the theta of the neg candidate to avoid jumps at eta = 0
         dtheta_endc -= TMath::Pi();
       }
 
