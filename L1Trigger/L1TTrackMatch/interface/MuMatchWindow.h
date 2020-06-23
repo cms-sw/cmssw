@@ -30,15 +30,15 @@ public:
   void SetUpper(TF1* formula);
 
   // bool matches (double pt);
-  const double bound_low(double pt) { return f_low->Eval(pt); }
-  const double bound_cent(double pt) { return f_cent->Eval(pt); }
-  const double bound_high(double pt) { return f_high->Eval(pt); }
+  const double bound_low(double pt) { return fLow_->Eval(pt); }
+  const double bound_cent(double pt) { return fCent_->Eval(pt); }
+  const double bound_high(double pt) { return fHigh_->Eval(pt); }
 
 private:
   std::string name_;
-  std::shared_ptr<TF1> f_low;
-  std::shared_ptr<TF1> f_cent;
-  std::shared_ptr<TF1> f_high;
+  std::shared_ptr<TF1> fLow_;
+  std::shared_ptr<TF1> fCent_;
+  std::shared_ptr<TF1> fHigh_;
 };
 
 #endif

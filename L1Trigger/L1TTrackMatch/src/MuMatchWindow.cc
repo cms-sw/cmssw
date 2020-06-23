@@ -22,19 +22,19 @@ void MuMatchWindow::SetUpper(std::string formula) {
 }
 
 void MuMatchWindow::SetLower(TF1* formula) {
-  if (f_low)
-    throw std::runtime_error("Cannot initialize twice f_low");
-  f_low = std::shared_ptr<TF1>((TF1*)formula->Clone((name_ + std::string("low")).c_str()));
+  if (fLow_)
+    throw std::runtime_error("Cannot initialize twice fLow_");
+  fLow_ = std::shared_ptr<TF1>((TF1*)formula->Clone((name_ + std::string("low")).c_str()));
 }
 
 void MuMatchWindow::SetCentral(TF1* formula) {
-  if (f_cent)
-    throw std::runtime_error("Cannot initialize twice f_cent");
-  f_cent = std::shared_ptr<TF1>((TF1*)formula->Clone((name_ + std::string("cent")).c_str()));
+  if (fCent_)
+    throw std::runtime_error("Cannot initialize twice fCent_");
+  fCent_ = std::shared_ptr<TF1>((TF1*)formula->Clone((name_ + std::string("cent")).c_str()));
 }
 
 void MuMatchWindow::SetUpper(TF1* formula) {
-  if (f_high)
-    throw std::runtime_error("Cannot initialize twice f_high");
-  f_high = std::shared_ptr<TF1>((TF1*)formula->Clone((name_ + std::string("high")).c_str()));
+  if (fHigh_)
+    throw std::runtime_error("Cannot initialize twice fHigh_");
+  fHigh_ = std::shared_ptr<TF1>((TF1*)formula->Clone((name_ + std::string("high")).c_str()));
 }
