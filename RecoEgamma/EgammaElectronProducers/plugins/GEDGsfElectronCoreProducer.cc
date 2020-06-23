@@ -21,7 +21,7 @@ private:
                            reco::PFCandidateEGammaExtraRef const &extraRef,
                            reco::GsfElectronCoreCollection &electrons,
                            edm::Handle<reco::TrackCollection> const &ctfTracksHandle,
-                           edm::soa::EtaPhiTable const &ctfTrackVariables) const;
+                           edm::soa::EtaPhiTableView ctfTrackVariables) const;
 
   const edm::EDGetTokenT<reco::TrackCollection> ctfTracksToken_;
   const edm::EDGetTokenT<reco::PFCandidateCollection> gedEMUnbiasedToken_;
@@ -67,7 +67,7 @@ void GEDGsfElectronCoreProducer::produceElectronCore(GsfTrackRef const &gsfTrack
                                                      reco::PFCandidateEGammaExtraRef const &extraRef,
                                                      reco::GsfElectronCoreCollection &electrons,
                                                      edm::Handle<reco::TrackCollection> const &ctfTracksHandle,
-                                                     edm::soa::EtaPhiTable const &ctfTrackVariables) const {
+                                                     edm::soa::EtaPhiTableView ctfTrackVariables) const {
   electrons.emplace_back(gsfTrackRef);
   auto &eleCore = electrons.back();
 
