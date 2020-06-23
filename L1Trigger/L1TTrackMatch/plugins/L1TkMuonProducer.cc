@@ -122,24 +122,23 @@ private:
   const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > trackToken;
 };
 
-L1TkMuonProducer::L1TkMuonProducer(const edm::ParameterSet& iConfig)
-    : bmtfToken_(consumes<RegionalMuonCandBxCollection>(iConfig.getParameter<edm::InputTag>("L1BMTFInputTag"))),
+L1TkMuonProducer::L1TkMuonProducer(const edm::ParameterSet& iConfig) :
+      etaMin_((float)iConfig.getParameter<double>("ETAMIN")),
+      etaMax_((float)iConfig.getParameter<double>("ETAMAX")),
+      zMax_((float)iConfig.getParameter<double>("ZMAX")),
+      chi2Max_((float)iConfig.getParameter<double>("CHI2MAX")),
+      pTMinTra_((float)iConfig.getParameter<double>("PTMINTRA")),
+      dRMax_((float)iConfig.getParameter<double>("DRmax")),
+      nStubsmin_(iConfig.getParameter<int>("nStubsmin")),
+      // --- mantra corr params
+      mantra_n_trk_par_(iConfig.getParameter<int>("mantra_n_trk_par")),
+      bmtfToken_(consumes<RegionalMuonCandBxCollection>(iConfig.getParameter<edm::InputTag>("L1BMTFInputTag"))),
       omtfToken_(consumes<RegionalMuonCandBxCollection>(iConfig.getParameter<edm::InputTag>("L1OMTFInputTag"))),
       emtfToken_(consumes<RegionalMuonCandBxCollection>(iConfig.getParameter<edm::InputTag>("L1EMTFInputTag"))),
       emtfTCToken_(consumes<EMTFTrackCollection>(iConfig.getParameter<edm::InputTag>("L1EMTFTrackCollectionInputTag"))),
-      trackToken(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(
-          iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))) {
-  etaMin_ = (float)iConfig.getParameter<double>("ETAMIN");
-  etaMax_ = (float)iConfig.getParameter<double>("ETAMAX");
-  zMax_ = (float)iConfig.getParameter<double>("ZMAX");
-  chi2Max_ = (float)iConfig.getParameter<double>("CHI2MAX");
-  pTMinTra_ = (float)iConfig.getParameter<double>("PTMINTRA");
-  dRMax_ = (float)iConfig.getParameter<double>("DRmax");
-  nStubsmin_ = iConfig.getParameter<int>("nStubsmin");
+      trackToken(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))) 
+{
 
-  // --- mantra corr params
-
-  mantra_n_trk_par_ = iConfig.getParameter<int>("mantra_n_trk_par");
 
   // --------------------- configuration of the muon algorithm type
 
