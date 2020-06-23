@@ -423,10 +423,8 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
   bool biasedTauDecayer = fMasterGen->settings.flag("BiasedTauDecayer:filter");
   if (biasedTauDecayer) {
     if (!fBiasedTauDecayer.get())
-      fBiasedTauDecayer.reset(new BiasedTauDecayer(&(fMasterGen->info),
-                                                   &(fMasterGen->settings),
-                                                   &(fMasterGen->particleData),
-                                                   &(fMasterGen->rndm)));
+      fBiasedTauDecayer.reset(new BiasedTauDecayer(
+          &(fMasterGen->info), &(fMasterGen->settings), &(fMasterGen->particleData), &(fMasterGen->rndm)));
     std::vector<int> handledParticles;
     handledParticles.push_back(15);
     fMasterGen->setDecayPtr(fBiasedTauDecayer, handledParticles);
@@ -567,10 +565,8 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
   bool biasedTauDecayer = fMasterGen->settings.flag("BiasedTauDecayer:filter");
   if (biasedTauDecayer) {
     if (!fBiasedTauDecayer.get())
-      fBiasedTauDecayer.reset(new BiasedTauDecayer(&(fMasterGen->info),
-                                                   &(fMasterGen->settings),
-                                                   &(fMasterGen->particleData),
-                                                   &(fMasterGen->rndm)));
+      fBiasedTauDecayer.reset(new BiasedTauDecayer(
+          &(fMasterGen->info), &(fMasterGen->settings), &(fMasterGen->particleData), &(fMasterGen->rndm)));
     std::vector<int> handledParticles;
     handledParticles.push_back(15);
     fMasterGen->setDecayPtr(fBiasedTauDecayer, handledParticles);
