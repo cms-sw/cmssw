@@ -188,6 +188,8 @@ workflows[136.732] = ['',['RunZeroBias2016B','HLTDR2_2016','RECODR2_2016reHLT_ZB
 workflows[136.733] = ['',['RunCosmics2016B','RECOCOSDRUN2','ALCACOSDRUN2','HARVESTDCRUN2']]
 workflows[136.734] = ['',['RunMuOnia2016B','HLTDR2_2016','RECODR2_2016reHLT_skimMuOnia_HIPM','HARVESTDR2']]
 workflows[136.735] = ['',['RunNoBPTX2016B','HLTDR2_2016','RECODR2reHLTAlCaTkCosmics_HIPM','HARVESTDR2']]
+# reminiAOD wf on 2016B input, mainly here for PPS testing
+workflows[136.72411] = ['',['RunJetHT2016B_reminiaodUL','REMINIAOD_data2016UL_HIPM','HARVESTDR2_REMINIAOD_data2016UL_HIPM']]
 
 ### run 2016C ###
 workflows[136.736] = ['',['RunHLTPhy2016C','HLTDR2_2016','RECODR2_2016reHLT_HIPM','HARVESTDR2']]
