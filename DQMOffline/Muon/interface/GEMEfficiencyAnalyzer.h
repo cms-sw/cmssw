@@ -10,37 +10,35 @@
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
-
 class GEMEfficiencyAnalyzer : public GEMOfflineDQMBase {
- public:
-  explicit GEMEfficiencyAnalyzer(const edm::ParameterSet&);
-  ~GEMEfficiencyAnalyzer();
+public:
+  explicit GEMEfficiencyAnalyzer(const edm::ParameterSet &);
+  ~GEMEfficiencyAnalyzer() override;
 
- protected:
+protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
 
- private:
-  void bookDetectorOccupancy(DQMStore::IBooker&, const GEMStation*, const MEMapKey1&, const TString&, const TString&);
-  void bookOccupancy(DQMStore::IBooker&, const MEMapKey2&, const TString&, const TString&);
-  void bookResolution(DQMStore::IBooker&, const MEMapKey3&, const TString&, const TString&);
+private:
+  void bookDetectorOccupancy(
+      DQMStore::IBooker &, const GEMStation *, const MEMapKey1 &, const TString &, const TString &);
+  void bookOccupancy(DQMStore::IBooker &, const MEMapKey2 &, const TString &, const TString &);
+  void bookResolution(DQMStore::IBooker &, const MEMapKey3 &, const TString &, const TString &);
 
-  const GEMRecHit* findMatchedHit(const float, const GEMRecHitCollection::range&);
+  const GEMRecHit *findMatchedHit(const float, const GEMRecHitCollection::range &);
 
   //----------------------------------------------------------------------------
   edm::EDGetTokenT<GEMRecHitCollection> rechit_token_;
   edm::EDGetTokenT<edm::View<reco::Muon> > muon_token_;
 
-  MuonServiceProxy* muon_service_;
+  MuonServiceProxy *muon_service_;
 
   bool use_global_muon_;
 
   std::string selector_string_;
   bool use_selector_;
   uint64_t selector_;
-  // reco::Muon::Selector selector_;
 
-  //
   double min_pt_cut_;
   float residual_x_cut_;
   //
@@ -48,12 +46,11 @@ class GEMEfficiencyAnalyzer : public GEMOfflineDQMBase {
   int eta_nbins_;
   double eta_low_;
   double eta_up_;
-  
+
   std::string folder_;
 
   TString title_;
   TString matched_title_;
-
 
   // MonitorElement
   MEMap1 me_detector_;
@@ -64,12 +61,11 @@ class GEMEfficiencyAnalyzer : public GEMOfflineDQMBase {
   MEMap2 me_muon_pt_matched_;
   MEMap2 me_muon_eta_matched_;
 
-  MEMap3 me_residual_x_; // local
-  MEMap3 me_residual_y_; // local
-  MEMap3 me_residual_phi_; // global
+  MEMap3 me_residual_x_;    // local
+  MEMap3 me_residual_y_;    // local
+  MEMap3 me_residual_phi_;  // global
   MEMap3 me_pull_x_;
   MEMap3 me_pull_y_;
 };
 
-
-#endif // DQMOffline_Muon_GEMEfficiencyAnalyzer_h
+#endif  // DQMOffline_Muon_GEMEfficiencyAnalyzer_h

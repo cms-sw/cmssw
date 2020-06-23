@@ -6,9 +6,7 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-
-GEMEfficiencyAnalyzer::GEMEfficiencyAnalyzer(const edm::ParameterSet& pset)
-    : GEMOfflineDQMBase(pset) {
+GEMEfficiencyAnalyzer::GEMEfficiencyAnalyzer(const edm::ParameterSet& pset) : GEMOfflineDQMBase(pset) {
   rechit_token_ = consumes<GEMRecHitCollection>(pset.getParameter<edm::InputTag>("recHitTag"));
   muon_token_ = consumes<edm::View<reco::Muon> >(pset.getParameter<edm::InputTag>("muonTag"));
 
@@ -36,17 +34,15 @@ GEMEfficiencyAnalyzer::GEMEfficiencyAnalyzer(const edm::ParameterSet& pset)
   matched_title_ = title_ + TString::Format(" (|x_{Muon} - x_{Hit}| < %.1f)", residual_x_cut_);
 }
 
-
 GEMEfficiencyAnalyzer::~GEMEfficiencyAnalyzer() {}
 
-
 void GEMEfficiencyAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
-                                       edm::Run const& run,
-                                       edm::EventSetup const& isetup) {
+                                           edm::Run const& run,
+                                           edm::EventSetup const& isetup) {
   edm::ESHandle<GEMGeometry> gem;
   isetup.get<MuonGeometryRecord>().get(gem);
   if (not gem.isValid()) {
-    edm::LogError(log_category_) << "GEMGeometry is invalid" << std::endl; 
+    edm::LogError(log_category_) << "GEMGeometry is invalid" << std::endl;
     return;
   }
 
@@ -62,13 +58,13 @@ void GEMEfficiencyAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
       const auto&& station_title_suffix = TString::Format(" : GE %s%d/1", region_sign, station_number);
       bookDetectorOccupancy(ibooker, station, key1, station_name_suffix, station_title_suffix);
 
-
       if (station_number == 1) {
         //
         for (const bool is_odd : {true, false}) {
           std::tuple<int, int, bool> key2{region_number, station_number, is_odd};
           const TString&& parity_name_suffix = station_name_suffix + (is_odd ? "_odd" : "_even");
-          const TString&& parity_title_suffix = station_title_suffix + (is_odd ? ", Odd Superchamber" : ", Even Superchamber");
+          const TString&& parity_title_suffix =
+              station_title_suffix + (is_odd ? ", Odd Superchamber" : ", Even Superchamber");
           bookOccupancy(ibooker, key2, parity_name_suffix, parity_title_suffix);
 
           for (int ieta = 1; ieta <= GEMeMap::maxEtaPartition_; ieta++) {
@@ -76,8 +72,8 @@ void GEMEfficiencyAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
             const TString&& ieta_title_suffix = parity_title_suffix + Form(", i#eta = %d", ieta);
             const MEMapKey3 key3{region_number, station_number, is_odd, ieta};
             bookResolution(ibooker, key3, ieta_name_suffix, ieta_title_suffix);
-          } // ieta
-        } // is_odd
+          }  // ieta
+        }    // is_odd
 
       } else {
         std::tuple<int, int, bool> key2{region_number, station_number, false};
@@ -88,18 +84,17 @@ void GEMEfficiencyAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
           const TString&& ieta_name_suffix = station_name_suffix + Form("_ieta%d", ieta);
           const TString&& ieta_title_suffix = station_title_suffix + Form(", i#eta = %d", ieta);
           bookResolution(ibooker, key3, ieta_name_suffix, ieta_title_suffix);
-        } // ieta
+        }  // ieta
       }
-    } // station
-  } // region
+    }  // station
+  }    // region
 }
 
-
 void GEMEfficiencyAnalyzer::bookDetectorOccupancy(DQMStore::IBooker& ibooker,
-                                                         const GEMStation* station,
-                                                         const MEMapKey1& key,
-                                                         const TString& name_suffix,
-                                                         const TString& title_suffix) {
+                                                  const GEMStation* station,
+                                                  const MEMapKey1& key,
+                                                  const TString& name_suffix,
+                                                  const TString& title_suffix) {
   ibooker.setCurrentFolder(folder_ + "/Efficiency");
   BookingHelper helper(ibooker, name_suffix, title_suffix);
 
@@ -115,18 +110,17 @@ void GEMEfficiencyAnalyzer::bookDetectorOccupancy(DQMStore::IBooker& ibooker,
 
   me_detector_[key] = helper.book2D("detector", title_, num_ch, 0.5, num_ch + 0.5, num_eta, 0.5, num_eta + 0.5);
 
-  me_detector_matched_[key] = helper.book2D("detector_matched", matched_title_, num_ch, 0.5, num_ch + 0.5, num_eta, 0.5, num_eta + 0.5);
+  me_detector_matched_[key] =
+      helper.book2D("detector_matched", matched_title_, num_ch, 0.5, num_ch + 0.5, num_eta, 0.5, num_eta + 0.5);
 
   setDetLabelsEta(me_detector_[key], station);
   setDetLabelsEta(me_detector_matched_[key], station);
 }
 
-
-
 void GEMEfficiencyAnalyzer::bookOccupancy(DQMStore::IBooker& ibooker,
-                                                 const MEMapKey2& key,
-                                                 const TString& name_suffix,
-                                                 const TString& title_suffix) {
+                                          const MEMapKey2& key,
+                                          const TString& name_suffix,
+                                          const TString& title_suffix) {
   ibooker.setCurrentFolder(folder_ + "/Efficiency");
   BookingHelper helper(ibooker, name_suffix, title_suffix);
 
@@ -134,14 +128,14 @@ void GEMEfficiencyAnalyzer::bookOccupancy(DQMStore::IBooker& ibooker,
   me_muon_eta_[key] = helper.book1D("muon_eta", title_, eta_nbins_, eta_low_, eta_up_, "Muon |#eta|");
 
   me_muon_pt_matched_[key] = helper.book1D("muon_pt_matched", matched_title_, pt_binning_, "Muon p_{T} [GeV]");
-  me_muon_eta_matched_[key] = helper.book1D("muon_eta_matched", matched_title_, eta_nbins_, eta_low_, eta_up_, "Muon |#eta|");
+  me_muon_eta_matched_[key] =
+      helper.book1D("muon_eta_matched", matched_title_, eta_nbins_, eta_low_, eta_up_, "Muon |#eta|");
 }
 
-
 void GEMEfficiencyAnalyzer::bookResolution(DQMStore::IBooker& ibooker,
-                                                  const MEMapKey3& key,
-                                                  const TString& name_suffix,
-                                                  const TString& title_suffix) {
+                                           const MEMapKey3& key,
+                                           const TString& name_suffix,
+                                           const TString& title_suffix) {
   ibooker.setCurrentFolder(folder_ + "/Resolution");
   BookingHelper helper(ibooker, name_suffix, title_suffix);
 
@@ -153,7 +147,6 @@ void GEMEfficiencyAnalyzer::bookResolution(DQMStore::IBooker& ibooker,
   me_pull_x_[key] = helper.book1D("pull_x", title_, 60, -3.0, 3.0, "Pull in Local X");
   me_pull_y_[key] = helper.book1D("pull_y", title_, 60, -3.0, 3.0, "Pull in Local Y");
 }
-
 
 void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   edm::Handle<GEMRecHitCollection> rechit_collection;
@@ -172,7 +165,7 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
   edm::ESHandle<GEMGeometry> gem;
   setup.get<MuonGeometryRecord>().get(gem);
   if (not gem.isValid()) {
-    edm::LogError(log_category_) << "GEMGeometry is invalid" << std::endl; 
+    edm::LogError(log_category_) << "GEMGeometry is invalid" << std::endl;
     return;
   }
 
@@ -191,7 +184,8 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
   }
 
   for (const reco::Muon& muon : *muon_view) {
-    if (muon.pt() < min_pt_cut_) continue;
+    if (muon.pt() < min_pt_cut_)
+      continue;
 
     const reco::Track* track = nullptr;
     if (use_global_muon_ and muon.globalTrack().isNonnull())
@@ -204,23 +198,24 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
     }
 
     // if (not muon::isGoodMuon(muon, selection_type_)) continue;
-    if (use_selector_ and not muon.passed(selector_)) continue;
+    if (use_selector_ and not muon.passed(selector_))
+      continue;
 
     const reco::TransientTrack&& transient_track = transient_track_builder->build(track);
     if (not transient_track.isValid()) {
-      edm::LogInfo(log_category_) << "failed to build TransientTrack"  << std::endl;
+      edm::LogInfo(log_category_) << "failed to build TransientTrack" << std::endl;
       continue;
     }
 
     for (const GEMEtaPartition* eta_partition : gem->etaPartitions()) {
       // Skip propagation inn the opposite direction.
-      if (muon.eta() * eta_partition->id().region() < 0) continue;
+      if (muon.eta() * eta_partition->id().region() < 0)
+        continue;
 
       const BoundPlane& bound_plane = eta_partition->surface();
 
-      const TrajectoryStateOnSurface&& tsos = propagator->propagate(
-          transient_track.outermostMeasurementState(),
-          bound_plane);
+      const TrajectoryStateOnSurface&& tsos =
+          propagator->propagate(transient_track.outermostMeasurementState(), bound_plane);
       if (not tsos.isValid()) {
         continue;
       }
@@ -252,7 +247,7 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
       me_detector_matched_[key1]->Fill(chamber_bin, gem_id.roll());
       me_muon_pt_matched_[key2]->Fill(muon.pt());
       me_muon_eta_matched_[key2]->Fill(std::fabs(muon.eta()));
-     
+
       const LocalPoint&& hit_local_pos = matched_hit->localPosition();
       const GlobalPoint&& hit_global_pos = eta_partition->toGlobal(hit_local_pos);
       const GlobalPoint&& tsos_global_pos = tsos.globalPosition();
@@ -274,15 +269,12 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
       me_pull_x_[key3]->Fill(pull_x);
       me_pull_y_[key3]->Fill(pull_y);
 
-    } // GEMChamber
-  } // Muon
+    }  // GEMChamber
+  }    // Muon
 }
 
-
-const GEMRecHit* GEMEfficiencyAnalyzer::findMatchedHit(
-    const float track_local_x,
-    const GEMRecHitCollection::range& range) {
-
+const GEMRecHit* GEMEfficiencyAnalyzer::findMatchedHit(const float track_local_x,
+                                                       const GEMRecHitCollection::range& range) {
   float min_residual_x{residual_x_cut_};
   const GEMRecHit* closest_hit = nullptr;
 
