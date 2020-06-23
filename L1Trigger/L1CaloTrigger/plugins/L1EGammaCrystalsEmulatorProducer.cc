@@ -76,6 +76,17 @@ static constexpr float c0_ss = 0.94, c1_ss = 0.052, c2_ss = 0.044;              
 static constexpr float d0 = 0.96, d1 = 0.0003;                                         //passes_photon
 static constexpr float e0_looseTkss = 0.944, e1_looseTkss = 0.65, e2_looseTkss = 0.4;  //passes_looseTkss
 
+// absolue IDs range from 0-33
+// 0-16 are iEta -17 to -1
+// 17 to 33 are iEta 1 to 17
+static constexpr int toweriEta_fromAbsoluteID_shift = 16;
+
+// absolue IDs range from 0-71.
+// To align with detector tower IDs (1 - n_towers_Phi)
+// shift all indices by 37 and loop over after 72
+static constexpr int toweriPhi_fromAbsoluteID_shift_lowerHalf = 37;
+static constexpr int toweriPhi_fromAbsoluteID_shift_upperHalf = 35;
+
 float getEta_fromL2LinkCardTowerCrystal(int link, int card, int tower, int crystal) {
   int etaID = n_crystals_towerEta * (n_towers_cardEta * ((link / n_links_card) % 2) + (tower % n_towers_cardEta)) +
               crystal % n_crystals_towerEta;
@@ -120,24 +131,18 @@ int getTower_absolutePhiID(float phi) {
   return phiID;
 }
 
-// absolue IDs range from 0-33
-// 0-16 are iEta -17 to -1
-// 17 to 33 are iEta 1 to 17
 int getToweriEta_fromAbsoluteID(int id) {
   if (id < n_towers_cardEta)
     return id - n_towers_cardEta;
   else
-    return id - 16;
+    return id - toweriEta_fromAbsoluteID_shift;
 }
 
-// absolue IDs range from 0-71.
-// To align with detector tower IDs (1 - n_towers_Phi)
-// shift all indices by 37 and loop over after 72
 int getToweriPhi_fromAbsoluteID(int id) {
   if (id < n_towers_Phi / 2)
-    return id + 37;
+    return id + toweriPhi_fromAbsoluteID_shift_lowerHalf;
   else
-    return id - 35;
+    return id - toweriPhi_fromAbsoluteID_shift_upperHalf;
 }
 
 float getTowerEta_fromAbsoluteID(int id) {
