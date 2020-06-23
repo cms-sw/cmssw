@@ -75,6 +75,7 @@ static constexpr float b0 = 0.38, b1 = 1.9, b2 = 0.05;                          
 static constexpr float c0_ss = 0.94, c1_ss = 0.052, c2_ss = 0.044;                     //passes_ss
 static constexpr float d0 = 0.96, d1 = 0.0003;                                         //passes_photon
 static constexpr float e0_looseTkss = 0.944, e1_looseTkss = 0.65, e2_looseTkss = 0.4;  //passes_looseTkss
+static constexpr float cut_500_MeV = 0.5;
 
 // absolue IDs range from 0-33
 // 0-16 are iEta -17 to -1
@@ -346,9 +347,9 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
   for (const auto& hit : *pcalohits.product()) {
     if (hit.encodedEt() > 0)  // hit.encodedEt() returns an int corresponding to 2x the crystal Et
     {
-      float et = hit.encodedEt() /
-                 8.;  // Et is 10 bit, by keeping the ADC saturation Et at 120 GeV it means that you have to divide by 8
-      if (et < 0.5)
+      // Et is 10 bit, by keeping the ADC saturation Et at 120 GeV it means that you have to divide by 8
+      float et = hit.encodedEt() / 8.;  
+      if (et < cut_500_MeV)
         continue;  // keep the 500 MeV ET Cut
 
       auto cell = ebGeometry->getGeometry(hit.id());
