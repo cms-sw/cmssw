@@ -249,7 +249,7 @@ private:
     int cshowershapeloosetk_;
     float cvalueshowershape_;
     int cphotonshowershape_;
-    float cpt;  // ECAL pt
+    float cpt;   // ECAL pt
     int cbrem_;  // if brem corrections were applied
     float cWeightedEta_;
     float cWeightedPhi_;
@@ -306,7 +306,8 @@ private:
       return (position - other.position).mag();
     };
     bool operator==(SimpleCaloHit& other) const {
-      return (id == other.id && position == other.position && energy == other.energy && isEndcapHit == other.isEndcapHit);
+      return (id == other.id && position == other.position && energy == other.energy &&
+              isEndcapHit == other.isEndcapHit);
     };
   };
 };
@@ -349,7 +350,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
     if (hit.encodedEt() > 0)  // hit.encodedEt() returns an int corresponding to 2x the crystal Et
     {
       // Et is 10 bit, by keeping the ADC saturation Et at 120 GeV it means that you have to divide by 8
-      float et = hit.encodedEt() / 8.;  
+      float et = hit.encodedEt() / 8.;
       if (et < cut_500_MeV)
         continue;  // keep the 500 MeV ET Cut
 
@@ -372,13 +373,15 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
     if (et <= 0)
       continue;
     if (!(hcTopology_->validHT(hit.id()))) {
-      LogError("L1EGCrystalClusterEmulatorProducer") << " -- Hcal hit DetID not present in HCAL Geom: " << hit.id() << std::endl;
+      LogError("L1EGCrystalClusterEmulatorProducer")
+          << " -- Hcal hit DetID not present in HCAL Geom: " << hit.id() << std::endl;
       throw cms::Exception("L1EGCrystalClusterEmulatorProducer");
       continue;
     }
     std::vector<HcalDetId> hcId = theTrigTowerGeometry.detIds(hit.id());
     if (hcId.empty()) {
-      LogError("L1EGCrystalClusterEmulatorProducer")<< "Cannot find any HCalDetId corresponding to " << hit.id() << std::endl;
+      LogError("L1EGCrystalClusterEmulatorProducer")
+          << "Cannot find any HCalDetId corresponding to " << hit.id() << std::endl;
       throw cms::Exception("L1EGCrystalClusterEmulatorProducer");
       continue;
     }
