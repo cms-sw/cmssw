@@ -29,6 +29,9 @@
 #include <string>
 
 static constexpr float mu_mass = 0.105658369;
+static constexpr int barrel_MTF_region = 1;
+static constexpr int overlap_MTF_region = 2;
+static constexpr int endcap_MTF_region = 3;
 
 using namespace l1t;
 
@@ -319,35 +322,35 @@ void L1TkMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   // ----------------------------------------------------- barrel
   if (bmtfMatchAlgoVersion_ == kTP)
-    runOnMTFCollection_v1(l1bmtfH, l1tksH, oc_bmtf_tkmuon, 1);
+    runOnMTFCollection_v1(l1bmtfH, l1tksH, oc_bmtf_tkmuon, barrel_MTF_region);
   else if (bmtfMatchAlgoVersion_ == kMantra) {
     auto muons = product_to_muvec(*l1bmtfH.product());
     auto match_idx = mantracorr_barr_->find_match(mantradf_tracks, muons);
-    build_tkMuons_from_idxs(oc_bmtf_tkmuon, match_idx, l1tksH, l1bmtfH, 1);
+    build_tkMuons_from_idxs(oc_bmtf_tkmuon, match_idx, l1tksH, l1bmtfH, barrel_MTF_region);
   } else
     throw cms::Exception("TkMuAlgoConfig")
         << " barrel : trying to run an invalid algorithm version " << bmtfMatchAlgoVersion_ << " (this should never happen)\n";
 
   // ----------------------------------------------------- overlap
   if (omtfMatchAlgoVersion_ == kTP)
-    runOnMTFCollection_v1(l1omtfH, l1tksH, oc_omtf_tkmuon, 2);
+    runOnMTFCollection_v1(l1omtfH, l1tksH, oc_omtf_tkmuon, overlap_MTF_region);
   else if (omtfMatchAlgoVersion_ == kMantra) {
     auto muons = product_to_muvec(*l1omtfH.product());
     auto match_idx = mantracorr_ovrl_->find_match(mantradf_tracks, muons);
-    build_tkMuons_from_idxs(oc_omtf_tkmuon, match_idx, l1tksH, l1omtfH, 2);
+    build_tkMuons_from_idxs(oc_omtf_tkmuon, match_idx, l1tksH, l1omtfH, overlap_MTF_region);
   } else
     throw cms::Exception("TkMuAlgoConfig")
         << " overlap : trying to run an invalid algorithm version " << omtfMatchAlgoVersion_ << " (this should never happen)\n";
 
   // ----------------------------------------------------- endcap
   if (emtfMatchAlgoVersion_ == kTP)
-    runOnMTFCollection_v1(l1emtfH, l1tksH, oc_emtf_tkmuon, 3);
+    runOnMTFCollection_v1(l1emtfH, l1tksH, oc_emtf_tkmuon, endcap_MTF_region);
   else if (emtfMatchAlgoVersion_ == kDynamicWindows)
     runOnMTFCollection_v2(l1emtfTCH, l1tksH, oc_emtf_tkmuon);
   else if (emtfMatchAlgoVersion_ == kMantra) {
     auto muons = product_to_muvec(*l1emtfTCH.product());
     auto match_idx = mantracorr_endc_->find_match(mantradf_tracks, muons);
-    build_tkMuons_from_idxs(oc_emtf_tkmuon, match_idx, l1tksH, 3);
+    build_tkMuons_from_idxs(oc_emtf_tkmuon, match_idx, l1tksH, endcap_MTF_region);
   } else
     throw cms::Exception("TkMuAlgoConfig")
         << "endcap : trying to run an invalid algorithm version " << emtfMatchAlgoVersion_ << " (this should never happen)\n";
