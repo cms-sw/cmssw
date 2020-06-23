@@ -12,7 +12,7 @@ Sequences for HPS taus
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolation_cfi                      import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackFinding_cfi            import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectron_cfi                  import *
-from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectronMVA6_cfi              import *
+from RecoTauTag.RecoTau.pfRecoTauDiscriminationAgainstElectronMVA6_cfi              import *
 from RecoTauTag.RecoTau.pfRecoTauDiscriminationAgainstElectronDeadECAL_cfi          import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuon_cfi                      import *
 from RecoTauTag.RecoTau.pfRecoTauDiscriminationAgainstMuon2Container_cfi            import *
@@ -220,6 +220,7 @@ hpsPFTauDiscriminationByDeadECALElectronRejection = pfRecoTauDiscriminationAgain
 ## ByMVA6rawElectronRejection
 hpsPFTauDiscriminationByMVA6rawElectronRejection = pfRecoTauDiscriminationAgainstElectronMVA6.clone(
     PFTauProducer = cms.InputTag('hpsPFTauProducer'),
+    srcElectrons = cms.InputTag('gedGsfElectrons'),
     Prediscriminants = requireDecayMode.clone(),
     loadMVAfromDB = cms.bool(True),
     vetoEcalCracks = cms.bool(False),
