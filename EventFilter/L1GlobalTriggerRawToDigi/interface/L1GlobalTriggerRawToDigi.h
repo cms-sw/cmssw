@@ -30,6 +30,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/typedefs.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+
+#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
+#include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
+#include "CondFormats/DataRecord/interface/L1GtBoardMapsRcd.h"
 
 // forward declarations
 class L1GtfeWord;
@@ -95,6 +103,15 @@ private:
 
   /// mask for active boards
   cms_uint16_t m_activeBoardsMaskGt;
+
+  /// EventSetup Token for L1MuTriggerScales
+  const edm::ESGetToken<L1MuTriggerScales, L1MuTriggerScalesRcd> m_trigScalesToken;
+
+  /// EventSetup Token for L1MuTriggerPtScale
+  const edm::ESGetToken<L1MuTriggerPtScale, L1MuTriggerPtScaleRcd> m_trigPtScaleToken;
+
+  /// EventSetup Token for L1GtBoardMaps
+  const edm::ESGetToken<L1GtBoardMaps, L1GtBoardMapsRcd> m_l1GtBMToken;
 
   // number of bunch crossing to be unpacked
   int m_unpackBxInEvent;

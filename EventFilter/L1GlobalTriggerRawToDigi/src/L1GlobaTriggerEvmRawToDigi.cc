@@ -46,12 +46,6 @@
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 #include "CondFormats/L1TObjects/interface/L1GtBoard.h"
 
-#include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
-#include "CondFormats/DataRecord/interface/L1GtBoardMapsRcd.h"
-
-#include "CondFormats/L1TObjects/interface/L1GtParameters.h"
-#include "CondFormats/DataRecord/interface/L1GtParametersRcd.h"
-
 // constructor(s)
 L1GlobalTriggerEvmRawToDigi::L1GlobalTriggerEvmRawToDigi(const edm::ParameterSet& pSet)
     :
@@ -63,6 +57,9 @@ L1GlobalTriggerEvmRawToDigi::L1GlobalTriggerEvmRawToDigi(const edm::ParameterSet
       // default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
       // default value: assume the EVM record is the first GT record
       m_evmGtFedId(pSet.getUntrackedParameter<int>("EvmGtFedId", FEDNumbering::MINTriggerGTPFEDID)),
+
+      /// EventSetup Token for L1GtBoardMaps
+      m_l1GtBMToken(esConsumes<L1GtBoardMaps, L1GtBoardMapsRcd>()),
 
       // mask for active boards
       m_activeBoardsMaskGt(pSet.getParameter<unsigned int>("ActiveBoardsMask")),
@@ -117,6 +114,11 @@ L1GlobalTriggerEvmRawToDigi::L1GlobalTriggerEvmRawToDigi(const edm::ParameterSet
   m_tcsWord = new L1TcsWord();
   m_gtFdlWord = new L1GtFdlWord();
   consumes<FEDRawDataCollection>(m_evmGtInputTag);
+
+  /// EventSetup Token for L1GtParameters
+  if (m_bstLengthBytes < 0) {
+    m_l1GtParamToken = esConsumes<L1GtParameters, L1GtParametersRcd>();
+  }
 }
 
 // destructor
@@ -133,8 +135,7 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
   // get records from EventSetup
 
   //  board maps
-  edm::ESHandle<L1GtBoardMaps> l1GtBM;
-  evSetup.get<L1GtBoardMapsRcd>().get(l1GtBM);
+  edm::ESHandle<L1GtBoardMaps> l1GtBM = evSetup.getHandle(m_l1GtBMToken);
 
   const std::vector<L1GtBoard> boardMaps = l1GtBM->gtBoardMaps();
   int boardMapsSize = boardMaps.size();
@@ -226,8 +227,7 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
   if (m_bstLengthBytes < 0) {
     // length from event setup // TODO cache it, if too slow
 
-    edm::ESHandle<L1GtParameters> l1GtPar;
-    evSetup.get<L1GtParametersRcd>().get(l1GtPar);
+    edm::ESHandle<L1GtParameters> l1GtPar = evSetup.getHandle(m_l1GtParamToken);
     const L1GtParameters* m_l1GtPar = l1GtPar.product();
 
     bstLengthBytes = static_cast<int>(m_l1GtPar->gtBstLengthBytes());
