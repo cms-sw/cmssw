@@ -100,7 +100,7 @@ EleTkIsolFromCands::TrackTable EleTkIsolFromCands::preselectTracksFromCands(pat:
 }
 
 EleTkIsolFromCands::Output EleTkIsolFromCands::operator()(const reco::TrackBase& eleTrk) {
-  using namespace egamma::soa::col;
+  using namespace edm::soa::col;
 
   float ptSum = 0.;
   int nrTrks = 0;

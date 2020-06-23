@@ -53,7 +53,7 @@ void GsfElectronCoreEcalDrivenProducer::produce(edm::StreamID, edm::Event& event
   auto gsfTracksHandle = event.getHandle(gsfTracksToken_);
   auto ctfTracksHandle = event.getHandle(ctfTracksToken_);
 
-  auto ctfTrackVariables = egamma::soa::makeEtaPhiTableLazy(*ctfTracksHandle);
+  auto ctfTrackVariables = edm::soa::makeEtaPhiTableLazy(*ctfTracksHandle);
 
   // output
   reco::GsfElectronCoreCollection electrons;

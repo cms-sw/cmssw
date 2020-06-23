@@ -44,7 +44,7 @@ void LowPtGsfElectronCoreProducer::produce(edm::StreamID, edm::Event& event, con
   auto ctfTracksHandle = event.getHandle(ctfTracksToken_);
   auto const& superClusterRefs = event.get(superClusterRefs_);
 
-  auto ctfTrackVariables = egamma::soa::makeEtaPhiTableLazy(*ctfTracksHandle);
+  auto ctfTrackVariables = edm::soa::makeEtaPhiTableLazy(*ctfTracksHandle);
 
   // Create ElectronCore objects
   for (size_t ipfgsf = 0; ipfgsf < gsfPfRecTracksHandle->size(); ++ipfgsf) {

@@ -1,11 +1,11 @@
-#ifndef RecoEgamma_EgammaTools_LazyResult_h
-#define RecoEgamma_EgammaTools_LazyResult_h
+#ifndef CommonTools_Utils_LazyResult_h
+#define CommonTools_Utils_LazyResult_h
 // -*- C++ -*-
 //
-// Package:     RecoEgamma/EgammaTools
+// Package:     CommonTools/Utils
 // Class  :     LazyResult
 //
-/**\class LazyResult LazyResult.h "RecoEgamma/EgammaTools/interface/LazyResult.h"
+/**\class LazyResult LazyResult.h "CommonTools/Utils/interface/LazyResult.h"
  Description: Wrapper around a function call for lazy execution.
 
  Usage:
@@ -31,7 +31,7 @@ Implementation:
   * An alternative to using a ::value() member function to get the result could
     be a cast operator: operator Result const &(). This might be pretty because
     the result is automatically evaluated the first time you try to bind it to
-    a Result const &. I think this is however a bit too implicit and dangerous.
+    a Result const &. I think this would however be too implicit and dangerous.
 
 */
 //
@@ -65,8 +65,8 @@ private:
     evaluated_ = true;
   }
 
-  // having evaluated_ and the potentially small func_ together potentially
-  // saves alignemnt bits (e.g. a lambda function is just 1 byte)
+  // having evaluated_ and the potentially small func_ together might
+  // save alignemnt bits (e.g. a lambda function is just 1 byte)
   bool evaluated_ = false;
   Func func_;
   std::tuple<Args const&...> args_;
