@@ -215,9 +215,10 @@ namespace reco::tau {
       return false;
     }
 
-    if (maxTransverseImpactParameter_ >= 0 && !(std::fabs(track->dxy(pvPos_)) <= maxTransverseImpactParameter_))
+    if (maxTransverseImpactParameter_ >= 0 &&
+        !(std::fabs(track->dxy(pv_->position())) <= maxTransverseImpactParameter_))
       return false;
-    if (maxDeltaZ_ >= 0 && !(std::fabs(track->dz(pvPos_)) <= maxDeltaZ_))
+    if (maxDeltaZ_ >= 0 && !(std::fabs(track->dz(pv_->position())) <= maxDeltaZ_))
       return false;
     if (maxDeltaZToLeadTrack_ >= 0) {
       if (!leadTrack_) {
@@ -226,7 +227,7 @@ namespace reco::tau {
         return false;
       }
 
-      if (!(std::fabs(track->dz(pvPos_) - leadTrack_->dz(pvPos_)) <= maxDeltaZToLeadTrack_))
+      if (!(std::fabs(track->dz(pv_->position()) - leadTrack_->dz(pv_->position())) <= maxDeltaZToLeadTrack_))
         return false;
     }
 
@@ -255,9 +256,10 @@ namespace reco::tau {
         return false;
       }
 
-      if (maxTransverseImpactParameter_ >= 0 && !(std::fabs(pCand->dxy(pvPos_)) <= maxTransverseImpactParameter_))
+      if (maxTransverseImpactParameter_ >= 0 &&
+          !(std::fabs(pCand->dxy(pv_->position())) <= maxTransverseImpactParameter_))
         return false;
-      if (maxDeltaZ_ >= 0 && !(std::fabs(pCand->dz(pvPos_)) <= maxDeltaZ_))
+      if (maxDeltaZ_ >= 0 && !(std::fabs(pCand->dz(pv_->position())) <= maxDeltaZ_))
         return false;
       if (maxDeltaZToLeadTrack_ >= 0) {
         if (leadTrack_ == nullptr) {
@@ -266,7 +268,7 @@ namespace reco::tau {
           return false;
         }
 
-        if (!(std::fabs(pCand->dz(pvPos_) - leadTrack_->dz(pvPos_)) <= maxDeltaZToLeadTrack_))
+        if (!(std::fabs(pCand->dz(pv_->position()) - leadTrack_->dz(pv_->position())) <= maxDeltaZToLeadTrack_))
           return false;
       }
     }
