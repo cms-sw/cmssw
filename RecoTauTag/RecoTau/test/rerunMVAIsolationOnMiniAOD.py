@@ -30,7 +30,7 @@ process.TFileService = cms.Service("TFileService",
 from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
 process.load('RecoTauTag.Configuration.loadRecoTauTagMVAsFromPrepDB_cfi')
 from RecoTauTag.RecoTau.PATTauDiscriminationByMVAIsolationRun2_cff import *
-from RecoTauTag.RecoTau.PATTauDiscriminationAgainstElectronMVA6_cfi import *
+from RecoTauTag.RecoTau.patTauDiscriminationAgainstElectronMVA6_cfi import *
 
 process.rerunDiscriminationByIsolationMVArun2v1raw = patDiscriminationByIsolationMVArun2v1raw.clone(
     PATTauProducer = cms.InputTag('slimmedTaus'),
@@ -71,6 +71,7 @@ process.rerunDiscriminationAgainstElectronMVA6 = patTauDiscriminationAgainstElec
     PATTauProducer = cms.InputTag('slimmedTaus'),
     Prediscriminants = noPrediscriminants,
     #Prediscriminants = requireLeadTrack,
+    srcElectrons = cms.InputTag('slimmedElectrons'),
     loadMVAfromDB = cms.bool(True),
     vetoEcalCracks = cms.bool(False),
     returnMVA = cms.bool(True),
@@ -91,7 +92,6 @@ process.rerunDiscriminationAgainstElectronMVA6 = patTauDiscriminationAgainstElec
     minMVANoEleMatchWgWOgsfEC  = cms.double(0.0),
     minMVAWOgWgsfEC            = cms.double(0.0),
     minMVAWgWgsfEC             = cms.double(0.0),
-    srcElectrons = cms.InputTag('slimmedElectrons'),
     usePhiAtEcalEntranceExtrapolation = cms.bool(True)
 )
 
