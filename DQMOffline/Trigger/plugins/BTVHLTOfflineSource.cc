@@ -4,6 +4,8 @@
 //
 // Originally created by:  Anne-Catherine Le Bihan
 //                         June 2015
+//                         John Alison <johnalison@cmu.edu>
+//                         June 2020
 // Following the structure used in JetMetHLTOfflineSource
 
 // system include files
@@ -37,6 +39,9 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "CommonTools/UtilAlgos/interface/DeltaR.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+
 
 #include "TMath.h"
 #include "TPRegexp.h"
@@ -48,7 +53,19 @@ public:
 
 private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+  std::vector<const reco::Track*> getOfflineBTagTracks(float hltJetEta, float hltJetPhi, 
+  						       edm::Handle<edm::View<reco::BaseTagInfo> > offlineIPTagHandle, 
+						       std::vector<float>& offlineIP3D, std::vector<float>& offlineIP3DSig);
+
+  typedef reco::TemplatedSecondaryVertexTagInfo<reco::CandIPTagInfo,reco::VertexCompositePtrCandidate> SVTagInfo;
+
+  template <class Base>
+  std::vector<const reco::Track*> getOnlineBTagTracks(float hltJetEta, float hltJetPhi, edm::Handle <std::vector<Base> > jetSVTagsColl,
+						      std::vector<float>& onlineIP3D, std::vector<float>& onlineIP3DSig);
+
   void bookHistograms(DQMStore::IBooker&, edm::Run const& run, edm::EventSetup const& c) override;
+
   void dqmBeginRun(edm::Run const& run, edm::EventSetup const& c) override;
 
   std::string dirname_;
@@ -66,6 +83,8 @@ private:
 
   edm::EDGetTokenT<reco::JetTagCollection> offlineDiscrTokenb_;
   edm::EDGetTokenT<reco::JetTagCollection> offlineDiscrTokenbb_;
+  edm::EDGetTokenT<edm::View<reco::BaseTagInfo>> offlineIPToken_;
+
 
   edm::EDGetTokenT<std::vector<reco::Vertex> > hltFastPVToken_;
   edm::EDGetTokenT<std::vector<reco::Vertex> > hltPFPVToken_;
@@ -80,10 +99,20 @@ private:
   edm::EDGetTokenT<std::vector<reco::ShallowTagInfo> > shallowTagInfosTokenCalo_;
   edm::EDGetTokenT<std::vector<reco::ShallowTagInfo> > shallowTagInfosTokenPf_;
 
+  edm::EDGetTokenT<std::vector<reco::SecondaryVertexTagInfo> > SVTagInfosTokenCalo_;
+  edm::EDGetTokenT<std::vector<SVTagInfo> > SVTagInfosTokenPf_;
+
+
   edm::EDGetTokenT<reco::JetTagCollection> caloTagsToken_;
   edm::EDGetTokenT<reco::JetTagCollection> pfTagsToken_;
   edm::Handle<reco::JetTagCollection> caloTags;
   edm::Handle<reco::JetTagCollection> pfTags;
+
+  float minDecayLength_;
+  float maxDecayLength_;
+  float minJetDistance_;
+  float maxJetDistance_;
+  float dRTrackMatch_;
 
   HLTConfigProvider hltConfig_;
 
@@ -141,6 +170,14 @@ private:
     MonitorElement* h_3d_ip_distance = nullptr;
     MonitorElement* h_3d_ip_error = nullptr;
     MonitorElement* h_3d_ip_sig = nullptr;
+    ObjME OnlineTrkEff_Pt;
+    ObjME OnlineTrkEff_Eta;
+    ObjME OnlineTrkEff_3d_ip_distance;
+    ObjME OnlineTrkEff_3d_ip_sig;
+    ObjME OnlineTrkFake_Pt;
+    ObjME OnlineTrkFake_Eta;
+    ObjME OnlineTrkFake_3d_ip_distance;
+    ObjME OnlineTrkFake_3d_ip_sig;
     // MonitorElement*  n_pixel_hits_;
     // MonitorElement*  n_total_hits_;
 
@@ -179,6 +216,8 @@ BTVHLTOfflineSource::BTVHLTOfflineSource(const edm::ParameterSet& iConfig)
       offlineDiscrTokenb_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("offlineDiscrLabelb"))),
       offlineDiscrTokenbb_(
           consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("offlineDiscrLabelbb"))),
+      offlineIPToken_ (consumes<View<BaseTagInfo>>  (iConfig.getParameter<edm::InputTag>("offlineIPLabel"))),
+
       hltFastPVToken_(consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("hltFastPVLabel"))),
       hltPFPVToken_(consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("hltPFPVLabel"))),
       hltCaloPVToken_(consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("hltCaloPVLabel"))),
@@ -193,8 +232,18 @@ BTVHLTOfflineSource::BTVHLTOfflineSource(const edm::ParameterSet& iConfig)
           consumes<vector<reco::ShallowTagInfo> >(edm::InputTag("hltDeepCombinedSecondaryVertexBJetTagsInfosCalo"))),
       shallowTagInfosTokenPf_(
           consumes<vector<reco::ShallowTagInfo> >(edm::InputTag("hltDeepCombinedSecondaryVertexBJetTagsInfos"))),
+      SVTagInfosTokenCalo_(
+          consumes<std::vector<reco::SecondaryVertexTagInfo> >(edm::InputTag("hltInclusiveSecondaryVertexFinderTagInfos"))),
+      SVTagInfosTokenPf_(
+          consumes<std::vector<SVTagInfo> >(edm::InputTag("hltDeepSecondaryVertexTagInfosPF"))),
       caloTagsToken_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("onlineDiscrLabelCalo"))),
-      pfTagsToken_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("onlineDiscrLabelPF"))) {
+      pfTagsToken_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("onlineDiscrLabelPF"))), 
+      minDecayLength_(iConfig.getParameter<double>("minDecayLength")),
+      maxDecayLength_(iConfig.getParameter<double>("maxDecayLength")),
+      minJetDistance_(iConfig.getParameter<double>("minJetDistance")),
+      maxJetDistance_(iConfig.getParameter<double>("maxJetDistance")),
+      dRTrackMatch_(iConfig.getParameter<double>("dRTrackMatch"))
+{
   std::vector<edm::ParameterSet> paths = iConfig.getParameter<std::vector<edm::ParameterSet> >("pathPairs");
   for (const auto& path : paths) {
     custompathnamepairs_.push_back(
@@ -258,6 +307,9 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
   Handle<reco::JetTagCollection> offlineJetTagHandlerbb;
   iEvent.getByToken(offlineDiscrTokenbb_, offlineJetTagHandlerbb);
 
+  Handle<View<BaseTagInfo> > offlineIPTagHandle;
+  iEvent.getByToken (offlineIPToken_, offlineIPTagHandle);
+
   Handle<reco::VertexCollection> offlineVertexHandler;
   iEvent.getByToken(offlinePVToken_, offlineVertexHandler);
 
@@ -268,10 +320,20 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
   if (!triggerResults.isValid())
     return;
 
+  edm::Handle <std::vector<SVTagInfo> > jetSVTagsCollPF;
+  edm::Handle <std::vector<reco::SecondaryVertexTagInfo> > jetSVTagsCollCalo;
+    
   for (auto& v : hltPathsAll_) {
+
     unsigned index = triggerNames.triggerIndex(v.getPath());
     if (!(index < triggerNames.size())) {
       continue;
+    }
+
+    if(v.getTriggerType() == "PF"){
+      iEvent.getByToken (SVTagInfosTokenPf_, jetSVTagsCollPF);
+    }else{
+      iEvent.getByToken (SVTagInfosTokenCalo_, jetSVTagsCollCalo);
     }
 
     // PF and Calo btagging
@@ -292,7 +354,7 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
           float DR = reco::deltaR(iterOffb.first->eta(), iterOffb.first->phi(), iter->first->eta(), iter->first->phi());
           if (DR < 0.3) {
             float Discr_offline = iterOffb.second;
-
+	    
             // offline probb and probbb must be added (if probbb isn't specified, it'll just use probb)
             if (offlineJetTagHandlerbb.isValid()) {
               for (auto const& iterOffbb : *offlineJetTagHandlerbb) {
@@ -321,9 +383,77 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
             if (Discr_online > turnon_threshold_tight_)
               v.Discr_turnon_tight.numerator->Fill(Discr_offline);
 
+
+	    
             break;
           }
         }
+      }///offline
+      
+      
+      bool pfSVTagCollValid   = (v.getTriggerType() == "PF" && jetSVTagsCollPF.isValid());
+      bool caloSVTagCollValid = (v.getTriggerType() == "Calo" && jetSVTagsCollCalo.isValid());
+      if (offlineIPTagHandle.isValid() && ( pfSVTagCollValid || caloSVTagCollValid) ){
+	std::vector<float> offlineIP3D;  std::vector<float> offlineIP3DSig; 
+	std::vector<const reco::Track*> offlineTracks = getOfflineBTagTracks(iter->first->eta(), iter->first->phi(), offlineIPTagHandle, offlineIP3D, offlineIP3DSig);
+	std::vector<const reco::Track*> onlineTracks;  std::vector<float> onlineIP3D;  std::vector<float> onlineIP3DSig; 
+	if(pfSVTagCollValid)    onlineTracks = getOnlineBTagTracks<SVTagInfo>(iter->first->eta(), iter->first->phi(), jetSVTagsCollPF, onlineIP3D, onlineIP3DSig);
+	if(caloSVTagCollValid)  onlineTracks = getOnlineBTagTracks<reco::SecondaryVertexTagInfo>(iter->first->eta(), iter->first->phi(), jetSVTagsCollCalo, onlineIP3D, onlineIP3DSig);
+
+	for(unsigned int iOffTrk = 0; iOffTrk < offlineTracks.size(); ++iOffTrk){
+	  const reco::Track* offTrk = offlineTracks.at(iOffTrk);
+	  bool hasMatch = false;
+	  float offTrkEta = offTrk->eta();
+	  float offTrkPhi = offTrk->phi();
+
+	  for(const reco::Track* onTrk : onlineTracks){	  
+	    float DR = reco::deltaR(offTrkEta, offTrkPhi, onTrk->eta(), onTrk->phi());
+	    if (DR < dRTrackMatch_) {
+	      hasMatch = true;
+	    }
+	  }
+
+	  float offTrkPt = offTrk->pt();
+	  v.OnlineTrkEff_Pt.denominator->Fill(offTrkPt);
+	  if(hasMatch) v.OnlineTrkEff_Pt.numerator->Fill(offTrkPt);
+
+	  v.OnlineTrkEff_Eta.denominator->Fill(offTrkEta);
+	  if(hasMatch) v.OnlineTrkEff_Eta.numerator->Fill(offTrkEta);
+
+	  v.OnlineTrkEff_3d_ip_distance.denominator->Fill(offlineIP3D.at(iOffTrk));
+	  if(hasMatch) v.OnlineTrkEff_3d_ip_distance.numerator->Fill(offlineIP3D.at(iOffTrk));
+
+	  v.OnlineTrkEff_3d_ip_sig.denominator->Fill(offlineIP3DSig.at(iOffTrk));
+	  if(hasMatch) v.OnlineTrkEff_3d_ip_sig.numerator->Fill(offlineIP3DSig.at(iOffTrk));
+	}
+	
+	for(unsigned int iOnTrk = 0; iOnTrk < onlineTracks.size(); ++iOnTrk){
+	  const reco::Track* onTrk = onlineTracks.at(iOnTrk);
+	  bool hasMatch = false;
+	  float onTrkEta = onTrk->eta();
+	  float onTrkPhi = onTrk->phi();
+
+	  for(const reco::Track* offTrk : offlineTracks){	  
+	    float DR = reco::deltaR(onTrkEta, onTrkPhi, offTrk->eta(), offTrk->phi());
+	    if (DR < dRTrackMatch_) {
+	      hasMatch = true;
+	    }
+	  }
+
+	  float onTrkPt = onTrk->pt();
+	  v.OnlineTrkFake_Pt.denominator->Fill(onTrkPt);
+	  if(!hasMatch) v.OnlineTrkFake_Pt.numerator->Fill(onTrkPt);
+
+	  v.OnlineTrkFake_Eta.denominator->Fill(onTrkEta);
+	  if(!hasMatch) v.OnlineTrkFake_Eta.numerator->Fill(onTrkEta);
+	  
+	  v.OnlineTrkFake_3d_ip_distance.denominator->Fill(onlineIP3D.at(iOnTrk));
+	  if(!hasMatch) v.OnlineTrkFake_3d_ip_distance.numerator->Fill(onlineIP3D.at(iOnTrk));
+
+	  v.OnlineTrkFake_3d_ip_sig.denominator->Fill(onlineIP3DSig.at(iOnTrk));
+	  if(!hasMatch) v.OnlineTrkFake_3d_ip_sig.numerator->Fill(onlineIP3DSig.at(iOnTrk));
+	}
+
       }
 
       if (v.getTriggerType() == "PF") {
@@ -337,8 +467,8 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
           v.PVz_HLTMinusRECO->Fill(VertexHandler->begin()->z() - offlineVertexHandler->begin()->z());
         }
       }
-    }
-
+    }// caloTagsValid
+    
     // specific to Calo b-tagging
     if (caloTags.isValid() && v.getTriggerType() == "Calo" && !caloTags->empty()) {
       iEvent.getByToken(hltCaloPVToken_, VertexHandler);
@@ -358,6 +488,8 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
 
     edm::Handle<std::vector<reco::ShallowTagInfo> > shallowTagInfosPf;
     iEvent.getByToken(shallowTagInfosTokenPf_, shallowTagInfosPf);
+
+	
 
     //    edm::Handle<std::vector<reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<edm::RefVector<std::vector<reco::Track>, reco::Track, edm::refhelper::FindUsingAdvance<std::vector<reco::Track>, reco::Track> >, reco::JTATagInfo>, reco::Vertex> > > caloTagInfos;
     //    iEvent.getByToken(caloTagInfosToken_, caloTagInfos);
@@ -399,6 +531,7 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
           v.n_vtx_trks->Fill(tagVar);
         }
 
+      
         // // track N total/pixel hits
         // for (const auto & tagVar : tagVars.getList(reco::btau::trackNPixelHits, false)) {
         //   v.n_pixel_hits->Fill(tagVar);}
@@ -406,7 +539,7 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
         //   v.n_total_hits->Fill(tagVar);}
       }
     }
-
+        
     // ... otherwise from usual tag infos.
     // else
     // if (   (v.getTriggerType() == "PF"   && pfTagInfos.isValid())
@@ -442,7 +575,81 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
     //     }
     //   }
     // }
+  }  
+}
+
+std::vector<const reco::Track*> BTVHLTOfflineSource::getOfflineBTagTracks(float hltJetEta, float hltJetPhi, 
+									  Handle<View<BaseTagInfo> > offlineIPTagHandle,
+									  std::vector<float>& offlineIP3D, std::vector<float>& offlineIP3DSig){
+  std::vector<const reco::Track*> offlineTracks;
+
+
+  for (auto const& iterOffIP : *offlineIPTagHandle) {
+    float DR = reco::deltaR(iterOffIP.jet()->eta(), iterOffIP.jet()->phi(), hltJetEta, hltJetPhi);
+
+    if (DR > 0.3) continue;
+           	    
+    const reco::IPTagInfo<vector<reco::CandidatePtr>, reco::JetTagInfo>* tagInfo = dynamic_cast<const reco::IPTagInfo<vector<reco::CandidatePtr>, reco::JetTagInfo>*>(&iterOffIP);
+      
+    if (!tagInfo) {
+      throw cms::Exception("Configuration")
+      	<< "BTagPerformanceAnalyzer: Extended TagInfo not of type TrackIPTagInfo. " << std::endl;
+    }
+
+    const GlobalPoint pv(tagInfo->primaryVertex()->position().x(),
+			 tagInfo->primaryVertex()->position().y(),
+			 tagInfo->primaryVertex()->position().z());
+
+    const std::vector<reco::btag::TrackIPData>& ip = tagInfo->impactParameterData();
+
+    std::vector<std::size_t> sortedIndices = tagInfo->sortedIndexes(reco::btag::IP2DSig);
+    std::vector<reco::CandidatePtr> sortedTracks = tagInfo->sortedTracks(sortedIndices);
+    std::vector<std::size_t> selectedIndices;
+    vector<reco::CandidatePtr> selectedTracks;
+    for (unsigned int n = 0; n != sortedIndices.size(); ++n) {
+      double decayLength = (ip[sortedIndices[n]].closestToJetAxis - pv).mag();
+      double jetDistance = ip[sortedIndices[n]].distanceToJetAxis.value();
+      if (decayLength > minDecayLength_ && decayLength < maxDecayLength_ && fabs(jetDistance) >= minJetDistance_ &&
+	  fabs(jetDistance) < maxJetDistance_) {
+	selectedIndices.push_back(sortedIndices[n]);
+	selectedTracks.push_back(sortedTracks[n]);
+      }
+    }
+
+    for (unsigned int n = 0; n != selectedIndices.size(); ++n) {
+      const reco::Track* track = reco::btag::toTrack(selectedTracks[n]);
+      offlineTracks .push_back(track);
+      offlineIP3D   .push_back(ip[n].ip3d.value());
+      offlineIP3DSig.push_back(ip[n].ip3d.significance());
+    }
+
   }
+  return offlineTracks;
+}
+
+template<class Base>
+std::vector<const reco::Track*> BTVHLTOfflineSource::getOnlineBTagTracks(float hltJetEta, float hltJetPhi, edm::Handle <std::vector<Base> > jetSVTagsColl, std::vector<float>& onlineIP3D, std::vector<float>& onlineIP3DSig){
+  std::vector<const reco::Track*> onlineTracks;
+
+  for(auto iterTI = jetSVTagsColl->begin(); iterTI != jetSVTagsColl->end(); ++iterTI) {
+
+    float DR = reco::deltaR(iterTI->jet()->eta(), iterTI->jet()->phi(), hltJetEta, hltJetPhi);
+    if (DR > 0.3) continue;
+
+    const auto & ipInfo = *(iterTI->trackIPTagInfoRef().get());
+    const std::vector<reco::btag::TrackIPData>& ip = ipInfo.impactParameterData();
+
+
+    unsigned int trackSize = ipInfo.selectedTracks().size();
+    for (unsigned int itt=0; itt < trackSize; ++itt){
+      const auto ptrackRef = (ipInfo.selectedTracks()[itt]); //TrackRef or 
+      const reco::Track * ptrackPtr = reco::btag::toTrack(ptrackRef);
+      onlineTracks .push_back(ptrackPtr);
+      onlineIP3D   .push_back(ip[itt].ip3d.value());
+      onlineIP3DSig.push_back(ip[itt].ip3d.significance());
+    }
+  }
+  return onlineTracks;
 }
 
 void BTVHLTOfflineSource::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& run, edm::EventSetup const& c) {
@@ -532,6 +739,38 @@ void BTVHLTOfflineSource::bookHistograms(DQMStore::IBooker& iBooker, edm::Run co
     histoname = "3d_ip_sig";
     title = "3D IP significance of tracks (cm)" + trigPath;
     v.h_3d_ip_sig = iBooker.book1D(histoname.c_str(), title.c_str(), 40, -40, 40);
+
+    histoname = "OnlineTrkEff_Pt";
+    title = "Relative Online Trk Efficiency vs Pt " + trigPath;
+    v.bookME(iBooker, v.OnlineTrkEff_Pt, histoname, title, 50, -0.5, 20.);
+
+    histoname = "OnlineTrkEff_Eta";
+    title = "Relative Online Trk Efficiency vs Eta " + trigPath;
+    v.bookME(iBooker, v.OnlineTrkEff_Eta, histoname, title, 60, -3.0, 3.0);
+
+    histoname = "OnlineTrkEff_3d_ip_distance";
+    title = "Relative Online Trk Efficiency vs IP3D " + trigPath;
+    v.bookME(iBooker, v.OnlineTrkEff_3d_ip_distance, histoname, title, 40, -0.1, 0.1);
+
+    histoname = "OnlineTrkEff_3d_ip_sig";
+    title = "Relative Online Trk Efficiency vs IP3D significance " + trigPath;
+    v.bookME(iBooker, v.OnlineTrkEff_3d_ip_sig, histoname, title, 40, -40, 40);
+
+    histoname = "OnlineTrkFake_Pt";
+    title = "Relative Online Trk Fake Rate  vs Pt " + trigPath;
+    v.bookME(iBooker, v.OnlineTrkFake_Pt, histoname, title, 50, -0.5, 20.);
+
+    histoname = "OnlineTrkFake_Eta";
+    title = "Relative Online Trk Fake Rate vs Eta " + trigPath;
+    v.bookME(iBooker, v.OnlineTrkFake_Eta, histoname, title, 60, -3.0, 3.0);
+
+    histoname = "OnlineTrkFake_3d_ip_distance";
+    title = "Relative Online Trk Fake Rate vs IP3D " + trigPath;
+    v.bookME(iBooker, v.OnlineTrkFake_3d_ip_distance, histoname, title, 40, -0.1, 0.1);
+
+    histoname = "OnlineTrkFake_3d_ip_sig";
+    title = "Relative Online Trk Fake Rate vs IP3D significance " + trigPath;
+    v.bookME(iBooker, v.OnlineTrkFake_3d_ip_sig, histoname, title, 40, -40, 40);
 
     // histoname = "n_pixel_hits";
     // title = "N pixel hits"+trigPath;
