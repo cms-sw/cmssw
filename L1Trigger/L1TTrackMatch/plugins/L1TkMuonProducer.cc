@@ -236,7 +236,7 @@ L1TkMuonProducer::L1TkMuonProducer(const edm::ParameterSet& iConfig) :
     TFile* fIn_theta = TFile::Open(fIn_theta_name.c_str());
     TFile* fIn_phi = TFile::Open(fIn_phi_name.c_str());
 
-    mantracorr_barr_ = std::unique_ptr<L1TkMuMantra>(new L1TkMuMantra(bounds, fIn_theta, fIn_phi, "mantra_barrel"));
+    mantracorr_barr_ = std::make_unique<L1TkMuMantra>(bounds, fIn_theta, fIn_phi, "mantra_barrel");
 
     fIn_theta->Close();
     fIn_phi->Close();
