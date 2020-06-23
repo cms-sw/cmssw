@@ -42,7 +42,6 @@
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 
 #include <string>
-#include "TMath.h"
 
 static constexpr float EB_MaxEta = 0.9;
 

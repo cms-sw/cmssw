@@ -32,8 +32,11 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
 #include <string>
-#include "TMath.h"
+#include <cmath>
 
+static constexpr float EtaECal =  1.479;
+static constexpr float REcal = 129.;
+static constexpr float ZEcal = 315.4;
 using namespace l1t;
 //
 // class declaration
@@ -144,7 +147,7 @@ void L1TkEmParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByToken(vertexToken, L1VertexHandle);
   if (!L1VertexHandle.isValid()) {
     LogWarning("L1TkEmParticleProducer")
-        << "\nWarning: TkPrimaryVertexCollection not found in the event. Won't use any PrimaryVertex constraint."
+        << "Warning: TkPrimaryVertexCollection not found in the event. Won't use any PrimaryVertex constraint."
         << std::endl;
     primaryVtxConstrain_ = false;
   } else {
@@ -290,14 +293,12 @@ void L1TkEmParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 float L1TkEmParticleProducer::CorrectedEta(float eta, float zv) {
   // Correct the eta of the L1EG object once we know the zvertex
 
-  bool IsBarrel = (fabs(eta) < 1.479);
-  float REcal = 129.;
-  float ZEcal = 315.4;
+  bool IsBarrel = (fabs(eta) < EtaECal);
 
-  float theta = 2. * TMath::ATan(TMath::Exp(-eta));
+  float theta = 2. * atan(exp(-eta));
   if (theta < 0)
-    theta = theta + TMath::Pi();
-  float tantheta = TMath::Tan(theta);
+    theta = theta + M_PI;
+  float tantheta = tan(theta);
 
   float delta;
   if (IsBarrel) {
@@ -311,11 +312,11 @@ float L1TkEmParticleProducer::CorrectedEta(float eta, float zv) {
 
   float tanthetaprime = delta * tantheta / (delta - zv);
 
-  float thetaprime = TMath::ATan(tanthetaprime);
+  float thetaprime = atan(tanthetaprime);
   if (thetaprime < 0)
-    thetaprime = thetaprime + TMath::Pi();
+    thetaprime = thetaprime + M_PI;
 
-  float etaprime = -TMath::Log(TMath::Tan(thetaprime / 2.));
+  float etaprime = -log(tan(thetaprime / 2.));
   return etaprime;
 }
 
@@ -325,9 +326,9 @@ float L1TkEmParticleProducer::DeltaPhi(float phi1, float phi2) {
   // dPhi between 0 and Pi
   float dphi = phi1 - phi2;
   if (dphi < 0)
-    dphi = dphi + 2. * TMath::Pi();
-  if (dphi > TMath::Pi())
-    dphi = 2. * TMath::Pi() - dphi;
+    dphi = dphi + 2. * M_PI;
+  if (dphi > M_PI)
+    dphi = 2. * M_PI - dphi;
   return dphi;
 }
 
