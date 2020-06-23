@@ -388,7 +388,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
     if (hcId[0].subdetId() > 1)
       continue;
     GlobalVector hcal_tp_position = GlobalVector(0., 0., 0.);
-    for (auto& hcId_i : hcId) {
+    for (const auto& hcId_i : hcId) {
       if (hcId_i.subdetId() > 1)
         continue;
       auto cell = hbGeometry->getGeometry(hcId_i);
