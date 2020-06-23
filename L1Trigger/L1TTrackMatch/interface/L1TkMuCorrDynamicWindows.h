@@ -10,8 +10,7 @@
 #include <tuple>
 #include <utility>
 #include <vector>
-// #include "MuTkTree.h" // my interface to the ntuples
-#include "TMath.h"
+#include <cmath>
 
 #include "DataFormats/L1TCorrelator/interface/TkMuon.h"
 #include "DataFormats/L1TCorrelator/interface/TkMuonFwd.h"
@@ -97,23 +96,23 @@ private:
 
   double eta_to_theta(double x) {
     //  give theta in rad
-    return (2. * TMath::ATan(TMath::Exp(-1. * x)));
+    return (2. * atan(exp(-1. * x)));
   }
 
   double to_mpio2_pio2(double x) {
     //  put the angle in radians between -pi/2 and pi/2
-    while (x >= 0.5 * TMath::Pi())
-      x -= TMath::Pi();
-    while (x < -0.5 * TMath::Pi())
-      x += TMath::Pi();
+    while (x >= 0.5 * M_PI)
+      x -= M_PI;
+    while (x < -0.5 * M_PI)
+      x += M_PI;
     return x;
   }
 
   double to_mpi_pi(double x) {
-    while (x >= TMath::Pi())
-      x -= 2. * TMath::Pi();
-    while (x < -TMath::Pi())
-      x += 2. * TMath::Pi();
+    while (x >= M_PI)
+      x -= 2. * M_PI;
+    while (x < -M_PI)
+      x += 2. * M_PI;
     return x;
   }
 
