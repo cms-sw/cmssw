@@ -96,30 +96,6 @@ int getCrystal_etaID(float eta) {
   return etaID;
 }
 
-int get_insideEta(float eta, float centereta) {
-  float size_cell = 2 * ECAL_eta_range / (n_crystals_towerEta * n_towers_Eta);
-  if (eta - centereta < -1.0 * size_cell / 4)
-    return 0;
-  else if (eta - centereta < 0)
-    return 1;
-  else if (eta - centereta < 1.0 * size_cell / 4)
-    return 2;
-  else
-    return 3;
-}
-
-int get_insidePhi(float phi, float centerphi) {
-  float size_cell = 2 * M_PI / (n_crystals_towerPhi * n_towers_Phi);
-  if (phi - centerphi < -1 * size_cell / 4)
-    return 0;
-  else if (phi - centerphi < 0)
-    return 1;
-  else if (phi - centerphi < 1 * size_cell / 4)
-    return 2;
-  else
-    return 3;
-}
-
 int convert_L2toL1_link(int link) { return link % n_links_card; }
 
 int convert_L2toL1_tower(int tower) { return tower; }
