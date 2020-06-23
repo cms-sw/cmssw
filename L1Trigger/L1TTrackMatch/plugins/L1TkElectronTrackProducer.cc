@@ -77,27 +77,27 @@ private:
   // ----------member data ---------------------------
   std::string label;
 
-  float ETmin;  // min ET in GeV of L1EG objects
+  float etMin_;  // min ET in GeV of L1EG objects
 
-  float DRmin;
-  float DRmax;
-  float PTMINTRA;
-  float maxChi2IsoTracks;
-  unsigned int minNStubsIsoTracks;
+  float dRMin_;
+  float dRMax_;
+  float pTMinTra_;
+  float maxChi2IsoTracks_;
+  unsigned int minNStubsIsoTracks_;
 
-  bool PrimaryVtxConstrain;  // use the primary vertex (default = false)
-  float DeltaZ;              // | z_track - z_ref_track | < DeltaZ in cm.
-                             // Used only when PrimaryVtxConstrain = True.
-  float IsoCut;
-  bool RelativeIsolation;
+  bool primaryVtxConstrain_;  // use the primary vertex (default = false)
+  float deltaZ_;              // | z_track - z_ref_track | < deltaZ_ in cm.
+                             // Used only when primaryVtxConstrain_ = True.
+  float isoCut_;
+  bool relativeIsolation_;
 
-  float trkQualityChi2;
-  bool useTwoStubsPT;
-  float trkQualityPtMin;
-  std::vector<double> dPhiCutoff;
-  std::vector<double> dRCutoff;
-  std::vector<double> dEtaCutoff;
-  std::string matchType;
+  float trkQualityChi2_;
+  bool useTwoStubsPT_;
+  float trkQualityPtMin_;
+  std::vector<double> dPhiCutoff_;
+  std::vector<double> dRCutoff_;
+  std::vector<double> dEtaCutoff_;
+  std::string matchType_;
 
   const edm::EDGetTokenT<EGammaBxCollection> egToken;
   const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > trackToken;
@@ -113,30 +113,30 @@ L1TkElectronTrackProducer::L1TkElectronTrackProducer(const edm::ParameterSet& iC
   label = iConfig.getParameter<std::string>("label");  // label of the collection produced
                                                        // e.g. EG or IsoEG if all objects are kept
                                                        // EGIsoTrk or IsoEGIsoTrk if only the EG or IsoEG
-                                                       // objects that pass a cut RelIso < IsoCut are written
+                                                       // objects that pass a cut RelIso < isoCut_ are written
                                                        // in the new collection.
 
-  ETmin = (float)iConfig.getParameter<double>("ETmin");
+  etMin_ = (float)iConfig.getParameter<double>("ETmin");
 
   // parameters for the calculation of the isolation :
-  PTMINTRA = (float)iConfig.getParameter<double>("PTMINTRA");
-  DRmin = (float)iConfig.getParameter<double>("DRmin");
-  DRmax = (float)iConfig.getParameter<double>("DRmax");
-  DeltaZ = (float)iConfig.getParameter<double>("DeltaZ");
-  maxChi2IsoTracks = iConfig.getParameter<double>("maxChi2IsoTracks");
-  minNStubsIsoTracks = iConfig.getParameter<int>("minNStubsIsoTracks");
+  pTMinTra_ = (float)iConfig.getParameter<double>("PTMINTRA");
+  dRMin_ = (float)iConfig.getParameter<double>("DRmin");
+  dRMax_ = (float)iConfig.getParameter<double>("DRmax");
+  deltaZ_ = (float)iConfig.getParameter<double>("DeltaZ");
+  maxChi2IsoTracks_ = iConfig.getParameter<double>("maxChi2IsoTracks");
+  minNStubsIsoTracks_ = iConfig.getParameter<int>("minNStubsIsoTracks");
   // cut applied on the isolation (if this number is <= 0, no cut is applied)
-  IsoCut = (float)iConfig.getParameter<double>("IsoCut");
-  RelativeIsolation = iConfig.getParameter<bool>("RelativeIsolation");
+  isoCut_ = (float)iConfig.getParameter<double>("IsoCut");
+  relativeIsolation_ = iConfig.getParameter<bool>("RelativeIsolation");
 
   // parameters to select tracks to match with L1EG
-  trkQualityChi2 = (float)iConfig.getParameter<double>("TrackChi2");
-  trkQualityPtMin = (float)iConfig.getParameter<double>("TrackMinPt");
-  useTwoStubsPT = iConfig.getParameter<bool>("useTwoStubsPT");
-  dPhiCutoff = iConfig.getParameter<std::vector<double> >("TrackEGammaDeltaPhi");
-  dRCutoff = iConfig.getParameter<std::vector<double> >("TrackEGammaDeltaR");
-  dEtaCutoff = iConfig.getParameter<std::vector<double> >("TrackEGammaDeltaEta");
-  matchType = iConfig.getParameter<std::string>("TrackEGammaMatchType");
+  trkQualityChi2_ = (float)iConfig.getParameter<double>("TrackChi2");
+  trkQualityPtMin_ = (float)iConfig.getParameter<double>("TrackMinPt");
+  useTwoStubsPT_ = iConfig.getParameter<bool>("useTwoStubsPT");
+  dPhiCutoff_ = iConfig.getParameter<std::vector<double> >("TrackEGammaDeltaPhi");
+  dRCutoff_ = iConfig.getParameter<std::vector<double> >("TrackEGammaDeltaR");
+  dEtaCutoff_ = iConfig.getParameter<std::vector<double> >("TrackEGammaDeltaEta");
+  matchType_ = iConfig.getParameter<std::string>("TrackEGammaMatchType");
 
   produces<TkElectronCollection>(label);
 }
@@ -184,7 +184,7 @@ void L1TkElectronTrackProducer::produce(edm::Event& iEvent, const edm::EventSetu
       et_ele = e_ele / cosh(eta_ele);
     else
       et_ele = -1.0;
-    if (ETmin > 0.0 && et_ele <= ETmin)
+    if (etMin_ > 0.0 && et_ele <= etMin_)
       continue;
     // match the L1EG object with a L1Track
     float drmin = 999;
@@ -195,10 +195,10 @@ void L1TkElectronTrackProducer::produce(edm::Event& iEvent, const edm::EventSetu
       double trkPt_fit = trackIter->momentum().perp();
       double trkPt_stubs = pTFrom2Stubs::pTFrom2(trackIter, tGeom);
       double trkPt = trkPt_fit;
-      if (useTwoStubsPT)
+      if (useTwoStubsPT_)
         trkPt = trkPt_stubs;
 
-      if (trkPt > trkQualityPtMin && trackIter->chi2() < trkQualityChi2) {
+      if (trkPt > trkQualityPtMin_ && trackIter->chi2() < trkQualityChi2_) {
         double dPhi = 99.;
         double dR = 99.;
         double dEta = 99.;
@@ -215,7 +215,7 @@ void L1TkElectronTrackProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
       const math::XYZTLorentzVector P4 = egIter->p4();
       float trkisol = isolation(L1TTTrackHandle, itrack);
-      if (RelativeIsolation && et_ele > 0.0) {  // relative isolation
+      if (relativeIsolation_ && et_ele > 0.0) {  // relative isolation
         trkisol = trkisol / et_ele;
       }
 
@@ -225,14 +225,14 @@ void L1TkElectronTrackProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
       //std::cout<<matchedL1TrackPtr->rInv()<<"  "<<matchedL1TrackPtr->rInv(4)<<"   "<<matchedL1TrackPtr->rInv()<<std::endl;
 
-      if (IsoCut <= 0) {
+      if (isoCut_ <= 0) {
         // write the L1TkEm particle to the collection,
         // irrespective of its relative isolation
         result->push_back(trkEm);
       } else {
         // the object is written to the collection only
         // if it passes the isolation cut
-        if (trkisol <= IsoCut)
+        if (trkisol <= isoCut_)
           result->push_back(trkEm);
       }
     }
@@ -297,8 +297,8 @@ float L1TkElectronTrackProducer::isolation(const edm::Handle<L1TTTrackCollection
   int itr = 0;
   for (trackIter = trkHandle->begin(); trackIter != trkHandle->end(); ++trackIter) {
     if (itr++ != match_index) {
-      if (trackIter->chi2() > maxChi2IsoTracks || trackIter->momentum().perp() <= PTMINTRA ||
-          trackIter->getStubRefs().size() < minNStubsIsoTracks) {
+      if (trackIter->chi2() > maxChi2IsoTracks_ || trackIter->momentum().perp() <= pTMinTra_ ||
+          trackIter->getStubRefs().size() < minNStubsIsoTracks_) {
         continue;
       }
 
@@ -310,7 +310,7 @@ float L1TkElectronTrackProducer::isolation(const edm::Handle<L1TTTrackCollection
       float dEta = (trackIter->momentum().eta() - matchedTrkPtr->momentum().eta());
       float dR = sqrt(dPhi * dPhi + dEta * dEta);
 
-      if (dR > DRmin && dR < DRmax && dZ < DeltaZ && trackIter->momentum().perp() > PTMINTRA) {
+      if (dR > dRMin_ && dR < dRMax_ && dZ < deltaZ_ && trackIter->momentum().perp() > pTMinTra_) {
         sumPt += trackIter->momentum().perp();
       }
     }
@@ -323,14 +323,14 @@ double L1TkElectronTrackProducer::getPtScaledCut(double pt, std::vector<double>&
 }
 bool L1TkElectronTrackProducer::selectMatchedTrack(
     double& d_r, double& d_phi, double& d_eta, double& tk_pt, float& eg_eta) {
-  if (matchType == "PtDependentCut") {
-    if (fabs(d_phi) < getPtScaledCut(tk_pt, dPhiCutoff) && d_r < getPtScaledCut(tk_pt, dRCutoff))
+  if (matchType_ == "PtDependentCut") {
+    if (fabs(d_phi) < getPtScaledCut(tk_pt, dPhiCutoff_) && d_r < getPtScaledCut(tk_pt, dRCutoff_))
       return true;
   } else {
-    double deta_max = dEtaCutoff[0];
+    double deta_max = dEtaCutoff_[0];
     if (fabs(eg_eta) < 0.9)
-      deta_max = dEtaCutoff[1];
-    double dphi_max = dPhiCutoff[0];
+      deta_max = dEtaCutoff_[1];
+    double dphi_max = dPhiCutoff_[0];
     if ((d_eta / deta_max) * (d_eta / deta_max) + (d_phi / dphi_max) * (d_phi / dphi_max) < 1)
       return true;
   }

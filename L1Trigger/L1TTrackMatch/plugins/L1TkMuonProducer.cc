@@ -94,10 +94,10 @@ private:
 
   float ETAMIN_;
   float ETAMAX_;
-  float ZMAX_;  // |z_track| < ZMAX in cm
-  float CHI2MAX_;
-  float PTMINTRA_;
-  float DRmax_;
+  float zMax_;  // |z_track| < zMax_ in cm
+  float chi2Max_;
+  float pTMinTra_;
+  float dRMax_;
   int nStubsmin_;  // minimum number of stubs
   bool correctGMTPropForTkZ_;
   bool use5ParameterFit_;
@@ -131,10 +131,10 @@ L1TkMuonProducer::L1TkMuonProducer(const edm::ParameterSet& iConfig)
           iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))) {
   ETAMIN_ = (float)iConfig.getParameter<double>("ETAMIN");
   ETAMAX_ = (float)iConfig.getParameter<double>("ETAMAX");
-  ZMAX_ = (float)iConfig.getParameter<double>("ZMAX");
-  CHI2MAX_ = (float)iConfig.getParameter<double>("CHI2MAX");
-  PTMINTRA_ = (float)iConfig.getParameter<double>("PTMINTRA");
-  DRmax_ = (float)iConfig.getParameter<double>("DRmax");
+  zMax_ = (float)iConfig.getParameter<double>("ZMAX");
+  chi2Max_ = (float)iConfig.getParameter<double>("CHI2MAX");
+  pTMinTra_ = (float)iConfig.getParameter<double>("PTMINTRA");
+  dRMax_ = (float)iConfig.getParameter<double>("DRmax");
   nStubsmin_ = iConfig.getParameter<int>("nStubsmin");
 
   // --- mantra corr params
@@ -402,15 +402,15 @@ void L1TkMuonProducer::runOnMTFCollection_v1(const edm::Handle<RegionalMuonCandB
       il1tk++;
 
       float l1tk_pt = l1tk.momentum().perp();
-      if (l1tk_pt < PTMINTRA_)
+      if (l1tk_pt < pTMinTra_)
         continue;
 
       float l1tk_z = l1tk.POCA().z();
-      if (fabs(l1tk_z) > ZMAX_)
+      if (fabs(l1tk_z) > zMax_)
         continue;
 
       float l1tk_chi2 = l1tk.chi2();
-      if (l1tk_chi2 > CHI2MAX_)
+      if (l1tk_chi2 > chi2Max_)
         continue;
 
       int l1tk_nstubs = l1tk.getStubRefs().size();
@@ -453,7 +453,7 @@ void L1TkMuonProducer::runOnMTFCollection_v1(const edm::Handle<RegionalMuonCandB
       float dEta = std::abs(matchProp.eta - l1mu_eta);
       float dPhi = std::abs(deltaPhi(matchProp.phi, l1mu_phi));
 
-      bool matchCondition = useTPMatchWindows_ ? dEta < etaCut && dPhi < phiCut : drmin < DRmax_;
+      bool matchCondition = useTPMatchWindows_ ? dEta < etaCut && dPhi < phiCut : drmin < dRMax_;
 
       if (matchCondition) {
         edm::Ptr<L1TTTrackType> l1tkPtr(l1tksH, match_idx);

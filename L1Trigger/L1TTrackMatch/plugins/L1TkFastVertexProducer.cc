@@ -6,7 +6,6 @@
 // $Id$
 //
 //
-
 // system include files
 #include <memory>
 #include <string>
@@ -66,29 +65,29 @@ private:
 
   // ----------member data ---------------------------
 
-  float ZMAX;    // in cm
+  float zMax_;    // in cm
   float DeltaZ;  // in cm
-  float CHI2MAX;
-  float PTMINTRA;  // in GeV
+  float chi2Max_;
+  float pTMinTra_;  // in GeV
 
-  float PTMAX;       // in GeV, saturation / truncation value
-  int HighPtTracks;  // saturate or truncate
+  float pTMax_;       // in GeV, saturation / truncation value
+  int highPtTracks_;  // saturate or truncate
 
-  int nStubsmin;    // minimum number of stubs
-  int nStubsPSmin;  // minimum number of stubs in PS modules
+  int nStubsmin_;    // minimum number of stubs
+  int nStubsPSmin_;  // minimum number of stubs in PS modules
 
-  int nBinning;  // number of bins used in the temp histogram
+  int nBinning_;  // number of bins used in the temp histogram
 
-  bool MonteCarloVertex;  //
+  bool monteCarloVertex_;  //
                           //const StackedTrackerGeometry*                   theStackedGeometry;
 
-  bool doPtComp;
-  bool doTightChi2;
+  bool doPtComp_;
+  bool doTightChi2_;
 
-  int WEIGHT;  // weight (power) of pT 0 , 1, 2
+  int weight_;  // weight (power) of pT 0 , 1, 2
 
-  TH1F* htmp;
-  TH1F* htmp_weight;
+  TH1F* htmp_;
+  TH1F* htmp_weight_;
 
   const edm::EDGetTokenT<edm::HepMCProduct> hepmcToken;
   const edm::EDGetTokenT<std::vector<reco::GenParticle> > genparticleToken;
@@ -112,29 +111,29 @@ L1TkFastVertexProducer::L1TkFastVertexProducer(const edm::ParameterSet& iConfig)
           consumes<std::vector<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("GenParticleInputTag"))),
       trackToken(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(
           iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))) {
-  ZMAX = (float)iConfig.getParameter<double>("ZMAX");
-  CHI2MAX = (float)iConfig.getParameter<double>("CHI2MAX");
-  PTMINTRA = (float)iConfig.getParameter<double>("PTMINTRA");
+  zMax_ = (float)iConfig.getParameter<double>("ZMAX");
+  chi2Max_ = (float)iConfig.getParameter<double>("CHI2MAX");
+  pTMinTra_ = (float)iConfig.getParameter<double>("PTMINTRA");
 
-  PTMAX = (float)iConfig.getParameter<double>("PTMAX");
-  HighPtTracks = iConfig.getParameter<int>("HighPtTracks");
+  pTMax_ = (float)iConfig.getParameter<double>("PTMAX");
+  highPtTracks_ = iConfig.getParameter<int>("HighPtTracks");
 
-  nStubsmin = iConfig.getParameter<int>("nStubsmin");
-  nStubsPSmin = iConfig.getParameter<int>("nStubsPSmin");
-  nBinning = iConfig.getParameter<int>("nBinning");
+  nStubsmin_ = iConfig.getParameter<int>("nStubsmin");
+  nStubsPSmin_ = iConfig.getParameter<int>("nStubsPSmin");
+  nBinning_ = iConfig.getParameter<int>("nBinning");
 
-  MonteCarloVertex = iConfig.getParameter<bool>("MonteCarloVertex");
-  doPtComp = iConfig.getParameter<bool>("doPtComp");
-  doTightChi2 = iConfig.getParameter<bool>("doTightChi2");
+  monteCarloVertex_ = iConfig.getParameter<bool>("MonteCarloVertex");
+  doPtComp_ = iConfig.getParameter<bool>("doPtComp");
+  doTightChi2_ = iConfig.getParameter<bool>("doTightChi2");
 
-  WEIGHT = iConfig.getParameter<int>("WEIGHT");
+  weight_ = iConfig.getParameter<int>("WEIGHT");
 
-  int nbins = nBinning;  // should be odd
+  int nbins = nBinning_;  // should be odd
   float xmin = -30;
   float xmax = +30;
 
-  htmp = new TH1F("htmp", ";z (cm); Tracks", nbins, xmin, xmax);
-  htmp_weight = new TH1F("htmp_weight", ";z (cm); Tracks", nbins, xmin, xmax);
+  htmp_ = new TH1F("htmp_", ";z (cm); Tracks", nbins, xmin, xmax);
+  htmp_weight_ = new TH1F("htmp_weight_", ";z (cm); Tracks", nbins, xmin, xmax);
 
   produces<TkPrimaryVertexCollection>();
 }
@@ -159,12 +158,12 @@ void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle_);
   const TrackerTopology* tTopo = tTopoHandle_.product();
 
-  htmp->Reset();
-  htmp_weight->Reset();
+  htmp_->Reset();
+  htmp_weight_->Reset();
 
   // ----------------------------------------------------------------------
 
-  if (MonteCarloVertex) {
+  if (monteCarloVertex_) {
     // MC info  ... retrieve the zvertex
     edm::Handle<edm::HepMCProduct> HepMCEvt;
     iEvent.getByToken(hepmcToken, HepMCEvt);
@@ -215,7 +214,7 @@ void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
       }
     } else {
       edm::LogError("L1TkFastVertexProducer")
-          << "\nerror: try to retrieve the MC vertex (MonteCarloVertex = True) "
+          << "\nerror: try to retrieve the MC vertex (monteCarloVertex_ = True) "
           << "\nbut the input file contains neither edm::HepMCProduct>  nor vector<reco::GenParticle>. Exit"
           << std::endl;
     }
@@ -246,21 +245,21 @@ void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     float eta = trackIter->momentum().eta();
 
     //..............................................................
-    float wt = pow(pt, WEIGHT);  // calculating the weight for tks in as pt^0,pt^1 or pt^2 based on WEIGHT
+    float wt = pow(pt, weight_);  // calculating the weight for tks in as pt^0,pt^1 or pt^2 based on weight_
 
-    if (fabs(z) > ZMAX)
+    if (fabs(z) > zMax_)
       continue;
-    if (chi2 > CHI2MAX)
+    if (chi2 > chi2Max_)
       continue;
-    if (pt < PTMINTRA)
+    if (pt < pTMinTra_)
       continue;
 
     // saturation or truncation :
-    if (PTMAX > 0 && pt > PTMAX) {
-      if (HighPtTracks == 0)
+    if (pTMax_ > 0 && pt > pTMax_) {
+      if (highPtTracks_ == 0)
         continue;  // ignore this track
-      if (HighPtTracks == 1)
-        pt = PTMAX;  // saturate
+      if (highPtTracks_ == 1)
+        pt = pTMax_;  // saturate
     }
 
     // get the number of stubs and the number of stubs in PS layers
@@ -291,16 +290,16 @@ void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
       if (isPS)
         nPS++;
     }  // end loop over stubs
-    if (nstubs < nStubsmin)
+    if (nstubs < nStubsmin_)
       continue;
-    if (nPS < nStubsPSmin)
+    if (nPS < nStubsPSmin_)
       continue;
 
     // quality cuts from Louise S, based on the pt-stub compatibility (June 20, 2014)
     int trk_nstub = (int)trackIter->getStubRefs().size();
     float chi2dof = chi2 / (2 * trk_nstub - 4);
 
-    if (doPtComp) {
+    if (doPtComp_) {
       float trk_consistency = trackIter->stubPtConsistency();
       //if (trk_nstub < 4) continue;	// done earlier
       //if (chi2 > 100.0) continue;	// done earlier
@@ -311,13 +310,13 @@ void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
           continue;
       }
     }
-    if (doTightChi2) {
+    if (doTightChi2_) {
       if (pt > 10.0 && chi2dof > 5.0)
         continue;
     }
 
-    htmp->Fill(z);
-    htmp_weight->Fill(z, wt);  // changed from "pt" to "wt" which is some power of pt (0,1 or 2)
+    htmp_->Fill(z);
+    htmp_weight_->Fill(z, wt);  // changed from "pt" to "wt" which is some power of pt (0,1 or 2)
 
   }  // end loop over tracks
 
@@ -325,17 +324,17 @@ void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
   float zvtx_sliding = -999;
   float sigma_max = -999;
-  int nb = htmp->GetNbinsX();
+  int nb = htmp_->GetNbinsX();
   for (int i = 2; i <= nb - 1; i++) {
-    float a0 = htmp->GetBinContent(i - 1);
-    float a1 = htmp->GetBinContent(i);
-    float a2 = htmp->GetBinContent(i + 1);
+    float a0 = htmp_->GetBinContent(i - 1);
+    float a1 = htmp_->GetBinContent(i);
+    float a2 = htmp_->GetBinContent(i + 1);
     float sigma = a0 + a1 + a2;
     if (sigma > sigma_max) {
       sigma_max = sigma;
-      float z0 = htmp->GetBinCenter(i - 1);
-      float z1 = htmp->GetBinCenter(i);
-      float z2 = htmp->GetBinCenter(i + 1);
+      float z0 = htmp_->GetBinCenter(i - 1);
+      float z1 = htmp_->GetBinCenter(i);
+      float z2 = htmp_->GetBinCenter(i + 1);
       zvtx_sliding = (a0 * z0 + a1 * z1 + a2 * z2) / sigma;
     }
   }
@@ -343,15 +342,15 @@ void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   zvtx_sliding = -999;
   sigma_max = -999;
   for (int i = 2; i <= nb - 1; i++) {
-    float a0 = htmp_weight->GetBinContent(i - 1);
-    float a1 = htmp_weight->GetBinContent(i);
-    float a2 = htmp_weight->GetBinContent(i + 1);
+    float a0 = htmp_weight_->GetBinContent(i - 1);
+    float a1 = htmp_weight_->GetBinContent(i);
+    float a2 = htmp_weight_->GetBinContent(i + 1);
     float sigma = a0 + a1 + a2;
     if (sigma > sigma_max) {
       sigma_max = sigma;
-      float z0 = htmp_weight->GetBinCenter(i - 1);
-      float z1 = htmp_weight->GetBinCenter(i);
-      float z2 = htmp_weight->GetBinCenter(i + 1);
+      float z0 = htmp_weight_->GetBinCenter(i - 1);
+      float z1 = htmp_weight_->GetBinCenter(i);
+      float z2 = htmp_weight_->GetBinCenter(i + 1);
       zvtx_sliding = (a0 * z0 + a1 * z1 + a2 * z2) / sigma;
     }
   }

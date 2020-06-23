@@ -67,19 +67,19 @@ private:
 
   std::string label;
 
-  float ETmin;  // min ET in GeV of L1EG objects
+  float etMin_;  // min ET in GeV of L1EG objects
 
-  float ZMAX;  // |z_track| < ZMAX in cm
-  float CHI2MAX;
-  float DRmin;
-  float DRmax;
-  float PTMINTRA;
-  bool PrimaryVtxConstrain;  // use the primary vertex (default = false)
-                             //bool DeltaZConstrain;	// use z = z of the leading track within DR < DRmax;
-  float DeltaZMax;           // | z_track - z_primaryvtx | < DeltaZMax in cm.
-                             // Used only when PrimaryVtxConstrain = True.
-  float IsoCut;
-  bool RelativeIsolation;
+  float zMax_;  // |z_track| < zMax_ in cm
+  float chi2Max_;
+  float dRMin_;
+  float dRMax_;
+  float pTMinTra_;
+  bool primaryVtxConstrain_;  // use the primary vertex (default = false)
+                             //bool DeltaZConstrain;	// use z = z of the leading track within DR < dRMax_;
+  float deltaZMax_;           // | z_track - z_primaryvtx | < deltaZMax_ in cm.
+                             // Used only when primaryVtxConstrain_ = True.
+  float isoCut_;
+  bool relativeIsolation_;
 
   const edm::EDGetTokenT<EGammaBxCollection> egToken;
   const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > trackToken;
@@ -97,23 +97,23 @@ L1TkEmParticleProducer::L1TkEmParticleProducer(const edm::ParameterSet& iConfig)
   label = iConfig.getParameter<std::string>("label");  // label of the collection produced
   // e.g. EG or IsoEG if all objects are kept
   // EGIsoTrk or IsoEGIsoTrk if only the EG or IsoEG
-  // objects that pass a cut RelIso < IsoCut are written
+  // objects that pass a cut RelIso < isoCut_ are written
   // in the new collection.
 
-  ETmin = (float)iConfig.getParameter<double>("ETmin");
+  etMin_ = (float)iConfig.getParameter<double>("ETmin");
 
   // parameters for the calculation of the isolation :
-  ZMAX = (float)iConfig.getParameter<double>("ZMAX");
-  CHI2MAX = (float)iConfig.getParameter<double>("CHI2MAX");
-  PTMINTRA = (float)iConfig.getParameter<double>("PTMINTRA");
-  DRmin = (float)iConfig.getParameter<double>("DRmin");
-  DRmax = (float)iConfig.getParameter<double>("DRmax");
-  PrimaryVtxConstrain = iConfig.getParameter<bool>("PrimaryVtxConstrain");
+  zMax_ = (float)iConfig.getParameter<double>("ZMAX");
+  chi2Max_ = (float)iConfig.getParameter<double>("CHI2MAX");
+  pTMinTra_ = (float)iConfig.getParameter<double>("PTMINTRA");
+  dRMin_ = (float)iConfig.getParameter<double>("DRmin");
+  dRMax_ = (float)iConfig.getParameter<double>("DRmax");
+  primaryVtxConstrain_ = iConfig.getParameter<bool>("PrimaryVtxConstrain");
   //DeltaZConstrain = iConfig.getParameter<bool>("DeltaZConstrain");
-  DeltaZMax = (float)iConfig.getParameter<double>("DeltaZMax");
+  deltaZMax_ = (float)iConfig.getParameter<double>("DeltaZMax");
   // cut applied on the isolation (if this number is <= 0, no cut is applied)
-  IsoCut = (float)iConfig.getParameter<double>("IsoCut");
-  RelativeIsolation = iConfig.getParameter<bool>("RelativeIsolation");
+  isoCut_ = (float)iConfig.getParameter<double>("IsoCut");
+  relativeIsolation_ = iConfig.getParameter<bool>("RelativeIsolation");
 
   produces<TkEmCollection>(label);
 }
@@ -137,16 +137,16 @@ void L1TkEmParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByToken(trackToken, L1TTTrackHandle);
   L1TTTrackCollectionType::const_iterator trackIter;
 
-  // the primary vertex (used only if PrimaryVtxConstrain = true)
+  // the primary vertex (used only if primaryVtxConstrain_ = true)
   float zvtxL1tk = -999;
-  //if (PrimaryVtxConstrain) {
+  //if (primaryVtxConstrain_) {
   edm::Handle<TkPrimaryVertexCollection> L1VertexHandle;
   iEvent.getByToken(vertexToken, L1VertexHandle);
   if (!L1VertexHandle.isValid()) {
     LogWarning("L1TkEmParticleProducer")
         << "\nWarning: TkPrimaryVertexCollection not found in the event. Won't use any PrimaryVertex constraint."
         << std::endl;
-    PrimaryVtxConstrain = false;
+    primaryVtxConstrain_ = false;
   } else {
     std::vector<TkPrimaryVertex>::const_iterator vtxIter = L1VertexHandle->begin();
     // by convention, the first vertex in the collection is the one that should
@@ -176,14 +176,14 @@ void L1TkEmParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
     float eta = egIter->eta();
     // The eta of the L1EG object is seen from (0,0,0).
-    // if PrimaryVtxConstrain = true, and for the PV constrained iso, use the zvtxL1tk to correct the eta(L1EG)
+    // if primaryVtxConstrain_ = true, and for the PV constrained iso, use the zvtxL1tk to correct the eta(L1EG)
     // that is used in the calculation of DeltaR.
     float etaPV = CorrectedEta((float)eta, zvtxL1tk);
 
     float phi = egIter->phi();
     float et = egIter->et();
 
-    if (et < ETmin)
+    if (et < etMin_)
       continue;
 
     // calculate the isolation of the L1EG object with
@@ -201,18 +201,18 @@ void L1TkEmParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
     /*
 	if (DeltaZConstrain) {
-	// first loop over the tracks to find the leading one in DR < DRmax
+	// first loop over the tracks to find the leading one in DR < dRMax_
 	for (trackIter = L1TTTrackHandle->begin(); trackIter != L1TTTrackHandle->end(); ++trackIter) {
 	float Pt = trackIter->momentum().perp();
 	float Eta = trackIter->momentum().eta();
 	float Phi = trackIter->momentum().phi();
 	float z  = trackIter->POCA().z();
-	if (fabs(z) > ZMAX) continue;
-	if (Pt < PTMINTRA) continue;
+	if (fabs(z) > zMax_) continue;
+	if (Pt < pTMinTra_) continue;
 	float chi2 = trackIter->chi2();
-	if (chi2 > CHI2MAX) continue;
+	if (chi2 > chi2Max_) continue;
 	float dr = deltaR(Eta, eta, Phi,phi);
-	if (dr < DRmax) {
+	if (dr < dRMax_) {
 	if (Pt > Pt_leadingTrack) {
 	Pt_leadingTrack = Pt;
 	z_leadingTrack = z;
@@ -227,31 +227,31 @@ void L1TkEmParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
       float Eta = trackIter->momentum().eta();
       float Phi = trackIter->momentum().phi();
       float z = trackIter->POCA().z();
-      if (fabs(z) > ZMAX)
+      if (fabs(z) > zMax_)
         continue;
-      if (Pt < PTMINTRA)
+      if (Pt < pTMinTra_)
         continue;
       float chi2 = trackIter->chi2();
-      if (chi2 > CHI2MAX)
+      if (chi2 > chi2Max_)
         continue;
 
       float dr = deltaR(Eta, eta, Phi, phi);
-      if (dr < DRmax && dr >= DRmin) {
+      if (dr < dRMax_ && dr >= dRMin_) {
         //std::cout << " a track in the cone, z Pt = " << z << " " << Pt << std::endl;
         sumPt += Pt;
       }
 
-      if (zvtxL1tk > -999 && fabs(z - zvtxL1tk) >= DeltaZMax)
+      if (zvtxL1tk > -999 && fabs(z - zvtxL1tk) >= deltaZMax_)
         continue;  // Now, PV constrained trackSum:
 
       dr = deltaR(Eta, etaPV, Phi, phi);  // recompute using the corrected eta
 
-      if (dr < DRmax && dr >= DRmin) {
+      if (dr < dRMax_ && dr >= dRMin_) {
         sumPtPV += Pt;
       }
     }  // end loop over tracks
 
-    if (RelativeIsolation) {
+    if (relativeIsolation_) {
       if (et > 0) {
         trkisol = sumPt / et;
         trkisolPV = sumPtPV / et;
@@ -262,21 +262,21 @@ void L1TkEmParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     }
 
     float isolation = trkisol;
-    if (PrimaryVtxConstrain) {
+    if (primaryVtxConstrain_) {
       isolation = trkisolPV;
     }
 
     const math::XYZTLorentzVector P4 = egIter->p4();
     TkEm trkEm(P4, EGammaRef, trkisol, trkisolPV);
 
-    if (IsoCut <= 0) {
+    if (isoCut_ <= 0) {
       // write the L1TkEm particle to the collection,
       // irrespective of its relative isolation
       result->push_back(trkEm);
     } else {
       // the object is written to the collection only
       // if it passes the isolation cut
-      if (isolation <= IsoCut)
+      if (isolation <= isoCut_)
         result->push_back(trkEm);
     }
 
