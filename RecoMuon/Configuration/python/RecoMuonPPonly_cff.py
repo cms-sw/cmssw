@@ -21,7 +21,6 @@ displacedStandAloneMuons = standAloneMuons.clone(
     MuonTrajectoryBuilder = 'StandAloneMuonTrajectoryBuilder',
     TrackLoaderParameters = dict(VertexConstraint = False)
 )
-#displacedStandAloneMuons.TrackLoaderParameters.VertexConstraint = False 
 
 # Global muon track producer
 from RecoMuon.GlobalMuonProducer.GlobalMuonProducer_cff import *
