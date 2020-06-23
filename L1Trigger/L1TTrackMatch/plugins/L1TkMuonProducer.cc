@@ -500,8 +500,7 @@ void L1TkMuonProducer::runOnMTFCollection_v2(const edm::Handle<EMTFTrackCollecti
 
   // sanity check
   if (corr_mu_idxs.size() != l1trks.size())
-    throw cms::Exception("TkMuAlgoOutput")
-        << "the size of tkmu indices does not match the size of input trk collection\n";
+    throw cms::Exception("TkMuAlgoOutput") << "the size of tkmu indices does not match the size of input trk collection\n";
 
   for (uint il1ttrack = 0; il1ttrack < corr_mu_idxs.size(); ++il1ttrack) {
     int emtf_idx = corr_mu_idxs.at(il1ttrack);

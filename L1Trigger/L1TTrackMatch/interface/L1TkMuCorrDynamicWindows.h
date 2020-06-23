@@ -76,11 +76,11 @@ public:
   void set_min_trk_nstubs(int val) { min_trk_nstubs_ = val; }
 
   // getters for trk
-  int n_trk_par() { return nTrkPars_; }
-  float min_trk_p() { return min_trk_p_; }
-  float max_trk_aeta() { return max_trk_aeta_; }
-  float max_trk_chi2() { return max_trk_chi2_; }
-  int min_trk_nstubs() { return min_trk_nstubs_; }
+  const int n_trk_par() { return nTrkPars_; }
+  const float min_trk_p() { return min_trk_p_; }
+  const float max_trk_aeta() { return max_trk_aeta_; }
+  const float max_trk_chi2() { return max_trk_chi2_; }
+  const int min_trk_nstubs() { return min_trk_nstubs_; }
 
 private:
   int findBin(double val);
