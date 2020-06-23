@@ -20,16 +20,13 @@ muonsFromCosmics = RecoMuon.MuonIdentification.muons1stStep_cfi.muons1stStep.clo
     fillIsolation = False,
     fillGlobalTrackQuality = False,
     fillGlobalTrackRefits = False,
-
-    TrackAssociatorParameters = dict(
-	DTRecSegment4DCollectionLabel = 'dt4DCosmicSegments'),
-
-    TrackExtractorPSet = dict(
-	inputTrackCollection = 'cosmicMuons')
+    TrackAssociatorParameters = dict(DTRecSegment4DCollectionLabel = 'dt4DCosmicSegments'),
+    TrackExtractorPSet = dict(inputTrackCollection = 'cosmicMuons'),
+    TimingFillerParameters = dict(
+	MatchParameters = dict(DTsegments = 'dt4DCosmicSegments'),
+	DTTimingParameters = dict(PruneCut = 9999),
+	CSCTimingParameters = dict(PruneCut = 9999))
 )
-muonsFromCosmics.TimingFillerParameters.MatchParameters.DTsegments = 'dt4DCosmicSegments'
-muonsFromCosmics.TimingFillerParameters.DTTimingParameters.PruneCut = 9999
-muonsFromCosmics.TimingFillerParameters.CSCTimingParameters.PruneCut = 9999
 
 #add regional cosmic tracks here
 muoncosmicreco2legsSTATask = cms.Task(CosmicMuonSeed,cosmicMuons)
@@ -41,10 +38,9 @@ muoncosmicreco2legsHighLevel = cms.Sequence(muoncosmicreco2legsHighLevelTask)
 # Stand alone muon track producer
 cosmicMuons1Leg = cosmicMuons.clone(
     MuonSeedCollectionLabel = 'CosmicMuonSeed',
-
     TrajectoryBuilderParameters = dict(
-	BuildTraversingMuon = True,
-	Strict1Leg = True,
+	BuildTraversingMuon = True, 
+	Strict1Leg = True, 
 	DTRecSegmentLabel = 'dt4DCosmicSegments')
 )
 
@@ -55,16 +51,13 @@ muonsFromCosmics1Leg = muons1stStep.clone(
     fillIsolation = False,
     fillGlobalTrackQuality = False,
     fillGlobalTrackRefits = False,
-
-    TrackAssociatorParameters = dict(
-	DTRecSegment4DCollectionLabel = 'dt4DCosmicSegments'),
-
-    TrackExtractorPSet = dict(
-	inputTrackCollection = 'cosmicMuons1Leg')
+    TrackAssociatorParameters = dict(DTRecSegment4DCollectionLabel = 'dt4DCosmicSegments'),
+    TrackExtractorPSet = dict(inputTrackCollection = 'cosmicMuons1Leg'),
+    TimingFillerParameters = dict(
+        MatchParameters = dict(DTsegments = 'dt4DCosmicSegments'),
+        DTTimingParameters = dict(PruneCut = 9999),
+        CSCTimingParameters = dict(PruneCut = 9999))
 )
-muonsFromCosmics1Leg.TimingFillerParameters.MatchParameters.DTsegments = 'dt4DCosmicSegments'
-muonsFromCosmics1Leg.TimingFillerParameters.DTTimingParameters.PruneCut = 9999
-muonsFromCosmics1Leg.TimingFillerParameters.CSCTimingParameters.PruneCut = 9999
 
 muoncosmicreco1legSTATask = cms.Task(CosmicMuonSeed,cosmicMuons1Leg)
 muoncosmicreco1legSTA = cms.Sequence(muoncosmicreco1legSTATask)
