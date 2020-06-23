@@ -151,8 +151,8 @@ std::vector<int> L1TkMuMantra::find_match(const std::vector<track_df>& tracks, c
         if (sort_type_ == kMaxPt)
           sort_par = trk.pt;
         else if (sort_type_ == kMinDeltaPt) {
-          sort_par = (trk.pt > 0 ? std::abs(1. - (mu.pt / trk.pt))
-                                 : 0);  // trk.pt should always be > 0, but put this protection just in case
+          // trk.pt should always be > 0, but put this protection just in case
+          sort_par = (trk.pt > 0 ? std::abs(1. - (mu.pt / trk.pt)) : 0);  
         }
         matched_trks.push_back(std::make_pair(sort_par, itrk));
       }
