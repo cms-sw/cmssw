@@ -58,6 +58,8 @@ public:
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   // access to config
   edm::ParameterSet config() const { return theConfig; }
 

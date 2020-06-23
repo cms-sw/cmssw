@@ -13,13 +13,33 @@ def applySubstructure( process, postfix="" ) :
 
 
     # Configure the RECO jets
-    from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJetsPuppi
     from RecoJets.JetProducers.ak8PFJets_cfi import ak8PFJetsPuppi, ak8PFJetsPuppiSoftDrop, ak8PFJetsPuppiConstituents
+    setattr(process,'ak8PFJetsPuppi'+postfix,ak8PFJetsPuppi.clone())
+    setattr(process,'ak8PFJetsPuppiConstituents'+postfix, ak8PFJetsPuppiConstituents.clone(cut = cms.string('pt > 170.0 && abs(rapidity()) < 2.4') ))
+    setattr(process,'ak8PFJetsPuppiSoftDrop'+postfix, ak8PFJetsPuppiSoftDrop.clone( src = 'ak8PFJetsPuppiConstituents'+postfix+':constituents' ))
+    from RecoJets.JetProducers.ak8PFJetsPuppi_groomingValueMaps_cfi import ak8PFJetsPuppiSoftDropMass
+    setattr(process,'ak8PFJetsPuppiSoftDropMass'+postfix, ak8PFJetsPuppiSoftDropMass.clone())
+    from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+    from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+    from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+    _run2_miniAOD_ANY = (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17 | run2_miniAOD_UL)
+    from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
+    from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+    if postfix=='':
+      # Avoid recomputing the PUPPI collections that are present in AOD
+      _rerun_puppijets_task = task.copy()
+      _rerun_puppijets_task.add(getattr(process,'ak8PFJetsPuppi'),
+                                getattr(process,'ak8PFJetsPuppiConstituents'),
+                                getattr(process,'ak8PFJetsPuppiSoftDrop'),
+                                getattr(process,'ak8PFJetsPuppiSoftDropMass'))
+      (_run2_miniAOD_ANY | pA_2016 | pp_on_AA_2018).toReplaceWith(task, _rerun_puppijets_task)
+    else:
+      task.add(getattr(process,'ak8PFJetsPuppi'+postfix),
+               getattr(process,'ak8PFJetsPuppiConstituents'+postfix),
+               getattr(process,'ak8PFJetsPuppiSoftDrop'+postfix),
+               getattr(process,'ak8PFJetsPuppiSoftDropMass'+postfix))
+
     from RecoJets.JetProducers.ak8GenJets_cfi import ak8GenJets, ak8GenJetsSoftDrop, ak8GenJetsConstituents
-    addToProcessAndTask('ak4PFJetsPuppi'+postfix,ak4PFJetsPuppi.clone(), process, task)
-    addToProcessAndTask('ak8PFJetsPuppi'+postfix,ak8PFJetsPuppi.clone(), process, task)
-    addToProcessAndTask('ak8PFJetsPuppiConstituents', ak8PFJetsPuppiConstituents.clone(cut = cms.string('pt > 170.0 && abs(rapidity()) < 2.4') ), process, task )
-    addToProcessAndTask('ak8PFJetsPuppiSoftDrop'+postfix, ak8PFJetsPuppiSoftDrop.clone( src = cms.InputTag('ak8PFJetsPuppiConstituents', 'constituents') ), process, task)
     addToProcessAndTask('ak8GenJetsNoNuConstituents'+postfix, ak8GenJetsConstituents.clone(src='ak8GenJetsNoNu'), process, task )
     addToProcessAndTask('ak8GenJetsNoNuSoftDrop'+postfix,ak8GenJetsSoftDrop.clone(src=cms.InputTag('ak8GenJetsNoNuConstituents'+postfix, 'constituents')),process,task)
     addToProcessAndTask('slimmedGenJetsAK8SoftDropSubJets'+postfix,
@@ -33,7 +53,6 @@ def applySubstructure( process, postfix="" ) :
                                                dropSpecific = cms.bool(True),  # Save space
                                                ), process, task )
 
-    #add RECO AK8 from PUPPI and RECO AK8 PUPPI with soft drop... will be needed by ungroomed AK8 jets later
     ## PATify puppi soft drop fat jets
     addJetCollection(
         process,
@@ -146,8 +165,6 @@ def applySubstructure( process, postfix="" ) :
                         process, task)
 
     ## now add AK8 groomed masses and ECF
-    from RecoJets.JetProducers.ak8PFJetsPuppi_groomingValueMaps_cfi import ak8PFJetsPuppiSoftDropMass
-    addToProcessAndTask('ak8PFJetsPuppiSoftDropMass'+postfix, ak8PFJetsPuppiSoftDropMass.clone(), process, task)
     getattr(process,"patJetsAK8Puppi"+postfix).userData.userFloats.src += ['ak8PFJetsPuppiSoftDropMass'+postfix]
     getattr(process,"patJetsAK8Puppi"+postfix).addTagInfos = cms.bool(False)
     getattr(process,"patJetsAK8Puppi"+postfix).userData.userFloats.src += [

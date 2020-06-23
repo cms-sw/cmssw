@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 #include "DataFormats/METReco/interface/CorrMETData.h"
 
@@ -37,7 +38,8 @@ private:
 
   std::string moduleLabel_;
 
-  edm::EDGetTokenT<edm::View<reco::Candidate> > token_;
+  edm::EDGetTokenT<edm::View<reco::Candidate>> token_;
+  edm::EDGetTokenT<edm::ValueMap<float>> weightsToken_;
 
   struct binningEntryType {
     binningEntryType() : binLabel_(""), binSelection_(nullptr) {}
@@ -47,10 +49,10 @@ private:
               cfg.getParameter<std::string>("binSelection"))) {}
     ~binningEntryType() {}
     const std::string binLabel_;
-    std::unique_ptr<const StringCutObjectSelector<reco::Candidate::LorentzVector> > binSelection_;
+    std::unique_ptr<const StringCutObjectSelector<reco::Candidate::LorentzVector>> binSelection_;
     CorrMETData binUnclEnergySum_;
   };
-  std::vector<std::unique_ptr<binningEntryType> > binning_;
+  std::vector<std::unique_ptr<binningEntryType>> binning_;
 };
 
 #endif

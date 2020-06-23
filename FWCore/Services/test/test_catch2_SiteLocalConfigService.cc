@@ -23,8 +23,7 @@ TEST_CASE("Test SiteLocalConfigService", "[sitelocalconfig]") {
 
     edm::service::SiteLocalConfigService slc(pset);
 
-    CHECK(slc.dataCatalog() == "trivialcatalog_file:/dummy/storage.xml?protocol=dcap");
-    CHECK(slc.fallbackDataCatalog().empty());
+    CHECK(slc.dataCatalogs()[0] == "trivialcatalog_file:/dummy/storage.xml?protocol=dcap");
     REQUIRE(slc.sourceCacheTempDir() != nullptr);
     CHECK(*slc.sourceCacheTempDir() == "/a/b/c");
     CHECK(slc.sourceCacheMinFree() == nullptr);
@@ -67,8 +66,7 @@ TEST_CASE("Test SiteLocalConfigService", "[sitelocalconfig]") {
 
     edm::service::SiteLocalConfigService slc(pset);
 
-    CHECK(slc.dataCatalog() == "trivialcatalog_file:/dummy/storage.xml?protocol=dcap");
-    CHECK(slc.fallbackDataCatalog().empty());
+    CHECK(slc.dataCatalogs()[0] == "trivialcatalog_file:/dummy/storage.xml?protocol=dcap");
     REQUIRE(slc.sourceCacheTempDir() != nullptr);
     CHECK(*slc.sourceCacheTempDir() == "/a/d");
     REQUIRE(slc.sourceCacheMinFree() != nullptr);

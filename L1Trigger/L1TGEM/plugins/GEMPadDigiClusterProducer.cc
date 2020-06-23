@@ -196,7 +196,7 @@ void GEMPadDigiClusterProducer::buildClusters(const GEMPadDigiCollection& det_pa
           cl.push_back((*d).pad());
         } else {
           // put the current cluster in the proto collection
-          GEMPadDigiCluster pad_cluster(cl, startBX);
+          GEMPadDigiCluster pad_cluster(cl, startBX, GEMSubDetId::station(part->id().station()));
 
           all_pad_clusters.emplace_back(pad_cluster);
 
@@ -210,7 +210,7 @@ void GEMPadDigiClusterProducer::buildClusters(const GEMPadDigiCollection& det_pa
 
     // put the last cluster in the proto collection
     if (pads.first != pads.second) {
-      GEMPadDigiCluster pad_cluster(cl, startBX);
+      GEMPadDigiCluster pad_cluster(cl, startBX, GEMSubDetId::station(part->id().station()));
       all_pad_clusters.emplace_back(pad_cluster);
     }
     proto_clusters.emplace(part->id(), all_pad_clusters);

@@ -39,7 +39,6 @@ process.pfNoPileUp = cms.EDProducer("TPPileUpPFCandidatesOnPFCandidates",
     bottomCollection = cms.InputTag("particleFlow"),
     topCollection = cms.InputTag("pfPileUp"),
     name = cms.untracked.string('pileUpOnPFCandidates'),
-    verbose = cms.untracked.bool(False)
 )
 
 
@@ -170,9 +169,7 @@ process.DQM = cms.Service("DQM",
 
 process.DQMStore = cms.Service("DQMStore",
     verboseQT = cms.untracked.int32(0),
-    referenceFileName = cms.untracked.string(''),
     verbose = cms.untracked.int32(0),
-    collateHistograms = cms.untracked.bool(False)
 )
 
 

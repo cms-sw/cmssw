@@ -16,11 +16,11 @@
 #include "G4Step.hh"
 
 class MuonG4Numbering;
-class MuonDDDConstants;
+class MuonGeometryConstants;
 
 class MuonRPCFrameRotation : public MuonFrameRotation {
 public:
-  MuonRPCFrameRotation(const MuonDDDConstants& constants);
+  MuonRPCFrameRotation(const MuonGeometryConstants& constants);
   ~MuonRPCFrameRotation() override;
   Local3DPoint transformPoint(const Local3DPoint&, const G4Step*) const override;
 

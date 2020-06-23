@@ -12,7 +12,6 @@
 
 /* Base Class Headers */
 #include "RecoLocalMuon/DTSegment/src/DTRecSegment2DBaseAlgo.h"
-#include <boost/unordered_set.hpp>
 
 /* Collaborating Class Declarations */
 namespace edm {
@@ -26,9 +25,11 @@ class DTHitPairForFit;
 class DTSegmentCand;
 
 /* C++ Headers */
-#include <vector>
 #include <deque>
+#include <functional>
+#include <unordered_set>
 #include <utility>
+#include <vector>
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -117,9 +118,16 @@ public:
              (values_ == other.values_);  // expensive last resort
     }
 
+    //Same implementation as boost::hash_combine
+    template <class T>
+    inline void hash_combine(std::size_t& seed, const T& v) {
+      std::hash<T> hasher;
+      seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    }
+
     /// push back value, and update the hash
     void push_back(short unsigned int i) {
-      boost::hash_combine(hash_, i);
+      hash_combine(hash_, i);
       values_.push_back(i);
     }
     /// return the hash: equal objects MUST have the same hash,
@@ -132,15 +140,22 @@ public:
     const_iterator end() const { return values_.end(); }
     values::size_type size() const { return values_.size(); }
 
+    //Custom hash functor for std::unordered_set
+    class HashFunction {
+    public:
+      size_t operator()(const TriedPattern& p) const { return p.hash(); }
+    };
+
   private:
     values values_;
     size_t hash_;
   };
-  typedef boost::unordered_set<TriedPattern> TriedPatterns;
+  typedef std::unordered_set<TriedPattern, TriedPattern::HashFunction> TriedPatterns;
 
 private:
   TriedPatterns theTriedPattern;
 };
 
 inline std::size_t hash_value(const DTCombinatorialPatternReco::TriedPattern& t) { return t.hash(); }
+
 #endif  // DTSegment_DTCombinatorialPatternReco_h

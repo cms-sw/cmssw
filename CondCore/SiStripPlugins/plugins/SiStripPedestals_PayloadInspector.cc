@@ -31,6 +31,7 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <boost/tokenizer.hpp>
 
 // include ROOT
 #include "TH2F.h"
@@ -49,18 +50,18 @@ namespace {
     test class
   *************************************************/
 
-  class SiStripPedestalsTest : public cond::payloadInspector::Histogram1D<SiStripPedestals> {
+  class SiStripPedestalsTest
+      : public cond::payloadInspector::Histogram1D<SiStripPedestals, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripPedestalsTest()
-        : cond::payloadInspector::Histogram1D<SiStripPedestals>(
+        : cond::payloadInspector::Histogram1D<SiStripPedestals, cond::payloadInspector::SINGLE_IOV>(
               "SiStrip Pedestals test", "SiStrip Pedestals test", 10, 0.0, 10.0),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {
-      Base::setSingleIov(true);
-    }
+              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      for (auto const& iov : iovs) {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripPedestals> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           fillWithValue(1.);
@@ -98,90 +99,170 @@ namespace {
     SiStrip Pedestals Profile of 1 IOV for one selected DetId
   *************************************************/
 
-  class SiStripPedestalPerDetId : public cond::payloadInspector::PlotImage<SiStripPedestals> {
+  class SiStripPedestalPerDetId
+      : public cond::payloadInspector::PlotImage<SiStripPedestals, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripPedestalPerDetId()
-        : cond::payloadInspector::PlotImage<SiStripPedestals>("SiStrip Pedestal values per DetId") {
-      cond::payloadInspector::PlotBase::addInputParam("DetId");
-      setSingleIov(true);
+        : cond::payloadInspector::PlotImage<SiStripPedestals, cond::payloadInspector::SINGLE_IOV>(
+              "SiStrip Pedestal values per DetId") {
+      cond::payloadInspector::PlotBase::addInputParam("DetIds");
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
+      auto tagname = tag.name;
+      std::shared_ptr<SiStripPedestals> payload = fetchPayload(std::get<1>(iov));
 
-      unsigned int the_detid(0xFFFFFFFF);
+      std::vector<uint32_t> the_detids = {};
 
       auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
-      auto ip = paramValues.find("DetId");
+      auto ip = paramValues.find("DetIds");
       if (ip != paramValues.end()) {
-        the_detid = boost::lexical_cast<unsigned int>(ip->second);
+        auto input = boost::lexical_cast<std::string>(ip->second);
+        typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
+        boost::char_separator<char> sep{","};
+        tokenizer tok{input, sep};
+        for (const auto& t : tok) {
+          the_detids.push_back(atoi(t.c_str()));
+        }
+      } else {
+        edm::LogWarning("SiStripNoisePerDetId")
+            << "\n WARNING!!!! \n The needed parameter DetIds has not been passed. Will use all Strip DetIds! \n\n";
+        the_detids.push_back(0xFFFFFFFF);
       }
 
-      std::shared_ptr<SiStripPedestals> payload = fetchPayload(std::get<1>(iov));
+      size_t ndets = the_detids.size();
+      std::vector<std::shared_ptr<TH1F>> hpedestal;
+      std::vector<std::shared_ptr<TLegend>> legends;
+      std::vector<unsigned int> v_nAPVs;
+      std::vector<std::vector<std::shared_ptr<TLine>>> lines;
+      hpedestal.reserve(ndets);
+      legends.reserve(ndets);
+
+      auto sides = getClosestFactors(the_detids.size());
+      edm::LogPrint("SiStripPedestalPerDetId") << "Aspect ratio: " << sides.first << ":" << sides.second << std::endl;
+
       if (payload.get()) {
         //=========================
-        TCanvas canvas("ByDetId", "ByDetId", 1200, 1000);
-
+        TCanvas canvas("ByDetId", "ByDetId", sides.second * 800, sides.first * 600);
+        canvas.Divide(sides.second, sides.first);
         edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
         SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
-        unsigned int nAPVs = reader->getNumberOfApvsAndStripLength(the_detid).first;
 
-        auto hnoise = std::unique_ptr<TH1F>(
-            new TH1F("Pedestal profile",
-                     Form("SiStrip Pedestal profile for DetId: %s;Strip number;SiStrip Pedestal [ADC counts]",
-                          std::to_string(the_detid).c_str()),
-                     128 * nAPVs,
-                     -0.5,
-                     (128 * nAPVs) - 0.5));
-        hnoise->SetStats(false);
+        for (const auto& the_detid : the_detids) {
+          edm::LogPrint("SiStripNoisePerDetId") << "DetId:" << the_detid << std::endl;
 
-        std::vector<uint32_t> detid;
-        payload->getDetIds(detid);
+          unsigned int nAPVs = reader->getNumberOfApvsAndStripLength(the_detid).first;
+          if (nAPVs == 0)
+            nAPVs = 6;
+          v_nAPVs.push_back(nAPVs);
 
-        int nstrip = 0;
-        SiStripPedestals::Range range = payload->getRange(the_detid);
-        for (int it = 0; it < (range.second - range.first) * 8 / 10; ++it) {
-          auto noise = payload->getPed(it, range);
-          nstrip++;
-          hnoise->SetBinContent(nstrip, noise);
-        }  // end of loop on strips
+          auto histo = std::make_shared<TH1F>(
+              Form("Pedestal profile %s", std::to_string(the_detid).c_str()),
+              Form("SiStrip Pedestal profile for DetId: %s;Strip number;SiStrip Pedestal [ADC counts]",
+                   std::to_string(the_detid).c_str()),
+              128 * nAPVs,
+              -0.5,
+              (128 * nAPVs) - 0.5);
 
-        canvas.cd();
-        canvas.SetBottomMargin(0.11);
-        canvas.SetTopMargin(0.07);
-        canvas.SetLeftMargin(0.13);
-        canvas.SetRightMargin(0.05);
-        hnoise->Draw();
-        hnoise->GetYaxis()->SetRangeUser(0, hnoise->GetMaximum() * 1.2);
-        //hnoise->Draw("Psame");
-        canvas.Update();
+          histo->SetStats(false);
+          histo->SetTitle("");
 
-        std::vector<int> boundaries;
-        for (size_t b = 0; b < nAPVs; b++)
-          boundaries.push_back(b * 128);
+          if (the_detid != 0xFFFFFFFF) {
+            fillHisto(payload, histo, the_detid);
+          } else {
+            auto allDetIds = reader->getAllDetIds();
+            for (const auto& id : allDetIds) {
+              fillHisto(payload, histo, id);
+            }
+          }
 
-        TLine l[nAPVs];
-        unsigned int i = 0;
-        for (const auto& line : boundaries) {
-          l[i] = TLine(hnoise->GetBinLowEdge(line), canvas.GetUymin(), hnoise->GetBinLowEdge(line), canvas.GetUymax());
-          l[i].SetLineWidth(1);
-          l[i].SetLineStyle(9);
-          l[i].SetLineColor(2);
-          l[i].Draw("same");
-          i++;
+          SiStripPI::makeNicePlotStyle(histo.get());
+          histo->GetYaxis()->SetTitleOffset(1.0);
+          hpedestal.push_back(histo);
+        }  // loop on the detids
+
+        for (size_t index = 0; index < ndets; index++) {
+          canvas.cd(index + 1);
+          canvas.cd(index + 1)->SetBottomMargin(0.11);
+          canvas.cd(index + 1)->SetTopMargin(0.06);
+          canvas.cd(index + 1)->SetLeftMargin(0.10);
+          canvas.cd(index + 1)->SetRightMargin(0.02);
+          hpedestal.at(index)->Draw();
+          hpedestal.at(index)->GetYaxis()->SetRangeUser(0, hpedestal.at(index)->GetMaximum() * 1.2);
+          canvas.cd(index)->Update();
+
+          std::vector<int> boundaries;
+          for (size_t b = 0; b < v_nAPVs.at(index); b++) {
+            boundaries.push_back(b * 128);
+          }
+
+          std::vector<std::shared_ptr<TLine>> linesVec;
+          for (const auto& bound : boundaries) {
+            auto line = std::make_shared<TLine>(hpedestal.at(index)->GetBinLowEdge(bound),
+                                                canvas.cd(index + 1)->GetUymin(),
+                                                hpedestal.at(index)->GetBinLowEdge(bound),
+                                                canvas.cd(index + 1)->GetUymax());
+            line->SetLineWidth(1);
+            line->SetLineStyle(9);
+            line->SetLineColor(2);
+            linesVec.push_back(line);
+          }
+          lines.push_back(linesVec);
+
+          for (const auto& line : lines.at(index)) {
+            line->Draw("same");
+          }
+
+          canvas.cd(index + 1);
+
+          auto ltx = TLatex();
+          ltx.SetTextFont(62);
+          ltx.SetTextSize(0.05);
+          ltx.SetTextAlign(11);
+          ltx.DrawLatexNDC(gPad->GetLeftMargin(),
+                           1 - gPad->GetTopMargin() + 0.01,
+                           Form("SiStrip Pedestals profile for DetId %s", std::to_string(the_detids[index]).c_str()));
+
+          legends.push_back(std::make_shared<TLegend>(0.45, 0.83, 0.95, 0.93));
+          legends.at(index)->SetHeader(tagname.c_str(), "C");  // option "C" allows to center the header
+          legends.at(index)->AddEntry(
+              hpedestal.at(index).get(), ("IOV: " + std::to_string(std::get<0>(iov))).c_str(), "PL");
+          legends.at(index)->SetTextSize(0.045);
+          legends.at(index)->Draw("same");
         }
-
-        TLegend legend = TLegend(0.52, 0.82, 0.95, 0.93);
-        legend.SetHeader((std::get<1>(iov)).c_str(), "C");  // option "C" allows to center the header
-        legend.AddEntry(hnoise.get(), ("IOV: " + std::to_string(std::get<0>(iov))).c_str(), "PL");
-        legend.SetTextSize(0.025);
-        legend.Draw("same");
 
         std::string fileName(m_imageFileName);
         canvas.SaveAs(fileName.c_str());
       }  // payload
       return true;
     }  // fill
+
+  private:
+    int nextPerfectSquare(int N) { return std::floor(sqrt(N)) + 1; }
+
+    std::pair<int, int> getClosestFactors(int input) {
+      if ((input % 2 != 0) && input > 1) {
+        input += 1;
+      }
+
+      int testNum = (int)sqrt(input);
+      while (input % testNum != 0) {
+        testNum--;
+      }
+      return std::make_pair(testNum, input / testNum);
+    }
+
+    void fillHisto(const std::shared_ptr<SiStripPedestals> payload, std::shared_ptr<TH1F>& histo, uint32_t the_detid) {
+      int nstrip = 0;
+      SiStripPedestals::Range range = payload->getRange(the_detid);
+      for (int it = 0; it < (range.second - range.first) * 8 / 10; ++it) {
+        auto pedestal = payload->getPed(it, range);
+        nstrip++;
+        histo->AddBinContent(nstrip, pedestal);
+      }  // end of loop on strips
+    }
   };
 
   /************************************************
@@ -189,16 +270,16 @@ namespace {
   *************************************************/
 
   // inherit from one of the predefined plot class: Histogram1D
-  class SiStripPedestalsValue : public cond::payloadInspector::Histogram1D<SiStripPedestals> {
+  class SiStripPedestalsValue
+      : public cond::payloadInspector::Histogram1D<SiStripPedestals, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripPedestalsValue()
-        : cond::payloadInspector::Histogram1D<SiStripPedestals>(
-              "SiStrip Pedestals values", "SiStrip Pedestals values", 300, 0.0, 300.0) {
-      Base::setSingleIov(true);
-    }
+        : cond::payloadInspector::Histogram1D<SiStripPedestals, cond::payloadInspector::SINGLE_IOV>(
+              "SiStrip Pedestals values", "SiStrip Pedestals values", 300, 0.0, 300.0) {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      for (auto const& iov : iovs) {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripPedestals> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           std::vector<uint32_t> detid;
@@ -223,17 +304,18 @@ namespace {
   *************************************************/
 
   // inherit from one of the predefined plot class: Histogram1D
-  class SiStripPedestalsValuePerDetId : public cond::payloadInspector::Histogram1D<SiStripPedestals> {
+  class SiStripPedestalsValuePerDetId
+      : public cond::payloadInspector::Histogram1D<SiStripPedestals, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripPedestalsValuePerDetId()
-        : cond::payloadInspector::Histogram1D<SiStripPedestals>(
+        : cond::payloadInspector::Histogram1D<SiStripPedestals, cond::payloadInspector::SINGLE_IOV>(
               "SiStrip Pedestal values per DetId", "SiStrip Pedestal values per DetId", 100, 0.0, 10.0) {
       cond::payloadInspector::PlotBase::addInputParam("DetId");
-      Base::setSingleIov(true);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      for (auto const& iov : iovs) {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripPedestals> payload = Base::fetchPayload(std::get<1>(iov));
         unsigned int the_detid(0xFFFFFFFF);
         auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
@@ -261,15 +343,16 @@ namespace {
 
   // inherit from one of the predefined plot class: PlotImage
   template <SiStripPI::OpMode op_mode_>
-  class SiStripPedestalDistribution : public cond::payloadInspector::PlotImage<SiStripPedestals> {
+  class SiStripPedestalDistribution
+      : public cond::payloadInspector::PlotImage<SiStripPedestals, cond::payloadInspector::SINGLE_IOV> {
   public:
-    SiStripPedestalDistribution() : cond::payloadInspector::PlotImage<SiStripPedestals>("SiStrip Pedestal values") {
-      setSingleIov(true);
-    }
+    SiStripPedestalDistribution()
+        : cond::payloadInspector::PlotImage<SiStripPedestals, cond::payloadInspector::SINGLE_IOV>(
+              "SiStrip Pedestal values") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
-
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       TGaxis::SetMaxDigits(3);
       gStyle->SetOptStat("emr");
 
@@ -386,8 +469,8 @@ namespace {
     SiStripPedestalDistributionComparisonBase()
         : cond::payloadInspector::PlotImage<SiStripPedestals>("SiStrip Pedestal values comparison") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
+      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
 
       // make absolute sure the IOVs are sortd by since
       std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
@@ -592,17 +675,17 @@ namespace {
     1d histogram of fraction of Zero SiStripPedestals of 1 IOV 
   *************************************************/
 
-  // inherit from one of the predefined plot class: Histogram1D
-  class SiStripZeroPedestalsFraction_TrackerMap : public cond::payloadInspector::PlotImage<SiStripPedestals> {
+  // inherit from one of the predefined plot class PlotImage
+  class SiStripZeroPedestalsFraction_TrackerMap
+      : public cond::payloadInspector::PlotImage<SiStripPedestals, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripZeroPedestalsFraction_TrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripPedestals>(
-              "Tracker Map of Zero SiStripPedestals fraction per module") {
-      setSingleIov(true);
-    }
+        : cond::payloadInspector::PlotImage<SiStripPedestals, cond::payloadInspector::SINGLE_IOV>(
+              "Tracker Map of Zero SiStripPedestals fraction per module") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripPedestals> payload = fetchPayload(std::get<1>(iov));
 
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
@@ -652,16 +735,16 @@ namespace {
   *************************************************/
 
   template <SiStripPI::estimator est>
-  class SiStripPedestalsTrackerMap : public cond::payloadInspector::PlotImage<SiStripPedestals> {
+  class SiStripPedestalsTrackerMap
+      : public cond::payloadInspector::PlotImage<SiStripPedestals, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripPedestalsTrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripPedestals>("Tracker Map of SiStripPedestals " + estimatorType(est) +
-                                                              " per module") {
-      setSingleIov(true);
-    }
+        : cond::payloadInspector::PlotImage<SiStripPedestals, cond::payloadInspector::SINGLE_IOV>(
+              "Tracker Map of SiStripPedestals " + estimatorType(est) + " per module") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripPedestals> payload = fetchPayload(std::get<1>(iov));
 
       std::string titleMap =
@@ -738,17 +821,18 @@ namespace {
   *************************************************/
 
   template <SiStripPI::estimator est>
-  class SiStripPedestalsByRegion : public cond::payloadInspector::PlotImage<SiStripPedestals> {
+  class SiStripPedestalsByRegion
+      : public cond::payloadInspector::PlotImage<SiStripPedestals, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiStripPedestalsByRegion()
-        : cond::payloadInspector::PlotImage<SiStripPedestals>("SiStrip Pedestals " + estimatorType(est) + " by Region"),
+        : cond::payloadInspector::PlotImage<SiStripPedestals, cond::payloadInspector::SINGLE_IOV>(
+              "SiStrip Pedestals " + estimatorType(est) + " by Region"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {
-      setSingleIov(true);
-    }
+              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripPedestals> payload = fetchPayload(std::get<1>(iov));
 
       SiStripDetSummary summaryPedestals{&m_trackerTopo};

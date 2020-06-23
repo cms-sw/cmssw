@@ -2,15 +2,8 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
 #include "SimMuon/CSCDigitizer/src/CSCConfigurableStripConditions.h"
 #include "SimMuon/CSCDigitizer/src/CSCDbStripConditions.h"
-
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -25,13 +18,17 @@
 #include <string>
 
 CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet &ps) : theDigitizer(ps), theStripConditions(nullptr) {
+  geom_Token =
+      esConsumes<CSCGeometry, MuonGeometryRecord>(edm::ESInputTag("", ps.getParameter<std::string>("GeometryType")));
+  magfield_Token = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+  pdt_Token = esConsumes<ParticleDataTable, edm::DefaultRecord>();
   produces<CSCWireDigiCollection>("MuonCSCWireDigi");
   produces<CSCStripDigiCollection>("MuonCSCStripDigi");
   produces<CSCComparatorDigiCollection>("MuonCSCComparatorDigi");
   produces<DigiSimLinks>("MuonCSCWireDigiSimLinks");
   produces<DigiSimLinks>("MuonCSCStripDigiSimLinks");
   std::string stripConditions(ps.getParameter<std::string>("stripConditions"));
-  geometryType = ps.getParameter<std::string>("GeometryType");
+
   edm::ParameterSet stripPSet = ps.getParameter<edm::ParameterSet>("strips");
   if (stripConditions == "Configurable") {
     theStripConditions = new CSCConfigurableStripConditions(stripPSet);
@@ -79,20 +76,18 @@ void CSCDigiProducer::produce(edm::Event &ev, const edm::EventSetup &eventSetup)
   //@@ DOES NOTHING IF NO HITS.  Remove this for when there's real neutrons
   if (hits->size() > 0) {
     // find the geometry & conditions for this event
-    edm::ESHandle<CSCGeometry> hGeom;
-    eventSetup.get<MuonGeometryRecord>().get(geometryType, hGeom);
+    edm::ESHandle<CSCGeometry> hGeom = eventSetup.getHandle(geom_Token);
     const CSCGeometry *pGeom = &*hGeom;
 
     theDigitizer.setGeometry(pGeom);
 
     // find the magnetic field
-    edm::ESHandle<MagneticField> magfield;
-    eventSetup.get<IdealMagneticFieldRecord>().get(magfield);
+    edm::ESHandle<MagneticField> magfield = eventSetup.getHandle(magfield_Token);
 
     theDigitizer.setMagneticField(&*magfield);
 
     // set the particle table
-    edm::ESHandle<ParticleDataTable> pdt;
+    edm::ESHandle<ParticleDataTable> pdt = eventSetup.getHandle(pdt_Token);
     eventSetup.getData(pdt);
     theDigitizer.setParticleDataTable(&*pdt);
 

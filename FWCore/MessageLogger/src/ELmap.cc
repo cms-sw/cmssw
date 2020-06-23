@@ -127,32 +127,4 @@ namespace edm {
 
   }  // add()
 
-  // ----------------------------------------------------------------------
-
-#ifdef ELmapDumpTRACE
-  // ----------------------------------------------------------------------
-  // Global Dump methods (useful for debugging)
-  // ----------------------------------------------------------------------
-
-#include <sstream>
-#include <string.h>
-
-  boost::shared_array<char> ELmapDump(ELmap_limits m) {
-    std::ostringstream s;
-    s << "**** ELmap_limits Dump **** \n";
-
-    ELmap_limits::const_iterator i;
-    for (i = m.begin(); i != m.end(); ++i) {
-      LimitAndTimespan lt = (*i).second;
-      s << "     " << (*i).first << ":  " << lt.limit << ", " << lt.timespan << "\n";
-    }
-    s << "--------------------------------------------\n";
-
-    boost::shared_array<char> dump(new char[s.str().size() + 1]);
-    strcpy(dump.get(), s.str().c_str());
-
-    return dump;
-  }
-#endif
-
 }  // end of namespace edm  */

@@ -20,7 +20,6 @@ namespace edm {
     ~RawInputSourceFromFiles() override;
 
     using FromFiles::catalog;
-    using FromFiles::fileNames;
     using FromFiles::logicalFileNames;
 
     static void fillDescription(ParameterSetDescription& desc);

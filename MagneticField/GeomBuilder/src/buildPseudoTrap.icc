@@ -1,6 +1,7 @@
 /*
  *  Compute parameters for a pseudotrapezoid .
- *  NOTE: The pseudotrapezoid is no longer needed or support for DD4hep.
+ *  NOTE: The pseudotrapezoid is no longer supported in DD4hep.
+ *  It is handled here for legacy geonetries that are still in use.
  *  For pseudotraps the refPlane is parallel to beam line; transformation:
  *
  *  Global(for vol at pi/2)    Local 
@@ -11,20 +12,16 @@
  *  \author N. Amapane - INFN Torino
  */
 
-void volumeHandle::buildPseudoTrap() {
-  LogTrace("MagGeoBuilder") << "Building PseudoTrap surfaces...: ";
-
-  DDPseudoTrap ptrap(solid);
-
+void volumeHandle::buildPseudoTrap(
+    double x1_, double x2_, double y1_, double y2_, double halfZ_, double radius_, bool atMinusZ) {
   // Old DD needs mm to cm conversion, but DD4hep needs no conversion.
   // convertUnits should be defined appropriately.
-  double halfZ = convertUnits(ptrap.halfZ());
-  double x1 = convertUnits(ptrap.x1());
-  double x2 = convertUnits(ptrap.x2());
-  double y1 = convertUnits(ptrap.y1());
-  double y2 = convertUnits(ptrap.y2());
-  double radius = convertUnits(ptrap.radius());
-  bool atMinusZ = ptrap.atMinusZ();
+  double halfZ = convertUnits(halfZ_);
+  double x1 = convertUnits(x1_);
+  double x2 = convertUnits(x2_);
+  double y1 = convertUnits(y1_);
+  double y2 = convertUnits(y2_);
+  double radius = convertUnits(radius_);
 
   LogTrace("MagGeoBuilder") << "halfZ     " << halfZ << newln << "x1        " << x1 << newln << "x2        " << x2
                             << newln << "y1        " << y1 << newln << "y2        " << y2 << newln << "radius    "

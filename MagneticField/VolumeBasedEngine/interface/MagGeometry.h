@@ -58,7 +58,7 @@ private:
 
   bool inBarrel(const GlobalPoint& gp) const;
 
-  mutable std::atomic<MagVolume const*> lastVolume;  // Cache last volume found
+  const int me_;  // Instance ID, to trigger cache invalidation at IOV boundaries
 
   std::vector<MagBLayer const*> theBLayers;
   std::vector<MagESector const*> theESectors;

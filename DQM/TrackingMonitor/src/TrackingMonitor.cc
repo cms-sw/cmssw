@@ -112,7 +112,8 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
           iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"), consumesCollector(), *this)),
       numSelection_(iConfig.getParameter<std::string>("numCut")),
       denSelection_(iConfig.getParameter<std::string>("denCut")),
-      pvNDOF_(iConfig.getParameter<int>("pvNDOF")) {
+      pvNDOF_(iConfig.getParameter<int>("pvNDOF")),
+      forceSCAL_(iConfig.getParameter<bool>("forceSCAL")) {
   edm::ConsumesCollector c{consumesCollector()};
   theTrackAnalyzer = new tadqm::TrackAnalyzer(iConfig, c);
 
@@ -123,6 +124,7 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
   pvSrcToken_ = mayConsume<reco::VertexCollection>(pvSrc_);
 
   lumiscalersToken_ = consumes<LumiScalersCollection>(iConfig.getParameter<edm::InputTag>("scal"));
+  metaDataToken_ = consumes<OnlineLuminosityRecord>(iConfig.getParameter<edm::InputTag>("metadata"));
 
   edm::InputTag alltrackProducer = iConfig.getParameter<edm::InputTag>("allTrackProducer");
   edm::InputTag trackProducer = iConfig.getParameter<edm::InputTag>("TrackProducer");
@@ -696,9 +698,10 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     double NClusPxMin = conf->getParameter<double>("NClusPxMin");
     double NClusPxMax = conf->getParameter<double>("NClusPxMax");
 
-    int NTrk2DBin = conf->getParameter<int>("NTrk2DBin");
-    double NTrk2DMin = conf->getParameter<double>("NTrk2DMin");
-    double NTrk2DMax = conf->getParameter<double>("NTrk2DMax");
+    edm::ParameterSet ParametersNTrk2D = conf->getParameter<edm::ParameterSet>("NTrk2D");
+    int NTrk2DBin = ParametersNTrk2D.getParameter<int>("NTrk2DBin");
+    double NTrk2DMin = ParametersNTrk2D.getParameter<double>("NTrk2DMin");
+    double NTrk2DMax = ParametersNTrk2D.getParameter<double>("NTrk2DMax");
 
     setMaxMinBin(
         histoMin, histoMax, histoBin, NClusStrMin, NClusStrMax, NClusStrBin, NClusPxMin, NClusPxMax, NClusPxBin);
@@ -743,13 +746,19 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   MEFolderName = conf->getParameter<std::string>("FolderName");
   std::string Folder = MEFolderName.substr(0, 2);
   float lumi = -1.;
-  edm::Handle<LumiScalersCollection> lumiScalers;
-  iEvent.getByToken(lumiscalersToken_, lumiScalers);
-  if (lumiScalers.isValid() && !lumiScalers->empty()) {
-    LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
-    lumi = scalit->instantLumi();
-  } else
-    lumi = -1.;
+  if (forceSCAL_) {
+    edm::Handle<LumiScalersCollection> lumiScalers;
+    iEvent.getByToken(lumiscalersToken_, lumiScalers);
+    if (lumiScalers.isValid() && !lumiScalers->empty()) {
+      LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
+      lumi = scalit->instantLumi();
+    }
+  } else {
+    edm::Handle<OnlineLuminosityRecord> metaData;
+    iEvent.getByToken(metaDataToken_, metaData);
+    if (metaData.isValid())
+      lumi = metaData->instLumi();
+  }
 
   if (doPlotsVsLUMI_ || doAllPlots)
     NumberEventsOfVsLUMI->Fill(lumi);

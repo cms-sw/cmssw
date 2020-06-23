@@ -76,3 +76,21 @@ AlignmentProducer = cms.EDAnalyzer("AlignmentProducerAsAnalyzer",
                     # update alignables if triggered by corresponding input IOV boundary
                     enableAlignableUpdates = cms.bool(False),
                     )
+DTGeometryAlignmentProducerAsAnalyzer = cms.ESProducer("DTGeometryESModule",
+    appendToDataLabel = cms.string('idealForAlignmentProducerBase'),
+    applyAlignment = cms.bool(False), 
+    alignmentsLabel = cms.string(''),
+    fromDDD = cms.bool(True)
+)
+CSCGeometryAlignmentProducerAsAnalyzer = cms.ESProducer("CSCGeometryESModule",
+    appendToDataLabel = cms.string('idealForAlignmentProducerBase'),
+    debugV = cms.untracked.bool(False),
+    useGangedStripsInME1a = cms.bool(False),
+    alignmentsLabel = cms.string(''),
+    useOnlyWiresInME1a = cms.bool(False),
+    useRealWireGeometry = cms.bool(True),
+    useCentreTIOffsets = cms.bool(False),
+    applyAlignment = cms.bool(False), 
+    useDDD = cms.bool(True)
+)
+

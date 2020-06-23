@@ -236,9 +236,9 @@ DQMOfflineMiniAOD = cms.Sequence(jetMETDQMOfflineRedoProductsMiniAOD*muonMonitor
 PostDQMOfflineMiniAOD = cms.Sequence(miniAODDQMSequence*jetMETDQMOfflineSourceMiniAOD*tracksDQMMiniAOD*topPhysicsminiAOD)
 PostDQMOffline = cms.Sequence()
 
-from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
-phase2_hcal.toReplaceWith( PostDQMOfflineMiniAOD, PostDQMOfflineMiniAOD.copyAndExclude([
-    pfMetDQMAnalyzerMiniAOD, pfPuppiMetDQMAnalyzerMiniAOD # No hcalnoise yet
+from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
+run3_HB.toReplaceWith( PostDQMOfflineMiniAOD, PostDQMOfflineMiniAOD.copyAndExclude([
+    pfMetDQMAnalyzerMiniAOD, pfPuppiMetDQMAnalyzerMiniAOD # No hcalnoise (yet)
 ]))
 
 from PhysicsTools.NanoAOD.nanoDQM_cff import nanoDQM

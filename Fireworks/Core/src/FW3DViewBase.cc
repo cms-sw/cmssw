@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
 //
-#include <boost/bind.hpp>
+#include <functional>
 #include <string>
 #include <algorithm>
 
@@ -130,14 +130,14 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId, un
   m_showMuonBarrel.addEntry(0, "Hide");
   m_showMuonBarrel.addEntry(1, "Simplified");
   m_showMuonBarrel.addEntry(2, "Full");
-  m_showMuonBarrel.changed_.connect(boost::bind(&FW3DViewBase::showMuonBarrel, this, _1));
+  m_showMuonBarrel.changed_.connect(std::bind(&FW3DViewBase::showMuonBarrel, this, std::placeholders::_1));
 
   m_rnrStyle.addEntry(TGLRnrCtx::kFill, "Fill");
   m_rnrStyle.addEntry(TGLRnrCtx::kOutline, "Outline");
   m_rnrStyle.addEntry(TGLRnrCtx::kWireFrame, "WireFrame");
-  m_rnrStyle.changed_.connect(boost::bind(&FW3DViewBase::rnrStyle, this, _1));
+  m_rnrStyle.changed_.connect(std::bind(&FW3DViewBase::rnrStyle, this, std::placeholders::_1));
 
-  m_selectable.changed_.connect(boost::bind(&FW3DViewBase::selectable, this, _1));
+  m_selectable.changed_.connect(std::bind(&FW3DViewBase::selectable, this, std::placeholders::_1));
 
   m_cameraType.addEntry(TGLViewer::kCameraPerspXOZ, "PerspXOZ");
   m_cameraType.addEntry(TGLViewer::kCameraOrthoXOY, "OrthoXOY");
@@ -146,16 +146,16 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId, un
   m_cameraType.addEntry(TGLViewer::kCameraOrthoXnOY, "OrthoXnOY");
   m_cameraType.addEntry(TGLViewer::kCameraOrthoXnOZ, "OrthoXnOZ");
   m_cameraType.addEntry(TGLViewer::kCameraOrthoZnOY, "OrthoZnOY");
-  m_cameraType.changed_.connect(boost::bind(&FW3DViewBase::setCameraType, this, _1));
+  m_cameraType.changed_.connect(std::bind(&FW3DViewBase::setCameraType, this, std::placeholders::_1));
 
-  m_clipEnable.changed_.connect(boost::bind(&FW3DViewBase::enableSceneClip, this, _1));
-  m_clipTheta.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes, this, false));
-  m_clipPhi.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes, this, false));
-  m_clipDelta1.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes, this, false));
-  m_clipDelta2.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes, this, false));
-  m_clipAppexOffset.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes, this, false));
-  m_clipHGCalLayerBegin.changed_.connect(boost::bind(&FW3DViewBase::updateHGCalVisibility, this, false));
-  m_clipHGCalLayerEnd.changed_.connect(boost::bind(&FW3DViewBase::updateHGCalVisibility, this, false));
+  m_clipEnable.changed_.connect(std::bind(&FW3DViewBase::enableSceneClip, this, std::placeholders::_1));
+  m_clipTheta.changed_.connect(std::bind(&FW3DViewBase::updateClipPlanes, this, false));
+  m_clipPhi.changed_.connect(std::bind(&FW3DViewBase::updateClipPlanes, this, false));
+  m_clipDelta1.changed_.connect(std::bind(&FW3DViewBase::updateClipPlanes, this, false));
+  m_clipDelta2.changed_.connect(std::bind(&FW3DViewBase::updateClipPlanes, this, false));
+  m_clipAppexOffset.changed_.connect(std::bind(&FW3DViewBase::updateClipPlanes, this, false));
+  m_clipHGCalLayerBegin.changed_.connect(std::bind(&FW3DViewBase::updateHGCalVisibility, this, false));
+  m_clipHGCalLayerEnd.changed_.connect(std::bind(&FW3DViewBase::updateHGCalVisibility, this, false));
 
   m_ecalBarrel = new TEveBoxSet("ecalBarrel");
   m_ecalBarrel->UseSingleColor();
@@ -172,15 +172,17 @@ void FW3DViewBase::setContext(const fireworks::Context& context) {
   m_geometry = new FW3DViewGeometry(context);
   geoScene()->AddElement(m_geometry);
 
-  m_showPixelBarrel.changed_.connect(boost::bind(&FW3DViewGeometry::showPixelBarrel, m_geometry, _1));
-  m_showPixelEndcap.changed_.connect(boost::bind(&FW3DViewGeometry::showPixelEndcap, m_geometry, _1));
-  m_showTrackerBarrel.changed_.connect(boost::bind(&FW3DViewGeometry::showTrackerBarrel, m_geometry, _1));
-  m_showTrackerEndcap.changed_.connect(boost::bind(&FW3DViewGeometry::showTrackerEndcap, m_geometry, _1));
-  m_showHGCalEE.changed_.connect(boost::bind(&FW3DViewGeometry::showHGCalEE, m_geometry, _1));
-  m_showHGCalHSi.changed_.connect(boost::bind(&FW3DViewGeometry::showHGCalHSi, m_geometry, _1));
-  m_showHGCalHSc.changed_.connect(boost::bind(&FW3DViewGeometry::showHGCalHSc, m_geometry, _1));
-  m_showMuonEndcap.changed_.connect(boost::bind(&FW3DViewGeometry::showMuonEndcap, m_geometry, _1));
-  m_showEcalBarrel.changed_.connect(boost::bind(&FW3DViewBase::showEcalBarrel, this, _1));
+  m_showPixelBarrel.changed_.connect(std::bind(&FW3DViewGeometry::showPixelBarrel, m_geometry, std::placeholders::_1));
+  m_showPixelEndcap.changed_.connect(std::bind(&FW3DViewGeometry::showPixelEndcap, m_geometry, std::placeholders::_1));
+  m_showTrackerBarrel.changed_.connect(
+      std::bind(&FW3DViewGeometry::showTrackerBarrel, m_geometry, std::placeholders::_1));
+  m_showTrackerEndcap.changed_.connect(
+      std::bind(&FW3DViewGeometry::showTrackerEndcap, m_geometry, std::placeholders::_1));
+  m_showHGCalEE.changed_.connect(std::bind(&FW3DViewGeometry::showHGCalEE, m_geometry, std::placeholders::_1));
+  m_showHGCalHSi.changed_.connect(std::bind(&FW3DViewGeometry::showHGCalHSi, m_geometry, std::placeholders::_1));
+  m_showHGCalHSc.changed_.connect(std::bind(&FW3DViewGeometry::showHGCalHSc, m_geometry, std::placeholders::_1));
+  m_showMuonEndcap.changed_.connect(std::bind(&FW3DViewGeometry::showMuonEndcap, m_geometry, std::placeholders::_1));
+  m_showEcalBarrel.changed_.connect(std::bind(&FW3DViewBase::showEcalBarrel, this, std::placeholders::_1));
 
   // don't clip event scene --  ideally, would have TGLClipNoClip in root
   TGLClipPlane* c = new TGLClipPlane();

@@ -60,6 +60,8 @@ void GEMDigiMatcher::match(const SimTrack& t, const SimVertex& v) {
   const GEMPadDigiClusterCollection& gemClusters = *gemClustersH_.product();
   const GEMCoPadDigiCollection& gemCoPads = *gemCoPadsH_.product();
 
+  clear();
+
   // now match the digis
   matchDigisToSimTrack(gemDigis);
   matchPadsToSimTrack(gemPads);
@@ -411,4 +413,20 @@ GlobalPoint GEMDigiMatcher::getGlobalPointPad(unsigned int rawId, const GEMPadDi
   const LocalPoint& gem_lp = gemGeometry_->etaPartition(gem_id)->centreOfPad(tp.pad());
   const GlobalPoint& gem_gp = gemGeometry_->idToDet(gem_id)->surface().toGlobal(gem_lp);
   return gem_gp;
+}
+
+void GEMDigiMatcher::clear() {
+  detid_to_digis_.clear();
+  chamber_to_digis_.clear();
+  superchamber_to_digis_.clear();
+
+  detid_to_pads_.clear();
+  chamber_to_pads_.clear();
+  superchamber_to_pads_.clear();
+
+  detid_to_clusters_.clear();
+  chamber_to_clusters_.clear();
+  superchamber_to_clusters_.clear();
+
+  superchamber_to_copads_.clear();
 }

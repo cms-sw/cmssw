@@ -2,12 +2,11 @@
 #define RecoBTag_IPProducer
 
 // system include files
-#include <cmath>
-#include <memory>
-#include <iostream>
 #include <algorithm>
-
-#include "boost/bind.hpp"
+#include <cmath>
+#include <functional>
+#include <iostream>
+#include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -53,7 +52,6 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class HistogramProbabilityEstimator;
-using boost::bind;
 
 namespace IPProducerHelpers {
   class FromJTA {
@@ -356,10 +354,8 @@ void IPProducer<Container, Base, Helper>::produce(edm::Event& iEvent, const edm:
 
       if (ghostTrack.get()) {
         const std::vector<reco::GhostTrackState>& states = ghostTrack->states();
-        std::vector<reco::GhostTrackState>::const_iterator pos = std::find_if(
-            states.begin(),
-            states.end(),
-            bind(std::equal_to<reco::TransientTrack>(), bind(&reco::GhostTrackState::track, _1), transientTrack));
+        std::vector<reco::GhostTrackState>::const_iterator pos =
+            std::find_if(states.begin(), states.end(), [&](auto& arg) { return arg.track() == transientTrack; });
 
         if (pos != states.end() && pos->isValid()) {
           VertexDistance3D dist;

@@ -16,24 +16,24 @@ static long algorithm(dd4hep::Detector& /* description */,
   dd4hep::Volume mother = ns.volume(args.parentName());
 
   struct Section {
-    double phi;  // phi position of this edge
-    double z_l;  // -Z end (cuttubs l plane)
-    double z_t;  // +Z end (cuttubs t plane)
+    float phi;  // phi position of this edge
+    float z_l;  // -Z end (cuttubs l plane)
+    float z_t;  // +Z end (cuttubs t plane)
     // radius is implicitly r_min
   };
 
   std::vector<Section> sections;
 
-  double r_min = args.value<double>("rMin");
-  double r_max = args.value<double>("rMax");
-  double z_pos = args.value<double>("zPos");
+  float r_min = args.value<float>("rMin");
+  float r_max = args.value<float>("rMax");
+  float z_pos = args.value<float>("zPos");
 
   const std::string solidOutput = args.value<std::string>("SolidName");
   const std::string material = args.value<std::string>("Material");
 
-  auto phis = ns.vecDbl(args.str("Phi"));
-  auto z_ls = ns.vecDbl(args.str("z_l"));
-  auto z_ts = ns.vecDbl(args.str("z_t"));
+  auto phis = ns.vecFloat(args.str("Phi"));
+  auto z_ls = ns.vecFloat(args.str("z_l"));
+  auto z_ts = ns.vecFloat(args.str("z_t"));
 
   assert(phis.size() == z_ls.size());
   assert(phis.size() == z_ts.size());
@@ -61,18 +61,18 @@ static long algorithm(dd4hep::Detector& /* description */,
   // than the extreme points. This means the cutting planes have outwards
   // slopes in r-Z, and the corner at r_max could stick out of the bounding
   // volume otherwise.
-  double r = r_max;
+  float r = r_max;
 
   // min and max z for the placement in the end
-  double min_z = 1e9;
-  double max_z = -1e9;
+  float min_z = 1e9;
+  float max_z = -1e9;
 
   // counter of actually produced segments (excluding skipped ones)
   int segment = 0;
 
   // the segments and their corresponding offset (absolute, as in the input)
   std::vector<dd4hep::Solid> segments;
-  std::vector<double> offsets;
+  std::vector<float> offsets;
 
   Section s1 = sections[0];
 
@@ -80,10 +80,8 @@ static long algorithm(dd4hep::Detector& /* description */,
     if (s1.phi != s2.phi) {
       segment++;
       // produce segment s1-s2.
-      std::string segname(solidOutput + "_seg_" + std::to_string(segment));
-
-      double phi1 = s1.phi;
-      double phi2 = s2.phi;
+      float phi1 = s1.phi;
+      float phi2 = s2.phi;
 
       // track the min/max to properly place&align later
       if (s2.z_l < min_z)
@@ -91,57 +89,55 @@ static long algorithm(dd4hep::Detector& /* description */,
       if (s2.z_t > max_z)
         max_z = s2.z_t;
 
-      double P1_z_l = s1.z_l;
-      double P1_z_t = s1.z_t;
-      double P2_z_l = s2.z_l;
-      double P2_z_t = s2.z_t;
+      float P1_z_l = s1.z_l;
+      float P1_z_t = s1.z_t;
+      float P2_z_l = s2.z_l;
+      float P2_z_t = s2.z_t;
 
-      double P1_x_t = cos(phi1) * r;
-      double P1_x_l = cos(phi1) * r;
-      double P1_y_t = sin(phi1) * r;
-      double P1_y_l = sin(phi1) * r;
+      float P1_x_t = cos(phi1) * r;
+      float P1_x_l = cos(phi1) * r;
+      float P1_y_t = sin(phi1) * r;
+      float P1_y_l = sin(phi1) * r;
 
-      double P2_x_t = cos(phi2) * r;
-      double P2_x_l = cos(phi2) * r;
-      double P2_y_t = sin(phi2) * r;
-      double P2_y_l = sin(phi2) * r;
+      float P2_x_t = cos(phi2) * r;
+      float P2_x_l = cos(phi2) * r;
+      float P2_y_t = sin(phi2) * r;
+      float P2_y_l = sin(phi2) * r;
 
       // each cutting plane is defined by P1-3. P1-2 are corners of the
       // segment, P3 is at r=0 with the "average" z to get a nice cut.
-      double P3_z_l = (P1_z_l + P2_z_l) / 2;
-      double P3_z_t = (P1_z_t + P2_z_t) / 2;
+      float P3_z_l = (P1_z_l + P2_z_l) / 2;
+      float P3_z_t = (P1_z_t + P2_z_t) / 2;
 
-      edm::LogVerbatim("TrackerGeom") << "DDCutTubsFromPoints: P1 l: " << segname << P1_x_l << " , " << P1_y_l << " , "
-                                      << P1_z_l;
-      edm::LogVerbatim("TrackerGeom") << "DDCutTubsFromPoints: P1 t: " << segname << P1_x_t << " , " << P1_y_t << " , "
-                                      << P1_z_t;
-
-      edm::LogVerbatim("TrackerGeom") << "DDCutTubsFromPoints: P2 l: " << segname << P2_x_l << " , " << P2_y_l << " , "
-                                      << P2_z_l;
-      edm::LogVerbatim("TrackerGeom") << "DDCutTubsFromPoints: P2 t: " << segname << P2_x_t << " , " << P2_y_t << " , "
-                                      << P2_z_t;
+      edm::LogVerbatim("TrackerGeom").log([&](auto& log) {
+        std::string segname(solidOutput + "_seg_" + std::to_string(segment));
+        log << "DDCutTubsFromPoints: P1 l: " << segname << P1_x_l << " , " << P1_y_l << " , " << P1_z_l;
+        log << "DDCutTubsFromPoints: P1 t: " << segname << P1_x_t << " , " << P1_y_t << " , " << P1_z_t;
+        log << "DDCutTubsFromPoints: P2 l: " << segname << P2_x_l << " , " << P2_y_l << " , " << P2_z_l;
+        log << "DDCutTubsFromPoints: P2 t: " << segname << P2_x_t << " , " << P2_y_t << " , " << P2_z_t;
+      });
 
       // we only have one dz to position both planes. The anchor is implicitly
       // between the P3's, we have to use an offset later to make the segments
       // line up correctly.
-      double dz = (P3_z_t - P3_z_l) / 2;
-      double offset = (P3_z_t + P3_z_l) / 2;
+      float dz = 0.5 * (P3_z_t - P3_z_l);
+      float offset = 0.5 * (P3_z_t + P3_z_l);
 
       // the plane is defined by P1-P3 and P2-P3; since P3 is at r=0 we
       // only need the z.
-      double D1_z_l = P1_z_l - P3_z_l;
-      double D2_z_l = P2_z_l - P3_z_l;
+      float D1_z_l = P1_z_l - P3_z_l;
+      float D2_z_l = P2_z_l - P3_z_l;
 
       // the normal is then the cross product...
-      double n_x_l = (P1_y_l * D2_z_l) - (D1_z_l * P2_y_l);
-      double n_y_l = (D1_z_l * P2_x_l) - (P1_x_l * D2_z_l);
-      double n_z_l = (P1_x_l * P2_y_l) - (P1_y_l * P2_x_l);
+      float n_x_l = (P1_y_l * D2_z_l) - (D1_z_l * P2_y_l);
+      float n_y_l = (D1_z_l * P2_x_l) - (P1_x_l * D2_z_l);
+      float n_z_l = (P1_x_l * P2_y_l) - (P1_y_l * P2_x_l);
 
       edm::LogVerbatim("TrackerGeom") << "DDCutTubsFromPoints: l_Pos (" << n_x_l << "," << n_y_l << "," << n_z_l << ")";
 
       // ... normalized.
       // flip the sign here (but not for t) since root wants it like that.
-      double norm = -sqrt(n_x_l * n_x_l + n_y_l * n_y_l + n_z_l * n_z_l);
+      float norm = -sqrt(n_x_l * n_x_l + n_y_l * n_y_l + n_z_l * n_z_l);
       n_x_l /= norm;
       n_y_l /= norm;
       n_z_l /= norm;
@@ -149,12 +145,12 @@ static long algorithm(dd4hep::Detector& /* description */,
       edm::LogVerbatim("TrackerGeom") << "DDCutTubsFromPoints: l_norm " << norm;
 
       // same game for the t side.
-      double D1_z_t = P1_z_t - P3_z_t;
-      double D2_z_t = P2_z_t - P3_z_t;
+      float D1_z_t = P1_z_t - P3_z_t;
+      float D2_z_t = P2_z_t - P3_z_t;
 
-      double n_x_t = (P1_y_t * D2_z_t) - (D1_z_t * P2_y_t);
-      double n_y_t = (D1_z_t * P2_x_t) - (P1_x_t * D2_z_t);
-      double n_z_t = (P1_x_t * P2_y_t) - (P1_y_t * P2_x_t);
+      float n_x_t = (P1_y_t * D2_z_t) - (D1_z_t * P2_y_t);
+      float n_y_t = (D1_z_t * P2_x_t) - (P1_x_t * D2_z_t);
+      float n_z_t = (P1_x_t * P2_y_t) - (P1_y_t * P2_x_t);
 
       edm::LogVerbatim("TrackerGeom") << "DDCutTubsFromPoints: t_Pos (" << n_x_t << "," << n_y_t << "," << n_z_t << ")";
 
@@ -184,26 +180,22 @@ static long algorithm(dd4hep::Detector& /* description */,
   dd4hep::Solid solid = segments[0];
 
   // placement happens relative to the first member of the union
-  double shift = offsets[0];
+  float shift = offsets[0];
 
   for (unsigned i = 1; i < segments.size() - 1; i++) {
-    // each sub-union needs a name.
-    std::string unionname = solidOutput + "_uni" + std::to_string(i + 1);
-
-    solid = ns.addSolid(
-        unionname, dd4hep::UnionSolid(unionname, solid, segments[i], dd4hep::Position(0., 0., offsets[i] - shift)));
+    solid = dd4hep::UnionSolid(
+        solidOutput + "_uni" + std::to_string(i + 1), solid, segments[i], dd4hep::Position(0., 0., offsets[i] - shift));
   }
 
-  solid = ns.addSolid(solidOutput,
-                      dd4hep::UnionSolid(solidOutput,
-                                         solid,
-                                         segments[segments.size() - 1],
-                                         dd4hep::Position(0., 0., offsets[segments.size() - 1] - shift)));
+  solid = dd4hep::UnionSolid(solidOutput,
+                             solid,
+                             segments[segments.size() - 1],
+                             dd4hep::Position(0., 0., offsets[segments.size() - 1] - shift));
 
   // remove the common offset from the input, to get sth. aligned at z=0.
-  double offset = -shift + (min_z + (max_z - min_z) / 2.);
+  float offset = -shift + (min_z + 0.5 * (max_z - min_z));
 
-  auto logical = ns.addVolume(dd4hep::Volume(solidOutput, solid, ns.material(material)));
+  auto logical = dd4hep::Volume(solidOutput, solid, ns.material(material));
 
   int nCopy = 1;
   auto pos = dd4hep::Position(0., 0., z_pos - offset);

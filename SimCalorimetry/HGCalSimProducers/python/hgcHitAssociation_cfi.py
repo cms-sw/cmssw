@@ -1,0 +1,1 @@
+from SimCalorimetry.HGCalAssociatorProducers.layerClusterAssociatorByEnergyScore_cfi import layerClusterAssociatorByEnergyScore as lcAssocByEnergyScoreProducer

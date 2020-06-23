@@ -106,8 +106,8 @@
   <Constant name="zHGCalHEmix4"          value="[zHGCal8]"/>
   <Constant name="zHGCalHEmix5"          value="[zHGCal9]"/>
   <Constant name="zHGCalHEmix6"          value="[zHGCal10]"/>
-  <Constant name="rMinHGCalHEmix1"       value="383.6*mm"/>
-  <Constant name="rMinHGCalHEmix2"       value="448.4*mm"/>
+  <Constant name="rMinHGCalHEmix1"       value="418.6*mm"/>
+  <Constant name="rMinHGCalHEmix2"       value="483.4*mm"/>
   <Constant name="rMaxHGCalHEmix1"       value="([rMaxHGCal8]+[slope3]*
 						([zHGCalHEmix1]-[zHGCal8]))"/>
   <Constant name="rMaxHGCalHEmix2"       value="([rMaxHGCal8]+[slope3]*

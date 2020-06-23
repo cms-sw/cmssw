@@ -7,6 +7,7 @@
 <use name="DataFormats/L1TMuon"/>
 <use name="DataFormats/ParticleFlowCandidate"/>
 <use name="DataFormats/ParticleFlowReco"/>
+<use name="DataFormats/RPCRecHit"/>
 <use name="FWCore/PluginManager"/>
 <use name="L1Trigger/L1TCommon"/>
 <use name="L1Trigger/CSCCommonTrigger"/>
@@ -22,5 +23,3 @@
 <use name="PhysicsTools/UtilAlgos"/>
 <use name="MagneticField/Engine"/>
 <use name="MagneticField/Records"/>
-<use name="DataFormats/L1TrackTrigger"/>
-<use name="Geometry/TrackerGeometryBuilder"/>

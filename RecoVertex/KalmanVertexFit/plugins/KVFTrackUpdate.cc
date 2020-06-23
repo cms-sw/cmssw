@@ -77,10 +77,10 @@ void KVFTrackUpdate::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     SingleTrackVertexConstraint stvc;
     for (unsigned int i = 0; i < t_tks.size(); i++) {
       SingleTrackVertexConstraint::BTFtuple a = stvc.constrain(t_tks[i], glbPos, glbErrPos);
-      std::cout << "Chi2: " << a.get<2>() << std::endl;
+      std::cout << "Chi2: " << std::get<2>(a) << std::endl;
       if (recoBeamSpotHandle.isValid()) {
         SingleTrackVertexConstraint::BTFtuple b = stvc.constrain(t_tks[i], *recoBeamSpotHandle);
-        std::cout << "Chi2: " << b.get<2>() << std::endl;
+        std::cout << "Chi2: " << std::get<2>(b) << std::endl;
       }
     }
   }

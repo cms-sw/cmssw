@@ -11,7 +11,7 @@
 #include <DetectorDescription/Core/interface/DDFilteredView.h>
 #include <DetectorDescription/Core/interface/DDSolid.h>
 
-#include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/RPCNumberingScheme.h"
 
@@ -27,7 +27,7 @@ RPCGeometryParsFromDD::RPCGeometryParsFromDD() {}
 RPCGeometryParsFromDD::~RPCGeometryParsFromDD() {}
 
 void RPCGeometryParsFromDD::build(const DDCompactView* cview,
-                                  const MuonDDDConstants& muonConstants,
+                                  const MuonGeometryConstants& muonConstants,
                                   RecoIdealGeometry& rgeo) {
   const std::string attribute = "ReadOutName";
   const std::string value = "MuonRPCHits";
@@ -40,11 +40,11 @@ void RPCGeometryParsFromDD::build(const DDCompactView* cview,
 }
 
 void RPCGeometryParsFromDD::buildGeometry(DDFilteredView& fview,
-                                          const MuonDDDConstants& muonConstants,
+                                          const MuonGeometryConstants& muonConstants,
                                           RecoIdealGeometry& rgeo) {
   for (bool doSubDets = fview.firstChild(); doSubDets == true; doSubDets = fview.nextSibling()) {
     // Get the Base Muon Number
-    MuonDDDNumbering mdddnum(muonConstants);
+    MuonGeometryNumbering mdddnum(muonConstants);
     MuonBaseNumber mbn = mdddnum.geoHistoryToBaseNumber(fview.geoHistory());
 
     // Get the The Rpc det Id

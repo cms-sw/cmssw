@@ -116,11 +116,6 @@ from Alignment.CommonAlignmentProducer.ALCARECOMuAlOverlaps_cff import *
 # RPC calibration
 ###############################################################
 from CalibMuon.RPCCalibration.ALCARECORpcCalHLT_cff import *
-###############################################################
-# DT calibration
-###############################################################
-from CalibMuon.DTCalibration.ALCARECODtCalib_cff import *
-from CalibMuon.DTCalibration.ALCARECODtCalibCosmics_cff import *
 
 
 ###############################################################
@@ -211,15 +206,13 @@ pathALCARECOHcalCalIsolatedBunchSelector = cms.Path(seqALCARECOHcalCalIsolatedBu
 pathALCARECOHcalCalHBHEMuonFilter = cms.Path(seqALCARECOHcalCalHBHEMuonFilter)
 pathALCARECOHcalCalLowPUHBHEMuonFilter = cms.Path(seqALCARECOHcalCalLowPUHBHEMuonFilter)
 pathALCARECOHcalCalHEMuonFilter = cms.Path(seqALCARECOHcalCalHEMuonFilter)
-pathALCARECOMuAlCalIsolatedMu = cms.Path(seqALCARECOMuAlCalIsolatedMu*ALCARECODTCalibrationDQM)
+pathALCARECOMuAlCalIsolatedMu = cms.Path(seqALCARECOMuAlCalIsolatedMu)
 pathALCARECOMuAlCalIsolatedMuGeneralTracks = cms.Path(seqALCARECOMuAlCalIsolatedMuGeneralTracks)
 pathALCARECOMuAlZMuMu = cms.Path(seqALCARECOMuAlZMuMu)
 pathALCARECOMuAlZMuMuGeneralTracks = cms.Path(seqALCARECOMuAlZMuMuGeneralTracks)
 pathALCARECOMuAlOverlaps = cms.Path(seqALCARECOMuAlOverlaps)
 pathALCARECOMuAlOverlapsGeneralTracks = cms.Path(seqALCARECOMuAlOverlapsGeneralTracks)
 pathALCARECORpcCalHLT = cms.Path(seqALCARECORpcCalHLT)
-pathALCARECODtCalib = cms.Path(seqALCARECODtCalib*ALCARECODTCalibSynchDQM)
-pathALCARECODtCalibCosmics = cms.Path(seqALCARECODtCalibCosmics*ALCARECODTCalibSynchCosmicsDQM)
 pathALCARECOTkAlBeamHalo = cms.Path(seqALCARECOTkAlBeamHalo*ALCARECOTkAlBeamHaloDQM)
 pathALCARECOMuAlBeamHaloOverlaps = cms.Path(seqALCARECOMuAlBeamHaloOverlaps)
 pathALCARECOMuAlBeamHalo = cms.Path(seqALCARECOMuAlBeamHalo)
@@ -231,6 +224,7 @@ pathALCARECOTkAlCosmicsRegional = cms.Path(seqALCARECOTkAlCosmicsRegional*ALCARE
 pathALCARECOTkAlCosmicsCTF0T = cms.Path(seqALCARECOTkAlCosmicsCTF0T*ALCARECOTkAlCosmicsCTF0TDQM)
 pathALCARECOTkAlCosmicsCosmicTF0T = cms.Path(seqALCARECOTkAlCosmicsCosmicTF0T*ALCARECOTkAlCosmicsCosmicTF0TDQM)
 pathALCARECOTkAlCosmicsRegional0T = cms.Path(seqALCARECOTkAlCosmicsRegional0T*ALCARECOTkAlCosmicsRegional0TDQM)
+pathALCARECOTkAlCosmicsDuringCollisions0T = cms.Path(seqALCARECOTkAlCosmicsDuringCollisions0T*ALCARECOTkAlCosmicsInCollisions0TDQM)
 pathALCARECOTkAlCosmicsCTFHLT = cms.Path(seqALCARECOTkAlCosmicsCTFHLT*ALCARECOTkAlCosmicsCTFDQM)
 pathALCARECOTkAlCosmicsCosmicTFHLT = cms.Path(seqALCARECOTkAlCosmicsCosmicTFHLT*ALCARECOTkAlCosmicsCosmicTFDQM)
 pathALCARECOTkAlCosmicsRegionalHLT = cms.Path(seqALCARECOTkAlCosmicsRegionalHLT*ALCARECOTkAlCosmicsRegionalDQM)
@@ -680,24 +674,6 @@ ALCARECOStreamRpcCalHLT = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOStreamDtCalib = cms.FilteredStream(
-	responsible = 'Mario Pelliccioni',
-	name = 'DtCalib',
-	paths  = (pathALCARECODtCalib),
-	content = OutALCARECODtCalib.outputCommands,
-	selectEvents = OutALCARECODtCalib.SelectEvents,
-	dataTier = cms.untracked.string('ALCARECO')
-	)
-
-ALCARECOStreamDtCalibCosmics = cms.FilteredStream(
-	responsible = 'Antonio Vilela Pereira',
-	name = 'DtCalibCosmics',
-	paths  = (pathALCARECODtCalibCosmics),
-	content = OutALCARECODtCalibCosmics.outputCommands,
-	selectEvents = OutALCARECODtCalibCosmics.SelectEvents,
-	dataTier = cms.untracked.string('ALCARECO')
-	)
-
 ALCARECOStreamTkAlCosmicsInCollisions = cms.FilteredStream(
 	responsible = 'Andreas Mussgiller',
 	name = 'TkAlCosmicsInCollisions',
@@ -728,7 +704,7 @@ ALCARECOStreamTkAlCosmicsHLT = cms.FilteredStream(
 ALCARECOStreamTkAlCosmics0T = cms.FilteredStream(
 	responsible = 'Andreas Mussgiller',
 	name = 'TkAlCosmics0T',
-	paths  = (pathALCARECOTkAlCosmicsCTF0T,pathALCARECOTkAlCosmicsCosmicTF0T,pathALCARECOTkAlCosmicsRegional0T),
+	paths  = (pathALCARECOTkAlCosmicsCTF0T,pathALCARECOTkAlCosmicsCosmicTF0T,pathALCARECOTkAlCosmicsRegional0T,pathALCARECOTkAlCosmicsDuringCollisions0T),
 	content = OutALCARECOTkAlCosmics0T.outputCommands,
 	selectEvents = OutALCARECOTkAlCosmics0T.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')

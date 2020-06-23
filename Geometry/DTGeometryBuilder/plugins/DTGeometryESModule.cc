@@ -34,7 +34,7 @@ DTGeometryESModule::DTGeometryESModule(const edm::ParameterSet& p)
         cc.consumesFrom<AlignmentErrorsExtended, DTAlignmentErrorExtendedRcd>(edm::ESInputTag{"", alignmentsLabel_});
   }
   if (fromDDD_) {
-    mdcToken_ = cc.consumesFrom<MuonDDDConstants, MuonNumberingRecord>(edm::ESInputTag{});
+    mdcToken_ = cc.consumesFrom<MuonGeometryConstants, IdealGeometryRecord>(edm::ESInputTag{});
     cpvToken_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag{});
   } else {
     rigToken_ = cc.consumesFrom<RecoIdealGeometry, DTRecoGeometryRcd>(edm::ESInputTag{});

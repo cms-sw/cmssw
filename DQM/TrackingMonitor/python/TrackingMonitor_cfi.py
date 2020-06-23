@@ -67,6 +67,8 @@ TrackMon = DQMEDAnalyzer('TrackingMonitor',
     pvNDOF                              = cms.int32(4),
     pixelCluster4lumi                   = cms.InputTag('siPixelClustersPreSplitting'),
     scal                                = cms.InputTag('scalersRawToDigi'),
+    forceSCAL                           = cms.bool(True),
+    metadata                            = cms.InputTag('onlineMetaDataDigis'),
     useBPixLayer1                       = cms.bool(False),
     minNumberOfPixelsPerCluster         = cms.int32(2), # from DQM/PixelLumi/python/PixelLumiDQM_cfi.py
     minPixelClusterCharge               = cms.double(15000.),
@@ -382,10 +384,11 @@ TrackMon = DQMEDAnalyzer('TrackingMonitor',
     NClusStrMin = cms.double(-0.5),
 
     # NCluster Vs Tracks
-    NTrk2DBin     = cms.int32(50),
-    NTrk2DMax     = cms.double(1999.5),                      
-    NTrk2DMin     = cms.double(-0.5),
-
+    NTrk2D = cms.PSet(
+        NTrk2DBin     = cms.int32(50),
+        NTrk2DMax     = cms.double(1999.5),                      
+        NTrk2DMin     = cms.double(-0.5),
+    ),
     # PU monitoring
     # Nunmber of Tracks per Primary Vertices
     NTrkPVtx = cms.PSet(
@@ -464,8 +467,10 @@ TrackMon.SeedCandMin = cms.double(-0.5)
 
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
 phase1Pixel.toModify(TrackMon, EtaBin=31, EtaMin=-3., EtaMax=3.)
 phase1Pixel.toModify(TrackMon, LUMIBin=300, LUMIMin=200., LUMIMax=20000.)
+run3_common.toModify(TrackMon, forceSCAL = False)
 phase2_tracker.toModify(TrackMon, EtaBin=46, EtaMin=-4.5, EtaMax=4.5)
 phase2_tracker.toModify(TrackMon, PVBin=125, PVMin=-0.5, PVMax=249.5)
-phase2_tracker.toModify(TrackMon, LUMIBin=700, LUMIMin=0., LUMIMax=70000.)
+phase2_tracker.toModify(TrackMon, LUMIBin=700, LUMIMin=200., LUMIMax=70000.)

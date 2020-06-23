@@ -104,7 +104,7 @@ def loadJetMETBTag(process):
     task.add(process.ak4PFJetsCHS)
     process.ak8PFJetsCHS = RecoJets.Configuration.RecoPFJets_cff.ak8PFJetsCHS.clone()
     task.add(process.ak8PFJetsCHS)
-    process.load("RecoMET.METProducers.PFMET_cfi")
+    process.load("RecoMET.METProducers.pfMet_cfi")
     task.add(process.pfMet)
     process.load("RecoBTag.ImpactParameter.impactParameter_cff")
     task.add(process.impactParameterTask)

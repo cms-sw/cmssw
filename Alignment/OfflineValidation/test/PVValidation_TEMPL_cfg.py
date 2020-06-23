@@ -224,6 +224,8 @@ if isDA:
                                                                          minPixelLayersWithHits = cms.int32(2),                      # PX hits > 2                       
                                                                          minSiliconLayersWithHits = cms.int32(5),                    # TK hits > 5  
                                                                          maxD0Significance = cms.double(5.0),                        # fake cut (requiring 1 PXB hit)     
+                                                                         maxD0Error = cms.double(100.0),                        # fake cut (requiring 1 PXB hit)     
+                                                                         maxDzError = cms.double(100.0),                        # fake cut (requiring 1 PXB hit)     
                                                                          minPt = cms.double(0.0),                                    # better for softish events                        
                                                                          maxEta = cms.double(5.0),                                   # as per recommendation in PR #18330
                                                                          trackQuality = cms.string("any")
@@ -232,6 +234,10 @@ if isDA:
                                            ## MM 04.05.2017 (use settings as in: https://github.com/cms-sw/cmssw/pull/18330)
                                            TkClusParameters=cms.PSet(algorithm=cms.string('DA_vect'),
                                                                      TkDAClusParameters = cms.PSet(coolingFactor = cms.double(0.6),  # moderate annealing speed
+                                                                                                   zrange = cms.double(4.),          # consider only clusters within 4 sigma*sqrt(T) of a track
+                                                                                                   delta_highT = cms.double(1.e-2),  # convergence requirement at high T
+                                                                                                   delta_lowT = cms.double(1.e-3),   # convergence requirement at low T
+                                                                                                   convergence_mode = cms.int32(0),  # 0 = two steps, 1 = dynamic with sqrt(T)
                                                                                                    Tmin = cms.double(2.0),           # end of vertex splitting
                                                                                                    Tpurge = cms.double(2.0),         # cleaning 
                                                                                                    Tstop = cms.double(0.5),          # end of annealing
@@ -267,6 +273,8 @@ else:
                                                                          minPixelLayersWithHits=cms.int32(2),                        # PX hits > 2                   
                                                                          minSiliconLayersWithHits = cms.int32(5),                    # TK hits > 5                   
                                                                          maxD0Significance = cms.double(5.0),                        # fake cut (requiring 1 PXB hit)
+                                                                         maxD0Error = cms.double(100.0),                        # fake cut (requiring 1 PXB hit)     
+                                                                         maxDzError = cms.double(100.0),                        # fake cut (requiring 1 PXB hit)     
                                                                          minPt = cms.double(0.0),                                    # better for softish events     
                                                                          maxEta = cms.double(5.0),                                   # as per recommendation in PR #18330
                                                                          trackQuality = cms.string("any")

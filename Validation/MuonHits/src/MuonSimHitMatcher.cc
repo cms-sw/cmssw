@@ -135,3 +135,11 @@ GlobalVector MuonSimHitMatcher::simHitsMeanMomentum(const edm::PSimHitContainer&
     return GlobalVector();
   return GlobalVector(sumx / n, sumy / n, sumz / n);
 }
+
+void MuonSimHitMatcher::clear() {
+  track_ids_.clear();
+  trkid_to_index_.clear();
+  hits_.clear();
+  detid_to_hits_.clear();
+  chamber_to_hits_.clear();
+}

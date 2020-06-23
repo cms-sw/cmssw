@@ -396,10 +396,10 @@ CSCTMBHeader* CSCEventData::tmbHeader() const {
   return tmbData()->tmbHeader();
 }
 
-CSCCLCTData* CSCEventData::clctData() const {
+CSCComparatorData* CSCEventData::comparatorData() const {
   if ((nclct() == 0) || (tmbData() == nullptr))
     throw cms::Exception("No CLCT data for this chamber");
-  return tmbData()->clctData();
+  return tmbData()->comparatorData();
 }
 
 void CSCEventData::setEventInformation(int bxnum, int lvl1num) {
@@ -422,7 +422,7 @@ void CSCEventData::setEventInformation(int bxnum, int lvl1num) {
     }
     /*
       // Set number of CFEBs to 4 for ME13 chambers
-      if (theChamberType == 4) { 
+      if (theChamberType == 4) {
 	theTMBData->tmbHeader()->setNCFEBs(4);
       }
 */
@@ -489,12 +489,12 @@ void CSCEventData::add(const CSCWireDigi& digi, int layer) {
 
 void CSCEventData::add(const CSCComparatorDigi& digi, int layer) {
   checkTMBClasses();
-  theTMBData->clctData()->add(digi, layer);
+  theTMBData->comparatorData()->add(digi, layer);
 }
 
 void CSCEventData::add(const CSCComparatorDigi& digi, const CSCDetId& cid) {
   checkTMBClasses();
-  theTMBData->clctData()->add(digi, cid);
+  theTMBData->comparatorData()->add(digi, cid);
 }
 
 void CSCEventData::add(const std::vector<CSCALCTDigi>& digis) {
@@ -511,6 +511,8 @@ void CSCEventData::add(const std::vector<CSCCorrelatedLCTDigi>& digis) {
   checkTMBClasses();
   theTMBData->tmbHeader()->add(digis);
 }
+
+void CSCEventData::add(const std::vector<GEMPadDigiCluster>& clusters, const GEMDetId&) { checkTMBClasses(); }
 
 std::ostream& operator<<(std::ostream& os, const CSCEventData& evt) {
   for (int ilayer = 1; ilayer <= 6; ++ilayer) {

@@ -13,8 +13,6 @@ DEFINE_EDM_PLUGIN(PileUpSubtractorFactory, MultipleAlgoIterator, "MultipleAlgoIt
 DEFINE_EDM_PLUGIN(PileUpSubtractorFactory, ParametrizedSubtractor, "ParametrizedSubtractor");
 DEFINE_EDM_PLUGIN(PileUpSubtractorFactory, ReflectedIterator, "ReflectedIterator");
 
-#include "RecoHI/HiJetAlgos/interface/ParticleTowerProducer.h"
-DEFINE_FWK_MODULE(ParticleTowerProducer);
 #include "RecoHI/HiJetAlgos/interface/HiGenCleaner.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"

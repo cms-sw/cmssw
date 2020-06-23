@@ -68,12 +68,11 @@ namespace cond {
                             std::string& objectType,
                             cond::SynchronizationType& synchronizationType,
                             cond::Time_t& endOfValidity,
-                            std::string& description,
                             cond::Time_t& lastValidatedTime) {
-      Query<TIME_TYPE, OBJECT_TYPE, SYNCHRONIZATION, END_OF_VALIDITY, DESCRIPTION, LAST_VALIDATED_TIME> q(m_schema);
+      Query<TIME_TYPE, OBJECT_TYPE, SYNCHRONIZATION, END_OF_VALIDITY, LAST_VALIDATED_TIME> q(m_schema);
       q.addCondition<NAME>(name);
       for (auto row : q)
-        std::tie(timeType, objectType, synchronizationType, endOfValidity, description, lastValidatedTime) = row;
+        std::tie(timeType, objectType, synchronizationType, endOfValidity, lastValidatedTime) = row;
 
       return q.retrievedRows();
     }
@@ -121,12 +120,20 @@ namespace cond {
     void TAG::Table::update(const std::string& name,
                             cond::SynchronizationType synchronizationType,
                             cond::Time_t& endOfValidity,
-                            const std::string& description,
                             cond::Time_t lastValidatedTime,
                             const boost::posix_time::ptime& updateTime) {
       UpdateBuffer buffer;
-      buffer.setColumnData<SYNCHRONIZATION, END_OF_VALIDITY, DESCRIPTION, LAST_VALIDATED_TIME, MODIFICATION_TIME>(
-          std::tie(synchronizationType, endOfValidity, description, lastValidatedTime, updateTime));
+      buffer.setColumnData<SYNCHRONIZATION, END_OF_VALIDITY, LAST_VALIDATED_TIME, MODIFICATION_TIME>(
+          std::tie(synchronizationType, endOfValidity, lastValidatedTime, updateTime));
+      buffer.addWhereCondition<NAME>(name);
+      updateTable(m_schema, tname, buffer);
+    }
+
+    void TAG::Table::updateMetadata(const std::string& name,
+                                    const std::string& description,
+                                    const boost::posix_time::ptime& updateTime) {
+      UpdateBuffer buffer;
+      buffer.setColumnData<DESCRIPTION, MODIFICATION_TIME>(std::tie(description, updateTime));
       buffer.addWhereCondition<NAME>(name);
       updateTable(m_schema, tname, buffer);
     }

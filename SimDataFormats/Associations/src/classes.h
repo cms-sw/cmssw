@@ -6,6 +6,7 @@
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include "SimDataFormats/Associations/interface/VertexAssociation.h"
 #include "SimDataFormats/Associations/interface/VertexToTrackingVertexAssociator.h"
+#include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociator.h"
 
 namespace SimDataFormats_Associations {
   struct SimDataFormats_Associations {
@@ -15,6 +16,8 @@ namespace SimDataFormats_Associations {
     edm::Wrapper<reco::MuonToTrackingParticleAssociator> dummy3;
 
     edm::Wrapper<reco::VertexToTrackingVertexAssociator> dummy4;
+
+    edm::Wrapper<hgcal::LayerClusterToCaloParticleAssociator> dummy5;
 
     reco::VertexSimToRecoCollection vstrc;
     reco::VertexSimToRecoCollection::const_iterator vstrci;

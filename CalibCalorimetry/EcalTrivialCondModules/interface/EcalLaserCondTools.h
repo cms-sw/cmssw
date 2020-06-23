@@ -25,7 +25,7 @@ class EcalLaserCondTools : public edm::EDAnalyzer {
 
   /** Number of extended laser monitoring regions
    */
-  static const int nLmes = 92;
+  static constexpr int nLmes = 92;
 
   //methods
 public:
@@ -62,7 +62,7 @@ private:
   class FileReader : public EcalLaserCondTools::CorrReader {
   public:
     FileReader(const std::vector<std::string>& fnames) : f_(nullptr), fnames_(fnames), ifile_(-1), iline_(0) {}
-    bool readTime(int& t1, int t2[nLmes], int& t3) override;
+    bool readTime(int& t1, int t2[EcalLaserCondTools::nLmes], int& t3) override;
     bool readPs(DetId& rawdetid, EcalLaserAPDPNRatios::EcalLaserAPDPNpair& corr) override;
     ~FileReader() override {}
 
@@ -93,6 +93,7 @@ private:
   int nIovs_;
   int fromTime_;
   int toTime_;
+  double minP_, maxP_;
   FILE* ferr_;
 };
 

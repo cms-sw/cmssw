@@ -32,7 +32,6 @@ process.load("DQM.Integration.config.environment_cfi")
 #process.DQMEventStreamHttpReader.sourceURL = cms.string('http://srv-c2c07-13.cms:11100/urn:xdaq-application:lid=50')
 
 # old, not used
-#process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/hlt_reference.root"
 
 process.dqmSaver.tag = "HLTRates"
 

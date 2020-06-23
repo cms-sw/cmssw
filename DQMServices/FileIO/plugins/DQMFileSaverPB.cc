@@ -44,6 +44,13 @@ void DQMFileSaverPB::initRun() const {
     transferDestination_ = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations(streamLabel_);
     mergeType_ = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType(streamLabel_, evf::MergeTypePB);
   }
+
+  if (!fakeFilterUnitMode_) {
+    evf::EvFDaqDirector* daqDirector = (evf::EvFDaqDirector*)(edm::Service<evf::EvFDaqDirector>().operator->());
+    const std::string initFileName = daqDirector->getInitFilePath(streamLabel_);
+    std::ofstream file(initFileName);
+    file.close();
+  }
 }
 
 void DQMFileSaverPB::saveLumi(const FileParameters& fp) const {
@@ -207,7 +214,6 @@ void DQMFileSaverPB::savePB(DQMStore* store, std::string const& filename, int ru
 
   dqmstorepb::ROOTFilePB dqmstore_message;
 
-  // TODO: while we still have enableMultiThread, maybe this does the wrong thing.
   // We save all histograms, indifferent of the lumi flag: even tough we save per lumi, this is a *snapshot*.
   auto mes = store->getAllContents("");
   for (auto const me : mes) {

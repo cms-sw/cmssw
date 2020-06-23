@@ -4,7 +4,7 @@
 #include <string>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/util/XMLString.hpp>
-#include <stdlib.h>
+#include <cstdlib>
 #include "CalibrationXML.h"
 
 class CalibratedObject;

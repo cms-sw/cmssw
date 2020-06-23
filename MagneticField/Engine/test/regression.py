@@ -1,6 +1,7 @@
 
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
+import sys
 
 options = VarParsing.VarParsing()
 
@@ -20,7 +21,7 @@ options.register('current',
                  18000, #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.float,
-                 "Magnet current (nominal values: 18164=3.8T; 16730=3.5T; 14340=3T; 9500=2T")
+                 "Magnet current (nominal values: 18164=3.8T; 16730=3.5T; 14340=3T; 9500=2T; -1=loop in different IOV")
 
 options.parseArguments()
 
@@ -34,17 +35,58 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 REFERENCEFILE = 'none'
-if options.current > 18765 or options.current <= 4779 :
-    print '\nERROR: invalid current value: ',  options.current,'\n'
-    exit()
+
+if options.current < 0 : # Test all currents, simulating different IOVs with different values runInfo
+                         # FIXME: currents are set all equal for the time being because we need to set up a way to specify the correct
+                         # reference file file to be picked for each at runtime.
+    if options.producerType == 'static_DDD' or options.producerType == 'static_DD4Hep' :
+        sys.exit('Invalid configuration: current=-1 mode is not supported with static prouducers')
+    process.maxEvents.input = 4
+    process.source.numberEventsInLuminosityBlock =cms.untracked.uint32(1)
+
+    if options.era=='RunI':
+        process.source.firstLuminosityBlockForEachRun = cms.untracked.VLuminosityBlockID(
+            cms.LuminosityBlockID(10,1),
+            cms.LuminosityBlockID(20,2),
+            cms.LuminosityBlockID(30,3),
+            cms.LuminosityBlockID(40,4),
+            )
+        process.add_( cms.ESProducer("RunInfoTestESProducer",
+                                     runInfos = cms.VPSet(cms.PSet(run = cms.int32(10), avg_current = cms.double(18000.)),
+                                                          cms.PSet(run = cms.int32(20), avg_current = cms.double(18000.)),
+                                                          cms.PSet(run = cms.int32(30), avg_current = cms.double(18000.)),
+                                                          cms.PSet(run = cms.int32(40), avg_current = cms.double(18000.)),
+                                                          ) ) )
+    else :
+        process.source.firstLuminosityBlockForEachRun = cms.untracked.VLuminosityBlockID(
+            cms.LuminosityBlockID(300001,1),
+            cms.LuminosityBlockID(300002,2),
+            cms.LuminosityBlockID(300003,3),
+            cms.LuminosityBlockID(300004,4),
+            )
+        process.add_( cms.ESProducer("RunInfoTestESProducer",
+                                     runInfos = cms.VPSet(cms.PSet(run = cms.int32(300001), avg_current = cms.double(18000.)),
+                                                          cms.PSet(run = cms.int32(300002), avg_current = cms.double(18000.)),
+                                                          cms.PSet(run = cms.int32(300003), avg_current = cms.double(18000.)),
+                                                          cms.PSet(run = cms.int32(300004), avg_current = cms.double(18000.)),
+                                                          ) ) )
+        
+
+    process.riSource = cms.ESSource("EmptyESSource", recordName = cms.string("RunInfoRcd"),
+                                iovIsRunNotTime = cms.bool(True),
+                                firstValid = cms.vuint32(10,20,30,40))
+
+    REFERENCEFILE = 'MagneticField/Engine/data/Regression/referenceField_160812_RII_3_8T.bin' #FIXME cf. comment above.
+
+if options.current > 18765 or (options.current <= 4779 and options.current>0) :
+    sys.exit('ERROR: invalid current value: ' +  str(options.current))
 elif options.current > 17543 :
     if options.era == 'RunII' :
         REFERENCEFILE = 'MagneticField/Engine/data/Regression/referenceField_160812_RII_3_8T.bin'
     elif options.era == 'RunI' :
         REFERENCEFILE = 'MagneticField/Engine/data/Regression/referenceField_160812_RI_3_8T.bin'
     else: 
-        print '\nERROR: Invalid era: ',  options.era,'\n'
-        exit()
+        sys.exit('ERROR: Invalid era: ' + options.era)
 elif options.current > 15617 :
     REFERENCEFILE = 'MagneticField/Engine/data/Regression/referenceField_160812_3_5T.bin'
 elif options.current > 11987 :
@@ -82,8 +124,7 @@ elif options.producerType == 'static_DD4Hep' :
         process.VolumeBasedMagneticFieldESProducer.version = cms.string('grid_160812_3t')
         process.ParametrizedMagneticFieldProducer.parameters.BValue = cms.string('3_0T')
     elif options.current > 4779 :
-        print '\nERROR: Unsupported current for static_DD4Hep: ',  options.current,'\n'
-        exit()
+        sys.exit('ERROR: Unsupported current for static_DD4Hep: ' + str(options.current))
 
 
 elif options.producerType == 'fromDB' or options.producerType == 'fromDB_DD4Hep':

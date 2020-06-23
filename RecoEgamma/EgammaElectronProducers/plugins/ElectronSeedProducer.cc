@@ -245,8 +245,6 @@ void ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   // phi windows (non dynamic, overwritten in case dynamic is selected)
   desc.add<double>("ePhiMin1", -0.125);
   desc.add<double>("ePhiMax1", 0.075);
-  desc.add<double>("pPhiMin1", -0.075);
-  desc.add<double>("pPhiMax1", 0.125);
   desc.add<double>("PhiMax2B", 0.002);
   desc.add<double>("PhiMax2F", 0.003);
 

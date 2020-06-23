@@ -16,11 +16,11 @@ import sys
 # package modules
 from FWCore.Skeletons.utils import code_generator
 
-def config(tmpl, pkg_help, tmpl_dir):
+def config(tmpl, pkg_help):
     "Parse input arguments to mk-script"
     kwds  = {'author': '', 'tmpl': tmpl,
              'args': {}, 'debug': False,
-             'tmpl_dir': tmpl_dir, 'working_dir': ''}
+             'working_dir': ''}
     etags = []
     if  len(sys.argv) >= 2: # user give us arguments
         if  sys.argv[1] in ['-h', '--help', '-help']:
@@ -51,7 +51,7 @@ def config(tmpl, pkg_help, tmpl_dir):
     kwds['tmpl_etags'] = etags
     return kwds
 
-def config_with_parser(tmpl, args, tmpl_dir):
+def config_with_parser(tmpl, args):
     """
     Inject arguments parsed upstream into mk-scripts.
     The arguments are parsed by the different front-ends(binaries)
@@ -59,7 +59,7 @@ def config_with_parser(tmpl, args, tmpl_dir):
     """
 
     kwds  = {'author': '', 'tmpl': tmpl,
-             'args': {}, 'debug': False, 'tmpl_dir': tmpl_dir}
+             'args': {}, 'debug': False}
     etags = []
     kwds['pname'] = args.subpackage_name
     if args.author: kwds['author'] = args.author

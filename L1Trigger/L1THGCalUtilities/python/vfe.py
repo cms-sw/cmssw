@@ -1,13 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 
+from L1Trigger.L1THGCal.hgcalVFEProducer_cfi import vfe_proc
 
 def create_compression(process,
-       exponent=4,
-       mantissa=4,
-       rounding=True
+       exponent=vfe_proc.exponentBits,
+       mantissa=vfe_proc.mantissaBits,
+       rounding=vfe_proc.rounding,
+       oot_coefficients=vfe_proc.oot_coefficients
         ):
-    producer = process.hgcalVFEProducer.clone() 
-    producer.ProcessorParameters.exponentBits = cms.uint32(exponent)
-    producer.ProcessorParameters.mantissaBits = cms.uint32(mantissa)
-    producer.ProcessorParameters.rounding = cms.bool(rounding)
+    producer = process.hgcalVFEProducer.clone(
+        ProcessorParameters = vfe_proc.clone(
+            exponentBits = exponent,
+            mantissaBits = mantissa,
+            rounding = rounding,
+            oot_coefficients = oot_coefficients
+        )
+    )
     return producer

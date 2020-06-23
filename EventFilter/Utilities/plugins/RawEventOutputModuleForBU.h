@@ -18,7 +18,8 @@
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "EventFilter/Utilities/interface/crc32c.h"
 
-#include "boost/shared_array.hpp"
+#include <memory>
+#include <vector>
 
 class FRDEventMsgView;
 template <class Consumer>
@@ -107,8 +108,9 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventForOutput const& e) {
 
   totsize += expectedSize;
   // build the FRDEvent into a temporary buffer
-  boost::shared_array<unsigned char> workBuffer(new unsigned char[expectedSize + 256]);
-  uint32* bufPtr = (uint32*)workBuffer.get();
+  std::unique_ptr<std::vector<unsigned char>> workBuffer(
+      std::make_unique<std::vector<unsigned char>>(expectedSize + 256));
+  uint32* bufPtr = (uint32*)(workBuffer.get()->data());
   *bufPtr++ = (uint32)frdVersion_;  // version number
   *bufPtr++ = (uint32)e.id().run();
   *bufPtr++ = (uint32)e.luminosityBlock();
@@ -152,12 +154,10 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventForOutput const& e) {
   }
 
   // create the FRDEventMsgView and use the template consumer to write it out
-  FRDEventMsgView msg(workBuffer.get());
+  FRDEventMsgView msg(workBuffer.get()->data());
   writtensize += msg.size();
 
-  if (templateConsumer_->sharedMode())
-    templateConsumer_->doOutputEvent(workBuffer);
-  else
+  if (!templateConsumer_->sharedMode())
     templateConsumer_->doOutputEvent(msg);
 }
 

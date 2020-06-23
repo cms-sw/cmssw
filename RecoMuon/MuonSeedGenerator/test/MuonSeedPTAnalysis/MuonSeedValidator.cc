@@ -912,14 +912,12 @@ void MuonSeedValidator::SegOfRecSeed(Handle<TrajectorySeedCollection> rec_seeds,
         trajectoryStateTransform::transientState(pTSOD, &(seedDet->surface()), &*theService->magneticField());
     GlobalPoint seedgp = seedTSOS.globalPosition();
 
-    for (edm::OwnVector<TrackingRecHit>::const_iterator rh_it = seed_it->recHits().first;
-         rh_it != seed_it->recHits().second;
-         rh_it++) {
-      const GeomDet* gdet = theService->trackingGeometry()->idToDet((*rh_it).geographicalId());
-      LocalPoint lp = (*rh_it).localPosition();
+    for (auto const& recHit : seed_it->recHits()) {
+      const GeomDet* gdet = theService->trackingGeometry()->idToDet(recHit.geographicalId());
+      LocalPoint lp = recHit.localPosition();
       GlobalPoint gp = gdet->toGlobal(lp);
       LocalPoint slp = gdet->toLocal(gp);
-      DetId pdid = (*rh_it).geographicalId();
+      DetId pdid = recHit.geographicalId();
 
       geoID.push_back(pdid);
       d_h.push_back(gp.eta() - seedgp.eta());
@@ -951,17 +949,15 @@ void MuonSeedValidator::SegOfRecSeed(Handle<TrajectorySeedCollection> rec_seeds,
       cout << " " << endl;
     }
 
-    for (edm::OwnVector<TrackingRecHit>::const_iterator rh_it = seed_it->recHits().first;
-         rh_it != seed_it->recHits().second;
-         rh_it++) {
-      const GeomDet* gdet = theService->trackingGeometry()->idToDet((*rh_it).geographicalId());
-      GlobalPoint gp = gdet->toGlobal((*rh_it).localPosition());
-      LocalPoint lp = (*rh_it).localPosition();
-      DetId pdid = (*rh_it).geographicalId();
+    for (auto const& recHit : seed_it->recHits()) {
+      const GeomDet* gdet = theService->trackingGeometry()->idToDet(recHit.geographicalId());
+      GlobalPoint gp = gdet->toGlobal(recHit.localPosition());
+      LocalPoint lp = recHit.localPosition();
+      DetId pdid = recHit.geographicalId();
 
       // for parameters [1]:dx/dz, [2]:dy/dz, [3]:x, [4]:y
-      double dxz = (*rh_it).parameters()[0];
-      double dyz = (*rh_it).parameters()[1];
+      double dxz = recHit.parameters()[0];
+      double dyz = recHit.parameters()[1];
       double dz = 1.0 / sqrt((dxz * dxz) + (dyz * dyz) + 1.0);
       if (pdid.subdetId() == MuonSubdetId::DT) {
         dz = -1.0 * dz;

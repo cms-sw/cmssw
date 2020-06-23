@@ -26,16 +26,10 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 // Geometry
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-
-// Magnetic Field
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 // Digis
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
@@ -124,6 +118,8 @@ DTDigitizer::DTDigitizer(const ParameterSet &conf_)
   mix_ = conf_.getParameter<std::string>("mixLabel");
   collection_for_XF = conf_.getParameter<std::string>("InputCollection");
   cf_token = consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix_, collection_for_XF));
+  muonGeom_token = esConsumes<DTGeometry, MuonGeometryRecord>(edm::ESInputTag("", geometryType));
+  magnField_token = esConsumes<MagneticField, IdealMagneticFieldRecord>();
 
   // String to choice between ideal (the deafult) and (mis)aligned geometry for
   // the digitization step
@@ -155,12 +151,10 @@ void DTDigitizer::produce(Event &iEvent, const EventSetup &iSetup) {
   unique_ptr<DTDigiSimLinkCollection> outputLinks(new DTDigiSimLinkCollection());
 
   // Muon Geometry
-  ESHandle<DTGeometry> muonGeom;
-  iSetup.get<MuonGeometryRecord>().get(geometryType, muonGeom);
+  ESHandle<DTGeometry> muonGeom = iSetup.getHandle(muonGeom_token);
 
   // Magnetic Field
-  ESHandle<MagneticField> magnField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magnField);
+  ESHandle<MagneticField> magnField = iSetup.getHandle(magnField_token);
 
   //************ 2 ***************
 

@@ -187,6 +187,27 @@ dd4hep::Volume DDNamespace::addVolume(dd4hep::Volume vol) const {
   return vol;
 }
 
+dd4hep::Assembly DDNamespace::addAssembly(dd4hep::Assembly assembly) const {
+  string n = assembly.name();
+  m_context->assemblies[n] = assembly;
+  dd4hep::printout(
+      m_context->debug_volumes ? dd4hep::ALWAYS : dd4hep::DEBUG, "DD4CMS", "+++ Add assemblyNS:%-38s", assembly.name());
+  return assembly;
+}
+
+dd4hep::Assembly DDNamespace::assembly(const std::string& name) const {
+  auto i = m_context->assemblies.find(name);
+  if (i != m_context->assemblies.end()) {
+    return (*i).second;
+  }
+  if (name.front() == NAMESPACE_SEP) {
+    i = m_context->assemblies.find(name.substr(1, name.size()));
+    if (i != m_context->assemblies.end())
+      return (*i).second;
+  }
+  throw runtime_error("Unknown assembly identifier:" + name);
+}
+
 dd4hep::Volume DDNamespace::volume(const string& name, bool exc) const {
   auto i = m_context->volumes.find(name);
   if (i != m_context->volumes.end()) {
@@ -253,4 +274,16 @@ std::vector<double> DDNamespace::vecDbl(const std::string& name) const {
     return result;
   } else
     return std::vector<double>();
+}
+
+std::vector<float> DDNamespace::vecFloat(const std::string& name) const {
+  cms::DDVectorsMap* registry = m_context->description.load()->extension<cms::DDVectorsMap>();
+  auto it = registry->find(name);
+  if (it != registry->end()) {
+    std::vector<float> result;
+    for (auto in : it->second)
+      result.emplace_back((float)in);
+    return result;
+  } else
+    return std::vector<float>();
 }

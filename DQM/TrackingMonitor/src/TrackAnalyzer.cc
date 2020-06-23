@@ -64,6 +64,7 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
       doEffFromHitPatternVsBX_(iConfig.getParameter<bool>("doEffFromHitPatternVsBX")),
       doEffFromHitPatternVsLUMI_(iConfig.getParameter<bool>("doEffFromHitPatternVsLUMI")),
       pvNDOF_(iConfig.getParameter<int>("pvNDOF")),
+      forceSCAL_(iConfig.getParameter<bool>("forceSCAL")),
       useBPixLayer1_(iConfig.getParameter<bool>("useBPixLayer1")),
       minNumberOfPixelsPerCluster_(iConfig.getParameter<int>("minNumberOfPixelsPerCluster")),
       minPixelClusterCharge_(iConfig.getParameter<double>("minPixelClusterCharge")),
@@ -81,10 +82,12 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig, edm::ConsumesColl
   edm::InputTag primaryVertexInputTag = iConfig.getParameter<edm::InputTag>("primaryVertex");
   edm::InputTag pixelClusterInputTag = iConfig.getParameter<edm::InputTag>("pixelCluster4lumi");
   edm::InputTag scalInputTag = iConfig.getParameter<edm::InputTag>("scal");
+  edm::InputTag metaDataInputTag = iConfig.getParameter<edm::InputTag>("metadata");
   beamSpotToken_ = iC.consumes<reco::BeamSpot>(bsSrc);
   pvToken_ = iC.consumes<reco::VertexCollection>(primaryVertexInputTag);
   pixelClustersToken_ = iC.mayConsume<edmNew::DetSetVector<SiPixelCluster> >(pixelClusterInputTag);
   lumiscalersToken_ = iC.mayConsume<LumiScalersCollection>(scalInputTag);
+  metaDataToken_ = iC.mayConsume<OnlineLuminosityRecord>(metaDataInputTag);
 
   if (doAllPlots_ || doEffFromHitPatternVsPU_ || doEffFromHitPatternVsBX_ || doEffFromHitPatternVsLUMI_) {
     trackerGeometryToken_ = iC.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>();
@@ -1116,13 +1119,22 @@ void TrackAnalyzer::setBX(const edm::Event& iEvent) { bx_ = iEvent.bunchCrossing
 void TrackAnalyzer::setLumi(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // as done by pixelLumi http://cmslxr.fnal.gov/source/DQM/PixelLumi/plugins/PixelLumiDQM.cc
 
-  edm::Handle<LumiScalersCollection> lumiScalers;
-  iEvent.getByToken(lumiscalersToken_, lumiScalers);
-  if (lumiScalers.isValid() && !lumiScalers->empty()) {
-    LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
-    scal_lumi_ = scalit->instantLumi();
-  } else
-    scal_lumi_ = -1;
+  if (forceSCAL_) {
+    edm::Handle<LumiScalersCollection> lumiScalers;
+    iEvent.getByToken(lumiscalersToken_, lumiScalers);
+    if (lumiScalers.isValid() && !lumiScalers->empty()) {
+      LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
+      scal_lumi_ = scalit->instantLumi();
+    } else
+      scal_lumi_ = -1;
+  } else {
+    edm::Handle<OnlineLuminosityRecord> metaData;
+    iEvent.getByToken(metaDataToken_, metaData);
+    if (metaData.isValid())
+      scal_lumi_ = metaData->instLumi();
+    else
+      scal_lumi_ = -1;
+  }
 
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
   iEvent.getByToken(pixelClustersToken_, pixelClusters);

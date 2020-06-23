@@ -1,5 +1,6 @@
 #include "Phase2EndcapRingBuilder.h"
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace edm;
 using namespace std;

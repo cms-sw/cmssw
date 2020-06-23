@@ -65,6 +65,7 @@ private:
   bool m_suppressDTBarrel, m_suppressDTWheels, m_suppressDTStations, m_suppressDTChambers, m_suppressDTSuperLayers,
       m_suppressDTLayers;
   bool m_suppressCSCEndcaps, m_suppressCSCStations, m_suppressCSCRings, m_suppressCSCChambers, m_suppressCSCLayers;
+  std::string idealGeometryLabel;
 };
 
 #endif

@@ -7,21 +7,34 @@
   <Constant name="dzBy2BeamPipe" value="16.5*m"/>
   <Constant name="zBeamPipe"     value="([cms:zCaloFront]-[dzBy2BeamPipe])"/>
   <Constant name="zFrontHGCal"   value="606.332*m"/>
-  <Constant name="zFrontScint1"  value="578.900*m"/>
-  <Constant name="zFrontScint2"  value="605.282*m"/>
-  <Constant name="zFrontScint3"  value="605.782*m"/>
+  <Constant name="zFrontScint1"  value="605.282*m"/>
+  <Constant name="zFrontScint2"  value="606.220*m"/>
+  <Constant name="zFrontMCP1"    value="606.080*m"/>
+  <Constant name="zFrontMCP2"    value="606.140*m"/>
   <Constant name="dxBy2Scint"    value="10.0*cm"/>
-  <Constant name="dzBy2ScintB1"  value="5.5*mm"/>
-  <Constant name="dzBy2Scint1"   value="5.0*mm"/>
-  <Constant name="dzBy2ScintB2"  value="15.0*mm"/>
-  <Constant name="dzBy2ScintM2"  value="13.0*mm"/>
-  <Constant name="dzBy2Scint2"   value="10.0*mm"/>
+  <Constant name="dzBy2ScintMy"  value="5.05*mm"/>
+  <Constant name="dzBy2Scint"    value="5.0*mm"/>
+  <Constant name="dzBy2MCPAl1"   value="2.50*mm"/>
+  <Constant name="dzBy2MCPAl2"   value="1.25*mm"/>
+  <Constant name="dzBy2MCPPyrex" value="0.6*mm"/>
+  <Constant name="dzBy2MCPPbGls" value="0.2*mm"/>
+  <Constant name="dxBy2MCP"      value="10.0*cm"/>
   <Constant name="zScint1"       value="([dzBy2BeamPipe]+[zFrontScint1]+
-                                         [dzBy2ScintB1]-[zFrontHGCal])"/>
+                                         [dzBy2ScintMy]-[zFrontHGCal])"/>
   <Constant name="zScint2"       value="([dzBy2BeamPipe]+[zFrontScint2]+
-                                         [dzBy2ScintB2]-[zFrontHGCal])"/>
-  <Constant name="zScint3"       value="([dzBy2BeamPipe]+[zFrontScint3]+
-                                         [dzBy2ScintB2]-[zFrontHGCal])"/>
+                                         [dzBy2ScintMy]-[zFrontHGCal])"/>
+  <Constant name="zMCPAl1"       value="([dzBy2BeamPipe]+[zFrontMCP1]+
+                                         [dzBy2MCPAl1]-[zFrontHGCal])"/>
+  <Constant name="zMCPAl2"       value="([dzBy2BeamPipe]+[zFrontMCP2]+
+                                         [dzBy2MCPAl2]-[zFrontHGCal])"/>
+  <Constant name="zMCPPyrex1"    value="([zMCPAl1]+[dzBy2MCPAl1]+
+					 [dzBy2MCPPyrex])"/>
+  <Constant name="zMCPPyrex2"    value="([zMCPAl2]+[dzBy2MCPAl2]+
+					 [dzBy2MCPPyrex])"/>
+  <Constant name="zMCPPbGlass1"  value="([zMCPPyrex1]+[dzBy2MCPPyrex]+
+					 [dzBy2MCPPbGls])"/>
+  <Constant name="zMCPPbGlass2"  value="([zMCPPyrex2]+[dzBy2MCPPyrex]+
+					 [dzBy2MCPPbGls])"/>
   <Constant name="zFrontTube1"   value="574.028*m"/>
   <Constant name="zFrontPE1"     value="576.513*m"/>
   <Constant name="zFrontTube2"   value="579.205*m"/>
@@ -56,22 +69,42 @@
   <Constant name="dzBy2Kapton"   value="(0.1*mm+[dzBy2Be])"/>
   <Constant name="zFrontChamb1"  value="573.572*m"/>
   <Constant name="zFrontChamb2"  value="576.977*m"/>
-  <Constant name="zFrontChamb3"  value="598.610*m"/>
+  <Constant name="zFrontChamb3"  value="578.004*m"/>
+  <Constant name="zFrontChamb4"  value="578.957*m"/>
+  <Constant name="zFrontChamb5"  value="598.610*m"/>
+  <Constant name="zFrontChamb6"  value="604.670*m"/>
   <Constant name="zChamber1"     value="([dzBy2BeamPipe]+[zFrontChamb1]+
                                          [dzBy2Chamber]-[zFrontHGCal])"/>
   <Constant name="zChamber2"     value="([dzBy2BeamPipe]+[zFrontChamb2]+
                                          [dzBy2Chamber]-[zFrontHGCal])"/>
   <Constant name="zChamber3"     value="([dzBy2BeamPipe]+[zFrontChamb3]+
                                          [dzBy2Chamber]-[zFrontHGCal])"/>
+  <Constant name="zChamber4"     value="([dzBy2BeamPipe]+[zFrontChamb4]+
+                                         [dzBy2Chamber]-[zFrontHGCal])"/>
+  <Constant name="zChamber5"     value="([dzBy2BeamPipe]+[zFrontChamb5]+
+                                         [dzBy2Chamber]-[zFrontHGCal])"/>
+  <Constant name="zChamber6"     value="([dzBy2BeamPipe]+[zFrontChamb6]+
+                                         [dzBy2Chamber]-[zFrontHGCal])"/>
+  <Constant name="chambVetW"     value="25.0*mm"/>
+  <Constant name="chambVetT"     value="11.0*mm"/>
+  <Constant name="chambVetGap"   value="12.0*cm"/>
+  <Constant name="chambVetL"     value="0.5*([chambVetGap]+[chambVetW])"/>
+  <Constant name="chambVetX"     value="0.5*[chambVetW]"/>
+  <Constant name="chambVetZF"    value="578.900*m"/>
+  <Constant name="chambVetZ"     value="([dzBy2BeamPipe]+[chambVetZF]+
+                                         0.5*[chambVetT]-[zFrontHGCal])"/>
 </ConstantsSection>
+
+<RotationSection label="hgcalBeam.xml">
+  <Rotation name="R1" phiX="90*deg" thetaX="90*deg" phiY="180*deg" thetaY="90*deg" phiZ="0*deg" thetaZ="0*deg"/>
+</RotationSection>
 
 <SolidSection label="hgcalBeam.xml">
   <Box name="HGCalBeam" dx="[dxBy2BeamPipe]" dy="[dyBy2BeamPipe]" dz="[dzBy2BeamPipe]"/>
-  <Box name="HGCalBeamAl1" dx="[dxBy2Scint]" dy="[dxBy2Scint]" dz="[dzBy2ScintB1]"/>
-  <Box name="HGCalBeamS1" dx="[dxBy2Scint]" dy="[dxBy2Scint]" dz="[dzBy2Scint1]"/>
-  <Box name="HGCalBeamAl2" dx="[dxBy2Scint]" dy="[dxBy2Scint]" dz="[dzBy2ScintB2]"/>
-  <Box name="HGCalBeamMy2" dx="[dxBy2Scint]" dy="[dxBy2Scint]" dz="[dzBy2ScintM2]"/>
-  <Box name="HGCalBeamS2" dx="[dxBy2Scint]" dy="[dxBy2Scint]" dz="[dzBy2Scint2]"/>
+  <Box name="HGCalBeamMy1" dx="[dxBy2Scint]" dy="[dxBy2Scint]" dz="[dzBy2ScintMy]"/>
+  <Box name="HGCalBeamS1" dx="[dxBy2Scint]" dy="[dxBy2Scint]" dz="[dzBy2Scint]"/>
+  <Box name="HGCalBeamMy2" dx="[dxBy2Scint]" dy="[dxBy2Scint]" dz="[dzBy2ScintMy]"/>
+  <Box name="HGCalBeamS2" dx="[dxBy2Scint]" dy="[dxBy2Scint]" dz="[dzBy2Scint]"/>
   <Tubs name="HGCalBeamTube1" rMin="0*fm" rMax="[rBeamTube]" dz="[dzBy2Tube1]" startPhi="0*deg" deltaPhi="360*deg"/>
   <Tubs name="HGCalBeamMylar1" rMin="0*fm" rMax="[rBeamTube]" dz="[dzBy2Mylar1]" startPhi="0*deg" deltaPhi="360*deg"/>
   <Tubs name="HGCalBeamVacuum1" rMin="0*fm" rMax="[rBeamTube]" dz="[dzBy2Vacuum1]" startPhi="0*deg" deltaPhi="360*deg"/>
@@ -85,6 +118,11 @@
   <Box name="HGCalBeamWChambKap" dx="[dxBy2Chamber]" dy="[dxBy2Chamber]" dz="[dzBy2Kapton]"/>
   <Box name="HGCalBeamWChambBe" dx="[dxBy2Chamber]" dy="[dxBy2Chamber]" dz="[dzBy2Be]"/>
   <Box name="HGCalBeamWChambGas" dx="[dxBy2Chamber]" dy="[dxBy2Chamber]" dz="[dzBy2Gas]"/>
+  <Box name="HGCalMCPAluminium1" dx="[dxBy2MCP]" dy="[dxBy2MCP]" dz="[dzBy2MCPAl1]"/>
+  <Box name="HGCalMCPAluminium2" dx="[dxBy2MCP]" dy="[dxBy2MCP]" dz="[dzBy2MCPAl2]"/>
+  <Box name="HGCalMCPPyrexGlass" dx="[dxBy2MCP]" dy="[dxBy2MCP]" dz="[dzBy2MCPPyrex]"/>
+  <Box name="HGCalMCPLeadGlass" dx="[dxBy2MCP]" dy="[dxBy2MCP]" dz="[dzBy2MCPPbGls]"/>
+  <Box name="HGCalBeamWChambVet" dx="[chambVetL]" dy="0.5*[chambVetW]" dz="0.5*[chambVetT]"/>
 </SolidSection>
 
 <LogicalPartSection label="hgcalBeam.xml">
@@ -108,35 +146,19 @@
     <rSolid name="HGCalBeamWChambGas"/>
     <rMaterial name="materials:80pct Argon plus 20pct CO_2"/>
   </LogicalPart>
-  <LogicalPart name="HGCalBeamAl1" category="unspecified">
-    <rSolid name="HGCalBeamAl1"/>
-    <rMaterial name="materials:Aluminium"/>
+  <LogicalPart name="HGCalBeamMy1" category="unspecified">
+    <rSolid name="HGCalBeamMy1"/>
+    <rMaterial name="materials:Mylar"/>
   </LogicalPart>
   <LogicalPart name="HGCalBeamS1" category="unspecified">
     <rSolid name="HGCalBeamS1"/>
     <rMaterial name="materials:Scintillator"/>
-  </LogicalPart>
-  <LogicalPart name="HGCalBeamAl2" category="unspecified">
-    <rSolid name="HGCalBeamAl2"/>
-    <rMaterial name="materials:Aluminium"/>
   </LogicalPart>
   <LogicalPart name="HGCalBeamMy2" category="unspecified">
     <rSolid name="HGCalBeamMy2"/>
     <rMaterial name="materials:Mylar"/>
   </LogicalPart>
   <LogicalPart name="HGCalBeamS2" category="unspecified">
-    <rSolid name="HGCalBeamS2"/>
-    <rMaterial name="materials:Scintillator"/>
-  </LogicalPart>
-  <LogicalPart name="HGCalBeamAl3" category="unspecified">
-    <rSolid name="HGCalBeamAl2"/>
-    <rMaterial name="materials:Aluminium"/>
-  </LogicalPart>
-  <LogicalPart name="HGCalBeamMy3" category="unspecified">
-    <rSolid name="HGCalBeamMy2"/>
-    <rMaterial name="materials:Mylar"/>
-  </LogicalPart>
-  <LogicalPart name="HGCalBeamS3" category="unspecified">
     <rSolid name="HGCalBeamS2"/>
     <rMaterial name="materials:Scintillator"/>
   </LogicalPart>
@@ -176,6 +198,26 @@
     <rSolid name="HGCalBeamVacuum3"/>
     <rMaterial name="materials:Vacuum"/>
   </LogicalPart>
+  <LogicalPart name="HGCalMCPAluminium1" category="unspecified">
+    <rSolid name="HGCalMCPAluminium1"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalMCPAluminium2" category="unspecified">
+    <rSolid name="HGCalMCPAluminium2"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalMCPPyrexGlass" category="unspecified">
+    <rSolid name="HGCalMCPPyrexGlass"/>
+    <rMaterial name="hgcalMaterial:PyrexGlass"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalMCPLeadGlass" category="unspecified">
+    <rSolid name="HGCalMCPLeadGlass"/>
+    <rMaterial name="hgcalMaterial:LeadGlass"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBeamWChambVet" category="unspecified">
+    <rSolid name="HGCalBeamWChambVet"/>
+    <rMaterial name="materials:Polyethylene"/>
+  </LogicalPart>
 </LogicalPartSection>
 
 <PosPartSection label="hgcalBeam.xml">
@@ -206,18 +248,29 @@
     <rChild name="hgcalBeam:HGCalBeamWChamb"/>
     <Translation x="0*fm" y="0*fm" z="[zChamber3]"/>
   </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="hgcalBeam:HGCalBeam"/>
+    <rChild name="hgcalBeam:HGCalBeamWChamb"/>
+    <Translation x="0*fm" y="0*fm" z="[zChamber4]"/>
+  </PosPart>
+  <PosPart copyNumber="5">
+    <rParent name="hgcalBeam:HGCalBeam"/>
+    <rChild name="hgcalBeam:HGCalBeamWChamb"/>
+    <Translation x="0*fm" y="0*fm" z="[zChamber5]"/>
+  </PosPart>
+  <PosPart copyNumber="6">
+    <rParent name="hgcalBeam:HGCalBeam"/>
+    <rChild name="hgcalBeam:HGCalBeamWChamb"/>
+    <Translation x="0*fm" y="0*fm" z="[zChamber6]"/>
+  </PosPart>
   <PosPart copyNumber="1">
-    <rParent name="hgcalBeam:HGCalBeamAl1"/>
+    <rParent name="hgcalBeam:HGCalBeamMy1"/>
     <rChild name="hgcalBeam:HGCalBeamS1"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="hgcalBeam:HGCalBeam"/>
-    <rChild name="hgcalBeam:HGCalBeamAl1"/>
+    <rChild name="hgcalBeam:HGCalBeamMy1"/>
     <Translation x="0*fm" y="0*fm" z="[zScint1]"/>
-  </PosPart>
-  <PosPart copyNumber="2">
-    <rParent name="hgcalBeam:HGCalBeamAl2"/>
-    <rChild name="hgcalBeam:HGCalBeamMy2"/>
   </PosPart>
   <PosPart copyNumber="2">
     <rParent name="hgcalBeam:HGCalBeamMy2"/>
@@ -225,21 +278,8 @@
   </PosPart>
   <PosPart copyNumber="2">
     <rParent name="hgcalBeam:HGCalBeam"/>
-    <rChild name="hgcalBeam:HGCalBeamAl2"/>
+    <rChild name="hgcalBeam:HGCalBeamMy2"/>
     <Translation x="0*fm" y="0*fm" z="[zScint2]"/>
-  </PosPart>
-  <PosPart copyNumber="3">
-    <rParent name="hgcalBeam:HGCalBeamAl3"/>
-    <rChild name="hgcalBeam:HGCalBeamMy3"/>
-  </PosPart>
-  <PosPart copyNumber="3">
-    <rParent name="hgcalBeam:HGCalBeamMy3"/>
-    <rChild name="hgcalBeam:HGCalBeamS3"/>
-  </PosPart>
-  <PosPart copyNumber="3">
-    <rParent name="hgcalBeam:HGCalBeam"/>
-    <rChild name="hgcalBeam:HGCalBeamAl3"/>
-    <Translation x="0*fm" y="0*fm" z="[zScint3]"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="hgcalBeam:HGCalBeamTube1"/>
@@ -279,6 +319,58 @@
     <rParent name="hgcalBeam:HGCalBeam"/>
     <rChild name="hgcalBeam:HGCalBeamTube3"/>
     <Translation x="0*fm" y="0*fm" z="[zTube3]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCalBeam"/>
+    <rChild name="hgcalBeam:HGCalMCPAluminium1"/>
+    <Translation x="0*fm" y="0*fm" z="[zMCPAl1]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCalBeam"/>
+    <rChild name="hgcalBeam:HGCalMCPPyrexGlass"/>
+    <Translation x="0*fm" y="0*fm" z="[zMCPPyrex1]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCalBeam"/>
+    <rChild name="hgcalBeam:HGCalMCPLeadGlass"/>
+    <Translation x="0*fm" y="0*fm" z="[zMCPPbGlass1]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hgcalBeam:HGCalBeam"/>
+    <rChild name="hgcalBeam:HGCalMCPAluminium2"/>
+    <Translation x="0*fm" y="0*fm" z="[zMCPAl2]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hgcalBeam:HGCalBeam"/>
+    <rChild name="hgcalBeam:HGCalMCPPyrexGlass"/>
+    <Translation x="0*fm" y="0*fm" z="[zMCPPyrex2]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hgcalBeam:HGCalBeam"/>
+    <rChild name="hgcalBeam:HGCalMCPLeadGlass"/>
+    <Translation x="0*fm" y="0*fm" z="[zMCPPbGlass2]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCalBeam"/>
+    <rChild name="hgcalBeam:HGCalBeamWChambVet"/>
+    <Translation x="[chambVetX]" y="[chambVetL]" z="[chambVetZ]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hgcalBeam:HGCalBeam"/>
+    <rChild name="hgcalBeam:HGCalBeamWChambVet"/>
+    <Translation x="-[chambVetL]" y="[chambVetX]" z="[chambVetZ]"/>
+    <rRotation name="hgcalBeam:R1"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="hgcalBeam:HGCalBeam"/>
+    <rChild name="hgcalBeam:HGCalBeamWChambVet"/>
+    <Translation x="-[chambVetX]" y="-[chambVetL]" z="[chambVetZ]"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="hgcalBeam:HGCalBeam"/>
+    <rChild name="hgcalBeam:HGCalBeamWChambVet"/>
+    <Translation x="[chambVetL]" y="-[chambVetX]" z="[chambVetZ]"/>
+    <rRotation name="hgcalBeam:R1"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="cms:CMSE"/>

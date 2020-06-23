@@ -5,7 +5,7 @@
 
 class DDCompactView;
 class DDFilteredView;
-class MuonDDDConstants;
+class MuonGeometryConstants;
 class RecoIdealGeometry;
 class ME0DetId;
 
@@ -15,10 +15,10 @@ public:
 
   ~ME0GeometryParsFromDD(void) {}
 
-  void build(const DDCompactView*, const MuonDDDConstants&, RecoIdealGeometry&);
+  void build(const DDCompactView*, const MuonGeometryConstants&, RecoIdealGeometry&);
 
 private:
-  void buildGeometry(DDFilteredView&, const MuonDDDConstants&, RecoIdealGeometry&);
+  void buildGeometry(DDFilteredView&, const MuonGeometryConstants&, RecoIdealGeometry&);
 
   void buildChamber(DDFilteredView& fv, ME0DetId detId, RecoIdealGeometry& rgeo);
   void buildLayer(DDFilteredView& fv, ME0DetId detId, RecoIdealGeometry& rgeo);

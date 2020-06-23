@@ -86,6 +86,9 @@ public:
   DDsvalues_type mergedSpecifics() const;
   void mergedSpecificsV(DDsvalues_type &res) const;
 
+  //! The DDVector information
+  std::vector<double> const &vector(std::string_view iKey) const { return cpv_->vector(iKey); }
+
   //! Copy number associated with the current node
   int copyno() const;
 
@@ -140,6 +143,7 @@ protected:
   unsigned int depth_;         //!< depth of the scope, 0==unrestricted depth
   const DDPosData *worldpos_;  //!< ???
   std::vector<nav_type> nextBStack_;
+  const DDCompactView *cpv_;
 };
 
 std::string printNavType(int const *n, size_t sz);

@@ -54,7 +54,7 @@ void RPCSeedOverlapper::CheckOverlap(const edm::EventSetup &iSetup,
                                      std::vector<weightedTrajectorySeed> *weightedSeedsRef) {
   std::vector<weightedTrajectorySeed> sortweightedSeeds;
   std::vector<weightedTrajectorySeed> tempweightedSeeds;
-  edm::OwnVector<TrackingRecHit> tempRecHits;
+  std::vector<TrackingRecHit const *> tempRecHits;
 
   edm::ESHandle<RPCGeometry> rpcGeometry;
   iSetup.get<MuonGeometryRecord>().get(rpcGeometry);
@@ -69,12 +69,12 @@ void RPCSeedOverlapper::CheckOverlap(const edm::EventSetup &iSetup,
     for (vector<weightedTrajectorySeed>::iterator itweightedseed = weightedSeedsRef->begin();
          itweightedseed != weightedSeedsRef->end();
          N++) {
-      TrajectorySeed::range RecHitsRange = itweightedseed->first.recHits();
+      auto const &recHitsRange = itweightedseed->first.recHits();
       if (N == 0) {
         cout << "Always take the 1st weighted seed to be the referrence." << endl;
-        for (TrajectorySeed::const_iterator it = RecHitsRange.first; it != RecHitsRange.second; it++) {
+        for (auto const &hit : recHitsRange) {
           cout << "Put its recHits to tempRecHits" << endl;
-          tempRecHits.push_back(it->clone());
+          tempRecHits.push_back(&hit);
         }
         cout << "Put it to tempweightedSeeds" << endl;
         tempweightedSeeds.push_back(*itweightedseed);
@@ -84,16 +84,16 @@ void RPCSeedOverlapper::CheckOverlap(const edm::EventSetup &iSetup,
         cout << "Come to other weighted seed for checking " << itweightedseed->first.nHits() << " recHits from "
              << tempRecHits.size() << " temp recHits" << endl;
         unsigned int ShareRecHitsNumber = 0;
-        for (TrajectorySeed::const_iterator it = RecHitsRange.first; it != RecHitsRange.second; it++) {
-          if (isShareHit(tempRecHits, *it, rpcGeometry))
+        for (auto const &hit : recHitsRange) {
+          if (isShareHit(tempRecHits, hit, rpcGeometry))
             ShareRecHitsNumber++;
         }
         if (ShareRecHitsNumber >= ShareRecHitsNumberThreshold) {
           cout << "This seed is found to belong to current share group" << endl;
-          for (TrajectorySeed::const_iterator it = RecHitsRange.first; it != RecHitsRange.second; it++) {
-            if (!isShareHit(tempRecHits, *it, rpcGeometry)) {
+          for (auto const &hit : recHitsRange) {
+            if (!isShareHit(tempRecHits, hit, rpcGeometry)) {
               cout << "Put its extra recHits to tempRecHits" << endl;
-              tempRecHits.push_back(it->clone());
+              tempRecHits.push_back(&hit);
             }
           }
           cout << "Put it to tempSeeds" << endl;
@@ -132,20 +132,19 @@ void RPCSeedOverlapper::CheckOverlap(const edm::EventSetup &iSetup,
     tempweightedSeeds.erase(bestweightediter);
     tempRecHits.clear();
 
-    for (TrajectorySeed::const_iterator it = bestweightedSeed.first.recHits().first;
-         it != bestweightedSeed.first.recHits().second;
-         it++)
-      tempRecHits.push_back(it->clone());
+    for (auto const &hit : bestweightedSeed.first.recHits()) {
+      tempRecHits.push_back(&hit);
+    }
 
     for (vector<weightedTrajectorySeed>::iterator itweightedseed = tempweightedSeeds.begin();
          itweightedseed != tempweightedSeeds.end();) {
       cout << "Checking the temp weighted seed's " << itweightedseed->first.nHits() << " hits to " << tempRecHits.size()
            << " temp recHits" << endl;
-      TrajectorySeed::range RecHitsRange = itweightedseed->first.recHits();
       bool isShare = false;
-      for (TrajectorySeed::const_iterator it = RecHitsRange.first; it != RecHitsRange.second; it++)
-        if (isShareHit(tempRecHits, *it, rpcGeometry))
+      for (auto const &hit : itweightedseed->first.recHits()) {
+        if (isShareHit(tempRecHits, hit, rpcGeometry))
           isShare = true;
+      }
 
       if (isShare == true) {
         cout << "Find one temp seed share some recHits with best weighted seed" << endl;
@@ -162,22 +161,22 @@ void RPCSeedOverlapper::CheckOverlap(const edm::EventSetup &iSetup,
   *weightedSeedsRef = sortweightedSeeds;
 }
 
-bool RPCSeedOverlapper::isShareHit(const edm::OwnVector<TrackingRecHit> &RecHits,
+bool RPCSeedOverlapper::isShareHit(const std::vector<TrackingRecHit const *> &recHits,
                                    const TrackingRecHit &hit,
                                    edm::ESHandle<RPCGeometry> rpcGeometry) {
   bool istheSame = false;
   unsigned int n = 1;
-  cout << "Checking from " << RecHits.size() << " temp recHits" << endl;
+  cout << "Checking from " << recHits.size() << " temp recHits" << endl;
 
   LocalPoint lpos1 = hit.localPosition();
   DetId RPCId1 = hit.geographicalId();
   const GeomDetUnit *rpcroll1 = rpcGeometry->idToDetUnit(RPCId1);
   GlobalPoint gpos1 = rpcroll1->toGlobal(lpos1);
   cout << "The hit's position: " << gpos1.x() << ", " << gpos1.y() << ", " << gpos1.z() << endl;
-  for (edm::OwnVector<TrackingRecHit>::const_iterator it = RecHits.begin(); it != RecHits.end(); it++, n++) {
+  for (auto const &recHit : recHits) {
     cout << "Checking the " << n << " th recHit from tempRecHits" << endl;
-    LocalPoint lpos2 = it->localPosition();
-    DetId RPCId2 = it->geographicalId();
+    LocalPoint lpos2 = recHit->localPosition();
+    DetId RPCId2 = recHit->geographicalId();
     const GeomDetUnit *rpcroll2 = rpcGeometry->idToDetUnit(RPCId2);
     GlobalPoint gpos2 = rpcroll2->toGlobal(lpos2);
     cout << "The temp hit's position: " << gpos2.x() << ", " << gpos2.y() << ", " << gpos2.z() << endl;

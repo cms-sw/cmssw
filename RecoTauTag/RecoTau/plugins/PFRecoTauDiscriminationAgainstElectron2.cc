@@ -20,6 +20,7 @@
 
 #include <TMath.h>
 #include "TPRegexp.h"
+#include <TObjString.h>
 
 #include <iostream>
 #include <sstream>

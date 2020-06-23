@@ -57,7 +57,7 @@ void MTDTopologyAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
   iSetup.get<MTDTopologyRcd>().get(mtdTopo);
   edm::LogInfo("MTDTopologyAnalyzer") << "MTD topology mode = " << mtdTopo->getMTDTopologyMode();
 
-  // Build DetIds based on DDD description, then extract information from topology and compare
+  // Build DetIds based on DD description, then extract information from topology and compare
 
   std::string label;
 
@@ -180,7 +180,7 @@ std::string MTDTopologyAnalyzer::noNSgeoHistory(const DDGeoHistory& gh) {
   }
 
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("TestMTDNumbering") << output;
+  edm::LogInfo("MTDTopologyAnalyzer") << output;
 #endif
 
   return output;

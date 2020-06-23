@@ -63,7 +63,86 @@ namespace muon {
     const char* label;
     SelectionType value;
   };
+
+  static const SelectionTypeStringToEnum selectionTypeStringToEnumMap[] = {
+      {"All", All},
+      {"AllGlobalMuons", AllGlobalMuons},
+      {"AllStandAloneMuons", AllStandAloneMuons},
+      {"AllTrackerMuons", AllTrackerMuons},
+      {"TrackerMuonArbitrated", TrackerMuonArbitrated},
+      {"AllArbitrated", AllArbitrated},
+      {"GlobalMuonPromptTight", GlobalMuonPromptTight},
+      {"TMLastStationLoose", TMLastStationLoose},
+      {"TMLastStationTight", TMLastStationTight},
+      {"TM2DCompatibilityLoose", TM2DCompatibilityLoose},
+      {"TM2DCompatibilityTight", TM2DCompatibilityTight},
+      {"TMOneStationLoose", TMOneStationLoose},
+      {"TMOneStationTight", TMOneStationTight},
+      {"TMLastStationOptimizedLowPtLoose", TMLastStationOptimizedLowPtLoose},
+      {"TMLastStationOptimizedLowPtTight", TMLastStationOptimizedLowPtTight},
+      {"GMTkChiCompatibility", GMTkChiCompatibility},
+      {"GMStaChiCompatibility", GMStaChiCompatibility},
+      {"GMTkKinkTight", GMTkKinkTight},
+      {"TMLastStationAngLoose", TMLastStationAngLoose},
+      {"TMLastStationAngTight", TMLastStationAngTight},
+      {"TMOneStationAngLoose", TMOneStationAngLoose},
+      {"TMOneStationAngTight", TMOneStationAngTight},
+      {"TMLastStationOptimizedBarrelLowPtLoose", TMLastStationOptimizedBarrelLowPtLoose},
+      {"TMLastStationOptimizedBarrelLowPtTight", TMLastStationOptimizedBarrelLowPtTight},
+      {"RPCMuLoose", RPCMuLoose},
+      {"AllME0Muons", AllME0Muons},
+      {"ME0MuonArbitrated", ME0MuonArbitrated},
+      {"AllGEMMuons", AllGEMMuons},
+      {"GEMMuonArbitrated", GEMMuonArbitrated},
+      {"TriggerIdLoose", TriggerIdLoose},
+      {nullptr, (SelectionType)-1}};
+
   SelectionType selectionTypeFromString(const std::string& label);
+
+  // a map for string label to reco::Muon::Selector enum
+  struct SelectorStringToEnum {
+    const char* label;
+    reco::Muon::Selector value;
+  };
+
+  static const SelectorStringToEnum selectorStringToEnumMap[] = {
+      {"CutBasedIdLoose", reco::Muon::CutBasedIdLoose},
+      {"CutBasedIdMedium", reco::Muon::CutBasedIdMedium},
+      {"CutBasedIdMediumPrompt", reco::Muon::CutBasedIdMediumPrompt},
+      {"CutBasedIdTight", reco::Muon::CutBasedIdTight},
+      {"CutBasedIdGlobalHighPt", reco::Muon::CutBasedIdGlobalHighPt},
+      {"CutBasedIdTrkHighPt", reco::Muon::CutBasedIdTrkHighPt},
+      {"PFIsoVeryLoose", reco::Muon::PFIsoVeryLoose},
+      {"PFIsoLoose", reco::Muon::PFIsoLoose},
+      {"PFIsoMedium", reco::Muon::PFIsoMedium},
+      {"PFIsoTight", reco::Muon::PFIsoTight},
+      {"PFIsoVeryTight", reco::Muon::PFIsoVeryTight},
+      {"TkIsoLoose", reco::Muon::TkIsoLoose},
+      {"TkIsoTight", reco::Muon::TkIsoTight},
+      {"SoftCutBasedId", reco::Muon::SoftCutBasedId},
+      {"SoftMvaId", reco::Muon::SoftMvaId},
+      {"MvaLoose", reco::Muon::MvaLoose},
+      {"MvaMedium", reco::Muon::MvaMedium},
+      {"MvaTight", reco::Muon::MvaTight},
+      {"MiniIsoLoose", reco::Muon::MiniIsoLoose},
+      {"MiniIsoMedium", reco::Muon::MiniIsoMedium},
+      {"MiniIsoTight", reco::Muon::MiniIsoTight},
+      {"MiniIsoVeryTight", reco::Muon::MiniIsoVeryTight},
+      {"TriggerIdLoose", reco::Muon::TriggerIdLoose},
+      {"InTimeMuon", reco::Muon::InTimeMuon},
+      {"PFIsoVeryVeryTight", reco::Muon::PFIsoVeryVeryTight},
+      {"MultiIsoLoose", reco::Muon::MultiIsoLoose},
+      {"MultiIsoMedium", reco::Muon::MultiIsoMedium},
+      {"PuppiIsoLoose", reco::Muon::PuppiIsoLoose},
+      {"PuppiIsoMedium", reco::Muon::PuppiIsoMedium},
+      {"PuppiIsoTight", reco::Muon::PuppiIsoTight},
+      {"MvaVTight", reco::Muon::MvaVTight},
+      {"MvaVVTight", reco::Muon::MvaVVTight},
+      {"LowPtMvaLoose", reco::Muon::LowPtMvaLoose},
+      {"LowPtMvaMedium", reco::Muon::LowPtMvaMedium},
+      {nullptr, (reco::Muon::Selector)-1}};
+
+  reco::Muon::Selector selectorFromString(const std::string& label);
 
   /// main GoodMuon wrapper call
   bool isGoodMuon(const reco::Muon& muon,

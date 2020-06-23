@@ -12,7 +12,7 @@
 #include <DetectorDescription/Core/interface/DDFilter.h>
 #include <DetectorDescription/Core/interface/DDFilteredView.h>
 #include <DetectorDescription/Core/interface/DDSolid.h>
-#include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/DTNumberingScheme.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
@@ -31,7 +31,7 @@ DTGeometryParsFromDD::DTGeometryParsFromDD() {}
 DTGeometryParsFromDD::~DTGeometryParsFromDD() {}
 
 void DTGeometryParsFromDD::build(const DDCompactView* cview,
-                                 const MuonDDDConstants& muonConstants,
+                                 const MuonGeometryConstants& muonConstants,
                                  RecoIdealGeometry& rig) {
   //  cout << "DTGeometryParsFromDD::build" << endl;
   //   static const string t0 = "DTGeometryParsFromDD::build";
@@ -48,7 +48,7 @@ void DTGeometryParsFromDD::build(const DDCompactView* cview,
 }
 
 void DTGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
-                                         const MuonDDDConstants& muonConstants,
+                                         const MuonGeometryConstants& muonConstants,
                                          RecoIdealGeometry& rig) const {
   // static const string t0 = "DTGeometryParsFromDD::buildGeometry";
   // TimeMe timer(t0,true);
@@ -100,9 +100,9 @@ void DTGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
 
 void DTGeometryParsFromDD::insertChamber(DDFilteredView& fv,
                                          const string& type,
-                                         const MuonDDDConstants& muonConstants,
+                                         const MuonGeometryConstants& muonConstants,
                                          RecoIdealGeometry& rig) const {
-  MuonDDDNumbering mdddnum(muonConstants);
+  MuonGeometryNumbering mdddnum(muonConstants);
   DTNumberingScheme dtnum(muonConstants);
   int rawid = dtnum.getDetId(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
   DTChamberId detId(rawid);
@@ -126,9 +126,9 @@ void DTGeometryParsFromDD::insertChamber(DDFilteredView& fv,
 
 void DTGeometryParsFromDD::insertSuperLayer(DDFilteredView& fv,
                                             const std::string& type,
-                                            const MuonDDDConstants& muonConstants,
+                                            const MuonGeometryConstants& muonConstants,
                                             RecoIdealGeometry& rig) const {
-  MuonDDDNumbering mdddnum(muonConstants);
+  MuonGeometryNumbering mdddnum(muonConstants);
   DTNumberingScheme dtnum(muonConstants);
   int rawid = dtnum.getDetId(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
   DTSuperLayerId slId(rawid);
@@ -148,9 +148,9 @@ void DTGeometryParsFromDD::insertSuperLayer(DDFilteredView& fv,
 
 void DTGeometryParsFromDD::insertLayer(DDFilteredView& fv,
                                        const std::string& type,
-                                       const MuonDDDConstants& muonConstants,
+                                       const MuonGeometryConstants& muonConstants,
                                        RecoIdealGeometry& rig) const {
-  MuonDDDNumbering mdddnum(muonConstants);
+  MuonGeometryNumbering mdddnum(muonConstants);
   DTNumberingScheme dtnum(muonConstants);
   int rawid = dtnum.getDetId(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
   DTLayerId layId(rawid);

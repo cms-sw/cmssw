@@ -9,6 +9,7 @@
 //
 
 #include "TEveGeoNode.h"
+#include "TEveGeoShape.h"
 #include "TEveStraightLineSet.h"
 
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
