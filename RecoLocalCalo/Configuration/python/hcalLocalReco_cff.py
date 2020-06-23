@@ -22,6 +22,9 @@ from RecoLocalCalo.HcalRecProducers.hfprereco_cfi import hfprereco
 from RecoLocalCalo.HcalRecProducers.HFPhase1Reconstructor_cfi import hfreco as _phase1_hfreco
 from RecoLocalCalo.HcalRecProducers.hbheplan1_cfi import hbheplan1
 
+#--- for HCALonly wf
+hcalOnlyLocalRecoTask = cms.Task(hbheprereco,hfprereco,hfreco,horeco)
+
 # copy for cosmics
 _default_hfreco = hfreco.clone()
 
