@@ -40,7 +40,7 @@ public:
       bool requireBX0 = true);  // gives a vector with the idxs of muon stubs from station "station" for each L1TTT
 
   // ------------------------------
-  static std::vector<double> prepare_corr_bounds(string fname, string hname);
+  static std::vector<double> prepare_corr_bounds(const string& fname, const string& hname);
 
   void set_safety_factor(float sf_l, float sf_h) {
     safety_factor_l_ = sf_l;

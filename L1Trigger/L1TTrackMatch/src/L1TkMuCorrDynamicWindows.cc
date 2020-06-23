@@ -383,7 +383,7 @@ std::vector<int> L1TkMuCorrDynamicWindows::make_unique_coll(const unsigned int& 
   return out;
 }
 
-std::vector<double> L1TkMuCorrDynamicWindows::prepare_corr_bounds(string fname, string hname) {
+std::vector<double> L1TkMuCorrDynamicWindows::prepare_corr_bounds(const string& fname, const string& hname) {
   // find the boundaries of the match windoww
   TFile* fIn = TFile::Open(fname.c_str());
   TH2* h_test = (TH2*)fIn->Get(hname.c_str());
