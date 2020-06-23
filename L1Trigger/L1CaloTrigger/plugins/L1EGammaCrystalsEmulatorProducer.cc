@@ -58,6 +58,8 @@ Implementation:
 
 static constexpr bool do_brem = true;
 
+static constexpr int n_eta_bins = 2;
+static constexpr int n_borders_phi = 18;
 static constexpr int n_clusters_max = 5;
 static constexpr int n_clusters_link = 3;
 static constexpr int n_clusters_4link = 4 * 3;
@@ -602,9 +604,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
             }
           }
           mc1.c5x5_ = e5x5;
-          mc1.c2x5_ = e2x5_1;
-          if (e2x5_2 > mc1.c2x5_)
-            mc1.c2x5_ = e2x5_2;
+          mc1.c2x5_ = max(e2x5_1,e2x5_2);
           mc1.c2x2_ = e2x2_1;
           if (e2x2_2 > mc1.c2x2_)
             mc1.c2x2_ = e2x2_2;
@@ -797,8 +797,8 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
   vector<mycluster> cluster_list_L2 [n_towers_halfPhi];  
 
   // Merge clusters on the phi edges
-  for (int ii = 0; ii < 18; ++ii) {   // 18 borders in phi
-    for (int jj = 0; jj < 2; ++jj) {  // 2 eta bins
+  for (int ii = 0; ii < n_borders_phi; ++ii) {   // 18 borders in phi
+    for (int jj = 0; jj < n_eta_bins; ++jj) {  // 2 eta bins
       int card_left = 2 * ii + jj;
       int card_right = 2 * ii + jj + 2;
       if (card_right > 35)
@@ -835,18 +835,19 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
 
   // Bremsstrahlung corrections. Merge clusters on the phi edges depending on pT (pt more than 10 percent, dphi leq 5, deta leq 1)
   if (do_brem) {
-    for (int ii = 0; ii < 18; ++ii) {   // 18 borders in phi
-      for (int jj = 0; jj < 2; ++jj) {  // 2 eta bins
+    for (int ii = 0; ii < n_borders_phi; ++ii) {   // 18 borders in phi
+      for (int jj = 0; jj < n_eta_bins; ++jj) {  // 2 eta bins
         int card_left = 2 * ii + jj;
         int card_right = 2 * ii + jj + 2;
         if (card_right > 35)
           card_right = card_right - n_towers_halfPhi;
-        for (int kk = 0; kk < n_clusters_4link;
-             ++kk) {  // 12 clusters in the first card. We check the right side crystalID_cluster_L1Card[kk%4][kk/4][card_left]
+        // 12 clusters in the first card. We check the right side crystalID_cluster_L1Card[kk%4][kk/4][card_left]
+        for (int kk = 0; kk < n_clusters_4link; ++kk) {  
+          // if the tower is at the edge there might be brem corrections, whatever the crystal ID
           if (towerID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] > 50 &&
-              energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] >
-                  0) {  // if the tower is at the edge there might be brem corrections, whatever the crystal ID
+              energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] > 0) {  
             for (int ll = 0; ll < n_clusters_4link; ++ll) {  // We check the 12 clusters in the card on the right
+              //Distance of 1 max in eta
               if (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] < n_towers_cardEta &&
                   std::abs(5 * (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right]) %
                                n_towers_cardEta +
@@ -854,11 +855,12 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
                            5 * (towerID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left]) %
                                n_towers_cardEta -
                            crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] % 5) <=
-                      1) {  //Distance of 1 max in eta
+                      1) {  
+                //Distance of 5 max in phi
                 if (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] < n_towers_cardEta &&
                     std::abs(5 + crystalID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] / 5 -
                              (crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] / 5)) <=
-                        5) {  //Distance of 5 max in phi
+                        5) {  
                   if (energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] >
                           energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] &&
                       energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] >
@@ -867,7 +869,8 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
                         energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right];
                     energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] = 0;
                     brem_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] = 1;
-                  }  // The least energetic cluster is merged to the most energetic one, if its pt is at least ten percent
+                  }  
+                  // The least energetic cluster is merged to the most energetic one, if its pt is at least ten percent
                   else if (energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_right] >=
                                energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_left] &&
                            energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_left] >
