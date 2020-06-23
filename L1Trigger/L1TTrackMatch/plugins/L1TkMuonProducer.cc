@@ -595,7 +595,7 @@ L1TkMuonProducer::PropState L1TkMuonProducer::propagateToGMT(const L1TkMuonProdu
 }
 
 double L1TkMuonProducer::sigmaEtaTP(const RegionalMuonCand& l1mu) const {
-  float l1mu_eta = l1mu.hwEta() * 0.010875;
+  float l1mu_eta = l1mu.hwEta() * eta_scale;
   if (std::abs(l1mu_eta) <= 1.55)
     return 0.0288;
   else if (std::abs(l1mu_eta) > 1.55 && std::abs(l1mu_eta) <= 1.65)
@@ -632,10 +632,9 @@ std::vector<L1TkMuMantraDF::muon_df> L1TkMuonProducer::product_to_muvec(const Re
   {
     L1TkMuMantraDF::muon_df this_mu;
     this_mu.pt = l1mu->hwPt() * 0.5;
-    this_mu.eta = l1mu->hwEta() * 0.010875;
-    this_mu.theta = L1TkMuMantra::to_mpio2_pio2(L1TkMuMantra::eta_to_theta(l1mu->hwEta() * 0.010875));
-    this_mu.phi = MicroGMTConfiguration::calcGlobalPhi(l1mu->hwPhi(), l1mu->trackFinderType(), l1mu->processor()) * 2 *
-                  M_PI / 576.;
+    this_mu.eta = l1mu->hwEta() * eta_scale;
+    this_mu.theta = L1TkMuMantra::to_mpio2_pio2(L1TkMuMantra::eta_to_theta(l1mu->hwEta() * eta_scale));
+    this_mu.phi = MicroGMTConfiguration::calcGlobalPhi(l1mu->hwPhi(), l1mu->trackFinderType(), l1mu->processor()) * phi_scale;
     this_mu.charge = (l1mu->hwSign() == 0 ? 1 : -1);  // charge sign bit (charge = (-1)^(sign))
     result.push_back(this_mu);
   }
