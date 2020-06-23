@@ -33,6 +33,7 @@
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauVertexAssociator.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 
 #include <TFormula.h>
 
