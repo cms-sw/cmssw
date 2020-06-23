@@ -30,9 +30,9 @@ public:
   void SetUpper(TF1* formula);
 
   // bool matches (double pt);
-  double bound_low(double pt) { return f_low->Eval(pt); }
-  double bound_cent(double pt) { return f_cent->Eval(pt); }
-  double bound_high(double pt) { return f_high->Eval(pt); }
+  const double bound_low(double pt) { return f_low->Eval(pt); }
+  const double bound_cent(double pt) { return f_cent->Eval(pt); }
+  const double bound_high(double pt) { return f_high->Eval(pt); }
 
 private:
   std::string name_;
