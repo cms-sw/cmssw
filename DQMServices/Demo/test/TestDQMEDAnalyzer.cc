@@ -175,6 +175,37 @@ private:
 };
 DEFINE_FWK_MODULE(TestDQMOneFillRunEDAnalyzer);
 
+class TestDQMOneFillLumiEDAnalyzer : public DQMOneEDAnalyzer<> {
+public:
+  explicit TestDQMOneFillLumiEDAnalyzer(const edm::ParameterSet& iConfig)
+      : mymes_(iConfig.getParameter<std::string>("folder"), iConfig.getParameter<int>("howmany")),
+        myvalue_(iConfig.getParameter<double>("value")) {}
+
+  ~TestDQMOneFillLumiEDAnalyzer() override{};
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<std::string>("folder", "One/testonefilllumi")->setComment("Where to put all the histograms");
+    desc.add<int>("howmany", 1)->setComment("How many copies of each ME to put");
+    desc.add<double>("value", 1)->setComment("Which value to use on the third axis (first two are lumi and run)");
+    descriptions.add("testonefilllumi", desc);
+  }
+
+private:
+  void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) override {
+    mymes_.bookall(ibooker);
+  }
+
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override {}
+  void dqmEndLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) override {
+    mymes_.fillall(lumi.luminosityBlock(), lumi.run(), myvalue_);
+  }
+
+  BookerFiller<DQMStore::IBooker, MonitorElement, /* DOLUMI */ true> mymes_;
+  double myvalue_;
+};
+DEFINE_FWK_MODULE(TestDQMOneFillLumiEDAnalyzer);
+
 class TestDQMOneLumiEDAnalyzer : public DQMOneLumiEDAnalyzer<> {
 public:
   explicit TestDQMOneLumiEDAnalyzer(const edm::ParameterSet& iConfig)

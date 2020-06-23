@@ -7,6 +7,7 @@ process.MessageLogger = cms.Service("MessageLogger")
 process.load("DQMServices.Demo.test_cfi")
 process.load("DQMServices.Demo.testone_cfi")
 process.load("DQMServices.Demo.testonefillrun_cfi")
+process.load("DQMServices.Demo.testonefilllumi_cfi")
 process.load("DQMServices.Demo.testonelumi_cfi")
 process.load("DQMServices.Demo.testonelumifilllumi_cfi")
 process.load("DQMServices.Demo.testglobal_cfi")
@@ -16,7 +17,8 @@ process.load("DQMServices.Demo.testlegacyfilllumi_cfi")
 process.test_general = cms.Sequence(process.test 
                                   + process.testglobal)
 process.test_one     = cms.Sequence(process.testone
-                                  + process.testonefillrun)
+                                  + process.testonefillrun
+                                  + process.testonefilllumi)
 process.test_legacy  = cms.Sequence(process.testonelumi + process.testonelumifilllumi
                                   + process.testlegacy + process.testlegacyfillrun + process.testlegacyfilllumi)
 
