@@ -34,6 +34,22 @@ TritonClient<Client>::TritonClient(const edm::ParameterSet& params)
   wrap(nic::InferGrpcContext::Create(&context_, url_, modelName_, modelVersion_, false),
        "setup(): unable to create inference context",true);
 
+  //get options
+  wrap(nic::InferContext::Options::Create(&options_), "setup(): unable to create inference context options", true);
+
+  //get input and output (which know their sizes)
+  const auto& nicInputs = context_->Inputs();
+  //currently no use case is foreseen for a model with zero inputs
+  if (nicInputs.empty())
+    throw cms::Exception("TritonServerFailure") << "Model on server appears malformed (zero inputs)";
+  nicInput_ = nicInputs[0];
+
+  const auto& nicOutputs = context_->Outputs();
+  //currently no use case is foreseen for a model with zero outputs
+  if (nicOutputs.empty())
+    throw cms::Exception("TritonServerFailure") << "Model on server appears malformed (zero outputs)";
+  nicOutput_ = nicOutputs[0];
+
   //only used for monitoring
   bool has_server = false;
   if (verbose_) {
@@ -69,22 +85,14 @@ bool TritonClient<Client>::setup() {
     return status;
 
   options->SetBatchSize(batchSize_);
-  for (const auto& output : context_->Outputs()) {
-    status = wrap(options->AddRawResult(output), "setup(): unable to add raw result");
-    if (!status)
-      return status;
-  }
+  status = wrap(options->AddRawResult(nicOutput_), "setup(): unable to add raw result");
+  if (!status)
+    return status;
+
   status = wrap(context_->SetRunOptions(*options), "setup(): unable to set run options");
   if (!status)
     return status;
 
-  const auto& nicInputs = context_->Inputs();
-  if (nicInputs.empty()) {
-    //currently no use case is foreseen for a model with zero inputs
-    edm::LogWarning("TritonServerWarning") << "Model on server appears malformed (zero input size)";
-    return false;
-  }
-  nicInput_ = nicInputs[0];
   nicInput_->Reset();
 
   auto t1 = std::chrono::high_resolution_clock::now();

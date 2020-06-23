@@ -85,9 +85,12 @@ protected:
   unsigned nOutput_;
   bool verbose_;
   unsigned allowedTries_;
+
   std::unique_ptr<nic::InferContext> context_;
   std::unique_ptr<nic::ServerStatusContext> serverCtx_;
+  std::unique_ptr<nic::InferContext::Options> options_;
   std::shared_ptr<nic::InferContext::Input> nicInput_;
+  std::shared_ptr<nic::InferContext::Output> nicOutput_;
 };
 
 using TritonClientSync = TritonClient<SonicClientSync<std::vector<float>>>;
