@@ -220,7 +220,6 @@ public:
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
-  bool passes_he(float pt, float he);
   bool passes_ss(float pt, float ss);
   bool passes_photon(float pt, float pss);
   bool passes_iso(float pt, float iso);
