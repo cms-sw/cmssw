@@ -20,54 +20,80 @@
 //
 //
 
-// CMSSW headers
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-// Fast Simulation headers
-#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
-#include "FastSimulation/MuonSimHitProducer/interface/MuonSimHitProducer.h"
-#include "FastSimulation/MaterialEffects/interface/MaterialEffects.h"
-#include "FastSimulation/MaterialEffects/interface/MultipleScatteringSimulator.h"
-#include "FastSimulation/MaterialEffects/interface/EnergyLossSimulator.h"
-#include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
-#include "FastSimulation/MaterialEffects/interface/MuonBremsstrahlungSimulator.h"
-
-// SimTrack
-#include "SimDataFormats/Track/interface/SimTrack.h"
-#include "SimDataFormats/Vertex/interface/SimVertex.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-
-// STL headers
-#include <vector>
-#include <iostream>
-
-// RecoMuon headers
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
-#include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
-#include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
-#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
-
-// Tracking Tools
-#include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
-#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
-
-// Data Formats
-#include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
 #include "DataFormats/GeometrySurface/interface/TangentPlane.h"
-
-////////////////////////////////////////////////////////////////////////////
-// Geometry, Magnetic Field
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "FastSimulation/MaterialEffects/interface/EnergyLossSimulator.h"
+#include "FastSimulation/MaterialEffects/interface/MaterialEffects.h"
+#include "FastSimulation/MaterialEffects/interface/MultipleScatteringSimulator.h"
+#include "FastSimulation/MaterialEffects/interface/MuonBremsstrahlungSimulator.h"
+#include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
+#include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+#include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 
-////////////////////// Now find detector IDs:
+class MuonSimHitProducer : public edm::stream::EDProducer<> {
+public:
+  explicit MuonSimHitProducer(const edm::ParameterSet&);
 
-// #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
+private:
+  MuonServiceProxy* theService;
+  Chi2MeasurementEstimator theEstimator;
+
+  const MagneticField* magfield;
+  const DTGeometry* dtGeom;
+  const CSCGeometry* cscGeom;
+  const RPCGeometry* rpcGeom;
+  const Propagator* propagatorWithMaterial;
+  std::unique_ptr<Propagator> propagatorWithoutMaterial;
+
+  std::unique_ptr<MaterialEffects> theMaterialEffects;
+
+  void beginRun(edm::Run const& run, const edm::EventSetup& es) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void readParameters(const edm::ParameterSet&, const edm::ParameterSet&, const edm::ParameterSet&);
+
+  // Parameters to emulate the muonSimHit association inefficiency due to delta's
+  double kDT;
+  double fDT;
+  double kCSC;
+  double fCSC;
+
+  /// Simulate material effects in iron (dE/dx, multiple scattering)
+  void applyMaterialEffects(TrajectoryStateOnSurface& tsosWithdEdx,
+                            TrajectoryStateOnSurface& tsos,
+                            double radPath,
+                            RandomEngineAndDistribution const*,
+                            HepPDT::ParticleDataTable const&);
+
+  // ----------- parameters ----------------------------
+  bool fullPattern_;
+  bool doL1_, doL3_, doGL_;
+
+  // tags
+  edm::InputTag simMuonLabel;
+  edm::InputTag simVertexLabel;
+
+  // tokens
+  edm::EDGetTokenT<std::vector<SimTrack> > simMuonToken;
+  edm::EDGetTokenT<std::vector<SimVertex> > simVertexToken;
+};
 
 //for debug only
 //#define FAMOS_DEBUG
@@ -121,19 +147,10 @@ void MuonSimHitProducer::beginRun(edm::Run const& run, const edm::EventSetup& es
 
   // A few propagators
   propagatorWithMaterial = &(*(theService->propagator("SteppingHelixPropagatorAny")));
-  propagatorWithoutMaterial = propagatorWithMaterial->clone();
-  SteppingHelixPropagator* SHpropagator = dynamic_cast<SteppingHelixPropagator*>(propagatorWithoutMaterial);  // Beuark!
-  SHpropagator->setMaterialMode(true);  // switches OFF material effects;
-}
-
-MuonSimHitProducer::~MuonSimHitProducer() {
-  // do anything here that needs to be done at destruction time
-  // (e.g. close files, deallocate resources etc.)
-
-  if (theMaterialEffects)
-    delete theMaterialEffects;
-  if (propagatorWithoutMaterial)
-    delete propagatorWithoutMaterial;
+  propagatorWithoutMaterial.reset(propagatorWithMaterial->clone());
+  SteppingHelixPropagator* SHpropagator =
+      dynamic_cast<SteppingHelixPropagator*>(propagatorWithoutMaterial.get());  // Beuark!
+  SHpropagator->setMaterialMode(true);                                          // switches OFF material effects;
 }
 
 //
@@ -532,7 +549,7 @@ void MuonSimHitProducer::readParameters(const edm::ParameterSet& fastMuons,
   if (matEff.getParameter<bool>("PairProduction") || matEff.getParameter<bool>("Bremsstrahlung") ||
       matEff.getParameter<bool>("MuonBremsstrahlung") || matEff.getParameter<bool>("EnergyLoss") ||
       matEff.getParameter<bool>("MultipleScattering"))
-    theMaterialEffects = new MaterialEffects(matEff);
+    theMaterialEffects = std::make_unique<MaterialEffects>(matEff);
 }
 
 void MuonSimHitProducer::applyMaterialEffects(TrajectoryStateOnSurface& tsosWithdEdx,
@@ -615,4 +632,5 @@ void MuonSimHitProducer::applyMaterialEffects(TrajectoryStateOnSurface& tsosWith
 }
 
 //define this as a plug-in
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(MuonSimHitProducer);
