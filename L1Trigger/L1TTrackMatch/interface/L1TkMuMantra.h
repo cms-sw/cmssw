@@ -42,9 +42,10 @@ namespace L1TkMuMantraDF {
 #include <string>
 #include <utility>
 #include "L1Trigger/L1TTrackMatch/interface/MuMatchWindow.h"
-// #include "GenericDataFormat.h"
 #include "TFile.h"
 #include "TMath.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class L1TkMuMantra {
 public:
@@ -52,8 +53,8 @@ public:
   ~L1TkMuMantra(){};
 
   // returns a vector with the same size of muons, each with an index to the matched L1 track, or -1 if no match is found
-  std::vector<int> find_match(std::vector<L1TkMuMantraDF::track_df>& tracks,
-                              std::vector<L1TkMuMantraDF::muon_df>& muons);
+  std::vector<int> find_match(const std::vector<L1TkMuMantraDF::track_df>& tracks,
+                              const std::vector<L1TkMuMantraDF::muon_df>& muons);
 
   void test(double eta, double pt);
 
@@ -63,9 +64,9 @@ public:
     safety_factor_l_ = sf_l;
     safety_factor_h_ = sf_h;
     if (verbosity_ > 0)
-      std::cout << "L1TkMuMantra : " << name_ << " safety factor LOW is " << safety_factor_l_ << std::endl;
+      LogTrace("L1TkMuMantra") << name_ << " safety factor LOW is " << safety_factor_l_ << std::endl;
     if (verbosity_ > 0)
-      std::cout << "L1TkMuMantra : " << name_ << " safety factor HIGH is " << safety_factor_h_ << std::endl;
+      LogTrace("L1TkMuMantra") << name_ << " safety factor HIGH is " << safety_factor_h_ << std::endl;
   }
 
   int sign(double x) {

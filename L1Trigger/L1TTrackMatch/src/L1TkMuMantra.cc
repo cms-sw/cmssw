@@ -107,7 +107,7 @@ void L1TkMuMantra::test(double eta, double pt) {
   return;
 }
 
-std::vector<int> L1TkMuMantra::find_match(std::vector<track_df>& tracks, std::vector<muon_df>& muons) {
+std::vector<int> L1TkMuMantra::find_match(const std::vector<track_df>& tracks, const std::vector<muon_df>& muons) {
   std::vector<int> result(muons.size(), -1);  // init all TkMu to index -1
   for (uint imu = 0; imu < muons.size(); ++imu) {
     muon_df mu = muons.at(imu);
