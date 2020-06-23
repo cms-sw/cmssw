@@ -8,10 +8,13 @@ namespace L1TkElectron {
     bool operator()(const l1t::EGamma& a, const l1t::EGamma& b) const {
       double et_a = 0.0;
       double et_b = 0.0;
-      if (cosh(a.eta()) > 0.0)
-        et_a = a.energy() / cosh(a.eta());
-      if (cosh(b.eta()) > 0.0)
-        et_b = b.energy() / cosh(b.eta());
+      double cosh_a_eta = cosh(a.eta());
+      double cosh_b_eta = cosh(b.eta());
+
+      if (cosh_a_eta > 0.0)
+        et_a = a.energy() / cosh_a_eta;
+      if (cosh_b_eta > 0.0)
+        et_b = b.energy() / cosh_b_eta;
 
       return et_a > et_b;
     }
