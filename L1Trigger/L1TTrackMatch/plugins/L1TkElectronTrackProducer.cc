@@ -13,7 +13,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -44,13 +44,15 @@
 #include <string>
 #include "TMath.h"
 
+static constexpr float EB_MaxEta = 0.9;
+
 using namespace l1t;
 
 //
 // class declaration
 //
 
-class L1TkElectronTrackProducer : public edm::EDProducer {
+class L1TkElectronTrackProducer : public edm::stream::EDProducer<> {
 public:
   typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
   typedef std::vector<L1TTTrackType> L1TTTrackCollectionType;
@@ -61,9 +63,9 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob() override;
+  //void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  //void endJob() override;
 
   float isolation(const edm::Handle<L1TTTrackCollectionType>& trkHandle, int match_index);
   double getPtScaledCut(double pt, std::vector<double>& parameters);
@@ -241,10 +243,10 @@ void L1TkElectronTrackProducer::produce(edm::Event& iEvent, const edm::EventSetu
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void L1TkElectronTrackProducer::beginJob() {}
+//void L1TkElectronTrackProducer::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void L1TkElectronTrackProducer::endJob() {}
+//void L1TkElectronTrackProducer::endJob() {}
 
 // ------------ method called when starting to processes a run  ------------
 /*
@@ -330,7 +332,7 @@ bool L1TkElectronTrackProducer::selectMatchedTrack(
       return true;
   } else {
     double deta_max = dEtaCutoff_[0];
-    if (std::abs(eg_eta) < 0.9)
+    if (std::abs(eg_eta) < EB_MaxEta)
       deta_max = dEtaCutoff_[1];
     double dphi_max = dPhiCutoff_[0];
     if ((d_eta / deta_max) * (d_eta / deta_max) + (d_phi / dphi_max) * (d_phi / dphi_max) < 1)
