@@ -111,7 +111,7 @@ DTGeometryESProducer::DTGeometryESProducer(const ParameterSet& iConfig)
   }
 
   if (m_fromDDD) {
-    m_mdcToken = cc.consumesFrom<MuonGeometryConstants, IdealGeometryRecord>(edm::ESInputTag{});//IdealGeometryRecord? 
+    m_mdcToken = cc.consumesFrom<MuonGeometryConstants, IdealGeometryRecord>(edm::ESInputTag{});  //IdealGeometryRecord?
     m_cpvToken = cc.consumesFrom<DDDetector, IdealGeometryRecord>(m_tag);
     m_registryToken = cc.consumesFrom<DDSpecParRegistry, DDSpecParRegistryRcd>(m_tag);
   }

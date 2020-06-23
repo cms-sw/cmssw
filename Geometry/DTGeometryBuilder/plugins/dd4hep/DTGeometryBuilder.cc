@@ -94,10 +94,9 @@ DTGeometryBuilder::RCPPlane DTGeometryBuilder::plane(const DDFilteredView& fview
 }
 
 DTChamber* DTGeometryBuilder::buildChamber(DDFilteredView& fview, const MuonGeometryConstants& muonConstants) const {
-
-    MuonGeometryNumbering mdddnum(muonConstants);
-    DTNumberingScheme dtnum(muonConstants);
-    int rawid = dtnum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fview.history()));
+  MuonGeometryNumbering mdddnum(muonConstants);
+  DTNumberingScheme dtnum(muonConstants);
+  int rawid = dtnum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fview.history()));
 
   DTChamberId detId(rawid);
   auto const& par = fview.parameters();
@@ -115,9 +114,9 @@ DTChamber* DTGeometryBuilder::buildChamber(DDFilteredView& fview, const MuonGeom
 DTSuperLayer* DTGeometryBuilder::buildSuperLayer(DDFilteredView& fview,
                                                  DTChamber* chamber,
                                                  const MuonGeometryConstants& muonConstants) const {
-    MuonGeometryNumbering mdddnum(muonConstants);
-    DTNumberingScheme dtnum(muonConstants);
-    int rawid = dtnum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fview.history()));
+  MuonGeometryNumbering mdddnum(muonConstants);
+  DTNumberingScheme dtnum(muonConstants);
+  int rawid = dtnum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fview.history()));
 
   DTSuperLayerId slId(rawid);
 
@@ -140,11 +139,10 @@ DTSuperLayer* DTGeometryBuilder::buildSuperLayer(DDFilteredView& fview,
 DTLayer* DTGeometryBuilder::buildLayer(DDFilteredView& fview,
                                        DTSuperLayer* sl,
                                        const MuonGeometryConstants& muonConstants) const {
-
   MuonGeometryNumbering mdddnum(muonConstants);
-    DTNumberingScheme dtnum(muonConstants);
-    int rawid = dtnum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fview.history()));
-  
+  DTNumberingScheme dtnum(muonConstants);
+  int rawid = dtnum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fview.history()));
+
   DTLayerId layId(rawid);
 
   auto const& par = fview.parameters();
