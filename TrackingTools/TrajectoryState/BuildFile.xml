@@ -5,6 +5,7 @@
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/TrajectoryState"/>
 <use name="DataFormats/BeamSpot"/>
+<use name="DataFormats/L1TrackTrigger"/>
 <use name="TrackingTools/AnalyticalJacobians"/>
 <use name="TrackingTools/TrajectoryParametrization"/>
 <use name="MagneticField/Engine"/>
