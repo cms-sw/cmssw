@@ -256,7 +256,7 @@ L1TkMuonProducer::L1TkMuonProducer(const edm::ParameterSet& iConfig) :
     TFile* fIn_theta = TFile::Open(fIn_theta_name.c_str());
     TFile* fIn_phi = TFile::Open(fIn_phi_name.c_str());
 
-    mantracorr_ovrl_ = std::unique_ptr<L1TkMuMantra>(new L1TkMuMantra(bounds, fIn_theta, fIn_phi, "mantra_overlap"));
+    mantracorr_ovrl_ = std::make_unique<L1TkMuMantra>(bounds, fIn_theta, fIn_phi, "mantra_overlap");
 
     fIn_theta->Close();
     fIn_phi->Close();
@@ -276,7 +276,7 @@ L1TkMuonProducer::L1TkMuonProducer(const edm::ParameterSet& iConfig) :
     TFile* fIn_theta = TFile::Open(fIn_theta_name.c_str());
     TFile* fIn_phi = TFile::Open(fIn_phi_name.c_str());
 
-    mantracorr_endc_ = std::unique_ptr<L1TkMuMantra>(new L1TkMuMantra(bounds, fIn_theta, fIn_phi, "mantra_endcap"));
+    mantracorr_endc_ = std::make_unique<L1TkMuMantra>(bounds, fIn_theta, fIn_phi, "mantra_endcap");
 
     fIn_theta->Close();
     fIn_phi->Close();
@@ -353,7 +353,7 @@ void L1TkMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         << "endcap : trying to run an invalid algorithm (this should never happen)\n";
 
   // now combine all trk muons into a single output collection!
-  std::unique_ptr<TkMuonCollection> oc_tkmuon(new TkMuonCollection());
+  std::unique_ptr<TkMuonCollection> oc_tkmuon = std::make_unique<TkMuonCollection>();
   for (const auto& p : {oc_bmtf_tkmuon, oc_omtf_tkmuon, oc_emtf_tkmuon}) {
     oc_tkmuon->insert(oc_tkmuon->end(), p.begin(), p.end());
   }
