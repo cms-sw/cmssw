@@ -45,8 +45,6 @@ namespace cms {
     using RCPPlane = ReferenceCountingPointer<Plane>;
 
     RCPPlane plane(const DDFilteredView&, Bounds* bounds) const;
-
-    //    std::unique_ptr<cms::DTNumberingScheme> dtnum_ = nullptr;
   };
 }  // namespace cms
 
