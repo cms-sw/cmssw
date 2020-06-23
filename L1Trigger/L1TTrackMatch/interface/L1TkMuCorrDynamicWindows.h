@@ -17,6 +17,7 @@
 #include "DataFormats/L1TCorrelator/interface/TkMuonFwd.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/L1TMuon/interface/EMTFTrack.h"
+#include "DataFormats/Math/interface/angle_units.h"
 
 #include "L1Trigger/L1TTrackMatch/interface/MuMatchWindow.h"
 #include "L1Trigger/L1TMuonEndCap/interface/Common.h"
@@ -29,9 +30,7 @@ public:
   L1TkMuCorrDynamicWindows(std::vector<double>& bounds, TFile* fIn_theta, TFile* fIn_phi);
   L1TkMuCorrDynamicWindows(
       std::vector<double>& bounds, TFile* fIn_theta, TFile* fIn_phi, TFile* fIn_theta_S1, TFile* fIn_phi_S1);
-  ~L1TkMuCorrDynamicWindows(){};
-  // void test(double eta, double pt);
-  // std::vector<int> find_match(const EMTFTrackCollection& l1mus, const L1TTTrackCollectionType& l1tks l1trks, std::vector<int>* narbitrated = nullptr); // gives a vector with the idxs of muons for each L1TTT
+  ~L1TkMuCorrDynamicWindows(){}
   std::vector<int> find_match(
       const EMTFTrackCollection& l1mus,
       const L1TTTrackCollectionType& l1trks);  // gives a vector with the idxs of muons for each L1TTT
@@ -89,14 +88,12 @@ private:
 
   // resolves ambiguities to give max 1 tkmu per EMTF
   // if a pointer to narbitrated is passed, this vector is filled with the number of tracks arbitrated that were matched to the same EMTF
-  // std::vector<int> make_unique_coll(MuTkTree& mtkt, std::vector<int> matches, std::vector<int>* narbitrated = nullptr);
-  // std::vector<int> make_unique_coll(const EMTFTrackCollection& l1mus, const L1TTTrackCollectionType& l1trks, std::vector<int> matches, std::vector<int>* narbitrated = nullptr);
   std::vector<int> make_unique_coll(const unsigned int& l1musSize,
                                     const L1TTTrackCollectionType& l1trks,
                                     std::vector<int> matches);
 
   // converters
-  double deg_to_rad(double x) { return (x * TMath::Pi() / 180.); }
+  double deg_to_rad(double x) { return (x * angle_units::degPerRad); }
 
   double eta_to_theta(double x) {
     //  give theta in rad
