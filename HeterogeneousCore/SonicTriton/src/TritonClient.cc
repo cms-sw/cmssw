@@ -29,25 +29,10 @@ TritonClient<Client>::TritonClient(const edm::ParameterSet& params)
       verbose_(params.getUntrackedParameter<bool>("verbose")),
       allowedTries_(params.getUntrackedParameter<unsigned>("allowedTries")) {
   this->clientName_ = "TritonClient";
-}
 
-template <typename Client>
-bool TritonClient<Client>::wrap(const nic::Error& err, const std::string& msg) const {
-  if (!err.IsOk()) {
-    //emit warning
-    edm::LogWarning("TritonServerWarning") << msg << ": " << err;
-  }
-  return err.IsOk();
-}
-
-template <typename Client>
-bool TritonClient<Client>::setup() {
-  bool status = true;
-
-  status = wrap(nic::InferGrpcContext::Create(&context_, url_, modelName_, modelVersion_, false),
-                "setup(): unable to create inference context");
-  if (!status)
-    return status;
+  //connect to the server
+  wrap(nic::InferGrpcContext::Create(&context_, url_, modelName_, modelVersion_, false),
+       "setup(): unable to create inference context",true);
 
   //only used for monitoring
   bool has_server = false;
@@ -57,6 +42,26 @@ bool TritonClient<Client>::setup() {
   }
   if (!has_server)
     serverCtx_ = nullptr;
+}
+
+template <typename Client>
+bool TritonClient<Client>::wrap(const nic::Error& err, const std::string& msg, bool stop) const {
+  if (!err.IsOk()) {
+    //throw exception: used in constructor, should not be used in evaluate() or any method called by evaluate()
+    if (stop) {
+      throw cms::Exception("TritonServerFailure") << msg << ": " << err;
+    }
+    else {
+      //emit warning
+      edm::LogWarning("TritonServerWarning") << msg << ": " << err;
+    }
+  }
+  return err.IsOk();
+}
+
+template <typename Client>
+bool TritonClient<Client>::setup() {
+  bool status = true;
 
   std::unique_ptr<nic::InferContext::Options> options;
   status = wrap(nic::InferContext::Options::Create(&options), "setup(): unable to create inference context options");

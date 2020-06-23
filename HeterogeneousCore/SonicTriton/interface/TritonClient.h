@@ -68,7 +68,7 @@ protected:
   bool setup();
 
   //helper to turn triton error into warning
-  bool wrap(const nic::Error& err, const std::string& msg) const;
+  bool wrap(const nic::Error& err, const std::string& msg, bool stop=false) const;
 
   void reportServerSideStats(const ServerSideStats& stats) const;
   ServerSideStats summarizeServerStats(const ni::ModelStatus& start_status, const ni::ModelStatus& end_status) const;
