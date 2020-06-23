@@ -2,7 +2,7 @@
 #define CondCore_ESSources_DataProxy_H
 
 #include <cassert>
-#include <iostream>
+//#include <iostream>
 #include <memory>
 #include <string>
 #include <mutex>
