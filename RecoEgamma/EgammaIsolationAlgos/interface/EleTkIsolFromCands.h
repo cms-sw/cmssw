@@ -1,12 +1,13 @@
 #ifndef RECOEGAMMA_EGAMMAISOLATIONALGOS_ELETKISOLFROMCANDS_H
 #define RECOEGAMMA_EGAMMAISOLATIONALGOS_ELETKISOLFROMCANDS_H
 
+#include "CommonTools/Utils/interface/KinematicColumns.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "FWCore/SOA/interface/Table.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "RecoEgamma/EgammaTools/interface/tables.h"
 
 //author S. Harper (RAL)
 //this class does a simple calculation of the track isolation for a track with eta,
@@ -102,8 +103,7 @@ private:
   // the electron. Note that this has to be done twice, because the required
   // preselection is different for barrel and endcap electrons.
 
-  using TrackTable =
-      edm::soa::Table<egamma::soa::col::Pt, egamma::soa::col::Eta, egamma::soa::col::Phi, egamma::soa::col::Vz>;
+  using TrackTable = edm::soa::Table<edm::soa::col::Pt, edm::soa::col::Eta, edm::soa::col::Phi, edm::soa::col::Vz>;
 
   static bool passPIDVeto(const int pdgId, const EleTkIsolFromCands::PIDVeto pidVeto);
 

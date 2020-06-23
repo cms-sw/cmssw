@@ -14,7 +14,7 @@ namespace egamma {
 
   std::pair<TrackRef, float> getClosestCtfToGsf(GsfTrackRef const& gsfTrackRef,
                                                 edm::Handle<reco::TrackCollection> const& ctfTracksH,
-                                                egamma::soa::EtaPhiTable const& trackTable) {
+                                                edm::soa::EtaPhiTable const& trackTable) {
     float maxFracShared = 0;
     TrackRef ctfTrackRef = TrackRef();
     const TrackCollection* ctfTrackCollection = ctfTracksH.product();
@@ -27,8 +27,8 @@ namespace egamma {
 
     unsigned int counter = 0;
     for (auto ctfTkIter = ctfTrackCollection->begin(); ctfTkIter != ctfTrackCollection->end(); ctfTkIter++, counter++) {
-      float dEta = gsfEta - trackTable.get<egamma::soa::col::Eta>(counter);
-      float dPhi = gsfPhi - trackTable.get<egamma::soa::col::Phi>(counter);
+      float dEta = gsfEta - trackTable.get<edm::soa::col::Eta>(counter);
+      float dPhi = gsfPhi - trackTable.get<edm::soa::col::Phi>(counter);
       if (std::abs(dPhi) > M_PI)
         dPhi = 2 * M_PI - std::abs(dPhi);
 

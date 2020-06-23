@@ -1,24 +1,15 @@
-#ifndef RecoEgamma_EgammaTools_tables_h
-#define RecoEgamma_EgammaTools_tables_h
+#ifndef CommonTools_Utils_KinematicTables_h
+#define CommonTools_Utils_KinematicTables_h
 
-#include "FWCore/SOA/interface/Column.h"
+#include "CommonTools/Utils/interface/KinematicColumns.h"
+#include "CommonTools/Utils/interface/LazyResult.h"
 #include "FWCore/SOA/interface/Table.h"
-#include "RecoEgamma/EgammaTools/interface/LazyResult.h"
 
 #include <vector>
 
-namespace egamma {
+namespace edm {
 
   namespace soa {
-
-    namespace col {
-
-      SOA_DECLARE_COLUMN(Pt, float, "pt");
-      SOA_DECLARE_COLUMN(Eta, float, "eta");
-      SOA_DECLARE_COLUMN(Phi, float, "phi");
-      SOA_DECLARE_COLUMN(Vz, float, "vz");
-
-    }  // namespace col
 
     using EtaPhiTable = edm::soa::Table<col::Eta, col::Phi>;
 
@@ -36,6 +27,6 @@ namespace egamma {
 
   }  // namespace soa
 
-}  // namespace egamma
+}  // namespace edm
 
 #endif
