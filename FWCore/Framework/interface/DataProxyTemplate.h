@@ -33,8 +33,10 @@
 // user include files
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include <cassert>
 #include <limits>
+#include <atomic>
 
 // forward declarations
 
@@ -52,17 +54,42 @@ namespace edm {
 
       DataProxyTemplate() {}
 
-      const void* getImpl(const EventSetupRecordImpl& iRecord,
-                          const DataKey& iKey,
-                          EventSetupImpl const* iEventSetupImpl) override {
+      void prefetchAsyncImpl(WaitingTask* iTask,
+                             const EventSetupRecordImpl& iRecord,
+                             const DataKey& iKey,
+                             EventSetupImpl const* iEventSetupImpl) override {
         assert(iRecord.key() == RecordT::keyForClass());
-        RecordT rec;
-        rec.setImpl(&iRecord, std::numeric_limits<unsigned int>::max(), nullptr, iEventSetupImpl, true);
-        return this->make(rec, iKey);
+        bool expected = false;
+        bool doPrefetch = prefetching_.compare_exchange_strong(expected, true);
+        taskList_.add(iTask);
+
+        if (doPrefetch) {
+          tbb::task::spawn(*edm::make_waiting_task(
+              tbb::task::allocate_root(), [this, &iRecord, iKey, iEventSetupImpl](std::exception_ptr const*) {
+                try {
+                  RecordT rec;
+                  rec.setImpl(&iRecord, std::numeric_limits<unsigned int>::max(), nullptr, iEventSetupImpl, true);
+                  this->make(rec, iKey);
+                } catch (...) {
+                  this->taskList_.doneWaiting(std::current_exception());
+                  return;
+                }
+                this->taskList_.doneWaiting(std::exception_ptr{});
+              }));
+        }
       }
 
     protected:
+      void invalidateCache() override {
+        taskList_.reset();
+        prefetching_ = false;
+      }
+
       virtual const DataT* make(const RecordT&, const DataKey&) = 0;
+
+    private:
+      WaitingTaskList taskList_;
+      std::atomic<bool> prefetching_{false};
     };
 
   }  // namespace eventsetup

@@ -42,9 +42,12 @@ namespace edm {
       std::chrono::high_resolution_clock::time_point m_time;
       unsigned int m_nTimeSums = 0;
       unsigned int m_nModules;
+      unsigned int m_maxNModules = 0;
+      const unsigned int m_padding;
       std::atomic<bool> m_spinLock;
       bool m_startedTiming;
-      bool m_excludeSource;
+      const bool m_excludeSource;
+      const bool m_trackGlobalBeginRun;
     };
   }  // namespace service
 }  // namespace edm
@@ -69,9 +72,11 @@ ConcurrentModuleTimer::ConcurrentModuleTimer(edm::ParameterSet const& iConfig, e
     : m_modulesToExclude(iConfig.getUntrackedParameter<std::vector<std::string>>("modulesToExclude")),
       m_time(),
       m_nModules(0),
+      m_padding(iConfig.getUntrackedParameter<unsigned int>("padding")),
       m_spinLock{false},
       m_startedTiming(false),
-      m_excludeSource(iConfig.getUntrackedParameter<bool>("excludeSource")) {
+      m_excludeSource(iConfig.getUntrackedParameter<bool>("excludeSource")),
+      m_trackGlobalBeginRun(iConfig.getUntrackedParameter<bool>("trackGlobalBeginRun")) {
   if (not m_modulesToExclude.empty()) {
     iReg.watchPreModuleConstruction([this](ModuleDescription const& iMod) {
       for (auto const& name : m_modulesToExclude) {
@@ -122,10 +127,21 @@ ConcurrentModuleTimer::ConcurrentModuleTimer(edm::ParameterSet const& iConfig, e
         start();
       }
     });
+    if (m_trackGlobalBeginRun) {
+      iReg.watchPreModuleGlobalBeginRun([this](GlobalContext const&, ModuleCallingContext const&) {
+        if (not m_startedTiming) {
+          m_time = std::chrono::high_resolution_clock::now();
+          m_startedTiming = true;
+        }
+
+        start();
+      });
+      iReg.watchPostModuleGlobalBeginRun([this](GlobalContext const&, ModuleCallingContext const&) { stop(); });
+    }
   }
 
   iReg.watchPreallocate([this](edm::service::SystemBounds const& iBounds) {
-    m_nTimeSums = iBounds.maxNumberOfThreads() + 1;
+    m_nTimeSums = iBounds.maxNumberOfThreads() + 1 + m_padding;
     m_timeSums.reset(new std::atomic<std::chrono::high_resolution_clock::rep>[m_nTimeSums]);
     for (unsigned int i = 0; i < m_nTimeSums; ++i) {
       m_timeSums[i] = 0;
@@ -147,6 +163,7 @@ ConcurrentModuleTimer::ConcurrentModuleTimer(edm::ParameterSet const& iConfig, e
 }
 
 ConcurrentModuleTimer::~ConcurrentModuleTimer() {
+  std::cout << "Maximum concurrent running modules: " << m_maxNModules << std::endl;
   std::cout << "Fraction of time running n Modules simultaneously" << std::endl;
   for (unsigned int i = 0; i < m_nTimeSums; ++i) {
     std::cout << i << " " << m_timeSums[i] / double(m_timeSums[0]) << " " << m_timeSums[i] << std::endl;
@@ -185,6 +202,9 @@ void ConcurrentModuleTimer::start() {
     oldTime = m_time;
     m_time = newTime;
     nModules = ++m_nModules;
+    if (nModules > m_maxNModules) {
+      m_maxNModules = nModules;
+    }
     m_spinLock.store(false, std::memory_order_release);
   }
   assert(nModules < m_nTimeSums);
@@ -236,6 +256,12 @@ void ConcurrentModuleTimer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.addUntracked<std::vector<std::string>>("modulesToExclude", std::vector<std::string>{})
       ->setComment("Module labels to exclude from the timing measurements");
   desc.addUntracked<bool>("excludeSource", false)->setComment("Exclude the time the source is running");
+  desc.addUntracked<unsigned int>("padding", 0)
+      ->setComment(
+          "[Expert use only] Extra possible concurrent modules beyond thread count.\n Only useful in debugging "
+          "possible framework scheduling problems.");
+  desc.addUntracked<bool>("trackGlobalBeginRun", false)
+      ->setComment("Check for concurrent modules during global begin run");
   descriptions.add("ConcurrentModuleTimer", desc);
 }
 
