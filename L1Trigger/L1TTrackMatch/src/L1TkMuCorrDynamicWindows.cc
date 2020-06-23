@@ -222,10 +222,8 @@ std::vector<int> L1TkMuCorrDynamicWindows::find_match(const EMTFTrackCollection&
   }
 
   // now convert out to a unique set
-  // auto unique_out = make_unique_coll(mtkt, out, narbitrated);
-  auto unique_out = make_unique_coll(l1mus.size(), l1trks, out);
+  return make_unique_coll(l1mus.size(), l1trks, out);
 
-  return unique_out;
 }
 
 std::vector<int> L1TkMuCorrDynamicWindows::find_match_stub(const EMTFHitCollection& l1mus,
