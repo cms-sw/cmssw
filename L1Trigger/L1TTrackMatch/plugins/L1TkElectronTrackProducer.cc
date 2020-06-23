@@ -293,6 +293,10 @@ float L1TkElectronTrackProducer::isolation(const edm::Handle<L1TTTrackCollection
 
   float sumPt = 0.0;
   int itr = 0;
+
+  float dRMin2 = dRMin_ * dRMin_;
+  float dRMax2 = dRMax_ * dRMax_;
+
   for (trackIter = trkHandle->begin(); trackIter != trkHandle->end(); ++trackIter) {
     if (itr++ != match_index) {
       if (trackIter->chi2() > maxChi2IsoTracks_ || trackIter->momentum().perp() <= pTMinTra_ ||
@@ -300,15 +304,15 @@ float L1TkElectronTrackProducer::isolation(const edm::Handle<L1TTTrackCollection
         continue;
       }
 
-      float dZ = fabs(trackIter->POCA().z() - matchedTrkPtr->POCA().z());
+      float dZ = std::abs(trackIter->POCA().z() - matchedTrkPtr->POCA().z());
 
       float phi1 = trackIter->momentum().phi();
       float phi2 = matchedTrkPtr->momentum().phi();
       float dPhi = reco::deltaPhi(phi1, phi2);
       float dEta = (trackIter->momentum().eta() - matchedTrkPtr->momentum().eta());
-      float dR = sqrt(dPhi * dPhi + dEta * dEta);
+      float dR2 = (dPhi * dPhi + dEta * dEta);
 
-      if (dR > dRMin_ && dR < dRMax_ && dZ < deltaZ_ && trackIter->momentum().perp() > pTMinTra_) {
+      if (dR2 > dRMin2 && dR2 < dRMax2 && dZ < deltaZ_ && trackIter->momentum().perp() > pTMinTra_) {
         sumPt += trackIter->momentum().perp();
       }
     }
@@ -322,11 +326,11 @@ double L1TkElectronTrackProducer::getPtScaledCut(double pt, std::vector<double>&
 bool L1TkElectronTrackProducer::selectMatchedTrack(
     double& d_r, double& d_phi, double& d_eta, double& tk_pt, float& eg_eta) {
   if (matchType_ == "PtDependentCut") {
-    if (fabs(d_phi) < getPtScaledCut(tk_pt, dPhiCutoff_) && d_r < getPtScaledCut(tk_pt, dRCutoff_))
+    if (std::abs(d_phi) < getPtScaledCut(tk_pt, dPhiCutoff_) && d_r < getPtScaledCut(tk_pt, dRCutoff_))
       return true;
   } else {
     double deta_max = dEtaCutoff_[0];
-    if (fabs(eg_eta) < 0.9)
+    if (std::abs(eg_eta) < 0.9)
       deta_max = dEtaCutoff_[1];
     double dphi_max = dPhiCutoff_[0];
     if ((d_eta / deta_max) * (d_eta / deta_max) + (d_phi / dphi_max) * (d_phi / dphi_max) < 1)
