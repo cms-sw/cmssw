@@ -20,10 +20,12 @@
  */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include <functional>
@@ -43,7 +45,7 @@ namespace reco {
       explicit RecoTauQualityCuts(const edm::ParameterSet& qcuts);
 
       /// Update the primary vertex
-      void setPV(const reco::VertexRef& vtx) { pv_ = vtx; }
+      void setPV(const reco::VertexRef& vtx) { pv_ = vtx; pvPos_ = vtx->position(); }
 
       /// Update the leading track
       void setLeadTrack(const reco::Track& leadTrack);
@@ -91,6 +93,9 @@ namespace reco {
         return output;
       }
 
+      /// Declare all parameters read from python config file
+      static void fillDescriptions(edm::ParameterSetDescription& descriptions);
+
     private:
       bool filterTrack_(const reco::Track* track) const;
       bool filterGammaCand(const reco::Candidate& cand) const;
@@ -99,6 +104,7 @@ namespace reco {
 
       // The current primary vertex
       reco::VertexRef pv_;
+      reco::Vertex::Point pvPos_;
       // The current lead track references
       const reco::Track* leadTrack_;
 
