@@ -32,6 +32,11 @@ static constexpr float mu_mass = 0.105658369;
 static constexpr int barrel_MTF_region = 1;
 static constexpr int overlap_MTF_region = 2;
 static constexpr int endcap_MTF_region = 3;
+static constexpr float eta_scale = 0.010875;
+static constexpr float phi_scale = 2 * M_PI / 576.;
+static constexpr float dr2_cutoff = 0.3;
+static constexpr float matching_factor_eta = 3.;
+static constexpr float matching_factor_phi = 4.;
 
 using namespace l1t;
 
@@ -378,10 +383,10 @@ void L1TkMuonProducer::runOnMTFCollection_v1(const edm::Handle<RegionalMuonCandB
     edm::Ref<RegionalMuonCandBxCollection> l1muRef(muonH, imu);
     imu++;
 
-    float l1mu_eta = l1mu->hwEta() * 0.010875;
+    float l1mu_eta = l1mu->hwEta() * eta_scale;
     // get the global phi
     float l1mu_phi = MicroGMTConfiguration::calcGlobalPhi(l1mu->hwPhi(), l1mu->trackFinderType(), l1mu->processor()) *
-                     2 * M_PI / 576.;
+                     phi_scale;
 
     float l1mu_feta = fabs(l1mu_eta);
     if (l1mu_feta < etaMin_)
@@ -423,7 +428,7 @@ void L1TkMuonProducer::runOnMTFCollection_v1(const edm::Handle<RegionalMuonCandB
       float l1tk_phi = l1tk.momentum().phi();
 
       float dr2 = deltaR2(l1mu_eta, l1mu_phi, l1tk_eta, l1tk_phi);
-      if (dr2 > 0.3)
+      if (dr2 > dr2_cutoff)
         continue;
 
       nTracksMatch++;
@@ -442,15 +447,15 @@ void L1TkMuonProducer::runOnMTFCollection_v1(const edm::Handle<RegionalMuonCandB
       }
     }  // over l1tks
 
-    LogDebug("MYDEBUG") << "matching index is " << match_idx;
+    LogDebug("L1TkMuonProducer") << "matching index is " << match_idx;
     if (match_idx >= 0) {
       const L1TTTrackType& matchTk = l1tks[match_idx];
 
       float sigmaEta = sigmaEtaTP(*l1mu);
       float sigmaPhi = sigmaPhiTP(*l1mu);
 
-      float etaCut = 3. * sqrt(sigmaEta * sigmaEta + matchProp.sigmaEta * matchProp.sigmaEta);
-      float phiCut = 4. * sqrt(sigmaPhi * sigmaPhi + matchProp.sigmaPhi * matchProp.sigmaPhi);
+      float etaCut = matching_factor_eta * sqrt(sigmaEta * sigmaEta + matchProp.sigmaEta * matchProp.sigmaEta);
+      float phiCut = matching_factor_phi * sqrt(sigmaPhi * sigmaPhi + matchProp.sigmaPhi * matchProp.sigmaPhi);
 
       float dEta = std::abs(matchProp.eta - l1mu_eta);
       float dPhi = std::abs(deltaPhi(matchProp.phi, l1mu_phi));
@@ -515,7 +520,7 @@ void L1TkMuonProducer::runOnMTFCollection_v2(const edm::Handle<EMTFTrackCollecti
     TkMuon l1tkmu(l1tkp4, l1muRef, l1tkPtr, trkisol);
     l1tkmu.setTrackCurvature(matchTk.rInv());
     l1tkmu.setTrkzVtx((float)tkv3.z());
-    l1tkmu.setMuonDetector(3);
+    l1tkmu.setMuonDetector(endcap_MTF_region);
     tkMuons.push_back(l1tkmu);
   }
 
