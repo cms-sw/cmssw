@@ -326,7 +326,7 @@ void L1TkMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     build_tkMuons_from_idxs(oc_bmtf_tkmuon, match_idx, l1tksH, l1bmtfH, 1);
   } else
     throw cms::Exception("TkMuAlgoConfig")
-        << " barrel : trying to run an invalid algorithm (this should never happen)\n";
+        << " barrel : trying to run an invalid algorithm version " << bmtfMatchAlgoVersion_ << " (this should never happen)\n";
 
   // ----------------------------------------------------- overlap
   if (omtfMatchAlgoVersion_ == kTP)
@@ -337,7 +337,7 @@ void L1TkMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     build_tkMuons_from_idxs(oc_omtf_tkmuon, match_idx, l1tksH, l1omtfH, 2);
   } else
     throw cms::Exception("TkMuAlgoConfig")
-        << " overlap : trying to run an invalid algorithm (this should never happen)\n";
+        << " overlap : trying to run an invalid algorithm version " << omtfMatchAlgoVersion_ << " (this should never happen)\n";
 
   // ----------------------------------------------------- endcap
   if (emtfMatchAlgoVersion_ == kTP)
@@ -350,10 +350,10 @@ void L1TkMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     build_tkMuons_from_idxs(oc_emtf_tkmuon, match_idx, l1tksH, 3);
   } else
     throw cms::Exception("TkMuAlgoConfig")
-        << "endcap : trying to run an invalid algorithm (this should never happen)\n";
+        << "endcap : trying to run an invalid algorithm version " << emtfMatchAlgoVersion_ << " (this should never happen)\n";
 
   // now combine all trk muons into a single output collection!
-  std::unique_ptr<TkMuonCollection> oc_tkmuon = std::make_unique<TkMuonCollection>();
+  auto oc_tkmuon = std::make_unique<TkMuonCollection>();
   for (const auto& p : {oc_bmtf_tkmuon, oc_omtf_tkmuon, oc_emtf_tkmuon}) {
     oc_tkmuon->insert(oc_tkmuon->end(), p.begin(), p.end());
   }
