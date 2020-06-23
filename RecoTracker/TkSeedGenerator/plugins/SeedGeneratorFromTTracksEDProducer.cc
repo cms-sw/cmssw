@@ -165,6 +165,5 @@ void SeedGeneratorFromTTracksEDProducer::produce(edm::Event& ev, const edm::Even
     }
   }  // end loop over L1Tracks
 
-  auto const& seeds = *result;
   ev.put(std::move(result));
 }
