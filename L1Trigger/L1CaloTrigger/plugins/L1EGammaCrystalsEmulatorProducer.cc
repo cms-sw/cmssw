@@ -343,7 +343,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
   iEvent.getByToken(ecalTPEBToken_, pcalohits);
   std::vector<SimpleCaloHit> ecalhits;
 
-  for (auto& hit : *pcalohits.product()) {
+  for (const auto& hit : *pcalohits.product()) {
     if (hit.encodedEt() > 0)  // hit.encodedEt() returns an int corresponding to 2x the crystal Et
     {
       float et = hit.encodedEt() /
@@ -365,8 +365,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
   std::vector<SimpleCaloHit> hcalhits;
   edm::Handle<edm::SortedCollection<HcalTriggerPrimitiveDigi> > hbhecoll;
   iEvent.getByToken(hcalTPToken_, hbhecoll);
-  for (auto& hit : *hbhecoll.product()) {
-    //if ( hit.SOI_compressedEt() == 0 ) continue;
+  for (const auto& hit : *hbhecoll.product()) {
     float et = decoder_->hcaletValue(hit.id(), hit.t0());
     if (et <= 0)
       continue;
