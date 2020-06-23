@@ -21,10 +21,14 @@ HGCalConcentratorProcessorSelection::HGCalConcentratorProcessorSelection(const e
       selectionType_[subdet] = thresholdSelect;
       if (!thresholdImpl_)
         thresholdImpl_ = std::make_unique<HGCalConcentratorThresholdImpl>(conf);
+      if (!trigSumImpl_)
+        trigSumImpl_ = std::make_unique<HGCalConcentratorTrigSumImpl>(conf);
     } else if (selectionType[subdet] == "bestChoiceSelect") {
       selectionType_[subdet] = bestChoiceSelect;
       if (!bestChoiceImpl_)
         bestChoiceImpl_ = std::make_unique<HGCalConcentratorBestChoiceImpl>(conf);
+      if (!trigSumImpl_)
+        trigSumImpl_ = std::make_unique<HGCalConcentratorTrigSumImpl>(conf);
     } else if (selectionType[subdet] == "superTriggerCellSelect") {
       selectionType_[subdet] = superTriggerCellSelect;
       if (!superTriggerCellImpl_)
@@ -43,9 +47,10 @@ HGCalConcentratorProcessorSelection::HGCalConcentratorProcessorSelection(const e
   }
 }
 
-void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& triggerCellCollInput,
-                                              l1t::HGCalTriggerCellBxCollection& triggerCellCollOutput,
-                                              const edm::EventSetup& es) {
+void HGCalConcentratorProcessorSelection::run(
+    const edm::Handle<l1t::HGCalTriggerCellBxCollection>& triggerCellCollInput,
+    std::pair<l1t::HGCalTriggerCellBxCollection, l1t::HGCalTriggerSumsBxCollection>& triggerCollOutput,
+    const edm::EventSetup& es) {
   if (thresholdImpl_)
     thresholdImpl_->eventSetup(es);
   if (bestChoiceImpl_)
@@ -54,7 +59,12 @@ void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTrigge
     superTriggerCellImpl_->eventSetup(es);
   if (coarsenerImpl_)
     coarsenerImpl_->eventSetup(es);
+  if (trigSumImpl_)
+    trigSumImpl_->eventSetup(es);
   triggerTools_.eventSetup(es);
+
+  auto& triggerCellCollOutput = triggerCollOutput.first;
+  auto& triggerSumCollOutput = triggerCollOutput.second;
 
   const l1t::HGCalTriggerCellBxCollection& collInput = *triggerCellCollInput;
 
@@ -67,6 +77,8 @@ void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTrigge
   for (const auto& module_trigcell : tc_modules) {
     std::vector<l1t::HGCalTriggerCell> trigCellVecOutput;
     std::vector<l1t::HGCalTriggerCell> trigCellVecCoarsened;
+    std::vector<l1t::HGCalTriggerCell> trigCellVecNotSelected;
+    std::vector<l1t::HGCalTriggerSums> trigSumsVecOutput;
 
     int thickness = triggerTools_.thicknessIndex(module_trigcell.second.at(0).detId(), true);
 
@@ -77,19 +89,21 @@ void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTrigge
 
       switch (selectionType_[subdet]) {
         case thresholdSelect:
-          thresholdImpl_->select(trigCellVecCoarsened, trigCellVecOutput);
+          thresholdImpl_->select(trigCellVecCoarsened, trigCellVecOutput, trigCellVecNotSelected);
           break;
         case bestChoiceSelect:
           if (triggerTools_.isEm(module_trigcell.first)) {
             bestChoiceImpl_->select(geometry_->getLinksInModule(module_trigcell.first),
                                     geometry_->getModuleSize(module_trigcell.first),
                                     module_trigcell.second,
-                                    trigCellVecOutput);
+                                    trigCellVecOutput,
+                                    trigCellVecNotSelected);
           } else {
             bestChoiceImpl_->select(geometry_->getLinksInModule(module_trigcell.first),
                                     geometry_->getModuleSize(module_trigcell.first),
                                     trigCellVecCoarsened,
-                                    trigCellVecOutput);
+                                    trigCellVecOutput,
+                                    trigCellVecNotSelected);
           }
           break;
         case superTriggerCellSelect:
@@ -106,13 +120,14 @@ void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTrigge
     } else {
       switch (selectionType_[subdet]) {
         case thresholdSelect:
-          thresholdImpl_->select(module_trigcell.second, trigCellVecOutput);
+          thresholdImpl_->select(module_trigcell.second, trigCellVecOutput, trigCellVecNotSelected);
           break;
         case bestChoiceSelect:
           bestChoiceImpl_->select(geometry_->getLinksInModule(module_trigcell.first),
                                   geometry_->getModuleSize(module_trigcell.first),
                                   module_trigcell.second,
-                                  trigCellVecOutput);
+                                  trigCellVecOutput,
+                                  trigCellVecNotSelected);
           break;
         case superTriggerCellSelect:
           superTriggerCellImpl_->select(module_trigcell.second, trigCellVecOutput);
@@ -126,8 +141,16 @@ void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTrigge
       }
     }
 
+    // trigger sum
+    if (trigSumImpl_) {
+      trigSumImpl_->doSum(module_trigcell.first, trigCellVecNotSelected, trigSumsVecOutput);
+    }
+
     for (const auto& trigCell : trigCellVecOutput) {
       triggerCellCollOutput.push_back(0, trigCell);
+    }
+    for (const auto& trigSums : trigSumsVecOutput) {
+      triggerSumCollOutput.push_back(0, trigSums);
     }
   }
 }
