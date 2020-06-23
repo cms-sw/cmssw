@@ -54,6 +54,7 @@ Implementation:
 
 #include "L1Trigger/L1CaloTrigger/interface/ParametricCalibration.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 static constexpr bool do_brem = true;
 
@@ -371,12 +372,14 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
     if (et <= 0)
       continue;
     if (!(hcTopology_->validHT(hit.id()))) {
-      std::cout << " -- Hcal hit DetID not present in HCAL Geom: " << hit.id() << std::endl;
+      LogError("L1EGCrystalClusterEmulatorProducer") << " -- Hcal hit DetID not present in HCAL Geom: " << hit.id() << std::endl;
+      throw cms::Exception("L1EGCrystalClusterEmulatorProducer");
       continue;
     }
     std::vector<HcalDetId> hcId = theTrigTowerGeometry.detIds(hit.id());
     if (hcId.empty()) {
-      std::cout << "Cannot find any HCalDetId corresponding to " << hit.id() << std::endl;
+      LogError("L1EGCrystalClusterEmulatorProducer")<< "Cannot find any HCalDetId corresponding to " << hit.id() << std::endl;
+      throw cms::Exception("L1EGCrystalClusterEmulatorProducer");
       continue;
     }
     if (hcId[0].subdetId() > 1)
