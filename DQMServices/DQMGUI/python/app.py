@@ -352,17 +352,6 @@ def config_and_start_webserver(port):
         web.normalize_path_middleware(append_slash=True, merge_slashes=True),
     ])
 
-    # Setup rotating file loggin
-    def log_file_namer(filename):
-        parts = filename.split('/')
-        parts[-1] = f'access_{parts[-1][11:]}.log'
-        return '/'.join(parts)
-    
-    handler = TimedRotatingFileHandler(get_absolute_path('logs/access.log'), when='midnight', interval=1)
-    handler.namer = log_file_namer
-    logger = logging.getLogger('aiohttp.access')
-    logger.setLevel(logging.INFO)
-    logger.addHandler(handler)
 
     # Legacy routes
     app.add_routes([web.get('/data/json/samples', samples_legacy),
@@ -396,7 +385,25 @@ if __name__ == '__main__':
     parser.add_argument('-p', dest='port', type=int, default=8889, help='Server port.')
     parser.add_argument('-r', dest='renderers', type=int, default=2, help='Number of renderer processes.')
     parser.add_argument('--in-memory', dest='in_memory', default=False, action='store_true', help='If set uses an in memory database.')
+    parser.add_argument('--stderr', default=False, action='store_true', help='If set log to stdout instead of log files.')
     args = parser.parse_args()
+
+    # Setup rotating file loggin
+    def log_file_namer(filename):
+        parts = filename.split('/')
+        parts[-1] = f'access_{parts[-1][11:]}.log'
+        return '/'.join(parts)
+    
+    if not args.stderr:
+        handler = TimedRotatingFileHandler(get_absolute_path('logs/access.log'), when='midnight', interval=1)
+        handler.namer = log_file_namer
+    else:
+        handler = logging.StreamHandler()
+    logger = logging.getLogger()
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.setLevel(logging.INFO)
+    logger.addHandler(handler)
 
     asyncio.get_event_loop().run_until_complete(initialize_services(args.in_memory, args.files, args.renderers))
     config_and_start_webserver(args.port)

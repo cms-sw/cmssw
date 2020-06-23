@@ -1,8 +1,9 @@
 import os
 import time
+import logging
+import contextvars
 from collections import namedtuple
 from inspect import getframeinfo, stack
-
 
 class Timed():
     """A helper that will measure wall clock time between enter and exit methods."""
@@ -21,12 +22,28 @@ class Timed():
         elapsed = elapsed * 1000
         print('%s:%s - %s ms' % (self.filename, self.lineno, elapsed))
 
+# `logged` uses some "task local" variables to track a global request id and
+# keep track of how calls are nested.
+logged_curid = [0]
+logged_reqid = contextvars.ContextVar("logged_reqid", default=None)
+logged_depth = contextvars.ContextVar("logged_depth", default=0)
+
 def logged(fn):
-    """ A decorator to writee timing information to a log. """
+    """ A decorator to write timing information to a log. """
+    logger = logging.getLogger("helpers.logged")
     async def wrapped(*posargs, **kwargs):
         showargs = [repr(arg) for arg in posargs if isinstance(arg, str) or isinstance(arg, int) or isinstance(arg, tuple)]
         showargs += [repr(arg) for arg in kwargs.values() if isinstance(arg, str) or isinstance(arg, int) or isinstance(arg, tuple)]
-        msg = f"{fn.__name__}({', '.join(showargs)})"
+
+        reqid = logged_reqid.get()
+        if not reqid:
+            logged_curid[0] += 1
+            reqid = logged_curid[0]
+            logged_reqid.set(reqid)
+        depth = logged_depth.get() + 1
+        logged_depth.set(depth)
+
+        msg = f"{reqid}{' ' * depth}{fn.__qualname__}({', '.join(showargs)})"
         start_time = time.time()
         ok = "FAIL"
         try:
@@ -34,7 +51,8 @@ def logged(fn):
             ok = "OK"
         finally:
             elapsed = time.time() - start_time
-            print(f"{msg} [{ok} {elapsed*1000:.1f}ms]")
+            logged_depth.set(depth - 1)
+            logger.info(f"{msg} [{ok} {elapsed*1000:.1f}ms]")
         return ret
     return wrapped
 

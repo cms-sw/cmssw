@@ -83,14 +83,7 @@ class GUIImportManager:
             return False
         
         # delegate the hard work to a process pool.
-        if cls.executor:
-            samples, blob_descriptions = await asyncio.get_event_loop().run_in_executor(cls.executor,
-                cls.import_sync, fileformat, filename, dataset, run, lumi)
-        else:
-            # TODO: we could directly call import_async here.
-            assert False, "Could run in-process here but we don't need that."
-            await cls.import_async(fileformat, filename, dataset, run, lumi)
-
+        samples, blob_descriptions = await cls.import_in_worker(fileformat, filename, dataset, run, lumi)
 
         await cls.store.register_samples(samples)
         for blob_description in blob_descriptions:
@@ -116,6 +109,16 @@ class GUIImportManager:
         return None
 
     @classmethod
+    @logged
+    async def import_in_worker(cls, fileformat, filename, dataset, run, lumi):
+        """
+        This function will call `import_sync` using a process pool.
+        """
+        assert cls.executor
+        return await asyncio.get_event_loop().run_in_executor(cls.executor,
+            cls.import_sync, fileformat, filename, dataset, run, lumi)
+
+    @classmethod
     def import_sync(cls, fileformat, filename, dataset, run, lumi):
         """
         This function should be called in a different process (via multiprocessing)
@@ -125,14 +128,17 @@ class GUIImportManager:
         # can import this module on the (clean, forked before initalization)
         # worker process and then call it using the pickle'd arguments.
 
-        # To call the async function, we set up and tear down and event loop just
+        # To call the async function, we set up and tear down an event loop just
         # for this one call. The worker is left 'clean', without anything running.
         return asyncio.run(cls.import_async(fileformat, filename, dataset, run, lumi))
 
     # But we need an async function to call async stuff, so here it is.
     @classmethod
-    @logged
     async def import_async(cls, fileformat, filename, dataset, run, lumi):
+        """
+        This function performs the actual import work, inside a dedicated main
+        loop in a process pool worker.
+        """
         importer = cls.__pick_importer(fileformat)
         mes_lists = await importer.get_me_lists(filename, dataset, run, lumi)
 

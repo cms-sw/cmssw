@@ -5,14 +5,15 @@ import glob
 import socket
 import struct
 import asyncio
+import logging
 import tempfile
-import subprocess
 
 from .helpers import get_base_release_dir
 from .data_types import RenderingInfo, ScalarValue, QTest, RenderingOptions, FileFormat
 from .reading.reading import GUIMEReader
 from .nanoroot.tbufferfile import TBufferFile
 
+logger = logging.getLogger("rendering")
 
 class GUIRenderer:
     """
@@ -30,10 +31,10 @@ class GUIRenderer:
         """Starts the renderers and configures the pool"""
 
         if len(cls.__rendering_contexts) != 0:
-            print('DQM rendering sub processes already initialized')
+            logger.info('DQM rendering sub processes already initialized')
             return
         
-        print('Initializing %s DQM rendering sub processes...' % workers)
+        logger.info('Initializing %s DQM rendering sub processes...' % workers)
         
         render_plugins_lib_path = cls.__get_render_plugins_lib_path()
 
@@ -214,7 +215,9 @@ class GUIRenderingContext:
             pass
 
         # Kill the shell process that started the renderer. -P will kill the child process (the renderer itself) too
-        subprocess.Popen('pkill -P %d' % self.render_process.pid, shell=True)
+        self.log_task.cancel()
+        kill = await asyncio.subprocess.create_subprocess_exec('pkill',  '-P',  '%d' % self.render_process.pid)
+        await kill.wait()
 
     
     async def render(self, message):
@@ -237,7 +240,7 @@ class GUIRenderingContext:
 
         except Exception as e:
             # Looks like our renderer died.
-            print(e)
+            logger.exception("Looks like the renderer died.")
             await self.__restart_renderer()
             return b'crashed', -1
 
@@ -245,12 +248,19 @@ class GUIRenderingContext:
     async def __start_rendering_process(self):
         """Starts the rendering process."""
 
-        render_plugins = f'--load {self.render_plugins_lib_path}' if self.render_plugins_lib_path else ''
+        render_plugins = ['--load', self.render_plugins_lib_path] if self.render_plugins_lib_path else []
 
         self.working_dir = tempfile.mkdtemp()
-        self.render_process = subprocess.Popen(
-                f"dqmRender --state-directory {self.working_dir}/ {render_plugins}",
-                shell=True)
+        self.render_process = await asyncio.subprocess.create_subprocess_exec(
+                "dqmRender",  "--state-directory",  f"{self.working_dir}/",  *render_plugins,
+                stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT)
+
+        async def logoutput():
+            while True:
+                q = await self.render_process.stdout.readline()
+                if not q: return
+                logger.info(f"dqmRender: {q}")
+        self.log_task = asyncio.Task(logoutput())
         
         # Wait for the socket to initialise and be ready to accept connections
         while not os.path.exists(f'{self.working_dir}/socket'):
