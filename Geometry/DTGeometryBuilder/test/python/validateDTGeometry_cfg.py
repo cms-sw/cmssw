@@ -10,6 +10,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.load('Configuration.StandardSequences.DD4hep_GeometrySim_cff')
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
 
 

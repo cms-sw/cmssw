@@ -22,6 +22,7 @@ namespace cms {
 
   class DDDetector;
   class DDFilteredView;
+
   class DTGeometryBuilder {
 
   public:
