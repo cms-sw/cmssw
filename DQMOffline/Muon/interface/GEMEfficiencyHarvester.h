@@ -8,20 +8,16 @@
 #include <vector>
 #include <string>
 
-
 class GEMEfficiencyHarvester : public DQMEDHarvester {
- public:
+public:
   GEMEfficiencyHarvester(const edm::ParameterSet&);
   ~GEMEfficiencyHarvester() override;
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
- private:
-  TProfile* computeEfficiency(const TH1F*, const TH1F*,
-                              const char*, const char*,
-                              const double confidence_level=0.683);
+private:
+  TProfile* computeEfficiency(const TH1F*, const TH1F*, const char*, const char*, const double confidence_level = 0.683);
 
-  TH2F* computeEfficiency(const TH2F*, const TH2F*,
-                          const char*, const char*);
+  TH2F* computeEfficiency(const TH2F*, const TH2F*, const char*, const char*);
 
   std::vector<std::string> splitString(std::string, const std::string);
   std::tuple<std::string, int, bool, int> parseResidualName(std::string, const std::string);
@@ -33,5 +29,4 @@ class GEMEfficiencyHarvester : public DQMEDHarvester {
   std::string log_category_;
 };
 
-
-#endif // DQMOffline_Muon_GEMEfficiencyHarvester_h
+#endif  // DQMOffline_Muon_GEMEfficiencyHarvester_h

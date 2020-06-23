@@ -5,19 +5,15 @@
 
 #include "TEfficiency.h"
 
-
 GEMEfficiencyHarvester::GEMEfficiencyHarvester(const edm::ParameterSet& pset) {
   folder_ = pset.getUntrackedParameter<std::string>("folder");
   log_category_ = pset.getUntrackedParameter<std::string>("logCategory");
 }
 
-
 GEMEfficiencyHarvester::~GEMEfficiencyHarvester() {}
 
-
-TProfile* GEMEfficiencyHarvester::computeEfficiency(const TH1F* passed, const TH1F* total,
-                                                 const char* name, const char* title,
-                                                 const double confidence_level) {
+TProfile* GEMEfficiencyHarvester::computeEfficiency(
+    const TH1F* passed, const TH1F* total, const char* name, const char* title, const double confidence_level) {
   if (not TEfficiency::CheckConsistency(*passed, *total)) {
     edm::LogError(log_category_) << "failed to pass TEfficiency::CheckConsistency. " << name << std::endl;
     return nullptr;
@@ -54,11 +50,10 @@ TProfile* GEMEfficiencyHarvester::computeEfficiency(const TH1F* passed, const TH
   return eff_profile;
 }
 
-
 TH2F* GEMEfficiencyHarvester::computeEfficiency(const TH2F* passed,
-                                              const TH2F* total,
-                                              const char* name,
-                                              const char* title) {
+                                                const TH2F* total,
+                                                const char* name,
+                                                const char* title) {
   if (not TEfficiency::CheckConsistency(*passed, *total)) {
     edm::LogError(log_category_) << "failed to pass TEfficiency::CheckConsistency. " << name << std::endl;
     return nullptr;
@@ -87,7 +82,6 @@ TH2F* GEMEfficiencyHarvester::computeEfficiency(const TH2F* passed,
 
   return eff_hist;
 }
-
 
 void GEMEfficiencyHarvester::doEfficiency(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
   const std::string efficiency_folder = folder_ + "/Efficiency/";
@@ -126,11 +120,11 @@ void GEMEfficiencyHarvester::doEfficiency(DQMStore::IBooker& ibooker, DQMStore::
   for (auto&& [key, value] : me_pairs) {
     const auto& [me_passed, me_total] = value;
     if (me_passed == nullptr) {
-      edm::LogError(log_category_) << "numerator is missing. " << key << std::endl; 
+      edm::LogError(log_category_) << "numerator is missing. " << key << std::endl;
     }
 
     if (me_total == nullptr) {
-      edm::LogError(log_category_) << "denominator is missing. " << key << std::endl; 
+      edm::LogError(log_category_) << "denominator is missing. " << key << std::endl;
       continue;
     }
 
@@ -165,7 +159,7 @@ void GEMEfficiencyHarvester::doEfficiency(DQMStore::IBooker& ibooker, DQMStore::
       }
 
       ibooker.bookProfile(name, eff);
-    
+
     } else if (me_passed->kind() == MonitorElement::Kind::TH2F) {
       TH2F* h_passed = me_passed->getTH2F();
       if (h_passed == nullptr) {
@@ -188,14 +182,13 @@ void GEMEfficiencyHarvester::doEfficiency(DQMStore::IBooker& ibooker, DQMStore::
       }
 
       ibooker.book2D(name, eff);
- 
+
     } else {
       edm::LogError(log_category_) << "not implemented" << std::endl;
       continue;
     }
-  } // me_pairs
+  }  // me_pairs
 }
-
 
 std::vector<std::string> GEMEfficiencyHarvester::splitString(std::string name, const std::string delimiter) {
   std::vector<std::string> tokens;
@@ -209,8 +202,8 @@ std::vector<std::string> GEMEfficiencyHarvester::splitString(std::string name, c
   return tokens;
 }
 
-std::tuple<std::string, int, bool, int>
-GEMEfficiencyHarvester::parseResidualName(const std::string org_name, const std::string prefix) {
+std::tuple<std::string, int, bool, int> GEMEfficiencyHarvester::parseResidualName(const std::string org_name,
+                                                                                  const std::string prefix) {
   std::string name = org_name;
 
   // residual_x_ge-11_odd_ieta4 or residdual_x_ge+21_ieta3
@@ -220,7 +213,6 @@ GEMEfficiencyHarvester::parseResidualName(const std::string org_name, const std:
 
   const std::vector<std::string>&& tokens = splitString(name, "_");
   const size_t num_tokens = tokens.size();
-
 
   if ((num_tokens != 2) and (num_tokens != 3)) {
     return std::make_tuple("", -1, false, -1);
@@ -251,8 +243,9 @@ GEMEfficiencyHarvester::parseResidualName(const std::string org_name, const std:
   return std::make_tuple(region_sign, station, is_odd, ieta);
 }
 
-
-void GEMEfficiencyHarvester::doResolution(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, const std::string prefix) {
+void GEMEfficiencyHarvester::doResolution(DQMStore::IBooker& ibooker,
+                                          DQMStore::IGetter& igetter,
+                                          const std::string prefix) {
   const std::string resolution_folder = folder_ + "/Resolution/";
 
   igetter.setCurrentFolder(resolution_folder);
@@ -291,11 +284,10 @@ void GEMEfficiencyHarvester::doResolution(DQMStore::IBooker& ibooker, DQMStore::
       res_data[key].reserve(GEMeMap::maxEtaPartition_);
     }
     res_data[key].emplace_back(ieta, hist);
-  } // MonitorElement
-
+  }  // MonitorElement
 
   //////////////////////////////////////////////////////////////////////////////
-  // NOTE 
+  // NOTE
   //////////////////////////////////////////////////////////////////////////////
   for (auto [key, ieta_data] : res_data) {
     if (ieta_data.empty()) {
@@ -305,7 +297,7 @@ void GEMEfficiencyHarvester::doResolution(DQMStore::IBooker& ibooker, DQMStore::
     TString tmp_title{ieta_data.front().second->GetTitle()};
     const TObjArray* tokens = tmp_title.Tokenize(":");
     TString title = dynamic_cast<TObjString*>(tokens->At(0))->GetString();
-    
+
     auto&& [region_sign, station, is_odd] = key;
     TString&& name = TString::Format("%s_ge%s%d1", prefix.data(), region_sign.c_str(), station);
     title += TString::Format("GE %s%d/1", region_sign.c_str(), station);
@@ -315,7 +307,8 @@ void GEMEfficiencyHarvester::doResolution(DQMStore::IBooker& ibooker, DQMStore::
     }
 
     // auto profile = new TProfile2D(name, title, GEMeMap::maxEtaPartition_, 0.5, GEMeMap::maxEtaPartition_ + 0.5, 2, -0.5, 1.5);
-    TH2F* profile = new TH2F(name, title, GEMeMap::maxEtaPartition_, 0.5, GEMeMap::maxEtaPartition_ + 0.5, 2, -0.5, 1.5);
+    TH2F* profile =
+        new TH2F(name, title, GEMeMap::maxEtaPartition_, 0.5, GEMeMap::maxEtaPartition_ + 0.5, 2, -0.5, 1.5);
     auto x_axis = profile->GetXaxis();
 
     x_axis->SetTitle("i#eta");
@@ -341,7 +334,6 @@ void GEMEfficiencyHarvester::doResolution(DQMStore::IBooker& ibooker, DQMStore::
     // ibooker.bookProfile2D(name, profile);
   }
 }
-
 
 void GEMEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
   doEfficiency(ibooker, igetter);

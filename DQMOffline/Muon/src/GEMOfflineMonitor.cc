@@ -6,16 +6,12 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-
-GEMOfflineMonitor::GEMOfflineMonitor(const edm::ParameterSet& pset)
-    : GEMOfflineDQMBase(pset) {
+GEMOfflineMonitor::GEMOfflineMonitor(const edm::ParameterSet& pset) : GEMOfflineDQMBase(pset) {
   digi_token_ = consumes<GEMDigiCollection>(pset.getParameter<edm::InputTag>("digiTag"));
   rechit_token_ = consumes<GEMRecHitCollection>(pset.getParameter<edm::InputTag>("recHitTag"));
 }
 
-
 GEMOfflineMonitor::~GEMOfflineMonitor() {}
-
 
 void GEMOfflineMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -25,14 +21,11 @@ void GEMOfflineMonitor::fillDescriptions(edm::ConfigurationDescriptions& descrip
   descriptions.add("gemOfflineMonitor", desc);
 }
 
-
-void GEMOfflineMonitor::bookHistograms(DQMStore::IBooker& ibooker,
-                                       edm::Run const& run,
-                                       edm::EventSetup const& isetup) {
+void GEMOfflineMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& run, edm::EventSetup const& isetup) {
   edm::ESHandle<GEMGeometry> gem;
   isetup.get<MuonGeometryRecord>().get(gem);
   if (not gem.isValid()) {
-    edm::LogError(log_category_) << "GEMGeometry is invalid" << std::endl; 
+    edm::LogError(log_category_) << "GEMGeometry is invalid" << std::endl;
     return;
   }
 
@@ -47,10 +40,9 @@ void GEMOfflineMonitor::bookHistograms(DQMStore::IBooker& ibooker,
       const auto&& station_name = TString::Format("_ge%s%d1", region_sign, station_number);
       const auto&& station_title = TString::Format(" : GE %s%d/1", region_sign, station_number);
       bookDetectorOccupancy(ibooker, station, det_key, station_name, station_title);
-    } // station
-  } // region
+    }  // station
+  }    // region
 }
-
 
 void GEMOfflineMonitor::bookDetectorOccupancy(DQMStore::IBooker& ibooker,
                                               const GEMStation* station,
@@ -73,15 +65,22 @@ void GEMOfflineMonitor::bookDetectorOccupancy(DQMStore::IBooker& ibooker,
 
   // NOTE Digi
   ibooker.setCurrentFolder("GEM/GEMOfflineMonitor/Digi");
-  me_digi_det_[key] = helper.book2D("digi_det", "Digi Occupancy", num_chambers, 0.5, num_chambers + 0.5, num_vfat, 0.5, num_vfat + 0.5);
+  me_digi_det_[key] =
+      helper.book2D("digi_det", "Digi Occupancy", num_chambers, 0.5, num_chambers + 0.5, num_vfat, 0.5, num_vfat + 0.5);
   setDetLabelsVFAT(me_digi_det_[key], station);
 
   // NOTE RecHit
   ibooker.setCurrentFolder("GEM/GEMOfflineMonitor/RecHit");
-  me_hit_det_[key] = helper.book2D("hit_det", "Hit Occupancy", num_chambers, 0.5, num_chambers + 0.5, GEMeMap::maxEtaPartition_, 0.5, GEMeMap::maxEtaPartition_ + 0.5);
+  me_hit_det_[key] = helper.book2D("hit_det",
+                                   "Hit Occupancy",
+                                   num_chambers,
+                                   0.5,
+                                   num_chambers + 0.5,
+                                   GEMeMap::maxEtaPartition_,
+                                   0.5,
+                                   GEMeMap::maxEtaPartition_ + 0.5);
   setDetLabelsEta(me_hit_det_[key], station);
 }
-
 
 void GEMOfflineMonitor::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   edm::Handle<GEMDigiCollection> digi_collection;
@@ -101,7 +100,7 @@ void GEMOfflineMonitor::analyze(const edm::Event& event, const edm::EventSetup& 
   edm::ESHandle<GEMGeometry> gem;
   setup.get<MuonGeometryRecord>().get(gem);
   if (not gem.isValid()) {
-    edm::LogError(log_category_) << "GEMGeometry is invalid" << std::endl; 
+    edm::LogError(log_category_) << "GEMGeometry is invalid" << std::endl;
     return;
   }
 
@@ -130,5 +129,5 @@ void GEMOfflineMonitor::analyze(const edm::Event& event, const edm::EventSetup& 
 
     const int chamber_bin = getDetOccXBin(gem_id, gem);
     me_hit_det_[det_key]->Fill(chamber_bin, gem_id.roll());
-  } 
+  }
 }
