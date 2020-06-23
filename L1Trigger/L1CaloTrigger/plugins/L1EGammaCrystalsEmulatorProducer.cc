@@ -415,30 +415,19 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
 
   // Definition of L1 outputs
   // 36 L1 cards send each 4 links with 17 towers
-  float ECAL_tower_L1Card[n_links_card][n_towers_cardEta]
-                         [n_towers_halfPhi];  
-  float HCAL_tower_L1Card[n_links_card][n_towers_cardEta]
-                         [n_towers_halfPhi];  
-  int iEta_tower_L1Card[n_links_card][n_towers_cardEta]
-                       [n_towers_halfPhi];  
-  int iPhi_tower_L1Card[n_links_card][n_towers_cardEta]
-                       [n_towers_halfPhi]; 
+  float ECAL_tower_L1Card[n_links_card][n_towers_cardEta][n_towers_halfPhi];
+  float HCAL_tower_L1Card[n_links_card][n_towers_cardEta][n_towers_halfPhi];
+  int iEta_tower_L1Card[n_links_card][n_towers_cardEta][n_towers_halfPhi];
+  int iPhi_tower_L1Card[n_links_card][n_towers_cardEta][n_towers_halfPhi];
   // 36 L1 cards send each 4 links with 3 clusters
-  float energy_cluster_L1Card[n_links_card][n_clusters_link]
-                             [n_towers_halfPhi];  
+  float energy_cluster_L1Card[n_links_card][n_clusters_link][n_towers_halfPhi];
   // 36 L1 cards send each 4 links with 3 clusters
-  int brem_cluster_L1Card[n_links_card][n_clusters_link]
-                         [n_towers_halfPhi];  
-  int towerID_cluster_L1Card[n_links_card][n_clusters_link]
-                            [n_towers_halfPhi];
-  int crystalID_cluster_L1Card[n_links_card][n_clusters_link]
-                              [n_towers_halfPhi];
-  int showerShape_cluster_L1Card[n_links_card][n_clusters_link]
-                                [n_towers_halfPhi];
-  int showerShapeLooseTk_cluster_L1Card[n_links_card][n_clusters_link]
-                                       [n_towers_halfPhi];
-  int photonShowerShape_cluster_L1Card[n_links_card][n_clusters_link]
-                                      [n_towers_halfPhi];
+  int brem_cluster_L1Card[n_links_card][n_clusters_link][n_towers_halfPhi];
+  int towerID_cluster_L1Card[n_links_card][n_clusters_link][n_towers_halfPhi];
+  int crystalID_cluster_L1Card[n_links_card][n_clusters_link][n_towers_halfPhi];
+  int showerShape_cluster_L1Card[n_links_card][n_clusters_link][n_towers_halfPhi];
+  int showerShapeLooseTk_cluster_L1Card[n_links_card][n_clusters_link][n_towers_halfPhi];
+  int photonShowerShape_cluster_L1Card[n_links_card][n_clusters_link][n_towers_halfPhi];
 
   for (int ii = 0; ii < n_links_card; ++ii) {
     for (int jj = 0; jj < n_towers_cardEta; ++jj) {
@@ -462,19 +451,18 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
   }
 
   // There is one list of clusters per card. We take the 12 highest pt per card
-  vector<mycluster> cluster_list[n_towers_halfPhi];  
+  vector<mycluster> cluster_list[n_towers_halfPhi];
   // After merging the clusters in different regions of a single L1 card
-  vector<mycluster> cluster_list_merged[n_towers_halfPhi];  
+  vector<mycluster> cluster_list_merged[n_towers_halfPhi];
 
   for (int cc = 0; cc < n_towers_halfPhi; ++cc) {  // Loop over 36 L1 cards
     // Loop over 3x4 etaxphi regions to search for max 5 clusters
-    for (int nregion = 0; nregion <= n_clusters_max; ++nregion) {  
-      
+    for (int nregion = 0; nregion <= n_clusters_max; ++nregion) {
       int nclusters = 0;
       bool build_cluster = true;
 
-     // Continue until 5 clusters have been built or there is no cluster left
-      while (nclusters < n_clusters_max && build_cluster) {  
+      // Continue until 5 clusters have been built or there is no cluster left
+      while (nclusters < n_clusters_max && build_cluster) {
         build_cluster = false;
         SimpleCaloHit centerhit;
 
@@ -483,22 +471,21 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
               getCrystal_phiID(hit.position.phi()) >= getPhiMin_card(cc) &&
               getCrystal_etaID(hit.position.eta()) <= getEtaMax_card(cc) &&
               getCrystal_etaID(hit.position.eta()) >= getEtaMin_card(cc) &&
-            // Check that the hit is in the good card
+              // Check that the hit is in the good card
               getCrystal_etaID(hit.position.eta()) < getEtaMin_card(cc) + n_crystals_3towers * (nregion + 1) &&
-              getCrystal_etaID(hit.position.eta()) >= getEtaMin_card(cc) + n_crystals_3towers * nregion &&
-              !hit.used && hit.pt() >= 1.0 && hit.pt() > centerhit.pt())  // 3 towers x 5 crystals
-            {  
-              // Highest hit in good region with pt>1 and not used in any other cluster
-              centerhit = hit;
-              build_cluster = true;
-            }
+              getCrystal_etaID(hit.position.eta()) >= getEtaMin_card(cc) + n_crystals_3towers * nregion && !hit.used &&
+              hit.pt() >= 1.0 && hit.pt() > centerhit.pt())  // 3 towers x 5 crystals
+          {
+            // Highest hit in good region with pt>1 and not used in any other cluster
+            centerhit = hit;
+            build_cluster = true;
+          }
         }
         if (build_cluster)
           nclusters++;
 
         // Use only the 5 most energetic clusters
-        if (build_cluster && nclusters > 0 && nclusters <= n_clusters_max) {  
-          
+        if (build_cluster && nclusters > 0 && nclusters <= n_clusters_max) {
           mycluster mc1;
           mc1.cpt = 0.0;
           mc1.cWeightedEta_ = 0.0;
@@ -571,7 +558,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
                 getCrystal_etaID(hit.position.eta()) >= getEtaMin_card(cc) && !hit.used && hit.pt() > 0 &&
                 abs(hit.dieta(centerhit)) <= 1 && abs(hit.diphi(centerhit)) <= 2 &&
                 getCrystal_etaID(hit.position.eta()) < getEtaMin_card(cc) + n_crystals_3towers * (nregion + 1) &&
-                getCrystal_etaID(hit.position.eta()) >= getEtaMin_card(cc) + n_crystals_3towers * nregion) {  
+                getCrystal_etaID(hit.position.eta()) >= getEtaMin_card(cc) + n_crystals_3towers * nregion) {
               // clusters 3x5 in etaxphi using only the hits in the corresponding card and in the corresponding 3x4 region
               hit.used = true;
               mc1.cpt += hit.pt();
@@ -604,7 +591,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
             }
           }
           mc1.c5x5_ = e5x5;
-          mc1.c2x5_ = max(e2x5_1,e2x5_2);
+          mc1.c2x5_ = max(e2x5_1, e2x5_2);
           mc1.c2x2_ = e2x2_1;
           if (e2x2_2 > mc1.c2x2_)
             mc1.c2x2_ = e2x2_2;
@@ -794,11 +781,11 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
   }
 
   // There is one list of clusters per equivalent of L1 card. We take the 8 highest pt.
-  vector<mycluster> cluster_list_L2 [n_towers_halfPhi];  
+  vector<mycluster> cluster_list_L2[n_towers_halfPhi];
 
   // Merge clusters on the phi edges
-  for (int ii = 0; ii < n_borders_phi; ++ii) {   // 18 borders in phi
-    for (int jj = 0; jj < n_eta_bins; ++jj) {  // 2 eta bins
+  for (int ii = 0; ii < n_borders_phi; ++ii) {  // 18 borders in phi
+    for (int jj = 0; jj < n_eta_bins; ++jj) {   // 2 eta bins
       int card_left = 2 * ii + jj;
       int card_right = 2 * ii + jj + 2;
       if (card_right > 35)
@@ -835,17 +822,17 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
 
   // Bremsstrahlung corrections. Merge clusters on the phi edges depending on pT (pt more than 10 percent, dphi leq 5, deta leq 1)
   if (do_brem) {
-    for (int ii = 0; ii < n_borders_phi; ++ii) {   // 18 borders in phi
-      for (int jj = 0; jj < n_eta_bins; ++jj) {  // 2 eta bins
+    for (int ii = 0; ii < n_borders_phi; ++ii) {  // 18 borders in phi
+      for (int jj = 0; jj < n_eta_bins; ++jj) {   // 2 eta bins
         int card_left = 2 * ii + jj;
         int card_right = 2 * ii + jj + 2;
         if (card_right > 35)
           card_right = card_right - n_towers_halfPhi;
         // 12 clusters in the first card. We check the right side crystalID_cluster_L1Card[kk%4][kk/4][card_left]
-        for (int kk = 0; kk < n_clusters_4link; ++kk) {  
+        for (int kk = 0; kk < n_clusters_4link; ++kk) {
           // if the tower is at the edge there might be brem corrections, whatever the crystal ID
           if (towerID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] > 50 &&
-              energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] > 0) {  
+              energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] > 0) {
             for (int ll = 0; ll < n_clusters_4link; ++ll) {  // We check the 12 clusters in the card on the right
               //Distance of 1 max in eta
               if (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] < n_towers_cardEta &&
@@ -854,13 +841,11 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
                            crystalID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] % 5 -
                            5 * (towerID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left]) %
                                n_towers_cardEta -
-                           crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] % 5) <=
-                      1) {  
+                           crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] % 5) <= 1) {
                 //Distance of 5 max in phi
                 if (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] < n_towers_cardEta &&
                     std::abs(5 + crystalID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] / 5 -
-                             (crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] / 5)) <=
-                        5) {  
+                             (crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] / 5)) <= 5) {
                   if (energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] >
                           energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] &&
                       energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] >
@@ -869,7 +854,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
                         energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right];
                     energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] = 0;
                     brem_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] = 1;
-                  }  
+                  }
                   // The least energetic cluster is merged to the most energetic one, if its pt is at least ten percent
                   else if (energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_right] >=
                                energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_left] &&
