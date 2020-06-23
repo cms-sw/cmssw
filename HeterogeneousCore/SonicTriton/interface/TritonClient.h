@@ -36,6 +36,8 @@ public:
   bool getResults(const nic::InferContext::Result& result);
 
   //accessors
+  const std::vector<int64_t>& dimsInput() const { return dimsInput_; }
+  const std::vector<int64_t>& dimsOutput() const { return dimsOutput_; }
   unsigned nInput() const { return nInput_; }
   unsigned nOutput() const { return nOutput_; }
   unsigned batchSize() const { return batchSize_; }
@@ -45,8 +47,6 @@ public:
   //for fillDescriptions
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
     edm::ParameterSetDescription descClient;
-    descClient.add<unsigned>("nInput");
-    descClient.add<unsigned>("nOutput");
     descClient.add<std::string>("modelName");
     descClient.add<int>("modelVersion", -1);
     //server parameters should not affect the physics results
@@ -68,7 +68,7 @@ protected:
   bool setup();
 
   //helper to turn triton error into warning
-  bool wrap(const nic::Error& err, const std::string& msg, bool stop=false) const;
+  bool wrap(const nic::Error& err, const std::string& msg, bool stop = false) const;
 
   void reportServerSideStats(const ServerSideStats& stats) const;
   ServerSideStats summarizeServerStats(const ni::ModelStatus& start_status, const ni::ModelStatus& end_status) const;
@@ -81,6 +81,8 @@ protected:
   std::string modelName_;
   int modelVersion_;
   unsigned batchSize_;
+  std::vector<int64_t> dimsInput_;
+  std::vector<int64_t> dimsOutput_;
   unsigned nInput_;
   unsigned nOutput_;
   bool verbose_;

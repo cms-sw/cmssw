@@ -10,6 +10,32 @@
 #include <exception>
 #include <sstream>
 #include <cstring>
+#include <numeric>
+#include <functional>
+#include <algorithm>
+#include <iterator>
+
+//little vector helper functions
+namespace {
+  bool any_neg(const std::vector<int64_t>& vec) {
+    return std::any_of(vec.begin(), vec.end(), [](int64_t i) { return i < 0; });
+  }
+
+  int64_t dim_product(const std::vector<int64_t>& vec) {
+    return std::accumulate(vec.begin(), vec.end(), 1, std::multiplies<int64_t>());
+  }
+
+  std::string print_vec(const std::vector<int64_t>& vec) {
+    if (vec.empty())
+      return "";
+    std::stringstream msg;
+    //avoid trailing delim
+    std::copy(vec.begin(), vec.end() - 1, std::ostream_iterator<int64_t>(msg, ","));
+    //last element
+    msg << vec.back();
+    return msg.str();
+  }
+}  // namespace
 
 namespace ni = nvidia::inferenceserver;
 namespace nic = ni::client;
@@ -24,35 +50,78 @@ TritonClient<Client>::TritonClient(const edm::ParameterSet& params)
       modelName_(params.getParameter<std::string>("modelName")),
       modelVersion_(params.getParameter<int>("modelVersion")),
       batchSize_(params.getUntrackedParameter<unsigned>("batchSize")),
-      nInput_(params.getParameter<unsigned>("nInput")),
-      nOutput_(params.getParameter<unsigned>("nOutput")),
       verbose_(params.getUntrackedParameter<bool>("verbose")),
       allowedTries_(params.getUntrackedParameter<unsigned>("allowedTries")) {
   this->clientName_ = "TritonClient";
 
   //connect to the server
   wrap(nic::InferGrpcContext::Create(&context_, url_, modelName_, modelVersion_, false),
-       "setup(): unable to create inference context",true);
+       "setup(): unable to create inference context",
+       true);
 
   //get options
   wrap(nic::InferContext::Options::Create(&options_), "setup(): unable to create inference context options", true);
 
   //get input and output (which know their sizes)
   const auto& nicInputs = context_->Inputs();
-  //currently no use case is foreseen for a model with zero inputs
-  if (nicInputs.empty())
-    throw cms::Exception("TritonServerFailure") << "Model on server appears malformed (zero inputs)";
-  nicInput_ = nicInputs[0];
-
   const auto& nicOutputs = context_->Outputs();
-  //currently no use case is foreseen for a model with zero outputs
+
+  //report all model errors at once
+  std::stringstream msg;
+  std::string msg_str;
+
+  //currently no use case is foreseen for a model with zero inputs or outputs
+  //models with multiple named inputs or outputs currently aren't supported
+  if (nicInputs.empty())
+    msg << "Model on server appears malformed (zero inputs)\n";
+  else if (nicInputs.size() > 1)
+    msg << "Model has multiple inputs (not supported)\n";
+
   if (nicOutputs.empty())
-    throw cms::Exception("TritonServerFailure") << "Model on server appears malformed (zero outputs)";
+    msg << "Model on server appears malformed (zero outputs)\n";
+  else if (nicOutputs.size() > 1)
+    msg << "Model has multiple outputs (not supported)\n";
+
+  //stop if errors
+  msg_str = msg.str();
+  if (!msg_str.empty())
+    throw cms::Exception("ModelErrors") << msg_str;
+
+  //get sizes
+  nicInput_ = nicInputs[0];
   nicOutput_ = nicOutputs[0];
+  //convert google::protobuf::RepeatedField to vector
+  const auto& dimsInputTmp = nicInput_->Dims();
+  dimsInput_.assign(dimsInputTmp.begin(), dimsInputTmp.end());
+  const auto& dimsOutputTmp = nicOutput_->Dims();
+  dimsOutput_.assign(dimsOutputTmp.begin(), dimsOutputTmp.end());
+
+  //check sizes: variable-size dimensions reported as -1 (currently not supported)
+  if (any_neg(dimsInput_))
+    msg << "Model has variable-size inputs (not supported)\n";
+  if (any_neg(dimsOutput_))
+    msg << "Model has variable-size outputs (not supported)\n";
+
+  //stop if errors
+  msg_str = msg.str();
+  if (!msg_str.empty())
+    throw cms::Exception("ModelErrors") << msg_str;
+
+  //compute sizes
+  nInput_ = dim_product(dimsInput_);
+  nOutput_ = dim_product(dimsOutput_);
 
   //only used for monitoring
   bool has_server = false;
   if (verbose_) {
+    //print model info (debug name not set yet)
+    const auto& input_str = print_vec(dimsInput_);
+    const auto& output_str = print_vec(dimsOutput_);
+    edm::LogInfo(this->clientName_) << "Model name: " << modelName_ << "\n"
+                                    << "Model version: " << modelVersion_ << "\n"
+                                    << "Model input: " << input_str << "\n"
+                                    << "Model output: " << output_str;
+
     has_server = wrap(nic::ServerStatusGrpcContext::Create(&serverCtx_, url_, false),
                       "setup(): unable to create server context");
   }
@@ -66,8 +135,7 @@ bool TritonClient<Client>::wrap(const nic::Error& err, const std::string& msg, b
     //throw exception: used in constructor, should not be used in evaluate() or any method called by evaluate()
     if (stop) {
       throw cms::Exception("TritonServerFailure") << msg << ": " << err;
-    }
-    else {
+    } else {
       //emit warning
       edm::LogWarning("TritonServerWarning") << msg << ": " << err;
     }

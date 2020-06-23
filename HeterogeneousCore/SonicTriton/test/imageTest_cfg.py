@@ -37,15 +37,10 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxE
 
 process.source = cms.Source("EmptySource")
 
-# enforce consistent input size
-_ncol = 3
-_npix = 224
 process.TritonImageProducer = cms.EDProducer(allowed_modes[options.mode],
     topN = cms.uint32(5),
     imageList = cms.string("../data/models/resnet50_netdef/resnet50_labels.txt"),
     Client = cms.PSet(
-        nInput  = cms.uint32(_npix*_npix*_ncol),
-        nOutput = cms.uint32(1000),
         batchSize = cms.untracked.uint32(options.batchSize),
         address = cms.untracked.string(options.address),
         port = cms.untracked.uint32(options.port),
@@ -64,7 +59,7 @@ process.p = cms.Path(
 
 process.load('FWCore/MessageService/MessageLogger_cfi')
 process.MessageLogger.cerr.FwkReport.reportEvery = 500
-keep_msgs = ['TritonImageProducer','TritonImageProducer:TritonClient']
+keep_msgs = ['TritonImageProducer','TritonImageProducer:TritonClient','TritonClient']
 for msg in keep_msgs:
     process.MessageLogger.categories.append(msg)
     setattr(process.MessageLogger.cerr,msg,
