@@ -165,7 +165,7 @@ L1TkMuonProducer::L1TkMuonProducer(const edm::ParameterSet& iConfig) :
   else if (bmtfMatchAlgoVersionString == "mantra")
     bmtfMatchAlgoVersion_ = kMantra;
   else
-    throw cms::Exception("TkMuAlgoConfig") << "the ID of the BMTF algo matcher passed is invalid\n";
+    throw cms::Exception("TkMuAlgoConfig") << "the ID " << bmtfMatchAlgoVersionString << " of the BMTF algo matcher passed is invalid\n";
 
   //
 
@@ -174,7 +174,7 @@ L1TkMuonProducer::L1TkMuonProducer(const edm::ParameterSet& iConfig) :
   else if (omtfMatchAlgoVersionString == "mantra")
     omtfMatchAlgoVersion_ = kMantra;
   else
-    throw cms::Exception("TkMuAlgoConfig") << "the ID of the OMTF algo matcher passed is invalid\n";
+    throw cms::Exception("TkMuAlgoConfig") << "the ID " << omtfMatchAlgoVersionString << " of the OMTF algo matcher passed is invalid\n";
 
   //
 
@@ -185,7 +185,7 @@ L1TkMuonProducer::L1TkMuonProducer(const edm::ParameterSet& iConfig) :
   else if (emtfMatchAlgoVersionString == "mantra")
     emtfMatchAlgoVersion_ = kMantra;
   else
-    throw cms::Exception("TkMuAlgoConfig") << "the ID of the EMTF algo matcher passed is invalid\n";
+    throw cms::Exception("TkMuAlgoConfig") << "the ID " << emtfMatchAlgoVersionString << " of the EMTF algo matcher passed is invalid\n";
 
   correctGMTPropForTkZ_ = iConfig.getParameter<bool>("correctGMTPropForTkZ");
 
