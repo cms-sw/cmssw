@@ -263,8 +263,6 @@ private:
     int ctowerid_;  // tower ID inside card (between 0 and 4*n_towers_cardEta-1)
   };
 
-  bool order_clusters(mycluster c1, mycluster c2) { return c1.cpt < c2.cpt; }
-
   class SimpleCaloHit {
   public:
     EBDetId id;
