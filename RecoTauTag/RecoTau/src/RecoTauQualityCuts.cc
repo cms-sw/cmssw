@@ -215,8 +215,7 @@ namespace reco::tau {
       return false;
     }
 
-    if (maxTransverseImpactParameter_ >= 0 &&
-        !(std::fabs(track->dxy(pvPos_)) <= maxTransverseImpactParameter_))
+    if (maxTransverseImpactParameter_ >= 0 && !(std::fabs(track->dxy(pvPos_)) <= maxTransverseImpactParameter_))
       return false;
     if (maxDeltaZ_ >= 0 && !(std::fabs(track->dz(pvPos_)) <= maxDeltaZ_))
       return false;
@@ -256,8 +255,7 @@ namespace reco::tau {
         return false;
       }
 
-      if (maxTransverseImpactParameter_ >= 0 &&
-          !(std::fabs(pCand->dxy(pvPos_)) <= maxTransverseImpactParameter_))
+      if (maxTransverseImpactParameter_ >= 0 && !(std::fabs(pCand->dxy(pvPos_)) <= maxTransverseImpactParameter_))
         return false;
       if (maxDeltaZ_ >= 0 && !(std::fabs(pCand->dz(pvPos_)) <= maxDeltaZ_))
         return false;
@@ -342,16 +340,15 @@ namespace reco::tau {
       leadTrack_ = nullptr;
     }
   }
-  
-  void RecoTauQualityCuts::fillDescriptions(edm::ParameterSetDescription& desc_qualityCuts)
-  {
+
+  void RecoTauQualityCuts::fillDescriptions(edm::ParameterSetDescription& desc_qualityCuts) {
     edm::ParameterSetDescription desc_signalQualityCuts;
     desc_signalQualityCuts.add<double>("minTrackPt", 0.5);
     desc_signalQualityCuts.add<double>("maxTrackChi2", 100.0);
     desc_signalQualityCuts.add<double>("maxTransverseImpactParameter", 0.1);
     desc_signalQualityCuts.add<double>("maxDeltaZ", 0.4);
-    desc_signalQualityCuts.add<double>("maxDeltaZToLeadTrack", -1.0);    // by default disabled
-    desc_signalQualityCuts.add<double>("minTrackVertexWeight", -1.0);    // by default disabled
+    desc_signalQualityCuts.add<double>("maxDeltaZToLeadTrack", -1.0);  // by default disabled
+    desc_signalQualityCuts.add<double>("minTrackVertexWeight", -1.0);  // by default disabled
     desc_signalQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
     desc_signalQualityCuts.add<unsigned int>("minTrackHits", 3);
     desc_signalQualityCuts.add<double>("minGammaEt", 1.0);
@@ -363,8 +360,8 @@ namespace reco::tau {
     desc_isolationQualityCuts.add<double>("maxTrackChi2", 100.0);
     desc_isolationQualityCuts.add<double>("maxTransverseImpactParameter", 0.03);
     desc_isolationQualityCuts.add<double>("maxDeltaZ", 0.2);
-    desc_isolationQualityCuts.add<double>("maxDeltaZToLeadTrack", -1.0); // by default disabled
-    desc_isolationQualityCuts.add<double>("minTrackVertexWeight", -1.0); // by default disabled
+    desc_isolationQualityCuts.add<double>("maxDeltaZToLeadTrack", -1.0);  // by default disabled
+    desc_isolationQualityCuts.add<double>("minTrackVertexWeight", -1.0);  // by default disabled
     desc_isolationQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
     desc_isolationQualityCuts.add<unsigned int>("minTrackHits", 8);
     desc_isolationQualityCuts.add<double>("minGammaEt", 1.5);

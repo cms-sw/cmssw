@@ -45,7 +45,10 @@ namespace reco {
       explicit RecoTauQualityCuts(const edm::ParameterSet& qcuts);
 
       /// Update the primary vertex
-      void setPV(const reco::VertexRef& vtx) { pv_ = vtx; pvPos_ = vtx->position(); }
+      void setPV(const reco::VertexRef& vtx) {
+        pv_ = vtx;
+        pvPos_ = vtx->position();
+      }
 
       /// Update the leading track
       void setLeadTrack(const reco::Track& leadTrack);
