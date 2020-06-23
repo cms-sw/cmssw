@@ -20,4 +20,6 @@
 <use name="SimDataFormats/TrackingHit"/>
 <use name="SimDataFormats/Vertex"/>
 <use name="TrackingTools/GeomPropagators"/>
-<flags EDM_PLUGIN="1"/>
+<library file="*.cc" name="FastSimulationMuonSimHitProducerPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
