@@ -22,10 +22,20 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
+// Trigger configuration includes
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+#include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
+#include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
+#include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1HtMissScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1HfRingEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1GctChannelMaskRcd.h"
 
 class L1GctEmulator : public edm::stream::EDProducer<> {
 public:
@@ -45,6 +55,13 @@ private:
   std::string m_inputLabel;
   edm::EDGetTokenT<L1CaloEmCollection> m_emToken;
   edm::EDGetTokenT<L1CaloRegionCollection> m_regionToken;
+
+  //EventSetup Tokens
+  edm::ESGetToken<L1GctJetFinderParams, L1GctJetFinderParamsRcd> m_jfParsToken;
+  edm::ESGetToken<L1GctChannelMask, L1GctChannelMaskRcd> m_chanMaskToken;
+  edm::ESGetToken<L1CaloEtScale, L1JetEtScaleRcd> m_etScaleToken;
+  edm::ESGetToken<L1CaloEtScale, L1HtMissScaleRcd> m_htMissScaleToken;
+  edm::ESGetToken<L1CaloEtScale, L1HfRingEtScaleRcd> m_hfRingEtScaleToken;
 
   // pointer to the actual emulator
   std::unique_ptr<L1GlobalCaloTrigger> m_gct;
