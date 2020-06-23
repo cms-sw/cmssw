@@ -15,8 +15,7 @@ L1TkMuMantra::L1TkMuMantra(std::vector<double>& bounds, TFile* fIn_theta, TFile*
 
   // copy boundaries
   nbins_ = bounds.size() - 1;
-  for (double b : bounds)
-    bounds_.push_back(b);
+  bounds_ = bounds;
 
   // now load in memory the TF1 fits
 
@@ -43,7 +42,7 @@ L1TkMuMantra::L1TkMuMantra(std::vector<double>& bounds, TFile* fIn_theta, TFile*
         LogTrace("L1TkMuMantra") << "... fit theta cent : " << fc << std::endl;
         LogTrace("L1TkMuMantra") << "... fit theta high : " << fh << std::endl;
       }
-      throw std::runtime_error("L1TkMuMantra : Could not init theta");
+      throw cms::Exception("L1TkMuMantra") << "TF1 named " << nml  << " or " << nmc << " or " << nmh<< " not found in file " << fIn_theta->GetName() << ".\n";
     }
     wdws_theta_.at(ib).SetName(wdn);
     wdws_theta_.at(ib).SetLower(fl);
@@ -63,7 +62,7 @@ L1TkMuMantra::L1TkMuMantra(std::vector<double>& bounds, TFile* fIn_theta, TFile*
         LogTrace("L1TkMuMantra") << "... fit phi cent : " << fc << std::endl;
         LogTrace("L1TkMuMantra") << "... fit phi high : " << fh << std::endl;
       }
-      throw std::runtime_error("L1TkMuMantra : Could not init phi");
+      throw cms::Exception("L1TkMuMantra") << "TF1 named " << nml  << " or " << nmc << " or " << nmh<< " not found in file " << fIn_theta->GetName() << ".\n";
     }
     wdws_phi_.at(ib).SetName(wdn);
     wdws_phi_.at(ib).SetLower(fl);
@@ -193,7 +192,7 @@ void L1TkMuMantra::setArbitrationType(std::string type) {
   else if (type == "MinDeltaPt")
     sort_type_ = kMinDeltaPt;
   else
-    throw std::runtime_error("L1TkMuMantra : setArbitrationType : cannot understand the arbitration type passed");
+    throw cms::Exception("L1TkMuMantra") <<  "setArbitrationType : cannot understand the arbitration type passed.\n";
 }
 
 std::vector<double> L1TkMuMantra::prepare_corr_bounds(std::string fname, std::string hname) {
@@ -201,7 +200,7 @@ std::vector<double> L1TkMuMantra::prepare_corr_bounds(std::string fname, std::st
   TFile* fIn = TFile::Open(fname.c_str());
   TH2* h_test = (TH2*)fIn->Get(hname.c_str());
   if (h_test == nullptr) {
-    throw std::runtime_error("L1TkMuMantra : Can't find histo to derive bounds");
+    throw cms::Exception("L1TkMuMantra") << "Can't find histo " << hname << " in file " << fname << " to derive bounds.\n";
   }
 
   int nbds = h_test->GetNbinsY() + 1;
