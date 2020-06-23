@@ -48,12 +48,12 @@ L1GtTriggerMenuLiteProducer::L1GtTriggerMenuLiteProducer(const edm::ParameterSet
       m_l1GtPfAlgoCacheID(0ULL),
       m_l1GtPfTechCacheID(0ULL),
 
-      m_l1GtStableParamToken(esConsumes<L1GtStableParameters, L1GtStableParametersRcd>()),
-      m_l1GtPfAlgoToken(esConsumes<L1GtPrescaleFactors, L1GtPrescaleFactorsAlgoTrigRcd>()),
-      m_l1GtPfTechToken(esConsumes<L1GtPrescaleFactors, L1GtPrescaleFactorsTechTrigRcd>()),
-      m_l1GtTmAlgoToken(esConsumes<L1GtTriggerMask, L1GtTriggerMaskAlgoTrigRcd>()),
-      m_l1GtTmTechToken(esConsumes<L1GtTriggerMask, L1GtTriggerMaskTechTrigRcd>()),
-      m_l1GtMenuToken(esConsumes<L1GtTriggerMenu, L1GtTriggerMaskTechTrigRcd>()),
+      m_l1GtStableParamToken(esConsumes<L1GtStableParameters, L1GtStableParametersRcd, edm::Transition::BeginRun>()),
+      m_l1GtPfAlgoToken(esConsumes<L1GtPrescaleFactors, L1GtPrescaleFactorsAlgoTrigRcd, edm::Transition::BeginRun>()),
+      m_l1GtPfTechToken(esConsumes<L1GtPrescaleFactors, L1GtPrescaleFactorsTechTrigRcd, edm::Transition::BeginRun>()),
+      m_l1GtTmAlgoToken(esConsumes<L1GtTriggerMask, L1GtTriggerMaskAlgoTrigRcd, edm::Transition::BeginRun>()),
+      m_l1GtTmTechToken(esConsumes<L1GtTriggerMask, L1GtTriggerMaskTechTrigRcd, edm::Transition::BeginRun>()),
+      m_l1GtMenuToken(esConsumes<L1GtTriggerMenu, L1GtTriggerMaskTechTrigRcd, edm::Transition::BeginRun>()),
       m_physicsDaqPartition(0) {
   // EDM product in Run Data
   produces<L1GtTriggerMenuLite, edm::Transition::BeginRun>();
@@ -71,8 +71,7 @@ void L1GtTriggerMenuLiteProducer::retrieveL1EventSetup(const edm::EventSetup& ev
   unsigned long long l1GtStableParCacheID = evSetup.get<L1GtStableParametersRcd>().cacheIdentifier();
 
   if (m_l1GtStableParCacheID != l1GtStableParCacheID) {
-    edm::ESHandle<L1GtStableParameters> l1GtStablePar;
-    evSetup.get<L1GtStableParametersRcd>().get(l1GtStablePar);
+    edm::ESHandle<L1GtStableParameters> l1GtStablePar = evSetup.getHandle(m_l1GtStableParamToken);
     m_l1GtStablePar = l1GtStablePar.product();
 
     // number of physics triggers
