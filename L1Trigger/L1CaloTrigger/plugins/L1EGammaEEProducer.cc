@@ -108,7 +108,7 @@ void L1EGammaEEProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSet
 
   std::sort(selected_multiclusters.begin(), selected_multiclusters.end(), compare_cluster_pt);
   std::set<const l1t::HGCalMulticluster *> used_clusters;
-  for (auto cl3d : selected_multiclusters) {
+  for (const auto cl3d : selected_multiclusters) {
     if (used_clusters.find(cl3d) == used_clusters.end()) {
       float pt = cl3d->pt();
       // we drop the Had component of the energy
