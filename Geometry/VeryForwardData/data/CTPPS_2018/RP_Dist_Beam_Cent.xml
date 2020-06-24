@@ -5,7 +5,7 @@
 	offset file: /afs/cern.ch/exp/totem/scratch/data/RP/tools/measurement_offsets/zero_offsets
 	sensor type: RESOLVER
 -->
-	<ConstantsSection label="RP_Dist_Beam_Cent.xml">
+	<ConstantsSection label="RP_Dist_Beam_Cent.xml" eval="true">
 		<!-- sector 45, 210m station -->
 		<Constant name="RP_147_Left_Det_Dist_0" value=" +41.000*mm"/> <!-- RESOLVER:  +9.129, offset:  +0.000 -->
 		<Constant name="RP_147_Left_Det_Dist_1" value=" +41.000*mm"/> <!-- RESOLVER:  +8.885, offset:  +0.000 -->
