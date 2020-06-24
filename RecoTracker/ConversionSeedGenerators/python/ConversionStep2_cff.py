@@ -205,7 +205,7 @@ conv2CkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cf
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 conv2CkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('conv2CkfTrajectoryFilter')),
+    trajectoryFilter = dict(refToPSet_ = 'conv2CkfTrajectoryFilter'),
     minNrOfHitsForRebuild = 3,
     clustersToSkip        = cms.InputTag('conv2Clusters'),
     maxCand               = 2
@@ -215,7 +215,7 @@ conv2CkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_c
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 conv2TrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'photonConvTrajSeedFromQuadruplets:conv2SeedCandidates',
-    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('conv2CkfTrajectoryBuilder'))
+    TrajectoryBuilderPSet = dict(refToPSet_ = 'conv2CkfTrajectoryBuilder')
 )
 
 import TrackingTools.TrackFitters.RungeKuttaFitters_cff

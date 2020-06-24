@@ -271,14 +271,14 @@ convStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi.
     MaxChi2          = 30.0,
     MaxDisplacement  = 100,
     MaxSagitta       = -1.,
-    clusterChargeCut = cms.PSet(refToPSet_ = cms.string( 'SiStripClusterChargeCutTight'))
+    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTight')
 )
 
 
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 _convCkfTrajectoryBuilderBase = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('convCkfTrajectoryFilter')),
+    trajectoryFilter = dict(refToPSet_ = 'convCkfTrajectoryFilter'),
     minNrOfHitsForRebuild = 3,
     maxCand = 1
 )
@@ -296,7 +296,7 @@ import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 convTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'photonConvTrajSeedFromSingleLeg:convSeedCandidates',
     clustersToSkip =  cms.InputTag('convClusters'),
-    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('convCkfTrajectoryBuilder'))
+    TrajectoryBuilderPSet = dict(refToPSet_ = 'convCkfTrajectoryBuilder')
 )
 
 trackingPhase2PU140.toModify(convTrackCandidates,
@@ -388,31 +388,22 @@ ConvStep = cms.Sequence( ConvStepTask )
 # in RecoTracker.FinalTrackSelectors.MergeTrackCollections_cff change:
 ###
 #conversionStepTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-#    TrackProducers = cms.VInputTag(cms.InputTag('convStepTracks')),
-#    hasSelector=cms.vint32(1),
-#    selectedTrackQuals = cms.VInputTag(cms.InputTag('convStepSelector','convStep')
-#                                       ),
-#    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(1), pQual=cms.bool(True) )
-#                             ),
+#    TrackProducers = 'convStepTracks',
+#    hasSelector=1,
+#    selectedTrackQuals = 'convStepSelector:convStep',
+#    setsToMerge = dict( tLists = 1, pQual = True ),
 #    copyExtras = True,
-#    makeReKeyedSeeds = cms.untracked.bool(False)
+#    makeReKeyedSeeds = False
 #    )
 ###
 # TO this:
 ###
 #conversionStepTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-#    TrackProducers = cms.VInputTag(
-#                                   cms.InputTag('convStepTracks'),
-#                                   cms.InputTag('conv2StepTracks')
-#                                   ),
-#    hasSelector=cms.vint32(1,1),
-#    selectedTrackQuals = cms.VInputTag(
-#                                       cms.InputTag('convStepSelector','convStep'),
-#                                       cms.InputTag('conv2StepSelector','conv2Step')
-#                                       ),
-#    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1), pQual=cms.bool(True) )
-#                             ),
+#    TrackProducers = ['convStepTracks', 'conv2StepTracks'],
+#    hasSelector = [1,1],
+#    selectedTrackQuals = ['convStepSelector:convStep', 'conv2StepSelector:conv2Step'],
+#    setsToMerge = dict( tLists = [0,1], pQual = True ),
 #    copyExtras = True,
-#    makeReKeyedSeeds = cms.untracked.bool(False)
+#    makeReKeyedSeeds = False
 #    )
 ###
