@@ -53,9 +53,10 @@ namespace edm {
       static void prevalidate(ConfigurationDescriptions& descriptions) { T::prevalidate(descriptions); }
 
       bool wantsProcessBlocks() const final {
-        return T::HasAbility::kProcessBlockCache or T::HasAbility::kBeginProcessBlockProducer or
+        return T::HasAbility::kWatchProcessBlock or T::HasAbility::kBeginProcessBlockProducer or
                T::HasAbility::kEndProcessBlockProducer;
       }
+      bool wantsInputProcessBlocks() const final { return T::HasAbility::kInputProcessBlockCache; }
       bool wantsGlobalRuns() const final {
         return T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache or T::HasAbility::kBeginRunProducer or
                T::HasAbility::kEndRunProducer;
@@ -71,7 +72,8 @@ namespace edm {
 
     private:
       using MyGlobal = CallGlobal<T>;
-      using MyGlobalProcessBlock = CallGlobalProcessBlock<T>;
+      using MyInputProcessBlock = CallInputProcessBlock<T>;
+      using MyWatchProcessBlock = CallWatchProcessBlock<T>;
       using MyBeginProcessBlockProduce = CallBeginProcessBlockProduce<T>;
       using MyEndProcessBlockProduce = CallEndProcessBlockProduce<T>;
       using MyGlobalRun = CallGlobalRun<T>;
@@ -117,11 +119,11 @@ namespace edm {
       }
 
       void doBeginProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) final {
-        if constexpr (T::HasAbility::kProcessBlockCache or T::HasAbility::kBeginProcessBlockProducer) {
+        if constexpr (T::HasAbility::kWatchProcessBlock or T::HasAbility::kBeginProcessBlockProducer) {
           ProcessBlock processBlock(pbp, this->moduleDescription(), mcc, false);
           ProcessBlock const& cnstProcessBlock = processBlock;
           processBlock.setConsumer(this->consumer());
-          MyGlobalProcessBlock::beginProcessBlock(cnstProcessBlock, m_global.get());
+          MyWatchProcessBlock::beginProcessBlock(cnstProcessBlock, m_global.get());
           if constexpr (T::HasAbility::kBeginProcessBlockProducer) {
             processBlock.setProducer(this->producer());
             MyBeginProcessBlockProduce::produce(processBlock, m_global.get());
@@ -131,20 +133,20 @@ namespace edm {
       }
 
       void doAccessInputProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) final {
-        if constexpr (T::HasAbility::kProcessBlockCache) {
+        if constexpr (T::HasAbility::kInputProcessBlockCache) {
           ProcessBlock processBlock(pbp, this->moduleDescription(), mcc, false);
           ProcessBlock const& cnstProcessBlock = processBlock;
           processBlock.setConsumer(this->consumer());
-          MyGlobalProcessBlock::accessInputProcessBlock(cnstProcessBlock, m_global.get());
+          MyInputProcessBlock::accessInputProcessBlock(cnstProcessBlock, m_global.get());
         }
       }
 
       void doEndProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) final {
-        if constexpr (T::HasAbility::kProcessBlockCache or T::HasAbility::kEndProcessBlockProducer) {
+        if constexpr (T::HasAbility::kWatchProcessBlock or T::HasAbility::kEndProcessBlockProducer) {
           ProcessBlock processBlock(pbp, this->moduleDescription(), mcc, true);
           ProcessBlock const& cnstProcessBlock = processBlock;
           processBlock.setConsumer(this->consumer());
-          MyGlobalProcessBlock::endProcessBlock(cnstProcessBlock, m_global.get());
+          MyWatchProcessBlock::endProcessBlock(cnstProcessBlock, m_global.get());
           if constexpr (T::HasAbility::kEndProcessBlockProducer) {
             processBlock.setProducer(this->producer());
             MyEndProcessBlockProduce::produce(processBlock, m_global.get());

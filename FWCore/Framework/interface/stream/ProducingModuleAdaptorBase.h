@@ -81,6 +81,7 @@ namespace edm {
       const ModuleDescription& moduleDescription() const { return moduleDescription_; }
 
       virtual bool wantsProcessBlocks() const = 0;
+      virtual bool wantsInputProcessBlocks() const = 0;
       virtual bool wantsGlobalRuns() const = 0;
       virtual bool wantsGlobalLuminosityBlocks() const = 0;
       virtual bool hasAcquire() const = 0;

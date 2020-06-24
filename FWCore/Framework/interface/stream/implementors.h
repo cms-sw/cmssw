@@ -54,15 +54,15 @@ namespace edm {
       };
 
       template <typename C>
-      class ProcessBlockCacheHolder {
+      class InputProcessBlockCacheHolder {
       public:
-        ProcessBlockCacheHolder() = default;
-        ProcessBlockCacheHolder(ProcessBlockCacheHolder<C> const&) = delete;
-        ProcessBlockCacheHolder<C>& operator=(ProcessBlockCacheHolder<C> const&) = delete;
+        InputProcessBlockCacheHolder() = default;
+        InputProcessBlockCacheHolder(InputProcessBlockCacheHolder const&) = delete;
+        InputProcessBlockCacheHolder& operator=(InputProcessBlockCacheHolder const&) = delete;
         //void setProcessBlockCache(C const* iCache) { cache_ = iCache; }
 
       protected:
-        //C const* processBlockCache() const { return cache_; }
+        //C const* inputProcessBlockCache() const { return cache_; }
 
       private:
         //C const* cache_;
@@ -122,6 +122,16 @@ namespace edm {
         virtual void endLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, C*) const = 0;
       };
 
+      class WatchProcessBlock {
+      public:
+        WatchProcessBlock() = default;
+        WatchProcessBlock(WatchProcessBlock const&) = delete;
+        WatchProcessBlock& operator=(WatchProcessBlock const&) = delete;
+
+        ///requires the following be defined in the inheriting class
+        ///static void beginProcessBlockProduce(edm::ProcessBlock const&, GlobalCache*);
+      };
+
       class BeginProcessBlockProducer {
       public:
         BeginProcessBlockProducer() = default;
@@ -129,7 +139,7 @@ namespace edm {
         BeginProcessBlockProducer& operator=(BeginProcessBlockProducer const&) = delete;
 
         ///requires the following be defined in the inheriting class
-        ///static void beginProcessBlockProduce(edm::ProcessBlock&, GlobalCache const* );
+        ///static void beginProcessBlockProduce(edm::ProcessBlock&, GlobalCache*);
       };
 
       class EndProcessBlockProducer {
@@ -139,7 +149,7 @@ namespace edm {
         EndProcessBlockProducer& operator=(EndProcessBlockProducer const&) = delete;
 
         ///requires the following be defined in the inheriting class
-        /// static void endProcessBlockProduce(edm::ProcessBlock&, GlobalCache const* )
+        /// static void endProcessBlockProduce(edm::ProcessBlock&, GlobalCache*)
       };
 
       class BeginRunProducer {

@@ -123,6 +123,11 @@ namespace edm {
   }
 
   template <typename T>
+  bool WorkerT<T>::wantsInputProcessBlocks() const {
+    return module_->wantsInputProcessBlocks();
+  }
+
+  template <typename T>
   bool WorkerT<T>::wantsGlobalRuns() const {
     return module_->wantsGlobalRuns();
   }

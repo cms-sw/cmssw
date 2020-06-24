@@ -44,6 +44,7 @@ namespace edm {
     Types moduleType() const override;
 
     bool wantsProcessBlocks() const final;
+    bool wantsInputProcessBlocks() const final;
     bool wantsGlobalRuns() const final;
     bool wantsGlobalLuminosityBlocks() const final;
     bool wantsStreamRuns() const final;

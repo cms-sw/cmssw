@@ -111,6 +111,7 @@ namespace edm {
       bool wantsGlobalRuns() const { return true; }
       bool wantsGlobalLuminosityBlocks() const { return true; }
       virtual bool wantsProcessBlocks() const = 0;
+      virtual bool wantsInputProcessBlocks() const = 0;
       virtual bool wantsStreamRuns() const = 0;
       virtual bool wantsStreamLuminosityBlocks() const = 0;
 

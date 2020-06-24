@@ -50,6 +50,11 @@ namespace edm {
       };
 
       template <>
+      struct AbilityToImplementor<edm::WatchProcessBlock> {
+        typedef edm::one::impl::WatchProcessBlock<edm::one::EDFilterBase> Type;
+      };
+
+      template <>
       struct AbilityToImplementor<edm::BeginProcessBlockProducer> {
         typedef edm::one::impl::BeginProcessBlockProducer<edm::one::EDFilterBase> Type;
       };
@@ -80,8 +85,8 @@ namespace edm {
       };
 
       template <typename C>
-      struct AbilityToImplementor<edm::ProcessBlockCache<C>> {
-        typedef edm::one::impl::ProcessBlockCacheHolder<edm::one::EDFilterBase, C> Type;
+      struct AbilityToImplementor<edm::InputProcessBlockCache<C>> {
+        typedef edm::one::impl::InputProcessBlockCacheHolder<edm::one::EDFilterBase, C> Type;
       };
 
       template <typename C>

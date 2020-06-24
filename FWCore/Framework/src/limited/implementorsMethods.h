@@ -29,6 +29,16 @@ namespace edm {
   namespace limited {
     namespace impl {
       template <typename T>
+      void WatchProcessBlock<T>::doBeginProcessBlock_(ProcessBlock const& pb) {
+        this->beginProcessBlock(pb);
+      }
+
+      template <typename T>
+      void WatchProcessBlock<T>::doEndProcessBlock_(ProcessBlock const& pb) {
+        this->endProcessBlock(pb);
+      }
+
+      template <typename T>
       void BeginProcessBlockProducer<T>::doBeginProcessBlockProduce_(ProcessBlock& pb) {
         this->beginProcessBlockProduce(pb);
       }

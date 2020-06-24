@@ -89,36 +89,25 @@ namespace edm {
       };
 
       template <typename T, typename C>
-      class ProcessBlockCacheHolder : public virtual T {
+      class InputProcessBlockCacheHolder : public virtual T {
       public:
-        ProcessBlockCacheHolder(edm::ParameterSet const& iPSet) : T(iPSet) {}
-        ProcessBlockCacheHolder(ProcessBlockCacheHolder<T, C> const&) = delete;
-        ProcessBlockCacheHolder<T, C>& operator=(ProcessBlockCacheHolder<T, C> const&) = delete;
-        ~ProcessBlockCacheHolder() noexcept(false) override {}
+        InputProcessBlockCacheHolder(edm::ParameterSet const& iPSet) : T(iPSet) {}
+        InputProcessBlockCacheHolder(InputProcessBlockCacheHolder const&) = delete;
+        InputProcessBlockCacheHolder& operator=(InputProcessBlockCacheHolder const&) = delete;
+        ~InputProcessBlockCacheHolder() noexcept(false) override {}
 
       protected:
         // Not implemented yet
-        // const C* processBlockCache(ProcessBlockIndex index) const { return caches_.at(index).get(); }
+        // const C* inputProcessBlockCache(ProcessBlockIndex index) const { return caches_.at(index).get(); }
 
       private:
-        void doBeginProcessBlock_(ProcessBlock const& pb) final { beginProcessBlock(pb); }
-
         // Not yet fully implemented, will never get called
         void doAccessInputProcessBlock_(ProcessBlock const& pb) final {
           caches_.push_back(accessInputProcessBlock(pb));
         }
 
-        void doEndProcessBlock_(ProcessBlock const& pb) final {
-          endProcessBlock(pb);
-          caches_.clear();
-        }
-
-        virtual void beginProcessBlock(ProcessBlock const&) const {}
-
         // Not yet fully implemented, will never get called
-        virtual std::shared_ptr<C> accessInputProcessBlock(ProcessBlock const&) const { return std::shared_ptr<C>(); }
-
-        virtual void endProcessBlock(ProcessBlock const&) const {}
+        virtual std::shared_ptr<C> accessInputProcessBlock(ProcessBlock const&) const = 0;
 
         std::vector<std::shared_ptr<C>> caches_;
       };
@@ -252,6 +241,22 @@ namespace edm {
         //When threaded we will have a container for N items where N is # of simultaneous Lumis
         std::unique_ptr<std::shared_ptr<C>[]> caches_;
         std::mutex mutex_;
+      };
+
+      template <typename T>
+      class WatchProcessBlock : public virtual T {
+      public:
+        WatchProcessBlock(edm::ParameterSet const& iPSet) : T(iPSet) {}
+        WatchProcessBlock(WatchProcessBlock const&) = delete;
+        WatchProcessBlock& operator=(WatchProcessBlock const&) = delete;
+        ~WatchProcessBlock() noexcept(false) override{};
+
+      private:
+        void doBeginProcessBlock_(ProcessBlock const&) final;
+        void doEndProcessBlock_(ProcessBlock const&) final;
+
+        virtual void beginProcessBlock(ProcessBlock const&) const {}
+        virtual void endProcessBlock(ProcessBlock const&) const {}
       };
 
       template <typename T>

@@ -438,7 +438,7 @@ namespace edmtest {
     };
 
     class ProcessBlockIntFilter
-        : public edm::stream::EDFilter<edm::ProcessBlockCache<Cache>, edm::GlobalCache<TestGlobalCacheFil>> {
+        : public edm::stream::EDFilter<edm::WatchProcessBlock, edm::GlobalCache<TestGlobalCacheFil>> {
     public:
       explicit ProcessBlockIntFilter(edm::ParameterSet const& pset, TestGlobalCacheFil const* testGlobalCache) {
         produces<unsigned int>();
@@ -463,7 +463,7 @@ namespace edmtest {
         return testGlobalCache;
       }
 
-      static void beginProcessBlock(edm::ProcessBlock const& processBlock, TestGlobalCacheFil const* testGlobalCache) {
+      static void beginProcessBlock(edm::ProcessBlock const& processBlock, TestGlobalCacheFil* testGlobalCache) {
         if (testGlobalCache->m_count != 0) {
           throw cms::Exception("transitions") << "ProcessBlockIntFilter::begin transitions " << testGlobalCache->m_count
                                               << " but it was supposed to be " << 0;
@@ -478,7 +478,7 @@ namespace edmtest {
         }
       }
 
-      static std::shared_ptr<Cache> accessInputProcessBlock(edm::ProcessBlock const&, TestGlobalCacheFil const*) {
+      static std::shared_ptr<Cache> accessInputProcessBlock(edm::ProcessBlock const&, TestGlobalCacheFil*) {
         return std::make_shared<Cache>();
       }
 
@@ -491,7 +491,7 @@ namespace edmtest {
         return true;
       }
 
-      static void endProcessBlock(edm::ProcessBlock const& processBlock, TestGlobalCacheFil const* testGlobalCache) {
+      static void endProcessBlock(edm::ProcessBlock const& processBlock, TestGlobalCacheFil* testGlobalCache) {
         ++testGlobalCache->m_count;
         if (testGlobalCache->m_count != testGlobalCache->trans_) {
           throw cms::Exception("transitions") << "ProcessBlockIntFilter::end transitions " << testGlobalCache->m_count

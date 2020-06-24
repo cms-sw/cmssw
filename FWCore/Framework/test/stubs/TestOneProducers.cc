@@ -230,7 +230,7 @@ namespace edmtest {
       }
     };
 
-    class ProcessBlockIntProducer : public edm::one::EDProducer<edm::ProcessBlockCache<prdr::Cache>> {
+    class ProcessBlockIntProducer : public edm::one::EDProducer<edm::WatchProcessBlock> {
     public:
       explicit ProcessBlockIntProducer(edm::ParameterSet const& pset) : trans_(pset.getParameter<int>("transitions")) {
         produces<unsigned int>();

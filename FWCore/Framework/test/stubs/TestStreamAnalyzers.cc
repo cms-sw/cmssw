@@ -453,7 +453,7 @@ namespace edmtest {
     };
 
     class ProcessBlockIntAnalyzer
-        : public edm::stream::EDAnalyzer<edm::ProcessBlockCache<Cache>, edm::GlobalCache<TestGlobalCacheAn>> {
+        : public edm::stream::EDAnalyzer<edm::WatchProcessBlock, edm::GlobalCache<TestGlobalCacheAn>> {
     public:
       explicit ProcessBlockIntAnalyzer(edm::ParameterSet const& pset, TestGlobalCacheAn const* testGlobalCache) {
         {
@@ -476,7 +476,7 @@ namespace edmtest {
         return testGlobalCache;
       }
 
-      static void beginProcessBlock(edm::ProcessBlock const& processBlock, TestGlobalCacheAn const* testGlobalCache) {
+      static void beginProcessBlock(edm::ProcessBlock const& processBlock, TestGlobalCacheAn* testGlobalCache) {
         if (testGlobalCache->m_count != 0) {
           throw cms::Exception("transitions") << "ProcessBlockIntAnalyzer::begin transitions "
                                               << testGlobalCache->m_count << " but it was supposed to be " << 0;
@@ -492,7 +492,7 @@ namespace edmtest {
         }
       }
 
-      static std::shared_ptr<Cache> accessInputProcessBlock(edm::ProcessBlock const&, TestGlobalCacheAn const*) {
+      static std::shared_ptr<Cache> accessInputProcessBlock(edm::ProcessBlock const&, TestGlobalCacheAn*) {
         return std::make_shared<Cache>();
       }
 
@@ -504,7 +504,7 @@ namespace edmtest {
         ++testGlobalCache->m_count;
       }
 
-      static void endProcessBlock(edm::ProcessBlock const& processBlock, TestGlobalCacheAn const* testGlobalCache) {
+      static void endProcessBlock(edm::ProcessBlock const& processBlock, TestGlobalCacheAn* testGlobalCache) {
         ++testGlobalCache->m_count;
         if (testGlobalCache->m_count != testGlobalCache->trans_) {
           throw cms::Exception("transitions") << "ProcessBlockIntAnalyzer::end transitions " << testGlobalCache->m_count

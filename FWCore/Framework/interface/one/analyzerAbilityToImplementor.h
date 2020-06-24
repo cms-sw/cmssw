@@ -50,8 +50,8 @@ namespace edm {
       };
 
       template <typename C>
-      struct AbilityToImplementor<edm::ProcessBlockCache<C>> {
-        typedef edm::one::impl::ProcessBlockCacheHolder<edm::one::EDAnalyzerBase, C> Type;
+      struct AbilityToImplementor<edm::InputProcessBlockCache<C>> {
+        typedef edm::one::impl::InputProcessBlockCacheHolder<edm::one::EDAnalyzerBase, C> Type;
       };
 
       template <typename C>
@@ -62,6 +62,11 @@ namespace edm {
       template <typename C>
       struct AbilityToImplementor<edm::LuminosityBlockCache<C>> {
         typedef edm::one::impl::LuminosityBlockCacheHolder<edm::one::EDAnalyzerBase, C> Type;
+      };
+
+      template <>
+      struct AbilityToImplementor<edm::WatchProcessBlock> {
+        typedef edm::one::impl::WatchProcessBlock<edm::one::EDAnalyzerBase> Type;
       };
     }  // namespace analyzer
   }    // namespace one

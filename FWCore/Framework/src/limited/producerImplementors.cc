@@ -19,6 +19,7 @@
 namespace edm {
   namespace limited {
     namespace impl {
+      template class WatchProcessBlock<edm::limited::EDProducerBase>;
       template class BeginProcessBlockProducer<edm::limited::EDProducerBase>;
       template class EndProcessBlockProducer<edm::limited::EDProducerBase>;
       template class BeginRunProducer<edm::limited::EDProducerBase>;

@@ -64,7 +64,8 @@ namespace edm {
       static void fillDescriptions(ConfigurationDescriptions& descriptions) { T::fillDescriptions(descriptions); }
       static void prevalidate(ConfigurationDescriptions& descriptions) { T::prevalidate(descriptions); }
 
-      bool wantsProcessBlocks() const final { return T::HasAbility::kProcessBlockCache; }
+      bool wantsProcessBlocks() const final { return T::HasAbility::kWatchProcessBlock; }
+      bool wantsInputProcessBlocks() const final { return T::HasAbility::kInputProcessBlockCache; }
       bool wantsGlobalRuns() const final { return T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache; }
       bool wantsGlobalLuminosityBlocks() const final {
         return T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache;
@@ -72,7 +73,8 @@ namespace edm {
 
     private:
       using MyGlobal = CallGlobal<T>;
-      using MyGlobalProcessBlock = CallGlobalProcessBlock<T>;
+      using MyInputProcessBlock = CallInputProcessBlock<T>;
+      using MyWatchProcessBlock = CallWatchProcessBlock<T>;
       using MyGlobalRun = CallGlobalRun<T>;
       using MyGlobalRunSummary = CallGlobalRunSummary<T>;
       using MyGlobalLuminosityBlock = CallGlobalLuminosityBlock<T>;
@@ -113,29 +115,29 @@ namespace edm {
       }
 
       void doBeginProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) final {
-        if constexpr (T::HasAbility::kProcessBlockCache) {
+        if constexpr (T::HasAbility::kWatchProcessBlock) {
           ProcessBlock processBlock(pbp, moduleDescription(), mcc, false);
           processBlock.setConsumer(consumer());
           ProcessBlock const& cnstProcessBlock = processBlock;
-          MyGlobalProcessBlock::beginProcessBlock(cnstProcessBlock, m_global.get());
+          MyWatchProcessBlock::beginProcessBlock(cnstProcessBlock, m_global.get());
         }
       }
 
       void doAccessInputProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) final {
-        if constexpr (T::HasAbility::kProcessBlockCache) {
+        if constexpr (T::HasAbility::kInputProcessBlockCache) {
           ProcessBlock processBlock(pbp, moduleDescription(), mcc, false);
           processBlock.setConsumer(consumer());
           ProcessBlock const& cnstProcessBlock = processBlock;
-          MyGlobalProcessBlock::accessInputProcessBlock(cnstProcessBlock, m_global.get());
+          MyInputProcessBlock::accessInputProcessBlock(cnstProcessBlock, m_global.get());
         }
       }
 
       void doEndProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) final {
-        if constexpr (T::HasAbility::kProcessBlockCache) {
+        if constexpr (T::HasAbility::kWatchProcessBlock) {
           ProcessBlock processBlock(pbp, moduleDescription(), mcc, true);
           processBlock.setConsumer(consumer());
           ProcessBlock const& cnstProcessBlock = processBlock;
-          MyGlobalProcessBlock::endProcessBlock(cnstProcessBlock, m_global.get());
+          MyWatchProcessBlock::endProcessBlock(cnstProcessBlock, m_global.get());
         }
       }
 

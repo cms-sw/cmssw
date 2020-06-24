@@ -225,7 +225,7 @@ namespace edmtest {
       }
     };
 
-    class ProcessBlockIntAnalyzer : public edm::one::EDAnalyzer<edm::ProcessBlockCache<an::Cache>> {
+    class ProcessBlockIntAnalyzer : public edm::one::EDAnalyzer<edm::WatchProcessBlock> {
     public:
       explicit ProcessBlockIntAnalyzer(edm::ParameterSet const& pset) : trans_(pset.getParameter<int>("transitions")) {
         {
