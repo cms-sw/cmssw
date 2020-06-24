@@ -490,18 +490,9 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 
         // to make sure we only propagate on the last TOB5 hit check the next entry isn't also in TOB5
         // to avoid bias, make sure the TOB5 hit is valid (an invalid hit on TOB5 could only exist with a valid hit on TOB6)
+        const auto nextId = ( itm+1 != TMeas.end() ) ? (itm+1)->recHit()->geographicalId() : DetId{}; // null if last
 
-        bool isValid = theInHit->isValid();
-        bool isLast = (itm == (TMeas.end() - 1));
-        bool isLastTOB5 = true;
-        if (!isLast) {
-          if (checkLayer((itm+1)->recHit()->geographicalId().rawId(), tTopo) == 9)
-            isLastTOB5 = false;
-          else
-            isLastTOB5 = true;
-        }
-
-        if (TKlayers == 9 && isValid && isLastTOB5) {
+        if (TKlayers == 9 && theInHit->isValid() && ! ( (!nextId.null()) && (checkLayer(nextId.rawId(), tTopo) == 9) ) ) {
           //	  if ( TKlayers==9 && itm==TMeas.rbegin()) {
           //	  if ( TKlayers==9 && (itm==TMeas.back()) ) {	  // to check for only the last entry in the trajectory for propagation
           const DetLayer* tob6 = measurementTrackerHandle->geometricSearchTracker()->tobLayers().back();
@@ -524,15 +515,8 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
           }
         }
 
-        bool isLastTEC8 = true;
-        if (!isLast) {
-          if (checkLayer((itm+1)->recHit()->geographicalId().rawId(), tTopo) == 21)
-            isLastTEC8 = false;
-          else
-            isLastTEC8 = true;
-        }
-
-        if (TKlayers == 21 && isValid && isLastTEC8) {
+        // same for TEC8
+        if (TKlayers == 21 && theInHit->isValid() && ! ( (!nextId.null()) && (checkLayer(nextId.rawId(), tTopo) == 21) )) {
           const DetLayer* tec9pos = measurementTrackerHandle->geometricSearchTracker()->posTecLayers().back();
           const DetLayer* tec9neg = measurementTrackerHandle->geometricSearchTracker()->negTecLayers().back();
 
