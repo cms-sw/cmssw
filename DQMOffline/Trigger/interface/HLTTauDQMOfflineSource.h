@@ -50,7 +50,7 @@ private:
   const double ptMax_, highPtMax_, l1MatchDr_, hltMatchDr_;
   const std::string dqmBaseFolder_;
 
-  HistoWrapper *iWrapper;
+  HistoWrapper* iWrapper;
 
   HLTConfigProvider HLTCP_;
 

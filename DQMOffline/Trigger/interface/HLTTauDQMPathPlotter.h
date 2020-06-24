@@ -36,7 +36,7 @@ public:
 
   using HLTTauDQMPlotter::isValid;
 
-  void bookHistograms(HistoWrapper & iWrapper, DQMStore::IBooker &iBooker);
+  void bookHistograms(HistoWrapper &iWrapper, DQMStore::IBooker &iBooker);
 
   void analyze(const edm::TriggerResults &triggerResults,
                const trigger::TriggerEvent &triggerEvent,
