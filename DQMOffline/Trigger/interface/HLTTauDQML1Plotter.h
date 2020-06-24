@@ -26,7 +26,7 @@ public:
 
   using HLTTauDQMPlotter::isValid;
 
-  void bookHistograms(HistoWrapper &iWrapper, DQMStore::IBooker &iBooker);
+  void bookHistograms(HistoWrapper& iWrapper, DQMStore::IBooker& iBooker);
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const HLTTauDQMOfflineObjects& refC);
 
 private:
