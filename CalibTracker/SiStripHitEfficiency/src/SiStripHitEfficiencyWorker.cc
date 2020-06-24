@@ -23,7 +23,6 @@
 
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
@@ -75,8 +74,8 @@ public:
   ~SiStripHitEfficiencyWorker() override;
 
 private:
-  void beginJob(); // TODO remove
-  void endJob(); // TODO remove
+  void beginJob();  // TODO remove
+  void endJob();    // TODO remove
   void bookHistograms(DQMStore::IBooker& booker, const edm::Run& run, const edm::EventSetup& setup) override;
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
@@ -107,9 +106,9 @@ private:
   unsigned int layers;
   bool DEBUG;
 
-// Tree declarations
+  // Tree declarations
   unsigned int whatlayer;
-// Trajectory positions for modules included in the study
+  // Trajectory positions for modules included in the study
   float TrajGlbX, TrajGlbY, TrajGlbZ;
   float TrajLocX, TrajLocY;
   float ClusterLocX;
@@ -182,145 +181,130 @@ void SiStripHitEfficiencyWorker::beginJob() {
   EventTrackCKF = 0;
 }
 
-void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker, const edm::Run& run, const edm::EventSetup& setup) {
-
-}
+void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
+                                                const edm::Run& run,
+                                                const edm::EventSetup& setup) {}
 
 namespace {
 
-double checkConsistency(const StripClusterParameterEstimator::LocalValues& parameters, double xx, double xerr) {
-  double error = sqrt(parameters.second.xx() + xerr * xerr);
-  double separation = abs(parameters.first.x() - xx);
-  double consistency = separation / error;
-  return consistency;
-}
+  double checkConsistency(const StripClusterParameterEstimator::LocalValues& parameters, double xx, double xerr) {
+    double error = sqrt(parameters.second.xx() + xerr * xerr);
+    double separation = abs(parameters.first.x() - xx);
+    double consistency = separation / error;
+    return consistency;
+  }
 
-bool isDoubleSided(unsigned int iidd, const TrackerTopology* tTopo) {
-  StripSubdetector strip = StripSubdetector(iidd);
-  unsigned int subid = strip.subdetId();
-  unsigned int layer = 0;
-  if (subid == StripSubdetector::TIB) {
-    layer = tTopo->tibLayer(iidd);
-    if (layer == 1 || layer == 2)
-      return true;
-    else
-      return false;
-  } else if (subid == StripSubdetector::TOB) {
-    layer = tTopo->tobLayer(iidd) + 4;
-    if (layer == 5 || layer == 6)
-      return true;
-    else
-      return false;
-  } else if (subid == StripSubdetector::TID) {
-    layer = tTopo->tidRing(iidd) + 10;
-    if (layer == 11 || layer == 12)
-      return true;
-    else
-      return false;
-  } else if (subid == StripSubdetector::TEC) {
-    layer = tTopo->tecRing(iidd) + 13;
-    if (layer == 14 || layer == 15 || layer == 18)
-      return true;
-    else
-      return false;
-  } else
-    return false;
-}
-
-bool check2DPartner(unsigned int iidd, const std::vector<TrajectoryMeasurement>& traj) {
-  unsigned int partner_iidd = 0;
-  bool found2DPartner = false;
-  // first get the id of the other detector
-  if ((iidd & 0x3) == 1)
-    partner_iidd = iidd + 1;
-  if ((iidd & 0x3) == 2)
-    partner_iidd = iidd - 1;
-  // next look in the trajectory measurements for a measurement from that detector
-  // loop through trajectory measurements to find the partner_iidd
-  for ( const auto& tm : traj ) {
-    if (tm.recHit()->geographicalId().rawId() == partner_iidd) {
-      found2DPartner = true;
+  bool isDoubleSided(unsigned int iidd, const TrackerTopology* tTopo) {
+    unsigned int layer;
+    switch (DetId(iidd).subdetId()) {
+      case SiStripSubdetector::TIB:
+        layer = tTopo->tibLayer(iidd);
+        return (layer == 1 || layer == 2);
+      case SiStripSubdetector::TOB:
+        layer = tTopo->tobLayer(iidd) + 4;
+        return (layer == 5 || layer == 6);
+      case SiStripSubdetector::TID:
+        layer = tTopo->tidRing(iidd) + 10;
+        return (layer == 11 || layer == 12);
+      case SiStripSubdetector::TEC:
+        layer = tTopo->tecRing(iidd) + 13;
+        return (layer == 14 || layer == 15 || layer == 18);
+      default:
+        return false;
     }
   }
-  return found2DPartner;
-}
 
-unsigned int checkLayer(unsigned int iidd, const TrackerTopology* tTopo) {
-  StripSubdetector strip = StripSubdetector(iidd);
-  unsigned int subid = strip.subdetId();
-  if (subid == StripSubdetector::TIB) {
-    return tTopo->tibLayer(iidd);
-  }
-  if (subid == StripSubdetector::TOB) {
-    return tTopo->tobLayer(iidd) + 4;
-  }
-  if (subid == StripSubdetector::TID) {
-    return tTopo->tidWheel(iidd) + 10;
-  }
-  if (subid == StripSubdetector::TEC) {
-    return tTopo->tecWheel(iidd) + 13;
-  }
-  return 0;
-}
-
-bool isInBondingExclusionZone(unsigned int iidd, unsigned int TKlayers, double yloc, double yErr, const TrackerTopology* tTopo) {
-  constexpr float exclusionWidth = 0.4;
-  constexpr float TOBexclusion = 0.0;
-  constexpr float TECexRing5 = -0.89;
-  constexpr float TECexRing6 = -0.56;
-  constexpr float TECexRing7 = 0.60;
-
-  //Added by Chris Edelmaier to do TEC bonding exclusion
-  const int subdetector = ((iidd >> 25) & 0x7);
-  const int ringnumber = ((iidd >> 5) & 0x7);
-
-  bool inZone = false;
-  //New TOB and TEC bonding region exclusion zone
-  if ((TKlayers >= 5 && TKlayers < 11) ||
-      ((subdetector == 6) && ((ringnumber >= 5) && (ringnumber <= 7)))) {
-    //There are only 2 cases that we need to exclude for
-    float highzone = 0.0;
-    float lowzone = 0.0;
-    float higherr = yloc + 5.0 * yErr;
-    float lowerr = yloc - 5.0 * yErr;
-    if (TKlayers >= 5 && TKlayers < 11) {
-      //TOB zone
-      highzone = TOBexclusion + exclusionWidth;
-      lowzone = TOBexclusion - exclusionWidth;
-    } else if (ringnumber == 5) {
-      //TEC ring 5
-      highzone = TECexRing5 + exclusionWidth;
-      lowzone = TECexRing5 - exclusionWidth;
-    } else if (ringnumber == 6) {
-      //TEC ring 6
-      highzone = TECexRing6 + exclusionWidth;
-      lowzone = TECexRing6 - exclusionWidth;
-    } else if (ringnumber == 7) {
-      //TEC ring 7
-      highzone = TECexRing7 + exclusionWidth;
-      lowzone = TECexRing7 - exclusionWidth;
+  bool check2DPartner(unsigned int iidd, const std::vector<TrajectoryMeasurement>& traj) {
+    unsigned int partner_iidd = 0;
+    bool found2DPartner = false;
+    // first get the id of the other detector
+    if ((iidd & 0x3) == 1)
+      partner_iidd = iidd + 1;
+    if ((iidd & 0x3) == 2)
+      partner_iidd = iidd - 1;
+    // next look in the trajectory measurements for a measurement from that detector
+    // loop through trajectory measurements to find the partner_iidd
+    for (const auto& tm : traj) {
+      if (tm.recHit()->geographicalId().rawId() == partner_iidd) {
+        found2DPartner = true;
+      }
     }
-    //Now that we have our exclusion region, we just have to properly identify it
-    if ((highzone <= higherr) && (highzone >= lowerr))
-      inZone = true;
-    if ((lowzone >= lowerr) && (lowzone <= higherr))
-      inZone = true;
-    if ((higherr <= highzone) && (higherr >= lowzone))
-      inZone = true;
-    if ((lowerr >= lowzone) && (lowerr <= highzone))
-      inZone = true;
+    return found2DPartner;
   }
-  return inZone;
-}
 
-struct ClusterInfo {
-  float xResidual;
-  float xResidualPull;
-  float xLocal;
-  ClusterInfo(float xRes, float xResPull, float xLoc) : xResidual(xRes), xResidualPull(xResPull), xLocal(xLoc) {}
-};
+  unsigned int checkLayer(unsigned int iidd, const TrackerTopology* tTopo) {
+    switch (DetId(iidd).subdetId()) {
+      case SiStripSubdetector::TIB:
+        return tTopo->tibLayer(iidd);
+      case SiStripSubdetector::TOB:
+        return tTopo->tobLayer(iidd) + 4;
+      case SiStripSubdetector::TID:
+        return tTopo->tidWheel(iidd) + 10;
+      case SiStripSubdetector::TEC:
+        return tTopo->tecWheel(iidd) + 13;
+      default:
+        return 0;
+    }
+  }
 
-} // anonymous namespace
+  bool isInBondingExclusionZone(
+      unsigned int iidd, unsigned int TKlayers, double yloc, double yErr, const TrackerTopology* tTopo) {
+    constexpr float exclusionWidth = 0.4;
+    constexpr float TOBexclusion = 0.0;
+    constexpr float TECexRing5 = -0.89;
+    constexpr float TECexRing6 = -0.56;
+    constexpr float TECexRing7 = 0.60;
+
+    //Added by Chris Edelmaier to do TEC bonding exclusion
+    const int subdetector = ((iidd >> 25) & 0x7);
+    const int ringnumber = ((iidd >> 5) & 0x7);
+
+    bool inZone = false;
+    //New TOB and TEC bonding region exclusion zone
+    if ((TKlayers >= 5 && TKlayers < 11) || ((subdetector == 6) && ((ringnumber >= 5) && (ringnumber <= 7)))) {
+      //There are only 2 cases that we need to exclude for
+      float highzone = 0.0;
+      float lowzone = 0.0;
+      float higherr = yloc + 5.0 * yErr;
+      float lowerr = yloc - 5.0 * yErr;
+      if (TKlayers >= 5 && TKlayers < 11) {
+        //TOB zone
+        highzone = TOBexclusion + exclusionWidth;
+        lowzone = TOBexclusion - exclusionWidth;
+      } else if (ringnumber == 5) {
+        //TEC ring 5
+        highzone = TECexRing5 + exclusionWidth;
+        lowzone = TECexRing5 - exclusionWidth;
+      } else if (ringnumber == 6) {
+        //TEC ring 6
+        highzone = TECexRing6 + exclusionWidth;
+        lowzone = TECexRing6 - exclusionWidth;
+      } else if (ringnumber == 7) {
+        //TEC ring 7
+        highzone = TECexRing7 + exclusionWidth;
+        lowzone = TECexRing7 - exclusionWidth;
+      }
+      //Now that we have our exclusion region, we just have to properly identify it
+      if ((highzone <= higherr) && (highzone >= lowerr))
+        inZone = true;
+      if ((lowzone >= lowerr) && (lowzone <= higherr))
+        inZone = true;
+      if ((higherr <= highzone) && (higherr >= lowzone))
+        inZone = true;
+      if ((lowerr >= lowzone) && (lowerr <= highzone))
+        inZone = true;
+    }
+    return inZone;
+  }
+
+  struct ClusterInfo {
+    float xResidual;
+    float xResidualPull;
+    float xLocal;
+    ClusterInfo(float xRes, float xResPull, float xLoc) : xResidual(xRes), xResidualPull(xResPull), xLocal(xLoc) {}
+  };
+
+}  // anonymous namespace
 
 void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSetup& es) {
   //Retrieve tracker topology from geometry
@@ -411,7 +395,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
     // actually should do a loop over all the tracks in the event here
 
     // Looping over traj-track associations to be able to get traj & track informations
-    for ( const auto& trajTrack : *trajTrackAssociationHandle ) {
+    for (const auto& trajTrack : *trajTrackAssociationHandle) {
       // for each track, fill some variables such as number of hits and momentum
 
       highPurity = trajTrack.val->quality(reco::TrackBase::TrackQuality::highPurity);
@@ -423,7 +407,9 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
       double yErr = 0.;
       double xglob, yglob, zglob;
 
-      const bool hasMissingHits = std::any_of(std::begin(TMeas), std::end(TMeas), [] (const auto& tm) { return tm.recHit()->getType() == TrackingRecHit::Type::missing; });
+      const bool hasMissingHits = std::any_of(std::begin(TMeas), std::end(TMeas), [](const auto& tm) {
+        return tm.recHit()->getType() == TrackingRecHit::Type::missing;
+      });
 
       // Loop on each measurement and take it into consideration
       //--------------------------------------------------------
@@ -490,9 +476,9 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 
         // to make sure we only propagate on the last TOB5 hit check the next entry isn't also in TOB5
         // to avoid bias, make sure the TOB5 hit is valid (an invalid hit on TOB5 could only exist with a valid hit on TOB6)
-        const auto nextId = ( itm+1 != TMeas.end() ) ? (itm+1)->recHit()->geographicalId() : DetId{}; // null if last
+        const auto nextId = (itm + 1 != TMeas.end()) ? (itm + 1)->recHit()->geographicalId() : DetId{};  // null if last
 
-        if (TKlayers == 9 && theInHit->isValid() && ! ( (!nextId.null()) && (checkLayer(nextId.rawId(), tTopo) == 9) ) ) {
+        if (TKlayers == 9 && theInHit->isValid() && !((!nextId.null()) && (checkLayer(nextId.rawId(), tTopo) == 9))) {
           //	  if ( TKlayers==9 && itm==TMeas.rbegin()) {
           //	  if ( TKlayers==9 && (itm==TMeas.back()) ) {	  // to check for only the last entry in the trajectory for propagation
           const DetLayer* tob6 = measurementTrackerHandle->geometricSearchTracker()->tobLayers().back();
@@ -516,7 +502,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
         }
 
         // same for TEC8
-        if (TKlayers == 21 && theInHit->isValid() && ! ( (!nextId.null()) && (checkLayer(nextId.rawId(), tTopo) == 21) )) {
+        if (TKlayers == 21 && theInHit->isValid() && !((!nextId.null()) && (checkLayer(nextId.rawId(), tTopo) == 21))) {
           const DetLayer* tec9pos = measurementTrackerHandle->geometricSearchTracker()->posTecLayers().back();
           const DetLayer* tec9neg = measurementTrackerHandle->geometricSearchTracker()->negTecLayers().back();
 
@@ -524,7 +510,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
           const TrajectoryStateOnSurface tsosTEC9 = itm->updatedState();
 
           // check if track on positive or negative z
-          if (!(iidd == StripSubdetector::TEC))
+          if (!(iidd == SiStripSubdetector::TEC))
             LogDebug("SiStripHitEfficiency:HitEff") << "there is a problem with TEC 9 extrapolation" << std::endl;
 
           //cout << " tec9 id = " << iidd << " and side = " << tTopo->tecSide(iidd) << std::endl;
@@ -567,7 +553,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 
         // Modules Constraints
 
-        for ( const auto& tm : TMs ) {
+        for (const auto& tm : TMs) {
           // --> Get trajectory from combinatedState
           iidd = tm.monodet_id();
           LogDebug("SiStripHitEfficiency:HitEff") << "setting iidd = " << iidd << " before checking efficiency and ";
@@ -590,7 +576,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
           // reget layer from iidd here, to account for TOB 6 and TEC 9 TKlayers being off
           TKlayers = checkLayer(iidd, tTopo);
 
-          withinAcceptance = tm.withinAcceptance() && ( ! isInBondingExclusionZone(iidd, TKlayers, yloc, yErr, tTopo) );
+          withinAcceptance = tm.withinAcceptance() && (!isInBondingExclusionZone(iidd, TKlayers, yloc, yErr, tTopo));
 
           if ((layers == TKlayers) || (layers == 0)) {  // Look at the layer not used to reconstruct the track
             whatlayer = TKlayers;
@@ -610,13 +596,14 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
             // RPhi RecHit Efficiency
 
             if (!theClusters->empty()) {
-              LogDebug("SiStripHitEfficiency:HitEff") << "Checking clusters with size = " << theClusters->size() << std::endl;
-              std::vector<ClusterInfo> VCluster_info; //fill with X residual, X residual pull, local X
+              LogDebug("SiStripHitEfficiency:HitEff")
+                  << "Checking clusters with size = " << theClusters->size() << std::endl;
+              std::vector<ClusterInfo> VCluster_info;  //fill with X residual, X residual pull, local X
               const auto idsv = theClusters->find(iidd);
-              if ( idsv != theClusters->end() ) {
+              if (idsv != theClusters->end()) {
                 //if (DEBUG)      std::cout << "the ID from the dsv = " << dsv.id() << std::endl;
-                LogDebug("SiStripHitEfficiency:HitEff")
-                    << "found  (ClusterId == iidd) with ClusterId = " << idsv->id() << " and iidd = " << iidd << std::endl;
+                LogDebug("SiStripHitEfficiency:HitEff") << "found  (ClusterId == iidd) with ClusterId = " << idsv->id()
+                                                        << " and iidd = " << iidd << std::endl;
                 const auto stripdet = dynamic_cast<const StripGeomDetUnit*>(tkgeom->idToDetUnit(DetId(iidd)));
                 const StripTopology& Topo = stripdet->specificTopology();
 
@@ -629,8 +616,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
                   const BoundPlane& plane = stripdet->surface();
                   const TrapezoidalPlaneBounds* trapezoidalBounds(
                       dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
-                  std::array<const float, 4> const& parameterTrap =
-                      (*trapezoidalBounds).parameters();  // el bueno aqui
+                  std::array<const float, 4> const& parameterTrap = (*trapezoidalBounds).parameters();  // el bueno aqui
                   hbedge = parameterTrap[0];
                   htedge = parameterTrap[1];
                   hapoth = parameterTrap[3];
@@ -652,7 +638,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
                   //cout<<" Layer "<<TKlayers<<" TrajStrip: "<<nstrips<<" "<<pitch<<" "<<TrajStrip<<endl;
                 }
 
-                for ( const auto& clus : *idsv ) {
+                for (const auto& clus : *idsv) {
                   StripClusterParameterEstimator::LocalValues parameters = stripcpe->localParameters(clus, *stripdet);
                   float res = (parameters.first.x() - xloc);
                   float sigma = checkConsistency(parameters, xloc, xErr);
@@ -671,7 +657,8 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 
                   VCluster_info.emplace_back(res, sigma, parameters.first.x());
 
-                  LogDebug("SiStripHitEfficiency:HitEff") << "Have ID match. residual = " << res << "  res sigma = " << sigma << std::endl;
+                  LogDebug("SiStripHitEfficiency:HitEff")
+                      << "Have ID match. residual = " << res << "  res sigma = " << sigma << std::endl;
                   LogDebug("SiStripHitEfficiency:HitEff")
                       << "trajectory measurement compatability estimate = " << (*itm).estimate() << std::endl;
                   LogDebug("SiStripHitEfficiency:HitEff")
@@ -680,11 +667,11 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
                 }
               }
               ClusterInfo finalCluster{1000.0, 1000.0, 0.0};
-              if (! VCluster_info.empty()) {
+              if (!VCluster_info.empty()) {
                 LogDebug("SiStripHitEfficiency:HitEff") << "found clusters > 0" << std::endl;
                 if (VCluster_info.size() > 1) {
                   //get the smallest one
-                  for ( const auto& res : VCluster_info ) {
+                  for (const auto& res : VCluster_info) {
                     if (std::abs(res.xResidualPull) < std::abs(finalCluster.xResidualPull)) {
                       finalCluster = res;
                     }
@@ -699,7 +686,8 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
               }
 
               LogDebug("SiStripHitEfficiency:HitEff")
-                  << "Final residual in X = " << finalCluster.xResidual << "+-" << (finalCluster.xResidual / finalCluster.xResidualPull) << std::endl;
+                  << "Final residual in X = " << finalCluster.xResidual << "+-"
+                  << (finalCluster.xResidual / finalCluster.xResidualPull) << std::endl;
               LogDebug("SiStripHitEfficiency:HitEff") << "Checking location of trajectory: abs(yloc) = " << abs(yloc)
                                                       << "  abs(xloc) = " << abs(xloc) << std::endl;
 
@@ -748,8 +736,8 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
               if (finalCluster.xResidualPull < 999.0) {  //could make requirement on track/hit consistency, but for
                 //now take anything with a hit on the module
                 LogDebug("SiStripHitEfficiency:HitEff")
-                    << "hit being counted as good " << finalCluster.xResidual << " FinalRecHit " << iidd << "   TKlayers  "
-                    << TKlayers << " xloc " << xloc << " yloc  " << yloc << " module " << iidd
+                    << "hit being counted as good " << finalCluster.xResidual << " FinalRecHit " << iidd
+                    << "   TKlayers  " << TKlayers << " xloc " << xloc << " yloc  " << yloc << " module " << iidd
                     << "   matched/stereo/rphi = " << ((iidd & 0x3) == 0) << "/" << ((iidd & 0x3) == 1) << "/"
                     << ((iidd & 0x3) == 2) << std::endl;
                 ModIsBad = 0;
