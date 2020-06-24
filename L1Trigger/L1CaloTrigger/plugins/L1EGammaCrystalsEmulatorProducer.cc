@@ -988,13 +988,13 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
             if (abs(etaOftower_fullDetector - cluster_etaOfTower_fullDetector) <= 2 &&
                 (abs(phiOftower_fullDetector - cluster_phiOfTower_fullDetector) <= 2 or
                  abs(phiOftower_fullDetector - n_towers_Phi - cluster_phiOfTower_fullDetector) <= 2)) {
+              // Remove the column outside of the L2 card:  values (0,71), (23,26), (24,21), (47,50), (48,50), (71,2)
               if (!((cluster_phiOfTower_fullDetector == 0 && phiOftower_fullDetector == 71) or
                     (cluster_phiOfTower_fullDetector == 23 && phiOftower_fullDetector == 26) or
                     (cluster_phiOfTower_fullDetector == 24 && phiOftower_fullDetector == 21) or
                     (cluster_phiOfTower_fullDetector == 47 && phiOftower_fullDetector == 50) or
-                    (cluster_phiOfTower_fullDetector == n_links_GCTcard && phiOftower_fullDetector == 45) or
-                    (cluster_phiOfTower_fullDetector == 71 &&
-                     phiOftower_fullDetector == 2))) {  // Remove the column outside of the L2 card
+                    (cluster_phiOfTower_fullDetector == 48 && phiOftower_fullDetector == 45) or
+                    (cluster_phiOfTower_fullDetector == 71 && phiOftower_fullDetector == 2))) {  
                 isolation += ECAL_tower_L1Card[ll][mm][kk];
                 ntowers++;
               }
