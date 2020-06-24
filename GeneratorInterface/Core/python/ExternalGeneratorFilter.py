@@ -15,6 +15,8 @@ class ExternalGeneratorFilter(cms.EDFilter):
         if name == '_external_process_verbose_':
             return self.__dict__['_external_process_verbose_']
         return getattr(self._prod, name)
+    def __getstate__(self): return self.__dict__
+    def __setstate__(self, d): self.__dict__.update(d)
     def clone(self, **params):
         returnValue = ExternalGeneratorFilter.__new__(type(self))
         returnValue.__init__(self._prod.clone())
