@@ -6,10 +6,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MuonPath.h"
@@ -52,7 +48,7 @@ private:
   // Private methods
 
   // Private attributes
-  bool debug;
+  bool debug_;
 };
 
 #endif

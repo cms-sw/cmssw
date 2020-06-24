@@ -1,6 +1,6 @@
 #include <memory>
 
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "L1Trigger/DTTriggerPhase2/interface/InitialGrouping.h"
 

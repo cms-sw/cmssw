@@ -4,7 +4,6 @@
 #include <iostream>
 #include <memory>
 
-
 MuonPath::MuonPath() {
   quality_ = NOPATH;
   baseChannelId_ = -1;

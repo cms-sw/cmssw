@@ -1,5 +1,5 @@
-#ifndef Phase2L1Trigger_DTTrigger_MPRedundantFilter_cc
-#define Phase2L1Trigger_DTTrigger_MPRedundantFilter_cc
+#ifndef Phase2L1Trigger_DTTrigger_MPRedundantFilter_h
+#define Phase2L1Trigger_DTTrigger_MPRedundantFilter_h
 
 #include "L1Trigger/DTTriggerPhase2/interface/MPFilter.h"
 
@@ -27,7 +27,10 @@ public:
            const edm::EventSetup& iEventSetup,
            std::vector<metaPrimitive>& inMPath,
            std::vector<metaPrimitive>& outMPath) override{};
-  void run(edm::Event& iEvent, const edm::EventSetup& iEventSetup, MuonPathPtrs& inMPath, MuonPathPtrs& outMPath) override;
+  void run(edm::Event& iEvent,
+           const edm::EventSetup& iEventSetup,
+           MuonPathPtrs& inMPath,
+           MuonPathPtrs& outMPath) override;
   void finish() override { buffer_.clear(); };
 
   // Other public methods

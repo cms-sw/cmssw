@@ -54,7 +54,6 @@ public:
   void finish() override;
 
   // Other public methods
-
   // Public attributes
 
 private:
@@ -67,20 +66,20 @@ private:
   void doHoughTransform();
 
   PointsInPlane getMaximaVector();
-  PointsInPlane findTheMaxima(PointTuples inputvec);
+  PointsInPlane findTheMaxima(PointTuples& inputvec);
 
-  PointInPlane getTwoDelta(PointTuple pair1, PointTuple pair2);
-  PointInPlane getAveragePoint(PointTuples inputvec,
+  PointInPlane getTwoDelta(const PointTuple& pair1, const PointTuple& pair2);
+  PointInPlane getAveragePoint(const PointTuples& inputvec,
                                unsigned short int firstindex,
-                               std::vector<unsigned short int> indexlist);
-  PointInPlane transformPair(PointInPlane inputpair);
+                               const std::vector<unsigned short int>& indexlist);
+  PointInPlane transformPair(const PointInPlane& inputpair);
 
   ProtoCand associateHits(const DTChamber* thechamb, double m, double n);
 
   void orderAndFilter(std::vector<ProtoCand>& invector, MuonPathPtrs& outMuonPath);
 
   void setDifferenceBetweenSL(ProtoCand& tupl);
-  bool areThereEnoughHits(ProtoCand& tupl);
+  bool areThereEnoughHits(const ProtoCand& tupl);
 
   // Private attributes
   bool debug_, allowUncorrelatedPatterns_;
@@ -101,7 +100,7 @@ private:
   unsigned short int thestation_, thesector_;
   short int thewheel_;
 
-  unsigned short int** linespace_;
+  std::vector<std::vector<unsigned short int>> linespace_;
 
   PointMap anglemap_;
   PointMap posmap_;

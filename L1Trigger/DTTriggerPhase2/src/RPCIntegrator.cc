@@ -17,8 +17,8 @@ RPCIntegrator::RPCIntegrator(const edm::ParameterSet& pset, edm::ConsumesCollect
   m_phi_window_ = pset.getUntrackedParameter<double>("phi_window");
   m_storeAllRPCHits_ = pset.getUntrackedParameter<bool>("storeAllRPCHits");
 
-  rpcGeomH = iC.esConsumes<RPCGeometry, MuonGeometryRecord>();
-  dtGeomH = iC.esConsumes<DTGeometry, MuonGeometryRecord>();
+  rpcGeomH_ = iC.esConsumes<RPCGeometry, MuonGeometryRecord>();
+  dtGeomH_ = iC.esConsumes<DTGeometry, MuonGeometryRecord>();
 }
 
 RPCIntegrator::~RPCIntegrator() {
@@ -34,8 +34,8 @@ void RPCIntegrator::initialise(const edm::EventSetup& iEventSetup, double shift_
     LogDebug("RPCIntegrator") << "Getting RPC geometry";
 
   const MuonGeometryRecord& geom = iEventSetup.get<MuonGeometryRecord>();
-  dtGeo_ = &geom.get(dtGeomH);
-  rpcGeo_ = &geom.get(rpcGeomH);
+  dtGeo_ = &geom.get(dtGeomH_);
+  rpcGeo_ = &geom.get(rpcGeomH_);
   shift_back_ = shift_back_fromDT;
 }
 
@@ -53,8 +53,8 @@ void RPCIntegrator::prepareMetaPrimitives(edm::Handle<RPCRecHitCollection> rpcRe
 
     // set everyone to rpc single hit (3) not matched to DT flag for now
     // change last two elements if dt bx centered at zero again
-    RPCMetaprimitives_.emplace_back(RPCMetaprimitive(
-        rpcDetId, &rpcIt, global_position, 3, rpcIt.BunchX() + BX_SHIFT, rpcIt.time() + BX_SHIFT * LHC_CLK_FREQ));
+    RPCMetaprimitives_.emplace_back(
+        rpcDetId, &rpcIt, global_position, RPC_HIT, rpcIt.BunchX() + BX_SHIFT, rpcIt.time() + BX_SHIFT * LHC_CLK_FREQ);
   }
 }
 void RPCIntegrator::matchWithDTAndUseRPCTime(std::vector<metaPrimitive>& dt_metaprimitives) {
@@ -62,10 +62,10 @@ void RPCIntegrator::matchWithDTAndUseRPCTime(std::vector<metaPrimitive>& dt_meta
        dt_metaprimitive++) {
     RPCMetaprimitive* bestMatch_rpcRecHit = matchDTwithRPC(&*dt_metaprimitive);
     if (bestMatch_rpcRecHit) {
-      (*dt_metaprimitive).rpcFlag = 4;
+      (*dt_metaprimitive).rpcFlag = RPC_CONFIRM;
       if ((*dt_metaprimitive).quality < m_max_quality_to_overwrite_t0_) {
         (*dt_metaprimitive).t0 = bestMatch_rpcRecHit->rpc_t0 + 25 * shift_back_;
-        (*dt_metaprimitive).rpcFlag = 1;
+        (*dt_metaprimitive).rpcFlag = RPC_TIME;
       }
     }
   }
@@ -73,48 +73,47 @@ void RPCIntegrator::matchWithDTAndUseRPCTime(std::vector<metaPrimitive>& dt_meta
 
 void RPCIntegrator::makeRPCOnlySegments() {
   std::vector<L1Phase2MuDTPhDigi> rpc_only_segments;
-  for (auto rpc_mp_it_layer1 = RPCMetaprimitives_.begin(); rpc_mp_it_layer1 != RPCMetaprimitives_.end();
-       rpc_mp_it_layer1++) {
-    RPCDetId rpc_id_l1 = rpc_mp_it_layer1->rpc_id;
-    const RPCRecHit* rpc_cluster_l1 = rpc_mp_it_layer1->rpc_cluster;
-    GlobalPoint rpc_gp_l1 = rpc_mp_it_layer1->global_position;
-    if (rpc_id_l1.station() > 2 || rpc_id_l1.layer() != 1 || (rpc_mp_it_layer1->rpcFlag == 5 && !m_storeAllRPCHits_))
+  for (auto& rpc_mp_it_layer1 : RPCMetaprimitives_) {
+    RPCDetId rpc_id_l1 = rpc_mp_it_layer1.rpc_id;
+    const RPCRecHit* rpc_cluster_l1 = rpc_mp_it_layer1.rpc_cluster;
+    GlobalPoint rpc_gp_l1 = rpc_mp_it_layer1.global_position;
+    if (rpc_id_l1.station() > 2 || rpc_id_l1.layer() != 1 ||
+        (rpc_mp_it_layer1.rpcFlag == RPC_ASSOCIATE && !m_storeAllRPCHits_))
       continue;
     // only one RPC layer in station three and four &&
     // avoid duplicating pairs &&
     // avoid building RPC only segment if DT segment was already there
     int min_dPhi = std::numeric_limits<int>::max();
     RPCMetaprimitive* bestMatch_rpc_mp_layer2 = nullptr;
-    for (auto rpc_mp_it_layer2 = RPCMetaprimitives_.begin(); rpc_mp_it_layer2 != RPCMetaprimitives_.end();
-         rpc_mp_it_layer2++) {
-      RPCDetId rpc_id_l2 = rpc_mp_it_layer2->rpc_id;
-      const RPCRecHit* rpc_cluster_l2 = rpc_mp_it_layer2->rpc_cluster;
-      GlobalPoint rpc_gp_l2 = rpc_mp_it_layer2->global_position;
+    for (auto& rpc_mp_it_layer2 : RPCMetaprimitives_) {
+      RPCDetId rpc_id_l2 = rpc_mp_it_layer2.rpc_id;
+      const RPCRecHit* rpc_cluster_l2 = rpc_mp_it_layer2.rpc_cluster;
+      GlobalPoint rpc_gp_l2 = rpc_mp_it_layer2.global_position;
       if (rpc_id_l2.station() == rpc_id_l1.station() && rpc_id_l2.ring() == rpc_id_l1.ring() &&
           rpc_id_l2.layer() != rpc_id_l1.layer()  // ensure to have layer 1 --> layer 2
           && rpc_id_l2.sector() == rpc_id_l1.sector() && rpc_cluster_l2->BunchX() == rpc_cluster_l1->BunchX() &&
-          (rpc_mp_it_layer2->rpcFlag != 5 || m_storeAllRPCHits_)) {
+          (rpc_mp_it_layer2.rpcFlag != RPC_ASSOCIATE || m_storeAllRPCHits_)) {
         // avoid building RPC only segment with a hit already matched to DT,
         // except if one aske to store all RPC info
         float tmp_dPhi = rpc_gp_l1.phi() - rpc_gp_l2.phi();
         if (std::abs(tmp_dPhi) < std::abs(min_dPhi)) {
           min_dPhi = tmp_dPhi;
-          bestMatch_rpc_mp_layer2 = &*rpc_mp_it_layer2;
+          bestMatch_rpc_mp_layer2 = &rpc_mp_it_layer2;
         }
       }
     }
     if (bestMatch_rpc_mp_layer2) {
-      rpc_mp_it_layer1->rpcFlag = 6;
+      rpc_mp_it_layer1.rpcFlag = 6;
       // need a new flag (will be removed later) to differentiate
       // between "has been matched to DT" and "Has been used in an RPC only segment"
       bestMatch_rpc_mp_layer2->rpcFlag = 6;
-      double phiB = phiBending(&*rpc_mp_it_layer1, &*bestMatch_rpc_mp_layer2);
+      double phiB = phiBending(&rpc_mp_it_layer1, &*bestMatch_rpc_mp_layer2);
       // Arbitrarily choose the phi from layer 1
-      double global_phi = rpc_mp_it_layer1->global_position.phi();
-      double t0 = (rpc_mp_it_layer1->rpc_t0 + bestMatch_rpc_mp_layer2->rpc_t0) / 2;
+      double global_phi = rpc_mp_it_layer1.global_position.phi();
+      double t0 = (rpc_mp_it_layer1.rpc_t0 + bestMatch_rpc_mp_layer2->rpc_t0) / 2;
       // RPC only segment have rpcFlag==2
       L1Phase2MuDTPhDigi rpc_only_segment =
-          createL1Phase2MuDTPhDigi(rpc_id_l1, rpc_mp_it_layer1->rpc_bx, t0, global_phi, phiB, 2);
+          createL1Phase2MuDTPhDigi(rpc_id_l1, rpc_mp_it_layer1.rpc_bx, t0, global_phi, phiB, 2);
       rpc_only_segments.push_back(rpc_only_segment);
     }
   }
@@ -125,7 +124,7 @@ void RPCIntegrator::storeRPCSingleHits() {
   for (auto rpc_mp_it = RPCMetaprimitives_.begin(); rpc_mp_it != RPCMetaprimitives_.end(); rpc_mp_it++) {
     RPCDetId rpcDetId = rpc_mp_it->rpc_id;
     if (rpc_mp_it->rpcFlag == 6)
-      rpc_mp_it->rpcFlag = 5;
+      rpc_mp_it->rpcFlag = RPC_ASSOCIATE;
     L1Phase2MuDTPhDigi rpc_out = createL1Phase2MuDTPhDigi(
         rpcDetId, rpc_mp_it->rpc_bx, rpc_mp_it->rpc_t0, rpc_mp_it->global_position.phi(), -10000, rpc_mp_it->rpcFlag);
     rpcRecHits_translated_.push_back(rpc_out);
@@ -140,7 +139,7 @@ void RPCIntegrator::removeRPCHitsUsed() {
     // (avoid having two TP's corresponding to the same physical hit)
     auto rpcRecHit_translated_ = rpcRecHits_translated_.begin();
     while (rpcRecHit_translated_ != rpcRecHits_translated_.end()) {
-      if (rpcRecHit_translated_->rpcFlag() == 5 || rpcRecHit_translated_->rpcFlag() == 6) {
+      if (rpcRecHit_translated_->rpcFlag() == RPC_ASSOCIATE || rpcRecHit_translated_->rpcFlag() == 6) {
         rpcRecHit_translated_ = rpcRecHits_translated_.erase(rpcRecHit_translated_);
       } else {
         ++rpcRecHit_translated_;
@@ -180,7 +179,7 @@ RPCMetaprimitive* RPCIntegrator::matchDTwithRPC(metaPrimitive* dt_metaprimitive)
     }
   }
   if (bestMatch_rpcRecHit) {
-    bestMatch_rpcRecHit->rpcFlag = 5;
+    bestMatch_rpcRecHit->rpcFlag = RPC_ASSOCIATE;
   }
   return bestMatch_rpcRecHit;
 }

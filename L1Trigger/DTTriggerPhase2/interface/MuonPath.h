@@ -13,56 +13,56 @@ public:
   MuonPath(DTPrimitivePtrs &ptrPrimitive, int prup = 0, int prdw = 0);
   MuonPath(DTPrimitives &ptrPrimitive, int prup = 0, int prdw = 0);
   MuonPath(std::shared_ptr<MuonPath> &ptr);
-  virtual ~MuonPath(){};
+  virtual ~MuonPath() {}
 
   // setter methods
   void setPrimitive(DTPrimitivePtr &ptr, int layer);
-  void setNPrimitives(short nprim) { nprimitives_ = nprim; };
-  void setNPrimitivesUp(short nprim) { nprimitivesUp_ = nprim; };
-  void setNPrimitivesDown(short nprim) { nprimitivesDown_ = nprim; };
+  void setNPrimitives(short nprim) { nprimitives_ = nprim; }
+  void setNPrimitivesUp(short nprim) { nprimitivesUp_ = nprim; }
+  void setNPrimitivesDown(short nprim) { nprimitivesDown_ = nprim; }
   void setCellHorizontalLayout(int layout[4]);
   void setCellHorizontalLayout(const int *layout);
-  void setBaseChannelId(int bch) { baseChannelId_ = bch; };
-  void setQuality(MP_QUALITY qty) { quality_ = qty; };
+  void setBaseChannelId(int bch) { baseChannelId_ = bch; }
+  void setQuality(MP_QUALITY qty) { quality_ = qty; }
   void setBxTimeValue(int time);
   void setLateralComb(LATERAL_CASES latComb[4]);
   void setLateralComb(const LATERAL_CASES *latComb);
   void setLateralCombFromPrimitives(void);
 
-  void setHorizPos(float pos) { horizPos_ = pos; };
-  void setTanPhi(float tanPhi) { tanPhi_ = tanPhi; };
-  void setChiSquare(float chi) { chiSquare_ = chi; };
-  void setPhi(float phi) { phi_ = phi; };
-  void setPhiB(float phib) { phiB_ = phib; };
-  void setXCoorCell(float x, int cell) { xCoorCell_[cell] = x; };
-  void setDriftDistance(float dx, int cell) { xDriftDistance_[cell] = dx; };
-  void setXWirePos(float x, int cell) { xWirePos_[cell] = x; };
-  void setZWirePos(float z, int cell) { zWirePos_[cell] = z; };
-  void setTWireTDC(float t, int cell) { tWireTDC_[cell] = t; };
-  void setRawId(uint32_t id) { rawId_ = id; };
+  void setHorizPos(float pos) { horizPos_ = pos; }
+  void setTanPhi(float tanPhi) { tanPhi_ = tanPhi; }
+  void setChiSquare(float chi) { chiSquare_ = chi; }
+  void setPhi(float phi) { phi_ = phi; }
+  void setPhiB(float phib) { phiB_ = phib; }
+  void setXCoorCell(float x, int cell) { xCoorCell_[cell] = x; }
+  void setDriftDistance(float dx, int cell) { xDriftDistance_[cell] = dx; }
+  void setXWirePos(float x, int cell) { xWirePos_[cell] = x; }
+  void setZWirePos(float z, int cell) { zWirePos_[cell] = z; }
+  void setTWireTDC(float t, int cell) { tWireTDC_[cell] = t; }
+  void setRawId(uint32_t id) { rawId_ = id; }
 
   // getter methods
-  DTPrimitivePtr primitive(int layer) const { return prim_[layer]; };
-  short nprimitives() const { return nprimitives_; };
-  short nprimitivesDown() const { return nprimitivesDown_; };
-  short nprimitivesUp() const { return nprimitivesUp_; };
-  const int *cellLayout() const { return cellLayout_; };
-  int baseChannelId() const { return baseChannelId_; };
-  MP_QUALITY quality() const { return quality_; };
-  int bxTimeValue() const { return bxTimeValue_; };
-  int bxNumId() const { return bxNumId_; };
-  float tanPhi() const { return tanPhi_; };
-  const LATERAL_CASES *lateralComb() const { return (lateralComb_); };
-  float horizPos() const { return horizPos_; };
-  float chiSquare() const { return chiSquare_; };
-  float phi() const { return phi_; };
-  float phiB() const { return phiB_; };
-  float xCoorCell(int cell) const { return xCoorCell_[cell]; };
-  float xDriftDistance(int cell) const { return xDriftDistance_[cell]; };
-  float xWirePos(int cell) const { return xWirePos_[cell]; };
-  float zWirePos(int cell) const { return zWirePos_[cell]; };
-  float tWireTDC(int cell) const { return tWireTDC_[cell]; };
-  uint32_t rawId() const { return rawId_; };
+  DTPrimitivePtr primitive(int layer) const { return prim_[layer]; }
+  short nprimitives() const { return nprimitives_; }
+  short nprimitivesDown() const { return nprimitivesDown_; }
+  short nprimitivesUp() const { return nprimitivesUp_; }
+  const int *cellLayout() const { return cellLayout_; }
+  int baseChannelId() const { return baseChannelId_; }
+  MP_QUALITY quality() const { return quality_; }
+  int bxTimeValue() const { return bxTimeValue_; }
+  int bxNumId() const { return bxNumId_; }
+  float tanPhi() const { return tanPhi_; }
+  const LATERAL_CASES *lateralComb() const { return (lateralComb_); }
+  float horizPos() const { return horizPos_; }
+  float chiSquare() const { return chiSquare_; }
+  float phi() const { return phi_; }
+  float phiB() const { return phiB_; }
+  float xCoorCell(int cell) const { return xCoorCell_[cell]; }
+  float xDriftDistance(int cell) const { return xDriftDistance_[cell]; }
+  float xWirePos(int cell) const { return xWirePos_[cell]; }
+  float zWirePos(int cell) const { return zWirePos_[cell]; }
+  float tWireTDC(int cell) const { return tWireTDC_[cell]; }
+  uint32_t rawId() const { return rawId_; }
 
   // Other methods
   bool isEqualTo(MuonPath *ptr);

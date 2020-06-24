@@ -1,5 +1,5 @@
-#ifndef Phase2L1Trigger_DTTrigger_RPCIntegrator_cc
-#define Phase2L1Trigger_DTTrigger_RPCIntegrator_cc
+#ifndef Phase2L1Trigger_DTTrigger_RPCIntegrator_h
+#define Phase2L1Trigger_DTTrigger_RPCIntegrator_h
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -91,8 +91,8 @@ private:
 
   DTGeometry const* dtGeo_;
   RPCGeometry const* rpcGeo_;
-  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomH;
-  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomH;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomH_;
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomH_;
 
   static constexpr double m_dt_phi_granularity_ = (65536. / 0.8);  // 65536 different values per 0.8 radian
   static constexpr double m_dt_phiB_granularity_ = (2048. / 1.4);  // 2048. different values per 1.4 radian

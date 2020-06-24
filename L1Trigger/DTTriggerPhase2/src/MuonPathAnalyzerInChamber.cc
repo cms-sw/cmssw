@@ -2,7 +2,6 @@
 #include <cmath>
 #include <memory>
 
-        
 using namespace edm;
 using namespace std;
 

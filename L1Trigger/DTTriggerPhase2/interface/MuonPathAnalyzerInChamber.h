@@ -1,5 +1,5 @@
-#ifndef L1Trigger_DTTriggerPhase2_MuonPathAnalyzerInChamber_cc
-#define L1Trigger_DTTriggerPhase2_MuonPathAnalyzerInChamber_cc
+#ifndef L1Trigger_DTTriggerPhase2_MuonPathAnalyzerInChamber_h
+#define L1Trigger_DTTriggerPhase2_MuonPathAnalyzerInChamber_h
 
 #include "L1Trigger/DTTriggerPhase2/interface/MuonPathAnalyzer.h"
 
@@ -26,7 +26,10 @@ public:
            const edm::EventSetup &iEventSetup,
            MuonPathPtrs &inMpath,
            std::vector<metaPrimitive> &metaPrimitives) override {}
-  void run(edm::Event &iEvent, const edm::EventSetup &iEventSetup, MuonPathPtrs &inMpath, MuonPathPtrs &outMPath) override;
+  void run(edm::Event &iEvent,
+           const edm::EventSetup &iEventSetup,
+           MuonPathPtrs &inMpath,
+           MuonPathPtrs &outMPath) override;
 
   void finish() override;
 

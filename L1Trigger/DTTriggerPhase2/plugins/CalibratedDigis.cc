@@ -43,6 +43,8 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "L1Trigger/DTTriggerPhase2/interface/constants.h"
+
 namespace edm {
   class ParameterSet;
   class EventSetup;
@@ -50,6 +52,7 @@ namespace edm {
 
 using namespace std;
 using namespace edm;
+using namespace cmsdt;
 //
 // class declaration
 //
@@ -126,9 +129,9 @@ void CalibratedDigis::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (flat_calib_ != 0)
         newTime = digiTime - flatcalib + bxspacing * iEvent.eventAuxiliary().bunchCrossing() + float(timeOffset_);
       else {
-        if (scenario == 0)  //FIX MC
+        if (scenario == MC)  //FIX MC
           newTime = digiTime + bxspacing * timeshift;
-        else if (scenario == 2)  //FIX SliceTest
+        else if (scenario == SLICE_TEST)  //FIX SliceTest
           newTime = digiTime;
         else
           newTime = digiTime - theSync->offset(wireId) + bxspacing * iEvent.eventAuxiliary().bunchCrossing() +

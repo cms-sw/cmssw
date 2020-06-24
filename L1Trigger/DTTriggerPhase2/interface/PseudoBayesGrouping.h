@@ -1,13 +1,9 @@
-#ifndef Phase2L1Trigger_DTTrigger_PseudoBayesGrouping_cc
-#define Phase2L1Trigger_DTTrigger_PseudoBayesGrouping_cc
+#ifndef Phase2L1Trigger_DTTrigger_PseudoBayesGrouping_h
+#define Phase2L1Trigger_DTTrigger_PseudoBayesGrouping_h
 
 #include "L1Trigger/DTTriggerPhase2/interface/MotherGrouping.h"
 #include "L1Trigger/DTTriggerPhase2/interface/DTPattern.h"
 #include "L1Trigger/DTTriggerPhase2/interface/CandidateGroup.h"
-#include "TFile.h"
-
-#include <iostream>
-#include <fstream>
 
 // ===============================================================================
 // Class declarations
@@ -46,81 +42,81 @@ private:
 
   //Comparator for pointer mode
   struct CandPointGreat {
-    bool operator()(CandidateGroup* c1, CandidateGroup* c2) { return *c1 > *c2; }
+    bool operator()(CandidateGroupPtr c1, CandidateGroupPtr c2) { return *c1 > *c2; }
   };
 
   // Private attributes
   // Config variables
-  bool debug;
-  std::string pattern_filename;
-  int pidx;
-  int minNLayerHits;
-  int allowedVariance;
-  bool allowDuplicates;
-  bool allowUncorrelatedPatterns;
-  bool setLateralities;
-  bool saveOnPlace;
-  int minSingleSLHitsMax;
-  int minSingleSLHitsMin;
-  int minUncorrelatedHits;
+  bool debug_;
+  std::string pattern_filename_;
+  int pidx_;
+  int minNLayerHits_;
+  int allowedVariance_;
+  bool allowDuplicates_;
+  bool allowUncorrelatedPatterns_;
+  bool setLateralities_;
+  bool saveOnPlace_;
+  int minSingleSLHitsMax_;
+  int minSingleSLHitsMin_;
+  int minUncorrelatedHits_;
 
   //Classified digis
-  std::vector<DTPrimitive> alldigis;
+  std::vector<DTPrimitive> alldigis_;
 
-  std::vector<DTPrimitive> digisinL0;
-  std::vector<DTPrimitive> digisinL1;
-  std::vector<DTPrimitive> digisinL2;
-  std::vector<DTPrimitive> digisinL3;
-  std::vector<DTPrimitive> digisinL4;
-  std::vector<DTPrimitive> digisinL5;
-  std::vector<DTPrimitive> digisinL6;
-  std::vector<DTPrimitive> digisinL7;
+  std::vector<DTPrimitive> digisinL0_;
+  std::vector<DTPrimitive> digisinL1_;
+  std::vector<DTPrimitive> digisinL2_;
+  std::vector<DTPrimitive> digisinL3_;
+  std::vector<DTPrimitive> digisinL4_;
+  std::vector<DTPrimitive> digisinL5_;
+  std::vector<DTPrimitive> digisinL6_;
+  std::vector<DTPrimitive> digisinL7_;
 
   //Preliminary matches, those can grow quite big so better not to rely on the stack
-  std::unique_ptr<std::vector<CandidateGroup*>> prelimMatches;
-  std::unique_ptr<std::vector<CandidateGroup*>> allMatches;
-  std::unique_ptr<std::vector<CandidateGroup*>> finalMatches;
+  std::unique_ptr<CandidateGroupPtrs> prelimMatches_;
+  std::unique_ptr<CandidateGroupPtrs> allMatches_;
+  std::unique_ptr<CandidateGroupPtrs> finalMatches_;
 
   //Pattern related info
-  int nPatterns;
-  std::vector<DTPattern*> allPatterns;
+  int nPatterns_;
+  std::vector<DTPattern*> allPatterns_;
 
-  std::vector<DTPattern*> L0L7Patterns;
-  std::vector<DTPattern*> L1L7Patterns;
-  std::vector<DTPattern*> L2L7Patterns;
-  std::vector<DTPattern*> L3L7Patterns;
-  std::vector<DTPattern*> L4L7Patterns;
-  std::vector<DTPattern*> L5L7Patterns;
-  std::vector<DTPattern*> L6L7Patterns;
+  std::vector<DTPattern*> L0L7Patterns_;
+  std::vector<DTPattern*> L1L7Patterns_;
+  std::vector<DTPattern*> L2L7Patterns_;
+  std::vector<DTPattern*> L3L7Patterns_;
+  std::vector<DTPattern*> L4L7Patterns_;
+  std::vector<DTPattern*> L5L7Patterns_;
+  std::vector<DTPattern*> L6L7Patterns_;
 
-  std::vector<DTPattern*> L0L6Patterns;
-  std::vector<DTPattern*> L1L6Patterns;
-  std::vector<DTPattern*> L2L6Patterns;
-  std::vector<DTPattern*> L3L6Patterns;
-  std::vector<DTPattern*> L4L6Patterns;
-  std::vector<DTPattern*> L5L6Patterns;
+  std::vector<DTPattern*> L0L6Patterns_;
+  std::vector<DTPattern*> L1L6Patterns_;
+  std::vector<DTPattern*> L2L6Patterns_;
+  std::vector<DTPattern*> L3L6Patterns_;
+  std::vector<DTPattern*> L4L6Patterns_;
+  std::vector<DTPattern*> L5L6Patterns_;
 
-  std::vector<DTPattern*> L0L5Patterns;
-  std::vector<DTPattern*> L1L5Patterns;
-  std::vector<DTPattern*> L2L5Patterns;
-  std::vector<DTPattern*> L3L5Patterns;
-  std::vector<DTPattern*> L4L5Patterns;
+  std::vector<DTPattern*> L0L5Patterns_;
+  std::vector<DTPattern*> L1L5Patterns_;
+  std::vector<DTPattern*> L2L5Patterns_;
+  std::vector<DTPattern*> L3L5Patterns_;
+  std::vector<DTPattern*> L4L5Patterns_;
 
-  std::vector<DTPattern*> L0L4Patterns;
-  std::vector<DTPattern*> L1L4Patterns;
-  std::vector<DTPattern*> L2L4Patterns;
-  std::vector<DTPattern*> L3L4Patterns;
+  std::vector<DTPattern*> L0L4Patterns_;
+  std::vector<DTPattern*> L1L4Patterns_;
+  std::vector<DTPattern*> L2L4Patterns_;
+  std::vector<DTPattern*> L3L4Patterns_;
 
-  std::vector<DTPattern*> L0L3Patterns;
-  std::vector<DTPattern*> L1L3Patterns;
-  std::vector<DTPattern*> L2L3Patterns;
+  std::vector<DTPattern*> L0L3Patterns_;
+  std::vector<DTPattern*> L1L3Patterns_;
+  std::vector<DTPattern*> L2L3Patterns_;
 
-  std::vector<DTPattern*> L0L2Patterns;
-  std::vector<DTPattern*> L1L2Patterns;
+  std::vector<DTPattern*> L0L2Patterns_;
+  std::vector<DTPattern*> L1L2Patterns_;
 
-  std::vector<DTPattern*> L0L1Patterns;
+  std::vector<DTPattern*> L0L1Patterns_;
 
-  CandidateGroup* cand;
+  //  CandidateGroup* cand_;
 };
 
 #endif

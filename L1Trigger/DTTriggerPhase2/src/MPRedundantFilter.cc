@@ -1,8 +1,5 @@
 #include <memory>
-
-
-
-        #include "L1Trigger/DTTriggerPhase2/interface/MPRedundantFilter.h"
+#include "L1Trigger/DTTriggerPhase2/interface/MPRedundantFilter.h"
 
 using namespace edm;
 using namespace std;
