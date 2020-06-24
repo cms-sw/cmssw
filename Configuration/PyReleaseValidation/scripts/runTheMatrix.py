@@ -61,9 +61,9 @@ if __name__ == '__main__':
                      136.731, #2016B Photon data
                      136.7611, #2016E JetHT reMINIAOD from 80X legacy
                      136.8311, #2017F JetHT reMINIAOD from 94X reprocessing
+                     136.88811,#2018D JetHT reMINIAOD from UL processing
                      136.788, #2017B Photon data
                      136.85, #2018A Egamma data
-                     136.88811,#2018D JetHT reMINIAOD from UL processing
                      140.53, #2011 HI data
                      140.56, #2018 HI data
                      158.0, #2018 HI MC with pp-like reco
