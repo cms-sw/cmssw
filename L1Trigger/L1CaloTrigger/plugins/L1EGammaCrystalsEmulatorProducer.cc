@@ -60,6 +60,7 @@ static constexpr bool do_brem = true;
 
 static constexpr int n_eta_bins = 2;
 static constexpr int n_borders_phi = 18;
+static constexpr int n_borders_eta = 18;
 static constexpr int n_clusters_max = 5;
 static constexpr int n_clusters_link = 3;
 static constexpr int n_clusters_4link = 4 * 3;
@@ -875,7 +876,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
   }
 
   // Merge clusters on the eta edges
-  for (int ii = 0; ii < 18; ++ii) {  // 18 borders in eta
+  for (int ii = 0; ii < n_borders_eta; ++ii) {  // 18 borders in eta
     int card_bottom = 2 * ii;
     int card_top = 2 * ii + 1;
     for (int kk = 0; kk < n_clusters_4link; ++kk) {  // 12 clusters in the first card. We check the top side
@@ -959,15 +960,13 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
         }
       }
       for (int kk = 0; kk < n_towers_halfPhi; ++kk) {      // 36 cards
-        for (int ll = 0; ll < 4; ++ll) {                   // 4 links per card
+        for (int ll = 0; ll < n_links_card; ++ll) {        // 4 links per card
           for (int mm = 0; mm < n_towers_cardEta; ++mm) {  // 17 towers per link
             int etaOftower_fullDetector = get_towerEta_fromCardLinkTower(kk, ll, mm);
             int phiOftower_fullDetector = get_towerPhi_fromCardLinkTower(kk, ll, mm);
             // First do ECAL
-            if (abs(etaOftower_fullDetector - cluster_etaOfTower_fullDetector) <= 2 &&
-                (abs(phiOftower_fullDetector - cluster_phiOfTower_fullDetector) <= 2 or
-                 abs(phiOftower_fullDetector - n_towers_Phi - cluster_phiOfTower_fullDetector) <=
-                     2)) {  // The towers are within 3. Needs to stitch the two phi sides together
+            // The towers are within 3. Needs to stitch the two phi sides together
+            if (abs(etaOftower_fullDetector - cluster_etaOfTower_fullDetector) <= 2 && (abs(phiOftower_fullDetector - cluster_phiOfTower_fullDetector) <= 2 or abs(phiOftower_fullDetector - n_towers_Phi - cluster_phiOfTower_fullDetector) <= 2)) {
               if (!((cluster_phiOfTower_fullDetector == 0 && phiOftower_fullDetector == 71) or
                     (cluster_phiOfTower_fullDetector == 23 && phiOftower_fullDetector == 26) or
                     (cluster_phiOfTower_fullDetector == 24 && phiOftower_fullDetector == 21) or
@@ -980,10 +979,8 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
               }
             }
             // Now do HCAL
-            if (abs(etaOftower_fullDetector - cluster_etaOfTower_fullDetector) <= 2 &&
-                (abs(phiOftower_fullDetector - cluster_phiOfTower_fullDetector) <= 2 or
-                 abs(phiOftower_fullDetector - n_towers_Phi - cluster_phiOfTower_fullDetector) <=
-                     2)) {  // The towers are within 2. Needs to stitch the two phi sides together
+            // The towers are within 2. Needs to stitch the two phi sides together
+            if (abs(etaOftower_fullDetector - cluster_etaOfTower_fullDetector) <= 2 && (abs(phiOftower_fullDetector - cluster_phiOfTower_fullDetector) <= 2 or abs(phiOftower_fullDetector - n_towers_Phi - cluster_phiOfTower_fullDetector) <= 2)) {
               hcal_nrj += HCAL_tower_L1Card[ll][mm][kk];
             }
           }
