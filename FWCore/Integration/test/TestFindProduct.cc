@@ -31,11 +31,8 @@
 
 namespace edmtest {
 
-  struct DummyTestFindProduct {};
-
-  class TestFindProduct : public edm::one::EDAnalyzer<edm::one::WatchRuns,
-                                                      edm::one::WatchLuminosityBlocks,
-                                                      edm::ProcessBlockCache<DummyTestFindProduct>> {
+  class TestFindProduct
+      : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks, edm::WatchProcessBlock> {
   public:
     explicit TestFindProduct(edm::ParameterSet const& pset);
     virtual ~TestFindProduct();

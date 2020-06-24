@@ -433,11 +433,11 @@ namespace edmtest {
       }
     };
 
-    class ProcessBlockIntFilter : public edm::limited::EDFilter<edm::ProcessBlockCache<UnsafeCache>> {
+    class ProcessBlockIntFilter : public edm::limited::EDFilter<edm::WatchProcessBlock> {
     public:
       explicit ProcessBlockIntFilter(edm::ParameterSet const& pset)
           : edm::limited::EDFilterBase(pset),
-            edm::limited::EDFilter<edm::ProcessBlockCache<UnsafeCache>>(pset),
+            edm::limited::EDFilter<edm::WatchProcessBlock>(pset),
             trans_(pset.getParameter<int>("transitions")) {
         produces<unsigned int>();
         {

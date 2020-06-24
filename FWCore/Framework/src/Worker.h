@@ -120,6 +120,7 @@ namespace edm {
     Worker& operator=(Worker const&) = delete;  // Disallow copying and moving
 
     virtual bool wantsProcessBlocks() const = 0;
+    virtual bool wantsInputProcessBlocks() const = 0;
     virtual bool wantsGlobalRuns() const = 0;
     virtual bool wantsGlobalLuminosityBlocks() const = 0;
     virtual bool wantsStreamRuns() const = 0;
@@ -845,7 +846,7 @@ namespace edm {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoAccessInputProcessBlock(pbp, mcc);
       }
-      static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsProcessBlocks(); }
+      static bool wantsTransition(Worker const* iWorker) { return iWorker->wantsInputProcessBlocks(); }
       static bool needToRunSelection(Worker const* iWorker) { return false; }
       static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return nullptr; }
       static SerialTaskQueue* enableGlobalQueue(Worker*) { return nullptr; }

@@ -38,8 +38,8 @@ namespace edm {
       };
 
       template <typename R, typename... U>
-      struct HasAbility<ProcessBlockCache<R>, U...> : public HasAbility<U...> {
-        static constexpr bool kProcessBlockCache = true;
+      struct HasAbility<InputProcessBlockCache<R>, U...> : public HasAbility<U...> {
+        static constexpr bool kInputProcessBlockCache = true;
       };
 
       template <typename R, typename... U>
@@ -60,6 +60,11 @@ namespace edm {
       template <typename R, typename... U>
       struct HasAbility<LuminosityBlockSummaryCache<R>, U...> : public HasAbility<U...> {
         static constexpr bool kLuminosityBlockSummaryCache = true;
+      };
+
+      template <typename... U>
+      struct HasAbility<edm::WatchProcessBlock, U...> : public HasAbility<U...> {
+        static constexpr bool kWatchProcessBlock = true;
       };
 
       template <typename... U>
@@ -105,11 +110,12 @@ namespace edm {
       template <>
       struct HasAbility<LastCheck> {
         static constexpr bool kGlobalCache = false;
-        static constexpr bool kProcessBlockCache = false;
+        static constexpr bool kInputProcessBlockCache = false;
         static constexpr bool kRunCache = false;
         static constexpr bool kLuminosityBlockCache = false;
         static constexpr bool kRunSummaryCache = false;
         static constexpr bool kLuminosityBlockSummaryCache = false;
+        static constexpr bool kWatchProcessBlock = false;
         static constexpr bool kBeginProcessBlockProducer = false;
         static constexpr bool kEndProcessBlockProducer = false;
         static constexpr bool kBeginRunProducer = false;

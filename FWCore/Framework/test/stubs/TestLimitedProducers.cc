@@ -479,11 +479,11 @@ namespace edmtest {
       }
     };
 
-    class ProcessBlockIntProducer : public edm::limited::EDProducer<edm::ProcessBlockCache<UnsafeCache>> {
+    class ProcessBlockIntProducer : public edm::limited::EDProducer<edm::WatchProcessBlock> {
     public:
       explicit ProcessBlockIntProducer(edm::ParameterSet const& pset)
           : edm::limited::EDProducerBase(pset),
-            edm::limited::EDProducer<edm::ProcessBlockCache<UnsafeCache>>(pset),
+            edm::limited::EDProducer<edm::WatchProcessBlock>(pset),
             trans_(pset.getParameter<int>("transitions")) {
         produces<unsigned int>();
 

@@ -104,6 +104,22 @@ namespace edm {
       };
 
       template <typename T>
+      class WatchProcessBlock : public virtual T {
+      public:
+        WatchProcessBlock() = default;
+        WatchProcessBlock(WatchProcessBlock const&) = delete;
+        WatchProcessBlock& operator=(WatchProcessBlock const&) = delete;
+        ~WatchProcessBlock() noexcept(false) override {}
+
+      private:
+        void doBeginProcessBlock_(ProcessBlock const&) final;
+        void doEndProcessBlock_(ProcessBlock const&) final;
+
+        virtual void beginProcessBlock(ProcessBlock const&) {}
+        virtual void endProcessBlock(ProcessBlock const&) {}
+      };
+
+      template <typename T>
       class BeginProcessBlockProducer : public virtual T {
       public:
         BeginProcessBlockProducer() = default;
@@ -188,36 +204,26 @@ namespace edm {
       };
 
       template <typename T, typename C>
-      class ProcessBlockCacheHolder : public virtual T {
+      class InputProcessBlockCacheHolder : public virtual T {
       public:
-        ProcessBlockCacheHolder() = default;
-        ProcessBlockCacheHolder(ProcessBlockCacheHolder<T, C> const&) = delete;
-        ProcessBlockCacheHolder<T, C>& operator=(ProcessBlockCacheHolder<T, C> const&) = delete;
-        ~ProcessBlockCacheHolder() override {}
+        InputProcessBlockCacheHolder() = default;
+        InputProcessBlockCacheHolder(InputProcessBlockCacheHolder const&) = delete;
+        InputProcessBlockCacheHolder& operator=(InputProcessBlockCacheHolder const&) = delete;
+        ~InputProcessBlockCacheHolder() override {}
 
       protected:
         // Not implemented yet
-        // const C* processBlockCache(ProcessBlockIndex index) const { return caches_.at(index).get(); }
+        // const C* inputProcessBlockCache(ProcessBlockIndex index) const { return caches_.at(index).get(); }
 
       private:
-        void doBeginProcessBlock_(ProcessBlock const& pb) final { beginProcessBlock(pb); }
-
         // Not yet fully implemented, will never get called
+        // THINK ABOUT HOW CACHES ARE CLEARED!!!
         void doAccessInputProcessBlock_(ProcessBlock const& pb) final {
           caches_.push_back(accessInputProcessBlock(pb));
         }
 
-        void doEndProcessBlock_(ProcessBlock const& pb) final {
-          endProcessBlock(pb);
-          caches_.clear();
-        }
-
-        virtual void beginProcessBlock(ProcessBlock const&) {}
-
         // Not yet fully implemented, will never get called
-        virtual std::shared_ptr<C> accessInputProcessBlock(ProcessBlock const&) { return std::shared_ptr<C>(); }
-
-        virtual void endProcessBlock(ProcessBlock const&) {}
+        virtual std::shared_ptr<C> accessInputProcessBlock(ProcessBlock const&) = 0;
 
         std::vector<std::shared_ptr<C>> caches_;
       };

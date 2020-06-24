@@ -16,7 +16,7 @@ namespace edm {
 namespace edmtest {
 
   class UTC_V1
-      : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks, edm::ProcessBlockCache<void>> {
+      : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks, edm::WatchProcessBlock> {
   public:
     explicit UTC_V1(edm::ParameterSet const& p) : ev(0) { identifier = p.getUntrackedParameter<int>("identifier", 99); }
 

@@ -105,6 +105,7 @@ namespace edm {
 
       //Output modules always need writeRun and writeLumi to be called
       virtual bool wantsProcessBlocks() const = 0;
+      virtual bool wantsInputProcessBlocks() const = 0;
       virtual bool wantsGlobalRuns() const = 0;
       virtual bool wantsGlobalLuminosityBlocks() const = 0;
       bool wantsStreamRuns() const { return false; }

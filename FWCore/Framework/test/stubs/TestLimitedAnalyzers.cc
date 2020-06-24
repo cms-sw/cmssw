@@ -316,11 +316,11 @@ namespace edmtest {
       }
     };
 
-    class ProcessBlockIntAnalyzer : public edm::limited::EDAnalyzer<edm::ProcessBlockCache<UnsafeCache>> {
+    class ProcessBlockIntAnalyzer : public edm::limited::EDAnalyzer<edm::WatchProcessBlock> {
     public:
       explicit ProcessBlockIntAnalyzer(edm::ParameterSet const& pset)
           : edm::limited::EDAnalyzerBase(pset),
-            edm::limited::EDAnalyzer<edm::ProcessBlockCache<UnsafeCache>>(pset),
+            edm::limited::EDAnalyzer<edm::WatchProcessBlock>(pset),
             trans_(pset.getParameter<int>("transitions")) {
         {
           auto tag = pset.getParameter<edm::InputTag>("consumesBeginProcessBlock");

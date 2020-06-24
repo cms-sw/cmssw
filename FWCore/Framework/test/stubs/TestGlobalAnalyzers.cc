@@ -301,7 +301,7 @@ namespace edmtest {
       }
     };
 
-    class ProcessBlockIntAnalyzer : public edm::global::EDAnalyzer<edm::ProcessBlockCache<UnsafeCache>,
+    class ProcessBlockIntAnalyzer : public edm::global::EDAnalyzer<edm::WatchProcessBlock,
                                                                    edm::StreamCache<UnsafeCache>,
                                                                    edm::RunCache<UnsafeCache>> {
     public:

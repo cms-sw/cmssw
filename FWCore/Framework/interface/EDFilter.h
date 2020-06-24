@@ -56,6 +56,7 @@ namespace edm {
     ModuleDescription const& moduleDescription() const { return moduleDescription_; }
 
     static bool wantsProcessBlocks() { return false; }
+    static bool wantsInputProcessBlocks() { return false; }
     static bool wantsGlobalRuns() { return true; }
     static bool wantsGlobalLuminosityBlocks() { return true; }
     static bool wantsStreamRuns() { return false; }

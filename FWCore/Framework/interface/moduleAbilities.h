@@ -45,8 +45,8 @@ namespace edm {
   };
 
   template <typename T>
-  struct ProcessBlockCache {
-    static constexpr module::Abilities kAbilities = module::Abilities::kProcessBlockCache;
+  struct InputProcessBlockCache {
+    static constexpr module::Abilities kAbilities = module::Abilities::kInputProcessBlockCache;
     typedef T Type;
   };
 
@@ -72,6 +72,11 @@ namespace edm {
   struct LuminosityBlockSummaryCache {
     static constexpr module::Abilities kAbilities = module::Abilities::kLuminosityBlockSummaryCache;
     typedef T Type;
+  };
+
+  struct WatchProcessBlock {
+    static constexpr module::Abilities kAbilities = module::Abilities::kWatchProcessBlock;
+    typedef module::Empty Type;
   };
 
   struct BeginProcessBlockProducer {
@@ -140,9 +145,14 @@ namespace edm {
 
   template <typename... VArgs>
   struct WantsProcessBlockTransitions {
-    static constexpr bool value = CheckAbility<module::Abilities::kProcessBlockCache, VArgs...>::kHasIt or
+    static constexpr bool value = CheckAbility<module::Abilities::kWatchProcessBlock, VArgs...>::kHasIt or
                                   CheckAbility<module::Abilities::kBeginProcessBlockProducer, VArgs...>::kHasIt or
                                   CheckAbility<module::Abilities::kEndProcessBlockProducer, VArgs...>::kHasIt;
+  };
+
+  template <typename... VArgs>
+  struct WantsInputProcessBlockTransitions {
+    static constexpr bool value = CheckAbility<module::Abilities::kInputProcessBlockCache, VArgs...>::kHasIt;
   };
 
   template <typename... VArgs>

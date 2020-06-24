@@ -41,6 +41,7 @@ namespace edm {
 #endif
       // ---------- const member functions ---------------------
       bool wantsProcessBlocks() const final { return WantsProcessBlockTransitions<T...>::value; }
+      bool wantsInputProcessBlocks() const final { return WantsInputProcessBlockTransitions<T...>::value; }
       bool wantsGlobalRuns() const final { return WantsGlobalRunTransitions<T...>::value; }
       bool wantsGlobalLuminosityBlocks() const final { return WantsGlobalLuminosityBlockTransitions<T...>::value; }
       bool wantsStreamRuns() const final { return WantsStreamRunTransitions<T...>::value; }
