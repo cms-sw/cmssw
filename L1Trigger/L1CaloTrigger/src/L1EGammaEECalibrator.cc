@@ -6,12 +6,13 @@
 #include <iterator>
 
 namespace l1tp2 {
-std::vector<float> as_vector(boost::property_tree::ptree const& pt, boost::property_tree::ptree::key_type const& key) {
-  std::vector<float> ret;
-  for (const auto& item : pt.get_child(key))
-    ret.push_back(item.second.get_value<float>());
-  return ret;
-}
+  std::vector<float> as_vector(boost::property_tree::ptree const& pt,
+                               boost::property_tree::ptree::key_type const& key) {
+    std::vector<float> ret;
+    for (const auto& item : pt.get_child(key))
+      ret.push_back(item.second.get_value<float>());
+    return ret;
+  }
 };  // namespace l1tp2
 
 L1EGammaEECalibrator::L1EGammaEECalibrator(const edm::ParameterSet& pset) {

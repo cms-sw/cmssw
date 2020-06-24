@@ -994,7 +994,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
                     (cluster_phiOfTower_fullDetector == 24 && phiOftower_fullDetector == 21) or
                     (cluster_phiOfTower_fullDetector == 47 && phiOftower_fullDetector == 50) or
                     (cluster_phiOfTower_fullDetector == 48 && phiOftower_fullDetector == 45) or
-                    (cluster_phiOfTower_fullDetector == 71 && phiOftower_fullDetector == 2))) {  
+                    (cluster_phiOfTower_fullDetector == 71 && phiOftower_fullDetector == 2))) {
                 isolation += ECAL_tower_L1Card[ll][mm][kk];
                 ntowers++;
               }

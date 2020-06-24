@@ -10,10 +10,10 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 namespace l1tp2 {
-// we sort the clusters in pt
-bool compare_cluster_pt(const l1t::HGCalMulticluster *cl1, const l1t::HGCalMulticluster *cl2) {
-  return cl1->pt() > cl2->pt();
-}
+  // we sort the clusters in pt
+  bool compare_cluster_pt(const l1t::HGCalMulticluster *cl1, const l1t::HGCalMulticluster *cl2) {
+    return cl1->pt() > cl2->pt();
+  }
 };  // namespace l1tp2
 
 int etaBin(const l1t::HGCalMulticluster *cl) {

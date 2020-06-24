@@ -41,7 +41,6 @@ namespace l1tp2 {
     std::vector<float> etas, pts, scales, ptMins, ptMaxs;
   };
 
-
 };  // namespace l1tp2
 
 #endif
