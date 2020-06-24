@@ -75,6 +75,7 @@ static constexpr int n_links_card = 4;
 static constexpr int n_links_GCTcard = 48;
 static constexpr float ECAL_eta_range = 1.4841;
 static constexpr float half_crystal_size = 0.00873;
+static constexpr float slideIsoPtThreshold = 80;
 static constexpr float a0_80 = 0.85, a1_80 = 0.0080, a0 = 0.21;                        // passes_iso
 static constexpr float b0 = 0.38, b1 = 1.9, b2 = 0.05;                                 //passes_looseTkiso
 static constexpr float c0_ss = 0.94, c1_ss = 0.052, c2_ss = 0.044;                     //passes_ss
@@ -1131,7 +1132,9 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
         l1CaloTower.setTowerEta(getTowerEta_fromAbsoluteID(iEta_tower_L2Card[ii][jj][ll]));
         l1CaloTower.setTowerPhi(getTowerPhi_fromAbsoluteID(iPhi_tower_L2Card[ii][jj][ll]));
         // Some towers have incorrect eta/phi because that wasn't initialized in certain cases, fix these
-        if (l1CaloTower.towerEta() < -80. && l1CaloTower.towerPhi() < -90.) {
+        static float constexpr towerEtaUpperUnitialized = -80;
+        static float constexpr towerPhiUpperUnitialized = -90;
+        if (l1CaloTower.towerEta() < towerEtaUpperUnitialized && l1CaloTower.towerPhi() < towerPhiUpperUnitialized) {
           l1CaloTower.setTowerEta(l1t::CaloTools::towerEta(l1CaloTower.towerIEta()));
           l1CaloTower.setTowerPhi(l1t::CaloTools::towerPhi(l1CaloTower.towerIEta(), l1CaloTower.towerIPhi()));
         }
@@ -1168,7 +1171,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
 }
 
 bool L1EGCrystalClusterEmulatorProducer::passes_iso(float pt, float iso) {
-  if (pt < 80) {
+  if (pt < slideIsoPtThreshold) {
     if (!((a0_80 - a1_80 * pt) > iso))
       return false;
   } else {
