@@ -26,7 +26,7 @@ public:
   using HLTTauDQMPlotter::isValid;
 
   void setPathObjects(const std::vector<const HLTTauDQMPath*>& pathObjects) { pathObjects_ = pathObjects; }
-  void bookHistograms(HistoWrapper &iWrapper, DQMStore::IBooker &iBooker);
+  void bookHistograms(HistoWrapper& iWrapper, DQMStore::IBooker& iBooker);
 
   void analyze(const edm::TriggerResults& triggerResults,
                const trigger::TriggerEvent& triggerEvent,

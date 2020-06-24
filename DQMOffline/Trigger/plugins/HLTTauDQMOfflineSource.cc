@@ -165,16 +165,16 @@ void HLTTauDQMOfflineSource::bookHistograms(DQMStore::IBooker& iBooker,
                                             const edm::Run& iRun,
                                             const EventSetup& iSetup) {
   if (l1Plotter_) {
-    l1Plotter_->bookHistograms(*iWrapper,iBooker);
+    l1Plotter_->bookHistograms(*iWrapper, iBooker);
   }
   for (auto& pathPlotter : pathPlotters_) {
-    pathPlotter.bookHistograms(*iWrapper,iBooker);
+    pathPlotter.bookHistograms(*iWrapper, iBooker);
   }
   for (auto& tpPlotter : tagandprobePlotters_) {
-    tpPlotter->bookHistograms(*iWrapper,iBooker, iRun, iSetup);
+    tpPlotter->bookHistograms(*iWrapper, iBooker, iRun, iSetup);
   }
   if (pathSummaryPlotter_) {
-    pathSummaryPlotter_->bookHistograms(*iWrapper,iBooker);
+    pathSummaryPlotter_->bookHistograms(*iWrapper, iBooker);
   }
 }
 
