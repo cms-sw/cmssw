@@ -1085,8 +1085,6 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
           cluster.setExperimentalParams(params);
           L1EGXtalClusters->push_back(cluster);
 
-          // BXVector l1t::EGamma quality defined with respect to these WPs
-          // FIXME, need to defaul some of these to 0 I think...
           int standaloneWP = (int)(is_iso && is_ss);
           int looseL1TkMatchWP = (int)(is_looseTkiso && is_looseTkss);
           int photonWP = (int)(is_photon);
@@ -1119,7 +1117,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
 
         // Add L1EGs if they match in iEta / iPhi
         // L1EGs are already pT ordered, we will take the ID info for the leading one, but pT as the sum
-        for (auto l1eg : *L1EGXtalClusters) {
+        for (const auto l1eg : *L1EGXtalClusters) {
           if (l1eg.experimentalParam("TTiEta") != l1CaloTower.towerIEta())
             continue;
           if (l1eg.experimentalParam("TTiPhi") != l1CaloTower.towerIPhi())
