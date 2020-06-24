@@ -270,34 +270,50 @@ private:
   };
 
   class SimpleCaloHit {
-  public:
-    EBDetId id;
-    HcalDetId id_hcal;
-    GlobalVector position;  // As opposed to GlobalPoint, so we can add them (for weighted average)
-    float energy = 0.;
-    bool used = false;
-    bool stale = false;        // Hits become stale once used in clustering algorithm to prevent overlap in clusters
-    bool isEndcapHit = false;  // If using endcap, we won't be using integer crystal indices
+  private:
+    float pt_ = 0;
+    float energy_ = 0.;
+    bool isEndcapHit_ = false;  // If using endcap, we won't be using integer crystal indices
+    bool stale_ = false;        // Hits become stale once used in clustering algorithm to prevent overlap in clusters
+    bool used_ = false;
+    GlobalVector position_;  // As opposed to GlobalPoint, so we can add them (for weighted average)
+    HcalDetId id_hcal_;
+    EBDetId id_;
 
+  public:
     // tool functions
-    inline float pt() const { return (position.mag2() > 0) ? energy * sin(position.theta()) : 0.; };
-    inline float deta(SimpleCaloHit& other) const { return position.eta() - other.position.eta(); };
+    inline void setPt() { pt_ = (position_.mag2() > 0) ? energy_ * sin(position_.theta()) : 0; };
+    inline void setEnergy(float et) { energy_ = et / sin(position_.theta()); };
+    inline void setIsEndcapHit(bool isEC) { isEndcapHit_ = isEC; };
+    inline void setUsed(bool isUsed) { used_ = isUsed; };
+    inline void setPosition(const GlobalVector& pos) { position_ = pos; };
+    inline void setIdHcal(const HcalDetId& idhcal) { id_hcal_ = idhcal; };
+    inline void setId(const EBDetId& id) { id_ = id; };
+
+    inline float pt() const { return pt_; };
+    inline float energy() const { return energy_; };
+    inline bool isEndcapHit() const { return isEndcapHit_; };
+    inline bool used() const { return used_; };
+    inline const GlobalVector& position() const { return position_; };
+    inline const EBDetId& id() const { return id_; };
+
+    inline float deta(SimpleCaloHit& other) const { return position_.eta() - other.position().eta(); };
     int dieta(SimpleCaloHit& other) const {
-      if (isEndcapHit || other.isEndcapHit)
+      if (isEndcapHit_ || other.isEndcapHit())
         return 9999;  // We shouldn't compare integer indices in endcap, the map is not linear
-      if (id.ieta() * other.id.ieta() > 0)
-        return id.ieta() - other.id.ieta();
-      return id.ieta() - other.id.ieta() - 1;
+      if (id_.ieta() * other.id().ieta() > 0)
+        return id_.ieta() - other.id().ieta();
+      return id_.ieta() - other.id().ieta() - 1;
     };
     inline float dphi(SimpleCaloHit& other) const {
-      return reco::deltaPhi(static_cast<float>(position.phi()), static_cast<float>(other.position.phi()));
+      return reco::deltaPhi(static_cast<float>(position_.phi()), static_cast<float>(other.position().phi()));
     };
     int diphi(SimpleCaloHit& other) const {
-      if (isEndcapHit || other.isEndcapHit)
+      if (isEndcapHit_ || other.isEndcapHit())
         return 9999;  // We shouldn't compare integer indices in endcap, the map is not linear
       // Logic from EBDetId::distancePhi() without the abs()
       static constexpr int PI = 180;
-      int result = id.iphi() - other.id.iphi();
+      int result = id().iphi() - other.id().iphi();
       while (result > PI)
         result -= 2 * PI;
       while (result <= -PI)
@@ -307,11 +323,11 @@ private:
     float distanceTo(SimpleCaloHit& other) const {
       // Treat position as a point, measure 3D distance
       // This is used for endcap hits, where we don't have a rectangular mapping
-      return (position - other.position).mag();
+      return (position() - other.position()).mag();
     };
     bool operator==(SimpleCaloHit& other) const {
-      return (id == other.id && position == other.position && energy == other.energy &&
-              isEndcapHit == other.isEndcapHit);
+      return (id_ == other.id() && position() == other.position() && energy_ == other.energy() &&
+              isEndcapHit_ == other.isEndcapHit());
     };
   };
 };
@@ -361,9 +377,10 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
       auto cell = ebGeometry->getGeometry(hit.id());
 
       SimpleCaloHit ehit;
-      ehit.id = hit.id();
-      ehit.position = GlobalVector(cell->getPosition().x(), cell->getPosition().y(), cell->getPosition().z());
-      ehit.energy = et / sin(ehit.position.theta());
+      ehit.setId(hit.id());
+      ehit.setPosition(GlobalVector(cell->getPosition().x(), cell->getPosition().y(), cell->getPosition().z()));
+      ehit.setEnergy(et);
+      ehit.setPt();
       ecalhits.push_back(ehit);
     }
   }
@@ -403,10 +420,11 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
       break;
     }
     SimpleCaloHit hhit;
-    hhit.id = hit.id();
-    hhit.id_hcal = hit.id();
-    hhit.position = hcal_tp_position;
-    hhit.energy = et / sin(hhit.position.theta());
+    hhit.setId(hit.id());
+    hhit.setIdHcal(hit.id());
+    hhit.setPosition(hcal_tp_position);
+    hhit.setEnergy(et);
+    hhit.setPt();
     hcalhits.push_back(hhit);
   }
 
@@ -468,14 +486,14 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
         SimpleCaloHit centerhit;
 
         for (const auto& hit : ecalhits) {
-          if (getCrystal_phiID(hit.position.phi()) <= getPhiMax_card(cc) &&
-              getCrystal_phiID(hit.position.phi()) >= getPhiMin_card(cc) &&
-              getCrystal_etaID(hit.position.eta()) <= getEtaMax_card(cc) &&
-              getCrystal_etaID(hit.position.eta()) >= getEtaMin_card(cc) &&
+          if (getCrystal_phiID(hit.position().phi()) <= getPhiMax_card(cc) &&
+              getCrystal_phiID(hit.position().phi()) >= getPhiMin_card(cc) &&
+              getCrystal_etaID(hit.position().eta()) <= getEtaMax_card(cc) &&
+              getCrystal_etaID(hit.position().eta()) >= getEtaMin_card(cc) &&
               // Check that the hit is in the good card
-              getCrystal_etaID(hit.position.eta()) < getEtaMin_card(cc) + n_crystals_3towers * (nregion + 1) &&
-              getCrystal_etaID(hit.position.eta()) >= getEtaMin_card(cc) + n_crystals_3towers * nregion && !hit.used &&
-              hit.pt() >= 1.0 && hit.pt() > centerhit.pt())  // 3 towers x 5 crystals
+              getCrystal_etaID(hit.position().eta()) < getEtaMin_card(cc) + n_crystals_3towers * (nregion + 1) &&
+              getCrystal_etaID(hit.position().eta()) >= getEtaMin_card(cc) + n_crystals_3towers * nregion &&
+              !hit.used() && hit.pt() >= 1.0 && hit.pt() > centerhit.pt())  // 3 towers x 5 crystals
           {
             // Highest hit in good region with pt>1 and not used in any other cluster
             centerhit = hit;
@@ -508,12 +526,12 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
           float e2x2_4 = 0;
           float n2x2_4 = 0;
           for (auto& hit : ecalhits) {
-            if (getCrystal_phiID(hit.position.phi()) <= getPhiMax_card(cc) &&
-                getCrystal_phiID(hit.position.phi()) >= getPhiMin_card(cc) &&
-                getCrystal_etaID(hit.position.eta()) <= getEtaMax_card(cc) &&
-                getCrystal_etaID(hit.position.eta()) >= getEtaMin_card(cc) && hit.pt() > 0 &&
-                getCrystal_etaID(hit.position.eta()) < getEtaMin_card(cc) + n_crystals_3towers * (nregion + 1) &&
-                getCrystal_etaID(hit.position.eta()) >= getEtaMin_card(cc) + n_crystals_3towers * nregion) {
+            if (getCrystal_phiID(hit.position().phi()) <= getPhiMax_card(cc) &&
+                getCrystal_phiID(hit.position().phi()) >= getPhiMin_card(cc) &&
+                getCrystal_etaID(hit.position().eta()) <= getEtaMax_card(cc) &&
+                getCrystal_etaID(hit.position().eta()) >= getEtaMin_card(cc) && hit.pt() > 0 &&
+                getCrystal_etaID(hit.position().eta()) < getEtaMin_card(cc) + n_crystals_3towers * (nregion + 1) &&
+                getCrystal_etaID(hit.position().eta()) >= getEtaMin_card(cc) + n_crystals_3towers * nregion) {
               if (abs(hit.dieta(centerhit)) <= 1 && hit.diphi(centerhit) > 2 && hit.diphi(centerhit) <= 7) {
                 rightlobe += hit.pt();
               }
@@ -521,71 +539,71 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
                 leftlobe += hit.pt();
               }
               if (abs(hit.dieta(centerhit)) <= 2 && abs(hit.diphi(centerhit)) <= 2) {
-                e5x5 += hit.energy;
+                e5x5 += hit.energy();
                 n5x5++;
               }
               if ((hit.dieta(centerhit) == 1 or hit.dieta(centerhit) == 0) &&
                   (hit.diphi(centerhit) == 1 or hit.diphi(centerhit) == 0)) {
-                e2x2_1 += hit.energy;
+                e2x2_1 += hit.energy();
                 n2x2_1++;
               }
               if ((hit.dieta(centerhit) == 0 or hit.dieta(centerhit) == -1) &&
                   (hit.diphi(centerhit) == 0 or hit.diphi(centerhit) == 1)) {
-                e2x2_2 += hit.energy;
+                e2x2_2 += hit.energy();
                 n2x2_2++;
               }
               if ((hit.dieta(centerhit) == 0 or hit.dieta(centerhit) == 1) &&
                   (hit.diphi(centerhit) == 0 or hit.diphi(centerhit) == -1)) {
-                e2x2_3 += hit.energy;
+                e2x2_3 += hit.energy();
                 n2x2_3++;
               }
               if ((hit.dieta(centerhit) == 0 or hit.dieta(centerhit) == -1) &&
                   (hit.diphi(centerhit) == 0 or hit.diphi(centerhit) == -1)) {
-                e2x2_4 += hit.energy;
+                e2x2_4 += hit.energy();
                 n2x2_4++;
               }
               if ((hit.dieta(centerhit) == 0 or hit.dieta(centerhit) == 1) && abs(hit.diphi(centerhit)) <= 2) {
-                e2x5_1 += hit.energy;
+                e2x5_1 += hit.energy();
                 n2x5_1++;
               }
               if ((hit.dieta(centerhit) == 0 or hit.dieta(centerhit) == -1) && abs(hit.diphi(centerhit)) <= 2) {
-                e2x5_2 += hit.energy;
+                e2x5_2 += hit.energy();
                 n2x5_2++;
               }
             }
-            if (getCrystal_phiID(hit.position.phi()) <= getPhiMax_card(cc) &&
-                getCrystal_phiID(hit.position.phi()) >= getPhiMin_card(cc) &&
-                getCrystal_etaID(hit.position.eta()) <= getEtaMax_card(cc) &&
-                getCrystal_etaID(hit.position.eta()) >= getEtaMin_card(cc) && !hit.used && hit.pt() > 0 &&
+            if (getCrystal_phiID(hit.position().phi()) <= getPhiMax_card(cc) &&
+                getCrystal_phiID(hit.position().phi()) >= getPhiMin_card(cc) &&
+                getCrystal_etaID(hit.position().eta()) <= getEtaMax_card(cc) &&
+                getCrystal_etaID(hit.position().eta()) >= getEtaMin_card(cc) && !hit.used() && hit.pt() > 0 &&
                 abs(hit.dieta(centerhit)) <= 1 && abs(hit.diphi(centerhit)) <= 2 &&
-                getCrystal_etaID(hit.position.eta()) < getEtaMin_card(cc) + n_crystals_3towers * (nregion + 1) &&
-                getCrystal_etaID(hit.position.eta()) >= getEtaMin_card(cc) + n_crystals_3towers * nregion) {
+                getCrystal_etaID(hit.position().eta()) < getEtaMin_card(cc) + n_crystals_3towers * (nregion + 1) &&
+                getCrystal_etaID(hit.position().eta()) >= getEtaMin_card(cc) + n_crystals_3towers * nregion) {
               // clusters 3x5 in etaxphi using only the hits in the corresponding card and in the corresponding 3x4 region
-              hit.used = true;
+              hit.setUsed(true);
               mc1.cpt += hit.pt();
-              mc1.cWeightedEta_ += float(hit.pt()) * float(hit.position.eta());
-              mc1.cWeightedPhi_ = mc1.cWeightedPhi_ + (float(hit.pt()) * float(hit.position.phi()));
+              mc1.cWeightedEta_ += float(hit.pt()) * float(hit.position().eta());
+              mc1.cWeightedPhi_ = mc1.cWeightedPhi_ + (float(hit.pt()) * float(hit.position().phi()));
             }
           }
           if (do_brem && (rightlobe > 0.10 * mc1.cpt or leftlobe > 0.10 * mc1.cpt)) {
             for (auto& hit : ecalhits) {
-              if (getCrystal_phiID(hit.position.phi()) <= getPhiMax_card(cc) &&
-                  getCrystal_phiID(hit.position.phi()) >= getPhiMin_card(cc) &&
-                  getCrystal_etaID(hit.position.eta()) <= getEtaMax_card(cc) &&
-                  getCrystal_etaID(hit.position.eta()) >= getEtaMin_card(cc) && hit.pt() > 0 &&
-                  getCrystal_etaID(hit.position.eta()) < getEtaMin_card(cc) + n_crystals_3towers * (nregion + 1) &&
-                  getCrystal_etaID(hit.position.eta()) >= getEtaMin_card(cc) + n_crystals_3towers * nregion &&
-                  !hit.used) {
+              if (getCrystal_phiID(hit.position().phi()) <= getPhiMax_card(cc) &&
+                  getCrystal_phiID(hit.position().phi()) >= getPhiMin_card(cc) &&
+                  getCrystal_etaID(hit.position().eta()) <= getEtaMax_card(cc) &&
+                  getCrystal_etaID(hit.position().eta()) >= getEtaMin_card(cc) && hit.pt() > 0 &&
+                  getCrystal_etaID(hit.position().eta()) < getEtaMin_card(cc) + n_crystals_3towers * (nregion + 1) &&
+                  getCrystal_etaID(hit.position().eta()) >= getEtaMin_card(cc) + n_crystals_3towers * nregion &&
+                  !hit.used()) {
                 if (rightlobe > 0.10 * mc1.cpt && (leftlobe < 0.10 * mc1.cpt or rightlobe > leftlobe) &&
                     abs(hit.dieta(centerhit)) <= 1 && hit.diphi(centerhit) > 2 && hit.diphi(centerhit) <= 7) {
                   mc1.cpt += hit.pt();
-                  hit.used = true;
+                  hit.setUsed(true);
                   mc1.cbrem_ = 1;
                 }
                 if (leftlobe > 0.10 * mc1.cpt && (rightlobe < 0.10 * mc1.cpt or leftlobe >= rightlobe) &&
                     abs(hit.dieta(centerhit)) <= 1 && hit.diphi(centerhit) < -2 && hit.diphi(centerhit) >= -7) {
                   mc1.cpt += hit.pt();
-                  hit.used = true;
+                  hit.setUsed(true);
                   mc1.cbrem_ = 1;
                 }
               }
@@ -602,10 +620,10 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
             mc1.c2x2_ = e2x2_4;
           mc1.cWeightedEta_ = mc1.cWeightedEta_ / mc1.cpt;
           mc1.cWeightedPhi_ = mc1.cWeightedPhi_ / mc1.cpt;
-          mc1.ceta_ = getCrystal_etaID(centerhit.position.eta());
-          mc1.cphi_ = getCrystal_phiID(centerhit.position.phi());
-          mc1.crawphi_ = centerhit.position.phi();
-          mc1.craweta_ = centerhit.position.eta();
+          mc1.ceta_ = getCrystal_etaID(centerhit.position().eta());
+          mc1.cphi_ = getCrystal_phiID(centerhit.position().phi());
+          mc1.crawphi_ = centerhit.position().phi();
+          mc1.craweta_ = centerhit.position().eta();
           cluster_list[cc].push_back(mc1);
         }  // End if 5 clusters per region
       }    // End while to find the 5 clusters
@@ -675,19 +693,19 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
 
     // Loop over calo ecal hits to get the ECAL towers. Take only hits that have not been used to make clusters
     for (const auto& hit : ecalhits) {
-      if (getCrystal_phiID(hit.position.phi()) <= getPhiMax_card(cc) &&
-          getCrystal_phiID(hit.position.phi()) >= getPhiMin_card(cc) &&
-          getCrystal_etaID(hit.position.eta()) <= getEtaMax_card(cc) &&
-          getCrystal_etaID(hit.position.eta()) >= getEtaMin_card(cc) &&
-          !hit.used) {                               // Take all the hits inside the card that have not been used yet
+      if (getCrystal_phiID(hit.position().phi()) <= getPhiMax_card(cc) &&
+          getCrystal_phiID(hit.position().phi()) >= getPhiMin_card(cc) &&
+          getCrystal_etaID(hit.position().eta()) <= getEtaMax_card(cc) &&
+          getCrystal_etaID(hit.position().eta()) >= getEtaMin_card(cc) &&
+          !hit.used()) {                             // Take all the hits inside the card that have not been used yet
         for (int jj = 0; jj < n_links_card; ++jj) {  // loop over 4 links per card
-          if ((getCrystal_phiID(hit.position.phi()) / n_crystals_towerPhi) % 4 == jj) {  // Go to ID tower modulo 4
+          if ((getCrystal_phiID(hit.position().phi()) / n_crystals_towerPhi) % 4 == jj) {  // Go to ID tower modulo 4
             for (int ii = 0; ii < n_towers_cardEta; ++ii) {
               //Apply Mark's calibration at the same time (row of the lowest pT, as a function of eta)
-              if ((getCrystal_etaID(hit.position.eta()) / n_crystals_towerEta) % n_towers_cardEta == ii) {
-                ECAL_tower_L1Card[jj][ii][cc] += hit.pt() * calib_(0, std::abs(hit.position.eta()));
-                iEta_tower_L1Card[jj][ii][cc] = getTower_absoluteEtaID(hit.position.eta());  //hit.id.ieta();
-                iPhi_tower_L1Card[jj][ii][cc] = getTower_absolutePhiID(hit.position.phi());  //hit.id.iphi();
+              if ((getCrystal_etaID(hit.position().eta()) / n_crystals_towerEta) % n_towers_cardEta == ii) {
+                ECAL_tower_L1Card[jj][ii][cc] += hit.pt() * calib_(0, std::abs(hit.position().eta()));
+                iEta_tower_L1Card[jj][ii][cc] = getTower_absoluteEtaID(hit.position().eta());  //hit.id().ieta();
+                iPhi_tower_L1Card[jj][ii][cc] = getTower_absolutePhiID(hit.position().phi());  //hit.id().iphi();
               }
             }  // end of loop over eta towers
           }
@@ -709,17 +727,17 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
 
     // Loop over hcal hits to get the HCAL towers.
     for (const auto& hit : hcalhits) {
-      if (getCrystal_phiID(hit.position.phi()) <= getPhiMax_card(cc) &&
-          getCrystal_phiID(hit.position.phi()) >= getPhiMin_card(cc) &&
-          getCrystal_etaID(hit.position.eta()) <= getEtaMax_card(cc) &&
-          getCrystal_etaID(hit.position.eta()) >= getEtaMin_card(cc) && hit.pt() > 0) {
+      if (getCrystal_phiID(hit.position().phi()) <= getPhiMax_card(cc) &&
+          getCrystal_phiID(hit.position().phi()) >= getPhiMin_card(cc) &&
+          getCrystal_etaID(hit.position().eta()) <= getEtaMax_card(cc) &&
+          getCrystal_etaID(hit.position().eta()) >= getEtaMin_card(cc) && hit.pt() > 0) {
         for (int jj = 0; jj < n_links_card; ++jj) {
-          if ((getCrystal_phiID(hit.position.phi()) / n_crystals_towerPhi) % n_links_card == jj) {
+          if ((getCrystal_phiID(hit.position().phi()) / n_crystals_towerPhi) % n_links_card == jj) {
             for (int ii = 0; ii < n_towers_cardEta; ++ii) {
-              if ((getCrystal_etaID(hit.position.eta()) / n_crystals_towerEta) % n_towers_cardEta == ii) {
+              if ((getCrystal_etaID(hit.position().eta()) / n_crystals_towerEta) % n_towers_cardEta == ii) {
                 HCAL_tower_L1Card[jj][ii][cc] += hit.pt();
-                iEta_tower_L1Card[jj][ii][cc] = getTower_absoluteEtaID(hit.position.eta());  //hit.id.ieta();
-                iPhi_tower_L1Card[jj][ii][cc] = getTower_absolutePhiID(hit.position.phi());  //hit.id.iphi();
+                iEta_tower_L1Card[jj][ii][cc] = getTower_absoluteEtaID(hit.position().eta());  //hit.id().ieta();
+                iPhi_tower_L1Card[jj][ii][cc] = getTower_absolutePhiID(hit.position().phi());  //hit.id().iphi();
               }
             }  // end of loop over eta towers
           }
@@ -1065,7 +1083,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
                                             energy_cluster_L2Card[ii][jj][ll],
                                             HE_cluster_L2Card[ii][jj][ll],
                                             isolation_cluster_L2Card[ii][jj][ll],
-                                            centerhit.id,
+                                            centerhit.id(),
                                             -1000,
                                             float(brem_cluster_L2Card[ii][jj][ll]),
                                             -1000,
