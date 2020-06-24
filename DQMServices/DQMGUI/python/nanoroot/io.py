@@ -74,7 +74,7 @@ class XRDFile:
         await self.__async_call(self.file.open, url, timeout=self.timeout)
         stat = await self.__async_call(self.file.stat)
         self.size = stat['size']
-        self.cache = []
+        self.cache = b''
         self.cachestart = 0
         return self
 
