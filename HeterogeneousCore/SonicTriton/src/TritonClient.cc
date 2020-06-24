@@ -56,11 +56,13 @@ TritonClient<Client>::TritonClient(const edm::ParameterSet& params)
 
   //connect to the server
   wrap(nic::InferGrpcContext::Create(&context_, url_, modelName_, modelVersion_, false),
-       "setup(): unable to create inference context",
+       "TritonClient(): unable to create inference context",
        true);
 
   //get options
-  wrap(nic::InferContext::Options::Create(&options_), "setup(): unable to create inference context options", true);
+  wrap(nic::InferContext::Options::Create(&options_),
+       "TritonClient(): unable to create inference context options",
+       true);
 
   //get input and output (which know their sizes)
   const auto& nicInputs = context_->Inputs();
@@ -123,7 +125,7 @@ TritonClient<Client>::TritonClient(const edm::ParameterSet& params)
                                     << "Model output: " << output_str;
 
     has_server = wrap(nic::ServerStatusGrpcContext::Create(&serverCtx_, url_, false),
-                      "setup(): unable to create server context");
+                      "TritonClient(): unable to create server context");
   }
   if (!has_server)
     serverCtx_ = nullptr;

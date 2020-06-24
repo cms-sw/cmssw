@@ -64,7 +64,7 @@ private:
       }
       //get top n
       std::stringstream msg;
-      msg << "Scores for jet " << i0 << ":\n";
+      msg << "Scores for image " << i0 << ":\n";
       unsigned counter = 0;
       for (const auto& item : score_map) {
         msg << item.second << " : " << item.first << "\n";
