@@ -98,7 +98,6 @@ class ProtobufParser:
 
         histos = []
 
-        # with open(filename, 'rb') as file:
         buffer = await cls.ioservice.open_url(filename, blockcache=False)
         while True:
             field_number, wire_type = await cls.read_field_number_and_wire_type(buffer)

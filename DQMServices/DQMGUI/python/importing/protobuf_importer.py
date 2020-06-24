@@ -1,5 +1,5 @@
 import asyncio
-from ..data_types import MEInfo
+from ..data_types import MEInfo, QTest
 from ..reading.reading import DQMCLASSICReader, ProtobufReader
 from ..protobuf.protobuf_parser import ProtobufParser
 
@@ -35,22 +35,26 @@ class ProtobufImporter:
 
         for histo_message in histo_messages:
             me_type = cls.get_me_type(histo_message.flags)
+            me_path = histo_message.full_pathname
 
-            if me_type in (b'Int', b'Float'):
+            if me_type in (b'Int', b'Float', b'String'):
                 string_value = ProtobufReader.get_tobjstring_content(histo_message.full_pathname, histo_message.streamed_histo)
                 parsed = DQMCLASSICReader.parse_string_entry(string_value)
-                value = parsed.value.decode('ascii')
 
                 if me_type == b'Int':
-                    value = int(value)
+                    me_info = MEInfo(me_type, value=int(parsed.value.decode('ascii')))
                 elif me_type == b'Float':
-                    value = float(value)
-
-                me_info = MEInfo(me_type, value=value)
+                    me_info = MEInfo(me_type, value=float(parsed.value.decode('ascii')))
+                elif me_type == b'String':
+                    if isinstance(parsed, QTest):
+                        me_path = b'\0.'.join(histo_message.full_pathname.rsplit(b'.', 1))
+                        me_info = MEInfo(b'QTest', histo_message.offset, qteststatus=int(parsed.status.decode("ascii")))
+                    else:
+                        me_info = MEInfo(me_type, 0, histo_message.offset, histo_message.message_size, None, 0)
             else:
                 me_info = MEInfo(me_type, 0, histo_message.offset, histo_message.message_size, None, 0)
 
-            me_paths.append(histo_message.full_pathname)
+            me_paths.append(me_path)
             me_infos.append(me_info)
 
         result = list(zip(me_paths, me_infos))
