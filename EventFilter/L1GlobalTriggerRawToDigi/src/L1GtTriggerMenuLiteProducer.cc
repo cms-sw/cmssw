@@ -53,7 +53,7 @@ L1GtTriggerMenuLiteProducer::L1GtTriggerMenuLiteProducer(const edm::ParameterSet
       m_l1GtPfTechToken(esConsumes<L1GtPrescaleFactors, L1GtPrescaleFactorsTechTrigRcd, edm::Transition::BeginRun>()),
       m_l1GtTmAlgoToken(esConsumes<L1GtTriggerMask, L1GtTriggerMaskAlgoTrigRcd, edm::Transition::BeginRun>()),
       m_l1GtTmTechToken(esConsumes<L1GtTriggerMask, L1GtTriggerMaskTechTrigRcd, edm::Transition::BeginRun>()),
-      m_l1GtMenuToken(esConsumes<L1GtTriggerMenu, L1GtTriggerMaskTechTrigRcd, edm::Transition::BeginRun>()),
+      m_l1GtMenuToken(esConsumes<L1GtTriggerMenu, L1GtTriggerMenuRcd, edm::Transition::BeginRun>()),
       m_physicsDaqPartition(0) {
   // EDM product in Run Data
   produces<L1GtTriggerMenuLite, edm::Transition::BeginRun>();
