@@ -27,9 +27,9 @@ int etaBin(const l1t::HGCalMulticluster *cl) {
 }
 
 int get_phi_bin(const l1t::HGCalMulticluster *cl) {
-  float phi_min = -M_PI;
-  float phi_max = M_PI;
-  unsigned n_phi_bins = 63;
+  static constexpr float phi_min = -M_PI;
+  static constexpr float phi_max = M_PI;
+  static constexpr unsigned n_phi_bins = 63;
   return floor(std::abs(reco::deltaPhi(cl->phi(), phi_min)) / ((phi_max - phi_min) / n_phi_bins));
 }
 
