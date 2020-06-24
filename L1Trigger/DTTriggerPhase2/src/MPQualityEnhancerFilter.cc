@@ -44,7 +44,6 @@ void MPQualityEnhancerFilter::run(edm::Event &iEvent,
     LogDebug("MPQualityEnhancerFilter") << "Total Primitives = " << buff2.size();
   }
   filterUnique(buff2, outMPaths);
-  // filterUnique(buff,outMPaths);
 
   if (debug_) {
     LogDebug("MPQualityEnhancerFilter") << "Ended Unique Filter. The final primitives are: ";

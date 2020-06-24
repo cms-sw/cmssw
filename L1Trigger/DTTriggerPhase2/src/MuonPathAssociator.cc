@@ -68,8 +68,7 @@ void MuonPathAssociator::run(edm::Event &iEvent,
   if (dT0_correlate_TP_)
     correlateMPaths(digis, inMPaths, outMPaths);
   else {
-    for (auto metaPrimitiveIt : inMPaths)
-      outMPaths.push_back(metaPrimitiveIt);
+    outMPaths.insert(outMPaths.end(), inMPaths.begin(), inMPaths.end());
   }
 }
 
@@ -101,16 +100,14 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 
         //filterSL1
         std::vector<metaPrimitive> SL1metaPrimitives;
-        //for (auto metaprimitiveIt = inMPaths.begin(); metaprimitiveIt != inMPaths.end(); ++metaprimitiveIt)
-        for (auto metaprimitiveIt : inMPaths) {
+        for (const auto &metaprimitiveIt : inMPaths) {
           if (metaprimitiveIt.rawId == sl1Id.rawId())
             SL1metaPrimitives.push_back(metaprimitiveIt);
         }
 
         //filterSL3
         std::vector<metaPrimitive> SL3metaPrimitives;
-        //        for (auto metaprimitiveIt = inMPaths.begin(); metaprimitiveIt != inMPaths.end(); ++metaprimitiveIt
-        for (auto metaprimitiveIt : inMPaths) {
+        for (const auto &metaprimitiveIt : inMPaths) {
           if (metaprimitiveIt.rawId == sl3Id.rawId())
             SL3metaPrimitives.push_back(metaprimitiveIt);
         }
@@ -178,9 +175,7 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
             DTWireId wireId1(SLId1, 2, 1);
             DTWireId wireId3(SLId3, 2, 1);
 
-            //double xH[8], xReco[8];
             int wi[8], tdc[8], lat[8];
-            //for (int i = 0; i<8; i++){ xH[i]=0; xReco[i]=0;}
             wi[0] = SL1metaPrimitive->wi1;
             tdc[0] = SL1metaPrimitive->tdc1;
             lat[0] = SL1metaPrimitive->lat1;
@@ -278,7 +273,40 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
             double phiB = hasPosRF(ChId.wheel(), ChId.sector()) ? psi - phi : -psi - phi;
 
             if (!clean_chi2_correlation_)
-              outMPaths.push_back(metaPrimitive({ChId.rawId(),
+              outMPaths.emplace_back(ChId.rawId(),
+                                     MeanT0,
+                                     MeanPos,
+                                     NewSlope,
+                                     phi,
+                                     phiB,
+                                     newChi2,
+                                     quality,
+                                     SL1metaPrimitive->wi1,
+                                     SL1metaPrimitive->tdc1,
+                                     SL1metaPrimitive->lat1,
+                                     SL1metaPrimitive->wi2,
+                                     SL1metaPrimitive->tdc2,
+                                     SL1metaPrimitive->lat2,
+                                     SL1metaPrimitive->wi3,
+                                     SL1metaPrimitive->tdc3,
+                                     SL1metaPrimitive->lat3,
+                                     SL1metaPrimitive->wi4,
+                                     SL1metaPrimitive->tdc4,
+                                     SL1metaPrimitive->lat4,
+                                     SL3metaPrimitive->wi1,
+                                     SL3metaPrimitive->tdc1,
+                                     SL3metaPrimitive->lat1,
+                                     SL3metaPrimitive->wi2,
+                                     SL3metaPrimitive->tdc2,
+                                     SL3metaPrimitive->lat2,
+                                     SL3metaPrimitive->wi3,
+                                     SL3metaPrimitive->tdc3,
+                                     SL3metaPrimitive->lat3,
+                                     SL3metaPrimitive->wi4,
+                                     SL3metaPrimitive->tdc4,
+                                     SL3metaPrimitive->lat4);
+            else
+              chamberMetaPrimitives.emplace_back(ChId.rawId(),
                                                  MeanT0,
                                                  MeanPos,
                                                  NewSlope,
@@ -309,42 +337,8 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
                                                  SL3metaPrimitive->lat3,
                                                  SL3metaPrimitive->wi4,
                                                  SL3metaPrimitive->tdc4,
-                                                 SL3metaPrimitive->lat4,
-                                                 -1}));
-            else
-              chamberMetaPrimitives.push_back(metaPrimitive({ChId.rawId(),
-                                                             MeanT0,
-                                                             MeanPos,
-                                                             NewSlope,
-                                                             phi,
-                                                             phiB,
-                                                             newChi2,
-                                                             quality,
-                                                             SL1metaPrimitive->wi1,
-                                                             SL1metaPrimitive->tdc1,
-                                                             SL1metaPrimitive->lat1,
-                                                             SL1metaPrimitive->wi2,
-                                                             SL1metaPrimitive->tdc2,
-                                                             SL1metaPrimitive->lat2,
-                                                             SL1metaPrimitive->wi3,
-                                                             SL1metaPrimitive->tdc3,
-                                                             SL1metaPrimitive->lat3,
-                                                             SL1metaPrimitive->wi4,
-                                                             SL1metaPrimitive->tdc4,
-                                                             SL1metaPrimitive->lat4,
-                                                             SL3metaPrimitive->wi1,
-                                                             SL3metaPrimitive->tdc1,
-                                                             SL3metaPrimitive->lat1,
-                                                             SL3metaPrimitive->wi2,
-                                                             SL3metaPrimitive->tdc2,
-                                                             SL3metaPrimitive->lat2,
-                                                             SL3metaPrimitive->wi3,
-                                                             SL3metaPrimitive->tdc3,
-                                                             SL3metaPrimitive->lat3,
-                                                             SL3metaPrimitive->wi4,
-                                                             SL3metaPrimitive->tdc4,
-                                                             SL3metaPrimitive->lat4,
-                                                             -1}));
+                                                 SL3metaPrimitive->lat4);
+
             at_least_one_correlation = true;
           }
 
@@ -365,18 +359,18 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 
             for (const auto &dtLayerId_It : *dtdigis) {
               const DTLayerId dtLId = dtLayerId_It.first;
-              const DTSuperLayerId& dtSLId(dtLId);
+              const DTSuperLayerId &dtSLId(dtLId);
               if (dtSLId.rawId() != sl3Id.rawId())
                 continue;
               double l_shift = 0;
               if (dtLId.layer() == 4)
-                l_shift = 1.95;
-              if (dtLId.layer() == 3)
-                l_shift = 0.65;
-              if (dtLId.layer() == 2)
-                l_shift = -0.65;
-              if (dtLId.layer() == 1)
-                l_shift = -1.95;
+                l_shift = X_POS_L4;
+              else if (dtLId.layer() == 3)
+                l_shift = X_POS_L3;
+              else if (dtLId.layer() == 2)
+                l_shift = -1 * X_POS_L3;
+              else if (dtLId.layer() == 1)
+                l_shift = -1 * X_POS_L4;
               double x_inSL3 = SL1metaPrimitive->x - SL1metaPrimitive->tanPhi * (23.5 + l_shift);
               for (auto digiIt = (dtLayerId_It.second).first; digiIt != (dtLayerId_It.second).second; ++digiIt) {
                 DTWireId wireId(dtLId, (*digiIt).wire());
@@ -569,7 +563,7 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 
             for (const auto &dtLayerId_It : *dtdigis) {
               const DTLayerId dtLId = dtLayerId_It.first;
-              const DTSuperLayerId& dtSLId(dtLId);
+              const DTSuperLayerId &dtSLId(dtLId);
               if (dtSLId.rawId() != sl1Id.rawId())
                 continue;
               double l_shift = 0;

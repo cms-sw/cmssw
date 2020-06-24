@@ -36,13 +36,85 @@
    HIGHLOWQ => 4h + 3h
    HIGHHIGHQ => 4h + 4h
 */
-enum MP_QUALITY { NOPATH = 0, LOWQGHOST, LOWQ, HIGHQGHOST, HIGHQ, CLOWQ, LOWLOWQ, CHIGHQ, HIGHLOWQ, HIGHHIGHQ };
-
-// Tipos de lateralidad de traza de partícula al pasar por una celda
-enum LATERAL_CASES { LEFT = 0, RIGHT, NONE };
-
 namespace cmsdt {
+
+  enum MP_QUALITY { NOPATH = 0, LOWQGHOST, LOWQ, HIGHQGHOST, HIGHQ, CLOWQ, LOWLOWQ, CHIGHQ, HIGHLOWQ, HIGHHIGHQ };
+
+  // Tipos de lateralidad de traza de partícula al pasar por una celda
+  enum LATERAL_CASES { LEFT = 0, RIGHT, NONE };
+
+  enum RPC_QUALITY { NORPC = 0, RPC_TIME, RPC_ONLY, RPC_HIT, RPC_CONFIRM, RPC_ASSOCIATE };
+
   struct metaPrimitive {
+    metaPrimitive(uint32_t id,
+                  double t,
+                  double pos,
+                  double tan,
+                  double ph,
+                  double phb,
+                  double chi,
+                  int q,
+                  int w1,
+                  int t1,
+                  int l1,
+                  int w2,
+                  int t2,
+                  int l2,
+                  int w3,
+                  int t3,
+                  int l3,
+                  int w4,
+                  int t4,
+                  int l4,
+                  int w5 = 0,
+                  int t5 = -1,
+                  int l5 = 0,
+                  int w6 = 0,
+                  int t6 = -1,
+                  int l6 = 0,
+                  int w7 = 0,
+                  int t7 = -1,
+                  int l7 = 0,
+                  int w8 = 0,
+                  int t8 = -1,
+                  int l8 = 0,
+                  int idx = 0,
+                  int rpc = 0)
+        : rawId(id),
+          t0(t),
+          x(pos),
+          tanPhi(tan),
+          phi(ph),
+          phiB(phb),
+          chi2(chi),
+          quality(q),
+          wi1(w1),
+          tdc1(t1),
+          lat1(l1),
+          wi2(w2),
+          tdc2(t2),
+          lat2(l2),
+          wi3(w3),
+          tdc3(t3),
+          lat3(l3),
+          wi4(w4),
+          tdc4(t4),
+          lat4(l4),
+          wi5(w5),
+          tdc5(t5),
+          lat5(l5),
+          wi6(w6),
+          tdc6(t6),
+          lat6(l6),
+          wi7(w7),
+          tdc7(t7),
+          lat7(l7),
+          wi8(w8),
+          tdc8(t8),
+          lat8(l8),
+          index(idx),
+          rpcFlag(rpc) {}
+
     uint32_t rawId;
     double t0;
     double x;
@@ -89,6 +161,10 @@ namespace cmsdt {
     MP_QUALITY quality;
   };
 
+  enum algo { Standard = 0, PseudoBayes = 1, HoughTrans = 2 };
+
+  enum scenario { MC = 0, DATA = 1, SLICE_TEST = 2 };
+
   /* En nanosegundos */
   constexpr int LHC_CLK_FREQ = 25;
 
@@ -126,7 +202,9 @@ namespace cmsdt {
   constexpr int NUM_CELL_COMB = 3;
   constexpr int TOTAL_CHANNELS = (NUM_LAYERS * NUM_CH_PER_LAYER);
   constexpr int NUM_SUPERLAYERS = 3;
-
+  constexpr float PHIRES_CONV = 65536. / 0.8;
+  constexpr float PHIBRES_CONV = 2048. / 1.4;
+  constexpr int CHI2RES_CONV = 1000000;
   /*
  * Size of pre-mixer buffers for DTPrimitives
  *
@@ -155,6 +233,14 @@ namespace cmsdt {
 
   constexpr int BX_SHIFT = 20;
   constexpr float Z_SHIFT_MB4 = -1.8;
+  constexpr float Z_POS_SL = 11.75;
+  constexpr double X_POS_L3 = 0.65;
+  constexpr double X_POS_L4 = 1.95;
+
+  constexpr int MEANTIME_2LAT = 16384;
+  constexpr int MEANTIME_3LAT = 10923;
+  constexpr int MEANTIME_4LAT = 8192;
+
 }  // namespace cmsdt
 
 #endif

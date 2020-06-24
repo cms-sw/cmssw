@@ -1,6 +1,9 @@
 #ifndef Phase2L1Trigger_DTTrigger_InitialGrouping_h
 #define Phase2L1Trigger_DTTrigger_InitialGrouping_h
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"

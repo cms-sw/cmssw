@@ -54,5 +54,9 @@ namespace dtbayesam {
     DTPattern* pattern_;
     int candId_;
   };
+
+  typedef std::shared_ptr<CandidateGroup> CandidateGroupPtr;
+  typedef std::vector<CandidateGroupPtr> CandidateGroupPtrs;
 };  // namespace dtbayesam
+
 #endif

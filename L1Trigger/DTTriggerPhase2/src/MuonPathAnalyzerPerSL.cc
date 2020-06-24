@@ -2,7 +2,6 @@
 #include <cmath>
 #include <memory>
 
-        
 using namespace edm;
 using namespace std;
 using namespace cmsdt;
@@ -286,11 +285,11 @@ void MuonPathAnalyzerPerSL::analyze(MuonPathPtr &inMPath, std::vector<metaPrimit
 
           //computing phi and phiB
           double z = 0;
-          double z1 = 11.75;
+          double z1 = Z_POS_SL;
           double z3 = -1. * z1;
           if (ChId.station() == 3 or ChId.station() == 4) {
-            z1 = 9.95;
-            z3 = -13.55;
+            z1 = z1 + Z_SHIFT_MB4;
+            z3 = z3 + Z_SHIFT_MB4;
           } else if (MuonPathSLId.superLayer() == 1)
             z = z1;
           else if (MuonPathSLId.superLayer() == 3)
@@ -302,7 +301,7 @@ void MuonPathAnalyzerPerSL::analyze(MuonPathPtr &inMPath, std::vector<metaPrimit
             thisec = 4;
           if (thisec == 14)
             thisec = 10;
-          double phi = jm_x_cmssw_global.phi() - 0.5235988 * (thisec - 1);
+          double phi = jm_x_cmssw_global.phi() - PHI_CONV * (thisec - 1);
           double psi = atan(jm_tanPhi);
           double phiB = hasPosRF(MuonPathSLId.wheel(), MuonPathSLId.sector()) ? psi - phi : -psi - phi;
           double chi2 = mpAux->chiSquare() * 0.01;  //in cmssw we need cm, 1 cm^2 = 100 mm^2
@@ -581,14 +580,15 @@ void MuonPathAnalyzerPerSL::evaluateLateralQuality(int latIdx, MuonPathPtr &mPat
       }
     }
 
+    // mean time of all lateralities.
     if (numValid == 1)
       latQuality->bxValue = sumBX;
     else if (numValid == 2)
-      latQuality->bxValue = (sumBX * (16384)) / std::pow(2, 15);
+      latQuality->bxValue = (sumBX * (MEANTIME_2LAT)) / std::pow(2, 15);
     else if (numValid == 3)
-      latQuality->bxValue = (sumBX * (10923)) / std::pow(2, 15);
+      latQuality->bxValue = (sumBX * (MEANTIME_3LAT)) / std::pow(2, 15);
     else if (numValid == 4)
-      latQuality->bxValue = (sumBX * (8192)) / std::pow(2, 15);
+      latQuality->bxValue = (sumBX * (MEANTIME_4LAT)) / std::pow(2, 15);
 
     latQuality->quality = HIGHQ;
 
