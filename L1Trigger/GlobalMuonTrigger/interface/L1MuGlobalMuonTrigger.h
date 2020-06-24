@@ -28,9 +28,23 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutRecord.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
+
+#include "CondFormats/L1TObjects/interface/L1MuGMTScales.h"
+#include "CondFormats/DataRecord/interface/L1MuGMTScalesRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuGMTParameters.h"
+#include "CondFormats/DataRecord/interface/L1MuGMTParametersRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuGMTChannelMask.h"
+#include "CondFormats/DataRecord/interface/L1MuGMTChannelMaskRcd.h"
+#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
+#include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 
 class L1MuGMTConfig;
 class L1MuGMTPSB;
@@ -110,6 +124,13 @@ private:
   unsigned long long m_L1MuGMTParametersCacheID;
   unsigned long long m_L1MuGMTChannelMaskCacheID;
   unsigned long long m_L1CaloGeometryCacheID;
+
+  edm::ESGetToken<L1MuGMTScales, L1MuGMTScalesRcd> m_gmtScalesToken;
+  edm::ESGetToken<L1MuTriggerScales, L1MuTriggerScalesRcd> m_trigScalesToken;
+  edm::ESGetToken<L1MuTriggerPtScale, L1MuTriggerPtScaleRcd> m_trigPtScaleToken;
+  edm::ESGetToken<L1MuGMTParameters, L1MuGMTParametersRcd> m_gmtParamsToken;
+  edm::ESGetToken<L1MuGMTChannelMask, L1MuGMTChannelMaskRcd> m_gmtChanMaskToken;
+  edm::ESGetToken<L1CaloGeometry, L1CaloGeometryRecord> m_caloGeomToken;
 };
 
 #endif  // L1TriggerGlobalMuonTrigger_L1MuGlobalMuonTrigger_h
