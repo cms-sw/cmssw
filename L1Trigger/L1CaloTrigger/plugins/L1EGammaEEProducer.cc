@@ -9,10 +9,12 @@
 #include "L1Trigger/L1CaloTrigger/interface/L1EGammaEECalibrator.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
+namespace l1tp2 {
 // we sort the clusters in pt
 bool compare_cluster_pt(const l1t::HGCalMulticluster *cl1, const l1t::HGCalMulticluster *cl2) {
   return cl1->pt() > cl2->pt();
 }
+};  // namespace l1tp2
 
 int etaBin(const l1t::HGCalMulticluster *cl) {
   static float constexpr eta_min = 1.;
@@ -104,7 +106,7 @@ void L1EGammaEEProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSet
     }
   }
 
-  std::sort(selected_multiclusters.begin(), selected_multiclusters.end(), compare_cluster_pt);
+  std::sort(selected_multiclusters.begin(), selected_multiclusters.end(), l1tp2::compare_cluster_pt);
   std::set<const l1t::HGCalMulticluster *> used_clusters;
   for (const auto cl3d : selected_multiclusters) {
     if (used_clusters.find(cl3d) == used_clusters.end()) {
