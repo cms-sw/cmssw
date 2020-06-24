@@ -13,7 +13,7 @@ namespace l1tp2 {
   public:
     ParametricCalibration() {}
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-    ParametricCalibration(const edm::ParameterSet &cpset) {
+    ParametricCalibration(const edm::ParameterSet& cpset) {
       std::vector<double> etaBins = cpset.getParameter<std::vector<double>>("etaBins");
       std::vector<double> ptBins = cpset.getParameter<std::vector<double>>("ptBins");
       std::vector<double> scale = cpset.getParameter<std::vector<double>>("scale");
@@ -22,25 +22,25 @@ namespace l1tp2 {
       scales.insert(scales.end(), scale.begin(), scale.end());
 
       std::vector<double> ptMin = cpset.getParameter<std::vector<double>>("ptMin");
-      if(ptMin.size() == etaBins.size()) {
+      if (ptMin.size() == etaBins.size()) {
         ptMins.insert(ptMins.end(), ptMin.begin(), ptMin.end());
-      } 
-      else if (ptMin.size() == 1) {
+      } else if (ptMin.size() == 1) {
         ptMins = std::vector<float>(etaBins.size(), ptMin[0]);
-      }
-      else {
-        throw cms::Exception("ParametricCalibration Configuration", "Ambiguous number of ptMin values in configuration");;
+      } else {
+        throw cms::Exception("ParametricCalibration Configuration",
+                             "Ambiguous number of ptMin values in configuration");
+        ;
       }
 
       std::vector<double> ptMax = cpset.getParameter<std::vector<double>>("ptMax");
-      if(ptMax.size() == etaBins.size()) {
+      if (ptMax.size() == etaBins.size()) {
         ptMaxs.insert(ptMaxs.end(), ptMax.begin(), ptMax.end());
-      } 
-      else if (ptMax.size() == 1) {
+      } else if (ptMax.size() == 1) {
         ptMaxs = std::vector<float>(etaBins.size(), ptMax[0]);
-      }
-      else {
-        throw cms::Exception("ParametricCalibration Configuration", "Ambiguous number of ptMax values in configuration");;
+      } else {
+        throw cms::Exception("ParametricCalibration Configuration",
+                             "Ambiguous number of ptMax values in configuration");
+        ;
       }
 
       if (pts.size() * etas.size() != scales.size())
@@ -73,16 +73,14 @@ namespace l1tp2 {
     std::vector<float> etas, pts, scales, ptMins, ptMaxs;
   };
 
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void ParametricCalibration::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-  desc.setComment( "");
-  desc.addUntracked<std::vector<double> >("ptMin", std::vector<double>{});
-  desc.addUntracked<std::vector<double> >("ptMax", std::vector<double>{});
-  descriptions.add("createIdealTkAlRecords", desc);
-}
-
-
+  // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+  void ParametricCalibration::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.setComment("");
+    desc.addUntracked<std::vector<double>>("ptMin", std::vector<double>{});
+    desc.addUntracked<std::vector<double>>("ptMax", std::vector<double>{});
+    descriptions.add("createIdealTkAlRecords", desc);
+  }
 
 };  // namespace l1tp2
 
