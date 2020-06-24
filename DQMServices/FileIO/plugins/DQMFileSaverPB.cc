@@ -237,7 +237,7 @@ void DQMFileSaverPB::savePB(DQMStore* store, std::string const& filename, int ru
     histo.set_streamed_histo((void const*)buffer.Buffer(), buffer.Length());
 
     // Save quality reports
-    for (QReport *qr : me->getQReports()) {
+    for (QReport* qr : me->getQReports()) {
       std::string result;
       // TODO: 64 is likely too short; memory corruption in the old code?
       char buf[64];
