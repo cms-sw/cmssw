@@ -117,7 +117,7 @@ private:
   const edm::ESGetToken<L1GtPrescaleFactors, L1GtPrescaleFactorsTechTrigRcd> m_l1GtPfTechToken;
   const edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskAlgoTrigRcd> m_l1GtTmAlgoToken;
   const edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskTechTrigRcd> m_l1GtTmTechToken;
-  const edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMaskTechTrigRcd> m_l1GtMenuToken;
+  const edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> m_l1GtMenuToken;
 
 private:
   /// index of physics DAQ partition
