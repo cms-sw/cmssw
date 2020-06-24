@@ -2,9 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("L1DTTrigPhase2Prod")
 
-#process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cff")
-process.load("Geometry.DTGeometry.dtGeometry_cfi")
-#process.DTGeometryESModule.applyAlignment = False
+process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D41_cff')
 
 process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
