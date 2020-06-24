@@ -275,7 +275,7 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
       std::vector<std::pair<DTLayerId, DTDigi>> tmpvec;
       tmpvec.clear();
 
-      for (const auto& dtLayerIdIt : *((*dmit).second)) {
+      for (auto dtLayerIdIt : (*dmit).second) {
         for (DTDigiCollection::const_iterator digiIt = (dtLayerIdIt.second).first;
              digiIt != (dtLayerIdIt.second).second;
              digiIt++) {
