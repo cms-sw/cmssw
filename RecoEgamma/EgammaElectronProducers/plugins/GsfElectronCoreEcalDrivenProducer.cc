@@ -18,10 +18,6 @@ public:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
-  void produceEcalDrivenCore(const reco::GsfTrackRef& gsfTrackRef,
-                             reco::GsfElectronCoreCollection& electrons,
-                             edm::Handle<reco::TrackCollection> const& ctfTracksHandle) const;
-
   const bool useGsfPfRecTracks_;
 
   const edm::EDGetTokenT<reco::GsfPFRecTrackCollection> gsfPfRecTracksToken_;
@@ -57,45 +53,44 @@ void GsfElectronCoreEcalDrivenProducer::produce(edm::StreamID, edm::Event& event
   auto gsfTracksHandle = event.getHandle(gsfTracksToken_);
   auto ctfTracksHandle = event.getHandle(ctfTracksToken_);
 
+  auto ctfTrackVariables = edm::soa::makeEtaPhiTableLazy(*ctfTracksHandle);
+
   // output
   reco::GsfElectronCoreCollection electrons;
+
+  auto produceEcalDrivenCore = [&](const reco::GsfTrackRef& gsfTrackRef) {
+    electrons.emplace_back(gsfTrackRef);
+    auto& eleCore = electrons.back();
+
+    if (!eleCore.ecalDrivenSeed()) {
+      electrons.pop_back();
+      return;
+    }
+
+    auto ctfpair = egamma::getClosestCtfToGsf(eleCore.gsfTrack(), ctfTracksHandle, ctfTrackVariables.value());
+    eleCore.setCtfTrack(ctfpair.first, ctfpair.second);
+
+    auto scRef = gsfTrackRef->extra()->seedRef().castTo<ElectronSeedRef>()->caloCluster().castTo<SuperClusterRef>();
+    if (!scRef.isNull()) {
+      eleCore.setSuperCluster(scRef);
+    } else {
+      electrons.pop_back();
+      edm::LogWarning("GsfElectronCoreEcalDrivenProducer") << "Seed CaloCluster is not a SuperCluster, unexpected...";
+    }
+  };
 
   // loop on ecal driven tracks
   if (useGsfPfRecTracks_) {
     for (auto const& gsfPfRecTrack : event.get(gsfPfRecTracksToken_)) {
-      produceEcalDrivenCore(gsfPfRecTrack.gsfTrackRef(), electrons, ctfTracksHandle);
+      produceEcalDrivenCore(gsfPfRecTrack.gsfTrackRef());
     }
   } else {
     for (unsigned int i = 0; i < gsfTracksHandle->size(); ++i) {
-      produceEcalDrivenCore(edm::Ref<GsfTrackCollection>(gsfTracksHandle, i), electrons, ctfTracksHandle);
+      produceEcalDrivenCore(edm::Ref<GsfTrackCollection>(gsfTracksHandle, i));
     }
   }
 
   event.emplace(putToken_, std::move(electrons));
-}
-
-void GsfElectronCoreEcalDrivenProducer::produceEcalDrivenCore(
-    const reco::GsfTrackRef& gsfTrackRef,
-    reco::GsfElectronCoreCollection& electrons,
-    edm::Handle<TrackCollection> const& ctfTracksHandle) const {
-  electrons.emplace_back(gsfTrackRef);
-  auto& eleCore = electrons.back();
-
-  if (!eleCore.ecalDrivenSeed()) {
-    electrons.pop_back();
-    return;
-  }
-
-  auto ctfpair = egamma::getClosestCtfToGsf(eleCore.gsfTrack(), ctfTracksHandle);
-  eleCore.setCtfTrack(ctfpair.first, ctfpair.second);
-
-  auto scRef = gsfTrackRef->extra()->seedRef().castTo<ElectronSeedRef>()->caloCluster().castTo<SuperClusterRef>();
-  if (!scRef.isNull()) {
-    eleCore.setSuperCluster(scRef);
-  } else {
-    electrons.pop_back();
-    edm::LogWarning("GsfElectronCoreEcalDrivenProducer") << "Seed CaloCluster is not a SuperCluster, unexpected...";
-  }
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
