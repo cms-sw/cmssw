@@ -1032,9 +1032,9 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
     }
   }
 
-  std::unique_ptr<l1tp2::CaloCrystalClusterCollection> L1EGXtalClusters(new l1tp2::CaloCrystalClusterCollection);
-  std::unique_ptr<BXVector<l1t::EGamma> > L1EGammas(new l1t::EGammaBxCollection);
-  std::unique_ptr<l1tp2::CaloTowerCollection> L1CaloTowers(new l1tp2::CaloTowerCollection);
+  auto L1EGXtalClusters = std::make_unique<l1tp2::CaloCrystalClusterCollection>();
+  auto L1EGammas = std::make_unique<l1t::EGammaBxCollection>();
+  auto L1CaloTowers = std::make_unique<l1tp2::CaloTowerCollection>();
 
   // Fill the cluster collection and towers as well
   for (int ii = 0; ii < n_links_GCTcard; ++ii) {  // 48 links
@@ -1126,8 +1126,8 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
           int n_L1eg = l1CaloTower.nL1eg();
           l1CaloTower.setNL1eg(n_L1eg++);
           l1CaloTower.setL1egTowerEt(l1CaloTower.l1egTowerEt() + l1eg.pt());
-          if (l1CaloTower.nL1eg() > 1)
-            continue;  // Don't record L1EG quality info for subleading L1EG
+          // Don't record L1EG quality info for subleading L1EG
+          if (l1CaloTower.nL1eg() > 1) continue;  
           l1CaloTower.setL1egTrkSS(l1eg.experimentalParam("trkMatchWP_showerShape"));
           l1CaloTower.setL1egTrkIso(l1eg.experimentalParam("trkMatchWP_isolation"));
           l1CaloTower.setL1egStandaloneSS(l1eg.experimentalParam("standaloneWP_showerShape"));
@@ -1149,7 +1149,7 @@ bool L1EGCrystalClusterEmulatorProducer::passes_iso(float pt, float iso) {
     if (!((a0_80 - a1_80 * pt) > iso))
       return false;
   }
-  if (pt >= 80) {
+  else {
     if (iso > a0)
       return false;
   }
