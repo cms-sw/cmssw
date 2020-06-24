@@ -17,8 +17,8 @@ bool compare_cluster_pt(const l1t::HGCalMulticluster *cl1, const l1t::HGCalMulti
 }
 
 int etaBin(const l1t::HGCalMulticluster *cl) {
-  float eta_min = 1.;
-  float eta_max = 4.;
+  static float constexpr eta_min = 1.;
+  static float constexpr eta_max = 4.;
   unsigned n_eta_bins = 150;
   int eta_bin = floor((std::abs(cl->eta()) - eta_min) / ((eta_max - eta_min) / n_eta_bins));
   if (cl->eta() < 0)
