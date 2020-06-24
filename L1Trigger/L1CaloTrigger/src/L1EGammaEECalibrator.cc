@@ -15,7 +15,7 @@ std::vector<float> as_vector(boost::property_tree::ptree const& pt, boost::prope
 L1EGammaEECalibrator::L1EGammaEECalibrator(const edm::ParameterSet& pset) {
   //read the JSON file and populate the eta - pt bins and the value container
   boost::property_tree::ptree calibration_map;
-  read_json(pset.getParameter<edm::FileInPath>("calirationFile").fullPath(), calibration_map);
+  read_json(pset.getParameter<edm::FileInPath>("calibrationFile").fullPath(), calibration_map);
 
   auto eta_l = as_vector(calibration_map, "eta_l");
   std::copy(eta_l.begin(), eta_l.end(), std::inserter(eta_bins, eta_bins.end()));
