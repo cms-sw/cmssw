@@ -966,7 +966,9 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
             int phiOftower_fullDetector = get_towerPhi_fromCardLinkTower(kk, ll, mm);
             // First do ECAL
             // The towers are within 3. Needs to stitch the two phi sides together
-            if (abs(etaOftower_fullDetector - cluster_etaOfTower_fullDetector) <= 2 && (abs(phiOftower_fullDetector - cluster_phiOfTower_fullDetector) <= 2 or abs(phiOftower_fullDetector - n_towers_Phi - cluster_phiOfTower_fullDetector) <= 2)) {
+            if (abs(etaOftower_fullDetector - cluster_etaOfTower_fullDetector) <= 2 &&
+                (abs(phiOftower_fullDetector - cluster_phiOfTower_fullDetector) <= 2 or
+                 abs(phiOftower_fullDetector - n_towers_Phi - cluster_phiOfTower_fullDetector) <= 2)) {
               if (!((cluster_phiOfTower_fullDetector == 0 && phiOftower_fullDetector == 71) or
                     (cluster_phiOfTower_fullDetector == 23 && phiOftower_fullDetector == 26) or
                     (cluster_phiOfTower_fullDetector == 24 && phiOftower_fullDetector == 21) or
@@ -980,7 +982,9 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
             }
             // Now do HCAL
             // The towers are within 2. Needs to stitch the two phi sides together
-            if (abs(etaOftower_fullDetector - cluster_etaOfTower_fullDetector) <= 2 && (abs(phiOftower_fullDetector - cluster_phiOfTower_fullDetector) <= 2 or abs(phiOftower_fullDetector - n_towers_Phi - cluster_phiOfTower_fullDetector) <= 2)) {
+            if (abs(etaOftower_fullDetector - cluster_etaOfTower_fullDetector) <= 2 &&
+                (abs(phiOftower_fullDetector - cluster_phiOfTower_fullDetector) <= 2 or
+                 abs(phiOftower_fullDetector - n_towers_Phi - cluster_phiOfTower_fullDetector) <= 2)) {
               hcal_nrj += HCAL_tower_L1Card[ll][mm][kk];
             }
           }
@@ -1127,7 +1131,8 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
           l1CaloTower.setNL1eg(n_L1eg++);
           l1CaloTower.setL1egTowerEt(l1CaloTower.l1egTowerEt() + l1eg.pt());
           // Don't record L1EG quality info for subleading L1EG
-          if (l1CaloTower.nL1eg() > 1) continue;  
+          if (l1CaloTower.nL1eg() > 1)
+            continue;
           l1CaloTower.setL1egTrkSS(l1eg.experimentalParam("trkMatchWP_showerShape"));
           l1CaloTower.setL1egTrkIso(l1eg.experimentalParam("trkMatchWP_isolation"));
           l1CaloTower.setL1egStandaloneSS(l1eg.experimentalParam("standaloneWP_showerShape"));
@@ -1148,8 +1153,7 @@ bool L1EGCrystalClusterEmulatorProducer::passes_iso(float pt, float iso) {
   if (pt < 80) {
     if (!((a0_80 - a1_80 * pt) > iso))
       return false;
-  }
-  else {
+  } else {
     if (iso > a0)
       return false;
   }

@@ -68,7 +68,6 @@ void L1EGammaEEProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSet
 
   // here we loop on the TPGs
   for (auto cl3d = multiclusters.begin(0); cl3d != multiclusters.end(0); cl3d++) {
-    // std::cout << "-- CL3D is EG: " <<  cl3d->hwQual() << "   "<< cl3d->eta() <<"   "<< cl3d->pt()<<std::endl;
     if (cl3d->hwQual()) {
       if (cl3d->et() > minEt_) {
         int hw_quality = 1;  // baseline EG ID passed
@@ -107,13 +106,10 @@ void L1EGammaEEProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSet
     }
   }
 
-  // std::cout << "# of selected HGCAL multiclusters: " << selected_multiclusters.size() << std::endl;
-
   std::sort(selected_multiclusters.begin(), selected_multiclusters.end(), compare_cluster_pt);
   std::set<const l1t::HGCalMulticluster *> used_clusters;
   for (auto cl3d : selected_multiclusters) {
     if (used_clusters.find(cl3d) == used_clusters.end()) {
-      // reco::Candidate::LorentzVector mom = cl3d->p4();
       float pt = cl3d->pt();
       // we drop the Had component of the energy
       if (cl3d->hOverE() != -1)
@@ -122,16 +118,9 @@ void L1EGammaEEProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSet
       reco::Candidate::PolarLorentzVector mom_eint(
           cl3d->iPt(l1t::HGCalMulticluster::EnergyInterpretation::EM), cl3d->eta(), cl3d->phi(), 0.);
 
-      // cl3d->pt()/(1+cl3d->hOverE())
-
       // this is not yet used
       used_clusters.insert(cl3d);
       auto eta_phi_bin = get_eta_phi_bin(cl3d);
-      // std::cout << " cl pt: " << cl3d->pt()
-      //           << " eta: " << cl3d->eta()
-      //           << " phi: " << cl3d->phi()
-      //           << " eta, phi bin: " << eta_phi_bin.first << "," << eta_phi_bin.second
-      //           << std::endl;
 
       for (int eta_bin : {eta_phi_bin.first - 1, eta_phi_bin.first, eta_phi_bin.first + 1}) {
         for (int phi_bin : {eta_phi_bin.second - 1, eta_phi_bin.second, eta_phi_bin.second + 1}) {
@@ -142,10 +131,6 @@ void L1EGammaEEProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSet
               if (used_clusters.find(other_cl_ptr) == used_clusters.end()) {
                 if (std::abs(other_cl_ptr->eta() - cl3d->eta()) < 0.02) {
                   if (std::abs(reco::deltaPhi(other_cl_ptr->phi(), cl3d->phi())) < 0.1) {
-                    // std::cout << "MERGE with cl pt: " << other_cl_ptr->pt()
-                    //           << " eta: " << other_cl_ptr->eta()
-                    //           << " phi: " << other_cl_ptr->phi()
-                    //           <<  std::endl;
                     float pt_other = other_cl_ptr->pt();
                     if (other_cl_ptr->hOverE() != -1)
                       pt_other = other_cl_ptr->pt() / (1 + other_cl_ptr->hOverE());
@@ -166,16 +151,12 @@ void L1EGammaEEProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSet
       float calib_factor = calibrator_.calibrationFactor(mom.pt(), mom.eta());
       l1t::EGamma eg =
           l1t::EGamma(reco::Candidate::PolarLorentzVector(mom.pt() / calib_factor, mom.eta(), mom.phi(), 0.));
-      // l1t::EGamma eg(mom);
-      // FIXME: full duplication with HWqual 2
       eg.setHwQual(3);
       eg.setHwIso(1);
       l1EgammaBxCollection->push_back(0, eg);
 
       l1t::EGamma eg_emint_brec =
           l1t::EGamma(reco::Candidate::PolarLorentzVector(mom_eint.pt(), mom_eint.eta(), mom_eint.phi(), 0.));
-      // l1t::EGamma eg(mom);
-      // FIXME: full duplication with HWqual 2
       eg_emint_brec.setHwQual(5);
       eg_emint_brec.setHwIso(1);
       l1EgammaBxCollection->push_back(0, eg_emint_brec);
