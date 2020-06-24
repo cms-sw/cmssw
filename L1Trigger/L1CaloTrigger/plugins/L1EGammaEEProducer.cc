@@ -127,7 +127,7 @@ void L1EGammaEEProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSet
           auto bucket = etaphi_bins.find(std::make_pair(eta_bin, phi_bin));
           if (bucket != etaphi_bins.end()) {
             // this bucket is not empty
-            for (auto other_cl_ptr : bucket->second) {
+            for (const auto other_cl_ptr : bucket->second) {
               if (used_clusters.find(other_cl_ptr) == used_clusters.end()) {
                 if (std::abs(other_cl_ptr->eta() - cl3d->eta()) < 0.02) {
                   if (std::abs(reco::deltaPhi(other_cl_ptr->phi(), cl3d->phi())) < 0.1) {
