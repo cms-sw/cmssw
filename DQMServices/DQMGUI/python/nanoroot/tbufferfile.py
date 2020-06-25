@@ -32,18 +32,18 @@ class TBufferFile():
                 objdata = objdata[clslen+2:] # strip class and continue.
                 displacement -= clslen + 2
 
-            if objdata[0:1] == b'@':
-                # @-decode and see if that could be a version header.
-                size, = struct.unpack(">I", objdata[0:4])
-                size = (size & ~0x40000000) + 4
-                if size != len(objdata):
-                    # this does not look like a version header. Add one.
-                    totlen = 2 + len(objdata)
-                    head = struct.pack(">IH", totlen | 0x40000000, version)
-                    objdata = head + objdata
-                    displacement += len(head)
-            else:
-                assert False, "No known header found, TBufferFile wrapping would probably fail."
+            # @-decode and see if that could be a version header.
+            size, = struct.unpack(">I", objdata[0:4])
+            assert (size & 0x40000000) > 0, "That does not look like a ROOT object."
+            size = (size & ~0x40000000) + 4
+            assert size <= len(objdata), "Sub-object seems too big."
+            if size != len(objdata):
+                # this does not look like a version header. Add one.
+                totlen = 2 + len(objdata)
+                head = struct.pack(">IH", totlen | 0x40000000, version)
+                objdata = head + objdata
+                displacement += len(head)
+
             # The format is <@length><kNewClassTag=0xFFFFFFFF><classname><nul><@length><2 bytes version><data ...
             # @length is 4byte length of the *entire* remaining object with bit 0x40 (kByteCountMask)
             # set in the first (most significant) byte. This prints as "@" in the dump...
