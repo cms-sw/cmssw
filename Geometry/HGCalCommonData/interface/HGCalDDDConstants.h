@@ -51,6 +51,7 @@ public:
   int firstLayer() const { return hgpar_->firstLayer_; }
   HGCalGeometryMode::GeometryMode geomMode() const { return mode_; }
   int getLayer(double z, bool reco) const;
+  int getLayerOffset() const { return hgpar_->layerOffset_; }
   HGCalParameters::hgtrap getModule(unsigned int k, bool hexType, bool reco) const;
   std::vector<HGCalParameters::hgtrap> getModules() const;
   const HGCalParameters* getParameter() const { return hgpar_; }
@@ -68,6 +69,7 @@ public:
   int getUVMax(int type) const { return ((type == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_); }
   bool isHalfCell(int waferType, int cell) const;
   bool isValidHex(int lay, int mod, int cell, bool reco) const;
+  bool isValidHex8(int lay, int waferU, int waferV, bool fullAndPart = false) const;
   bool isValidHex8(int lay, int modU, int modV, int cellU, int cellV, bool fullAndPart = false) const;
   bool isValidTrap(int lay, int ieta, int iphi) const;
   int lastLayer(bool reco) const;
@@ -126,6 +128,35 @@ public:
   std::pair<double, double> waferParameters(bool reco) const;
   std::pair<double, double> waferPosition(int wafer, bool reco) const;
   std::pair<double, double> waferPosition(int lay, int waferU, int waferV, bool reco, bool debug = false) const;
+  unsigned int waferFileSize() const { return hgpar_->waferInfoMap_.size(); }
+  int waferFileIndex(unsigned int kk) const {
+    if (kk < hgpar_->waferInfoMap_.size()) {
+      auto itr = hgpar_->waferInfoMap_.begin();
+      for (unsigned int k = 0; k < kk; ++k)
+	++itr;
+      return itr->first;
+    } else
+	return 0;
+  }
+  std::tuple<int, int, int> waferFileInfo(unsigned int kk) const {
+    if (kk < hgpar_->waferInfoMap_.size()) {
+      auto itr = hgpar_->waferInfoMap_.begin();
+      for (unsigned int k = 0; k < kk; ++k)
+	++itr;
+      return std::make_tuple(itr->second.type, itr->second.part, itr->second.orient);
+    } else
+      return std::make_tuple(0, 0, 0);
+  }
+  std::tuple<int, int, int> waferFileInfoFromIndex(int kk) const {
+    auto itr = hgpar_->waferInfoMap_.find(kk);
+    if (itr != hgpar_->waferInfoMap_.end()) {
+      return std::make_tuple(itr->second.type, itr->second.part, itr->second.orient);
+    } else
+      return std::make_tuple(0, 0, 0);
+  }
+  bool waferFileInfoExist(int kk) const {
+    return (hgpar_->waferInfoMap_.find(kk) != hgpar_->waferInfoMap_.end());
+  }
   double waferSepar(bool reco) const {
     return (reco ? hgpar_->sensorSeparation_ : HGCalParameters::k_ScaleToDDD * hgpar_->sensorSeparation_);
   }
@@ -146,9 +177,10 @@ public:
   int waferTypeL(int wafer) const {
     return ((wafer >= 0) && (wafer < (int)(hgpar_->waferTypeL_.size()))) ? hgpar_->waferTypeL_[wafer] : 0;
   }
-  int waferType(DetId const& id) const;
-  int waferType(int layer, int waferU, int waferV) const;
-  std::pair<int, int> waferTypeRotation(int layer, int waferU, int waferV, bool debug = false) const;
+  int waferType(DetId const& id, bool fromFile = false) const;
+  int waferType(int layer, int waferU, int waferV, bool fromFile = false) const;
+  std::tuple<int, int, int> waferType(HGCSiliconDetId const& id, bool fromFile = false) const;
+  std::pair<int, int> waferTypeRotation(int layer, int waferU, int waferV, bool fromFile = false, bool debug = false) const;
   int waferUVMax() const { return hgpar_->waferUVMax_; }
   bool waferVirtual(int layer, int waferU, int waferV) const;
   double waferZ(int layer, bool reco) const;

@@ -27,20 +27,20 @@
   <Constant name="ChoiceType"            value="0"/>
   <Constant name="NCornerCut"            value="2"/>
   <Constant name="FracAreaMin"           value="0.2"/>
-  <Constant name="radMixL0"              value="1537.0*mm"/>
-  <Constant name="radMixL1"              value="1537.0*mm"/>
-  <Constant name="radMixL2"              value="1537.0*mm"/>
-  <Constant name="radMixL3"              value="1537.0*mm"/>
-  <Constant name="radMixL4"              value="1378.2*mm"/>
-  <Constant name="radMixL5"              value="1378.2*mm"/>
-  <Constant name="radMixL6"              value="1183.0*mm"/>
-  <Constant name="radMixL7"              value="1183.0*mm"/>
-  <Constant name="radMixL8"              value="1183.0*mm"/>
-  <Constant name="radMixL9"              value="1183.0*mm"/>
-  <Constant name="radMixL10"             value="1037.8*mm"/>
-  <Constant name="radMixL11"             value="1037.8*mm"/>
-  <Constant name="radMixL12"             value="1037.8*mm"/>
-  <Constant name="radMixL13"             value="1037.8*mm"/>
+  <Constant name="radMixL0"              value="1537.05*mm"/>
+  <Constant name="radMixL1"              value="1537.05*mm"/>
+  <Constant name="radMixL2"              value="1537.05*mm"/>
+  <Constant name="radMixL3"              value="1537.05*mm"/>
+  <Constant name="radMixL4"              value="1537.05*mm"/>
+  <Constant name="radMixL5"              value="1209.37*mm"/>
+  <Constant name="radMixL6"              value="1209.37*mm"/>
+  <Constant name="radMixL7"              value="1209.37*mm"/>
+  <Constant name="radMixL8"              value="1209.37*mm"/>
+  <Constant name="radMixL9"              value="1209.37*mm"/>
+  <Constant name="radMixL10"             value="1060.98*mm"/>
+  <Constant name="radMixL11"             value="1060.98*mm"/>
+  <Constant name="radMixL12"             value="1060.98*mm"/>
+  <Constant name="radMixL13"             value="1060.98*mm"/>
   <Constant name="slope1"                value="[etaMax:slope]"/>
   <Constant name="ZposV0"                value="3210.5*mm"/>
   <Constant name="RposV0"                value="1523.3*mm"/>
