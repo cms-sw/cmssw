@@ -245,11 +245,11 @@ def HGCal_ignorePulsePerGain(process):
     process=HGCal_setRealisticNoiseSci(process,byDose=True,byDoseAlgo=8)
     return process
 
-def HGCal_ignoreCaching(process):
+def HGCal_useCaching(process):
     """include all effects except cachine of siop parameters (gain cpu time)"""
     #note: realistic electronics with Sci is not yet switched on
     # byDoseAlgo is used as a collection of bits to toggle: FLUENCE, CCE, NOISE, PULSEPERGAIN, CACHEDOP (from lsb to Msb)
-    # for instance turning on the 4th bit activates ignoring the cache
+    # for instance turning on the 4th bit activates using the cache
     process=HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=16)
     process=HGCal_setRealisticNoiseSci(process,byDose=True,byDoseAlgo=16)
     return process
