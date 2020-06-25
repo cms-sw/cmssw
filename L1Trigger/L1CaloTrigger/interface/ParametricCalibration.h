@@ -38,7 +38,7 @@ namespace l1tp2 {
     }
 
   protected:
-    std::vector<float> etas, pts, scales, ptMins, ptMaxs;
+    std::vector<float> etas, pts, scales;
   };
 
 };  // namespace l1tp2
