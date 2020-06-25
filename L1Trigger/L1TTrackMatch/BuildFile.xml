@@ -1,0 +1,8 @@
+<use   name="DataFormats/L1Trigger"/>
+<use   name="DataFormats/L1TrackTrigger"/>
+<use   name="DataFormats/L1TCorrelator"/>
+<use   name="L1Trigger/L1TMuon"/>
+<use   name="clhep"/>
+<export>
+  <lib   name="1"/>
+</export>
