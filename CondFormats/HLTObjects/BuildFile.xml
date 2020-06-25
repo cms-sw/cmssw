@@ -1,6 +1,7 @@
 <use name="DataFormats/HLTReco"/>
 <use name="FWCore/Utilities"/>
 <use name="CondFormats/Serialization"/>
+<use name="CondFormats/External"/>
 <use name="boost_serialization"/>
 <export>
   <lib name="1"/>
