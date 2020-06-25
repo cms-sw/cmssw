@@ -37,7 +37,7 @@ HGCalSiNoiseMap::HGCalSiNoiseMap()
   mipEqfC_[0] = mipEqfC_120;
   const double cellCapacitance_120 = 50;
   cellCapacitance_[0] = cellCapacitance_120;
-  const double cellVolume_120 = 0.52 * (120.e-4);
+  const double cellVolume_120 = 0.56 * (120.e-4);
   cellVolume_[0] = cellVolume_120;
 
   //thin sensors: 200 mum
@@ -45,7 +45,7 @@ HGCalSiNoiseMap::HGCalSiNoiseMap()
   mipEqfC_[1] = mipEqfC_200;
   const double cellCapacitance_200 = 65;
   cellCapacitance_[1] = cellCapacitance_200;
-  const double cellVolume_200 = 1.18 * (200.e-4);
+  const double cellVolume_200 = 1.26 * (200.e-4);
   cellVolume_[1] = cellVolume_200;
 
   //thick sensors: 300 mum
@@ -53,7 +53,7 @@ HGCalSiNoiseMap::HGCalSiNoiseMap()
   mipEqfC_[2] = mipEqfC_300;
   const double cellCapacitance_300 = 45;
   cellCapacitance_[2] = cellCapacitance_300;
-  const double cellVolume_300 = 1.18 * (300.e-4);
+  const double cellVolume_300 = 1.26 * (300.e-4);
   cellVolume_[2] = cellVolume_300;
 }
 
