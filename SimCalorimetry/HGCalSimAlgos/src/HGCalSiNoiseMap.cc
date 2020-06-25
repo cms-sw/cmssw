@@ -10,7 +10,7 @@ HGCalSiNoiseMap::HGCalSiNoiseMap()
     ignoreCCE_(false),
     ignoreNoise_(false),
     ignoreGainDependentPulse_(false),
-    ignoreCachedOp_(false) {
+    useCachedOp_(false) {
 
   //q80fC
   encsParam_.push_back({636., 15.6, 0.0328});          //2nd order polynomial coefficients as function of capacitance
@@ -65,7 +65,7 @@ void HGCalSiNoiseMap::setDoseMap(const std::string &fullpath, const unsigned int
   ignoreCCE_                = ((algo >> CCE) & 0x1);
   ignoreNoise_              = ((algo >> NOISE) & 0x1);
   ignoreGainDependentPulse_ = ((algo >> PULSEPERGAIN) & 0x1);
-  ignoreCachedOp_           = ((algo >> CACHEDOP) & 0x1);
+  useCachedOp_              = ((algo >> CACHEDOP) & 0x1);
 
   //call base class method
   HGCalRadiationMap::setDoseMap(fullpath, algo);
@@ -97,12 +97,11 @@ void HGCalSiNoiseMap::setGeometry(const CaloSubdetectorGeometry *hgcGeom,
   defaultAimMIPtoADC_=aimMIPtoADC;
 
   //exit if cache is to be ignored
-  if(ignoreCachedOp_) return; 
+  if(! useCachedOp_) return; 
 
   //fill cache if it's not filled
   if(!siopCache_.empty()) return;
 
-  std::cout << "[HGCalSiNoiseMap::setGeometry] instantianting Si operation cache" << std::endl;
   const std::vector<DetId> &validDetIds = geom()->getValidDetIds();
   for(auto &did : validDetIds) {
 
@@ -111,7 +110,7 @@ void HGCalSiNoiseMap::setGeometry(const CaloSubdetectorGeometry *hgcGeom,
     HGCSiliconDetId hgcDetId(rawId);
     if(hgcDetId.zside()!=1) continue;
 
-    //compute and store in ache
+    //compute and store in cache
     SiCellOpCharacteristicsCore siop=getSiCellOpCharacteristicsCore(hgcDetId);
     std::pair<uint32_t, SiCellOpCharacteristicsCore> toAdd(rawId, siop);
     siopCache_.insert( toAdd ) ;
@@ -123,7 +122,7 @@ void HGCalSiNoiseMap::setGeometry(const CaloSubdetectorGeometry *hgcGeom,
 HGCalSiNoiseMap::SiCellOpCharacteristicsCore HGCalSiNoiseMap::getSiCellOpCharacteristicsCore(const HGCSiliconDetId &cellId,
                                                                                              GainRange_t gain,
                                                                                              int aimMIPtoADC) {
-  if(ignoreCachedOp_)
+  if(! useCachedOp_)
     return getSiCellOpCharacteristics(cellId,gain,aimMIPtoADC).core;
   
   HGCSiliconDetId posCellId(cellId.subdet(), 
