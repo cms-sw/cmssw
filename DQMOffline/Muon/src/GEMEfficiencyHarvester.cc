@@ -249,7 +249,6 @@ void GEMEfficiencyHarvester::doResolution(DQMStore::IBooker& ibooker,
   igetter.setCurrentFolder(resolution_folder);
   ibooker.setCurrentFolder(resolution_folder);
 
-  // map<station_name, vector<pair<ieta, fit_function> > >;
   std::map<std::tuple<std::string, int, bool>, std::vector<std::pair<int, TH1F*> > > res_data;
 
   for (const std::string& name : igetter.getMEs()) {
@@ -304,7 +303,6 @@ void GEMEfficiencyHarvester::doResolution(DQMStore::IBooker& ibooker,
       title += (is_odd ? ", Odd Superchambers" : ", Even Superchambers");
     }
 
-    // auto profile = new TProfile2D(name, title, GEMeMap::maxEtaPartition_, 0.5, GEMeMap::maxEtaPartition_ + 0.5, 2, -0.5, 1.5);
     TH2F* profile =
         new TH2F(name, title, GEMeMap::maxEtaPartition_, 0.5, GEMeMap::maxEtaPartition_ + 0.5, 2, -0.5, 1.5);
     auto x_axis = profile->GetXaxis();
@@ -319,8 +317,6 @@ void GEMEfficiencyHarvester::doResolution(DQMStore::IBooker& ibooker,
     profile->GetYaxis()->SetBinLabel(2, "Std. Dev.");
 
     for (auto [ieta, hist] : ieta_data) {
-      // profile->SetBinEntries(ieta, 1);
-
       profile->SetBinContent(ieta, 1, hist->GetMean());
       profile->SetBinContent(ieta, 2, hist->GetStdDev());
 
@@ -329,7 +325,6 @@ void GEMEfficiencyHarvester::doResolution(DQMStore::IBooker& ibooker,
     }
 
     ibooker.book2D(name, profile);
-    // ibooker.bookProfile2D(name, profile);
   }
 }
 
