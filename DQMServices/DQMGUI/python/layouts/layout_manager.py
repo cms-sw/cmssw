@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 
 def register_layout(source, destination, name='default'):
     LayoutManager.add_layout(Layout(source, destination, name))
@@ -13,6 +15,8 @@ class LayoutManager:
 
     @classmethod
     def add_layout(cls, layout):
+        if not layout or not layout.source or not layout.destination or not layout.name:
+            raise Exception('source, destination and name has to be provided for the layout.')
         cls.__layouts.append(layout)
 
 
@@ -23,11 +27,5 @@ class LayoutManager:
         return [x for x in cls.__layouts if x.name == name]
 
 
-class Layout:
-    def __init__(self, source, destination, name='default'):
-        if not source or not destination or not name:
-            raise Exception('source, destination and name has to be provided for the layout.')
-
-        self.source = source
-        self.destination = destination
-        self.name = name
+# Name has a default value
+Layout = namedtuple('Layout', ['source', 'destination', 'name'], defaults=['default'])

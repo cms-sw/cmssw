@@ -10,7 +10,7 @@ from collections import defaultdict
 from async_lru import alru_cache
 
 from .storage import GUIDataStore
-from .helpers import PathUtil, get_api_error, binary_search, logged
+from .helpers import get_api_error, binary_search, logged
 from .rendering import GUIRenderer
 from .importing.importing import GUIImportManager
 from .data_types import Sample, RootDir, RootObj, RootDirContent, RenderingInfo
@@ -56,8 +56,8 @@ class GUIService:
             path = path + '/'
         
         # Get a list of all MEs
-        lines = await cls.__get_me_names_list(dataset, run, lumi)
-        if not lines:
+        me_names = await cls.__get_me_names_list(dataset, run, lumi)
+        if not me_names:
             return None
 
         # dir is a dict where key is subdir name and value is a count of 
@@ -67,19 +67,20 @@ class GUIService:
 
         # Prepare binary string in order not to decode every in linear scan
         path_binary = bytes(path, 'utf-8')
-        regex = re.compile(bytes(search, 'utf-8')) if search else None
+        regex_binary = re.compile(bytes(search, 'utf-8')) if search else None
+        regex = re.compile(search) if search else None
 
-        for x in range(len(lines)):
-            # Check if line starts with requested path
-            if lines[x][:len(path_binary)] == path_binary:
-                names = lines[x][len(path_binary):].split(b'/')
+        for me_name in me_names:
+            # Check if ME name starts with requested path
+            if me_name[:len(path_binary)] == path_binary:
+                names = me_name[len(path_binary):].split(b'/')
                 segment = names[0]
                 is_file = len(names) == 1 # Last item in a path is file
                 
-                if regex and not regex.match(names[-1]):
+                if regex_binary and not regex_binary.match(names[-1]):
                     continue # Regex is provided and ME name doesn't match it
 
-                if b'\0' in lines[x]:
+                if b'\0' in me_name:
                     continue # This is a secondary item, not a main ME name
 
                 segment = segment.decode('utf-8')
@@ -89,24 +90,24 @@ class GUIService:
                 else:
                     dirs[segment] += 1
 
-
         # Add MEs from layouts
         # Layouts will be filtered against the search regex on their destination name.
         # Non existant sources will still be attempted to be displayed resulting in 
         # 'ME not found' string to be rendered.
-        # TODO: inline path_util operations just like above
-        path_util = PathUtil()
         for layout in cls.layouts_manager.get_layouts():
-            path_util.set_path(layout.destination)
-            subsequent_segment = path_util.subsequent_segment_of(path)
-            if subsequent_segment:
-                if regex and not regex.match(bytes(layout.destination.split('/')[-1], 'utf-8')):
-                    continue # Regex is provided and destination ME name doesn't match it
+            # Check if ME name starts with requested path
+            if layout.destination[:len(path)] == path:
+                names = layout.destination[len(path):].split('/')
+                segment = names[0]
+                is_file = len(names) == 1 # Last item in a path is file
+                
+                if regex and not regex.match(names[-1]):
+                    continue # Regex is provided and ME name doesn't match it
 
-                if subsequent_segment.is_file:
-                    objs.add(RootObj(name=subsequent_segment.name, path=layout.source, layout=layout.name))
+                if is_file:
+                    objs.add(RootObj(name=segment, path=layout.source, layout=layout.name))
                 else:
-                    dirs[subsequent_segment.name] += 1
+                    dirs[segment] += 1
 
         # Transform dirs into a list of RootDir objects
         dirs = [RootDir(name=key, me_count=dirs[key]) for key in dirs]

@@ -340,12 +340,14 @@ Backend related task list.
 * ~~Move efficiency flag to MEInfo~~
   * It's not worth it as it adds a couple of seconds to import time
 * Clean up Scalar, EfficiencyFlag and QTest to OO hierarchy
-* Speed up linear search over sorted layouts
+* ~~Speed up linear search over sorted layouts~~
 * Flavours?
+  * The requirements and the need for this feature have to be reviewed
 * Move common ME methods (like DQMCLASSICReader.parse_string_entry) to a separate location
 * Check RelVal files are handled correctly
-* Make sure exceptions are logged to log file (atm the go to stderr)
+* ~~Make sure exceptions are logged to log file (atm the go to stderr)~~
 * Handle crashing import processes (prob. can't restart them, so at least crash the full server and wait for restart)
 * Check handling of XRD access failures (atm 500 response on the request, retry on next request -- might be good enough.)
 * Make logging async
-* Renderer hangs when negative width/height is passed
+  * Will probably not increase perf by much, needs measuring
+* ~~Renderer hangs when negative width/height is passed~~
