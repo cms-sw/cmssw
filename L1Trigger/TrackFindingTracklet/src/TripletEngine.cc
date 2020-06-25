@@ -156,7 +156,8 @@ void TripletEngine::execute() {
       auto secondvmstub = stubpairs_.at(i)->getVMStub2(j);
 
       if ((layer2_ == 4 && layer3_ == 2) || (layer2_ == 6 && layer3_ == 4)) {
-        int lookupbits = (int)((firstvmstub.vmbits().value() >> 10) & 1023);
+        constexpr unsigned int vmbitshift = 10;
+        int lookupbits = (int)((firstvmstub.vmbits().value() >> vmbitshift) & 1023);  //1023=2^vmbitshift-1
         int newbin = (lookupbits & 127);
         int bin = newbin / 8;
 
@@ -293,8 +294,6 @@ void TripletEngine::execute() {
                       << benddecode(secondvmstub.bend().value(), secondvmstub.isPSmodule()) << " "
                       << benddecode(thirdvmstub.bend().value(), thirdvmstub.isPSmodule());
                 }
-                //if (!settings_.writeTripletTables())
-                //  continue;
               }
               if (settings_.writeTripletTables())
                 table_[index] = true;
@@ -377,8 +376,6 @@ void TripletEngine::execute() {
                       << benddecode(secondvmstub.bend().value(), secondvmstub.isPSmodule()) << " "
                       << benddecode(thirdvmstub.bend().value(), thirdvmstub.isPSmodule());
                 }
-                //if (!settings_.writeTripletTables())
-                //  continue;
               }
               if (settings_.writeTripletTables())
                 table_[index] = true;

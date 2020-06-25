@@ -211,7 +211,7 @@ int VMRouterTable::getLookup(unsigned int layerdisk, double z, double r, int ise
     int rbin2 = NBINS * (rmax - settings_.rmindiskvm()) / (settings_.rmaxdiskvm() - settings_.rmindiskvm());
 
     if (iseed == 10) {
-      double rminspec = 40.0;
+      constexpr double rminspec = 40.0;
       rbin1 = NBINS * (rmin - rminspec) / (settings_.rmaxdisk() - rminspec);
       rbin2 = NBINS * (rmax - rminspec) / (settings_.rmaxdisk() - rminspec);
     }
