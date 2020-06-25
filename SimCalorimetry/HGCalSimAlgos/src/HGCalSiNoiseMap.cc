@@ -10,7 +10,7 @@ HGCalSiNoiseMap::HGCalSiNoiseMap()
     ignoreCCE_(false),
     ignoreNoise_(false),
     ignoreGainDependentPulse_(false),
-    useCachedOp_(false) {
+    activateCachedOp_(false) {
 
   //q80fC
   encsParam_.push_back({636., 15.6, 0.0328});          //2nd order polynomial coefficients as function of capacitance
@@ -37,7 +37,7 @@ HGCalSiNoiseMap::HGCalSiNoiseMap()
   mipEqfC_[0] = mipEqfC_120;
   const double cellCapacitance_120 = 50;
   cellCapacitance_[0] = cellCapacitance_120;
-  const double cellVolume_120 = 0.52 * (120.e-4);
+  const double cellVolume_120 = 0.56 * (120.e-4);
   cellVolume_[0] = cellVolume_120;
 
   //thin sensors: 200 mum
@@ -45,7 +45,7 @@ HGCalSiNoiseMap::HGCalSiNoiseMap()
   mipEqfC_[1] = mipEqfC_200;
   const double cellCapacitance_200 = 65;
   cellCapacitance_[1] = cellCapacitance_200;
-  const double cellVolume_200 = 1.18 * (200.e-4);
+  const double cellVolume_200 = 1.26 * (200.e-4);
   cellVolume_[1] = cellVolume_200;
 
   //thick sensors: 300 mum
@@ -53,7 +53,7 @@ HGCalSiNoiseMap::HGCalSiNoiseMap()
   mipEqfC_[2] = mipEqfC_300;
   const double cellCapacitance_300 = 45;
   cellCapacitance_[2] = cellCapacitance_300;
-  const double cellVolume_300 = 1.18 * (300.e-4);
+  const double cellVolume_300 = 1.26 * (300.e-4);
   cellVolume_[2] = cellVolume_300;
 }
 
@@ -65,7 +65,7 @@ void HGCalSiNoiseMap::setDoseMap(const std::string &fullpath, const unsigned int
   ignoreCCE_                = ((algo >> CCE) & 0x1);
   ignoreNoise_              = ((algo >> NOISE) & 0x1);
   ignoreGainDependentPulse_ = ((algo >> PULSEPERGAIN) & 0x1);
-  useCachedOp_              = ((algo >> CACHEDOP) & 0x1);
+  activateCachedOp_         = ((algo >> CACHEDOP) & 0x1);
 
   //call base class method
   HGCalRadiationMap::setDoseMap(fullpath, algo);
@@ -97,7 +97,7 @@ void HGCalSiNoiseMap::setGeometry(const CaloSubdetectorGeometry *hgcGeom,
   defaultAimMIPtoADC_=aimMIPtoADC;
 
   //exit if cache is to be ignored
-  if(! useCachedOp_) return; 
+  if(!activateCachedOp_) return; 
 
   //fill cache if it's not filled
   if(!siopCache_.empty()) return;
@@ -122,9 +122,11 @@ void HGCalSiNoiseMap::setGeometry(const CaloSubdetectorGeometry *hgcGeom,
 HGCalSiNoiseMap::SiCellOpCharacteristicsCore HGCalSiNoiseMap::getSiCellOpCharacteristicsCore(const HGCSiliconDetId &cellId,
                                                                                              GainRange_t gain,
                                                                                              int aimMIPtoADC) {
-  if(! useCachedOp_)
+  //re-compute
+  if(!activateCachedOp_)
     return getSiCellOpCharacteristics(cellId,gain,aimMIPtoADC).core;
   
+  //re-use from cache
   HGCSiliconDetId posCellId(cellId.subdet(), 
                             1, 
                             cellId.type(), 
@@ -204,19 +206,40 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
   }
 
   //determine the gain to apply accounting for cce
-  //move computation to ROC level (one day)
+  //algo:  start with the most favored = lowest gain possible (=highest range)
+  //       test for the other gains in the preferred order
+  //       the first to yield <=15 ADC counts is taken
+  //       this relies on the fact that these gains shift the mip peak by factors of 2
+  //       in the presence of more gains 15 should be updated accordingly
+  //note:  move computation to higher granularity level (ROC, trigger tower, once decided)
   double S(siop.core.cce * mipEqfC);
   if (gain == GainRange_t::AUTO) {
-    double desiredLSB(S / aimMIPtoADC);
-    std::vector<double> diffToPhysLSB = {fabs(desiredLSB - lsbPerGain_[GainRange_t::q80fC]),
-                                         fabs(desiredLSB - lsbPerGain_[GainRange_t::q160fC]),
-                                         fabs(desiredLSB - lsbPerGain_[GainRange_t::q320fC])};
-    size_t gainIdx = std::min_element(diffToPhysLSB.begin(), diffToPhysLSB.end()) - diffToPhysLSB.begin();
-    gain = HGCalSiNoiseMap::q80fC;
-    if (gainIdx == 1)
-      gain = HGCalSiNoiseMap::q160fC;
-    if (gainIdx == 2)
-      gain = HGCalSiNoiseMap::q320fC;
+
+    gain=GainRange_t::q320fC;
+
+    //@franzoni: i think the order needs to be this one (i.e. take the first according to preference) - tbc
+    std::vector<GainRange_t> orderedGainChoice={GainRange_t::q160fC,GainRange_t::q80fC};
+    for(const auto &igain : orderedGainChoice) {
+      double mipPeakADC(S/lsbPerGain_[igain]);
+      if(mipPeakADC>15) continue;
+      gain=igain;
+      break;
+    }
+
+    //previous algo (kept commented for the moment)
+    //    double S(siop.core.cce * mipEqfC);
+    //    if (gain == GainRange_t::AUTO) {
+    //      double desiredLSB(S / aimMIPtoADC);
+    //      std::vector<double> diffToPhysLSB = {fabs(desiredLSB - lsbPerGain_[GainRange_t::q80fC]),
+    //                                           fabs(desiredLSB - lsbPerGain_[GainRange_t::q160fC]),
+    //                                           fabs(desiredLSB - lsbPerGain_[GainRange_t::q320fC])};
+    //      size_t gainIdx = std::min_element(diffToPhysLSB.begin(), diffToPhysLSB.end()) - diffToPhysLSB.begin();
+    //      gain = HGCalSiNoiseMap::q80fC;
+    //      if (gainIdx == 1)
+    //        gain = HGCalSiNoiseMap::q160fC;
+    //      if (gainIdx == 2)
+    //        gain = HGCalSiNoiseMap::q320fC;
+    //    }
   }
 
   //fill in the parameters of the struct
