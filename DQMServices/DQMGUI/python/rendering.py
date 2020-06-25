@@ -108,10 +108,15 @@ class GUIRenderer:
             return b'error', -1
 
         # Pack the message for rendering context
-        message = cls.__pack_message_for_renderer(rendering_infos, options, False)
+        message = cls.__pack_message_for_renderer(rendering_infos, options, use_streamerfile=False)
         data, error = await cls.__render(message)
         if error == 1: # Missing streamer file - provide it
-            message = cls.__pack_message_for_renderer(rendering_infos, options, True)
+            # In case of an overly, first render each reference once on its own
+            for rendering_info in rendering_infos[1:]:
+                streamer_message = cls.__pack_message_for_renderer([rendering_info], options, use_streamerfile=True)
+                data, error = await cls.__render(streamer_message)
+                assert error == 0
+            message = cls.__pack_message_for_renderer(rendering_infos, options, use_streamerfile=True)
             data, error = await cls.__render(message)
 
         return data, error
