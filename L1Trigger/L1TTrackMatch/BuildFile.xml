@@ -1,8 +1,16 @@
+<use   name="FWCore/MessageLogger"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="DataFormats/L1Trigger"/>
 <use   name="DataFormats/L1TrackTrigger"/>
 <use   name="DataFormats/L1TCorrelator"/>
+<use   name="DataFormats/L1TMuon"/>
+<use   name="DataFormats/GeometryVector"/>
+<use   name="DataFormats/Math"/>
 <use   name="L1Trigger/L1TMuon"/>
+<use   name="L1Trigger/L1TMuonEndCap"/>
 <use   name="clhep"/>
+<use   name="root"/>
+<use   name="rootrflx"/>
 <export>
   <lib   name="1"/>
 </export>
