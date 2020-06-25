@@ -221,7 +221,7 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
     std::vector<GainRange_t> orderedGainChoice={GainRange_t::q160fC,GainRange_t::q80fC};
     for(const auto &igain : orderedGainChoice) {
       double mipPeakADC(S/lsbPerGain_[igain]);
-      if(mipPeakADC>15.5) break;
+      if(mipPeakADC>16) break;
       gain=igain;
     }
 
