@@ -20,6 +20,7 @@ OccurrenceTraits:
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
+#include "FWCore/Utilities/interface/Transition.h"
 
 #include <string>
 
@@ -38,6 +39,7 @@ namespace edm {
     static BranchType constexpr branchType_ = InEvent;
     static bool constexpr begin_ = true;
     static bool constexpr isEvent_ = true;
+    static Transition constexpr transition_ = Transition::Event;
 
     static void setStreamContext(StreamContext& streamContext, MyPrincipal const& principal) {
       streamContext.setTransition(StreamContext::Transition::kEvent);
@@ -69,6 +71,7 @@ namespace edm {
     static BranchType constexpr branchType_ = InRun;
     static bool constexpr begin_ = true;
     static bool constexpr isEvent_ = false;
+    static Transition constexpr transition_ = Transition::BeginRun;
 
     static GlobalContext makeGlobalContext(MyPrincipal const& principal, ProcessContext const* processContext) {
       return GlobalContext(GlobalContext::Transition::kBeginRun,
@@ -108,6 +111,7 @@ namespace edm {
     static BranchType constexpr branchType_ = InRun;
     static bool constexpr begin_ = true;
     static bool constexpr isEvent_ = false;
+    static Transition constexpr transition_ = Transition::BeginRun;
 
     static void setStreamContext(StreamContext& streamContext, MyPrincipal const& principal) {
       streamContext.setTransition(StreamContext::Transition::kBeginRun);
@@ -146,6 +150,7 @@ namespace edm {
     static BranchType constexpr branchType_ = InRun;
     static bool constexpr begin_ = false;
     static bool constexpr isEvent_ = false;
+    static Transition constexpr transition_ = Transition::EndRun;
 
     static void setStreamContext(StreamContext& streamContext, MyPrincipal const& principal) {
       streamContext.setTransition(StreamContext::Transition::kEndRun);
@@ -184,6 +189,7 @@ namespace edm {
     static BranchType constexpr branchType_ = InRun;
     static bool constexpr begin_ = false;
     static bool constexpr isEvent_ = false;
+    static Transition constexpr transition_ = Transition::EndRun;
 
     static GlobalContext makeGlobalContext(MyPrincipal const& principal, ProcessContext const* processContext) {
       return GlobalContext(GlobalContext::Transition::kEndRun,
@@ -223,6 +229,7 @@ namespace edm {
     static BranchType constexpr branchType_ = InLumi;
     static bool constexpr begin_ = true;
     static bool constexpr isEvent_ = false;
+    static Transition constexpr transition_ = Transition::BeginLuminosityBlock;
 
     static GlobalContext makeGlobalContext(MyPrincipal const& principal, ProcessContext const* processContext) {
       return GlobalContext(GlobalContext::Transition::kBeginLuminosityBlock,
@@ -262,6 +269,7 @@ namespace edm {
     static BranchType constexpr branchType_ = InLumi;
     static bool constexpr begin_ = true;
     static bool constexpr isEvent_ = false;
+    static Transition constexpr transition_ = Transition::BeginLuminosityBlock;
 
     static void setStreamContext(StreamContext& streamContext, MyPrincipal const& principal) {
       streamContext.setTransition(StreamContext::Transition::kBeginLuminosityBlock);
@@ -300,6 +308,7 @@ namespace edm {
     static BranchType constexpr branchType_ = InLumi;
     static bool constexpr begin_ = false;
     static bool constexpr isEvent_ = false;
+    static Transition constexpr transition_ = Transition::EndLuminosityBlock;
 
     static StreamContext const* context(StreamContext const* s, GlobalContext const*) { return s; }
 
@@ -340,6 +349,7 @@ namespace edm {
     static BranchType constexpr branchType_ = InLumi;
     static bool constexpr begin_ = false;
     static bool constexpr isEvent_ = false;
+    static Transition constexpr transition_ = Transition::EndLuminosityBlock;
 
     static GlobalContext makeGlobalContext(MyPrincipal const& principal, ProcessContext const* processContext) {
       return GlobalContext(GlobalContext::Transition::kEndLuminosityBlock,

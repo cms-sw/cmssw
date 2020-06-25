@@ -103,6 +103,7 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
 #endif
       }
       php.minTileSize_ = 0;
+      php.waferMaskMode_ = 0;
     }
     if ((php.mode_ == HGCalGeometryMode::Hexagon8) || (php.mode_ == HGCalGeometryMode::Hexagon8Full)) {
       php.levelT_ = dbl_to_int(getDDDArray("LevelTop", sv));
@@ -134,7 +135,7 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
         php.waferThick_ = HGCalParameters::k_ScaleFromDDD * getDDDValue("WaferThickness", sv2);
         php.sensorSeparation_ = HGCalParameters::k_ScaleFromDDD * getDDDValue("SensorSeparation", sv2);
         php.mouseBite_ = HGCalParameters::k_ScaleFromDDD * getDDDValue("MouseBite", sv2);
-        php.waferR_ = 0.5 * HGCalParameters::k_ScaleToDDD * php.waferSize_ / std::cos(30._deg);
+        php.waferR_ = HGCalParameters::k_ScaleToDDD * php.waferSize_ * tan30deg_;
         php.cellSize_.emplace_back(HGCalParameters::k_ScaleToDDD * php.waferSize_ / php.nCellsFine_);
         php.cellSize_.emplace_back(HGCalParameters::k_ScaleToDDD * php.waferSize_ / php.nCellsCoarse_);
 #ifdef EDM_ML_DEBUG
@@ -199,10 +200,13 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       php.minTileSize_ = HGCalParameters::k_ScaleFromDDD * getDDDValue("MinimumTileSize", sv);
       php.waferSize_ = php.waferR_ = 0;
       php.sensorSeparation_ = php.mouseBite_ = 0;
+      php.waferMaskMode_ = static_cast<int>(getDDDValue("WaferMaskMode", sv));
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "Top levels " << php.levelT_[0] << ":" << php.levelT_[1] << " first layers "
                                     << php.firstLayer_ << ":" << php.firstMixedLayer_ << " Det Type "
-                                    << php.detectorType_ << "  thickenss " << php.waferThick_;
+                                    << php.detectorType_ << "  thickenss " << php.waferThick_ << " Tile Mask Mode "
+                                    << php.waferMaskMode_;
+      ;
 #endif
       // Load the SpecPars
       geom->loadSpecParsTrapezoid(fv, php);
@@ -271,6 +275,7 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
                                     << HGCalGeometryMode::ExtrudedPolygon;
 #endif
       php.minTileSize_ = 0;
+      php.waferMaskMode_ = 0;
     }
     if ((php.mode_ == HGCalGeometryMode::Hexagon8) || (php.mode_ == HGCalGeometryMode::Hexagon8Full)) {
       php.levelT_ = dbl_to_int(fv.get<std::vector<double> >(name, "LevelTop"));
@@ -283,10 +288,14 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       tempD = fv.get<std::vector<double> >(name, "DetectorType");
       php.detectorType_ = static_cast<int>(tempD[0]);
       php.minTileSize_ = 0;
+      tempD = fv.get<std::vector<double> >(name, "WaferMaskMode");
+      php.waferMaskMode_ = static_cast<int>(tempD[0]);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "Top levels " << php.levelT_[0] << ":" << php.levelT_[1] << " ZSide Level "
                                     << php.levelZSide_ << " first layers " << php.firstLayer_ << ":"
-                                    << php.firstMixedLayer_ << " Det Type " << php.detectorType_;
+                                    << php.firstMixedLayer_ << " Det Type " << php.detectorType_ << " Wafer Mask Mode "
+                                    << php.waferMaskMode_;
+      ;
 #endif
 
       tempS = fv.get<std::vector<std::string> >(namet, "WaferMode");
@@ -304,7 +313,7 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       php.sensorSeparation_ = HGCalParameters::k_ScaleFromDD4Hep * tempD[0];
       tempD = fv.get<std::vector<double> >(namet, "MouseBite");
       php.mouseBite_ = HGCalParameters::k_ScaleFromDD4Hep * tempD[0];
-      php.waferR_ = 0.5 * HGCalParameters::k_ScaleToDDD * php.waferSize_ / std::cos(30._deg);
+      php.waferR_ = HGCalParameters::k_ScaleToDDD * php.waferSize_ * tan30deg_;
       php.cellSize_.emplace_back(HGCalParameters::k_ScaleToDDD * php.waferSize_ / php.nCellsFine_);
       php.cellSize_.emplace_back(HGCalParameters::k_ScaleToDDD * php.waferSize_ / php.nCellsCoarse_);
 #ifdef EDM_ML_DEBUG
@@ -376,11 +385,14 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       php.minTileSize_ = HGCalParameters::k_ScaleFromDD4Hep * tempD[0];
       php.waferSize_ = php.waferR_ = 0;
       php.sensorSeparation_ = php.mouseBite_ = 0;
+      tempD = fv.get<std::vector<double> >(name, "WaferMaskMode");
+      php.waferMaskMode_ = static_cast<int>(tempD[0]);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "Top levels " << php.levelT_[0] << ":" << php.levelT_[1] << " first layers "
                                     << php.firstLayer_ << ":" << php.firstMixedLayer_ << " Det Type "
                                     << php.detectorType_ << "  thickenss " << php.waferThick_ << " min tile size "
-                                    << php.minTileSize_;
+                                    << php.minTileSize_ << " Tile Mask Mode " << php.waferMaskMode_;
+      ;
 #endif
       // Load the SpecPars
       geom->loadSpecParsTrapezoid(fv, vmap, php, name);

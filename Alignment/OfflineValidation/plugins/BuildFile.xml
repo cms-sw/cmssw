@@ -47,7 +47,6 @@
 <use name="rootmath"/>
 <use name="rootrflx"/>
 <use name="rootcore"/>
-<use name="boost"/>
 <library file="*.cc" name="AlignmentOfflinevalidationPlugins">
   <use name="Alignment/OfflineValidation"/>
   <use name="CondFormats/GeometryObjects"/>

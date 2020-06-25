@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/L1TGEM/interface/ME0TriggerPseudoBuilder.h"
@@ -35,12 +36,14 @@ public:
 private:
   edm::InputTag me0segmentProducer_;
   edm::EDGetTokenT<ME0SegmentCollection> me0segment_token_;
+  edm::ESGetToken<ME0Geometry, MuonGeometryRecord> me0_geom_token_;
   edm::ParameterSet config_;
 };
 
 ME0TriggerPseudoProducer::ME0TriggerPseudoProducer(const edm::ParameterSet& conf) {
   me0segmentProducer_ = conf.getParameter<edm::InputTag>("ME0SegmentProducer");
   me0segment_token_ = consumes<ME0SegmentCollection>(me0segmentProducer_);
+  me0_geom_token_ = esConsumes<ME0Geometry, MuonGeometryRecord>();
   config_ = conf;
 
   // register what this produces
@@ -50,8 +53,7 @@ ME0TriggerPseudoProducer::ME0TriggerPseudoProducer(const edm::ParameterSet& conf
 ME0TriggerPseudoProducer::~ME0TriggerPseudoProducer() {}
 
 void ME0TriggerPseudoProducer::produce(edm::StreamID, edm::Event& ev, const edm::EventSetup& setup) const {
-  edm::ESHandle<ME0Geometry> h_me0;
-  setup.get<MuonGeometryRecord>().get(h_me0);
+  edm::ESHandle<ME0Geometry> h_me0 = setup.getHandle(me0_geom_token_);
 
   edm::Handle<ME0SegmentCollection> me0Segmentcoll;
   ev.getByToken(me0segment_token_, me0Segmentcoll);

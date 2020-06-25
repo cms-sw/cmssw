@@ -28,6 +28,7 @@
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/RecordDependencyRegister.h"
 #include "FWCore/Framework/interface/NoRecordException.h"
+#include "FWCore/Framework/interface/MakeDataException.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
 
 #include "FWCore/Framework/src/EventSetupsController.h"
@@ -568,6 +569,24 @@ namespace {
     explicit DummyDataConsumer(ESInputTag const& iTag)
         : m_token{esConsumes<edm::eventsetup::test::DummyData, edm::DefaultRecord>(iTag)} {}
 
+    void prefetch(edm::EventSetupImpl const& iImpl) const {
+      auto const& recs = this->esGetTokenRecordIndicesVector(edm::Transition::Event);
+      auto const& proxies = this->esGetTokenIndicesVector(edm::Transition::Event);
+      for (size_t i = 0; i != proxies.size(); ++i) {
+        auto rec = iImpl.findImpl(recs[i]);
+        if (rec) {
+          auto waitTask = edm::make_empty_waiting_task();
+          waitTask->set_ref_count(2);
+          rec->prefetchAsync(waitTask.get(), proxies[i], &iImpl);
+          waitTask->decrement_ref_count();
+          waitTask->wait_for_all();
+          if (waitTask->exceptionPtr()) {
+            std::rethrow_exception(*waitTask->exceptionPtr());
+          }
+        }
+      }
+    }
+
     ESGetToken<edm::eventsetup::test::DummyData, edm::DefaultRecord> m_token;
   };
 
@@ -623,13 +642,12 @@ namespace {
               edm::ESProductTag<edm::eventsetup::test::DummyData, DummyRecord>("", ""));
     }
     std::unique_ptr<edm::eventsetup::test::DummyData> produce(const DummyRecord& iRecord) {
-      CPPUNIT_ASSERT(succeed_ == token_.hasValidIndex());
       auto const& data = iRecord.getHandle(token_);
       CPPUNIT_ASSERT(data.isValid() == succeed_);
       if (data.isValid()) {
         return std::make_unique<edm::eventsetup::test::DummyData>(*data);
       }
-      return std::make_unique<edm::eventsetup::test::DummyData>();
+      return std::unique_ptr<edm::eventsetup::test::DummyData>();
     }
 
   private:
@@ -738,6 +756,7 @@ void testEventsetup::getDataWithESGetTokenTest() {
     {
       DummyDataConsumer consumer{edm::ESInputTag("", "blah")};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       EventSetup eventSetup{provider.eventSetupImpl(),
                             static_cast<unsigned int>(edm::Transition::Event),
                             consumer.esGetTokenIndices(edm::Transition::Event),
@@ -749,6 +768,7 @@ void testEventsetup::getDataWithESGetTokenTest() {
     {
       DummyDataConsumer consumer{edm::ESInputTag("", "")};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       EventSetup eventSetup{provider.eventSetupImpl(),
                             static_cast<unsigned int>(edm::Transition::Event),
                             consumer.esGetTokenIndices(edm::Transition::Event),
@@ -760,6 +780,7 @@ void testEventsetup::getDataWithESGetTokenTest() {
     {
       DummyDataConsumer consumer{edm::ESInputTag("testTwo", "blah")};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       EventSetup eventSetup{provider.eventSetupImpl(),
                             static_cast<unsigned int>(edm::Transition::Event),
                             consumer.esGetTokenIndices(edm::Transition::Event),
@@ -771,6 +792,7 @@ void testEventsetup::getDataWithESGetTokenTest() {
     {
       DummyDataConsumer consumer{edm::ESInputTag("DoesNotExist", "blah")};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       EventSetup eventSetup{provider.eventSetupImpl(),
                             static_cast<unsigned int>(edm::Transition::Event),
                             consumer.esGetTokenIndices(edm::Transition::Event),
@@ -781,6 +803,7 @@ void testEventsetup::getDataWithESGetTokenTest() {
     {
       DummyDataConsumer consumer{edm::ESInputTag("", "consumes")};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       EventSetup eventSetup{provider.eventSetupImpl(),
                             static_cast<unsigned int>(edm::Transition::Event),
                             consumer.esGetTokenIndices(edm::Transition::Event),
@@ -791,6 +814,7 @@ void testEventsetup::getDataWithESGetTokenTest() {
     {
       DummyDataConsumer consumer{edm::ESInputTag("", "consumesFrom")};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       EventSetup eventSetup{provider.eventSetupImpl(),
                             static_cast<unsigned int>(edm::Transition::Event),
                             consumer.esGetTokenIndices(edm::Transition::Event),
@@ -801,6 +825,7 @@ void testEventsetup::getDataWithESGetTokenTest() {
     {
       DummyDataConsumer consumer{edm::ESInputTag("", "setConsumes")};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       EventSetup eventSetup{provider.eventSetupImpl(),
                             static_cast<unsigned int>(edm::Transition::Event),
                             consumer.esGetTokenIndices(edm::Transition::Event),
@@ -811,15 +836,17 @@ void testEventsetup::getDataWithESGetTokenTest() {
     {
       DummyDataConsumer consumer{edm::ESInputTag("", "setMayConsumeFail")};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       EventSetup eventSetup{provider.eventSetupImpl(),
                             static_cast<unsigned int>(edm::Transition::Event),
                             consumer.esGetTokenIndices(edm::Transition::Event),
                             true};
-      CPPUNIT_ASSERT_THROW(eventSetup.getData(consumer.m_token), cms::Exception);
+      CPPUNIT_ASSERT_THROW(eventSetup.getData(consumer.m_token), edm::eventsetup::MakeDataException);
     }
     {
       DummyDataConsumer consumer{edm::ESInputTag("", "setMayConsumeSucceed")};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       EventSetup eventSetup{provider.eventSetupImpl(),
                             static_cast<unsigned int>(edm::Transition::Event),
                             consumer.esGetTokenIndices(edm::Transition::Event),
@@ -870,6 +897,7 @@ void testEventsetup::getHandleWithESGetTokenTest() {
     {
       DummyDataConsumer consumer{edm::ESInputTag("", "blah")};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
 
       EventSetup eventSetup{provider.eventSetupImpl(),
                             static_cast<unsigned int>(edm::Transition::Event),
@@ -884,6 +912,7 @@ void testEventsetup::getHandleWithESGetTokenTest() {
     {
       DummyDataConsumer consumer{edm::ESInputTag("", "")};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       EventSetup eventSetup{provider.eventSetupImpl(),
                             static_cast<unsigned int>(edm::Transition::Event),
                             consumer.esGetTokenIndices(edm::Transition::Event),
@@ -897,6 +926,7 @@ void testEventsetup::getHandleWithESGetTokenTest() {
     {
       DummyDataConsumer consumer{edm::ESInputTag("testTwo", "blah")};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       EventSetup eventSetup{provider.eventSetupImpl(),
                             static_cast<unsigned int>(edm::Transition::Event),
                             consumer.esGetTokenIndices(edm::Transition::Event),
@@ -910,6 +940,7 @@ void testEventsetup::getHandleWithESGetTokenTest() {
     {
       DummyDataConsumer consumer{edm::ESInputTag("DoesNotExist", "blah")};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       EventSetup eventSetup{provider.eventSetupImpl(),
                             static_cast<unsigned int>(edm::Transition::Event),
                             consumer.esGetTokenIndices(edm::Transition::Event),
@@ -966,6 +997,7 @@ void testEventsetup::getTransientHandleWithESGetTokenTest() {
     {
       DummyDataConsumer consumer{edm::ESInputTag("", "blah")};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
@@ -979,6 +1011,7 @@ void testEventsetup::getTransientHandleWithESGetTokenTest() {
     {
       DummyDataConsumer consumer{edm::ESInputTag("", "")};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
@@ -992,6 +1025,7 @@ void testEventsetup::getTransientHandleWithESGetTokenTest() {
     {
       DummyDataConsumer consumer{edm::ESInputTag("testTwo", "blah")};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
@@ -1005,6 +1039,7 @@ void testEventsetup::getTransientHandleWithESGetTokenTest() {
     {
       DummyDataConsumer consumer{edm::ESInputTag("DoesNotExist", "blah")};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),

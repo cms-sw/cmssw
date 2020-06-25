@@ -3,7 +3,7 @@
 
 class CSCCFEBData;
 class CSCTMBHeader;
-class CSCCLCTData;
+class CSCComparatorData;
 class CSCWireDigi;
 class CSCStripDigi;
 #include <map>
@@ -20,6 +20,7 @@ class CSCStripDigi;
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBTrailer.h"
 #include "DataFormats/CSCDigi/interface/CSCRPCDigi.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include <boost/dynamic_bitset.hpp>
 
 /// Maximum available CFEBs per chamber (for old system 5, for new ME11 should be 7)
@@ -91,7 +92,7 @@ public:
   CSCTMBHeader *tmbHeader() const;
 
   /// user must check if nclct > 0
-  CSCCLCTData *clctData() const;
+  CSCComparatorData *comparatorData() const;
 
   /// DMB trailer
   const CSCDMBTrailer *dmbTrailer() const { return &theDMBTrailer; }
@@ -104,6 +105,7 @@ public:
   void add(const std::vector<CSCALCTDigi> &);
   void add(const std::vector<CSCCLCTDigi> &);
   void add(const std::vector<CSCCorrelatedLCTDigi> &);
+  void add(const std::vector<GEMPadDigiCluster> &, const GEMDetId &);
 
   /// this will fill the DMB header, and change all related fields in
   /// the DMBTrailer, ALCTHeader, and TMBHeader

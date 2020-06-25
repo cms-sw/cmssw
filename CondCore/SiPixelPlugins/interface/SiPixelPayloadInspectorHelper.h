@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <numeric>
+#include <fstream>  // std::ifstream
 #include <string>
 #include <boost/tokenizer.hpp>
 #include <boost/range/adaptor/indexed.hpp>

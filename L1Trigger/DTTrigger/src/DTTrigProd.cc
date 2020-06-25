@@ -19,6 +19,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
 
@@ -63,6 +64,7 @@ private:
 
   edm::EDPutTokenT<L1MuDTChambPhContainer> phToken_;
   edm::EDPutTokenT<L1MuDTChambThContainer> thToken_;
+  edm::ESGetToken<DTConfigManager, DTConfigManagerRcd> dtConfigToken_;
 
   // Trigger Configuration Manager CCB validity flag
   bool my_CCBValid = false;
@@ -82,6 +84,7 @@ DTTrigProd::DTTrigProd(const ParameterSet& pset)
     : my_trig(pset, consumesCollector()),
       phToken_{produces<L1MuDTChambPhContainer>()},
       thToken_{produces<L1MuDTChambThContainer>()},
+      dtConfigToken_(esConsumes<DTConfigManager, DTConfigManagerRcd, edm::Transition::BeginRun>()),
       my_DTTFnum{pset.getParameter<bool>("DTTFSectorNumbering")},
       my_debug{pset.getUntrackedParameter<bool>("debug")},
       my_lut_dump_flag{pset.getUntrackedParameter<bool>("lutDumpFlag")},
@@ -91,8 +94,7 @@ void DTTrigProd::beginRun(edm::Run const& iRun, const edm::EventSetup& iEventSet
   if (my_debug)
     cout << "DTTrigProd::beginRun  " << iRun.id().run() << endl;
 
-  ESHandle<DTConfigManager> dtConfig;
-  iEventSetup.get<DTConfigManagerRcd>().get(dtConfig);
+  ESHandle<DTConfigManager> dtConfig = iEventSetup.getHandle(dtConfigToken_);
 
   my_CCBValid = dtConfig->CCBConfigValidity();
 

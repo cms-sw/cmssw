@@ -19,8 +19,6 @@
 #include <vector>
 #include <cmath>
 
-#include <boost/bind.hpp>
-
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "PhysicsTools/MVAComputer/interface/AtomicId.h"
@@ -30,7 +28,7 @@
 
 namespace PhysicsTools {
 
-/** \class MVAModuleHelperDefaultFiller
+  /** \class MVAModuleHelperDefaultFiller
  *
  * \short Default template for MVAModuleHelper "Filler" template argument
  *
@@ -38,16 +36,14 @@ namespace PhysicsTools {
  * on the object for each variable requested.
  *
  ************************************************************/
-template<typename Object>
-struct MVAModuleHelperDefaultFiller {
-	MVAModuleHelperDefaultFiller(const PhysicsTools::AtomicId &name) {}
+  template <typename Object>
+  struct MVAModuleHelperDefaultFiller {
+    MVAModuleHelperDefaultFiller(const PhysicsTools::AtomicId &name) {}
 
-	double operator()(const Object &object,
-	                  const PhysicsTools::AtomicId &name)
-	{ return object.compute(name); }
-};
+    double operator()(const Object &object, const PhysicsTools::AtomicId &name) { return object.compute(name); }
+  };
 
-/** \class MVAModuleHelper
+  /** \class MVAModuleHelper
  *
  * \short Template for automated variable collection and MVA computation in EDM modules
  *
@@ -57,123 +53,108 @@ struct MVAModuleHelperDefaultFiller {
  * is automatically collected from the EventSetup.
  *
  ************************************************************/
-template<class Record, typename Object,
-         class Filler = MVAModuleHelperDefaultFiller<Object> >
-class MVAModuleHelper {
+  template <class Record, typename Object, class Filler = MVAModuleHelperDefaultFiller<Object> >
+  class MVAModuleHelper {
+  public:
+    MVAModuleHelper(const std::string &label) : label(label) {}
+    MVAModuleHelper(const MVAModuleHelper &orig) : label(orig.label) {}
+    ~MVAModuleHelper() {}
+
+    void setEventSetup(const edm::EventSetup &setup);
+    void setEventSetup(const edm::EventSetup &setup, const char *esLabel);
+
+    double operator()(const Object &object) const;
+
+    void train(const Object &object, bool target, double weight = 1.0) const;
+
+  private:
+    void init(const PhysicsTools::Calibration::MVAComputerContainer *container);
+
+    const std::string label;
+    PhysicsTools::MVAComputerCache cache;
+
+    class Value {
     public:
-	MVAModuleHelper(const std::string &label) : label(label) {}
-	MVAModuleHelper(const MVAModuleHelper &orig) : label(orig.label) {}
-	~MVAModuleHelper() {}
+      Value(const std::string &name) : name(name), filler(name) {}
+      Value(const std::string &name, double value) : name(name), filler(name), value(value) {}
 
-	void setEventSetup(const edm::EventSetup &setup);
-	void setEventSetup(const edm::EventSetup &setup, const char *esLabel);
+      inline bool update(const Object &object) const {
+        value = filler(object, name);
+        return !std::isfinite(value);
+      }
 
-	double operator()(const Object &object) const;
-
-	void train(const Object &object, bool target, double weight = 1.0) const;
+      PhysicsTools::AtomicId getName() const { return name; }
+      double getValue() const { return value; }
 
     private:
-	void init(const PhysicsTools::Calibration::MVAComputerContainer *container);
+      PhysicsTools::AtomicId name;
+      Filler filler;
 
-	const std::string		label;
-	PhysicsTools::MVAComputerCache	cache;
+      mutable double value;
+    };
 
-	class Value {
-	    public:
-	    	Value(const std::string &name) :
-	    		name(name), filler(name) {}
-	    	Value(const std::string &name, double value) :
-			name(name), filler(name), value(value) {}
+    std::vector<Value> values;
+  };
 
-		inline bool update(const Object &object) const
-		{
-			value = filler(object, name);
-			return !std::isfinite(value);
-		}
+  template <class Record, typename Object, class Filler>
+  void MVAModuleHelper<Record, Object, Filler>::setEventSetup(const edm::EventSetup &setup) {
+    edm::ESHandle<PhysicsTools::Calibration::MVAComputerContainer> handle;
+    setup.get<Record>().get(handle);
+    const PhysicsTools::Calibration::MVAComputerContainer *container = handle.product();
+    if (cache.update(container, label.c_str()) && cache)
+      init(container);
+  }
 
-		PhysicsTools::AtomicId getName() const { return name; }
-		double getValue() const { return value; }
+  template <class Record, typename Object, class Filler>
+  void MVAModuleHelper<Record, Object, Filler>::setEventSetup(const edm::EventSetup &setup, const char *esLabel) {
+    edm::ESHandle<PhysicsTools::Calibration::MVAComputerContainer> handle;
+    setup.get<Record>().get(esLabel, handle);
+    const PhysicsTools::Calibration::MVAComputerContainer *container = handle.product();
+    if (cache.update(container, label.c_str()) && cache)
+      init(container);
+  }
 
-	    private:
-		PhysicsTools::AtomicId		name;
-		Filler				filler;
+  template <class Record, typename Object, class Filler>
+  void MVAModuleHelper<Record, Object, Filler>::init(const PhysicsTools::Calibration::MVAComputerContainer *container) {
+    const std::vector<PhysicsTools::Calibration::Variable> &vars = container->find(label).inputSet;
+    values.clear();
+    for (std::vector<PhysicsTools::Calibration::Variable>::const_iterator iter = vars.begin(); iter != vars.end();
+         ++iter)
+      if (std::strncmp(iter->name.c_str(), "__", 2) != 0)
+        values.push_back(Value(iter->name));
+  }
 
-		mutable double			value;
-	};
+  template <class Record, typename Object, class Filler>
+  double MVAModuleHelper<Record, Object, Filler>::operator()(const Object &object) const {
+    std::for_each(values.begin(), values.end(), std::bind(&Value::update, std::placeholders::_1, object));
+    return cache->eval(values);
+  }
 
-	std::vector<Value>			values;
-};
+  template <class Record, typename Object, class Filler>
+  void MVAModuleHelper<Record, Object, Filler>::train(const Object &object, bool target, double weight) const {
+    static const PhysicsTools::AtomicId kTargetId("__TARGET__");
+    static const PhysicsTools::AtomicId kWeightId("__WEIGHT__");
 
-template<class Record, typename Object, class Filler>
-void MVAModuleHelper<Record, Object, Filler>::setEventSetup(
-						const edm::EventSetup &setup)
-{
-	edm::ESHandle<PhysicsTools::Calibration::MVAComputerContainer> handle;
-	setup.get<Record>().get(handle);
-	const PhysicsTools::Calibration::MVAComputerContainer *container = handle.product();
-	if (cache.update(container, label.c_str()) && cache)
-		init(container);
-}
+    if (!cache)
+      return;
 
-template<class Record, typename Object, class Filler>
-void MVAModuleHelper<Record, Object, Filler>::setEventSetup(
-			const edm::EventSetup &setup, const char *esLabel)
-{
-	edm::ESHandle<PhysicsTools::Calibration::MVAComputerContainer> handle;
-	setup.get<Record>().get(esLabel, handle);
-	const PhysicsTools::Calibration::MVAComputerContainer *container = handle.product();
-	if (cache.update(container, label.c_str()) && cache)
-		init(container);
-}
+    if (std::accumulate(
+            values.begin(),
+            values.end(),
+            0,
+            std::bind(
+                std::plus<int>(), std::placeholders::_1, std::bind(&Value::update, std::placeholders::_2, object))))
+      return;
 
-template<class Record, typename Object, class Filler>
-void MVAModuleHelper<Record, Object, Filler>::init(
-	const PhysicsTools::Calibration::MVAComputerContainer *container)
-{
-	const std::vector<PhysicsTools::Calibration::Variable> &vars =
-					container->find(label).inputSet;
-	values.clear();
-	for(std::vector<PhysicsTools::Calibration::Variable>::const_iterator
-			iter = vars.begin(); iter != vars.end(); ++iter)
-		if (std::strncmp(iter->name.c_str(), "__", 2) != 0)
-			values.push_back(Value(iter->name));
-}
+    PhysicsTools::Variable::ValueList list;
+    list.add(kTargetId, target);
+    list.add(kWeightId, weight);
+    for (typename std::vector<Value>::const_iterator iter = values.begin(); iter != values.end(); ++iter)
+      list.add(iter->getName(), iter->getValue());
 
-template<class Record, typename Object, class Filler>
-double MVAModuleHelper<Record, Object, Filler>::operator()(
-						const Object &object) const
-{
-	std::for_each(values.begin(), values.end(),
-	              boost::bind(&Value::update, _1, object));
-	return cache->eval(values);
-}
+    cache->eval(list);
+  }
 
-template<class Record, typename Object, class Filler>
-void MVAModuleHelper<Record, Object, Filler>::train(
-		const Object &object, bool target, double weight) const
-{
-	static const PhysicsTools::AtomicId kTargetId("__TARGET__");
-	static const PhysicsTools::AtomicId kWeightId("__WEIGHT__");
+}  // namespace PhysicsTools
 
-	if (!cache)
-		return;
-
-	using boost::bind;
-	if (std::accumulate(values.begin(), values.end(), 0,
-	                    bind(std::plus<int>(), _1,
-	                         bind(&Value::update, _2, object))))
-		return;
-
-	PhysicsTools::Variable::ValueList list;
-	list.add(kTargetId, target);
-	list.add(kWeightId, weight);
-	for(typename std::vector<Value>::const_iterator iter = values.begin();
-	    iter != values.end(); ++iter)
-		list.add(iter->getName(), iter->getValue());
-
-	cache->eval(list);
-}
-
-} // namespace PhysicsTools
-
-#endif // PhysicsTools_MVAComputer_MVAModuleHelper_h
+#endif  // PhysicsTools_MVAComputer_MVAModuleHelper_h

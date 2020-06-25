@@ -34,6 +34,8 @@
 #include "CondFormats/MFObjects/interface/MagFieldConfig.h"
 #include "CondFormats/DataRecord/interface/MagFieldConfigRcd.h"
 
+#include "FWCore/Concurrency/interface/SharedResourceNames.h"
+
 #include <string>
 #include <vector>
 #include <iostream>
@@ -77,6 +79,7 @@ VolumeBasedMagneticFieldESProducerFromDB::VolumeBasedMagneticFieldESProducerFrom
     : debug_(iConfig.getUntrackedParameter<bool>("debugBuilder")) {
   std::string const myConfigLabel = "VBMFESChoice";
 
+  usesResources({{edm::ESSharedResourceNames::kDDGeometry}});
   //Based on configuration, pick algorithm to produce the proper MagFieldConfig with a specific label
   const int current = iConfig.getParameter<int>("valueOverride");
   if (current < 0) {

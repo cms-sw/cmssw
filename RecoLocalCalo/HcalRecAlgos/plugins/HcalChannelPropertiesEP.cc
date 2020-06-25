@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"

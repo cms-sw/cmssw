@@ -93,6 +93,17 @@ std::vector<edm::ProductResolverIndexAndSkipBit> const& EDAnalyzerAdaptorBase::i
   return m_streamModules[0]->itemsToGetFrom(iType);
 }
 
+std::vector<edm::ESProxyIndex> const& EDAnalyzerAdaptorBase::esGetTokenIndicesVector(edm::Transition iTrans) const {
+  assert(not m_streamModules.empty());
+  return m_streamModules[0]->esGetTokenIndicesVector(iTrans);
+}
+
+std::vector<edm::ESRecordIndex> const& EDAnalyzerAdaptorBase::esGetTokenRecordIndicesVector(
+    edm::Transition iTrans) const {
+  assert(not m_streamModules.empty());
+  return m_streamModules[0]->esGetTokenRecordIndicesVector(iTrans);
+}
+
 void EDAnalyzerAdaptorBase::updateLookup(BranchType iType,
                                          ProductResolverIndexHelper const& iHelper,
                                          bool iPrefetchMayGet) {

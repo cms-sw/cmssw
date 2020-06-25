@@ -181,18 +181,6 @@ namespace edm {
       void preSourceConstruction(ModuleDescription const& md);
       void postSourceConstruction(ModuleDescription const& md);
 
-      void preLockEventSetupGet(eventsetup::ComponentDescription const*,
-                                eventsetup::EventSetupRecordKey const&,
-                                eventsetup::DataKey const&);
-
-      void postLockEventSetupGet(eventsetup::ComponentDescription const*,
-                                 eventsetup::EventSetupRecordKey const&,
-                                 eventsetup::DataKey const&);
-
-      void postEventSetupGet(eventsetup::ComponentDescription const*,
-                             eventsetup::EventSetupRecordKey const&,
-                             eventsetup::DataKey const&);
-
     private:
       std::string indention_;
       std::set<std::string> dumpContextForLabels_;
@@ -345,12 +333,6 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry& iRegistry)
 
   iRegistry.watchPreSourceConstruction(this, &Tracer::preSourceConstruction);
   iRegistry.watchPostSourceConstruction(this, &Tracer::postSourceConstruction);
-
-  if (dumpEventSetupInfo_) {
-    iRegistry.watchPreLockEventSetupGet(this, &Tracer::preLockEventSetupGet);
-    iRegistry.watchPostLockEventSetupGet(this, &Tracer::postLockEventSetupGet);
-    iRegistry.watchPostEventSetupGet(this, &Tracer::postEventSetupGet);
-  }
 
   iRegistry.preSourceEarlyTerminationSignal_.connect([this](edm::TerminationOrigin iOrigin) {
     LogAbsolute out("Tracer");
@@ -1379,39 +1361,6 @@ void Tracer::postSourceConstruction(ModuleDescription const& desc) {
   if (dumpNonModuleContext_) {
     out << "\n" << desc;
   }
-}
-
-void Tracer::preLockEventSetupGet(eventsetup::ComponentDescription const* desc,
-                                  eventsetup::EventSetupRecordKey const& recordKey,
-                                  eventsetup::DataKey const& dataKey) {
-  LogAbsolute out("Tracer");
-  out << "preLockEventSetupGet  ";
-  out << desc->label_ << "  ";
-  out << recordKey.name() << "  ";
-  out << dataKey.type().name() << "  ";
-  out << dataKey.name().value();
-}
-
-void Tracer::postLockEventSetupGet(eventsetup::ComponentDescription const* desc,
-                                   eventsetup::EventSetupRecordKey const& recordKey,
-                                   eventsetup::DataKey const& dataKey) {
-  LogAbsolute out("Tracer");
-  out << "postLockEventSetupGet  ";
-  out << desc->label_ << "  ";
-  out << recordKey.name() << "  ";
-  out << dataKey.type().name() << "  ";
-  out << dataKey.name().value();
-}
-
-void Tracer::postEventSetupGet(eventsetup::ComponentDescription const* desc,
-                               eventsetup::EventSetupRecordKey const& recordKey,
-                               eventsetup::DataKey const& dataKey) {
-  LogAbsolute out("Tracer");
-  out << "postEventSetupGet  ";
-  out << desc->label_ << "  ";
-  out << recordKey.name() << "  ";
-  out << dataKey.type().name() << "  ";
-  out << dataKey.name().value();
 }
 
 using edm::service::Tracer;

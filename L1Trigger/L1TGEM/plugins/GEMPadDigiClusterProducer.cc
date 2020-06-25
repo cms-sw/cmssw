@@ -20,6 +20,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -101,6 +102,7 @@ private:
 
   /// Name of input digi Collection
   edm::EDGetTokenT<GEMPadDigiCollection> pad_token_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geom_token_;
   edm::InputTag pads_;
 
   unsigned int maxClustersOHGE11_;
@@ -121,6 +123,7 @@ GEMPadDigiClusterProducer::GEMPadDigiClusterProducer(const edm::ParameterSet& ps
   maxClusterSize_ = ps.getParameter<unsigned int>("maxClusterSize");
 
   pad_token_ = consumes<GEMPadDigiCollection>(pads_);
+  geom_token_ = esConsumes<GEMGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 
   produces<GEMPadDigiClusterCollection>();
   consumes<GEMPadDigiCollection>(pads_);
@@ -141,8 +144,7 @@ void GEMPadDigiClusterProducer::fillDescriptions(edm::ConfigurationDescriptions&
 }
 
 void GEMPadDigiClusterProducer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {
-  edm::ESHandle<GEMGeometry> hGeom;
-  eventSetup.get<MuonGeometryRecord>().get(hGeom);
+  edm::ESHandle<GEMGeometry> hGeom = eventSetup.getHandle(geom_token_);
   geometry_ = &*hGeom;
 }
 
@@ -196,7 +198,7 @@ void GEMPadDigiClusterProducer::buildClusters(const GEMPadDigiCollection& det_pa
           cl.push_back((*d).pad());
         } else {
           // put the current cluster in the proto collection
-          GEMPadDigiCluster pad_cluster(cl, startBX);
+          GEMPadDigiCluster pad_cluster(cl, startBX, GEMSubDetId::station(part->id().station()));
 
           all_pad_clusters.emplace_back(pad_cluster);
 
@@ -210,7 +212,7 @@ void GEMPadDigiClusterProducer::buildClusters(const GEMPadDigiCollection& det_pa
 
     // put the last cluster in the proto collection
     if (pads.first != pads.second) {
-      GEMPadDigiCluster pad_cluster(cl, startBX);
+      GEMPadDigiCluster pad_cluster(cl, startBX, GEMSubDetId::station(part->id().station()));
       all_pad_clusters.emplace_back(pad_cluster);
     }
     proto_clusters.emplace(part->id(), all_pad_clusters);

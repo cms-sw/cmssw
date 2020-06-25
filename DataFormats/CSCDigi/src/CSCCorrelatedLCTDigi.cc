@@ -101,11 +101,11 @@ bool CSCCorrelatedLCTDigi::getEightStrip() const { return (strip >> kEightStripS
 /// return the fractional strip
 float CSCCorrelatedLCTDigi::getFractionalStrip(const uint16_t n) const {
   if (n == 8) {
-    return 0.125f * (getStrip() + 1) - 0.0625f;
+    return 0.125f * (getStrip(n) + 1) - 0.0625f;
   } else if (n == 4) {
-    return 0.25f * (getStrip() + 1) - 0.125f;
+    return 0.25f * (getStrip(n) + 1) - 0.125f;
   } else {
-    return 0.5f * (getStrip() + 1) - 0.25f;
+    return 0.5f * (getStrip(n) + 1) - 0.25f;
   }
 }
 

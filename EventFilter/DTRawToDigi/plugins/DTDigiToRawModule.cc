@@ -9,7 +9,6 @@
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "FWCore/Utilities/interface/CRC16.h"
 
-#include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include <iostream>
@@ -23,6 +22,7 @@ DTDigiToRawModule::DTDigiToRawModule(const edm::ParameterSet& ps) {
   dduID = ps.getUntrackedParameter<int>("dduID", 770);
   debug = ps.getUntrackedParameter<bool>("debugMode", false);
   digicoll = consumes<DTDigiCollection>(ps.getParameter<edm::InputTag>("digiColl"));
+  mapToken_ = esConsumes<DTReadOutMapping, DTReadOutMappingRcd>();
 
   useStandardFEDid_ = ps.getUntrackedParameter<bool>("useStandardFEDid", true);
   minFEDid_ = ps.getUntrackedParameter<int>("minFEDid", 770);
@@ -47,8 +47,7 @@ void DTDigiToRawModule::produce(Event& e, const EventSetup& iSetup) {
   e.getByToken(digicoll, digis);
 
   // Load DTMap
-  edm::ESHandle<DTReadOutMapping> map;
-  iSetup.get<DTReadOutMappingRcd>().get(map);
+  edm::ESHandle<DTReadOutMapping> map = iSetup.getHandle(mapToken_);
 
   // Create the packed data
   int FEDIDmin = 0, FEDIDMax = 0;

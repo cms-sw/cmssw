@@ -69,6 +69,11 @@ ntuple_triggercells = cms.PSet(
     FilterCellsInMulticlusters = cms.bool(False)
 )
 
+ntuple_triggersums = cms.PSet(
+    NtupleName = cms.string('HGCalTriggerNtupleHGCTriggerSums'),
+    TriggerSums = cms.InputTag('hgcalConcentratorProducer:HGCalConcentratorProcessorSelection'),
+)
+
 ntuple_clusters = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCClusters'),
     Clusters = cms.InputTag('hgcalBackEndLayer1Producer:HGCalBackendLayer1Processor2DClustering'),
@@ -104,6 +109,7 @@ hgcalTriggerNtuplizer = cms.EDAnalyzer(
         ntuple_gentau,
         ntuple_digis,
         ntuple_triggercells,
+        ntuple_triggersums,
         ntuple_multiclusters,
         ntuple_towers
     )

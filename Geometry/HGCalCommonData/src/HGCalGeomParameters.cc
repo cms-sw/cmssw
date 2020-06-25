@@ -169,7 +169,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
               zv = polygon.zVec();
               rv = polygon.xVec();
             }
-            php.waferR_ = HGCalParameters::k_ScaleFromDDDToG4 * rv[0] / std::cos(30._deg);
+            php.waferR_ = 2.0 * HGCalParameters::k_ScaleFromDDDToG4 * rv[0] * tan30deg_;
             php.waferSize_ = HGCalParameters::k_ScaleFromDDD * rv[0];
             double dz = 0.5 * HGCalParameters::k_ScaleFromDDDToG4 * (zv[1] - zv[0]);
 #ifdef EDM_ML_DEBUG
@@ -393,7 +393,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const cms::DDCompactView* cpv,
               zv[1] = pars[9];
               rv = pars[4];
             }
-            php.waferR_ = HGCalParameters::k_ScaleFromDD4HepToG4 * rv / std::cos(30._deg);
+            php.waferR_ = 2.0 * HGCalParameters::k_ScaleFromDD4HepToG4 * rv * tan30deg_;
             php.waferSize_ = HGCalParameters::k_ScaleFromDD4Hep * rv;
             double dz = 0.5 * HGCalParameters::k_ScaleFromDD4HepToG4 * (zv[1] - zv[0]);
 #ifdef EDM_ML_DEBUG
@@ -1007,6 +1007,19 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const DDFilteredView& fv, HGCalPa
   php.layerOffset_ = dummy2[0];
   php.layerCenter_ = dbl_to_int(fv.vector("LayerCenter"));
 
+  // Read in parameters from Philip's file
+  if (php.waferMaskMode_ == siliconFileEE) {
+    waferIndex_ = dbl_to_int(fv.vector("WaferIndexEE"));
+    waferTypes_ = dbl_to_int(fv.vector("WaferTypesEE"));
+    waferParts_ = dbl_to_int(fv.vector("WaferPartialEE"));
+    waferOrien_ = dbl_to_int(fv.vector("WaferOrientEE"));
+  } else if (php.waferMaskMode_ == siliconFileHE) {
+    waferIndex_ = dbl_to_int(fv.vector("WaferIndexHE"));
+    waferTypes_ = dbl_to_int(fv.vector("WaferTypesHE"));
+    waferParts_ = dbl_to_int(fv.vector("WaferPartialHE"));
+    waferOrien_ = dbl_to_int(fv.vector("WaferOrientHE"));
+  }
+
   loadSpecParsHexagon8(php);
 }
 
@@ -1065,10 +1078,45 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
     }
   }
 
+  // Read in parameters from Philip's file
+  if (php.waferMaskMode_ == siliconFileEE) {
+    for (auto const& it : vmap) {
+      if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "WaferIndexEE")) {
+        for (const auto& i : it.second)
+          waferIndex_.emplace_back(std::round(i));
+      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "WaferTypesEE")) {
+        for (const auto& i : it.second)
+          waferTypes_.emplace_back(std::round(i));
+      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "WaferPartialEE")) {
+        for (const auto& i : it.second)
+          waferParts_.emplace_back(std::round(i));
+      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "WaferOrientEE")) {
+        for (const auto& i : it.second)
+          waferOrien_.emplace_back(std::round(i));
+      }
+    }
+  } else if (php.waferMaskMode_ == siliconFileHE) {
+    for (auto const& it : vmap) {
+      if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "WaferIndexHE")) {
+        for (const auto& i : it.second)
+          waferIndex_.emplace_back(std::round(i));
+      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "WaferTypesHE")) {
+        for (const auto& i : it.second)
+          waferTypes_.emplace_back(std::round(i));
+      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "WaferPartialHE")) {
+        for (const auto& i : it.second)
+          waferParts_.emplace_back(std::round(i));
+      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "WaferOrientHE")) {
+        for (const auto& i : it.second)
+          waferOrien_.emplace_back(std::round(i));
+      }
+    }
+  }
+
   loadSpecParsHexagon8(php);
 }
 
-void HGCalGeomParameters::loadSpecParsHexagon8(const HGCalParameters& php) {
+void HGCalGeomParameters::loadSpecParsHexagon8(HGCalParameters& php) {
 #ifdef EDM_ML_DEBUG
   for (unsigned int k = 0; k < php.cellThickness_.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: cell[" << k << "] Thickness " << php.cellThickness_[k];
@@ -1100,6 +1148,22 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const HGCalParameters& php) {
   for (unsigned int k = 0; k < php.layerCenter_.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << php.layerCenter_[k];
 #endif
+
+  // Store parameters from Philip's file
+  if (php.waferMaskMode_ > 1) {
+    for (unsigned int k = 0; k < waferIndex_.size(); ++k) {
+      php.waferInfoMap_[waferIndex_[k]] = HGCalParameters::waferInfo(waferTypes_[k], waferParts_[k], waferOrien_[k]);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "[" << k << ":" << waferIndex_[k] << "] "
+                                    << " Type " << waferTypes_[k] << " Partial type " << waferParts_[k]
+                                    << " Orientation " << waferOrien_[k];
+#endif
+    }
+    waferIndex_.clear();
+    waferTypes_.clear();
+    waferParts_.clear();
+    waferOrien_.clear();
+  }
 }
 
 void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalParameters& php) {
@@ -1135,6 +1199,23 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalP
   const auto& dummy2 = getDDDArray("LayerOffset", sv, 1);
   php.layerOffset_ = dummy2[0];
   php.layerCenter_ = dbl_to_int(fv.vector("LayerCenter"));
+
+  // tile parameters from Katja's file
+  if (php.waferMaskMode_ == scintillatorFile) {
+    tileIndx_ = dbl_to_int(fv.vector("TileIndex"));
+    tileType_ = dbl_to_int(fv.vector("TileType"));
+    tileSiPM_ = dbl_to_int(fv.vector("TileSiPM"));
+    tileHEX1_ = dbl_to_int(fv.vector("TileHEX1"));
+    tileHEX2_ = dbl_to_int(fv.vector("TileHEX2"));
+    tileHEX3_ = dbl_to_int(fv.vector("TileHEX3"));
+    tileHEX4_ = dbl_to_int(fv.vector("TileHEX4"));
+    tileRMin_ = fv.vector("TileRMin");
+    tileRMax_ = fv.vector("TileRMax");
+    rescale(tileRMin_, HGCalParameters::k_ScaleFromDDD);
+    rescale(tileRMax_, HGCalParameters::k_ScaleFromDDD);
+    tileRingMin_ = dbl_to_int(fv.vector("TileRingMin"));
+    tileRingMax_ = dbl_to_int(fv.vector("TileRingMax"));
+  }
 
   loadSpecParsTrapezoid(php);
 }
@@ -1183,10 +1264,50 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
   const auto& dummy2 = fv.get<std::vector<double> >(sdTag1, "LayerOffset");
   php.layerOffset_ = dummy2[0];
 
+  // tile parameters from Katja's file
+  if (php.waferMaskMode_ == scintillatorFile) {
+    for (auto const& it : vmap) {
+      if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "TileIndex")) {
+        for (const auto& i : it.second)
+          tileIndx_.emplace_back(std::round(i));
+      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "TileType")) {
+        for (const auto& i : it.second)
+          tileType_.emplace_back(std::round(i));
+      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "TileSiPM")) {
+        for (const auto& i : it.second)
+          tileSiPM_.emplace_back(std::round(i));
+      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "TileHEX1")) {
+        for (const auto& i : it.second)
+          tileHEX1_.emplace_back(std::round(i));
+      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "TileHEX2")) {
+        for (const auto& i : it.second)
+          tileHEX2_.emplace_back(std::round(i));
+      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "TileHEX3")) {
+        for (const auto& i : it.second)
+          tileHEX3_.emplace_back(std::round(i));
+      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "TileHEX4")) {
+        for (const auto& i : it.second)
+          tileHEX4_.emplace_back(std::round(i));
+      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "TileRMin")) {
+        for (const auto& i : it.second)
+          tileRMin_.emplace_back(HGCalParameters::k_ScaleFromDD4Hep * i);
+      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "TileRMax")) {
+        for (const auto& i : it.second)
+          tileRMax_.emplace_back(HGCalParameters::k_ScaleFromDD4Hep * i);
+      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "TileRingMin")) {
+        for (const auto& i : it.second)
+          tileRingMin_.emplace_back(std::round(i));
+      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "TileRingMax")) {
+        for (const auto& i : it.second)
+          tileRingMax_.emplace_back(std::round(i));
+      }
+    }
+  }
+
   loadSpecParsTrapezoid(php);
 }
 
-void HGCalGeomParameters::loadSpecParsTrapezoid(const HGCalParameters& php) {
+void HGCalGeomParameters::loadSpecParsTrapezoid(HGCalParameters& php) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters:nCells " << php.nCellsFine_ << ":" << php.nCellsCoarse_
                                 << " cellSize: " << php.cellSize_[0] << ":" << php.cellSize_[1];
@@ -1215,6 +1336,42 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const HGCalParameters& php) {
   for (unsigned int k = 0; k < php.layerCenter_.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << php.layerCenter_[k];
 #endif
+
+  // tile parameters from Katja's file
+  if (php.waferMaskMode_ == scintillatorFile) {
+    for (unsigned int k = 0; k < tileIndx_.size(); ++k) {
+      php.tileInfoMap_[tileIndx_[k]] =
+          HGCalParameters::tileInfo(tileType_[k], tileSiPM_[k], tileHEX1_[k], tileHEX2_[k], tileHEX3_[k], tileHEX4_[k]);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "Tile[" << k << ":" << tileIndx_[k] << "] "
+                                    << " Type " << tileType_[k] << " SiPM " << tileSiPM_[k] << " HEX " << tileHEX1_[k]
+                                    << ":" << tileHEX2_[k] << ":" << tileHEX3_[k] << ":" << tileHEX4_[k];
+#endif
+    }
+    tileIndx_.clear();
+    tileType_.clear();
+    tileSiPM_.clear();
+    tileHEX1_.clear();
+    tileHEX2_.clear();
+    tileHEX3_.clear();
+    tileHEX4_.clear();
+    for (unsigned int k = 0; k < tileRMin_.size(); ++k) {
+      php.tileRingR_.emplace_back(tileRMin_[k], tileRMax_[k]);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "TileRingR[" << k << "] " << tileRMin_[k] << ":" << tileRMax_[k];
+#endif
+    }
+    tileRMin_.clear();
+    tileRMax_.clear();
+    for (unsigned k = 0; k < tileRingMin_.size(); ++k) {
+      php.tileRingRange_.emplace_back(tileRingMin_[k], tileRingMax_[k]);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "TileRingRange[" << k << "] " << tileRingMin_[k] << ":" << tileRingMax_[k];
+#endif
+    }
+    tileRingMin_.clear();
+    tileRingMax_.clear();
+  }
 }
 
 void HGCalGeomParameters::loadWaferHexagon(HGCalParameters& php) {
@@ -1342,11 +1499,14 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
   double r = 0.5 * (waferW + waferS);
   double R = 2.0 * r / sqrt3_;
   double dy = 0.75 * R;
+  double r1 = 0.5 * waferW;
+  double R1 = 2.0 * r1 / sqrt3_;
   int N = (r == 0) ? 3 : ((int)(0.5 * rout / r) + 3);
   int ns1 = (2 * N + 1) * (2 * N + 1);
   int ns2 = ns1 * php.zLayerHex_.size();
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "r " << r << " dy " << dy << " N " << N << " sizes " << ns1 << ":" << ns2;
+  edm::LogVerbatim("HGCalGeom") << "wafer " << waferW << ":" << waferS << " r " << r << " dy " << dy << " N " << N
+                                << " sizes " << ns1 << ":" << ns2;
   std::vector<int> indtypes(ns1 + 1);
   indtypes.clear();
 #endif
@@ -1367,7 +1527,7 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
       php.waferPosY_.emplace_back(ypos);
       wafersInLayers[indx] = ipos;
       ++ipos;
-      std::pair<int, int> corner = HGCalGeomTools::waferCorner(xpos, ypos, r, R, 0, rout, false);
+      std::pair<int, int> corner = HGCalGeomTools::waferCorner(xpos, ypos, r1, R1, 0, rout, false);
       if ((corner.first == (int)(HGCalParameters::k_CornerSize)) || ((corner.first > 0) && php.defineFull_)) {
         uvmax = std::max(uvmax, std::max(std::abs(u), std::abs(v)));
       }
@@ -1375,9 +1535,11 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
         int copy = i + php.layerOffset_;
         std::pair<double, double> xyoff = geomTools_.shiftXY(php.layerCenter_[copy], (waferW + waferS));
         int lay = php.layer_[php.layerIndex_[i]];
+        double xpos0 = xpos + xyoff.first;
+        double ypos0 = ypos + xyoff.second;
         double zpos = php.zLayerHex_[i];
-        int type = wType->getType(HGCalParameters::k_ScaleToDDD * (xpos + xyoff.first),
-                                  HGCalParameters::k_ScaleToDDD * (ypos + xyoff.second),
+        int type = wType->getType(HGCalParameters::k_ScaleToDDD * xpos0,
+                                  HGCalParameters::k_ScaleToDDD * ypos0,
                                   HGCalParameters::k_ScaleToDDD * zpos);
         php.waferTypeL_.emplace_back(type);
         int kndx = HGCalWaferIndex::waferIndex(lay, u, v);
@@ -1387,7 +1549,7 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
         indtypes.emplace_back(kndx);
 #endif
         std::pair<int, int> corner =
-            HGCalGeomTools::waferCorner(xpos, ypos, r, R, php.rMinLayHex_[i], php.rMaxLayHex_[i], false);
+            HGCalGeomTools::waferCorner(xpos0, ypos0, r1, R1, php.rMinLayHex_[i], php.rMaxLayHex_[i], false);
 #ifdef EDM_ML_DEBUG
         if (((corner.first == 0) && std::abs(u) < 5 && std::abs(v) < 5) || (std::abs(u) < 2 && std::abs(v) < 2)) {
           edm::LogVerbatim("HGCalGeom") << "Layer " << lay << " R " << php.rMinLayHex_[i] << ":" << php.rMaxLayHex_[i]
@@ -1405,11 +1567,13 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
           int wl = HGCalWaferIndex::waferIndex(lay, u, v);
           if (php.waferMaskMode_ > 0) {
             std::pair<int, int> corner0 = HGCalWaferMask::getTypeMode(
-                xpos, ypos, r, R, php.rMinLayHex_[i], php.rMaxLayHex_[i], type, php.waferMaskMode_);
+                xpos0, ypos0, r1, R1, php.rMinLayHex_[i], php.rMaxLayHex_[i], type, php.waferMaskMode_);
             waferTypes[wl] = corner0;
 #ifdef EDM_ML_DEBUG
             edm::LogVerbatim("HGCalGeom")
-                << "Layer " << lay << " u|v " << u << ":" << v << " with corner " << corner.first << ":"
+                << "Layer " << lay << " u|v " << u << ":" << v << " Index " << std::hex << wl << std::dec << " pos "
+                << xpos0 << ":" << ypos0 << " R " << r1 << ":" << R1 << " Range " << php.rMinLayHex_[i] << ":"
+                << php.rMaxLayHex_[i] << type << ":" << php.waferMaskMode_ << " corner " << corner.first << ":"
                 << corner.second << " croner0 " << corner0.first << ":" << corner0.second;
 #endif
           } else {
