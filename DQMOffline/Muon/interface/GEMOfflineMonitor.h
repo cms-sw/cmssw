@@ -8,7 +8,6 @@
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
 
-// class GEMOfflineMonitor : public DQMEDAnalyzer, public GEMOfflineDQMBase {
 class GEMOfflineMonitor : public GEMOfflineDQMBase {
 public:
   explicit GEMOfflineMonitor(const edm::ParameterSet &);
@@ -28,10 +27,7 @@ private:
 
   std::string log_category_;
 
-  // digi
   MEMap1 me_digi_det_;
-
-  // rechit
   MEMap1 me_hit_det_;
 };
 

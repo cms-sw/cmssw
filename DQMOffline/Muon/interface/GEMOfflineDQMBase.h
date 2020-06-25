@@ -11,7 +11,6 @@ class GEMOfflineDQMBase : public DQMEDAnalyzer {
 public:
   explicit GEMOfflineDQMBase(const edm::ParameterSet&);
 
-  // protected:
   typedef std::tuple<int, int> MEMapKey1;
   typedef std::tuple<int, int, bool> MEMapKey2;
   typedef std::tuple<int, int, bool, int> MEMapKey3;
