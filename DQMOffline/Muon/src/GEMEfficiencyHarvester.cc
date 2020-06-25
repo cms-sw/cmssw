@@ -88,7 +88,6 @@ void GEMEfficiencyHarvester::doEfficiency(DQMStore::IBooker& ibooker, DQMStore::
   ibooker.setCurrentFolder(efficiency_folder);
   igetter.setCurrentFolder(efficiency_folder);
 
-  // value: (passed, total)
   std::map<std::string, std::pair<const MonitorElement*, const MonitorElement*> > me_pairs;
 
   const std::string matched = "_matched";
@@ -129,7 +128,6 @@ void GEMEfficiencyHarvester::doEfficiency(DQMStore::IBooker& ibooker, DQMStore::
     }
 
     if (me_passed->kind() != me_total->kind()) {
-      // FIXME print type std::hex?
       edm::LogError(log_category_) << "inconsistency between kinds of passed and total" << key << std::endl;
       continue;
     }

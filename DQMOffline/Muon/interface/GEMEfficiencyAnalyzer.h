@@ -27,7 +27,6 @@ private:
 
   const GEMRecHit *findMatchedHit(const float, const GEMRecHitCollection::range &);
 
-  //----------------------------------------------------------------------------
   edm::EDGetTokenT<GEMRecHitCollection> rechit_token_;
   edm::EDGetTokenT<edm::View<reco::Muon> > muon_token_;
 
@@ -35,7 +34,7 @@ private:
 
   bool use_global_muon_;
   float residual_x_cut_;
-  //
+
   std::vector<double> pt_binning_;
   int eta_nbins_;
   double eta_low_;
@@ -46,7 +45,6 @@ private:
   TString title_;
   TString matched_title_;
 
-  // MonitorElement
   MEMap1 me_detector_;
   MEMap1 me_detector_matched_;
 

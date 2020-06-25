@@ -52,7 +52,6 @@ void GEMEfficiencyAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
       bookDetectorOccupancy(ibooker, station, key1, station_name_suffix, station_title_suffix);
 
       if (station_number == 1) {
-        //
         for (const bool is_odd : {true, false}) {
           std::tuple<int, int, bool> key2{region_number, station_number, is_odd};
           const TString&& parity_name_suffix = station_name_suffix + (is_odd ? "_odd" : "_even");

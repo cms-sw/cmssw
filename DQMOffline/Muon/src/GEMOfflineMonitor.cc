@@ -111,8 +111,6 @@ void GEMOfflineMonitor::analyze(const edm::Event& event, const edm::EventSetup& 
 
     const MEMapKey1 det_key{gem_id.region(), gem_id.station()};
     for (auto digi = range.first; digi != range.second; ++digi) {
-      // me_gem_occupancy_->Fill(1);
-
       const int chamber_bin = getDetOccXBin(gem_id, gem);
       const int vfat_number = getVFATNumberByStrip(gem_id.station(), gem_id.roll(), digi->strip());
 
@@ -122,8 +120,6 @@ void GEMOfflineMonitor::analyze(const edm::Event& event, const edm::EventSetup& 
 
   // GEMRecHit
   for (auto hit = rechit_collection->begin(); hit != rechit_collection->end(); hit++) {
-    // me_gem_occupancy_->Fill(2);
-
     const GEMDetId&& gem_id = hit->gemId();
     const MEMapKey1 det_key{gem_id.region(), gem_id.station()};
 
