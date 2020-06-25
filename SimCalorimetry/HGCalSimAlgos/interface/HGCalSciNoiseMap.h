@@ -11,25 +11,25 @@
    @short derives from HGCalRadiation map to parse fluence parameters, provides Sci-specific functions
 */
 class HGCalSciNoiseMap : public HGCalRadiationMap {
- public:
+public:
   HGCalSciNoiseMap();
   ~HGCalSciNoiseMap(){};
 
   /**
      @short returns the signal scaling and the noise
   */
-  double scaleByTileArea(const HGCScintillatorDetId&, const double&);
-  double scaleBySipmArea(const HGCScintillatorDetId&, const double&);
-  std::pair<double, double> scaleByDose(const HGCScintillatorDetId&, const double &);
-  
-  void setSipmMap(const std::string&);
-  
- private:
-  std::unordered_map<int, float> readSipmPars(const std::string&);
+  double scaleByTileArea(const HGCScintillatorDetId &, const double &);
+  double scaleBySipmArea(const HGCScintillatorDetId &, const double &);
+  std::pair<double, double> scaleByDose(const HGCScintillatorDetId &, const double &);
+
+  void setSipmMap(const std::string &);
+
+private:
+  std::unordered_map<int, float> readSipmPars(const std::string &);
 
   //size of the reference scintillator tile
   const double refEdge_;
-  
+
   //sipm size boundaries
   std::unordered_map<int, float> sipmMap_;
 };

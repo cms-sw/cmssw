@@ -35,7 +35,7 @@ std::unordered_map<int, float> HGCalSciNoiseMap::readSipmPars(const std::string&
 }
 
 //
-std::pair<double, double> HGCalSciNoiseMap::scaleByDose(const HGCScintillatorDetId& cellId, const double &radius) {
+std::pair<double, double> HGCalSciNoiseMap::scaleByDose(const HGCScintillatorDetId& cellId, const double& radius) {
   if (getDoseMap().empty())
     return std::make_pair(1., 0.);
 

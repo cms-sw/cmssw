@@ -14,20 +14,17 @@
 */
 class HGCalSiNoiseMap : public HGCalRadiationMap {
 public:
-
   enum GainRange_t { q80fC, q160fC, q320fC, AUTO };
   enum NoiseMapAlgoBits_t { FLUENCE, CCE, NOISE, PULSEPERGAIN, CACHEDOP };
 
   struct SiCellOpCharacteristicsCore {
-    SiCellOpCharacteristicsCore()
-    : cce(0.), noise(0.), gain(0), thrADC(0) {}
-    float cce,noise;
+    SiCellOpCharacteristicsCore() : cce(0.), noise(0.), gain(0), thrADC(0) {}
+    float cce, noise;
     unsigned short gain, thrADC;
   };
 
   struct SiCellOpCharacteristics {
-    SiCellOpCharacteristics()
-    : lnfluence(0.), fluence(0.), ileak(0.), enc_s(0.), enc_p(0.), mipfC(0), mipADC(0) {}
+    SiCellOpCharacteristics() : lnfluence(0.), fluence(0.), ileak(0.), enc_s(0.), enc_p(0.), mipfC(0), mipADC(0) {}
     SiCellOpCharacteristicsCore core;
     double lnfluence, fluence, ileak, enc_s, enc_p, mipfC;
     unsigned int mipADC;
@@ -62,9 +59,7 @@ public:
      cache the first time it is called - intrinsically related to the valid detIds in the geometry
      the filling of the cache is ignored by configuration or if it has already been filled
    */
-  void setGeometry(const CaloSubdetectorGeometry *,
-                   GainRange_t gain=GainRange_t::AUTO,
-                   int aimMIPtoADC=10);
+  void setGeometry(const CaloSubdetectorGeometry *, GainRange_t gain = GainRange_t::AUTO, int aimMIPtoADC = 10);
 
   /**
      @short returns the charge collection efficiency and noise
@@ -74,19 +69,20 @@ public:
                                                              GainRange_t gain,
                                                              int aimMIPtoADC);
   SiCellOpCharacteristicsCore getSiCellOpCharacteristicsCore(const HGCSiliconDetId &did) {
-    return getSiCellOpCharacteristicsCore(did,defaultGain_,defaultAimMIPtoADC_);
+    return getSiCellOpCharacteristicsCore(did, defaultGain_, defaultAimMIPtoADC_);
   }
   SiCellOpCharacteristics getSiCellOpCharacteristics(const HGCSiliconDetId &did,
                                                      GainRange_t gain = GainRange_t::AUTO,
                                                      int aimMIPtoADC = 10);
-  SiCellOpCharacteristics getSiCellOpCharacteristics(double &cellCap, 
-                                                     double &cellVol, 
-                                                     double &mipEqfC, 
+  SiCellOpCharacteristics getSiCellOpCharacteristics(double &cellCap,
+                                                     double &cellVol,
+                                                     double &mipEqfC,
                                                      std::vector<double> &cceParam,
-                                                     int &subdet, int &layer, double &radius,
+                                                     int &subdet,
+                                                     int &layer,
+                                                     double &radius,
                                                      GainRange_t &gain,
                                                      int &aimMIPtoADC);
-
 
   std::array<double, 3> &getMipEqfC() { return mipEqfC_; }
   std::array<double, 3> &getCellCapacitance() { return cellCapacitance_; }
@@ -95,20 +91,19 @@ public:
   std::vector<double> &getIleakParam() { return ileakParam_; }
   std::vector<std::vector<double> > &getENCsParam() { return encsParam_; }
   std::vector<double> &getLSBPerGain() { return lsbPerGain_; }
-  void setDefaultADCPulseShape(const std::array<float, 6> &adcPulse) { defaultADCPulse_=adcPulse; }
+  void setDefaultADCPulseShape(const std::array<float, 6> &adcPulse) { defaultADCPulse_ = adcPulse; }
   const std::array<float, 6> &getADCPulseForGain(GainRange_t gain) {
-    if(ignoreGainDependentPulse_) 
+    if (ignoreGainDependentPulse_)
       return defaultADCPulse_;
     return adcPulses_[gain];
   }
   std::vector<double> &getMaxADCPerGain() { return chargeAtFullScaleADCPerGain_; }
   double getENCpad(const double &ileak);
-  void setCachedOp(bool flag) { activateCachedOp_=flag; }
+  void setCachedOp(bool flag) { activateCachedOp_ = flag; }
 
-  inline void setENCCommonNoiseSubScale(double val) { encCommonNoiseSub_=val; }
+  inline void setENCCommonNoiseSubScale(double val) { encCommonNoiseSub_ = val; }
 
 private:
-
   GainRange_t defaultGain_;
   int defaultAimMIPtoADC_;
 
@@ -130,8 +125,8 @@ private:
 
   //electronics noise (series+parallel) polynomial coeffs and ADC pulses;
   std::vector<std::vector<double> > encsParam_;
-  std::array<float,6> defaultADCPulse_;
-  std::vector<std::array<float,6> > adcPulses_;
+  std::array<float, 6> defaultADCPulse_;
+  std::vector<std::array<float, 6> > adcPulses_;
 
   //lsb
   std::vector<double> lsbPerGain_, chargeAtFullScaleADCPerGain_;
@@ -141,7 +136,7 @@ private:
   const double unitToMicroLog_ = log(unitToMicro_);
 
   //flags used to disable specific components of the Si operation parameters or usage of operation cache
-  bool ignoreFluence_, ignoreCCE_, ignoreNoise_,ignoreGainDependentPulse_, activateCachedOp_;
+  bool ignoreFluence_, ignoreCCE_, ignoreNoise_, ignoreGainDependentPulse_, activateCachedOp_;
 };
 
 #endif
