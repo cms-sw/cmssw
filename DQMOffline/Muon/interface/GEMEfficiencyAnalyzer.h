@@ -34,12 +34,6 @@ private:
   MuonServiceProxy *muon_service_;
 
   bool use_global_muon_;
-
-  std::string selector_string_;
-  bool use_selector_;
-  uint64_t selector_;
-
-  double min_pt_cut_;
   float residual_x_cut_;
   //
   std::vector<double> pt_binning_;
