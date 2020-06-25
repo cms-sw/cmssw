@@ -8,8 +8,19 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CondFormats/DataRecord/interface/L1CaloEcalScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1CaloHcalScaleRcd.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"
+#include "CondFormats/L1TObjects/interface/L1CaloHcalScale.h"
+#include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+#include "CondFormats/DataRecord/interface/L1RCTParametersRcd.h"
+#include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
+#include "CondFormats/DataRecord/interface/L1RCTChannelMaskRcd.h"
+#include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
 
 #include <string>
 
@@ -29,5 +40,10 @@ private:
   bool useHcal;
   edm::InputTag ecalDigisLabel;
   edm::InputTag hcalDigisLabel;
+  edm::ESGetToken<L1RCTParameters, L1RCTParametersRcd> rctParametersToken;
+  edm::ESGetToken<L1RCTChannelMask, L1RCTChannelMaskRcd> channelMaskToken;
+  edm::ESGetToken<L1CaloEcalScale, L1CaloEcalScaleRcd> ecalScaleToken;
+  edm::ESGetToken<L1CaloHcalScale, L1CaloHcalScaleRcd> hcalScaleToken;
+  edm::ESGetToken<L1CaloEtScale, L1EmEtScaleRcd> emScaleToken;
 };
 #endif
