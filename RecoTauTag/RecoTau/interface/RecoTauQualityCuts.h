@@ -25,7 +25,6 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include <functional>
