@@ -240,7 +240,7 @@ void MahiDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
     const MahiFit* mahi = mahi_.get();
     mahi_->setPulseShapeTemplate(
-        theHcalPulseShapes_.getShape(hci.recoShape()), hci.hasTimeInfo(), hcalTimeSlewDelay, hci.nSamples());
+        hci.recoShape(), theHcalPulseShapes_, hci.hasTimeInfo(), hcalTimeSlewDelay, hci.nSamples());
     MahiDebugInfo mdi;
     // initialize energies so that the values in the previous iteration are not stored
     mdi.mahiEnergy = 0;
