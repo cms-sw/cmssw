@@ -4,7 +4,7 @@
 //  and Katya to make part of the xml file to be used to define the
 //  geometry of the HGCal detector
 //
-//  HGCalConvert 1 infile outfile1 outfile2, modeGlobal debug
+//  HGCalConvert 1 infile outfile1 outfile2 outfile3 modeGlobal debug
 //  infile   (const char*)   Input file from Philippe conatining layer #,
 //                           size, depth, x, y position, orientation, u, v
 //  outfile1 (const char*)   Output fle for the EE part
