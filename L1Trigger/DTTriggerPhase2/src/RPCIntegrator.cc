@@ -8,6 +8,8 @@
 
 #include <cmath>
 
+using namespace cmsdt;
+
 RPCIntegrator::RPCIntegrator(const edm::ParameterSet& pset, edm::ConsumesCollector& iC) {
   m_debug_ = pset.getUntrackedParameter<bool>("debug");
   if (m_debug_)

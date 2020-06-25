@@ -14,13 +14,6 @@
 #include "L1Trigger/DTTriggerPhase2/interface/MotherGrouping.h"
 
 // ===============================================================================
-// Previous definitions and declarations
-// ===============================================================================
-// Namespaces
-using namespace edm;
-using namespace cmsdt;
-
-// ===============================================================================
 // Class declarations
 // ===============================================================================
 struct ProtoCand {
@@ -42,7 +35,7 @@ typedef std::map<unsigned short int, double> PointMap;
 class HoughGrouping : public MotherGrouping {
 public:
   // Constructors and destructor
-  HoughGrouping(const ParameterSet& pset, edm::ConsumesCollector& iC);
+  HoughGrouping(const edm::ParameterSet& pset, edm::ConsumesCollector& iC);
   ~HoughGrouping() override;
 
   // Main methods

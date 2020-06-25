@@ -42,20 +42,21 @@ public:
   void run(edm::Event &iEvent,
            const edm::EventSetup &iEventSetup,
            edm::Handle<DTDigiCollection> digis,
-           std::vector<metaPrimitive> &inMPaths,
-           std::vector<metaPrimitive> &outMPaths);
+           std::vector<cmsdt::metaPrimitive> &inMPaths,
+           std::vector<cmsdt::metaPrimitive> &outMPaths);
 
   void finish();
 
   // Other public methods
 
-  bool shareFit(metaPrimitive first, metaPrimitive second);
-  bool isNotAPrimo(metaPrimitive first, metaPrimitive second);
-  void removeSharingFits(std::vector<metaPrimitive> &chamberMPaths, std::vector<metaPrimitive> &allMPaths);
-  void removeSharingHits(std::vector<metaPrimitive> &firstMPaths,
-                         std::vector<metaPrimitive> &secondMPaths,
-                         std::vector<metaPrimitive> &allMPaths);
-  void printmPC(metaPrimitive mP);
+  bool shareFit(cmsdt::metaPrimitive first, cmsdt::metaPrimitive second);
+  bool isNotAPrimo(cmsdt::metaPrimitive first, cmsdt::metaPrimitive second);
+  void removeSharingFits(std::vector<cmsdt::metaPrimitive> &chamberMPaths,
+                         std::vector<cmsdt::metaPrimitive> &allMPaths);
+  void removeSharingHits(std::vector<cmsdt::metaPrimitive> &firstMPaths,
+                         std::vector<cmsdt::metaPrimitive> &secondMPaths,
+                         std::vector<cmsdt::metaPrimitive> &allMPaths);
+  void printmPC(cmsdt::metaPrimitive mP);
 
   // Public attributes
   DTGeometry const *dtGeo_;
@@ -64,8 +65,8 @@ public:
 private:
   // Private methods
   void correlateMPaths(edm::Handle<DTDigiCollection> digis,
-                       std::vector<metaPrimitive> &inMPaths,
-                       std::vector<metaPrimitive> &outMPaths);
+                       std::vector<cmsdt::metaPrimitive> &inMPaths,
+                       std::vector<cmsdt::metaPrimitive> &outMPaths);
 
   bool hasPosRF(int wh, int sec) { return wh > 0 || (wh == 0 && sec % 4 > 1); }
 

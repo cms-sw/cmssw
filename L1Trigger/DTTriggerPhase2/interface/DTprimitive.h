@@ -6,8 +6,6 @@
 #include <memory>
 #include <vector>
 
-using namespace cmsdt;
-
 class DTPrimitive {
 public:
   DTPrimitive();
@@ -26,7 +24,7 @@ public:
   void setLayerId(int layer) { layerId_ = layer; };
   void setCameraId(int camera) { cameraId_ = camera; };
   void setSuperLayerId(int lay) { superLayerId_ = lay; };
-  void setLaterality(LATERAL_CASES lat) { laterality_ = lat; };
+  void setLaterality(cmsdt::LATERAL_CASES lat) { laterality_ = lat; };
 
   const int timeCorrection() const { return timeCorrection_; };
   const int tdcTimeStamp() const { return tdcTimeStamp_; };
@@ -37,19 +35,19 @@ public:
   const int layerId() const { return layerId_; };
   const int cameraId() const { return cameraId_; };
   const int superLayerId() const { return superLayerId_; };
-  const LATERAL_CASES laterality() const { return laterality_; };
+  const cmsdt::LATERAL_CASES laterality() const { return laterality_; };
 
 private:
-  int cameraId_;              // Chamber ID
-  int superLayerId_;          // SL ID
-  int layerId_;               // Layer ID
-  int channelId_;             // Wire number
-  LATERAL_CASES laterality_;  // LEFT, RIGHT, NONE
+  int cameraId_;                     // Chamber ID
+  int superLayerId_;                 // SL ID
+  int layerId_;                      // Layer ID
+  int channelId_;                    // Wire number
+  cmsdt::LATERAL_CASES laterality_;  // LEFT, RIGHT, NONE
 
   int timeCorrection_;
   int tdcTimeStamp_;
   int orbit_;
-  double payLoad_[PAYLOAD_ENTRIES];
+  double payLoad_[cmsdt::PAYLOAD_ENTRIES];
 };
 
 typedef std::vector<DTPrimitive> DTPrimitives;

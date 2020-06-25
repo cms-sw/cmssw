@@ -25,8 +25,8 @@ public:
   void initialise(const edm::EventSetup& iEventSetup) override;
   void run(edm::Event& iEvent,
            const edm::EventSetup& iEventSetup,
-           std::vector<metaPrimitive>& inMPath,
-           std::vector<metaPrimitive>& outMPath) override{};
+           std::vector<cmsdt::metaPrimitive>& inMPath,
+           std::vector<cmsdt::metaPrimitive>& outMPath) override{};
   void run(edm::Event& iEvent,
            const edm::EventSetup& iEventSetup,
            MuonPathPtrs& inMPath,
