@@ -108,7 +108,7 @@ void L1EGammaEEProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSet
 
   std::sort(selected_multiclusters.begin(), selected_multiclusters.end(), l1tp2::compare_cluster_pt);
   std::set<const l1t::HGCalMulticluster *> used_clusters;
-  for (const auto cl3d : selected_multiclusters) {
+  for (const auto& cl3d : selected_multiclusters) {
     if (used_clusters.find(cl3d) == used_clusters.end()) {
       float pt = cl3d->pt();
       // we drop the Had component of the energy
@@ -127,7 +127,7 @@ void L1EGammaEEProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSet
           auto bucket = etaphi_bins.find(std::make_pair(eta_bin, phi_bin));
           if (bucket != etaphi_bins.end()) {
             // this bucket is not empty
-            for (const auto other_cl_ptr : bucket->second) {
+            for (const auto& other_cl_ptr : bucket->second) {
               if (used_clusters.find(other_cl_ptr) == used_clusters.end()) {
                 if (std::abs(other_cl_ptr->eta() - cl3d->eta()) < 0.02) {
                   if (std::abs(reco::deltaPhi(other_cl_ptr->phi(), cl3d->phi())) < 0.1) {
