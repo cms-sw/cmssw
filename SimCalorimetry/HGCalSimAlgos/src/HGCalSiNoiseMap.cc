@@ -207,19 +207,40 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
   }
 
   //determine the gain to apply accounting for cce
-  //move computation to ROC level (one day)
+  //algo:  start with the most favored = lowest gain possible (=highest range)
+  //       test for the other gains in the preferred order
+  //       the first to yield <=15 ADC counts is taken
+  //       this relies on the fact that these gains shift the mip peak by factors of 2
+  //       in the presence of more gains 15 should be updated accordingly
+  //note:  move computation to higher granularity level (ROC, trigger tower, once decided)
   double S(siop.core.cce * mipEqfC);
   if (gain == GainRange_t::AUTO) {
-    double desiredLSB(S / aimMIPtoADC);
-    std::vector<double> diffToPhysLSB = {fabs(desiredLSB - lsbPerGain_[GainRange_t::q80fC]),
-                                         fabs(desiredLSB - lsbPerGain_[GainRange_t::q160fC]),
-                                         fabs(desiredLSB - lsbPerGain_[GainRange_t::q320fC])};
-    size_t gainIdx = std::min_element(diffToPhysLSB.begin(), diffToPhysLSB.end()) - diffToPhysLSB.begin();
-    gain = HGCalSiNoiseMap::q80fC;
-    if (gainIdx == 1)
-      gain = HGCalSiNoiseMap::q160fC;
-    if (gainIdx == 2)
-      gain = HGCalSiNoiseMap::q320fC;
+
+    gain=GainRange_t::q320fC;
+
+    //@franzoni: i think the order needs to be this one (i.e. take the first according to preference) - tbc
+    std::vector<GainRange_t> orderedGainChoice={GainRange_t::q160fC,GainRange_t::q80fC};
+    for(const auto &igain : orderedGainChoice) {
+      double mipPeakADC(S/lsbPerGain_[igain]);
+      if(mipPeakADC>15) continue;
+      gain=igain;
+      break;
+    }
+
+    //previous algo (kept commented for the moment)
+    //    double S(siop.core.cce * mipEqfC);
+    //    if (gain == GainRange_t::AUTO) {
+    //      double desiredLSB(S / aimMIPtoADC);
+    //      std::vector<double> diffToPhysLSB = {fabs(desiredLSB - lsbPerGain_[GainRange_t::q80fC]),
+    //                                           fabs(desiredLSB - lsbPerGain_[GainRange_t::q160fC]),
+    //                                           fabs(desiredLSB - lsbPerGain_[GainRange_t::q320fC])};
+    //      size_t gainIdx = std::min_element(diffToPhysLSB.begin(), diffToPhysLSB.end()) - diffToPhysLSB.begin();
+    //      gain = HGCalSiNoiseMap::q80fC;
+    //      if (gainIdx == 1)
+    //        gain = HGCalSiNoiseMap::q160fC;
+    //      if (gainIdx == 2)
+    //        gain = HGCalSiNoiseMap::q320fC;
+    //    }
   }
 
   //fill in the parameters of the struct
