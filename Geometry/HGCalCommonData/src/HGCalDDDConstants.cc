@@ -524,9 +524,9 @@ bool HGCalDDDConstants::isValidHex8(int layer, int modU, int modV, bool fullAndP
 }
 
 bool HGCalDDDConstants::isValidHex8(int layer, int modU, int modV, int cellU, int cellV, bool fullAndPart) const {
-
   // First check validity for a layer|wafer| of post TDR version
-  if (!isValidHex8(layer, modU, modV, fullAndPart)) return false;
+  if (!isValidHex8(layer, modU, modV, fullAndPart))
+    return false;
   int indx = HGCalWaferIndex::waferIndex(layer, modU, modV);
   auto itr = hgpar_->typesInLayers_.find(indx);
   int type = hgpar_->waferTypeL_[itr->second];
@@ -1231,19 +1231,19 @@ int HGCalDDDConstants::waferType(DetId const& id, bool fromFile) const {
     if (fromFile && (waferFileSize() > 0)) {
       int layer(0), waferU(0), waferV(0);
       if (id.det() != DetId::Forward) {
-	HGCSiliconDetId hid(id);
-	layer = hid.layer();
-	waferU = hid.waferU();
-	waferV = hid.waferV();
+        HGCSiliconDetId hid(id);
+        layer = hid.layer();
+        waferU = hid.waferU();
+        waferV = hid.waferV();
       } else {
-	HFNoseDetId hid(id);
-	layer = hid.layer();
-	waferU = hid.waferU();
-	waferV = hid.waferV();
+        HFNoseDetId hid(id);
+        layer = hid.layer();
+        waferU = hid.waferU();
+        waferV = hid.waferV();
       }
       auto itr = hgpar_->waferInfoMap_.find(HGCalWaferIndex::waferIndex(layer, waferU, waferV));
       if (itr != hgpar_->waferInfoMap_.end())
-	type = (itr->second).type;
+        type = (itr->second).type;
     } else {
       type = ((id.det() != DetId::Forward) ? HGCSiliconDetId(id).type() : HFNoseDetId(id).type());
     }
@@ -1259,11 +1259,11 @@ int HGCalDDDConstants::waferType(int layer, int waferU, int waferV, bool fromFil
     if (fromFile && (waferFileSize() > 0)) {
       auto itr = hgpar_->waferInfoMap_.find(HGCalWaferIndex::waferIndex(layer, waferU, waferV));
       if (itr != hgpar_->waferInfoMap_.end())
-	type = (itr->second).type;
+        type = (itr->second).type;
     } else {
       auto itr = hgpar_->typesInLayers_.find(HGCalWaferIndex::waferIndex(layer, waferU, waferV));
       if (itr != hgpar_->typesInLayers_.end())
-	type = hgpar_->waferTypeL_[itr->second];
+        type = hgpar_->waferTypeL_[itr->second];
     }
   } else if ((mode_ == HGCalGeometryMode::Hexagon) || (mode_ == HGCalGeometryMode::HexagonFull)) {
     if ((waferU >= 0) && (waferU < (int)(hgpar_->waferTypeL_.size())))
@@ -1311,7 +1311,8 @@ std::tuple<int, int, int> HGCalDDDConstants::waferType(HGCSiliconDetId const& id
   return std::make_tuple(type, part, orient);
 }
 
-std::pair<int, int> HGCalDDDConstants::waferTypeRotation(int layer, int waferU, int waferV, bool fromFile, bool debug) const {
+std::pair<int, int> HGCalDDDConstants::waferTypeRotation(
+    int layer, int waferU, int waferV, bool fromFile, bool debug) const {
   int type(HGCalTypes::WaferOut), rotn(0);
   int wl = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
   if (fromFile && (waferFileSize() > 0)) {
@@ -1324,21 +1325,21 @@ std::pair<int, int> HGCalDDDConstants::waferTypeRotation(int layer, int waferU, 
     auto itr = hgpar_->waferTypes_.find(wl);
     if ((mode_ == HGCalGeometryMode::Hexagon8) || (mode_ == HGCalGeometryMode::Hexagon8Full)) {
       if (itr != hgpar_->waferTypes_.end()) {
-	if ((itr->second).second < HGCalWaferMask::k_OffsetRotation) {
-	  rotn = (itr->second).second;
-	  if ((itr->second).first == HGCalGeomTools::k_allCorners) {
-	    type = HGCalTypes::WaferFull;
-	  } else if ((itr->second).first == HGCalGeomTools::k_fiveCorners) {
-	    type = HGCalTypes::WaferFive;
-	  } else if ((itr->second).first == HGCalGeomTools::k_fourCorners) {
-	    type = HGCalTypes::WaferHalf;
-	  } else if ((itr->second).first == HGCalGeomTools::k_threeCorners) {
-	    type = HGCalTypes::WaferThree;
-	  }
-	} else {
-	  type = (itr->second).first;
-	  rotn = ((itr->second).second - HGCalWaferMask::k_OffsetRotation);
-	}
+        if ((itr->second).second < HGCalWaferMask::k_OffsetRotation) {
+          rotn = (itr->second).second;
+          if ((itr->second).first == HGCalGeomTools::k_allCorners) {
+            type = HGCalTypes::WaferFull;
+          } else if ((itr->second).first == HGCalGeomTools::k_fiveCorners) {
+            type = HGCalTypes::WaferFive;
+          } else if ((itr->second).first == HGCalGeomTools::k_fourCorners) {
+            type = HGCalTypes::WaferHalf;
+          } else if ((itr->second).first == HGCalGeomTools::k_threeCorners) {
+            type = HGCalTypes::WaferThree;
+          }
+        } else {
+          type = (itr->second).first;
+          rotn = ((itr->second).second - HGCalWaferMask::k_OffsetRotation);
+        }
       }
     }
   }

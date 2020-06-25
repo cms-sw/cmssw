@@ -481,7 +481,9 @@ bool HGCalTopology::valid(const DetId& idin, int cornerMin) const {
   if ((mode_ == HGCalGeometryMode::Hexagon8) || (mode_ == HGCalGeometryMode::Hexagon8Full)) {
     HGCalTopology::DecodedDetId id = decode(idin);
     bool mask = (cornerMin < HGCalTypes::WaferCornerMin) ? false : hdcons_.maskCell(idin, cornerMin);
-    bool flag = ((idin.det() == det_) && hdcons_.isValidHex8(id.iLay, id.iSec1, id.iSec2, id.iCell1, id.iCell2, (cornerMin >= HGCalTypes::WaferCornerMin)));
+    bool flag = ((idin.det() == det_) &&
+                 hdcons_.isValidHex8(
+                     id.iLay, id.iSec1, id.iSec2, id.iCell1, id.iCell2, (cornerMin >= HGCalTypes::WaferCornerMin)));
     return (flag && (!mask));
   } else {
     return valid(idin);

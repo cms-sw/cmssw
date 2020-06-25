@@ -133,16 +133,16 @@ public:
     if (kk < hgpar_->waferInfoMap_.size()) {
       auto itr = hgpar_->waferInfoMap_.begin();
       for (unsigned int k = 0; k < kk; ++k)
-	++itr;
+        ++itr;
       return itr->first;
     } else
-	return 0;
+      return 0;
   }
   std::tuple<int, int, int> waferFileInfo(unsigned int kk) const {
     if (kk < hgpar_->waferInfoMap_.size()) {
       auto itr = hgpar_->waferInfoMap_.begin();
       for (unsigned int k = 0; k < kk; ++k)
-	++itr;
+        ++itr;
       return std::make_tuple(itr->second.type, itr->second.part, itr->second.orient);
     } else
       return std::make_tuple(0, 0, 0);
@@ -154,9 +154,7 @@ public:
     } else
       return std::make_tuple(0, 0, 0);
   }
-  bool waferFileInfoExist(int kk) const {
-    return (hgpar_->waferInfoMap_.find(kk) != hgpar_->waferInfoMap_.end());
-  }
+  bool waferFileInfoExist(int kk) const { return (hgpar_->waferInfoMap_.find(kk) != hgpar_->waferInfoMap_.end()); }
   double waferSepar(bool reco) const {
     return (reco ? hgpar_->sensorSeparation_ : HGCalParameters::k_ScaleToDDD * hgpar_->sensorSeparation_);
   }
@@ -180,7 +178,8 @@ public:
   int waferType(DetId const& id, bool fromFile = false) const;
   int waferType(int layer, int waferU, int waferV, bool fromFile = false) const;
   std::tuple<int, int, int> waferType(HGCSiliconDetId const& id, bool fromFile = false) const;
-  std::pair<int, int> waferTypeRotation(int layer, int waferU, int waferV, bool fromFile = false, bool debug = false) const;
+  std::pair<int, int> waferTypeRotation(
+      int layer, int waferU, int waferV, bool fromFile = false, bool debug = false) const;
   int waferUVMax() const { return hgpar_->waferUVMax_; }
   bool waferVirtual(int layer, int waferU, int waferV) const;
   double waferZ(int layer, bool reco) const;
