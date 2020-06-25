@@ -298,11 +298,13 @@ def miniAOD_customizeCommon(process):
     run2_miniAOD_94XFall17.toModify(process.electronMVAValueMapProducer,
                                      keysForValueMaps = cms.InputTag('reducedEgamma','reducedGedGsfElectrons'),
                                      src = cms.InputTag("gedGsfElectronsFrom94XTo106X"))
+
     from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
     pp_on_AA_2018.toModify(task, func=lambda t: t.add(process.gedGsfElectronsFrom94XTo106XTask))
     pp_on_AA_2018.toModify(process.electronMVAValueMapProducer,
                                      keysForValueMaps = cms.InputTag('reducedEgamma','reducedGedGsfElectrons'),
-                                     src = cms.InputTag("gedGsfElectronsFrom94XTo106X"))
+                                     src = "gedGsfElectronsFrom94XTo106X")
+
     for idmod in electron_ids:
         setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection,None,False,task)
 
