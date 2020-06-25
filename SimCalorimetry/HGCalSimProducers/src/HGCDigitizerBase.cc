@@ -128,7 +128,7 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
     // half the target mip value is the specification for ZS threshold
     uint32_t thrADC(std::floor(myFEelectronics_->getTargetMipValue() / 2));
     uint32_t gainIdx = 0;
-    std::array<float, 6> &adcPulse = myFEelectronics_->getDefaultADCPulse();
+    std::array<float, 6>& adcPulse = myFEelectronics_->getDefaultADCPulse();
 
     if (scaleByDose_) {
       HGCSiliconDetId detId(id);
@@ -178,7 +178,8 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
     //run the shaper to create a new data frame
     DFr rawDataFrame(id);
     int thickness = cell.thickness > 0 ? cell.thickness : 1;
-    myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, adcPulse, engine, thrADC, lsbADC, gainIdx, maxADC, thickness);
+    myFEelectronics_->runShaper(
+        rawDataFrame, chargeColl, toa, adcPulse, engine, thrADC, lsbADC, gainIdx, maxADC, thickness);
 
     //update the output according to the final shape
     updateOutput(coll, rawDataFrame);

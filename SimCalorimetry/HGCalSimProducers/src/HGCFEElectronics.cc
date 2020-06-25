@@ -146,14 +146,13 @@ void HGCFEElectronics<DFr>::runTrivialShaper(
 
 //
 template <class DFr>
-void HGCFEElectronics<DFr>::runSimpleShaper(DFr& dataFrame, 
-                                            HGCSimHitData& chargeColl, 
-                                            uint32_t thrADC, 
-                                            float lsbADC, 
-                                            uint32_t gainIdx, 
+void HGCFEElectronics<DFr>::runSimpleShaper(DFr& dataFrame,
+                                            HGCSimHitData& chargeColl,
+                                            uint32_t thrADC,
+                                            float lsbADC,
+                                            uint32_t gainIdx,
                                             float maxADC,
-                                            const std::array<float, 6> &adcPulse) { 
-
+                                            const std::array<float, 6>& adcPulse) {
   //convolute with pulse shape to compute new ADCs
   newCharge.fill(0.f);
   bool debug(false);
@@ -214,7 +213,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
                                              uint32_t gainIdx,
                                              float maxADC,
                                              int thickness,
-                                             const std::array<float, 6> &adcPulse) {
+                                             const std::array<float, 6>& adcPulse) {
   busyFlags.fill(false);
   totFlags.fill(false);
   toaFlags.fill(false);
