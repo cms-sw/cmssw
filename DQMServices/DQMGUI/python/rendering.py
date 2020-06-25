@@ -108,6 +108,9 @@ class GUIRenderer:
             message = cls.__pack_message_for_renderer(rendering_infos, options, True)
             data, error = await cls.__render(message)
 
+        if error != 0:
+            data = b'error'
+
         return data
 
     

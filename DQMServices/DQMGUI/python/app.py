@@ -182,6 +182,8 @@ async def render_legacy(request):
 
     if data == b'crashed':
         return web.HTTPInternalServerError()
+    elif data == b'error':
+        return web.HTTPBadRequest()
     return web.Response(body=data, content_type='image/png')
 
 
@@ -203,6 +205,8 @@ async def render_v1(request):
 
     if data == b'crashed':
         return web.HTTPInternalServerError()
+    elif data == b'error':
+        return web.HTTPBadRequest()
     return web.Response(body=data, content_type='image/png')
 
 
@@ -225,6 +229,8 @@ async def render_overlay_legacy(request):
 
     if data == b'crashed':
         return web.HTTPInternalServerError()
+    elif data == b'error':
+        return web.HTTPBadRequest()
     return web.Response(body=data, content_type='image/png')
 
 
@@ -249,6 +255,8 @@ async def render_overlay_v1(request):
 
     if data == b'crashed':
         return web.HTTPInternalServerError()
+    elif data == b'error':
+        return web.HTTPBadRequest()
     return web.Response(body=data, content_type='image/png')
 
 
@@ -274,6 +282,8 @@ async def jsroot_legacy(request):
 
     if data == b'crashed':
         return web.HTTPInternalServerError()
+    elif data == b'error':
+        return web.HTTPBadRequest()
     return web.json_response(data)
 
 
@@ -296,6 +306,8 @@ async def jsroot_overlay(request):
 
     if data == b'crashed':
         return web.HTTPInternalServerError()
+    elif data == b'error':
+        return web.HTTPBadRequest()
     return web.json_response(data)
 
 

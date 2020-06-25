@@ -523,6 +523,14 @@ protected:
     msg->data.insert(msg->data.end(), (const unsigned char *)data, (const unsigned char *)data + len);
   }
 
+  void setErrorAndEmptyResponse(Bucket* msg) {
+    msg->data.reserve(8);
+    uint32_t errorcode = 2;
+    uint32_t length = 0;
+    copydata(msg, &errorcode, 4);
+    copydata(msg, &length, 4);
+  }
+
   // Web server facing message handling.  Respond to image requests.
   virtual bool onMessage(Bucket *msg, unsigned char *data, size_t len) {
     // Decode and process this message.
@@ -543,6 +551,7 @@ protected:
     auto start = std::chrono::steady_clock::now();
     if (len < 9 * sizeof(uint32_t)) {
       logme() << "ERROR: corrupt 'GET IMAGE DATA' message of length " << len << "\n";
+      setErrorAndEmptyResponse(msg);
       return false;
     }
 
@@ -561,11 +570,13 @@ protected:
       logme() << "ERROR: corrupt 'GET IMAGE DATA' message of length " << len << ", expected length "
               << (nwords * sizeof(uint32_t)) << " + " << filelen << " + " << namelen << " + " << speclen << " + "
               << datalen << " + " << qlen << " = " << gotlen << std::endl;
+      setErrorAndEmptyResponse(msg);
       return false;
     }
 
     if (numobjs < 1 || numobjs > 10) {
       logme() << "ERROR: 'GET IMAGE DATA' with <1 or >10 parts\n";
+      setErrorAndEmptyResponse(msg);
       return false;
     }
 
@@ -607,6 +618,7 @@ protected:
     if (!parseImageSpec(info, spec, error)) {
       logme() << "ERROR: invalid image specification '" << spec << "' for object '" << name << "': " << error
               << std::endl;
+      setErrorAndEmptyResponse(msg);
       return false;
     }
 
@@ -623,8 +635,10 @@ protected:
       objs[i].object = nullptr;
     }
 
-    if (!readRequest(info, odata, objs, numobjs))
+    if (!readRequest(info, odata, objs, numobjs)) {
+      setErrorAndEmptyResponse(msg);
       return false;
+    }
 
     // Now render and build response.
     bool blacklisted = false;
