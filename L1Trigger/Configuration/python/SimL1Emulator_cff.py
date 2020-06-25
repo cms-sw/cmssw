@@ -46,6 +46,7 @@ SimL1EmulatorCoreTask = cms.Task(
 SimL1EmulatorCore = cms.Sequence(SimL1EmulatorCoreTask)
 
 SimL1EmulatorTask = cms.Task(SimL1EmulatorCoreTask)
+SimL1Emulator = cms.Sequence( SimL1EmulatorTask )
 
 # 
 # Emulators are configured from DB (GlobalTags)
