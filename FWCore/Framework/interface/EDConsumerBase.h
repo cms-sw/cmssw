@@ -23,6 +23,7 @@
 #include <string>
 #include <vector>
 #include <array>
+#include <cassert>
 
 // user include files
 #include "DataFormats/Provenance/interface/BranchType.h"
@@ -119,10 +120,12 @@ namespace edm {
     }
 
     std::vector<ESProxyIndex> const& esGetTokenIndicesVector(edm::Transition iTrans) const {
+      assert(iTrans < edm::Transition::NumberOfEventSetupTransitions);
       return esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)];
     }
 
     std::vector<ESRecordIndex> const& esGetTokenRecordIndicesVector(edm::Transition iTrans) const {
+      assert(iTrans < edm::Transition::NumberOfEventSetupTransitions);
       return esRecordsToGetFromTransition_[static_cast<unsigned int>(iTrans)];
     }
 
@@ -259,7 +262,7 @@ namespace edm {
     edm::SoATuple<ESTokenLookupInfo, ESProxyIndex> m_esTokenInfo;
     std::array<std::vector<ESProxyIndex>, static_cast<unsigned int>(edm::Transition::NumberOfEventSetupTransitions)>
         esItemsToGetFromTransition_;
-    std::array<std::vector<ESRecordIndex>, static_cast<unsigned int>(edm::Transition::NumberOfTransitions)>
+    std::array<std::vector<ESRecordIndex>, static_cast<unsigned int>(edm::Transition::NumberOfEventSetupTransitions)>
         esRecordsToGetFromTransition_;
     bool frozen_;
     bool containsCurrentProcessAlias_;

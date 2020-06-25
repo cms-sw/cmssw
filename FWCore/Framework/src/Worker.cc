@@ -277,6 +277,9 @@ namespace edm {
   }
 
   void Worker::esPrefetchAsync(WaitingTask* iTask, EventSetupImpl const& iImpl, Transition iTrans) {
+    if (iTrans >= edm::Transition::NumberOfEventSetupTransitions) {
+      return;
+    }
     auto const& recs = esRecordsToGetFrom(iTrans);
     auto const& items = esItemsToGetFrom(iTrans);
 

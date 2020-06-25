@@ -389,6 +389,7 @@ namespace edm {
     using MyPrincipal = ProcessBlockPrincipal;
     using Context = GlobalContext;
     static bool constexpr isEvent_ = false;
+    static Transition constexpr transition_ = Transition::BeginProcessBlock;
 
     static GlobalContext makeGlobalContext(MyPrincipal const& principal, ProcessContext const* processContext) {
       return GlobalContext(GlobalContext::Transition::kBeginProcessBlock,
@@ -424,6 +425,7 @@ namespace edm {
     using MyPrincipal = ProcessBlockPrincipal;
     using Context = GlobalContext;
     static bool constexpr isEvent_ = false;
+    static Transition constexpr transition_ = Transition::BeginProcessBlock;
 
     static GlobalContext makeGlobalContext(MyPrincipal const& principal, ProcessContext const* processContext) {
       return GlobalContext(GlobalContext::Transition::kAccessInputProcessBlock,
@@ -459,6 +461,7 @@ namespace edm {
     using MyPrincipal = ProcessBlockPrincipal;
     using Context = GlobalContext;
     static bool constexpr isEvent_ = false;
+    static Transition constexpr transition_ = Transition::EndProcessBlock;
 
     static GlobalContext makeGlobalContext(MyPrincipal const& principal, ProcessContext const* processContext) {
       return GlobalContext(GlobalContext::Transition::kEndProcessBlock,

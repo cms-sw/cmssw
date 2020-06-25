@@ -51,6 +51,7 @@ the worker is reset().
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "FWCore/Utilities/interface/ESIndices.h"
+#include "FWCore/Utilities/interface/Transition.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
@@ -356,7 +357,9 @@ namespace edm {
                        EventSetupImpl const& iEventSetup,
                        edm::Transition);
 
-    bool needsESPrefetching(Transition iTrans) const noexcept { return not esItemsToGetFrom(iTrans).empty(); }
+    bool needsESPrefetching(Transition iTrans) const noexcept {
+      return iTrans < edm::Transition::NumberOfEventSetupTransitions ? not esItemsToGetFrom(iTrans).empty() : false;
+    }
     void esPrefetchAsync(WaitingTask* iHolder, EventSetupImpl const&, Transition);
 
     void emitPostModuleEventPrefetchingSignal() {
