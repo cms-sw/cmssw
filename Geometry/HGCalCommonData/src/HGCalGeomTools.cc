@@ -163,7 +163,7 @@ double HGCalGeomTools::radius(
   return r;
 }
 
-std::pair<double, double> HGCalGeomTools::shiftXY(int waferPosition, double waferSize) {
+std::pair<double, double> HGCalGeomTools::shiftXY(int waferPosition, double waferSize) const {
   double dx(0), dy(0);
   switch (waferPosition) {
     case (HGCalTypes::CornerCenterYp): {

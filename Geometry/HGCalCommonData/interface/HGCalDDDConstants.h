@@ -14,7 +14,9 @@
 #include <string>
 #include <vector>
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
+#include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 
@@ -66,7 +68,7 @@ public:
   int getUVMax(int type) const { return ((type == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_); }
   bool isHalfCell(int waferType, int cell) const;
   bool isValidHex(int lay, int mod, int cell, bool reco) const;
-  bool isValidHex8(int lay, int modU, int modV, int cellU, int cellV) const;
+  bool isValidHex8(int lay, int modU, int modV, int cellU, int cellV, bool fullAndPart = false) const;
   bool isValidTrap(int lay, int ieta, int iphi) const;
   int lastLayer(bool reco) const;
   int layerIndex(int lay, bool reco) const;
@@ -75,6 +77,7 @@ public:
   std::pair<float, float> locateCell(int cell, int lay, int type, bool reco) const;
   std::pair<float, float> locateCell(
       int lay, int waferU, int waferV, int cellU, int cellV, bool reco, bool all, bool debug = false) const;
+  std::pair<float, float> locateCell(const HGCSiliconDetId&, bool debug = false) const;
   std::pair<float, float> locateCellHex(int cell, int wafer, bool reco) const;
   std::pair<float, float> locateCellTrap(int lay, int ieta, int iphi, bool reco) const;
   int levelTop(int ind = 0) const { return hgpar_->levelT_[ind]; }
@@ -163,6 +166,7 @@ private:
   bool waferInLayerTest(int wafer, int lay, bool full) const;
   std::pair<double, double> waferPosition(int waferU, int waferV, bool reco) const;
 
+  HGCalGeomTools geomTools_;
   const double k_horizontalShift = 1.0;
   const float dPhiMin = 0.02;
   typedef std::array<std::vector<int32_t>, 2> Simrecovecs;
