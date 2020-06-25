@@ -13,15 +13,12 @@
 
 #include "request_grpc.h"
 
-//avoid possible collisions in global namespace
-namespace {
-  namespace ni = nvidia::inferenceserver;
-  namespace nic = ni::client;
-}  // namespace
-
 template <typename Client>
 class TritonClient : public Client {
 public:
+  using ModelStatus = nvidia::inferenceserver::ModelStatus;
+  using InferContext = nvidia::inferenceserver::client::InferContext;
+
   struct ServerSideStats {
     uint64_t request_count_;
     uint64_t cumul_time_ns_;
@@ -33,7 +30,7 @@ public:
   TritonClient(const edm::ParameterSet& params);
 
   //helper
-  bool getResults(const nic::InferContext::Result& result);
+  bool getResults(const InferContext::Result& result);
 
   //accessors
   const std::vector<int64_t>& dimsInput() const { return dimsInput_; }
@@ -68,12 +65,12 @@ protected:
   bool setup();
 
   //helper to turn triton error into warning
-  bool wrap(const nic::Error& err, const std::string& msg, bool stop = false) const;
+  bool wrap(const nvidia::inferenceserver::client::Error& err, const std::string& msg, bool stop = false) const;
 
   void reportServerSideStats(const ServerSideStats& stats) const;
-  ServerSideStats summarizeServerStats(const ni::ModelStatus& start_status, const ni::ModelStatus& end_status) const;
+  ServerSideStats summarizeServerStats(const ModelStatus& start_status, const ModelStatus& end_status) const;
 
-  ni::ModelStatus getServerSideStatus() const;
+  ModelStatus getServerSideStatus() const;
 
   //members
   std::string url_;
@@ -88,11 +85,11 @@ protected:
   bool verbose_;
   unsigned allowedTries_;
 
-  std::unique_ptr<nic::InferContext> context_;
-  std::unique_ptr<nic::ServerStatusContext> serverCtx_;
-  std::unique_ptr<nic::InferContext::Options> options_;
-  std::shared_ptr<nic::InferContext::Input> nicInput_;
-  std::shared_ptr<nic::InferContext::Output> nicOutput_;
+  std::unique_ptr<InferContext> context_;
+  std::unique_ptr<nvidia::inferenceserver::client::ServerStatusContext> serverCtx_;
+  std::unique_ptr<InferContext::Options> options_;
+  std::shared_ptr<InferContext::Input> nicInput_;
+  std::shared_ptr<InferContext::Output> nicOutput_;
 };
 
 using TritonClientSync = TritonClient<SonicClientSync<std::vector<float>>>;

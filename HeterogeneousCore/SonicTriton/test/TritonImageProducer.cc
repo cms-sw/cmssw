@@ -41,7 +41,7 @@ public:
     //check the results
     findTopN(iOutput);
   }
-  ~TritonImageProducer() override {}
+  ~TritonImageProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -80,9 +80,9 @@ private:
   std::vector<std::string> imageList_;
 };
 
-typedef TritonImageProducer<TritonClientSync> TritonImageProducerSync;
-typedef TritonImageProducer<TritonClientAsync> TritonImageProducerAsync;
-typedef TritonImageProducer<TritonClientPseudoAsync> TritonImageProducerPseudoAsync;
+using TritonImageProducerSync = TritonImageProducer<TritonClientSync>;
+using TritonImageProducerAsync = TritonImageProducer<TritonClientAsync>;
+using TritonImageProducerPseudoAsync = TritonImageProducer<TritonClientPseudoAsync>;
 
 DEFINE_FWK_MODULE(TritonImageProducerSync);
 DEFINE_FWK_MODULE(TritonImageProducerAsync);

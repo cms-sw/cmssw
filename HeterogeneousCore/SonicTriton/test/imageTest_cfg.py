@@ -70,6 +70,6 @@ for msg in keep_msgs:
     )
 
 if options.threads>0:
-    if not hasattr(process,"options"): process.options = cms.untracked.PSet()
-    process.options.numberOfThreads = cms.untracked.uint32(options.threads)
-    process.options.numberOfStreams = cms.untracked.uint32(options.streams if options.streams>0 else 0)
+    process.options.numberOfThreads = options.threads
+    process.options.numberOfStreams = options.streams
+
