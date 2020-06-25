@@ -28,6 +28,7 @@ class GUIImportManager:
     # this is a global instance, created before loading any modules.
     executor = None
 
+
     @classmethod
     async def initialize(cls, files=__EOSPATH, executor=None):
         """
@@ -58,6 +59,7 @@ class GUIImportManager:
                 samples.append(SampleFull(dataset=dataset, run=int(run), lumi=0, file=cls.__EOSPREFIX + file, fileformat=FileFormat.DQMCLASSIC))
 
             await cls.register_samples(samples)
+
 
     @classmethod
     async def destroy(cls):
@@ -108,6 +110,7 @@ class GUIImportManager:
             return ProtobufImporter()
         return None
 
+
     @classmethod
     @logged
     async def import_in_worker(cls, fileformat, filename, dataset, run, lumi):
@@ -117,6 +120,7 @@ class GUIImportManager:
         assert cls.executor
         return await asyncio.get_event_loop().run_in_executor(cls.executor,
             cls.import_sync, fileformat, filename, dataset, run, lumi)
+
 
     @classmethod
     def import_sync(cls, fileformat, filename, dataset, run, lumi):
@@ -131,6 +135,7 @@ class GUIImportManager:
         # To call the async function, we set up and tear down an event loop just
         # for this one call. The worker is left 'clean', without anything running.
         return asyncio.run(cls.import_async(fileformat, filename, dataset, run, lumi))
+
 
     # But we need an async function to call async stuff, so here it is.
     @classmethod

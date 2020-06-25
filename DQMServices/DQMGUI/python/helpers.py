@@ -28,6 +28,7 @@ logged_curid = [0]
 logged_reqid = contextvars.ContextVar("logged_reqid", default=None)
 logged_depth = contextvars.ContextVar("logged_depth", default=0)
 
+
 def logged(fn):
     """ A decorator to write timing information to a log. """
     logger = logging.getLogger("helpers.logged")
