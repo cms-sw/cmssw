@@ -706,7 +706,7 @@ steps['TTbar_13_94XreminiaodINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/
 steps['TTbar_13_reminiaod2016UL_preVFP_INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13UP16/CMSSW_10_6_12-PU25ns_106X_mcRun2_asymptotic_preVFP_v8_hltul16_preVFP-v1/AODSIM',label='rmaod',location='STD')}
 steps['TTbar_13_reminiaod2016UL_postVFP_INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13UP16/CMSSW_10_6_12-PU25ns_106X_mcRun2_asymptotic_v13_hltul16_postVFP-v1/AODSIM',label='rmaod',location='STD')}
 # INPUT command for reminiAOD wfs on PbPb relval inputs 
-steps['HydjetQ_reminiaodPbPb2018_INPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B12_5020GeV_2018_ppReco/CMSSW_10_3_3-PU_103X_upgrade2018_realistic_HI_v11-v1/GEN-SIM-RECO',label='rmaod',location='FNAL')}
+steps['HydjetQ_reminiaodPbPb2018_INPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B12_5020GeV_2018_ppReco/CMSSW_10_3_3-PU_103X_upgrade2018_realistic_HI_v11-v1/GEN-SIM-RECO',label='rmaod',location='STD')}
 # FIXME: replace with AODSIM (more appropriate)
 steps['TTbar_13_reminiaod2017UL_INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/CMSSW_10_6_4-PUpmx25ns_106X_mc2017_realistic_v6_rsb-v1/GEN-SIM-RECO',label='rmaod',location='STD')}
 steps['TTbar_13_reminiaod2018UL_INPUT']={'INPUT':InputInfo(dataSet='/RelValProdTTbar_13_pmx25ns/CMSSW_10_6_4-PUpmx25ns_106X_upgrade2018_realistic_v9-v1/AODSIM',label='rmaod',location='STD')}
@@ -1953,7 +1953,7 @@ steps['REMINIAODHID18']={ '--scenario':'pp',
                           '--era':'Run2_2018_pp_on_AA',
                           '--data':'',
                           '--processName':'PAT',
-                          '-n':'10'
+                          '-n':'100'
 }
 
 steps['TIER0']=merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePrompt',
@@ -2477,10 +2477,11 @@ steps['RECOHI2018PPRECO']=merge([hiDefaults2018_ppReco,{'-s':'RAW2DIGI,L1Reco,RE
                                                         '--eventcontent':'RECOSIM,MINIAODSIM,DQM,ALCARECO',
                                                         },step3Up2015Defaults])
 
-steps['REMINIAODHI2018PPRECO']=merge([hiDefaults2018_ppReco,{'-s':'PAT,VALIDATION:@miniAODValidation,DQM:@miniAODDQM',
-                                                        '--datatier':'MINIAODSIM,DQMIO',
-                                                        '--eventcontent':'MINIAODSIM,DQM',
-                                                        },step3Up2015Defaults])
+steps['REMINIAODHI2018PPRECO']=merge([{'-s':'PAT,VALIDATION:@miniAODValidation,DQM:@miniAODDQM',
+                                                             '--datatier':'MINIAODSIM,DQMIO',
+                                                             '--eventcontent':'MINIAODSIM,DQM',
+                                                             '-n':100,
+                                                         },hiDefaults2018_ppReco,step3Up2015Defaults])
 
 steps['ALCARECOHI2018PPRECO']=merge([hiDefaults2018_ppReco,{'-s':'ALCA:TkAlMinBias+SiStripCalMinBias',
                                                             '--datatier':'ALCARECO',
@@ -2759,11 +2760,12 @@ steps['HARVESTDHI15']=merge([{ '--conditions':'auto:run2_data',
 steps['HARVESTDHI18']=merge([{ '--era':'Run2_2018_pp_on_AA',
                                '--scenario':'pp' },steps['HARVESTDHI15']])
 
-steps['HARVESTHI18MINIAOD']=merge([hiDefaults2018_ppReco,{'-s':'HARVESTING:@miniAODDQM',
-                                                           '--filein':'file:step2_inDQM.root',
-                                                           '--data':'',
-                                                           '--era' : 'Run2_2018_pp_on_AA',
-                                                           '--filetype':'DQM'}])
+steps['HARVESTHI18MINIAOD']=merge([{'-s':'HARVESTING:@miniAODDQM',
+                                    '--filein':'file:step2_inDQM.root',
+                                    '--data':'',
+                                    '--era' : 'Run2_2018_pp_on_AA',
+                                    '--filetype':'DQM',
+                                    '-n':100},hiDefaults2018_ppReco])
 #MC
 steps['HARVEST']={'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
                    '--conditions':'auto:run1_mc',
@@ -2856,11 +2858,12 @@ steps['HARVESTHI2018PPRECO']=merge([hiDefaults2018_ppReco,{'-s':'HARVESTING:vali
                                                            '--era' : 'Run2_2018_pp_on_AA',
                                                            '--filetype':'DQM'}])
 
-steps['HARVESTHI2018PPRECOMINIAOD']=merge([hiDefaults2018_ppReco,{'-s':'HARVESTING:@miniAODValidation+@miniAODDQM',
-                                                           '--filein':'file:step2_inDQM.root',
-                                                           '--mc':'',
-                                                           '--era' : 'Run2_2018_pp_on_AA',
-                                                           '--filetype':'DQM'}])
+steps['HARVESTHI2018PPRECOMINIAOD']=merge([{'-s':'HARVESTING:@miniAODValidation+@miniAODDQM',
+                                                                  '--filein':'file:step2_inDQM.root',
+                                                                  '--mc':'',
+                                                                  '--era' : 'Run2_2018_pp_on_AA',
+                                                                  '--filetype':'DQM',
+                                                                  '-n':100},hiDefaults2018_ppReco])
 
 steps['HARVESTHI2018']=merge([hiDefaults2018,{'-s':'HARVESTING:validationHarvesting+dqmHarvestingFakeHLT',
                     '--mc':'',
