@@ -103,7 +103,7 @@ public:
   }
   std::vector<double> &getMaxADCPerGain() { return chargeAtFullScaleADCPerGain_; }
   double getENCpad(const double &ileak);
-  void setIgnoreCachedOp(bool flag) { ignoreCachedOp_=flag; }
+  void setUseCachedOp(bool flag) { useCachedOp_=flag; }
 
   inline void setENCCommonNoiseSubScale(double val) { encCommonNoiseSub_=val; }
 
@@ -141,7 +141,7 @@ private:
   const double unitToMicroLog_ = log(unitToMicro_);
 
   //flags used to disable specific components of the Si operation parameters or usage of operation cache
-  bool ignoreFluence_, ignoreCCE_, ignoreNoise_,ignoreGainDependentPulse_, ignoreCachedOp_;
+  bool ignoreFluence_, ignoreCCE_, ignoreNoise_,ignoreGainDependentPulse_, useCachedOp_;
 };
 
 #endif
