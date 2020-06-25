@@ -8,8 +8,6 @@
 // ===============================================================================
 // Class declarations
 // ===============================================================================
-using namespace dtbayesam;
-
 class PseudoBayesGrouping : public MotherGrouping {
 public:
   // Constructors and destructor
@@ -42,7 +40,7 @@ private:
 
   //Comparator for pointer mode
   struct CandPointGreat {
-    bool operator()(CandidateGroupPtr c1, CandidateGroupPtr c2) { return *c1 > *c2; }
+    bool operator()(dtbayesam::CandidateGroupPtr c1, dtbayesam::CandidateGroupPtr c2) { return *c1 > *c2; }
   };
 
   // Private attributes
@@ -73,9 +71,9 @@ private:
   std::vector<DTPrimitive> digisinL7_;
 
   //Preliminary matches, those can grow quite big so better not to rely on the stack
-  std::unique_ptr<CandidateGroupPtrs> prelimMatches_;
-  std::unique_ptr<CandidateGroupPtrs> allMatches_;
-  std::unique_ptr<CandidateGroupPtrs> finalMatches_;
+  std::unique_ptr<dtbayesam::CandidateGroupPtrs> prelimMatches_;
+  std::unique_ptr<dtbayesam::CandidateGroupPtrs> allMatches_;
+  std::unique_ptr<dtbayesam::CandidateGroupPtrs> finalMatches_;
 
   //Pattern related info
   int nPatterns_;
@@ -115,8 +113,6 @@ private:
   std::vector<DTPattern*> L1L2Patterns_;
 
   std::vector<DTPattern*> L0L1Patterns_;
-
-  //  CandidateGroup* cand_;
 };
 
 #endif

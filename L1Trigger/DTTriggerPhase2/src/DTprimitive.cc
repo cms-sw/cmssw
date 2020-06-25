@@ -3,6 +3,7 @@
 #include <iostream>
 #include <iomanip>
 
+using namespace cmsdt;
 //------------------------------------------------------------------
 //--- Constructores y destructores
 //------------------------------------------------------------------

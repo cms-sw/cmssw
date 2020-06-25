@@ -24,8 +24,8 @@ public:
   void initialise(const edm::EventSetup &iEventSetup) override;
   void run(edm::Event &iEvent,
            const edm::EventSetup &iEventSetup,
-           std::vector<metaPrimitive> &inMPath,
-           std::vector<metaPrimitive> &outMPath) override;
+           std::vector<cmsdt::metaPrimitive> &inMPath,
+           std::vector<cmsdt::metaPrimitive> &outMPath) override;
   void run(edm::Event &iEvent,
            const edm::EventSetup &iEventSetup,
            MuonPathPtrs &inMPath,
@@ -36,16 +36,16 @@ public:
   // Other public methods
 
   // Public attributes
-  int areCousins(metaPrimitive mp1, metaPrimitive mp2);
-  int rango(metaPrimitive mp);
-  void printmP(metaPrimitive mP);
+  int areCousins(cmsdt::metaPrimitive mp1, cmsdt::metaPrimitive mp2);
+  int rango(cmsdt::metaPrimitive mp);
+  void printmP(cmsdt::metaPrimitive mP);
 
 private:
   // Private methods
-  void filterCousins(std::vector<metaPrimitive> &inMPath, std::vector<metaPrimitive> &outMPath);
-  void refilteringCousins(std::vector<metaPrimitive> &inMPath, std::vector<metaPrimitive> &outMPath);
-  void filterTanPhi(std::vector<metaPrimitive> &inMPath, std::vector<metaPrimitive> &outMPath);
-  void filterUnique(std::vector<metaPrimitive> &inMPath, std::vector<metaPrimitive> &outMPath);
+  void filterCousins(std::vector<cmsdt::metaPrimitive> &inMPath, std::vector<cmsdt::metaPrimitive> &outMPath);
+  void refilteringCousins(std::vector<cmsdt::metaPrimitive> &inMPath, std::vector<cmsdt::metaPrimitive> &outMPath);
+  void filterTanPhi(std::vector<cmsdt::metaPrimitive> &inMPath, std::vector<cmsdt::metaPrimitive> &outMPath);
+  void filterUnique(std::vector<cmsdt::metaPrimitive> &inMPath, std::vector<cmsdt::metaPrimitive> &outMPath);
 
   // Private attributes
   bool debug_;

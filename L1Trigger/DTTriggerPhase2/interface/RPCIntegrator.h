@@ -29,7 +29,6 @@
 #include "DQM/DTMonitorModule/interface/DTTrigGeomUtils.h"
 
 #include "L1Trigger/DTTriggerPhase2/interface/constants.h"
-using namespace cmsdt;
 
 struct RPCMetaprimitive {
   RPCDetId rpc_id;
@@ -61,12 +60,12 @@ public:
   void finish();
 
   void prepareMetaPrimitives(edm::Handle<RPCRecHitCollection> rpcRecHits);
-  void matchWithDTAndUseRPCTime(std::vector<metaPrimitive>& dt_metaprimitives);
+  void matchWithDTAndUseRPCTime(std::vector<cmsdt::metaPrimitive>& dt_metaprimitives);
   void makeRPCOnlySegments();
   void storeRPCSingleHits();
   void removeRPCHitsUsed();
 
-  RPCMetaprimitive* matchDTwithRPC(metaPrimitive* dt_metaprimitive);
+  RPCMetaprimitive* matchDTwithRPC(cmsdt::metaPrimitive* dt_metaprimitive);
   L1Phase2MuDTPhDigi createL1Phase2MuDTPhDigi(
       RPCDetId rpcDetId, int rpc_bx, double rpc_time, double rpc_global_phi, double phiB, int rpc_flag);
 

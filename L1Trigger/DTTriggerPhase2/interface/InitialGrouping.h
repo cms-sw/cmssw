@@ -88,8 +88,8 @@ private:
   // Private attributes
   bool debug_;
 
-  DTPrimitives muxInChannels_[NUM_CELLS_PER_BLOCK];
-  DTPrimitives channelIn_[NUM_LAYERS][NUM_CH_PER_LAYER];
+  DTPrimitives muxInChannels_[cmsdt::NUM_CELLS_PER_BLOCK];
+  DTPrimitives channelIn_[cmsdt::NUM_LAYERS][cmsdt::NUM_CH_PER_LAYER];
   DTPrimitives chInDummy_;
   int prevTDCTimeStamps_[4];
   int currentBaseChannel_;

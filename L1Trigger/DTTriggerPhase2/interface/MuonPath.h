@@ -5,8 +5,6 @@
 
 #include "L1Trigger/DTTriggerPhase2/interface/DTprimitive.h"
 
-using namespace cmsdt;
-
 class MuonPath {
 public:
   MuonPath();
@@ -23,10 +21,10 @@ public:
   void setCellHorizontalLayout(int layout[4]);
   void setCellHorizontalLayout(const int *layout);
   void setBaseChannelId(int bch) { baseChannelId_ = bch; }
-  void setQuality(MP_QUALITY qty) { quality_ = qty; }
+  void setQuality(cmsdt::MP_QUALITY qty) { quality_ = qty; }
   void setBxTimeValue(int time);
-  void setLateralComb(LATERAL_CASES latComb[4]);
-  void setLateralComb(const LATERAL_CASES *latComb);
+  void setLateralComb(cmsdt::LATERAL_CASES latComb[4]);
+  void setLateralComb(const cmsdt::LATERAL_CASES *latComb);
   void setLateralCombFromPrimitives(void);
 
   void setHorizPos(float pos) { horizPos_ = pos; }
@@ -48,11 +46,11 @@ public:
   short nprimitivesUp() const { return nprimitivesUp_; }
   const int *cellLayout() const { return cellLayout_; }
   int baseChannelId() const { return baseChannelId_; }
-  MP_QUALITY quality() const { return quality_; }
+  cmsdt::MP_QUALITY quality() const { return quality_; }
   int bxTimeValue() const { return bxTimeValue_; }
   int bxNumId() const { return bxNumId_; }
   float tanPhi() const { return tanPhi_; }
-  const LATERAL_CASES *lateralComb() const { return (lateralComb_); }
+  const cmsdt::LATERAL_CASES *lateralComb() const { return (lateralComb_); }
   float horizPos() const { return horizPos_; }
   float chiSquare() const { return chiSquare_; }
   float phi() const { return phi_; }
@@ -85,17 +83,17 @@ private:
   /* Horizontal position of each cell (one per layer), in half-cell units,
      with respect of the lower layer (layer 0). 
   */
-  int cellLayout_[NUM_LAYERS];
+  int cellLayout_[cmsdt::NUM_LAYERS];
   int baseChannelId_;
 
   //------------------------------------------------------------------
   //--- Fit results:
   //------------------------------------------------------------------
   /* path quality */
-  MP_QUALITY quality_;
+  cmsdt::MP_QUALITY quality_;
 
   /* Lateral combination    */
-  LATERAL_CASES lateralComb_[NUM_LAYERS];
+  cmsdt::LATERAL_CASES lateralComb_[cmsdt::NUM_LAYERS];
 
   /* BX time value with respect to BX0 of the orbit  */
   int bxTimeValue_;
@@ -104,11 +102,11 @@ private:
   int bxNumId_;
 
   /* Cell parameters   */
-  float xCoorCell_[NUM_LAYERS_2SL];       // Horizontal position of the hit in each cell
-  float xDriftDistance_[NUM_LAYERS_2SL];  // Drift distance on the cell (absolute value)
-  float xWirePos_[NUM_LAYERS_2SL];
-  float zWirePos_[NUM_LAYERS_2SL];
-  float tWireTDC_[NUM_LAYERS_2SL];
+  float xCoorCell_[cmsdt::NUM_LAYERS_2SL];       // Horizontal position of the hit in each cell
+  float xDriftDistance_[cmsdt::NUM_LAYERS_2SL];  // Drift distance on the cell (absolute value)
+  float xWirePos_[cmsdt::NUM_LAYERS_2SL];
+  float zWirePos_[cmsdt::NUM_LAYERS_2SL];
+  float tWireTDC_[cmsdt::NUM_LAYERS_2SL];
 
   float tanPhi_;
   float horizPos_;

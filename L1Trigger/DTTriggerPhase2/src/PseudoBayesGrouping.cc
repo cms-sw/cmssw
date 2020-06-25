@@ -10,7 +10,8 @@
 
 using namespace edm;
 using namespace std;
-
+using namespace cmsdt;
+using namespace dtbayesam;
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
