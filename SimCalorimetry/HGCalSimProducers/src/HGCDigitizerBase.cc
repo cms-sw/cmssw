@@ -59,7 +59,7 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps)
   //override the "default ADC pulse" with the one with which was configured the FE electronics class
   scal_.setDefaultADCPulseShape(myFEelectronics_->getDefaultADCPulse());
 
-  RandNoiseGenerationFlag_ = 0;
+  RandNoiseGenerationFlag_ = false;
 }
 
 template <class DFr>
