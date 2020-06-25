@@ -617,7 +617,9 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal) {
     aux.setProcessHistoryID(processHistoryID_);
     makeEvent(eventPrincipal, aux);
   } else if (tcds_pointer_ == nullptr) {
-    assert(GTPEventID_);
+    if (!GTPEventID_) {
+      throw cms::Exception("FedRawDataInputSource::read") << "No TCDS or GTP FED in event with FEDHeader EID -: " << L1EventID_;
+    }
     eventID_ = edm::EventID(eventRunNumber_, currentLumiSection_, GTPEventID_);
     edm::EventAuxiliary aux(eventID_, processGUID(), tstamp, true, edm::EventAuxiliary::PhysicsTrigger);
     aux.setProcessHistoryID(processHistoryID_);
