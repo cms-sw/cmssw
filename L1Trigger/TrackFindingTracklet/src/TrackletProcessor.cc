@@ -462,9 +462,10 @@ void TrackletProcessor::execute() {
 
               unsigned int index = (iphiinnerbin.value() << outerphibits_) + iphiouterbin.value();
 
-              if (iSeed_ >= 4) {  //Also use r-position
-                int ir = ((ibin & 3) << 1) + (rzbin >> 2);
-                index = (index << 3) + ir;
+              constexpr unsigned int n_barrelseed = 3;
+              if (iSeed_ > n_barrelseed) {  //Also use r-position for disk/overlap seeds
+                int ir = ((ibin & n_barrelseed) << 1) + (rzbin >> 2);
+                index = (index << n_barrelseed) + ir;
               }
 
               FPGAWord innerbend = innervmstub.bend();
