@@ -1,5 +1,4 @@
 #include "DQMOffline/Muon/interface/GEMEfficiencyAnalyzer.h"
-
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
@@ -14,11 +13,7 @@ GEMEfficiencyAnalyzer::GEMEfficiencyAnalyzer(const edm::ParameterSet& pset) : GE
   muon_service_ = new MuonServiceProxy(muon_service_parameter, consumesCollector());
 
   use_global_muon_ = pset.getUntrackedParameter<bool>("useGlobalMuon");
-  selector_string_ = pset.getUntrackedParameter<std::string>("selector");
-  use_selector_ = not selector_string_.empty();
-  selector_ = use_selector_ ? static_cast<uint64_t>(muon::selectorFromString(selector_string_)) : 0UL;
 
-  min_pt_cut_ = pset.getParameter<double>("minPtCut");
   residual_x_cut_ = static_cast<float>(pset.getParameter<double>("residualXCut"));
 
   pt_binning_ = pset.getUntrackedParameter<std::vector<double> >("ptBinning");
@@ -29,8 +24,6 @@ GEMEfficiencyAnalyzer::GEMEfficiencyAnalyzer(const edm::ParameterSet& pset) : GE
   folder_ = pset.getUntrackedParameter<std::string>("folder");
 
   title_ = (use_global_muon_ ? "Global Muon" : "Standalone Muon");
-  if (use_selector_)
-    title_ = selector_string_.c_str() + (" " + title_);
   matched_title_ = title_ + TString::Format(" (|x_{Muon} - x_{Hit}| < %.1f)", residual_x_cut_);
 }
 
@@ -184,22 +177,19 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
   }
 
   for (const reco::Muon& muon : *muon_view) {
-    if (muon.pt() < min_pt_cut_)
-      continue;
-
     const reco::Track* track = nullptr;
-    if (use_global_muon_ and muon.globalTrack().isNonnull())
-      track = muon.globalTrack().get();
-    else if (muon.outerTrack().isNonnull())
-      track = muon.outerTrack().get();
 
-    if (track == nullptr) {
-      continue;
+    if (use_global_muon_ and muon.globalTrack().isNonnull()) {
+      track = muon.globalTrack().get();
+
+    } else if ((not use_global_muon_) and muon.outerTrack().isNonnull()) {
+      track = muon.outerTrack().get();
     }
 
-    // if (not muon::isGoodMuon(muon, selection_type_)) continue;
-    if (use_selector_ and not muon.passed(selector_))
+    if (track == nullptr) {
+      edm::LogError(log_category_) << "failed to get muon track" << std::endl;
       continue;
+    }
 
     const reco::TransientTrack&& transient_track = transient_track_builder->build(track);
     if (not transient_track.isValid()) {
