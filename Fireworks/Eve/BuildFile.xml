@@ -2,6 +2,9 @@
 <use name="FWCore/Framework"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/RunInfo"/>
+<use name="DataFormats/Common"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
 <use name="rootcore"/>
 <use name="rootinteractive"/>
 <use name="rootgeom"/>
