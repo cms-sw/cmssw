@@ -1,4 +1,5 @@
 <use name="root"/>
+<use name="FWCore/MessageLogger"/>
 <use name="rootgraphics"/>
 <export>
   <lib name="1"/>
