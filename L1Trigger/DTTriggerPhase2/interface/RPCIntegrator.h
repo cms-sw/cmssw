@@ -1,8 +1,6 @@
 #ifndef Phase2L1Trigger_DTTrigger_RPCIntegrator_h
 #define Phase2L1Trigger_DTTrigger_RPCIntegrator_h
 
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"

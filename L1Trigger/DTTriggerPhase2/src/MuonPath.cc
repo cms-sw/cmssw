@@ -46,7 +46,7 @@ MuonPath::MuonPath(DTPrimitivePtrs &ptrPrimitive, int nprimUp, int nprimDown) {
 
   for (short i = 0; i < nprimitives_; i++) {
     lateralComb_[i] = LEFT;
-    prim_.push_back(std::move(ptrPrimitive[i]));
+    prim_.push_back(std::make_shared<DTPrimitive>(ptrPrimitive[i]));
 
     setXCoorCell(0, i);
     setDriftDistance(0, i);
@@ -103,7 +103,7 @@ MuonPath::MuonPath(MuonPathPtr &ptr) {
   setChiSquare(ptr->chiSquare());
 
   for (int i = 0; i < ptr->nprimitives(); i++) {
-    prim_.push_back(std::move(ptr->primitive(i)));
+    prim_.push_back(ptr->primitive(i));
 
     setXCoorCell(ptr->xCoorCell(i), i);
     setDriftDistance(ptr->xDriftDistance(i), i);

@@ -432,7 +432,7 @@ void PseudoBayesGrouping::ReCleanPatternsAndDigis() {
     for (auto cand_it = prelimMatches_->begin(); cand_it != prelimMatches_->end(); cand_it++) {
       if (*(*cand_it) == *(*itSel) && allowDuplicates_)
         continue;
-      for (auto dt_it = (*itSel)->candHits().begin(); dt_it != (*itSel)->candHits().end(); dt_it++) {
+      for (const auto& dt_it : (*itSel)->candHits()) {  //.begin(); dt_it != (*itSel)->candHits().end(); dt_it++) {
         (*cand_it)->removeHit((*dt_it));
       }
     }
