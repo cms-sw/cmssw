@@ -31,11 +31,11 @@ namespace l1tpf {
       }
       std::string skind = cpset.getParameter<std::string>("kind");
       if (skind == "track")
-        kind = Track;
+        kind = Kind::Track;
       else if (skind == "calo")
-        kind = Calo;
+        kind = Kind::Calo;
       else
-        throw cms::Exception("Configuration", "Bad kind of resolution");
+        throw cms::Exception("Configuration", "Bad kind of resolution: "+skind);
     }
     float operator()(const float pt, const float abseta) const {
       for (unsigned int i = 0, n = etas.size(); i < n; ++i) {
@@ -43,9 +43,9 @@ namespace l1tpf {
           continue;
         if (abseta < etas[i]) {
           switch (kind) {
-            case Track:
+            case Kind::Track:
               return pt * std::min<float>(1.f, std::hypot(pt * scales[i] * 0.001, offsets[i]));
-            case Calo:
+            case Kind::Calo:
               return std::min<float>(pt, pt * scales[i] + offsets[i]);
               if (pt < ptMins[i])
                 return pt * std::min<float>(1, scales[i] + offsets[i] / ptMins[i]);
@@ -58,7 +58,7 @@ namespace l1tpf {
 
   protected:
     std::vector<float> etas, offsets, scales, ptMins, ptMaxs;
-    enum Kind { Calo, Track };
+    enum class Kind { Calo, Track };
     Kind kind;
   };
 

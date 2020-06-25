@@ -149,8 +149,8 @@ int l1tpf_calo::Phase1GridBase::imove(int ieta, int iphi, int deta, int dphi) {
 }
 
 const l1tpf_calo::Grid *l1tpf_calo::getGrid(const std::string &type) {
-  static Phase1Grid _phase1Grid;
-  static Phase2Grid _phase2Grid;
+  static const Phase1Grid _phase1Grid;
+  static const Phase2Grid _phase2Grid;
   if (type == "phase1")
     return &_phase1Grid;
   else if (type == "phase2")
@@ -175,13 +175,13 @@ l1tpf_calo::SingleCaloClusterer::SingleCaloClusterer(const edm::ParameterSet &ps
       energyWeightedPosition_(pset.getParameter<bool>("energyWeightedPosition")) {
   std::string energyShareAlgo = pset.getParameter<std::string>("energyShareAlgo");
   if (energyShareAlgo == "fractions")
-    energyShareAlgo_ = Fractions;
+    energyShareAlgo_ = EnergyShareAlgo::Fractions;
   else if (energyShareAlgo == "none")
-    energyShareAlgo_ = None;
+    energyShareAlgo_ = EnergyShareAlgo::None;
   else if (energyShareAlgo == "greedy")
-    energyShareAlgo_ = Greedy;
+    energyShareAlgo_ = EnergyShareAlgo::Greedy;
   else if (energyShareAlgo == "crude")
-    energyShareAlgo_ = Crude;
+    energyShareAlgo_ = EnergyShareAlgo::Crude;
   else
     throw cms::Exception("Configuration") << "Unsupported energyShareAlgo '" << energyShareAlgo << "'\n";
 }
@@ -235,24 +235,24 @@ void l1tpf_calo::SingleCaloClusterer::run() {
   for (i = 0; i < ncells; ++i) {
     if (precluster_[i].ptLocalMax == 0) {
       switch (energyShareAlgo_) {
-        case Fractions: {
+        case EnergyShareAlgo::Fractions: {
           float tot = 0;
           for (int ineigh = 0; ineigh < 8; ++ineigh) {
             tot += precluster_.neigh(i, ineigh).ptLocalMax;
           }
           precluster_[i].ptOverNeighLocalMaxSum = tot ? rawet_[i] / tot : 0;
         } break;
-        case None:
+        case EnergyShareAlgo::None:
           precluster_[i].ptOverNeighLocalMaxSum = rawet_[i];
           break;
-        case Greedy: {
+        case EnergyShareAlgo::Greedy: {
           float maxet = 0;
           for (int ineigh = 0; ineigh < 8; ++ineigh) {
             maxet = std::max(maxet, precluster_.neigh(i, ineigh).ptLocalMax);
           }
           precluster_[i].ptOverNeighLocalMaxSum = maxet;
         } break;
-        case Crude: {
+        case EnergyShareAlgo::Crude: {
           int number = 0;
           for (int ineigh = 0; ineigh < 8; ++ineigh) {
             number += (precluster_.neigh(i, ineigh).ptLocalMax > 0);
@@ -282,16 +282,16 @@ void l1tpf_calo::SingleCaloClusterer::run() {
           continue;  // skip dummy cells
         float fracet = 0;
         switch (energyShareAlgo_) {
-          case Fractions:
+          case EnergyShareAlgo::Fractions:
             fracet = myet * precluster_.neigh(i, ineigh).ptOverNeighLocalMaxSum;
             break;
-          case None:
+          case EnergyShareAlgo::None:
             fracet = precluster_.neigh(i, ineigh).ptOverNeighLocalMaxSum;
             break;
-          case Greedy:
+          case EnergyShareAlgo::Greedy:
             fracet = (myet == precluster_.neigh(i, ineigh).ptOverNeighLocalMaxSum ? rawet_.neigh(i, ineigh) : 0);
             break;
-          case Crude:
+          case EnergyShareAlgo::Crude:
             fracet = precluster_.neigh(i, ineigh).ptOverNeighLocalMaxSum;
             break;
         }
@@ -317,10 +317,7 @@ void l1tpf_calo::SingleCaloClusterer::run() {
           cluster.eta = grid_->eta(i) + avg_eta / tot;
           cluster.phi = grid_->phi(i) + avg_phi / tot;
           // wrap around phi
-          if (cluster.phi > M_PI)
-            cluster.phi -= 2 * M_PI;
-          if (cluster.phi < -M_PI)
-            cluster.phi += 2 * M_PI;
+          cluster.phi = reco::reduceRange(cluster.phi);
         } else {
           cluster.eta = grid_->eta(i);
           cluster.phi = grid_->phi(i);
@@ -394,7 +391,7 @@ std::unique_ptr<l1t::PFClusterCollection> l1tpf_calo::SingleCaloClusterer::fetch
   for (const Cluster &cluster : clusters_) {
     if (cluster.et > ptMin) {
       ret->emplace_back(cluster.et, cluster.eta, cluster.phi);
-      for (auto &pair : cluster.constituents) {
+      for (const auto &pair : cluster.constituents) {
         edm::Ptr<l1t::PFCluster> ref(cells, cellKey_[pair.first]);
         ret->back().addConstituent(ref, pair.second);
       }
@@ -449,7 +446,7 @@ std::unique_ptr<l1t::PFClusterCollection> l1tpf_calo::SimpleCaloLinkerBase::fetc
                           cluster.ecal_et > 0 ? std::max(cluster.et - cluster.ecal_et, 0.f) / cluster.ecal_et : -1,
                           photon);
         if (setRefs) {
-          for (auto &pair : cluster.constituents) {
+          for (const auto &pair : cluster.constituents) {
             assert(pair.first != 0);
             if (pair.first > 0) {  // 1+hcal index
               ret->back().addConstituent(edm::Ptr<l1t::PFCluster>(hcal, +pair.first - 1), pair.second);
@@ -613,7 +610,7 @@ void l1tpf_calo::FlatCaloLinker::run() {
     dst.phi = src.phi;
     dst.ecal_et = 0;
     dst.hcal_et = 0;
-    for (auto &pair : src.constituents) {
+    for (const auto &pair : src.constituents) {
       if (eraw[pair.first]) {
         dst.ecal_et += pair.second * eraw[pair.first];
         dst.constituents.emplace_back(-pair.first - 1, pair.second);
@@ -626,14 +623,14 @@ void l1tpf_calo::FlatCaloLinker::run() {
   }
 }
 
-l1tpf_calo::SimpleCaloLinkerBase *l1tpf_calo::makeCaloLinker(const edm::ParameterSet &pset,
+std::unique_ptr<l1tpf_calo::SimpleCaloLinkerBase> l1tpf_calo::makeCaloLinker(const edm::ParameterSet &pset,
                                                              const SingleCaloClusterer &ecal,
                                                              const SingleCaloClusterer &hcal) {
   const std::string &algo = pset.getParameter<std::string>("algo");
   if (algo == "simple") {
-    return new l1tpf_calo::SimpleCaloLinker(pset, ecal, hcal);
+    return std::make_unique<l1tpf_calo::SimpleCaloLinker>(pset, ecal, hcal);
   } else if (algo == "flat") {
-    return new l1tpf_calo::FlatCaloLinker(pset, ecal, hcal);
+    return std::make_unique<l1tpf_calo::FlatCaloLinker>(pset, ecal, hcal);
   } else {
     throw cms::Exception("Configuration") << "Unsupported linker algo '" << algo << "'\n";
   }

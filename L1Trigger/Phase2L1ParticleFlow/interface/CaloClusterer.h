@@ -215,7 +215,7 @@ namespace l1tpf_calo {
                                                     float ptMin = 0.) const;
 
   private:
-    enum EnergyShareAlgo {
+    enum class EnergyShareAlgo {
       Fractions, /* each local maximum neighbour takes a share proportional to its value */
       None,      /* each local maximum neighbour takes all the value (double counting!) */
       Greedy,    /* assing cell to the highest local maximum neighbour */
@@ -288,7 +288,7 @@ namespace l1tpf_calo {
   };
 
   // makes a calo linker (pointer will be owned by the callee)
-  SimpleCaloLinkerBase *makeCaloLinker(const edm::ParameterSet &pset,
+  std::unique_ptr<SimpleCaloLinkerBase> makeCaloLinker(const edm::ParameterSet &pset,
                                        const SingleCaloClusterer &ecal,
                                        const SingleCaloClusterer &hcal);
 

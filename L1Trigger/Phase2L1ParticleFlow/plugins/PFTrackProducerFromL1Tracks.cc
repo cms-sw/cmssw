@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "DataFormats/L1TParticleFlow/interface/PFTrack.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/L1TPFUtils.h"
@@ -20,17 +21,12 @@ namespace l1tpf {
 
   private:
     edm::EDGetTokenT<std::vector<l1t::PFTrack::L1TTTrackType>> TrackTag_;
+    edm::ESWatcher<IdealMagneticFieldRecord> BFieldWatcher_;
     int nParam_;
     float fBz_;
     l1tpf::ParametricResolution resolCalo_, resolTrk_;
 
     void produce(edm::Event &, const edm::EventSetup &) override;
-
-    void beginRun(edm::Run const &, edm::EventSetup const &iSetup) override {
-      edm::ESHandle<MagneticField> magneticField;
-      iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
-      fBz_ = magneticField->inTesla(GlobalPoint(0, 0, 0)).z();
-    }
 
   };  // class
 }  // namespace l1tpf
@@ -43,7 +39,13 @@ l1tpf::PFTrackProducerFromL1Tracks::PFTrackProducerFromL1Tracks(const edm::Param
   produces<l1t::PFTrackCollection>();
 }
 
-void l1tpf::PFTrackProducerFromL1Tracks::produce(edm::Event &iEvent, const edm::EventSetup &) {
+void l1tpf::PFTrackProducerFromL1Tracks::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+  if (BFieldWatcher_.check(iSetup)) {
+      edm::ESHandle<MagneticField> magneticField;
+      iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+      fBz_ = magneticField->inTesla(GlobalPoint(0, 0, 0)).z();
+  }
+
   std::unique_ptr<l1t::PFTrackCollection> out(new l1t::PFTrackCollection());
 
   // https://github.com/skinnari/cmssw/blob/80c19f1b721325c3a02ee0482f72fb974a4c3bf7/L1Trigger/TrackFindingTracklet/test/L1TrackNtupleMaker.cc

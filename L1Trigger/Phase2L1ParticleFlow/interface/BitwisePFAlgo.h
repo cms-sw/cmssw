@@ -13,7 +13,7 @@ namespace l1tpf_impl {
     void runPF(Region& r) const override;
 
   protected:
-    enum AlgoChoice { algo3, algo2hgc } algo_;
+    enum class AlgoChoice { algo3, algo2hgc } algo_;
     pfalgo_config* config_;
   };
 

@@ -38,7 +38,7 @@ L1TPFCandMultiMerger::~L1TPFCandMultiMerger() {}
 void L1TPFCandMultiMerger::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
   edm::Handle<std::vector<l1t::PFCandidate>> handle;
   for (unsigned int ii = 0, it = 0, ni = instances_.size(), np = tokens_.size() / ni; ii < ni; ++ii) {
-    std::unique_ptr<std::vector<l1t::PFCandidate>> out(new std::vector<l1t::PFCandidate>());
+    auto out = std::make_unique<std::vector<l1t::PFCandidate>>();
     for (unsigned int ip = 0; ip < np; ++ip, ++it) {
       iEvent.getByToken(tokens_[it], handle);
       out->insert(out->end(), handle->begin(), handle->end());

@@ -60,7 +60,7 @@ RegionMapper::RegionMapper(const edm::ParameterSet &iConfig) : useRelativeRegion
   } else {
     // start off with a dummy region
     unsigned int ncalomax = 0, nemcalomax = 0, ntrackmax = 0, nmuonmax = 0, npfmax = 0, npuppimax = 0;
-    regions_.push_back(Region(-5.5,
+    regions_.emplace_back(-5.5,
                               5.5,
                               0,
                               2 * M_PI,
@@ -72,7 +72,7 @@ RegionMapper::RegionMapper(const edm::ParameterSet &iConfig) : useRelativeRegion
                               ntrackmax,
                               nmuonmax,
                               npfmax,
-                              npuppimax));
+                              npuppimax);
   }
 }
 
@@ -313,7 +313,7 @@ std::pair<unsigned, unsigned> RegionMapper::totAndMaxInput(int type) const {
 }
 
 std::unique_ptr<std::vector<unsigned>> RegionMapper::vecInput(int type) const {
-  std::auto_ptr<std::vector<unsigned>> v(new std::vector<unsigned>);
+  auto v = std::make_unique<std::vector<unsigned>>();
   for (const auto &r : regions_) {
     unsigned ni = r.nInput(Region::InputType(type));
     v->push_back(ni);
@@ -332,7 +332,7 @@ std::pair<unsigned, unsigned> RegionMapper::totAndMaxOutput(int type, bool puppi
 }
 
 std::unique_ptr<std::vector<unsigned>> RegionMapper::vecOutput(int type, bool puppi) const {
-  std::auto_ptr<std::vector<unsigned>> v(new std::vector<unsigned>);
+  auto v = std::make_unique<std::vector<unsigned>>();
   for (const auto &r : regions_) {
     unsigned ni = r.nOutput(Region::OutputType(type), puppi);
     v->push_back(ni);

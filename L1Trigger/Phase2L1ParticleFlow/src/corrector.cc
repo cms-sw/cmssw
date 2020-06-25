@@ -55,8 +55,6 @@ void l1tpf::corrector::init_(TDirectory *lFile, bool debug) {
 
   is2d_ = index_->InheritsFrom("TH2");
 
-  edm::CPUTimer timer;
-  timer.start();
   std::unordered_map<std::string, TGraph *> graphs;
   TKey *key;
   TIter nextkey(lFile->GetListOfKeys());
@@ -95,10 +93,6 @@ void l1tpf::corrector::init_(TDirectory *lFile, bool debug) {
       }
     }
   }
-  timer.stop();
-  if (debug)
-    std::cout << "Read " << ngraphs << " graphs from " << lFile->GetPath() << " in " << timer.realTime() << " s"
-              << std::endl;
 }
 
 l1tpf::corrector::corrector(const TH1 *index, float emfMax)

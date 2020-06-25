@@ -397,7 +397,6 @@ void PFAlgo2HGC::unlinkedtk_algo(Region &r, const std::vector<int> &tk2calo) con
     } else {
       if (debug_)
         printf("PFAlgo2HGC \t track %3d (pt %7.2f) not matched to calo, dropped\n", itk, tk.floatPt());
-      //discardTrack(r, tk, BadTK_NoCalo); // log this as discarded, for debugging
     }
   }
 }
@@ -538,7 +537,6 @@ void PFAlgo2HGC::linkedcalo_algo(Region &r,
       if (debug_)
         printf(
             "PFAlgo2HGC \t calo  %3d (pt %7.2f)    ---> to be deleted, will use tracks instead\n", ic, calo.floatPt());
-      //discardCalo(r, calo, 0); // log this as discarded, for debugging
     } else {
       // tracks overshoot, rescale to tracks to calo
       calo2alpha[ic] = rescaleTracks_ ? calo.floatPt() / calo2sumtkpt[ic] : 1.0;

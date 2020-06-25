@@ -14,9 +14,12 @@ COEFile::COEFile(const edm::ParameterSet& iConfig)
   bset_.resize(tracksize);
 }
 
+COEFile::~COEFile() {
+}
+
 void COEFile::writeHeaderToFile() {
   char depth_width[256];
-  sprintf(depth_width,
+  snprintf(depth_width, 255,
           "; of depth=%i, and width=%i. In this case, values are specified\n",
           ntracksmax,
           tracksize * phiSlices);

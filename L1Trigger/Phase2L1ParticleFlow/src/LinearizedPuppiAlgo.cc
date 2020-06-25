@@ -111,7 +111,7 @@ void LinearizedPuppiAlgo::computePuppiWeights(Region &r,
     float alphaZero = (photon ? puppiAlphaZerosPhotons_ : puppiAlphaZeros_)[ietaBin];
     float alphaSlope = (photon ? puppiAlphaSlopesPhotons_ : puppiAlphaSlopes_)[ietaBin];
     float alphaCrop = (photon ? puppiAlphaCropsPhotons_ : puppiAlphaCrops_)[ietaBin];
-    float x2a = std::min(std::max(alphaSlope * (alpha - alphaZero), -alphaCrop), alphaCrop);
+    float x2a = std::clamp(alphaSlope * (alpha - alphaZero), -alphaCrop, alphaCrop);
     // weight by pT
     float ptZero = (photon ? puppiPtZerosPhotons_ : puppiPtZeros_)[ietaBin];
     float ptSlope = (photon ? puppiPtSlopesPhotons_ : puppiPtSlopes_)[ietaBin];

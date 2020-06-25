@@ -14,7 +14,7 @@ BitwisePFAlgo::BitwisePFAlgo(const edm::ParameterSet &iConfig) : PFAlgoBase(iCon
   const std::string &algo = iConfig.getParameter<std::string>("bitwiseAlgo");
   debug_ = iConfig.getUntrackedParameter<int>("debugBitwisePFAlgo", iConfig.getUntrackedParameter<int>("debug", 0));
   if (algo == "pfalgo3") {
-    algo_ = algo3;
+    algo_ = AlgoChoice::algo3;
     config_ = new pfalgo3_config(bitwiseConfig.getParameter<uint32_t>("NTRACK"),
                                  bitwiseConfig.getParameter<uint32_t>("NEMCALO"),
                                  bitwiseConfig.getParameter<uint32_t>("NCALO"),
@@ -30,7 +30,7 @@ BitwisePFAlgo::BitwisePFAlgo(const edm::ParameterSet &iConfig) : PFAlgoBase(iCon
                                  bitwiseConfig.getParameter<uint32_t>("TK_MAXINVPT_TIGHT"));
     pfalgo3_ref_set_debug(debug_);
   } else if (algo == "pfalgo2hgc") {
-    algo_ = algo2hgc;
+    algo_ = AlgoChoice::algo2hgc;
     config_ = new pfalgo_config(bitwiseConfig.getParameter<uint32_t>("NTRACK"),
                                 bitwiseConfig.getParameter<uint32_t>("NCALO"),
                                 bitwiseConfig.getParameter<uint32_t>("NMU"),
@@ -47,7 +47,7 @@ BitwisePFAlgo::BitwisePFAlgo(const edm::ParameterSet &iConfig) : PFAlgoBase(iCon
 
 BitwisePFAlgo::~BitwisePFAlgo() {
   switch (algo_) {
-    case algo3:
+    case AlgoChoice::algo3:
       delete (static_cast<pfalgo3_config *>(config_));
       break;
     default:
@@ -82,7 +82,7 @@ void BitwisePFAlgo::runPF(Region &r) const {
         r.etaMax,
         r.phiCenter - r.phiHalfWidth,
         r.phiCenter + r.phiHalfWidth,
-        int(algo_));
+        static_cast<int>(algo_));
     printf("BitwisePF \t N(track) %3lu   N(em) %3lu   N(calo) %3lu   N(mu) %3lu\n",
            r.track.size(),
            r.emcalo.size(),
@@ -151,7 +151,7 @@ void BitwisePFAlgo::runPF(Region &r) const {
     }
   }
   switch (algo_) {
-    case algo3: {
+    case AlgoChoice::algo3: {
       pfalgo3_config *config3 = static_cast<pfalgo3_config *>(config_);
       std::unique_ptr<EmCaloObj[]> emcalo(new EmCaloObj[config3->nEMCALO]);
       std::unique_ptr<PFNeutralObj[]> outpho(new PFNeutralObj[config3->nPHOTON]);
@@ -171,7 +171,7 @@ void BitwisePFAlgo::runPF(Region &r) const {
       fw2dpf::convert(config3->nPHOTON, outpho.get(), r.pf);
       fw2dpf::convert(config3->nSELCALO, outne.get(), r.pf);
     } break;
-    case algo2hgc: {
+    case AlgoChoice::algo2hgc: {
       pfalgo2hgc_ref(*config_, calo.get(), track.get(), mu.get(), outch.get(), outne.get(), outmu.get());
       fw2dpf::convert(config_->nTRACK, outch.get(), r.track, r.pf);  // FIXME works only with a 1-1 mapping
       fw2dpf::convert(config_->nSELCALO, outne.get(), r.pf);

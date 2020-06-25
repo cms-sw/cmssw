@@ -2,6 +2,7 @@
 #include <memory>
 #include <algorithm>
 #include <fstream>
+#include <cstdio>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -65,7 +66,7 @@ private:
 
   // Region dump/coe
   FILE* fRegionDump;
-  l1tpf_impl::COEFile* fRegionCOE;
+  std::unique_ptr<l1tpf_impl::COEFile> fRegionCOE;
   unsigned int neventscoemax, neventsproduced;
 
   // region of interest debugging
@@ -103,9 +104,6 @@ L1TPFProducer::L1TPFProducer(const edm::ParameterSet& iConfig)
   produces<l1t::PFCandidateCollection>("PF");
   produces<l1t::PFCandidateCollection>("Puppi");
 
-  //produces<l1t::PFCandidateCollection>("RawEmCalo");
-  //produces<l1t::PFCandidateCollection>("RawCalo");
-
   produces<l1t::PFCandidateCollection>("EmCalo");
   produces<l1t::PFCandidateCollection>("Calo");
   produces<l1t::PFCandidateCollection>("TK");
@@ -113,10 +111,10 @@ L1TPFProducer::L1TPFProducer(const edm::ParameterSet& iConfig)
 
   produces<float>("z0");
 
-  for (auto& tag : iConfig.getParameter<std::vector<edm::InputTag>>("emClusters")) {
+  for (const auto& tag : iConfig.getParameter<std::vector<edm::InputTag>>("emClusters")) {
     emCands_.push_back(consumes<l1t::PFClusterCollection>(tag));
   }
-  for (auto& tag : iConfig.getParameter<std::vector<edm::InputTag>>("hadClusters")) {
+  for (const auto& tag : iConfig.getParameter<std::vector<edm::InputTag>>("hadClusters")) {
     hadCands_.push_back(consumes<l1t::PFClusterCollection>(tag));
   }
 
@@ -164,7 +162,7 @@ L1TPFProducer::L1TPFProducer(const edm::ParameterSet& iConfig)
   }
   std::string coeFileName = iConfig.getUntrackedParameter<std::string>("coeFileName", "");
   if (!coeFileName.empty()) {
-    fRegionCOE = new l1tpf_impl::COEFile(iConfig);
+    fRegionCOE.reset(new l1tpf_impl::COEFile(iConfig));
     neventscoemax = iConfig.getUntrackedParameter<unsigned int>("neventscoemax");
     neventsproduced = 0;
   }
@@ -198,6 +196,10 @@ L1TPFProducer::~L1TPFProducer() {
 
 // ------------ method called to produce the data  ------------
 void L1TPFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+
+  // clear the regions also at the beginning, in case one event didn't complete but the job continues on
+  l1regions_.clear();
+
   /// ------ READ TRACKS ----
   if (hasTracks_) {
     edm::Handle<l1t::PFTrackCollection> htracks;
@@ -270,7 +272,6 @@ void L1TPFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
 
   // First, get a copy of the discretized and corrected inputs, and write them out
-  // FIXME: to be implemented
   iEvent.put(l1regions_.fetchCalo(/*ptmin=*/0.1, /*em=*/true), "EmCalo");
   iEvent.put(l1regions_.fetchCalo(/*ptmin=*/0.1, /*em=*/false), "Calo");
   iEvent.put(l1regions_.fetchTracks(/*ptmin=*/0.0, /*fromPV=*/false), "TK");
@@ -368,7 +369,7 @@ void L1TPFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     iEvent.put(l1regions_.vecOutput(i, true), std::string("vecNL1Puppi") + l1tpf_impl::Region::outputTypeName(i));
   }
 
-  // finall clear the regions
+  // finally clear the regions
   l1regions_.clear();
 }
 

@@ -61,7 +61,8 @@ l1tpf::PFClusterProducerFromHGC3DClusters::PFClusterProducerFromHGC3DClusters(co
 }
 
 void l1tpf::PFClusterProducerFromHGC3DClusters::produce(edm::Event &iEvent, const edm::EventSetup &) {
-  std::unique_ptr<l1t::PFClusterCollection> out(new l1t::PFClusterCollection()), outEm, outHad;
+  auto out = std::make_unique<l1t::PFClusterCollection>();
+  std::unique_ptr<l1t::PFClusterCollection> outEm, outHad;
   if (hasEmId_) {
     outEm.reset(new l1t::PFClusterCollection());
     outHad.reset(new l1t::PFClusterCollection());

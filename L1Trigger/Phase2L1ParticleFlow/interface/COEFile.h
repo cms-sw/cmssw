@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <numeric>
+#include <cstdio>
 #include <boost/dynamic_bitset.hpp>
 #include <boost/multiprecision/cpp_int.hpp>
 
