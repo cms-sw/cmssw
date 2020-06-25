@@ -119,7 +119,7 @@ elif (L1TRKALGO == 'TRACKLET'):
 elif (L1TRKALGO == 'TMTT'):
     print "\n WARNING - this is not a recommended algorithm! Please use HYBRID (HYBRID_DISPLACED)! \n"
     process.load("L1Trigger.TrackFindingTMTT.TMTrackProducer_Ultimate_cff")
-    L1TRK_PROC  =  process.TMTrackProducer    
+    L1TRK_PROC  =  process.TMTrackProducer
     L1TRK_NAME  = "TMTrackProducer"
     L1TRK_LABEL = "TML1TracksKF4ParamsComb"
     L1TRUTH_NAME = "TTTrackAssociatorFromPixelDigis"
