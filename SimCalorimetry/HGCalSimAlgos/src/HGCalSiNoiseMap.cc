@@ -102,7 +102,6 @@ void HGCalSiNoiseMap::setGeometry(const CaloSubdetectorGeometry *hgcGeom,
   //fill cache if it's not filled
   if(!siopCache_.empty()) return;
 
-  std::cout << "[HGCalSiNoiseMap::setGeometry] instantianting Si operation cache" << std::endl;
   const std::vector<DetId> &validDetIds = geom()->getValidDetIds();
   for(auto &did : validDetIds) {
 
@@ -111,7 +110,7 @@ void HGCalSiNoiseMap::setGeometry(const CaloSubdetectorGeometry *hgcGeom,
     HGCSiliconDetId hgcDetId(rawId);
     if(hgcDetId.zside()!=1) continue;
 
-    //compute and store in ache
+    //compute and store in cache
     SiCellOpCharacteristicsCore siop=getSiCellOpCharacteristicsCore(hgcDetId);
     std::pair<uint32_t, SiCellOpCharacteristicsCore> toAdd(rawId, siop);
     siopCache_.insert( toAdd ) ;
