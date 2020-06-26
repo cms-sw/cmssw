@@ -9,7 +9,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:myfile.root')
+    fileNames = cms.untracked.vstring('file:23234.0/step2.root')
 )
 
 process.prod = cms.EDAnalyzer("SimDigiDumper",
@@ -23,7 +23,8 @@ process.prod = cms.EDAnalyzer("SimDigiDumper",
     SiPxlSrc = cms.InputTag("simSiPixelDigis"),
     ECalEBSrc = cms.InputTag("simEcalDigis","ebDigis"),
     ECalESSrc = cms.InputTag("simEcalPreshowerDigis"),
-    MuRPCSrc = cms.InputTag("simMuonRPCDigis")
+    MuRPCSrc = cms.InputTag("simMuonRPCDigis"),
+    ETLSrc = cms.InputTag("mix","FTLEndcap"),
 )
 
 process.p1 = cms.Path(process.prod)

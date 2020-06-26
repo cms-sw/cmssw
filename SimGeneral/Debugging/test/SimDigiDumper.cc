@@ -1,5 +1,6 @@
 // system include files
 #include <memory>
+#include <ostream>
 
 #include "SimGeneral/Debugging/test/SimDigiDumper.h"
 
@@ -24,6 +25,8 @@
 // muon DT info
 #include "CondFormats/DTObjects/interface/DTT0.h"
 
+#include "DataFormats/ForwardDetId/interface/ETLDetId.h"
+
 SimDigiDumper::SimDigiDumper(const edm::ParameterSet& iPSet) {
   //get Labels to use to extract information
   ECalEBSrc_ = consumes<EBDigiCollection>(iPSet.getParameter<edm::InputTag>("ECalEBSrc"));
@@ -39,6 +42,7 @@ SimDigiDumper::SimDigiDumper(const edm::ParameterSet& iPSet) {
   MuCSCStripSrc_ = consumes<CSCStripDigiCollection>(iPSet.getParameter<edm::InputTag>("MuCSCStripSrc"));
   MuCSCWireSrc_ = consumes<CSCWireDigiCollection>(iPSet.getParameter<edm::InputTag>("MuCSCWireSrc"));
   MuRPCSrc_ = consumes<RPCDigiCollection>(iPSet.getParameter<edm::InputTag>("MuRPCSrc"));
+  ETLSrc_ = consumes<ETLDigiCollection>(iPSet.getParameter<edm::InputTag>("ETLSrc"));
 
   // TODO(proper responsible): update the cout, for sure not my
   // business.
@@ -147,6 +151,32 @@ void SimDigiDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       }
     }
   }
+
+  // ETL
+  bool isETL = true;
+  edm::Handle<ETLDigiCollection> ETLDigi;
+  const ETLDigiCollection* ETLdigis = 0;
+  iEvent.getByToken(ETLSrc_, ETLDigi);
+  if (!ETLDigi.isValid()) {
+    std::cout << "Unable to find ETLDigi in event!" << std::endl;
+  } else {
+    ETLdigis = ETLDigi.product();
+    if (ETLDigi->size() == 0)
+      isETL = false;
+    std::cout << "Endcap Timing Layer, digi multiplicity = " << ETLDigi->size() << std::endl;
+
+    if (isETL) {
+      // loop over digis
+      for (unsigned int digis = 0; digis < ETLDigi->size(); ++digis) {
+        ETLDataFrame etldf = (*ETLdigis)[digis];
+        //std::cout << etldf.id() << std::endl;
+        uint32_t id = etldf.id();
+	std::cout << id << std::endl;
+	etldf.print();
+      }
+    }
+  }
+
 
   // HBHE
   bool isHBHE = true;
