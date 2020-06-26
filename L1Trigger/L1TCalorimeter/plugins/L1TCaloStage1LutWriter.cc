@@ -60,7 +60,7 @@ namespace l1t {
     m_writeIsoTauLut = iConfig.getUntrackedParameter<bool>("writeIsoTauLut", false);
     m_isoTauLutName = iConfig.getUntrackedParameter<std::string>("isoTauLutName", "isoTauLut.txt");
     m_conditionsLabel = iConfig.getParameter<std::string>("conditionsLabel");
-    m_paramsToken = esConsumes<CaloParams, L1TCaloParamsRcd>(edm::ESInputTag("",m_conditionsLabel));
+    m_paramsToken = esConsumes<CaloParams, L1TCaloParamsRcd>(edm::ESInputTag("", m_conditionsLabel));
 
     m_params = new CaloParamsHelper;
     isoTauLut = new Stage1TauIsolationLUT(m_params);
