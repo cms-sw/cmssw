@@ -70,7 +70,7 @@ void HGCalSiNoiseMap::setDoseMap(const std::string &fullpath, const unsigned int
 }
 
 //
-double HGCalSiNoiseMap::getENCpad(const double &ileak) {
+double HGCalSiNoiseMap::getENCpad(double ileak) {
   if (ileak > 45.40)
     return 23.30 * ileak + 1410.04;
   else if (ileak > 38.95)
@@ -91,6 +91,7 @@ double HGCalSiNoiseMap::getENCpad(const double &ileak) {
 
 //
 void HGCalSiNoiseMap::setGeometry(const CaloSubdetectorGeometry *hgcGeom, GainRange_t gain, int aimMIPtoADC) {
+
   //call base class method
   HGCalRadiationMap::setGeometry(hgcGeom);
 
@@ -105,7 +106,7 @@ void HGCalSiNoiseMap::setGeometry(const CaloSubdetectorGeometry *hgcGeom, GainRa
   if (!siopCache_.empty())
     return;
 
-  const std::vector<DetId> &validDetIds = geom()->getValidDetIds();
+  const auto &validDetIds = geom()->getValidDetIds();
   for (auto &did : validDetIds) {
     //use only positive side detIds
     unsigned int rawId(did.rawId());
@@ -114,14 +115,12 @@ void HGCalSiNoiseMap::setGeometry(const CaloSubdetectorGeometry *hgcGeom, GainRa
       continue;
 
     //compute and store in cache
-    SiCellOpCharacteristicsCore siop = getSiCellOpCharacteristicsCore(hgcDetId);
-    std::pair<uint32_t, SiCellOpCharacteristicsCore> toAdd(rawId, siop);
-    siopCache_.insert(toAdd);
+    siopCache_.emplace( rawId, getSiCellOpCharacteristicsCore(hgcDetId) );
   }
 }
 
 //
-HGCalSiNoiseMap::SiCellOpCharacteristicsCore HGCalSiNoiseMap::getSiCellOpCharacteristicsCore(
+const HGCalSiNoiseMap::SiCellOpCharacteristicsCore HGCalSiNoiseMap::getSiCellOpCharacteristicsCore(
     const HGCSiliconDetId &cellId, GainRange_t gain, int aimMIPtoADC) {
   //re-compute
   if (!activateCachedOp_)
@@ -154,8 +153,8 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
   //location of the cell
   int subdet(cellId.subdet());
   std::vector<double> &cceParam = cceParam_[cellThick];
-  auto xy(
-      ddd()->locateCell(cellId.layer(), cellId.waferU(), cellId.waferV(), cellId.cellU(), cellId.cellV(), true, true));
+  const auto &xy(
+                 ddd()->locateCell(cellId.layer(), cellId.waferU(), cellId.waferV(), cellId.cellU(), cellId.cellV(), true, true));
   double radius = sqrt(std::pow(xy.first, 2) + std::pow(xy.second, 2));  //in cm
 
   //call baseline method and add to cache
@@ -216,8 +215,6 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
   double S(siop.core.cce * mipEqfC);
   if (gain == GainRange_t::AUTO) {
     gain = GainRange_t::q320fC;
-
-    //@franzoni: i think the order needs to be this one (i.e. take the first according to preference) - tbc
     std::vector<GainRange_t> orderedGainChoice = {GainRange_t::q160fC, GainRange_t::q80fC};
     for (const auto &igain : orderedGainChoice) {
       double mipPeakADC(S / lsbPerGain_[igain]);
@@ -225,21 +222,6 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
         break;
       gain = igain;
     }
-
-    //previous algo (kept commented for the moment)
-    //    double S(siop.core.cce * mipEqfC);
-    //    if (gain == GainRange_t::AUTO) {
-    //      double desiredLSB(S / aimMIPtoADC);
-    //      std::vector<double> diffToPhysLSB = {fabs(desiredLSB - lsbPerGain_[GainRange_t::q80fC]),
-    //                                           fabs(desiredLSB - lsbPerGain_[GainRange_t::q160fC]),
-    //                                           fabs(desiredLSB - lsbPerGain_[GainRange_t::q320fC])};
-    //      size_t gainIdx = std::min_element(diffToPhysLSB.begin(), diffToPhysLSB.end()) - diffToPhysLSB.begin();
-    //      gain = HGCalSiNoiseMap::q80fC;
-    //      if (gainIdx == 1)
-    //        gain = HGCalSiNoiseMap::q160fC;
-    //      if (gainIdx == 2)
-    //        gain = HGCalSiNoiseMap::q320fC;
-    //    }
   }
 
   //fill in the parameters of the struct
