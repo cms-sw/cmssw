@@ -29,8 +29,8 @@ public:
 
   double computeRadius(const HGCScintillatorDetId &);
 
-  double getDoseValue(const int, const int, const double &, bool logVal = false);
-  double getFluenceValue(const int, const int, const double &, bool logVal = false);
+  double getDoseValue(const int, const int, const double, bool logVal = false);
+  double getFluenceValue(const int, const int, const double, bool logVal = false);
 
   const unsigned int &algo() { return algo_; }
   const HGCalGeometry *geom() { return hgcalGeom_; }

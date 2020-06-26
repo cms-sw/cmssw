@@ -25,7 +25,7 @@ double HGCalRadiationMap::computeRadius(const HGCScintillatorDetId& cellId) {
 }
 
 //
-double HGCalRadiationMap::getDoseValue(const int subdet, const int layer, const double& radius, bool logVal) {
+double HGCalRadiationMap::getDoseValue(const int subdet, const int layer, const double radius, bool logVal) {
   std::pair<int, int> key(subdet, layer);
 
   double r(radius - doseMap_[key].doff_);
@@ -40,7 +40,7 @@ double HGCalRadiationMap::getDoseValue(const int subdet, const int layer, const 
 }
 
 //
-double HGCalRadiationMap::getFluenceValue(const int subdet, const int layer, const double& radius, bool logVal) {
+double HGCalRadiationMap::getFluenceValue(const int subdet, const int layer, const double radius, bool logVal) {
   std::pair<int, int> key(subdet, layer);
 
   double r(radius - doseMap_[key].foff_);
