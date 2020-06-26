@@ -254,19 +254,7 @@ def HGCal_useCaching(process):
     process=HGCal_setRealisticNoiseSci(process,byDose=True,byDoseAlgo=16)
     return process
 
-def HGCal_oldDoseMap(process):
-    """revert dose map to 11_ release, Oct 2019"""
-    process=HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0,byDoseMap=cms.string("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.5.15.9.txt"))
-    process=HGCal_setRealisticNoiseSci(process,byDose=True,byDoseAlgo=0,byDoseMap=cms.string("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.5.15.9.txt"))
-    return process
-
-
-def HGCal_oldDoseMap_ignorePulsePerGain(process):
-    """revert dose map to 11_ release, Oct 2019 AND ignore PulsePerGain"""
-    process=HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=8,byDoseMap=cms.string("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.5.15.9.txt"))
-    process=HGCal_setRealisticNoiseSci(process,byDose=True,byDoseAlgo=8,byDoseMap=cms.string("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.5.15.9.txt"))
-    return process
-
+doseMap = cms.string("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.5.15.9.txt")
 
 def HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0,byDoseMap=cms.string("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt")):
     process.HGCAL_noise_fC = cms.PSet(
