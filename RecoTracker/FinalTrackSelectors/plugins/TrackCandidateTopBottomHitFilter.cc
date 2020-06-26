@@ -76,18 +76,17 @@ void TrackCandidateTopBottomHitFilter::produce(edm::Event& iEvent, const edm::Ev
   auto pOut = std::make_unique<TrackCandidateCollection>();
   for (TrackCandidateCollection::const_iterator it = pIn->begin(); it != pIn->end(); ++it) {
     PTrajectoryStateOnDet state = it->trajectoryStateOnDet();
-    TrackCandidate::range oldhits = it->recHits();
     TrajectorySeed seed = it->seed();
     TrackCandidate::RecHitContainer hits;
-    for (TrackCandidate::RecHitContainer::const_iterator hit = oldhits.first; hit != oldhits.second; ++hit) {
-      if (hit->isValid()) {
-        double hitY = theBuilder->build(&*hit)->globalPosition().y();
+    for (auto const& hit : it->recHits()) {
+      if (hit.isValid()) {
+        double hitY = theBuilder->build(&hit)->globalPosition().y();
         if (seedY * hitY > 0)
-          hits.push_back(hit->clone());
+          hits.push_back(hit.clone());
         else
           break;
       } else
-        hits.push_back(hit->clone());
+        hits.push_back(hit.clone());
     }
     if (hits.size() >= 3) {
       TrackCandidate newTC(hits, seed, state);
