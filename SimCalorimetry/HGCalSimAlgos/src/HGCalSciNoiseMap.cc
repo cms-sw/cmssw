@@ -35,7 +35,7 @@ std::unordered_map<int, float> HGCalSciNoiseMap::readSipmPars(const std::string&
 }
 
 //
-std::pair<double, double> HGCalSciNoiseMap::scaleByDose(const HGCScintillatorDetId& cellId, const double& radius) {
+std::pair<double, double> HGCalSciNoiseMap::scaleByDose(const HGCScintillatorDetId& cellId, const double radius) {
   if (getDoseMap().empty())
     return std::make_pair(1., 0.);
 
@@ -58,7 +58,7 @@ std::pair<double, double> HGCalSciNoiseMap::scaleByDose(const HGCScintillatorDet
   return std::make_pair(scaleFactor, noise);
 }
 
-double HGCalSciNoiseMap::scaleByTileArea(const HGCScintillatorDetId& cellId, const double& radius) {
+double HGCalSciNoiseMap::scaleByTileArea(const HGCScintillatorDetId& cellId, const double radius) {
   double edge;
   if (cellId.type() == 0) {
     constexpr double factor = 2 * M_PI * 1. / 360.;
@@ -73,7 +73,7 @@ double HGCalSciNoiseMap::scaleByTileArea(const HGCScintillatorDetId& cellId, con
   return scaleFactor;
 }
 
-double HGCalSciNoiseMap::scaleBySipmArea(const HGCScintillatorDetId& cellId, const double& radius) {
+double HGCalSciNoiseMap::scaleBySipmArea(const HGCScintillatorDetId& cellId, const double radius) {
   if (sipmMap_.empty())
     return 1.;
 
