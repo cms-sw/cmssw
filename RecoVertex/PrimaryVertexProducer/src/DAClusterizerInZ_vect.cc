@@ -651,13 +651,16 @@ bool DAClusterizerInZ_vect::purge(vertex_t& y, track_t& tks, double& rho0, const
     double sump = 0;
 
     double pmax = y.pk_ptr[k] / (y.pk_ptr[k] + rho0 * local_exp(-beta * dzCutOff_ * dzCutOff_));
+    double p[nt];
+    for (unsigned int i = 0; i < nt; i++) {
+        p[i] = y.pk_ptr[k] * local_exp(-beta * Eik(tks.z_ptr[i], y.z_ptr[k], tks.dz2_ptr[i])) / tks.Z_sum_ptr[i];
+      //double p = tks.pi_ptr[i] * y.pk_ptr[k] * local_exp(-beta * Eik(tks.z_ptr[i], y.z_ptr[k], tks.dz2_ptr[i])) / tks.Z_sum_ptr[i];
+     }
     for (unsigned int i = 0; i < nt; i++) {
       //if (tks.tt[i]->track().pt() < 0.0) continue; // TEST count only pt>0.3 in nunique
       if (tks.Z_sum_ptr[i] > 1.e-100) {
-        double p = y.pk_ptr[k] * local_exp(-beta * Eik(tks.z_ptr[i], y.z_ptr[k], tks.dz2_ptr[i])) / tks.Z_sum_ptr[i];
-        //double p = tks.pi_ptr[i] * y.pk_ptr[k] * local_exp(-beta * Eik(tks.z_ptr[i], y.z_ptr[k], tks.dz2_ptr[i])) / tks.Z_sum_ptr[i];
-        sump += p;
-        if ((p > uniquetrkweight_ * pmax) && (tks.pi_ptr[i] > 0)) {
+        sump += p[i];
+        if ((p[i] > uniquetrkweight_ * pmax) && (tks.pi_ptr[i] > 0)) {
           nUnique++;
         }
       }
