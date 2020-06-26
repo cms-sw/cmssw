@@ -10,3 +10,16 @@
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="TrackingTools/TrajectoryState"/>
 <use name="RecoTracker/TkDetLayers"/>
+<use name="CondFormats/SiStripObjects"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/Phase2TrackerCluster"/>
+<use name="DataFormats/SiPixelDetId"/>
+<use name="DataFormats/SiStripCluster"/>
+<use name="DataFormats/SiStripDetId"/>
+<use name="DataFormats/TrackingRecHit"/>
+<use name="DataFormats/TrajectorySeed"/>
+<use name="DataFormats/TrajectoryState"/>
+<use name="FWCore/Utilities"/>
+<use name="RecoLocalTracker/Phase2TrackerRecHits"/>
+<use name="TrackingTools/DetLayers"/>
+<use name="TrackingTools/MeasurementDet"/>
