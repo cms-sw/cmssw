@@ -26,7 +26,7 @@ class GUIService:
     layouts_manager = LayoutManager()
 
     @classmethod
-    @alru_cache(maxsize=10)
+    @alru_cache(maxsize=10, cache_exceptions=False)
     @logged
     async def get_samples(cls, run, dataset, lumi=0):
         if run == '':
@@ -41,7 +41,7 @@ class GUIService:
 
 
     @classmethod
-    @alru_cache(maxsize=10)
+    @alru_cache(maxsize=10, cache_exceptions=False)
     @logged
     async def get_archive(cls, run, dataset, path, search, lumi=0):
         """
@@ -192,7 +192,7 @@ class GUIService:
 
 
     @classmethod
-    @alru_cache(maxsize=10)
+    @alru_cache(maxsize=10, cache_exceptions=False)
     @logged
     async def __get_me_names_list(cls, dataset, run, lumi=0):
         lines = await cls.store.get_me_names_list(dataset, run, lumi)
@@ -208,7 +208,7 @@ class GUIService:
 
 
     @classmethod
-    @alru_cache(maxsize=10)
+    @alru_cache(maxsize=10, cache_exceptions=False)
     @logged
     async def __get_filename_fileformat_names_infos(cls, dataset, run, lumi=0):
         filename_fileformat_names_infos = await cls.store.get_filename_fileformat_names_infos(dataset, run, lumi)

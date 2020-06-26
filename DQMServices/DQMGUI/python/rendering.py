@@ -228,6 +228,7 @@ class GUIRenderingContext:
         This method flushes the message to the corresponding out of process renderer. If an error occurs, it 
         restarts the renderer process and re-establishes the socket connection to it.
         """
+        
         try:
             self.writer.write(message)
             await self.writer.drain()

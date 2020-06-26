@@ -1,5 +1,11 @@
 """
-This is an entry point to the application. It can be started like this: python3 app.py
+_|_|_|      _|_|      _|      _|        _|_|_|  _|    _|  _|_|_|  
+_|    _|  _|    _|    _|_|  _|_|      _|        _|    _|    _|    
+_|    _|  _|  _|_|    _|  _|  _|      _|  _|_|  _|    _|    _|    
+_|    _|  _|    _|    _|      _|      _|    _|  _|    _|    _|    
+_|_|_|      _|_|  _|  _|      _|        _|_|_|    _|_|    _|_|_|  
+
+This is an entry point to the DQM GUI application. It can be started like this: python3 app.py
 
 This file configures and initializes aiohttp web server and all DQM GUI services. 
 Responsibilities of the endpoint methods here are to parse input parameters, call 
@@ -23,12 +29,19 @@ if os.path.isdir(local_packages_dir):
 # any threads are created.
 processpoolexecutor = None
 if __name__ == '__main__':
-    from concurrent.futures import ProcessPoolExecutor
+    import multiprocessing
+    # forkserver means that a dummy process (a fork server process) will be forked
+    # right now, before any threads/locks are created. Whenever a new process will
+    # be requested by the ProcessPoolExecutor, fork server process will be forked
+    # instead of the main process.
+    multiprocessing.set_start_method('forkserver')
+    # from concurrent.futures import ProcessPoolExecutor
+    from .helpers import ResilientProcessPoolExecutor
     import signal
     # remove SIGINT handler for the fork'ed children to avoid the stack traces on shutdown.
     original_sigint_handler = signal.signal(signal.SIGINT, signal.SIG_IGN)
     # TODO: make process count configurable? 4 seems to be enough to saturate IO.
-    processpoolexecutor = ProcessPoolExecutor(8)
+    processpoolexecutor = ResilientProcessPoolExecutor(8)
     # concurrent.futures initializes the actual multiprocessing pool lazily. So we
     # need to submit some work here to start the processes.
     fut = processpoolexecutor.submit(print, "Process pool initialized.")
@@ -245,8 +258,6 @@ async def render_overlay_v1(request):
         run, lumi = parse_run_lumi(parts[1])
         dataset = '/' + '/'.join(parts[2:5])
         path = '/'.join(parts[5:])
-
-        print(run, lumi, dataset, path)
 
         me_description = MEDescription(dataset, path, run, lumi)
         me_descriptions.append(me_description)
