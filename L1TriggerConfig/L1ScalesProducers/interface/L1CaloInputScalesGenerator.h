@@ -19,6 +19,10 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
+#include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
+#include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
 
 //
 // class declaration
@@ -35,4 +39,6 @@ private:
   void endJob() override;
 
   // ----------member data ---------------------------
+  edm::ESGetToken<CaloTPGTranscoder, CaloTPGRecord> transcoderToken_;
+  EcalTPGScale::Tokens tokens_;
 };

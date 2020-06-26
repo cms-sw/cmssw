@@ -80,8 +80,7 @@ void EcalEBTrigPrimProducer::beginRun(edm::Run const& run, edm::EventSetup const
 
 unsigned long long EcalEBTrigPrimProducer::getRecords(edm::EventSetup const& setup) {
   // get parameter records for xtals
-  edm::ESHandle<EcalTPGLinearizationConst> theEcalTPGLinearization_handle =
-      setup.getHandle(theEcalTPGLinearization_Token_);
+  auto theEcalTPGLinearization_handle = setup.getHandle(theEcalTPGLinearization_Token_);
   const EcalTPGLinearizationConst* ecaltpLin = theEcalTPGLinearization_handle.product();
   //
   edm::ESHandle<EcalTPGPedestals> theEcalTPGPedestals_handle = setup.getHandle(theEcalTPGPedestals_Token_);
