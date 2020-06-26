@@ -8,7 +8,6 @@
 #include <random>
 #include <sys/stat.h>
 
-#include <boost/utility.hpp>
 #include "tbb/concurrent_unordered_set.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -42,8 +41,11 @@ namespace XrdAdaptor {
     uint16_t m_code;
   };
 
-  class RequestManager : boost::noncopyable {
+  class RequestManager {
   public:
+    RequestManager(const RequestManager &) = delete;
+    RequestManager &operator=(const RequestManager &) = delete;
+
     static const unsigned int XRD_DEFAULT_TIMEOUT = 3 * 60;
 
     virtual ~RequestManager() = default;
@@ -232,8 +234,11 @@ namespace XrdAdaptor {
 
     std::atomic<unsigned> m_excluded_active_count;
 
-    class OpenHandler : boost::noncopyable, public XrdCl::ResponseHandler {
+    class OpenHandler : public XrdCl::ResponseHandler {
     public:
+      OpenHandler(const OpenHandler &) = delete;
+      OpenHandler &operator=(const OpenHandler &) = delete;
+
       static std::shared_ptr<OpenHandler> getInstance(std::weak_ptr<RequestManager> manager) {
         OpenHandler *instance_ptr = new OpenHandler(manager);
         std::shared_ptr<OpenHandler> instance(instance_ptr);
