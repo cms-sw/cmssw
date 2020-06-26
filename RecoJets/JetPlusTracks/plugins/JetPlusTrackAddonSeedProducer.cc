@@ -98,7 +98,7 @@ void JetPlusTrackAddonSeedProducer::produce(edm::Event& iEvent, const edm::Event
     int iflag = 0;
     for (auto const& oldjet : jets) {
       double dr2 = deltaR2(jet, oldjet);
-      if (dr2 < dRcone_ * dRcone_){
+      if (dr2 < dRcone_ * dRcone_) {
         iflag = 1;
       }
     }  // Calojets
