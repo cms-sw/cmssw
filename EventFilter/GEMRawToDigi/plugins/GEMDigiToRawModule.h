@@ -41,7 +41,7 @@ public:
 private:
   int event_type_;
   edm::EDGetTokenT<GEMDigiCollection> digi_token;
-  edm::ESGetToken<GEMeMap, GEMeMapRcd> gemEMapRcd_token_;
+  edm::ESGetToken<GEMeMap, GEMeMapRcd> gemEMapToken_;
   bool useDBEMap_;
 };
 DEFINE_FWK_MODULE(GEMDigiToRawModule);

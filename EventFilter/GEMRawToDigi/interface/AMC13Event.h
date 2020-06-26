@@ -47,6 +47,17 @@ namespace gem {
       uint64_t cbA : 4;         // 0xA
     };
   };
+  union AMCHeader {
+    uint64_t word;
+    struct {
+      uint64_t boardId : 16;  // board id
+      uint64_t amcNo : 4;     // amc number
+      uint64_t blkNo : 8;     // block number
+      uint64_t unused : 4;    // unused
+      uint64_t amcSize : 24;  // amc size
+      uint64_t errStrip : 8;  // errStrip
+    };
+  };
 
   class AMC13Event {
   public:
@@ -72,18 +83,21 @@ namespace gem {
     void setCDFTrailer(uint32_t EvtLength);
     uint64_t getCDFTrailer() const { return cdft_; }
 
-    uint16_t bxId() const { return CDFHeader{cdfh_}.bxId; }
+    int bxId() const { return (int8_t)CDFHeader{cdfh_}.bxId; }
     uint32_t lv1Id() const { return CDFHeader{cdfh_}.lv1Id; }
     uint16_t sourceId() const { return CDFHeader{cdfh_}.sourceId; }
 
+    int orbitNumber() const { return AMC13Header{amc13h_}.orbitN; }
     uint8_t nAMC() const { return AMC13Header{amc13h_}.nAMC; }
 
     const std::vector<uint64_t>* getAMCheaders() const { return &amcHeaders_; }
+    uint32_t getAMCsize(int i) const { return AMCHeader{amcHeaders_.at(i)}.amcSize; }
     void addAMCheader(uint64_t word);
     void addAMCheader(uint32_t AMC_size, uint8_t Blk_No, uint8_t AMC_No, uint16_t BoardID);
 
     const std::vector<AMCdata>* getAMCpayloads() const { return &amcs_; }
     void addAMCpayload(const AMCdata& a) { amcs_.push_back(a); }
+    void clearAMCpayloads() { amcs_.clear(); }
 
   private:
     uint64_t cdfh_;    // CDFHeader
