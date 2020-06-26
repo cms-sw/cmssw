@@ -11,10 +11,10 @@ namespace l1tpf_impl {
 
   protected:
     float drMatchMu_;
-    enum MuMatchMode { BoxBestByPtRatio, DrBestByPtRatio, DrBestByPtDiff } muMatchMode_;
+    enum class MuMatchMode { BoxBestByPtRatio, DrBestByPtRatio, DrBestByPtDiff } muMatchMode_;
     float drMatch_, ptMatchLow_, ptMatchHigh_, maxInvisiblePt_;
     bool useTrackCaloSigma_, rescaleUnmatchedTrack_, caloTrkWeightedAverage_;
-    enum TkCaloLinkMetric { BestByDR = 0, BestByDRPt = 1, BestByDR2Pt2 = 2 };
+    enum class TkCaloLinkMetric { BestByDR = 0, BestByDRPt = 1, BestByDR2Pt2 = 2 };
     TkCaloLinkMetric tkCaloLinkMetric_;
     bool caloReLinkStep_;
     float caloReLinkDr_, caloReLinkThreshold_;
