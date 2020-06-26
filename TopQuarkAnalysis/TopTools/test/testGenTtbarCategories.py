@@ -123,7 +123,7 @@ process.task.add(process.matchGenCHadron)
 
 ## Producer for ttbar categorisation ID
 # MUST use same genJetCollection as used for tools above
-from TopQuarkAnalysis.TopTools.GenTtbarCategorizer_cfi import categorizeGenTtbar
+from TopQuarkAnalysis.TopTools.categorizeGenTtbar_cfi import categorizeGenTtbar
 process.categorizeGenTtbar = categorizeGenTtbar.clone(
     genJetPtMin = 20.,
     genJetAbsEtaMax = 2.4,
