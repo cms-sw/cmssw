@@ -18,9 +18,9 @@ public:
   /**
      @short returns the signal scaling and the noise
   */
-  double scaleByTileArea(const HGCScintillatorDetId &, const double &);
-  double scaleBySipmArea(const HGCScintillatorDetId &, const double &);
-  std::pair<double, double> scaleByDose(const HGCScintillatorDetId &, const double &);
+  double scaleByTileArea(const HGCScintillatorDetId &, const double);
+  double scaleBySipmArea(const HGCScintillatorDetId &, const double);
+  std::pair<double, double> scaleByDose(const HGCScintillatorDetId &, const double);
 
   void setSipmMap(const std::string &);
 
