@@ -67,8 +67,8 @@ public:
      if gain range is set to auto, it will find the most appropriate gain to put the mip peak close to 10 ADC counts
   */
   const SiCellOpCharacteristicsCore getSiCellOpCharacteristicsCore(const HGCSiliconDetId &did,
-                                                             GainRange_t gain,
-                                                             int aimMIPtoADC);
+                                                                   GainRange_t gain,
+                                                                   int aimMIPtoADC);
   const SiCellOpCharacteristicsCore getSiCellOpCharacteristicsCore(const HGCSiliconDetId &did) {
     return getSiCellOpCharacteristicsCore(did, defaultGain_, defaultAimMIPtoADC_);
   }
