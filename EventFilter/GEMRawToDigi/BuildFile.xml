@@ -7,6 +7,9 @@
 <use name="FWCore/MessageLogger"/>
 <use name="Utilities/StorageFactory"/>
 <use name="FWCore/Sources"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/MuonData"/>
+<use name="DataFormats/MuonDetId"/>
 <use name="rootrflx"/>
 <use name="boost"/>
 <use name="root"/>
