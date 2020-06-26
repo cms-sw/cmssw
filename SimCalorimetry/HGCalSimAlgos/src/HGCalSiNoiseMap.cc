@@ -91,7 +91,6 @@ double HGCalSiNoiseMap::getENCpad(double ileak) {
 
 //
 void HGCalSiNoiseMap::setGeometry(const CaloSubdetectorGeometry *hgcGeom, GainRange_t gain, int aimMIPtoADC) {
-
   //call base class method
   HGCalRadiationMap::setGeometry(hgcGeom);
 
@@ -115,7 +114,7 @@ void HGCalSiNoiseMap::setGeometry(const CaloSubdetectorGeometry *hgcGeom, GainRa
       continue;
 
     //compute and store in cache
-    siopCache_.emplace( rawId, getSiCellOpCharacteristicsCore(hgcDetId) );
+    siopCache_.emplace(rawId, getSiCellOpCharacteristicsCore(hgcDetId));
   }
 }
 
@@ -154,7 +153,7 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
   int subdet(cellId.subdet());
   std::vector<double> &cceParam = cceParam_[cellThick];
   const auto &xy(
-                 ddd()->locateCell(cellId.layer(), cellId.waferU(), cellId.waferV(), cellId.cellU(), cellId.cellV(), true, true));
+      ddd()->locateCell(cellId.layer(), cellId.waferU(), cellId.waferV(), cellId.cellU(), cellId.cellV(), true, true));
   double radius = sqrt(std::pow(xy.first, 2) + std::pow(xy.second, 2));  //in cm
 
   //call baseline method and add to cache

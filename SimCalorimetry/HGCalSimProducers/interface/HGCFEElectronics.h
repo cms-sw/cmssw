@@ -16,7 +16,7 @@
 
 namespace hgc = hgc_digi;
 
-namespace hgc_digi{
+namespace hgc_digi {
   typedef std::array<float, 6> FEADCPulseShape;
 }
 
