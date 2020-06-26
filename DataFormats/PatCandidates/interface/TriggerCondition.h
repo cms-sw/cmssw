@@ -26,7 +26,7 @@
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefVectorIterator.h"
-#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtDefinitions.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
 namespace pat {
