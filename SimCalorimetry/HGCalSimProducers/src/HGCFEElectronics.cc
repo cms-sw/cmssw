@@ -146,8 +146,13 @@ void HGCFEElectronics<DFr>::runTrivialShaper(
 
 //
 template <class DFr>
-void HGCFEElectronics<DFr>::runSimpleShaper(
-    DFr& dataFrame, HGCSimHitData& chargeColl, uint32_t thrADC, float lsbADC, uint32_t gainIdx, float maxADC) {
+void HGCFEElectronics<DFr>::runSimpleShaper(DFr& dataFrame,
+                                            HGCSimHitData& chargeColl,
+                                            uint32_t thrADC,
+                                            float lsbADC,
+                                            uint32_t gainIdx,
+                                            float maxADC,
+                                            const std::array<float, 6>& adcPulse) {
   //convolute with pulse shape to compute new ADCs
   newCharge.fill(0.f);
   bool debug(false);
@@ -163,12 +168,12 @@ void HGCFEElectronics<DFr>::runSimpleShaper(
     if (debug)
       edm::LogVerbatim("HGCFE") << "\t Redistributing SARS ADC" << charge << " @ " << it;
 
-    for (int ipulse = -2; ipulse < (int)(adcPulse_.size()) - 2; ipulse++) {
+    for (int ipulse = -2; ipulse < (int)(adcPulse.size()) - 2; ipulse++) {
       if (it + ipulse < 0)
         continue;
       if (it + ipulse >= (int)(dataFrame.size()))
         continue;
-      const float chargeLeak = charge * adcPulse_[(ipulse + 2)];
+      const float chargeLeak = charge * adcPulse[(ipulse + 2)];
       newCharge[it + ipulse] += chargeLeak;
 
       if (debug)
@@ -207,7 +212,8 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
                                              float lsbADC,
                                              uint32_t gainIdx,
                                              float maxADC,
-                                             int thickness) {
+                                             int thickness,
+                                             const std::array<float, 6>& adcPulse) {
   busyFlags.fill(false);
   totFlags.fill(false);
   toaFlags.fill(false);
@@ -322,10 +328,10 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
       //add leakage from previous bunches in SARS ADC mode
       for (int jt = 0; jt < it; ++jt) {
         const unsigned int deltaT = (it - jt);
-        if ((deltaT + 2) >= adcPulse_.size() || chargeColl[jt] == 0.f || totFlags[jt] || busyFlags[jt])
+        if ((deltaT + 2) >= adcPulse.size() || chargeColl[jt] == 0.f || totFlags[jt] || busyFlags[jt])
           continue;
 
-        const float leakCharge = chargeColl[jt] * adcPulse_[deltaT + 2];
+        const float leakCharge = chargeColl[jt] * adcPulse[deltaT + 2];
         totalCharge += leakCharge;
         if (toaMode_ == WEIGHTEDBYE)
           finalToA += leakCharge * pulseAvgT_[deltaT + 2];
@@ -384,16 +390,16 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
       //if(debug) edm::LogVerbatim("HGCFE") << "\t SARS ADC pulse activated @ " << it << " : ";
       if (!totFlags[it] & !busyFlags[it]) {
         const int start = std::max(0, 2 - it);
-        const int stop = std::min((int)adcPulse_.size(), (int)newCharge.size() - it + 2);
+        const int stop = std::min((int)adcPulse.size(), (int)newCharge.size() - it + 2);
         for (ipulse = start; ipulse < stop; ++ipulse) {
           const int itoffset = it + ipulse - 2;
           //notice that if the channel is already busy,
           //it has already been affected by the leakage of the SARS ADC
           //if(totFlags[itoffset] || busyFlags[itoffset]) continue;
           if (!totFlags[itoffset] & !busyFlags[itoffset]) {
-            newCharge[itoffset] += chargeColl[it] * adcPulse_[ipulse];
+            newCharge[itoffset] += chargeColl[it] * adcPulse[ipulse];
           }
-          //if(debug) edm::LogVerbatim("HGCFE") << " | " << itoffset << " " << chargeColl[it]*adcPulse_[ipulse] << "( " << chargeColl[it] << "->";
+          //if(debug) edm::LogVerbatim("HGCFE") << " | " << itoffset << " " << chargeColl[it]*adcPulse[ipulse] << "( " << chargeColl[it] << "->";
           //if(debug) edm::LogVerbatim("HGCFE") << newCharge[itoffset] << ") ";
         }
       }
