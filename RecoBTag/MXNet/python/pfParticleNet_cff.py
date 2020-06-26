@@ -14,9 +14,6 @@ pfParticleNetJetTags = boostedJetMXNetJetTagsProducer.clone(
     preprocessParams = pfParticleNetPreprocessParams,
     model_path = 'RecoBTag/Combined/data/ParticleNetAK8/General/V00/ParticleNet-symbol.json',
     param_path = 'RecoBTag/Combined/data/ParticleNetAK8/General/V00/ParticleNet-0000.params',
-    flav_names = ["probTbcq",  "probTbqq",  "probTbc",   "probTbq",  "probTbel", "probTbmu", "probTbta",
-                  "probWcq",   "probWqq",   "probZbb",   "probZcc",  "probZqq",  "probHbb", "probHcc",
-                  "probHqqqq", "probQCDbb", "probQCDcc", "probQCDb", "probQCDc", "probQCDothers"],
 )
 
 pfMassDecorrelatedParticleNetJetTags = boostedJetMXNetJetTagsProducer.clone(
