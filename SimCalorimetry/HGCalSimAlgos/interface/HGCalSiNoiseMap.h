@@ -2,6 +2,7 @@
 #define simcalorimetry_hgcalsimalgos_hgcalsinoisemap
 
 #include "SimCalorimetry/HGCalSimAlgos/interface/HGCalRadiationMap.h"
+#include "SimCalorimetry/HGCalSimProducers/interface/HGCFEElectronics.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include <string>
@@ -55,7 +56,7 @@ public:
   void setDoseMap(const std::string &, const unsigned int &);
 
   /**
-     @short overrides base class method which sets the geometry so that it can instantiate an operation
+     @short specialization of the base class method which sets the geometry so that it can instantiate an operation
      cache the first time it is called - intrinsically related to the valid detIds in the geometry
      the filling of the cache is ignored by configuration or if it has already been filled
    */
@@ -65,10 +66,10 @@ public:
      @short returns the charge collection efficiency and noise
      if gain range is set to auto, it will find the most appropriate gain to put the mip peak close to 10 ADC counts
   */
-  SiCellOpCharacteristicsCore getSiCellOpCharacteristicsCore(const HGCSiliconDetId &did,
+  const SiCellOpCharacteristicsCore getSiCellOpCharacteristicsCore(const HGCSiliconDetId &did,
                                                              GainRange_t gain,
                                                              int aimMIPtoADC);
-  SiCellOpCharacteristicsCore getSiCellOpCharacteristicsCore(const HGCSiliconDetId &did) {
+  const SiCellOpCharacteristicsCore getSiCellOpCharacteristicsCore(const HGCSiliconDetId &did) {
     return getSiCellOpCharacteristicsCore(did, defaultGain_, defaultAimMIPtoADC_);
   }
   SiCellOpCharacteristics getSiCellOpCharacteristics(const HGCSiliconDetId &did,
@@ -91,14 +92,14 @@ public:
   std::vector<double> &getIleakParam() { return ileakParam_; }
   std::vector<std::vector<double> > &getENCsParam() { return encsParam_; }
   std::vector<double> &getLSBPerGain() { return lsbPerGain_; }
-  void setDefaultADCPulseShape(const std::array<float, 6> &adcPulse) { defaultADCPulse_ = adcPulse; }
-  const std::array<float, 6> &getADCPulseForGain(GainRange_t gain) {
+  void setDefaultADCPulseShape(const hgc_digi::FEADCPulseShape &adcPulse) { defaultADCPulse_ = adcPulse; };
+  const hgc_digi::FEADCPulseShape &adcPulseForGain(GainRange_t gain) {
     if (ignoreGainDependentPulse_)
       return defaultADCPulse_;
     return adcPulses_[gain];
-  }
+  };
   std::vector<double> &getMaxADCPerGain() { return chargeAtFullScaleADCPerGain_; }
-  double getENCpad(const double &ileak);
+  double getENCpad(double ileak);
   void setCachedOp(bool flag) { activateCachedOp_ = flag; }
 
   inline void setENCCommonNoiseSubScale(double val) { encCommonNoiseSub_ = val; }
@@ -125,8 +126,8 @@ private:
 
   //electronics noise (series+parallel) polynomial coeffs and ADC pulses;
   std::vector<std::vector<double> > encsParam_;
-  std::array<float, 6> defaultADCPulse_;
-  std::vector<std::array<float, 6> > adcPulses_;
+  hgc_digi::FEADCPulseShape defaultADCPulse_;
+  std::vector<hgc_digi::FEADCPulseShape> adcPulses_;
 
   //lsb
   std::vector<double> lsbPerGain_, chargeAtFullScaleADCPerGain_;
