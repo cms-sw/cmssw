@@ -11,29 +11,27 @@
 namespace pat {
 
   class PackedCandidateMuonSelectorProducer : public edm::stream::EDProducer<> {
-
   public:
     explicit PackedCandidateMuonSelectorProducer(const edm::ParameterSet& iConfig)
         : muonToken_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
-          candidateToken_(
-              consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("candidates"))),
-          candidate2PFToken_(
-              consumes<edm::Association<reco::PFCandidateCollection> >(iConfig.getParameter<edm::InputTag>("candidates"))),
-          track2LostTrackToken_(
-              consumes<edm::Association<pat::PackedCandidateCollection> >(iConfig.getParameter<edm::InputTag>("lostTracks"))),
+          candidateToken_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("candidates"))),
+          candidate2PFToken_(consumes<edm::Association<reco::PFCandidateCollection> >(
+              iConfig.getParameter<edm::InputTag>("candidates"))),
+          track2LostTrackToken_(consumes<edm::Association<pat::PackedCandidateCollection> >(
+              iConfig.getParameter<edm::InputTag>("lostTracks"))),
           muonSelectors_(iConfig.getParameter<std::vector<std::string> >("muonSelectors")),
           muonIDs_(iConfig.getParameter<std::vector<std::string> >("muonIDs")) {
       for (const auto& sel : muonSelectors_) {
-        produces<pat::PackedCandidateRefVector>("lostTracks"+sel);
-        produces<pat::PackedCandidateRefVector>("pfCandidates"+sel);
+        produces<pat::PackedCandidateRefVector>("lostTracks" + sel);
+        produces<pat::PackedCandidateRefVector>("pfCandidates" + sel);
       }
       for (const auto& sel : muonIDs_) {
         muonIDMap_[sel].reset(new StringCutObjectSelector<reco::Muon>("passed('" + sel + "')"));
-        produces<pat::PackedCandidateRefVector>("lostTracks"+sel);
-        produces<pat::PackedCandidateRefVector>("pfCandidates"+sel);
+        produces<pat::PackedCandidateRefVector>("lostTracks" + sel);
+        produces<pat::PackedCandidateRefVector>("pfCandidates" + sel);
       }
     }
-    ~PackedCandidateMuonSelectorProducer() = default;
+    ~PackedCandidateMuonSelectorProducer() override = default;
 
     void produce(edm::Event&, const edm::EventSetup&) override;
 
@@ -79,10 +77,12 @@ void pat::PackedCandidateMuonSelectorProducer::produce(edm::Event& iEvent, const
     const auto& lostTrack = track2LostTrack[muonTrack];
     if (lostTrack.isNonnull()) {
       for (const auto& sel : muonSelectors_) {
-        if (muon::isGoodMuon(muon, muon::selectionTypeFromString(sel))) lostTrackMap[sel]->push_back(lostTrack);
+        if (muon::isGoodMuon(muon, muon::selectionTypeFromString(sel)))
+          lostTrackMap[sel]->push_back(lostTrack);
       }
       for (const auto& sel : muonIDs_) {
-        if ((*muonIDMap_.at(sel))(muon)) lostTrackMap[sel]->push_back(lostTrack);
+        if ((*muonIDMap_.at(sel))(muon))
+          lostTrackMap[sel]->push_back(lostTrack);
       }
       continue;
     }
@@ -94,10 +94,12 @@ void pat::PackedCandidateMuonSelectorProducer::produce(edm::Event& iEvent, const
       // check if candidate and muon are compatible
       if (candTrack.isNonnull() && muonTrack.id() == candTrack.id()) {
         for (const auto& sel : muonSelectors_) {
-          if (muon::isGoodMuon(muon, muon::selectionTypeFromString(sel))) candMap[sel]->push_back(cand);
+          if (muon::isGoodMuon(muon, muon::selectionTypeFromString(sel)))
+            candMap[sel]->push_back(cand);
         }
         for (const auto& sel : muonIDs_) {
-          if ((*muonIDMap_.at(sel))(muon)) candMap[sel]->push_back(cand);
+          if ((*muonIDMap_.at(sel))(muon))
+            candMap[sel]->push_back(cand);
         }
         break;
       }
@@ -105,10 +107,10 @@ void pat::PackedCandidateMuonSelectorProducer::produce(edm::Event& iEvent, const
   }
 
   for (auto& s : lostTrackMap) {
-    iEvent.put(std::move(s.second), "lostTracks"+s.first);
+    iEvent.put(std::move(s.second), "lostTracks" + s.first);
   }
   for (auto& s : candMap) {
-    iEvent.put(std::move(s.second), "pfCandidates"+s.first);
+    iEvent.put(std::move(s.second), "pfCandidates" + s.first);
   }
 }
 
@@ -118,9 +120,9 @@ void pat::PackedCandidateMuonSelectorProducer::fillDescriptions(edm::Configurati
   desc.add<edm::InputTag>("muons", edm::InputTag("muons"))->setComment("muon input collection");
   desc.add<edm::InputTag>("candidates", edm::InputTag("packedPFCandidates"))
       ->setComment("packed PF candidate input collection");
-  desc.add<edm::InputTag>("lostTracks", edm::InputTag("lostTracks"))
-      ->setComment("lost track input collection");
-  desc.add<std::vector<std::string> >("muonSelectors", {"AllTrackerMuons", "TMOneStationTight"})->setComment("muon selectors");
+  desc.add<edm::InputTag>("lostTracks", edm::InputTag("lostTracks"))->setComment("lost track input collection");
+  desc.add<std::vector<std::string> >("muonSelectors", {"AllTrackerMuons", "TMOneStationTight"})
+      ->setComment("muon selectors");
   desc.add<std::vector<std::string> >("muonIDs", {})->setComment("muon IDs");
   descriptions.add("packedCandidateMuonID", desc);
 }
