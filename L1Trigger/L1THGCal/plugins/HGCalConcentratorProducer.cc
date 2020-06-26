@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerSums.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
@@ -28,6 +28,7 @@ private:
   // inputs
   edm::EDGetToken input_cell_, input_sums_;
   edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
+  edm::ESGetToken<HGCalTriggerGeometryBase, CaloGeometryRecord> triggerGeomToken_;
 
   std::unique_ptr<HGCalConcentratorProcessorBase> concentratorProcess_;
 };
@@ -36,7 +37,8 @@ DEFINE_FWK_MODULE(HGCalConcentratorProducer);
 
 HGCalConcentratorProducer::HGCalConcentratorProducer(const edm::ParameterSet& conf)
     : input_cell_(consumes<l1t::HGCalTriggerCellBxCollection>(conf.getParameter<edm::InputTag>("InputTriggerCells"))),
-      input_sums_(consumes<l1t::HGCalTriggerSumsBxCollection>(conf.getParameter<edm::InputTag>("InputTriggerSums"))) {
+      input_sums_(consumes<l1t::HGCalTriggerSumsBxCollection>(conf.getParameter<edm::InputTag>("InputTriggerSums"))),
+      triggerGeomToken_(esConsumes<HGCalTriggerGeometryBase, CaloGeometryRecord, edm::Transition::BeginRun>()) {
   //setup Concentrator parameters
   const edm::ParameterSet& concParamConfig = conf.getParameterSet("ProcessorParameters");
   const std::string& concProcessorName = concParamConfig.getParameter<std::string>("ProcessorName");
@@ -48,7 +50,7 @@ HGCalConcentratorProducer::HGCalConcentratorProducer(const edm::ParameterSet& co
 }
 
 void HGCalConcentratorProducer::beginRun(const edm::Run& /*run*/, const edm::EventSetup& es) {
-  es.get<CaloGeometryRecord>().get(triggerGeometry_);
+  triggerGeometry_ = es.getHandle(triggerGeomToken_);
 
   concentratorProcess_->setGeometry(triggerGeometry_.product());
 }
