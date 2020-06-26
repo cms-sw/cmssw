@@ -934,28 +934,37 @@ void PlotHist(const char* infile,
   std::string name1[5] = {"Z0", "Z1", "Z2", "Z3", "Z4"};
   std::string name2[5] = {"L0", "L1", "L2", "L3", "L4"};
   std::string name3[5] = {"V0", "V1", "V2", "V3", "V4"};
-  std::string name4[12] = {"etaB31", "etaB32", "etaB33", "etaB34",
-			   "etaB11", "etaB12", "etaB13", "etaB14",
-			   "etaB01", "etaB02", "etaB03", "etaB04"};
+  std::string name4[12] = {"etaB31",
+                           "etaB32",
+                           "etaB33",
+                           "etaB34",
+                           "etaB11",
+                           "etaB12",
+                           "etaB13",
+                           "etaB14",
+                           "etaB01",
+                           "etaB02",
+                           "etaB03",
+                           "etaB04"};
   std::string name5[5] = {"W0", "W1", "W2", "W3", "W4"};
   std::string title[6] = {"Tracks with p = 10:20 GeV",
-			  "Tracks with p = 20:30 GeV",
+                          "Tracks with p = 20:30 GeV",
                           "Tracks with p = 30:40 GeV",
                           "Tracks with p = 40:60 GeV",
                           "Tracks with p = 60:100 GeV",
                           "Tracks with p = 20:100 GeV"};
   std::string title1[12] = {"Tracks with p = 40:60 GeV (Barrel)",
-			    "Tracks with p = 40:60 GeV (Transition)",
-			    "Tracks with p = 40:60 GeV (Endcap)",
-			    "Tracks with p = 40:60 GeV",
-			    "Tracks with p = 20:30 GeV (Barrel)",
-			    "Tracks with p = 20:30 GeV (Transition)",
-			    "Tracks with p = 20:30 GeV (Endcap)",
-			    "Tracks with p = 20:30 GeV",
-			    "Tracks with p = 10:20 GeV (Barrel)",
-			    "Tracks with p = 10:20 GeV (Transition)",
-			    "Tracks with p = 10:20 GeV (Endcap)",
-			    "Tracks with p = 10:20 GeV"};
+                            "Tracks with p = 40:60 GeV (Transition)",
+                            "Tracks with p = 40:60 GeV (Endcap)",
+                            "Tracks with p = 40:60 GeV",
+                            "Tracks with p = 20:30 GeV (Barrel)",
+                            "Tracks with p = 20:30 GeV (Transition)",
+                            "Tracks with p = 20:30 GeV (Endcap)",
+                            "Tracks with p = 20:30 GeV",
+                            "Tracks with p = 10:20 GeV (Barrel)",
+                            "Tracks with p = 10:20 GeV (Transition)",
+                            "Tracks with p = 10:20 GeV (Endcap)",
+                            "Tracks with p = 10:20 GeV"};
   std::string xtitl[5] = {"E_{HCAL}/(p-E_{ECAL})", "i#eta", "d_{L1}", "# Vertex", "E_{HCAL}/(p-E_{ECAL})"};
   std::string ytitl[5] = {
       "Tracks", "MPV(E_{HCAL}/(p-E_{ECAL}))", "MPV(E_{HCAL}/(p-E_{ECAL}))", "MPV(E_{HCAL}/(p-E_{ECAL}))", "Tracks"};
