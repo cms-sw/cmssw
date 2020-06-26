@@ -79,7 +79,7 @@ void GEMeMap::convertDummy(GEMROMapping& romap) {
   uint8_t gebId = 0;
 
   for (int re = -1; re <= 1; re = re + 2) {
-    for (int st = GEMDetId::minStationId; st <= GEMDetId::maxStationId; ++st) {
+    for (int st = GEMDetId::minStationId0; st <= GEMDetId::maxStationId; ++st) {
       int maxVFat = maxVFatGE11_;
       if (st == 2)
         maxVFat = maxVFatGE21_;
@@ -103,7 +103,7 @@ void GEMeMap::convertDummy(GEMROMapping& romap) {
 
           uint16_t chipPos = 0;
           for (int lphi = 0; lphi < maxVFat; ++lphi) {
-            for (int roll = 1; roll <= maxEtaPartition_; ++roll) {
+            for (int roll = 1; roll <= GEMDetId::maxRollId; ++roll) {
               GEMROMapping::vfatEC vec;
               vec.vfatAdd = chipPos;
               vec.detId = gemId;
