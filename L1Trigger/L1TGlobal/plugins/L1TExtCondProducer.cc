@@ -20,6 +20,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
@@ -77,6 +78,7 @@ private:
   bool makeTriggerRulePrefireVetoBit_;
   edm::EDGetTokenT<TCDSRecord> tcdsRecordToken_;
   edm::InputTag tcdsInputTag_;
+  edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> l1GtMenuToken_;
 };
 
 //
@@ -89,7 +91,8 @@ L1TExtCondProducer::L1TExtCondProducer(const ParameterSet& iConfig)
       setBptxPlus_(iConfig.getParameter<bool>("setBptxPlus")),
       setBptxMinus_(iConfig.getParameter<bool>("setBptxMinus")),
       setBptxOR_(iConfig.getParameter<bool>("setBptxOR")),
-      tcdsInputTag_(iConfig.getParameter<edm::InputTag>("tcdsRecordLabel")) {
+      tcdsInputTag_(iConfig.getParameter<edm::InputTag>("tcdsRecordLabel")),
+      l1GtMenuToken_(esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>()) {
   makeTriggerRulePrefireVetoBit_ = false;
 
   m_triggerRulePrefireVetoBit = 255;
@@ -126,8 +129,7 @@ void L1TExtCondProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   unsigned long long l1GtMenuCacheID = iSetup.get<L1TUtmTriggerMenuRcd>().cacheIdentifier();
 
   if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
-    edm::ESHandle<L1TUtmTriggerMenu> l1GtMenu;
-    iSetup.get<L1TUtmTriggerMenuRcd>().get(l1GtMenu);
+    edm::ESHandle<L1TUtmTriggerMenu> l1GtMenu = iSetup.getHandle(l1GtMenuToken_);
     const L1TUtmTriggerMenu* utml1GtMenu = l1GtMenu.product();
 
     // Instantiate Parser
