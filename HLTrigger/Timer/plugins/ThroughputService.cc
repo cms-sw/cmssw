@@ -7,13 +7,11 @@
 #include <boost/format.hpp>
 
 // CMSSW headers
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "HLTrigger/Timer/interface/processor_model.h"
 #include "ThroughputService.h"
-
-// local headers
-#include "processor_model.h"
 
 // describe the module's configuration
 void ThroughputService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
