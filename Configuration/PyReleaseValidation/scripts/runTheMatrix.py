@@ -74,7 +74,7 @@ if __name__ == '__main__':
                      140.53, #2011 HI data
                      140.56, #2018 HI data
                      158.0, #2018 HI MC with pp-like reco
-                     158.11, #reMiniAOD of 2018 HI MC with pp-like reco
+                     158.01, #reMiniAOD of 2018 HI MC with pp-like reco
                      1306.0, #SingleMu Pt1 UP15
                      1325.7, #test NanoAOD from existing MINI
                      1330, #Run2 MC Zmm
