@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 # keep IC5 association for backward compatibility for external use
 from RecoJets.JetAssociationProducers.ic5JetTracksAssociatorAtVertex_cfi import *
 from RecoJets.JetAssociationProducers.trackExtrapolator_cfi import *
-#JPTtrackExtrapolatorAA = trackExtrapolator.clone()
 trackExtrapolator.trackSrc = cms.InputTag("hiGoodMergedTracks")
 
 # standard associations
@@ -35,7 +34,6 @@ JetPlusTrackZSPCorJetIconePu5 = cms.EDProducer(
     UseZSP = cms.bool(False),
     srcPVs  = cms.InputTag('hiSelectedVertex'),
     alias = cms.untracked.string('JetPlusTrackZSPCorJetIcone5'),
-#=>
     extrapolations = cms.InputTag("trackExtrapolator")
     )
     
@@ -61,7 +59,6 @@ JetPlusTrackZSPCorJetSisconePu5 = cms.EDProducer(
     UseZSP = cms.bool(False),   
     srcPVs  = cms.InputTag('hiSelectedVertex'),
     alias = cms.untracked.string('JetPlusTrackZSPCorJetSiscone5'),
-#=>
     extrapolations = cms.InputTag("trackExtrapolator")   
     )
 
@@ -87,7 +84,6 @@ JetPlusTrackZSPCorJetAntiKtPu5 = cms.EDProducer(
     UseZSP = cms.bool(False),   
     srcPVs  = cms.InputTag('hiSelectedVertex'),
     alias = cms.untracked.string('JetPlusTrackZSPCorJetAntiKt5'),
-#=>
     extrapolations = cms.InputTag("trackExtrapolator")
     )
 
@@ -106,7 +102,6 @@ JetPlusTrackZSPCorJetAntiKtPu5.EfficiencyMap = cms.string("CondFormats/JetMETObj
 JPTtrackExtrapolatorAA = trackExtrapolator.clone()
 JPTtrackExtrapolatorAA.trackSrc = cms.InputTag("hiGoodMergedTracks")
 JPTtrackExtrapolatorAA.trackQuality = cms.string('highPurity')
-##JPTtrackExtrapolatorAA.trackQuality = cms.string('loose')
 #===>
 
 # IC
@@ -119,11 +114,6 @@ JPTiterativeConePu5JetTracksAssociatorAtVertex.tracks = cms.InputTag("hiGoodMerg
 JPTiterativeConePu5JetTracksAssociatorAtCaloFace = iterativeCone5JetTracksAssociatorAtCaloFace.clone()
 JPTiterativeConePu5JetTracksAssociatorAtCaloFace.jets = cms.InputTag("iterativeConePu5CaloJets")
 JPTiterativeConePu5JetTracksAssociatorAtCaloFace.tracks = cms.InputTag("hiGoodMergedTracks")
-
-#===>
-#JPTiterativeConePu5JetTracksAssociatorAtCaloFace.extrapolations = cms.InputTag("JPTtrackExtrapolatorAA")
-#JPTiterativeConePu5JetTracksAssociatorAtCaloFace.trackQuality = cms.string('highPurity')
-#===>
 
 JPTiterativeConePu5JetExtender = iterativeCone5JetExtender.clone() 
 JPTiterativeConePu5JetExtender.jets = cms.InputTag("iterativeConePu5CaloJets")
@@ -168,7 +158,6 @@ JPTAntiKtPu5JetExtender.jet2TracksAtVX = cms.InputTag("JPTAntiKtPu5JetTracksAsso
 
 JPTrecoJetAssociationsIconePu5 = cms.Sequence(
     trackExtrapolator*
-###    JPTtrackExtrapolatorAA*
     JPTiterativeConePu5JetTracksAssociatorAtVertex*
     JPTiterativeConePu5JetTracksAssociatorAtCaloFace*
     JPTiterativeConePu5JetExtender

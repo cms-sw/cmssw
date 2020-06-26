@@ -338,16 +338,9 @@ void JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& 
     }
 
     AreaNonJet[ij1] = 4 * M_PI * mConeSize - nj1 * 4 * mConeSize * mConeSize;
-
-    //      std::cout<<"+++AreaNonJet[ij1]="<<AreaNonJet[ij1]<<" nj1="<<nj1<<std::endl;
   }
 
   //===>
-
-  //  std::cout<<" The size of BG tracks: trBgOutOfVertex= "<<trBgOutOfVertex.size()
-  //           <<" trBgOutOfCalo= "<<trBgOutOfCalo.size()<<std::endl;
-  //
-  //  std::cout<<" The size of JPT jet collection "<<tmpColl.size()<<std::endl;
 
   for (reco::JPTJetCollection::iterator ij = tmpColl.begin(); ij != tmpColl.end(); ij++) {
     // Correct JPTjet for background tracks
@@ -357,18 +350,12 @@ void JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& 
 
     double ja = (AreaNonJet.find(ij))->second;
 
-    //    std::cout<<"+++ ja="<<ja<<" pioninout="<<pioninout.size()<<std::endl;
-
     double factorPU = mJPTalgo->correctAA(*ij, trBgOutOfVertex, mConeSize, pioninin, pioninout, ja, trBgOutOfCalo);
 
     (*ij).scaleEnergy(factorPU);
 
-    //   std::cout<<" FactorPU "<<factorPU<<std::endl;
-
     // Output module
     pOut->push_back(*ij);
-
-    //    std::cout<<" New JPT energy "<<(*ij).et()<<" "<<(*ij).pt()<<" "<<(*ij).eta()<<" "<<(*ij).phi()<<std::endl;
   }
 
   iEvent.put(std::move(pOut));
