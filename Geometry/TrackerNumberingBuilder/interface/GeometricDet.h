@@ -2,7 +2,7 @@
 #define Geometry_TrackerNumberingBuilder_GeometricDet_H
 
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
-#include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "DetectorDescription/DDCMS/interface/DDSolidShapes.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/DetId/interface/DetId.h"
