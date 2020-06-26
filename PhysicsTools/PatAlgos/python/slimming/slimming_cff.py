@@ -63,10 +63,8 @@ from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 pp_on_AA_2018.toReplaceWith(slimmingTask, slimmingTask.copyAndExclude([slimmedOOTPhotons]))
 
 from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
-from PhysicsTools.PatAlgos.packedPFCandidateMuonID_cfi import packedPFCandidateMuonID
-(pp_on_AA_2018 | pp_on_PbPb_run3).toModify(packedPFCandidateMuonID, muonSelectors = cms.vstring(["AllTrackerMuons", "TMOneStationTight"]))
-lostTrackMuonID = packedPFCandidateMuonID.clone(candidates = cms.InputTag("lostTracks"))
-(pp_on_AA_2018 | pp_on_PbPb_run3).toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), packedPFCandidateMuonID, lostTrackMuonID))
+from PhysicsTools.PatAlgos.packedCandidateMuonID_cfi import packedCandidateMuonID
+(pp_on_AA_2018 | pp_on_PbPb_run3).toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), packedCandidateMuonID))
 
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 _phase2_timing_slimmingTask = cms.Task(slimmingTask.copy(),

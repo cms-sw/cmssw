@@ -588,6 +588,7 @@
   <class name="edm::Wrapper<pat::GenericParticleRefVector>" />
   <class name="edm::Wrapper<pat::HemisphereRefVector>" />
   <class name="edm::Wrapper<pat::ConversionRefVector>" />
+  <class name="edm::Wrapper<pat::PackedCandidateRefVector>" />
 
   <!-- RefToBase<Candidate> from PATObjects -->
     <!-- With direct Holder -->
