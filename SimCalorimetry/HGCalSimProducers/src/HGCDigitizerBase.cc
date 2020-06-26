@@ -138,7 +138,7 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
       HGCalSiNoiseMap::GainRange_t gain((HGCalSiNoiseMap::GainRange_t)siop.gain);
       lsbADC = scal_.getLSBPerGain()[gain];
       maxADC = scal_.getMaxADCPerGain()[gain];
-      adcPulse = scal_.getADCPulseForGain(gain);
+      adcPulse = scal_.adcPulseForGain(gain);
       gainIdx = siop.gain;
       if (thresholdFollowsMIP_)
         thrADC = siop.thrADC;
