@@ -13,7 +13,7 @@
 #include <sys/sysctl.h>
 #endif  // BOOST_OS_BSD || BOOST_OS_MACOS
 
-#include "processor_model.h"
+#include "HLTrigger/Timer/interface/processor_model.h"
 
 std::string read_processor_model() {
 #if BOOST_OS_LINUX
