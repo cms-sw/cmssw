@@ -1,11 +1,5 @@
-#ifndef FIRMWARE_PFALGO2HGC_H
-#define FIRMWARE_PFALGO2HGC_H
-
-#ifndef REG_HGCal
-#ifndef CMSSW_GIT_HASH
-#warning "REG_HGCal is not #defined, but this algorithm has only been tested there"
-#endif
-#endif
+#ifndef L1Trigger_Phase2L1ParticleFlow_FIRMWARE_PFALGO2HGC_H
+#define L1Trigger_Phase2L1ParticleFlow_FIRMWARE_PFALGO2HGC_H
 
 #include "pfalgo_common.h"
 

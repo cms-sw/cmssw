@@ -1,5 +1,5 @@
-#ifndef FASTPUPPI_NTUPLERPRODUCER_FIRMWARE2DISCRETEPF_H
-#define FASTPUPPI_NTUPLERPRODUCER_FIRMWARE2DISCRETEPF_H
+#ifndef L1Trigger_Phase2L1ParticleFlow_FIRMWARE2DISCRETEPF_H
+#define L1Trigger_Phase2L1ParticleFlow_FIRMWARE2DISCRETEPF_H
 
 /// NOTE: this include is not standalone, since the path to DiscretePFInputs is different in CMSSW & Vivado_HLS
 

@@ -6,28 +6,30 @@
 #include <cmath>
 
 namespace l1tpf {
+
   class ParametricResolution {
   public:
+    static std::vector<float> getVFloat(const edm::ParameterSet &cpset, const std::string & name) {
+        std::vector<double> vd = cpset.getParameter<std::vector<double>>(name);
+        return std::vector<float>(vd.begin(),vd.end());
+    }
+
     ParametricResolution() {}
-    ParametricResolution(const edm::ParameterSet &cpset) {
-      std::vector<double> etaBins = cpset.getParameter<std::vector<double>>("etaBins");
-      std::vector<double> offset = cpset.getParameter<std::vector<double>>("offset");
-      std::vector<double> scale = cpset.getParameter<std::vector<double>>("scale");
-      etas.insert(etas.end(), etaBins.begin(), etaBins.end());
-      scales.insert(scales.end(), scale.begin(), scale.end());
-      offsets.insert(offsets.end(), offset.begin(), offset.end());
+    ParametricResolution(const edm::ParameterSet &cpset) :
+        etas(getVFloat(cpset,"etaBins")),
+        offsets(getVFloat(cpset,"offset")),
+        scales(getVFloat(cpset,"scale"))
+        {
       if (cpset.existsAs<std::vector<double>>("ptMin")) {
-        std::vector<double> ptMin = cpset.getParameter<std::vector<double>>("ptMin");
-        ptMins.insert(ptMins.end(), ptMin.begin(), ptMin.end());
+        ptMins = getVFloat(cpset,"ptMin");
       } else {
         float ptMin = cpset.existsAs<double>("ptMin") ? cpset.getParameter<double>("ptMin") : 0;
-        ptMins = std::vector<float>(etaBins.size(), ptMin);
+        ptMins = std::vector<float>(etas.size(), ptMin);
       }
       if (cpset.existsAs<std::vector<double>>("ptMax")) {
-        std::vector<double> ptMax = cpset.getParameter<std::vector<double>>("ptMax");
-        ptMaxs.insert(ptMaxs.end(), ptMax.begin(), ptMax.end());
+        ptMaxs = getVFloat(cpset,"ptMax");
       } else {
-        ptMaxs = std::vector<float>(etaBins.size(), 1e6);
+        ptMaxs = std::vector<float>(etas.size(), 1e6);
       }
       std::string skind = cpset.getParameter<std::string>("kind");
       if (skind == "track")

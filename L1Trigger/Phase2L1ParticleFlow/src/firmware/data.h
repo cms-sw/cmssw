@@ -1,5 +1,5 @@
-#ifndef FIRMWARE_DATA_H
-#define FIRMWARE_DATA_H
+#ifndef L1Trigger_Phase2L1ParticleFlow_FIRMWARE_DATA_H
+#define L1Trigger_Phase2L1ParticleFlow_FIRMWARE_DATA_H
 
 #include <ap_int.h>
 

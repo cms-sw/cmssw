@@ -10,7 +10,6 @@
 #include "DataFormats/L1TParticleFlow/interface/PFCluster.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
-#include "CommonTools/MVAUtils/interface/TMVAZipReader.h"
 
 #include "TMVA/Factory.h"
 #include "TMVA/Reader.h"
@@ -21,48 +20,11 @@
 namespace l1tpf {
   class HGC3DClusterEgID {
   public:
-    HGC3DClusterEgID(const edm::ParameterSet &pset)
-        : isPUFilter_(pset.getParameter<bool>("isPUFilter")),
-          preselection_(pset.getParameter<std::string>("preselection")),
-          method_(pset.getParameter<std::string>("method")),
-          weightsFile_(pset.getParameter<std::string>("weightsFile")),
-          reader_(new TMVA::Reader()),
-          wp_(pset.getParameter<std::string>("wp")) {
-      // first create all the variables
-      for (const auto &psvar : pset.getParameter<std::vector<edm::ParameterSet>>("variables")) {
-        variables_.emplace_back(psvar.getParameter<std::string>("name"), psvar.getParameter<std::string>("value"));
-      }
-    }
+    HGC3DClusterEgID(const edm::ParameterSet &pset) ;
 
-    void prepareTMVA() {
-      // Declare the variables
-      for (auto &var : variables_)
-        var.declare(*reader_);
-      // then read the weights
-      if (weightsFile_[0] != '/' && weightsFile_[0] != '.') {
-        weightsFile_ = edm::FileInPath(weightsFile_).fullPath();
-      }
-      reco::details::loadTMVAWeights(&*reader_, method_, weightsFile_);
-    }
+    void prepareTMVA() ;
 
-    float passID(l1t::HGCalMulticluster c, l1t::PFCluster &cpf) {
-      if (preselection_(c)) {
-        for (auto &var : variables_)
-          var.fill(c);
-        float mvaOut = reader_->EvaluateMVA(method_);
-        if (isPUFilter_)
-          cpf.setEgVsPUMVAOut(mvaOut);
-        else
-          cpf.setEgVsPionMVAOut(mvaOut);
-        return (mvaOut > wp_(c) ? 1 : 0);
-      } else {
-        if (isPUFilter_)
-          cpf.setEgVsPUMVAOut(-100.0);
-        else
-          cpf.setEgVsPionMVAOut(-100.0);
-        return 0;
-      }
-    }
+    float passID(l1t::HGCalMulticluster c, l1t::PFCluster &cpf) ;
 
     std::string method() { return method_; }
 

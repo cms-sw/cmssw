@@ -335,7 +335,7 @@ void L1TPFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::vector<float> puGlobals;
   l1pualgo_->doPUGlobals(l1regions_.regions(), -1., puGlobals);  // FIXME we don't have yet an external PU estimate
   const std::vector<std::string>& puGlobalNames = l1pualgo_->puGlobalNames();
-  assert(puGlobals.size() == puGlobalNames.size());
+  if (puGlobals.size() != puGlobalNames.size()) throw cms::Exception("LogicError", "Mismatch in the number of global pileup inputs");
   for (unsigned int i = 0, n = puGlobalNames.size(); i < n; ++i) {
     iEvent.put(std::make_unique<float>(puGlobals[i]), puGlobalNames[i]);
   }

@@ -1,5 +1,5 @@
-#ifndef FIRMWARE_PFALGO_COMMON_H
-#define FIRMWARE_PFALGO_COMMON_H
+#ifndef L1Trigger_Phase2L1ParticleFlow_FIRMWARE_PFALGO_COMMON_H
+#define L1Trigger_Phase2L1ParticleFlow_FIRMWARE_PFALGO_COMMON_H
 
 #include "data.h"
 

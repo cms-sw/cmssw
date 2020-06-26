@@ -1,11 +1,5 @@
-#ifndef FIRMWARE_PFALGO3_H
-#define FIRMWARE_PFALGO3_H
-
-#ifndef REG_Barrel
-#ifndef CMSSW_GIT_HASH
-#warning "REG_Barrel not defined in PFALGO3: not validated"
-#endif
-#endif
+#ifndef L1Trigger_Phase2L1ParticleFlow_FIRMWARE_PFALGO3_H
+#define L1Trigger_Phase2L1ParticleFlow_FIRMWARE_PFALGO3_H
 
 #include "pfalgo_common.h"
 

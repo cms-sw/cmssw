@@ -1,5 +1,5 @@
-#ifndef PFALGO3_REF_H
-#define PFALGO3_REF_H
+#ifndef L1Trigger_Phase2L1ParticleFlow_PFALGO3_REF_H
+#define L1Trigger_Phase2L1ParticleFlow_PFALGO3_REF_H
 
 #include "../firmware/pfalgo3.h"
 #include "pfalgo_common_ref.h"
