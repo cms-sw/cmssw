@@ -1,5 +1,5 @@
-#ifndef Phase2L1Trigger_DTTrigger_MuonPathAssociator_cc
-#define Phase2L1Trigger_DTTrigger_MuonPathAssociator_cc
+#ifndef Phase2L1Trigger_DTTrigger_MuonPathAssociator_h
+#define Phase2L1Trigger_DTTrigger_MuonPathAssociator_h
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
