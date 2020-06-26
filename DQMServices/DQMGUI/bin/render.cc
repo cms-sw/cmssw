@@ -1304,6 +1304,15 @@ private:
       h->SetMaximum();
       if (isnan(h->Integral()) || isnan(h->GetRMS()) || isnan(h->GetSumOfWeights()))
         unsafe = true;
+      
+      // This is a workaround to a ROOT bug where a trailing underscore 
+      // in the histogram title causes drawing to crash.
+      // This code removes that trailing underscore.
+      TString title = h->GetTitle();
+      if (title.EndsWith("_")) {
+        title.Remove(title.Length()-1);
+        h->SetTitle(title.Data());
+      }
     }
 
     // Invoke pre-draw hook on plug-ins that want to apply.
