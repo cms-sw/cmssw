@@ -299,7 +299,7 @@ public:
   void correctEnergy(double &ener, const Long64_t &entry);
 
 private:
-  static const unsigned int npbin = 5, kp50 = 2;
+  static const unsigned int npbin = 6, kp50 = 3;
   CalibCorrFactor *corrFactor_;
   CalibCorr *cFactor_;
   CalibSelectRBX *cSelect_;
@@ -606,7 +606,7 @@ void CalibMonitor::Init(TChain *tree, const char *dupFileName, const char *comFi
       ++nbins;
     }
   }
-  int ipbin[npbin] = {20, 30, 40, 60, 100};
+  int ipbin[npbin] = {10, 20, 30, 40, 60, 100};
   for (unsigned int i = 0; i < npbin; ++i)
     ps_.push_back((double)(ipbin[i]));
   int npvtx[6] = {0, 7, 10, 13, 16, 100};
@@ -1099,13 +1099,13 @@ void CalibMonitor::Loop() {
         std::map<int, counter>::const_iterator itr = runEn1.find(t_Run);
         if (itr == runEn1.end()) {
           counter knt;
-          if (kp >= 0 && kp < 4)
+          if (kp >= 0 && kp < (npsize -1))
             knt.count[kp] = 1;
           knt.total = 1;
           runEn1[t_Run] = knt;
         } else {
           counter knt = runEn1[t_Run];
-          if (kp >= 0 && kp < 4)
+          if (kp >= 0 && kp < (npsize -1))
             ++knt.count[kp];
           ++knt.total;
           runEn1[t_Run] = knt;
@@ -1117,13 +1117,13 @@ void CalibMonitor::Loop() {
         std::map<int, counter>::const_iterator itr = runEn2.find(t_Run);
         if (itr == runEn2.end()) {
           counter knt;
-          if (kp >= 0 && kp < 4)
+          if (kp >= 0 && kp < (npsize -1))
             knt.count[kp] = 1;
           knt.total = 1;
           runEn2[t_Run] = knt;
         } else {
           counter knt = runEn2[t_Run];
-          if (kp >= 0 && kp < 4)
+          if (kp >= 0 && kp < (npsize -1))
             ++knt.count[kp];
           ++knt.total;
           runEn2[t_Run] = knt;
@@ -1152,13 +1152,13 @@ void CalibMonitor::Loop() {
           std::map<int, counter>::const_iterator itr = runSum.find(t_Run);
           if (itr == runSum.end()) {
             counter knt;
-            if (kp >= 0 && kp < 4)
+            if (kp >= 0 && kp < (npsize -1))
               knt.count[kp] = 1;
             knt.total = 1;
             runSum[t_Run] = knt;
           } else {
             counter knt = runSum[t_Run];
-            if (kp >= 0 && kp < 4)
+            if (kp >= 0 && kp < (npsize -1))
               ++knt.count[kp];
             ++knt.total;
             runSum[t_Run] = knt;
@@ -1245,8 +1245,7 @@ void CalibMonitor::Loop() {
             << std::endl;
   std::cout << "Number of selected events:" << std::endl;
   for (unsigned int k = 1; k < ps_.size(); ++k)
-    if (ps_[k] > 21)
-      std::cout << ps_[k - 1] << ":" << ps_[k] << "     " << kounts[k - 1] << std::endl;
+    std::cout << ps_[k - 1] << ":" << ps_[k] << "     " << kounts[k - 1] << std::endl;
   std::cout << "Number in each step: ";
   for (unsigned int k = 0; k < 18; ++k)
     std::cout << " [" << k << "] " << kount50[k];
@@ -2148,7 +2147,7 @@ public:
   void correctEnergy(double &ener, const Long64_t &entry);
 
 private:
-  static const unsigned int npbin = 5, kp50 = 2, ndepth = 7;
+  static const unsigned int npbin = 6, kp50 = 3, ndepth = 7;
   CalibCorrFactor *corrFactor_;
   CalibCorr *cFactor_;
   CalibSelectRBX *cSelect_;
@@ -2385,7 +2384,7 @@ void CalibPlotProperties::Init(TChain *tree, const char *dupFileName) {
     std::cout << "No duplicate events in the input file" << std::endl;
   }
 
-  int ipbin[npbin] = {20, 30, 40, 60, 100};
+  int ipbin[npbin] = {10, 20, 30, 40, 60, 100};
   for (unsigned int i = 0; i < npbin; ++i)
     ps_.push_back((double)(ipbin[i]));
   int ietas[4] = {0, 13, 18, 23};
