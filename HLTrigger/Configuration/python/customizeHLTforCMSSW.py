@@ -188,6 +188,28 @@ def customiseFor30046(process, menuType="GRun"):
         del producer.Clusterizer.QualityLabel
         producer.Clusterizer.ConditionsLabel = cms.string('')
 
+def customiseFor30280(process):
+    """Adapt the HLT to adapt the recent changed in Muon Geometry"""
+
+    if hasattr(process,'RPCGeometryESModule'):
+        process.RPCGeometryESModule = cms.ESProducer( "RPCGeometryESModule",
+            useDDD = cms.untracked.bool( False ),
+            useDD4hep = cms.untracked.bool( False )
+        )
+    if hasattr(process,'CSCGeometryESModule'):
+        process.CSCGeometryESModule = cms.ESProducer( "CSCGeometryESModule",
+            useRealWireGeometry = cms.bool( True ),
+            appendToDataLabel = cms.string( "" ),
+            alignmentsLabel = cms.string( "" ),
+            useGangedStripsInME1a = cms.bool( False ),
+            debugV = cms.untracked.bool( False ),
+            useOnlyWiresInME1a = cms.bool( False ),
+            useDDD = cms.bool( False ),
+            useDD4hep = cms.bool( False ),
+            useCentreTIOffsets = cms.bool( False ),
+            applyAlignment = cms.bool( True )
+        )
+
     return process
 
 # CMSSW version specific customizations
@@ -197,5 +219,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
     process = customiseFor30060(process, menuType)
     process = customiseFor30046(process, menuType=menuType)
+    process = customiseFor30280(process)
 
     return process

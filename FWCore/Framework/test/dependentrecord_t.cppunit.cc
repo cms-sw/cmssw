@@ -143,8 +143,8 @@ namespace {
     WorkingDepRecordProxy(const edm::eventsetup::test::DummyData* iDummy) : data_(iDummy) {}
 
   protected:
-    const value_type* make(const record_type&, const DataKey&) override { return data_; }
-    void invalidateCache() override {}
+    const value_type* make(const record_type&, const DataKey&) final { return data_; }
+    void const* getAfterPrefetchImpl() const final { return data_; }
 
   private:
     const edm::eventsetup::test::DummyData* data_;
@@ -748,6 +748,23 @@ namespace {
     explicit DummyDataConsumer(edm::ESInputTag const& iTag)
         : m_token{esConsumes<edm::eventsetup::test::DummyData, RECORD>(iTag)} {}
 
+    void prefetch(edm::EventSetupImpl const& iImpl) const {
+      auto const& recs = this->esGetTokenRecordIndicesVector(edm::Transition::Event);
+      auto const& proxies = this->esGetTokenIndicesVector(edm::Transition::Event);
+      for (size_t i = 0; i != proxies.size(); ++i) {
+        auto rec = iImpl.findImpl(recs[i]);
+        if (rec) {
+          auto waitTask = edm::make_empty_waiting_task();
+          waitTask->set_ref_count(2);
+          rec->prefetchAsync(waitTask.get(), proxies[i], &iImpl);
+          waitTask->decrement_ref_count();
+          waitTask->wait_for_all();
+          if (waitTask->exceptionPtr()) {
+            std::rethrow_exception(*waitTask->exceptionPtr());
+          }
+        }
+      }
+    }
     edm::ESGetToken<edm::eventsetup::test::DummyData, RECORD> m_token;
   };
 
@@ -756,6 +773,24 @@ namespace {
     explicit DummyDataConsumer2(edm::ESInputTag const& iTag1, edm::ESInputTag const& iTag2)
         : m_token1{esConsumes<edm::eventsetup::test::DummyData, RECORD1>(iTag1)},
           m_token2{esConsumes<edm::eventsetup::test::DummyData, RECORD2>(iTag2)} {}
+
+    void prefetch(edm::EventSetupImpl const& iImpl) const {
+      auto const& recs = this->esGetTokenRecordIndicesVector(edm::Transition::Event);
+      auto const& proxies = this->esGetTokenIndicesVector(edm::Transition::Event);
+      for (size_t i = 0; i != proxies.size(); ++i) {
+        auto rec = iImpl.findImpl(recs[i]);
+        if (rec) {
+          auto waitTask = edm::make_empty_waiting_task();
+          waitTask->set_ref_count(2);
+          rec->prefetchAsync(waitTask.get(), proxies[i], &iImpl);
+          waitTask->decrement_ref_count();
+          waitTask->wait_for_all();
+          if (waitTask->exceptionPtr()) {
+            std::rethrow_exception(*waitTask->exceptionPtr());
+          }
+        }
+      }
+    }
 
     edm::ESGetToken<edm::eventsetup::test::DummyData, RECORD1> m_token1;
     edm::ESGetToken<edm::eventsetup::test::DummyData, RECORD2> m_token2;
@@ -805,6 +840,7 @@ void testdependentrecord::getDataWithESGetTokenTest() {
     {
       DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"", "blah"}};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
@@ -815,6 +851,7 @@ void testdependentrecord::getDataWithESGetTokenTest() {
     {
       DummyDataConsumer<DummyRecord> consumer{edm::ESInputTag{"", ""}};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
@@ -825,6 +862,7 @@ void testdependentrecord::getDataWithESGetTokenTest() {
     {
       DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"", "blah"}};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
@@ -836,6 +874,7 @@ void testdependentrecord::getDataWithESGetTokenTest() {
     {
       DummyDataConsumer<DummyRecord> consumer{edm::ESInputTag{"", ""}};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
@@ -848,6 +887,7 @@ void testdependentrecord::getDataWithESGetTokenTest() {
     {
       DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"", "blah"}};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
@@ -860,6 +900,7 @@ void testdependentrecord::getDataWithESGetTokenTest() {
     {
       DummyDataConsumer2<DummyRecord, DepRecord> consumer{edm::ESInputTag{"", ""}, edm::ESInputTag{"", "blah"}};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
@@ -875,6 +916,7 @@ void testdependentrecord::getDataWithESGetTokenTest() {
     {
       DummyDataConsumer<DummyRecord> consumer{edm::ESInputTag{"DoesNotExist", ""}};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
@@ -886,6 +928,7 @@ void testdependentrecord::getDataWithESGetTokenTest() {
     {
       DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"DoesNotExist", "blah"}};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
@@ -943,6 +986,7 @@ void testdependentrecord::getHandleWithESGetTokenTest() {
     {
       DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"", "blah"}};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
@@ -955,6 +999,7 @@ void testdependentrecord::getHandleWithESGetTokenTest() {
     {
       DummyDataConsumer<DummyRecord> consumer{edm::ESInputTag{"", ""}};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
@@ -967,6 +1012,7 @@ void testdependentrecord::getHandleWithESGetTokenTest() {
     {
       DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"", "blah"}};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
@@ -981,6 +1027,7 @@ void testdependentrecord::getHandleWithESGetTokenTest() {
     {
       DummyDataConsumer<DummyRecord> consumer{edm::ESInputTag{"", ""}};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
@@ -995,6 +1042,7 @@ void testdependentrecord::getHandleWithESGetTokenTest() {
     {
       DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"", "blah"}};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
@@ -1009,6 +1057,7 @@ void testdependentrecord::getHandleWithESGetTokenTest() {
     {
       DummyDataConsumer2<DummyRecord, DepRecord> consumer{edm::ESInputTag{"", ""}, edm::ESInputTag{"", "blah"}};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
@@ -1028,6 +1077,7 @@ void testdependentrecord::getHandleWithESGetTokenTest() {
     {
       DummyDataConsumer<DummyRecord> consumer{edm::ESInputTag{"DoesNotExist", ""}};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
@@ -1040,6 +1090,7 @@ void testdependentrecord::getHandleWithESGetTokenTest() {
     {
       DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"DoesNotExist", "blah"}};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
@@ -1097,6 +1148,7 @@ void testdependentrecord::getTransientHandleWithESGetTokenTest() {
     {
       DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"", "blah"}};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
@@ -1109,6 +1161,7 @@ void testdependentrecord::getTransientHandleWithESGetTokenTest() {
     {
       DummyDataConsumer<DummyRecord> consumer{edm::ESInputTag{"", ""}};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
@@ -1121,6 +1174,7 @@ void testdependentrecord::getTransientHandleWithESGetTokenTest() {
     {
       DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"", "blah"}};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
@@ -1135,6 +1189,7 @@ void testdependentrecord::getTransientHandleWithESGetTokenTest() {
     {
       DummyDataConsumer<DummyRecord> consumer{edm::ESInputTag{"", ""}};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
@@ -1149,6 +1204,7 @@ void testdependentrecord::getTransientHandleWithESGetTokenTest() {
     {
       DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"", "blah"}};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
@@ -1163,6 +1219,7 @@ void testdependentrecord::getTransientHandleWithESGetTokenTest() {
     {
       DummyDataConsumer2<DummyRecord, DepRecord> consumer{edm::ESInputTag{"", ""}, edm::ESInputTag{"", "blah"}};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
@@ -1182,6 +1239,7 @@ void testdependentrecord::getTransientHandleWithESGetTokenTest() {
     {
       DummyDataConsumer<DummyRecord> consumer{edm::ESInputTag{"DoesNotExist", ""}};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
@@ -1195,6 +1253,7 @@ void testdependentrecord::getTransientHandleWithESGetTokenTest() {
     {
       DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"DoesNotExist", "blah"}};
       consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),

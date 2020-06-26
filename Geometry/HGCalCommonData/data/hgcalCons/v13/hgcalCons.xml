@@ -86,7 +86,7 @@
     <Parameter name="FirstMixedLayer"     value="[hgcal:FirstMixedLayer]"/>
     <Parameter name="LayerOffset"         value="28"/>
     <Parameter name="DetectorType"        value="2"/>
-    <Parameter name="WaferMaskMode"       value="2"/>
+    <Parameter name="WaferMaskMode"       value="3"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P0]"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P1]"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P2]"/>
@@ -137,7 +137,7 @@
     <Parameter name="FirstMixedLayer"     value="[hgcal:FirstMixedLayer]"/>
     <Parameter name="LayerOffset"         value="28"/>
     <Parameter name="DetectorType"        value="3"/>
-    <Parameter name="WaferMaskMode"       value="2"/>
+    <Parameter name="WaferMaskMode"       value="4"/>
     <Parameter name="WaferThickness"      value="[hgcal:ScintillatorThickness]"/>
     <Parameter name="MinimumTileSize"     value="[MinimumTileSize]"/>
     <Parameter name="NPhiBinBH"           value="360"/>

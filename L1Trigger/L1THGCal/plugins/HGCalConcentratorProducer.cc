@@ -14,6 +14,7 @@
 #include "L1Trigger/L1THGCal/interface/HGCalProcessorBase.h"
 
 #include <memory>
+#include <utility>
 
 class HGCalConcentratorProducer : public edm::stream::EDProducer<> {
 public:
@@ -54,16 +55,14 @@ void HGCalConcentratorProducer::beginRun(const edm::Run& /*run*/, const edm::Eve
 
 void HGCalConcentratorProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   // Output collections
-  auto cc_trigcell_output = std::make_unique<l1t::HGCalTriggerCellBxCollection>();
-  auto cc_trigsums_output = std::make_unique<l1t::HGCalTriggerSumsBxCollection>();
+  std::pair<l1t::HGCalTriggerCellBxCollection, l1t::HGCalTriggerSumsBxCollection> cc_output;
 
   // Input collections
   edm::Handle<l1t::HGCalTriggerCellBxCollection> trigCellBxColl;
 
   e.getByToken(input_cell_, trigCellBxColl);
-  concentratorProcess_->run(trigCellBxColl, *cc_trigcell_output, es);
+  concentratorProcess_->run(trigCellBxColl, cc_output, es);
   // Put in the event
-  // At the moment the HGCalTriggerSumsBxCollection is empty
-  e.put(std::move(cc_trigcell_output), concentratorProcess_->name());
-  e.put(std::move(cc_trigsums_output), concentratorProcess_->name());
+  e.put(std::make_unique<l1t::HGCalTriggerCellBxCollection>(std::move(cc_output.first)), concentratorProcess_->name());
+  e.put(std::make_unique<l1t::HGCalTriggerSumsBxCollection>(std::move(cc_output.second)), concentratorProcess_->name());
 }

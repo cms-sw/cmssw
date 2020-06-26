@@ -11,8 +11,11 @@
 #include "DataFormats/L1THGCal/interface/HGCalTowerMap.h"
 #include "DataFormats/L1THGCal/interface/HGCalTower.h"
 
+#include <utility>
+
 typedef HGCalProcessorBaseT<HGCalDigiCollection, l1t::HGCalTriggerCellBxCollection> HGCalVFEProcessorBase;
-typedef HGCalProcessorBaseT<edm::Handle<l1t::HGCalTriggerCellBxCollection>, l1t::HGCalTriggerCellBxCollection>
+typedef HGCalProcessorBaseT<edm::Handle<l1t::HGCalTriggerCellBxCollection>,
+                            std::pair<l1t::HGCalTriggerCellBxCollection, l1t::HGCalTriggerSumsBxCollection> >
     HGCalConcentratorProcessorBase;
 typedef HGCalProcessorBaseT<edm::Handle<l1t::HGCalTriggerCellBxCollection>, l1t::HGCalClusterBxCollection>
     HGCalBackendLayer1ProcessorBase;

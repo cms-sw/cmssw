@@ -32,6 +32,7 @@ private:
   void getCellPosition(HGCalParameters& php, int type);
   double getDDDValue(const char* s, const DDsvalues_type& sv);
   std::vector<double> getDDDArray(const char* s, const DDsvalues_type& sv);
+  constexpr static double tan30deg_ = 0.5773502693;
 };
 
 #endif

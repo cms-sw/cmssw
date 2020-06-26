@@ -2,7 +2,7 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
-    <ConstantsSection label="RP_Stations_Assembly.xml">
+    <ConstantsSection label="RP_Stations_Assembly.xml" eval="true">
         <!--positions of the stations from the IP5 to the first element of the station-->
         <Constant name="RP_147_Left_Station_Position_z" value="-202769*mm"/>
         <Constant name="RP_147_Right_Station_Position_z" value="202769*mm"/>

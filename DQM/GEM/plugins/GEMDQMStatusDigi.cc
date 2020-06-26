@@ -338,10 +338,11 @@ int GEMDQMStatusDigi::SetConfigTimeRecord() {
     std::string strSuffix = suffixChamber(chId);
 
     Int_t nVFAT = 0;
+    Int_t nEtas = ch.nEtaPartitions();
     if (chId.station() == 1)
-      nVFAT = GEMeMap::maxEtaPartition_ * GEMeMap::maxVFatGE11_;
+      nVFAT = nEtas * GEMeMap::maxVFatGE11_;
     if (chId.station() == 2)
-      nVFAT = GEMeMap::maxEtaPartition_ * GEMeMap::maxVFatGE21_;
+      nVFAT = nEtas * GEMeMap::maxVFatGE21_;
 
     newTimeStore.strName = strCommonName + "status_chamber_" + strSuffix;
     newTimeStore.strTitle = "";
@@ -445,11 +446,13 @@ void GEMDQMStatusDigi::bookHistogramsChamberPart(DQMStore::IBooker &ibooker, GEM
   std::string strIdxTitle = "GEMINIm" + to_string(gid.chamber()) + " in GE" + (gid.region() > 0 ? "+" : "-") +
                             to_string(gid.station()) + "/" + to_string(gid.layer());
 
+  const GEMChamber *ch = GEMGeometry_->chamber(gid);
   Int_t nVFAT = 0;
+  Int_t nEtas = ch->nEtaPartitions();
   if (gid.station() == 1)
-    nVFAT = GEMeMap::maxEtaPartition_ * GEMeMap::maxVFatGE11_;
+    nVFAT = nEtas * GEMeMap::maxVFatGE11_;
   if (gid.station() == 2)
-    nVFAT = GEMeMap::maxEtaPartition_ * GEMeMap::maxVFatGE21_;
+    nVFAT = nEtas * GEMeMap::maxVFatGE21_;
 
   hName = "vfatStatus_QualityFlag_" + strIdxName;
   hTitle = "VFAT quality " + strIdxTitle;
@@ -795,6 +798,8 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
     GEMDetId gemid = (*vfatIt).first;
     GEMDetId gemchId = gemid.chamberId();
     GEMDetId gemOnlychId(0, 1, 1, (bPerSuperchamber_ ? 0 : gemid.layer()), gemid.chamber(), 0);
+    const GEMChamber *ch = GEMGeometry_->chamber(gemchId);
+    Int_t maxEtaPs = ch->nEtaPartitions();
 
     int nIdx = seekIdx(m_listChambers, gemOnlychId);
     int nRoll = gemid.roll();
@@ -824,7 +829,7 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
       FillBits(h1_vfat_qualityflag_, unQFVFAT, qVFATBit_ + fVFATBit_);
       FillBits(h2_vfat_qualityflag_, unQFVFAT, qVFATBit_ + fVFATBit_, nIdx);  // They could be there
 
-      int nVFAT = (GEMeMap::maxEtaPartition_ - nRoll) + GEMeMap::maxEtaPartition_ * vfatStat->phi();
+      int nVFAT = (maxEtaPs - nRoll) + maxEtaPs * vfatStat->phi();
       bIsNotEmpty = FillBits(listVFATQualityFlag_[gemchId], unQFVFAT, qVFATBit_ + fVFATBit_, nVFAT);
 
       if (!bIsNotEmpty) {
@@ -939,21 +944,6 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
     }
   }
 
-  auto findVFATByStrip = [](GEMDetId gid, Int_t nIdxStrip, Int_t nNumStrips) -> Int_t {
-    Int_t nNumEtaPart = GEMeMap::maxEtaPartition_;
-
-    // Strip: Start at 0
-    if (gid.station() == 1) {  // GE1/1
-      Int_t nNumVFAT = GEMeMap::maxVFatGE11_;
-      return nNumEtaPart * ((Int_t)(nIdxStrip / (nNumStrips / nNumVFAT)) + 1) - gid.roll();
-    } else if (gid.station() == 2) {  // GE2/1
-      Int_t nNumVFAT = GEMeMap::maxVFatGE21_;
-      return nNumEtaPart * ((Int_t)(nIdxStrip / (nNumStrips / nNumVFAT)) + 1) - gid.roll();
-    }
-
-    return -1;
-  };
-
   // Checking if there is a fire (data)
   for (auto ch : gemChambers_) {
     GEMDetId cId = ch.id();
@@ -967,6 +957,10 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
 
     auto &listCurrDigi = listTimeStore_[chIdDigi];
     auto &listCurrBx = listTimeStore_[chIdBx];
+    Int_t maxEtaPs = ch.nEtaPartitions();
+    Int_t nNumVFAT = GEMeMap::maxVFatGE11_;
+    if (cId.station() == 2)
+      nNumVFAT = GEMeMap::maxVFatGE21_;
 
     for (auto roll : ch.etaPartitions()) {
       GEMDetId rId = roll->id();
@@ -974,7 +968,7 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
 
       for (auto d = digis_in_det.first; d != digis_in_det.second; ++d) {
         Int_t nIdxStrip = d->strip() - nIdxFirstStrip_;
-        Int_t nVFAT = findVFATByStrip(rId, nIdxStrip, roll->nstrips());
+        Int_t nVFAT = maxEtaPs * ((Int_t)(nIdxStrip / (roll->nstrips() / nNumVFAT)) + 1) - rId.roll();
 
         bIsHit = true;
         mapBXVFAT[nVFAT] = d->bx();

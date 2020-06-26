@@ -4,9 +4,12 @@
 
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/EarlyDeleteHelper.h"
+#include "FWCore/Framework/interface/EventSetupImpl.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
+#include "FWCore/Framework/src/esTaskArenas.h"
 
 namespace edm {
   namespace {
@@ -199,7 +202,9 @@ namespace edm {
   void Worker::prefetchAsync(WaitingTask* iTask,
                              ServiceToken const& token,
                              ParentContext const& parentContext,
-                             Principal const& iPrincipal) {
+                             Principal const& iPrincipal,
+                             EventSetupImpl const& iEventSetup,
+                             edm::Transition iTransition) {
     // Prefetch products the module declares it consumes (not including the products it maybe consumes)
     std::vector<ProductResolverIndexAndSkipBit> const& items = itemsToGetFrom(iPrincipal.branchType());
 
@@ -211,6 +216,8 @@ namespace edm {
 
     //Need to be sure the ref count isn't set to 0 immediately
     iTask->increment_ref_count();
+
+    esPrefetchAsync(iTask, iEventSetup, iTransition);
     for (auto const& item : items) {
       ProductResolverIndex productResolverIndex = item.productResolverIndex();
       bool skipCurrentProcess = item.skipCurrentProcess();
@@ -270,6 +277,75 @@ namespace edm {
       }
     }
     choiceHolder.doneWaiting(std::exception_ptr{});
+  }
+
+  void Worker::esPrefetchAsync(WaitingTask* iTask, EventSetupImpl const& iImpl, Transition iTrans) {
+    auto const& recs = esRecordsToGetFrom(iTrans);
+    auto const& items = esItemsToGetFrom(iTrans);
+
+    assert(items.size() == recs.size());
+    if (items.empty()) {
+      return;
+    }
+
+    //Thread case of 1 thread special. The master thread is doing a wait_for_all on the
+    // default tbb arena. It will not process any tasks on the es arena. We need to add a
+    // task that will synchronously do a wait_for_all in the es arena to be sure prefetching
+    // will work.
+    if UNLIKELY (tbb::this_task_arena::max_concurrency() == 1) {
+      //We spawn this first so that the other ES tasks are before it in the TBB queue
+      tbb::task::spawn(*make_functor_task(tbb::task::allocate_root(),
+                                          [this, task = edm::WaitingTaskHolder(iTask), iTrans, &iImpl]() mutable {
+                                            auto waitTask = edm::make_empty_waiting_task();
+                                            waitTask->set_ref_count(2);
+                                            auto waitTaskPtr = waitTask.get();
+                                            esTaskArena().execute([waitTaskPtr, this, iTrans, &iImpl]() {
+                                              auto const& recs = esRecordsToGetFrom(iTrans);
+                                              auto const& items = esItemsToGetFrom(iTrans);
+                                              waitTaskPtr->set_ref_count(2);
+                                              for (size_t i = 0; i != items.size(); ++i) {
+                                                if (recs[i] != ESRecordIndex{}) {
+                                                  auto rec = iImpl.findImpl(recs[i]);
+                                                  if (rec) {
+                                                    rec->prefetchAsync(waitTaskPtr, items[i], &iImpl);
+                                                  }
+                                                }
+                                              }
+                                              waitTaskPtr->decrement_ref_count();
+                                              waitTaskPtr->wait_for_all();
+                                            });
+
+                                            auto exPtr = waitTask->exceptionPtr();
+                                            if (exPtr) {
+                                              task.doneWaiting(*exPtr);
+                                            } else {
+                                              task.doneWaiting(std::exception_ptr{});
+                                            }
+                                          }));
+    } else {
+      //We need iTask to run in the default arena since it is not an ES task
+      auto task =
+          make_waiting_task(tbb::task::allocate_root(),
+                            [holder = WaitingTaskWithArenaHolder{iTask}](std::exception_ptr const* iExcept) mutable {
+                              if (iExcept) {
+                                holder.doneWaiting(*iExcept);
+                              } else {
+                                holder.doneWaiting(std::exception_ptr{});
+                              }
+                            });
+
+      WaitingTaskHolder tempH(task);
+      esTaskArena().execute([&]() {
+        for (size_t i = 0; i != items.size(); ++i) {
+          if (recs[i] != ESRecordIndex{}) {
+            auto rec = iImpl.findImpl(recs[i]);
+            if (rec) {
+              rec->prefetchAsync(task, items[i], &iImpl);
+            }
+          }
+        }
+      });
+    }
   }
 
   void Worker::setEarlyDeleteHelper(EarlyDeleteHelper* iHelper) { earlyDeleteHelper_ = iHelper; }
