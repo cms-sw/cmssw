@@ -39,7 +39,7 @@ static std::vector<l1tpf_impl::Region> regions_;
 
 typedef l1tpf_impl::InputRegion Region;
 typedef std::pair<int, int> SectorTrackIndex;
-typedef std::map<SectorTrackIndex, TLorentzVector *> TrackMap;
+typedef std::map<SectorTrackIndex, TLorentzVector> TrackMap;
 
 struct Event {
   uint32_t run, lumi;
@@ -62,9 +62,9 @@ struct Event {
   }
 };
 
-TLorentzVector *makeTLorentzVectorPtEtaPhiE(float pt, float eta, float phi, float e) {
-  TLorentzVector *v = new TLorentzVector();
-  v->SetPtEtaPhiE(pt, eta, phi, e);
+TLorentzVector makeTLorentzVectorPtEtaPhiE(float pt, float eta, float phi, float e) {
+  TLorentzVector v;
+  v.SetPtEtaPhiE(pt, eta, phi, e);
   return v;
 }
 
@@ -185,8 +185,8 @@ TrackMap get_tracks_from_root_file(fwlite::Event &ev, int entry = 0, bool print 
   return tracks_root;
 }
 
-std::map<std::pair<int, int>, TLorentzVector *> get_tracks_from_dump_file(FILE *dfile_ = nullptr, bool print = false) {
-  std::map<std::pair<int, int>, TLorentzVector *> tracks_dump;
+std::map<std::pair<int, int>, TLorentzVector> get_tracks_from_dump_file(FILE *dfile_ = nullptr, bool print = false) {
+  std::map<std::pair<int, int>, TLorentzVector> tracks_dump;
   Event event_;
 
   if (feof(dfile_)) {
@@ -260,10 +260,10 @@ std::map<std::pair<int, int>, TLorentzVector *> get_tracks_from_dump_file(FILE *
   return tracks_dump;
 }
 
-std::map<std::pair<int, int>, TLorentzVector *> get_tracks_from_coe_file(std::ifstream &cfile_,
+std::map<std::pair<int, int>, TLorentzVector> get_tracks_from_coe_file(std::ifstream &cfile_,
                                                                          bool print = false,
                                                                          bool debug = false) {
-  std::map<std::pair<int, int>, TLorentzVector *> tracks_coe;
+  std::map<std::pair<int, int>, TLorentzVector> tracks_coe;
   std::string bset_string_;
   int ntrackstotal(0);
   bool skip(false);
@@ -354,7 +354,7 @@ std::map<std::pair<int, int>, TLorentzVector *> get_tracks_from_coe_file(std::if
   }
   for (unsigned int is = 0; is < regions_.size(); ++is) {
     std::vector<SectorTrackIndex> tracks_in_sector;
-    findAllInRegion<SectorTrackIndex, TLorentzVector *, int>(tracks_in_sector, tracks_coe, is);
+    findAllInRegion<SectorTrackIndex, TLorentzVector, int>(tracks_in_sector, tracks_coe, is);
     if (print)
       printf("\tRead region %u (eta=[%0.4f,%0.4f] phi=[%0.4f,%0.4f]) with %lu tracks\n",
              is,
@@ -367,9 +367,9 @@ std::map<std::pair<int, int>, TLorentzVector *> get_tracks_from_coe_file(std::if
       if (print)
         printf("\t\t Track %u (pT,eta,phi): (%.4f,%.4f,%.4f)\n",
                it,
-               tracks_coe[tracks_in_sector[it]]->Pt(),
-               tracks_coe[tracks_in_sector[it]]->Eta(),
-               tracks_coe[tracks_in_sector[it]]->Phi());
+               tracks_coe[tracks_in_sector[it]].Pt(),
+               tracks_coe[tracks_in_sector[it]].Eta(),
+               tracks_coe[tracks_in_sector[it]].Phi());
     }
   }
 
@@ -430,20 +430,20 @@ bool compare_maps(TrackMap ref, TrackMap test) {
                 << it->first.second << ")" << std::endl;
       return false;
     }
-    tlv = *(test.find(it->first)->second);
+    tlv = (test.find(it->first)->second);
     // The pT tolerance should be 1.0/l1tpf_impl::CaloCluster::PT_SCALE, but because of the rounding this is not true and the actual resolution isn't always as good
     // Instead, we will use max(1% of the pT of the reference TLorentzVector,0.25)
     // We use the max statement because at low pT, the 1% definition doesn't hold anymore. This wouldn't be a problem if 1/pT were encoded rather than pT.
     if (!compare_lv_with_tolerance(
-            *(it->second),
+            (it->second),
             tlv,
-            {float(std::max(it->second->Pt() * 1E-2, 1.0 / l1tpf_impl::CaloCluster::PT_SCALE)),
+            {float(std::max(it->second.Pt() * 1E-2, 1.0 / l1tpf_impl::CaloCluster::PT_SCALE)),
              1.0 / l1tpf_impl::InputTrack::VTX_ETA_SCALE,
              1.0 / l1tpf_impl::InputTrack::VTX_PHI_SCALE,
-             float(std::max(it->second->Pt() * 1E-2, 1.0 / l1tpf_impl::CaloCluster::PT_SCALE))})) {
+             float(std::max(it->second.Pt() * 1E-2, 1.0 / l1tpf_impl::CaloCluster::PT_SCALE))})) {
       std::cerr << std::endl
-                << "\tERROR::compare_maps Can't find the test track with TLorentzVector (" << it->second->Pt() << ","
-                << it->second->Eta() << "," << it->second->Phi() << "," << it->second->E() << ")" << std::endl
+                << "\tERROR::compare_maps Can't find the test track with TLorentzVector (" << it->second.Pt() << ","
+                << it->second.Eta() << "," << it->second.Phi() << "," << it->second.E() << ")" << std::endl
                 << "\t\tInstead found (" << tlv.Pt() << "," << tlv.Eta() << "," << tlv.Phi() << "," << tlv.E()
                 << ") at the position (sector,index)=(" << it->first.first << "," << it->first.second << ")"
                 << std::endl;
