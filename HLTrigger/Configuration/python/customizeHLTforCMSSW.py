@@ -188,6 +188,8 @@ def customiseFor30046(process, menuType="GRun"):
         del producer.Clusterizer.QualityLabel
         producer.Clusterizer.ConditionsLabel = cms.string('')
 
+    return process
+
 def customiseFor30280(process):
     """Adapt the HLT to adapt the recent changed in Muon Geometry"""
 
