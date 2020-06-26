@@ -106,7 +106,7 @@ void HGCalSiNoiseMap::setGeometry(const CaloSubdetectorGeometry *hgcGeom, GainRa
     return;
 
   const auto &validDetIds = geom()->getValidDetIds();
-  for (auto &did : validDetIds) {
+  for (const auto &did : validDetIds) {
     //use only positive side detIds
     unsigned int rawId(did.rawId());
     HGCSiliconDetId hgcDetId(rawId);
