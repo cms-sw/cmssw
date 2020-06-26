@@ -15,6 +15,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -48,6 +49,7 @@ private:
   bool me0Plus_;
   edm::InputTag digiTag_;
   edm::EDGetTokenT<ME0DigiPreRecoCollection> m_digiTag;
+  edm::ESGetToken<MuonSystemAging, MuonSystemAgingRcd> m_agingObjTag;
   std::map<unsigned int, float> m_maskedME0IDs;
 };
 
@@ -67,6 +69,7 @@ ME0ChamberMasker::ME0ChamberMasker(const edm::ParameterSet& iConfig)
       me0Plus_(iConfig.getParameter<bool>("me0Plus")),
       digiTag_(iConfig.getParameter<edm::InputTag>("digiTag")) {
   m_digiTag = consumes<ME0DigiPreRecoCollection>(digiTag_);
+  m_agingObjTag = esConsumes<MuonSystemAging, MuonSystemAgingRcd, edm::Transition::BeginRun>();
   produces<ME0DigiPreRecoCollection>();
 }
 
@@ -103,8 +106,7 @@ void ME0ChamberMasker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 // ------------ method called when starting to processes a run  ------------
 
 void ME0ChamberMasker::beginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
-  edm::ESHandle<MuonSystemAging> agingObj;
-  iSetup.get<MuonSystemAgingRcd>().get(agingObj);
+  edm::ESHandle<MuonSystemAging> agingObj = iSetup.getHandle(m_agingObjTag);
 
   m_maskedME0IDs = agingObj->m_ME0ChambEffs;
 }

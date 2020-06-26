@@ -237,6 +237,8 @@ steps['RunSinglePh2016B']={'INPUT':InputInfo(dataSet='/SinglePhoton/Run2016B-v2/
 steps['RunZeroBias2016B']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2016B-v2/RAW',label='2016B',events=100000,location='STD', ls=Run2016B)}
 steps['RunMuOnia2016B']={'INPUT':InputInfo(dataSet='/MuOnia/Run2016B-v2/RAW',label='2016B',events=100000,location='STD', ls=Run2016B)}
 steps['RunNoBPTX2016B']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2016B-v2/RAW',label='2016B',events=100000,location='STD', ls=Run2016B)}
+# reminiAOD selection, mainly for PPS testing
+steps['RunJetHT2016B_reminiaodUL']={'INPUT':InputInfo(dataSet='/JetHT/Run2016B-21Feb2020_ver2_UL2016_HIPM-v1/AOD',label='2016BrmaodUL',events=100000,location='STD', ls=Run2016B)}
 
 #### run2 2016C ####
 Run2016C={276092: [[115, 149]]}

@@ -14,17 +14,19 @@ from RecoMuon.CosmicMuonProducer.cosmicMuons_cff import *
 cosmicMuons.TrajectoryBuilderParameters.DTRecSegmentLabel = 'dt4DCosmicSegments'
 
 # Muon Id producer
-muonsFromCosmics = RecoMuon.MuonIdentification.muons1stStep_cfi.muons1stStep.clone()
-muonsFromCosmics.inputCollectionLabels = ['cosmicMuons']
-muonsFromCosmics.inputCollectionTypes = ['outer tracks']
-muonsFromCosmics.TrackAssociatorParameters.DTRecSegment4DCollectionLabel = 'dt4DCosmicSegments'
-muonsFromCosmics.TrackExtractorPSet.inputTrackCollection = 'cosmicMuons'
-muonsFromCosmics.TimingFillerParameters.MatchParameters.DTsegments = 'dt4DCosmicSegments'
-muonsFromCosmics.TimingFillerParameters.DTTimingParameters.PruneCut = 9999
-muonsFromCosmics.TimingFillerParameters.CSCTimingParameters.PruneCut = 9999
-muonsFromCosmics.fillIsolation = False
-muonsFromCosmics.fillGlobalTrackQuality = False
-muonsFromCosmics.fillGlobalTrackRefits = False
+muonsFromCosmics = RecoMuon.MuonIdentification.muons1stStep_cfi.muons1stStep.clone(
+    inputCollectionLabels = ['cosmicMuons'],
+    inputCollectionTypes = ['outer tracks'],
+    fillIsolation = False,
+    fillGlobalTrackQuality = False,
+    fillGlobalTrackRefits = False,
+    TrackAssociatorParameters = dict(DTRecSegment4DCollectionLabel = 'dt4DCosmicSegments'),
+    TrackExtractorPSet = dict(inputTrackCollection = 'cosmicMuons'),
+    TimingFillerParameters = dict(
+	MatchParameters = dict(DTsegments = 'dt4DCosmicSegments'),
+	DTTimingParameters = dict(PruneCut = 9999),
+	CSCTimingParameters = dict(PruneCut = 9999))
+)
 
 #add regional cosmic tracks here
 muoncosmicreco2legsSTATask = cms.Task(CosmicMuonSeed,cosmicMuons)
@@ -34,24 +36,29 @@ muoncosmicreco2legsHighLevel = cms.Sequence(muoncosmicreco2legsHighLevelTask)
 
 # 1 Leg type
 # Stand alone muon track producer
-cosmicMuons1Leg = cosmicMuons.clone()
-cosmicMuons1Leg.TrajectoryBuilderParameters.BuildTraversingMuon = True
-cosmicMuons1Leg.TrajectoryBuilderParameters.Strict1Leg = True
-cosmicMuons1Leg.TrajectoryBuilderParameters.DTRecSegmentLabel = 'dt4DCosmicSegments'
-cosmicMuons1Leg.MuonSeedCollectionLabel = 'CosmicMuonSeed'
+cosmicMuons1Leg = cosmicMuons.clone(
+    MuonSeedCollectionLabel = 'CosmicMuonSeed',
+    TrajectoryBuilderParameters = dict(
+	BuildTraversingMuon = True, 
+	Strict1Leg = True, 
+	DTRecSegmentLabel = 'dt4DCosmicSegments')
+)
 
 # Muon Id producer
-muonsFromCosmics1Leg = muons1stStep.clone()
-muonsFromCosmics1Leg.inputCollectionLabels = ['cosmicMuons1Leg']
-muonsFromCosmics1Leg.inputCollectionTypes = ['outer tracks']
-muonsFromCosmics1Leg.TrackAssociatorParameters.DTRecSegment4DCollectionLabel = 'dt4DCosmicSegments'
-muonsFromCosmics1Leg.TrackExtractorPSet.inputTrackCollection = 'cosmicMuons1Leg'
-muonsFromCosmics1Leg.TimingFillerParameters.MatchParameters.DTsegments = 'dt4DCosmicSegments'
-muonsFromCosmics1Leg.TimingFillerParameters.DTTimingParameters.PruneCut = 9999
-muonsFromCosmics1Leg.TimingFillerParameters.CSCTimingParameters.PruneCut = 9999
-muonsFromCosmics1Leg.fillIsolation = False
-muonsFromCosmics1Leg.fillGlobalTrackQuality = False
-muonsFromCosmics1Leg.fillGlobalTrackRefits = False
+muonsFromCosmics1Leg = muons1stStep.clone(
+    inputCollectionLabels = ['cosmicMuons1Leg'],
+    inputCollectionTypes = ['outer tracks'],
+    fillIsolation = False,
+    fillGlobalTrackQuality = False,
+    fillGlobalTrackRefits = False,
+    TrackAssociatorParameters = dict(DTRecSegment4DCollectionLabel = 'dt4DCosmicSegments'),
+    TrackExtractorPSet = dict(inputTrackCollection = 'cosmicMuons1Leg'),
+    TimingFillerParameters = dict(
+        MatchParameters = dict(DTsegments = 'dt4DCosmicSegments'),
+        DTTimingParameters = dict(PruneCut = 9999),
+        CSCTimingParameters = dict(PruneCut = 9999))
+)
+
 muoncosmicreco1legSTATask = cms.Task(CosmicMuonSeed,cosmicMuons1Leg)
 muoncosmicreco1legSTA = cms.Sequence(muoncosmicreco1legSTATask)
 muoncosmicreco1legHighLevelTask = cms.Task(muonsFromCosmics1Leg)
@@ -61,6 +68,7 @@ muoncosmicrecoTask = cms.Task(muoncosmicreco2legsSTATask,muoncosmicreco1legSTATa
 muoncosmicreco = cms.Sequence(muoncosmicrecoTask)
 muoncosmichighlevelrecoTask = cms.Task(muoncosmicreco2legsHighLevelTask,muoncosmicreco1legHighLevelTask,cosmicsMuonIdTask)
 muoncosmichighlevelreco = cms.Sequence(muoncosmichighlevelrecoTask)
+
 #### High level sequence (i.e., post PF reconstruction) ###
 from RecoMuon.MuonIdentification.muons_cfi import *
 from RecoMuon.MuonIsolation.muonPFIsolation_cff import *

@@ -5,8 +5,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "CalibFormats/HcalObjects/interface/HcalTPGRecord.h"
+#include "CalibFormats/HcalObjects/interface/HcalTPGCoder.h"
 
 class HcalTTPDigiProducer : public edm::stream::EDProducer<> {
 public:
@@ -20,6 +23,7 @@ private:
   bool decision(int nP, int nM, int bit);
 
   edm::EDGetTokenT<HFDigiCollection> tok_hf_;
+  edm::ESGetToken<HcalTPGCoder, HcalTPGRecord> tok_tpgCoder_;
   std::vector<unsigned int> maskedChannels_;
   std::string bit_[4];
   int calc_[4];

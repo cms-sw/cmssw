@@ -15,7 +15,7 @@
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
-
+#include "FWCore/Framework/src/SharedResourcesRegistry.h"
 //
 // constants, enums and typedefs
 //
@@ -27,7 +27,7 @@ namespace edm {
   //
   // constructors and destructor
   //
-  ESProducer::ESProducer() : consumesInfos_{} {}
+  ESProducer::ESProducer() : consumesInfos_{}, acquirer_{{{std::make_shared<SerialTaskQueue>()}}} {}
 
   // ESProducer::ESProducer(const ESProducer& rhs)
   // {
@@ -52,6 +52,12 @@ namespace edm {
   // member functions
   //
   void ESProducer::updateLookup(eventsetup::ESRecordsToProxyIndices const& iProxyToIndices) {
+    if (sharedResourceNames_) {
+      auto instance = SharedResourcesRegistry::instance();
+      acquirer_ = instance->createAcquirer(*sharedResourceNames_);
+      sharedResourceNames_.reset();
+    }
+
     itemsToGetFromRecords_.reserve(consumesInfos_.size());
     recordsUsedDuringGet_.reserve(consumesInfos_.size());
 
@@ -67,9 +73,13 @@ namespace edm {
       for (auto& proxyInfo : *info) {
         //check for mayConsumes
         if (auto chooser = proxyInfo.chooser_.get()) {
+          hasMayConsumes_ = true;
           auto tagGetter = iProxyToIndices.makeTagGetter(chooser->recordKey(), chooser->productType());
           if (not tagGetter.hasNothingToGet()) {
             records.push_back(iProxyToIndices.recordIndexFor(chooser->recordKey()));
+          } else {
+            //The record is not actually missing but the proxy is
+            records.emplace_back(eventsetup::ESRecordsToProxyIndices::missingRecordIndex());
           }
           chooser->setTagGetter(std::move(tagGetter));
           items.push_back(eventsetup::ESRecordsToProxyIndices::missingProxyIndex());
@@ -94,10 +104,27 @@ namespace edm {
           items.push_back(index);
           if (index != eventsetup::ESRecordsToProxyIndices::missingProxyIndex()) {
             records.push_back(iProxyToIndices.recordIndexFor(proxyInfo.recordKey_));
+          } else {
+            //The record is not actually missing but the proxy is
+            records.emplace_back(eventsetup::ESRecordsToProxyIndices::missingRecordIndex());
           }
+          assert(items.size() == records.size());
         }
       }
     }
+  }
+
+  void ESProducer::usesResources(std::vector<std::string> const& iResourceNames) {
+    auto instance = SharedResourcesRegistry::instance();
+    if (not sharedResourceNames_ and !iResourceNames.empty()) {
+      sharedResourceNames_ = std::make_unique<std::vector<std::string>>(iResourceNames);
+    }
+
+    for (auto const& r : iResourceNames) {
+      instance->registerSharedResource(r);
+    }
+    //Must defer setting acquirer_ until all resources have been registered
+    // by all modules in the job
   }
 
   //

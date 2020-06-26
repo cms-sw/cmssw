@@ -11,6 +11,7 @@
 <use name="DataFormats/GeometryCommonDetAlgo"/>
 <use name="TrackingTools/DetLayers"/>
 <use name="TrackingTools/TrajectoryState"/>
+<use name="DataFormats/CLHEP"/>
 <export>
   <lib name="1"/>
 </export>

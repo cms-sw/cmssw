@@ -252,7 +252,7 @@ class UpgradeWorkflow_pixelTrackingOnly(UpgradeWorkflowTracking):
         if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
         elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, stepDict[step][k]])
     def condition_(self, fragment, stepList, key, hasHarvest):
-        return '2017' in key or '2018' in key
+        return '2017' in key or '2018' in key or '2021' in key
 upgradeWFs['pixelTrackingOnly'] = UpgradeWorkflow_pixelTrackingOnly(
     steps = [
         'RecoFull',

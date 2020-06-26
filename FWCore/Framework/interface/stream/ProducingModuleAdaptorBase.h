@@ -33,6 +33,7 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
+#include "FWCore/Utilities/interface/ESIndices.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -90,6 +91,9 @@ namespace edm {
       void itemsToGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
       void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
       std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(BranchType) const;
+
+      std::vector<ESProxyIndex> const& esGetTokenIndicesVector(edm::Transition iTrans) const;
+      std::vector<ESRecordIndex> const& esGetTokenRecordIndicesVector(edm::Transition iTrans) const;
 
       void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&, bool iPrefetchMayGet);
       void updateLookup(eventsetup::ESRecordsToProxyIndices const&);

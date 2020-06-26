@@ -14,17 +14,39 @@ hitCollectorForCosmicDCSeeds = TrackingTools.KalmanUpdators.Chi2MeasurementEstim
 )
 cosmicDCSeeds = RecoTracker.SpecialSeedGenerators.outInSeedsFromStandaloneMuons_cfi.outInSeedsFromStandaloneMuons.clone(
     src = cms.InputTag("muonsFromCosmics"),
-    cut = cms.string("pt > 2 && abs(eta)<1.2 && phi<0"),
+    cut = cms.string("p > 3 && abs(eta)<1.6 && phi<0"),
     hitCollector = cms.string('hitCollectorForCosmicDCSeeds'),
     fromVertex = cms.bool(False),
-    maxEtaForTOB = cms.double(1.5),
-    minEtaForTEC = cms.double(0.7),
+    maxEtaForTOB = cms.double(2.5),
+    minEtaForTEC = cms.double(0.0),
 )
 
 # Ckf pattern
+import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderP5_cff
+Chi2MeasurementEstimatorForCDC = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderP5_cff.Chi2MeasurementEstimatorForP5.clone(
+    ComponentName = cms.string('Chi2MeasurementEstimatorForCDC'),
+    MaxDisplacement = 500
+)
+
+ckfBaseTrajectoryFilterCDC = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderP5_cff.ckfBaseTrajectoryFilterP5.clone(
+    maxLostHits = 10,
+    maxConsecLostHits = 10
+)
+
+GroupedCkfTrajectoryBuilderCDC = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderP5_cff.GroupedCkfTrajectoryBuilderP5.clone(
+    maxCand = 3,
+    estimator = 'Chi2MeasurementEstimatorForCDC',
+    trajectoryFilter = cms.PSet(
+        refToPSet_ = cms.string('ckfBaseTrajectoryFilterCDC')
+    )
+)
+
 import RecoTracker.CkfPattern.CkfTrackCandidatesP5_cff
 cosmicDCCkfTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidatesP5_cff.ckfTrackCandidatesP5.clone(
     src = cms.InputTag( "cosmicDCSeeds" ),
+    TrajectoryBuilderPSet = cms.PSet(
+        refToPSet_ = cms.string('GroupedCkfTrajectoryBuilderCDC')
+    )
 )
 
 # Track producer
