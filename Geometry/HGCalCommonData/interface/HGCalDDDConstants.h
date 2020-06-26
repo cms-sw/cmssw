@@ -132,8 +132,7 @@ public:
   int waferFileIndex(unsigned int kk) const {
     if (kk < hgpar_->waferInfoMap_.size()) {
       auto itr = hgpar_->waferInfoMap_.begin();
-      for (unsigned int k = 0; k < kk; ++k)
-        ++itr;
+      std::advance(itr,kk);
       return itr->first;
     } else
       return 0;
@@ -141,8 +140,7 @@ public:
   std::tuple<int, int, int> waferFileInfo(unsigned int kk) const {
     if (kk < hgpar_->waferInfoMap_.size()) {
       auto itr = hgpar_->waferInfoMap_.begin();
-      for (unsigned int k = 0; k < kk; ++k)
-        ++itr;
+      std::advance(itr,kk);
       return std::make_tuple(itr->second.type, itr->second.part, itr->second.orient);
     } else
       return std::make_tuple(0, 0, 0);
