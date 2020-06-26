@@ -131,7 +131,6 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
       for (TrackCandidateCollection::const_iterator i = theTCCollection->begin(); i != theTCCollection->end(); i++) {
         const TrackCandidate* theTC = &(*i);
         PTrajectoryStateOnDet state = theTC->trajectoryStateOnDet();
-        const TrackCandidate::range& recHitVec = theTC->recHits();
         const TrajectorySeed& seed = theTC->seed();
 
         //convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
@@ -148,8 +147,8 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
 
         float ndof = 0;
 
-        for (edm::OwnVector<TrackingRecHit>::const_iterator i = recHitVec.first; i != recHitVec.second; i++) {
-          hits.push_back(theBuilder.product()->build(&(*i)));
+        for (auto const& recHit : theTC->recHits()) {
+          hits.push_back(theBuilder.product()->build(&recHit));
         }
 
         //build Track
