@@ -12,7 +12,7 @@
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/HepMCCandidate"/>
 <use name="DataFormats/BTauReco"/>
-<use name="CondFormats/L1TObjects"/>
+<use name="DataFormats/L1GlobalTrigger"/>
 <use name="DataFormats/L1Trigger"/>
 <use name="DataFormats/HLTReco"/>
 <use name="DataFormats/CaloTowers"/>
