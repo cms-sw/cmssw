@@ -1,5 +1,6 @@
 //
 // Toyoko Orimoto (Caltech), 10 July 2007
+// Fabrice Couderc, 16 March 2020 (add protection for extrapolation if t > t3 + delta t : t = t3 + delta t
 //
 
 // system include files
@@ -27,6 +28,7 @@ public:
   ~EcalLaserCorrectionService() override;
 
   std::shared_ptr<EcalLaserDbService> produce(const EcalLaserDbRecord&);
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
   using HostType = edm::ESProductHost<EcalLaserDbService,
@@ -42,6 +44,8 @@ private:
   edm::ESGetToken<EcalLaserAPDPNRatiosRef, EcalLaserAPDPNRatiosRefRcd> apdpnRefToken_;
   edm::ESGetToken<EcalLaserAPDPNRatios, EcalLaserAPDPNRatiosRcd> apdpnToken_;
   edm::ESGetToken<EcalLinearCorrections, EcalLinearCorrectionsRcd> linearToken_;
+
+  int maxExtrapolationTimeInSec_;
 
   //  std::vector<std::string> mDumpRequest;
   //  std::ostream* mDumpStream;
@@ -61,6 +65,8 @@ EcalLaserCorrectionService::EcalLaserCorrectionService(const edm::ParameterSet& 
       .setConsumes(apdpnRefToken_)
       .setConsumes(apdpnToken_)
       .setConsumes(linearToken_);
+
+  maxExtrapolationTimeInSec_ = fConfig.getParameter<unsigned int>("maxExtrapolationTimeInSec");
 
   //now do what ever other initialization is needed
 
@@ -85,6 +91,8 @@ EcalLaserCorrectionService::~EcalLaserCorrectionService() {
 std::shared_ptr<EcalLaserDbService> EcalLaserCorrectionService::produce(const EcalLaserDbRecord& record) {
   auto host = holder_.makeOrGet([]() { return new HostType; });
 
+  host.get()->setMaxExtrapolationTimeInSec(maxExtrapolationTimeInSec_);
+
   host->ifRecordChanges<EcalLinearCorrectionsRcd>(
       record, [this, h = host.get()](auto const& rec) { h->setLinearCorrectionsData(&rec.get(linearToken_)); });
 
@@ -99,5 +107,14 @@ std::shared_ptr<EcalLaserDbService> EcalLaserCorrectionService::produce(const Ec
 
   return host;  // automatically converts to std::shared_ptr<EcalLaserDbService>
 }
+
+
+void  EcalLaserCorrectionService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<unsigned int>("maxExtrapolationTimeInSec", 0);
+  descriptions.add("EcalLaserCorrectionService", desc);
+}
+
+
 
 DEFINE_FWK_EVENTSETUP_MODULE(EcalLaserCorrectionService);
