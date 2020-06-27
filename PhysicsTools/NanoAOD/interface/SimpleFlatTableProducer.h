@@ -93,10 +93,16 @@ protected:
     void fill(std::vector<const T *> selobjs, nanoaod::FlatTable &out) const override {
       std::vector<ValType> vals(selobjs.size());
       for (unsigned int i = 0, n = vals.size(); i < n; ++i) {
-        if (this->precision_ == -2) {
-          vals[i] = MiniFloatConverter::reduceMantissaToNbitsRounding(func_(*selobjs[i]), precisionFunc_(*selobjs[i]));
-        } else
+        if constexpr (std::is_same<ValType, float>()) {
+          if (this->precision_ == -2) {
+            vals[i] =
+                MiniFloatConverter::reduceMantissaToNbitsRounding(func_(*selobjs[i]), precisionFunc_(*selobjs[i]));
+          } else {
+            vals[i] = func_(*selobjs[i]);
+          }
+        } else {
           vals[i] = func_(*selobjs[i]);
+        }
       }
       out.template addColumn<ValType>(this->name_, vals, this->doc_, this->precision_);
     }
