@@ -6,6 +6,9 @@
 <use name="DataFormats/TrajectoryState"/>
 <use name="SimDataFormats/TrackingAnalysis"/>
 <use name="FWCore/MessageLogger"/>
+<use name="DataFormats/BeamSpot"/>
+<use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/Math"/>
 <export>
   <lib name="1"/>
 </export>

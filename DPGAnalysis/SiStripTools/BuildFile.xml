@@ -25,6 +25,7 @@
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="TrackingTools/TrajectoryState"/>
 <use name="TrackingTools/TransientTrackingRecHit"/>
+<use name="DataFormats/Math"/>
 <export>
   <lib name="1"/>
 </export>
