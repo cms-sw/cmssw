@@ -266,7 +266,7 @@ void TrackletEngine::setVMPhiBin() {
 
 void TrackletEngine::writeTETable() {
   ofstream outstubptinnercut;
-  outstubptinnercut.open(getName() + "_stubptinnercut.tab");
+  outstubptinnercut.open(settings_.tablePath()+getName() + "_stubptinnercut.tab");
   outstubptinnercut << "{" << endl;
   for (unsigned int i = 0; i < pttableinner_.size(); i++) {
     if (i != 0)
@@ -277,7 +277,7 @@ void TrackletEngine::writeTETable() {
   outstubptinnercut.close();
 
   ofstream outstubptoutercut;
-  outstubptoutercut.open(getName() + "_stubptoutercut.tab");
+  outstubptoutercut.open(settings_.tablePath()+getName() + "_stubptoutercut.tab");
   outstubptoutercut << "{" << endl;
   for (unsigned int i = 0; i < pttableouter_.size(); i++) {
     if (i != 0)

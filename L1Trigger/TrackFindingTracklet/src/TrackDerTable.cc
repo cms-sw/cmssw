@@ -357,19 +357,19 @@ void TrackDerTable::fillTable() {
   }
 
   if (settings_.writeTable()) {
-    ofstream outL("FitDerTableNew_LayerMem.txt");
+    ofstream outL(settings_.tablePath()+"FitDerTableNew_LayerMem.tab");
     for (unsigned int i = 0; i < LayerMem_.size(); i++) {
       FPGAWord tmp;
       int tmp1 = LayerMem_[i];
       if (tmp1 < 0)
         tmp1 = (1 << 6) - 1;
-      edm::LogVerbatim("Tracklet") << "i LayerMem_ : " << i << " " << tmp1;
+      //edm::LogVerbatim("Tracklet") << "i LayerMem_ : " << i << " " << tmp1;
       tmp.set(tmp1, 6, true, __LINE__, __FILE__);
       outL << tmp.str() << endl;
     }
     outL.close();
 
-    ofstream outD("FitDerTableNew_DiskMem.txt");
+    ofstream outD(settings_.tablePath()+"FitDerTableNew_DiskMem.tab");
     for (int tmp1 : DiskMem_) {
       if (tmp1 < 0)
         tmp1 = (1 << 7) - 1;
@@ -379,68 +379,68 @@ void TrackDerTable::fillTable() {
     }
     outD.close();
 
-    ofstream outLD("FitDerTableNew_LayerDiskMem.txt");
+    ofstream outLD(settings_.tablePath()+"FitDerTableNew_LayerDiskMem.tab");
     for (int tmp1 : LayerDiskMem_) {
       if (tmp1 < 0)
-        tmp1 = (1 << 10) - 1;
+        tmp1 = (1 << 15) - 1;
       FPGAWord tmp;
-      tmp.set(tmp1, 10, true, __LINE__, __FILE__);
+      tmp.set(tmp1, 15, true, __LINE__, __FILE__);
       outLD << tmp.str() << endl;
     }
     outLD.close();
 
-    unsigned int nderivatives = derivatives_.size();
-    edm::LogVerbatim("Tracklet") << "nderivatives = " << nderivatives;
+    //unsigned int nderivatives = derivatives_.size();
+    //edm::LogVerbatim("Tracklet") << "nderivatives = " << nderivatives;
 
     const std::array<string, N_TRKLSEED> seedings = {{"L1L2", "L3L4", "L5L6", "D1D2", "D3D4", "D1L1", "D1L2"}};
-    const string prefix = "FitDerTableNew_";
+    const string prefix = settings_.tablePath()+"FitDerTableNew_";
 
     // open files for derivative tables
     ofstream outrinvdphi[N_TRKLSEED];
     for (unsigned int i = 0; i < N_TRKLSEED; ++i) {
-      const string fname = prefix + "Rinvdphi_" + seedings[i] + ".txt";
+      const string fname = prefix + "Rinvdphi_" + seedings[i] + ".tab";
       outrinvdphi[i].open(fname.c_str());
     }
 
     ofstream outrinvdzordr[N_TRKLSEED];
     for (unsigned int i = 0; i < N_TRKLSEED; ++i) {
-      const string fname = prefix + "Rinvdzordr_" + seedings[i] + ".txt";
+      const string fname = prefix + "Rinvdzordr_" + seedings[i] + ".tab";
       outrinvdzordr[i].open(fname.c_str());
     }
 
     ofstream outphi0dphi[N_TRKLSEED];
     for (unsigned int i = 0; i < N_TRKLSEED; ++i) {
-      const string fname = prefix + "Phi0dphi_" + seedings[i] + ".txt";
+      const string fname = prefix + "Phi0dphi_" + seedings[i] + ".tab";
       outphi0dphi[i].open(fname.c_str());
     }
 
     ofstream outphi0dzordr[N_TRKLSEED];
     for (unsigned int i = 0; i < N_TRKLSEED; ++i) {
-      const string fname = prefix + "Phi0dzordr_" + seedings[i] + ".txt";
+      const string fname = prefix + "Phi0dzordr_" + seedings[i] + ".tab";
       outphi0dzordr[i].open(fname.c_str());
     }
 
     ofstream outtdphi[N_TRKLSEED];
     for (unsigned int i = 0; i < N_TRKLSEED; ++i) {
-      const string fname = prefix + "Tdphi_" + seedings[i] + ".txt";
+      const string fname = prefix + "Tdphi_" + seedings[i] + ".tab";
       outtdphi[i].open(fname.c_str());
     }
 
     ofstream outtdzordr[N_TRKLSEED];
     for (unsigned int i = 0; i < N_TRKLSEED; ++i) {
-      const string fname = prefix + "Tdzordr_" + seedings[i] + ".txt";
+      const string fname = prefix + "Tdzordr_" + seedings[i] + ".tab";
       outtdzordr[i].open(fname.c_str());
     }
 
     ofstream outz0dphi[N_TRKLSEED];
     for (unsigned int i = 0; i < N_TRKLSEED; ++i) {
-      const string fname = prefix + "Z0dphi_" + seedings[i] + ".txt";
+      const string fname = prefix + "Z0dphi_" + seedings[i] + ".tab";
       outz0dphi[i].open(fname.c_str());
     }
 
     ofstream outz0dzordr[N_TRKLSEED];
     for (unsigned int i = 0; i < N_TRKLSEED; ++i) {
-      string fname = prefix + "Z0dzordr_" + seedings[i] + ".txt";
+      string fname = prefix + "Z0dzordr_" + seedings[i] + ".tab";
       outz0dzordr[i].open(fname.c_str());
     }
 
@@ -595,9 +595,9 @@ void TrackDerTable::fillTable() {
 
         FPGAWord tmprinvdphi[N_PROJ];
         for (unsigned int j = 0; j < N_PROJ; ++j) {
-          if (itmprinvdphi[j] > (1 << 13))
-            itmprinvdphi[j] = (1 << 13) - 1;
-          tmprinvdphi[j].set(itmprinvdphi[j], 14, false, __LINE__, __FILE__);
+          if (itmprinvdphi[j] > (1 << 16))
+            itmprinvdphi[j] = (1 << 16) - 1;
+          tmprinvdphi[j].set(itmprinvdphi[j], 17, false, __LINE__, __FILE__);
         }
         outrinvdphi[i] << tmprinvdphi[0].str() << tmprinvdphi[1].str() << tmprinvdphi[2].str() << tmprinvdphi[3].str()
                        << endl;
@@ -631,9 +631,9 @@ void TrackDerTable::fillTable() {
 
         FPGAWord tmptdphi[N_PROJ];
         for (unsigned int j = 0; j < N_PROJ; ++j) {
-          if (itmptdphi[j] > (1 << 13))
-            itmptdphi[j] = (1 << 13) - 1;
-          tmptdphi[j].set(itmptdphi[j], 14, false, __LINE__, __FILE__);
+          if (itmptdphi[j] > (1 << 14))
+            itmptdphi[j] = (1 << 14) - 1;
+          tmptdphi[j].set(itmptdphi[j], 15, false, __LINE__, __FILE__);
         }
         outtdphi[i] << tmptdphi[0].str() << tmptdphi[1].str() << tmptdphi[2].str() << tmptdphi[3].str() << endl;
 
