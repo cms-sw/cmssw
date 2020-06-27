@@ -50,7 +50,7 @@ MatchEngine::MatchEngine(string name, Settings const& settings, Globals* global,
       string fname = "METable_L";
       fname += layer;
       fname += ".tab";
-      out.open(fname.c_str());
+      out.open(settings_.tablePath()+fname.c_str());
       out << "{" << endl;
       for (unsigned int i = 0; i < table_.size(); i++) {
         if (i != 0) {

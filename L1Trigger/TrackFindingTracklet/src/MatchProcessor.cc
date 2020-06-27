@@ -60,7 +60,7 @@ MatchProcessor::MatchProcessor(string name, Settings const& settings, Globals* g
 
   if (iSector_ == 0 && layer_ > 0 && settings_.writeTable()) {
     ofstream outphicut;
-    outphicut.open(getName() + "_phicut.tab");
+    outphicut.open(settings_.tablePath()+getName() + "_phicut.tab");
     outphicut << "{" << endl;
     for (unsigned int seedindex = 0; seedindex < 12; seedindex++) {
       if (seedindex != 0)
@@ -71,7 +71,7 @@ MatchProcessor::MatchProcessor(string name, Settings const& settings, Globals* g
     outphicut.close();
 
     ofstream outzcut;
-    outzcut.open(getName() + "_zcut.tab");
+    outzcut.open(settings_.tablePath()+getName() + "_zcut.tab");
     outzcut << "{" << endl;
     for (unsigned int seedindex = 0; seedindex < N_SEED; seedindex++) {
       if (seedindex != 0)
@@ -105,7 +105,7 @@ MatchProcessor::MatchProcessor(string name, Settings const& settings, Globals* g
       string fname = "METable_L";
       fname += layer;
       fname += ".tab";
-      out.open(fname.c_str());
+      out.open(settings_.tablePath()+fname.c_str());
       out << "{" << endl;
       for (unsigned int i = 0; i < table_.size(); i++) {
         if (i != 0) {

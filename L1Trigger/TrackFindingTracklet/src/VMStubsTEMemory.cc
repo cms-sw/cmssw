@@ -263,7 +263,7 @@ void VMStubsTEMemory::setbendtable(std::vector<bool> vmbendtable) {
 
 void VMStubsTEMemory::writeVMBendTable() {
   ofstream outvmbendcut;
-  outvmbendcut.open(getName() + "_vmbendcut.tab");
+  outvmbendcut.open(settings_.tablePath()+getName() + "_vmbendcut.tab");
   outvmbendcut << "{" << endl;
   unsigned int vmbendtableSize = vmbendtable_.size();
   assert(vmbendtableSize == 16 || vmbendtableSize == 8);
