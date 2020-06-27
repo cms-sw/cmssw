@@ -108,13 +108,10 @@ std::shared_ptr<EcalLaserDbService> EcalLaserCorrectionService::produce(const Ec
   return host;  // automatically converts to std::shared_ptr<EcalLaserDbService>
 }
 
-
-void  EcalLaserCorrectionService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void EcalLaserCorrectionService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<unsigned int>("maxExtrapolationTimeInSec", 0);
   descriptions.add("EcalLaserCorrectionService", desc);
 }
-
-
 
 DEFINE_FWK_EVENTSETUP_MODULE(EcalLaserCorrectionService);
