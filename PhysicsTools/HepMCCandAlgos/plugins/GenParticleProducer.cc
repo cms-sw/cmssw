@@ -170,7 +170,6 @@ GenParticleProducer::~GenParticleProducer() {}
 
 std::shared_ptr<IDto3Charge> GenParticleProducer::globalBeginRun(const Run&, const EventSetup& es) const {
   ESHandle<HepPDT::ParticleDataTable> pdt = es.getHandle(particleTableToken_);
-  es.getData(pdt);
   return std::make_shared<IDto3Charge>(*pdt, abortOnUnknownPDGCode_);
 }
 
