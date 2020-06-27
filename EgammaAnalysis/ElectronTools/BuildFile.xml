@@ -12,6 +12,16 @@
 <use name="DataFormats/TrackReco"/>
 <use name="TrackingTools/IPTools"/>
 <use name="RecoEgamma/EgammaTools"/>
+<use name="DataFormats/EcalDetId"/>
+<use name="DataFormats/EcalRecHit"/>
+<use name="DataFormats/GsfTrackReco"/>
+<use name="DataFormats/Math"/>
+<use name="DataFormats/MuonReco"/>
+<use name="DataFormats/ParticleFlowCandidate"/>
+<use name="DataFormats/RecoCandidate"/>
+<use name="DataFormats/VertexReco"/>
+<use name="Geometry/CaloGeometry"/>
+<use name="TrackingTools/TransientTrack"/>
 <use name="clhep"/>
 <use name="root"/>
 <use name="rootcore"/>
