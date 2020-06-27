@@ -31,7 +31,7 @@ void VMRouterPhiCorrTable::init(int layer, int bendbits, int rbits) {
   }
 
   if (settings_.writeTable()) {
-    writeVMTable("VMPhiCorrL" + std::to_string(layer_) + ".txt", false);
+    writeVMTable(settings_.tablePath()+"VMPhiCorrL" + std::to_string(layer_) + ".tab", false);
   }
 }
 

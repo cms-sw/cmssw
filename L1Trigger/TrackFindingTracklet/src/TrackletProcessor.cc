@@ -916,7 +916,7 @@ void TrackletProcessor::setVMPhiBin() {
 
 void TrackletProcessor::writeTETable() {
   ofstream outptcut;
-  outptcut.open(getName() + "_ptcut.tab");
+  outptcut.open(settings_.tablePath()+getName() + "_ptcut.tab");
   outptcut << "{" << endl;
   //for(unsigned int i=0;i<phitable_.size();i++){
   //  if (i!=0) outptcut<<","<<endl;
