@@ -15,27 +15,7 @@ namespace l1tp2 {
     ParametricCalibration(const edm::ParameterSet& cpset);
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-    float operator()(const float pt, const float abseta) const {
-      int ptBin = -1;
-      for (unsigned int i = 0, n = pts.size(); i < n; ++i) {
-        if (pt < pts[i]) {
-          ptBin = i;
-          break;
-        }
-      }
-      int etaBin = -1;
-      for (unsigned int i = 0, n = etas.size(); i < n; ++i) {
-        if (abseta < etas[i]) {
-          etaBin = i;
-          break;
-        }
-      }
-
-      if (ptBin == -1 || etaBin == -1)
-        return 1;
-      else
-        return scales[ptBin * etas.size() + etaBin];
-    }
+    float operator()(const float pt, const float abseta) const;
 
   protected:
     std::vector<float> etas, pts, scales;

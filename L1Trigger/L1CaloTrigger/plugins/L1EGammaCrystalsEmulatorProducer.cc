@@ -67,12 +67,14 @@ static constexpr int n_clusters_4link = 4 * 3;
 static constexpr int n_crystals_towerEta = 5;
 static constexpr int n_crystals_towerPhi = 5;
 static constexpr int n_crystals_3towers = 3 * 5;
-static constexpr int n_towers_cardEta = 17;
+static constexpr int n_towers_per_link = 17;
+static constexpr int n_clusters_per_link = 2;
 static constexpr int n_towers_Eta = 34;
 static constexpr int n_towers_Phi = 72;
 static constexpr int n_towers_halfPhi = 36;
 static constexpr int n_links_card = 4;
 static constexpr int n_links_GCTcard = 48;
+static constexpr int n_GCTcards = 3;
 static constexpr float ECAL_eta_range = 1.4841;
 static constexpr float half_crystal_size = 0.00873;
 static constexpr float slideIsoPtThreshold = 80;
@@ -95,14 +97,14 @@ static constexpr int toweriPhi_fromAbsoluteID_shift_lowerHalf = 37;
 static constexpr int toweriPhi_fromAbsoluteID_shift_upperHalf = 35;
 
 float getEta_fromL2LinkCardTowerCrystal(int link, int card, int tower, int crystal) {
-  int etaID = n_crystals_towerEta * (n_towers_cardEta * ((link / n_links_card) % 2) + (tower % n_towers_cardEta)) +
+  int etaID = n_crystals_towerEta * (n_towers_per_link * ((link / n_links_card) % 2) + (tower % n_towers_per_link)) +
               crystal % n_crystals_towerEta;
   float size_cell = 2 * ECAL_eta_range / (n_crystals_towerEta * n_towers_Eta);
   return etaID * size_cell - ECAL_eta_range + half_crystal_size;
 }
 
 float getPhi_fromL2LinkCardTowerCrystal(int link, int card, int tower, int crystal) {
-  int phiID = n_crystals_towerPhi * ((card * 24) + (n_links_card * (link / 8)) + (tower / n_towers_cardEta)) +
+  int phiID = n_crystals_towerPhi * ((card * 24) + (n_links_card * (link / 8)) + (tower / n_towers_per_link)) +
               crystal / n_crystals_towerPhi;
   float size_cell = 2 * M_PI / (n_crystals_towerPhi * n_towers_Phi);
   return phiID * size_cell - M_PI + half_crystal_size;
@@ -139,8 +141,8 @@ int getTower_absolutePhiID(float phi) {
 }
 
 int getToweriEta_fromAbsoluteID(int id) {
-  if (id < n_towers_cardEta)
-    return id - n_towers_cardEta;
+  if (id < n_towers_per_link)
+    return id - n_towers_per_link;
   else
     return id - toweriEta_fromAbsoluteID_shift;
 }
@@ -169,19 +171,20 @@ int getCrystalIDInTower(int etaID, int phiID) {
 }
 
 int get_towerEta_fromCardTowerInCard(int card, int towerincard) {
-  return n_towers_cardEta * (card % 2) + towerincard % n_towers_cardEta;
+  return n_towers_per_link * (card % 2) + towerincard % n_towers_per_link;
 }
 
 int get_towerPhi_fromCardTowerInCard(int card, int towerincard) {
-  return 4 * (card / 2) + towerincard / n_towers_cardEta;
+  return 4 * (card / 2) + towerincard / n_towers_per_link;
 }
 
-int get_towerEta_fromCardLinkTower(int card, int link, int tower) { return n_towers_cardEta * (card % 2) + tower; }
+int get_towerEta_fromCardLinkTower(int card, int link, int tower) { return n_towers_per_link * (card % 2) + tower; }
 
 int get_towerPhi_fromCardLinkTower(int card, int link, int tower) { return 4 * (card / 2) + link; }
 
 int getTowerID(int etaID, int phiID) {
-  return int(n_towers_cardEta * ((phiID / n_crystals_towerPhi) % 4) + (etaID / n_crystals_towerEta) % n_towers_cardEta);
+  return int(n_towers_per_link * ((phiID / n_crystals_towerPhi) % 4) +
+             (etaID / n_crystals_towerEta) % n_towers_per_link);
 }
 
 int getTower_phiID(int cluster_phiID) {  // Tower ID in card given crystal ID in total detector
@@ -189,13 +192,13 @@ int getTower_phiID(int cluster_phiID) {  // Tower ID in card given crystal ID in
 }
 
 int getTower_etaID(int cluster_etaID) {  // Tower ID in card given crystal ID in total detector
-  return int((cluster_etaID / n_crystals_towerEta) % n_towers_cardEta);
+  return int((cluster_etaID / n_crystals_towerEta) % n_towers_per_link);
 }
 
 int getEtaMax_card(int card) {
   int etamax = 0;
   if (card % 2 == 0)
-    etamax = n_towers_cardEta * n_crystals_towerEta - 1;  // First eta half. 5 crystals in eta in 1 tower.
+    etamax = n_towers_per_link * n_crystals_towerEta - 1;  // First eta half. 5 crystals in eta in 1 tower.
   else
     etamax = n_towers_Eta * n_crystals_towerEta - 1;
   return etamax;
@@ -206,7 +209,7 @@ int getEtaMin_card(int card) {
   if (card % 2 == 0)
     etamin = 0 * n_crystals_towerEta;  // First eta half. 5 crystals in eta in 1 tower.
   else
-    etamin = n_towers_cardEta * n_crystals_towerEta;
+    etamin = n_towers_per_link * n_crystals_towerEta;
   return etamin;
 }
 
@@ -267,7 +270,7 @@ private:
     float cphi_;      // phi ID in the whole detector (between 0 and 5*72-1)
     int ccrystalid_;  // crystal ID inside tower (between 0 and 24)
     int cinsidecrystalid_;
-    int ctowerid_;  // tower ID inside card (between 0 and 4*n_towers_cardEta-1)
+    int ctowerid_;  // tower ID inside card (between 0 and 4*n_towers_per_link-1)
   };
 
   class SimpleCaloHit {
@@ -435,10 +438,10 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
 
   // Definition of L1 outputs
   // 36 L1 cards send each 4 links with 17 towers
-  float ECAL_tower_L1Card[n_links_card][n_towers_cardEta][n_towers_halfPhi];
-  float HCAL_tower_L1Card[n_links_card][n_towers_cardEta][n_towers_halfPhi];
-  int iEta_tower_L1Card[n_links_card][n_towers_cardEta][n_towers_halfPhi];
-  int iPhi_tower_L1Card[n_links_card][n_towers_cardEta][n_towers_halfPhi];
+  float ECAL_tower_L1Card[n_links_card][n_towers_per_link][n_towers_halfPhi];
+  float HCAL_tower_L1Card[n_links_card][n_towers_per_link][n_towers_halfPhi];
+  int iEta_tower_L1Card[n_links_card][n_towers_per_link][n_towers_halfPhi];
+  int iPhi_tower_L1Card[n_links_card][n_towers_per_link][n_towers_halfPhi];
   // 36 L1 cards send each 4 links with 3 clusters
   float energy_cluster_L1Card[n_links_card][n_clusters_link][n_towers_halfPhi];
   // 36 L1 cards send each 4 links with 3 clusters
@@ -450,7 +453,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
   int photonShowerShape_cluster_L1Card[n_links_card][n_clusters_link][n_towers_halfPhi];
 
   for (int ii = 0; ii < n_links_card; ++ii) {
-    for (int jj = 0; jj < n_towers_cardEta; ++jj) {
+    for (int jj = 0; jj < n_towers_per_link; ++jj) {
       for (int ll = 0; ll < n_towers_halfPhi; ++ll) {
         ECAL_tower_L1Card[ii][jj][ll] = 0;
         HCAL_tower_L1Card[ii][jj][ll] = 0;
@@ -701,9 +704,9 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
           !hit.used()) {                             // Take all the hits inside the card that have not been used yet
         for (int jj = 0; jj < n_links_card; ++jj) {  // loop over 4 links per card
           if ((getCrystal_phiID(hit.position().phi()) / n_crystals_towerPhi) % 4 == jj) {  // Go to ID tower modulo 4
-            for (int ii = 0; ii < n_towers_cardEta; ++ii) {
+            for (int ii = 0; ii < n_towers_per_link; ++ii) {
               //Apply Mark's calibration at the same time (row of the lowest pT, as a function of eta)
-              if ((getCrystal_etaID(hit.position().eta()) / n_crystals_towerEta) % n_towers_cardEta == ii) {
+              if ((getCrystal_etaID(hit.position().eta()) / n_crystals_towerEta) % n_towers_per_link == ii) {
                 ECAL_tower_L1Card[jj][ii][cc] += hit.pt() * calib_(0, std::abs(hit.position().eta()));
                 iEta_tower_L1Card[jj][ii][cc] = getTower_absoluteEtaID(hit.position().eta());  //hit.id().ieta();
                 iPhi_tower_L1Card[jj][ii][cc] = getTower_absolutePhiID(hit.position().phi());  //hit.id().iphi();
@@ -714,9 +717,9 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
         // Make sure towers with 0 ET are initialized with proper iEta, iPhi coordinates
         static constexpr float tower_width = 0.0873;
         for (int jj = 0; jj < n_links_card; ++jj) {
-          for (int ii = 0; ii < n_towers_cardEta; ++ii) {
+          for (int ii = 0; ii < n_towers_per_link; ++ii) {
             float phi = getPhiMin_card(cc) * tower_width / n_crystals_towerPhi - M_PI + (jj + 0.5) * tower_width;
-            float eta = getEtaMin_card(cc) * tower_width / n_crystals_towerEta - n_towers_cardEta * tower_width +
+            float eta = getEtaMin_card(cc) * tower_width / n_crystals_towerEta - n_towers_per_link * tower_width +
                         (ii + 0.5) * tower_width;
             iEta_tower_L1Card[jj][ii][cc] = getTower_absoluteEtaID(eta);
             iPhi_tower_L1Card[jj][ii][cc] = getTower_absolutePhiID(phi);
@@ -734,8 +737,8 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
           getCrystal_etaID(hit.position().eta()) >= getEtaMin_card(cc) && hit.pt() > 0) {
         for (int jj = 0; jj < n_links_card; ++jj) {
           if ((getCrystal_phiID(hit.position().phi()) / n_crystals_towerPhi) % n_links_card == jj) {
-            for (int ii = 0; ii < n_towers_cardEta; ++ii) {
-              if ((getCrystal_etaID(hit.position().eta()) / n_crystals_towerEta) % n_towers_cardEta == ii) {
+            for (int ii = 0; ii < n_towers_per_link; ++ii) {
+              if ((getCrystal_etaID(hit.position().eta()) / n_crystals_towerEta) % n_towers_per_link == ii) {
                 HCAL_tower_L1Card[jj][ii][cc] += hit.pt();
                 iEta_tower_L1Card[jj][ii][cc] = getTower_absoluteEtaID(hit.position().eta());  //hit.id().ieta();
                 iPhi_tower_L1Card[jj][ii][cc] = getTower_absolutePhiID(hit.position().phi());  //hit.id().iphi();
@@ -760,23 +763,25 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
   //*********************************************************
 
   // Definition of L2 outputs
-  float HCAL_tower_L2Card[n_links_GCTcard][n_towers_cardEta][3];  // 3 L2 cards send each 48 links with 17 towers
-  float ECAL_tower_L2Card[n_links_GCTcard][n_towers_cardEta][3];  // 3 L2 cards send each 48 links with 17 towers
-  int iEta_tower_L2Card[n_links_GCTcard][n_towers_cardEta][3];    // 3 L2 cards send each 48 links with 17 towers
-  int iPhi_tower_L2Card[n_links_GCTcard][n_towers_cardEta][3];    // 3 L2 cards send each 48 links with 17 towers
-  float energy_cluster_L2Card[n_links_GCTcard][2][3];             // 3 L2 cards send each 48 links with 2 clusters
-  float brem_cluster_L2Card[n_links_GCTcard][2][3];               // 3 L2 cards send each 48 links with 2 clusters
-  int towerID_cluster_L2Card[n_links_GCTcard][2][3];              // 3 L2 cards send each 48 links with 2 clusters
-  int crystalID_cluster_L2Card[n_links_GCTcard][2][3];            // 3 L2 cards send each 48 links with 2 clusters
-  float isolation_cluster_L2Card[n_links_GCTcard][2][3];          // 3 L2 cards send each 48 links with 2 clusters
-  float HE_cluster_L2Card[n_links_GCTcard][2][3];                 // 3 L2 cards send each 48 links with 2 clusters
-  int showerShape_cluster_L2Card[n_links_GCTcard][2][3];
-  int showerShapeLooseTk_cluster_L2Card[n_links_GCTcard][2][3];
-  int photonShowerShape_cluster_L2Card[n_links_GCTcard][2][3];
+  float HCAL_tower_L2Card[n_links_GCTcard][n_towers_per_link]
+                         [n_GCTcards];  // 3 L2 cards send each 48 links with 17 towers
+  float ECAL_tower_L2Card[n_links_GCTcard][n_towers_per_link][n_GCTcards];
+  int iEta_tower_L2Card[n_links_GCTcard][n_towers_per_link][n_GCTcards];
+  int iPhi_tower_L2Card[n_links_GCTcard][n_towers_per_link][n_GCTcards];
+  float energy_cluster_L2Card[n_links_GCTcard][n_clusters_per_link]
+                             [n_GCTcards];  // 3 L2 cards send each 48 links with 2 clusters
+  float brem_cluster_L2Card[n_links_GCTcard][n_clusters_per_link][n_GCTcards];
+  int towerID_cluster_L2Card[n_links_GCTcard][n_clusters_per_link][n_GCTcards];
+  int crystalID_cluster_L2Card[n_links_GCTcard][n_clusters_per_link][n_GCTcards];
+  float isolation_cluster_L2Card[n_links_GCTcard][n_clusters_per_link][n_GCTcards];
+  float HE_cluster_L2Card[n_links_GCTcard][n_clusters_per_link][n_GCTcards];
+  int showerShape_cluster_L2Card[n_links_GCTcard][n_clusters_per_link][n_GCTcards];
+  int showerShapeLooseTk_cluster_L2Card[n_links_GCTcard][n_clusters_per_link][n_GCTcards];
+  int photonShowerShape_cluster_L2Card[n_links_GCTcard][n_clusters_per_link][n_GCTcards];
 
   for (int ii = 0; ii < n_links_GCTcard; ++ii) {
-    for (int jj = 0; jj < n_towers_cardEta; ++jj) {
-      for (int ll = 0; ll < 3; ++ll) {
+    for (int jj = 0; jj < n_towers_per_link; ++jj) {
+      for (int ll = 0; ll < n_GCTcards; ++ll) {
         HCAL_tower_L2Card[ii][jj][ll] = 0;
         ECAL_tower_L2Card[ii][jj][ll] = 0;
         iEta_tower_L2Card[ii][jj][ll] = 0;
@@ -785,8 +790,8 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
     }
   }
   for (int ii = 0; ii < n_links_GCTcard; ++ii) {
-    for (int jj = 0; jj < 2; ++jj) {
-      for (int ll = 0; ll < 3; ++ll) {
+    for (int jj = 0; jj < n_clusters_per_link; ++jj) {
+      for (int ll = 0; ll < n_GCTcards; ++ll) {
         energy_cluster_L2Card[ii][jj][ll] = 0;
         brem_cluster_L2Card[ii][jj][ll] = 0;
         towerID_cluster_L2Card[ii][jj][ll] = 0;
@@ -815,12 +820,12 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
             crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] > 19 &&
             energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] > 0) {
           for (int ll = 0; ll < n_clusters_4link; ++ll) {  // We check the 12 clusters in the card on the right
-            if (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] < n_towers_cardEta &&
+            if (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] < n_towers_per_link &&
                 crystalID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] < 5 &&
                 std::abs(
-                    5 * (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right]) % n_towers_cardEta +
+                    5 * (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right]) % n_towers_per_link +
                     crystalID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] % 5 -
-                    5 * (towerID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left]) % n_towers_cardEta -
+                    5 * (towerID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left]) % n_towers_per_link -
                     crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] % 5) < 2) {
               if (energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] >
                   energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right]) {
@@ -855,15 +860,15 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
               energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] > 0) {
             for (int ll = 0; ll < n_clusters_4link; ++ll) {  // We check the 12 clusters in the card on the right
               //Distance of 1 max in eta
-              if (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] < n_towers_cardEta &&
+              if (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] < n_towers_per_link &&
                   std::abs(5 * (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right]) %
-                               n_towers_cardEta +
+                               n_towers_per_link +
                            crystalID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] % 5 -
                            5 * (towerID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left]) %
-                               n_towers_cardEta -
+                               n_towers_per_link -
                            crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] % 5) <= 1) {
                 //Distance of 5 max in phi
-                if (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] < n_towers_cardEta &&
+                if (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] < n_towers_per_link &&
                     std::abs(5 + crystalID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] / 5 -
                              (crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] / 5)) <= 5) {
                   if (energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] >
@@ -899,15 +904,15 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
     int card_bottom = 2 * ii;
     int card_top = 2 * ii + 1;
     for (int kk = 0; kk < n_clusters_4link; ++kk) {  // 12 clusters in the first card. We check the top side
-      if (towerID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom] % n_towers_cardEta == 16 &&
+      if (towerID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom] % n_towers_per_link == 16 &&
           crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom] % 5 == n_links_card &&
           energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom] >
               0) {                                       // If there is one cluster on the right side of the first card
         for (int ll = 0; ll < n_clusters_4link; ++ll) {  // We check the card on the right
           if (std::abs(
-                  5 * (towerID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom] / n_towers_cardEta) +
+                  5 * (towerID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom] / n_towers_per_link) +
                   crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom] / 5 -
-                  5 * (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_top] / n_towers_cardEta) -
+                  5 * (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_top] / n_towers_per_link) -
                   crystalID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_top] / 5) < 2) {
             if (energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom] >
                 energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_bottom]) {
@@ -948,8 +953,8 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
   for (int ii = 0; ii < n_towers_halfPhi; ++ii) {
     for (unsigned int jj = 8; jj < n_clusters_4link && jj < cluster_list_L2[ii].size(); ++jj) {
       if (cluster_list_L2[ii][jj].cpt > 0) {
-        ECAL_tower_L1Card[cluster_list_L2[ii][jj].ctowerid_ / n_towers_cardEta]
-                         [cluster_list_L2[ii][jj].ctowerid_ % n_towers_cardEta][ii] += cluster_list_L2[ii][jj].cpt;
+        ECAL_tower_L1Card[cluster_list_L2[ii][jj].ctowerid_ / n_towers_per_link]
+                         [cluster_list_L2[ii][jj].ctowerid_ % n_towers_per_link][ii] += cluster_list_L2[ii][jj].cpt;
         cluster_list_L2[ii][jj].cpt = 0;
         cluster_list_L2[ii][jj].ctowerid_ = 0;
         cluster_list_L2[ii][jj].ccrystalid_ = 0;
@@ -978,9 +983,9 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
           }
         }
       }
-      for (int kk = 0; kk < n_towers_halfPhi; ++kk) {      // 36 cards
-        for (int ll = 0; ll < n_links_card; ++ll) {        // 4 links per card
-          for (int mm = 0; mm < n_towers_cardEta; ++mm) {  // 17 towers per link
+      for (int kk = 0; kk < n_towers_halfPhi; ++kk) {       // 36 cards
+        for (int ll = 0; ll < n_links_card; ++ll) {         // 4 links per card
+          for (int mm = 0; mm < n_towers_per_link; ++mm) {  // 17 towers per link
             int etaOftower_fullDetector = get_towerEta_fromCardLinkTower(kk, ll, mm);
             int phiOftower_fullDetector = get_towerPhi_fromCardLinkTower(kk, ll, mm);
             // First do ECAL
@@ -1017,7 +1022,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
   //Reformat the information inside the 3 L2 cards
   //First let's fill the towers
   for (int ii = 0; ii < n_links_GCTcard; ++ii) {
-    for (int jj = 0; jj < n_towers_cardEta; ++jj) {
+    for (int jj = 0; jj < n_towers_per_link; ++jj) {
       for (int ll = 0; ll < 3; ++ll) {
         ECAL_tower_L2Card[ii][jj][ll] =
             ECAL_tower_L1Card[convert_L2toL1_link(ii)][convert_L2toL1_tower(jj)][convert_L2toL1_card(ll, ii)];
@@ -1061,7 +1066,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
 
   // Fill the cluster collection and towers as well
   for (int ii = 0; ii < n_links_GCTcard; ++ii) {  // 48 links
-    for (int ll = 0; ll < 3; ++ll) {              // 3 cards
+    for (int ll = 0; ll < n_GCTcards; ++ll) {     // 3 cards
       // For looping over the Towers a few lines below
       for (int jj = 0; jj < 2; ++jj) {  // 2 L1EGs
         if (energy_cluster_L2Card[ii][jj][ll] > 0.45) {
@@ -1121,9 +1126,9 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
   }
 
   for (int ii = 0; ii < n_links_GCTcard; ++ii) {  // 48 links
-    for (int ll = 0; ll < 3; ++ll) {              // 3 cards
+    for (int ll = 0; ll < n_GCTcards; ++ll) {     // 3 cards
       // Fill the tower collection
-      for (int jj = 0; jj < n_towers_cardEta; ++jj) {  // 17 TTs
+      for (int jj = 0; jj < n_towers_per_link; ++jj) {  // 17 TTs
         l1tp2::CaloTower l1CaloTower;
         l1CaloTower.setEcalTowerEt(ECAL_tower_L2Card[ii][jj][ll]);
         l1CaloTower.setHcalTowerEt(HCAL_tower_L2Card[ii][jj][ll]);
