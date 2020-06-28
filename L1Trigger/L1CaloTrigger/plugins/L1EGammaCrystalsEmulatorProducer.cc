@@ -403,7 +403,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
       throw cms::Exception("L1EGCrystalClusterEmulatorProducer");
       continue;
     }
-    std::vector<HcalDetId> hcId = theTrigTowerGeometry.detIds(hit.id());
+    const std::vector<HcalDetId>& hcId = theTrigTowerGeometry.detIds(hit.id());
     if (hcId.empty()) {
       LogError("L1EGCrystalClusterEmulatorProducer")
           << "Cannot find any HCalDetId corresponding to " << hit.id() << std::endl;
