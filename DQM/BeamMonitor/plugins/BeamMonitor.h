@@ -68,6 +68,7 @@ private:
   const double dzMin_;
   const double dzMax_;
   std::string monitorName_;
+  std::string recordName_;                  // output BeamSpotOnline Record name
   edm::EDGetTokenT<reco::BeamSpot> bsSrc_;  // beam spot
   edm::EDGetTokenT<reco::TrackCollection> tracksLabel_;
   edm::EDGetTokenT<reco::VertexCollection> pvSrc_;  // primary vertex
