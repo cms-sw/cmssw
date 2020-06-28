@@ -93,7 +93,7 @@
  <Constant name="ForwdVcalR1"  value="1.595*m"/>
  <Constant name="CastorL1"     value="1.6165*m"/>
  <Constant name="ForwdDetsZ1"  value="16.0065*m"/>
- <Constant name="ForwdDetsZ2"  value="([cms::ForwdDetsZ1]-[cms::CastorL1])"/>
+ <Constant name="ForwdDetsZ2"  value="([ForwdDetsZ1]-[CastorL1])"/>
  <Constant name="ForwdDetsR1"  value="33.00*cm"/>
  <Constant name="MBarRmin"     value="3.80*m"/>
  <Constant name="MBarRmax"     value="[cms:CMSR4]"/>
