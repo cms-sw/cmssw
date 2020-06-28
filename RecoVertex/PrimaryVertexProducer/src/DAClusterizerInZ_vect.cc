@@ -646,17 +646,16 @@ bool DAClusterizerInZ_vect::purge(vertex_t& y, track_t& tks, double& rho0, const
   double sumpmin = nt;
   unsigned int k0 = nv;
 
-
   for (unsigned int k = 0; k < nv; k++) {
     int nUnique = 0;
     double sump = 0;
 
     double pmax = y.pk_ptr[k] / (y.pk_ptr[k] + rho0 * local_exp(-beta * dzCutOff_ * dzCutOff_));
     for (unsigned int i = 0; i < nt; ++i) {
-          auto ptr = y.pk_ptr[k] * local_exp(-beta * Eik(tks.z_ptr[i], y.z_ptr[k], tks.dz2_ptr[i]));
-          auto p =  (tks.Z_sum_ptr[i] > 1.e-100) ? ptr  / tks.Z_sum_ptr[i] : 0;
-          sump += p;
-          nUnique += (p > uniquetrkweight_ * pmax) & (ptr > 0) ? 1 : 0;
+      auto ptr = y.pk_ptr[k] * local_exp(-beta * Eik(tks.z_ptr[i], y.z_ptr[k], tks.dz2_ptr[i]));
+      auto p = (tks.Z_sum_ptr[i] > 1.e-100) ? ptr / tks.Z_sum_ptr[i] : 0;
+      sump += p;
+      nUnique += (p > uniquetrkweight_ * pmax) & (ptr > 0) ? 1 : 0;
     }
 
     if ((nUnique < 2) && (sump < sumpmin)) {
