@@ -1,6 +1,24 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
+import FWCore.ParameterSet.VarParsing as VarParsing
+options = VarParsing.VarParsing()
+options.register('runNumber',
+                 1, #default value, int limit -3
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Run number")
+options.register('transDelay',
+                 0, #default value, int limit -3
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "delay in seconds for the commit of the db transaction")
+options.parseArguments()
+
+# Define here the BeamSpotOnline record name,
+# it will be used both in BeamMonitor setup and in payload creation/upload
+BSOnlineRecordName = 'BeamSpotOnlineLegacyObjectsRcd'
+
 #from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 #process = cms.Process("BeamMonitor", Run2_2018) FIXME
 import sys
@@ -281,6 +299,7 @@ process.siStripDigis.ProductLabel        = rawDataInputTag
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
 process.dqmBeamMonitor.OnlineMode = True
+process.dqmBeamMonitor.recordName = BSOnlineRecordName
 
 process.dqmBeamMonitor.resetEveryNLumi   = 5 # was 10 for HI
 process.dqmBeamMonitor.resetPVEveryNLumi = 5 # was 10 for HI
@@ -332,6 +351,34 @@ if (process.runType.getRunType() == process.runType.hi_run):
     )
 
 process.dqmBeamMonitor.hltResults = cms.InputTag("TriggerResults","","HLT")
+
+#---------
+# Upload BeamSpotOnlineObject (LegacyRcd) to CondDB
+process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
+
+    DBParameters = cms.PSet(
+                            messageLevel = cms.untracked.int32(0),
+                            authenticationPath = cms.untracked.string('/build/gg')
+                           ),
+
+    ## Produce a (local) SQLITE FILE ...
+    #connect = cms.string('sqlite_file:BeamSpotOnlineLegacy.db'),
+    #preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineLegacy.db'),
+    ## ... or upload to CondDB
+    connect = cms.string('oracle://cms_orcoff_prep/CMS_CONDITIONS'),
+    preLoadConnectionString = cms.untracked.string('frontier://FrontierPrep/CMS_CONDITIONS'),
+
+    runNumber = cms.untracked.uint64(options.runNumber),
+    lastLumiFile = cms.untracked.string('last_lumi.txt'),
+    writeTransactionDelay = cms.untracked.uint32(options.transDelay),
+    autoCommit = cms.untracked.bool(True),
+    toPut = cms.VPSet(cms.PSet(
+        record = cms.string(BSOnlineRecordName),
+        tag = cms.string('BSOnlineLegacy_tag'),
+        timetype = cms.untracked.string('Lumi'),
+        onlyAppendUpdatePolicy = cms.untracked.bool(True)
+    ))
+)
 
 #---------
 # Final path
