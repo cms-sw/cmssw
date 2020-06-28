@@ -1,6 +1,9 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/SiPixelDetId"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/Provenance"/>
+<use name="FWCore/MessageLogger"/>
 <use name="clhep"/>
 <use name="root"/>
 <export>
