@@ -359,6 +359,7 @@ namespace l1t {
       stations_w1.push_back(trkAddr_w1[l1t::RegionalMuonCand::bmtfAddress::kStat3]);
       stations_w1.push_back(trkAddr_w1[l1t::RegionalMuonCand::bmtfAddress::kStat4]);
       //std::cout << "Track address 1: wheelSide (1 == negative side): " << wheelSide_w1 << ", wheelNum: " << wheelNum_w1 << ", stations1234: 0x" << hex << stations_w1[0] << stations_w1[1] << stations_w1[2] << stations_w1[3] << dec << std::endl;
+      //std::cout << "Muon1 eta: " << (*mu_w1)->hwEta() << " phi: " << (*mu_w1)->hwGlobalPhi() << " pT: " << (*mu_w1)->hwPt() << " qual: " << (*mu_w1)->origin().hwQual() << std::endl;
 
       for (auto mu_w2 = coll2.begin(); mu_w2 != coll2.end(); ++mu_w2) {
         std::map<int, int> trkAddr_w2 = (*mu_w2)->origin().trackAddress();
@@ -369,7 +370,8 @@ namespace l1t {
         stations_w2.push_back(trkAddr_w2[l1t::RegionalMuonCand::bmtfAddress::kStat2]);
         stations_w2.push_back(trkAddr_w2[l1t::RegionalMuonCand::bmtfAddress::kStat3]);
         stations_w2.push_back(trkAddr_w2[l1t::RegionalMuonCand::bmtfAddress::kStat4]);
-        //std::cout << "Track address 2: wheelSide (1 == negative side): " << wheelSide_w2 << ", wheelNum: " << wheelNum_w2 << ", stations1234: 0x" << hex << stations_w2[0] << stations_w2[1] << stations_w2[2] << stations_w2[3] << dec << std::endl;
+        // std::cout << "Track address 2: wheelSide (1 == negative side): " << wheelSide_w2 << ", wheelNum: " << wheelNum_w2 << ", stations1234: 0x" << hex << stations_w2[0] << stations_w2[1] << stations_w2[2] << stations_w2[3] << dec << std::endl;
+        // std::cout << "Muon2 eta: " << (*mu_w2)->hwEta() << " phi: " << (*mu_w2)->hwGlobalPhi() << " pT: " << (*mu_w2)->hwPt() << " qual: " << (*mu_w2)->origin().hwQual() << std::endl;
 
         int nMatchedStations = 0;
         // search for duplicates in stations 2-4
@@ -403,17 +405,17 @@ namespace l1t {
             }
           } else {  // If one muon in 0+ and one muon in 0- (0+ and 0- are physically the same wheel), however wheel 0 is not split in kalman algorithm
             if (wheelNum_w1 == 0 && wheelNum_w2 == 1) {
-              if ((stations_w1[i] == 0xA && stations_w2[1] == 0x0) ||
-                  (stations_w1[i] == 0xB && stations_w2[1] == 0x1) ||
-                  (stations_w1[i] == 0x8 && stations_w2[1] == 0x4) ||
-                  (stations_w1[i] == 0x9 && stations_w2[1] == 0x5)) {
+              if ((stations_w1[i] == 0xA && stations_w2[i] == 0x0) ||
+                  (stations_w1[i] == 0xB && stations_w2[i] == 0x1) ||
+                  (stations_w1[i] == 0x8 && stations_w2[i] == 0x4) ||
+                  (stations_w1[i] == 0x9 && stations_w2[i] == 0x5)) {
                 ++nMatchedStations;
               }
             } else if (wheelNum_w1 == 1 && wheelNum_w2 == 0) {
-              if ((stations_w1[i] == 0x2 && stations_w2[1] == 0x8) ||
-                  (stations_w1[i] == 0x3 && stations_w2[1] == 0x9) ||
-                  (stations_w1[i] == 0x0 && stations_w2[1] == 0xC) ||
-                  (stations_w1[i] == 0x1 && stations_w2[1] == 0xD)) {
+              if ((stations_w1[i] == 0x2 && stations_w2[i] == 0x8) ||
+                  (stations_w1[i] == 0x3 && stations_w2[i] == 0x9) ||
+                  (stations_w1[i] == 0x0 && stations_w2[i] == 0xC) ||
+                  (stations_w1[i] == 0x1 && stations_w2[i] == 0xD)) {
                 ++nMatchedStations;
               }
             }
