@@ -32,15 +32,7 @@ TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet& iConfig, edm::Co
 TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet& iConfig,
                                        edm::ConsumesCollector& iC,
                                        const MuonServiceProxy* service)
-    : theTracker(nullptr),
-      theMeasTracker(nullptr),
-      theNavigation(nullptr),
-      theService(service),
-      theUpdator(nullptr),
-      theEstimator(nullptr),
-      theTSTransformer(nullptr),
-      theSigmaZ(0),
-      theConfig(iConfig) {
+    : theService(service), theTSTransformer(nullptr), theSigmaZ(0), theConfig(iConfig) {
   theCategory = "Muon|RecoMuon|TSGFromPropagation";
   theMeasTrackerName = iConfig.getParameter<std::string>("MeasurementTrackerName");
   theMeasurementTrackerEventTag = iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent");
@@ -49,17 +41,7 @@ TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet& iConfig,
   theMeasurementTrackerEventToken = iC.consumes<MeasurementTrackerEvent>(theMeasurementTrackerEventTag);
 }
 
-TSGFromPropagation::~TSGFromPropagation() {
-  LogTrace(theCategory) << " TSGFromPropagation dtor called ";
-  if (theNavigation)
-    delete theNavigation;
-  if (theUpdator)
-    delete theUpdator;
-  if (theEstimator)
-    delete theEstimator;
-  if (theErrorMatrixAdjuster)
-    delete theErrorMatrixAdjuster;
-}
+TSGFromPropagation::~TSGFromPropagation() { LogTrace(theCategory) << " TSGFromPropagation dtor called "; }
 
 void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon,
                                       const TrackingRegion& region,
@@ -164,7 +146,7 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
     theResetMethod = "discrete";
   }
 
-  theEstimator = new Chi2MeasurementEstimator(theMaxChi2);
+  theEstimator = std::make_unique<Chi2MeasurementEstimator>(theMaxChi2);
 
   theCacheId_MT = 0;
 
@@ -180,7 +162,7 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
 
   theSelectStateFlag = theConfig.getParameter<bool>("SelectState");
 
-  theUpdator = new KFUpdator();
+  theUpdator = std::make_unique<KFUpdator>();
 
   theSigmaZ = theConfig.getParameter<double>("SigmaZ");
 
@@ -189,14 +171,13 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
   edm::ParameterSet errorMatrixPset = theConfig.getParameter<edm::ParameterSet>("errorMatrixPset");
   if (theResetMethod == "matrix" && !errorMatrixPset.empty()) {
     theAdjustAtIp = errorMatrixPset.getParameter<bool>("atIP");
-    theErrorMatrixAdjuster = new MuonErrorMatrix(errorMatrixPset);
+    theErrorMatrixAdjuster = std::make_unique<MuonErrorMatrix>(errorMatrixPset);
   } else {
     theAdjustAtIp = false;
-    theErrorMatrixAdjuster = nullptr;
   }
 
   theService->eventSetup().get<TrackerRecoGeometryRecord>().get(theTracker);
-  theNavigation = new DirectTrackerNavigation(theTracker);
+  theNavigation = std::make_unique<DirectTrackerNavigation>(theTracker);
 }
 
 void TSGFromPropagation::setEvent(const edm::Event& iEvent) {
@@ -226,9 +207,7 @@ void TSGFromPropagation::setEvent(const edm::Event& iEvent) {
   }
 
   if (trackerGeomChanged && (theTracker.product() != nullptr)) {
-    if (theNavigation)
-      delete theNavigation;
-    theNavigation = new DirectTrackerNavigation(theTracker);
+    theNavigation = std::make_unique<DirectTrackerNavigation>(theTracker);
   }
 }
 
