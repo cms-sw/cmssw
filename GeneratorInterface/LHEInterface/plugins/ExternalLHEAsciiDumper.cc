@@ -7,7 +7,6 @@
 #include <string>
 #include <sstream>
 #include <fstream>
-#include <boost/algorithm/string.hpp>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"

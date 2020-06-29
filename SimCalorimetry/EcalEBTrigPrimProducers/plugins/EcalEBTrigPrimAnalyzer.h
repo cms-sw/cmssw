@@ -3,10 +3,15 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/EcalBarrelGeometryRecord.h"
+#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <vector>
@@ -69,6 +74,9 @@ private:
   bool recHits_;
   bool debug_;
   edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_;
+  edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> eTTmapToken_;
+  edm::ESGetToken<CaloSubdetectorGeometry, EcalBarrelGeometryRecord> barrelGeomToken_;
+  EcalTPGScale::Tokens tokens_;
 
   int getIndex(const EBDigiCollection *, EcalTrigTowerDetId &id) { return id.hashedIndex(); }
 };

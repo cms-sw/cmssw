@@ -8,8 +8,6 @@
 #include <vector>
 #include <cstdio>
 
-#include <boost/bind.hpp>
-
 #include <xercesc/sax2/Attributes.hpp>
 #include <xercesc/dom/DOM.hpp>
 
@@ -27,8 +25,6 @@
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 
 #include "XMLUtils.h"
-
-#include "boost/lexical_cast.hpp"
 
 XERCES_CPP_NAMESPACE_USE
 
@@ -490,7 +486,7 @@ namespace lhef {
 
           std::for_each(handler->headers.begin(),
                         handler->headers.end(),
-                        boost::bind(&LHERunInfo::addHeader, curRunInfo.get(), _1));
+                        std::bind(&LHERunInfo::addHeader, curRunInfo.get(), std::placeholders::_1));
           handler->headers.clear();
         } break;
 

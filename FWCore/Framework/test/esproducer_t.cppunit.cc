@@ -454,10 +454,12 @@ namespace {
 
     class TestProxy : public DataProxy {
     public:
-      void const* getImpl(EventSetupRecordImpl const&, DataKey const&, edm::EventSetupImpl const*) override {
-        return nullptr;
-      }
+      void prefetchAsyncImpl(edm::WaitingTask*,
+                             EventSetupRecordImpl const&,
+                             DataKey const&,
+                             edm::EventSetupImpl const*) override {}
       void invalidateCache() override {}
+      void const* getAfterPrefetchImpl() const override { return nullptr; }
     };
 
     DataKey dataKeyDummy_0_;

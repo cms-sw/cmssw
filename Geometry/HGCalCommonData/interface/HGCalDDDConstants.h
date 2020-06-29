@@ -14,9 +14,11 @@
 #include <string>
 #include <vector>
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DetectorDescription/Core/interface/DDsvalues.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
+#include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 
 #include <unordered_map>
 
@@ -24,23 +26,6 @@ class HGCalDDDConstants {
 public:
   HGCalDDDConstants(const HGCalParameters* hp, const std::string& name);
   ~HGCalDDDConstants();
-
-  enum class CellType {
-    UndefinedType = -1,
-    CentralType = 0,
-    BottomLeftEdge = 1,
-    LeftEdge = 2,
-    TopLeftEdge = 3,
-    TopRightEdge = 4,
-    RightEdge = 5,
-    BottomRightEdge = 6,
-    BottomCorner = 11,
-    BottomLeftCorner = 12,
-    TopLeftCorner = 13,
-    TopCorner = 14,
-    TopRightCorner = 15,
-    BottomRightCorner = 16
-  };
 
   std::pair<int, int> assignCell(float x, float y, int lay, int subSec, bool reco) const;
   std::array<int, 5> assignCellHex(float x, float y, int lay, bool reco) const;
@@ -52,7 +37,7 @@ public:
     return std::make_pair(hgpar_->radiusLayer_[type][irad - 1], hgpar_->radiusLayer_[type][irad]);
   }
   double cellThickness(int layer, int waferU, int waferV) const;
-  CellType cellType(int type, int waferU, int waferV) const;
+  HGCalTypes::CellType cellType(int type, int waferU, int waferV) const;
   double distFromEdgeHex(double x, double y, double z) const;
   double distFromEdgeTrap(double x, double y, double z) const;
   void etaPhiFromPosition(const double x,
@@ -83,7 +68,7 @@ public:
   int getUVMax(int type) const { return ((type == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_); }
   bool isHalfCell(int waferType, int cell) const;
   bool isValidHex(int lay, int mod, int cell, bool reco) const;
-  bool isValidHex8(int lay, int modU, int modV, int cellU, int cellV) const;
+  bool isValidHex8(int lay, int modU, int modV, int cellU, int cellV, bool fullAndPart = false) const;
   bool isValidTrap(int lay, int ieta, int iphi) const;
   int lastLayer(bool reco) const;
   int layerIndex(int lay, bool reco) const;
@@ -92,6 +77,7 @@ public:
   std::pair<float, float> locateCell(int cell, int lay, int type, bool reco) const;
   std::pair<float, float> locateCell(
       int lay, int waferU, int waferV, int cellU, int cellV, bool reco, bool all, bool debug = false) const;
+  std::pair<float, float> locateCell(const HGCSiliconDetId&, bool debug = false) const;
   std::pair<float, float> locateCellHex(int cell, int wafer, bool reco) const;
   std::pair<float, float> locateCellTrap(int lay, int ieta, int iphi, bool reco) const;
   int levelTop(int ind = 0) const { return hgpar_->levelT_[ind]; }
@@ -114,6 +100,7 @@ public:
   int numberCellsHexagon(int wafer) const;
   int numberCellsHexagon(int lay, int waferU, int waferV, bool flag) const;
   std::pair<double, double> rangeR(double z, bool reco) const;
+  std::pair<double, double> rangeRLayer(int lay, bool reco) const;
   std::pair<double, double> rangeZ(bool reco) const;
   std::pair<int, int> rowColumnWafer(const int wafer) const;
   int sectors() const { return hgpar_->nSectors_; }
@@ -136,6 +123,7 @@ public:
   int waferCount(const int type) const { return ((type == 0) ? waferMax_[2] : waferMax_[3]); }
   int waferMax() const { return waferMax_[1]; }
   int waferMin() const { return waferMax_[0]; }
+  std::pair<double, double> waferParameters(bool reco) const;
   std::pair<double, double> waferPosition(int wafer, bool reco) const;
   std::pair<double, double> waferPosition(int lay, int waferU, int waferV, bool reco, bool debug = false) const;
   double waferSepar(bool reco) const {
@@ -160,6 +148,7 @@ public:
   }
   int waferType(DetId const& id) const;
   int waferType(int layer, int waferU, int waferV) const;
+  std::pair<int, int> waferTypeRotation(int layer, int waferU, int waferV, bool debug = false) const;
   int waferUVMax() const { return hgpar_->waferUVMax_; }
   bool waferVirtual(int layer, int waferU, int waferV) const;
   double waferZ(int layer, bool reco) const;
@@ -177,6 +166,7 @@ private:
   bool waferInLayerTest(int wafer, int lay, bool full) const;
   std::pair<double, double> waferPosition(int waferU, int waferV, bool reco) const;
 
+  HGCalGeomTools geomTools_;
   const double k_horizontalShift = 1.0;
   const float dPhiMin = 0.02;
   typedef std::array<std::vector<int32_t>, 2> Simrecovecs;

@@ -140,7 +140,7 @@ namespace evf {
     edm::ParameterSetDescription desc;
     edm::StreamerOutputModuleCommon::fillDescription(desc);
     EvFOutputModuleType::fillDescription(desc);
-    desc.addUntracked<edm::InputTag>("psetMap", {"psetMap"})
+    desc.addUntracked<edm::InputTag>("psetMap", {"hltPSetMap"})
         ->setComment("Optionally allow the map of ParameterSets to be calculated externally.");
     descriptions.addDefault(desc);
   }

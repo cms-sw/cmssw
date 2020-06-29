@@ -53,7 +53,6 @@ public:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
-
   /// Low-quality TTTracks (All tracks)
   MonitorElement *Track_All_N = nullptr;                 // Number of tracks per event
   MonitorElement *Track_All_NStubs = nullptr;            // Number of stubs per track

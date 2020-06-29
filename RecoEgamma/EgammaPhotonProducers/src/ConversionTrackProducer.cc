@@ -29,13 +29,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
 ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf)
-    : conf_(conf),
-      trackProducer(conf.getParameter<std::string>("TrackProducer")),
-      useTrajectory(conf.getParameter<bool>("useTrajectory")),
+    : useTrajectory(conf.getParameter<bool>("useTrajectory")),
       setTrackerOnly(conf.getParameter<bool>("setTrackerOnly")),
       setIsGsfTrackOpen(conf.getParameter<bool>("setIsGsfTrackOpen")),
       setArbitratedEcalSeeded(conf.getParameter<bool>("setArbitratedEcalSeeded")),
@@ -44,10 +39,13 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf)
       beamSpotInputTag(consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpotInputTag"))),
       filterOnConvTrackHyp(conf.getParameter<bool>("filterOnConvTrackHyp")),
       minConvRadius(conf.getParameter<double>("minConvRadius")) {
-  edm::InputTag thetp(trackProducer);
+  edm::InputTag thetp(conf.getParameter<std::string>("TrackProducer"));
   genericTracks = consumes<edm::View<reco::Track> >(thetp);
-  kfTrajectories = consumes<TrajTrackAssociationCollection>(thetp);
-  gsfTrajectories = consumes<TrajGsfTrackAssociationCollection>(thetp);
+  if (useTrajectory) {
+    kfTrajectories = consumes<TrajTrackAssociationCollection>(thetp);
+    gsfTrajectories = consumes<TrajGsfTrackAssociationCollection>(thetp);
+  }
+  magFieldToken = esConsumes<MagneticField, IdealMagneticFieldRecord>();
   produces<reco::ConversionTrackCollection>();
 }
 
@@ -57,68 +55,50 @@ ConversionTrackProducer::~ConversionTrackProducer() {}
 // Functions that gets called by framework every event
 void ConversionTrackProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   //get input collection (through edm::View)
-  edm::Handle<edm::View<reco::Track> > hTrks;
-  e.getByToken(genericTracks, hTrks);
+  edm::View<reco::Track> const& trks = e.get(genericTracks);
 
   //get association maps between trajectories and tracks and build temporary maps
-  edm::Handle<TrajTrackAssociationCollection> hTTAss;
-  edm::Handle<TrajGsfTrackAssociationCollection> hTTAssGsf;
-
   std::map<reco::TrackRef, edm::Ref<std::vector<Trajectory> > > tracktrajmap;
   std::map<reco::GsfTrackRef, edm::Ref<std::vector<Trajectory> > > gsftracktrajmap;
 
   if (useTrajectory) {
-    if (!hTrks->empty()) {
-      if (dynamic_cast<const reco::GsfTrack*>(&hTrks->at(0))) {
+    if (!trks.empty()) {
+      if (dynamic_cast<const reco::GsfTrack*>(&trks.at(0))) {
         //fill map for gsf tracks
-        e.getByToken(gsfTrajectories, hTTAssGsf);
-        for (TrajGsfTrackAssociationCollection::const_iterator iPair = hTTAssGsf->begin(); iPair != hTTAssGsf->end();
-             ++iPair) {
-          gsftracktrajmap[iPair->val] = iPair->key;
+        for (auto const& pair : e.get(gsfTrajectories)) {
+          gsftracktrajmap[pair.val] = pair.key;
         }
-
       } else {
         //fill map for standard tracks
-        e.getByToken(kfTrajectories, hTTAss);
-        for (TrajTrackAssociationCollection::const_iterator iPair = hTTAss->begin(); iPair != hTTAss->end(); ++iPair) {
-          tracktrajmap[iPair->val] = iPair->key;
+        for (auto const& pair : e.get(kfTrajectories)) {
+          tracktrajmap[pair.val] = pair.key;
         }
       }
     }
   }
 
   // Step B: create empty output collection
-  outputTrks = std::make_unique<reco::ConversionTrackCollection>();
+  auto outputTrks = std::make_unique<reco::ConversionTrackCollection>();
 
   //--------------------------------------------------
   //Added by D. Giordano
   // 2011/08/05
   // Reduction of the track sample based on geometric hypothesis for conversion tracks
 
-  edm::Handle<reco::BeamSpot> beamSpotHandle;
-  e.getByToken(beamSpotInputTag, beamSpotHandle);
+  math::XYZVector beamSpot{e.get(beamSpotInputTag).position()};
 
-  edm::ESHandle<MagneticField> magFieldHandle;
-  es.get<IdealMagneticFieldRecord>().get(magFieldHandle);
-
-  if (filterOnConvTrackHyp && !beamSpotHandle.isValid()) {
-    edm::LogError("Invalid Collection") << "invalid collection for the BeamSpot";
-    throw;
-  }
-
-  ConvTrackPreSelector.setMagnField(magFieldHandle.product());
+  ConvTrackPreSelector.setMagnField(&es.getData(magFieldToken));
 
   //----------------------------------------------------------
 
   // Simple conversion of tracks to conversion tracks, setting appropriate flags from configuration
-  for (size_t i = 0; i < hTrks->size(); ++i) {
+  for (size_t i = 0; i < trks.size(); ++i) {
     //--------------------------------------------------
     //Added by D. Giordano
     // 2011/08/05
     // Reduction of the track sample based on geometric hypothesis for conversion tracks
 
-    math::XYZVector beamSpot = math::XYZVector(beamSpotHandle->position());
-    edm::RefToBase<reco::Track> trackBaseRef = hTrks->refAt(i);
+    edm::RefToBase<reco::Track> trackBaseRef = trks.refAt(i);
     if (filterOnConvTrackHyp &&
         ConvTrackPreSelector.isTangentPointDistanceLessThan(minConvRadius, trackBaseRef.get(), beamSpot))
       continue;

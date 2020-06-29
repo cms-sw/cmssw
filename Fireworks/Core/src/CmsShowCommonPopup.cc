@@ -27,7 +27,7 @@
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 
-#include <boost/bind.hpp>
+#include <functional>
 
 CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, UInt_t w, UInt_t h)
     : TGTransientFrame(gClient->GetDefaultRoot(), p, w, h),
@@ -112,7 +112,7 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
     //   printf("QWE %d %s\n", i, ((TGFrameElement*)f->GetList()->At(i))->fFrame->ClassName());
     // m_combo = static_cast<TGComboBox*>(f->GetList()->At(1));
     m_combo = static_cast<TGComboBox*>(static_cast<TGFrameElement*>(f->GetList()->At(0))->fFrame);
-    m_common->m_palette.changed_.connect(boost::bind(&CmsShowCommonPopup::setPaletteGUI, this));
+    m_common->m_palette.changed_.connect(std::bind(&CmsShowCommonPopup::setPaletteGUI, this));
 
     TGCompositeFrame* hf = new TGHorizontalFrame(vf2);
     vf2->AddFrame(hf, new TGLayoutHints(kLHintsExpandX));

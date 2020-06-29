@@ -61,6 +61,11 @@ float SimpleJetCorrector::correction(const std::vector<float>& fX, const std::ve
     }
     result = tmp / mParameters.definitions().nBinVar();
   }
+  if (result <= 0) {
+    edm::LogWarning("SimpleJetCorrector")
+        << "Null or negative jet energy correction factor evaluated: " << result << ". Truncating to 10e-10.";
+    result = 10e-10;
+  }
   return result;
 }
 //------------------------------------------------------------------------

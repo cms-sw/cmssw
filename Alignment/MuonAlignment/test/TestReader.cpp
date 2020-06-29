@@ -29,11 +29,9 @@
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorExtendedRcd.h"
 
-#include "Geometry/Records/interface/MuonNumberingRecord.h"
-#include "Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h"
-#include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
@@ -53,7 +51,6 @@ public:
 
   void recursiveGetMuChambers(const align::Alignables& composite, align::Alignables& chambers, int kind);
   align::EulerAngles toPhiXYZ(const align::RotationType&);
-
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
 private:
@@ -62,13 +59,25 @@ private:
   TFile* theFile;
   float x, y, z, phi, theta, length, thick, width;
   TRotMatrix* rot;
+  std::string idealGeometryLabel;
 };
 
 //
 // constructors and destructor
 //
 TestMuonReader::TestMuonReader(const edm::ParameterSet& iConfig)
-    : theTree(0), theFile(0), x(0.), y(0.), z(0.), phi(0.), theta(0.), length(0.), thick(0.), width(0.), rot(0) {}
+    : theTree(0),
+      theFile(0),
+      x(0.),
+      y(0.),
+      z(0.),
+      phi(0.),
+      theta(0.),
+      length(0.),
+      thick(0.),
+      width(0.),
+      rot(0),
+      idealGeometryLabel("idealForTestReader") {}
 
 TestMuonReader::~TestMuonReader() {}
 
@@ -96,20 +105,10 @@ align::EulerAngles TestMuonReader::toPhiXYZ(const align::RotationType& rot) {
 
 void TestMuonReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // first, get chamber alignables from ideal geometry:
-
-  edm::ESTransientHandle<DDCompactView> cpv;
-  iSetup.get<IdealGeometryRecord>().get(cpv);
-
-  edm::ESHandle<MuonGeometryConstants> mdc;
-  iSetup.get<IdealGeometryRecord>().get(mdc);
-
-  DTGeometryBuilderFromDDD DTGeometryBuilder;
-  CSCGeometryBuilderFromDDD CSCGeometryBuilder;
-
-  auto dtGeometry = std::make_shared<DTGeometry>();
-  DTGeometryBuilder.build(*dtGeometry, &(*cpv), *mdc);
-  auto cscGeometry = std::make_shared<CSCGeometry>();
-  CSCGeometryBuilder.build(*cscGeometry, &(*cpv), *mdc);
+  edm::ESHandle<DTGeometry> dtGeometry;
+  edm::ESHandle<CSCGeometry> cscGeometry;
+  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, dtGeometry);
+  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, cscGeometry);
 
   AlignableMuon ideal_alignableMuon(&(*dtGeometry), &(*cscGeometry));
 

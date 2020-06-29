@@ -1,6 +1,8 @@
+
 #include <iomanip>
 
 #include "SimG4Core/PhysicsLists/interface/CMSHadronPhysicsFTFP_BERT.h"
+#include "SimG4Core/PhysicsLists/interface/CMSHyperonFTFPBuilder.h"
 
 #include "globals.hh"
 #include "G4ios.hh"
@@ -146,7 +148,7 @@ void CMSHadronPhysicsFTFP_BERT::Kaon() {
 
 void CMSHadronPhysicsFTFP_BERT::Others() {
   //===== Hyperons ====== //
-  auto hyp = new G4HyperonFTFPBuilder;
+  auto hyp = new CMSHyperonFTFPBuilder;
   AddBuilder(hyp);
   hyp->Build();
 

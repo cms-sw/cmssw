@@ -16,7 +16,6 @@
 
 #include "RecoLocalFastTime/Records/interface/MTDCPERecord.h"
 #include "RecoLocalFastTime/FTLClusterizer/interface/MTDClusterParameterEstimator.h"
-#include "RecoLocalFastTime/FTLClusterizer/interface/MTDCPEBase.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

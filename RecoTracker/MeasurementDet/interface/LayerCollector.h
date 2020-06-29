@@ -25,26 +25,27 @@ private:
 public:
   LayerCollector(NavigationSchool const* aSchool,
                  const Propagator* aPropagator,
-                 const StartingLayerFinder* aFinder,
+                 const MeasurementTracker* tracker,
                  float dr,
                  float dz)
-      : theSchool(aSchool), thePropagator(aPropagator), theStartingLayerFinder(aFinder), theDeltaR(dr), theDeltaZ(dz) {}
-
-  ~LayerCollector() {}
+      : theSchool(aSchool),
+        thePropagator(aPropagator),
+        theStartingLayerFinder{*aPropagator, *tracker},
+        theDeltaR(dr),
+        theDeltaZ(dz) {}
 
   std::vector<const DetLayer*> allLayers(const FTS& aFts) const;
   std::vector<const BarrelDetLayer*> barrelLayers(const FTS& aFts) const;
   std::vector<const ForwardDetLayer*> forwardLayers(const FTS& aFts) const;
 
   const Propagator* propagator() const { return thePropagator; }
-  const StartingLayerFinder* finder() const { return theStartingLayerFinder; }
   float deltaR() const { return theDeltaR; }
   float deltaZ() const { return theDeltaZ; }
 
 private:
   NavigationSchool const* theSchool;
   const Propagator* thePropagator;
-  const StartingLayerFinder* theStartingLayerFinder;
+  const StartingLayerFinder theStartingLayerFinder;
   float theDeltaR;
   float theDeltaZ;
 

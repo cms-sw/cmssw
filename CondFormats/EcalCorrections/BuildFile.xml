@@ -1,4 +1,3 @@
-<use name="CondFormats/Common"/>
 <use name="CondFormats/Serialization"/>
 <use name="DataFormats/EcalDetId"/>
 <use name="FWCore/Utilities"/>

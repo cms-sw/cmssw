@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <numeric>
+#include <fstream>  // std::ifstream
 #include <string>
 #include <boost/tokenizer.hpp>
 #include <boost/range/adaptor/indexed.hpp>
@@ -804,14 +805,10 @@ namespace SiPixelPI {
   /*--------------------------------------------------------------------*/
   {
     std::vector<std::pair<int, int>> rocsToMask;
-
-    //int nblade_list[2] = {11, 17};
     int nybins_list[2] = {92, 140};
-    //int nblade = nblade_list[ring - 1];
     int nybins = nybins_list[ring - 1];
 
     int start_x = disk > 0 ? ((disk + 3) * 8) + 1 : ((3 - (std::abs(disk))) * 8) + 1;
-    //int start_y = blade > 0 ? ((blade+nblade)*4)-panel*2  : ((nblade-(std::abs(blade)))*4)-panel*2;
     int start_y = blade > 0 ? (nybins / 2) + (blade * 4) - (panel * 2) + 3
                             : ((nybins / 2) - (std::abs(blade) * 4) - panel * 2) + 3;
 
@@ -839,14 +836,10 @@ namespace SiPixelPI {
   /*--------------------------------------------------------------------*/
   {
     std::vector<std::tuple<int, int, int>> rocsToMask;
-
-    //int nblade_list[2] = {11, 17};
     int nybins_list[2] = {92, 140};
-    //int nblade = nblade_list[ring - 1];
     int nybins = nybins_list[ring - 1];
 
     int start_x = disk > 0 ? ((disk + 3) * 8) + 1 : ((3 - (std::abs(disk))) * 8) + 1;
-    //int start_y = blade > 0 ? ((blade+nblade)*4)-panel*2  : ((nblade-(std::abs(blade)))*4)-panel*2;
     int start_y = blade > 0 ? (nybins / 2) + (blade * 4) - (panel * 2) + 3
                             : ((nybins / 2) - (std::abs(blade) * 4) - panel * 2) + 3;
 

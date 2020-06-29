@@ -1,4 +1,5 @@
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 
@@ -162,22 +163,22 @@ double HGCalGeomTools::radius(
   return r;
 }
 
-std::pair<double, double> HGCalGeomTools::shiftXY(int waferPosition, double waferSize) {
+std::pair<double, double> HGCalGeomTools::shiftXY(int waferPosition, double waferSize) const {
   double dx(0), dy(0);
   switch (waferPosition) {
-    case (CornerCenterYp): {
+    case (HGCalTypes::CornerCenterYp): {
       dy = factor_ * waferSize;
       break;
     }
-    case (CornerCenterYm): {
+    case (HGCalTypes::CornerCenterYm): {
       dy = -factor_ * waferSize;
       break;
     }
-    case (CornerCenterXp): {
+    case (HGCalTypes::CornerCenterXp): {
       dx = factor_ * waferSize;
       break;
     }
-    case (CornerCenterXm): {
+    case (HGCalTypes::CornerCenterXm): {
       dx = -factor_ * waferSize;
       break;
     }

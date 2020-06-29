@@ -2,11 +2,10 @@
 #include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CondFormats/DataRecord/interface/EcalSRSettingsRcd.h"
+
 //#include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
 
 #include "SimCalorimetry/EcalSelectiveReadoutProducers/interface/EcalSRCondTools.h"
@@ -74,6 +73,14 @@ EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterS
   EE_token = consumes<EEDigiCollection>(edm::InputTag(digiProducer_, eedigiCollection_));
   ;
   EcTP_token = consumes<EcalTrigPrimDigiCollection>(edm::InputTag(trigPrimProducer_, trigPrimCollection_));
+  if (useFullReadout_) {
+    hSr_token_ = esConsumes<EcalSRSettings, EcalSRSettingsRcd>(edm::ESInputTag("", "fullReadout"));
+  } else {
+    hSr_token_ = esConsumes<EcalSRSettings, EcalSRSettingsRcd>();
+  }
+  geom_token_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  eTTmap_token_ = esConsumes<EcalTrigTowerConstituentsMap, IdealGeometryRecord>();
+  eElecmap_token_ = esConsumes<EcalElectronicsMapping, EcalMappingRcd>();
   ;
 }
 
@@ -82,13 +89,8 @@ EcalSelectiveReadoutProducer::~EcalSelectiveReadoutProducer() {}
 void EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup) {
   if (useCondDb_) {
     //getting selective readout configuration:
-    edm::ESHandle<EcalSRSettings> hSr;
+    edm::ESHandle<EcalSRSettings> hSr = eventSetup.getHandle(hSr_token_);
 
-    if (useFullReadout_) {
-      eventSetup.get<EcalSRSettingsRcd>().get("fullReadout", hSr);
-    } else {
-      eventSetup.get<EcalSRSettingsRcd>().get(hSr);
-    }
     settings_ = hSr.product();
   }
 
@@ -206,8 +208,7 @@ const EcalTrigPrimDigiCollection* EcalSelectiveReadoutProducer::getTrigPrims(edm
 }
 
 void EcalSelectiveReadoutProducer::checkGeometry(const edm::EventSetup& eventSetup) {
-  edm::ESHandle<CaloGeometry> hGeometry;
-  eventSetup.get<CaloGeometryRecord>().get(hGeometry);
+  edm::ESHandle<CaloGeometry> hGeometry = eventSetup.getHandle(geom_token_);
 
   const CaloGeometry* pGeometry = &*hGeometry;
 
@@ -219,8 +220,7 @@ void EcalSelectiveReadoutProducer::checkGeometry(const edm::EventSetup& eventSet
 }
 
 void EcalSelectiveReadoutProducer::checkTriggerMap(const edm::EventSetup& eventSetup) {
-  edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap;
-  eventSetup.get<IdealGeometryRecord>().get(eTTmap);
+  edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap = eventSetup.getHandle(eTTmap_token_);
 
   const EcalTrigTowerConstituentsMap* pMap = &*eTTmap;
 
@@ -232,8 +232,7 @@ void EcalSelectiveReadoutProducer::checkTriggerMap(const edm::EventSetup& eventS
 }
 
 void EcalSelectiveReadoutProducer::checkElecMap(const edm::EventSetup& eventSetup) {
-  edm::ESHandle<EcalElectronicsMapping> eElecmap;
-  eventSetup.get<EcalMappingRcd>().get(eElecmap);
+  edm::ESHandle<EcalElectronicsMapping> eElecmap = eventSetup.getHandle(eElecmap_token_);
 
   const EcalElectronicsMapping* pMap = &*eElecmap;
 

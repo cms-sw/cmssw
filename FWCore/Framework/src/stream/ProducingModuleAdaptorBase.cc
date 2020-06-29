@@ -102,6 +102,20 @@ namespace edm {
     }
 
     template <typename T>
+    std::vector<ESProxyIndex> const& ProducingModuleAdaptorBase<T>::esGetTokenIndicesVector(
+        edm::Transition iTrans) const {
+      assert(not m_streamModules.empty());
+      return m_streamModules[0]->esGetTokenIndicesVector(iTrans);
+    }
+
+    template <typename T>
+    std::vector<ESRecordIndex> const& ProducingModuleAdaptorBase<T>::esGetTokenRecordIndicesVector(
+        edm::Transition iTrans) const {
+      assert(not m_streamModules.empty());
+      return m_streamModules[0]->esGetTokenRecordIndicesVector(iTrans);
+    }
+
+    template <typename T>
     void ProducingModuleAdaptorBase<T>::modulesWhoseProductsAreConsumed(
         std::vector<ModuleDescription const*>& modules,
         ProductRegistry const& preg,

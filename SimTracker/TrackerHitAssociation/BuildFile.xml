@@ -7,6 +7,14 @@
 <use name="DataFormats/TrackerRecHit2D"/>
 <use name="TrackingTools/TransientTrackingRecHit"/>
 <use name="DataFormats/SiPixelDetId"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/Provenance"/>
+<use name="DataFormats/SiPixelDigi"/>
+<use name="DataFormats/SiStripDetId"/>
+<use name="DataFormats/TrackingRecHit"/>
+<use name="FWCore/MessageLogger"/>
+<use name="SimDataFormats/Track"/>
+<use name="SimDataFormats/TrackingAnalysis"/>
 <use name="clhep"/>
 <use name="boost"/>
 <use name="root"/>

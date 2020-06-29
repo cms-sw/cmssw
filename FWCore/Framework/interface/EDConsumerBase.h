@@ -31,8 +31,8 @@
 #include "FWCore/Framework/interface/HCTypeTag.h"
 #include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Framework/interface/data_default_record_trait.h"
-#include "FWCore/Utilities/interface/ESIndices.h"
 #include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
+#include "FWCore/Utilities/interface/ESIndices.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/TypeToGet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -113,6 +113,14 @@ namespace edm {
         return nullptr;
       }
       return &(esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)].front());
+    }
+
+    std::vector<ESProxyIndex> const& esGetTokenIndicesVector(edm::Transition iTrans) const {
+      return esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)];
+    }
+
+    std::vector<ESRecordIndex> const& esGetTokenRecordIndicesVector(edm::Transition iTrans) const {
+      return esRecordsToGetFromTransition_[static_cast<unsigned int>(iTrans)];
     }
 
   protected:
@@ -247,6 +255,8 @@ namespace edm {
     edm::SoATuple<ESTokenLookupInfo, ESProxyIndex> m_esTokenInfo;
     std::array<std::vector<ESProxyIndex>, static_cast<unsigned int>(edm::Transition::NumberOfTransitions)>
         esItemsToGetFromTransition_;
+    std::array<std::vector<ESRecordIndex>, static_cast<unsigned int>(edm::Transition::NumberOfTransitions)>
+        esRecordsToGetFromTransition_;
     bool frozen_;
     bool containsCurrentProcessAlias_;
   };

@@ -9,6 +9,9 @@
   <class name="reco::VertexToTrackingVertexAssociator" persistent="false"/>
   <class name="edm::Wrapper<reco::VertexToTrackingVertexAssociator>" persistent="false"/>
 
+  <class name="hgcal::LayerClusterToCaloParticleAssociator" persistent="false"/>
+  <class name="edm::Wrapper<hgcal::LayerClusterToCaloParticleAssociator>" persistent="false"/>
+
   <class name="reco::VertexSimToRecoCollection" >
     <field name="transientMap_" transient="true"/>
   </class>

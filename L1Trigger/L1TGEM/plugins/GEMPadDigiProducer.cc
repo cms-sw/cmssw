@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -38,6 +39,7 @@ private:
 
   /// Name of input digi Collection
   edm::EDGetTokenT<GEMDigiCollection> digi_token_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geom_token_;
   edm::InputTag digis_;
 
   const GEMGeometry* geometry_;
@@ -47,6 +49,7 @@ GEMPadDigiProducer::GEMPadDigiProducer(const edm::ParameterSet& ps) : geometry_(
   digis_ = ps.getParameter<edm::InputTag>("InputCollection");
 
   digi_token_ = consumes<GEMDigiCollection>(digis_);
+  geom_token_ = esConsumes<GEMGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 
   produces<GEMPadDigiCollection>();
   consumes<GEMDigiCollection>(digis_);
@@ -62,8 +65,7 @@ void GEMPadDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
 }
 
 void GEMPadDigiProducer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {
-  edm::ESHandle<GEMGeometry> hGeom;
-  eventSetup.get<MuonGeometryRecord>().get(hGeom);
+  edm::ESHandle<GEMGeometry> hGeom = eventSetup.getHandle(geom_token_);
   geometry_ = &*hGeom;
 }
 
@@ -96,7 +98,7 @@ void GEMPadDigiProducer::buildPads(const GEMDigiCollection& det_digis, GEMPadDig
 
     // fill the output collections
     for (const auto& d : proto_pads) {
-      GEMPadDigi pad_digi(d.first, d.second);
+      GEMPadDigi pad_digi(d.first, d.second, GEMSubDetId::station(p->id().station()));
       out_pads.insertDigi(p->id(), pad_digi);
     }
   }

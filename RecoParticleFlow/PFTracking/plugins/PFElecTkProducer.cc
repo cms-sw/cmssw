@@ -484,12 +484,10 @@ int PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection& PfRTkColl,
       for (auto const& hhit : pft->trackRef()->recHits()) {
         if (!hhit->isValid())
           continue;
-        TrajectorySeed::const_iterator hit = gsftk.seedRef()->recHits().first;
-        TrajectorySeed::const_iterator hit_end = gsftk.seedRef()->recHits().second;
-        for (; hit != hit_end; ++hit) {
-          if (!(hit->isValid()))
+        for (auto const& hit : gsftk.seedRef()->recHits()) {
+          if (!(hit.isValid()))
             continue;
-          if (hhit->sharesInput(&*(hit), TrackingRecHit::all))
+          if (hhit->sharesInput(&hit, TrackingRecHit::all))
             ish++;
           // if((hit->geographicalId()==hhit->geographicalId())&&
           //     ((hhit->localPosition()-hit->localPosition()).mag()<0.01)) ish++;

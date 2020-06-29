@@ -7,15 +7,16 @@ from RecoTracker.ConversionSeedGenerators.ConversionStep2_cff import *
 
 from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import trackClusterRemover as _trackClusterRemover
 _convClustersBase = _trackClusterRemover.clone(
-  maxChi2               = cms.double(30.0),
-  trajectories          = cms.InputTag("tobTecStepTracks"),
-  pixelClusters         = cms.InputTag("siPixelClusters"),
-  stripClusters         = cms.InputTag("siStripClusters"),
-  oldClusterRemovalInfo = cms.InputTag("tobTecStepClusters"),
-  TrackQuality          = cms.string('highPurity'),
+    maxChi2               = 30.0,
+    trajectories          = 'tobTecStepTracks',
+    pixelClusters         = 'siPixelClusters',
+    stripClusters         = 'siStripClusters',
+    oldClusterRemovalInfo = 'tobTecStepClusters',
+    TrackQuality          = 'highPurity'
 )
+
 convClusters = _convClustersBase.clone(
-  trackClassifier       = cms.InputTag('tobTecStep',"QualityMasks"),
+    trackClassifier       = 'tobTecStep:QualityMasks',
 )
 
 
@@ -24,15 +25,14 @@ from RecoLocalTracker.SubCollectionProducers.phase2trackClusterRemover_cfi impor
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 trackingPhase2PU140.toReplaceWith(convClusters, _phase2trackClusterRemover.clone(
     maxChi2                                  = 30.0,
-    phase2pixelClusters                      = "siPixelClusters",
-    phase2OTClusters                         = "siPhase2Clusters",
+    phase2pixelClusters                      = 'siPixelClusters',
+    phase2OTClusters                         = 'siPhase2Clusters',
     TrackQuality                             = 'highPurity',
     minNumberOfLayersWithMeasBeforeFiltering = 0,
-    trajectories                             = cms.InputTag("detachedQuadStepTracks"),
-    oldClusterRemovalInfo                    = cms.InputTag("detachedQuadStepClusters"),
-    overrideTrkQuals                         = cms.InputTag("detachedQuadStepSelector","detachedQuadStepTrk"),
-    )
-)
+    trajectories                             = 'detachedQuadStepTracks',
+    oldClusterRemovalInfo                    = 'detachedQuadStepClusters',
+    overrideTrkQuals                         = 'detachedQuadStepSelector:detachedQuadStepTrk'
+))
 
 _convLayerPairsStripOnlyLayers = ['TIB1+TID1_pos', 
                                  'TIB1+TID1_neg', 
@@ -121,7 +121,7 @@ _convLayerPairsLayerList.extend(_convLayerPairsStripOnlyLayers)
                                                         
     
              
-convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
+convLayerPairs = cms.EDProducer('SeedingLayersEDProducer',
                                 layerList = cms.vstring(_convLayerPairsLayerList),
                                 BPix = cms.PSet(
                                     TTRHBuilder = cms.string('WithTrackAngle'),
@@ -135,17 +135,17 @@ convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
                                     ),
                                 TIB = cms.PSet(
                                     TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
-                                    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+                                    matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
                                 MTIB = cms.PSet(
                                     TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
-                                    rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
+                                    rphiRecHits = cms.InputTag('siStripMatchedRecHits','rphiRecHit'),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
                                 TID = cms.PSet(
                                     useSimpleRphiHitsCleaner = cms.bool(False),
-                                    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+                                    matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
                                     useRingSlector = cms.bool(True),
                                     TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
                                     maxRing = cms.int32(2),
@@ -155,22 +155,22 @@ convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
                                 TEC = cms.PSet(
                                     useSimpleRphiHitsCleaner = cms.bool(False),
                                     minRing = cms.int32(1),
-                                    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+                                    matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
                                     useRingSlector = cms.bool(True),
                                     TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
-                                    rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHitUnmatched"),
+                                    rphiRecHits = cms.InputTag('siStripMatchedRecHits','rphiRecHitUnmatched'),
                                     maxRing = cms.int32(7),
-                                    stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHitUnmatched"),
+                                    stereoRecHits = cms.InputTag('siStripMatchedRecHits','stereoRecHitUnmatched'),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
                                 TOB = cms.PSet(
-                                    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+                                    matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
                                     TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
                                 MTOB = cms.PSet(
                                     TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
-                                    rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
+                                    rphiRecHits = cms.InputTag('siStripMatchedRecHits','rphiRecHit'),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
                                 )
@@ -207,7 +207,7 @@ from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 trackingPhase1.toModify(convLayerPairs, layerList = cms.vstring(_convLayerPairsLayerListPhaseI))
 
 
-trackingPhase2PU140.toReplaceWith(convLayerPairs, cms.EDProducer("SeedingLayersEDProducer",
+trackingPhase2PU140.toReplaceWith(convLayerPairs, cms.EDProducer('SeedingLayersEDProducer',
                                 layerList = cms.vstring('BPix1+BPix2',
                                                         'BPix2+BPix3',
                                                         'BPix3+BPix4',
@@ -249,7 +249,7 @@ photonConvTrajSeedFromSingleLeg.primaryVerticesTag = cms.InputTag('firstStepPrim
 #photonConvTrajSeedFromQuadruplets.TrackRefitter = cms.InputTag('generalTracks')
 #photonConvTrajSeedFromQuadruplets.primaryVerticesTag = cms.InputTag('pixelVertices')
 from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
-trackingLowPU.toModify(photonConvTrajSeedFromSingleLeg, primaryVerticesTag   = "pixelVertices")
+trackingLowPU.toModify(photonConvTrajSeedFromSingleLeg, primaryVerticesTag   = 'pixelVertices')
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 pp_on_AA_2018.toModify(photonConvTrajSeedFromSingleLeg, vtxMinDoF = 999999.)
     
@@ -258,69 +258,72 @@ pp_on_AA_2018.toModify(photonConvTrajSeedFromSingleLeg, vtxMinDoF = 999999.)
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 convCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
-        maxLostHits = 1,
+        maxLostHits         = 1,
         minimumNumberOfHits = 3,
-        minPt = 0.1
-    )
+        minPt               = 0.1
+)
 
 
 import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi
 convStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi.Chi2ChargeMeasurementEstimator.clone(
-    ComponentName = cms.string('convStepChi2Est'),
-    nSigma = cms.double(3.0),
-    MaxChi2 = cms.double(30.0),
-    MaxDisplacement = cms.double(100),
-    MaxSagitta = cms.double(-1.),
-    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
+    ComponentName    = 'convStepChi2Est',
+    nSigma           = 3.0,
+    MaxChi2          = 30.0,
+    MaxDisplacement  = 100,
+    MaxSagitta       = -1.,
+    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTight')
 )
 
 
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 _convCkfTrajectoryBuilderBase = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('convCkfTrajectoryFilter')),
+    trajectoryFilter = dict(refToPSet_ = 'convCkfTrajectoryFilter'),
     minNrOfHitsForRebuild = 3,
-    maxCand = 1,
+    maxCand = 1
 )
+
 convCkfTrajectoryBuilder = _convCkfTrajectoryBuilderBase.clone(
-    estimator = cms.string('convStepChi2Est')
-    )
+    estimator = 'convStepChi2Est'
+)
+
 trackingPhase2PU140.toReplaceWith(convCkfTrajectoryBuilder, _convCkfTrajectoryBuilderBase.clone(
-    maxCand = 2,
+    maxCand = 2
 ))
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 convTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
-    src = cms.InputTag('photonConvTrajSeedFromSingleLeg:convSeedCandidates'),
-    clustersToSkip = cms.InputTag('convClusters'),
-    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('convCkfTrajectoryBuilder'))
+    src = 'photonConvTrajSeedFromSingleLeg:convSeedCandidates',
+    clustersToSkip =  cms.InputTag('convClusters'),
+    TrajectoryBuilderPSet = dict(refToPSet_ = 'convCkfTrajectoryBuilder')
 )
+
 trackingPhase2PU140.toModify(convTrackCandidates,
     clustersToSkip = None,
-    phase2clustersToSkip = cms.InputTag("convClusters")
+    phase2clustersToSkip = cms.InputTag('convClusters')
 )
 
 import TrackingTools.TrackFitters.RungeKuttaFitters_cff
 convStepFitterSmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cff.KFFittingSmootherWithOutliersRejectionAndRK.clone(
     ComponentName = 'convStepFitterSmoother',
-    EstimateCut = 30,
-    Smoother = cms.string('convStepRKSmoother')
-    )
+    EstimateCut   = 30,
+    Smoother      = 'convStepRKSmoother'
+)
     
 convStepRKTrajectorySmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cff.RKTrajectorySmoother.clone(
-    ComponentName = cms.string('convStepRKSmoother'),
+    ComponentName  = 'convStepRKSmoother',
     errorRescaling = 10.0
-    )
+)
 
         
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducer_cfi
 convStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'convTrackCandidates',
-    AlgorithmName = cms.string('conversionStep'),
-    Fitter = 'convStepFitterSmoother',
-    )
+    AlgorithmName = 'conversionStep',
+    Fitter = 'convStepFitterSmoother'
+)
 
 
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
@@ -366,8 +369,8 @@ convStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiT
             d0_par2 = ( 5., 8.0 ),
             dz_par2 = ( 5., 8.0 )
             ),
-        ) #end of vpset
-    ) #end of clone
+    ) #end of vpset
+) #end of clone
 
 ConvStepTask = cms.Task( convClusters 
                          , convLayerPairs
@@ -385,31 +388,22 @@ ConvStep = cms.Sequence( ConvStepTask )
 # in RecoTracker.FinalTrackSelectors.MergeTrackCollections_cff change:
 ###
 #conversionStepTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-#    TrackProducers = cms.VInputTag(cms.InputTag('convStepTracks')),
-#    hasSelector=cms.vint32(1),
-#    selectedTrackQuals = cms.VInputTag(cms.InputTag("convStepSelector","convStep")
-#                                       ),
-#    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(1), pQual=cms.bool(True) )
-#                             ),
+#    TrackProducers = 'convStepTracks',
+#    hasSelector=1,
+#    selectedTrackQuals = 'convStepSelector:convStep',
+#    setsToMerge = dict( tLists = 1, pQual = True ),
 #    copyExtras = True,
-#    makeReKeyedSeeds = cms.untracked.bool(False)
+#    makeReKeyedSeeds = False
 #    )
 ###
 # TO this:
 ###
 #conversionStepTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-#    TrackProducers = cms.VInputTag(
-#                                   cms.InputTag('convStepTracks'),
-#                                   cms.InputTag('conv2StepTracks')
-#                                   ),
-#    hasSelector=cms.vint32(1,1),
-#    selectedTrackQuals = cms.VInputTag(
-#                                       cms.InputTag("convStepSelector","convStep"),
-#                                       cms.InputTag("conv2StepSelector","conv2Step")
-#                                       ),
-#    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1), pQual=cms.bool(True) )
-#                             ),
+#    TrackProducers = ['convStepTracks', 'conv2StepTracks'],
+#    hasSelector = [1,1],
+#    selectedTrackQuals = ['convStepSelector:convStep', 'conv2StepSelector:conv2Step'],
+#    setsToMerge = dict( tLists = [0,1], pQual = True ),
 #    copyExtras = True,
-#    makeReKeyedSeeds = cms.untracked.bool(False)
+#    makeReKeyedSeeds = False
 #    )
 ###

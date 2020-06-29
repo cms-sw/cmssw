@@ -199,7 +199,7 @@ namespace {
       unsigned int maxPads = isBarrel ? 4 : 12;
       for (unsigned int c = 1; c <= maxPads; c++) {
         canvas.cd(c);
-        SiPixelPI::adjustCanvasMargins(canvas.cd(c), 0.07, 0.12, 0.12, 0.05);
+        SiPixelPI::adjustCanvasMargins(canvas.cd(c), 0.06, 0.12, 0.12, 0.05);
         legend.Draw("same");
         canvas.cd(c)->Update();
       }
@@ -233,12 +233,12 @@ namespace {
   /************************************************
     1d histogram of SiPixelLorentzAngle of 2 IOV per region
   *************************************************/
-  template <bool isBarrel, int ntags>
+  template <bool isBarrel, cond::payloadInspector::IOVMultiplicity nIOVs, int ntags>
   class SiPixelLorentzAngleValuesComparisonPerRegion
-      : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle, cond::payloadInspector::MULTI_IOV, ntags> {
+      : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle, nIOVs, ntags> {
   public:
     SiPixelLorentzAngleValuesComparisonPerRegion()
-        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle, cond::payloadInspector::MULTI_IOV, ntags>(
+        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle, nIOVs, ntags>(
               Form("SiPixelLorentzAngle Values Comparisons per region %i tags(s)", ntags)) {}
 
     bool fill() override {
@@ -287,16 +287,18 @@ namespace {
       canvas.Divide(isBarrel ? 2 : 4, isBarrel ? 2 : 3);
       canvas.cd();
 
+      bool is_l_phase0 = (l_LAMap_.size() == SiPixelPI::phase0size);
+      bool is_f_phase0 = (f_LAMap_.size() == SiPixelPI::phase0size);
+
       // deal with last IOV
 
-      const char *path_toTopologyXML = (l_LAMap_.size() == SiPixelPI::phase0size)
-                                           ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                           : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      const char *path_toTopologyXML = is_l_phase0 ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
+                                                   : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
 
       auto l_tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
-      auto l_myPlots = PixelRegions::PixelRegionContainers(&l_tTopo, (l_LAMap_.size() == SiPixelPI::phase1size));
+      auto l_myPlots = PixelRegions::PixelRegionContainers(&l_tTopo, !is_l_phase0);
       l_myPlots.bookAll("SiPixel LA,last",
                         "SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T]",
                         "#modules",
@@ -304,25 +306,22 @@ namespace {
                         min * 0.9,
                         max * 1.1);
 
-      //canvas.Modified();
-
       for (const auto &element : l_LAMap_) {
         l_myPlots.fill(element.first, element.second);
       }
 
       l_myPlots.beautify();
-      l_myPlots.draw(canvas, isBarrel, "bar2", true);
+      l_myPlots.draw(canvas, isBarrel, "bar2", (!is_f_phase0 || !is_l_phase0));
 
       // deal with first IOV
 
-      path_toTopologyXML = (f_LAMap_.size() == SiPixelPI::phase0size)
-                               ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                               : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      path_toTopologyXML = is_f_phase0 ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
+                                       : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
 
       auto f_tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
-      auto f_myPlots = PixelRegions::PixelRegionContainers(&f_tTopo, (f_LAMap_.size() == SiPixelPI::phase1size));
+      auto f_myPlots = PixelRegions::PixelRegionContainers(&f_tTopo, !is_f_phase0);
       f_myPlots.bookAll("SiPixel LA,first",
                         "SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T]",
                         "#modules",
@@ -330,14 +329,12 @@ namespace {
                         min * 0.9,
                         max * 1.1);
 
-      //canvas.Modified();
-
       for (const auto &element : f_LAMap_) {
         f_myPlots.fill(element.first, element.second);
       }
 
       f_myPlots.beautify(kAzure, kBlue);
-      f_myPlots.draw(canvas, isBarrel, "HISTsames", true);
+      f_myPlots.draw(canvas, isBarrel, "HISTsames", (!is_f_phase0 || !is_l_phase0));
 
       // rescale the y-axis ranges in order to fit the canvas
       l_myPlots.rescaleMax(f_myPlots);
@@ -396,11 +393,15 @@ namespace {
     }
   };
 
-  using SiPixelLorentzAngleValuesBarrelCompareSingleTag = SiPixelLorentzAngleValuesComparisonPerRegion<true, 1>;
-  using SiPixelLorentzAngleValuesEndcapCompareSingleTag = SiPixelLorentzAngleValuesComparisonPerRegion<false, 1>;
+  using SiPixelLorentzAngleValuesBarrelCompareSingleTag =
+      SiPixelLorentzAngleValuesComparisonPerRegion<true, cond::payloadInspector::MULTI_IOV, 1>;
+  using SiPixelLorentzAngleValuesEndcapCompareSingleTag =
+      SiPixelLorentzAngleValuesComparisonPerRegion<false, cond::payloadInspector::MULTI_IOV, 1>;
 
-  using SiPixelLorentzAngleValuesBarrelCompareTwoTags = SiPixelLorentzAngleValuesComparisonPerRegion<true, 2>;
-  using SiPixelLorentzAngleValuesEndcapCompareTwoTags = SiPixelLorentzAngleValuesComparisonPerRegion<false, 2>;
+  using SiPixelLorentzAngleValuesBarrelCompareTwoTags =
+      SiPixelLorentzAngleValuesComparisonPerRegion<true, cond::payloadInspector::SINGLE_IOV, 2>;
+  using SiPixelLorentzAngleValuesEndcapCompareTwoTags =
+      SiPixelLorentzAngleValuesComparisonPerRegion<false, cond::payloadInspector::SINGLE_IOV, 2>;
 
   /************************************************
     1d histogram of SiPixelLorentzAngle of 1 IOV 
@@ -470,20 +471,10 @@ namespace {
       hfirst->SetBarWidth(0.95);
       hfirst->Draw("histbar");
 
-      //hfirst->SetMarkerStyle(kFullCircle);
-      //hfirst->SetMarkerSize(1.5);
-      //hfirst->SetMarkerColor(kRed);
-      //hfirst->Draw("Psame");
-
       hlast->SetTitle("");
       hlast->SetFillColorAlpha(kBlue, 0.20);
       hlast->SetBarWidth(0.95);
       hlast->Draw("histbarsame");
-
-      //hlast->SetMarkerStyle(kOpenCircle);
-      //hlast->SetMarkerSize(1.5);
-      //hlast->SetMarkerColor(kBlue);
-      //hlast->Draw("Psame");
 
       SiPixelPI::makeNicePlotStyle(hfirst.get());
       SiPixelPI::makeNicePlotStyle(hlast.get());

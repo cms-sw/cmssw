@@ -1,7 +1,6 @@
 <use name="rootgraphics"/>
 <use name="rootminuit"/>
 <use name="rootminuit2"/>
-<use name="Utilities/General"/>
 <bin file="csa08HLTFit.cpp" name="csa08HLTFit">
   <use name="PhysicsTools/Utilities"/>
   <use name="boost_program_options"/>

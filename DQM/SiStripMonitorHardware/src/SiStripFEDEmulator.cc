@@ -2,7 +2,7 @@
 #include "DQM/SiStripMonitorHardware/interface/SiStripFEDEmulator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "boost/bind.hpp"
+#include <functional>
 
 using edm::LogError;
 using edm::LogInfo;
@@ -195,7 +195,7 @@ namespace sistrip {
     transform(cmSubtrDetSetData.begin(),
               cmSubtrDetSetData.end(),
               back_inserter(cmSubtrRawDigis),
-              boost::bind(&SiStripRawDigi::adc, _1));
+              std::bind(&SiStripRawDigi::adc, std::placeholders::_1));
     algorithms->suppressor->suppress(cmSubtrRawDigis, 0, zsDetSetData);
 
   }  //end of FEDEmulator::zeroSuppress method.

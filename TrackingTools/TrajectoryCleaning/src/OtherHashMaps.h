@@ -1,20 +1,14 @@
 #ifndef TrackingTools_TrajectoryCleaning_src_OtherHashMaps
 #define TrackingTools_TrajectoryCleaning_src_OtherHashMaps
 
-#include <map>
-#include <vector>
-#include <memory>
-#include <list>
-#include <iterator>
-#include <boost/unordered_map.hpp>
-#include <boost/range.hpp>
-#include <boost/type_traits.hpp>
-#include <boost/mpl/and.hpp>
-#include <boost/mpl/logical.hpp>
-#include <boost/mpl/assert.hpp>
-#include <boost/mpl/if.hpp>
-
+#include <functional>
 #include <iostream>
+#include <iterator>
+#include <list>
+#include <map>
+#include <memory>
+#include <type_traits>
+#include <vector>
 
 namespace cmsutil {
 
@@ -29,17 +23,17 @@ namespace cmsutil {
  * */
   template <typename K,
             typename V,
-            typename Hasher = boost::hash<K>,
+            typename Hasher = std::hash<K>,
             typename Equals = std::equal_to<K>,
             typename Alloc = std::allocator<V> >
   class SimpleAllocHashMultiMap {
     // taking Alloc definition from http://www.codeproject.com/KB/cpp/allocator.aspx
-    BOOST_MPL_ASSERT((boost::mpl::and_<boost::has_trivial_destructor<K>, boost::has_trivial_destructor<V> >));
+    static_assert(std::conjunction<std::is_trivially_destructible<K>, std::is_trivially_destructible<V> >::value);
 
   public:
     typedef Hasher hasher;
     typedef SimpleAllocHashMultiMap<K, V, Hasher, Equals, Alloc> map_type;
-    typedef typename boost::mpl::if_<typename boost::is_pointer<V>, V, V const &>::type
+    typedef typename std::conditional<std::is_pointer<V>::value, V, V const &>::type
         value_ref;  // otherwise we get problems with 'const' if V is a pointer
 
     SimpleAllocHashMultiMap(size_t buckets, size_t keyRowSize, size_t valueRowSize, size_t maxRows = 50);

@@ -1,4 +1,5 @@
 #include "SimG4Core/PhysicsLists/interface/HadronPhysicsQGSPCMS_FTFP_BERT.h"
+#include "SimG4Core/PhysicsLists/interface/CMSHyperonFTFPBuilder.h"
 
 #include "globals.hh"
 #include "G4ios.hh"
@@ -170,11 +171,11 @@ void HadronPhysicsQGSPCMS_FTFP_BERT::Kaon() {
 }
 
 void HadronPhysicsQGSPCMS_FTFP_BERT::Others() {
-  auto hyp = new G4HyperonFTFPBuilder;
+  auto hyp = new CMSHyperonFTFPBuilder();
   AddBuilder(hyp);
   hyp->Build();
 
-  auto abar = new G4AntiBarionBuilder;
+  auto abar = new G4AntiBarionBuilder();
   AddBuilder(abar);
   auto ftf = new G4FTFPAntiBarionBuilder(false);
   AddBuilder(ftf);

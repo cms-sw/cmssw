@@ -20,7 +20,7 @@ public:
   void endJob() override {}
 
 private:
-  static const int ndetMax_ = 4;
+  static constexpr int ndetMax_ = 4;
   int detMin_, detMax_;
 };
 

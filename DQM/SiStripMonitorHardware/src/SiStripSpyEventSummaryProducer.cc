@@ -20,10 +20,10 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBufferComponents.h"
+#include <cstdint>
 #include <memory>
 #include <string>
-#include "boost/scoped_array.hpp"
-#include <cstdint>
+#include <vector>
 
 using edm::LogError;
 using edm::LogInfo;
@@ -102,7 +102,7 @@ namespace sistrip {
     pSummary->bx(fedBxNumber);
     //create a fake trigger FED buffer to take comissioning parameters from
     const int maxTriggerFedBufferSize = 84;
-    boost::scoped_array<uint32_t> fakeTriggerFedData(new uint32_t[maxTriggerFedBufferSize]);
+    std::vector<uint32_t> fakeTriggerFedData(maxTriggerFedBufferSize);
     for (uint8_t i = 0; i < maxTriggerFedBufferSize; ++i) {
       fakeTriggerFedData[i] = 0;
     }
@@ -115,7 +115,7 @@ namespace sistrip {
     //set the run type
     fakeTriggerFedData[10] = runType_;
     //fill the summarry using trigger FED buffer  with no data
-    pSummary->commissioningInfo(fakeTriggerFedData.get(), fedEventNumber);
+    pSummary->commissioningInfo(fakeTriggerFedData.data(), fedEventNumber);
 
     //store in event
     event.put(std::move(pSummary));

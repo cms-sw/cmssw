@@ -78,7 +78,7 @@ void TrackerSeedCleaner::clean(const reco::TrackRef& muR,
     if (seed->nHits() < 2)
       continue;
     //get parameters and errors from the seed state
-    TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&*(seed->recHits().second - 1));
+    TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&*(seed->recHits().end() - 1));
     TrajectoryStateOnSurface state = trajectoryStateTransform::transientState(
         seed->startingState(), recHit->surface(), theProxyService->magneticField().product());
 

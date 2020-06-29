@@ -343,11 +343,12 @@ Stage2l1tMuonOffline = cms.Sequence(
 
 ##############################################################################
 # Emulator sequences
+Stage2l1TriggerEmulatorOnlineTask = cms.Task(valHcalTriggerPrimitiveDigis)
 Stage2l1TriggerEmulatorOnline = cms.Sequence(
-                                 valHcalTriggerPrimitiveDigis +
                                  Stage2L1HardwareValidation +
                                  l1tStage2EmulatorOnlineDQM +
-                                 dqmEnvL1TEMU
+                                 dqmEnvL1TEMU,
+                                 Stage2l1TriggerEmulatorOnlineTask
                                 )
 # Do not include the uGT emulation online DQM module in the offline
 # sequence since the large 2D histograms cause crashes at the T0.

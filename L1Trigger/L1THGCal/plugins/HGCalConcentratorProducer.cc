@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerSums.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
@@ -14,6 +14,7 @@
 #include "L1Trigger/L1THGCal/interface/HGCalProcessorBase.h"
 
 #include <memory>
+#include <utility>
 
 class HGCalConcentratorProducer : public edm::stream::EDProducer<> {
 public:
@@ -27,6 +28,7 @@ private:
   // inputs
   edm::EDGetToken input_cell_, input_sums_;
   edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
+  edm::ESGetToken<HGCalTriggerGeometryBase, CaloGeometryRecord> triggerGeomToken_;
 
   std::unique_ptr<HGCalConcentratorProcessorBase> concentratorProcess_;
 };
@@ -35,7 +37,8 @@ DEFINE_FWK_MODULE(HGCalConcentratorProducer);
 
 HGCalConcentratorProducer::HGCalConcentratorProducer(const edm::ParameterSet& conf)
     : input_cell_(consumes<l1t::HGCalTriggerCellBxCollection>(conf.getParameter<edm::InputTag>("InputTriggerCells"))),
-      input_sums_(consumes<l1t::HGCalTriggerSumsBxCollection>(conf.getParameter<edm::InputTag>("InputTriggerSums"))) {
+      input_sums_(consumes<l1t::HGCalTriggerSumsBxCollection>(conf.getParameter<edm::InputTag>("InputTriggerSums"))),
+      triggerGeomToken_(esConsumes<HGCalTriggerGeometryBase, CaloGeometryRecord, edm::Transition::BeginRun>()) {
   //setup Concentrator parameters
   const edm::ParameterSet& concParamConfig = conf.getParameterSet("ProcessorParameters");
   const std::string& concProcessorName = concParamConfig.getParameter<std::string>("ProcessorName");
@@ -47,23 +50,21 @@ HGCalConcentratorProducer::HGCalConcentratorProducer(const edm::ParameterSet& co
 }
 
 void HGCalConcentratorProducer::beginRun(const edm::Run& /*run*/, const edm::EventSetup& es) {
-  es.get<CaloGeometryRecord>().get(triggerGeometry_);
+  triggerGeometry_ = es.getHandle(triggerGeomToken_);
 
   concentratorProcess_->setGeometry(triggerGeometry_.product());
 }
 
 void HGCalConcentratorProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   // Output collections
-  auto cc_trigcell_output = std::make_unique<l1t::HGCalTriggerCellBxCollection>();
-  auto cc_trigsums_output = std::make_unique<l1t::HGCalTriggerSumsBxCollection>();
+  std::pair<l1t::HGCalTriggerCellBxCollection, l1t::HGCalTriggerSumsBxCollection> cc_output;
 
   // Input collections
   edm::Handle<l1t::HGCalTriggerCellBxCollection> trigCellBxColl;
 
   e.getByToken(input_cell_, trigCellBxColl);
-  concentratorProcess_->run(trigCellBxColl, *cc_trigcell_output, es);
+  concentratorProcess_->run(trigCellBxColl, cc_output, es);
   // Put in the event
-  // At the moment the HGCalTriggerSumsBxCollection is empty
-  e.put(std::move(cc_trigcell_output), concentratorProcess_->name());
-  e.put(std::move(cc_trigsums_output), concentratorProcess_->name());
+  e.put(std::make_unique<l1t::HGCalTriggerCellBxCollection>(std::move(cc_output.first)), concentratorProcess_->name());
+  e.put(std::make_unique<l1t::HGCalTriggerSumsBxCollection>(std::move(cc_output.second)), concentratorProcess_->name());
 }

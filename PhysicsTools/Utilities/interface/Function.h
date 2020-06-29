@@ -2,7 +2,6 @@
 #define PhysicsTools_Utilities_Function_h
 #include "PhysicsTools/Utilities/interface/Variables.h"
 #include "PhysicsTools/Utilities/interface/Expression.h"
-#include <boost/mpl/for_each.hpp>
 
 namespace funct {
 

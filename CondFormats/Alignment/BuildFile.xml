@@ -1,4 +1,3 @@
-<use name="CondFormats/Common"/>
 <use name="CondFormats/Serialization"/>
 <use name="DataFormats/CLHEP"/>
 <use name="DataFormats/Math"/>

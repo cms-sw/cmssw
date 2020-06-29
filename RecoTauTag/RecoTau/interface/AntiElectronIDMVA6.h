@@ -22,9 +22,8 @@
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
-
-#include "CommonTools/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "RecoTauTag/RecoTau/interface/PositionAtECalEntranceComputer.h"
 
 #include "TMVA/Tools.h"
 #include "TMVA/Reader.h"
@@ -125,7 +124,7 @@ public:
   double MVAValue(const pat::Tau& theTau, const pat::Electron& theEle);
   // this function can be called for category 1 only !!
   double MVAValue(const pat::Tau& theTau);
-  // track extrapolation to ECAL entrance (used to re-calculate varibales that might not be available on miniAOD)
+  // track extrapolation to ECAL entrance (used to re-calculate variables that might not be available on miniAOD)
   bool atECalEntrance(const reco::Candidate* part, math::XYZPoint& pos);
 
 private:
@@ -168,7 +167,8 @@ private:
 
   std::vector<TFile*> inputFilesToDelete_;
 
-  double bField_;
+  PositionAtECalEntranceComputer positionAtECalEntrance_;
+
   int verbosity_;
 };
 

@@ -227,7 +227,7 @@ namespace {
               "SiPixelTemplate assumed value of uH") {}
 
     bool fill() override {
-      gStyle->SetPalette(kBlackBody);
+      gStyle->SetPalette(kRainBow);
       TGaxis::SetMaxDigits(2);
 
       auto tag = PlotBase::getTag<0>();
@@ -268,22 +268,30 @@ namespace {
         Phase1PixelMaps theMaps("COLZ L");
 
         if (myType == t_barrel) {
-          theMaps.bookBarrelHistograms("templateLABarrel", "#muH");
+          theMaps.bookBarrelHistograms("templateLABarrel", "#muH", "#mu_{H} [1/T]");
           theMaps.bookBarrelBins("templateLABarrel");
         } else if (myType == t_forward) {
-          theMaps.bookForwardHistograms("templateLAForward", "#muH");
+          theMaps.bookForwardHistograms("templateLAForward", "#muH", "#mu_{H} [1/T]");
           theMaps.bookForwardBins("templateLAForward");
         }
 
         std::map<unsigned int, short> templMap = payload->getTemplateIDs();
-        if (templMap.size() != SiPixelPI::phase1size) {
+        if (templMap.size() == SiPixelPI::phase0size || templMap.size() > SiPixelPI::phase1size) {
           edm::LogError("SiPixelTemplateDBObject_PayloadInspector")
-              << "SiPixelTempateLA maps are not supported for non-Phase1 Pixel geometries !";
+              << "There are " << templMap.size()
+              << " DetIds in this payload. SiPixelTempate Lorentz Angle maps are not supported for non-Phase1 Pixel "
+                 "geometries !";
           TCanvas canvas("Canv", "Canv", 1200, 1000);
           SiPixelPI::displayNotSupported(canvas, templMap.size());
           std::string fileName(m_imageFileName);
           canvas.SaveAs(fileName.c_str());
           return false;
+        } else {
+          if (templMap.size() < SiPixelPI::phase1size) {
+            edm::LogWarning("SiPixelTemplateDBObject_PayloadInspector")
+                << "\n ********* WARNING! ********* \n There are " << templMap.size() << " DetIds in this payload !"
+                << "\n **************************** \n";
+          }
         }
 
         for (auto const& entry : templMap) {
@@ -344,24 +352,32 @@ namespace {
         // Book the TH2Poly
         Phase1PixelMaps theMaps("text");
         if (myType == t_barrel) {
-          theMaps.bookBarrelHistograms("templateIDsBarrel", "IDs");
+          theMaps.bookBarrelHistograms("templateIDsBarrel", "IDs", "template IDs");
           // book the barrel bins of the TH2Poly
           theMaps.bookBarrelBins("templateIDsBarrel");
         } else if (myType == t_forward) {
-          theMaps.bookForwardHistograms("templateIDsForward", "IDs");
+          theMaps.bookForwardHistograms("templateIDsForward", "IDs", "template IDs");
           // book the forward bins of the TH2Poly
           theMaps.bookForwardBins("templateIDsForward");
         }
 
         std::map<unsigned int, short> templMap = payload->getTemplateIDs();
-        if (templMap.size() != SiPixelPI::phase1size) {
+
+        if (templMap.size() == SiPixelPI::phase0size || templMap.size() > SiPixelPI::phase1size) {
           edm::LogError("SiPixelTemplateDBObject_PayloadInspector")
-              << "SiPixelTempateIDs maps are not supported for non-Phase1 Pixel geometries !";
+              << "There are " << templMap.size()
+              << " DetIds in this payload. SiPixelTempateIDs maps are not supported for non-Phase1 Pixel geometries !";
           TCanvas canvas("Canv", "Canv", 1200, 1000);
           SiPixelPI::displayNotSupported(canvas, templMap.size());
           std::string fileName(m_imageFileName);
           canvas.SaveAs(fileName.c_str());
           return false;
+        } else {
+          if (templMap.size() < SiPixelPI::phase1size) {
+            edm::LogWarning("SiPixelTemplateDBObject_PayloadInspector")
+                << "\n ********* WARNING! ********* \n There are " << templMap.size() << " DetIds in this payload !"
+                << "\n **************************** \n";
+          }
         }
 
         /*

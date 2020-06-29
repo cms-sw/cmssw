@@ -4,7 +4,6 @@
 #include "CondFormats/GeometryObjects/interface/HcalParameters.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDVectorGetter.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -74,37 +73,38 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv, HcalParameters& php) 
     php.dzVcal = geom->getConstDzHF();
     geom->getConstRHO(php.rHO);
 
-    php.phioff = DDVectorGetter::get("phioff");
-    php.etaTable = DDVectorGetter::get("etaTable");
-    php.rTable = DDVectorGetter::get("rTable");
+    php.phioff = cpv->vector("phioff");
+    php.etaTable = cpv->vector("etaTable");
+    php.rTable = cpv->vector("rTable");
     rescale(php.rTable, HcalGeomParameters::k_ScaleFromDDDToG4);
-    php.phibin = DDVectorGetter::get("phibin");
-    php.phitable = DDVectorGetter::get("phitable");
+    php.phibin = cpv->vector("phibin");
+    php.phitable = cpv->vector("phitable");
     for (unsigned int i = 1; i <= nEtaMax; ++i) {
       std::stringstream sstm;
       sstm << "layerGroupSimEta" << i;
       std::string tempName = sstm.str();
-      if (DDVectorGetter::check(tempName)) {
+      auto const& v = cpv->vector(tempName);
+      if (!v.empty()) {
         HcalParameters::LayerItem layerGroupEta;
         layerGroupEta.layer = i;
-        layerGroupEta.layerGroup = dbl_to_int(DDVectorGetter::get(tempName));
+        layerGroupEta.layerGroup = dbl_to_int(v);
         php.layerGroupEtaSim.emplace_back(layerGroupEta);
       }
     }
-    php.etaMin = dbl_to_int(DDVectorGetter::get("etaMin"));
-    php.etaMax = dbl_to_int(DDVectorGetter::get("etaMax"));
-    php.etaRange = DDVectorGetter::get("etaRange");
-    php.gparHF = DDVectorGetter::get("gparHF");
+    php.etaMin = dbl_to_int(cpv->vector("etaMin"));
+    php.etaMax = dbl_to_int(cpv->vector("etaMax"));
+    php.etaRange = cpv->vector("etaRange");
+    php.gparHF = cpv->vector("gparHF");
     rescale(php.gparHF, HcalGeomParameters::k_ScaleFromDDDToG4);
-    php.noff = dbl_to_int(DDVectorGetter::get("noff"));
-    php.Layer0Wt = DDVectorGetter::get("Layer0Wt");
-    php.HBGains = DDVectorGetter::get("HBGains");
-    php.HBShift = dbl_to_int(DDVectorGetter::get("HBShift"));
-    php.HEGains = DDVectorGetter::get("HEGains");
-    php.HEShift = dbl_to_int(DDVectorGetter::get("HEShift"));
-    php.HFGains = DDVectorGetter::get("HFGains");
-    php.HFShift = dbl_to_int(DDVectorGetter::get("HFShift"));
-    php.maxDepth = dbl_to_int(DDVectorGetter::get("MaxDepth"));
+    php.noff = dbl_to_int(cpv->vector("noff"));
+    php.Layer0Wt = cpv->vector("Layer0Wt");
+    php.HBGains = cpv->vector("HBGains");
+    php.HBShift = dbl_to_int(cpv->vector("HBShift"));
+    php.HEGains = cpv->vector("HEGains");
+    php.HEShift = dbl_to_int(cpv->vector("HEShift"));
+    php.HFGains = cpv->vector("HFGains");
+    php.HFShift = dbl_to_int(cpv->vector("HFShift"));
+    php.maxDepth = dbl_to_int(cpv->vector("MaxDepth"));
   } else {
     throw cms::Exception("HcalParametersFromDD") << "Not found " << attribute.c_str() << " but needed.";
   }
@@ -118,16 +118,17 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv, HcalParameters& php) 
     int topoMode = getTopologyMode("TopologyMode", sv, true);
     int trigMode = getTopologyMode("TriggerMode", sv, false);
     php.topologyMode = ((trigMode & 0xFF) << 8) | (topoMode & 0xFF);
-    php.etagroup = dbl_to_int(DDVectorGetter::get("etagroup"));
-    php.phigroup = dbl_to_int(DDVectorGetter::get("phigroup"));
+    php.etagroup = dbl_to_int(cpv->vector("etagroup"));
+    php.phigroup = dbl_to_int(cpv->vector("phigroup"));
     for (unsigned int i = 1; i <= nEtaMax; ++i) {
       std::stringstream sstm;
       sstm << "layerGroupRecEta" << i;
       std::string tempName = sstm.str();
-      if (DDVectorGetter::check(tempName)) {
+      auto const& v = cpv->vector(tempName);
+      if (!v.empty()) {
         HcalParameters::LayerItem layerGroupEta;
         layerGroupEta.layer = i;
-        layerGroupEta.layerGroup = dbl_to_int(DDVectorGetter::get(tempName));
+        layerGroupEta.layerGroup = dbl_to_int(v);
         php.layerGroupEtaRec.emplace_back(layerGroupEta);
       }
     }

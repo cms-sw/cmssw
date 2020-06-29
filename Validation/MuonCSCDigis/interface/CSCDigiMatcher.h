@@ -88,6 +88,8 @@ private:
   void matchStripsToSimTrack(const CSCStripDigiCollection& strips);
   void matchWiresToSimTrack(const CSCWireDigiCollection& wires);
 
+  void clear();
+
   template <class T>
   std::set<unsigned int> selectDetIds(const T& digis, int csc_type) const;
 

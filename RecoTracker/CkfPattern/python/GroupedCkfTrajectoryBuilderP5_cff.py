@@ -8,13 +8,15 @@ import FWCore.ParameterSet.Config as cms
 from TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi import *
 # Chi2MeasurementEstimatorESProducer
 import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
-Chi2MeasurementEstimatorForP5 = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone()
-Chi2MeasurementEstimatorForP5.ComponentName = 'Chi2MeasurementEstimatorForP5'
-Chi2MeasurementEstimatorForP5.MaxChi2 = 100.
-Chi2MeasurementEstimatorForP5.nSigma = 4.
-Chi2MeasurementEstimatorForP5.MaxDisplacement = 100
-Chi2MeasurementEstimatorForP5.MaxSagitta=-1
-Chi2MeasurementEstimatorForP5.MinPtForHitRecoveryInGluedDet=100000
+Chi2MeasurementEstimatorForP5 = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
+    ComponentName   = 'Chi2MeasurementEstimatorForP5',
+    MaxChi2         = 100.,
+    nSigma          = 4.,
+    MaxDisplacement = 100,
+    MaxSagitta      = -1,
+    MinPtForHitRecoveryInGluedDet=100000
+)
+
 # PropagatorWithMaterialESProducer
 from TrackingTools.MaterialEffects.MaterialPropagator_cfi import *
 # PropagatorWithMaterialESProducer
@@ -36,16 +38,18 @@ import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
 # trajectory filtering
 from TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff import *
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
-ckfBaseTrajectoryFilterP5 = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone()
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
-ckfBaseTrajectoryFilterP5.minPt = 0.5
-ckfBaseTrajectoryFilterP5.maxLostHits = 4
-ckfBaseTrajectoryFilterP5.maxConsecLostHits = 3
+ckfBaseTrajectoryFilterP5 = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
+    minPt             = 0.5,
+    maxLostHits       = 4,
+    maxConsecLostHits = 3
+)
 #replace ckfBaseTrajectoryFilterP5.minimumNumberOfHits =  4
 #
-GroupedCkfTrajectoryBuilderP5 = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone()
 ##CTF_P5_MeasurementTracker.ComponentName = 'CTF_P5' # useless duplication of MeasurementTracker
 ##GroupedCkfTrajectoryBuilderP5.MeasurementTrackerName = 'CTF_P5' # useless duplication of MeasurementTracker
-GroupedCkfTrajectoryBuilderP5.trajectoryFilter.refToPSet_ = 'ckfBaseTrajectoryFilterP5'
-GroupedCkfTrajectoryBuilderP5.maxCand = 1
-GroupedCkfTrajectoryBuilderP5.estimator = cms.string('Chi2MeasurementEstimatorForP5')
+GroupedCkfTrajectoryBuilderP5 = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
+    trajectoryFilter = dict(refToPSet_ = 'ckfBaseTrajectoryFilterP5'),
+    maxCand = 1,
+    estimator = 'Chi2MeasurementEstimatorForP5'
+)

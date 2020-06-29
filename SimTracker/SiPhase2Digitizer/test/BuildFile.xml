@@ -1,6 +1,5 @@
 <use name="boost"/>
 <use name="root"/>
-<use name="classlib"/>
 <use name="clhep"/>
 <use name="SimDataFormats/TrackerDigiSimLink"/>
 <use name="DataFormats/SiPixelDigi"/>

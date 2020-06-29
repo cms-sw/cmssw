@@ -53,3 +53,8 @@ from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
 run3_HB.toModify(particleFlowRecHitHBHE,
     producers = {0 : dict(qualityTests = {0 : dict(cuts = {0 : dict(threshold = _thresholdsHBphase1) } ) } ) },
 )
+
+# HCALonly WF
+particleFlowRecHitHBHEOnly = particleFlowRecHitHBHE.clone(
+    producers = { 0: dict(src = cms.InputTag("hbheprereco","")) }
+)

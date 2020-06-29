@@ -11,7 +11,7 @@
 #include <DetectorDescription/Core/interface/DDFilteredView.h>
 #include <DetectorDescription/Core/interface/DDSolid.h>
 
-#include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/RPCNumberingScheme.h"
 
@@ -44,7 +44,7 @@ void RPCGeometryParsFromDD::buildGeometry(DDFilteredView& fview,
                                           RecoIdealGeometry& rgeo) {
   for (bool doSubDets = fview.firstChild(); doSubDets == true; doSubDets = fview.nextSibling()) {
     // Get the Base Muon Number
-    MuonDDDNumbering mdddnum(muonConstants);
+    MuonGeometryNumbering mdddnum(muonConstants);
     MuonBaseNumber mbn = mdddnum.geoHistoryToBaseNumber(fview.geoHistory());
 
     // Get the The Rpc det Id

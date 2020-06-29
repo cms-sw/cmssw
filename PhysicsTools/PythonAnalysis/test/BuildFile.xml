@@ -90,7 +90,6 @@
 <test name="import-notebook" command="python -c 'import notebook'"/>
 <test name="import-numexpr" command="python -c 'import numexpr'"/>
 <test name="import-numpy" command="python -c 'import numpy'"/>
-<test name="import-oamap" command="python -c 'import oamap'"/>
 <test name="import-ordereddict" command="python2 -c 'import ordereddict'"/>
 <test name="import-packaging" command="python -c 'import packaging'"/>
 <test name="import-pandas" command="python -c 'import pandas'"/>

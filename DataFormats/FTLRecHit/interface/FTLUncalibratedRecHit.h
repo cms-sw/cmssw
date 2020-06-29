@@ -17,23 +17,29 @@ public:
 
   FTLUncalibratedRecHit();
   FTLUncalibratedRecHit(const DetId& detId,
-                        std::pair<float, float> ampl,
-                        std::pair<float, float> time,
-                        float timeError,
-                        unsigned char flags = 0);
-  FTLUncalibratedRecHit(const DetId& detId,
                         uint8_t row,
                         uint8_t column,
                         std::pair<float, float> ampl,
                         std::pair<float, float> time,
                         float timeError,
+                        float position,
+                        float positionError,
+                        unsigned char flags = 0);
+  FTLUncalibratedRecHit(const DetId& detId,
+                        std::pair<float, float> ampl,
+                        std::pair<float, float> time,
+                        float timeError,
+                        float position,
+                        float positionError,
                         unsigned char flags = 0);
 
-  ~FTLUncalibratedRecHit();
+  ~FTLUncalibratedRecHit() = default;
   std::pair<float, float> amplitude() const { return amplitude_; }
   std::pair<float, float> time() const { return time_; }
+  float position() const { return position_; }
 
   float timeError() const { return timeError_; }
+  float positionError() const { return positionError_; }
 
   unsigned char flags() const { return flags_; };
 
@@ -49,6 +55,9 @@ public:
   void setFlagBit(Flags flag);
   bool checkFlag(Flags flag) const;
 
+  void setPosition(float position) { position_ = position; }
+  void setPositionError(float positionErr) { positionError_ = positionErr; }
+
   bool isTimeValid() const;
   bool isTimeErrorValid() const;
 
@@ -58,8 +67,11 @@ private:
   std::pair<float, float> amplitude_;
   std::pair<float, float> time_;
   float timeError_;
+  float position_;  /// distance from the center of the bar to the hit
+  float positionError_;
   DetId id_;
-  uint8_t row_, column_;
+  uint8_t row_;
+  uint8_t column_;
   unsigned char flags_;
 };
 

@@ -7,16 +7,16 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "PatternRecognitionbyCA.h"
-#include "HGCGraph.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
 
 #include "TrackstersPCA.h"
 
 using namespace ticl;
 
-PatternRecognitionbyCA::PatternRecognitionbyCA(const edm::ParameterSet &conf, const CacheBase *cache)
-    : PatternRecognitionAlgoBase(conf, cache),
-      theGraph_(std::make_unique<HGCGraph>()),
+template <typename TILES>
+PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &conf, const CacheBase *cache)
+    : PatternRecognitionAlgoBaseT<TILES>(conf, cache),
+      theGraph_(std::make_unique<HGCGraphT<TILES>>()),
       oneTracksterPerTrackSeed_(conf.getParameter<bool>("oneTracksterPerTrackSeed")),
       promoteEmptyRegionToTrackster_(conf.getParameter<bool>("promoteEmptyRegionToTrackster")),
       out_in_dfs_(conf.getParameter<bool>("out_in_dfs")),
@@ -43,22 +43,29 @@ PatternRecognitionbyCA::PatternRecognitionbyCA(const edm::ParameterSet &conf, co
   eidSession_ = tensorflow::createSession(trackstersCache->eidGraphDef);
 }
 
-PatternRecognitionbyCA::~PatternRecognitionbyCA(){};
+template <typename TILES>
+PatternRecognitionbyCA<TILES>::~PatternRecognitionbyCA(){};
 
-void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::Inputs &input,
-                                            std::vector<Trackster> &result,
-                                            std::unordered_map<int, std::vector<int>> &seedToTracksterAssociation) {
+template <typename TILES>
+void PatternRecognitionbyCA<TILES>::makeTracksters(
+    const typename PatternRecognitionAlgoBaseT<TILES>::Inputs &input,
+    std::vector<Trackster> &result,
+    std::unordered_map<int, std::vector<int>> &seedToTracksterAssociation) {
   // Protect from events with no seeding regions
   if (input.regions.empty())
     return;
 
   rhtools_.getEventSetup(input.es);
 
-  theGraph_->setVerbosity(algo_verbosity_);
+  theGraph_->setVerbosity(PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_);
   theGraph_->clear();
-  if (algo_verbosity_ > None) {
+  if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::None) {
     LogDebug("HGCPatternRecoByCA") << "Making Tracksters with CA" << std::endl;
   }
+
+  int type = input.tiles[0].typeT();
+  int nEtaBin = (type == 1) ? ticl::TileConstantsHFNose::nEtaBins : ticl::TileConstants::nEtaBins;
+  int nPhiBin = (type == 1) ? ticl::TileConstantsHFNose::nPhiBins : ticl::TileConstants::nPhiBins;
 
   bool isRegionalIter = (input.regions[0].index != -1);
   std::vector<HGCDoublet::HGCntuplet> foundNtuplets;
@@ -66,8 +73,8 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
   std::vector<uint8_t> layer_cluster_usage(input.layerClusters.size(), 0);
   theGraph_->makeAndConnectDoublets(input.tiles,
                                     input.regions,
-                                    ticl::TileConstants::nEtaBins,
-                                    ticl::TileConstants::nPhiBins,
+                                    nEtaBin,
+                                    nPhiBin,
                                     input.layerClusters,
                                     input.mask,
                                     input.layerClustersTime,
@@ -77,7 +84,7 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
                                     min_cos_pointing_,
                                     etaLimitIncreaseWindow_,
                                     missing_layers_,
-                                    rhtools_.lastLayerFH(),
+                                    rhtools_.lastLayer(type),
                                     max_delta_time_);
 
   theGraph_->findNtuplets(foundNtuplets, seedIndices, min_clusters_per_ntuplet_, out_in_dfs_, max_out_in_hops_);
@@ -114,7 +121,7 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
         }
       }
 
-      if (algo_verbosity_ > Advanced) {
+      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
         LogDebug("HGCPatternRecoByCA") << " New doublet " << doublet << " for trackster: " << result.size()
                                        << " InnerCl " << innerCluster << " " << input.layerClusters[innerCluster].x()
                                        << " " << input.layerClusters[innerCluster].y() << " "
@@ -126,7 +133,7 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
     }
     for (auto const i : effective_cluster_idx) {
       layer_cluster_usage[i]++;
-      if (algo_verbosity_ > Basic)
+      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic)
         LogDebug("HGCPatternRecoByCA") << "LayerID: " << i << " count: " << (int)layer_cluster_usage[i] << std::endl;
     }
     // Put back indices, in the form of a Trackster, into the results vector
@@ -153,7 +160,7 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
     assert(trackster.vertices().size() <= trackster.vertex_multiplicity().size());
     for (size_t i = 0; i < trackster.vertices().size(); ++i) {
       trackster.vertex_multiplicity()[i] = layer_cluster_usage[trackster.vertices(i)];
-      if (algo_verbosity_ > Basic)
+      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic)
         LogDebug("HGCPatternRecoByCA") << "LayerID: " << trackster.vertices(i)
                                        << " count: " << (int)trackster.vertex_multiplicity(i) << std::endl;
     }
@@ -166,7 +173,7 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
     tmp.swap(result);
   }
 
-  ticl::assignPCAtoTracksters(result, input.layerClusters, rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z());
+  ticl::assignPCAtoTracksters(result, input.layerClusters, rhtools_.getPositionLayer(rhtools_.lastLayerEE(type)).z());
 
   // run energy regression and ID
   energyRegressionAndID(input.layerClusters, result);
@@ -177,7 +184,7 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
     emptyTrackstersFromSeedsTRK(result, seedToTracksterAssociation, input.regions[0].collectionID);
   }
 
-  if (algo_verbosity_ > Advanced) {
+  if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
     for (auto &trackster : result) {
       LogDebug("HGCPatternRecoByCA") << "Trackster characteristics: " << std::endl;
       LogDebug("HGCPatternRecoByCA") << "Size: " << trackster.vertices().size() << std::endl;
@@ -190,7 +197,8 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
   theGraph_->clear();
 }
 
-void PatternRecognitionbyCA::mergeTrackstersTRK(
+template <typename TILES>
+void PatternRecognitionbyCA<TILES>::mergeTrackstersTRK(
     const std::vector<Trackster> &input,
     const std::vector<reco::CaloCluster> &layerClusters,
     std::vector<Trackster> &output,
@@ -207,7 +215,7 @@ void PatternRecognitionbyCA::mergeTrackstersTRK(
       for (unsigned int j = 1; j < numberOfTrackstersInSeed; ++j) {
         auto &thisTrackster = input[tracksters[j]];
         updated_size += thisTrackster.vertices().size();
-        if (algo_verbosity_ > Basic) {
+        if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic) {
           LogDebug("HGCPatternRecoByCA") << "Updated size: " << updated_size << std::endl;
         }
         outTrackster.vertices().reserve(updated_size);
@@ -225,7 +233,8 @@ void PatternRecognitionbyCA::mergeTrackstersTRK(
   output.shrink_to_fit();
 }
 
-void PatternRecognitionbyCA::emptyTrackstersFromSeedsTRK(
+template <typename TILES>
+void PatternRecognitionbyCA<TILES>::emptyTrackstersFromSeedsTRK(
     std::vector<Trackster> &tracksters,
     std::unordered_map<int, std::vector<int>> &seedToTracksterAssociation,
     const edm::ProductID &collectionID) const {
@@ -242,8 +251,9 @@ void PatternRecognitionbyCA::emptyTrackstersFromSeedsTRK(
   }
 }
 
-void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
-                                                   std::vector<Trackster> &tracksters) {
+template <typename TILES>
+void PatternRecognitionbyCA<TILES>::energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
+                                                          std::vector<Trackster> &tracksters) {
   // Energy regression and particle identification strategy:
   //
   // 1. Set default values for regressed energy and particle id for each trackster.
@@ -379,3 +389,6 @@ void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloC
     }
   }
 }
+
+template class ticl::PatternRecognitionbyCA<TICLLayerTiles>;
+template class ticl::PatternRecognitionbyCA<TICLLayerTilesHFNose>;

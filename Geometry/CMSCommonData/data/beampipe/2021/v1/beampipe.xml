@@ -31,7 +31,7 @@
   <Constant name="BeampipeRout2"  value="2.2700*cm"/>
   <Constant name="BeampipeRout3"  value="2.3200*cm"/>
   <Constant name="BeampipeRout4"  value="2.5275*cm"/>
-  <Constant name="BeampipeRout14" value="3.9000*cm"/>
+  <Constant name="BeampipeRout14" value="[cms:ForwdBeamR4]"/>
   <Constant name="BeampipeRout5"  value="3.7500*cm"/>
   <Constant name="BeampipeRout6"  value="4.1000*cm"/>
   <Constant name="BeampipeRout7"  value="7.5500*cm"/>

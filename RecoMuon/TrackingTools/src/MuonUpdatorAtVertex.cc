@@ -109,10 +109,10 @@ pair<bool, FreeTrajectoryState> MuonUpdatorAtVertex::update(const reco::Transien
     return result;
   }
 
-  if (constrainedTransientTrack.get<0>())
-    if (constrainedTransientTrack.get<2>() <= theChi2Cut) {
+  if (std::get<0>(constrainedTransientTrack))
+    if (std::get<2>(constrainedTransientTrack) <= theChi2Cut) {
       result.first = true;
-      result.second = *constrainedTransientTrack.get<1>().impactPointState().freeState();
+      result.second = *std::get<1>(constrainedTransientTrack).impactPointState().freeState();
     } else
       LogTrace(metname) << "Constraint at vertex failed: too large chi2";
   else

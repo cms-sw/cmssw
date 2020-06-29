@@ -87,25 +87,25 @@ namespace edm::eventsetup {
     template <typename T>
     struct smart_pointer_traits {
       using type = typename T::element_type;
-      static auto getPointer(T& iPtr) -> decltype(&*iPtr) { return &*iPtr; }
+      static auto getPointer(T const& iPtr) -> decltype(&*iPtr) { return &*iPtr; }
     };
 
     template <typename T>
     struct smart_pointer_traits<std::unique_ptr<const T>> {
       using type = T;
-      static auto getPointer(std::unique_ptr<const T>& iPtr) -> decltype(&*iPtr) { return &*iPtr; }
+      static auto getPointer(std::unique_ptr<const T> const& iPtr) -> decltype(&*iPtr) { return &*iPtr; }
     };
 
     template <typename T>
     struct smart_pointer_traits<std::shared_ptr<const T>> {
       using type = T;
-      static auto getPointer(std::shared_ptr<const T>& iPtr) -> decltype(&*iPtr) { return &*iPtr; }
+      static auto getPointer(std::shared_ptr<const T> const& iPtr) -> decltype(&*iPtr) { return &*iPtr; }
     };
 
     template <typename T>
     struct smart_pointer_traits<std::optional<T>> {
       using type = T;
-      static T* getPointer(std::optional<T>& iPtr) {
+      static T const* getPointer(std::optional<T> const& iPtr) {
         if (iPtr.has_value()) {
           return &*iPtr;
         }

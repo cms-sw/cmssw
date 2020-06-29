@@ -4,9 +4,9 @@
 #include "RooAbsReal.h"
 #include "RooRealProxy.h"
 #include "RooAbsReal.h"
-#include <vector>
-#include <boost/type_traits.hpp>
 #include <iostream>
+#include <vector>
+
 namespace root {
   struct no_args;
 
