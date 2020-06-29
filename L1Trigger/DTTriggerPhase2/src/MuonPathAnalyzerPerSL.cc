@@ -661,7 +661,7 @@ void MuonPathAnalyzerPerSL::validate(LATERAL_CASES sideComb[3],
   int dVertMI = layerIndex[1] - layerIndex[0];
   int dVertSM = layerIndex[2] - layerIndex[1];
 
-  /* Horizontal distances between lower/middle and middle/upper celss */
+  /* Horizontal distances between lower/middle and middle/upper cells */
   int dHorzMI = cellLayout_[layerIndex[1]] - cellLayout_[layerIndex[0]];
   int dHorzSM = cellLayout_[layerIndex[2]] - cellLayout_[layerIndex[1]];
 
@@ -706,18 +706,20 @@ void MuonPathAnalyzerPerSL::validate(LATERAL_CASES sideComb[3],
   long int numerator =
       (sumA + dVertMI * eqMainBXTerm(smSides, layPairSM, mPath) - dVertSM * eqMainBXTerm(miSides, layPairMI, mPath));
 
-  if (denominator == -6)
-    bxValue = (numerator * (-43691)) / std::pow(2, 18);
-  else if (denominator == -4)
-    bxValue = (numerator * (-65536)) / std::pow(2, 18);
-  else if (denominator == -2)
-    bxValue = (numerator * (-131072)) / std::pow(2, 18);
-  else if (denominator == 2)
-    bxValue = (numerator * (131072)) / std::pow(2, 18);
-  else if (denominator == 4)
-    bxValue = (numerator * (65536)) / std::pow(2, 18);
-  else if (denominator == 6)
-    bxValue = (numerator * (43691)) / std::pow(2, 18);
+  // These magic numbers are for doing divisions in the FW. 
+  // These divisions are done with a precision of 18bits.
+  if (denominator == -1*DENOM_TYPE1)
+    bxValue = (numerator * (-1*DIVISION_HELPER1)) / std::pow(2, NBITS);
+  else if (denominator == -1*DENOM_TYPE2)
+    bxValue = (numerator * (-1*DIVISION_HELPER2)) / std::pow(2, NBITS);
+  else if (denominator == -1*DENOM_TYPE3)
+    bxValue = (numerator * (-1*DIVISION_HELPER3)) / std::pow(2, NBITS);
+  else if (denominator == DENOM_TYPE3)
+    bxValue = (numerator * (DIVISION_HELPER3)) / std::pow(2, NBITS);
+  else if (denominator == DENOM_TYPE2)
+    bxValue = (numerator * (DIVISION_HELPER2)) / std::pow(2, NBITS);
+  else if (denominator == DENOM_TYPE1)
+    bxValue = (numerator * (DIVISION_HELPER1)) / std::pow(2, NBITS);
   else
     LogDebug("MuonPathAnalyzerPerSL") << "Different!";
   if (bxValue < 0) {
