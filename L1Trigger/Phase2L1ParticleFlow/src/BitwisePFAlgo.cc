@@ -15,46 +15,37 @@ BitwisePFAlgo::BitwisePFAlgo(const edm::ParameterSet &iConfig) : PFAlgoBase(iCon
   debug_ = iConfig.getUntrackedParameter<int>("debugBitwisePFAlgo", iConfig.getUntrackedParameter<int>("debug", 0));
   if (algo == "pfalgo3") {
     algo_ = AlgoChoice::algo3;
-    config_ = new pfalgo3_config(bitwiseConfig.getParameter<uint32_t>("NTRACK"),
-                                 bitwiseConfig.getParameter<uint32_t>("NEMCALO"),
-                                 bitwiseConfig.getParameter<uint32_t>("NCALO"),
-                                 bitwiseConfig.getParameter<uint32_t>("NMU"),
-                                 bitwiseConfig.getParameter<uint32_t>("NPHOTON"),
-                                 bitwiseConfig.getParameter<uint32_t>("NSELCALO"),
-                                 bitwiseConfig.getParameter<uint32_t>("NALLNEUTRAL"),
-                                 bitwiseConfig.getParameter<uint32_t>("DR2MAX_TK_MU"),
-                                 bitwiseConfig.getParameter<uint32_t>("DR2MAX_TK_EM"),
-                                 bitwiseConfig.getParameter<uint32_t>("DR2MAX_EM_CALO"),
-                                 bitwiseConfig.getParameter<uint32_t>("DR2MAX_TK_CALO"),
-                                 bitwiseConfig.getParameter<uint32_t>("TK_MAXINVPT_LOOSE"),
-                                 bitwiseConfig.getParameter<uint32_t>("TK_MAXINVPT_TIGHT"));
+    config_ = std::make_shared<pfalgo3_config>(bitwiseConfig.getParameter<uint32_t>("NTRACK"),
+                                               bitwiseConfig.getParameter<uint32_t>("NEMCALO"),
+                                               bitwiseConfig.getParameter<uint32_t>("NCALO"),
+                                               bitwiseConfig.getParameter<uint32_t>("NMU"),
+                                               bitwiseConfig.getParameter<uint32_t>("NPHOTON"),
+                                               bitwiseConfig.getParameter<uint32_t>("NSELCALO"),
+                                               bitwiseConfig.getParameter<uint32_t>("NALLNEUTRAL"),
+                                               bitwiseConfig.getParameter<uint32_t>("DR2MAX_TK_MU"),
+                                               bitwiseConfig.getParameter<uint32_t>("DR2MAX_TK_EM"),
+                                               bitwiseConfig.getParameter<uint32_t>("DR2MAX_EM_CALO"),
+                                               bitwiseConfig.getParameter<uint32_t>("DR2MAX_TK_CALO"),
+                                               bitwiseConfig.getParameter<uint32_t>("TK_MAXINVPT_LOOSE"),
+                                               bitwiseConfig.getParameter<uint32_t>("TK_MAXINVPT_TIGHT"));
     pfalgo3_ref_set_debug(debug_);
   } else if (algo == "pfalgo2hgc") {
     algo_ = AlgoChoice::algo2hgc;
-    config_ = new pfalgo_config(bitwiseConfig.getParameter<uint32_t>("NTRACK"),
-                                bitwiseConfig.getParameter<uint32_t>("NCALO"),
-                                bitwiseConfig.getParameter<uint32_t>("NMU"),
-                                bitwiseConfig.getParameter<uint32_t>("NSELCALO"),
-                                bitwiseConfig.getParameter<uint32_t>("DR2MAX_TK_MU"),
-                                bitwiseConfig.getParameter<uint32_t>("DR2MAX_TK_CALO"),
-                                bitwiseConfig.getParameter<uint32_t>("TK_MAXINVPT_LOOSE"),
-                                bitwiseConfig.getParameter<uint32_t>("TK_MAXINVPT_TIGHT"));
+    config_ = std::make_shared<pfalgo_config>(bitwiseConfig.getParameter<uint32_t>("NTRACK"),
+                                              bitwiseConfig.getParameter<uint32_t>("NCALO"),
+                                              bitwiseConfig.getParameter<uint32_t>("NMU"),
+                                              bitwiseConfig.getParameter<uint32_t>("NSELCALO"),
+                                              bitwiseConfig.getParameter<uint32_t>("DR2MAX_TK_MU"),
+                                              bitwiseConfig.getParameter<uint32_t>("DR2MAX_TK_CALO"),
+                                              bitwiseConfig.getParameter<uint32_t>("TK_MAXINVPT_LOOSE"),
+                                              bitwiseConfig.getParameter<uint32_t>("TK_MAXINVPT_TIGHT"));
     pfalgo2hgc_ref_set_debug(debug_);
   } else {
     throw cms::Exception("Configuration", "Unsupported bitwiseAlgo " + algo);
   }
 }
 
-BitwisePFAlgo::~BitwisePFAlgo() {
-  switch (algo_) {
-    case AlgoChoice::algo3:
-      delete (static_cast<pfalgo3_config *>(config_));
-      break;
-    default:
-      delete config_;
-  }
-  config_ = nullptr;
-}
+BitwisePFAlgo::~BitwisePFAlgo() {}
 
 void BitwisePFAlgo::runPF(Region &r) const {
   initRegion(r);
@@ -152,7 +143,7 @@ void BitwisePFAlgo::runPF(Region &r) const {
   }
   switch (algo_) {
     case AlgoChoice::algo3: {
-      pfalgo3_config *config3 = static_cast<pfalgo3_config *>(config_);
+      pfalgo3_config *config3 = static_cast<pfalgo3_config *>(config_.get());
       std::unique_ptr<EmCaloObj[]> emcalo(new EmCaloObj[config3->nEMCALO]);
       std::unique_ptr<PFNeutralObj[]> outpho(new PFNeutralObj[config3->nPHOTON]);
 

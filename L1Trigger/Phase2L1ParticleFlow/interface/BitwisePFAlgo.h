@@ -14,7 +14,7 @@ namespace l1tpf_impl {
 
   protected:
     enum class AlgoChoice { algo3, algo2hgc } algo_;
-    pfalgo_config* config_;
+    std::shared_ptr<pfalgo_config> config_;
   };
 
 }  // namespace l1tpf_impl

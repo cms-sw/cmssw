@@ -38,6 +38,7 @@ public:
   ~L1TPFProducer() override;
 
 private:
+  edm::ParameterSet config_;
   int debug_;
 
   bool useStandaloneMuons_;
@@ -65,13 +66,15 @@ private:
   edm::EDGetTokenT<math::XYZPointF> TokGenOrigin_;
 
   // Region dump/coe
-  FILE* fRegionDump;
-  std::unique_ptr<l1tpf_impl::COEFile> fRegionCOE;
-  unsigned int neventscoemax, neventsproduced;
+  const std::string regionDumpName_, regionCOEName_;
+  FILE* fRegionDump_;
+  std::unique_ptr<l1tpf_impl::COEFile> fRegionCOE_;
+  unsigned int neventscoemax_, neventsproduced_;
 
   // region of interest debugging
   float debugEta_, debugPhi_, debugR_;
 
+  void beginStream(edm::StreamID) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
   void addUInt(unsigned int value, std::string iLabel, edm::Event& iEvent);
 };
@@ -80,7 +83,8 @@ private:
 // constructors and destructor
 //
 L1TPFProducer::L1TPFProducer(const edm::ParameterSet& iConfig)
-    : debug_(iConfig.getUntrackedParameter<int>("debug", 0)),
+    : config_(iConfig),
+      debug_(iConfig.getUntrackedParameter<int>("debug", 0)),
       useStandaloneMuons_(iConfig.getParameter<bool>("useStandaloneMuons")),
       useTrackerMuons_(iConfig.getParameter<bool>("useTrackerMuons")),
       hasTracks_(!iConfig.getParameter<edm::InputTag>("tracks").label().empty()),
@@ -96,8 +100,12 @@ L1TPFProducer::L1TPFProducer(const edm::ParameterSet& iConfig)
       l1regions_(iConfig),
       l1pfalgo_(nullptr),
       l1pualgo_(nullptr),
-      fRegionDump(nullptr),
-      fRegionCOE(nullptr),
+      regionDumpName_(iConfig.getUntrackedParameter<std::string>("dumpFileName", "")),
+      regionCOEName_(iConfig.getUntrackedParameter<std::string>("coeFileName", "")),
+      fRegionDump_(nullptr),
+      fRegionCOE_(nullptr),
+      neventscoemax_(iConfig.getUntrackedParameter<unsigned int>("neventscoemax_", 0)),
+      neventsproduced_(0),
       debugEta_(iConfig.getUntrackedParameter<double>("debugEta", 0)),
       debugPhi_(iConfig.getUntrackedParameter<double>("debugPhi", 0)),
       debugR_(iConfig.getUntrackedParameter<double>("debugR", -1)) {
@@ -138,11 +146,11 @@ L1TPFProducer::L1TPFProducer(const edm::ParameterSet& iConfig)
 
   std::string vtxAlgo = iConfig.getParameter<std::string>("vtxAlgo");
   if (vtxAlgo == "TP")
-    vtxAlgo_ = l1tpf_impl::PUAlgoBase::TPVtxAlgo;
+    vtxAlgo_ = l1tpf_impl::PUAlgoBase::VertexAlgo::TP;
   else if (vtxAlgo == "old")
-    vtxAlgo_ = l1tpf_impl::PUAlgoBase::OldVtxAlgo;
+    vtxAlgo_ = l1tpf_impl::PUAlgoBase::VertexAlgo::Old;
   else if (vtxAlgo == "external") {
-    vtxAlgo_ = l1tpf_impl::PUAlgoBase::ExternalVtxAlgo;
+    vtxAlgo_ = l1tpf_impl::PUAlgoBase::VertexAlgo::External;
     const std::string& vtxFormat = iConfig.getParameter<std::string>("vtxFormat");
     if (vtxFormat == "TkPrimaryVertex") {
       extTkVtx_ = consumes<std::vector<l1t::TkPrimaryVertex>>(iConfig.getParameter<edm::InputTag>("vtxCollection"));
@@ -155,18 +163,9 @@ L1TPFProducer::L1TPFProducer(const edm::ParameterSet& iConfig)
     produces<float>(label);
   }
 
-  std::string dumpFileName = iConfig.getUntrackedParameter<std::string>("dumpFileName", "");
-  if (!dumpFileName.empty()) {
-    fRegionDump = fopen(dumpFileName.c_str(), "wb");
+  if (!regionDumpName_.empty()) {
     TokGenOrigin_ = consumes<math::XYZPointF>(iConfig.getParameter<edm::InputTag>("genOrigin"));
   }
-  std::string coeFileName = iConfig.getUntrackedParameter<std::string>("coeFileName", "");
-  if (!coeFileName.empty()) {
-    fRegionCOE.reset(new l1tpf_impl::COEFile(iConfig));
-    neventscoemax = iConfig.getUntrackedParameter<unsigned int>("neventscoemax");
-    neventsproduced = 0;
-  }
-
   for (int tot = 0; tot <= 1; ++tot) {
     for (int i = 0; i < l1tpf_impl::Region::n_input_types; ++i) {
       produces<unsigned int>(std::string(tot ? "totNL1" : "maxNL1") + l1tpf_impl::Region::inputTypeName(i));
@@ -188,10 +187,29 @@ L1TPFProducer::L1TPFProducer(const edm::ParameterSet& iConfig)
 L1TPFProducer::~L1TPFProducer() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
-  if (fRegionDump)
-    fclose(fRegionDump);
-  if (fRegionCOE)
-    fRegionCOE->close();
+  if (fRegionDump_)
+    fclose(fRegionDump_);
+  if (fRegionCOE_)
+    fRegionCOE_->close();
+}
+
+void L1TPFProducer::beginStream(edm::StreamID id) {
+  if (!regionDumpName_.empty()) {
+    if (id == 0) {
+      fRegionDump_ = fopen(regionDumpName_.c_str(), "wb");
+    } else {
+      edm::LogWarning("L1TPFProducer")
+          << "Job running with multiple streams, but dump file will have only events on stream zero.";
+    }
+  }
+  if (!regionCOEName_.empty()) {
+    if (id == 0) {
+      fRegionCOE_.reset(new l1tpf_impl::COEFile(config_));
+    } else {
+      edm::LogWarning("L1TPFProducer")
+          << "Job running with multiple streams, but COE file will dump only events on stream zero.";
+    }
+  }
 }
 
 // ------------ method called to produce the data  ------------
@@ -274,26 +292,26 @@ void L1TPFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put(l1regions_.fetchCalo(/*ptmin=*/0.1, /*em=*/true), "EmCalo");
   iEvent.put(l1regions_.fetchCalo(/*ptmin=*/0.1, /*em=*/false), "Calo");
   iEvent.put(l1regions_.fetchTracks(/*ptmin=*/0.0, /*fromPV=*/false), "TK");
-  if (fRegionDump) {
+  if (fRegionDump_) {
     uint32_t run = iEvent.id().run(), lumi = iEvent.id().luminosityBlock();
     uint64_t event = iEvent.id().event();
-    fwrite(&run, sizeof(uint32_t), 1, fRegionDump);
-    fwrite(&lumi, sizeof(uint32_t), 1, fRegionDump);
-    fwrite(&event, sizeof(uint64_t), 1, fRegionDump);
-    l1tpf_impl::writeManyToFile(l1regions_.regions(), fRegionDump);
+    fwrite(&run, sizeof(uint32_t), 1, fRegionDump_);
+    fwrite(&lumi, sizeof(uint32_t), 1, fRegionDump_);
+    fwrite(&event, sizeof(uint64_t), 1, fRegionDump_);
+    l1tpf_impl::writeManyToFile(l1regions_.regions(), fRegionDump_);
   }
 
   // Then save the regions to the COE file
   // Do it here because there is some sorting going on in a later function
-  if (fRegionCOE && fRegionCOE->is_open() && neventsproduced < neventscoemax) {
+  if (fRegionCOE_ && fRegionCOE_->is_open() && neventsproduced_ < neventscoemax_) {
     std::vector<l1tpf_impl::Region> regions = l1regions_.regions();
-    fRegionCOE->writeTracksToFile(regions, neventsproduced == 0);
+    fRegionCOE_->writeTracksToFile(regions, neventsproduced_ == 0);
   }
-  neventsproduced++;
+  neventsproduced_++;
 
   // Then do the vertexing, and save it out
   float z0;
-  if (vtxAlgo_ == l1tpf_impl::PUAlgoBase::ExternalVtxAlgo) {
+  if (vtxAlgo_ == l1tpf_impl::PUAlgoBase::VertexAlgo::External) {
     z0 = 0;
     double ptsum = 0;
     if (!extTkVtx_.isUninitialized()) {
@@ -310,13 +328,13 @@ void L1TPFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
   l1pualgo_->doVertexing(l1regions_.regions(), vtxAlgo_, z0);
   iEvent.put(std::make_unique<float>(z0), "z0");
-  if (fRegionDump) {
-    fwrite(&z0, sizeof(float), 1, fRegionDump);
+  if (fRegionDump_) {
+    fwrite(&z0, sizeof(float), 1, fRegionDump_);
     edm::Handle<math::XYZPointF> hGenOrigin;
     iEvent.getByToken(TokGenOrigin_, hGenOrigin);
     const math::XYZPointF& genOrigin = *hGenOrigin;
     float genZ = genOrigin.Z();
-    fwrite(&genZ, sizeof(float), 1, fRegionDump);
+    fwrite(&genZ, sizeof(float), 1, fRegionDump_);
   }
 
   // Then also save the tracks with a vertex cut
@@ -339,8 +357,8 @@ void L1TPFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   for (unsigned int i = 0, n = puGlobalNames.size(); i < n; ++i) {
     iEvent.put(std::make_unique<float>(puGlobals[i]), puGlobalNames[i]);
   }
-  if (fRegionDump) {
-    l1tpf_impl::writeManyToFile(puGlobals, fRegionDump);
+  if (fRegionDump_) {
+    l1tpf_impl::writeManyToFile(puGlobals, fRegionDump_);
   }
 
   // Then run puppi (regionally)

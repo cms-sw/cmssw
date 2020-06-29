@@ -39,6 +39,8 @@ struct pfalgo_config {
         dR2MAX_TK_CALO(dR2Max_Tk_Calo),
         tk_MAXINVPT_LOOSE(tk_MaxInvPt_Loose),
         tk_MAXINVPT_TIGHT(tk_MaxInvPt_Tight) {}
+
+  virtual ~pfalgo_config() {}
 };
 
 void pfalgo_mu_ref(const pfalgo_config &cfg,

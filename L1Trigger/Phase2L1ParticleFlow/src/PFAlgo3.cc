@@ -22,21 +22,21 @@ PFAlgo3::PFAlgo3(const edm::ParameterSet &iConfig) : PFAlgoBase(iConfig) {
 
   std::string muMatchMode = linkcfg.getParameter<std::string>("trackMuMatch");
   if (muMatchMode == "boxBestByPtRatio")
-    muMatchMode_ = BoxBestByPtRatio;
+    muMatchMode_ = MuMatchMode::BoxBestByPtRatio;
   else if (muMatchMode == "drBestByPtRatio")
-    muMatchMode_ = DrBestByPtRatio;
+    muMatchMode_ = MuMatchMode::DrBestByPtRatio;
   else if (muMatchMode == "drBestByPtDiff")
-    muMatchMode_ = DrBestByPtDiff;
+    muMatchMode_ = MuMatchMode::DrBestByPtDiff;
   else
     throw cms::Exception("Configuration", "bad value for trackMuMatch configurable");
 
   std::string tkCaloLinkMetric = linkcfg.getParameter<std::string>("trackCaloLinkMetric");
   if (tkCaloLinkMetric == "bestByDR")
-    tkCaloLinkMetric_ = BestByDR;
+    tkCaloLinkMetric_ = TkCaloLinkMetric::BestByDR;
   else if (tkCaloLinkMetric == "bestByDRPt")
-    tkCaloLinkMetric_ = BestByDRPt;
+    tkCaloLinkMetric_ = TkCaloLinkMetric::BestByDRPt;
   else if (tkCaloLinkMetric == "bestByDR2Pt2")
-    tkCaloLinkMetric_ = BestByDR2Pt2;
+    tkCaloLinkMetric_ = TkCaloLinkMetric::BestByDR2Pt2;
   else
     throw cms::Exception("Configuration", "bad value for tkCaloLinkMetric configurable");
 
@@ -225,13 +225,13 @@ void PFAlgo3::link_tk2mu(Region &r, std::vector<int> &tk2mu, std::vector<int> &m
           "PFAlgo3 \t muon  %3d (pt %7.2f, eta %+5.2f, phi %+5.2f) \n", imu, mu.floatPt(), mu.floatEta(), mu.floatPhi());
     float minDistance = 9e9;
     switch (muMatchMode_) {
-      case BoxBestByPtRatio:
+      case MuMatchMode::BoxBestByPtRatio:
         minDistance = 4.;
         break;
-      case DrBestByPtRatio:
+      case MuMatchMode::DrBestByPtRatio:
         minDistance = 4.;
         break;
-      case DrBestByPtDiff:
+      case MuMatchMode::DrBestByPtDiff:
         minDistance = 0.5 * mu.floatPt();
         break;
     }
@@ -246,15 +246,15 @@ void PFAlgo3::link_tk2mu(Region &r, std::vector<int> &tk2mu, std::vector<int> &m
       bool ok = false;
       float distance = 9e9;
       switch (muMatchMode_) {
-        case BoxBestByPtRatio:
+        case MuMatchMode::BoxBestByPtRatio:
           ok = (deta < intDrMuonMatchBox) && (dphi < intDrMuonMatchBox);
           distance = dptr;
           break;
-        case DrBestByPtRatio:
+        case MuMatchMode::DrBestByPtRatio:
           ok = (dr < drMatchMu_);
           distance = dptr;
           break;
-        case DrBestByPtDiff:
+        case MuMatchMode::DrBestByPtDiff:
           ok = (dr < drMatchMu_);
           distance = dpt;
           break;
@@ -541,14 +541,14 @@ void PFAlgo3::link_tk2calo(Region &r, std::vector<int> &tk2calo) const {
       continue;  // not necessary but just a waste of CPU otherwise
     float drbest = drMatch_, dptscale = 0;
     switch (tkCaloLinkMetric_) {
-      case BestByDR:
+      case TkCaloLinkMetric::BestByDR:
         drbest = drMatch_;
         break;
-      case BestByDRPt:
+      case TkCaloLinkMetric::BestByDRPt:
         drbest = 1.0;
         dptscale = drMatch_ / tk.floatCaloPtErr();
         break;
-      case BestByDR2Pt2:
+      case TkCaloLinkMetric::BestByDR2Pt2:
         drbest = 1.0;
         dptscale = drMatch_ / tk.floatCaloPtErr();
         break;
@@ -562,13 +562,13 @@ void PFAlgo3::link_tk2calo(Region &r, std::vector<int> &tk2calo) const {
         continue;
       float dr = floatDR(tk, calo), dq;
       switch (tkCaloLinkMetric_) {
-        case BestByDR:
+        case TkCaloLinkMetric::BestByDR:
           if (dr < drbest) {
             tk2calo[itk] = ic;
             drbest = dr;
           }
           break;
-        case BestByDRPt:
+        case TkCaloLinkMetric::BestByDRPt:
           dq = dr + std::max<float>(tk.floatPt() - calo.floatPt(), 0.) * dptscale;
           //if (debug_ && dr < 0.2) printf("PFAlgo3 \t\t\t track %3d (pt %7.2f) vs calo %3d (pt %7.2f): dr %.3f, dq %.3f\n", itk, tk.floatPt(), ic, calo.floatPt(), dr, dq);
           if (dr < drMatch_ && dq < drbest) {
@@ -576,7 +576,7 @@ void PFAlgo3::link_tk2calo(Region &r, std::vector<int> &tk2calo) const {
             drbest = dq;
           }
           break;
-        case BestByDR2Pt2:
+        case TkCaloLinkMetric::BestByDR2Pt2:
           dq = hypot(dr, std::max<float>(tk.floatPt() - calo.floatPt(), 0.) * dptscale);
           //if (debug_ && dr < 0.2) printf("PFAlgo3 \t\t\t track %3d (pt %7.2f) vs calo %3d (pt %7.2f): dr %.3f, dq %.3f\n", itk, tk.floatPt(), ic, calo.floatPt(), dr, dq);
           if (dr < drMatch_ && dq < drbest) {

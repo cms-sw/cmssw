@@ -126,7 +126,7 @@ inline void clear(HadCaloObj& c) {
   c.hwEta = 0;
   c.hwPhi = 0;
   c.hwEmPt = 0;
-  c.hwIsEM = 0;
+  c.hwIsEM = false;
 }
 
 struct EmCaloObj {
@@ -152,7 +152,7 @@ inline void clear(TkObj& c) {
   c.hwEta = 0;
   c.hwPhi = 0;
   c.hwZ0 = 0;
-  c.hwTightQuality = 0;
+  c.hwTightQuality = false;
 }
 
 struct MuObj {

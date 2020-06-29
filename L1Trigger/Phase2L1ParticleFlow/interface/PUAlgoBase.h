@@ -12,7 +12,7 @@ namespace l1tpf_impl {
     virtual ~PUAlgoBase();
 
     /// global operations
-    enum VertexAlgo { OldVtxAlgo, TPVtxAlgo, ExternalVtxAlgo };
+    enum class VertexAlgo { Old, TP, External };
     virtual void doVertexing(std::vector<Region> &rs,
                              VertexAlgo algo,
                              float &vz) const;  // region is not const since it sets the fromPV bit of the tracks

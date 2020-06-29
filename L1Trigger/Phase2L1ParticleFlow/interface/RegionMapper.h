@@ -45,7 +45,7 @@ namespace l1tpf_impl {
   protected:
     std::vector<Region> regions_;
     bool useRelativeRegionalCoordinates_;  // whether the eta,phi in each region are global or relative to the region center
-    enum TrackAssoMode { atVertex, atCalo, any = 999 } trackRegionMode_;
+    enum class TrackAssoMode { atVertex, atCalo, any = 999 } trackRegionMode_;
 
     // these are used to link items back
     std::unordered_map<const l1t::PFCluster *, l1t::PFClusterRef> clusterRefMap_;

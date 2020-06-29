@@ -228,7 +228,18 @@ namespace l1tpf_impl {
     std::vector<PropagatedTrack> track;
     std::vector<Muon> muon;
 
-    InputRegion() : etaCenter(), etaMin(), etaMax(), phiCenter(), phiHalfWidth(), etaExtra(), phiExtra() {}
+    InputRegion()
+        : etaCenter(),
+          etaMin(),
+          etaMax(),
+          phiCenter(),
+          phiHalfWidth(),
+          etaExtra(),
+          phiExtra(),
+          calo(),
+          emcalo(),
+          track(),
+          muon() {}
     InputRegion(
         float etacenter, float etamin, float etamax, float phicenter, float phihalfwidth, float etaextra, float phiextra)
         : etaCenter(etacenter),
@@ -237,7 +248,11 @@ namespace l1tpf_impl {
           phiCenter(phicenter),
           phiHalfWidth(phihalfwidth),
           etaExtra(etaextra),
-          phiExtra(phiextra) {}
+          phiExtra(phiextra),
+          calo(),
+          emcalo(),
+          track(),
+          muon() {}
   };
 
 }  // namespace l1tpf_impl

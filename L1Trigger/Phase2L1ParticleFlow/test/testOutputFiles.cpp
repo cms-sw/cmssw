@@ -1,17 +1,17 @@
 // STL includes
-#include <cstdio>
-#include <iostream>
-#include <iomanip>
-#include <string>
-#include <stdexcept>
-#include <sstream>
-#include <fstream>
-#include <limits>
-#include <vector>
-#include <map>
-#include <utility>
-#include <math.h>
 #include <bitset>
+#include <cmath>
+#include <cstdio>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <limits>
+#include <map>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <utility>
+#include <vector>
 
 // ROOT includes
 #include "TROOT.h"

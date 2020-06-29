@@ -27,10 +27,10 @@ void PUAlgoBase::runChargedPV(Region &r, float z0) const {
 
 void PUAlgoBase::doVertexing(std::vector<Region> &rs, VertexAlgo algo, float &pvdz) const {
   int lNBins = int(40. / vtxRes_);
-  if (algo == TPVtxAlgo)
+  if (algo == VertexAlgo::TP)
     lNBins *= 3;
   std::unique_ptr<TH1F> h_dz(new TH1F("h_dz", "h_dz", lNBins, -20, 20));
-  if (algo != ExternalVtxAlgo) {
+  if (algo != VertexAlgo::External) {
     for (const Region &r : rs) {
       for (const PropagatedTrack &p : r.track) {
         if (rs.size() > 1) {
@@ -42,13 +42,13 @@ void PUAlgoBase::doVertexing(std::vector<Region> &rs, VertexAlgo algo, float &pv
     }
   }
   switch (algo) {
-    case ExternalVtxAlgo:
+    case VertexAlgo::External:
       break;
-    case OldVtxAlgo: {
+    case VertexAlgo::Old: {
       int imaxbin = h_dz->GetMaximumBin();
       pvdz = h_dz->GetXaxis()->GetBinCenter(imaxbin);
     }; break;
-    case TPVtxAlgo: {
+    case VertexAlgo::TP: {
       float max = 0;
       int bmax = -1;
       for (int b = 1; b <= lNBins; ++b) {

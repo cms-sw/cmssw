@@ -43,15 +43,15 @@ RegionMapper::RegionMapper(const edm::ParameterSet &iConfig) : useRelativeRegion
         }
       }
     }
-    std::string trackRegionMode = "any";
+    std::string trackRegionMode = "TrackAssoMode::any";
     if (iConfig.existsAs<std::string>("trackRegionMode"))
       trackRegionMode = iConfig.getParameter<std::string>("trackRegionMode");
     if (trackRegionMode == "atVertex")
-      trackRegionMode_ = atVertex;
+      trackRegionMode_ = TrackAssoMode::atVertex;
     else if (trackRegionMode == "atCalo")
-      trackRegionMode_ = atCalo;
+      trackRegionMode_ = TrackAssoMode::atCalo;
     else if (trackRegionMode == "any")
-      trackRegionMode_ = any;
+      trackRegionMode_ = TrackAssoMode::any;
     else
       throw cms::Exception(
           "Configuration",
@@ -91,13 +91,13 @@ void RegionMapper::addTrack(const l1t::PFTrack &t) {
   for (Region &r : regions_) {
     bool inside = true;
     switch (trackRegionMode_) {
-      case atVertex:
+      case TrackAssoMode::atVertex:
         inside = r.contains(t.eta(), t.phi());
         break;
-      case atCalo:
+      case TrackAssoMode::atCalo:
         inside = r.contains(t.caloEta(), t.caloPhi());
         break;
-      case any:
+      case TrackAssoMode::any:
         inside = r.contains(t.eta(), t.phi()) || r.contains(t.caloEta(), t.caloPhi());
         break;
     }
@@ -189,13 +189,13 @@ std::unique_ptr<l1t::PFCandidateCollection> RegionMapper::fetch(bool puppi, floa
     for (const PFParticle &p : (puppi ? r.puppi : r.pf)) {
       bool inside = true;
       switch (trackRegionMode_) {
-        case atVertex:
+        case TrackAssoMode::atVertex:
           inside = r.fiducialLocal(p.floatVtxEta(), p.floatVtxPhi());
           break;
-        case atCalo:
+        case TrackAssoMode::atCalo:
           inside = r.fiducialLocal(p.floatEta(), p.floatPhi());
           break;
-        case any:
+        case TrackAssoMode::any:
           inside = r.fiducialLocal(p.floatVtxEta(), p.floatVtxPhi());
           break;  // WARNING: this may not be the best choice
       }
@@ -270,13 +270,13 @@ std::unique_ptr<l1t::PFCandidateCollection> RegionMapper::fetchTracks(float ptMi
         continue;
       bool inside = true;
       switch (trackRegionMode_) {
-        case atVertex:
+        case TrackAssoMode::atVertex:
           inside = r.fiducialLocal(p.floatVtxEta(), p.floatVtxPhi());
           break;
-        case atCalo:
+        case TrackAssoMode::atCalo:
           inside = r.fiducialLocal(p.floatEta(), p.floatPhi());
           break;
-        case any:
+        case TrackAssoMode::any:
           inside = r.fiducialLocal(p.floatVtxEta(), p.floatVtxPhi());
           break;  // WARNING: this may not be the best choice
       }

@@ -28,6 +28,7 @@ struct pfalgo3_config : public pfalgo_config {
         nALLNEUTRAL(nAllNeutral),
         dR2MAX_TK_EM(dR2Max_Tk_Em),
         dR2MAX_EM_CALO(dR2Max_Em_Calo) {}
+  ~pfalgo3_config() override {}
 };
 
 void pfalgo3_ref_set_debug(int debug);
