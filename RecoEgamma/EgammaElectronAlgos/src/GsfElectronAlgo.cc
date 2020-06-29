@@ -23,7 +23,7 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronMomentumCorrector.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/ConversionFinder.h"
 #include "CommonTools/Egamma/interface/ConversionTools.h"
 
 #include <Math/Point3D.h>
@@ -845,8 +845,8 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
   // 1     : Partner track found in the CTF collection using
   // 2     : Partner track found in the GSF collection using
   // 3     : Partner track found in the GSF collection using the electron's GSF track
-  ConversionInfo conversionInfo = egammaTools::getConversionInfo(
-      *electronData.coreRef, ctfTracks, eventData.originalGsfTracks, magneticFieldInTesla);
+  auto conversionInfo =
+      egamma::findConversion(*electronData.coreRef, ctfTracks, eventData.originalGsfTracks, magneticFieldInTesla);
 
   reco::GsfElectron::ConversionRejection conversionVars;
   conversionVars.flags = conversionInfo.flag;
