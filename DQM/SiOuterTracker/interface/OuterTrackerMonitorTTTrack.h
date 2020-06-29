@@ -37,6 +37,8 @@ public:
   MonitorElement *Track_All_BendChi2 = nullptr;          // Bendchi2 distrubtion for tracks
   MonitorElement *Track_All_Chi2 = nullptr;              // chi2 distrubtion for tracks
   MonitorElement *Track_All_Chi2Red = nullptr;           // chi2/dof distrubtion for tracks
+  MonitorElement *Track_All_Chi2RZ = nullptr;           // chi2 r-phi distrubtion for tracks
+  MonitorElement *Track_All_Chi2RPhi = nullptr;           // chi2 r-z distrubtion for tracks
   MonitorElement *Track_All_Chi2Red_NStubs = nullptr;    // chi2/dof vs number of stubs
   MonitorElement *Track_All_Chi2Red_Eta = nullptr;       // chi2/dof vs eta of track
   MonitorElement *Track_All_Eta_BarrelStubs = nullptr;   // eta vs number of stubs in barrel
@@ -58,6 +60,8 @@ public:
   MonitorElement *Track_HQ_BendChi2 = nullptr;          // Bendchi2 distrubtion for tracks
   MonitorElement *Track_HQ_Chi2 = nullptr;              // chi2 distrubtion for tracks
   MonitorElement *Track_HQ_Chi2Red = nullptr;           // chi2/dof distrubtion for tracks
+  MonitorElement *Track_HQ_Chi2RZ = nullptr;           // chi2 r-z distrubtion for tracks
+  MonitorElement *Track_HQ_Chi2RPhi = nullptr;           // chi2 r-phi distrubtion for tracks
   MonitorElement *Track_HQ_Chi2Red_NStubs = nullptr;    // chi2/dof vs number of stubs
   MonitorElement *Track_HQ_Chi2Red_Eta = nullptr;       // chi2/dof vs eta of track
   MonitorElement *Track_HQ_Eta_BarrelStubs = nullptr;   // eta vs number of stubs in barrel
