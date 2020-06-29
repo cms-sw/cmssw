@@ -706,14 +706,14 @@ void MuonPathAnalyzerPerSL::validate(LATERAL_CASES sideComb[3],
   long int numerator =
       (sumA + dVertMI * eqMainBXTerm(smSides, layPairSM, mPath) - dVertSM * eqMainBXTerm(miSides, layPairMI, mPath));
 
-  // These magic numbers are for doing divisions in the FW. 
+  // These magic numbers are for doing divisions in the FW.
   // These divisions are done with a precision of 18bits.
-  if (denominator == -1*DENOM_TYPE1)
-    bxValue = (numerator * (-1*DIVISION_HELPER1)) / std::pow(2, NBITS);
-  else if (denominator == -1*DENOM_TYPE2)
-    bxValue = (numerator * (-1*DIVISION_HELPER2)) / std::pow(2, NBITS);
-  else if (denominator == -1*DENOM_TYPE3)
-    bxValue = (numerator * (-1*DIVISION_HELPER3)) / std::pow(2, NBITS);
+  if (denominator == -1 * DENOM_TYPE1)
+    bxValue = (numerator * (-1 * DIVISION_HELPER1)) / std::pow(2, NBITS);
+  else if (denominator == -1 * DENOM_TYPE2)
+    bxValue = (numerator * (-1 * DIVISION_HELPER2)) / std::pow(2, NBITS);
+  else if (denominator == -1 * DENOM_TYPE3)
+    bxValue = (numerator * (-1 * DIVISION_HELPER3)) / std::pow(2, NBITS);
   else if (denominator == DENOM_TYPE3)
     bxValue = (numerator * (DIVISION_HELPER3)) / std::pow(2, NBITS);
   else if (denominator == DENOM_TYPE2)
