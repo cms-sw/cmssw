@@ -22,7 +22,7 @@ namespace l1tpf {
   private:
     edm::EDGetTokenT<std::vector<l1t::PFTrack::L1TTTrackType>> TrackTag_;
     edm::ESWatcher<IdealMagneticFieldRecord> BFieldWatcher_;
-    edm::ESGetToken<MagneticField,IdealMagneticFieldRecord> BFieldTag_;
+    edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> BFieldTag_;
     int nParam_;
     float fBz_;
     l1tpf::ParametricResolution resolCalo_, resolTrk_;
@@ -42,7 +42,7 @@ l1tpf::PFTrackProducerFromL1Tracks::PFTrackProducerFromL1Tracks(const edm::Param
 
 void l1tpf::PFTrackProducerFromL1Tracks::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   if (BFieldWatcher_.check(iSetup)) {
-      fBz_ = iSetup.getData(BFieldTag_).inTesla(GlobalPoint(0, 0, 0)).z();
+    fBz_ = iSetup.getData(BFieldTag_).inTesla(GlobalPoint(0, 0, 0)).z();
   }
 
   std::unique_ptr<l1t::PFTrackCollection> out(new l1t::PFTrackCollection());

@@ -261,8 +261,8 @@ std::map<std::pair<int, int>, TLorentzVector> get_tracks_from_dump_file(FILE *df
 }
 
 std::map<std::pair<int, int>, TLorentzVector> get_tracks_from_coe_file(std::ifstream &cfile_,
-                                                                         bool print = false,
-                                                                         bool debug = false) {
+                                                                       bool print = false,
+                                                                       bool debug = false) {
   std::map<std::pair<int, int>, TLorentzVector> tracks_coe;
   std::string bset_string_;
   int ntrackstotal(0);

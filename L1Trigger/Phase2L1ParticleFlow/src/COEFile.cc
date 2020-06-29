@@ -14,15 +14,15 @@ COEFile::COEFile(const edm::ParameterSet& iConfig)
   bset_.resize(tracksize);
 }
 
-COEFile::~COEFile() {
-}
+COEFile::~COEFile() {}
 
 void COEFile::writeHeaderToFile() {
   char depth_width[256];
-  snprintf(depth_width, 255,
-          "; of depth=%i, and width=%i. In this case, values are specified\n",
-          ntracksmax,
-          tracksize * phiSlices);
+  snprintf(depth_width,
+           255,
+           "; of depth=%i, and width=%i. In this case, values are specified\n",
+           ntracksmax,
+           tracksize * phiSlices);
   std::vector<std::string> vheader = {"; Sample memory initialization file for Dual Port Block Memory,\n",
                                       "; v3.0 or later.\n",
                                       "; Board: VCU118\n",

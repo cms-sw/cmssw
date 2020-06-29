@@ -14,7 +14,8 @@ const char *l1tpf_impl::Region::inputTypeName(int type) {
     case l1mu_type:
       return "Mu";
     case n_input_types:
-      throw cms::Exception("LogicError", "n_input_types is not a type to be used, but only a compile-time const for iterating on types");
+      throw cms::Exception(
+          "LogicError", "n_input_types is not a type to be used, but only a compile-time const for iterating on types");
   }
   return "NO_SUCH_INPUT_TYPE";
 }
@@ -37,7 +38,9 @@ const char *l1tpf_impl::Region::outputTypeName(int type) {
     case photon_type:
       return "Photon";
     case n_output_types:
-      throw cms::Exception("LogicError", "n_output_types is not a type to be used, but only a compile-time const for iterating on types");
+      throw cms::Exception(
+          "LogicError",
+          "n_output_types is not a type to be used, but only a compile-time const for iterating on types");
   }
   return "NO_SUCH_OUTPUT_TYPE";
 }
@@ -53,7 +56,8 @@ unsigned int l1tpf_impl::Region::nInput(InputType type) const {
     case l1mu_type:
       return muon.size();
     case n_input_types:
-      throw cms::Exception("LogicError", "n_input_types is not a type to be used, but only a compile-time const for iterating on types");
+      throw cms::Exception(
+          "LogicError", "n_input_types is not a type to be used, but only a compile-time const for iterating on types");
   }
   return 9999;
 }
@@ -98,7 +102,9 @@ unsigned int l1tpf_impl::Region::nOutput(OutputType type, bool usePuppi, bool fi
           ret++;
         break;
       case n_output_types:
-        throw cms::Exception("LogicError", "n_output_types is not a type to be used, but only a compile-time const for iterating on types");
+        throw cms::Exception(
+            "LogicError",
+            "n_output_types is not a type to be used, but only a compile-time const for iterating on types");
     }
   }
   return ret;

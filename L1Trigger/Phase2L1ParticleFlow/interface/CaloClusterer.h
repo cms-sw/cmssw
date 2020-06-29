@@ -289,8 +289,8 @@ namespace l1tpf_calo {
 
   // makes a calo linker (pointer will be owned by the callee)
   std::unique_ptr<SimpleCaloLinkerBase> makeCaloLinker(const edm::ParameterSet &pset,
-                                       const SingleCaloClusterer &ecal,
-                                       const SingleCaloClusterer &hcal);
+                                                       const SingleCaloClusterer &ecal,
+                                                       const SingleCaloClusterer &hcal);
 
 }  // namespace l1tpf_calo
 

@@ -61,18 +61,18 @@ RegionMapper::RegionMapper(const edm::ParameterSet &iConfig) : useRelativeRegion
     // start off with a dummy region
     unsigned int ncalomax = 0, nemcalomax = 0, ntrackmax = 0, nmuonmax = 0, npfmax = 0, npuppimax = 0;
     regions_.emplace_back(-5.5,
-                              5.5,
-                              0,
-                              2 * M_PI,
-                              0.5,
-                              0.5,
-                              useRelativeRegionalCoordinates_,
-                              ncalomax,
-                              nemcalomax,
-                              ntrackmax,
-                              nmuonmax,
-                              npfmax,
-                              npuppimax);
+                          5.5,
+                          0,
+                          2 * M_PI,
+                          0.5,
+                          0.5,
+                          useRelativeRegionalCoordinates_,
+                          ncalomax,
+                          nemcalomax,
+                          ntrackmax,
+                          nmuonmax,
+                          npfmax,
+                          npuppimax);
   }
 }
 

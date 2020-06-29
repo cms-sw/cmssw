@@ -624,8 +624,8 @@ void l1tpf_calo::FlatCaloLinker::run() {
 }
 
 std::unique_ptr<l1tpf_calo::SimpleCaloLinkerBase> l1tpf_calo::makeCaloLinker(const edm::ParameterSet &pset,
-                                                             const SingleCaloClusterer &ecal,
-                                                             const SingleCaloClusterer &hcal) {
+                                                                             const SingleCaloClusterer &ecal,
+                                                                             const SingleCaloClusterer &hcal) {
   const std::string &algo = pset.getParameter<std::string>("algo");
   if (algo == "simple") {
     return std::make_unique<l1tpf_calo::SimpleCaloLinker>(pset, ecal, hcal);

@@ -9,25 +9,22 @@ namespace l1tpf {
 
   class ParametricResolution {
   public:
-    static std::vector<float> getVFloat(const edm::ParameterSet &cpset, const std::string & name) {
-        std::vector<double> vd = cpset.getParameter<std::vector<double>>(name);
-        return std::vector<float>(vd.begin(),vd.end());
+    static std::vector<float> getVFloat(const edm::ParameterSet &cpset, const std::string &name) {
+      std::vector<double> vd = cpset.getParameter<std::vector<double>>(name);
+      return std::vector<float>(vd.begin(), vd.end());
     }
 
     ParametricResolution() {}
-    ParametricResolution(const edm::ParameterSet &cpset) :
-        etas(getVFloat(cpset,"etaBins")),
-        offsets(getVFloat(cpset,"offset")),
-        scales(getVFloat(cpset,"scale"))
-        {
+    ParametricResolution(const edm::ParameterSet &cpset)
+        : etas(getVFloat(cpset, "etaBins")), offsets(getVFloat(cpset, "offset")), scales(getVFloat(cpset, "scale")) {
       if (cpset.existsAs<std::vector<double>>("ptMin")) {
-        ptMins = getVFloat(cpset,"ptMin");
+        ptMins = getVFloat(cpset, "ptMin");
       } else {
         float ptMin = cpset.existsAs<double>("ptMin") ? cpset.getParameter<double>("ptMin") : 0;
         ptMins = std::vector<float>(etas.size(), ptMin);
       }
       if (cpset.existsAs<std::vector<double>>("ptMax")) {
-        ptMaxs = getVFloat(cpset,"ptMax");
+        ptMaxs = getVFloat(cpset, "ptMax");
       } else {
         ptMaxs = std::vector<float>(etas.size(), 1e6);
       }
@@ -37,7 +34,7 @@ namespace l1tpf {
       else if (skind == "calo")
         kind = Kind::Calo;
       else
-        throw cms::Exception("Configuration", "Bad kind of resolution: "+skind);
+        throw cms::Exception("Configuration", "Bad kind of resolution: " + skind);
     }
     float operator()(const float pt, const float abseta) const {
       for (unsigned int i = 0, n = etas.size(); i < n; ++i) {

@@ -20,11 +20,11 @@
 namespace l1tpf {
   class HGC3DClusterEgID {
   public:
-    HGC3DClusterEgID(const edm::ParameterSet &pset) ;
+    HGC3DClusterEgID(const edm::ParameterSet &pset);
 
-    void prepareTMVA() ;
+    void prepareTMVA();
 
-    float passID(l1t::HGCalMulticluster c, l1t::PFCluster &cpf) ;
+    float passID(l1t::HGCalMulticluster c, l1t::PFCluster &cpf);
 
     std::string method() { return method_; }
 
