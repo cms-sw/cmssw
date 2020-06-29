@@ -35,6 +35,7 @@
 #include "FWCore/Framework/src/InputSourceFactory.h"
 #include "FWCore/Framework/src/SharedResourcesRegistry.h"
 #include "FWCore/Framework/src/streamTransitionAsync.h"
+#include "FWCore/Framework/src/TransitionInfoTypes.h"
 #include "FWCore/Framework/src/globalTransitionAsync.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -879,8 +880,9 @@ namespace edm {
     auto globalWaitTask = make_empty_waiting_task();
     globalWaitTask->increment_ref_count();
 
+    ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
     beginGlobalTransitionAsync<Traits>(
-        WaitingTaskHolder(globalWaitTask.get()), *schedule_, processBlockPrincipal, serviceToken_, subProcesses_);
+        WaitingTaskHolder(globalWaitTask.get()), *schedule_, transitionInfo, serviceToken_, subProcesses_);
 
     globalWaitTask->wait_for_all();
     if (globalWaitTask->exceptionPtr() != nullptr) {
@@ -904,8 +906,9 @@ namespace edm {
       auto globalWaitTask = make_empty_waiting_task();
       globalWaitTask->increment_ref_count();
 
+      ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
       beginGlobalTransitionAsync<Traits>(
-          WaitingTaskHolder(globalWaitTask.get()), *schedule_, processBlockPrincipal, serviceToken_, subProcesses_);
+          WaitingTaskHolder(globalWaitTask.get()), *schedule_, transitionInfo, serviceToken_, subProcesses_);
 
       globalWaitTask->wait_for_all();
       if (globalWaitTask->exceptionPtr() != nullptr) {
@@ -934,9 +937,10 @@ namespace edm {
     auto globalWaitTask = make_empty_waiting_task();
     globalWaitTask->increment_ref_count();
 
+    ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
     endGlobalTransitionAsync<Traits>(WaitingTaskHolder(globalWaitTask.get()),
                                      *schedule_,
-                                     processBlockPrincipal,
+                                     transitionInfo,
                                      serviceToken_,
                                      subProcesses_,
                                      cleaningUpAfterException);
@@ -996,14 +1000,9 @@ namespace edm {
       using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin>;
       auto globalWaitTask = make_empty_waiting_task();
       globalWaitTask->increment_ref_count();
-      beginGlobalTransitionAsync<Traits>(WaitingTaskHolder(globalWaitTask.get()),
-                                         *schedule_,
-                                         runPrincipal,
-                                         ts,
-                                         es,
-                                         nullptr,
-                                         serviceToken_,
-                                         subProcesses_);
+      RunTransitionInfo transitionInfo(runPrincipal, es);
+      beginGlobalTransitionAsync<Traits>(
+          WaitingTaskHolder(globalWaitTask.get()), *schedule_, transitionInfo, serviceToken_, subProcesses_);
       globalWaitTask->wait_for_all();
       if (globalWaitTask->exceptionPtr() != nullptr) {
         std::rethrow_exception(*(globalWaitTask->exceptionPtr()));
@@ -1115,13 +1114,11 @@ namespace edm {
       auto globalWaitTask = make_empty_waiting_task();
       globalWaitTask->increment_ref_count();
 
+      RunTransitionInfo transitionInfo(runPrincipal, es);
       using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd>;
       endGlobalTransitionAsync<Traits>(WaitingTaskHolder(globalWaitTask.get()),
                                        *schedule_,
-                                       runPrincipal,
-                                       ts,
-                                       es,
-                                       nullptr,
+                                       transitionInfo,
                                        serviceToken_,
                                        subProcesses_,
                                        cleaningUpAfterException);
@@ -1275,15 +1272,10 @@ namespace edm {
 
           EventSetupImpl const& es = status->eventSetupImpl(esp_->subProcessIndex());
           {
+            LumiTransitionInfo transitionInfo(lumiPrincipal, es, &status->eventSetupImpls());
             using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin>;
-            beginGlobalTransitionAsync<Traits>(beginStreamsHolder,
-                                               *schedule_,
-                                               lumiPrincipal,
-                                               ts,
-                                               es,
-                                               &status->eventSetupImpls(),
-                                               serviceToken_,
-                                               subProcesses_);
+            beginGlobalTransitionAsync<Traits>(
+                beginStreamsHolder, *schedule_, transitionInfo, serviceToken_, subProcesses_);
           }
         } catch (...) {
           status->resetResources();
@@ -1459,17 +1451,10 @@ namespace edm {
 
     IOVSyncValue ts(EventID(lp.run(), lp.luminosityBlock(), EventID::maxEventNumber()), lp.beginTime());
 
+    LumiTransitionInfo transitionInfo(lp, es, eventSetupImpls);
     using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd>;
-
-    endGlobalTransitionAsync<Traits>(WaitingTaskHolder(writeT),
-                                     *schedule_,
-                                     lp,
-                                     ts,
-                                     es,
-                                     eventSetupImpls,
-                                     serviceToken_,
-                                     subProcesses_,
-                                     cleaningUpAfterException);
+    endGlobalTransitionAsync<Traits>(
+        WaitingTaskHolder(writeT), *schedule_, transitionInfo, serviceToken_, subProcesses_, cleaningUpAfterException);
   }
 
   void EventProcessor::streamEndLumiAsync(edm::WaitingTaskHolder iTask, unsigned int iStreamIndex) {

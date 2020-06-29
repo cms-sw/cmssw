@@ -34,6 +34,7 @@ class testEventsetup;
 
 namespace edm {
   class ESInputTag;
+  class ProcessBlockTransitionInfo;
   class Schedule;
   class ServiceToken;
   class WaitingTaskHolder;
@@ -72,12 +73,7 @@ namespace edm {
     friend class eventsetup::EventSetupProvider;
     friend class eventsetup::EventSetupRecordProvider;
     friend class ::testEventsetup;
-
-    template <typename Traits, typename P, typename SC>
-    friend void beginGlobalTransitionAsync(WaitingTaskHolder, Schedule&, P&, ServiceToken const&, SC&);
-
-    template <typename Traits, typename P, typename SC>
-    friend void endGlobalTransitionAsync(WaitingTaskHolder, Schedule&, P&, ServiceToken const&, SC&, bool);
+    friend class ProcessBlockTransitionInfo;
 
   protected:
     void addRecordImpl(const eventsetup::EventSetupRecordImpl& iRecord);
