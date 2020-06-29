@@ -95,6 +95,10 @@ DAClusterizerInZ_vect::DAClusterizerInZ_vect(const edm::ParameterSet& conf) {
 namespace {
   inline double local_exp(double const& inp) { return vdt::fast_exp(inp); }
 
+  inline void local_exp_v(double const* arg_inp, double* arg_out, const unsigned arg_arr_size) {
+    vdt::fast_expv(arg_arr_size, arg_inp, arg_out);
+  }
+
   inline void local_exp_list_range(double const* __restrict__ arg_inp,
                                    double* __restrict__ arg_out,
                                    const unsigned int kmin,
@@ -636,6 +640,7 @@ bool DAClusterizerInZ_vect::merge(vertex_t& y, track_t& tks, double& beta) const
 }
 
 bool DAClusterizerInZ_vect::purge(vertex_t& y, track_t& tks, double& rho0, const double beta) const {
+  constexpr double eps = 1.e-100;
   // eliminate clusters with only one significant/unique track
   const unsigned int nv = y.getSize();
   const unsigned int nt = tks.getSize();
@@ -646,16 +651,40 @@ bool DAClusterizerInZ_vect::purge(vertex_t& y, track_t& tks, double& rho0, const
   double sumpmin = nt;
   unsigned int k0 = nv;
 
+  std::vector<double> inverse_zsums(nt), arg_cache(nt), eik_cache(nt);
+  double* pinverse_zsums;
+  double* parg_cache;
+  double* peik_cache;
+  pinverse_zsums = inverse_zsums.data();
+  parg_cache = arg_cache.data();
+  peik_cache = eik_cache.data();
+#pragma GCC ivdep
+  for (unsigned i = 0; i < nt; ++i) {
+    inverse_zsums[i] = tks.Z_sum_ptr[i] > eps ? 1. / tks.Z_sum_ptr[i] : 0.0;
+  }
+#pragma GCC ivdep
   for (unsigned int k = 0; k < nv; k++) {
     int nUnique = 0;
     double sump = 0;
-
     double pmax = y.pk_ptr[k] / (y.pk_ptr[k] + rho0 * local_exp(-beta * dzCutOff_ * dzCutOff_));
+#pragma GCC ivdep
     for (unsigned int i = 0; i < nt; ++i) {
-      auto ptr = y.pk_ptr[k] * local_exp(-beta * Eik(tks.z_ptr[i], y.z_ptr[k], tks.dz2_ptr[i]));
-      auto p = (tks.Z_sum_ptr[i] > 1.e-100) ? ptr / tks.Z_sum_ptr[i] : 0;
+      const auto track_z = tks.z_ptr[i];
+      const auto botrack_dz2 = -beta * tks.dz2_ptr[i];
+      const auto mult_resz = track_z - y.z_ptr[k];
+      parg_cache[i] = botrack_dz2 * (mult_resz * mult_resz);
+    }
+    local_exp_v(parg_cache, peik_cache, nt);
+    
+#pragma GCC ivdep
+    for (unsigned int i = 0; i < nt; ++i) {
+      const auto ypkptrk = y.pk_ptr[k];
+      const auto peikci = peik_cache[i];
+      const auto pinvzsi =  pinverse_zsums[i];
+      const auto p = ypkptrk * peikci * pinvzsi;
+      const auto tkspiptri = tks.pi_ptr[i];
       sump += p;
-      nUnique += ((p > uniquetrkweight_ * pmax) & (ptr > 0)) ? 1 : 0;
+      nUnique += ((p > uniquetrkweight_ * pmax) & (tkspiptri > 0)) ? 1 : 0;
     }
 
     if ((nUnique < 2) && (sump < sumpmin)) {

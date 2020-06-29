@@ -108,6 +108,10 @@ namespace {
       arg_out[i] = vdt::fast_exp(arg_inp[i]);
   }
 
+  inline void local_exp_v(double const* arg_inp, double* arg_out, const unsigned arg_arr_size) {
+    vdt::fast_expv(arg_arr_size, arg_inp, arg_out);
+  }
+
   inline void local_exp_list_range(double const* __restrict__ arg_inp,
                                    double* __restrict__ arg_out,
                                    const unsigned int kmin,
@@ -761,16 +765,18 @@ bool DAClusterizerInZT_vect::purge(vertex_t& y, track_t& tks, double& rho0, cons
   pinverse_zsums = inverse_zsums.data();
   parg_cache = arg_cache.data();
   peik_cache = eik_cache.data();
+#pragma GCC ivdep
   for (unsigned i = 0; i < nt; ++i) {
     inverse_zsums[i] = tks.Z_sum_ptr[i] > eps ? 1. / tks.Z_sum_ptr[i] : 0.0;
   }
-
+#pragma GCC ivdep
   for (unsigned int k = 0; k < nv; ++k) {
     nUnique = 0;
     sump = 0;
 
     const double pmax = y.pk_ptr[k] / (y.pk_ptr[k] + rho0 * local_exp(-beta * dzCutOff_ * dzCutOff_));
     const double pcut = uniquetrkweight_ * pmax;
+#pragma GCC ivdep
     for (unsigned i = 0; i < nt; ++i) {
       const auto track_z = tks.z_ptr[i];
       const auto track_t = tks.t_ptr[i];
@@ -781,11 +787,13 @@ bool DAClusterizerInZT_vect::purge(vertex_t& y, track_t& tks, double& rho0, cons
       const auto mult_rest = track_t - y.t_ptr[k];
       parg_cache[i] = botrack_dz2 * (mult_resz * mult_resz) + botrack_dt2 * (mult_rest * mult_rest);
     }
-    local_exp_list(parg_cache, peik_cache, nt);
+    local_exp_v(parg_cache, peik_cache, nt);
+    const auto ypkptrk = y.pk_ptr[k];
+#pragma GCC ivdep
     for (unsigned int i = 0; i < nt; ++i) {
-      const double p = y.pk_ptr[k] * peik_cache[i] * pinverse_zsums[i];
+      const double p = ypkptrk * peik_cache[i] * pinverse_zsums[i];
       sump += p;
-      nUnique += ((p > pcut) & (tks.pi_ptr[i] > 0));
+      nUnique += ((p > pcut) & (tks.pi_ptr[i] > 0)) ? 1 : 0;
     }
 
     if ((nUnique < 2) && (sump < sumpmin)) {
