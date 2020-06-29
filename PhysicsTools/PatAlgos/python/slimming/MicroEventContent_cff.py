@@ -134,6 +134,13 @@ from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _run3_common_extraCommands)
 # --- 
 
+_pp_on_AA_extraCommands = [
+    'keep patPackedCandidates_hiPixelTracks_*_*',
+]
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+(pp_on_AA_2018 | pp_on_PbPb_run3).toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _pp_on_AA_extraCommands)
+
 MicroEventContentMC = cms.PSet(
     outputCommands = cms.untracked.vstring(MicroEventContent.outputCommands)
 )
@@ -171,11 +178,3 @@ phase2_hgcal.toModify(MicroEventContentMC, outputCommands = MicroEventContentMC.
 _phase2_timing_extraCommands = ["keep *_offlineSlimmedPrimaryVertices4D_*_*"]
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toModify(MicroEventContentMC, outputCommands = MicroEventContentMC.outputCommands + _phase2_timing_extraCommands)
-
-_pp_on_AA_extraCommands = [
-    'keep patPackedCandidates_hipixeltracks_*_*',
-]
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
-(pp_on_AA_2018 | pp_on_PbPb_run3).toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _pp_on_AA_extraCommands)
-(pp_on_AA_2018 | pp_on_PbPb_run3).toModify(MicroEventContentMC, outputCommands = MicroEventContentMC.outputCommands + _pp_on_AA_extraCommands)

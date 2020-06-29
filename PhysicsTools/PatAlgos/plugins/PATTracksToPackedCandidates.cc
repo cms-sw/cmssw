@@ -85,7 +85,6 @@ PATTracksToPackedCandidates::PATTracksToPackedCandidates(const edm::ParameterSet
   produces<edm::Association<pat::PackedCandidateCollection>>();
 }
 
-
 //
 // member functions
 //
@@ -115,7 +114,7 @@ void PATTracksToPackedCandidates::produce(edm::Event& iEvent, const edm::EventSe
   bestvzError = vtx.zError();
   bestvxError = vtx.xError();
   bestvyError = vtx.yError();
-  math::XYZPoint bestvtx(vtx.position());
+  const math::XYZPoint& bestvtx(vtx.position());
   math::Error<3>::type vtx_cov = vtx.covariance();
 
   std::vector<int> mapping(tracks->size(), -1);
@@ -128,15 +127,15 @@ void PATTracksToPackedCandidates::produce(edm::Event& iEvent, const edm::EventSe
     double dzerror = std::hypot(trk.dzError(), bestvzError);
     double dxyerror = sqrt(trk.dxyError(bestvtx, vtx_cov) * trk.dxyError(bestvtx, vtx_cov) + bestvxError * bestvyError);
 
-    if (dzvtx >= dzSigCut_*dzerror)
+    if (dzvtx >= dzSigCut_ * dzerror)
       continue;
-    if (dxyvtx >= dxySigCut_*dxyerror) 
+    if (dxyvtx >= dxySigCut_ * dxyerror)
       continue;
     if (trk.pt() >= ptMax_ || trk.pt() <= ptMin_)
       continue;
 
     bool passSelection = false;
-    if (dzvtx < dzSigHP_*dzerror && dxyvtx < dxySigHP_*dxyerror)
+    if (dzvtx < dzSigHP_ * dzerror && dxyvtx < dxySigHP_ * dxyerror)
       passSelection = true;
 
     addPackedCandidate(*outPtrTrksAsCands, trk, pv, pvRefProd, passSelection);
@@ -153,12 +152,11 @@ void PATTracksToPackedCandidates::produce(edm::Event& iEvent, const edm::EventSe
   iEvent.put(std::move(tk2pc));
 }
 
-
 void PATTracksToPackedCandidates::addPackedCandidate(std::vector<pat::PackedCandidate>& cands,
-                                                      const reco::Track trk,
-                                                      const reco::VertexRef& pvSlimmed,
-                                                      const reco::VertexRefProd& pvSlimmedColl,
-                                                      bool passPixelTrackSel) const {
+                                                     const reco::Track trk,
+                                                     const reco::VertexRef& pvSlimmed,
+                                                     const reco::VertexRefProd& pvSlimmedColl,
+                                                     bool passPixelTrackSel) const {
   const float mass = 0.13957018;
 
   int id = 211 * trk.charge();
@@ -167,17 +165,16 @@ void PATTracksToPackedCandidates::addPackedCandidate(std::vector<pat::PackedCand
   cands.emplace_back(
       pat::PackedCandidate(p4, trk.vertex(), trk.pt(), trk.eta(), trk.phi(), id, pvSlimmedColl, pvSlimmed.key()));
 
-  if(resetHP_){
+  if (resetHP_) {
     if (passPixelTrackSel)
       cands.back().setTrackHighPurity(true);
     else
       cands.back().setTrackHighPurity(false);
-  }
-  else{
+  } else {
     if (trk.quality(reco::TrackBase::highPurity))
       cands.back().setTrackHighPurity(true);
     else
-      cands.back().setTrackHighPurity(false);  
+      cands.back().setTrackHighPurity(false);
   }
 
   cands.back().setTrackProperties(trk, covarianceSchema_, covarianceVersion_);

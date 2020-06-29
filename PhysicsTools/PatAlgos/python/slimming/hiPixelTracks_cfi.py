@@ -5,4 +5,4 @@ from PhysicsTools.PatAlgos.patTracksToPackedCandidates_cfi import patTracksToPac
 hiPixelTracks = patTracksToPackedCandidates.clone()
 
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
-phase1Pixel.toModify(hipixeltracks, covarianceVersion=1)
+phase1Pixel.toModify(hiPixelTracks, covarianceVersion=1)
