@@ -162,7 +162,7 @@ if (process.runType.getRunType() == process.runType.pp_run or
 
         DBParameters = cms.PSet(
                                 messageLevel = cms.untracked.int32(0),
-                                authenticationPath = cms.untracked.string('/build/gg')
+                                authenticationPath = cms.untracked.string('')
                                ),
 
         ## Produce a (local) SQLITE FILE ...
@@ -173,7 +173,7 @@ if (process.runType.getRunType() == process.runType.pp_run or
         preLoadConnectionString = cms.untracked.string('frontier://FrontierPrep/CMS_CONDITIONS'),
 
         runNumber = cms.untracked.uint64(options.runNumber),
-        lastLumiFile = cms.untracked.string('last_lumi.txt'),
+        lastLumiFile = cms.untracked.string(''),
         writeTransactionDelay = cms.untracked.uint32(options.transDelay),
         autoCommit = cms.untracked.bool(True),
         toPut = cms.VPSet(cms.PSet(
