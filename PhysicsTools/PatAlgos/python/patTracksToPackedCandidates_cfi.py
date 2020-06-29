@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 patTracksToPackedCandidates = cms.EDProducer('PATTracksToPackedCandidates',
   srcTracks = cms.InputTag('hiConformalPixelTracks'),
-  srcVertices = cms.InputTag('offlinePrimaryVertices'),
   srcPrimaryVertices = cms.InputTag('offlineSlimmedPrimaryVertices'),
   dzSigCut = cms.double(10),
   dxySigCut = cms.double(25),
