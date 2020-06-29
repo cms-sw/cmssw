@@ -180,6 +180,7 @@ class PlotStack:
         self._legends = []
 
     def add(self, histo, legend):
+        histo.ResetBit(ROOT.TH1.kIsAverage)
         self._histos.append(histo)
         self._legends.append(legend)
 
