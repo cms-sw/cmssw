@@ -9,7 +9,8 @@ autoValidation = { 'liteTracking' : ['prevalidationLiteTracking','validationLite
                    'photonOnlyValidation' : ['', 'photonValidationSequence', 'photonPostProcessor'],
                    'tauOnlyValidation' : ['produceDenoms', 'pfTauRunDQMValidation', 'runTauEff'],
                    'ecalOnlyValidation' : ['globalPrevalidationECALOnly','globalValidationECALOnly','postValidation_ECAL'],
-                   'hcalOnlyValidation' : ['globalPrevalidationHCAL','globalValidationHCAL','postValidation_HCAL'],
+                   'hcalValidation' : ['globalPrevalidationHCAL','globalValidationHCAL','postValidation_HCAL'],
+                   'hcalOnlyValidation' : ['globalPrevalidationHCALOnly','globalValidationHCALOnly','postValidation_HCAL'],
                    'baseValidation' : ['baseCommonPreValidation','baseCommonValidation','postValidation_common'],
                    'miniAODValidation' : ['prevalidationMiniAOD','validationMiniAOD','validationHarvestingMiniAOD'],
                    'standardValidation' : ['prevalidation','validation','validationHarvesting'],
@@ -21,7 +22,7 @@ autoValidation = { 'liteTracking' : ['prevalidationLiteTracking','validationLite
                    'TrackerPhase2Validation' : ['', 'trackerphase2ValidationSource', 'trackerphase2ValidationHarvesting'],
                  }
 
-_phase2_allowed = ['baseValidation','trackingValidation','muonOnlyValidation','JetMETOnlyValidation', 'electronOnlyValidation', 'photonOnlyValidation','bTagOnlyValidation', 'tauOnlyValidation', 'hcalOnlyValidation', 'HGCalValidation', 'MTDValidation', 'OuterTrackerValidation', 'ecalValidation_phase2', 'TrackerPhase2Validation']
+_phase2_allowed = ['baseValidation','trackingValidation','muonOnlyValidation','JetMETOnlyValidation', 'electronOnlyValidation', 'photonOnlyValidation','bTagOnlyValidation', 'tauOnlyValidation', 'hcalValidation', 'HGCalValidation', 'MTDValidation', 'OuterTrackerValidation', 'ecalValidation_phase2', 'TrackerPhase2Validation']
 autoValidation['phase2Validation'] = ['','','']
 for i in range(0,3):
     autoValidation['phase2Validation'][i] = '+'.join([_f for _f in [autoValidation[m][i] for m in _phase2_allowed] if _f])
