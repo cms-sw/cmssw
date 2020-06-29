@@ -36,7 +36,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void addPackedCandidate(std::vector<pat::PackedCandidate>& cands,
-                          const reco::TrackRef& trk,
+                          const reco::Track trk,
                           const reco::VertexRef& pvSlimmed,
                           const reco::VertexRefProd& pvSlimmedColl,
                           bool passPixelTrackSel) const;
@@ -96,8 +96,7 @@ void PATTracksToPackedCandidates::produce(edm::Event& iEvent, const edm::EventSe
   using namespace std;
 
   //track collection
-  edm::Handle<reco::TrackCollection> tracks;
-  iEvent.getByToken(srcTracks_, tracks);
+  auto tracks = iEvent.getHandle(srcTracks_);
 
   auto outPtrTrksAsCands = std::make_unique<std::vector<pat::PackedCandidate>>();
 
@@ -120,31 +119,31 @@ void PATTracksToPackedCandidates::produce(edm::Event& iEvent, const edm::EventSe
   math::Error<3>::type vtx_cov = vtx.covariance();
 
   std::vector<int> mapping(tracks->size(), -1);
-  int pixelTrkIndx = 0;
-  for (unsigned int trkIndx = 0; trkIndx < tracks->size(); trkIndx++) {
-    reco::TrackRef trk(tracks, trkIndx);
-
-    double dzvtx = std::abs(trk->dz(bestvtx));
-    double dxyvtx = std::abs(trk->dxy(bestvtx));
-    double dzerror = std::hypot(trk->dzError(), bestvzError);
-    double dxyerror = sqrt(trk->dxyError(bestvtx, vtx_cov) * trk->dxyError(bestvtx, vtx_cov) + bestvxError * bestvyError);
+  int savedCandIndx = 0;
+  int trkIndx = -1;
+  for (auto const& trk : *tracks) {
+    trkIndx++;
+    double dzvtx = std::abs(trk.dz(bestvtx));
+    double dxyvtx = std::abs(trk.dxy(bestvtx));
+    double dzerror = std::hypot(trk.dzError(), bestvzError);
+    double dxyerror = sqrt(trk.dxyError(bestvtx, vtx_cov) * trk.dxyError(bestvtx, vtx_cov) + bestvxError * bestvyError);
 
     if (dzvtx >= dzSigCut_*dzerror)
       continue;
     if (dxyvtx >= dxySigCut_*dxyerror) 
       continue;
-    if (trk->pt() >= ptMax_ || trk->pt() <= ptMin_)
+    if (trk.pt() >= ptMax_ || trk.pt() <= ptMin_)
       continue;
 
     bool passSelection = false;
-    if (fabs(dzvtx / dzerror) < dzSigHP_ && fabs(dxyvtx / dxyerror) < dxySigHP_)
+    if (dzvtx < dzSigHP_*dzerror && dxyvtx < dxySigHP_*dxyerror)
       passSelection = true;
 
     addPackedCandidate(*outPtrTrksAsCands, trk, pv, pvRefProd, passSelection);
 
     //for creating the reco::Track -> pat::PackedCandidate map
-    mapping[trkIndx] = pixelTrkIndx;
-    pixelTrkIndx++;
+    mapping[trkIndx] = savedCandIndx;
+    savedCandIndx++;
   }
   edm::OrphanHandle<pat::PackedCandidateCollection> oh = iEvent.put(std::move(outPtrTrksAsCands));
   auto tk2pc = std::make_unique<edm::Association<pat::PackedCandidateCollection>>(oh);
@@ -156,17 +155,17 @@ void PATTracksToPackedCandidates::produce(edm::Event& iEvent, const edm::EventSe
 
 
 void PATTracksToPackedCandidates::addPackedCandidate(std::vector<pat::PackedCandidate>& cands,
-                                                      const reco::TrackRef& trk,
+                                                      const reco::Track trk,
                                                       const reco::VertexRef& pvSlimmed,
                                                       const reco::VertexRefProd& pvSlimmedColl,
                                                       bool passPixelTrackSel) const {
   const float mass = 0.13957018;
 
-  int id = 211 * trk->charge();
+  int id = 211 * trk.charge();
 
-  reco::Candidate::PolarLorentzVector p4(trk->pt(), trk->eta(), trk->phi(), mass);
+  reco::Candidate::PolarLorentzVector p4(trk.pt(), trk.eta(), trk.phi(), mass);
   cands.emplace_back(
-      pat::PackedCandidate(p4, trk->vertex(), trk->pt(), trk->eta(), trk->phi(), id, pvSlimmedColl, pvSlimmed.key()));
+      pat::PackedCandidate(p4, trk.vertex(), trk.pt(), trk.eta(), trk.phi(), id, pvSlimmedColl, pvSlimmed.key()));
 
   if(resetHP_){
     if (passPixelTrackSel)
@@ -175,13 +174,13 @@ void PATTracksToPackedCandidates::addPackedCandidate(std::vector<pat::PackedCand
       cands.back().setTrackHighPurity(false);
   }
   else{
-    if (trk->quality(reco::TrackBase::highPurity))
+    if (trk.quality(reco::TrackBase::highPurity))
       cands.back().setTrackHighPurity(true);
     else
       cands.back().setTrackHighPurity(false);  
   }
 
-  cands.back().setTrackProperties(*trk, covarianceSchema_, covarianceVersion_);
+  cands.back().setTrackProperties(trk, covarianceSchema_, covarianceVersion_);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
