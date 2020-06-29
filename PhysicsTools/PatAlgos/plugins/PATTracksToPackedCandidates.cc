@@ -46,7 +46,6 @@ private:
 
   // ----------member data ---------------------------
   const edm::EDGetTokenT<reco::TrackCollection> srcTracks_;
-  const edm::EDGetTokenT<reco::VertexCollection> srcVertices_;
   const edm::EDGetTokenT<reco::VertexCollection> srcPrimaryVertices_;
   const double dzSigCut_;
   const double dxySigCut_;
@@ -72,7 +71,6 @@ private:
 //
 PATTracksToPackedCandidates::PATTracksToPackedCandidates(const edm::ParameterSet& iConfig)
     : srcTracks_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("srcTracks"))),
-      srcVertices_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("srcVertices"))),
       srcPrimaryVertices_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("srcPrimaryVertices"))),
       dzSigCut_(iConfig.getParameter<double>("dzSigCut")),
       dxySigCut_(iConfig.getParameter<double>("dxySigCut")),
@@ -103,10 +101,7 @@ void PATTracksToPackedCandidates::produce(edm::Event& iEvent, const edm::EventSe
 
   auto outPtrTrksAsCands = std::make_unique<std::vector<pat::PackedCandidate>>();
 
-  //vtx collections
-  edm::Handle<reco::VertexCollection> vertices;
-  iEvent.getByToken(srcVertices_, vertices);
-
+  //vtx collection
   edm::Handle<reco::VertexCollection> pvs;
   iEvent.getByToken(srcPrimaryVertices_, pvs);
   reco::VertexRef pv(pvs.id());
@@ -118,7 +113,7 @@ void PATTracksToPackedCandidates::produce(edm::Event& iEvent, const edm::EventSe
   //best vertex
   double bestvz = -999.9, bestvx = -999.9, bestvy = -999.9;
   double bestvzError = -999.9, bestvxError = -999.9, bestvyError = -999.9;
-  const reco::Vertex& vtx = (*vertices)[0];
+  const reco::Vertex& vtx = (*pvs)[0];
   bestvz = vtx.z();
   bestvx = vtx.x();
   bestvy = vtx.y();
@@ -198,7 +193,6 @@ void PATTracksToPackedCandidates::fillDescriptions(edm::ConfigurationDescription
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("srcTracks", {"hiConformalPixelTracks"});
-  desc.add<edm::InputTag>("srcVertices", {"offlinePrimaryVertices"});
   desc.add<edm::InputTag>("srcPrimaryVertices", {"offlineSlimmedPrimaryVertices"});
   desc.add<double>("dzSigCut", 10.0);
   desc.add<double>("dxySigCut", 25.0);
