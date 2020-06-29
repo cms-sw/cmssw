@@ -2,6 +2,7 @@
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "L1Trigger/Phase2L1ParticleFlow/src/dbgPrintf.h"
 
 #include "Math/ProbFunc.h"
 
@@ -76,7 +77,7 @@ void LinearizedPuppiAlgo::computePuppiWeights(Region &r,
                                               const std::vector<float> &alphaC,
                                               const std::vector<float> &alphaF) const {
   if (debug_ && npu > 0)
-    printf("LinPup\t npu estimate %7.2f --> log(npu/200) = %+6.2f \n", npu, std::log(npu / 200.f));
+    dbgPrintf("LinPup\t npu estimate %7.2f --> log(npu/200) = %+6.2f \n", npu, std::log(npu / 200.f));
   for (unsigned int ip = 0, np = r.pf.size(); ip < np; ++ip) {
     PFParticle &p = r.pf[ip];
     // charged
@@ -84,7 +85,7 @@ void LinearizedPuppiAlgo::computePuppiWeights(Region &r,
         p.hwId == l1t::PFCandidate::Muon) {
       p.setPuppiW(p.chargedPV || p.hwId == l1t::PFCandidate::Muon ? 1.0 : 0);
       if (debug_ == 2)
-        printf(
+        dbgPrintf(
             "LinPup\t charged id %1d pt %7.2f eta %+5.2f phi %+5.2f   fromPV %1d                                       "
             "                        --> puppi weight %.3f   puppi pt %7.2f \n",
             p.hwId,
@@ -123,7 +124,7 @@ void LinearizedPuppiAlgo::computePuppiWeights(Region &r,
     float x2 = x2a + x2pt - x2prior;
     p.setPuppiW(1.0 / (1.0 + std::exp(-x2)));
     if (debug_ == 1 || debug_ == 2 || debug_ == int(10 + ietaBin))
-      printf(
+      dbgPrintf(
           "LinPup\t neutral id %1d pt %7.2f eta %+5.2f phi %+5.2f   alpha %+6.2f   x2a %+5.2f   x2pt %+6.2f   x2prior "
           "%+6.2f -->  x2 %+6.2f --> puppi weight %.3f   puppi pt %7.2f \n",
           p.hwId,

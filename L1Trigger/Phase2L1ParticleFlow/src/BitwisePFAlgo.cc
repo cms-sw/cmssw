@@ -1,5 +1,6 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/BitwisePFAlgo.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "L1Trigger/Phase2L1ParticleFlow/src/dbgPrintf.h"
 
 //#define REG_HGCal
 #include "ref/pfalgo2hgc_ref.h"
@@ -62,7 +63,7 @@ void BitwisePFAlgo::runPF(Region &r) const {
   dpf2fw::convert(config_->nMU, r.muon, mu.get());
 
   if (debug_) {
-    printf(
+    dbgPrintf(
         "BitwisePF\nBitwisePF region eta [ %+5.2f , %+5.2f ], phi [ %+5.2f , %+5.2f ], fiducial eta [ %+5.2f , %+5.2f "
         "], phi [ %+5.2f , %+5.2f ], algo = %d\n",
         r.etaMin - r.etaExtra,
@@ -74,14 +75,14 @@ void BitwisePFAlgo::runPF(Region &r) const {
         r.phiCenter - r.phiHalfWidth,
         r.phiCenter + r.phiHalfWidth,
         static_cast<int>(algo_));
-    printf("BitwisePF \t N(track) %3lu   N(em) %3lu   N(calo) %3lu   N(mu) %3lu\n",
-           r.track.size(),
-           r.emcalo.size(),
-           r.calo.size(),
-           r.muon.size());
+    dbgPrintf("BitwisePF \t N(track) %3lu   N(em) %3lu   N(calo) %3lu   N(mu) %3lu\n",
+              r.track.size(),
+              r.emcalo.size(),
+              r.calo.size(),
+              r.muon.size());
     for (int itk = 0, ntk = r.track.size(); itk < ntk; ++itk) {
       const auto &tk = r.track[itk];
-      printf(
+      dbgPrintf(
           "BitwisePF \t track %3d: pt %7.2f +- %5.2f  vtx eta %+5.2f  vtx phi %+5.2f  calo eta %+5.2f  calo phi %+5.2f "
           " fid %1d  calo ptErr %7.2f stubs %2d chi2 %7.1f\n",
           itk,
@@ -98,7 +99,7 @@ void BitwisePFAlgo::runPF(Region &r) const {
     }
     for (int iem = 0, nem = r.emcalo.size(); iem < nem; ++iem) {
       const auto &em = r.emcalo[iem];
-      printf(
+      dbgPrintf(
           "BitwisePF \t EM    %3d: pt %7.2f +- %5.2f  vtx eta %+5.2f  vtx phi %+5.2f  calo eta %+5.2f  calo phi %+5.2f "
           " fid %1d  calo ptErr %7.2f\n",
           iem,
@@ -113,7 +114,7 @@ void BitwisePFAlgo::runPF(Region &r) const {
     }
     for (int ic = 0, nc = r.calo.size(); ic < nc; ++ic) {
       auto &calo = r.calo[ic];
-      printf(
+      dbgPrintf(
           "BitwisePF \t calo  %3d: pt %7.2f +- %5.2f  vtx eta %+5.2f  vtx phi %+5.2f  calo eta %+5.2f  calo phi %+5.2f "
           " fid %1d  calo ptErr %7.2f em pt %7.2f \n",
           ic,
@@ -129,7 +130,7 @@ void BitwisePFAlgo::runPF(Region &r) const {
     }
     for (int im = 0, nm = r.muon.size(); im < nm; ++im) {
       auto &mu = r.muon[im];
-      printf(
+      dbgPrintf(
           "BitwisePF \t muon  %3d: pt %7.2f           vtx eta %+5.2f  vtx phi %+5.2f  calo eta %+5.2f  calo phi %+5.2f "
           " fid %1d \n",
           im,
@@ -170,16 +171,16 @@ void BitwisePFAlgo::runPF(Region &r) const {
   };
 
   if (debug_) {
-    printf("BitwisePF \t Output N(ch) %3u/%3u   N(nh) %3u/%3u   N(ph) %3u/%u   [all/fiducial]\n",
-           r.nOutput(l1tpf_impl::Region::charged_type, false, false),
-           r.nOutput(l1tpf_impl::Region::charged_type, false, true),
-           r.nOutput(l1tpf_impl::Region::neutral_hadron_type, false, false),
-           r.nOutput(l1tpf_impl::Region::neutral_hadron_type, false, true),
-           r.nOutput(l1tpf_impl::Region::photon_type, false, false),
-           r.nOutput(l1tpf_impl::Region::photon_type, false, true));
+    dbgPrintf("BitwisePF \t Output N(ch) %3u/%3u   N(nh) %3u/%3u   N(ph) %3u/%u   [all/fiducial]\n",
+              r.nOutput(l1tpf_impl::Region::charged_type, false, false),
+              r.nOutput(l1tpf_impl::Region::charged_type, false, true),
+              r.nOutput(l1tpf_impl::Region::neutral_hadron_type, false, false),
+              r.nOutput(l1tpf_impl::Region::neutral_hadron_type, false, true),
+              r.nOutput(l1tpf_impl::Region::photon_type, false, false),
+              r.nOutput(l1tpf_impl::Region::photon_type, false, true));
     for (int ipf = 0, npf = r.pf.size(); ipf < npf; ++ipf) {
       const auto &pf = r.pf[ipf];
-      printf(
+      dbgPrintf(
           "BitwisePF \t pf    %3d: pt %7.2f pid %d   vtx eta %+5.2f  vtx phi %+5.2f  calo eta %+5.2f  calo phi %+5.2f  "
           "fid %1d\n",
           ipf,

@@ -2,6 +2,7 @@
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "L1Trigger/Phase2L1ParticleFlow/src/dbgPrintf.h"
 
 #include "Math/ProbFunc.h"
 
@@ -102,7 +103,7 @@ void PuppiAlgo::computePuppiWeights(Region &r,
         p.hwId == l1t::PFCandidate::Muon) {
       p.setPuppiW(p.chargedPV || p.hwId == l1t::PFCandidate::Muon ? 1.0 : 0);
       if (debug_)
-        printf(
+        dbgPrintf(
             "PUPPI \t charged id %1d pt %7.2f eta %+5.2f phi %+5.2f  alpha %+7.2f x2 %+7.2f --> puppi weight %.3f   "
             "puppi pt %7.2f \n",
             p.hwId,
@@ -139,7 +140,7 @@ void PuppiAlgo::computePuppiWeights(Region &r,
       }
     }
     if (debug_)
-      printf(
+      dbgPrintf(
           "PUPPI \t neutral id %1d pt %7.2f eta %+5.2f phi %+5.2f  alpha %+7.2f x2 %+7.2f --> puppi weight %.3f   "
           "puppi pt %7.2f \n",
           p.hwId,
@@ -223,13 +224,13 @@ void PuppiAlgo::computePuppiMedRMS(
     alphaFRms = 6.;
   }
   if (debug_)
-    printf("PUPPI \t alphaC = %+6.2f +- %6.2f (%4lu), alphaF = %+6.2f +- %6.2f (%4lu)\n",
-           alphaCMed,
-           alphaCRms,
-           alphaCs.size(),
-           alphaFMed,
-           alphaFRms,
-           alphaFs.size());
+    dbgPrintf("PUPPI \t alphaC = %+6.2f +- %6.2f (%4lu), alphaF = %+6.2f +- %6.2f (%4lu)\n",
+              alphaCMed,
+              alphaCRms,
+              alphaCs.size(),
+              alphaFMed,
+              alphaFRms,
+              alphaFs.size());
 }
 
 void PuppiAlgo::fillPuppi(Region &r) const {

@@ -14,6 +14,7 @@
 #include "FWCore/Utilities/interface/CPUTimer.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/L1TParticleFlow/interface/PFCluster.h"
 
@@ -82,8 +83,8 @@ void l1tpf::corrector::init_(TDirectory *lFile, bool debug) {
       }
       TGraph *graph = graphs[buff];
       if (debug)
-        std::cout << "   eta bin " << ieta << " emf bin " << iemf << " graph " << buff
-                  << (graph ? " <valid>" : " <nil>") << std::endl;
+        edm::LogPrint("corrector") << "   eta bin " << ieta << " emf bin " << iemf << " graph " << buff
+                                   << (graph ? " <valid>" : " <nil>") << "\n";
       if (graph) {
         ngraphs++;
         corrections_[ieta * nemf_ + iemf] = (TGraph *)graph->Clone();

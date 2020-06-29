@@ -63,6 +63,7 @@ l1tpf_calo::Phase1GridBase::Phase1GridBase(
     }
   }
   //// consistency check 1: check that find_cell works
+  //// uncomment to check that there's no holes in the grid
   //for (float teta = 0; teta <= 5.0; teta += 0.02) {
   //    for (float tphi = -M_PI; tphi <= M_PI; tphi += 0.02) {
   //        find_cell(+teta, tphi);
@@ -81,9 +82,8 @@ int l1tpf_calo::Phase1GridBase::find_cell(float eta, float phi) const {
     ieta = nEta_;
   if (eta < 0)
     ieta = -ieta;
-  if (phi > 2 * M_PI)
-    phi -= 2 * M_PI;
-  if (phi < 0)
+  phi = reco::reduceRange(phi);  // [-PI, PI]
+  if (phi < 0)                   // then bring to [0, 2*PI]
     phi += 2 * M_PI;
   int iphi = std::floor(phi * nPhi_ / (2 * M_PI));
   if (phi >= 2 * M_PI)
@@ -94,6 +94,7 @@ int l1tpf_calo::Phase1GridBase::find_cell(float eta, float phi) const {
   else if (std::abs(ieta) >= ietaCoarse_)
     iphi -= (iphi % 2);
   iphi += 1;
+  //// uncomment to check validity of derived coordinates
   //if (!valid_ieta_iphi(ieta,iphi)) {
   //    printf("Error in finding cell for eta %+7.4f phi %+7.4f, got ieta = %+3d iphi %2d which is not valid\n",
   //        eta, phi, ieta, iphi);
@@ -102,6 +103,7 @@ int l1tpf_calo::Phase1GridBase::find_cell(float eta, float phi) const {
   int icell = ifind_cell(ieta, iphi);
   assert(icell != -1);
 
+  //// uncomment to check that the point is really in the cell
   //if (std::abs(eta - eta_[icell]) > 0.501*etaWidth_[icell] || std::abs(deltaPhi(phi, phi_[icell])) > 0.501*phiWidth_[icell]) {
   //    printf("Mismatch in finding cell for eta %+7.4f phi %+7.4f, got ieta = %+3d iphi %2d which has eta %+7.4f +- %.4f phi %+7.4f +- %.4f ; deta = %+7.4f dphi = %+7.4f\n",
   //        eta, phi, ieta, iphi, eta_[icell], etaWidth_[icell], phi_[icell], phiWidth_[icell], eta - eta_[icell], deltaPhi(phi, phi_[icell]));
@@ -214,10 +216,12 @@ void l1tpf_calo::SingleCaloClusterer::run() {
   for (i = 0; i < ncells; ++i) {
     if (rawet_[i] > seedEt_) {
       precluster_[i].ptLocalMax = rawet_[i];
+      //// uncommment code below for debugging the clustering
       //printf("   candidate precluster pt %7.2f at %4d (ieta %+3d iphi %2d)\n",  rawet_[i], i, grid_->ieta(i), grid_->iphi(i));
       for (int ineigh = 0; ineigh <= 3; ++ineigh) {
         if (rawet_.neigh(i, ineigh) > rawet_[i])
           precluster_[i].ptLocalMax = 0;
+        //// uncommment code below for debugging the clustering
         //int ncell = grid_->neighbour(i,ineigh);
         //if (ncell == -1) printf("   \t neigh %d is null\n", ineigh);
         //else printf("   \t neigh %d at %4d (ieta %+3d iphi %2d) has pt %7.2f: comparison %1d \n", ineigh, ncell, grid_->ieta(ncell), grid_->iphi(ncell), rawet_[ncell], precluster_[i].ptLocalMax > 0);
@@ -225,6 +229,7 @@ void l1tpf_calo::SingleCaloClusterer::run() {
       for (int ineigh = 4; ineigh < 8; ++ineigh) {
         if (rawet_.neigh(i, ineigh) >= rawet_[i])
           precluster_[i].ptLocalMax = 0;
+        //// uncommment code below for debugging the clustering
         //int ncell = grid_->neighbour(i,ineigh);
         //if (ncell == -1) printf("   \t neigh %d is null\n", ineigh);
         //else printf("   \t neigh %d at %4d (ieta %+3d iphi %2d) has pt %7.2f: comparison %1d \n", ineigh, ncell, grid_->ieta(ncell), grid_->iphi(ncell), rawet_[ncell], precluster_[i].ptLocalMax > 0);
@@ -435,7 +440,7 @@ std::unique_ptr<l1t::PFClusterCollection> l1tpf_calo::SimpleCaloLinkerBase::fetc
     if (cluster.et > 0) {
       bool photon = (cluster.hcal_et < hoeCut_ * cluster.ecal_et);
       if (photon && noEmInHGC_) {
-        if (std::abs(cluster.eta) > 1.5 && std::abs(cluster.eta) < 3.0) {
+        if (std::abs(cluster.eta) > 1.5 && std::abs(cluster.eta) < 3.0) {  // 1.5-3 = eta range of HGCal
           continue;
         }
       }
@@ -516,10 +521,7 @@ void l1tpf_calo::SimpleCaloLinker::run() {
           cluster.eta = ecal.eta * wecal + hcal.eta * whcal;
           cluster.phi = ecal.phi * wecal + hcal.phi * whcal;
           // wrap around phi
-          if (cluster.phi > M_PI)
-            cluster.phi -= 2 * M_PI;
-          if (cluster.phi < -M_PI)
-            cluster.phi += 2 * M_PI;
+          cluster.phi = reco::reduceRange(cluster.phi);
           cluster.constituents.emplace_back(-i - 1, 1);
         }
       } else {
@@ -547,10 +549,7 @@ void l1tpf_calo::SimpleCaloLinker::run() {
           cluster.eta = hcal.eta + avg_eta / cluster.et;
           cluster.phi = hcal.phi + avg_phi / cluster.et;
           // wrap around phi
-          if (cluster.phi > M_PI)
-            cluster.phi -= 2 * M_PI;
-          if (cluster.phi < -M_PI)
-            cluster.phi += 2 * M_PI;
+          cluster.phi = reco::reduceRange(cluster.phi);
         }
       }
       if (cluster.et > 0) {

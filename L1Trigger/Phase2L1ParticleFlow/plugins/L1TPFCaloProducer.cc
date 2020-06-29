@@ -246,9 +246,9 @@ void L1TPFCaloProducer::readHcalDigis_(edm::Event &iEvent, const edm::EventSetup
         continue;
       float towerEta = l1t::CaloTools::towerEta(id.ieta());
       float towerPhi = l1t::CaloTools::towerPhi(id.ieta(), id.iphi());
-      if (!hcalDigisBarrel_ && std::abs(towerEta) < 2)
+      if (!hcalDigisBarrel_ && std::abs(towerEta) < 2)  // |eta| < 2 => barrel (there's no HE in Phase2)
         continue;
-      if (!hcalDigisHF_ && std::abs(towerEta) > 2)
+      if (!hcalDigisHF_ && std::abs(towerEta) > 2)  // |eta| > 2 => HF
         continue;
       if (debug_)
         edm::LogWarning("L1TPFCaloProducer")
@@ -263,7 +263,7 @@ void L1TPFCaloProducer::readPhase2BarrelCaloTowers_(edm::Event &event, const edm
   for (const auto &token : phase2barrelTowers_) {
     event.getByToken(token, towers);
     for (const auto &t : *towers) {
-      // sanity check from https://github.com/cms-l1t-offline/cmssw/blob/phase2-l1t-integration-CMSSW_10_5_0_pre1/L1Trigger/L1CaloTrigger/plugins/L1TowerCalibrator.cc#L248-L252
+      // sanity check from https://github.com/cms-l1t-offline/cmssw/blob/l1t-phase2-v3.0.2/L1Trigger/L1CaloTrigger/plugins/L1TowerCalibrator.cc#L259-L263
       if ((int)t.towerIEta() == -1016 && (int)t.towerIPhi() == -962)
         continue;
       if (debug_ && (t.hcalTowerEt() > 0 || t.ecalTowerEt() > 0)) {
