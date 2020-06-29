@@ -12,35 +12,28 @@ namespace egamma {
   ConversionInfo findBestConversionMatch(const std::vector<ConversionInfo>& v_convCandidates);
 
   ConversionInfo getConversionInfo(const reco::Track* el_track,
-                                   const reco::Track* candPartnerTk,
+                                   LorentzVector const& cand_p4,
+                                   double cand_d0,
+                                   int cand_charge,
                                    const double bFieldAtOrigin);
 
   //-----------------------------------------------------------------------------
   std::vector<ConversionInfo> getConversionInfos(const reco::GsfElectronCore& gsfElectron,
-                                                 const edm::Handle<reco::TrackCollection>& ctftracks_h,
-                                                 const edm::Handle<reco::GsfTrackCollection>& gsftracks_h,
+                                                 edm::soa::TrackTableView ctfTable,
+                                                 edm::soa::TrackTableView gsfTable,
                                                  const double bFieldAtOrigin,
                                                  const double minFracSharedHits) {
     using namespace reco;
     using namespace std;
     using namespace edm;
-
-    //get the track collections
-    const TrackCollection* ctftracks = ctftracks_h.product();
-    const GsfTrackCollection* gsftracks = gsftracks_h.product();
+    using namespace edm::soa::col;
 
     //get the references to the gsf and ctf tracks that are made
     //by the electron
     const reco::TrackRef el_ctftrack = gsfElectron.ctfTrack();
     const reco::GsfTrackRef& el_gsftrack = gsfElectron.gsfTrack();
 
-    //protect against the wrong collection being passed to the function
-    if (el_ctftrack.isNonnull() && el_ctftrack.id() != ctftracks_h.id())
-      throw cms::Exception("ConversionFinderError")
-          << "ProductID of ctf track collection does not match ProductID of electron's CTF track! \n";
-    if (el_gsftrack.isNonnull() && el_gsftrack.id() != gsftracks_h.id())
-      throw cms::Exception("ConversionFinderError")
-          << "ProductID of gsf track collection does not match ProductID of electron's GSF track! \n";
+    float eleGsfPt = el_gsftrack->pt();
 
     //make p4s for the electron's tracks for use later
     LorentzVector el_ctftrack_p4;
@@ -64,59 +57,63 @@ namespace egamma {
     int gsftk_i = 0;
 
     //loop over the CTF tracks and try to find the partner track
-    for (TrackCollection::const_iterator ctftk = ctftracks->begin(); ctftk != ctftracks->end(); ctftk++, ctftk_i++) {
+    for (auto ctftkItr = ctfTable.begin(); ctftkItr != ctfTable.end(); ++ctftkItr, ctftk_i++) {
       if (ctftk_i == ctfidx)
         continue;
 
+      auto ctftk = *ctftkItr;
+
       //candidate track's p4
-      LorentzVector ctftk_p4 = LorentzVector(ctftk->px(), ctftk->py(), ctftk->pz(), ctftk->p());
+      LorentzVector ctftk_p4 = LorentzVector(ctftk.get<Px>(), ctftk.get<Py>(), ctftk.get<Pz>(), ctftk.get<P>());
 
       //apply quality cuts to remove bad tracks
-      if (ctftk->ptError() / ctftk->pt() > 0.05)
+      if (ctftk.get<PtError>() / ctftk.get<Pt>() > 0.05)
         continue;
-      if (ctftk->numberOfValidHits() < 5)
+      if (ctftk.get<NumberOfValidHits>() < 5)
         continue;
 
       if (el_ctftrack.isNonnull() && gsfElectron.ctfGsfOverlap() > minFracSharedHits &&
-          fabs(ctftk_p4.Pt() - el_ctftrack->pt()) / el_ctftrack->pt() < 0.2)
+          std::abs(ctftk_p4.Pt() - el_ctftrack->pt()) / el_ctftrack->pt() < 0.2)
         continue;
 
       //use the electron's CTF track, if not null, to search for the partner track
       //look only in a cone of 0.5 to save time, and require that the track is opp. sign
       if (el_ctftrack.isNonnull() && gsfElectron.ctfGsfOverlap() > minFracSharedHits &&
-          deltaR(el_ctftrack_p4, ctftk_p4) < 0.5 && (el_ctftrack->charge() + ctftk->charge() == 0)) {
-        ConversionInfo convInfo = getConversionInfo((const reco::Track*)(el_ctftrack.get()), &(*ctftk), bFieldAtOrigin);
+          deltaR(el_ctftrack_p4, ctftk_p4) < 0.5 && (el_ctftrack->charge() + ctftk.get<Charge>() == 0)) {
+        ConversionInfo convInfo = getConversionInfo(
+            (const reco::Track*)(el_ctftrack.get()), ctftk_p4, ctftk.get<D0>(), ctftk.get<Charge>(), bFieldAtOrigin);
 
         //need to add the track reference information for completeness
         //because the overloaded fnc above does not make a trackRef
-        int deltaMissingHits = ctftk->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) -
+        int deltaMissingHits = ctftk.get<MissingInnerHits>() -
                                el_ctftrack->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
 
         v_candidatePartners.push_back({convInfo.dist,
                                        convInfo.dcot,
                                        convInfo.radiusOfConversion,
                                        convInfo.pointOfConversion,
-                                       TrackRef(ctftracks_h, ctftk_i),
-                                       GsfTrackRef(),
+                                       ctftk_i,
+                                       std::nullopt,
                                        deltaMissingHits,
                                        0});
 
       }  //using the electron's CTF track
 
       //now we check using the electron's gsf track
-      if (deltaR(el_gsftrack_p4, ctftk_p4) < 0.5 && (el_gsftrack->charge() + ctftk->charge() == 0) &&
-          el_gsftrack->ptError() / el_gsftrack->pt() < 0.25) {
-        int deltaMissingHits = ctftk->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) -
+      if (deltaR(el_gsftrack_p4, ctftk_p4) < 0.5 && (el_gsftrack->charge() + ctftk.get<Charge>() == 0) &&
+          el_gsftrack->ptError() / eleGsfPt < 0.25) {
+        int deltaMissingHits = ctftk.get<MissingInnerHits>() -
                                el_gsftrack->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
 
-        ConversionInfo convInfo = getConversionInfo((const reco::Track*)(el_gsftrack.get()), &(*ctftk), bFieldAtOrigin);
+        ConversionInfo convInfo = getConversionInfo(
+            (const reco::Track*)(el_gsftrack.get()), ctftk_p4, ctftk.get<D0>(), ctftk.get<Charge>(), bFieldAtOrigin);
 
         v_candidatePartners.push_back({convInfo.dist,
                                        convInfo.dcot,
                                        convInfo.radiusOfConversion,
                                        convInfo.pointOfConversion,
-                                       TrackRef(ctftracks_h, ctftk_i),
-                                       GsfTrackRef(),
+                                       ctftk_i,
+                                       std::nullopt,
                                        deltaMissingHits,
                                        1});
       }  //using the electron's GSF track
@@ -124,59 +121,61 @@ namespace egamma {
     }  //loop over the CTF track collection
 
     //------------------------------------------------------ Loop over GSF collection ----------------------------------//
-    for (GsfTrackCollection::const_iterator gsftk = gsftracks->begin(); gsftk != gsftracks->end(); gsftk++, gsftk_i++) {
+    for (auto gsftkItr = gsfTable.begin(); gsftkItr != gsfTable.end(); ++gsftkItr, gsftk_i++) {
       //reject the electron's own gsfTrack
       if (gsfidx == gsftk_i)
         continue;
 
-      LorentzVector gsftk_p4 = LorentzVector(gsftk->px(), gsftk->py(), gsftk->pz(), gsftk->p());
+      auto gsftk = *gsftkItr;
+
+      LorentzVector gsftk_p4 = LorentzVector(gsftk.get<Px>(), gsftk.get<Py>(), gsftk.get<Pz>(), gsftk.get<P>());
 
       //apply quality cuts to remove bad tracks
-      if (gsftk->ptError() / gsftk->pt() > 0.5)
+      if (gsftk.get<PtError>() / gsftk.get<Pt>() > 0.5)
         continue;
-      if (gsftk->numberOfValidHits() < 5)
+      if (gsftk.get<NumberOfValidHits>() < 5)
         continue;
 
-      if (fabs(gsftk->pt() - el_gsftrack->pt()) / el_gsftrack->pt() < 0.25)
+      if (std::abs(gsftk.get<Pt>() - eleGsfPt) / eleGsfPt < 0.25)
         continue;
 
       //try using the electron's CTF track first if it exists
       //look only in a cone of 0.5 around the electron's track
       //require opposite sign
       if (el_ctftrack.isNonnull() && gsfElectron.ctfGsfOverlap() > minFracSharedHits &&
-          deltaR(el_ctftrack_p4, gsftk_p4) < 0.5 && (el_ctftrack->charge() + gsftk->charge() == 0)) {
-        int deltaMissingHits = gsftk->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) -
+          deltaR(el_ctftrack_p4, gsftk_p4) < 0.5 && (el_ctftrack->charge() + gsftk.get<Charge>() == 0)) {
+        int deltaMissingHits = gsftk.get<MissingInnerHits>() -
                                el_ctftrack->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
 
-        ConversionInfo convInfo =
-            getConversionInfo((const reco::Track*)(el_ctftrack.get()), (const reco::Track*)(&(*gsftk)), bFieldAtOrigin);
+        ConversionInfo convInfo = getConversionInfo(
+            (const reco::Track*)(el_ctftrack.get()), gsftk_p4, gsftk.get<D0>(), gsftk.get<Charge>(), bFieldAtOrigin);
         //fill the Ref info
         v_candidatePartners.push_back({convInfo.dist,
                                        convInfo.dcot,
                                        convInfo.radiusOfConversion,
                                        convInfo.pointOfConversion,
-                                       TrackRef(),
-                                       GsfTrackRef(gsftracks_h, gsftk_i),
+                                       std::nullopt,
+                                       gsftk_i,
                                        deltaMissingHits,
                                        2});
       }
 
       //use the electron's gsf track
-      if (deltaR(el_gsftrack_p4, gsftk_p4) < 0.5 && (el_gsftrack->charge() + gsftk->charge() == 0) &&
+      if (deltaR(el_gsftrack_p4, gsftk_p4) < 0.5 && (el_gsftrack->charge() + gsftk.get<Charge>() == 0) &&
           (el_gsftrack->ptError() / el_gsftrack_p4.pt() < 0.5)) {
-        ConversionInfo convInfo =
-            getConversionInfo((const reco::Track*)(el_gsftrack.get()), (const reco::Track*)(&(*gsftk)), bFieldAtOrigin);
+        ConversionInfo convInfo = getConversionInfo(
+            (const reco::Track*)(el_gsftrack.get()), gsftk_p4, gsftk.get<D0>(), gsftk.get<Charge>(), bFieldAtOrigin);
         //fill the Ref info
 
-        int deltaMissingHits = gsftk->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) -
+        int deltaMissingHits = gsftk.get<MissingInnerHits>() -
                                el_gsftrack->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
 
         v_candidatePartners.push_back({convInfo.dist,
                                        convInfo.dcot,
                                        convInfo.radiusOfConversion,
                                        convInfo.pointOfConversion,
-                                       TrackRef(),
-                                       GsfTrackRef(gsftracks_h, gsftk_i),
+                                       std::nullopt,
+                                       gsftk_i,
                                        deltaMissingHits,
                                        3});
       }
@@ -187,34 +186,34 @@ namespace egamma {
 
   //-----------------------------------------------------------------------------
   ConversionInfo findConversion(const reco::GsfElectronCore& gsfElectron,
-                                const edm::Handle<reco::TrackCollection>& ctftracks_h,
-                                const edm::Handle<reco::GsfTrackCollection>& gsftracks_h,
+                                edm::soa::TrackTableView ctfTable,
+                                edm::soa::TrackTableView gsfTable,
                                 const double bFieldAtOrigin,
                                 const double minFracSharedHits) {
     std::vector<ConversionInfo> temp =
-        getConversionInfos(gsfElectron, ctftracks_h, gsftracks_h, bFieldAtOrigin, minFracSharedHits);
+        getConversionInfos(gsfElectron, ctfTable, gsfTable, bFieldAtOrigin, minFracSharedHits);
     return findBestConversionMatch(temp);
   }
 
   //-------------------------------------------------------------------------------------
   ConversionInfo getConversionInfo(const reco::Track* el_track,
-                                   const reco::Track* candPartnerTk,
+                                   LorentzVector const& cand_p4,
+                                   double cand_d0,
+                                   int cand_charge,
                                    const double bFieldAtOrigin) {
     using namespace reco;
 
     //now calculate the conversion related information
     LorentzVector el_tk_p4(el_track->px(), el_track->py(), el_track->pz(), el_track->p());
     double elCurvature = -0.3 * bFieldAtOrigin * (el_track->charge() / el_tk_p4.pt()) / 100.;
-    double rEl = fabs(1. / elCurvature);
+    double rEl = std::abs(1. / elCurvature);
     double xEl = -1 * (1. / elCurvature - el_track->d0()) * sin(el_tk_p4.phi());
     double yEl = (1. / elCurvature - el_track->d0()) * cos(el_tk_p4.phi());
 
-    LorentzVector cand_p4 =
-        LorentzVector(candPartnerTk->px(), candPartnerTk->py(), candPartnerTk->pz(), candPartnerTk->p());
-    double candCurvature = -0.3 * bFieldAtOrigin * (candPartnerTk->charge() / cand_p4.pt()) / 100.;
-    double rCand = fabs(1. / candCurvature);
-    double xCand = -1 * (1. / candCurvature - candPartnerTk->d0()) * sin(cand_p4.phi());
-    double yCand = (1. / candCurvature - candPartnerTk->d0()) * cos(cand_p4.phi());
+    double candCurvature = -0.3 * bFieldAtOrigin * (cand_charge / cand_p4.pt()) / 100.;
+    double rCand = std::abs(1. / candCurvature);
+    double xCand = -1 * (1. / candCurvature - cand_d0) * sin(cand_p4.phi());
+    double yCand = (1. / candCurvature - cand_d0) * cos(cand_p4.phi());
 
     double d = sqrt(pow(xEl - xCand, 2) + pow(yEl - yCand, 2));
     double dist = d - (rEl + rCand);
@@ -236,11 +235,11 @@ namespace egamma {
 
     //now assign a sign to the radius of conversion
     float tempsign = el_track->px() * x + el_track->py() * y;
-    tempsign = tempsign / fabs(tempsign);
+    tempsign = tempsign / std::abs(tempsign);
     rconv = tempsign * rconv;
 
     //return an instance of ConversionInfo, but with a NULL track refs
-    return ConversionInfo{dist, dcot, rconv, convPoint, TrackRef(), GsfTrackRef(), -9999, -9999};
+    return ConversionInfo{dist, dcot, rconv, convPoint, std::nullopt, std::nullopt, -9999, -9999};
   }
 
   //------------------------------------------------------------------------------------
@@ -274,14 +273,8 @@ namespace egamma {
     using namespace std;
 
     if (v_convCandidates.empty())
-      return ConversionInfo{-9999.,
-                            -9999.,
-                            -9999.,
-                            math::XYZPoint(-9999., -9999., -9999),
-                            reco::TrackRef(),
-                            reco::GsfTrackRef(),
-                            -9999,
-                            -9999};
+      return ConversionInfo{
+          -9999., -9999., -9999., math::XYZPoint(-9999., -9999., -9999), std::nullopt, std::nullopt, -9999, -9999};
 
     if (v_convCandidates.size() == 1)
       return v_convCandidates.at(0);
@@ -296,7 +289,7 @@ namespace egamma {
 
       if (temp.flag == 0) {
         bool isConv = false;
-        if (fabs(temp.dist) < 0.02 && fabs(temp.dcot) < 0.02 && temp.deltaMissingHits < 3 &&
+        if (std::abs(temp.dist) < 0.02 && std::abs(temp.dcot) < 0.02 && temp.deltaMissingHits < 3 &&
             temp.radiusOfConversion > -2)
           isConv = true;
         if (sqrt(pow(temp.dist, 2) + pow(temp.dcot, 2)) < 0.05 && temp.deltaMissingHits < 2 &&
@@ -359,12 +352,12 @@ namespace egamma {
                                               float trk2_d0,
                                               float bFieldAtOrigin) {
     double tk1Curvature = -0.3 * bFieldAtOrigin * (trk1_q / trk1_p4.pt()) / 100.;
-    double rTk1 = fabs(1. / tk1Curvature);
+    double rTk1 = std::abs(1. / tk1Curvature);
     double xTk1 = -1. * (1. / tk1Curvature - trk1_d0) * sin(trk1_p4.phi());
     double yTk1 = (1. / tk1Curvature - trk1_d0) * cos(trk1_p4.phi());
 
     double tk2Curvature = -0.3 * bFieldAtOrigin * (trk2_q / trk2_p4.pt()) / 100.;
-    double rTk2 = fabs(1. / tk2Curvature);
+    double rTk2 = std::abs(1. / tk2Curvature);
     double xTk2 = -1. * (1. / tk2Curvature - trk2_d0) * sin(trk2_p4.phi());
     double yTk2 = (1. / tk2Curvature - trk2_d0) * cos(trk2_p4.phi());
 
@@ -373,7 +366,7 @@ namespace egamma {
 
     double dcot = 1. / tan(trk1_p4.theta()) - 1. / tan(trk2_p4.theta());
 
-    return std::make_pair(dist, dcot);
+    return {dist, dcot};
   }
 
 }  // namespace egamma

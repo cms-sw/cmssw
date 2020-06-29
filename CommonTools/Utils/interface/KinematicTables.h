@@ -34,6 +34,54 @@ namespace edm {
               edm::soa::column_fillers(col::Pt::filler([](Object const& x) { return x.pt(); }),
                                        col::Eta::filler([](Object const& x) { return x.eta(); }),
                                        col::Phi::filler([](Object const& x) { return x.phi(); }))};
+    using TrackTable = edm::soa::Table<col::Px,
+                                       col::Py,
+                                       col::Pz,
+                                       col::P,
+                                       col::PtError,
+                                       col::MissingInnerHits,
+                                       col::NumberOfValidHits,
+                                       col::Charge,
+                                       col::Eta,
+                                       col::Phi,
+                                       col::Pt,
+                                       col::D0>;
+    using TrackTableView = edm::soa::TableView<col::Px,
+                                               col::Py,
+                                               col::Pz,
+                                               col::P,
+                                               col::PtError,
+                                               col::MissingInnerHits,
+                                               col::NumberOfValidHits,
+                                               col::Charge,
+                                               col::Eta,
+                                               col::Phi,
+                                               col::Pt,
+                                               col::D0>;
+
+    template <class Object>
+    TrackTable makeTrackTable(std::vector<Object> const& objects) {
+      return {objects,
+              edm::soa::column_fillers(
+                  col::D0::filler([](Object const& x) { return x.d0(); }),
+                  col::Px::filler([](Object const& x) { return x.px(); }),
+                  col::Py::filler([](Object const& x) { return x.py(); }),
+                  col::Pz::filler([](Object const& x) { return x.pz(); }),
+                  col::P::filler([](Object const& x) { return x.p(); }),
+                  col::Pt::filler([](Object const& x) { return x.pt(); }),
+                  col::PtError::filler([](Object const& x) { return x.ptError(); }),
+                  col::MissingInnerHits::filler([](Object const& x) {
+                    return x.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+                  }),
+                  col::NumberOfValidHits::filler([](Object const& x) { return x.numberOfValidHits(); }),
+                  col::Charge::filler([](Object const& x) { return x.charge(); }),
+                  col::Eta::filler([](Object const& x) { return x.eta(); }),
+                  col::Phi::filler([](Object const& x) { return x.phi(); }))};
+    }
+
+    template <class Object>
+    auto makeTrackTableLazy(std::vector<Object> const& objects) {
+      return LazyResult(&makeTrackTable<Object>, objects);
     }
 
   }  // namespace soa
