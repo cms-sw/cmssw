@@ -134,7 +134,8 @@ private:
 
   const bool theUpdateStateFlag;
 
-  const std::string theResetMethod;
+  enum class ResetMethod { discrete, fixed, matrix };
+  const ResetMethod theResetMethod;
 
   const bool theSelectStateFlag;
 

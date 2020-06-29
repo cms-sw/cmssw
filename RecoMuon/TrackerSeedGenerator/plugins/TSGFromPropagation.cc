@@ -39,7 +39,7 @@ TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet& iConfig,
       theFixedErrorRescaling(iConfig.getParameter<double>("ErrorRescaling")),
       theUseVertexStateFlag(iConfig.getParameter<bool>("UseVertexState")),
       theUpdateStateFlag(iConfig.getParameter<bool>("UpdateState")),
-      theResetMethod([]() {
+      theResetMethod([](const edm::ParameterSet& iConfig) {
         auto resetMethod = iConfig.getParameter<std::string>("ResetMethod");
         if (resetMethod != "discrete" && resetMethod != "fixed" && resetMethod != "matrix") {
           edm::LogError("TSGFromPropagation") << "Wrong error rescaling method: " << resetMethod << "\n"
@@ -47,8 +47,14 @@ TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet& iConfig,
                                               << "Use discrete method" << std::endl;
           resetMethod = "discrete";
         }
-        return resetMethod;
-      }()),
+        if ("fixed" == resetMethod) {
+          return ResetMethod::fixed;
+        }
+        if ("matrix" == resetMethod) {
+          return ResetMethod::matrix;
+        }
+        return ResetMethod::discrete;
+      }(iConfig)),
       theSelectStateFlag(iConfig.getParameter<bool>("SelectState")),
       thePropagatorName(iConfig.getParameter<std::string>("Propagator")),
       theSigmaZ(iConfig.getParameter<double>("SigmaZ")),
@@ -63,7 +69,7 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon,
                                       const TrackingRegion& region,
                                       const TrackerTopology* tTopo,
                                       std::vector<TrajectorySeed>& result) {
-  if (theResetMethod == "discrete")
+  if (theResetMethod == ResetMethod::discrete)
     getRescalingFactor(staMuon);
 
   TrajectoryStateOnSurface staState = outerTkState(staMuon);
@@ -159,7 +165,7 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
 
   theUpdator = std::make_unique<KFUpdator>();
 
-  if (theResetMethod == "matrix" && !theErrorMatrixPset.empty()) {
+  if (theResetMethod == ResetMethod::matrix && !theErrorMatrixPset.empty()) {
     theErrorMatrixAdjuster = std::make_unique<MuonErrorMatrix>(theErrorMatrixPset);
   }
 
@@ -321,13 +327,13 @@ void TSGFromPropagation::getRescalingFactor(const TrackCand& staMuon) {
 
 void TSGFromPropagation::adjust(FreeTrajectoryState& state) const {
   //rescale the error
-  if (theResetMethod == "discreate") {
+  if (theResetMethod == ResetMethod::discrete) {
     state.rescaleError(theFlexErrorRescaling);
     return;
   }
 
   //rescale the error
-  if (theResetMethod == "fixed" || !theErrorMatrixAdjuster) {
+  if (theResetMethod == ResetMethod::fixed || !theErrorMatrixAdjuster) {
     state.rescaleError(theFixedErrorRescaling);
     return;
   }
@@ -341,12 +347,12 @@ void TSGFromPropagation::adjust(FreeTrajectoryState& state) const {
 
 void TSGFromPropagation::adjust(TrajectoryStateOnSurface& state) const {
   //rescale the error
-  if (theResetMethod == "discreate") {
+  if (theResetMethod == ResetMethod::discrete) {
     state.rescaleError(theFlexErrorRescaling);
     return;
   }
 
-  if (theResetMethod == "fixed" || !theErrorMatrixAdjuster) {
+  if (theResetMethod == ResetMethod::fixed || !theErrorMatrixAdjuster) {
     state.rescaleError(theFixedErrorRescaling);
     return;
   }
