@@ -23,8 +23,11 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/Math/interface/Point3D.h"
+#include "CommonTools/Utils/interface/KinematicTables.h"
 
 #include "Math/VectorUtil.h"
+
+#include <optional>
 
 /*
    Class Looks for oppositely charged track in the
@@ -43,10 +46,10 @@ namespace egamma {
     const math::XYZPoint pointOfConversion;
     // if the partner track is found in the  GSF track collection,
     // this is a ref to the GSF partner track
-    const reco::TrackRef conversionPartnerCtfTk;
+    const std::optional<int> conversionPartnerCtfTkIdx;
     // if the partner track is found in the  CTF track collection,
     // this is a ref to the CTF partner track
-    const reco::GsfTrackRef conversionPartnerGsfTk;
+    const std::optional<int> conversionPartnerGsfTkIdx;
     const int deltaMissingHits;
     const int flag;
 
@@ -59,8 +62,8 @@ namespace egamma {
   // returns the "best" conversion,
   // bField has to be supplied in Tesla
   ConversionInfo findConversion(const reco::GsfElectronCore&,
-                                const edm::Handle<reco::TrackCollection>& ctftracks_h,
-                                const edm::Handle<reco::GsfTrackCollection>& gsftracks_h,
+                                edm::soa::TrackTableView ctfTable,
+                                edm::soa::TrackTableView gsfTable,
                                 const double bFieldAtOrigin,
                                 const double minFracSharedHits = 0.45);
 
