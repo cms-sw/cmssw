@@ -7,11 +7,9 @@
 <use name="DataFormats/SiStripCluster"/>
 <use name="DataFormats/SiPixelCluster"/>
 <use name="DataFormats/TrackerRecHit2D"/>
-<use name="DataFormats/METReco"/>
 <use name="DataFormats/RecoCandidate"/>
 <use name="DataFormats/Candidate"/>
 <use name="DataFormats/VertexReco"/>
-<use name="TrackingTools/Records"/>
 <use name="TrackingTools/IPTools"/>
 <use name="TrackingTools/TransientTrack"/>
 <use name="fastjet"/>

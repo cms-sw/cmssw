@@ -1,9 +1,11 @@
 #ifndef PhysicsTools_PatUtils_interface_EventHypothesisTools_h
 #define PhysicsTools_PatUtils_interface_EventHypothesisTools_h
 
-#include "boost/ptr_container/ptr_vector.hpp"
 #include "DataFormats/PatCandidates/interface/EventHypothesis.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+
+#include <memory>
+#include <vector>
 
 namespace pat {
   namespace eventhypothesis {
@@ -15,13 +17,13 @@ namespace pat {
       AndFilter(ParticleFilter *f1, ParticleFilter *f2);
       ~AndFilter() override {}
       AndFilter &operator&=(ParticleFilter *filter) {
-        filters_.push_back(filter);
+        filters_.emplace_back(filter);
         return *this;
       }
       bool operator()(const CandRefType &cand, const std::string &role) const override;
 
     private:
-      boost::ptr_vector<ParticleFilter> filters_;
+      std::vector<std::unique_ptr<ParticleFilter>> filters_;
     };
 
     /** Does the OR of some filters. OWNS the pointers to the filters */
@@ -31,13 +33,13 @@ namespace pat {
       OrFilter(ParticleFilter *f1, ParticleFilter *f2);
       ~OrFilter() override {}
       OrFilter &operator&=(ParticleFilter *filter) {
-        filters_.push_back(filter);
+        filters_.emplace_back(filter);
         return *this;
       }
       bool operator()(const CandRefType &cand, const std::string &role) const override;
 
     private:
-      boost::ptr_vector<ParticleFilter> filters_;
+      std::vector<std::unique_ptr<ParticleFilter>> filters_;
     };
 
     class ByPdgId : public ParticleFilter {

@@ -12,7 +12,7 @@
 
 #include <stdexcept>
 #include <iostream>
-#include <boost/bind.hpp>
+#include <functional>
 
 #include "Rtypes.h"
 #include "TMath.h"
@@ -34,10 +34,10 @@ FWViewEnergyScale::FWViewEnergyScale(std::string name, int version)
   m_scaleMode.addEntry(kAutoScale, "AutomaticScale");
   m_scaleMode.addEntry(kCombinedScale, "CombinedScale");
 
-  m_scaleMode.changed_.connect(boost::bind(&FWViewEnergyScale::scaleParameterChanged, this));
-  m_fixedValToHeight.changed_.connect(boost::bind(&FWViewEnergyScale::scaleParameterChanged, this));
-  m_maxTowerHeight.changed_.connect(boost::bind(&FWViewEnergyScale::scaleParameterChanged, this));
-  m_plotEt.changed_.connect(boost::bind(&FWViewEnergyScale::scaleParameterChanged, this));
+  m_scaleMode.changed_.connect(std::bind(&FWViewEnergyScale::scaleParameterChanged, this));
+  m_fixedValToHeight.changed_.connect(std::bind(&FWViewEnergyScale::scaleParameterChanged, this));
+  m_maxTowerHeight.changed_.connect(std::bind(&FWViewEnergyScale::scaleParameterChanged, this));
+  m_plotEt.changed_.connect(std::bind(&FWViewEnergyScale::scaleParameterChanged, this));
 }
 
 FWViewEnergyScale::~FWViewEnergyScale() {}

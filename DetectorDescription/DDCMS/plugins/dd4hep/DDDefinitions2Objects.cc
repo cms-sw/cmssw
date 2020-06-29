@@ -585,14 +585,14 @@ void Converter<DDLElementaryMaterial>::operator()(xml_h element) const {
 
     if (!elt || newMatDef) {
       if (newMatDef)
-        printout(WARNING,
-                 "DD4CMS",
+        printout(ns.context()->debug_materials ? ALWAYS : DEBUG,
+                 "DD4CMS Warning",
                  "+++ Converter<ElementaryMaterial> Different definition of a default element with name:%s [CREATE NEW "
                  "MATERIAL]",
                  matname);
       else
-        printout(WARNING,
-                 "DD4CMS",
+        printout(ns.context()->debug_materials ? ALWAYS : DEBUG,
+                 "DD4CMS Warning",
                  "+++ Converter<ElementaryMaterial> No default element present with name:%s  [CREATE NEW MATERIAL]",
                  matname);
       elt = new TGeoElement(xmat.nameStr().c_str(), "CMS element", atomicNumber, atomicWeight);
@@ -647,8 +647,8 @@ void Converter<DDLCompositeMaterial>::operator()(xml_h element) const {
         continue;
       }
 
-      printout(WARNING,
-               "DD4CMS",
+      printout(ns.context()->debug_materials ? ALWAYS : DEBUG,
+               "DD4CMS Warning",
                "+++ Composite material \"%s\" [nor \"%s\"] not present! [delay resolution]",
                fracname.c_str(),
                ns.prepend(fracname).c_str());

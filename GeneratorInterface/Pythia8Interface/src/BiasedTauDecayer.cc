@@ -9,9 +9,9 @@ using namespace Pythia8;
 //
 
 BiasedTauDecayer::BiasedTauDecayer(
-    Info* infoPtr, Settings* settingsPtr, ParticleData* particleDataPtr, Rndm* rndmPtr, Couplings* couplingsPtr) {
+    const Info* infoPtr, Settings* settingsPtr, ParticleData* particleDataPtr, Rndm* rndmPtr) {
   decayer = TauDecays();
-  decayer.init(infoPtr, settingsPtr, particleDataPtr, rndmPtr, couplingsPtr);
+  decayer.init();
   filter_ = settingsPtr->flag("BiasedTauDecayer:filter");
   eMuDecays_ = settingsPtr->flag("BiasedTauDecayer:eMuDecays");
 }

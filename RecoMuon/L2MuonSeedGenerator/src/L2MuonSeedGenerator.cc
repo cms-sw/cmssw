@@ -292,9 +292,8 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
             if (assoOffseed != nullptr) {
               PTrajectoryStateOnDet const& seedTSOS = assoOffseed->startingState();
-              TrajectorySeed::const_iterator tsci = assoOffseed->recHits().first, tscie = assoOffseed->recHits().second;
-              for (; tsci != tscie; ++tsci) {
-                container.push_back(*tsci);
+              for (auto const& tsci : assoOffseed->recHits()) {
+                container.push_back(tsci);
               }
               output->push_back(
                   L2MuonTrajectorySeed(seedTSOS, container, alongMomentum, L1MuonParticleRef(muColl, l1ParticleIndex)));

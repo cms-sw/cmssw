@@ -1,7 +1,6 @@
 #include "ZdcHitReconstructor.h"
 #include "DataFormats/Common/interface/EDCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
@@ -23,11 +22,6 @@ ZdcHitReconstructor::ZdcHitReconstructor(edm::ParameterSet const& conf)
             conf.getParameter<int>("lowGainOffset"),
             conf.getParameter<double>("lowGainFrac")),
       saturationFlagSetter_(nullptr),
-      HFTimingTrustFlagSetter_(nullptr),
-      hbheHSCPFlagSetter_(nullptr),
-      hbheTimingShapedFlagSetter_(nullptr),
-      hfrechitbit_(nullptr),
-      hfdigibit_(nullptr),
       det_(DetId::Hcal),
       correctTiming_(conf.getParameter<bool>("correctTiming")),
       setNoiseFlags_(conf.getParameter<bool>("setNoiseFlags")),
@@ -35,11 +29,7 @@ ZdcHitReconstructor::ZdcHitReconstructor(edm::ParameterSet const& conf)
       setSaturationFlags_(conf.getParameter<bool>("setSaturationFlags")),
       setTimingTrustFlags_(conf.getParameter<bool>("setTimingTrustFlags")),
       dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),
-      AuxTSvec_(conf.getParameter<std::vector<int> >("AuxTSvec")),
-      myobject(nullptr),
-      theTopology(nullptr)
-
-{
+      AuxTSvec_(conf.getParameter<std::vector<int> >("AuxTSvec")) {
   tok_input_hcal = consumes<ZDCDigiCollection>(conf.getParameter<edm::InputTag>("digiLabelhcal"));
   tok_input_castor = consumes<ZDCDigiCollection>(conf.getParameter<edm::InputTag>("digiLabelcastor"));
 
@@ -61,39 +51,31 @@ ZdcHitReconstructor::ZdcHitReconstructor(edm::ParameterSet const& conf)
   } else {
     std::cout << "ZdcHitReconstructor is not associated with a specific subdetector!" << std::endl;
   }
+
+  // ES tokens
+  htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+  paramsToken_ = esConsumes<HcalLongRecoParams, HcalLongRecoParamsRcd, edm::Transition::BeginRun>();
+  conditionsToken_ = esConsumes<HcalDbService, HcalDbRecord>();
+  qualToken_ = esConsumes<HcalChannelQuality, HcalChannelQualityRcd>(edm::ESInputTag("", "withTopo"));
+  sevToken_ = esConsumes<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd>();
 }
 
 ZdcHitReconstructor::~ZdcHitReconstructor() { delete saturationFlagSetter_; }
 
 void ZdcHitReconstructor::beginRun(edm::Run const& r, edm::EventSetup const& es) {
-  edm::ESHandle<HcalLongRecoParams> p;
-  es.get<HcalLongRecoParamsRcd>().get(p);
-  myobject = new HcalLongRecoParams(*p.product());
-
-  edm::ESHandle<HcalTopology> htopo;
-  es.get<HcalRecNumberingRecord>().get(htopo);
-  theTopology = new HcalTopology(*htopo);
-  myobject->setTopo(theTopology);
+  const HcalTopology& htopo = es.getData(htopoToken_);
+  const HcalLongRecoParams& p = es.getData(paramsToken_);
+  longRecoParams_ = std::make_unique<HcalLongRecoParams>(p);
+  longRecoParams_->setTopo(&htopo);
 }
 
-void ZdcHitReconstructor::endRun(edm::Run const& r, edm::EventSetup const& es) {
-  delete myobject;
-  myobject = nullptr;
-  delete theTopology;
-  theTopology = nullptr;
-}
+void ZdcHitReconstructor::endRun(edm::Run const& r, edm::EventSetup const& es) {}
+
 void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
   // get conditions
-  edm::ESHandle<HcalDbService> conditions;
-  eventSetup.get<HcalDbRecord>().get(conditions);
-
-  edm::ESHandle<HcalChannelQuality> p;
-  eventSetup.get<HcalChannelQualityRcd>().get("withTopo", p);
-  const HcalChannelQuality* myqual = p.product();
-
-  edm::ESHandle<HcalSeverityLevelComputer> mycomputer;
-  eventSetup.get<HcalSeverityLevelComputerRcd>().get(mycomputer);
-  const HcalSeverityLevelComputer* mySeverity = mycomputer.product();
+  const HcalDbService* conditions = &eventSetup.getData(conditionsToken_);
+  const HcalChannelQuality* myqual = &eventSetup.getData(qualToken_);
+  const HcalSeverityLevelComputer* mySeverity = &eventSetup.getData(sevToken_);
 
   // define vectors to pass noiseTS and signalTS
   std::vector<unsigned int> mySignalTS;
@@ -133,7 +115,7 @@ void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSet
       HcalCoderDb coder(*channelCoder, *shape);
 
       // get db values for signalTSs and noiseTSs
-      const HcalLongRecoParam* myParams = myobject->getValues(detcell);
+      const HcalLongRecoParam* myParams = longRecoParams_->getValues(detcell);
       mySignalTS.clear();
       myNoiseTS.clear();
       mySignalTS = myParams->signalTS();

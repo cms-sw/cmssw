@@ -11,9 +11,6 @@
 #include "Pythia8/Pythia.h"
 #include "Pythia8Plugins/HepMC2.h"
 
-#include "Pythia8/Vincia.h"
-#include "Dire/Dire.h"
-
 using namespace Pythia8;
 
 #include "GeneratorInterface/Pythia8Interface/interface/Py8InterfaceBase.h"
@@ -25,8 +22,6 @@ using namespace Pythia8;
 #include "GeneratorInterface/Pythia8Interface/plugins/JetMatchingHook.h"
 #include "Pythia8Plugins/JetMatching.h"
 #include "Pythia8Plugins/aMCatNLOHooks.h"
-
-#include "GeneratorInterface/Pythia8Interface/interface/MultiUserHook.h"
 
 // Emission Veto Hooks
 //
@@ -98,9 +93,6 @@ public:
   std::unique_ptr<GenLumiInfoHeader> getGenLumiInfoHeader() const override;
 
 private:
-  std::unique_ptr<Pythia8::VinciaPlugin> fvincia;
-  std::unique_ptr<Pythia8::Dire> fDire;
-
   void doSetRandomEngine(CLHEP::HepRandomEngine *v) override { p8SetRandomEngine(v); }
   std::vector<std::string> const &doSharedResources() const override { return p8SharedResources; }
 
@@ -108,7 +100,7 @@ private:
   double comEnergy;
 
   std::string LHEInputFileName;
-  std::unique_ptr<LHAupLesHouches> lhaUP;
+  std::shared_ptr<LHAupLesHouches> lhaUP;
 
   enum { PP, PPbar, ElectronPositron };
   int fInitialState;  // pp, ppbar, or e-e+
@@ -117,38 +109,39 @@ private:
   double fBeam2PZ;
 
   //helper class to allow multiple user hooks simultaneously
-  std::unique_ptr<MultiUserHook> fMultiUserHook;
+  std::shared_ptr<UserHooksVector> fUserHooksVector;
+  bool UserHooksSet;
 
   // Reweight user hooks
   //
-  std::unique_ptr<UserHooks> fReweightUserHook;
-  std::unique_ptr<UserHooks> fReweightEmpUserHook;
-  std::unique_ptr<UserHooks> fReweightRapUserHook;
-  std::unique_ptr<UserHooks> fReweightPtHatRapUserHook;
+  std::shared_ptr<UserHooks> fReweightUserHook;
+  std::shared_ptr<UserHooks> fReweightEmpUserHook;
+  std::shared_ptr<UserHooks> fReweightRapUserHook;
+  std::shared_ptr<UserHooks> fReweightPtHatRapUserHook;
 
   // PS matching prototype
   //
-  std::unique_ptr<JetMatchingHook> fJetMatchingHook;
-  std::unique_ptr<Pythia8::JetMatchingMadgraph> fJetMatchingPy8InternalHook;
-  std::unique_ptr<Pythia8::amcnlo_unitarised_interface> fMergingHook;
+  std::shared_ptr<JetMatchingHook> fJetMatchingHook;
+  std::shared_ptr<Pythia8::JetMatchingMadgraph> fJetMatchingPy8InternalHook;
+  std::shared_ptr<Pythia8::amcnlo_unitarised_interface> fMergingHook;
 
   // Emission Veto Hooks
   //
-  std::unique_ptr<PowhegHooks> fEmissionVetoHook;
-  std::unique_ptr<EmissionVetoHook1> fEmissionVetoHook1;
+  std::shared_ptr<PowhegHooks> fEmissionVetoHook;
+  std::shared_ptr<EmissionVetoHook1> fEmissionVetoHook1;
 
   // Resonance scale hook
-  std::unique_ptr<PowhegResHook> fPowhegResHook;
-  std::unique_ptr<PowhegHooksBB4L> fPowhegHooksBB4L;
+  std::shared_ptr<PowhegResHook> fPowhegResHook;
+  std::shared_ptr<PowhegHooksBB4L> fPowhegHooksBB4L;
 
   // biased tau decayer
-  std::unique_ptr<BiasedTauDecayer> fBiasedTauDecayer;
+  std::shared_ptr<BiasedTauDecayer> fBiasedTauDecayer;
 
   //resonance decay filter hook
-  std::unique_ptr<ResonanceDecayFilterHook> fResonanceDecayFilterHook;
+  std::shared_ptr<ResonanceDecayFilterHook> fResonanceDecayFilterHook;
 
   //PT filter hook
-  std::unique_ptr<PTFilterHook> fPTFilterHook;
+  std::shared_ptr<PTFilterHook> fPTFilterHook;
 
   int EV1_nFinal;
   bool EV1_vetoOn;
@@ -178,6 +171,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
       comEnergy(params.getParameter<double>("comEnergy")),
       LHEInputFileName(params.getUntrackedParameter<std::string>("LHEInputFileName", "")),
       fInitialState(PP),
+      UserHooksSet(false),
       nME(-1),
       nMEFiltered(-1),
       nISRveto(0),
@@ -313,14 +307,12 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
   }
 
   if (params.exists("VinciaPlugin")) {
-    fMasterGen.reset(new Pythia);
-    fvincia.reset(new Pythia8::VinciaPlugin(fMasterGen.get()));
+    throw edm::Exception(edm::errors::Configuration, "Pythia8Interface")
+        << " Obsolete parameter: VinciaPlugin \n Please use the parameter PartonShowers:model instead \n";
   }
   if (params.exists("DirePlugin")) {
-    fMasterGen.reset(new Pythia);
-    fDire.reset(new Pythia8::Dire());
-    fDire->initSettings(*fMasterGen.get());
-    fDire->initShowersAndWeights(*fMasterGen.get(), nullptr, nullptr);
+    throw edm::Exception(edm::errors::Configuration, "Pythia8Interface")
+        << " Obsolete parameter: DirePlugin \n Please use the parameter PartonShowers:model instead \n";
   }
 }
 
@@ -351,21 +343,23 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
     fMasterGen->settings.word("Beams:LHEF", lheFile_);
   }
 
-  fMultiUserHook.reset(new MultiUserHook);
+  if (!fUserHooksVector.get())
+    fUserHooksVector.reset(new UserHooksVector);
+  (fUserHooksVector->hooks).clear();
 
   if (fReweightUserHook.get())
-    fMultiUserHook->addHook(fReweightUserHook.get());
+    (fUserHooksVector->hooks).push_back(fReweightUserHook);
   if (fReweightEmpUserHook.get())
-    fMultiUserHook->addHook(fReweightEmpUserHook.get());
+    (fUserHooksVector->hooks).push_back(fReweightEmpUserHook);
   if (fReweightRapUserHook.get())
-    fMultiUserHook->addHook(fReweightRapUserHook.get());
+    (fUserHooksVector->hooks).push_back(fReweightRapUserHook);
   if (fReweightPtHatRapUserHook.get())
-    fMultiUserHook->addHook(fReweightPtHatRapUserHook.get());
+    (fUserHooksVector->hooks).push_back(fReweightPtHatRapUserHook);
   if (fJetMatchingHook.get())
-    fMultiUserHook->addHook(fJetMatchingHook.get());
+    (fUserHooksVector->hooks).push_back(fJetMatchingHook);
   if (fEmissionVetoHook1.get()) {
     edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook 1 from CMSSW Pythia8Interface";
-    fMultiUserHook->addHook(fEmissionVetoHook1.get());
+    (fUserHooksVector->hooks).push_back(fEmissionVetoHook1);
   }
 
   if (fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) {
@@ -374,24 +368,27 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
           << " Attempt to turn on PowhegHooks by pythia8 settings but there are incompatible hooks on \n Incompatible "
              "are : jetMatching, emissionVeto1 \n";
 
-    fEmissionVetoHook.reset(new PowhegHooks());
+    if (!fEmissionVetoHook.get())
+      fEmissionVetoHook.reset(new PowhegHooks());
 
     edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook from pythia8 code";
-    fMultiUserHook->addHook(fEmissionVetoHook.get());
+    (fUserHooksVector->hooks).push_back(fEmissionVetoHook);
   }
 
   bool PowhegRes = fMasterGen->settings.flag("POWHEGres:calcScales");
   if (PowhegRes) {
     edm::LogInfo("Pythia8Interface") << "Turning on resonance scale setting from CMSSW Pythia8Interface";
-    fPowhegResHook.reset(new PowhegResHook());
-    fMultiUserHook->addHook(fPowhegResHook.get());
+    if (!fPowhegResHook.get())
+      fPowhegResHook.reset(new PowhegResHook());
+    (fUserHooksVector->hooks).push_back(fPowhegResHook);
   }
 
   bool PowhegBB4L = fMasterGen->settings.flag("POWHEG:bb4l");
   if (PowhegBB4L) {
     edm::LogInfo("Pythia8Interface") << "Turning on BB4l hook from CMSSW Pythia8Interface";
-    fPowhegHooksBB4L.reset(new PowhegHooksBB4L());
-    fMultiUserHook->addHook(fPowhegHooksBB4L.get());
+    if (!fPowhegHooksBB4L.get())
+      fPowhegHooksBB4L.reset(new PowhegHooksBB4L());
+    (fUserHooksVector->hooks).push_back(fPowhegHooksBB4L);
   }
 
   //adapted from main89.cc in pythia8 examples
@@ -404,8 +401,9 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
   }
 
   if (internalMatching) {
-    fJetMatchingPy8InternalHook.reset(new Pythia8::JetMatchingMadgraph);
-    fMultiUserHook->addHook(fJetMatchingPy8InternalHook.get());
+    if (!fJetMatchingPy8InternalHook.get())
+      fJetMatchingPy8InternalHook.reset(new Pythia8::JetMatchingMadgraph);
+    (fUserHooksVector->hooks).push_back(fJetMatchingPy8InternalHook);
   }
 
   if (internalMerging) {
@@ -417,50 +415,40 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
                          fMasterGen->settings.flag("Merging:doUNLOPSSubtNLO"))
                             ? 2
                             : 0);
-    fMergingHook.reset(new Pythia8::amcnlo_unitarised_interface(scheme));
-    fMultiUserHook->addHook(fMergingHook.get());
+    if (!fMergingHook.get())
+      fMergingHook.reset(new Pythia8::amcnlo_unitarised_interface(scheme));
+    (fUserHooksVector->hooks).push_back(fMergingHook);
   }
+
   bool biasedTauDecayer = fMasterGen->settings.flag("BiasedTauDecayer:filter");
   if (biasedTauDecayer) {
-    fBiasedTauDecayer.reset(new BiasedTauDecayer(&(fMasterGen->info),
-                                                 &(fMasterGen->settings),
-                                                 &(fMasterGen->particleData),
-                                                 &(fMasterGen->rndm),
-                                                 &(fMasterGen->couplings)));
+    if (!fBiasedTauDecayer.get())
+      fBiasedTauDecayer.reset(new BiasedTauDecayer(
+          &(fMasterGen->info), &(fMasterGen->settings), &(fMasterGen->particleData), &(fMasterGen->rndm)));
     std::vector<int> handledParticles;
     handledParticles.push_back(15);
-    fMasterGen->setDecayPtr(fBiasedTauDecayer.get(), handledParticles);
+    fMasterGen->setDecayPtr(fBiasedTauDecayer, handledParticles);
   }
 
   bool resonanceDecayFilter = fMasterGen->settings.flag("ResonanceDecayFilter:filter");
   if (resonanceDecayFilter) {
     fResonanceDecayFilterHook.reset(new ResonanceDecayFilterHook);
-    fMultiUserHook->addHook(fResonanceDecayFilterHook.get());
+    (fUserHooksVector->hooks).push_back(fResonanceDecayFilterHook);
   }
 
   bool PTFilter = fMasterGen->settings.flag("PTFilter:filter");
   if (PTFilter) {
     fPTFilterHook.reset(new PTFilterHook);
-    fMultiUserHook->addHook(fPTFilterHook.get());
+    (fUserHooksVector->hooks).push_back(fPTFilterHook);
   }
 
-  if (fMultiUserHook->nHooks() > 0) {
-    fMasterGen->setUserHooksPtr(fMultiUserHook.get());
+  if (!(fUserHooksVector->hooks).empty() && !UserHooksSet) {
+    fMasterGen->setUserHooksPtr(fUserHooksVector);
+    UserHooksSet = true;
   }
 
   edm::LogInfo("Pythia8Interface") << "Initializing MasterGen";
-  if (fvincia.get()) {
-    fvincia->init();
-    status = true;
-  } else if (fDire.get()) {
-    //fDire->initTune(*fMasterGen.get());
-    fDire->weightsPtr->setup();
-    fMasterGen->init();
-    fDire->setup(*fMasterGen.get());
-    status = true;
-  } else {
-    status = fMasterGen->init();
-  }
+  status = fMasterGen->init();
 
   //clean up temp file
   if (!slhafile_.empty()) {
@@ -482,9 +470,11 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
 
   if (useEvtGen) {
     edm::LogInfo("Pythia8Hadronizer") << "Creating and initializing pythia8 EvtGen plugin";
-    evtgenDecays.reset(new EvtGenDecays(fMasterGen.get(), evtgenDecFile, evtgenPdlFile));
-    for (unsigned int i = 0; i < evtgenUserFiles.size(); i++)
-      evtgenDecays->readDecayFile(evtgenUserFiles.at(i));
+    if (!evtgenDecays.get()) {
+      evtgenDecays.reset(new EvtGenDecays(fMasterGen.get(), evtgenDecFile, evtgenPdlFile));
+      for (unsigned int i = 0; i < evtgenUserFiles.size(); i++)
+        evtgenDecays->readDecayFile(evtgenUserFiles.at(i));
+    }
   }
 
   return (status && status1);
@@ -495,21 +485,23 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
 
   bool status = false, status1 = false;
 
-  fMultiUserHook.reset(new MultiUserHook);
+  if (!fUserHooksVector.get())
+    fUserHooksVector.reset(new UserHooksVector);
+  (fUserHooksVector->hooks).clear();
 
   if (fReweightUserHook.get())
-    fMultiUserHook->addHook(fReweightUserHook.get());
+    (fUserHooksVector->hooks).push_back(fReweightUserHook);
   if (fReweightEmpUserHook.get())
-    fMultiUserHook->addHook(fReweightEmpUserHook.get());
+    (fUserHooksVector->hooks).push_back(fReweightEmpUserHook);
   if (fReweightRapUserHook.get())
-    fMultiUserHook->addHook(fReweightRapUserHook.get());
+    (fUserHooksVector->hooks).push_back(fReweightRapUserHook);
   if (fReweightPtHatRapUserHook.get())
-    fMultiUserHook->addHook(fReweightPtHatRapUserHook.get());
+    (fUserHooksVector->hooks).push_back(fReweightPtHatRapUserHook);
   if (fJetMatchingHook.get())
-    fMultiUserHook->addHook(fJetMatchingHook.get());
+    (fUserHooksVector->hooks).push_back(fJetMatchingHook);
   if (fEmissionVetoHook1.get()) {
     edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook 1 from CMSSW Pythia8Interface";
-    fMultiUserHook->addHook(fEmissionVetoHook1.get());
+    (fUserHooksVector->hooks).push_back(fEmissionVetoHook1);
   }
 
   if (fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) {
@@ -518,24 +510,27 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
           << " Attempt to turn on PowhegHooks by pythia8 settings but there are incompatible hooks on \n Incompatible "
              "are : jetMatching, emissionVeto1 \n";
 
-    fEmissionVetoHook.reset(new PowhegHooks());
+    if (!fEmissionVetoHook.get())
+      fEmissionVetoHook.reset(new PowhegHooks());
 
     edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook from pythia8 code";
-    fMultiUserHook->addHook(fEmissionVetoHook.get());
+    (fUserHooksVector->hooks).push_back(fEmissionVetoHook);
   }
 
   bool PowhegRes = fMasterGen->settings.flag("POWHEGres:calcScales");
   if (PowhegRes) {
     edm::LogInfo("Pythia8Interface") << "Turning on resonance scale setting from CMSSW Pythia8Interface";
-    fPowhegResHook.reset(new PowhegResHook());
-    fMultiUserHook->addHook(fPowhegResHook.get());
+    if (!fPowhegResHook.get())
+      fPowhegResHook.reset(new PowhegResHook());
+    (fUserHooksVector->hooks).push_back(fPowhegResHook);
   }
 
   bool PowhegBB4L = fMasterGen->settings.flag("POWHEG:bb4l");
   if (PowhegBB4L) {
     edm::LogInfo("Pythia8Interface") << "Turning on BB4l hook from CMSSW Pythia8Interface";
-    fPowhegHooksBB4L.reset(new PowhegHooksBB4L());
-    fMultiUserHook->addHook(fPowhegHooksBB4L.get());
+    if (!fPowhegHooksBB4L.get())
+      fPowhegHooksBB4L.reset(new PowhegHooksBB4L());
+    (fUserHooksVector->hooks).push_back(fPowhegHooksBB4L);
   }
 
   //adapted from main89.cc in pythia8 examples
@@ -548,8 +543,9 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
   }
 
   if (internalMatching) {
-    fJetMatchingPy8InternalHook.reset(new Pythia8::JetMatchingMadgraph);
-    fMultiUserHook->addHook(fJetMatchingPy8InternalHook.get());
+    if (!fJetMatchingPy8InternalHook.get())
+      fJetMatchingPy8InternalHook.reset(new Pythia8::JetMatchingMadgraph);
+    (fUserHooksVector->hooks).push_back(fJetMatchingPy8InternalHook);
   }
 
   if (internalMerging) {
@@ -561,36 +557,36 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
                          fMasterGen->settings.flag("Merging:doUNLOPSSubtNLO"))
                             ? 2
                             : 0);
-    fMergingHook.reset(new Pythia8::amcnlo_unitarised_interface(scheme));
-    fMultiUserHook->addHook(fMergingHook.get());
+    if (!fMergingHook.get())
+      fMergingHook.reset(new Pythia8::amcnlo_unitarised_interface(scheme));
+    (fUserHooksVector->hooks).push_back(fMergingHook);
   }
 
   bool biasedTauDecayer = fMasterGen->settings.flag("BiasedTauDecayer:filter");
   if (biasedTauDecayer) {
-    fBiasedTauDecayer.reset(new BiasedTauDecayer(&(fMasterGen->info),
-                                                 &(fMasterGen->settings),
-                                                 &(fMasterGen->particleData),
-                                                 &(fMasterGen->rndm),
-                                                 &(fMasterGen->couplings)));
+    if (!fBiasedTauDecayer.get())
+      fBiasedTauDecayer.reset(new BiasedTauDecayer(
+          &(fMasterGen->info), &(fMasterGen->settings), &(fMasterGen->particleData), &(fMasterGen->rndm)));
     std::vector<int> handledParticles;
     handledParticles.push_back(15);
-    fMasterGen->setDecayPtr(fBiasedTauDecayer.get(), handledParticles);
+    fMasterGen->setDecayPtr(fBiasedTauDecayer, handledParticles);
   }
 
   bool resonanceDecayFilter = fMasterGen->settings.flag("ResonanceDecayFilter:filter");
   if (resonanceDecayFilter) {
     fResonanceDecayFilterHook.reset(new ResonanceDecayFilterHook);
-    fMultiUserHook->addHook(fResonanceDecayFilterHook.get());
+    (fUserHooksVector->hooks).push_back(fResonanceDecayFilterHook);
   }
 
   bool PTFilter = fMasterGen->settings.flag("PTFilter:filter");
   if (PTFilter) {
     fPTFilterHook.reset(new PTFilterHook);
-    fMultiUserHook->addHook(fPTFilterHook.get());
+    (fUserHooksVector->hooks).push_back(fPTFilterHook);
   }
 
-  if (fMultiUserHook->nHooks() > 0) {
-    fMasterGen->setUserHooksPtr(fMultiUserHook.get());
+  if (!(fUserHooksVector->hooks).empty() && !UserHooksSet) {
+    fMasterGen->setUserHooksPtr(fUserHooksVector);
+    UserHooksSet = true;
   }
 
   if (!LHEInputFileName.empty()) {
@@ -610,7 +606,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
     }
 
     fMasterGen->settings.mode("Beams:frameType", 5);
-    fMasterGen->setLHAupPtr(lhaUP.get());
+    fMasterGen->setLHAupPtr(lhaUP);
     edm::LogInfo("Pythia8Interface") << "Initializing MasterGen";
     status = fMasterGen->init();
   }
@@ -635,9 +631,11 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
 
   if (useEvtGen) {
     edm::LogInfo("Pythia8Hadronizer") << "Creating and initializing pythia8 EvtGen plugin";
-    evtgenDecays.reset(new EvtGenDecays(fMasterGen.get(), evtgenDecFile, evtgenPdlFile));
-    for (unsigned int i = 0; i < evtgenUserFiles.size(); i++)
-      evtgenDecays->readDecayFile(evtgenUserFiles.at(i));
+    if (!evtgenDecays.get()) {
+      evtgenDecays.reset(new EvtGenDecays(fMasterGen.get(), evtgenDecFile, evtgenPdlFile));
+      for (unsigned int i = 0; i < evtgenUserFiles.size(); i++)
+        evtgenDecays->readDecayFile(evtgenUserFiles.at(i));
+    }
   }
 
   return (status && status1);
@@ -737,6 +735,7 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize() {
     }
   }
 
+#if 0
   // VINCIA shower weights
   // http://vincia.hepforge.org/current/share/Vincia/htmldoc/VinciaUncertainties.html
   if (fvincia.get()) {
@@ -762,6 +761,7 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize() {
       event()->weights().push_back(it->second);
     }
   }
+#endif
 
   return true;
 }
@@ -977,6 +977,7 @@ std::unique_ptr<GenLumiInfoHeader> Pythia8Hadronizer::getGenLumiInfoHeader() con
     }
   }
 
+#if 0
   // VINCIA shower weights
   // http://vincia.hepforge.org/current/share/Vincia/htmldoc/VinciaUncertainties.html
   if (fvincia.get()) {
@@ -997,6 +998,7 @@ std::unique_ptr<GenLumiInfoHeader> Pythia8Hadronizer::getGenLumiInfoHeader() con
       genLumiInfoHeader->weightNames().push_back(it->first);
     }
   }
+#endif
 
   return genLumiInfoHeader;
 }

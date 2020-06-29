@@ -252,7 +252,7 @@ class UpgradeWorkflow_pixelTrackingOnly(UpgradeWorkflowTracking):
         if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
         elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, stepDict[step][k]])
     def condition_(self, fragment, stepList, key, hasHarvest):
-        return '2017' in key or '2018' in key
+        return '2017' in key or '2018' in key or '2021' in key
 upgradeWFs['pixelTrackingOnly'] = UpgradeWorkflow_pixelTrackingOnly(
     steps = [
         'RecoFull',
@@ -415,6 +415,63 @@ upgradeWFs['PatatrackECALOnlyGPU'] = UpgradeWorkflowPatatrack_ECALOnlyGPU(
 
 upgradeWFs['PatatrackECALOnlyGPU'].step3 = {
     '-s': 'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly,VALIDATION:@ecalOnlyValidation,DQM:@ecalOnly',
+    '--datatier': 'GEN-SIM-RECO,DQMIO',
+    '--eventcontent': 'RECOSIM,DQM',
+    '--procModifiers': 'gpu'
+}
+
+class UpgradeWorkflowPatatrack_HCALOnlyCPU(UpgradeWorkflowPatatrack):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        elif 'HARVEST' in step:
+            stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@hcalOnlyValidation+@hcalOnly+@hcal2Only'}, stepDict[step][k]])
+
+    def condition_(self, fragment, stepList, key, hasHarvest):
+        return '2018' in key or '2021' in key
+
+upgradeWFs['PatatrackHCALOnlyCPU'] = UpgradeWorkflowPatatrack_HCALOnlyCPU(
+    steps = [
+        'RecoFull',
+        'HARVESTFull',
+        'RecoFullGlobal',
+        'HARVESTFullGlobal',
+    ],
+    PU = [],
+    suffix = 'Patatrack_HCALOnlyCPU',
+    offset = 0.521,
+)
+
+upgradeWFs['PatatrackHCALOnlyCPU'].step3 = {
+    '-s': 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnly,VALIDATION:@hcalOnlyValidation,DQM:@hcalOnly+@hcal2Only',
+    '--datatier': 'GEN-SIM-RECO,DQMIO',
+    '--eventcontent': 'RECOSIM,DQM',
+}
+
+class UpgradeWorkflowPatatrack_HCALOnlyGPU(UpgradeWorkflowPatatrack):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        elif 'HARVEST' in step:
+            stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@hcalOnlyValidation+@hcalOnly+@hcal2Only'}, stepDict[step][k]])
+
+    def condition_(self, fragment, stepList, key, hasHarvest):
+        return '2018' in key or '2021' in key
+
+upgradeWFs['PatatrackHCALOnlyGPU'] = UpgradeWorkflowPatatrack_HCALOnlyGPU(
+    steps = [
+        'RecoFull',
+        'HARVESTFull',
+        'RecoFullGlobal',
+        'HARVESTFullGlobal',
+    ],
+    PU = [],
+    suffix = 'Patatrack_HCALOnlyGPU',
+    offset = 0.522,
+)
+
+upgradeWFs['PatatrackHCALOnlyGPU'].step3 = {
+    '-s': 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnly,VALIDATION:@hcalOnlyValidation,DQM:@hcalOnly+@hcal2Only',
     '--datatier': 'GEN-SIM-RECO,DQMIO',
     '--eventcontent': 'RECOSIM,DQM',
     '--procModifiers': 'gpu'
@@ -638,6 +695,24 @@ upgradeWFs['TestOldDigi'] = UpgradeWorkflow_TestOldDigi(
     offset = 0.1001,
 )
 
+class UpgradeWorkflow_DD4hep(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        stepDict[stepName][k] = merge([{'--geometry': 'DD4hepExtended2021', '--era': 'Run3_dd4hep'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return (fragment=='TTbar_13' or fragment=='ZMM_13' or fragment=='SingleMuPt10') and '2021' in key
+upgradeWFs['DD4hep'] = UpgradeWorkflow_DD4hep(
+    steps = [
+        'GenSimFull',
+        'DigiFull',
+        'RecoFull',
+        'HARVESTFull',
+        'ALCAFull',
+    ],
+    PU = [],
+    suffix = '_DD4hep',
+    offset = 0.911,
+)
+
 # check for duplicate offsets
 offsets = [specialWF.offset for specialType,specialWF in six.iteritems(upgradeWFs)]
 seen = set()
@@ -824,14 +899,14 @@ upgradeProperties[2026] = {
         'Geom' : 'Extended2026D57',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T15',
-        'Era' : 'Phase2C9',
+        'Era' : 'Phase2C11',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
     '2026D58' : {
         'Geom' : 'Extended2026D58',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T15',
-        'Era' : 'Phase2C10',
+        'Era' : 'Phase2C12',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
 }

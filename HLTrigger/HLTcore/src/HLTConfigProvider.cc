@@ -165,7 +165,7 @@ void HLTConfigProvider::init(const std::string& processName) {
   const edm::pset::Registry::const_iterator rb(registry_->begin());
   const edm::pset::Registry::const_iterator re(registry_->end());
   for (edm::pset::Registry::const_iterator i = rb; i != re; ++i) {
-    if (i->second.exists("@process_name")) {
+    if (i->second.existsAs<string>("@process_name", true) and i->second.existsAs<vector<string>>("@paths", true)) {
       const std::string pName(i->second.getParameter<string>("@process_name"));
       pNames += pName + " ";
       if (pName == processName) {

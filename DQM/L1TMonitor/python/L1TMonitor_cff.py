@@ -129,25 +129,34 @@ l1tStage1Layer2Seq = cms.Sequence(
 # for L1ExtraDQM, one must run GGT and GMT/GT unpacker and L1Extra producer 
 # with special configurations
 
+l1ExtraDqmTask = cms.Task(
+    dqmGctDigis,
+    dqmGtDigis,
+    dqmL1ExtraParticles
+)
 l1ExtraDqmSeq = cms.Sequence(
-                        dqmGctDigis *
-                        dqmGtDigis *
-                        dqmL1ExtraParticles * 
-                        l1ExtraDQM
+                        l1ExtraDQM,
+                        l1ExtraDqmTask
                         )
 
+l1ExtraStage1DqmTask = cms.Task(
+    dqmGtDigis,
+    dqmL1ExtraParticlesStage1
+)
 l1ExtraStage1DqmSeq = cms.Sequence(
-    dqmGtDigis *
-    dqmL1ExtraParticlesStage1 *
-    l1ExtraDQMStage1
+    l1ExtraDQMStage1,
+    l1ExtraStage1DqmTask
     )
 
 
 # L1T monitor sequence 
 #     modules are independent, so the order is irrelevant 
 
+l1tMonitorOnlineTask = cms.Task(
+    l1GtUnpack
+
+)
 l1tMonitorOnline = cms.Sequence(
-                          l1GtUnpack*
                           bxTiming +
                           l1tDttf +
                           l1tCsctf + 
@@ -158,26 +167,30 @@ l1tMonitorOnline = cms.Sequence(
                           l1tBPTX +
                           l1tRate +
                           l1tRctRun1 +
-                          l1tGctSeq
+                          l1tGctSeq,
+                          l1tMonitorOnlineTask
                           )
 
+l1tMonitorStage1OnlineTask = cms.Task(
+    l1GtUnpack,
+    rctDigis,
+    caloStage1Digis,
+    caloStage1LegacyFormatDigis
+)
 l1tMonitorStage1Online = cms.Sequence(
-                          l1GtUnpack*
                           bxTiming +
                           l1tDttf +
                           l1tCsctf + 
                           l1tRpctf +
                           l1tGmt +
                           l1tGt +
-                          rctDigis *
-                          caloStage1Digis *
-                          caloStage1LegacyFormatDigis*
                           l1ExtraStage1DqmSeq +
                           #l1tBPTX +
                           #l1tRate +
                           l1tStage1Layer2Seq +
                           #l1tRctRun1 +
-                          l1tRctSeq 
+                          l1tRctSeq,
+                          l1tMonitorStage1OnlineTask
                           )
 
 

@@ -25,6 +25,20 @@
   </class>
   <class name="edm::Wrapper<TICLGenericTile<ticl::TracksterTiles>>" persistent="false"/>
 
+  <class name="ticl::TICLLayerTileHFNose" persistent="false">
+    <field name="tile_" transient="true"/>
+  </class>
+
+  <class name="TICLGenericTile<ticl::TilesHFNose>" persistent="false">
+    <field name="tiles_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<TICLGenericTile<ticl::TilesHFNose>>" persistent="false"/>
+
+  <class name="TICLGenericTile<ticl::TracksterTilesHFNose>" persistent="false">
+    <field name="tiles_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<TICLGenericTile<ticl::TracksterTilesHFNose>>" persistent="false"/>
+
   <class name="TICLSeedingRegion" ClassVersion="3">
     <version ClassVersion="3" checksum="2409655320"/>
   </class>

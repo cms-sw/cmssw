@@ -96,6 +96,9 @@ namespace edm {
         // But if the only shared resource is the legacy resource don't skip it.
         if (resource.first == kLegacyModuleResourceName && resourceMap_.size() > 1)
           continue;
+        //legacy modules are not allowed to depend on ES shared resources
+        if (resource.first.substr(0, 3) == "es_")
+          continue;
         //If only one module wants it, it really isn't shared
         if (resource.second.second > 1) {
           sortedResources.insert(

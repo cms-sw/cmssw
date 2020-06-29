@@ -19,13 +19,14 @@
 //
 
 // system include files
+#include <functional>
 #include <map>
-#include <boost/function.hpp>
+#include <memory>
+
 #include <sigc++/sigc++.h>
 #include "Rtypes.h"
 #include "GuiTypes.h"
 #include "TGFileDialog.h"
-#include <memory>
 
 // user include files
 #include "Fireworks/Core/interface/FWConfigurable.h"
@@ -94,7 +95,7 @@ namespace fireworks {
 class FWGUIManager : public FWConfigurable {
   // typedefs
 public:
-  typedef boost::function2<FWViewBase*, TEveWindowSlot*, const std::string&> ViewBuildFunctor;
+  typedef std::function<FWViewBase*(TEveWindowSlot*, const std::string&)> ViewBuildFunctor;
   typedef std::map<std::string, ViewBuildFunctor> NameToViewBuilder;
 
 private:

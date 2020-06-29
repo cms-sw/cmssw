@@ -203,6 +203,10 @@ void HcalDigisValidation::booking(DQMStore::IBooker& ib, const std::string bsubd
 
   HistLim depthLim(15, -0.5, 14.5);
 
+  //...TDC
+  HistLim tdcLim(250, 0., 250.);
+  HistLim adcLim(256, 0., 256.);
+
   if (bsubdet == "HB") {
     Ndigis = HistLim(((int)(nChannels_[1] / 100) + 1) * 100, 0., (float)((int)(nChannels_[1] / 100) + 1) * 100);
   } else if (bsubdet == "HE") {
@@ -343,6 +347,16 @@ void HcalDigisValidation::booking(DQMStore::IBooker& ib, const std::string bsubd
         sprintf(histo, "HcalDigiTask_ratio_amplitude_vs_simhits_depth%d_%s", depth, sub);
         book1D(ib, histo, ratio);
       }
+
+      //...TDC
+      if (bsubdet == "HB" || bsubdet == "HE") {
+        sprintf(histo, "HcalDigiTask_TDCtime_%s", sub);
+        book1D(ib, histo, tdcLim);
+
+        sprintf(histo, "HcalDigiTask_TDCtime_vs_ADC_%s", sub);
+        book2D(ib, histo, adcLim, tdcLim);
+      }
+
     }  //mc only
 
   } else {  // noise only
@@ -1137,6 +1151,22 @@ void HcalDigisValidation::reco(const edm::Event& iEvent,
           if (closen == 1) {
             v_ampl_c[0] += val;
             v_ampl_c[depth] += val;
+          }
+        }
+
+        //...TDC
+
+        if ((HBPhase1_ && sub == 1) || (HEPhase1_ && sub == 2)) {
+          double digiADC = (dataFrame)[ii].adc();
+          const QIE11DataFrame dataFrameHBHE = static_cast<const QIE11DataFrame>(*digiItr);
+          double digiTDC = (dataFrameHBHE)[ii].tdc();
+          if (digiTDC < 50) {
+            double time = ii * 25. + (digiTDC * 0.5);
+            strtmp = "HcalDigiTask_TDCtime_" + subdet_;
+            fill1D(strtmp, time);
+
+            strtmp = "HcalDigiTask_TDCtime_vs_ADC_" + subdet_;
+            fill2D(strtmp, digiADC, time);
           }
         }
       }

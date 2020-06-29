@@ -116,6 +116,8 @@ namespace gem {
     void addGEB(GEBdata g) { gebd_.push_back(g); }
     //!Returns a vector of GEB data
     const std::vector<GEBdata>* gebs() const { return &gebd_; }
+    //!Clear a vector of GEB data
+    void clearGEBs() { gebd_.clear(); }
 
   private:
     uint64_t amch1_;

@@ -71,6 +71,7 @@ private:
   edm::InputTag eeRecHitInputTag_;
   edm::InputTag fhRecHitInputTag_;
   edm::InputTag bhRecHitInputTag_;
+  edm::InputTag hitMapInputTag_;
 
   std::vector<double> dEdXWeights_;
   hgcal::EGammaPCAHelper pcaHelper_;
@@ -78,6 +79,7 @@ private:
   edm::EDGetTokenT<HGCRecHitCollection> recHitsEE_;
   edm::EDGetTokenT<HGCRecHitCollection> recHitsFH_;
   edm::EDGetTokenT<HGCRecHitCollection> recHitsBH_;
+  edm::EDGetTokenT<std::unordered_map<DetId, const HGCRecHit*>> hitMap_;
   hgcal::RecHitTools recHitTools_;
   bool debug_;
 };

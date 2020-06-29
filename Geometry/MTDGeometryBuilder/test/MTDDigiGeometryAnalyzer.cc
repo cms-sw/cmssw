@@ -23,6 +23,8 @@
 
 #include "DataFormats/Math/interface/Rounding.h"
 
+#include <fstream>
+
 // class declaration
 
 class MTDDigiGeometryAnalyzer : public edm::one::EDAnalyzer<> {
@@ -37,6 +39,8 @@ public:
 private:
   void analyseRectangle(const GeomDetUnit& det);
   void checkRotation(const GeomDetUnit& det);
+
+  std::stringstream sunitt;
 };
 
 using cms_rounding::roundIfNear0, cms_rounding::roundVecIfNear0;
@@ -51,9 +55,13 @@ void MTDDigiGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   //
   edm::ESHandle<MTDGeometry> pDD;
   iSetup.get<MTDDigiGeometryRecord>().get(pDD);
-  edm::LogInfo("MTDDigiGeometryAnalyzer") << "Geometry node for MTDGeom is  " << &(*pDD) << "\n"
-                                          << " # detectors = " << pDD->detUnits().size() << "\n"
-                                          << " # types     = " << pDD->detTypes().size() << "\n";
+  edm::LogInfo("MTDDigiGeometryAnalyzer")
+      << "Geometry node for MTDGeom is  " << &(*pDD) << "\n"
+      << " # detectors = " << pDD->detUnits().size() << "\n"
+      << " # types     = " << pDD->detTypes().size() << "\n"
+      << " # layers " << pDD->geomDetSubDetector(1) << "  = " << pDD->numberOfLayers(1) << "\n"
+      << " # layers " << pDD->geomDetSubDetector(2) << "  = " << pDD->numberOfLayers(2) << "\n";
+  sunitt << std::fixed << std::setw(7) << pDD->detUnits().size() << std::setw(7) << pDD->detTypes().size() << "\n";
   for (auto const& it : pDD->detUnits()) {
     if (dynamic_cast<const MTDGeomDetUnit*>((it)) != nullptr) {
       const BoundPlane& p = (dynamic_cast<const MTDGeomDetUnit*>((it)))->specificSurface();
@@ -75,6 +83,9 @@ void MTDDigiGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
           << "\n Subdetector " << it->subDetector() << " MTD Det " << it->name() << "\n"
           << " Rows     " << topo.nrows() << " Columns " << topo.ncolumns() << " ROCS X   " << topo.rocsX()
           << " ROCS Y  " << topo.rocsY() << " Rows/ROC " << topo.rowsperroc() << " Cols/ROC " << topo.colsperroc();
+      sunitt << std::fixed << std::setw(7) << it->subDetector() << std::setw(4) << topo.nrows() << std::setw(4)
+             << topo.ncolumns() << std::setw(4) << std::setw(4) << topo.rocsX() << std::setw(4) << topo.rocsY()
+             << std::setw(4) << topo.rowsperroc() << std::setw(4) << topo.colsperroc() << "\n";
     }
   }
 
@@ -83,7 +94,12 @@ void MTDDigiGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
                                           << " # dets            = " << pDD->dets().size() << "\n"
                                           << " # detUnitIds      = " << pDD->detUnitIds().size() << "\n"
                                           << " # detIds          = " << pDD->detIds().size() << "\n";
+  sunitt << std::fixed << std::setw(7) << pDD->dets().size() << std::setw(7) << pDD->detUnitIds().size() << std::setw(7)
+         << pDD->detIds().size() << "\n";
+
+  edm::LogVerbatim("MTDUnitTest") << sunitt.str();
 }
+
 void MTDDigiGeometryAnalyzer::analyseRectangle(const GeomDetUnit& det) {
   const double safety = 0.9999;
 
@@ -115,11 +131,13 @@ void MTDDigiGeometryAnalyzer::analyseRectangle(const GeomDetUnit& det) {
     return ss.str();
   };
 
-  edm::LogVerbatim("MTDDigigeometryAnalyzer")
+  edm::LogVerbatim("MTDDigiGeometryAnalyzer")
       << "Det at pos " << fvecround(pos) << " radius " << fround(std::sqrt(pos.x() * pos.x() + pos.y() * pos.y()))
       << " has length " << fround(length) << " width " << fround(width) << " thickness " << fround(thickness) << "\n"
       << "det center inside bounds? " << tb->inside(det.surface().toLocal(pos)) << "\n"
       << "outerMiddle " << fvecround(outerMiddle);
+  sunitt << det.geographicalId().rawId() << fvecround(pos) << fround(length) << fround(width) << fround(thickness)
+         << tb->inside(det.surface().toLocal(pos)) << fvecround(outerMiddle) << "\n";
 
   checkRotation(det);
 }

@@ -95,8 +95,10 @@ namespace gem {
 
     //!Adds VFAT data to the vector
     void addVFAT(VFATdata v) { vfatd_.push_back(v); }
-    //!Returns the vector of FVAT data
+    //!Returns the vector of VFAT data
     const std::vector<VFATdata>* vFATs() const { return &vfatd_; }
+    //!Clear the vector rof VFAT data
+    void clearVFATs() { vfatd_.clear(); }
 
     static const int sizeGebID = 5;
 

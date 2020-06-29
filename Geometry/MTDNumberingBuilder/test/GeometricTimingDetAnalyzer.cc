@@ -38,6 +38,11 @@
 
 #include "DataFormats/Math/interface/Rounding.h"
 
+// Trivial using definition valid both for DDD and DD4hep
+
+#include "DetectorDescription/DDCMS/interface/DDTranslation.h"
+#include "DetectorDescription/DDCMS/interface/DDRotationMatrix.h"
+
 //
 //
 // class decleration
@@ -172,6 +177,11 @@ void GeometricTimingDetAnalyzer::dumpGeometricTimingDet(const GeometricTimingDet
         << " Phi = " << fround(det->phi()) << " Rho = " << fround(det->rho()) << "\n";
     log << "\n---------------------------------------------------------------------------------------\n";
   });
+
+  edm::LogVerbatim("MTDUnitTest") << det->geographicalID().rawId() << fround(trans.X()) << fround(trans.Y())
+                                  << fround(trans.Z()) << fround(x.X()) << fround(x.Y()) << fround(x.Z())
+                                  << fround(y.X()) << fround(y.Y()) << fround(y.Z()) << fround(z.X()) << fround(z.Y())
+                                  << fround(z.Z());
 
   DD3Vector colx(x.X(), x.Y(), x.Z());
   DD3Vector coly(y.X(), y.Y(), y.Z());

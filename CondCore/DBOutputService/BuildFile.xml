@@ -1,4 +1,3 @@
-<use name="FWCore/Framework"/>
 <use name="CondCore/CondDB"/>
 <use name="curl"/>
 <use name="boost"/>

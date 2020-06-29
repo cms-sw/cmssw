@@ -1,7 +1,6 @@
 #include "RecoTauTag/RecoTau/interface/RecoTauVertexAssociator.h"
 
 #include <functional>
-#include <boost/foreach.hpp>
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"

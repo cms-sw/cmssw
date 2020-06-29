@@ -6,7 +6,6 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDVectorGetter.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/DDDCmsTrackerContruction.h"
@@ -69,7 +68,7 @@ std::unique_ptr<GeometricDet> TrackerGeometricDetESModule::produce(const IdealGe
   if (fromDDD_) {
     edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle(ddToken_);
 
-    return DDDCmsTrackerContruction::construct(*cpv, dbl_to_int(DDVectorGetter::get("detIdShifts")));
+    return DDDCmsTrackerContruction::construct(*cpv, dbl_to_int(cpv->vector("detIdShifts")));
   } else if (fromDD4hep_) {
     edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(dd4hepToken_);
 

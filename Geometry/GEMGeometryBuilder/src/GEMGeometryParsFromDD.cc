@@ -10,7 +10,7 @@
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 
-#include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/GEMNumberingScheme.h"
 
@@ -45,7 +45,7 @@ void GEMGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
   LogDebug("GEMGeometryParsFromDD") << "About to run through the GEM structure\n"
                                     << " First logical part " << fv.logicalPart().name().name();
 
-  MuonDDDNumbering muonDDDNumbering(muonConstants);
+  MuonGeometryNumbering muonDDDNumbering(muonConstants);
   GEMNumberingScheme gemNumbering(muonConstants);
 
   bool doSuper = fv.firstChild();

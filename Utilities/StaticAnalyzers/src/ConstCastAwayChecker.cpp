@@ -41,7 +41,10 @@ namespace clangcms {
         std::string buf;
         llvm::raw_string_ostream os(buf);
         os << "const qualifier was removed via a cast, this may result in thread-unsafe code.";
-        std::unique_ptr<clang::ento::BugReport> R = llvm::make_unique<clang::ento::BugReport>(*BT, os.str(), errorNode);
+        std::unique_ptr<clang::ento::PathSensitiveBugReport> PSBR =
+            std::make_unique<clang::ento::PathSensitiveBugReport>(*BT, llvm::StringRef(os.str()), errorNode);
+        std::unique_ptr<clang::ento::BasicBugReport> R =
+            std::make_unique<clang::ento::BasicBugReport>(*BT, llvm::StringRef(os.str()), PSBR->getLocation());
         R->addRange(CE->getSourceRange());
         if (!m_exception.reportConstCastAway(*R, C))
           return;

@@ -17,6 +17,11 @@
 <use name="FWCore/Utilities"/>
 <use name="CalibTracker/StandaloneTrackerTopology"/>
 <use name="Fireworks/TableWidget"/>
+<use name="DataFormats/BeamSpot"/>
+<use name="DataFormats/Provenance"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Reflection"/>
 <use name="boost"/>
 <use name="boost_program_options"/>
 <use name="boost_regex"/>

@@ -28,7 +28,7 @@ public:
   ~Phase1PixelMaps() {}
 
   //============================================================================
-  void bookBarrelHistograms(const std::string& currentHistoName, const char* what) {
+  void bookBarrelHistograms(const std::string& currentHistoName, const char* what, const char* zaxis) {
     std::string histName;
     std::shared_ptr<TH2Poly> th2p;
 
@@ -46,8 +46,8 @@ public:
 
       th2p->GetXaxis()->SetTitle("z [cm]");
       th2p->GetYaxis()->SetTitle("ladder");
-      //th2p->GetXaxis()->SetTitleOffset(0.09);
-      //th2p->GetYaxis()->SetTitleOffset(0.09);
+      th2p->GetZaxis()->SetTitle(zaxis);
+      th2p->GetZaxis()->CenterTitle();
       th2p->SetStats(false);
       th2p->SetOption(m_option);
       pxbTh2PolyBarrel[currentHistoName].push_back(th2p);
@@ -64,7 +64,7 @@ public:
   }
 
   //============================================================================
-  void bookForwardHistograms(const std::string& currentHistoName, const char* what) {
+  void bookForwardHistograms(const std::string& currentHistoName, const char* what, const char* zaxis) {
     std::string histName;
     std::shared_ptr<TH2Poly> th2p;
 
@@ -81,8 +81,8 @@ public:
         th2p->SetFloat();
         th2p->GetXaxis()->SetTitle("x [cm]");
         th2p->GetYaxis()->SetTitle("y [cm]");
-        //th2p->GetXaxis()->SetTitleOffset(0.09);
-        //th2p->GetYaxis()->SetTitleOffset(0.09);
+        th2p->GetZaxis()->SetTitle(zaxis);
+        th2p->GetZaxis()->CenterTitle();
         th2p->SetStats(false);
         th2p->SetOption(m_option);
         pxfTh2PolyForward[currentHistoName].push_back(th2p);
@@ -208,6 +208,8 @@ public:
         SiPixelPI::makeNicePlotStyle(plot.get());
         plot->GetXaxis()->SetTitleOffset(0.9);
         plot->GetYaxis()->SetTitleOffset(0.9);
+        plot->GetZaxis()->SetTitleOffset(1.2);
+        plot->GetZaxis()->SetTitleSize(0.05);
       }
     }
 
@@ -216,7 +218,51 @@ public:
         SiPixelPI::makeNicePlotStyle(plot.get());
         plot->GetXaxis()->SetTitleOffset(0.9);
         plot->GetYaxis()->SetTitleOffset(0.9);
+        plot->GetZaxis()->SetTitleOffset(1.2);
+        plot->GetZaxis()->SetTitleSize(0.05);
       }
+    }
+  }
+
+  //============================================================================
+  void rescaleAllBarrel(const std::string& currentHistoName) {
+    std::vector<float> maxima;
+    std::transform(pxbTh2PolyBarrel[currentHistoName].begin(),
+                   pxbTh2PolyBarrel[currentHistoName].end(),
+                   std::back_inserter(maxima),
+                   [](std::shared_ptr<TH2Poly> thp) -> float { return thp->GetMaximum(); });
+    std::vector<float> minima;
+    std::transform(pxbTh2PolyBarrel[currentHistoName].begin(),
+                   pxbTh2PolyBarrel[currentHistoName].end(),
+                   std::back_inserter(minima),
+                   [](std::shared_ptr<TH2Poly> thp) -> float { return thp->GetMinimum(); });
+
+    auto globalMax = *std::max_element(maxima.begin(), maxima.end());
+    auto globalMin = *std::min_element(minima.begin(), minima.end());
+
+    for (auto& histo : pxbTh2PolyBarrel[currentHistoName]) {
+      histo->GetZaxis()->SetRangeUser(globalMin, globalMax);
+    }
+  }
+
+  //============================================================================
+  void rescaleAllForward(const std::string& currentHistoName) {
+    std::vector<float> maxima;
+    std::transform(pxfTh2PolyForward[currentHistoName].begin(),
+                   pxfTh2PolyForward[currentHistoName].end(),
+                   std::back_inserter(maxima),
+                   [](std::shared_ptr<TH2Poly> thp) -> float { return thp->GetMaximum(); });
+    std::vector<float> minima;
+    std::transform(pxfTh2PolyForward[currentHistoName].begin(),
+                   pxfTh2PolyForward[currentHistoName].end(),
+                   std::back_inserter(minima),
+                   [](std::shared_ptr<TH2Poly> thp) -> float { return thp->GetMinimum(); });
+
+    auto globalMax = *std::max_element(maxima.begin(), maxima.end());
+    auto globalMin = *std::min_element(minima.begin(), minima.end());
+
+    for (auto& histo : pxfTh2PolyForward[currentHistoName]) {
+      histo->GetZaxis()->SetRangeUser(globalMin, globalMax);
     }
   }
 
@@ -229,7 +275,8 @@ public:
         canvas.cd(i)->SetRightMargin(0.02);
         pxbTh2PolyBarrel[currentHistoName].at(i - 1)->SetMarkerColor(kRed);
       } else {
-        SiPixelPI::adjustCanvasMargins(canvas.cd(i), 0.07, 0.12, 0.10, 0.14);
+        rescaleAllBarrel(currentHistoName);
+        SiPixelPI::adjustCanvasMargins(canvas.cd(i), 0.07, 0.12, 0.10, 0.18);
       }
       pxbTh2PolyBarrel[currentHistoName].at(i - 1)->Draw();
     }
@@ -244,7 +291,8 @@ public:
         canvas.cd(i)->SetRightMargin(0.02);
         pxfTh2PolyForward[currentHistoName].at(i - 1)->SetMarkerColor(kRed);
       } else {
-        SiPixelPI::adjustCanvasMargins(canvas.cd(i), 0.07, 0.12, 0.10, 0.16);
+        rescaleAllForward(currentHistoName);
+        SiPixelPI::adjustCanvasMargins(canvas.cd(i), 0.07, 0.12, 0.10, 0.18);
       }
       pxfTh2PolyForward[currentHistoName].at(i - 1)->Draw();
     }

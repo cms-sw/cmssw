@@ -189,36 +189,10 @@ pair<bool, reco::Track> MuonSeedTrack::buildTrackAtPCA(const TrajectorySeed& see
   math::XYZVector persistentMomentum(p.x(), p.y(), p.z());
 
   double dummyNDOF = 1.0;
-  //double ndof = computeNDOF(seed);
   double dummyChi2 = 1.0;
 
   reco::Track track(
       dummyChi2, dummyNDOF, persistentPCA, persistentMomentum, ftsAtVtx.charge(), ftsAtVtx.curvilinearError());
 
   return pair<bool, reco::Track>(true, track);
-}
-
-/*!
- * Calculates number of degrees of freedom for the TrajectorySeed
- */
-double MuonSeedTrack::computeNDOF(const TrajectorySeed& trajectory) const {
-  const string metname = "MuonSeedTrack";
-
-  BasicTrajectorySeed::const_iterator recHits1 = (trajectory.recHits().first);
-  BasicTrajectorySeed::const_iterator recHits2 = (trajectory.recHits().second);
-
-  double ndof = 0.;
-
-  if ((*recHits1).isValid())
-    ndof += (*recHits1).dimension();
-  if ((*recHits2).isValid())
-    ndof += (*recHits2).dimension();
-
-  //const Trajectory::RecHitContainer transRecHits = trajectory.recHits();
-  //for(Trajectory::RecHitContainer::const_iterator rechit = transRecHits.begin();
-  //  rechit != transRecHits.end(); ++rechit)
-  //if ((*rechit)->isValid()) ndof += (*rechit)->dimension();
-
-  // FIXME! in case of Boff is dof - 4
-  return max(ndof - 5., 0.);
 }

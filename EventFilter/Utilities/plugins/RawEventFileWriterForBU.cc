@@ -107,12 +107,6 @@ void RawEventFileWriterForBU::doOutputEvent(FRDEventMsgView const& msg) {
   //  cms::Adler32((const char*) msg.startAddress(), msg.size(), adlera_, adlerb_);
 }
 
-void RawEventFileWriterForBU::doOutputEventFragment(unsigned char* dataPtr, unsigned long dataSize) {
-  throw cms::Exception("RawEventFileWriterForBU", "doOutputEventFragment") << "Unsupported output mode ";
-
-  //cms::Adler32((const char*) dataPtr, dataSize, adlera_, adlerb_);
-}
-
 void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std::string const& name, int ls) {
   destinationDir_ = destinationDir;
 

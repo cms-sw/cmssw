@@ -87,7 +87,7 @@
  <Constant name="ForwdBeamR1"  value="12.495*cm"/>
  <Constant name="ForwdBeamR2"  value="12.50*cm"/>
  <Constant name="ForwdBeamR3"  value="25.0*cm"/>
- <Constant name="ForwdBeamR4"  value="2.85*cm+0.65*cm"/> <!-- Post LS2 beam-pipe -->
+ <Constant name="ForwdBeamR4"  value="3.90*cm"/> <!-- Post LS2 beam-pipe -->
  <Constant name="ForwdBeamR5"  value="7.50*cm"/>
  <Constant name="ForwdBeamR6"  value="20.5*cm"/>
  <Constant name="ForwdBeamR7"  value="4.00*cm"/>

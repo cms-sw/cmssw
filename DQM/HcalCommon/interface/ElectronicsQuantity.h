@@ -7,7 +7,7 @@
  */
 
 #include "DQM/HcalCommon/interface/Quantity.h"
-#include "boost/unordered_map.hpp"
+#include <unordered_map>
 
 namespace hcaldqm {
   namespace quantity {
@@ -369,7 +369,7 @@ namespace hcaldqm {
       std::vector<std::string> getLabels() override;
 
     protected:
-      typedef boost::unordered_map<int, uint32_t> FEDMap;
+      typedef std::unordered_map<int, uint32_t> FEDMap;
       FEDMap _feds;
 
     public:

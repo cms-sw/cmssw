@@ -308,14 +308,14 @@ void testCSCIndexer::testGasGain() {
 
   for (IndexType i = 1; i <= indexer_->maxGasGainIndex(); ++i) {
     CSCIndexerBase::GasGainIndexType t = indexer_->detIdFromGasGainIndex(i);
-    CSCDetId id = t.get<0>();
+    CSCDetId id = std::get<0>(t);
     int ie = id.endcap();
     int is = id.station();
     int ir = id.ring();
     int ic = id.chamber();
     int il = id.layer();
-    int hv = t.get<1>();
-    int ch = t.get<2>();
+    int hv = std::get<1>(t);
+    int ch = std::get<2>(t);
     IndexType ii = indexer_->gasGainIndex(hv, ch, id);
 
     if (i != ii)

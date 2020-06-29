@@ -1,5 +1,4 @@
 <use name="rootmath"/>
-<use name="boost"/>
 <use name="FWCore/Utilities"/>
 <use name="FWCore/ParameterSet"/>
 <use name="RecoVertex/VertexTools"/>

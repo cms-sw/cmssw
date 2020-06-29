@@ -79,7 +79,7 @@ void DTGeometryParserFromDDD::parseGeometry(DDFilteredView& fv,
 void DTGeometryParserFromDDD::buildLayer(DDFilteredView& fv,
                                          const MuonGeometryConstants& muonConstants,
                                          map<DTLayerId, std::pair<unsigned int, unsigned int> >& theLayerIdWiresMap) {
-  MuonDDDNumbering mdddnum(muonConstants);
+  MuonGeometryNumbering mdddnum(muonConstants);
   DTNumberingScheme dtnum(muonConstants);
   int rawid = dtnum.getDetId(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
   DTLayerId layId(rawid);

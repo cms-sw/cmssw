@@ -60,13 +60,12 @@ void FWTrajectorySeedProxyBuilder::build(const TrajectorySeed& iData,
   TEvePointSet* pointSet = new TEvePointSet;
   TEveLine* line = new TEveLine;
   TEveStraightLineSet* lineSet = new TEveStraightLineSet;
-  TrajectorySeed::const_iterator hit = iData.recHits().first;
 
-  for (; hit != iData.recHits().second; hit++) {
-    unsigned int id = hit->geographicalId();
+  for (auto const& hit : iData.recHits()) {
+    unsigned int id = hit.geographicalId();
     const FWGeometry* geom = item()->getGeom();
     const float* pars = geom->getParameters(id);
-    const SiPixelRecHit* rh = dynamic_cast<const SiPixelRecHit*>(&*hit);
+    const SiPixelRecHit* rh = dynamic_cast<const SiPixelRecHit*>(&hit);
     // std::cout << id << "id "<< 	std::endl;
     if (rh) {
       const SiPixelCluster* itc = rh->cluster().get();
@@ -87,7 +86,7 @@ void FWTrajectorySeedProxyBuilder::build(const TrajectorySeed& iData,
     }
 
     else {
-      const SiStripCluster* cluster = fireworks::extractClusterFromTrackingRecHit(&*hit);
+      const SiStripCluster* cluster = fireworks::extractClusterFromTrackingRecHit(&hit);
 
       if (cluster) {
         short firststrip = cluster->firstStrip();

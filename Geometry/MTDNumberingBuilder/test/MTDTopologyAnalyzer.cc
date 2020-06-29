@@ -180,7 +180,7 @@ std::string MTDTopologyAnalyzer::noNSgeoHistory(const DDGeoHistory& gh) {
   }
 
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("TestMTDNumbering") << output;
+  edm::LogInfo("MTDTopologyAnalyzer") << output;
 #endif
 
   return output;

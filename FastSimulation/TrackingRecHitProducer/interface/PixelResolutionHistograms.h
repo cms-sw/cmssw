@@ -9,6 +9,7 @@ class RandomEngineAndDistribution;
 class SimpleHistogramGenerator;
 
 #include <memory>
+#include <string>
 
 /// #define COTBETA_HIST_MAX  30
 /// #define COTALPHA_HIST_MAX 20

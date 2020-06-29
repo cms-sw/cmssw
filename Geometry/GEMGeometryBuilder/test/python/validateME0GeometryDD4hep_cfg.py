@@ -10,26 +10,8 @@ process.maxEvents = cms.untracked.PSet(
 
 process.load('Configuration.StandardSequences.DD4hep_GeometrySimPhase2_cff')
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
-
-
-process.ME0GeometryESProducer = cms.ESProducer("ME0GeometryESModule",
-                                               DDDetector = cms.ESInputTag('',''),
-                                               attribute = cms.string('MuStructure'),
-                                               value = cms.string('MuonEndCapME0'),
-                                               useDDD = cms.bool(False),
-                                               useDD4hep = cms.untracked.bool(True),
-                                               use10EtaPart = cms.bool(True)
-                                              )
-
-process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProducer",
-                                                     appendToDataLabel = cms.string('')
-                                                     )
-
-process.MuonNumberingESProducer = cms.ESProducer("MuonNumberingESProducer",
-                                                 label = cms.string(''),
-                                                 key = cms.string('MuonCommonNumbering')
-                                                 )
+process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
+process.load("Geometry.GEMGeometryBuilder.me0Geometry_cff")
 
 process.test = cms.EDAnalyzer("DDTestMuonNumbering")
 
@@ -44,5 +26,9 @@ process.valid = cms.EDAnalyzer("ME0GeometryValidate",
                                outfileName = cms.untracked.string('validateME0GeometryDD4hep.root'),
                                tolerance = cms.untracked.int32(7)
                                )
+
+process.muonGeometryConstants.fromDD4Hep = True
+process.me0Geometry.useDDD = False
+process.me0Geometry.useDD4Hep = True
 
 process.p = cms.Path(process.valid)

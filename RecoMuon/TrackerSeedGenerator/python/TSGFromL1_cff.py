@@ -15,8 +15,7 @@ from RecoTracker.TkSeedingLayers.TTRHBuilderWithoutAngle4PixelPairs_cfi import *
 from RecoMuon.TrackerSeedGenerator.TSGFromL1_cfi import *
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
 import RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi
-myTTRHBuilderWithoutAngleSeedsFromL1Muon = RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi.ttrhbwr.clone()
-myTTRHBuilderWithoutAngleSeedsFromL1Muon.StripCPE = 'Fake'
-myTTRHBuilderWithoutAngleSeedsFromL1Muon.ComponentName = 'PixelTTRHBuilderWithoutAngleSeedsFromL1Muon'
-
-
+myTTRHBuilderWithoutAngleSeedsFromL1Muon = RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi.ttrhbwr.clone(
+    StripCPE = 'Fake',
+    ComponentName = 'PixelTTRHBuilderWithoutAngleSeedsFromL1Muon'
+)

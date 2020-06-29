@@ -39,7 +39,6 @@ process.pfNoPileUp = cms.EDProducer("TPPileUpPFCandidatesOnPFCandidates",
     bottomCollection = cms.InputTag("particleFlow"),
     topCollection = cms.InputTag("pfPileUp"),
     name = cms.untracked.string('pileUpOnPFCandidates'),
-    verbose = cms.untracked.bool(False)
 )
 
 

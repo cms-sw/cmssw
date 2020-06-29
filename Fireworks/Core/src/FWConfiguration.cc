@@ -13,8 +13,7 @@
 // system include files
 #include <stdexcept>
 #include <algorithm>
-#include <boost/bind.hpp>
-
+#include <functional>
 // user include files
 #include "Fireworks/Core/interface/FWConfiguration.h"
 
@@ -125,9 +124,12 @@ const FWConfiguration* FWConfiguration::valueForKey(const std::string& iKey) con
   if (not m_keyValues) {
     throw std::runtime_error("valueForKey fails becuase no key/values set");
   }
-  KeyValues::iterator itFind = std::find_if(m_keyValues->begin(),
-                                            m_keyValues->end(),
-                                            boost::bind(&std::pair<std::string, FWConfiguration>::first, _1) == iKey);
+  KeyValues::iterator itFind =
+      std::find_if(m_keyValues->begin(),
+                   m_keyValues->end(),
+                   std::bind(std::equal_to<void>(),
+                             std::bind(&std::pair<std::string, FWConfiguration>::first, std::placeholders::_1),
+                             iKey));
   if (itFind == m_keyValues->end()) {
     return nullptr;
   }

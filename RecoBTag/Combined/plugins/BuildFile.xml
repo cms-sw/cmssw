@@ -2,7 +2,6 @@
 <library file="*.cc" name="RecoBTagCombinedPlugins">
   <use name="lwtnn"/>
   <use name="boost"/>
-  <use name="classlib"/>
   <use name="PhysicsTools/UtilAlgos"/>
   <use name="FWCore/PluginManager"/>
   <use name="FWCore/ServiceRegistry"/>

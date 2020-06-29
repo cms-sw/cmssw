@@ -8,7 +8,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-2015-muon-geometry.xml'),
+                                            confGeomXMLFiles = cms.FileInPath('Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2021.xml'),
                                             appendToDataLabel = cms.string('MUON')
                                             )
 
@@ -38,7 +38,7 @@ process.MuonNumberingESProducer = cms.ESProducer("MuonNumberingESProducer",
 # For example: wget http://cmsdoc.cern.ch/cms/data/CMSSW/Fireworks/Geometry/data/v4/cmsGeom10.root
 #
 process.valid = cms.EDAnalyzer("DTGeometryValidate",
-                               infileName = cms.untracked.string('cmsGeom10.root'),
+                               infileName = cms.untracked.string('cmsGeom2021.root'),
                                outfileName = cms.untracked.string('validateDTGeometry.root'),
                                tolerance = cms.untracked.int32(7)
                                )

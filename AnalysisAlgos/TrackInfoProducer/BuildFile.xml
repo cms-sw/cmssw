@@ -12,5 +12,4 @@
 <use name="TrackingTools/PatternTools"/>
 <use name="TrackingTools/TrackFitters"/>
 <use name="TrackingTools/TrajectoryState"/>
-<use name="Utilities/General"/>
 <flags EDM_PLUGIN="1"/>

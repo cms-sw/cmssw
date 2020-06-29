@@ -50,3 +50,8 @@ run3_HB.toModify(particleFlowClusterHCAL,
         allCellsPositionCalc = dict(logWeightDenominatorByDetector = {0 : dict(logWeightDenominator = _thresholdsHBphase1) } ),
     ),
 )
+
+# HCALonly WF
+particleFlowClusterHCALOnly = particleFlowClusterHCAL.clone(
+    clustersSource = cms.InputTag("particleFlowClusterHBHEOnly")
+)

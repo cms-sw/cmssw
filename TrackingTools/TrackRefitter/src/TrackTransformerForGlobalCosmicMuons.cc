@@ -211,7 +211,7 @@ vector<Trajectory> TrackTransformerForGlobalCosmicMuons::transform(const reco::T
 
   LogTrace(metname) << "Prop Dir: " << propagationDirection << " FirstId " << innerId << " firstTSOS " << firstTSOS;
 
-  TrajectorySeed seed(PTrajectoryStateOnDet(), TrajectorySeed::recHitContainer(), propagationDirection);
+  TrajectorySeed seed({}, {}, propagationDirection);
 
   if (recHitsForReFit.front()->geographicalId() != DetId(innerId)) {
     LogTrace(metname) << "Propagation occurring" << endl;

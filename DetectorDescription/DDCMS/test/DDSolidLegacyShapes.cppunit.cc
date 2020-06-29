@@ -95,4 +95,12 @@ void testDDSolidLegacyShapes::checkDDSolidLegacyShapes() {
   LegacySolidShape legacyExtrudedpolygon =
       cms::dd::value(cms::LegacySolidShapeMap, cms::DDSolidShape::ddextrudedpolygon);
   CPPUNIT_ASSERT(legacyExtrudedpolygon == LegacySolidShape::ddextrudedpolygon);
+
+  int ids[] = {0,  0, 1,  1, 2,  2,  3,  3,  4,  4,  5,  5,  7,  5,  6,  6,  8,  6,  9,  7,
+               10, 8, 11, 9, 12, 10, 13, 11, 14, 12, 15, 13, 16, 14, 17, 15, 18, 16, 19, 17};
+  int i = 0;
+  for (const auto it : LegacySolidShapeMap) {
+    CPPUNIT_ASSERT(static_cast<int>(it.value) == ids[i++]);
+    CPPUNIT_ASSERT(static_cast<int>(it.name) == ids[i++]);
+  }
 }

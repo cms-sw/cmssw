@@ -74,19 +74,17 @@ void ParametrizedSubtractor::setupGeometryMap(edm::Event& iEvent, const edm::Eve
     for (std::vector<DetId>::const_iterator did = alldid.begin(); did != alldid.end(); did++) {
       if ((*did).det() == DetId::Hcal) {
         HcalDetId hid = HcalDetId(*did);
-        if ((hid).depth() == 1) {
-          allgeomid_.push_back(*did);
+        allgeomid_.push_back(*did);
 
-          if ((hid).ieta() != ietaold) {
-            ietaold = (hid).ieta();
-            geomtowers_[(hid).ieta()] = 1;
-            if ((hid).ieta() > ietamax_)
-              ietamax_ = (hid).ieta();
-            if ((hid).ieta() < ietamin_)
-              ietamin_ = (hid).ieta();
-          } else {
-            geomtowers_[(hid).ieta()]++;
-          }
+        if (hid.ieta() != ietaold) {
+          ietaold = hid.ieta();
+          geomtowers_[hid.ieta()] = 1;
+          if (hid.ieta() > ietamax_)
+            ietamax_ = hid.ieta();
+          if (hid.ieta() < ietamin_)
+            ietamin_ = hid.ieta();
+        } else {
+          geomtowers_[hid.ieta()]++;
         }
       }
     }
