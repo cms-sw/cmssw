@@ -36,6 +36,7 @@
 #include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"
 
+
 // constructors and destructor
 OuterTrackerMonitorTTTrack::OuterTrackerMonitorTTTrack(const edm::ParameterSet &iConfig) : conf_(iConfig) {
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
@@ -75,29 +76,23 @@ void OuterTrackerMonitorTTTrack::analyze(const edm::Event &iEvent, const edm::Ev
     int nBarrelStubs = 0;
     int nECStubs = 0;
 
-    double track_eta = tempTrackPtr->momentum().eta();
-    double track_d0 = tempTrackPtr->d0();
-    double track_bendchi2 = tempTrackPtr->stubPtConsistency();
-    double track_chi2 = tempTrackPtr->chi2();
-    double track_chi2dof = tempTrackPtr->chi2Red();
-
-    int hitPattern =  tempTrackPtr->hitPattern();
+    float track_eta = tempTrackPtr->momentum().eta();
+    float track_d0 = tempTrackPtr->d0();
+    float track_bendchi2 = tempTrackPtr->stubPtConsistency();
+    float track_chi2 = tempTrackPtr->chi2();
+    float track_chi2dof = tempTrackPtr->chi2Red();
+    float track_chi2rz = tempTrackPtr->chi2Z();
+    float track_chi2rphi = tempTrackPtr->chi2XY();
     int nLayersMissed = 0;
-    const int bitSize = 7;
-    std::bitset<bitSize> bits(hitPattern);
-    std::string tstr(bits.to_string()); // c++ string
-
-    char HitPatternArray[bitSize] = {0};
-    std::copy(tstr.begin(), tstr.end(), HitPatternArray);
-
-    bool foundFirst1 = false;
-    for (int i=0;i<bitSize; i++){
-      std::string thisElement(1,HitPatternArray[i]);
-      if (!foundFirst1 && thisElement=="1") {
-        foundFirst1=true;
-        continue;
-      }
-      if (foundFirst1 && thisElement=="0") nLayersMissed++;
+    unsigned int hitPattern_ = (unsigned int)tempTrackPtr->hitPattern();    
+    
+    int nbits = floor(log2(hitPattern_ )) + 1;
+    int lay_i = 0;
+    bool seq = 0;
+    for (int i=0; i<nbits; i++){
+      lay_i = ((1<<i)&hitPattern_)>>i; //0 or 1 in ith bit (right to left)
+      if (lay_i && !seq) seq = 1; //sequence starts when first 1 found
+      if (!lay_i && seq) nLayersMissed++;
     }
 
     std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>>
@@ -112,7 +107,7 @@ void OuterTrackerMonitorTTTrack::analyze(const edm::Event &iEvent, const edm::Ev
       else if (inEC) nECStubs++;
     }  // end loop over stubs
 
-    // HQ tracks: >=5 stubs and chi2/dof < 1
+    // HQ tracks: bendchi2<2.2 and chi2/dof<10
     if (nStubs>=HQNStubs_ && track_chi2dof<=HQChi2dof_ && track_bendchi2<=HQBendChi2_ ) {
       numHQTracks++;
       Track_HQ_NStubs->Fill(nStubs);
@@ -125,6 +120,8 @@ void OuterTrackerMonitorTTTrack::analyze(const edm::Event &iEvent, const edm::Ev
       Track_HQ_VtxZ->Fill(tempTrackPtr->z0());
       Track_HQ_BendChi2->Fill(track_bendchi2);
       Track_HQ_Chi2->Fill(track_chi2);
+      Track_HQ_Chi2RZ->Fill(track_chi2rz);
+      Track_HQ_Chi2RPhi->Fill(track_chi2rphi);
       Track_HQ_Chi2Red->Fill(track_chi2dof);
       Track_HQ_Chi2Red_NStubs->Fill(nStubs, track_chi2dof);
       Track_HQ_Chi2Red_Eta->Fill(track_eta, track_chi2dof);
@@ -145,6 +142,8 @@ void OuterTrackerMonitorTTTrack::analyze(const edm::Event &iEvent, const edm::Ev
     Track_All_VtxZ->Fill(tempTrackPtr->z0());
     Track_All_BendChi2->Fill(track_bendchi2);
     Track_All_Chi2->Fill(track_chi2);
+    Track_All_Chi2RZ->Fill(track_chi2rz);
+    Track_All_Chi2RPhi->Fill(track_chi2rphi);
     Track_All_Chi2Red->Fill(track_chi2dof);
     Track_All_Chi2Red_NStubs->Fill(nStubs, track_chi2dof);
     Track_All_Chi2Red_Eta->Fill(track_eta, track_chi2dof);
@@ -202,6 +201,7 @@ void OuterTrackerMonitorTTTrack::bookHistograms(DQMStore::IBooker &iBooker,
   Track_All_NLayersMissed->setAxisTitle("# Layers missed", 1);
   Track_All_NLayersMissed->setAxisTitle("# L1 Tracks", 2);
 
+  // Eta vs NStubs
   edm::ParameterSet psTrack_Eta_NStubs = conf_.getParameter<edm::ParameterSet>("TH2_Track_Eta_NStubs");
   HistoName = "Track_All_Eta_NStubs";
   Track_All_Eta_NStubs = iBooker.book2D(HistoName,
@@ -280,6 +280,27 @@ void OuterTrackerMonitorTTTrack::bookHistograms(DQMStore::IBooker &iBooker,
                                  psTrack_Chi2.getParameter<double>("xmax"));
   Track_All_Chi2->setAxisTitle("L1 Track #chi^{2}", 1);
   Track_All_Chi2->setAxisTitle("# L1 Tracks", 2);
+
+  // chi2 r-z
+  HistoName = "Track_All_Chi2RZ";
+  Track_All_Chi2RZ = iBooker.book1D(HistoName,
+				  HistoName,
+				  psTrack_Chi2.getParameter<int32_t>("Nbinsx"),
+				  psTrack_Chi2.getParameter<double>("xmin"),
+				  psTrack_Chi2.getParameter<double>("xmax"));
+  Track_All_Chi2RZ->setAxisTitle("L1 Track #chi^{2} r-z", 1);
+  Track_All_Chi2RZ->setAxisTitle("# L1 Tracks", 2);
+
+
+  // chi2 r-phi
+  HistoName = "Track_All_Chi2RPhi";
+  Track_All_Chi2RPhi = iBooker.book1D(HistoName,
+				  HistoName,
+				  psTrack_Chi2.getParameter<int32_t>("Nbinsx"),
+				  psTrack_Chi2.getParameter<double>("xmin"),
+				  psTrack_Chi2.getParameter<double>("xmax"));
+  Track_All_Chi2RPhi->setAxisTitle("L1 Track #chi^{2}", 1);
+  Track_All_Chi2RPhi->setAxisTitle("# L1 Tracks", 2);
 
   // Bendchi2
   edm::ParameterSet psTrack_Chi2R = conf_.getParameter<edm::ParameterSet>("TH1_Track_Chi2R");
@@ -367,7 +388,7 @@ void OuterTrackerMonitorTTTrack::bookHistograms(DQMStore::IBooker &iBooker,
   Track_All_Eta_ECStubs->setAxisTitle("#eta", 1);
   Track_All_Eta_ECStubs->setAxisTitle("# L1 EC Stubs", 2);
 
-  /// High-quality tracks (Now defined as >=5 stubs and chi2/dof < 10)
+  /// High-quality tracks (Bendchi2 < 2.2 and chi2/dof < 10)
   iBooker.setCurrentFolder(topFolderName_ + "/Tracks/HQ");
   // Nb of L1Tracks
   HistoName = "Track_HQ_N";
@@ -399,6 +420,7 @@ void OuterTrackerMonitorTTTrack::bookHistograms(DQMStore::IBooker &iBooker,
   Track_HQ_NLayersMissed->setAxisTitle("# Layers missed", 1);
   Track_HQ_NLayersMissed->setAxisTitle("# L1 Tracks", 2);
 
+  // Track eta vs #stubs
   HistoName = "Track_HQ_Eta_NStubs";
   Track_HQ_Eta_NStubs = iBooker.book2D(HistoName,
                                     HistoName,
@@ -481,6 +503,26 @@ void OuterTrackerMonitorTTTrack::bookHistograms(DQMStore::IBooker &iBooker,
                                  psTrack_Chi2.getParameter<double>("xmax"));
   Track_HQ_Chi2->setAxisTitle("L1 Track #chi^{2}", 1);
   Track_HQ_Chi2->setAxisTitle("# L1 Tracks", 2);
+
+  // chi2 r-z
+  HistoName = "Track_HQ_Chi2RZ";
+  Track_HQ_Chi2RZ = iBooker.book1D(HistoName,
+                                 HistoName,
+                                 psTrack_Chi2.getParameter<int32_t>("Nbinsx"),
+                                 psTrack_Chi2.getParameter<double>("xmin"),
+                                 psTrack_Chi2.getParameter<double>("xmax"));
+  Track_HQ_Chi2RZ->setAxisTitle("L1 Track #chi^{2} r-z", 1);
+  Track_HQ_Chi2RZ->setAxisTitle("# L1 Tracks", 2);
+
+  // chi2 r-phi
+  HistoName = "Track_HQ_Chi2RPhi";
+  Track_HQ_Chi2RPhi = iBooker.book1D(HistoName,
+                                     HistoName,
+                                     psTrack_Chi2.getParameter<int32_t>("Nbinsx"),
+                                     psTrack_Chi2.getParameter<double>("xmin"),
+                                     psTrack_Chi2.getParameter<double>("xmax"));
+  Track_HQ_Chi2RPhi->setAxisTitle("L1 Track #chi^{2} r-phi", 1);
+  Track_HQ_Chi2RPhi->setAxisTitle("# L1 Tracks", 2);
 
   // chi2Red
   HistoName = "Track_HQ_Chi2Red";
