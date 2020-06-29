@@ -15,7 +15,6 @@
 
 // user include files
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
-#include "DQM/SiOuterTracker/interface/OuterTrackerMonitorTTTrack.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Ptr.h"
@@ -35,12 +34,85 @@
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
+class OuterTrackerMonitorTTTrack : public DQMEDAnalyzer {
+public:
+  explicit OuterTrackerMonitorTTTrack(const edm::ParameterSet &);
+  ~OuterTrackerMonitorTTTrack() override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
+
+  /// Low-quality TTTracks (All tracks)
+  MonitorElement *Track_All_N = nullptr;                 // Number of tracks per event
+  MonitorElement *Track_All_NStubs = nullptr;            // Number of stubs per track
+  MonitorElement *Track_All_NLayersMissed = nullptr;     // Number of layers missed per track
+  MonitorElement *Track_All_Eta_NStubs = nullptr;        // Number of stubs per track vs eta
+  MonitorElement *Track_All_Pt = nullptr;                // pT distrubtion for tracks
+  MonitorElement *Track_All_Eta = nullptr;               // eta distrubtion for tracks
+  MonitorElement *Track_All_Phi = nullptr;               // phi distrubtion for tracks
+  MonitorElement *Track_All_D0 = nullptr;                // d0 distrubtion for tracks
+  MonitorElement *Track_All_VtxZ = nullptr;              // z0 distrubtion for tracks
+  MonitorElement *Track_All_BendChi2 = nullptr;          // Bendchi2 distrubtion for tracks
+  MonitorElement *Track_All_Chi2 = nullptr;              // chi2 distrubtion for tracks
+  MonitorElement *Track_All_Chi2Red = nullptr;           // chi2/dof distrubtion for tracks
+  MonitorElement *Track_All_Chi2RZ = nullptr;           // chi2 r-phi distrubtion for tracks
+  MonitorElement *Track_All_Chi2RPhi = nullptr;           // chi2 r-z distrubtion for tracks
+  MonitorElement *Track_All_Chi2Red_NStubs = nullptr;    // chi2/dof vs number of stubs
+  MonitorElement *Track_All_Chi2Red_Eta = nullptr;       // chi2/dof vs eta of track
+  MonitorElement *Track_All_Eta_BarrelStubs = nullptr;   // eta vs number of stubs in barrel
+  MonitorElement *Track_All_Eta_ECStubs = nullptr;       // eta vs number of stubs in end caps
+  MonitorElement *Track_All_Chi2_Probability = nullptr;  // chi2 probability
+
+  /// High-quality TTTracks; different depending on prompt vs displaced tracks
+  // Quality cuts: chi2/dof<10, bendchi2<2.2 (Prompt), default in config
+  // Quality cuts: chi2/dof<40, bendchi2<2.4 (Extended/Displaced tracks)
+  MonitorElement *Track_HQ_N = nullptr;                 // Number of tracks per event
+  MonitorElement *Track_HQ_NStubs = nullptr;            // Number of stubs per track
+  MonitorElement *Track_HQ_NLayersMissed = nullptr;     // Number of layers missed per track
+  MonitorElement *Track_HQ_Eta_NStubs = nullptr;        // Number of stubs per track vs eta
+  MonitorElement *Track_HQ_Pt = nullptr;                // pT distrubtion for tracks
+  MonitorElement *Track_HQ_Eta = nullptr;               // eta distrubtion for tracks
+  MonitorElement *Track_HQ_Phi = nullptr;               // phi distrubtion for tracks
+  MonitorElement *Track_HQ_D0 = nullptr;                // d0 distrubtion for tracks
+  MonitorElement *Track_HQ_VtxZ = nullptr;              // z0 distrubtion for tracks
+  MonitorElement *Track_HQ_BendChi2 = nullptr;          // Bendchi2 distrubtion for tracks
+  MonitorElement *Track_HQ_Chi2 = nullptr;              // chi2 distrubtion for tracks
+  MonitorElement *Track_HQ_Chi2Red = nullptr;           // chi2/dof distrubtion for tracks
+  MonitorElement *Track_HQ_Chi2RZ = nullptr;           // chi2 r-z distrubtion for tracks
+  MonitorElement *Track_HQ_Chi2RPhi = nullptr;           // chi2 r-phi distrubtion for tracks
+  MonitorElement *Track_HQ_Chi2Red_NStubs = nullptr;    // chi2/dof vs number of stubs
+  MonitorElement *Track_HQ_Chi2Red_Eta = nullptr;       // chi2/dof vs eta of track
+  MonitorElement *Track_HQ_Eta_BarrelStubs = nullptr;   // eta vs number of stubs in barrel
+  MonitorElement *Track_HQ_Eta_ECStubs = nullptr;       // eta vs number of stubs in end caps
+  MonitorElement *Track_HQ_Chi2_Probability = nullptr;  // chi2 probability
+
+private:
+  edm::ParameterSet conf_;
+  edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> ttTrackToken_;
+
+  unsigned int HQNStubs_;
+  double HQChi2dof_;
+  double HQBendChi2_;
+  std::string topFolderName_;
+};
 
 // constructors and destructor
 OuterTrackerMonitorTTTrack::OuterTrackerMonitorTTTrack(const edm::ParameterSet &iConfig) : conf_(iConfig) {
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
-  ttTrackToken_ = consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>(conf_.getParameter<edm::InputTag>("TTTracksTag"));
+  ttTrackToken_ =
+      consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>(conf_.getParameter<edm::InputTag>("TTTracksTag"));
   HQNStubs_ = conf_.getParameter<int>("HQNStubs");
   HQChi2dof_ = conf_.getParameter<double>("HQChi2dof");
   HQBendChi2_ = conf_.getParameter<double>("HQBendChi2");
@@ -84,8 +156,8 @@ void OuterTrackerMonitorTTTrack::analyze(const edm::Event &iEvent, const edm::Ev
     float track_chi2rz = tempTrackPtr->chi2Z();
     float track_chi2rphi = tempTrackPtr->chi2XY();
     int nLayersMissed = 0;
-    unsigned int hitPattern_ = (unsigned int)tempTrackPtr->hitPattern();    
-    
+    unsigned int hitPattern_ = (unsigned int)tempTrackPtr->hitPattern();
+
     int nbits = floor(log2(hitPattern_ )) + 1;
     int lay_i = 0;
     bool seq = 0;
@@ -110,6 +182,7 @@ void OuterTrackerMonitorTTTrack::analyze(const edm::Event &iEvent, const edm::Ev
     // HQ tracks: bendchi2<2.2 and chi2/dof<10
     if (nStubs>=HQNStubs_ && track_chi2dof<=HQChi2dof_ && track_bendchi2<=HQBendChi2_ ) {
       numHQTracks++;
+
       Track_HQ_NStubs->Fill(nStubs);
       Track_HQ_NLayersMissed->Fill(nLayersMissed);
       Track_HQ_Eta_NStubs->Fill(track_eta, nStubs);
@@ -150,6 +223,7 @@ void OuterTrackerMonitorTTTrack::analyze(const edm::Event &iEvent, const edm::Ev
     Track_All_Eta_BarrelStubs->Fill(track_eta, nBarrelStubs);
     Track_All_Eta_ECStubs->Fill(track_eta, nECStubs);
     Track_All_Chi2_Probability->Fill(ChiSquaredProbability(track_chi2, nStubs));
+
   }  // End of loop over TTTracks
 
   Track_HQ_N->Fill(numHQTracks);
@@ -163,9 +237,6 @@ void OuterTrackerMonitorTTTrack::bookHistograms(DQMStore::IBooker &iBooker,
                                                 edm::Run const &run,
                                                 edm::EventSetup const &es) {
   std::string HistoName;
-  // iBooker.setCurrentFolder(topFolderName_ + "/Tracks/");
-
-
 
   /// Low-quality tracks (All tracks, including HQ tracks)
   iBooker.setCurrentFolder(topFolderName_ + "/Tracks/All");
@@ -192,16 +263,15 @@ void OuterTrackerMonitorTTTrack::bookHistograms(DQMStore::IBooker &iBooker,
   Track_All_NStubs->setAxisTitle("# L1 Tracks", 2);
 
   // Number of layers missed
-  HistoName = "Track_All_NLayersMissed";
-  Track_All_NLayersMissed = iBooker.book1D(HistoName,
-                                HistoName,
-                                psTrack_NStubs.getParameter<int32_t>("Nbinsx"),
-                                psTrack_NStubs.getParameter<double>("xmin"),
-                                psTrack_NStubs.getParameter<double>("xmax"));
-  Track_All_NLayersMissed->setAxisTitle("# Layers missed", 1);
-  Track_All_NLayersMissed->setAxisTitle("# L1 Tracks", 2);
+HistoName = "Track_All_NLayersMissed";
+Track_All_NLayersMissed = iBooker.book1D(HistoName,
+                              HistoName,
+                              psTrack_NStubs.getParameter<int32_t>("Nbinsx"),
+                              psTrack_NStubs.getParameter<double>("xmin"),
+                              psTrack_NStubs.getParameter<double>("xmax"));
+Track_All_NLayersMissed->setAxisTitle("# Layers missed", 1);
+Track_All_NLayersMissed->setAxisTitle("# L1 Tracks", 2);
 
-  // Eta vs NStubs
   edm::ParameterSet psTrack_Eta_NStubs = conf_.getParameter<edm::ParameterSet>("TH2_Track_Eta_NStubs");
   HistoName = "Track_All_Eta_NStubs";
   Track_All_Eta_NStubs = iBooker.book2D(HistoName,
@@ -314,6 +384,7 @@ void OuterTrackerMonitorTTTrack::bookHistograms(DQMStore::IBooker &iBooker,
   Track_All_BendChi2->setAxisTitle("# L1 Tracks", 2);
 
   // chi2Red
+  edm::ParameterSet psTrack_Chi2Red = conf_.getParameter<edm::ParameterSet>("TH1_Track_Chi2R");
   HistoName = "Track_All_Chi2Red";
   Track_All_Chi2Red = iBooker.book1D(HistoName,
                                     HistoName,
@@ -376,7 +447,7 @@ void OuterTrackerMonitorTTTrack::bookHistograms(DQMStore::IBooker &iBooker,
   Track_All_Eta_BarrelStubs->setAxisTitle("# L1 Barrel Stubs", 2);
 
   // Eta vs #stubs in EC
-  HistoName = "Track_All_Eta_ECStubs";
+  HistoName = "Track_LQ_Eta_ECStubs";
   Track_All_Eta_ECStubs = iBooker.book2D(HistoName,
                                         HistoName,
                                         psTrack_Eta_NStubs.getParameter<int32_t>("Nbinsx"),
@@ -433,7 +504,6 @@ void OuterTrackerMonitorTTTrack::bookHistograms(DQMStore::IBooker &iBooker,
   Track_HQ_Eta_NStubs->setAxisTitle("#eta", 1);
   Track_HQ_Eta_NStubs->setAxisTitle("# L1 Stubs", 2);
 
-
   // Pt of the tracks
   HistoName = "Track_HQ_Pt";
   Track_HQ_Pt = iBooker.book1D(HistoName,
@@ -484,16 +554,6 @@ void OuterTrackerMonitorTTTrack::bookHistograms(DQMStore::IBooker &iBooker,
   Track_HQ_VtxZ->setAxisTitle("L1 Track vertex position z [cm]", 1);
   Track_HQ_VtxZ->setAxisTitle("# L1 Tracks", 2);
 
-  // Bendchi2
-  HistoName = "Track_HQ_BendChi2";
-  Track_HQ_BendChi2 = iBooker.book1D(HistoName,
-                                 HistoName,
-                                 psTrack_Chi2R.getParameter<int32_t>("Nbinsx"),
-                                 psTrack_Chi2R.getParameter<double>("xmin"),
-                                 psTrack_Chi2R.getParameter<double>("xmax"));
-  Track_HQ_BendChi2->setAxisTitle("L1 Track Bend #chi^{2}", 1);
-  Track_HQ_BendChi2->setAxisTitle("# L1 Tracks", 2);
-
   // chi2
   HistoName = "Track_HQ_Chi2";
   Track_HQ_Chi2 = iBooker.book1D(HistoName,
@@ -503,6 +563,16 @@ void OuterTrackerMonitorTTTrack::bookHistograms(DQMStore::IBooker &iBooker,
                                  psTrack_Chi2.getParameter<double>("xmax"));
   Track_HQ_Chi2->setAxisTitle("L1 Track #chi^{2}", 1);
   Track_HQ_Chi2->setAxisTitle("# L1 Tracks", 2);
+
+  // Bendchi2
+  HistoName = "Track_HQ_BendChi2";
+  Track_HQ_BendChi2 = iBooker.book1D(HistoName,
+                                 HistoName,
+                                 psTrack_Chi2R.getParameter<int32_t>("Nbinsx"),
+                                 psTrack_Chi2R.getParameter<double>("xmin"),
+                                 psTrack_Chi2R.getParameter<double>("xmax"));
+  Track_HQ_BendChi2->setAxisTitle("L1 Track Bend #chi^{2}", 1);
+  Track_HQ_BendChi2->setAxisTitle("# L1 Tracks", 2);
 
   // chi2 r-z
   HistoName = "Track_HQ_Chi2RZ";
@@ -514,7 +584,6 @@ void OuterTrackerMonitorTTTrack::bookHistograms(DQMStore::IBooker &iBooker,
   Track_HQ_Chi2RZ->setAxisTitle("L1 Track #chi^{2} r-z", 1);
   Track_HQ_Chi2RZ->setAxisTitle("# L1 Tracks", 2);
 
-  // chi2 r-phi
   HistoName = "Track_HQ_Chi2RPhi";
   Track_HQ_Chi2RPhi = iBooker.book1D(HistoName,
                                      HistoName,

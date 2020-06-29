@@ -25,7 +25,6 @@
 #include <vector>
 
 // user include files
-#include "DQM/SiOuterTracker/interface/OuterTrackerMonitorTTStub.h"
 #include "DataFormats/L1TrackTrigger/interface/TTStub.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -35,6 +34,70 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+
+class OuterTrackerMonitorTTStub : public DQMEDAnalyzer {
+public:
+  explicit OuterTrackerMonitorTTStub(const edm::ParameterSet &);
+  ~OuterTrackerMonitorTTStub() override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
+  // TTStub stacks
+  // Global position of the stubs
+  MonitorElement *Stub_Barrel_XY = nullptr;     // TTStub barrel y vs x
+  MonitorElement *Stub_Endcap_Fw_XY = nullptr;  // TTStub Forward Endcap y vs. x
+  MonitorElement *Stub_Endcap_Bw_XY = nullptr;  // TTStub Backward Endcap y vs. x
+  MonitorElement *Stub_RZ = nullptr;            // TTStub #rho vs. z
+
+  // Number of stubs
+  MonitorElement *Stub_Barrel = nullptr;                                                   // TTStub per layer
+  MonitorElement *Stub_Endcap_Disc = nullptr;                                              // TTStubs per disc
+  MonitorElement *Stub_Endcap_Disc_Fw = nullptr;                                           // TTStub per disc
+  MonitorElement *Stub_Endcap_Disc_Bw = nullptr;                                           // TTStub per disc
+  MonitorElement *Stub_Endcap_Ring = nullptr;                                              // TTStubs per ring
+  MonitorElement *Stub_Endcap_Ring_Fw[5] = {nullptr, nullptr, nullptr, nullptr, nullptr};  // TTStubs per EC ring
+  MonitorElement *Stub_Endcap_Ring_Bw[5] = {nullptr, nullptr, nullptr, nullptr, nullptr};  // TTStub per EC ring
+
+  // Stub distribution
+  MonitorElement *Stub_Eta = nullptr;  // TTstub eta distribution
+  MonitorElement *Stub_Phi = nullptr;  // TTstub phi distribution
+  MonitorElement *Stub_R = nullptr;    // TTstub r distribution
+  MonitorElement *Stub_bendFE = nullptr;    // TTstub trigger bend
+  MonitorElement *Stub_bendBE = nullptr;    // TTstub hardware bend
+  MonitorElement *Stub_rawBend = nullptr;    // TTstub raw bend
+  MonitorElement *Stub_bendOffset = nullptr;    // TTstub bend offset
+  MonitorElement *Stub_isPS = nullptr;    // is this stub a PS module?
+
+  // STUB Displacement - offset
+  MonitorElement *Stub_Barrel_W = nullptr;       // TTstub Pos-Corr Displacement (layer)
+  MonitorElement *Stub_Barrel_O = nullptr;       // TTStub Offset (layer)
+  MonitorElement *Stub_Endcap_Disc_W = nullptr;  // TTstub Pos-Corr Displacement (disc)
+  MonitorElement *Stub_Endcap_Disc_O = nullptr;  // TTStub Offset (disc)
+  MonitorElement *Stub_Endcap_Ring_W = nullptr;  // TTstub Pos-Corr Displacement (EC ring)
+  MonitorElement *Stub_Endcap_Ring_O = nullptr;  // TTStub Offset (EC ring)
+  MonitorElement *Stub_Endcap_Ring_W_Fw[5] = {
+      nullptr, nullptr, nullptr, nullptr, nullptr};  // TTstub Pos-Corr Displacement (EC ring)
+  MonitorElement *Stub_Endcap_Ring_O_Fw[5] = {nullptr, nullptr, nullptr, nullptr, nullptr};  // TTStub Offset (EC ring)
+  MonitorElement *Stub_Endcap_Ring_W_Bw[5] = {
+      nullptr, nullptr, nullptr, nullptr, nullptr};  // TTstub Pos-Corr Displacement (EC ring)
+  MonitorElement *Stub_Endcap_Ring_O_Bw[5] = {nullptr, nullptr, nullptr, nullptr, nullptr};  // TTStub Offset (EC ring)
+
+private:
+  edm::ParameterSet conf_;
+  edm::EDGetTokenT<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>> tagTTStubsToken_;
+  std::string topFolderName_;
+};
 
 // constructors and destructor
 OuterTrackerMonitorTTStub::OuterTrackerMonitorTTStub(const edm::ParameterSet &iConfig) : conf_(iConfig) {
@@ -104,7 +167,6 @@ void OuterTrackerMonitorTTStub::analyze(const edm::Event &iEvent, const edm::Eve
       Stub_rawBend->Fill(rawBend);
       Stub_bendOffset->Fill(bendOffset);
       Stub_isPS->Fill(tempStubRef->moduleTypePS());
-
 
       if (detIdStub.subdetId() == static_cast<int>(StripSubdetector::TOB)) {  // Phase 2 Outer Tracker Barrel
         Stub_Barrel->Fill(tTopo->layer(detIdStub));
@@ -238,40 +300,40 @@ void OuterTrackerMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker,
   edm::ParameterSet psTTStub_bend = conf_.getParameter<edm::ParameterSet>("TH1TTStub_bend");
   HistoName = "Stub_bendFE";
   Stub_bendFE = iBooker.book1D(HistoName,
-                          HistoName,
-                          psTTStub_bend.getParameter<int32_t>("Nbinsx"),
-                          psTTStub_bend.getParameter<double>("xmin"),
-                          psTTStub_bend.getParameter<double>("xmax"));
+			       HistoName,
+			       psTTStub_bend.getParameter<int32_t>("Nbinsx"),
+			       psTTStub_bend.getParameter<double>("xmin"),
+			       psTTStub_bend.getParameter<double>("xmax"));
   Stub_bendFE->setAxisTitle("Trigger bend", 1);
   Stub_bendFE->setAxisTitle("# L1 Stubs ", 2);
 
   // TTStub hardware bend
   HistoName = "Stub_bendBE";
   Stub_bendBE = iBooker.book1D(HistoName,
-                          HistoName,
-                          psTTStub_bend.getParameter<int32_t>("Nbinsx"),
-                          psTTStub_bend.getParameter<double>("xmin"),
-                          psTTStub_bend.getParameter<double>("xmax"));
+			       HistoName,
+			       psTTStub_bend.getParameter<int32_t>("Nbinsx"),
+			       psTTStub_bend.getParameter<double>("xmin"),
+			       psTTStub_bend.getParameter<double>("xmax"));
   Stub_bendBE->setAxisTitle("Hardware bend", 1);
   Stub_bendBE->setAxisTitle("# L1 Stubs ", 2);
 
   // TTStub raw bend
   HistoName = "Stub_rawBend";
   Stub_rawBend = iBooker.book1D(HistoName,
-                          HistoName,
-                          psTTStub_bend.getParameter<int32_t>("Nbinsx"),
-                          psTTStub_bend.getParameter<double>("xmin"),
-                          psTTStub_bend.getParameter<double>("xmax"));
+				HistoName,
+				psTTStub_bend.getParameter<int32_t>("Nbinsx"),
+				psTTStub_bend.getParameter<double>("xmin"),
+				psTTStub_bend.getParameter<double>("xmax"));
   Stub_rawBend->setAxisTitle("Raw bend", 1);
   Stub_rawBend->setAxisTitle("# L1 Stubs ", 2);
 
   // TTStub bend offset
   HistoName = "Stub_bendOffset";
   Stub_bendOffset = iBooker.book1D(HistoName,
-                          HistoName,
-                          psTTStub_bend.getParameter<int32_t>("Nbinsx"),
-                          psTTStub_bend.getParameter<double>("xmin"),
-                          psTTStub_bend.getParameter<double>("xmax"));
+				   HistoName,
+				   psTTStub_bend.getParameter<int32_t>("Nbinsx"),
+				   psTTStub_bend.getParameter<double>("xmin"),
+				   psTTStub_bend.getParameter<double>("xmax"));
   Stub_bendOffset->setAxisTitle("Bend offset", 1);
   Stub_bendOffset->setAxisTitle("# L1 Stubs ", 2);
 
@@ -279,12 +341,13 @@ void OuterTrackerMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker,
   edm::ParameterSet psTTStub_isPS = conf_.getParameter<edm::ParameterSet>("TH1TTStub_isPS");
   HistoName = "Stub_isPS";
   Stub_isPS = iBooker.book1D(HistoName,
-                          HistoName,
-                          psTTStub_isPS.getParameter<int32_t>("Nbinsx"),
-                          psTTStub_isPS.getParameter<double>("xmin"),
-                          psTTStub_isPS.getParameter<double>("xmax"));
+			     HistoName,
+			     psTTStub_isPS.getParameter<int32_t>("Nbinsx"),
+			     psTTStub_isPS.getParameter<double>("xmin"),
+			     psTTStub_isPS.getParameter<double>("xmax"));
   Stub_isPS->setAxisTitle("Is PS?", 1);
   Stub_isPS->setAxisTitle("# L1 Stubs ", 2);
+
 
   iBooker.setCurrentFolder(topFolderName_ + "/Stubs/NStubs");
   // TTStub barrel stack
