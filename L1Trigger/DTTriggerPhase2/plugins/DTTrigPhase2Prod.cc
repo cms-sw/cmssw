@@ -570,30 +570,29 @@ bool DTTrigPhase2Prod::hasPosRF(int wh, int sec) const { return wh > 0 || (wh ==
 
 void DTTrigPhase2Prod::printmP(const metaPrimitive& mP) const {
   DTSuperLayerId slId(mP.rawId);
-  LogDebug(DTTrigPhase2Prod) << (int)slId 
-                             << "\t " << setw(2) << left << mP.wi1 << " " << setw(2) << left << mP.wi2 << " " << setw(2)
-                             << left << mP.wi3 << " " << setw(2) << left << mP.wi4 << " " << setw(5) << left << mP.tdc1
-                             << " " << setw(5) << left << mP.tdc2 << " " << setw(5) << left << mP.tdc3 << " " << setw(5)
-                             << left << mP.tdc4 << " " << setw(10) << right << mP.x << " " << setw(9) << left
-                             << mP.tanPhi << " " << setw(5) << left << mP.t0 << " " << setw(13) << left << mP.chi2
-                             << " r:" << rango(mP) << "\n";
+  LogDebug(DTTrigPhase2Prod) << (int)slId << "\t " << setw(2) << left << mP.wi1 << " " << setw(2) << left << mP.wi2
+                             << " " << setw(2) << left << mP.wi3 << " " << setw(2) << left << mP.wi4 << " " << setw(5)
+                             << left << mP.tdc1 << " " << setw(5) << left << mP.tdc2 << " " << setw(5) << left
+                             << mP.tdc3 << " " << setw(5) << left << mP.tdc4 << " " << setw(10) << right << mP.x << " "
+                             << setw(9) << left << mP.tanPhi << " " << setw(5) << left << mP.t0 << " " << setw(13)
+                             << left << mP.chi2 << " r:" << rango(mP) << "\n";
 }
 
 void DTTrigPhase2Prod::printmPC(const metaPrimitive& mP) const {
   DTChamberId ChId(mP.rawId);
-  LogDebug(DTTrigPhase2Prod) << (int)ChId 
-                             << "\t  " << setw(2) << left << mP.wi1 << " " << setw(2) << left << mP.wi2 << " " << setw(2)
-                             << left << mP.wi3 << " " << setw(2) << left << mP.wi4 << " " << setw(2) << left << mP.wi5
-                             << " " << setw(2) << left << mP.wi6 << " " << setw(2) << left << mP.wi7 << " " << setw(2)
-                             << left << mP.wi8 << " " << setw(5) << left << mP.tdc1 << " " << setw(5) << left << mP.tdc2
-                             << " " << setw(5) << left << mP.tdc3 << " " << setw(5) << left << mP.tdc4 << " " << setw(5)
-                             << left << mP.tdc5 << " " << setw(5) << left << mP.tdc6 << " " << setw(5) << left
-                             << mP.tdc7 << " " << setw(5) << left << mP.tdc8 << " " << setw(2) << left << mP.lat1 << " "
-                             << setw(2) << left << mP.lat2 << " " << setw(2) << left << mP.lat3 << " " << setw(2)
-                             << left << mP.lat4 << " " << setw(2) << left << mP.lat5 << " " << setw(2) << left
-                             << mP.lat6 << " " << setw(2) << left << mP.lat7 << " " << setw(2) << left << mP.lat8 << " "
-                             << setw(10) << right << mP.x << " " << setw(9) << left << mP.tanPhi << " " << setw(5)
-                             << left << mP.t0 << " " << setw(13) << left << mP.chi2 << " r:" << rango(mP) << "\n";
+  LogDebug(DTTrigPhase2Prod) << (int)ChId << "\t  " << setw(2) << left << mP.wi1 << " " << setw(2) << left << mP.wi2
+                             << " " << setw(2) << left << mP.wi3 << " " << setw(2) << left << mP.wi4 << " " << setw(2)
+                             << left << mP.wi5 << " " << setw(2) << left << mP.wi6 << " " << setw(2) << left << mP.wi7
+                             << " " << setw(2) << left << mP.wi8 << " " << setw(5) << left << mP.tdc1 << " " << setw(5)
+                             << left << mP.tdc2 << " " << setw(5) << left << mP.tdc3 << " " << setw(5) << left
+                             << mP.tdc4 << " " << setw(5) << left << mP.tdc5 << " " << setw(5) << left << mP.tdc6 << " "
+                             << setw(5) << left << mP.tdc7 << " " << setw(5) << left << mP.tdc8 << " " << setw(2)
+                             << left << mP.lat1 << " " << setw(2) << left << mP.lat2 << " " << setw(2) << left
+                             << mP.lat3 << " " << setw(2) << left << mP.lat4 << " " << setw(2) << left << mP.lat5 << " "
+                             << setw(2) << left << mP.lat6 << " " << setw(2) << left << mP.lat7 << " " << setw(2)
+                             << left << mP.lat8 << " " << setw(10) << right << mP.x << " " << setw(9) << left
+                             << mP.tanPhi << " " << setw(5) << left << mP.t0 << " " << setw(13) << left << mP.chi2
+                             << " r:" << rango(mP) << "\n";
 }
 
 int DTTrigPhase2Prod::rango(const metaPrimitive& mp) const {
