@@ -156,7 +156,8 @@ void TripletEngine::execute() {
       auto secondvmstub = stubpairs_.at(i)->getVMStub2(j);
 
       if ((layer2_ == 4 && layer3_ == 2) || (layer2_ == 6 && layer3_ == 4)) {
-        int lookupbits = (int)((firstvmstub.vmbits().value() >> 10) & 1023);
+        constexpr unsigned int vmbitshift = 10;
+        int lookupbits = (int)((firstvmstub.vmbits().value() >> vmbitshift) & 1023);  //1023=2^vmbitshift-1
         int newbin = (lookupbits & 127);
         int bin = newbin / 8;
 
@@ -243,7 +244,7 @@ void TripletEngine::execute() {
       }
 
       else if (disk2_ == 2 && layer3_ == 2) {
-        int lookupbits = (int)((firstvmstub.vmbits().value() >> 9) & 1023);
+        int lookupbits = (int)((firstvmstub.vmbits().value() >> 10) & 1023);
         int newbin = (lookupbits & 127);
         int bin = newbin / 8;
 
@@ -261,6 +262,7 @@ void TripletEngine::execute() {
             vmsteSuffix = vmsteSuffix.substr(0, vmsteSuffix.find_last_of('n'));
             if (stubpairs_.at(i)->getLastPartOfName() != vmsteSuffix)
               continue;
+
             for (unsigned int l = 0; l < thirdvmstubs_.at(k)->nVMStubsBinned(ibin); l++) {
               if (countall >= settings_.maxStep("TRE"))
                 break;
@@ -288,12 +290,10 @@ void TripletEngine::execute() {
               if (!table_[index]) {
                 if (settings_.debugTracklet()) {
                   edm::LogVerbatim("Tracklet")
-                      << "Stub pair rejected because of stub pt cut bends : "
+                      << "Stub triplet rejected because of stub pt cut bends : "
                       << benddecode(secondvmstub.bend().value(), secondvmstub.isPSmodule()) << " "
                       << benddecode(thirdvmstub.bend().value(), thirdvmstub.isPSmodule());
                 }
-                if (!settings_.writeTripletTables())
-                  continue;
               }
               if (settings_.writeTripletTables())
                 table_[index] = true;
@@ -337,7 +337,6 @@ void TripletEngine::execute() {
             vmsteSuffix = vmsteSuffix.substr(0, vmsteSuffix.find_last_of('n'));
             if (stubpairs_.at(i)->getLastPartOfName() != vmsteSuffix)
               continue;
-            assert(thirdvmstubs_.at(k)->nVMStubsBinned(ibin) == thirdvmstubs_.at(k)->nVMStubsBinned(ibin));
             for (unsigned int l = 0; l < thirdvmstubs_.at(k)->nVMStubsBinned(ibin); l++) {
               if (countall >= settings_.maxStep("TRE"))
                 break;
@@ -377,8 +376,6 @@ void TripletEngine::execute() {
                       << benddecode(secondvmstub.bend().value(), secondvmstub.isPSmodule()) << " "
                       << benddecode(thirdvmstub.bend().value(), thirdvmstub.isPSmodule());
                 }
-                if (!settings_.writeTripletTables())
-                  continue;
               }
               if (settings_.writeTripletTables())
                 table_[index] = true;
@@ -438,7 +435,9 @@ void TripletEngine::readTables() {
   string tableName, word;
   unsigned num;
 
-  tableName = "../data/table_TRE/table_" + name_ + ".txt";
+  string tablePath = settings_.tableTREFile();
+  unsigned int finddir = tablePath.find("table_TRE_");
+  tableName = tablePath.substr(0, finddir) + "table_" + name_ + ".txt";
 
   fin.open(tableName, ifstream::in);
   if (!fin) {
