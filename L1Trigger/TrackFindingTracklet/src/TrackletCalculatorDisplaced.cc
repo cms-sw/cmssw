@@ -13,8 +13,6 @@
 using namespace std;
 using namespace trklet;
 
-constexpr double triplet_phioffset = 0.171;
-
 TrackletCalculatorDisplaced::TrackletCalculatorDisplaced(string name,
                                                          Settings const& settings,
                                                          Globals* global,
@@ -301,11 +299,6 @@ bool TrackletCalculatorDisplaced::addLayerProj(Tracklet* tracklet, int layer) {
   FPGAWord fpgaz = tracklet->fpgazproj(layer);
   FPGAWord fpgaphi = tracklet->fpgaphiproj(layer);
 
-  if (fpgaphi.atExtreme())
-    edm::LogProblem("Tracklet") << "at extreme! " << fpgaphi.value();
-
-  assert(!fpgaphi.atExtreme());
-
   if (fpgaz.atExtreme())
     return false;
 
@@ -349,6 +342,9 @@ void TrackletCalculatorDisplaced::addProjectionDisk(int disk,
     return;
   }
   assert(trackletprojs != nullptr);
+  if (settings_.debugTracklet()) {
+    edm::LogVerbatim("Tracklet") << getName() << " adding projection to " << trackletprojs->getName();
+  }
   trackletprojs->addProj(tracklet);
 }
 
@@ -430,7 +426,6 @@ bool TrackletCalculatorDisplaced::LLLSeeding(const Stub* innerFPGAStub,
   double phiderdiskapprox[N_DISK], rderdiskapprox[N_DISK];
 
   //TODO: implement the actual integer calculation
-  phi0 -= triplet_phioffset;
 
   //store the approcximate results
   rinvapprox = rinv;
@@ -440,7 +435,6 @@ bool TrackletCalculatorDisplaced::LLLSeeding(const Stub* innerFPGAStub,
   z0approx = z0;
 
   for (unsigned int i = 0; i < toR_.size(); ++i) {
-    phiproj[i] -= triplet_phioffset;
     phiprojapprox[i] = phiproj[i];
     zprojapprox[i] = zproj[i];
     phiderapprox[i] = phider[i];
@@ -448,7 +442,6 @@ bool TrackletCalculatorDisplaced::LLLSeeding(const Stub* innerFPGAStub,
   }
 
   for (unsigned int i = 0; i < toZ_.size(); ++i) {
-    phiprojdisk[i] -= triplet_phioffset;
     phiprojdiskapprox[i] = phiprojdisk[i];
     rprojdiskapprox[i] = rprojdisk[i];
     phiderdiskapprox[i] = phiderdisk[i];
@@ -775,8 +768,6 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
 
   //TODO: implement the actual integer calculation
 
-  phi0 -= triplet_phioffset;
-
   //store the approcximate results
   rinvapprox = rinv;
   phi0approx = phi0;
@@ -785,7 +776,6 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
   z0approx = z0;
 
   for (unsigned int i = 0; i < toR_.size(); ++i) {
-    phiproj[i] -= triplet_phioffset;
     phiprojapprox[i] = phiproj[i];
     zprojapprox[i] = zproj[i];
     phiderapprox[i] = phider[i];
@@ -793,7 +783,6 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
   }
 
   for (unsigned int i = 0; i < toZ_.size(); ++i) {
-    phiprojdisk[i] -= triplet_phioffset;
     phiprojdiskapprox[i] = phiprojdisk[i];
     rprojdiskapprox[i] = rprojdisk[i];
     phiderdiskapprox[i] = phiderdisk[i];
@@ -990,7 +979,7 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
                                     it,
                                     layerprojs,
                                     diskprojs,
-                                    false);
+                                    true);
 
   if (settings_.debugTracklet()) {
     edm::LogVerbatim("Tracklet") << "TrackletCalculatorDisplaced " << getName()
@@ -1105,8 +1094,6 @@ bool TrackletCalculatorDisplaced::LLDSeeding(const Stub* innerFPGAStub,
 
   //TODO: implement the actual integer calculation
 
-  phi0 -= triplet_phioffset;
-
   //store the approcximate results
   rinvapprox = rinv;
   phi0approx = phi0;
@@ -1115,7 +1102,6 @@ bool TrackletCalculatorDisplaced::LLDSeeding(const Stub* innerFPGAStub,
   z0approx = z0;
 
   for (unsigned int i = 0; i < toR_.size(); ++i) {
-    phiproj[i] -= triplet_phioffset;
     phiprojapprox[i] = phiproj[i];
     zprojapprox[i] = zproj[i];
     phiderapprox[i] = phider[i];
@@ -1123,7 +1109,6 @@ bool TrackletCalculatorDisplaced::LLDSeeding(const Stub* innerFPGAStub,
   }
 
   for (unsigned int i = 0; i < toZ_.size(); ++i) {
-    phiprojdisk[i] -= triplet_phioffset;
     phiprojdiskapprox[i] = phiprojdisk[i];
     rprojdiskapprox[i] = rprojdisk[i];
     phiderdiskapprox[i] = phiderdisk[i];
@@ -1382,7 +1367,7 @@ void TrackletCalculatorDisplaced::exactproj(double rproj,
   zproj = z0 + t * std::abs(rho * beta);
 
   //not exact, but close
-  phider = -0.5 * rinv / sqrt(1 - pow(0.5 * rproj * rinv, 2)) - d0 / (rproj * rproj);
+  phider = -0.5 * rinv / sqrt(1 - pow(0.5 * rproj * rinv, 2)) + d0 / (rproj * rproj);
   zder = t / sqrt(1 - pow(0.5 * rproj * rinv, 2));
 
   if (settings_.debugTracklet()) {
@@ -1417,7 +1402,8 @@ void TrackletCalculatorDisplaced::exactprojdisk(double zproj,
 
   phiproj = atan2(y, x);
 
-  phiproj = reco::reduceRange(phiproj - phimin_ + (phimax_ - phimin_) / 6.0);
+  phiproj = reco::reduceRange(phiproj - phimin_);
+
   rproj = sqrt(x * x + y * y);
 
   phider = c / t / (x * x + y * y) * (rho + x0 * cos(phiV + c * beta) + y0 * sin(phiV + c * beta));
@@ -1481,7 +1467,8 @@ void TrackletCalculatorDisplaced::exacttracklet(double r1,
   rinv = 1. / R1;
   phi0 = 0.5 * M_PI + atan2(y0, x0);
 
-  phi0 += -phimin_ + (phimax_ - phimin_) / 6.0;
+  phi0 -= phimin_;
+
   d0 = -R1 + sqrt(x0 * x0 + y0 * y0);
   //sign of rinv:
   double dphi = reco::reduceRange(phi3 - atan2(y0, x0));

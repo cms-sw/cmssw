@@ -37,7 +37,6 @@ namespace trklet {
 
   private:
     FPGAWord finephi_;
-    FPGAWord finerz_;
     FPGAWord bend_;
     FPGAWord vmbits_;
     FPGAWord allStubIndex_;
