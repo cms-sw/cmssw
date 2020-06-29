@@ -73,6 +73,7 @@ L1TriggerFEVTDEBUG = cms.PSet(
         'keep *_simCaloStage2Digis_*_*',
         'keep *_simGmtDigis_*_*',
         "keep *_simBmtfDigis_*_*",
+        "keep *_simKBmtfDigis_*_*",
         "keep *_simOmtfDigis_*_*",
         "keep *_simEmtfDigis_*_*",
         "keep *_simGmtStage2Digis_*_*",
