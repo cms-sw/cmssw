@@ -415,13 +415,14 @@ void Pixel3DDigitizerAlgorithm::induce_signal(const PSimHit& hit,
   signal_map_type& the_signal = _signal[detId];
 
   // Choose the proper pixel-to-channel converter
-  std::function<int(int,int)> pixelToChannel = pixelFlag_ ?
-      PixelDigi::pixelToChannel : static_cast<std::function<int(int,int)> >(Phase2TrackerDigi::pixelToChannel);
+  std::function<int(int, int)> pixelToChannel =
+      pixelFlag_ ? PixelDigi::pixelToChannel
+                 : static_cast<std::function<int(int, int)> >(Phase2TrackerDigi::pixelToChannel);
 
   // Iterate over collection points on the collection plane
   for (const auto& pt : collection_points) {
     // Extract corresponding channel (position is already given in pixel indices)
-    const int channel = pixelToChannel(pt.position().x(),pt.position().y());
+    const int channel = pixelToChannel(pt.position().x(), pt.position().y());
 
     float corr_time = hit.tof() - pixdet->surface().toGlobal(hit.localPosition()).mag() * c_inv;
     if (makeDigiSimLinks_) {
