@@ -125,8 +125,6 @@ private:
 
   std::unique_ptr<const Chi2MeasurementEstimator> theEstimator;
 
-  TrajectoryStateTransform* theTSTransformer;
-
   double theMaxChi2;
 
   double theFlexErrorRescaling;
