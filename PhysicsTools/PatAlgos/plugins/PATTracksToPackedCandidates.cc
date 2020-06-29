@@ -111,30 +111,27 @@ void PATTracksToPackedCandidates::produce(edm::Event& iEvent, const edm::EventSe
   }
 
   //best vertex
-  double bestvz = -999.9, bestvx = -999.9, bestvy = -999.9;
   double bestvzError = -999.9, bestvxError = -999.9, bestvyError = -999.9;
   const reco::Vertex& vtx = (*pvs)[0];
-  bestvz = vtx.z();
-  bestvx = vtx.x();
-  bestvy = vtx.y();
   bestvzError = vtx.zError();
   bestvxError = vtx.xError();
   bestvyError = vtx.yError();
-  math::XYZPoint bestvtx(bestvx, bestvy, bestvz);
+  math::XYZPoint bestvtx(vtx.position());
+  math::Error<3>::type vtx_cov = vtx.covariance();
 
   std::vector<int> mapping(tracks->size(), -1);
   int pixelTrkIndx = 0;
   for (unsigned int trkIndx = 0; trkIndx < tracks->size(); trkIndx++) {
     reco::TrackRef trk(tracks, trkIndx);
 
-    double dzvtx = trk->dz(bestvtx);
-    double dxyvtx = trk->dxy(bestvtx);
-    double dzerror = sqrt(trk->dzError() * trk->dzError() + bestvzError * bestvzError);
-    double dxyerror = sqrt(trk->d0Error() * trk->d0Error() + bestvxError * bestvyError);
+    double dzvtx = std::abs(trk->dz(bestvtx));
+    double dxyvtx = std::abs(trk->dxy(bestvtx));
+    double dzerror = std::hypot(trk->dzError(), bestvzError);
+    double dxyerror = sqrt(trk->dxyError(bestvtx, vtx_cov) * trk->dxyError(bestvtx, vtx_cov) + bestvxError * bestvyError);
 
-    if (fabs(dzvtx / dzerror) >= dzSigCut_)
+    if (dzvtx >= dzSigCut_*dzerror)
       continue;
-    if (fabs(dxyvtx / dxyerror) >= dxySigCut_)
+    if (dxyvtx >= dxySigCut_*dxyerror) 
       continue;
     if (trk->pt() >= ptMax_ || trk->pt() <= ptMin_)
       continue;
