@@ -11,6 +11,7 @@ namespace edm {
 
       SOA_DECLARE_COLUMN(Eta, float, "eta");
       SOA_DECLARE_COLUMN(Phi, float, "phi");
+      SOA_DECLARE_COLUMN(Theta, float, "theta");
 
       SOA_DECLARE_COLUMN(Vz, float, "vz");
 
