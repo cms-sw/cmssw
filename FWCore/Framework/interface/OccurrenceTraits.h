@@ -15,6 +15,7 @@ OccurrenceTraits:
 #include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/src/TransitionInfoTypes.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
@@ -36,8 +37,8 @@ namespace edm {
   template <>
   class OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> {
   public:
-    typedef EventPrincipal MyPrincipal;
-    typedef StreamContext Context;
+    using MyPrincipal = EventPrincipal;
+    using Context = StreamContext;
     static BranchType constexpr branchType_ = InEvent;
     static bool constexpr begin_ = true;
     static bool constexpr isEvent_ = true;
@@ -68,8 +69,9 @@ namespace edm {
   template <>
   class OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin> {
   public:
-    typedef RunPrincipal MyPrincipal;
-    typedef GlobalContext Context;
+    using MyPrincipal = RunPrincipal;
+    using TransitionInfoType = RunTransitionInfo;
+    using Context = GlobalContext;
     static BranchType constexpr branchType_ = InRun;
     static bool constexpr begin_ = true;
     static bool constexpr isEvent_ = false;
@@ -108,8 +110,8 @@ namespace edm {
   template <>
   class OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> {
   public:
-    typedef RunPrincipal MyPrincipal;
-    typedef StreamContext Context;
+    using MyPrincipal = RunPrincipal;
+    using Context = StreamContext;
     static BranchType constexpr branchType_ = InRun;
     static bool constexpr begin_ = true;
     static bool constexpr isEvent_ = false;
@@ -147,8 +149,8 @@ namespace edm {
   template <>
   class OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> {
   public:
-    typedef RunPrincipal MyPrincipal;
-    typedef StreamContext Context;
+    using MyPrincipal = RunPrincipal;
+    using Context = StreamContext;
     static BranchType constexpr branchType_ = InRun;
     static bool constexpr begin_ = false;
     static bool constexpr isEvent_ = false;
@@ -186,8 +188,9 @@ namespace edm {
   template <>
   class OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> {
   public:
-    typedef RunPrincipal MyPrincipal;
-    typedef GlobalContext Context;
+    using MyPrincipal = RunPrincipal;
+    using TransitionInfoType = RunTransitionInfo;
+    using Context = GlobalContext;
     static BranchType constexpr branchType_ = InRun;
     static bool constexpr begin_ = false;
     static bool constexpr isEvent_ = false;
@@ -226,8 +229,9 @@ namespace edm {
   template <>
   class OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin> {
   public:
-    typedef LuminosityBlockPrincipal MyPrincipal;
-    typedef GlobalContext Context;
+    using MyPrincipal = LuminosityBlockPrincipal;
+    using TransitionInfoType = LumiTransitionInfo;
+    using Context = GlobalContext;
     static BranchType constexpr branchType_ = InLumi;
     static bool constexpr begin_ = true;
     static bool constexpr isEvent_ = false;
@@ -266,8 +270,8 @@ namespace edm {
   template <>
   class OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> {
   public:
-    typedef LuminosityBlockPrincipal MyPrincipal;
-    typedef StreamContext Context;
+    using MyPrincipal = LuminosityBlockPrincipal;
+    using Context = StreamContext;
     static BranchType constexpr branchType_ = InLumi;
     static bool constexpr begin_ = true;
     static bool constexpr isEvent_ = false;
@@ -305,8 +309,8 @@ namespace edm {
   template <>
   class OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> {
   public:
-    typedef LuminosityBlockPrincipal MyPrincipal;
-    typedef StreamContext Context;
+    using MyPrincipal = LuminosityBlockPrincipal;
+    using Context = StreamContext;
     static BranchType constexpr branchType_ = InLumi;
     static bool constexpr begin_ = false;
     static bool constexpr isEvent_ = false;
@@ -346,8 +350,9 @@ namespace edm {
   template <>
   class OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> {
   public:
-    typedef LuminosityBlockPrincipal MyPrincipal;
-    typedef GlobalContext Context;
+    using MyPrincipal = LuminosityBlockPrincipal;
+    using TransitionInfoType = LumiTransitionInfo;
+    using Context = GlobalContext;
     static BranchType constexpr branchType_ = InLumi;
     static bool constexpr begin_ = false;
     static bool constexpr isEvent_ = false;
@@ -387,6 +392,7 @@ namespace edm {
   class OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalBegin> {
   public:
     using MyPrincipal = ProcessBlockPrincipal;
+    using TransitionInfoType = ProcessBlockTransitionInfo;
     using Context = GlobalContext;
     static bool constexpr isEvent_ = false;
     static Transition constexpr transition_ = Transition::BeginProcessBlock;
@@ -423,6 +429,7 @@ namespace edm {
   class OccurrenceTraits<ProcessBlockPrincipal, BranchActionProcessBlockInput> {
   public:
     using MyPrincipal = ProcessBlockPrincipal;
+    using TransitionInfoType = ProcessBlockTransitionInfo;
     using Context = GlobalContext;
     static bool constexpr isEvent_ = false;
     static Transition constexpr transition_ = Transition::BeginProcessBlock;
@@ -459,6 +466,7 @@ namespace edm {
   class OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalEnd> {
   public:
     using MyPrincipal = ProcessBlockPrincipal;
+    using TransitionInfoType = ProcessBlockTransitionInfo;
     using Context = GlobalContext;
     static bool constexpr isEvent_ = false;
     static Transition constexpr transition_ = Transition::EndProcessBlock;
