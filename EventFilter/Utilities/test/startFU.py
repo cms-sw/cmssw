@@ -84,7 +84,7 @@ except Exception as ex:
 process.source = cms.Source("FedRawDataInputSource",
     getLSFromFilename = cms.untracked.bool(True),
     verifyChecksum = cms.untracked.bool(True),
-    useL1EventID = cms.untracked.bool(True),
+    useL1EventID = cms.untracked.bool(False),
     eventChunkSize = cms.untracked.uint32(8),
     eventChunkBlock = cms.untracked.uint32(8),
     numBuffers = cms.untracked.uint32(2),
@@ -120,7 +120,12 @@ process.b = cms.EDAnalyzer("ExceptionGenerator",
     defaultAction = cms.untracked.int32(0),
     defaultQualifier = cms.untracked.int32(5))
 
-process.p1 = cms.Path(process.a*process.filter1)
+
+process.tcdsRawToDigi = cms.EDProducer("TcdsRawToDigi",
+    InputLabel = cms.InputTag("rawDataCollector")
+)
+
+process.p1 = cms.Path(process.a*process.tcdsRawToDigi*process.filter1)
 process.p2 = cms.Path(process.b*process.filter2)
 
 process.streamA = cms.OutputModule("EvFOutputModule",
