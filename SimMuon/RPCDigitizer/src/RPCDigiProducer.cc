@@ -9,7 +9,6 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -54,6 +53,9 @@ RPCDigiProducer::RPCDigiProducer(const edm::ParameterSet& ps) {
   theRPCSimSetUp = new RPCSimSetUp(ps);
   theDigitizer = new RPCDigitizer(ps);
   crossingFrameToken = consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix_, collection_for_XF));
+  geomToken = esConsumes<RPCGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
+  noiseToken = esConsumes<RPCStripNoises, RPCStripNoisesRcd, edm::Transition::BeginRun>();
+  clsToken = esConsumes<RPCClusterSize, RPCClusterSizeRcd, edm::Transition::BeginRun>();
 }
 
 RPCDigiProducer::~RPCDigiProducer() {
@@ -62,15 +64,12 @@ RPCDigiProducer::~RPCDigiProducer() {
 }
 
 void RPCDigiProducer::beginRun(const edm::Run& r, const edm::EventSetup& eventSetup) {
-  edm::ESHandle<RPCGeometry> hGeom;
-  eventSetup.get<MuonGeometryRecord>().get(hGeom);
+  edm::ESHandle<RPCGeometry> hGeom = eventSetup.getHandle(geomToken);
   const RPCGeometry* pGeom = &*hGeom;
 
-  edm::ESHandle<RPCStripNoises> noiseRcd;
-  eventSetup.get<RPCStripNoisesRcd>().get(noiseRcd);
+  edm::ESHandle<RPCStripNoises> noiseRcd = eventSetup.getHandle(noiseToken);
 
-  edm::ESHandle<RPCClusterSize> clsRcd;
-  eventSetup.get<RPCClusterSizeRcd>().get(clsRcd);
+  edm::ESHandle<RPCClusterSize> clsRcd = eventSetup.getHandle(clsToken);
 
   theRPCSimSetUp->setGeometry(pGeom);
   theRPCSimSetUp->setRPCSetUp(noiseRcd->getVNoise(), clsRcd->getCls());
