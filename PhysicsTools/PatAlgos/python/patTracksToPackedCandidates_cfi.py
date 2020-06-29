@@ -10,7 +10,7 @@ patTracksToPackedCandidates = cms.EDProducer('PATTracksToPackedCandidates',
   ptMax = cms.double(1), #max pT for pixel tracks - above this use general tracks instead
   ptMin = cms.double(0.3), #min pT for pixel tracks
   resetHP = cms.bool(True), #pixel tracks do not have HP flag set. Use False if does not want to reset HP flag
-  covarianceVersion = cms.int32(0),
-  covarianceSchema = cms.int32(520),
+  covarianceVersion = cms.int32(0), #so far: 0 is Phase0, 1 is Phase1
+  covarianceSchema = cms.int32(520), #use less accurate schema - reduce size of collection
   mightGet = cms.optional.untracked.vstring
 )
