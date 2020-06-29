@@ -37,6 +37,8 @@ namespace trklet {
 
     void openFile(bool first, std::string filebase);
 
+    static size_t find_nth(const std::string& haystack, size_t pos, const std::string& needle, size_t nth);
+
   protected:
     std::string name_;
     unsigned int iSector_;
