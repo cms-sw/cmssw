@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-# import math
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 OuterTrackerMonitorTTStub = DQMEDAnalyzer('OuterTrackerMonitorTTStub',
