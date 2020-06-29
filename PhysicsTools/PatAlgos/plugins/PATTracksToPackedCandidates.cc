@@ -83,7 +83,6 @@ PATTracksToPackedCandidates::PATTracksToPackedCandidates(const edm::ParameterSet
       resetHP_(iConfig.getParameter<bool>("resetHP")),
       covarianceVersion_(iConfig.getParameter<int>("covarianceVersion")),
       covarianceSchema_(iConfig.getParameter<int>("covarianceSchema")) {
-  produces<std::vector<reco::Track>>();
   produces<std::vector<pat::PackedCandidate>>();
   produces<edm::Association<pat::PackedCandidateCollection>>();
 }
@@ -102,7 +101,6 @@ void PATTracksToPackedCandidates::produce(edm::Event& iEvent, const edm::EventSe
   edm::Handle<reco::TrackCollection> tracks;
   iEvent.getByToken(srcTracks_, tracks);
 
-  auto outPtrTrks = std::make_unique<std::vector<reco::Track>>();
   auto outPtrTrksAsCands = std::make_unique<std::vector<pat::PackedCandidate>>();
 
   //vtx collections
@@ -150,15 +148,12 @@ void PATTracksToPackedCandidates::produce(edm::Event& iEvent, const edm::EventSe
     if (fabs(dzvtx / dzerror) < dzSigHP_ && fabs(dxyvtx / dxyerror) < dxySigHP_)
       passSelection = true;
 
-    outPtrTrks->emplace_back(*trk);
-
     addPackedCandidate(*outPtrTrksAsCands, trk, pv, pvRefProd, passSelection);
 
     //for creating the reco::Track -> pat::PackedCandidate map
     mapping[trkIndx] = pixelTrkIndx;
     pixelTrkIndx++;
   }
-  iEvent.put(std::move(outPtrTrks));
   edm::OrphanHandle<pat::PackedCandidateCollection> oh = iEvent.put(std::move(outPtrTrksAsCands));
   auto tk2pc = std::make_unique<edm::Association<pat::PackedCandidateCollection>>(oh);
   edm::Association<pat::PackedCandidateCollection>::Filler tk2pcFiller(*tk2pc);
