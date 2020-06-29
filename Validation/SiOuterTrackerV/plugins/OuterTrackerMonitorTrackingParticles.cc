@@ -53,9 +53,9 @@ OuterTrackerMonitorTrackingParticles::OuterTrackerMonitorTrackingParticles(const
   TP_minNStub = conf_.getParameter<int>("TP_minNStub");             // min number of stubs in the tracking particle to
   //min number of layers with stubs in the tracking particle to consider matching
   TP_minNLayersStub = conf_.getParameter<int>("TP_minNLayersStub");
-  TP_minPt = conf_.getParameter<double>("TP_minPt");                 // min pT to consider matching
-  TP_maxEta = conf_.getParameter<double>("TP_maxEta");               // max eta to consider matching
-  TP_maxVtxZ = conf_.getParameter<double>("TP_maxVtxZ");             // max vertZ (or z0) to consider matching
+  TP_minPt = conf_.getParameter<double>("TP_minPt");      // min pT to consider matching
+  TP_maxEta = conf_.getParameter<double>("TP_maxEta");    // max eta to consider matching
+  TP_maxVtxZ = conf_.getParameter<double>("TP_maxVtxZ");  // max vertZ (or z0) to consider matching
 }
 
 OuterTrackerMonitorTrackingParticles::~OuterTrackerMonitorTrackingParticles() {
@@ -270,8 +270,7 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event &iEvent, con
       tmp_matchtrk_d0 = -tmp_matchtrk_x0 * sin(tmp_matchtrk_phi) + tmp_matchtrk_y0 * cos(tmp_matchtrk_phi);
 
       //Add cuts for the matched tracks, numerator
-      if (tmp_matchTrk_nStub < L1Tk_minNStub ||
-          tmp_matchtrk_chi2dof > L1Tk_maxChi2dof)
+      if (tmp_matchTrk_nStub < L1Tk_minNStub || tmp_matchtrk_chi2dof > L1Tk_maxChi2dof)
         continue;
 
       // fill matched track histograms (if passes all criteria)
