@@ -1420,31 +1420,6 @@ forwardDict = {
             'from Geometry.ForwardGeometry.ForwardGeometry_cfi import *',
         ]
     },
-    "F4" : {
-        1 : [
-            'Geometry/ForwardCommonData/data/forwardshield/2026/v2/forwardshield.xml',
-            'Geometry/ForwardCommonData/data/brmrotations.xml',
-            'Geometry/ForwardCommonData/data/PostLS2/brm.xml',
-            'Geometry/ForwardCommonData/data/zdcmaterials.xml',
-            'Geometry/ForwardCommonData/data/lumimaterials.xml',
-            'Geometry/ForwardCommonData/data/zdcrotations.xml',
-            'Geometry/ForwardCommonData/data/lumirotations.xml',
-            'Geometry/ForwardCommonData/data/zdc.xml',
-            'Geometry/ForwardCommonData/data/zdclumi.xml',
-            'Geometry/ForwardCommonData/data/cmszdc.xml',
-        ],
-        3 : [
-            'Geometry/ForwardCommonData/data/brmsens.xml',
-            'Geometry/ForwardSimData/data/zdcsens.xml',
-        ],
-        4 : [
-            'Geometry/ForwardSimData/data/zdcProdCuts.xml',
-            'Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml',
-        ],
-        "reco" :[
-            'from Geometry.ForwardGeometry.ForwardGeometry_cfi import *',
-        ]
-    },
     "F5" : {
         1 : [
             'Geometry/ForwardCommonData/data/forwardshield/2026/v3/forwardshield.xml',
