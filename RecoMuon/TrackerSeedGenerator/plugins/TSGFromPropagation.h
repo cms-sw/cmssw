@@ -20,6 +20,8 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
+#include <memory>
+
 class Chi2MeasurementEstimator;
 class Propagator;
 class MeasurementTracker;
@@ -55,9 +57,9 @@ private:
 
   TrajectoryStateOnSurface outerTkState(const TrackCand&) const;
 
-  const TrajectoryStateUpdator* updator() const { return theUpdator; }
+  const TrajectoryStateUpdator* updator() const { return theUpdator.get(); }
 
-  const Chi2MeasurementEstimator* estimator() const { return theEstimator; }
+  const Chi2MeasurementEstimator* estimator() const { return theEstimator.get(); }
 
   edm::ESHandle<Propagator> propagator() const { return theService->propagator(thePropagatorName); }
 
@@ -115,13 +117,13 @@ private:
   edm::InputTag theMeasurementTrackerEventTag;
   edm::Handle<MeasurementTrackerEvent> theMeasTrackerEvent;
 
-  const DirectTrackerNavigation* theNavigation;
+  std::unique_ptr<const DirectTrackerNavigation> theNavigation;
 
   const MuonServiceProxy* theService;
 
-  const TrajectoryStateUpdator* theUpdator;
+  std::unique_ptr<const TrajectoryStateUpdator> theUpdator;
 
-  const Chi2MeasurementEstimator* theEstimator;
+  std::unique_ptr<const Chi2MeasurementEstimator> theEstimator;
 
   TrajectoryStateTransform* theTSTransformer;
 
@@ -141,7 +143,7 @@ private:
 
   std::string thePropagatorName;
 
-  MuonErrorMatrix* theErrorMatrixAdjuster;
+  std::unique_ptr<MuonErrorMatrix> theErrorMatrixAdjuster;
 
   bool theAdjustAtIp;
 
