@@ -205,6 +205,14 @@ namespace cmsdt {
   constexpr float PHIRES_CONV = 65536. / 0.8;
   constexpr float PHIBRES_CONV = 2048. / 1.4;
   constexpr int CHI2RES_CONV = 1000000;
+
+  constexpr int DIVISION_HELPER1 = 43691;
+  constexpr int DIVISION_HELPER2 = 65536;
+  constexpr int DIVISION_HELPER3 = 131072;
+  constexpr int DENOM_TYPE1 = 6;
+  constexpr int DENOM_TYPE2 = 4;
+  constexpr int DENOM_TYPE3 = 2;
+  constexpr int NBITS = 18;
   /*
  * Size of pre-mixer buffers for DTPrimitives
  *

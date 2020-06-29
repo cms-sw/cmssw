@@ -275,7 +275,7 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
       std::vector<std::pair<DTLayerId, DTDigi>> tmpvec;
       tmpvec.clear();
 
-      for (auto dtLayerIdIt : (*dmit).second) {
+      for (const auto& dtLayerIdIt : (*dmit).second) {
         for (DTDigiCollection::const_iterator digiIt = (dtLayerIdIt.second).first;
              digiIt != (dtLayerIdIt.second).second;
              digiIt++) {
@@ -570,8 +570,8 @@ bool DTTrigPhase2Prod::hasPosRF(int wh, int sec) const { return wh > 0 || (wh ==
 
 void DTTrigPhase2Prod::printmP(const metaPrimitive& mP) const {
   DTSuperLayerId slId(mP.rawId);
-  LogDebug(DTTrigPhase2Prod) << slId << "\t"
-                             << " " << setw(2) << left << mP.wi1 << " " << setw(2) << left << mP.wi2 << " " << setw(2)
+  LogDebug(DTTrigPhase2Prod) << (int)slId 
+                             << "\t " << setw(2) << left << mP.wi1 << " " << setw(2) << left << mP.wi2 << " " << setw(2)
                              << left << mP.wi3 << " " << setw(2) << left << mP.wi4 << " " << setw(5) << left << mP.tdc1
                              << " " << setw(5) << left << mP.tdc2 << " " << setw(5) << left << mP.tdc3 << " " << setw(5)
                              << left << mP.tdc4 << " " << setw(10) << right << mP.x << " " << setw(9) << left
@@ -581,8 +581,8 @@ void DTTrigPhase2Prod::printmP(const metaPrimitive& mP) const {
 
 void DTTrigPhase2Prod::printmPC(const metaPrimitive& mP) const {
   DTChamberId ChId(mP.rawId);
-  LogDebug(DTTrigPhase2Prod) << ChId << "\t"
-                             << " " << setw(2) << left << mP.wi1 << " " << setw(2) << left << mP.wi2 << " " << setw(2)
+  LogDebug(DTTrigPhase2Prod) << (int)ChId 
+                             << "\t  " << setw(2) << left << mP.wi1 << " " << setw(2) << left << mP.wi2 << " " << setw(2)
                              << left << mP.wi3 << " " << setw(2) << left << mP.wi4 << " " << setw(2) << left << mP.wi5
                              << " " << setw(2) << left << mP.wi6 << " " << setw(2) << left << mP.wi7 << " " << setw(2)
                              << left << mP.wi8 << " " << setw(5) << left << mP.tdc1 << " " << setw(5) << left << mP.tdc2
