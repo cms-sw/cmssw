@@ -50,7 +50,8 @@ ntuple_digis = cms.PSet(
     eeSimHits = cms.InputTag('g4SimHits:HGCHitsEE'),
     fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),
     bhSimHits = cms.InputTag('g4SimHits:HcalHits'),
-    isSimhitComp = cms.bool(False)
+    isSimhitComp = cms.bool(False),
+    digiBXselect = cms.vuint32([2])
 )
 
 ntuple_triggercells = cms.PSet(
