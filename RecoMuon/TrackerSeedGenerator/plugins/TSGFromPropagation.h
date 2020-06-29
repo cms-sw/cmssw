@@ -108,13 +108,12 @@ private:
   unsigned long long theCacheId_MT;
   unsigned long long theCacheId_TG;
 
-  std::string theCategory;
+  const std::string theCategory;
 
   edm::ESHandle<GeometricSearchTracker> theTracker;
 
-  std::string theMeasTrackerName;
+  const std::string theMeasTrackerName;
   edm::ESHandle<MeasurementTracker> theMeasTracker;
-  edm::InputTag theMeasurementTrackerEventTag;
   edm::Handle<MeasurementTrackerEvent> theMeasTrackerEvent;
 
   std::unique_ptr<const DirectTrackerNavigation> theNavigation;
@@ -125,34 +124,31 @@ private:
 
   std::unique_ptr<const Chi2MeasurementEstimator> theEstimator;
 
-  double theMaxChi2;
+  const double theMaxChi2;
 
   double theFlexErrorRescaling;
 
-  double theFixedErrorRescaling;
+  const double theFixedErrorRescaling;
 
-  bool theUseVertexStateFlag;
+  const bool theUseVertexStateFlag;
 
-  bool theUpdateStateFlag;
+  const bool theUpdateStateFlag;
 
-  std::string theResetMethod;
+  const std::string theResetMethod;
 
-  bool theSelectStateFlag;
+  const bool theSelectStateFlag;
 
-  std::string thePropagatorName;
+  const std::string thePropagatorName;
 
   std::unique_ptr<MuonErrorMatrix> theErrorMatrixAdjuster;
 
-  bool theAdjustAtIp;
+  const double theSigmaZ;
 
-  double theSigmaZ;
-
-  edm::ParameterSet theConfig;
+  const edm::ParameterSet theErrorMatrixPset;
 
   edm::Handle<reco::BeamSpot> beamSpot;
-  edm::InputTag theBeamSpotInputTag;
-  edm::EDGetTokenT<reco::BeamSpot> theBeamSpotToken;
-  edm::EDGetTokenT<MeasurementTrackerEvent> theMeasurementTrackerEventToken;
+  const edm::EDGetTokenT<reco::BeamSpot> theBeamSpotToken;
+  const edm::EDGetTokenT<MeasurementTrackerEvent> theMeasurementTrackerEventToken;
 };
 
 #endif
