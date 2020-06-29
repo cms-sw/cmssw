@@ -227,6 +227,15 @@ reconstruction_ecalOnlyTask = cms.Task(
 )
 reconstruction_ecalOnly = cms.Sequence(reconstruction_ecalOnlyTask)
 
+reconstruction_hcalOnlyTask = cms.Task(
+    bunchSpacingProducer,
+    offlineBeamSpot,
+    hcalOnlyLocalRecoTask,
+    pfClusteringHBHEHFOnlyTask
+)
+
+reconstruction_hcalOnly = cms.Sequence(reconstruction_hcalOnlyTask)
+
 #need a fully expanded sequence copy
 modulesToRemove = list() # copy does not work well
 noTrackingAndDependent = list()
