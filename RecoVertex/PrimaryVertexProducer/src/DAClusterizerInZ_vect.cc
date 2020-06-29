@@ -655,7 +655,7 @@ bool DAClusterizerInZ_vect::purge(vertex_t& y, track_t& tks, double& rho0, const
       auto ptr = y.pk_ptr[k] * local_exp(-beta * Eik(tks.z_ptr[i], y.z_ptr[k], tks.dz2_ptr[i]));
       auto p = (tks.Z_sum_ptr[i] > 1.e-100) ? ptr / tks.Z_sum_ptr[i] : 0;
       sump += p;
-      nUnique += (p > uniquetrkweight_ * pmax) & (ptr > 0) ? 1 : 0;
+      nUnique += ((p > uniquetrkweight_ * pmax) & (ptr > 0)) ? 1 : 0;
     }
 
     if ((nUnique < 2) && (sump < sumpmin)) {
