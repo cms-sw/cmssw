@@ -1511,7 +1511,12 @@ long FedRawDataInputSource::initFileList() {
     //get run number from first file in the vector
     boost::filesystem::path fileName = fileNames_[0];
     std::string fileStem = fileName.stem().string();
-    auto end = fileStem.find("_");
+    if (fileStem.find("file://") == 0)
+      fileStem = fileStem.substr(7);
+    else if (fileStem.find("file:") == 0)
+      fileStem = fileStem.substr(5);
+    auto end = fileStem.find('_');
+    
     if (fileStem.find("run") == 0) {
       std::string runStr = fileStem.substr(3, end - 3);
       try {
