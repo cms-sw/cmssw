@@ -45,6 +45,7 @@ namespace edm {
                                        col::Eta,
                                        col::Phi,
                                        col::Pt,
+                                       col::Theta,
                                        col::D0>;
     using TrackTableView = edm::soa::TableView<col::Px,
                                                col::Py,
@@ -57,7 +58,21 @@ namespace edm {
                                                col::Eta,
                                                col::Phi,
                                                col::Pt,
+                                               col::Theta,
                                                col::D0>;
+    using TrackRowView = edm::soa::RowView<col::Px,
+                                           col::Py,
+                                           col::Pz,
+                                           col::P,
+                                           col::PtError,
+                                           col::MissingInnerHits,
+                                           col::NumberOfValidHits,
+                                           col::Charge,
+                                           col::Eta,
+                                           col::Phi,
+                                           col::Pt,
+                                           col::Theta,
+                                           col::D0>;
 
     template <class Object>
     TrackTable makeTrackTable(std::vector<Object> const& objects) {
@@ -69,6 +84,7 @@ namespace edm {
                   col::Pz::filler([](Object const& x) { return x.pz(); }),
                   col::P::filler([](Object const& x) { return x.p(); }),
                   col::Pt::filler([](Object const& x) { return x.pt(); }),
+                  col::Theta::filler([](Object const& x) { return x.theta(); }),
                   col::PtError::filler([](Object const& x) { return x.ptError(); }),
                   col::MissingInnerHits::filler([](Object const& x) {
                     return x.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
