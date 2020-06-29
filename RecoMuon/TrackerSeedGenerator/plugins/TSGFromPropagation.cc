@@ -32,7 +32,7 @@ TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet& iConfig, edm::Co
 TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet& iConfig,
                                        edm::ConsumesCollector& iC,
                                        const MuonServiceProxy* service)
-    : theService(service), theTSTransformer(nullptr), theSigmaZ(0), theConfig(iConfig) {
+    : theService(service), theSigmaZ(0), theConfig(iConfig) {
   theCategory = "Muon|RecoMuon|TSGFromPropagation";
   theMeasTrackerName = iConfig.getParameter<std::string>("MeasurementTrackerName");
   theMeasurementTrackerEventTag = iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent");
