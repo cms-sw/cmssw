@@ -55,13 +55,22 @@ void GEMOfflineMonitor::bookDetectorOccupancy(DQMStore::IBooker& ibooker,
     edm::LogError(log_category_) << "failed to get a valid vector of GEMSuperChamber ptrs" << std::endl;
     return;
   }
+
+  const auto& chambers = superchambers.front()->chambers();
+  if (not checkRefs(chambers)) {
+    edm::LogError(log_category_) << "failed to get a valid vector of GEMChamber ptrs" << std::endl;
+    return;
+  }
+
   // per station
   const int num_superchambers = superchambers.size();
   const int num_chambers = num_superchambers * superchambers.front()->nChambers();
   // the numer of VFATs per GEMEtaPartition
   const int max_vfat = getMaxVFAT(station->station());
+  // the number of eta partitions per GEMChamber
+  const int num_etas = chambers.front()->nEtaPartitions();
   // the number of VFATs per GEMChamber
-  const int num_vfat = GEMeMap::maxEtaPartition_ * max_vfat;
+  const int num_vfat = num_etas * max_vfat;
 
   // NOTE Digi
   ibooker.setCurrentFolder("GEM/GEMOfflineMonitor/Digi");
@@ -71,14 +80,8 @@ void GEMOfflineMonitor::bookDetectorOccupancy(DQMStore::IBooker& ibooker,
 
   // NOTE RecHit
   ibooker.setCurrentFolder("GEM/GEMOfflineMonitor/RecHit");
-  me_hit_det_[key] = helper.book2D("hit_det",
-                                   "Hit Occupancy",
-                                   num_chambers,
-                                   0.5,
-                                   num_chambers + 0.5,
-                                   GEMeMap::maxEtaPartition_,
-                                   0.5,
-                                   GEMeMap::maxEtaPartition_ + 0.5);
+  me_hit_det_[key] =
+      helper.book2D("hit_det", "Hit Occupancy", num_chambers, 0.5, num_chambers + 0.5, num_etas, 0.5, num_etas + 0.5);
   setDetLabelsEta(me_hit_det_[key], station);
 }
 
