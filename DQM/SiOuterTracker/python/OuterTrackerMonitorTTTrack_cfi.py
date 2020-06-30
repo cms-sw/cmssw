@@ -32,8 +32,8 @@ OuterTrackerMonitorTTTrack = DQMEDAnalyzer('OuterTrackerMonitorTTTrack',
 #Phi of the track
     TH1_Track_Phi = cms.PSet(
         Nbinsx = cms.int32(60),
-        xmax = cms.double(4.5),
-        xmin = cms.double(-4.5)
+        xmax = cms.double(3.5),
+        xmin = cms.double(-3.5)
         ),
 
 #D0 of the track
