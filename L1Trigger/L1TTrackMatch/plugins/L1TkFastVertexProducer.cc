@@ -267,7 +267,7 @@ void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     float nstubs = 0;
 
     // get pointers to stubs associated to the L1 track
-    const std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > > &
+    const std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > >&
         theStubs = trackIter->getStubRefs();
 
     int tmp_trk_nstub = (int)theStubs.size();
