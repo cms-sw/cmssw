@@ -25,6 +25,8 @@ void TableOutputBranches::defineBranchesFromFirstEvent(const nanoaod::FlatTable 
       case nanoaod::FlatTable::ColumnType::Bool:
         m_uint8Branches.emplace_back(var, tab.columnDoc(i), "O");
         break;
+      default:
+        throw cms::Exception("LogicError", "Unsupported type");
     }
   }
 }

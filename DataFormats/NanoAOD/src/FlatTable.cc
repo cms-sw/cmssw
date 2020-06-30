@@ -25,6 +25,8 @@ void nanoaod::FlatTable::addExtension(const nanoaod::FlatTable& other) {
       case ColumnType::UInt8:
         addColumn<uint8_t>(other.columnName(i), other.columnData<uint8_t>(i), other.columnDoc(i));
         break;
+      default:
+        throw cms::Exception("LogicError", "Unsupported type");
     }
   }
 }
