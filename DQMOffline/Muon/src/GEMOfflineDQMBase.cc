@@ -80,13 +80,13 @@ int GEMOfflineDQMBase::getNumEtaPartitions(const GEMStation* station) {
   const auto&& superchambers = station->superChambers();
   if (not checkRefs(superchambers)) {
     edm::LogError(log_category_) << "failed to get a valid vector of GEMSuperChamber ptrs" << std::endl;
-    return;
+    return 0;
   }
 
   const auto& chambers = superchambers.front()->chambers();
   if (not checkRefs(chambers)) {
     edm::LogError(log_category_) << "failed to get a valid vector of GEMChamber ptrs" << std::endl;
-    return;
+    return 0;
   }
 
   return chambers.front()->nEtaPartitions();
