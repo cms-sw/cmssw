@@ -19,6 +19,7 @@ InitialGrouping::InitialGrouping(const ParameterSet &pset, edm::ConsumesCollecto
     LogDebug("InitialGrouping") << "InitialGrouping: constructor";
 
   // Initialisation of channelIn array
+  chInDummy_.push_back(DTPrimitive());
   for (int lay = 0; lay < NUM_LAYERS; lay++) {
     for (int ch = 0; ch < NUM_CH_PER_LAYER; ch++) {
       channelIn_[lay][ch] = {chInDummy_};
@@ -193,17 +194,17 @@ bool InitialGrouping::notEnoughDataInChannels(void) {
 }
 
 void InitialGrouping::resetPrvTDCTStamp(void) {
-  for (int i = 0; i <= 3; i++)
+  for (int i = 0; i < NUM_LAYERS; i++)
     prevTDCTimeStamps_[i] = -1;
 }
 
 bool InitialGrouping::isEqualComb2Previous(DTPrimitives &dtPrims) {
   bool answer = true;
 
-  for (int i = 0; i < (int)dtPrims.size(); i++) {
+  for (int i = 0; i < NUM_LAYERS; i++) {
     if (prevTDCTimeStamps_[i] != dtPrims[i].tdcTimeStamp()) {
       answer = false;
-      for (int j = 0; j < (int)dtPrims.size(); j++) {
+      for (int j = 0; j < NUM_LAYERS; j++) {
         prevTDCTimeStamps_[j] = dtPrims[j].tdcTimeStamp();
       }
       break;
@@ -232,7 +233,7 @@ void InitialGrouping::mixChannels(int supLayer, int pathId, MuonPathPtrs &outMuo
   //
 
   // We extract the number of elements necesary from each channel as the combination requires
-  for (int layer = 0; layer <= 3; layer++) {
+  for (int layer = 0; layer < NUM_LAYERS; layer++) {
     canal = CHANNELS_PATH_ARRANGEMENTS[pathId][layer];
     unsigned int maxPrimsToBeRetrieved = muxInChannels_[canal].size();
     /*
@@ -248,17 +249,16 @@ void InitialGrouping::mixChannels(int supLayer, int pathId, MuonPathPtrs &outMuo
       maxPrimsToBeRetrieved = 1;
 
     for (unsigned int items = 0; items < maxPrimsToBeRetrieved; items++) {
-      if (muxInChannels_[canal].empty())
-        continue;
-
-      auto dtpAux = DTPrimitive(&(muxInChannels_[canal].at(items)));
+      auto dtpAux = DTPrimitive();
+      if (!muxInChannels_[canal].empty())
+        dtpAux = DTPrimitive(&(muxInChannels_[canal].at(items)));
 
       /*
-        I won't allow a whole loop cycle. When a DTPrimitive has an invalid
-        time-stamp (TDC value = -1) it means that the buffer is empty or the
-        buffer has reached the last element within the configurable time window.
-        In this case the loop is broken, but only if there is, at least, one
-        DTPrim (even invalid) on the outgoing array. This is mandatory to cope
+	I won't allow a whole loop cycle. When a DTPrimitive has an invalid
+	time-stamp (TDC value = -1) it means that the buffer is empty or the
+	buffer has reached the last element within the configurable time window.
+	In this case the loop is broken, but only if there is, at least, one
+	DTPrim (even invalid) on the outgoing array. This is mandatory to cope
         with the idea explained in the previous comment block
       */
       if (dtpAux.tdcTimeStamp() < 0 && items > 0)
@@ -285,6 +285,7 @@ void InitialGrouping::mixChannels(int supLayer, int pathId, MuonPathPtrs &outMuo
     LogDebug("InitialGrouping") << "[InitialGrouping::mixChannels] filled data";
 
   // Here we do the different combinations and send them to the output FIFO.
+  DTPrimitives ptrPrimitive;
   int chIdx[4];
   for (chIdx[0] = 0; chIdx[0] < numPrimsPerLayer[0]; chIdx[0]++) {
     for (chIdx[1] = 0; chIdx[1] < numPrimsPerLayer[1]; chIdx[1]++) {
@@ -295,8 +296,7 @@ void InitialGrouping::mixChannels(int supLayer, int pathId, MuonPathPtrs &outMuo
           // delete them whenever it is necessary, without relying upon a
           // unique reference all over the code.
 
-          DTPrimitives ptrPrimitive;
-          for (int i = 0; i <= 3; i++) {
+          for (int i = 0; i < NUM_LAYERS; i++) {
             ptrPrimitive.push_back((data[i])[chIdx[i]]);
             if (debug_)
               LogDebug("InitialGrouping")
@@ -331,19 +331,19 @@ void InitialGrouping::mixChannels(int supLayer, int pathId, MuonPathPtrs &outMuo
             If duplicated combinations are not consecutive, they won't be
             detected here
 	    */
-            if (isEqualComb2Previous(ptrPrimitive))
-              continue;
-            if (debug_)
-              LogDebug("InitialGrouping") << "[InitialGrouping::mixChannels] isNOT equal to previous";
-            ptrMuonPath->setBaseChannelId(currentBaseChannel_);
-            outMuonPath.push_back(std::move(ptrMuonPath));
+            if (!isEqualComb2Previous(ptrPrimitive)) {
+              if (debug_)
+                LogDebug("InitialGrouping") << "[InitialGrouping::mixChannels] isNOT equal to previous";
+              ptrMuonPath->setBaseChannelId(currentBaseChannel_);
+              outMuonPath.push_back(std::move(ptrMuonPath));
+            }
             ptrPrimitive.clear();
           }
         }
       }
     }
   }
-  for (int layer = 0; layer <= 3; layer++) {
+  for (int layer = 0; layer < NUM_LAYERS; layer++) {
     data[layer].clear();
   }
 }
