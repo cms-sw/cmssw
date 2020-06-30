@@ -161,8 +161,8 @@ bool MuonPath::isEqualTo(MuonPath *ptr) {
 bool MuonPath::isAnalyzable() {
   short countValidHits = 0;
   for (int i = 0; i < this->nprimitives(); i++) {
-    if (!this->primitive(i))
-      continue;
+    //    if (!this->primitive(i))
+    //      continue;
     if (this->primitive(i)->isValidTime())
       countValidHits++;
   }
