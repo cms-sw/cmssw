@@ -71,7 +71,7 @@ namespace pTFrom2Stubs {
   //====================
   float pTFrom2(std::vector<TTTrack<Ref_Phase2TrackerDigi_> >::const_iterator trk, const TrackerGeometry* tkGeometry) {
     float rinv = rInvFrom2(trk, tkGeometry);
-    return fabs(local_c_light * B_field / rinv);
+    return std::abs(local_c_light * B_field / rinv);
   }
   //====================
 }  // namespace pTFrom2Stubs

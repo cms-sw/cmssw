@@ -247,7 +247,7 @@ void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     //..............................................................
     float wt = pow(pt, weight_);  // calculating the weight for tks in as pt^0,pt^1 or pt^2 based on weight_
 
-    if (fabs(z) > zMax_)
+    if (std::abs(z) > zMax_)
       continue;
     if (chi2 > chi2Max_)
       continue;
@@ -267,7 +267,7 @@ void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     float nstubs = 0;
 
     // get pointers to stubs associated to the L1 track
-    std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > >
+    const std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > > &
         theStubs = trackIter->getStubRefs();
 
     int tmp_trk_nstub = (int)theStubs.size();
@@ -305,9 +305,9 @@ void L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
       //if (trk_nstub < 4) continue;	// done earlier
       //if (chi2 > 100.0) continue;	// done earlier
       if (trk_nstub == 4) {
-        if (fabs(eta) < 2.2 && trk_consistency > 10)
+        if (std::abs(eta) < 2.2 && trk_consistency > 10)
           continue;
-        else if (fabs(eta) > 2.2 && chi2dof > 5.0)
+        else if (std::abs(eta) > 2.2 && chi2dof > 5.0)
           continue;
       }
     }

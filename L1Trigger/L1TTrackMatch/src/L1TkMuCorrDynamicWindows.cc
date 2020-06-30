@@ -4,7 +4,7 @@
 #include "TH1.h"
 #include "TH2.h"
 
-L1TkMuCorrDynamicWindows::L1TkMuCorrDynamicWindows(std::vector<double>& bounds, TFile* fIn_theta, TFile* fIn_phi)
+L1TkMuCorrDynamicWindows::L1TkMuCorrDynamicWindows(const std::vector<double>& bounds, TFile* fIn_theta, TFile* fIn_phi)
     : wdws_theta_(bounds.size() - 1, MuMatchWindow()),
       wdws_phi_(bounds.size() - 1, MuMatchWindow()),
       wdws_theta_S1_(bounds.size() - 1, MuMatchWindow()),
@@ -56,7 +56,7 @@ L1TkMuCorrDynamicWindows::L1TkMuCorrDynamicWindows(std::vector<double>& bounds, 
 }
 
 L1TkMuCorrDynamicWindows::L1TkMuCorrDynamicWindows(
-    std::vector<double>& bounds, TFile* fIn_theta, TFile* fIn_phi, TFile* fIn_theta_S1, TFile* fIn_phi_S1)
+    const std::vector<double>& bounds, TFile* fIn_theta, TFile* fIn_phi, TFile* fIn_theta_S1, TFile* fIn_phi_S1)
     : wdws_theta_(bounds.size() - 1, MuMatchWindow()),
       wdws_phi_(bounds.size() - 1, MuMatchWindow()),
       wdws_theta_S1_(bounds.size() - 1, MuMatchWindow()),
@@ -213,7 +213,7 @@ std::vector<int> L1TkMuCorrDynamicWindows::find_match(const EMTFTrackCollection&
           adphi <= (1 + sf_h) * wdws_phi_.at(ibin).bound_high(trk_pt) && dphi * trk_charge < 0 &&  // sign requirement
           // rndm > 0.5
           true)
-        matched.push_back(std::make_tuple(dtheta, adphi, std::distance(l1mus.begin(), l1muit)));
+        matched.emplace_back(dtheta, adphi, std::distance(l1mus.begin(), l1muit));
     }
 
     if (reject_trk)
@@ -313,7 +313,7 @@ std::vector<int> L1TkMuCorrDynamicWindows::find_match_stub(const EMTFHitCollecti
           adphi <= (1 + sf_h) * wdws_phi_S1_.at(ibin).bound_high(trk_pt) &&
           dphi * trk_charge < 0 &&  // sign requirement
           true)
-        matched.push_back(std::make_tuple(dtheta, adphi, std::distance(l1mus.begin(), l1muit)));
+        matched.emplace_back(dtheta, adphi, std::distance(l1mus.begin(), l1muit));
 
       if (hit_station == 2 && dtheta > (1 - sf_l) * wdws_theta_.at(ibin).bound_low(trk_pt) &&
           dtheta <= (1 + sf_h) * wdws_theta_.at(ibin).bound_high(trk_pt) &&
@@ -321,7 +321,7 @@ std::vector<int> L1TkMuCorrDynamicWindows::find_match_stub(const EMTFHitCollecti
           adphi <= (1 + sf_h) * wdws_phi_.at(ibin).bound_high(trk_pt) && dphi * trk_charge < 0 &&  // sign requirement
           // rndm > 0.5
           true)
-        matched.push_back(std::make_tuple(dtheta, adphi, std::distance(l1mus.begin(), l1muit)));
+        matched.emplace_back(dtheta, adphi, std::distance(l1mus.begin(), l1muit));
     }
 
     if (reject_trk)
@@ -387,6 +387,9 @@ std::vector<int> L1TkMuCorrDynamicWindows::make_unique_coll(const unsigned int& 
 std::vector<double> L1TkMuCorrDynamicWindows::prepare_corr_bounds(const string& fname, const string& hname) {
   // find the boundaries of the match windoww
   TFile* fIn = TFile::Open(fname.c_str());
+  if (fIn == nullptr) {
+    throw cms::Exception("L1TkMuMantra") << "Can't find file " << fname << " to derive bounds.\n";
+  }
   TH2* h_test = (TH2*)fIn->Get(hname.c_str());
   if (h_test == nullptr) {
     throw cms::Exception("L1TkMuCorrDynamicWindows")
