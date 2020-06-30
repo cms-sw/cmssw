@@ -96,10 +96,15 @@ class GUIRenderer:
         for info in rendering_infos:
             info.root_object = await cls.reader.read(info.filename, info.fileformat, info.me_info)
 
-        # We can render either ScalarValue or bytes (TH* object)
+        # We can render either ScalarValue or TBufferFile (TH* object)
         root_object = rendering_infos[0].root_object
         if not isinstance(root_object, ScalarValue) and not isinstance(root_object, TBufferFile):
             raise Exception('Only ScalarValue and TH* can be rendered.')
+
+        # We can't overlay ScalarValue with TH*
+        num_scalars = sum(isinstance(x.root_object, ScalarValue) for x in rendering_infos)
+        if num_scalars != 0 and num_scalars != len(rendering_infos):
+            return b'error'
 
         # Pack the message for rendering context
         message = cls.__pack_message_for_renderer(rendering_infos, options, False)
@@ -121,8 +126,8 @@ class GUIRenderer:
         rendered into a data structure that C++ code running in the out of process renderer can read.
         """
         
-        # If it's not string, it's TH* object
-        is_string = isinstance(rendering_infos[0].root_object, ScalarValue) 
+        # If it's not string, it's a TH* object
+        is_string = isinstance(rendering_infos[0].root_object, ScalarValue)
 
         flags = 0x0000000f #DQM_PROP_TYPE_SCALAR
         num_objs = 1
@@ -228,7 +233,7 @@ class GUIRenderingContext:
         This method flushes the message to the corresponding out of process renderer. If an error occurs, it 
         restarts the renderer process and re-establishes the socket connection to it.
         """
-        
+
         try:
             self.writer.write(message)
             await self.writer.drain()

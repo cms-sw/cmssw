@@ -1305,8 +1305,8 @@ private:
       if (isnan(h->Integral()) || isnan(h->GetRMS()) || isnan(h->GetSumOfWeights()))
         unsafe = true;
       
-      // This is a workaround to a ROOT bug where a trailing underscore 
-      // in the histogram title causes drawing to crash.
+      // This is a workaround to a ROOT bug (ROOT-10882) where a trailing 
+      // underscore in the histogram title causes drawing to crash.
       // This code removes that trailing underscore.
       TString title = h->GetTitle();
       if (title.EndsWith("_")) {

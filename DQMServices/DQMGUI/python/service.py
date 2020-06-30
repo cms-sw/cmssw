@@ -139,7 +139,7 @@ class GUIService:
                 me_info = infos_list[index]
             else:
                 continue
-            
+
             # If efficiency flag is set for at least one of the MEs, it will be set for an overlay
             if not options.efficiency:
                 efficiency_line = bytes('%s\0e=1' % me.path, 'utf-8')
