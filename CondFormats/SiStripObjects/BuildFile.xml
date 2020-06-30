@@ -5,6 +5,7 @@
 <use name="DataFormats/SiStripDetId"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
+<use name="DataFormats/DetId"/>
 <use name="clhep"/>
 <use name="boost"/>
 <use name="boost_serialization"/>
