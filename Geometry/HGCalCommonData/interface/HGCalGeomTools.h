@@ -33,7 +33,7 @@ public:
                        std::vector<double> const& slope);
   static double radius(
       double z, int layer0, int layerf, std::vector<double> const& zFront, std::vector<double> const& rFront);
-  std::pair<double, double> shiftXY(int waferPosition, double waferSize) const;
+  std::pair<double, double> shiftXY(int waferPosition, double waferSize);
   static double slope(double z, std::vector<double> const& zFront, std::vector<double> const& slope);
   static std::pair<double, double> zradius(double z1,
                                            double z2,
