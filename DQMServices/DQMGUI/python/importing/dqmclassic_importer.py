@@ -80,8 +80,11 @@ class DQMCLASSICImporter:
                         item = (path + parsed.name, MEInfo(b'Int', value = int(parsed.value.decode("ascii"))))
                     elif parsed.type == b'f':
                         item = (path + parsed.name, MEInfo(b'Float', value = float(parsed.value.decode("ascii"))))
-                    else:
+                    elif parsed.type == b's':
                         item = (path + parsed.name, MEInfo(b'XMLString', offset))
+                    else:
+                        # An unknown Scalar type, skip it
+                        continue
                 else:
                     # QTest. Only save mename and qtestname, values need to be fetched later.
                     # Separate QTest name with \0 to prevent collisions with ME names.

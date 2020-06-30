@@ -2,7 +2,7 @@ import asyncio
 
 from collections import defaultdict
 
-from ..data_types import MEInfo, ScalarValue
+from ..data_types import MEInfo
 from ..compressing import GUIBlobCompressor
 from ..nanoroot.io import XRDFile
 from ..nanoroot.tfile import TFile

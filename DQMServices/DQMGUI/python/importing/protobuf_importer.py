@@ -1,5 +1,5 @@
 import asyncio
-from ..data_types import MEInfo, QTest
+from ..data_types import MEInfo, QTest, ScalarValue
 from ..reading.reading import DQMCLASSICReader, ProtobufReader
 from ..protobuf.protobuf_parser import ProtobufParser
 
@@ -40,6 +40,10 @@ class ProtobufImporter:
             if me_type in (b'Int', b'Float', b'String'):
                 string_value = ProtobufReader.get_tobjstring_content(histo_message.full_pathname, histo_message.streamed_histo)
                 parsed = DQMCLASSICReader.parse_string_entry(string_value)
+
+                if isinstance(parsed, ScalarValue) and parsed.type not in [b'i', b'f', b's']:
+                    # An unknown Scalar type, skip it
+                    continue
 
                 if me_type == b'Int':
                     me_info = MEInfo(me_type, value=int(parsed.value.decode('ascii')))
