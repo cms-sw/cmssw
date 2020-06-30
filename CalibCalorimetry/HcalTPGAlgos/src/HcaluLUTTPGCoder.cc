@@ -443,7 +443,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
             containmentCorrection = containmentCorrection2TSCorrected; 
             if (qieType == QIE11) {
               // When contain1TS_ is set, it should still only apply for QIE11-related things
-              if ((contain1TSHB_ and subdet == HcalBarrel) or (contain1TSHE_ and subdet == HcalEndcap)) containmentCorrection = containmentCorrection1TS;
+              if ((contain1TSHB_ and cell.ietaAbs() <= topo_->lastHBRing()) or (contain1TSHE_ and cell.ietaAbs() > topo_->lastHBRing())) containmentCorrection = containmentCorrection1TS;
 
               const HcalSiPMParameter& siPMParameter(*conditions.getHcalSiPMParameter(cell));
               HcalSiPMnonlinearity corr(
