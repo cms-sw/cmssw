@@ -360,7 +360,7 @@ void StripClusterMCanalysis::analyze(const edm::Event& iEvent, const edm::EventS
       }
 
       const SiStripCluster* clust = ClusIter;
-      std::vector<uint8_t> amp = clust->amplitudes();
+      auto const& amp = clust->amplitudes();
       int clusiz = amp.size();
       int first = clust->firstStrip();
       int last = first + clusiz;

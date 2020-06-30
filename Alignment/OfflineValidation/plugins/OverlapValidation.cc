@@ -655,10 +655,10 @@ void OverlapValidation::analyze(const Trajectory& trajectory,
           edge_[0] = -1;
 
         // get cluster total charge
-        const std::vector<uint8_t>& stripCharges = cluster1->amplitudes();
+        const auto& stripCharges = cluster1->amplitudes();
         uint16_t charge = 0;
         for (uint i = 0; i < stripCharges.size(); i++) {
-          charge += stripCharges.at(i);
+          charge += stripCharges[i];
         }
         clusterCharge_[0] = charge;
       }
@@ -684,10 +684,10 @@ void OverlapValidation::analyze(const Trajectory& trajectory,
           edge_[1] = -1;
 
         // get cluster total charge
-        const std::vector<uint8_t>& stripCharges = cluster2->amplitudes();
+        const auto& stripCharges = cluster2->amplitudes();
         uint16_t charge = 0;
         for (uint i = 0; i < stripCharges.size(); i++) {
-          charge += stripCharges.at(i);
+          charge += stripCharges[i];
         }
         clusterCharge_[1] = charge;
       }
