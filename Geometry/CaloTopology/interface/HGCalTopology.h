@@ -85,7 +85,6 @@ public:
 
   ///Is this a valid cell id
   bool valid(const DetId& id) const override;
-  bool valid(const DetId& id, int cornerMin) const;
   bool validHashIndex(uint32_t ix) const { return (ix < kSizeForDenseIndexing); }
 
   unsigned int totalModules() const { return kSizeForDenseIndexing; }
