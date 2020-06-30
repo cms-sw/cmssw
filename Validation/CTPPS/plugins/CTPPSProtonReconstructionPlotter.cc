@@ -84,6 +84,8 @@ private:
   void CalculateTimingTrackingDistance(const reco::ForwardProton &proton,
                                        const CTPPSLocalTrackLite &tr,
                                        const CTPPSGeometry &geometry,
+                                       double &x_tr,
+                                       double &x_ti,
                                        double &de_x,
                                        double &de_x_unc);
 
@@ -151,7 +153,8 @@ private:
     std::unique_ptr<TH1D> h_multiplicity;
     std::unique_ptr<TH1D> h_xi, h_th_x, h_th_y, h_vtx_y, h_t_unif, h_t, h_chi_sq, h_log_chi_sq, h_chi_sq_norm;
     std::unique_ptr<TH1D> h_t_xi_range1, h_t_xi_range2, h_t_xi_range3;
-    std::unique_ptr<TH1D> h_time;
+    std::unique_ptr<TH1D> h_time, h_time_unc;
+    std::unique_ptr<TProfile> p_time_unc_vs_x_ClCo, p_time_unc_vs_xi;
     std::unique_ptr<TH1D> h_n_contrib_tracking_tracks, h_n_contrib_timing_tracks;
     std::unique_ptr<TH2D> h2_th_x_vs_xi, h2_th_y_vs_xi, h2_vtx_y_vs_xi, h2_t_vs_xi;
     std::unique_ptr<TProfile> p_th_x_vs_xi, p_th_y_vs_xi, p_vtx_y_vs_xi;
@@ -160,6 +163,8 @@ private:
 
     std::map<unsigned int, TH1D *> m_h_xi_nTracks;
     std::unique_ptr<TH1D> h_xi_n1f1;
+
+    std::unique_ptr<TH2D> h2_x_timing_vs_x_tracking_ClCo;
 
     std::unique_ptr<TH1D> h_de_x_timing_vs_tracking, h_de_x_rel_timing_vs_tracking, h_de_x_match_timing_vs_tracking;
     std::unique_ptr<TH1D> h_de_x_timing_vs_tracking_ClCo, h_de_x_rel_timing_vs_tracking_ClCo,
@@ -176,7 +181,10 @@ private:
           h_chi_sq(new TH1D("", ";#chi^{2}", 100, 0., 10.)),
           h_log_chi_sq(new TH1D("", ";log_{10} #chi^{2}", 100, -20., 5.)),
           h_chi_sq_norm(new TH1D("", ";#chi^{2}/ndf", 100, 0., 5.)),
-          h_time(new TH1D("", ";time", 100, -2., +2.)),
+          h_time(new TH1D("", ";time   (ns)", 100, -2., +2.)),
+          h_time_unc(new TH1D("", ";time unc   (ns)", 100, -1., +1.)),
+          p_time_unc_vs_x_ClCo(new TProfile("", ";x_tracking   (mm);time unc   (ns)", 100, 0., 30.)),
+          p_time_unc_vs_xi(new TProfile("", ";xi;time unc   (ns)", 100, 0., 0.3)),
           h_n_contrib_tracking_tracks(new TH1D("", ";n of contrib. tracking tracks per reco proton", 4, -0.5, +3.5)),
           h_n_contrib_timing_tracks(new TH1D("", ";n of contrib. timing tracks per reco proton", 4, -0.5, +3.5)),
           h2_th_x_vs_xi(new TH2D("", ";#xi;#theta_{x}   (rad)", 100, 0., 0.3, 100, -500E-6, +500E-6)),
@@ -189,10 +197,11 @@ private:
               new TH2D("", ";reco protons per event;timing tracks per event", 11, -0.5, 10.5, 11, -0.5, 10.5)),
           h_xi_n1f1(new TH1D("", ";#xi", 100, 0., 0.3)),
 
+          h2_x_timing_vs_x_tracking_ClCo(
+              new TH2D("", ";x_tracking   (mm);x_timing   (mm)", 100, 0., 20., 100, 0., 20.)),
           h_de_x_timing_vs_tracking(new TH1D("", ";#Delta x   (mm)", 200, -1., +1.)),
           h_de_x_rel_timing_vs_tracking(new TH1D("", ";#Delta x / #sigma(x)", 200, -20., +20.)),
           h_de_x_match_timing_vs_tracking(new TH1D("", ";match between tracking and timing tracks", 2, -0.5, +1.5)),
-
           h_de_x_timing_vs_tracking_ClCo(new TH1D("", ";#Delta x   (mm)", 200, -1., +1.)),
           h_de_x_rel_timing_vs_tracking_ClCo(new TH1D("", ";#Delta x / #sigma(x)", 200, -20., +20.)),
           h_de_x_match_timing_vs_tracking_ClCo(
@@ -260,7 +269,12 @@ private:
       if (p.xi() > 0.10 && p.xi() < 0.13)
         h_t_xi_range3->Fill(mt);
 
-      h_time->Fill(p.time());
+      if (p.timeError() > 0.) {
+        h_time->Fill(p.time());
+        h_time_unc->Fill(p.timeError());
+        //p_time_unc_vs_x_ClCo filled in ClCo code below
+        p_time_unc_vs_xi->Fill(p.xi(), p.timeError());
+      }
 
       h2_th_x_vs_xi->Fill(p.xi(), th_x);
       h2_th_y_vs_xi->Fill(p.xi(), th_y);
@@ -325,6 +339,9 @@ private:
       h2_t_vs_xi->Write("h2_t_vs_xi");
 
       h_time->Write("h_time");
+      h_time_unc->Write("h_time_unc");
+      p_time_unc_vs_x_ClCo->Write("p_time_unc_vs_x_ClCo");
+      p_time_unc_vs_xi->Write("p_time_unc_vs_xi");
 
       TDirectory *d_top = gDirectory;
 
@@ -338,6 +355,8 @@ private:
       gDirectory = d_top;
 
       h_xi_n1f1->Write("h_xi_n1f1");
+
+      h2_x_timing_vs_x_tracking_ClCo->Write("h2_x_timing_vs_x_tracking_ClCo");
 
       h_de_x_timing_vs_tracking->Write("h_de_x_timing_vs_tracking");
       h_de_x_rel_timing_vs_tracking->Write("h_de_x_rel_timing_vs_tracking");
@@ -492,6 +511,8 @@ CTPPSProtonReconstructionPlotter::CTPPSProtonReconstructionPlotter(const edm::Pa
 void CTPPSProtonReconstructionPlotter::CalculateTimingTrackingDistance(const reco::ForwardProton &proton,
                                                                        const CTPPSLocalTrackLite &tr_ti,
                                                                        const CTPPSGeometry &geometry,
+                                                                       double &x_tr,
+                                                                       double &x_ti,
                                                                        double &de_x,
                                                                        double &de_x_unc) {
   // identify tracking-RP tracks
@@ -508,6 +529,9 @@ void CTPPSProtonReconstructionPlotter::CalculateTimingTrackingDistance(const rec
   const double x_inter_unc_sq = f_i * f_i * tr_i.xUnc() * tr_i.xUnc() + f_j * f_j * tr_j.xUnc() * tr_j.xUnc();
 
   // save distance
+  x_tr = x_inter;
+  x_ti = tr_ti.x();
+
   de_x = tr_ti.x() - x_inter;
   de_x_unc = sqrt(tr_ti.xUnc() * tr_ti.xUnc() + x_inter_unc_sq);
 }
@@ -647,8 +671,9 @@ void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const ed
       if (trackerRP)
         continue;
 
+      double x_tr = -1., x_ti = -1.;
       double de_x = 0., de_x_unc = 0.;
-      CalculateTimingTrackingDistance(proton, tr, *hGeometry, de_x, de_x_unc);
+      CalculateTimingTrackingDistance(proton, tr, *hGeometry, x_tr, x_ti, de_x, de_x_unc);
 
       const double rd = (de_x_unc > 0.) ? de_x / de_x_unc : -1E10;
       const auto &ac = association_cuts_[armId];
@@ -659,9 +684,13 @@ void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const ed
       pl.h_de_x_match_timing_vs_tracking->Fill(match ? 1. : 0.);
 
       if (clCo[armId] && armTimingTrackCounter[armId] == 1) {
+        pl.h2_x_timing_vs_x_tracking_ClCo->Fill(x_tr, x_ti);
+
         pl.h_de_x_timing_vs_tracking_ClCo->Fill(de_x);
         pl.h_de_x_rel_timing_vs_tracking_ClCo->Fill(rd);
         pl.h_de_x_match_timing_vs_tracking_ClCo->Fill(match ? 1. : 0.);
+
+        pl.p_time_unc_vs_x_ClCo->Fill(x_tr, proton.timeError());
       }
     }
   }
