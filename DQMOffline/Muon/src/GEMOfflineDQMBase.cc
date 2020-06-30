@@ -75,7 +75,6 @@ void GEMOfflineDQMBase::setDetLabelsEta(MonitorElement* me, const GEMStation* st
   }
 }
 
-
 int GEMOfflineDQMBase::getNumEtaPartitions(const GEMStation* station) {
   const auto&& superchambers = station->superChambers();
   if (not checkRefs(superchambers)) {
