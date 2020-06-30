@@ -28,8 +28,8 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo(bool pf,
                                                    uint32_t ZS_threshold,
                                                    int numberOfSamples,
                                                    int numberOfPresamples,
-                                                   int numberOfSamplesQIE11,
-                                                   int numberOfPresamplesQIE11,
+                                                   int numberOfPresamplesHBQIE11,
+                                                   int numberOfPresamplesHEQIE11,
                                                    int numberOfSamplesHF,
                                                    int numberOfPresamplesHF,
                                                    bool useTDCInMinBiasBits,
@@ -46,8 +46,8 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo(bool pf,
       ZS_threshold_(ZS_threshold),
       numberOfSamples_(numberOfSamples),
       numberOfPresamples_(numberOfPresamples),
-      numberOfSamplesQIE11_(numberOfSamplesQIE11),
-      numberOfPresamplesQIE11_(numberOfPresamplesQIE11),
+      numberOfPresamplesHBQIE11_(numberOfPresamplesHBQIE11),
+      numberOfPresamplesHEQIE11_(numberOfPresamplesHEQIE11),
       numberOfSamplesHF_(numberOfSamplesHF),
       numberOfPresamplesHF_(numberOfPresamplesHF),
       useTDCInMinBiasBits_(useTDCInMinBiasBits),
@@ -374,9 +374,15 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
                                             HcalTriggerPrimitiveDigi& result,
                                             const HcalFinegrainBit& fg_algo) {
 
-   unsigned int tpSamples = numberOfSamplesQIE11_;
+   HcalDetId detId(samples.id());
+
+   // Get the |ieta| for current sample
+   unsigned int theIeta = detId.ietaAbs();
+
    unsigned int dgPresamples = samples.presamples(); 
-   unsigned int tpPresamples = numberOfPresamplesQIE11_;
+   unsigned int tpSamples = weightsQIE11_[theIeta].size();
+   unsigned int tpPresamples = (theIeta <= HBHE_OVERLAP_TOWER) ? numberOfPresamplesHBQIE11_ : numberOfPresamplesHEQIE11_;
+
    unsigned int shift = dgPresamples - tpPresamples;
    unsigned int dgSamples = samples.size();
 
@@ -384,10 +390,6 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
    auto& msb = fgUpgradeMap_[samples.id()];
    IntegerCaloSamples sum(samples.id(), samples.size());
 
-   HcalDetId detId(samples.id());
-
-   // Get the |ieta| for current sample
-   unsigned int theIeta = detId.ietaAbs();
 
    std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry->towerIds(detId);
    //slide algo window

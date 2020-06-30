@@ -61,7 +61,8 @@ HcaluLUTTPGCoder::HcaluLUTTPGCoder()
       cosh_ieta_28_HE_high_depths_{},
       cosh_ieta_29_HE_{},
       allLinear_{},
-      contain1TS_{},
+      contain1TSHB_{},
+      contain1TSHE_{},
       linearLSB_QIE8_{},
       linearLSB_QIE11_{},
       linearLSB_QIE11Overlap_{} {}
@@ -75,7 +76,8 @@ void HcaluLUTTPGCoder::init(const HcalTopology* top, const HcalTimeSlew* delay) 
   FG_HF_thresholds_ = {0, 0};
   bitToMask_ = 0;
   allLinear_ = false;
-  contain1TS_ = false;
+  contain1TSHB_ = false;
+  contain1TSHE_ = false;
   linearLSB_QIE8_ = 1.;
   linearLSB_QIE11_ = 1.;
   linearLSB_QIE11Overlap_ = 1.;
@@ -418,7 +420,10 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
       double correctionPhaseNS = conditions.getHcalRecoParam(cell)->correctionPhaseNS();
 
       // When containPhaseNS is not -999.0, and for QIE11 only, override from configuration
-      if (containPhaseNS_ != -999.0 and qieType == QIE11) correctionPhaseNS = containPhaseNS_;
+      if (qieType == QIE11) {
+        if (containPhaseNSHB_ != -999.0 and cell.ietaAbs() <= topo_->lastHBRing()) correctionPhaseNS = containPhaseNSHB_;
+        else if (containPhaseNSHE_ != -999.0 and cell.ietaAbs() > topo_->lastHBRing()) correctionPhaseNS = containPhaseNSHE_;
+      }
       for (unsigned int adc = 0; adc < SIZE; ++adc) {
         if (isMasked)
           lut[adc] = 0;
@@ -438,7 +443,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
             containmentCorrection = containmentCorrection2TSCorrected; 
             if (qieType == QIE11) {
               // When contain1TS_ is set, it should still only apply for QIE11-related things
-              if (contain1TS_) containmentCorrection = containmentCorrection1TS;
+              if ((contain1TSHB_ and subdet == HcalBarrel) or (contain1TSHE_ and subdet == HcalEndcap)) containmentCorrection = containmentCorrection1TS;
 
               const HcalSiPMParameter& siPMParameter(*conditions.getHcalSiPMParameter(cell));
               HcalSiPMnonlinearity corr(
