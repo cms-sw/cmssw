@@ -7,8 +7,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
@@ -33,6 +31,7 @@ PixelUnpackingRegions::PixelUnpackingRegions(const edm::ParameterSet& conf, edm:
   inputs_ = regPSet.getParameter<std::vector<edm::InputTag> >("inputs");
   dPhi_ = regPSet.getParameter<std::vector<double> >("deltaPhi");
   maxZ_ = regPSet.getParameter<std::vector<double> >("maxZ");
+  trackerGeomToken_ = iC.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
 
   tBeamSpot = iC.consumes<reco::BeamSpot>(beamSpotTag_);
   for (unsigned int t = 0; t < inputs_.size(); t++)
@@ -81,9 +80,8 @@ void PixelUnpackingRegions::initialize(const edm::EventSetup& es) {
     es.get<SiPixelFedCablingMapRcd>().get(cablingMap);
     cabling_ = cablingMap->cablingTree();
 
-    edm::ESHandle<TrackerGeometry> geom;
     // get the TrackerGeom
-    es.get<TrackerDigiGeometryRecord>().get(geom);
+    edm::ESHandle<TrackerGeometry> geom = es.getHandle(trackerGeomToken_);
 
     // switch on the phase1
     unsigned int fedMin = FEDNumbering::MINSiPixelFEDID;  // phase0
