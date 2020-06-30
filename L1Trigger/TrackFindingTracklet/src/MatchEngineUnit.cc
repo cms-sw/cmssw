@@ -81,3 +81,9 @@ void MatchEngineUnit::step() {
     candmatches_.store(tmp);
   }
 }
+
+void MatchEngineUnit::reset() {
+  candmatches_.reset();
+  idle_ = true;
+  istub_=0;
+}

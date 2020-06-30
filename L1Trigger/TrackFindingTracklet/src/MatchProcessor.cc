@@ -236,6 +236,13 @@ void MatchProcessor::execute() {
 
   inputProjBuffer_.reset();
 
+  for (unsigned int iME = 0; iME < nMatchEngines_; iME++) {
+    matchengines_[iME].reset();
+  }
+
+  bool projdone=false;
+  bool medone=true;
+  
   for (unsigned int istep = 0; istep < settings_.maxStep("MP"); istep++) {
     //Step 1
     //First step here checks if we have more input projections to put into
@@ -304,6 +311,8 @@ void MatchProcessor::execute() {
           }
         }
       }
+    } else {
+      projdone=true;
     }
 
     //Step 2
@@ -340,6 +349,7 @@ void MatchProcessor::execute() {
     bool bestInPipeline = false;
     for (unsigned int iME = 0; iME < nMatchEngines_; iME++) {
       bool empty = matchengines_[iME].empty();
+      medone=medone&&(empty&&matchengines_[iME].idle());
       if (empty && matchengines_[iME].idle())
         continue;
       int currentTCID = empty ? matchengines_[iME].currentProj()->TCID() : matchengines_[iME].peek().first->TCID();
@@ -361,7 +371,7 @@ void MatchProcessor::execute() {
         assert(oldTracklet->TCID() <= tracklet->TCID());
       }
       oldTracklet = tracklet;
-
+      
       bool match = matchCalculator(tracklet, fpgastub);
 
       if (settings_.debugTracklet() && match) {
@@ -373,6 +383,7 @@ void MatchProcessor::execute() {
         countsel++;
       ;
     }
+    if (projdone&&medone) break;
   }
 
   if (settings_.writeMonitorData("MC")) {
@@ -382,7 +393,7 @@ void MatchProcessor::execute() {
 
 bool MatchProcessor::matchCalculator(Tracklet* tracklet, const Stub* fpgastub) {
   const L1TStub* stub = fpgastub->l1tstub();
-
+  
   if (layer_ != 0) {
     int ir = fpgastub->r().value();
     int iphi = tracklet->fpgaphiproj(layer_).value();
@@ -470,7 +481,7 @@ bool MatchProcessor::matchCalculator(Tracklet* tracklet, const Stub* fpgastub) {
 
     assert(std::abs(dphi) < 0.2);
     assert(std::abs(dphiapprox) < 0.2);
-
+    
     if (imatch) {
       tracklet->addMatch(layer_,
                          ideltaphi,

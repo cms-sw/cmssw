@@ -39,6 +39,8 @@ namespace trklet {
 
     bool idle() const { return idle_; }
 
+    void reset();
+
     void step();
 
   private:
