@@ -13,6 +13,11 @@ options.register('transDelay',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "delay in seconds for the commit of the db transaction")
+options.register('unitTest',
+                 False, #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "load or not the unitTest inputsource module")
 options.parseArguments()
 
 # Define here the BeamSpotOnline record name,
@@ -36,11 +41,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 # switch
 live = True # FIXME
-unitTest = False
-
-if 'unitTest=True' in sys.argv:
+unitTest = options.unitTest
+if unitTest:
     live=False
-    unitTest=True
 
 #---------------
 # Input sources
