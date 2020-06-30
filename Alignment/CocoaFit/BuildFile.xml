@@ -11,6 +11,10 @@
 <use name="CondFormats/Alignment"/>
 <use name="CondFormats/AlignmentRecord"/>
 <use name="CondCore/DBOutputService"/>
+<use name="CondCore/CondDB"/>
+<use name="DataFormats/GeometryCommonDetAlgo"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="Geometry/Records"/>
 <export>
   <lib name="1"/>
 </export>
