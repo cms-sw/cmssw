@@ -8,7 +8,10 @@
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "FWCore/Utilities/interface/Visibility.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include <string>
 #include <cstdint>
 namespace edm {
@@ -51,6 +54,7 @@ namespace sistrip {
     edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > tokenDigi;
     edm::InputTag rawDataTag_;
     edm::EDGetTokenT<FEDRawDataCollection> tokenRawBuffer;
+    edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> tokenCabeling;
   };
 
 }  // namespace sistrip
