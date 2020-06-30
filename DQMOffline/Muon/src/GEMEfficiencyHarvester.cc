@@ -1,6 +1,5 @@
 #include "DQMOffline/Muon/interface/GEMEfficiencyHarvester.h"
 
-#include "CondFormats/GEMObjects/interface/GEMeMap.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TEfficiency.h"
@@ -270,7 +269,7 @@ void GEMEfficiencyHarvester::doResolution(DQMStore::IBooker& ibooker,
 
     auto&& [region_sign, station, is_odd, ieta] = parseResidualName(name, prefix);
     if (region_sign.empty() or station < 0 or ieta < 0) {
-      // TODO
+      edm::LogError(log_category_) << "failed to parse the name of the residual histogram: " << name << std::endl;
       continue;
     }
 
@@ -278,7 +277,6 @@ void GEMEfficiencyHarvester::doResolution(DQMStore::IBooker& ibooker,
 
     if (res_data.find(key) == res_data.end()) {
       res_data.insert({key, std::vector<std::pair<int, TH1F*> >()});
-      res_data[key].reserve(GEMeMap::maxEtaPartition_);
     }
     res_data[key].emplace_back(ieta, hist);
   }  // MonitorElement
@@ -303,12 +301,13 @@ void GEMEfficiencyHarvester::doResolution(DQMStore::IBooker& ibooker,
       title += (is_odd ? ", Odd Superchambers" : ", Even Superchambers");
     }
 
-    TH2F* profile =
-        new TH2F(name, title, GEMeMap::maxEtaPartition_, 0.5, GEMeMap::maxEtaPartition_ + 0.5, 2, -0.5, 1.5);
+    const int num_etas = ieta_data.size();
+
+    TH2F* profile = new TH2F(name, title, num_etas, 0.5, num_etas + 0.5, 2, -0.5, 1.5);
     auto x_axis = profile->GetXaxis();
 
     x_axis->SetTitle("i#eta");
-    for (int ieta = 1; ieta <= GEMeMap::maxEtaPartition_; ieta++) {
+    for (int ieta = 1; ieta <= num_etas; ieta++) {
       const std::string&& label = std::to_string(ieta);
       x_axis->SetBinLabel(ieta, label.c_str());
     }

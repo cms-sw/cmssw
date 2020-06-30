@@ -51,6 +51,20 @@ void GEMEfficiencyAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
       const auto&& station_title_suffix = TString::Format(" : GE %s%d/1", region_sign, station_number);
       bookDetectorOccupancy(ibooker, station, key1, station_name_suffix, station_title_suffix);
 
+      const auto&& superchambers = station->superChambers();
+      if (not checkRefs(superchambers)) {
+        edm::LogError(log_category_) << "failed to get a valid vector of GEMSuperChamber ptrs" << std::endl;
+        return;
+      }
+
+      const auto& chambers = superchambers.front()->chambers();
+      if (not checkRefs(chambers)) {
+        edm::LogError(log_category_) << "failed to get a valid vector of GEMChamber ptrs" << std::endl;
+        return;
+      }
+
+      const int num_etas = chambers.front()->nEtaPartitions();
+
       if (station_number == 1) {
         for (const bool is_odd : {true, false}) {
           std::tuple<int, int, bool> key2{region_number, station_number, is_odd};
@@ -59,7 +73,7 @@ void GEMEfficiencyAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
               station_title_suffix + (is_odd ? ", Odd Superchamber" : ", Even Superchamber");
           bookOccupancy(ibooker, key2, parity_name_suffix, parity_title_suffix);
 
-          for (int ieta = 1; ieta <= GEMeMap::maxEtaPartition_; ieta++) {
+          for (int ieta = 1; ieta <= num_etas; ieta++) {
             const TString&& ieta_name_suffix = parity_name_suffix + Form("_ieta%d", ieta);
             const TString&& ieta_title_suffix = parity_title_suffix + Form(", i#eta = %d", ieta);
             const MEMapKey3 key3{region_number, station_number, is_odd, ieta};
@@ -71,7 +85,7 @@ void GEMEfficiencyAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
         std::tuple<int, int, bool> key2{region_number, station_number, false};
         bookOccupancy(ibooker, key2, station_name_suffix, station_title_suffix);
 
-        for (int ieta = 1; ieta <= GEMeMap::maxEtaPartition_; ieta++) {
+        for (int ieta = 1; ieta <= num_etas; ieta++) {
           const MEMapKey3 key3{region_number, station_number, false, ieta};
           const TString&& ieta_name_suffix = station_name_suffix + Form("_ieta%d", ieta);
           const TString&& ieta_title_suffix = station_title_suffix + Form(", i#eta = %d", ieta);
@@ -96,14 +110,21 @@ void GEMEfficiencyAnalyzer::bookDetectorOccupancy(DQMStore::IBooker& ibooker,
     return;
   }
 
+  const auto& chambers = superchambers.front()->chambers();
+  if (not checkRefs(chambers)) {
+    edm::LogError(log_category_) << "failed to get a valid vector of GEMChamber ptrs" << std::endl;
+    return;
+  }
+
   // the number of GEMChambers per GEMStation
   const int num_ch = superchambers.size() * superchambers.front()->nChambers();
-  const int& num_eta = GEMeMap::maxEtaPartition_;
+  // the number of eta partitions per GEMChamber
+  const int num_etas = chambers.front()->nEtaPartitions();
 
-  me_detector_[key] = helper.book2D("detector", title_, num_ch, 0.5, num_ch + 0.5, num_eta, 0.5, num_eta + 0.5);
+  me_detector_[key] = helper.book2D("detector", title_, num_ch, 0.5, num_ch + 0.5, num_etas, 0.5, num_etas + 0.5);
 
   me_detector_matched_[key] =
-      helper.book2D("detector_matched", matched_title_, num_ch, 0.5, num_ch + 0.5, num_eta, 0.5, num_eta + 0.5);
+      helper.book2D("detector_matched", matched_title_, num_ch, 0.5, num_ch + 0.5, num_etas, 0.5, num_etas + 0.5);
 
   setDetLabelsEta(me_detector_[key], station);
   setDetLabelsEta(me_detector_matched_[key], station);
