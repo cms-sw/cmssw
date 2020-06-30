@@ -5,7 +5,10 @@
 
 using namespace L1TkMuMantraDF;
 
-L1TkMuMantra::L1TkMuMantra(const std::vector<double>& bounds, TFile* fIn_theta, TFile* fIn_phi, std::string name = "mantra")
+L1TkMuMantra::L1TkMuMantra(const std::vector<double>& bounds,
+                           TFile* fIn_theta,
+                           TFile* fIn_phi,
+                           std::string name = "mantra")
     : wdws_theta_(bounds.size() - 1, MuMatchWindow()), wdws_phi_(bounds.size() - 1, MuMatchWindow()) {
   name_ = name;
 

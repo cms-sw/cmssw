@@ -56,9 +56,7 @@ public:
   }
   void set_safety_factor(float sf) { set_safety_factor(sf, sf); }
   void set_sf_initialrelax(float sf) { set_sf_initialrelax(sf, sf); }
-  void set_do_relax_factor(bool val) {
-    do_relax_factor_ = val;
-  }
+  void set_do_relax_factor(bool val) { do_relax_factor_ = val; }
 
   void set_do_trk_qual_presel(bool val) { track_qual_presel_ = val; }
 
