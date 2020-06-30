@@ -58,6 +58,8 @@ public:
     WaferOut = 99
   };
 
+  static constexpr int32_t WaferCornerMin = 3;
+
   enum TileType { TileFine = 0, TileCoarseCast = 1, TileCoarseMould = 2 };
 
   enum TileSiPMType { SiPMUnknown = 0, SiPMSmall = 2, SiPMLarge = 4 };
