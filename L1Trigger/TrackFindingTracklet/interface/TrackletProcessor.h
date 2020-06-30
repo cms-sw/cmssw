@@ -47,7 +47,6 @@ namespace trklet {
 
     bool extra_;
 
-    std::map<unsigned int, std::vector<bool> > phitable_;
     std::map<unsigned int, std::vector<bool> > pttableinner_;
     std::map<unsigned int, std::vector<bool> > pttableouter_;
 
