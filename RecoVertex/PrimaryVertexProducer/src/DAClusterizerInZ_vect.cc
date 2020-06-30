@@ -103,6 +103,7 @@ namespace {
                                    double* __restrict__ arg_out,
                                    const unsigned int kmin,
                                    const unsigned int kmax) {
+#pragma GCC ivdep
     for (auto i = kmin; i != kmax; ++i)
       arg_out[i] = vdt::fast_exp(arg_inp[i]);
   }
@@ -228,6 +229,7 @@ void DAClusterizerInZ_vect::set_vtx_range(double beta, track_t& gtracks, vertex_
     return;
   }
 
+#pragma GCC ivdep
   for (auto itrack = 0U; itrack < nt; ++itrack) {
     double zrange = max(sel_zrange_ / sqrt(beta * gtracks.dz2[itrack]), zrange_min_);
 
