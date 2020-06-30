@@ -94,8 +94,10 @@ private:
           vfill<uint8_t>(table, icol, rowsel);
           break;
         case FlatTable::ColumnType::Bool:
-          vfill<uint8_t>(table, icol, rowsel);
+          vfill<bool>(table, icol, rowsel);
           break;
+        default:
+          throw cms::Exception("LogicError", "Unsupported type");
       }
     }
 

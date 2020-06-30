@@ -1,6 +1,8 @@
 #ifndef FWCore_Utilities_Range_h
 #define FWCore_Utilities_Range_h
 
+#include <cstddef>
+
 namespace edm {
   /*
       *class which implements begin() and end() to use range-based loop with
