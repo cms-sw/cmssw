@@ -34,11 +34,6 @@ ctppsInterpolatedOpticalFunctionsESSource.lhcInfoLabel = ""
 # geometry
 from Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi import *
 
-
-# timing resolution
-ctppsDirectProtonSimulation.timeResolutionDiamonds45 = "0.200"
-ctppsDirectProtonSimulation.timeResolutionDiamonds56 = "0.200"
-
 # local reconstruction
 ctppsLocalTrackLiteProducer.includeStrips = True
 ctppsLocalTrackLiteProducer.includePixels = True
