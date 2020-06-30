@@ -24,7 +24,6 @@ local_packages_dir = get_absolute_path('.python_packages/')
 if os.path.isdir(local_packages_dir):
     sys.path.insert(0, local_packages_dir)
 
-# Initialize a process pool before doing anything else.
 # This is to make sure that the fork() happens before any imports, and before 
 # any threads are created.
 processpoolexecutor = None
@@ -35,18 +34,13 @@ if __name__ == '__main__':
     # be requested by the ProcessPoolExecutor, fork server process will be forked
     # instead of the main process.
     multiprocessing.set_start_method('forkserver')
-    # from concurrent.futures import ProcessPoolExecutor
-    from .helpers import ResilientProcessPoolExecutor
-    import signal
-    # remove SIGINT handler for the fork'ed children to avoid the stack traces on shutdown.
-    original_sigint_handler = signal.signal(signal.SIGINT, signal.SIG_IGN)
-    # TODO: make process count configurable? 4 seems to be enough to saturate IO.
-    processpoolexecutor = ResilientProcessPoolExecutor(8)
+    from concurrent.futures import ProcessPoolExecutor
     # concurrent.futures initializes the actual multiprocessing pool lazily. So we
-    # need to submit some work here to start the processes.
-    fut = processpoolexecutor.submit(print, "Process pool initialized.")
-    fut.result()
-    signal.signal(signal.SIGINT, original_sigint_handler)
+    with ProcessPoolExecutor(1) as executor:
+        fut = executor.submit(print, "Process pool initialized.")
+        fut.result()
+    # Now we should be safe.
+
 # Now we should be safe.
 
 import asyncio
@@ -363,7 +357,7 @@ async def register(request):
 
 async def initialize_services(in_memory, files, workers):
     await GUIDataStore.initialize(in_memory=in_memory)
-    await GUIImportManager.initialize(files=files, executor=processpoolexecutor)
+    await GUIImportManager.initialize(files=files)
     await GUIRenderer.initialize(workers=workers)
 
 
@@ -371,7 +365,6 @@ async def destroy_services():
     await GUIDataStore.destroy()
     await GUIImportManager.destroy()
     await GUIRenderer.destroy()
-    processpoolexecutor.shutdown(wait=True)
 
 
 async def on_shutdown(app):

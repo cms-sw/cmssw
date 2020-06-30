@@ -187,38 +187,3 @@ def parse_run_lumi(runlumi):
         return runlumi, 0
 
 
-class ResilientProcessPoolExecutor:
-    """
-    This wrapper over ProcessPoolExecutor catches BrokenProcessPool exceptions and when
-    one occurs, it shuts down and recreates the ProcessPoolExecutor.
-    multiprocessing.set_start_method('forkserver') must be set in the start of the app
-    before any threads were created.
-    """
-
-    def __init__(self, max_workers=None, mp_context=None, initializer=None, initargs=()):
-        self.max_workers = max_workers
-        self.mp_context = mp_context
-        self.initializer = initializer
-        self.initargs = initargs
-        self.pool = ProcessPoolExecutor(max_workers, mp_context, initializer, initargs)
-
-
-    def submit(self, fn, *args, **kwargs):
-        try:
-            future = self.pool.submit(fn, *args, *kwargs)
-            if isinstance(future.exception(), BrokenProcessPool):
-                raise future.exception()
-            return future
-        except BrokenProcessPool as e:
-            print('Restarting process pool')
-            self.pool.shutdown(wait=True)
-            self.pool = ProcessPoolExecutor(self.max_workers, self.mp_context, self.initializer, self.initargs)
-            raise e
-
-
-    def map(self, func, *iterables, timeout=None, chunksize=1):
-        self.pool.map(func, *iterables, timeout, chunksize)
-
-
-    def shutdown(self, wait=True):
-        self.pool.shutdown(wait)

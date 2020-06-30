@@ -25,20 +25,15 @@ class GUIImportManager:
 
     store = GUIDataStore()
     compressor = GUIBlobCompressor()
-    # this is a global instance, created before loading any modules.
-    executor = None
-
 
     @classmethod
-    async def initialize(cls, files=__EOSPATH, executor=None):
+    async def initialize(cls, files=__EOSPATH):
         """
         Imports all samples from given ROOT files if no samples are present in the DB.
         Format is assumed to be TDirectory.
         If files is a string, it is globed to get the list of files.
         If files is a list, all these files gets imported.
         """
-        cls.executor = executor
-
         count = await cls.store.get_samples_count()
         if count == 0:
             if files == None:
@@ -117,9 +112,11 @@ class GUIImportManager:
         """
         This function will call `import_sync` using a process pool.
         """
-        assert cls.executor
-        return await asyncio.get_event_loop().run_in_executor(cls.executor,
-            cls.import_sync, fileformat, filename, dataset, run, lumi)
+
+        # TODO: Semaphore here to not open too many workers at once?
+        with ProcessPoolExecutor(1) as executor:
+            return await asyncio.get_event_loop().run_in_executor(executor,
+                cls.import_sync, fileformat, filename, dataset, run, lumi)
 
 
     @classmethod
