@@ -20,7 +20,6 @@
 #include "CondFormats/L1TObjects/interface/L1RPCConeDefinition.h"
 #include "CondFormats/RPCObjects/interface/L1RPCConeBuilder.h"
 #include "CondFormats/DataRecord/interface/L1RPCConeDefinitionRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
