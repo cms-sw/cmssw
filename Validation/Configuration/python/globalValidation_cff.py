@@ -184,8 +184,6 @@ globalValidationHCAL = cms.Sequence(
       hcalSimHitsValidationSequence
     + hcaldigisValidationSequence
     + hcalSimHitStudy
-    + hcalRecHitsValidationSequence
-    + calotowersValidationSequence
 )
 
 globalValidationHCALOnly = cms.Sequence(
