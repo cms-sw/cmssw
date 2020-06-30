@@ -37,7 +37,7 @@ private:
   std::string lhcInfoLabel_;
   std::string outputFile_;
 
-  std::unique_ptr<TH1D> h_vtx_x_, h_vtx_y_, h_vtx_z_;
+  std::unique_ptr<TH1D> h_vtx_x_, h_vtx_y_, h_vtx_z_, h_vtx_t_;
   std::unique_ptr<TH1D> h_xi_, h_th_x_, h_th_y_;
 };
 
@@ -56,7 +56,8 @@ CTPPSHepMCDistributionPlotter::CTPPSHepMCDistributionPlotter(const edm::Paramete
 
       h_vtx_x_(new TH1D("h_vtx_x", ";vtx_x   (mm)", 100, 0., 0.)),
       h_vtx_y_(new TH1D("h_vtx_y", ";vtx_y   (mm)", 100, 0., 0.)),
-      h_vtx_z_(new TH1D("h_vtx_z", ";vtx_y   (mm)", 100, 0., 0.)),
+      h_vtx_z_(new TH1D("h_vtx_z", ";vtx_z   (mm)", 100, 0., 0.)),
+      h_vtx_t_(new TH1D("h_vtx_t", ";vtx_t   (mm)", 100, 0., 0.)),
 
       h_xi_(new TH1D("h_xi", ";#xi", 100, 0., 0.30)),
       h_th_x_(new TH1D("h_th_x", ";#theta^{*}_{x}", 100, -300E-6, +300E-6)),
@@ -80,6 +81,7 @@ void CTPPSHepMCDistributionPlotter::analyze(const edm::Event &iEvent, const edm:
     h_vtx_x_->Fill(pos.x());
     h_vtx_y_->Fill(pos.y());
     h_vtx_z_->Fill(pos.z());
+    h_vtx_t_->Fill(pos.t());
   }
 
   // extract protons
@@ -120,6 +122,7 @@ void CTPPSHepMCDistributionPlotter::endJob() {
   h_vtx_x_->Write();
   h_vtx_y_->Write();
   h_vtx_z_->Write();
+  h_vtx_t_->Write();
 
   h_xi_->Write();
   h_th_x_->Write();
