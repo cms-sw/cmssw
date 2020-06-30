@@ -24,7 +24,7 @@
 #include "EventFilter/RPCRawToDigi/interface/RPCTwinMuxRecord.h"
 
 RPCTwinMuxDigiToRaw::RPCTwinMuxDigiToRaw(edm::ParameterSet const& config)
-    : es_tm_link_map_br_token_(esConsumes<RPCAMCLinkMap, RPCTwinMuxLinkMapRcd,edm::Transition::BeginRun>()),
+    : es_tm_link_map_br_token_(esConsumes<RPCAMCLinkMap, RPCTwinMuxLinkMapRcd, edm::Transition::BeginRun>()),
       es_tm_link_map_token_(esConsumes<RPCInverseAMCLinkMap, RPCInverseTwinMuxLinkMapRcd>()),
       es_lb_link_map_token_(esConsumes<RPCInverseLBLinkMap, RPCInverseLBLinkMapRcd>()),
       bx_min_(config.getParameter<int>("bxMin")),
