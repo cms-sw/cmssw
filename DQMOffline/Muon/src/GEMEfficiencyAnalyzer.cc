@@ -51,19 +51,7 @@ void GEMEfficiencyAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
       const auto&& station_title_suffix = TString::Format(" : GE %s%d/1", region_sign, station_number);
       bookDetectorOccupancy(ibooker, station, key1, station_name_suffix, station_title_suffix);
 
-      const auto&& superchambers = station->superChambers();
-      if (not checkRefs(superchambers)) {
-        edm::LogError(log_category_) << "failed to get a valid vector of GEMSuperChamber ptrs" << std::endl;
-        return;
-      }
-
-      const auto& chambers = superchambers.front()->chambers();
-      if (not checkRefs(chambers)) {
-        edm::LogError(log_category_) << "failed to get a valid vector of GEMChamber ptrs" << std::endl;
-        return;
-      }
-
-      const int num_etas = chambers.front()->nEtaPartitions();
+      const int num_etas = getNumEtaPartitions(station);
 
       if (station_number == 1) {
         for (const bool is_odd : {true, false}) {
@@ -110,16 +98,10 @@ void GEMEfficiencyAnalyzer::bookDetectorOccupancy(DQMStore::IBooker& ibooker,
     return;
   }
 
-  const auto& chambers = superchambers.front()->chambers();
-  if (not checkRefs(chambers)) {
-    edm::LogError(log_category_) << "failed to get a valid vector of GEMChamber ptrs" << std::endl;
-    return;
-  }
-
   // the number of GEMChambers per GEMStation
   const int num_ch = superchambers.size() * superchambers.front()->nChambers();
   // the number of eta partitions per GEMChamber
-  const int num_etas = chambers.front()->nEtaPartitions();
+  const int num_etas = getNumEtaPartitions(station);
 
   me_detector_[key] = helper.book2D("detector", title_, num_ch, 0.5, num_ch + 0.5, num_etas, 0.5, num_etas + 0.5);
 

@@ -26,6 +26,8 @@ public:
   int getDetOccXBin(const GEMDetId&, const edm::ESHandle<GEMGeometry>&);
   void setDetLabelsVFAT(MonitorElement*, const GEMStation*);
   void setDetLabelsEta(MonitorElement*, const GEMStation*);
+  // the number of eta partitions per GEMChamber
+  int getNumEtaPartitions(const GEMStation*);
 
   template <typename T>
   inline bool checkRefs(const std::vector<T*>&);
