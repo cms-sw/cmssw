@@ -7,3 +7,8 @@ from CalibPPS.ESProducers.ctppsRPAlignmentCorrectionsDataESSourceXML_cfi import 
 alignmentFile = "Validation/CTPPS/alignment/2018_preTS1.xml"
 ctppsRPAlignmentCorrectionsDataESSourceXML.MisalignedFiles = [alignmentFile]
 ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = [alignmentFile]
+
+# timing not available in this period
+ctppsLocalTrackLiteProducer.includeDiamonds = False
+ctppsDirectProtonSimulation.timeResolutionDiamonds45 = "999"
+ctppsDirectProtonSimulation.timeResolutionDiamonds56 = "999"

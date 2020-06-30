@@ -51,10 +51,6 @@ ctppsDirectProtonSimulation.empiricalAperture56_xi0_slp = 6.604E-04
 ctppsDirectProtonSimulation.empiricalAperture56_a_int = -22.7
 ctppsDirectProtonSimulation.empiricalAperture56_a_slp = 1.600
 
-# timing resolution
-ctppsDirectProtonSimulation.timeResolutionDiamonds45 = "2 * (-0.0031 * (x - 3) + 0.16)"
-ctppsDirectProtonSimulation.timeResolutionDiamonds56 = "2 * (0.110 + (x < 10.) * (-0.0057) * (x - 10.))"
-
 # local reconstruction
 ctppsLocalTrackLiteProducer.includeStrips = False
 ctppsLocalTrackLiteProducer.includePixels = True
