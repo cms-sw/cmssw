@@ -12,10 +12,13 @@
 #include <utility>
 #include <vector>
 
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
+
 #include "DataFormats/DetId/interface/DetId.h"
 #include <Math/Rotation3D.h>
 
 class DDFilteredView;
+class PDetGeomDesc;
 class CTPPSRPAlignmentCorrectionData;
 
 /**
@@ -38,8 +41,17 @@ public:
   using RotationMatrix = ROOT::Math::Rotation3D;
   using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
 
+  ///Default constructors
+  DetGeomDesc() {};
+
   ///Constructors to be used when looping over DDD
   DetGeomDesc(DDFilteredView* fv);
+
+  ///Constructor from DD4Hep DDFilteredView
+  DetGeomDesc(cms::DDFilteredView* fv);
+
+  ///Constructor from persistent class
+  DetGeomDesc(PDetGeomDesc* pd);
 
   /// copy constructor and assignment operator
   DetGeomDesc(const DetGeomDesc&);
@@ -67,12 +79,26 @@ public:
   std::vector<double> params() const { return m_params; }
   int copyno() const { return m_copy; }
   const std::string& sensorType() const { return m_sensorType; }
+  
+  /// Setters needed for use with PDetGeomDesc
+  void setTranslation(double x, double y, double z) { m_trans.SetCoordinates(x,y,z); }
+  void setRotation(double xx, double xy, double xz, 
+                   double yx, double yy, double yz, 
+                   double zx, double zy, double zz) { m_rot.SetComponents(xx, xy, xz, 
+                                                                          yx, yy, yz, 
+                                                                          zx, zy, zz);
+  }
+  void setName(std::string name) { m_name = name; }
+  void setParams(std::vector<double> params) { m_params = params; }
+  void setCopyno(int copy) { m_copy = copy; }
+  void setParentZPosition(float z) { m_z = z; }
+  void setSensorType(std::string sensorType) { m_sensorType = sensorType; }
 
   /// alignment
   void applyAlignment(const CTPPSRPAlignmentCorrectionData&);
 
 private:
-  DetGeomDesc() {}
+//  DetGeomDesc() {}
   void deleteComponents();      /// deletes just the first daughters
   void deepDeleteComponents();  /// traverses the treee and deletes all nodes.
   void clearComponents() { m_container.resize(0); }

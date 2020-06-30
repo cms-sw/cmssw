@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
-	<ConstantsSection label="totemt1.xml">
+	<ConstantsSection label="totemt1.xml" eval="true">
 		<Constant name="PCB_Copper_Thick" value="35*mum"/>
 		<Constant name="PCB_Epoxy_Thick" value="765*mum"/>
 		<Constant name="Nomex_Thick" value="15*mm"/>

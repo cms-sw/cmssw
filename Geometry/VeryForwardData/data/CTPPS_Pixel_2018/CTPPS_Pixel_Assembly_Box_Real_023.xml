@@ -26,12 +26,12 @@
 
   <RotationSection label="CTPPS_Pixel_Assembly_Box_Real_023.xml">
     <Rotation name="ModuleROTATION" thetaX="90*deg"  phiX="0*deg" 
-              thetaY="90*deg-[RotAngle]"  phiY="90*deg" 
+              thetaY="90*deg - [RotAngle]"  phiY="90*deg" 
               thetaZ="-[RotAngle]" phiZ="90*deg"/>  <!-- rotation of RotAngle around x axis -->
 
     
     <Rotation name="ModuleROTATIONmirror" thetaX="90*deg"  phiX="180*deg" 
-              thetaY="90*deg-[RotAngle]"  phiY="90*deg" 
+              thetaY="90*deg - [RotAngle]"  phiY="90*deg" 
               thetaZ="180*deg-[RotAngle]" phiZ="90*deg"/>  
 
     <Rotation name="ModuleROTATIONmirror2" thetaX="90*deg"  phiX="180*deg" 

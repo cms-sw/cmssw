@@ -15,6 +15,11 @@
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
+#include "TGeoMatrix.h"
+
+#include "CondFormats/GeometryObjects/interface/PDetGeomDesc.h"
+
 //#include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionData.h"
 #include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionData.h"
 
@@ -34,6 +39,50 @@ DetGeomDesc::DetGeomDesc(DDFilteredView* fv)
   std::size_t found = sensor_name.find(DDD_CTPPS_PIXELS_SENSOR_NAME);
   if (found != std::string::npos && sensor_name.substr(found - 4, 3) == DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2) {
     m_sensorType = DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2;
+  }
+}
+
+//----------------------------------------------------------------------------------------------------
+
+// Constructor from DD4Hep DDFilteredView
+
+DetGeomDesc::DetGeomDesc(cms::DDFilteredView* fv)
+    : m_trans(fv->translation()),
+      m_rot(fv->rotation()),
+      m_name(fv->name()),
+//      m_params(((fv->logicalPart()).solid()).parameters()),
+      m_copy(fv->copyNum()),
+      m_z((fv->geoHistory().front()->GetMatrix()->GetTranslation())[2]),
+      m_sensorType("") {
+//  std::string sensor_name = fv->geoHistory().back().logicalPart().name().fullname();
+/*
+  std::string sensor_name = fv->history().back().logicalPart().name().fullname();
+  std::size_t found = sensor_name.find(DDD_CTPPS_PIXELS_SENSOR_NAME);
+  if (found != std::string::npos && sensor_name.substr(found - 4, 3) == DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2) {
+    m_sensorType = DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2;
+  }
+*/
+}
+
+//----------------------------------------------------------------------------------------------------
+
+DetGeomDesc::DetGeomDesc(PDetGeomDesc* pd) {
+  for (auto i : pd->container_) {
+    
+    DetGeomDesc* gd = new DetGeomDesc();
+    
+    gd->setTranslation(i.dx_,i.dy_,i.dz_);
+    gd->setRotation(i.axx_,i.axy_,i.axz_,
+                    i.ayx_,i.ayy_,i.ayz_,
+                    i.azx_,i.azy_,i.azz_);
+    gd->setName(i.name_);
+    gd->setParams(i.params_);
+    gd->setGeographicalID(i.geographicalID_);
+    gd->setCopyno(i.copy_);
+    gd->setParentZPosition(i.z_);
+    gd->setSensorType(i.sensorType_);
+    
+    this->addComponent(gd);
   }
 }
 
