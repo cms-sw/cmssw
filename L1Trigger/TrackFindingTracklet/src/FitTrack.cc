@@ -277,7 +277,7 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
       }
     }
 
-    for (unsigned int d1 = 1; d1 <= N_DISK; d1++) {
+    for (int d1 = 1; d1 <= N_DISK; d1++) {
       int d = d1;
 
       // skip F/B5 if there's already a L2 match
@@ -286,7 +286,7 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
 
       if (tracklet->fpgat().value() < 0.0)
         d = -d1;
-      if (d == tracklet->disk() || d == tracklet->disk2()) {
+      if (d1 == abs(tracklet->disk()) || d1 == abs(tracklet->disk()) + 1) {
         dmatches.set(2 * d1 - 1);
         diskmask |= (1 << (2 * (N_DISK - d1) + 1));
         alpha[ndisks] = 0.0;
@@ -981,7 +981,8 @@ void FitTrack::execute() {
       nMatchesUniq++;
 
     if (settings_.debugTracklet()) {
-      edm::LogVerbatim("Tracklet") << getName() << " : nMatches = " << nMatches << " " << asinh(bestTracklet->t());
+      edm::LogVerbatim("Tracklet") << getName() << " : nMatches = " << nMatches << " nMatchesUniq = " << nMatchesUniq
+                                   << " " << asinh(bestTracklet->t());
     }
 
     std::vector<const Stub*> trackstublist;

@@ -151,8 +151,10 @@ private:
 
   edm::FileInPath DTCLinkFile;
   edm::FileInPath moduleCablingFile;
-
   edm::FileInPath DTCLinkLayerDiskFile;
+
+  edm::FileInPath tableTEDFile;
+  edm::FileInPath tableTREFile;
 
   string asciiEventOutName_;
   std::ofstream asciiEventOut_;
@@ -230,11 +232,15 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
 
   DTCLinkFile = iConfig.getParameter<edm::FileInPath>("DTCLinkFile");
   moduleCablingFile = iConfig.getParameter<edm::FileInPath>("moduleCablingFile");
-
   DTCLinkLayerDiskFile = iConfig.getParameter<edm::FileInPath>("DTCLinkLayerDiskFile");
 
   extended_ = iConfig.getParameter<bool>("Extended");
   nHelixPar_ = iConfig.getParameter<unsigned int>("Hnpar");
+
+  if (extended_) {
+    tableTEDFile = iConfig.getParameter<edm::FileInPath>("tableTEDFile");
+    tableTREFile = iConfig.getParameter<edm::FileInPath>("tableTREFile");
+  }
 
   // --------------------------------------------------------------------------------
   // set options in Settings based on inputs from configuration files
@@ -251,6 +257,11 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
   settings.setMemoryModulesFile(memoryModulesFile.fullPath());
   settings.setWiresFile(wiresFile.fullPath());
 
+  if (extended_) {
+    settings.setTableTEDFile(tableTEDFile.fullPath());
+    settings.setTableTREFile(tableTREFile.fullPath());
+  }
+
   eventnum = 0;
   if (not asciiEventOutName_.empty()) {
     asciiEventOut_.open(asciiEventOutName_.c_str());
@@ -264,6 +275,10 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
                                  << "\n process modules : " << processingModulesFile.fullPath()
                                  << "\n memory modules :  " << memoryModulesFile.fullPath()
                                  << "\n wires          :  " << wiresFile.fullPath();
+    if (extended_) {
+      edm::LogVerbatim("Tracklet") << "table_TED    :  " << tableTEDFile.fullPath()
+                                   << "\n table_TRE    :  " << tableTREFile.fullPath();
+    }
   }
 }
 
@@ -554,7 +569,7 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       LocalPoint clustlp_outer = topol_outer->localPosition(coords_outer);
       GlobalPoint posStub_outer = theGeomDet_outer->surface().toGlobal(clustlp_outer);
 
-      bool isFlipped = !(posStub_outer.mag() < posStub_inner.mag());
+      bool isFlipped = (posStub_outer.mag() < posStub_inner.mag());
 
       // -----------------------------------------------------
       // correct sign for stubs in negative endcap
