@@ -43,9 +43,8 @@ RPCTechnicalTrigger::RPCTechnicalTrigger(const edm::ParameterSet& iConfig)
       m_ttNames{iConfig.getParameter<std::vector<std::string>>("BitNames")},
       m_rpcDigiLabel{iConfig.getParameter<edm::InputTag>("RPCDigiLabel")},
       m_rpcDigiToken{consumes<RPCDigiCollection>(m_rpcDigiLabel)},
-      m_useRPCSimLink{iConfig.getUntrackedParameter<int>("UseRPCSimLink", 0)} {
-  //...........................................................................
-
+      m_useRPCSimLink{iConfig.getUntrackedParameter<int>("UseRPCSimLink", 0)},
+      m_rpcGeometryToken(esConsumes<RPCGeometry, MuonGeometryRecord>()) {
   std::string configFile = iConfig.getParameter<std::string>("ConfigFile");
 
   edm::FileInPath f1("L1Trigger/RPCTechnicalTrigger/data/" + configFile);
@@ -80,6 +79,10 @@ RPCTechnicalTrigger::RPCTechnicalTrigger(const edm::ParameterSet& iConfig)
   m_hasConfig = false;
   produces<L1GtTechnicalTriggerRecord>();
   consumes<edm::DetSetVector<RPCDigiSimLink>>(edm::InputTag("simMuonRPCDigis", "RPCDigiSimLink", ""));
+  if (m_useEventSetup >= 1) {
+    m_pRBCSpecsToken = esConsumes<RBCBoardSpecs, RBCBoardSpecsRcd, edm::Transition::BeginRun>();
+    m_pTTUSpecsToken = esConsumes<TTUBoardSpecs, TTUBoardSpecsRcd, edm::Transition::BeginRun>();
+  }
 }
 
 RPCTechnicalTrigger::~RPCTechnicalTrigger() {}
@@ -95,8 +98,7 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   std::unique_ptr<L1GtTechnicalTriggerRecord> output(new L1GtTechnicalTriggerRecord());
 
   //.   Set up RPC geometry
-  edm::ESHandle<RPCGeometry> rpcGeometry;
-  iSetup.get<MuonGeometryRecord>().get(rpcGeometry);
+  edm::ESHandle<RPCGeometry> rpcGeometry = iSetup.getHandle(m_rpcGeometryToken);
 
   std::unique_ptr<ProcessInputSignal> signal;
   if (m_useRPCSimLink == 0) {
@@ -295,11 +297,10 @@ void RPCTechnicalTrigger::beginRun(edm::Run const& iRun, const edm::EventSetup& 
   //..  Get Board Specifications (hardware configuration)
 
   if (m_useEventSetup >= 1) {
-    edm::ESHandle<RBCBoardSpecs> pRBCSpecs;
+    edm::ESHandle<RBCBoardSpecs> pRBCSpecs = evtSetup.getHandle(m_pRBCSpecsToken);
     evtSetup.get<RBCBoardSpecsRcd>().get(pRBCSpecs);
 
-    edm::ESHandle<TTUBoardSpecs> pTTUSpecs;
-    evtSetup.get<TTUBoardSpecsRcd>().get(pTTUSpecs);
+    edm::ESHandle<TTUBoardSpecs> pTTUSpecs = evtSetup.getHandle(m_pTTUSpecsToken);
 
     if (!pRBCSpecs.isValid() || !pTTUSpecs.isValid()) {
       edm::LogError("RPCTechnicalTrigger") << "can't find RBC/TTU BoardSpecsRcd" << '\n';
