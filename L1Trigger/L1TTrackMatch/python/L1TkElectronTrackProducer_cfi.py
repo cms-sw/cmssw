@@ -33,60 +33,70 @@ L1TkElectrons = cms.EDProducer("L1TkElectronTrackProducer",
     minNStubsIsoTracks = cms.int32(0), # min cut on # of stubs for a track to be considered for isolation computation
 	  DeltaZ = cms.double( 0.6 )    # in cm. Used for tracks to be used isolation calculation
 )
-L1TkIsoElectrons = L1TkElectrons.clone()
-L1TkIsoElectrons.IsoCut = cms.double( 0.10 )
+L1TkIsoElectrons = L1TkElectrons.clone(
+    IsoCut = cms.double( 0.10 )
+)
 # for  LowPt Electron
-L1TkElectronsLoose = L1TkElectrons.clone()
-L1TkElectronsLoose.TrackEGammaDeltaPhi = cms.vdouble(0.07, 0.0, 0.0)
-L1TkElectronsLoose.TrackEGammaDeltaR = cms.vdouble(0.12, 0.0, 0.0)
-L1TkElectronsLoose.TrackMinPt = cms.double( 3.0 )
+L1TkElectronsLoose = L1TkElectrons.clone(
+    TrackEGammaDeltaPhi = cms.vdouble(0.07, 0.0, 0.0),
+    TrackEGammaDeltaR = cms.vdouble(0.12, 0.0, 0.0),
+    TrackMinPt = cms.double( 3.0 )
+)
 
 
 #### Additional collections that right now only the menu team is using - to be renamed/redefined by the EGamma group
 # The important change is the EG seed -> PhaseII instead of PhaseI
 
 #barrel
-L1TkElectronsCrystal = L1TkElectrons.clone()
-L1TkElectronsCrystal.L1EGammaInputTag = cms.InputTag("L1EGammaClusterEmuProducer",)
-L1TkElectronsCrystal.IsoCut = cms.double(-0.1)
+L1TkElectronsCrystal = L1TkElectrons.clone(
+    L1EGammaInputTag = cms.InputTag("L1EGammaClusterEmuProducer"),
+    IsoCut = cms.double(-0.1)
+)
 
-L1TkIsoElectronsCrystal=L1TkElectronsCrystal.clone()
-L1TkIsoElectronsCrystal.IsoCut = cms.double(0.1)
+L1TkIsoElectronsCrystal=L1TkElectronsCrystal.clone(
+    IsoCut = cms.double(0.1)
+)
 
-L1TkElectronsLooseCrystal = L1TkElectronsCrystal.clone()
-L1TkElectronsLooseCrystal.TrackEGammaDeltaPhi = cms.vdouble(0.07, 0.0, 0.0)
-L1TkElectronsLooseCrystal.TrackEGammaDeltaR = cms.vdouble(0.12, 0.0, 0.0)
-L1TkElectronsLooseCrystal.TrackMinPt = cms.double( 3.0 )
+L1TkElectronsLooseCrystal = L1TkElectronsCrystal.clone(
+    TrackEGammaDeltaPhi = cms.vdouble(0.07, 0.0, 0.0),
+    TrackEGammaDeltaR = cms.vdouble(0.12, 0.0, 0.0),
+    TrackMinPt = cms.double( 3.0 )
+)
 
-L1TkElectronsEllipticMatchCrystal = L1TkElectronsCrystal.clone()
-# L1TkElectronsEllipticMatchCrystal.L1TrackInputTag = cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks")
-L1TkElectronsEllipticMatchCrystal.TrackEGammaMatchType = cms.string("EllipticalCut")
-L1TkElectronsEllipticMatchCrystal.TrackEGammaDeltaEta = cms.vdouble(0.015, 0.025,1e10)
+L1TkElectronsEllipticMatchCrystal = L1TkElectronsCrystal.clone(
+#     L1TrackInputTag = cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"),
+    TrackEGammaMatchType = cms.string("EllipticalCut"),
+    TrackEGammaDeltaEta = cms.vdouble(0.015, 0.025,1e10)
+)
 
 
 
 #endcap
-L1TkElectronsHGC=L1TkElectrons.clone()
-L1TkElectronsHGC.L1EGammaInputTag = cms.InputTag("l1EGammaEEProducer","L1EGammaCollectionBXVWithCuts")
-L1TkElectronsHGC.IsoCut = cms.double(-0.1)
+L1TkElectronsHGC=L1TkElectrons.clone(
+    L1EGammaInputTag = cms.InputTag("l1EGammaEEProducer","L1EGammaCollectionBXVWithCuts"),
+    IsoCut = cms.double(-0.1)
+)
 
 
-L1TkElectronsEllipticMatchHGC = L1TkElectronsHGC.clone()
-# L1TkElectronsEllipticMatchHGC.L1TrackInputTag = cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks")
-L1TkElectronsEllipticMatchHGC.TrackEGammaMatchType = cms.string("EllipticalCut")
-L1TkElectronsEllipticMatchHGC.TrackEGammaDeltaEta = cms.vdouble(0.0075, 0.0075,1e10)
-L1TkElectronsEllipticMatchHGC.maxChi2IsoTracks = cms.double(100)
-L1TkElectronsEllipticMatchHGC.minNStubsIsoTracks = cms.int32(4)
+L1TkElectronsEllipticMatchHGC = L1TkElectronsHGC.clone(
+#     L1TrackInputTag = cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"),
+    TrackEGammaMatchType = cms.string("EllipticalCut"),
+    TrackEGammaDeltaEta = cms.vdouble(0.0075, 0.0075,1e10),
+    maxChi2IsoTracks = cms.double(100),
+    minNStubsIsoTracks = cms.int32(4)
+)
 
 
-L1TkIsoElectronsHGC=L1TkElectronsHGC.clone()
-L1TkIsoElectronsHGC.DRmax = cms.double(0.4)
-L1TkIsoElectronsHGC.DeltaZ = cms.double(1.0)
-L1TkIsoElectronsHGC.maxChi2IsoTracks = cms.double(100)
-L1TkIsoElectronsHGC.minNStubsIsoTracks = cms.int32(4)
-L1TkIsoElectronsHGC.IsoCut = cms.double(0.1)
+L1TkIsoElectronsHGC=L1TkElectronsHGC.clone(
+    DRmax = cms.double(0.4),
+    DeltaZ = cms.double(1.0),
+    maxChi2IsoTracks = cms.double(100),
+    minNStubsIsoTracks = cms.int32(4),
+    IsoCut = cms.double(0.1)
+ )
 
-L1TkElectronsLooseHGC = L1TkElectronsHGC.clone()
-L1TkElectronsLooseHGC.TrackEGammaDeltaPhi = cms.vdouble(0.07, 0.0, 0.0)
-L1TkElectronsLooseHGC.TrackEGammaDeltaR = cms.vdouble(0.12, 0.0, 0.0)
-L1TkElectronsLooseHGC.TrackMinPt = cms.double( 3.0 )
+L1TkElectronsLooseHGC = L1TkElectronsHGC.clone(
+    TrackEGammaDeltaPhi = cms.vdouble(0.07, 0.0, 0.0),
+    TrackEGammaDeltaR = cms.vdouble(0.12, 0.0, 0.0),
+    TrackMinPt = cms.double( 3.0 )
+)
