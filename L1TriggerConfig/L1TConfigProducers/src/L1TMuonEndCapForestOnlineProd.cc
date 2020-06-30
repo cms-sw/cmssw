@@ -21,6 +21,7 @@ public:
 
 L1TMuonEndCapForestOnlineProd::L1TMuonEndCapForestOnlineProd(const edm::ParameterSet& iConfig)
     : L1ConfigOnlineProdBaseExt<L1TMuonEndCapForestO2ORcd, L1TMuonEndCapForest>(iConfig) {
+  wrappedSetWhatProduced(iConfig);
   transactionSafe = iConfig.getParameter<bool>("transactionSafe");
 }
 
