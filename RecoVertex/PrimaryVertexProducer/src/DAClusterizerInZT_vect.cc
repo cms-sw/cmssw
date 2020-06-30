@@ -787,10 +787,9 @@ bool DAClusterizerInZT_vect::purge(vertex_t& y, track_t& tks, double& rho0, cons
       parg_cache[i] = botrack_dz2 * (mult_resz * mult_resz) + botrack_dt2 * (mult_rest * mult_rest);
     }
     local_exp_v(parg_cache, peik_cache, nt);
-    const auto ypkptrk = y.pk_ptr[k];
 #pragma GCC ivdep
     for (unsigned int i = 0; i < nt; ++i) {
-      const double p = ypkptrk * peik_cache[i] * pinverse_zsums[i];
+      const auto p = y.pk_ptr[k] * peik_cache[i] * pinverse_zsums[i];
       sump += p;
       nUnique += ((p > pcut) & (tks.pi_ptr[i] > 0)) ? 1 : 0;
     }
