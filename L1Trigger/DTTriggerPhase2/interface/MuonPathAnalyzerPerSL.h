@@ -4,10 +4,6 @@
 #include "L1Trigger/DTTriggerPhase2/interface/MuonPathAnalyzer.h"
 
 // ===============================================================================
-// Previous definitions and declarations
-// ===============================================================================
-using namespace cmsdt;
-// ===============================================================================
 // Class declarations
 // ===============================================================================
 
@@ -22,7 +18,7 @@ public:
   void run(edm::Event &iEvent,
            const edm::EventSetup &iEventSetup,
            MuonPathPtrs &inMpath,
-           std::vector<metaPrimitive> &metaPrimitives) override;
+           std::vector<cmsdt::metaPrimitive> &metaPrimitives) override;
   void run(edm::Event &iEvent,
            const edm::EventSetup &iEventSetup,
            MuonPathPtrs &inMpath,
@@ -36,11 +32,11 @@ public:
 
   void setChiSquareThreshold(float ch2Thr) { chiSquareThreshold_ = ch2Thr; };
 
-  void setMinQuality(MP_QUALITY q) {
-    if (minQuality_ >= LOWQGHOST)
+  void setMinQuality(cmsdt::MP_QUALITY q) {
+    if (minQuality_ >= cmsdt::LOWQGHOST)
       minQuality_ = q;
   };
-  MP_QUALITY minQuality(void) { return minQuality_; };
+  cmsdt::MP_QUALITY minQuality(void) { return minQuality_; };
 
   bool hasPosRF(int wh, int sec) { return wh > 0 || (wh == 0 && sec % 4 > 1); };
 
@@ -56,22 +52,22 @@ public:
 
 private:
   // Private methods
-  void analyze(MuonPathPtr &inMPath, std::vector<metaPrimitive> &metaPrimitives);
+  void analyze(MuonPathPtr &inMPath, std::vector<cmsdt::metaPrimitive> &metaPrimitives);
 
-  void setCellLayout(const int layout[NUM_LAYERS]);
+  void setCellLayout(const int layout[cmsdt::NUM_LAYERS]);
   void buildLateralities(void);
-  bool isStraightPath(LATERAL_CASES sideComb[NUM_LAYERS]);
+  bool isStraightPath(cmsdt::LATERAL_CASES sideComb[cmsdt::NUM_LAYERS]);
 
   void evaluatePathQuality(MuonPathPtr &mPath);
-  void evaluateLateralQuality(int latIdx, MuonPathPtr &mPath, LATQ_TYPE *latQuality);
-  void validate(LATERAL_CASES sideComb[3], int layerIndex[3], MuonPathPtr &mPath, PARTIAL_LATQ_TYPE *latq);
+  void evaluateLateralQuality(int latIdx, MuonPathPtr &mPath, cmsdt::LATQ_TYPE *latQuality);
+  void validate(cmsdt::LATERAL_CASES sideComb[3], int layerIndex[3], MuonPathPtr &mPath, cmsdt::PARTIAL_LATQ_TYPE *latq);
 
-  int eqMainBXTerm(LATERAL_CASES sideComb[2], int layerIdx[2], MuonPathPtr &mPath);
+  int eqMainBXTerm(cmsdt::LATERAL_CASES sideComb[2], int layerIdx[2], MuonPathPtr &mPath);
 
-  int eqMainTerm(LATERAL_CASES sideComb[2], int layerIdx[2], MuonPathPtr &mPath, int bxValue);
+  int eqMainTerm(cmsdt::LATERAL_CASES sideComb[2], int layerIdx[2], MuonPathPtr &mPath, int bxValue);
 
-  void lateralCoeficients(LATERAL_CASES sideComb[2], int *coefs);
-  bool sameBXValue(PARTIAL_LATQ_TYPE *latq);
+  void lateralCoeficients(cmsdt::LATERAL_CASES sideComb[2], int *coefs);
+  bool sameBXValue(cmsdt::PARTIAL_LATQ_TYPE *latq);
 
   void calculatePathParameters(MuonPathPtr &mPath);
   void calcTanPhiXPosChamber(MuonPathPtr &mPath);
@@ -85,20 +81,20 @@ private:
 
   // Private attributes
 
-  static const int LAYER_ARRANGEMENTS_[NUM_LAYERS][NUM_CELL_COMB];
-  LATERAL_CASES lateralities_[NUM_LATERALITIES][NUM_LAYERS];
-  LATQ_TYPE latQuality_[NUM_LATERALITIES];
+  static const int LAYER_ARRANGEMENTS_[cmsdt::NUM_LAYERS][cmsdt::NUM_CELL_COMB];
+  cmsdt::LATERAL_CASES lateralities_[cmsdt::NUM_LATERALITIES][cmsdt::NUM_LAYERS];
+  cmsdt::LATQ_TYPE latQuality_[cmsdt::NUM_LATERALITIES];
 
   int totalNumValLateralities_;
 
   int bxTolerance_;
-  MP_QUALITY minQuality_;
+  cmsdt::MP_QUALITY minQuality_;
   float chiSquareThreshold_;
   bool debug_;
   double chi2Th_;
   double chi2corTh_;
   double tanPhiTh_;
-  int cellLayout_[NUM_LAYERS];
+  int cellLayout_[cmsdt::NUM_LAYERS];
   bool use_LSB_;
   double tanPsi_precision_;
   double x_precision_;

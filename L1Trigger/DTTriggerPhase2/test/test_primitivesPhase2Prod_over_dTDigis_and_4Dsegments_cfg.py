@@ -25,9 +25,16 @@ process.dtTriggerPhase2PrimitiveDigis.chi2Th = cms.untracked.double(0.16)
 process.dtTriggerPhase2PrimitiveDigis.scenario = 1
 process.CalibratedDigis.scenario = 1
 
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger = cms.Service("MessageLogger",
+        destinations = cms.untracked.vstring("detailedInfo"),
+        detailedInfo = cms.untracked.PSet(threshold = cms.untracked.string("INFO"),
+        categories = cms.untracked.vstring("DTTrigPhase2Prod"),
+        extension = cms.untracked.string(".txt")),
+        debugModules = cms.untracked.vstring("dtTriggerPhase2PrimitiveDigis"),
+)
 
 ####################### SliceTest specials ##############################
-
 #Chi2 -> Changing a lot lately
 process.dtTriggerPhase2PrimitiveDigis.chi2Th = cms.untracked.double(0.16)
 
