@@ -5,6 +5,9 @@
 <use name="clhep"/>
 <use name="DataFormats/DetId"/>
 <use name="FWCore/Utilities"/>
+<use name="CondFormats/External"/>
+<use name="DataFormats/GeometrySurface"/>
+<use name="DataFormats/GeometryVector"/>
 <export>
   <lib name="1"/>
 </export>
