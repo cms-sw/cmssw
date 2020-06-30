@@ -12,7 +12,7 @@ from DQM.RPCMonitorClient.RPCRecHitProbabilityClient_cfi import *
 
 from  DQM.RPCMonitorClient.RPCChamberQuality_cfi import *
 
-                                   
+from DQMOffline.MuonDPG.rpcTnPEfficiencyClient_cfi import *
 
 
 from DQMServices.Core.DQMQualityTester import DQMQualityTester
@@ -26,7 +26,7 @@ qTesterRPC = DQMQualityTester(
 from DQM.RPCMonitorClient.RPCDcsInfoClient_cfi import *
 
 if (muonFlag):
-    rpcTier0Client = cms.Sequence(qTesterRPC*rpcdqmclient*rpcdqmMuonclient*rpcrechitprobabilityclient*rpcChamberQuality*rpcMuonChamberQuality*rpcDcsInfoClient*rpcEventSummary)
+    rpcTier0Client = cms.Sequence(qTesterRPC*rpcdqmclient*rpcdqmMuonclient*rpcrechitprobabilityclient*rpcChamberQuality*rpcMuonChamberQuality*rpcDcsInfoClient*rpcTnPEfficiencyClient*rpcEventSummary)
 else:
     rpcTier0Client = cms.Sequence(qTesterRPC*rpcdqmclient*rpcChamberQuality*rpcDcsInfoClient*rpcEventSummary)
 
