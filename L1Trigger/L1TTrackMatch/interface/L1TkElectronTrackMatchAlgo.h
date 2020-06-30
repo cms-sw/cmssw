@@ -1,5 +1,5 @@
-#ifndef L1TTrackMatch_L1TkElectronTrackMatchAlgo_HH
-#define L1TTrackMatch_L1TkElectronTrackMatchAlgo_HH
+#ifndef L1Trigger_L1TTrackMatch_L1TkElectronTrackMatchAlgo_HH
+#define L1Trigger_L1TTrackMatch_L1TkElectronTrackMatchAlgo_HH
 
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"

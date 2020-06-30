@@ -1,5 +1,5 @@
-#ifndef L1TTrackMatch_MUMATCHWINDOW_H
-#define L1TTrackMatch_MUMATCHWINDOW_H
+#ifndef L1Trigger_L1TTrackMatch_MUMATCHWINDOW_H
+#define L1Trigger_L1TTrackMatch_MUMATCHWINDOW_H
 
 #include "TF1.h"
 #include <string>

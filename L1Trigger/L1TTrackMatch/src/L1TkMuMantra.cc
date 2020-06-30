@@ -1,10 +1,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/L1TTrackMatch/interface/L1TkMuMantra.h"
 #include "TH2.h"
+#include "TFile.h"
 
 using namespace L1TkMuMantraDF;
 
-L1TkMuMantra::L1TkMuMantra(std::vector<double>& bounds, TFile* fIn_theta, TFile* fIn_phi, std::string name = "mantra")
+L1TkMuMantra::L1TkMuMantra(const std::vector<double>& bounds, TFile* fIn_theta, TFile* fIn_phi, std::string name = "mantra")
     : wdws_theta_(bounds.size() - 1, MuMatchWindow()), wdws_phi_(bounds.size() - 1, MuMatchWindow()) {
   name_ = name;
 
@@ -121,10 +122,6 @@ std::vector<int> L1TkMuMantra::find_match(const std::vector<track_df>& tracks, c
       if (trk.nstubs < min_nstubs)
         continue;  // require trk.nstubs >= min_nstubs
 
-      // compute delta
-      // col_dphicharge = dataframe.loc[ : , 'trk_phi'].subtract(dataframe.loc[ : , phi_name]).multiply(dataframe.loc[ : , 'trk_charge']).apply(to_mpi_pi)
-      // col_dthetaendc = dataframe.loc[ : , theta_name].subtract(dataframe.loc[ : , 'trk_theta']).multiply(dataframe.loc[ : , etasign_name])
-
       double dphi_charge = to_mpi_pi((trk.phi - mu.phi) * trk.charge);
       // sign from theta, to avoid division by 0
       double dtheta_endc = (mu.theta - trk.theta) * sign(mu.theta);
@@ -156,7 +153,7 @@ std::vector<int> L1TkMuMantra::find_match(const std::vector<track_df>& tracks, c
           // trk.pt should always be > 0, but put this protection just in case
           sort_par = (trk.pt > 0 ? std::abs(1. - (mu.pt / trk.pt)) : 0);
         }
-        matched_trks.push_back(std::make_pair(sort_par, itrk));
+        matched_trks.emplace_back(sort_par, itrk);
       }
     }
 
@@ -199,6 +196,9 @@ void L1TkMuMantra::setArbitrationType(std::string type) {
 std::vector<double> L1TkMuMantra::prepare_corr_bounds(std::string fname, std::string hname) {
   // find the boundaries of the match windoww
   TFile* fIn = TFile::Open(fname.c_str());
+  if (fIn == nullptr) {
+    throw cms::Exception("L1TkMuMantra") << "Can't find file " << fname << " to derive bounds.\n";
+  }
   TH2* h_test = (TH2*)fIn->Get(hname.c_str());
   if (h_test == nullptr) {
     throw cms::Exception("L1TkMuMantra") << "Can't find histo " << hname << " in file " << fname

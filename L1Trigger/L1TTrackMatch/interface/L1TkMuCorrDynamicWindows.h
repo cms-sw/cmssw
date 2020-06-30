@@ -1,5 +1,5 @@
-#ifndef L1TTrackMatch_L1TKMUCORRDYNAMICWINDOWS_H
-#define L1TTrackMatch_L1TKMUCORRDYNAMICWINDOWS_H
+#ifndef L1Trigger_L1TTrackMatch_L1TKMUCORRDYNAMICWINDOWS_H
+#define L1Trigger_L1TTrackMatch_L1TKMUCORRDYNAMICWINDOWS_H
 
 #include "TFile.h"
 #include <array>
@@ -26,9 +26,9 @@ public:
   typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
   typedef std::vector<L1TTTrackType> L1TTTrackCollectionType;
 
-  L1TkMuCorrDynamicWindows(std::vector<double>& bounds, TFile* fIn_theta, TFile* fIn_phi);
+  L1TkMuCorrDynamicWindows(const std::vector<double>& bounds, TFile* fIn_theta, TFile* fIn_phi);
   L1TkMuCorrDynamicWindows(
-      std::vector<double>& bounds, TFile* fIn_theta, TFile* fIn_phi, TFile* fIn_theta_S1, TFile* fIn_phi_S1);
+      const std::vector<double>& bounds, TFile* fIn_theta, TFile* fIn_phi, TFile* fIn_theta_S1, TFile* fIn_phi_S1);
   ~L1TkMuCorrDynamicWindows() {}
   std::vector<int> find_match(
       const EMTFTrackCollection& l1mus,
@@ -45,25 +45,19 @@ public:
   void set_safety_factor(float sf_l, float sf_h) {
     safety_factor_l_ = sf_l;
     safety_factor_h_ = sf_h;
-    // std::cout << "L1TkMuCorrDynamicWindows : safety factor LOW is " << safety_factor_l_ << std::endl;
-    // std::cout << "L1TkMuCorrDynamicWindows : safety factor HIGH is " << safety_factor_h_ << std::endl;
   }
   void set_sf_initialrelax(float sf_l, float sf_h) {
     initial_sf_l_ = sf_l;
     initial_sf_h_ = sf_h;
-    // std::cout << "L1TkMuCorrDynamicWindows : initial relax safety factor LOW is " << initial_sf_l_ << std::endl;
-    // std::cout << "L1TkMuCorrDynamicWindows : initial relax safety factor HIGH is " << initial_sf_h_ << std::endl;
   }
   void set_relaxation_pattern(float pt_start, float pt_end) {
     pt_start_ = pt_start;
     pt_end_ = pt_end;
-    // std::cout << "L1TkMuCorrDynamicWindows : set relaxing from " << pt_start_ << " to " << pt_end_ << std::endl;
   }
   void set_safety_factor(float sf) { set_safety_factor(sf, sf); }
   void set_sf_initialrelax(float sf) { set_sf_initialrelax(sf, sf); }
   void set_do_relax_factor(bool val) {
     do_relax_factor_ = val;
-    // std::cout << "L1TkMuCorrDynamicWindows : set do_relax to " << std::boolalpha << do_relax_factor_ << std::noboolalpha << std::endl;
   }
 
   void set_do_trk_qual_presel(bool val) { track_qual_presel_ = val; }

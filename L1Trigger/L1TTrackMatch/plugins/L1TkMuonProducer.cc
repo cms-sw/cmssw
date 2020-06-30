@@ -37,6 +37,9 @@ static constexpr float phi_scale = 2 * M_PI / 576.;
 static constexpr float dr2_cutoff = 0.3;
 static constexpr float matching_factor_eta = 3.;
 static constexpr float matching_factor_phi = 4.;
+static constexpr float min_mu_propagator_p = 3.5;
+static constexpr float min_mu_propagator_barrel_pT = 3.5;
+static constexpr float max_mu_propagator_eta = 2.5;
 
 using namespace l1t;
 
@@ -550,11 +553,11 @@ L1TkMuonProducer::PropState L1TkMuonProducer::propagateToGMT(const L1TkMuonProdu
     tk_z = 0;
 
   L1TkMuonProducer::PropState dest;
-  if (tk_p < 3.5)
+  if (tk_p < min_mu_propagator_p)
     return dest;
-  if (tk_aeta < 1.1 && tk_pt < 3.5)
+  if (tk_aeta < 1.1 && tk_pt < min_mu_propagator_barrel_pT)
     return dest;
-  if (tk_aeta > 2.5)
+  if (tk_aeta > max_mu_propagator_eta)
     return dest;
 
   //0th order:

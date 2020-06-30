@@ -1,5 +1,5 @@
-#ifndef L1TTrackMatch_L1TKMUMANTRA_H
-#define L1TTrackMatch_L1TKMUMANTRA_H
+#ifndef L1Trigger_L1TTrackMatch_L1TKMUMANTRA_H
+#define L1Trigger_L1TTrackMatch_L1TKMUMANTRA_H
 
 /*
 ** class  : GenericDataFormat
@@ -42,7 +42,6 @@ namespace L1TkMuMantraDF {
 #include <string>
 #include <utility>
 #include "L1Trigger/L1TTrackMatch/interface/MuMatchWindow.h"
-#include "TFile.h"
 #include <cmath>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -50,7 +49,7 @@ namespace L1TkMuMantraDF {
 
 class L1TkMuMantra {
 public:
-  L1TkMuMantra(std::vector<double>& bounds, TFile* fIn_theta, TFile* fIn_phi, std::string name);
+  L1TkMuMantra(const std::vector<double>& bounds, TFile* fIn_theta, TFile* fIn_phi, std::string name);
   ~L1TkMuMantra(){};
 
   // returns a vector with the same size of muons, each with an index to the matched L1 track, or -1 if no match is found
@@ -121,12 +120,6 @@ private:
 
   float safety_factor_l_;  // increase the lower theta/phi threshold by this fractions w.r.t. the center
   float safety_factor_h_;  // increase the upper theta/phi threshold by this fractions w.r.t. the center
-
-  // float initial_sf_l_; // the start of the relaxation
-  // float initial_sf_h_; // the start of the relaxation
-  // float pt_start_; // the relaxation of the threshold
-  // float pt_end_; // the relaxation of the threshold
-  // bool  do_relax_factor_; // true if applying the linear relaxation
 
   enum sortParType {
     kMaxPt,      // pick the highest pt track matched
