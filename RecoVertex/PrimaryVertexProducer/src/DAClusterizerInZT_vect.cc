@@ -103,11 +103,6 @@ DAClusterizerInZT_vect::DAClusterizerInZT_vect(const edm::ParameterSet& conf) {
 namespace {
   inline double local_exp(double const& inp) { return vdt::fast_exp(inp); }
 
-  inline void local_exp_list(double const* arg_inp, double* arg_out, const unsigned arg_arr_size) {
-    for (unsigned i = 0; i != arg_arr_size; ++i)
-      arg_out[i] = vdt::fast_exp(arg_inp[i]);
-  }
-
   inline void local_exp_v(double const* arg_inp, double* arg_out, const unsigned arg_arr_size) {
     vdt::fast_expv(arg_arr_size, arg_inp, arg_out);
   }
