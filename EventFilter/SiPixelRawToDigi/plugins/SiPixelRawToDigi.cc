@@ -30,8 +30,6 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
 
-#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
-
 #include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 #include "EventFilter/SiPixelRawToDigi/interface/PixelUnpackingRegions.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -51,6 +49,9 @@ SiPixelRawToDigi::SiPixelRawToDigi(const edm::ParameterSet& conf)
   usererrorlist = config_.getParameter<std::vector<int>>("UserErrorList");
 
   tFEDRawDataCollection = consumes<FEDRawDataCollection>(config_.getParameter<edm::InputTag>("InputLabel"));
+  if (useQuality) {
+    tSiPixelQuality = esConsumes<SiPixelQuality, SiPixelQualityRcd>();
+  }
 
   //start counters
   ndigis = 0;
@@ -161,8 +162,7 @@ void SiPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
   // initialize quality record or update if necessary
   if (qualityWatcher.check(es) && useQuality) {
     // quality info for dead pixel modules or ROCs
-    edm::ESHandle<SiPixelQuality> qualityInfo;
-    es.get<SiPixelQualityRcd>().get(qualityInfo);
+    edm::ESHandle<SiPixelQuality> qualityInfo = es.getHandle(tSiPixelQuality);
     badPixelInfo_ = qualityInfo.product();
     if (!badPixelInfo_) {
       edm::LogError("SiPixelQualityNotPresent")
