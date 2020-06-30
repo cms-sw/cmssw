@@ -16,6 +16,10 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "L1Trigger/L1TTrackMatch/interface/L1TkElectronTrackMatchAlgo.h"
 namespace L1TkElectronTrackMatchAlgo {
+
+  float constexpr max_eb_eta = 1.479;
+  float constexpr max_eb_z = 315.4;
+  float constexpr eb_rperp = 129.0;
   // ------------ match EGamma and Track
   void doMatch(l1t::EGammaBxCollection::const_iterator egIter,
                const edm::Ptr<L1TTTrackType>& pTrk,
@@ -74,17 +78,16 @@ namespace L1TkElectronTrackMatchAlgo {
     double depth = 0.89 * (7.7 + log(e));
     double theta = 2 * atan(exp(-1 * eta));
     double r = 0;
-    if (fabs(eta) > 1.479) {
-      double ecalZ = 315.4 * fabs(eta) / eta;
+    if (fabs(eta) > max_eb_eta) {
+      double ecalZ = max_eb_z * fabs(eta) / eta;
 
       r = ecalZ / cos(2 * atan(exp(-1 * eta))) + depth;
       x = r * cos(phi) * sin(theta);
       y = r * sin(phi) * sin(theta);
       z = r * cos(theta);
     } else {
-      double rperp = 129.0;
-      double zface = sqrt(cos(theta) * cos(theta) / (1 - cos(theta) * cos(theta)) * rperp * rperp);
-      r = sqrt(rperp * rperp + zface * zface) + depth;
+      double zface = sqrt(cos(theta) * cos(theta) / (1 - cos(theta) * cos(theta)) * eb_rperp * eb_rperp);
+      r = sqrt(eb_rperp * eb_rperp + zface * zface) + depth;
       x = r * cos(phi) * sin(theta);
       y = r * sin(phi) * sin(theta);
       z = r * cos(theta);
