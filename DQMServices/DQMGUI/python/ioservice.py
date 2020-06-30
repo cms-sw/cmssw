@@ -64,10 +64,8 @@ class IOService:
             # XRD connections tend to break after a while.
             # To prevent this, we preventively close all connections after a certain time.
             await asyncio.sleep(cls.MAXOPENTIME)
-            # First, take a reference to the file.
-            file = await cls.__connect(url)
-            # Then,remove it from the cache. Since we have a ref, the connection
-            # will not be closed yet (via GC).
+            # Then,remove it from the cache. Since we have a ref (`file` from
+            # the closure), the connection will not be closed yet (via GC).
             cls.__connect.invalidate(cls, url)
             # now close the connection. This has to be done async, so we can't 
             # leave it up to GC (which would do a sync close)
