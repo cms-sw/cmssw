@@ -38,7 +38,8 @@ void GEMOfflineDQMBase::setDetLabelsVFAT(MonitorElement* me, const GEMStation* s
     return;
   }
 
-  for (int ieta = 1; ieta <= GEMeMap::maxEtaPartition_; ieta++) {
+  const int num_etas = getNumEtaPartitions(station);
+  for (int ieta = 1; ieta <= num_etas; ieta++) {
     for (int vfat_phi = 1; vfat_phi <= max_vfat; vfat_phi++) {
       const int ybin = getVFATNumber(station->station(), ieta, vfat_phi);
       const char* label = Form("%d (%d)", ybin, ieta);
@@ -66,9 +67,27 @@ void GEMOfflineDQMBase::setDetLabelsEta(MonitorElement* me, const GEMStation* st
     }
   }
 
+  const int num_etas = getNumEtaPartitions(station);
   me->setAxisTitle("i#eta", 2);
-  for (int ieta = 1; ieta <= GEMeMap::maxEtaPartition_; ieta++) {
+  for (int ieta = 1; ieta <= num_etas; ieta++) {
     const std::string&& label = std::to_string(ieta);
     me->setBinLabel(ieta, label, 2);
   }
+}
+
+
+int GEMOfflineDQMBase::getNumEtaPartitions(const GEMStation* station) {
+  const auto&& superchambers = station->superChambers();
+  if (not checkRefs(superchambers)) {
+    edm::LogError(log_category_) << "failed to get a valid vector of GEMSuperChamber ptrs" << std::endl;
+    return;
+  }
+
+  const auto& chambers = superchambers.front()->chambers();
+  if (not checkRefs(chambers)) {
+    edm::LogError(log_category_) << "failed to get a valid vector of GEMChamber ptrs" << std::endl;
+    return;
+  }
+
+  return chambers.front()->nEtaPartitions();
 }

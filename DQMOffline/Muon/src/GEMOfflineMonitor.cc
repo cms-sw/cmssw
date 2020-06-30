@@ -56,19 +56,13 @@ void GEMOfflineMonitor::bookDetectorOccupancy(DQMStore::IBooker& ibooker,
     return;
   }
 
-  const auto& chambers = superchambers.front()->chambers();
-  if (not checkRefs(chambers)) {
-    edm::LogError(log_category_) << "failed to get a valid vector of GEMChamber ptrs" << std::endl;
-    return;
-  }
-
   // per station
   const int num_superchambers = superchambers.size();
   const int num_chambers = num_superchambers * superchambers.front()->nChambers();
   // the numer of VFATs per GEMEtaPartition
   const int max_vfat = getMaxVFAT(station->station());
   // the number of eta partitions per GEMChamber
-  const int num_etas = chambers.front()->nEtaPartitions();
+  const int num_etas = getNumEtaPartitions(station);
   // the number of VFATs per GEMChamber
   const int num_vfat = num_etas * max_vfat;
 
