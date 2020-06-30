@@ -111,6 +111,7 @@ namespace {
                                    double* __restrict__ arg_out,
                                    const unsigned int kmin,
                                    const unsigned int kmax) {
+#pragma GCC ivdep
     for (auto i = kmin; i != kmax; ++i)
       arg_out[i] = vdt::fast_exp(arg_inp[i]);
   }
@@ -290,6 +291,7 @@ void DAClusterizerInZT_vect::set_vtx_range(double beta, track_t& gtracks, vertex
     return;
   }
 
+#pragma GCC ivdep
   for (auto itrack = 0U; itrack < nt; ++itrack) {
     double zrange = max(sel_zrange_ / sqrt(beta * gtracks.dz2[itrack]), zrange_min_);
 
@@ -382,6 +384,7 @@ double DAClusterizerInZT_vect::update(double beta, track_t& gtracks, vertex_t& g
     const auto botrack_dt2 = -beta * tracks.dt2_ptr[itrack];
 #endif
     // auto-vectorized
+#pragma GCC ivdep
     for (unsigned int ivertex = kmin; ivertex < kmax; ++ivertex) {
       const auto mult_resz = track_z - vertices.z_ptr[ivertex];
       const auto mult_rest = track_t - vertices.t_ptr[ivertex];
@@ -415,6 +418,7 @@ double DAClusterizerInZT_vect::update(double beta, track_t& gtracks, vertex_t& g
     auto tmp_trk_t = tks_vec.t_ptr[track_num];
 
     // auto-vectorized
+#pragma GCC ivdep
     for (unsigned int k = kmin; k < kmax; ++k) {
       // parens are important for numerical stability
       y_vec.se_ptr[k] += tmp_trk_pi * (y_vec.ei_ptr[k] * o_trk_Z_sum);
@@ -947,6 +951,7 @@ bool DAClusterizerInZT_vect::split(const double beta, track_t& tks, vertex_t& y,
     // estimate subcluster positions and weight
     double p1 = 0, z1 = 0, t1 = 0, wz1 = 0, wt1 = 0;
     double p2 = 0, z2 = 0, t2 = 0, wz2 = 0, wt2 = 0;
+#pragma GCC ivdep
     for (unsigned int i = 0; i < nt; ++i) {
       if (tks.Z_sum_ptr[i] > 1.e-100) {
         double lr = (tks.z_ptr[i] - y.z_ptr[k]) * cq + (tks.t[i] - y.t_ptr[k]) * sq;
