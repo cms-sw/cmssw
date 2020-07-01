@@ -3,7 +3,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-MaterialBudgetTree::MaterialBudgetTree(std::shared_ptr<MaterialBudgetData> data, const std::string& filename)
+MaterialBudgetTree::MaterialBudgetTree(std::shared_ptr<MaterialBudgetData> data, const std::string &filename)
     : MaterialBudgetFormat(data) {
   fname = filename;
   book();
@@ -201,10 +201,9 @@ void MaterialBudgetTree::fillEndTrack() {
     }
   }
 
-
   if (theData->getNumberOfSteps() != 0) {
     Int_t ssize = theTree->Fill();
-    edm::LogInfo("MaterialBudget") << "MaterialBudgetTree: Filling Tree " << ssize << " bytes" ;
+    edm::LogInfo("MaterialBudget") << "MaterialBudgetTree: Filling Tree " << ssize << " bytes";
   } else {
     edm::LogWarning("MaterialBudget") << "MaterialBudgetTree: Event with 0 steps not recorded";
   }
@@ -217,7 +216,7 @@ void MaterialBudgetTree::endOfRun() {
   TFile *outFile = new TFile(fname.c_str(), "RECREATE");
   outFile->mkdir("TEST");
 
-  if(theTree){
+  if (theTree) {
     TTree *t1 = theTree->CloneTree();
     t1->Write();
     edm::LogWarning("MaterialBudget") << "TTree Written " << t1;
@@ -226,5 +225,4 @@ void MaterialBudgetTree::endOfRun() {
   }
 
   delete outFile;
-
 }
