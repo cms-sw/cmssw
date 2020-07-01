@@ -169,18 +169,24 @@ namespace nanoaod {
 
     template <typename T>
     auto const &bigVector() const {
-      return const_cast<FlatTable *>(this)->bigVector<T>();
+      return bigVectorImpl<T>(*this);
     }
     template <typename T>
     auto &bigVector() {
+      return bigVectorImpl<T>(*this);
+    }
+
+    template <typename T, class This>
+    static auto &bigVectorImpl(This &table) {
+      // helper function to avoid code duplication, for the two accessor functions that differ only in const-ness
       if constexpr (std::is_same<T, float>())
-        return floats_;
+        return table.floats_;
       else if constexpr (std::is_same<T, int>())
-        return ints_;
+        return table.ints_;
       else if constexpr (std::is_same<T, uint8_t>())
-        return uint8s_;
+        return table.uint8s_;
       else if constexpr (std::is_same<T, bool>())
-        return uint8s_;
+        return table.uint8s_;
       else
         static_assert(dependent_false<T>::value, "unsupported type");
     }
