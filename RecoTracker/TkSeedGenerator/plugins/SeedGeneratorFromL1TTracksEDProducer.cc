@@ -40,9 +40,9 @@
 #include <vector>
 
 class dso_hidden SeedGeneratorFromL1TTracksEDProducer : public edm::stream::EDProducer<> {
- public:
+public:
   SeedGeneratorFromL1TTracksEDProducer(const edm::ParameterSet& cfg);
-  ~SeedGeneratorFromL1TTracksEDProducer() override = default;  
+  ~SeedGeneratorFromL1TTracksEDProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -52,12 +52,12 @@ class dso_hidden SeedGeneratorFromL1TTracksEDProducer : public edm::stream::EDPr
                         const TTTrack<Ref_Phase2TrackerDigi_>& l1,
                         edm::ESHandle<Chi2MeasurementEstimatorBase>& estimatorH,
                         unsigned int& numSeedsMade,
-                        std::unique_ptr<std::vector<TrajectorySeed> >& out) const;
+                        std::unique_ptr<std::vector<TrajectorySeed>>& out) const;
 
   void produce(edm::Event& ev, const edm::EventSetup& es) override;
 
- private:
-  const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > theInputCollectionTag_;
+private:
+  const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> theInputCollectionTag_;
   const edm::EDGetTokenT<MeasurementTrackerEvent> theMeasurementTrackerTag_;
 
   // Minimum eta value to activate searching in the TEC
@@ -73,12 +73,11 @@ class dso_hidden SeedGeneratorFromL1TTracksEDProducer : public edm::stream::EDPr
   const edm::ESGetToken<Chi2MeasurementEstimatorBase, TrackingComponentsRecord> estToken_;
   const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorAlongToken_;
   const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorOppositeToken_;
-
 };
 
 SeedGeneratorFromL1TTracksEDProducer::SeedGeneratorFromL1TTracksEDProducer(const edm::ParameterSet& cfg)
-   :  theInputCollectionTag_(
-			     consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>(cfg.getParameter<edm::InputTag>("InputCollection"))),
+    : theInputCollectionTag_(
+          consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>(cfg.getParameter<edm::InputTag>("InputCollection"))),
       theMeasurementTrackerTag_(
           consumes<MeasurementTrackerEvent>(cfg.getParameter<edm::InputTag>("MeasurementTrackerEvent"))),
       theMinEtaForTEC_(cfg.getParameter<double>("minEtaForTEC")),
@@ -86,19 +85,18 @@ SeedGeneratorFromL1TTracksEDProducer::SeedGeneratorFromL1TTracksEDProducer(const
       theErrorSFHitless_(cfg.getParameter<double>("errorSFHitless")),
       mfToken_{esConsumes<MagneticField, IdealMagneticFieldRecord>()},
       geomToken_{esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()},
-      estToken_{
-	esConsumes<Chi2MeasurementEstimatorBase, TrackingComponentsRecord>(edm::ESInputTag("", cfg.getParameter<std::string>("estimator")))}, 
-      propagatorAlongToken_{
-	esConsumes<Propagator, TrackingComponentsRecord>(edm::ESInputTag("", cfg.getParameter<std::string>("propagator")))},
-      propagatorOppositeToken_{
-	esConsumes<Propagator, TrackingComponentsRecord>(edm::ESInputTag("", cfg.getParameter<std::string>("propagator")))}
-{
+      estToken_{esConsumes<Chi2MeasurementEstimatorBase, TrackingComponentsRecord>(
+          edm::ESInputTag("", cfg.getParameter<std::string>("estimator")))},
+      propagatorAlongToken_{esConsumes<Propagator, TrackingComponentsRecord>(
+          edm::ESInputTag("", cfg.getParameter<std::string>("propagator")))},
+      propagatorOppositeToken_{esConsumes<Propagator, TrackingComponentsRecord>(
+          edm::ESInputTag("", cfg.getParameter<std::string>("propagator")))} {
   produces<TrajectorySeedCollection>();
 }
 
 void SeedGeneratorFromL1TTracksEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("InputCollection", edm::InputTag("TTTracksFromTrackletEmulation","Level1TTTracks"));
+  desc.add<edm::InputTag>("InputCollection", edm::InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"));
   desc.add<std::string>("estimator", std::string(""));
   desc.add<std::string>("propagator", std::string(""));
   desc.add<edm::InputTag>("MeasurementTrackerEvent", edm::InputTag(""));
@@ -109,12 +107,12 @@ void SeedGeneratorFromL1TTracksEDProducer::fillDescriptions(edm::ConfigurationDe
 }
 
 void SeedGeneratorFromL1TTracksEDProducer::findSeedsOnLayer(const GeometricSearchDet& layer,
-                                                          const TrajectoryStateOnSurface& tsosAtIP,
-                                                          Propagator& propagatorAlong,
-                                                          const TTTrack<Ref_Phase2TrackerDigi_>& l1,
-							  edm::ESHandle<Chi2MeasurementEstimatorBase>& estimatorH,
-                                                          unsigned int& numSeedsMade,
-                                                          std::unique_ptr<std::vector<TrajectorySeed>>& out) const {
+                                                            const TrajectoryStateOnSurface& tsosAtIP,
+                                                            Propagator& propagatorAlong,
+                                                            const TTTrack<Ref_Phase2TrackerDigi_>& l1,
+                                                            edm::ESHandle<Chi2MeasurementEstimatorBase>& estimatorH,
+                                                            unsigned int& numSeedsMade,
+                                                            std::unique_ptr<std::vector<TrajectorySeed>>& out) const {
   std::vector<GeometricSearchDet::DetWithState> dets;
   layer.compatibleDetsV(tsosAtIP, propagatorAlong, *estimatorH, dets);
 
@@ -130,7 +128,7 @@ void SeedGeneratorFromL1TTracksEDProducer::findSeedsOnLayer(const GeometricSearc
           trajectoryStateTransform::persistentState(tsosOnLayer, detOnLayer->geographicalId().rawId());
       TrajectorySeed::RecHitContainer rHC;
       if (numSeedsMade < 1) {  // only outermost seed
-	out->emplace_back(TrajectorySeed(ptsod, rHC, oppositeToMomentum));
+        out->emplace_back(TrajectorySeed(ptsod, rHC, oppositeToMomentum));
         numSeedsMade++;
       }
     }
@@ -163,16 +161,14 @@ void SeedGeneratorFromL1TTracksEDProducer::produce(edm::Event& ev, const edm::Ev
   // Get vector of Detector layers
   auto const& measurementTracker = ev.get(theMeasurementTrackerTag_);
   std::vector<BarrelDetLayer const*> const& tob = measurementTracker.geometricSearchTracker()->tobLayers();
-  
+
   std::vector<ForwardDetLayer const*> const& tecPositive =
-    geom.isThere(GeomDetEnumerators::P2OTEC)
-    ? measurementTracker.geometricSearchTracker()->posTidLayers()
-    : measurementTracker.geometricSearchTracker()->posTecLayers();
+      geom.isThere(GeomDetEnumerators::P2OTEC) ? measurementTracker.geometricSearchTracker()->posTidLayers()
+                                               : measurementTracker.geometricSearchTracker()->posTecLayers();
   std::vector<ForwardDetLayer const*> const& tecNegative =
-    geom.isThere(GeomDetEnumerators::P2OTEC)
-    ? measurementTracker.geometricSearchTracker()->negTidLayers()
-    : measurementTracker.geometricSearchTracker()->negTecLayers();
-  
+      geom.isThere(GeomDetEnumerators::P2OTEC) ? measurementTracker.geometricSearchTracker()->negTidLayers()
+                                               : measurementTracker.geometricSearchTracker()->negTecLayers();
+
   /// Surface used to make a TSOS at the PCA to the beamline
   Plane::PlanePointer dummyPlane = Plane::build(Plane::PositionType(), Plane::RotationType());
 
@@ -217,4 +213,3 @@ void SeedGeneratorFromL1TTracksEDProducer::produce(edm::Event& ev, const edm::Ev
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SeedGeneratorFromL1TTracksEDProducer);
-
