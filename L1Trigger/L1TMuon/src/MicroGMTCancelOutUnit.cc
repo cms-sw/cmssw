@@ -374,8 +374,8 @@ namespace l1t {
         // std::cout << "Muon2 eta: " << (*mu_w2)->hwEta() << " phi: " << (*mu_w2)->hwGlobalPhi() << " pT: " << (*mu_w2)->hwPt() << " qual: " << (*mu_w2)->origin().hwQual() << std::endl;
 
         int nMatchedStations = 0;
-        // search for duplicates in stations 2-4
-        for (int i = 1; i < 4; ++i) {
+        // search for duplicates in stations 1-3
+        for (int i = 0; i < 3; ++i) {
           if (wheelSide_w1 == wheelSide_w2) {  // both tracks are on the same detector side
             if (wheelNum_w1 == wheelNum_w2) {  // both tracks have the same reference wheel
               if ((stations_w1[i] == 0x2 && stations_w2[i] == 0x0) ||
