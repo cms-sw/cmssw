@@ -68,9 +68,9 @@ trackSelection = "SingleMu"
 globalTag = None
 outputPath = None # can also be specified. If that is done, files are copied to this path afterwards
 
-if "iov" in  options.sample:
+if "iov" in options.sample:
     ## Configure here for campaigns with many different datasets (such as multi-IOV)
-    iovNo = int(options.sample.split("iov")[1])
+    iovNo = options.sample.split("iov")[1]
     process.load("Alignment.APEEstimation.samples.")
     outputName = ".root"
     outputPath = None
