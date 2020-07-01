@@ -20,9 +20,9 @@
 
 //----------------------------------------------------------------------------------------------------
 
-class CTPPSLocalTrackLiteReAligner : public edm::stream::EDProducer<> {
+class PPSLocalTrackLiteReAligner : public edm::stream::EDProducer<> {
 public:
-  explicit CTPPSLocalTrackLiteReAligner(const edm::ParameterSet &);
+  explicit PPSLocalTrackLiteReAligner(const edm::ParameterSet &);
 
   void produce(edm::Event &, const edm::EventSetup &) override;
 
@@ -38,7 +38,7 @@ private:
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSLocalTrackLiteReAligner::CTPPSLocalTrackLiteReAligner(const edm::ParameterSet &iConfig)
+PPSLocalTrackLiteReAligner::PPSLocalTrackLiteReAligner(const edm::ParameterSet &iConfig)
     : inputTrackToken_(consumes<CTPPSLocalTrackLiteCollection>(iConfig.getParameter<edm::InputTag>("inputTrackTag"))),
       alignmentToken_(esConsumes<CTPPSRPAlignmentCorrectionsData, RPRealAlignmentRecord>(iConfig.getParameter<edm::ESInputTag>("alignmentTag"))),
       outputTrackTag_(iConfig.getParameter<std::string>("outputTrackTag")) {
@@ -47,7 +47,7 @@ CTPPSLocalTrackLiteReAligner::CTPPSLocalTrackLiteReAligner(const edm::ParameterS
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSLocalTrackLiteReAligner::fillDescriptions(edm::ConfigurationDescriptions &descr) {
+void PPSLocalTrackLiteReAligner::fillDescriptions(edm::ConfigurationDescriptions &descr) {
   edm::ParameterSetDescription desc;
 
   desc.add<edm::InputTag>("inputTrackTag", edm::InputTag("ctppsLocalTrackLiteProducer"))
@@ -62,7 +62,7 @@ void CTPPSLocalTrackLiteReAligner::fillDescriptions(edm::ConfigurationDescriptio
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSLocalTrackLiteReAligner::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void PPSLocalTrackLiteReAligner::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // get alignment corrections
   auto const& alignment = iSetup.getData(alignmentToken_);
 
@@ -77,7 +77,7 @@ void CTPPSLocalTrackLiteReAligner::produce(edm::Event &iEvent, const edm::EventS
   for (const auto &tr : *hInputTracks) {
     auto it = alignment.getRPMap().find(tr.rpId());
     if (it == alignment.getRPMap().end()) {
-      edm::LogError("CTPPSLocalTrackLiteReAligner::produce")
+      edm::LogError("PPSLocalTrackLiteReAligner::produce")
           << "Cannot find alignment correction for RP " << tr.rpId() << ". The track will be skipped.";
     } else {
       output->emplace_back(tr.rpId(),
@@ -103,4 +103,4 @@ void CTPPSLocalTrackLiteReAligner::produce(edm::Event &iEvent, const edm::EventS
 
 //----------------------------------------------------------------------------------------------------
 
-DEFINE_FWK_MODULE(CTPPSLocalTrackLiteReAligner);
+DEFINE_FWK_MODULE(PPSLocalTrackLiteReAligner);
