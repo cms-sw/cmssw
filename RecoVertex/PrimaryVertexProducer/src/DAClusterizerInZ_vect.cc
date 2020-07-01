@@ -95,8 +95,12 @@ DAClusterizerInZ_vect::DAClusterizerInZ_vect(const edm::ParameterSet& conf) {
 namespace {
   inline double local_exp(double const& inp) { return vdt::fast_exp(inp); }
 
-  inline void local_exp_v(double const* arg_inp, double* arg_out, const unsigned arg_arr_size) {
-    vdt::fast_expv(arg_arr_size, arg_inp, arg_out);
+  inline void local_exp_list(double const* __restrict__ arg_inp,
+                             double* __restrict__ arg_out,
+                             const unsigned arg_arr_size) {
+#pragma GCC ivdep
+    for (unsigned i = 0; i != arg_arr_size; ++i)
+      arg_out[i] = vdt::fast_exp(arg_inp[i]);
   }
 
   inline void local_exp_list_range(double const* __restrict__ arg_inp,
@@ -676,7 +680,7 @@ bool DAClusterizerInZ_vect::purge(vertex_t& y, track_t& tks, double& rho0, const
       const auto mult_resz = track_z - y.z_ptr[k];
       parg_cache[i] = botrack_dz2 * (mult_resz * mult_resz);
     }
-    local_exp_v(parg_cache, peik_cache, nt);
+    local_exp_list(parg_cache, peik_cache, nt);
 #pragma GCC ivdep
     for (unsigned int i = 0; i < nt; ++i) {
       const auto p = y.pk_ptr[k] * peik_cache[i] * pinverse_zsums[i];
