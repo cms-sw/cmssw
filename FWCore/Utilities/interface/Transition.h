@@ -17,6 +17,7 @@ namespace edm {
     EndRun,
     BeginProcessBlock,
     EndProcessBlock,
+    AccessInputProcessBlock,
     NumberOfTransitions,
     NumberOfEventSetupTransitions = BeginProcessBlock
   };
