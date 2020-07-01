@@ -26,13 +26,13 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
     'run2_mc_pa'        :   '110X_mcRun2_pA_v3',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   '111X_dataRun2_v3',
+    'run1_data'         :   '112X_dataRun2_v1',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   '111X_dataRun2_v3',
+    'run2_data'         :   '112X_dataRun2_v1',
     # GlobalTag for Run2 data 2018B relvals only: HEM-15-16 fail
-    'run2_data_HEfail'  :   '111X_dataRun2_HEfail_v3',
+    'run2_data_HEfail'  :   '112X_dataRun2_HEfail_v1',
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
-    'run2_data_relval'  :   '111X_dataRun2_relval_v3',
+    'run2_data_relval'  :   '112X_dataRun2_relval_v1',
     # GlobalTag for Run2 HI data
     'run2_data_promptlike_hi' : '110X_dataRun2_PromptLike_HI_v10',
     # GlobalTag for Run1 HLT: it points to the online GT
@@ -49,11 +49,11 @@ autoCond = {
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
     'phase1_2017_design'       :  '111X_mc2017_design_v2',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
-    'phase1_2017_realistic'    :  '111X_mc2017_realistic_v2',
+    'phase1_2017_realistic'    :  '112X_mc2017_realistic_v2',
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in DECO mode
-    'phase1_2017_cosmics'      :  '111X_mc2017cosmics_realistic_deco_v1',
+    'phase1_2017_cosmics'      :  '112X_mc2017cosmics_realistic_deco_v2',
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in PEAK mode
-    'phase1_2017_cosmics_peak' :  '111X_mc2017cosmics_realistic_peak_v1',
+    'phase1_2017_cosmics_peak' :  '112X_mc2017cosmics_realistic_peak_v2',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for full Phase1 2018 (and 0,0,0-centred beamspot)
     'phase1_2018_design'       :  '111X_upgrade2018_design_v1',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector
