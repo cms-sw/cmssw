@@ -77,6 +77,9 @@ _phase2_siml1emulator.add(L1EGammaClusterEmuProducer)
 from L1Trigger.L1CaloTrigger.l1EGammaEEProducer_cfi import *
 _phase2_siml1emulator.add(l1EGammaEEProducer)
 
+from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger
+phase2_trigger.toReplaceWith( SimL1EmulatorTask , _phase2_siml1emulator)
+
 # Tk + StandaloneObj, including L1TkPrimaryVertex
 # ########################################################################
 from L1Trigger.L1TTrackMatch.L1TkObjectProducers_cff import *
@@ -96,6 +99,22 @@ _phase2_siml1emulator.add(L1TkPhotonsHGC)
 
 _phase2_siml1emulator.add( L1TkMuons )
 
+#%% # PF Candidates
+#%% # ########################################################################
+from L1Trigger.Phase2L1ParticleFlow.l1ParticleFlow_cff import *
+_phase2_siml1emulator.add(l1ParticleFlowTask)
 
-from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger
-phase2_trigger.toReplaceWith( SimL1EmulatorTask , _phase2_siml1emulator)
+from L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff import *
+# Describe here l1PFJets Task
+# ###############################
+l1PFJetsTask = cms.Task(
+  ak4PFL1Calo , ak4PFL1PF , ak4PFL1Puppi ,
+  ak4PFL1CaloCorrected , ak4PFL1PFCorrected , ak4PFL1PuppiCorrected)
+_phase2_siml1emulator.add(l1PFJetsTask)
+# Describe here l1PFMets Task
+# ###############################
+l1PFMetsTask = cms.Task(l1PFMetCalo , l1PFMetPF , l1PFMetPuppi)
+_phase2_siml1emulator.add(l1PFMetsTask)
+
+from Configuration.Eras.Modifier_phase2_trackerV14_cff import phase2_trackerV14
+(phase2_trigger & phase2_trackerV14).toReplaceWith( SimL1EmulatorTask , _phase2_siml1emulator)
