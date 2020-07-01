@@ -334,7 +334,7 @@ Backend related task list.
 * ~~Provide async stream methods to IOService~~
 * ~~Protobuf make parser async~~
 * ~~Use bitwise operators for parsing variants in protobuf~~
-* Add QTests to protobuf output in CMSSW
+* ~~Add QTests to protobuf output in CMSSW~~
 * Live mode integration
 * Cache invalidation in samples
 * ~~Move efficiency flag to MEInfo~~
@@ -353,3 +353,6 @@ Backend related task list.
   * Will probably not increase perf by much, needs measuring
 * ~~Renderer hangs when negative width/height is passed~~
 * Validate samples in registration endpoint
+* Add timeout when reading from the renderer
+* When renderer returns an error code, return an image with non 200 status code.
+* ~~Add QTest result support to the API~~

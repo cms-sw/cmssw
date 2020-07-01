@@ -10,7 +10,7 @@ from collections import namedtuple
 Sample = namedtuple('Sample', ['run', 'dataset', 'lumi'])
 SampleFull = namedtuple('SampleFull', ['dataset', 'run', 'lumi', 'file', 'fileformat'])
 RootDir = namedtuple('RootDir', ['name', 'me_count'])
-RootObj = namedtuple('RootObj', ['name', 'path', 'layout'])
+RootObj = namedtuple('RootObj', ['name', 'path', 'layout', 'qteststatuses'])
 RootDirContent = namedtuple('RootDirContent', ['dirs', 'objs'])
 
 # type can be one of those: Flag, Int, Float, XMLString, QTest or one of ROOT histogram types (TH*)

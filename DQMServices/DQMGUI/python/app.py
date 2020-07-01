@@ -134,7 +134,12 @@ async def archive_legacy(request):
 
     result = {'contents': []}
     result['contents'].extend({'subdir': name, 'me_count': me_count} for name, me_count in data.dirs)
-    result['contents'].extend({'obj': name, 'path': path, 'layout': layout} for name, path, layout in data.objs)
+    result['contents'].extend({
+        'obj': name,
+        'path': path,
+        'layout': layout,
+        'qresults': [{'status': x} for x in qteststatuses]
+        } for (name, path, layout, qteststatuses) in data.objs)
 
     return web.json_response(result)
 
@@ -157,7 +162,12 @@ async def archive_v1(request):
 
     result = {'data': []}
     result['data'].extend({'subdir': name, 'me_count': me_count} for name, me_count in data.dirs)
-    result['data'].extend({'name': name, 'path': path, 'layout': layout} for name, path, layout in data.objs)
+    result['data'].extend({
+        'name': name,
+        'path': path,
+        'layout': layout,
+        'qtstatuses': [x for x in qteststatuses]
+        } for (name, path, layout, qteststatuses) in data.objs)
 
     return web.json_response(result)
 

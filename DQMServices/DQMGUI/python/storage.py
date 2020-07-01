@@ -125,6 +125,25 @@ class GUIDataStore:
 
 
     @classmethod
+    async def get_me_infos_list(cls, dataset, run, lumi):
+        """Returns a list of MEInfo objects"""
+
+        # For now adding a LIMIT 1 because there might be multiple version of the same file.
+        sql = 'SELECT meinfosblob FROM samples JOIN meinfos ON samples.meinfosid = meinfos.meinfosid WHERE run = ? AND lumi = ? AND dataset = ? LIMIT 1;'
+
+        cursor = await cls.__db.execute(sql, (int(run), int(lumi), dataset))
+        row = await cursor.fetchone()
+        await cursor.close()
+
+        if not row:
+            # Blob doesn't exist, we should probably try to import
+            return None
+
+        infos_list = await cls.compressor.uncompress_infos_blob(row[0])
+        return infos_list
+
+
+    @classmethod
     async def get_filename_fileformat_names_infos(cls, dataset, run, lumi=0):
         # For now adding a LIMIT 1 because there might be multiple version of the same file.
         sql = '''

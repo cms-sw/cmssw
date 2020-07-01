@@ -10,7 +10,7 @@ from collections import defaultdict
 from async_lru import alru_cache
 
 from .storage import GUIDataStore
-from .helpers import get_api_error, binary_search, logged
+from .helpers import get_api_error, binary_search, binary_search_qtests, logged
 from .rendering import GUIRenderer
 from .importing.importing import GUIImportManager
 from .data_types import Sample, RootDir, RootObj, RootDirContent, RenderingInfo
@@ -55,12 +55,13 @@ class GUIService:
         if path and not path.endswith('/'):
             path = path + '/'
         
-        # Get a list of all MEs
+        # Get a list of all MEs and their infos
         me_names = await cls.__get_me_names_list(dataset, run, lumi)
-        if not me_names:
+        me_infos = await cls.__get_me_infos_list(dataset, run, lumi)
+        if not me_names or not me_infos:
             return None
 
-        # dir is a dict where key is subdir name and value is a count of 
+        # dirs is a dict where key is subdir name and value is a count of
         # how many MEs are inside that subdir (in all deeper levels)
         dirs = defaultdict(int)
         objs = set()
@@ -86,7 +87,8 @@ class GUIService:
                 segment = segment.decode('utf-8')
 
                 if is_file:
-                    objs.add(RootObj(name=segment, path=path + segment, layout=None))
+                    qteststatuses = tuple(me_infos[x].qteststatus for x in binary_search_qtests(me_names, me_name))
+                    objs.add(RootObj(name=segment, path=path + segment, layout=None, qteststatuses=qteststatuses))
                 else:
                     dirs[segment] += 1
 
@@ -105,7 +107,8 @@ class GUIService:
                     continue # Regex is provided and ME name doesn't match it
 
                 if is_file:
-                    objs.add(RootObj(name=segment, path=layout.source, layout=layout.name))
+                    qteststatuses = tuple(me_infos[x].qteststatus for x in binary_search_qtests(me_names, bytes(layout.source, 'utf-8')))
+                    objs.add(RootObj(name=segment, path=layout.source, layout=layout.name, qteststatuses=qteststatuses))
                 else:
                     dirs[segment] += 1
 
@@ -205,6 +208,22 @@ class GUIService:
                 lines = await cls.store.get_me_names_list(dataset, run, lumi)
 
         return lines
+
+
+    @classmethod
+    @alru_cache(maxsize=10, cache_exceptions=False)
+    @logged
+    async def __get_me_infos_list(cls, dataset, run, lumi=0):
+        infos = await cls.store.get_me_infos_list(dataset, run, lumi)
+
+        if infos == None:
+            # Import and retry
+            success = await cls.import_manager.import_blobs(dataset, run, lumi)
+            if success:
+                # Retry
+                infos = await cls.store.get_me_infos_list(dataset, run, lumi)
+
+        return infos
 
 
     @classmethod

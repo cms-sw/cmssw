@@ -96,8 +96,8 @@ def get_absolute_path(to=''):
 def binary_search(array, target, key=None):
     """
     Binary search implementation. Returns an index of an element if found, otherwise -1.
-    if key is passed, value will be taken by that key from every item in the array.
-    if decode is True, every item in the array is utf-8 decoded.
+    If key is passed, value will be taken by that key from every item in the array.
+    If decode is True, every item in the array is utf-8 decoded.
     """
 
     first = 0
@@ -119,6 +119,53 @@ def binary_search(array, target, key=None):
             else:
                 first = mid + 1
     return -1
+
+
+def binary_search_qtests(me_names, me_path):
+    """
+    Binary search implementation. me_names array has to be an array of binary
+    strings containing ME names.
+    Returns a tuple of indices pointing to the QTest MEInfo items of a given me_path.
+    """
+
+    first = 0
+    last = len(me_names) - 1
+    index = -1
+    target = me_path + b'\0.'
+
+    while first <= last:
+        mid = (first + last)//2
+
+        if me_names[mid][:len(target)] == target:
+            index = mid
+            break
+        else:
+            if target < me_names[mid][:len(target)]:
+                last = mid - 1
+            else:
+                first = mid + 1
+
+    if index == -1:
+        return tuple()
+
+    # Found an index, now linearly search nearby items to get all values
+    result = (index,)
+
+    potential_index = 1
+    while index + potential_index < len(me_names):
+        if me_names[index + potential_index][:len(target)] == target:
+            result += (index + potential_index,)
+        else:
+            break
+
+    potential_index = 1
+    while index - potential_index >= 0:
+        if me_names[index - potential_index][:len(target)] == target:
+            result += (index - potential_index,)
+        else:
+            break
+
+    return result
 
 
 def parse_run_lumi(runlumi):
