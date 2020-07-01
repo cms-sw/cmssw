@@ -1,12 +1,16 @@
 <use   name="MagneticField/Engine"/>
 <use   name="MagneticField/Records"/>
 <use   name="CondFormats/EgammaObjects"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/EcalObjects"/>
 <use   name="DataFormats/Math"/>
 <use   name="DataFormats/TauReco"/>
 <use   name="DataFormats/VertexReco"/>
 <use   name="DataFormats/PatCandidates"/>
 <use   name="DataFormats/ParticleFlowCandidate"/>
 <use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/DetId"/>
+<use   name="DataFormats/EcalDetId"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
