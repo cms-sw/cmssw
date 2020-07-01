@@ -20,9 +20,9 @@ class TestSchemaEvolution : public CppUnit::TestFixture {
 
 public:
   TestSchemaEvolution() = default;
-  ~TestSchemaEvolution() = default;
-  void setUp() {}
-  void tearDown() {}
+  ~TestSchemaEvolution() override = default;
+  void setUp() override {}
+  void tearDown() override {}
   void checkVersions();
 
 private:
@@ -77,7 +77,7 @@ void TestSchemaEvolution::fillBaseline() {
 
 void TestSchemaEvolution::runComparison() {
   CPPUNIT_ASSERT(unique_classes_current_.size() == unique_classes_.size());
-  for (auto cl : unique_classes_) {
+  for (const auto& cl : unique_classes_) {
     std::cout << "Checking " << cl.first << " " << cl.second << std::endl;
     //std::cout << "unique_classes_current_.insert(std::make_pair(\"" << cl.first << "\", " << cl.second << "));" << std::endl;
     CPPUNIT_ASSERT(unique_classes_.find(cl.first) != unique_classes_.end());
@@ -107,7 +107,7 @@ void TestSchemaEvolution::gatherAllClasses() {
                                   "TProfile",
                                   "TProfile2D",
                                   "TF1",
-                                  0};
+                                  nullptr};
 
   int i = 0;
   while (classes[i]) {

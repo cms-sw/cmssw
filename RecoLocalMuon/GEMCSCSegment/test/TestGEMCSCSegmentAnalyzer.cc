@@ -14,14 +14,14 @@
 // Original Author:  Raffaella Radogna
 
 // system include files
-#include <memory>
+#include <cmath>
 #include <fstream>
-#include <sys/time.h>
-#include <string>
-#include <sstream>
-#include <iostream>
 #include <iomanip>
-#include <math.h>
+#include <iostream>
+#include <memory>
+#include <sstream>
+#include <string>
+#include <sys/time.h>
 
 // root include files
 #include "TFile.h"
@@ -67,14 +67,14 @@ using namespace edm;
 class TestGEMCSCSegmentAnalyzer : public edm::EDAnalyzer {
 public:
   explicit TestGEMCSCSegmentAnalyzer(const edm::ParameterSet&);
-  ~TestGEMCSCSegmentAnalyzer();
+  ~TestGEMCSCSegmentAnalyzer() override;
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void endRun(edm::Run const&, edm::EventSetup const&);
   //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
   //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
@@ -361,366 +361,366 @@ TestGEMCSCSegmentAnalyzer::TestGEMCSCSegmentAnalyzer(const edm::ParameterSet& iC
   GEMSimHit_Token = consumes<edm::PSimHitContainer>(edm::InputTag("g4SimHits", "MuonGEMHits"));
 
   SIM_etaVScharge =
-      std::unique_ptr<TH2F>(new TH2F("SimTrack_etaVScharge", "SimTrack_etaVScharge", 500, -2.5, 2.5, 6, -3, 3));
+      std::make_unique<TH2F>("SimTrack_etaVScharge", "SimTrack_etaVScharge", 500, -2.5, 2.5, 6, -3, 3);
   SIM_etaVStype =
-      std::unique_ptr<TH2F>(new TH2F("SimTrack_etaVStype", "SimTrack_etaVStype", 500, -2.5, 2.5, 30, -15, 15));
-  CSC_fitchi2 = std::unique_ptr<TH1F>(new TH1F("ReducedChi2_csc", "ReducedChi2_csc", 160, 0., 4.));
+      std::make_unique<TH2F>("SimTrack_etaVStype", "SimTrack_etaVStype", 500, -2.5, 2.5, 30, -15, 15);
+  CSC_fitchi2 = std::make_unique<TH1F>("ReducedChi2_csc", "ReducedChi2_csc", 160, 0., 4.);
 
-  GEMCSC_fitchi2 = std::unique_ptr<TH1F>(new TH1F("ReducedChi2_gemcsc", "ReducedChi2_gemcsc", 160, 0., 4.));
-  GEMCSC_fitchi2_odd = std::unique_ptr<TH1F>(new TH1F("ReducedChi2_odd_gemcsc", "ReducedChi2_odd_gemcsc", 160, 0., 4.));
+  GEMCSC_fitchi2 = std::make_unique<TH1F>("ReducedChi2_gemcsc", "ReducedChi2_gemcsc", 160, 0., 4.);
+  GEMCSC_fitchi2_odd = std::make_unique<TH1F>("ReducedChi2_odd_gemcsc", "ReducedChi2_odd_gemcsc", 160, 0., 4.);
   GEMCSC_fitchi2_even =
-      std::unique_ptr<TH1F>(new TH1F("ReducedChi2_even_gemcsc", "ReducedChi2_even_gemcsc", 160, 0., 4.));
-  GEMCSC_NumGEMRH = std::unique_ptr<TH1F>(new TH1F("NumGEMRH", "NumGEMRH", 20, 0., 20));
-  GEMCSC_NumCSCRH = std::unique_ptr<TH1F>(new TH1F("NumCSCRH", "NumCSCRH", 20, 0., 20));
-  GEMCSC_NumGEMCSCRH = std::unique_ptr<TH1F>(new TH1F("NumGEMCSCRH", "NumGEMCSCRH", 20, 0., 20));
-  GEMCSC_NumGEMCSCSeg = std::unique_ptr<TH1F>(new TH1F("NumGMCSCSeg", "NumGEMCSCSeg", 20, 0., 20));
-  GEMCSC_SSegm_LPx = std::unique_ptr<TH1F>(new TH1F("SuperS_LPx", "SuperS_LPx", 1200, -60., 60));
-  GEMCSC_SSegm_LPy = std::unique_ptr<TH1F>(new TH1F("SuperS_LPy", "SuperS_LPy", 4000, -200., 200));
-  GEMCSC_SSegm_LPEx = std::unique_ptr<TH1F>(new TH1F("SuperS_LPEx", "SuperS_LPEx", 10000, 0., 0.5));
-  GEMCSC_SSegm_LPEy = std::unique_ptr<TH1F>(new TH1F("SuperS_LPEy", "SuperS_LPEy", 10000, 0., 5));
+      std::make_unique<TH1F>("ReducedChi2_even_gemcsc", "ReducedChi2_even_gemcsc", 160, 0., 4.);
+  GEMCSC_NumGEMRH = std::make_unique<TH1F>("NumGEMRH", "NumGEMRH", 20, 0., 20);
+  GEMCSC_NumCSCRH = std::make_unique<TH1F>("NumCSCRH", "NumCSCRH", 20, 0., 20);
+  GEMCSC_NumGEMCSCRH = std::make_unique<TH1F>("NumGEMCSCRH", "NumGEMCSCRH", 20, 0., 20);
+  GEMCSC_NumGEMCSCSeg = std::make_unique<TH1F>("NumGMCSCSeg", "NumGEMCSCSeg", 20, 0., 20);
+  GEMCSC_SSegm_LPx = std::make_unique<TH1F>("SuperS_LPx", "SuperS_LPx", 1200, -60., 60);
+  GEMCSC_SSegm_LPy = std::make_unique<TH1F>("SuperS_LPy", "SuperS_LPy", 4000, -200., 200);
+  GEMCSC_SSegm_LPEx = std::make_unique<TH1F>("SuperS_LPEx", "SuperS_LPEx", 10000, 0., 0.5);
+  GEMCSC_SSegm_LPEy = std::make_unique<TH1F>("SuperS_LPEy", "SuperS_LPEy", 10000, 0., 5);
   //GEMCSC_SSegm_LPEz = std::unique_ptr<TH1F>(new TH1F("SuperS_LPEz","SuperS_LPEz",1000,0.,0.5));
-  GEMCSC_SSegm_LDx = std::unique_ptr<TH1F>(new TH1F("SuperS_LDx", "SuperS_LDx", 1000, -2., 2));
-  GEMCSC_SSegm_LDy = std::unique_ptr<TH1F>(new TH1F("SuperS_LDy", "SuperS_LDy", 1000, -2., 2));
-  GEMCSC_SSegm_LDEx = std::unique_ptr<TH1F>(new TH1F("SuperS_LDEx", "SuperS_LDEx", 10000, 0., 0.05));
-  GEMCSC_SSegm_LDEy = std::unique_ptr<TH1F>(new TH1F("SuperS_LDEy", "SuperS_LDEy", 10000, 0., 0.5));
+  GEMCSC_SSegm_LDx = std::make_unique<TH1F>("SuperS_LDx", "SuperS_LDx", 1000, -2., 2);
+  GEMCSC_SSegm_LDy = std::make_unique<TH1F>("SuperS_LDy", "SuperS_LDy", 1000, -2., 2);
+  GEMCSC_SSegm_LDEx = std::make_unique<TH1F>("SuperS_LDEx", "SuperS_LDEx", 10000, 0., 0.05);
+  GEMCSC_SSegm_LDEy = std::make_unique<TH1F>("SuperS_LDEy", "SuperS_LDEy", 10000, 0., 0.5);
   GEMCSC_SSegm_LDEy_vs_ndof =
-      std::unique_ptr<TH2F>(new TH2F("SSegm_LDEy_vs_ndof", "SSegm_LDEy vs ndof", 1000, 0., 0.05, 15, -0.5, 14.5));
+      std::make_unique<TH2F>("SSegm_LDEy_vs_ndof", "SSegm_LDEy vs ndof", 1000, 0., 0.05, 15, -0.5, 14.5);
   GEMCSC_SSegm_LPEy_vs_ndof =
-      std::unique_ptr<TH2F>(new TH2F("SSegm_LPEy_vs_ndof", "SSegm_LPEy vs ndof", 1000, 0., 0.5, 15, -0.5, 14.5));
+      std::make_unique<TH2F>("SSegm_LPEy_vs_ndof", "SSegm_LPEy vs ndof", 1000, 0., 0.5, 15, -0.5, 14.5);
   //GEMCSC_SSegm_LDEz = std::unique_ptr<TH1F>(new TH1F("SuperS_LDEz","SuperS_LDEz",1000,0.,0.05));
-  GEMCSC_CSCSegm_LPx = std::unique_ptr<TH1F>(new TH1F("CSCSegm_LPx", "CSCSegm_LPx", 1200, -60., 60));
-  GEMCSC_CSCSegm_LPy = std::unique_ptr<TH1F>(new TH1F("CSCSegm_LPy", "CSCSegm_LPy", 4000, -200., 200));
-  GEMCSC_CSCSegm_LPEx = std::unique_ptr<TH1F>(new TH1F("CSCSegm_LPEx", "CSCSegm_LPEx", 10000, 0., 0.5));
-  GEMCSC_CSCSegm_LPEy = std::unique_ptr<TH1F>(new TH1F("CSCSegm_LPEy", "CSCSegm_LPEy", 10000, 0., 5));
+  GEMCSC_CSCSegm_LPx = std::make_unique<TH1F>("CSCSegm_LPx", "CSCSegm_LPx", 1200, -60., 60);
+  GEMCSC_CSCSegm_LPy = std::make_unique<TH1F>("CSCSegm_LPy", "CSCSegm_LPy", 4000, -200., 200);
+  GEMCSC_CSCSegm_LPEx = std::make_unique<TH1F>("CSCSegm_LPEx", "CSCSegm_LPEx", 10000, 0., 0.5);
+  GEMCSC_CSCSegm_LPEy = std::make_unique<TH1F>("CSCSegm_LPEy", "CSCSegm_LPEy", 10000, 0., 5);
   //GEMCSC_CSCSegm_LPEz = std::unique_ptr<TH1F>(new TH1F("CSCSegm_LPEz","CSCSegm_LPEz",1000,0.,0.5));
-  GEMCSC_CSCSegm_LDx = std::unique_ptr<TH1F>(new TH1F("CSCSegm_LDx", "CSCSegm_LDx", 1000, -2., 2));
-  GEMCSC_CSCSegm_LDy = std::unique_ptr<TH1F>(new TH1F("CSCSegm_LDy", "CSCSegm_LDy", 1000, -2., 2));
-  GEMCSC_CSCSegm_LDEx = std::unique_ptr<TH1F>(new TH1F("CSCSegm_LDEx", "CSCSegm_LDEx", 10000, 0., 0.05));
-  GEMCSC_CSCSegm_LDEy = std::unique_ptr<TH1F>(new TH1F("CSCSegm_LDEy", "CSCSegm_LDEy", 10000, 0., 0.5));
+  GEMCSC_CSCSegm_LDx = std::make_unique<TH1F>("CSCSegm_LDx", "CSCSegm_LDx", 1000, -2., 2);
+  GEMCSC_CSCSegm_LDy = std::make_unique<TH1F>("CSCSegm_LDy", "CSCSegm_LDy", 1000, -2., 2);
+  GEMCSC_CSCSegm_LDEx = std::make_unique<TH1F>("CSCSegm_LDEx", "CSCSegm_LDEx", 10000, 0., 0.05);
+  GEMCSC_CSCSegm_LDEy = std::make_unique<TH1F>("CSCSegm_LDEy", "CSCSegm_LDEy", 10000, 0., 0.5);
   //GEMCSC_CSCSegm_LDEz = std::unique_ptr<TH1F>(new TH1F("CSCSegm_LDEz","CSCSegm_LDEz",1000,0.,0.05));
   GEMCSC_CSCSegm_LDEy_vs_ndof =
-      std::unique_ptr<TH2F>(new TH2F("CSCSegm_LDEy_vs_ndof", "CSCSegm_LDEy vs ndof", 1000, 0., 0.05, 15, -0.5, 14.5));
+      std::make_unique<TH2F>("CSCSegm_LDEy_vs_ndof", "CSCSegm_LDEy vs ndof", 1000, 0., 0.05, 15, -0.5, 14.5);
   GEMCSC_CSCSegm_LPEy_vs_ndof =
-      std::unique_ptr<TH2F>(new TH2F("CSCSegm_LPEy_vs_ndof", "CSCSegm_LPEy vs ndof", 1000, 0., 0.5, 15, -0.5, 14.5));
-  SIMGEMCSC_SSegm_LDx = std::unique_ptr<TH1F>(new TH1F("SSegm_LDx_expected", "SSegm_LDx", 1000, -2., 2));
-  SIMGEMCSC_SSegm_LDy = std::unique_ptr<TH1F>(new TH1F("SSegm_LDy_expected", "SSegm_LDy", 1000, -2., 2));
-  SIMGEMCSC_SSegm_LDEx = std::unique_ptr<TH1F>(new TH1F("SuperS_LDEx_expected", "SuperS_LDEx", 10000, 0., 0.005));
-  SIMGEMCSC_SSegm_LDEy = std::unique_ptr<TH1F>(new TH1F("SuperS_LDEy_expected", "SuperS_LDEy", 1000, 0., 0.05));
+      std::make_unique<TH2F>("CSCSegm_LPEy_vs_ndof", "CSCSegm_LPEy vs ndof", 1000, 0., 0.5, 15, -0.5, 14.5);
+  SIMGEMCSC_SSegm_LDx = std::make_unique<TH1F>("SSegm_LDx_expected", "SSegm_LDx", 1000, -2., 2);
+  SIMGEMCSC_SSegm_LDy = std::make_unique<TH1F>("SSegm_LDy_expected", "SSegm_LDy", 1000, -2., 2);
+  SIMGEMCSC_SSegm_LDEx = std::make_unique<TH1F>("SuperS_LDEx_expected", "SuperS_LDEx", 10000, 0., 0.005);
+  SIMGEMCSC_SSegm_LDEy = std::make_unique<TH1F>("SuperS_LDEy_expected", "SuperS_LDEy", 1000, 0., 0.05);
 
-  GEMCSC_SSegm_xe_l1 = std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_xe_l1", "GEMCSC_SSegm_xe_l1", 1200, -60., 60));
-  GEMCSC_SSegm_ye_l1 = std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_ye_l1", "GEMCSC_SSegm_ye_l1", 4000, -200., 200));
-  GEMCSC_SSegm_ze_l1 = std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_ze_l1", "GEMCSC_SSegm_ze_l1", 12000, -600., 600));
+  GEMCSC_SSegm_xe_l1 = std::make_unique<TH1F>("GEMCSC_SSegm_xe_l1", "GEMCSC_SSegm_xe_l1", 1200, -60., 60);
+  GEMCSC_SSegm_ye_l1 = std::make_unique<TH1F>("GEMCSC_SSegm_ye_l1", "GEMCSC_SSegm_ye_l1", 4000, -200., 200);
+  GEMCSC_SSegm_ze_l1 = std::make_unique<TH1F>("GEMCSC_SSegm_ze_l1", "GEMCSC_SSegm_ze_l1", 12000, -600., 600);
   GEMCSC_SSegm_xe_l1_odd =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_xe_l1_odd", "GEMCSC_SSegm_xe_l1_odd", 1200, -60., 60));
+      std::make_unique<TH1F>("GEMCSC_SSegm_xe_l1_odd", "GEMCSC_SSegm_xe_l1_odd", 1200, -60., 60);
   GEMCSC_SSegm_ye_l1_odd =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_ye_l1_odd", "GEMCSC_SSegm_ye_l1_odd", 4000, -200., 200));
+      std::make_unique<TH1F>("GEMCSC_SSegm_ye_l1_odd", "GEMCSC_SSegm_ye_l1_odd", 4000, -200., 200);
   GEMCSC_SSegm_ze_l1_odd =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_ze_l1_odd", "GEMCSC_SSegm_ze_l1_odd", 12000, -600., 600));
+      std::make_unique<TH1F>("GEMCSC_SSegm_ze_l1_odd", "GEMCSC_SSegm_ze_l1_odd", 12000, -600., 600);
   GEMCSC_SSegm_xe_l1_even =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_xe_l1_even", "GEMCSC_SSegm_xe_l1_even", 1200, -60., 60));
+      std::make_unique<TH1F>("GEMCSC_SSegm_xe_l1_even", "GEMCSC_SSegm_xe_l1_even", 1200, -60., 60);
   GEMCSC_SSegm_ye_l1_even =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_ye_l1_even", "GEMCSC_SSegm_ye_l1_even", 4000, -200., 200));
+      std::make_unique<TH1F>("GEMCSC_SSegm_ye_l1_even", "GEMCSC_SSegm_ye_l1_even", 4000, -200., 200);
   GEMCSC_SSegm_ze_l1_even =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_ze_l1_even", "GEMCSC_SSegm_ze_l1_even", 12000, -600., 600));
-  GEMCSC_SSegm_xe_l2 = std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_xe_l2", "GEMCSC_SSegm_xe_l2", 1200, -60., 60));
-  GEMCSC_SSegm_ye_l2 = std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_ye_l2", "GEMCSC_SSegm_ye_l2", 4000, -200., 200));
-  GEMCSC_SSegm_ze_l2 = std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_ze_l2", "GEMCSC_SSegm_ze_l2", 12000, -600., 600));
+      std::make_unique<TH1F>("GEMCSC_SSegm_ze_l1_even", "GEMCSC_SSegm_ze_l1_even", 12000, -600., 600);
+  GEMCSC_SSegm_xe_l2 = std::make_unique<TH1F>("GEMCSC_SSegm_xe_l2", "GEMCSC_SSegm_xe_l2", 1200, -60., 60);
+  GEMCSC_SSegm_ye_l2 = std::make_unique<TH1F>("GEMCSC_SSegm_ye_l2", "GEMCSC_SSegm_ye_l2", 4000, -200., 200);
+  GEMCSC_SSegm_ze_l2 = std::make_unique<TH1F>("GEMCSC_SSegm_ze_l2", "GEMCSC_SSegm_ze_l2", 12000, -600., 600);
   GEMCSC_SSegm_xe_l2_odd =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_xe_l2_odd", "GEMCSC_SSegm_xe_l2_odd", 1200, -60., 60));
+      std::make_unique<TH1F>("GEMCSC_SSegm_xe_l2_odd", "GEMCSC_SSegm_xe_l2_odd", 1200, -60., 60);
   GEMCSC_SSegm_ye_l2_odd =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_ye_l2_odd", "GEMCSC_SSegm_ye_l2_odd", 4000, -200., 200));
+      std::make_unique<TH1F>("GEMCSC_SSegm_ye_l2_odd", "GEMCSC_SSegm_ye_l2_odd", 4000, -200., 200);
   GEMCSC_SSegm_ze_l2_odd =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_ze_l2_odd", "GEMCSC_SSegm_ze_l2_odd", 12000, -600., 600));
+      std::make_unique<TH1F>("GEMCSC_SSegm_ze_l2_odd", "GEMCSC_SSegm_ze_l2_odd", 12000, -600., 600);
   GEMCSC_SSegm_xe_l2_even =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_xe_l2_even", "GEMCSC_SSegm_xe_l2_even", 1200, -60., 60));
+      std::make_unique<TH1F>("GEMCSC_SSegm_xe_l2_even", "GEMCSC_SSegm_xe_l2_even", 1200, -60., 60);
   GEMCSC_SSegm_ye_l2_even =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_ye_l2_even", "GEMCSC_SSegm_ye_l2_even", 4000, -200., 200));
+      std::make_unique<TH1F>("GEMCSC_SSegm_ye_l2_even", "GEMCSC_SSegm_ye_l2_even", 4000, -200., 200);
   GEMCSC_SSegm_ze_l2_even =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_ze_l2_even", "GEMCSC_SSegm_ze_l2_even", 12000, -600., 600));
+      std::make_unique<TH1F>("GEMCSC_SSegm_ze_l2_even", "GEMCSC_SSegm_ze_l2_even", 12000, -600., 600);
 
   GEMCSC_CSCSegm_xe_l1 =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_CSCSegm_xe_l1", "GEMCSC_CSCSegm_xe_l1", 1200, -60., 60));
+      std::make_unique<TH1F>("GEMCSC_CSCSegm_xe_l1", "GEMCSC_CSCSegm_xe_l1", 1200, -60., 60);
   GEMCSC_CSCSegm_ye_l1 =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_CSCSegm_ye_l1", "GEMCSC_CSCSegm_ye_l1", 4000, -200., 200));
+      std::make_unique<TH1F>("GEMCSC_CSCSegm_ye_l1", "GEMCSC_CSCSegm_ye_l1", 4000, -200., 200);
   GEMCSC_CSCSegm_ze_l1 =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_CSCSegm_ze_l1", "GEMCSC_CSCSegm_ze_l1", 12000, -600., 600));
+      std::make_unique<TH1F>("GEMCSC_CSCSegm_ze_l1", "GEMCSC_CSCSegm_ze_l1", 12000, -600., 600);
   GEMCSC_CSCSegm_xe_l1_odd =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_CSCSegm_xe_l1_odd", "GEMCSC_CSCSegm_xe_l1_odd", 1200, -60., 60));
+      std::make_unique<TH1F>("GEMCSC_CSCSegm_xe_l1_odd", "GEMCSC_CSCSegm_xe_l1_odd", 1200, -60., 60);
   GEMCSC_CSCSegm_ye_l1_odd =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_CSCSegm_ye_l1_odd", "GEMCSC_CSCSegm_ye_l1_odd", 4000, -200., 200));
+      std::make_unique<TH1F>("GEMCSC_CSCSegm_ye_l1_odd", "GEMCSC_CSCSegm_ye_l1_odd", 4000, -200., 200);
   GEMCSC_CSCSegm_ze_l1_odd =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_CSCSegm_ze_l1_odd", "GEMCSC_CSCSegm_ze_l1_odd", 12000, -600., 600));
+      std::make_unique<TH1F>("GEMCSC_CSCSegm_ze_l1_odd", "GEMCSC_CSCSegm_ze_l1_odd", 12000, -600., 600);
   GEMCSC_CSCSegm_xe_l1_even =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_CSCSegm_xe_l1_even", "GEMCSC_CSCSegm_xe_l1_even", 1200, -60., 60));
+      std::make_unique<TH1F>("GEMCSC_CSCSegm_xe_l1_even", "GEMCSC_CSCSegm_xe_l1_even", 1200, -60., 60);
   GEMCSC_CSCSegm_ye_l1_even =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_CSCSegm_ye_l1_even", "GEMCSC_CSCSegm_ye_l1_even", 4000, -200., 200));
+      std::make_unique<TH1F>("GEMCSC_CSCSegm_ye_l1_even", "GEMCSC_CSCSegm_ye_l1_even", 4000, -200., 200);
   GEMCSC_CSCSegm_ze_l1_even =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_CSCSegm_ze_l1_even", "GEMCSC_CSCSegm_ze_l1_even", 12000, -600., 600));
+      std::make_unique<TH1F>("GEMCSC_CSCSegm_ze_l1_even", "GEMCSC_CSCSegm_ze_l1_even", 12000, -600., 600);
   GEMCSC_CSCSegm_xe_l2 =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_CSCSegm_xe_l2", "GEMCSC_CSCSegm_xe_l2", 1200, -60., 60));
+      std::make_unique<TH1F>("GEMCSC_CSCSegm_xe_l2", "GEMCSC_CSCSegm_xe_l2", 1200, -60., 60);
   GEMCSC_CSCSegm_ye_l2 =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_CSCSegm_ye_l2", "GEMCSC_CSCSegm_ye_l2", 4000, -200., 200));
+      std::make_unique<TH1F>("GEMCSC_CSCSegm_ye_l2", "GEMCSC_CSCSegm_ye_l2", 4000, -200., 200);
   GEMCSC_CSCSegm_ze_l2 =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_CSCSegm_ze_l2", "GEMCSC_CSCSegm_ze_l2", 12000, -600., 600));
+      std::make_unique<TH1F>("GEMCSC_CSCSegm_ze_l2", "GEMCSC_CSCSegm_ze_l2", 12000, -600., 600);
   GEMCSC_CSCSegm_xe_l2_odd =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_CSCSegm_xe_l2_odd", "GEMCSC_CSCSegm_xe_l2_odd", 1200, -60., 60));
+      std::make_unique<TH1F>("GEMCSC_CSCSegm_xe_l2_odd", "GEMCSC_CSCSegm_xe_l2_odd", 1200, -60., 60);
   GEMCSC_CSCSegm_ye_l2_odd =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_CSCSegm_ye_l2_odd", "GEMCSC_CSCSegm_ye_l2_odd", 4000, -200., 200));
+      std::make_unique<TH1F>("GEMCSC_CSCSegm_ye_l2_odd", "GEMCSC_CSCSegm_ye_l2_odd", 4000, -200., 200);
   GEMCSC_CSCSegm_ze_l2_odd =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_CSCSegm_ze_l2_odd", "GEMCSC_CSCSegm_ze_l2_odd", 12000, -600., 600));
+      std::make_unique<TH1F>("GEMCSC_CSCSegm_ze_l2_odd", "GEMCSC_CSCSegm_ze_l2_odd", 12000, -600., 600);
   GEMCSC_CSCSegm_xe_l2_even =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_CSCSegm_xe_l2_even", "GEMCSC_CSCSegm_xe_l2_even", 1200, -60., 60));
+      std::make_unique<TH1F>("GEMCSC_CSCSegm_xe_l2_even", "GEMCSC_CSCSegm_xe_l2_even", 1200, -60., 60);
   GEMCSC_CSCSegm_ye_l2_even =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_CSCSegm_ye_l2_even", "GEMCSC_CSCSegm_ye_l2_even", 4000, -200., 200));
+      std::make_unique<TH1F>("GEMCSC_CSCSegm_ye_l2_even", "GEMCSC_CSCSegm_ye_l2_even", 4000, -200., 200);
   GEMCSC_CSCSegm_ze_l2_even =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_CSCSegm_ze_l2_even", "GEMCSC_CSCSegm_ze_l2_even", 12000, -600., 600));
+      std::make_unique<TH1F>("GEMCSC_CSCSegm_ze_l2_even", "GEMCSC_CSCSegm_ze_l2_even", 12000, -600., 600);
 
   GEMCSC_SSegm_sigmaxe_l1 =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_sigmaxe_l1", "GEMCSC_SSegm_sigmaxe_l1", 1000, 0., 0.5));
+      std::make_unique<TH1F>("GEMCSC_SSegm_sigmaxe_l1", "GEMCSC_SSegm_sigmaxe_l1", 1000, 0., 0.5);
   GEMCSC_SSegm_sigmaye_l1 =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_sigmaye_l1", "GEMCSC_SSegm_sigmaye_l1", 1000, 0., 10));
+      std::make_unique<TH1F>("GEMCSC_SSegm_sigmaye_l1", "GEMCSC_SSegm_sigmaye_l1", 1000, 0., 10);
   GEMCSC_SSegm_sigmaxe_l1_odd =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_sigmaxe_l1_odd", "GEMCSC_SSegm_sigmaxe_l1_odd", 1000, 0., 0.5));
+      std::make_unique<TH1F>("GEMCSC_SSegm_sigmaxe_l1_odd", "GEMCSC_SSegm_sigmaxe_l1_odd", 1000, 0., 0.5);
   GEMCSC_SSegm_sigmaye_l1_odd =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_sigmaye_l1_odd", "GEMCSC_SSegm_sigmaye_l1_odd", 1000, 0., 10));
+      std::make_unique<TH1F>("GEMCSC_SSegm_sigmaye_l1_odd", "GEMCSC_SSegm_sigmaye_l1_odd", 1000, 0., 10);
   GEMCSC_SSegm_sigmaxe_l1_even =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_sigmaxe_l1_even", "GEMCSC_SSegm_sigmaxe_l1_even", 1000, 0., 0.5));
+      std::make_unique<TH1F>("GEMCSC_SSegm_sigmaxe_l1_even", "GEMCSC_SSegm_sigmaxe_l1_even", 1000, 0., 0.5);
   GEMCSC_SSegm_sigmaye_l1_even =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_sigmaye_l1_even", "GEMCSC_SSegm_sigmaye_l1_even", 1000, 0., 10));
+      std::make_unique<TH1F>("GEMCSC_SSegm_sigmaye_l1_even", "GEMCSC_SSegm_sigmaye_l1_even", 1000, 0., 10);
   GEMCSC_SSegm_sigmaxe_l2 =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_sigmaxe_l2", "GEMCSC_SSegm_sigmaxe_l2", 1000, 0., 0.5));
+      std::make_unique<TH1F>("GEMCSC_SSegm_sigmaxe_l2", "GEMCSC_SSegm_sigmaxe_l2", 1000, 0., 0.5);
   GEMCSC_SSegm_sigmaye_l2 =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_sigmaye_l2", "GEMCSC_SSegm_sigmaye_l2", 1000, 0., 10));
+      std::make_unique<TH1F>("GEMCSC_SSegm_sigmaye_l2", "GEMCSC_SSegm_sigmaye_l2", 1000, 0., 10);
   GEMCSC_SSegm_sigmaxe_l2_odd =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_sigmaxe_l2_odd", "GEMCSC_SSegm_sigmaxe_l2_odd", 1000, 0., 0.5));
+      std::make_unique<TH1F>("GEMCSC_SSegm_sigmaxe_l2_odd", "GEMCSC_SSegm_sigmaxe_l2_odd", 1000, 0., 0.5);
   GEMCSC_SSegm_sigmaye_l2_odd =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_sigmaye_l2_odd", "GEMCSC_SSegm_sigmaye_l2_odd", 1000, 0., 10));
+      std::make_unique<TH1F>("GEMCSC_SSegm_sigmaye_l2_odd", "GEMCSC_SSegm_sigmaye_l2_odd", 1000, 0., 10);
   GEMCSC_SSegm_sigmaxe_l2_even =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_sigmaxe_l2_even", "GEMCSC_SSegm_sigmaxe_l2_even", 1000, 0., 0.5));
+      std::make_unique<TH1F>("GEMCSC_SSegm_sigmaxe_l2_even", "GEMCSC_SSegm_sigmaxe_l2_even", 1000, 0., 0.5);
   GEMCSC_SSegm_sigmaye_l2_even =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_SSegm_sigmaye_l2_even", "GEMCSC_SSegm_sigmaye_l2_even", 1000, 0., 10));
+      std::make_unique<TH1F>("GEMCSC_SSegm_sigmaye_l2_even", "GEMCSC_SSegm_sigmaye_l2_even", 1000, 0., 10);
   GEMCSC_CSCSegm_sigmaxe_l1 =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_CSCSegm_sigmaxe_l1", "GEMCSC_CSCSegm_sigmaxe_l1", 1000, 0., 0.5));
+      std::make_unique<TH1F>("GEMCSC_CSCSegm_sigmaxe_l1", "GEMCSC_CSCSegm_sigmaxe_l1", 1000, 0., 0.5);
   GEMCSC_CSCSegm_sigmaye_l1 =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_CSCSegm_sigmaye_l1", "GEMCSC_CSCSegm_sigmaye_l1", 1000, 0., 10));
+      std::make_unique<TH1F>("GEMCSC_CSCSegm_sigmaye_l1", "GEMCSC_CSCSegm_sigmaye_l1", 1000, 0., 10);
   GEMCSC_CSCSegm_sigmaxe_l1_odd =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_CSCSegm_sigmaxe_l1_odd", "GEMCSC_CSCSegm_sigmaxe_l1_odd", 1000, 0., 0.5));
+      std::make_unique<TH1F>("GEMCSC_CSCSegm_sigmaxe_l1_odd", "GEMCSC_CSCSegm_sigmaxe_l1_odd", 1000, 0., 0.5);
   GEMCSC_CSCSegm_sigmaye_l1_odd =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_CSCSegm_sigmaye_l1_odd", "GEMCSC_CSCSegm_sigmaye_l1_odd", 1000, 0., 10));
-  GEMCSC_CSCSegm_sigmaxe_l1_even = std::unique_ptr<TH1F>(
-      new TH1F("GEMCSC_CSCSegm_sigmaxe_l1_even", "GEMCSC_CSCSegm_sigmaxe_l1_even", 1000, 0., 0.5));
+      std::make_unique<TH1F>("GEMCSC_CSCSegm_sigmaye_l1_odd", "GEMCSC_CSCSegm_sigmaye_l1_odd", 1000, 0., 10);
+  GEMCSC_CSCSegm_sigmaxe_l1_even = std::make_unique<TH1F>(
+      "GEMCSC_CSCSegm_sigmaxe_l1_even", "GEMCSC_CSCSegm_sigmaxe_l1_even", 1000, 0., 0.5);
   GEMCSC_CSCSegm_sigmaye_l1_even =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_CSCSegm_sigmaye_l1_even", "GEMCSC_CSCSegm_sigmaye_l1_even", 1000, 0., 10));
+      std::make_unique<TH1F>("GEMCSC_CSCSegm_sigmaye_l1_even", "GEMCSC_CSCSegm_sigmaye_l1_even", 1000, 0., 10);
   GEMCSC_CSCSegm_sigmaxe_l2 =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_CSCSegm_sigmaxe_l2", "GEMCSC_CSCSegm_sigmaxe_l2", 1000, 0., 0.5));
+      std::make_unique<TH1F>("GEMCSC_CSCSegm_sigmaxe_l2", "GEMCSC_CSCSegm_sigmaxe_l2", 1000, 0., 0.5);
   GEMCSC_CSCSegm_sigmaye_l2 =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_CSCSegm_sigmaye_l2", "GEMCSC_CSCSegm_sigmaye_l2", 1000, 0., 10));
+      std::make_unique<TH1F>("GEMCSC_CSCSegm_sigmaye_l2", "GEMCSC_CSCSegm_sigmaye_l2", 1000, 0., 10);
   GEMCSC_CSCSegm_sigmaxe_l2_odd =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_CSCSegm_sigmaxe_l2_odd", "GEMCSC_CSCSegm_sigmaxe_l2_odd", 1000, 0., 0.5));
+      std::make_unique<TH1F>("GEMCSC_CSCSegm_sigmaxe_l2_odd", "GEMCSC_CSCSegm_sigmaxe_l2_odd", 1000, 0., 0.5);
   GEMCSC_CSCSegm_sigmaye_l2_odd =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_CSCSegm_sigmaye_l2_odd", "GEMCSC_CSCSegm_sigmaye_l2_odd", 1000, 0., 10));
-  GEMCSC_CSCSegm_sigmaxe_l2_even = std::unique_ptr<TH1F>(
-      new TH1F("GEMCSC_CSCSegm_sigmaxe_l2_even", "GEMCSC_CSCSegm_sigmaxe_l2_even", 1000, 0., 0.5));
+      std::make_unique<TH1F>("GEMCSC_CSCSegm_sigmaye_l2_odd", "GEMCSC_CSCSegm_sigmaye_l2_odd", 1000, 0., 10);
+  GEMCSC_CSCSegm_sigmaxe_l2_even = std::make_unique<TH1F>(
+      "GEMCSC_CSCSegm_sigmaxe_l2_even", "GEMCSC_CSCSegm_sigmaxe_l2_even", 1000, 0., 0.5);
   GEMCSC_CSCSegm_sigmaye_l2_even =
-      std::unique_ptr<TH1F>(new TH1F("GEMCSC_CSCSegm_sigmaye_l2_even", "GEMCSC_CSCSegm_sigmaye_l2_even", 1000, 0., 10));
+      std::make_unique<TH1F>("GEMCSC_CSCSegm_sigmaye_l2_even", "GEMCSC_CSCSegm_sigmaye_l2_even", 1000, 0., 10);
 
-  GEMCSC_Residuals_x = std::unique_ptr<TH1F>(new TH1F("xGEMCSCRes", "xGEMCSCRes", 100, -0.5, 0.5));
-  GEMCSC_Residuals_gem_x = std::unique_ptr<TH1F>(new TH1F("xGEMRes", "xGEMRes", 100, -0.5, 0.5));
-  GEMCSC_Residuals_csc_x = std::unique_ptr<TH1F>(new TH1F("xCSCRes", "xCSCRes", 100, -0.5, 0.5));
-  GEMCSC_Residuals_gem_even_x = std::unique_ptr<TH1F>(new TH1F("xGEMRes_even", "xGEMRes even", 100, -0.5, 0.5));
-  GEMCSC_Residuals_csc_even_x = std::unique_ptr<TH1F>(new TH1F("xCSCRes_even", "xCSCRes even", 100, -0.5, 0.5));
-  GEMCSC_Residuals_gem_odd_x = std::unique_ptr<TH1F>(new TH1F("xGEMRes_odd", "xGEMRes odd", 100, -0.5, 0.5));
-  GEMCSC_Residuals_csc_odd_x = std::unique_ptr<TH1F>(new TH1F("xCSCRes_odd", "xCSCRes odd", 100, -0.5, 0.5));
-  GEMCSC_Residuals_cscl1_x = std::unique_ptr<TH1F>(new TH1F("xGEMCSCRes_cscl1", "xGEMCSCRes_cscl1", 100, -0.5, 0.5));
-  GEMCSC_Residuals_cscl2_x = std::unique_ptr<TH1F>(new TH1F("xGEMCSCRes_cscl2", "xGEMCSCRes_cscl2", 100, -0.5, 0.5));
-  GEMCSC_Residuals_cscl3_x = std::unique_ptr<TH1F>(new TH1F("xGEMCSCRes_cscl3", "xGEMCSCRes_cscl3", 100, -0.5, 0.5));
-  GEMCSC_Residuals_cscl4_x = std::unique_ptr<TH1F>(new TH1F("xGEMCSCRes_cscl4", "xGEMCSCRes_cscl4", 100, -0.5, 0.5));
-  GEMCSC_Residuals_cscl5_x = std::unique_ptr<TH1F>(new TH1F("xGEMCSCRes_cscl5", "xGEMCSCRes_cscl5", 100, -0.5, 0.5));
-  GEMCSC_Residuals_cscl6_x = std::unique_ptr<TH1F>(new TH1F("xGEMCSCRes_cscl6", "xGEMCSCRes_cscl6", 100, -0.5, 0.5));
-  GEMCSC_Residuals_geml1_x = std::unique_ptr<TH1F>(new TH1F("xGEMCSCRes_geml1", "xGEMCSCRes_geml1", 100, -0.5, 0.5));
-  GEMCSC_Residuals_geml2_x = std::unique_ptr<TH1F>(new TH1F("xGEMCSCRes_geml2", "xGEMCSCRes_geml2", 100, -0.5, 0.5));
-  GEMCSC_Pool_x = std::unique_ptr<TH1F>(new TH1F("xGEMCSCPool", "xGEMCSCPool", 100, -5., 5.));
-  GEMCSC_Pool_gem_x = std::unique_ptr<TH1F>(new TH1F("xGEMPool", "xGEMPool", 100, -5., 5.));
-  GEMCSC_Pool_csc_x = std::unique_ptr<TH1F>(new TH1F("xCSCPool", "xCSCPool", 100, -5., 5.));
-  GEMCSC_Pool_gem_even_x = std::unique_ptr<TH1F>(new TH1F("xGEMPool_even", "xGEMPool even", 100, -5., 5.));
-  GEMCSC_Pool_csc_even_x = std::unique_ptr<TH1F>(new TH1F("xCSCPool_even", "xCSCPool even", 100, -5., 5.));
-  GEMCSC_Pool_gem_odd_x = std::unique_ptr<TH1F>(new TH1F("xGEMPool_odd", "xGEMPool odd", 100, -5., 5.));
-  GEMCSC_Pool_csc_odd_x = std::unique_ptr<TH1F>(new TH1F("xCSCPool_odd", "xCSCPool odd", 100, -5., 5.));
-  GEMCSC_Pool_cscl1_x = std::unique_ptr<TH1F>(new TH1F("xGEMCSCPool_cscl1", "xGEMCSCPool_cscl1", 100, -5., 5.));
-  GEMCSC_Pool_cscl2_x = std::unique_ptr<TH1F>(new TH1F("xGEMCSCPool_cscl2", "xGEMCSCPool_cscl2", 100, -5., 5.));
-  GEMCSC_Pool_cscl3_x = std::unique_ptr<TH1F>(new TH1F("xGEMCSCPool_cscl3", "xGEMCSCPool_cscl3", 100, -5., 5.));
-  GEMCSC_Pool_cscl4_x = std::unique_ptr<TH1F>(new TH1F("xGEMCSCPool_cscl4", "xGEMCSCPool_cscl4", 100, -5., 5.));
-  GEMCSC_Pool_cscl5_x = std::unique_ptr<TH1F>(new TH1F("xGEMCSCPool_cscl5", "xGEMCSCPool_cscl5", 100, -5., 5.));
-  GEMCSC_Pool_cscl6_x = std::unique_ptr<TH1F>(new TH1F("xGEMCSCPool_cscl6", "xGEMCSCPool_cscl6", 100, -5., 5.));
-  GEMCSC_Pool_geml1_x = std::unique_ptr<TH1F>(new TH1F("xGEMCSCPool_geml1", "xGEMCSCPool_geml1", 100, -5., 5.));
-  GEMCSC_Pool_geml2_x = std::unique_ptr<TH1F>(new TH1F("xGEMCSCPool_geml2", "xGEMCSCPool_geml2", 100, -5., 5.));
-  GEMCSC_Residuals_y = std::unique_ptr<TH1F>(new TH1F("yGEMCSCRes", "yGEMCSCRes", 100, -10., 10.));
-  GEMCSC_Residuals_gem_y = std::unique_ptr<TH1F>(new TH1F("yGEMRes", "yGEMRes", 100, -10., 10.));
-  GEMCSC_Residuals_csc_y = std::unique_ptr<TH1F>(new TH1F("yCSCRes", "yCSCRes", 100, -5., 5.));
-  GEMCSC_Residuals_gem_even_y = std::unique_ptr<TH1F>(new TH1F("yGEMRes_even", "yGEMRes even", 100, -10., 10.));
-  GEMCSC_Residuals_csc_even_y = std::unique_ptr<TH1F>(new TH1F("yCSCRes_even", "yCSCRes even", 100, -5., 5.));
-  GEMCSC_Residuals_gem_odd_y = std::unique_ptr<TH1F>(new TH1F("yGEMRes_odd", "yGEMRes odd", 100, -10., 10.));
-  GEMCSC_Residuals_csc_odd_y = std::unique_ptr<TH1F>(new TH1F("yCSCRes_odd", "yCSCRes odd", 100, -5., 5.));
-  GEMCSC_Residuals_cscl1_y = std::unique_ptr<TH1F>(new TH1F("yGEMCSCRes_cscl1", "yGEMCSCRes_cscl1", 100, -5., 5.));
-  GEMCSC_Residuals_cscl2_y = std::unique_ptr<TH1F>(new TH1F("yGEMCSCRes_cscl2", "yGEMCSCRes_cscl2", 100, -5., 5.));
-  GEMCSC_Residuals_cscl3_y = std::unique_ptr<TH1F>(new TH1F("yGEMCSCRes_cscl3", "yGEMCSCRes_cscl3", 100, -5., 5.));
-  GEMCSC_Residuals_cscl4_y = std::unique_ptr<TH1F>(new TH1F("yGEMCSCRes_cscl4", "yGEMCSCRes_cscl4", 100, -5., 5.));
-  GEMCSC_Residuals_cscl5_y = std::unique_ptr<TH1F>(new TH1F("yGEMCSCRes_cscl5", "yGEMCSCRes_cscl5", 100, -5., 5.));
-  GEMCSC_Residuals_cscl6_y = std::unique_ptr<TH1F>(new TH1F("yGEMCSCRes_cscl6", "yGEMCSCRes_cscl6", 100, -5., 5.));
-  GEMCSC_Residuals_geml1_y = std::unique_ptr<TH1F>(new TH1F("yGEMCSCRes_geml1", "yGEMCSCRes_geml1", 100, -5., 5.));
-  GEMCSC_Residuals_geml2_y = std::unique_ptr<TH1F>(new TH1F("yGEMCSCRes_geml2", "yGEMCSCRes_geml2", 100, -5., 5.));
-  GEMCSC_Pool_y = std::unique_ptr<TH1F>(new TH1F("yGEMCSCPool", "yGEMCSCPool", 100, -5., 5.));
-  GEMCSC_Pool_gem_y = std::unique_ptr<TH1F>(new TH1F("yGEMPool", "yGEMPool", 100, -5., 5.));
-  GEMCSC_Pool_csc_y = std::unique_ptr<TH1F>(new TH1F("yCSCPool", "yCSCPool", 100, -5., 5.));
-  GEMCSC_Pool_gem_even_y = std::unique_ptr<TH1F>(new TH1F("yGEMPool_even", "yGEMPool even", 100, -5., 5.));
-  GEMCSC_Pool_csc_even_y = std::unique_ptr<TH1F>(new TH1F("yCSCPool_even", "yCSCPool even", 100, -5., 5.));
-  GEMCSC_Pool_gem_odd_y = std::unique_ptr<TH1F>(new TH1F("yGEMPool_odd", "yGEMPool odd", 100, -5., 5.));
-  GEMCSC_Pool_csc_odd_y = std::unique_ptr<TH1F>(new TH1F("yCSCPool_odd", "yCSCPool odd", 100, -5., 5.));
-  GEMCSC_Pool_cscl1_y = std::unique_ptr<TH1F>(new TH1F("yGEMCSCPool_cscl1", "yGEMCSCPool_cscl1", 100, -5., 5.));
-  GEMCSC_Pool_cscl2_y = std::unique_ptr<TH1F>(new TH1F("yGEMCSCPool_cscl2", "yGEMCSCPool_cscl2", 100, -5., 5.));
-  GEMCSC_Pool_cscl3_y = std::unique_ptr<TH1F>(new TH1F("yGEMCSCPool_cscl3", "yGEMCSCPool_cscl3", 100, -5., 5.));
-  GEMCSC_Pool_cscl4_y = std::unique_ptr<TH1F>(new TH1F("yGEMCSCPool_cscl4", "yGEMCSCPool_cscl4", 100, -5., 5.));
-  GEMCSC_Pool_cscl5_y = std::unique_ptr<TH1F>(new TH1F("yGEMCSCPool_cscl5", "yGEMCSCPool_cscl5", 100, -5., 5.));
-  GEMCSC_Pool_cscl6_y = std::unique_ptr<TH1F>(new TH1F("yGEMCSCPool_cscl6", "yGEMCSCPool_cscl6", 100, -5., 5.));
-  GEMCSC_Pool_geml1_y = std::unique_ptr<TH1F>(new TH1F("yGEMCSCPool_geml1", "yGEMCSCPool_geml1", 100, -5., 5.));
-  GEMCSC_Pool_geml2_y = std::unique_ptr<TH1F>(new TH1F("yGEMCSCPool_geml2", "yGEMCSCPool_geml2", 100, -5., 5.));
+  GEMCSC_Residuals_x = std::make_unique<TH1F>("xGEMCSCRes", "xGEMCSCRes", 100, -0.5, 0.5);
+  GEMCSC_Residuals_gem_x = std::make_unique<TH1F>("xGEMRes", "xGEMRes", 100, -0.5, 0.5);
+  GEMCSC_Residuals_csc_x = std::make_unique<TH1F>("xCSCRes", "xCSCRes", 100, -0.5, 0.5);
+  GEMCSC_Residuals_gem_even_x = std::make_unique<TH1F>("xGEMRes_even", "xGEMRes even", 100, -0.5, 0.5);
+  GEMCSC_Residuals_csc_even_x = std::make_unique<TH1F>("xCSCRes_even", "xCSCRes even", 100, -0.5, 0.5);
+  GEMCSC_Residuals_gem_odd_x = std::make_unique<TH1F>("xGEMRes_odd", "xGEMRes odd", 100, -0.5, 0.5);
+  GEMCSC_Residuals_csc_odd_x = std::make_unique<TH1F>("xCSCRes_odd", "xCSCRes odd", 100, -0.5, 0.5);
+  GEMCSC_Residuals_cscl1_x = std::make_unique<TH1F>("xGEMCSCRes_cscl1", "xGEMCSCRes_cscl1", 100, -0.5, 0.5);
+  GEMCSC_Residuals_cscl2_x = std::make_unique<TH1F>("xGEMCSCRes_cscl2", "xGEMCSCRes_cscl2", 100, -0.5, 0.5);
+  GEMCSC_Residuals_cscl3_x = std::make_unique<TH1F>("xGEMCSCRes_cscl3", "xGEMCSCRes_cscl3", 100, -0.5, 0.5);
+  GEMCSC_Residuals_cscl4_x = std::make_unique<TH1F>("xGEMCSCRes_cscl4", "xGEMCSCRes_cscl4", 100, -0.5, 0.5);
+  GEMCSC_Residuals_cscl5_x = std::make_unique<TH1F>("xGEMCSCRes_cscl5", "xGEMCSCRes_cscl5", 100, -0.5, 0.5);
+  GEMCSC_Residuals_cscl6_x = std::make_unique<TH1F>("xGEMCSCRes_cscl6", "xGEMCSCRes_cscl6", 100, -0.5, 0.5);
+  GEMCSC_Residuals_geml1_x = std::make_unique<TH1F>("xGEMCSCRes_geml1", "xGEMCSCRes_geml1", 100, -0.5, 0.5);
+  GEMCSC_Residuals_geml2_x = std::make_unique<TH1F>("xGEMCSCRes_geml2", "xGEMCSCRes_geml2", 100, -0.5, 0.5);
+  GEMCSC_Pool_x = std::make_unique<TH1F>("xGEMCSCPool", "xGEMCSCPool", 100, -5., 5.);
+  GEMCSC_Pool_gem_x = std::make_unique<TH1F>("xGEMPool", "xGEMPool", 100, -5., 5.);
+  GEMCSC_Pool_csc_x = std::make_unique<TH1F>("xCSCPool", "xCSCPool", 100, -5., 5.);
+  GEMCSC_Pool_gem_even_x = std::make_unique<TH1F>("xGEMPool_even", "xGEMPool even", 100, -5., 5.);
+  GEMCSC_Pool_csc_even_x = std::make_unique<TH1F>("xCSCPool_even", "xCSCPool even", 100, -5., 5.);
+  GEMCSC_Pool_gem_odd_x = std::make_unique<TH1F>("xGEMPool_odd", "xGEMPool odd", 100, -5., 5.);
+  GEMCSC_Pool_csc_odd_x = std::make_unique<TH1F>("xCSCPool_odd", "xCSCPool odd", 100, -5., 5.);
+  GEMCSC_Pool_cscl1_x = std::make_unique<TH1F>("xGEMCSCPool_cscl1", "xGEMCSCPool_cscl1", 100, -5., 5.);
+  GEMCSC_Pool_cscl2_x = std::make_unique<TH1F>("xGEMCSCPool_cscl2", "xGEMCSCPool_cscl2", 100, -5., 5.);
+  GEMCSC_Pool_cscl3_x = std::make_unique<TH1F>("xGEMCSCPool_cscl3", "xGEMCSCPool_cscl3", 100, -5., 5.);
+  GEMCSC_Pool_cscl4_x = std::make_unique<TH1F>("xGEMCSCPool_cscl4", "xGEMCSCPool_cscl4", 100, -5., 5.);
+  GEMCSC_Pool_cscl5_x = std::make_unique<TH1F>("xGEMCSCPool_cscl5", "xGEMCSCPool_cscl5", 100, -5., 5.);
+  GEMCSC_Pool_cscl6_x = std::make_unique<TH1F>("xGEMCSCPool_cscl6", "xGEMCSCPool_cscl6", 100, -5., 5.);
+  GEMCSC_Pool_geml1_x = std::make_unique<TH1F>("xGEMCSCPool_geml1", "xGEMCSCPool_geml1", 100, -5., 5.);
+  GEMCSC_Pool_geml2_x = std::make_unique<TH1F>("xGEMCSCPool_geml2", "xGEMCSCPool_geml2", 100, -5., 5.);
+  GEMCSC_Residuals_y = std::make_unique<TH1F>("yGEMCSCRes", "yGEMCSCRes", 100, -10., 10.);
+  GEMCSC_Residuals_gem_y = std::make_unique<TH1F>("yGEMRes", "yGEMRes", 100, -10., 10.);
+  GEMCSC_Residuals_csc_y = std::make_unique<TH1F>("yCSCRes", "yCSCRes", 100, -5., 5.);
+  GEMCSC_Residuals_gem_even_y = std::make_unique<TH1F>("yGEMRes_even", "yGEMRes even", 100, -10., 10.);
+  GEMCSC_Residuals_csc_even_y = std::make_unique<TH1F>("yCSCRes_even", "yCSCRes even", 100, -5., 5.);
+  GEMCSC_Residuals_gem_odd_y = std::make_unique<TH1F>("yGEMRes_odd", "yGEMRes odd", 100, -10., 10.);
+  GEMCSC_Residuals_csc_odd_y = std::make_unique<TH1F>("yCSCRes_odd", "yCSCRes odd", 100, -5., 5.);
+  GEMCSC_Residuals_cscl1_y = std::make_unique<TH1F>("yGEMCSCRes_cscl1", "yGEMCSCRes_cscl1", 100, -5., 5.);
+  GEMCSC_Residuals_cscl2_y = std::make_unique<TH1F>("yGEMCSCRes_cscl2", "yGEMCSCRes_cscl2", 100, -5., 5.);
+  GEMCSC_Residuals_cscl3_y = std::make_unique<TH1F>("yGEMCSCRes_cscl3", "yGEMCSCRes_cscl3", 100, -5., 5.);
+  GEMCSC_Residuals_cscl4_y = std::make_unique<TH1F>("yGEMCSCRes_cscl4", "yGEMCSCRes_cscl4", 100, -5., 5.);
+  GEMCSC_Residuals_cscl5_y = std::make_unique<TH1F>("yGEMCSCRes_cscl5", "yGEMCSCRes_cscl5", 100, -5., 5.);
+  GEMCSC_Residuals_cscl6_y = std::make_unique<TH1F>("yGEMCSCRes_cscl6", "yGEMCSCRes_cscl6", 100, -5., 5.);
+  GEMCSC_Residuals_geml1_y = std::make_unique<TH1F>("yGEMCSCRes_geml1", "yGEMCSCRes_geml1", 100, -5., 5.);
+  GEMCSC_Residuals_geml2_y = std::make_unique<TH1F>("yGEMCSCRes_geml2", "yGEMCSCRes_geml2", 100, -5., 5.);
+  GEMCSC_Pool_y = std::make_unique<TH1F>("yGEMCSCPool", "yGEMCSCPool", 100, -5., 5.);
+  GEMCSC_Pool_gem_y = std::make_unique<TH1F>("yGEMPool", "yGEMPool", 100, -5., 5.);
+  GEMCSC_Pool_csc_y = std::make_unique<TH1F>("yCSCPool", "yCSCPool", 100, -5., 5.);
+  GEMCSC_Pool_gem_even_y = std::make_unique<TH1F>("yGEMPool_even", "yGEMPool even", 100, -5., 5.);
+  GEMCSC_Pool_csc_even_y = std::make_unique<TH1F>("yCSCPool_even", "yCSCPool even", 100, -5., 5.);
+  GEMCSC_Pool_gem_odd_y = std::make_unique<TH1F>("yGEMPool_odd", "yGEMPool odd", 100, -5., 5.);
+  GEMCSC_Pool_csc_odd_y = std::make_unique<TH1F>("yCSCPool_odd", "yCSCPool odd", 100, -5., 5.);
+  GEMCSC_Pool_cscl1_y = std::make_unique<TH1F>("yGEMCSCPool_cscl1", "yGEMCSCPool_cscl1", 100, -5., 5.);
+  GEMCSC_Pool_cscl2_y = std::make_unique<TH1F>("yGEMCSCPool_cscl2", "yGEMCSCPool_cscl2", 100, -5., 5.);
+  GEMCSC_Pool_cscl3_y = std::make_unique<TH1F>("yGEMCSCPool_cscl3", "yGEMCSCPool_cscl3", 100, -5., 5.);
+  GEMCSC_Pool_cscl4_y = std::make_unique<TH1F>("yGEMCSCPool_cscl4", "yGEMCSCPool_cscl4", 100, -5., 5.);
+  GEMCSC_Pool_cscl5_y = std::make_unique<TH1F>("yGEMCSCPool_cscl5", "yGEMCSCPool_cscl5", 100, -5., 5.);
+  GEMCSC_Pool_cscl6_y = std::make_unique<TH1F>("yGEMCSCPool_cscl6", "yGEMCSCPool_cscl6", 100, -5., 5.);
+  GEMCSC_Pool_geml1_y = std::make_unique<TH1F>("yGEMCSCPool_geml1", "yGEMCSCPool_geml1", 100, -5., 5.);
+  GEMCSC_Pool_geml2_y = std::make_unique<TH1F>("yGEMCSCPool_geml2", "yGEMCSCPool_geml2", 100, -5., 5.);
 
-  GEMCSC_Pool_gem_x_newE = std::unique_ptr<TH1F>(new TH1F("xGEMPool_newE", "xGEMPool_newE", 100, -5., 5.));
-  GEMCSC_Pool_gem_y_newE = std::unique_ptr<TH1F>(new TH1F("yGEMPool_newE", "yGEMPool_newE", 100, -5., 5.));
-  GEMCSC_Pool_gem_odd_x_newE = std::unique_ptr<TH1F>(new TH1F("xGEMPool_odd_newE", "xGEMPool odd newE", 100, -5., 5.));
-  GEMCSC_Pool_gem_odd_y_newE = std::unique_ptr<TH1F>(new TH1F("yGEMPool_odd_newE", "yGEMPool odd newE", 100, -5., 5.));
-  GEMCSC_Pool_gem_x_newE_mp = std::unique_ptr<TH1F>(new TH1F("xGEMPool_newE_mp", "xGEMPool_newE muon+", 100, -5., 5.));
-  GEMCSC_Pool_gem_y_newE_mp = std::unique_ptr<TH1F>(new TH1F("yGEMPool_newE_mp", "yGEMPool_newE muon+", 100, -5., 5.));
+  GEMCSC_Pool_gem_x_newE = std::make_unique<TH1F>("xGEMPool_newE", "xGEMPool_newE", 100, -5., 5.);
+  GEMCSC_Pool_gem_y_newE = std::make_unique<TH1F>("yGEMPool_newE", "yGEMPool_newE", 100, -5., 5.);
+  GEMCSC_Pool_gem_odd_x_newE = std::make_unique<TH1F>("xGEMPool_odd_newE", "xGEMPool odd newE", 100, -5., 5.);
+  GEMCSC_Pool_gem_odd_y_newE = std::make_unique<TH1F>("yGEMPool_odd_newE", "yGEMPool odd newE", 100, -5., 5.);
+  GEMCSC_Pool_gem_x_newE_mp = std::make_unique<TH1F>("xGEMPool_newE_mp", "xGEMPool_newE muon+", 100, -5., 5.);
+  GEMCSC_Pool_gem_y_newE_mp = std::make_unique<TH1F>("yGEMPool_newE_mp", "yGEMPool_newE muon+", 100, -5., 5.);
   GEMCSC_Pool_gem_odd_x_newE_mp =
-      std::unique_ptr<TH1F>(new TH1F("xGEMPool_odd_newE_mp", "xGEMPool odd newE muon+", 100, -5., 5.));
+      std::make_unique<TH1F>("xGEMPool_odd_newE_mp", "xGEMPool odd newE muon+", 100, -5., 5.);
   GEMCSC_Pool_gem_odd_y_newE_mp =
-      std::unique_ptr<TH1F>(new TH1F("yGEMPool_odd_newE_mp", "yGEMPool odd newE muon+", 100, -5., 5.));
-  GEMCSC_Pool_gem_x_newE_mm = std::unique_ptr<TH1F>(new TH1F("xGEMPool_newE_mm", "xGEMPool_newE muon-", 100, -5., 5.));
-  GEMCSC_Pool_gem_y_newE_mm = std::unique_ptr<TH1F>(new TH1F("yGEMPool_newE_mm", "yGEMPool_newE muon-", 100, -5., 5.));
+      std::make_unique<TH1F>("yGEMPool_odd_newE_mp", "yGEMPool odd newE muon+", 100, -5., 5.);
+  GEMCSC_Pool_gem_x_newE_mm = std::make_unique<TH1F>("xGEMPool_newE_mm", "xGEMPool_newE muon-", 100, -5., 5.);
+  GEMCSC_Pool_gem_y_newE_mm = std::make_unique<TH1F>("yGEMPool_newE_mm", "yGEMPool_newE muon-", 100, -5., 5.);
   GEMCSC_Pool_gem_odd_x_newE_mm =
-      std::unique_ptr<TH1F>(new TH1F("xGEMPool_odd_newE_mm", "xGEMPool odd newE muon-", 100, -5., 5.));
+      std::make_unique<TH1F>("xGEMPool_odd_newE_mm", "xGEMPool odd newE muon-", 100, -5., 5.);
   GEMCSC_Pool_gem_odd_y_newE_mm =
-      std::unique_ptr<TH1F>(new TH1F("yGEMPool_odd_newE_mm", "yGEMPool odd newE muon-", 100, -5., 5.));
+      std::make_unique<TH1F>("yGEMPool_odd_newE_mm", "yGEMPool odd newE muon-", 100, -5., 5.);
 
-  GEMCSC_Dphi_min_afterCut = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemRHgemcscS_min_afterCut", "Dphi_gemRHgemcscS_min_afterCut", 800000, -4., 4.));
-  GEMCSC_Dtheta_min_afterCut = std::unique_ptr<TH1F>(
-      new TH1F("Dtheta_gemRHgemcscS_min_afterCut", "Dtheta_gemRHgemcscS_min_afterCut", 60000, -3., 3.));
+  GEMCSC_Dphi_min_afterCut = std::make_unique<TH1F>(
+      "Dphi_gemRHgemcscS_min_afterCut", "Dphi_gemRHgemcscS_min_afterCut", 800000, -4., 4.);
+  GEMCSC_Dtheta_min_afterCut = std::make_unique<TH1F>(
+      "Dtheta_gemRHgemcscS_min_afterCut", "Dtheta_gemRHgemcscS_min_afterCut", 60000, -3., 3.);
   GEMCSC_DR_min_afterCut =
-      std::unique_ptr<TH1F>(new TH1F("DR_gemRHgemcscS_min_afterCut", "DR_gemRHgemcscS_min_afterCut", 60000, -3., 3.));
-  GEMCSC_Dphi_min_afterCut_odd = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemRHgemcscS_min_afterCut_odd", "Dphi_gemRHgemcscS_min_afterCut_odd", 800000, -4., 4.));
-  GEMCSC_Dphi_min_afterCut_even = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemRHgemcscS_min_afterCut_even", "Dphi_gemRHgemcscS_min_afterCut_even", 800000, -4., 4.));
-  GEMCSC_Dphi_min_afterCut_l1 = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemRHgemcscS_min_afterCut_l1", "Dphi_gemRHgemcscS_min_afterCut_l1", 800000, -4., 4.));
-  GEMCSC_Dphi_min_afterCut_l1_odd = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemRHgemcscS_min_afterCut_l1_odd", "Dphi_gemRHgemcscS_min_afterCut_l1_odd", 800000, -4., 4.));
-  GEMCSC_Dphi_min_afterCut_l1_even = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemRHgemcscS_min_afterCut_l1_even", "Dphi_gemRHgemcscS_min_afterCut_l1_even", 800000, -4., 4.));
-  GEMCSC_Dphi_min_afterCut_l2 = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemRHgemcscS_min_afterCut_l2", "Dphi_gemRHgemcscS_min_afterCut_l2", 800000, -4., 4.));
-  GEMCSC_Dphi_min_afterCut_l2_odd = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemRHgemcscS_min_afterCut_l2_odd", "Dphi_gemRHgemcscS_min_afterCut_l2_odd", 800000, -4., 4.));
-  GEMCSC_Dphi_min_afterCut_l2_even = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemRHgemcscS_min_afterCut_l2_even", "Dphi_gemRHgemcscS_min_afterCut_l2_even", 800000, -4., 4.));
+      std::make_unique<TH1F>("DR_gemRHgemcscS_min_afterCut", "DR_gemRHgemcscS_min_afterCut", 60000, -3., 3.);
+  GEMCSC_Dphi_min_afterCut_odd = std::make_unique<TH1F>(
+      "Dphi_gemRHgemcscS_min_afterCut_odd", "Dphi_gemRHgemcscS_min_afterCut_odd", 800000, -4., 4.);
+  GEMCSC_Dphi_min_afterCut_even = std::make_unique<TH1F>(
+      "Dphi_gemRHgemcscS_min_afterCut_even", "Dphi_gemRHgemcscS_min_afterCut_even", 800000, -4., 4.);
+  GEMCSC_Dphi_min_afterCut_l1 = std::make_unique<TH1F>(
+      "Dphi_gemRHgemcscS_min_afterCut_l1", "Dphi_gemRHgemcscS_min_afterCut_l1", 800000, -4., 4.);
+  GEMCSC_Dphi_min_afterCut_l1_odd = std::make_unique<TH1F>(
+      "Dphi_gemRHgemcscS_min_afterCut_l1_odd", "Dphi_gemRHgemcscS_min_afterCut_l1_odd", 800000, -4., 4.);
+  GEMCSC_Dphi_min_afterCut_l1_even = std::make_unique<TH1F>(
+      "Dphi_gemRHgemcscS_min_afterCut_l1_even", "Dphi_gemRHgemcscS_min_afterCut_l1_even", 800000, -4., 4.);
+  GEMCSC_Dphi_min_afterCut_l2 = std::make_unique<TH1F>(
+      "Dphi_gemRHgemcscS_min_afterCut_l2", "Dphi_gemRHgemcscS_min_afterCut_l2", 800000, -4., 4.);
+  GEMCSC_Dphi_min_afterCut_l2_odd = std::make_unique<TH1F>(
+      "Dphi_gemRHgemcscS_min_afterCut_l2_odd", "Dphi_gemRHgemcscS_min_afterCut_l2_odd", 800000, -4., 4.);
+  GEMCSC_Dphi_min_afterCut_l2_even = std::make_unique<TH1F>(
+      "Dphi_gemRHgemcscS_min_afterCut_l2_even", "Dphi_gemRHgemcscS_min_afterCut_l2_even", 800000, -4., 4.);
 
   GEMCSC_Dphi_cscS_min_afterCut =
-      std::unique_ptr<TH1F>(new TH1F("Dphi_gemRHcscS_min_afterCut", "Dphi_gemRHcscS_min_afterCut", 800000, -4., 4.));
+      std::make_unique<TH1F>("Dphi_gemRHcscS_min_afterCut", "Dphi_gemRHcscS_min_afterCut", 800000, -4., 4.);
   GEMCSC_Dtheta_cscS_min_afterCut =
-      std::unique_ptr<TH1F>(new TH1F("Dtheta_gemRHcscS_min_afterCut", "Dtheta_gemRHcscS_min_afterCut", 60000, -3., 3.));
+      std::make_unique<TH1F>("Dtheta_gemRHcscS_min_afterCut", "Dtheta_gemRHcscS_min_afterCut", 60000, -3., 3.);
   GEMCSC_DR_cscS_min_afterCut =
-      std::unique_ptr<TH1F>(new TH1F("DR_gemRHcscS_min_afterCut", "DR_gemRHcscS_min_afterCut", 60000, -3., 3.));
-  GEMCSC_Dphi_cscS_min_afterCut_l1 = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemRHcscS_min_afterCut_l1", "Dphi_gemRHcscS_min_afterCut_l1", 800000, -4., 4.));
-  GEMCSC_Dphi_cscS_min_afterCut_l1_odd = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemRHcscS_min_afterCut_l1_odd", "Dphi_gemRHcscS_min_afterCut_l1_odd", 800000, -4., 4.));
-  GEMCSC_Dphi_cscS_min_afterCut_l1_even = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemRHcscS_min_afterCut_l1_even", "Dphi_gemRHcscS_min_afterCut_l1_even", 800000, -4., 4.));
-  GEMCSC_Dphi_cscS_min_afterCut_l2 = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemRHcscS_min_afterCut_l2", "Dphi_gemRHcscS_min_afterCut_l2", 800000, -4., 4.));
-  GEMCSC_Dphi_cscS_min_afterCut_l2_odd = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemRHcscS_min_afterCut_l2_odd", "Dphi_gemRHcscS_min_afterCut_l2_odd", 800000, -4., 4.));
-  GEMCSC_Dphi_cscS_min_afterCut_l2_even = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemRHcscS_min_afterCut_l2_even", "Dphi_gemRHcscS_min_afterCut_l2_even", 800000, -4., 4.));
+      std::make_unique<TH1F>("DR_gemRHcscS_min_afterCut", "DR_gemRHcscS_min_afterCut", 60000, -3., 3.);
+  GEMCSC_Dphi_cscS_min_afterCut_l1 = std::make_unique<TH1F>(
+      "Dphi_gemRHcscS_min_afterCut_l1", "Dphi_gemRHcscS_min_afterCut_l1", 800000, -4., 4.);
+  GEMCSC_Dphi_cscS_min_afterCut_l1_odd = std::make_unique<TH1F>(
+      "Dphi_gemRHcscS_min_afterCut_l1_odd", "Dphi_gemRHcscS_min_afterCut_l1_odd", 800000, -4., 4.);
+  GEMCSC_Dphi_cscS_min_afterCut_l1_even = std::make_unique<TH1F>(
+      "Dphi_gemRHcscS_min_afterCut_l1_even", "Dphi_gemRHcscS_min_afterCut_l1_even", 800000, -4., 4.);
+  GEMCSC_Dphi_cscS_min_afterCut_l2 = std::make_unique<TH1F>(
+      "Dphi_gemRHcscS_min_afterCut_l2", "Dphi_gemRHcscS_min_afterCut_l2", 800000, -4., 4.);
+  GEMCSC_Dphi_cscS_min_afterCut_l2_odd = std::make_unique<TH1F>(
+      "Dphi_gemRHcscS_min_afterCut_l2_odd", "Dphi_gemRHcscS_min_afterCut_l2_odd", 800000, -4., 4.);
+  GEMCSC_Dphi_cscS_min_afterCut_l2_even = std::make_unique<TH1F>(
+      "Dphi_gemRHcscS_min_afterCut_l2_even", "Dphi_gemRHcscS_min_afterCut_l2_even", 800000, -4., 4.);
 
-  GEMCSC_Dphi_cscS_min_afterCut_odd = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemRHcscS_min_afterCut_odd", "Dphi_gemRHcscS_min_afterCut_odd", 800000, -4., 4.));
-  GEMCSC_Dphi_cscS_min_afterCut_even = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemRHcscS_min_afterCut_even", "Dphi_gemRHcscS_min_afterCut_even", 800000, -4., 4.));
-  GEMCSC_Dphi_cscS_min_afterCut_odd_r1 = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemRHcscS_min_afterCut_odd_r1", "Dphi_gemRHcscS_min_afterCut_odd_r1", 800000, -4., 4.));
-  GEMCSC_Dphi_cscS_min_afterCut_odd_r2 = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemRHcscS_min_afterCut_odd_r2", "Dphi_gemRHcscS_min_afterCut_odd_r2", 800000, -4., 4.));
-  GEMCSC_Dphi_cscS_min_afterCut_odd_r3 = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemRHcscS_min_afterCut_odd_r3", "Dphi_gemRHcscS_min_afterCut_odd_r3", 800000, -4., 4.));
-  GEMCSC_Dphi_cscS_min_afterCut_odd_r4 = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemRHcscS_min_afterCut_odd_r4", "Dphi_gemRHcscS_min_afterCut_odd_r4", 800000, -4., 4.));
-  GEMCSC_Dphi_cscS_min_afterCut_odd_r5 = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemRHcscS_min_afterCut_odd_r5", "Dphi_gemRHcscS_min_afterCut_odd_r5", 800000, -4., 4.));
-  GEMCSC_Dphi_cscS_min_afterCut_odd_r6 = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemRHcscS_min_afterCut_odd_r6", "Dphi_gemRHcscS_min_afterCut_odd_r6", 800000, -4., 4.));
-  GEMCSC_Dphi_cscS_min_afterCut_odd_r7 = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemRHcscS_min_afterCut_odd_r7", "Dphi_gemRHcscS_min_afterCut_odd_r7", 800000, -4., 4.));
-  GEMCSC_Dphi_cscS_min_afterCut_odd_r8 = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemRHcscS_min_afterCut_odd_r8", "Dphi_gemRHcscS_min_afterCut_odd_r8", 800000, -4., 4.));
-  GEMCSC_Dtheta_cscS_min_afterCut_odd = std::unique_ptr<TH1F>(
-      new TH1F("Dtheta_gemRHcscS_min_afterCut_odd", "Dtheta_gemRHcscS_min_afterCut_odd", 60000, -3., 3.));
-  GEMCSC_Dtheta_cscS_min_afterCut_even = std::unique_ptr<TH1F>(
-      new TH1F("Dtheta_gemRHcscS_min_afterCut_even", "Dtheta_gemRHcscS_min_afterCut_even", 60000, -3., 3.));
+  GEMCSC_Dphi_cscS_min_afterCut_odd = std::make_unique<TH1F>(
+      "Dphi_gemRHcscS_min_afterCut_odd", "Dphi_gemRHcscS_min_afterCut_odd", 800000, -4., 4.);
+  GEMCSC_Dphi_cscS_min_afterCut_even = std::make_unique<TH1F>(
+      "Dphi_gemRHcscS_min_afterCut_even", "Dphi_gemRHcscS_min_afterCut_even", 800000, -4., 4.);
+  GEMCSC_Dphi_cscS_min_afterCut_odd_r1 = std::make_unique<TH1F>(
+      "Dphi_gemRHcscS_min_afterCut_odd_r1", "Dphi_gemRHcscS_min_afterCut_odd_r1", 800000, -4., 4.);
+  GEMCSC_Dphi_cscS_min_afterCut_odd_r2 = std::make_unique<TH1F>(
+      "Dphi_gemRHcscS_min_afterCut_odd_r2", "Dphi_gemRHcscS_min_afterCut_odd_r2", 800000, -4., 4.);
+  GEMCSC_Dphi_cscS_min_afterCut_odd_r3 = std::make_unique<TH1F>(
+      "Dphi_gemRHcscS_min_afterCut_odd_r3", "Dphi_gemRHcscS_min_afterCut_odd_r3", 800000, -4., 4.);
+  GEMCSC_Dphi_cscS_min_afterCut_odd_r4 = std::make_unique<TH1F>(
+      "Dphi_gemRHcscS_min_afterCut_odd_r4", "Dphi_gemRHcscS_min_afterCut_odd_r4", 800000, -4., 4.);
+  GEMCSC_Dphi_cscS_min_afterCut_odd_r5 = std::make_unique<TH1F>(
+      "Dphi_gemRHcscS_min_afterCut_odd_r5", "Dphi_gemRHcscS_min_afterCut_odd_r5", 800000, -4., 4.);
+  GEMCSC_Dphi_cscS_min_afterCut_odd_r6 = std::make_unique<TH1F>(
+      "Dphi_gemRHcscS_min_afterCut_odd_r6", "Dphi_gemRHcscS_min_afterCut_odd_r6", 800000, -4., 4.);
+  GEMCSC_Dphi_cscS_min_afterCut_odd_r7 = std::make_unique<TH1F>(
+      "Dphi_gemRHcscS_min_afterCut_odd_r7", "Dphi_gemRHcscS_min_afterCut_odd_r7", 800000, -4., 4.);
+  GEMCSC_Dphi_cscS_min_afterCut_odd_r8 = std::make_unique<TH1F>(
+      "Dphi_gemRHcscS_min_afterCut_odd_r8", "Dphi_gemRHcscS_min_afterCut_odd_r8", 800000, -4., 4.);
+  GEMCSC_Dtheta_cscS_min_afterCut_odd = std::make_unique<TH1F>(
+      "Dtheta_gemRHcscS_min_afterCut_odd", "Dtheta_gemRHcscS_min_afterCut_odd", 60000, -3., 3.);
+  GEMCSC_Dtheta_cscS_min_afterCut_even = std::make_unique<TH1F>(
+      "Dtheta_gemRHcscS_min_afterCut_even", "Dtheta_gemRHcscS_min_afterCut_even", 60000, -3., 3.);
 
   SIMGEMCSC_Dphi_cscS_min_afterCut =
-      std::unique_ptr<TH1F>(new TH1F("Dphi_gemSHcscS_min_afterCut", "Dphi_gemSHcscS_min_afterCut", 800000, -4., 4.));
+      std::make_unique<TH1F>("Dphi_gemSHcscS_min_afterCut", "Dphi_gemSHcscS_min_afterCut", 800000, -4., 4.);
   SIMGEMCSC_Dtheta_cscS_min_afterCut =
-      std::unique_ptr<TH1F>(new TH1F("Dtheta_gemSHcscS_min_afterCut", "Dtheta_gemSHcscS_min_afterCut", 60000, -3., 3.));
-  SIMGEMCSC_Dphi_cscS_min_afterCut_odd = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemSHcscS_min_afterCut_odd", "Dphi_gemSHcscS_min_afterCut_odd", 800000, -4., 4.));
-  SIMGEMCSC_Dphi_cscS_min_afterCut_even = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemSHcscS_min_afterCut_even", "Dphi_gemSHcscS_min_afterCut_even", 800000, -4., 4.));
-  SIMGEMCSC_Dtheta_cscS_min_afterCut_odd = std::unique_ptr<TH1F>(
-      new TH1F("Dtheta_gemSHcscS_min_afterCut_odd", "Dtheta_gemSHcscS_min_afterCut_odd", 60000, -3., 3.));
-  SIMGEMCSC_Dtheta_cscS_min_afterCut_even = std::unique_ptr<TH1F>(
-      new TH1F("Dtheta_gemSHcscS_min_afterCut_even", "Dtheta_gemSHcscS_min_afterCut_even", 60000, -3., 3.));
+      std::make_unique<TH1F>("Dtheta_gemSHcscS_min_afterCut", "Dtheta_gemSHcscS_min_afterCut", 60000, -3., 3.);
+  SIMGEMCSC_Dphi_cscS_min_afterCut_odd = std::make_unique<TH1F>(
+      "Dphi_gemSHcscS_min_afterCut_odd", "Dphi_gemSHcscS_min_afterCut_odd", 800000, -4., 4.);
+  SIMGEMCSC_Dphi_cscS_min_afterCut_even = std::make_unique<TH1F>(
+      "Dphi_gemSHcscS_min_afterCut_even", "Dphi_gemSHcscS_min_afterCut_even", 800000, -4., 4.);
+  SIMGEMCSC_Dtheta_cscS_min_afterCut_odd = std::make_unique<TH1F>(
+      "Dtheta_gemSHcscS_min_afterCut_odd", "Dtheta_gemSHcscS_min_afterCut_odd", 60000, -3., 3.);
+  SIMGEMCSC_Dtheta_cscS_min_afterCut_even = std::make_unique<TH1F>(
+      "Dtheta_gemSHcscS_min_afterCut_even", "Dtheta_gemSHcscS_min_afterCut_even", 60000, -3., 3.);
 
   SIMGEMCSC_Dphi_SS_min_afterCut =
-      std::unique_ptr<TH1F>(new TH1F("Dphi_gemSHSS_min_afterCut", "Dphi_gemSHSS_min_afterCut", 800000, -4., 4.));
+      std::make_unique<TH1F>("Dphi_gemSHSS_min_afterCut", "Dphi_gemSHSS_min_afterCut", 800000, -4., 4.);
   SIMGEMCSC_Dtheta_SS_min_afterCut =
-      std::unique_ptr<TH1F>(new TH1F("Dtheta_gemSHSS_min_afterCut", "Dtheta_gemSHSS_min_afterCut", 60000, -3., 3.));
-  SIMGEMCSC_Dphi_SS_min_afterCut_odd = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemSHSS_min_afterCut_odd", "Dphi_gemSHSS_min_afterCut_odd", 800000, -4., 4.));
-  SIMGEMCSC_Dphi_SS_min_afterCut_even = std::unique_ptr<TH1F>(
-      new TH1F("Dphi_gemSHSS_min_afterCut_even", "Dphi_gemSHSS_min_afterCut_even", 800000, -4., 4.));
-  SIMGEMCSC_Dtheta_SS_min_afterCut_odd = std::unique_ptr<TH1F>(
-      new TH1F("Dtheta_gemSHSS_min_afterCut_odd", "Dtheta_gemSHSS_min_afterCut_odd", 60000, -3., 3.));
-  SIMGEMCSC_Dtheta_SS_min_afterCut_even = std::unique_ptr<TH1F>(
-      new TH1F("Dtheta_gemSHSS_min_afterCut_even", "Dtheta_gemSHSS_min_afterCut_even", 60000, -3., 3.));
+      std::make_unique<TH1F>("Dtheta_gemSHSS_min_afterCut", "Dtheta_gemSHSS_min_afterCut", 60000, -3., 3.);
+  SIMGEMCSC_Dphi_SS_min_afterCut_odd = std::make_unique<TH1F>(
+      "Dphi_gemSHSS_min_afterCut_odd", "Dphi_gemSHSS_min_afterCut_odd", 800000, -4., 4.);
+  SIMGEMCSC_Dphi_SS_min_afterCut_even = std::make_unique<TH1F>(
+      "Dphi_gemSHSS_min_afterCut_even", "Dphi_gemSHSS_min_afterCut_even", 800000, -4., 4.);
+  SIMGEMCSC_Dtheta_SS_min_afterCut_odd = std::make_unique<TH1F>(
+      "Dtheta_gemSHSS_min_afterCut_odd", "Dtheta_gemSHSS_min_afterCut_odd", 60000, -3., 3.);
+  SIMGEMCSC_Dtheta_SS_min_afterCut_even = std::make_unique<TH1F>(
+      "Dtheta_gemSHSS_min_afterCut_even", "Dtheta_gemSHSS_min_afterCut_even", 60000, -3., 3.);
 
-  SIMGEMCSC_theta_cscSsh_vs_ndof_odd = std::unique_ptr<TH2F>(
-      new TH2F("SIMGEMCSCSegm_theta_cscSsh_vs_ndof_odd", "theta_cscSsh vs ndof odd", 30000, 0., 3., 15, -0.5, 14.5));
-  SIMGEMCSC_theta_cscSsh_vs_ndof_even = std::unique_ptr<TH2F>(
-      new TH2F("SIMGEMCSCSegm_theta_cscSsh_vs_ndof_even", "theta_cscSsh vs ndof even", 30000, 0., 3., 15, -0.5, 14.5));
+  SIMGEMCSC_theta_cscSsh_vs_ndof_odd = std::make_unique<TH2F>(
+      "SIMGEMCSCSegm_theta_cscSsh_vs_ndof_odd", "theta_cscSsh vs ndof odd", 30000, 0., 3., 15, -0.5, 14.5);
+  SIMGEMCSC_theta_cscSsh_vs_ndof_even = std::make_unique<TH2F>(
+      "SIMGEMCSCSegm_theta_cscSsh_vs_ndof_even", "theta_cscSsh vs ndof even", 30000, 0., 3., 15, -0.5, 14.5);
 
-  SIMGEMCSC_Residuals_gem_x = std::unique_ptr<TH1F>(new TH1F("xGEMRes_simhit", "xGEMRes", 100, -0.5, 0.5));
-  SIMGEMCSC_Residuals_gem_y = std::unique_ptr<TH1F>(new TH1F("yGEMRes_simhit", "yGEMRes", 100, -10., 10.));
-  SIMGEMCSC_Pool_gem_x_newE = std::unique_ptr<TH1F>(new TH1F("xGEMPool_newE_simhit", "xGEMPool newE", 100, -10., 10.));
-  SIMGEMCSC_Pool_gem_y_newE = std::unique_ptr<TH1F>(new TH1F("yGEMPool_newE_simhit", "yGEMPool newE", 100, -10., 10.));
-  SIMGEMCSC_Residuals_gem_odd_x = std::unique_ptr<TH1F>(new TH1F("xGEMRes_odd_simhit", "xGEMRes", 100, -0.5, 0.5));
-  SIMGEMCSC_Residuals_gem_odd_y = std::unique_ptr<TH1F>(new TH1F("yGEMRes_odd_simhit", "yGEMRes", 100, -10., 10.));
+  SIMGEMCSC_Residuals_gem_x = std::make_unique<TH1F>("xGEMRes_simhit", "xGEMRes", 100, -0.5, 0.5);
+  SIMGEMCSC_Residuals_gem_y = std::make_unique<TH1F>("yGEMRes_simhit", "yGEMRes", 100, -10., 10.);
+  SIMGEMCSC_Pool_gem_x_newE = std::make_unique<TH1F>("xGEMPool_newE_simhit", "xGEMPool newE", 100, -10., 10.);
+  SIMGEMCSC_Pool_gem_y_newE = std::make_unique<TH1F>("yGEMPool_newE_simhit", "yGEMPool newE", 100, -10., 10.);
+  SIMGEMCSC_Residuals_gem_odd_x = std::make_unique<TH1F>("xGEMRes_odd_simhit", "xGEMRes", 100, -0.5, 0.5);
+  SIMGEMCSC_Residuals_gem_odd_y = std::make_unique<TH1F>("yGEMRes_odd_simhit", "yGEMRes", 100, -10., 10.);
   SIMGEMCSC_Pool_gem_x_newE_odd =
-      std::unique_ptr<TH1F>(new TH1F("xGEMPool_odd_newE_simhit", "xGEMPool newE", 100, -10., 10.));
+      std::make_unique<TH1F>("xGEMPool_odd_newE_simhit", "xGEMPool newE", 100, -10., 10.);
   SIMGEMCSC_Pool_gem_y_newE_odd =
-      std::unique_ptr<TH1F>(new TH1F("yGEMPool_odd_newE_simhit", "yGEMPool newE", 100, -10., 10.));
-  SIMGEMCSC_Residuals_gem_even_x = std::unique_ptr<TH1F>(new TH1F("xGEMRes_even_simhit", "xGEMRes", 100, -0.5, 0.5));
-  SIMGEMCSC_Residuals_gem_even_y = std::unique_ptr<TH1F>(new TH1F("yGEMRes_even_simhit", "yGEMRes", 100, -10., 10.));
+      std::make_unique<TH1F>("yGEMPool_odd_newE_simhit", "yGEMPool newE", 100, -10., 10.);
+  SIMGEMCSC_Residuals_gem_even_x = std::make_unique<TH1F>("xGEMRes_even_simhit", "xGEMRes", 100, -0.5, 0.5);
+  SIMGEMCSC_Residuals_gem_even_y = std::make_unique<TH1F>("yGEMRes_even_simhit", "yGEMRes", 100, -10., 10.);
   SIMGEMCSC_Pool_gem_x_newE_even =
-      std::unique_ptr<TH1F>(new TH1F("xGEMPool_even_newE_simhit", "xGEMPool newE", 100, -10., 10.));
+      std::make_unique<TH1F>("xGEMPool_even_newE_simhit", "xGEMPool newE", 100, -10., 10.);
   SIMGEMCSC_Pool_gem_y_newE_even =
-      std::unique_ptr<TH1F>(new TH1F("yGEMPool_even_newE_simhit", "yGEMPool newE", 100, -10., 10.));
+      std::make_unique<TH1F>("yGEMPool_even_newE_simhit", "yGEMPool newE", 100, -10., 10.);
 
-  SIMGEMCSC_Residuals_gem_rhsh_x = std::unique_ptr<TH1F>(new TH1F("xGEMRes_shrh", "xGEMRes", 100, -0.5, 0.5));
-  SIMGEMCSC_Residuals_gem_rhsh_y = std::unique_ptr<TH1F>(new TH1F("yGEMRes_shrh", "yGEMRes", 100, -10., 10.));
-  SIMGEMCSC_Pool_gem_rhsh_x_newE = std::unique_ptr<TH1F>(new TH1F("xGEMPool_shrh", "xGEMPool sh rh", 100, -5., 5.));
-  SIMGEMCSC_Pool_gem_rhsh_y_newE = std::unique_ptr<TH1F>(new TH1F("yGEMPool_shrh", "yGEMPool sh rh", 100, -5., 5.));
+  SIMGEMCSC_Residuals_gem_rhsh_x = std::make_unique<TH1F>("xGEMRes_shrh", "xGEMRes", 100, -0.5, 0.5);
+  SIMGEMCSC_Residuals_gem_rhsh_y = std::make_unique<TH1F>("yGEMRes_shrh", "yGEMRes", 100, -10., 10.);
+  SIMGEMCSC_Pool_gem_rhsh_x_newE = std::make_unique<TH1F>("xGEMPool_shrh", "xGEMPool sh rh", 100, -5., 5.);
+  SIMGEMCSC_Pool_gem_rhsh_y_newE = std::make_unique<TH1F>("yGEMPool_shrh", "yGEMPool sh rh", 100, -5., 5.);
 }
 
 TestGEMCSCSegmentAnalyzer::~TestGEMCSCSegmentAnalyzer() {
@@ -1032,7 +1032,7 @@ void TestGEMCSCSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::Eve
       std::cout << "GEM-CSC Segment with " << gemcscs->gemRecHits().size() << " GEM rechits and "
                 << gemcscs->cscSegment().specificRecHits().size() << " CSC rechits" << std::endl;
     }
-    if (gemrhs_if.size() == 0)
+    if (gemrhs_if.empty())
       continue;
     // if(gemrhs_if.size()!=0) continue;
 

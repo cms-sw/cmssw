@@ -17,8 +17,8 @@
 class printEvent : public edm::EDAnalyzer {
 public:
   explicit printEvent(const edm::ParameterSet&);
-  ~printEvent(){};
-  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  ~printEvent() override{};
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   edm::EDGetTokenT<edm::View<reco::Jet> > sourceToken_;

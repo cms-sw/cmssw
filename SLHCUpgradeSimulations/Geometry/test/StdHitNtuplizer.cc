@@ -70,10 +70,10 @@ StdHitNtuplizer::StdHitNtuplizer(edm::ParameterSet const& conf)
       rphiRecHits_(conf.getParameter<edm::InputTag>("rphiRecHits")),
       stereoRecHits_(conf.getParameter<edm::InputTag>("stereoRecHits")),
       matchedRecHits_(conf.getParameter<edm::InputTag>("matchedRecHits")),
-      tfile_(0),
-      pixeltree_(0),
-      striptree_(0),
-      pixeltree2_(0) {}
+      tfile_(nullptr),
+      pixeltree_(nullptr),
+      striptree_(nullptr),
+      pixeltree2_(nullptr) {}
 
 StdHitNtuplizer::~StdHitNtuplizer() {}
 
@@ -389,7 +389,7 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
   //std::cout << " Step A: Standard Strip RPHI RecHits found " << rechitsrphi.product()->dataSize() << std::endl;
   //std::cout << " Step A: Standard Strip Stereo RecHits found " << rechitsstereo.product()->dataSize() << std::endl;
   //std::cout << " Step A: Standard Strip Matched RecHits found " << rechitsmatched.product()->dataSize() << std::endl;
-  if (rechitsrphi->size() > 0) {
+  if (!rechitsrphi->empty()) {
     //Loop over all rechits in RPHI collection (can also loop only over DetId)
     //    SiStripRecHit2DCollectionOld::const_iterator theRecHitRangeIteratorBegin = rechitsrphi->begin();
     //    SiStripRecHit2DCollectionOld::const_iterator theRecHitRangeIteratorEnd   = rechitsrphi->end();

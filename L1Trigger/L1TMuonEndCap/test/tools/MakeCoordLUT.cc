@@ -36,16 +36,16 @@
 class MakeCoordLUT : public edm::EDAnalyzer {
 public:
   explicit MakeCoordLUT(const edm::ParameterSet&);
-  virtual ~MakeCoordLUT();
+  ~MakeCoordLUT() override;
 
 private:
   //virtual void beginJob();
   //virtual void endJob();
 
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
 
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   // Generate LUTs
   void generateLUTs();

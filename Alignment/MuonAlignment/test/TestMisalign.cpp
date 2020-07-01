@@ -37,9 +37,9 @@
 class TestMisalign : public edm::EDAnalyzer {
 public:
   explicit TestMisalign(const edm::ParameterSet&);
-  ~TestMisalign();
+  ~TestMisalign() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   void fillTree(const GeomDet* geomDet);
@@ -70,7 +70,7 @@ TestMisalign::TestMisalign(const edm::ParameterSet& iConfig) {
   theTree->Branch("length", &length, "length/F");
   theTree->Branch("width", &width, "width/F");
   theTree->Branch("thick", &thick, "thick/F");
-  rot = 0;
+  rot = nullptr;
   theTree->Branch("rot", "TRotMatrix", &rot);
 }
 

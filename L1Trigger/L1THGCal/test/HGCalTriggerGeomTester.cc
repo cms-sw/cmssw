@@ -36,10 +36,10 @@ namespace {
 class HGCalTriggerGeomTester : public edm::EDAnalyzer {
 public:
   explicit HGCalTriggerGeomTester(const edm::ParameterSet&);
-  ~HGCalTriggerGeomTester();
+  ~HGCalTriggerGeomTester() override;
 
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   void fillTriggerGeometry();

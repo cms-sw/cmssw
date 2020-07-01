@@ -13,6 +13,8 @@
 
 #include <algorithm>
 #include <cmath>
+#include <memory>
+
 #include "TMath.h"
 
 class testFormulaEvaluator : public CppUnit::TestFixture {
@@ -22,8 +24,8 @@ class testFormulaEvaluator : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void checkEvaluators();
   void checkFormulaEvaluator();
 };
@@ -62,8 +64,8 @@ void testFormulaEvaluator::checkEvaluators() {
   }
 
   {
-    auto cl = std::unique_ptr<ConstantEvaluator>(new ConstantEvaluator(4));
-    auto cr = std::unique_ptr<ConstantEvaluator>(new ConstantEvaluator(3));
+    auto cl = std::make_unique<ConstantEvaluator>(4);
+    auto cr = std::make_unique<ConstantEvaluator>(3);
 
     BinaryOperatorEvaluator<std::minus<double>> be(std::move(cl), std::move(cr), EvaluatorBase::Precedence::kPlusMinus);
 
@@ -71,7 +73,7 @@ void testFormulaEvaluator::checkEvaluators() {
   }
 
   {
-    auto cl = std::unique_ptr<ConstantEvaluator>(new ConstantEvaluator(4));
+    auto cl = std::make_unique<ConstantEvaluator>(4);
 
     FunctionOneArgEvaluator f(std::move(cl), [](double v) { return std::exp(v); });
 
@@ -79,8 +81,8 @@ void testFormulaEvaluator::checkEvaluators() {
   }
 
   {
-    auto cl = std::unique_ptr<ConstantEvaluator>(new ConstantEvaluator(4));
-    auto cr = std::unique_ptr<ConstantEvaluator>(new ConstantEvaluator(3));
+    auto cl = std::make_unique<ConstantEvaluator>(4);
+    auto cr = std::make_unique<ConstantEvaluator>(3);
 
     FunctionTwoArgsEvaluator f(std::move(cl), std::move(cr), [](double v1, double v2) { return std::max(v1, v2); });
 
@@ -88,7 +90,7 @@ void testFormulaEvaluator::checkEvaluators() {
   }
 
   {
-    auto cl = std::unique_ptr<ConstantEvaluator>(new ConstantEvaluator(4));
+    auto cl = std::make_unique<ConstantEvaluator>(4);
 
     UnaryMinusEvaluator f(std::move(cl));
 

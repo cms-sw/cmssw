@@ -71,7 +71,7 @@ size_type GetBasketSize(TObjArray *branches, bool verbose) {
   size_t n = branches->GetEntries();
   for (size_t i = 0; i < n; ++i) {
     TBranch *b = dynamic_cast<TBranch *>(branches->At(i));
-    assert(b != 0);
+    assert(b != nullptr);
     result += GetBasketSize(b, verbose);
   }
   return result;
@@ -79,7 +79,7 @@ size_type GetBasketSize(TObjArray *branches, bool verbose) {
 
 size_type GetBasketSize(TBranch *b, bool verbose) {
   size_type result = make_pair(0, 0);
-  if (b != 0) {
+  if (b != nullptr) {
     if (b->GetZipBytes() > 0) {
       result = make_pair(b->GetTotBytes(), b->GetZipBytes());
     } else {
@@ -193,19 +193,19 @@ int main(int argc, char *argv[]) {
   }
 
   TObject *o = file.Get("Events");
-  if (o == 0) {
+  if (o == nullptr) {
     cerr << programName << ": no object \"Events\" found in file: " << fileName << endl;
     return 7003;
   }
 
   TTree *events = dynamic_cast<TTree *>(o);
-  if (events == 0) {
+  if (events == nullptr) {
     cerr << programName << ": object \"Events\" is not a TTree in file: " << fileName << endl;
     return 7004;
   }
 
   TObjArray *branches = events->GetListOfBranches();
-  if (branches == 0) {
+  if (branches == nullptr) {
     cerr << programName << ": tree \"Events\" in file " << fileName << " contains no branches" << endl;
     return 7004;
   }
@@ -217,7 +217,7 @@ int main(int argc, char *argv[]) {
   cout << fileName << " has " << n << " branches" << endl;
   for (size_t i = 0; i < n; ++i) {
     TBranch *b = dynamic_cast<TBranch *>(branches->At(i));
-    assert(b != 0);
+    assert(b != nullptr);
     string name(b->GetName());
     if (name == "EventAux")
       continue;

@@ -18,8 +18,8 @@ namespace testreferencecounted {
     CPPUNIT_TEST_SUITE_END();
 
   public:
-    void setUp() {}
-    void tearDown() {}
+    void setUp() override {}
+    void tearDown() override {}
     void deleteTest();
     void multiRefTest();
     void assignmentTest();
@@ -31,7 +31,7 @@ namespace testreferencecounted {
 
   struct RefTest : public ReferenceCounted {
     RefTest() { s_construct++; }
-    ~RefTest() { s_construct--; }
+    ~RefTest() override { s_construct--; }
   };
 
   typedef ReferenceCountingPointer<RefTest> RefPtr;
@@ -48,7 +48,7 @@ namespace testreferencecounted {
   void Test::multiRefTest() {
     {
       RefPtr pointer(new RefTest);
-      { RefPtr pointer2(pointer); }
+      { const RefPtr& pointer2(pointer); }
     }
     assert(0 == s_construct);
   }

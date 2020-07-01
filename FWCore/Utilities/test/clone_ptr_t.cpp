@@ -44,10 +44,12 @@ struct B {
   extstd::clone_ptr<A> a;
 };
 
+#include <memory>
+
 #include <vector>
 int main() {
   B b;
-  b.a.reset(new A(2));
+  b.a = std::make_unique<A>(2);
 
   assert(cla == 0);
   B c = b;
@@ -55,7 +57,7 @@ int main() {
   B d = b;
   assert(cla == 2);
 
-  b.a.reset(new A(-2));
+  b.a = std::make_unique<A>(-2);
 
   //std::cout<< c.a->i << std::endl;
   assert(c.a->i == 2);
@@ -66,7 +68,7 @@ int main() {
 
   assert(c.a->i == -2);
   //std::cout<< c.a->i << std::endl;
-  c.a.reset(new A(-7));
+  c.a = std::make_unique<A>(-7);
   assert(c.a->i == -7);
   assert(cla == 3);
 

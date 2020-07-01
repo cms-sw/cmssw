@@ -233,7 +233,7 @@ void DumpFileToDB::endJob() {
     string line;
     ifstream file(mapFileName.c_str());
     while (getline(file, line)) {
-      if (line == "" || line[0] == '#')
+      if (line.empty() || line[0] == '#')
         continue;  // Skip comments and empty lines
       stringstream linestr;
       linestr << line;

@@ -1,11 +1,13 @@
 #include "EcalMatacqHist.h"
 
 #include "TProfile.h"
-#include <sstream>
-#include <iostream>
-#include <iomanip>
+#include <memory>
+
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 #include <FWCore/Utilities/interface/Exception.h>
+#include <iomanip>
+#include <iostream>
+        #include <sstream>
 
 EcalMatacqHist::EcalMatacqHist(const edm::ParameterSet& ps) : iEvent(0) {
   outFileName = ps.getUntrackedParameter<std::string>("outputRootFile", "matacqHist.root");
@@ -14,7 +16,7 @@ EcalMatacqHist::EcalMatacqHist(const edm::ParameterSet& ps) : iEvent(0) {
   hTTrigMin = ps.getUntrackedParameter<double>("hTTrigMin", 0.);
   hTTrigMax = ps.getUntrackedParameter<double>("hTTrigMax", 2000.);
   TDirectory* dsave = gDirectory;
-  outFile = std::unique_ptr<TFile>(new TFile(outFileName.c_str(), "RECREATE"));
+  outFile = std::make_unique<TFile>(outFileName.c_str(), "RECREATE");
   if (outFile->IsZombie()) {
     std::cout << "EcalMatacqHist: Failed to create file " << outFileName << " No histogram will be created.\n";
   }
@@ -30,7 +32,7 @@ EcalMatacqHist::~EcalMatacqHist() {
     for (std::vector<TProfile>::iterator it = profiles.begin(); it != profiles.end(); ++it) {
       it->Write();
     }
-    if (hTTrig != 0)
+    if (hTTrig != nullptr)
       hTTrig->Write();
     dsave->cd();
   }
@@ -79,7 +81,7 @@ void EcalMatacqHist::analyze(const edm::Event& e, const edm::EventSetup& c) {
       profileName << "matacq" << digis.chId();
       profiles.push_back(
           TProfile(profileName.str().c_str(), profTitle.str().c_str(), digis.size(), -.5, -.5 + digis.size(), "I"));
-      profiles.back().SetDirectory(0);  //mem. management done by std::vector
+      profiles.back().SetDirectory(nullptr);  //mem. management done by std::vector
       profChId.push_back(digis.chId());
     }
 

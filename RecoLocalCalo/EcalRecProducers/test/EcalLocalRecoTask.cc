@@ -45,7 +45,7 @@ EcalLocalRecoTask::EcalLocalRecoTask(const edm::ParameterSet& ps) {
 
   cfToken_ = consumes<CrossingFrame<PCaloHit>>(edm::InputTag("mix", "EcalHitsEB"));
 
-  if (outputFile_.size() != 0) {
+  if (!outputFile_.empty()) {
     edm::LogInfo("EcalLocalRecoTaskInfo") << "histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
     edm::LogInfo("EcalLocalRecoTaskInfo") << "histograms will NOT be saved";
@@ -60,15 +60,15 @@ EcalLocalRecoTask::EcalLocalRecoTask(const edm::ParameterSet& ps) {
     edm::LogInfo("EcalLocalRecoTaskInfo") << "verbose switch is OFF";
   }
 
-  dbe_ = 0;
+  dbe_ = nullptr;
 
   // get hold of back-end interface
   dbe_ = edm::Service<DQMStore>().operator->();
 
-  meEBUncalibRecHitMaxSampleRatio_ = 0;
-  meEBUncalibRecHitPedestal_ = 0;
-  meEBUncalibRecHitOccupancy_ = 0;
-  meEBRecHitSimHitRatio_ = 0;
+  meEBUncalibRecHitMaxSampleRatio_ = nullptr;
+  meEBUncalibRecHitPedestal_ = nullptr;
+  meEBUncalibRecHitOccupancy_ = nullptr;
+  meEBRecHitSimHitRatio_ = nullptr;
 
   Char_t histo[70];
 
@@ -90,7 +90,7 @@ EcalLocalRecoTask::EcalLocalRecoTask(const edm::ParameterSet& ps) {
 }
 
 EcalLocalRecoTask::~EcalLocalRecoTask() {
-  if (outputFile_.size() != 0 && dbe_)
+  if (!outputFile_.empty() && dbe_)
     dbe_->save(outputFile_);
 }
 

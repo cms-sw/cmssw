@@ -27,8 +27,8 @@ namespace edmtest {
       std::cout << "PedestalsByLabelAnalyzer" << std::endl;
     }
     explicit PedestalsByLabelAnalyzer(int i) { std::cout << "PedestalsByLabelAnalyzer " << i << std::endl; }
-    virtual ~PedestalsByLabelAnalyzer() { std::cout << "~PedestalsByLabelAnalyzer " << std::endl; }
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~PedestalsByLabelAnalyzer() override { std::cout << "~PedestalsByLabelAnalyzer " << std::endl; }
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
   };

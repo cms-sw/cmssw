@@ -26,7 +26,7 @@ namespace {
       binoffx = binoffx + 0;
 
     } else {  // too small
-      assert("binoffx too small" == 0);
+      assert("binoffx too small" == nullptr);
     }
 
     return std::make_tuple(binoffx, local_pitchx > m_pitchx);
@@ -115,7 +115,7 @@ namespace {
       binoffy = binoffy + 0;
       local_pitchy = 2 * m_pitchy;
     } else {
-      assert("binoffy too small" == 0);
+      assert("binoffy too small" == nullptr);
     }
 
     return std::make_tuple(binoffy, local_pitchy > m_pitchy);

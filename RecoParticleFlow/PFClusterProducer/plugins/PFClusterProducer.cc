@@ -1,5 +1,9 @@
 #include "PFClusterProducer.h"
 
+
+        #include <memory>
+
+        
 #ifdef PFLOW_DEBUG
 #define LOGVERB(x) edm::LogVerbatim(x)
 #define LOGWARN(x) edm::LogWarning(x)
@@ -107,7 +111,7 @@ void PFClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   LOGVERB("PFClusterProducer::produce()") << *_initialClustering;
 
   auto pfClusters = std::make_unique<reco::PFClusterCollection>();
-  pfClusters.reset(new reco::PFClusterCollection);
+  pfClusters = std::make_unique<reco::PFClusterCollection>();
   if (_pfClusterBuilder) {  // if we've defined a re-clustering step execute it
     _pfClusterBuilder->buildClusters(*initialClusters, seedable, *pfClusters);
     LOGVERB("PFClusterProducer::produce()") << *_pfClusterBuilder;

@@ -17,7 +17,7 @@ Implementation:
 //
 
 // system include files
-#include <stdint.h>
+#include <cstdint>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"

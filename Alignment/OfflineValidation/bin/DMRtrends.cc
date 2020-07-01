@@ -371,7 +371,7 @@ void DMRtrends(vector<int> IOVlist,
       exit(EXIT_FAILURE);
     }
   }
-  for (TString Variable : Variables) {
+  for (const TString& Variable : Variables) {
     compileDMRTrends(IOVlist, Variable, labels, Year, myValidation, geometries, showlumi, FORCE);
     cout << "Begin plotting" << endl;
     PlotDMRTrends(IOVlist,
@@ -406,7 +406,7 @@ void compileDMRTrends(vector<int> IOVlist,
   TRegexp regexp("[0-9][0-9][0-9][0-9][0-9][0-9]");
   for (const auto &entry : fs::recursive_directory_iterator(myValidation)) {
     bool found_all_labels = true;
-    for (string label : labels) {
+    for (const string& label : labels) {
       if (entry.path().string().find(label) == std::string::npos)
         found_all_labels = false;
     }
@@ -449,7 +449,7 @@ void compileDMRTrends(vector<int> IOVlist,
   map<pair<pair<TString, int>, TString>, Geometry> mappoints;  // pair = (structure, layer), geometry
 
   std::sort(filenames.begin(), filenames.end());  //order the files in alphabetical order
-  for (TString filename : filenames) {
+  for (const TString& filename : filenames) {
     int runN;
     TString runstring(filename(regexp));
     if (runstring.IsFloat()) {
@@ -466,7 +466,7 @@ void compileDMRTrends(vector<int> IOVlist,
       structname.ReplaceAll("_y", "");
       size_t layersnumber = nlayers.at(structname);
       for (size_t layer = 0; layer <= layersnumber; layer++) {
-        for (string geometry : geometries) {
+        for (const string& geometry : geometries) {
           TString name = Variable + "_" + getName(structure, layer, geometry);
           TH1F *histo = dynamic_cast<TH1F *>(f->Get(name));
           //Geometry *geom =nullptr;
@@ -502,7 +502,7 @@ void compileDMRTrends(vector<int> IOVlist,
     f->Close();
   }
   TString outname = myValidation + "DMRtrends";
-  for (TString label : labels) {
+  for (const TString& label : labels) {
     outname += "_";
     outname += label;
   }
@@ -514,7 +514,7 @@ void compileDMRTrends(vector<int> IOVlist,
     structname.ReplaceAll("_y", "");
     size_t layersnumber = nlayers.at(structname);
     for (size_t layer = 0; layer <= layersnumber; layer++) {
-      for (string geometry : geometries) {
+      for (const string& geometry : geometries) {
         TString name = Variable + "_" + getName(structure, layer, geometry);
         Geometry geom = mappoints[make_pair(make_pair(structure, layer), geometry)];
         using Trend = vector<float> (Geometry::*)() const;
@@ -808,7 +808,7 @@ void PlotDMRTrends(vector<int> IOVlist,
     lumiIOVpairs = lumiperIOV(IOVlist, Year);
 
   TString filename = myValidation + "DMRtrends";
-  for (TString label : labels) {
+  for (const TString& label : labels) {
     filename += "_";
     filename += label;
   }
@@ -875,7 +875,7 @@ void PlotDMRTrends(vector<int> IOVlist,
         TMultiGraph *mg = new TMultiGraph(structure, structure);
         THStack *mh = new THStack(structure, structure);
         size_t igeom = 0;
-        for (string geometry : geometries) {
+        for (const string& geometry : geometries) {
           TString name = Variable + "_" + getName(structure, layer, geometry);
           TGraphErrors *g = dynamic_cast<TGraphErrors *>(in->Get(name + "_" + variables.at(i)));
           g->SetName(name + "_" + variables.at(i));
@@ -1018,7 +1018,7 @@ void PlotDMRTrends(vector<int> IOVlist,
         TString printfile = outputdir;
         if (!(outputdir.EndsWith("/")))
           outputdir += "/";
-        for (TString label : labels) {
+        for (const TString& label : labels) {
           printfile += label;
           printfile += "_";
         }
@@ -1097,19 +1097,27 @@ int main(int argc, char *argv[]) {
   bool showpixelupdate = argv[9], showlumi = argv[10], FORCE = argv[11];
   TObjArray *vararray = all_variables.Tokenize(",");
   vector<string> Variables;
-  for (int i = 0; i < vararray->GetEntries(); i++)
+  Variables.reserve(vararray->GetEntries());
+
+for (int i = 0; i < vararray->GetEntries(); i++)
     Variables.push_back((string)(vararray->At(i)->GetName()));
   TObjArray *labelarray = all_labels.Tokenize(",");
   vector<string> labels;
-  for (int i = 0; i < labelarray->GetEntries(); i++)
+  labels.reserve(labelarray->GetEntries());
+
+for (int i = 0; i < labelarray->GetEntries(); i++)
     labels.push_back((string)(labelarray->At(i)->GetName()));
   TObjArray *IOVarray = runlist.Tokenize(",");
   vector<int> IOVlist;
-  for (int i = 0; i < IOVarray->GetEntries(); i++)
+  IOVlist.reserve(IOVarray->GetEntries());
+
+for (int i = 0; i < IOVarray->GetEntries(); i++)
     IOVlist.push_back(stoi(IOVarray->At(i)->GetName()));
   vector<int> pixelupdateruns;
   TObjArray *PIXarray = pixelupdatelist.Tokenize(",");
-  for (int i = 0; i < PIXarray->GetEntries(); i++)
+  pixelupdateruns.reserve(PIXarray->GetEntries());
+
+for (int i = 0; i < PIXarray->GetEntries(); i++)
     pixelupdateruns.push_back(stoi(PIXarray->At(i)->GetName()));
   vector<string> geometries;
   //TO DO: the color is not taken correctly from command line

@@ -1,4 +1,6 @@
 #include <cfloat>
+#include <memory>
+
 
 #include "CondTools/Hcal/interface/make_HFPhase1PMTParams.h"
 
@@ -99,6 +101,6 @@ std::unique_ptr<HFPhase1PMTParams> make_HFPhase1PMTParams_test() {
   std::unique_ptr<HFPhase1PMTData> firstItem(new HFPhase1PMTData(cuts, minCharge0, minCharge1, minChargeAsymm));
   coll.push_back(std::move(firstItem));
 
-  return std::unique_ptr<HFPhase1PMTParams>(
-      new HFPhase1PMTParams(coll, lookup, detIdTransformCode, std::move(defaultItem)));
+  return std::make_unique<HFPhase1PMTParams>(
+      coll, lookup, detIdTransformCode, std::move(defaultItem));
 }

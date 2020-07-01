@@ -27,7 +27,7 @@ edm::OwnVector<RPCRecHit> RPCRecHitBaseAlgo::reconstruct(const RPCRoll& roll,
   RPCMaskReClusterizer mrclizer;
   RPCClusterContainer cls = mrclizer.doAction(rpcId, tcls, mask);
 
-  for (auto cl : cls) {
+  for (const auto& cl : cls) {
     LocalError tmpErr;
     LocalPoint point;
     float time = 0, timeErr = -1;

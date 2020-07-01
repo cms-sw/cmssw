@@ -14,7 +14,7 @@ MkFitInputWrapper::MkFitInputWrapper(MkFitHitIndexMap&& hitIndexMap,
     : hitIndexMap_{std::move(hitIndexMap)},
       hits_{std::move(hits)},
       seeds_{std::make_unique<mkfit::TrackVec>(std::move(seeds))},
-      lnc_{std::make_unique<mkfit::LayerNumberConverter>(std::move(lnc))} {}
+      lnc_{std::make_unique<mkfit::LayerNumberConverter>(lnc)} {}
 
 MkFitInputWrapper::~MkFitInputWrapper() = default;
 

@@ -82,7 +82,7 @@ void GeometryInterface::load(edm::EventSetup const& iSetup) {
   loadFromSiPixelCoordinates(trackerGeometry, trackerTopology, siPixelFedCablingMap, iConfig);
   edm::LogInfo log("GeometryInterface");
   log << "Known colum names:\n";
-  for (auto e : ids)
+  for (const auto& e : ids)
     log << "+++ column: " << e.first << " ok " << bool(extractors[e.second]) << " min " << min_value[e.second]
         << " max " << max_value[e.second] << "\n";
   is_loaded = true;

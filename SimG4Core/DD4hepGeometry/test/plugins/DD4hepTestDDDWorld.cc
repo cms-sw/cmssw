@@ -20,7 +20,9 @@
 #include "G4RegionStore.hh"
 
 #include <iostream>
-#include <string>
+#include <memory>
+
+        #include <string>
 #include <string_view>
 
 using namespace std;
@@ -101,7 +103,7 @@ void DD4hepTestDDDWorld::analyze(const Event&, const EventSetup& iEventSetup) {
   g4Geo.create(detector.world());
 
   dd4hep::sim::Geant4GeometryMaps::VolumeMap lvMap;
-  world_.reset(new DDDWorld(ddd.product(), lvMap));
+  world_ = std::make_unique<DDDWorld>(ddd.product(), lvMap);
   initialize(lvMap);
   update();
   LogVerbatim("Geometry") << "Done.";

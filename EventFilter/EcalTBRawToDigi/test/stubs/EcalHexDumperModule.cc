@@ -18,7 +18,7 @@
 #include <vector>
 #include <string>
 
-#include <stdio.h>
+#include <cstdio>
 #include <fstream>
 
 #include <iomanip>
@@ -50,7 +50,7 @@ protected:
   std::string filename_;
   int event_;
 
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 private:
   edm::InputTag fedRawDataCollectionTag_;

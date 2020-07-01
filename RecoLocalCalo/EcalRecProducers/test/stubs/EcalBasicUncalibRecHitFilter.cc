@@ -39,12 +39,12 @@
 class EcalBasicUncalibRecHitFilter : public edm::EDFilter {
 public:
   explicit EcalBasicUncalibRecHitFilter(const edm::ParameterSet&);
-  ~EcalBasicUncalibRecHitFilter();
+  ~EcalBasicUncalibRecHitFilter() override;
 
 private:
-  virtual void beginJob();
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   // ----------member data ---------------------------
 

@@ -102,7 +102,9 @@ void CovarianceParameterization::load(int version) {
           std::string bitString = folder + "/bit";
           std::vector<float> vParams;
           TVector *p = (TVector *)fileToRead.Get((folder + "/param").c_str());
-          for (int k = 0; k < p->GetNoElements(); k++) {
+          vParams.reserve(p->GetNoElements());
+
+for (int k = 0; k < p->GetNoElements(); k++) {
             vParams.push_back((*p)[k]);
           }
 

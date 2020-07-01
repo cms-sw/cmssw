@@ -19,8 +19,8 @@
 class printJetFlavourInfo : public edm::EDAnalyzer {
 public:
   explicit printJetFlavourInfo(const edm::ParameterSet&);
-  ~printJetFlavourInfo(){};
-  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  ~printJetFlavourInfo() override{};
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   edm::EDGetTokenT<reco::JetFlavourInfoMatchingCollection> jetFlavourInfosToken_;

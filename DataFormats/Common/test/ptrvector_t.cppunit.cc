@@ -17,8 +17,8 @@ class testPtrVector : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void check();
   void get();
 };
@@ -33,24 +33,24 @@ namespace testPtr {
   };
 
   struct Inherit1 : public Base {
-    virtual int val() const { return 1; }
+    int val() const override { return 1; }
   };
   struct Inherit2 : public Base {
-    virtual int val() const { return 2; }
+    int val() const override { return 2; }
   };
 
   struct TestGetter : public edm::EDProductGetter {
     edm::WrapperBase const* hold_;
-    virtual edm::WrapperBase const* getIt(edm::ProductID const&) const override { return hold_; }
-    virtual edm::WrapperBase const* getThinnedProduct(edm::ProductID const&, unsigned int&) const override {
+    edm::WrapperBase const* getIt(edm::ProductID const&) const override { return hold_; }
+    edm::WrapperBase const* getThinnedProduct(edm::ProductID const&, unsigned int&) const override {
       return nullptr;
     }
 
-    virtual void getThinnedProducts(edm::ProductID const& pid,
+    void getThinnedProducts(edm::ProductID const& pid,
                                     std::vector<edm::WrapperBase const*>& wrappers,
                                     std::vector<unsigned int>& keys) const override {}
 
-    virtual unsigned int transitionIndex_() const override { return 0U; }
+    unsigned int transitionIndex_() const override { return 0U; }
 
     TestGetter() : hold_() {}
   };
@@ -59,7 +59,7 @@ namespace testPtr {
 using namespace testPtr;
 
 void do_some_tests(edm::PtrVector<Base> const& x) {
-  edm::PtrVector<Base> copy(x);
+  const edm::PtrVector<Base>& copy(x);
 
   CPPUNIT_ASSERT(x.empty() == copy.empty());
   CPPUNIT_ASSERT(x.size() == copy.size());
@@ -84,7 +84,7 @@ void testPtrVector::check() {
   rv2.push_back(Ptr<Inherit2>(h2, 1));
 
   PtrVector<Base> empty;
-  PtrVector<Base> copy_of_empty(empty);
+  const PtrVector<Base>& copy_of_empty(empty);
 
   CPPUNIT_ASSERT(empty == copy_of_empty);
 
@@ -136,7 +136,7 @@ void testPtrVector::check() {
 
   /// clearing, then pushing in Ptr with other product ID
   bv3.clear();
-  CPPUNIT_ASSERT(bv3.size() == 0);
+  CPPUNIT_ASSERT(bv3.empty());
   bv3.push_back(r2_0);
   CPPUNIT_ASSERT(bv3.size() == 1);
 }

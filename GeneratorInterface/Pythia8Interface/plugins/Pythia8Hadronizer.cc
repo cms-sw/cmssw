@@ -1,8 +1,10 @@
 #include <iostream>
-#include <sstream>
-#include <string>
 #include <memory>
+
 #include <cstdint>
+#include <memory>
+        #include <sstream>
+#include <string>
 #include <vector>
 
 #include "HepMC/GenEvent.h"
@@ -696,7 +698,7 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize() {
   if (evtgenDecays.get())
     evtgenDecays->decay();
 
-  event().reset(new HepMC::GenEvent);
+  event() = std::make_unique<HepMC::GenEvent>();
   bool py8hepmc = toHepMC.fill_next_event(*(fMasterGen.get()), event().get());
 
   if (!py8hepmc) {
@@ -811,7 +813,7 @@ bool Pythia8Hadronizer::hadronize() {
   if (evtgenDecays.get())
     evtgenDecays->decay();
 
-  event().reset(new HepMC::GenEvent);
+  event() = std::make_unique<HepMC::GenEvent>();
   bool py8hepmc = toHepMC.fill_next_event(*(fMasterGen.get()), event().get());
   if (!py8hepmc) {
     return false;
@@ -894,7 +896,7 @@ void Pythia8Hadronizer::finalizeEvent() {
 
   // now create the GenEventInfo product from the GenEvent and fill
   // the missing pieces
-  eventInfo().reset(new GenEventInfoProduct(event().get()));
+  eventInfo() = std::make_unique<GenEventInfoProduct>(event().get());
 
   // in pythia pthat is used to subdivide samples into different bins
   // in LHE mode the binning is done by the external ME generator

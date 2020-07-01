@@ -10,6 +10,10 @@
 //
 //-----------------------------------------------------------------------------
 
+#include <memory>
+
+
+
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCMotherboardME11.h"
 
 CSCMotherboardME11::CSCMotherboardME11(unsigned endcap,
@@ -23,7 +27,7 @@ CSCMotherboardME11::CSCMotherboardME11(unsigned endcap,
     edm::LogError("CSCMotherboardME11|ConfigError")
         << "+++ Upgrade CSCMotherboardME11 constructed while isSLHC_ is not set! +++\n";
 
-  cscTmbLUT_.reset(new CSCMotherboardLUTME11());
+  cscTmbLUT_ = std::make_unique<CSCMotherboardLUTME11>();
 
   // ignore unphysical ALCT-CLCT matches
   ignoreAlctCrossClct = tmbParams_.getParameter<bool>("ignoreAlctCrossClct");

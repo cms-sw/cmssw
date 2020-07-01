@@ -32,6 +32,10 @@
  */
 #include "SimGeneral/TrackingAnalysis/plugins/TrackingTruthAccumulator.h"
 
+
+        #include <memory>
+
+        
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -355,16 +359,16 @@ TrackingTruthAccumulator::TrackingTruthAccumulator(const edm::ParameterSet &conf
 
 void TrackingTruthAccumulator::initializeEvent(edm::Event const &event, edm::EventSetup const &setup) {
   if (createUnmergedCollection_) {
-    unmergedOutput_.pTrackingParticles.reset(new TrackingParticleCollection);
-    unmergedOutput_.pTrackingVertices.reset(new TrackingVertexCollection);
+    unmergedOutput_.pTrackingParticles = std::make_unique<TrackingParticleCollection>();
+    unmergedOutput_.pTrackingVertices = std::make_unique<TrackingVertexCollection>();
     unmergedOutput_.refTrackingParticles =
         const_cast<edm::Event &>(event).getRefBeforePut<TrackingParticleCollection>();
     unmergedOutput_.refTrackingVertexes = const_cast<edm::Event &>(event).getRefBeforePut<TrackingVertexCollection>();
   }
 
   if (createMergedCollection_) {
-    mergedOutput_.pTrackingParticles.reset(new TrackingParticleCollection);
-    mergedOutput_.pTrackingVertices.reset(new TrackingVertexCollection);
+    mergedOutput_.pTrackingParticles = std::make_unique<TrackingParticleCollection>();
+    mergedOutput_.pTrackingVertices = std::make_unique<TrackingVertexCollection>();
     mergedOutput_.refTrackingParticles =
         const_cast<edm::Event &>(event).getRefBeforePut<TrackingParticleCollection>("MergedTrackTruth");
     mergedOutput_.refTrackingVertexes =
@@ -372,7 +376,7 @@ void TrackingTruthAccumulator::initializeEvent(edm::Event const &event, edm::Eve
   }
 
   if (createInitialVertexCollection_) {
-    pInitialVertices_.reset(new TrackingVertexCollection);
+    pInitialVertices_ = std::make_unique<TrackingVertexCollection>();
   }
 }
 
@@ -481,9 +485,9 @@ void TrackingTruthAccumulator::accumulateEvent(const T &event,
   std::unique_ptr<::OutputCollectionWrapper> pUnmergedCollectionWrapper;
   std::unique_ptr<::OutputCollectionWrapper> pMergedCollectionWrapper;
   if (createUnmergedCollection_)
-    pUnmergedCollectionWrapper.reset(new ::OutputCollectionWrapper(decayChain, unmergedOutput_));
+    pUnmergedCollectionWrapper = std::make_unique<::OutputCollectionWrapper>(decayChain, unmergedOutput_);
   if (createMergedCollection_)
-    pMergedCollectionWrapper.reset(new ::OutputCollectionWrapper(decayChain, mergedOutput_));
+    pMergedCollectionWrapper = std::make_unique<::OutputCollectionWrapper>(decayChain, mergedOutput_);
 
   std::vector<const PSimHit *> simHitPointers;
   fillSimHits(simHitPointers, event, setup);

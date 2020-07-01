@@ -57,7 +57,7 @@ namespace edmtest {
   public:
     using EventSetupRecordKey = edm::eventsetup::EventSetupRecordKey;
     explicit TestESSource(edm::ParameterSet const&);
-    ~TestESSource();
+    ~TestESSource() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

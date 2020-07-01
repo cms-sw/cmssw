@@ -104,7 +104,7 @@ void SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const ed
       edm::LogInfo("DetUnit Info") << " There are " << pDD->detUnits().size() << " detectors";
     }
     for (const auto& it : pDD->detUnits()) {
-      if (dynamic_cast<PixelGeomDetUnit const*>(it) != 0) {
+      if (dynamic_cast<PixelGeomDetUnit const*>(it) != nullptr) {
         DetId detid = it->geographicalId();
 
         if (detid.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel) &&

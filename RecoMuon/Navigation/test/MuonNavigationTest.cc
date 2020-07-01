@@ -27,9 +27,9 @@
 class MuonNavigationTest : public edm::EDAnalyzer {
 public:
   explicit MuonNavigationTest(const edm::ParameterSet&);
-  ~MuonNavigationTest();
+  ~MuonNavigationTest() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
 };

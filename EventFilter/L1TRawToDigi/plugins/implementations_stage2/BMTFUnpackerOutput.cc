@@ -53,7 +53,7 @@ namespace l1t {
           processor = 6 + (block.amc().getAMCNumber() / 2 - 1);
       }
 
-      for (auto bxBlock : bxBlocks) {
+      for (const auto& bxBlock : bxBlocks) {
         int ibx = bxBlock.header().getBx();
 
         for (auto iw = 0; iw < 6; iw += 2) {

@@ -8,7 +8,7 @@ typedef produceTrivialCalibrationLut::lutPtrVector lutPtrVector;
 
 int main(int argc, char** argv) {
   const std::string filename = (argc == 1 ? "" : std::string(argv[1]));
-  if (filename == "") {
+  if (filename.empty()) {
     std::cout << "No filename argument supplied - exiting" << std::endl;
     return 0;
   }

@@ -1,3 +1,7 @@
+#include <memory>
+
+
+
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCTriggerPrimitivesBuilder.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCMotherboard.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCMotherboardME11.h"
@@ -59,23 +63,23 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
 
             // go through all possible cases
             if (isSLHC_ and ring == 1 and stat == 1 and runME11Up_ and !runME11ILT_)
-              tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1].reset(
-                  new CSCMotherboardME11(endc, stat, sect, subs, cham, conf));
+              tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1] = std::make_unique<CSCMotherboardME11>(
+                  endc, stat, sect, subs, cham, conf);
             else if (isSLHC_ and ring == 1 and stat == 1 and runME11Up_ and runME11ILT_)
-              tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1].reset(
-                  new CSCGEMMotherboardME11(endc, stat, sect, subs, cham, conf));
+              tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1] = std::make_unique<CSCGEMMotherboardME11>(
+                  endc, stat, sect, subs, cham, conf);
             else if (isSLHC_ and ring == 1 and stat == 2 and runME21Up_ and !runME21ILT_)
-              tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1].reset(
-                  new CSCUpgradeMotherboard(endc, stat, sect, subs, cham, conf));
+              tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1] = std::make_unique<CSCUpgradeMotherboard>(
+                  endc, stat, sect, subs, cham, conf);
             else if (isSLHC_ and ring == 1 and stat == 2 and runME21Up_ and runME21ILT_)
-              tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1].reset(
-                  new CSCGEMMotherboardME21(endc, stat, sect, subs, cham, conf));
+              tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1] = std::make_unique<CSCGEMMotherboardME21>(
+                  endc, stat, sect, subs, cham, conf);
             else if (isSLHC_ and ring == 1 and ((stat == 3 and runME31Up_) || (stat == 4 and runME41Up_)))
-              tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1].reset(
-                  new CSCUpgradeMotherboard(endc, stat, sect, subs, cham, conf));
+              tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1] = std::make_unique<CSCUpgradeMotherboard>(
+                  endc, stat, sect, subs, cham, conf);
             else
-              tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1].reset(
-                  new CSCMotherboard(endc, stat, sect, subs, cham, conf));
+              tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1] = std::make_unique<CSCMotherboard>(
+                  endc, stat, sect, subs, cham, conf);
           }
         }
       }
@@ -87,7 +91,7 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
   m_maxBX_ = conf.getParameter<int>("MaxBX");
 
   // Init MPC
-  m_muonportcard.reset(new CSCMuonPortCard(conf));
+  m_muonportcard = std::make_unique<CSCMuonPortCard>(conf);
 }
 
 //------------

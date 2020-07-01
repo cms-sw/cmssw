@@ -20,7 +20,7 @@ namespace cms {
   SiPixelCondObjForHLTBuilder::SiPixelCondObjForHLTBuilder(const edm::ParameterSet& iConfig)
       : conf_(iConfig),
         appendMode_(conf_.getUntrackedParameter<bool>("appendMode", true)),
-        SiPixelGainCalibration_(0),
+        SiPixelGainCalibration_(nullptr),
         SiPixelGainCalibrationService_(iConfig),
         recordName_(iConfig.getParameter<std::string>("record")),
         meanPed_(conf_.getParameter<double>("meanPed")),
@@ -71,7 +71,7 @@ namespace cms {
     edm::LogInfo("SiPixelCondObjForHLTBuilder") << " There are " << pDD->dets().size() << " detectors" << std::endl;
 
     for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
-      if (dynamic_cast<PixelGeomDetUnit const*>((*it)) != 0) {
+      if (dynamic_cast<PixelGeomDetUnit const*>((*it)) != nullptr) {
         uint32_t detid = ((*it)->geographicalId()).rawId();
 
         // Stop if module limit reached

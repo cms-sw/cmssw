@@ -49,7 +49,7 @@ void HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::
         efficsOK[flavour] = isOK;
       }
       // for modules (HEP17 etc.)
-      for (auto j : HCALSpecialsNames) {
+      for (const auto& j : HCALSpecialsNames) {
         ibooker.setCurrentFolder(dqmFolder_hist + "/" + j.second + "/efficiency");
         isOK = GetNumDenumerators(ibooker,
                                   igetter,
@@ -112,7 +112,7 @@ void HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::
       mistagrate(ibooker, igetter, &effics["b"], &effics["g"], m_histoName.at(ind) + "_b_g_mistagrate");
 
     /// save mistagrate vs b-eff plots for modules (HEP17 etc.)
-    for (auto j : HCALSpecialsNames) {
+    for (const auto& j : HCALSpecialsNames) {
       ibooker.setCurrentFolder(dqmFolder_hist + "/" + j.second + "/efficiency");
       if (efficsmodOK["b"][j.first] && efficsmodOK["c"][j.first])
         mistagrate(ibooker,

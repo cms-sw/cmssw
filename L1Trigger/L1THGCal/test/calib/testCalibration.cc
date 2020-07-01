@@ -49,11 +49,11 @@ class testCalibration : public edm::EDAnalyzer {
 public:
   explicit testCalibration(const edm::ParameterSet &);
 
-  ~testCalibration();
+  ~testCalibration() override;
 
 private:
   edm::Service<TFileService> fs_;
-  virtual void analyze(const edm::Event &, const edm::EventSetup &);
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
   // ----------member data ---------------------------
   EDGetTokenT<HGCalTriggerCellBxCollection> tokenTrgCell_;

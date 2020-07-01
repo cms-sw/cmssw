@@ -1,3 +1,4 @@
+#include "SimMuon/MCTruth/interface/MuonAssociatorByHits.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegment.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -9,9 +10,10 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "SimMuon/MCTruth/interface/MuonAssociatorByHits.h"
 #include "SimMuon/MCTruth/interface/TrackerMuonHitExtractor.h"
-#include <sstream>
+#include <memory>
+
+        #include <sstream>
 
 using namespace reco;
 using namespace std;
@@ -142,7 +144,7 @@ MuonAssociatorByHits::MuonAssociatorByHits(const edm::ParameterSet &conf, edm::C
   DTHitAssociator dttruth(conf, std::move(iC));
   CSCHitAssociator muonTruth(conf, std::move(iC));
   if (conf.getUntrackedParameter<bool>("dumpInputCollections")) {
-    diagnostics_.reset(new InputDumper(conf, std::move(iC)));
+    diagnostics_ = std::make_unique<InputDumper>(conf, std::move(iC));
   }
 }
 

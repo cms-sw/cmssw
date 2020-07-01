@@ -117,7 +117,7 @@ namespace evf {
     if (streamLabel_.find(testPrefix) == 0)
       streamLabel_ = std::string("stream") + streamLabel_.substr(testPrefix.size());
 
-    if (streamLabel_.find("_") != std::string::npos) {
+    if (streamLabel_.find('_') != std::string::npos) {
       throw cms::Exception("EvFOutputModule") << "Underscore character is reserved can not be used for stream names in "
                                                  "FFF, but was detected in stream name -: "
                                               << streamLabel_;

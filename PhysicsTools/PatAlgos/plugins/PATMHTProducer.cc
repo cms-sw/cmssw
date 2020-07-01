@@ -3,6 +3,10 @@
 
 #include "PhysicsTools/PatAlgos/plugins/PATMHTProducer.h"
 
+
+        #include <memory>
+
+        
 pat::PATMHTProducer::PATMHTProducer(const edm::ParameterSet& iConfig) {
   // Initialize the configurables
   verbose_ = iConfig.getParameter<double>("verbose");
@@ -340,63 +344,63 @@ void pat::PATMHTProducer::setUncertaintyParameters() {
   //-- Ecal Uncertainty Functions ------------------------------------//
   //-- From: FastSimulation/Calorimetry/data/HcalResponse.cfi --//
   //-- Ecal Barrel --//
-  ecalEBUncertainty.etUncertainty.reset(new TF1("ecalEBEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3));
+  ecalEBUncertainty.etUncertainty = std::make_unique<TF1>("ecalEBEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
   ecalEBUncertainty.etUncertainty->SetParameter(0, 0.2);
   ecalEBUncertainty.etUncertainty->SetParameter(1, 0.03);
   ecalEBUncertainty.etUncertainty->SetParameter(2, 0.005);
 
-  ecalEBUncertainty.phiUncertainty.reset(new TF1("ecalEBphiFunc", "[0]*x", 1));
+  ecalEBUncertainty.phiUncertainty = std::make_unique<TF1>("ecalEBphiFunc", "[0]*x", 1);
   ecalEBUncertainty.phiUncertainty->SetParameter(0, 0.0174);
 
   //-- Ecal Endcap --//
-  ecalEEUncertainty.etUncertainty.reset(new TF1("ecalEEEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3));
+  ecalEEUncertainty.etUncertainty = std::make_unique<TF1>("ecalEEEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
   ecalEEUncertainty.etUncertainty->SetParameter(0, 0.2);
   ecalEEUncertainty.etUncertainty->SetParameter(1, 0.03);
   ecalEEUncertainty.etUncertainty->SetParameter(2, 0.005);
 
-  ecalEEUncertainty.phiUncertainty.reset(new TF1("ecalEEphiFunc", "[0]*x", 1));
+  ecalEEUncertainty.phiUncertainty = std::make_unique<TF1>("ecalEEphiFunc", "[0]*x", 1);
   ecalEEUncertainty.phiUncertainty->SetParameter(0, 0.087);
 
   //-- Hcal Uncertainty Functions --------------------------------------//
   //-- From: FastSimulation/Calorimetry/data/HcalResponse.cfi --//
   //-- Hcal Barrel --//
-  hcalHBUncertainty.etUncertainty.reset(new TF1("hcalHBEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3));
+  hcalHBUncertainty.etUncertainty = std::make_unique<TF1>("hcalHBEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
   hcalHBUncertainty.etUncertainty->SetParameter(0, 0.);
   hcalHBUncertainty.etUncertainty->SetParameter(1, 1.22);
   hcalHBUncertainty.etUncertainty->SetParameter(2, 0.05);
 
-  hcalHBUncertainty.phiUncertainty.reset(new TF1("ecalHBphiFunc", "[0]*x", 1));
+  hcalHBUncertainty.phiUncertainty = std::make_unique<TF1>("ecalHBphiFunc", "[0]*x", 1);
   hcalHBUncertainty.phiUncertainty->SetParameter(0, 0.087);
 
   //-- Hcal Endcap --//
-  hcalHEUncertainty.etUncertainty.reset(new TF1("hcalHEEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3));
+  hcalHEUncertainty.etUncertainty = std::make_unique<TF1>("hcalHEEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
   hcalHEUncertainty.etUncertainty->SetParameter(0, 0.);
   hcalHEUncertainty.etUncertainty->SetParameter(1, 1.3);
   hcalHEUncertainty.etUncertainty->SetParameter(2, 0.05);
 
-  hcalHEUncertainty.phiUncertainty.reset(new TF1("ecalHEphiFunc", "[0]*x", 1));
+  hcalHEUncertainty.phiUncertainty = std::make_unique<TF1>("ecalHEphiFunc", "[0]*x", 1);
   hcalHEUncertainty.phiUncertainty->SetParameter(0, 0.087);
 
   //-- Hcal Outer --//
-  hcalHOUncertainty.etUncertainty.reset(new TF1("hcalHOEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3));
+  hcalHOUncertainty.etUncertainty = std::make_unique<TF1>("hcalHOEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
   hcalHOUncertainty.etUncertainty->SetParameter(0, 0.);
   hcalHOUncertainty.etUncertainty->SetParameter(1, 1.82);
   hcalHOUncertainty.etUncertainty->SetParameter(2, 0.09);
 
-  hcalHOUncertainty.phiUncertainty.reset(new TF1("ecalHOphiFunc", "[0]*x", 1));
+  hcalHOUncertainty.phiUncertainty = std::make_unique<TF1>("ecalHOphiFunc", "[0]*x", 1);
   hcalHOUncertainty.phiUncertainty->SetParameter(0, 0.087);
 
   //-- Hcal Forward --//
-  hcalHFUncertainty.etUncertainty.reset(new TF1("hcalHFEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3));
+  hcalHFUncertainty.etUncertainty = std::make_unique<TF1>("hcalHFEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
   hcalHFUncertainty.etUncertainty->SetParameter(0, 0.);
   hcalHFUncertainty.etUncertainty->SetParameter(1, 1.82);
   hcalHFUncertainty.etUncertainty->SetParameter(2, 0.09);
 
-  hcalHFUncertainty.phiUncertainty.reset(new TF1("ecalHFphiFunc", "[0]*x", 1));
+  hcalHFUncertainty.phiUncertainty = std::make_unique<TF1>("ecalHFphiFunc", "[0]*x", 1);
   hcalHFUncertainty.phiUncertainty->SetParameter(0, 0.174);
 
   //--- Jet Uncertainty Functions --------------------------------------//
-  jetUncertainty.etUncertainty.reset(new TF1("jetEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3));
+  jetUncertainty.etUncertainty = std::make_unique<TF1>("jetEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
   //-- values from PTDR 1, ch 11.4 --//
   jetUncertainty.etUncertainty->SetParameter(0, jetEtUncertaintyParameter0_);
   jetUncertainty.etUncertainty->SetParameter(1, jetEtUncertaintyParameter1_);
@@ -408,7 +412,7 @@ void pat::PATMHTProducer::setUncertaintyParameters() {
 
   //-- phi Functions and values from
   // http://indico.cern.ch/getFile.py/access?contribId=9&sessionId=0&resId=0&materialId=slides&confId=46394
-  jetUncertainty.phiUncertainty.reset(new TF1("jetPhiFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3));
+  jetUncertainty.phiUncertainty = std::make_unique<TF1>("jetPhiFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
   jetUncertainty.phiUncertainty->SetParameter(0, jetPhiUncertaintyParameter0_);
   jetUncertainty.phiUncertainty->SetParameter(1, jetPhiUncertaintyParameter1_);
   jetUncertainty.phiUncertainty->SetParameter(2, jetPhiUncertaintyParameter2_);
@@ -425,21 +429,21 @@ void pat::PATMHTProducer::setUncertaintyParameters() {
   // https://twiki.cern.ch/twiki/bin/view/CMS/EgammaCMSSWVal
   // electron resolution in energy is around 3.4%, measured for 10 < pT < 50 at realistic events with pile-up.
 
-  eleUncertainty.etUncertainty.reset(new TF1("eleEtFunc", "[0] * x", 1));
+  eleUncertainty.etUncertainty = std::make_unique<TF1>("eleEtFunc", "[0] * x", 1);
   //  eleUncertainty.etUncertainty->SetParameter(0,0.034);
   eleUncertainty.etUncertainty->SetParameter(0, eleEtUncertaintyParameter0_);
 
-  eleUncertainty.phiUncertainty.reset(new TF1("elePhiFunc", "[0] * x", 1));
+  eleUncertainty.phiUncertainty = std::make_unique<TF1>("elePhiFunc", "[0] * x", 1);
   //  eleUncertainty.phiUncertainty->SetParameter(0,1*(3.14159/180.));
   eleUncertainty.phiUncertainty->SetParameter(0, elePhiUncertaintyParameter0_);
 
   //--- Muon Uncertainty Functions ------------------------------------//
   // and ambiguious values for the muons...
 
-  muonUncertainty.etUncertainty.reset(new TF1("muonEtFunc", "[0] * x", 1));
+  muonUncertainty.etUncertainty = std::make_unique<TF1>("muonEtFunc", "[0] * x", 1);
   //  muonUncertainty.etUncertainty->SetParameter(0,0.01);
   muonUncertainty.etUncertainty->SetParameter(0, muonEtUncertaintyParameter0_);
-  muonUncertainty.phiUncertainty.reset(new TF1("muonPhiFunc", "[0] * x", 1));
+  muonUncertainty.phiUncertainty = std::make_unique<TF1>("muonPhiFunc", "[0] * x", 1);
   //  muonUncertainty.phiUncertainty->SetParameter(0,1*(3.14159/180.));
   muonUncertainty.phiUncertainty->SetParameter(0, muonPhiUncertaintyParameter0_);
 

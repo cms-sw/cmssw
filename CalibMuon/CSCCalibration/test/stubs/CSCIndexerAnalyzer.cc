@@ -13,12 +13,12 @@
 class CSCIndexerAnalyzer : public edm::EDAnalyzer {
 public:
   explicit CSCIndexerAnalyzer(const edm::ParameterSet &);
-  ~CSCIndexerAnalyzer();
+  ~CSCIndexerAnalyzer() override;
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event &, const edm::EventSetup &);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void endJob() override;
 
   std::string algoName;
 };

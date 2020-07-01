@@ -85,7 +85,7 @@ namespace fireworks {
   namespace {
     std::string descriptionFromMember(const edm::FunctionWithDict& iMember) {
       std::string typeString = iMember.typeName();
-      std::string::size_type index = typeString.find_first_of("(");
+      std::string::size_type index = typeString.find_first_of('(');
       if (index == std::string::npos) {
         return iMember.name() + ":" + typeString;
       } else {

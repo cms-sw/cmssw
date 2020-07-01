@@ -26,10 +26,10 @@
 class TestPSetAnalyzer : public edm::EDAnalyzer {
 public:
   explicit TestPSetAnalyzer(edm::ParameterSet const&);
-  ~TestPSetAnalyzer();
+  ~TestPSetAnalyzer() override;
 
 private:
-  virtual void analyze(edm::Event const&, edm::EventSetup const&);
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
 
   edm::LuminosityBlockID testLumi_;
   edm::LuminosityBlockRange testLRange_;

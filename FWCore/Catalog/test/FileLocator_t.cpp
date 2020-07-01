@@ -67,13 +67,13 @@ TEST_CASE("FileLocator", "[filelocator]") {
 
     CHECK("/storage/path/store/group/bha/bho" == fl.pfn("/store/group/bha/bho"));
     for (auto file : lfn) {
-      CHECK("" == fl.pfn(file));
+      CHECK(fl.pfn(file).empty());
     }
 
     CHECK(fl.lfn("/storage/path/store/group/bha/bho") == "/store/group/bha/bho");
-    CHECK(fl.lfn("/store/group/bha/bho") == "");
+    CHECK(fl.lfn("/store/group/bha/bho").empty());
     for (auto file : lfn) {
-      CHECK("" == fl.lfn(file));
+      CHECK(fl.lfn(file).empty());
     }
   }
 
@@ -85,7 +85,7 @@ TEST_CASE("FileLocator", "[filelocator]") {
                                               ? CMSSW_BASE + override_file_name
                                               : CMSSW_RELEASE_BASE + override_file_name;
 
-    edm::FileLocator fl(("trivialcatalog_file:" + override_full_file_name + "?protocol=override").c_str());
+    edm::FileLocator fl("trivialcatalog_file:" + override_full_file_name + "?protocol=override");
 
     std::array<const char*, 8> lfn = {{"/store/group/bha/bho",
                                        "/bha/bho",
@@ -103,10 +103,10 @@ TEST_CASE("FileLocator", "[filelocator]") {
     CHECK("/FULL_PATH_TO_THE_FIRST_STEP_ROOT_FILE/80EC0BCD-D279-DF11-B1DB-0030487C90EE.root" == fl.pfn(overriden_file));
 
     for (auto f : lfn) {
-      CHECK("" == fl.pfn(f));
+      CHECK(fl.pfn(f).empty());
     }
     for (auto f : lfn) {
-      CHECK("" == fl.lfn(f));
+      CHECK(fl.lfn(f).empty());
     }
   }
 }

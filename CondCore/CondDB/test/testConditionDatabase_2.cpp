@@ -95,7 +95,7 @@ int run(const std::string& connectionString) {
     readIov(proxy, 20000, true);
     IOVArray iovs = proxy.selectAll();
     iovs.find(101);
-    for (const auto i : iovs) {
+    for (const auto& i : iovs) {
       std::cout << "# iov since " << i.since << " - till " << i.till << std::endl;
     }
     proxy = session.readIov(tag1);

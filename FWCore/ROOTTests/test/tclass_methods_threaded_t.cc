@@ -52,7 +52,9 @@ int main(int argc, char** argv)
   TVirtualStreamerInfo::Optimize(false);
   
   
-  for(int i=0; i<kNThreads; ++i) {
+  threads.reserve(kNThreads);
+
+for(int i=0; i<kNThreads; ++i) {
     threads.emplace_back([&canStart,&classWasGotten,&firstMethodGotten]() {
         static thread_local TThread guard;
         ++classWasGotten;

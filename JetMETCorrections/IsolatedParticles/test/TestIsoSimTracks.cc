@@ -81,10 +81,10 @@
 class TestIsoSimTracks : public edm::EDAnalyzer {
 public:
   explicit TestIsoSimTracks(const edm::ParameterSet&);
-  virtual ~TestIsoSimTracks(){};
+  ~TestIsoSimTracks() override{};
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  void endJob(void);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob(void) override;
 
 private:
   TFile* m_Hfile;

@@ -28,8 +28,8 @@ class TestCacheParser : public CppUnit::TestFixture {
 public:
   void testSpace();
   void testReadWrite();
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
 };
 
 ///registration of the test so that the runner can find it

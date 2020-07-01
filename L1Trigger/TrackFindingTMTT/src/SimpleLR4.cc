@@ -242,7 +242,9 @@ namespace tmtt {
     }
 
     std::vector<Stub*> fitStubs;
-    for (std::pair<Stub*, double> ResStubPair : vRes) {
+    fitStubs.reserve(vRes.size());
+
+        for (std::pair<Stub*, double> ResStubPair : vRes) {
       fitStubs.push_back(ResStubPair.first);
     }
 

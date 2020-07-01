@@ -25,8 +25,8 @@ namespace edmtest {
   public:
     explicit CSCCrossTalkDBReadAnalyzer(edm::ParameterSet const& p) {}
     explicit CSCCrossTalkDBReadAnalyzer(int i) {}
-    virtual ~CSCCrossTalkDBReadAnalyzer() {}
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~CSCCrossTalkDBReadAnalyzer() override {}
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
   };

@@ -48,7 +48,7 @@ void AnalysisJV::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   Handle<CaloJetCollection> CaloIconeJetsHandle;
   iEvent.getByToken(fCaloJetsToken, CaloIconeJetsHandle);
 
-  if (CaloIconeJetsHandle->size()) {
+  if (!CaloIconeJetsHandle->empty()) {
     ResultCollection1::const_iterator it_jv1 = JV_alpha->begin();
     ResultCollection2::const_iterator it_jv2 = JV_jet_type->begin();
     for (CaloJetCollection::const_iterator it = CaloIconeJetsHandle->begin(); it != CaloIconeJetsHandle->end(); it++) {

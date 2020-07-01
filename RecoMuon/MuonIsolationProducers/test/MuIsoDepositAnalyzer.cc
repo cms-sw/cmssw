@@ -18,10 +18,10 @@ using namespace std;
 class MuIsoDepositAnalyzer : public edm::EDAnalyzer {
 public:
   MuIsoDepositAnalyzer(const edm::ParameterSet& conf);
-  ~MuIsoDepositAnalyzer();
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {}
+  ~MuIsoDepositAnalyzer() override;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override {}
 
 private:
   edm::InputTag theMuonLabel;

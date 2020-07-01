@@ -21,7 +21,7 @@
 #include <vector>
 
 inline void HERE(const char* msg) {
-  if (0 && msg)
+  if (false && msg)
     edm::LogWarning("GammaJetAnalysis") << msg;
 }
 
@@ -203,7 +203,7 @@ GammaJetAnalysis::GammaJetAnalysis(const edm::ParameterSet& iConfig)
   } else {
     // FAST FIX
     const char* prod = "GammaJetProd";
-    if (prodProcess_.size() == 0) {
+    if (prodProcess_.empty()) {
       edm::LogError("GammaJetAnalysis") << "prodProcess needs to be defined";
       throw edm::Exception(edm::errors::ProductNotFound);
     }
@@ -261,7 +261,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     return;
   }
 
-  if ((photons->size() == 0) && !allowNoPhoton_) {
+  if ((photons->empty()) && !allowNoPhoton_) {
     if (debug_ > 0)
       edm::LogInfo("GammaJetAnalysis") << "No photons in the event";
     return;
@@ -304,7 +304,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   HERE(Form("photonpairset.size=%d", int(photonpairset.size())));
 
-  if ((photonpairset.size() == 0) && !allowNoPhoton_) {
+  if ((photonpairset.empty()) && !allowNoPhoton_) {
     if (debug_ > 0)
       edm::LogInfo("GammaJetAnalysis") << "No good quality photons in the event";
     return;
@@ -385,8 +385,8 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   // HLT Trigger
   // assign "trig fired" if no triggers are specified
-  bool photonTrigFlag = (photonTrigNamesV_.size() == 0) ? true : false;
-  bool jetTrigFlag = (jetTrigNamesV_.size() == 0) ? true : false;
+  bool photonTrigFlag = (photonTrigNamesV_.empty()) ? true : false;
+  bool jetTrigFlag = (jetTrigNamesV_.empty()) ? true : false;
   if ((photonTrigNamesV_.size() == 1) && (photonTrigNamesV_[0].length() == 0))
     photonTrigFlag = true;
   if ((jetTrigNamesV_.size() == 1) && (jetTrigNamesV_[0].length() == 0))
@@ -1684,7 +1684,7 @@ void GammaJetAnalysis::endJob() {
     misc_tree_->Branch("nProcessed", &nProcessed_, "nProcessed/l");
     // put time stamp
     time_t ltime;
-    ltime = time(NULL);
+    ltime = time(nullptr);
     TString str = TString(asctime(localtime(&ltime)));
     if (str[str.Length() - 1] == '\n')
       str.Remove(str.Length() - 1, 1);
@@ -1705,8 +1705,8 @@ void GammaJetAnalysis::beginRun(const edm::Run& iRun, const edm::EventSetup& set
     edm::LogInfo("GammaJetAnalysis") << "beginRun()";
 
   if (!ignoreHLT_) {
-    int noPhotonTrigger = (photonTrigNamesV_.size() == 0) ? 1 : 0;
-    int noJetTrigger = (jetTrigNamesV_.size() == 0) ? 1 : 0;
+    int noPhotonTrigger = (photonTrigNamesV_.empty()) ? 1 : 0;
+    int noJetTrigger = (jetTrigNamesV_.empty()) ? 1 : 0;
     if (!noPhotonTrigger && (photonTrigNamesV_.size() == 1) && (photonTrigNamesV_[0].length() == 0))
       noPhotonTrigger = 1;
     if (!noJetTrigger && (jetTrigNamesV_.size() == 1) && (jetTrigNamesV_[0].length() == 0))
@@ -1790,7 +1790,7 @@ float GammaJetAnalysis::pfEcalIso(const reco::Photon* localPho1,
           continue;
       }
       // Shift the photon direction vector according to the PF vertex
-      math::XYZPoint pfvtx = pfc.vertex();
+      const math::XYZPoint& pfvtx = pfc.vertex();
       math::XYZVector photon_directionWrtVtx(localPho->superCluster()->x() - pfvtx.x(),
                                              localPho->superCluster()->y() - pfvtx.y(),
                                              localPho->superCluster()->z() - pfvtx.z());

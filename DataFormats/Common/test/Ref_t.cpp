@@ -32,9 +32,9 @@ public:
   //typedef edm::Ref<product2_t, int> ref2_t;
 
   TestRef() {}
-  ~TestRef() {}
-  void setUp() {}
-  void tearDown() {}
+  ~TestRef() override {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void default_ctor();
   // void default_ctor_string_key();
@@ -54,7 +54,7 @@ void TestRef::default_ctor() {
   CPPUNIT_ASSERT(default_ref.isNull());
   CPPUNIT_ASSERT(default_ref.isNonnull() == false);
   CPPUNIT_ASSERT(!default_ref);
-  CPPUNIT_ASSERT(default_ref.productGetter() == 0);
+  CPPUNIT_ASSERT(default_ref.productGetter() == nullptr);
   CPPUNIT_ASSERT(default_ref.id().isValid() == false);
   CPPUNIT_ASSERT(default_ref.isAvailable() == false);
 }

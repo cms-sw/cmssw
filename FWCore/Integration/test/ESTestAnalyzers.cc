@@ -21,7 +21,7 @@ namespace edmtest {
   class ESTestAnalyzerA : public edm::stream::EDAnalyzer<> {
   public:
     explicit ESTestAnalyzerA(edm::ParameterSet const&);
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -68,7 +68,7 @@ namespace edmtest {
   class ESTestAnalyzerB : public edm::EDAnalyzer {
   public:
     explicit ESTestAnalyzerB(edm::ParameterSet const&);
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -114,7 +114,7 @@ namespace edmtest {
   class ESTestAnalyzerK : public edm::EDAnalyzer {
   public:
     explicit ESTestAnalyzerK(edm::ParameterSet const&);
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   private:
     std::vector<int> runsToGetDataFor_;
@@ -136,7 +136,7 @@ namespace edmtest {
   class ESTestAnalyzerAZ : public edm::EDAnalyzer {
   public:
     explicit ESTestAnalyzerAZ(edm::ParameterSet const&);
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

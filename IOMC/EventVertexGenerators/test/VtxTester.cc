@@ -20,15 +20,15 @@ using namespace edm;
 using namespace std;
 
 VtxTester::VtxTester(const ParameterSet&) {
-  fOutputFile = 0;
-  fVtxHistz = 0;
-  fVtxHistx = 0;
-  fVtxHisty = 0;
-  fVtxHistxy = 0;
-  fPhiHistOrg = 0;
-  fPhiHistSmr = 0;
-  fEtaHistOrg = 0;
-  fEtaHistSmr = 0;
+  fOutputFile = nullptr;
+  fVtxHistz = nullptr;
+  fVtxHistx = nullptr;
+  fVtxHisty = nullptr;
+  fVtxHistxy = nullptr;
+  fPhiHistOrg = nullptr;
+  fPhiHistSmr = nullptr;
+  fEtaHistOrg = nullptr;
+  fEtaHistSmr = nullptr;
 }
 
 void VtxTester::beginJob() {

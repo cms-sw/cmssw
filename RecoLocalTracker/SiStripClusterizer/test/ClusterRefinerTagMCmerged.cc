@@ -1,5 +1,9 @@
 #include "RecoLocalTracker/SiStripClusterizer/test/ClusterRefinerTagMCmerged.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+
+
+        #include <memory>
+
+        #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "FWCore/Framework/interface/Event.h"
 
 ClusterRefinerTagMCmerged::ClusterRefinerTagMCmerged(const edm::ParameterSet& conf)
@@ -15,7 +19,7 @@ void ClusterRefinerTagMCmerged::produce(edm::Event& event, const edm::EventSetup
   auto output = std::make_unique<edmNew::DetSetVector<SiStripCluster>>();
   output->reserve(10000, 4 * 10000);
 
-  associator_.reset(new TrackerHitAssociator(event, trackerHitAssociatorConfig_));
+  associator_ = std::make_unique<TrackerHitAssociator>(event, trackerHitAssociatorConfig_);
   edm::Handle<edmNew::DetSetVector<SiStripCluster>> input;
 
   if (findInput(inputToken, input, event))
@@ -39,7 +43,7 @@ void ClusterRefinerTagMCmerged::refineCluster(const edm::Handle<edmNew::DetSetVe
     for (edmNew::DetSet<SiStripCluster>::iterator clust = det->begin(); clust != det->end(); clust++) {
       auto const& amp = clust->amplitudes();
       SiStripCluster* newCluster = new SiStripCluster(clust->firstStrip(), amp.begin(), amp.end());
-      if (associator_ != 0) {
+      if (associator_ != nullptr) {
         std::vector<SimHitIdpr> simtrackid;
         if (useAssociateHit_) {
           std::vector<PSimHit> simhit;

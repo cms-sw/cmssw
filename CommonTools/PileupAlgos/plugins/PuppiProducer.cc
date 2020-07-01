@@ -36,7 +36,7 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
   fClonePackedCands = iConfig.getParameter<bool>("clonePackedCands");
   fVtxNdofCut = iConfig.getParameter<int>("vtxNdofCut");
   fVtxZCut = iConfig.getParameter<double>("vtxZCut");
-  fPuppiContainer = std::unique_ptr<PuppiContainer>(new PuppiContainer(iConfig));
+  fPuppiContainer = std::make_unique<PuppiContainer>(iConfig);
 
   tokenPFCandidates_ = consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("candName"));
   tokenVertices_ = consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexName"));
@@ -275,11 +275,11 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       const pat::PackedCandidate* cand = dynamic_cast<const pat::PackedCandidate*>(&aCand);
       if (!cand)
         throw edm::Exception(edm::errors::LogicError, "PuppiProducer: inputs are not PackedCandidates");
-      pCand.reset(new pat::PackedCandidate(*cand));
+      pCand = std::make_unique<pat::PackedCandidate>(*cand);
     } else {
       auto id = dummySinceTranslateIsNotStatic.translatePdgIdToType(aCand.pdgId());
       const reco::PFCandidate* cand = dynamic_cast<const reco::PFCandidate*>(&aCand);
-      pfCand.reset(new reco::PFCandidate(cand ? *cand : reco::PFCandidate(aCand.charge(), aCand.p4(), id)));
+      pfCand = std::make_unique<reco::PFCandidate>(cand ? *cand : reco::PFCandidate(aCand.charge(), aCand.p4(), id));
     }
 
     // Here, we are using new weights computed and putting them in the packed candidates.

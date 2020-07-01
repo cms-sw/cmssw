@@ -31,10 +31,12 @@
 #include "TH1F.h"
 #include "TH2F.h"
 
-#include <utility>
-#include <vector>
+#include <memory>
+
 #include <fstream>
 #include <memory>
+        #include <utility>
+#include <vector>
 
 using namespace std;
 
@@ -49,10 +51,10 @@ using namespace std;
 class ClusterShapeExtractor : public edm::EDAnalyzer {
 public:
   explicit ClusterShapeExtractor(const edm::ParameterSet& pset);
-  ~ClusterShapeExtractor();
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
-  virtual void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
-  virtual void endJob() override;
+  ~ClusterShapeExtractor() override;
+  void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
+  void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
+  void endJob() override;
 
 private:
   bool isSuitable(const PSimHit& simHit);
@@ -200,7 +202,7 @@ bool ClusterShapeExtractor::isSuitable(const PSimHit& simHit) {
   // Outgoing?
   DetId id = DetId(simHit.detUnitId());
   const GeomDetUnit* gdu = theTracker->idToDetUnit(id);
-  if (gdu == 0)
+  if (gdu == nullptr)
     throw cms::Exception("MissingData") << "Missing DetUnit for detid " << id.rawId() << "\n" << std::endl;
   GlobalVector gvec = theTracker->idToDetUnit(id)->position() - GlobalPoint(0, 0, 0);
   LocalVector lvec = theTracker->idToDetUnit(id)->toLocal(gvec);
@@ -398,7 +400,7 @@ void ClusterShapeExtractor::processMatchedRecHits(const SiStripMatchedRecHit2DCo
 /*****************************************************************************/
 void ClusterShapeExtractor::analyzeSimHits(const edm::Event& ev, const edm::EventSetup& es) {
   // Get associator
-  theHitAssociator.reset(new TrackerHitAssociator(ev, trackerHitAssociatorConfig_));
+  theHitAssociator = std::make_unique<TrackerHitAssociator>(ev, trackerHitAssociatorConfig_);
 
   // Pixel hits
   {
@@ -470,7 +472,7 @@ void ClusterShapeExtractor::analyzeRecTracks(const edm::Event& ev, const edm::Ev
           // Pixel
           const SiPixelRecHit* pixelRecHit = dynamic_cast<const SiPixelRecHit*>(recHit);
 
-          if (pixelRecHit != 0)
+          if (pixelRecHit != nullptr)
             processRec(*pixelRecHit, ldir, *clusterShapeCache, hrpc);
         } else if (GeomDetEnumerators::isTrackerStrip(theTracker->geomDetSubDetector(id.subdetId()))) {
           // Strip
@@ -478,15 +480,15 @@ void ClusterShapeExtractor::analyzeRecTracks(const edm::Event& ev, const edm::Ev
           const ProjectedSiStripRecHit2D* stripProjectedRecHit = dynamic_cast<const ProjectedSiStripRecHit2D*>(recHit);
           const SiStripRecHit2D* stripRecHit = dynamic_cast<const SiStripRecHit2D*>(recHit);
 
-          if (stripMatchedRecHit != 0) {
+          if (stripMatchedRecHit != nullptr) {
             processRec(stripMatchedRecHit->monoHit(), ldir, hrsc);
             processRec(stripMatchedRecHit->stereoHit(), ldir, hrsc);
           }
 
-          if (stripProjectedRecHit != 0)
+          if (stripProjectedRecHit != nullptr)
             processRec(stripProjectedRecHit->originalHit(), ldir, hrsc);
 
-          if (stripRecHit != 0)
+          if (stripRecHit != nullptr)
             processRec(*stripRecHit, ldir, hrsc);
         }
       }

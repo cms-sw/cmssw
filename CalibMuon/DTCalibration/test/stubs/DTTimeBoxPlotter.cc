@@ -56,7 +56,7 @@ void DTTimeBoxPlotter::printPDF() {
   TIter iter(gROOT->GetListOfCanvases());
   TCanvas* c;
   while ((c = (TCanvas*)iter())) {
-    c->Print(0, "ps");
+    c->Print(nullptr, "ps");
   }
   gSystem->Exec("ps2pdf *.ps");
 }
@@ -95,9 +95,9 @@ TString DTTimeBoxPlotter::getHistoNameSuffix(int wheel, int station, int sector,
 
 TH1F* DTTimeBoxPlotter::plotHisto(const TString& histoName, const TString& drawOptions) {
   TH1F* histo = (TH1F*)theFile->Get(histoName.Data());
-  if (histo == 0) {
+  if (histo == nullptr) {
     cout << "***Error: Histogram: " << histoName << " doesn't exist!" << endl;
-    return 0;
+    return nullptr;
   }
   static int color;
 
@@ -122,9 +122,9 @@ TH1F* DTTimeBoxPlotter::plotHisto(const TString& histoName, const TString& drawO
 
 TH2F* DTTimeBoxPlotter::plotHisto2D(const TString& histoName, const TString& drawOptions) {
   TH2F* histo = (TH2F*)theFile->Get(histoName.Data());
-  if (histo == 0) {
+  if (histo == nullptr) {
     cout << "***Error: Histogram: " << histoName << " doesn't exist!" << endl;
-    return 0;
+    return nullptr;
   }
   static int color;
 
@@ -148,7 +148,7 @@ TCanvas* DTTimeBoxPlotter::newCanvas(TString name, TString title, int xdiv, int 
     name = TString("Canvas ") + TString(i);
     i++;
   }
-  TCanvas* c = 0;
+  TCanvas* c = nullptr;
   if (title == "")
     title = name;
   if (w < 0) {

@@ -103,7 +103,7 @@ namespace edmtest {
   private:
     void write(edm::EventForOutput const& e) override {
       using namespace edm;
-      assert(keptProducts()[InEvent].size() > 0);
+      assert(!keptProducts()[InEvent].empty());
       for (auto product : keptProducts()[InEvent]) {
         BranchDescription const* branchDescription = product.first;
         TypeID const& tid = branchDescription->unwrappedTypeID();

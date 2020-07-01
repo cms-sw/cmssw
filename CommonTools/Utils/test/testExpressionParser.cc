@@ -22,8 +22,8 @@ class testExpressionParser : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void checkAll();
   void testStringToEnum();
   void checkTrack(const std::string &, double);
@@ -45,7 +45,7 @@ void testExpressionParser::checkTrack(const std::string &expression, double x) {
     std::cerr << "checking " << (lazyMode ? "lazy " : "") << "expression: \"" << expression << "\"" << std::flush;
     expr.reset();
     CPPUNIT_ASSERT(reco::parser::expressionParser<reco::Track>(expression, expr, lazyMode));
-    CPPUNIT_ASSERT(expr.get() != 0);
+    CPPUNIT_ASSERT(expr.get() != nullptr);
     double res = expr->value(o);
     StringObjectFunction<reco::Track> f(expression, lazyMode);
     CPPUNIT_ASSERT(fabs(f(trk) - res) < 1.e-6);
@@ -58,7 +58,7 @@ void testExpressionParser::checkCandidate(const std::string &expression, double 
   std::cerr << "checking " << (lazyMode ? "lazy " : "") << "expression: \"" << expression << "\"" << std::flush;
   expr.reset();
   CPPUNIT_ASSERT(reco::parser::expressionParser<reco::Candidate>(expression, expr, lazyMode));
-  CPPUNIT_ASSERT(expr.get() != 0);
+  CPPUNIT_ASSERT(expr.get() != nullptr);
   double res = 0;
   CPPUNIT_ASSERT_NO_THROW(res = expr->value(o));
   StringObjectFunction<reco::Candidate> f(expression, lazyMode);
@@ -72,7 +72,7 @@ void testExpressionParser::checkJet(const std::string &expression, double x) {
     std::cerr << "checking " << (lazyMode ? "lazy " : "") << "expression: \"" << expression << "\"" << std::flush;
     expr.reset();
     CPPUNIT_ASSERT(reco::parser::expressionParser<pat::Jet>(expression, expr, lazyMode));
-    CPPUNIT_ASSERT(expr.get() != 0);
+    CPPUNIT_ASSERT(expr.get() != nullptr);
     double res = expr->value(o);
     StringObjectFunction<pat::Jet> f(expression, lazyMode);
     CPPUNIT_ASSERT(fabs(f(jet) - res) < 1.e-6);
@@ -86,7 +86,7 @@ void testExpressionParser::checkMuon(const std::string &expression, double x) {
     std::cerr << "checking " << (lazyMode ? "lazy " : "") << "expression: \"" << expression << "\"" << std::flush;
     expr.reset();
     CPPUNIT_ASSERT(reco::parser::expressionParser<pat::Muon>(expression, expr, lazyMode));
-    CPPUNIT_ASSERT(expr.get() != 0);
+    CPPUNIT_ASSERT(expr.get() != nullptr);
     double res = expr->value(o);
     StringObjectFunction<pat::Muon> f(expression, lazyMode);
     std::cerr << " = " << x << " (reference), " << res << " (bare), " << f(muon) << " (full)" << std::endl;
@@ -161,8 +161,8 @@ void testExpressionParser::checkAll() {
   cand.addDaughter(c1);
   cand.addDaughter(c2);
   CPPUNIT_ASSERT(cand.numberOfDaughters() == 2);
-  CPPUNIT_ASSERT(cand.daughter(0) != 0);
-  CPPUNIT_ASSERT(cand.daughter(1) != 0);
+  CPPUNIT_ASSERT(cand.daughter(0) != nullptr);
+  CPPUNIT_ASSERT(cand.daughter(1) != nullptr);
   {
     edm::TypeWithDict t(typeid(reco::Candidate));
     o = edm::ObjectWithDict(t, &cand);
@@ -245,7 +245,7 @@ void testExpressionParser::checkAll() {
   dep.addCandEnergy(2.0);
   CPPUNIT_ASSERT(dep.candEnergy() == 2.0);
   muon.setIsoDeposit(pat::TrackIso, dep);
-  CPPUNIT_ASSERT(muon.trackIsoDeposit() != 0);
+  CPPUNIT_ASSERT(muon.trackIsoDeposit() != nullptr);
   CPPUNIT_ASSERT(muon.trackIsoDeposit()->candEnergy() == 2.0);
   pat::TriggerObjectStandAlone tosa;
   tosa.addPathName("HLT_Something");

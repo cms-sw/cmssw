@@ -28,9 +28,9 @@
 class TestMuons : public edm::EDAnalyzer {
 public:
   explicit TestMuons(const edm::ParameterSet&);
-  virtual ~TestMuons() {}
+  ~TestMuons() override {}
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void printMuonCollections(const edm::Handle<edm::View<reco::Muon> >& muons);
   void checkTimeMaps(const edm::Event& iEvent, const edm::Handle<reco::MuonCollection>& muons);
   void checkPFMap(const edm::Event& iEvent, const edm::Handle<reco::MuonCollection>& muons);

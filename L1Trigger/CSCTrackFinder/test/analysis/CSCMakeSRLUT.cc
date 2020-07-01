@@ -47,7 +47,7 @@ CSCMakeSRLUT::CSCMakeSRLUT(edm::ParameterSet const& conf) {
           }
         else {
           mySR[e - 1][se - 1][0][st - 1] = new CSCSectorReceiverLUT(e, se, 0, st, LUTparam, isTMB07);
-          mySR[e - 1][se - 1][1][st - 1] = NULL;  // Save space.
+          mySR[e - 1][se - 1][1][st - 1] = nullptr;  // Save space.
         }
       }
 }
@@ -60,7 +60,7 @@ CSCMakeSRLUT::~CSCMakeSRLUT() {
         for (int st = CSCDetId::minStationId(); st <= CSCDetId::maxStationId(); ++st) {
           if (mySR[e - 1][se - 1][ss - 1][st - 1]) {
             delete mySR[e - 1][se - 1][ss - 1][st - 1];
-            mySR[e - 1][se - 1][ss - 1][st - 1] = NULL;
+            mySR[e - 1][se - 1][ss - 1][st - 1] = nullptr;
           }
         }
 }

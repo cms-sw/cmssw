@@ -10,9 +10,9 @@
 #include "TROOT.h"
 #include "TRint.h"
 
-#include <stdlib.h>
-#include <string>
 #include "TString.h"
+#include <cstdlib>
+#include <string>
 
 using namespace std;
 

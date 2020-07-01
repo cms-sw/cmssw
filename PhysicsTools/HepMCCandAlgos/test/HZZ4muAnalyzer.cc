@@ -16,10 +16,10 @@ using namespace std;
 HZZ4muAnalyzer::HZZ4muAnalyzer(const ParameterSet& pset)
     : fToken(consumes<HepMCProduct>(InputTag("source"))),
       fOutputFileName(pset.getUntrackedParameter<string>("HistOutFile", std::string("TestHiggsMass.root"))),
-      fOutputFile(0),
-      fHist2muMass(0),
-      fHist4muMass(0),
-      fHistZZMass(0) {}
+      fOutputFile(nullptr),
+      fHist2muMass(nullptr),
+      fHist4muMass(nullptr),
+      fHistZZMass(nullptr) {}
 
 void HZZ4muAnalyzer::beginJob() {
   fOutputFile = new TFile(fOutputFileName.c_str(), "RECREATE");
@@ -43,7 +43,7 @@ void HZZ4muAnalyzer::analyze(const Event& e, const EventSetup&) {
   // because this example explicitely assumes
   // that there one and only Higgs in the record
   //
-  HepMC::GenVertex* HiggsDecVtx = 0;
+  HepMC::GenVertex* HiggsDecVtx = nullptr;
 
   // find the 1st vertex with outgoing Higgs
   // and get Higgs decay vertex from there;
@@ -56,18 +56,18 @@ void HZZ4muAnalyzer::analyze(const Event& e, const EventSetup&) {
          pout != (*vit)->particles_out_const_end();
          pout++) {
       if ((*pout)->pdg_id() == 25 && (*pout)->status() == 2) {
-        if ((*pout)->end_vertex() != 0) {
+        if ((*pout)->end_vertex() != nullptr) {
           HiggsDecVtx = (*pout)->end_vertex();
           break;
         }
       }
     }
-    if (HiggsDecVtx != 0) {
+    if (HiggsDecVtx != nullptr) {
       break;  // break the initial loop over vertices
     }
   }
 
-  if (HiggsDecVtx == 0) {
+  if (HiggsDecVtx == nullptr) {
     cout << " There is NO Higgs in this event ! " << endl;
     return;
   }

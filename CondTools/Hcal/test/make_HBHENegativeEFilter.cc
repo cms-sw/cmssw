@@ -1,6 +1,10 @@
 //
 // Negative energy filter parameters developed by Alexander Toropin for Run 2 data
 //
+#include <memory>
+
+
+
 #include "CondTools/Hcal/interface/make_HBHENegativeEFilter.h"
 
 #define make_poly /**/                                                                    \
@@ -213,6 +217,6 @@ std::unique_ptr<HBHENegativeEFilter> make_HBHENegativeEFilter() {
   const unsigned firstTS = 4;
   const unsigned lastTS = 6;
 
-  return std::unique_ptr<HBHENegativeEFilter>(
-      new HBHENegativeEFilter(a1vec, a2vec, lim, cut, minChargeThreshold, firstTS, lastTS));
+  return std::make_unique<HBHENegativeEFilter>(
+      a1vec, a2vec, lim, cut, minChargeThreshold, firstTS, lastTS);
 }

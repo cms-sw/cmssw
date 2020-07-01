@@ -57,7 +57,7 @@ Implementation:
 class testEcalClusterSeverityAlgo : public edm::EDAnalyzer {
 public:
   explicit testEcalClusterSeverityAlgo(const edm::ParameterSet&);
-  ~testEcalClusterSeverityAlgo();
+  ~testEcalClusterSeverityAlgo() override;
 
   edm::InputTag barrelClusterCollection_;
   edm::InputTag endcapClusterCollection_;
@@ -126,8 +126,8 @@ public:
   }
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   std::string outputFile_;
   TFile* treeFile_;
@@ -199,22 +199,22 @@ void testEcalClusterSeverityAlgo::analyze(const edm::Event& ev, const edm::Event
     // 	    std::cout << "closestProblematicDetId" << EBDetId(EcalClusterSeverityLevelAlgo::closestProblematic( *it, *ebRecHits, *theEcalChStatus,topology)) << std::endl;
     // 	    std::cout << "(deta,dphi)" << "(" << EcalClusterSeverityLevelAlgo::etaphiDistanceClosestProblematic( *it, *ebRecHits, *theEcalChStatus,topology).first << "," <<EcalClusterSeverityLevelAlgo::etaphiDistanceClosestProblematic( *it, *ebRecHits, *theEcalChStatus,topology).second << ")" << std::endl;
 
-    HepMC::GenParticle* bestMcMatch = 0;
+    HepMC::GenParticle* bestMcMatch = nullptr;
     for (HepMC::GenEvent::particle_const_iterator mcIter = myGenEvent->particles_begin();
          mcIter != myGenEvent->particles_end();
          mcIter++) {
       // select electrons
       if (std::abs((*mcIter)->pdg_id()) == 11) {
         // single primary electrons or electrons from Zs or Ws
-        HepMC::GenParticle* mother = 0;
+        HepMC::GenParticle* mother = nullptr;
         if ((*mcIter)->production_vertex()) {
           if ((*mcIter)->production_vertex()->particles_begin(HepMC::parents) !=
               (*mcIter)->production_vertex()->particles_end(HepMC::parents))
             mother = *((*mcIter)->production_vertex()->particles_begin(HepMC::parents));
         }
-        if (((mother == 0) || ((mother != 0) && (std::abs(mother->pdg_id()) == 23)) ||
-             ((mother != 0) && (std::abs(mother->pdg_id()) == 32)) ||
-             ((mother != 0) && (std::abs(mother->pdg_id()) == 24)))) {
+        if (((mother == nullptr) || ((mother != nullptr) && (std::abs(mother->pdg_id()) == 23)) ||
+             ((mother != nullptr) && (std::abs(mother->pdg_id()) == 32)) ||
+             ((mother != nullptr) && (std::abs(mother->pdg_id()) == 24)))) {
           HepMC::GenParticle* genPc = (*mcIter);
           HepMC::FourVector pAssSim = genPc->momentum();
 

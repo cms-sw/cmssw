@@ -24,11 +24,11 @@
 class EcalGraphDumperModule : public edm::EDAnalyzer {
 public:
   EcalGraphDumperModule(const edm::ParameterSet& ps);
-  ~EcalGraphDumperModule();
+  ~EcalGraphDumperModule() override;
 
   std::string intToString(int num);
 
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 protected:
   int verbosity;

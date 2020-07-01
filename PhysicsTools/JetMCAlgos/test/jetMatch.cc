@@ -34,10 +34,10 @@ using namespace ROOT::Math::VectorUtil;
 class jetMatch : public edm::EDAnalyzer {
 public:
   explicit jetMatch(const edm::ParameterSet&);
-  ~jetMatch() {}
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  virtual void beginJob();
-  virtual void endJob();
+  ~jetMatch() override {}
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void beginJob() override;
+  void endJob() override;
 
 private:
   EDGetTokenT<CandidateCollection> sourceToken_;

@@ -76,8 +76,8 @@ class testEventsetupRecord : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp();
-  void tearDown() {}
+  void setUp() override;
+  void tearDown() override {}
 
   void proxyTest();
   void getTest();
@@ -658,7 +658,7 @@ void testEventsetupRecord::introspectionTest() {
 
   dummyRecordImpl.clearProxies();
   dummyRecord.fillRegisteredDataKeys(keys);
-  CPPUNIT_ASSERT(0 == keys.size());
+  CPPUNIT_ASSERT(keys.empty());
 }
 
 void testEventsetupRecord::doGetExepTest() {

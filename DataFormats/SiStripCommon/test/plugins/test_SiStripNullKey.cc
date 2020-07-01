@@ -1,14 +1,14 @@
 
 #include "DataFormats/SiStripCommon/test/plugins/test_SiStripNullKey.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/SiStripCommon/interface/SiStripNullKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DataFormats/SiStripCommon/interface/SiStripNullKey.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <iostream>
+#include <ctime>
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 #include <string>
-#include <time.h>
 
 using namespace sistrip;
 

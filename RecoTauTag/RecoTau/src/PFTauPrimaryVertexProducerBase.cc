@@ -45,12 +45,12 @@ PFTauPrimaryVertexProducerBase::PFTauPrimaryVertexProducerBase(const edm::Parame
   }
   // Build a string cut if desired
   if (iConfig.exists("cut"))
-    cut_.reset(new StringCutObjectSelector<reco::PFTau>(iConfig.getParameter<std::string>("cut")));
+    cut_ = std::make_unique<StringCutObjectSelector<reco::PFTau>>(iConfig.getParameter<std::string>("cut"));
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   produces<edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::VertexRef>>>();
   produces<reco::VertexCollection>("PFTauPrimaryVertices");
 
-  vertexAssociator_.reset(new reco::tau::RecoTauVertexAssociator(qualityCutsPSet_, consumesCollector()));
+  vertexAssociator_ = std::make_unique<reco::tau::RecoTauVertexAssociator>(qualityCutsPSet_, consumesCollector());
 }
 
 PFTauPrimaryVertexProducerBase::~PFTauPrimaryVertexProducerBase() {}
@@ -191,6 +191,8 @@ void PFTauPrimaryVertexProducerBase::produce(edm::Event& iEvent, const edm::Even
         // Refit the vertex
         TransientVertex transVtx;
         std::vector<reco::TransientTrack> transTracks;
+        transTracks.reserve(nonTauTracks.size());
+
         for (const auto track : nonTauTracks) {
           transTracks.push_back(transTrackBuilder->build(*track));
         }

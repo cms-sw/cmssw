@@ -258,7 +258,7 @@ namespace {
       canvas.SetGrid();
 
       auto h2_BSParameters =
-          std::unique_ptr<TH2F>(new TH2F("Parameters", "BeamSpot parameters summary", 2, 0.0, 2.0, 8, 0, 8.));
+          std::make_unique<TH2F>("Parameters", "BeamSpot parameters summary", 2, 0.0, 2.0, 8, 0, 8.);
       h2_BSParameters->SetStats(false);
 
       std::function<double(parameters, bool)> cutFunctor = [&payload](parameters my_param, bool isError) {

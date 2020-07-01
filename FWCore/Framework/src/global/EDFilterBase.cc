@@ -13,15 +13,19 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/global/EDFilterBase.h"
+#include <memory>
+
+
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/src/edmodule_mightGet_config.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
+        #include "FWCore/Framework/interface/global/EDFilterBase.h"
 #include "FWCore/Framework/src/EventAcquireSignalsSentry.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
+#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/src/edmodule_mightGet_config.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -78,11 +82,11 @@ namespace edm {
 
     void EDFilterBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
       const auto nStreams = iPrealloc.numberOfStreams();
-      previousParentages_.reset(new std::vector<BranchID>[nStreams]);
+      previousParentages_ = std::make_unique<std::vector<BranchID>[]>(nStreams);
       if (hasAcquire()) {
-        gotBranchIDsFromAcquire_.reset(new std::vector<BranchID>[nStreams]);
+        gotBranchIDsFromAcquire_ = std::make_unique<std::vector<BranchID>[]>(nStreams);
       }
-      previousParentageIds_.reset(new ParentageID[nStreams]);
+      previousParentageIds_ = std::make_unique<ParentageID[]>(nStreams);
       preallocStreams(nStreams);
       preallocLumis(iPrealloc.numberOfLuminosityBlocks());
       preallocLumisSummary(iPrealloc.numberOfLuminosityBlocks());

@@ -23,9 +23,9 @@
 class CSCIndexerAnalyzer2 : public edm::EDAnalyzer {
 public:
   explicit CSCIndexerAnalyzer2(const edm::ParameterSet &);
-  ~CSCIndexerAnalyzer2();
+  ~CSCIndexerAnalyzer2() override;
 
-  virtual void analyze(const edm::Event &, const edm::EventSetup &);
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
   const std::string &myName() const { return myName_; }
   const std::string &myAlgo() const { return algoName_; }
@@ -107,9 +107,9 @@ void CSCIndexerAnalyzer2::analyze(const edm::Event &iEvent, const edm::EventSetu
   std::cout << "Found CSCIndexer algorithm    " << myAlgo() << "    in EventSetup" << std::endl;
   std::cout << dashedLine_ << std::endl;
 
-  bool ganged = 1;
+  bool ganged = true;
   if (myAlgo() == "CSCIndexerPostls1")
-    ganged = 0;
+    ganged = false;
 
   std::cout << myName() << ": Begin iteration over geometry..." << std::endl;
   std::cout << dashedLine_ << std::endl;

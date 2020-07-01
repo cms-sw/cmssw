@@ -1,5 +1,7 @@
-#include <vector>
 #include <memory>
+
+#include <memory>
+        #include <vector>
 
 // framework
 #include "FWCore/Framework/interface/Event.h"
@@ -119,7 +121,7 @@ void fastsim::TrackerSimHitProducer::registerProducts(edm::ProducesCollector pro
 
 void fastsim::TrackerSimHitProducer::storeProducts(edm::Event& iEvent) {
   iEvent.put(std::move(simHitContainer_), "TrackerHits");
-  simHitContainer_.reset(new edm::PSimHitContainer);
+  simHitContainer_ = std::make_unique<edm::PSimHitContainer>();
 }
 
 void fastsim::TrackerSimHitProducer::interact(Particle& particle,
@@ -318,7 +320,7 @@ std::pair<double, std::unique_ptr<PSimHit>> fastsim::TrackerSimHitProducer::crea
 
   return std::pair<double, std::unique_ptr<PSimHit>>(
       (hitPos - refPos).mag(),
-      std::unique_ptr<PSimHit>(new PSimHit(entry,
+      std::make_unique<PSimHit>(entry,
                                            exit,
                                            localMomentum.mag(),
                                            tof,
@@ -327,7 +329,7 @@ std::pair<double, std::unique_ptr<PSimHit>> fastsim::TrackerSimHitProducer::crea
                                            detector.geographicalId().rawId(),
                                            simTrackId,
                                            localMomentum.theta(),
-                                           localMomentum.phi())));
+                                           localMomentum.phi()));
 }
 
 DEFINE_EDM_PLUGIN(fastsim::InteractionModelFactory, fastsim::TrackerSimHitProducer, "fastsim::TrackerSimHitProducer");

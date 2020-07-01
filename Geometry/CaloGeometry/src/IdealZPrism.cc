@@ -1,5 +1,7 @@
 #include "Geometry/CaloGeometry/interface/IdealZPrism.h"
 #include <cmath>
+#include <memory>
+
 
 typedef IdealZPrism::CCGFloat CCGFloat;
 typedef IdealZPrism::Pt3D Pt3D;
@@ -25,14 +27,14 @@ namespace {
 
 IdealZPrism::IdealZPrism(const IdealZPrism& idzp) : CaloCellGeometry(idzp) {
   if (idzp.forPF())
-    m_geoForPF.reset(new IdealZPrism(*idzp.forPF()));
+    m_geoForPF = std::make_unique<IdealZPrism>(*idzp.forPF());
 }
 
 IdealZPrism& IdealZPrism::operator=(const IdealZPrism& idzp) {
   if (&idzp != this) {
     CaloCellGeometry::operator=(idzp);
     if (idzp.forPF())
-      m_geoForPF.reset(new IdealZPrism(*idzp.forPF()));
+      m_geoForPF = std::make_unique<IdealZPrism>(*idzp.forPF());
   }
   return *this;
 }

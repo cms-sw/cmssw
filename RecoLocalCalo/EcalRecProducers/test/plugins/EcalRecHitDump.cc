@@ -16,9 +16,9 @@ public:
   explicit EcalRecHitDump(const edm::ParameterSet&);
 
 private:
-  virtual void beginJob() {}
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {}
+  void beginJob() override {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override {}
 
 private:
   edm::EDGetTokenT<EcalRecHitCollection> EBRecHitCollectionT_;

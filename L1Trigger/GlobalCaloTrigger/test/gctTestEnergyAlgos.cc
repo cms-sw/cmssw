@@ -8,9 +8,9 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 
-#include <math.h>
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <iostream>
 
 using namespace std;

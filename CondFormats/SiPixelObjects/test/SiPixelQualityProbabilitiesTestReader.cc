@@ -14,12 +14,12 @@
 class SiPixelQualityProbabilitiesTestReader : public edm::one::EDAnalyzer<> {
 public:
   explicit SiPixelQualityProbabilitiesTestReader(edm::ParameterSet const& p);
-  ~SiPixelQualityProbabilitiesTestReader();
+  ~SiPixelQualityProbabilitiesTestReader() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   // ----------member data ---------------------------
   const bool printdebug_;
@@ -69,8 +69,8 @@ void SiPixelQualityProbabilitiesTestReader::analyze(const edm::Event& e, const e
     myProbabilities->printAll();
   }
 
-  FILE* pFile = NULL;
-  if (formatedOutput_ != "")
+  FILE* pFile = nullptr;
+  if (!formatedOutput_.empty())
     pFile = fopen(formatedOutput_.c_str(), "w");
   if (pFile) {
     fprintf(pFile, "SiPixelQualityProbabilities::printAll() \n");

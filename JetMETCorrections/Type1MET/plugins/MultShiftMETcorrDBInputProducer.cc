@@ -13,6 +13,10 @@
 
 #include <TString.h>
 
+
+        #include <memory>
+
+        
 int MultShiftMETcorrDBInputProducer::translateTypeToAbsPdgId(reco::PFCandidate::ParticleType type) {
   switch (type) {
     case reco::PFCandidate::ParticleType::h:
@@ -162,8 +166,8 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
           << "parVar: " << parVar << " is not reserved !!!\n";
     }
 
-    formula_x_.reset(new TF1("corrPx", MEtXYcorParams.definitions().formula().c_str()));
-    formula_y_.reset(new TF1("corrPy", MEtXYcorParams.definitions().formula().c_str()));
+    formula_x_ = std::make_unique<TF1>("corrPx", MEtXYcorParams.definitions().formula().c_str());
+    formula_y_ = std::make_unique<TF1>("corrPy", MEtXYcorParams.definitions().formula().c_str());
 
     for (unsigned i(0); i < MEtXYcorParams.record(0).nParameters(); i++) {
       formula_x_->SetParameter(i, MEtXYcorParams.record(0).parameter(i));

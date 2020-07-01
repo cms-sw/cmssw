@@ -3,7 +3,9 @@
 // * January 16, 2015
 
 #include <limits>
-#include <random>
+#include <memory>
+
+        #include <random>
 
 #include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
@@ -26,9 +28,9 @@ MuonTagger::MuonTagger(const edm::ParameterSet& cfg, Tokens tokens)
                                                                : edm::FileInPath()),
       m_useGBRForest(cfg.existsAs<bool>("useGBRForest") ? cfg.getParameter<bool>("useGBRForest") : false),
       m_useAdaBoost(cfg.existsAs<bool>("useAdaBoost") ? cfg.getParameter<bool>("useAdaBoost") : false),
-      m_tokens{std::move(tokens)} {
+      m_tokens{tokens} {
   uses("smTagInfos");
-  mvaID.reset(new TMVAEvaluator());
+  mvaID = std::make_unique<TMVAEvaluator>();
 }
 
 void MuonTagger::initialize(const JetTagComputerRecord& record) {

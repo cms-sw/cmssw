@@ -10,7 +10,7 @@ HcalForwardLibWriter::HcalForwardLibWriter(const edm::ParameterSet& iConfig) {
   nshowers = theParms.getParameter<int>("Nshowers");
 
   std::string pName = fp.fullPath();
-  if (pName.find(".") == 0)
+  if (pName.find('.') == 0)
     pName.erase(0, 2);
   theDataFile = pName;
   readUserData();
@@ -28,7 +28,9 @@ void HcalForwardLibWriter::analyze(const edm::Event& iEvent, const edm::EventSet
   // Event info
   std::vector<double> en;
   double momBin[16] = {2, 3, 5, 7, 10, 15, 20, 30, 50, 75, 100, 150, 250, 350, 500, 1000};
-  for (int i = 0; i < nbins; ++i)
+  en.reserve(nbins);
+
+        for (int i = 0; i < nbins; ++i)
     en.push_back(momBin[i]);
 
   //shower photons

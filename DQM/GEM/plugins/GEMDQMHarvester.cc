@@ -64,7 +64,7 @@ void GEMDQMHarvester::dqmEndLuminosityBlock(DQMStore::IBooker &,
   store->setCurrentFolder("GEM/StatusDigi");
   auto listME = store->getMEs();
 
-  for (auto strName : listME) {
+  for (const auto& strName : listME) {
     if (strName.find("vfatStatus_BC_") != std::string::npos) {
       fillUnderOverflowBunchCrossing(store, strName);
     }

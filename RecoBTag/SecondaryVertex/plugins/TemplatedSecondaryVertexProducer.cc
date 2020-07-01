@@ -685,14 +685,14 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
   std::unique_ptr<ConfigurableVertexReconstructor> vertexReco;
   std::unique_ptr<GhostTrackVertexFinder> vertexRecoGT;
   if (useGhostTrack)
-    vertexRecoGT.reset(
-        new GhostTrackVertexFinder(vtxRecoPSet.getParameter<double>("maxFitChi2"),
+    vertexRecoGT = std::make_unique<GhostTrackVertexFinder>(
+        vtxRecoPSet.getParameter<double>("maxFitChi2"),
                                    vtxRecoPSet.getParameter<double>("mergeThreshold"),
                                    vtxRecoPSet.getParameter<double>("primcut"),
                                    vtxRecoPSet.getParameter<double>("seccut"),
-                                   getGhostTrackFitType(vtxRecoPSet.getParameter<std::string>("fitType"))));
+                                   getGhostTrackFitType(vtxRecoPSet.getParameter<std::string>("fitType")));
   else
-    vertexReco.reset(new ConfigurableVertexReconstructor(vtxRecoPSet));
+    vertexReco = std::make_unique<ConfigurableVertexReconstructor>(vtxRecoPSet);
 
   TransientTrackMap primariesMap;
 
@@ -739,7 +739,7 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
     std::vector<GhostTrackState> gtStates;
     std::unique_ptr<GhostTrackPrediction> gtPred;
     if (useGhostTrack)
-      gtPred.reset(new GhostTrackPrediction(*iterJets->ghostTrack()));
+      gtPred = std::make_unique<GhostTrackPrediction>(*iterJets->ghostTrack());
 
     for (unsigned int i = 0; i < indices.size(); i++) {
       typedef typename TemplatedSecondaryVertexTagInfo<IPTI, VTX>::IndexedTrackData IndexedTrackData;
@@ -779,7 +779,7 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
 
     std::unique_ptr<GhostTrack> ghostTrack;
     if (useGhostTrack)
-      ghostTrack.reset(new GhostTrack(
+      ghostTrack = std::make_unique<GhostTrack>(
           GhostTrackPrediction(
               RecoVertex::convertPos(pv.position()),
               RecoVertex::convertError(pv.error()),
@@ -788,7 +788,7 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
           *gtPred,
           gtStates,
           iterJets->ghostTrack()->chi2(),
-          iterJets->ghostTrack()->ndof()));
+          iterJets->ghostTrack()->ndof());
 
     // perform actual vertex finding
 

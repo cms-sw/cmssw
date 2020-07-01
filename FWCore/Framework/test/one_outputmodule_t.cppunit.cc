@@ -5,28 +5,30 @@
  *  Created by Chris Jones on 4/8/05.
  *  Changed by Viji Sundararajan on 28-Jun-05
  */
-#include <iostream>
 #include <atomic>
-#include <vector>
-#include <map>
-#include <functional>
+#include <iostream>
+#include <memory>
+
+#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Framework/interface/FileBlock.h"
+#include "FWCore/Framework/interface/HistoryAppender.h"
+#include "FWCore/Framework/interface/OccurrenceTraits.h"
+#include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Framework/src/OutputModuleCommunicatorT.h"
+#include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/Framework/src/WorkerT.h"
-#include "FWCore/Framework/interface/OccurrenceTraits.h"
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
-#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
-#include "FWCore/Framework/interface/HistoryAppender.h"
-#include "FWCore/Utilities/interface/GlobalIdentifier.h"
-#include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
-#include "FWCore/Framework/interface/FileBlock.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
-#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Utilities/interface/GlobalIdentifier.h"
+#include <functional>
+#include <map>
+        #include <vector>
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -52,8 +54,8 @@ class testOneOutputModule : public CppUnit::TestFixture {
 public:
   testOneOutputModule();
 
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void basicTest();
   void runTest();
@@ -259,7 +261,7 @@ testOneOutputModule::testOneOutputModule()
   m_lbp->setRunPrincipal(m_rp);
   edm::EventAuxiliary eventAux(eventID, uuid, now, true);
 
-  m_ep.reset(new edm::EventPrincipal(m_prodReg, m_idHelper, m_associationsHelper, m_procConfig, nullptr));
+  m_ep = std::make_unique<edm::EventPrincipal>(m_prodReg, m_idHelper, m_associationsHelper, m_procConfig, nullptr);
   m_ep->fillEventPrincipal(eventAux, nullptr);
   m_ep->setLuminosityBlockPrincipal(m_lbp.get());
   m_actReg.reset(new edm::ActivityRegistry);

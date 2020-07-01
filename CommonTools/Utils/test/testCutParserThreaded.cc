@@ -47,7 +47,9 @@ int main() {
   //Have to avoid having Streamers modify themselves after they have been used
   TVirtualStreamerInfo::Optimize(false);
 
-  for (int i = 0; i < kNThreads; ++i) {
+  threads.reserve(kNThreads);
+
+        for (int i = 0; i < kNThreads; ++i) {
     threads.emplace_back([&canStart, &canStartEval, &failed]() {
       try {
         static thread_local TThread guard;

@@ -45,13 +45,13 @@
 class ElectronIsoAnalyzer : public edm::EDAnalyzer {
 public:
   explicit ElectronIsoAnalyzer(const edm::ParameterSet&);
-  ~ElectronIsoAnalyzer();
+  ~ElectronIsoAnalyzer() override;
   //
 
 private:
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   edm::ParameterSet conf_;
 

@@ -10,8 +10,8 @@
 class writeKeyed : public edm::EDAnalyzer {
 public:
   explicit writeKeyed(const edm::ParameterSet& iConfig);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) {}
-  virtual void endJob();
+  void analyze(const edm::Event&, const edm::EventSetup&) override {}
+  void endJob() override;
 
 private:
   std::string confcont, confiov;
@@ -43,7 +43,7 @@ void writeKeyed::endJob() {
   // populated with the keyed payloads (configurations)
   for (size_t i = 0; i < dict.size(); ++i)
     for (size_t j = 0; j < 7; ++j) {
-      cond::BaseKeyed* bk = 0;
+      cond::BaseKeyed* bk = nullptr;
       cond::KeyedElement k((0 == i % 2) ? bk = new condex::ConfI(dict[i] + nums[j], 10 * i + j)
                                         : bk = new condex::ConfF(dict[i] + nums[j], i + 0.1 * j),
                            dict[i] + nums[j]);

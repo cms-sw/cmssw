@@ -18,7 +18,7 @@
 
 class ConstMagneticField : public MagneticField {
 public:
-  virtual GlobalVector inTesla(const GlobalPoint&) const { return GlobalVector(0, 0, 4); }
+  GlobalVector inTesla(const GlobalPoint&) const override { return GlobalVector(0, 0, 4); }
 };
 
 int main() {

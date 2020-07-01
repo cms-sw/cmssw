@@ -35,8 +35,8 @@ class testPtr : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void constructTest();
   void comparisonTest();
@@ -63,7 +63,7 @@ namespace {
 
   struct Dummy2 : public Dummy {
     Dummy2() {}
-    virtual ~Dummy2() {}
+    ~Dummy2() override {}
   };
 
   typedef std::vector<Dummy2> DummyCollection2;
@@ -288,14 +288,14 @@ void testPtr::comparisonTest() {
 namespace {
   struct TestGetter : public edm::EDProductGetter {
     WrapperBase const* hold_;
-    virtual WrapperBase const* getIt(ProductID const&) const override { return hold_; }
-    virtual WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override { return nullptr; }
+    WrapperBase const* getIt(ProductID const&) const override { return hold_; }
+    WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override { return nullptr; }
 
-    virtual void getThinnedProducts(ProductID const& pid,
+    void getThinnedProducts(ProductID const& pid,
                                     std::vector<WrapperBase const*>& wrappers,
                                     std::vector<unsigned int>& keys) const override {}
 
-    virtual unsigned int transitionIndex_() const override { return 0U; }
+    unsigned int transitionIndex_() const override { return 0U; }
 
     TestGetter() : hold_() {}
   };

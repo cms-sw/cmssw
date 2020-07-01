@@ -34,7 +34,9 @@ process.genParticlePlusGEANT = cms.EDProducer("GenPlusSimParticleProducer",
 #include "SimGeneral/HepPDTRecord/interface/PdtEntry.h"
 
 #include <ext/algorithm>
+#include <memory>
 
+        
 namespace pat {
   class GenPlusSimParticleProducer : public edm::EDProducer {
   public:
@@ -203,7 +205,7 @@ void GenPlusSimParticleProducer::produce(Event &event, const EventSetup &iSetup)
   std::unique_ptr<SimTrackContainer> simtracksTmp;
   const SimTrackContainer *simtracksSorted = &*simtracks;
   if (!__gnu_cxx::is_sorted(simtracks->begin(), simtracks->end(), LessById())) {
-    simtracksTmp.reset(new SimTrackContainer(*simtracks));
+    simtracksTmp = std::make_unique<SimTrackContainer>(*simtracks);
     std::sort(simtracksTmp->begin(), simtracksTmp->end(), LessById());
     simtracksSorted = &*simtracksTmp;
   }

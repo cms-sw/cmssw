@@ -16,16 +16,16 @@
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram2D.h"
 #include "CondFormats/DataRecord/interface/SiStripDeDxProton_2D_Rcd.h"
 
+#include <cstdio>
 #include <iostream>
-#include <stdio.h>
 #include <sys/time.h>
 
 class SiStripDeDx2DReader : public edm::EDAnalyzer {
 public:
   explicit SiStripDeDx2DReader(const edm::ParameterSet&);
-  ~SiStripDeDx2DReader();
+  ~SiStripDeDx2DReader() override;
 
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   //  uint32_t printdebug_;

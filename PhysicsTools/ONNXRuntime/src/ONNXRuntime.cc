@@ -7,9 +7,11 @@
 
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 
+#include <algorithm>
 #include <cassert>
 #include <iostream>
-#include <algorithm>
+#include <memory>
+
 #include <numeric>
 #include <functional>
 #include "FWCore/Utilities/interface/Exception.h"
@@ -24,11 +26,11 @@ namespace cms::Ort {
   ONNXRuntime::ONNXRuntime(const std::string& model_path, const SessionOptions* session_options) {
     // create session
     if (session_options) {
-      session_.reset(new Session(env_, model_path.c_str(), *session_options));
+      session_ = std::make_unique<Session>(env_, model_path.c_str(), *session_options);
     } else {
       SessionOptions sess_opts;
       sess_opts.SetIntraOpNumThreads(1);
-      session_.reset(new Session(env_, model_path.c_str(), sess_opts));
+      session_ = std::make_unique<Session>(env_, model_path.c_str(), sess_opts);
     }
     AllocatorWithDefaultOptions allocator;
 

@@ -31,7 +31,7 @@ namespace std {
 class testLeptonAssociator : public edm::EDAnalyzer {
 public:
   explicit testLeptonAssociator(const edm::ParameterSet& iConfig);
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& setup) override;
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& setup) override;
 
 private:
   edm::EDGetTokenT<edm::View<reco::Track> > token_recoTracks;

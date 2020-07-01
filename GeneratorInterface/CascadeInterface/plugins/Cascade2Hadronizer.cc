@@ -1,5 +1,9 @@
 #include "GeneratorInterface/CascadeInterface/plugins/Cascade2Hadronizer.h"
 
+
+        #include <memory>
+
+        
 #include "HepMC/GenEvent.h"
 #include "HepMC/PdfInfo.h"
 #include "HepMC/PythiaWrapper6_4.h"
@@ -206,7 +210,7 @@ namespace gen {
 
     //-- now create the GenEventInfo product from the GenEvent and fill the missing pieces
 
-    eventInfo().reset(new GenEventInfoProduct(event().get()));
+    eventInfo() = std::make_unique<GenEventInfoProduct>(event().get());
 
     //-- in Pythia6 pthat is used to subdivide samples into different bins
     //-- in LHE mode the binning is done by the external ME generator

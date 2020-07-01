@@ -26,7 +26,7 @@ class testCSCTFRawToDigi : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {
+  void setUp() override {
     char* ret = getenv("CMSSW_BASE");
     if (!ret) {
       cerr << "env variable SCRAMRT_LOCALRT not set, try eval `scramv1 runt -csh`" << endl;
@@ -34,7 +34,7 @@ public:
     }
   }
 
-  void tearDown() {}
+  void tearDown() override {}
 
   void testCreateDigis();
 

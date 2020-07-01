@@ -38,7 +38,7 @@ namespace edmtest {
 
       void produce(edm::Event&, edm::EventSetup const&) override { ++m_count; }
 
-      ~SharedResourcesProducer() noexcept(false) {
+      ~SharedResourcesProducer() noexcept(false) override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "SharedResourcesProducer transitions " << m_count << " but it was supposed to be " << trans_;
@@ -81,7 +81,7 @@ namespace edmtest {
         er = true;
       }
 
-      ~WatchRunsProducer() noexcept(false) {
+      ~WatchRunsProducer() noexcept(false) override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "WatchRunsProducer transitions " << m_count << " but it was supposed to be " << trans_;
@@ -124,7 +124,7 @@ namespace edmtest {
         el = true;
       }
 
-      ~WatchLumiBlocksProducer() noexcept(false) {
+      ~WatchLumiBlocksProducer() noexcept(false) override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "WatchLumiBlockProducer transitions " << m_count << " but it was supposed to be " << trans_;
@@ -176,7 +176,7 @@ namespace edmtest {
         c->end = true;
       }
 
-      ~RunCacheProducer() {
+      ~RunCacheProducer() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "WatchRunsAnalyzer transitions " << m_count << " but it was supposed to be " << trans_;
@@ -221,7 +221,7 @@ namespace edmtest {
         c->end = true;
       }
 
-      ~LumiBlockCacheProducer() {
+      ~LumiBlockCacheProducer() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "WatchLumiBlocksAnalyzer transitions " << m_count << " but it was supposed to be " << trans_;
@@ -255,7 +255,7 @@ namespace edmtest {
 
       void endRun(edm::Run const&, edm::EventSetup const&) override {}
 
-      ~TestBeginRunProducer() noexcept(false) {
+      ~TestBeginRunProducer() noexcept(false) override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "TestBeginRunProducer transitions " << m_count << " but it was supposed to be " << trans_;
@@ -290,7 +290,7 @@ namespace edmtest {
 
       void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {}
 
-      ~TestBeginLumiBlockProducer() noexcept(false) {
+      ~TestBeginLumiBlockProducer() noexcept(false) override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "TestBeginLumiBlockProducer transitions " << m_count << " but it was supposed to be " << trans_;
@@ -325,7 +325,7 @@ namespace edmtest {
 
       void endRun(edm::Run const&, edm::EventSetup const&) override {}
 
-      ~TestEndRunProducer() noexcept(false) {
+      ~TestEndRunProducer() noexcept(false) override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "TestEndRunProducer transitions " << m_count << " but it was supposed to be " << trans_;
@@ -360,7 +360,7 @@ namespace edmtest {
 
       void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {}
 
-      ~TestEndLumiBlockProducer() noexcept(false) {
+      ~TestEndLumiBlockProducer() noexcept(false) override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "TestEndLumiBlockProducer transitions " << m_count << " but it was supposed to be " << trans_;
@@ -375,7 +375,7 @@ namespace edmtest {
 
       void accumulate(edm::Event const&, edm::EventSetup const&) override { ++m_count; }
 
-      ~TestAccumulator() {
+      ~TestAccumulator() override {
         if (m_count.load() != m_expectedCount) {
           throw cms::Exception("TestCount")
               << "TestAccumulator counter was " << m_count << " but it was supposed to be " << m_expectedCount;

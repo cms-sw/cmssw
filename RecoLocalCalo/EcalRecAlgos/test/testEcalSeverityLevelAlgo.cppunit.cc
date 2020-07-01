@@ -15,8 +15,8 @@ class testEcalSeverityLevelAlgo : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp();
-  void tearDown() { delete algo_; }
+  void setUp() override;
+  void tearDown() override { delete algo_; }
 
   void testSeverity();
 

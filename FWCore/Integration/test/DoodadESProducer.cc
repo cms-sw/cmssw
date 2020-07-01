@@ -35,7 +35,7 @@ namespace edmtest {
   class DoodadESProducer : public edm::ESProducer {
   public:
     DoodadESProducer(edm::ParameterSet const&);
-    ~DoodadESProducer();
+    ~DoodadESProducer() override;
 
     typedef std::unique_ptr<Doodad> ReturnType;
 

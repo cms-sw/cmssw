@@ -37,7 +37,7 @@ class TestMuonHierarchy : public edm::EDAnalyzer {
 public:
   explicit TestMuonHierarchy(const edm::ParameterSet&) {}
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   // ----------member data ---------------------------

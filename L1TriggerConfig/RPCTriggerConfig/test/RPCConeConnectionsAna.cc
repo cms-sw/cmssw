@@ -51,12 +51,12 @@
 class RPCConeConnectionsAna : public edm::EDAnalyzer {
 public:
   explicit RPCConeConnectionsAna(const edm::ParameterSet&);
-  ~RPCConeConnectionsAna();
+  ~RPCConeConnectionsAna() override;
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
   int getDCCNumber(int iTower, int iSec);
   int getDCC(int iSec);
   void printSymetric(RPCDetId det, edm::ESHandle<RPCGeometry> rpcGeom);
@@ -122,7 +122,7 @@ void RPCConeConnectionsAna::analyze(const edm::Event& iEvent, const edm::EventSe
   edm::ESHandle<RPCReadOutMapping> map = eMap->convert();
 
   for (TrackingGeometry::DetContainer::const_iterator it = rpcGeom->dets().begin(); it != rpcGeom->dets().end(); ++it) {
-    if (dynamic_cast<const RPCRoll*>(*it) == 0)
+    if (dynamic_cast<const RPCRoll*>(*it) == nullptr)
       continue;
 
     RPCRoll const* roll = dynamic_cast<RPCRoll const*>(*it);
@@ -275,7 +275,7 @@ void RPCConeConnectionsAna::printSymetric(RPCDetId det, edm::ESHandle<RPCGeometr
   }
 
   for (TrackingGeometry::DetContainer::const_iterator it = rpcGeom->dets().begin(); it != rpcGeom->dets().end(); ++it) {
-    if (dynamic_cast<const RPCRoll*>(*it) == 0)
+    if (dynamic_cast<const RPCRoll*>(*it) == nullptr)
       continue;
     RPCRoll const* roll = dynamic_cast<RPCRoll const*>(*it);
 

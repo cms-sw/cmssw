@@ -24,8 +24,8 @@ class testSharedResourcesRegistry : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void oneTest();
   void legacyTest();
@@ -38,7 +38,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testSharedResourcesRegistry);
 void testSharedResourcesRegistry::oneTest() {
   edm::SharedResourcesRegistry reg;
 
-  CPPUNIT_ASSERT(reg.resourceMap().size() == 0);
+  CPPUNIT_ASSERT(reg.resourceMap().empty());
 
   reg.registerSharedResource("foo");
   reg.registerSharedResource("bar");

@@ -461,7 +461,7 @@ void GeometryTester::analyze(const edm::Event &, const edm::EventSetup &iSetup) 
 
       std::vector<std::string> strrpc(rpcgeo->strStart(i), rpcgeo->strEnd(i));
       std::cout << "rpc ";
-      for (auto it : strrpc)
+      for (const auto& it : strrpc)
         outStream << it;
       std::cout << "\n";
     }

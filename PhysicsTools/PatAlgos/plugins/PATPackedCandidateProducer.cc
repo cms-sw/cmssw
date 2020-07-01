@@ -144,7 +144,7 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
                                   : edm::EDGetTokenT<edm::ValueMap<float>>()) {
   std::vector<edm::InputTag> sv_tags =
       iConfig.getParameter<std::vector<edm::InputTag>>("secondaryVerticesForWhiteList");
-  for (auto itag : sv_tags) {
+  for (const auto& itag : sv_tags) {
     SVWhiteLists_.push_back(consumes<edm::View<reco::Candidate>>(itag));
   }
 

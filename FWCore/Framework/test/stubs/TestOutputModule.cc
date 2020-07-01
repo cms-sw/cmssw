@@ -36,7 +36,7 @@ namespace {
   void packIntoString(std::vector<unsigned char> const& source, std::vector<unsigned char>& package) {
     unsigned int packInOneByte = 4;
     unsigned int sizeOfPackage = 1 + ((source.size() - 1) / packInOneByte);  //Two bits per HLT
-    if (source.size() == 0)
+    if (source.empty())
       sizeOfPackage = 0;
 
     package.resize(sizeOfPackage);
@@ -58,15 +58,15 @@ namespace edmtest {
   class TestOutputModule : public edm::one::OutputModule<> {
   public:
     explicit TestOutputModule(edm::ParameterSet const&);
-    virtual ~TestOutputModule();
+    ~TestOutputModule() override;
 
   private:
     Trig getTriggerResults(EDGetTokenT<TriggerResults> const& token, EventForOutput const& e) const;
 
-    virtual void write(edm::EventForOutput const& e) override;
-    virtual void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
-    virtual void writeRun(edm::RunForOutput const&) override;
-    virtual void endJob() override;
+    void write(edm::EventForOutput const& e) override;
+    void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
+    void writeRun(edm::RunForOutput const&) override;
+    void endJob() override;
 
     std::string name_;
     int bitMask_;
@@ -132,7 +132,7 @@ namespace edmtest {
 
     std::vector<unsigned char> vHltState;
 
-    std::vector<std::string> hlts = getAllTriggerNames();
+    const std::vector<std::string>& hlts = getAllTriggerNames();
     unsigned int hltSize = hlts.size();
 
     for (unsigned int i = 0; i != hltSize; ++i) {

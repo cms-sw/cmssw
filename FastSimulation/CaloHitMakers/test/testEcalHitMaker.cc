@@ -57,10 +57,10 @@ typedef math::XYZVector XYZPoint;
 class testEcalHitMaker : public edm::stream::EDAnalyzer<> {
 public:
   explicit testEcalHitMaker(const edm::ParameterSet&);
-  ~testEcalHitMaker();
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+  ~testEcalHitMaker() override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   // ----------member data ---------------------------

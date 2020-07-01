@@ -79,7 +79,7 @@ edm::IOVSyncValue CTPPSRPAlignmentCorrectionsMethods::stringToIOVValue(const std
   if (str == "+inf")
     return edm::IOVSyncValue::endOfTime();
 
-  size_t sep_pos = str.find(":");
+  size_t sep_pos = str.find(':');
   const std::string& runStr = str.substr(0, sep_pos);
   const std::string& lsStr = str.substr(sep_pos + 1);
 

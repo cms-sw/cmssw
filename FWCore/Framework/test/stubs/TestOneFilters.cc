@@ -40,7 +40,7 @@ namespace edmtest {
         return true;
       }
 
-      ~SharedResourcesFilter() {
+      ~SharedResourcesFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "SharedResourcesFilter transitions " << m_count << " but it was supposed to be " << trans_;
@@ -82,7 +82,7 @@ namespace edmtest {
         er = true;
       }
 
-      ~WatchRunsFilter() {
+      ~WatchRunsFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "WatchRunsFilter transitions " << m_count << " but it was supposed to be " << trans_;
@@ -124,7 +124,7 @@ namespace edmtest {
         el = true;
       }
 
-      ~WatchLumiBlocksFilter() {
+      ~WatchLumiBlocksFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "WatchLumiBlocksFilter transitions " << m_count << " but it was supposed to be " << trans_;
@@ -176,7 +176,7 @@ namespace edmtest {
         c->end = true;
       }
 
-      ~RunCacheFilter() {
+      ~RunCacheFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "WatchRunsAnalyzer transitions " << m_count << " but it was supposed to be " << trans_;
@@ -220,7 +220,7 @@ namespace edmtest {
         c->end = true;
       }
 
-      ~LumiBlockCacheFilter() {
+      ~LumiBlockCacheFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "WatchLumiBlocksAnalyzer transitions " << m_count << " but it was supposed to be " << trans_;
@@ -255,7 +255,7 @@ namespace edmtest {
 
       void endRun(edm::Run const&, edm::EventSetup const&) override {}
 
-      ~BeginRunFilter() {
+      ~BeginRunFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "BeginRunFilter transitions " << m_count << " but it was supposed to be " << trans_;
@@ -290,7 +290,7 @@ namespace edmtest {
 
       void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {}
 
-      ~BeginLumiBlockFilter() {
+      ~BeginLumiBlockFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "BeginLumiBlockFilter transitions " << m_count << " but it was supposed to be " << trans_;
@@ -321,7 +321,7 @@ namespace edmtest {
 
       void endRun(edm::Run const&, edm::EventSetup const&) override {}
 
-      ~EndRunFilter() {
+      ~EndRunFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "EndRunFilter transitions " << m_count << " but it was supposed to be " << trans_;
@@ -356,7 +356,7 @@ namespace edmtest {
 
       void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {}
 
-      ~EndLumiBlockFilter() {
+      ~EndLumiBlockFilter() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "EndLumiBlockFilter transitions " << m_count << " but it was supposed to be " << trans_;

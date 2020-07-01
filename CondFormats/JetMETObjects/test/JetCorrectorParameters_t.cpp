@@ -32,9 +32,9 @@ class testJetCorrectorParameters : public CppUnit::TestFixture {
 
 public:
   testJetCorrectorParameters() {}
-  ~testJetCorrectorParameters() {}
-  void setUp();
-  void tearDown();
+  ~testJetCorrectorParameters() override {}
+  void setUp() override;
+  void tearDown() override;
   void setupCorrector(bool is3D);
   void destroyCorrector();
   void generateFiles();

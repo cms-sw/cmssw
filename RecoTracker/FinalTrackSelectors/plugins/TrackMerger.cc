@@ -193,7 +193,7 @@ void TrackMerger::sortByHitPosition(const GlobalVector &v,
   for (unsigned int i = 0; i < nhits; ++i)
     ttrh[i] = theBuilder->build(hits[i]);
   std::sort(ttrh.begin(), ttrh.end(), GlobalMomentumSort(v));
-  for (auto hit : ttrh)
+  for (const auto& hit : ttrh)
     ownHits.push_back(*hit);
 }
 

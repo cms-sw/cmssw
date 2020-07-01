@@ -13,7 +13,7 @@ AnalyzeTuples::AnalyzeTuples(const edm::ParameterSet& iConfig) {
   std::string branchPre = m_HS.getUntrackedParameter<std::string>("BranchPre", "HFShowerPhotons_hfshowerlib_");
   std::string branchPost = m_HS.getUntrackedParameter<std::string>("BranchPost", "_R.obj");
 
-  if (pTreeName.find(".") == 0)
+  if (pTreeName.find('.') == 0)
     pTreeName.erase(0, 2);
   const char* nTree = pTreeName.c_str();
   hf = TFile::Open(nTree);

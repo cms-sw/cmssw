@@ -23,10 +23,10 @@ using namespace edm;
 class TestLumiCorrectionSource : public edm::EDAnalyzer {
 public:
   explicit TestLumiCorrectionSource(edm::ParameterSet const&);
-  virtual ~TestLumiCorrectionSource();
+  ~TestLumiCorrectionSource() override;
 
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
-  virtual void endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c);
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+  void endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) override;
 };
 
 // -----------------------------------------------------------------

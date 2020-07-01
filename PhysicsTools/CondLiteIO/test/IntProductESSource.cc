@@ -28,14 +28,14 @@ namespace edmtest {
     std::unique_ptr<edmtest::IntProduct> produce(const IntProductRecord&);
 
   protected:
-    virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
                                 const edm::IOVSyncValue& iTime,
-                                edm::ValidityInterval& iInterval);
+                                edm::ValidityInterval& iInterval) override;
 
   private:
-    IntProductESSource(const IntProductESSource&);  // stop default
+    IntProductESSource(const IntProductESSource&) = delete;  // stop default
 
-    const IntProductESSource& operator=(const IntProductESSource&);  // stop default
+    const IntProductESSource& operator=(const IntProductESSource&) = delete;  // stop default
 
     // ---------- member data --------------------------------
     unsigned int nCalls_;

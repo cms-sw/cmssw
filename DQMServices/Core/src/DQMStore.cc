@@ -683,11 +683,11 @@ namespace dqm::implementation {
     for (auto me : this->getAllContents(this->cwd_)) {
       const auto& name = me->getPathname();
       auto subdirname = name.substr(this->cwd_.length(), std::string::npos);
-      auto dirname = subdirname.substr(0, subdirname.find("/"));
+      auto dirname = subdirname.substr(0, subdirname.find('/'));
       subdirs.insert(dirname);
     }
     std::vector<std::string> out;
-    for (auto dir : subdirs) {
+    for (const auto& dir : subdirs) {
       if (dir.length() == 0)
         continue;
       out.push_back(this->cwd_ + dir);
@@ -698,7 +698,9 @@ namespace dqm::implementation {
   std::vector<std::string> IGetter::getMEs() const {
     auto mes = this->getContents(this->cwd_);
     std::vector<std::string> out;
-    for (auto me : mes) {
+    out.reserve(mes.size());
+
+for (auto me : mes) {
       out.push_back(me->getName());
     }
     return out;

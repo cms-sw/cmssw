@@ -124,11 +124,11 @@ namespace {
 
       //std::unique_ptr<TH1F> compare = std::unique_ptr<TH1F>(new TH1F("comparison",Form("Comparison of %s;DetId index; #Delta%s %s",s_coord.c_str(),s_coord.c_str(),unit.c_str()),ref_ali.size(),-0.5,ref_ali.size()-0.5));
       std::unique_ptr<TH1F> compare =
-          std::unique_ptr<TH1F>(new TH1F("comparison",
+          std::make_unique<TH1F>("comparison",
                                          Form(";Detector Id index; #Delta%s %s", s_coord.c_str(), unit.c_str()),
                                          ref_ali.size(),
                                          -0.5,
-                                         ref_ali.size() - 0.5));
+                                         ref_ali.size() - 0.5);
 
       std::vector<int> boundaries;
       AlignmentPI::partitions currentPart = AlignmentPI::BPix;
@@ -446,7 +446,7 @@ namespace {
 
       int c_index = 1;
 
-      auto legend = std::unique_ptr<TLegend>(new TLegend(0.14, 0.93, 0.55, 0.98));
+      auto legend = std::make_unique<TLegend>(0.14, 0.93, 0.55, 0.98);
       legend->AddEntry(
           diffs[AlignmentPI::t_x].get(),
           ("#DeltaIOV: " + std::to_string(std::get<0>(lastiov)) + "-" + std::to_string(std::get<0>(firstiov))).c_str(),
@@ -584,10 +584,10 @@ namespace {
       canvas.SetGrid();
 
       auto h2_BarycenterParameters =
-          std::unique_ptr<TH2F>(new TH2F("Parameters", "SubDetector Barycenter summary", 6, 0.0, 6.0, 6, 0, 6.));
+          std::make_unique<TH2F>("Parameters", "SubDetector Barycenter summary", 6, 0.0, 6.0, 6, 0, 6.);
 
       auto h2_uncBarycenterParameters =
-          std::unique_ptr<TH2F>(new TH2F("Parameters2", "SubDetector Barycenter summary", 6, 0.0, 6.0, 6, 0, 6.));
+          std::make_unique<TH2F>("Parameters2", "SubDetector Barycenter summary", 6, 0.0, 6.0, 6, 0, 6.);
 
       h2_BarycenterParameters->SetStats(false);
       h2_BarycenterParameters->SetTitle(nullptr);
@@ -739,8 +739,8 @@ namespace {
       canvas.Modified();
       canvas.SetGrid();
 
-      auto h2_BarycenterDiff = std::unique_ptr<TH2F>(
-          new TH2F("Parameters diff", "SubDetector Barycenter Difference", 3, 0.0, 3.0, 6, 0, 6.));
+      auto h2_BarycenterDiff = std::make_unique<TH2F>(
+          "Parameters diff", "SubDetector Barycenter Difference", 3, 0.0, 3.0, 6, 0, 6.);
 
       h2_BarycenterDiff->SetStats(false);
       h2_BarycenterDiff->SetTitle(nullptr);
@@ -896,15 +896,15 @@ namespace {
       unsigned int index(0);
       for (const auto &piece : structures) {
         const char *name = piece.c_str();
-        histos[index] = std::unique_ptr<TH2F>(
-            new TH2F(name,
+        histos[index] = std::make_unique<TH2F>(
+            name,
                      Form("%s x-y Barycenter Difference;x_{%s}-x_{TOB} [mm];y_{%s}-y_{TOB} [mm]", name, name, name),
                      100,
                      -3.,
                      3.,
                      100,
                      -3.,
-                     3.));
+                     3.);
 
         histos[index]->SetStats(false);
         histos[index]->SetTitle(nullptr);
@@ -918,8 +918,8 @@ namespace {
         index++;
       }
 
-      auto h2_ZBarycenterDiff = std::unique_ptr<TH2F>(new TH2F(
-          "Pixel_z_diff", "Pixel z-Barycenter Difference;; z_{Pixel-Ideal} -z_{TOB} [mm]", 3, -0.5, 2.5, 100, -10., 10.));
+      auto h2_ZBarycenterDiff = std::make_unique<TH2F>(
+          "Pixel_z_diff", "Pixel z-Barycenter Difference;; z_{Pixel-Ideal} -z_{TOB} [mm]", 3, -0.5, 2.5, 100, -10., 10.);
       h2_ZBarycenterDiff->SetStats(false);
       h2_ZBarycenterDiff->SetTitle(nullptr);
       h2_ZBarycenterDiff->GetXaxis()->SetBinLabel(1, "FPIX -");

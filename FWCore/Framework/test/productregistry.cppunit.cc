@@ -37,8 +37,8 @@ class testProductRegistry : public CppUnit::TestFixture {
 
 public:
   testProductRegistry();
-  void setUp();
-  void tearDown();
+  void setUp() override;
+  void tearDown() override;
   void testSignal();
   void testWatch();
   void testCircular();

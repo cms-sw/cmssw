@@ -20,10 +20,10 @@ public:
   MyDet(BoundPlane *bp) : TrackerGeomDet(bp) {}
 
   virtual DetId geographicalId() const { return DetId(); }
-  virtual std::vector<const GeomDet *> components() const { return std::vector<const GeomDet *>(); }
+  std::vector<const GeomDet *> components() const override { return std::vector<const GeomDet *>(); }
 
   /// Which subdetector
-  virtual SubDetector subDetector() const { return GeomDetEnumerators::DT; }
+  SubDetector subDetector() const override { return GeomDetEnumerators::DT; }
 };
 
 class testCutParser : public CppUnit::TestFixture {
@@ -32,8 +32,8 @@ class testCutParser : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void checkAll();
   void check(const std::string &, bool);
   void checkHit(const std::string &, bool, const SiStripRecHit2D &);

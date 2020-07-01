@@ -45,7 +45,7 @@ int run(const std::string& connectionString) {
     auto iovs = proxy.selectAll();
     session.transaction().commit();
     std::cout << "(0) Found " << iovs.size() << " iovs." << std::endl;
-    for (auto iov : iovs) {
+    for (const auto& iov : iovs) {
       std::cout << "Iov since " << iov.since << " hash " << iov.payloadId << std::endl;
     }
 
@@ -64,7 +64,7 @@ int run(const std::string& connectionString) {
     iovs = proxy.selectAll();
     session.transaction().commit();
     std::cout << "(1) Found " << iovs.size() << " iovs." << std::endl;
-    for (auto iov : iovs) {
+    for (const auto& iov : iovs) {
       std::cout << "Iov since " << iov.since << " hash " << iov.payloadId << std::endl;
     }
   } catch (const std::exception& e) {

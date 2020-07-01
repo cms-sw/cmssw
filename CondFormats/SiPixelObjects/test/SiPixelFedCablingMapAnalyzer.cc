@@ -20,8 +20,8 @@ using namespace sipixelobjects;
 class SiPixelFedCablingMapAnalyzer : public edm::EDAnalyzer {
 public:
   explicit SiPixelFedCablingMapAnalyzer(const edm::ParameterSet&) {}
-  ~SiPixelFedCablingMapAnalyzer();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  ~SiPixelFedCablingMapAnalyzer() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
 };

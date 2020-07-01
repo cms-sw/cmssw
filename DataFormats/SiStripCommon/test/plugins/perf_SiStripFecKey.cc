@@ -1,16 +1,16 @@
 
 #include "DataFormats/SiStripCommon/test/plugins/perf_SiStripFecKey.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/SiStripCommon/interface/Constants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <iostream>
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <algorithm>
+#include <ctime>
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 #include <string>
-#include <time.h>
-#include <algorithm>
 
 using namespace sistrip;
 

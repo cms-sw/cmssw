@@ -31,9 +31,9 @@
 
 class TestTrackerReader : public edm::EDAnalyzer {
 public:
-  explicit TestTrackerReader(const edm::ParameterSet&) : rot(0) {}
+  explicit TestTrackerReader(const edm::ParameterSet&) : rot(nullptr) {}
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   // ----------member data ---------------------------

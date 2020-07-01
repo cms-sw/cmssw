@@ -1,6 +1,8 @@
-#include <iostream>
-#include <fstream>
 #include <cassert>
+#include <fstream>
+#include <iostream>
+#include <memory>
+
 #include <string>
 #include <cstring>
 
@@ -47,7 +49,7 @@ int main(int argc, char *argv[]) {
   if (which == "0")
     f1 = make_HBHENegativeEFilter();
   else if (which == "1")
-    f1 = std::unique_ptr<HBHENegativeEFilter>(new HBHENegativeEFilter());
+    f1 = std::make_unique<HBHENegativeEFilter>();
   else {
     cerr << "Error: invalid filter code \"" << which << "\"." << endl;
     print_usage(argv[0]);

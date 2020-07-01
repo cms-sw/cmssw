@@ -24,7 +24,7 @@ class testMVAComputerEvaluate : public edm::EDAnalyzer {
 public:
   explicit testMVAComputerEvaluate(const edm::ParameterSet& params);
 
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   MVAComputerCache mvaComputer;

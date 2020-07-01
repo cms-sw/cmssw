@@ -175,7 +175,7 @@ void testSiStripHistoTitle::beginJob() {
                   ss << "[testSiStripHistoTitle::" << __func__ << "]"
                      << " Gran/Channel: " << SiStripEnumsAndStrings::granularity(key.granularity()) << "/"
                      << key.channel() << " ExtraInfo: ";
-                  if (extra == "") {
+                  if (extra.empty()) {
                     ss << "(none)" << std::endl;
                   } else {
                     ss << extra << std::endl;

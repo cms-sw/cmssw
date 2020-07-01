@@ -7,13 +7,13 @@ class TH1D;
 class ExhumeAnalyzer : public edm::EDAnalyzer {
 public:
   explicit ExhumeAnalyzer(const edm::ParameterSet&);
-  ~ExhumeAnalyzer();
+  ~ExhumeAnalyzer() override;
 
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
   //virtual void beginJob(const edm::EventSetup& eventSetup);
-  virtual void beginJob();
-  virtual void endJob();
+  void beginJob() override;
+  void endJob() override;
 
 private:
   edm::InputTag genParticlesTag_;

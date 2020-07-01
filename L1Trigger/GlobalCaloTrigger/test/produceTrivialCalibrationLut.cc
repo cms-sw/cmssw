@@ -4,8 +4,8 @@
 
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 
-#include <math.h>
 #include <cassert>
+#include <cmath>
 
 produceTrivialCalibrationLut::produceTrivialCalibrationLut()
     : m_htScaleLSB(0.5),

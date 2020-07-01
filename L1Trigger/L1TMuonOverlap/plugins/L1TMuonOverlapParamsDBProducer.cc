@@ -3,6 +3,10 @@
 
 #include "L1Trigger/L1TMuonOverlap/plugins/L1TMuonOverlapParamsDBProducer.h"
 
+
+        #include <memory>
+
+        
 #include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
 
@@ -19,7 +23,7 @@ void L1MuonOverlapParamsDBProducer::beginRun(edm::Run const& run, edm::EventSetu
 
   omtfParamsRcd.get("params", omtfParamsHandle);
 
-  omtfParams = std::unique_ptr<L1TMuonOverlapParams>(new L1TMuonOverlapParams(*omtfParamsHandle.product()));
+  omtfParams = std::make_unique<L1TMuonOverlapParams>(*omtfParamsHandle.product());
   if (!omtfParams) {
     edm::LogError("L1TMuonOverlapTrackProducer") << "Could not retrieve parameters from Event Setup" << std::endl;
   }

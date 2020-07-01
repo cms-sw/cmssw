@@ -1,7 +1,9 @@
 // System include files
 #include <cmath>
-#include <string>
+#include <memory>
+
 #include <map>
+        #include <string>
 #include <vector>
 
 // root objects
@@ -314,7 +316,7 @@ void IsolatedTracksHcalScale::analyze(const edm::Event &iEvent, const edm::Event
     iEvent.getByToken(tok_caloEB_, pcaloeb);
     iEvent.getByToken(tok_caloEE_, pcaloee);
     iEvent.getByToken(tok_caloHH_, pcalohh);
-    associate.reset(new TrackerHitAssociator(iEvent, trackerHitAssociatorConfig_));
+    associate = std::make_unique<TrackerHitAssociator>(iEvent, trackerHitAssociatorConfig_);
   }
 
   unsigned int nTracks = 0;

@@ -39,7 +39,7 @@ using namespace cms;
 class DD4hep_MTDTopologyAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit DD4hep_MTDTopologyAnalyzer(const edm::ParameterSet&);
-  ~DD4hep_MTDTopologyAnalyzer() = default;
+  ~DD4hep_MTDTopologyAnalyzer() override = default;
 
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;

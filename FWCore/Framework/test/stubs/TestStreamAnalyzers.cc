@@ -67,7 +67,7 @@ namespace edmtest {
         }
       }
 
-      void analyze(edm::Event const&, edm::EventSetup const&) {
+      void analyze(edm::Event const&, edm::EventSetup const&) override {
         ++m_count;
         ++((globalCache())->value);
       }
@@ -79,7 +79,7 @@ namespace edmtest {
         }
       }
 
-      ~GlobalIntAnalyzer() {
+      ~GlobalIntAnalyzer() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
         }
@@ -148,7 +148,7 @@ namespace edmtest {
         }
       }
 
-      ~RunIntAnalyzer() {
+      ~RunIntAnalyzer() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
         }
@@ -222,7 +222,7 @@ namespace edmtest {
         }
       }
 
-      ~LumiIntAnalyzer() {
+      ~LumiIntAnalyzer() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
         }
@@ -317,7 +317,7 @@ namespace edmtest {
         br = false;
       }
 
-      ~RunSummaryIntAnalyzer() {
+      ~RunSummaryIntAnalyzer() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
         }
@@ -437,7 +437,7 @@ namespace edmtest {
         bl = false;
       }
 
-      ~LumiSummaryIntAnalyzer() {
+      ~LumiSummaryIntAnalyzer() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
         }

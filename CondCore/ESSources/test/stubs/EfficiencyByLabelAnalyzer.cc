@@ -28,8 +28,8 @@ namespace edmtest {
       std::cout << "EfficiencyByLabelAnalyzer" << std::endl;
     }
     explicit EfficiencyByLabelAnalyzer(int i) { std::cout << "EfficiencyByLabelAnalyzer " << i << std::endl; }
-    virtual ~EfficiencyByLabelAnalyzer() { std::cout << "~EfficiencyByLabelAnalyzer " << std::endl; }
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~EfficiencyByLabelAnalyzer() override { std::cout << "~EfficiencyByLabelAnalyzer " << std::endl; }
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
   };

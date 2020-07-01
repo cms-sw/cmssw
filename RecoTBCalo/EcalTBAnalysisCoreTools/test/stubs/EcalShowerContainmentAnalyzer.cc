@@ -43,11 +43,11 @@
 class EcalShowerContainmentAnalyzer : public edm::EDAnalyzer {
 public:
   EcalShowerContainmentAnalyzer(const edm::ParameterSet& ps);
-  ~EcalShowerContainmentAnalyzer();
+  ~EcalShowerContainmentAnalyzer() override;
 
 protected:
-  void analyze(edm::Event const& iEvent, const edm::EventSetup& iSetup);
-  void endJob();
+  void analyze(edm::Event const& iEvent, const edm::EventSetup& iSetup) override;
+  void endJob() override;
 
   void readIntercalibrationConstants();
 
@@ -288,7 +288,7 @@ std::pair<double, double> EcalShowerContainmentAnalyzer::contCorrection(const ed
   iESetup.get<EcalShowerContainmentCorrectionsRcd>().get(pGapCorr);
 
   Handle<EBRecHitCollection> pEBRecHits;
-  const EBRecHitCollection* EBRecHits = 0;
+  const EBRecHitCollection* EBRecHits = nullptr;
 
   const std::string RecHitProducer_("ecal2006TBRecHit");
   const std::string EBRecHitCollection_("EcalRecHitsEB");

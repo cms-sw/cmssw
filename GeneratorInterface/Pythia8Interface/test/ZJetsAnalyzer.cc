@@ -35,12 +35,12 @@ class ZJetsAnalyzer : public edm::EDAnalyzer {
 public:
   //
   explicit ZJetsAnalyzer(const edm::ParameterSet&);
-  virtual ~ZJetsAnalyzer();  // no need to delete ROOT stuff
+  ~ZJetsAnalyzer() override;  // no need to delete ROOT stuff
                              // as it'll be deleted upon closing TFile
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void beginJob() override;
-  virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
 
 private:
   edm::EDGetTokenT<GenEventInfoProduct> tokenGenEvent_;
@@ -65,7 +65,7 @@ ZJetsAnalyzer::ZJetsAnalyzer(const edm::ParameterSet& pset)
           edm::InputTag(pset.getUntrackedParameter("moduleLabel", std::string("generator")), "unsmeared"))),
       tokenGenRun_(consumes<GenRunInfoProduct, edm::InRun>(
           edm::InputTag(pset.getUntrackedParameter("moduleLabel", std::string("generator")), ""))),
-      fHist2muMass(0) {
+      fHist2muMass(nullptr) {
   // actually, pset is NOT in use - we keep it here just for illustratory putposes
 }
 
@@ -187,7 +187,7 @@ void ZJetsAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
   cleanedJets = LA.removeLeptonsFromJets(sortedJets, Evt);
 
   if (nisolep > 1) {
-    if (cleanedJets.size() > 0)
+    if (!cleanedJets.empty())
       icategories[3]++;
     if (cleanedJets.size() > 1)
       icategories[4]++;

@@ -158,15 +158,15 @@ namespace {
   template <typename T>
   struct DSVGetter : edm::EDProductGetter {
     DSVGetter() : edm::EDProductGetter(), prod_(nullptr) {}
-    virtual WrapperBase const* getIt(ProductID const&) const override { return prod_; }
+    WrapperBase const* getIt(ProductID const&) const override { return prod_; }
 
-    virtual WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override { return nullptr; }
+    WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override { return nullptr; }
 
-    virtual void getThinnedProducts(ProductID const& pid,
+    void getThinnedProducts(ProductID const& pid,
                                     std::vector<WrapperBase const*>& wrappers,
                                     std::vector<unsigned int>& keys) const override {}
 
-    virtual unsigned int transitionIndex_() const override { return 0U; }
+    unsigned int transitionIndex_() const override { return 0U; }
 
     edm::Wrapper<T> const* prod_;
   };
@@ -222,7 +222,7 @@ void refTest() {
     TestHandle<coll_type> pc2(&c, ProductID(1, 1));
     RefDet refDet = makeRefToDetSetVector(pc2, det_id_type(12), c[3].data.begin());
 
-    assert("Failed to throw required exception" == 0);
+    assert("Failed to throw required exception" == nullptr);
   } catch (edm::Exception const& x) {
     //std::cout <<x.what()<<std::endl;
     // Test we have the right exception category
@@ -234,7 +234,7 @@ void refTest() {
     TestHandle<coll_type> pc2(&c, ProductID(1, 1));
     RefDet refDet = makeRefToDetSetVector(pc2, det_id_type(1), c[3].data.begin());
 
-    assert("Failed to throw required exception" == 0);
+    assert("Failed to throw required exception" == nullptr);
   } catch (edm::Exception const& x) {
     //std::cout <<x.what()<<std::endl;
     // Test we have the right exception category
@@ -249,7 +249,7 @@ void work() {
   coll_type c1;
   c1.post_insert();
   sanity_check(c1);
-  assert(c1.size() == 0);
+  assert(c1.empty());
   assert(c1.empty());
 
   coll_type c2(c1);
@@ -327,13 +327,13 @@ void work() {
     // We should not find ID=100; op[] should throw.
     try {
       coll_type::reference r = c[edm::det_id_type(100)];
-      assert("Failed to throw required exception" == 0);
+      assert("Failed to throw required exception" == nullptr);
       assert(is_null(&r));  // to silence warning of unused r
     } catch (edm::Exception const& x) {
       // Test we have the right exception category
       assert(x.categoryCode() == edm::errors::InvalidReference);
     } catch (...) {
-      assert("Failed to throw correct exception type" == 0);
+      assert("Failed to throw correct exception type" == nullptr);
     }
   }
 
@@ -341,13 +341,13 @@ void work() {
     // We should not find ID=100; op[] should throw.
     try {
       coll_type::const_reference r = static_cast<coll_type const&>(c)[edm::det_id_type(100)];
-      assert("Failed to throw required exception" == 0);
+      assert("Failed to throw required exception" == nullptr);
       assert(is_null(&r));  // to silence warning of unused r
     } catch (edm::Exception const& x) {
       // Test we have the right exception category
       assert(x.categoryCode() == edm::errors::InvalidReference);
     } catch (...) {
-      assert("Failed to throw correct exception type" == 0);
+      assert("Failed to throw correct exception type" == nullptr);
     }
   }
   {
@@ -371,7 +371,7 @@ void work() {
     assert(newsize > oldsize);
     assert(newsize == (oldsize + 1));
     assert(r.id == edm::det_id_type(17));
-    assert(r.data.size() == 0);
+    assert(r.data.empty());
     r.data.push_back(Value(10.1));
     r.data.push_back(Value(9.1));
     r.data.push_back(Value(4.0));
@@ -394,7 +394,7 @@ void work() {
     assert(v.size() == numDetSets);
     coll_type c3(v);
     c3.post_insert();
-    assert(v.size() == 0);
+    assert(v.empty());
     assert(c3.size() == numDetSets);
     sanity_check(c3);
 

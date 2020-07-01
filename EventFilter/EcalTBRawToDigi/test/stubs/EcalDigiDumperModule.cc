@@ -98,7 +98,7 @@ protected:
   std::vector<int> listTowers;
   std::vector<int> listPns;
 
-  void analyze(const edm::Event& e, const edm::EventSetup& c) {
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override {
     if (!inputIsOk)
       return;
 
@@ -120,7 +120,7 @@ protected:
 
     std::cout << "\n\n";
 
-    if (gainMem->size() && memErrors) {
+    if (!gainMem->empty() && memErrors) {
       std::cout << "\n\n^^^^^^^^^^^^^^^^^^ [EcalDigiDumperModule]  Size of collection of mem gain errors is: "
                 << gainMem->size() << std::endl;
       std::cout << "                                  [EcalDigiDumperModule]  dumping the bit gain errors\n"
@@ -132,7 +132,7 @@ protected:
       }  // end of loop on gain errors in the mem
     }    // end if
 
-    if (MemId->size() && memErrors) {
+    if (!MemId->empty() && memErrors) {
       std::cout << "\n\n^^^^^^^^^^^^^^^^^^ [EcalDigiDumperModule]  Size of collection of mem tt_block_id errors is: "
                 << MemId->size() << std::endl;
       std::cout << "                                  [EcalDigiDumperModule]  dumping the mem tt_block_idb errors\n"

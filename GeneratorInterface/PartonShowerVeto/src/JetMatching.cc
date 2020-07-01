@@ -1,5 +1,7 @@
-#include <string>
 #include <memory>
+
+#include <memory>
+        #include <string>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -35,9 +37,9 @@ namespace gen {
     std::unique_ptr<JetMatching> matching;
 
     if (scheme == "Madgraph") {
-      matching.reset(new JetMatchingMadgraph(params));
+      matching = std::make_unique<JetMatchingMadgraph>(params);
     } else if (scheme == "Alpgen") {
-      matching.reset(new JetMatchingAlpgen(params));
+      matching = std::make_unique<JetMatchingAlpgen>(params);
     } else if (scheme == "MLM") {
       matching.reset();
     } else

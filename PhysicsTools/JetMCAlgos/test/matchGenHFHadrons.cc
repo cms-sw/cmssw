@@ -24,11 +24,11 @@
 class matchGenHFHadrons : public edm::EDAnalyzer {
 public:
   explicit matchGenHFHadrons(const edm::ParameterSet&);
-  ~matchGenHFHadrons(){};
+  ~matchGenHFHadrons() override{};
 
 private:
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
-  virtual void beginJob();
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  void beginJob() override;
   void bookHadronBranches(TTree* tree, const int flavour);
   void clearEventVariables();
   void clearHadronVariables();
@@ -427,9 +427,9 @@ void matchGenHFHadrons::analyze(const edm::Event& event, const edm::EventSetup& 
       additionalJetEventId_ += 55;
   }
   // tt + no additional b jets
-  else if (additionalBJetIds.size() == 0) {
+  else if (additionalBJetIds.empty()) {
     // tt + >=1 pseudo-additional b jet with b hadrons after top quark decay
-    if (pseudoadditionalBJetIds.size() > 0)
+    if (!pseudoadditionalBJetIds.empty())
       additionalJetEventId_ += 56;
     // tt + 1 additional c jet
     else if (additionalCJetIds.size() == 1) {
@@ -456,9 +456,9 @@ void matchGenHFHadrons::analyze(const edm::Event& event, const edm::EventSetup& 
         additionalJetEventId_ += 45;
     }
     // tt + no additional c jets
-    else if (additionalCJetIds.size() == 0) {
+    else if (additionalCJetIds.empty()) {
       // tt + >=1 pseudo-additional c jet with c hadrons after top quark decay
-      if (pseudoadditionalCJetIds.size() > 0)
+      if (!pseudoadditionalCJetIds.empty())
         additionalJetEventId_ += 46;
       // tt + light jets
       else
@@ -683,7 +683,7 @@ void matchGenHFHadrons::fillHadronTree(TTree* tree,
                                                      genJets.at(hadronJetId).polarP4());
     }
 
-    if (genHadBHadronId.size() > 0)
+    if (!genHadBHadronId.empty())
       hadron_bHadronId_ = genHadBHadronId.at(hadronId);
     hadron_fromTopWeakDecay_ = genHadFromTopWeakDecay.at(hadronId);
 
@@ -718,7 +718,7 @@ void matchGenHFHadrons::fillHadronTree(TTree* tree,
     // Sorting quarks with proper flavour by their dR
     std::sort(hadronLastQuarks_sameFlavour.begin(), hadronLastQuarks_sameFlavour.end(), sort_pairs_second);
     const int hadronQuark1ParticleId =
-        hadronLastQuarks_sameFlavour.size() > 0 ? hadronLastQuarks_sameFlavour.at(0).first : -1;
+        !hadronLastQuarks_sameFlavour.empty() ? hadronLastQuarks_sameFlavour.at(0).first : -1;
     const int hadronQuark2ParticleId =
         hadronLastQuarks_sameFlavour.size() > 1 ? hadronLastQuarks_sameFlavour.at(1).first : -1;
 

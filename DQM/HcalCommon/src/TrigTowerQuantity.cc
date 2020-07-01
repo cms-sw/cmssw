@@ -75,7 +75,9 @@ namespace hcaldqm {
 
     std::vector<std::string> getLabels_TTSubdet() {
       std::vector<std::string> labels;
-      for (int i = 0; i < 2; i++)
+      labels.reserve(2);
+
+        for (int i = 0; i < 2; i++)
         labels.push_back(constants::TPSUBDET_NAME[getTid_TTSubdet(i).ietaAbs() < 29 ? 0 : 1]);
       return labels;
     }

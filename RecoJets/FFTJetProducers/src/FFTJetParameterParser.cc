@@ -1,5 +1,7 @@
 #include <cstdlib>
 #include <cstring>
+#include <memory>
+
 #include <string>
 #include <fstream>
 
@@ -362,9 +364,9 @@ namespace fftjetcms {
       // or EquidistantInLogSpace directly because std::vector
       // destructor is not virtual.
       if (!className.compare("EquidistantInLinearSpace"))
-        return return_type(new std::vector<double>(fftjet::EquidistantInLinearSpace(minScale, maxScale, nScales)));
+        return std::make_unique<std::vector<double>>(fftjet::EquidistantInLinearSpace(minScale, maxScale, nScales));
       else
-        return return_type(new std::vector<double>(fftjet::EquidistantInLogSpace(minScale, maxScale, nScales)));
+        return std::make_unique<std::vector<double>>(fftjet::EquidistantInLogSpace(minScale, maxScale, nScales));
     }
 
     if (!className.compare("UserSet")) {
@@ -397,8 +399,8 @@ namespace fftjetcms {
     const unsigned nUserScales = userScalesV.size();
     const double* userScales = nUserScales ? &userScalesV[0] : nullptr;
 
-    return return_type(
-        new fftjet::ClusteringTreeSparsifier<fftjet::Peak, long>(maxLevelNumber, filterMask, userScales, nUserScales));
+    return std::make_unique<fftjet::ClusteringTreeSparsifier<fftjet::Peak, long>>(
+        maxLevelNumber, filterMask, userScales, nUserScales);
   }
 
   std::unique_ptr<fftjet::AbsDistanceCalculator<fftjet::Peak> > fftjet_DistanceCalculator_parser(
@@ -443,8 +445,8 @@ namespace fftjetcms {
     if (data.empty())
       return std::unique_ptr<fftjetcms::LinInterpolatedTable1D>(nullptr);
     else
-      return std::unique_ptr<fftjetcms::LinInterpolatedTable1D>(new fftjetcms::LinInterpolatedTable1D(
-          &data[0], data.size(), xmin, xmax, leftExtrapolationLinear, rightExtrapolationLinear));
+      return std::make_unique<fftjetcms::LinInterpolatedTable1D>(
+          &data[0], data.size(), xmin, xmax, leftExtrapolationLinear, rightExtrapolationLinear);
   }
 
   std::unique_ptr<fftjet::LinearInterpolator1d> fftjet_LinearInterpolator1d_parser(const edm::ParameterSet& ps) {
@@ -456,8 +458,8 @@ namespace fftjetcms {
     if (data.empty())
       return std::unique_ptr<fftjet::LinearInterpolator1d>(nullptr);
     else
-      return std::unique_ptr<fftjet::LinearInterpolator1d>(
-          new fftjet::LinearInterpolator1d(&data[0], data.size(), xmin, xmax, flow, fhigh));
+      return std::make_unique<fftjet::LinearInterpolator1d>(
+          &data[0], data.size(), xmin, xmax, flow, fhigh);
   }
 
   std::unique_ptr<fftjet::LinearInterpolator2d> fftjet_LinearInterpolator2d_parser(const edm::ParameterSet& ps) {
@@ -787,15 +789,15 @@ namespace fftjetcms {
     const double maxMagnitude = ps.getParameter<double>("maxMagnitude");
     const unsigned nMagPoints = ps.getParameter<unsigned>("nMagPoints");
 
-    return (std::unique_ptr<fftjet::JetMagnitudeMapper2d<fftjet::Peak> >(
-        new fftjet::JetMagnitudeMapper2d<fftjet::Peak>(*responseCurve,
+    return (std::make_unique<fftjet::JetMagnitudeMapper2d<fftjet::Peak> >(
+        *responseCurve,
                                                        new fftjetcms::PeakAbsEta<fftjet::Peak>(),
                                                        true,
                                                        minPredictor,
                                                        maxPredictor,
                                                        nPredPoints,
                                                        maxMagnitude,
-                                                       nMagPoints)));
+                                                       nMagPoints));
   }
 
   std::unique_ptr<fftjet::JetMagnitudeMapper2d<fftjet::RecombinedJet<VectorLike> > > fftjet_JetMagnitudeMapper2d_parser(
@@ -809,15 +811,15 @@ namespace fftjetcms {
     const double maxMagnitude = ps.getParameter<double>("maxMagnitude");
     const unsigned nMagPoints = ps.getParameter<unsigned>("nMagPoints");
 
-    return (std::unique_ptr<fftjet::JetMagnitudeMapper2d<RecoFFTJet> >(
-        new fftjet::JetMagnitudeMapper2d<RecoFFTJet>(*responseCurve,
+    return (std::make_unique<fftjet::JetMagnitudeMapper2d<RecoFFTJet> >(
+        *responseCurve,
                                                      new fftjetcms::JetAbsEta<RecoFFTJet>(),
                                                      true,
                                                      minPredictor,
                                                      maxPredictor,
                                                      nPredPoints,
                                                      maxMagnitude,
-                                                     nMagPoints)));
+                                                     nMagPoints));
   }
 
 }  // namespace fftjetcms

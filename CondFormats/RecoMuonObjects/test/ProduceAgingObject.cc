@@ -39,16 +39,16 @@
 class ProduceAgingObject : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit ProduceAgingObject(const edm::ParameterSet&);
-  ~ProduceAgingObject();
+  ~ProduceAgingObject() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob() override{};
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endRun(const edm::Run&, const edm::EventSetup&) override{};
-  virtual void endJob() override{};
+  void beginJob() override{};
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override{};
+  void endJob() override{};
 
   void createRpcAgingMap();
   void createDtAgingMap(const edm::ESHandle<DTGeometry>& dtGeom);
@@ -132,8 +132,8 @@ void ProduceAgingObject::beginRun(const edm::Run& iRun, const edm::EventSetup& i
 void ProduceAgingObject::createRpcAgingMap() {
   std::cout << "[ProduceAgingObject] List of aged RPC objects (ID, efficiency)" << std::endl;
   for (auto& chRegExStr : m_RPCRegEx) {
-    std::string id = chRegExStr.substr(0, chRegExStr.find(":"));
-    std::string eff = chRegExStr.substr(id.size() + 1, chRegExStr.find(":"));
+    std::string id = chRegExStr.substr(0, chRegExStr.find(':'));
+    std::string eff = chRegExStr.substr(id.size() + 1, chRegExStr.find(':'));
 
     std::cout << "\t( " << id << " , " << eff << " )" << std::endl;
     m_RPCChambEffs[std::atoi(id.c_str())] = std::atof(eff.c_str());
@@ -154,9 +154,9 @@ void ProduceAgingObject::createDtAgingMap(const edm::ESHandle<DTGeometry>& dtGeo
     float eff = 1.;
 
     for (auto& chRegExStr : m_DTRegEx) {
-      std::string effTag(chRegExStr.substr(chRegExStr.find(":")));
+      std::string effTag(chRegExStr.substr(chRegExStr.find(':')));
 
-      const std::regex chRegEx(chRegExStr.substr(0, chRegExStr.find(":")));
+      const std::regex chRegEx(chRegExStr.substr(0, chRegExStr.find(':')));
       const std::regex effRegEx("(\\d*\\.\\d*)");
 
       std::smatch effMatch;
@@ -190,22 +190,22 @@ void ProduceAgingObject::createCscAgingMap(const edm::ESHandle<CSCGeometry>& csc
     float eff = 1.;
 
     for (auto& chRegExStr : m_CSCRegEx) {
-      int loc = chRegExStr.find(":");
+      int loc = chRegExStr.find(':');
       // if there's no :, then we don't have to correct format
       if (loc < 0)
         continue;
 
       std::string effTag(chRegExStr.substr(loc));
 
-      const std::regex chRegEx(chRegExStr.substr(0, chRegExStr.find(":")));
+      const std::regex chRegEx(chRegExStr.substr(0, chRegExStr.find(':')));
       const std::regex predicateRegEx("(\\d*,\\d*\\.\\d*)");
 
       std::smatch predicate;
 
       if (std::regex_search(chTag, chRegEx) && std::regex_search(effTag, predicate, predicateRegEx)) {
         std::string predicateStr = predicate.str();
-        std::string typeStr = predicateStr.substr(0, predicateStr.find(","));
-        std::string effStr = predicateStr.substr(predicateStr.find(",") + 1);
+        std::string typeStr = predicateStr.substr(0, predicateStr.find(','));
+        std::string effStr = predicateStr.substr(predicateStr.find(',') + 1);
         type = std::atoi(typeStr.c_str());
         eff = std::atof(effStr.c_str());
 

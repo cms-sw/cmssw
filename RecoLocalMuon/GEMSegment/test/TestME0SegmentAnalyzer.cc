@@ -54,10 +54,10 @@
 class TestME0SegmentAnalyzer : public edm::EDAnalyzer {
 public:
   explicit TestME0SegmentAnalyzer(const edm::ParameterSet&);
-  ~TestME0SegmentAnalyzer();
+  ~TestME0SegmentAnalyzer() override;
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
   edm::ESHandle<ME0Geometry> me0Geom;
@@ -130,45 +130,45 @@ TestME0SegmentAnalyzer::TestME0SegmentAnalyzer(const edm::ParameterSet& iConfig)
   rootFileName = iConfig.getUntrackedParameter<std::string>("RootFileName");
   outputfile.reset(TFile::Open(rootFileName.c_str(), "RECREATE"));
 
-  ME0_recdR = std::unique_ptr<TH1F>(new TH1F("rechitdR", "rechidR", 50, -10., 10.));
-  ME0_recdPhi = std::unique_ptr<TH1F>(new TH1F("rechitdphi", "rechidphi", 50, -0.005, 0.005));
-  ME0_segdR = std::unique_ptr<TH1F>(new TH1F("segmentdR", "segmentdR", 50, -10., 10.));
-  ME0_segdPhi = std::unique_ptr<TH1F>(new TH1F("segmentdphi", "segmentdphi", 50, -0.1, 0.1));
-  ME0_fitchi2 = std::unique_ptr<TH1F>(new TH1F("chi2Vsndf", "chi2Vsndf", 50, 0., 100.));
-  ME0_rhmult = std::unique_ptr<TH1F>(new TH1F("rhmulti", "rhmulti", 11, -0.5, 10.5));
-  ME0_rhmultb = std::unique_ptr<TH1F>(new TH1F("rhmultib", "rhmultib", 11, -0.5, 10.5));
-  ME0_sgmult = std::unique_ptr<TH1F>(new TH1F("sgmult", "sgmult", 11, -0.5, 10.5));
-  ME0_rhtime = std::unique_ptr<TH1F>(new TH1F("rhtime", "rhtime", 100, -125., 125.));
-  ME0_sgtime = std::unique_ptr<TH1F>(new TH1F("sgtime", "sgtime", 100, -125., 125.));
-  ME0_sgterr = std::unique_ptr<TH1F>(new TH1F("sgterr", "sgterr", 100, 0., 10.));
-  ME0_Residuals_x = std::unique_ptr<TH1F>(new TH1F("xME0Res", "xME0Res", 100, -0.5, 0.5));
-  ME0_Residuals_l1_x = std::unique_ptr<TH1F>(new TH1F("xME0Res_l1", "xME0Res_l1", 100, -0.5, 0.5));
-  ME0_Residuals_l2_x = std::unique_ptr<TH1F>(new TH1F("xME0Res_l2", "xME0Res_l2", 100, -0.5, 0.5));
-  ME0_Residuals_l3_x = std::unique_ptr<TH1F>(new TH1F("xME0Res_l3", "xME0Res_l3", 100, -0.5, 0.5));
-  ME0_Residuals_l4_x = std::unique_ptr<TH1F>(new TH1F("xME0Res_l4", "xME0Res_l4", 100, -0.5, 0.5));
-  ME0_Residuals_l5_x = std::unique_ptr<TH1F>(new TH1F("xME0Res_l5", "xME0Res_l5", 100, -0.5, 0.5));
-  ME0_Residuals_l6_x = std::unique_ptr<TH1F>(new TH1F("xME0Res_l6", "xME0Res_l6", 100, -0.5, 0.5));
-  ME0_Pull_x = std::unique_ptr<TH1F>(new TH1F("xME0Pull", "xME0Pull", 100, -5., 5.));
-  ME0_Pull_l1_x = std::unique_ptr<TH1F>(new TH1F("xME0Pull_l1", "xME0Pull_l1", 100, -5., 5.));
-  ME0_Pull_l2_x = std::unique_ptr<TH1F>(new TH1F("xME0Pull_l2", "xME0Pull_l2", 100, -5., 5.));
-  ME0_Pull_l3_x = std::unique_ptr<TH1F>(new TH1F("xME0Pull_l3", "xME0Pull_l3", 100, -5., 5.));
-  ME0_Pull_l4_x = std::unique_ptr<TH1F>(new TH1F("xME0Pull_l4", "xME0Pull_l4", 100, -5., 5.));
-  ME0_Pull_l5_x = std::unique_ptr<TH1F>(new TH1F("xME0Pull_l5", "xME0Pull_l5", 100, -5., 5.));
-  ME0_Pull_l6_x = std::unique_ptr<TH1F>(new TH1F("xME0Pull_l6", "xME0Pull_l6", 100, -5., 5.));
-  ME0_Residuals_y = std::unique_ptr<TH1F>(new TH1F("yME0Res", "yME0Res", 100, -5., 5.));
-  ME0_Residuals_l1_y = std::unique_ptr<TH1F>(new TH1F("yME0Res_l1", "yME0Res_l1", 100, -5., 5.));
-  ME0_Residuals_l2_y = std::unique_ptr<TH1F>(new TH1F("yME0Res_l2", "yME0Res_l2", 100, -5., 5.));
-  ME0_Residuals_l3_y = std::unique_ptr<TH1F>(new TH1F("yME0Res_l3", "yME0Res_l3", 100, -5., 5.));
-  ME0_Residuals_l4_y = std::unique_ptr<TH1F>(new TH1F("yME0Res_l4", "yME0Res_l4", 100, -5., 5.));
-  ME0_Residuals_l5_y = std::unique_ptr<TH1F>(new TH1F("yME0Res_l5", "yME0Res_l5", 100, -5., 5.));
-  ME0_Residuals_l6_y = std::unique_ptr<TH1F>(new TH1F("yME0Res_l6", "yME0Res_l6", 100, -5., 5.));
-  ME0_Pull_y = std::unique_ptr<TH1F>(new TH1F("yME0Pull", "yME0Pull", 100, -5., 5.));
-  ME0_Pull_l1_y = std::unique_ptr<TH1F>(new TH1F("yME0Pull_l1", "yME0Pull_l1", 100, -5., 5.));
-  ME0_Pull_l2_y = std::unique_ptr<TH1F>(new TH1F("yME0Pull_l2", "yME0Pull_l2", 100, -5., 5.));
-  ME0_Pull_l3_y = std::unique_ptr<TH1F>(new TH1F("yME0Pull_l3", "yME0Pull_l3", 100, -5., 5.));
-  ME0_Pull_l4_y = std::unique_ptr<TH1F>(new TH1F("yME0Pull_l4", "yME0Pull_l4", 100, -5., 5.));
-  ME0_Pull_l5_y = std::unique_ptr<TH1F>(new TH1F("yME0Pull_l5", "yME0Pull_l5", 100, -5., 5.));
-  ME0_Pull_l6_y = std::unique_ptr<TH1F>(new TH1F("yME0Pull_l6", "yME0Pull_l6", 100, -5., 5.));
+  ME0_recdR = std::make_unique<TH1F>("rechitdR", "rechidR", 50, -10., 10.);
+  ME0_recdPhi = std::make_unique<TH1F>("rechitdphi", "rechidphi", 50, -0.005, 0.005);
+  ME0_segdR = std::make_unique<TH1F>("segmentdR", "segmentdR", 50, -10., 10.);
+  ME0_segdPhi = std::make_unique<TH1F>("segmentdphi", "segmentdphi", 50, -0.1, 0.1);
+  ME0_fitchi2 = std::make_unique<TH1F>("chi2Vsndf", "chi2Vsndf", 50, 0., 100.);
+  ME0_rhmult = std::make_unique<TH1F>("rhmulti", "rhmulti", 11, -0.5, 10.5);
+  ME0_rhmultb = std::make_unique<TH1F>("rhmultib", "rhmultib", 11, -0.5, 10.5);
+  ME0_sgmult = std::make_unique<TH1F>("sgmult", "sgmult", 11, -0.5, 10.5);
+  ME0_rhtime = std::make_unique<TH1F>("rhtime", "rhtime", 100, -125., 125.);
+  ME0_sgtime = std::make_unique<TH1F>("sgtime", "sgtime", 100, -125., 125.);
+  ME0_sgterr = std::make_unique<TH1F>("sgterr", "sgterr", 100, 0., 10.);
+  ME0_Residuals_x = std::make_unique<TH1F>("xME0Res", "xME0Res", 100, -0.5, 0.5);
+  ME0_Residuals_l1_x = std::make_unique<TH1F>("xME0Res_l1", "xME0Res_l1", 100, -0.5, 0.5);
+  ME0_Residuals_l2_x = std::make_unique<TH1F>("xME0Res_l2", "xME0Res_l2", 100, -0.5, 0.5);
+  ME0_Residuals_l3_x = std::make_unique<TH1F>("xME0Res_l3", "xME0Res_l3", 100, -0.5, 0.5);
+  ME0_Residuals_l4_x = std::make_unique<TH1F>("xME0Res_l4", "xME0Res_l4", 100, -0.5, 0.5);
+  ME0_Residuals_l5_x = std::make_unique<TH1F>("xME0Res_l5", "xME0Res_l5", 100, -0.5, 0.5);
+  ME0_Residuals_l6_x = std::make_unique<TH1F>("xME0Res_l6", "xME0Res_l6", 100, -0.5, 0.5);
+  ME0_Pull_x = std::make_unique<TH1F>("xME0Pull", "xME0Pull", 100, -5., 5.);
+  ME0_Pull_l1_x = std::make_unique<TH1F>("xME0Pull_l1", "xME0Pull_l1", 100, -5., 5.);
+  ME0_Pull_l2_x = std::make_unique<TH1F>("xME0Pull_l2", "xME0Pull_l2", 100, -5., 5.);
+  ME0_Pull_l3_x = std::make_unique<TH1F>("xME0Pull_l3", "xME0Pull_l3", 100, -5., 5.);
+  ME0_Pull_l4_x = std::make_unique<TH1F>("xME0Pull_l4", "xME0Pull_l4", 100, -5., 5.);
+  ME0_Pull_l5_x = std::make_unique<TH1F>("xME0Pull_l5", "xME0Pull_l5", 100, -5., 5.);
+  ME0_Pull_l6_x = std::make_unique<TH1F>("xME0Pull_l6", "xME0Pull_l6", 100, -5., 5.);
+  ME0_Residuals_y = std::make_unique<TH1F>("yME0Res", "yME0Res", 100, -5., 5.);
+  ME0_Residuals_l1_y = std::make_unique<TH1F>("yME0Res_l1", "yME0Res_l1", 100, -5., 5.);
+  ME0_Residuals_l2_y = std::make_unique<TH1F>("yME0Res_l2", "yME0Res_l2", 100, -5., 5.);
+  ME0_Residuals_l3_y = std::make_unique<TH1F>("yME0Res_l3", "yME0Res_l3", 100, -5., 5.);
+  ME0_Residuals_l4_y = std::make_unique<TH1F>("yME0Res_l4", "yME0Res_l4", 100, -5., 5.);
+  ME0_Residuals_l5_y = std::make_unique<TH1F>("yME0Res_l5", "yME0Res_l5", 100, -5., 5.);
+  ME0_Residuals_l6_y = std::make_unique<TH1F>("yME0Res_l6", "yME0Res_l6", 100, -5., 5.);
+  ME0_Pull_y = std::make_unique<TH1F>("yME0Pull", "yME0Pull", 100, -5., 5.);
+  ME0_Pull_l1_y = std::make_unique<TH1F>("yME0Pull_l1", "yME0Pull_l1", 100, -5., 5.);
+  ME0_Pull_l2_y = std::make_unique<TH1F>("yME0Pull_l2", "yME0Pull_l2", 100, -5., 5.);
+  ME0_Pull_l3_y = std::make_unique<TH1F>("yME0Pull_l3", "yME0Pull_l3", 100, -5., 5.);
+  ME0_Pull_l4_y = std::make_unique<TH1F>("yME0Pull_l4", "yME0Pull_l4", 100, -5., 5.);
+  ME0_Pull_l5_y = std::make_unique<TH1F>("yME0Pull_l5", "yME0Pull_l5", 100, -5., 5.);
+  ME0_Pull_l6_y = std::make_unique<TH1F>("yME0Pull_l6", "yME0Pull_l6", 100, -5., 5.);
 }
 
 TestME0SegmentAnalyzer::~TestME0SegmentAnalyzer() {

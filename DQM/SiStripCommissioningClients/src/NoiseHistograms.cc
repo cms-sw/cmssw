@@ -2,10 +2,12 @@
 #include "CondFormats/SiStripObjects/interface/NoiseAnalysis.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/NoiseAlgorithm.h"
 #include "DQM/SiStripCommissioningSummary/interface/NoiseSummaryFactory.h"
-#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+#include <memory>
+
 #include <sstream>
 #include <iomanip>
 #include "TProfile.h"
@@ -17,7 +19,7 @@ using namespace sistrip;
 /** */
 NoiseHistograms::NoiseHistograms(const edm::ParameterSet& pset, DQMStore* bei)
     : CommissioningHistograms(pset.getParameter<edm::ParameterSet>("NoiseParameters"), bei, sistrip::NOISE) {
-  factory_ = unique_ptr<NoiseSummaryFactory>(new NoiseSummaryFactory);
+  factory_ = std::make_unique<NoiseSummaryFactory>();
   LogTrace(mlDqmClient_) << "[NoiseHistograms::" << __func__ << "]"
                          << " Constructing object...";
 }

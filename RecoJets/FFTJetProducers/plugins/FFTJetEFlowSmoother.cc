@@ -17,7 +17,9 @@
 //
 
 #include <cmath>
+#include <memory>
 
+        
 // FFTJet headers
 #include "fftjet/FrequencyKernelConvolver.hh"
 #include "fftjet/DiscreteGauss2d.hh"
@@ -102,7 +104,7 @@ FFTJetEFlowSmoother::FFTJetEFlowSmoother(const edm::ParameterSet& ps)
   checkConfig(energyFlow, "invalid discretization grid");
 
   // Copy of the grid which will be used for convolutions
-  convolvedFlow = std::unique_ptr<fftjet::Grid2d<fftjetcms::Real> >(new fftjet::Grid2d<fftjetcms::Real>(*energyFlow));
+  convolvedFlow = std::make_unique<fftjet::Grid2d<fftjetcms::Real> >(*energyFlow);
 
   // Build the initial set of pattern recognition scales
   iniScales = fftjet_ScaleSet_parser(ps.getParameter<edm::ParameterSet>("InitialScales"));
@@ -149,7 +151,7 @@ void FFTJetEFlowSmoother::buildKernelConvolver(const edm::ParameterSet& ps) {
 
   if (use2dKernel) {
     // Build the FFT engine
-    engine = std::unique_ptr<MyFFTEngine>(new MyFFTEngine(energyFlow->nEta(), energyFlow->nPhi()));
+    engine = std::make_unique<MyFFTEngine>(energyFlow->nEta(), energyFlow->nPhi());
 
     // 2d kernel
     kernel2d = std::unique_ptr<fftjet::AbsFrequencyKernel>(
@@ -160,8 +162,8 @@ void FFTJetEFlowSmoother::buildKernelConvolver(const edm::ParameterSet& ps) {
         engine.get(), kernel2d.get(), convolverMinBin, convolverMaxBin));
   } else {
     // Need separate FFT engines for eta and phi
-    engine = std::unique_ptr<MyFFTEngine>(new MyFFTEngine(1, energyFlow->nEta()));
-    anotherEngine = std::unique_ptr<MyFFTEngine>(new MyFFTEngine(1, energyFlow->nPhi()));
+    engine = std::make_unique<MyFFTEngine>(1, energyFlow->nEta());
+    anotherEngine = std::make_unique<MyFFTEngine>(1, energyFlow->nPhi());
 
     // 1d kernels
     etaKernel =

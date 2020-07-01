@@ -38,8 +38,8 @@ namespace edmtest {
   class NonAnalyzer : public edm::EDAnalyzer {
   public:
     explicit NonAnalyzer(edm::ParameterSet const& /*p*/) {}
-    virtual ~NonAnalyzer() {}
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+    ~NonAnalyzer() override {}
+    void analyze(edm::Event const& e, edm::EventSetup const& c) override;
   };
 
   void NonAnalyzer::analyze(edm::Event const&, edm::EventSetup const&) {}
@@ -54,7 +54,7 @@ namespace edmtest {
       consumes<IntProduct>(moduleLabel_);
     }
 
-    void analyze(edm::Event const& iEvent, edm::EventSetup const&) {
+    void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {
       edm::Handle<IntProduct> handle;
       iEvent.getByLabel(moduleLabel_, handle);
       if (handle->value != value_) {
@@ -137,7 +137,7 @@ namespace edmtest {
       mayConsume<IntProduct>(moduleLabel_);
     }
 
-    void analyze(edm::Event const& iEvent, edm::EventSetup const&) {
+    void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {
       edm::Handle<IntProduct> handle;
       iEvent.getByLabel(moduleLabel_, handle);
       if (handle->value != value_) {
@@ -162,7 +162,7 @@ namespace edmtest {
       usesResource(iPSet.getUntrackedParameter<std::string>("resourceName"));
     }
 
-    void analyze(edm::Event const& iEvent, edm::EventSetup const&) {
+    void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {
       edm::Handle<IntProduct> handle;
       iEvent.getByLabel(moduleLabel_, handle);
       if (handle->value != value_) {
@@ -182,7 +182,7 @@ namespace edmtest {
   public:
     SCSimpleAnalyzer(edm::ParameterSet const&) {}
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const&);
+    void analyze(edm::Event const& e, edm::EventSetup const&) override;
   };
 
   void SCSimpleAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&) {
@@ -212,7 +212,7 @@ namespace edmtest {
   public:
     DSVAnalyzer(edm::ParameterSet const&) {}
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const&);
+    void analyze(edm::Event const& e, edm::EventSetup const&) override;
 
   private:
     void do_sorted_stuff(edm::Event const& e);

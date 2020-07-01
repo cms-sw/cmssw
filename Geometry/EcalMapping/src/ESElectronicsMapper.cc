@@ -59,7 +59,9 @@ ESElectronicsMapper::ESElectronicsMapper(const edm::ParameterSet& ps) {
 
   for (int i = 0; i < 18; ++i) {  // loop over EE feds
     std::vector<int> esFeds;
-    for (int esFed = 0; esFed < nesfed[i]; esFed++)
+    esFeds.reserve(nesfed[i]);
+
+for (int esFed = 0; esFed < nesfed[i]; esFed++)
       esFeds.emplace_back(esfed[i][esFed]);
     ee_es_map_.insert(make_pair(eefed[i], esFeds));
   }

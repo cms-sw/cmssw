@@ -15,11 +15,11 @@ namespace edmtest {
   class PathAnalyzer : public edm::EDAnalyzer {
   public:
     explicit PathAnalyzer(edm::ParameterSet const&);
-    virtual ~PathAnalyzer();
+    ~PathAnalyzer() override;
 
-    virtual void analyze(edm::Event const&, edm::EventSetup const&);
-    virtual void beginJob();
-    virtual void endJob();
+    void analyze(edm::Event const&, edm::EventSetup const&) override;
+    void beginJob() override;
+    void endJob() override;
 
   private:
     void dumpTriggerNamesServiceInfo(char const* where);

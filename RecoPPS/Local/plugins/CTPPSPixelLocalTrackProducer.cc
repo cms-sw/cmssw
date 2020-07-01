@@ -23,7 +23,9 @@
 #include "RecoPPS/Local/interface/RPixDetPatternFinder.h"
 #include "RecoPPS/Local/interface/RPixDetTrackFinder.h"
 
-#include <string>
+#include <memory>
+
+        #include <string>
 #include <vector>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -79,7 +81,7 @@ CTPPSPixelLocalTrackProducer::CTPPSPixelLocalTrackProducer(const edm::ParameterS
 
   // pattern algorithm selector
   if (patternFinderAlgorithm == "RPixRoadFinder") {
-    patternFinder_ = std::unique_ptr<RPixRoadFinder>(new RPixRoadFinder(parameterSet));
+    patternFinder_ = std::make_unique<RPixRoadFinder>(parameterSet);
   } else {
     throw cms::Exception("CTPPSPixelLocalTrackProducer")
         << "Pattern finder algorithm" << patternFinderAlgorithm << " does not exist";
@@ -92,7 +94,7 @@ CTPPSPixelLocalTrackProducer::CTPPSPixelLocalTrackProducer(const edm::ParameterS
 
   //tracking algorithm selector
   if (trackFitterAlgorithm == "RPixPlaneCombinatoryTracking") {
-    trackFinder_ = std::unique_ptr<RPixPlaneCombinatoryTracking>(new RPixPlaneCombinatoryTracking(parameterSet));
+    trackFinder_ = std::make_unique<RPixPlaneCombinatoryTracking>(parameterSet);
   } else {
     throw cms::Exception("CTPPSPixelLocalTrackProducer")
         << "Tracking fitter algorithm" << trackFitterAlgorithm << " does not exist";

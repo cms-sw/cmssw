@@ -33,14 +33,14 @@ namespace edmtest {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   protected:
-    virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
                                 const edm::IOVSyncValue& iTime,
-                                edm::ValidityInterval& iInterval);
+                                edm::ValidityInterval& iInterval) override;
 
   private:
-    DoodadESSource(const DoodadESSource&);  // stop default
+    DoodadESSource(const DoodadESSource&) = delete;  // stop default
 
-    const DoodadESSource& operator=(const DoodadESSource&);  // stop default
+    const DoodadESSource& operator=(const DoodadESSource&) = delete;  // stop default
 
     // ---------- member data --------------------------------
     unsigned int nCalls_;

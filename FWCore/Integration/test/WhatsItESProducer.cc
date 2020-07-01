@@ -42,7 +42,7 @@ namespace edmtest {
   class WhatsItESProducer : public edm::ESProducer {
   public:
     WhatsItESProducer(edm::ParameterSet const& pset);
-    ~WhatsItESProducer();
+    ~WhatsItESProducer() override;
 
     typedef std::unique_ptr<WhatsIt> ReturnType;
     typedef std::unique_ptr<const WhatsIt> ReturnTypeA;

@@ -75,7 +75,7 @@ int main() {
 
   try {
     //Constructor with noElectrons non iso (iso = 0) electron candidates
-    L1GctElectronSorter* testSort = new L1GctElectronSorter(noElectrons / 4, 1);
+    L1GctElectronSorter* testSort = new L1GctElectronSorter(noElectrons / 4, true);
 
     // Check the number of inputs/size of input vector corresponds to the expected value
     inputs = testSort->getInputCands();
@@ -95,7 +95,7 @@ int main() {
 
     //Looking at data passed through the sort algorithm
     //Load data from file " " and no of electrons and isolation given as in electron sorter constructor
-    LoadFileData(testFile, noElectrons, 1);
+    LoadFileData(testFile, noElectrons, true);
     cout << " Data loaded in from input file" << endl;
     print(gctData);
     for (unsigned int i = 0; i < indata.size(); i++) {
@@ -201,7 +201,7 @@ void LoadFileData(const string& inputFile, int elecs, bool iso) {
   unsigned candRank = 0, candRegion = 0, candCard = 0, candCrate = 0;
   short dummy;
   string bxNo = "poels";
-  bool candIso = 0;
+  bool candIso = false;
 
   //Reads in first crossing, then crossing no
   //then 8 electrons, 4 first is iso, next non iso.
@@ -217,7 +217,7 @@ void LoadFileData(const string& inputFile, int elecs, bool iso) {
           candRank = dummy & 0x3f;
           candRegion = (dummy >> 6) & 0x1;
           candCard = (dummy >> 7) & 0x7;
-          candIso = 1;
+          candIso = true;
           L1CaloEmCand electrons(candRank, candRegion, candCard, candCrate, candIso);
           indata.push_back(electrons);
         } else {
@@ -226,7 +226,7 @@ void LoadFileData(const string& inputFile, int elecs, bool iso) {
             candRank = dummy & 0x3f;
             candRegion = (dummy >> 6) & 0x1;
             candCard = (dummy >> 7) & 0x7;
-            candIso = 0;
+            candIso = false;
             L1CaloEmCand electrons(candRank, candRegion, candCard, candCrate, candIso);
             indata.push_back(electrons);
           } else {

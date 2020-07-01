@@ -17,7 +17,9 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include <iostream>
+#include <memory>
 
+        
 using namespace reco;
 using namespace edm;
 using namespace std;
@@ -52,7 +54,7 @@ void KVFTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if (not tree) {
     edm::ESHandle<MagneticField> magField;
     iSetup.get<IdealMagneticFieldRecord>().get(magField);
-    tree.reset(new SimpleVertexTree("VertexFitter", magField.product()));
+    tree = std::make_unique<SimpleVertexTree>("VertexFitter", magField.product());
   }
 
   edm::LogInfo("RecoVertex/KVFTest") << "Reconstructing event number: " << iEvent.id() << "\n";

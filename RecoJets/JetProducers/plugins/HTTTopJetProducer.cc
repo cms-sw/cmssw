@@ -62,7 +62,7 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf)
   // Signal to the VirtualJetProducer that we have to add HTT information
   fromHTTTopJetProducer_ = true;
 
-  fjHEPTopTagger_ = std::unique_ptr<fastjet::HEPTopTaggerV2>(new fastjet::HEPTopTaggerV2(optimalR_,
+  fjHEPTopTagger_ = std::make_unique<fastjet::HEPTopTaggerV2>(optimalR_,
                                                                                          qJets_,
                                                                                          minSubjetPt_,
                                                                                          minCandPt_,
@@ -77,7 +77,7 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf)
                                                                                          minM23Cut_,
                                                                                          minM13Cut_,
                                                                                          maxM13Cut_,
-                                                                                         rejectMinR_));
+                                                                                         rejectMinR_);
 }
 
 void HTTTopJetProducer::produce(edm::Event& e, const edm::EventSetup& c) {

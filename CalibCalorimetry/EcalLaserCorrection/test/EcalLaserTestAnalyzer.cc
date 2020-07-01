@@ -32,9 +32,9 @@ using namespace std;
 class EcalLaserTestAnalyzer : public edm::EDAnalyzer {
 public:
   explicit EcalLaserTestAnalyzer(const edm::ParameterSet&);
-  ~EcalLaserTestAnalyzer();
+  ~EcalLaserTestAnalyzer() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   //  std::string m_timetype;

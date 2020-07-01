@@ -91,13 +91,13 @@ struct HydjetEvent {
 class HydjetAnalyzer : public edm::EDAnalyzer {
 public:
   explicit HydjetAnalyzer(const edm::ParameterSet&);
-  ~HydjetAnalyzer();
+  ~HydjetAnalyzer() override;
 
 private:
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   // ----------member data ---------------------------
 

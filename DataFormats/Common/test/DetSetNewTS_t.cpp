@@ -34,7 +34,7 @@ inline void spinlock(std::atomic<T> const& lock, T val) {
 template <typename T>
 inline void spinlockSleep(std::atomic<T> const& lock, T val) {
   while (lock.load(std::memory_order_acquire) != val) {
-    nanosleep(0, 0);
+    nanosleep(nullptr, nullptr);
   }
 }
 
@@ -75,7 +75,7 @@ struct T : public B {
   int v;
   bool operator==(T t) const { return v == t.v; }
 
-  virtual T* clone() const { return new T(*this); }
+  T* clone() const override { return new T(*this); }
 };
 
 bool operator==(T const& t, B const& b) {
@@ -101,9 +101,9 @@ class TestDetSet : public CppUnit::TestFixture {
 
 public:
   TestDetSet();
-  ~TestDetSet() {}
-  void setUp() {}
-  void tearDown() {}
+  ~TestDetSet() override {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void infrastructure();
   void fillSeq();
@@ -222,7 +222,7 @@ struct Getter final : public DSTV::Getter {
   void fill(TSFF& ff) override {
     int n = ff.id() - 20;
     CPPUNIT_ASSERT(n >= 0);
-    CPPUNIT_ASSERT(ff.size() == 0);
+    CPPUNIT_ASSERT(ff.empty());
     ff.push_back((100 * n + 3));
     CPPUNIT_ASSERT(ff.size() == 1);
     CPPUNIT_ASSERT(ff[0] == 100 * n + 3);

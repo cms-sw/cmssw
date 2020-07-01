@@ -38,7 +38,7 @@ public:
   explicit testEcalClusterTools(const edm::ParameterSet&);
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   using ClusterTools = noZS::EcalClusterTools;  // alternatively just EcalClusterTools
 

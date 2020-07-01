@@ -41,9 +41,9 @@ void SurveyDBReader::analyze(const edm::Event&, const edm::EventSetup& setup) {
     uint8_t type = 0;
     uint32_t id = 0;
 
-    ROOT::Math::Cartesian3D<double>* pos(0);  // pointer required by ROOT
-    ROOT::Math::EulerAngles* rot(0);          // pointer required by ROOT
-    const align::ErrorMatrix* cov(0);         // pointer required by ROOT
+    ROOT::Math::Cartesian3D<double>* pos(nullptr);  // pointer required by ROOT
+    ROOT::Math::EulerAngles* rot(nullptr);          // pointer required by ROOT
+    const align::ErrorMatrix* cov(nullptr);         // pointer required by ROOT
 
     TFile fout(theFileName.c_str(), "RECREATE");
     TTree tree("survey", "");

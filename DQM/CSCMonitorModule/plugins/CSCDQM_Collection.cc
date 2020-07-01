@@ -279,21 +279,21 @@ namespace cscdqm {
    */
   const int Collection::ParseAxisLabels(const std::string& s, std::map<int, std::string>& labels) {
     std::string tmp = s;
-    std::string::size_type pos = tmp.find("|");
+    std::string::size_type pos = tmp.find('|');
     char* stopstring = nullptr;
 
     while (pos != std::string::npos) {
       std::string label_pair = tmp.substr(0, pos);
       tmp.replace(0, pos + 1, "");
-      if (label_pair.find("=") != std::string::npos) {
-        int nbin = strtol(label_pair.substr(0, label_pair.find("=")).c_str(), &stopstring, 10);
-        std::string label = label_pair.substr(label_pair.find("=") + 1, label_pair.length());
-        while (label.find("\'") != std::string::npos) {
-          label.erase(label.find("\'"), 1);
+      if (label_pair.find('=') != std::string::npos) {
+        int nbin = strtol(label_pair.substr(0, label_pair.find('=')).c_str(), &stopstring, 10);
+        std::string label = label_pair.substr(label_pair.find('=') + 1, label_pair.length());
+        while (label.find(''') != std::string::npos) {
+          label.erase(label.find('''), 1);
         }
         labels[nbin] = label;
       }
-      pos = tmp.find("|");
+      pos = tmp.find('|');
     }
     return labels.size();
   }

@@ -121,11 +121,11 @@ void DTRecHitReader::analyze(const Event& event, const EventSetup& eventSetup) {
       if (simHitMap.find(wireId) != simHitMap.end()) {
         const PSimHit* muSimHit = findBestMuSimHit(layer, wireId, simHitMap[wireId], distFromWire);
         // Check that a mu simhit is found
-        if (muSimHit != 0) {
+        if (muSimHit != nullptr) {
           // Compute the simhit distance from wire
           simHitDistFromWire = findSimHitDist(layer, wireId, muSimHit);
           // Fill the histos
-          H1DRecHit* histo = 0;
+          H1DRecHit* histo = nullptr;
           if (wireId.superlayer() == 1 || wireId.superlayer() == 3) {
             histo = hRHitPhi;
           } else if (wireId.superlayer() == 2) {
@@ -180,7 +180,7 @@ const PSimHit* DTRecHitReader::findBestMuSimHit(const DTLayer* layer,
                                                 const DTWireId& wireId,
                                                 const vector<const PSimHit*>& simhits,
                                                 float recHitDistFromWire) {
-  const PSimHit* retSimHit = 0;
+  const PSimHit* retSimHit = nullptr;
   float tmp_distDiff = 999999;
   for (vector<const PSimHit*>::const_iterator simhit = simhits.begin(); simhit != simhits.end(); simhit++) {
     // Select muons

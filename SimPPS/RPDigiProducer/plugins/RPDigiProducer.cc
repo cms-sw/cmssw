@@ -174,7 +174,7 @@ void RPDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
     if (theAlgoMap.find(it->first) == theAlgoMap.end()) {
       theAlgoMap[it->first] =
-          std::unique_ptr<RPDetDigitizer>(new RPDetDigitizer(conf_, *rndEngine_, it->first, iSetup));
+          std::make_unique<RPDetDigitizer>(conf_, *rndEngine_, it->first, iSetup);
     }
 
     std::vector<int> input_links;

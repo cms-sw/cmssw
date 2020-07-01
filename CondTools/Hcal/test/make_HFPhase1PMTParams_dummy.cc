@@ -1,4 +1,6 @@
 #include <cfloat>
+#include <memory>
+
 
 #include "CondTools/Hcal/interface/make_HFPhase1PMTParams.h"
 
@@ -23,6 +25,6 @@ std::unique_ptr<HFPhase1PMTParams> make_HFPhase1PMTParams_dummy() {
   HcalIndexLookup lookup;
   HcalItemColl<HFPhase1PMTData> coll;
 
-  return std::unique_ptr<HFPhase1PMTParams>(
-      new HFPhase1PMTParams(coll, lookup, detIdTransformCode, std::move(defaultItem)));
+  return std::make_unique<HFPhase1PMTParams>(
+      coll, lookup, detIdTransformCode, std::move(defaultItem));
 }

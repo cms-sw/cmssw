@@ -67,7 +67,7 @@ EffPurFromHistos::EffPurFromHistos(const FlavourHistograms<double>& dDiscriminat
       endOutput(endO) {
   histoExtension = "_" + dDiscriminatorFC.baseNameTitle();
 
-  discrNoCutEffic.reset(new FlavourHistograms<double>("totalEntries" + histoExtension,
+  discrNoCutEffic = std::make_unique<FlavourHistograms<double>>("totalEntries" + histoExtension,
                                                       "Total Entries: " + dDiscriminatorFC.baseNameDescription(),
                                                       dDiscriminatorFC.nBins(),
                                                       dDiscriminatorFC.lowerBound(),
@@ -78,11 +78,11 @@ EffPurFromHistos::EffPurFromHistos(const FlavourHistograms<double>& dDiscriminat
                                                       "b",
                                                       label,
                                                       mcPlots_,
-                                                      ibook));
+                                                      ibook);
 
   // conditional discriminator cut for efficiency histos
 
-  discrCutEfficScan.reset(new FlavourHistograms<double>("effVsDiscrCut" + histoExtension,
+  discrCutEfficScan = std::make_unique<FlavourHistograms<double>>("effVsDiscrCut" + histoExtension,
                                                         "Eff. vs Disc. Cut: " + dDiscriminatorFC.baseNameDescription(),
                                                         dDiscriminatorFC.nBins(),
                                                         dDiscriminatorFC.lowerBound(),
@@ -93,7 +93,7 @@ EffPurFromHistos::EffPurFromHistos(const FlavourHistograms<double>& dDiscriminat
                                                         "b",
                                                         label,
                                                         mcPlots_,
-                                                        ibook));
+                                                        ibook);
   discrCutEfficScan->SetMinimum(1E-4);
   if (mcPlots_) {
     if (mcPlots_ > 2) {
@@ -602,4 +602,6 @@ void EffPurFromHistos::compute(DQMStore::IBooker& ibook) {
   }
 }
 
-#include <typeinfo>
+#include <memory>
+
+        #include <typeinfo>

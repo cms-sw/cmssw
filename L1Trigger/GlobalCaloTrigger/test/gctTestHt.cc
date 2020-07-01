@@ -8,9 +8,9 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
 
-#include <math.h>
-#include <iostream>
 #include <cassert>
+#include <cmath>
+#include <iostream>
 
 using namespace std;
 
@@ -35,7 +35,7 @@ void gctTestHt::configure(const L1CaloEtScale* jetScale,
   m_jfPars = jfPars;
 }
 
-bool gctTestHt::setupOk() const { return (m_jetEtScale != 0 && m_htMissScale != 0 && m_jfPars != 0); }
+bool gctTestHt::setupOk() const { return (m_jetEtScale != nullptr && m_htMissScale != nullptr && m_jfPars != nullptr); }
 
 //=================================================================================================================
 //

@@ -16,12 +16,12 @@
 #include <memory>
 
 #include <algorithm>
-#include <iostream>
+#include <boost/filesystem.hpp>
+#include <cstdlib>  // for setenv; <cstdlib> is likely to fail
 #include <fstream>
-#include <stdlib.h>  // for setenv; <cstdlib> is likely to fail
+#include <iostream>
 #include <string>
 #include <unistd.h>
-#include <boost/filesystem.hpp>
 
 class testmakepset : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testmakepset);
@@ -32,8 +32,8 @@ class testmakepset : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void typesTest();
   void secsourceTest();
   void usingBlockTest();
@@ -375,23 +375,23 @@ void testmakepset::typesTest() {
   CPPUNIT_ASSERT(3487559679U == test.getUntrackedParameter<unsigned int>("h3"));
 
   CPPUNIT_ASSERT("this string" == test.getParameter<std::string>("s"));
-  CPPUNIT_ASSERT("" == test.getParameter<std::string>("sb1"));
-  CPPUNIT_ASSERT("" == test.getUntrackedParameter<std::string>("emptyString", "default"));
-  CPPUNIT_ASSERT("" == test.getParameter<std::string>("sb2"));
+  CPPUNIT_ASSERT(test.getParameter<std::string>("sb1").empty());
+  CPPUNIT_ASSERT(test.getUntrackedParameter<std::string>("emptyString", "default").empty());
+  CPPUNIT_ASSERT(test.getParameter<std::string>("sb2").empty());
   CPPUNIT_ASSERT(4 == test.getParameter<std::string>("sb3").size());
   std::vector<std::string> vs = test.getParameter<std::vector<std::string> >("vs");
   int vssize = vs.size();
   //FIXME doesn't do spaces right
-  edm::Entry e(test.retrieve("vs"));
+  const edm::Entry& e(test.retrieve("vs"));
   CPPUNIT_ASSERT(5 == vssize);
-  CPPUNIT_ASSERT(vssize && "" == vs[0]);
+  CPPUNIT_ASSERT(vssize && vs[0].empty());
   CPPUNIT_ASSERT(vssize > 1 && "1" == vs[1]);
   CPPUNIT_ASSERT(vssize > 1 && "a" == vs[3]);
   vs = test.getParameter<std::vector<std::string> >("vs2");
-  CPPUNIT_ASSERT(vs.size() == 0);
+  CPPUNIT_ASSERT(vs.empty());
   vs = test.getParameter<std::vector<std::string> >("vs3");
   CPPUNIT_ASSERT(vs.size() == 1);
-  CPPUNIT_ASSERT(vs[0] == "");
+  CPPUNIT_ASSERT(vs[0].empty());
 
   static unsigned int const vuia[] = {1, 2, 1, 255};
   static std::vector<unsigned int> const vui(vuia, vuia + sizeof(vuia) / sizeof(unsigned int));
@@ -432,7 +432,7 @@ void testmakepset::typesTest() {
   CPPUNIT_ASSERT("Instance4" == inputProduct4.instance());
   CPPUNIT_ASSERT("Process4" == inputProduct4.process());
   CPPUNIT_ASSERT("Label5" == inputProduct5.label());
-  CPPUNIT_ASSERT("" == inputProduct5.instance());
+  CPPUNIT_ASSERT(inputProduct5.instance().empty());
   CPPUNIT_ASSERT("Process5" == inputProduct5.process());
   CPPUNIT_ASSERT("source" == inputProduct6.label());
   CPPUNIT_ASSERT("source" == inputProduct7.label());
@@ -448,7 +448,7 @@ void testmakepset::typesTest() {
   CPPUNIT_ASSERT("i3" == vtags[2].instance());
   CPPUNIT_ASSERT("p3" == vtags[2].process());
   CPPUNIT_ASSERT("l4" == vtags[3].label());
-  CPPUNIT_ASSERT("" == vtags[3].instance());
+  CPPUNIT_ASSERT(vtags[3].instance().empty());
   CPPUNIT_ASSERT("p4" == vtags[3].process());
   CPPUNIT_ASSERT("source" == vtags[4].label());
   CPPUNIT_ASSERT("source" == vtags[5].label());
@@ -459,12 +459,12 @@ void testmakepset::typesTest() {
   edm::ESInputTag einput3 = test.getParameter<edm::ESInputTag>("einput3");
   edm::ESInputTag einput4 = test.getParameter<edm::ESInputTag>("einput4");
   edm::ESInputTag einput5 = test.getParameter<edm::ESInputTag>("einput5");
-  CPPUNIT_ASSERT("" == einput1.module());
-  CPPUNIT_ASSERT("" == einput1.data());
-  CPPUNIT_ASSERT("" == einput2.module());
+  CPPUNIT_ASSERT(einput1.module().empty());
+  CPPUNIT_ASSERT(einput1.data().empty());
+  CPPUNIT_ASSERT(einput2.module().empty());
   CPPUNIT_ASSERT("blah" == einput2.data());
   CPPUNIT_ASSERT("ESProd" == einput3.module());
-  CPPUNIT_ASSERT("" == einput3.data());
+  CPPUNIT_ASSERT(einput3.data().empty());
   CPPUNIT_ASSERT("ESProd" == einput4.module());
   CPPUNIT_ASSERT("something" == einput4.data());
   CPPUNIT_ASSERT("ESProd" == einput5.module());
@@ -472,12 +472,12 @@ void testmakepset::typesTest() {
 
   std::vector<edm::ESInputTag> veinput1 = test.getParameter<std::vector<edm::ESInputTag> >("veinput1");
   std::vector<edm::ESInputTag> veinput2 = test.getParameter<std::vector<edm::ESInputTag> >("veinput2");
-  CPPUNIT_ASSERT(0 == veinput1.size());
+  CPPUNIT_ASSERT(veinput1.empty());
   CPPUNIT_ASSERT(2 == veinput2.size());
-  CPPUNIT_ASSERT("" == veinput2[0].module());
+  CPPUNIT_ASSERT(veinput2[0].module().empty());
   CPPUNIT_ASSERT("blah" == veinput2[0].data());
   CPPUNIT_ASSERT("ESProd" == veinput2[1].module());
-  CPPUNIT_ASSERT("" == veinput2[1].data());
+  CPPUNIT_ASSERT(veinput2[1].data().empty());
 
   edm::EventID eventID = test.getParameter<edm::EventID>("eventID");
   std::vector<edm::EventID> vEventID = test.getParameter<std::vector<edm::EventID> >("vEventID");

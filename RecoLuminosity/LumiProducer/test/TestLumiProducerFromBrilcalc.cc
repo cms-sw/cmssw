@@ -44,14 +44,14 @@
 class TestLumiProducerFromBrilcalc : public edm::one::EDAnalyzer<> {
 public:
   explicit TestLumiProducerFromBrilcalc(const edm::ParameterSet&);
-  ~TestLumiProducerFromBrilcalc();
+  ~TestLumiProducerFromBrilcalc() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   // ----------member data ---------------------------
   edm::InputTag inputTag_;

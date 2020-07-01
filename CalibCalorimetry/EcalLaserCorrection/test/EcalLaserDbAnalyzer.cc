@@ -33,9 +33,9 @@ using namespace std;
 class EcalLaserDbAnalyzer : public edm::EDAnalyzer {
 public:
   explicit EcalLaserDbAnalyzer(const edm::ParameterSet&);
-  ~EcalLaserDbAnalyzer();
+  ~EcalLaserDbAnalyzer() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   // ----------member data ---------------------------

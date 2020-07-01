@@ -19,9 +19,9 @@ class SiStripDeDx3DBuilder : public edm::EDAnalyzer {
 public:
   explicit SiStripDeDx3DBuilder(const edm::ParameterSet& iConfig);
 
-  ~SiStripDeDx3DBuilder(){};
+  ~SiStripDeDx3DBuilder() override{};
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   edm::FileInPath fp_;

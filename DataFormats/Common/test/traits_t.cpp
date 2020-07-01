@@ -15,9 +15,9 @@ class TestTraits : public CppUnit::TestFixture {
 
 public:
   TestTraits() {}
-  ~TestTraits() {}
-  void setUp() {}
-  void tearDown() {}
+  ~TestTraits() override {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void vector_is_happy();
   void string_is_happy();

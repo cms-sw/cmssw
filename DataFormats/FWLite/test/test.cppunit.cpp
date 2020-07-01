@@ -54,14 +54,14 @@ class testRefInROOT : public CppUnit::TestFixture {
 
 public:
   testRefInROOT() {}
-  void setUp() {
+  void setUp() override {
     if (!sWasRun_) {
       FWLiteEnabler::enable();
       sWasRun_ = true;
     }
     tmpdir = "./";
   }
-  void tearDown() {}
+  void tearDown() override {}
 
   void testRefFirst();
   void testAllLabels();
@@ -95,7 +95,7 @@ static void checkMatch(const edmtest::OtherThingCollection* pOthers, const edmte
   CPPUNIT_ASSERT(pOthers->size() == pThings->size());
 
   //This test requires at least one entry
-  CPPUNIT_ASSERT(pOthers->size() > 0);
+  CPPUNIT_ASSERT(!pOthers->empty());
   const edm::View<edmtest::Thing>& view = *(pOthers->front().refToBaseProd);
   CPPUNIT_ASSERT(view.size() == pOthers->size());
 
@@ -162,7 +162,7 @@ void testRefInROOT::testEventBase() {
       // Test that the get function that takes a ProductID works
       // by getting a ProductID from a Ref stored in the OtherThingCollection
       // and testing that one can retrieve the ThingCollection with it.
-      CPPUNIT_ASSERT(pOthers->size() > 0);
+      CPPUNIT_ASSERT(!pOthers->empty());
       edmtest::OtherThingCollection::const_iterator itOther = pOthers->begin();
       edm::ProductID thingProductID = itOther->ref.id();
       edm::Handle<edmtest::ThingCollection> thingCollectionHandle;
@@ -201,7 +201,7 @@ void testRefInROOT::testTo() {
     edm::Handle<edmtest::ThingCollection> pThings;
     eventBase->getByLabel(tag, pThings);
     CPPUNIT_ASSERT(pThings.isValid());
-    CPPUNIT_ASSERT(0 != pThings->size());
+    CPPUNIT_ASSERT(!pThings->empty());
     CPPUNIT_ASSERT(3 == (*pThings)[0].a);
   }
   std::cout << events.id() << std::endl;
@@ -212,7 +212,7 @@ void testRefInROOT::testTo() {
     edm::Handle<edmtest::ThingCollection> pThings;
     eventBase->getByLabel(tag, pThings);
     CPPUNIT_ASSERT(pThings.isValid());
-    CPPUNIT_ASSERT(0 != pThings->size());
+    CPPUNIT_ASSERT(!pThings->empty());
     CPPUNIT_ASSERT(2 == (*pThings)[0].a);
   }
   CPPUNIT_ASSERT(edm::EventID(1, 1, 1) == events.id());
@@ -316,7 +316,7 @@ void testRefInROOT::testHandleErrors() {
   CPPUNIT_ASSERT_THROW(*pThings, cms::Exception);
 
   //try copy constructor
-  fwlite::Handle<edmtest::ThingCollection> pThings2(pThings);
+  const fwlite::Handle<edmtest::ThingCollection>& pThings2(pThings);
   CPPUNIT_ASSERT_THROW(*pThings2, cms::Exception);
 }
 
@@ -386,8 +386,8 @@ void testRefInROOT::failChainWithMissingFile()
 */
 
 void testRefInROOT::testThinning() {
-  std::vector<std::string> files{(tmpdir + "goodDataFormatsFWLite.root").c_str(),
-                                 (tmpdir + "goodDataFormatsFWLite.root").c_str()};
+  std::vector<std::string> files{tmpdir + "goodDataFormatsFWLite.root",
+                                 tmpdir + "goodDataFormatsFWLite.root"};
   fwlite::ChainEvent events(files);
 
   for (events.toBegin(); not events.atEnd(); ++events) {
@@ -524,8 +524,8 @@ void testRefInROOT::testThinning() {
     CPPUNIT_ASSERT_THROW(trackM.refToBaseVector1[8].operator->(), cms::Exception);
   }
 
-  std::vector<std::string> files1{(tmpdir + "refTestCopyDropDataFormatsFWLite.root").c_str()};
-  std::vector<std::string> files2{(tmpdir + "goodDataFormatsFWLite.root").c_str()};
+  std::vector<std::string> files1{tmpdir + "refTestCopyDropDataFormatsFWLite.root"};
+  std::vector<std::string> files2{tmpdir + "goodDataFormatsFWLite.root"};
 
   fwlite::MultiChainEvent multiChainEvents(files1, files2);
   for (multiChainEvents.toBegin(); !multiChainEvents.atEnd(); ++multiChainEvents) {

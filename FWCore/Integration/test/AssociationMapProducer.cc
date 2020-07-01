@@ -29,7 +29,7 @@ namespace edmtest {
   class AssociationMapProducer : public edm::one::EDProducer<> {
   public:
     explicit AssociationMapProducer(edm::ParameterSet const&);
-    virtual ~AssociationMapProducer();
+    ~AssociationMapProducer() override;
 
     void produce(edm::Event&, edm::EventSetup const&) override;
 

@@ -83,7 +83,7 @@ bool TkStripMeasurementDet::recHits(SimpleHitContainer& result,
       if (!isCompatible)
         break;  // exit loop on first incompatible hit
       for (auto&& h : tmp)
-        result.push_back(new SiStripRecHit2D(std::move(h)));
+        result.push_back(new SiStripRecHit2D(h));
       tmp.clear();
     }
   }
@@ -93,7 +93,7 @@ bool TkStripMeasurementDet::recHits(SimpleHitContainer& result,
     if (!isCompatible)
       break;  // exit loop on first incompatible hit
     for (auto&& h : tmp)
-      result.push_back(new SiStripRecHit2D(std::move(h)));
+      result.push_back(new SiStripRecHit2D(h));
     tmp.clear();
   }
 

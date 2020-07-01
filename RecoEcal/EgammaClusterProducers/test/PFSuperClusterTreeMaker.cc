@@ -76,9 +76,9 @@ class PFSuperClusterTreeMaker : public edm::EDAnalyzer {
 
 public:
   PFSuperClusterTreeMaker(const PSet&);
-  ~PFSuperClusterTreeMaker() {}
+  ~PFSuperClusterTreeMaker() override {}
 
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   edm::Service<TFileService> _fs;

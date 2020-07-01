@@ -4,25 +4,27 @@
  *
  *  Created by Chris Jones on 2/8/2013.
  */
-#include <iostream>
 #include <atomic>
-#include <vector>
-#include <map>
-#include <functional>
-#include "FWCore/Framework/src/Worker.h"
-#include "FWCore/Framework/src/WorkerT.h"
-#include "FWCore/Framework/src/ModuleHolder.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/stream/EDProducerAdaptor.h"
-#include "FWCore/Framework/interface/OccurrenceTraits.h"
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include <iostream>
+#include <memory>
+
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
+#include "FWCore/Framework/interface/OccurrenceTraits.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducerAdaptor.h"
+#include "FWCore/Framework/src/ModuleHolder.h"
+#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/src/Worker.h"
+#include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
+#include <functional>
+#include <map>
+        #include <vector>
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -49,8 +51,8 @@ class testStreamProducer : public CppUnit::TestFixture {
 public:
   testStreamProducer();
 
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void basicTest();
   void globalTest();
@@ -408,7 +410,7 @@ testStreamProducer::testStreamProducer()
   edm::StreamID* pID = reinterpret_cast<edm::StreamID*>(&shadowID);
   assert(pID->value() == 0);
 
-  m_ep.reset(new edm::EventPrincipal(m_prodReg, m_idHelper, m_associationsHelper, m_procConfig, nullptr, *pID));
+  m_ep = std::make_unique<edm::EventPrincipal>(m_prodReg, m_idHelper, m_associationsHelper, m_procConfig, nullptr, *pID);
   m_ep->fillEventPrincipal(eventAux, nullptr);
   m_ep->setLuminosityBlockPrincipal(m_lbp.get());
   m_actReg.reset(new edm::ActivityRegistry);

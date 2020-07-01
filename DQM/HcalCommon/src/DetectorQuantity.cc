@@ -62,14 +62,18 @@ namespace hcaldqm {
 
     std::vector<std::string> getLabels_Subdet() {
       std::vector<std::string> labels;
-      for (int i = 0; i < 4; i++)
+      labels.reserve(4);
+
+        for (int i = 0; i < 4; i++)
         labels.push_back(constants::SUBDET_NAME[i]);
       return labels;
     }
 
     std::vector<std::string> getLabels_SubdetPM() {
       std::vector<std::string> labels;
-      for (int i = 0; i < 8; i++)
+      labels.reserve(8);
+
+        for (int i = 0; i < 8; i++)
         labels.push_back(constants::SUBDETPM_NAME[i]);
       return labels;
     }

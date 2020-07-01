@@ -1,3 +1,5 @@
+#include <memory>
+
 #include <vector>
 #include <algorithm>
 #include <memory>
@@ -27,7 +29,7 @@ int main() {
   constexpr int N1 = sizeof(v1) / sizeof(int);
 
   for (auto i : v)
-    cont.push_back(Cont::value_type(new int(i)));
+    cont.push_back(std::make_unique<int>(i));
   for (auto i : v)
     cont1.emplace_back(new int(i));
   for (auto i : v1)
@@ -57,7 +59,7 @@ int main() {
     verifySeq(cont_assign);
   }
   // add
-  cont.push_back(Cont::value_type(new int(10)));
+  cont.push_back(std::make_unique<int>(10));
   assert((*cont.back()) == 10);
   assert((*cont3.back()) == 9);
   assert(cont.shared());
@@ -77,7 +79,7 @@ int main() {
   verifySeq(cont2);
   assert(!cont1.shared());
   // add
-  cont1.push_back(Cont::value_type(new int(20)));
+  cont1.push_back(std::make_unique<int>(20));
   assert((*cont1.back()) == 20);
   verifySeq(cont1);
 

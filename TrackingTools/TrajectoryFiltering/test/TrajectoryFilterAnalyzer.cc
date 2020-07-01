@@ -35,12 +35,12 @@
 class TrajectoryFilterAnalyzer : public edm::EDAnalyzer {
 public:
   explicit TrajectoryFilterAnalyzer(const edm::ParameterSet&);
-  ~TrajectoryFilterAnalyzer();
+  ~TrajectoryFilterAnalyzer() override;
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   std::vector<std::unique_ptr<TrajectoryFilter>> filters;
 };

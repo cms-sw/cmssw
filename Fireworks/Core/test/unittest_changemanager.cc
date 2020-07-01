@@ -48,19 +48,19 @@ namespace {
   class TestAccessor : public FWItemAccessorBase {
   public:
     TestAccessor(const reco::TrackCollection* iCollection) : m_collection(iCollection) {}
-    virtual const void* modelData(int iIndex) const { return &((*m_collection)[iIndex]); }
-    virtual const void* data() const { return m_collection; }
-    virtual unsigned int size() const { return m_collection->size(); }
-    virtual const TClass* modelType() const { return TClass::GetClass("reco::Track"); }
-    virtual const TClass* type() const { return TClass::GetClass("std::vector<reco::Track>"); }
+    const void* modelData(int iIndex) const override { return &((*m_collection)[iIndex]); }
+    const void* data() const override { return m_collection; }
+    unsigned int size() const override { return m_collection->size(); }
+    const TClass* modelType() const override { return TClass::GetClass("reco::Track"); }
+    const TClass* type() const override { return TClass::GetClass("std::vector<reco::Track>"); }
 
-    virtual bool isCollection() const { return true; }
+    bool isCollection() const override { return true; }
 
     ///override if id of an object should be different than the index
     //virtual std::string idForIndex(int iIndex) const;
     // ---------- member functions ---------------------------
-    virtual void setData(const edm::ObjectWithDict&) {}
-    virtual void reset() {}
+    void setData(const edm::ObjectWithDict&) override {}
+    void reset() override {}
 
   private:
     const reco::TrackCollection* m_collection;
@@ -77,9 +77,9 @@ BOOST_AUTO_TEST_CASE(changemanager) {
   fVector.push_back(reco::Track());
 
   TClass* cls = TClass::GetClass("std::vector<reco::Track>");
-  assert(0 != cls);
+  assert(nullptr != cls);
 
-  fireworks::Context context(&cm, 0, 0, 0, 0);
+  fireworks::Context context(&cm, nullptr, nullptr, nullptr, nullptr);
 
   auto accessor = std::make_shared<TestAccessor>(&fVector);
   FWPhysicsObjectDesc pObj("Tracks", cls, "Tracks");
@@ -140,13 +140,13 @@ BOOST_AUTO_TEST_CASE(changemanager) {
   BOOST_CHECK(listener.nHeard_ == 1);
 
   BOOST_CHECK(iListener.nHeard_ == 0);
-  item.setEvent(0);
+  item.setEvent(nullptr);
   BOOST_CHECK(iListener.nHeard_ == 1);
 
   iListener.nHeard_ = 0;
   {
     FWChangeSentry sentry(cm);
-    item.setEvent(0);
+    item.setEvent(nullptr);
     BOOST_CHECK(iListener.nHeard_ == 0);
   }
   BOOST_CHECK(iListener.nHeard_ == 1);

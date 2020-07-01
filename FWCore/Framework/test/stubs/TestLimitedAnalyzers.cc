@@ -115,7 +115,7 @@ namespace edmtest {
         }
       }
 
-      ~StreamIntAnalyzer() {
+      ~StreamIntAnalyzer() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "StreamIntAnalyzer transitions " << m_count << " but it was supposed to be " << trans_;
@@ -152,7 +152,7 @@ namespace edmtest {
         }
       }
 
-      ~RunIntAnalyzer() {
+      ~RunIntAnalyzer() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "RunIntAnalyzer transitions " << m_count << " but it was supposed to be " << trans_;
@@ -191,7 +191,7 @@ namespace edmtest {
         }
       }
 
-      ~LumiIntAnalyzer() {
+      ~LumiIntAnalyzer() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "LumiIntAnalyzer transitions " << m_count << " but it was supposed to be " << trans_;
@@ -243,7 +243,7 @@ namespace edmtest {
         }
       }
 
-      ~RunSummaryIntAnalyzer() {
+      ~RunSummaryIntAnalyzer() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "RunSummaryIntAnalyzer transitions " << m_count << " but it was supposed to be " << trans_;
@@ -307,7 +307,7 @@ namespace edmtest {
         }
       }
 
-      ~LumiSummaryIntAnalyzer() {
+      ~LumiSummaryIntAnalyzer() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "LumiSummaryIntAnalyzer transitions " << m_count << " but it was supposed to be " << trans_;

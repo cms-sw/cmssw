@@ -1,6 +1,6 @@
+#include <cstdint>
+#include <cstdlib>
 #include <iostream>
-#include <stdlib.h>
-#include <stdint.h>
 
 using namespace std;
 

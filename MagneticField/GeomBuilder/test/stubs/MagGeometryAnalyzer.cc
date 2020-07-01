@@ -26,12 +26,12 @@ public:
   testMagGeometryAnalyzer(const edm::ParameterSet& pset){};
 
   /// Destructor
-  virtual ~testMagGeometryAnalyzer(){};
+  ~testMagGeometryAnalyzer() override{};
 
   /// Perform the real analysis
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
-  virtual void endJob() {}
+  void endJob() override {}
 
 private:
   void testGrids(const vector<MagVolume6Faces const*>& bvol, const VolumeBasedMagneticField* field);
@@ -79,7 +79,7 @@ void testMagGeometryAnalyzer::testGrids(const vector<MagVolume6Faces const*>& bv
     }
 
     const MagProviderInterpol* prov = (**i).provider();
-    if (prov == 0) {
+    if (prov == nullptr) {
       cout << (*i)->volumeNo << " No interpolator; skipping " << endl;
       continue;
     }

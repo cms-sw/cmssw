@@ -39,8 +39,8 @@ class testEDProducerProductRegistryCallback : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void testCircularRef();
   void testCircularRef2();
   void testTwoListeners();
@@ -56,7 +56,7 @@ namespace {
   public:
     explicit TestMod(ParameterSet const& p);
 
-    void produce(Event& e, EventSetup const&);
+    void produce(Event& e, EventSetup const&) override;
 
     void listen(BranchDescription const&);
   };
@@ -68,7 +68,7 @@ namespace {
   class ListenMod : public EDProducer {
   public:
     explicit ListenMod(ParameterSet const&);
-    void produce(Event& e, EventSetup const&);
+    void produce(Event& e, EventSetup const&) override;
     void listen(BranchDescription const&);
   };
 
@@ -90,7 +90,7 @@ namespace {
   class ListenFloatMod : public EDProducer {
   public:
     explicit ListenFloatMod(ParameterSet const&);
-    void produce(Event& e, EventSetup const&);
+    void produce(Event& e, EventSetup const&) override;
     void listen(BranchDescription const&);
   };
 

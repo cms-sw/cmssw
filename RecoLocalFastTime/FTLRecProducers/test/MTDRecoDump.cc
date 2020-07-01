@@ -14,14 +14,14 @@
 class MTDRecoDump : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit MTDRecoDump(const edm::ParameterSet&);
-  ~MTDRecoDump();
+  ~MTDRecoDump() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   // ----------member data ---------------------------
 
@@ -54,7 +54,7 @@ void MTDRecoDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   // --- BTL RECOs:
 
-  if (h_BTL_reco->size() > 0) {
+  if (!h_BTL_reco->empty()) {
     std::cout << " ----------------------------------------" << std::endl;
     std::cout << " BTL RECO collection:" << std::endl;
 
@@ -74,7 +74,7 @@ void MTDRecoDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   // --- ETL RECOs:
 
-  if (h_ETL_reco->size() > 0) {
+  if (!h_ETL_reco->empty()) {
     std::cout << " ----------------------------------------" << std::endl;
     std::cout << " ETL RECO collection:" << std::endl;
 

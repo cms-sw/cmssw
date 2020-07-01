@@ -8,6 +8,10 @@
 //-----------------------
 // This Class' Header --
 //-----------------------
+#include <memory>
+
+
+
 #include "CondFormats/DTObjects/interface/DTCCBConfig.h"
 
 //-------------------------------
@@ -146,7 +150,7 @@ int DTCCBConfig::setConfigKey(int wheelId, int stationId, int sectorId, const st
     *confPtr = confKey;
     return -1;
   } else {
-    dBuf->insert(chanKey.begin(), chanKey.end(), std::unique_ptr<std::vector<int> >(new std::vector<int>(confKey)));
+    dBuf->insert(chanKey.begin(), chanKey.end(), std::make_unique<std::vector<int> >(confKey));
     DTCCBId ccbId;
     ccbId.wheelId = wheelId;
     ccbId.stationId = stationId;

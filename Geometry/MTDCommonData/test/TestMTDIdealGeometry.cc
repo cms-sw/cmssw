@@ -135,9 +135,9 @@ void TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::EventSet
 
       bool isSens = false;
 
-      if (fv.geoHistory()[num - 1].logicalPart().specifics().size() > 0) {
+      if (!fv.geoHistory()[num - 1].logicalPart().specifics().empty()) {
         for (auto vec : fv.geoHistory()[num - 1].logicalPart().specifics()) {
-          for (auto elem : *vec) {
+          for (const auto& elem : *vec) {
             if (elem.second.name() == "SensitiveDetector") {
               isSens = true;
               break;

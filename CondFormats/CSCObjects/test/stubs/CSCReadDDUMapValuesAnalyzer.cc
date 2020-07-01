@@ -29,8 +29,8 @@ namespace edmtest {
   public:
     explicit CSCReadDDUMapValuesAnalyzer(edm::ParameterSet const& p) {}
     explicit CSCReadDDUMapValuesAnalyzer(int i) {}
-    virtual ~CSCReadDDUMapValuesAnalyzer() {}
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~CSCReadDDUMapValuesAnalyzer() override {}
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
   };

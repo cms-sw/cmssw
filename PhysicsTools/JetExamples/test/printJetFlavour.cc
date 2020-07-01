@@ -34,8 +34,8 @@
 class printJetFlavour : public edm::EDAnalyzer {
 public:
   explicit printJetFlavour(const edm::ParameterSet&);
-  ~printJetFlavour(){};
-  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  ~printJetFlavour() override{};
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   edm::InputTag sourcePartons_;
@@ -78,28 +78,28 @@ void printJetFlavour::analyze(const edm::Event& iEvent, const edm::EventSetup& i
            << theHeaviest.get()->et() << "," << theHeaviest.get()->eta() << "," << theHeaviest.get()->phi()
            << ") Dr=" << dist << endl;
     }
-    const GenParticleRef theNearest2 = aMatch.nearest_status2();
+    const GenParticleRef& theNearest2 = aMatch.nearest_status2();
     if (theNearest2.isNonnull()) {
       float dist = DeltaR(aJet->p4(), theNearest2.get()->p4());
       cout << "                      theNearest Stat2 flav (pt,eta,phi)=" << theNearest2.get()->pdgId() << " ("
            << theNearest2.get()->et() << "," << theNearest2.get()->eta() << "," << theNearest2.get()->phi()
            << ") Dr=" << dist << endl;
     }
-    const GenParticleRef theNearest3 = aMatch.nearest_status3();
+    const GenParticleRef& theNearest3 = aMatch.nearest_status3();
     if (theNearest3.isNonnull()) {
       float dist = DeltaR(aJet->p4(), theNearest3.get()->p4());
       cout << "                      theNearest Stat3 flav (pt,eta,phi)=" << theNearest3.get()->pdgId() << " ("
            << theNearest3.get()->et() << "," << theNearest3.get()->eta() << "," << theNearest3.get()->phi()
            << ") Dr=" << dist << endl;
     }
-    const GenParticleRef thePhyDef = aMatch.physicsDefinitionParton();
+    const GenParticleRef& thePhyDef = aMatch.physicsDefinitionParton();
     if (thePhyDef.isNonnull()) {
       float dist = DeltaR(aJet->p4(), thePhyDef.get()->p4());
       cout << "                     thePhysDefinition flav (pt,eta,phi)=" << thePhyDef.get()->pdgId() << " ("
            << thePhyDef.get()->et() << "," << thePhyDef.get()->eta() << "," << thePhyDef.get()->phi() << ") Dr=" << dist
            << endl;
     }
-    const GenParticleRef theAlgDef = aMatch.algoDefinitionParton();
+    const GenParticleRef& theAlgDef = aMatch.algoDefinitionParton();
     if (theAlgDef.isNonnull()) {
       float dist = DeltaR(aJet->p4(), theAlgDef.get()->p4());
       cout << "                     theAlgoDefinition flav (pt,eta,phi)=" << theAlgDef.get()->pdgId() << " ("

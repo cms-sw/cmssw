@@ -36,9 +36,9 @@
 class ApeAdder : public edm::EDAnalyzer {
 public:
   explicit ApeAdder(const edm::ParameterSet&);
-  ~ApeAdder(){};
+  ~ApeAdder() override{};
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   // methods
@@ -72,15 +72,15 @@ void ApeAdder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   AlignableTracker* theAlignableTracker = new AlignableTracker(&(*trackerGeometry), tTopo);
 
   // Now loop on alignable dets and add alignment error
-  if (theAlignableTracker->barrelGeomDets().size())
+  if (!theAlignableTracker->barrelGeomDets().empty())
     this->addApe(theAlignableTracker->barrelGeomDets());
-  if (theAlignableTracker->pixelHalfBarrelGeomDets().size())
+  if (!theAlignableTracker->pixelHalfBarrelGeomDets().empty())
     this->addApe(theAlignableTracker->pixelHalfBarrelGeomDets());
-  if (theAlignableTracker->endcapGeomDets().size())
+  if (!theAlignableTracker->endcapGeomDets().empty())
     this->addApe(theAlignableTracker->endcapGeomDets());
-  if (theAlignableTracker->TIDGeomDets().size())
+  if (!theAlignableTracker->TIDGeomDets().empty())
     this->addApe(theAlignableTracker->TIDGeomDets());
-  if (theAlignableTracker->pixelEndcapGeomDets().size())
+  if (!theAlignableTracker->pixelEndcapGeomDets().empty())
     this->addApe(theAlignableTracker->pixelEndcapGeomDets());
 
   // Store to DB

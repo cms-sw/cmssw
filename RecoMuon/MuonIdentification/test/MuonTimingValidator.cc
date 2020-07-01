@@ -111,7 +111,7 @@ MuonTimingValidator::MuonTimingValidator(const edm::ParameterSet& iConfig)
 MuonTimingValidator::~MuonTimingValidator() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
-  if (hFile != 0) {
+  if (hFile != nullptr) {
     hFile->Close();
     delete hFile;
   }
@@ -132,7 +132,7 @@ void MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   iEvent.getByToken(MuonTokens_, MuCollection);
   const reco::MuonCollection muonC = *(MuCollection.product());
-  if (!muonC.size())
+  if (muonC.empty())
     return;
 
   iEvent.getByToken(CombinedTimeTokens_, timeMap1);

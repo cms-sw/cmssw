@@ -112,9 +112,9 @@ class testEvent : public CppUnit::TestFixture {
 
 public:
   testEvent();
-  ~testEvent();
-  void setUp();
-  void tearDown();
+  ~testEvent() override;
+  void setUp() override;
+  void tearDown() override;
   void emptyEvent();
   void getByLabelFromEmpty();
   void getByTokenFromEmpty();

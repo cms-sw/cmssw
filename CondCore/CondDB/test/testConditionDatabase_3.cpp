@@ -60,13 +60,13 @@ int run(const std::string& connectionString) {
 
     auto arr0 = session.readIov("MyNewIOV").selectAll();
     std::cout << "# Selecting all iovs..." << std::endl;
-    for (auto iiov : arr0) {
+    for (const auto& iiov : arr0) {
       std::cout << "# since=" << iiov.since << " till:" << iiov.till << std::endl;
     }
     auto arr1 = session.readIov("MyNewIOV").selectRange(cond::time::lumiTime(100, 15), cond::time::lumiTime(300, 15));
     std::cout << "# Selecting range (" << cond::time::lumiTime(100, 15) << "," << cond::time::lumiTime(300, 15) << ")"
               << std::endl;
-    for (auto iiov : arr1) {
+    for (const auto& iiov : arr1) {
       std::cout << "# since=" << iiov.since << " till:" << iiov.till << std::endl;
     }
     auto pxn = session.readIov("MyNewIOV");

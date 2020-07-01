@@ -41,7 +41,7 @@ namespace edmtest {
 
       void analyze(edm::Event const&, edm::EventSetup const&) override { ++m_count; }
 
-      ~SharedResourcesAnalyzer() {
+      ~SharedResourcesAnalyzer() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "SharedResourcesAnalyzer transitions " << m_count << " but it was supposed to be " << trans_;
@@ -82,7 +82,7 @@ namespace edmtest {
         er = true;
       }
 
-      ~WatchRunsAnalyzer() {
+      ~WatchRunsAnalyzer() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "WatchRunsAnalyzer transitions " << m_count << " but it was supposed to be " << trans_;
@@ -123,7 +123,7 @@ namespace edmtest {
         el = true;
       }
 
-      ~WatchLumiBlocksAnalyzer() {
+      ~WatchLumiBlocksAnalyzer() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "WatchLumiBlocksAnalyzer transitions " << m_count << " but it was supposed to be " << trans_;
@@ -173,7 +173,7 @@ namespace edmtest {
         c->end = true;
       }
 
-      ~RunCacheAnalyzer() {
+      ~RunCacheAnalyzer() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "WatchRunsAnalyzer transitions " << m_count << " but it was supposed to be " << trans_;
@@ -216,7 +216,7 @@ namespace edmtest {
         c->end = true;
       }
 
-      ~LumiBlockCacheAnalyzer() {
+      ~LumiBlockCacheAnalyzer() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "WatchLumiBlocksAnalyzer transitions " << m_count << " but it was supposed to be " << trans_;

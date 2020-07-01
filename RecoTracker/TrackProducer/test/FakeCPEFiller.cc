@@ -48,7 +48,7 @@
 class FakeCPEFiller final : public edm::one::EDFilter<> {
 public:
   explicit FakeCPEFiller(const edm::ParameterSet&);
-  ~FakeCPEFiller() = default;
+  ~FakeCPEFiller() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

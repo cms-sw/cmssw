@@ -23,8 +23,8 @@ using namespace edm;
 class printTrackJet : public edm::EDAnalyzer {
 public:
   explicit printTrackJet(const edm::ParameterSet&);
-  ~printTrackJet(){};
-  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  ~printTrackJet() override{};
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   edm::EDGetTokenT<reco::CandidateView> sourceToken_;

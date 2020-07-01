@@ -1,7 +1,9 @@
 #include "GeneratorInterface/GenFilters/plugins/PythiaDauVFilterMatchID.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include <iostream>
-#include <vector>
+#include <memory>
+
+        #include <vector>
 
 using namespace edm;
 using namespace std;
@@ -44,7 +46,7 @@ PythiaDauVFilterMatchID::PythiaDauVFilterMatchID(const edm::ParameterSet& iConfi
   // create pythia8 instance to access particle data
   edm::LogInfo("PythiaDauVFilterMatchID") << "Creating pythia8 instance for particle properties" << endl;
   if (!fLookupGen.get())
-    fLookupGen.reset(new Pythia());
+    fLookupGen = std::make_unique<Pythia>();
 }
 
 PythiaDauVFilterMatchID::~PythiaDauVFilterMatchID() {

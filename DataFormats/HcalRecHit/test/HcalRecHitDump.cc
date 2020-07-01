@@ -94,7 +94,7 @@ using namespace std;
 class HcalRecHitDump : public edm::stream::EDAnalyzer<> {
 public:
   explicit HcalRecHitDump(edm::ParameterSet const& conf);
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
 
 private:
   string hbhePrefix_;

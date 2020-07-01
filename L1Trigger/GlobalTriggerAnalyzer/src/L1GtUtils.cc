@@ -17,7 +17,9 @@
 
 // system include files
 #include <iomanip>
+#include <memory>
 
+        
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
@@ -100,7 +102,7 @@ L1GtUtils::L1GtUtils(edm::ParameterSet const& pset,
                      bool useL1GtTriggerMenuLite,
                      UseEventSetupIn useEventSetupIn)
     : L1GtUtils(iC, useEventSetupIn) {
-  m_l1GtUtilsHelper.reset(new L1GtUtilsHelper(pset, iC, useL1GtTriggerMenuLite));
+  m_l1GtUtilsHelper = std::make_unique<L1GtUtilsHelper>(pset, iC, useL1GtTriggerMenuLite);
 }
 
 // destructor

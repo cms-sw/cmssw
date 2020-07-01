@@ -31,7 +31,7 @@ private:
     Handle<HepMCProduct> hepMC;
     evt.getByToken(srcToken_, hepMC);
     const GenEvent* mc = hepMC->GetEvent();
-    if (mc == 0)
+    if (mc == nullptr)
       throw edm::Exception(edm::errors::InvalidReference) << "HepMC has null pointer to GenEvent" << endl;
     const size_t size = mc->particles_size();
     cout << "\n particles #: " << size << endl;

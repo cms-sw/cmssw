@@ -84,8 +84,8 @@ class testSortedCollection : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void constructTest();
   void insertTest();
@@ -102,7 +102,7 @@ typedef edm::SortedCollection<Value, StrictWeakOrdering<Value> > scoll_type;
 
 void testSortedCollection::constructTest() {
   scoll_type c1;
-  CPPUNIT_ASSERT(c1.size() == 0);
+  CPPUNIT_ASSERT(c1.empty());
 
   scoll_type c2(20);
   CPPUNIT_ASSERT(c2.size() == 20);
@@ -111,7 +111,7 @@ void testSortedCollection::constructTest() {
   scoll_type c3(values);
   CPPUNIT_ASSERT(c3.size() == values.size());
 
-  scoll_type c4(c3);
+  const scoll_type& c4(c3);
   CPPUNIT_ASSERT(c4.size() == c3.size());
   CPPUNIT_ASSERT(c3 == c4);
 }

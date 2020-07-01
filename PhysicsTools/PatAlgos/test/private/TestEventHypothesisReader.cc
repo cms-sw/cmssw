@@ -16,7 +16,7 @@
 class TestEventHypothesisReader : public edm::EDAnalyzer {
 public:
   TestEventHypothesisReader(const edm::ParameterSet &iConfig);
-  virtual void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup);
+  void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
   void runTests(const pat::EventHypothesis &h);
 
 private:

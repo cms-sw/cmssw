@@ -436,7 +436,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker &iBooker,
         for (vector<string>::const_iterator im = contents.begin(); im != contents.end(); im++) {
           string sname = ((*isum)->getName());
           string tname = " ";
-          tname = sname.substr(7, (sname.find("_", 7) - 6));
+          tname = sname.substr(7, (sname.find('_', 7) - 6));
           if (sname.find("ALLMODS_adcCOMB_") != string::npos)
             tname = "adc_";
           if (sname.find("ALLMODS_chargeCOMB_") != string::npos)
@@ -581,13 +581,13 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker &iBooker,
               }
               string title = " ";
               if (sname.find("_RMS_") != string::npos) {
-                title = "RMS of " + sname.substr(7, (sname.find("_", 7) - 7)) + " per module";
+                title = "RMS of " + sname.substr(7, (sname.find('_', 7) - 7)) + " per module";
               } else if (sname.find("_FracOfPerfectPix_") != string::npos) {
-                title = "FracOfPerfectPix " + sname.substr(7, (sname.find("_", 7) - 7)) + " per module";
+                title = "FracOfPerfectPix " + sname.substr(7, (sname.find('_', 7) - 7)) + " per module";
               } else if (sname.find("_NCalibErrors_") != string::npos) {
-                title = "Number of CalibErrors " + sname.substr(7, (sname.find("_", 7) - 7)) + " per module";
+                title = "Number of CalibErrors " + sname.substr(7, (sname.find('_', 7) - 7)) + " per module";
               } else if (sname.find("_NNegativeFits_") != string::npos) {
-                title = "Number of pixels with neg. fit result " + sname.substr(7, (sname.find("_", 7) - 7)) +
+                title = "Number of pixels with neg. fit result " + sname.substr(7, (sname.find('_', 7) - 7)) +
                         " per module";
               } else if (sname.find("FREQ_") != string::npos) {
                 title = "NEvents with digis per module";
@@ -605,9 +605,9 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker &iBooker,
               } else {
                 if (prefix == "SUMOFF")
                   title =
-                      "Mean " + sname.substr(7, (sname.find("_", 7) - 7)) + (isbarrel ? " per Ladder" : " per Blade");
+                      "Mean " + sname.substr(7, (sname.find('_', 7) - 7)) + (isbarrel ? " per Ladder" : " per Blade");
                 else
-                  title = "Mean " + sname.substr(7, (sname.find("_", 7) - 7)) + " per Module";
+                  title = "Mean " + sname.substr(7, (sname.find('_', 7) - 7)) + " per Module";
               }
               (*isum)->setAxisTitle(title, 2);
             }
@@ -816,7 +816,7 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore::IBooker &iBooker,
           }
           string sname = ((*isum)->getName());
           string tname = " ";
-          tname = sname.substr(7, (sname.find("_", 7) - 6));
+          tname = sname.substr(7, (sname.find('_', 7) - 6));
           if (((*im)).find(tname) == 0) {
             string fullpathname = iBooker.pwd() + "/" + (*im);
             MonitorElement *me = iGetter.get(fullpathname);
@@ -849,7 +849,7 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore::IBooker &iBooker,
               }
               (*isum)->setAxisTitle("FED #", 1);
               string title = " ";
-              title = sname.substr(7, (sname.find("_", 7) - 7)) + " per FED";
+              title = sname.substr(7, (sname.find('_', 7) - 7)) + " per FED";
               (*isum)->setAxisTitle(title, 2);
             }
             break;
@@ -885,7 +885,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore::IBooker &iBoo
   vector<MonitorElement *> gsum_mes;
   string currDir = iBooker.pwd();
   string path_name = iBooker.pwd();
-  string dir_name = path_name.substr(path_name.find_last_of("/") + 1);
+  string dir_name = path_name.substr(path_name.find_last_of('/') + 1);
   if ((dir_name.find("DQMData") == 0) || (dir_name.find("Pixel") == 0) ||
       (dir_name.find("AdditionalPixelErrors") == 0) || (dir_name.find("Endcap") == 0) ||
       (dir_name.find("HalfCylinder") == 0) || (dir_name.find("Disk") == 0) || (dir_name.find("Blade") == 0) ||
@@ -1267,7 +1267,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore::IBooker &iBoo
   vector<MonitorElement *> gsum_mes;
   string currDir = iBooker.pwd();
   string path_name = iBooker.pwd();
-  string dir_name = path_name.substr(path_name.find_last_of("/") + 1);
+  string dir_name = path_name.substr(path_name.find_last_of('/') + 1);
   if ((dir_name.find("DQMData") == 0) || (dir_name.find("Pixel") == 0) ||
       (dir_name.find("AdditionalPixelErrors") == 0) || (dir_name.find("Barrel") == 0) ||
       (dir_name.find("Shell") == 0) || (dir_name.find("Layer") == 0) || (dir_name.find("Ladder") == 0))
@@ -1805,7 +1805,7 @@ void SiPixelActionExecutor::fillOccupancy(DQMStore::IBooker &iBooker, DQMStore::
   if (Tier0Flag_)
     return;
   string currDir = iBooker.pwd();
-  string dname = currDir.substr(currDir.find_last_of("/") + 1);
+  string dname = currDir.substr(currDir.find_last_of('/') + 1);
 
   if (dname.find("Layer_") != string::npos || dname.find("Disk_") != string::npos) {
     vector<string> meVec = iGetter.getMEs();
@@ -1816,9 +1816,9 @@ void SiPixelActionExecutor::fillOccupancy(DQMStore::IBooker &iBooker, DQMStore::
         if (!me)
           continue;
         string path = full_path;
-        while (path.find_last_of("/") != 5)  // Stop before Pixel/
+        while (path.find_last_of('/') != 5)  // Stop before Pixel/
         {
-          path = path.substr(0, path.find_last_of("/"));
+          path = path.substr(0, path.find_last_of('/'));
           //							cout << "\t" <<
           // path
           //<< endl;
@@ -2065,7 +2065,7 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore::IBooker &iBooker,
                                            bool isUpgrade) {
   // cout<<"entering SiPixelActionExecutor::fillEfficiency..."<<std::endl;
   string currDir = iBooker.pwd();
-  string dname = currDir.substr(currDir.find_last_of("/") + 1);
+  string dname = currDir.substr(currDir.find_last_of('/') + 1);
   // cout<<"currDir= "<<currDir<< " , dname= "<<dname<<std::endl;
 
   if (Tier0Flag_) {  // Offline

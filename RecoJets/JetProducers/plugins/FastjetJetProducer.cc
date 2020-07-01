@@ -377,8 +377,8 @@ void FastjetJetProducer::runAlgorithm(edm::Event& iEvent, edm::EventSetup const&
     unique_ptr<fastjet::JetMedianBackgroundEstimator> bge_rho;
     if (useConstituentSubtraction_) {
       fastjet::Selector rho_range = fastjet::SelectorAbsRapMax(csRho_EtaMax_);
-      bge_rho = unique_ptr<fastjet::JetMedianBackgroundEstimator>(new fastjet::JetMedianBackgroundEstimator(
-          rho_range, fastjet::JetDefinition(fastjet::kt_algorithm, csRParam_), *fjAreaDefinition_));
+      bge_rho = std::make_unique<fastjet::JetMedianBackgroundEstimator>(
+          rho_range, fastjet::JetDefinition(fastjet::kt_algorithm, csRParam_), *fjAreaDefinition_);
       bge_rho->set_particles(fjInputs_);
       fastjet::contrib::ConstituentSubtractor* constituentSubtractor =
           new fastjet::contrib::ConstituentSubtractor(bge_rho.get());
@@ -429,10 +429,10 @@ void FastjetJetProducer::runAlgorithm(edm::Event& iEvent, edm::EventSetup const&
     unique_ptr<fastjet::Subtractor> subtractor;
     unique_ptr<fastjet::GridMedianBackgroundEstimator> bge_rho_grid;
     if (correctShape_) {
-      bge_rho_grid = unique_ptr<fastjet::GridMedianBackgroundEstimator>(
-          new fastjet::GridMedianBackgroundEstimator(gridMaxRapidity_, gridSpacing_));
+      bge_rho_grid = std::make_unique<fastjet::GridMedianBackgroundEstimator>(
+          gridMaxRapidity_, gridSpacing_);
       bge_rho_grid->set_particles(fjInputs_);
-      subtractor = unique_ptr<fastjet::Subtractor>(new fastjet::Subtractor(bge_rho_grid.get()));
+      subtractor = std::make_unique<fastjet::Subtractor>(bge_rho_grid.get());
       subtractor->set_use_rho_m();
       //subtractor->use_common_bge_for_rho_and_rhom(true);
     }

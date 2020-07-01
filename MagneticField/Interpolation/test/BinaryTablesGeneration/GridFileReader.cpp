@@ -4,13 +4,13 @@
 #include "MagneticField/Interpolation/src/binary_ifstream.h"
 
 // used libs
-#include <string>
-#include <iostream>
+#include "DataFormats/Math/interface/approx_exp.h"
+#include <cmath>
+#include <cstdlib>
 #include <fstream>
 #include <iomanip>
-#include <cmath>
-#include <stdlib.h>
-#include "DataFormats/Math/interface/approx_exp.h"
+#include <iostream>
+#include <string>
 inline int bits(int a) {
   unsigned int aa = abs(a);
   int b = 0;

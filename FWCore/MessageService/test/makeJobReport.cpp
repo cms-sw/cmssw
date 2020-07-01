@@ -14,7 +14,9 @@ void work() {
     auto theReport = std::make_unique<edm::JobReport>(&ost);
 
     std::vector<std::string> inputBranches;
-    for (int i = 0; i < 10; i++) {
+    inputBranches.reserve(10);
+
+for (int i = 0; i < 10; i++) {
       inputBranches.push_back("Some_Input_Branch");
     }
 
@@ -22,7 +24,9 @@ void work() {
         "InputPFN", "InputLFN", "InputCatalog", "InputType", "InputSource", "InputLabel", "InputGUID", inputBranches);
 
     std::vector<std::string> outputBranches;
-    for (int i = 0; i < 10; i++) {
+    outputBranches.reserve(10);
+
+for (int i = 0; i < 10; i++) {
       outputBranches.push_back("Some_Output_Branch_Probably_From_HLT");
     }
 

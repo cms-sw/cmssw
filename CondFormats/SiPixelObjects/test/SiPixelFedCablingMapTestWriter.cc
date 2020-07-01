@@ -25,10 +25,10 @@ using namespace sipixelobjects;
 class SiPixelFedCablingMapTestWriter : public edm::EDAnalyzer {
 public:
   explicit SiPixelFedCablingMapTestWriter(const edm::ParameterSet&);
-  ~SiPixelFedCablingMapTestWriter();
-  virtual void beginJob();
-  virtual void endJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) {}
+  ~SiPixelFedCablingMapTestWriter() override;
+  void beginJob() override;
+  void endJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override {}
 
 private:
   SiPixelFedCablingTree* cablingTree;
@@ -36,7 +36,7 @@ private:
 };
 
 SiPixelFedCablingMapTestWriter::SiPixelFedCablingMapTestWriter(const edm::ParameterSet& iConfig)
-    : cablingTree(0), m_record(iConfig.getParameter<std::string>("record")) {
+    : cablingTree(nullptr), m_record(iConfig.getParameter<std::string>("record")) {
   cout << " HERE record: " << m_record << endl;
   ::putenv((char*)"CORAL_AUTH_USER=konec");
   ::putenv((char*)"CORAL_AUTH_PASSWORD=test");

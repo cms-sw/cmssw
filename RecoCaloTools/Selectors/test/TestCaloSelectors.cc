@@ -15,7 +15,7 @@
 class TestCaloSelectors : public edm::EDAnalyzer {
 public:
   TestCaloSelectors(const edm::ParameterSet& ps) : inputTag_(ps.getParameter<edm::InputTag>("inputTag")) {}
-  virtual void analyze(const edm::Event& evt, const edm::EventSetup& es);
+  void analyze(const edm::Event& evt, const edm::EventSetup& es) override;
 
 private:
   edm::InputTag inputTag_;

@@ -1,8 +1,8 @@
-#include <iostream>
-#include <stdlib.h>
-#include "tbb/task_scheduler_init.h"
-#include "tbb/parallel_for.h"
 #include "tbb/blocked_range.h"
+#include "tbb/parallel_for.h"
+#include "tbb/task_scheduler_init.h"
+#include <cstdlib>
+#include <iostream>
 
 using namespace tbb;
 using namespace std;

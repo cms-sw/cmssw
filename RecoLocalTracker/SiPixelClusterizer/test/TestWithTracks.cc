@@ -118,11 +118,11 @@ using namespace std;
 class TestWithTracks : public edm::EDAnalyzer {
 public:
   explicit TestWithTracks(const edm::ParameterSet &conf);
-  virtual ~TestWithTracks();
-  virtual void analyze(const edm::Event &e, const edm::EventSetup &c) override;
-  virtual void beginRun(edm::Run const &, edm::EventSetup const &) override;
-  virtual void beginJob() override;
-  virtual void endJob() override;
+  ~TestWithTracks() override;
+  void analyze(const edm::Event &e, const edm::EventSetup &c) override;
+  void beginRun(edm::Run const &, edm::EventSetup const &) override;
+  void beginJob() override;
+  void endJob() override;
 
 private:
   edm::ParameterSet conf_;

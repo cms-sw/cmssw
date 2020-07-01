@@ -32,7 +32,7 @@ namespace edmtest {
   class TestFindProduct : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
   public:
     explicit TestFindProduct(edm::ParameterSet const& pset);
-    virtual ~TestFindProduct();
+    ~TestFindProduct() override;
 
     void analyze(edm::Event const& e, edm::EventSetup const& es) override;
     void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;

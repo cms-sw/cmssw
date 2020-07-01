@@ -6,6 +6,10 @@
 
 #include <clang/AST/Attr.h>
 #include <clang/AST/ExprCXX.h>
+
+
+#include <memory>
+
 #include "ConstCastChecker.h"
 #include "CmsSupport.h"
 
@@ -27,7 +31,7 @@ namespace clangcms {
       cname = CRD->getQualifiedNameAsString();
     if (clang::ento::ExplodedNode *errorNode = C.generateErrorNode()) {
       if (!BT)
-        BT.reset(new clang::ento::BugType(this, "const_cast used on pointer to class", "ConstThreadSafety"));
+        BT = std::make_unique<clang::ento::BugType>(this, "const_cast used on pointer to class", "ConstThreadSafety");
       std::string buf;
       llvm::raw_string_ostream os(buf);
       os << "const_cast was used, this may result in thread-unsafe code.";

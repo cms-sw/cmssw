@@ -34,8 +34,8 @@ class testRefToBaseProd : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void constructTest();
   void comparisonTest();
@@ -62,7 +62,7 @@ namespace {
 
   struct Dummy2 : public Dummy {
     Dummy2() {}
-    virtual ~Dummy2() {}
+    ~Dummy2() override {}
   };
 
   typedef std::vector<Dummy2> DummyCollection2;
@@ -161,7 +161,7 @@ void testRefToBaseProd::constructTest() {
     dummyContainer.push_back(dummy);
     OrphanHandle<DummyCollection2> handle(&dummyContainer, pid);
     RefToBaseProd<Dummy> dummyPtr(handle);
-    RefToBaseProd<Dummy> dummyPtr2(dummyPtr);
+    const RefToBaseProd<Dummy>& dummyPtr2(dummyPtr);
 
     CPPUNIT_ASSERT(dummyPtr.id() == pid);
     compareTo(dummyPtr, dummyContainer);
@@ -174,16 +174,16 @@ void testRefToBaseProd::constructTest() {
 namespace {
   struct TestGetter : public edm::EDProductGetter {
     WrapperBase const* hold_;
-    virtual WrapperBase const* getIt(ProductID const&) const override { return hold_; }
-    virtual edm::WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override {
+    WrapperBase const* getIt(ProductID const&) const override { return hold_; }
+    edm::WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override {
       return nullptr;
     }
 
-    virtual void getThinnedProducts(ProductID const& pid,
+    void getThinnedProducts(ProductID const& pid,
                                     std::vector<WrapperBase const*>& wrappers,
                                     std::vector<unsigned int>& keys) const override {}
 
-    virtual unsigned int transitionIndex_() const override { return 0U; }
+    unsigned int transitionIndex_() const override { return 0U; }
 
     TestGetter() : hold_() {}
   };
@@ -215,17 +215,17 @@ void testRefToBaseProd::getTest() {
     RefToBaseProd<IntValue>& prod = reinterpret_cast<RefToBaseProd<IntValue>&>(core);
 
     //previously making a copy before reading back would cause seg fault
-    RefToBaseProd<IntValue> prodCopy(prod);
+    const RefToBaseProd<IntValue>& prodCopy(prod);
 
     CPPUNIT_ASSERT(!prod.hasCache());
 
-    CPPUNIT_ASSERT(0 != prod.get());
+    CPPUNIT_ASSERT(nullptr != prod.get());
     CPPUNIT_ASSERT(prod.hasCache());
     compareTo(prod, *wptr);
 
     CPPUNIT_ASSERT(!prodCopy.hasCache());
 
-    CPPUNIT_ASSERT(0 != prodCopy.get());
+    CPPUNIT_ASSERT(nullptr != prodCopy.get());
     CPPUNIT_ASSERT(prodCopy.hasCache());
     compareTo(prodCopy, *wptr);
   }
@@ -257,7 +257,7 @@ void testRefToBaseProd::getTest() {
 
     CPPUNIT_ASSERT(!prod.hasCache());
 
-    CPPUNIT_ASSERT(0 != prod.get());
+    CPPUNIT_ASSERT(nullptr != prod.get());
     CPPUNIT_ASSERT(prod.hasCache());
     compareTo(prod, *wptr);
   }

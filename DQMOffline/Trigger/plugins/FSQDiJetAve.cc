@@ -390,7 +390,9 @@ namespace FSQ {
         //          - rank current combination
         if (!duplicatesPresent) {  // no duplicates, we can consider this combined object
           std::vector<TOutputCandidateType> currentCombinationFromCands;
-          for (int i = 0; i < m_combinedObjectDimension; ++i) {
+          currentCombinationFromCands.reserve(m_combinedObjectDimension);
+
+        for (int i = 0; i < m_combinedObjectDimension; ++i) {
             currentCombinationFromCands.push_back(cands.at(currentCombination.at(i)));
           }
           bool isOK = m_combinedObjectSelection(currentCombinationFromCands);
@@ -759,7 +761,7 @@ FSQDiJetAve::FSQDiJetAve(const edm::ParameterSet& iConfig)
       edm::InputTag(triggerResultsLabel_.label(), triggerResultsLabel_.instance(), std::string("FU")));
 
   std::vector<edm::ParameterSet> todo = iConfig.getParameter<std::vector<edm::ParameterSet> >("todo");
-  for (auto pset : todo) {
+  for (const auto& pset : todo) {
     std::string type = pset.getParameter<std::string>("handlerType");
     if (type == "FromHLT") {
       m_handlers.push_back(std::make_shared<FSQ::HLTHandler>(pset, m_eventCache));

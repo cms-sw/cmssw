@@ -35,9 +35,9 @@ using namespace reco;
 class PileupJetAnalyzer : public edm::EDAnalyzer {
 public:
   PileupJetAnalyzer(const edm::ParameterSet &params);
-  ~PileupJetAnalyzer();
+  ~PileupJetAnalyzer() override;
 
-  virtual void analyze(const edm::Event &event, const edm::EventSetup &es);
+  void analyze(const edm::Event &event, const edm::EventSetup &es) override;
 
 private:
   TNtuple *ntuple;

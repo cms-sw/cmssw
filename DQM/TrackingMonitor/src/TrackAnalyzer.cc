@@ -1109,7 +1109,7 @@ void TrackAnalyzer::setNumberOfGoodVertices(const edm::Event& iEvent) {
   iEvent.getByToken(pvToken_, recoPrimaryVerticesHandle);
   if (recoPrimaryVerticesHandle.isValid())
     if (!recoPrimaryVerticesHandle->empty())
-      for (auto v : *recoPrimaryVerticesHandle)
+      for (const auto& v : *recoPrimaryVerticesHandle)
         if (v.ndof() >= pvNDOF_ && !v.isFake())
           ++good_vertices_;
 }
@@ -2271,7 +2271,7 @@ void TrackAnalyzer::bookHistosForTrackerSpecific(DQMStore::IBooker& ibooker) {
   std::vector<std::string> subdetectors = conf_->getParameter<std::vector<std::string> >("subdetectors");
   int detBin = conf_->getParameter<int>("subdetectorBin");
 
-  for (auto det : subdetectors) {
+  for (const auto& det : subdetectors) {
     // hits properties
     ibooker.setCurrentFolder(TopFolder_ + "/HitProperties/" + det);
 

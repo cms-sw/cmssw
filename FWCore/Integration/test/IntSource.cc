@@ -13,12 +13,12 @@ namespace edm {
   class IntSource : public ProducerSourceBase {
   public:
     explicit IntSource(ParameterSet const&, InputSourceDescription const&);
-    ~IntSource();
+    ~IntSource() override;
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
-    virtual bool setRunAndEventInfo(EventID& id, TimeValue_t& time, edm::EventAuxiliary::ExperimentType& eType);
-    virtual void produce(Event&);
+    bool setRunAndEventInfo(EventID& id, TimeValue_t& time, edm::EventAuxiliary::ExperimentType& eType) override;
+    void produce(Event&) override;
   };
 
   IntSource::IntSource(ParameterSet const& pset, InputSourceDescription const& desc)

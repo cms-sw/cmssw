@@ -26,7 +26,7 @@ namespace {
     //return std::make_pair(true,"");
     std::string status, aName, aNs;
     bool emptyNs = false;
-    if (ns == "")
+    if (ns.empty())
       emptyNs = true;
 
     aName = "^" + nm + "$";
@@ -204,12 +204,12 @@ void testDDIsValid::buildIt() {
   std::string line;
   while (std::getline(in, line)) {
     std::string::size_type p;
-    p = line.find(" ");
+    p = line.find(' ');
     std::string nm(line, 0, p);
     std::vector<DDName>& v = LPNAMES::instance()[nm];
     while (p != std::string::npos) {
       ++p;
-      std::string::size_type e = line.find(" ", p);
+      std::string::size_type e = line.find(' ', p);
       std::string::size_type s = e - p;
       if (e == std::string::npos)
         s = e;
@@ -234,9 +234,9 @@ void testDDIsValid::checkAgaistOld() {
   const std::string ns;
   int bad = 0;
   while (std::getline(in, line)) {
-    std::string::size_type p = line.find(" ");
+    std::string::size_type p = line.find(' ');
     ++p;
-    std::string::size_type e = line.find(" ", p);
+    std::string::size_type e = line.find(' ', p);
     // ns, we know, is always ""
     std::vector<DDLogicalPart> oldResult;
     std::vector<DDLogicalPart> result;

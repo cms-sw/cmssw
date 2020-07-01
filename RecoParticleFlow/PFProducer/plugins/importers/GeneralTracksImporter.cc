@@ -1,10 +1,14 @@
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "RecoParticleFlow/PFProducer/interface/BlockElementImporterBase.h"
+#include <memory>
+
+
+
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/Common/interface/ValueMap.h"
+        #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "RecoParticleFlow/PFProducer/interface/BlockElementImporterBase.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
 
@@ -24,7 +28,7 @@ public:
             conf.existsAs<bool>("cleanBadConvertedBrems") ? conf.getParameter<bool>("cleanBadConvertedBrems") : false) {
     bool postMuonCleaning =
         conf.existsAs<bool>("postMuonCleaning") ? conf.getParameter<bool>("postMuonCleaning") : false;
-    pfmu_ = std::unique_ptr<PFMuonAlgo>(new PFMuonAlgo(conf, postMuonCleaning));
+    pfmu_ = std::make_unique<PFMuonAlgo>(conf, postMuonCleaning);
   }
 
   void importToBlock(const edm::Event&, ElementList&) const override;

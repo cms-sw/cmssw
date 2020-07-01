@@ -87,11 +87,11 @@ using namespace std;
 class ReadPixClusters : public edm::EDAnalyzer {
 public:
   explicit ReadPixClusters(const edm::ParameterSet &conf);
-  virtual ~ReadPixClusters();
-  virtual void analyze(const edm::Event &e, const edm::EventSetup &c) override;
-  virtual void beginRun(edm::Run const &, edm::EventSetup const &) override;
-  virtual void beginJob() override;
-  virtual void endJob() override;
+  ~ReadPixClusters() override;
+  void analyze(const edm::Event &e, const edm::EventSetup &c) override;
+  void beginRun(edm::Run const &, edm::EventSetup const &) override;
+  void beginJob() override;
+  void endJob() override;
 
 private:
   edm::ParameterSet conf_;
@@ -908,7 +908,7 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
   }  // detunits loop
 
-  if (0) {
+  if (false) {
     cout << "run " << run << " event " << event << " bx " << bx << " lumi " << lumiBlock << " orbit " << orbit
          << " num " << countEvents << endl;
     cout << "Num of pix " << numberOfPixels << " num of clus " << numberOfClusters << " num of dets " << numOf

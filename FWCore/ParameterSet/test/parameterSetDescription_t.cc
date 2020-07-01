@@ -1400,7 +1400,7 @@ int main(int, char**) try {
   assert(par->partiallyExists(pset) == false);
   assert(par->howManyXORSubNodesExist(pset) == 0);
   pset.addParameter<int>("ivalue", a);
-  assert(par != 0);
+  assert(par != nullptr);
   assert(par->label() == std::string("ivalue"));
   assert(par->type() == edm::k_int32);
   assert(par->isTracked() == true);
@@ -1433,7 +1433,7 @@ int main(int, char**) try {
   unsigned b = 2;
   par = psetDesc.add<unsigned>("uvalue", b);
   pset.addParameter<unsigned>("uvalue", b);
-  assert(par != 0);
+  assert(par != nullptr);
   assert(par->label() == std::string("uvalue"));
   assert(par->type() == edm::k_uint32);
   assert(par->isTracked() == true);
@@ -1446,7 +1446,7 @@ int main(int, char**) try {
   long long c = 3;
   par = psetDesc.addUntracked<long long>(std::string("i64value"), c);
   pset.addUntrackedParameter<long long>("i64value", c);
-  assert(par != 0);
+  assert(par != nullptr);
   assert(par->label() == std::string("i64value"));
   assert(par->type() == edm::k_int64);
   assert(par->isTracked() == false);
@@ -1455,7 +1455,7 @@ int main(int, char**) try {
   unsigned long long d = 4;
   par = psetDesc.addUntracked<unsigned long long>("u64value", d);
   pset.addUntrackedParameter<unsigned long long>("u64value", d);
-  assert(par != 0);
+  assert(par != nullptr);
   assert(par->label() == std::string("u64value"));
   assert(par->type() == edm::k_uint64);
   assert(par->isTracked() == false);
@@ -1464,7 +1464,7 @@ int main(int, char**) try {
   double e = 5;
   par = psetDesc.addOptional<double>(std::string("dvalue"), e);
   pset.addParameter<double>("dvalue", e);
-  assert(par != 0);
+  assert(par != nullptr);
   assert(par->label() == std::string("dvalue"));
   assert(par->type() == edm::k_double);
   assert(par->isTracked() == true);
@@ -1473,7 +1473,7 @@ int main(int, char**) try {
   bool f = true;
   par = psetDesc.addOptional<bool>("bvalue", f);
   pset.addParameter<bool>("bvalue", f);
-  assert(par != 0);
+  assert(par != nullptr);
   assert(par->label() == std::string("bvalue"));
   assert(par->type() == edm::k_bool);
   assert(par->isTracked() == true);
@@ -1482,7 +1482,7 @@ int main(int, char**) try {
   std::string g;
   par = psetDesc.addOptionalUntracked<std::string>(std::string("svalue"), g);
   pset.addUntrackedParameter<std::string>("svalue", g);
-  assert(par != 0);
+  assert(par != nullptr);
   assert(par->label() == std::string("svalue"));
   assert(par->type() == edm::k_string);
   assert(par->isTracked() == false);
@@ -1491,7 +1491,7 @@ int main(int, char**) try {
   edm::EventID h;
   par = psetDesc.addOptionalUntracked<edm::EventID>("evalue", h);
   pset.addUntrackedParameter<edm::EventID>("evalue", h);
-  assert(par != 0);
+  assert(par != nullptr);
   assert(par->label() == std::string("evalue"));
   assert(par->type() == edm::k_EventID);
   assert(par->isTracked() == false);
@@ -1681,9 +1681,9 @@ int main(int, char**) try {
   edm::ParameterSetDescription nestLevel2;
   par = nestLevel2.add<int>("intLevel2a", 1);
   par->setComment("testComment");
-  assert(par->parameterSetDescription() == 0);
+  assert(par->parameterSetDescription() == nullptr);
   edm::ParameterDescriptionBase const& constParRef = *par;
-  assert(constParRef.parameterSetDescription() == 0);
+  assert(constParRef.parameterSetDescription() == nullptr);
 
   nestLevel2.addUntracked<int>("intLevel2b", 1);
   nestLevel2.addOptional<int>("intLevel2c", 1);
@@ -1696,20 +1696,20 @@ int main(int, char**) try {
   par = nestLevel1.add<int>("intLevel1a", 1);
   par->setComment("testComment1");
   par = nestLevel1.add<edm::ParameterSetDescription>("nestLevel1b", nestLevel2);
-  assert(par->parameterSetDescription() != 0);
+  assert(par->parameterSetDescription() != nullptr);
   assert(par->parameterSetDescription()->begin()->node()->comment() == std::string("testComment"));
   edm::ParameterDescriptionBase const& constParRef2 = *par;
-  assert(constParRef2.parameterSetDescription() != 0);
+  assert(constParRef2.parameterSetDescription() != nullptr);
   assert(constParRef2.parameterSetDescription()->begin()->node()->comment() == std::string("testComment"));
 
   assert(par->parameterSetDescription()->anythingAllowed() == true);
   assert(constParRef2.parameterSetDescription()->anythingAllowed() == true);
 
   par = psetDesc.addVPSetUntracked("nestLevel0", nestLevel1);
-  assert(par->parameterSetDescription() != 0);
+  assert(par->parameterSetDescription() != nullptr);
   assert(par->parameterSetDescription()->begin()->node()->comment() == std::string("testComment1"));
   edm::ParameterDescriptionBase const& constParRef3 = *par;
-  assert(constParRef3.parameterSetDescription() != 0);
+  assert(constParRef3.parameterSetDescription() != nullptr);
   assert(constParRef3.parameterSetDescription()->begin()->node()->comment() == std::string("testComment1"));
 
   psetDesc.validate(pset);

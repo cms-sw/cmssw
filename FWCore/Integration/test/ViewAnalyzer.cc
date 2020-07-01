@@ -29,7 +29,7 @@ namespace edmtest {
   class ViewAnalyzer : public edm::global::EDAnalyzer<> {
   public:
     explicit ViewAnalyzer(edm::ParameterSet const& /* no parameters*/);
-    virtual void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const& /* unused */) const override;
+    void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const& /* unused */) const override;
 
     template <typename P, typename V>
     void testProduct(edm::Event const& e, std::string const& moduleLabel) const;

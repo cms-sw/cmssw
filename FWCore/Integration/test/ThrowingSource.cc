@@ -10,7 +10,7 @@ namespace edm {
   class ThrowingSource : public ProducerSourceBase {
   public:
     explicit ThrowingSource(ParameterSet const&, InputSourceDescription const&);
-    ~ThrowingSource() noexcept(false);
+    ~ThrowingSource() noexcept(false) override;
 
     void beginJob() override;
     void endJob() override;

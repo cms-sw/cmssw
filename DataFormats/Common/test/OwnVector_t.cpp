@@ -17,9 +17,9 @@ namespace ownvector_test {
     explicit Derived(int n);
     Derived(Derived const& other);
     Derived& operator=(Derived const& other);
-    virtual ~Derived();
+    ~Derived() override;
     void swap(Derived& other);
-    virtual Derived* clone() const;
+    Derived* clone() const override;
 
     edm::propagate_const<int*> pointer;
   };
@@ -110,11 +110,11 @@ void two_different_owners()
 
   void back_with_null_pointer() {
     edm::OwnVector<Base> v;
-    Base* p = 0;
+    Base* p = nullptr;
     v.push_back(p);
     try {
       v.back();
-      assert("Failed to throw a required exception in OwnVector_t" == 0);
+      assert("Failed to throw a required exception in OwnVector_t" == nullptr);
     } catch (edm::Exception& x) {
       // this is expected.
     } catch (...) {

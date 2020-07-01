@@ -199,7 +199,9 @@ vector<int> dimuonHLTFilterCheck::nDimuonsByType(const Handle<CandidateView> d) 
   int nCat =
       10;  // number of dimuon categories (0 = glb-glb, 1 = glb-trkSta, 2 = glb-sta, 3 = glb-trk, 4 = trkSta-trkSta, 5 = trkSta-sta, 6 = trkSta-trk, 7 = sta-sta, 8 = sta-trk, 9  trk-trk)
   // reset vector
-  for (int i = 0; i < nCat; i++)
+  n_.reserve(nCat);
+
+        for (int i = 0; i < nCat; i++)
     n_.push_back(0);
   for (unsigned int i = 0; i < d->size(); ++i) {  //loop on candidates
     //      const Candidate & dCand = (*d)[i]; //the candidate
@@ -259,7 +261,9 @@ vector<int> dimuonHLTFilterCheck::nMuonsByType(const Handle<CandidateView> d) {
   vector<int> n_;
   int nCat = 4;  // number of muon categories (0 = glb, 1 = trkSta, 2 = sta, 3 = trk)
   // reset vector
-  for (int i = 0; i < nCat; i++)
+  n_.reserve(nCat);
+
+        for (int i = 0; i < nCat; i++)
     n_.push_back(0);
   for (unsigned int i = 0; i < d->size(); ++i) {  //loop on candidates
     //      const Candidate & dCand = (*d)[i]; //the candidate

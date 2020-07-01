@@ -2,7 +2,11 @@
 #define __CorrectedECALPFClusterProducer__
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include <memory>
+
+
+
+        #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -50,7 +54,7 @@ public:
     _inputPS = consumes<reco::PFClusterCollection>(inputPS);
 
     const edm::ParameterSet& corConf = conf.getParameterSet("energyCorrector");
-    _corrector.reset(new PFClusterEMEnergyCorrector(corConf, consumesCollector()));
+    _corrector = std::make_unique<PFClusterEMEnergyCorrector>(corConf, consumesCollector());
 
     produces<reco::PFCluster::EEtoPSAssociation>();
     produces<reco::PFClusterCollection>();

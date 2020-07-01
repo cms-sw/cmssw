@@ -65,7 +65,7 @@ using namespace std;
 class TkDetLayersAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   TkDetLayersAnalyzer(const edm::ParameterSet&);
-  ~TkDetLayersAnalyzer();
+  ~TkDetLayersAnalyzer() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

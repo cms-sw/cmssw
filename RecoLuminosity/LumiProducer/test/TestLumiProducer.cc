@@ -23,10 +23,10 @@ namespace edmtest {
   class TestLumiProducer : public edm::EDAnalyzer {
   public:
     explicit TestLumiProducer(edm::ParameterSet const&);
-    virtual ~TestLumiProducer();
+    ~TestLumiProducer() override;
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
-    virtual void endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c);
+    void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+    void endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) override;
   };
 
   // -----------------------------------------------------------------

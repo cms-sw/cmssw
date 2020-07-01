@@ -1,24 +1,23 @@
+#include "CoralBase/Exception.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
+#include "RecoLuminosity/LumiProducer/interface/DBConfig.h"
 #include "RecoLuminosity/LumiProducer/interface/DataPipe.h"
 #include "RecoLuminosity/LumiProducer/interface/DataPipeFactory.h"
 #include "RecoLuminosity/LumiProducer/interface/Exception.h"
 #include "RecoLuminosity/LumiProducer/interface/RevisionDML.h"
-#include "RecoLuminosity/LumiProducer/interface/DBConfig.h"
-#include "RecoLuminosity/LumiProducer/interface/Exception.h"
 #include "RelationalAccess/ConnectionService.h"
+#include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/ITypeConverter.h"
-#include "RelationalAccess/ISchema.h"
-#include "CoralBase/Exception.h"
-#include <fstream>
-#include <stdexcept>
-#include <sstream>
-#include <iostream>
-#include <time.h>
-#include <unistd.h>
 #include <cstdio>
+#include <ctime>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
+#include <unistd.h>
 
 #include <boost/program_options.hpp>
 
@@ -168,7 +167,7 @@ int main(int argc, char** argv) {
     if (vm.count("debug")) {
       debug = true;
     }
-    if (!without_lumi && lumipath.size() == 0) {
+    if (!without_lumi && lumipath.empty()) {
       std::cerr << "[Error] lumipath[L] option is required \n";
       std::cerr << " please do " << argv[0] << " --help \n";
       return 1;

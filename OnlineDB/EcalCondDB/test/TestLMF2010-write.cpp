@@ -1,15 +1,15 @@
-#include <iostream>
-#include <iomanip>
-#include <string>
-#include <vector>
-#include <time.h>
-#include <cstdlib>
-#include <limits.h>
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 #include "OnlineDB/EcalCondDB/interface/LMFDefFabric.h"
 #include "OnlineDB/EcalCondDB/interface/LMFLaserPulseDat.h"
 #include "OnlineDB/EcalCondDB/interface/LMFPnPrimDat.h"
 #include "OnlineDB/EcalCondDB/interface/all_lmf_types.h"
+#include <climits>
+#include <cstdlib>
+#include <ctime>
+#include <iomanip>
+#include <iostream>
+#include <string>
+#include <vector>
 
 using namespace std;
 
@@ -189,7 +189,9 @@ public:
       int g = rand() % 3;
       tpDat.setData(logic_id, gain[g], rand(), rand(), rand());
       vector<float> random_data;
-      for (int k = 0; k < 8; k++) {
+      random_data.reserve(8);
+
+for (int k = 0; k < 8; k++) {
         random_data.push_back((float)rand() / static_cast<float>(RAND_MAX));
       }
       lcDat.setData(logic_id, random_data);
@@ -250,7 +252,7 @@ public:
   }
 
 private:
-  CondDBApp();  // hidden default constructor
+  CondDBApp() = delete;  // hidden default constructor
   EcalCondDBInterface *econn;
   run_t run;
 };

@@ -4,11 +4,11 @@
   *
   */
 
-#include <iostream>
-#include <string>
-#include <stdexcept>
-#include <assert.h>
+#include <cassert>
 #include <cstdio>
+#include <iostream>
+#include <stdexcept>
+#include <string>
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 

@@ -24,8 +24,8 @@ namespace edmtest {
   public:
     explicit CSCReadoutMapTest(edm::ParameterSet const& p) {}
     explicit CSCReadoutMapTest(int i) {}
-    virtual ~CSCReadoutMapTest() {}
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~CSCReadoutMapTest() override {}
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
   };

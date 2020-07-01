@@ -6,21 +6,23 @@ edm::*Cache templates and edm::*Producer classes
 for testing purposes only.
 
 ----------------------------------------------------------------------*/
-#include <iostream>
 #include <atomic>
-#include <vector>
-#include <map>
-#include <functional>
+#include <iostream>
+#include <memory>
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/HistoryAppender.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/src/WorkerT.h"
-#include "FWCore/Framework/interface/HistoryAppender.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
-#include "FWCore/Utilities/interface/GlobalIdentifier.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/GlobalIdentifier.h"
+#include <functional>
+#include <map>
+        #include <vector>
 
 namespace edmtest {
   namespace stream {
@@ -83,7 +85,7 @@ namespace edmtest {
         }
       }
 
-      ~GlobalIntProducer() {
+      ~GlobalIntProducer() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
         }
@@ -149,7 +151,7 @@ namespace edmtest {
         }
       }
 
-      ~RunIntProducer() {
+      ~RunIntProducer() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
         }
@@ -223,7 +225,7 @@ namespace edmtest {
         }
       }
 
-      ~LumiIntProducer() {
+      ~LumiIntProducer() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
         }
@@ -321,7 +323,7 @@ namespace edmtest {
         br = false;
       }
 
-      ~RunSummaryIntProducer() {
+      ~RunSummaryIntProducer() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
         }
@@ -441,7 +443,7 @@ namespace edmtest {
         bl = false;
       }
 
-      ~LumiSummaryIntProducer() {
+      ~LumiSummaryIntProducer() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
         }
@@ -493,7 +495,7 @@ namespace edmtest {
         ger = true;
       }
 
-      ~TestBeginRunProducer() {
+      ~TestBeginRunProducer() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
         }
@@ -543,7 +545,7 @@ namespace edmtest {
         ger = true;
       }
 
-      ~TestEndRunProducer() {
+      ~TestEndRunProducer() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
         }
@@ -605,7 +607,7 @@ namespace edmtest {
         gbl = false;
       }
 
-      ~TestBeginLumiBlockProducer() {
+      ~TestBeginLumiBlockProducer() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
         }
@@ -659,7 +661,7 @@ namespace edmtest {
         }
       }
 
-      ~TestEndLumiBlockProducer() {
+      ~TestEndLumiBlockProducer() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions") << m_count << " but it was supposed to be " << trans_;
         }
@@ -682,7 +684,7 @@ namespace edmtest {
       }
 
       static std::unique_ptr<Count> initializeGlobalCache(edm::ParameterSet const&) {
-        return std::unique_ptr<Count>(new Count());
+        return std::make_unique<Count>();
       }
 
       void accumulate(edm::Event const&, edm::EventSetup const&) override { ++(globalCache()->m_value); }
@@ -694,7 +696,7 @@ namespace edmtest {
         }
       }
 
-      ~TestAccumulator() {}
+      ~TestAccumulator() override {}
     };
 
   }  // namespace stream

@@ -55,9 +55,9 @@ namespace edmtest {
   class TestParentage : public edm::EDAnalyzer {
   public:
     explicit TestParentage(edm::ParameterSet const& pset);
-    virtual ~TestParentage();
+    ~TestParentage() override;
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& es) override;
+    void analyze(edm::Event const& e, edm::EventSetup const& es) override;
 
   private:
     edm::InputTag inputTag_;

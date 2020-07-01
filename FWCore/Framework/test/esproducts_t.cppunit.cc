@@ -22,8 +22,8 @@ class testEsproducts : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void constPtrTest();
   void uniquePtrTest();
   void sharedPtrTest();
@@ -43,8 +43,8 @@ void testEsproducts::constPtrTest() {
 
   ESProducts<const int*, const float*> product = returnPointers(&int_, &float_);
 
-  const int* readInt = 0;
-  const float* readFloat = 0;
+  const int* readInt = nullptr;
+  const float* readFloat = nullptr;
 
   product.moveTo(readInt);
   product.moveTo(readFloat);
@@ -100,9 +100,9 @@ void testEsproducts::manyTest() {
 
   ESProducts<const int*, const float*, const double*> product = returnManyPointers(&int_, &float_, &double_);
 
-  const int* readInt = 0;
-  const float* readFloat = 0;
-  const double* readDouble = 0;
+  const int* readInt = nullptr;
+  const float* readFloat = nullptr;
+  const double* readDouble = nullptr;
 
   product.moveTo(readInt);
   product.moveTo(readFloat);

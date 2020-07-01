@@ -19,7 +19,7 @@
 class ComparePtLUT : public edm::EDAnalyzer {
 public:
   explicit ComparePtLUT(const edm::ParameterSet&);
-  virtual ~ComparePtLUT();
+  ~ComparePtLUT() override;
 
 private:
   //virtual void beginJob();
@@ -28,7 +28,7 @@ private:
   //virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   //virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   void compareLUTs();
 

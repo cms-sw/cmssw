@@ -57,12 +57,12 @@
 class WriteVHDL : public edm::EDAnalyzer {
 public:
   explicit WriteVHDL(const edm::ParameterSet&);
-  ~WriteVHDL();
+  ~WriteVHDL() override;
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
   int getDCCNumber(int iTower, int iSec);
   int getDCC(int iSec);
   int getTBNumber(int iTower);
@@ -521,7 +521,7 @@ void WriteVHDL::prepareEncdap4thPlaneConnections(edm::ESHandle<RPCGeometry> rpcG
 
   // build map of used TB inputs
   for (TrackingGeometry::DetContainer::const_iterator it = rpcGeom->dets().begin(); it != rpcGeom->dets().end(); ++it) {
-    if (dynamic_cast<const RPCRoll*>(*it) == 0)
+    if (dynamic_cast<const RPCRoll*>(*it) == nullptr)
       continue;
     RPCRoll const* roll = dynamic_cast<RPCRoll const*>(*it);
     int detId = roll->id().rawId();
@@ -580,7 +580,7 @@ void WriteVHDL::prepareEncdap4thPlaneConnections(edm::ESHandle<RPCGeometry> rpcG
 
   for (TrackingGeometry::DetContainer::const_iterator it = rpcGeom->dets().begin(); it != rpcGeom->dets().end(); ++it) {
     RPCRoll const* roll = dynamic_cast<RPCRoll const*>(*it);
-    if (roll == 0)
+    if (roll == nullptr)
       continue;
     RPCDetId d = roll->id();
     if (std::abs(d.region()) != 1)
@@ -599,7 +599,7 @@ void WriteVHDL::prepareEncdap4thPlaneConnections(edm::ESHandle<RPCGeometry> rpcG
     for (TrackingGeometry::DetContainer::const_iterator it3 = rpcGeom->dets().begin(); it3 != rpcGeom->dets().end();
          ++it3) {
       RPCRoll const* roll3 = dynamic_cast<RPCRoll const*>(*it3);
-      if (roll3 == 0)
+      if (roll3 == nullptr)
         continue;
       RPCDetId d3 = roll3->id().rawId();
       if (d3 != matching4stDetId)
@@ -760,7 +760,7 @@ std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, 
 
   bool beg = true;
   for (TrackingGeometry::DetContainer::const_iterator it = rpcGeom->dets().begin(); it != rpcGeom->dets().end(); ++it) {
-    if (dynamic_cast<const RPCRoll*>(*it) == 0)
+    if (dynamic_cast<const RPCRoll*>(*it) == nullptr)
       continue;
     RPCRoll const* roll = dynamic_cast<RPCRoll const*>(*it);
 

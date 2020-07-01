@@ -76,13 +76,13 @@ struct Hydjet2Event {
 class Hydjet2Analyzer : public edm::EDAnalyzer {
 public:
   explicit Hydjet2Analyzer(const edm::ParameterSet &);
-  ~Hydjet2Analyzer();
+  ~Hydjet2Analyzer() override;
 
 private:
-  virtual void beginRun(const edm::Run &, const edm::EventSetup &);
-  virtual void beginJob();
-  virtual void analyze(const edm::Event &, const edm::EventSetup &);
-  virtual void endJob();
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
+  void beginJob() override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void endJob() override;
   // ----------member data ---------------------------
   std::ofstream out_b;
   std::string fBFileName;

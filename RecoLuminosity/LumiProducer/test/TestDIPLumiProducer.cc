@@ -24,10 +24,10 @@ using namespace edm;
 class TestDIPLumiProducer : public edm::EDAnalyzer {
 public:
   explicit TestDIPLumiProducer(edm::ParameterSet const&);
-  virtual ~TestDIPLumiProducer();
+  ~TestDIPLumiProducer() override;
 
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
-  virtual void endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c);
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+  void endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) override;
 };
 
 // -----------------------------------------------------------------

@@ -77,8 +77,8 @@ class testdependentrecord : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() { m_scheduler = std::make_unique<tbb::task_scheduler_init>(1); }
-  void tearDown() {}
+  void setUp() override { m_scheduler = std::make_unique<tbb::task_scheduler_init>(1); }
+  void tearDown() override {}
 
   void dependentConstructorTest();
   void dependentFinder1Test();
@@ -1297,8 +1297,8 @@ void testdependentrecord::oneOfTwoRecordTest() {
       depRecord.getRecord<Dummy2Record>();
     } catch (edm::eventsetup::NoRecordException<Dummy2Record>& e) {
       //make sure that the record name appears in the error message.
-      CPPUNIT_ASSERT(0 != strstr(e.what(), "DepOn2Record"));
-      CPPUNIT_ASSERT(0 != strstr(e.what(), "Dummy2Record"));
+      CPPUNIT_ASSERT(nullptr != strstr(e.what(), "DepOn2Record"));
+      CPPUNIT_ASSERT(nullptr != strstr(e.what(), "Dummy2Record"));
       // std::cout<<e.what()<<std::endl;
     }
   }

@@ -159,7 +159,7 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
 
   //book per layer plots
   std::map<int, TH1D*> probNoiseAboveHalfMip_layerMap;
-  for (auto lay : layerRadiusMap_)
+  for (const auto& lay : layerRadiusMap_)
     probNoiseAboveHalfMip_layerMap[lay.first] = fs->make<TH1D>(Form("probNoiseAboveHalfMip_layer%d", lay.first),
                                                                "",
                                                                hgcrocMap_[lay.first].size() - 1,

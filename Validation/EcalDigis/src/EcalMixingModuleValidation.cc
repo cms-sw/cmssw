@@ -192,7 +192,9 @@ void EcalMixingModuleValidation::dqmEndRun(const edm::Run& run, const edm::Event
   // add shapes for each bunch crossing and divide the digi by the result
 
   std::vector<MonitorElement*> theBunches;
-  for (int i = 0; i < nBunch; i++) {
+  theBunches.reserve(nBunch);
+
+        for (int i = 0; i < nBunch; i++) {
     theBunches.push_back(meEBBunchShape_[i]);
   }
   bunchSumTest(theBunches, meEBShape_, meEBShapeRatio_, EcalDataFrame::MAXSAMPLES);

@@ -17,8 +17,8 @@ class testAssociationNew : public CppUnit::TestFixture {
 
 public:
   testAssociationNew();
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void checkAll();
   void test(const edm::Association<CVal> &);
   CVal k;

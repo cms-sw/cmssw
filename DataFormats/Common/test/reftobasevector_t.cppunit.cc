@@ -15,8 +15,8 @@ class testRefToBaseVector : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void check();
 };
 
@@ -30,17 +30,17 @@ namespace testreftobase {
   };
 
   struct Inherit1 : public Base {
-    virtual int val() const { return 1; }
+    int val() const override { return 1; }
   };
   struct Inherit2 : public Base {
-    virtual int val() const { return 2; }
+    int val() const override { return 2; }
   };
 }  // namespace testreftobase
 
 using namespace testreftobase;
 
 void do_some_tests(edm::RefToBaseVector<Base> x) {
-  edm::RefToBaseVector<Base> copy(x);
+  const edm::RefToBaseVector<Base>& copy(x);
 
   CPPUNIT_ASSERT(x.empty() == copy.empty());
   CPPUNIT_ASSERT(x.size() == copy.size());
@@ -65,7 +65,7 @@ void testRefToBaseVector::check() {
   rv2.push_back(Ref<std::vector<Inherit2> >(h2, 1));
 
   RefToBaseVector<Base> empty;
-  RefToBaseVector<Base> copy_of_empty(empty);
+  const RefToBaseVector<Base>& copy_of_empty(empty);
 
   CPPUNIT_ASSERT(empty == copy_of_empty);
 

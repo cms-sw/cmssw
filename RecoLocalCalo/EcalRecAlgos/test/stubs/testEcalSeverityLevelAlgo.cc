@@ -16,7 +16,7 @@ public:
   EcalSeverityLevelAlgoAnalyzer(const edm::ParameterSet& ps);
 
 protected:
-  void analyze(edm::Event const& iEvent, const edm::EventSetup& iSetup);
+  void analyze(edm::Event const& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   TH1F* shisto_;

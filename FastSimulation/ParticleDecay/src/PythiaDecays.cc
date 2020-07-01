@@ -4,12 +4,16 @@
 #include "FWCore/ServiceRegistry/interface/RandomEngineSentry.h"
 
 #include <Pythia8/Pythia.h>
+
+
+#include <memory>
+
 #include "Pythia8Plugins/HepMC2.h"
 
 PythiaDecays::PythiaDecays() {
   // inspired by method Pythia8Hadronizer::residualDecay() in GeneratorInterface/Pythia8Interface/src/Py8GunBase.cc
-  decayer.reset(new Pythia8::Pythia);
-  p8RndmEngine.reset(new gen::P8RndmEngine);
+  decayer = std::make_unique<Pythia8::Pythia>();
+  p8RndmEngine = std::make_unique<gen::P8RndmEngine>();
   decayer->setRndmEnginePtr(p8RndmEngine.get());
   decayer->settings.flag("ProcessLevel:all", false);
   decayer->settings.flag("PartonLevel:FSRinResonances", false);

@@ -20,11 +20,11 @@ DBWriter::DBWriter(const edm::ParameterSet& ps) {
   std::string type(ps.getUntrackedParameter<std::string>("Type"));
   // Create the corrector and set the parameters
   if (type == "scale")
-    corrector_.reset(new MomentumScaleCorrector(ps.getUntrackedParameter<std::string>("CorrectionsIdentifier")));
+    corrector_ = std::make_unique<MomentumScaleCorrector>(ps.getUntrackedParameter<std::string>("CorrectionsIdentifier"));
   else if (type == "resolution")
-    corrector_.reset(new ResolutionFunction(ps.getUntrackedParameter<std::string>("CorrectionsIdentifier")));
+    corrector_ = std::make_unique<ResolutionFunction>(ps.getUntrackedParameter<std::string>("CorrectionsIdentifier"));
   else if (type == "background")
-    corrector_.reset(new BackgroundFunction(ps.getUntrackedParameter<std::string>("CorrectionsIdentifier")));
+    corrector_ = std::make_unique<BackgroundFunction>(ps.getUntrackedParameter<std::string>("CorrectionsIdentifier"));
   else {
     std::cout << "Error: unrecognized type. Use one of those: 'scale', 'resolution', 'background'" << std::endl;
     exit(1);

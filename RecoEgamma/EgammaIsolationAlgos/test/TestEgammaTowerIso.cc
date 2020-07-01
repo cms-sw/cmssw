@@ -9,14 +9,14 @@
 
 struct TestEgammaTowerIsolation : public edm::EDAnalyzer {
   explicit TestEgammaTowerIsolation(const edm::ParameterSet&) {}
-  ~TestEgammaTowerIsolation() {}
+  ~TestEgammaTowerIsolation() override {}
 
   //  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob() {}
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {}
+  void beginJob() override {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override {}
 
   std::string towerLabel = "towerMaker";
 };

@@ -20,9 +20,9 @@ class TestDataFrame : public CppUnit::TestFixture {
 
 public:
   TestDataFrame();
-  ~TestDataFrame() {}
-  void setUp() {}
-  void tearDown() {}
+  ~TestDataFrame() override {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void default_ctor();
   void filling();
@@ -47,7 +47,7 @@ void TestDataFrame::default_ctor() {
   edm::DataFrameContainer frames(10, 2);
   CPPUNIT_ASSERT(frames.stride() == 10);
   CPPUNIT_ASSERT(frames.subdetId() == 2);
-  CPPUNIT_ASSERT(frames.size() == 0);
+  CPPUNIT_ASSERT(frames.empty());
   frames.resize(3);
   CPPUNIT_ASSERT(frames.size() == 3);
   edm::DataFrame df = frames[1];

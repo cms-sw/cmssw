@@ -30,8 +30,8 @@ using namespace edm;
 class printPartonJet : public edm::EDAnalyzer {
 public:
   explicit printPartonJet(const edm::ParameterSet&);
-  ~printPartonJet(){};
-  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  ~printPartonJet() override{};
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   edm::EDGetTokenT<View<Candidate> > sourceToken_;

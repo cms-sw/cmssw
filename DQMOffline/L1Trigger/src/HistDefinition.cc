@@ -32,14 +32,16 @@ namespace dqmoffline {
       std::vector<std::string> names = ps.getParameterNames();
       std::vector<unsigned int> map_values;
 
-      for (auto const &imap : mapping) {
+      map_values.reserve(mapping.size());
+
+for (auto const &imap : mapping) {
         map_values.push_back(imap.second);
       }
       unsigned int max_size = *std::max_element(map_values.begin(), map_values.end());
       max_size = std::max(max_size, (unsigned int)mapping.size());
       definitions.resize(max_size);
 
-      for (auto name : names) {
+      for (const auto& name : names) {
         if (mapping.find(name) != mapping.end()) {
           const edm::ParameterSet &hd(ps.getParameter<edm::ParameterSet>(name));
           definitions[mapping.at(name)] = HistDefinition(hd);

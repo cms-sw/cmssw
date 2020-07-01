@@ -31,7 +31,7 @@ namespace edmtest {
     typedef edm::AssociationMap<edm::OneToOne<edm::View<int>, edm::View<int>>> AssocOneToOneView;
 
     explicit AssociationMapAnalyzer(edm::ParameterSet const&);
-    virtual void analyze(edm::StreamID, edm::Event const& event, edm::EventSetup const&) const override;
+    void analyze(edm::StreamID, edm::Event const& event, edm::EventSetup const&) const override;
 
     edm::EDGetTokenT<std::vector<int>> inputToken1_;
     edm::EDGetTokenT<std::vector<int>> inputToken2_;

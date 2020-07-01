@@ -69,12 +69,12 @@ using namespace std;
 class BlockAnalyzer : public edm::EDAnalyzer {
 public:
   explicit BlockAnalyzer(const edm::ParameterSet&);
-  ~BlockAnalyzer();
+  ~BlockAnalyzer() override;
 
 private:
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& iSetup);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
   double InvMass(const vector<TLorentzVector>& par);
 
   ParameterSet conf_;
@@ -159,7 +159,7 @@ void BlockAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   vector<reco::PFBlock> theBlocks = *(thePFBlockCollection.product());
 
-  if (theBlocks.size() > 0) {
+  if (!theBlocks.empty()) {
     // loop over the pfblocks (for each event you have > 1 blocks)
     for (PFBlockCollection::const_iterator iBlock = theBlocks.begin(); iBlock != theBlocks.end(); iBlock++) {
       PFBlock::LinkData linkData = iBlock->linkData();
@@ -182,7 +182,7 @@ void BlockAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
               iEle, linkData, ecalAssoPFClusters, reco::PFBlockElement::ECAL, reco::PFBlock::LINKTEST_ALL);
 
           // loop over the ECAL clusters linked to the iEle
-          if (ecalAssoPFClusters.size() > 0) {
+          if (!ecalAssoPFClusters.empty()) {
             // this just to get the first element (the closest)
             //	    unsigned int ecalTrack_index = ecalAssoPFClusters.begin()->second;
 
@@ -206,7 +206,7 @@ void BlockAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
               std::multimap<double, unsigned int> associatedTracks;
               iBlock->associatedElements(
                   itecal->second, linkData, associatedTracks, reco::PFBlockElement::TRACK, reco::PFBlock::LINKTEST_ALL);
-              if (associatedTracks.size() > 0) {
+              if (!associatedTracks.empty()) {
                 for (std::multimap<double, unsigned int>::iterator ittrack = associatedTracks.begin();
                      ittrack != associatedTracks.end();
                      ++ittrack) {

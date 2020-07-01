@@ -69,10 +69,10 @@ std::string TestCompareDDSpecsDumpFiles::clean(const std::string& in) {
   std::string str(in);
   boost::trim(str);
   size_t found1;
-  found1 = str.find("/");
+  found1 = str.find('/');
   if (found1 != std::string::npos) {
     size_t found2;
-    found2 = str.find(" ");
+    found2 = str.find(' ');
     if (found2 != std::string::npos) {
       str.erase(found1, found2);
     }

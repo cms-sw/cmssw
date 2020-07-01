@@ -46,7 +46,7 @@ private:
     }
     std::cout << "Number of particles = " << nup_ << std::endl;
 
-    if (evt->pdf() != NULL) {
+    if (evt->pdf() != nullptr) {
       std::cout << "PDF scale = " << std::setw(14) << std::fixed << evt->pdf()->scalePDF << std::endl;
       std::cout << "PDF 1 : id = " << std::setw(14) << std::fixed << evt->pdf()->id.first << " x = " << std::setw(14)
                 << std::fixed << evt->pdf()->x.first << " xPDF = " << std::setw(14) << std::fixed
@@ -62,7 +62,7 @@ private:
                 << std::setw(14) << std::fixed << (pup_[icount])[2] << std::setw(14) << std::fixed << (pup_[icount])[3]
                 << std::setw(14) << std::fixed << (pup_[icount])[4] << std::endl;
     }
-    if (evt->weights().size()) {
+    if (!evt->weights().empty()) {
       std::cout << "weights:" << std::endl;
       for (size_t iwgt = 0; iwgt < evt->weights().size(); ++iwgt) {
         const LHEEventProduct::WGT& wgt = evt->weights().at(iwgt);

@@ -20,7 +20,7 @@ namespace edmtest {
   class TrackOfThingsProducer : public edm::one::EDProducer<> {
   public:
     explicit TrackOfThingsProducer(edm::ParameterSet const&);
-    virtual ~TrackOfThingsProducer();
+    ~TrackOfThingsProducer() override;
 
     void produce(edm::Event&, edm::EventSetup const&) override;
 

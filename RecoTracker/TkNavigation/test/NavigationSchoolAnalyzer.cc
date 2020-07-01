@@ -46,11 +46,11 @@
 class NavigationSchoolAnalyzer : public edm::EDAnalyzer {
 public:
   explicit NavigationSchoolAnalyzer(const edm::ParameterSet&);
-  ~NavigationSchoolAnalyzer();
+  ~NavigationSchoolAnalyzer() override;
 
 private:
-  virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginRun(edm::Run const& run, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   std::string theNavigationSchoolName;
   const TrackerTopology* tTopo;

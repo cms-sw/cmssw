@@ -13,8 +13,8 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
+#include <cstdio>
 #include <fstream>
-#include <stdio.h>
 #include <iostream>
 
 using namespace std;
@@ -112,7 +112,7 @@ void SiPixel2DTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const 
   }
 
   for (const auto& it : pDD->detUnits()) {
-    if (it != 0) {
+    if (it != nullptr) {
       // Here is the actual looping step over all DetIds:
       DetId detid = it->geographicalId();
       const DetId detidc = it->geographicalId();

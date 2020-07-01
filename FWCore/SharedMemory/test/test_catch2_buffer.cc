@@ -1,7 +1,7 @@
 #include "catch.hpp"
-#include <stdio.h>
-#include <string>
 #include <algorithm>
+#include <cstdio>
+#include <string>
 
 #include "FWCore/SharedMemory/interface/WriteBuffer.h"
 #include "FWCore/SharedMemory/interface/ReadBuffer.h"

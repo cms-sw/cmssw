@@ -20,10 +20,10 @@
 class testMaterialEffects : public DQMEDAnalyzer {
 public:
   explicit testMaterialEffects(const edm::ParameterSet&);
-  ~testMaterialEffects(){};
+  ~testMaterialEffects() override{};
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:
@@ -68,26 +68,26 @@ private:
 };
 
 testMaterialEffects::testMaterialEffects(const edm::ParameterSet& p)
-    : mySimEvent(2, static_cast<FSimEvent*>(0)),
-      h0(2, static_cast<MonitorElement*>(0)),
-      h1(2, static_cast<MonitorElement*>(0)),
-      h2(2, static_cast<MonitorElement*>(0)),
-      h3(2, static_cast<MonitorElement*>(0)),
-      h4(2, static_cast<MonitorElement*>(0)),
-      h5(2, static_cast<MonitorElement*>(0)),
-      h6(2, static_cast<MonitorElement*>(0)),
-      h7(2, static_cast<MonitorElement*>(0)),
-      h8(2, static_cast<MonitorElement*>(0)),
-      h9(2, static_cast<MonitorElement*>(0)),
-      h10(2, static_cast<MonitorElement*>(0)),
-      h11(2, static_cast<MonitorElement*>(0)),
-      h12(2, static_cast<MonitorElement*>(0)),
-      h13(2, static_cast<MonitorElement*>(0)),
-      h14(2, static_cast<MonitorElement*>(0)),
-      h15(2, static_cast<MonitorElement*>(0)),
-      h16(2, static_cast<MonitorElement*>(0)),
-      h17(2, static_cast<MonitorElement*>(0)),
-      htmp(2, static_cast<MonitorElement*>(0)),
+    : mySimEvent(2, static_cast<FSimEvent*>(nullptr)),
+      h0(2, static_cast<MonitorElement*>(nullptr)),
+      h1(2, static_cast<MonitorElement*>(nullptr)),
+      h2(2, static_cast<MonitorElement*>(nullptr)),
+      h3(2, static_cast<MonitorElement*>(nullptr)),
+      h4(2, static_cast<MonitorElement*>(nullptr)),
+      h5(2, static_cast<MonitorElement*>(nullptr)),
+      h6(2, static_cast<MonitorElement*>(nullptr)),
+      h7(2, static_cast<MonitorElement*>(nullptr)),
+      h8(2, static_cast<MonitorElement*>(nullptr)),
+      h9(2, static_cast<MonitorElement*>(nullptr)),
+      h10(2, static_cast<MonitorElement*>(nullptr)),
+      h11(2, static_cast<MonitorElement*>(nullptr)),
+      h12(2, static_cast<MonitorElement*>(nullptr)),
+      h13(2, static_cast<MonitorElement*>(nullptr)),
+      h14(2, static_cast<MonitorElement*>(nullptr)),
+      h15(2, static_cast<MonitorElement*>(nullptr)),
+      h16(2, static_cast<MonitorElement*>(nullptr)),
+      h17(2, static_cast<MonitorElement*>(nullptr)),
+      htmp(2, static_cast<MonitorElement*>(nullptr)),
       tmpRadius(2, static_cast<double>(0.)),
       tmpLength(2, static_cast<double>(0.)) {
   particleFilter_ = p.getParameter<edm::ParameterSet>("TestParticleFilter");

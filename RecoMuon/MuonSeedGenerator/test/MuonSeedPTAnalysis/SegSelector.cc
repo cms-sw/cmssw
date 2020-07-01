@@ -13,13 +13,13 @@
 #include "TFile.h"
 #include "TVector3.h"
 
-#include <iostream>
-#include <fstream>
-#include <map>
-#include <utility>
-#include <string>
-#include <stdio.h>
 #include <algorithm>
+#include <cstdio>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <string>
+#include <utility>
 
 //DEFINE_FWK_MODULE(SegSelector);
 using namespace std;
@@ -382,7 +382,7 @@ void SegSelector::DTSimHitFit(ESHandle<DTGeometry> dtGeom) {
     if (i == 2) {
       sp = sp2;
     }
-    if ((i == 3) && (sp2.size() > 0))
+    if ((i == 3) && (!sp2.empty()))
       continue;
     if (i == 3) {
       sp = sp1;
