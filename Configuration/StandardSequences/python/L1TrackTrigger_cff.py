@@ -7,4 +7,12 @@ from L1Trigger.TrackerDTC.Producer_cff import *
 #L1TrackTrigger=cms.Sequence(TrackTriggerClustersStubs*TrackTriggerAssociatorClustersStubs*TrackTriggerTTTracks*TrackTriggerAssociatorTracks)
 L1TrackTrigger=cms.Sequence(TrackTriggerClustersStubs*TrackTriggerAssociatorClustersStubs*TrackerDTCProducer)
 
+# Customisation to enable TTTracks in geometry D41 and later (corresponding to phase2_trackerV14 or later). Includes the HGCAL L1 trigger
+_tttracks_l1tracktrigger = L1TrackTrigger.copy()
+_tttracks_l1tracktrigger = cms.Sequence(_tttracks_l1tracktrigger + L1PromptExtendedHybridTracksWithAssociators)
+
+from Configuration.Eras.Modifier_phase2_trackerV14_cff import phase2_trackerV14
+from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger
+(phase2_trigger & phase2_trackerV14).toReplaceWith( L1TrackTrigger, _tttracks_l1tracktrigger )
+
 TTStubAlgorithm_official_Phase2TrackerDigi_.zMatchingPS = True
