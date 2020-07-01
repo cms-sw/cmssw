@@ -364,10 +364,7 @@ process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
                             authenticationPath = cms.untracked.string('')
                            ),
 
-    ## Produce a (local) SQLITE FILE ...
-    #connect = cms.string('sqlite_file:BeamSpotOnlineLegacy.db'),
-    #preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineLegacy.db'),
-    ## ... or upload to CondDB
+    # Upload to CondDB
     connect = cms.string('oracle://cms_orcoff_prep/CMS_CONDITIONS'),
     preLoadConnectionString = cms.untracked.string('frontier://FrontierPrep/CMS_CONDITIONS'),
 
@@ -382,6 +379,11 @@ process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
         onlyAppendUpdatePolicy = cms.untracked.bool(True)
     ))
 )
+
+# If not live: produce a (local) SQLITE FILE
+if not live:
+    process.OnlineDBOutputService.connect = cms.string('sqlite_file:BeamSpotOnlineLegacy.db')
+    process.OnlineDBOutputService.preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineLegacy.db')
 
 #---------
 # Final path
