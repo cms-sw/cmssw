@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
@@ -20,11 +20,11 @@
 
 //----------------------------------------------------------------------------------------------------
 
-class PPSLocalTrackLiteReAligner : public edm::stream::EDProducer<> {
+class PPSLocalTrackLiteReAligner : public edm::global::EDProducer<> {
 public:
   explicit PPSLocalTrackLiteReAligner(const edm::ParameterSet &);
 
-  void produce(edm::Event &, const edm::EventSetup &) override;
+  void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &);
 
@@ -40,7 +40,8 @@ private:
 
 PPSLocalTrackLiteReAligner::PPSLocalTrackLiteReAligner(const edm::ParameterSet &iConfig)
     : inputTrackToken_(consumes<CTPPSLocalTrackLiteCollection>(iConfig.getParameter<edm::InputTag>("inputTrackTag"))),
-      alignmentToken_(esConsumes<CTPPSRPAlignmentCorrectionsData, RPRealAlignmentRecord>(iConfig.getParameter<edm::ESInputTag>("alignmentTag"))),
+      alignmentToken_(esConsumes<CTPPSRPAlignmentCorrectionsData, RPRealAlignmentRecord>(
+          iConfig.getParameter<edm::ESInputTag>("alignmentTag"))),
       outputTrackTag_(iConfig.getParameter<std::string>("outputTrackTag")) {
   produces<CTPPSLocalTrackLiteCollection>(outputTrackTag_);
 }
@@ -57,28 +58,24 @@ void PPSLocalTrackLiteReAligner::fillDescriptions(edm::ConfigurationDescriptions
 
   desc.add<std::string>("outputTrackTag", "")->setComment("tag of the output CTPPSLocalTrackLiteCollection");
 
-  descr.add("ctppsLocalTrackLiteReAligner", desc);
+  descr.add("ppsLocalTrackLiteReAligner", desc);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void PPSLocalTrackLiteReAligner::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void PPSLocalTrackLiteReAligner::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
   // get alignment corrections
-  auto const& alignment = iSetup.getData(alignmentToken_);
-
-  // get input
-  edm::Handle<CTPPSLocalTrackLiteCollection> hInputTracks;
-  iEvent.getByToken(inputTrackToken_, hInputTracks);
+  auto const &alignment = iSetup.getData(alignmentToken_);
 
   // prepare output
   auto output = std::make_unique<CTPPSLocalTrackLiteCollection>();
 
-  // apply alignment correction
-  for (const auto &tr : *hInputTracks) {
+  // apply alignment corrections
+  auto const &inputTracks = iEvent.get(inputTrackToken_);
+  for (const auto &tr : inputTracks) {
     auto it = alignment.getRPMap().find(tr.rpId());
     if (it == alignment.getRPMap().end()) {
-      edm::LogError("PPSLocalTrackLiteReAligner::produce")
-          << "Cannot find alignment correction for RP " << tr.rpId() << ". The track will be skipped.";
+      edm::LogError("PPS") << "Cannot find alignment correction for RP " << tr.rpId() << ". The track will be skipped.";
     } else {
       output->emplace_back(tr.rpId(),
                            tr.x() + it->second.getShX(),

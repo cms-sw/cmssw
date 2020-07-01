@@ -26,16 +26,16 @@ process.ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = cms.vstring(
 process.esPreferLocalAlignment = cms.ESPrefer("CTPPSRPAlignmentCorrectionsDataESSourceXML", "ctppsRPAlignmentCorrectionsDataESSourceXML")
 
 # track re-alignment module
-process.load("RecoPPS.Local.ctppsLocalTrackLiteReAligner_cfi")
+process.load("RecoPPS.Local.ppsLocalTrackLiteReAligner_cfi")
 
 # track plotter
 process.ctppsTrackDistributionPlotter = cms.EDAnalyzer("CTPPSTrackDistributionPlotter",
-  tagTracks = cms.InputTag("ctppsLocalTrackLiteReAligner"),
+  tagTracks = cms.InputTag("ppsLocalTrackLiteReAligner"),
   outputFile = cms.string("output_tracks_corr.root")
 )
 
 # processing sequences
 process.path = cms.Path(
-  process.ctppsLocalTrackLiteReAligner
+  process.ppsLocalTrackLiteReAligner
   * process.ctppsTrackDistributionPlotter
 )
