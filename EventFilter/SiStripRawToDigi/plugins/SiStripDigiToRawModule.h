@@ -54,7 +54,7 @@ namespace sistrip {
     edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > tokenDigi;
     edm::InputTag rawDataTag_;
     edm::EDGetTokenT<FEDRawDataCollection> tokenRawBuffer;
-    edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> tokenCabeling;
+    edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> tokenCabling;
   };
 
 }  // namespace sistrip

@@ -42,7 +42,7 @@ namespace sistrip {
         eventCounter_(0),
         inputDigiTag_(pset.getParameter<edm::InputTag>("InputDigis")),
         rawDataTag_(pset.getParameter<edm::InputTag>("RawDataTag")),
-        tokenCabeling(esConsumes<SiStripFedCabling, SiStripFedCablingRcd>()) {
+        tokenCabling(esConsumes<SiStripFedCabling, SiStripFedCablingRcd>()) {
     if (edm::isDebugEnabled()) {
       LogDebug("DigiToRawModule") << "[sistrip::DigiToRawModule::DigiToRawModule]"
                                   << " Constructing object...";
@@ -156,7 +156,7 @@ namespace sistrip {
 
     auto buffers = std::make_unique<FEDRawDataCollection>();
 
-    edm::ESHandle<SiStripFedCabling> cabling = iSetup.getHandle(tokenCabeling);
+    edm::ESHandle<SiStripFedCabling> cabling = iSetup.getHandle(tokenCabling);
 
     //get buffer header from original rawdata
     edm::Handle<FEDRawDataCollection> rawbuffers;
