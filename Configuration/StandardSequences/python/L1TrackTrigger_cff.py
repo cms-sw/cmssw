@@ -7,4 +7,4 @@ from L1Trigger.TrackerDTC.Producer_cff import *
 #L1TrackTrigger=cms.Sequence(TrackTriggerClustersStubs*TrackTriggerAssociatorClustersStubs*TrackTriggerTTTracks*TrackTriggerAssociatorTracks)
 L1TrackTrigger=cms.Sequence(TrackTriggerClustersStubs*TrackTriggerAssociatorClustersStubs*TrackerDTCProducer)
 
-TTStubAlgorithm_official_Phase2TrackerDigi_.zMatchingPS = cms.bool(True)
+TTStubAlgorithm_official_Phase2TrackerDigi_.zMatchingPS = True
