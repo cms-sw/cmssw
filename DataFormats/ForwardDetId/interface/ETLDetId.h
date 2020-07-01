@@ -14,10 +14,10 @@
 
 class ETLDetId : public MTDDetId {
 public:
-  static const uint32_t kETLmoduleOffset = 7;
-  static const uint32_t kETLmoduleMask = 0x1FF;
-  static const uint32_t kETLmodTypeOffset = 5;
-  static const uint32_t kETLmodTypeMask = 0x3;
+  static const uint32_t kETLmoduleOffset = 5;    //7
+  static const uint32_t kETLmoduleMask = 0x7FF;  //0x1FF
+  static const uint32_t kETLmodTypeOffset = 3;   //5
+  static const uint32_t kETLmodTypeMask = 0x3;   //0x3
 
   static constexpr int kETLv1maxRing = 11;
   static constexpr int kETLv1maxModule = 176;
@@ -31,8 +31,14 @@ public:
   static const uint32_t kETLsectorMask = 0x3;
 
   static constexpr int kETLv4maxRing = 16;
-  static constexpr int kETLv4maxModule = 248;
+  static constexpr int kETLv4maxSector = 4;
+  static constexpr int kETLv4maxModule = 517;  //248
   static constexpr int kETLv4nDisc = 2;
+
+  static constexpr int kETLv5maxRing = 14;
+  static constexpr int kETLv5maxSector = 2;
+  static constexpr int kETLv5maxModule = 517;
+  static constexpr int kETLv5nDisc = kETLv4nDisc;
 
   static constexpr uint32_t kSoff = 4;
 
@@ -95,6 +101,8 @@ public:
   inline int nDisc() const {
     return (((((id_ >> kRodRingOffset) & kRodRingMask) - 1) >> kETLnDiscOffset) & kETLnDiscMask) + 1;
   }
+
+  uint32_t newForm(const uint32_t& rawid);
 };
 
 std::ostream& operator<<(std::ostream&, const ETLDetId&);
