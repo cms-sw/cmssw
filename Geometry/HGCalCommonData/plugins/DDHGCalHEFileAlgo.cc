@@ -52,13 +52,8 @@ protected:
                    double routF,
                    double zz,
                    DDCompactView& cpv);
-  void positionSensitive(const DDLogicalPart& glog,
-                         double rin,
-                         double rout,
-                         double zpos,
-                         int layertype,
-                         int layer,
-                         DDCompactView& cpv);
+  void positionSensitive(
+      const DDLogicalPart& glog, double rin, double rout, double zpos, int layertype, int layer, DDCompactView& cpv);
 
 private:
   HGCalGeomTools geomTools_;
@@ -119,10 +114,10 @@ DDHGCalHEFileAlgo::DDHGCalHEFileAlgo() {
 }
 
 void DDHGCalHEFileAlgo::initialize(const DDNumericArguments& nArgs,
-				   const DDVectorArguments& vArgs,
-				   const DDMapArguments&,
-				   const DDStringArguments& sArgs,
-				   const DDStringVectorArguments& vsArgs) {
+                                   const DDVectorArguments& vArgs,
+                                   const DDMapArguments&,
+                                   const DDStringArguments& sArgs,
+                                   const DDStringVectorArguments& vsArgs) {
   wafers_ = vsArgs["WaferNames"];
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: " << wafers_.size() << " wafers";
@@ -207,7 +202,8 @@ void DDHGCalHEFileAlgo::initialize(const DDNumericArguments& nArgs,
     copyNumberBot_.emplace_back(1);
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: " << materialsBot_.size() << " types of volumes in the bottom part";
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: " << materialsBot_.size()
+                                << " types of volumes in the bottom part";
   for (unsigned int i = 0; i < materialsBot_.size(); ++i)
     edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << namesBot_[i] << " of thickness " << layerThickBot_[i]
                                   << " filled with " << materialsBot_[i] << " first copy number " << copyNumberBot_[i];
@@ -229,10 +225,11 @@ void DDHGCalHEFileAlgo::initialize(const DDNumericArguments& nArgs,
   alpha_ = (1._pi) / sectors_;
   cosAlpha_ = cos(alpha_);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: zStart " << zMinBlock_ << " radius for wafer type separation uses "
-                                << rad100to200_.size() << " parameters; zmin " << zMinRadPar_ << " cutoff "
-                                << choiceType_ << ":" << nCutRadPar_ << ":" << fracAreaMin_ << " wafer width "
-                                << waferSize_ << " separations " << waferSepar_ << " sectors " << sectors_ << ":"
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: zStart " << zMinBlock_
+                                << " radius for wafer type separation uses " << rad100to200_.size()
+                                << " parameters; zmin " << zMinRadPar_ << " cutoff " << choiceType_ << ":"
+                                << nCutRadPar_ << ":" << fracAreaMin_ << " wafer width " << waferSize_
+                                << " separations " << waferSepar_ << " sectors " << sectors_ << ":"
                                 << convertRadToDeg(alpha_) << ":" << cosAlpha_;
   for (unsigned int k = 0; k < rad100to200_.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "[" << k << "] 100-200 " << rad100to200_[k] << " 200-300 " << rad200to300_[k];
@@ -242,7 +239,10 @@ void DDHGCalHEFileAlgo::initialize(const DDNumericArguments& nArgs,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "waferTypes with " << waferTypes_.size() << " entries";
   for (unsigned int k = 0; k < waferTypes_.size(); ++k)
-    edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << waferIndex_[k] << " (" << HGCalWaferIndex::waferLayer(waferIndex_[k]) << ", " << HGCalWaferIndex::waferU(waferIndex_[k]) << ", " << HGCalWaferIndex::waferV(waferIndex_[k]) << ") : " << waferTypes_[k];
+    edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << waferIndex_[k] << " ("
+                                  << HGCalWaferIndex::waferLayer(waferIndex_[k]) << ", "
+                                  << HGCalWaferIndex::waferU(waferIndex_[k]) << ", "
+                                  << HGCalWaferIndex::waferV(waferIndex_[k]) << ") : " << waferTypes_[k];
 #endif
   slopeB_ = vArgs["SlopeBottom"];
   zFrontB_ = vArgs["ZFrontBottom"];
@@ -311,8 +311,9 @@ void DDHGCalHEFileAlgo::constructLayers(const DDLogicalPart& module, DDCompactVi
 
       std::string name = names_[ii] + std::to_string(copy);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: Layer " << ly << ":" << ii << " Front " << zi << ", " << routF
-                                    << " Back " << zo << ", " << rinB << " superlayer thickness " << layerThick_[i];
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: Layer " << ly << ":" << ii << " Front " << zi << ", "
+                                    << routF << " Back " << zo << ", " << rinB << " superlayer thickness "
+                                    << layerThick_[i];
 #endif
       DDName matName(DDSplit(materials_[ii]).first, DDSplit(materials_[ii]).second);
       DDMaterial matter(matName);
@@ -391,15 +392,15 @@ void DDHGCalHEFileAlgo::constructLayers(const DDLogicalPart& module, DDCompactVi
 }
 
 void DDHGCalHEFileAlgo::positionMix(const DDLogicalPart& glog,
-				    const std::string& nameM,
-				    int copyM,
-				    double thick,
-				    const DDMaterial& matter,
-				    double rin,
-				    double rmid,
-				    double rout,
-				    double zz,
-				    DDCompactView& cpv) {
+                                    const std::string& nameM,
+                                    int copyM,
+                                    double thick,
+                                    const DDMaterial& matter,
+                                    double rin,
+                                    double rmid,
+                                    double rout,
+                                    double zz,
+                                    DDCompactView& cpv) {
   DDLogicalPart glog1;
   DDTranslation tran;
   DDRotation rot;
@@ -533,13 +534,8 @@ void DDHGCalHEFileAlgo::positionMix(const DDLogicalPart& glog,
   }
 }
 
-void DDHGCalHEFileAlgo::positionSensitive(const DDLogicalPart& glog,
-					  double rin,
-					  double rout,
-					  double zpos,
-					  int layertype,
-					  int layer,
-					  DDCompactView& cpv) {
+void DDHGCalHEFileAlgo::positionSensitive(
+    const DDLogicalPart& glog, double rin, double rout, double zpos, int layertype, int layer, DDCompactView& cpv) {
   static const double sqrt3 = std::sqrt(3.0);
   int layercenter = layerCenter_[layer];
   double r = 0.5 * (waferSize_ + waferSepar_);
@@ -550,9 +546,9 @@ void DDHGCalHEFileAlgo::positionSensitive(const DDLogicalPart& glog,
 #ifdef EDM_ML_DEBUG
   int ium(0), ivm(0), iumAll(0), ivmAll(0), kount(0), ntot(0), nin(0);
   std::vector<int> ntype(6, 0);
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: " << glog.ddname() << " rin:rout " << rin << ":" << rout << " zpos "
-                                << zpos << " N " << N << " for maximum u, v Offset; Shift " << xyoff.first << ":"
-                                << xyoff.second << " WaferSize " << (waferSize_ + waferSepar_);
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: " << glog.ddname() << " rin:rout " << rin << ":" << rout
+                                << " zpos " << zpos << " N " << N << " for maximum u, v Offset; Shift " << xyoff.first
+                                << ":" << xyoff.second << " WaferSize " << (waferSize_ + waferSepar_);
 #endif
   for (int u = -N; u <= N; ++u) {
     int iu = std::abs(u);
@@ -598,17 +594,19 @@ void DDHGCalHEFileAlgo::positionSensitive(const DDLogicalPart& glog,
           cpv.position(name, glog.ddname(), copy, tran, rotation);
 #ifdef EDM_ML_DEBUG
           ++ntype[type];
-          edm::LogVerbatim("HGCalGeom") << " DDHGCalHEFileAlgo: " << name << " number " << copy << " type " << layertype << ":" << type << " positioned in " << glog.ddname() << " at " << tran << " with " << rotation;
+          edm::LogVerbatim("HGCalGeom") << " DDHGCalHEFileAlgo: " << name << " number " << copy << " type " << layertype
+                                        << ":" << type << " positioned in " << glog.ddname() << " at " << tran
+                                        << " with " << rotation;
 #endif
         }
       }
     }
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: Maximum # of u " << ium << ":" << iumAll << " # of v " << ivm << ":"
-                                << ivmAll << " and " << nin << ":" << kount << ":" << ntot << " wafers (" << ntype[0]
-                                << ":" << ntype[1] << ":" << ntype[2] << ":" << ntype[3] << ":" << ntype[4] << ":"
-                                << ntype[5] << ") for " << glog.ddname() << " R " << rin << ":" << rout;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: Maximum # of u " << ium << ":" << iumAll << " # of v " << ivm
+                                << ":" << ivmAll << " and " << nin << ":" << kount << ":" << ntot << " wafers ("
+                                << ntype[0] << ":" << ntype[1] << ":" << ntype[2] << ":" << ntype[3] << ":" << ntype[4]
+                                << ":" << ntype[5] << ") for " << glog.ddname() << " R " << rin << ":" << rout;
 #endif
 }
 
