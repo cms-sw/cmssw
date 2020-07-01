@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -56,6 +57,7 @@ private:
   edm::ESWatcher<SiPixelQualityRcd> qualityWatcher;
   edm::InputTag label;
   edm::ESGetToken<SiPixelQuality, SiPixelQualityRcd> tSiPixelQuality;
+  edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> tCablingMap;
   int ndigis;
   int nwords;
   bool usePilotBlade;

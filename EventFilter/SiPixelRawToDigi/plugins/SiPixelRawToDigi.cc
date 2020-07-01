@@ -26,7 +26,6 @@
 
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/DetId/interface/DetIdCollection.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
 
@@ -91,6 +90,7 @@ SiPixelRawToDigi::SiPixelRawToDigi(const edm::ParameterSet& conf)
 
   //CablingMap could have a label //Tav
   cablingMapLabel = config_.getParameter<std::string>("CablingMapLabel");
+  tCablingMap = esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd>(edm::ESInputTag("", cablingMapLabel));
 }
 
 // -----------------------------------------------------------------------------
@@ -153,8 +153,7 @@ void SiPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
   // initialize cabling map or update if necessary
   if (recordWatcher.check(es)) {
     // cabling map, which maps online address (fed->link->ROC->local pixel) to offline (DetId->global pixel)
-    edm::ESTransientHandle<SiPixelFedCablingMap> cablingMap;
-    es.get<SiPixelFedCablingMapRcd>().get(cablingMapLabel, cablingMap);  //Tav
+    edm::ESHandle<SiPixelFedCablingMap> cablingMap = es.getHandle(tCablingMap);
     fedIds = cablingMap->fedIds();
     cabling_ = cablingMap->cablingTree();
     LogDebug("map version:") << cabling_->version();

@@ -123,6 +123,7 @@ private:
 
   edm::ESWatcher<SiPixelFedCablingMapRcd> watcherSiPixelFedCablingMap_;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
+  edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> cablingMapToken_;
 };
 
 #endif

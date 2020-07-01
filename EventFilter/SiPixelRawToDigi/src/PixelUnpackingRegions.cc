@@ -32,6 +32,7 @@ PixelUnpackingRegions::PixelUnpackingRegions(const edm::ParameterSet& conf, edm:
   dPhi_ = regPSet.getParameter<std::vector<double> >("deltaPhi");
   maxZ_ = regPSet.getParameter<std::vector<double> >("maxZ");
   trackerGeomToken_ = iC.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+  cablingMapToken_ = iC.esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd>();
 
   tBeamSpot = iC.consumes<reco::BeamSpot>(beamSpotTag_);
   for (unsigned int t = 0; t < inputs_.size(); t++)
@@ -76,8 +77,7 @@ void PixelUnpackingRegions::initialize(const edm::EventSetup& es) {
   // initialize cabling map or update it if necessary
   // and re-cache modules information
   if (watcherSiPixelFedCablingMap_.check(es)) {
-    edm::ESTransientHandle<SiPixelFedCablingMap> cablingMap;
-    es.get<SiPixelFedCablingMapRcd>().get(cablingMap);
+    edm::ESHandle<SiPixelFedCablingMap> cablingMap = es.getHandle(cablingMapToken_);
     cabling_ = cablingMap->cablingTree();
 
     // get the TrackerGeom
