@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoMET.METProducers.PFMET_cfi import pfMet as _pfMet
+from RecoMET.METProducers.pfMet_cfi import pfMet as _pfMet
 _pfMet.calculateSignificance = False
 l1PFMetCalo    = _pfMet.clone(src = "l1pfCandidates:Calo")
 l1PFMetPF      = _pfMet.clone(src = "l1pfCandidates:PF")
