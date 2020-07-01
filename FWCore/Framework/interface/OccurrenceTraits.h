@@ -432,7 +432,7 @@ namespace edm {
     using TransitionInfoType = ProcessBlockTransitionInfo;
     using Context = GlobalContext;
     static bool constexpr isEvent_ = false;
-    static Transition constexpr transition_ = Transition::BeginProcessBlock;
+    static Transition constexpr transition_ = Transition::AccessInputProcessBlock;
 
     static GlobalContext makeGlobalContext(MyPrincipal const& principal, ProcessContext const* processContext) {
       return GlobalContext(GlobalContext::Transition::kAccessInputProcessBlock,
