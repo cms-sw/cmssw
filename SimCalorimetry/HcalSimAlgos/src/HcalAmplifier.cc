@@ -70,6 +70,7 @@ void HcalAmplifier::applyQIEdelay(CaloSamples& cs, int delayQIE) const {
   int maxbin = cs.size();
   int precisebin = cs.preciseSize();
   CaloSamples data(detId, maxbin, precisebin);  // make a temporary copy
+  data = cs;
   data.setBlank();
   data.resetPrecise();
 
