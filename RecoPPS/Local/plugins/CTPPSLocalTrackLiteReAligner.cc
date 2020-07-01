@@ -29,18 +29,18 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &);
 
 private:
-  edm::EDGetTokenT<CTPPSLocalTrackLiteCollection> inputTrackToken_;
+  const edm::EDGetTokenT<CTPPSLocalTrackLiteCollection> inputTrackToken_;
 
-  std::string alignmentLabel_;
+  const edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, RPRealAlignmentRecord> alignmentToken_;
 
-  std::string outputTrackTag_;
+  const std::string outputTrackTag_;
 };
 
 //----------------------------------------------------------------------------------------------------
 
 CTPPSLocalTrackLiteReAligner::CTPPSLocalTrackLiteReAligner(const edm::ParameterSet &iConfig)
     : inputTrackToken_(consumes<CTPPSLocalTrackLiteCollection>(iConfig.getParameter<edm::InputTag>("inputTrackTag"))),
-      alignmentLabel_(iConfig.getParameter<std::string>("alignmentLabel")),
+      alignmentToken_(esConsumes<CTPPSRPAlignmentCorrectionsData, RPRealAlignmentRecord>(iConfig.getParameter<edm::ESInputTag>("alignmentTag"))),
       outputTrackTag_(iConfig.getParameter<std::string>("outputTrackTag")) {
   produces<CTPPSLocalTrackLiteCollection>(outputTrackTag_);
 }
@@ -53,7 +53,7 @@ void CTPPSLocalTrackLiteReAligner::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<edm::InputTag>("inputTrackTag", edm::InputTag("ctppsLocalTrackLiteProducer"))
       ->setComment("tag of the input CTPPSLocalTrackLiteCollection");
 
-  desc.add<std::string>("alignmentLabel", "")->setComment("label of the alignment data");
+  desc.add<edm::ESInputTag>("alignmentTag", edm::ESInputTag(""))->setComment("tag of the alignment data");
 
   desc.add<std::string>("outputTrackTag", "")->setComment("tag of the output CTPPSLocalTrackLiteCollection");
 
@@ -63,9 +63,8 @@ void CTPPSLocalTrackLiteReAligner::fillDescriptions(edm::ConfigurationDescriptio
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSLocalTrackLiteReAligner::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  // get alignment correction
-  edm::ESHandle<CTPPSRPAlignmentCorrectionsData> hAlignment;
-  iSetup.get<RPRealAlignmentRecord>().get(alignmentLabel_, hAlignment);
+  // get alignment corrections
+  auto const& alignment = iSetup.getData(alignmentToken_);
 
   // get input
   edm::Handle<CTPPSLocalTrackLiteCollection> hInputTracks;
@@ -76,8 +75,8 @@ void CTPPSLocalTrackLiteReAligner::produce(edm::Event &iEvent, const edm::EventS
 
   // apply alignment correction
   for (const auto &tr : *hInputTracks) {
-    auto it = hAlignment->getRPMap().find(tr.rpId());
-    if (it == hAlignment->getRPMap().end()) {
+    auto it = alignment.getRPMap().find(tr.rpId());
+    if (it == alignment.getRPMap().end()) {
       edm::LogError("CTPPSLocalTrackLiteReAligner::produce")
           << "Cannot find alignment correction for RP " << tr.rpId() << ". The track will be skipped.";
     } else {

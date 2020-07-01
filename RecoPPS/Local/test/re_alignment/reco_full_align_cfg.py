@@ -14,8 +14,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 # raw data source
 process.source = cms.Source("PoolSource",
-  #fileNames = cms.untracked.vstring(/store/data/Run2018D/ZeroBias/RAW/v1/000/320/688/00000/601A721D-AD95-E811-B21A-FA163E28A50A.root),
-  fileNames = cms.untracked.vstring("root://eoscms.cern.ch//eos/cms/store/group/phys_pps/sw_test_input/601A721D-AD95-E811-B21A-FA163E28A50A.root"),
+  fileNames = cms.untracked.vstring("/store/data/Run2018D/ZeroBias/RAW/v1/000/320/688/00000/601A721D-AD95-E811-B21A-FA163E28A50A.root"),
+  #fileNames = cms.untracked.vstring("root://eoscms.cern.ch//eos/cms/store/group/phys_pps/sw_test_input/601A721D-AD95-E811-B21A-FA163E28A50A.root"),
 
   inputCommands = cms.untracked.vstring(
     'drop *',
