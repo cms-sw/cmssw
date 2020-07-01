@@ -73,15 +73,16 @@ namespace trajectoryStateTransform {
     Basic3DVector<float> pos(tk.POCA());
     GlobalPoint gpos(pos);
     GlobalVector gmom = tk.momentum();
-
-    float speedOfLightConverted = CLHEP::c_light / 1.0E5;  // -2.99792458e-3f
-    double mMagneticFieldStrength = field->inTesla(tk.POCA()).z();
-    float trk_signedPt = speedOfLightConverted * mMagneticFieldStrength / tk.rInv();
-    int charge = (trk_signedPt / fabs(trk_signedPt)) > 0.f ? 1 : -1;
+    int charge = tk.rInv() > 0.f ? 1 : -1;
 
     GlobalTrajectoryParameters par(gpos, gmom, charge, field);
+    if (!withErr)
+      return FreeTrajectoryState(par);
     AlgebraicSymMatrix55 mat;
-    mat = mat + 1e-8;
+    int dim = 5;
+    for (int i = 0; i < dim; i++) {
+      mat(i, i) = 1e-8;
+    }
     CurvilinearTrajectoryError newError(mat);
 
     return FreeTrajectoryState(par, newError);
