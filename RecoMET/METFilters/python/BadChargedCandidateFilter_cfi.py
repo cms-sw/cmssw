@@ -10,6 +10,7 @@ BadChargedCandidateFilter = cms.EDFilter(
     minPtDiffRel = cms.double(0.00001),               # lower threshold on difference between pt of reco::muon->innerTrack and pfCandidate
     minMuonTrackRelErr = cms.double(2.0),          # minimum ptError/pt on muon best track
     innerTrackRelErr   = cms.double(1.0),          # minimum relPtErr on innerTrack
+    minDzBestTrack = cms.double(-1.0),
     minMuonPt     = cms.double(100.0),               # minimum muon pt 
     segmentCompatibility = cms.double(0.3),        # compatibility between the inner track and the segments in the muon spectrometer
 )
