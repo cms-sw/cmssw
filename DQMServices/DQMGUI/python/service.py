@@ -167,14 +167,14 @@ class GUIService:
         Adds additional property to the resulting JSON called dqmProperties
         """
 
-        data = await cls.get_rendered_image(me_descriptions, options)
+        data, error = await cls.get_rendered_image(me_descriptions, options)
         if data:
             data = data.decode('utf-8')
             obj = json.loads(data)
             obj['dqmProperties'] = { 'efficiency': options.efficiency }
-            return obj
+            return obj, error
         else:
-            return get_api_error(message='ME not found')
+            return get_api_error(message='ME not found'), error
 
 
     @classmethod

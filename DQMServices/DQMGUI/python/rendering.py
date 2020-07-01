@@ -72,7 +72,7 @@ class GUIRenderer:
         message = cls.__pack_message_for_renderer([rendering_info], options)
         data, error = await cls.__render(message)
 
-        return data
+        return data, error
     
 
     @classmethod
@@ -99,12 +99,12 @@ class GUIRenderer:
         # We can render either ScalarValue or TBufferFile (TH* object)
         root_object = rendering_infos[0].root_object
         if not isinstance(root_object, ScalarValue) and not isinstance(root_object, TBufferFile):
-            raise Exception('Only ScalarValue and TH* can be rendered.')
+            return b'crashed', -1
 
         # We can't overlay ScalarValue with TH*
         num_scalars = sum(isinstance(x.root_object, ScalarValue) for x in rendering_infos)
         if num_scalars != 0 and num_scalars != len(rendering_infos):
-            return b'error'
+            return b'error', -1
 
         # Pack the message for rendering context
         message = cls.__pack_message_for_renderer(rendering_infos, options, False)
@@ -113,10 +113,7 @@ class GUIRenderer:
             message = cls.__pack_message_for_renderer(rendering_infos, options, True)
             data, error = await cls.__render(message)
 
-        if error != 0:
-            data = b'error'
-
-        return data
+        return data, error
 
     
     @classmethod

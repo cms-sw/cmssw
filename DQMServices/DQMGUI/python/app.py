@@ -201,13 +201,13 @@ async def render_legacy(request):
 
     me_description = MEDescription(dataset, path, run, lumi)
 
-    data = await service.get_rendered_image([me_description], options)
+    data, error = await service.get_rendered_image([me_description], options)
 
     if data == b'crashed':
         return web.HTTPInternalServerError()
     elif data == b'error':
         return web.HTTPBadRequest()
-    return web.Response(body=data, content_type='image/png')
+    return web.Response(body=data, content_type='image/png', status = 200 if error == 0 else 500)
 
 
 async def render_v1(request):
@@ -224,13 +224,13 @@ async def render_v1(request):
 
     me_description = MEDescription(dataset, path, run, lumi)
 
-    data = await service.get_rendered_image([me_description], options)
+    data, error = await service.get_rendered_image([me_description], options)
 
     if data == b'crashed':
         return web.HTTPInternalServerError()
     elif data == b'error':
         return web.HTTPBadRequest()
-    return web.Response(body=data, content_type='image/png')
+    return web.Response(body=data, content_type='image/png', status = 200 if error == 0 else 500)
 
 
 async def render_overlay_legacy(request):
@@ -248,13 +248,13 @@ async def render_overlay_legacy(request):
         me_description = MEDescription(dataset, path, run, lumi)
         me_descriptions.append(me_description)
 
-    data = await service.get_rendered_image(me_descriptions, options)
+    data, error = await service.get_rendered_image(me_descriptions, options)
 
     if data == b'crashed':
         return web.HTTPInternalServerError()
     elif data == b'error':
         return web.HTTPBadRequest()
-    return web.Response(body=data, content_type='image/png')
+    return web.Response(body=data, content_type='image/png', status = 200 if error == 0 else 500)
 
 
 async def render_overlay_v1(request):
@@ -272,13 +272,13 @@ async def render_overlay_v1(request):
         me_description = MEDescription(dataset, path, run, lumi)
         me_descriptions.append(me_description)
 
-    data = await service.get_rendered_image(me_descriptions, options)
+    data, error = await service.get_rendered_image(me_descriptions, options)
 
     if data == b'crashed':
         return web.HTTPInternalServerError()
     elif data == b'error':
         return web.HTTPBadRequest()
-    return web.Response(body=data, content_type='image/png')
+    return web.Response(body=data, content_type='image/png', status= 200 if error == 0 else 500)
 
 
 async def jsroot_legacy(request):
@@ -299,13 +299,13 @@ async def jsroot_legacy(request):
     me_description = MEDescription(dataset, path, run, lumi)
     options = RenderingOptions(json=True)
 
-    data = await service.get_rendered_json([me_description], options)
+    data, error = await service.get_rendered_json([me_description], options)
 
     if data == b'crashed':
         return web.HTTPInternalServerError()
     elif data == b'error':
         return web.HTTPBadRequest()
-    return web.json_response(data)
+    return web.json_response(data, status = 200 if error == 0 else 500)
 
 
 async def jsroot_overlay(request):
@@ -323,13 +323,13 @@ async def jsroot_overlay(request):
 
     options = RenderingOptions(json=True)
 
-    data = await service.get_rendered_json(me_descriptions, options)
+    data, error = await service.get_rendered_json(me_descriptions, options)
 
     if data == b'crashed':
         return web.HTTPInternalServerError()
     elif data == b'error':
         return web.HTTPBadRequest()
-    return web.json_response(data)
+    return web.json_response(data, status = 200 if error == 0 else 500)
 
 
 async def available_lumis_v1(request):
