@@ -58,16 +58,36 @@ from L1Trigger.L1TGlobal.GlobalParameters_cff import *
 # soon to be removed when availble in GTs
 from L1Trigger.L1TTwinMux.fakeTwinMuxParams_cff import *
 
-# Customisation for the phase2_hgcal era. Includes the HGCAL L1 trigger
+# ########################################################################
+# ########################################################################
+#
+# Phase-2 
+#
+# ########################################################################
+# ########################################################################
+
+
+# ########################################################################
+# Phase-2 Trigger Primitives
+# ########################################################################
+_phase2_tp = SimL1EmulatorTask.copy()
+
+# HGCAL TP 
+# ########################################################################
 from  L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff import *
-_phase2_siml1emulator = SimL1EmulatorTask.copy()
-_phase2_siml1emulator.add(hgcalTriggerPrimitivesTask)
-
+_phase2_tp.add(hgcalTriggerPrimitivesTask)
+ 
+# --> add modules
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-from Configuration.Eras.Modifier_phase2_hgcalV11_cff import phase2_hgcalV11
-(phase2_hgcal & ~phase2_hgcalV11).toReplaceWith( SimL1EmulatorTask, _phase2_siml1emulator )
+phase2_hgcal.toReplaceWith( SimL1EmulatorTask , _phase2_tp )
 
-# Barrel EGamma
+
+# ########################################################################
+# Phase 2 L1T
+# ########################################################################
+_phase2_siml1emulator = SimL1EmulatorTask.copy()
+
+# Barrel and EndCap EGamma
 # ########################################################################
 from L1Trigger.L1CaloTrigger.L1EGammaCrystalsEmulatorProducer_cfi import *
 _phase2_siml1emulator.add(L1EGammaClusterEmuProducer)
@@ -75,16 +95,15 @@ _phase2_siml1emulator.add(L1EGammaClusterEmuProducer)
 from L1Trigger.L1CaloTrigger.l1EGammaEEProducer_cfi import *
 _phase2_siml1emulator.add(l1EGammaEEProducer)
 
+# --> add modules
 from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger
 phase2_trigger.toReplaceWith( SimL1EmulatorTask , _phase2_siml1emulator)
 
 
-
 # ########################################################################
-# TrackTrigger dependend modules below
+# Phase-2 L1T - TrackTrigger dependent modules
 # ########################################################################
 _phase2_siml1emulator_ttrack = SimL1EmulatorTask.copy()
-
 
 # Tk + StandaloneObj, including L1TkPrimaryVertex
 # ########################################################################
@@ -124,5 +143,6 @@ _phase2_siml1emulator_ttrack.add(l1PFJetsTask)
 l1PFMetsTask = cms.Task(l1PFMetCalo , l1PFMetPF , l1PFMetPuppi)
 _phase2_siml1emulator_ttrack.add(l1PFMetsTask)
 
+# --> add modules
 from Configuration.Eras.Modifier_phase2_trackerV14_cff import phase2_trackerV14
 (phase2_trigger & phase2_trackerV14).toReplaceWith( SimL1EmulatorTask , _phase2_siml1emulator_ttrack)
