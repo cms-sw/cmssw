@@ -168,10 +168,7 @@ if (process.runType.getRunType() == process.runType.pp_run or
                                 authenticationPath = cms.untracked.string('')
                                ),
 
-        ## Produce a (local) SQLITE FILE ...
-        #connect = cms.string('sqlite_file:BeamSpotOnlineHLT.db'),
-        #preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineHLT.db'),
-        ## ... or upload to CondDB
+        # Upload to CondDB
         connect = cms.string('oracle://cms_orcoff_prep/CMS_CONDITIONS'),
         preLoadConnectionString = cms.untracked.string('frontier://FrontierPrep/CMS_CONDITIONS'),
 
@@ -186,6 +183,11 @@ if (process.runType.getRunType() == process.runType.pp_run or
             onlyAppendUpdatePolicy = cms.untracked.bool(True)
         ))
     )
+
+    # If not live: produce a (local) SQLITE FILE
+    if unitTest:
+      process.OnlineDBOutputService.connect = cms.string('sqlite_file:BeamSpotOnlineHLT.db')
+      process.OnlineDBOutputService.preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineHLT.db')
 
     process.p = cms.Path( process.hltTriggerTypeFilter
                         * process.dqmcommon
