@@ -41,9 +41,10 @@ void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView& cpv) {
     DDFilteredView fv1(cpv, filter1);
     sensitives_ = getNames(fv1);
     edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute << " = "
-					   << value << " has " << sensitives_.size() << " elements";
+                                           << value << " has " << sensitives_.size() << " elements";
     for (unsigned int i = 0; i < sensitives_.size(); i++)
-      edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: sensitives[" << i << "] = " << sensitives_[i];
+      edm::LogVerbatim("MaterialBudgetFull")
+          << "MaterialBudgetHcalHistos: sensitives[" << i << "] = " << sensitives_[i];
     attribute = "Volume";
     value = "HF";
     DDSpecificsMatchesValueFilter filter2{DDValue(attribute, value, 0)};
@@ -53,12 +54,12 @@ void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView& cpv) {
     DDsvalues_type sv(fv2.mergedSpecifics());
     std::vector<double> temp = getDDDArray("Levels", sv);
     edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute << " = "
-					   << value << " has " << hfNames_.size() << " elements";
+                                           << value << " has " << hfNames_.size() << " elements";
     for (unsigned int i = 0; i < hfNames_.size(); i++) {
       int level = static_cast<int>(temp[i]);
       hfLevels_.push_back(level);
       edm::LogVerbatim("MaterialBudgetFull")
-	<< "MaterialBudgetHcalHistos:  HF[" << i << "] = " << hfNames_[i] << " at level " << hfLevels_[i];
+          << "MaterialBudgetHcalHistos:  HF[" << i << "] = " << hfNames_[i] << " at level " << hfLevels_[i];
     }
 
     std::string ecalRO[2] = {"EcalHitsEB", "EcalHitsEE"};
@@ -68,13 +69,14 @@ void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView& cpv) {
       DDSpecificsMatchesValueFilter filter3{DDValue(attribute, value, 0)};
       DDFilteredView fv3(cpv, filter3);
       std::vector<std::string> senstmp = getNames(fv3);
-      edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute << " = "
-					     << value << " has " << senstmp.size() << " elements";
+      edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute
+                                             << " = " << value << " has " << senstmp.size() << " elements";
       for (unsigned int i = 0; i < senstmp.size(); i++)
         sensitiveEC_.push_back(senstmp[i]);
     }
     for (unsigned int i = 0; i < sensitiveEC_.size(); i++)
-      edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos:sensitiveEC[" << i << "] = " << sensitiveEC_[i];
+      edm::LogVerbatim("MaterialBudgetFull")
+          << "MaterialBudgetHcalHistos:sensitiveEC[" << i << "] = " << sensitiveEC_[i];
   }
 }
 
@@ -188,8 +190,8 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
               ++nlayHB_;
           }
         }
-	edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Det " << det << " Layer " << lay << " Eta "
-					       << eta_ << " Phi " << phi_ / CLHEP::deg;
+        edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Det " << det << " Layer " << lay << " Eta "
+                                               << eta_ << " Phi " << phi_ / CLHEP::deg;
       } else if (layer_ == 1) {
         det = -1;
         lay = 2;
@@ -254,8 +256,8 @@ void MaterialBudgetHcalHistos::book() {
 
   double maxPhi = CLHEP::pi;
   edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Booking user histos === with " << binEta_
-					 << " bins in eta from " << -maxEta_ << " to " << maxEta_ << " and " << binPhi_
-					 << " bins in phi from " << -maxPhi << " to " << maxPhi;
+                                         << " bins in eta from " << -maxEta_ << " to " << maxEta_ << " and " << binPhi_
+                                         << " bins in phi from " << -maxPhi << " to " << maxPhi;
 
   std::string iter;
   // total X0
