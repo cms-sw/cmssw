@@ -288,15 +288,15 @@ namespace cscdqm {
       if (label_pair.find('=') != std::string::npos) {
         int nbin = strtol(label_pair.substr(0, label_pair.find('=')).c_str(), &stopstring, 10);
         std::string label = label_pair.substr(label_pair.find('=') + 1, label_pair.length());
-        while (label.find(''') != std::string::npos) {
-          label.erase(label.find('''), 1);
+        while (label.find('\'') != std::string::npos) {
+          label.erase(label.find('\''), 1);
+        }
+        labels[nbin] = label;
       }
-      labels[nbin] = label;
+      pos = tmp.find('|');
     }
-    pos = tmp.find('|');
-  }
-  return labels.size();
-}  // namespace cscdqm
+    return labels.size();
+  }  // namespace cscdqm
 
 /**
    * @brief  Book EMU histograms
