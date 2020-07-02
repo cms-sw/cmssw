@@ -478,7 +478,8 @@ phase2_tracker.toModify(FEVTEventContent,
         'keep Phase2TrackerDigiedmDetSetVector_mix_*_*',
         'keep *_TTClustersFromPhase2TrackerDigis_*_*',
         'keep *_TTStubsFromPhase2TrackerDigis_*_*',
-        'keep *_TrackerDTC_*_*'])
+        'keep *_TrackerDTC_*_*',
+        'keep *_*_Level1TTTracks_*'])
 phase2_muon.toModify(FEVTEventContent, 
     outputCommands = FEVTEventContent.outputCommands + ['keep *_muonGEMDigis_*_*'])
 run2_GEM_2017.toModify(FEVTEventContent, 
