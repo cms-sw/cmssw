@@ -227,18 +227,18 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
 
       const int chamber_bin = getDetOccXBin(gem_id, gem);
 
-      me_detector_[key1]->Fill(chamber_bin, gem_id.roll());
-      me_muon_pt_[key2]->Fill(muon.pt());
-      me_muon_eta_[key2]->Fill(std::fabs(muon.eta()));
+      fillME(me_detector_, key1, chamber_bin, gem_id.roll());
+      fillME(me_muon_pt_, key2, muon.pt());
+      fillME(me_muon_eta_, key2, std::fabs(muon.eta()));
 
       const GEMRecHit* matched_hit = findMatchedHit(tsos_local_pos.x(), rechit_collection->get(gem_id));
       if (matched_hit == nullptr) {
         continue;
       }
 
-      me_detector_matched_[key1]->Fill(chamber_bin, gem_id.roll());
-      me_muon_pt_matched_[key2]->Fill(muon.pt());
-      me_muon_eta_matched_[key2]->Fill(std::fabs(muon.eta()));
+      fillME(me_detector_matched_, key1, chamber_bin, gem_id.roll());
+      fillME(me_muon_pt_matched_, key2, muon.pt());
+      fillME(me_muon_eta_matched_, key2, std::fabs(muon.eta()));
 
       const LocalPoint&& hit_local_pos = matched_hit->localPosition();
       const GlobalPoint&& hit_global_pos = eta_partition->toGlobal(hit_local_pos);
@@ -254,13 +254,12 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
       const float pull_x = residual_x / std::sqrt(tsos_err.xx() + hit_err.xx());
       const float pull_y = residual_y / std::sqrt(tsos_err.yy() + hit_err.yy());
 
-      me_residual_x_[key3]->Fill(residual_x);
-      me_residual_y_[key3]->Fill(residual_y);
-      me_residual_phi_[key3]->Fill(residual_phi);
+      fillME(me_residual_x_, key3, residual_x);
+      fillME(me_residual_y_, key3, residual_y);
+      fillME(me_residual_phi_, key3, residual_phi);
 
-      me_pull_x_[key3]->Fill(pull_x);
-      me_pull_y_[key3]->Fill(pull_y);
-
+      fillME(me_pull_x_, key3, pull_x);
+      fillME(me_pull_y_, key3, pull_y);
     }  // GEMChamber
   }    // Muon
 }

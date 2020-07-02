@@ -1,5 +1,4 @@
 #include "DQMOffline/Muon/interface/GEMOfflineDQMBase.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 GEMOfflineDQMBase::GEMOfflineDQMBase(const edm::ParameterSet& pset) {
   log_category_ = pset.getUntrackedParameter<std::string>("logCategory");

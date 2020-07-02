@@ -1,6 +1,7 @@
 #ifndef DQMOffline_Muon_GEMOfflineDQMBase_h
 #define DQMOffline_Muon_GEMOfflineDQMBase_h
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "CondFormats/GEMObjects/interface/GEMeMap.h"
@@ -11,9 +12,9 @@ class GEMOfflineDQMBase : public DQMEDAnalyzer {
 public:
   explicit GEMOfflineDQMBase(const edm::ParameterSet&);
 
-  typedef std::tuple<int, int> MEMapKey1;
-  typedef std::tuple<int, int, bool> MEMapKey2;
-  typedef std::tuple<int, int, bool, int> MEMapKey3;
+  typedef std::tuple<int, int> MEMapKey1;             // (region, station)
+  typedef std::tuple<int, int, bool> MEMapKey2;       // (region, station, is odd superchamber)
+  typedef std::tuple<int, int, bool, int> MEMapKey3;  // (region, station, is odd superchamber, ieta)
   typedef std::map<MEMapKey1, MonitorElement*> MEMap1;
   typedef std::map<MEMapKey2, MonitorElement*> MEMap2;
   typedef std::map<MEMapKey3, MonitorElement*> MEMap3;
@@ -28,6 +29,15 @@ public:
   void setDetLabelsEta(MonitorElement*, const GEMStation*);
   // the number of eta partitions per GEMChamber
   int getNumEtaPartitions(const GEMStation*);
+
+  template <typename AnyKey>
+  TString convertKeyToStr(const AnyKey& key);
+
+  template <typename AnyKey>
+  void fillME(std::map<AnyKey, MonitorElement*>&, const AnyKey&, const float);
+
+  template <typename AnyKey>
+  void fillME(std::map<AnyKey, MonitorElement*>&, const AnyKey&, const float, const float y);
 
   template <typename T>
   inline bool checkRefs(const std::vector<T*>&);
@@ -116,6 +126,54 @@ inline bool GEMOfflineDQMBase::checkRefs(const std::vector<T*>& refs) {
   if (refs.front() == nullptr)
     return false;
   return true;
+}
+
+template <typename AnyKey>
+TString GEMOfflineDQMBase::convertKeyToStr(const AnyKey& key) {
+  if constexpr (std::is_same_v<AnyKey, MEMapKey1>) {
+    return TString::Format("Region %d, Station %d.", std::get<0>(key), std::get<1>(key));
+
+  } else if constexpr (std::is_same_v<AnyKey, MEMapKey2>) {
+    const char* superchamber_type = std::get<2>(key) ? "Odd" : "Even";
+    return TString::Format(
+        "Region %d, Station %d, %s Superchamber", std::get<0>(key), std::get<1>(key), superchamber_type);
+
+  } else if constexpr (std::is_same_v<AnyKey, MEMapKey3>) {
+    const char* superchamber_type = std::get<2>(key) ? "Odd" : "Even";
+    return TString::Format("Region %d, Station %d, %s Superchamber, Roll %d",
+                           std::get<0>(key),
+                           std::get<1>(key),
+                           superchamber_type,
+                           std::get<3>(key));
+
+  } else {
+    return TString::Format("unknown key type: %s", typeid(key).name());
+  }
+}
+
+template <typename AnyKey>
+void GEMOfflineDQMBase::fillME(std::map<AnyKey, MonitorElement*>& me_map, const AnyKey& key, const float x) {
+  if (me_map.find(key) == me_map.end()) {
+    const TString&& key_str = convertKeyToStr(key);
+    edm::LogError(log_category_) << "got invalid key: " << key_str << std::endl;
+
+  } else {
+    me_map[key]->Fill(x);
+  }
+}
+
+template <typename AnyKey>
+void GEMOfflineDQMBase::fillME(std::map<AnyKey, MonitorElement*>& me_map,
+                               const AnyKey& key,
+                               const float x,
+                               const float y) {
+  if (me_map.find(key) == me_map.end()) {
+    const TString&& key_str = convertKeyToStr(key);
+    edm::LogError(log_category_) << "got invalid key: " << key_str << std::endl;
+
+  } else {
+    me_map[key]->Fill(x, y);
+  }
 }
 
 #endif  // DQMOffline_Muon_GEMOfflineDQMBase_h
