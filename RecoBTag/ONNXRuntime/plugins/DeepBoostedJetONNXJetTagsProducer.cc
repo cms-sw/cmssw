@@ -13,18 +13,14 @@
 
 #include "DataFormats/BTauReco/interface/DeepBoostedJetTagInfo.h"
 
+#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
+
 #include <iostream>
 #include <fstream>
 #include <algorithm>
 #include <numeric>
-#include "PhysicsTools/MXNet/interface/Predictor.h"
 
-// Hold the mxnet model block (symbol + params) in the edm::GlobalCache.
-struct MXBlockCache {
-  MXBlockCache() : block(nullptr) {}
-
-  std::atomic<mxnet::cpp::Block *> block;
-};
+using namespace cms::Ort;
 
 // struct to hold preprocessing parameters
 struct PreprocessParams {
@@ -49,15 +45,15 @@ struct PreprocessParams {
   }
 };
 
-class BoostedJetMXNetJetTagsProducer : public edm::stream::EDProducer<edm::GlobalCache<MXBlockCache>> {
+class DeepBoostedJetONNXJetTagsProducer : public edm::stream::EDProducer<edm::GlobalCache<ONNXRuntime>> {
 public:
-  explicit BoostedJetMXNetJetTagsProducer(const edm::ParameterSet &, const MXBlockCache *);
-  ~BoostedJetMXNetJetTagsProducer() override;
+  explicit DeepBoostedJetONNXJetTagsProducer(const edm::ParameterSet &, const ONNXRuntime *);
+  ~DeepBoostedJetONNXJetTagsProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &);
 
-  static std::unique_ptr<MXBlockCache> initializeGlobalCache(const edm::ParameterSet &);
-  static void globalEndJob(const MXBlockCache *);
+  static std::unique_ptr<ONNXRuntime> initializeGlobalCache(const edm::ParameterSet &);
+  static void globalEndJob(const ONNXRuntime *);
 
 private:
   typedef std::vector<reco::DeepBoostedJetTagInfo> TagInfoCollection;
@@ -80,14 +76,13 @@ private:
   std::vector<std::vector<unsigned int>> input_shapes_;  // shapes of each input group
   std::unordered_map<std::string, PreprocessParams> prep_info_map_;  // preprocessing info for each input group
 
-  std::vector<std::vector<float>> data_;
-  std::unique_ptr<mxnet::cpp::Predictor> predictor_;
+  FloatArrays data_;
 
   bool debug_ = false;
 };
 
-BoostedJetMXNetJetTagsProducer::BoostedJetMXNetJetTagsProducer(const edm::ParameterSet &iConfig,
-                                                               const MXBlockCache *cache)
+DeepBoostedJetONNXJetTagsProducer::DeepBoostedJetONNXJetTagsProducer(const edm::ParameterSet &iConfig,
+                                                                     const ONNXRuntime *cache)
     : src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src"))),
       flav_names_(iConfig.getParameter<std::vector<std::string>>("flav_names")),
       debug_(iConfig.getUntrackedParameter<bool>("debugMode", false)) {
@@ -128,59 +123,55 @@ BoostedJetMXNetJetTagsProducer::BoostedJetMXNetJetTagsProducer(const edm::Parame
     }
   }
 
-  // init MXNetPredictor
-  predictor_.reset(new mxnet::cpp::Predictor(*cache->block));
-  predictor_->set_input_shapes(input_names_, input_shapes_);
-
   // get output names from flav_names
   for (const auto &flav_name : flav_names_) {
     produces<JetTagCollection>(flav_name);
   }
 }
 
-BoostedJetMXNetJetTagsProducer::~BoostedJetMXNetJetTagsProducer() {}
+DeepBoostedJetONNXJetTagsProducer::~DeepBoostedJetONNXJetTagsProducer() {}
 
-void BoostedJetMXNetJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
-  // pfParticleNetJetTags
+void DeepBoostedJetONNXJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  // pfDeepBoostedJetTags
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("src", edm::InputTag("pfParticleNetTagInfos"));
+  desc.add<edm::InputTag>("src", edm::InputTag("pfDeepBoostedJetTagInfos"));
   edm::ParameterSetDescription preprocessParams;
   preprocessParams.setAllowAnything();
   desc.add<edm::ParameterSetDescription>("preprocessParams", preprocessParams);
-  desc.add<edm::FileInPath>(
-      "model_path", edm::FileInPath("RecoBTag/Combined/data/ParticleNetAK8/General/V00/ParticleNet-symbol.json"));
-  desc.add<edm::FileInPath>(
-      "param_path", edm::FileInPath("RecoBTag/Combined/data/ParticleNetAK8/General/V00/ParticleNet-0000.params"));
-  desc.add<std::vector<std::string>>(
-      "flav_names",
-      std::vector<std::string>{
-          "probTbcq",  "probTbqq",  "probTbc",   "probTbq",  "probTbel", "probTbmu",      "probTbta",
-          "probWcq",   "probWqq",   "probZbb",   "probZcc",  "probZqq",  "probHbb",       "probHcc",
-          "probHqqqq", "probQCDbb", "probQCDcc", "probQCDb", "probQCDc", "probQCDothers",
-      });
+  desc.add<edm::FileInPath>("model_path",
+                            edm::FileInPath("RecoBTag/Combined/data/DeepBoostedJet/V02/full/resnet.onnx"));
+  desc.add<std::vector<std::string>>("flav_names",
+                                     std::vector<std::string>{
+                                         "probTbcq",
+                                         "probTbqq",
+                                         "probTbc",
+                                         "probTbq",
+                                         "probWcq",
+                                         "probWqq",
+                                         "probZbb",
+                                         "probZcc",
+                                         "probZqq",
+                                         "probHbb",
+                                         "probHcc",
+                                         "probHqqqq",
+                                         "probQCDbb",
+                                         "probQCDcc",
+                                         "probQCDb",
+                                         "probQCDc",
+                                         "probQCDothers",
+                                     });
   desc.addOptionalUntracked<bool>("debugMode", false);
 
-  descriptions.addWithDefaultLabel(desc);
+  descriptions.add("pfDeepBoostedJetTags", desc);
 }
 
-std::unique_ptr<MXBlockCache> BoostedJetMXNetJetTagsProducer::initializeGlobalCache(const edm::ParameterSet &iConfig) {
-  // get the model files
-  std::string model_file = iConfig.getParameter<edm::FileInPath>("model_path").fullPath();
-  std::string param_file = iConfig.getParameter<edm::FileInPath>("param_path").fullPath();
-
-  // load the model and params and save it in the cache
-  MXBlockCache *cache = new MXBlockCache();
-  cache->block = new mxnet::cpp::Block(model_file, param_file);
-  return std::unique_ptr<MXBlockCache>(cache);
+std::unique_ptr<ONNXRuntime> DeepBoostedJetONNXJetTagsProducer::initializeGlobalCache(const edm::ParameterSet &iConfig) {
+  return std::make_unique<ONNXRuntime>(iConfig.getParameter<edm::FileInPath>("model_path").fullPath());
 }
 
-void BoostedJetMXNetJetTagsProducer::globalEndJob(const MXBlockCache *cache) {
-  if (cache->block != nullptr) {
-    delete cache->block;
-  }
-}
+void DeepBoostedJetONNXJetTagsProducer::globalEndJob(const ONNXRuntime *cache) {}
 
-void BoostedJetMXNetJetTagsProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void DeepBoostedJetONNXJetTagsProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   edm::Handle<TagInfoCollection> tag_infos;
   iEvent.getByToken(src_, tag_infos);
 
@@ -206,7 +197,7 @@ void BoostedJetMXNetJetTagsProducer::produce(edm::Event &iEvent, const edm::Even
       // convert inputs
       make_inputs(taginfo);
       // run prediction and get outputs
-      outputs = predictor_->predict(data_);
+      outputs = globalCache()->run(input_names_, data_)[0];
       assert(outputs.size() == flav_names_.size());
     }
 
@@ -235,13 +226,13 @@ void BoostedJetMXNetJetTagsProducer::produce(edm::Event &iEvent, const edm::Even
   }
 }
 
-std::vector<float> BoostedJetMXNetJetTagsProducer::center_norm_pad(const std::vector<float> &input,
-                                                                   float center,
-                                                                   float norm_factor,
-                                                                   unsigned target_length,
-                                                                   float pad_value,
-                                                                   float min,
-                                                                   float max) {
+std::vector<float> DeepBoostedJetONNXJetTagsProducer::center_norm_pad(const std::vector<float> &input,
+                                                                      float center,
+                                                                      float norm_factor,
+                                                                      unsigned target_length,
+                                                                      float pad_value,
+                                                                      float min,
+                                                                      float max) {
   // do variable shifting/scaling/padding/clipping in one go
 
   assert(min <= pad_value && pad_value <= max);
@@ -253,7 +244,7 @@ std::vector<float> BoostedJetMXNetJetTagsProducer::center_norm_pad(const std::ve
   return out;
 }
 
-void BoostedJetMXNetJetTagsProducer::make_inputs(const reco::DeepBoostedJetTagInfo &taginfo) {
+void DeepBoostedJetONNXJetTagsProducer::make_inputs(const reco::DeepBoostedJetTagInfo &taginfo) {
   for (unsigned igroup = 0; igroup < input_names_.size(); ++igroup) {
     const auto &group_name = input_names_[igroup];
     auto &group_values = data_[igroup];
@@ -283,4 +274,4 @@ void BoostedJetMXNetJetTagsProducer::make_inputs(const reco::DeepBoostedJetTagIn
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(BoostedJetMXNetJetTagsProducer);
+DEFINE_FWK_MODULE(DeepBoostedJetONNXJetTagsProducer);
