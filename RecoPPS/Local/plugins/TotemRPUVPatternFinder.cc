@@ -206,9 +206,9 @@ void TotemRPUVPatternFinder::produce(edm::Event &event, const edm::EventSetup &e
   }
 
   // track recognition pot by pot
-  for (const auto &it : rpData) {
+  for (auto const &it : rpData) {
     CTPPSDetId rpId(it.first);
-    RPData &data = it.second;
+    RPData const &data = it.second;
 
     // merge default and exceptional settings (if available)
     unsigned int minPlanesPerProjectionToFit_U = minPlanesPerProjectionToFit;
