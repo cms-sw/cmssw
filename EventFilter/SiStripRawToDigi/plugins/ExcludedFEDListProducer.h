@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -15,6 +16,7 @@
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -37,6 +39,7 @@ namespace sistrip {
     uint32_t cacheId_;
     const SiStripFedCabling* cabling_;
     const edm::EDGetTokenT<FEDRawDataCollection> token_;
+    edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> cablingToken_;
 
     DetIdCollection detids_;
   };
