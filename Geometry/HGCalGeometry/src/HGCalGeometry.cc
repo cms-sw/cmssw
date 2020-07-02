@@ -238,9 +238,8 @@ GlobalPoint HGCalGeometry::getWaferPosition(const DetId& detid) const {
       glob = m_cellVec[cellIndex].getPosition(lcoord);
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "getPositionTrap:: ID " << std::hex << detid << std::dec << " index "
-                                  << cellIndex < < < <
-        " Global " << glob;
+    edm::LogVerbatim("HGCalGeom") << "getPositionTrap:: ID " << std::hex << detid.rawId() << std::dec << " index " 
+				  << cellIndex << " Global " << glob;
 #endif
   }
   return glob;
