@@ -9,17 +9,22 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "CondFormats/DataRecord/interface/RPCLBLinkMapRcd.h"
 #include "DataFormats/RPCDigi/interface/RPCAMCLinkCounters.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "EventFilter/RPCRawToDigi/interface/RPCAMCLinkEvents.h"
 #include "EventFilter/RPCRawToDigi/interface/RPCMP7Record.h"
 
-RPCCPPFUnpacker::RPCCPPFUnpacker(edm::ParameterSet const& config, edm::ProducesCollector producesCollector)
-    : RPCAMCUnpacker(config, producesCollector),
+RPCCPPFUnpacker::RPCCPPFUnpacker(edm::ParameterSet const& config,
+                                 edm::ConsumesCollector consumesCollector,
+                                 edm::ProducesCollector producesCollector)
+    : RPCAMCUnpacker(config, consumesCollector, producesCollector),
       fill_counters_(config.getParameter<bool>("fillAMCCounters")),
       bx_min_(config.getParameter<int>("bxMin")),
-      bx_max_(config.getParameter<int>("bxMax")) {
+      bx_max_(config.getParameter<int>("bxMax")),
+      es_cppf_link_map_br_token_(
+          consumesCollector.esConsumes<RPCAMCLinkMap, RPCCPPFLinkMapRcd, edm::Transition::BeginRun>()),
+      es_cppf_link_map_token_(consumesCollector.esConsumes<RPCAMCLinkMap, RPCCPPFLinkMapRcd>()),
+      es_lb_link_map_token_(consumesCollector.esConsumes<RPCLBLinkMap, RPCLBLinkMapRcd>()) {
   producesCollector.produces<RPCDigiCollection>();
   producesCollector.produces<l1t::CPPFDigiCollection>();
   if (fill_counters_) {
@@ -29,9 +34,9 @@ RPCCPPFUnpacker::RPCCPPFUnpacker(edm::ParameterSet const& config, edm::ProducesC
 
 void RPCCPPFUnpacker::beginRun(edm::Run const& run, edm::EventSetup const& setup) {
   if (es_cppf_link_map_watcher_.check(setup)) {
-    setup.get<RPCCPPFLinkMapRcd>().get(es_cppf_link_map_);
+    auto link_map = setup.getHandle(es_cppf_link_map_br_token_);
     std::set<int> feds;
-    for (auto const& cppf_link : es_cppf_link_map_->getMap()) {
+    for (auto const& cppf_link : link_map->getMap()) {
       feds.insert(cppf_link.first.getFED());
     }
     feds_.assign(feds.begin(), feds.end());
@@ -42,8 +47,8 @@ void RPCCPPFUnpacker::produce(edm::Event& event,
                               edm::EventSetup const& setup,
                               std::map<RPCAMCLink, rpcamc13::AMCPayload> const& amc_payload) {
   // Get EventSetup Electronics Maps
-  setup.get<RPCCPPFLinkMapRcd>().get(es_cppf_link_map_);
-  setup.get<RPCLBLinkMapRcd>().get(es_lb_link_map_);
+  es_cppf_link_map_ = setup.getHandle(es_cppf_link_map_token_);
+  es_lb_link_map_ = setup.getHandle(es_lb_link_map_token_);
 
   std::set<std::pair<RPCDetId, RPCDigi> > rpc_digis;
   std::unique_ptr<l1t::CPPFDigiCollection> rpc_cppf_digis(new l1t::CPPFDigiCollection());
