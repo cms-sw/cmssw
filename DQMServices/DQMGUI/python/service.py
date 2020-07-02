@@ -13,7 +13,7 @@ from .storage import GUIDataStore
 from .helpers import get_api_error, binary_search, binary_search_qtests, logged
 from .rendering import GUIRenderer
 from .importing.importing import GUIImportManager
-from .data_types import Sample, RootDir, RootObj, RootDirContent, RenderingInfo
+from .data_types import Sample, RootDir, RootObj, RootDirContent, RenderingInfo, FileFormat, SampleFull
 
 from .layouts.layout_manager import LayoutManager
 
@@ -185,13 +185,35 @@ class GUIService:
 
     @classmethod
     @logged
-    async def register_samples(cls, samples):
+    async def register_samples(cls, samples_json):
         """Register a sample in DB. Samples array if of type SamplesFull."""
 
-        # TODO: validate samples:
-        # 1. Check if file format is one of the supported values
-        # 2. Check if file and dataset are not empty
+        try:
+            samples_obj = json.loads(samples_json)
+            samples = []
+
+            # Allow all file formats except for NONE
+            allowed_fileformats = list(map(int, FileFormat))
+            allowed_fileformats.remove(FileFormat.NONE)
+
+            for sample in samples_obj:
+                if None in [sample['dataset'], sample['run'], sample['lumi'], sample['file'], sample['fileformat']]:
+                    return get_api_error(message='Please provide all required fields')
+
+                if sample['fileformat'] not in allowed_fileformats:
+                    return get_api_error(message='Please provide a valid file format')
+
+                samples.append(SampleFull(
+                        dataset=sample['dataset'],
+                        run=int(sample['run']),
+                        lumi=int(sample['lumi']),
+                        file=sample['file'],
+                        fileformat=sample['fileformat']))
+        except Exception as e:
+            return get_api_error(message='Please provide correctly formatted JSON')
+
         await cls.import_manager.register_samples(samples)
+        return True
 
 
     @classmethod

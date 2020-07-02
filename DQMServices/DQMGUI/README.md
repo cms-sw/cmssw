@@ -357,3 +357,4 @@ Backend related task list.
 * ~~When renderer returns an error code, return an image with 500 status code.~~
 * ~~Add QTest result support to the API~~
 * Hanging/aborted requests don't get logged?
+* Add the alternative of /data/browse to view raw ROOT files if Rucio is not there

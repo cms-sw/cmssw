@@ -60,7 +60,7 @@ from .service import GUIService
 from .storage import GUIDataStore
 from .helpers import get_absolute_path, parse_run_lumi
 from .rendering import GUIRenderer
-from .data_types import RenderingOptions, MEDescription, SampleFull
+from .data_types import RenderingOptions, MEDescription
 from .importing.importing import GUIImportManager
 from .layouts.layout_manager import LayoutManager
 
@@ -346,14 +346,13 @@ async def register(request):
     """
     Regsiters a sample into a database. 
     A list of samples has to be posted in HTTP body, in JSON format:
-    [{"dataset": "/a/b/c", "run": "123456", "lumi": "0", "file": "/a/b/c.root", "fileformat": 1}]'
+    [{"dataset": "/a/b/c", "run": "123456", "lumi": "0", "file": "/a/b/c.root", "fileformat": 1}]
     """
 
-    samples = await request.json()
-    samples = [SampleFull(dataset=x['dataset'], run=int(x['run']), lumi=int(x['lumi']), 
-        file=x['file'], fileformat=x['fileformat']) for x in samples]
+    result = await service.register_samples(await request.text())
 
-    await service.register_samples(samples)
+    if result != True:
+        return web.json_response(result, status=400)
     
     return web.HTTPCreated()
 
