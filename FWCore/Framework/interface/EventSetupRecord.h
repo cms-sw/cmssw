@@ -205,10 +205,12 @@ namespace edm {
     protected:
       template <template <typename> typename H, typename T, typename R>
       H<T> getHandleImpl(ESGetToken<T, R> const& iToken) const {
+        if UNLIKELY (not iToken.isInitialized()) {
+          std::rethrow_exception(makeInvalidTokenException(this->key(), DataKey::makeTypeTag<T>()));
+        }
         if UNLIKELY (iToken.transitionID() != transitionID()) {
           throwWrongTransitionID();
         }
-        assert(iToken.isInitialized());
         assert(getTokenIndices_);
         //need to check token has valid index
         if UNLIKELY (not iToken.hasValidIndex()) {
