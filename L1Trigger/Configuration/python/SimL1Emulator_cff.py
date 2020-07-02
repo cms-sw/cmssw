@@ -132,6 +132,18 @@ _phase2_siml1emulator.add(l1PFJetsTask)
 l1PFMetsTask = cms.Task(l1PFMetCalo , l1PFMetPF , l1PFMetPuppi)
 _phase2_siml1emulator.add(l1PFMetsTask)
 
+# NNTaus
+# ########################################################################
+from L1Trigger.Phase2L1ParticleFlow.L1NNTauProducer_cff import *
+l1NNTauProducer = L1NNTauProducer.clone(
+  L1PFObjects = cms.InputTag("l1pfCandidates","PF")
+)
+l1NNTauProducerPuppi = L1NNTauProducerPuppi.clone(
+  L1PFObjects = cms.InputTag("l1pfCandidates","Puppi")
+)
+_phase2_siml1emulator_ttrack.add(l1NNTauProducer)
+_phase2_siml1emulator_ttrack.add(l1NNTauProducerPuppi)
+
 # --> add modules
 #%% # Barrel EGamma
 #%% # ########################################################################
