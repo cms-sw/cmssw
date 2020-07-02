@@ -14,17 +14,17 @@
 // debug    (bool)     print or not the debug information (false)
 //
 // etaPhiPlotHO(fileName, plot, drawLeg, ifEta, maxEta, tag)
-//      Make the same plots as *etaPhiPlot* for HO with same parameter meanings 
+//      Make the same plots as *etaPhiPlot* for HO with same parameter meanings
 //
 // etaPhiPlotEC(fileName, plot, drawLeg, ifEta, maxEta, tag)
 //      Make the same plots as *etaPhiPlot* till front of HCAL with same
-//      parameter meanings 
+//      parameter meanings
 //
 // etaPhiPlotHC(fileName, plot, drawLeg, ifEta, maxEta, tag)
-//      Make the same plots as *etaPhiPlot* for HC with same parameter meanings 
+//      Make the same plots as *etaPhiPlot* for HC with same parameter meanings
 //
 // etaPhi2DPlot(fileName, plot, ifirst, ilast, drawLeg, tag)
-//      Make the 2-D plots as a function of eta and phi with same parameter 
+//      Make the 2-D plots as a function of eta and phi with same parameter
 //      meanings as those of *etaPhiPlot*
 //
 // etaPhi2DPlot(nslice, kslice, fileName, plot, ifirst, ilast, drawLeg, tag)
