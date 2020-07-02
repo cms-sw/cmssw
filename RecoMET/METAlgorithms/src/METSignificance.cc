@@ -103,7 +103,7 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
 
        //dP4 recovery
        for( const auto& it : footprint) {
-	 if( (it->p4()-(*pfCandidates)[i].p4()).Et2()<0.000025 ){
+	 if (reco::deltaR2(it->p4(), (*pfCandidates)[i].p4()) < 0.00000025) {
 	   cleancand = false;
 	   break;
 	 }

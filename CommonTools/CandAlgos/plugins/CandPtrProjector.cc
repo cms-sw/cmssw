@@ -7,22 +7,25 @@
 #include "DataFormats/Common/interface/RefToBaseVector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-
+#include "DataFormats/Math/interface/deltaR.h"
 
 class CandPtrProjector : public edm::global::EDProducer<> {
 public:
 
   explicit CandPtrProjector(edm::ParameterSet const& iConfig);
   void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   edm::EDGetTokenT<edm::View<reco::Candidate>> candSrcToken_;
   edm::EDGetTokenT<edm::View<reco::Candidate>> vetoSrcToken_;
+  bool useDeltaRforFootprint_;
 };
 
 CandPtrProjector::CandPtrProjector(edm::ParameterSet const& iConfig):
   candSrcToken_{consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("src"))},
-  vetoSrcToken_{consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("veto"))}
+  vetoSrcToken_{consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("veto"))},
+  useDeltaRforFootprint_(iConfig.getParameter<bool>("useDeltaRforFootprint"))
 {
   produces<edm::PtrVector<reco::Candidate>>();
 }
@@ -48,10 +51,26 @@ CandPtrProjector::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup con
   for (size_t i {}; i<cands->size(); ++i) {
     auto const c = cands->ptrAt(i);
     if (vetoedPtrs.find(c)==vetoedPtrs.cend()) {
-      result->push_back(c);
+      bool addcand = true;
+      if (useDeltaRforFootprint_)
+	for (const auto& it : vetoedPtrs)
+	  if (reco::deltaR2(it->p4(), c->p4()) < 0.00000025) {
+	    addcand = false;
+	    break;
+	  }
+      if (addcand)
+	result->push_back(c);
     }
   }
   iEvent.put(std::move(result));
+}
+
+void CandPtrProjector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("src");
+  desc.add<edm::InputTag>("veto");
+  desc.add<bool>("useDeltaRforFootprint", false);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(CandPtrProjector);

@@ -788,8 +788,11 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             #Jet projection ==
             pfCandsNoJets = cms.EDProducer("CandPtrProjector", 
                                            src = pfCandCollection, 
-                                           veto = jetCollection
+                                           veto = jetCollection,
+                                           useDeltaRforFootprint = cms.bool(False)
                                            )
+            if self._parameters["Puppi"].value:
+                pfCandsNoJets.useDeltaRforFootprint = True
             addToProcessAndTask("pfCandsNoJets"+postfix, pfCandsNoJets, process, task)
             metUncSequence += getattr(process, "pfCandsNoJets"+postfix)
                 
