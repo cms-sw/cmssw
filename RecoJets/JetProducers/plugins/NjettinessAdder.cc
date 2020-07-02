@@ -1,8 +1,6 @@
 #include <memory>
 
-
-
-        #include "RecoJets/JetProducers/interface/NjettinessAdder.h"
+#include "RecoJets/JetProducers/interface/NjettinessAdder.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

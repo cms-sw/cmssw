@@ -30,7 +30,7 @@
 #include <memory>
 
 #include <algorithm>
-        #include <sstream>
+#include <sstream>
 
 using namespace edm;
 using namespace reco;

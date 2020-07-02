@@ -65,25 +65,25 @@ HcalLogicalMap HcalLogicalMapGenerator::createMap(const HcalTopology* topo, unsi
   for (int i = 0; i <= HcalElectronicsId::maxLinearIndex; i++)
     LinearIndex2Entry.push_back(illegal_value);
   HbHash2Entry.reserve(2 * HbHalf);
- for (int iHb = 0; iHb < 2 * HbHalf; iHb++)
+  for (int iHb = 0; iHb < 2 * HbHalf; iHb++)
     HbHash2Entry.push_back(illegal_value);
   HeHash2Entry.reserve(2 * HeHalf);
- for (int iHe = 0; iHe < 2 * HeHalf; iHe++)
+  for (int iHe = 0; iHe < 2 * HeHalf; iHe++)
     HeHash2Entry.push_back(illegal_value);
   HfHash2Entry.reserve(2 * HfHalf);
- for (int iHf = 0; iHf < 2 * HfHalf; iHf++)
+  for (int iHf = 0; iHf < 2 * HfHalf; iHf++)
     HfHash2Entry.push_back(illegal_value);
   HtHash2Entry.reserve(2 * HtHalf);
- for (int iHt = 0; iHt < 2 * HtHalf; iHt++)
+  for (int iHt = 0; iHt < 2 * HtHalf; iHt++)
     HtHash2Entry.push_back(illegal_value);
   HoHash2Entry.reserve(2 * HoHalf);
- for (int iHo = 0; iHo < 2 * HoHalf; iHo++)
+  for (int iHo = 0; iHo < 2 * HoHalf; iHo++)
     HoHash2Entry.push_back(illegal_value);
   HxCalibHash2Entry.reserve(CalibFull);
- for (int iHcalib = 0; iHcalib < CalibFull; iHcalib++)
+  for (int iHcalib = 0; iHcalib < CalibFull; iHcalib++)
     HxCalibHash2Entry.push_back(illegal_value);
   ZdcHash2Entry.reserve(2 * ZdcHalf);
- for (int iZdc = 0; iZdc < 2 * ZdcHalf; iZdc++)
+  for (int iZdc = 0; iZdc < 2 * ZdcHalf; iZdc++)
     ZdcHash2Entry.push_back(illegal_value);
 
   buildHBEFTMap(

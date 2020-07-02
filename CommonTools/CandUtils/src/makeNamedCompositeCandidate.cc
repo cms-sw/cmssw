@@ -1,8 +1,6 @@
 #include <memory>
 
-
-
-        #include "CommonTools/CandUtils/interface/makeNamedCompositeCandidate.h"
+#include "CommonTools/CandUtils/interface/makeNamedCompositeCandidate.h"
 using namespace reco;
 using namespace std;
 

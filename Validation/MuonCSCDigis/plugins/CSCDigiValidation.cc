@@ -10,7 +10,6 @@
 #include <iostream>
 #include <memory>
 
-        
 CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet &ps)
     : doSim_(ps.getParameter<bool>("doSim")),
       theSimHitMap(ps.getParameter<edm::InputTag>("simHitsTag"), consumesCollector()),
@@ -20,17 +19,18 @@ CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet &ps)
       theComparatorDigiValidation(nullptr),
       theALCTDigiValidation(nullptr),
       theCLCTDigiValidation(nullptr) {
-  theStripDigiValidation = std::make_unique<CSCStripDigiValidation>(
-      ps.getParameter<edm::InputTag>("stripDigiTag"), consumesCollector());
+  theStripDigiValidation =
+      std::make_unique<CSCStripDigiValidation>(ps.getParameter<edm::InputTag>("stripDigiTag"), consumesCollector());
   theWireDigiValidation = std::make_unique<CSCWireDigiValidation>(
       ps.getParameter<edm::InputTag>("wireDigiTag"), consumesCollector(), doSim_);
-  theComparatorDigiValidation = std::make_unique<CSCComparatorDigiValidation>(ps.getParameter<edm::InputTag>("comparatorDigiTag"),
-                                                                    ps.getParameter<edm::InputTag>("stripDigiTag"),
-                                                                    consumesCollector());
-  theALCTDigiValidation = std::make_unique<CSCALCTDigiValidation>(
-      ps.getParameter<edm::InputTag>("alctDigiTag"), consumesCollector());
-  theCLCTDigiValidation = std::make_unique<CSCCLCTDigiValidation>(
-      ps.getParameter<edm::InputTag>("clctDigiTag"), consumesCollector());
+  theComparatorDigiValidation =
+      std::make_unique<CSCComparatorDigiValidation>(ps.getParameter<edm::InputTag>("comparatorDigiTag"),
+                                                    ps.getParameter<edm::InputTag>("stripDigiTag"),
+                                                    consumesCollector());
+  theALCTDigiValidation =
+      std::make_unique<CSCALCTDigiValidation>(ps.getParameter<edm::InputTag>("alctDigiTag"), consumesCollector());
+  theCLCTDigiValidation =
+      std::make_unique<CSCCLCTDigiValidation>(ps.getParameter<edm::InputTag>("clctDigiTag"), consumesCollector());
 
   if (doSim_) {
     theStripDigiValidation->setSimHitMap(&theSimHitMap);

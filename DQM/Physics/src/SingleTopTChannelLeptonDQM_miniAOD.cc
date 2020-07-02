@@ -9,7 +9,7 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
-        #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -60,12 +60,14 @@ namespace SingleTopTChannelLepton_miniAOD {
       // select is optional; in case it's not found no
       // selection will be applied
       if (elecExtras.existsAs<std::string>("select")) {
-        elecSelect_ = std::make_unique<StringCutObjectSelector<pat::Electron>>(elecExtras.getParameter<std::string>("select"));
+        elecSelect_ =
+            std::make_unique<StringCutObjectSelector<pat::Electron>>(elecExtras.getParameter<std::string>("select"));
       }
       // isolation is optional; in case it's not found no
       // isolation will be applied
       if (elecExtras.existsAs<std::string>("isolation")) {
-        elecIso_ = std::make_unique<StringCutObjectSelector<pat::Electron>>(elecExtras.getParameter<std::string>("isolation"));
+        elecIso_ =
+            std::make_unique<StringCutObjectSelector<pat::Electron>>(elecExtras.getParameter<std::string>("isolation"));
       }
 
       if (elecExtras.existsAs<std::string>("rho")) {
@@ -85,7 +87,8 @@ namespace SingleTopTChannelLepton_miniAOD {
       // select is optional; in case it's not found no
       // selection will be applied
       if (pvExtras.existsAs<std::string>("select")) {
-        pvSelect_ = std::make_unique<StringCutObjectSelector<reco::Vertex>>(pvExtras.getParameter<std::string>("select"));
+        pvSelect_ =
+            std::make_unique<StringCutObjectSelector<reco::Vertex>>(pvExtras.getParameter<std::string>("select"));
       }
     }
     // muonExtras are optional; they may be omitted or empty
@@ -94,12 +97,14 @@ namespace SingleTopTChannelLepton_miniAOD {
       // select is optional; in case it's not found no
       // selection will be applied
       if (muonExtras.existsAs<std::string>("select")) {
-        muonSelect_ = std::make_unique<StringCutObjectSelector<pat::Muon>>(muonExtras.getParameter<std::string>("select"));
+        muonSelect_ =
+            std::make_unique<StringCutObjectSelector<pat::Muon>>(muonExtras.getParameter<std::string>("select"));
       }
       // isolation is optional; in case it's not found no
       // isolation will be applied
       if (muonExtras.existsAs<std::string>("isolation")) {
-        muonIso_ = std::make_unique<StringCutObjectSelector<pat::Muon>>(muonExtras.getParameter<std::string>("isolation"));
+        muonIso_ =
+            std::make_unique<StringCutObjectSelector<pat::Muon>>(muonExtras.getParameter<std::string>("isolation"));
       }
     }
 
@@ -116,7 +121,8 @@ namespace SingleTopTChannelLepton_miniAOD {
       if (jetExtras.existsAs<edm::ParameterSet>("jetID")) {
         edm::ParameterSet jetID = jetExtras.getParameter<edm::ParameterSet>("jetID");
         jetIDLabel_ = iC.consumes<reco::JetIDValueMap>(jetID.getParameter<edm::InputTag>("label"));
-        jetIDSelect_ = std::make_unique<StringCutObjectSelector<reco::JetID>>(jetID.getParameter<std::string>("select"));
+        jetIDSelect_ =
+            std::make_unique<StringCutObjectSelector<reco::JetID>>(jetID.getParameter<std::string>("select"));
       }
       // select is optional; in case it's not found no
       // selection will be applied (only implemented for
@@ -761,7 +767,8 @@ SingleTopTChannelLeptonDQM_miniAOD::SingleTopTChannelLeptonDQM_miniAOD(const edm
     edm::ParameterSet beamspot = presel.getParameter<edm::ParameterSet>("beamspot");
     beamspot_ = beamspot.getParameter<edm::InputTag>("src");
     beamspot__ = consumes<reco::BeamSpot>(beamspot.getParameter<edm::InputTag>("src"));
-    beamspotSelect_ = std::make_unique<StringCutObjectSelector<reco::BeamSpot>>(beamspot.getParameter<std::string>("select"));
+    beamspotSelect_ =
+        std::make_unique<StringCutObjectSelector<reco::BeamSpot>>(beamspot.getParameter<std::string>("select"));
   }
 
   // conifgure the selection
@@ -772,8 +779,8 @@ SingleTopTChannelLeptonDQM_miniAOD::SingleTopTChannelLeptonDQM_miniAOD(const edm
     selection_[selectionStep(selectionOrder_.back())] =
         std::make_pair(sel_.at(i),
                        std::make_unique<SingleTopTChannelLepton_miniAOD::MonitorEnsemble>(
-                           
-                               selectionStep(selectionOrder_.back()).c_str(), setup_, consumesCollector()));
+
+                           selectionStep(selectionOrder_.back()).c_str(), setup_, consumesCollector()));
   }
   for (std::vector<std::string>::const_iterator selIt = selectionOrder_.begin(); selIt != selectionOrder_.end();
        ++selIt) {
@@ -789,8 +796,7 @@ SingleTopTChannelLeptonDQM_miniAOD::SingleTopTChannelLeptonDQM_miniAOD(const edm
         PvStep = std::make_unique<SelectionStep<reco::Vertex>>(selection_[key].first, consumesCollector());
       }
       if (type == "jets") {
-        JetSteps.push_back(std::make_unique<SelectionStep<pat::Jet>>(
-            selection_[key].first, consumesCollector()));
+        JetSteps.push_back(std::make_unique<SelectionStep<pat::Jet>>(selection_[key].first, consumesCollector()));
       }
 
       if (type == "met") {

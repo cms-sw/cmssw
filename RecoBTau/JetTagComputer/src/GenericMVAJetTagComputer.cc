@@ -3,7 +3,7 @@
 #include <memory>
 
 #include <memory>
-        #include <string>
+#include <string>
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EventSetup.h"

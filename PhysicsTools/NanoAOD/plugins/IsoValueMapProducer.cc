@@ -50,7 +50,8 @@ public:
         typeid(T) == typeid(pat::IsolatedTrack)) {
       produces<edm::ValueMap<float>>("miniIsoChg");
       produces<edm::ValueMap<float>>("miniIsoAll");
-      ea_miniiso_ = std::make_unique<EffectiveAreas>((iConfig.getParameter<edm::FileInPath>("EAFile_MiniIso")).fullPath());
+      ea_miniiso_ =
+          std::make_unique<EffectiveAreas>((iConfig.getParameter<edm::FileInPath>("EAFile_MiniIso")).fullPath());
       rho_miniiso_ = consumes<double>(iConfig.getParameter<edm::InputTag>("rho_MiniIso"));
     }
     if ((typeid(T) == typeid(pat::Electron))) {
@@ -62,9 +63,12 @@ public:
     } else if ((typeid(T) == typeid(pat::Photon))) {
       produces<edm::ValueMap<float>>("PFIsoChg");
       produces<edm::ValueMap<float>>("PFIsoAll");
-      ea_pfiso_chg_ = std::make_unique<EffectiveAreas>((iConfig.getParameter<edm::FileInPath>("EAFile_PFIso_Chg")).fullPath());
-      ea_pfiso_neu_ = std::make_unique<EffectiveAreas>((iConfig.getParameter<edm::FileInPath>("EAFile_PFIso_Neu")).fullPath());
-      ea_pfiso_pho_ = std::make_unique<EffectiveAreas>((iConfig.getParameter<edm::FileInPath>("EAFile_PFIso_Pho")).fullPath());
+      ea_pfiso_chg_ =
+          std::make_unique<EffectiveAreas>((iConfig.getParameter<edm::FileInPath>("EAFile_PFIso_Chg")).fullPath());
+      ea_pfiso_neu_ =
+          std::make_unique<EffectiveAreas>((iConfig.getParameter<edm::FileInPath>("EAFile_PFIso_Neu")).fullPath());
+      ea_pfiso_pho_ =
+          std::make_unique<EffectiveAreas>((iConfig.getParameter<edm::FileInPath>("EAFile_PFIso_Pho")).fullPath());
       rho_pfiso_ = consumes<double>(iConfig.getParameter<edm::InputTag>("rho_PFIso"));
     }
   }

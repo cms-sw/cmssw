@@ -8,7 +8,7 @@
 
 #include <memory>
 
-        #include <unordered_map>
+#include <unordered_map>
 
 class EGPhotonImporter : public BlockElementImporterBase {
 public:
@@ -48,16 +48,16 @@ EGPhotonImporter::EGPhotonImporter(const edm::ParameterSet& conf, edm::ConsumesC
   const float loose_hoe = selDef.getParameter<double>("LooseHoverE");
   const float combIso = selDef.getParameter<double>("combIsoConstTerm");
   _selector = std::make_unique<PhotonSelectorAlgo>((float)_selectionChoice,
-                                         minEt,
-                                         trackIso_const,
-                                         trackIso_slope,
-                                         ecalIso_const,
-                                         ecalIso_slope,
-                                         hcalIso_const,
-                                         hcalIso_slope,
-                                         hoe,
-                                         combIso,
-                                         loose_hoe);
+                                                   minEt,
+                                                   trackIso_const,
+                                                   trackIso_slope,
+                                                   ecalIso_const,
+                                                   ecalIso_slope,
+                                                   hcalIso_const,
+                                                   hcalIso_slope,
+                                                   hoe,
+                                                   combIso,
+                                                   loose_hoe);
 }
 
 void EGPhotonImporter::importToBlock(const edm::Event& e, BlockElementImporterBase::ElementList& elems) const {

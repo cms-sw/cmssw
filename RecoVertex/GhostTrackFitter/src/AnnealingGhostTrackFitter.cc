@@ -1,6 +1,6 @@
 #include <memory>
 
-        #include <vector>
+#include <vector>
 
 #include "RecoVertex/VertexTools/interface/GeometricAnnealing.h"
 

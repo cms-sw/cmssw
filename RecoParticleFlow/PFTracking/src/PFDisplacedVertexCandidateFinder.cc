@@ -1,8 +1,6 @@
 #include <memory>
 
-
-
-        #include "RecoParticleFlow/PFTracking/interface/PFDisplacedVertexCandidateFinder.h"
+#include "RecoParticleFlow/PFTracking/interface/PFDisplacedVertexCandidateFinder.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/TrackReco/interface/Track.h"

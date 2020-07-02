@@ -7,7 +7,6 @@
 #include <clang/AST/Attr.h>
 #include <clang/AST/ExprCXX.h>
 
-
 #include <memory>
 
 #include "ConstCastChecker.h"

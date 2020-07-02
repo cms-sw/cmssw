@@ -18,10 +18,8 @@ Implementation:
 
 #include "RecoJets/JetProducers/plugins/PileupJetIdProducer.h"
 
+#include <memory>
 
-        #include <memory>
-
-        
 GBRForestsAndConstants::GBRForestsAndConstants(edm::ParameterSet const& iConfig)
     : runMvas_(iConfig.getParameter<bool>("runMvas")),
       produceJetIds_(iConfig.getParameter<bool>("produceJetIds")),

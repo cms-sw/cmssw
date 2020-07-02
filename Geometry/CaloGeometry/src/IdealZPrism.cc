@@ -2,7 +2,6 @@
 #include <cmath>
 #include <memory>
 
-
 typedef IdealZPrism::CCGFloat CCGFloat;
 typedef IdealZPrism::Pt3D Pt3D;
 typedef IdealZPrism::Pt3DVec Pt3DVec;

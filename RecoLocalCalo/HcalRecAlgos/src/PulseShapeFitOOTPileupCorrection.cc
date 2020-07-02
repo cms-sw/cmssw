@@ -99,12 +99,12 @@ void PulseShapeFitOOTPileupCorrection::resetPulseShapeTemplate(const HcalPulseSh
   ++cntsetPulseShape;
   psfPtr_ = std::make_unique<FitterFuncs::PulseShapeFunctor>(
       ps, pedestalConstraint_, timeConstraint_, addPulseJitter_, pulseJitter_, timeMean_, pedMean_, nSamples);
-  spfunctor_ = std::make_unique<ROOT::Math::Functor>(
-      psfPtr_.get(), &FitterFuncs::PulseShapeFunctor::singlePulseShapeFunc, 3);
-  dpfunctor_ = std::make_unique<ROOT::Math::Functor>(
-      psfPtr_.get(), &FitterFuncs::PulseShapeFunctor::doublePulseShapeFunc, 5);
-  tpfunctor_ = std::make_unique<ROOT::Math::Functor>(
-      psfPtr_.get(), &FitterFuncs::PulseShapeFunctor::triplePulseShapeFunc, 7);
+  spfunctor_ =
+      std::make_unique<ROOT::Math::Functor>(psfPtr_.get(), &FitterFuncs::PulseShapeFunctor::singlePulseShapeFunc, 3);
+  dpfunctor_ =
+      std::make_unique<ROOT::Math::Functor>(psfPtr_.get(), &FitterFuncs::PulseShapeFunctor::doublePulseShapeFunc, 5);
+  tpfunctor_ =
+      std::make_unique<ROOT::Math::Functor>(psfPtr_.get(), &FitterFuncs::PulseShapeFunctor::triplePulseShapeFunc, 7);
 }
 
 constexpr char const *varNames[] = {"time", "energy", "time1", "energy1", "time2", "energy2", "ped"};

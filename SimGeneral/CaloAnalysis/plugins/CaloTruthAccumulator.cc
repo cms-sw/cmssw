@@ -19,7 +19,7 @@
 #include <iterator>
 #include <memory>
 
-        #include <numeric>  // for std::accumulate
+#include <numeric>  // for std::accumulate
 #include <unordered_map>
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"

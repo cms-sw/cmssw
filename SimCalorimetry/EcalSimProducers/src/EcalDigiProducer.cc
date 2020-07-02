@@ -1,8 +1,6 @@
 #include <memory>
 
-
-
-        #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/APDSimParameters.h"
@@ -232,26 +230,26 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet &params, edm::Consume
   m_EECorrNoise[2] = std::make_unique<CorrelatedNoisifier<EcalCorrMatrix>>(eeMatrix[2]);
 
   m_Coder = std::make_unique<EcalCoder>(addNoise,
-                              m_PreMix1,
-                              m_EBCorrNoise[0].get(),
-                              m_EECorrNoise[0].get(),
-                              m_EBCorrNoise[1].get(),
-                              m_EECorrNoise[1].get(),
-                              m_EBCorrNoise[2].get(),
-                              m_EECorrNoise[2].get());
+                                        m_PreMix1,
+                                        m_EBCorrNoise[0].get(),
+                                        m_EECorrNoise[0].get(),
+                                        m_EBCorrNoise[1].get(),
+                                        m_EECorrNoise[1].get(),
+                                        m_EBCorrNoise[2].get(),
+                                        m_EECorrNoise[2].get());
 
-  m_ElectronicsSim = std::make_unique<EcalElectronicsSim>(
-      m_ParameterMap.get(), m_Coder.get(), applyConstantTerm, rmsConstantTerm);
+  m_ElectronicsSim =
+      std::make_unique<EcalElectronicsSim>(m_ParameterMap.get(), m_Coder.get(), applyConstantTerm, rmsConstantTerm);
 
   if (m_apdSeparateDigi) {
     m_APDCoder = std::make_unique<EcalCoder>(false,
-                                   m_PreMix1,
-                                   m_EBCorrNoise[0].get(),
-                                   m_EECorrNoise[0].get(),
-                                   m_EBCorrNoise[1].get(),
-                                   m_EECorrNoise[1].get(),
-                                   m_EBCorrNoise[2].get(),
-                                   m_EECorrNoise[2].get());
+                                             m_PreMix1,
+                                             m_EBCorrNoise[0].get(),
+                                             m_EECorrNoise[0].get(),
+                                             m_EBCorrNoise[1].get(),
+                                             m_EECorrNoise[1].get(),
+                                             m_EBCorrNoise[2].get(),
+                                             m_EECorrNoise[2].get());
 
     m_APDElectronicsSim = std::make_unique<EcalElectronicsSim>(
         m_ParameterMap.get(), m_APDCoder.get(), applyConstantTerm, rmsConstantTerm);

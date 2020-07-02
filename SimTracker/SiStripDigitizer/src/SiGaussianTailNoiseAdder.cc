@@ -56,7 +56,7 @@ void SiGaussianTailNoiseAdder::addCMNoise(std::vector<float> &in,
   int nAPVs = in.size() / 128;
   std::vector<float> CMNv;
   CMNv.reserve(nAPVs);
- for (int APVn = 0; APVn < nAPVs; ++APVn)
+  for (int APVn = 0; APVn < nAPVs; ++APVn)
     CMNv.push_back(CLHEP::RandGaussQ::shoot(engine, 0., cmnRMS));
   for (size_t iChannel = 0; iChannel != in.size(); iChannel++) {
     if (!badChannels[iChannel])

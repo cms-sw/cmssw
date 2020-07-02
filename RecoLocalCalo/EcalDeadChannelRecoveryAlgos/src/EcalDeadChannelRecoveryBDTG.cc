@@ -14,7 +14,7 @@
 #include <memory>
 
 #include <fstream>
-        #include <ostream>
+#include <ostream>
 #include <string>
 
 template <>

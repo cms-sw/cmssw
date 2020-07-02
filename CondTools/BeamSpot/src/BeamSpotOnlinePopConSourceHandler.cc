@@ -6,7 +6,6 @@
 #include <chrono>
 #include <memory>
 
-
 BeamSpotOnlinePopConSourceHandler::BeamSpotOnlinePopConSourceHandler(edm::ParameterSet const& pset)
     : m_debug(pset.getUntrackedParameter<bool>("debug", false)),
       m_name(pset.getUntrackedParameter<std::string>("name", "BeamSpotOnlineSourceHandler")),

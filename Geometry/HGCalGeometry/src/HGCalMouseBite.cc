@@ -11,7 +11,7 @@ HGCalMouseBite::HGCalMouseBite(const HGCalDDDConstants& hgc, const bool rot) {
     const std::vector<double> angle = {90._deg, 30._deg};
     std::vector<std::pair<double, double> > projXY;
     projXY.reserve(angle.size());
- for (auto ang : angle)
+    for (auto ang : angle)
       projXY.emplace_back(std::make_pair(cos(ang), sin(ang)));
     const double mousebite(hgc.mouseBite(true));
     const double wafersize(hgc.waferSize(true));

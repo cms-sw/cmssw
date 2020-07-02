@@ -8,10 +8,8 @@
 
 #include <memory>
 
-
-
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
-        #include "JetMETCorrections/Algorithms/interface/L1FastjetCorrectorImpl.h"
+#include "JetMETCorrections/Algorithms/interface/L1FastjetCorrectorImpl.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 
 #include "FWCore/Utilities/interface/Exception.h"

@@ -40,10 +40,9 @@
 
 #include "EcalEBTrigPrimProducer.h"
 
+#include <memory>
 
-        #include <memory>
-
-        #include "SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalEBTrigPrimTestAlgo.h"
+#include "SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalEBTrigPrimTestAlgo.h"
 
 EcalEBTrigPrimProducer::EcalEBTrigPrimProducer(const edm::ParameterSet& iConfig)
     : barrelOnly_(iConfig.getParameter<bool>("BarrelOnly")),
@@ -76,7 +75,8 @@ void EcalEBTrigPrimProducer::beginRun(edm::Run const& run, edm::EventSetup const
   //ProcessHistory is guaranteed to be constant for an entire Run
   //binOfMaximum_ = findBinOfMaximum(fillBinOfMaximumFromHistory_,binOfMaximum_,run.processHistory());
 
-  algo_ = std::make_unique<EcalEBTrigPrimTestAlgo>(setup, nSamples_, binOfMaximum_, tcpFormat_, barrelOnly_, debug_, famos_);
+  algo_ = std::make_unique<EcalEBTrigPrimTestAlgo>(
+      setup, nSamples_, binOfMaximum_, tcpFormat_, barrelOnly_, debug_, famos_);
   // get a first version of the records
   cacheID_ = this->getRecords(setup);
   nEvent_ = 0;

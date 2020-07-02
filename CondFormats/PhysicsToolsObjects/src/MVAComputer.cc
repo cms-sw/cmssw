@@ -43,9 +43,7 @@ namespace PhysicsTools {
       return type.substr(sizeof prefix - 1);
     }
 
-    std::unique_ptr<VarProcessor> VarProcessor::clone() const {
-      return (std::make_unique<VarProcessor>(*this));
-    }
+    std::unique_ptr<VarProcessor> VarProcessor::clone() const { return (std::make_unique<VarProcessor>(*this)); }
 
     std::unique_ptr<VarProcessor> ProcOptional::clone() const {
       return (std::unique_ptr<VarProcessor>(new ProcOptional(*this)));

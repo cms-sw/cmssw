@@ -22,7 +22,7 @@
 
 #include <memory>
 
-        #include <set>
+#include <set>
 
 namespace edm {
   ScheduleItems::ScheduleItems()

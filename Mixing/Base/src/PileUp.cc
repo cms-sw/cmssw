@@ -105,10 +105,10 @@ namespace edm {
 
     // A modified HistoryAppender must be used for unscheduled processing.
     eventPrincipal_ = std::make_unique<EventPrincipal>(input_->productRegistry(),
-                                             std::make_shared<BranchIDListHelper>(),
-                                             std::make_shared<ThinnedAssociationsHelper>(),
-                                             *processConfiguration_,
-                                             nullptr);
+                                                       std::make_shared<BranchIDListHelper>(),
+                                                       std::make_shared<ThinnedAssociationsHelper>(),
+                                                       *processConfiguration_,
+                                                       nullptr);
 
     bool DB = type_ == "readDB";
 

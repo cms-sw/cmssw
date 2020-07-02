@@ -1,9 +1,7 @@
 
 #include <memory>
 
-
-
-        #include "GeneratorInterface/Core/interface/GeneratorFilter.h"
+#include "GeneratorInterface/Core/interface/GeneratorFilter.h"
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
 #include "GeneratorInterface/Pythia8Interface/interface/Py8GunBase.h"

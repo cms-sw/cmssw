@@ -44,7 +44,8 @@ public:
         m_dummy() {}
 
   // explicit CTOR
-  DD4hep_XHistogram(size_t size, size_t bins_x, size_t bins_y, Range x, Range y, size_t zones, const std::vector<double>& max)
+  DD4hep_XHistogram(
+      size_t size, size_t bins_x, size_t bins_y, Range x, Range y, size_t zones, const std::vector<double>& max)
       : m_minDl(0.000001),
         m_xRange(x),
         m_yRange(y),

@@ -65,7 +65,7 @@
 #include <memory>
 
 #include <sstream>
-        #include <thread>
+#include <thread>
 #include <vector>
 
 static std::once_flag applyOnce;

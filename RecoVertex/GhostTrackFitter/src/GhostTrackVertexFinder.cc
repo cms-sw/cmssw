@@ -4,7 +4,7 @@
 
 #include <map>
 #include <set>
-        #include <vector>
+#include <vector>
 
 #include <Math/SVector.h>
 #include <Math/SMatrix.h>

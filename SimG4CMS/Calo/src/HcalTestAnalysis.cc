@@ -29,7 +29,6 @@
 #include <iostream>
 #include <memory>
 
-
 HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet& p)
     : addTower_(3), tuples_(nullptr), hcons_(nullptr), org_(nullptr) {
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("HcalTestAnalysis");

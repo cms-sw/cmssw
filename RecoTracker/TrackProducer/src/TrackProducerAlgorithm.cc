@@ -103,11 +103,10 @@ bool TrackProducerAlgorithm<reco::Track>::buildTrack(const TrajectoryFitter* the
   //perform the fit: the result's size is 1 if it succeded, 0 if fails
   Trajectory&& trajTmp =
       theFitter->fitOne(seed, hits, theTSOS, (nLoops > 0) ? TrajectoryFitter::looper : TrajectoryFitter::standard);
-  if
-    UNLIKELY(!trajTmp.isValid()) {
-      DPRINT("TrackFitters") << "fit failed " << algo_ << ": " << hits.size() << '|' << int(nLoops) << ' ' << std::endl;
-      return false;
-    }
+  if UNLIKELY (!trajTmp.isValid()) {
+    DPRINT("TrackFitters") << "fit failed " << algo_ << ": " << hits.size() << '|' << int(nLoops) << ' ' << std::endl;
+    return false;
+  }
 
   auto theTraj = new Trajectory(std::move(trajTmp));
   theTraj->setSeedRef(seedRef);
@@ -130,8 +129,8 @@ bool TrackProducerAlgorithm<reco::Track>::buildTrack(const TrajectoryFitter* the
   }
 
   ndof -= 5.f;
-  if
-    UNLIKELY(std::abs(theTSOS.magneticField()->nominalValue()) < DBL_MIN)++ ndof;  // same as -4
+  if UNLIKELY (std::abs(theTSOS.magneticField()->nominalValue()) < DBL_MIN)
+    ++ndof;  // same as -4
 
 #if defined(VI_DEBUG) || defined(EDM_ML_DEBUG)
   int chit[7] = {};
@@ -189,12 +188,11 @@ bool TrackProducerAlgorithm<reco::Track>::buildTrack(const TrajectoryFitter* the
     }
   }
 
-  if
-    UNLIKELY(!stateForProjectionToBeamLineOnSurface.isValid()) {
-      edm::LogError("CannotPropagateToBeamLine") << "the state on the closest measurement isnot valid. skipping track.";
-      delete theTraj;
-      return false;
-    }
+  if UNLIKELY (!stateForProjectionToBeamLineOnSurface.isValid()) {
+    edm::LogError("CannotPropagateToBeamLine") << "the state on the closest measurement isnot valid. skipping track.";
+    delete theTraj;
+    return false;
+  }
   const FreeTrajectoryState& stateForProjectionToBeamLine = *stateForProjectionToBeamLineOnSurface.freeState();
 
   LogDebug("TrackProducer") << "stateForProjectionToBeamLine=" << stateForProjectionToBeamLine;
@@ -212,11 +210,10 @@ bool TrackProducerAlgorithm<reco::Track>::buildTrack(const TrajectoryFitter* the
     tscbl = tscblBuilder(stateForProjectionToBeamLine, bs);
   }
 
-  if
-    UNLIKELY(!tscbl.isValid()) {
-      delete theTraj;
-      return false;
-    }
+  if UNLIKELY (!tscbl.isValid()) {
+    delete theTraj;
+    return false;
+  }
 
   GlobalPoint v = tscbl.trackStateAtPCA().position();
   math::XYZPoint pos(v.x(), v.y(), v.z());
@@ -269,8 +266,8 @@ bool TrackProducerAlgorithm<reco::GsfTrack>::buildTrack(const TrajectoryFitter* 
 
   Trajectory&& trajTmp =
       theFitter->fitOne(seed, hits, theTSOS, (nLoops > 0) ? TrajectoryFitter::looper : TrajectoryFitter::standard);
-  if
-    UNLIKELY(!trajTmp.isValid()) return false;
+  if UNLIKELY (!trajTmp.isValid())
+    return false;
 
   auto theTraj = new Trajectory(std::move(trajTmp));
   theTraj->setSeedRef(seedRef);
@@ -315,8 +312,8 @@ bool TrackProducerAlgorithm<reco::GsfTrack>::buildTrack(const TrajectoryFitter* 
   }
 
   ndof = ndof - 5;
-  if
-    UNLIKELY(std::abs(theTSOS.magneticField()->nominalValue()) < DBL_MIN)++ ndof;  // same as -4
+  if UNLIKELY (std::abs(theTSOS.magneticField()->nominalValue()) < DBL_MIN)
+    ++ndof;  // same as -4
 
   //if geometricInnerState_ is false the state for projection to beam line is the state attached to the first hit: to be used for loopers
   //if geometricInnerState_ is true the state for projection to beam line is the one from the (geometrically) closest measurement to the beam line: to be sued for non-collision tracks
@@ -333,12 +330,11 @@ bool TrackProducerAlgorithm<reco::GsfTrack>::buildTrack(const TrajectoryFitter* 
     }
   }
 
-  if
-    UNLIKELY(!stateForProjectionToBeamLineOnSurface.isValid()) {
-      edm::LogError("CannotPropagateToBeamLine") << "the state on the closest measurement isnot valid. skipping track.";
-      delete theTraj;
-      return false;
-    }
+  if UNLIKELY (!stateForProjectionToBeamLineOnSurface.isValid()) {
+    edm::LogError("CannotPropagateToBeamLine") << "the state on the closest measurement isnot valid. skipping track.";
+    delete theTraj;
+    return false;
+  }
 
   const FreeTrajectoryState& stateForProjectionToBeamLine = *stateForProjectionToBeamLineOnSurface.freeState();
 
@@ -356,11 +352,10 @@ bool TrackProducerAlgorithm<reco::GsfTrack>::buildTrack(const TrajectoryFitter* 
     tscbl = tscblBuilder(stateForProjectionToBeamLine, bs);
   }
 
-  if
-    UNLIKELY(tscbl.isValid() == false) {
-      delete theTraj;
-      return false;
-    }
+  if UNLIKELY (tscbl.isValid() == false) {
+    delete theTraj;
+    return false;
+  }
 
   GlobalPoint v = tscbl.trackStateAtPCA().position();
   math::XYZPoint pos(v.x(), v.y(), v.z());

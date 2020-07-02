@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <memory>
 
-        
 //Uncomment the following #define to have print debug
 //#define DEBUGME
 

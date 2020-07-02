@@ -18,9 +18,7 @@
 
 #include <memory>
 
-
-
-        #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
@@ -1115,10 +1113,10 @@ void PFElecTkProducer::beginRun(const edm::Run& run, const EventSetup& iSetup) {
   TransientTrackBuilder thebuilder = *(builder.product());
 
   convBremFinder_ = std::make_unique<ConvBremPFTrackFinder>(thebuilder,
-                                                  mvaConvBremFinderIDBarrelLowPt_,
-                                                  mvaConvBremFinderIDBarrelHighPt_,
-                                                  mvaConvBremFinderIDEndcapsLowPt_,
-                                                  mvaConvBremFinderIDEndcapsHighPt_);
+                                                            mvaConvBremFinderIDBarrelLowPt_,
+                                                            mvaConvBremFinderIDBarrelHighPt_,
+                                                            mvaConvBremFinderIDEndcapsLowPt_,
+                                                            mvaConvBremFinderIDEndcapsHighPt_);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

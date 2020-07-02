@@ -5,7 +5,6 @@
 
 #include <Pythia8/Pythia.h>
 
-
 #include <memory>
 
 #include "Pythia8Plugins/HepMC2.h"

@@ -29,10 +29,8 @@
 #include <DataFormats/PatCandidates/interface/PFParticle.h>
 #include <SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h>
 
+#include <memory>
 
-        #include <memory>
-
-        
 //--------------------------------------------------------------------------------
 //just define here a list of objects you would like to be able to have a branch of
 //--------------------------------------------------------------------------------

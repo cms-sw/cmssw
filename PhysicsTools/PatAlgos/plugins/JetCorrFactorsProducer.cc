@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <string>
-        #include <vector>
+#include <vector>
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"

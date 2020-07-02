@@ -20,7 +20,7 @@
 
 #include <TRandom2.h>
 #include <random>
-        #include <vector>
+#include <vector>
 
 template <typename T>
 class CalibratedElectronProducerRun2T : public edm::stream::EDProducer<> {

@@ -22,7 +22,6 @@
 #include <iostream>
 #include <memory>
 
-        
 #include "fftjet/peakEtLifetime.hh"
 
 // Header for this class

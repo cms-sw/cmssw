@@ -13,10 +13,8 @@
 
 #include <TString.h>
 
+#include <memory>
 
-        #include <memory>
-
-        
 int MultShiftMETcorrDBInputProducer::translateTypeToAbsPdgId(reco::PFCandidate::ParticleType type) {
   switch (type) {
     case reco::PFCandidate::ParticleType::h:

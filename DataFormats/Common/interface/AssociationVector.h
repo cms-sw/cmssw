@@ -157,13 +157,13 @@ namespace edm {
 
   template <typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline typename AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::const_reference
-      AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::operator[](size_type n) const {
+  AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::operator[](size_type n) const {
     return transientVector()[n];
   }
 
   template <typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline typename CVal::const_reference
-      AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::operator[](KeyRef const& k) const {
+  AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::operator[](KeyRef const& k) const {
     KeyRef keyRef = KeyReferenceHelper::get(k, ref_.id());
     checkForWrongProduct(keyRef.id(), ref_.id());
     return data_[keyRef.key()];
@@ -172,7 +172,7 @@ namespace edm {
   template <typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   template <typename K>
   inline typename CVal::const_reference
-      AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::operator[](edm::Ptr<K> const& k) const {
+  AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::operator[](edm::Ptr<K> const& k) const {
     static_assert(std::is_base_of<K, key_type>::value,
                   "edm::Ptr's key type is not a base class of AssociationVector's item type");
     checkForWrongProduct(k.id(), ref_.id());

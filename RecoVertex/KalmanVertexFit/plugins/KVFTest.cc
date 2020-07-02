@@ -19,7 +19,6 @@
 #include <iostream>
 #include <memory>
 
-        
 using namespace reco;
 using namespace edm;
 using namespace std;

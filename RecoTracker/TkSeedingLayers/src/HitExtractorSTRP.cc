@@ -69,8 +69,8 @@ bool HitExtractorSTRP::skipThis(
   if (maskCluster && (stripClusterMask->mask(clus.key())))
     return true;
 
-  if
-    UNLIKELY(minGoodCharge <= 0) return false;
+  if UNLIKELY (minGoodCharge <= 0)
+    return false;
   return siStripClusterTools::chargePerCM(id, *clus.cluster_strip()) <= minGoodCharge;
 }
 

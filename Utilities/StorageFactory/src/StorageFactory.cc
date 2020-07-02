@@ -1,7 +1,5 @@
 #include <memory>
 
-
-
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
@@ -166,7 +164,8 @@ void StorageFactory::stagein(const std::string &url) const {
   if (StorageMaker *maker = getMaker(url, protocol, rest)) {
     if (m_accounting) {
       auto token = StorageAccount::tokenForStorageClassName(protocol);
-      stats = std::make_unique<StorageAccount::Stamp>(StorageAccount::counter(token, StorageAccount::Operation::stagein));
+      stats =
+          std::make_unique<StorageAccount::Stamp>(StorageAccount::counter(token, StorageAccount::Operation::stagein));
     }
     try {
       maker->stagein(protocol, rest, StorageMaker::AuxSettings{}.setDebugLevel(m_debugLevel).setTimeout(m_timeout));

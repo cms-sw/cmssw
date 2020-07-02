@@ -63,21 +63,21 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf)
   fromHTTTopJetProducer_ = true;
 
   fjHEPTopTagger_ = std::make_unique<fastjet::HEPTopTaggerV2>(optimalR_,
-                                                                                         qJets_,
-                                                                                         minSubjetPt_,
-                                                                                         minCandPt_,
-                                                                                         subjetMass_,
-                                                                                         muCut_,
-                                                                                         filtR_,
-                                                                                         filtN_,
-                                                                                         mode_,
-                                                                                         minCandMass_,
-                                                                                         maxCandMass_,
-                                                                                         massRatioWidth_,
-                                                                                         minM23Cut_,
-                                                                                         minM13Cut_,
-                                                                                         maxM13Cut_,
-                                                                                         rejectMinR_);
+                                                              qJets_,
+                                                              minSubjetPt_,
+                                                              minCandPt_,
+                                                              subjetMass_,
+                                                              muCut_,
+                                                              filtR_,
+                                                              filtN_,
+                                                              mode_,
+                                                              minCandMass_,
+                                                              maxCandMass_,
+                                                              massRatioWidth_,
+                                                              minM23Cut_,
+                                                              minM13Cut_,
+                                                              maxM13Cut_,
+                                                              rejectMinR_);
 }
 
 void HTTTopJetProducer::produce(edm::Event& e, const edm::EventSetup& c) {

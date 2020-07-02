@@ -1308,7 +1308,7 @@ std::vector<bool> EcalCosmicsHists::determineTriggers(const edm::Event& iEvent, 
   std::vector<bool> l1Triggers;  //DT,CSC,RPC,HCAL,ECAL
                                  //0 , 1 , 2 , 3  , 4
   l1Triggers.reserve(5);
- for (int i = 0; i < 5; i++)
+  for (int i = 0; i < 5; i++)
     l1Triggers.push_back(false);
 
   // get the GMTReadoutCollection

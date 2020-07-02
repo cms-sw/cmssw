@@ -231,7 +231,7 @@ int GEMDQMStatusDigi::SetInfoChambers() {
     int nLayer = sch->nChambers();
     for (int l = 0; l < nLayer; l++) {
       Bool_t bExist = false;
-      for (const auto& ch : gemChambers_)
+      for (const auto &ch : gemChambers_)
         if (ch.id() == sch->chamber(l + 1)->id())
           bExist = true;
       if (bExist)
@@ -248,7 +248,7 @@ int GEMDQMStatusDigi::SetInfoChambers() {
   m_listLayers.clear();
 
   // Summarizing geometry configurations
-  for (const auto& ch : gemChambers_) {
+  for (const auto &ch : gemChambers_) {
     GEMDetId gid = ch.id();
 
     GEMDetId layerID(gid.region(), gid.ring(), gid.station(), (bPerSuperchamber_ ? gid.layer() : 0), 0, 0);
@@ -329,7 +329,7 @@ int GEMDQMStatusDigi::SetConfigTimeRecord() {
     listTimeStore_[layerId] = newTimeStore;
   }
 
-  for (const auto& ch : gemChambers_) {
+  for (const auto &ch : gemChambers_) {
     auto chId = ch.id();
     GEMDetId chIdStatus(chId.region(), chId.ring(), chId.station(), chId.layer(), chId.chamber(), 1);
     GEMDetId chIdDigi(chId.region(), chId.ring(), chId.station(), chId.layer(), chId.chamber(), 2);
@@ -666,7 +666,7 @@ void GEMDQMStatusDigi::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
   ibooker.cd();
   ibooker.setCurrentFolder("GEM/StatusDigi");
 
-  for (const auto& ch : gemChambers_) {
+  for (const auto &ch : gemChambers_) {
     GEMDetId gid = ch.id();
     bookHistogramsChamberPart(ibooker, gid);
   }
@@ -945,7 +945,7 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
   }
 
   // Checking if there is a fire (data)
-  for (const auto& ch : gemChambers_) {
+  for (const auto &ch : gemChambers_) {
     GEMDetId cId = ch.id();
     Bool_t bIsHit = false;
 

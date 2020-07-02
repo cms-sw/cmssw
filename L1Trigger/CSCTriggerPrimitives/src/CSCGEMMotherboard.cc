@@ -1,7 +1,5 @@
 #include <memory>
 
-
-
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCGEMMotherboard.h"
 
 CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap,

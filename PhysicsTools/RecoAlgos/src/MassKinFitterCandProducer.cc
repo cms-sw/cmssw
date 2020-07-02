@@ -1,12 +1,10 @@
 #include <memory>
 
-
-
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-        #include "PhysicsTools/RecoAlgos/interface/MassKinFitterCandProducer.h"
+#include "PhysicsTools/RecoAlgos/interface/MassKinFitterCandProducer.h"
 
 MassKinFitterCandProducer::MassKinFitterCandProducer(const edm::ParameterSet& cfg, CandMassKinFitter* f)
     : srcToken_(consumes<reco::CandidateCollection>(cfg.getParameter<edm::InputTag>("src"))), fitter_(f) {

@@ -12,10 +12,9 @@ LocalTrajectoryError::LocalTrajectoryError(float dx, float dy, float dxdir, floa
 }
 
 const AlgebraicSymMatrix55& LocalTrajectoryError::weightMatrix() const {
-  if
-    UNLIKELY(theWeightMatrixPtr.get() == nullptr) {
-      theWeightMatrixPtr.reset(new AlgebraicSymMatrix55());
-      invertPosDefMatrix(theCovarianceMatrix, *theWeightMatrixPtr);
-    }
+  if UNLIKELY (theWeightMatrixPtr.get() == nullptr) {
+    theWeightMatrixPtr.reset(new AlgebraicSymMatrix55());
+    invertPosDefMatrix(theCovarianceMatrix, *theWeightMatrixPtr);
+  }
   return *theWeightMatrixPtr;
 }

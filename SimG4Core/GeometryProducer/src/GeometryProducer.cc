@@ -30,7 +30,6 @@
 #include <iostream>
 #include <memory>
 
-        
 static void createWatchers(const edm::ParameterSet &iP,
                            SimActivityRegistry &iReg,
                            std::vector<std::shared_ptr<SimWatcher>> &oWatchers,

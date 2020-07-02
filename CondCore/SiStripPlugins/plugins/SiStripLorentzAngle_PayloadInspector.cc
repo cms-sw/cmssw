@@ -133,10 +133,10 @@ namespace {
       TCanvas canvas("Partion summary", "partition summary", 1200, 1000);
       canvas.cd();
       auto h1 = std::make_unique<TH1F>("byRegion",
-                                               "SiStrip LA average by partition;; average SiStrip Lorentz Angle [rad]",
-                                               map.size(),
-                                               0.,
-                                               map.size());
+                                       "SiStrip LA average by partition;; average SiStrip Lorentz Angle [rad]",
+                                       map.size(),
+                                       0.,
+                                       map.size());
       h1->SetStats(false);
       canvas.SetBottomMargin(0.18);
       canvas.SetLeftMargin(0.17);

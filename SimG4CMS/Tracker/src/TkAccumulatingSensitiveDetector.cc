@@ -32,7 +32,7 @@
 #include <memory>
 
 #include <iostream>
-        #include <vector>
+#include <vector>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

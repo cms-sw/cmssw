@@ -26,7 +26,6 @@
 #include <ext/algorithm>
 #include <memory>
 
-        
 namespace pat {
   class PATGenCandsFromSimTracksProducer : public edm::stream::EDProducer<> {
   public:

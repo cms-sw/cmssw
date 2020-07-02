@@ -71,9 +71,9 @@ void DD4hep_TrackingMaterialPlotter::fill_color(void) {
 }
 
 unsigned int DD4hep_TrackingMaterialPlotter::fill_gradient(const TColor& first,
-                                                    const TColor& last,
-                                                    unsigned int steps /*= 100*/,
-                                                    unsigned int index /* = 0*/) {
+                                                           const TColor& last,
+                                                           unsigned int steps /*= 100*/,
+                                                           unsigned int index /* = 0*/) {
   if (index == 0) {
     // if no index was given, find the highest used one and start from that plus one
     index = ((TObjArray*)gROOT->GetListOfColors())->GetLast() + 1;
@@ -96,9 +96,9 @@ unsigned int DD4hep_TrackingMaterialPlotter::fill_gradient(const TColor& first,
 }
 
 unsigned int DD4hep_TrackingMaterialPlotter::fill_gradient(unsigned int first,
-                                                    unsigned int last,
-                                                    unsigned int steps /*= 100*/,
-                                                    unsigned int index /* = 0*/) {
+                                                           unsigned int last,
+                                                           unsigned int steps /*= 100*/,
+                                                           unsigned int index /* = 0*/) {
   return fill_gradient(
       *(TColor*)gROOT->GetListOfColors()->At(first), *(TColor*)gROOT->GetListOfColors()->At(last), steps, index);
 }

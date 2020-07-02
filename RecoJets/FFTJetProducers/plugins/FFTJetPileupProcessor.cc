@@ -20,7 +20,6 @@
 #include <fstream>
 #include <memory>
 
-        
 // FFTJet headers
 #include "fftjet/FrequencyKernelConvolver.hh"
 #include "fftjet/DiscreteGauss2d.hh"
@@ -163,8 +162,7 @@ FFTJetPileupProcessor::FFTJetPileupProcessor(const edm::ParameterSet& ps)
   if (minScale <= 0.0 || maxScale < minScale || nScales == 0U)
     throw cms::Exception("FFTJetBadConfig") << "invalid filter scales" << std::endl;
 
-  filterScales =
-      std::make_unique<fftjet::EquidistantInLogSpace>(minScale, maxScale, nScales);
+  filterScales = std::make_unique<fftjet::EquidistantInLogSpace>(minScale, maxScale, nScales);
 
   percentileData.resize(nScales * nPercentiles);
 

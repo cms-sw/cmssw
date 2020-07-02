@@ -134,10 +134,10 @@ namespace {
       canvas.cd();
       auto h1 = std::make_unique<TH1F>(
           "byRegion",
-                   "SiStrip Backplane correction average by partition;; average SiStrip BackPlane Correction",
-                   map.size(),
-                   0.,
-                   map.size());
+          "SiStrip Backplane correction average by partition;; average SiStrip BackPlane Correction",
+          map.size(),
+          0.,
+          map.size());
       h1->SetStats(false);
       canvas.SetBottomMargin(0.18);
       canvas.SetLeftMargin(0.17);

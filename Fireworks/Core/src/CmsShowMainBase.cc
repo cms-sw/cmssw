@@ -8,7 +8,6 @@
 #include <functional>
 #include <memory>
 
-
 #include "TGLWidget.h"
 #include "TGMsgBox.h"
 #include "TROOT.h"

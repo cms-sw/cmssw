@@ -6,7 +6,6 @@
 #include <fstream>
 #include <memory>
 
-        
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"

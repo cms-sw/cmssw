@@ -19,7 +19,7 @@
 #include <iostream>
 #include <regex>
 #include <unordered_map>
-        #include <vector>
+#include <vector>
 
 namespace {
   ///  ---- Cache object for running sums of weights ----

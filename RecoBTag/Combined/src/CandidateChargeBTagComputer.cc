@@ -1,8 +1,6 @@
 #include <memory>
 
-
-
-        #include "RecoBTag/Combined/interface/CandidateChargeBTagComputer.h"
+#include "RecoBTag/Combined/interface/CandidateChargeBTagComputer.h"
 
 CandidateChargeBTagComputer::Tokens::Tokens(const edm::ParameterSet& parameters, edm::ESConsumesCollector&& cc) {
   if (parameters.getParameter<bool>("useCondDB")) {

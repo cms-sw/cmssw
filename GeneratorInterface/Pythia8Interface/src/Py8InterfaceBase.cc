@@ -1,8 +1,6 @@
 #include <memory>
 
-
-
-        #include "GeneratorInterface/Pythia8Interface/interface/Py8InterfaceBase.h"
+#include "GeneratorInterface/Pythia8Interface/interface/Py8InterfaceBase.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

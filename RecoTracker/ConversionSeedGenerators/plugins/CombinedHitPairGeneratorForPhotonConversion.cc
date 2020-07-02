@@ -1,12 +1,11 @@
 #include "CombinedHitPairGeneratorForPhotonConversion.h"
 
-
-        #include <memory>
+#include <memory>
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
-        #include "HitPairGeneratorFromLayerPairForPhotonConversion.h"
+#include "HitPairGeneratorFromLayerPairForPhotonConversion.h"
 
 #include "FWCore/Utilities/interface/RunningAverage.h"
 namespace {

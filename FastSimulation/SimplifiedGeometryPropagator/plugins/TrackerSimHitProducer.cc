@@ -1,7 +1,7 @@
 #include <memory>
 
 #include <memory>
-        #include <vector>
+#include <vector>
 
 // framework
 #include "FWCore/Framework/interface/Event.h"
@@ -318,18 +318,17 @@ std::pair<double, std::unique_ptr<PSimHit>> fastsim::TrackerSimHitProducer::crea
   // Position of the hit in global coordinates
   GlobalPoint hitPos(detector.surface().toGlobal(localPosition));
 
-  return std::pair<double, std::unique_ptr<PSimHit>>(
-      (hitPos - refPos).mag(),
-      std::make_unique<PSimHit>(entry,
-                                           exit,
-                                           localMomentum.mag(),
-                                           tof,
-                                           eLoss,
-                                           pdgId,
-                                           detector.geographicalId().rawId(),
-                                           simTrackId,
-                                           localMomentum.theta(),
-                                           localMomentum.phi()));
+  return std::pair<double, std::unique_ptr<PSimHit>>((hitPos - refPos).mag(),
+                                                     std::make_unique<PSimHit>(entry,
+                                                                               exit,
+                                                                               localMomentum.mag(),
+                                                                               tof,
+                                                                               eLoss,
+                                                                               pdgId,
+                                                                               detector.geographicalId().rawId(),
+                                                                               simTrackId,
+                                                                               localMomentum.theta(),
+                                                                               localMomentum.phi()));
 }
 
 DEFINE_EDM_PLUGIN(fastsim::InteractionModelFactory, fastsim::TrackerSimHitProducer, "fastsim::TrackerSimHitProducer");

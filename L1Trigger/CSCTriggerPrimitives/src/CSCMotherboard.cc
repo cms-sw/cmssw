@@ -2,7 +2,6 @@
 #include <iostream>
 #include <memory>
 
-
 // Default values of configuration parameters.
 const unsigned int CSCMotherboard::def_mpc_block_me1a = 1;
 const unsigned int CSCMotherboard::def_alct_trig_enable = 0;

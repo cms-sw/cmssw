@@ -33,7 +33,7 @@
 
 #include <memory>
 
-        #include <vector>
+#include <vector>
 
 template <typename T>
 class CalibratedElectronProducerT : public edm::stream::EDProducer<> {
@@ -119,7 +119,7 @@ void CalibratedElectronProducerT<T>::fillDescriptions(edm::ConfigurationDescript
   desc.add<bool>("semiDeterministic", true);
   std::vector<std::string> valMapsProduced;
   valMapsProduced.reserve(valMapsToStore_.size());
- for (auto varToStore : valMapsToStore_)
+  for (auto varToStore : valMapsToStore_)
     valMapsProduced.push_back(EGEnergySysIndex::name(varToStore));
   desc.add<std::vector<std::string>>("valueMapsStored", valMapsProduced)
       ->setComment(

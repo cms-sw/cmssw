@@ -1,7 +1,7 @@
 #include <memory>
 
 #include <memory>
-        #include <string>
+#include <string>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

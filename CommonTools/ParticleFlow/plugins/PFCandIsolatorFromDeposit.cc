@@ -23,7 +23,7 @@
 #include <memory>
 
 #include <regex>
-        #include <string>
+#include <string>
 
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositVetoFactory.h"
 

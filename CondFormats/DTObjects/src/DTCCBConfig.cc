@@ -10,8 +10,6 @@
 //-----------------------
 #include <memory>
 
-
-
 #include "CondFormats/DTObjects/interface/DTCCBConfig.h"
 
 //-------------------------------

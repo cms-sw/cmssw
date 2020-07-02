@@ -10,7 +10,6 @@
 #include <iostream>
 #include <memory>
 
-        
 using namespace std;
 using namespace reco;
 using namespace boost;

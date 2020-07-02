@@ -1,7 +1,5 @@
 #include <memory>
 
-
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4CMS/HGCalTestBeam/interface/AHCalGeometry.h"
 

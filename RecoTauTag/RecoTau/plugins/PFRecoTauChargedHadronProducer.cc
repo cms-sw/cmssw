@@ -50,7 +50,7 @@
 #include <functional>
 #include <list>
 #include <set>
-        #include <string>
+#include <string>
 #include <vector>
 
 class PFRecoTauChargedHadronProducer : public edm::stream::EDProducer<> {

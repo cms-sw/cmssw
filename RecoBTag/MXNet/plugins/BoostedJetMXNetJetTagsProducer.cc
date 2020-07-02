@@ -19,7 +19,7 @@
 #include <memory>
 
 #include "PhysicsTools/MXNet/interface/Predictor.h"
-        #include <numeric>
+#include <numeric>
 
 // Hold the mxnet model block (symbol + params) in the edm::GlobalCache.
 struct MXBlockCache {

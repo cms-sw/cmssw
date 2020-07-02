@@ -71,7 +71,7 @@ namespace edm {
                                 LuminosityBlockIndex::invalidLuminosityBlockIndex(),
                                 rp.endTime(),
                                 processContext);
-    auto t = [& mod = module(),
+    auto t = [&mod = module(),
               &rp,
               globalContext,
               token,
@@ -111,7 +111,7 @@ namespace edm {
                                 lbp.index(),
                                 lbp.beginTime(),
                                 processContext);
-    auto t = [& mod = module(), &lbp, activityRegistry, token, globalContext, desc = &description(), iTask]() mutable {
+    auto t = [&mod = module(), &lbp, activityRegistry, token, globalContext, desc = &description(), iTask]() mutable {
       std::exception_ptr ex;
       // Caught exception is propagated via WaitingTaskHolder
       CMS_SA_ALLOW try {

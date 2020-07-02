@@ -28,8 +28,8 @@ public:
     //
     // Protect against p_z=0 and calculate path length
     //
-    if
-      UNLIKELY(std::abs(theCosTheta) < std::numeric_limits<float>::min()) return std::pair<bool, double>(false, 0);
+    if UNLIKELY (std::abs(theCosTheta) < std::numeric_limits<float>::min())
+      return std::pair<bool, double>(false, 0);
 
     double dS = (plane.position().z() - theZ0) / theCosTheta;
 

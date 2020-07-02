@@ -1,9 +1,7 @@
 #include "CalibTracker/SiStripDCS/interface/SiStripDetVOffBuilder.h"
 #include <sys/stat.h>
 
-
 #include <memory>
-
 
 // constructor
 SiStripDetVOffBuilder::SiStripDetVOffBuilder(const edm::ParameterSet& pset, const edm::ActivityRegistry&)

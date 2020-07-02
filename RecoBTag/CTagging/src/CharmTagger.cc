@@ -12,7 +12,7 @@
 #include <algorithm>
 #include <iostream>
 #include <map>
-        #include <vector>
+#include <vector>
 
 CharmTagger::Tokens::Tokens(const edm::ParameterSet &configuration, edm::ESConsumesCollector &&cc) {
   if (configuration.getParameter<bool>("useCondDB")) {

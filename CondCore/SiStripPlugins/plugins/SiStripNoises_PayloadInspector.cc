@@ -697,24 +697,24 @@ namespace {
       std::shared_ptr<SiStripNoises> f_payload = fetchPayload(std::get<1>(firstiov));
       std::shared_ptr<SiStripNoises> l_payload = fetchPayload(std::get<1>(lastiov));
 
-      auto h_first = std::make_unique<TH1F>(
-          "f_Noise",
-                   Form("Strip noise values comparison [%s,%s];Strip Noise [ADC counts];n. strips",
-                        std::to_string(std::get<0>(firstiov)).c_str(),
-                        std::to_string(std::get<0>(lastiov)).c_str()),
-                   100,
-                   0.1,
-                   10.);
+      auto h_first =
+          std::make_unique<TH1F>("f_Noise",
+                                 Form("Strip noise values comparison [%s,%s];Strip Noise [ADC counts];n. strips",
+                                      std::to_string(std::get<0>(firstiov)).c_str(),
+                                      std::to_string(std::get<0>(lastiov)).c_str()),
+                                 100,
+                                 0.1,
+                                 10.);
       h_first->SetStats(false);
 
-      auto h_last = std::make_unique<TH1F>(
-          "l_Noise",
-                   Form("Strip noise values comparison [%s,%s];Strip Noise [ADC counts];n. strips",
-                        std::to_string(std::get<0>(firstiov)).c_str(),
-                        std::to_string(std::get<0>(lastiov)).c_str()),
-                   100,
-                   0.1,
-                   10.);
+      auto h_last =
+          std::make_unique<TH1F>("l_Noise",
+                                 Form("Strip noise values comparison [%s,%s];Strip Noise [ADC counts];n. strips",
+                                      std::to_string(std::get<0>(firstiov)).c_str(),
+                                      std::to_string(std::get<0>(lastiov)).c_str()),
+                                 100,
+                                 0.1,
+                                 10.);
       h_last->SetStats(false);
 
       std::vector<uint32_t> f_detid;
@@ -1455,8 +1455,7 @@ namespace {
         //std::cout<<" strip lenght: " << element.first << " avg noise=" << mean <<" +/-" << rms << std::endl;
       }
 
-      auto graph =
-          std::make_unique<TGraphErrors>(noisePerStripLength.size(), &x[0], &y[0], &ex[0], &ey[0]);
+      auto graph = std::make_unique<TGraphErrors>(noisePerStripLength.size(), &x[0], &y[0], &ex[0], &ey[0]);
       graph->SetTitle("SiStrip Noise Linearity");
       graph->GetXaxis()->SetTitle("Strip length [cm]");
       graph->GetYaxis()->SetTitle("Average Strip Noise [ADC counts]");

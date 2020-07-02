@@ -4,11 +4,10 @@
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DQM/Physics/src/TopDiLeptonOfflineDQM.h"
 
-
-        #include <memory>
+#include <memory>
 
 #include "DQM/Physics/interface/TopDQMHelpers.h"
-        #include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
@@ -88,7 +87,8 @@ namespace TopDiLeptonOffline {
       if (jetExtras.existsAs<edm::ParameterSet>("jetID")) {
         edm::ParameterSet jetID = jetExtras.getParameter<edm::ParameterSet>("jetID");
         jetIDLabel_ = iC.consumes<reco::JetIDValueMap>(jetID.getParameter<edm::InputTag>("label"));
-        jetIDSelect_ = std::make_unique<StringCutObjectSelector<reco::JetID>>(jetID.getParameter<std::string>("select"));
+        jetIDSelect_ =
+            std::make_unique<StringCutObjectSelector<reco::JetID>>(jetID.getParameter<std::string>("select"));
       }
       // select is optional; in case it's not found no
       // selection will be applied (only implemented for
@@ -719,7 +719,8 @@ TopDiLeptonOfflineDQM::TopDiLeptonOfflineDQM(const edm::ParameterSet& cfg)
   if (presel.existsAs<edm::ParameterSet>("beamspot")) {
     edm::ParameterSet beamspot = presel.getParameter<edm::ParameterSet>("beamspot");
     beamspot_ = consumes<reco::BeamSpot>(beamspot.getParameter<edm::InputTag>("src"));
-    beamspotSelect_ = std::make_unique<StringCutObjectSelector<reco::BeamSpot>>(beamspot.getParameter<std::string>("select"));
+    beamspotSelect_ =
+        std::make_unique<StringCutObjectSelector<reco::BeamSpot>>(beamspot.getParameter<std::string>("select"));
   }
 
   // conifgure the selection
@@ -746,16 +747,14 @@ TopDiLeptonOfflineDQM::TopDiLeptonOfflineDQM(const edm::ParameterSet& cfg)
         PvStep = std::make_unique<SelectionStep<reco::Vertex>>(selection_[key].first, consumesCollector());
       }
       if (type == "jets") {
-        JetSteps.push_back(std::make_unique<SelectionStep<reco::Jet>>(
-            selection_[key].first, consumesCollector()));
+        JetSteps.push_back(std::make_unique<SelectionStep<reco::Jet>>(selection_[key].first, consumesCollector()));
       }
       if (type == "jets/pf") {
-        PFJetSteps.push_back(std::make_unique<SelectionStep<reco::PFJet>>(
-            selection_[key].first, consumesCollector()));
+        PFJetSteps.push_back(std::make_unique<SelectionStep<reco::PFJet>>(selection_[key].first, consumesCollector()));
       }
       if (type == "jets/calo") {
-        CaloJetSteps.push_back(std::make_unique<SelectionStep<reco::CaloJet>>(
-            selection_[key].first, consumesCollector()));
+        CaloJetSteps.push_back(
+            std::make_unique<SelectionStep<reco::CaloJet>>(selection_[key].first, consumesCollector()));
       }
       if (type == "met") {
         METStep = std::make_unique<SelectionStep<reco::MET>>(selection_[key].first, consumesCollector());

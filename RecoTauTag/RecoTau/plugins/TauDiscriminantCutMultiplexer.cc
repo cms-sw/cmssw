@@ -23,10 +23,8 @@
 #include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
 #include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
 
+#include <memory>
 
-        #include <memory>
-
-        
 #include "CondFormats/PhysicsToolsObjects/interface/PhysicsTGraphPayload.h"
 #include "CondFormats/DataRecord/interface/PhysicsTGraphPayloadRcd.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PhysicsTFormulaPayload.h"

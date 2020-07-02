@@ -41,25 +41,22 @@ CATopJetProducer::CATopJetProducer(edm::ParameterSet const& conf)
             "useMaxTower"),  // use max tower as adjacency criterion, otherwise use centroid - NOT USED
         conf.getParameter<double>("sumEtEtaCut"),  // eta for event SumEt - NOT USED
         conf.getParameter<double>("etFrac")  // fraction of event sumEt / 2 for a jet to be considered "hard" -NOT USED
-        );
+    );
   } else if (tagAlgo_ == FJ_CMS_TOPTAG) {
-    fjCMSTopTagger_ =
-        std::make_unique<fastjet::CMSTopTagger>(conf.getParameter<double>("ptFrac"),
-                                                                         conf.getParameter<double>("rFrac"),
-                                                                         conf.getParameter<double>("adjacencyParam"));
+    fjCMSTopTagger_ = std::make_unique<fastjet::CMSTopTagger>(conf.getParameter<double>("ptFrac"),
+                                                              conf.getParameter<double>("rFrac"),
+                                                              conf.getParameter<double>("adjacencyParam"));
   } else if (tagAlgo_ == FJ_JHU_TOPTAG) {
-    fjJHUTopTagger_ =
-        std::make_unique<fastjet::JHTopTagger>(conf.getParameter<double>("ptFrac"),
-                                                                       conf.getParameter<double>("deltaRCut"),
-                                                                       conf.getParameter<double>("cosThetaWMax"));
+    fjJHUTopTagger_ = std::make_unique<fastjet::JHTopTagger>(conf.getParameter<double>("ptFrac"),
+                                                             conf.getParameter<double>("deltaRCut"),
+                                                             conf.getParameter<double>("cosThetaWMax"));
   } else if (tagAlgo_ == FJ_NSUB_TAG) {
     fastjet::JetDefinition::Plugin* plugin = new fastjet::SISConePlugin(0.6, 0.75);
     fastjet::JetDefinition NsubJetDef(plugin);
-    fjNSUBTagger_ = std::make_unique<fastjet::RestFrameNSubjettinessTagger>(
-        NsubJetDef,
-                                                  conf.getParameter<double>("tau2Cut"),
-                                                  conf.getParameter<double>("cosThetaSCut"),
-                                                  conf.getParameter<bool>("useExclusive"));
+    fjNSUBTagger_ = std::make_unique<fastjet::RestFrameNSubjettinessTagger>(NsubJetDef,
+                                                                            conf.getParameter<double>("tau2Cut"),
+                                                                            conf.getParameter<double>("cosThetaSCut"),
+                                                                            conf.getParameter<bool>("useExclusive"));
   }
 }
 

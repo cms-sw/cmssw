@@ -9,7 +9,7 @@
 #include <map>
 #include <string>
 #include <utility>
-        #include <vector>
+#include <vector>
 
 #include "FWCore/Framework/interface/InputTagMatch.h"
 

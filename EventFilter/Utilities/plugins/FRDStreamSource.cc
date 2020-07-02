@@ -2,7 +2,6 @@
 #include <memory>
 #include <zlib.h>
 
-        
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
 #include "IOPool/Streamer/interface/FRDFileHeader.h"
 

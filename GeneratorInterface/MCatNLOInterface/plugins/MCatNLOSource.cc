@@ -4,7 +4,7 @@
 #include <memory>
 
 #include <memory>
-        #include <sstream>
+#include <sstream>
 #include <string>
 
 #include <boost/bind.hpp>

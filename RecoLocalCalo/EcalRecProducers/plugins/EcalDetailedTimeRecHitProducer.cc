@@ -22,7 +22,7 @@
 #include <iostream>
 #include <memory>
 
-        #include <vector>
+#include <vector>
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -152,7 +152,8 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
         {
           assert((*VertexHandle)[0].vertexId() == 0);
           const SimVertex* myVertex = &(*VertexHandle)[0];
-          vertex = std::make_unique<GlobalPoint>(myVertex->position().x(), myVertex->position().y(), myVertex->position().z());
+          vertex = std::make_unique<GlobalPoint>(
+              myVertex->position().x(), myVertex->position().y(), myVertex->position().z());
         }
       }
     }

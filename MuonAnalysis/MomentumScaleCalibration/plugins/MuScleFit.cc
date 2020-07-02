@@ -114,7 +114,7 @@
 #include <CLHEP/Vector/LorentzVector.h>
 #include <memory>
 
-        #include <vector>
+#include <vector>
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -559,15 +559,15 @@ MuScleFit::MuScleFit(const edm::ParameterSet& pset) : MuScleFitBase(pset), total
   MuScleFitUtils::massWindowHalfWidth[2][5] = 0.2;
 
   muonSelector_ = std::make_unique<MuScleFitMuonSelector>(theMuonLabel_,
-                                                theMuonType_,
-                                                PATmuons_,
-                                                MuScleFitUtils::resfind,
-                                                MuScleFitUtils::speedup,
-                                                genParticlesName_,
-                                                compareToSimTracks_,
-                                                simTracksCollection_,
-                                                MuScleFitUtils::sherpa_,
-                                                debug_);
+                                                          theMuonType_,
+                                                          PATmuons_,
+                                                          MuScleFitUtils::resfind,
+                                                          MuScleFitUtils::speedup,
+                                                          genParticlesName_,
+                                                          compareToSimTracks_,
+                                                          simTracksCollection_,
+                                                          MuScleFitUtils::sherpa_,
+                                                          debug_);
 
   MuScleFitUtils::backgroundHandler =
       new BackgroundHandler(pset.getParameter<std::vector<int> >("BgrFitType"),
@@ -1222,7 +1222,7 @@ void MuScleFit::duringFastLoop() {
       if (loopCounter == 0) {
         std::vector<double> initpar;
         initpar.reserve((int)(MuScleFitUtils::parResol.size()));
- for (int i = 0; i < (int)(MuScleFitUtils::parResol.size()); i++) {
+        for (int i = 0; i < (int)(MuScleFitUtils::parResol.size()); i++) {
           initpar.push_back(MuScleFitUtils::parResol[i]);
         }
         for (int i = 0; i < (int)(MuScleFitUtils::parScale.size()); i++) {

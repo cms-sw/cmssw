@@ -27,11 +27,11 @@ JetMatchingHook::JetMatchingHook(const edm::ParameterSet& ps, const Info* info)
       fRunBlock(nullptr),
       fEventBlock(nullptr),
       fEventNumber(0),
-//      fInfoPtr(info),
+      //      fInfoPtr(info),
       fJetMatching(nullptr),
       fJetInputFill(nullptr),
       fIsInitialized(false) {
-//  assert(fInfoPtr);
+  //  assert(fInfoPtr);
 
   std::string scheme = ps.getParameter<std::string>("scheme");
 

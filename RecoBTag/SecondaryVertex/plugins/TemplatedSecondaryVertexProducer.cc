@@ -687,10 +687,10 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
   if (useGhostTrack)
     vertexRecoGT = std::make_unique<GhostTrackVertexFinder>(
         vtxRecoPSet.getParameter<double>("maxFitChi2"),
-                                   vtxRecoPSet.getParameter<double>("mergeThreshold"),
-                                   vtxRecoPSet.getParameter<double>("primcut"),
-                                   vtxRecoPSet.getParameter<double>("seccut"),
-                                   getGhostTrackFitType(vtxRecoPSet.getParameter<std::string>("fitType")));
+        vtxRecoPSet.getParameter<double>("mergeThreshold"),
+        vtxRecoPSet.getParameter<double>("primcut"),
+        vtxRecoPSet.getParameter<double>("seccut"),
+        getGhostTrackFitType(vtxRecoPSet.getParameter<std::string>("fitType")));
   else
     vertexReco = std::make_unique<ConfigurableVertexReconstructor>(vtxRecoPSet);
 
