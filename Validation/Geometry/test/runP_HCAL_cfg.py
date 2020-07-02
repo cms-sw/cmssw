@@ -40,7 +40,6 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
         FillHisto    = cms.untracked.bool(True),
         PrintSummary = cms.untracked.bool(True),
         DoHCAL       = cms.untracked.bool(True),
-        Verbosity    = cms.untracked.bool(False),
         NBinPhi      = cms.untracked.int32(180),
         NBinEta      = cms.untracked.int32(260),
         MaxEta       = cms.untracked.double(5.2),
