@@ -588,6 +588,7 @@ namespace {
     }
 
     ESGetToken<edm::eventsetup::test::DummyData, edm::DefaultRecord> m_token;
+    ESGetToken<edm::eventsetup::test::DummyData, edm::DefaultRecord> m_tokenUninitialized;
   };
 
   class ConsumesProducer : public ESProducer {
@@ -763,6 +764,14 @@ void testEventsetup::getDataWithESGetTokenTest() {
                             true};
       auto const& data = eventSetup.getData(consumer.m_token);
       CPPUNIT_ASSERT(kGood.value_ == data.value_);
+      bool uninitializedTokenThrewException = false;
+      try {
+        (void)eventSetup.getData(consumer.m_tokenUninitialized);
+      } catch (cms::Exception& ex) {
+        uninitializedTokenThrewException = true;
+        CPPUNIT_ASSERT(ex.category() == "InvalidESGetToken");
+      }
+      CPPUNIT_ASSERT(uninitializedTokenThrewException);
     }
 
     {
