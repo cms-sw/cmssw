@@ -11,9 +11,9 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <string>
+#include <map>
+#include <memory>
 #include <vector>
-
-#include "boost/ptr_container/ptr_map.hpp"
 
 namespace ecaldqm {
   /*
@@ -338,15 +338,33 @@ namespace ecaldqm {
 
 }  // namespace ecaldqm
 
-namespace boost {
-  template <>
-  inline ecaldqm::MESet *new_clone<ecaldqm::MESet>(ecaldqm::MESet const &);
-  template <>
-  void delete_clone<ecaldqm::MESet>(ecaldqm::MESet const *);
-}  // namespace boost
-
 namespace ecaldqm {
-  typedef boost::ptr_map<std::string, MESet> MESetCollection;
-}
+
+  class MESetCollection {
+    using MESetColletionType = std::map<std::string, std::unique_ptr<MESet>>;
+
+  public:
+    using iterator = MESetColletionType::iterator;
+    using const_iterator = MESetColletionType::const_iterator;
+
+    void insert(const std::string &key, MESet *ptr) { _MESetColletion.emplace(key, ptr); }
+    void insert(const std::string &&key, MESet *ptr) { _MESetColletion.emplace(key, ptr); }
+
+    void erase(const std::string &key) { _MESetColletion.erase(key); }
+
+    auto begin() { return _MESetColletion.begin(); }
+    auto end() const { return _MESetColletion.end(); }
+
+    const_iterator find(const std::string &key) const { return _MESetColletion.find(key); }
+    iterator find(const std::string &key) { return _MESetColletion.find(key); }
+
+    //return a reference, but this collection still has the ownership
+    MESet &at(const std::string &key) { return *(_MESetColletion.at(key).get()); }
+
+  private:
+    MESetColletionType _MESetColletion;
+  };
+
+}  // namespace ecaldqm
 
 #endif
