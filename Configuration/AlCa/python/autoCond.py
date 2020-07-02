@@ -82,6 +82,20 @@ autoCond = {
     'phase2_realistic'         : '110X_mcRun4_realistic_v3'
 }
 
+##
+## Append for 0T conditions
+##
+import six
+from Configuration.StandardSequences.CondDBESSource_cff import GlobalTag as essource
+connectionString = essource.connect.value()
+ConditionsFor0T =  ','.join( ['RunInfo_0T_v1_mc', "RunInfoRcd", connectionString, "", "2020-07-01 12:00:00.000"] )
+GlobalTags0T = {}
+for key,val in six.iteritems(autoCond):
+    if "phase" in key:
+        GlobalTags0T[key+"_0T"] = (autoCond[key], ConditionsFor0T)
+
+autoCond.update(GlobalTags0T)
+
 aliases = {
     'MAINGT' : 'FT_P_V42D|AN_V4',
     'BASEGT' : 'BASE1_V1|BASE2_V1'
