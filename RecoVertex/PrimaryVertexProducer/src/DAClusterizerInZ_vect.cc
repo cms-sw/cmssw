@@ -213,7 +213,6 @@ DAClusterizerInZ_vect::track_t DAClusterizerInZ_vect::fill(const vector<reco::Tr
   tks.extractRaw();
 #ifdef DEBUG
   if (DEBUGLEVEL > 0) {
-
     std::cout << "Track count (Z) " << tks.getSize() << std::endl;
   }
 #endif
