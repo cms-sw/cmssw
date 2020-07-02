@@ -1,6 +1,29 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
+import FWCore.ParameterSet.VarParsing as VarParsing
+options = VarParsing.VarParsing()
+options.register('runNumber',
+                 1, #default value, int limit -3
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Run number")
+options.register('transDelay',
+                 0, #default value, int limit -3
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "delay in seconds for the commit of the db transaction")
+options.register('unitTest',
+                 False, #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "load or not the unitTest inputsource module")
+options.parseArguments()
+
+# Define once the BeamSpotOnline record name,
+# will be used both in BeamMonitor setup and in payload creation/upload
+BSOnlineRecordName = 'BeamSpotOnlineHLTObjectsRcd'
+
 #from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 #process = cms.Process("BeamMonitor", Run2_2018) # FIMXE
 import sys
@@ -21,9 +44,7 @@ process = cms.Process("BeamMonitor", Run2_2018_pp_on_AA)
 #    destinations = cms.untracked.vstring('cerr'),
 #)
 
-unitTest=False
-if 'unitTest=True' in sys.argv:
-  unitTest=True
+unitTest = options.unitTest
 
 # Common part for PP and H.I Running
 #-----------------------------
@@ -108,6 +129,7 @@ if (process.runType.getRunType() == process.runType.pp_run or
     process.dqmBeamMonitor.monitorName = 'TrackingHLTBeamspotStream'
 
     process.dqmBeamMonitor.OnlineMode = True              
+    process.dqmBeamMonitor.recordName = BSOnlineRecordName
 
     process.dqmBeamMonitor.resetEveryNLumi   = 5
     process.dqmBeamMonitor.resetPVEveryNLumi = 5
@@ -136,6 +158,36 @@ if (process.runType.getRunType() == process.runType.pp_run or
         "HLT_HI")
 
     process.dqmBeamMonitor.hltResults = cms.InputTag("TriggerResults","","HLT")
+
+    #---------
+    # Upload BeamSpotOnlineObject (HLTRcd) to CondDB
+    process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
+
+        DBParameters = cms.PSet(
+                                messageLevel = cms.untracked.int32(0),
+                                authenticationPath = cms.untracked.string('')
+                               ),
+
+        # Upload to CondDB
+        connect = cms.string('oracle://cms_orcoff_prep/CMS_CONDITIONS'),
+        preLoadConnectionString = cms.untracked.string('frontier://FrontierPrep/CMS_CONDITIONS'),
+
+        runNumber = cms.untracked.uint64(options.runNumber),
+        lastLumiFile = cms.untracked.string(''),
+        writeTransactionDelay = cms.untracked.uint32(options.transDelay),
+        autoCommit = cms.untracked.bool(True),
+        toPut = cms.VPSet(cms.PSet(
+            record = cms.string(BSOnlineRecordName),
+            tag = cms.string('BSOnlineHLT_tag'),
+            timetype = cms.untracked.string('Lumi'),
+            onlyAppendUpdatePolicy = cms.untracked.bool(True)
+        ))
+    )
+
+    # If not live: produce a (local) SQLITE FILE
+    if unitTest:
+      process.OnlineDBOutputService.connect = cms.string('sqlite_file:BeamSpotOnlineHLT.db')
+      process.OnlineDBOutputService.preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineHLT.db')
 
     process.p = cms.Path( process.hltTriggerTypeFilter
                         * process.dqmcommon
