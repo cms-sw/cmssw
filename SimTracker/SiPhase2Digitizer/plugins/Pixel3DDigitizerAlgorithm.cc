@@ -410,16 +410,19 @@ void Pixel3DDigitizerAlgorithm::induce_signal(const PSimHit& hit,
                                               const std::vector<DigitizerUtility::SignalPoint>& collection_points) {
   // X  - Rows, Left-Right
   // Y  - Columns, Down-Up
-  const Phase2TrackerTopology& topo = pixdet->specificTopology();
   const uint32_t detId = pixdet->geographicalId().rawId();
   // Accumulated signal at each channel of this detector
   signal_map_type& the_signal = _signal[detId];
 
+  // Choose the proper pixel-to-channel converter
+  std::function<int(int, int)> pixelToChannel =
+      pixelFlag_ ? PixelDigi::pixelToChannel
+                 : static_cast<std::function<int(int, int)> >(Phase2TrackerDigi::pixelToChannel);
+
   // Iterate over collection points on the collection plane
   for (const auto& pt : collection_points) {
-    // Find the corresponding (ROC) channel to that pixel
-    MeasurementPoint rowcol(pt.position().x(), pt.position().y());
-    const int channel = topo.channel(topo.localPosition(rowcol));
+    // Extract corresponding channel (position is already given in pixel indices)
+    const int channel = pixelToChannel(pt.position().x(), pt.position().y());
 
     float corr_time = hit.tof() - pixdet->surface().toGlobal(hit.localPosition()).mag() * c_inv;
     if (makeDigiSimLinks_) {
@@ -430,7 +433,7 @@ void Pixel3DDigitizerAlgorithm::induce_signal(const PSimHit& hit,
     }
 
     LogDebug("Pixel3DDigitizerAlgorithm::induce_signal")
-        << " Induce charge at row,col:" << rowcol << " N_electrons:" << pt.amplitude() << " [Channel:" << channel
+        << " Induce charge at row,col:" << pt.position() << " N_electrons:" << pt.amplitude() << " [Channel:" << channel
         << "]\n   [Accumulated signal in this channel:" << the_signal[channel].ampl() << "] "
         << " Global index linked PSimHit:" << hitIndex;
     ;
