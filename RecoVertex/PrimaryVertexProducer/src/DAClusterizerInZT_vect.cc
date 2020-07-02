@@ -761,24 +761,28 @@ bool DAClusterizerInZT_vect::purge(vertex_t& y, track_t& tks, double& rho0, cons
   int nUnique = 0;
   double sump = 0;
 
-  std::vector<double> inverse_zsums(nt), arg_cache(nt), eik_cache(nt);
+  std::vector<double> inverse_zsums(nt), arg_cache(nt), eik_cache(nt), pcut_cache(nt);
   double* pinverse_zsums;
   double* parg_cache;
   double* peik_cache;
+  double* ppcut_cache;
   pinverse_zsums = inverse_zsums.data();
   parg_cache = arg_cache.data();
   peik_cache = eik_cache.data();
+  ppcut_cache = pcut_cache.data();
 #pragma GCC ivdep
   for (unsigned i = 0; i < nt; ++i) {
     inverse_zsums[i] = tks.Z_sum_ptr[i] > eps ? 1. / tks.Z_sum_ptr[i] : 0.0;
   }
+  const auto rhoconst = rho0 * local_exp(-beta * dzCutOff_ * dzCutOff_);
 #pragma GCC ivdep
   for (unsigned int k = 0; k < nv; ++k) {
-    nUnique = 0;
-    sump = 0;
+    const double pmax = y.pk_ptr[k] / (y.pk_ptr[k] + rhoconst);
+    ppcut_cache[k] = uniquetrkweight_ * pmax;
+  }
 
-    const double pmax = y.pk_ptr[k] / (y.pk_ptr[k] + rho0 * local_exp(-beta * dzCutOff_ * dzCutOff_));
-    const double pcut = uniquetrkweight_ * pmax;
+  for (unsigned int k = 0; k < nv; ++k) {
+
 #pragma GCC ivdep
     for (unsigned i = 0; i < nt; ++i) {
       const auto track_z = tks.z_ptr[i];
@@ -791,6 +795,10 @@ bool DAClusterizerInZT_vect::purge(vertex_t& y, track_t& tks, double& rho0, cons
       parg_cache[i] = botrack_dz2 * (mult_resz * mult_resz) + botrack_dt2 * (mult_rest * mult_rest);
     }
     local_exp_list(parg_cache, peik_cache, nt);
+
+    nUnique = 0;
+    sump = 0;
+    double pcut = ppcut_cache[k];
 #pragma GCC ivdep
     for (unsigned int i = 0; i < nt; ++i) {
       const auto p = y.pk_ptr[k] * peik_cache[i] * pinverse_zsums[i];
@@ -1304,8 +1312,9 @@ vector<TransientVertex> DAClusterizerInZT_vect::vertices(const vector<reco::Tran
       y.z_ptr[k] = 0;
     }
 
+  const auto zsuminit = rho0 * local_exp(-beta * dzCutOff_ * dzCutOff_);
   for (unsigned int i = 0; i < nt; i++)  // initialize
-    tks.Z_sum_ptr[i] = rho0 * local_exp(-beta * dzCutOff_ * dzCutOff_);
+    tks.Z_sum_ptr[i] = zsuminit;
 
   // improve vectorization (does not require reduction ....)
   for (unsigned int k = 0; k < nv; k++) {
