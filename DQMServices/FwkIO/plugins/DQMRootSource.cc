@@ -11,12 +11,14 @@
 //
 
 // system include files
-#include <vector>
-#include <string>
-#include <map>
+#include <memory>
+
 #include "TFile.h"
-#include "TTree.h"
 #include "TString.h"
+#include "TTree.h"
+#include <map>
+#include <string>
+        #include <vector>
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Histograms/interface/DQMToken.h"
@@ -599,7 +601,7 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
     m_nextItemType = edm::InputSource::IsRun;
 
   // We have to return something but not sure why
-  return std::unique_ptr<edm::FileBlock>(new edm::FileBlock);
+  return std::make_unique<edm::FileBlock>();
 }
 
 std::shared_ptr<edm::RunAuxiliary> DQMRootSource::readRunAuxiliary_() {

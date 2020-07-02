@@ -46,7 +46,7 @@ private:
     auto result = std::make_unique<std::vector<reco::VertexCompositePtrCandidate>>();
     for (auto const &obj : coll) {
       result->push_back(reco::VertexCompositePtrCandidate(obj));
-      for (reco::PFCandidateRef pfRef : (*oldmap)[obj.originalObjectRef()])
+      for (const reco::PFCandidateRef& pfRef : (*oldmap)[obj.originalObjectRef()])
         result->back().addDaughter(refToPtr(pfRef));
     }
     iEvent.put(std::move(result), name);

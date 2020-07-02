@@ -85,23 +85,23 @@ SiStripChannelGainFromDBMiscalibrator::SiStripChannelGainFromDBMiscalibrator(con
 
   std::string ss_gain = (m_gainType > 0) ? "G2" : "G1";
 
-  scale_map = std::unique_ptr<TrackerMap>(new TrackerMap("scale"));
+  scale_map = std::make_unique<TrackerMap>("scale");
   scale_map->setTitle("Scale factor averaged by module");
   scale_map->setPalette(1);
 
-  smear_map = std::unique_ptr<TrackerMap>(new TrackerMap("smear"));
+  smear_map = std::make_unique<TrackerMap>("smear");
   smear_map->setTitle("Smear factor averaged by module");
   smear_map->setPalette(1);
 
-  ratio_map = std::unique_ptr<TrackerMap>(new TrackerMap("ratio"));
+  ratio_map = std::make_unique<TrackerMap>("ratio");
   ratio_map->setTitle("Average by module of the " + ss_gain + " Gain payload ratio (new/old)");
   ratio_map->setPalette(1);
 
-  new_payload_map = std::unique_ptr<TrackerMap>(new TrackerMap("new_payload"));
+  new_payload_map = std::make_unique<TrackerMap>("new_payload");
   new_payload_map->setTitle("Tracker Map of Modified " + ss_gain + " Gain payload averaged by module");
   new_payload_map->setPalette(1);
 
-  old_payload_map = std::unique_ptr<TrackerMap>(new TrackerMap("old_payload"));
+  old_payload_map = std::make_unique<TrackerMap>("old_payload");
   old_payload_map->setTitle("Tracker Map of Starting " + ss_gain + " Gain Payload averaged by module");
   old_payload_map->setPalette(1);
 }
@@ -275,7 +275,7 @@ void SiStripChannelGainFromDBMiscalibrator::endJob() {
 //********************************************************************************//
 std::unique_ptr<SiStripApvGain> SiStripChannelGainFromDBMiscalibrator::getNewObject(
     const std::map<std::pair<uint32_t, int>, float>& theMap) {
-  std::unique_ptr<SiStripApvGain> obj = std::unique_ptr<SiStripApvGain>(new SiStripApvGain());
+  std::unique_ptr<SiStripApvGain> obj = std::make_unique<SiStripApvGain>();
 
   std::vector<float> theSiStripVector;
   uint32_t PreviousDetId = 0;

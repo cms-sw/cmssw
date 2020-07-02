@@ -491,7 +491,7 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 
         // save single-RP results (un-indexed)
         for (const auto &p : singleRPResultsIndexed)
-          pOutSingleRP->emplace_back(std::move(p.second));
+          pOutSingleRP->emplace_back(p.second);
       }
 
       // dump log

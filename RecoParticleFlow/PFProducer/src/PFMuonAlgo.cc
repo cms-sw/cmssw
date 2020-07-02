@@ -1,14 +1,16 @@
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonCocktails.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
-#include "DataFormats/MuonReco/interface/MuonCocktails.h"
 #include <iostream>
+#include <memory>
 
+        
 using namespace std;
 using namespace reco;
 using namespace boost;
@@ -655,27 +657,27 @@ void PFMuonAlgo::postClean(reco::PFCandidateCollection* cands) {
   if (pfCosmicsMuonCleanedCandidates_.get())
     pfCosmicsMuonCleanedCandidates_->clear();
   else
-    pfCosmicsMuonCleanedCandidates_.reset(new reco::PFCandidateCollection);
+    pfCosmicsMuonCleanedCandidates_ = std::make_unique<reco::PFCandidateCollection>();
 
   if (pfCleanedTrackerAndGlobalMuonCandidates_.get())
     pfCleanedTrackerAndGlobalMuonCandidates_->clear();
   else
-    pfCleanedTrackerAndGlobalMuonCandidates_.reset(new reco::PFCandidateCollection);
+    pfCleanedTrackerAndGlobalMuonCandidates_ = std::make_unique<reco::PFCandidateCollection>();
 
   if (pfFakeMuonCleanedCandidates_.get())
     pfFakeMuonCleanedCandidates_->clear();
   else
-    pfFakeMuonCleanedCandidates_.reset(new reco::PFCandidateCollection);
+    pfFakeMuonCleanedCandidates_ = std::make_unique<reco::PFCandidateCollection>();
 
   if (pfPunchThroughMuonCleanedCandidates_.get())
     pfPunchThroughMuonCleanedCandidates_->clear();
   else
-    pfPunchThroughMuonCleanedCandidates_.reset(new reco::PFCandidateCollection);
+    pfPunchThroughMuonCleanedCandidates_ = std::make_unique<reco::PFCandidateCollection>();
 
   if (pfPunchThroughHadronCleanedCandidates_.get())
     pfPunchThroughHadronCleanedCandidates_->clear();
   else
-    pfPunchThroughHadronCleanedCandidates_.reset(new reco::PFCandidateCollection);
+    pfPunchThroughHadronCleanedCandidates_ = std::make_unique<reco::PFCandidateCollection>();
 
   pfPunchThroughHadronCleanedCandidates_->clear();
 
@@ -742,7 +744,7 @@ void PFMuonAlgo::addMissingMuons(edm::Handle<reco::MuonCollection> muons, reco::
   if (pfAddedMuonCandidates_.get())
     pfAddedMuonCandidates_->clear();
   else
-    pfAddedMuonCandidates_.reset(new reco::PFCandidateCollection);
+    pfAddedMuonCandidates_ = std::make_unique<reco::PFCandidateCollection>();
 
   for (unsigned imu = 0; imu < muons->size(); ++imu) {
     reco::MuonRef muonRef(muons, imu);

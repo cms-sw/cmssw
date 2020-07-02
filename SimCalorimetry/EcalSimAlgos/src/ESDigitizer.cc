@@ -155,7 +155,7 @@ void ESDigitizer::run(ESDigiCollection& output, CLHEP::HepRandomEngine* engine) 
       analogSignal[2] = m_histoInf + m_histoWid * trip.third;
       ESDataFrame digi(*idItr);
       const_cast<ESElectronicsSimFast*>(elecSim())->analogToDigital(engine, analogSignal, digi, true);
-      output.push_back(std::move(digi));
+      output.push_back(digi);
     }
   }
 }
@@ -179,6 +179,6 @@ void ESDigitizer::createNoisyList(std::vector<DetId>& abThreshCh, CLHEP::HepRand
       idItr = find(abThreshCh.begin(), abThreshCh.end(), id);
     } while (idItr != abThreshCh.end());
 
-    abThreshCh.push_back(std::move(id));
+    abThreshCh.push_back(id);
   }
 }

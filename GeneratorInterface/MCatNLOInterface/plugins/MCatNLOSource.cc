@@ -1,9 +1,11 @@
 #include <algorithm>
 #include <functional>
 #include <iostream>
-#include <sstream>
-#include <string>
 #include <memory>
+
+#include <memory>
+        #include <sstream>
+#include <string>
 
 #include <boost/bind.hpp>
 
@@ -57,7 +59,7 @@ MCatNLOSource::MCatNLOSource(const edm::ParameterSet &params, const edm::InputSo
   fileName.erase(0, 5);
 
   // open input file
-  reader.reset(new std::ifstream(fileName.c_str()));
+  reader = std::make_unique<std::ifstream>(fileName.c_str());
 
   produces<LHEEventProduct>();
   produces<LHERunInfoProduct, edm::Transition::BeginRun>();

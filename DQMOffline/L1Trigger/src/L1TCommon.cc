@@ -11,16 +11,16 @@ namespace dqmoffline {
                                                 const std::vector<std::string> &triggersInEvent) {
       std::vector<unsigned int> triggerIndices;
 
-      for (auto requestedTriggerName : requestedTriggers) {
+      for (const auto& requestedTriggerName : requestedTriggers) {
         std::string name(requestedTriggerName);
-        std::size_t wildcarPosition = name.find("*");
+        std::size_t wildcarPosition = name.find('*');
         if (wildcarPosition != std::string::npos) {
           // take everything up to the wildcard
           name = name.substr(0, wildcarPosition - 1);
         }
 
         unsigned int triggerIndex = 0;
-        for (auto triggerName : triggersInEvent) {
+        for (const auto& triggerName : triggersInEvent) {
           if (triggerName.find(name) != std::string::npos) {
             triggerIndices.push_back(triggerIndex);
             break;
@@ -77,7 +77,7 @@ namespace dqmoffline {
       trigger::TriggerObjectCollection triggerObjects = triggerEvent.getObjects();
       trigger::TriggerObjectCollection results;
 
-      for (auto filter : hltFilters) {
+      for (const auto& filter : hltFilters) {
         const unsigned filterIndex = triggerEvent.filterIndex(filter);
 
         if (filterIndex < triggerEvent.sizeFilters()) {

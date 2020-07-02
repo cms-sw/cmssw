@@ -20,7 +20,9 @@
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
-#include <set>
+#include <memory>
+
+        #include <set>
 
 namespace edm {
   ScheduleItems::ScheduleItems()
@@ -109,7 +111,7 @@ namespace edm {
   }
 
   std::shared_ptr<CommonParams> ScheduleItems::initMisc(ParameterSet& parameterSet) {
-    act_table_.reset(new ExceptionToActionTable(parameterSet));
+    act_table_ = std::make_unique<ExceptionToActionTable>(parameterSet);
     std::string processName = parameterSet.getParameter<std::string>("@process_name");
     processConfiguration_ = std::make_shared<ProcessConfiguration>(
         processName, getReleaseVersion(), getPassID());  // propagate_const<T> has no reset() function

@@ -25,8 +25,10 @@
 #include "Randomize.hh"
 
 #include <cmath>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
+#include <memory>
+
 
 HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet& p)
     : addTower_(3), tuples_(nullptr), hcons_(nullptr), org_(nullptr) {
@@ -56,7 +58,7 @@ HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet& p)
                               << nTower_ << " towers";
 
   // qie
-  myqie_.reset(new HcalQie(p));
+  myqie_ = std::make_unique<HcalQie>(p);
 }
 
 HcalTestAnalysis::~HcalTestAnalysis() {
@@ -140,10 +142,10 @@ void HcalTestAnalysis::update(const BeginOfJob* job) {
   (*job)()->get<HcalSimNumberingRecord>().get(hdc);
   hcons_ = hdc.product();
   edm::LogVerbatim("HcalSim") << "HcalTestAnalysis:: Initialise HcalNumberingFromDDD for " << names_[0];
-  numberingFromDDD_.reset(new HcalNumberingFromDDD(hcons_));
+  numberingFromDDD_ = std::make_unique<HcalNumberingFromDDD>(hcons_);
 
   // Ntuples
-  tuplesManager_.reset(new HcalTestHistoManager(fileName_));
+  tuplesManager_ = std::make_unique<HcalTestHistoManager>(fileName_);
 
   // Numbering scheme
   org_ = new HcalTestNumberingScheme(false);

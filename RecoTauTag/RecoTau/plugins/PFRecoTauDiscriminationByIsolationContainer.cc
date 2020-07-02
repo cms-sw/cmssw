@@ -1,12 +1,14 @@
 #include <functional>
-#include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
-#include "DataFormats/Candidate/interface/LeafCandidate.h"
-#include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
-#include "RecoTauTag/RecoTau/interface/RecoTauVertexAssociator.h"
-#include "RecoTauTag/RecoTau/interface/ConeTools.h"
+#include <memory>
+
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "RecoTauTag/RecoTau/interface/ConeTools.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauVertexAssociator.h"
+        #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
 #include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
 
@@ -155,9 +157,9 @@ public:
     // Get the quality cuts specific to the isolation region
     edm::ParameterSet isolationQCuts = qualityCutsPSet_.getParameterSet("isolationQualityCuts");
 
-    qcuts_.reset(new tau::RecoTauQualityCuts(isolationQCuts));
+    qcuts_ = std::make_unique<tau::RecoTauQualityCuts>(isolationQCuts);
 
-    vertexAssociator_.reset(new tau::RecoTauVertexAssociator(qualityCutsPSet_, consumesCollector()));
+    vertexAssociator_ = std::make_unique<tau::RecoTauVertexAssociator>(qualityCutsPSet_, consumesCollector());
 
     if (deltaBetaNeeded_ || weightsNeeded_) {
       // Factorize the isolation QCuts into those that are used to
@@ -178,9 +180,9 @@ public:
                                                          isolationQCuts.getParameter<double>("minGammaEt"));
       }
 
-      pileupQcutsPUTrackSelection_.reset(new tau::RecoTauQualityCuts(puFactorizedIsoQCuts.first));
+      pileupQcutsPUTrackSelection_ = std::make_unique<tau::RecoTauQualityCuts>(puFactorizedIsoQCuts.first);
 
-      pileupQcutsGeneralQCuts_.reset(new tau::RecoTauQualityCuts(puFactorizedIsoQCuts.second));
+      pileupQcutsGeneralQCuts_ = std::make_unique<tau::RecoTauQualityCuts>(puFactorizedIsoQCuts.second);
 
       pfCandSrc_ = pset.getParameter<edm::InputTag>("particleFlowSrc");
       pfCand_token = consumes<edm::View<reco::Candidate>>(pfCandSrc_);
@@ -188,7 +190,7 @@ public:
       vertex_token = consumes<reco::VertexCollection>(vertexSrc_);
       deltaBetaCollectionCone_ = pset.getParameter<double>("isoConeSizeForDeltaBeta");
       std::string deltaBetaFactorFormula = pset.getParameter<string>("deltaBetaFactor");
-      deltaBetaFormula_.reset(new TFormula("DB_corr", deltaBetaFactorFormula.c_str()));
+      deltaBetaFormula_ = std::make_unique<TFormula>("DB_corr", deltaBetaFactorFormula.c_str());
     }
 
     applyRhoCorrection_ = pset.getParameter<bool>("applyRhoCorrection");

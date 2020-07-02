@@ -1,6 +1,10 @@
 #include "CalibTracker/SiStripDCS/interface/SiStripDetVOffBuilder.h"
 #include <sys/stat.h>
 
+
+#include <memory>
+
+
 // constructor
 SiStripDetVOffBuilder::SiStripDetVOffBuilder(const edm::ParameterSet& pset, const edm::ActivityRegistry&)
     : onlineDbConnectionString(pset.getParameter<std::string>("onlineDB")),
@@ -98,7 +102,7 @@ void SiStripDetVOffBuilder::BuildDetVOffObj() {
   TimesAndValues timesAndValues;
 
   // Open the PVSS DB connection
-  coralInterface.reset(new SiStripCoralIface(onlineDbConnectionString, authenticationPath, debug_));
+  coralInterface = std::make_unique<SiStripCoralIface>(onlineDbConnectionString, authenticationPath, debug_);
   edm::LogError("SiStripDetVOffBuilder") << "[SiStripDetVOffBuilder::BuildDetVOff]: Query type is " << whichTable
                                          << endl;
 

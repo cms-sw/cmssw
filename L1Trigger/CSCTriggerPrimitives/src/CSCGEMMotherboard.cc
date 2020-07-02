@@ -1,3 +1,7 @@
+#include <memory>
+
+
+
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCGEMMotherboard.h"
 
 CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap,
@@ -18,7 +22,7 @@ CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap,
 
   const edm::ParameterSet coPadParams(station == 1 ? conf.getParameter<edm::ParameterSet>("copadParamGE11")
                                                    : conf.getParameter<edm::ParameterSet>("copadParamGE21"));
-  coPadProcessor.reset(new GEMCoPadProcessor(theRegion, theStation, theChamber, coPadParams));
+  coPadProcessor = std::make_unique<GEMCoPadProcessor>(theRegion, theStation, theChamber, coPadParams);
 
   maxDeltaPadL1_ = (theParity ? tmbParams_.getParameter<int>("maxDeltaPadL1Even")
                               : tmbParams_.getParameter<int>("maxDeltaPadL1Odd"));

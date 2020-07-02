@@ -129,7 +129,7 @@ void readfile(std::string filename, std::string outfile) {
         unsigned int srcSize = eview->size();
         savebuf.resize(srcSize);
         std::copy(src, src + srcSize, &(savebuf)[0]);
-        firstEvtView.reset(new EventMsgView(&(savebuf)[0]));
+        firstEvtView = std::make_unique<EventMsgView>(&(savebuf)[0]);
         //firstEvtView, reset(new EventMsgView((void*)eview->startAddress()));
         if (!test_chksum(eview)) {
           std::cout << "checksum error for count " << num_events << " event number " << eview->event()

@@ -11,7 +11,9 @@
 
 #include "RecoPPS/Local/interface/TotemTimingRecHitProducerAlgorithm.h"
 
-#include <numeric>
+#include <memory>
+
+        #include <numeric>
 
 //----------------------------------------------------------------------------------------------------
 
@@ -27,7 +29,7 @@ TotemTimingRecHitProducerAlgorithm::TotemTimingRecHitProducerAlgorithm(const edm
 //----------------------------------------------------------------------------------------------------
 
 void TotemTimingRecHitProducerAlgorithm::setCalibration(const PPSTimingCalibration& calib) {
-  sampicConversions_.reset(new TotemTimingConversions(mergeTimePeaks_, calib));
+  sampicConversions_ = std::make_unique<TotemTimingConversions>(mergeTimePeaks_, calib);
 }
 
 //----------------------------------------------------------------------------------------------------

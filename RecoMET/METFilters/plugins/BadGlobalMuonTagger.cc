@@ -1,5 +1,9 @@
-#include "FWCore/Framework/interface/global/EDFilter.h"
+#include <memory>
+
+
+
 #include "FWCore/Framework/interface/Event.h"
+        #include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -129,7 +133,7 @@ bool BadGlobalMuonTagger::filter(edm::StreamID iID, edm::Event &iEvent, const ed
   }
 
   iEvent.put(std::move(out), "bad");
-  iEvent.put(std::unique_ptr<bool>(new bool(!found)), "notBadEvent");
+  iEvent.put(std::make_unique<bool>(!found), "notBadEvent");
   return taggingMode_ || found;
 }
 

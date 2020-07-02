@@ -1,3 +1,7 @@
+#include <memory>
+
+
+
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeMotherboard.h"
 
 CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap,
@@ -16,13 +20,13 @@ CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap,
   theParity = theChamber % 2 == 0 ? Parity::Even : Parity::Odd;
 
   // generate the LUTs
-  generator_.reset(new CSCUpgradeMotherboardLUTGenerator());
+  generator_ = std::make_unique<CSCUpgradeMotherboardLUTGenerator>();
 
   // enable the upgrade processors
   if (isSLHC_ and theRing == 1) {
-    clctProc.reset(new CSCUpgradeCathodeLCTProcessor(endcap, station, sector, subsector, chamber, conf));
+    clctProc = std::make_unique<CSCUpgradeCathodeLCTProcessor>(endcap, station, sector, subsector, chamber, conf);
     if (enableAlctSLHC_) {
-      alctProc.reset(new CSCUpgradeAnodeLCTProcessor(endcap, station, sector, subsector, chamber, conf));
+      alctProc = std::make_unique<CSCUpgradeAnodeLCTProcessor>(endcap, station, sector, subsector, chamber, conf);
     }
   }
 

@@ -29,6 +29,10 @@
 #include <DataFormats/PatCandidates/interface/PFParticle.h>
 #include <SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h>
 
+
+        #include <memory>
+
+        
 //--------------------------------------------------------------------------------
 //just define here a list of objects you would like to be able to have a branch of
 //--------------------------------------------------------------------------------
@@ -69,7 +73,7 @@ TreeBranch::value TreeBranch::branch(const edm::Event& iEvent) {
   else ANOTHER_VECTOR_CLASS(reco::CaloCluster);
   else {
     edm::LogError("TreeBranch") << branchName() << " failed to recognized class type: " << class_;
-    return TreeBranch::value(new std::vector<float>());
+    return std::make_unique<std::vector<float>>();
   }
 }
 #undef ANOTHER_CLASS

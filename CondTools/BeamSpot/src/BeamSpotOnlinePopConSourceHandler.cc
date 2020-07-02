@@ -4,6 +4,8 @@
 #include "CondTools/BeamSpot/interface/BeamSpotOnlinePopConSourceHandler.h"
 
 #include <chrono>
+#include <memory>
+
 
 BeamSpotOnlinePopConSourceHandler::BeamSpotOnlinePopConSourceHandler(edm::ParameterSet const& pset)
     : m_debug(pset.getUntrackedParameter<bool>("debug", false)),
@@ -25,7 +27,7 @@ bool checkPayloadAge(const BeamSpotOnlineObjects& payload, unsigned int maxAge) 
 std::unique_ptr<BeamSpotOnlineObjects> makeDummyPayload() {
   // implement here
   std::unique_ptr<BeamSpotOnlineObjects> ret;
-  ret.reset(new BeamSpotOnlineObjects());
+  ret = std::make_unique<BeamSpotOnlineObjects>();
   auto timeNow = std::chrono::system_clock::now();
   auto nowSinceEpoch = std::chrono::duration_cast<std::chrono::seconds>(timeNow.time_since_epoch()).count();
   ret->SetCreationTime(nowSinceEpoch << 32);

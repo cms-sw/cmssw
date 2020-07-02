@@ -1,4 +1,8 @@
-#include "MergedGenParticleProducer.hh"
+#include <memory>
+
+
+
+        #include "MergedGenParticleProducer.hh"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -75,7 +79,7 @@ void MergedGenParticleProducer::produce(edm::Event& event, const edm::EventSetup
   // At this point we know what the size of the merged GenParticle will be so we can create it
   const unsigned int n =
       pruned_handle->size() + (packed_handle->size() - st1_dup_map.size()) + nPhotonsFromPrunedHadron;
-  auto cands = std::unique_ptr<reco::GenParticleCollection>(new reco::GenParticleCollection(n));
+  auto cands = std::make_unique<reco::GenParticleCollection>(n);
 
   // First copy in all the pruned candidates
   for (unsigned i = 0; i < pruned_handle->size(); ++i) {

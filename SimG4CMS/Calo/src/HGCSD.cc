@@ -24,9 +24,11 @@
 #include "G4VProcess.hh"
 #include "G4Trap.hh"
 
-#include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <iostream>
+#include <memory>
+
 
 //#define EDM_ML_DEBUG
 //#define plotDebug
@@ -207,9 +209,9 @@ void HGCSD::update(const BeginOfJob* job) {
     geom_mode_ = hgcons->geomMode();
     slopeMin_ = hgcons->minSlope();
     levelT_ = hgcons->levelTop();
-    numberingScheme_.reset(new HGCNumberingScheme(*hgcons, nameX_));
+    numberingScheme_ = std::make_unique<HGCNumberingScheme>(*hgcons, nameX_);
     if (rejectMB_)
-      mouseBite_.reset(new HGCMouseBite(*hgcons, angles_, mouseBiteCut_, waferRot_));
+      mouseBite_ = std::make_unique<HGCMouseBite>(*hgcons, angles_, mouseBiteCut_, waferRot_);
   } else {
     edm::LogError("HGCSim") << "HCalSD : Cannot find HGCalDDDConstants for " << nameX_;
     throw cms::Exception("Unknown", "HGCSD") << "Cannot find HGCalDDDConstants for " << nameX_ << "\n";

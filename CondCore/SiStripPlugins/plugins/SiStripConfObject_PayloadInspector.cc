@@ -96,7 +96,7 @@ namespace {
       TLine lines[configsize_ + 1];
 
       auto h_Config =
-          std::unique_ptr<TH1F>(new TH1F("ConfigParamter", ";;configuration value", configsize_, 0., configsize_));
+          std::make_unique<TH1F>("ConfigParamter", ";;configuration value", configsize_, 0., configsize_);
       h_Config->SetStats(false);
 
       bool isShiftAndXTalk = payload->isParameter("shift_IB1Deco");

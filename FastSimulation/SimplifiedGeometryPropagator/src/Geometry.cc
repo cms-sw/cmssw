@@ -15,6 +15,8 @@
 
 #include <iostream>
 #include <map>
+#include <memory>
+
 
 using namespace fastsim;
 
@@ -70,7 +72,7 @@ void Geometry::update(const edm::EventSetup& iSetup,
   if (iSetup.get<IdealMagneticFieldRecord>().cacheIdentifier() != cacheIdentifierIdealMagneticField_) {
     if (useFixedMagneticFieldZ_)  // use constant magnetic field
     {
-      ownedMagneticField_.reset(new UniformMagneticField(fixedMagneticFieldZ_));
+      ownedMagneticField_ = std::make_unique<UniformMagneticField>(fixedMagneticFieldZ_);
       magneticField_ = ownedMagneticField_.get();
     } else  // get magnetic field from EventSetup
     {

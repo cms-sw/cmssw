@@ -106,7 +106,7 @@ bool HLTDisplacedmumuFilter::hltFilter(edm::Event& iEvent,
   bool triggered = false;
 
   // loop over vertex collection
-  for (auto displacedVertex : displacedVertexColl) {
+  for (const auto& displacedVertex : displacedVertexColl) {
     // check if the vertex actually consists of exactly two muon tracks, throw exception if not
     if (displacedVertex.tracksSize() != 2)
       throw cms::Exception("BadLogic") << "HLTDisplacedmumuFilter: ERROR: the Jpsi vertex must have exactly two muons "

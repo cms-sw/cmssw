@@ -1,3 +1,7 @@
+#include <memory>
+
+
+
 #include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 #include "CommonTools/MVAUtils/interface/TMVAEvaluator.h"
 #include "CommonTools/MVAUtils/interface/TMVAZipReader.h"
@@ -16,7 +20,7 @@ void TMVAEvaluator::initialize(const std::string& options,
                                bool useGBRForest,
                                bool useAdaBoost) {
   // initialize the TMVA reader
-  mReader.reset(new TMVA::Reader(options.c_str()));
+  mReader = std::make_unique<TMVA::Reader>(options.c_str());
   mReader->SetVerbose(false);
   mMethod = method;
 

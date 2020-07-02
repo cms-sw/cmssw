@@ -1,8 +1,12 @@
-#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include <memory>
+
+
+
+        #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Utilities/interface/Transition.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Transition.h"
 
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFProcessor.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFinput.h"
@@ -72,9 +76,9 @@ void OMTFReconstruction::beginRun(edm::Run const&, edm::EventSetup const& iSetup
   if (m_OMTFConfig->fwVersion() >= 5) {
     //  if(m_Config.exists("ghostBusterType") ) {
     //    if(m_Config.getParameter<std::string>("ghostBusterType") == "GhostBusterPreferRefDt")
-    m_GhostBuster.reset(new GhostBusterPreferRefDt(m_OMTFConfig));
+    m_GhostBuster = std::make_unique<GhostBusterPreferRefDt>(m_OMTFConfig);
   } else {
-    m_GhostBuster.reset(new GhostBuster());
+    m_GhostBuster = std::make_unique<GhostBuster>();
   }
 
   m_Sorter.initialize(m_OMTFConfig);

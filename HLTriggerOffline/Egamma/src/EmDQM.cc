@@ -1088,7 +1088,7 @@ void EmDQM::dqmEndRun(edm::Run const &iRun, edm::EventSetup const &iSetup) {
     // check which ones were never found
     std::vector<std::string> labelsNeverFound;
 
-    for (edm::InputTag const tag : hltCollectionLabelsMissedPerPath.at(vPos)) {
+    for (edm::InputTag const& tag : hltCollectionLabelsMissedPerPath.at(vPos)) {
       if ((hltCollectionLabelsFoundPerPath.at(vPos)).count(tag.encode()) == 0)
         // never found
         labelsNeverFound.push_back(tag.encode());

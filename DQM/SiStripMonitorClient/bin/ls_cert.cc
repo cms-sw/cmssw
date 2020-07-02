@@ -183,7 +183,7 @@ void ls_cert_type(string iDir, float threshold, string filename, vector <string>
       TDirectory *curr_dir = dynamic_cast<TDirectory*>(key->ReadObj());
       string name = curr_dir->GetName();
       if (name == "Run summary") continue;
-      name = name.substr(name.find("-")+1);
+      name = name.substr(name.find('-')+1);
       float temp1 = atof(name.c_str()); 
       ls.push_back(temp1);
     }
@@ -240,8 +240,8 @@ void ls_cert_type(string iDir, float threshold, string filename, vector <string>
       if (classname=="TObjString" ){
 	string sflag = keyTemp->GetName();
 	string tempname = sflag.substr(sflag.find("f=")+2);
-	size_t pos1 = tempname.find("<");
-	size_t pos2 = sflag.find_first_of(">");
+	size_t pos1 = tempname.find('<');
+	size_t pos2 = sflag.find_first_of('>');
 	string detvalue = tempname.substr(0,pos1);
 	string typecert = sflag.substr(1,pos2-1);
 	if (debug) std::cout << typecert.c_str() << std::endl;
@@ -466,8 +466,8 @@ int nlumis( string filename )
 	    {
 	      string sflag = eiKey->GetName();
 	      string tempname = sflag.substr(sflag.find("i=")+2);
-	      size_t pos1 = tempname.find("<");
-	      size_t pos2 = sflag.find_first_of(">");
+	      size_t pos1 = tempname.find('<');
+	      size_t pos2 = sflag.find_first_of('>');
 	      string detvalue = tempname.substr(0,pos1);
 	      string numlumisec = sflag.substr(1,pos2-1);
 	      if ( numlumisec == (string)"iLumiSection" )

@@ -3,14 +3,18 @@
 *  Jan Kašpar (jan.kaspar@gmail.com)
 ****************************************************************************/
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include <memory>
+
+
+
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+        #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 
@@ -207,13 +211,13 @@ private:
         const double de_t = 0.05 + 0.09 * t + 0.02 * t * t;
         t += de_t;
       }
-      h_t_unif.reset(new TH1D("", ";|t|   (GeV^2)", 100, 0., 5.));
-      h_t.reset(new TH1D("", ";|t|   (GeV^2)", v_t_bin_edges.size() - 1, v_t_bin_edges.data()));
-      h_t_xi_range1.reset(new TH1D("", ";|t|   (GeV^2)", v_t_bin_edges.size() - 1, v_t_bin_edges.data()));
-      h_t_xi_range2.reset(new TH1D("", ";|t|   (GeV^2)", v_t_bin_edges.size() - 1, v_t_bin_edges.data()));
-      h_t_xi_range3.reset(new TH1D("", ";|t|   (GeV^2)", v_t_bin_edges.size() - 1, v_t_bin_edges.data()));
-      h2_t_vs_xi.reset(
-          new TH2D("", ";#xi;|t|   (GeV^2)", 100, 0., 0.3, v_t_bin_edges.size() - 1, v_t_bin_edges.data()));
+      h_t_unif = std::make_unique<TH1D>("", ";|t|   (GeV^2)", 100, 0., 5.);
+      h_t = std::make_unique<TH1D>("", ";|t|   (GeV^2)", v_t_bin_edges.size() - 1, v_t_bin_edges.data());
+      h_t_xi_range1 = std::make_unique<TH1D>("", ";|t|   (GeV^2)", v_t_bin_edges.size() - 1, v_t_bin_edges.data());
+      h_t_xi_range2 = std::make_unique<TH1D>("", ";|t|   (GeV^2)", v_t_bin_edges.size() - 1, v_t_bin_edges.data());
+      h_t_xi_range3 = std::make_unique<TH1D>("", ";|t|   (GeV^2)", v_t_bin_edges.size() - 1, v_t_bin_edges.data());
+      h2_t_vs_xi = std::make_unique<TH2D>(
+          "", ";#xi;|t|   (GeV^2)", 100, 0., 0.3, v_t_bin_edges.size() - 1, v_t_bin_edges.data());
 
       for (unsigned int n = 2; n <= 10; ++n)
         m_h_xi_nTracks[n] = new TH1D(*h_xi);

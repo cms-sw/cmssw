@@ -24,7 +24,9 @@
 #include "SimGeneral/HepPDTRecord/interface/PdtEntry.h"
 
 #include <ext/algorithm>
+#include <memory>
 
+        
 namespace pat {
   class PATGenCandsFromSimTracksProducer : public edm::stream::EDProducer<> {
   public:
@@ -255,7 +257,7 @@ void PATGenCandsFromSimTracksProducer::produce(Event &event, const EventSetup &i
   const SimTrackContainer *simtracksSorted = &*simtracks;
   if (makeMotherLink_ || writeAncestors_) {
     if (!__gnu_cxx::is_sorted(simtracks->begin(), simtracks->end(), LessById())) {
-      simtracksTmp.reset(new SimTrackContainer(*simtracks));
+      simtracksTmp = std::make_unique<SimTrackContainer>(*simtracks);
       std::sort(simtracksTmp->begin(), simtracksTmp->end(), LessById());
       simtracksSorted = &*simtracksTmp;
     }

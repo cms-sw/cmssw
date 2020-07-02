@@ -1,5 +1,9 @@
 #include "FastSimulation/Muons/plugins/FastTSGFromPropagation.h"
 
+
+        #include <memory>
+
+        
 /** \class FastTSGFromPropagation
  *
  *  Emulate TSGFromPropagation in RecoMuon
@@ -316,7 +320,7 @@ void FastTSGFromPropagation::init(const MuonServiceProxy* service) {
     theResetMethod = "discrete";
   }
 
-  theEstimator.reset(new Chi2MeasurementEstimator(theMaxChi2));
+  theEstimator = std::make_unique<Chi2MeasurementEstimator>(theMaxChi2);
 
   theCacheId_MT = 0;
 
@@ -332,21 +336,21 @@ void FastTSGFromPropagation::init(const MuonServiceProxy* service) {
 
   theSelectStateFlag = theConfig.getParameter<bool>("SelectState");
 
-  theUpdator.reset(new KFUpdator());
+  theUpdator = std::make_unique<KFUpdator>();
 
   theSigmaZ = theConfig.getParameter<double>("SigmaZ");
 
   edm::ParameterSet errorMatrixPset = theConfig.getParameter<edm::ParameterSet>("errorMatrixPset");
   if (theResetMethod == "matrix" && !errorMatrixPset.empty()) {
     theAdjustAtIp = errorMatrixPset.getParameter<bool>("atIP");
-    theErrorMatrixAdjuster.reset(new MuonErrorMatrix(errorMatrixPset));
+    theErrorMatrixAdjuster = std::make_unique<MuonErrorMatrix>(errorMatrixPset);
   } else {
     theAdjustAtIp = false;
     theErrorMatrixAdjuster.reset();
   }
 
   theService->eventSetup().get<TrackerRecoGeometryRecord>().get(theTracker);
-  theNavigation.reset(new DirectTrackerNavigation(theTracker));
+  theNavigation = std::make_unique<DirectTrackerNavigation>(theTracker);
 
   edm::ESHandle<TrackerGeometry> geometry;
   theService->eventSetup().get<TrackerDigiGeometryRecord>().get(geometry);
@@ -386,7 +390,7 @@ void FastTSGFromPropagation::setEvent(const edm::Event& iEvent) {
   }
 
   if (trackerGeomChanged && theTracker.product()) {
-    theNavigation.reset(new DirectTrackerNavigation(theTracker));
+    theNavigation = std::make_unique<DirectTrackerNavigation>(theTracker);
   }
 }
 

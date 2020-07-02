@@ -1,7 +1,11 @@
+#include <memory>
+
+
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4CMS/HGCalTestBeam/interface/AHCalGeometry.h"
 
-AHCalGeometry::AHCalGeometry(edm::ParameterSet const& iC) { ahcal_.reset(new AHCalParameters(iC)); }
+AHCalGeometry::AHCalGeometry(edm::ParameterSet const& iC) { ahcal_ = std::make_unique<AHCalParameters>(iC); }
 
 std::pair<double, double> AHCalGeometry::getXY(const AHCalDetId& id) const {
   int row = id.irow();

@@ -140,7 +140,7 @@ void L1TMuonBarrelParamsViewer::analyze(const edm::Event &iEvent, const edm::Eve
   }
 
   // typedef std::map< LUTID, LUTCONT > qpLUT;
-  for (const pair<pair<short, short>, pair<short, vector<short>>> item : ptr1->qp_lut()) {
+  for (const pair<pair<short, short>, pair<short, vector<short>>>& item : ptr1->qp_lut()) {
     cout << "  qp_lut[" << item.first.first << "," << item.first.second << "]= " << item.second.first << ", ["
          << item.second.second.size() << "] " << flush;
     if (!item.second.second.empty()) {

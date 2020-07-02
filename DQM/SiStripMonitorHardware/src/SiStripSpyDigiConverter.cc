@@ -1,4 +1,6 @@
-#include <vector>
+#include <memory>
+
+        #include <vector>
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -110,7 +112,7 @@ namespace sistrip {
     }
 
     //return DSV of output
-    return std::unique_ptr<DSVRawDigis>(new DSVRawDigis(outputData, true));
+    return std::make_unique<DSVRawDigis>(outputData, true);
 
   }  // end of SpyDigiConverter::extractPayloadDigis method
 
@@ -195,7 +197,7 @@ namespace sistrip {
     }
 
     //return DSV of output
-    return std::unique_ptr<DSVRawDigis>(new DSVRawDigis(outputData, true));
+    return std::make_unique<DSVRawDigis>(outputData, true);
   }  // end of SpyDigiConverter::reorderDigis method.
 
   std::unique_ptr<SpyDigiConverter::DSVRawDigis> SpyDigiConverter::mergeModuleChannels(

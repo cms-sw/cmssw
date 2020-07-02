@@ -108,7 +108,7 @@ namespace {
 
       std::string titleMap = "Module with at least a bad Strip (payload : " + std::get<1>(iov) + ")";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripBadStrips"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripBadStrips");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -147,7 +147,7 @@ namespace {
 
       std::string titleMap = "Fraction of bad Strips per module (payload : " + std::get<1>(iov) + ")";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripBadStrips"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripBadStrips");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -449,11 +449,11 @@ namespace {
 
       TCanvas canvas("BadStrip Region summary", "SiStripBadStrip region summary", 1200, 1000);
       canvas.cd();
-      auto h_BadStrips = std::unique_ptr<TH1F>(new TH1F("BadStripsbyRegion",
+      auto h_BadStrips = std::make_unique<TH1F>("BadStripsbyRegion",
                                                         "SiStrip Bad Strip summary by region;; n. bad strips",
                                                         mapBadStrips.size(),
                                                         0.,
-                                                        mapBadStrips.size()));
+                                                        mapBadStrips.size());
       h_BadStrips->SetStats(false);
 
       canvas.SetBottomMargin(0.18);
@@ -615,18 +615,18 @@ namespace {
       TCanvas canvas("BadStrip Partion summary", "SiStripBadStrip region summary", 1200, 1000);
       canvas.cd();
 
-      auto h_LastBadStrips = std::unique_ptr<TH1F>(new TH1F("BadStripsbyRegion1",
+      auto h_LastBadStrips = std::make_unique<TH1F>("BadStripsbyRegion1",
                                                             "SiStrip Bad Strip summary by region;; n. bad strips",
                                                             mapLastBadStrips.size(),
                                                             0.,
-                                                            mapLastBadStrips.size()));
+                                                            mapLastBadStrips.size());
       h_LastBadStrips->SetStats(false);
 
-      auto h_FirstBadStrips = std::unique_ptr<TH1F>(new TH1F("BadStripsbyRegion2",
+      auto h_FirstBadStrips = std::make_unique<TH1F>("BadStripsbyRegion2",
                                                              "SiStrip Bad Strip summary by region;; n. bad strips",
                                                              mapFirstBadStrips.size(),
                                                              0.,
-                                                             mapFirstBadStrips.size()));
+                                                             mapFirstBadStrips.size());
       h_FirstBadStrips->SetStats(false);
 
       canvas.SetBottomMargin(0.18);
@@ -798,7 +798,7 @@ namespace {
       std::string titleMap =
           "#Delta fraction of bad Strips per module (IOV:" + lastIOVsince + " - IOV:" + firstIOVsince + ")";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripBadStrips"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripBadStrips");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -969,7 +969,7 @@ namespace {
       edm::LogInfo("SiStripBadStrip_PayloadInspector") << ss.str() << std::endl;
       //std::cout<<  ss.str() << std::endl;
 
-      auto masterTable = std::unique_ptr<TH2I>(new TH2I("table", "", 4, 0., 4., 39, 0., 39.));
+      auto masterTable = std::make_unique<TH2I>("table", "", 4, 0., 4., 39, 0., 39.);
 
       std::string labelsX[4] = {"Bad Modules", "Bad Fibers", "Bad APVs", "Bad Strips"};
       std::string labelsY[40] = {
@@ -1141,8 +1141,8 @@ namespace {
       //SiStripPI::printBCDebug(tot_NTkComponents,totNComponents);
 
       // declare histograms
-      auto masterTable = std::unique_ptr<TH2F>(new TH2F("table", "", 4, 0., 4., 39, 0., 39.));
-      auto masterTableColor = std::unique_ptr<TH2F>(new TH2F("colortable", "", 4, 0., 4., 39, 0., 39.));
+      auto masterTable = std::make_unique<TH2F>("table", "", 4, 0., 4., 39, 0., 39.);
+      auto masterTableColor = std::make_unique<TH2F>("colortable", "", 4, 0., 4., 39, 0., 39.);
 
       std::string labelsX[4] = {"Bad Modules", "Bad Fibers", "Bad APVs", "Bad Strips"};
       std::string labelsY[40] = {

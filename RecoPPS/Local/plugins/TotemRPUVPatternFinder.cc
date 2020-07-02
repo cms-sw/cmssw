@@ -206,7 +206,7 @@ void TotemRPUVPatternFinder::produce(edm::Event &event, const edm::EventSetup &e
   }
 
   // track recognition pot by pot
-  for (auto it : rpData) {
+  for (const auto& it : rpData) {
     CTPPSDetId rpId(it.first);
     RPData &data = it.second;
 

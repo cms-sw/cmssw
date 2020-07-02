@@ -142,7 +142,7 @@ private:
 
       std::vector<unsigned int> signalCandidateInds;
 
-      for (const auto c : tau.signalCands())
+      for (const auto& c : tau.signalCands())
         signalCandidateInds.push_back(getPFCandidateIndex(pfcands, c));
 
       // Use of setZero results in warnings in eigen library during compilation.

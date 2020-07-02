@@ -1,6 +1,8 @@
-#include <iostream>
-#include <cmath>
 #include <climits>
+#include <cmath>
+#include <iostream>
+#include <memory>
+
 #include "RecoLocalCalo/HcalRecAlgos/interface/PulseShapeFitOOTPileupCorrection.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
@@ -95,14 +97,14 @@ void PulseShapeFitOOTPileupCorrection::setPulseShapeTemplate(const HcalPulseShap
 
 void PulseShapeFitOOTPileupCorrection::resetPulseShapeTemplate(const HcalPulseShapes::Shape &ps, unsigned nSamples) {
   ++cntsetPulseShape;
-  psfPtr_.reset(new FitterFuncs::PulseShapeFunctor(
-      ps, pedestalConstraint_, timeConstraint_, addPulseJitter_, pulseJitter_, timeMean_, pedMean_, nSamples));
-  spfunctor_ = std::unique_ptr<ROOT::Math::Functor>(
-      new ROOT::Math::Functor(psfPtr_.get(), &FitterFuncs::PulseShapeFunctor::singlePulseShapeFunc, 3));
-  dpfunctor_ = std::unique_ptr<ROOT::Math::Functor>(
-      new ROOT::Math::Functor(psfPtr_.get(), &FitterFuncs::PulseShapeFunctor::doublePulseShapeFunc, 5));
-  tpfunctor_ = std::unique_ptr<ROOT::Math::Functor>(
-      new ROOT::Math::Functor(psfPtr_.get(), &FitterFuncs::PulseShapeFunctor::triplePulseShapeFunc, 7));
+  psfPtr_ = std::make_unique<FitterFuncs::PulseShapeFunctor>(
+      ps, pedestalConstraint_, timeConstraint_, addPulseJitter_, pulseJitter_, timeMean_, pedMean_, nSamples);
+  spfunctor_ = std::make_unique<ROOT::Math::Functor>(
+      psfPtr_.get(), &FitterFuncs::PulseShapeFunctor::singlePulseShapeFunc, 3);
+  dpfunctor_ = std::make_unique<ROOT::Math::Functor>(
+      psfPtr_.get(), &FitterFuncs::PulseShapeFunctor::doublePulseShapeFunc, 5);
+  tpfunctor_ = std::make_unique<ROOT::Math::Functor>(
+      psfPtr_.get(), &FitterFuncs::PulseShapeFunctor::triplePulseShapeFunc, 7);
 }
 
 constexpr char const *varNames[] = {"time", "energy", "time1", "energy1", "time2", "energy2", "ped"};

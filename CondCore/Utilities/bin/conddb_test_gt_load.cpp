@@ -291,7 +291,7 @@ int cond::TestGTLoad::execute() {
   std::cout << "Loading " << gt.size() << " tags..." << std::endl;
   std::vector<UntypedPayloadProxy> proxies;
   std::map<std::string, size_t> requests;
-  for (auto t : gt) {
+  for (const auto& t : gt) {
     std::pair<std::string, std::string> tagParams = parseTag(t.tagName());
     std::string tagConnStr = connect;
     Session tagSession = session;
@@ -350,14 +350,14 @@ int cond::TestGTLoad::execute() {
   std::cout << "*** GT: " << gtag << " Tags:" << gt.size() << " Loaded:" << proxies.size() << std::endl;
   std::cout << std::endl;
   if (verbose) {
-    for (auto p : proxies) {
+    for (const auto& p : proxies) {
       auto r = requests.find(p.tag());
       if (r != requests.end()) {
         std::cout << "*** Tag: " << p.tag() << " Requests processed:" << r->second << " Queries:" << p.numberOfQueries()
                   << std::endl;
         if (verbose) {
           const std::vector<std::string>& hist = p.history();
-          for (auto e : p.history())
+          for (const auto& e : p.history())
             std::cout << "    " << e << std::endl;
         }
       }

@@ -41,7 +41,7 @@ public:
   ~AlCaIsolatedBunchFilter() override;
 
   static std::unique_ptr<AlCaIsolatedBunch::Counters> initializeGlobalCache(edm::ParameterSet const& iConfig) {
-    return std::unique_ptr<AlCaIsolatedBunch::Counters>(new AlCaIsolatedBunch::Counters());
+    return std::make_unique<AlCaIsolatedBunch::Counters>();
   }
 
   bool filter(edm::Event&, edm::EventSetup const&) override;

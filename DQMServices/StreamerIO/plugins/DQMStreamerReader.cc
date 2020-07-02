@@ -11,13 +11,15 @@
 #include "DQMStreamerReader.h"
 
 #include <fstream>
-#include <queue>
-#include <cstdlib>
-#include <boost/regex.hpp>
+#include <memory>
+
+#include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 #include <boost/range.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
+#include <boost/regex.hpp>
+#include <cstdlib>
+        #include <queue>
 
 #include <IOPool/Streamer/interface/DumpTools.h>
 
@@ -96,7 +98,7 @@ namespace dqmservices {
     std::string path = entry.get_data_path();
 
     file_.lumi_ = entry;
-    file_.streamFile_.reset(new edm::StreamerInputFile(path));
+    file_.streamFile_ = std::make_unique<edm::StreamerInputFile>(path);
 
     InitMsgView const* header = getHeaderMsg();
     if (isFirstFile_) {

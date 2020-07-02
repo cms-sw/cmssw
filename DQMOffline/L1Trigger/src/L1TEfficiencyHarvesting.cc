@@ -109,9 +109,9 @@ namespace dqmoffline {
         edm::LogInfo("L1TEfficiencyHarvesting") << "____________ Storage initialization ____________ " << endl;
       }
 
-      for (auto plotConfig : ps.getUntrackedParameter<std::vector<edm::ParameterSet>>("plotCfgs")) {
+      for (const auto& plotConfig : ps.getUntrackedParameter<std::vector<edm::ParameterSet>>("plotCfgs")) {
         vector<string> plots = plotConfig.getUntrackedParameter<vector<string>>("plots");
-        for (auto plot : plots) {
+        for (const auto& plot : plots) {
           plotHandlers_.push_back(L1TEfficiencyPlotHandler(plotConfig, plot));
         }
       }

@@ -90,7 +90,7 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event &iEvent, con
 
   // Loop over tracking particles
   int this_tp = 0;
-  for (auto iterTP : *trackingParticleHandle) {
+  for (const auto& iterTP : *trackingParticleHandle) {
     edm::Ptr<TrackingParticle> tp_ptr(trackingParticleHandle, this_tp);
     this_tp++;
 
@@ -220,7 +220,7 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event &iEvent, con
       // with at least one hit of at least one of its clusters
       // https://twiki.cern.ch/twiki/bin/viewauth/CMS/SLHCTrackerTriggerSWTools#MC_truth_for_TTTrack
       int trkCounter = 0;
-      for (auto thisTrack : matchedTracks) {
+      for (const auto& thisTrack : matchedTracks) {
         if (!MCTruthTTTrackHandle->isGenuine(thisTrack))
           continue;
         // ----------------------------------------------------------------------------------------------

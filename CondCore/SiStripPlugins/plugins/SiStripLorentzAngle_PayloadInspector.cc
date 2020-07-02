@@ -76,7 +76,7 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<SiStripLorentzAngle> payload = fetchPayload(std::get<1>(iov));
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripLorentzAngle"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripLorentzAngle");
       tmap->setPalette(1);
       std::string titleMap = "TrackerMap of SiStrip Lorentz Angle per module, payload : " + std::get<1>(iov);
       tmap->setTitle(titleMap);
@@ -132,11 +132,11 @@ namespace {
 
       TCanvas canvas("Partion summary", "partition summary", 1200, 1000);
       canvas.cd();
-      auto h1 = std::unique_ptr<TH1F>(new TH1F("byRegion",
+      auto h1 = std::make_unique<TH1F>("byRegion",
                                                "SiStrip LA average by partition;; average SiStrip Lorentz Angle [rad]",
                                                map.size(),
                                                0.,
-                                               map.size()));
+                                               map.size());
       h1->SetStats(false);
       canvas.SetBottomMargin(0.18);
       canvas.SetLeftMargin(0.17);

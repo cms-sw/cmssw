@@ -7,6 +7,8 @@
 
 #include "CmsSupport.h"
 #include <iostream>
+#include <memory>
+
 #include <utility>
 
 namespace clangcms {
@@ -33,10 +35,10 @@ namespace clangcms {
       return;
 
     if (!BT)
-      BT.reset(new clang::ento::BugType(this,
+      BT = std::make_unique<clang::ento::BugType>(this,
                                         "std::isnan / std::isinf does not work when fast-math is used. Please use "
                                         "edm::isNotFinite from 'FWCore/Utilities/interface/isFinite.h'",
-                                        "fastmath plugin"));
+                                        "fastmath plugin");
     std::unique_ptr<clang::ento::PathSensitiveBugReport> PSBR =
         std::make_unique<clang::ento::PathSensitiveBugReport>(*BT, BT->getCheckerName(), N);
     std::unique_ptr<clang::ento::BasicBugReport> report =

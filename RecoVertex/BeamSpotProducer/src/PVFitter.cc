@@ -40,7 +40,9 @@ ________________________________________________________________**/
 #include "TMinuitMinimizer.h"
 
 #include <iostream>
-#include <sstream>
+#include <memory>
+
+        #include <sstream>
 using namespace std;
 
 PVFitter::PVFitter(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iColl) : ftree_(nullptr) {
@@ -84,10 +86,10 @@ void PVFitter::initialize(const edm::ParameterSet& iConfig, edm::ConsumesCollect
   // preset quality cut to "infinite"
   dynamicQualityCut_ = 1.e30;
 
-  hPVx = std::unique_ptr<TH2F>(
-      new TH2F("hPVx", "PVx vs PVz distribution", 200, -maxVtxR_, maxVtxR_, 200, -maxVtxZ_, maxVtxZ_));
-  hPVy = std::unique_ptr<TH2F>(
-      new TH2F("hPVy", "PVy vs PVz distribution", 200, -maxVtxR_, maxVtxR_, 200, -maxVtxZ_, maxVtxZ_));
+  hPVx = std::make_unique<TH2F>(
+      "hPVx", "PVx vs PVz distribution", 200, -maxVtxR_, maxVtxR_, 200, -maxVtxZ_, maxVtxZ_);
+  hPVy = std::make_unique<TH2F>(
+      "hPVy", "PVy vs PVz distribution", 200, -maxVtxR_, maxVtxR_, 200, -maxVtxZ_, maxVtxZ_);
   hPVx->SetDirectory(nullptr);
   hPVy->SetDirectory(nullptr);
 }

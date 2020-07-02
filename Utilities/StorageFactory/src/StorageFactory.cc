@@ -1,3 +1,7 @@
+#include <memory>
+
+
+
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
@@ -127,7 +131,7 @@ std::unique_ptr<Storage> StorageFactory::open(const std::string &url, int mode /
   if (StorageMaker *maker = getMaker(url, protocol, rest)) {
     if (m_accounting) {
       auto token = StorageAccount::tokenForStorageClassName(protocol);
-      stats.reset(new StorageAccount::Stamp(StorageAccount::counter(token, StorageAccount::Operation::open)));
+      stats = std::make_unique<StorageAccount::Stamp>(StorageAccount::counter(token, StorageAccount::Operation::open));
     }
     try {
       if (auto storage = maker->open(
@@ -162,7 +166,7 @@ void StorageFactory::stagein(const std::string &url) const {
   if (StorageMaker *maker = getMaker(url, protocol, rest)) {
     if (m_accounting) {
       auto token = StorageAccount::tokenForStorageClassName(protocol);
-      stats.reset(new StorageAccount::Stamp(StorageAccount::counter(token, StorageAccount::Operation::stagein)));
+      stats = std::make_unique<StorageAccount::Stamp>(StorageAccount::counter(token, StorageAccount::Operation::stagein));
     }
     try {
       maker->stagein(protocol, rest, StorageMaker::AuxSettings{}.setDebugLevel(m_debugLevel).setTimeout(m_timeout));
@@ -184,7 +188,7 @@ bool StorageFactory::check(const std::string &url, IOOffset *size /* = 0 */) con
   if (StorageMaker *maker = getMaker(url, protocol, rest)) {
     if (m_accounting) {
       auto token = StorageAccount::tokenForStorageClassName(protocol);
-      stats.reset(new StorageAccount::Stamp(StorageAccount::counter(token, StorageAccount::Operation::check)));
+      stats = std::make_unique<StorageAccount::Stamp>(StorageAccount::counter(token, StorageAccount::Operation::check));
     }
     try {
       ret = maker->check(

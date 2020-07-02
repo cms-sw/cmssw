@@ -1,6 +1,8 @@
-#include <string>
-#include <vector>
 #include <memory>
+
+#include <memory>
+        #include <string>
+#include <vector>
 
 #include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
 #include "RecoBTau/JetTagComputer/interface/GenericMVAComputer.h"
@@ -89,7 +91,7 @@ bool GenericMVAComputerCache::update(const MVAComputerContainer *calib) {
       continue;
 
     // instantiate new MVAComputer with uptodate calibration
-    iter->computer = std::unique_ptr<GenericMVAComputer>(new GenericMVAComputer(computerCalib));
+    iter->computer = std::make_unique<GenericMVAComputer>(computerCalib);
 
     iter->cacheId = computerCalib->getCacheId();
 

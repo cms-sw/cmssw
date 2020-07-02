@@ -350,7 +350,8 @@ void FWPFCandidateDetailView::addHits(const std::vector<reco::PFRecHit>* hits) {
         continue;
 
       std::vector<TEveVector> hc;
-      for (int k = 0; k < 4; ++k) {
+      hc.reserve(4);
+ for (int k = 0; k < 4; ++k) {
         hc.push_back(TEveVector(corners[k].eta(), corners[k].phi(), 0));
         // ps->SetNextPoint(corners[k].eta(),corners[k].phi(),0 ); //debug
       }
@@ -367,7 +368,8 @@ void FWPFCandidateDetailView::addHits(const std::vector<reco::PFRecHit>* hits) {
       centerOfGravity *= 0.25;
 
       std::vector<TEveVector> radialVectors;
-      for (int k = 0; k < 4; ++k)
+      radialVectors.reserve(4);
+ for (int k = 0; k < 4; ++k)
         radialVectors.push_back(TEveVector(hc[k] - centerOfGravity));
 
       float factor = 1;

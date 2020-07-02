@@ -106,24 +106,24 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
   theBeamspotToken = consumes<reco::BeamSpot>(BeamspotTag_);
 
   // select and configure the track filter
-  theTrackFilter_ = std::unique_ptr<TrackFilterForPVFinding>(
-      new TrackFilterForPVFinding(iConfig.getParameter<edm::ParameterSet>("TkFilterParameters")));
+  theTrackFilter_ = std::make_unique<TrackFilterForPVFinding>(
+      iConfig.getParameter<edm::ParameterSet>("TkFilterParameters"));
   // select and configure the track clusterizer
   std::string clusteringAlgorithm =
       iConfig.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<std::string>("algorithm");
   if (clusteringAlgorithm == "gap") {
-    theTrackClusterizer_ = std::unique_ptr<GapClusterizerInZ>(
-        new GapClusterizerInZ(iConfig.getParameter<edm::ParameterSet>("TkClusParameters")
-                                  .getParameter<edm::ParameterSet>("TkGapClusParameters")));
+    theTrackClusterizer_ = std::make_unique<GapClusterizerInZ>(
+        iConfig.getParameter<edm::ParameterSet>("TkClusParameters")
+                                  .getParameter<edm::ParameterSet>("TkGapClusParameters"));
   } else if (clusteringAlgorithm == "DA") {
-    theTrackClusterizer_ = std::unique_ptr<DAClusterizerInZ>(
-        new DAClusterizerInZ(iConfig.getParameter<edm::ParameterSet>("TkClusParameters")
-                                 .getParameter<edm::ParameterSet>("TkDAClusParameters")));
+    theTrackClusterizer_ = std::make_unique<DAClusterizerInZ>(
+        iConfig.getParameter<edm::ParameterSet>("TkClusParameters")
+                                 .getParameter<edm::ParameterSet>("TkDAClusParameters"));
     // provide the vectorized version of the clusterizer, if supported by the build
   } else if (clusteringAlgorithm == "DA_vect") {
-    theTrackClusterizer_ = std::unique_ptr<DAClusterizerInZ_vect>(
-        new DAClusterizerInZ_vect(iConfig.getParameter<edm::ParameterSet>("TkClusParameters")
-                                      .getParameter<edm::ParameterSet>("TkDAClusParameters")));
+    theTrackClusterizer_ = std::make_unique<DAClusterizerInZ_vect>(
+        iConfig.getParameter<edm::ParameterSet>("TkClusParameters")
+                                      .getParameter<edm::ParameterSet>("TkDAClusParameters"));
   } else {
     throw VertexException("PrimaryVertexProducerAlgorithm: unknown clustering algorithm: " + clusteringAlgorithm);
   }

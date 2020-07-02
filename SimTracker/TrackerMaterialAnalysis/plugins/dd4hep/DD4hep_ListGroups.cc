@@ -127,7 +127,7 @@ void DD4hep_ListGroups::produceAndSaveSummaryPlot(cms::DDCompactView cpv) {
     current.SetMarkerStyle(markerStyles[color_index % 10]);
     current.SetMarkerSize(0.8);
     current.SetLineWidth(1);
-    for (auto element : g->elements()) {
+    for (const auto& element : g->elements()) {
       current.Fill(element.z(), element.perp());
       radlen->Fill(element.z(), element.perp(), m_values[g->name()].first);
       eneloss->Fill(element.z(), element.perp(), m_values[g->name()].second);
@@ -154,7 +154,7 @@ void DD4hep_ListGroups::produceAndSaveSummaryPlot(cms::DDCompactView cpv) {
   radlen->SetMinimum(0);
   radlen->SetMaximum(0.25);
   radlen->Draw("COLZ");
-  for (auto line : lines) {
+  for (const auto& line : lines) {
     line.first->SetLineWidth(5);
     line.first->Draw();
     line.second->Draw();
@@ -165,7 +165,7 @@ void DD4hep_ListGroups::produceAndSaveSummaryPlot(cms::DDCompactView cpv) {
   eneloss->SetMinimum(0.00001);
   eneloss->SetMaximum(0.0005);
   eneloss->Draw("COLZ");
-  for (auto line : lines) {
+  for (const auto& line : lines) {
     line.first->SetLineWidth(5);
     line.first->Draw();
     line.second->Draw();
@@ -178,7 +178,7 @@ void DD4hep_ListGroups::produceAndSaveSummaryPlot(cms::DDCompactView cpv) {
   radlen_diff->SetMinimum(-100);
   radlen_diff->SetMaximum(100);
   radlen_diff->Draw("COLZ");
-  for (auto line : lines) {
+  for (const auto& line : lines) {
     line.first->SetLineWidth(5);
     line.first->Draw();
     line.second->Draw();
@@ -189,7 +189,7 @@ void DD4hep_ListGroups::produceAndSaveSummaryPlot(cms::DDCompactView cpv) {
   eneloss_diff->SetMinimum(-100);
   eneloss_diff->SetMaximum(100);
   eneloss_diff->Draw("COLZ");
-  for (auto line : lines) {
+  for (const auto& line : lines) {
     line.first->SetLineWidth(5);
     line.first->Draw();
     line.second->Draw();
