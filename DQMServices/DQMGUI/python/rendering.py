@@ -8,6 +8,7 @@ import asyncio
 import logging
 import tempfile
 
+from async_timeout import timeout
 from .helpers import get_base_release_dir
 from .data_types import RenderingInfo, ScalarValue, QTest, RenderingOptions, FileFormat
 from .reading.reading import GUIMEReader
@@ -205,6 +206,7 @@ class GUIRenderingContext:
     async def create(render_plugins_lib_path=None):
         """In order to create an instance of GUIRenderingContext, this method should be called instead of an initializer."""
         self = GUIRenderingContext()
+        self.RENDERING_TIMEOUT = 0.001 #seconds
         self.render_plugins_lib_path = render_plugins_lib_path
         await self.__start_rendering_process()
         await self.__open_socket_connection()
@@ -232,21 +234,26 @@ class GUIRenderingContext:
         """
 
         try:
-            self.writer.write(message)
-            await self.writer.drain()
-            error_and_length = await self.reader.read(8)
-            
-            errorcode, length = struct.unpack("=ii", error_and_length)
-            buffer = b''
-            while length > 0:
-                received = await self.reader.read(length)
-                length -= len(received)
-                buffer += received
-            return buffer, errorcode
+            async with timeout(self.RENDERING_TIMEOUT):
+                self.writer.write(message)
+                await self.writer.drain()
 
-        except Exception as e:
-            # Looks like our renderer died.
-            logger.exception("Looks like the renderer died.")
+                error_and_length = await self.reader.read(8)
+                errorcode, length = struct.unpack("=ii", error_and_length)
+                buffer = b''
+
+                while length > 0:
+                    received = await self.reader.read(length)
+                    length -= len(received)
+                    buffer += received
+                
+                return buffer, errorcode
+        except asyncio.TimeoutError:
+            logger.exception('Comunication with renderer timed out.')
+            await self.__restart_renderer()
+            return b'crashed', -1
+        except Exception:
+            logger.exception('Looks like the renderer died.')
             await self.__restart_renderer()
             return b'crashed', -1
 

@@ -353,6 +353,7 @@ Backend related task list.
   * Will probably not increase perf by much, needs measuring
 * ~~Renderer hangs when negative width/height is passed~~
 * Validate samples in registration endpoint
-* Add timeout when reading from the renderer
-* When renderer returns an error code, return an image with non 200 status code.
+* ~~Add timeout when interacting with the renderer~~
+* ~~When renderer returns an error code, return an image with 500 status code.~~
 * ~~Add QTest result support to the API~~
+* Hanging/aborted requests don't get logged?
