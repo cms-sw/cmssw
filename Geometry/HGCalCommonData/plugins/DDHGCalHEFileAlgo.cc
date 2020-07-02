@@ -127,9 +127,7 @@ void DDHGCalHEFileAlgo::initialize(const DDNumericArguments& nArgs,
   materials_ = vsArgs["MaterialNames"];
   names_ = vsArgs["VolumeNames"];
   thick_ = vArgs["Thickness"];
-  for (unsigned int i = 0; i < materials_.size(); ++i) {
-    copyNumber_.emplace_back(1);
-  }
+  copyNumber_.resize(materials_.size(),1);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: " << materials_.size() << " types of volumes";
   for (unsigned int i = 0; i < names_.size(); ++i)
@@ -379,6 +377,7 @@ void DDHGCalHEFileAlgo::constructLayers(const DDLogicalPart& module, DDCompactVi
     }  // End of loop over layers in a block
     zi = zo;
     laymin = laymax;
+    // Make consistency check of all the partitions of the block
     if (std::abs(thickTot - layerThick_[i]) < 0.00001) {
     } else if (thickTot > layerThick_[i]) {
       edm::LogError("HGCalGeom") << "Thickness of the partition " << layerThick_[i] << " is smaller than " << thickTot
@@ -542,7 +541,7 @@ void DDHGCalHEFileAlgo::positionSensitive(
   double R = 2.0 * r / sqrt3;
   double dy = 0.75 * R;
   int N = (int)(0.5 * rout / r) + 2;
-  std::pair<double, double> xyoff = geomTools_.shiftXY(layercenter, (waferSize_ + waferSepar_));
+  const auto& xyoff = geomTools_.shiftXY(layercenter, (waferSize_ + waferSepar_));
 #ifdef EDM_ML_DEBUG
   int ium(0), ivm(0), iumAll(0), ivmAll(0), kount(0), ntot(0), nin(0);
   std::vector<int> ntype(6, 0);
@@ -558,7 +557,7 @@ void DDHGCalHEFileAlgo::positionSensitive(
       int nc = -2 * u + v;
       double xpos = xyoff.first + nc * r;
       double ypos = xyoff.second + nr * dy;
-      std::pair<int, int> corner = HGCalGeomTools::waferCorner(xpos, ypos, r, R, rin, rout, false);
+      const auto& corner = HGCalGeomTools::waferCorner(xpos, ypos, r, R, rin, rout, false);
 #ifdef EDM_ML_DEBUG
       ++ntot;
 #endif
