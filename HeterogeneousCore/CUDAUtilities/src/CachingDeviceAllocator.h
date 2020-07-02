@@ -659,9 +659,7 @@ namespace notcub {
       int entrypoint_device = INVALID_DEVICE_ORDINAL;
       int current_device = INVALID_DEVICE_ORDINAL;
       // CMS: use RAII instead of (un)locking explicitly
-      std::unique_lock<std::mutex> mutex_locker(mutex, std::defer_lock);
-
-      mutex_locker.lock();
+      std::unique_lock<std::mutex> mutex_locker(mutex);
 
       while (!cached_blocks.empty()) {
         // Get first block
