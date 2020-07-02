@@ -34,6 +34,7 @@ namespace l1tpf {
 
 l1tpf::PFTrackProducerFromL1Tracks::PFTrackProducerFromL1Tracks(const edm::ParameterSet &iConfig)
     : TrackTag_(consumes<std::vector<l1t::PFTrack::L1TTTrackType>>(iConfig.getParameter<edm::InputTag>("L1TrackTag"))),
+      BFieldTag_{esConsumes<MagneticField, IdealMagneticFieldRecord>()},
       nParam_(iConfig.getParameter<unsigned int>("nParam")),
       resolCalo_(iConfig.getParameter<edm::ParameterSet>("resolCalo")),
       resolTrk_(iConfig.getParameter<edm::ParameterSet>("resolTrack")) {
