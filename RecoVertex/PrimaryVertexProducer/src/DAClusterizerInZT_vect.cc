@@ -782,7 +782,6 @@ bool DAClusterizerInZT_vect::purge(vertex_t& y, track_t& tks, double& rho0, cons
   }
 
   for (unsigned int k = 0; k < nv; ++k) {
-
 #pragma GCC ivdep
     for (unsigned i = 0; i < nt; ++i) {
       const auto track_z = tks.z_ptr[i];
