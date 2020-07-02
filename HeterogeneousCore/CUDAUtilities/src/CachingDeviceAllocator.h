@@ -299,6 +299,7 @@ namespace notcub {
      */
     cudaError_t SetMaxCachedBytes(size_t max_cached_bytes) {
       // Lock
+      // CMS: use RAII instead of (un)locking explicitly
       std::unique_lock mutex_locker(mutex);
 
       if (debug)
@@ -328,6 +329,7 @@ namespace notcub {
         size_t bytes,                          ///< [in] Minimum number of bytes for the allocation
         cudaStream_t active_stream = nullptr)  ///< [in] The stream to be associated with this allocation
     {
+      // CMS: use RAII instead of (un)locking explicitly
       std::unique_lock<std::mutex> mutex_locker(mutex, std::defer_lock);
       *d_ptr = nullptr;
       int entrypoint_device = INVALID_DEVICE_ORDINAL;
@@ -546,6 +548,7 @@ namespace notcub {
     cudaError_t DeviceFree(int device, void *d_ptr) {
       int entrypoint_device = INVALID_DEVICE_ORDINAL;
       cudaError_t error = cudaSuccess;
+      // CMS: use RAII instead of (un)locking explicitly
       std::unique_lock<std::mutex> mutex_locker(mutex, std::defer_lock);
 
       if (device == INVALID_DEVICE_ORDINAL) {
@@ -655,6 +658,7 @@ namespace notcub {
       cudaError_t error = cudaSuccess;
       int entrypoint_device = INVALID_DEVICE_ORDINAL;
       int current_device = INVALID_DEVICE_ORDINAL;
+      // CMS: use RAII instead of (un)locking explicitly
       std::unique_lock<std::mutex> mutex_locker(mutex, std::defer_lock);
 
       mutex_locker.lock();
