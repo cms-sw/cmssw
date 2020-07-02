@@ -105,7 +105,7 @@ void DDHGCalEEFileAlgo::initialize(const DDNumericArguments& nArgs,
   materials_ = vsArgs["MaterialNames"];
   names_ = vsArgs["VolumeNames"];
   thick_ = vArgs["Thickness"];
-  copyNumber_.resize(materials_.size(),1);
+  copyNumber_.resize(materials_.size(), 1);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalEEFileAlgo: " << materials_.size() << " types of volumes";
   for (unsigned int i = 0; i < names_.size(); ++i)
