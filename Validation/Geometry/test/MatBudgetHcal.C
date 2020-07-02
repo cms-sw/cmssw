@@ -1,3 +1,47 @@
+///////////////////////////////////////////////////////////////////////////////
+//
+// etaPhiPlot(fileName, plot, ifirst, ilast, drawLeg, ifEta, maxEta, tag, debug)
+//      Make the plots of integrated interaction/radiation/step lengths as a
+//      function of eta or phi
+// fileName (TString)  Name of the input ROOT file ("matbdg_HCAL.root")
+// plot     (TString)  Type of plot: IntLen/RadLen/StepLen ("IntLen")
+// ifirst   (int)      First depth to be displayed (0)
+// ilast    (int)      Last depth to be displayed (21)
+// drawLeg  (int)      Flag to show the legend or not (1)
+// ifEta    (bool)     Draw as a function of eta or phi (true)
+// maxEta   (double)   Maximum value of x-axis: if -1 use default (-1)
+// tag      (string)   Tag to be added to the name of the canvas ("Run")
+// debug    (bool)     print or not the debug information (false)
+//
+// etaPhiPlotHO(fileName, plot, drawLeg, ifEta, maxEta, tag)
+//      Make the same plots as *etaPhiPlot* for HO with same parameter meanings 
+//
+// etaPhiPlotEC(fileName, plot, drawLeg, ifEta, maxEta, tag)
+//      Make the same plots as *etaPhiPlot* till front of HCAL with same
+//      parameter meanings 
+//
+// etaPhiPlotHC(fileName, plot, drawLeg, ifEta, maxEta, tag)
+//      Make the same plots as *etaPhiPlot* for HC with same parameter meanings 
+//
+// etaPhi2DPlot(fileName, plot, ifirst, ilast, drawLeg, tag)
+//      Make the 2-D plots as a function of eta and phi with same parameter 
+//      meanings as those of *etaPhiPlot*
+//
+// etaPhi2DPlot(nslice, kslice, fileName, plot, ifirst, ilast, drawLeg, tag)
+//      Plot depth slices from kslice to nslice with other parameters having
+//      the same meanings as those of *etaPhiPlot*
+//
+// printTable(fileName, outputFileName, inputFileName)
+//      Print a table of integrated lengths (or difference wrt an earlier one
+//      if inputFileName is other than None) for each depth in outputFileName
+//      with information from fileName
+//
+// plotDiff(fileName, plot, tag)
+//      Plots number of interaction/radiation/step lengths as a function of
+//      depth with parameters having the same meaning as in *etaPhiPlot*
+//
+///////////////////////////////////////////////////////////////////////////////
+
 // include files
 #include <iostream>
 #include <iomanip>
@@ -715,11 +759,7 @@ void etaPhi2DPlot(
 
   cout << "All histograms created now plot\n";
   TCanvas *cc1[360];
-  int ismin = 0, ismax = nslice;
-  if (kslice >= 0 && kslice <= nslice) {
-    ismin = kslice;
-    ismax = ismin + 1;
-  }
+  int ismin = kslice, ismax = nslice;
   for (int is = ismin; is < ismax; is++) {
     sprintf(hname, "c_%s%i%s", type, is, tag.c_str());
     cc1[is] = new TCanvas(hname, hname, 700, 400);
