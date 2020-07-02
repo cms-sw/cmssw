@@ -63,12 +63,6 @@ from  L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff import *
 _phase2_siml1emulator = SimL1EmulatorTask.copy()
 _phase2_siml1emulator.add(hgcalTriggerPrimitivesTask)
 
-from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-#phase2_hgcal.toReplaceWith( SimL1EmulatorTask , _phase2_siml1emulator )
-
-from Configuration.Eras.Modifier_phase2_hgcalV11_cff import phase2_hgcalV11
-(phase2_hgcal & ~phase2_hgcalV11).toReplaceWith( SimL1EmulatorTask, _phase2_siml1emulator )
-
 #%% # Barrel EGamma
 #%% # ########################################################################
 from L1Trigger.L1CaloTrigger.L1EGammaCrystalsEmulatorProducer_cfi import *
@@ -98,4 +92,5 @@ _phase2_siml1emulator.add( L1TkMuons )
 
 
 from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger
-phase2_trigger.toReplaceWith( SimL1EmulatorTask , _phase2_siml1emulator)
+from Configuration.Eras.Modifier_phase2_trackerV14_cff import phase2_trackerV14
+(phase2_trigger & phase2_trackerV14).toReplaceWith( SimL1EmulatorTask , _phase2_siml1emulator)
