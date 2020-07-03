@@ -675,8 +675,8 @@ class UpgradeWorkflow_TestOldDigi(UpgradeWorkflow):
             ## Use re-emulate the full L1 trigger when running on 11_0 DIGI. Ie. Replace L1Reco with L1TrackTrigger,L1. 
             stepDict[stepName][k] = merge([{'-s': stepDict[stepName][k]['-s'].replace("L1Reco","L1TrackTrigger,L1")}, stepDict[stepName][k]])
             stepDict[stepNamePU][k] = merge([{'-s': stepDict[stepNamePU][k]['-s'].replace("L1Reco","L1TrackTrigger,L1")}, stepDict[stepNamePU][k]])
-            stepDict[stepName][k] = merge([{'--customise_unsch': "L1Trigger/Configuration/customisePhase2TTNoMC.customisePhase2TTNoMC"}, stepDict[stepName][k]])
-            stepDict[stepNamePU][k] = merge([{'--customise_unsch': "L1Trigger/Configuration/customisePhase2TTNoMC.customisePhase2TTNoMC"}, stepDict[stepNamePU][k]])
+            stepDict[stepName][k] = merge([{'--customise': "L1Trigger/Configuration/customisePhase2TTNoMC.customisePhase2TTNoMC"}, stepDict[stepName][k]])
+            stepDict[stepNamePU][k] = merge([{'--customise': "L1Trigger/Configuration/customisePhase2TTNoMC.customisePhase2TTNoMC"}, stepDict[stepNamePU][k]])
         elif 'GenSim' in step or 'Digi' in step:
             # remove step
             stepDict[stepName][k] = None
