@@ -5,7 +5,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -28,7 +28,7 @@
 // class declaration
 //
 
-class PATTracksToPackedCandidates : public edm::stream::EDProducer<> {
+class PATTracksToPackedCandidates : public edm::global::EDProducer<> {
 public:
   explicit PATTracksToPackedCandidates(const edm::ParameterSet&);
 
@@ -41,7 +41,7 @@ public:
                           bool passPixelTrackSel) const;
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
   const edm::EDGetTokenT<reco::TrackCollection> srcTracks_;
@@ -89,7 +89,7 @@ PATTracksToPackedCandidates::PATTracksToPackedCandidates(const edm::ParameterSet
 //
 
 // ------------ method called to produce the data  ------------
-void PATTracksToPackedCandidates::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void PATTracksToPackedCandidates::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
   using namespace std;
 
