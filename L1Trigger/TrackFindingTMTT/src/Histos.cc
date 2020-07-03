@@ -636,7 +636,6 @@ namespace tmtt {
     //=== Count stubs per event assigned to track candidates in the Tracker
 
     unsigned int nStubsOnTracks = 0;
-    matrix nStubsOnTracksInSec(numPhiSectors_, numEtaRegions_, 0);
     vector<unsigned int> nStubsOnTracksInNonant(numPhiNonants, 0);
 
     for (const L1track3D& t : tracks) {
