@@ -7,10 +7,10 @@
 
 MkFitInputWrapper::MkFitInputWrapper() = default;
 
-MkFitInputWrapper::MkFitInputWrapper(MkFitHitIndexMap&& hitIndexMap,
-                                     std::vector<mkfit::HitVec>&& hits,
-                                     mkfit::TrackVec&& seeds,
-                                     mkfit::LayerNumberConverter&& lnc)
+MkFitInputWrapper::MkFitInputWrapper(MkFitHitIndexMap hitIndexMap,
+                                     std::vector<mkfit::HitVec> hits,
+                                     mkfit::TrackVec seeds,
+                                     mkfit::LayerNumberConverter const& lnc)
     : hitIndexMap_{std::move(hitIndexMap)},
       hits_{std::move(hits)},
       seeds_{std::make_unique<mkfit::TrackVec>(std::move(seeds))},
