@@ -120,6 +120,10 @@ def miniAOD_customizeCommon(process):
     from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
     phase2_muon.toModify(process.selectedPatMuons, cut = "pt > 5 || isPFMuon || (pt > 3 && (isGlobalMuon || isStandAloneMuon || numberOfMatches > 0 || muonID('RPCMuLoose') || muonID('ME0MuonArbitrated') || muonID('GEMMuonArbitrated')) )")
     
+    from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+    from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+    (pp_on_AA_2018 | pp_on_PbPb_run3).toModify(process.selectedPatMuons, cut = "pt > 5 || isPFMuon || (pt > 1.2 && (isGlobalMuon || isStandAloneMuon) )")
+
     process.selectedPatElectrons.cut = cms.string("")
     process.selectedPatTaus.cut = cms.string("pt > 18. && tauID('decayModeFindingNewDMs')> 0.5")
     process.selectedPatPhotons.cut = cms.string("")
