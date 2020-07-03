@@ -250,7 +250,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/MuonCommonData/data/mfshield/2017/v2/mfshield.xml',
     )+
     cms.vstring(
-        'Geometry/MuonCommonData/data/muonNumbering/2021/v2/muonNumbering.xml',
+        'Geometry/MuonCommonData/data/muonNumbering/2021/v3/muonNumbering.xml',
         'Geometry/ForwardCommonData/data/forward/2021/v1/forward.xml',
         'Geometry/ForwardCommonData/data/totemt2/2021/v1/totemt2.xml',
         'Geometry/ForwardCommonData/data/forwardshield/2021/v1/forwardshield.xml',
