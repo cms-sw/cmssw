@@ -107,11 +107,8 @@ void PATTracksToPackedCandidates::produce(edm::StreamID, edm::Event& iEvent, con
   }
 
   //best vertex
-  double bestvzError = -999.9, bestvxError = -999.9, bestvyError = -999.9;
   const reco::Vertex& vtx = (*pvs)[0];
-  bestvzError = vtx.zError();
-  bestvxError = vtx.xError();
-  bestvyError = vtx.yError();
+  double bestvzError = vtx.zError();
   const math::XYZPoint& bestvtx(vtx.position());
   math::Error<3>::type vtx_cov = vtx.covariance();
 
@@ -123,7 +120,7 @@ void PATTracksToPackedCandidates::produce(edm::StreamID, edm::Event& iEvent, con
     double dzvtx = std::abs(trk.dz(bestvtx));
     double dxyvtx = std::abs(trk.dxy(bestvtx));
     double dzerror = std::hypot(trk.dzError(), bestvzError);
-    double dxyerror = sqrt(trk.dxyError(bestvtx, vtx_cov) * trk.dxyError(bestvtx, vtx_cov) + bestvxError * bestvyError);
+    double dxyerror = trk.dxyError(bestvtx, vtx_cov);
 
     if (dzvtx >= dzSigCut_ * dzerror)
       continue;
