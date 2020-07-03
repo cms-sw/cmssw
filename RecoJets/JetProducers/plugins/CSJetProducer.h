@@ -34,8 +34,7 @@ namespace cms {
   protected:
     void runAlgorithm(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-    double getModulatedRhoFactor(
-        const double phi, const double eventPlane2, const double eventPlane3, const double par1, const double par2);
+    double getModulatedRhoFactor(double phi, double eventPlane2, double eventPlane3, double par1, double par2);
 
     double csRParam_;  /// for constituent subtraction : R parameter
     double csAlpha_;   /// for HI constituent subtraction : alpha (power of pt in metric)
@@ -43,7 +42,6 @@ namespace cms {
     bool useModulatedRho_;    /// flag to turn on/off flow-modulated rho and rhom
     double minFlowChi2Prob_;  /// flowFit chi2/ndof minimum compatability requirement
     double maxFlowChi2Prob_;  /// flowFit chi2/ndof minimum compatability requirement
-
     //input rho and rho_m + eta map
     edm::EDGetTokenT<std::vector<double>> etaToken_;
     edm::EDGetTokenT<std::vector<double>> rhoToken_;

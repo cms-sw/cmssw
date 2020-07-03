@@ -26,6 +26,7 @@
 #include "TF1.h"
 #include "TH1.h"
 #include "TMath.h"
+#include "TMinuitMinimizer.h"
 
 #include <algorithm>
 #include <cmath>
@@ -34,52 +35,59 @@
 #include <utility>
 #include <vector>
 
+namespace {
+  double lineFunction(double* x, double* par) { return par[0]; }
+  double flowFunction(double* x, double* par) {
+    return par[0] * (1. + 2. * (par[1] * TMath::Cos(2. * (x[0] - par[2])) + par[3] * TMath::Cos(3. * (x[0] - par[4]))));
+  }
+};  // namespace
+
 class HiFJRhoFlowModulationProducer : public edm::stream::EDProducer<> {
 public:
   explicit HiFJRhoFlowModulationProducer(const edm::ParameterSet&);
-
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginStream(edm::StreamID) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endStream() override;
 
-  bool doEvtPlane_;
-  bool doFreePlaneFit_;
-  bool doJettyExclusion_;
-  int evtPlaneLevel_;
+  const bool doEvtPlane_;
+  const bool doFreePlaneFit_;
+  const bool doJettyExclusion_;
+  const int evtPlaneLevel_;
   edm::EDGetTokenT<reco::JetView> jetTag_;
-  edm::EDGetTokenT<reco::PFCandidateCollection> pfCandsToken_;
-  edm::EDGetTokenT<reco::EvtPlaneCollection> evtPlaneToken_;
-
-  float* hiEvtPlane;
+  const edm::EDGetTokenT<reco::PFCandidateCollection> pfCandsToken_;
+  const edm::EDGetTokenT<reco::EvtPlaneCollection> evtPlaneToken_;
+  static constexpr int kMaxEvtPlane = 1000;
+  std::array<float, kMaxEvtPlane> hiEvtPlane_;
+  std::unique_ptr<TF1> lineFit_p;
+  std::unique_ptr<TF1> flowFit_p;
+  int nPhiBins;
 };
-
 HiFJRhoFlowModulationProducer::HiFJRhoFlowModulationProducer(const edm::ParameterSet& iConfig)
     : doEvtPlane_(iConfig.getParameter<bool>("doEvtPlane")),
       doFreePlaneFit_(iConfig.getParameter<bool>("doFreePlaneFit")),
       doJettyExclusion_(iConfig.getParameter<bool>("doJettyExclusion")),
       evtPlaneLevel_(iConfig.getParameter<int>("evtPlaneLevel")),
-      jetTag_(consumes<reco::JetView>(iConfig.getParameter<edm::InputTag>("jetTag"))),
       pfCandsToken_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCandSource"))),
       evtPlaneToken_(consumes<reco::EvtPlaneCollection>(iConfig.getParameter<edm::InputTag>("EvtPlane"))) {
+  if (doJettyExclusion_)
+    jetTag_ = consumes<reco::JetView>(iConfig.getParameter<edm::InputTag>("jetTag"));
   produces<std::vector<double>>("rhoFlowFitParams");
+  TMinuitMinimizer::UseStaticMinuit(false);
+  lineFit_p = std::unique_ptr<TF1>(new TF1("lineFit", lineFunction, -TMath::Pi(), TMath::Pi()));
+  flowFit_p = std::unique_ptr<TF1>(new TF1("flowFit", flowFunction, -TMath::Pi(), TMath::Pi()));
 }
 
 // ------------ method called to produce the data  ------------
 void HiFJRhoFlowModulationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::Handle<reco::PFCandidateCollection> pfCands;
-  iEvent.getByToken(pfCandsToken_, pfCands);
+  auto const& pfCands = iEvent.get(pfCandsToken_);
 
-  edm::Handle<reco::EvtPlaneCollection> evtPlanes;
   if (doEvtPlane_) {
-    iEvent.getByToken(evtPlaneToken_, evtPlanes);
-    if (evtPlanes.isValid()) {
-      for (unsigned int i = 0; i < evtPlanes->size(); ++i) {
-        hiEvtPlane[i] = (*evtPlanes)[i].angle(evtPlaneLevel_);
-      }
-    }
+    auto const& evtPlanes = iEvent.get(evtPlaneToken_);
+    assert(evtPlanes.size() < kMaxEvtPlane);
+    std::transform(evtPlanes.begin(), evtPlanes.end(), hiEvtPlane_.begin(), [this](auto const& ePlane) -> float {
+      return ePlane.angle(evtPlaneLevel_);
+    });
   }
 
   edm::Handle<reco::JetView> jets;
@@ -106,17 +114,28 @@ void HiFJRhoFlowModulationProducer::produce(edm::Event& iEvent, const edm::Event
   double eventPlane3Cos = 0;
   double eventPlane3Sin = 0;
 
-  for (auto const& pfCandidate : *pfCands) {
-    if (pfCandidate.eta() < -1.0)
+  std::vector<bool> pfcuts;
+  for (auto const& pfCandidate : pfCands) {
+    if (pfCandidate.particleId() != 1) {
+      pfcuts.push_back(false);
       continue;
-    if (pfCandidate.eta() > 1.0)
+    }
+    if (pfCandidate.eta() < -1.0) {
+      pfcuts.push_back(false);
       continue;
-    if (pfCandidate.pt() < .3)
+    }
+    if (pfCandidate.eta() > 1.0) {
+      pfcuts.push_back(false);
       continue;
-    if (pfCandidate.pt() > 3.)
+    }
+    if (pfCandidate.pt() < .3) {
+      pfcuts.push_back(false);
       continue;
-    if (pfCandidate.particleId() != 1)
+    }
+    if (pfCandidate.pt() > 3.) {
+      pfcuts.push_back(false);
       continue;
+    }
 
     if (doJettyExclusion_) {
       bool isGood = true;
@@ -126,11 +145,14 @@ void HiFJRhoFlowModulationProducer::produce(edm::Event& iEvent, const edm::Event
           break;
         }
       }
-      if (!isGood)
+      if (!isGood) {
+        pfcuts.push_back(false);
         continue;
+      }
     }
 
     nFill++;
+    pfcuts.push_back(true);
 
     if (!doEvtPlane_) {
       eventPlane2Cos += std::cos(2 * pfCandidate.phi());
@@ -145,65 +167,35 @@ void HiFJRhoFlowModulationProducer::produce(edm::Event& iEvent, const edm::Event
     eventPlane2 = std::atan2(eventPlane2Sin, eventPlane2Cos) / 2.;
     eventPlane3 = std::atan2(eventPlane3Sin, eventPlane3Cos) / 3.;
   } else {
-    eventPlane2 = hiEvtPlane[8];
-    eventPlane3 = hiEvtPlane[15];
+    eventPlane2 = hiEvtPlane_[8];
+    eventPlane3 = hiEvtPlane_[15];
   }
-
+  int pfcuts_count = 0;
   if (nFill >= 100 && eventPlane2 > -99) {
-    const int nPhiBins = std::max(10, nFill / 30);
+    nPhiBins = std::max(10, nFill / 30);
 
     std::string name = "phiTestIEta4_" + std::to_string(iEvent.id().event()) + "_h";
     std::string nameFlat = "phiTestIEta4_Flat_" + std::to_string(iEvent.id().event()) + "_h";
-
     TH1F* phi_h = new TH1F(name.data(), "", nPhiBins, -TMath::Pi(), TMath::Pi());
-
-    for (auto const& pfCandidate : *pfCands) {
-      if (pfCandidate.eta() < -1.0)
-        continue;
-      if (pfCandidate.eta() > 1.0)
-        continue;
-      if (pfCandidate.pt() < .3)
-        continue;
-      if (pfCandidate.pt() > 3.)
-        continue;
-      if (pfCandidate.particleId() != 1)
-        continue;
-
-      if (doJettyExclusion_) {
-        bool isGood = true;
-        for (auto const& jet : *jets) {
-          if (deltaR2(jet, pfCandidate) < .16) {
-            isGood = false;
-            break;
-          }
-        }
-        if (!isGood)
-          continue;
-      }
-
-      phi_h->Fill(pfCandidate.phi());
+    for (auto const& pfCandidate : pfCands) {
+      if (pfcuts.at(pfcuts_count))
+        phi_h->Fill(pfCandidate.phi());
+      pfcuts_count++;
     }
-
-    std::string flowFitForm = "[0]*(1.+2.*([1]*TMath::Cos(2.*(x-[2]))+[3]*TMath::Cos(3.*(x-[4]))))";
-
-    TF1* flowFit_p = new TF1("flowFit", flowFitForm.c_str(), -TMath::Pi(), TMath::Pi());
     flowFit_p->SetParameter(0, 10);
     flowFit_p->SetParameter(1, 0);
     flowFit_p->SetParameter(2, eventPlane2);
     flowFit_p->SetParameter(3, 0);
     flowFit_p->SetParameter(4, eventPlane3);
-
     if (!doFreePlaneFit_) {
       flowFit_p->FixParameter(2, eventPlane2);
       flowFit_p->FixParameter(4, eventPlane3);
     }
 
-    TF1* lineFit_p = new TF1("lineFit", "[0]", -TMath::Pi(), TMath::Pi());
     lineFit_p->SetParameter(0, 10);
 
-    phi_h->Fit(flowFit_p, "Q", "", -TMath::Pi(), TMath::Pi());
-    phi_h->Fit(lineFit_p, "Q", "", -TMath::Pi(), TMath::Pi());
-
+    phi_h->Fit(flowFit_p.get(), "Q SERIAL", "", -TMath::Pi(), TMath::Pi());
+    phi_h->Fit(lineFit_p.get(), "Q SERIAL", "", -TMath::Pi(), TMath::Pi());
     rhoFlowFitParamsOut->at(0) = flowFit_p->GetParameter(0);
     rhoFlowFitParamsOut->at(1) = flowFit_p->GetParameter(1);
     rhoFlowFitParamsOut->at(2) = flowFit_p->GetParameter(2);
@@ -217,35 +209,24 @@ void HiFJRhoFlowModulationProducer::produce(edm::Event& iEvent, const edm::Event
     rhoFlowFitParamsOut->at(8) = lineFit_p->GetNDF();
 
     delete phi_h;
-
-    delete flowFit_p;
-    delete lineFit_p;
+    pfcuts.clear();
   }
 
   iEvent.put(std::move(rhoFlowFitParamsOut), "rhoFlowFitParams");
 }
 
-// ------------ method called once each stream just before starting event loop  ------------
-void HiFJRhoFlowModulationProducer::beginStream(edm::StreamID) {
-  if (doEvtPlane_) {
-    constexpr int kMaxEvtPlanes = 1000;
-    hiEvtPlane = new float[kMaxEvtPlanes];
-  }
-}
-
-// ------------ method called once each stream just after ending the event loop  ------------
-void HiFJRhoFlowModulationProducer::endStream() {
-  if (doEvtPlane_)
-    delete hiEvtPlane;
-}
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void HiFJRhoFlowModulationProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<bool>("doEvtPlane", false);
+  desc.add<edm::InputTag>("EvtPlane", edm::InputTag("hiEvtPlane"));
+  desc.add<bool>("doJettyExclusion", false);
+  desc.add<bool>("doFreePlaneFit", false);
+  desc.add<bool>("doFlatTest", false);
+  desc.add<edm::InputTag>("jetTag", edm::InputTag("ak4PFJets"));
+  desc.add<edm::InputTag>("pfCandSource", edm::InputTag("particleFlow"));
+  desc.add<int>("evtPlaneLevel", 0);
+  descriptions.add("hiFJRhoFlowModulationProducer", desc);
 }
 
 DEFINE_FWK_MODULE(HiFJRhoFlowModulationProducer);
