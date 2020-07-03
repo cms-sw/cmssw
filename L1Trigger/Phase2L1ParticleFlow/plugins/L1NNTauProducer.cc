@@ -1,4 +1,6 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/L1NNTauProducer.hh"
+#include <TLorentzVector.h>
+#include <cmath>
 
 L1NNTauProducer::L1NNTauProducer(const edm::ParameterSet& cfg)
     : fSeedPt_(cfg.getParameter<double>("seedpt")),
@@ -11,7 +13,7 @@ L1NNTauProducer::L1NNTauProducer(const edm::ParameterSet& cfg)
   fTauNNId = new TauNNId();
   if (lNNFile.find("v0") == std::string::npos)
     fTauNNId->initialize("input_1:0", lNNFile, fNParticles_);
-  if (lNNFile.find("v0") != std::string::npos)
+  else if (lNNFile.find("v0") != std::string::npos)
     fTauNNId->initialize("dense_1_input:0", lNNFile, fNParticles_);
   produces<l1t::PFTauCollection>("L1PFTausNN");
 }
@@ -23,16 +25,16 @@ void L1NNTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   l1t::PFCandidateCollection pfChargedHadrons;
   l1t::PFCandidateCollection pfChargedHadrons_sort;
   l1t::PFCandidateCollection pfChargedHadrons_seeds;
-  for (auto l1PFCand : *l1PFCandidates)
+  for (const auto& l1PFCand : *l1PFCandidates)
     if ((l1PFCand.id() == l1t::PFCandidate::ChargedHadron || l1PFCand.id() == l1t::PFCandidate::Electron) &&
-        fabs(l1PFCand.eta()) < 2.5)
+        std::abs(l1PFCand.eta()) < 2.5)
       pfChargedHadrons_sort.push_back(l1PFCand);
   std::sort(pfChargedHadrons_sort.begin(), pfChargedHadrons_sort.end(), [](l1t::PFCandidate i, l1t::PFCandidate j) {
     return (i.pt() > j.pt());
   });
   auto lTaus = std::make_unique<l1t::PFTauCollection>();
-  if (pfChargedHadrons_sort.size() == 0) {
-    if (lTaus->size() == 0) {
+  if (pfChargedHadrons_sort.empty()) {
+    if (lTaus->empty()) {
       PFTau dummy;
       lTaus->push_back(dummy);
     }
@@ -43,7 +45,7 @@ void L1NNTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (unsigned int i0 = 1; i0 < pfChargedHadrons_sort.size(); i0++) {
     bool pMatch = false;
     for (unsigned int i1 = 0; i1 < pfChargedHadrons_seeds.size(); i1++) {
-      if (deltaR(pfChargedHadrons_seeds[i1], pfChargedHadrons_sort[i0]) < 0.4)
+      if (deltaR(pfChargedHadrons_seeds[i1], pfChargedHadrons_sort[i0]) < fConeSize_)
         pMatch = true;
     }
     if (pMatch)
@@ -55,7 +57,7 @@ void L1NNTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (unsigned int i0 = 0; i0 < pfChargedHadrons_seeds.size(); i0++) {
     addTau(pfChargedHadrons_seeds[i0], (*l1PFCandidates), lTaus);
   }
-  if (lTaus->size() == 0) {
+  if (lTaus->empty()) {
     PFTau dummy;
     lTaus->push_back(dummy);
   }
@@ -99,8 +101,8 @@ void L1NNTauProducer::addTau(l1t::PFCandidate& iCand,
 float L1NNTauProducer::deltaR(l1t::PFCandidate& iPart1, l1t::PFCandidate& iPart2) {
   float delta_r = 20;
   float pDPhi = fabs(iPart1.phi() - iPart2.phi());
-  if (pDPhi > 2. * TMath::Pi() - pDPhi)
-    pDPhi = 2. * TMath::Pi() - pDPhi;
+  if (pDPhi > 2. * M_PI - pDPhi)
+    pDPhi = 2. * M_PI - pDPhi;
   delta_r = sqrt((iPart1.eta() - iPart2.eta()) * (iPart1.eta() - iPart2.eta()) + pDPhi * pDPhi);
   return delta_r;
 }
