@@ -26,8 +26,8 @@ MaterialBudgetHcalHistos::MaterialBudgetHcalHistos(const edm::ParameterSet& p) {
   etaMaxP_ = p.getUntrackedParameter<double>("EtaMaxP", 0.0);
   edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos: FillHisto : " << fillHistos_ << " PrintSummary "
                                      << printSum_ << " == Eta plot: NX " << binEta_ << " Range " << -maxEta_ << ":"
-                                     << maxEta_ << " Phi plot: NX " << binPhi_ << " Range " << -1._pi << ":"
-                                     << 1._pi << " (Eta limit " << etaLow_ << ":" << etaHigh_ << ")"
+                                     << maxEta_ << " Phi plot: NX " << binPhi_ << " Range " << -1._pi << ":" << 1._pi
+                                     << " (Eta limit " << etaLow_ << ":" << etaHigh_ << ")"
                                      << " Debug for eta range " << etaMinP_ << ":" << etaMaxP_;
   if (fillHistos_)
     book();
@@ -104,9 +104,9 @@ void MaterialBudgetHcalHistos::fillStartTrack(const G4Track* aTrack) {
 
   if ((std::abs(eta_) >= etaMinP_) && (std::abs(eta_) <= etaMaxP_))
     edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos: Track " << aTrack->GetTrackID() << " Code "
-                                       << theID << " Energy " << convertUnitsTo(1._GeV, theEnergy) << " GeV; Eta " << eta_
-                                       << " Phi " << convertRadToDeg(phi_) << " PT " << convertUnitsTo(1._GeV, dir.perp())
-                                       << " GeV *****";
+                                       << theID << " Energy " << convertUnitsTo(1._GeV, theEnergy) << " GeV; Eta "
+                                       << eta_ << " Phi " << convertRadToDeg(phi_) << " PT "
+                                       << convertUnitsTo(1._GeV, dir.perp()) << " GeV *****";
 }
 
 void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
