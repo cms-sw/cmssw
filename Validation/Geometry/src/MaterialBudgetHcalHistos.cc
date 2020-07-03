@@ -1,5 +1,6 @@
 #include "Validation/Geometry/interface/MaterialBudgetHcalHistos.h"
 
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
@@ -9,10 +10,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-
 #include <string>
+
+using namespace geant_units::operators;
 
 MaterialBudgetHcalHistos::MaterialBudgetHcalHistos(const edm::ParameterSet& p) {
   binEta_ = p.getUntrackedParameter<int>("NBinEta", 260);
@@ -26,8 +26,8 @@ MaterialBudgetHcalHistos::MaterialBudgetHcalHistos(const edm::ParameterSet& p) {
   etaMaxP_ = p.getUntrackedParameter<double>("EtaMaxP", 0.0);
   edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos: FillHisto : " << fillHistos_ << " PrintSummary "
                                      << printSum_ << " == Eta plot: NX " << binEta_ << " Range " << -maxEta_ << ":"
-                                     << maxEta_ << " Phi plot: NX " << binPhi_ << " Range " << -CLHEP::pi << ":"
-                                     << CLHEP::pi << " (Eta limit " << etaLow_ << ":" << etaHigh_ << ")"
+                                     << maxEta_ << " Phi plot: NX " << binPhi_ << " Range " << -1._pi << ":"
+                                     << 1._pi << " (Eta limit " << etaLow_ << ":" << etaHigh_ << ")"
                                      << " Debug for eta range " << etaMinP_ << ":" << etaMaxP_;
   if (fillHistos_)
     book();
@@ -104,8 +104,8 @@ void MaterialBudgetHcalHistos::fillStartTrack(const G4Track* aTrack) {
 
   if ((std::abs(eta_) >= etaMinP_) && (std::abs(eta_) <= etaMaxP_))
     edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos: Track " << aTrack->GetTrackID() << " Code "
-                                       << theID << " Energy " << theEnergy / CLHEP::GeV << " GeV; Eta " << eta_
-                                       << " Phi " << phi_ / CLHEP::deg << " PT " << dir.perp() / CLHEP::GeV
+                                       << theID << " Energy " << convertUnitsTo(1._GeV, theEnergy) << " GeV; Eta " << eta_
+                                       << " Phi " << convertRadToDeg(phi_) << " PT " << convertUnitsTo(1._GeV, dir.perp())
                                        << " GeV *****";
 }
 
@@ -114,7 +114,7 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
   double step = aStep->GetStepLength();
   double radl = material->GetRadlen();
   double intl = material->GetNuclearInterLength();
-  double density = material->GetDensity() / (g / cm3);
+  double density = convertUnitsTo(1._g_per_cm3, material->GetDensity());
 
   int idOld = id_;
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
@@ -191,7 +191,7 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
           }
         }
         edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Det " << det << " Layer " << lay << " Eta "
-                                               << eta_ << " Phi " << phi_ / CLHEP::deg;
+                                               << eta_ << " Phi " << convertRadToDeg(phi_);
       } else if (layer_ == 1) {
         det = -1;
         lay = 2;
@@ -254,7 +254,7 @@ void MaterialBudgetHcalHistos::book() {
     throw cms::Exception("BadConfig") << "TFileService unavailable: "
                                       << "please add it to config file";
 
-  double maxPhi = CLHEP::pi;
+  double maxPhi = 1._pi;
   edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Booking user histos === with " << binEta_
                                          << " bins in eta from " << -maxEta_ << " to " << maxEta_ << " and " << binPhi_
                                          << " bins in phi from " << -maxPhi << " to " << maxPhi;
