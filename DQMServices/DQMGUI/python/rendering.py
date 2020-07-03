@@ -206,7 +206,7 @@ class GUIRenderingContext:
     async def create(render_plugins_lib_path=None):
         """In order to create an instance of GUIRenderingContext, this method should be called instead of an initializer."""
         self = GUIRenderingContext()
-        self.RENDERING_TIMEOUT = 0.001 #seconds
+        self.RENDERING_TIMEOUT = 30 #seconds
         self.render_plugins_lib_path = render_plugins_lib_path
         await self.__start_rendering_process()
         await self.__open_socket_connection()
