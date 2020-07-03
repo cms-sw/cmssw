@@ -36,20 +36,20 @@ void EcalMEFormatter::dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &_igetter
 void EcalMEFormatter::format_(DQMStore::IGetter &_igetter, bool _checkLumi) {
   std::string failedPath;
 
-  for (ecaldqm::MESetCollection::iterator mItr(MEs_.begin()); mItr != MEs_.end(); ++mItr) {
-    if (_checkLumi && !mItr->second->getLumiFlag())
+  for (auto &mItr : MEs_) {
+    if (_checkLumi && !mItr.second->getLumiFlag())
       continue;
-    mItr->second->clear();
-    if (!mItr->second->retrieve(_igetter, &failedPath)) {
+    mItr.second->clear();
+    if (!mItr.second->retrieve(_igetter, &failedPath)) {
       if (verbosity_ > 0)
-        edm::LogWarning("EcalDQM") << "Could not find ME " << mItr->first << "@" << failedPath;
+        edm::LogWarning("EcalDQM") << "Could not find ME " << mItr.first << "@" << failedPath;
       continue;
     }
     if (verbosity_ > 1)
-      edm::LogInfo("EcalDQM") << "Retrieved " << mItr->first << " from DQMStore";
+      edm::LogInfo("EcalDQM") << "Retrieved " << mItr.first << " from DQMStore";
 
-    if (dynamic_cast<ecaldqm::MESetDet2D *>(mItr->second))
-      formatDet2D_(*mItr->second);
+    if (dynamic_cast<ecaldqm::MESetDet2D *>(mItr.second.get()))
+      formatDet2D_(*mItr.second);
   }
 }
 
