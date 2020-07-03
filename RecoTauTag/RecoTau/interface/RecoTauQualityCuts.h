@@ -20,6 +20,7 @@
  */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -90,6 +91,9 @@ namespace reco {
         }
         return output;
       }
+
+      /// Declare all parameters read from python config file
+      static void fillDescriptions(edm::ParameterSetDescription& descriptions);
 
     private:
       bool filterTrack_(const reco::Track* track) const;
