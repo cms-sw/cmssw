@@ -1,15 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoMET.METProducers.pfMet_cfi import pfMet as _pfMet
-_pfMet.calculateSignificance = False
+from RecoMET.METProducers.pfMet_cfi import pfMet
+_pfMet         =  pfMet.clone(calculateSignificance = False)
 l1PFMetCalo    = _pfMet.clone(src = "l1pfCandidates:Calo")
 l1PFMetPF      = _pfMet.clone(src = "l1pfCandidates:PF")
 l1PFMetPuppi   = _pfMet.clone(src = "l1pfCandidates:Puppi")
 
 l1PFMets = cms.Sequence(l1PFMetCalo + l1PFMetPF + l1PFMetPuppi)
 
-from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets as _ak4PFJets
-_ak4PFJets.doAreaFastjet = False
+from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
+_ak4PFJets      =  ak4PFJets.clone(doAreaFastjet = False)
 ak4PFL1Calo    = _ak4PFJets.clone(src = 'l1pfCandidates:Calo')
 ak4PFL1PF      = _ak4PFJets.clone(src = 'l1pfCandidates:PF')
 ak4PFL1Puppi   = _ak4PFJets.clone(src = 'l1pfCandidates:Puppi')
