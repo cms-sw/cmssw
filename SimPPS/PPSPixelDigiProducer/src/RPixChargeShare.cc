@@ -1,4 +1,5 @@
 #include "SimPPS/PPSPixelDigiProducer/interface/RPixChargeShare.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <iostream>
 #include <fstream>
 
@@ -24,7 +25,8 @@ RPixChargeShare::RPixChargeShare(const edm::ParameterSet &params, uint32_t det_i
   int yUpper[] = {50, 50, 100, 100};
   int ix, iy;
   for (int i = 0; i < 4; i++) {
-    std::ifstream fChargeMap(ChargeMapFile2E_[i]);
+    edm::FileInPath filename(ChargeMapFile2E_[i]);
+    std::ifstream fChargeMap(filename.fullPath().c_str());
     if (fChargeMap.is_open()) {
       while (fChargeMap >> xMap >> yMap >> chargeprobcollect) {
         ix = int((xMap + xUpper[i]) / 5);
