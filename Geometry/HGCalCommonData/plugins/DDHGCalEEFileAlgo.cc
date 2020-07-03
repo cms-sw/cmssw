@@ -48,7 +48,6 @@ protected:
 
 private:
   HGCalGeomTools geomTools_;
-  std::unique_ptr<HGCalWaferType> waferType_;
 
   static constexpr double tol1_ = 0.01;
   static constexpr double tol2_ = 0.00001;
@@ -204,9 +203,6 @@ void DDHGCalEEFileAlgo::initialize(const DDNumericArguments& nArgs,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalEEFileAlgo: NameSpace " << nameSpace_;
 #endif
-
-  waferType_ = std::make_unique<HGCalWaferType>(
-      rad100to200_, rad200to300_, (waferSize_ + waferSepar_), zMinRadPar_, choiceType_, nCutRadPar_, fracAreaMin_);
 }
 
 ////////////////////////////////////////////////////////////////////

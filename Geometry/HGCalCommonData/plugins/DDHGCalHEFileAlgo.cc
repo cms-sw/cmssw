@@ -181,9 +181,7 @@ void DDHGCalHEFileAlgo::initialize(const DDNumericArguments& nArgs,
   namesTop_ = vsArgs["TopVolumeNames"];
   layerThickTop_ = vArgs["TopLayerThickness"];
   layerTypeTop_ = dbl_to_int(vArgs["TopLayerType"]);
-  for (unsigned int i = 0; i < materialsTop_.size(); ++i) {
-    copyNumberTop_.emplace_back(1);
-  }
+  copyNumberTop_.resize(materialsTop_.size(), 1);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: " << materialsTop_.size() << " types of volumes in the top part";
   for (unsigned int i = 0; i < materialsTop_.size(); ++i)
@@ -198,9 +196,7 @@ void DDHGCalHEFileAlgo::initialize(const DDNumericArguments& nArgs,
   layerTypeBot_ = dbl_to_int(vArgs["BottomLayerType"]);
   layerSenseBot_ = dbl_to_int(vArgs["BottomLayerSense"]);
   layerThickBot_ = vArgs["BottomLayerThickness"];
-  for (unsigned int i = 0; i < materialsBot_.size(); ++i) {
-    copyNumberBot_.emplace_back(1);
-  }
+  copyNumberBot_.resize(materialsBot_.size(), 1);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: " << materialsBot_.size()
                                 << " types of volumes in the bottom part";
