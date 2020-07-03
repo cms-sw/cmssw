@@ -8,7 +8,6 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "Demo" )
 process.load( 'Configuration.Geometry.GeometryExtended2026D49Reco_cff' )
-process.load( 'Configuration.Geometry.GeometryExtended2026D49_cff' )
 process.load( 'Configuration.StandardSequences.MagneticField_cff' )
 process.load( 'Configuration.StandardSequences.FrontierConditions_GlobalTag_cff' )
 process.load( 'Configuration.StandardSequences.L1TrackTrigger_cff' )
@@ -17,23 +16,24 @@ process.load( "FWCore.MessageLogger.MessageLogger_cfi" )
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag( process.GlobalTag, 'auto:phase2_realistic', '' )
 
-#--- Load code that produces DTCStubs
-process.load( 'L1Trigger.TrackerDTC.Producer_cff' )
-process.produce = cms.Path( process.TrackerDTCProducer )
-#from L1Trigger.TrackerDTC.Producer_Customize_cff import useTMTT
-#useTMTT(process)
-
-#--- Load code that analyzes DTCStubs
+# load code that produces DTCStubs
+process.load( 'L1Trigger.TrackerDTC.ProducerED_cff' )
+# load code that analyzes DTCStubs
 process.load( 'L1Trigger.TrackerDTC.Analyzer_cff' )
-process.analyze = cms.Path( process.TrackerDTCAnalyzer )
-#from L1Trigger.TrackerDTC.Analyzer_Customize_cff import useTMTT
-#useTMTT(process)
+# cosutmize TT algorithm
+from L1Trigger.TrackerDTC.Customize_cff import *
+#producerUseTMTT(process)
+#analyzerUseTMTT(process)
 
+# build schedule
+process.produce = cms.Path( process.TrackerDTCProducer )
+process.analyze = cms.Path( process.TrackerDTCAnalyzer )
 process.schedule = cms.Schedule( process.produce, process.analyze )
 
+# create options
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing( 'analysis' )
-#--- Specify input MC
+# specify input MC
 Samples = {
   '/store/relval/CMSSW_11_1_0_pre1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v2_2026D49PU200_ext1-v1/20000/0330453B-9B8E-CA41-88B0-A047B68D1AF9.root',
   '/store/relval/CMSSW_11_1_0_pre1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v2_2026D49PU200_ext1-v1/20000/02180D14-024D-ED46-9899-B275EADB82CE.root',
@@ -57,7 +57,7 @@ Samples = {
   '/store/relval/CMSSW_11_1_0_pre1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v2_2026D49PU200_ext1-v1/20000/C38AE82D-587E-C34B-89DC-FBAE92696270.root'
 }
 options.register( 'inputMC', Samples, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Files to be processed" )
-#--- Specify number of events to process.
+# specify number of events to process.
 options.register( 'Events',100,VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Number of Events to analyze" )
 options.parseArguments()
 
