@@ -487,14 +487,3 @@ namespace ecaldqm {
     return true;
   }
 }  // namespace ecaldqm
-
-namespace boost {
-  template <>
-  inline ecaldqm::MESet *new_clone<ecaldqm::MESet>(ecaldqm::MESet const &_s) {
-    return _s.clone();
-  }
-  template <>
-  void delete_clone<ecaldqm::MESet>(ecaldqm::MESet const *_s) {
-    checked_delete(_s);
-  }
-}  // namespace boost
