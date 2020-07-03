@@ -196,6 +196,8 @@ def _appendPhase2Digis(obj):
         'keep *_l1PFMetCalo__*',
         'keep *_l1PFMetPF__*',
         'keep *_l1PFMetPuppi__*',
+        'keep *_l1NNTauProducer__*',
+        'keep *_l1NNTauProducerPuppi__*',
         ]
     obj.outputCommands += l1Phase2Digis
 
