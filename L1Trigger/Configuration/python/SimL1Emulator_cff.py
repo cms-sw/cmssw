@@ -132,6 +132,7 @@ _phase2_siml1emulator.add(l1PFJetsTask)
 l1PFMetsTask = cms.Task(l1PFMetCalo , l1PFMetPF , l1PFMetPuppi)
 _phase2_siml1emulator.add(l1PFMetsTask)
 
+# --> add modules
 #%% # Barrel EGamma
 #%% # ########################################################################
 from L1Trigger.L1CaloTrigger.L1EGammaCrystalsEmulatorProducer_cfi import *
