@@ -17,6 +17,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
@@ -46,6 +47,7 @@ private:
   // ----------member data ---------------------------
   const edm::EDGetTokenT<reco::TrackCollection> srcTracks_;
   const edm::EDGetTokenT<reco::VertexCollection> srcPrimaryVertices_;
+  const edm::EDGetTokenT<reco::BeamSpot> srcOfflineBeamSpot_;
   const double dzSigCut_;
   const double dxySigCut_;
   const double dzSigHP_;
@@ -71,6 +73,7 @@ private:
 PATTracksToPackedCandidates::PATTracksToPackedCandidates(const edm::ParameterSet& iConfig)
     : srcTracks_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("srcTracks"))),
       srcPrimaryVertices_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("srcPrimaryVertices"))),
+      srcOfflineBeamSpot_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("srcOfflineBeamSpot"))),
       dzSigCut_(iConfig.getParameter<double>("dzSigCut")),
       dxySigCut_(iConfig.getParameter<double>("dxySigCut")),
       dzSigHP_(iConfig.getParameter<double>("dzSigHP")),
@@ -102,15 +105,24 @@ void PATTracksToPackedCandidates::produce(edm::StreamID, edm::Event& iEvent, con
   auto pvs = iEvent.getHandle(srcPrimaryVertices_);
   reco::VertexRef pv(pvs.id());
   reco::VertexRefProd pvRefProd(pvs);
-  if (!pvs->empty()) {
-    pv = reco::VertexRef(pvs, 0);
-  }
 
   //best vertex
-  const reco::Vertex& vtx = (*pvs)[0];
-  double bestvzError = vtx.zError();
-  const math::XYZPoint& bestvtx(vtx.position());
-  math::Error<3>::type vtx_cov = vtx.covariance();
+  double bestvzError;
+  math::XYZPoint bestvtx;
+  math::Error<3>::type vtx_cov;
+  if (!pvs->empty()) {
+    pv = reco::VertexRef(pvs, 0);
+    const reco::Vertex& vtx = (*pvs)[0];
+    bestvzError = vtx.zError();
+    bestvtx = vtx.position();
+    vtx_cov = vtx.covariance();
+  } else {
+    auto offlineBS = iEvent.getHandle(srcOfflineBeamSpot_);
+    reco::BeamSpot bs = *offlineBS;
+    bestvzError = bs.z0Error();
+    bestvtx = bs.position();
+    vtx_cov = bs.covariance3D();
+  }
 
   std::vector<int> mapping(tracks->size(), -1);
   int savedCandIndx = 0;
@@ -179,6 +191,7 @@ void PATTracksToPackedCandidates::fillDescriptions(edm::ConfigurationDescription
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("srcTracks", {"hiConformalPixelTracks"});
   desc.add<edm::InputTag>("srcPrimaryVertices", {"offlineSlimmedPrimaryVertices"});
+  desc.add<edm::InputTag>("srcOfflineBeamSpot", {"offlineBeamSpot"});
   desc.add<double>("dzSigCut", 10.0);
   desc.add<double>("dxySigCut", 25.0);
   desc.add<double>("dzSigHP", 7.0);
