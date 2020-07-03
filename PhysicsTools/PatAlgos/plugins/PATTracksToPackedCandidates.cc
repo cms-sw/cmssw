@@ -19,7 +19,6 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/Common/interface/Association.h"
 
@@ -100,8 +99,7 @@ void PATTracksToPackedCandidates::produce(edm::Event& iEvent, const edm::EventSe
   auto outPtrTrksAsCands = std::make_unique<std::vector<pat::PackedCandidate>>();
 
   //vtx collection
-  edm::Handle<reco::VertexCollection> pvs;
-  iEvent.getByToken(srcPrimaryVertices_, pvs);
+  auto pvs = iEvent.getHandle(srcPrimaryVertices_);
   reco::VertexRef pv(pvs.id());
   reco::VertexRefProd pvRefProd(pvs);
   if (!pvs->empty()) {
@@ -134,9 +132,7 @@ void PATTracksToPackedCandidates::produce(edm::Event& iEvent, const edm::EventSe
     if (trk.pt() >= ptMax_ || trk.pt() <= ptMin_)
       continue;
 
-    bool passSelection = false;
-    if (dzvtx < dzSigHP_ * dzerror && dxyvtx < dxySigHP_ * dxyerror)
-      passSelection = true;
+    bool passSelection = (dzvtx < dzSigHP_ * dzerror && dxyvtx < dxySigHP_ * dxyerror);
 
     addPackedCandidate(*outPtrTrksAsCands, trk, pv, pvRefProd, passSelection);
 
@@ -162,8 +158,7 @@ void PATTracksToPackedCandidates::addPackedCandidate(std::vector<pat::PackedCand
   int id = 211 * trk.charge();
 
   reco::Candidate::PolarLorentzVector p4(trk.pt(), trk.eta(), trk.phi(), mass);
-  cands.emplace_back(
-      pat::PackedCandidate(p4, trk.vertex(), trk.pt(), trk.eta(), trk.phi(), id, pvSlimmedColl, pvSlimmed.key()));
+  cands.emplace_back(p4, trk.vertex(), trk.pt(), trk.eta(), trk.phi(), id, pvSlimmedColl, pvSlimmed.key());
 
   if (resetHP_) {
     if (passPixelTrackSel)
