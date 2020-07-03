@@ -1,7 +1,5 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/TauNNId.h"
-#include <iostream>
 #include <cmath>
-#include <TMath.h>
 
 TauNNId::TauNNId() { NNvectorVar_.clear(); }
 TauNNId::~TauNNId() {
@@ -10,14 +8,14 @@ TauNNId::~TauNNId() {
 }
 void TauNNId::initialize(const std::string &iInput, const std::string &iWeightFile, int iNParticles) {
   std::string cmssw_base_src = getenv("CMSSW_BASE");
-  graphDef_ = tensorflow::loadGraphDef((cmssw_base_src + "/src/" + iWeightFile).c_str());
+  graphDef_ = tensorflow::loadGraphDef(cmssw_base_src + "/src/" + iWeightFile);
   session_ = tensorflow::createSession(graphDef_);
   fNParticles_ = iNParticles;
   fPt_ = std::make_unique<float>(fNParticles_);
   fEta_ = std::make_unique<float>(fNParticles_);
   fPhi_ = std::make_unique<float>(fNParticles_);
   fId_ = std::make_unique<float>(fNParticles_);
-  fInput_ = iInput;  //tensorflow::run(session_, { { "input_1:0",input } }, { "dense_4/Sigmoid:0" }, &outputs);
+  fInput_ = iInput;
 }
 void TauNNId::SetNNVectorVar() {
   NNvectorVar_.clear();
@@ -30,13 +28,11 @@ void TauNNId::SetNNVectorVar() {
         NNvectorVar_.push_back(0);
       continue;
     }
-    fId_.get()[i0] == l1t::PFCandidate::Photon ? NNvectorVar_.push_back(1) : NNvectorVar_.push_back(0);    //Photon
-    fId_.get()[i0] == l1t::PFCandidate::Electron ? NNvectorVar_.push_back(1) : NNvectorVar_.push_back(0);  //Electron
-    fId_.get()[i0] == l1t::PFCandidate::Muon ? NNvectorVar_.push_back(1) : NNvectorVar_.push_back(0);      //Muon
-    fId_.get()[i0] == l1t::PFCandidate::NeutralHadron ? NNvectorVar_.push_back(1)
-                                                      : NNvectorVar_.push_back(0);  //Neutral Had
-    fId_.get()[i0] == l1t::PFCandidate::ChargedHadron ? NNvectorVar_.push_back(1)
-                                                      : NNvectorVar_.push_back(0);  //Charged Had
+    NNvectorVar_.push_back(fId_.get()[i0] == l1t::PFCandidate::Photon);         // Photon
+    NNvectorVar_.push_back(fId_.get()[i0] == l1t::PFCandidate::Electron);       // Electron
+    NNvectorVar_.push_back(fId_.get()[i0] == l1t::PFCandidate::Muon);           // Muon
+    NNvectorVar_.push_back(fId_.get()[i0] == l1t::PFCandidate::NeutralHadron);  // Neutral Had
+    NNvectorVar_.push_back(fId_.get()[i0] == l1t::PFCandidate::ChargedHadron);  // Charged Had
   }
 }
 float TauNNId::EvaluateNN() {
@@ -65,10 +61,10 @@ float TauNNId::compute(l1t::PFCandidate &iSeed, l1t::PFCandidateCollection &iPar
     fPt_.get()[i0] = iParts[i0].pt();
     fEta_.get()[i0] = iSeed.eta() - iParts[i0].eta();
     float lDPhi = iSeed.phi() - iParts[i0].phi();
-    if (lDPhi > TMath::Pi())
-      lDPhi -= TMath::Pi();
-    if (lDPhi < -TMath::Pi())
-      lDPhi += TMath::Pi();
+    if (lDPhi > M_PI)
+      lDPhi -= M_PI;
+    if (lDPhi < -M_PI)
+      lDPhi += M_PI;
     fPhi_.get()[i0] = lDPhi;
     fId_.get()[i0] = iParts[i0].id();
   }
