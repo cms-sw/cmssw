@@ -141,8 +141,8 @@ l1NNTauProducer = L1NNTauProducer.clone(
 l1NNTauProducerPuppi = L1NNTauProducerPuppi.clone(
   L1PFObjects = cms.InputTag("l1pfCandidates","Puppi")
 )
-_phase2_siml1emulator.add(l1NNTauProducer)
-_phase2_siml1emulator.add(l1NNTauProducerPuppi)
+#_phase2_siml1emulator.add(l1NNTauProducer)
+#_phase2_siml1emulator.add(l1NNTauProducerPuppi)
 
 # --> add modules
 #%% # Barrel EGamma
