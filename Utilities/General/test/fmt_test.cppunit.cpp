@@ -17,7 +17,6 @@ class test_fmt_external : public CppUnit::TestFixture {
 public:
   void setUp() {}
   void tearDown() {}
-
   void test_fmt();
 };
 
@@ -62,3 +61,4 @@ void test_fmt_external::test_fmt()
   format_to(buf, "{:x}", 42);  // replaces itoa(42, buffer, 16)
   fmt::print(to_string(buf));
 }
+#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>

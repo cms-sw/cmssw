@@ -9,6 +9,11 @@
   <use name="google-benchmark-main"/>
 </bin>
 
+<bin file="fmt_test.cppunit.cpp">
+  <use name="fmt"/>
+  <use name="cppunit"/>
+</bin>
+
 <iftool name="cuda-gcc-support">
   <test name="CudaGCCSupport" command="echo Supported GCC version"/>
   <else/>
