@@ -1,9 +1,7 @@
 #ifndef L1TRIGGER_PHASE2L1PARTICLEFLOW_L1NNTAU_H
 #define L1TRIGGER_PHASE2L1PARTICLEFLOW_L1NNTAU_H
 
-#include <iostream>
 #include <vector>
-#include <TLorentzVector.h>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -20,7 +18,7 @@ using namespace l1t;
 class L1NNTauProducer : public edm::stream::EDProducer<> {
 public:
   explicit L1NNTauProducer(const edm::ParameterSet &);
-  ~L1NNTauProducer();
+  ~L1NNTauProducer() override;
 
 private:
   TauNNId *fTauNNId;
@@ -28,7 +26,7 @@ private:
               const l1t::PFCandidateCollection &iParts,
               std::unique_ptr<PFTauCollection> &outputTaus);
   float deltaR(l1t::PFCandidate &iPart1, l1t::PFCandidate &iPart2);
-  virtual void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
+  void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
 
   double fSeedPt_;
   double fConeSize_;
