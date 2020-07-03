@@ -50,6 +50,9 @@ private:
   HGCalGeomTools geomTools_;
   std::unique_ptr<HGCalWaferType> waferType_;
 
+  static constexpr double tol1_ = 0.01;
+  static constexpr double tol2_ = 0.00001;
+
   std::vector<std::string> wafers_;     // Wafers
   std::vector<std::string> materials_;  // Materials
   std::vector<std::string> names_;      // Names
@@ -233,7 +236,6 @@ void DDHGCalEEFileAlgo::constructLayers(const DDLogicalPart& module, DDCompactVi
 #endif
   double zi(zMinBlock_);
   int laymin(0);
-  const double tol(0.01);
   for (unsigned int i = 0; i < layers_.size(); i++) {
     double zo = zi + layerThick_[i];
     double routF = HGCalGeomTools::radius(zi, zFrontT_, rMaxFront_, slopeT_);
@@ -260,7 +262,7 @@ void DDHGCalEEFileAlgo::constructLayers(const DDLogicalPart& module, DDCompactVi
       if (layerSense_[ly] < 1) {
         std::vector<double> pgonZ, pgonRin, pgonRout;
         if (layerSense_[ly] == 0 || absorbMode_ == 0) {
-          double rmax = routF * cosAlpha_ - tol;
+          double rmax = routF * cosAlpha_ - tol1_;
           pgonZ.emplace_back(-hthick);
           pgonZ.emplace_back(hthick);
           pgonRin.emplace_back(rinB);
@@ -289,7 +291,7 @@ void DDHGCalEEFileAlgo::constructLayers(const DDLogicalPart& module, DDCompactVi
 #endif
           for (unsigned int isec = 0; isec < pgonZ.size(); ++isec) {
             pgonZ[isec] -= zz;
-            pgonRout[isec] = pgonRout[isec] * cosAlpha_ - tol;
+            pgonRout[isec] = pgonRout[isec] * cosAlpha_ - tol1_;
           }
         }
         DDSolid solid =
@@ -327,12 +329,11 @@ void DDHGCalEEFileAlgo::constructLayers(const DDLogicalPart& module, DDCompactVi
     zi = zo;
     laymin = laymax;
     // Make consistency check of all the partitions of the block
-    if (std::abs(thickTot - layerThick_[i]) < 0.00001) {
-    } else if (thickTot > layerThick_[i]) {
+    if ((thickTot - layerThick_[i]) > tol2_) {
       edm::LogError("HGCalGeom") << "Thickness of the partition " << layerThick_[i] << " is smaller than " << thickTot
                                  << ": thickness of all its "
                                  << "components **** ERROR ****";
-    } else if (thickTot < layerThick_[i]) {
+    } else if ((thickTot - layerThick_[i]) < -tol2_) {
       edm::LogWarning("HGCalGeom") << "Thickness of the partition " << layerThick_[i] << " does not match with "
                                    << thickTot << " of the components";
     }
