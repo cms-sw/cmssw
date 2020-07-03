@@ -46,7 +46,7 @@ private:
                                      float scale,
                                      unsigned target_length,
                                      float pad_value = 0,
-                                     float replace_value = 0,
+                                     float replace_inf_value = 0,
                                      float min = 0,
                                      float max = -1);
   void make_inputs(const reco::DeepBoostedJetTagInfo &taginfo);
@@ -82,11 +82,11 @@ DeepBoostedJetONNXJetTagsProducer::DeepBoostedJetONNXJetTagsProducer(const edm::
       const auto &var_pset = var_info_pset.getParameterSet(var_name);
       double median = var_pset.getParameter<double>("median");
       double norm_factor = var_pset.getParameter<double>("norm_factor");
-      double replace_value = var_pset.getParameter<double>("replace_value");
+      double replace_inf_value = var_pset.getParameter<double>("replace_inf_value");
       double lower_bound = var_pset.getParameter<double>("lower_bound");
       double upper_bound = var_pset.getParameter<double>("upper_bound");
       prep_params.var_info_map[var_name] =
-          PreprocessParams::VarInfo(median, norm_factor, replace_value, lower_bound, upper_bound);
+          PreprocessParams::VarInfo(median, norm_factor, replace_inf_value, lower_bound, upper_bound);
     }
 
     // create data storage with a fixed size vector initilized w/ pad
@@ -217,7 +217,7 @@ std::vector<float> DeepBoostedJetONNXJetTagsProducer::center_norm_pad(const std:
                                                                       float norm_factor,
                                                                       unsigned target_length,
                                                                       float pad_value,
-                                                                      float replace_value,
+                                                                      float replace_inf_value,
                                                                       float min,
                                                                       float max) {
   // do variable shifting/scaling/padding/clipping in one go
@@ -226,29 +226,29 @@ std::vector<float> DeepBoostedJetONNXJetTagsProducer::center_norm_pad(const std:
 
   std::vector<float> out(target_length, pad_value);
   for (unsigned i = 0; i < input.size() && i < target_length; ++i) {
-    out[i] = std::clamp((catch_infs(input[i], replace_value) - center) * norm_factor, min, max);
+    out[i] = std::clamp((catch_infs(input[i], replace_inf_value) - center) * norm_factor, min, max);
   }
   return out;
 }
 
 void DeepBoostedJetONNXJetTagsProducer::make_inputs(const reco::DeepBoostedJetTagInfo &taginfo) {
   for (unsigned igroup = 0; igroup < input_names_.size(); ++igroup) {
-    const auto &group_name = input_names_.at(igroup);
-    auto &group_values = data_.at(igroup);
-    const auto &prep_params = prep_info_map_.at(group_name);
+    const auto &group_name = input_names_[igroup];
+    auto &group_values = data_[igroup];
+    const auto &prep_params = prep_info_map_[group_name];
     // first reset group_values to pad
     std::fill(group_values.begin(), group_values.end(), prep_params.pad);
     unsigned curr_pos = 0;
     // transform/pad
     for (const auto &varname : prep_params.var_names) {
       const auto &raw_value = taginfo.features().get(varname);
-      const auto &info = prep_params.get_info(varname);
+      const auto &info = prep_params.info(varname);
       auto val = center_norm_pad(raw_value,
                                  info.center,
                                  info.norm_factor,
                                  prep_params.var_length,
                                  prep_params.pad,
-                                 info.replace_value,
+                                 info.replace_inf_value,
                                  info.lower_bound,
                                  info.upper_bound);
       std::copy(val.begin(), val.end(), group_values.begin() + curr_pos);
@@ -256,7 +256,7 @@ void DeepBoostedJetONNXJetTagsProducer::make_inputs(const reco::DeepBoostedJetTa
 
       if (debug_) {
         std::cout << " -- var=" << varname << ", center=" << info.center << ", scale=" << info.norm_factor
-                  << ", replace=" << info.replace_value << ", pad=" << prep_params.pad << std::endl;
+                  << ", replace=" << info.replace_inf_value << ", pad=" << prep_params.pad << std::endl;
         std::cout << "values (first 5 and last 3): " << val.at(0) << ", " << val.at(1) << ", " << val.at(2) << ", "
                   << val.at(3) << ", " << val.at(4) << "..." << val.at(prep_params.var_length - 3) << ", "
                   << val.at(prep_params.var_length - 2) << ", " << val.at(prep_params.var_length - 1) << std::endl;

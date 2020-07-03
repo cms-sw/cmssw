@@ -308,11 +308,9 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
     const auto *packed_cand = dynamic_cast<const pat::PackedCandidate *>(&(*cand));
     const auto *reco_cand = dynamic_cast<const reco::PFCandidate *>(&(*cand));
 
-    if (!include_neutrals_ && packed_cand && !packed_cand->hasTrackDetails()) {
+    if (!include_neutrals_ &&
+        ((packed_cand && !packed_cand->hasTrackDetails()) || (reco_cand && !useTrackProperties(reco_cand))))
       continue;
-    } else if (!include_neutrals_ && reco_cand && !useTrackProperties(reco_cand)) {
-      continue;
-    }
 
     auto candP4 = use_puppiP4_ ? puppi_wgt_cache.at(cand.key()) * cand->p4() : cand->p4();
     if (packed_cand) {

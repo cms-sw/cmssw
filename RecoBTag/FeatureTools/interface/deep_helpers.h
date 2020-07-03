@@ -79,15 +79,15 @@ namespace btagbtvdeep {
   struct PreprocessParams {
     struct VarInfo {
       VarInfo() {}
-      VarInfo(float median, float norm_factor, float replace_value, float lower_bound, float upper_bound)
+      VarInfo(float median, float norm_factor, float replace_inf_value, float lower_bound, float upper_bound)
           : center(median),
             norm_factor(norm_factor),
-            replace_value(replace_value),
+            replace_inf_value(replace_inf_value),
             lower_bound(lower_bound),
             upper_bound(upper_bound) {}
       float center = 0;
       float norm_factor = 1;
-      float replace_value = 0;
+      float replace_inf_value = 0;
       float lower_bound = -5;
       float upper_bound = 5;
     };
@@ -97,14 +97,7 @@ namespace btagbtvdeep {
     std::vector<std::string> var_names;
     std::unordered_map<std::string, VarInfo> var_info_map;
 
-    VarInfo get_info(const std::string &name) const {
-      auto item = var_info_map.find(name);
-      if (item != var_info_map.end()) {
-        return item->second;
-      } else {
-        throw cms::Exception("InvalidArgument") << "Cannot find variable info for " << name;
-      }
-    }
+    VarInfo info(const std::string &name) const { return var_info_map.at(name); }
   };
 
 }  // namespace btagbtvdeep
