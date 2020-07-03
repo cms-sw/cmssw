@@ -191,16 +191,18 @@ void PATTracksToPackedCandidates::fillDescriptions(edm::ConfigurationDescription
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("srcTracks", {"hiConformalPixelTracks"});
   desc.add<edm::InputTag>("srcPrimaryVertices", {"offlineSlimmedPrimaryVertices"});
-  desc.add<edm::InputTag>("srcOfflineBeamSpot", {"offlineBeamSpot"});
+  desc.add<edm::InputTag>("srcOfflineBeamSpot", {"offlineBeamSpot"})
+      ->setComment("use BeamSpot if empty vtx collection");
   desc.add<double>("dzSigCut", 10.0);
   desc.add<double>("dxySigCut", 25.0);
-  desc.add<double>("dzSigHP", 7.0);
-  desc.add<double>("dxySigHP", 20.0);
-  desc.add<double>("ptMax", 1.0);
-  desc.add<double>("ptMin", 0.3);
-  desc.add<bool>("resetHP", true);
-  desc.add<int>("covarianceVersion", 0);
-  desc.add<int>("covarianceSchema", 520);
+  desc.add<double>("dzSigHP", 7.0)->setComment("to set HighPurity flag for pixel tracks");
+  desc.add<double>("dxySigHP", 20.0)->setComment("to set HighPurity flag for pixel tracks");
+  desc.add<double>("ptMax", 1.0)->setComment("max pT for pixel tracks - above this will use general tracks");
+  desc.add<double>("ptMin", 0.3)->setComment("min pT for pixel tracks");
+  desc.add<bool>("resetHP", true)
+      ->setComment("pixel tracks do not have HP flag set. Use False if does not want to reset HP flag");
+  desc.add<int>("covarianceVersion", 0)->setComment("so far: 0 is Phase0, 1 is Phase1");
+  desc.add<int>("covarianceSchema", 520)->setComment("use less accurate schema - reduce size of collection");
   descriptions.addWithDefaultLabel(desc);
 }
 
