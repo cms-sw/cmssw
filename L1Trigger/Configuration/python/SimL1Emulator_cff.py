@@ -63,6 +63,7 @@ from  L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff import *
 _phase2_siml1emulator = SimL1EmulatorTask.copy()
 _phase2_siml1emulator.add(hgcalTriggerPrimitivesTask)
 
+# --> add modules
 #%% # Barrel EGamma
 #%% # ########################################################################
 from L1Trigger.L1CaloTrigger.L1EGammaCrystalsEmulatorProducer_cfi import *
