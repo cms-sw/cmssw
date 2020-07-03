@@ -47,8 +47,6 @@
 #include "fastjet/JetDefinition.hh"
 #include "fastjet/PseudoJet.hh"
 
-#include "TMath.h"
-
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
@@ -75,6 +73,26 @@ public:
   virtual void calculateOrphanInput(std::vector<fastjet::PseudoJet>& orphanInput);
   virtual void putRho(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+  // This checks if the tower is anomalous (if a calo tower).
+  virtual void inputTowers();
+
+  bool postOrphan_;
+  bool setInitialValue_;
+
+  const bool dropZeroTowers_;
+  const int medianWindowWidth_;
+  const double minimumTowersFraction_;
+  const double nSigmaPU_;  // number of sigma for pileup
+  const double puPtMin_;
+  const double radiusPU_;  // pileup radius
+  const double rParam_;    // the R parameter to use
+  const double towSigmaCut_;
+  const edm::EDGetTokenT<reco::CandidateView> input_candidateview_token_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloToken_;
+
   constexpr static int nMaxJets_ = 200;
 
   float jteta[nMaxJets_];
@@ -89,8 +107,6 @@ public:
 
   int vngeom[nEtaTow_];
   int vntow[nEtaTow_];
-  int vieta[nEtaTow_];
-  float veta[nEtaTow_];
   float vmean0[nEtaTow_];
   float vrms0[nEtaTow_];
   float vrho0[nEtaTow_];
@@ -102,6 +118,7 @@ public:
                               0.957, 1.044, 1.131, 1.218, 1.305, 1.392, 1.479, 1.566, 1.653, 1.740, 1.830,
                               1.930, 2.043, 2.172, 2.322, 2.500, 2.650, 2.853, 3.000, 3.139, 3.314, 3.489,
                               3.664, 3.839, 4.013, 4.191, 4.363, 4.538, 4.716, 4.889, 5.191};
+  const int initialValue = -99;
 
   std::vector<double> etaEdgeLow_;
   std::vector<double> etaEdgeHi_;
@@ -116,30 +133,9 @@ public:
   std::vector<double> towExcludePhi_;
   std::vector<double> towExcludeEta_;
 
-  int ieta(const reco::CandidatePtr& in) const;
-  int iphi(const reco::CandidatePtr& in) const;
-
-private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
-
-  // This checks if the tower is anomalous (if a calo tower).
-  virtual void inputTowers();
-
-  bool postOrphan_;
-
-  bool dropZeroTowers_;
-  int medianWindowWidth_;
-  double minimumTowersFraction_;
-  double nSigmaPU_;  // number of sigma for pileup
-  double puPtMin_;
-  double radiusPU_;    // pileup radius
-  double rParam_;      // the R parameter to use
-  edm::InputTag src_;  // input constituent source
-  double towSigmaCut_;
-
-  std::vector<edm::Ptr<reco::Candidate>> inputs_;  // input candidates
-  ClusterSequencePtr fjClusterSeq_;                // fastjet cluster sequence
-  JetDefPtr fjJetDefinition_;                      // fastjet jet definition
+  std::vector<const reco::Candidate*> inputs_;  // input candidates
+  ClusterSequencePtr fjClusterSeq_;             // fastjet cluster sequence
+  JetDefPtr fjJetDefinition_;                   // fastjet jet definition
 
   std::vector<fastjet::PseudoJet> fjInputs_;          // fastjet inputs
   std::vector<fastjet::PseudoJet> fjJets_;            // fastjet jets
@@ -156,7 +152,8 @@ private:
   std::map<int, double> emean_;               // energy mean
   std::map<int, std::vector<double>> eTop4_;  // energy mean
 
-  edm::EDGetTokenT<reco::CandidateView> input_candidateview_token_;
+  typedef std::pair<double, double> EtaPhi;
+  std::map<const DetId, EtaPhi> towermap;
 };
 
 HiPuRhoProducer::HiPuRhoProducer(const edm::ParameterSet& iConfig)
@@ -167,10 +164,9 @@ HiPuRhoProducer::HiPuRhoProducer(const edm::ParameterSet& iConfig)
       puPtMin_(iConfig.getParameter<double>("puPtMin")),
       radiusPU_(iConfig.getParameter<double>("radiusPU")),
       rParam_(iConfig.getParameter<double>("rParam")),
-      src_(iConfig.getParameter<edm::InputTag>("src")),
-      towSigmaCut_(iConfig.getParameter<double>("towSigmaCut")) {
-  input_candidateview_token_ = consumes<reco::CandidateView>(src_);
-
+      towSigmaCut_(iConfig.getParameter<double>("towSigmaCut")),
+      input_candidateview_token_(consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("src"))),
+      caloToken_(esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag{})) {
   //register your products
   produces<std::vector<double>>("mapEtaEdges");
   produces<std::vector<double>>("mapToRho");
@@ -187,21 +183,19 @@ HiPuRhoProducer::HiPuRhoProducer(const edm::ParameterSet& iConfig)
 void HiPuRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   setupGeometryMap(iEvent, iSetup);
 
-  inputs_.clear();
-  fjInputs_.clear();
-  fjJets_.clear();
+  for (int i = ietamin_; i < ietamax_ + 1; i++) {
+    ntowersWithJets_[i] = 0;
+  }
 
-  // Get the particletowers
-  edm::Handle<reco::CandidateView> inputsHandle;
-  iEvent.getByToken(input_candidateview_token_, inputsHandle);
-
-  for (size_t i = 0; i < inputsHandle->size(); ++i)
-    inputs_.push_back(inputsHandle->ptrAt(i));
+  auto const& inputView = iEvent.get(input_candidateview_token_);
+  inputs_.reserve(inputView.size());
+  for (auto const& input : inputView)
+    inputs_.push_back(&input);
 
   fjInputs_.reserve(inputs_.size());
   inputTowers();
   fjOriginalInputs_ = fjInputs_;
-
+  setInitialValue_ = true;
   calculatePedestal(fjInputs_);
   subtractPedestal(fjInputs_);
 
@@ -222,17 +216,21 @@ void HiPuRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   towExcludePhi_.clear();
   towExcludeEta_.clear();
 
+  setInitialValue_ = false;
   std::vector<fastjet::PseudoJet> orphanInput;
   calculateOrphanInput(orphanInput);
   calculatePedestal(orphanInput);
   putRho(iEvent, iSetup);
+
+  inputs_.clear();
+  fjInputs_.clear();
+  fjJets_.clear();
 }
 
 void HiPuRhoProducer::inputTowers() {
-  auto inBegin = inputs_.begin();
-  auto inEnd = inputs_.end();
-  for (auto i = inBegin; i != inEnd; ++i) {
-    reco::CandidatePtr input = *i;
+  int index = -1;
+  for (auto const& input : inputs_) {
+    index++;
 
     if (edm::isNotFinite(input->pt()))
       continue;
@@ -240,43 +238,37 @@ void HiPuRhoProducer::inputTowers() {
       continue;
 
     fjInputs_.push_back(fastjet::PseudoJet(input->px(), input->py(), input->pz(), input->energy()));
-    fjInputs_.back().set_user_index(i - inBegin);
+    fjInputs_.back().set_user_index(index);
   }
 }
 
 void HiPuRhoProducer::setupGeometryMap(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   LogDebug("PileUpSubtractor") << "The subtractor setting up geometry...\n";
+  const auto& pG = iSetup.getData(caloToken_);
+  geo_ = &pG;
+  std::vector<DetId> alldid = geo_->getValidDetIds();
+  int ietaold = -10000;
+  ietamax_ = -10000;
+  ietamin_ = 10000;
+  towermap.clear();
 
-  if (geo_ == nullptr) {
-    edm::ESHandle<CaloGeometry> pG;
-    iSetup.get<CaloGeometryRecord>().get(pG);
-    geo_ = pG.product();
-    std::vector<DetId> alldid = geo_->getValidDetIds();
-
-    int ietaold = -10000;
-    ietamax_ = -10000;
-    ietamin_ = 10000;
-    for (auto const& did : alldid) {
-      if (did.det() == DetId::Hcal) {
-        HcalDetId hid = HcalDetId(did);
-        allgeomid_.push_back(did);
-
-        if (hid.ieta() != ietaold) {
-          ietaold = hid.ieta();
-          geomtowers_[hid.ieta()] = 1;
-          if (hid.ieta() > ietamax_)
-            ietamax_ = hid.ieta();
-          if (hid.ieta() < ietamin_)
-            ietamin_ = hid.ieta();
-        } else {
-          geomtowers_[hid.ieta()]++;
-        }
+  for (auto const& did : alldid) {
+    if (did.det() == DetId::Hcal) {
+      HcalDetId hid = HcalDetId(did);
+      allgeomid_.push_back(did);
+      EtaPhi ep(geo_->getPosition((DetId)did).eta(), geo_->getPosition((DetId)did).phi());
+      towermap[did] = ep;
+      if (hid.ieta() != ietaold) {
+        ietaold = hid.ieta();
+        geomtowers_[hid.ieta()] = 1;
+        if (hid.ieta() > ietamax_)
+          ietamax_ = hid.ieta();
+        if (hid.ieta() < ietamin_)
+          ietamin_ = hid.ieta();
+      } else {
+        geomtowers_[hid.ieta()]++;
       }
     }
-  }
-
-  for (int i = ietamin_; i < ietamax_ + 1; i++) {
-    ntowersWithJets_[i] = 0;
   }
 }
 
@@ -294,21 +286,17 @@ void HiPuRhoProducer::calculatePedestal(std::vector<fastjet::PseudoJet> const& c
     if (it > nEtaTow_ / 2)
       it = vi - nEtaTow_;
 
-    int sign = (it < 0) ? -1 : 1;
+    vngeom[vi] = initialValue;
+    vntow[vi] = initialValue;
 
-    vieta[vi] = it;
-    veta[vi] = sign * (etaedge[abs(it)] + etaedge[abs(it) - 1]) / 2.;
-    vngeom[vi] = -99;
-    vntow[vi] = -99;
+    vmean1[vi] = initialValue;
+    vrms1[vi] = initialValue;
+    vrho1[vi] = initialValue;
 
-    vmean1[vi] = -99;
-    vrms1[vi] = -99;
-    vrho1[vi] = -99;
-
-    if ((*(ntowersWithJets_.find(it))).second == 0) {
-      vmean0[vi] = -99;
-      vrms0[vi] = -99;
-      vrho0[vi] = -99;
+    if (setInitialValue_) {
+      vmean0[vi] = initialValue;
+      vrms0[vi] = initialValue;
+      vrho0[vi] = initialValue;
     }
   }
 
@@ -322,34 +310,33 @@ void HiPuRhoProducer::calculatePedestal(std::vector<fastjet::PseudoJet> const& c
   }
 
   for (auto const& input_object : coll) {
-    const reco::CandidatePtr& originalTower = inputs_[input_object.user_index()];
-    double Original_Et = originalTower->et();
-    int ieta0 = ieta(originalTower);
+    const reco::Candidate* originalTower = inputs_[input_object.user_index()];
+    double original_Et = originalTower->et();
+    const CaloTower* ctc = dynamic_cast<const CaloTower*>(originalTower);
+    int ieta0 = ctc->id().ieta();
 
-    if (Original_Et > eTop4_[ieta0][0]) {
+    if (original_Et > eTop4_[ieta0][0]) {
       eTop4_[ieta0][3] = eTop4_[ieta0][2];
       eTop4_[ieta0][2] = eTop4_[ieta0][1];
       eTop4_[ieta0][1] = eTop4_[ieta0][0];
-      eTop4_[ieta0][0] = Original_Et;
-    } else if (Original_Et > eTop4_[ieta0][1]) {
+      eTop4_[ieta0][0] = original_Et;
+    } else if (original_Et > eTop4_[ieta0][1]) {
       eTop4_[ieta0][3] = eTop4_[ieta0][2];
       eTop4_[ieta0][2] = eTop4_[ieta0][1];
-      eTop4_[ieta0][1] = Original_Et;
-    } else if (Original_Et > eTop4_[ieta0][2]) {
+      eTop4_[ieta0][1] = original_Et;
+    } else if (original_Et > eTop4_[ieta0][2]) {
       eTop4_[ieta0][3] = eTop4_[ieta0][2];
-      eTop4_[ieta0][2] = Original_Et;
-    } else if (Original_Et > eTop4_[ieta0][3]) {
-      eTop4_[ieta0][3] = Original_Et;
+      eTop4_[ieta0][2] = original_Et;
+    } else if (original_Et > eTop4_[ieta0][3]) {
+      eTop4_[ieta0][3] = original_Et;
     }
 
+    emean_[ieta0] = emean_[ieta0] + original_Et;
+    emean2[ieta0] = emean2[ieta0] + original_Et * original_Et;
     if (ieta0 - ietaold != 0) {
-      emean_[ieta0] = emean_[ieta0] + Original_Et;
-      emean2[ieta0] = emean2[ieta0] + Original_Et * Original_Et;
       ntowers[ieta0] = 1;
       ietaold = ieta0;
     } else {
-      emean_[ieta0] = emean_[ieta0] + Original_Et;
-      emean2[ieta0] = emean2[ieta0] + Original_Et * Original_Et;
       ntowers[ieta0]++;
     }
   }
@@ -362,9 +349,9 @@ void HiPuRhoProducer::calculatePedestal(std::vector<fastjet::PseudoJet> const& c
     if (it < 0)
       vi = nEtaTow_ + it;
 
-    double e1 = (emean_.find(it))->second;
-    double e2 = (emean2.find(it))->second;
-    int nt = gt.second - (ntowersWithJets_.find(it))->second;
+    double e1 = emean_[it];
+    double e2 = emean2[it];
+    int nt = gt.second - ntowersWithJets_[it];
 
     if (vi < nEtaTow_) {
       vngeom[vi] = gt.second;
@@ -420,13 +407,13 @@ void HiPuRhoProducer::calculatePedestal(std::vector<fastjet::PseudoJet> const& c
 
       if (vi < nEtaTow_) {
         vmean1[vi] = emean_[it];
-        vrho1[vi] = emean_[it] / (etaWidth * (2. * TMath::Pi() / (double)vngeom[vi]));
+        vrho1[vi] = emean_[it] / (etaWidth * (2. * M_PI / (double)vngeom[vi]));
         rho_.push_back(vrho1[vi]);
         rhoM_.push_back(0);
         vrms1[vi] = esigma_[it];
         if (vngeom[vi] == vntow[vi]) {
           vmean0[vi] = emean_[it];
-          vrho0[vi] = emean_[it] / (etaWidth * (2. * TMath::Pi() / (double)vngeom[vi]));
+          vrho0[vi] = emean_[it] / (etaWidth * (2. * M_PI / (double)vngeom[vi]));
           vrms0[vi] = esigma_[it];
         }
         rhoExtra_.push_back(vrho0[vi]);
@@ -448,13 +435,13 @@ void HiPuRhoProducer::subtractPedestal(std::vector<fastjet::PseudoJet>& coll) {
   std::vector<fastjet::PseudoJet> newcoll;
   for (auto& input_object : coll) {
     int index = input_object.user_index();
-    reco::CandidatePtr const& itow = inputs_[index];
+    reco::Candidate const* itow = inputs_[index];
 
-    int it = ieta(itow);
-    iphi(itow);
+    const CaloTower* ctc = dynamic_cast<const CaloTower*>(itow);
+    int it = ctc->id().ieta();
 
-    double Original_Et = itow->et();
-    double etnew = Original_Et - (emean_.find(it))->second - (esigma_.find(it))->second;
+    double original_Et = itow->et();
+    double etnew = original_Et - (emean_.find(it))->second - (esigma_.find(it))->second;
     float mScale = etnew / input_object.Et();
     if (etnew < 0.)
       mScale = 0.;
@@ -482,8 +469,8 @@ void HiPuRhoProducer::calculateOrphanInput(std::vector<fastjet::PseudoJet>& orph
   std::vector<std::pair<int, int>> excludedTowers;  // vector of excluded ieta, iphi values
 
   int32_t nref = 0;
-
   for (auto const& pseudojetTMP : fjJets_) {
+    EtaPhi jet_etaphi(pseudojetTMP.eta(), pseudojetTMP.phi());
     if (nref < nMaxJets_) {
       jtexngeom[nref] = 0;
       jtexntow[nref] = 0;
@@ -497,13 +484,13 @@ void HiPuRhoProducer::calculateOrphanInput(std::vector<fastjet::PseudoJet>& orph
       continue;
 
     for (auto const& im : allgeomid_) {
-      double dr = reco::deltaR(geo_->getPosition((DetId)im), pseudojetTMP);
-      std::vector<std::pair<int, int>>::const_iterator exclude =
-          std::find(excludedTowers.begin(), excludedTowers.end(), std::pair<int, int>(im.ieta(), im.iphi()));
-      if (dr < radiusPU_ && exclude == excludedTowers.end() &&
+      double dr2 =
+          reco::deltaR2(towermap[(DetId)im].first, towermap[(DetId)im].second, jet_etaphi.first, jet_etaphi.second);
+      auto exclude = std::find(excludedTowers.begin(), excludedTowers.end(), std::pair(im.ieta(), im.iphi()));
+      if (dr2 < radiusPU_ * radiusPU_ && exclude == excludedTowers.end() &&
           (geomtowers_[im.ieta()] - ntowersWithJets_[im.ieta()]) > minimumTowersFraction_ * (geomtowers_[im.ieta()])) {
         ntowersWithJets_[im.ieta()]++;
-        excludedTowers.emplace_back(std::pair<int, int>(im.ieta(), im.iphi()));
+        excludedTowers.emplace_back(im.ieta(), im.iphi());
 
         if (nref < nMaxJets_)
           jtexngeom[nref]++;
@@ -512,17 +499,17 @@ void HiPuRhoProducer::calculateOrphanInput(std::vector<fastjet::PseudoJet>& orph
 
     for (auto const& input : fjInputs_) {
       int index = input.user_index();
-      const reco::CandidatePtr& originalTower = inputs_[index];
-
-      int ie = ieta(originalTower);
-      int ip = iphi(originalTower);
+      const reco::Candidate* originalTower = inputs_[index];
+      const CaloTower* ctc = dynamic_cast<const CaloTower*>(originalTower);
+      int ie = ctc->id().ieta();
+      int ip = ctc->id().iphi();
       auto exclude = std::find(excludedTowers.begin(), excludedTowers.end(), std::pair<int, int>(ie, ip));
       if (exclude != excludedTowers.end()) {
         jettowers.push_back(index);
       }
 
-      double dr = reco::deltaR(input, pseudojetTMP);
-      if (dr < radiusPU_ && nref < nMaxJets_) {
+      double dr2 = reco::deltaR2(input.eta(), input.phi(), jet_etaphi.first, jet_etaphi.second);
+      if (dr2 < radiusPU_ * radiusPU_ && nref < nMaxJets_) {
         jtexntow[nref]++;
         jtexpt[nref] += originalTower->pt();
       }
@@ -531,11 +518,10 @@ void HiPuRhoProducer::calculateOrphanInput(std::vector<fastjet::PseudoJet>& orph
     if (nref < nMaxJets_)
       nref++;
   }
-
   // Create a new collections from the towers not included in jets
   for (auto const& input : fjInputs_) {
     int index = input.user_index();
-    const reco::CandidatePtr& originalTower = inputs_[index];
+    const reco::Candidate* originalTower = inputs_[index];
     auto itjet = std::find(jettowers.begin(), jettowers.end(), index);
     if (itjet == jettowers.end()) {
       orphanInput.emplace_back(originalTower->px(), originalTower->py(), originalTower->pz(), originalTower->energy());
@@ -555,7 +541,7 @@ void HiPuRhoProducer::putRho(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   std::vector<std::pair<std::size_t, double>> order;
   for (std::size_t i = 0; i < size; ++i) {
-    order.emplace_back(std::make_pair(i, etaEdgeLow_[i]));
+    order.emplace_back(i, etaEdgeLow_[i]);
   }
 
   std::sort(
@@ -612,33 +598,17 @@ void HiPuRhoProducer::putRho(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void HiPuRhoProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
-}
-
-int HiPuRhoProducer::ieta(const reco::CandidatePtr& in) const {
-  const CaloTower* ctc = dynamic_cast<const CaloTower*>(in.get());
-  if (ctc) {
-    return ctc->id().ieta();
-  }
-
-  throw cms::Exception("Invalid Constituent") << "CaloJet constituent is not of CaloTower type";
-
-  return 0;
-}
-
-int HiPuRhoProducer::iphi(const reco::CandidatePtr& in) const {
-  const CaloTower* ctc = dynamic_cast<const CaloTower*>(in.get());
-  if (ctc) {
-    return ctc->id().iphi();
-  }
-
-  throw cms::Exception("Invalid Constituent") << "CaloJet constituent is not of CaloTower type";
-
-  return 0;
+  desc.add<edm::InputTag>("src", edm::InputTag("PFTowers"));
+  desc.add<int>("medianWindowWidth", 2);
+  desc.add<double>("towSigmaCut", 5.0);
+  desc.add<double>("puPtMin", 15.0);
+  desc.add<double>("rParam", 0.3);
+  desc.add<double>("nSigmaPU", 1.0);
+  desc.add<double>("radiusPU", 0.5);
+  desc.add<double>("minimumTowersFraction", 0.7);
+  desc.add<bool>("dropZeroTowers", true);
+  descriptions.add("hiPuRhoProducer", desc);
 }
 
 //define this as a plug-in

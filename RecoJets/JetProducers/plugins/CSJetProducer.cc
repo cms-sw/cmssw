@@ -16,16 +16,18 @@ using namespace edm;
 using namespace cms;
 
 CSJetProducer::CSJetProducer(edm::ParameterSet const& conf)
-    : VirtualJetProducer(conf), csRParam_(-1.0), csAlpha_(0.), useModulatedRho_(false) {
+    : VirtualJetProducer(conf),
+      csRParam_(-1.0),
+      csAlpha_(0.),
+      useModulatedRho_(conf.getParameter<bool>("useModulatedRho")),
+      minFlowChi2Prob_(conf.getParameter<double>("minFlowChi2Prob")),
+      maxFlowChi2Prob_(conf.getParameter<double>("maxFlowChi2Prob")) {
   //get eta range, rho and rhom map
   etaToken_ = consumes<std::vector<double>>(conf.getParameter<edm::InputTag>("etaMap"));
   rhoToken_ = consumes<std::vector<double>>(conf.getParameter<edm::InputTag>("rho"));
   rhomToken_ = consumes<std::vector<double>>(conf.getParameter<edm::InputTag>("rhom"));
   csRParam_ = conf.getParameter<double>("csRParam");
   csAlpha_ = conf.getParameter<double>("csAlpha");
-  useModulatedRho_ = conf.getParameter<bool>("useModulatedRho");
-  minFlowChi2Prob_ = conf.getParameter<double>("minFlowChi2Prob");
-  maxFlowChi2Prob_ = conf.getParameter<double>("maxFlowChi2Prob");
   if (useModulatedRho_)
     rhoFlowFitParamsToken_ = consumes<std::vector<double>>(conf.getParameter<edm::InputTag>("rhoFlowFitParams"));
 }
@@ -60,7 +62,6 @@ void CSJetProducer::runAlgorithm(edm::Event& iEvent, edm::EventSetup const& iSet
   edm::Handle<std::vector<double>> rhoRanges;
   edm::Handle<std::vector<double>> rhomRanges;
   edm::Handle<std::vector<double>> rhoFlowFitParams;
-
   iEvent.getByToken(etaToken_, etaRanges);
   iEvent.getByToken(rhoToken_, rhoRanges);
   iEvent.getByToken(rhomToken_, rhomRanges);
@@ -76,6 +77,15 @@ void CSJetProducer::runAlgorithm(edm::Event& iEvent, edm::EventSetup const& iSet
     throw cms::Exception("WrongBkgInput")
         << "Size of etaRanges (" << bkgVecSize << ") and rhoRanges (" << rhoRanges->size() << ") and/or rhomRanges ("
         << rhomRanges->size() << ") vectors inconsistent\n";
+  }
+  bool minProb = false;
+  bool maxProb = false;
+  if (useModulatedRho_) {
+    if (!rhoFlowFitParams->empty()) {
+      double val = ROOT::Math::chisquared_cdf_c(rhoFlowFitParams->at(5), rhoFlowFitParams->at(6));
+      minProb = val > minFlowChi2Prob_;
+      maxProb = val < maxFlowChi2Prob_;
+    }
   }
 
   //Allow the background densities to change within the jet
@@ -96,10 +106,6 @@ void CSJetProducer::runAlgorithm(edm::Event& iEvent, edm::EventSetup const& iSet
 
       if (useModulatedRho_) {
         if (!rhoFlowFitParams->empty()) {
-          double val = ROOT::Math::chisquared_cdf_c(rhoFlowFitParams->at(5), rhoFlowFitParams->at(6));
-          bool minProb = val > minFlowChi2Prob_;
-          bool maxProb = val < maxFlowChi2Prob_;
-
           if (minProb && maxProb) {
             rhoModulationFactor = getModulatedRhoFactor(ghostPhi,
                                                         rhoFlowFitParams->at(2),
@@ -171,10 +177,10 @@ void CSJetProducer::fillDescriptionsFromCSJetProducer(edm::ParameterSetDescripti
   desc.add<bool>("useModulatedRho", false);
   desc.add<double>("minFlowChi2Prob", false);
   desc.add<double>("maxFlowChi2Prob", false);
-  desc.add<edm::InputTag>("etaMap", edm::InputTag("hiFJRhoProducer", "mapEtaEdges"));
-  desc.add<edm::InputTag>("rho", edm::InputTag("hiFJRhoProducer", "mapToRho"));
-  desc.add<edm::InputTag>("rhom", edm::InputTag("hiFJRhoProducer", "mapToRhoM"));
-  desc.add<edm::InputTag>("rhoFlowFitParams", edm::InputTag("hiFJRhoFlowModulationProducer", "rhoFlowFitParams"));
+  desc.add<edm::InputTag>("etaMap", {"hiFJRhoProducer", "mapEtaEdges"});
+  desc.add<edm::InputTag>("rho", {"hiFJRhoProducer", "mapToRho"});
+  desc.add<edm::InputTag>("rhom", {"hiFJRhoProducer", "mapToRhoM"});
+  desc.add<edm::InputTag>("rhoFlowFitParams", {"hiFJRhoFlowModulationProducer", "rhoFlowFitParams"});
 }
 
 double CSJetProducer::getModulatedRhoFactor(
