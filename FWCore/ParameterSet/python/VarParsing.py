@@ -163,10 +163,12 @@ class VarParsing (object):
         self._tagOrder.append (tag)
 
 
-    def parseArguments (self):
+    def parseArguments (self, raise_if_not_registered=True):
         """Parses command line arguments.  Parsing starts just after
         the name of the configuration script.  Parsing will fail if
-        there is not 'xxxx.py'"""
+        there is not 'xxxx.py'
+        If raise_if_not_registered is False, variables that are
+        provided but not registered will be ignored without an error."""
         self._currentlyParsing = True
         foundPy      = False
         printStatus  = False
@@ -200,9 +202,12 @@ class VarParsing (object):
                 else:
                     # just a name and value
                     if name not in self._register:
-                        print("Error:  '%s' not registered." \
-                              % name)
-                        raise RuntimeError("Unknown variable")
+                        if raise_if_not_registered:
+                            print("Error:  '%s' not registered." \
+                                % name)
+                            raise RuntimeError("Unknown variable")
+                        else:
+                            continue
                     if VarParsing.multiplicity.singleton == \
                            self._register[name]:
                         # singleton
