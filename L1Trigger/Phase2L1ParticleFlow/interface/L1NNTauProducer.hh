@@ -21,7 +21,7 @@ public:
   ~L1NNTauProducer() override;
 
 private:
-  TauNNId *fTauNNId;
+  std::unique_ptr<TauNNId> fTauNNId_;
   void addTau(l1t::PFCandidate &iCand,
               const l1t::PFCandidateCollection &iParts,
               std::unique_ptr<PFTauCollection> &outputTaus);

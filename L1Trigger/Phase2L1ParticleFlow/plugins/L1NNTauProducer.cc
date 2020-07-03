@@ -10,11 +10,11 @@ L1NNTauProducer::L1NNTauProducer(const edm::ParameterSet& cfg)
       fNParticles_(cfg.getParameter<int>("nparticles")),
       fL1PFToken_(consumes<vector<l1t::PFCandidate> >(cfg.getParameter<edm::InputTag>("L1PFObjects"))) {
   std::string lNNFile = cfg.getParameter<std::string>("NNFileName");  //,"L1Trigger/Phase2L1Taus/data/tau_3layer.pb");
-  fTauNNId = new TauNNId();
+  fTauNNId_ = std::make_unique<TauNNId>();
   if (lNNFile.find("v0") == std::string::npos)
-    fTauNNId->initialize("input_1:0", lNNFile, fNParticles_);
+    fTauNNId_->initialize("input_1:0", lNNFile, fNParticles_);
   else if (lNNFile.find("v0") != std::string::npos)
-    fTauNNId->initialize("dense_1_input:0", lNNFile, fNParticles_);
+    fTauNNId_->initialize("dense_1_input:0", lNNFile, fNParticles_);
   produces<l1t::PFTauCollection>("L1PFTausNN");
 }
 
@@ -93,7 +93,7 @@ void L1NNTauProducer::addTau(l1t::PFCandidate& iCand,
     return;
   std::sort(
       pfTauCands.begin(), pfTauCands.end(), [](l1t::PFCandidate i, l1t::PFCandidate j) { return (i.pt() > j.pt()); });
-  float NN = fTauNNId->compute(iCand, pfTauCands);
+  float NN = fTauNNId_->compute(iCand, pfTauCands);
   math::PtEtaPhiMLorentzVector tempP4(lCand.Pt(), lCand.Eta(), lCand.Phi(), lCand.M());
   l1t::PFTau l1PFTau(tempP4, NN, 0, lId);
   outputTaus->push_back(l1PFTau);
