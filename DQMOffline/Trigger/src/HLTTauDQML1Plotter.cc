@@ -134,7 +134,7 @@ void HLTTauDQML1Plotter::bookHistograms(HistoWrapper& iWrapper, DQMStore::IBooke
                                          kVital);
 
     l1tauEtEffDenom_ = iWrapper.book1D(
-        iBooker, "L1TauEtEffDenom", "L1 #tau E_{T} Denominator;Ref #tau E_{T};entries", binsEt_, 0, maxPt_);
+	iBooker, "L1TauEtEffDenom", "L1 #tau E_{T} Denominator;Ref #tau E_{T};entries", binsEt_, 0, maxPt_, kVital);
     l1tauHighEtEffDenom_ = iWrapper.book1D(iBooker,
                                            "L1TauHighEtEffDenom",
                                            "L1 #tau E_{T} Denominator (high E_{T});Ref #tau E_{T};Efficiency",
@@ -194,9 +194,9 @@ void HLTTauDQML1Plotter::bookHistograms(HistoWrapper& iWrapper, DQMStore::IBooke
                                            minPhi,
                                            maxPhi);
 
-    l1etmEtEffNum_ = iWrapper.book1D(iBooker, "L1ETMEtEffNum", "L1 ETM Efficiency;Ref MET;entries", binsEt_, 0, maxPt_);
+    l1etmEtEffNum_ = iWrapper.book1D(iBooker, "L1ETMEtEffNum", "L1 ETM Efficiency;Ref MET;entries", binsEt_, 0, maxPt_, kVital);
     l1etmEtEffDenom_ =
-        iWrapper.book1D(iBooker, "L1ETMEtEffDenom", "L1 ETM Denominator;Ref MET;entries", binsEt_, 0, maxPt_);
+      iWrapper.book1D(iBooker, "L1ETMEtEffDenom", "L1 ETM Denominator;Ref MET;entries", binsEt_, 0, maxPt_, kVital);
   }
 }
 
