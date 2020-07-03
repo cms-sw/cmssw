@@ -84,9 +84,9 @@ TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::d
 
   if ((*theTauRef).leadChargedHadrCand().isNonnull()) {
     int numSignalGammaCandsInSigCone = 0;
+    double signalrad = std::clamp(3.0 / std::max(1.0, theTauRef->pt()), 0.05, 0.10);
     for (const auto& gamma : theTauRef->signalGammaCands()) {
       double dR = deltaR(gamma->p4(), theTauRef->leadChargedHadrCand()->p4());
-      double signalrad = std::max(0.05, std::min(0.10, 3.0 / std::max(1.0, theTauRef->pt())));
       // pfGammas inside the tau signal cone
       if (dR < signalrad) {
         numSignalGammaCandsInSigCone += 1;
@@ -96,14 +96,14 @@ TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::d
     bool hasGsfTrack = false;
     const reco::CandidatePtr& leadChCand = theTauRef->leadChargedHadrCand();
     if (leadChCand.isNonnull()) {
-      const reco::PFCandidate* pfLeadChCand =
-	dynamic_cast<const reco::PFCandidate*>(leadChCand.get());
-      if (pfLeadChCand != nullptr) {
-	hasGsfTrack = pfLeadChCand->gsfTrackRef().isNonnull();
+      const pat::PackedCandidate* packedLeadChCand =
+	dynamic_cast<const pat::PackedCandidate*>(leadChCand.get());
+      if (packedLeadChCand != nullptr) {
+	hasGsfTrack = (std::abs(packedLeadChCand->pdgId()) == 11);
       } else {
-	pat::PackedCandidate const* packedLeadChCand =
-	  dynamic_cast<pat::PackedCandidate const*>(leadChCand.get());
-	hasGsfTrack = (packedLeadChCand != nullptr && std::abs(packedLeadChCand->pdgId())==11);
+	const reco::PFCandidate* pfLeadChCand =
+	  dynamic_cast<const reco::PFCandidate*>(leadChCand.get());
+	hasGsfTrack = (pfLeadChCand != nullptr && pfLeadChCand->gsfTrackRef().isNonnull());
       }
     }
 
@@ -149,7 +149,7 @@ TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::d
     }      // end of loop over electrons
 
     if (!isGsfElectronMatched) {
-      result.rawValues.at(0) = mva_->MVAValue(*theTauRef);
+      double mva_nomatch = mva_->MVAValue(*theTauRef);
 
       // veto taus that go to ECal crack
       if (vetoEcalCracks_ &&
@@ -175,6 +175,8 @@ TauDiscriminationAgainstElectronMVA6<TauType, TauDiscriminator, ElectronType>::d
           category = 10.;
         }
       }
+
+      result.rawValues.at(0) = std::min(result.rawValues.at(0), float(mva_nomatch));
     }
   }
 

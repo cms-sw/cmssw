@@ -34,18 +34,18 @@
 #include <vector>
 
 struct TauVars {
-  float tauPt;
-  float tauEtaAtEcalEntrance;
-  float tauPhi;
-  float tauLeadChargedPFCandPt;
-  float tauLeadChargedPFCandEtaAtEcalEntrance;
-  float tauEmFraction;
-  float tauLeadPFChargedHadrHoP;
-  float tauLeadPFChargedHadrEoP;
-  float tauVisMassIn;
-  float taudCrackEta;
-  float taudCrackPhi;
-  float tauHasGsf;
+  float pt = 0;
+  float etaAtEcalEntrance = 0;
+  float phi = 0;
+  float leadChargedPFCandPt = 0;
+  float leadChargedPFCandEtaAtEcalEntrance = 0;
+  float emFraction = 0;
+  float leadPFChargedHadrHoP = 0;
+  float leadPFChargedHadrEoP = 0;
+  float visMassIn = 0;
+  float dCrackEta = 0;
+  float dCrackPhi = 0;
+  float hasGsf = 0;
 };
 struct TauGammaVecs {
   std::vector<float> gammasdEtaInSigCone;
@@ -56,33 +56,33 @@ struct TauGammaVecs {
   std::vector<float> gammasPtOutSigCone;
 };
 struct TauGammaMoms {
-  int tauSignalPFGammaCandsIn;
-  int tauSignalPFGammaCandsOut;
-  float tauGammaEtaMomIn;
-  float tauGammaEtaMomOut;
-  float tauGammaPhiMomIn;
-  float tauGammaPhiMomOut;
-  float tauGammaEnFracIn;
-  float tauGammaEnFracOut;
+  int signalPFGammaCandsIn = 0;
+  int signalPFGammaCandsOut = 0;
+  float gammaEtaMomIn = 0;
+  float gammaEtaMomOut = 0;
+  float gammaPhiMomIn = 0;
+  float gammaPhiMomOut = 0;
+  float gammaEnFracIn = 0;
+  float gammaEnFracOut = 0;
 };
-struct EleVars {
-  float elecEta;
-  float elecPhi;
-  float elecEtotOverPin;
-  float elecChi2NormGSF;
-  float elecChi2NormKF;
-  float elecGSFNumHits;
-  float elecKFNumHits;
-  float elecGSFTrackResol;
-  float elecGSFTracklnPt;
-  float elecPin;
-  float elecPout;
-  float elecEecal;
-  float elecDeltaEta;
-  float elecDeltaPhi;
-  float elecMvaInSigmaEtaEta;
-  float elecMvaInHadEnergy;
-  float elecMvaInDeltaEta;
+struct ElecVars {
+  float eta = 0;
+  float phi = 0;
+  float eTotOverPin = 0;
+  float chi2NormGSF = 0;
+  float chi2NormKF = 0;
+  float gsfNumHits = 0;
+  float kfNumHits = 0;
+  float gsfTrackResol = 0;
+  float gsfTracklnPt = 0;
+  float pIn = 0;
+  float pOut = 0;
+  float eEcal = 0;
+  float deltaEta = 0;
+  float deltaPhi = 0;
+  float mvaInSigmaEtaEta = 0;
+  float mvaInHadEnergy = 0;
+  float mvaInDeltaEta = 0;
 };
 
 template <class TauType, class ElectronType>
@@ -95,11 +95,11 @@ public:
 
   double MVAValue(const TauVars& tauVars,
 		  const TauGammaVecs& tauGammaVecs,
-		  const EleVars& eleVars);
+		  const ElecVars& elecVars);
 
   double MVAValue(const TauVars& tauVars,
 		  const TauGammaMoms& tauGammaMoms,
-		  const EleVars& eleVars);
+		  const ElecVars& elecVars);
 
   // this function can be called for all categories
   double MVAValue(const TauType& theTau, const ElectronType& theEle);
@@ -111,7 +111,7 @@ public:
   TauVars getTauVarsTypeSpecific(const pat::Tau& theTau);
   TauVars getTauVars(const TauType& theTau);
   TauGammaVecs getTauGammaVecs(const TauType& theTau);
-  EleVars getEleVars(const ElectronType& theEle);
+  ElecVars getElecVars(const ElectronType& theEle);
   
   // track extrapolation to ECAL entrance (used to re-calculate variables that might not be available on miniAOD)
   bool atECalEntrance(const reco::Candidate* part, math::XYZPoint& pos);
