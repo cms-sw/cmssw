@@ -376,13 +376,12 @@ void DDHGCalHEFileAlgo::constructLayers(const DDLogicalPart& module, DDCompactVi
     zi = zo;
     laymin = laymax;
     // Make consistency check of all the partitions of the block
-    if ((thickTot - layerThick_[i]) > tol2_) {
-      edm::LogError("HGCalGeom") << "Thickness of the partition " << layerThick_[i] << " is smaller than " << thickTot
-                                 << ": thickness of all its "
-                                 << "components **** ERROR ****";
-    } else if ((thickTot - layerThick_[i]) < -tol2_) {
-      edm::LogWarning("HGCalGeom") << "Thickness of the partition " << layerThick_[i] << " does not match with "
-                                   << thickTot << " of the components";
+    if (std::abs(thickTot - layerThick_[i]) >= tol2_) {
+      if (thickTot > layerThick_[i]) {
+	edm::LogError("HGCalGeom") << "Thickness of the partition " << layerThick_[i] << " is smaller than " << thickTot << ": thickness of all its components **** ERROR ****";
+      } else {
+	edm::LogWarning("HGCalGeom") << "Thickness of the partition " << layerThick_[i] << " does not match with " << thickTot << " of the components";
+      }
     }
   }  // End of loop over blocks
 }
@@ -455,13 +454,12 @@ void DDHGCalHEFileAlgo::positionMix(const DDLogicalPart& glog,
     ++copyNumberTop_[ii];
     zpos += hthickl;
   }
-  if ((thickTot - thick) > tol2_) {
-    edm::LogError("HGCalGeom") << "Thickness of the partition " << thick << " is smaller than " << thickTot
-                               << ": thickness of all its components in "
-                               << "the top part **** ERROR ****";
-  } else if ((thickTot - thick) < -tol2_) {
-    edm::LogWarning("HGCalGeom") << "Thickness of the partition " << thick << " does not match with " << thickTot
-                                 << " of the components in top part";
+  if (std::abs(thickTot - thick) >= tol2_) {
+    if (thickTot > thick)  {
+      edm::LogError("HGCalGeom") << "Thickness of the partition " << thick << " is smaller than " << thickTot << ": thickness of all its components in the top part **** ERROR ****";
+    } else {
+      edm::LogWarning("HGCalGeom") << "Thickness of the partition " << thick << " does not match with " << thickTot << " of the components in top part";
+    }
   }
 
   // Make the bottom part next
@@ -518,13 +516,12 @@ void DDHGCalHEFileAlgo::positionMix(const DDLogicalPart& glog,
     zpos += hthickl;
     ++copyNumberBot_[ii];
   }
-  if ((thickTot - thick) > tol2_) {
-    edm::LogError("HGCalGeom") << "Thickness of the partition " << thick << " is smaller than " << thickTot
-                               << ": thickness of all its components in "
-                               << "the top part **** ERROR ****";
-  } else if ((thickTot - thick) < -tol2_) {
-    edm::LogWarning("HGCalGeom") << "Thickness of the partition " << thick << " does not match with " << thickTot
-                                 << " of the components in top part";
+  if (std::abs(thickTot - thick) >= tol2_) {
+    if (thickTot > thick) {
+      edm::LogError("HGCalGeom") << "Thickness of the partition " << thick << " is smaller than " << thickTot << ": thickness of all its components in the top part **** ERROR ****";
+    } else {
+      edm::LogWarning("HGCalGeom") << "Thickness of the partition " << thick << " does not match with " << thickTot << " of the components in top part";
+    }
   }
 }
 
