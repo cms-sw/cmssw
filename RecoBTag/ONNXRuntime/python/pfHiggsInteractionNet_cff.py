@@ -15,13 +15,10 @@ pfHiggsInteractionNetTagInfos = _pfDeepBoostedJetTagInfos.clone(
 
 # nominal Higgs IN
 pfHiggsInteractionNetTags = _pfDeepBoostedJetTags.clone(
-    src = cms.InputTag('pfHiggsInteractionNetTagInfos'),
+    src = 'pfHiggsInteractionNetTagInfos',
     preprocessParams = pfHiggsInteractionNetPreprocessParams,
     model_path = 'RecoBTag/Combined/data/HiggsInteractionNet/V00/IN.onnx',
-    flav_names = cms.vstring(
-        'probQCD',
-        'probHbb'
-    ),
+    flav_names = [ 'probQCD', 'probHbb' ]
 )
 
 # declare all the discriminators
