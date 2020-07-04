@@ -74,6 +74,7 @@
 #include "G4BuilderType.hh"
 #include "G4RegionStore.hh"
 #include "G4Region.hh"
+#include "G4GammaGeneralProcess.hh"
 
 #include "G4SystemOfUnits.hh"
 
@@ -146,6 +147,7 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
   // except e+e- below 100 MeV for which the Urban model is used
 
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
+  G4LossTableManager* man = G4LossTableManager::Instance();
 
   // muon & hadron bremsstrahlung and pair production
   G4MuBremsstrahlung* mub = nullptr;
@@ -183,9 +185,21 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
     G4ParticleDefinition* particle = table->FindParticle(particleName);
 
     if (particleName == "gamma") {
-      ph->RegisterProcess(new G4PhotoElectricEffect(), particle);
-      ph->RegisterProcess(new G4ComptonScattering(), particle);
-      ph->RegisterProcess(new G4GammaConversion(), particle);
+      G4PhotoElectricEffect* pee = new G4PhotoElectricEffect();
+
+      if (G4EmParameters::Instance()->GeneralProcessActive()) {
+        G4GammaGeneralProcess* sp = new G4GammaGeneralProcess();
+        sp->AddEmProcess(pee);
+        sp->AddEmProcess(new G4ComptonScattering());
+        sp->AddEmProcess(new G4GammaConversion());
+        man->SetGammaGeneralProcess(sp);
+        ph->RegisterProcess(sp, particle);
+
+      } else {
+        ph->RegisterProcess(pee, particle);
+        ph->RegisterProcess(new G4ComptonScattering(), particle);
+        ph->RegisterProcess(new G4GammaConversion(), particle);
+      }
 
     } else if (particleName == "e-") {
       G4eIonisation* eioni = new G4eIonisation();
