@@ -71,6 +71,7 @@ private:
   std::unique_ptr<pixelgpudetails::SiPixelRawToClusterGPUKernel::WordFedAppender> wordFedAppender_;
   PixelDataFormatter::Errors errors_;
 
+  const bool isRun2_;
   const bool includeErrors_;
   const bool useQuality_;
   const bool usePilotBlade_;
@@ -84,6 +85,7 @@ SiPixelRawToClusterCUDA::SiPixelRawToClusterCUDA(const edm::ParameterSet& iConfi
       gainsToken_(esConsumes<SiPixelGainCalibrationForHLTGPU, SiPixelGainCalibrationForHLTGPURcd>()),
       cablingMapToken_(esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd>(
           edm::ESInputTag("", iConfig.getParameter<std::string>("CablingMapLabel")))),
+      isRun2_(iConfig.getParameter<bool>("isRun2")),
       includeErrors_(iConfig.getParameter<bool>("IncludeErrors")),
       useQuality_(iConfig.getParameter<bool>("UseQualityInfo")),
       usePilotBlade_(iConfig.getParameter<bool>("UsePilotBlade"))  // Control the usage of pilot-blade data, FED=40
@@ -108,6 +110,7 @@ SiPixelRawToClusterCUDA::SiPixelRawToClusterCUDA(const edm::ParameterSet& iConfi
 
 void SiPixelRawToClusterCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<bool>("isRun2", true);
   desc.add<bool>("IncludeErrors", true);
   desc.add<bool>("UseQualityInfo", false);
   desc.add<bool>("UsePilotBlade", false)->setComment("##  Use pilot blades");
@@ -233,7 +236,8 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
 
   }  // end of for loop
 
-  gpuAlgo_.makeClustersAsync(gpuMap,
+  gpuAlgo_.makeClustersAsync(isRun2_,
+                             gpuMap,
                              gpuModulesToUnpack,
                              gpuGains,
                              *wordFedAppender_,

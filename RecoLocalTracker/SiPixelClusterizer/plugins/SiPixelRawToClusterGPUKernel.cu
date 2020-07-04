@@ -523,7 +523,8 @@ namespace pixelgpudetails {
   }
 
   // Interface to outside
-  void SiPixelRawToClusterGPUKernel::makeClustersAsync(const SiPixelFedCablingMapGPU *cablingMap,
+  void SiPixelRawToClusterGPUKernel::makeClustersAsync(bool isRun2,
+                                                       const SiPixelFedCablingMapGPU *cablingMap,
                                                        const unsigned char *modToUnp,
                                                        const SiPixelGainForHLTonGPU *gains,
                                                        const WordFedAppender &wordFed,
@@ -599,7 +600,8 @@ namespace pixelgpudetails {
       int blocks =
           (std::max(int(wordCounter), int(gpuClustering::MaxNumModules)) + threadsPerBlock - 1) / threadsPerBlock;
 
-      gpuCalibPixel::calibDigis<<<blocks, threadsPerBlock, 0, stream>>>(digis_d.moduleInd(),
+      gpuCalibPixel::calibDigis<<<blocks, threadsPerBlock, 0, stream>>>(isRun2,
+                                                                        digis_d.moduleInd(),
                                                                         digis_d.c_xx(),
                                                                         digis_d.c_yy(),
                                                                         digis_d.adc(),
