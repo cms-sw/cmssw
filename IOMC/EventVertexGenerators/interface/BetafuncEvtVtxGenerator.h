@@ -20,7 +20,9 @@ ________________________________________________________________________
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "CondFormats/DataRecord/interface/SimBeamSpotObjectsRcd.h"
+#include "CondFormats/BeamSpotObjects/interface/SimBeamSpotObjects.h"
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -31,7 +33,6 @@ public:
   BetafuncEvtVtxGenerator(const edm::ParameterSet& p);
   ~BetafuncEvtVtxGenerator() override;
 
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   /// return a new event vertex
@@ -80,6 +81,7 @@ private:
 
   void update(const edm::EventSetup& iEventSetup);
   edm::ESWatcher<SimBeamSpotObjectsRcd> parameterWatcher_;
+  edm::ESGetToken<SimBeamSpotObjects, SimBeamSpotObjectsRcd> beamToken_;
 };
 
 #endif
