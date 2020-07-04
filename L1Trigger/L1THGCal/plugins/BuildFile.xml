@@ -12,6 +12,7 @@
   <use name="Geometry/HcalTowerAlgo"/>
   <use name="Geometry/CaloTopology"/>
   <use name="L1Trigger/L1THGCal"/>
+  <use name="tbb"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
