@@ -291,7 +291,7 @@ namespace notcub {
      */
     void SetMaxCachedBytes(size_t max_cached_bytes) {
       // Lock
-      mutex.lock();
+      std::unique_lock mutex_locker(mutex);
 
       if (debug)
         printf("Changing max_cached_bytes (%lld -> %lld)\n",
@@ -300,8 +300,8 @@ namespace notcub {
 
       this->max_cached_bytes = max_cached_bytes;
 
-      // Unlock
-      mutex.unlock();
+      // Unlock (redundant, kept for style uniformity)
+      mutex_locker.unlock();
     }
 
     /**
@@ -314,6 +314,7 @@ namespace notcub {
         size_t bytes,                          ///< [in] Minimum number of bytes for the allocation
         cudaStream_t active_stream = nullptr)  ///< [in] The stream to be associated with this allocation
     {
+      std::unique_lock<std::mutex> mutex_locker(mutex, std::defer_lock);
       *d_ptr = nullptr;
       int device = INVALID_DEVICE_ORDINAL;
       cudaError_t error = cudaSuccess;
@@ -335,7 +336,7 @@ namespace notcub {
         search_key.bytes = bytes;
       } else {
         // Search for a suitable cached allocation: lock
-        mutex.lock();
+        mutex_locker.lock();
 
         if (search_key.bin < min_bin) {
           // Bin is less than minimum bin: round up
@@ -388,7 +389,7 @@ namespace notcub {
         }
 
         // Done searching: unlock
-        mutex.unlock();
+        mutex_locker.unlock();
       }
 
       // Allocate the block if necessary
@@ -410,7 +411,7 @@ namespace notcub {
           cudaGetLastError();   // Reset CUDART's error
 
           // Lock
-          mutex.lock();
+          mutex_locker.lock();
 
           // Iterate the range of free blocks
           CachedBlocks::iterator block_itr = cached_blocks.begin();
@@ -445,7 +446,7 @@ namespace notcub {
           }
 
           // Unlock
-          mutex.unlock();
+          mutex_locker.unlock();
 
           // Return under error
           if (error)
@@ -459,10 +460,10 @@ namespace notcub {
         cudaCheck(error = cudaEventCreateWithFlags(&search_key.ready_event, cudaEventDisableTiming));
 
         // Insert into live blocks
-        mutex.lock();
+        mutex_locker.lock();
         live_blocks.insert(search_key);
         cached_bytes.live += search_key.bytes;
-        mutex.unlock();
+        mutex_locker.unlock();
 
         if (debug)
           printf(
@@ -498,7 +499,7 @@ namespace notcub {
       cudaError_t error = cudaSuccess;
 
       // Lock
-      mutex.lock();
+      std::unique_lock<std::mutex> mutex_locker(mutex);
 
       // Find corresponding block descriptor
       bool recached = false;
@@ -543,7 +544,7 @@ namespace notcub {
       }
 
       // Unlock
-      mutex.unlock();
+      mutex_locker.unlock();
 
       if (!recached) {
         // Free the allocation from the runtime and cleanup the event.
@@ -580,7 +581,7 @@ namespace notcub {
       int entrypoint_device = INVALID_DEVICE_ORDINAL;
       int current_device = INVALID_DEVICE_ORDINAL;
 
-      mutex.lock();
+      std::unique_lock<std::mutex> mutex_locker(mutex);
 
       while (!cached_blocks.empty()) {
         // Get first block
@@ -621,7 +622,7 @@ namespace notcub {
         cached_blocks.erase(begin);
       }
 
-      mutex.unlock();
+      mutex_locker.unlock();
 
       // Attempt to revert back to entry-point device if necessary
       if (entrypoint_device != INVALID_DEVICE_ORDINAL) {
