@@ -13,12 +13,14 @@ namespace gpuCalibPixel {
 
   constexpr uint16_t InvId = 9999;  // must be > MaxNumModules
 
+  // valid for run2
   constexpr float VCaltoElectronGain = 47;         // L2-4: 47 +- 4.7
   constexpr float VCaltoElectronGain_L1 = 50;      // L1:   49.6 +- 2.6
   constexpr float VCaltoElectronOffset = -60;      // L2-4: -60 +- 130
   constexpr float VCaltoElectronOffset_L1 = -670;  // L1:   -670 +- 220
 
-  __global__ void calibDigis(uint16_t* id,
+  __global__ void calibDigis(bool isRun2,
+                             uint16_t* id,
                              uint16_t const* __restrict__ x,
                              uint16_t const* __restrict__ y,
                              uint16_t* adc,
@@ -41,8 +43,8 @@ namespace gpuCalibPixel {
       if (InvId == id[i])
         continue;
 
-      float conversionFactor = id[i] < 96 ? VCaltoElectronGain_L1 : VCaltoElectronGain;
-      float offset = id[i] < 96 ? VCaltoElectronOffset_L1 : VCaltoElectronOffset;
+      float conversionFactor = (isRun2) ? (id[i] < 96 ? VCaltoElectronGain_L1 : VCaltoElectronGain) : 1.f;
+      float offset = (isRun2) ? (id[i] < 96 ? VCaltoElectronOffset_L1 : VCaltoElectronOffset) : 0;
 
       bool isDeadColumn = false, isNoisyColumn = false;
 
