@@ -55,7 +55,7 @@ options.parseArguments()
 process.MessageLogger = cms.Service(
     "MessageLogger",
     destinations   = cms.untracked.vstring('info'),
-    categories = cms.untracked.vstring('logMsg'),
+    categories = cms.untracked.vstring(['logMsg','MaterialBudget']),
     info = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO'),
         filename = cms.untracked.string('Log_%s_%s' % (options.label,options.geom)),
@@ -126,14 +126,14 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     MaterialBudgetAction = cms.PSet(
         HistosFile = cms.string('matbdg_%s_%s.root' % (options.label,
                                                        options.geom)),
-        AllStepsToTree = cms.bool(True),
+        AllStepsToTree = cms.bool(False),
         HistogramList = cms.string('Tracker'),
         SelectedVolumes = cms.vstring(_components),
-        TreeFile = cms.string('None'), ## is NOT requested
-
+        TreeFile = cms.string('matbdg_tree_%s_%s.root' % (options.label,
+                                                          options.geom)),
         StopAfterProcess = cms.string('None'),
-#        TextFile = cms.string("matbdg_Tracker.txt")
-        TextFile = cms.string('None')
+        TextFile = cms.string('matbdg_%s_%s.txt' % (options.label,
+                                                     options.geom))
     )
 ))
 
