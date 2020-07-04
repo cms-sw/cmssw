@@ -38,6 +38,12 @@ pfClusteringHBHEHFTask = cms.Task(particleFlowRecHitHBHE,
                                   particleFlowClusterHCAL)
 pfClusteringHBHEHF = cms.Sequence(pfClusteringHBHEHFTask)
 
+pfClusteringHBHEHFOnlyTask = cms.Task(particleFlowRecHitHBHEOnly,
+                                      particleFlowRecHitHF,
+                                      particleFlowClusterHBHEOnly,
+                                      particleFlowClusterHF,
+                                      particleFlowClusterHCALOnly)
+
 pfClusteringHOTask = cms.Task(particleFlowRecHitHO,particleFlowClusterHO)
 pfClusteringHO = cms.Sequence(pfClusteringHOTask)
 

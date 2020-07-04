@@ -49,9 +49,6 @@ from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 
 from RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi import *
 
-# Cosmic During Collisions
-from RecoTracker.SpecialSeedGenerators.cosmicDC_cff import *
-
 # Low pT electrons
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSequence_cff import *
 
@@ -176,7 +173,6 @@ highlevelrecoTask = cms.Task(egammaHighLevelRecoPrePFTask,
                              recoPFMETTask,
                              PFTauTask,
                              reducedRecHitsTask,
-                             cosmicDCTracksSeqTask,
                              lowPtGsfElectronTask,
                              conversionOpenTrackTask,
                              gsfTracksOpenConversions
@@ -197,7 +193,7 @@ _highlevelreco_HITask.add(hiClusterCompatibility)
 pp_on_AA_2018.toReplaceWith(highlevelrecoTask,highlevelrecoTask.copyAndExclude([PFTauTask]))
 
 # not commisoned and not relevant in FastSim (?):
-_fastSim_highlevelrecoTask = highlevelrecoTask.copyAndExclude([cosmicDCTracksSeqTask,muoncosmichighlevelrecoTask])
+_fastSim_highlevelrecoTask = highlevelrecoTask.copyAndExclude([muoncosmichighlevelrecoTask])
 fastSim.toReplaceWith(highlevelrecoTask,_fastSim_highlevelrecoTask)
 
 
@@ -231,6 +227,15 @@ reconstruction_ecalOnlyTask = cms.Task(
     particleFlowSuperClusterECALOnly
 )
 reconstruction_ecalOnly = cms.Sequence(reconstruction_ecalOnlyTask)
+
+reconstruction_hcalOnlyTask = cms.Task(
+    bunchSpacingProducer,
+    offlineBeamSpot,
+    hcalOnlyLocalRecoTask,
+    pfClusteringHBHEHFOnlyTask
+)
+
+reconstruction_hcalOnly = cms.Sequence(reconstruction_hcalOnlyTask)
 
 #need a fully expanded sequence copy
 modulesToRemove = list() # copy does not work well

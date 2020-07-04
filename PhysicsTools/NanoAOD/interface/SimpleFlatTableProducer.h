@@ -8,8 +8,8 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 
+#include <memory>
 #include <vector>
-#include <boost/ptr_container/ptr_vector.hpp>
 
 template <typename T, typename TProd>
 class SimpleFlatTableProducerBase : public edm::stream::EDProducer<> {
@@ -24,13 +24,13 @@ public:
       const auto &varPSet = varsPSet.getParameter<edm::ParameterSet>(vname);
       const std::string &type = varPSet.getParameter<std::string>("type");
       if (type == "int")
-        vars_.push_back(new IntVar(vname, nanoaod::FlatTable::IntColumn, varPSet));
+        vars_.push_back(std::make_unique<IntVar>(vname, nanoaod::FlatTable::IntColumn, varPSet));
       else if (type == "float")
-        vars_.push_back(new FloatVar(vname, nanoaod::FlatTable::FloatColumn, varPSet));
+        vars_.push_back(std::make_unique<FloatVar>(vname, nanoaod::FlatTable::FloatColumn, varPSet));
       else if (type == "uint8")
-        vars_.push_back(new UInt8Var(vname, nanoaod::FlatTable::UInt8Column, varPSet));
+        vars_.push_back(std::make_unique<UInt8Var>(vname, nanoaod::FlatTable::UInt8Column, varPSet));
       else if (type == "bool")
-        vars_.push_back(new BoolVar(vname, nanoaod::FlatTable::BoolColumn, varPSet));
+        vars_.push_back(std::make_unique<BoolVar>(vname, nanoaod::FlatTable::BoolColumn, varPSet));
       else
         throw cms::Exception("Configuration", "unsupported type " + type + " for variable " + vname);
     }
@@ -111,7 +111,7 @@ protected:
   typedef FuncVariable<StringObjectFunction<T>, float> FloatVar;
   typedef FuncVariable<StringObjectFunction<T>, uint8_t> UInt8Var;
   typedef FuncVariable<StringCutObjectSelector<T>, uint8_t> BoolVar;
-  boost::ptr_vector<Variable> vars_;
+  std::vector<std::unique_ptr<Variable>> vars_;
 };
 
 template <typename T>
@@ -131,18 +131,20 @@ public:
         const auto &varPSet = extvarsPSet.getParameter<edm::ParameterSet>(vname);
         const std::string &type = varPSet.getParameter<std::string>("type");
         if (type == "int")
-          extvars_.push_back(new IntExtVar(vname, nanoaod::FlatTable::IntColumn, varPSet, this->consumesCollector()));
+          extvars_.push_back(
+              std::make_unique<IntExtVar>(vname, nanoaod::FlatTable::IntColumn, varPSet, this->consumesCollector()));
         else if (type == "float")
-          extvars_.push_back(
-              new FloatExtVar(vname, nanoaod::FlatTable::FloatColumn, varPSet, this->consumesCollector()));
+          extvars_.push_back(std::make_unique<FloatExtVar>(
+              vname, nanoaod::FlatTable::FloatColumn, varPSet, this->consumesCollector()));
         else if (type == "double")
-          extvars_.push_back(
-              new DoubleExtVar(vname, nanoaod::FlatTable::FloatColumn, varPSet, this->consumesCollector()));
+          extvars_.push_back(std::make_unique<DoubleExtVar>(
+              vname, nanoaod::FlatTable::FloatColumn, varPSet, this->consumesCollector()));
         else if (type == "uint8")
-          extvars_.push_back(
-              new UInt8ExtVar(vname, nanoaod::FlatTable::UInt8Column, varPSet, this->consumesCollector()));
+          extvars_.push_back(std::make_unique<UInt8ExtVar>(
+              vname, nanoaod::FlatTable::UInt8Column, varPSet, this->consumesCollector()));
         else if (type == "bool")
-          extvars_.push_back(new BoolExtVar(vname, nanoaod::FlatTable::BoolColumn, varPSet, this->consumesCollector()));
+          extvars_.push_back(
+              std::make_unique<BoolExtVar>(vname, nanoaod::FlatTable::BoolColumn, varPSet, this->consumesCollector()));
         else
           throw cms::Exception("Configuration", "unsupported type " + type + " for variable " + vname);
       }
@@ -174,9 +176,9 @@ public:
     }
     auto out = std::make_unique<nanoaod::FlatTable>(selobjs.size(), this->name_, singleton_, this->extension_);
     for (const auto &var : this->vars_)
-      var.fill(selobjs, *out);
+      var->fill(selobjs, *out);
     for (const auto &var : this->extvars_)
-      var.fill(iEvent, selptrs, *out);
+      var->fill(iEvent, selptrs, *out);
     return out;
   }
 
@@ -218,7 +220,7 @@ protected:
   typedef ValueMapVariable<double, float> DoubleExtVar;
   typedef ValueMapVariable<bool, uint8_t> BoolExtVar;
   typedef ValueMapVariable<int, uint8_t> UInt8ExtVar;
-  boost::ptr_vector<ExtVariable> extvars_;
+  std::vector<std::unique_ptr<ExtVariable>> extvars_;
 };
 
 template <typename T>
@@ -232,7 +234,7 @@ public:
     auto out = std::make_unique<nanoaod::FlatTable>(1, this->name_, true, this->extension_);
     std::vector<const T *> selobjs(1, prod.product());
     for (const auto &var : this->vars_)
-      var.fill(selobjs, *out);
+      var->fill(selobjs, *out);
     return out;
   }
 };
@@ -250,7 +252,7 @@ public:
     auto out = std::make_unique<nanoaod::FlatTable>(1, this->name_, true, this->extension_);
     std::vector<const T *> selobjs(1, &(*prod)[0]);
     for (const auto &var : this->vars_)
-      var.fill(selobjs, *out);
+      var->fill(selobjs, *out);
     return out;
   }
 };

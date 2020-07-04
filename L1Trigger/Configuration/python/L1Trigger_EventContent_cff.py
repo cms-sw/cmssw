@@ -153,3 +153,51 @@ def _appendME0Digis(obj):
 
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toModify(L1TriggerFEVTDEBUG, func=_appendME0Digis)
+
+# adding phase2 trigger
+def _appendPhase2Digis(obj):
+    l1Phase2Digis = [
+        "keep *_simKBmtfDigis_*_*",
+        'keep *_hgcalVFEProducerhgcalConcentratorProducer__*',
+        'keep *_hgcalBackEndLayer1Producer__*',
+        'keep *_hgcalBackEndLayer2Producer__*',
+        'keep *_hgcalTowerMapProducer__*',
+        'keep *_hgcalTowerProducer__*',
+        'keep *_L1EGammaClusterEmuProducer__*',
+        'keep *_l1EGammaEEProducer__*',
+        'keep *_L1TkPrimaryVertex__*',
+        'keep *_L1TkElectronsCrystal__*',
+        'keep *_L1TkElectronsLooseCrystal__*',
+        'keep *_L1TkElectronsEllipticMatchCrystal__*',
+        'keep *_L1TkIsoElectronsCrystal__*',
+        'keep *_L1TkPhotonsCrystal__*',
+        'keep *_L1TkElectronsHGC__*',
+        'keep *_L1TkElectronsEllipticMatchHGC__*',
+        'keep *_L1TkIsoElectronsHGC__*',
+        'keep *_L1TkPhotonsHGC__*',
+        'keep *_L1TkMuons__*',
+        'keep *_pfClustersFromL1EGClusters__*',
+        'keep *_pfClustersFromCombinedCaloHCal__*',
+        'keep *_pfClustersFromCombinedCaloHF__*',
+        'keep *_pfClustersFromHGC3DClusters__*',
+        'keep *_pfTracksFromL1TracksBarrel__*',
+        'keep *_l1pfProducerBarrel__*',
+        'keep *_pfTracksFromL1TracksHGCal__*',
+        'keep *_l1pfProducerHGCal__*',
+        'keep *_l1pfProducerHGCalNoTK__*',
+        'keep *_l1pfProducerHF__*',
+        'keep *_l1pfCandidates__*',
+        'keep *_ak4PFL1Calo__*',
+        'keep *_ak4PFL1PF__*',
+        'keep *_ak4PFL1Puppi__*',
+        'keep *_ak4PFL1CaloCorrected__*',
+        'keep *_ak4PFL1PFCorrected__*',
+        'keep *_ak4PFL1PuppiCorrected__*',
+        'keep *_l1PFMetCalo__*',
+        'keep *_l1PFMetPF__*',
+        'keep *_l1PFMetPuppi__*',
+        ]
+    obj.outputCommands += l1Phase2Digis
+
+from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger
+phase2_muon.toModify(L1TriggerFEVTDEBUG, func=_appendPhase2Digis)

@@ -50,6 +50,7 @@ the worker is reset().
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "FWCore/Utilities/interface/ESIndices.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
@@ -296,6 +297,8 @@ namespace edm {
 
     virtual std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(BranchType) const = 0;
 
+    virtual std::vector<ESProxyIndex> const& esItemsToGetFrom(Transition) const = 0;
+    virtual std::vector<ESRecordIndex> const& esRecordsToGetFrom(Transition) const = 0;
     virtual std::vector<ProductResolverIndex> const& itemsShouldPutInEvent() const = 0;
 
     virtual void preActionBeforeRunEventAsync(WaitingTask* iTask,
@@ -369,7 +372,15 @@ namespace edm {
       return cached_exception_;
     }
 
-    void prefetchAsync(WaitingTask*, ServiceToken const&, ParentContext const& parentContext, Principal const&);
+    void prefetchAsync(WaitingTask*,
+                       ServiceToken const&,
+                       ParentContext const& parentContext,
+                       Principal const&,
+                       EventSetupImpl const& iEventSetup,
+                       edm::Transition);
+
+    bool needsESPrefetching(Transition iTrans) const noexcept { return not esItemsToGetFrom(iTrans).empty(); }
+    void esPrefetchAsync(WaitingTask* iHolder, EventSetupImpl const&, Transition);
 
     void emitPostModuleEventPrefetchingSignal() {
       actReg_->postModuleEventPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(), moduleCallingContext_);
@@ -881,9 +892,9 @@ namespace edm {
         auto ownRunTask = std::make_shared<DestroyTask>(runTask);
         auto selectionTask =
             make_waiting_task(tbb::task::allocate_root(),
-                              [ownRunTask, parentContext, &ep, token, this](std::exception_ptr const*) mutable {
+                              [ownRunTask, parentContext, &ep, &es, token, this](std::exception_ptr const*) mutable {
                                 ServiceRegistry::Operate guard(token);
-                                prefetchAsync(ownRunTask->release(), token, parentContext, ep);
+                                prefetchAsync(ownRunTask->release(), token, parentContext, ep, es, T::transition_);
                               });
         prePrefetchSelectionAsync(selectionTask, token, streamID, &ep);
       } else {
@@ -897,7 +908,7 @@ namespace edm {
                 AcquireTask<T>(this, ep, es, token, parentContext, std::move(runTaskHolder));
           }
         }
-        prefetchAsync(moduleTask, token, parentContext, ep);
+        prefetchAsync(moduleTask, token, parentContext, ep, es, T::transition_);
       }
     }
   }
@@ -961,11 +972,29 @@ namespace edm {
         }
         this->waitingTasks_.doneWaiting(exceptionPtr);
       };
-      if (auto queue = this->serializeRunModule()) {
-        queue.push(toDo);
+
+      if (needsESPrefetching(T::transition_)) {
+        auto afterPrefetch = edm::make_waiting_task(
+            tbb::task::allocate_root(), [toDo = std::move(toDo), this](std::exception_ptr const* iExcept) {
+              if (iExcept) {
+                this->waitingTasks_.doneWaiting(*iExcept);
+              } else {
+                if (auto queue = this->serializeRunModule()) {
+                  queue.push(toDo);
+                } else {
+                  auto taskToDo = make_functor_task(tbb::task::allocate_root(), toDo);
+                  tbb::task::spawn(*taskToDo);
+                }
+              }
+            });
+        esPrefetchAsync(afterPrefetch, es, T::transition_);
       } else {
-        auto taskToDo = make_functor_task(tbb::task::allocate_root(), toDo);
-        tbb::task::spawn(*taskToDo);
+        if (auto queue = this->serializeRunModule()) {
+          queue.push(toDo);
+        } else {
+          auto taskToDo = make_functor_task(tbb::task::allocate_root(), toDo);
+          tbb::task::spawn(*taskToDo);
+        }
       }
     }
   }
@@ -1049,7 +1078,8 @@ namespace edm {
         //set count to 2 since wait_for_all requires value to not go to 0
         waitTask->set_ref_count(2);
 
-        prefetchAsync(waitTask.get(), ServiceRegistry::instance().presentToken(), parentContext, ep);
+        prefetchAsync(
+            waitTask.get(), ServiceRegistry::instance().presentToken(), parentContext, ep, es, T::transition_);
         waitTask->decrement_ref_count();
         waitTask->wait_for_all();
       }

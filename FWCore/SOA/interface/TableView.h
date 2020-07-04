@@ -65,7 +65,7 @@ namespace edm {
 
       template <typename U>
       typename U::type const& get(size_t iRow) const {
-        return static_cast<typename U::type*>(columnAddress<U>()) + iRow;
+        return *(static_cast<typename U::type const*>(columnAddress<U>()) + iRow);
       }
 
       template <typename U>

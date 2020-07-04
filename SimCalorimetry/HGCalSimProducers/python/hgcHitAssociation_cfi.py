@@ -1,3 +1,1 @@
 from SimCalorimetry.HGCalAssociatorProducers.layerClusterAssociatorByEnergyScore_cfi import layerClusterAssociatorByEnergyScore as lcAssocByEnergyScoreProducer
-
-from RecoLocalCalo.HGCalRecProducers.hgcalRecHitMapProducer_cfi import hgcalRecHitMapProducer as hgcRecHitMapProducer

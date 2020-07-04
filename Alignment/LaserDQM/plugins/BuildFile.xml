@@ -1,5 +1,4 @@
 <library name="LaserDQMPlugins" file="LaserDQM.cc,LaserDQMInitMonitors.cc,LaserDQMStatistics.cc">
-  <use name="boost"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/MessageLogger"/>

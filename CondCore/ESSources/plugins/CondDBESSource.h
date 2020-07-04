@@ -42,12 +42,13 @@
 #include <map>
 #include <memory>
 #include <set>
+#include <mutex>
 // user include files
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
-//#include "CondCore/DBCommon/interface/Time.h"
+#include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 
 namespace edm {
   class ParameterSet;
@@ -94,6 +95,9 @@ private:
   std::map<std::string, std::pair<cond::persistency::Session, std::string> > m_sessionPool;
   std::map<std::string, std::pair<cond::persistency::Session, std::string> > m_sessionPoolForLumiConditions;
   std::map<std::string, cond::Time_t> m_lastRecordRuns;
+
+  edm::SerialTaskQueue m_queue;
+  std::mutex m_mutex;
 
   struct Stats {
     int nData;

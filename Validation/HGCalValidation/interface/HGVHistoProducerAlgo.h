@@ -171,7 +171,7 @@ public:
       std::vector<CaloParticle> const& cP,
       std::vector<size_t> const& cPIndices,
       std::vector<size_t> const& cPSelectedIndices,
-      std::map<DetId, const HGCRecHit*> const&,
+      std::unordered_map<DetId, const HGCRecHit*> const&,
       unsigned layers,
       const edm::Handle<hgcal::LayerClusterToCaloParticleAssociator>& LCAssocByEnergyScoreHandle) const;
   void multiClusters_to_CaloParticles(const Histograms& histograms,
@@ -180,7 +180,7 @@ public:
                                       std::vector<CaloParticle> const& cP,
                                       std::vector<size_t> const& cPIndices,
                                       std::vector<size_t> const& cPSelectedIndices,
-                                      std::map<DetId, const HGCRecHit*> const&,
+                                      std::unordered_map<DetId, const HGCRecHit*> const&,
                                       unsigned layers) const;
   void fill_info_histos(const Histograms& histograms, unsigned layers) const;
   void fill_caloparticle_histos(const Histograms& histograms,
@@ -198,7 +198,7 @@ public:
       std::vector<CaloParticle> const& cP,
       std::vector<size_t> const& cPIndices,
       std::vector<size_t> const& cPSelectedIndices,
-      std::map<DetId, const HGCRecHit*> const&,
+      std::unordered_map<DetId, const HGCRecHit*> const&,
       std::map<double, double> cummatbudg,
       unsigned layers,
       std::vector<int> thicknesses,
@@ -209,14 +209,14 @@ public:
                                  std::vector<CaloParticle> const& cP,
                                  std::vector<size_t> const& cPIndices,
                                  std::vector<size_t> const& cPSelectedIndices,
-                                 std::map<DetId, const HGCRecHit*> const&,
+                                 std::unordered_map<DetId, const HGCRecHit*> const&,
                                  unsigned layers) const;
   double distance2(const double x1, const double y1, const double x2, const double y2) const;
   double distance(const double x1, const double y1, const double x2, const double y2) const;
 
   void setRecHitTools(std::shared_ptr<hgcal::RecHitTools> recHitTools);
 
-  DetId findmaxhit(const reco::CaloCluster& cluster, std::map<DetId, const HGCRecHit*> const&) const;
+  DetId findmaxhit(const reco::CaloCluster& cluster, std::unordered_map<DetId, const HGCRecHit*> const&) const;
 
   struct detIdInfoInCluster {
     bool operator==(const detIdInfoInCluster& o) const { return clusterId == o.clusterId; };

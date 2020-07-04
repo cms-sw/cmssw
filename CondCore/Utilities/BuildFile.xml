@@ -32,6 +32,10 @@
 <use name="CondFormats/PCLConfig"/>
 <use name="CondFormats/SiPhase2TrackerObjects"/>
 <use name="CondFormats/PPSObjects"/>
+<use name="CondFormats/External"/>
+<use name="CondFormats/Serialization"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
 <use name="rootgraphics"/>
 <export>
   <lib name="1"/>

@@ -237,10 +237,10 @@ private:
   // constant class members
   const Configuration cfg_;
 
-  const EleTkIsolFromCands tkIsol03Calc_;
-  const EleTkIsolFromCands tkIsol04Calc_;
-  const EleTkIsolFromCands tkIsolHEEP03Calc_;
-  const EleTkIsolFromCands tkIsolHEEP04Calc_;
+  const EleTkIsolFromCands::Configuration tkIsol03CalcCfg_;
+  const EleTkIsolFromCands::Configuration tkIsol04CalcCfg_;
+  const EleTkIsolFromCands::Configuration tkIsolHEEP03CalcCfg_;
+  const EleTkIsolFromCands::Configuration tkIsolHEEP04CalcCfg_;
 
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;

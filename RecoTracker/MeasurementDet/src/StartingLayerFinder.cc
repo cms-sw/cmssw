@@ -15,14 +15,26 @@
 
 using namespace std;
 
-vector<const DetLayer*> StartingLayerFinder::startingLayers(const FTS& aFts, float dr, float dz) const {
+namespace {
+
+  typedef std::pair<float, float> Range;
+
+  inline bool rangesIntersect(const Range& a, const Range& b) {
+    if (a.first > b.second || b.first > a.second)
+      return false;
+    else
+      return true;
+  }
+};  // namespace
+
+vector<const DetLayer*> StartingLayerFinder::operator()(const FreeTrajectoryState& aFts, float dr, float dz) const {
   vector<const DetLayer*> mylayers;
   mylayers.reserve(3);
 
-  FTS fastFts(aFts.parameters());
+  FreeTrajectoryState fastFts(aFts.parameters());
 
   //barrel pixel
-  TSOS pTsos = propagator()->propagate(fastFts, firstPixelBarrelLayer()->surface());
+  TrajectoryStateOnSurface pTsos = thePropagator.propagate(fastFts, firstPixelBarrelLayer()->surface());
 
   if (pTsos.isValid()) {
     Range barrZRange(
@@ -38,7 +50,7 @@ vector<const DetLayer*> StartingLayerFinder::startingLayers(const FTS& aFts, flo
   //negative fwd pixel
 
   for (auto infwd : firstPosPixelFwdLayer()) {
-    pTsos = propagator()->propagate(fastFts, infwd->surface());
+    pTsos = thePropagator.propagate(fastFts, infwd->surface());
     if (pTsos.isValid()) {
       Range nfwdRRange(infwd->specificSurface().innerRadius(), infwd->specificSurface().outerRadius());
       Range trajRRange(pTsos.globalPosition().perp() - dr, pTsos.globalPosition().perp() + dr);
@@ -50,7 +62,7 @@ vector<const DetLayer*> StartingLayerFinder::startingLayers(const FTS& aFts, flo
 
   //positive fwd pixel
   for (auto ipfwd : firstPosPixelFwdLayer()) {
-    pTsos = propagator()->propagate(fastFts, ipfwd->surface());
+    pTsos = thePropagator.propagate(fastFts, ipfwd->surface());
     if (pTsos.isValid()) {
       Range pfwdRRange(ipfwd->specificSurface().innerRadius(), ipfwd->specificSurface().outerRadius());
       Range trajRRange(pTsos.globalPosition().perp() - dr, pTsos.globalPosition().perp() + dr);
@@ -61,47 +73,6 @@ vector<const DetLayer*> StartingLayerFinder::startingLayers(const FTS& aFts, flo
   }
 
   return mylayers;
-}
-
-vector<const DetLayer*> StartingLayerFinder::startingLayers(const TrajectorySeed& aSeed) const {
-  float dr = 0., dz = 0.;
-
-  if (propagator()->propagationDirection() != aSeed.direction())
-    return vector<const DetLayer*>();
-
-  if (aSeed.nHits() != 2)
-    return vector<const DetLayer*>();
-
-  auto firstHit = aSeed.recHits().begin();
-  const TrackingRecHit* recHit1 = &(*firstHit);
-  const DetLayer* hit1Layer = theMeasurementTracker->geometricSearchTracker()->detLayer(recHit1->geographicalId());
-
-  auto secondHit = aSeed.recHits().end();
-  const TrackingRecHit* recHit2 = &(*secondHit);
-  const DetLayer* hit2Layer = theMeasurementTracker->geometricSearchTracker()->detLayer(recHit2->geographicalId());
-
-  GeomDetEnumerators::Location p1 = hit1Layer->location();
-  GeomDetEnumerators::Location p2 = hit2Layer->location();
-
-  if (p1 == GeomDetEnumerators::barrel && p2 == GeomDetEnumerators::barrel) {
-    dr = 0.1;
-    dz = 5.;
-  } else if (p1 == GeomDetEnumerators::endcap && p2 == GeomDetEnumerators::endcap) {
-    dr = 5.;
-    dz = 0.1;
-  } else {
-    dr = 0.1;
-    dz = 0.1;
-  }
-
-  const GeomDet* gdet = theMeasurementTracker->geomTracker()->idToDet(DetId(aSeed.startingState().detId()));
-
-  TrajectoryStateOnSurface tsos = trajectoryStateTransform::transientState(
-      aSeed.startingState(), &(gdet->surface()), thePropagator->magneticField());
-
-  const FreeTrajectoryState* fts = tsos.freeTrajectoryState();
-
-  return startingLayers(*fts, dr, dz);
 }
 
 const BarrelDetLayer* StartingLayerFinder::firstPixelBarrelLayer() const {
@@ -121,7 +92,7 @@ const vector<const ForwardDetLayer*> StartingLayerFinder::firstPosPixelFwdLayer(
 
 void StartingLayerFinder::checkPixelLayers() const {
   if (!thePixelLayersValid) {
-    const GeometricSearchTracker* theGeometricSearchTracker = theMeasurementTracker->geometricSearchTracker();
+    const GeometricSearchTracker* theGeometricSearchTracker = theMeasurementTracker.geometricSearchTracker();
 
     theFirstPixelBarrelLayer = theGeometricSearchTracker->pixelBarrelLayers().front();
     theFirstNegPixelFwdLayer = theGeometricSearchTracker->negPixelForwardLayers();

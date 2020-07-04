@@ -340,7 +340,8 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
                                                 const double& rin,
                                                 const double& rout,
                                                 const int& wType,
-                                                const int& mode) {
+                                                const int& mode,
+                                                bool debug) {
   int ncor(0), iok(0);
   int type(HGCalTypes::WaferFull), rotn(HGCalTypes::WaferCorner0);
 
@@ -360,6 +361,10 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
       iok *= base;
     }
   }
+  if (debug)
+    edm::LogVerbatim("HGCalGeom") << "I/p " << xpos << ":" << ypos << ":" << delX << ":" << delY << ":" << rin << ":"
+                                  << rout << ":" << wType << ":" << mode << " Corners " << ncor << " iok " << iok;
+
   static const int ipat5[corners] = {101111, 110111, 111011, 111101, 111110, 11111};
   static const int ipat4[corners] = {100111, 110011, 111001, 111100, 11110, 1111};
   static const int ipat3[corners] = {100011, 110001, 111000, 11100, 1110, 111};
@@ -383,43 +388,54 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
   } else if (ncor == HGCalGeomTools::k_fourCorners) {
     rotn = static_cast<int>(std::find(ipat4, ipat4 + 6, iok) - ipat4);
     type = HGCalTypes::WaferHalf;
-    double rpos = sqrt((xpos + dx1[rotn]) * (xpos + dx1[rotn]) + (ypos + dy1[rotn]) * (ypos + dy1[rotn]));
-    if (rpos <= rout && rpos >= rin) {
-      rpos = sqrt((xpos + dx2[rotn]) * (xpos + dx2[rotn]) + (ypos + dy2[rotn]) * (ypos + dy2[rotn]));
-      if (rpos <= rout && rpos >= rin)
+    double rpos1 = sqrt((xpos + dx1[rotn]) * (xpos + dx1[rotn]) + (ypos + dy1[rotn]) * (ypos + dy1[rotn]));
+    double rpos2(0);
+    if (rpos1 <= rout && rpos1 >= rin) {
+      rpos2 = sqrt((xpos + dx2[rotn]) * (xpos + dx2[rotn]) + (ypos + dy2[rotn]) * (ypos + dy2[rotn]));
+      if (rpos2 <= rout && rpos2 >= rin)
         type = HGCalTypes::WaferChopTwo;
     }
+    if (debug)
+      edm::LogVerbatim("HGCalGeom") << "Test for Chop2 " << rpos1 << ":" << rpos2 << " Type " << type;
     if ((type == HGCalTypes::WaferHalf) && (wType == 0)) {
-      rpos = sqrt((xpos + dx3[rotn]) * (xpos + dx3[rotn]) + (ypos + dy3[rotn]) * (ypos + dy3[rotn]));
-      if (rpos <= rout && rpos >= rin) {
-        rpos = sqrt((xpos + dx4[rotn]) * (xpos + dx4[rotn]) + (ypos + dy4[rotn]) * (ypos + dy4[rotn]));
-        if (rpos <= rout && rpos >= rin)
+      rpos1 = sqrt((xpos + dx3[rotn]) * (xpos + dx3[rotn]) + (ypos + dy3[rotn]) * (ypos + dy3[rotn]));
+      if (rpos1 <= rout && rpos1 >= rin) {
+        rpos2 = sqrt((xpos + dx4[rotn]) * (xpos + dx4[rotn]) + (ypos + dy4[rotn]) * (ypos + dy4[rotn]));
+        if (rpos2 <= rout && rpos2 >= rin)
           type = HGCalTypes::WaferChopTwoM;
       }
+      if (debug)
+        edm::LogVerbatim("HGCalGeom") << "Test for Chop2M " << rpos1 << ":" << rpos2 << " Type " << type;
     }
   } else if (ncor == HGCalGeomTools::k_threeCorners) {
     rotn = static_cast<int>(std::find(ipat3, ipat3 + 6, iok) - ipat3);
     type = HGCalTypes::WaferThree;
-    double rpos = sqrt((xpos + dx1[rotn]) * (xpos + dx1[rotn]) + (ypos + dy1[rotn]) * (ypos + dy1[rotn]));
-    if (rpos <= rout && rpos >= rin) {
-      rpos = sqrt((xpos + dx5[rotn]) * (xpos + dx5[rotn]) + (ypos + dy5[rotn]) * (ypos + dy5[rotn]));
-      if (rpos <= rout && rpos >= rin)
+    double rpos1 = sqrt((xpos + dx1[rotn]) * (xpos + dx1[rotn]) + (ypos + dy1[rotn]) * (ypos + dy1[rotn]));
+    double rpos2(0);
+    if (rpos1 <= rout && rpos1 >= rin) {
+      rpos2 = sqrt((xpos + dx5[rotn]) * (xpos + dx5[rotn]) + (ypos + dy5[rotn]) * (ypos + dy5[rotn]));
+      if (rpos2 <= rout && rpos2 >= rin)
         type = HGCalTypes::WaferSemi;
-      if ((type == HGCalTypes::WaferThree) && (wType == 0)) {
-        rpos = sqrt((xpos + dx3[rotn]) * (xpos + dx3[rotn]) + (ypos + dy3[rotn]) * (ypos + dy3[rotn]));
-        if (rpos <= rout && rpos >= rin) {
-          rpos = sqrt((xpos + dx6[rotn]) * (xpos + dx6[rotn]) + (ypos + dy6[rotn]) * (ypos + dy6[rotn]));
-          if (rpos <= rout && rpos >= rin)
-            type = HGCalTypes::WaferSemi2;
-        }
+    }
+    if (debug)
+      edm::LogVerbatim("HGCalGeom") << "Test for Semi " << rpos1 << ":" << rpos2 << " Type " << type;
+    if ((type == HGCalTypes::WaferThree) && (wType == 0)) {
+      rpos1 = sqrt((xpos + dx3[rotn]) * (xpos + dx3[rotn]) + (ypos + dy3[rotn]) * (ypos + dy3[rotn]));
+      if (rpos1 <= rout && rpos1 >= rin) {
+        rpos2 = sqrt((xpos + dx6[rotn]) * (xpos + dx6[rotn]) + (ypos + dy6[rotn]) * (ypos + dy6[rotn]));
+        if (rpos2 <= rout && rpos2 >= rin)
+          type = HGCalTypes::WaferSemi2;
       }
+      if (debug)
+        edm::LogVerbatim("HGCalGeom") << "Test for SemiM " << rpos1 << ":" << rpos2 << " Type " << type;
     }
   } else {
     type = HGCalTypes::WaferOut;
   }
 
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "Pattern " << iok << " Corners " << ncor << " Type " << type << ":" << rotn;
-#endif
+  if (debug)
+    edm::LogVerbatim("HGCalGeom") << "I/p " << xpos << ":" << ypos << ":" << delX << ":" << delY << ":" << rin << ":"
+                                  << rout << ":" << wType << ":" << mode << " o/p " << iok << ":" << ncor << ":" << type
+                                  << ":" << rotn;
   return ((mode == 0) ? std::make_pair(ncor, rotn) : std::make_pair(type, (rotn + HGCalWaferMask::k_OffsetRotation)));
 }

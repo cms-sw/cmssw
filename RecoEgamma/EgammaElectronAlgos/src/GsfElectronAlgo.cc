@@ -23,7 +23,6 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronMomentumCorrector.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronTools.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
 #include "CommonTools/Egamma/interface/ConversionTools.h"
 
@@ -73,6 +72,11 @@ struct GsfElectronAlgo::EventData {
   EgammaTowerIsolation hadDepth2Isolation03Bc, hadDepth2Isolation04Bc;
   EgammaRecHitIsolation ecalBarrelIsol03, ecalBarrelIsol04;
   EgammaRecHitIsolation ecalEndcapIsol03, ecalEndcapIsol04;
+
+  EleTkIsolFromCands tkIsol03Calc;
+  EleTkIsolFromCands tkIsol04Calc;
+  EleTkIsolFromCands tkIsolHEEP03Calc;
+  EleTkIsolFromCands tkIsolHEEP04Calc;
 
   edm::Handle<reco::TrackCollection> originalCtfTracks;
   edm::Handle<reco::GsfTrackCollection> originalGsfTracks;
@@ -374,10 +378,10 @@ GsfElectronAlgo::GsfElectronAlgo(const Tokens& input,
                                  const edm::ParameterSet& tkIsolHEEP04,
                                  edm::ConsumesCollector&& cc)
     : cfg_{input, strategy, cuts, iso, recHits},
-      tkIsol03Calc_(tkIsol03),
-      tkIsol04Calc_(tkIsol04),
-      tkIsolHEEP03Calc_(tkIsolHEEP03),
-      tkIsolHEEP04Calc_(tkIsolHEEP04),
+      tkIsol03CalcCfg_(tkIsol03),
+      tkIsol04CalcCfg_(tkIsol04),
+      tkIsolHEEP03CalcCfg_(tkIsolHEEP03),
+      tkIsolHEEP04CalcCfg_(tkIsolHEEP04),
       magneticFieldToken_{cc.esConsumes<MagneticField, IdealMagneticFieldRecord>()},
       caloGeometryToken_{cc.esConsumes<CaloGeometry, CaloGeometryRecord>()},
       caloTopologyToken_{cc.esConsumes<CaloTopology, CaloTopologyRecord>()},
@@ -426,13 +430,15 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
   auto barrelRecHits = event.getHandle(cfg_.tokens.barrelRecHitCollection);
   auto endcapRecHits = event.getHandle(cfg_.tokens.endcapRecHitCollection);
 
+  auto ctfTracks = event.getHandle(cfg_.tokens.ctfTracks);
+
   EventData eventData{
       .event = &event,
       .beamspot = &event.get(cfg_.tokens.beamSpotTag),
       .coreElectrons = event.getHandle(cfg_.tokens.gsfElectronCores),
       .barrelRecHits = barrelRecHits,
       .endcapRecHits = endcapRecHits,
-      .currentCtfTracks = event.getHandle(cfg_.tokens.ctfTracks),
+      .currentCtfTracks = ctfTracks,
       .seeds = event.getHandle(cfg_.tokens.seedsTag),
       .vertices = event.getHandle(cfg_.tokens.vtxCollectionTag),
       .conversions = cfg_.strategy.fillConvVtxFitProb ? event.getHandle(cfg_.tokens.conversions)
@@ -489,6 +495,10 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
                                                 *endcapRecHits,
                                                 &ecalSeveretyLevelAlgo,
                                                 DetId::Ecal),
+      .tkIsol03Calc = EleTkIsolFromCands(tkIsol03CalcCfg_, *ctfTracks),
+      .tkIsol04Calc = EleTkIsolFromCands(tkIsol04CalcCfg_, *ctfTracks),
+      .tkIsolHEEP03Calc = EleTkIsolFromCands(tkIsolHEEP03CalcCfg_, *ctfTracks),
+      .tkIsolHEEP04Calc = EleTkIsolFromCands(tkIsolHEEP04CalcCfg_, *ctfTracks),
       .originalCtfTracks = {},
       .originalGsfTracks = {}};
 
@@ -538,15 +548,6 @@ reco::GsfElectronCollection GsfElectronAlgo::completeElectrons(edm::Event const&
   for (unsigned int i = 0; i < coreCollection->size(); ++i) {
     // check there is no existing electron with this core
     const GsfElectronCoreRef coreRef = edm::Ref<GsfElectronCoreCollection>(eventData.coreElectrons, i);
-    bool coreFound = false;
-    for (auto const& ele : electrons) {
-      if (ele.core() == coreRef) {
-        coreFound = true;
-        break;
-      }
-    }
-    if (coreFound)
-      continue;
 
     // check there is a super-cluster
     if (coreRef->superCluster().isNull())
@@ -692,11 +693,6 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
                                      MultiTrajectoryStateTransform const& mtsTransform,
                                      double magneticFieldInTesla,
                                      const GsfElectronAlgo::HeavyObjectCache* hoc) {
-  // eventually check ctf track
-  if (cfg_.strategy.ctfTracksCheck && electronData.ctfTrackRef.isNull()) {
-    electronData.ctfTrackRef = egamma::getClosestCtfToGsf(electronData.gsfTrackRef, eventData.currentCtfTracks).first;
-  }
-
   // charge ID
   int eleCharge;
   GsfElectron::ChargeInfo eleChargeInfo;
@@ -968,12 +964,11 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
   //====================================================
   // now isolation variables
   //====================================================
-
   reco::GsfElectron::IsolationVariables dr03, dr04;
-  dr03.tkSumPt = tkIsol03Calc_.calIsolPt(*ele.gsfTrack(), *eventData.currentCtfTracks);
-  dr04.tkSumPt = tkIsol04Calc_.calIsolPt(*ele.gsfTrack(), *eventData.currentCtfTracks);
-  dr03.tkSumPtHEEP = tkIsolHEEP03Calc_.calIsolPt(*ele.gsfTrack(), *eventData.currentCtfTracks);
-  dr04.tkSumPtHEEP = tkIsolHEEP04Calc_.calIsolPt(*ele.gsfTrack(), *eventData.currentCtfTracks);
+  dr03.tkSumPt = eventData.tkIsol03Calc(*ele.gsfTrack()).ptSum;
+  dr04.tkSumPt = eventData.tkIsol04Calc(*ele.gsfTrack()).ptSum;
+  dr03.tkSumPtHEEP = eventData.tkIsolHEEP03Calc(*ele.gsfTrack()).ptSum;
+  dr04.tkSumPtHEEP = eventData.tkIsolHEEP04Calc(*ele.gsfTrack()).ptSum;
 
   if (!EcalTools::isHGCalDet((DetId::Detector)region)) {
     dr03.hcalDepth1TowerSumEt = eventData.hadDepth1Isolation03.getTowerEtSum(&ele);

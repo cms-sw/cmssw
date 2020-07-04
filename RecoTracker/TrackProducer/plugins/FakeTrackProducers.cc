@@ -14,7 +14,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Utilities/interface/Range.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
@@ -34,15 +33,6 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-
-namespace {
-  TrajectorySeed::RecHitRange getHits(const TrajectorySeed &seed) { return seed.recHits(); }
-  TrajectorySeed::RecHitRange getHits(const TrackCandidate &seed) {
-    auto range = seed.recHits();
-    return edm::Range{range.first, range.second};
-  }
-}  // namespace
 
 template <class T>
 class FakeTrackProducer : public edm::stream::EDProducer<> {
@@ -113,7 +103,7 @@ void FakeTrackProducer<T>::produce(edm::Event &iEvent, const edm::EventSetup &iS
     reco::Track::Vector p(gp.x(), gp.y(), gp.z());
     int charge = state.localParameters().charge();
     out->push_back(reco::Track(1.0, 1.0, x, p, charge, reco::Track::CovarianceMatrix()));
-    auto hits = getHits(mu);
+    auto hits = mu.recHits();
     out->back().appendHits(hits.begin(), hits.end(), ttopo);
     // Now Track Extra
     const TrackingRecHit *hit0 = &*hits.begin();

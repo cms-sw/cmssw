@@ -115,7 +115,7 @@ public:
   void setRun3(const bool isRun3);
 
   // wire hits in this ALCT
-  WireContainer getHits() const { return hits_; }
+  const WireContainer& getHits() const { return hits_; }
 
   void setHits(const WireContainer& hits) { hits_ = hits; }
 

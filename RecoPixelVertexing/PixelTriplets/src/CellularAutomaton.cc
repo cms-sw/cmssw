@@ -4,8 +4,8 @@
 
 void CellularAutomaton::createAndConnectCells(const std::vector<const HitDoublets *> &hitDoublets,
                                               const TrackingRegion &region,
-                                              const float thetaCut,
-                                              const float phiCut,
+                                              const CACut &thetaCut,
+                                              const CACut &phiCut,
                                               const float hardPtCut) {
   int tsize = 0;
   for (auto hd : hitDoublets) {
@@ -39,6 +39,11 @@ void CellularAutomaton::createAndConnectCells(const std::vector<const HitDoublet
       auto &currentOuterLayerRef = theLayerGraph.theLayers[currentLayerPairRef.theLayers[1]];
       bool allInnerLayerPairsAlreadyVisited{true};
 
+      CACut::CAValuesByInnerLayerIds caThetaCut =
+          thetaCut.getCutsByInnerLayer(currentInnerLayerRef.seqNum(), currentOuterLayerRef.seqNum());
+      CACut::CAValuesByInnerLayerIds caPhiCut =
+          phiCut.getCutsByInnerLayer(currentInnerLayerRef.seqNum(), currentOuterLayerRef.seqNum());
+
       for (auto innerLayerPair : currentInnerLayerRef.theInnerLayerPairs) {
         allInnerLayerPairsAlreadyVisited &= alreadyVisitedLayerPairs[innerLayerPair];
       }
@@ -63,8 +68,8 @@ void CellularAutomaton::createAndConnectCells(const std::vector<const HitDoublet
                                                region_origin_x,
                                                region_origin_y,
                                                region_origin_radius,
-                                               thetaCut,
-                                               phiCut,
+                                               caThetaCut,
+                                               caPhiCut,
                                                hardPtCut);
         }
         assert(cellId == currentLayerPairRef.theFoundCells[1]);
@@ -134,8 +139,8 @@ void CellularAutomaton::findNtuplets(std::vector<CACell::CAntuplet> &foundNtuple
 void CellularAutomaton::findTriplets(std::vector<const HitDoublets *> const &hitDoublets,
                                      std::vector<CACell::CAntuplet> &foundTriplets,
                                      TrackingRegion const &region,
-                                     const float thetaCut,
-                                     const float phiCut,
+                                     const CACut &thetaCut,
+                                     const CACut &phiCut,
                                      const float hardPtCut) {
   int tsize = 0;
   for (auto hd : hitDoublets) {
@@ -170,6 +175,11 @@ void CellularAutomaton::findTriplets(std::vector<const HitDoublets *> const &hit
       auto &currentOuterLayerRef = theLayerGraph.theLayers[currentLayerPairRef.theLayers[1]];
       bool allInnerLayerPairsAlreadyVisited{true};
 
+      CACut::CAValuesByInnerLayerIds caThetaCut =
+          thetaCut.getCutsByInnerLayer(currentInnerLayerRef.seqNum(), currentOuterLayerRef.seqNum());
+      CACut::CAValuesByInnerLayerIds caPhiCut =
+          phiCut.getCutsByInnerLayer(currentInnerLayerRef.seqNum(), currentOuterLayerRef.seqNum());
+
       for (auto innerLayerPair : currentInnerLayerRef.theInnerLayerPairs) {
         allInnerLayerPairsAlreadyVisited &= alreadyVisitedLayerPairs[innerLayerPair];
       }
@@ -195,8 +205,8 @@ void CellularAutomaton::findTriplets(std::vector<const HitDoublets *> const &hit
                                                        region_origin_x,
                                                        region_origin_y,
                                                        region_origin_radius,
-                                                       thetaCut,
-                                                       phiCut,
+                                                       caThetaCut,
+                                                       caPhiCut,
                                                        hardPtCut);
         }
         assert(cellId == currentLayerPairRef.theFoundCells[1]);

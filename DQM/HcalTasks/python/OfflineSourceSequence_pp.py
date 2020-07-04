@@ -9,13 +9,14 @@ import FWCore.ParameterSet.Config as cms
 from DQM.HcalTasks.DigiTask import digiTask
 from DQM.HcalTasks.RawTask import rawTask
 from DQM.HcalTasks.TPTask import tpTask
-from DQM.HcalTasks.RecHitTask import recHitTask
+from DQM.HcalTasks.RecHitTask import recHitTask, recHitPreRecoTask
 
 #	set processing type to Offine
 digiTask.ptype = cms.untracked.int32(1)
 tpTask.ptype = cms.untracked.int32(1)
 recHitTask.ptype = cms.untracked.int32(1)
 rawTask.ptype = cms.untracked.int32(1)
+recHitPreRecoTask.ptype = cms.untracked.int32(1)
 
 #	set the label for Emulator TP Task
 tpTask.tagEmul = cms.untracked.InputTag("valHcalTriggerPrimitiveDigis")
@@ -26,6 +27,10 @@ hcalOfflineSourceSequence = cms.Sequence(
 	+recHitTask
 	+rawTask)
 
+hcalOnlyOfflineSourceSequence = cms.Sequence(
+        digiTask
+        +recHitPreRecoTask
+        +rawTask)
 
 from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
 _phase2_hcalOfflineSourceSequence = hcalOfflineSourceSequence.copyAndExclude([tpTask,rawTask])

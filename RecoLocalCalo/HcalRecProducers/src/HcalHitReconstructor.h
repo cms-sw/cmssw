@@ -5,6 +5,7 @@
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -37,6 +38,14 @@
     */
 
 class HcalTopology;
+class HcalRecNumberingRecord;
+class HcalRecoParamsRcd;
+class HcalFlagHFDigiTimeParams;
+class HcalFlagHFDigiTimeParamsRcd;
+class HcalDbRecord;
+class HcalChannelQualityRcd;
+class HcalSeverityLevelComputer;
+class HcalSeverityLevelComputerRcd;
 
 class HcalHitReconstructor : public edm::stream::EDProducer<> {
 public:
@@ -94,10 +103,18 @@ private:
   std::string mcOOTCorrectionCategory_;
   SetCorrectionFcn setPileupCorrection_;
 
-  HcalRecoParams* paramTS;                                     // firstSample & sampleToAdd from DB
-  std::unique_ptr<HcalFlagHFDigiTimeParams> HFDigiTimeParams;  // HF DigiTime parameters
+  std::unique_ptr<HcalRecoParams> paramTS_;                     // firstSample & sampleToAdd from DB
+  std::unique_ptr<HcalFlagHFDigiTimeParams> hFDigiTimeParams_;  // HF DigiTime parameters
 
   std::string corrName_, cat_;
+
+  // ES tokens
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
+  edm::ESGetToken<HcalRecoParams, HcalRecoParamsRcd> paramsToken_;
+  edm::ESGetToken<HcalFlagHFDigiTimeParams, HcalFlagHFDigiTimeParamsRcd> digiTimeToken_;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> conditionsToken_;
+  edm::ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> qualToken_;
+  edm::ESGetToken<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd> sevToken_;
 };
 
 #endif

@@ -1,4 +1,3 @@
-<use name="boost"/>
 <use name="clhep"/>
 <use name="root"/>
 <use name="DataFormats/SiPixelDetId"/>
@@ -13,6 +12,13 @@
 <use name="RecoTracker/TransientTrackingRecHit"/>
 <use name="TrackingTools/DetLayers"/>
 <use name="TrackingTools/TransientTrackingRecHit"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/SiStripCluster"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="DataFormats/TrackingRecHit"/>
+<use name="FWCore/Utilities"/>
+<use name="RecoLocalTracker/SiStripClusterizer"/>
+<use name="TrackingTools/Records"/>
 <export>
   <lib name="1"/>
 </export>

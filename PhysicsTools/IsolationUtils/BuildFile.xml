@@ -1,5 +1,6 @@
 <use name="DataFormats/Math"/>
 <use name="FWCore/MessageLogger"/>
+<use name="DataFormats/Candidate"/>
 <use name="rootmath"/>
 <export>
   <lib name="1"/>

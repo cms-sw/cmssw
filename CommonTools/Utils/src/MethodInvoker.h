@@ -8,8 +8,6 @@
 #include "FWCore/Reflection/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 
-#include <boost/utility.hpp>
-
 #include <map>
 #include <vector>
 
@@ -62,7 +60,7 @@ namespace reco {
     /// - it owns also the object in which to store the result
     /// - it handles by itself the popping out of Refs and Ptrs
     /// in this way, it can map 1-1 to a name and set of args
-    struct SingleInvoker : boost::noncopyable {
+    struct SingleInvoker {
     private:  // Private Data Members
       method::TypeCode retType_;
       std::vector<MethodInvoker> invokers_;
@@ -72,6 +70,9 @@ namespace reco {
       bool isRefGet_;
 
     public:
+      SingleInvoker(const SingleInvoker&) = delete;
+      SingleInvoker& operator=(const SingleInvoker&) = delete;
+
       SingleInvoker(const edm::TypeWithDict&, const std::string& name, const std::vector<AnyMethodArgument>& args);
       ~SingleInvoker();
 

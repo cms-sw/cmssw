@@ -27,6 +27,7 @@
 #include "TEveTrans.h"
 #include "TGeoTube.h"
 #include "TEveGeoNode.h"
+#include "TEveGeoShape.h"
 #include "TEveStraightLineSet.h"
 
 // user include files

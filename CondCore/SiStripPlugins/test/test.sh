@@ -45,6 +45,17 @@ getPayloadData.py \
 mv *.png $W_DIR/results/SiStripLorentzAngleByRegion.png
 
 ######################
+# Test Lorentz Angle Comparison
+######################
+getPayloadData.py \
+    --plugin pluginSiStripLorentzAngle_PayloadInspector \
+    --plot plot_SiStripLorentzAngleByRegionCompareSingleTag \
+    --tag SiStripLorentzAngleDeco_GR10_v1_prompt \
+    --time_type Run \
+    --iovs '{"start_iov": "1", "end_iov": "400000"}' \
+    --db Prod --test ;
+
+######################
 # Test Backplane correction
 ######################
 getPayloadData.py \

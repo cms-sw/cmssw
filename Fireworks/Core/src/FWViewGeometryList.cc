@@ -14,7 +14,7 @@
 #include "TEveScene.h"
 #include "TEveManager.h"
 #include "TEveCompound.h"
-
+#include "TEveGeoShape.h"
 #include "Fireworks/Core/interface/FWViewGeometryList.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/Context.h"
